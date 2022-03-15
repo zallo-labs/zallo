@@ -1,0 +1,8 @@
+# Shared
+**/node_modules
+**/cache
+
+# Contracts
+contracts/artifacts
+contracts/coverage*
+contracts/gasReporterOutput.json
