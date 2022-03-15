@@ -1,0 +1,9 @@
+{
+  "name": "metasafe",
+  "packageManager": "yarn@3.2.0",
+  "private": true,
+  "author": "Hayden Briese <haydenbriese@gmail.com>",
+  "workspaces": [
+    "contracts"
+  ]
+}
