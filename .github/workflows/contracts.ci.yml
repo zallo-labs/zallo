@@ -1,10 +1,10 @@
 name: Contracts CI
 
 on:
-  push: 
+  push:
     # all branches
   pull_request:
-    branches: [ main ]
+    branches: [main]
 
 jobs:
   build:
@@ -12,15 +12,16 @@ jobs:
 
     strategy:
       matrix:
-        node-version: [14.x, 16.x]
-        
+        node-version: [16.x]
+
     steps:
-    - uses: actions/checkout@v2
-    - uses: actions/setup-node@v2
-      with:
-        node-version: ${{ matrix.node-version }}
-        cache: 'yarn'
-    
-    - run: yarn install
-    - run: yarn workspace contracts build
-    - run: yarn workspace contracts test
+      - uses: actions/checkout@v2
+
+      - uses: actions/setup-node@v2
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: "yarn"
+
+      - run: yarn install
+      - run: yarn workspace contracts build
+      - run: yarn workspace contracts test
