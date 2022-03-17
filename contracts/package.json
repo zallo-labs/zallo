@@ -6,6 +6,7 @@
     "clean": "hardhat clean",
     "test": "hardhat test",
     "test:local": "hardhat test --network localhost",
+    "test:ropsten": "hardhat test --network ropsten",
     "analyze": "myth analyze src/*",
     "node:local": "hardhat node --hostname 0.0.0.0",
     "deploy:local": "hardhat run --network localhost scripts/deploy.ts"

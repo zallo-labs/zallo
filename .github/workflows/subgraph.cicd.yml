@@ -1,8 +1,9 @@
-name: Contracts CI
+name: Subgraph CI/CD
 
 on:
-  push: # all branches
-  pull_request: # all branches
+  push:
+    branches:
+      - main
 
 jobs:
   build:
@@ -25,8 +26,14 @@ jobs:
       - name: Install
         run: yarn install
 
-      - name: Build
-        run: yarn workspace contracts build
+      - name: Configure
+        run: yarn workspace subgraph configure:ropsten
 
-      - name: Test
-        run: yarn workspace contracts test
+      - name: Build
+        run: yarn workspace subgraph build
+
+      - name: Auth
+        run: yarn workspace subgraph auth ${{ secrets.THEGRAPH_ACCESS_TOKEN }}
+
+      - name: Deploy
+        run: yarn workspace subgraph deploy

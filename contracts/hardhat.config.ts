@@ -1,7 +1,5 @@
-import dotenv from "dotenv";
-dotenv.config({ path: "../.env" });
-
-import { HardhatUserConfig, task } from "hardhat/config";
+import ENV from "../utils/env";
+import { HardhatUserConfig } from "hardhat/config";
 import "@nomiclabs/hardhat-ethers";
 import "@nomiclabs/hardhat-waffle";
 import "@nomiclabs/hardhat-etherscan";
@@ -34,11 +32,10 @@ const config: HardhatUserConfig = {
   networks: {
     // https://hardhat.org/hardhat-network/reference/
     hardhat: {},
-    // ropsten: {
-    //   url: process.env.ROPSTEN_URL || "",
-    //   accounts:
-    //     process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : [],
-    // },
+    ropsten: {
+      url: `https://ropsten.infura.io/v3/${ENV.infura.id}`,
+      accounts: ENV.wallet.privateKey ? [ENV.wallet.privateKey] : [],
+    },
   },
   // Plugins
   typechain: {
@@ -47,17 +44,17 @@ const config: HardhatUserConfig = {
   gasReporter: {
     // https://github.com/cgewecke/eth-gas-reporter#options
     enabled: false,
-    currency: process.env.CURRENCY || "USD",
-    coinmarketcap: process.env.COINMARKETCAP_API_KEY,
+    currency: "USD",
+    coinmarketcap: ENV.coinmarketcapApiKey,
   },
   etherscan: {
-    apiKey: process.env.ETHERSCAN_API_KEY,
+    apiKey: ENV.etherscanApiKey,
   },
-  // abiExporter: {
-  //   path: "./abi",
-  //   clear: false,
-  //   flat: true,
-  // },
+  abiExporter: {
+    runOnCompile: true,
+    path: "./abi",
+    flat: true,
+  },
 };
 
 export default config;
