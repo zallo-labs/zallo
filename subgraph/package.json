@@ -3,8 +3,8 @@
   "version": "0.1",
   "scripts": {
     "auth": "graph auth --product hosted-service",
-    "configure:local": "mustache config/local.json config/subgraph.mustache.yaml > subgraph.yaml",
-    "configure:ropsten": "mustache config/ropsten.json config/subgraph.mustache.yaml > subgraph.yaml",
+    "configure:local": "mustache config/local.json subgraph.mustache.yaml > subgraph.yaml",
+    "configure:ropsten": "mustache config/ropsten.json subgraph.mustache.yaml > subgraph.yaml",
     "generate:abi": "(cd .. && yarn workspace contracts build) && node ./scripts/generate-abi.js",
     "codegen": "yarn generate:abi && graph codegen && node ./scripts/fix-generated.js",
     "build": "yarn codegen && graph build",

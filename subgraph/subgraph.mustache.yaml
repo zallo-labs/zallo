@@ -4,10 +4,10 @@ schema:
 dataSources:
   - kind: ethereum
     name: Safe
-    network: mainnet
+    network: {{network}}
     source:
       abi: Safe
-      startBlock: 0
+      startBlock: {{startBlock}}
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.5
