@@ -1,0 +1,8 @@
+{
+  "extends": "@graphprotocol/graph-ts/types/tsconfig.base.json",
+  "include": ["src", "scripts/generate-abi.js"],
+  "compilerOptions": {
+    "esModuleInterop": true,
+    "resolveJsonModule": true
+  }
+}

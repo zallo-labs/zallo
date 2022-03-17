@@ -1,7 +1,10 @@
-name: Contracts CI
+name: Subgraph CI
 
 on:
-  push: # all branches
+  push:
+    # subgraph.cicd handles pushing to main
+    branches-ignore:
+      - main
   pull_request: # all branches
 
 jobs:
@@ -25,8 +28,8 @@ jobs:
       - name: Install
         run: yarn install
 
-      - name: Build
-        run: yarn workspace contracts build
+      - name: Configure
+        run: yarn workspace subgraph configure:ropsten
 
-      - name: Test
-        run: yarn workspace contracts test
+      - name: Build
+        run: yarn workspace subgraph build
