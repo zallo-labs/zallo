@@ -1,4 +1,3 @@
-
 ## Yarn
 .yarn/*
 !.yarn/patches
@@ -11,6 +10,19 @@
 # Non-zero install ignores
 #.pnp.*
 
-# Shared
-**/node_modules
+## Shared
 .env
+**/bin
+**/cache
+**/node_modules
+
+## Contracts
+contracts/abi
+contracts/artifacts
+contracts/coverage*
+contracts/typechain
+
+## Subgraph
+subgraph/build
+subgraph/data
+subgraph/generated

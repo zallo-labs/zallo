@@ -1,0 +1,82 @@
+type Safe @entity {
+  id: ID! # address
+  groups: [Group!]! @derivedFrom(field: "safe")
+  deposits: [Deposit!]! @derivedFrom(field: "safe")
+  transactions: [Transaction!]! @derivedFrom(field: "safe")
+  proposedTransactions: [ProposedTx!]! @derivedFrom(field: "safe")
+}
+
+type Approver @entity {
+  id: ID! # address
+  groups: [GroupApprover!]! @derivedFrom(field: "approver")
+  transactions: [TransactionApprover!]! @derivedFrom(field: "approver")
+  proposedTransactions: [ProposedTxApprover!]! @derivedFrom(field: "approver")
+}
+
+type Group @entity {
+  id: ID! # safe-hash
+  safe: Safe!
+  hash: Bytes!
+  active: Boolean!
+  approvers: [GroupApprover!]! @derivedFrom(field: "group")
+  transactions: [Transaction!]! @derivedFrom(field: "group")
+}
+
+type GroupApprover @entity {
+  id: ID! # safe-group.hash-approver.id
+  group: Group!
+  approver: Approver!
+  weight: BigInt!
+}
+
+type Deposit @entity {
+  id: ID! # tx.hash-tx.logIndex
+  safe: Safe!
+  from: Bytes!
+  value: BigInt!
+  blockHash: Bytes!
+  timestamp: BigInt!
+}
+
+type Transaction @entity {
+  id: ID! # EIP712_hash(txData)
+  safe: Safe!
+  # Inputs
+  to: Bytes!
+  value: BigInt!
+  data: Bytes!
+  nonce: BigInt!
+  # Output
+  response: Bytes!
+  # Metadata
+  executor: Bytes!
+  blockHash: Bytes!
+  timestamp: BigInt!
+  # Relationships
+  group: Group!
+  approvers: [TransactionApprover!]! @derivedFrom(field: "transaction")
+}
+
+type TransactionApprover @entity {
+  id: ID! # transaction.id-approver.id
+  transaction: Transaction!
+  approver: Approver!
+}
+
+type ProposedTx @entity {
+  id: ID! # EIP712_hash(txData)
+  safe: Safe!
+  # Inputs
+  to: Bytes!
+  value: BigInt!
+  data: Bytes!
+  nonce: BigInt!
+  # Relationships
+  approvers: [ProposedTxApprover!]! @derivedFrom(field: "proposedTx")
+}
+
+type ProposedTxApprover @entity {
+  id: ID! # proposedTx.id-approver.id
+  proposedTx: ProposedTx!
+  approver: Approver!
+}

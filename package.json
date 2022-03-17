@@ -2,8 +2,13 @@
   "name": "metasafe",
   "packageManager": "yarn@3.2.0",
   "private": true,
+  "version": "0.1.0",
   "author": "Hayden Briese <haydenbriese@gmail.com>",
   "workspaces": [
-    "contracts"
-  ]
+    "contracts",
+    "subgraph"
+  ],
+  "dependencies": {
+    "dotenv": "^16.0.0"
+  }
 }
