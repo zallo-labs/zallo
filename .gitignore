@@ -26,3 +26,4 @@ contracts/typechain
 subgraph/build
 subgraph/data
 subgraph/generated
+subgraph/subgraph.yaml
