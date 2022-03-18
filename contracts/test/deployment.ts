@@ -8,7 +8,7 @@ interface DeployOptions {
 
 export const deploy = async (
   weights: number[],
-  { ether }: DeployOptions = {}
+  { ether }: DeployOptions = {},
 ) => {
   if (weights.length === 0) throw Error("len(weights) must be > 0");
 
@@ -22,7 +22,7 @@ export const deploy = async (
   const SafeFactory = await ethers.getContractFactory("Safe");
 
   const group = toGroup(
-    approvers.map((signer, i) => ({ signer, weight: weights[i] }))
+    approvers.map((signer, i) => ({ signer, weight: weights[i] })),
   );
 
   const safe = await SafeFactory.connect(deployer).deploy(group);
@@ -50,6 +50,6 @@ export const deploy = async (
 
 describe("Deployment", async () => {
   it("Deploys", async () => {
-    const { safe } = await deploy([100]);
+    await deploy([100]);
   });
 });

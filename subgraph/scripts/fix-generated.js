@@ -1,4 +1,4 @@
-const fs = require("fs");
+import * as fs from "fs";
 
 const path = "generated/Safe/Safe.ts";
 if (!fs.existsSync(path))
@@ -8,7 +8,7 @@ let contents = fs.readFileSync(path).toString();
 
 contents = contents.replaceAll(
   "[ethereum.Value.fromTupleArray(_approvers)]",
-  "[ethereum.Value.fromTupleArray(changetype<ethereum.Tuple[]>(_approvers))]"
+  "[ethereum.Value.fromTupleArray(changetype<ethereum.Tuple[]>(_approvers))]",
 );
 
 fs.writeFileSync(path, contents);

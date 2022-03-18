@@ -14,17 +14,17 @@ export const getDomain = async (safe: Safe) => ({
 export const signTransaction = async (
   safe: Safe,
   tx: Tx,
-  signers: SignerWithAddress[]
+  signers: SignerWithAddress[],
 ): Promise<string[]> => {
   const domain = await getDomain(safe);
 
   const signatures = await Promise.all(
-    signers.map((signer) => signer._signTypedData(domain, EIP712_TX_TYPE, tx))
+    signers.map((signer) => signer._signTypedData(domain, EIP712_TX_TYPE, tx)),
   );
 
   // Sort signatures by their hash
   return signatures.sort((a, b) =>
-    ethers.utils.keccak256(a).localeCompare(ethers.utils.keccak256(b))
+    ethers.utils.keccak256(a).localeCompare(ethers.utils.keccak256(b)),
   );
 };
 
@@ -39,7 +39,7 @@ export const createTx = (tx: Partial<Tx>): Tx => ({
 export const createSignedTx = async (
   safe: Safe,
   signers: SignerWithAddress[],
-  txOpts: Partial<Tx>
+  txOpts: Partial<Tx>,
 ): Promise<SignedTx> => {
   const tx = createTx(txOpts);
   const signatures = await signTransaction(safe, tx, signers);
@@ -58,7 +58,7 @@ describe("Execution", () => {
       const domainSeparator = ethers.utils._TypedDataEncoder.hashDomain(domain);
 
       expect(await safe.connect(signer).domainSeparator()).to.eq(
-        domainSeparator
+        domainSeparator,
       );
     });
 
@@ -73,7 +73,7 @@ describe("Execution", () => {
       const txHash = ethers.utils._TypedDataEncoder.hash(
         await getDomain(safe),
         EIP712_TX_TYPE,
-        tx
+        tx,
       );
 
       expect(await safe.connect(signer).hashTx(tx)).to.eq(txHash);
@@ -94,7 +94,7 @@ describe("Execution", () => {
         value,
       });
 
-      const exec = await safe.connect(signer).execute(signedTx, groupHash);
+      await safe.connect(signer).execute(signedTx, groupHash);
 
       // await expect(execTx).to.changeEtherBalance(signer.address, value); // FIXME:
     });
@@ -170,14 +170,14 @@ describe("Execution", () => {
   describe("Invalid", () => {
     it("Execution rejects when total approval weights <100%", async () => {
       const { safe, groupHash, approvers } = await deploy([50, 25, 25]);
-      const [_, approver1, approver2] = approvers;
+      const [, approver1, approver2] = approvers;
 
       const signedTx = await createSignedTx(safe, [approver1, approver2], {});
 
       const exec = safe.connect(approver1).execute(signedTx, groupHash);
 
       expect(exec).to.eventually.be.rejectedWith(
-        SafeError.TotalApprovalWeightsInsufficient
+        SafeError.TotalApprovalWeightsInsufficient,
       );
     });
 
@@ -185,14 +185,14 @@ describe("Execution", () => {
       const {
         safe,
         groupHash,
-        approvers: [approver1, approver2],
+        approvers: [approver1],
       } = await deploy([70, 30]);
 
       const signedTx = await createSignedTx(safe, [], {});
       const execTx = safe.connect(approver1).execute(signedTx, groupHash);
 
       expect(execTx).to.eventually.be.rejectedWith(
-        SafeError.NotPrimaryApprover
+        SafeError.NotPrimaryApprover,
       );
     });
   });

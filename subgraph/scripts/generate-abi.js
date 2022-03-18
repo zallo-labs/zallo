@@ -1,4 +1,5 @@
-const fs = require("fs");
+import * as fs from "fs";
+
 const abi = JSON.parse(fs.readFileSync("../contracts/abi/Safe.json"));
 
 const isError = (v) => v.type === "error";

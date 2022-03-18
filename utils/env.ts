@@ -1,6 +1,6 @@
-// import dotenv from "dotenv";
-// dotenv.config({ path: "../.env" });
-require("dotenv").config({ path: "../.env" });
+import * as dotenv from "dotenv";
+dotenv.config({ path: "../.env" });
+// require("dotenv").config({ path: "../.env" });
 
 const E = process.env;
 
@@ -16,6 +16,8 @@ export const ENV = {
     address: E.WALLET_ADDRESS,
     privateKey: E.WALLET_PRIVATE_KEY,
   },
+  apiPort: E.API_PORT || 3001,
+  databaseUrl: E.DATABASE_URL,
 };
 
 export default ENV;

@@ -57,7 +57,7 @@ export function handleGroupAdded(e: GroupAdded): void {
   );
   const id = getGroupId(safe._address, hash);
 
-  let group = new Group(id);
+  const group = new Group(id);
   group.safe = getOrCreateSafeObj(safe._address).id;
   group.hash = hash;
   group.active = true;
@@ -68,7 +68,7 @@ export function handleGroupAdded(e: GroupAdded): void {
   for (let i = 0; i < e.params.approvers.length; i++) {
     const approver = e.params.approvers[i];
 
-    let groupApprover = new GroupApprover(
+    const groupApprover = new GroupApprover(
       `${safe._address.toHex()}-${hash.toHex()}-${approver.addr.toHex()}`
     );
     groupApprover.group = id;
@@ -81,7 +81,7 @@ export function handleGroupAdded(e: GroupAdded): void {
 
 export function handleGroupRemoved(e: GroupRemoved): void {
   const id = getGroupId(e.address, e.params.groupHash);
-  let group = Group.load(id);
+  const group = Group.load(id);
   if (group) {
     group.active = false;
     group.save();
@@ -89,7 +89,7 @@ export function handleGroupRemoved(e: GroupRemoved): void {
 }
 
 export function handleDeposit(e: DepositEvent): void {
-  let deposit = new Deposit(getEventId(e));
+  const deposit = new Deposit(getEventId(e));
   deposit.safe = getSafeObjId(e.address);
   deposit.from = e.params.from;
   deposit.value = e.params.value;
@@ -106,7 +106,7 @@ export function handleExecution(e: Execution): void {
   const txHash = safe.hashTx(changetype<Safe__hashTxInput_txStruct>(p.tx));
   const id = txHash.toHex();
 
-  let tx = new Transaction(id);
+  const tx = new Transaction(id);
   tx.safe = getSafeObjId(safe._address);
   tx.to = p.tx.to;
   tx.value = p.tx.value;
@@ -125,7 +125,7 @@ export function handleExecution(e: Execution): void {
     const approver = p.approvers[i];
     const approverId = getApproverId(approver);
 
-    let txApprover = new TransactionApprover(getTxApproverId(id, approverId));
+    const txApprover = new TransactionApprover(getTxApproverId(id, approverId));
     txApprover.transaction = tx.id;
     txApprover.approver = approver.toHex();
 
