@@ -5,10 +5,20 @@
   "version": "0.1.0",
   "author": "Hayden Briese <haydenbriese@gmail.com>",
   "workspaces": [
+    "api",
     "contracts",
     "subgraph"
   ],
+  "scripts": {
+    "lint": "eslint \"**/*.{j,t}s\"",
+    "lint:fix": "yarn lint --fix"
+  },
   "dependencies": {
     "dotenv": "^16.0.0"
+  },
+  "devDependencies": {
+    "@typescript-eslint/eslint-plugin": "^5.15.0",
+    "@typescript-eslint/parser": "^5.15.0",
+    "eslint": "^8.11.0"
   }
 }

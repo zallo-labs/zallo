@@ -1,6 +1,6 @@
 import { ethers } from "hardhat";
 import { deploy } from "./deployment";
-import { createSignedTx, createTx } from "./execution";
+import { createSignedTx } from "./execution";
 import {
   compareAddresses,
   expect,
