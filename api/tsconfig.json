@@ -5,8 +5,8 @@
 
     "baseUrl": "./",
     "paths": {
-      "~/*": ["src/*"],
-      "@gen/*": ["generated/*"]
+      "~/*": ["./src/*"],
+      "~gen/*": ["./generated/*"]
     },
 
     "strictPropertyInitialization": false,
