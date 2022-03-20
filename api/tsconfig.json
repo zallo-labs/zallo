@@ -1,0 +1,17 @@
+{
+  "extends": "../tsconfig.base.json",
+  "compilerOptions": {
+    "outDir": "dist",
+
+    "baseUrl": "./",
+    "paths": {
+      "~/*": ["src/*"],
+      "@gen/*": ["generated/*"]
+    },
+
+    "strictPropertyInitialization": false,
+    "noImplicitAny": false,
+    "noUnusedLocals": false
+  },
+  "references": [{ "path": "../lib" }]
+}

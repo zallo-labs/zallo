@@ -1,10 +1,10 @@
 import * as dotenv from "dotenv";
 dotenv.config({ path: "../.env" });
-// require("dotenv").config({ path: "../.env" });
 
 const E = process.env;
 
-export const ENV = {
+const __config = {
+  deployment: E.DEPLOYMENT?.toLowerCase() === "dev" ? "dev" : "prod",
   infura: {
     id: E.INFURA_ID,
     secret: E.INFURA_secret,
@@ -18,6 +18,13 @@ export const ENV = {
   },
   apiPort: E.API_PORT || 3001,
   databaseUrl: E.DATABASE_URL,
-};
+} as const;
 
-export default ENV;
+export type Config = typeof __config;
+
+export const CONFIG: Config = __config;
+
+export default CONFIG;
+
+export const IS_DEV = CONFIG.deployment === "dev";
+export const IS_PROD = CONFIG.deployment === "prod";
