@@ -8,6 +8,7 @@
     "generate:abi": "(cd .. && yarn workspace contracts build) && node ./scripts/generate-abi.js",
     "codegen": "yarn generate:abi && graph codegen && node ./scripts/fix-generated.js",
     "build": "yarn codegen && graph build",
+    "clean": "rimraf build data generated subgraph.yaml",
     "deploy": "graph deploy --product hosted-service hbriese/metasafe",
     "create:local": "graph create --node http://localhost:8020/ hbriese/metasafe",
     "remove:local": "graph remove --node http://localhost:8020/ hbriese/metasafe",
@@ -18,6 +19,7 @@
     "@graphprotocol/graph-ts": "0.26.0"
   },
   "devDependencies": {
-    "mustache": "^4.2.0"
+    "mustache": "^4.2.0",
+    "rimraf": "^3.0.2"
   }
 }

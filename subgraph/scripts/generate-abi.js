@@ -1,10 +1,10 @@
 const fs = require("fs");
+
 const abi = JSON.parse(fs.readFileSync("../contracts/abi/Safe.json"));
 
 const isError = (v) => v.type === "error";
 
-const isNestedArr = (v) =>
-  v.inputs && v.inputs.some((i) => i.type && i.type.endsWith("[][]"));
+const isNestedArr = (v) => v.inputs && v.inputs.some((i) => i.type && i.type.endsWith("[][]"));
 
 // const safeAbi = abi.filter((v) => !isError(v));
 const safeAbi = abi.filter((v) => !(isError(v) || isNestedArr(v)));

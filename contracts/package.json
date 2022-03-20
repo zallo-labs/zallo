@@ -2,8 +2,8 @@
   "name": "contracts",
   "private": true,
   "scripts": {
-    "build": "hardhat compile",
-    "clean": "hardhat clean",
+    "build": "(cd .. && yarn lib build) && hardhat compile",
+    "clean": "hardhat clean && npx rimraf abi artifacts cache node_modules typechain",
     "test": "hardhat test",
     "test:local": "hardhat test --network localhost",
     "test:ropsten": "hardhat test --network ropsten",
@@ -41,6 +41,7 @@
     "hardhat-abi-exporter": "^2.8.0",
     "hardhat-gas-reporter": "^1.0.8",
     "hardhat-tracer": "^1.0.0-alpha.6",
+    "lib": "workspace:*",
     "prettier": "^2.5.1",
     "prettier-plugin-solidity": "^1.0.0-dev.21",
     "solc": "0.8.9",

@@ -1,4 +1,4 @@
-import ENV from "../utils/env";
+import { CONFIG } from "lib";
 import { HardhatUserConfig } from "hardhat/config";
 import "@nomiclabs/hardhat-ethers";
 import "@nomiclabs/hardhat-waffle";
@@ -33,8 +33,8 @@ const config: HardhatUserConfig = {
     // https://hardhat.org/hardhat-network/reference/
     hardhat: {},
     ropsten: {
-      url: `https://ropsten.infura.io/v3/${ENV.infura.id}`,
-      accounts: ENV.wallet.privateKey ? [ENV.wallet.privateKey] : [],
+      url: `https://ropsten.infura.io/v3/${CONFIG.infura.id}`,
+      accounts: CONFIG.wallet.privateKey ? [CONFIG.wallet.privateKey] : [],
     },
   },
   // Plugins
@@ -45,10 +45,10 @@ const config: HardhatUserConfig = {
     // https://github.com/cgewecke/eth-gas-reporter#options
     enabled: false,
     currency: "USD",
-    coinmarketcap: ENV.coinmarketcapApiKey,
+    coinmarketcap: CONFIG.coinmarketcapApiKey,
   },
   etherscan: {
-    apiKey: ENV.etherscanApiKey,
+    apiKey: CONFIG.etherscanApiKey,
   },
   abiExporter: {
     runOnCompile: true,
