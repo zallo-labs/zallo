@@ -3,9 +3,9 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "clean": "rimraf dist generated node_modules",
     "prebuild": "yarn clean",
     "build": "yarn generate && tsc --build",
+    "clean": "rimraf dist generated node_modules",
     "format": "prettier --config ../.prettierrc --write \"src/**/*.ts\"",
     "start": "nest start",
     "start:dev": "nest start --watch",

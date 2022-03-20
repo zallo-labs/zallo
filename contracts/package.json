@@ -2,8 +2,8 @@
   "name": "contracts",
   "private": true,
   "scripts": {
-    "build": "hardhat compile",
-    "clean": "hardhat clean",
+    "build": "(cd .. && yarn lib build) && hardhat compile",
+    "clean": "hardhat clean && npx rimraf abi artifacts cache node_modules typechain",
     "test": "hardhat test",
     "test:local": "hardhat test --network localhost",
     "test:ropsten": "hardhat test --network ropsten",
