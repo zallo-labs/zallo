@@ -18,6 +18,10 @@
     "lint": "eslint \"**/*.{j,t}s\"",
     "lint:fix": "yarn lint --fix"
   },
+  "engines": {
+    "node": "16.x",
+    "yarn": "3.2.0"
+  },
   "devDependencies": {
     "@typescript-eslint/eslint-plugin": "^5.15.0",
     "@typescript-eslint/parser": "^5.15.0",
