@@ -23,7 +23,8 @@
     "with-env": "dotenv -e ../.env",
     "generate": "yarn with-env -- prisma generate",
     "migrate": "yarn with-env -- prisma migrate dev",
-    "migrate:deploy": "yarn with-env -- prisma migrate deploy"
+    "migrate:deploy": "yarn with-env -- prisma migrate deploy",
+    "studio": "yarn with-env -- prisma studio"
   },
   "dependencies": {
     "@apollo/federation": "^0.35.4",

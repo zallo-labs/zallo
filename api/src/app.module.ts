@@ -24,9 +24,10 @@ import { HealthModule } from "./features/health/health.module";
       // subscriptions: {
       //   "graphql-ws": true
       // },
-      debug: IS_DEV,
       playground: false,
       plugins: IS_DEV ? [ApolloServerPluginLandingPageLocalDefault()] : undefined,
+      introspection: true,
+      debug: IS_DEV,
     }),
 
     HealthModule,
