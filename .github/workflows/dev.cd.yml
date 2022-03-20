@@ -7,10 +7,6 @@ on:
     workflows: ["CI"]
     type: [completed]
 
-env:
-  DATABASE_URL: ${{ secrets.DATABASE_URL }}
-  SHADOW_DATABASE_URL: ${{ secrets.SHADOW_DATABASE_URL }}
-
 jobs:
   subgraph:
     if: ${{ github.event.workflow_run.conclusion == 'success' }}
@@ -46,11 +42,14 @@ jobs:
   api:
     if: ${{ github.event.workflow_run.conclusion == 'success' }}
     needs: subgraph
-    environment: dev
     runs-on: ubuntu-latest
     strategy:
       matrix:
         node-version: [16.x]
+    environment: dev
+    env:
+      DATABASE_URL: ${{ secrets.DATABASE_URL }}
+      SHADOW_DATABASE_URL: ${{ secrets.SHADOW_DATABASE_URL }}
     steps:
       - name: Checkout
         uses: actions/checkout@v2
