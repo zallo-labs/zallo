@@ -26,7 +26,6 @@ jobs:
         run: yarn lib build
 
   contracts:
-    needs: [lib]
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -51,7 +50,6 @@ jobs:
         run: yarn contracts test
 
   subgraph:
-    needs: [contracts]
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -76,7 +74,6 @@ jobs:
         run: yarn subgraph build
 
   api:
-    needs: [lib]
     runs-on: ubuntu-latest
     strategy:
       matrix:

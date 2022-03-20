@@ -57,7 +57,6 @@ jobs:
   #         heroku_api_key: ${{ secrets.HEROKU_API_KEY }}
   #         heroku_app_name: "metasafe-api"
   #         heroku_email: "haydenbriese@gmail.com"
-  #         appdir: "api"
   #         # healthcheck: "https://metasafe-api.herokuapp.com/health"
   #         # rollbackonhealthcheckfailed: true
   #       env:
