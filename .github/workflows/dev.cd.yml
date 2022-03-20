@@ -1,0 +1,83 @@
+# Deploy to dev when CI succeeds on a push to main
+name: Dev CD
+
+on:
+  workflow_run:
+    branches: [main]
+    workflows: ["CI"]
+    type: [completed]
+
+environment: dev
+
+env:
+  DATABASE_URL: ${{ secrets.DATABASE_URL }}
+  SHADOW_DATABASE_URL: ${{ secrets.SHADOW_DATABASE_URL }}
+
+jobs:
+  subgraph:
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version: [16.x]
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Use Node ${{ matrix.node-version }}
+        uses: actions/setup-node@v2
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: "yarn"
+
+      - name: Install
+        run: yarn install
+
+      - name: Configure
+        run: yarn subgraph configure:ropsten
+
+      - name: Build
+        run: yarn subgraph build
+
+      - name: Auth
+        run: yarn subgraph auth ${{ secrets.THEGRAPH_ACCESS_TOKEN }}
+
+      - name: Deploy
+        run: yarn subgraph deploy
+
+  api:
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    needs: subgraph
+
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version: [16.x]
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Use Node ${{ matrix.node-version }}
+        uses: actions/setup-node@v2
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: "yarn"
+
+      - name: Install
+        run: yarn install
+
+      - name: Build
+        run: yarn api build
+
+      - name: Heroku deploy
+        uses: akhileshns/heroku-deploy@v3.12.12
+        with:
+          heroku_api_key: ${{ secrets.HEROKU_API_KEY }}
+          heroku_app_name: "metasafe-api"
+          heroku_email: "haydenbriese@gmail.com"
+          appdir: "api"
+          # healthcheck: "https://metasafe-api.herokuapp.com/health"
+          # rollbackonhealthcheckfailed: true

@@ -1,7 +1,9 @@
 {
   "tabWidth": 2,
+  "printWidth": 100,
   "singleQuote": false,
   "arrowParens": "always",
+  "trailingComma": "all",
   "overrides": [
     {
       "files": "*.sol",

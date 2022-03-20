@@ -1,0 +1,18 @@
+{
+  "name": "lib",
+  "private": true,
+  "main": "dist/index",
+  "types": "dist/index",
+  "scripts": {
+    "build": "tsc --build",
+    "clean": "rimraf dist",
+    "start": "yarn build --watch"
+  },
+  "dependencies": {
+    "dotenv": "^16.0.0"
+  },
+  "devDependencies": {
+    "rimraf": "^3.0.2",
+    "typescript": "^4.6.2"
+  }
+}

@@ -1,14 +1,12 @@
 {
+  "extends": "../tsconfig.base.json",
   "compilerOptions": {
-    "target": "es2018",
-    "module": "commonjs",
-    "strict": true,
-    "esModuleInterop": true,
+    "sourceRoot": "src",
     "outDir": "dist",
-    "declaration": true,
     "baseUrl": "./",
     "paths": { "~/*": ["src/*"] }
   },
-  "include": ["./scripts", "./test", "./typechain"],
-  "files": ["./hardhat.config.ts"]
+  "include": ["./scripts", "./tasks", "./test", "./typechain"],
+  "files": ["./hardhat.config.ts"],
+  "references": [{ "path": "../lib" }]
 }
