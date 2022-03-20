@@ -2,6 +2,10 @@
   "name": "api",
   "version": "0.1.0",
   "private": true,
+  "engines": {
+    "node": "16.x",
+    "yarn": "3.x"
+  },
   "scripts": {
     "prebuild": "yarn clean",
     "build": "yarn generate && tsc --build",
@@ -18,7 +22,8 @@
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register ../node_modules/.bin/jest --runInBand",
     "with-env": "dotenv -e ../.env",
     "generate": "yarn with-env -- prisma generate",
-    "migrate": "yarn with-env -- prisma migrate dev"
+    "migrate": "yarn with-env -- prisma migrate dev",
+    "migrate:deploy": "yarn with-env -- prisma migrate deploy"
   },
   "dependencies": {
     "@apollo/federation": "^0.35.4",
