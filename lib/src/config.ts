@@ -16,7 +16,7 @@ const __config = {
     address: E.WALLET_ADDRESS,
     privateKey: E.WALLET_PRIVATE_KEY,
   },
-  apiPort: E.PORT || 3001,
+  apiPort: E.API_PORT || E.PORT || 3001,
   databaseUrl: E.DATABASE_URL,
 } as const;
 
