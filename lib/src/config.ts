@@ -3,6 +3,8 @@ dotenv.config({ path: "../.env" });
 
 const E = process.env;
 
+const apiPort = E.API_PORT || E.PORT || 3001;
+
 const __config = {
   deployment: E.DEPLOYMENT?.toLowerCase() === "dev" ? "dev" : "prod",
   infura: {
@@ -16,8 +18,11 @@ const __config = {
     address: E.WALLET_ADDRESS,
     privateKey: E.WALLET_PRIVATE_KEY,
   },
-  apiPort: E.API_PORT || E.PORT || 3001,
   databaseUrl: E.DATABASE_URL,
+  api: {
+    port: apiPort,
+    url: E.API_URL ?? `http://[::1]:${apiPort}`,
+  },
 } as const;
 
 export type Config = typeof __config;
