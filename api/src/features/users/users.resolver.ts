@@ -9,8 +9,7 @@ import {
   Resolver,
 } from "@nestjs/graphql";
 import { PrismaService } from "nestjs-prisma";
-// import { UserWhereUniqueInput } from "@gen/user/user-where-unique.input";
-import { UserWhereUniqueInput } from "../../../generated/user/user-where-unique.input";
+import { UserWhereUniqueInput } from "~gen/user/user-where-unique.input";
 
 @ObjectType()
 export class Post {
