@@ -16,5 +16,13 @@ module.exports = {
     node: true,
     mocha: true,
   },
-  rules: {},
+  rules: {
+    "@typescript-eslint/no-var-requires": "off",
+    "@typescript-eslint/no-unused-vars": [
+      "warn",
+      {
+        argsIgnorePattern: "^_",
+      },
+    ],
+  },
 };

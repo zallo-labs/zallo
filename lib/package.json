@@ -1,0 +1,16 @@
+{
+  "name": "lib",
+  "private": true,
+  "main": "dist/index",
+  "types": "dist/index",
+  "scripts": {
+    "build": "tsc --build",
+    "start": "yarn build --watch"
+  },
+  "dependencies": {
+    "dotenv": "^16.0.0"
+  },
+  "devDependencies": {
+    "typescript": "^4.6.2"
+  }
+}
