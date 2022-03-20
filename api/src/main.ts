@@ -5,7 +5,7 @@ import { CONFIG } from "lib";
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
-  await app.listen(CONFIG.apiPort);
+  await app.listen(CONFIG.api.port);
 
   Logger.log(`${await app.getUrl()}/graphql`);
 }
