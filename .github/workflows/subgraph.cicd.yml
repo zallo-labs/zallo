@@ -27,13 +27,13 @@ jobs:
         run: yarn install
 
       - name: Configure
-        run: yarn workspace subgraph configure:ropsten
+        run: yarn subgraph configure:ropsten
 
       - name: Build
-        run: yarn workspace subgraph build
+        run: yarn subgraph build
 
       - name: Auth
-        run: yarn workspace subgraph auth ${{ secrets.THEGRAPH_ACCESS_TOKEN }}
+        run: yarn subgraph auth ${{ secrets.THEGRAPH_ACCESS_TOKEN }}
 
       - name: Deploy
-        run: yarn workspace subgraph deploy
+        run: yarn subgraph deploy

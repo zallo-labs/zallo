@@ -1,8 +1,8 @@
-name: Subgraph CI
+name: Api CI
 
 on:
   push:
-    # subgraph.cicd handles pushing to main
+    # api.cicd handles pushing to main
     branches-ignore:
       - main
   pull_request: # all branches
@@ -28,8 +28,5 @@ jobs:
       - name: Install
         run: yarn install
 
-      - name: Configure
-        run: yarn subgraph configure:ropsten
-
       - name: Build
-        run: yarn subgraph build
+        run: yarn api build
