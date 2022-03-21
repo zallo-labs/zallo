@@ -18,6 +18,9 @@
 **/generated
 **/node_modules
 
+## Api
+api/schema.gql
+
 ## Contracts
 contracts/abi
 contracts/artifacts
