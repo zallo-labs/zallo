@@ -14,8 +14,8 @@ config.watchFolders = [workspaceRoot];
 // 2. Let Metro know where to resolve packages, and in what order
 config.resolver.nodeModulesPaths = [
   // path.resolve(workspaceRoot, "lib"),
-  path.resolve(projectRoot, "node_modules"),
   path.resolve(workspaceRoot, "node_modules"),
+  path.resolve(projectRoot, "node_modules"),
 ];
 
 module.exports = config;
