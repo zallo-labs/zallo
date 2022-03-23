@@ -113,11 +113,11 @@ jobs:
           cache: "yarn"
 
       - name: Install
-        run:
-          - yarn install
-          - yarn app install
+        run: |
+          yarn install
+          yarn app install
 
-      - name: Build lib
+      - name: Build
         run: yarn app build
 
       - name: Test
