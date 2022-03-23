@@ -4,7 +4,7 @@ import { UsersModule } from "./features/users/users.module";
 import { loggingMiddleware } from "./middleware/prisma/logging.middleware";
 import { HealthModule } from "./features/health/health.module";
 import { StitchedGqlModule } from "./features/stitched-gql/stitched-gql.module";
-import { IS_DEV } from "lib";
+import { IS_DEV } from "lib/config";
 import { ApolloServerPluginLandingPageLocalDefault } from "apollo-server-core";
 
 @Module({
