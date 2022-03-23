@@ -19,7 +19,7 @@
     "subgraph": "yarn workspace subgraph",
     "lint": "eslint \"**/*.{j,t}s\"",
     "lint:fix": "yarn lint --fix",
-    "clean": "yarn api clean && yarn app clean && yarn contracts clean && yarn lib clean && yarn subgraph clean"
+    "clean": "yarn workspaces foreach run clean"
   },
   "engines": {
     "node": "16.x",
