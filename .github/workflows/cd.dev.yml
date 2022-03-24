@@ -65,7 +65,7 @@ jobs:
         run: yarn install
 
       - name: 🚀 Publish
-        run: yarn publish
+        run: yarn app publish
 
   # CD acheived through Heroku
   # api:
