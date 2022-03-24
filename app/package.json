@@ -11,9 +11,11 @@
     "android": "expo start --android",
     "ios": "expo start --ios",
     "web": "expo start --web",
-    "test": "jest"
+    "test": "jest",
+    "generate": "apollo codegen:generate types --config apollo.config.js --target typescript --globalTypesFile ./gql/types/globalTypes.ts"
   },
   "dependencies": {
+    "@apollo/client": "^3.5.10",
     "@expo/config": "^6.0.19",
     "expo": "~44.0.0",
     "expo-status-bar": "~1.2.0",
