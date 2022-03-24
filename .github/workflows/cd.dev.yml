@@ -15,30 +15,59 @@ jobs:
       matrix:
         node-version: [16.x]
     steps:
-      - name: Checkout
+      - name: 🏗️ Checkout
         uses: actions/checkout@v2
 
-      - name: Use Node ${{ matrix.node-version }}
+      - name: 🏗️ Use Node ${{ matrix.node-version }}
         uses: actions/setup-node@v2
         with:
           node-version: ${{ matrix.node-version }}
           cache: "yarn"
 
-      - name: Install
+      - name: 📦 Install
         run: yarn install
 
-      - name: Configure
+      - name: 🏗️ Configure
         run: yarn subgraph configure:ropsten
+
+      - name: 🏗️ Auth
+        run: yarn subgraph auth ${{ secrets.THEGRAPH_ACCESS_TOKEN }}
 
       - name: Build
         run: yarn subgraph build
 
-      - name: Auth
-        run: yarn subgraph auth ${{ secrets.THEGRAPH_ACCESS_TOKEN }}
-
       - name: Deploy
         run: yarn subgraph deploy
 
+  app:
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version: [16.x]
+    steps:
+      - name: 🏗️ Checkout
+        uses: actions/checkout@v2
+
+      - name: 🏗️ Use Node ${{ matrix.node-version }}
+        uses: actions/setup-node@v2
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: "yarn"
+
+      - name: 🏗️ Setup Expo
+        uses: expo/expo-github-action@v7
+        with:
+          token: ${{ secrets.EXPO_TOKEN }}
+          expo-version: latest
+
+      - name: 📦 Install
+        run: yarn install
+
+      - name: 🚀 Publish
+        run: yarn publish
+
+  # CD acheived through Heroku
   # api:
   #   if: ${{ github.event.workflow_run.conclusion == 'success' }}
   #   runs-on: ubuntu-latest
