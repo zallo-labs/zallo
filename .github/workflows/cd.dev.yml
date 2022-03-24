@@ -15,10 +15,10 @@ jobs:
       matrix:
         node-version: [16.x]
     steps:
-      - name: 🏗️ Checkout
+      - name: 🚧 Checkout
         uses: actions/checkout@v2
 
-      - name: 🏗️ Use Node ${{ matrix.node-version }}
+      - name: 🚧 Use Node ${{ matrix.node-version }}
         uses: actions/setup-node@v2
         with:
           node-version: ${{ matrix.node-version }}
@@ -27,17 +27,17 @@ jobs:
       - name: 📦 Install
         run: yarn install
 
-      - name: 🏗️ Configure
+      - name: 🚧 Configure
         run: yarn subgraph configure:ropsten
 
-      - name: 🏗️ Auth
+      - name: 🚧 Auth
         run: yarn subgraph auth ${{ secrets.THEGRAPH_ACCESS_TOKEN }}
 
-      - name: Build
+      - name: 🏗️ Build
         run: yarn subgraph build
 
-      - name: Deploy
-        run: yarn subgraph deploy
+      - name: 🚀 Publish
+        run: yarn subgraph publish
 
   app:
     if: ${{ github.event.workflow_run.conclusion == 'success' }}
@@ -46,16 +46,16 @@ jobs:
       matrix:
         node-version: [16.x]
     steps:
-      - name: 🏗️ Checkout
+      - name: 🚧 Checkout
         uses: actions/checkout@v2
 
-      - name: 🏗️ Use Node ${{ matrix.node-version }}
+      - name: 🚧 Use Node ${{ matrix.node-version }}
         uses: actions/setup-node@v2
         with:
           node-version: ${{ matrix.node-version }}
           cache: "yarn"
 
-      - name: 🏗️ Setup Expo
+      - name: 🚧 Setup Expo
         uses: expo/expo-github-action@v7
         with:
           token: ${{ secrets.EXPO_TOKEN }}

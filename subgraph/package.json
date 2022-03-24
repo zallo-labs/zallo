@@ -9,10 +9,9 @@
     "codegen": "yarn generate:abi && graph codegen && node ./scripts/fix-generated.js",
     "build": "yarn codegen && graph build",
     "clean": "rimraf build data generated subgraph.yaml",
-    "deploy": "graph deploy --product hosted-service hbriese/metasafe",
+    "publish": "graph deploy --product hosted-service hbriese/metasafe",
     "create:local": "graph create --node http://localhost:8020/ hbriese/metasafe",
-    "remove:local": "graph remove --node http://localhost:8020/ hbriese/metasafe",
-    "deploy:local": "graph deploy --node http://localhost:8020/ --ipfs http://localhost:5001 hbriese/metasafe"
+    "publish:local": "graph deploy --node http://localhost:8020/ --ipfs http://localhost:5001 hbriese/metasafe"
   },
   "dependencies": {
     "@graphprotocol/graph-cli": "0.26.0",
