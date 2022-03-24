@@ -5,6 +5,7 @@
 **/dist
 **/generated
 **/node_modules
+**/__generated__
 
 # Yarn
 **/.yarn/*

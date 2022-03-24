@@ -10,16 +10,16 @@ jobs:
       matrix:
         node-version: [16.x]
     steps:
-      - name: Checkout
+      - name: 🏗️ Checkout
         uses: actions/checkout@v2
 
-      - name: Use Node ${{ matrix.node-version }}
+      - name: 🏗️ Use Node ${{ matrix.node-version }}
         uses: actions/setup-node@v2
         with:
           node-version: ${{ matrix.node-version }}
           cache: "yarn"
 
-      - name: Install
+      - name: 📦 Install
         run: yarn install
 
       - name: Build
@@ -31,16 +31,16 @@ jobs:
       matrix:
         node-version: [16.x]
     steps:
-      - name: Checkout
+      - name: 🏗️ Checkout
         uses: actions/checkout@v2
 
-      - name: Use Node ${{ matrix.node-version }}
+      - name: 🏗️ Use Node ${{ matrix.node-version }}
         uses: actions/setup-node@v2
         with:
           node-version: ${{ matrix.node-version }}
           cache: "yarn"
 
-      - name: Install
+      - name: 📦 Install
         run: yarn install
 
       - name: Build
@@ -55,16 +55,16 @@ jobs:
       matrix:
         node-version: [16.x]
     steps:
-      - name: Checkout
+      - name: 🏗️ Checkout
         uses: actions/checkout@v2
 
-      - name: Use Node ${{ matrix.node-version }}
+      - name: 🏗️ Use Node ${{ matrix.node-version }}
         uses: actions/setup-node@v2
         with:
           node-version: ${{ matrix.node-version }}
           cache: "yarn"
 
-      - name: Install
+      - name: 📦 Install
         run: yarn install
 
       - name: Configure
@@ -79,16 +79,16 @@ jobs:
       matrix:
         node-version: [16.x]
     steps:
-      - name: Checkout
+      - name: 🏗️ Checkout
         uses: actions/checkout@v2
 
-      - name: Use Node ${{ matrix.node-version }}
+      - name: 🏗️ Use Node ${{ matrix.node-version }}
         uses: actions/setup-node@v2
         with:
           node-version: ${{ matrix.node-version }}
           cache: "yarn"
 
-      - name: Install
+      - name: 📦 Install
         run: yarn install
 
       - name: Build
@@ -103,19 +103,17 @@ jobs:
       matrix:
         node-version: [16.x]
     steps:
-      - name: Checkout
+      - name: 🏗️ Checkout
         uses: actions/checkout@v2
 
-      - name: Use Node ${{ matrix.node-version }}
+      - name: 🏗️ Use Node ${{ matrix.node-version }}
         uses: actions/setup-node@v2
         with:
           node-version: ${{ matrix.node-version }}
           cache: "yarn"
 
-      - name: Install
-        run: |
-          yarn install
-          yarn app install
+      - name: 📦 Install
+        run: yarn install
 
       - name: Build
         run: yarn app build
