@@ -4,7 +4,7 @@ name: Dev CD
 on:
   workflow_run:
     branches: [main]
-    workflows: ["CI"]
+    workflows: ['CI']
     type: [completed]
 
 jobs:
@@ -22,7 +22,7 @@ jobs:
         uses: actions/setup-node@v2
         with:
           node-version: ${{ matrix.node-version }}
-          cache: "yarn"
+          cache: 'yarn'
 
       - name: 📦 Install
         run: yarn install
@@ -53,7 +53,7 @@ jobs:
         uses: actions/setup-node@v2
         with:
           node-version: ${{ matrix.node-version }}
-          cache: "yarn"
+          cache: 'yarn'
 
       - name: 🚧 Setup Expo
         uses: expo/expo-github-action@v7
@@ -63,6 +63,9 @@ jobs:
 
       - name: 📦 Install
         run: yarn install
+
+      - name: 🏗️ Build
+        run: yarn app build
 
       - name: 🚀 Publish
         run: yarn app publish
