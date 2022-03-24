@@ -15,7 +15,6 @@
     "**/node_modules/**": true,
     "subgraph/data/**": true
   },
-  "typescript.enablePromptUseWorkspaceTsdk": true,
   "mochaExplorer.cwd": "contracts",
   "mochaExplorer.files": "contracts/test/**/*.{t,j}s",
   // "solidity.defaultCompiler": "localFile",

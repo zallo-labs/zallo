@@ -10,19 +10,19 @@ jobs:
       matrix:
         node-version: [16.x]
     steps:
-      - name: Checkout
+      - name: 🚧 Checkout
         uses: actions/checkout@v2
 
-      - name: Use Node ${{ matrix.node-version }}
+      - name: 🚧 Use Node ${{ matrix.node-version }}
         uses: actions/setup-node@v2
         with:
           node-version: ${{ matrix.node-version }}
-          cache: "yarn"
+          cache: 'yarn'
 
-      - name: Install
+      - name: 📦 Install
         run: yarn install
 
-      - name: Build
+      - name: 🏗️ Build
         run: yarn lib build
 
   contracts:
@@ -31,22 +31,22 @@ jobs:
       matrix:
         node-version: [16.x]
     steps:
-      - name: Checkout
+      - name: 🚧 Checkout
         uses: actions/checkout@v2
 
-      - name: Use Node ${{ matrix.node-version }}
+      - name: 🚧 Use Node ${{ matrix.node-version }}
         uses: actions/setup-node@v2
         with:
           node-version: ${{ matrix.node-version }}
-          cache: "yarn"
+          cache: 'yarn'
 
-      - name: Install
+      - name: 📦 Install
         run: yarn install
 
-      - name: Build
+      - name: 🏗️ Build
         run: yarn contracts build
 
-      - name: Test
+      - name: 🧪 Test
         run: yarn contracts test
 
   subgraph:
@@ -55,22 +55,22 @@ jobs:
       matrix:
         node-version: [16.x]
     steps:
-      - name: Checkout
+      - name: 🚧 Checkout
         uses: actions/checkout@v2
 
-      - name: Use Node ${{ matrix.node-version }}
+      - name: 🚧 Use Node ${{ matrix.node-version }}
         uses: actions/setup-node@v2
         with:
           node-version: ${{ matrix.node-version }}
-          cache: "yarn"
+          cache: 'yarn'
 
-      - name: Install
+      - name: 📦 Install
         run: yarn install
 
-      - name: Configure
+      - name: 🚧 Configure
         run: yarn subgraph configure:ropsten
 
-      - name: Build
+      - name: 🏗️ Build
         run: yarn subgraph build
 
   api:
@@ -79,20 +79,44 @@ jobs:
       matrix:
         node-version: [16.x]
     steps:
-      - name: Checkout
+      - name: 🚧 Checkout
         uses: actions/checkout@v2
 
-      - name: Use Node ${{ matrix.node-version }}
+      - name: 🚧 Use Node ${{ matrix.node-version }}
         uses: actions/setup-node@v2
         with:
           node-version: ${{ matrix.node-version }}
-          cache: "yarn"
+          cache: 'yarn'
 
-      - name: Install
+      - name: 📦 Install
         run: yarn install
 
-      - name: Build
+      - name: 🏗️ Build
         run: yarn api build
 
-      - name: Test
+      - name: 🧪 Test
         run: yarn api test
+
+  app:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version: [16.x]
+    steps:
+      - name: 🚧 Checkout
+        uses: actions/checkout@v2
+
+      - name: 🚧 Use Node ${{ matrix.node-version }}
+        uses: actions/setup-node@v2
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: 'yarn'
+
+      - name: 📦 Install
+        run: yarn install
+
+      - name: 🏗️ Build
+        run: yarn app build
+
+      - name: 🧪 Test
+        run: yarn app test
