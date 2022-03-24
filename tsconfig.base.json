@@ -1,12 +1,11 @@
 {
   "compilerOptions": {
-    "module": "CommonJS",
     "target": "ES2021",
     "lib": ["ESNext"],
+    "module": "CommonJS",
+    "moduleResolution": "Node",
 
     "strict": true,
-
-    "moduleResolution": "Node",
     "esModuleInterop": true,
 
     "experimentalDecorators": true,
@@ -15,9 +14,9 @@
     "declarationMap": true,
     "sourceMap": true,
 
+    "incremental": true,
     "forceConsistentCasingInFileNames": true,
     "skipLibCheck": true,
-    "composite": true,
-    "incremental": true
+    "composite": true
   }
 }

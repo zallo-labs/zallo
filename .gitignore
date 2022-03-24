@@ -1,15 +1,3 @@
-## Yarn
-.yarn/*
-!.yarn/patches
-!.yarn/plugins
-!.yarn/releases
-!.yarn/sdks
-!.yarn/versions
-# Zero install ignores - https://yarnpkg.com/features/zero-installs
-!.yarn/cache
-# Non-zero install ignores
-#.pnp.*
-
 ## Shared
 .env
 **/bin
@@ -17,15 +5,38 @@
 **/dist
 **/generated
 **/node_modules
+**/__generated__
+
+# Yarn
+**/.yarn/*
+!**/.yarn/patches
+!**/.yarn/plugins
+!**/.yarn/releases
+!**/.yarn/sdks
+!**/.yarn/versions
+# Zero install ignores - https://yarnpkg.com/features/zero-installs
+!**/.yarn/cache
+# Non-zero install ignores
+#**/.pnp.*
+
+# MacOS
+**/.DS_Store
+
 
 ## Api
 api/schema.gql
+
+
+## App
+app/.expo
+
 
 ## Contracts
 contracts/abi
 contracts/artifacts
 contracts/coverage*
 contracts/typechain
+
 
 ## Subgraph
 subgraph/build

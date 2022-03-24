@@ -3,13 +3,14 @@
   "private": true,
   "scripts": {
     "build": "(cd .. && yarn lib build) && hardhat compile",
-    "clean": "hardhat clean && npx rimraf abi artifacts cache node_modules typechain",
-    "test": "hardhat test",
-    "test:local": "hardhat test --network localhost",
-    "test:ropsten": "hardhat test --network ropsten",
+    "typechain": "hardhat typechain",
     "analyze": "myth analyze src/*",
-    "node:local": "hardhat node --hostname 0.0.0.0",
-    "deploy:local": "hardhat run --network localhost scripts/deploy.ts"
+    "test": "hardhat test",
+    "test:localhost": "hardhat test --network localhost",
+    "test:ropsten": "hardhat test --network ropsten",
+    "node:localhost": "hardhat node --hostname 0.0.0.0",
+    "deploy:local": "hardhat run --network localhost scripts/deploy.ts",
+    "clean": "hardhat clean && npx rimraf abi artifacts cache typechain"
   },
   "devDependencies": {
     "@nomiclabs/hardhat-ethers": "^2.0.5",

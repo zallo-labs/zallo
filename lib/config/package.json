@@ -1,0 +1,6 @@
+{
+  "//": "https://github.com/theKashey/multiple-entry-points-example",
+  "internal": true,
+  "main": "../dist/config",
+  "types": "../dist/config"
+}

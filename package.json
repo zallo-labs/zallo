@@ -6,17 +6,20 @@
   "author": "Hayden Briese <haydenbriese@gmail.com>",
   "workspaces": [
     "api",
+    "app",
     "contracts",
     "lib",
     "subgraph"
   ],
   "scripts": {
     "api": "yarn workspace api",
+    "app": "yarn workspace app",
     "contracts": "yarn workspace contracts",
     "lib": "yarn workspace lib",
     "subgraph": "yarn workspace subgraph",
     "lint": "eslint \"**/*.{j,t}s\"",
-    "lint:fix": "yarn lint --fix"
+    "lint:fix": "yarn lint --fix",
+    "clean": "yarn workspaces foreach run clean"
   },
   "engines": {
     "node": "16.x",
@@ -26,5 +29,10 @@
     "@typescript-eslint/eslint-plugin": "^5.15.0",
     "@typescript-eslint/parser": "^5.15.0",
     "eslint": "^8.11.0"
+  },
+  "dependencies": {
+    "@ethersproject/shims": "^5.6.0",
+    "ethers": "^5.6.1",
+    "react-native-get-random-values": "^1.7.2"
   }
 }
