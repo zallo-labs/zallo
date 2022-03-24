@@ -6,14 +6,19 @@
   "scripts": {
     "postinstall": "expo-yarn-workspaces postinstall",
     "publish": "expo publish --non-interactive",
-    "build": "(cd .. && yarn lib build)",
+    "build": "(cd .. && yarn lib build && yarn contracts build)",
     "start": "expo start",
     "android": "expo start --android",
     "ios": "expo start --ios",
     "web": "expo start --web",
-    "test": "jest"
+    "test": "jest",
+    "generate": "apollo codegen:generate types --config apollo.config.js --target typescript --globalTypesFile ./src/gql/types/globalTypes.ts"
+  },
+  "expo-yarn-workspaces": {
+    "//": "https://www.npmjs.com/package/expo-yarn-workspaces"
   },
   "dependencies": {
+    "@apollo/client": "^3.5.10",
     "@expo/config": "^6.0.19",
     "expo": "~44.0.0",
     "expo-status-bar": "~1.2.0",

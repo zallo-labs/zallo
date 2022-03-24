@@ -29,5 +29,10 @@
     "@typescript-eslint/eslint-plugin": "^5.15.0",
     "@typescript-eslint/parser": "^5.15.0",
     "eslint": "^8.11.0"
+  },
+  "dependencies": {
+    "@ethersproject/shims": "^5.6.0",
+    "ethers": "^5.6.1",
+    "react-native-get-random-values": "^1.7.2"
   }
 }
