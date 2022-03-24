@@ -46,8 +46,8 @@ jobs:
       - name: 🏗️ Build
         run: yarn contracts build
 
-      - name: Test
-        run: 🧪 yarn contracts test
+      - name: 🧪 Test
+        run: yarn contracts test
 
   subgraph:
     runs-on: ubuntu-latest
@@ -94,8 +94,8 @@ jobs:
       - name: 🏗️ Build
         run: yarn api build
 
-      - name: Test
-        run: 🧪 yarn api test
+      - name: 🧪 Test
+        run: yarn api test
 
   app:
     runs-on: ubuntu-latest
@@ -118,5 +118,5 @@ jobs:
       - name: 🏗️ Build
         run: yarn app build
 
-      - name: Test
-        run: 🧪 yarn app test
+      - name: 🧪 Test
+        run: yarn app test
