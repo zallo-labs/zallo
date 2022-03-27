@@ -36,8 +36,8 @@ jobs:
       - name: 🏗️ Build
         run: yarn subgraph build
 
-      - name: 🚀 Deploy
-        run: yarn subgraph deploy
+      - name: 🚀 Publish
+        run: yarn subgraph publish
 
   app:
     if: ${{ github.event.workflow_run.conclusion == 'success' }}
@@ -67,8 +67,8 @@ jobs:
       - name: 🏗️ Build
         run: yarn app build
 
-      - name: 🚀 Deploy
-        run: yarn app deploy
+      - name: 🚀 Publish
+        run: yarn app publish
 
   # CD acheived through Heroku
   # api:
