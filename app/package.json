@@ -12,7 +12,7 @@
     "ios": "expo start --ios",
     "web": "expo start --web",
     "test": "jest",
-    "generate": "apollo codegen:generate types --config apollo.config.js --target typescript --globalTypesFile ./src/gql/types/globalTypes.ts"
+    "generate": "apollo client:codegen types --config apollo.config.js --target typescript --globalTypesFile ./src/gql/types/globalTypes.ts"
   },
   "expo-yarn-workspaces": {
     "//": "https://www.npmjs.com/package/expo-yarn-workspaces"
