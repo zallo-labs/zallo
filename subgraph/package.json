@@ -9,7 +9,7 @@
     "codegen": "yarn generate:abi && graph codegen && node ./scripts/fix-generated.js",
     "build": "yarn codegen && graph build",
     "clean": "rimraf build data generated subgraph.yaml",
-    "publish": "graph deploy --product hosted-service hbriese/metasafe",
+    "deploy": "graph deploy --product hosted-service hbriese/metasafe",
     "create:local": "graph create --node http://localhost:8020/ hbriese/metasafe",
     "publish:local": "graph deploy --node http://localhost:8020/ --ipfs http://localhost:5001 hbriese/metasafe"
   },
