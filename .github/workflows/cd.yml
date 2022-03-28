@@ -1,10 +1,9 @@
-# Deploy to dev when CI succeeds on a push to main
+# Deploy when CI succeeds on a push to main
 name: CD
 
 on:
   workflow_run:
-    branches: [ heroku-build-fix ]
-    # branches: [main]
+    branches: [main]
     workflows: ['CI']
     type: [completed]
 
