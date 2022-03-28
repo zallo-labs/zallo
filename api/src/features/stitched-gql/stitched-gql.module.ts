@@ -1,7 +1,7 @@
 import { DynamicModule, Module } from "@nestjs/common";
 import { GraphQLModule } from "@nestjs/graphql";
 import { ApolloDriver, ApolloDriverConfig } from "@nestjs/apollo";
-import { fetch } from "cross-fetch";
+import fetch from "cross-fetch";
 import { print } from "graphql";
 import { stitchSchemas } from "@graphql-tools/stitch";
 import { introspectSchema } from "@graphql-tools/wrap";
