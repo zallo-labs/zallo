@@ -41,6 +41,11 @@ heroku container:push web -a metasafe-api
 heroku container:release web -a metasafe-api
 ```
 
+#### Logs
+```bash
+heroku logs --tail -a metasafe-api
+```
+
 
 ## App
 ```bash
