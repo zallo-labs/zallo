@@ -7,7 +7,7 @@ setup:
 
 build:
   docker:
-    web: api/Dockerfile
+    web: Dockerfile
 
 release:
   image: web
