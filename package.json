@@ -19,7 +19,9 @@
     "subgraph": "yarn workspace subgraph",
     "lint": "eslint \"**/*.{j,t}s\"",
     "lint:fix": "yarn lint --fix",
-    "clean": "yarn workspaces foreach run clean"
+    "clean": "yarn workspaces foreach run clean",
+    "docker:build:api": "docker build -t metasafe-api .",
+    "docker:run:api": "docker run --rm metasafe-api:latest"
   },
   "engines": {
     "node": "16.x",

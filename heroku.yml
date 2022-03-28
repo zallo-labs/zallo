@@ -1,0 +1,15 @@
+setup:
+  addons:
+    - plan: heroku-postgresql
+      as: DATABASE
+    - plan: heroku-postgresql
+      as: SHADOW_DATABASE
+
+build:
+  docker:
+    web: api/Dockerfile
+
+release:
+  image: web
+  command:
+    - yarn api prisma:migrate:prod
