@@ -3,7 +3,7 @@ name: CD
 
 on:
   workflow_run:
-    branches:
+    branches: [ heroku-build-fix ]
     # branches: [main]
     workflows: ['CI']
     type: [completed]
