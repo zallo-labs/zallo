@@ -9,7 +9,7 @@ import { User } from '~gen/user/user.model';
 export class UsersResolver {
   constructor(private prisma: PrismaService) {}
 
-  @Query(() => User)
+  @Query(() => User, { nullable: true })
   async user(@Args() args: FindUniqueUserArgs): Promise<User | null> {
     return this.prisma.user.findUnique(args);
   }
