@@ -33,7 +33,7 @@ const config: HardhatUserConfig = {
     // https://hardhat.org/hardhat-network/reference/
     hardhat: {},
     ropsten: {
-      url: `https://ropsten.infura.io/v3/${CONFIG.infura.id}`,
+      url: `https://ropsten.infura.io/v3/${CONFIG.providers.infura}`,
       accounts: CONFIG.wallet.privateKey ? [CONFIG.wallet.privateKey] : [],
     },
   },
@@ -48,7 +48,7 @@ const config: HardhatUserConfig = {
     coinmarketcap: CONFIG.coinmarketcapApiKey,
   },
   etherscan: {
-    apiKey: CONFIG.etherscanApiKey,
+    apiKey: CONFIG.providers.etherscan,
   },
   abiExporter: {
     runOnCompile: true,

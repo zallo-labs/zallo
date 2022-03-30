@@ -8,12 +8,11 @@ const apiUrl = E.API_URL || `http://[::1]:${apiPort}`;
 
 const __config = {
   environment: E.NODE_ENV?.toLowerCase() === 'development' ? 'development' : 'production',
-  infura: {
-    id: E.INFURA_ID,
-    secret: E.INFURA_secret,
+  providers: {
+    infura: E.INFURA_ID,
+    alchemy: E.ALCHEMY_API_KEY,
+    etherscan: E.ETHERSCAN_API_KEY,
   },
-  alchemyApiKey: E.ALCHEMY_API_KEY,
-  etherscanApiKey: E.ETHERSCAN_API_KEY,
   coinmarketcapApiKey: E.COINMARKETCAP_API_KEY,
   wallet: {
     address: E.WALLET_ADDRESS,
