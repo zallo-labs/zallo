@@ -4,10 +4,10 @@ dotenv.config({ path: '../.env' });
 const E = process.env;
 
 const apiPort = E.API_PORT || E.PORT || 3001;
-const apiUrl = E.API_URL ?? `http://[::1]:${apiPort}`;
+const apiUrl = E.API_URL || `http://[::1]:${apiPort}`;
 
 const __config = {
-  deployment: E.DEPLOYMENT?.toLowerCase() === 'dev' ? 'dev' : 'prod',
+  environment: E.NODE_ENV?.toLowerCase() === 'development' ? 'development' : 'production',
   infura: {
     id: E.INFURA_ID,
     secret: E.INFURA_secret,
@@ -32,5 +32,5 @@ export const CONFIG: Config = __config;
 
 export default CONFIG;
 
-export const IS_DEV = CONFIG.deployment === 'dev';
-export const IS_PROD = CONFIG.deployment === 'prod';
+export const IS_DEV = CONFIG.environment === 'development';
+export const IS_PROD = CONFIG.environment === 'production';

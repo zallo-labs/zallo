@@ -1,5 +1,5 @@
-# Deploy to dev when CI succeeds on a push to main
-name: Dev CD
+# Deploy when CI succeeds on a push to main
+name: CD
 
 on:
   workflow_run:
@@ -70,27 +70,20 @@ jobs:
       - name: 🚀 Publish
         run: yarn app publish
 
-  # CD acheived through Heroku
-  # api:
-  #   if: ${{ github.event.workflow_run.conclusion == 'success' }}
-  #   runs-on: ubuntu-latest
-  #   strategy:
-  #     matrix:
-  #       node-version: [16.x]
-  #   environment: dev
+  api:
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: 🚧 Checkout
+        uses: actions/checkout@v2
 
-  #   steps:
-  #     - name: Checkout
-  #       uses: actions/checkout@v2
-
-  #     - name: Deploy
-  #       uses: akhileshns/heroku-deploy@v3.12.12
-  #       with:
-  #         heroku_api_key: ${{ secrets.HEROKU_API_KEY }}
-  #         heroku_app_name: "metasafe-api"
-  #         heroku_email: "haydenbriese@gmail.com"
-  #         # healthcheck: "https://metasafe-api.herokuapp.com/health"
-  #         # rollbackonhealthcheckfailed: true
-  #       env:
-  #         DATABASE_URL: ${{ secrets.DATABASE_URL }}
-  #         SHADOW_DATABASE_URL: ${{ secrets.SHADOW_DATABASE_URL }}
+      - name: 🚀 Heroku - Build, Push and Release
+        uses: gonuit/heroku-docker-deploy@v1.3.3
+        with:
+          email: ${{ secrets.HEROKU_EMAIL }}
+          heroku_api_key: ${{ secrets.HEROKU_API_KEY }}
+          heroku_app_name: ${{ secrets.HEROKU_APP_NAME }}
+          process_type: web
+          dockerfile_directory: ./
+          dockerfile_name: Dockerfile
+          # docker_options: ""
