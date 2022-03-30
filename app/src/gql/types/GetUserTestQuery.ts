@@ -7,11 +7,11 @@
 // GraphQL query operation: GetUserTestQuery
 // ====================================================
 
-export interface GetUserTestQuery_user2 {
+export interface GetUserTestQuery_user {
   __typename: "User";
   email: string;
 }
 
 export interface GetUserTestQuery {
-  user2: GetUserTestQuery_user2;
+  user: GetUserTestQuery_user | null;
 }
