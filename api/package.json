@@ -6,6 +6,9 @@
     "node": "16.x",
     "yarn": "3.x"
   },
+  "prisma": {
+    "seed": "ts-node prisma/seed.ts"
+  },
   "scripts": {
     "prebuild": "yarn clean",
     "build": "(cd .. && yarn lib build) && yarn generate && nest build",
@@ -24,6 +27,8 @@
     "generate": "yarn with-env -- prisma generate",
     "migrate": "yarn with-env -- prisma migrate dev",
     "migrate:deploy": "yarn with-env -- prisma migrate deploy",
+    "migrate:reset": "yarn with-env -- prisma migrate reset",
+    "seed": "yarn with-env -- prisma db seed",
     "studio": "yarn with-env -- prisma studio"
   },
   "dependencies": {
