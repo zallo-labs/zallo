@@ -4,12 +4,10 @@ setup:
       as: DATABASE
     - plan: heroku-postgresql
       as: SHADOW_DATABASE
-
 build:
   docker:
     web: Dockerfile
-
 release:
   image: web
   command:
-    - yarn api prisma:migrate:prod
+    - yarn api migrate:deploy
