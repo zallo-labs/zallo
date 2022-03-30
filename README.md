@@ -8,36 +8,42 @@ yarn install
 ## API
 ### Local
 ```bash
+# Build
+yarn api build
+
+# Test
+yarn api test
+
+# Run
+yarn api start
+```
+
+#### Docker
+```bash
+# Build
 docker build -t metasafe-api .
+
+# Run
 docker run --rm metasafe-api:latest
 ```
 
 ### Hosted
-#### Configuration
-1. [Install Heroku CLI](https://devcenter.heroku.com/articles/heroku-cli)
-   
-2. Login
+#### Setup
 ```bash
+# Login
 heroku login
 heroku container:login
-```
 
-1. Configure app
-```bash
+# Configure
 heroku create metasafe-api --manifest --remote heroku-api
 heroku stack:set container -a metasafe-api
 heroku addons:create heroku-postgresql -a metasafe-api --name metasafe-api-database --as DATABASE
 heroku addons:create heroku-postgresql -a metasafe-api --name metasafe-api-shadow-database --as SHADOW_DATABASE
 ```
 
-#### Deployment
-1. Push to Heroku
+#### Manual Deployment
 ```bash
 heroku container:push web -a metasafe-api
-```
-
-2. Deploy
-```bash
 heroku container:release web -a metasafe-api
 ```
 
@@ -49,17 +55,21 @@ heroku logs --tail -a metasafe-api
 
 ## App
 ```bash
+# Build
 yarn app build
+
+# Test
+yarn app test
+
+# Run
 yarn app start
 ```
 
 ## Contracts
-### Build
 ```bash
+# Build
 yarn contracts build
-```
 
-### Test
-```bash
+# Test
 yarn contracts test
 ```
