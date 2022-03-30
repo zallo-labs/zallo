@@ -3,7 +3,7 @@ import { GetUserTestQuery } from './types/GetUserTestQuery';
 
 const GET_USER_TEST_QUERY = gql`
   query GetUserTestQuery {
-    user2(where: { email: "haydenbriese@gmail.com" }) {
+    user(where: { email: "haydenbriese@gmail.com" }) {
       email
     }
   }
@@ -11,5 +11,5 @@ const GET_USER_TEST_QUERY = gql`
 
 export const useGetUserTestQuery = () => {
   const { data, ...rest } = useQuery<GetUserTestQuery>(GET_USER_TEST_QUERY);
-  return { user: data?.user2, ...rest };
+  return { user: data?.user, ...rest };
 };
