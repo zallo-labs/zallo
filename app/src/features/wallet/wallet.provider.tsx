@@ -20,7 +20,6 @@ export const WalletProvider = ({ children }: WalletProviderProps) => {
   useEffect(() => {
     (async () => {
       const pk = await storage.getItemAsync(KEY);
-      console.log('Read: ' + pk);
       if (pk) {
         setWallet(new Wallet(pk, PROVIDER));
       } else {
@@ -33,7 +32,6 @@ export const WalletProvider = ({ children }: WalletProviderProps) => {
   useEffect(() => {
     if (wallet && writeReq) {
       storage.setItemAsync(KEY, wallet.privateKey);
-      console.log('Write: ' + wallet.privateKey);
       setWriteReq(false);
     }
   }, [wallet, writeReq]);
