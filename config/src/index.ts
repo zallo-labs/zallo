@@ -1,12 +1,15 @@
-if (typeof process === 'object') require('dotenv').config({ path: '../.env' });
-
 const E = process?.env ?? {};
+
+const environment = E.NODE_ENV?.toLowerCase() === 'development' ? 'development' : 'production';
+
+if (typeof process?.env === 'object' && environment === 'development')
+  require('dotenv').config({ path: '../.env' });
 
 const apiPort = E.API_PORT || E.PORT || 3001;
 const apiUrl = `${E.API_URL || 'http://[::1]'}:${apiPort}`;
 
 const __config = {
-  environment: E.NODE_ENV?.toLowerCase() === 'development' ? 'development' : 'production',
+  environment,
   providers: {
     infura: E.INFURA_ID,
     alchemy: E.ALCHEMY_API_KEY,
