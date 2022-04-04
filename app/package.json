@@ -12,7 +12,7 @@
     "ios": "expo start --ios",
     "web": "expo start --web",
     "test": "jest",
-    "generate": "yarn clean && concurrently --names api,sg -c yellow,blue \"yarn generate:api\" \"yarn generate:sg\"",
+    "generate": "yarn clean && yarn generate:api && yarn generate:sg",
     "generate:api": "apollo client:codegen --config apollo.api.config.js --target typescript --globalTypesFile ./src/gql/__generated__/apiGlobalTypes.ts",
     "generate:sg": "apollo client:codegen --config apollo.sg.config.js --target typescript --globalTypesFile ./src/gql/__generated__/sgGlobalTypes.ts",
     "clean": "rimraf ./src/gql/__generated__"
