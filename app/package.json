@@ -9,7 +9,7 @@
     "build:deps": "(cd .. && yarn lib build && yarn contracts build)",
     "build:web": "yarn build:deps && expo build:web",
     "start": "expo start",
-    "start:dev": "dotenv -e ../.env -- yarn start",
+    "start:android": "yarn start --android",
     "test": "jest",
     "generate": "yarn clean && concurrently --names api,sg -c yellow,blue \"yarn generate:api\" \"yarn generate:sg\"",
     "generate:api": "apollo client:codegen --config apollo.api.config.js --target typescript --globalTypesFile ./src/gql/__generated__/apiGlobalTypes.ts",
