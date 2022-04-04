@@ -3,8 +3,8 @@ import { useMutation } from '@apollo/client';
 
 import { _100_PERCENT_WEIGHT } from 'lib';
 import { useWallet } from '@features/wallet/wallet.provider';
-import { CreateCfSafe, CreateCfSafeVariables } from '../__generated__/CreateCfSafe';
-import { apiSafeToSafeData, API_SAFE_FIELDS } from '../queries/get-safes.gql';
+import { CreateCfSafe, CreateCfSafeVariables } from '@gql/CreateCfSafe';
+import { apiSafeToSafeData, API_SAFE_FIELDS } from '@queries/get-safes.gql';
 import { apiGql, API_CLIENT } from '../clients';
 
 const API_MUTATION = apiGql`

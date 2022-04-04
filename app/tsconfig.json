@@ -5,12 +5,14 @@
 
     "baseUrl": "./",
     "paths": {
-      "~/*": ["./src/*"],
       "@components/*": ["./src/components/*"],
       "@features/*": ["./src/features/*"],
       "@ethers": ["./src/features/ethers"],
-      "@gql": ["./src/gql"],
-      "@util/*": ["./src/util/*"]
+      "@mutations": ["./src/gql/mutations"],
+      "@queries": ["./src/gql/queries"],
+      "@gql/*": ["./src/gql/__generated__/*"],
+      "@util/*": ["./src/util/*"],
+      "~/*": ["./src/*"]
     }
   }
 }

@@ -1,7 +1,7 @@
 import { createContext, ReactNode, useContext, useRef, useState } from 'react';
 import useAsyncEffect from 'use-async-effect';
-
-import { SafeData, useSafes, useCreateCfSafe } from '@gql';
+import { useCreateCfSafe } from '@mutations';
+import { SafeData, useSafes } from '@queries';
 
 const SafeContext = createContext<SafeData | undefined>(undefined);
 
