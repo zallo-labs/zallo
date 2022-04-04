@@ -86,8 +86,8 @@ jobs:
       - name: 📦 Install
         run: yarn install
 
-      - name: 🏗️ Build Dependencies
-        run: yarn app build:deps
+      - name: 🏗️ Build Libs
+        run: yarn build:libs
 
       - name: 🚀 Publish
         run: yarn app publish
