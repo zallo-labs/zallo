@@ -1,7 +1,7 @@
 import { ApolloClient, InMemoryCache, gql } from '@apollo/client';
 
-import apiConfig from 'apollo.api.config';
-import sgConfig from 'apollo.sg.config';
+import apiConfig from '../../apollo.api.config';
+import sgConfig from '../../apollo.sg.config';
 
 export const API_CLIENT = new ApolloClient({
   name: apiConfig.client.service.name,
