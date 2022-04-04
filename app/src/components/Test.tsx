@@ -1,7 +1,7 @@
 import React from 'react';
 import { Text, View } from 'react-native';
 
-import { useSafes } from '@gql';
+import { useSafes } from '@queries';
 import { useSafe } from '@features/safe/safe.provider';
 import { useWallet } from '@features/wallet/wallet.provider';
 

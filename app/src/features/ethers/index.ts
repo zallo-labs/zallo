@@ -2,7 +2,7 @@
 import 'react-native-get-random-values';
 import '@ethersproject/shims';
 import { ethers } from 'ethers';
-import { CONFIG } from '../../config';
+import { CONFIG } from '~/config';
 export * from 'ethers';
 
 export * from 'lib/typechain';
