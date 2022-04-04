@@ -1,17 +1,15 @@
 import { ApolloClient, InMemoryCache, gql } from '@apollo/client';
-
-import apiConfig from '../../apollo.api.config';
-import sgConfig from '../../apollo.sg.config';
+import { CONFIG } from '~/config';
 
 export const API_CLIENT = new ApolloClient({
-  name: apiConfig.client.service.name,
-  uri: apiConfig.client.service.url,
+  name: 'api',
+  uri: CONFIG.api.gqlUrl,
   cache: new InMemoryCache(),
 });
 
 export const SG_CLIENT = new ApolloClient({
-  name: sgConfig.client.service.name,
-  uri: sgConfig.client.service.url,
+  name: 'subgraph',
+  uri: CONFIG.subgraphGqlUrl,
   cache: new InMemoryCache(),
 });
 

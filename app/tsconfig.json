@@ -10,7 +10,7 @@
       "@ethers": ["./src/features/ethers"],
       "@mutations": ["./src/gql/mutations"],
       "@queries": ["./src/gql/queries"],
-      "@gql/*": ["./src/gql/__generated__/*"],
+      "@gql/*": ["./src/gql/*"],
       "@util/*": ["./src/util/*"],
       "~/*": ["./src/*"]
     }
