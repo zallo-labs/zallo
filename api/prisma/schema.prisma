@@ -1,4 +1,3 @@
-// https://pris.ly/d/prisma-schema
 datasource db {
   provider          = "postgresql"
   url               = env("DATABASE_URL")
@@ -11,24 +10,37 @@ generator client {
 }
 
 generator nestgraphql {
-    provider = "prisma-nestjs-graphql"
-    output = "../generated"
+  provider = "prisma-nestjs-graphql"
+  output   = "../generated"
 }
 
-model User {
-  id        Int      @id @default(autoincrement())
-  email     String   @unique
-  name      String?
-  posts     Post[]
+model Safe {
+  id         String  @id
+  deploySalt String
+  isCf       Boolean
+  groups     Group[]
 }
 
-model Post {
-  id        Int      @id @default(autoincrement())
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  title     String
-  content   String?
-  published Boolean? @default(false)
-  author    User    @relation(fields: [authorId], references: [id], onDelete: Cascade)
-  authorId  Int
+model Group {
+  // {safe.id}-{hash}
+  id        String          @id
+  safe      Safe            @relation(fields: [safeId], references: [id], onDelete: Cascade)
+  hash      String
+  approvers GroupApprover[]
+  safeId    String
+}
+
+model Approver {
+  id     String          @id
+  groups GroupApprover[]
+}
+
+model GroupApprover {
+  // {safe.id}-{group.hash}-{approver.id}
+  id         String   @id
+  group      Group    @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  groupId    String
+  approver   Approver @relation(fields: [approverId], references: [id], onDelete: Cascade)
+  approverId String
+  weight     Decimal
 }

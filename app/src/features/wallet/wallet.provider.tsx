@@ -1,7 +1,7 @@
 import { createContext, ReactNode, useContext, useEffect, useState } from 'react';
 import * as storage from 'expo-secure-store';
 
-import { PROVIDER, Wallet } from '../ethers';
+import { PROVIDER, Wallet } from '@ethers';
 
 const WalletContext = createContext<Wallet | undefined>(undefined);
 

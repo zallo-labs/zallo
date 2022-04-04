@@ -1,5 +1,5 @@
 import { TypedDataField } from "@ethersproject/abstract-signer";
-import { Safe } from "../typechain";
+import { Safe } from "./typechain";
 
 export type SignedTx = Parameters<Safe["execute"]>[0];
 export type Tx = SignedTx["tx"];

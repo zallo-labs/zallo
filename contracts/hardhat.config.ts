@@ -39,7 +39,7 @@ const config: HardhatUserConfig = {
   },
   // Plugins
   typechain: {
-    outDir: "typechain",
+    outDir: "../lib/src/typechain",
   },
   gasReporter: {
     // https://github.com/cgewecke/eth-gas-reporter#options

@@ -1,6 +1,7 @@
 import { ethers } from "hardhat";
 import { BigNumber } from "@ethersproject/bignumber";
 import { hashGroup, toGroup } from "./util";
+import { Safe__factory } from "lib";
 
 interface DeployOptions {
   ether?: string | BigNumber;
@@ -19,7 +20,7 @@ export const deploy = async (
   const others = allSigners.slice(weights.length);
   const [deployer] = approvers;
 
-  const SafeFactory = await ethers.getContractFactory("Safe");
+  const SafeFactory = await ethers.getContractFactory("Safe") as Safe__factory;
 
   const group = toGroup(
     approvers.map((signer, i) => ({ signer, weight: weights[i] })),

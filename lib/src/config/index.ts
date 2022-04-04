@@ -4,7 +4,7 @@ dotenv.config({ path: '../.env' });
 const E = process.env;
 
 const apiPort = E.API_PORT || E.PORT || 3001;
-const apiUrl = E.API_URL || `http://[::1]:${apiPort}`;
+const apiUrl = `${E.API_URL || 'http://[::1]'}:${apiPort}`;
 
 const __config = {
   environment: E.NODE_ENV?.toLowerCase() === 'development' ? 'development' : 'production',
@@ -21,8 +21,10 @@ const __config = {
   databaseUrl: E.DATABASE_URL,
   api: {
     port: apiPort,
+    url: apiUrl,
     gqlUrl: `${apiUrl}/graphql`,
   },
+  subgraphGqlUrl: E.SUBGRAPH_GQL_URL,
 } as const;
 
 export type Config = typeof __config;

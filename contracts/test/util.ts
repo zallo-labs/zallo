@@ -4,7 +4,7 @@ import { solidity } from "ethereum-waffle";
 import chaiAsPromised from "chai-as-promised";
 import { BigNumberish } from "@ethersproject/bignumber";
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
-import { percentToFixedWeight } from "../utils/group";
+import { percentToFixedWeight } from "lib";
 
 chai.use(solidity);
 chai.use(chaiAsPromised); // chaiAsPromised needs to be added last!
