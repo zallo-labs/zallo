@@ -8,7 +8,7 @@ ADD --chown=node:node ./ /metasafe
 WORKDIR /metasafe
 
 # Setup
-RUN yarn workspaces focus api
+RUN yarn install
 RUN yarn api build
 
 CMD yarn api start:prod
