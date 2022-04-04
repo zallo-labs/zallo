@@ -1,7 +1,6 @@
-import * as dotenv from 'dotenv';
-dotenv.config({ path: '../.env' });
+if (typeof process === 'object') require('dotenv').config({ path: '../.env' });
 
-const E = process.env;
+const E = process?.env ?? {};
 
 const apiPort = E.API_PORT || E.PORT || 3001;
 const apiUrl = `${E.API_URL || 'http://[::1]'}:${apiPort}`;
