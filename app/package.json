@@ -46,6 +46,7 @@
     "@types/react": "~17.0.21",
     "@types/react-native": "~0.64.12",
     "@types/react-test-renderer": "^17.0.1",
+    "apollo": "^2.33.10",
     "concurrently": "^7.1.0",
     "jest": "^27.5.1",
     "jest-expo": "~44.0.1",
