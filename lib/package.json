@@ -4,13 +4,13 @@
   "main": "dist/index",
   "types": "dist/index",
   "scripts": {
-    "build": "(cd .. && yarn contracts typechain) && tsc --build",
+    "build:deps": "(cd .. && yarn workspace config build && yarn contracts typechain)",
+    "build": "yarn build:deps && tsc --build",
     "clean": "npx rimraf dist",
     "start": "yarn build --watch"
   },
   "dependencies": {
     "@ethersproject/bignumber": "^5.6.0",
-    "dotenv": "^16.0.0",
     "ethers": "^5.6.0",
     "lodash": "^4.17.21"
   },

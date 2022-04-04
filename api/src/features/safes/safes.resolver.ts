@@ -1,15 +1,14 @@
-import { Args, Context, Mutation, Parent, Query, ResolveField, Resolver } from '@nestjs/graphql';
+import { Args, Mutation, Parent, Query, ResolveField, Resolver } from '@nestjs/graphql';
 import { PrismaService } from 'nestjs-prisma';
-import { BigNumber, ethers } from 'ethers';
+import { ethers } from 'ethers';
 
 import { getCounterfactualAddress, getGroupApproverId, getGroupHash, getGroupId } from 'lib';
-import CONFIG from 'lib/config';
-import { Safe } from '~gen/safe/safe.model';
+import { Safe } from '@gen/safe/safe.model';
+import { Group } from '@gen/group/group.model';
+import { FindManySafeArgs } from '@gen/safe/find-many-safe.args';
+import { FindUniqueSafeArgs } from '@gen/safe/find-unique-safe.args';
 import { CreateCfSafeArgs } from './safes.args';
-import { Group } from '~gen/group/group.model';
-import { FindManySafeArgs } from '~gen/safe/find-many-safe.args';
-import { FindUniqueSafeArgs } from '~gen/safe/find-unique-safe.args';
-import { UserAddr } from '~/decorators/userAddr.decorator';
+import { UserAddr } from '~/decorators/userAddr';
 
 @Resolver(() => Safe)
 export class SafesResolver {

@@ -12,9 +12,10 @@
     "ios": "expo start --ios",
     "web": "expo start --web",
     "test": "jest",
-    "generate": "rimraf ./src/gql/__generated__ && concurrently --names api,sg -c yellow,blue \"yarn generate:api\" \"yarn generate:sg\"",
+    "generate": "yarn clean && concurrently --names api,sg -c yellow,blue \"yarn generate:api\" \"yarn generate:sg\"",
     "generate:api": "apollo client:codegen --config apollo.api.config.js --target typescript --globalTypesFile ./src/gql/__generated__/apiGlobalTypes.ts",
-    "generate:sg": "apollo client:codegen --config apollo.sg.config.js --target typescript --globalTypesFile ./src/gql/__generated__/sgGlobalTypes.ts"
+    "generate:sg": "apollo client:codegen --config apollo.sg.config.js --target typescript --globalTypesFile ./src/gql/__generated__/sgGlobalTypes.ts",
+    "clean": "rimraf ./src/gql/__generated__"
   },
   "expo-yarn-workspaces": {
     "//": "https://www.npmjs.com/package/expo-yarn-workspaces"
@@ -24,6 +25,7 @@
     "@ethersproject/shims": "^5.6.0",
     "@expo/config": "^6.0.19",
     "@react-native-async-storage/async-storage": "~1.15.0",
+    "config": "workspace:*",
     "dotenv": "^16.0.0",
     "ethers": "^5.6.1",
     "expo": "~44.0.0",

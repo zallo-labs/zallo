@@ -1,4 +1,4 @@
-const { CONFIG } = require('lib/config');
+const { CONFIG } = require('config');
 
 module.exports = {
   client: {

@@ -49,6 +49,7 @@
     "@prisma/client": "^3.11.1",
     "apollo-server-core": "^3.6.4",
     "apollo-server-express": "^3.6.4",
+    "config": "workspace:*",
     "cross-fetch": "^3.1.5",
     "dotenv": "^16.0.0",
     "dotenv-cli": "^5.0.0",
