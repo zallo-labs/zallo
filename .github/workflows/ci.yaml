@@ -116,7 +116,7 @@ jobs:
         run: yarn install
 
       - name: 🏗️ Build (web)
-        run: yarn api build:web
+        run: yarn app build:web
 
       - name: 🧪 Test
         run: yarn app test
