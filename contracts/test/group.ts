@@ -7,8 +7,7 @@ import {
   hashGroup,
   toGroup,
 } from "./util";
-import { SafeError } from "../utils/errors";
-import { percentToFixedWeight, fixedWeightToPercent } from "../utils/group";
+import { percentToFixedWeight, fixedWeightToPercent, SafeError } from "lib";
 
 describe("Group", () => {
   it("Hashes", async () => {

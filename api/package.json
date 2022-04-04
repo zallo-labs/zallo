@@ -14,9 +14,7 @@
     "build": "(cd .. && yarn lib build) && yarn generate && nest build",
     "clean": "npx rimraf dist generated node_modules",
     "format": "prettier --config ../.prettierrc --write \"src/**/*.ts\"",
-    "start": "nest start",
-    "start:dev": "nest start --watch",
-    "start:debug": "nest start --debug --watch",
+    "start": "nest start --debug --watch",
     "start:prod": "node dist/src/main.js",
     "lint": "eslint \"src/**/*.ts\" -c ../.eslintrc.js --fix",
     "test": "jest",
@@ -32,6 +30,7 @@
     "studio": "yarn with-env -- prisma studio"
   },
   "dependencies": {
+    "@apollo/client": "^3.5.10",
     "@apollo/federation": "^0.35.4",
     "@apollo/subgraph": "^0.3.3",
     "@golevelup/ts-jest": "^0.3.2",
@@ -53,6 +52,7 @@
     "cross-fetch": "^3.1.5",
     "dotenv": "^16.0.0",
     "dotenv-cli": "^5.0.0",
+    "ethers": "^5.6.2",
     "graphql": "^16.3.0",
     "graphql-fields": "^2.0.3",
     "graphql-scalars": "^1.15.0",
