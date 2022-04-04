@@ -3,10 +3,10 @@ import { useQuery } from '@apollo/client';
 import { Approver, ArrVal, connectSafe, filterUnique, Safe } from 'lib';
 import { BytesLike, Signer } from '@features/ethers';
 import { useWallet } from '@features/wallet/wallet.provider';
-import { GetApiSafes, GetApiSafesVariables } from '@gql/GetApiSafes';
-import { GetSgSafes, GetSgSafesVariables } from '@gql/GetSgSafes';
-import { sgGql, SG_CLIENT, apiGql, API_CLIENT } from '../clients';
-import { combineRest, combine, simpleKeyExtractor } from '../combine';
+import { GetApiSafes, GetApiSafesVariables } from '@gql/apiTypes';
+import { GetSgSafes, GetSgSafesVariables } from '@gql/subgraphTypes';
+import { sgGql, SG_CLIENT, apiGql, API_CLIENT } from '@gql/clients';
+import { combineRest, combine, simpleKeyExtractor } from '@gql/combine';
 
 const SG_QUERY = sgGql`
 query GetSgSafes($approver: ID!) {

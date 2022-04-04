@@ -15,12 +15,14 @@
   "scripts": {
     "api": "yarn workspace api",
     "app": "yarn workspace app",
+    "config-ws": "yarn workspace config",
     "contracts": "yarn workspace contracts",
     "lib": "yarn workspace lib",
     "subgraph": "yarn workspace subgraph",
     "lint": "eslint \"**/*.{j,t}s\"",
     "lint:fix": "yarn lint --fix",
-    "clean": "yarn workspaces foreach run clean"
+    "clean": "yarn workspaces foreach run clean",
+    "build:libs": "yarn config-ws build && yarn lib build"
   },
   "engines": {
     "node": "16.x",
@@ -30,5 +32,8 @@
     "@typescript-eslint/eslint-plugin": "^5.15.0",
     "@typescript-eslint/parser": "^5.15.0",
     "eslint": "^8.11.0"
+  },
+  "resolutions": {
+    "graphql": "^15.8.0"
   }
 }

@@ -29,7 +29,7 @@ api/schema.gql
 
 ## App
 app/.expo
-!app/src/gql/__generated__
+app/web-build
 
 
 ## Contracts

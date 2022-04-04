@@ -4,8 +4,8 @@
   "main": "dist/index",
   "types": "dist/index",
   "scripts": {
-    "build:deps": "(cd .. && yarn workspace config build && yarn contracts typechain)",
-    "build": "yarn build:deps && tsc --build",
+    "build": "yarn generate && tsc --build",
+    "generate": "(cd .. && yarn config-ws build && yarn contracts typechain)",
     "clean": "npx rimraf dist",
     "start": "yarn build --watch"
   },

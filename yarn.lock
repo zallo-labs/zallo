@@ -170,19 +170,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@apollo/federation@npm:^0.35.4":
-  version: 0.35.4
-  resolution: "@apollo/federation@npm:0.35.4"
-  dependencies:
-    "@apollo/subgraph": ^0.3.3
-    apollo-server-types: ^3.0.2
-    lodash.xorby: ^4.7.0
-  peerDependencies:
-    graphql: ^15.8.0 || ^16.0.0
-  checksum: c7b7f2eb8a40a90876eea85037e97e3e07d6d67c441eb59362c912475b295bcdf7f34a2ef4a27d41b2f341fae691a24b714610462744f452e33299358492e014
-  languageName: node
-  linkType: hard
-
 "@apollo/protobufjs@npm:1.2.2":
   version: 1.2.2
   resolution: "@apollo/protobufjs@npm:1.2.2"
@@ -204,15 +191,6 @@ __metadata:
     apollo-pbjs: bin/pbjs
     apollo-pbts: bin/pbts
   checksum: 3f3ec1f428cbcc53760daa6f1076c9043a5aa270b2c9a2ca9f97610eabd3ee1aea08dd36fac658bab83eb6607bc62340bbc6c13ba6bba3c6776df71d68b55929
-  languageName: node
-  linkType: hard
-
-"@apollo/subgraph@npm:^0.3.3":
-  version: 0.3.3
-  resolution: "@apollo/subgraph@npm:0.3.3"
-  peerDependencies:
-    graphql: ^15.8.0 || ^16.0.0
-  checksum: e7b8350565f5d8c0f21f3f01dd4b57eb2aa1b336274b8960c27bc0ab518edcb9faf26a8a7c6dd5e15868492806d7c29b2bc6e149328c9b6ea10bbbc945456c93
   languageName: node
   linkType: hard
 
@@ -6354,9 +6332,6 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "api@workspace:api"
   dependencies:
-    "@apollo/client": ^3.5.10
-    "@apollo/federation": ^0.35.4
-    "@apollo/subgraph": ^0.3.3
     "@golevelup/ts-jest": ^0.3.2
     "@graphql-tools/delegate": ^8.5.4
     "@graphql-tools/stitch": ^8.5.2
@@ -6758,7 +6733,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"apollo-server-types@npm:^3.0.2, apollo-server-types@npm:^3.5.2":
+"apollo-server-types@npm:^3.5.2":
   version: 3.5.2
   resolution: "apollo-server-types@npm:3.5.2"
   dependencies:
@@ -6854,8 +6829,6 @@ __metadata:
     apollo: ^2.33.10
     concurrently: ^7.1.0
     config: "workspace:*"
-    dotenv: ^16.0.0
-    dotenv-cli: ^5.1.0
     ethers: ^5.6.1
     expo: ~44.0.0
     expo-secure-store: ~11.1.0
@@ -11435,20 +11408,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"dotenv-cli@npm:^5.1.0":
-  version: 5.1.0
-  resolution: "dotenv-cli@npm:5.1.0"
-  dependencies:
-    cross-spawn: ^7.0.3
-    dotenv: ^16.0.0
-    dotenv-expand: ^8.0.1
-    minimist: ^1.2.5
-  bin:
-    dotenv: cli.js
-  checksum: dd060623c4b63555effe9c25c073c0c01be1f0d17a0bc35a6b18f98ca8f918a5dfdd0ff2b879152fd2df9d57b207126d04adcb0207b9f66268ba9c788c213578
-  languageName: node
-  linkType: hard
-
 "dotenv-expand@npm:8.0.2":
   version: 8.0.2
   resolution: "dotenv-expand@npm:8.0.2"
@@ -15089,17 +15048,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"graphql@npm:14.0.2 - 14.2.0 || ^14.3.1 || ^15.0.0, graphql@npm:^15.5.0":
+"graphql@npm:^15.8.0":
   version: 15.8.0
   resolution: "graphql@npm:15.8.0"
   checksum: 423325271db8858428641b9aca01699283d1fe5b40ef6d4ac622569ecca927019fce8196208b91dd1d8eb8114f00263fe661d241d0eb40c10e5bfd650f86ec5e
-  languageName: node
-  linkType: hard
-
-"graphql@npm:^16.3.0":
-  version: 16.3.0
-  resolution: "graphql@npm:16.3.0"
-  checksum: ba540641e9cd2a8de5b989ff1433b015f232fa73aaef478d6709c1339cd43113347917acb965a5799c004667687852fc8ff0cfaa935eb26374c91c1fd7fdaeb1
   languageName: node
   linkType: hard
 

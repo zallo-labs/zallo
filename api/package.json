@@ -11,7 +11,7 @@
   },
   "scripts": {
     "prebuild": "yarn clean",
-    "build": "(cd .. && yarn lib build) && yarn generate && nest build",
+    "build": "yarn build:libs && yarn generate && nest build",
     "clean": "npx rimraf dist generated node_modules",
     "format": "prettier --config ../.prettierrc --write \"src/**/*.ts\"",
     "start": "nest start --debug --watch",
@@ -30,9 +30,6 @@
     "studio": "yarn with-env -- prisma studio"
   },
   "dependencies": {
-    "@apollo/client": "^3.5.10",
-    "@apollo/federation": "^0.35.4",
-    "@apollo/subgraph": "^0.3.3",
     "@golevelup/ts-jest": "^0.3.2",
     "@graphql-tools/delegate": "^8.5.4",
     "@graphql-tools/stitch": "^8.5.2",

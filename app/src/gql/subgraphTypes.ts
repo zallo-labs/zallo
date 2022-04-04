@@ -49,3 +49,16 @@ export interface GetSgSafes {
 export interface GetSgSafesVariables {
   approver: string;
 }
+
+/* tslint:disable */
+/* eslint-disable */
+// @generated
+// This file was automatically generated and should not be edited.
+
+//==============================================================
+// START Enums and Input Objects
+//==============================================================
+
+//==============================================================
+// END Enums and Input Objects
+//==============================================================

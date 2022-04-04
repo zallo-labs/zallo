@@ -2,7 +2,7 @@
   "name": "contracts",
   "private": true,
   "scripts": {
-    "build": "(cd .. && yarn lib build) && hardhat compile",
+    "build": "yarn build:libs && hardhat compile",
     "typechain": "hardhat typechain",
     "analyze": "myth analyze src/*",
     "test": "hardhat test",
@@ -10,7 +10,7 @@
     "test:ropsten": "hardhat test --network ropsten",
     "node:localhost": "hardhat node --hostname 0.0.0.0",
     "deploy:local": "hardhat run --network localhost scripts/deploy.ts",
-    "clean": "hardhat clean && npx rimraf abi artifacts cache typechain"
+    "clean": "hardhat clean && npx rimraf artifacts cache"
   },
   "devDependencies": {
     "@nomiclabs/hardhat-ethers": "^2.0.5",

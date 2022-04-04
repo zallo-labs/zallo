@@ -6,15 +6,14 @@
   "scripts": {
     "postinstall": "expo-yarn-workspaces postinstall",
     "publish": "expo publish --non-interactive",
-    "build:deps": "(cd .. && yarn lib build && yarn contracts build)",
-    "build:web": "yarn build:deps && expo build:web",
+    "build:web": "yarn build:libs && expo build:web",
     "start": "expo start",
     "start:android": "yarn start --android",
     "test": "jest",
-    "generate": "yarn clean && concurrently --names api,sg -c yellow,blue \"yarn generate:api\" \"yarn generate:sg\"",
-    "generate:api": "apollo client:codegen --config apollo.api.config.js --target typescript --globalTypesFile ./src/gql/__generated__/apiGlobalTypes.ts",
-    "generate:sg": "apollo client:codegen --config apollo.sg.config.js --target typescript --globalTypesFile ./src/gql/__generated__/sgGlobalTypes.ts",
-    "clean": "rimraf ./src/gql/__generated__"
+    "generate": "yarn clean && concurrently --names api,sub -c yellow,blue \"yarn generate:api\" \"yarn generate:sg\"",
+    "generate:api": "apollo client:codegen ./src/gql/apiTypes.ts --config apollo.api.config.js --target typescript --outputFlat",
+    "generate:sg": "apollo client:codegen ./src/gql/subgraphTypes.ts --config apollo.sg.config.js --target typescript --outputFlat",
+    "clean": "rimraf web-build"
   },
   "expo-yarn-workspaces": {
     "//": "https://www.npmjs.com/package/expo-yarn-workspaces"
@@ -25,8 +24,6 @@
     "@expo/config": "^6.0.19",
     "@react-native-async-storage/async-storage": "~1.15.0",
     "config": "workspace:*",
-    "dotenv": "^16.0.0",
-    "dotenv-cli": "^5.1.0",
     "ethers": "^5.6.1",
     "expo": "~44.0.0",
     "expo-secure-store": "~11.1.0",

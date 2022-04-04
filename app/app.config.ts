@@ -1,6 +1,4 @@
 import { ExpoConfig, ConfigContext } from '@expo/config';
-
-// No imports allow outside of a module
 const { CONFIG } = require('config');
 
 export default ({ config }: ConfigContext): ExpoConfig => ({
