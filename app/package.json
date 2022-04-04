@@ -6,7 +6,7 @@
   "scripts": {
     "postinstall": "expo-yarn-workspaces postinstall",
     "publish": "expo publish --non-interactive",
-    "build": "(cd .. && yarn lib build && yarn contracts build) && yarn generate",
+    "build:deps": "(cd .. && yarn lib build && yarn contracts build)",
     "start": "expo start",
     "android": "expo start --android",
     "ios": "expo start --ios",
