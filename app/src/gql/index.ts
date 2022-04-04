@@ -1,2 +1,2 @@
-export * from './get-safes.gql';
-export * from './create-cf-safe.gql';
+export * from './queries/get-safes.gql';
+export * from './mutations/create-cf-safe.gql';
