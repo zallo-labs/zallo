@@ -7,6 +7,10 @@ on:
     workflows: ['CI']
     type: [completed]
 
+env:
+  API_URL: ${{ secrets.API_URL }}
+  SUBGRAPH_GQL_URL: ${{ secrets.SUBGRAPH_GQL_URL }}
+
 jobs:
   api:
     if: ${{ github.event.workflow_run.conclusion == 'success' }}
@@ -59,7 +63,7 @@ jobs:
 
   app:
     if: ${{ github.event.workflow_run.conclusion == 'success' }}
-    depends: [ api, subgraph ]
+    needs: [ api, subgraph ]
     runs-on: ubuntu-latest
     strategy:
       matrix:
