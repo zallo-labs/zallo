@@ -1,4 +1,4 @@
-import { CONFIG } from "lib/config";
+import { CONFIG } from "config";
 import { HardhatUserConfig } from "hardhat/config";
 import "@nomiclabs/hardhat-ethers";
 import "@nomiclabs/hardhat-waffle";
@@ -39,7 +39,7 @@ const config: HardhatUserConfig = {
   },
   // Plugins
   typechain: {
-    outDir: "typechain",
+    outDir: "../lib/src/typechain",
   },
   gasReporter: {
     // https://github.com/cgewecke/eth-gas-reporter#options

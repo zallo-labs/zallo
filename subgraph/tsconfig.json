@@ -5,6 +5,5 @@
     "module": "CommonJS",
     "esModuleInterop": true,
     "resolveJsonModule": true
-  },
-  "references": [{ "path": "../lib" }]
+  }
 }
