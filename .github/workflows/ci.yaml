@@ -115,8 +115,8 @@ jobs:
       - name: 📦 Install
         run: yarn install
 
-      - name: 🏗️ Build Dependencies
-        run: yarn app build:deps
+      - name: 🏗️ Build (web)
+        run: yarn api build:web
 
       - name: 🧪 Test
         run: yarn app test
