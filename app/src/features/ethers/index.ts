@@ -3,8 +3,8 @@ import 'react-native-get-random-values';
 import '@ethersproject/shims';
 import { ethers } from 'ethers';
 import { CONFIG } from '../../config';
-export { ethers, Wallet } from 'ethers';
+export * from 'ethers';
 
-export * from '../../../../contracts/typechain';
+export * from 'lib/typechain';
 
 export const PROVIDER = ethers.getDefaultProvider('rinkeby', CONFIG.providers);

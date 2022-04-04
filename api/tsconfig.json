@@ -6,12 +6,12 @@
     "baseUrl": "./",
     "paths": {
       "~/*": ["./src/*"],
-      "~gen/*": ["./generated/*"]
+      "@gen/*": ["./generated/*"]
     },
 
     "strictPropertyInitialization": false,
     "noImplicitAny": false,
     "noUnusedLocals": false
   },
-  "references": [{ "path": "../lib" }]
+  "references": [{ "path": "../config" }, { "path": "../lib" }]
 }

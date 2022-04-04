@@ -1,10 +1,8 @@
-import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
-import { ethers } from "hardhat";
-import { Safe } from "typechain";
-import { deploy } from "./deployment";
-import { expect } from "./util";
-import { EIP712_TX_TYPE, SignedTx, Tx } from "../utils/transaction";
-import { SafeError } from "../utils/errors";
+import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/signers';
+import { ethers } from 'hardhat';
+import { deploy } from './deployment';
+import { expect } from './util';
+import { Safe, SafeError, EIP712_TX_TYPE, SignedTx, Tx } from 'lib';
 
 export const getDomain = async (safe: Safe) => ({
   chainId: (await ethers.provider.getNetwork()).chainId,
@@ -29,7 +27,7 @@ export const signTransaction = async (
 };
 
 export const createTx = (tx: Partial<Tx>): Tx => ({
-  to: "0x0000000000000000000000000000000000000000",
+  to: '0x0000000000000000000000000000000000000000',
   value: 0,
   data: [],
   nonce: 0, // TODO: generated random number
@@ -46,23 +44,21 @@ export const createSignedTx = async (
   return { tx, signatures };
 };
 
-describe("Execution", () => {
-  describe("EIP712", () => {
-    it("Domain separator", async () => {
+describe('Execution', () => {
+  describe('EIP712', () => {
+    it('Domain separator', async () => {
       const { safe, approvers } = await deploy([100], {
-        ether: "1",
+        ether: '1',
       });
       const [signer] = approvers;
 
       const domain = await getDomain(safe);
       const domainSeparator = ethers.utils._TypedDataEncoder.hashDomain(domain);
 
-      expect(await safe.connect(signer).domainSeparator()).to.eq(
-        domainSeparator,
-      );
+      expect(await safe.connect(signer).domainSeparator()).to.eq(domainSeparator);
     });
 
-    it("Tx hash", async () => {
+    it('Tx hash', async () => {
       const { safe, approvers } = await deploy([100]);
       const [signer] = approvers;
 
@@ -70,19 +66,15 @@ describe("Execution", () => {
         to: signer.address,
       });
 
-      const txHash = ethers.utils._TypedDataEncoder.hash(
-        await getDomain(safe),
-        EIP712_TX_TYPE,
-        tx,
-      );
+      const txHash = ethers.utils._TypedDataEncoder.hash(await getDomain(safe), EIP712_TX_TYPE, tx);
 
       expect(await safe.connect(signer).hashTx(tx)).to.eq(txHash);
     });
   });
 
-  describe("Valid", () => {
+  describe('Valid', () => {
     it("Execution succeeds with sufficient approval when there's 1 approver", async () => {
-      const value = ethers.utils.parseEther("1");
+      const value = ethers.utils.parseEther('1');
 
       const { safe, approvers, groupHash } = await deploy([100], {
         ether: value,
@@ -110,7 +102,7 @@ describe("Execution", () => {
       await safe.connect(receiver).execute(signedTx, groupHash);
     });
 
-    it("A non-approver can execute as long as they have the signatures", async () => {
+    it('A non-approver can execute as long as they have the signatures', async () => {
       const { safe, approvers, groupHash } = await deploy([100]);
 
       const allSigners = await ethers.getSigners();
@@ -123,11 +115,11 @@ describe("Execution", () => {
       await safe.connect(nonApprover).execute(signedTx, groupHash);
     });
 
-    it("Total approval weightings can be >100%", async () => {
+    it('Total approval weightings can be >100%', async () => {
       // TODO:
     });
 
-    it("A primary approver can directly execute a transaction", async () => {
+    it('A primary approver can directly execute a transaction', async () => {
       const {
         safe,
         groupHash,
@@ -138,7 +130,7 @@ describe("Execution", () => {
       await safe.connect(pa).execute(signedTx, groupHash);
     });
 
-    it("Batch execution with a single approver", async () => {
+    it('Batch execution with a single approver', async () => {
       const { safe, groupHash } = await deploy([100]);
 
       const signedTx = await createSignedTx(safe, [], {});
@@ -146,7 +138,7 @@ describe("Execution", () => {
       await safe.batchExecute([signedTx, signedTx], groupHash);
     });
 
-    it("Batched execution with multiple approvers", async () => {
+    it('Batched execution with multiple approvers', async () => {
       const { safe, approvers, groupHash } = await deploy([40, 40, 40]);
 
       // Use different data to generate a different txHash; remove this once random nonce gen is fixed!
@@ -156,7 +148,7 @@ describe("Execution", () => {
       await safe.batchExecute([signedTx1, signedTx2], groupHash);
     });
 
-    it("Batched transaction reverts if any reverts", async () => {
+    it('Batched transaction reverts if any reverts', async () => {
       const { safe, groupHash } = await deploy([100]);
 
       const signedTx1 = await createSignedTx(safe, [], {});
@@ -167,8 +159,8 @@ describe("Execution", () => {
     });
   });
 
-  describe("Invalid", () => {
-    it("Execution rejects when total approval weights <100%", async () => {
+  describe('Invalid', () => {
+    it('Execution rejects when total approval weights <100%', async () => {
       const { safe, groupHash, approvers } = await deploy([50, 25, 25]);
       const [, approver1, approver2] = approvers;
 
@@ -176,12 +168,10 @@ describe("Execution", () => {
 
       const exec = safe.connect(approver1).execute(signedTx, groupHash);
 
-      expect(exec).to.eventually.be.rejectedWith(
-        SafeError.TotalApprovalWeightsInsufficient,
-      );
+      expect(exec).to.eventually.be.rejectedWith(SafeError.TotalApprovalWeightsInsufficient);
     });
 
-    it("Only a primary approver can directly execute a transaction", async () => {
+    it('Only a primary approver can directly execute a transaction', async () => {
       const {
         safe,
         groupHash,
@@ -191,9 +181,7 @@ describe("Execution", () => {
       const signedTx = await createSignedTx(safe, [], {});
       const execTx = safe.connect(approver1).execute(signedTx, groupHash);
 
-      expect(execTx).to.eventually.be.rejectedWith(
-        SafeError.NotPrimaryApprover,
-      );
+      expect(execTx).to.eventually.be.rejectedWith(SafeError.NotPrimaryApprover);
     });
   });
 });

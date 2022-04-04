@@ -8,5 +8,5 @@
   },
   "include": ["./scripts", "./tasks", "./test", "./typechain"],
   "files": ["./hardhat.config.ts"],
-  "references": [{ "path": "../lib" }]
+  "references": [{ "path": "../config" }, { "path": "../lib" }]
 }
