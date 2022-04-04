@@ -1,13 +1,14 @@
 import { Module } from '@nestjs/common';
+import { GraphQLModule } from '@nestjs/graphql';
 import { PrismaModule } from 'nestjs-prisma';
+import { ApolloServerPluginLandingPageLocalDefault } from 'apollo-server-core';
+
+import { IS_DEV } from 'config';
 import { loggingMiddleware } from './middleware/prisma/logging.middleware';
 import { HealthModule } from './features/health/health.module';
-import { IS_DEV } from 'lib/config';
-import { ApolloServerPluginLandingPageLocalDefault } from 'apollo-server-core';
 import { ApproversModule } from './features/approvers/approvers.module';
 import { SafesModule } from './features/safes/safes.module';
 import { ApolloDriverConfig, ApolloDriver } from '@nestjs/apollo';
-import { GraphQLModule } from '@nestjs/graphql';
 
 @Module({
   imports: [

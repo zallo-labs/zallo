@@ -1,4 +1,4 @@
-import { CONFIG } from "lib/config";
+import { CONFIG } from "config";
 import { HardhatUserConfig } from "hardhat/config";
 import "@nomiclabs/hardhat-ethers";
 import "@nomiclabs/hardhat-waffle";
