@@ -1,9 +1,10 @@
 import React from 'react';
-import { Text, View } from 'react-native';
+import { View } from 'react-native';
 
 import { useSafes } from '@queries';
 import { useSafe } from '@features/safe/safe.provider';
 import { useWallet } from '@features/wallet/wallet.provider';
+import { Paragraph } from 'react-native-paper';
 
 export default () => {
   const wallet = useWallet();
@@ -14,8 +15,8 @@ export default () => {
 
   return (
     <View style={{ display: 'flex', flexDirection: 'column' }}>
-      <Text>Safe address: {safe.contract.address}</Text>
-      <Text>Wallet address: {wallet.address}</Text>
+      <Paragraph>Safe address: {safe.contract.address}</Paragraph>
+      <Paragraph>Wallet address: {wallet.address}</Paragraph>
     </View>
   );
 };
