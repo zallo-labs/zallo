@@ -1,17 +1,15 @@
-if (typeof process?.env === 'object') {
-  try {
-    require('dotenv').config({ path: '../.env' });
-  } catch (e) {
-    // fs or other such dependency is not available
-  }
+try {
+  require('dotenv').config({ path: '../.env' });
+} catch (e) {
+  // fs or other such dependency is not available
 }
 
 const E = process?.env ?? {};
 
-const apiPort = E.API_PORT || E.PORT || 3001;
+const apiPort = E.PORT || 3000;
 const apiUrl = E.API_URL ?? `http://[::1]:${apiPort}`;
 
-const __config = {
+export const CONFIG = {
   environment: E.ENVIRONMENT?.toLowerCase() === 'development' ? 'development' : 'production',
   providers: {
     infura: E.INFURA_ID,
@@ -32,11 +30,9 @@ const __config = {
   subgraphGqlUrl: E.SUBGRAPH_GQL_URL,
 } as const;
 
-export type Config = typeof __config;
-
-export const CONFIG: Config = __config;
-
 export default CONFIG;
+
+export type Config = typeof CONFIG;
 
 export const IS_DEV = CONFIG.environment === 'development';
 export const IS_PROD = CONFIG.environment === 'production';
