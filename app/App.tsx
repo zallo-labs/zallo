@@ -1,30 +1,27 @@
-import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View } from 'react-native';
+import { StrictMode } from 'react';
+import { Paragraph } from 'react-native-paper';
 
-import './src/features/ethers';
-import { CONFIG } from './src/config';
-import GqlTest from './src/components/Test';
-import { WalletProvider } from './src/features/wallet/wallet.provider';
-import { SafeProvider } from './src/features/safe/safe.provider';
+import '@ethers';
+import { CONFIG } from '~/config';
+import { Box } from '@components/Box';
+import GqlTest from '@components/Test';
+import { WalletProvider } from '@features/wallet/wallet.provider';
+import { SafeProvider } from '@features/safe/safe.provider';
+import { PaperProvider } from '@features/paper/paper.provider';
+import { Root } from '@features/paper/Root';
 
 export default () => (
-  <WalletProvider>
-    <SafeProvider>
-      <StatusBar style="auto" />
-      <View style={styles.container}>
-        <Text>Open up App.tsx to start working on your app! :)</Text>
-        <Text>Environment: {CONFIG.environment}</Text>
-        <GqlTest />
-      </View>
-    </SafeProvider>
-  </WalletProvider>
+  <PaperProvider>
+    <WalletProvider>
+      <SafeProvider>
+        <Root>
+          <Box flexed center>
+            <Paragraph>Open up App.tsx to start working on your app! :)</Paragraph>
+            <Paragraph>Environment: {CONFIG.environment}</Paragraph>
+            <GqlTest />
+          </Box>
+        </Root>
+      </SafeProvider>
+    </WalletProvider>
+  </PaperProvider>
 );
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-});
