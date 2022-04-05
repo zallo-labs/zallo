@@ -39,10 +39,11 @@ export class SafesResolver {
   @Mutation(() => Safe)
   async createCfSafe(
     @Args() { approvers }: CreateCfSafeArgs,
-    @UserAddr() userAddr: string,
-  ): Promise<Safe> {
+  ): // @UserAddr() userAddr: string,    // TODO:
+  Promise<Safe> {
     if (!approvers.length) throw new Error('Approvers required');
 
+    const userAddr = approvers[0].addr;
     const { addr: safeAddr, salt } = getCounterfactualAddress(userAddr, approvers);
 
     const groupHash = getGroupHash(approvers);

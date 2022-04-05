@@ -1,17 +1,15 @@
-import { createContext, ReactNode, useContext, useRef, useState } from 'react';
+import { createContext, useContext, useRef, useState } from 'react';
 import useAsyncEffect from 'use-async-effect';
+
 import { useCreateCfSafe } from '@mutations';
 import { SafeData, useSafes } from '@queries';
+import { ChildrenProps } from '@util/provider';
 
 const SafeContext = createContext<SafeData | undefined>(undefined);
 
 export const useSafe = () => useContext(SafeContext)!;
 
-export interface SafeProviderProps {
-  children: ReactNode;
-}
-
-export const SafeProvider = ({ children }: SafeProviderProps) => {
+export const SafeProvider = ({ children }: ChildrenProps) => {
   const { safes } = useSafes();
   const createCfSafe = useCreateCfSafe();
 

@@ -9,7 +9,7 @@ if (typeof process?.env === 'object') {
 const E = process?.env ?? {};
 
 const apiPort = E.API_PORT || E.PORT || 3001;
-const apiUrl = `${E.API_URL || 'http://[::1]'}:${apiPort}`;
+const apiUrl = E.API_URL ?? `http://[::1]:${apiPort}`;
 
 const __config = {
   environment: E.ENVIRONMENT?.toLowerCase() === 'development' ? 'development' : 'production',
