@@ -1,7 +1,8 @@
-import { createContext, ReactNode, useContext, useEffect, useState } from 'react';
+import { createContext, useContext, useEffect, useState } from 'react';
 import * as storage from 'expo-secure-store';
 
 import { PROVIDER, Wallet } from '@ethers';
+import { ChildrenProps } from '@util/provider';
 
 const WalletContext = createContext<Wallet | undefined>(undefined);
 
@@ -9,11 +10,7 @@ export const useWallet = () => useContext(WalletContext)!;
 
 const KEY = 'private-key';
 
-export interface WalletProviderProps {
-  children: ReactNode;
-}
-
-export const WalletProvider = ({ children }: WalletProviderProps) => {
+export const WalletProvider = ({ children }: ChildrenProps) => {
   const [wallet, setWallet] = useState<Wallet | undefined>(undefined);
   const [writeReq, setWriteReq] = useState(false);
 
