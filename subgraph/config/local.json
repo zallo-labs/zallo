@@ -1,4 +1,4 @@
 {
-    "network": "mainnet",
-    "startBlock": 0
+  "network": "mainnet",
+  "startBlock": 0
 }

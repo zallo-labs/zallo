@@ -10440,7 +10440,7 @@ __metadata:
     hardhat-tracer: ^1.0.0-alpha.6
     lib: "workspace:*"
     prettier: ^2.5.1
-    prettier-plugin-solidity: ^1.0.0-dev.21
+    prettier-plugin-solidity: ^1.0.0-beta.19
     solc: 0.8.9
     solhint: ^3.3.7
     solidity-coverage: ^0.7.20
@@ -22999,7 +22999,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"prettier-plugin-solidity@npm:^1.0.0-dev.21":
+"prettier-plugin-solidity@npm:^1.0.0-beta.19":
   version: 1.0.0-dev.21
   resolution: "prettier-plugin-solidity@npm:1.0.0-dev.21"
   dependencies:

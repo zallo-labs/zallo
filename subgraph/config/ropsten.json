@@ -1,4 +1,4 @@
 {
-    "network": "ropsten",
-    "startBlock": 12154279
+  "network": "ropsten",
+  "startBlock": 12154279
 }

@@ -1,23 +1,23 @@
-import { CONFIG } from "config";
-import { HardhatUserConfig } from "hardhat/config";
-import "@nomiclabs/hardhat-ethers";
-import "@nomiclabs/hardhat-waffle";
-import "@nomiclabs/hardhat-etherscan";
+import { CONFIG } from 'config';
+import { HardhatUserConfig } from 'hardhat/config';
+import '@nomiclabs/hardhat-ethers';
+import '@nomiclabs/hardhat-waffle';
+import '@nomiclabs/hardhat-etherscan';
 // https://github.com/protofire/solhint/blob/master/docs/rules.md
-import "@nomiclabs/hardhat-solhint";
-import "@typechain/hardhat";
+import '@nomiclabs/hardhat-solhint';
+import '@typechain/hardhat';
 
-import "solidity-coverage";
-import "hardhat-gas-reporter";
-import "hardhat-abi-exporter";
-import "hardhat-tracer"; // hh test --logs
+import 'solidity-coverage';
+import 'hardhat-gas-reporter';
+import 'hardhat-abi-exporter';
+import 'hardhat-tracer'; // hh test --logs
 // import "hardhat-contract-sizer";
 // import "hardhat-storage-layout";
 
 // Tasks
-import "./tasks/accounts";
-import "./tasks/balance";
-import "./tasks/deposit";
+import './tasks/accounts';
+import './tasks/balance';
+import './tasks/deposit';
 
 // Consider plugins
 // https://hardhat.org/plugins/hardhat-watcher.html
@@ -25,10 +25,10 @@ import "./tasks/deposit";
 // https://hardhat.org/config/
 const config: HardhatUserConfig = {
   solidity: {
-    version: "0.8.9",
+    version: '0.8.9',
     settings: {},
   },
-  defaultNetwork: "hardhat",
+  defaultNetwork: 'hardhat',
   networks: {
     // https://hardhat.org/hardhat-network/reference/
     hardhat: {},
@@ -39,12 +39,12 @@ const config: HardhatUserConfig = {
   },
   // Plugins
   typechain: {
-    outDir: "../lib/src/typechain",
+    outDir: '../lib/src/typechain',
   },
   gasReporter: {
     // https://github.com/cgewecke/eth-gas-reporter#options
     enabled: false,
-    currency: "USD",
+    currency: 'USD',
     coinmarketcap: CONFIG.coinmarketcapApiKey,
   },
   etherscan: {
@@ -52,7 +52,7 @@ const config: HardhatUserConfig = {
   },
   abiExporter: {
     runOnCompile: true,
-    path: "./abi",
+    path: './abi',
     flat: true,
   },
 };

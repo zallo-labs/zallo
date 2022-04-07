@@ -1,8 +1,8 @@
-import { task } from "hardhat/config";
+import { task } from 'hardhat/config';
 
-task("deposit", "Deposit funds to an address")
-  .addParam("account", "The account's address")
-  .addParam("amount", "Deposit amount (in ETH)")
+task('deposit', 'Deposit funds to an address')
+  .addParam('account', "The account's address")
+  .addParam('amount', 'Deposit amount (in ETH)')
   .setAction(async (taskArgs, { ethers }) => {
     const signers = await ethers.getSigners();
     const signer = signers[signers.length - 1];
@@ -14,8 +14,8 @@ task("deposit", "Deposit funds to an address")
     });
 
     console.log(
-      `${ethers.utils.formatEther(value)} deposited to ${
-        taskArgs.account
-      } in transaction ${tx.hash}`
+      `${ethers.utils.formatEther(value)} deposited to ${taskArgs.account} in transaction ${
+        tx.hash
+      }`,
     );
   });

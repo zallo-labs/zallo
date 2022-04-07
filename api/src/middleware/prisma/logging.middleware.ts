@@ -1,4 +1,4 @@
-import { Prisma } from "@prisma/client";
+import { Prisma } from '@prisma/client';
 
 export const loggingMiddleware = (): Prisma.Middleware => async (params, next) => {
   const before = Date.now();

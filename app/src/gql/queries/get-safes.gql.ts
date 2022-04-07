@@ -3,8 +3,8 @@ import { useQuery } from '@apollo/client';
 import { Approver, ArrVal, connectSafe, filterUnique, Safe } from 'lib';
 import { BytesLike, Signer } from '@features/ethers';
 import { useWallet } from '@features/wallet/WalletProvider';
-import { GetApiSafes, GetApiSafesVariables } from '@gql/apiTypes';
-import { GetSgSafes, GetSgSafesVariables } from '@gql/subgraphTypes';
+import { GetApiSafes, GetApiSafesVariables } from '@gql/api.generated';
+import { GetSgSafes, GetSgSafesVariables } from '@gql/subgraph.generated';
 import { sgGql, SG_CLIENT, apiGql, API_CLIENT } from '@gql/clients';
 import { combineRest, combine, simpleKeyExtractor } from '@gql/combine';
 

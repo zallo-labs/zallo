@@ -1,39 +1,34 @@
-import { ethers } from "hardhat";
-import { deploy } from "./deployment";
-import { createSignedTx } from "./execution";
-import {
-  compareAddresses,
-  expect,
-  hashGroup,
-  toGroup,
-} from "./util";
-import { percentToFixedWeight, fixedWeightToPercent, SafeError } from "lib";
+import { ethers } from 'hardhat';
+import { deploy } from './deployment';
+import { createSignedTx } from './execution';
+import { compareAddresses, expect, hashGroup, toGroup } from './util';
+import { percentToFixedWeight, fixedWeightToPercent, SafeError } from 'lib';
 
-describe("Group", () => {
-  it("Hashes", async () => {
+describe('Group', () => {
+  it('Hashes', async () => {
     const { safe, group, groupHash } = await deploy([100]);
 
     const actualGroupHash = await safe.hashGroup(group);
     expect(actualGroupHash).to.eq(groupHash);
   });
 
-  it("Group approver weights must sum to at least 100%", async () => {
+  it('Group approver weights must sum to at least 100%', async () => {
     const [approver1, approver2] = await ethers.getSigners();
 
-    const SafeFactory = await ethers.getContractFactory("Safe");
+    const SafeFactory = await ethers.getContractFactory('Safe');
     const safeDeployment = SafeFactory.connect(approver1).deploy(
       [
         { addr: approver1.address, weight: percentToFixedWeight(90) },
         { addr: approver2.address, weight: percentToFixedWeight(9) },
-      ].sort((a, b) => compareAddresses(a.addr, b.addr))
+      ].sort((a, b) => compareAddresses(a.addr, b.addr)),
     );
 
     expect(safeDeployment).to.eventually.be.rejectedWith(
-      SafeError.TotalGroupWeightLessThan100Percent
+      SafeError.TotalGroupWeightLessThan100Percent,
     );
   });
 
-  it("Weight percentage conversion", async () => {
+  it('Weight percentage conversion', async () => {
     const weight35 = percentToFixedWeight(35);
     expect(weight35).to.eq(percentToFixedWeight(fixedWeightToPercent(weight35)));
 
@@ -41,8 +36,8 @@ describe("Group", () => {
     expect(weight100).to.eq(percentToFixedWeight(fixedWeightToPercent(weight100)));
   });
 
-  describe("Through proposal", () => {
-    it("Group can be added", async () => {
+  describe('Through proposal', () => {
+    it('Group can be added', async () => {
       const {
         safe,
         groupHash,
@@ -54,7 +49,7 @@ describe("Group", () => {
 
       const signedTx = await createSignedTx(safe, [], {
         to: safe.address,
-        data: safe.interface.encodeFunctionData("addGroup", [newGroup]),
+        data: safe.interface.encodeFunctionData('addGroup', [newGroup]),
       });
 
       await safe.connect(approver).execute(signedTx, groupHash);
@@ -62,7 +57,7 @@ describe("Group", () => {
       // TODO: check group was added
     });
 
-    it("Group can be removed", async () => {
+    it('Group can be removed', async () => {
       const {
         safe,
         groupHash,
@@ -75,23 +70,21 @@ describe("Group", () => {
 
       const addNewGroupSignedTx = await createSignedTx(safe, [], {
         to: safe.address,
-        data: safe.interface.encodeFunctionData("addGroup", [newGroup]),
+        data: safe.interface.encodeFunctionData('addGroup', [newGroup]),
       });
       await safe.connect(approver).execute(addNewGroupSignedTx, groupHash);
 
       const removeNewGroupSignedTx = await createSignedTx(safe, [], {
         to: safe.address,
-        data: safe.interface.encodeFunctionData("removeGroup", [newGroupHash]),
+        data: safe.interface.encodeFunctionData('removeGroup', [newGroupHash]),
       });
-      await safe
-        .connect(newApprover)
-        .execute(removeNewGroupSignedTx, newGroupHash);
+      await safe.connect(newApprover).execute(removeNewGroupSignedTx, newGroupHash);
 
       // TODO: check group is no longer valid
     });
   });
 
-  describe("Direct calls", () => {
+  describe('Direct calls', () => {
     it("Group can't be added", async () => {
       const {
         safe,

@@ -1,5 +1,5 @@
-import { Address, ethereum } from "@graphprotocol/graph-ts";
-import { Safe } from "../generated/Safe/Safe";
+import { Address, ethereum } from '@graphprotocol/graph-ts';
+import { Safe } from '../generated/Safe/Safe';
 
 export function getSafe(e: ethereum.Event): Safe {
   return Safe.bind(e.address);
