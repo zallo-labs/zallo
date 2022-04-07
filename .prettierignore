@@ -2,12 +2,11 @@
 **/node_modules
 **/cache
 **/dist
-**/generated
+**/*generated*
 .yarn
 
 
 ## App
-app/__generated__
 app/.expo*
 
 
