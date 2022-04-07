@@ -1,6 +1,6 @@
-import React, { ComponentProps } from 'react';
+import { ComponentProps } from 'react';
 import { ViewProps } from 'react-native';
-import { Card, useTheme } from 'react-native-paper';
+import { Surface, useTheme } from 'react-native-paper';
 import styled from 'styled-components/native';
 import {
   borders,
@@ -15,15 +15,16 @@ import {
   SpaceProps,
 } from 'styled-system';
 
+import { ChildrenProps } from '@util/provider';
+
 export interface InternalBoxProps
-  extends ViewProps,
+  extends ChildrenProps,
+    ViewProps,
     BordersProps,
     ColorProps,
     FlexboxProps,
     LayoutProps,
     SpaceProps {
-  children?: React.ReactNode;
-
   flexed?: boolean;
   center?: boolean;
   horizontal?: boolean;
@@ -66,22 +67,26 @@ const InternalBox = styled.View<InternalBoxProps>`
   `}
 `;
 
+type SurfaceStyleProps = ComponentProps<typeof Surface>['style'];
+
 export interface BoxProps extends InternalBoxProps {
-  card?: boolean;
-  cardProps?: ComponentProps<typeof Card>;
+  surface?: boolean | SurfaceStyleProps;
+  rounded?: boolean;
 }
 
-export const Box = ({ children, card, cardProps, ...props }: BoxProps) => {
-  const { colors } = useTheme();
+export const Box = ({ children, surface, rounded, ...props }: BoxProps) => {
+  const theme = useTheme();
 
-  return card ? (
-    <Card {...cardProps}>
-      <InternalBox mx={5} my={3} {...props}>
+  const borderRadius = rounded ? theme.roundness * 5 : undefined;
+
+  return surface ? (
+    <Surface style={{ ...(typeof surface === 'object' ? surface : undefined), borderRadius }}>
+      <InternalBox mx={3} my={3} {...props}>
         {children}
       </InternalBox>
-    </Card>
+    </Surface>
   ) : (
-    <InternalBox backgroundColor={colors.background} {...props}>
+    <InternalBox borderRadius={borderRadius} {...props}>
       {children}
     </InternalBox>
   );
