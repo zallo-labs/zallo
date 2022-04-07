@@ -7,6 +7,6 @@ export * from 'lib/typechain';
 import { ethers } from 'ethers';
 import { CONFIG } from '~/config';
 
-export const PROVIDER = ethers.getDefaultProvider('rinkeby', CONFIG.providers);
+export const PROVIDER = ethers.getDefaultProvider('ropsten', CONFIG.providers);
 
-export const CHAIN_ID = 3; // Rinkeby
+export const CHAIN_ID = 3; // Ropsten
