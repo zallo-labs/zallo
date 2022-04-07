@@ -1,27 +1,30 @@
-import { StrictMode } from 'react';
-import { Paragraph } from 'react-native-paper';
+import { NavigationContainer } from '@react-navigation/native';
+import { Provider as PaperProvider, useTheme } from 'react-native-paper';
+import { StatusBar } from 'expo-status-bar';
 
 import '@ethers';
-import { CONFIG } from '~/config';
-import { Box } from '@components/Box';
-import GqlTest from '@components/Test';
-import { WalletProvider } from '@features/wallet/wallet.provider';
-import { SafeProvider } from '@features/safe/safe.provider';
-import { PaperProvider } from '@features/paper/paper.provider';
-import { Root } from '@features/paper/Root';
+import { WalletProvider } from '@features/wallet/WalletProvider';
+import { SafeProvider } from '@features/safe/SafeProvider';
+import { RootNavigation } from '@features/navigation/RootNavigation';
+import { SafeArea } from '@components/SafeArea';
+import { NAV_THEME, PAPER_THEME } from '~/theme';
+
+const Status = () => {
+  const { colors } = useTheme();
+  return <StatusBar style="inverted" backgroundColor={colors.background} />;
+};
 
 export default () => (
-  <PaperProvider>
-    <WalletProvider>
-      <SafeProvider>
-        <Root>
-          <Box flexed center>
-            <Paragraph>Open up App.tsx to start working on your app! :)</Paragraph>
-            <Paragraph>Environment: {CONFIG.environment}</Paragraph>
-            <GqlTest />
-          </Box>
-        </Root>
-      </SafeProvider>
-    </WalletProvider>
+  <PaperProvider theme={PAPER_THEME}>
+    <SafeArea>
+      <Status />
+      <WalletProvider>
+        <SafeProvider>
+          <NavigationContainer theme={NAV_THEME}>
+            <RootNavigation />
+          </NavigationContainer>
+        </SafeProvider>
+      </WalletProvider>
+    </SafeArea>
   </PaperProvider>
 );

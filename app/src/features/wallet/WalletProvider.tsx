@@ -3,6 +3,7 @@ import * as storage from 'expo-secure-store';
 
 import { PROVIDER, Wallet } from '@ethers';
 import { ChildrenProps } from '@util/provider';
+import { CONFIG, IS_DEV } from '~/config';
 
 const WalletContext = createContext<Wallet | undefined>(undefined);
 
@@ -19,6 +20,8 @@ export const WalletProvider = ({ children }: ChildrenProps) => {
       const pk = await storage.getItemAsync(KEY);
       if (pk) {
         setWallet(new Wallet(pk, PROVIDER));
+      } else if (IS_DEV && CONFIG.wallet.privateKey) {
+        setWallet(new Wallet(CONFIG.wallet.privateKey, PROVIDER));
       } else {
         setWallet(Wallet.createRandom().connect(PROVIDER));
         setWriteReq(true);

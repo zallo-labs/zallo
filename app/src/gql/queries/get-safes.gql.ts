@@ -2,7 +2,7 @@ import { useQuery } from '@apollo/client';
 
 import { Approver, ArrVal, connectSafe, filterUnique, Safe } from 'lib';
 import { BytesLike, Signer } from '@features/ethers';
-import { useWallet } from '@features/wallet/wallet.provider';
+import { useWallet } from '@features/wallet/WalletProvider';
 import { GetApiSafes, GetApiSafesVariables } from '@gql/apiTypes';
 import { GetSgSafes, GetSgSafesVariables } from '@gql/subgraphTypes';
 import { sgGql, SG_CLIENT, apiGql, API_CLIENT } from '@gql/clients';
