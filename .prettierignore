@@ -19,3 +19,7 @@ contracts/gasReporterOutput.json
 
 ## Lib
 lib/src/typechain
+
+
+## Subgraph
+subgraph/subgraph.mustache.yaml
