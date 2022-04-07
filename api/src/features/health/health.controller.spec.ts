@@ -1,9 +1,9 @@
-import { createMock, DeepMocked } from "@golevelup/ts-jest";
-import { HealthCheckService } from "@nestjs/terminus";
-import { Test, TestingModule } from "@nestjs/testing";
-import { HealthController } from "./health.controller";
+import { createMock, DeepMocked } from '@golevelup/ts-jest';
+import { HealthCheckService } from '@nestjs/terminus';
+import { Test, TestingModule } from '@nestjs/testing';
+import { HealthController } from './health.controller';
 
-describe("HealthController", () => {
+describe('HealthController', () => {
   let controller: HealthController;
   let health: DeepMocked<HealthCheckService>;
 
@@ -18,18 +18,18 @@ describe("HealthController", () => {
     health = module.get(HealthCheckService);
   });
 
-  it("should be defined", () => {
+  it('should be defined', () => {
     expect(controller).toBeDefined();
   });
 
-  it("Check should succeed", async () => {
+  it('Check should succeed', async () => {
     health.check.mockReturnValue(
       (async () => ({
-        status: "ok",
+        status: 'ok',
         details: {},
       }))(),
     );
 
-    expect((await controller.check()).status).toEqual("ok");
+    expect((await controller.check()).status).toEqual('ok');
   });
 });

@@ -22,14 +22,14 @@ struct SignedTx {
   bytes[] signatures;
 }
 
-import "hardhat/console.sol";
-import "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
+import 'hardhat/console.sol';
+import '@openzeppelin/contracts/utils/cryptography/ECDSA.sol';
 
-import "./EIP712.sol";
+import './EIP712.sol';
 
 contract Safe is EIP712 {
   bytes32 private constant TX_TYPEHASH =
-    keccak256("Tx(address to,uint256 value,bytes data,uint256 nonce)");
+    keccak256('Tx(address to,uint256 value,bytes data,uint256 nonce)');
 
   // Fixed-point percentage with a precision of 28; e.g. 5.2% = 0.52 * 10 ** 28
   // A int256 can safely hold ~7e47 uint96s (min. bytes required to store the precision)
@@ -40,13 +40,7 @@ contract Safe is EIP712 {
 
   /* Events */
   event Deposit(address from, uint256 value);
-  event Execution(
-    Tx tx,
-    bytes32 groupHash,
-    address[] approvers,
-    address executor,
-    bytes response
-  );
+  event Execution(Tx tx, bytes32 groupHash, address[] approvers, address executor, bytes response);
   event GroupAdded(Approver[] approvers);
   event GroupRemoved(bytes32 groupHash);
 
@@ -98,11 +92,7 @@ contract Safe is EIP712 {
     }
   }
 
-  function addGroup(Approver[] calldata _approvers)
-    external
-    onlySafe
-    returns (bytes32)
-  {
+  function addGroup(Approver[] calldata _approvers) external onlySafe returns (bytes32) {
     return _addGroup(_approvers);
   }
 
@@ -119,19 +109,11 @@ contract Safe is EIP712 {
     return ECDSA.toTypedDataHash(domainSeparator(), txHash);
   }
 
-  function hashGroup(Approver[] memory _approvers)
-    public
-    pure
-    returns (bytes32)
-  {
+  function hashGroup(Approver[] memory _approvers) public pure returns (bytes32) {
     return keccak256(abi.encode(_approvers));
   }
 
-  function recoverAddress(bytes32 _hash, bytes memory _signature)
-    public
-    pure
-    returns (address)
-  {
+  function recoverAddress(bytes32 _hash, bytes memory _signature) public pure returns (address) {
     return ECDSA.recover(_hash, _signature);
   }
 
@@ -181,9 +163,7 @@ contract Safe is EIP712 {
   }
 
   function _call(Tx calldata _tx) internal returns (bytes memory) {
-    (bool success, bytes memory response) = _tx.to.call{value: _tx.value}(
-      _tx.data
-    );
+    (bool success, bytes memory response) = _tx.to.call{value: _tx.value}(_tx.data);
 
     if (!success) revert ExecutionReverted(response);
 
@@ -203,8 +183,7 @@ contract Safe is EIP712 {
     for (uint256 i = 0; i < _approvers.length; i++) {
       Approver memory approver = _approvers[i];
 
-      if (approver.weight > uint256(_100_PERCENT))
-        revert ApproverWeightExceeds100Percent();
+      if (approver.weight > uint256(_100_PERCENT)) revert ApproverWeightExceeds100Percent();
 
       group.approvers[approver.addr] = approver.weight;
 
@@ -242,8 +221,7 @@ contract Safe is EIP712 {
   modifier approversUniqueAndSortedAsc(Approver[] memory _approvers) {
     // Gas efficient way to assert that _approvers is a unique set
     for (uint256 i = 1; i < _approvers.length; i++) {
-      if (_approvers[i - 1].addr >= _approvers[i].addr)
-        revert ApproversNotAscending();
+      if (_approvers[i - 1].addr >= _approvers[i].addr) revert ApproversNotAscending();
     }
     _;
   }

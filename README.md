@@ -1,12 +1,15 @@
 # metasafe
 
 ## Setup
+
 ```bash
 yarn install
 ```
 
 ## API
+
 ### Local
+
 ```bash
 # Build
 yarn api build
@@ -19,6 +22,7 @@ yarn api start
 ```
 
 #### Docker
+
 ```bash
 # Build
 docker build -t metasafe-api .
@@ -28,7 +32,9 @@ docker run --rm metasafe-api:latest
 ```
 
 ### Hosted
+
 #### Setup
+
 ```bash
 # Login
 heroku login
@@ -42,18 +48,20 @@ heroku addons:create heroku-postgresql -a metasafe-api --name metasafe-api-shado
 ```
 
 #### Manual Deployment
+
 ```bash
 heroku container:push web -a metasafe-api
 heroku container:release web -a metasafe-api
 ```
 
 #### Logs
+
 ```bash
 heroku logs --tail -a metasafe-api
 ```
 
-
 ## App
+
 ```bash
 # Build
 yarn app build
@@ -66,6 +74,7 @@ yarn app start
 ```
 
 ## Contracts
+
 ```bash
 # Build
 yarn contracts build

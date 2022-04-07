@@ -8,20 +8,20 @@
 // ====================================================
 
 export interface CreateCfSafe_createCfSafe_groups_approvers {
-  __typename: "GroupApprover";
+  __typename: 'GroupApprover';
   approverId: string;
   weight: any;
 }
 
 export interface CreateCfSafe_createCfSafe_groups {
-  __typename: "Group";
+  __typename: 'Group';
   id: string;
   hash: string;
   approvers: CreateCfSafe_createCfSafe_groups_approvers[] | null;
 }
 
 export interface CreateCfSafe_createCfSafe {
-  __typename: "Safe";
+  __typename: 'Safe';
   id: string;
   isCf: boolean;
   deploySalt: string;
@@ -46,20 +46,20 @@ export interface CreateCfSafeVariables {
 // ====================================================
 
 export interface GetApiSafes_approver_safes_groups_approvers {
-  __typename: "GroupApprover";
+  __typename: 'GroupApprover';
   approverId: string;
   weight: any;
 }
 
 export interface GetApiSafes_approver_safes_groups {
-  __typename: "Group";
+  __typename: 'Group';
   id: string;
   hash: string;
   approvers: GetApiSafes_approver_safes_groups_approvers[] | null;
 }
 
 export interface GetApiSafes_approver_safes {
-  __typename: "Safe";
+  __typename: 'Safe';
   id: string;
   isCf: boolean;
   deploySalt: string;
@@ -67,7 +67,7 @@ export interface GetApiSafes_approver_safes {
 }
 
 export interface GetApiSafes_approver {
-  __typename: "Approver";
+  __typename: 'Approver';
   safes: GetApiSafes_approver_safes[];
 }
 
@@ -89,20 +89,20 @@ export interface GetApiSafesVariables {
 // ====================================================
 
 export interface SafeFields_groups_approvers {
-  __typename: "GroupApprover";
+  __typename: 'GroupApprover';
   approverId: string;
   weight: any;
 }
 
 export interface SafeFields_groups {
-  __typename: "Group";
+  __typename: 'Group';
   id: string;
   hash: string;
   approvers: SafeFields_groups_approvers[] | null;
 }
 
 export interface SafeFields {
-  __typename: "Safe";
+  __typename: 'Safe';
   id: string;
   isCf: boolean;
   deploySalt: string;

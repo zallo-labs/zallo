@@ -1,12 +1,12 @@
-import { Address, Bytes, ethereum } from "@graphprotocol/graph-ts";
+import { Address, Bytes, ethereum } from '@graphprotocol/graph-ts';
 import {
   Deposit as DepositEvent,
   Execution,
   GroupAdded,
   GroupRemoved,
   Safe__hashGroupInput_approversStruct,
-  Safe__hashTxInput_txStruct
-} from "../generated/Safe/Safe";
+  Safe__hashTxInput_txStruct,
+} from '../generated/Safe/Safe';
 import {
   Approver,
   Deposit,
@@ -14,9 +14,9 @@ import {
   GroupApprover,
   Transaction,
   TransactionApprover,
-  Safe as SafeObj
-} from "../generated/schema";
-import { getApproverId, getSafe, getSafeObjId, getTxApproverId } from "./util";
+  Safe as SafeObj,
+} from '../generated/schema';
+import { getApproverId, getSafe, getSafeObjId, getTxApproverId } from './util';
 
 /* UTIL */
 function getEventId(e: ethereum.Event): string {
@@ -53,7 +53,7 @@ function getOrCreateApprover(addr: Address): Approver {
 export function handleGroupAdded(e: GroupAdded): void {
   const safe = getSafe(e);
   const hash = safe.hashGroup(
-    changetype<Array<Safe__hashGroupInput_approversStruct>>(e.params.approvers)
+    changetype<Array<Safe__hashGroupInput_approversStruct>>(e.params.approvers),
   );
   const id = getGroupId(safe._address, hash);
 
@@ -69,7 +69,7 @@ export function handleGroupAdded(e: GroupAdded): void {
     const approver = e.params.approvers[i];
 
     const groupApprover = new GroupApprover(
-      `${safe._address.toHex()}-${hash.toHex()}-${approver.addr.toHex()}`
+      `${safe._address.toHex()}-${hash.toHex()}-${approver.addr.toHex()}`,
     );
     groupApprover.group = id;
     groupApprover.approver = getOrCreateApprover(approver.addr).id;

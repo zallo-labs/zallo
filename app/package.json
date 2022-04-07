@@ -11,8 +11,8 @@
     "start:android": "yarn start --android",
     "test": "jest",
     "generate": "yarn clean && concurrently --names api,sub -c yellow,blue \"yarn generate:api\" \"yarn generate:sg\"",
-    "generate:api": "apollo client:codegen ./src/gql/apiTypes.ts --config apollo.api.config.js --target typescript --outputFlat",
-    "generate:sg": "apollo client:codegen ./src/gql/subgraphTypes.ts --config apollo.sg.config.js --target typescript --outputFlat",
+    "generate:api": "apollo client:codegen ./src/gql/api.generated.ts --config apollo.api.config.js --target typescript --outputFlat",
+    "generate:sg": "apollo client:codegen ./src/gql/subgraph.generated.ts --config apollo.sg.config.js --target typescript --outputFlat",
     "clean": "rimraf web-build"
   },
   "expo-yarn-workspaces": {

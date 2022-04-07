@@ -1,17 +1,14 @@
-import { ethers } from "hardhat";
-import { BigNumber } from "@ethersproject/bignumber";
-import { hashGroup, toGroup } from "./util";
-import { Safe__factory } from "lib";
+import { ethers } from 'hardhat';
+import { BigNumber } from '@ethersproject/bignumber';
+import { hashGroup, toGroup } from './util';
+import { Safe__factory } from 'lib';
 
 interface DeployOptions {
   ether?: string | BigNumber;
 }
 
-export const deploy = async (
-  weights: number[],
-  { ether }: DeployOptions = {},
-) => {
-  if (weights.length === 0) throw Error("len(weights) must be > 0");
+export const deploy = async (weights: number[], { ether }: DeployOptions = {}) => {
+  if (weights.length === 0) throw Error('len(weights) must be > 0');
 
   const priorBlock = await ethers.provider.getBlockNumber();
 
@@ -20,11 +17,9 @@ export const deploy = async (
   const others = allSigners.slice(weights.length);
   const [deployer] = approvers;
 
-  const SafeFactory = await ethers.getContractFactory("Safe") as Safe__factory;
+  const SafeFactory = (await ethers.getContractFactory('Safe')) as Safe__factory;
 
-  const group = toGroup(
-    approvers.map((signer, i) => ({ signer, weight: weights[i] })),
-  );
+  const group = toGroup(approvers.map((signer, i) => ({ signer, weight: weights[i] })));
 
   const safe = await SafeFactory.connect(deployer).deploy(group);
   await safe.deployed();
@@ -35,7 +30,7 @@ export const deploy = async (
 
     await donator.sendTransaction({
       to: safe.address,
-      value: typeof ether === "string" ? ethers.utils.parseEther(ether) : ether,
+      value: typeof ether === 'string' ? ethers.utils.parseEther(ether) : ether,
     });
   }
 
@@ -49,8 +44,8 @@ export const deploy = async (
   };
 };
 
-describe("Deployment", async () => {
-  it("Deploys", async () => {
+describe('Deployment', async () => {
+  it('Deploys', async () => {
     await deploy([100]);
   });
 });

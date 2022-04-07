@@ -8,13 +8,13 @@
 // ====================================================
 
 export interface GetSgSafes_approver_groups_group_safe_groups_approvers {
-  __typename: "GroupApprover";
+  __typename: 'GroupApprover';
   id: string;
   weight: any;
 }
 
 export interface GetSgSafes_approver_groups_group_safe_groups {
-  __typename: "Group";
+  __typename: 'Group';
   id: string;
   hash: any;
   active: boolean;
@@ -22,23 +22,23 @@ export interface GetSgSafes_approver_groups_group_safe_groups {
 }
 
 export interface GetSgSafes_approver_groups_group_safe {
-  __typename: "Safe";
+  __typename: 'Safe';
   id: string;
   groups: GetSgSafes_approver_groups_group_safe_groups[];
 }
 
 export interface GetSgSafes_approver_groups_group {
-  __typename: "Group";
+  __typename: 'Group';
   safe: GetSgSafes_approver_groups_group_safe;
 }
 
 export interface GetSgSafes_approver_groups {
-  __typename: "GroupApprover";
+  __typename: 'GroupApprover';
   group: GetSgSafes_approver_groups_group;
 }
 
 export interface GetSgSafes_approver {
-  __typename: "Approver";
+  __typename: 'Approver';
   groups: GetSgSafes_approver_groups[];
 }
 
