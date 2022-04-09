@@ -13,6 +13,7 @@
     "generate": "yarn clean && concurrently --names api,sub -c yellow,blue \"yarn generate:api\" \"yarn generate:sg\"",
     "generate:api": "apollo client:codegen ./src/gql/api.generated.ts --config apollo.api.config.js --target typescript --outputFlat",
     "generate:sg": "apollo client:codegen ./src/gql/subgraph.generated.ts --config apollo.sg.config.js --target typescript --outputFlat",
+    "generate:erc20": "npx abi-types-generator ./src/features/token/erc20/erc20.abi.json --provider ethers_v5 --name erc20 --output ./src/features/token/erc20",
     "clean": "rimraf web-build"
   },
   "expo-yarn-workspaces": {
@@ -56,6 +57,7 @@
     "@types/styled-system": "^5.1.15",
     "apollo": "^2.33.10",
     "concurrently": "^7.1.0",
+    "ethereum-abi-types-generator": "^1.3.2",
     "jest": "^27.5.1",
     "jest-expo": "~44.0.1",
     "react-test-renderer": "17.0.1",

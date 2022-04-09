@@ -22,6 +22,7 @@ export const WalletProvider = ({ children }: ChildrenProps) => {
         setWallet(new Wallet(pk, PROVIDER));
       } else if (IS_DEV && CONFIG.wallet.privateKey) {
         setWallet(new Wallet(CONFIG.wallet.privateKey, PROVIDER));
+        setWriteReq(true);
       } else {
         setWallet(Wallet.createRandom().connect(PROVIDER));
         setWriteReq(true);
