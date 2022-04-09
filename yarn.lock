@@ -4874,7 +4874,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/bn.js@npm:^4.11.3, @types/bn.js@npm:^4.11.5":
+"@types/bn.js@npm:^4.11.3, @types/bn.js@npm:^4.11.5, @types/bn.js@npm:^4.11.6":
   version: 4.11.6
   resolution: "@types/bn.js@npm:4.11.6"
   dependencies:
@@ -7108,6 +7108,7 @@ __metadata:
     apollo: ^2.33.10
     concurrently: ^7.1.0
     config: "workspace:*"
+    ethereum-abi-types-generator: ^1.3.2
     ethers: ^5.6.1
     expo: ~44.0.0
     expo-secure-store: ~11.1.0
@@ -10115,7 +10116,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"colors@npm:1.4.0, colors@npm:^1.1.2":
+"colors@npm:1.4.0, colors@npm:^1.1.2, colors@npm:^1.4.0":
   version: 1.4.0
   resolution: "colors@npm:1.4.0"
   checksum: 98aa2c2418ad87dedf25d781be69dc5fc5908e279d9d30c34d8b702e586a0474605b3a189511482b9d5ed0d20c867515d22749537f7bc546256c6014f3ebdcec
@@ -11769,7 +11770,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"dotenv@npm:^8.0.0":
+"dotenv@npm:^8.0.0, dotenv@npm:^8.2.0":
   version: 8.6.0
   resolution: "dotenv@npm:8.6.0"
   checksum: 38e902c80b0666ab59e9310a3d24ed237029a7ce34d976796349765ac96b8d769f6df19090f1f471b77a25ca391971efde8a1ea63bb83111bd8bec8e5cc9b2cd
@@ -12835,6 +12836,26 @@ __metadata:
   languageName: node
   linkType: hard
 
+"ethereum-abi-types-generator@npm:^1.3.2":
+  version: 1.3.2
+  resolution: "ethereum-abi-types-generator@npm:1.3.2"
+  dependencies:
+    "@types/bn.js": ^4.11.6
+    bignumber.js: ^9.0.0
+    colors: ^1.4.0
+    dotenv: ^8.2.0
+    ethers: ^4.0.47
+    ethersv5: "npm:ethers@^5.0.32"
+    fs-extra: ^9.0.0
+    prettier: ^2.0.5
+    reflect-metadata: ^0.1.13
+    yargs: ^15.3.1
+  bin:
+    abi-types-generator: dist/bin/generator-cli.js
+  checksum: 4fc40ee38bf4edde7b3d4e2bf6f78d662c2422f37b140c4cdf8185088aff6fcab5b224c1267abf0e659b93979bf4e9eb0fa807f4a0e7f9c168a01e78a21d2d87
+  languageName: node
+  linkType: hard
+
 "ethereum-bloom-filters@npm:^1.0.6":
   version: 1.0.10
   resolution: "ethereum-bloom-filters@npm:1.0.10"
@@ -13158,7 +13179,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"ethers@npm:^4.0.32, ethers@npm:^4.0.40":
+"ethers@npm:^4.0.32, ethers@npm:^4.0.40, ethers@npm:^4.0.47":
   version: 4.0.49
   resolution: "ethers@npm:4.0.49"
   dependencies:
@@ -13213,7 +13234,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"ethers@npm:^5.6.2":
+"ethers@npm:^5.6.2, ethersv5@npm:ethers@^5.0.32":
   version: 5.6.2
   resolution: "ethers@npm:5.6.2"
   dependencies:
@@ -23021,6 +23042,15 @@ __metadata:
   bin:
     prettier: ./bin-prettier.js
   checksum: bc78219e0f8173a808f4c6c8e0a137dd8ebd4fbe013e63fe1a37a82b48612f17b8ae8e18a992adf802ee2cf7428f14f084e7c2846ca5759cf4013c6e54810e1f
+  languageName: node
+  linkType: hard
+
+"prettier@npm:^2.0.5":
+  version: 2.6.2
+  resolution: "prettier@npm:2.6.2"
+  bin:
+    prettier: bin-prettier.js
+  checksum: 48d08dde8e9fb1f5bccdd205baa7f192e9fc8bc98f86e1b97d919de804e28c806b0e6cc685e4a88211aa7987fa9668f30baae19580d87ced3ed0f2ec6572106f
   languageName: node
   linkType: hard
 
