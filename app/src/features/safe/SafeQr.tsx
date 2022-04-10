@@ -2,11 +2,11 @@ import { useWindowDimensions, Share, Pressable } from 'react-native';
 import { useTheme } from 'react-native-paper';
 import QRCode from 'react-native-qrcode-svg';
 
-import { CHAIN_ID } from '@features/ethers';
+import { CHAIN } from '@features/provider/chains';
 import { useSafe } from './SafeProvider';
 
 // https://eips.ethereum.org/EIPS/eip-681
-const getLink = (addr: string) => `ethereum:pay-${addr}@${CHAIN_ID}`;
+const getLink = (addr: string) => `ethereum:pay-${addr}@${CHAIN.id}`;
 
 export const SafeQr = () => {
   const safe = useSafe();
