@@ -41,7 +41,6 @@ const InternalBox = styled.View<InternalBoxProps>`
   ${(props: InternalBoxProps) =>
     props.flexed &&
     `
-    display: flex;
     flex: 1;
   `}
 
@@ -77,10 +76,15 @@ export interface BoxProps extends InternalBoxProps {
 export const Box = ({ children, surface, rounded, ...props }: BoxProps) => {
   const theme = useTheme();
 
-  const borderRadius = rounded ? theme.roundness * 5 : undefined;
+  const borderRadius = rounded ? theme.radius : undefined;
 
   return surface ? (
-    <Surface style={{ ...(typeof surface === 'object' ? surface : undefined), borderRadius }}>
+    <Surface
+      style={{
+        ...(typeof surface === 'object' ? surface : undefined),
+        borderRadius: rounded && theme.radius,
+      }}
+    >
       <InternalBox mx={3} my={3} {...props}>
         {children}
       </InternalBox>

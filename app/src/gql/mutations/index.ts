@@ -1,1 +1,1 @@
-export * from './create-cf-safe.gql';
+export * from './useCreateCfSafe';
