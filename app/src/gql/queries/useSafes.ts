@@ -1,7 +1,7 @@
 import { useQuery } from '@apollo/client';
+import { BytesLike, Signer } from 'ethers';
 
 import { Approver, ArrVal, connectSafe, filterUnique, Safe } from 'lib';
-import { BytesLike, Signer } from '@features/ethers';
 import { useWallet } from '@features/wallet/WalletProvider';
 import { GetApiSafes, GetApiSafesVariables } from '@gql/api.generated';
 import { GetSgSafes, GetSgSafesVariables } from '@gql/subgraph.generated';

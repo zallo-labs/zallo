@@ -3,7 +3,7 @@ import { ScrollView } from 'react-native';
 import { Box } from '@components/Box';
 import { RootStackScreenProps } from '@features/navigation/RootNavigation';
 import { SafeQr } from '@features/safe/SafeQr';
-import { Holdings } from './Holdings';
+import { Holdings } from './holdings/Holdings';
 import { SafeTitle } from './SafeTitle';
 
 export type HomeScreenProps = RootStackScreenProps<'Home'>;

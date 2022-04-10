@@ -3,9 +3,9 @@ import { Image, StyleSheet } from 'react-native';
 import { Avatar } from 'react-native-paper';
 import { SvgUri } from 'react-native-svg';
 
-import { Token } from './token';
+import { Token } from '../../features/token/token';
 
-const SIZE = 40;
+const SIZE = 44;
 
 export interface TokenIconProps {
   token: Token;

@@ -1,7 +1,8 @@
 import { createContext, useContext, useEffect, useState } from 'react';
 import * as storage from 'expo-secure-store';
+import { Wallet } from 'ethers';
 
-import { PROVIDER, Wallet } from '@ethers';
+import { PROVIDER } from '@features/provider';
 import { ChildrenProps } from '@util/provider';
 import { CONFIG, IS_DEV } from '~/config';
 

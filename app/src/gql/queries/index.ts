@@ -1,1 +1,1 @@
-export * from './get-safes.gql';
+export * from './useSafes';

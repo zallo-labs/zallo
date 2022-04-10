@@ -1,7 +1,8 @@
-import { TokenItem } from '@features/token/TokenItem';
+import { useTheme } from 'react-native-paper';
+
+import { TokenHolding } from './TokenHolding';
 import { TOKENS } from '@features/token/tokens';
 import { Box } from '@components/Box';
-import { useTheme } from 'react-native-paper';
 import { Divider } from '@components/Divider';
 
 const space = 3;
@@ -17,9 +18,9 @@ export const Holdings = () => {
       }}
     >
       {TOKENS.map((token, i) => (
-        <Box key={token.addr} mt={i > 0 ? space : 0}>
-          <TokenItem token={token} />
-          
+        <Box key={token.symbol} mt={i > 0 ? space : 0}>
+          <TokenHolding token={token} />
+
           {i < TOKENS.length - 1 && (
             <Box mt={space}>
               <Divider />
