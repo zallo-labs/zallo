@@ -15,7 +15,16 @@ module.exports = function (api) {
   api.cache(true);
   return {
     presets: ['babel-preset-expo'],
-    plugins: [['module-resolver', { alias: getAliasPaths() }]],
+    plugins: [
+      ['module-resolver', { alias: getAliasPaths() }],
+      [
+        'formatjs',
+        // {
+        //   idInterpolationPattern: '[sha512:contenthash:base64:6]',
+        //   ast: true,
+        // },
+      ],
+    ],
     env: {
       production: {
         plugins: ['react-native-paper/babel'],
