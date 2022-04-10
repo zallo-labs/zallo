@@ -11,7 +11,9 @@ declare global {
       danger: string;
     }
 
-    // interface Theme {}
+    interface Theme {
+      radius: number;
+    }
   }
 }
 
@@ -31,6 +33,7 @@ export const PAPER_THEME: ReactNativePaper.Theme = {
     warning: '#FFAF30', // Orange
     danger: '#FF4128', // Red
   },
+  radius: PaperDarkTheme.roundness * 5,
 };
 
 export const NAV_THEME = {

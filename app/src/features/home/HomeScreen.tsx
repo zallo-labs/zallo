@@ -1,20 +1,27 @@
+import { ScrollView } from 'react-native';
+
 import { Box } from '@components/Box';
 import { RootStackScreenProps } from '@features/navigation/RootNavigation';
-import { SafeQr } from '@features/safe/qr/SafeQr';
+import { SafeQr } from '@features/safe/SafeQr';
+import { Holdings } from './holdings/Holdings';
 import { SafeTitle } from './SafeTitle';
 
 export type HomeScreenProps = RootStackScreenProps<'Home'>;
 
-export const HomeScreen = (_props: HomeScreenProps) => {
-  return (
-    <Box flexed vertical alignItems="center">
-      <Box flex={1} center>
+export const HomeScreen = (_props: HomeScreenProps) => (
+  <Box flex={1}>
+    <ScrollView>
+      <Box center mt="5%">
         <SafeTitle />
       </Box>
 
-      <Box flex={3}>
+      <Box center my="15%">
         <SafeQr />
       </Box>
-    </Box>
-  );
-};
+
+      <Box>
+        <Holdings />
+      </Box>
+    </ScrollView>
+  </Box>
+);
