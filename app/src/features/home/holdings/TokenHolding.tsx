@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import { Caption, Paragraph, Subheading } from 'react-native-paper';
+import { Caption, Paragraph, Subheading, useTheme } from 'react-native-paper';
 import { ethers } from 'ethers';
 
 import { ListItem } from '@components/ListItem';
@@ -17,6 +17,7 @@ export interface TokenItemProps {
 }
 
 export const TokenHolding = ({ token }: TokenItemProps) => {
+  const { colors } = useTheme();
   const balance = useTokenBalance(token);
   const {
     price: { current: price, delta },
@@ -33,9 +34,9 @@ export const TokenHolding = ({ token }: TokenItemProps) => {
       Main={
         <Box vertical justifyContent="space-around">
           <Subheading>{token.name}</Subheading>
-          <Caption>
+          <Paragraph style={{ color: colors.lighterText }}>
             <TokenValue token={token} value={balance} />
-          </Caption>
+          </Paragraph>
         </Box>
       }
       Right={

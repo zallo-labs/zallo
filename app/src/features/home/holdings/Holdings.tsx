@@ -8,13 +8,13 @@ import { Divider } from '@components/Divider';
 const space = 3;
 
 export const Holdings = () => {
-  const theme = useTheme();
+  const { radius } = useTheme();
 
   return (
     <Box
       surface={{
-        borderTopLeftRadius: theme.radius,
-        borderTopRightRadius: theme.radius,
+        borderTopLeftRadius: radius,
+        borderTopRightRadius: radius,
       }}
     >
       {TOKENS.map((token, i) => (

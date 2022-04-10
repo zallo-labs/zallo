@@ -1,5 +1,6 @@
 import { DarkTheme as PaperDarkTheme } from 'react-native-paper';
 import { DarkTheme as NavDarkTheme } from '@react-navigation/native';
+import Color from 'color';
 
 declare global {
   // eslint-disable-next-line @typescript-eslint/no-namespace
@@ -9,6 +10,7 @@ declare global {
       info: string;
       warning: string;
       danger: string;
+      lighterText: string;
     }
 
     interface Theme {
@@ -32,6 +34,7 @@ export const PAPER_THEME: ReactNativePaper.Theme = {
     info: '#559EFC', // Blue
     warning: '#FFAF30', // Orange
     danger: '#FF4128', // Red
+    lighterText: new Color(PaperDarkTheme.colors.text).alpha(0.7).hexa(),
   },
   radius: PaperDarkTheme.roundness * 5,
 };
