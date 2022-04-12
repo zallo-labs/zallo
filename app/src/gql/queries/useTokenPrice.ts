@@ -1,8 +1,9 @@
 import { useQuery } from '@apollo/client';
-import { uniswapGql, UNISWAP_CLIENT } from '@gql/clients';
+import { uniswapGql } from '@gql/clients';
 
 import { Token } from '@features/token/token';
 import { GetTokenPrice, GetTokenPriceVariables } from '@gql/uniswap.generated';
+import { useUniswapClient } from '@gql/GqlProvider';
 
 const QUERY = uniswapGql`
   query GetTokenPrice($token: String!) {
@@ -36,7 +37,7 @@ export interface TokenPrice {
 
 export const useTokenPrice = (token: Token) => {
   const { data, ...rest } = useQuery<GetTokenPrice, GetTokenPriceVariables>(QUERY, {
-    client: UNISWAP_CLIENT,
+    client: useUniswapClient(),
     variables: { token: token.addresses.mainnet.toLowerCase() },
   });
 

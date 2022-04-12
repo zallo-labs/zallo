@@ -5,7 +5,8 @@ import { _100_PERCENT_WEIGHT } from 'lib';
 import { useWallet } from '@features/wallet/WalletProvider';
 import { apiSafeToSafeData, API_SAFE_FIELDS } from '@queries';
 import { CreateCfSafe, CreateCfSafeVariables } from '@gql/api.generated';
-import { apiGql, API_CLIENT } from '@gql/clients';
+import { apiGql } from '@gql/clients';
+import { useApiClient } from '@gql/GqlProvider';
 
 const API_MUTATION = apiGql`
 ${API_SAFE_FIELDS}
@@ -20,7 +21,7 @@ export const useCreateCfSafe = () => {
   const wallet = useWallet();
 
   const [createRaw] = useMutation<CreateCfSafe, CreateCfSafeVariables>(API_MUTATION, {
-    client: API_CLIENT,
+    client: useApiClient(),
     variables: {
       approvers: [
         {

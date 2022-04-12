@@ -1,6 +1,6 @@
 import { useMemo } from 'react';
 import { Caption, Paragraph, Subheading, useTheme } from 'react-native-paper';
-import { ethers } from 'ethers';
+import { BigNumber, ethers } from 'ethers';
 
 import { ListItem } from '@components/ListItem';
 import { Token } from '@features/token/token';
@@ -19,13 +19,11 @@ export interface TokenItemProps {
 export const TokenHolding = ({ token }: TokenItemProps) => {
   const { colors } = useTheme();
   const balance = useTokenBalance(token);
-  const {
-    price: { current: price, delta },
-  } = useTokenPrice(token);
+  const { price } = useTokenPrice(token);
 
   const fiatValue = useMemo(
-    () => ethers.utils.formatUnits(balance.mul(price.toFixed(0)), token.decimals),
-    [token, balance, price],
+    () => ethers.utils.formatUnits(balance.mul(price.current.toFixed(0)), token.decimals),
+    [token, balance, price.current],
   );
 
   return (
@@ -44,7 +42,7 @@ export const TokenHolding = ({ token }: TokenItemProps) => {
           <Paragraph>
             <FiatValue value={fiatValue} />
           </Paragraph>
-          <PriceDelta delta={delta} />
+          <PriceDelta delta={price.delta} />
         </Box>
       }
     />

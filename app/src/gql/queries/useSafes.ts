@@ -5,8 +5,9 @@ import { Approver, ArrVal, connectSafe, filterUnique, Safe } from 'lib';
 import { useWallet } from '@features/wallet/WalletProvider';
 import { GetApiSafes, GetApiSafesVariables } from '@gql/api.generated';
 import { GetSgSafes, GetSgSafesVariables } from '@gql/subgraph.generated';
-import { sgGql, SG_CLIENT, apiGql, API_CLIENT } from '@gql/clients';
+import { sgGql, apiGql } from '@gql/clients';
 import { combineRest, combine, simpleKeyExtractor } from '@gql/combine';
+import { useApiClient, useSubgraphClient } from '@gql/GqlProvider';
 
 const SG_QUERY = sgGql`
 query GetSgSafes($approver: ID!) {
@@ -35,7 +36,7 @@ const useSgSafes = () => {
   const wallet = useWallet();
 
   const { data, ...rest } = useQuery<GetSgSafes, GetSgSafesVariables>(SG_QUERY, {
-    client: SG_CLIENT,
+    client: useSubgraphClient(),
     variables: { approver: wallet.address },
   });
 
@@ -75,7 +76,7 @@ const useApiSafes = () => {
   const wallet = useWallet();
 
   const { data, ...rest } = useQuery<GetApiSafes, GetApiSafesVariables>(API_QUERY, {
-    client: API_CLIENT,
+    client: useApiClient(),
     variables: { approver: wallet.address },
   });
 
