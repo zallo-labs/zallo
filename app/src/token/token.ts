@@ -1,7 +1,6 @@
 import { BigNumber } from 'ethers';
 
-import { Safe } from "@features/provider";
-import { ChainName } from '@features/provider/chains';
+import { Safe, ChainName } from '@features/provider';
 
 export interface Token {
   name: string;

@@ -1,4 +1,4 @@
-import { CHAIN } from '@features/provider/chains';
+import { CHAIN } from '@features/provider';
 import { getErc20Contract } from './erc20';
 import { Token } from './token';
 
@@ -27,7 +27,7 @@ export const WETH = create({
 });
 
 const ethAddresses = {
-  mainnet: WETH.addresses.mainnet, // WETH
+  mainnet: WETH.addresses.mainnet, // Assume the price is the same as WETH for fetching from Uniswap
   ropsten: '',
   // zkSync: '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE',
 };
