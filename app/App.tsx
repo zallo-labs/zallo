@@ -9,6 +9,7 @@ import { RootNavigation } from '@features/navigation/RootNavigation';
 import { SafeArea } from '@components/SafeArea';
 import { NAV_THEME, PAPER_THEME } from '~/theme';
 import { LocalizatonProvider } from '@features/localization/LocalizationProvider';
+import { GqlProvider } from '@gql/GqlProvider';
 
 const Status = () => {
   const { colors } = useTheme();
@@ -19,14 +20,16 @@ export default () => (
   <LocalizatonProvider>
     <PaperProvider theme={PAPER_THEME}>
       <SafeArea>
-        <Status />
-        <WalletProvider>
-          <SafeProvider>
-            <NavigationContainer theme={NAV_THEME}>
-              <RootNavigation />
-            </NavigationContainer>
-          </SafeProvider>
-        </WalletProvider>
+        <GqlProvider>
+          <Status />
+          <WalletProvider>
+            <SafeProvider>
+              <NavigationContainer theme={NAV_THEME}>
+                <RootNavigation />
+              </NavigationContainer>
+            </SafeProvider>
+          </WalletProvider>
+        </GqlProvider>
       </SafeArea>
     </PaperProvider>
   </LocalizatonProvider>
