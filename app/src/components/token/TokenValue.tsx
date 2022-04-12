@@ -2,7 +2,7 @@ import { useMemo } from 'react';
 import { useIntl } from 'react-intl';
 import { BigNumber, ethers } from 'ethers';
 
-import { Token } from '@features/token/token';
+import { Token } from '~/token/token';
 
 export interface TokenValueProps {
   token: Token;

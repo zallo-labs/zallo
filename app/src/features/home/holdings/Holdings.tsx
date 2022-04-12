@@ -1,7 +1,7 @@
 import { useTheme } from 'react-native-paper';
 
 import { TokenHolding } from './TokenHolding';
-import { TOKENS } from '@features/token/tokens';
+import { TOKENS } from '~/token/tokens';
 import { Box } from '@components/Box';
 import { Divider } from '@components/Divider';
 

@@ -1,20 +1,24 @@
 import { useMemo } from 'react';
 import { useIntl } from 'react-intl';
+import { BigNumber, ethers } from 'ethers';
 
-export interface FiatValueProps {
-  value: number | string;
+import { FIAT_DECIMALS } from '~/token/fiat';
+
+export interface FormattedFiatProps {
+  value: BigNumber | string;
 }
 
-export const FiatValue = ({ value }: FiatValueProps) => {
+export const FiatValue = ({ value }: FormattedFiatProps) => {
   const intl = useIntl();
 
   const formatted = useMemo(() => {
-    const v = typeof value === 'number' ? value : parseFloat(value);
+    if (BigNumber.isBigNumber(value)) value = ethers.utils.formatUnits(value, FIAT_DECIMALS);
 
-    return intl.formatNumber(v, {
+    return intl.formatNumber(parseFloat(value), {
       style: 'currency',
       currency: 'USD',
       minimumFractionDigits: 0,
+      maximumFractionDigits: 2,
     });
   }, [value, intl]);
 
