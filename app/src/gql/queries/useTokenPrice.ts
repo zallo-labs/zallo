@@ -1,8 +1,11 @@
 import { useQuery } from '@apollo/client';
-import { uniswapGql, UNISWAP_CLIENT } from '@gql/clients';
+import { BigNumber } from 'ethers';
 
-import { Token } from '@features/token/token';
+import { uniswapGql } from '@gql/clients';
 import { GetTokenPrice, GetTokenPriceVariables } from '@gql/uniswap.generated';
+import { useUniswapClient } from '@gql/GqlProvider';
+import { Token } from '~/token/token';
+import { bigNumberToFiat, fiatToBigNumber } from '~/token/fiat';
 
 const QUERY = uniswapGql`
   query GetTokenPrice($token: String!) {
@@ -22,41 +25,44 @@ const QUERY = uniswapGql`
 
 export interface TokenHourlyPrice {
   timestamp: Date;
-  price: number;
-  open: number;
-  close: number;
+  price: BigNumber;
+  open: BigNumber;
+  close: BigNumber;
 }
 
 export interface TokenPrice {
   hourly: TokenHourlyPrice[];
-  current: number;
-  yesterday: number;
+  current: BigNumber;
+  yesterday: BigNumber;
   delta: number;
 }
 
 export const useTokenPrice = (token: Token) => {
   const { data, ...rest } = useQuery<GetTokenPrice, GetTokenPriceVariables>(QUERY, {
-    client: UNISWAP_CLIENT,
+    client: useUniswapClient(),
     variables: { token: token.addresses.mainnet.toLowerCase() },
   });
 
   const hourly = (data?.tokenHourDatas ?? []).map(
     (data): TokenHourlyPrice => ({
       timestamp: new Date(data.periodStartUnix * 1000),
-      price: parseFloat(data.close),
-      open: parseFloat(data.open),
-      close: parseFloat(data.close),
+      price: fiatToBigNumber(data.close),
+      open: fiatToBigNumber(data.open),
+      close: fiatToBigNumber(data.close),
     }),
   );
 
-  const current = hourly[0]?.price ?? 0;
-  const yesterday = hourly[24]?.price ?? 0;
+  const current = hourly[0]?.price ?? BigNumber.from(0);
+  const yesterday = hourly[24]?.price ?? BigNumber.from(0);
+
+  const cur = bigNumberToFiat(current);
+  const yd = bigNumberToFiat(yesterday);
 
   const price: TokenPrice = {
     hourly,
     current: current,
     yesterday: yesterday,
-    delta: yesterday > 0 ? ((current - yesterday) / yesterday) * 100 : 100,
+    delta: yd > 0 ? ((cur - yd) / yd) * 100 : 100,
   };
 
   return { price, ...rest };
