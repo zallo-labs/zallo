@@ -1,14 +1,15 @@
-import { Module } from '@nestjs/common';
-import { GraphQLModule } from '@nestjs/graphql';
+import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
 import { PrismaModule } from 'nestjs-prisma';
-import { ApolloServerPluginLandingPageLocalDefault } from 'apollo-server-core';
 
-import { IS_DEV } from 'config';
-import { loggingMiddleware } from './middleware/prisma/logging.middleware';
+import { loggingMiddleware } from './features/prisma/prisma.logging';
 import { HealthModule } from './features/health/health.module';
 import { ApproversModule } from './features/approvers/approvers.module';
 import { SafesModule } from './features/safes/safes.module';
-import { ApolloDriverConfig, ApolloDriver } from '@nestjs/apollo';
+import { AuthModule } from './features/auth/auth.module';
+import { APP_GUARD } from '@nestjs/core';
+import { AuthGuard } from './features/auth/auth.guard';
+import { GqlModule } from './features/apollo/apollo.module';
+import { AuthMiddleware } from './features/auth/auth.middleware';
 
 @Module({
   imports: [
@@ -18,19 +19,23 @@ import { ApolloDriverConfig, ApolloDriver } from '@nestjs/apollo';
         middlewares: [loggingMiddleware()],
       },
     }),
-    GraphQLModule.forRoot<ApolloDriverConfig>({
-      driver: ApolloDriver,
-      autoSchemaFile: 'schema.gql',
-      sortSchema: true,
-      debug: IS_DEV,
-      introspection: true,
-      playground: false,
-      plugins: IS_DEV ? [ApolloServerPluginLandingPageLocalDefault()] : [],
-    }),
-
+    GqlModule,
     ApproversModule,
+    AuthModule,
     HealthModule,
     SafesModule,
   ],
+  providers: [
+    {
+      provide: APP_GUARD,
+      useClass: AuthGuard,
+    },
+  ],
 })
-export class AppModule {}
+export class AppModule implements NestModule {
+  configure(consumer: MiddlewareConsumer) {
+    consumer
+      .apply(AuthMiddleware)
+      .forRoutes('*');
+  }
+}

@@ -78,6 +78,7 @@ const useApiSafes = () => {
   const { data, ...rest } = useQuery<GetApiSafes, GetApiSafesVariables>(API_QUERY, {
     client: useApiClient(),
     variables: { approver: wallet.address },
+    pollInterval: 10000,
   });
 
   return { data: data?.approver?.safes ?? [], ...rest };
