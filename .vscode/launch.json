@@ -7,9 +7,17 @@
     {
       "type": "node",
       "request": "attach",
-      "name": "Api: Attach",
+      "name": "Api",
       "port": 9229,
       "restart": true
+    },
+    {
+      "name": "App",
+      "cwd": "${workspaceFolder}/app",
+      "type": "reactnative",
+      "request": "attach",
+      "port": 19000,
+      "sourceMaps": true
     }
   ]
 }

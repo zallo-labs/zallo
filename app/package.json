@@ -11,9 +11,9 @@
     "start:android": "yarn start --android",
     "test": "jest",
     "generate": "yarn clean && concurrently --names api,sub,uni -c yellow,blue \"yarn generate:api\" \"yarn generate:sg\" \"yarn generate:uniswap\"",
-    "generate:api": "apollo client:codegen ./src/gql/api.generated.ts --config apollo.api.config.js --target typescript --outputFlat",
-    "generate:sg": "apollo client:codegen ./src/gql/subgraph.generated.ts --config apollo.sg.config.js --target typescript --outputFlat",
-    "generate:uniswap": "apollo client:codegen ./src/gql/uniswap.generated.ts --config apollo.uniswap.config.js --target typescript --outputFlat",
+    "generate:api": "apollo client:codegen ./src/gql/api.generated.ts --config ./src/gql/clients/api.apollo-config.js --target typescript --outputFlat",
+    "generate:sg": "apollo client:codegen ./src/gql/subgraph.generated.ts --config ./src/gql/clients/subgraph.apollo-config.js --target typescript --outputFlat",
+    "generate:uniswap": "apollo client:codegen ./src/gql/uniswap.generated.ts --config ./src/gql/clients/uniswap.apollo-config.js --target typescript --outputFlat",
     "generate:erc20": "npx abi-types-generator ./src/features/token/erc20/erc20.abi.json --provider ethers_v5 --name erc20 --output ./src/features/token/erc20",
     "clean": "rimraf web-build"
   },
@@ -41,6 +41,7 @@
     "expo-yarn-workspaces": "^1.7.0",
     "intl": "^1.2.5",
     "lib": "workspace:*",
+    "luxon": "^2.3.1",
     "react": "17.0.1",
     "react-dom": "17.0.1",
     "react-intl": "^5.24.8",
@@ -52,6 +53,7 @@
     "react-native-screens": "~3.10.1",
     "react-native-svg": "12.1.1",
     "react-native-web": "0.17.1",
+    "siwe": "^1.1.6",
     "styled-components": "^5.3.5",
     "styled-system": "^5.1.5",
     "use-async-effect": "^2.2.5"
@@ -59,6 +61,7 @@
   "devDependencies": {
     "@babel/core": "^7.12.9",
     "@types/color": "^3.0.3",
+    "@types/luxon": "^2.3.1",
     "@types/react": "~17.0.21",
     "@types/react-native": "~0.64.12",
     "@types/react-test-renderer": "^17.0.1",
