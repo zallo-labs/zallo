@@ -10,6 +10,7 @@ on:
 env:
   API_URL: ${{ secrets.API_URL }}
   SUBGRAPH_GQL_URL: ${{ secrets.SUBGRAPH_GQL_URL }}
+  SESSION_SECRET: ${{ secrets.SESSION_SECRET }}
 
 jobs:
   api:
