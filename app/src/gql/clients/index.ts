@@ -5,6 +5,7 @@ import { CONFIG } from '~/config';
 import { useWallet } from '@features/wallet/WalletProvider';
 import { createAuthFlowLink } from './apiAuthFlowLink';
 import { getPersistedCache } from './cache';
+import { Duration } from 'luxon';
 
 export { gql as apiGql, gql as sgGql, gql as uniswapGql };
 
@@ -43,4 +44,9 @@ export const createUniswapClient = async () =>
         uri: 'https://api.thegraph.com/subgraphs/name/ianlapham/uniswap-v3-subgraph',
       }),
     ]),
+    defaultOptions: {
+      query: {
+        pollInterval: Duration.fromObject({ seconds: 5 }).toMillis(),
+      },
+    },
   });
