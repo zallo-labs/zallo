@@ -6,7 +6,7 @@ module.exports = {
       name: 'api',
       url: CONFIG.api.gqlUrl,
     },
-    includes: ['**/gql/**/*.ts'],
+    includes: ['../**/*.ts'],
     tagName: 'apiGql',
     addTypename: true,
   },

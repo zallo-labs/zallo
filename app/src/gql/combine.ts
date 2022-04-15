@@ -1,12 +1,12 @@
 import { QueryResult } from '@apollo/client';
 
+import { isPresent } from 'lib';
 import {
   AtLeastOneCombiner,
   isAtLeastSubCombiner,
   isAtLeastApiCombiner,
   isRequireBothCombiner,
 } from './combiners';
-import { isPresent } from '~/util/typing';
 
 export interface KeyExtractor<Sub, Api, K> {
   sub: (g: Sub) => K;

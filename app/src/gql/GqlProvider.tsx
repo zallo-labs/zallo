@@ -1,44 +1,54 @@
 import { createContext, useContext, useEffect, useState } from 'react';
-import { ApolloClient, InMemoryCache } from '@apollo/client';
-import { persistCache } from 'apollo3-cache-persist';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import { ApolloClient, NormalizedCacheObject } from '@apollo/client';
 import AppLoading from 'expo-app-loading';
 
 import { ChildrenProps } from '@util/provider';
-import { CLIENT_CONFIGS, GqlClients, isGqlClients } from './clients';
+import {
+  API_CLIENT_NAME,
+  createSubgraphClient,
+  createUniswapClient,
+  SUBGRAPH_CLIENT_NAME,
+  UNISWAP_CLIENT_NAME,
+  useCreateApiClient,
+} from './clients';
 
-const clientsContext = createContext<GqlClients | undefined>(undefined);
+const clientNames = [API_CLIENT_NAME, SUBGRAPH_CLIENT_NAME, UNISWAP_CLIENT_NAME] as const;
+type Name = typeof clientNames[number];
 
-export const useGqlClients = () => useContext(clientsContext!);
+type GqlClients = Record<Name, ApolloClient<NormalizedCacheObject>>;
+
+export const isGqlClients = (clients: GqlClients | Partial<GqlClients>): clients is GqlClients =>
+  clientNames.every((name) => clients[name] !== undefined);
+
+const context = createContext<GqlClients | undefined>(undefined);
+
+const useGqlClients = () => useContext(context!);
 export const useApiClient = () => useGqlClients().api;
 export const useSubgraphClient = () => useGqlClients().subgraph;
 export const useUniswapClient = () => useGqlClients().uniswap;
 
 export const GqlProvider = ({ children }: ChildrenProps) => {
+  const createApiClient = useCreateApiClient();
+
   const [clients, setClients] = useState<GqlClients | Partial<GqlClients>>({});
-
   useEffect(() => {
-    CLIENT_CONFIGS.forEach(async ({ name, ...options }) => {
-      const cache = new InMemoryCache();
+    (
+      [
+        [API_CLIENT_NAME, createApiClient],
+        [SUBGRAPH_CLIENT_NAME, createSubgraphClient],
+        [UNISWAP_CLIENT_NAME, createUniswapClient],
+      ] as const
+    ).forEach(async ([name, createClient]) => {
+      const client = await createClient();
 
-      await persistCache({
-        key: name,
-        cache,
-        storage: AsyncStorage,
-      });
-
-      setClients((prev) => ({
-        ...prev,
-        [name]: new ApolloClient({
-          name,
-          cache,
-          ...options,
-        }),
+      setClients((clients) => ({
+        ...clients,
+        [name]: client,
       }));
     });
   }, []);
 
   if (!isGqlClients(clients)) return <AppLoading />;
 
-  return <clientsContext.Provider value={clients}>{children}</clientsContext.Provider>;
+  return <context.Provider value={clients}>{children}</context.Provider>;
 };

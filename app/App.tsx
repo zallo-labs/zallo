@@ -20,16 +20,16 @@ export default () => (
   <LocalizatonProvider>
     <PaperProvider theme={PAPER_THEME}>
       <SafeArea>
-        <GqlProvider>
-          <Status />
-          <WalletProvider>
+        <WalletProvider>
+          <GqlProvider>
+            <Status />
             <SafeProvider>
               <NavigationContainer theme={NAV_THEME}>
                 <RootNavigation />
               </NavigationContainer>
             </SafeProvider>
-          </WalletProvider>
-        </GqlProvider>
+          </GqlProvider>
+        </WalletProvider>
       </SafeArea>
     </PaperProvider>
   </LocalizatonProvider>

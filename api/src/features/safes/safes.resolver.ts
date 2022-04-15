@@ -8,7 +8,7 @@ import { Group } from '@gen/group/group.model';
 import { FindManySafeArgs } from '@gen/safe/find-many-safe.args';
 import { FindUniqueSafeArgs } from '@gen/safe/find-unique-safe.args';
 import { CreateCfSafeArgs } from './safes.args';
-import { UserAddr } from '~/decorators/userAddr';
+import { UserAddr } from '~/decorators/user.decorator';
 
 @Resolver(() => Safe)
 export class SafesResolver {
@@ -38,13 +38,12 @@ export class SafesResolver {
 
   @Mutation(() => Safe)
   async createCfSafe(
+    @UserAddr() deployer: string,
     @Args() { approvers }: CreateCfSafeArgs,
-  ): // @UserAddr() userAddr: string,    // TODO:
-  Promise<Safe> {
+  ): Promise<Safe> {
     if (!approvers.length) throw new Error('Approvers required');
 
-    const userAddr = approvers[0].addr;
-    const { addr: safeAddr, salt } = getCounterfactualAddress(userAddr, approvers);
+    const { addr: safeAddr, salt } = getCounterfactualAddress(deployer, approvers);
 
     const groupHash = getGroupHash(approvers);
 

@@ -6,6 +6,13 @@ try {
 
 const E = process?.env ?? {};
 
+const required = (key: string) => () => {
+  const value = E[key];
+  if (value === undefined) throw new Error(`ENV '${key}' is required but wasn't found!`);
+
+  return value;
+};
+
 const apiPort = E.PORT || 3000;
 const apiUrl = E.API_URL ?? `http://[::1]:${apiPort}`;
 
@@ -27,6 +34,7 @@ export const CONFIG = {
     url: apiUrl,
     gqlUrl: `${apiUrl}/graphql`,
   },
+  sessionSecret: required('SESSION_SECRET'),
   subgraphGqlUrl: E.SUBGRAPH_GQL_URL,
 } as const;
 

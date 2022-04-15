@@ -4,7 +4,7 @@ import { abiEncodeGroup, Group } from './group';
 
 export const getRandomSalt = () => ethers.utils.randomBytes(32);
 
-export const getCounterfactualAddress = (signer: string, group: Group, salt?: Bytes) => {
+export const getCounterfactualAddress = (deployer: string, group: Group, salt?: Bytes) => {
   if (!salt) salt = getRandomSalt();
 
   const safeBytecode = ethers.utils.arrayify(Safe__factory.bytecode);
@@ -16,6 +16,6 @@ export const getCounterfactualAddress = (signer: string, group: Group, salt?: By
   );
   const initCodeHash = ethers.utils.keccak256(packedInitCode);
 
-  const addr = ethers.utils.getCreate2Address(signer, salt, initCodeHash);
+  const addr = ethers.utils.getCreate2Address(deployer, salt, initCodeHash);
   return { addr, salt };
 };
