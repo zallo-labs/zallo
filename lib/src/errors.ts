@@ -1,9 +1,11 @@
 export const SafeEvent = {
   Deposit: 'Deposit',
+  GroupAdded: 'GroupAdded',
+  GroupRemoved: 'GroupRemoved',
 };
 
 export const SafeError = {
-  NotSafe: 'NotSafe',
+  OnlyCallableBySafe: 'OnlyCallableBySafe',
   NotPrimaryApprover: 'NotPrimaryApprover',
   TotalGroupWeightLessThan100Percent: 'TotalGroupWeightLessThan100Percent',
   TotalApprovalWeightsInsufficient: 'TotalApprovalWeightsInsufficient',

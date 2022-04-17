@@ -1,8 +1,16 @@
 import { ethers } from 'hardhat';
-import { deploy } from './deployment';
 import { createSignedTx } from './execution';
-import { compareAddresses, expect, hashGroup, toGroup } from './util';
-import { percentToFixedWeight, fixedWeightToPercent, SafeError } from 'lib';
+import {
+  percentToFixedWeight,
+  fixedWeightToPercent,
+  SafeError,
+  toGroup,
+  SafeEvent,
+  hashGroup,
+} from 'lib';
+
+import { expect } from './util';
+import { deploy } from './deployer';
 
 describe('Group', () => {
   it('Hashes', async () => {
@@ -17,10 +25,7 @@ describe('Group', () => {
 
     const SafeFactory = await ethers.getContractFactory('Safe');
     const safeDeployment = SafeFactory.connect(approver1).deploy(
-      [
-        { addr: approver1.address, weight: percentToFixedWeight(90) },
-        { addr: approver2.address, weight: percentToFixedWeight(9) },
-      ].sort((a, b) => compareAddresses(a.addr, b.addr)),
+      toGroup([approver1.address, 90], [approver2.address, 9]),
     );
 
     expect(safeDeployment).to.eventually.be.rejectedWith(
@@ -30,10 +35,14 @@ describe('Group', () => {
 
   it('Weight percentage conversion', async () => {
     const weight35 = percentToFixedWeight(35);
-    expect(weight35).to.eq(percentToFixedWeight(fixedWeightToPercent(weight35)));
+    expect(weight35).to.eq(
+      percentToFixedWeight(fixedWeightToPercent(weight35)),
+    );
 
     const weight100 = percentToFixedWeight(100);
-    expect(weight100).to.eq(percentToFixedWeight(fixedWeightToPercent(weight100)));
+    expect(weight100).to.eq(
+      percentToFixedWeight(fixedWeightToPercent(weight100)),
+    );
   });
 
   describe('Through proposal', () => {
@@ -45,16 +54,15 @@ describe('Group', () => {
         others: [newApprover],
       } = await deploy([100]);
 
-      const newGroup = toGroup([{ signer: newApprover, weight: 100 }]);
+      const newGroup = toGroup([newApprover.address, 100]);
 
       const signedTx = await createSignedTx(safe, [], {
         to: safe.address,
         data: safe.interface.encodeFunctionData('addGroup', [newGroup]),
       });
 
-      await safe.connect(approver).execute(signedTx, groupHash);
-
-      // TODO: check group was added
+      const execTx = await safe.connect(approver).execute(signedTx, groupHash);
+      expect(execTx).to.emit(safe, SafeEvent.GroupAdded);
     });
 
     it('Group can be removed', async () => {
@@ -65,7 +73,7 @@ describe('Group', () => {
         others: [newApprover],
       } = await deploy([100]);
 
-      const newGroup = toGroup([{ signer: newApprover, weight: 100 }]);
+      const newGroup = toGroup([newApprover.address, 100]);
       const newGroupHash = hashGroup(newGroup);
 
       const addNewGroupSignedTx = await createSignedTx(safe, [], {
@@ -78,9 +86,11 @@ describe('Group', () => {
         to: safe.address,
         data: safe.interface.encodeFunctionData('removeGroup', [newGroupHash]),
       });
-      await safe.connect(newApprover).execute(removeNewGroupSignedTx, newGroupHash);
 
-      // TODO: check group is no longer valid
+      const removalTx = await safe
+        .connect(newApprover)
+        .execute(removeNewGroupSignedTx, newGroupHash);
+      expect(removalTx).to.emit(safe, SafeEvent.GroupRemoved);
     });
   });
 
@@ -92,10 +102,12 @@ describe('Group', () => {
         others: [other],
       } = await deploy([100]);
 
-      const newGroup = toGroup([{ signer: other, weight: 100 }]);
-      const addGroupTx = safe.connect(approver).addGroup(newGroup);
+      const newGroup = toGroup([other.address, 100]);
 
-      expect(addGroupTx).to.eventually.be.rejectedWith(SafeError.NotSafe);
+      const addGroupTx = safe.connect(approver).addGroup(newGroup);
+      expect(addGroupTx).to.eventually.be.rejectedWith(
+        SafeError.OnlyCallableBySafe,
+      );
     });
 
     it("Group can't be removed", async () => {
@@ -106,7 +118,9 @@ describe('Group', () => {
       } = await deploy([100]);
 
       const removeGroupTx = safe.connect(approver).removeGroup(groupHash);
-      expect(removeGroupTx).to.eventually.be.rejectedWith(SafeError.NotSafe);
+      expect(removeGroupTx).to.eventually.be.rejectedWith(
+        SafeError.OnlyCallableBySafe,
+      );
     });
   });
 });
