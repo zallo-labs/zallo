@@ -10,10 +10,8 @@ import { PrismaService } from 'nestjs-prisma';
 import { ethers } from 'ethers';
 import { GraphQLError } from 'graphql';
 
-import CONFIG from 'config';
 import {
   getCounterfactualAddress,
-  getFactory,
   getGroupApproverId,
   getGroupId,
   hashGroup,
@@ -24,12 +22,14 @@ import { FindManySafeArgs } from '@gen/safe/find-many-safe.args';
 import { FindUniqueSafeArgs } from '@gen/safe/find-unique-safe.args';
 import { CreateCfSafeArgs } from './safes.args';
 import { UserAddr } from '~/decorators/user.decorator';
-
-const factory = getFactory(CONFIG.factoryAddress());
+import { ProviderService } from '../provider/provider.service';
 
 @Resolver(() => Safe)
 export class SafesResolver {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private provider: ProviderService,
+  ) {}
 
   @Query(() => Safe, { nullable: true })
   async safe(@Args() args: FindUniqueSafeArgs): Promise<Safe | null> {
@@ -62,7 +62,7 @@ export class SafesResolver {
       throw new GraphQLError('User must be part of group');
 
     const { addr: safeAddr, salt } = getCounterfactualAddress(
-      factory,
+      this.provider.safeFactory,
       approvers,
     );
     const groupHash = hashGroup(approvers);

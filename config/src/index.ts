@@ -22,6 +22,7 @@ export const CONFIG = {
     E.ENVIRONMENT?.toLowerCase() === 'development'
       ? 'development'
       : 'production',
+  chain: E.CHAIN?.toLowerCase() ?? 'ropsten',
   providers: {
     infura: E.INFURA_ID,
     alchemy: E.ALCHEMY_API_KEY,
