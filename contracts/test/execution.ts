@@ -1,8 +1,9 @@
 import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/signers';
 import { ethers } from 'hardhat';
-import { deploy } from './deployment';
-import { expect } from './util';
 import { Safe, SafeError, EIP712_TX_TYPE, SignedTx, Tx } from 'lib';
+
+import { deposit, expect } from './util';
+import { deploy } from './deployer';
 
 export const getDomain = async (safe: Safe) => ({
   chainId: (await ethers.provider.getNetwork()).chainId,
@@ -47,15 +48,17 @@ export const createSignedTx = async (
 describe('Execution', () => {
   describe('EIP712', () => {
     it('Domain separator', async () => {
-      const { safe, approvers } = await deploy([100], {
-        ether: '1',
-      });
+      const { safe, approvers } = await deploy([100]);
+      await deposit(safe, '1');
+
       const [signer] = approvers;
 
       const domain = await getDomain(safe);
       const domainSeparator = ethers.utils._TypedDataEncoder.hashDomain(domain);
 
-      expect(await safe.connect(signer).domainSeparator()).to.eq(domainSeparator);
+      expect(await safe.connect(signer).domainSeparator()).to.eq(
+        domainSeparator,
+      );
     });
 
     it('Tx hash', async () => {
@@ -66,7 +69,11 @@ describe('Execution', () => {
         to: signer.address,
       });
 
-      const txHash = ethers.utils._TypedDataEncoder.hash(await getDomain(safe), EIP712_TX_TYPE, tx);
+      const txHash = ethers.utils._TypedDataEncoder.hash(
+        await getDomain(safe),
+        EIP712_TX_TYPE,
+        tx,
+      );
 
       expect(await safe.connect(signer).hashTx(tx)).to.eq(txHash);
     });
@@ -76,9 +83,8 @@ describe('Execution', () => {
     it("Execution succeeds with sufficient approval when there's 1 approver", async () => {
       const value = ethers.utils.parseEther('1');
 
-      const { safe, approvers, groupHash } = await deploy([100], {
-        ether: value,
-      });
+      const { safe, approvers, groupHash } = await deploy([100]);
+      await deposit(safe, value);
       const [signer] = approvers;
 
       const signedTx = await createSignedTx(safe, approvers, {
@@ -116,7 +122,18 @@ describe('Execution', () => {
     });
 
     it('Total approval weightings can be >100%', async () => {
-      // TODO:
+      const value = ethers.utils.parseEther('1');
+
+      const { safe, approvers, groupHash } = await deploy([50, 40, 40]);
+      await deposit(safe, value);
+      const [signer] = approvers;
+
+      const signedTx = await createSignedTx(safe, approvers, {
+        to: signer.address,
+        value,
+      });
+
+      await safe.connect(signer).execute(signedTx, groupHash);
     });
 
     it('A primary approver can directly execute a transaction', async () => {
@@ -139,7 +156,7 @@ describe('Execution', () => {
     });
 
     it('Batched execution with multiple approvers', async () => {
-      const { safe, approvers, groupHash } = await deploy([40, 40, 40]);
+      const { safe, approvers, groupHash } = await deploy([40, 40, 20]);
 
       // Use different data to generate a different txHash; remove this once random nonce gen is fixed!
       const signedTx1 = await createSignedTx(safe, approvers, { data: [1] });
@@ -168,7 +185,9 @@ describe('Execution', () => {
 
       const exec = safe.connect(approver1).execute(signedTx, groupHash);
 
-      expect(exec).to.eventually.be.rejectedWith(SafeError.TotalApprovalWeightsInsufficient);
+      expect(exec).to.eventually.be.rejectedWith(
+        SafeError.TotalApprovalWeightsInsufficient,
+      );
     });
 
     it('Only a primary approver can directly execute a transaction', async () => {
@@ -181,7 +200,9 @@ describe('Execution', () => {
       const signedTx = await createSignedTx(safe, [], {});
       const execTx = safe.connect(approver1).execute(signedTx, groupHash);
 
-      expect(execTx).to.eventually.be.rejectedWith(SafeError.NotPrimaryApprover);
+      expect(execTx).to.eventually.be.rejectedWith(
+        SafeError.NotPrimaryApprover,
+      );
     });
   });
 });
