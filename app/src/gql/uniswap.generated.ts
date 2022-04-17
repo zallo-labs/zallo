@@ -15,12 +15,19 @@ export interface GetTokenPrice_tokenHourDatas {
   close: any;
 }
 
+export interface GetTokenPrice_token {
+  __typename: "Token";
+  derivedETH: any;
+}
+
 export interface GetTokenPrice {
   tokenHourDatas: GetTokenPrice_tokenHourDatas[];
+  token: GetTokenPrice_token | null;
 }
 
 export interface GetTokenPriceVariables {
   token: string;
+  token2: string;
 }
 
 /* tslint:disable */

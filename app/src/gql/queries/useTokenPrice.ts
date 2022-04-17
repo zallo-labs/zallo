@@ -1,14 +1,15 @@
 import { useQuery } from '@apollo/client';
-import { BigNumber } from 'ethers';
+import { BigNumber, ethers } from 'ethers';
 
 import { uniswapGql } from '@gql/clients';
 import { GetTokenPrice, GetTokenPriceVariables } from '@gql/uniswap.generated';
 import { useUniswapClient } from '@gql/GqlProvider';
 import { Token } from '~/token/token';
 import { bigNumberToFiat, fiatToBigNumber } from '~/token/fiat';
+import { ETH } from '~/token/tokens';
 
 const QUERY = uniswapGql`
-  query GetTokenPrice($token: String!) {
+  query GetTokenPrice($token: String!, $token2: ID!) {
     tokenHourDatas(
       first: 25
       orderBy: periodStartUnix
@@ -19,6 +20,10 @@ const QUERY = uniswapGql`
       priceUSD
       open
       close
+    }
+
+    token(id: $token2) {
+      derivedETH
     }
   }
 `;
@@ -35,12 +40,17 @@ export interface TokenPrice {
   current: BigNumber;
   yesterday: BigNumber;
   delta: number;
+  currentEth: BigNumber;
 }
 
 export const useTokenPrice = (token: Token) => {
+  const tokenAddr = token.addresses.mainnet.toLowerCase();
   const { data, ...rest } = useQuery<GetTokenPrice, GetTokenPriceVariables>(QUERY, {
     client: useUniswapClient(),
-    variables: { token: token.addresses.mainnet.toLowerCase() },
+    variables: {
+      token: tokenAddr,
+      token2: tokenAddr,
+    },
   });
 
   const hourly = (data?.tokenHourDatas ?? []).map(
@@ -63,6 +73,10 @@ export const useTokenPrice = (token: Token) => {
     current: current,
     yesterday: yesterday,
     delta: yd > 0 ? ((cur - yd) / yd) * 100 : 100,
+    // parseEther() throws if the eth has > 18 decimals
+    currentEth: data?.token.derivedETH
+      ? ethers.utils.parseEther(parseFloat(data?.token.derivedETH).toFixed(ETH.decimals))
+      : BigNumber.from(0),
   };
 
   return { price, ...rest };
