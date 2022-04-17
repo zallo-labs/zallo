@@ -2,7 +2,7 @@ import { NavigationContainer } from '@react-navigation/native';
 import { Provider as PaperProvider, useTheme } from 'react-native-paper';
 import { StatusBar } from 'expo-status-bar';
 
-import '@features/provider';
+import '~/provider';
 import { WalletProvider } from '@features/wallet/WalletProvider';
 import { SafeProvider } from '@features/safe/SafeProvider';
 import { RootNavigation } from '@features/navigation/RootNavigation';
