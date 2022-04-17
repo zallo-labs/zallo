@@ -10,6 +10,7 @@ import { APP_GUARD } from '@nestjs/core';
 import { AuthGuard } from './features/auth/auth.guard';
 import { GqlModule } from './features/apollo/apollo.module';
 import { AuthMiddleware } from './features/auth/auth.middleware';
+import { ProviderModule } from './features/provider/provider.module';
 
 @Module({
   imports: [
@@ -24,6 +25,7 @@ import { AuthMiddleware } from './features/auth/auth.middleware';
     AuthModule,
     HealthModule,
     SafesModule,
+    ProviderModule,
   ],
   providers: [
     {

@@ -1,4 +1,4 @@
-import { CHAIN } from '@features/provider';
+import { CHAIN } from '~/provider';
 import { getErc20Contract } from './erc20';
 import { Token } from './token';
 

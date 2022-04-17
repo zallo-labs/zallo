@@ -1,6 +1,6 @@
 import { ethers } from 'ethers';
 
-import { PROVIDER } from '@features/provider';
+import { PROVIDER } from '~/provider';
 import { Erc20 } from './erc20';
 import abi from './erc20.abi.json';
 

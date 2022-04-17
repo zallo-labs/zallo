@@ -1,18 +1,35 @@
-import { Args, Mutation, Parent, Query, ResolveField, Resolver } from '@nestjs/graphql';
+import {
+  Args,
+  Mutation,
+  Parent,
+  Query,
+  ResolveField,
+  Resolver,
+} from '@nestjs/graphql';
 import { PrismaService } from 'nestjs-prisma';
 import { ethers } from 'ethers';
+import { GraphQLError } from 'graphql';
 
-import { getCounterfactualAddress, getGroupApproverId, getGroupHash, getGroupId } from 'lib';
+import {
+  getCounterfactualAddress,
+  getGroupApproverId,
+  getGroupId,
+  hashGroup,
+} from 'lib';
 import { Safe } from '@gen/safe/safe.model';
 import { Group } from '@gen/group/group.model';
 import { FindManySafeArgs } from '@gen/safe/find-many-safe.args';
 import { FindUniqueSafeArgs } from '@gen/safe/find-unique-safe.args';
 import { CreateCfSafeArgs } from './safes.args';
 import { UserAddr } from '~/decorators/user.decorator';
+import { ProviderService } from '../provider/provider.service';
 
 @Resolver(() => Safe)
 export class SafesResolver {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private provider: ProviderService,
+  ) {}
 
   @Query(() => Safe, { nullable: true })
   async safe(@Args() args: FindUniqueSafeArgs): Promise<Safe | null> {
@@ -38,14 +55,17 @@ export class SafesResolver {
 
   @Mutation(() => Safe)
   async createCfSafe(
-    @UserAddr() deployer: string,
+    @UserAddr() user: string,
     @Args() { approvers }: CreateCfSafeArgs,
   ): Promise<Safe> {
-    if (!approvers.length) throw new Error('Approvers required');
+    if (!approvers.filter((a) => a.addr === user).length)
+      throw new GraphQLError('User must be part of group');
 
-    const { addr: safeAddr, salt } = getCounterfactualAddress(deployer, approvers);
-
-    const groupHash = getGroupHash(approvers);
+    const { addr: safeAddr, salt } = getCounterfactualAddress(
+      this.provider.safeFactory,
+      approvers,
+    );
+    const groupHash = hashGroup(approvers);
 
     return this.prisma.safe.create({
       data: {
