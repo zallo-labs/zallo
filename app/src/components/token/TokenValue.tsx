@@ -6,16 +6,18 @@ import { Token } from '~/token/token';
 
 export interface TokenValueProps {
   token: Token;
-  value: BigNumber;
+  value: number | string | BigNumber;
 }
 
 export const TokenValue = ({ token, value }: TokenValueProps) => {
   const intl = useIntl();
 
   const formatted = useMemo(() => {
-    const v = `${ethers.utils.formatUnits(value, token.decimals)} ${token.symbol}`;
+    if (BigNumber.isBigNumber(value))
+      value = `${ethers.utils.formatUnits(value, token.decimals)} ${token.symbol}`;
+    if (typeof value === 'string') value = parseFloat(value);
 
-    return `${intl.formatNumber(parseFloat(v))} ${token.symbol}`;
+    return `${intl.formatNumber(value)} ${token.symbol}`;
   }, [token, value, intl]);
 
   return <>{formatted}</>;
