@@ -9,7 +9,8 @@
     "test:localhost": "hardhat test --network localhost",
     "test:ropsten": "hardhat test --network ropsten",
     "node:localhost": "hardhat node --hostname 0.0.0.0",
-    "deploy:local": "hardhat run --network localhost scripts/deploy.ts",
+    "deploy-factory:local": "hardhat run --network localhost scripts/deployFactory.ts",
+    "deploy-factory:ropsten": "hardhat run --network ropsten scripts/deployFactory.ts",
     "clean": "hardhat clean && npx rimraf artifacts cache"
   },
   "devDependencies": {

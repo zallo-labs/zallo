@@ -1,30 +1,10 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 pragma solidity ^0.8.0;
 
-struct Approver {
-  address addr;
-  uint256 weight;
-}
-
-struct Group {
-  mapping(address => uint256) approvers;
-}
-
-struct Tx {
-  address to;
-  uint256 value;
-  bytes data;
-  uint256 nonce;
-}
-
-struct SignedTx {
-  Tx tx;
-  bytes[] signatures;
-}
-
 import 'hardhat/console.sol';
 import '@openzeppelin/contracts/utils/cryptography/ECDSA.sol';
 
+import './Types.sol';
 import './EIP712.sol';
 
 contract Safe is EIP712 {
@@ -45,7 +25,7 @@ contract Safe is EIP712 {
   event GroupRemoved(bytes32 groupHash);
 
   /* Errors */
-  error NotSafe();
+  error OnlyCallableBySafe();
   error NotPrimaryApprover();
 
   error ApproverWeightExceeds100Percent();
@@ -205,7 +185,7 @@ contract Safe is EIP712 {
   }
 
   modifier onlySafe() {
-    if (msg.sender != address(this)) revert NotSafe();
+    if (msg.sender != address(this)) revert OnlyCallableBySafe();
     _;
   }
 
