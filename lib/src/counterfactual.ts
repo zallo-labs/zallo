@@ -3,6 +3,8 @@ import { Safe__factory } from './typechain';
 import { abiEncodeGroup, Group } from './group';
 
 export const getRandomSalt = () => ethers.utils.randomBytes(32);
+// export const getRandomSalt = () =>
+//   ethers.utils.toUtf8Bytes('0x0426066fa541c0029327a6e97e195d5104a16affba49a7279c9123be12f6cd4d');
 
 export const getCounterfactualAddress = (deployer: string, group: Group, salt?: Bytes) => {
   if (!salt) salt = getRandomSalt();
