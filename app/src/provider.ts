@@ -4,12 +4,14 @@ import '@ethersproject/shims';
 import { ethers } from 'ethers';
 import { LogBox, Platform } from 'react-native';
 
+import { getChain } from 'lib';
 import { CONFIG } from '~/config';
-import { CHAIN } from './chains';
 
 export * from 'lib/typechain';
 
 // Ethers uses long timers; these tasks WON'T be executed when the app is in the background but will resume once re-opened
 if (Platform.OS !== 'web') LogBox.ignoreLogs(['Setting a timer']);
+
+export const CHAIN = getChain(CONFIG.chain);
 
 export const PROVIDER = ethers.getDefaultProvider(CHAIN.name, CONFIG.providers);
