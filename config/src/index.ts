@@ -40,7 +40,7 @@ export const CONFIG = {
   },
   sessionSecret: required('SESSION_SECRET'),
   subgraphGqlUrl: E.SUBGRAPH_GQL_URL,
-  factoryContract: required('FACTORY_CONTRACT'),
+  factoryAddress: required('FACTORY_ADDRESS'),
 } as const;
 
 export default CONFIG;
