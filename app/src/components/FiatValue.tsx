@@ -5,7 +5,7 @@ import { BigNumber, ethers } from 'ethers';
 import { FIAT_DECIMALS } from '~/token/fiat';
 
 export interface FormattedFiatProps {
-  value: BigNumber | string;
+  value: number | string | BigNumber;
 }
 
 export const FiatValue = ({ value }: FormattedFiatProps) => {
@@ -13,8 +13,9 @@ export const FiatValue = ({ value }: FormattedFiatProps) => {
 
   const formatted = useMemo(() => {
     if (BigNumber.isBigNumber(value)) value = ethers.utils.formatUnits(value, FIAT_DECIMALS);
+    if (typeof value === 'string') value = parseFloat(value);
 
-    return intl.formatNumber(parseFloat(value), {
+    return intl.formatNumber(value, {
       style: 'currency',
       currency: 'USD',
       minimumFractionDigits: 0,

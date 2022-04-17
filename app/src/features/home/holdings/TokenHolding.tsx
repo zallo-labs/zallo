@@ -19,7 +19,7 @@ export interface TokenItemProps {
 
 export const TokenHolding = ({ token }: TokenItemProps) => {
   const { colors } = useTheme();
-  const balance = useTokenBalance(token);
+  const { balance } = useTokenBalance(token);
   const { price } = useTokenPrice(token);
 
   const fiatBalance = useMemo(
