@@ -25,7 +25,7 @@ import { FindUniqueSafeArgs } from '@gen/safe/find-unique-safe.args';
 import { CreateCfSafeArgs } from './safes.args';
 import { UserAddr } from '~/decorators/user.decorator';
 
-const factory = getFactory(CONFIG.factoryContract());
+const factory = getFactory(CONFIG.factoryAddress());
 
 @Resolver(() => Safe)
 export class SafesResolver {
