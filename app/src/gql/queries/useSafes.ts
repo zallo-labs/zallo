@@ -1,7 +1,7 @@
 import { useQuery } from '@apollo/client';
 import { BytesLike, Signer } from 'ethers';
 
-import { Approver, ArrVal, connectSafe, filterUnique, Safe } from 'lib';
+import { Approver, ArrVal, filterUnique, Safe, getSafe } from 'lib';
 import { useWallet } from '@features/wallet/WalletProvider';
 import { GetApiSafes, GetApiSafesVariables } from '@gql/api.generated';
 import { GetSgSafes, GetSgSafesVariables } from '@gql/subgraph.generated';
@@ -116,7 +116,7 @@ export const apiSafeToSafeData = (
 
   return {
     id: apiSafe.id,
-    contract: connectSafe(apiSafe.id, wallet),
+    contract: getSafe(apiSafe.id, wallet),
     isCf: apiSafe.isCf,
     deploySalt: apiSafe.deploySalt,
     groups,

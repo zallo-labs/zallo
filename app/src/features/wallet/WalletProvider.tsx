@@ -3,7 +3,7 @@ import * as storage from 'expo-secure-store';
 import { Wallet } from 'ethers';
 
 import { PROVIDER } from '~/provider';
-import { ChildrenProps } from '@util/provider';
+import { ChildrenProps } from '@util/children';
 import { CONFIG, IS_DEV } from '~/config';
 
 const WalletContext = createContext<Wallet | undefined>(undefined);
@@ -40,5 +40,7 @@ export const WalletProvider = ({ children }: ChildrenProps) => {
 
   if (!wallet) return null;
 
-  return <WalletContext.Provider value={wallet}>{children}</WalletContext.Provider>;
+  return (
+    <WalletContext.Provider value={wallet}>{children}</WalletContext.Provider>
+  );
 };

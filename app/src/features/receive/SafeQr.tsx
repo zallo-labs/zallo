@@ -2,7 +2,7 @@ import { useWindowDimensions } from 'react-native';
 import { useTheme } from 'react-native-paper';
 import QRCode from 'react-native-qrcode-svg';
 
-import { CHAIN } from '@provider';
+import { CHAIN } from '~/provider';
 import { useSafe } from '../safe/SafeProvider';
 
 // https://eips.ethereum.org/EIPS/eip-681

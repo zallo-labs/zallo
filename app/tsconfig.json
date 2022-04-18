@@ -6,7 +6,6 @@
     "baseUrl": "./",
     "paths": {
       "@components/*": ["./src/components/*"],
-      "@provider": ["./src/features/provider"],
       "@features/*": ["./src/features/*"],
       "@mutations": ["./src/gql/mutations"],
       "@queries": ["./src/gql/queries"],

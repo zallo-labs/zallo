@@ -3,7 +3,7 @@ import useAsyncEffect from 'use-async-effect';
 
 import { useCreateCfSafe } from '@mutations';
 import { SafeData, useSafes } from '@queries';
-import { ChildrenProps } from '@util/provider';
+import { ChildrenProps } from '@util/children';
 
 const SafeContext = createContext<SafeData | undefined>(undefined);
 

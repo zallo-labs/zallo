@@ -13,11 +13,8 @@ export const getOrCreateFactory = async (signer: Signer) => {
   return factory;
 };
 
-export const getSafe = async (signer: Signer, addr: string) => {
-  const safe = new Safe__factory().connect(signer).attach(addr);
-  await safe.deployed();
-  return safe;
-};
+export const getSafe = (addr: string, signer: Signer) =>
+  new Safe__factory().connect(signer).attach(addr);
 
 export const deploySafe = async (signer: Signer, group: Group) => {
   const factory = await getOrCreateFactory(signer);
@@ -27,7 +24,8 @@ export const deploySafe = async (signer: Signer, group: Group) => {
   const deployTx = await factory.create(salt, group);
   const deployReceipt = await deployTx.wait();
 
-  const safe = await getSafe(signer, addr);
+  const safe = getSafe(addr, signer);
+  await safe.deployed();
 
   return {
     safe,

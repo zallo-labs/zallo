@@ -7,7 +7,7 @@ import { SiweMessage } from 'siwe';
 import { Wallet } from 'ethers';
 
 import { CONFIG } from '~/config';
-import { CHAIN } from '@provider';
+import { CHAIN } from '~/provider';
 
 const TOKEN_KEY = 'api-token';
 
