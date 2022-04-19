@@ -15,8 +15,11 @@ declare global {
       accentContainer: string;
       onAccentContainer: string;
 
+      // background
       onBackground: string;
+      // surface
       onSurface: string;
+      outline: string;
 
       success: string;
       info: string;
@@ -31,36 +34,33 @@ declare global {
   }
 }
 
-const onColor = (color: string) => new Color(color).negate().hex();
-
 // https://github.com/callstack/react-native-paper/blob/main/src/styles/DarkTheme.tsx
 // https://akveo.github.io/react-native-ui-kitten/docs/design-system/eva-dark-theme
-const background = '#151A30'; // Dark blue/grey
-const surface = '#151A30'; // Dark blue
 export const PAPER_THEME: ReactNativePaper.Theme = {
   ...PaperDarkTheme,
   colors: {
     ...PaperDarkTheme.colors,
 
-    primary: '#F3C00C', // yellow
-    onPrimary: '#3E2E00',
-    primaryContainer: '#594400',
-    onPrimaryContainer: '#FFDF8B',
+    primary: '#f3c00b', // yellow
+    onPrimary: '#3e2e00',
+    primaryContainer: '#5a4400',
+    onPrimaryContainer: '#ffdf8b',
 
-    accent: '#FFB0C7', // maroony pink
-    onAccent: '#5E1130',
-    accentContainer: '#7B2846',
-    onAccentContainer: '#FFD9E2',
+    accent: '#ffb0c9', // maroony pink
+    onAccent: '#5e1032',
+    accentContainer: '#7b2848',
+    onAccentContainer: '#ffd8e3',
 
-    background,
-    onBackground: onColor(background),
-    surface,
-    onSurface: onColor(surface),
+    background: '#151A30', // Dark blue/grey
+    onBackground: '#e9e2d9',
+    surface: '#151A30', // Dark blue/grey
+    onSurface: '#e9e2d9',
+    outline: '#989080',
 
     success: '#48C12A', // Green
     info: '#559EFC', // Blue
     warning: '#FFAF30', // Orange
-    danger: '#FF4128', // Red
+    danger: '#ffb4a9', // Red
     lighterText: new Color(PaperDarkTheme.colors.text).alpha(0.7).hexa(),
   },
   radius: PaperDarkTheme.roundness * 5,
