@@ -51,6 +51,7 @@
     "react-native": "0.64.3",
     "react-native-get-random-values": "^1.7.2",
     "react-native-paper": "^4.12.0",
+    "react-native-popper": "^0.3.2",
     "react-native-qrcode-svg": "^6.1.2",
     "react-native-safe-area-context": "3.3.2",
     "react-native-screens": "~3.10.1",
