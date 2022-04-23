@@ -26,7 +26,12 @@ import './tasks/deposit';
 const config: HardhatUserConfig = {
   solidity: {
     version: '0.8.9',
-    settings: {},
+    settings: {
+      optimizer: {
+        enabled: true,
+        runs: 200,
+      },
+    },
   },
   defaultNetwork: 'hardhat',
   networks: {
@@ -43,7 +48,7 @@ const config: HardhatUserConfig = {
   },
   gasReporter: {
     // https://github.com/cgewecke/eth-gas-reporter#options
-    enabled: false,
+    enabled: true,
     currency: 'USD',
     coinmarketcap: CONFIG.coinmarketcapApiKey,
   },

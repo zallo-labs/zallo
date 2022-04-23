@@ -1,25 +1,30 @@
+export type ChainName = 'mainnet' | 'ropsten' | 'localhost';
+
 export interface Chain {
-  name: string;
+  name: ChainName;
   id: number;
+  url?: string;
 }
 
-export const MAINNET = {
-  name: 'mainnet',
-  id: 1,
-} as const;
-
-export const ROPSTEN = {
-  name: 'ropsten',
-  id: 3,
-} as const;
-
-export const CHAINS: Chain[] = [MAINNET, ROPSTEN];
-
-export type ChainName = typeof CHAINS[number]['name'];
+export const CHAINS: Record<ChainName, Chain> = {
+  mainnet: {
+    name: 'mainnet',
+    id: 1,
+  },
+  ropsten: {
+    name: 'ropsten',
+    id: 3,
+  },
+  localhost: {
+    name: 'localhost',
+    id: 31337,
+    url: `http://192.168.1.243:8545`,
+  },
+};
 
 export const getChain = (name: string) => {
-  const chain = CHAINS.find((c) => c.name === name.toLowerCase());
-  if (!chain) throw new Error(`Invalid chain: ${name}`);
+  const chain = CHAINS[name.toLowerCase() as ChainName];
+  if (!chain) throw new Error(`Chain not supported: ${name}`);
 
   return chain;
 };

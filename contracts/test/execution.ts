@@ -3,7 +3,7 @@ import { ethers } from 'hardhat';
 import { Safe, SafeError, EIP712_TX_TYPE, SignedTx, Tx } from 'lib';
 
 import { deposit, expect } from './util';
-import { deploy } from './deployer';
+import { deploy } from './factory';
 
 export const getDomain = async (safe: Safe) => ({
   chainId: (await ethers.provider.getNetwork()).chainId,

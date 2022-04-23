@@ -2,7 +2,7 @@ import { ethers } from 'hardhat';
 import { SafeEvent } from 'lib';
 
 import { expect } from './util';
-import { deploy } from './deployer';
+import { deploy } from './factory';
 
 describe('Deposit', () => {
   it('Transfer received', async () => {
