@@ -1,15 +1,19 @@
+import { BigNumber } from 'ethers';
 import { CHAIN } from '~/provider';
 import { getErc20Contract } from './erc20';
 import { Token } from './token';
 
-const create = (token: Omit<Token, 'addr' | 'getBalance'>): Token => {
+const create = (
+  token: Omit<Token, 'addr' | 'available' | 'getBalance'>,
+): Token => {
   const addr = token.addresses[CHAIN.name];
-  const contract = getErc20Contract(addr);
+  const contract = addr ? getErc20Contract(addr) : undefined;
 
   return {
     ...token,
     addr,
-    getBalance: (safe) => contract.balanceOf(safe.address),
+    getBalance: async (safe) =>
+      (await contract?.balanceOf(safe.address)) ?? BigNumber.from(0),
   };
 };
 
@@ -20,6 +24,7 @@ export const WETH = create({
   addresses: {
     mainnet: '0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2',
     ropsten: '0xc778417e063141139fce010982780140aa0cd5ab',
+    localhost: '0xc778417e063141139fce010982780140aa0cd5ab',
   },
   iconUri:
     'https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/ethereum/info/logo.png',
@@ -106,4 +111,6 @@ export const WBTC = create({
     'https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/ethereum/assets/0x2260FAC5E5542a773Aa44fBCfeDf7C193bc2C599/logo.png',
 });
 
-export const TOKENS: Token[] = [ETH, DAI, USDC, USDT, UNI, WBTC, WETH];
+export const TOKENS: Token[] = [ETH, DAI, USDC, USDT, UNI, WBTC, WETH].filter(
+  (token) => token.addr,
+);

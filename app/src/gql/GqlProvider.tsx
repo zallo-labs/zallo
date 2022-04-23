@@ -2,7 +2,7 @@ import { createContext, useContext, useEffect, useState } from 'react';
 import { ApolloClient, NormalizedCacheObject } from '@apollo/client';
 import AppLoading from 'expo-app-loading';
 
-import { ChildrenProps } from '@util/provider';
+import { ChildrenProps } from '@util/children';
 import {
   API_CLIENT_NAME,
   createSubgraphClient,

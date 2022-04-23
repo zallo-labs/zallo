@@ -1,13 +1,13 @@
 import { ApolloClient, ApolloLink, gql, HttpLink } from '@apollo/client';
 import { RetryLink } from '@apollo/client/link/retry';
+import { Duration } from 'luxon';
 
 import { CONFIG } from '~/config';
 import { useWallet } from '@features/wallet/WalletProvider';
 import { createAuthFlowLink } from './apiAuthFlowLink';
 import { getPersistedCache } from './cache';
-import { Duration } from 'luxon';
 
-export { gql as apiGql, gql as sgGql, gql as uniswapGql };
+export { gql as apiGql, gql as subGql, gql as uniswapGql };
 
 export const API_CLIENT_NAME = 'api';
 export const useCreateApiClient = () => {
@@ -30,7 +30,10 @@ export const createSubgraphClient = async () =>
   new ApolloClient({
     name: SUBGRAPH_CLIENT_NAME,
     cache: await getPersistedCache(SUBGRAPH_CLIENT_NAME),
-    link: ApolloLink.from([new RetryLink(), new HttpLink({ uri: CONFIG.subgraphGqlUrl })]),
+    link: ApolloLink.from([
+      new RetryLink(),
+      new HttpLink({ uri: CONFIG.subgraphGqlUrl }),
+    ]),
   });
 
 export const UNISWAP_CLIENT_NAME = 'uniswap';

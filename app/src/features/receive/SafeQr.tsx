@@ -9,13 +9,13 @@ import { useSafe } from '../safe/SafeProvider';
 const getLink = (addr: string) => `ethereum:pay-${addr}@${CHAIN.id}`;
 
 export const SafeQr = () => {
-  const safe = useSafe();
+  const { safe } = useSafe();
   const { colors } = useTheme();
   const window = useWindowDimensions();
 
   return (
     <QRCode
-      value={getLink(safe.contract.address)}
+      value={getLink(safe.address)}
       size={Math.min(window.width, window.height) * 0.8}
       backgroundColor={colors.background}
       ecl="M"

@@ -4,13 +4,13 @@ import { BytesLike, Signer } from 'ethers';
 import { Approver, ArrVal, filterUnique, Safe, getSafe } from 'lib';
 import { useWallet } from '@features/wallet/WalletProvider';
 import { GetApiSafes, GetApiSafesVariables } from '@gql/api.generated';
-import { GetSgSafes, GetSgSafesVariables } from '@gql/subgraph.generated';
-import { sgGql, apiGql } from '@gql/clients';
+import { GetSubSafes, GetSubSafesVariables } from '@gql/subgraph.generated';
+import { subGql, apiGql } from '@gql/clients';
 import { combineRest, combine, simpleKeyExtractor } from '@gql/combine';
 import { useApiClient, useSubgraphClient } from '@gql/GqlProvider';
 
-const SG_QUERY = sgGql`
-query GetSgSafes($approver: ID!) {
+const SUB_QUERY = subGql`
+query GetSubSafes($approver: ID!) {
   approver(id: $approver) {
     groups {
       group {
@@ -32,13 +32,16 @@ query GetSgSafes($approver: ID!) {
 }
 `;
 
-const useSgSafes = () => {
+const useSubSafes = () => {
   const wallet = useWallet();
 
-  const { data, ...rest } = useQuery<GetSgSafes, GetSgSafesVariables>(SG_QUERY, {
-    client: useSubgraphClient(),
-    variables: { approver: wallet.address },
-  });
+  const { data, ...rest } = useQuery<GetSubSafes, GetSubSafesVariables>(
+    SUB_QUERY,
+    {
+      client: useSubgraphClient(),
+      variables: { approver: wallet.address },
+    },
+  );
 
   const safes = data?.approver?.groups.map((g) => g.group.safe) ?? [];
 
@@ -75,10 +78,14 @@ query GetApiSafes($approver: String!) {
 const useApiSafes = () => {
   const wallet = useWallet();
 
-  const { data, ...rest } = useQuery<GetApiSafes, GetApiSafesVariables>(API_QUERY, {
-    client: useApiClient(),
-    variables: { approver: wallet.address },
-  });
+  const { data, ...rest } = useQuery<GetApiSafes, GetApiSafesVariables>(
+    API_QUERY,
+    {
+      client: useApiClient(),
+      variables: { approver: wallet.address },
+      fetchPolicy: 'cache-and-network',
+    },
+  );
 
   return { data: data?.approver?.safes ?? [], ...rest };
 };
@@ -92,7 +99,7 @@ export interface Group {
 
 export interface SafeData {
   id: string;
-  contract: Safe;
+  safe: Safe;
   name?: string;
   deploySalt?: BytesLike;
   groups: Group[];
@@ -116,7 +123,7 @@ export const apiSafeToSafeData = (
 
   return {
     id: apiSafe.id,
-    contract: getSafe(apiSafe.id, wallet),
+    safe: getSafe(apiSafe.id, wallet),
     name: apiSafe.name,
     deploySalt: apiSafe.deploySalt,
     groups,
@@ -126,15 +133,17 @@ export const apiSafeToSafeData = (
 export const useSafes = () => {
   const wallet = useWallet();
 
-  const { data: sgSafes, ...sgRest } = useSgSafes();
+  const { data: subSafes, ...subRest } = useSubSafes();
   const { data: apiSafes, ...apiRest } = useApiSafes();
 
-  const rest = combineRest(sgRest, apiRest);
+  console.log({ apiSafes });
+
+  const rest = combineRest(subRest, apiRest);
 
   if (rest.loading && !rest.error) return { safes: undefined, ...rest };
 
   const safes = apiSafes
-    ? combine(sgSafes, apiSafes, simpleKeyExtractor('id'), {
+    ? combine(subSafes, apiSafes, simpleKeyExtractor('id'), {
         atLeastApi: (subSafe, apiSafe): SafeData => {
           const subGroups: Group[] =
             subSafe?.groups.map((g) => ({
@@ -151,7 +160,10 @@ export const useSafes = () => {
 
           return {
             ...apiSafeData,
-            groups: filterUnique(subGroups.concat(apiSafeData.groups), (g) => g.id),
+            groups: filterUnique(
+              subGroups.concat(apiSafeData.groups),
+              (g) => g.id,
+            ),
           };
         },
       })

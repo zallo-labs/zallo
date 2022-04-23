@@ -6,7 +6,7 @@ export interface Token {
   symbol: string;
   decimals: number;
   addr: string; // Current chain address
-  addresses: Record<ChainName, string>;
+  addresses: Partial<Record<ChainName, string>>;
   iconUri: string;
   getBalance: (safe: Safe) => Promise<BigNumber>;
 }
