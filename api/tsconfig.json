@@ -9,6 +9,7 @@
       "@gen/*": ["./generated/*"]
     },
 
+    "allowJs": true,
     "strictPropertyInitialization": false,
     "noImplicitAny": false,
     "noUnusedLocals": false

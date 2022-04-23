@@ -8,9 +8,10 @@ import { SafesModule } from './features/safes/safes.module';
 import { AuthModule } from './features/auth/auth.module';
 import { APP_GUARD } from '@nestjs/core';
 import { AuthGuard } from './features/auth/auth.guard';
-import { GqlModule } from './features/apollo/apollo.module';
+import { ApolloModule } from './features/apollo/apollo.module';
 import { AuthMiddleware } from './features/auth/auth.middleware';
 import { ProviderModule } from './features/provider/provider.module';
+import { GroupsModule } from './features/groups/groups.module';
 
 @Module({
   imports: [
@@ -20,12 +21,13 @@ import { ProviderModule } from './features/provider/provider.module';
         middlewares: [loggingMiddleware()],
       },
     }),
-    GqlModule,
+    ApolloModule,
     ApproversModule,
     AuthModule,
+    GroupsModule,
     HealthModule,
-    SafesModule,
     ProviderModule,
+    SafesModule,
   ],
   providers: [
     {

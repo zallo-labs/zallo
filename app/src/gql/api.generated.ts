@@ -23,7 +23,7 @@ export interface CreateCfSafe_createCfSafe_groups {
 export interface CreateCfSafe_createCfSafe {
   __typename: "Safe";
   id: string;
-  isCf: boolean;
+  name: string | null;
   deploySalt: string;
   groups: CreateCfSafe_createCfSafe_groups[] | null;
 }
@@ -61,7 +61,7 @@ export interface GetApiSafes_approver_safes_groups {
 export interface GetApiSafes_approver_safes {
   __typename: "Safe";
   id: string;
-  isCf: boolean;
+  name: string | null;
   deploySalt: string;
   groups: GetApiSafes_approver_safes_groups[] | null;
 }
@@ -104,7 +104,7 @@ export interface SafeFields_groups {
 export interface SafeFields {
   __typename: "Safe";
   id: string;
-  isCf: boolean;
+  name: string | null;
   deploySalt: string;
   groups: SafeFields_groups[] | null;
 }
