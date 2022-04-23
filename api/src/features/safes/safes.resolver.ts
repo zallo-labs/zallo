@@ -62,7 +62,7 @@ export class SafesResolver {
       throw new GraphQLError('User must be part of group');
 
     const { addr: safeAddr, salt } = getCounterfactualAddress(
-      this.provider.safeFactory,
+      this.provider.factory,
       approvers,
     );
     const groupHash = hashGroup(approvers);

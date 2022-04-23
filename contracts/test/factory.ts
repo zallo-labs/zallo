@@ -4,7 +4,7 @@ import {
   toGroup,
   deploySafe,
   getCounterfactualAddress,
-  deploySafeFactory,
+  deployFactory,
   hashGroup,
   SafeEvent,
   getRandomSalt,
@@ -30,7 +30,7 @@ export const deploy = async (weights: number[], salt?: BytesLike) => {
     ]),
   );
 
-  const factory = await deploySafeFactory(deployer);
+  const factory = await deployFactory(deployer);
   const deployData = await deploySafe({
     deployer,
     factory,
@@ -53,13 +53,13 @@ export const deploy = async (weights: number[], salt?: BytesLike) => {
 describe('Factory', async () => {
   it('Deploys', async () => {
     const signer = (await ethers.getSigners())[0];
-    await deploySafeFactory(signer);
+    await deployFactory(signer);
   });
 
   describe('Create', () => {
     it('Counterfactual matches deploy address', async () => {
       const signer = (await ethers.getSigners())[0];
-      const factory = await deploySafeFactory(signer);
+      const factory = await deployFactory(signer);
       const group = toGroup([signer.address, 100]);
 
       const { addr: cfAddress, salt } = getCounterfactualAddress(
@@ -80,7 +80,7 @@ describe('Factory', async () => {
 
     it('Deploys with CF safe', async () => {
       const deployer = (await ethers.getSigners())[0];
-      const factory = await deploySafeFactory(deployer);
+      const factory = await deployFactory(deployer);
 
       const deployData = await deploySafe({
         deployer,

@@ -4,10 +4,10 @@ import { getCounterfactualAddress } from './counterfactual';
 import { Group } from './group';
 import { Safe, Factory, Factory__factory, Safe__factory } from './typechain';
 
-export const getSafeFactory = (addr: string, signer: Signer) =>
+export const getFactory = (addr: string, signer: Signer) =>
   new Factory__factory().attach(addr).connect(signer);
 
-export const deploySafeFactory = async (signer: Signer) => {
+export const deployFactory = async (signer: Signer) => {
   const factory = await new Factory__factory().connect(signer).deploy();
   await factory.deployed();
   return factory;
