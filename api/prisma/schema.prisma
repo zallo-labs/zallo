@@ -16,7 +16,7 @@ generator nestgraphql {
 
 // https://www.npmjs.com/package/@quixo3/prisma-session-store
 model Session {
-  id        String      @id
+  id        String   @id
   sid       String   @unique
   data      String
   expiresAt DateTime
@@ -24,8 +24,8 @@ model Session {
 
 model Safe {
   id         String  @id
+  name       String?
   deploySalt String
-  isCf       Boolean
   groups     Group[]
 }
 

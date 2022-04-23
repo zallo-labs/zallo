@@ -23,6 +23,7 @@ import { FindUniqueSafeArgs } from '@gen/safe/find-unique-safe.args';
 import { CreateCfSafeArgs } from './safes.args';
 import { UserAddr } from '~/decorators/user.decorator';
 import { ProviderService } from '../provider/provider.service';
+import { UpdateOneSafeArgs } from '@gen/safe/update-one-safe.args';
 
 @Resolver(() => Safe)
 export class SafesResolver {
@@ -54,6 +55,11 @@ export class SafesResolver {
   }
 
   @Mutation(() => Safe)
+  async updateSafe(@Args() args: UpdateOneSafeArgs): Promise<Safe> {
+    return this.prisma.safe.update(args);
+  }
+
+  @Mutation(() => Safe)
   async createCfSafe(
     @UserAddr() user: string,
     @Args() { approvers }: CreateCfSafeArgs,
@@ -71,7 +77,6 @@ export class SafesResolver {
       data: {
         id: safeAddr,
         deploySalt: ethers.utils.hexlify(salt),
-        isCf: true,
         groups: {
           create: {
             id: getGroupId(safeAddr, approvers),

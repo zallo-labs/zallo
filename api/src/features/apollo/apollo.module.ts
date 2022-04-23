@@ -23,6 +23,7 @@ const settings: ApolloServerPluginLandingPageGraphQLPlaygroundOptions['settings'
       playground: {
         settings,
       },
+      // plugins: [new LoggingPlugin()]
       // Http error on dev
       //   playground: false,
       //   plugins: IS_DEV
@@ -36,4 +37,4 @@ const settings: ApolloServerPluginLandingPageGraphQLPlaygroundOptions['settings'
     }),
   ],
 })
-export class GqlModule {}
+export class ApolloModule {}

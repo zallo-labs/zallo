@@ -48,7 +48,7 @@ const useSgSafes = () => {
 export const API_SAFE_FIELDS = apiGql`
 fragment SafeFields on Safe {
   id
-  isCf
+  name
   deploySalt
   groups {
     id
@@ -93,7 +93,7 @@ export interface Group {
 export interface SafeData {
   id: string;
   contract: Safe;
-  isCf: boolean;
+  name?: string;
   deploySalt?: BytesLike;
   groups: Group[];
 }
@@ -117,7 +117,7 @@ export const apiSafeToSafeData = (
   return {
     id: apiSafe.id,
     contract: getSafe(apiSafe.id, wallet),
-    isCf: apiSafe.isCf,
+    name: apiSafe.name,
     deploySalt: apiSafe.deploySalt,
     groups,
   };
