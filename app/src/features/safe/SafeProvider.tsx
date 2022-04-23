@@ -13,19 +13,27 @@ export const SafeProvider = ({ children }: ChildrenProps) => {
   const { safes } = useSafes();
   const createCfSafe = useCreateCfSafe();
 
-  const [safe, setSafe] = useState<SafeData | undefined>(undefined);
+  const [data, setData] = useState<SafeData | undefined>(undefined);
   const initializing = useRef(false);
   useAsyncEffect(async () => {
-    if (!safe && safes && !initializing.current) {
+    if (!data && safes && !initializing.current) {
       initializing.current = true;
 
-      setSafe(safes[0] ?? (await createCfSafe()).safe);
+      if (safes.length) {
+        console.log('Chose sub safe!');
+        setData(safes[0]);
+      } else {
+        console.log('Chose to create CF safe');
+        setData((await createCfSafe()).safe);
+      }
+
+      // setData(safes[0] ?? (await createCfSafe()).safe);
 
       initializing.current = false;
     }
-  }, [safes, safe, setSafe, createCfSafe, initializing]);
+  }, [safes, data, setData, createCfSafe, initializing]);
 
-  if (!safe) return null;
+  if (!data) return null;
 
-  return <SafeContext.Provider value={safe}>{children}</SafeContext.Provider>;
+  return <SafeContext.Provider value={data}>{children}</SafeContext.Provider>;
 };

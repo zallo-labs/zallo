@@ -4,49 +4,49 @@
 // This file was automatically generated and should not be edited.
 
 // ====================================================
-// GraphQL query operation: GetSgSafes
+// GraphQL query operation: GetSubSafes
 // ====================================================
 
-export interface GetSgSafes_approver_groups_group_safe_groups_approvers {
+export interface GetSubSafes_approver_groups_group_safe_groups_approvers {
   __typename: "GroupApprover";
   id: string;
   weight: any;
 }
 
-export interface GetSgSafes_approver_groups_group_safe_groups {
+export interface GetSubSafes_approver_groups_group_safe_groups {
   __typename: "Group";
   id: string;
   hash: any;
   active: boolean;
-  approvers: GetSgSafes_approver_groups_group_safe_groups_approvers[];
+  approvers: GetSubSafes_approver_groups_group_safe_groups_approvers[];
 }
 
-export interface GetSgSafes_approver_groups_group_safe {
+export interface GetSubSafes_approver_groups_group_safe {
   __typename: "Safe";
   id: string;
-  groups: GetSgSafes_approver_groups_group_safe_groups[];
+  groups: GetSubSafes_approver_groups_group_safe_groups[];
 }
 
-export interface GetSgSafes_approver_groups_group {
+export interface GetSubSafes_approver_groups_group {
   __typename: "Group";
-  safe: GetSgSafes_approver_groups_group_safe;
+  safe: GetSubSafes_approver_groups_group_safe;
 }
 
-export interface GetSgSafes_approver_groups {
+export interface GetSubSafes_approver_groups {
   __typename: "GroupApprover";
-  group: GetSgSafes_approver_groups_group;
+  group: GetSubSafes_approver_groups_group;
 }
 
-export interface GetSgSafes_approver {
+export interface GetSubSafes_approver {
   __typename: "Approver";
-  groups: GetSgSafes_approver_groups[];
+  groups: GetSubSafes_approver_groups[];
 }
 
-export interface GetSgSafes {
-  approver: GetSgSafes_approver | null;
+export interface GetSubSafes {
+  approver: GetSubSafes_approver | null;
 }
 
-export interface GetSgSafesVariables {
+export interface GetSubSafesVariables {
   approver: string;
 }
 

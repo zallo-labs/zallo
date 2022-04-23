@@ -5,12 +5,12 @@ import { Box } from '@components/Box';
 import { FormattedAddr } from '@components/FormattedAddr';
 
 export const SafeTitle = () => {
-  const safe = useSafe();
+  const { safe } = useSafe();
 
   return (
     <Box surface rounded>
       <Title>
-        <FormattedAddr addr={safe.contract.address} />
+        <FormattedAddr addr={safe.address} />
       </Title>
     </Box>
   );

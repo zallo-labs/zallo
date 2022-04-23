@@ -5,7 +5,7 @@ import { RootStackScreenProps } from '@features/navigation/RootNavigation';
 import { Holdings } from './holdings/Holdings';
 import { SafeTitle } from './SafeTitle';
 import { SafeBalance } from './SafeBalance';
-import { HomeActions } from './HomeActions';
+import { HomeActions } from './actions/HomeActions';
 
 export type HomeScreenProps = RootStackScreenProps<'Home'>;
 

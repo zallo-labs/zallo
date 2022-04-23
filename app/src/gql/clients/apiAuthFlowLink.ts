@@ -16,7 +16,8 @@ interface Token {
   signature: string;
 }
 
-const isServerError = (e?: NetworkError): e is ServerError => e?.name === 'ServerError';
+const isServerError = (e?: NetworkError): e is ServerError =>
+  e?.name === 'ServerError';
 
 // https://test.com/abc/123 -> test.com; RN has no URL support )':
 const getHost = (url: string) => {
@@ -53,13 +54,24 @@ const fetchNewToken = async (wallet: Wallet) => {
 
 const createWithTokenLink = (wallet: Wallet) =>
   setContext(async (_request, prevContext) => {
-    let data: Token | null = JSON.parse(await SecureStore.getItemAsync(TOKEN_KEY));
+    let data: Token | null = JSON.parse(
+      await SecureStore.getItemAsync(TOKEN_KEY),
+    );
+    console.log('Reading token');
 
     // Disregard data if the message has expired
-    if (data?.message.expirationTime && new Date(data.message.expirationTime) <= new Date())
+    if (
+      data?.message.expirationTime &&
+      new Date(data.message.expirationTime) <= new Date()
+    )
       data = null;
 
-    if (!data) data = await fetchNewToken(wallet);
+    if (!data) {
+      console.log('fetching new token');
+      data = await fetchNewToken(wallet);
+    } else {
+      console.log('using token');
+    }
 
     return {
       ...prevContext,
@@ -72,7 +84,9 @@ const createWithTokenLink = (wallet: Wallet) =>
 
 const resetTokenLink = onError(({ networkError, forward, operation }) => {
   if (isServerError(networkError) && networkError.statusCode === 401) {
-    return fromPromise(SecureStore.deleteItemAsync(TOKEN_KEY)).flatMap(() => forward(operation));
+    return fromPromise(SecureStore.deleteItemAsync(TOKEN_KEY)).flatMap(() =>
+      forward(operation),
+    );
   }
 });
 

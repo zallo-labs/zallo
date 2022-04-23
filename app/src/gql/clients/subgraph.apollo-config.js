@@ -7,7 +7,7 @@ module.exports = {
       url: CONFIG.subgraphGqlUrl,
     },
     includes: ['../**/*.ts'],
-    tagName: 'sgGql',
+    tagName: 'subGql',
     addTypename: true,
   },
 };
