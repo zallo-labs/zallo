@@ -10,10 +10,8 @@ const apiPort = E.PORT || 3000;
 const apiUrl = E.API_URL ?? `http://[::1]:${apiPort}`;
 
 export const CONFIG = {
-  environment:
-    E.ENVIRONMENT?.toLowerCase() === 'development'
-      ? 'development'
-      : 'production',
+  env:
+    E.NODE_ENV?.toLowerCase() === 'development' ? 'development' : 'production',
   chain: E.CHAIN?.toLowerCase() ?? 'ropsten',
   providers: {
     infura: E.INFURA_ID,
@@ -43,5 +41,5 @@ export default CONFIG;
 
 export type Config = typeof CONFIG;
 
-export const IS_DEV = CONFIG.environment === 'development';
-export const IS_PROD = CONFIG.environment === 'production';
+export const IS_DEV = CONFIG.env === 'development';
+export const IS_PROD = CONFIG.env === 'production';

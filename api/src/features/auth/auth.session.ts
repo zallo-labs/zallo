@@ -8,7 +8,7 @@ import CONFIG, { IS_PROD } from 'config';
 
 export const authSessionRequestHandler = () =>
   session({
-    secret: CONFIG.sessionSecret(),
+    secret: CONFIG.sessionSecret!,
     resave: true,
     saveUninitialized: true,
     cookie: {

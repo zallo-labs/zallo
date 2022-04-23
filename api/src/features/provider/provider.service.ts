@@ -1,25 +1,17 @@
-import { BaseProvider } from '@ethersproject/providers';
 import { Injectable } from '@nestjs/common';
+import { Wallet } from 'ethers';
 import CONFIG from 'config';
-import { ethers } from 'ethers';
-import { getChain, getFactory, SafeFactory } from 'lib';
-
-const chain = getChain(CONFIG.chain);
+import { Chain, Factory, getChain, getFactory } from 'lib';
 
 @Injectable()
-export class ProviderService extends BaseProvider {
-  public safeFactory: SafeFactory;
+export class ProviderService {
+  public chain: Chain;
+  public wallet: Wallet;
+  public factory: Factory;
 
   constructor() {
-    super({
-      name: chain.name,
-      chainId: chain.id,
-    });
-    Object.assign(
-      this,
-      ethers.getDefaultProvider(chain.name, CONFIG.providers),
-    );
-
-    this.safeFactory = getFactory(CONFIG.factoryAddress());
+    this.chain = getChain(CONFIG.chain!);
+    this.wallet = new Wallet(CONFIG.wallet.privateKey!);
+    this.factory = getFactory(CONFIG.factory[this.chain.name], this.wallet);
   }
 }

@@ -1,11 +1,11 @@
 import { ethers } from 'hardhat';
-import { deploySafeFactory } from 'lib';
+import { deployFactory } from 'lib';
 import { showTx } from './utils';
 
 const main = async () => {
   const signer = (await ethers.getSigners())[0];
 
-  const factory = await deploySafeFactory(signer);
+  const factory = await deployFactory(signer);
 
   console.log(`Factory deployed to: ${factory.address}`);
   await showTx(factory.deployTransaction.hash);
