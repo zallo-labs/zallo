@@ -10,6 +10,7 @@ import { SafeArea } from '@components/SafeArea';
 import { NAV_THEME, PAPER_THEME } from '~/theme';
 import { LocalizatonProvider } from '@features/localization/LocalizationProvider';
 import { GqlProvider } from '@gql/GqlProvider';
+import { Toast } from '@components/Toast';
 
 const Status = () => {
   const { colors } = useTheme();
@@ -30,6 +31,7 @@ export default () => (
             </SafeProvider>
           </GqlProvider>
         </WalletProvider>
+        <Toast />
       </SafeArea>
     </PaperProvider>
   </LocalizatonProvider>

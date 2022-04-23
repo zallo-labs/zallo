@@ -24,7 +24,6 @@ declare global {
       success: string;
       info: string;
       warning: string;
-      danger: string;
       lighterText: string;
     }
 
@@ -60,7 +59,7 @@ export const PAPER_THEME: ReactNativePaper.Theme = {
     success: '#48C12A', // Green
     info: '#559EFC', // Blue
     warning: '#FFAF30', // Orange
-    danger: '#ffb4a9', // Red
+    error: '#FF3D71', // Red
     lighterText: new Color(PaperDarkTheme.colors.text).alpha(0.7).hexa(),
   },
   radius: PaperDarkTheme.roundness * 5,
