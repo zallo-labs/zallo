@@ -10,7 +10,7 @@ import {
 } from 'lib';
 
 import { expect } from './util';
-import { deploy } from './deployer';
+import { deploy } from './factory';
 
 describe('Group', () => {
   it('Hashes', async () => {
