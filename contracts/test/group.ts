@@ -1,16 +1,12 @@
-import { ethers } from 'hardhat';
-import { createSignedTx } from './execution';
 import {
   percentToFixedWeight,
   fixedWeightToPercent,
-  SafeError,
   toGroup,
   SafeEvent,
   hashGroup,
 } from 'lib';
 
-import { expect } from './util';
-import { deploy } from './factory';
+import { expect, deploy, GasLimit, createSignedTx } from './util';
 
 describe('Group', () => {
   it('Hashes', async () => {
@@ -21,28 +17,25 @@ describe('Group', () => {
   });
 
   it('Group approver weights must sum to at least 100%', async () => {
-    const [approver1, approver2] = await ethers.getSigners();
-
-    const SafeFactory = await ethers.getContractFactory('Safe');
-    const safeDeployment = SafeFactory.connect(approver1).deploy(
-      toGroup([approver1.address, 90], [approver2.address, 9]),
-    );
-
-    expect(safeDeployment).to.eventually.be.rejectedWith(
-      SafeError.TotalGroupWeightLessThan100Percent,
-    );
+    let rejected = false;
+    try {
+      await deploy([90, 9]);
+    } catch (e) {
+      rejected = true;
+    }
+    expect(rejected).to.be.true; // SafeError.TotalGroupWeightLessThan100Percent
   });
 
-  it('Weight percentage conversion', async () => {
-    const weight35 = percentToFixedWeight(35);
-    expect(weight35).to.eq(
-      percentToFixedWeight(fixedWeightToPercent(weight35)),
-    );
+  describe('Weight conversion', () => {
+    it('Whole number', async () => {
+      const n = 70;
+      expect(n).to.eq(fixedWeightToPercent(percentToFixedWeight(n)));
+    });
 
-    const weight100 = percentToFixedWeight(100);
-    expect(weight100).to.eq(
-      percentToFixedWeight(fixedWeightToPercent(weight100)),
-    );
+    it('Decimal', async () => {
+      const n = 35.25998833119;
+      expect(n).to.eq(fixedWeightToPercent(percentToFixedWeight(n)));
+    });
   });
 
   describe('Through proposal', () => {
@@ -61,8 +54,10 @@ describe('Group', () => {
         data: safe.interface.encodeFunctionData('addGroup', [newGroup]),
       });
 
-      const execTx = await safe.connect(approver).execute(signedTx, groupHash);
-      expect(execTx).to.emit(safe, SafeEvent.GroupAdded);
+      const execTx = await safe.connect(approver).execute(signedTx, groupHash, {
+        gasLimit: GasLimit.EXECUTE,
+      });
+      await expect(execTx).to.emit(safe, SafeEvent.GroupAdded);
     });
 
     it('Group can be removed', async () => {
@@ -80,7 +75,9 @@ describe('Group', () => {
         to: safe.address,
         data: safe.interface.encodeFunctionData('addGroup', [newGroup]),
       });
-      await safe.connect(approver).execute(addNewGroupSignedTx, groupHash);
+      await safe.connect(approver).execute(addNewGroupSignedTx, groupHash, {
+        gasLimit: GasLimit.EXECUTE,
+      });
 
       const removeNewGroupSignedTx = await createSignedTx(safe, [], {
         to: safe.address,
@@ -89,8 +86,10 @@ describe('Group', () => {
 
       const removalTx = await safe
         .connect(newApprover)
-        .execute(removeNewGroupSignedTx, newGroupHash);
-      expect(removalTx).to.emit(safe, SafeEvent.GroupRemoved);
+        .execute(removeNewGroupSignedTx, newGroupHash, {
+          gasLimit: GasLimit.EXECUTE,
+        });
+      await expect(removalTx).to.emit(safe, SafeEvent.GroupRemoved);
     });
   });
 
@@ -103,11 +102,11 @@ describe('Group', () => {
       } = await deploy([100]);
 
       const newGroup = toGroup([other.address, 100]);
+      const addGroupTx = await safe.connect(approver).addGroup(newGroup, {
+        gasLimit: GasLimit.ADD_GROUP,
+      });
 
-      const addGroupTx = safe.connect(approver).addGroup(newGroup);
-      expect(addGroupTx).to.eventually.be.rejectedWith(
-        SafeError.OnlyCallableBySafe,
-      );
+      await expect(addGroupTx.wait()).to.be.rejected; // OnlyCallableBySafe
     });
 
     it("Group can't be removed", async () => {
@@ -117,10 +116,13 @@ describe('Group', () => {
         approvers: [approver],
       } = await deploy([100]);
 
-      const removeGroupTx = safe.connect(approver).removeGroup(groupHash);
-      expect(removeGroupTx).to.eventually.be.rejectedWith(
-        SafeError.OnlyCallableBySafe,
-      );
+      const removeGroupTx = await safe
+        .connect(approver)
+        .removeGroup(groupHash, {
+          gasLimit: GasLimit.REMOVE_GROUP,
+        });
+
+      await expect(removeGroupTx.wait()).to.be.rejected; // OnlyCallableBySafe
     });
   });
 });

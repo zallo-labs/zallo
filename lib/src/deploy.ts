@@ -1,44 +1,49 @@
 import { BytesLike, Signer } from 'ethers';
 
-import { getCounterfactualAddress } from './counterfactual';
-import { Group } from './group';
+import { calculateSafeAddress } from './counterfactual';
 import { Safe, Factory, Factory__factory, Safe__factory } from './typechain';
+
+type WithoutLastElem<P extends unknown[]> = P extends [...infer Head, unknown]
+  ? Head
+  : [];
+
+export type SafeConstructorArgs = WithoutLastElem<
+  Required<Parameters<Safe__factory['getDeployTransaction']>>
+>;
 
 export const getFactory = (addr: string, signer: Signer) =>
   new Factory__factory().attach(addr).connect(signer);
-
-export const deployFactory = async (signer: Signer) => {
-  const factory = await new Factory__factory().connect(signer).deploy();
-  await factory.deployed();
-  return factory;
-};
 
 export const getSafe = (addr: string, signer: Signer) =>
   new Safe__factory().attach(addr).connect(signer);
 
 interface DeploySafeParams {
-  deployer: Signer;
-  group: Group;
+  args: SafeConstructorArgs;
   factory: Factory;
+  signer: Signer;
   salt?: BytesLike;
 }
 
 export const deploySafe = async ({
-  deployer,
-  group,
+  args,
   factory,
+  signer,
   salt: _salt,
 }: DeploySafeParams) => {
-  const { addr, salt } = getCounterfactualAddress(factory, group, _salt);
+  const { addr, salt } = await calculateSafeAddress(args[0], factory, _salt);
 
-  const bytecode = new Safe__factory().getDeployTransaction(group).data!;
+  // zkSync FIXME: create2 support
+  // const bytecode = new Safe__factory().getDeployTransaction(...args).data!;
+  // const deployTx = await factory.create(bytecode, salt, {
+  //   gasLimit: 10_000_000,
+  // });
 
-  const deployTx = await factory.create(bytecode, salt, {
-    gasLimit: 2500000,
+  const deployTx = await factory.create(...args, {
+    gasLimit: 1_000_000,
   });
   const deployReceipt = await deployTx.wait();
 
-  const safe = getSafe(addr, deployer);
+  const safe = getSafe(addr, signer);
 
   return {
     safe,

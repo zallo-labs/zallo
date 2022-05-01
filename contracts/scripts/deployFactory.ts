@@ -1,14 +1,11 @@
-import { ethers } from 'hardhat';
-import { deployFactory } from 'lib';
-import { showTx } from './utils';
+import { USDC } from '../test/util/wallet';
+import { deployFactory } from '../test/util/deploy';
+import { displayTx } from './display';
 
 const main = async () => {
-  const signer = (await ethers.getSigners())[0];
+  const { factory, deployTx } = await deployFactory(USDC);
 
-  const factory = await deployFactory(signer);
-
-  console.log(`Factory deployed to: ${factory.address}`);
-  await showTx(factory.deployTransaction.hash);
+  await displayTx(factory.address, deployTx);
 };
 
 main().catch((error) => {

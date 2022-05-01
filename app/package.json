@@ -62,7 +62,8 @@
     "siwe": "^1.1.6",
     "styled-components": "^5.3.5",
     "styled-system": "^5.1.5",
-    "use-async-effect": "^2.2.5"
+    "use-async-effect": "^2.2.5",
+    "zksync-web3": "^0.4.0"
   },
   "devDependencies": {
     "@babel/core": "^7.12.9",
