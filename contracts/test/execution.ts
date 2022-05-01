@@ -1,100 +1,26 @@
-import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/signers';
 import { ethers } from 'hardhat';
-import { Safe, SafeError, EIP712_TX_TYPE, SignedTx, Tx } from 'lib';
-
-import { deposit, expect } from './util';
-import { deploy } from './factory';
-
-export const getDomain = async (safe: Safe) => ({
-  chainId: (await ethers.provider.getNetwork()).chainId,
-  verifyingContract: safe.address,
-});
-
-export const signTransaction = async (
-  safe: Safe,
-  tx: Tx,
-  signers: SignerWithAddress[],
-): Promise<string[]> => {
-  const domain = await getDomain(safe);
-
-  const signatures = await Promise.all(
-    signers.map((signer) => signer._signTypedData(domain, EIP712_TX_TYPE, tx)),
-  );
-
-  // Sort signatures by their hash
-  return signatures.sort((a, b) =>
-    ethers.utils.keccak256(a).localeCompare(ethers.utils.keccak256(b)),
-  );
-};
-
-export const createTx = (tx: Partial<Tx>): Tx => ({
-  to: '0x0000000000000000000000000000000000000000',
-  value: 0,
-  data: [],
-  nonce: 0, // TODO: generated random number
-  ...tx,
-});
-
-export const createSignedTx = async (
-  safe: Safe,
-  signers: SignerWithAddress[],
-  txOpts: Partial<Tx>,
-): Promise<SignedTx> => {
-  const tx = createTx(txOpts);
-  const signatures = await signTransaction(safe, tx, signers);
-  return { tx, signatures };
-};
+import {
+  expect,
+  deploy,
+  deposit,
+  wallet,
+  GasLimit,
+  createSignedTx,
+} from './util';
 
 describe('Execution', () => {
-  describe('EIP712', () => {
-    it('Domain separator', async () => {
-      const { safe, approvers } = await deploy([100]);
-      await deposit(safe, '1');
-
-      const [signer] = approvers;
-
-      const domain = await getDomain(safe);
-      const domainSeparator = ethers.utils._TypedDataEncoder.hashDomain(domain);
-
-      expect(await safe.connect(signer).domainSeparator()).to.eq(
-        domainSeparator,
-      );
-    });
-
-    it('Tx hash', async () => {
-      const { safe, approvers } = await deploy([100]);
-      const [signer] = approvers;
-
-      const tx = createTx({
-        to: signer.address,
-      });
-
-      const txHash = ethers.utils._TypedDataEncoder.hash(
-        await getDomain(safe),
-        EIP712_TX_TYPE,
-        tx,
-      );
-
-      expect(await safe.connect(signer).hashTx(tx)).to.eq(txHash);
-    });
-  });
-
   describe('Valid', () => {
     it("Execution succeeds with sufficient approval when there's 1 approver", async () => {
-      const value = ethers.utils.parseEther('1');
-
       const { safe, approvers, groupHash } = await deploy([100]);
-      await deposit(safe, value);
       const [signer] = approvers;
 
       const signedTx = await createSignedTx(safe, approvers, {
         to: signer.address,
-        value,
       });
 
-      await safe.connect(signer).execute(signedTx, groupHash);
-
-      // await expect(execTx).to.changeEtherBalance(signer.address, value); // FIXME:
+      await safe.connect(wallet).execute(signedTx, groupHash, {
+        gasLimit: 100_000,
+      });
     });
 
     it("Execution succeeds with sufficient approvals when there's multiple approvers", async () => {
@@ -105,7 +31,9 @@ describe('Execution', () => {
         to: receiver.address,
       });
 
-      await safe.connect(receiver).execute(signedTx, groupHash);
+      await safe.connect(receiver).execute(signedTx, groupHash, {
+        gasLimit: GasLimit.EXECUTE,
+      });
     });
 
     it('A non-approver can execute as long as they have the signatures', async () => {
@@ -118,7 +46,9 @@ describe('Execution', () => {
         to: nonApprover.address,
       });
 
-      await safe.connect(nonApprover).execute(signedTx, groupHash);
+      await safe.connect(nonApprover).execute(signedTx, groupHash, {
+        gasLimit: GasLimit.EXECUTE,
+      });
     });
 
     it('Total approval weightings can be >100%', async () => {
@@ -133,7 +63,9 @@ describe('Execution', () => {
         value,
       });
 
-      await safe.connect(signer).execute(signedTx, groupHash);
+      await safe.connect(signer).execute(signedTx, groupHash, {
+        gasLimit: GasLimit.EXECUTE,
+      });
     });
 
     it('A primary approver can directly execute a transaction', async () => {
@@ -144,7 +76,9 @@ describe('Execution', () => {
       } = await deploy([100]);
 
       const signedTx = await createSignedTx(safe, [], {});
-      await safe.connect(pa).execute(signedTx, groupHash);
+      await safe.connect(pa).execute(signedTx, groupHash, {
+        gasLimit: GasLimit.EXECUTE,
+      });
     });
 
     it('Batch execution with a single approver', async () => {
@@ -152,7 +86,9 @@ describe('Execution', () => {
 
       const signedTx = await createSignedTx(safe, [], {});
 
-      await safe.batchExecute([signedTx, signedTx], groupHash);
+      await safe.batchExecute([signedTx, signedTx], groupHash, {
+        gasLimit: GasLimit.BATCH_EXECUTE,
+      });
     });
 
     it('Batched execution with multiple approvers', async () => {
@@ -162,7 +98,9 @@ describe('Execution', () => {
       const signedTx1 = await createSignedTx(safe, approvers, { data: [1] });
       const signedTx2 = await createSignedTx(safe, approvers, { data: [2] });
 
-      await safe.batchExecute([signedTx1, signedTx2], groupHash);
+      await safe.batchExecute([signedTx1, signedTx2], groupHash, {
+        gasLimit: GasLimit.BATCH_EXECUTE,
+      });
     });
 
     it('Batched transaction reverts if any reverts', async () => {
@@ -171,38 +109,43 @@ describe('Execution', () => {
       const signedTx1 = await createSignedTx(safe, [], {});
       const signedTx2 = await createSignedTx(safe, [], { value: 1 });
 
-      const exec = safe.batchExecute([signedTx1, signedTx2], groupHash);
-      expect(exec).to.eventually.be.rejectedWith(SafeError.ExecutionReverted);
+      const exec = await safe.batchExecute([signedTx1, signedTx2], groupHash, {
+        gasLimit: GasLimit.BATCH_EXECUTE,
+      });
+
+      await expect(exec.wait()).to.be.reverted;
     });
   });
 
   describe('Invalid', () => {
     it('Execution rejects when total approval weights <100%', async () => {
       const { safe, groupHash, approvers } = await deploy([50, 25, 25]);
-      const [, approver1, approver2] = approvers;
+      const [approver1, approver2] = approvers;
 
       const signedTx = await createSignedTx(safe, [approver1, approver2], {});
 
-      const exec = safe.connect(approver1).execute(signedTx, groupHash);
+      const execTx = await safe
+        .connect(approver1)
+        .execute(signedTx, groupHash, {
+          gasLimit: GasLimit.EXECUTE,
+        });
 
-      expect(exec).to.eventually.be.rejectedWith(
-        SafeError.TotalApprovalWeightsInsufficient,
-      );
+      await expect(execTx.wait()).to.be.reverted;
     });
 
     it('Only a primary approver can directly execute a transaction', async () => {
       const {
         safe,
         groupHash,
-        approvers: [approver1],
+        approvers: [approver],
       } = await deploy([70, 30]);
 
       const signedTx = await createSignedTx(safe, [], {});
-      const execTx = safe.connect(approver1).execute(signedTx, groupHash);
+      const execTx = await safe.connect(approver).execute(signedTx, groupHash, {
+        gasLimit: GasLimit.EXECUTE,
+      });
 
-      expect(execTx).to.eventually.be.rejectedWith(
-        SafeError.NotPrimaryApprover,
-      );
+      await expect(execTx.wait()).to.be.reverted;
     });
   });
 });

@@ -5,14 +5,17 @@
   "types": "dist/index",
   "scripts": {
     "build": "yarn generate && tsc --build",
-    "generate": "(cd .. && yarn config-ws build && yarn contracts typechain)",
+    "generate": "(cd .. && NODE_ENV=compile yarn contracts typechain)",
     "clean": "npx rimraf dist",
     "start": "yarn build --watch"
   },
   "dependencies": {
     "@ethersproject/bignumber": "^5.6.0",
+    "@matterlabs/hardhat-zksync-deploy": "^0.1.5",
+    "@matterlabs/hardhat-zksync-solc": "^0.3.1",
     "ethers": "^5.6.0",
-    "lodash": "^4.17.21"
+    "lodash": "^4.17.21",
+    "zksync-web3": "^0.4.0"
   },
   "devDependencies": {
     "typescript": "^4.6.2"

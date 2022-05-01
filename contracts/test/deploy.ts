@@ -1,10 +1,35 @@
-import { ethers } from 'hardhat';
-import { toGroup, Safe__factory } from 'lib';
+import { SafeEvent, toGroup } from 'lib';
+import {
+  expect,
+  wallet,
+  deploy,
+  deployFactory,
+  deploySafeDirect,
+} from './util';
 
-it('Deploy', async () => {
-  const deployer = (await ethers.getSigners())[0];
-  const group = toGroup([deployer.address, 100]);
+describe('Deploy', async () => {
+  describe('Safe', () => {
+    it('Deploys directly', async () => {
+      const group = toGroup([wallet.address, 100]);
 
-  const safe = await new Safe__factory().connect(deployer).deploy(group);
-  await safe.deployed();
+      const { safe, deployTx } = await deploySafeDirect([group]);
+      await expect(deployTx).to.emit(safe, SafeEvent.GroupAdded);
+    });
+  });
+
+  describe('Factory', () => {
+    it('Deploys', async () => {
+      await deployFactory();
+    });
+
+    it('Calculated address matches deploy', async () => {
+      const { safe, deployTx } = await deploy([100]);
+      await expect(deployTx).to.emit(safe, SafeEvent.GroupAdded);
+    });
+
+    it('Deploys safe', async () => {
+      const { safe, deployTx } = await deploy([100]);
+      await expect(deployTx).to.emit(safe, SafeEvent.GroupAdded);
+    });
+  });
 });

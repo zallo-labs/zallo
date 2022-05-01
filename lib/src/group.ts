@@ -1,7 +1,7 @@
 import { ethers } from 'ethers';
-import { parseFixed, BigNumber } from '@ethersproject/bignumber';
 import { ApproverStruct } from './typechain/Safe';
 import { compareAddresses } from './addr';
+import { percentToFixedWeight } from './weight';
 
 export type Approver = ApproverStruct;
 export type Group = Approver[];
@@ -25,15 +25,3 @@ export const abiEncodeGroup = (group: Approver[]) =>
     ['tuple(address addr, uint96 weight)[]'],
     [group],
   );
-
-/* Weight */
-const weightPrecision = 28;
-const percentPrecision = 2;
-
-export const percentToFixedWeight = (weight: number) =>
-  parseFixed(`${weight}`, weightPrecision - percentPrecision);
-
-export const _100_PERCENT_WEIGHT = percentToFixedWeight(100);
-
-export const fixedWeightToPercent = (weight: BigNumber): number =>
-  weight.div(_100_PERCENT_WEIGHT.div(10 ** percentPrecision)).toNumber();
