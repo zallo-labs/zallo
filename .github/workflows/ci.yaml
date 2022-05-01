@@ -3,6 +3,11 @@ name: CI
 
 on: [push, pull_request]
 
+env:
+  CHAIN: metanet
+  WALLET_ADDRESS_METANET: ${{ secrets.WALLET_ADDRESS_METANET }}
+  WALLET_PRIVATE_KEY_METANET: ${{ secrets.WALLET_PRIVATE_KEY_METANET }}
+
 jobs:
   lib:
     runs-on: ubuntu-latest
@@ -68,7 +73,7 @@ jobs:
         run: yarn install
 
       - name: 🚧 Configure
-        run: yarn subgraph configure:ropsten
+        run: yarn subgraph configure:testnet
 
       - name: 🏗️ Build
         run: yarn subgraph build
