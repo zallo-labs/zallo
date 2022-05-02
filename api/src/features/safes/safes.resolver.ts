@@ -11,7 +11,7 @@ import { ethers } from 'ethers';
 import { GraphQLError } from 'graphql';
 
 import {
-  getCounterfactualAddress,
+  calculateSafeAddress,
   getGroupApproverId,
   getGroupId,
   hashGroup,
@@ -67,9 +67,9 @@ export class SafesResolver {
     if (!approvers.filter((a) => a.addr === user).length)
       throw new GraphQLError('User must be part of group');
 
-    const { addr: safeAddr, salt } = getCounterfactualAddress(
-      this.provider.factory,
+    const { addr: safeAddr, salt } = await calculateSafeAddress(
       approvers,
+      this.provider.factory,
     );
     const groupHash = hashGroup(approvers);
 
