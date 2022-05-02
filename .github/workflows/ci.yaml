@@ -1,7 +1,7 @@
 # Perform tests when pushing or creating a PR to any branch
 name: CI
 
-on: [push, pull_request]
+on: [push]
 
 env:
   CHAIN: metanet
