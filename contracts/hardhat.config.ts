@@ -20,6 +20,8 @@ import './tasks/accounts';
 import './tasks/balance';
 import './tasks/deposit';
 
+const IS_DOCKER = process.env.IS_DOCKER?.toLowerCase() === 'true';
+
 // https://hardhat.org/config/
 const config: HardhatUserConfig = {
   solidity: {
@@ -32,12 +34,12 @@ const config: HardhatUserConfig = {
   },
   zksolc: {
     version: '0.1.0',
-    compilerSource: 'docker',
+    compilerSource: IS_DOCKER ? 'binary' : 'docker',
     settings: {
       optimizer: {
         enabled: true,
       },
-      compilerPath: undefined as any, // Ignored when using docker compiler
+      compilerPath: './zksolc', // only used for compilerSource=binary
       experimental: {
         dockerImage: 'matterlabs/zksolc',
       },
