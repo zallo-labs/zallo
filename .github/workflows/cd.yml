@@ -7,6 +7,10 @@ on:
     workflows: ['CI']
     type: [completed]
 
+concurrency:
+  group: cd-${{ github.ref }}
+  cancel-in-progress: true
+
 env:
   INFURA_ID: ${{ secrets.INFURA_ID }}
   INFURA_SECRET: ${{ secrets.INFURA_SECRET }}
