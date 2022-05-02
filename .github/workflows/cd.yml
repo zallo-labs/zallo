@@ -72,8 +72,8 @@ jobs:
       - name: 🏗️ Build
         run: yarn subgraph build
 
-      - name: 🚀 Publish
-        run: yarn subgraph publish
+      - name: 🚀 Deploy
+        run: yarn subgraph deploy:testnet
 
   app:
     if: ${{ github.event.workflow_run.conclusion == 'success' }}
