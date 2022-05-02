@@ -5,7 +5,7 @@
   "types": "dist/index",
   "scripts": {
     "build": "yarn generate && tsc --build",
-    "generate": "(cd .. && NODE_ENV=compile yarn contracts typechain)",
+    "generate": "(cd .. && yarn config-ws build && yarn contracts typechain)",
     "clean": "npx rimraf dist",
     "start": "yarn build --watch"
   },
