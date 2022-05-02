@@ -45,7 +45,7 @@ contract EIP712 {
     );
   }
 
-  function _typedDataHash(bytes32 dataHash) private returns (bytes32) {
-    return ECDSA.toTypedDataHash(_domainSeparator(), dataHash);
+  function _typedDataHash(bytes32 structHash) private returns (bytes32) {
+    return ECDSA.toTypedDataHash(_domainSeparator(), structHash);
   }
 }
