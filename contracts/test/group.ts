@@ -9,12 +9,12 @@ import {
 import { expect, deploy, GasLimit, createSignedTx } from './util';
 
 describe('Group', () => {
-  it('Hashes', async () => {
-    const { safe, group, groupHash } = await deploy([100]);
+  // it('Hashes', async () => {
+  //   const { safe, group, groupHash } = await deploy([100]);
 
-    const actualGroupHash = await safe.hashGroup(group);
-    expect(actualGroupHash).to.eq(groupHash);
-  });
+  //   const actualGroupHash = await safe.hashGroup(group);
+  //   expect(actualGroupHash).to.eq(groupHash);
+  // });
 
   it('Group approver weights must sum to at least 100%', async () => {
     let rejected = false;

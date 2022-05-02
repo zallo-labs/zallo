@@ -86,14 +86,6 @@ contract Safe is EIP712 {
     emit GroupRemoved(_groupHash);
   }
 
-  function hashGroup(Approver[] memory _approvers)
-    public
-    pure
-    returns (bytes32)
-  {
-    return keccak256(abi.encode(_approvers));
-  }
-
   function _verify(SignedTx calldata _st, bytes32 _groupHash)
     internal
     returns (address[] memory)
@@ -150,7 +142,7 @@ contract Safe is EIP712 {
     approversUniqueAndSortedAsc(_approvers)
     returns (bytes32)
   {
-    bytes32 groupHash = hashGroup(_approvers);
+    bytes32 groupHash = _hashGroup(_approvers);
     Group storage group = groups[groupHash];
 
     // The group has to be able to sum to >= 100%
@@ -174,6 +166,14 @@ contract Safe is EIP712 {
     emit GroupAdded(_approvers);
 
     return groupHash;
+  }
+
+  function _hashGroup(Approver[] memory _approvers)
+    internal
+    pure
+    returns (bytes32)
+  {
+    return keccak256(abi.encode(_approvers));
   }
 
   function _isPrimaryApprover(bytes32 _groupHash) internal view returns (bool) {
