@@ -1,41 +1,28 @@
 import { ethers } from 'ethers';
-import { beforeEach } from 'mocha';
-import {
-  createTx,
-  getDomain,
-  hashTx,
-  TestEIP712,
-  TestEIP712__factory,
-} from 'lib';
-import { deployer, expect, wallet } from './util';
+import { createTx, getDomain, hashTx } from 'lib';
+import { deployTestSafe, expect, wallet } from './util';
 
 describe('EIP712', () => {
-  let tester: TestEIP712;
-
-  beforeEach(async () => {
-    const artifact = await deployer.loadArtifact('TestEIP712');
-    const contract = await deployer.deploy(artifact, []);
-    await contract.deployed();
-
-    tester = new TestEIP712__factory().attach(contract.address).connect(wallet);
-  });
-
   it('Domain separator', async () => {
+    const { safe } = await deployTestSafe();
+
     const expected = ethers.utils._TypedDataEncoder.hashDomain(
-      await getDomain(tester),
+      await getDomain(safe),
     );
-    const actual = await tester.callStatic.domainSeparator();
+    const actual = await safe.callStatic.domainSeparator();
 
     expect(actual).to.eq(expected);
   });
 
   it('txHash', async () => {
+    const { safe } = await deployTestSafe();
+
     const tx = createTx({
       to: wallet.address,
     });
 
-    const expected = await hashTx(tx, tester);
-    const actual = await tester.callStatic.hashTx(tx);
+    const expected = await hashTx(tx, safe);
+    const actual = await safe.callStatic.hashTx(tx);
 
     expect(actual).to.eq(expected);
   });

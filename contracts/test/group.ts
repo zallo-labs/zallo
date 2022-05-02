@@ -6,15 +6,23 @@ import {
   hashGroup,
 } from 'lib';
 
-import { expect, deploy, GasLimit, createSignedTx } from './util';
+import {
+  expect,
+  deploy,
+  GasLimit,
+  createSignedTx,
+  deployTestSafe,
+} from './util';
 
 describe('Group', () => {
-  // it('Hashes', async () => {
-  //   const { safe, group, groupHash } = await deploy([100]);
+  it('Hashes', async () => {
+    const { safe, group } = await deployTestSafe();
 
-  //   const actualGroupHash = await safe.hashGroup(group);
-  //   expect(actualGroupHash).to.eq(groupHash);
-  // });
+    const expected = hashGroup(group);
+    const actual = await safe.hashGroup(group);
+
+    expect(expected).to.eq(actual);
+  });
 
   it('Group approver weights must sum to at least 100%', async () => {
     let rejected = false;

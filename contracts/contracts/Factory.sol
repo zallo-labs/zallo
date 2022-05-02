@@ -7,6 +7,14 @@ import './Types.sol';
 contract Factory {
   error FailedOnDeploy();
 
+  function create(Approver[] calldata _approvers)
+    external
+    returns (address addr)
+  {
+    Safe safe = new Safe(_approvers);
+    return address(safe);
+  }
+
   // function create(bytes memory _bytecode, bytes32 _salt)
   //   external
   //   returns (address addr)
@@ -19,12 +27,4 @@ contract Factory {
 
   //   if (addr == address(0)) revert FailedOnDeploy();
   // }
-
-  function create(Approver[] calldata _approvers)
-    external
-    returns (address addr)
-  {
-    Safe safe = new Safe(_approvers);
-    return address(safe);
-  }
 }

@@ -7,14 +7,11 @@
     "configure:metanet": "mustache config/metanet.json subgraph.mustache.yaml > subgraph.yaml",
     "generate:abi": "(cd .. && yarn workspace contracts build) && node ./scripts/generate-abi.js",
     "generate": "yarn generate:abi && graph codegen && node ./scripts/fix-generated.js",
-    "build": "yarn generate && graph build",
+    "build": "graph build",
     "clean": "npx rimraf build data generated subgraph.yaml",
     "create:testnet": "graph create --node http://graph.metasafe.fi:8020/ hbriese/metasafe",
-    "create:metanet": "graph create --node http://testnet.metasafe.fi:8020/ hbriese/metasafe",
     "remove:testnet": "graph remove --node http://graph.metasafe.fi:8020/ hbriese/metasafe",
-    "remove:metanet": "graph remove --node http://testnet.metasafe.fi:8020/ hbriese/metasafe",
     "deploy:testnet": "graph deploy --node http://graph.metasafe.fi:8020/ --ipfs http://graph.metasafe.fi:5001 hbriese/metasafe",
-    "deploy:metanet": "graph deploy --node http://testnet.metasafe.fi:8020/ --ipfs http://testnet.metasafe.fi:5001 hbriese/metasafe",
     "deploy:hosted": "graph deploy --product hosted-service hbriese/metasafe"
   },
   "dependencies": {

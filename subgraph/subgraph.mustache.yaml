@@ -25,7 +25,7 @@ dataSources:
         - Transaction
         - TransactionApprover
       eventHandlers:
-        - event: GroupAdded((address,uint256)[])
+        - event: GroupAdded((address,uint96)[])
           handler: handleGroupAdded
         - event: GroupRemoved(bytes32)
           handler: handleGroupRemoved

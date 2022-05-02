@@ -7,6 +7,7 @@ import {
   getSafe,
   hashGroup,
   SafeConstructorArgs,
+  TestSafe__factory,
   toGroup,
 } from 'lib';
 import { allSigners, wallet } from './wallet';
@@ -69,5 +70,19 @@ export const deploy = async (weights: number[], _salt?: BytesLike) => {
     others,
     group,
     groupHash: hashGroup(group),
+  };
+};
+
+export const deployTestSafe = async (feeToken?: Address) => {
+  const group = toGroup([wallet.address, 100]);
+
+  const artifact = await deployer.loadArtifact('TestSafe');
+  const contract = await deployer.deploy(artifact, [group], feeToken);
+  await contract.deployed();
+
+  return {
+    safe: new TestSafe__factory().attach(contract.address).connect(wallet),
+    deployTx: contract.deployTransaction,
+    group,
   };
 };
