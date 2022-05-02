@@ -75,6 +75,9 @@ jobs:
       - name: 🚧 Configure
         run: yarn subgraph configure:testnet
 
+      - name: 🏗️ Generate
+        run: yarn subgraph generate
+
       - name: 🏗️ Build
         run: yarn subgraph build
 

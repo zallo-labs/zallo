@@ -3,7 +3,7 @@ pragma solidity ^0.8.0;
 
 import '@openzeppelin/contracts/utils/cryptography/ECDSA.sol';
 
-import '../Types.sol';
+import './Types.sol';
 
 // https://github.com/ethereum/EIPs/blob/master/EIPS/eip-712.md
 // Heavily inspired by: https://github.com/OpenZeppelin/openzeppelin-contracts/blob/master/contracts/utils/cryptography/draft-EIP712.sol

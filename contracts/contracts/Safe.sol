@@ -6,7 +6,7 @@ import {
 } from '@matterlabs/signature-checker/contracts/SignatureChecker.sol';
 
 import './Types.sol';
-import './EIP712/EIP712.sol';
+import './EIP712.sol';
 
 contract Safe is EIP712 {
   using SignatureChecker for address;
