@@ -3,8 +3,8 @@ import { AppModule } from './app.module';
 import { Logger } from '@nestjs/common';
 
 import { CONFIG } from 'config';
-import { GQL_ENDPOINT } from './features/apollo/apollo.module';
-import { authSessionRequestHandler } from './features/auth/auth.session';
+import { GQL_ENDPOINT } from './apollo/apollo.module';
+import { authSessionRequestHandler } from './auth/auth.session';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
