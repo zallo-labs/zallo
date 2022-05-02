@@ -3,6 +3,7 @@
   "include": ["src", "scripts/generate-abi.js"],
   "compilerOptions": {
     "module": "CommonJS",
+
     "esModuleInterop": true,
     "resolveJsonModule": true
   }

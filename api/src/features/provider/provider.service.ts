@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { Wallet } from 'ethers';
-import CONFIG from 'config';
-import { Chain, Factory, getChain, getFactory } from 'lib';
+import CONFIG, { Chain } from 'config';
+import { Factory, getFactory } from 'lib';
 
 @Injectable()
 export class ProviderService {
@@ -10,8 +10,8 @@ export class ProviderService {
   public factory: Factory;
 
   constructor() {
-    this.chain = getChain(CONFIG.chain!);
+    this.chain = CONFIG.chain;
     this.wallet = new Wallet(CONFIG.wallet.privateKey!);
-    this.factory = getFactory(CONFIG.factory[this.chain.name], this.wallet);
+    this.factory = getFactory(CONFIG.factoryAddress, this.wallet);
   }
 }

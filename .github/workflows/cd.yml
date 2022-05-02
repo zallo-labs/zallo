@@ -8,13 +8,15 @@ on:
     type: [completed]
 
 env:
-  CHAIN: ropsten
-  API_URL: ${{ secrets.API_URL }}
-  SESSION_SECRET: ${{ secrets.SESSION_SECRET }}
-  SUBGRAPH_GQL_URL: ${{ secrets.SUBGRAPH_GQL_URL }}
   INFURA_ID: ${{ secrets.INFURA_ID }}
   INFURA_SECRET: ${{ secrets.INFURA_SECRET }}
-  FACTORY_ROPSTEN_ADDRESS: ${{ secrets.FACTORY_ROPSTEN_ADDRESS }}
+  ALCHEMY_API_KEY: ${{ secrets.ALCHEMY_API_KEY }}
+  SESSION_SECRET: ${{ secrets.SESSION_SECRET }}
+  API_URL: ${{ secrets.API_URL }}
+  SUBGRAPH_GQL_URL: ${{ secrets.SUBGRAPH_GQL_URL }}
+  CHAIN: testnet
+  WALLET_ADDRESS_TESTNET: ${{ secrets.WALLET_ADDRESS_TESTNET }}
+  WALLET_PRIVATE_KEY_TESTNET: ${{ secrets.WALLET_PRIVATE_KEY_TESTNET }}
 
 jobs:
   api:
@@ -55,10 +57,13 @@ jobs:
         run: yarn install
 
       - name: 🚧 Configure
-        run: yarn subgraph configure:ropsten
+        run: yarn subgraph configure:testnet
 
       - name: 🚧 Auth
         run: yarn subgraph auth ${{ secrets.THEGRAPH_ACCESS_TOKEN }}
+
+      - name: 🏗️ Generate
+        run: yarn subgraph generate
 
       - name: 🏗️ Build
         run: yarn subgraph build

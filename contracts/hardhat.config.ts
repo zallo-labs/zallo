@@ -1,26 +1,24 @@
+import type { HardhatUserConfig } from 'hardhat/config';
 import { CONFIG } from 'config';
-import { HardhatUserConfig } from 'hardhat/config';
+
+import '@matterlabs/hardhat-zksync-deploy';
+import '@matterlabs/hardhat-zksync-solc';
+
 import '@nomiclabs/hardhat-ethers';
 import '@nomiclabs/hardhat-waffle';
 import '@nomiclabs/hardhat-etherscan';
 // https://github.com/protofire/solhint/blob/master/docs/rules.md
 import '@nomiclabs/hardhat-solhint';
 import '@typechain/hardhat';
-
-import 'solidity-coverage';
 import 'hardhat-gas-reporter';
 import 'hardhat-abi-exporter';
-import 'hardhat-tracer'; // hh test --logs
-// import "hardhat-contract-sizer";
-// import "hardhat-storage-layout";
+import 'hardhat-tracer';
+import 'solidity-coverage';
 
 // Tasks
 import './tasks/accounts';
 import './tasks/balance';
 import './tasks/deposit';
-
-// Consider plugins
-// https://hardhat.org/plugins/hardhat-watcher.html
 
 // https://hardhat.org/config/
 const config: HardhatUserConfig = {
@@ -29,31 +27,57 @@ const config: HardhatUserConfig = {
     settings: {
       optimizer: {
         enabled: true,
-        runs: 200,
       },
     },
   },
+  zksolc: {
+    version: '0.1.0',
+    compilerSource: 'docker',
+    settings: {
+      optimizer: {
+        enabled: true,
+      },
+      compilerPath: undefined as any, // Ignored when using docker compiler
+      experimental: {
+        dockerImage: 'matterlabs/zksolc',
+      },
+    },
+  },
+  zkSyncDeploy: {
+    zkSyncNetwork: CONFIG?.chain.zksyncUrl ?? '',
+    ethNetwork: CONFIG?.chain.ethUrl ?? '',
+  },
+  // defaultNetwork: CONFIG?.chain.name ?? 'metanet',
   defaultNetwork: 'hardhat',
   networks: {
     // https://hardhat.org/hardhat-network/reference/
-    hardhat: {},
-    ropsten: {
-      url: `https://ropsten.infura.io/v3/${CONFIG.providers.infura}`,
-      accounts: CONFIG.wallet.privateKey ? [CONFIG.wallet.privateKey] : [],
+    hardhat: {
+      zksync: true,
+      loggingEnabled: true,
     },
   },
+  //   metanet: {
+  //     zksync: true,
+  //     url: CHAINS?.metanet.zksyncUrl ?? '',
+  //     accounts: metanetWallets.map((w) => w.privateKey),
+  //   },
+  //   testnet: {
+  //     zksync: true,
+  //     url: CHAINS?.testnet.zksyncUrl ?? '',
+  //   },
+  // },
   // Plugins
   typechain: {
     outDir: '../lib/src/typechain',
   },
   gasReporter: {
     // https://github.com/cgewecke/eth-gas-reporter#options
-    enabled: true,
+    enabled: false,
     currency: 'USD',
-    coinmarketcap: CONFIG.coinmarketcapApiKey,
+    coinmarketcap: CONFIG?.coinmarketcapApiKey,
   },
   etherscan: {
-    apiKey: CONFIG.providers.etherscan,
+    apiKey: CONFIG?.providers.etherscan,
   },
   abiExporter: {
     runOnCompile: true,

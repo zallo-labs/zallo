@@ -3,10 +3,19 @@
   "compilerOptions": {
     "sourceRoot": "src",
     "outDir": "dist",
+
+    "resolveJsonModule": true,
+
     "baseUrl": "./",
     "paths": { "~/*": ["src/*"] }
   },
-  "include": ["./scripts", "./tasks", "./test", "./typechain"],
+  "include": [
+    "./scripts",
+    "./tasks",
+    "./test",
+    "./typechain",
+    "./metanet-wallets.json"
+  ],
   "files": ["./hardhat.config.ts"],
   "references": [{ "path": "../config" }, { "path": "../lib" }]
 }

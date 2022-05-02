@@ -1,15 +1,15 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 pragma solidity ^0.8.0;
 
-import 'hardhat/console.sol';
-import '@openzeppelin/contracts/utils/cryptography/ECDSA.sol';
+import {
+  SignatureChecker
+} from '@matterlabs/signature-checker/contracts/SignatureChecker.sol';
 
 import './Types.sol';
 import './EIP712.sol';
 
 contract Safe is EIP712 {
-  bytes32 private constant TX_TYPEHASH =
-    keccak256('Tx(address to,uint256 value,bytes data,uint256 nonce)');
+  using SignatureChecker for address;
 
   mapping(bytes32 => Group) groups;
   mapping(bytes32 => bool) txHashSeen;
@@ -28,17 +28,16 @@ contract Safe is EIP712 {
 
   /* Errors */
   error OnlyCallableBySafe();
-  error NotPrimaryApprover();
 
-  error ApproverWeightExceeds100Percent();
-  error TotalGroupWeightLessThan100Percent();
+  error ApproverWeightExceedsMax();
+  error TotalWeightInsufficient();
 
   error SignaturesNotAscending();
   error ApproversNotAscending();
+  error InvalidSignature(address signer, bytes signature);
 
   error TxAlreadyExecuted();
   error ApproverNotInGroup(address approver);
-  error TotalApprovalWeightsInsufficient();
   error ExecutionReverted(bytes response);
 
   constructor(Approver[] memory _approvers) {
@@ -55,10 +54,10 @@ contract Safe is EIP712 {
 
   function execute(SignedTx calldata _st, bytes32 _groupHash)
     public
-    signaturesUniqueAndSortedAsc(_st.signatures)
+    signersUniqueAndSortedAsc(_st.signers)
     returns (bytes memory response)
   {
-    address[] memory approvers = _verify(_st.tx, _groupHash, _st.signatures);
+    address[] memory approvers = _verify(_st, _groupHash);
 
     response = _call(_st.tx);
     emit Execution(_st.tx, _groupHash, approvers, msg.sender, response);
@@ -87,73 +86,45 @@ contract Safe is EIP712 {
     emit GroupRemoved(_groupHash);
   }
 
-  function hashTx(Tx calldata _tx) public view returns (bytes32) {
-    bytes32 txHash = keccak256(
-      abi.encode(TX_TYPEHASH, _tx.to, _tx.value, keccak256(_tx.data), _tx.nonce)
-    );
-
-    return ECDSA.toTypedDataHash(domainSeparator(), txHash);
-  }
-
-  function hashGroup(Approver[] memory _approvers)
-    public
-    pure
-    returns (bytes32)
+  function _verify(SignedTx calldata _st, bytes32 _groupHash)
+    internal
+    returns (address[] memory)
   {
-    return keccak256(abi.encode(_approvers));
-  }
-
-  function recoverAddress(bytes32 _hash, bytes memory _signature)
-    public
-    pure
-    returns (address)
-  {
-    return ECDSA.recover(_hash, _signature);
-  }
-
-  function _verify(
-    Tx calldata _tx,
-    bytes32 _groupHash,
-    bytes[] calldata _signatures
-  ) internal returns (address[] memory approvers) {
-    if (_signatures.length == 0) {
-      if (!_isPrimaryApprover(_groupHash)) revert NotPrimaryApprover();
-
-      approvers = new address[](1);
-      approvers[0] = msg.sender;
-
-      // Note. txHash not marked as seen for PA executions
-    } else {
-      approvers = _verifySignatures(_tx, _groupHash, _signatures);
+    Signer[] calldata signers = _st.signers;
+    if (signers.length == 0 && _isPrimaryApprover(_groupHash)) {
+      // Note. txHash not marked as seen if no signature is provided as it can't be replayed
+      return new address[](0);
     }
-  }
 
-  function _verifySignatures(
-    Tx calldata _tx,
-    bytes32 _groupHash,
-    bytes[] calldata _signatures
-  ) internal returns (address[] memory approvers) {
-    bytes32 txHash = hashTx(_tx);
+    bytes32 txHash = _hashTx(_st.tx);
     if (txHashSeen[txHash]) revert TxAlreadyExecuted();
     txHashSeen[txHash] = true;
 
     Group storage group = groups[_groupHash];
-    approvers = new address[](_signatures.length);
+    address[] memory approvers = new address[](signers.length);
 
     int256 req = _100_PERCENT_WEIGHT;
-    for (uint256 i = 0; req > 0 && i < _signatures.length; i++) {
-      approvers[i] = recoverAddress(txHash, _signatures[i]);
+    for (uint256 i = 0; req > 0 && i < signers.length; i++) {
+      Signer calldata signer = signers[i];
 
-      uint256 weight = group.approvers[approvers[i]];
-      if (weight == 0) revert ApproverNotInGroup(approvers[i]);
+      // Verify Signature
+      if (!signer.addr.checkSignature(txHash, signer.signature))
+        revert InvalidSignature(signer.addr, signer.signature);
 
-      // This can't overflow; see _100_PERCENT_WEIGHT
+      // Reduce required weight by the weight of the signer; the value is too small to overflow req
+      int256 weight = group.approvers[signer.addr];
+      if (weight == 0) revert ApproverNotInGroup(signer.addr);
+      approvers[i] = signer.addr;
+
+      // Negative overflow not possible
       unchecked {
-        req -= int256(weight);
+        req -= weight;
       }
     }
 
-    if (req > 0) revert TotalApprovalWeightsInsufficient();
+    if (req > 0) revert TotalWeightInsufficient();
+
+    return approvers;
   }
 
   function _call(Tx calldata _tx) internal returns (bytes memory) {
@@ -171,36 +142,42 @@ contract Safe is EIP712 {
     approversUniqueAndSortedAsc(_approvers)
     returns (bytes32)
   {
-    bytes32 groupHash = hashGroup(_approvers);
+    bytes32 groupHash = _hashGroup(_approvers);
     Group storage group = groups[groupHash];
 
     // The group has to be able to sum to >= 100%
     int256 req = _100_PERCENT_WEIGHT;
     for (uint256 i = 0; i < _approvers.length; i++) {
       Approver memory approver = _approvers[i];
+      int256 weight = int256(uint256(approver.weight));
 
-      if (approver.weight > uint256(_100_PERCENT_WEIGHT))
-        // TODO: try remove this?
-        revert ApproverWeightExceeds100Percent();
+      if (weight > _100_PERCENT_WEIGHT) revert ApproverWeightExceedsMax();
 
-      group.approvers[approver.addr] = approver.weight;
+      group.approvers[approver.addr] = weight;
 
-      // This can't overflow; see _100_PERCENT_WEIGHT
+      // Negative overflow not possible
       unchecked {
-        req -= int256(approver.weight);
+        req -= weight;
       }
     }
 
-    if (req > 0) revert TotalGroupWeightLessThan100Percent();
+    if (req > 0) revert TotalWeightInsufficient();
 
     emit GroupAdded(_approvers);
 
     return groupHash;
   }
 
+  function _hashGroup(Approver[] memory _approvers)
+    internal
+    pure
+    returns (bytes32)
+  {
+    return keccak256(abi.encode(_approvers));
+  }
+
   function _isPrimaryApprover(bytes32 _groupHash) internal view returns (bool) {
-    return
-      groups[_groupHash].approvers[msg.sender] == uint256(_100_PERCENT_WEIGHT);
+    return groups[_groupHash].approvers[msg.sender] == _100_PERCENT_WEIGHT;
   }
 
   modifier onlySafe() {
@@ -208,10 +185,10 @@ contract Safe is EIP712 {
     _;
   }
 
-  modifier signaturesUniqueAndSortedAsc(bytes[] calldata _signatures) {
+  modifier signersUniqueAndSortedAsc(Signer[] calldata _signers) {
     // Gas efficient way to assert that _signatures is a unique set
-    for (uint256 i = 1; i < _signatures.length; i++) {
-      if (keccak256(_signatures[i - 1]) >= keccak256(_signatures[i]))
+    for (uint256 i = 1; i < _signers.length; i++) {
+      if (_signers[i - 1].addr >= _signers[i].addr)
         revert SignaturesNotAscending();
     }
     _;
