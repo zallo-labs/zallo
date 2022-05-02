@@ -1,6 +1,5 @@
 import type { HardhatUserConfig } from 'hardhat/config';
-import type { Config, Chains } from 'config';
-import metanetWallets from './metanet-wallets.json';
+import { CONFIG } from 'config';
 
 import '@matterlabs/hardhat-zksync-deploy';
 import '@matterlabs/hardhat-zksync-solc';
@@ -20,11 +19,6 @@ import 'solidity-coverage';
 import './tasks/accounts';
 import './tasks/balance';
 import './tasks/deposit';
-
-const [CONFIG, CHAINS]: [Config | undefined, Chains | undefined] =
-  process.env.NODE_ENV === 'compile'
-    ? [undefined, undefined]
-    : [require('config').CONFIG, require('config').CHAINS];
 
 // https://hardhat.org/config/
 const config: HardhatUserConfig = {
@@ -54,7 +48,7 @@ const config: HardhatUserConfig = {
     ethNetwork: CONFIG?.chain.ethUrl ?? '',
   },
   // defaultNetwork: CONFIG?.chain.name ?? 'metanet',
-  defaultNetwork: "hardhat",
+  defaultNetwork: 'hardhat',
   networks: {
     // https://hardhat.org/hardhat-network/reference/
     hardhat: {
