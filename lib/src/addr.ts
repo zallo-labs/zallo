@@ -1,6 +1,12 @@
-import { ethers } from "ethers";
+import { ethers } from 'ethers';
 
-export const compareAddresses = (a: string, b: string) => {
+export type Address = string;
+
+// Ensures address has checksum
+export const toAddress = (addr: string): Address =>
+  ethers.utils.getAddress(addr);
+
+export const compareAddresses = (a: Address, b: Address) => {
   const aArr = ethers.utils.arrayify(a);
   const bArr = ethers.utils.arrayify(b);
 

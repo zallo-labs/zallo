@@ -16,7 +16,7 @@ const chain = getChain(E.CHAIN?.toLowerCase() ?? defaultChain);
 
 const factoryAddresses: Record<ChainName, string> = {
   metanet: '0xe441CF0795aF14DdB9f7984Da85CD36DB1B8790d',
-  testnet: '0xED3B98765f1bfe185bA245332FD852668CC268fF',
+  testnet: '0xAF5353dAcE2252aFb4dAE92f8b6770804Ffca4b9',
 };
 
 export const CONFIG = {

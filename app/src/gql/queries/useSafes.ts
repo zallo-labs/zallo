@@ -39,7 +39,7 @@ const useSubSafes = () => {
     SUB_QUERY,
     {
       client: useSubgraphClient(),
-      variables: { approver: wallet.address },
+      variables: { approver: wallet.address.toLowerCase() },
     },
   );
 
@@ -135,8 +135,6 @@ export const useSafes = () => {
 
   const { data: subSafes, ...subRest } = useSubSafes();
   const { data: apiSafes, ...apiRest } = useApiSafes();
-
-  console.log({ apiSafes });
 
   const rest = combineRest(subRest, apiRest);
 

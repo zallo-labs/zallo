@@ -1,6 +1,6 @@
 import { ethers } from 'ethers';
 import { ApproverStruct } from './typechain/Safe';
-import { compareAddresses } from './addr';
+import { compareAddresses, toAddress } from './addr';
 import { percentToFixedWeight } from './weight';
 
 export type Approver = ApproverStruct;
@@ -9,7 +9,7 @@ export type Group = Approver[];
 export const toGroup = (...approvers: [string, number][]): Group =>
   approvers
     .map(([addr, weight]) => ({
-      addr,
+      addr: toAddress(addr),
       weight: percentToFixedWeight(weight),
     }))
     .sort((a, b) => compareAddresses(a.addr, b.addr));
