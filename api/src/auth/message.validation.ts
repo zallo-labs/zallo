@@ -17,14 +17,16 @@ type IsErrorCheck = (params: {
 
 export const VALIDATION_CHECKS: Record<string, IsErrorCheck> = {
   'Session lacking nonce': ({ req }) => req.session.nonce === undefined,
-  'Message failed to validate': ({ msg, sig }) => {
+  'Message failed to validate': async ({ msg, sig }) => {
     try {
-      return !msg.validate(sig);
+      return !(await msg.validate(sig));
     } catch (e) {
       return validateErrors[e as ErrorTypes] ?? true;
     }
   },
-  "Message nonce doesn't match session nonce": ({ msg, req }) => msg.nonce !== req.session.nonce,
+  "Message nonce doesn't match session nonce": ({ msg, req }) =>
+    msg.nonce !== req.session.nonce,
   'Message not yet valid': ({ msg }) =>
-    msg.notBefore !== undefined && DateTime.fromISO(msg.notBefore) > DateTime.now(),
+    msg.notBefore !== undefined &&
+    DateTime.fromISO(msg.notBefore) > DateTime.now(),
 };
