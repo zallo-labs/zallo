@@ -41,7 +41,7 @@ export const ReceiveScreen = (_props: ReceiveScreenProps) => {
       </Box>
 
       <Box alignSelf="flex-end" mb={4}>
-        <FAB icon="share" label="Share" onPress={share} />
+        <FAB icon="share-variant" label="Share" onPress={share} />
       </Box>
     </Box>
   );
