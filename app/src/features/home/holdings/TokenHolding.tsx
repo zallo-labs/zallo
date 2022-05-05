@@ -1,6 +1,4 @@
-import { useMemo } from 'react';
 import { Paragraph, Subheading, useTheme } from 'react-native-paper';
-import { ethers } from 'ethers';
 
 import { ListItem } from '@components/ListItem';
 import { Token } from '~/token/token';
@@ -11,7 +9,6 @@ import { Box } from '@components/Box';
 import { PriceDelta } from '@components/PriceDelta';
 import { TokenValue } from '@components/token/TokenValue';
 import { FiatValue } from '@components/FiatValue';
-import { FIAT_DECIMALS } from '~/token/fiat';
 
 export interface TokenItemProps {
   token: Token;
@@ -19,17 +16,8 @@ export interface TokenItemProps {
 
 export const TokenHolding = ({ token }: TokenItemProps) => {
   const { colors } = useTheme();
-  const { balance } = useTokenBalance(token);
+  const { balance, fiatValue } = useTokenBalance(token);
   const { price } = useTokenPrice(token);
-
-  const fiatBalance = useMemo(
-    () =>
-      ethers.utils.formatUnits(
-        balance.mul(price.current),
-        token.decimals + FIAT_DECIMALS,
-      ),
-    [token, balance, price.current],
-  );
 
   return (
     <ListItem
@@ -45,7 +33,7 @@ export const TokenHolding = ({ token }: TokenItemProps) => {
       Right={
         <Box vertical alignItems="flex-end">
           <Paragraph>
-            <FiatValue value={fiatBalance} />
+            <FiatValue value={fiatValue} />
           </Paragraph>
           <PriceDelta delta={price.delta} />
         </Box>
