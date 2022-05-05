@@ -21,7 +21,7 @@ export const calculateSafeAddress = async (
 
   return {
     addr: await factory.callStatic.create(group),
-    salt: '',
+    salt: '0x00',
   };
 };
 

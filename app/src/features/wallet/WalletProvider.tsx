@@ -1,31 +1,35 @@
 import { createContext, useContext, useEffect, useState } from 'react';
 import * as storage from 'expo-secure-store';
-import { Wallet } from 'ethers';
+import * as zk from 'zksync-web3';
 
-import { PROVIDER } from '~/provider';
+import { ETH_PROVIDER, PROVIDER } from '~/provider';
 import { ChildrenProps } from '@util/children';
 import { CONFIG, IS_DEV } from '~/config';
 
-const WalletContext = createContext<Wallet | undefined>(undefined);
+const WalletContext = createContext<zk.Wallet | undefined>(undefined);
 
 export const useWallet = () => useContext(WalletContext)!;
 
 const KEY = 'private-key';
 
 export const WalletProvider = ({ children }: ChildrenProps) => {
-  const [wallet, setWallet] = useState<Wallet | undefined>(undefined);
+  const [wallet, setWallet] = useState<zk.Wallet | undefined>(undefined);
   const [writeReq, setWriteReq] = useState(false);
 
   useEffect(() => {
     (async () => {
       const pk = await storage.getItemAsync(KEY);
       if (pk) {
-        setWallet(new Wallet(pk, PROVIDER));
+        setWallet(new zk.Wallet(pk, PROVIDER, ETH_PROVIDER));
       } else if (IS_DEV && CONFIG.wallet.privateKey) {
-        setWallet(new Wallet(CONFIG.wallet.privateKey, PROVIDER));
+        setWallet(
+          new zk.Wallet(CONFIG.wallet.privateKey, PROVIDER, ETH_PROVIDER),
+        );
         setWriteReq(true);
       } else {
-        setWallet(Wallet.createRandom().connect(PROVIDER));
+        setWallet(
+          zk.Wallet.createRandom().connect(PROVIDER).connectToL1(ETH_PROVIDER),
+        );
         setWriteReq(true);
       }
     })();

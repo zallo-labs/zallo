@@ -18,7 +18,8 @@ const parseToken = (token: string): Token => {
 const isLocalPlayground = (req: Request) =>
   req.headers.origin?.endsWith(`[::1]:${CONFIG.api.port}`);
 
-const isIntrospection = (req: Request) => req.body?.operationName === 'IntrospectionQuery';
+const isIntrospection = (req: Request) =>
+  req.body?.operationName === 'IntrospectionQuery';
 
 export class AuthMiddleware implements NestMiddleware {
   async use(req: Request, _res: Response, next: NextFunction) {
@@ -37,7 +38,8 @@ export class AuthMiddleware implements NestMiddleware {
       }
 
       // Use the session expiry time if provided
-      if (message.expirationTime) req.session.cookie.expires = new Date(message.expirationTime);
+      if (message.expirationTime)
+        req.session.cookie.expires = new Date(message.expirationTime);
 
       req.userMessage = message;
     } else if (IS_DEV && isLocalPlayground(req) && !isIntrospection(req)) {

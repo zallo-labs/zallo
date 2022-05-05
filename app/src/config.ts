@@ -3,4 +3,4 @@ import type { Config } from 'config';
 
 export const CONFIG = constants.manifest?.extra as Config;
 
-export const IS_DEV = CONFIG.environment === 'development';
+export const IS_DEV = CONFIG.env === 'development';
