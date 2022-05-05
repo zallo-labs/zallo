@@ -67,7 +67,8 @@
     "reflect-metadata": "^0.1.13",
     "rxjs": "^7.5.5",
     "siwe": "^1.1.6",
-    "type-graphql": "^1.1.1"
+    "type-graphql": "^1.1.1",
+    "zksync-web3": "^0.4.0"
   },
   "devDependencies": {
     "@nestjs/cli": "^8.2.3",

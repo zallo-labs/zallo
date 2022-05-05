@@ -7,15 +7,13 @@ import {
   Resolver,
 } from '@nestjs/graphql';
 import { PrismaService } from 'nestjs-prisma';
-import { PrismaSelect } from '@paljs/plugins';
-import _ from 'lodash';
 
 import { Approver } from '@gen/approver/approver.model';
-import { Group } from '@gen/group/group.model';
 import { Safe } from '@gen/safe/safe.model';
 import { FindUniqueApproverArgs } from '@gen/approver/find-unique-approver.args';
 import { FindManyApproverArgs } from '@gen/approver/find-many-approver.args';
 import { GraphQLResolveInfo } from 'graphql';
+import { getSelect } from '~/util/test';
 
 @Resolver(() => Approver)
 export class ApproversResolver {
@@ -27,7 +25,7 @@ export class ApproversResolver {
   ): Promise<Approver | null> {
     return this.prisma.approver.findUnique({
       ...args,
-      ...new PrismaSelect(info).value,
+      ...getSelect(info),
     });
   }
 
@@ -38,24 +36,27 @@ export class ApproversResolver {
   ): Promise<Approver[]> {
     return this.prisma.approver.findMany({
       ...args,
-      ...new PrismaSelect(info).value,
+      ...getSelect(info),
     });
   }
 
   @ResolveField(() => [Safe])
-  async safes(@Parent() approver: Approver): Promise<Safe[]> {
-    const groupIds = approver.groups
-      ? approver.groups.map((g) => g.id)
-      : (
-          await this.prisma.approver.findUnique({
-            where: { id: approver.id },
-            select: { groups: { select: { groupId: true } } },
-          })
-        )?.groups.map((g) => g.groupId);
+  async safes(
+    @Parent() approver: Approver,
+    @Info() info: GraphQLResolveInfo,
+  ): Promise<Safe[]> {
+    const groupIds =
+      approver.groups?.map((g) => g.groupId) ??
+      (
+        await this.prisma.approver.findUnique({
+          where: { id: approver.id },
+          select: { groups: { select: { groupId: true } } },
+        })
+      )?.groups.map((g) => g.groupId);
 
     if (!groupIds) return [];
 
-    const safes = await this.prisma.safe.findMany({
+    return await this.prisma.safe.findMany({
       where: {
         groups: {
           some: {
@@ -63,11 +64,8 @@ export class ApproversResolver {
           },
         },
       },
+      distinct: 'id',
+      ...getSelect(info),
     });
-
-    return _.map(
-      _.groupBy(safes, (safe) => safe.id),
-      ([firstSafe]) => firstSafe,
-    );
   }
 }

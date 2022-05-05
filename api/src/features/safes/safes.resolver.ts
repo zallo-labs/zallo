@@ -16,7 +16,7 @@ import { CreateCfSafeArgs } from './safes.args';
 import { UserAddr } from '~/decorators/user.decorator';
 import { ProviderService } from '../../provider/provider.service';
 import { UpdateOneSafeArgs } from '@gen/safe/update-one-safe.args';
-import { PrismaSelect } from '@paljs/plugins';
+import { getSelect } from '~/util/test';
 
 @Resolver(() => Safe)
 export class SafesResolver {
@@ -32,7 +32,7 @@ export class SafesResolver {
   ): Promise<Safe | null> {
     return this.prisma.safe.findUnique({
       ...args,
-      ...new PrismaSelect(info).value,
+      ...getSelect(info),
     });
   }
 
@@ -43,7 +43,7 @@ export class SafesResolver {
   ): Promise<Safe[]> {
     return this.prisma.safe.findMany({
       ...args,
-      ...new PrismaSelect(info).value,
+      ...getSelect(info),
     });
   }
 

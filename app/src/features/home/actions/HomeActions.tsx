@@ -12,8 +12,6 @@ export const HomeActions = () => {
   const isDeployed = useIsDeployed();
   const deploySafe = useDeploySafe();
 
-  console.log({ isDeployed });
-
   const deployRequiredDisabled = (label: string) =>
     !isDeployed && `Safe must be deployed to ${label}`;
 
@@ -36,15 +34,16 @@ export const HomeActions = () => {
         onClick={() => navigation.navigate('Receive')}
       />
 
-      <HomeActionButton
-        label="DEPLOY"
-        icon={(props) => (
-          <MaterialCommunityIcons name="rocket-launch" {...props} />
-        )}
-        // onClick={() => console.log('clicked deploy safe')}
-        onClick={deploySafe}
-        disabled={isDeployed}
-      />
+      {!isDeployed && (
+        <HomeActionButton
+          label="DEPLOY"
+          icon={(props) => (
+            <MaterialCommunityIcons name="rocket-launch" {...props} />
+          )}
+          // onClick={() => console.log('clicked deploy safe')}
+          onClick={deploySafe}
+        />
+      )}
 
       <HomeActionButton
         label="SWAP"

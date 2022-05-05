@@ -7,7 +7,7 @@ import { SiweMessage } from 'siwe';
 import { Wallet } from 'ethers';
 
 import { CONFIG } from '~/config';
-import { CHAIN } from '~/provider';
+import { PROVIDER } from '~/provider';
 
 const TOKEN_KEY = 'api-token';
 
@@ -36,7 +36,7 @@ const fetchNewToken = async (wallet: Wallet) => {
     address: wallet.address,
     nonce,
     statement: 'Sign into MetaSafe',
-    chainId: CHAIN.id,
+    chainId: PROVIDER.network.chainId,
     version: '1',
     uri: CONFIG.api.url,
     domain: getHost(CONFIG.api.url),
@@ -57,20 +57,18 @@ const createWithTokenLink = (wallet: Wallet) =>
     let data: Token | null = JSON.parse(
       await SecureStore.getItemAsync(TOKEN_KEY),
     );
-    console.log('Reading token');
 
     // Disregard data if the message has expired
     if (
       data?.message.expirationTime &&
       new Date(data.message.expirationTime) <= new Date()
-    )
+    ) {
       data = null;
+    }
 
     if (!data) {
       console.log('fetching new token');
       data = await fetchNewToken(wallet);
-    } else {
-      console.log('using token');
     }
 
     return {

@@ -9,12 +9,18 @@
 
 export interface GetSubSafes_approver_groups_group_safe_groups_approvers {
   __typename: "GroupApprover";
+  /**
+   * {group.id}-{approver.id}
+   */
   id: string;
   weight: any;
 }
 
 export interface GetSubSafes_approver_groups_group_safe_groups {
   __typename: "Group";
+  /**
+   * {safe.id}-{hash}
+   */
   id: string;
   hash: any;
   active: boolean;
@@ -23,6 +29,9 @@ export interface GetSubSafes_approver_groups_group_safe_groups {
 
 export interface GetSubSafes_approver_groups_group_safe {
   __typename: "Safe";
+  /**
+   * {address}
+   */
   id: string;
   groups: GetSubSafes_approver_groups_group_safe_groups[];
 }

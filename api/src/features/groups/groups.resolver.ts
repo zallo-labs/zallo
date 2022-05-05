@@ -14,7 +14,7 @@ import { FindManyGroupArgs } from '@gen/group/find-many-group.args';
 import { FindUniqueGroupArgs } from '@gen/group/find-unique-group.args';
 import { Group } from '@gen/group/group.model';
 import { GraphQLResolveInfo } from 'graphql';
-import { PrismaSelect } from '@paljs/plugins';
+import { getSelect } from '~/util/test';
 
 @Resolver(() => Group)
 export class GroupsResolver {
@@ -27,7 +27,7 @@ export class GroupsResolver {
   ): Promise<Group | null> {
     return this.prisma.group.findUnique({
       ...args,
-      ...new PrismaSelect(info).value,
+      ...getSelect(info),
     });
   }
 
@@ -38,7 +38,7 @@ export class GroupsResolver {
   ): Promise<Group[]> {
     return this.prisma.group.findMany({
       ...args,
-      ...new PrismaSelect(info).value,
+      ...getSelect(info),
     });
   }
 
@@ -48,8 +48,6 @@ export class GroupsResolver {
       where: { groupId: group.id },
       include: { approver: true },
     });
-
-    // return r;
 
     return r.map((group) => ({
       ...group,
