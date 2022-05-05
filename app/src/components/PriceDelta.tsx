@@ -7,7 +7,7 @@ export interface PriceDeltaProps {
 export const PriceDelta = ({ delta }: PriceDeltaProps) => {
   const { colors } = useTheme();
 
-  const color = delta !== 0 ? (delta > 0 ? colors.success : colors.danger) : colors.placeholder;
+  const color = delta !== 0 ? (delta > 0 ? colors.success : colors.error) : colors.placeholder;
 
   return <Paragraph style={{ color }}>{delta.toFixed(2)}%</Paragraph>;
 };

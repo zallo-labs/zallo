@@ -7,15 +7,18 @@ import { useTokenPrice } from '@gql/queries/useTokenPrice';
 import { Token } from './token';
 import { FIAT_DECIMALS } from './fiat';
 import { ETH } from './tokens';
+import { PROVIDER } from '~/provider';
 
 export const useTokenBalance = (token: Token) => {
-  const safe = useSafe();
+  const { safe } = useSafe();
   const { price } = useTokenPrice(token);
 
   const [balance, setBalance] = useState<BigNumber>(BigNumber.from(0));
   useAsyncEffect(async () => {
     try {
-      setBalance(await token.getBalance(safe.safe));
+      setBalance(
+        await PROVIDER.getBalance(safe.address, undefined, token.addr),
+      );
     } catch (e) {
       // Do nothing
     }

@@ -1,12 +1,11 @@
-import { BigNumber } from 'ethers';
-import { ChainName, Safe } from 'lib';
+import { Erc20 } from './erc20';
 
 export interface Token {
   name: string;
   symbol: string;
   decimals: number;
   addr: string; // Current chain address
-  addresses: Partial<Record<ChainName, string>>;
+  addresses: Partial<Record<'mainnet' | 'testnet', string>>;
   iconUri: string;
-  getBalance: (safe: Safe) => Promise<BigNumber>;
+  contract: Erc20;
 }
