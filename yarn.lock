@@ -7990,6 +7990,7 @@ __metadata:
     react-intl: ^5.24.8
     react-native: 0.64.3
     react-native-get-random-values: ^1.7.2
+    react-native-jazzicon: ^0.1.2
     react-native-paper: ^4.12.0
     react-native-popper: ^0.3.2
     react-native-qrcode-svg: ^6.1.2
@@ -21034,6 +21035,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"mersenne-twister@npm:^1.1.0":
+  version: 1.1.0
+  resolution: "mersenne-twister@npm:1.1.0"
+  checksum: 7de1940ded117f2aad9320ae4d21d647b0ecf0667abbadcfe6a2835c669feb674ef46cb7a72da7af69a56d8b19e50e95e2fb7ef6d780efab7a6acd4d87f4cb2d
+  languageName: node
+  linkType: hard
+
 "metasafe@workspace:.":
   version: 0.0.0-use.local
   resolution: "metasafe@workspace:."
@@ -24955,6 +24963,20 @@ __metadata:
   peerDependencies:
     react-native: ">=0.42.0"
   checksum: 024376646009a966e33e12fc2358751830818b0fb73b1c601a64eb5e490d2dc43eec23668991b985a8c412a84d087f20eb45bb9b593567c08b66e741b7bddda5
+  languageName: node
+  linkType: hard
+
+"react-native-jazzicon@npm:^0.1.2":
+  version: 0.1.2
+  resolution: "react-native-jazzicon@npm:0.1.2"
+  dependencies:
+    color: ^3.0.0
+    mersenne-twister: ^1.1.0
+  peerDependencies:
+    react: ^16.4.2
+    react-native: ^0.56.0
+    react-native-svg: ^6.5.2
+  checksum: c49ec82ba047399476915ef3b2c2297962721655ea9e5561beec0d05990dd5bc9dfbb6fd1ce3d637f5596ec5db5c963aa2d90930dbb784a9f956e2656fceaf37
   languageName: node
   linkType: hard
 

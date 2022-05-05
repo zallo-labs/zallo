@@ -50,6 +50,7 @@
     "react-intl": "^5.24.8",
     "react-native": "0.64.3",
     "react-native-get-random-values": "^1.7.2",
+    "react-native-jazzicon": "^0.1.2",
     "react-native-paper": "^4.12.0",
     "react-native-popper": "^0.3.2",
     "react-native-qrcode-svg": "^6.1.2",
