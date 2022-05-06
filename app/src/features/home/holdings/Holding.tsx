@@ -10,11 +10,11 @@ import { PriceDelta } from '@components/PriceDelta';
 import { TokenValue } from '@components/token/TokenValue';
 import { FiatValue } from '@components/FiatValue';
 
-export interface TokenItemProps {
+export interface HoldingProps {
   token: Token;
 }
 
-export const TokenHolding = ({ token }: TokenItemProps) => {
+export const Holding = ({ token }: HoldingProps) => {
   const { colors } = useTheme();
   const { balance, fiatValue } = useTokenBalance(token);
   const { price } = useTokenPrice(token);
