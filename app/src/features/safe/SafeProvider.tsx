@@ -20,10 +20,8 @@ export const SafeProvider = ({ children }: ChildrenProps) => {
       initializing.current = true;
 
       if (safes.length) {
-        console.log('Chose sub safe!');
         setData(safes[0]);
       } else {
-        console.log('Chose to create CF safe');
         setData((await createCfSafe()).safe);
       }
 

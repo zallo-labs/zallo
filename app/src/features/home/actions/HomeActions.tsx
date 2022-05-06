@@ -40,7 +40,6 @@ export const HomeActions = () => {
           icon={(props) => (
             <MaterialCommunityIcons name="rocket-launch" {...props} />
           )}
-          // onClick={() => console.log('clicked deploy safe')}
           onClick={deploySafe}
         />
       )}
