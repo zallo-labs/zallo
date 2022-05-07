@@ -83,7 +83,6 @@ const useApiSafes = () => {
     {
       client: useApiClient(),
       variables: { approver: wallet.address },
-      fetchPolicy: 'cache-and-network',
     },
   );
 
