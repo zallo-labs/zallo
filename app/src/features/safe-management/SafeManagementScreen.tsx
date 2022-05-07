@@ -17,14 +17,14 @@ export const SafeManagementScreen = (_props: SafeManagementScreenProps) => {
       <Box mt="25%" mx="5%">
         <SafeNameField />
 
-        <Box center mt="5%">
+        <Box mt="5%">
           <Paragraph style={{ textAlign: 'center' }}>
             <FormattedAddr addr={safe.address} />
           </Paragraph>
         </Box>
       </Box>
 
-      <Box center mt="25%">
+      <Box mt="25%">
         <GroupItems />
       </Box>
     </Box>

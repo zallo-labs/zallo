@@ -10,7 +10,7 @@ export const SafeIcon = () => {
 
   return (
     <Pressable onPress={() => navigation.push('SafeManagement')}>
-      <Identicon addr={safe.address} />
+      <Identicon seed={safe.address} />
     </Pressable>
   );
 };

@@ -8,7 +8,7 @@ export const GroupItems = () => {
   return (
     <ItemsContainer>
       {groups.map((group) => (
-        <GroupItem key={group.id} />
+        <GroupItem key={group.id} group={group} />
       ))}
     </ItemsContainer>
   );
