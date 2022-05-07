@@ -1,6 +1,6 @@
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 
-import { ChildrenProps } from '@util/provider';
+import { ChildrenProps } from '@util/children';
 
 export const SafeArea = ({ children }: ChildrenProps) => (
   <SafeAreaProvider>

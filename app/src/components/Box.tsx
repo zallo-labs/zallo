@@ -15,7 +15,7 @@ import {
   SpaceProps,
 } from 'styled-system';
 
-import { ChildrenProps } from '@util/provider';
+import { ChildrenProps } from '@util/children';
 
 export interface InternalBoxProps
   extends ChildrenProps,
