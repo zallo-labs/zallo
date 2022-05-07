@@ -8,9 +8,14 @@ export interface ListItemProps extends BoxProps {
 }
 
 export const ListItem = ({ Left, Main, Right, ...boxProps }: ListItemProps) => (
-  <Box horizontal justifyContent="space-between" alignItems="center" {...boxProps}>
+  <Box
+    horizontal
+    justifyContent="space-between"
+    alignItems="center"
+    {...boxProps}
+  >
     <Box horizontal justifyContent="flex-start" alignItems="center">
-      {Left && <Box mr={2}>{Left}</Box>}
+      {Left && <Box mr={3}>{Left}</Box>}
       {Main}
     </Box>
 

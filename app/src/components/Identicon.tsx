@@ -5,10 +5,12 @@ import Jazzicon, { IJazziconProps } from 'react-native-jazzicon';
 if (Platform.OS !== 'web')
   LogBox.ignoreLogs(['componentWillReceiveProps has been renamed']);
 
+export const IDENTICON_SIZE = 40;
+
 export type IdenticonProps = Omit<IJazziconProps, 'seed'> & {
   seed: string;
 };
 
 export const Identicon = ({ seed, ...props }: IdenticonProps) => {
-  return <Jazzicon size={40} {...props} address={seed} />;
+  return <Jazzicon size={IDENTICON_SIZE} {...props} address={seed} />;
 };

@@ -4,6 +4,7 @@ import { Box } from '@components/Box';
 import { FormattedAddr } from '@components/FormattedAddr';
 import { RootStackScreenProps } from '@features/navigation/RootNavigation';
 import { useSafe } from '@features/safe/SafeProvider';
+import { SafeIcon } from '@features/home/SafeIcon';
 import { GroupItems } from './group/GroupItems';
 import { SafeNameField } from './SafeNameField';
 
@@ -14,13 +15,21 @@ export const SafeManagementScreen = (_props: SafeManagementScreenProps) => {
 
   return (
     <Box flex={1}>
-      <Box mt="25%" mx="5%">
-        <SafeNameField />
+      <Box mx="5%" mt="5%">
+        <Box horizontal alignItems="center">
+          <Box flex={2} horizontal justifyContent="flex-end">
+            <Paragraph>
+              <FormattedAddr addr={safe.address} />
+            </Paragraph>
+          </Box>
 
-        <Box mt="5%">
-          <Paragraph style={{ textAlign: 'center' }}>
-            <FormattedAddr addr={safe.address} />
-          </Paragraph>
+          <Box flex={1} horizontal justifyContent="flex-end">
+            <SafeIcon />
+          </Box>
+        </Box>
+
+        <Box mt="25%">
+          <SafeNameField />
         </Box>
       </Box>
 

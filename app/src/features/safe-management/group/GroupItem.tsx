@@ -1,5 +1,5 @@
 import { GroupName } from '@components/GroupName';
-import { Identicon } from '@components/Identicon';
+import { Identicon, IDENTICON_SIZE } from '@components/Identicon';
 import { ListItem } from '@components/ListItem';
 import { MaterialIcons } from '@expo/vector-icons';
 import { Group } from '@queries';
@@ -24,7 +24,7 @@ export const GroupItem = ({ group }: GroupItemProps) => {
       Right={
         <MaterialIcons
           name="chevron-right"
-          size={40}
+          size={IDENTICON_SIZE}
           color={colors.onSurface}
         />
       }
