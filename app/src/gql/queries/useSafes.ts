@@ -138,8 +138,6 @@ export const useSafes = () => {
 
   const rest = combineRest(subRest, apiRest);
 
-  if (rest.loading && !rest.error) return { safes: undefined, ...rest };
-
   const safes = apiSafes
     ? combine(subSafes, apiSafes, simpleKeyExtractor('id'), {
         atLeastApi: (subSafe, apiSafe): SafeData => {

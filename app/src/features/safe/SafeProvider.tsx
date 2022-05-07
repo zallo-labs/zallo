@@ -1,4 +1,4 @@
-import { createContext, useContext, useRef, useState } from 'react';
+import { createContext, useContext, useMemo, useRef } from 'react';
 import useAsyncEffect from 'use-async-effect';
 
 import { useCreateCfSafe } from '@mutations';
@@ -9,29 +9,32 @@ const SafeContext = createContext<SafeData | undefined>(undefined);
 
 export const useSafe = () => useContext(SafeContext)!;
 
+const select = (safes: SafeData[]): number => 0;
+
 export const SafeProvider = ({ children }: ChildrenProps) => {
-  const { safes } = useSafes();
+  const { safes, loading, refetch } = useSafes();
   const createCfSafe = useCreateCfSafe();
 
-  const [data, setData] = useState<SafeData | undefined>(undefined);
   const initializing = useRef(false);
   useAsyncEffect(async () => {
-    if (!data && safes && !initializing.current) {
+    if (!safes && !loading) {
       initializing.current = true;
 
-      if (safes.length) {
-        setData(safes[0]);
-      } else {
-        setData((await createCfSafe()).safe);
-      }
-
-      // setData(safes[0] ?? (await createCfSafe()).safe);
+      console.log('Creating cf safe');
+      await createCfSafe();
+      refetch();
 
       initializing.current = false;
     }
-  }, [safes, data, setData, createCfSafe, initializing]);
+  }, [safes, loading, initializing, createCfSafe, refetch]);
 
-  if (!data) return null;
+  const selected = useMemo(() => (safes ? select(safes) : undefined), [safes]);
 
-  return <SafeContext.Provider value={data}>{children}</SafeContext.Provider>;
+  if (!safes || selected === undefined) return null;
+
+  return (
+    <SafeContext.Provider value={safes[selected]}>
+      {children}
+    </SafeContext.Provider>
+  );
 };
