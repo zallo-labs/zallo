@@ -33,9 +33,10 @@ model Group {
   // {safe.id}-{hash}
   id        String          @id
   safe      Safe            @relation(fields: [safeId], references: [id], onDelete: Cascade)
+  safeId    String
   hash      String
   approvers GroupApprover[]
-  safeId    String
+  name      String?
 }
 
 model Approver {

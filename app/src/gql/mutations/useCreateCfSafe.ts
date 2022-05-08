@@ -3,7 +3,7 @@ import { useMutation } from '@apollo/client';
 
 import { _100_PERCENT_WEIGHT } from 'lib';
 import { useWallet } from '@features/wallet/WalletProvider';
-import { apiSafeToSafeData, API_SAFE_FIELDS } from '@queries';
+import { apiToCombined, API_SAFE_FIELDS } from '@queries';
 import { CreateCfSafe, CreateCfSafeVariables } from '@gql/api.generated';
 import { apiGql } from '@gql/clients';
 import { useApiClient } from '@gql/GqlProvider';
@@ -35,7 +35,7 @@ export const useCreateCfSafe = () => {
   const create = useCallback(
     async (options?: Parameters<typeof createRaw>[0]) => {
       const { data, ...rest } = await createRaw(options);
-      const safe = data ? apiSafeToSafeData(data.createCfSafe, wallet) : undefined;
+      const safe = data ? apiToCombined(data.createCfSafe, wallet) : undefined;
 
       return { safe, ...rest };
     },

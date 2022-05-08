@@ -18,6 +18,7 @@ export interface CreateCfSafe_createCfSafe_groups {
   id: string;
   hash: string;
   approvers: CreateCfSafe_createCfSafe_groups_approvers[] | null;
+  name: string | null;
 }
 
 export interface CreateCfSafe_createCfSafe {
@@ -56,6 +57,7 @@ export interface UpdateSafe_updateSafe_groups {
   id: string;
   hash: string;
   approvers: UpdateSafe_updateSafe_groups_approvers[] | null;
+  name: string | null;
 }
 
 export interface UpdateSafe_updateSafe {
@@ -95,6 +97,7 @@ export interface GetApiSafes_approver_safes_groups {
   id: string;
   hash: string;
   approvers: GetApiSafes_approver_safes_groups_approvers[] | null;
+  name: string | null;
 }
 
 export interface GetApiSafes_approver_safes {
@@ -138,6 +141,7 @@ export interface SafeFields_groups {
   id: string;
   hash: string;
   approvers: SafeFields_groups_approvers[] | null;
+  name: string | null;
 }
 
 export interface SafeFields {
@@ -309,6 +313,7 @@ export interface GroupApproverWhereUniqueInput {
 export interface GroupCreateManySafeInput {
   hash: string;
   id: string;
+  name?: string | null;
 }
 
 export interface GroupCreateManySafeInputEnvelope {
@@ -325,6 +330,7 @@ export interface GroupCreateWithoutSafeInput {
   approvers?: GroupApproverCreateNestedManyWithoutGroupInput | null;
   hash: string;
   id: string;
+  name?: string | null;
 }
 
 export interface GroupScalarWhereInput {
@@ -333,12 +339,14 @@ export interface GroupScalarWhereInput {
   OR?: GroupScalarWhereInput[] | null;
   hash?: StringFilter | null;
   id?: StringFilter | null;
+  name?: StringNullableFilter | null;
   safeId?: StringFilter | null;
 }
 
 export interface GroupUpdateManyMutationInput {
   hash?: StringFieldUpdateOperationsInput | null;
   id?: StringFieldUpdateOperationsInput | null;
+  name?: NullableStringFieldUpdateOperationsInput | null;
 }
 
 export interface GroupUpdateManyWithWhereWithoutSafeInput {
@@ -369,6 +377,7 @@ export interface GroupUpdateWithoutSafeInput {
   approvers?: GroupApproverUpdateManyWithoutGroupInput | null;
   hash?: StringFieldUpdateOperationsInput | null;
   id?: StringFieldUpdateOperationsInput | null;
+  name?: NullableStringFieldUpdateOperationsInput | null;
 }
 
 export interface GroupUpsertWithWhereUniqueWithoutSafeInput {
@@ -406,6 +415,20 @@ export interface NestedStringFilter {
   startsWith?: string | null;
 }
 
+export interface NestedStringNullableFilter {
+  contains?: string | null;
+  endsWith?: string | null;
+  equals?: string | null;
+  gt?: string | null;
+  gte?: string | null;
+  in?: string[] | null;
+  lt?: string | null;
+  lte?: string | null;
+  not?: NestedStringNullableFilter | null;
+  notIn?: string[] | null;
+  startsWith?: string | null;
+}
+
 export interface NullableStringFieldUpdateOperationsInput {
   set?: string | null;
 }
@@ -432,6 +455,21 @@ export interface StringFilter {
   lte?: string | null;
   mode?: QueryMode | null;
   not?: NestedStringFilter | null;
+  notIn?: string[] | null;
+  startsWith?: string | null;
+}
+
+export interface StringNullableFilter {
+  contains?: string | null;
+  endsWith?: string | null;
+  equals?: string | null;
+  gt?: string | null;
+  gte?: string | null;
+  in?: string[] | null;
+  lt?: string | null;
+  lte?: string | null;
+  mode?: QueryMode | null;
+  not?: NestedStringNullableFilter | null;
   notIn?: string[] | null;
   startsWith?: string | null;
 }

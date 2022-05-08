@@ -1,11 +1,15 @@
 import { RequireAtLeastOne } from '~/util/typing';
 
-export const MERGE_COMBINER = <Sub, Api>(sub: Sub, api: Api): Sub & Api => ({ ...api, ...sub });
+export const MERGE_COMBINER = <Sub, Api>(sub: Sub, api: Api): Sub & Api => ({
+  ...api,
+  ...sub,
+});
 
 export type Combiner<Sub, Api, Combined> =
   | RequireBothCombiner<Sub, Api, Combined>
   | AtLeastSubCombiner<Sub, Api, Combined>
-  | AtLeastApiCombiner<Sub, Api, Combined>;
+  | AtLeastApiCombiner<Sub, Api, Combined>
+  | EitherCombiner<Sub, Api, Combined>;
 
 export interface RequireBothCombiner<Sub, Api, Combined> {
   requireBoth: (sub: Sub, api: Api) => Combined;
@@ -31,8 +35,17 @@ export const isAtLeastApiCombiner = <Sub, Api, Combined>(
   c: Combiner<Sub, Api, Combined>,
 ): c is AtLeastApiCombiner<Sub, Api, Combined> => 'atLeastApi' in c;
 
+export interface EitherCombiner<Sub, Api, Combined> {
+  either: (item: RequireAtLeastOne<{ sub: Sub; api: Api }>) => Combined;
+}
+
+export const isEitherCombiner = <Sub, Api, Combined>(
+  c: Combiner<Sub, Api, Combined>,
+): c is AtLeastApiCombiner<Sub, Api, Combined> => 'either' in c;
+
 export type AtLeastOneCombiner<Sub, Api, Combined> = RequireAtLeastOne<
   Partial<RequireBothCombiner<Sub, Api, Combined>> &
     Partial<AtLeastSubCombiner<Sub, Api, Combined>> &
-    Partial<AtLeastApiCombiner<Sub, Api, Combined>>
+    Partial<AtLeastApiCombiner<Sub, Api, Combined>> &
+    Partial<EitherCombiner<Sub, Api, Combined>>
 >;

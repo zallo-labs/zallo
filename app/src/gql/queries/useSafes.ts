@@ -48,6 +48,25 @@ const useSubSafes = () => {
   return { data: filterUnique(safes, (safe) => safe.id), ...rest };
 };
 
+const subToCombined = (
+  sub: ArrVal<ReturnType<typeof useSubSafes>['data']>,
+  wallet: Signer,
+): SafeData => {
+  return {
+    id: sub.id,
+    safe: getSafe(sub.id, wallet),
+    groups: sub.groups.map((g) => ({
+      id: g.id,
+      hash: g.hash,
+      active: g.active,
+      approvers: g.approvers.map((a) => ({
+        addr: a.id,
+        weight: a.weight,
+      })),
+    })),
+  };
+};
+
 export const API_SAFE_FIELDS = apiGql`
 fragment SafeFields on Safe {
   id
@@ -60,6 +79,7 @@ fragment SafeFields on Safe {
       approverId
       weight
     }
+    name
   }
 }
 `;
@@ -94,6 +114,7 @@ export interface Group {
   hash: BytesLike;
   active: boolean;
   approvers: Approver[];
+  name?: string;
 }
 
 export interface SafeData {
@@ -104,7 +125,7 @@ export interface SafeData {
   groups: Group[];
 }
 
-export const apiSafeToSafeData = (
+export const apiToCombined = (
   apiSafe: ArrVal<ReturnType<typeof useApiSafes>['data']>,
   wallet: Signer,
 ): SafeData => {
@@ -118,6 +139,7 @@ export const apiSafeToSafeData = (
           addr: g.approverId,
           weight: g.weight,
         })) ?? [],
+      name: g.name,
     })) ?? [];
 
   return {
@@ -139,24 +161,18 @@ export const useSafes = () => {
 
   const safes = apiSafes
     ? combine(subSafes, apiSafes, simpleKeyExtractor('id'), {
-        atLeastApi: (subSafe, apiSafe): SafeData => {
-          const subGroups: Group[] =
-            subSafe?.groups.map((g) => ({
-              id: g.id,
-              hash: g.hash,
-              active: g.active,
-              approvers: g.approvers.map((a) => ({
-                addr: a.id,
-                weight: a.weight,
-              })),
-            })) ?? [];
-
-          const apiSafeData = apiSafeToSafeData(apiSafe, wallet);
+        either: ({ sub, api }): SafeData => {
+          const s = sub ? subToCombined(sub, wallet) : undefined;
+          const a = api ? apiToCombined(api, wallet) : undefined;
 
           return {
-            ...apiSafeData,
+            id: s?.id ?? a?.id,
+            safe: s?.safe ?? a?.safe,
+            name: a?.name ?? s?.name,
+            deploySalt: s?.deploySalt ?? s?.deploySalt,
+            // TODO: check group merging logic
             groups: filterUnique(
-              subGroups.concat(apiSafeData.groups),
+              [...(s?.groups ?? []), ...(a?.groups ?? [])],
               (g) => g.id,
             ),
           };

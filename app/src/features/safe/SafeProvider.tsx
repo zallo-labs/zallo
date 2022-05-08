@@ -9,7 +9,11 @@ const SafeContext = createContext<SafeData | undefined>(undefined);
 
 export const useSafe = () => useContext(SafeContext)!;
 
-const select = (safes: SafeData[]): number => 0;
+const select = (safes?: SafeData[]): number | undefined => {
+  if (!safes?.length) return undefined;
+
+  return safes.length - 1;
+};
 
 export const SafeProvider = ({ children }: ChildrenProps) => {
   const { safes, loading, refetch } = useSafes();
@@ -28,9 +32,9 @@ export const SafeProvider = ({ children }: ChildrenProps) => {
     }
   }, [safes, loading, initializing, createCfSafe, refetch]);
 
-  const selected = useMemo(() => (safes ? select(safes) : undefined), [safes]);
+  const selected = useMemo(() => select(safes), [safes]);
 
-  if (!safes || selected === undefined) return null;
+  if (!safes?.length || selected === undefined) return null;
 
   return (
     <SafeContext.Provider value={safes[selected]}>
