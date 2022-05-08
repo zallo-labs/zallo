@@ -9,6 +9,9 @@ const SafeContext = createContext<SafeData | undefined>(undefined);
 
 export const useSafe = () => useContext(SafeContext)!;
 
+export const useGroup = (id: string) =>
+  useSafe().groups.find((g) => g.id === id);
+
 const select = (safes?: SafeData[]): number | undefined => {
   if (!safes?.length) return undefined;
 

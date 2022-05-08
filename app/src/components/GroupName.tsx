@@ -6,12 +6,13 @@ export interface GroupNameProps {
   group: Group;
 }
 
-export const GroupName = ({ group }: GroupNameProps) => {
+export const GroupName = ({ group: { name, hash } }: GroupNameProps) => {
   const formatted = useMemo(() => {
-    const hash = hexlify(group.hash);
+    if (name) return name;
 
-    return `${hash.slice(0, 6)}...${hash.slice(hash.length - 4)}`;
-  }, [group.hash]);
+    const hex = hexlify(hash);
+    return `${hex.slice(0, 6)}...${hex.slice(hash.length - 4)}`;
+  }, [name, hash]);
 
   return <>{formatted}</>;
 };

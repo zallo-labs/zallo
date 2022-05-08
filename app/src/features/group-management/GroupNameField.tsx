@@ -1,23 +1,34 @@
 import { useEffect, useState } from 'react';
 import { TextInput } from 'react-native-paper';
 import { useDebounce } from 'use-debounce';
-
-import { useSafe } from '@features/safe/SafeProvider';
 import { Box } from '@components/Box';
+import { Group } from '@queries';
 import { useUpdateSafe } from '@gql/mutations/useUpdateSafe';
 
-export const SafeNameField = () => {
-  const { name: savedName } = useSafe();
+export interface GroupNameFieldProps {
+  group: Group;
+}
+
+export const GroupNameField = ({ group }: GroupNameFieldProps) => {
   const updateSafe = useUpdateSafe();
 
-  const [name, setName] = useState<string | undefined>(savedName);
+  const [name, setName] = useState<string | undefined>(group.name);
   const [debouncedName] = useDebounce(name, 500);
 
   useEffect(() => {
-    if (debouncedName !== savedName) {
+    if (debouncedName !== group.name) {
       updateSafe({
-        name: {
-          set: debouncedName || null,
+        groups: {
+          update: [
+            {
+              where: { id: group.id },
+              data: {
+                name: {
+                  set: debouncedName || null,
+                },
+              },
+            },
+          ],
         },
       });
     }
@@ -26,7 +37,7 @@ export const SafeNameField = () => {
   return (
     <Box>
       <TextInput
-        placeholder="Safe name..."
+        placeholder="Group name..."
         value={name}
         onChangeText={setName}
         autoComplete={false}

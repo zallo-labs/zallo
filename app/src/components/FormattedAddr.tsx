@@ -1,5 +1,6 @@
 import { useMemo } from 'react';
 import { ethers } from 'ethers';
+import { elipseTruncate } from '@util/format';
 
 export interface FormattedAddrProps {
   addr: string;
@@ -8,9 +9,10 @@ export interface FormattedAddrProps {
 
 export const FormattedAddr = ({ addr, full }: FormattedAddrProps) => {
   const formatted = useMemo(() => {
-    if (!ethers.utils.isAddress(addr)) throw new Error(`'${addr}' is not an address`);
+    if (!ethers.utils.isAddress(addr))
+      throw new Error(`'${addr}' is not an address`);
 
-    if (!full) addr = `${addr.slice(0, 6)}...${addr.slice(addr.length - 4)}`;
+    if (!full) addr = elipseTruncate(addr, 6, 4);
 
     return addr;
   }, [addr, full]);
