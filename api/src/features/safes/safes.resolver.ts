@@ -48,14 +48,21 @@ export class SafesResolver {
   }
 
   @Mutation(() => Safe)
-  async updateSafe(@Args() args: UpdateOneSafeArgs): Promise<Safe> {
-    return this.prisma.safe.update(args);
+  async updateSafe(
+    @Args() args: UpdateOneSafeArgs,
+    @Info() info: GraphQLResolveInfo,
+  ): Promise<Safe> {
+    return this.prisma.safe.update({
+      ...args,
+      ...getSelect(info),
+    });
   }
 
   @Mutation(() => Safe)
   async createCfSafe(
     @UserAddr() user: string,
     @Args() { approvers }: CreateCfSafeArgs,
+    @Info() info: GraphQLResolveInfo,
   ): Promise<Safe> {
     if (!approvers.filter((a) => a.addr === user).length)
       throw new GraphQLError('User must be part of group');
@@ -89,6 +96,7 @@ export class SafesResolver {
           },
         },
       },
+      ...getSelect(info),
     });
   }
 }
