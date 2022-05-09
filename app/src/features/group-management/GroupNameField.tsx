@@ -40,7 +40,6 @@ export const GroupNameField = ({ group }: GroupNameFieldProps) => {
         placeholder="Group name..."
         value={name}
         onChangeText={setName}
-        autoComplete={false}
         underlineColor="transparent"
         style={{ textAlign: 'center' }}
       />

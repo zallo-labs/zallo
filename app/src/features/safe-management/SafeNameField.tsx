@@ -29,7 +29,6 @@ export const SafeNameField = () => {
         placeholder="Safe name..."
         value={name}
         onChangeText={setName}
-        autoComplete={false}
         underlineColor="transparent"
         style={{ textAlign: 'center' }}
       />
