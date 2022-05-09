@@ -13,6 +13,8 @@ export const ItemsContainer = ({ children }: ChildrenProps) => {
     () => ({
       borderTopLeftRadius: radius,
       borderTopRightRadius: radius,
+      borderBottomLeftRadius: radius,
+      borderBottomRightRadius: radius,
     }),
     [radius],
   );
