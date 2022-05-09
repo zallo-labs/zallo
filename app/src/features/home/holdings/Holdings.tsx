@@ -1,4 +1,4 @@
-import { ItemsContainer } from '@components/ItemsContainer';
+import { ItemsContainer } from '@components/list/ItemsContainer';
 import { useTokenBalances } from '~/token/useTokenBalances';
 import { Holding } from './Holding';
 

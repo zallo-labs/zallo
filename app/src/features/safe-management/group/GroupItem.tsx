@@ -3,7 +3,7 @@ import { Subheading, useTheme } from 'react-native-paper';
 import { useNavigation } from '@react-navigation/native';
 import { GroupName } from '@components/GroupName';
 import { Identicon, IDENTICON_SIZE } from '@components/Identicon';
-import { ListItem } from '@components/ListItem';
+import { ListItem } from '@components/list/ListItem';
 import { MaterialIcons } from '@expo/vector-icons';
 import { HomeScreenProps } from '@features/home/HomeScreen';
 import { Group } from '@queries';

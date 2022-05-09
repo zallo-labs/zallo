@@ -1,8 +1,8 @@
 import React, { useMemo } from 'react';
 import { useTheme } from 'react-native-paper';
 import { ChildrenProps } from '@util/children';
-import { Box } from './Box';
-import { Divider } from './Divider';
+import { Box } from '@components/Box';
+import { Divider } from '@components/Divider';
 
 const space = 3;
 

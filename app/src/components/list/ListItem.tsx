@@ -1,5 +1,5 @@
 import { ReactNode } from 'react';
-import { Box, BoxProps } from './Box';
+import { Box, BoxProps } from '@components/Box';
 
 export interface ListItemProps extends BoxProps {
   Left?: ReactNode;

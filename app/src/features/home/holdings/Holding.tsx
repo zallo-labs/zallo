@@ -1,6 +1,6 @@
 import { Paragraph, Subheading, useTheme } from 'react-native-paper';
 
-import { ListItem } from '@components/ListItem';
+import { ListItem } from '@components/list/ListItem';
 import { Token } from '~/token/token';
 import { TokenIcon } from '@components/token/TokenIcon';
 import { useTokenBalance } from '~/token/useTokenBalance';
