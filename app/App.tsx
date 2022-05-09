@@ -11,6 +11,8 @@ import { NAV_THEME, PAPER_THEME } from '~/theme';
 import { LocalizatonProvider } from '@features/localization/LocalizationProvider';
 import { GqlProvider } from '@gql/GqlProvider';
 import { Toast } from '@components/Toast';
+import { ShowSplash } from '@components/splash/ShowSplash';
+import { HideSplash } from '@components/splash/HideSplash';
 
 const Status = () => {
   const { colors } = useTheme();
@@ -19,12 +21,14 @@ const Status = () => {
 
 export default () => (
   <LocalizatonProvider>
+    <ShowSplash />
     <PaperProvider theme={PAPER_THEME}>
       <SafeArea>
         <WalletProvider>
           <GqlProvider>
             <Status />
             <SafeProvider>
+              <HideSplash />
               <NavigationContainer theme={NAV_THEME}>
                 <RootNavigation />
               </NavigationContainer>

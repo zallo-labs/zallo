@@ -1,6 +1,5 @@
 import { createContext, useContext, useEffect, useState } from 'react';
 import { ApolloClient, NormalizedCacheObject } from '@apollo/client';
-import AppLoading from 'expo-app-loading';
 
 import { ChildrenProps } from '@util/children';
 import {
@@ -12,12 +11,18 @@ import {
   useCreateApiClient,
 } from './clients';
 
-const clientNames = [API_CLIENT_NAME, SUBGRAPH_CLIENT_NAME, UNISWAP_CLIENT_NAME] as const;
+const clientNames = [
+  API_CLIENT_NAME,
+  SUBGRAPH_CLIENT_NAME,
+  UNISWAP_CLIENT_NAME,
+] as const;
 type Name = typeof clientNames[number];
 
 type GqlClients = Record<Name, ApolloClient<NormalizedCacheObject>>;
 
-export const isGqlClients = (clients: GqlClients | Partial<GqlClients>): clients is GqlClients =>
+export const isGqlClients = (
+  clients: GqlClients | Partial<GqlClients>,
+): clients is GqlClients =>
   clientNames.every((name) => clients[name] !== undefined);
 
 const context = createContext<GqlClients | undefined>(undefined);
@@ -48,7 +53,7 @@ export const GqlProvider = ({ children }: ChildrenProps) => {
     });
   }, []);
 
-  if (!isGqlClients(clients)) return <AppLoading />;
+  if (!isGqlClients(clients)) return null;
 
   return <context.Provider value={clients}>{children}</context.Provider>;
 };
