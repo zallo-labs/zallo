@@ -8,6 +8,20 @@ import {
 import './Types.sol';
 import './EIP712.sol';
 
+/* Errors */
+error OnlyCallableBySafe();
+
+error ApproverWeightExceedsMax();
+error TotalWeightInsufficient();
+
+error SignaturesNotAscending();
+error ApproversNotAscending();
+error InvalidSignature(address signer, bytes signature);
+
+error TxAlreadyExecuted();
+error ApproverNotInGroup(address approver);
+error ExecutionReverted(bytes response);
+
 contract Safe is EIP712 {
   using SignatureChecker for address;
 
@@ -25,20 +39,6 @@ contract Safe is EIP712 {
   );
   event GroupAdded(Approver[] approvers);
   event GroupRemoved(bytes32 groupHash);
-
-  /* Errors */
-  error OnlyCallableBySafe();
-
-  error ApproverWeightExceedsMax();
-  error TotalWeightInsufficient();
-
-  error SignaturesNotAscending();
-  error ApproversNotAscending();
-  error InvalidSignature(address signer, bytes signature);
-
-  error TxAlreadyExecuted();
-  error ApproverNotInGroup(address approver);
-  error ExecutionReverted(bytes response);
 
   constructor(Approver[] memory _approvers) {
     _addGroup(_approvers);
