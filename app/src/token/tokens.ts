@@ -1,33 +1,7 @@
-import { toAddress } from 'lib';
 import * as zk from 'zksync-web3';
-import { CHAIN } from '~/provider';
-import { getErc20Contract } from './erc20';
-import { Token } from './token';
+import { createToken as token } from './token';
 
-export const TOKENS: Token[] = [];
-
-type TokenDef = Omit<Token, 'addr' | 'contract' | 'iconUri'> &
-  Partial<Pick<Token, 'iconUri'>>;
-
-const create = (def: TokenDef): Token => {
-  const addr = toAddress(def.addresses[CHAIN.name]);
-  const contract = addr ? getErc20Contract(addr) : undefined;
-
-  const token: Token = {
-    ...def,
-    addr,
-    contract,
-    iconUri:
-      def.iconUri ??
-      `https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/ethereum/assets/${def.addresses.mainnet}/logo.png`,
-  };
-
-  if (addr) TOKENS.push(token);
-
-  return token;
-};
-
-export const ETH = create({
+export const ETH = token({
   name: 'Ether',
   symbol: 'ETH',
   decimals: 18,
@@ -37,10 +11,9 @@ export const ETH = create({
   },
   iconUri:
     'https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/ethereum/info/logo.png',
-  // getBalance: (safe) => safe.provider.getBalance(safe.address),
 });
 
-export const DAI = create({
+export const DAI = token({
   name: 'Dai',
   symbol: 'DAI',
   decimals: 18,
@@ -52,7 +25,7 @@ export const DAI = create({
     'https://raw.githubusercontent.com/compound-finance/token-list/master/assets/asset_DAI.svg',
 });
 
-export const USDC = create({
+export const USDC = token({
   name: 'USD Coin',
   symbol: 'USDC',
   decimals: 6,
@@ -64,7 +37,7 @@ export const USDC = create({
     'https://raw.githubusercontent.com/compound-finance/token-list/master/assets/asset_USDC.svg',
 });
 
-export const WBTC = create({
+export const WBTC = token({
   name: 'Wrapped Bitcoin',
   symbol: 'wBTC',
   decimals: 8,
@@ -74,7 +47,7 @@ export const WBTC = create({
   },
 });
 
-export const LINK = create({
+export const LINK = token({
   name: 'ChainLink',
   symbol: 'LINK',
   decimals: 18,
@@ -88,25 +61,14 @@ export const LINK = create({
   //   'https://www.dropbox.com/s/6ly5r6aqp9bse7w/LINK%20Token%20Icon%20White.png?dl=0',
 });
 
-// export const USDT = create({
-//   name: 'Tether USD',
-//   symbol: 'USDT',
-//   decimals: 6,
-//   addresses: {
-//     mainnet: '0xdac17f958d2ee523a2206206994597c13d831ec7',
-//     ropsten: '0x110a13FC3efE6A245B50102D2d79B3E76125Ae83',
-//   },
-//   iconUri:
-//     'https://raw.githubusercontent.com/compound-finance/token-list/master/assets/asset_USDT.svg',
-//   // 'https://etherscan.io/token/images/tether_32.png',
-// });
-
-// export const UNI = create({
-//   name: 'Uniswap',
-//   symbol: 'UNI',
-//   decimals: 18,
-//   addresses: {
-//     mainnet: '0x1f9840a85d5aF5bf1D1762F925BDADdC4201F984',
-//     ropsten: '0x1f9840a85d5aF5bf1D1762F925BDADdC4201F984',
-//   },
-// });
+export const USDT = token({
+  name: 'Tether USD',
+  symbol: 'USDT',
+  decimals: 6,
+  addresses: {
+    mainnet: '0xdac17f958d2ee523a2206206994597c13d831ec7',
+    testnet: '0x509Ee0d083DdF8AC028f2a56731412edD63223B9',
+  },
+  iconUri:
+    'https://raw.githubusercontent.com/compound-finance/token-list/master/assets/asset_USDT.svg',
+});
