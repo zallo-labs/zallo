@@ -4,6 +4,8 @@ import { ethers } from 'ethers';
 import { GraphQLError, GraphQLResolveInfo } from 'graphql';
 
 import {
+  address,
+  Approver,
   calculateSafeAddress,
   getGroupApproverId,
   getGroupId,
@@ -15,8 +17,8 @@ import { FindUniqueSafeArgs } from '@gen/safe/find-unique-safe.args';
 import { CreateCfSafeArgs } from './safes.args';
 import { UserAddr } from '~/decorators/user.decorator';
 import { ProviderService } from '../../provider/provider.service';
-import { UpdateOneSafeArgs } from '@gen/safe/update-one-safe.args';
 import { getSelect } from '~/util/test';
+import { UpsertOneSafeArgs } from '@gen/safe/upsert-one-safe.args';
 
 @Resolver(() => Safe)
 export class SafesResolver {
@@ -48,11 +50,11 @@ export class SafesResolver {
   }
 
   @Mutation(() => Safe)
-  async updateSafe(
-    @Args() args: UpdateOneSafeArgs,
+  async upsertSafe(
+    @Args() args: UpsertOneSafeArgs,
     @Info() info: GraphQLResolveInfo,
   ): Promise<Safe> {
-    return this.prisma.safe.update({
+    return this.prisma.safe.upsert({
       ...args,
       ...getSelect(info),
     });
@@ -61,17 +63,22 @@ export class SafesResolver {
   @Mutation(() => Safe)
   async createCfSafe(
     @UserAddr() user: string,
-    @Args() { approvers }: CreateCfSafeArgs,
+    @Args() args: CreateCfSafeArgs,
     @Info() info: GraphQLResolveInfo,
   ): Promise<Safe> {
+    const approvers: Approver[] = args.approvers.map((a) => ({
+      ...a,
+      addr: address(a.addr),
+    }));
+
     if (!approvers.filter((a) => a.addr === user).length)
       throw new GraphQLError('User must be part of group');
 
     const { addr: safeAddr, salt } = await calculateSafeAddress(
-      approvers,
+      [approvers],
       this.provider.factory,
     );
-    const groupHash = hashGroup(approvers);
+    const groupHash = hashGroup({ approvers });
 
     return this.prisma.safe.create({
       data: {
@@ -79,7 +86,7 @@ export class SafesResolver {
         deploySalt: ethers.utils.hexlify(salt),
         groups: {
           create: {
-            id: getGroupId(safeAddr, approvers),
+            id: getGroupId(safeAddr, { approvers }),
             hash: groupHash,
             approvers: {
               create: approvers.map((a) => ({

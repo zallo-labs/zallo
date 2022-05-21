@@ -1,6 +1,7 @@
 import {
   Args,
   Info,
+  Mutation,
   Parent,
   Query,
   ResolveField,
@@ -14,6 +15,9 @@ import { FindUniqueApproverArgs } from '@gen/approver/find-unique-approver.args'
 import { FindManyApproverArgs } from '@gen/approver/find-many-approver.args';
 import { GraphQLResolveInfo } from 'graphql';
 import { getSelect } from '~/util/test';
+import { GetAddrNameArgs } from './approvers.input';
+import { UserAddr } from '~/decorators/user.decorator';
+import { UpsertOneApproverArgs } from '@gen/approver/upsert-one-approver.args';
 
 @Resolver(() => Approver)
 export class ApproversResolver {
@@ -45,26 +49,59 @@ export class ApproversResolver {
     @Parent() approver: Approver,
     @Info() info: GraphQLResolveInfo,
   ): Promise<Safe[]> {
-    const groupIds =
-      approver.groups?.map((g) => g.groupId) ??
-      (
-        await this.prisma.approver.findUnique({
-          where: { id: approver.id },
-          select: { groups: { select: { groupId: true } } },
-        })
-      )?.groups.map((g) => g.groupId);
-
-    if (!groupIds) return [];
-
-    return await this.prisma.safe.findMany({
-      where: {
+    const res = await this.prisma.approver.findUnique({
+      where: { id: approver.id },
+      select: {
         groups: {
-          some: {
-            id: { in: groupIds },
+          select: {
+            group: {
+              select: {
+                safe: {
+                  ...getSelect(info),
+                },
+              },
+            },
           },
+          distinct: 'safeId',
         },
       },
-      distinct: 'id',
+    });
+
+    return res?.groups.flatMap((g) => g.group.safe) ?? [];
+  }
+
+  @Query(() => String, { nullable: true })
+  async addrName(
+    @Args() { addr }: GetAddrNameArgs,
+    @UserAddr() user: string,
+  ): Promise<string | null> {
+    const contact = await this.prisma.contact.findUnique({
+      where: {
+        approverId_addr: {
+          approverId: user,
+          addr,
+        },
+      },
+      select: { name: true },
+    });
+
+    if (contact) return contact.name;
+
+    const safe = await this.prisma.safe.findUnique({
+      where: { id: addr },
+      select: { name: true },
+    });
+
+    return safe?.name || null;
+  }
+
+  @Mutation(() => Approver)
+  async upsertApprover(
+    @Args() args: UpsertOneApproverArgs,
+    @Info() info: GraphQLResolveInfo,
+  ): Promise<Approver> {
+    return this.prisma.approver.upsert({
+      ...args,
       ...getSelect(info),
     });
   }

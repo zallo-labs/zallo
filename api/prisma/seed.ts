@@ -3,29 +3,7 @@ import { PrismaClient } from '@prisma/client';
 const prisma = new PrismaClient();
 
 const main = async () => {
-  // const email = 'haydenbriese@gmail.com';
-  // if (!(await prisma.user.findUnique({ where: { email } }))) {
-  //   await prisma.user.create({
-  //     data: {
-  //       email: 'haydenbriese@gmail.com',
-  //       name: 'Hayden Briese',
-  //       posts: {
-  //         createMany: {
-  //           data: [
-  //             {
-  //               title: 'Test post :)',
-  //               content: 'This is a test post',
-  //             },
-  //             {
-  //               title: 'Test post 2 :)',
-  //               content: 'This is a test post',
-  //             },
-  //           ],
-  //         },
-  //       },
-  //     },
-  //   });
-  // }
+  // await prisma.$executeRawUnsafe(`TRUNCATE TABLE "public"."Contact" CASCADE`);
 };
 
 main()
