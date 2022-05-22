@@ -42,6 +42,7 @@ export const CONFIG = {
   sessionSecret: E.SESSION_SECRET,
   subgraphGqlUrl: E.SUBGRAPH_GQL_URL,
   factoryAddress: factoryAddresses[chain.name],
+  sentryDsn: E.SENTRY_DSN,
 } as const;
 
 export default CONFIG;
