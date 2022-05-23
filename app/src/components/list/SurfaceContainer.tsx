@@ -6,7 +6,7 @@ import { Divider } from '@components/Divider';
 
 const space = 3;
 
-export const ItemsContainer = ({ children }: ChildrenProps) => {
+export const SurfaceContainer = ({ children }: ChildrenProps) => {
   const { radius } = useTheme();
 
   const surface = useMemo(

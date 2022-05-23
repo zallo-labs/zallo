@@ -1,6 +1,6 @@
 import { Paragraph, Subheading, useTheme } from 'react-native-paper';
 
-import { ListItem } from '@components/list/ListItem';
+import { Item } from '@components/list/Item';
 import { Token } from '~/token/token';
 import { TokenIcon } from '@components/token/TokenIcon';
 import { useTokenBalance } from '~/token/useTokenBalance';
@@ -20,7 +20,7 @@ export const Holding = ({ token }: HoldingProps) => {
   const { price } = useTokenPrice(token);
 
   return (
-    <ListItem
+    <Item
       Left={<TokenIcon token={token} />}
       Main={
         <Box vertical justifyContent="space-around">
