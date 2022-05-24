@@ -1,12 +1,13 @@
-import { BigNumber, BytesLike, ethers } from 'ethers';
-import { Factory, Safe__factory } from './typechain';
-import { abiEncodeGroup, Group } from './group';
+import { BytesLike, ethers } from 'ethers';
+import { Factory } from './typechain';
+import { SafeConstructorArgs } from './deploy';
+import { address } from './addr';
 
 export const getRandomSalt = () => ethers.utils.randomBytes(32);
 
 // CREATE address calculation
 export const calculateSafeAddress = async (
-  group: Group,
+  args: SafeConstructorArgs,
   factory: Factory,
   _salt?: BytesLike,
 ) => {
@@ -20,7 +21,7 @@ export const calculateSafeAddress = async (
   // };
 
   return {
-    addr: await factory.callStatic.create(group),
+    addr: address(await factory.callStatic.create(...args)),
     salt: '0x00',
   };
 };

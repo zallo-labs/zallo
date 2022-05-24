@@ -7,11 +7,21 @@ import {
   getSafe,
   hashGroup,
   SafeConstructorArgs,
+  SafeGroup,
   TestSafe__factory,
-  toGroup,
+  address,
+  toGroupStruct,
 } from 'lib';
 import { allSigners, wallet } from './wallet';
 import { BytesLike } from 'ethers';
+
+export const toSafeGroupTest = (...approvers: [string, number][]): SafeGroup =>
+  toGroupStruct({
+    approvers: approvers.map(([addr, weight]) => ({
+      addr: address(addr),
+      weight,
+    })),
+  });
 
 export const deployer = new Deployer(hre, wallet);
 
@@ -21,7 +31,7 @@ export const deployFactory = async (feeToken?: Address) => {
   await contract.deployed();
 
   return {
-    factory: getFactory(contract.address, wallet),
+    factory: getFactory(address(contract.address), wallet),
     deployTx: contract.deployTransaction,
   };
 };
@@ -35,7 +45,7 @@ export const deploySafeDirect = async (
   await contract.deployed();
 
   return {
-    safe: getSafe(contract.address, wallet),
+    safe: getSafe(address(contract.address), wallet),
     deployTx: contract.deployTransaction,
   };
 };
@@ -47,7 +57,7 @@ export const deploy = async (weights: number[], _salt?: BytesLike) => {
   const approvers = allSigners.slice(0, weights.length);
   const others = allSigners.slice(weights.length);
 
-  const group = toGroup(
+  const group = toSafeGroupTest(
     ...approvers.map((approver, i): [string, number] => [
       approver.address,
       weights[i],
@@ -57,7 +67,7 @@ export const deploy = async (weights: number[], _salt?: BytesLike) => {
   const { factory } = await deployFactory();
   const deployData = await deploySafe({
     signer: allSigners[0],
-    args: [group],
+    args: [group.approvers],
     factory,
     // salt,
   });
@@ -74,7 +84,7 @@ export const deploy = async (weights: number[], _salt?: BytesLike) => {
 };
 
 export const deployTestSafe = async (feeToken?: Address) => {
-  const group = toGroup([wallet.address, 100]);
+  const group = toSafeGroupTest([wallet.address, 100]);
 
   const artifact = await deployer.loadArtifact('TestSafe');
   const contract = await deployer.deploy(artifact, [group], feeToken);

@@ -1,7 +1,6 @@
 import {
   percentToFixedWeight,
   fixedWeightToPercent,
-  toGroup,
   SafeEvent,
   hashGroup,
 } from 'lib';
@@ -12,6 +11,7 @@ import {
   GasLimit,
   createSignedTx,
   deployTestSafe,
+  toSafeGroupTest,
 } from './util';
 
 describe('Group', () => {
@@ -19,7 +19,7 @@ describe('Group', () => {
     const { safe, group } = await deployTestSafe();
 
     const expected = hashGroup(group);
-    const actual = await safe.hashGroup(group);
+    const actual = await safe.hashGroup(group.approvers);
 
     expect(expected).to.eq(actual);
   });
@@ -55,11 +55,13 @@ describe('Group', () => {
         others: [newApprover],
       } = await deploy([100]);
 
-      const newGroup = toGroup([newApprover.address, 100]);
+      const newGroup = toSafeGroupTest([newApprover.address, 100]);
 
       const signedTx = await createSignedTx(safe, [], {
         to: safe.address,
-        data: safe.interface.encodeFunctionData('addGroup', [newGroup]),
+        data: safe.interface.encodeFunctionData('addGroup', [
+          newGroup.approvers,
+        ]),
       });
 
       const execTx = await safe.connect(approver).execute(signedTx, groupHash, {
@@ -76,12 +78,14 @@ describe('Group', () => {
         others: [newApprover],
       } = await deploy([100]);
 
-      const newGroup = toGroup([newApprover.address, 100]);
+      const newGroup = toSafeGroupTest([newApprover.address, 100]);
       const newGroupHash = hashGroup(newGroup);
 
       const addNewGroupSignedTx = await createSignedTx(safe, [], {
         to: safe.address,
-        data: safe.interface.encodeFunctionData('addGroup', [newGroup]),
+        data: safe.interface.encodeFunctionData('addGroup', [
+          newGroup.approvers,
+        ]),
       });
       await safe.connect(approver).execute(addNewGroupSignedTx, groupHash, {
         gasLimit: GasLimit.EXECUTE,
@@ -109,10 +113,12 @@ describe('Group', () => {
         others: [other],
       } = await deploy([100]);
 
-      const newGroup = toGroup([other.address, 100]);
-      const addGroupTx = await safe.connect(approver).addGroup(newGroup, {
-        gasLimit: GasLimit.ADD_GROUP,
-      });
+      const newGroup = toSafeGroupTest([other.address, 100]);
+      const addGroupTx = await safe
+        .connect(approver)
+        .addGroup(newGroup.approvers, {
+          gasLimit: GasLimit.ADD_GROUP,
+        });
 
       await expect(addGroupTx.wait()).to.be.rejected; // OnlyCallableBySafe
     });
