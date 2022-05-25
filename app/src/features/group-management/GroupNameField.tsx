@@ -1,48 +1,32 @@
 import { useEffect, useState } from 'react';
-import { TextInput } from 'react-native-paper';
 import { useDebounce } from 'use-debounce';
-import { Box } from '@components/Box';
-import { Group } from '@queries';
-import { useUpdateSafe } from '@gql/mutations/useUpdateSafe';
+import { CombinedGroup } from '@queries';
+import { useUpsertGroup } from '@gql/mutations/useUpsertGroup';
+import { TextField } from '@components/fields/TextField';
 
 export interface GroupNameFieldProps {
-  group: Group;
+  group: CombinedGroup;
 }
 
 export const GroupNameField = ({ group }: GroupNameFieldProps) => {
-  const updateSafe = useUpdateSafe();
+  const upsertGroup = useUpsertGroup();
 
   const [name, setName] = useState<string | undefined>(group.name);
   const [debouncedName] = useDebounce(name, 500);
 
   useEffect(() => {
-    if (debouncedName !== group.name) {
-      updateSafe({
-        groups: {
-          update: [
-            {
-              where: { id: group.id },
-              data: {
-                name: {
-                  set: debouncedName || null,
-                },
-              },
-            },
-          ],
-        },
-      });
-    }
+    if (debouncedName !== group.name)
+      upsertGroup({ ...group, name: debouncedName }, group);
   }, [debouncedName]);
 
   return (
-    <Box>
-      <TextInput
-        placeholder="Group name..."
-        value={name}
-        onChangeText={setName}
-        underlineColor="transparent"
-        style={{ textAlign: 'center' }}
-      />
-    </Box>
+    <TextField
+      placeholder="Group name..."
+      value={name}
+      onChangeText={setName}
+      style={{ textAlign: 'center', textAlignVertical: 'center', fontSize: 24 }}
+      noOutline
+      wrap
+    />
   );
 };

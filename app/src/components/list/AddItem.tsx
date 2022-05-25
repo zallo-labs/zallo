@@ -1,21 +1,30 @@
 import { Subheading, useTheme } from 'react-native-paper';
-import { IDENTICON_SIZE } from '@components/Identicon';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
-import { ListItem } from './ListItem';
+import { PRIMARY_ICON_SIZE, Item } from './Item';
 
-export const AddItem = () => {
+export interface AddItemsProps {
+  label?: string;
+  onPress?: () => void;
+}
+
+export const AddItem = ({ label, onPress }: AddItemsProps) => {
   const { colors } = useTheme();
 
   return (
-    <ListItem
+    <Item
       Left={
         <MaterialCommunityIcons
           name="plus"
-          size={IDENTICON_SIZE}
-          color={colors.onSurface}
+          size={PRIMARY_ICON_SIZE}
+          color={colors.accent}
         />
       }
-      Main={<Subheading>Add</Subheading>}
+      Main={
+        <Subheading style={{ color: colors.accent }}>
+          {label ?? 'Add'}
+        </Subheading>
+      }
+      onPress={onPress}
     />
   );
 };

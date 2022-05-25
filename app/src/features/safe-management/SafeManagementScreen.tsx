@@ -1,38 +1,36 @@
 import { Box } from '@components/Box';
 import { RootStackScreenProps } from '@features/navigation/RootNavigation';
-import { useSafe } from '@features/safe/SafeProvider';
-import { SafeIcon } from '@features/home/SafeIcon';
-import { GroupItems } from './group/GroupItems';
 import { SafeNameField } from './SafeNameField';
 import { Header } from '@components/Header';
-import { Paragraph } from 'react-native-paper';
-import { FormattedAddr } from '@components/FormattedAddr';
+import { SafeIcon } from '@features/home/SafeIcon';
+import { useSafe } from '@features/safe/SafeProvider';
+import { FlatList } from 'react-native';
+import { GroupItem } from './GroupItem';
+import { ActionsSpaceFooter } from '@components/ActionsSpaceFooter';
+import { Divider } from 'react-native-paper';
 
 export type SafeManagementScreenProps = RootStackScreenProps<'SafeManagement'>;
 
 export const SafeManagementScreen = (_props: SafeManagementScreenProps) => {
-  const { safe } = useSafe();
+  const { groups } = useSafe();
 
   return (
     <Box flex={1}>
-      <Box mx="5%" mt="5%">
-        <Header
-          middle={
-            <Paragraph>
-              <FormattedAddr addr={safe.address} />
-            </Paragraph>
-          }
-          right={<SafeIcon />}
-        />
-
-        <Box mt="25%">
-          <SafeNameField />
-        </Box>
-      </Box>
-
-      <Box mt="25%">
-        <GroupItems />
-      </Box>
+      <FlatList
+        ListHeaderComponent={
+          <Header
+            Middle={<SafeNameField />}
+            Right={<SafeIcon />}
+            mx={2}
+            mt={3}
+          />
+        }
+        data={groups}
+        renderItem={({ item }) => <GroupItem group={item} mx={2} my={2} />}
+        keyExtractor={(group) => group.id}
+        ItemSeparatorComponent={() => <Divider />}
+        ListFooterComponent={ActionsSpaceFooter}
+      />
     </Box>
   );
 };

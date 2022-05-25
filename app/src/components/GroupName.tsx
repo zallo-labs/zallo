@@ -1,9 +1,9 @@
 import { useMemo } from 'react';
-import { Group } from '@queries';
+import { CombinedGroup } from '@queries';
 import { hexlify } from 'ethers/lib/utils';
 
 export interface GroupNameProps {
-  group: Group;
+  group: CombinedGroup;
 }
 
 export const GroupName = ({ group: { name, hash } }: GroupNameProps) => {
