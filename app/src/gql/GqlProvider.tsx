@@ -10,6 +10,7 @@ import {
   UNISWAP_CLIENT_NAME,
   useCreateApiClient,
 } from './clients';
+import { Suspend } from '@components/Suspender';
 
 const clientNames = [
   API_CLIENT_NAME,
@@ -37,6 +38,8 @@ export const GqlProvider = ({ children }: ChildrenProps) => {
 
   const [clients, setClients] = useState<GqlClients | Partial<GqlClients>>({});
   useEffect(() => {
+    if (isGqlClients(clients)) return;
+
     (
       [
         [API_CLIENT_NAME, createApiClient],
@@ -51,9 +54,9 @@ export const GqlProvider = ({ children }: ChildrenProps) => {
         [name]: client,
       }));
     });
-  }, []);
+  }, [clients, createApiClient]);
 
-  if (!isGqlClients(clients)) return null;
+  if (!isGqlClients(clients)) return <Suspend />;
 
   return <context.Provider value={clients}>{children}</context.Provider>;
 };

@@ -1,18 +1,22 @@
-import { Box } from './Box';
+import { ReactNode } from 'react';
+import { Box, BoxProps } from './Box';
 
-export interface HeaderProps {
-  middle: React.ReactNode;
-  right: React.ReactNode;
+export interface HeaderProps extends BoxProps {
+  Left?: ReactNode;
+  Middle?: React.ReactNode;
+  Right?: React.ReactNode;
 }
 
-export const Header = ({ middle, right }: HeaderProps) => (
-  <Box horizontal alignItems="center">
-    <Box flex={2} horizontal justifyContent="flex-end">
-      {middle}
+export const Header = ({ Left, Middle, Right, ...boxProps }: HeaderProps) => (
+  <Box horizontal alignItems="center" {...boxProps}>
+    <Box flex={1} horizontal justifyContent="flex-start" alignItems="center">
+      {Left}
     </Box>
 
-    <Box flex={1} horizontal justifyContent="flex-end">
-      {right}
+    <Box flex={4}>{Middle}</Box>
+
+    <Box flex={1} horizontal justifyContent="flex-end" alignItems="center">
+      {Right}
     </Box>
   </Box>
 );

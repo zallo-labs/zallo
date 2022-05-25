@@ -66,10 +66,7 @@ const createWithTokenLink = (wallet: Wallet) =>
       data = null;
     }
 
-    if (!data) {
-      console.log('fetching new token');
-      data = await fetchNewToken(wallet);
-    }
+    if (!data) data = await fetchNewToken(wallet);
 
     return {
       ...prevContext,

@@ -1,4 +1,4 @@
-import { ComponentProps } from 'react';
+import { ComponentProps, ComponentPropsWithoutRef } from 'react';
 import { ViewProps } from 'react-native';
 import { Surface, useTheme } from 'react-native-paper';
 import styled from 'styled-components/native';
@@ -66,14 +66,20 @@ const InternalBox = styled.View<InternalBoxProps>`
   `}
 `;
 
-type SurfaceStyleProps = ComponentProps<typeof Surface>['style'];
+type SurfaceStyleProps = ComponentPropsWithoutRef<typeof Surface>['style'];
 
 export interface BoxProps extends InternalBoxProps {
   surface?: boolean | SurfaceStyleProps;
   rounded?: boolean;
 }
 
-export const Box = ({ children, surface, rounded, ...props }: BoxProps) => {
+export const Box = ({
+  children,
+  surface,
+  rounded,
+  accessibilityRole: _,
+  ...props
+}: BoxProps) => {
   const theme = useTheme();
 
   const borderRadius = rounded ? theme.radius : undefined;
