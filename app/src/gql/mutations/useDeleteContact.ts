@@ -29,9 +29,6 @@ export const useDeleteContact = () => {
         variables: {
           addr: contact.addr,
         },
-        optimisticResponse: {
-          deleteContact: true,
-        },
         update: (cache, { data: { deleteContact } }) => {
           // Do nothing if the contact was not deleted
           if (!deleteContact) return;
@@ -42,7 +39,7 @@ export const useDeleteContact = () => {
           });
 
           const newData: GetContacts = {
-            contacts2: data.contacts2.filter((c) => c.id !== contact.id),
+            contacts: data.contacts.filter((c) => c.id !== contact.id),
           };
           cache.writeQuery({ query: API_CONTACTS_QUERY, data: newData });
 

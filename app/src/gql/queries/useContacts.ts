@@ -30,7 +30,7 @@ export const useContacts = () => {
 
   const contacts: Contact[] = useMemo(
     () =>
-      data?.contacts2.map((c) => ({
+      data?.contacts.map((c) => ({
         id: toId(c.id),
         addr: address(c.addr),
         name: c.name,

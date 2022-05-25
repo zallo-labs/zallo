@@ -60,9 +60,9 @@ export const useUpsertContact = () => {
           });
 
           // Insert into query list
-          if (!data.contacts2.map((c) => c.id).includes(upsertContact.id)) {
+          if (!data.contacts.map((c) => c.id).includes(upsertContact.id)) {
             const newData: GetContacts = {
-              contacts2: [...data.contacts2, upsertContact],
+              contacts: [...data.contacts, upsertContact],
             };
             cache.writeQuery({ query: API_CONTACTS_QUERY, data: newData });
           }

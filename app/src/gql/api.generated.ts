@@ -166,7 +166,7 @@ export interface UpsertSafeVariables {
 // GraphQL query operation: GetContacts
 // ====================================================
 
-export interface GetContacts_contacts2 {
+export interface GetContacts_contacts {
   __typename: "Contact";
   id: string;
   addr: string;
@@ -174,7 +174,7 @@ export interface GetContacts_contacts2 {
 }
 
 export interface GetContacts {
-  contacts2: GetContacts_contacts2[];
+  contacts: GetContacts_contacts[];
 }
 
 /* tslint:disable */
