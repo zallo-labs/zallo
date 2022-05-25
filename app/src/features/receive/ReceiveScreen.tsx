@@ -4,7 +4,7 @@ import { useKeepAwake } from 'expo-keep-awake';
 
 import { Box } from '@components/Box';
 import { RootStackScreenProps } from '@features/navigation/RootNavigation';
-import { SafeQr } from '@features/receive/SafeQr';
+import { QrCode } from '@features/qr/QrCode';
 import { useSafe } from '@features/safe/SafeProvider';
 import { useMaxBrighness } from './useMaxBrightness';
 import { ExpandableAddr } from '@components/ExpandableAddr';
@@ -31,7 +31,7 @@ export const ReceiveScreen = (_props: ReceiveScreenProps) => {
       mx={4}
     >
       <Box flex={3} center>
-        <SafeQr />
+        <QrCode addr={safe.address} />
       </Box>
 
       <Box flex={1}>

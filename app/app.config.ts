@@ -6,4 +6,5 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
   name: config.name || '',
   slug: config.slug || '',
   extra: CONFIG,
+  plugins: ['sentry-expo'],
 });

@@ -1,25 +1,27 @@
+import { Address } from 'lib';
 import { useWindowDimensions } from 'react-native';
 import { useTheme } from 'react-native-paper';
 import QRCode from 'react-native-qrcode-svg';
+import { buildAddrLink } from './addrLink';
 
-import { CHAIN } from '~/provider';
-import { useSafe } from '../safe/SafeProvider';
+export interface QrCodeProps {
+  addr: Address;
+}
 
-// https://eips.ethereum.org/EIPS/eip-681
-const getLink = (addr: string) => `ethereum:pay-${addr}@${CHAIN.id}`;
-
-export const SafeQr = () => {
-  const { safe } = useSafe();
+export const QrCode = ({ addr }: QrCodeProps) => {
   const { colors } = useTheme();
   const window = useWindowDimensions();
 
+  const link = buildAddrLink({
+    target_address: addr,
+  });
+
   return (
     <QRCode
-      value={getLink(safe.address)}
+      value={link}
       size={Math.min(window.width, window.height) * 0.8}
       backgroundColor={colors.background}
       ecl="M"
-      // color={colors.text}
       enableLinearGradient
       linearGradient={[colors.primary, colors.accent]}
     />

@@ -1,6 +1,7 @@
+import { Suspense } from 'react';
 import { NavigationContainer } from '@react-navigation/native';
-import { Provider as PaperProvider, useTheme } from 'react-native-paper';
-import { StatusBar } from 'expo-status-bar';
+import { Provider as PaperProvider } from 'react-native-paper';
+import { RecoilRoot } from 'recoil';
 
 import '~/provider';
 import { WalletProvider } from '@features/wallet/WalletProvider';
@@ -11,32 +12,35 @@ import { NAV_THEME, PAPER_THEME } from '~/theme';
 import { LocalizatonProvider } from '@features/localization/LocalizationProvider';
 import { GqlProvider } from '@gql/GqlProvider';
 import { Toast } from '@components/Toast';
-import { ShowSplash } from '@components/splash/ShowSplash';
-import { HideSplash } from '@components/splash/HideSplash';
-
-const Status = () => {
-  const { colors } = useTheme();
-  return <StatusBar style="inverted" backgroundColor={colors.background} />;
-};
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
+import { ErrorBoundary } from '@components/ErrorBoundary';
+import { Splash } from '@components/Splash';
+import { StatusBar } from '@components/StatusBar';
 
 export default () => (
   <LocalizatonProvider>
-    <ShowSplash />
     <PaperProvider theme={PAPER_THEME}>
-      <SafeArea>
-        <WalletProvider>
-          <GqlProvider>
-            <Status />
-            <SafeProvider>
-              <HideSplash />
-              <NavigationContainer theme={NAV_THEME}>
-                <RootNavigation />
-              </NavigationContainer>
-            </SafeProvider>
-          </GqlProvider>
-        </WalletProvider>
-        <Toast />
-      </SafeArea>
+      <ErrorBoundary>
+        <Suspense fallback={<Splash />}>
+          <SafeArea>
+            <RecoilRoot>
+              <GestureHandlerRootView style={{ flex: 1 }}>
+                <WalletProvider>
+                  <GqlProvider>
+                    <StatusBar />
+                    <SafeProvider>
+                      <NavigationContainer theme={NAV_THEME}>
+                        <RootNavigation />
+                      </NavigationContainer>
+                    </SafeProvider>
+                  </GqlProvider>
+                </WalletProvider>
+                <Toast />
+              </GestureHandlerRootView>
+            </RecoilRoot>
+          </SafeArea>
+        </Suspense>
+      </ErrorBoundary>
     </PaperProvider>
   </LocalizatonProvider>
 );

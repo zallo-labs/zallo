@@ -1,7 +1,8 @@
 const tsconfig = require('./tsconfig.json');
 
 const getAliasPaths = () => {
-  const trimPath = (path) => (path.endsWith('/*') ? path.substr(0, path.length - 2) : path);
+  const trimPath = (path) =>
+    path.endsWith('/*') ? path.substr(0, path.length - 2) : path;
 
   return Object.fromEntries(
     Object.entries(tsconfig.compilerOptions.paths).map(([key, paths]) => [

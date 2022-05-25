@@ -1,33 +1,35 @@
-import { createContext, useContext, useMemo, useRef } from 'react';
+import { createContext, useContext, useEffect, useMemo, useRef } from 'react';
 import useAsyncEffect from 'use-async-effect';
+import { atom, useRecoilState } from 'recoil';
 
 import { useCreateCfSafe } from '@mutations';
-import { SafeData, useSafes } from '@queries';
+import { CombinedSafe, useSafes } from '@queries';
 import { ChildrenProps } from '@util/children';
+import { Address } from 'lib';
+import { Suspend } from '@components/Suspender';
 
-const SafeContext = createContext<SafeData | undefined>(undefined);
+const SafeContext = createContext<CombinedSafe | undefined>(undefined);
 
 export const useSafe = () => useContext(SafeContext)!;
 
 export const useGroup = (id: string) =>
   useSafe().groups.find((g) => g.id === id);
 
-const select = (safes?: SafeData[]): number | undefined => {
-  if (!safes?.length) return undefined;
-
-  return safes.length - 1;
-};
+const selectedSafeAddrState = atom<Address | undefined>({
+  key: 'selectedSafeAddr',
+  default: undefined,
+});
 
 export const SafeProvider = ({ children }: ChildrenProps) => {
   const { safes, loading, refetch } = useSafes();
   const createCfSafe = useCreateCfSafe();
+  const [selectedAddr, setSelectedAddr] = useRecoilState(selectedSafeAddrState);
 
   const initializing = useRef(false);
   useAsyncEffect(async () => {
     if (!safes && !loading) {
       initializing.current = true;
 
-      console.log('Creating cf safe');
       await createCfSafe();
       refetch();
 
@@ -35,13 +37,24 @@ export const SafeProvider = ({ children }: ChildrenProps) => {
     }
   }, [safes, loading, initializing, createCfSafe, refetch]);
 
-  const selected = useMemo(() => select(safes), [safes]);
+  const selected = useMemo(
+    () => safes.find((s) => s.safe.address === selectedAddr),
+    [safes, selectedAddr],
+  );
 
-  if (!safes?.length || selected === undefined) return null;
+  useEffect(() => {
+    // Select a safe
+    if (!loading && safes && !selected) {
+      const picked = safes.findIndex((s) =>
+        s.safe.address.startsWith('0xC888'),
+      );
+      setSelectedAddr(safes[picked >= 0 ? picked : 0].safe.address);
+    }
+  }, [safes, loading, selected, setSelectedAddr]);
+
+  if (!safes?.length || !selected) return <Suspend />;
 
   return (
-    <SafeContext.Provider value={safes[selected]}>
-      {children}
-    </SafeContext.Provider>
+    <SafeContext.Provider value={selected}>{children}</SafeContext.Provider>
   );
 };

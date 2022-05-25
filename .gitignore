@@ -30,6 +30,7 @@ api/schema.gql
 ## App
 app/.expo
 app/web-build
+app/.vscode/.react
 
 
 ## Contracts

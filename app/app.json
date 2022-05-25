@@ -8,7 +8,7 @@
     "splash": {
       "image": "./assets/splash.png",
       "resizeMode": "contain",
-      "backgroundColor": "#ffffff"
+      "backgroundColor": "#151A30"
     },
     "updates": {
       "fallbackToCacheTimeout": 0
@@ -25,6 +25,20 @@
     },
     "web": {
       "favicon": "./assets/favicon.png"
+    },
+    "hooks": {
+      "postPublish": [
+        {
+          "file": "sentry-expo/upload-sourcemaps",
+          "config": {
+            "organization": "SENTRY_ORG",
+            "project": "SENTRY_PROJECT",
+            "authToken": "SENTRY_AUTH_TOKEN",
+            "setCommits": true,
+            "deployEnv": "NODE_ENV"
+          }
+        }
+      ]
     }
   }
 }
