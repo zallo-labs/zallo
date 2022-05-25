@@ -87,7 +87,7 @@ export const deployTestSafe = async (feeToken?: Address) => {
   const group = toSafeGroupTest([wallet.address, 100]);
 
   const artifact = await deployer.loadArtifact('TestSafe');
-  const contract = await deployer.deploy(artifact, [group], feeToken);
+  const contract = await deployer.deploy(artifact, [group.approvers], feeToken);
   await contract.deployed();
 
   return {
