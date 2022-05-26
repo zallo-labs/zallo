@@ -27,7 +27,7 @@ export const SafeProvider = ({ children }: ChildrenProps) => {
 
   const initializing = useRef(false);
   useAsyncEffect(async () => {
-    if (!safes && !loading) {
+    if (!safes?.length && !loading) {
       initializing.current = true;
 
       await createCfSafe();
@@ -44,7 +44,7 @@ export const SafeProvider = ({ children }: ChildrenProps) => {
 
   useEffect(() => {
     // Select a safe
-    if (!loading && safes && !selected) {
+    if (!loading && safes?.length && !selected) {
       const picked = safes.findIndex((s) =>
         s.safe.address.startsWith('0xC888'),
       );
@@ -52,7 +52,7 @@ export const SafeProvider = ({ children }: ChildrenProps) => {
     }
   }, [safes, loading, selected, setSelectedAddr]);
 
-  if (!safes?.length || !selected) return <Suspend />;
+  if (!selected) return <Suspend />;
 
   return (
     <SafeContext.Provider value={selected}>{children}</SafeContext.Provider>
