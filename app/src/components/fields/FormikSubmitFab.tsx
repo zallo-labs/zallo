@@ -4,6 +4,9 @@ import { FAB, useTheme } from 'react-native-paper';
 import { containsErrors } from './FormikErrors';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 
+const allTouched = (values: unknown, touched: Record<string, boolean>) =>
+  Object.keys(values).every((field) => touched[field]);
+
 export type FormikSubmitFabProps = Omit<
   ComponentPropsWithoutRef<typeof FAB>,
   'icon'
@@ -17,12 +20,15 @@ export const FormikSubmitFab = ({
   hideWhenClean,
   ...props
 }: FormikSubmitFabProps) => {
-  const { submitForm, isSubmitting, dirty, errors } = useFormikContext();
+  const { submitForm, isSubmitting, dirty, errors, touched, initialValues } =
+    useFormikContext();
   const { colors } = useTheme();
 
   const disabled = useMemo(
-    () => dirty && (isSubmitting || containsErrors(errors)),
-    [isSubmitting, dirty, errors],
+    () =>
+      isSubmitting ||
+      (allTouched(initialValues, touched) && containsErrors(errors)),
+    [isSubmitting, initialValues, touched, errors],
   );
 
   if (hideWhenClean && !dirty) return null;
