@@ -32,12 +32,12 @@ export const FormikSubmitFab = ({
       onPress={submitForm}
       disabled={disabled}
       {...props}
-      style={Object.assign(
+      style={[
         {
           ...(!disabled && { backgroundColor: colors.primary }),
         },
         props.style,
-      )}
+      ]}
     />
   );
 };

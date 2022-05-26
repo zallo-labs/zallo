@@ -34,12 +34,12 @@ export const TextField = ({
           // Styling
           mode="outlined"
           {...props}
-          style={Object.assign(
+          style={[
             {
               ...(noBackground && { backgroundColor: 'transparent' }),
             },
             props.style,
-          )}
+          ]}
         />
       </Box>
 

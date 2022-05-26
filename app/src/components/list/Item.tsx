@@ -27,12 +27,12 @@ export const Item = ({
       justifyContent="space-between"
       alignItems="center"
       {...boxProps}
-      style={Object.assign(
+      style={[
         {
           ...(disabled && { opacity: 0.4 }),
         },
         boxProps.style,
-      )}
+      ]}
     >
       <Box flex={1} horizontal justifyContent="flex-start" alignItems="center">
         {Left && <Box mr={3}>{Left}</Box>}
