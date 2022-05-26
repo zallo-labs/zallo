@@ -22,7 +22,12 @@ const name = (k: keyof Values) => k;
 
 const getSchema = (contacts: Contact[]): Yup.SchemaOf<Values> =>
   Yup.object({
-    name: Yup.string().required('Required'),
+    name: Yup.string()
+      .required('Required')
+      .test({
+        message: 'Contact already exists with this name',
+        test: (input) => !contacts.find((c) => c.name === input),
+      }),
     addr: ADDR_YUP_SCHEMA.test({
       message: 'Contact already exists for this address',
       test: (input) => {
