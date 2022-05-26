@@ -7,7 +7,7 @@ import * as Sentry from 'sentry-expo';
 import { CONFIG } from '~/config';
 
 Sentry.init({
-  dsn: CONFIG.sentryDsn,
+  dsn: CONFIG.sentry.dsn,
   environment: CONFIG.env,
   // enableInExpoDevelopment: true,
   // debug: true,
