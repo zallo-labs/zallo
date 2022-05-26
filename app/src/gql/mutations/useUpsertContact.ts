@@ -14,7 +14,7 @@ import {
   Contact,
   NewContact,
 } from '@gql/queries/useContacts';
-import { useWallet } from '@features/wallet/WalletProvider';
+import { useWallet } from '@features/wallet/useWallet';
 import { toId } from 'lib';
 
 const API_MUTATION = apiGql`

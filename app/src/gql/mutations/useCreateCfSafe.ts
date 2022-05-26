@@ -1,7 +1,7 @@
 import { useCallback } from 'react';
 import { useMutation } from '@apollo/client';
 
-import { useWallet } from '@features/wallet/WalletProvider';
+import { useWallet } from '@features/wallet/useWallet';
 import { apiSafeToCombined, API_SAFE_FIELDS_FRAGMENT } from '@queries';
 import { CreateCfSafe, CreateCfSafeVariables } from '@gql/api.generated';
 import { apiGql } from '@gql/clients';

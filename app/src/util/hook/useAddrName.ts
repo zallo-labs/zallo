@@ -1,5 +1,5 @@
 import { Address } from 'lib';
-import { useWallet } from '@features/wallet/WalletProvider';
+import { useWallet } from '@features/wallet/useWallet';
 import { useContacts } from '@queries';
 import { useSafe } from '@features/safe/SafeProvider';
 import { useMemo } from 'react';

@@ -1,6 +1,6 @@
 import { deploySafe, getFactory } from 'lib';
 import { useSafe } from '@features/safe/SafeProvider';
-import { useWallet } from '@features/wallet/WalletProvider';
+import { useWallet } from '@features/wallet/useWallet';
 import { useUpsertSafe } from '@gql/mutations/useUpsertSafe';
 import { showInfo, showSuccess } from '@components/Toast';
 import { CONFIG } from '~/config';

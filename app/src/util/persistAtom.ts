@@ -1,35 +1,49 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { AtomEffect, DefaultValue } from 'recoil';
+import * as SecureStore from 'expo-secure-store';
 
-const DEFAULT_EQ = <T>(a: T, b: T) => a === b;
+interface Storage {
+  getItem: (key: string) => Promise<string | null>;
+  setItem: (key: string, value: string) => Promise<void>;
+  removeItem: (key: string) => Promise<void>;
+}
+
+export const getSecureStore = (
+  options?: SecureStore.SecureStoreOptions,
+): Storage => ({
+  getItem: (key) => SecureStore.getItemAsync(key, options),
+  setItem: (key, value) => SecureStore.setItemAsync(key, value, options),
+  removeItem: (key) => SecureStore.deleteItemAsync(key, options),
+});
 
 export interface PersistAtomOptions<T> {
   save?: (value: T) => string;
   load?: (saved: string) => T;
-  eq?: (a: T, b: T) => boolean;
+  storage?: Storage;
+  ignoreDefault?: boolean;
 }
 
 export const persistAtom =
   <T>({
     save = JSON.stringify,
     load = JSON.parse,
-    eq = DEFAULT_EQ,
+    storage = AsyncStorage,
+    ignoreDefault,
   }: PersistAtomOptions<T> = {}): AtomEffect<T> =>
-  ({ setSelf, onSet, trigger, node: { key } }) => {
-    const loadPersisted = async () => {
-      const saved = await AsyncStorage.getItem(key);
-      if (saved !== null) setSelf(load(saved));
-    };
-
-    // Asynchronously set the persisted data
-    if (trigger === 'get') loadPersisted();
+  ({ setSelf, onSet, node: { key } }) => {
+    // Loads the saved value, otherwise uses the default value
+    setSelf(
+      storage.getItem(key).then((saved) => {
+        return saved != null ? load(saved) : new DefaultValue();
+      }),
+    );
 
     // Subscribe to state changes and persist them to localForage
-    onSet((newValue, oldValue, isReset) => {
-      if (isReset) {
-        AsyncStorage.removeItem(key);
-      } else if (oldValue instanceof DefaultValue || !eq(newValue, oldValue)) {
-        AsyncStorage.setItem(key, save(newValue));
+    onSet((newValue, _oldValue, isReset) => {
+      if (isReset && ignoreDefault) {
+        storage.removeItem(key);
+      } else {
+        storage.setItem(key, save(newValue));
       }
     });
   };

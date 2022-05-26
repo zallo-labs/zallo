@@ -12,7 +12,7 @@ import {
   toId,
   Id,
 } from 'lib';
-import { useWallet } from '@features/wallet/WalletProvider';
+import { useWallet } from '@features/wallet/useWallet';
 import { GetApiSafes, GetApiSafesVariables } from '@gql/api.generated';
 import { GetSubSafes, GetSubSafesVariables } from '@gql/subgraph.generated';
 import { subGql, apiGql } from '@gql/clients';

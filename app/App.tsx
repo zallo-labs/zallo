@@ -4,7 +4,6 @@ import { Provider as PaperProvider } from 'react-native-paper';
 import { RecoilRoot } from 'recoil';
 
 import '~/provider';
-import { WalletProvider } from '@features/wallet/WalletProvider';
 import { SafeProvider } from '@features/safe/SafeProvider';
 import { RootNavigation } from '@features/navigation/RootNavigation';
 import { SafeArea } from '@components/SafeArea';
@@ -25,16 +24,14 @@ export default () => (
           <SafeArea>
             <RecoilRoot>
               <GestureHandlerRootView style={{ flex: 1 }}>
-                <WalletProvider>
-                  <GqlProvider>
-                    <StatusBar />
-                    <SafeProvider>
-                      <NavigationContainer theme={NAV_THEME}>
-                        <RootNavigation />
-                      </NavigationContainer>
-                    </SafeProvider>
-                  </GqlProvider>
-                </WalletProvider>
+                <GqlProvider>
+                  <StatusBar />
+                  <SafeProvider>
+                    <NavigationContainer theme={NAV_THEME}>
+                      <RootNavigation />
+                    </NavigationContainer>
+                  </SafeProvider>
+                </GqlProvider>
                 <Toast />
               </GestureHandlerRootView>
             </RecoilRoot>

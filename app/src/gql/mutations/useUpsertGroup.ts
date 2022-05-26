@@ -3,7 +3,7 @@ import { useExecute } from '@features/execute/useExecute';
 import { createSt } from '@features/execute/util';
 import { useSafe } from '@features/safe/SafeProvider';
 import { useIsDeployed } from '@features/safe/useIsDeployed';
-import { useWallet } from '@features/wallet/WalletProvider';
+import { useWallet } from '@features/wallet/useWallet';
 import {
   GroupApproverUpdateManyWithoutGroupInput,
   UpsertGroup,

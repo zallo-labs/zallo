@@ -9,7 +9,7 @@ import { RetryLink } from '@apollo/client/link/retry';
 import { Duration } from 'luxon';
 
 import { CONFIG } from '~/config';
-import { useWallet } from '@features/wallet/WalletProvider';
+import { useWallet } from '@features/wallet/useWallet';
 import { createAuthFlowLink } from './apiAuthFlowLink';
 import { getPersistedCache } from './cache';
 
