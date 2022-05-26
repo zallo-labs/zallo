@@ -20,12 +20,10 @@ import './tasks/accounts';
 import './tasks/balance';
 import './tasks/deposit';
 
-const IS_DOCKER = process.env.IS_DOCKER?.toLowerCase() === 'true';
-
 // https://hardhat.org/config/
 const config: HardhatUserConfig = {
   solidity: {
-    version: '0.8.9',
+    version: '0.8.13',
     settings: {
       optimizer: {
         enabled: true,
@@ -34,22 +32,21 @@ const config: HardhatUserConfig = {
   },
   zksolc: {
     version: '0.1.0',
-    compilerSource: IS_DOCKER ? 'binary' : 'docker',
+    compilerSource: CONFIG.isDocker ? 'binary' : 'docker',
     settings: {
       optimizer: {
         enabled: true,
       },
-      compilerPath: './zksolc', // only used for compilerSource=binary
+      compilerPath: 'zksolc', // only used for compilerSource=binary
       experimental: {
         dockerImage: 'matterlabs/zksolc',
       },
     },
   },
   zkSyncDeploy: {
-    zkSyncNetwork: CONFIG?.chain.zksyncUrl ?? '',
-    ethNetwork: CONFIG?.chain.ethUrl ?? '',
+    zkSyncNetwork: CONFIG.chain?.zksyncUrl ?? '',
+    ethNetwork: CONFIG.chain?.ethUrl ?? '',
   },
-  // defaultNetwork: CONFIG?.chain.name ?? 'metanet',
   defaultNetwork: 'hardhat',
   networks: {
     // https://hardhat.org/hardhat-network/reference/
@@ -58,16 +55,6 @@ const config: HardhatUserConfig = {
       loggingEnabled: true,
     },
   },
-  //   metanet: {
-  //     zksync: true,
-  //     url: CHAINS?.metanet.zksyncUrl ?? '',
-  //     accounts: metanetWallets.map((w) => w.privateKey),
-  //   },
-  //   testnet: {
-  //     zksync: true,
-  //     url: CHAINS?.testnet.zksyncUrl ?? '',
-  //   },
-  // },
   // Plugins
   typechain: {
     outDir: '../lib/src/typechain',
@@ -76,10 +63,10 @@ const config: HardhatUserConfig = {
     // https://github.com/cgewecke/eth-gas-reporter#options
     enabled: false,
     currency: 'USD',
-    coinmarketcap: CONFIG?.coinmarketcapApiKey,
+    coinmarketcap: CONFIG.coinmarketcapApiKey,
   },
   etherscan: {
-    apiKey: CONFIG?.providers.etherscan,
+    apiKey: CONFIG.providers?.etherscan,
   },
   abiExporter: {
     runOnCompile: true,

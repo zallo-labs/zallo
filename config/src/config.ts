@@ -47,7 +47,8 @@ export const CONFIG = {
     org: E.SENTRY_ORG,
     project: E.SENTRY_PROJECT,
     authToken: E.SENTRY_AUTH_TOKEN,
-  }
+  },
+  isDocker: E.IS_DOCKER?.toLowerCase() === 'true',
 } as const;
 
 export default CONFIG;
