@@ -47,8 +47,13 @@ export interface CreateCfSafeVariables {
 // GraphQL mutation operation: DeleteContact
 // ====================================================
 
+export interface DeleteContact_deleteContact {
+  __typename: "DeleteContactResp";
+  id: string;
+}
+
 export interface DeleteContact {
-  deleteContact: boolean | null;
+  deleteContact: DeleteContact_deleteContact;
 }
 
 export interface DeleteContactVariables {

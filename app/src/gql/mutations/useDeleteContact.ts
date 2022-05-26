@@ -1,4 +1,5 @@
 import { useMutation } from '@apollo/client';
+import { useWallet } from '@features/wallet/useWallet';
 import {
   DeleteContact,
   DeleteContactVariables,
@@ -7,20 +8,23 @@ import {
 import { apiGql } from '@gql/clients';
 import { useApiClient } from '@gql/GqlProvider';
 import { API_CONTACTS_QUERY, Contact } from '@queries';
+import { toId } from 'lib';
 import { useCallback } from 'react';
 
 const API_MUTATION = apiGql`
 mutation DeleteContact($addr: String!) {
-  deleteContact(addr: $addr)
+  deleteContact(addr: $addr) {
+    id
+  }
 }
 `;
 
 export const useDeleteContact = () => {
+  const wallet = useWallet();
+
   const [mutation] = useMutation<DeleteContact, DeleteContactVariables>(
     API_MUTATION,
-    {
-      client: useApiClient(),
-    },
+    { client: useApiClient() },
   );
 
   const del = useCallback(
@@ -29,10 +33,13 @@ export const useDeleteContact = () => {
         variables: {
           addr: contact.addr,
         },
-        update: (cache, { data: { deleteContact } }) => {
-          // Do nothing if the contact was not deleted
-          if (!deleteContact) return;
-
+        optimisticResponse: {
+          deleteContact: {
+            __typename: 'DeleteContactResp',
+            id: toId(`${wallet.address}-${contact.addr}`),
+          },
+        },
+        update: (cache) => {
           // Remove from query list
           const data: GetContacts = cache.readQuery({
             query: API_CONTACTS_QUERY,
@@ -41,18 +48,15 @@ export const useDeleteContact = () => {
           const newData: GetContacts = {
             contacts: data.contacts.filter((c) => c.id !== contact.id),
           };
-          cache.writeQuery({ query: API_CONTACTS_QUERY, data: newData });
 
-          // Evict from cache
-          cache.evict({
-            id: cache.identify({
-              __typename: 'Contact',
-              ...contact,
-            }),
+          cache.writeQuery({
+            query: API_CONTACTS_QUERY,
+            data: newData,
+            overwrite: true,
           });
         },
       }),
-    [mutation],
+    [mutation, wallet.address],
   );
 
   return del;

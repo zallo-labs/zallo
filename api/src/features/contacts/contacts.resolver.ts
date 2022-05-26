@@ -12,12 +12,12 @@ import { PrismaService } from 'nestjs-prisma';
 import { FindUniqueContactArgs } from '@gen/contact/find-unique-contact.args';
 import { GraphQLResolveInfo } from 'graphql';
 import { getSelect } from '~/util/test';
-import { FindManyContactArgs } from '@gen/contact/find-many-contact.args';
 import { UserAddr } from '~/decorators/user.decorator';
 import { Address, Id, toId } from 'lib';
 import {
   Contacts2Args,
   DeleteContactArgs,
+  DeleteContactResp,
   UpsertContactArgs,
 } from './contacts.args';
 
@@ -88,12 +88,11 @@ export class ContactsResolver {
     });
   }
 
-  @Mutation(() => Boolean, { nullable: true })
+  @Mutation(() => DeleteContactResp)
   async deleteContact(
     @Args() { addr }: DeleteContactArgs,
-    @Info() info: GraphQLResolveInfo,
     @UserAddr() user: Address,
-  ): Promise<boolean> {
+  ): Promise<DeleteContactResp> {
     await this.prisma.contact.delete({
       where: {
         approverId_addr: {
@@ -101,9 +100,10 @@ export class ContactsResolver {
           addr,
         },
       },
-      ...getSelect(info),
     });
 
-    return true;
+    return {
+      id: toId(`${user}-${addr}`),
+    };
   }
 }
