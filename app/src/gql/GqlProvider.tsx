@@ -1,6 +1,5 @@
 import { createContext, useContext, useEffect, useState } from 'react';
 import { ApolloClient, NormalizedCacheObject } from '@apollo/client';
-import AppLoading from 'expo-app-loading';
 
 import { ChildrenProps } from '@util/children';
 import {
@@ -11,13 +10,20 @@ import {
   UNISWAP_CLIENT_NAME,
   useCreateApiClient,
 } from './clients';
+import { Suspend } from '@components/Suspender';
 
-const clientNames = [API_CLIENT_NAME, SUBGRAPH_CLIENT_NAME, UNISWAP_CLIENT_NAME] as const;
+const clientNames = [
+  API_CLIENT_NAME,
+  SUBGRAPH_CLIENT_NAME,
+  UNISWAP_CLIENT_NAME,
+] as const;
 type Name = typeof clientNames[number];
 
 type GqlClients = Record<Name, ApolloClient<NormalizedCacheObject>>;
 
-export const isGqlClients = (clients: GqlClients | Partial<GqlClients>): clients is GqlClients =>
+export const isGqlClients = (
+  clients: GqlClients | Partial<GqlClients>,
+): clients is GqlClients =>
   clientNames.every((name) => clients[name] !== undefined);
 
 const context = createContext<GqlClients | undefined>(undefined);
@@ -32,6 +38,8 @@ export const GqlProvider = ({ children }: ChildrenProps) => {
 
   const [clients, setClients] = useState<GqlClients | Partial<GqlClients>>({});
   useEffect(() => {
+    if (isGqlClients(clients)) return;
+
     (
       [
         [API_CLIENT_NAME, createApiClient],
@@ -46,9 +54,9 @@ export const GqlProvider = ({ children }: ChildrenProps) => {
         [name]: client,
       }));
     });
-  }, []);
+  }, [clients, createApiClient]);
 
-  if (!isGqlClients(clients)) return <AppLoading />;
+  if (!isGqlClients(clients)) return <Suspend />;
 
   return <context.Provider value={clients}>{children}</context.Provider>;
 };

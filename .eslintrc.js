@@ -8,7 +8,7 @@ module.exports = {
     ecmaVersion: '2021',
     sourceType: 'module',
   },
-  plugins: ['@typescript-eslint'],
+  plugins: ['@typescript-eslint', 'react-hooks'],
   extends: ['eslint:recommended', 'plugin:@typescript-eslint/recommended'],
   env: {
     es2021: true,
@@ -25,5 +25,12 @@ module.exports = {
       },
     ],
     '@typescript-eslint/no-non-null-assertion': 'off',
+    'react-hooks/rules-of-hooks': 'error',
+    'react-hooks/exhaustive-deps': [
+      'warn',
+      {
+        additionalHooks: '(useRecoilCallback|useRecoilTransaction_UNSTABLE)',
+      },
+    ],
   },
 };

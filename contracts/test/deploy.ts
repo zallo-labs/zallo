@@ -1,18 +1,19 @@
-import { SafeEvent, toGroup } from 'lib';
+import { SafeEvent } from 'lib';
 import {
   expect,
   wallet,
   deploy,
   deployFactory,
   deploySafeDirect,
+  toSafeGroupTest,
 } from './util';
 
 describe('Deploy', async () => {
   describe('Safe', () => {
     it('Deploys directly', async () => {
-      const group = toGroup([wallet.address, 100]);
+      const group = toSafeGroupTest([wallet.address, 100]);
 
-      const { safe, deployTx } = await deploySafeDirect([group]);
+      const { safe, deployTx } = await deploySafeDirect([group.approvers]);
       await expect(deployTx).to.emit(safe, SafeEvent.GroupAdded);
     });
   });

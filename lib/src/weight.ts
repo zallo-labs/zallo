@@ -9,8 +9,7 @@ export const percentToFixedWeight = (weight: number) =>
 
 export const _100_PERCENT_WEIGHT = percentToFixedWeight(100);
 
-// export const fixedWeightToPercent = (weight: BigNumber): number =>
-//   weight.div(_100_PERCENT_WEIGHT.div(10 ** percentPrecision)).toNumber();
-
 export const fixedWeightToPercent = (weight: BigNumber): number =>
-  parseFloat(ethers.utils.formatUnits(weight, weightPrecision - percentPrecision));
+  parseFloat(
+    ethers.utils.formatUnits(weight, weightPrecision - percentPrecision),
+  );

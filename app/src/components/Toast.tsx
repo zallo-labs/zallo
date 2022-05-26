@@ -4,21 +4,26 @@ import RnToast, {
   ToastShowParams,
 } from 'react-native-toast-message';
 
-export const showSuccess = (params: ToastShowParams) =>
+export type ShowParams = ToastShowParams | string;
+
+const getParams = (params: ShowParams): ToastShowParams =>
+  typeof params === 'string' ? { text1: params } : params;
+
+export const showSuccess = (params: ShowParams) =>
   RnToast.show({
-    ...params,
+    ...getParams(params),
     type: 'success',
   });
 
-export const showInfo = (params: ToastShowParams) =>
+export const showInfo = (params: ShowParams) =>
   RnToast.show({
-    ...params,
+    ...getParams(params),
     type: 'info',
   });
 
-export const showError = (params: ToastShowParams) =>
+export const showError = (params: ShowParams) =>
   RnToast.show({
-    ...params,
+    ...getParams(params),
     type: 'error',
   });
 

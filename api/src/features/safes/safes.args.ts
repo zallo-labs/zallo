@@ -1,6 +1,5 @@
 import { ArgsType, Field, InputType } from '@nestjs/graphql';
-import { BigNumberish } from 'ethers';
-import { Approver as SafeApprover } from 'lib';
+import { Address, Approver as SafeApprover } from 'lib';
 
 @ArgsType()
 export class CreateCfSafeArgs {
@@ -11,8 +10,8 @@ export class CreateCfSafeArgs {
 @InputType()
 export class ApproverInput implements SafeApprover {
   @Field()
-  addr: string;
+  addr: Address;
 
   @Field(() => String)
-  weight: BigNumberish;
+  weight: number;
 }

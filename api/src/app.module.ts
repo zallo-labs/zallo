@@ -1,4 +1,5 @@
 import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
+import { APP_GUARD } from '@nestjs/core';
 import { PrismaModule } from 'nestjs-prisma';
 
 import { loggingMiddleware } from './prisma/prisma.logging';
@@ -6,12 +7,13 @@ import { HealthModule } from './health/health.module';
 import { ApproversModule } from './features/approvers/approvers.module';
 import { SafesModule } from './features/safes/safes.module';
 import { AuthModule } from './auth/auth.module';
-import { APP_GUARD } from '@nestjs/core';
 import { AuthGuard } from './auth/auth.guard';
 import { ApolloModule } from './apollo/apollo.module';
 import { AuthMiddleware } from './auth/auth.middleware';
 import { ProviderModule } from './provider/provider.module';
 import { GroupsModule } from './features/groups/groups.module';
+import { ContactsModule } from './features/contacts/contacts.module';
+import { GroupApproverModule } from './features/group-approver/group-approver.module';
 
 @Module({
   imports: [
@@ -22,12 +24,15 @@ import { GroupsModule } from './features/groups/groups.module';
       },
     }),
     ApolloModule,
-    ApproversModule,
     AuthModule,
-    GroupsModule,
-    HealthModule,
     ProviderModule,
+    HealthModule,
+    // Features
+    ApproversModule,
+    ContactsModule,
+    GroupsModule,
     SafesModule,
+    GroupApproverModule,
   ],
   providers: [
     {
@@ -38,8 +43,6 @@ import { GroupsModule } from './features/groups/groups.module';
 })
 export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {
-    consumer
-      .apply(AuthMiddleware)
-      .forRoutes('*');
+    consumer.apply(AuthMiddleware).forRoutes('*');
   }
 }

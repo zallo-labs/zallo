@@ -1,13 +1,25 @@
-import { ApolloClient, ApolloLink, gql, HttpLink } from '@apollo/client';
+import {
+  ApolloClient,
+  ApolloLink,
+  DefaultOptions,
+  gql,
+  HttpLink,
+} from '@apollo/client';
 import { RetryLink } from '@apollo/client/link/retry';
 import { Duration } from 'luxon';
 
 import { CONFIG } from '~/config';
-import { useWallet } from '@features/wallet/WalletProvider';
+import { useWallet } from '@features/wallet/useWallet';
 import { createAuthFlowLink } from './apiAuthFlowLink';
 import { getPersistedCache } from './cache';
 
 export { gql as apiGql, gql as subGql, gql as uniswapGql };
+
+const defaultOptions: DefaultOptions = {
+  watchQuery: {
+    fetchPolicy: 'cache-and-network',
+  },
+};
 
 export const API_CLIENT_NAME = 'api';
 export const useCreateApiClient = () => {
@@ -22,6 +34,7 @@ export const useCreateApiClient = () => {
         createAuthFlowLink(wallet),
         new HttpLink({ uri: CONFIG.api.gqlUrl }),
       ]),
+      defaultOptions,
     });
 };
 
@@ -34,6 +47,7 @@ export const createSubgraphClient = async () =>
       new RetryLink(),
       new HttpLink({ uri: CONFIG.subgraphGqlUrl }),
     ]),
+    defaultOptions,
   });
 
 export const UNISWAP_CLIENT_NAME = 'uniswap';
@@ -48,8 +62,10 @@ export const createUniswapClient = async () =>
       }),
     ]),
     defaultOptions: {
-      query: {
-        pollInterval: Duration.fromObject({ seconds: 5 }).toMillis(),
+      ...defaultOptions,
+      watchQuery: {
+        ...defaultOptions.watchQuery,
+        pollInterval: Duration.fromObject({ seconds: 15 }).toMillis(),
       },
     },
   });

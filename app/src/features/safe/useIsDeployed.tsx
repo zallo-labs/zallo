@@ -1,15 +1,17 @@
-import { useEffect, useState } from 'react';
+import { persistAtom } from '@util/persistAtom';
+import { Address } from 'lib';
+import { atomFamily, useRecoilValue } from 'recoil';
+import { PROVIDER } from '~/provider';
 import { useSafe } from './SafeProvider';
 
-export const useIsDeployed = () => {
+export const isDeployedState = atomFamily<boolean, Address>({
+  key: 'isDeployed',
+  default: async (addr) => (await PROVIDER.getCode(addr)) !== '0x',
+  effects: [persistAtom()],
+});
+
+export const useIsDeployed = (addr?: Address) => {
   const { safe } = useSafe();
 
-  const [isDeployed, setIsDeployed] = useState<boolean | undefined>(undefined);
-  useEffect(() => {
-    (async () => {
-      setIsDeployed((await safe.provider.getCode(safe.address)) !== '0x');
-    })();
-  }, [safe]);
-
-  return isDeployed;
+  return useRecoilValue(isDeployedState(addr ?? safe.address));
 };

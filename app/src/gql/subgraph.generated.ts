@@ -7,13 +7,18 @@
 // GraphQL query operation: GetSubSafes
 // ====================================================
 
-export interface GetSubSafes_approver_groups_group_safe_groups_approvers {
-  __typename: "GroupApprover";
+export interface GetSubSafes_approver_groups_group_safe_groups_approvers_approver {
+  __typename: "Approver";
   /**
-   * {group.id}-{approver.id}
+   * {address}
    */
   id: string;
+}
+
+export interface GetSubSafes_approver_groups_group_safe_groups_approvers {
+  __typename: "GroupApprover";
   weight: any;
+  approver: GetSubSafes_approver_groups_group_safe_groups_approvers_approver;
 }
 
 export interface GetSubSafes_approver_groups_group_safe_groups {

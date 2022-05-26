@@ -1,39 +1,60 @@
-import { createContext, useContext, useRef, useState } from 'react';
+import { createContext, useContext, useEffect, useMemo, useRef } from 'react';
 import useAsyncEffect from 'use-async-effect';
+import { atom, useRecoilState } from 'recoil';
 
 import { useCreateCfSafe } from '@mutations';
-import { SafeData, useSafes } from '@queries';
+import { CombinedSafe, useSafes } from '@queries';
 import { ChildrenProps } from '@util/children';
+import { Address } from 'lib';
+import { Suspend } from '@components/Suspender';
 
-const SafeContext = createContext<SafeData | undefined>(undefined);
+const SafeContext = createContext<CombinedSafe | undefined>(undefined);
 
 export const useSafe = () => useContext(SafeContext)!;
 
-export const SafeProvider = ({ children }: ChildrenProps) => {
-  const { safes } = useSafes();
-  const createCfSafe = useCreateCfSafe();
+export const useGroup = (id: string) =>
+  useSafe().groups.find((g) => g.id === id);
 
-  const [data, setData] = useState<SafeData | undefined>(undefined);
+const selectedSafeAddrState = atom<Address | undefined>({
+  key: 'selectedSafeAddr',
+  default: undefined,
+});
+
+export const SafeProvider = ({ children }: ChildrenProps) => {
+  const { safes, loading, refetch } = useSafes();
+  const createCfSafe = useCreateCfSafe();
+  const [selectedAddr, setSelectedAddr] = useRecoilState(selectedSafeAddrState);
+
   const initializing = useRef(false);
   useAsyncEffect(async () => {
-    if (!data && safes && !initializing.current) {
+    if (!safes?.length && !loading) {
       initializing.current = true;
 
-      if (safes.length) {
-        console.log('Chose sub safe!');
-        setData(safes[0]);
-      } else {
-        console.log('Chose to create CF safe');
-        setData((await createCfSafe()).safe);
-      }
-
-      // setData(safes[0] ?? (await createCfSafe()).safe);
+      await createCfSafe();
+      refetch();
 
       initializing.current = false;
     }
-  }, [safes, data, setData, createCfSafe, initializing]);
+  }, [safes, loading, initializing, createCfSafe, refetch]);
 
-  if (!data) return null;
+  const selected = useMemo(
+    () => safes.find((s) => s.safe.address === selectedAddr),
+    [safes, selectedAddr],
+  );
 
-  return <SafeContext.Provider value={data}>{children}</SafeContext.Provider>;
+  useEffect(() => {
+    // Select a safe
+    if (!loading && safes?.length && !selected) {
+      const picked = safes.findIndex((s) =>
+        s.safe.address.startsWith('0xC888'),
+      );
+      setSelectedAddr(safes[picked >= 0 ? picked : 0].safe.address);
+    }
+  }, [safes, loading, selected, setSelectedAddr]);
+
+  if (!selected) return <Suspend />;
+
+  return (
+    <SafeContext.Provider value={selected}>{children}</SafeContext.Provider>
+  );
 };

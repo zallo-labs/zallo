@@ -24,31 +24,44 @@ model Session {
 
 model Safe {
   id         String  @id
-  name       String?
-  deploySalt String
   groups     Group[]
+  name       String?
+  deploySalt String?
 }
 
 model Group {
-  // {safe.id}-{hash}
-  id        String          @id
   safe      Safe            @relation(fields: [safeId], references: [id], onDelete: Cascade)
+  safeId    String
   hash      String
   approvers GroupApprover[]
-  safeId    String
+  name      String?
+
+  @@id([safeId, hash])
 }
 
 model Approver {
-  id     String          @id
-  groups GroupApprover[]
+  id       String          @id
+  groups   GroupApprover[]
+  contacts Contact[]
 }
 
 model GroupApprover {
-  // {safe.id}-{group.hash}-{approver.id}
-  id         String   @id
-  group      Group    @relation(fields: [groupId], references: [id], onDelete: Cascade)
-  groupId    String
+  group      Group    @relation(fields: [safeId, groupHash], references: [safeId, hash], onDelete: Cascade)
+  safeId     String
+  groupHash  String
   approver   Approver @relation(fields: [approverId], references: [id], onDelete: Cascade)
   approverId String
-  weight     Decimal
+  weight     Decimal // Percent
+
+  @@id([safeId, groupHash, approverId])
+}
+
+model Contact {
+  approver   Approver @relation(fields: [approverId], references: [id])
+  approverId String
+  addr       String
+  name       String
+
+  @@id([approverId, addr])
+  @@unique([approverId, name], name: "name_identifier")
 }

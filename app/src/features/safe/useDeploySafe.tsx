@@ -1,18 +1,18 @@
-import { ethers } from 'ethers';
-
 import { deploySafe, getFactory } from 'lib';
 import { useSafe } from '@features/safe/SafeProvider';
-import { useWallet } from '@features/wallet/WalletProvider';
-import { useUpdateSafe } from '@gql/mutations/useUpdateSafe';
+import { useWallet } from '@features/wallet/useWallet';
+import { useUpsertSafe } from '@gql/mutations/useUpsertSafe';
 import { showInfo, showSuccess } from '@components/Toast';
 import { CONFIG } from '~/config';
-import { useIsDeployed } from './useIsDeployed';
+import { isDeployedState, useIsDeployed } from './useIsDeployed';
+import { useSetRecoilState } from 'recoil';
 
 export const useDeploySafe = () => {
-  const { groups, deploySalt } = useSafe();
+  const { groups, deploySalt, safe } = useSafe();
   const isDeployed = useIsDeployed();
   const wallet = useWallet();
-  const updateSafe = useUpdateSafe();
+  const upsertSafe = useUpsertSafe();
+  const setIsDeployed = useSetRecoilState(isDeployedState(safe.address));
 
   if (isDeployed) return undefined;
 
@@ -29,15 +29,11 @@ export const useDeploySafe = () => {
     });
     await r.safe.deployed();
 
-    if (!deploySalt && r.salt) {
-      await updateSafe({
-        deploySalt: {
-          set: ethers.utils.hexlify(r.salt),
-        },
-      });
-    }
+    setIsDeployed(true);
 
-    showSuccess({ text1: 'Safe deployed' });
+    if (!deploySalt && r.salt) upsertSafe({ deploySalt: r.salt });
+
+    showSuccess('Safe deployed');
   };
 
   return deploy;

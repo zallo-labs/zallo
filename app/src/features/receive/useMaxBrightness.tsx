@@ -7,7 +7,8 @@ export const useMaxBrighness = () => {
 
     (async () => {
       let perm = await Brightness.getPermissionsAsync();
-      if (!perm.granted && perm.canAskAgain) perm = await Brightness.requestPermissionsAsync();
+      if (!perm.granted && perm.canAskAgain)
+        perm = await Brightness.requestPermissionsAsync();
 
       if (perm.granted) {
         pre = await Brightness.getBrightnessAsync();
@@ -16,7 +17,7 @@ export const useMaxBrighness = () => {
     })();
 
     return () => {
-      Brightness.setBrightnessAsync(pre);
+      if (pre !== undefined) Brightness.setBrightnessAsync(pre);
     };
   }, []);
 };

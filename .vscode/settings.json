@@ -41,5 +41,11 @@
     "editor.defaultFormatter": "esbenp.prettier-vscode"
   },
   "editor.tabSize": 2,
-  "react-native.packager.port": 19000
+  "react-native.packager.port": 19000,
+  "todohighlight.keywords": [
+    "TODO:",
+    "FIXME:",
+    "PERF:",
+    "ZKSYNC:"
+  ]
 }

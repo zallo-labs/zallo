@@ -1,8 +1,18 @@
 import { useQuery } from '@apollo/client';
 import { BytesLike, Signer } from 'ethers';
 
-import { Approver, ArrVal, filterUnique, Safe, getSafe } from 'lib';
-import { useWallet } from '@features/wallet/WalletProvider';
+import {
+  ArrVal,
+  filterUnique,
+  Safe,
+  getSafe,
+  fixedWeightToPercent,
+  address,
+  Approver,
+  toId,
+  Id,
+} from 'lib';
+import { useWallet } from '@features/wallet/useWallet';
 import { GetApiSafes, GetApiSafesVariables } from '@gql/api.generated';
 import { GetSubSafes, GetSubSafesVariables } from '@gql/subgraph.generated';
 import { subGql, apiGql } from '@gql/clients';
@@ -21,8 +31,10 @@ query GetSubSafes($approver: ID!) {
             hash
             active
             approvers {
-              id
               weight
+              approver {
+                id
+              }
             }
           }
         }
@@ -43,89 +55,137 @@ const useSubSafes = () => {
     },
   );
 
-  const safes = data?.approver?.groups.map((g) => g.group.safe) ?? [];
+  const safes =
+    data?.approver?.groups.map((g) => ({
+      ...g.group.safe,
+      id: toId(g.group.safe.id),
+    })) ?? [];
 
-  return { data: filterUnique(safes, (safe) => safe.id), ...rest };
+  return { data: filterUnique(safes, (safe) => toId(safe.id)), ...rest };
 };
 
-export const API_SAFE_FIELDS = apiGql`
+const subSafeToCombined = (
+  sub: ArrVal<ReturnType<typeof useSubSafes>['data']>,
+  wallet: Signer,
+): CombinedSafe => {
+  return {
+    safe: getSafe(sub.id, wallet),
+    groups: sub.groups.map((g) => ({
+      id: toId(g.id),
+      hash: g.hash,
+      active: g.active,
+      approvers: g.approvers.map((a) => ({
+        addr: address(a.approver.id),
+        weight: fixedWeightToPercent(a.weight),
+      })),
+    })),
+  };
+};
+
+export const API_GROUP_FIELDS_FRAGMENT = apiGql`
+fragment GroupFields on Group {
+  id
+  hash
+  safeId
+  approvers {
+    approverId
+    weight
+  }
+  name
+}
+`;
+
+export const API_SAFE_FIELDS_FRAGMENT = apiGql`
+${API_GROUP_FIELDS_FRAGMENT}
+
 fragment SafeFields on Safe {
   id
   name
   deploySalt
   groups {
-    id
-    hash
-    approvers {
-      approverId
-      weight
-    }
+    ...GroupFields
   }
 }
 `;
 
 const API_QUERY = apiGql`
-${API_SAFE_FIELDS}
-query GetApiSafes($approver: String!) {
+${API_SAFE_FIELDS_FRAGMENT}
+
+query GetApiSafes($approver: String!, $safes: [String!]) {
   approver(where: { id: $approver }) {
+    id
     safes {
       ...SafeFields
     }
+  }
+
+  safes(where: { id: { in: $safes, mode: insensitive } }) {
+    ...SafeFields
   }
 }
 `;
 
 const useApiSafes = () => {
   const wallet = useWallet();
+  const { data: subSafes } = useSubSafes();
 
+  const subSafeIds = subSafes.map((s) => address(s.id));
   const { data, ...rest } = useQuery<GetApiSafes, GetApiSafesVariables>(
     API_QUERY,
     {
       client: useApiClient(),
-      variables: { approver: wallet.address },
-      fetchPolicy: 'cache-and-network',
+      variables: { approver: wallet.address, safes: subSafeIds },
+      skip: !subSafeIds.length,
     },
   );
 
-  return { data: data?.approver?.safes ?? [], ...rest };
+  const safes = filterUnique(
+    [...(data?.approver?.safes ?? []), ...(data?.safes ?? [])].map((safe) => ({
+      ...safe,
+      id: toId(safe.id),
+    })),
+    (safe) => safe.id,
+  );
+
+  return { data: safes, ...rest };
 };
 
-export interface Group {
-  id: string;
+export interface CombinedGroup {
+  id: Id;
   hash: BytesLike;
   active: boolean;
   approvers: Approver[];
+  name?: string;
 }
 
-export interface SafeData {
-  id: string;
+export interface CombinedSafe {
   safe: Safe;
   name?: string;
   deploySalt?: BytesLike;
-  groups: Group[];
+  groups: CombinedGroup[];
 }
 
-export const apiSafeToSafeData = (
-  apiSafe: ArrVal<ReturnType<typeof useApiSafes>['data']>,
+export const apiSafeToCombined = (
+  api: ArrVal<ReturnType<typeof useApiSafes>['data']>,
   wallet: Signer,
-): SafeData => {
-  const groups: Group[] =
-    apiSafe.groups?.map((g) => ({
-      id: g.id,
+): CombinedSafe => {
+  const groups: CombinedGroup[] =
+    api.groups?.map((g) => ({
+      id: toId(g.id),
       hash: g.hash,
       active: true,
       approvers:
         g.approvers?.map((g) => ({
-          addr: g.approverId,
-          weight: g.weight,
+          addr: address(g.approverId),
+          weight: fixedWeightToPercent(g.weight),
         })) ?? [],
+      name: g.name,
     })) ?? [];
 
   return {
-    id: apiSafe.id,
-    safe: getSafe(apiSafe.id, wallet),
-    name: apiSafe.name,
-    deploySalt: apiSafe.deploySalt,
+    safe: getSafe(api.id, wallet),
+    name: api.name,
+    deploySalt: api.deploySalt,
     groups,
   };
 };
@@ -138,33 +198,36 @@ export const useSafes = () => {
 
   const rest = combineRest(subRest, apiRest);
 
-  if (rest.loading && !rest.error) return { safes: undefined, ...rest };
-
   const safes = apiSafes
     ? combine(subSafes, apiSafes, simpleKeyExtractor('id'), {
-        atLeastApi: (subSafe, apiSafe): SafeData => {
-          const subGroups: Group[] =
-            subSafe?.groups.map((g) => ({
-              id: g.id,
-              hash: g.hash,
-              active: g.active,
-              approvers: g.approvers.map((a) => ({
-                addr: a.id,
-                weight: a.weight,
-              })),
-            })) ?? [];
-
-          const apiSafeData = apiSafeToSafeData(apiSafe, wallet);
+        either: ({ sub, api }): CombinedSafe => {
+          const s = sub ? subSafeToCombined(sub, wallet) : undefined;
+          const a = api ? apiSafeToCombined(api, wallet) : undefined;
 
           return {
-            ...apiSafeData,
-            groups: filterUnique(
-              subGroups.concat(apiSafeData.groups),
-              (g) => g.id,
-            ),
+            safe: s?.safe ?? a?.safe,
+            name: a?.name || s?.name,
+            deploySalt: s?.deploySalt ?? s?.deploySalt,
+            groups: combine(
+              s?.groups ?? [],
+              a?.groups ?? [],
+              simpleKeyExtractor('id'),
+              {
+                either: ({ sub, api }): CombinedGroup => ({
+                  id: sub?.id ?? api?.id,
+                  hash: sub?.hash ?? api?.hash,
+                  active: sub?.active ?? api?.active,
+                  approvers: filterUnique(
+                    [...(sub?.approvers ?? []), ...(api?.approvers ?? [])],
+                    (a) => a.addr,
+                  ),
+                  name: sub?.name ?? api?.name,
+                }),
+              },
+            ).filter((group) => group.active && group.approvers.length > 0),
           };
         },
-      })
+      }).filter((safe) => safe.groups.length)
     : undefined;
 
   return { safes, ...rest };
