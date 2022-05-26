@@ -9,6 +9,8 @@ import { isAddress } from 'lib';
 
 export const IsAddress =
   (validationOptions?: ValidationOptions) =>
+  // Object is a required parameter type for PropertyDecorator
+  // eslint-disable-next-line @typescript-eslint/ban-types
   (object: Object, propertyName: string) => {
     registerDecorator({
       name: 'isAddress',

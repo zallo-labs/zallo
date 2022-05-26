@@ -9,8 +9,13 @@ export type Addresslike = Address | string;
 export const address = (addr: Addresslike): Address =>
   ethers.utils.getAddress(addr) as Address;
 
-export const tryAddress = (addr: Addresslike): Address | null =>
-  ethers.utils.isAddress(addr) ? address(addr) : null;
+export const tryAddress = (addr: Addresslike): Address | null => {
+  try {
+    return address(addr);
+  } catch (_) {
+    return null;
+  }
+};
 
 export const isAddress = (v: Addresslike): v is Address => tryAddress(v) === v;
 

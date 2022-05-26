@@ -4,12 +4,15 @@ import { GraphQLModule } from '@nestjs/graphql';
 import { ApolloServerPluginLandingPageGraphQLPlaygroundOptions } from 'apollo-server-core';
 
 import { IS_DEV } from 'config';
+import { AddressMiddleware } from './address.middleware';
+import { IdMiddleware } from './id.middleware';
 
 export const GQL_ENDPOINT = '/graphql';
 
-const settings: ApolloServerPluginLandingPageGraphQLPlaygroundOptions['settings'] = {
-  'request.credentials': 'include',
-};
+const settings: ApolloServerPluginLandingPageGraphQLPlaygroundOptions['settings'] =
+  {
+    'request.credentials': 'include',
+  };
 
 @Module({
   imports: [
@@ -20,6 +23,9 @@ const settings: ApolloServerPluginLandingPageGraphQLPlaygroundOptions['settings'
       debug: IS_DEV,
       introspection: true,
       path: GQL_ENDPOINT,
+      buildSchemaOptions: {
+        fieldMiddleware: [IdMiddleware, AddressMiddleware],
+      },
       playground: {
         settings,
       },
