@@ -32,9 +32,11 @@ export const GroupManagement = ({
   const navigation = useNavigation<GroupManagementScreenProps['navigation']>();
 
   useEffect(() => {
-    if (selected && !approvers.find((a) => a.addr === selected))
+    if (selected) {
       setApprovers([...approvers, { addr: selected, weight: 100 }]);
-  }, [selected, approvers, setApprovers]);
+      navigation.setParams({ selected: null });
+    }
+  }, [selected, approvers, setApprovers, navigation]);
 
   const handleSetApprover =
     (approver: Approver) => (newApprover: Approver | undefined) => {
