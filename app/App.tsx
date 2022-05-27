@@ -22,9 +22,9 @@ export default () => (
     <PaperProvider theme={PAPER_THEME}>
       <ErrorBoundary>
         <Suspense fallback={<Splash />}>
-          <SafeArea>
-            <RecoilRoot>
-              <GestureHandlerRootView style={{ flex: 1 }}>
+          <RecoilRoot>
+            <GestureHandlerRootView style={{ flex: 1 }}>
+              <SafeArea>
                 <AuthGate>
                   <GqlProvider>
                     <StatusBar />
@@ -36,9 +36,9 @@ export default () => (
                   </GqlProvider>
                 </AuthGate>
                 <Toast />
-              </GestureHandlerRootView>
-            </RecoilRoot>
-          </SafeArea>
+              </SafeArea>
+            </GestureHandlerRootView>
+          </RecoilRoot>
         </Suspense>
       </ErrorBoundary>
     </PaperProvider>
