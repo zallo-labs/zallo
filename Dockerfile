@@ -1,7 +1,7 @@
 FROM matterlabs/zksolc:latest AS zksolc
 
 # Unsupported commands: https://devcenter.heroku.com/articles/container-registry-and-runtime#unsupported-dockerfile-commands
-FROM node:18
+FROM node:16
 
 ENV NODE_ENV="development"
 ENV IS_DOCKER="true"
