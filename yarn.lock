@@ -12415,7 +12415,7 @@ __metadata:
     lib: "workspace:*"
     prettier: ^2.5.1
     prettier-plugin-solidity: ^1.0.0-beta.19
-    solc: 0.8.9
+    solc: 0.8.13
     solhint: ^3.3.7
     solidity-coverage: ^0.7.20
     ts-node: ^10.7.0
@@ -29418,22 +29418,20 @@ __metadata:
   languageName: node
   linkType: hard
 
-"solc@npm:0.8.9":
-  version: 0.8.9
-  resolution: "solc@npm:0.8.9"
+"solc@npm:0.8.13":
+  version: 0.8.13
+  resolution: "solc@npm:0.8.13"
   dependencies:
     command-exists: ^1.2.8
     commander: ^8.1.0
     follow-redirects: ^1.12.1
-    fs-extra: ^0.30.0
     js-sha3: 0.8.0
     memorystream: ^0.3.1
-    require-from-string: ^2.0.0
     semver: ^5.5.0
     tmp: 0.0.33
   bin:
-    solcjs: solcjs
-  checksum: c185997283a43570ffa17d29a1ac38f97b0855ea6139000c3e8e2d50a9750e1c960fb7d6f252d9f80da94b0677aeaab9ae02cd04e78c20e34d860e7019892eac
+    solcjs: solc.js
+  checksum: 210a012155a29017f2c6c56a7a0e1e46658b2da75fb99341677a69955b87d90e09810570461012ca89007288a2e9245d033a30d8f5baf599c7b60c0a30b119ba
   languageName: node
   linkType: hard
 

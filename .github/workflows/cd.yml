@@ -19,8 +19,6 @@ env:
   API_URL: ${{ secrets.API_URL }}
   SUBGRAPH_GQL_URL: ${{ secrets.SUBGRAPH_GQL_URL }}
   CHAIN: testnet
-  WALLET_ADDRESS_TESTNET: ${{ secrets.WALLET_ADDRESS_TESTNET }}
-  WALLET_PRIVATE_KEY_TESTNET: ${{ secrets.WALLET_PRIVATE_KEY_TESTNET }}
   SENTRY_DSN: ${{ secrets.SENTRY_DSN }}
   SENTRY_ORG: ${{ secrets.SENTRY_ORG }}
   SENTRY_PROJECT: ${{ secrets.SENTRY_PROJECT }}
