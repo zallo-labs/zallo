@@ -1,7 +1,7 @@
 FROM matterlabs/zksolc:latest AS zksolc
 
 # Unsupported commands: https://devcenter.heroku.com/articles/container-registry-and-runtime#unsupported-dockerfile-commands
-FROM node:16
+FROM node:17
 
 ENV NODE_ENV="development"
 ENV IS_DOCKER="true"
@@ -11,7 +11,7 @@ ADD --chown=node:node ./ /metasafe
 WORKDIR /metasafe
 
 # Copy out zksolc files
-COPY --from=zksolc /usr/local/bin /usr/local/bin
+COPY --from=zksolc --chown=node:node /usr/local/bin /usr/local/bin
 
 # Setup
 RUN yarn install
