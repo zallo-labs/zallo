@@ -13,10 +13,10 @@ export class ProviderService extends zk.Provider {
 
   constructor() {
     super(CONFIG.chain.zksyncUrl);
-
     this.chain = CONFIG.chain;
     this.ethProvider = ethers.providers.getDefaultProvider(this.chain.ethUrl);
-    this.wallet = new zk.Wallet(CONFIG.wallet.privateKey!, this);
+
+    this.wallet = zk.Wallet.createRandom().connect(this).connectToL1(this.ethProvider);
     this.factory = getFactory(CONFIG.factoryAddress, this.wallet).connect(this);
   }
 }
