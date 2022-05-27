@@ -38,6 +38,12 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
   assetBundlePatterns: ['**/*'],
   ios: {
     supportsTablet: true,
+    infoPlist: {
+      NSCameraUsageDescription:
+        'This app uses the camera to scan QR codes of addresses.',
+      NSFaceIDUsageDescription:
+        'This app uses Face ID to authenticate the user.',
+    },
   },
   android: {
     adaptiveIcon: {

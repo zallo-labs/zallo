@@ -15,6 +15,7 @@ import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { ErrorBoundary } from '@components/ErrorBoundary';
 import { Splash } from '@components/Splash';
 import { StatusBar } from '@components/StatusBar';
+import { AuthGate } from '@features/AuthGate';
 
 export default () => (
   <LocalizatonProvider>
@@ -24,14 +25,16 @@ export default () => (
           <SafeArea>
             <RecoilRoot>
               <GestureHandlerRootView style={{ flex: 1 }}>
-                <GqlProvider>
-                  <StatusBar />
-                  <SafeProvider>
-                    <NavigationContainer theme={NAV_THEME}>
-                      <RootNavigation />
-                    </NavigationContainer>
-                  </SafeProvider>
-                </GqlProvider>
+                <AuthGate>
+                  <GqlProvider>
+                    <StatusBar />
+                    <SafeProvider>
+                      <NavigationContainer theme={NAV_THEME}>
+                        <RootNavigation />
+                      </NavigationContainer>
+                    </SafeProvider>
+                  </GqlProvider>
+                </AuthGate>
                 <Toast />
               </GestureHandlerRootView>
             </RecoilRoot>

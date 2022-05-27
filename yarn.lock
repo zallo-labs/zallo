@@ -8816,6 +8816,7 @@ __metadata:
     expo-constants: ~13.1.1
     expo-device: ~4.2.0
     expo-keep-awake: ~10.1.1
+    expo-local-authentication: ~12.2.0
     expo-localization: ~13.0.0
     expo-secure-store: ~11.2.0
     expo-splash-screen: ~0.15.1
@@ -15868,6 +15869,18 @@ __metadata:
   peerDependencies:
     expo: "*"
   checksum: 7c7b54e7c721fa87e600142734fdc6c4c8814661767c9b5a4a1c0da1d41f33b5b214f2ccd5ee84e622bb5ff044123e383dd8230aff5a5ce644974a05a49d0e4b
+  languageName: node
+  linkType: hard
+
+"expo-local-authentication@npm:~12.2.0":
+  version: 12.2.0
+  resolution: "expo-local-authentication@npm:12.2.0"
+  dependencies:
+    "@expo/config-plugins": ^4.0.14
+    invariant: ^2.2.4
+  peerDependencies:
+    expo: "*"
+  checksum: 9c52397d7b3168b172bf78be573cea6df61468a68be1255745b0f4ba1689e01d47a3364e46e23c3c460756e83a9f914a0ca229ba5146ff102e171e42f96811f8
   languageName: node
   linkType: hard
 
