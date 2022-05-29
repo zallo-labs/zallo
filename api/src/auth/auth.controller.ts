@@ -9,6 +9,7 @@ import { Public } from '~/decorators/public.decorator';
 export class AuthController {
   @Get('nonce')
   nonce(@RequestDec() req: Request): string {
-    return (req.session.nonce = generateNonce());
+    if (!req.session.nonce) req.session.nonce = generateNonce();
+    return req.session.nonce;
   }
 }
