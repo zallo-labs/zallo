@@ -3,9 +3,7 @@ import { ChildrenProps, getNodeKey } from '@util/children';
 import { Box, BoxProps } from '@components/Box';
 import { Divider } from '@components/Divider';
 
-export const FLAT_ITEMS_DEFAULT_SPACE = 3;
-
-export interface FlatItemsContainerProps extends ChildrenProps, BoxProps {
+export interface ContainerProps extends ChildrenProps, BoxProps {
   separator?: ReactNode | boolean;
   horizontal?: boolean;
 }
@@ -15,7 +13,7 @@ export const Container = ({
   separator,
   horizontal,
   ...boxProps
-}: FlatItemsContainerProps) => {
+}: ContainerProps) => {
   const children = useMemo(
     () => React.Children.toArray(childrenNode).filter(Boolean),
     [childrenNode],

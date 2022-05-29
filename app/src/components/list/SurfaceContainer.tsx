@@ -1,12 +1,14 @@
-import React, { useMemo } from 'react';
+import { useMemo } from 'react';
 import { useTheme } from 'react-native-paper';
-import { ChildrenProps } from '@util/children';
 import { Box } from '@components/Box';
-import { Divider } from '@components/Divider';
+import { Container, ContainerProps } from './Container';
 
-const space = 3;
+export type SurfaceContainerProps = ContainerProps;
 
-export const SurfaceContainer = ({ children }: ChildrenProps) => {
+export const SurfaceContainer = ({
+  children,
+  ...containerProps
+}: SurfaceContainerProps) => {
   const { radius } = useTheme();
 
   const surface = useMemo(
@@ -19,21 +21,9 @@ export const SurfaceContainer = ({ children }: ChildrenProps) => {
     [radius],
   );
 
-  const count = React.Children.count(children);
-
   return (
     <Box surface={surface}>
-      {React.Children.map(children, (child, i) => (
-        <Box mt={i > 0 ? space : 0}>
-          {child}
-
-          {i < count - 1 && (
-            <Box mt={space}>
-              <Divider />
-            </Box>
-          )}
-        </Box>
-      ))}
+      <Container {...containerProps}>{children}</Container>
     </Box>
   );
 };
