@@ -10,7 +10,8 @@ export const ETH = token({
     testnet: zk.utils.ETH_ADDRESS,
   },
   iconUri:
-    'https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/ethereum/info/logo.png',
+    'https://cloudfront-us-east-1.images.arcpublishing.com/coindesk/ZJZZK5B2ZNF25LYQHMUTBTOMLU.png',
+  // 'https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/ethereum/info/logo.png',
 });
 
 export const DAI = token({
