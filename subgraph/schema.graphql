@@ -5,6 +5,8 @@ type Safe @entity {
   deposits: [Deposit!]! @derivedFrom(field: "safe")
   transactions: [Transaction!]! @derivedFrom(field: "safe")
   proposedTransactions: [ProposedTx!]! @derivedFrom(field: "safe")
+  tokenTransfers: [TokenTransfer!]! @derivedFrom(field: "safe")
+  # tokenTransferApprovals: [TokenTransferApproval!]! @derivedFrom(field: "safe")
 }
 
 type Approver @entity {
@@ -87,3 +89,43 @@ type ProposedTxApprover @entity {
   proposedTx: ProposedTx!
   approver: Approver!
 }
+
+###### ERC20 ######
+# type Token @entity {
+#   "{address}"
+#   id: ID!
+#   name: String
+#   symbol: String
+#   decimals: BigInt
+#   totalSupply: BigInt
+#   transfers: [TokenTransfer!]! @derivedFrom(field: "token")
+# }
+
+enum TokenTransferType {
+  RECEIVED
+  SENT
+}
+
+type TokenTransfer @entity {
+  "{tx.hash}-{tx.log.index}"
+  id: ID!
+  # token: Token!
+  token: Bytes!
+  safe: Safe!
+  type: TokenTransferType!
+  from: Bytes!
+  to: Bytes!
+  value: BigInt!
+}
+
+# type TokenTransferApproval @entity {
+#   "{tx.hash}-{tx.log.index}"
+#   id: ID!
+#   # token: Token!
+#   token: Bytes!
+#   safe: Safe!
+#   type: String!
+#   owner: Bytes!
+#   spender: Bytes!
+#   value: BigInt!
+# }

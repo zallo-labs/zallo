@@ -33,3 +33,26 @@ dataSources:
           handler: handleDeposit
         - event: Execution((address,uint256,bytes,uint256),bytes32,address[],address,bytes)
           handler: handleExecution
+  - name: ERC20
+    kind: ethereum/contract
+    network: {{network}}
+    source:
+      abi: ERC20
+      startBlock: {{startBlock}}
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.6
+      language: wasm/assemblyscript
+      file: ./src/erc20.ts
+      abis:
+        - name: ERC20
+          file: ./abi/erc20.json
+      entities:
+        # - Token
+        - TokenTransfer
+        # - TokenTransferApproval
+      eventHandlers:
+        - event: Transfer(indexed address,indexed address,uint256)
+          handler: handleTransfer
+        # - event: Approval(indexed address,indexed address,uint256)
+        #   handler: handleApproval
