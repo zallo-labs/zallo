@@ -34,24 +34,19 @@ import { Safe as SafeObj, TokenTransfer } from '../generated/schema';
 // }
 
 export function handleTransfer(e: Transfer): void {
-  // Sent
+  // Only handle transfers from or to a safe
   let safe = SafeObj.load(getSafeObjId(e.params.from));
-  const type = safe !== null ? 'SENT' : 'RECEIVED';
-
-  // Received
   if (safe === null) safe = SafeObj.load(getSafeObjId(e.params.to));
-
-  // Event not related to a Safe
   if (safe === null) return;
 
   const transfer = new TokenTransfer(
     `${e.transaction.hash.toHex()}-${e.transactionLogIndex.toString()}`,
   );
 
-  // transfer.token = getOrCreateToken(e.address).id;
   transfer.token = e.address;
   transfer.safe = safe.id;
-  transfer.type = type;
+  transfer.type = safe.id === e.params.from.toHex() ? 'IN' : 'OUT';
+  transfer.timestamp = e.block.timestamp;
   transfer.from = e.params.from;
   transfer.to = e.params.to;
   transfer.value = e.params.value;
