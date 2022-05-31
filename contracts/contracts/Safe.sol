@@ -34,7 +34,6 @@ contract Safe is EIP712 {
     Tx tx,
     bytes32 groupHash,
     address[] approvers,
-    address executor,
     bytes response
   );
   event GroupAdded(Approver[] approvers);
@@ -60,7 +59,7 @@ contract Safe is EIP712 {
     address[] memory approvers = _verify(_st, _groupHash);
 
     response = _call(_st.tx);
-    emit Execution(_st.tx, _groupHash, approvers, msg.sender, response);
+    emit Execution(_st.tx, _groupHash, approvers, response);
   }
 
   function batchExecute(SignedTx[] calldata _st, bytes32 _groupHash)

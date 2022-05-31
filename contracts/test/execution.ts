@@ -19,7 +19,7 @@ describe('Execution', () => {
       });
 
       await safe.connect(wallet).execute(signedTx, groupHash, {
-        gasLimit: 100_000,
+        gasLimit: GasLimit.EXECUTE,
       });
     });
 
