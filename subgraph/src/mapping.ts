@@ -87,6 +87,7 @@ export function handleExecution(e: Execution): void {
   tx.nonce = p.tx.nonce;
   tx.response = p.response;
   tx.executor = e.transaction.from;
+  tx.txHash = e.transaction.hash;
   tx.blockHash = e.block.hash;
   tx.timestamp = e.block.timestamp;
   tx.group = getGroupId(safe._address, p.groupHash);

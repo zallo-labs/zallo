@@ -56,6 +56,7 @@ type Transaction @entity {
   response: Bytes!
   # Metadata
   executor: Bytes!
+  txHash: Bytes!
   blockHash: Bytes!
   timestamp: BigInt!
   # Relationships
@@ -87,7 +88,7 @@ enum TokenTransferType {
 }
 
 type TokenTransfer @entity {
-  "{tx.hash}-{tx.log.index}"
+  "{txHash}-{tx.log.index}"
   id: ID!
   token: Bytes!
   safe: Safe!
@@ -96,6 +97,7 @@ type TokenTransfer @entity {
   from: Bytes!
   to: Bytes!
   value: BigInt!
+  txHash: Bytes!
 }
 
 # type TokenTransferApproval @entity {

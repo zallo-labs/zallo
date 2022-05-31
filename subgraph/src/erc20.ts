@@ -50,6 +50,7 @@ export function handleTransfer(e: Transfer): void {
   transfer.from = e.params.from;
   transfer.to = e.params.to;
   transfer.value = e.params.value;
+  transfer.txHash = e.transaction.hash;
 
   transfer.save();
 }
