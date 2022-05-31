@@ -4,7 +4,6 @@ type Safe @entity {
   groups: [Group!]! @derivedFrom(field: "safe")
   deposits: [Deposit!]! @derivedFrom(field: "safe")
   transactions: [Transaction!]! @derivedFrom(field: "safe")
-  proposedTransactions: [ProposedTx!]! @derivedFrom(field: "safe")
   tokenTransfers: [TokenTransfer!]! @derivedFrom(field: "safe")
   # tokenTransferApprovals: [TokenTransferApproval!]! @derivedFrom(field: "safe")
 }
@@ -14,7 +13,6 @@ type Approver @entity {
   id: ID!
   groups: [GroupApprover!]! @derivedFrom(field: "approver")
   transactions: [TransactionApprover!]! @derivedFrom(field: "approver")
-  proposedTransactions: [ProposedTxApprover!]! @derivedFrom(field: "approver")
 }
 
 type Group @entity {
@@ -72,24 +70,6 @@ type TransactionApprover @entity {
   approver: Approver!
 }
 
-type ProposedTx @entity {
-  id: ID! # EIP712_hash(txData)
-  safe: Safe!
-  # Inputs
-  to: Bytes!
-  value: BigInt!
-  data: Bytes!
-  nonce: BigInt!
-  # Relationships
-  approvers: [ProposedTxApprover!]! @derivedFrom(field: "proposedTx")
-}
-
-type ProposedTxApprover @entity {
-  id: ID! # proposedTx.id-approver.id
-  proposedTx: ProposedTx!
-  approver: Approver!
-}
-
 ###### ERC20 ######
 # type Token @entity {
 #   "{address}"
@@ -109,7 +89,6 @@ enum TokenTransferType {
 type TokenTransfer @entity {
   "{tx.hash}-{tx.log.index}"
   id: ID!
-  # token: Token!
   token: Bytes!
   safe: Safe!
   type: TokenTransferType!
