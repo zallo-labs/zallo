@@ -9,7 +9,7 @@ import { Subheading } from 'react-native-paper';
 import { TransferItem } from './TransferItem';
 
 interface Section {
-  timestamp: number;
+  date: number;
   data: Transfer[];
 }
 
@@ -29,13 +29,13 @@ export const ActivityScreen = (_props: ActivityScreenProps) => {
       ]
         .map(
           ([timestamp, transfers]): Section => ({
-            timestamp,
+            date: timestamp,
             data: transfers.sort(
               (a, b) => b.timestamp.toMillis() - a.timestamp.toMillis(),
             ),
           }),
         )
-        .sort((a, b) => b.timestamp - a.timestamp),
+        .sort((a, b) => b.date - a.date),
     [transfers],
   );
 
@@ -44,7 +44,7 @@ export const ActivityScreen = (_props: ActivityScreenProps) => {
       <SectionList
         sections={sections}
         keyExtractor={(t) => t.id}
-        renderSectionHeader={({ section: { timestamp } }) => (
+        renderSectionHeader={({ section: { date: timestamp } }) => (
           <Box mx={3} mt={2} mb={1}>
             <Subheading>
               <Timestamp>{timestamp}</Timestamp>
