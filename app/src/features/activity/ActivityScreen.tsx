@@ -1,13 +1,11 @@
 import { Box } from '@components/Box';
 import { Timestamp } from '@components/Timestamp';
-import { RootStackScreenProps } from '@features/navigation/RootNavigation';
+import { TabNavigatorScreenProps } from '@features/navigation/TabNavigator';
 import { Transfer, useTransfers } from '@gql/queries/useTransfers';
 import { groupBy } from 'lib';
-import _ from 'lodash';
-import { DateTime } from 'luxon';
 import { useMemo } from 'react';
 import { SectionList } from 'react-native';
-import { Subheading, Title } from 'react-native-paper';
+import { Subheading } from 'react-native-paper';
 import { TransferItem } from './TransferItem';
 
 interface Section {
@@ -15,9 +13,9 @@ interface Section {
   data: Transfer[];
 }
 
-export type ActivityScreenProps = RootStackScreenProps<'Activity'>;
+export type ActivityScreenProps = TabNavigatorScreenProps<'Activity'>;
 
-export const ActivitySreen = (_props: ActivityScreenProps) => {
+export const ActivityScreen = (_props: ActivityScreenProps) => {
   const { transfers } = useTransfers();
 
   const sections: Section[] = useMemo(

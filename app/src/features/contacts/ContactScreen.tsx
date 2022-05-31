@@ -3,7 +3,7 @@ import { Formik } from 'formik';
 import * as Yup from 'yup';
 import { address, Address, tryAddress } from 'lib';
 import { FormikTextField } from '@components/fields/FormikTextField';
-import { RootStackScreenProps } from '@features/navigation/RootNavigation';
+import { RootNavigatorScreenProps } from '@features/navigation/RootNavigator';
 import { Contact, useContacts } from '@queries';
 import { FormikSubmitFab } from '@components/fields/FormikSubmitFab';
 import { useUpsertContact } from '@mutations';
@@ -42,7 +42,7 @@ export interface ContactScreenParams {
   name?: string;
 }
 
-export type ContactScreenProps = RootStackScreenProps<'Contact'>;
+export type ContactScreenProps = RootNavigatorScreenProps<'Contact'>;
 
 export const ContactScreen = ({
   navigation,

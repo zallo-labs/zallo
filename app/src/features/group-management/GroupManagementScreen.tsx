@@ -2,7 +2,7 @@ import { useMemo } from 'react';
 import { Formik, FormikHelpers } from 'formik';
 import * as Yup from 'yup';
 import { Address, Group, hashGroup, Approver } from 'lib';
-import { RootStackScreenProps } from '@features/navigation/RootNavigation';
+import { RootNavigatorScreenProps } from '@features/navigation/RootNavigator';
 import { useGroup, useSafe } from '@features/safe/SafeProvider';
 import { GroupManagement } from './GroupManagement';
 import { ADDR_YUP_SCHEMA } from '@util/yup';
@@ -42,7 +42,7 @@ export interface GroupManagementScreenParams {
 }
 
 export type GroupManagementScreenProps =
-  RootStackScreenProps<'GroupManagement'>;
+  RootNavigatorScreenProps<'GroupManagement'>;
 
 export const GroupManagementScreen = ({
   route,
