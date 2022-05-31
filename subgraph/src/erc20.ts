@@ -45,7 +45,7 @@ export function handleTransfer(e: Transfer): void {
 
   transfer.token = e.address;
   transfer.safe = safe.id;
-  transfer.type = safe.id === e.params.from.toHex() ? 'IN' : 'OUT';
+  transfer.type = safe.id === e.params.from.toHex() ? 'OUT' : 'IN';
   transfer.timestamp = e.block.timestamp;
   transfer.from = e.params.from;
   transfer.to = e.params.to;
