@@ -69,9 +69,45 @@ export interface GetSubSafesVariables {
 // @generated
 // This file was automatically generated and should not be edited.
 
+// ====================================================
+// GraphQL query operation: GetTokenTransfers
+// ====================================================
+
+export interface GetTokenTransfers_tokenTransfers {
+  __typename: "TokenTransfer";
+  /**
+   * {tx.hash}-{tx.log.index}
+   */
+  id: string;
+  token: any;
+  type: TokenTransferType;
+  timestamp: any;
+  from: any;
+  to: any;
+  value: any;
+}
+
+export interface GetTokenTransfers {
+  tokenTransfers: GetTokenTransfers_tokenTransfers[];
+}
+
+export interface GetTokenTransfersVariables {
+  safe: string;
+}
+
+/* tslint:disable */
+/* eslint-disable */
+// @generated
+// This file was automatically generated and should not be edited.
+
 //==============================================================
 // START Enums and Input Objects
 //==============================================================
+
+export enum TokenTransferType {
+  IN = "IN",
+  OUT = "OUT",
+}
 
 //==============================================================
 // END Enums and Input Objects

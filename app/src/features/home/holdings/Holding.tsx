@@ -9,6 +9,7 @@ import { Box } from '@components/Box';
 import { PriceDelta } from '@components/PriceDelta';
 import { TokenValue } from '@components/token/TokenValue';
 import { FiatValue } from '@components/FiatValue';
+import { useTokenValue } from '~/token/useTokenValue';
 
 export interface HoldingProps {
   token: Token;
@@ -16,7 +17,8 @@ export interface HoldingProps {
 
 export const Holding = ({ token }: HoldingProps) => {
   const { colors } = useTheme();
-  const { balance, fiatValue } = useTokenBalance(token);
+  const balance = useTokenBalance(token);
+  const { fiatValue } = useTokenValue(token, balance);
   const { price } = useTokenPrice(token);
 
   return (

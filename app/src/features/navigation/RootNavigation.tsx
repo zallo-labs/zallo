@@ -19,12 +19,14 @@ import {
   ContactScreen,
   ContactScreenParams,
 } from '@features/contacts/ContactScreen';
+import { ActivitySreen } from '@features/activity/ActivityScreen';
 
 export type RootParamList = {
   Home: undefined;
   Receive: undefined;
   SafeManagement: undefined;
   GroupManagement: GroupManagementScreenParams;
+  Activity: undefined;
   // Modal
   Contacts: ContactsScreenParams;
   Contact: ContactScreenParams;
@@ -41,6 +43,7 @@ const Stack = createNativeStackNavigator<RootParamList>();
 export const RootNavigation = () => (
   <Stack.Navigator screenOptions={{ headerShown: false }}>
     <Stack.Group>
+      <Stack.Screen name="Activity" component={ActivitySreen} />
       <Stack.Screen name="Home" component={HomeScreen} />
       <Stack.Screen name="Receive" component={ReceiveScreen} />
       <Stack.Screen name="SafeManagement" component={SafeManagementScreen} />

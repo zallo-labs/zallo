@@ -18,7 +18,7 @@ type TokenDef = Pick<Token, 'name' | 'symbol' | 'decimals'> & {
   iconUri?: string;
 };
 
-export const TOKENS: Token[] = [];
+export const HARDCODED_TOKENS: Token[] = [];
 
 export const createToken = (def: TokenDef): Token => {
   const addresses = _.mapValues(def.addresses, address);
@@ -35,7 +35,7 @@ export const createToken = (def: TokenDef): Token => {
       `https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/ethereum/assets/${def.addresses.mainnet}/logo.png`,
   };
 
-  if (addr) TOKENS.push(token);
+  if (addr) HARDCODED_TOKENS.push(token);
 
   return token;
 };
