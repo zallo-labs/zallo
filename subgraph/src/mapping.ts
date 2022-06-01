@@ -94,9 +94,12 @@ export function handleExecution(e: Execution): void {
 
   tx.save();
 
+  // Approver is implicitly the executor if none are listed
+  const approvers = p.approvers.length > 0 ? p.approvers : [e.transaction.from];
+
   // Create TransactionApprovers
-  for (let i = 0; i < p.approvers.length; i++) {
-    const approverId = getApproverId(p.approvers[i]);
+  for (let i = 0; i < approvers.length; i++) {
+    const approverId = getApproverId(approvers[i]);
 
     const txApprover = new TransactionApprover(
       getTransactionApproverId(id, approverId),
