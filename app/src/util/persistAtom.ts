@@ -8,6 +8,23 @@ interface Storage {
   removeItem: (key: string) => Promise<void>;
 }
 
+type Save<T> = (value: T) => string;
+type Load<T> = (saved: string) => T;
+
+interface Wrapped {
+  data: string;
+}
+
+const serialize = <T>(data: T, save: Save<T>): string => {
+  const wrapped: Wrapped = { data: save(data) };
+  return JSON.stringify(wrapped);
+};
+
+const deserialize = <T>(serialized: string, load: Load<T>): T => {
+  const wrapped: Wrapped = JSON.parse(serialized);
+  return load(wrapped.data);
+};
+
 export const getSecureStore = (
   options?: SecureStore.SecureStoreOptions,
 ): Storage => ({
@@ -17,8 +34,8 @@ export const getSecureStore = (
 });
 
 export interface PersistAtomOptions<T> {
-  save?: (value: T) => string;
-  load?: (saved: string) => T;
+  save?: Save<T>;
+  load?: Load<T>;
   storage?: Storage;
   ignoreDefault?: boolean;
 }
@@ -34,7 +51,7 @@ export const persistAtom =
     // Loads the saved value, otherwise uses the default value
     setSelf(
       storage.getItem(key).then((saved) => {
-        return saved != null ? load(saved) : new DefaultValue();
+        return saved != null ? deserialize(saved, load) : new DefaultValue();
       }),
     );
 
@@ -43,7 +60,7 @@ export const persistAtom =
       if (isReset && ignoreDefault) {
         storage.removeItem(key);
       } else {
-        storage.setItem(key, save(newValue));
+        storage.setItem(key, serialize(newValue, save));
       }
     });
   };
