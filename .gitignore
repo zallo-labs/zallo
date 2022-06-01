@@ -42,6 +42,7 @@ contracts/coverage*
 
 
 ## Lib
+lib/src/contracts
 lib/src/typechain
 
 

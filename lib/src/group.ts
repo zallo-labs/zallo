@@ -1,5 +1,5 @@
 import { BigNumberish, ethers } from 'ethers';
-import { ApproverStruct } from './typechain/Safe';
+import { ApproverStruct } from './contracts/Safe';
 import { Address, compareAddresses } from './addr';
 import { percentToFixedWeight } from './weight';
 import { toId } from './id';
@@ -34,7 +34,7 @@ export interface Group {
 
 export type Groupish = Group | SafeGroup;
 
-export const toGroupStruct = (group: Groupish): SafeGroup => ({
+export const toSafeGroup = (group: Groupish): SafeGroup => ({
   approvers: group.approvers
     .map(toSafeApprover)
     .sort((a, b) => compareAddresses(a.addr, b.addr)),
@@ -47,7 +47,7 @@ export const hashGroup = (group: Groupish): string =>
   ethers.utils.keccak256(abiEncodeGroup(group));
 
 export const abiEncodeGroup = (group: Groupish) => {
-  const { approvers } = toGroupStruct(group);
+  const { approvers } = toSafeGroup(group);
 
   return ethers.utils.defaultAbiCoder.encode(
     ['tuple(address addr, uint96 weight)[]'],

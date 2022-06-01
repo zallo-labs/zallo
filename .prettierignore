@@ -18,6 +18,7 @@ contracts/gasReporterOutput.json
 
 
 ## Lib
+lib/src/contracts
 lib/src/typechain
 
 

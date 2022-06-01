@@ -57,7 +57,8 @@ const config: HardhatUserConfig = {
   },
   // Plugins
   typechain: {
-    outDir: '../lib/src/typechain',
+    outDir: '../lib/src/contracts',
+    target: 'ethers-v5',
   },
   gasReporter: {
     // https://github.com/cgewecke/eth-gas-reporter#options

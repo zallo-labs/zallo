@@ -46,7 +46,7 @@ dataSources:
       file: ./src/erc20.ts
       abis:
         - name: ERC20
-          file: ./abi/erc20.json
+          file: ../lib/abi/erc20.json
       entities:
         # - Token
         - TokenTransfer

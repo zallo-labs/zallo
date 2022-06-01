@@ -1,6 +1,6 @@
-import { address, Address, Addresslike } from 'lib';
+import { address, Address, Addresslike, Erc20, Erc20__factory } from 'lib';
 import _ from 'lodash';
-import { CHAIN } from '~/provider';
+import { CHAIN, PROVIDER } from '~/provider';
 
 export interface Token {
   name: string;
@@ -35,3 +35,6 @@ export const createToken = (def: TokenDef): Token => {
 
   return token;
 };
+
+export const getTokenContract = (token: Token): Erc20 =>
+  Erc20__factory.connect(token.addr, PROVIDER);

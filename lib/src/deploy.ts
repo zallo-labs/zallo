@@ -2,15 +2,10 @@ import { BytesLike, Signer } from 'ethers';
 import { address, Addresslike } from './addr';
 
 import { calculateSafeAddress } from './counterfactual';
-import { Safe, Factory, Factory__factory, Safe__factory } from './typechain';
+import { Safe, Factory, Factory__factory, Safe__factory } from './contracts';
+import { SafeGroup } from './group';
 
-type WithoutLastElem<P extends unknown[]> = P extends [...infer Head, unknown]
-  ? Head
-  : [];
-
-export type SafeConstructorArgs = WithoutLastElem<
-  Required<Parameters<Safe__factory['getDeployTransaction']>>
->;
+export type SafeConstructorArgs = [SafeGroup['approvers']];
 
 export const getFactory = (addr: Addresslike, signer: Signer) =>
   new Factory__factory().attach(address(addr)).connect(signer);

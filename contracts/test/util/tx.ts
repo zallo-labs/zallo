@@ -1,6 +1,6 @@
 import * as zk from 'zksync-web3';
 import { createTx, Safe, SignedTx, signTx, Tx } from 'lib';
-import { SignerStruct } from 'lib/src/typechain/Safe';
+import { SignerStruct } from 'lib/src/contracts/Safe';
 
 export const createSignedTx = async (
   safe: Safe,

@@ -35,8 +35,18 @@ export const compareAddresses = (a: Address, b: Address) => {
 };
 
 /* Module augmentation; including in a .ts file to compile into lib's typings */
-declare module './typechain' {
+declare module './contracts' {
   export interface Safe {
+    address: Address;
+  }
+
+  export interface Factory {
+    address: Address;
+  }
+}
+
+declare module './typechain' {
+  export interface Erc20 {
     address: Address;
   }
 

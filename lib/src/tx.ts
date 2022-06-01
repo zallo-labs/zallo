@@ -4,7 +4,7 @@ import {
 } from '@ethersproject/abstract-signer';
 import { Contract, ethers } from 'ethers';
 import { Wallet } from 'zksync-web3';
-import { Safe } from './typechain';
+import { Safe } from './contracts';
 
 export type SignedTx = Parameters<Safe['execute']>[0];
 export type Tx = SignedTx['tx'];

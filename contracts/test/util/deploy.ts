@@ -10,13 +10,13 @@ import {
   SafeGroup,
   TestSafe__factory,
   address,
-  toGroupStruct,
+  toSafeGroup,
 } from 'lib';
 import { allSigners, wallet } from './wallet';
 import { BytesLike } from 'ethers';
 
 export const toSafeGroupTest = (...approvers: [string, number][]): SafeGroup =>
-  toGroupStruct({
+  toSafeGroup({
     approvers: approvers.map(([addr, weight]) => ({
       addr: address(addr),
       weight,

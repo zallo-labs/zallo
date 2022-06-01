@@ -1,4 +1,5 @@
-export * from './typechain';
+export * from './contracts';
+export { Erc20, Erc20__factory } from './typechain';
 
 export * from './util/arrays';
 export * from './util/mappedTypes';
