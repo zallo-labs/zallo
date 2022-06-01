@@ -65,3 +65,12 @@ model Contact {
   @@id([approverId, addr])
   @@unique([approverId, name], name: "name_identifier")
 }
+
+model ContractMethod {
+  contract String
+  sighash  String
+  fragment Json
+
+  @@id([contract, sighash])
+  @@index([sighash])
+}
