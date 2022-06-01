@@ -13,7 +13,7 @@ import { apiGql } from '@gql/clients';
 import { useApiClient } from '@gql/GqlProvider';
 import { API_GROUP_FIELDS_FRAGMENT, CombinedGroup } from '@queries';
 import { ethers } from 'ethers';
-import { Group, hashGroup, isPresent, toGroupStruct } from 'lib';
+import { Group, hashGroup, isPresent, toSafeGroup } from 'lib';
 
 const API_MUTATION = apiGql`
 ${API_GROUP_FIELDS_FRAGMENT}
@@ -48,35 +48,37 @@ const useUpsertApiGroup = () => {
     const groupHash = ethers.utils.hexlify(prev?.hash ?? cur.hash);
 
     // Only maintain a list of approvers if the safe is counterfactual
-    const getApprovers = (): GroupApproverUpdateManyWithoutGroupInput => ({
-      upsert: cur.approvers.map((a) => ({
-        where: {
-          safeId_groupHash_approverId: {
-            safeId: safe.address,
-            approverId: wallet.address,
-            groupHash,
-          },
-        },
-        create: {
-          approver: {
-            connectOrCreate: {
-              where: { id: a.addr },
-              create: { id: a.addr },
+    const approvers: GroupApproverUpdateManyWithoutGroupInput = !isDeployed
+      ? {
+          upsert: cur.approvers.map((a) => ({
+            where: {
+              safeId_groupHash_approverId: {
+                safeId: safe.address,
+                approverId: wallet.address,
+                groupHash,
+              },
             },
-          },
-          weight: a.weight,
-        },
-        update: {
-          approver: {
-            connectOrCreate: {
-              where: { id: a.addr },
-              create: { id: a.addr },
+            create: {
+              approver: {
+                connectOrCreate: {
+                  where: { id: a.addr },
+                  create: { id: a.addr },
+                },
+              },
+              weight: a.weight,
             },
-          },
-          weight: { set: a.weight },
-        },
-      })),
-    });
+            update: {
+              approver: {
+                connectOrCreate: {
+                  where: { id: a.addr },
+                  create: { id: a.addr },
+                },
+              },
+              weight: { set: a.weight },
+            },
+          })),
+        }
+      : undefined;
 
     return mutation({
       variables: {
@@ -89,7 +91,7 @@ const useUpsertApiGroup = () => {
         create: {
           name: cur.name,
           hash: cur.hash,
-          approvers: !isDeployed ? getApprovers() : undefined,
+          approvers,
           safe: {
             connectOrCreate: {
               where: { id: safe.address },
@@ -98,9 +100,11 @@ const useUpsertApiGroup = () => {
           },
         },
         update: {
-          hash: { set: cur.hash },
-          approvers: !isDeployed ? getApprovers() : { set: [] },
-          name: { set: cur.name },
+          ...(cur.hash !== prev?.hash && { hash: { set: cur.hash } }),
+          ...(approvers !== prev?.approvers && {
+            approvers: approvers ?? { set: [] },
+          }),
+          ...(cur.name !== prev?.name && { name: { set: cur.name } }),
         },
       },
     });
@@ -119,7 +123,7 @@ const useSafeUpsert = () => {
     const addGroupSt = createSt({
       to: safe.address,
       data: safe.interface.encodeFunctionData('addGroup', [
-        toGroupStruct(cur).approvers,
+        toSafeGroup(cur).approvers,
       ]),
     });
 
