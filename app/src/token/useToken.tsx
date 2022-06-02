@@ -16,20 +16,19 @@ const tokenAddressesState = atom<Address[]>({
   effects: [persistAtom()],
 });
 
-const tokenValueState = atomFamily<Token, Address>({
+const tokenValueState = atomFamily<Token | null, Address>({
   key: 'token',
   default: (addr: Address) => {
     const token = HARDCODED_TOKENS.find((t) => t.addr === addr);
     if (token) return token;
 
-    throw new Error(
-      'Token not found & dynamic token support is not implemented',
-    );
+    // TODO: dynamic token support
+    return null;
   },
   effects: [persistAtom()],
 });
 
-const tokenSelector = selectorFamily<Token, Address>({
+const tokenSelector = selectorFamily<Token | null, Address>({
   key: 'token-access',
   get:
     (addr) =>

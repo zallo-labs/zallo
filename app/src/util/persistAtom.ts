@@ -16,13 +16,13 @@ interface Wrapped {
 }
 
 const serialize = <T>(data: T, save: Save<T>): string => {
-  const wrapped: Wrapped = { data: save(data) };
+  const wrapped: Wrapped = { data: save(data) ?? null };
   return JSON.stringify(wrapped);
 };
 
 const deserialize = <T>(serialized: string, load: Load<T>): T => {
   const wrapped: Wrapped = JSON.parse(serialized);
-  return load(wrapped.data);
+  return load(wrapped.data ?? null);
 };
 
 export const getSecureStore = (
