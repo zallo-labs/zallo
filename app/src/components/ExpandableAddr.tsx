@@ -1,9 +1,9 @@
 import { FC, useState } from 'react';
 import { Pressable } from 'react-native';
 import { ChildrenProps } from '@util/children';
-import { FormattedAddr, FormattedAddrProps } from './FormattedAddr';
+import { Addr, AddrProps } from './Addr';
 
-export interface ExpandableAddrProps extends FormattedAddrProps {
+export interface ExpandableAddrProps extends AddrProps {
   children: FC<ChildrenProps>;
 }
 
@@ -16,7 +16,7 @@ export const ExpandableAddr = ({
   return (
     <Pressable onLongPress={() => setFull((prev) => !prev)}>
       <Child>
-        <FormattedAddr {...props} full={full} />
+        <Addr {...props} full={full} />
       </Child>
     </Pressable>
   );

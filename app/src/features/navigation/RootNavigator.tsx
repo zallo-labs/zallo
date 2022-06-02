@@ -3,7 +3,6 @@ import {
   NativeStackScreenProps,
 } from '@react-navigation/native-stack';
 
-import { HomeScreen } from '@features/home/HomeScreen';
 import { ReceiveScreen } from '@features/receive/ReceiveScreen';
 import { SafeManagementScreen } from '@features/safe-management/SafeManagementScreen';
 import {

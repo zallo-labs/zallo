@@ -1,6 +1,6 @@
 import { Subheading, useTheme } from 'react-native-paper';
 import { Approver } from 'lib';
-import { FormattedAddr } from '@components/FormattedAddr';
+import { Addr } from '@components/Addr';
 import { Identicon } from '@components/Identicon';
 import { Item, ItemProps } from '@components/list/Item';
 import { WeightField } from './WeightField';
@@ -34,7 +34,7 @@ export const ApproverItem = ({
         Left={<Identicon seed={approver.addr} />}
         Main={
           <Subheading>
-            <FormattedAddr addr={approver.addr} />
+            <Addr addr={approver.addr} />
           </Subheading>
         }
         Right={

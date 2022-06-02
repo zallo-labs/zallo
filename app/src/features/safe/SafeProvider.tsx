@@ -46,7 +46,7 @@ export const SafeProvider = ({ children }: ChildrenProps) => {
     // Select a safe
     if (!loading && safes?.length && !selected) {
       const picked = safes.findIndex((s) =>
-        s.safe.address.startsWith('0xB7Cb'),
+        s.safe.address.startsWith('0x961e'),
       );
       setSelectedAddr(safes[picked >= 0 ? picked : 0].safe.address);
     }

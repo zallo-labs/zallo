@@ -2,7 +2,7 @@ import { Subheading, useTheme } from 'react-native-paper';
 import { useNavigation } from '@react-navigation/native';
 import { MaterialIcons } from '@expo/vector-icons';
 import { Address } from 'lib';
-import { FormattedAddr } from '@components/FormattedAddr';
+import { Addr } from '@components/Addr';
 import { Identicon } from '@components/Identicon';
 import { Item, ItemProps, SECONDARY_ICON_SIZE } from '@components/list/Item';
 import { Contact } from '@queries';
@@ -28,7 +28,7 @@ export const ContactItem = ({
       Left={<Identicon seed={contact.addr} />}
       Main={
         <Subheading>
-          <FormattedAddr addr={contact.addr} />
+          <Addr addr={contact.addr} />
         </Subheading>
       }
       Right={
