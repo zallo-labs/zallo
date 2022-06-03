@@ -1,18 +1,34 @@
 type Safe @entity {
   "{address}"
   id: ID!
+  txs: [Tx!]! @derivedFrom(field: "safe")
   groups: [Group!]! @derivedFrom(field: "safe")
-  deposits: [Deposit!]! @derivedFrom(field: "safe")
-  transactions: [Transaction!]! @derivedFrom(field: "safe")
-  tokenTransfers: [TokenTransfer!]! @derivedFrom(field: "safe")
-  # tokenTransferApprovals: [TokenTransferApproval!]! @derivedFrom(field: "safe")
+  transfers: [TokenTransfer!]! @derivedFrom(field: "safe")
+}
+
+type Tx @entity {
+  "{tx.hash}"
+  id: ID!
+  safe: Safe!
+  type: TxType!
+  hash: Bytes!
+  responses: [Bytes!]!
+  # Metadata
+  executor: Bytes!
+  blockHash: Bytes!
+  timestamp: BigInt!
+  transfers: [TokenTransfer!]! @derivedFrom(field: "tx")
+}
+
+enum TxType {
+  SINGLE
+  MULTI
 }
 
 type Approver @entity {
   "{address}"
   id: ID!
   groups: [GroupApprover!]! @derivedFrom(field: "approver")
-  transactions: [TransactionApprover!]! @derivedFrom(field: "approver")
 }
 
 type Group @entity {
@@ -22,7 +38,6 @@ type Group @entity {
   hash: Bytes!
   active: Boolean!
   approvers: [GroupApprover!]! @derivedFrom(field: "group")
-  transactions: [Transaction!]! @derivedFrom(field: "group")
 }
 
 type GroupApprover @entity {
@@ -33,71 +48,25 @@ type GroupApprover @entity {
   weight: BigInt!
 }
 
-type Deposit @entity {
-  "{tx.hash}-{tx.log.index}"
+###### ERC20 ######
+type TokenTransfer @entity {
+  "{tx.id}-{tx.log.index}"
   id: ID!
   safe: Safe!
+  tx: Tx
+  token: Bytes!
+  type: TokenTransferType!
   from: Bytes!
-  value: BigInt!
-  blockHash: Bytes!
-  timestamp: BigInt!
-}
-
-type Transaction @entity {
-  "{EIP712_hash(txData)}"
-  id: ID!
-  safe: Safe!
-  # Inputs
   to: Bytes!
   value: BigInt!
-  data: Bytes!
-  nonce: BigInt!
-  # Output
-  response: Bytes!
   # Metadata
-  executor: Bytes!
-  txHash: Bytes!
   blockHash: Bytes!
   timestamp: BigInt!
-  # Relationships
-  group: Group!
-  approvers: [TransactionApprover!]! @derivedFrom(field: "transaction")
 }
-
-type TransactionApprover @entity {
-  "{transaction.id}-{approver.id}"
-  id: ID!
-  transaction: Transaction!
-  approver: Approver!
-}
-
-###### ERC20 ######
-# type Token @entity {
-#   "{address}"
-#   id: ID!
-#   name: String
-#   symbol: String
-#   decimals: BigInt
-#   totalSupply: BigInt
-#   transfers: [TokenTransfer!]! @derivedFrom(field: "token")
-# }
 
 enum TokenTransferType {
   IN
   OUT
-}
-
-type TokenTransfer @entity {
-  "{txHash}-{tx.log.index}"
-  id: ID!
-  token: Bytes!
-  safe: Safe!
-  type: TokenTransferType!
-  timestamp: BigInt!
-  from: Bytes!
-  to: Bytes!
-  value: BigInt!
-  txHash: Bytes!
 }
 
 # type TokenTransferApproval @entity {

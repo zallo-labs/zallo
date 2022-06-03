@@ -1,6 +1,4 @@
 import { Address, Bytes, ethereum } from '@graphprotocol/graph-ts';
-import { ExecutionTxStruct, Safe } from '../generated/Safe/Safe';
-import { hashTx } from './typedData';
 
 export function getSafeObjId(safe: Address): string {
   // {address}
@@ -30,15 +28,12 @@ export function getDepositId(e: ethereum.Event): string {
   return `${e.transaction.hash.toHex()}-${e.transactionLogIndex}`;
 }
 
-export function getTransactionId(safe: Safe, tx: ExecutionTxStruct): string {
-  // {EIP712_hash(txData)}
-  return hashTx(safe, tx).toHex();
+export function getTxId(tx: ethereum.Transaction): string {
+  // {tx.hash}
+  return tx.hash.toHex();
 }
 
-export function getTransactionApproverId(
-  txId: string,
-  approverId: string,
-): string {
-  // {transaction.id}-{approver.id}
-  return `${txId}-${approverId}`;
+export function getTokenTransferId(e: ethereum.Event): string {
+  // {tx.hash}-{tx.log.index}
+  return `${e.transaction.hash.toHex()}-${e.transactionLogIndex}`;
 }

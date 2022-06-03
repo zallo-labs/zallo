@@ -1,56 +1,25 @@
 import { Transfer } from '../generated/ERC20/ERC20';
-import { getSafeObjId } from './id';
-import { Safe as SafeObj, TokenTransfer } from '../generated/schema';
-
-// function getOrCreateToken(addr: Address): Token {
-//   let token = Token.load(addr.toHex());
-//   if (token === null) {
-//     token = new Token(addr.toHex());
-//     const erc20 = ERC20.bind(addr);
-
-//     // Total supply is required, but it's optional in the schema in case the contract doesn't conform to the spec
-//     // Warning: burning may cause this number to be out of date
-//     const totalSupply = erc20.try_totalSupply();
-//     if (!totalSupply.reverted) {
-//       token.totalSupply = totalSupply.value;
-//     } else {
-//       log.warning(`Unable to get total supply for token: {}`, [addr.toHex()]);
-//     }
-
-//     // Optional fields
-//     const name = erc20.try_name();
-//     if (!name.reverted) token.name = name.value;
-
-//     const symbol = erc20.try_symbol();
-//     if (!symbol.reverted) token.symbol = symbol.value;
-
-//     const decimals = erc20.try_symbol();
-//     if (!decimals.reverted) token.decimals = BigInt.fromString(decimals.value);
-
-//     token.save();
-//   }
-
-//   return token;
-// }
+import { getSafeObjId, getTokenTransferId, getTxId } from './id';
+import { Safe as SafeObj, TokenTransfer, Tx } from '../generated/schema';
 
 export function handleTransfer(e: Transfer): void {
   // Only handle transfers from or to a safe
   let safe = SafeObj.load(getSafeObjId(e.params.from));
-  if (safe == null) safe = SafeObj.load(getSafeObjId(e.params.to));
-  if (safe == null) return;
+  if (!safe) safe = SafeObj.load(getSafeObjId(e.params.to));
+  if (!safe) return;
 
-  const transfer = new TokenTransfer(
-    `${e.transaction.hash.toHex()}-${e.transactionLogIndex.toString()}`,
-  );
+  const transfer = new TokenTransfer(getTokenTransferId(e));
 
-  transfer.token = e.address;
   transfer.safe = safe.id;
+  const txId = getTxId(e.transaction);
+  if (Tx.load(txId)) transfer.tx = txId;
+  transfer.token = e.address;
   transfer.type = safe.id == e.params.from.toHex() ? 'OUT' : 'IN';
-  transfer.timestamp = e.block.timestamp;
   transfer.from = e.params.from;
   transfer.to = e.params.to;
   transfer.value = e.params.value;
-  transfer.txHash = e.transaction.hash;
+  transfer.blockHash = e.block.hash;
+  transfer.timestamp = e.block.timestamp;
 
   transfer.save();
 }

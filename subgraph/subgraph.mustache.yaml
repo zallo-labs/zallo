@@ -18,12 +18,11 @@ dataSources:
           file: ./generated/Safe-fixed.json
       entities:
         - Safe
+        - Tx
         - Approver
         - Group
         - GroupApprover
-        - Deposit
-        - Transaction
-        - TransactionApprover
+        - TokenTransfer
       eventHandlers:
         - event: GroupAdded((address,uint96)[])
           handler: handleGroupAdded
@@ -31,8 +30,10 @@ dataSources:
           handler: handleGroupRemoved
         - event: Deposit(address,uint256)
           handler: handleDeposit
-        - event: Execution((address,uint256,bytes,uint256),bytes32,address[],bytes)
-          handler: handleExecution
+        - event: Transaction(bytes32,bytes)
+          handler: handleTransaction
+        - event: MultiTransaction(bytes32,bytes[])
+          handler: handleMultiTransaction
   - name: ERC20
     kind: ethereum/contract
     network: {{network}}
@@ -48,7 +49,6 @@ dataSources:
         - name: ERC20
           file: ../lib/abi/erc20.json
       entities:
-        # - Token
         - TokenTransfer
         # - TokenTransferApproval
       eventHandlers:
