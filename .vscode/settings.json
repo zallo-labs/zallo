@@ -42,10 +42,12 @@
   },
   "editor.tabSize": 2,
   "react-native.packager.port": 19000,
-  "todohighlight.keywords": [
-    "TODO:",
-    "FIXME:",
-    "PERF:",
-    "ZKSYNC:"
+  "jest.autoEnable": false,
+  "jest.disabledWorkspaceFolders": [
+    "ROOT",
+    "config",
+    "contracts",
+    "lib",
+    "subgraph"
   ]
 }

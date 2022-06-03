@@ -1,0 +1,32 @@
+{
+  "folders": [
+    {
+      "name": "ROOT",
+      "path": "../"
+    },
+    {
+      "name": "api",
+      "path": "../api"
+    },
+    {
+      "name": "app",
+      "path": "../app"
+    },
+    {
+      "name": "config",
+      "path": "../config"
+    },
+    {
+      "name": "contracts",
+      "path": "../contracts"
+    },
+    {
+      "name": "lib",
+      "path": "../lib"
+    },
+    {
+      "name": "subgraph",
+      "path": "../subgraph"
+    }
+  ]
+}
