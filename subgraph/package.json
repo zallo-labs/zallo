@@ -8,9 +8,9 @@
     "generate": "yarn generate:abi && graph codegen",
     "build": "graph build",
     "clean": "npx rimraf build data generated subgraph.yaml",
-    "create:testnet": "graph create --node http://graph.metasafe.fi:8020/ hbriese/metasafe",
-    "remove:testnet": "graph remove --node http://graph.metasafe.fi:8020/ hbriese/metasafe",
-    "deploy:testnet": "graph deploy --node http://graph.metasafe.fi:8020/ --ipfs http://graph.metasafe.fi:5001 hbriese/metasafe",
+    "create:metasafe": "graph create --node http://graph.metasafe.fi:8020/ hbriese/metasafe",
+    "remove:metasafe": "graph remove --node http://graph.metasafe.fi:8020/ hbriese/metasafe",
+    "deploy:metasafe": "graph deploy --node http://graph.metasafe.fi:8020/ --ipfs http://graph.metasafe.fi:5001 hbriese/metasafe",
     "deploy:hosted": "graph deploy --product hosted-service hbriese/metasafe"
   },
   "dependencies": {

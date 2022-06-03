@@ -75,7 +75,7 @@ jobs:
         run: yarn subgraph build
 
       - name: 🚀 Deploy
-        run: yarn subgraph deploy:testnet
+        run: yarn subgraph deploy:metasafe
 
   app:
     if: ${{ github.event.workflow_run.conclusion == 'success' }}
