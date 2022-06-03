@@ -1,3 +1,4 @@
+import { createMock } from '@golevelup/ts-jest';
 import { Test, TestingModule } from '@nestjs/testing';
 import { ContractMethodsResolver } from './contract-methods.resolver';
 
@@ -7,7 +8,9 @@ describe('ContractMethodsResolver', () => {
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [ContractMethodsResolver],
-    }).compile();
+    })
+      .useMocker(createMock)
+      .compile();
 
     resolver = module.get<ContractMethodsResolver>(ContractMethodsResolver);
   });
