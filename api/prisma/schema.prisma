@@ -23,16 +23,19 @@ model Session {
 }
 
 model Safe {
-  id         String  @id
+  id         String  @id @db.Char(42) // address
   groups     Group[]
   name       String?
-  deploySalt String?
+  deploySalt String? @db.Char(66) // bytes32
+  txs        Tx[]
+  ops        Op[]
+  // comments   Comment[]
 }
 
 model Group {
   safe      Safe            @relation(fields: [safeId], references: [id], onDelete: Cascade)
-  safeId    String
-  hash      String
+  safeId    String          @db.Char(42) // address
+  hash      String          @db.Char(66) // bytes32
   approvers GroupApprover[]
   name      String?
 
@@ -40,26 +43,27 @@ model Group {
 }
 
 model Approver {
-  id       String          @id
+  id       String          @id @db.Char(42) // address
   groups   GroupApprover[]
   contacts Contact[]
+  // comments Comment[]
 }
 
 model GroupApprover {
   group      Group    @relation(fields: [safeId, groupHash], references: [safeId, hash], onDelete: Cascade)
-  safeId     String
-  groupHash  String
+  safeId     String   @db.Char(42) // address
+  groupHash  String   @db.Char(66) // bytes32
   approver   Approver @relation(fields: [approverId], references: [id], onDelete: Cascade)
-  approverId String
-  weight     Decimal // Percent
+  approverId String   @db.Char(42) // address
+  weight     Decimal  @db.Decimal(79, 0) // uint256
 
   @@id([safeId, groupHash, approverId])
 }
 
 model Contact {
   approver   Approver @relation(fields: [approverId], references: [id])
-  approverId String
-  addr       String
+  approverId String   @db.Char(42) // address
+  addr       String   @db.Char(42) // address
   name       String
 
   @@id([approverId, addr])
@@ -67,10 +71,48 @@ model Contact {
 }
 
 model ContractMethod {
-  contract String
-  sighash  String
+  contract String @db.Char(42) // address
+  sighash  String @db.Char(10) // bytes4
   fragment Json
 
   @@id([contract, sighash])
   @@index([sighash])
 }
+
+model Tx {
+  safe   Safe   @relation(fields: [safeId], references: [id], onDelete: Cascade)
+  safeId String @db.Char(42) // address
+  txhash String @db.Char(66) // bytes32
+  ops    Op[]
+  // comments Comment[]
+
+  @@id([safeId, txhash])
+}
+
+model Op {
+  safe   Safe    @relation(fields: [safeId], references: [id], onDelete: Cascade)
+  safeId String  @db.Char(42) // address
+  tx     Tx      @relation(fields: [safeId, txHash], references: [safeId, txhash], onDelete: Cascade)
+  txHash String  @db.Char(66) // bytes32
+  hash   String  @db.Char(66) // bytes32
+  to     String  @db.Char(42) // address
+  value  Decimal @db.Decimal(79, 0) // uint256
+  data   String // bytes
+  nonce  Decimal @db.Decimal(79, 0) // uint256
+
+  @@id([safeId, txHash, hash])
+}
+
+// model Comment {
+//   id        Int      @id @default(autoincrement())
+//   safe      Safe     @relation(fields: [safeId], references: [id], onDelete: Cascade)
+//   safeId    String   @db.Char(42) // address
+//   tx        Tx       @relation(fields: [safeId, txHash], references: [safeId, txhash], onDelete: Cascade)
+//   txHash    String   @db.Char(66) // bytes32
+//   author    Approver @relation(fields: [authorId], references: [id], onDelete: Cascade)
+//   authorId  String   @db.Char(42) // address
+//   content   String
+//   createdAt DateTime @default(now())
+//   updatedAt DateTime @updatedAt()
+//   likes     String[]
+// }
