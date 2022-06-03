@@ -11,5 +11,5 @@ export * from './deploy';
 export * from './events';
 export * from './group';
 export * from './id';
-export * from './tx';
+export * from './op';
 export * from './weight';

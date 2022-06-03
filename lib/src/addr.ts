@@ -43,14 +43,14 @@ declare module './contracts' {
   export interface Factory {
     address: Address;
   }
+
+  export interface SignerStruct {
+    addr: Address;
+  }
 }
 
 declare module './typechain' {
   export interface Erc20 {
-    address: Address;
-  }
-
-  export interface Factory {
     address: Address;
   }
 }

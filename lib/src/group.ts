@@ -1,4 +1,4 @@
-import { BigNumberish, ethers } from 'ethers';
+import { BigNumberish, BytesLike, ethers } from 'ethers';
 import { ApproverStruct } from './contracts/Safe';
 import { Address, compareAddresses } from './addr';
 import { percentToFixedWeight } from './weight';
@@ -43,7 +43,7 @@ export const toSafeGroup = (group: Groupish): SafeGroup => ({
 export const getGroupId = (safeId: string, group: Groupish): string =>
   toId(`${safeId}-${hashGroup(group)}`);
 
-export const hashGroup = (group: Groupish): string =>
+export const hashGroup = (group: Groupish): BytesLike =>
   ethers.utils.keccak256(abiEncodeGroup(group));
 
 export const abiEncodeGroup = (group: Groupish) => {

@@ -6,6 +6,7 @@ import {
   wallet,
   GasLimit,
   createSignedTx,
+  createSignedTxs,
 } from './util';
 
 describe('Execution', () => {
@@ -14,11 +15,11 @@ describe('Execution', () => {
       const { safe, approvers, groupHash } = await deploy([100]);
       const [signer] = approvers;
 
-      const signedTx = await createSignedTx(safe, approvers, {
+      const signedTx = await createSignedTx(safe, groupHash, approvers, {
         to: signer.address,
       });
 
-      await safe.connect(wallet).execute(signedTx, groupHash, {
+      await safe.connect(wallet).execute(...signedTx, {
         gasLimit: GasLimit.EXECUTE,
       });
     });
@@ -27,11 +28,11 @@ describe('Execution', () => {
       const { safe, approvers, groupHash } = await deploy([50, 25, 25]);
       const [receiver] = approvers;
 
-      const signedTx = await createSignedTx(safe, approvers, {
+      const signedTx = await createSignedTx(safe, groupHash, approvers, {
         to: receiver.address,
       });
 
-      await safe.connect(receiver).execute(signedTx, groupHash, {
+      await safe.connect(receiver).execute(...signedTx, {
         gasLimit: GasLimit.EXECUTE,
       });
     });
@@ -42,11 +43,11 @@ describe('Execution', () => {
       const allSigners = await ethers.getSigners();
       const nonApprover = allSigners[allSigners.length - 1];
 
-      const signedTx = await createSignedTx(safe, approvers, {
+      const signedTx = await createSignedTx(safe, groupHash, approvers, {
         to: nonApprover.address,
       });
 
-      await safe.connect(nonApprover).execute(signedTx, groupHash, {
+      await safe.connect(nonApprover).execute(...signedTx, {
         gasLimit: GasLimit.EXECUTE,
       });
     });
@@ -58,12 +59,12 @@ describe('Execution', () => {
       await deposit(safe, value);
       const [signer] = approvers;
 
-      const signedTx = await createSignedTx(safe, approvers, {
+      const signedTx = await createSignedTx(safe, groupHash, approvers, {
         to: signer.address,
         value,
       });
 
-      await safe.connect(signer).execute(signedTx, groupHash, {
+      await safe.connect(signer).execute(...signedTx, {
         gasLimit: GasLimit.EXECUTE,
       });
     });
@@ -75,42 +76,47 @@ describe('Execution', () => {
         approvers: [pa],
       } = await deploy([100]);
 
-      const signedTx = await createSignedTx(safe, [], {});
-      await safe.connect(pa).execute(signedTx, groupHash, {
+      const signedTx = await createSignedTx(safe, groupHash, [], {});
+      await safe.connect(pa).execute(...signedTx, {
         gasLimit: GasLimit.EXECUTE,
       });
     });
 
-    it('Batch execution with a single approver', async () => {
+    it('Multi execution with a single approver', async () => {
       const { safe, groupHash } = await deploy([100]);
 
-      const signedTx = await createSignedTx(safe, [], {});
+      const signedTxs = await createSignedTxs(
+        safe,
+        groupHash,
+        [],
+        [{ to: safe.address }],
+      );
 
-      await safe.batchExecute([signedTx, signedTx], groupHash, {
-        gasLimit: GasLimit.BATCH_EXECUTE,
+      await safe.multiExecute(...signedTxs, {
+        gasLimit: GasLimit.MULTI_EXECUTE,
       });
     });
 
-    it('Batched execution with multiple approvers', async () => {
+    it('Multi execution with multiple approvers', async () => {
       const { safe, approvers, groupHash } = await deploy([40, 40, 20]);
 
       // Use different data to generate a different txHash; remove this once random nonce gen is fixed!
-      const signedTx1 = await createSignedTx(safe, approvers, { data: [1] });
-      const signedTx2 = await createSignedTx(safe, approvers, { data: [2] });
+      const signedTxs = await createSignedTxs(safe, groupHash, approvers, [
+        { to: safe.address },
+      ]);
 
-      await safe.batchExecute([signedTx1, signedTx2], groupHash, {
-        gasLimit: GasLimit.BATCH_EXECUTE,
+      await safe.multiExecute(...signedTxs, {
+        gasLimit: GasLimit.MULTI_EXECUTE,
       });
     });
 
-    it('Batched transaction reverts if any reverts', async () => {
+    it('Multi transaction reverts if any reverts', async () => {
       const { safe, groupHash } = await deploy([100]);
 
-      const signedTx1 = await createSignedTx(safe, [], {});
-      const signedTx2 = await createSignedTx(safe, [], { value: 1 });
+      const signedTxs = await createSignedTxs(safe, groupHash, [], [{}, {}]);
 
-      const exec = await safe.batchExecute([signedTx1, signedTx2], groupHash, {
-        gasLimit: GasLimit.BATCH_EXECUTE,
+      const exec = await safe.multiExecute(...signedTxs, {
+        gasLimit: GasLimit.MULTI_EXECUTE,
       });
 
       await expect(exec.wait()).to.be.reverted;
@@ -122,13 +128,16 @@ describe('Execution', () => {
       const { safe, groupHash, approvers } = await deploy([50, 25, 25]);
       const [approver1, approver2] = approvers;
 
-      const signedTx = await createSignedTx(safe, [approver1, approver2], {});
+      const signedTx = await createSignedTx(
+        safe,
+        groupHash,
+        [approver1, approver2],
+        {},
+      );
 
-      const execTx = await safe
-        .connect(approver1)
-        .execute(signedTx, groupHash, {
-          gasLimit: GasLimit.EXECUTE,
-        });
+      const execTx = await safe.connect(approver1).execute(...signedTx, {
+        gasLimit: GasLimit.EXECUTE,
+      });
 
       await expect(execTx.wait()).to.be.reverted;
     });
@@ -140,8 +149,8 @@ describe('Execution', () => {
         approvers: [approver],
       } = await deploy([70, 30]);
 
-      const signedTx = await createSignedTx(safe, [], {});
-      const execTx = await safe.connect(approver).execute(signedTx, groupHash, {
+      const signedTx = await createSignedTx(safe, groupHash, [], {});
+      const execTx = await safe.connect(approver).execute(...signedTx, {
         gasLimit: GasLimit.EXECUTE,
       });
 

@@ -1,24 +1,56 @@
 import * as zk from 'zksync-web3';
-import { createTx, Safe, SignedTx, signTx, Tx } from 'lib';
+import {
+  Address,
+  compareAddresses,
+  createOp,
+  Safe,
+  signOp,
+  signOps,
+  Op,
+} from 'lib';
 import { SignerStruct } from 'lib/src/contracts/Safe';
+import { BytesLike } from 'ethers';
 
 export const createSignedTx = async (
   safe: Safe,
+  groupHash: BytesLike,
   wallets: zk.Wallet[],
-  txOpts: Partial<Tx>,
-): Promise<SignedTx> => {
-  const tx = createTx(txOpts);
+  txOpts: Partial<Op>,
+): Promise<[Op, BytesLike, SignerStruct[]]> => {
+  const op = createOp(txOpts);
 
   const signers = (
     await Promise.all(
       wallets.map(
         async (wallet): Promise<SignerStruct> => ({
           addr: wallet.address,
-          signature: await signTx(wallet, safe, tx),
+          signature: await signOp(wallet, safe, op),
         }),
       ),
     )
-  ).sort((a, b) => a.addr.localeCompare(b.addr));
+  ).sort((a, b) => compareAddresses(a.addr as Address, b.addr as Address));
 
-  return { tx, signers };
+  return [op, groupHash, signers];
+};
+
+export const createSignedTxs = async (
+  safe: Safe,
+  groupHash: BytesLike,
+  wallets: zk.Wallet[],
+  txOpts: Partial<Op>[],
+): Promise<[Op[], BytesLike, SignerStruct[]]> => {
+  const ops = txOpts.map(createOp);
+
+  const signers = (
+    await Promise.all(
+      wallets.map(
+        async (wallet): Promise<SignerStruct> => ({
+          addr: wallet.address,
+          signature: await signOps(wallet, safe, ops),
+        }),
+      ),
+    )
+  ).sort((a, b) => compareAddresses(a.addr as Address, b.addr as Address));
+
+  return [ops, groupHash, signers];
 };

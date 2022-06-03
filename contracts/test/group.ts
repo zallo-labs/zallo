@@ -12,6 +12,7 @@ import {
   createSignedTx,
   deployTestSafe,
   toSafeGroupTest,
+  createSignedTxs,
 } from './util';
 
 describe('Group', () => {
@@ -57,14 +58,14 @@ describe('Group', () => {
 
       const newGroup = toSafeGroupTest([newApprover.address, 100]);
 
-      const signedTx = await createSignedTx(safe, [], {
+      const signedTx = await createSignedTx(safe, groupHash, [], {
         to: safe.address,
         data: safe.interface.encodeFunctionData('addGroup', [
           newGroup.approvers,
         ]),
       });
 
-      const execTx = await safe.connect(approver).execute(signedTx, groupHash, {
+      const execTx = await safe.connect(approver).execute(...signedTx, {
         gasLimit: GasLimit.EXECUTE,
       });
       await expect(execTx).to.emit(safe, SafeEvent.GroupAdded);
@@ -81,27 +82,65 @@ describe('Group', () => {
       const newGroup = toSafeGroupTest([newApprover.address, 100]);
       const newGroupHash = hashGroup(newGroup);
 
-      const addNewGroupSignedTx = await createSignedTx(safe, [], {
+      const addSt = await createSignedTx(safe, groupHash, [approver], {
         to: safe.address,
         data: safe.interface.encodeFunctionData('addGroup', [
           newGroup.approvers,
         ]),
       });
-      await safe.connect(approver).execute(addNewGroupSignedTx, groupHash, {
-        gasLimit: GasLimit.EXECUTE,
-      });
 
-      const removeNewGroupSignedTx = await createSignedTx(safe, [], {
+      const addTx = await safe
+        .connect(approver)
+        .execute(...addSt, { gasLimit: GasLimit.EXECUTE });
+      await expect(addTx).to.emit(safe, SafeEvent.GroupAdded);
+
+      const rmSt = await createSignedTx(safe, newGroupHash, [newApprover], {
         to: safe.address,
         data: safe.interface.encodeFunctionData('removeGroup', [newGroupHash]),
       });
 
-      const removalTx = await safe
+      const rmTx = await safe
         .connect(newApprover)
-        .execute(removeNewGroupSignedTx, newGroupHash, {
-          gasLimit: GasLimit.EXECUTE,
-        });
-      await expect(removalTx).to.emit(safe, SafeEvent.GroupRemoved);
+        .execute(...rmSt, { gasLimit: GasLimit.EXECUTE });
+      await expect(rmTx).to.emit(safe, SafeEvent.GroupRemoved);
+    });
+
+    it('Group can be replaced', async () => {
+      const {
+        safe,
+        groupHash,
+        approvers: [approver],
+        others: [newApprover],
+      } = await deploy([100]);
+
+      const newGroup = toSafeGroupTest([newApprover.address, 100]);
+
+      const st = await createSignedTxs(
+        safe,
+        groupHash,
+        [approver],
+        [
+          // Add new group
+          {
+            to: safe.address,
+            data: safe.interface.encodeFunctionData('addGroup', [
+              newGroup.approvers,
+            ]),
+          },
+          // Remove old group
+          {
+            to: safe.address,
+            data: safe.interface.encodeFunctionData('removeGroup', [groupHash]),
+          },
+        ],
+      );
+
+      const tx = await safe.connect(approver).multiExecute(...st, {
+        gasLimit: GasLimit.MULTI_EXECUTE,
+      });
+
+      await expect(tx).to.emit(safe, SafeEvent.GroupAdded);
+      await expect(tx).to.emit(safe, SafeEvent.GroupRemoved);
     });
   });
 
