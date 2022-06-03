@@ -14,7 +14,7 @@ struct Group {
   mapping(address => int256) approvers;
 }
 
-struct Tx {
+struct Op {
   address to;
   uint256 value;
   bytes data;
@@ -24,9 +24,4 @@ struct Tx {
 struct Signer {
   address addr;
   bytes signature;
-}
-
-struct SignedTx {
-  Tx tx;
-  Signer[] signers;
 }
