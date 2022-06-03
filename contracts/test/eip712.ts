@@ -1,5 +1,5 @@
 import { ethers } from 'ethers';
-import { createOp, getDomain, hashOp, hashOps, Op } from 'lib';
+import { createOp, getDomain, hashTx } from 'lib';
 import { deployTestSafe, expect, GasLimit, wallet } from './util';
 
 describe('EIP712', () => {
@@ -14,24 +14,25 @@ describe('EIP712', () => {
     expect(actual).to.eq(expected);
   });
 
-  it('hashOp', async () => {
+  it('hashTx', async () => {
     const { safe } = await deployTestSafe();
 
     const tx = createOp({ to: wallet.address });
 
-    const expected = await hashOp(tx, safe);
-    const actual = await safe.callStatic.hashOp(tx);
+    const expected = await hashTx(safe, tx);
+    const actual = await safe.callStatic.hashTx(tx);
 
     expect(actual).to.eq(expected);
   });
 
-  it('hashOps', async () => {
+  it('hashMultiTx', async () => {
     const { safe } = await deployTestSafe();
 
     const op = createOp({ to: wallet.address });
+    const ops = [op, op];
 
-    const expected = await hashOps([op], safe);
-    const actual = await safe.callStatic.hashOps([op], {
+    const expected = await hashTx(safe, ...ops);
+    const actual = await safe.callStatic.hashMultiTx(ops, {
       gasLimit: GasLimit.EXECUTE,
     });
 

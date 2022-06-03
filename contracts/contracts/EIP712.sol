@@ -27,7 +27,7 @@ contract EIP712 {
     _build();
   }
 
-  function _opStructHash(Op calldata _op) internal pure returns (bytes32) {
+  function _hashOpStruct(Op calldata _op) internal pure returns (bytes32) {
     return
       keccak256(
         abi.encode(
@@ -40,14 +40,14 @@ contract EIP712 {
       );
   }
 
-  function _hashOpTx(Op calldata _op) internal returns (bytes32) {
-    return _typedDataHash(_opStructHash(_op));
+  function _hashTx(Op calldata _op) internal returns (bytes32) {
+    return _typedDataHash(_hashOpStruct(_op));
   }
 
-  function _hashOpsTx(Op[] calldata _ops) internal returns (bytes32) {
+  function _hashTx(Op[] calldata _ops) internal returns (bytes32) {
     bytes32[] memory opHashes = new bytes32[](_ops.length);
     for (uint i = 0; i < _ops.length; i++) {
-      opHashes[i] = _opStructHash(_ops[i]);
+      opHashes[i] = _hashOpStruct(_ops[i]);
     }
 
     bytes32 txsStructHash = keccak256(

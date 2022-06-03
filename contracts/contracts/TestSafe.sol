@@ -15,12 +15,12 @@ contract TestSafe is Safe {
     return _hashGroup(_approvers);
   }
 
-  function hashOp(Op calldata _op) external returns (bytes32) {
-    return _hashOpTx(_op);
+  function hashTx(Op calldata _op) external returns (bytes32) {
+    return _hashTx(_op);
   }
 
-  function hashOps(Op[] calldata _ops) external returns (bytes32) {
-    return _hashOpsTx(_ops);
+  function hashMultiTx(Op[] calldata _ops) external returns (bytes32) {
+    return _hashTx(_ops);
   }
 
   function domainSeparator() external returns (bytes32) {

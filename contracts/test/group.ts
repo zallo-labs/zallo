@@ -12,7 +12,6 @@ import {
   createSignedTx,
   deployTestSafe,
   toSafeGroupTest,
-  createSignedTxs,
 } from './util';
 
 describe('Group', () => {
@@ -115,7 +114,7 @@ describe('Group', () => {
 
       const newGroup = toSafeGroupTest([newApprover.address, 100]);
 
-      const st = await createSignedTxs(
+      const st = await createSignedTx(
         safe,
         groupHash,
         [approver],

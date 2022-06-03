@@ -43,25 +43,24 @@ export const getDomain = async (
   verifyingContract: contract.address,
 });
 
-export const hashOp = async (op: Op, contract: Contract) =>
+const typedDataParams = (
+  ops: Op[],
+): [Record<string, TypedDataField[]>, Record<string, any>] => {
+  if (ops.length === 0) throw new Error("Can't hash empty array of operations");
+
+  return ops.length === 1
+    ? [EIP712_TYPES_OP, ops[0]]
+    : [EIP712_TYPES_OPS, { ops }];
+};
+
+export const hashTx = async (contract: Contract, ...ops: Op[]) =>
   ethers.utils._TypedDataEncoder.hash(
     await getDomain(contract),
-    EIP712_TYPES_OP,
-    op,
+    ...typedDataParams(ops),
   );
 
-export const hashOps = async (ops: Op[], contract: Contract) =>
-  ethers.utils._TypedDataEncoder.hash(
-    await getDomain(contract),
-    EIP712_TYPES_OPS,
-    { ops },
-  );
-
-export const signOp = async (wallet: Wallet, safe: Safe, op: Op) =>
-  wallet._signTypedData(await getDomain(safe), EIP712_TYPES_OP, op);
-
-export const signOps = async (wallet: Wallet, safe: Safe, ops: Op[]) =>
-  wallet._signTypedData(await getDomain(safe), EIP712_TYPES_OPS, { ops });
+export const signTx = async (wallet: Wallet, safe: Safe, ...ops: Op[]) =>
+  wallet._signTypedData(await getDomain(safe), ...typedDataParams(ops));
 
 export const createOp = (op: Partial<Op>): Op => ({
   to: '0x0000000000000000000000000000000000000000',

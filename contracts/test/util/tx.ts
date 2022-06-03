@@ -1,44 +1,30 @@
 import * as zk from 'zksync-web3';
-import {
-  Address,
-  compareAddresses,
-  createOp,
-  Safe,
-  signOp,
-  signOps,
-  Op,
-} from 'lib';
+import { Address, compareAddresses, createOp, Safe, signTx, Op } from 'lib';
 import { SignerStruct } from 'lib/src/contracts/Safe';
 import { BytesLike } from 'ethers';
 
-export const createSignedTx = async (
+export async function createSignedTx(
   safe: Safe,
   groupHash: BytesLike,
   wallets: zk.Wallet[],
   txOpts: Partial<Op>,
-): Promise<[Op, BytesLike, SignerStruct[]]> => {
-  const op = createOp(txOpts);
+): Promise<[Op, BytesLike, SignerStruct[]]>;
 
-  const signers = (
-    await Promise.all(
-      wallets.map(
-        async (wallet): Promise<SignerStruct> => ({
-          addr: wallet.address,
-          signature: await signOp(wallet, safe, op),
-        }),
-      ),
-    )
-  ).sort((a, b) => compareAddresses(a.addr as Address, b.addr as Address));
-
-  return [op, groupHash, signers];
-};
-
-export const createSignedTxs = async (
+export async function createSignedTx(
   safe: Safe,
   groupHash: BytesLike,
   wallets: zk.Wallet[],
   txOpts: Partial<Op>[],
-): Promise<[Op[], BytesLike, SignerStruct[]]> => {
+): Promise<[Op[], BytesLike, SignerStruct[]]>;
+
+export async function createSignedTx(
+  safe: Safe,
+  groupHash: BytesLike,
+  wallets: zk.Wallet[],
+  txOpts: Partial<Op> | Partial<Op>[],
+): Promise<[Op | Op[], BytesLike, SignerStruct[]]> {
+  if (!Array.isArray(txOpts)) txOpts = [txOpts];
+
   const ops = txOpts.map(createOp);
 
   const signers = (
@@ -46,11 +32,11 @@ export const createSignedTxs = async (
       wallets.map(
         async (wallet): Promise<SignerStruct> => ({
           addr: wallet.address,
-          signature: await signOps(wallet, safe, ops),
+          signature: await signTx(wallet, safe, ...ops),
         }),
       ),
     )
   ).sort((a, b) => compareAddresses(a.addr as Address, b.addr as Address));
 
-  return [ops, groupHash, signers];
-};
+  return [ops.length > 1 ? ops : ops[0], groupHash, signers];
+}

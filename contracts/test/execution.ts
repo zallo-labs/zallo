@@ -6,7 +6,6 @@ import {
   wallet,
   GasLimit,
   createSignedTx,
-  createSignedTxs,
 } from './util';
 
 describe('Execution', () => {
@@ -82,26 +81,12 @@ describe('Execution', () => {
       });
     });
 
-    it('Multi execution with a single approver', async () => {
-      const { safe, groupHash } = await deploy([100]);
-
-      const signedTxs = await createSignedTxs(
-        safe,
-        groupHash,
-        [],
-        [{ to: safe.address }],
-      );
-
-      await safe.multiExecute(...signedTxs, {
-        gasLimit: GasLimit.MULTI_EXECUTE,
-      });
-    });
-
     it('Multi execution with multiple approvers', async () => {
       const { safe, approvers, groupHash } = await deploy([40, 40, 20]);
 
       // Use different data to generate a different txHash; remove this once random nonce gen is fixed!
-      const signedTxs = await createSignedTxs(safe, groupHash, approvers, [
+      const signedTxs = await createSignedTx(safe, groupHash, approvers, [
+        { to: safe.address },
         { to: safe.address },
       ]);
 
@@ -113,7 +98,7 @@ describe('Execution', () => {
     it('Multi transaction reverts if any reverts', async () => {
       const { safe, groupHash } = await deploy([100]);
 
-      const signedTxs = await createSignedTxs(safe, groupHash, [], [{}, {}]);
+      const signedTxs = await createSignedTx(safe, groupHash, [], [{}, {}]);
 
       const exec = await safe.multiExecute(...signedTxs, {
         gasLimit: GasLimit.MULTI_EXECUTE,

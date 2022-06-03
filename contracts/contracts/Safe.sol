@@ -56,7 +56,7 @@ contract Safe is EIP712 {
     signersUniqueAndSortedAsc(_signers)
     returns (bytes memory response)
   {
-    bytes32 txHash = _hashOpTx(_op);
+    bytes32 txHash = _hashTx(_op);
     _verify(txHash, _groupHash, _signers);
 
     response = _call(_op);
@@ -73,7 +73,7 @@ contract Safe is EIP712 {
     signersUniqueAndSortedAsc(_signers)
     returns (bytes[] memory responses)
   {
-    bytes32 txHash = _hashOpsTx(_ops);
+    bytes32 txHash = _hashTx(_ops);
     _verify(txHash, _groupHash, _signers);
 
     responses = new bytes[](_ops.length);
