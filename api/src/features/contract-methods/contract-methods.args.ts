@@ -1,7 +1,7 @@
 import { ArgsType } from '@nestjs/graphql';
 import { IsHexadecimal } from 'class-validator';
 import { Address } from 'lib';
-import { AddressField } from '~/decorators/AddressField';
+import { AddressField } from '~/apollo/scalars/Address.scalar';
 
 @ArgsType()
 export class ContractMethodArgs {

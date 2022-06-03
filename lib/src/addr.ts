@@ -1,4 +1,4 @@
-import { ethers } from 'ethers';
+import { BytesLike, ethers } from 'ethers';
 import 'zksync-web3';
 
 export type Address = string & { readonly isAddress: true };
@@ -17,7 +17,11 @@ export const tryAddress = (addr: Addresslike): Address | null => {
   }
 };
 
-export const isAddress = (v: Addresslike): v is Address => tryAddress(v) === v;
+export const isAddress = (v: unknown): v is Address =>
+  typeof v === 'string' && tryAddress(v) === v;
+
+export const isAddressLike = (v: unknown): v is Addresslike =>
+  typeof v === 'string' && ethers.utils.isAddress(v);
 
 export const compareAddresses = (a: Address, b: Address) => {
   const aArr = ethers.utils.arrayify(a);
@@ -34,6 +38,11 @@ export const compareAddresses = (a: Address, b: Address) => {
   return 0;
 };
 
+export interface Signer {
+  addr: Address;
+  signature: BytesLike;
+}
+
 /* Module augmentation; including in a .ts file to compile into lib's typings */
 declare module './contracts' {
   export interface Safe {
@@ -42,10 +51,6 @@ declare module './contracts' {
 
   export interface Factory {
     address: Address;
-  }
-
-  export interface SignerStruct {
-    addr: Address;
   }
 }
 
