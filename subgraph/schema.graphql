@@ -3,7 +3,7 @@ type Safe @entity {
   id: ID!
   txs: [Tx!]! @derivedFrom(field: "safe")
   groups: [Group!]! @derivedFrom(field: "safe")
-  transfers: [TokenTransfer!]! @derivedFrom(field: "safe")
+  transfers: [Transfer!]! @derivedFrom(field: "safe")
 }
 
 type Tx @entity {
@@ -17,7 +17,7 @@ type Tx @entity {
   executor: Bytes!
   blockHash: Bytes!
   timestamp: BigInt!
-  transfers: [TokenTransfer!]! @derivedFrom(field: "tx")
+  transfers: [Transfer!]! @derivedFrom(field: "tx")
 }
 
 enum TxType {
@@ -48,14 +48,13 @@ type GroupApprover @entity {
   weight: BigInt!
 }
 
-###### ERC20 ######
-type TokenTransfer @entity {
+type Transfer @entity {
   "{tx.id}-{tx.log.index}"
   id: ID!
   safe: Safe!
   tx: Tx
   token: Bytes!
-  type: TokenTransferType!
+  type: TransferType!
   from: Bytes!
   to: Bytes!
   value: BigInt!
@@ -64,7 +63,7 @@ type TokenTransfer @entity {
   timestamp: BigInt!
 }
 
-enum TokenTransferType {
+enum TransferType {
   IN
   OUT
 }

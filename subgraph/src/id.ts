@@ -33,7 +33,7 @@ export function getTxId(tx: ethereum.Transaction): string {
   return tx.hash.toHex();
 }
 
-export function getTokenTransferId(e: ethereum.Event): string {
+export function getTransferId(e: ethereum.Event): string {
   // {tx.hash}-{tx.log.index}
   return `${e.transaction.hash.toHex()}-${e.transactionLogIndex}`;
 }

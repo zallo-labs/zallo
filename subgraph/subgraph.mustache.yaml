@@ -49,7 +49,7 @@ dataSources:
         - name: ERC20
           file: ../lib/abi/erc20.json
       entities:
-        - TokenTransfer
+        - Transfer
         # - TokenTransferApproval
       eventHandlers:
         - event: Transfer(indexed address,indexed address,uint256)

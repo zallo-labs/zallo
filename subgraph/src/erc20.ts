@@ -1,14 +1,14 @@
-import { Transfer } from '../generated/ERC20/ERC20';
-import { getSafeObjId, getTokenTransferId, getTxId } from './id';
-import { Safe as SafeObj, TokenTransfer, Tx } from '../generated/schema';
+import { Transfer as TransferEvent } from '../generated/ERC20/ERC20';
+import { getSafeObjId, getTransferId, getTxId } from './id';
+import { Safe as SafeObj, Transfer, Tx } from '../generated/schema';
 
-export function handleTransfer(e: Transfer): void {
+export function handleTransfer(e: TransferEvent): void {
   // Only handle transfers from or to a safe
   let safe = SafeObj.load(getSafeObjId(e.params.from));
   if (!safe) safe = SafeObj.load(getSafeObjId(e.params.to));
   if (!safe) return;
 
-  const transfer = new TokenTransfer(getTokenTransferId(e));
+  const transfer = new Transfer(getTransferId(e));
 
   transfer.safe = safe.id;
   const txId = getTxId(e.transaction);

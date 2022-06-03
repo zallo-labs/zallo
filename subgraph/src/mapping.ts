@@ -6,12 +6,12 @@ import {
   MultiTransaction,
   Transaction,
 } from '../generated/Safe/Safe';
-import { Group, GroupApprover, TokenTransfer, Tx } from '../generated/schema';
+import { Group, GroupApprover, Transfer, Tx } from '../generated/schema';
 import {
   getGroupApproverId,
   getGroupId,
   getSafeObjId,
-  getTokenTransferId,
+  getTransferId,
   getTxId,
 } from './id';
 import {
@@ -61,7 +61,7 @@ const ETH_TOKEN: Bytes = Bytes.fromHexString(
 );
 
 export function handleDeposit(e: DepositEvent): void {
-  const transfer = new TokenTransfer(getTokenTransferId(e));
+  const transfer = new Transfer(getTransferId(e));
 
   transfer.safe = getSafeObjId(e.address);
   transfer.token = ETH_TOKEN;
