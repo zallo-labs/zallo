@@ -16,7 +16,7 @@ import { useMemo } from 'react';
 const SAFE_INTERFACE = Safe__factory.createInterface();
 
 const API_QUERY = apiGql`
-query GetContractMethod($contract: String!, $sighash: String!) {
+query GetContractMethod($contract: Address!, $sighash: Bytes!) {
   contractMethod(contract: $contract, sighash: $sighash) {
     id
     fragment

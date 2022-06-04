@@ -1,13 +1,13 @@
 import { ArgsType } from '@nestjs/graphql';
-import { IsHexadecimal } from 'class-validator';
 import { Address } from 'lib';
 import { AddressField } from '~/apollo/scalars/Address.scalar';
+import { BytesField } from '~/apollo/scalars/Bytes.scalar';
 
 @ArgsType()
 export class ContractMethodArgs {
   @AddressField()
   contract: Address;
 
-  @IsHexadecimal()
+  @BytesField()
   sighash: string;
 }

@@ -1,15 +1,7 @@
 import { ContractMethod } from '@gen/contract-method/contract-method.model';
-import {
-  Args,
-  Info,
-  Parent,
-  Query,
-  ResolveField,
-  Resolver,
-} from '@nestjs/graphql';
+import { Args, Info, Query, ResolveField, Resolver } from '@nestjs/graphql';
 import { GraphQLResolveInfo } from 'graphql';
 import { PrismaService } from 'nestjs-prisma';
-import { fetch } from '~/util/fetch';
 import { getSelect } from '~/util/test';
 import { ContractMethodArgs } from './contract-methods.args';
 import { ContractMethodsService } from './contract-methods.service';
