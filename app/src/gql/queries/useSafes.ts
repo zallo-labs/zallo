@@ -31,10 +31,10 @@ query GetSubSafes($approver: ID!) {
             hash
             active
             approvers {
-              weight
               approver {
                 id
               }
+              weight
             }
           }
         }
