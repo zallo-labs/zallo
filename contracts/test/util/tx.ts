@@ -32,7 +32,7 @@ export async function createSignedTx(
       wallets.map(
         async (wallet): Promise<SignerStruct> => ({
           addr: wallet.address,
-          signature: await signTx(wallet, safe, ...ops),
+          signature: await signTx(wallet, safe.address, ...ops),
         }),
       ),
     )

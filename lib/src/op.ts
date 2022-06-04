@@ -2,8 +2,9 @@ import {
   TypedDataDomain,
   TypedDataField,
 } from '@ethersproject/abstract-signer';
-import { BytesLike, Contract, ethers } from 'ethers';
+import { BytesLike, ethers } from 'ethers';
 import { Wallet } from 'zksync-web3';
+import { Address } from './addr';
 import { Safe } from './contracts';
 import { SignerStruct } from './contracts/Safe';
 
@@ -36,11 +37,11 @@ const EIP712_TYPES_OPS: Record<string, TypedDataField[]> = {
 };
 
 export const getDomain = async (
-  contract: Contract,
+  verifyingContract: Address,
 ): Promise<TypedDataDomain> => ({
   // chainId: (await contract.provider.getNetwork()).chainId,
   chainId: 0, // ZKSYNC: block.chainid always returns 0 - https://v2-docs.zksync.io/dev/zksync-v2/temp-limits.html#unsupported-opcodes
-  verifyingContract: contract.address,
+  verifyingContract,
 });
 
 const typedDataParams = (
@@ -53,13 +54,13 @@ const typedDataParams = (
     : [EIP712_TYPES_OPS, { ops }];
 };
 
-export const hashTx = async (contract: Contract, ...ops: Op[]) =>
+export const hashTx = async (contract: Address, ...ops: Op[]) =>
   ethers.utils._TypedDataEncoder.hash(
     await getDomain(contract),
     ...typedDataParams(ops),
   );
 
-export const signTx = async (wallet: Wallet, safe: Safe, ...ops: Op[]) =>
+export const signTx = async (wallet: Wallet, safe: Address, ...ops: Op[]) =>
   wallet._signTypedData(await getDomain(safe), ...typedDataParams(ops));
 
 export const createOp = (op: Partial<Op>): Op => ({
