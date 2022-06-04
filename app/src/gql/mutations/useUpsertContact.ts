@@ -20,7 +20,7 @@ import { toId } from 'lib';
 const API_MUTATION = apiGql`
 ${API_CONTACT_FIELDS}
 
-mutation UpsertContact($prevAddr: String, $newAddr: String!, $name: String!) {
+mutation UpsertContact($prevAddr: Address, $newAddr: Address!, $name: String!) {
   upsertContact(prevAddr: $prevAddr, newAddr: $newAddr, name: $name) {
     ...ContactFields
   }

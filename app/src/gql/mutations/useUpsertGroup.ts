@@ -1,6 +1,5 @@
 import { useMutation } from '@apollo/client';
 import { useExecute } from '@features/execute/useExecute';
-import { createSt } from '@features/execute/util';
 import { useSafe } from '@features/safe/SafeProvider';
 import { useIsDeployed } from '@features/safe/useIsDeployed';
 import { useWallet } from '@features/wallet/useWallet';
@@ -13,7 +12,7 @@ import { apiGql } from '@gql/clients';
 import { useApiClient } from '@gql/GqlProvider';
 import { API_GROUP_FIELDS_FRAGMENT, CombinedGroup } from '@queries';
 import { ethers } from 'ethers';
-import { Group, hashGroup, isPresent, toSafeGroup } from 'lib';
+import { createOp, Group, hashGroup, isPresent, toSafeGroup } from 'lib';
 
 const API_MUTATION = apiGql`
 ${API_GROUP_FIELDS_FRAGMENT}
@@ -90,7 +89,7 @@ const useUpsertApiGroup = () => {
         },
         create: {
           name: cur.name,
-          hash: cur.hash,
+          hash: ethers.utils.hexlify(cur.hash),
           approvers,
           safe: {
             connectOrCreate: {
@@ -100,7 +99,9 @@ const useUpsertApiGroup = () => {
           },
         },
         update: {
-          ...(cur.hash !== prev?.hash && { hash: { set: cur.hash } }),
+          ...(cur.hash !== prev?.hash && {
+            hash: { set: ethers.utils.hexlify(cur.hash) },
+          }),
           ...(approvers !== prev?.approvers && {
             approvers: approvers ?? { set: [] },
           }),
@@ -120,15 +121,15 @@ const useSafeUpsert = () => {
   const upsert = async (cur: Group, prev?: Group) => {
     if (prev && hashGroup(prev) === hashGroup(cur)) return;
 
-    const addGroupSt = createSt({
+    const addOp = createOp({
       to: safe.address,
       data: safe.interface.encodeFunctionData('addGroup', [
         toSafeGroup(cur).approvers,
       ]),
     });
 
-    const rmGroupSt = prev
-      ? createSt({
+    const rmOp = prev
+      ? createOp({
           to: safe.address,
           data: safe.interface.encodeFunctionData('removeGroup', [
             hashGroup(prev),
@@ -136,7 +137,7 @@ const useSafeUpsert = () => {
         })
       : undefined;
 
-    await execute(...[addGroupSt, rmGroupSt].filter(isPresent));
+    await execute(...[addOp, rmOp].filter(isPresent));
   };
 
   return upsert;

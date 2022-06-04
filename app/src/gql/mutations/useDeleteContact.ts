@@ -12,7 +12,7 @@ import { toId } from 'lib';
 import { useCallback } from 'react';
 
 const API_MUTATION = apiGql`
-mutation DeleteContact($addr: String!) {
+mutation DeleteContact($addr: Address!) {
   deleteContact(addr: $addr) {
     id
   }
