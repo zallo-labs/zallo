@@ -50,7 +50,7 @@ export class TxsResolver {
 
   @ResolveField(() => String)
   async id(@Parent() tx: Tx): Promise<string> {
-    return `${tx.safeId}-${tx.txHash}`;
+    return `${tx.safeId}-${tx.hash}`;
   }
 
   @Mutation(() => Tx)
@@ -68,7 +68,7 @@ export class TxsResolver {
     return this.prisma.tx.create({
       data: {
         safe: connectOrCreateSafe(safe),
-        txHash,
+        hash: txHash,
         ops: {
           createMany: {
             data: await Promise.all(
@@ -105,7 +105,7 @@ export class TxsResolver {
     await this.verifySignatureOrThrow(signature, user, txHash);
 
     return this.prisma.tx.update({
-      where: { safeId_txHash: { safeId: safe, txHash } },
+      where: { safeId_hash: { safeId: safe, hash: txHash } },
       data: {
         approvals: {
           create: {
@@ -126,7 +126,7 @@ export class TxsResolver {
     @UserAddr() user: Address,
   ): Promise<Tx | null> {
     const tx = await this.prisma.tx.update({
-      where: { safeId_txHash: { safeId: safe, txHash } },
+      where: { safeId_hash: { safeId: safe, hash: txHash } },
       data: {
         approvals: {
           delete: {
@@ -153,7 +153,7 @@ export class TxsResolver {
       return tx;
     } else {
       await this.prisma.tx.delete({
-        where: { safeId_txHash: { safeId: safe, txHash } },
+        where: { safeId_hash: { safeId: safe, hash: txHash } },
       });
       return null;
     }
@@ -164,7 +164,6 @@ export class TxsResolver {
     user: Address,
     txHash: BytesLike,
   ) {
-    // TODO: re-enable
     if (!(await zk.utils.isMessageSignatureCorrect(user, txHash, signature)))
       throw new UserInputError('Invalid signature');
   }

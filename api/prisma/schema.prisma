@@ -84,18 +84,18 @@ model ContractMethod {
 model Tx {
   safe      Safe       @relation(fields: [safeId], references: [id], onDelete: Cascade)
   safeId    String     @db.Char(42) // address
-  txHash    String     @db.Char(66) // bytes32
+  hash      String     @db.Char(66) // bytes32
   ops       Op[]
   approvals Approval[]
   // comments Comment[]
 
-  @@id([safeId, txHash])
+  @@id([safeId, hash])
 }
 
 model Op {
   safe   Safe    @relation(fields: [safeId], references: [id], onDelete: Cascade)
   safeId String  @db.Char(42) // address
-  tx     Tx      @relation(fields: [safeId, txHash], references: [safeId, txHash], onDelete: Cascade)
+  tx     Tx      @relation(fields: [safeId, txHash], references: [safeId, hash], onDelete: Cascade)
   txHash String  @db.Char(66) // bytes32
   hash   String  @db.Char(66) // bytes32
   to     String  @db.Char(42) // address
@@ -111,7 +111,7 @@ model Approval {
   approverId String   @db.Char(42) // address
   safe       Safe     @relation(fields: [safeId], references: [id], onDelete: Cascade)
   safeId     String   @db.Char(42) // address
-  tx         Tx       @relation(fields: [safeId, txHash], references: [safeId, txHash], onDelete: Cascade)
+  tx         Tx       @relation(fields: [safeId, txHash], references: [safeId, hash], onDelete: Cascade)
   txHash     String   @db.Char(66) // bytes32
   signature  String // bytes
 
