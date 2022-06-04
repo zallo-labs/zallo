@@ -23,12 +23,13 @@ model Session {
 }
 
 model Safe {
-  id         String  @id @db.Char(42) // address
+  id         String     @id @db.Char(42) // address
   groups     Group[]
   name       String?
-  deploySalt String? @db.Char(66) // bytes32
+  deploySalt String?    @db.Char(66) // bytes32
   txs        Tx[]
   ops        Op[]
+  approvals  Approval[]
   // comments   Comment[]
 }
 
@@ -43,9 +44,10 @@ model Group {
 }
 
 model Approver {
-  id       String          @id @db.Char(42) // address
-  groups   GroupApprover[]
-  contacts Contact[]
+  id        String          @id @db.Char(42) // address
+  groups    GroupApprover[]
+  contacts  Contact[]
+  approvals Approval[]
   // comments Comment[]
 }
 
@@ -80,19 +82,20 @@ model ContractMethod {
 }
 
 model Tx {
-  safe   Safe   @relation(fields: [safeId], references: [id], onDelete: Cascade)
-  safeId String @db.Char(42) // address
-  txhash String @db.Char(66) // bytes32
-  ops    Op[]
+  safe      Safe       @relation(fields: [safeId], references: [id], onDelete: Cascade)
+  safeId    String     @db.Char(42) // address
+  txHash    String     @db.Char(66) // bytes32
+  ops       Op[]
+  approvals Approval[]
   // comments Comment[]
 
-  @@id([safeId, txhash])
+  @@id([safeId, txHash])
 }
 
 model Op {
   safe   Safe    @relation(fields: [safeId], references: [id], onDelete: Cascade)
   safeId String  @db.Char(42) // address
-  tx     Tx      @relation(fields: [safeId, txHash], references: [safeId, txhash], onDelete: Cascade)
+  tx     Tx      @relation(fields: [safeId, txHash], references: [safeId, txHash], onDelete: Cascade)
   txHash String  @db.Char(66) // bytes32
   hash   String  @db.Char(66) // bytes32
   to     String  @db.Char(42) // address
@@ -101,6 +104,18 @@ model Op {
   nonce  Decimal @db.Decimal(79, 0) // uint256
 
   @@id([safeId, txHash, hash])
+}
+
+model Approval {
+  approver   Approver @relation(fields: [approverId], references: [id])
+  approverId String   @db.Char(42) // address
+  safe       Safe     @relation(fields: [safeId], references: [id], onDelete: Cascade)
+  safeId     String   @db.Char(42) // address
+  tx         Tx       @relation(fields: [safeId, txHash], references: [safeId, txHash], onDelete: Cascade)
+  txHash     String   @db.Char(66) // bytes32
+  signature  String // bytes
+
+  @@id([safeId, txHash, approverId])
 }
 
 // model Comment {
