@@ -48,7 +48,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
   android: {
     adaptiveIcon: {
       foregroundImage: './assets/adaptive-icon.png',
-      backgroundColor: '#FFFFFF',
+      backgroundColor: '#151A30',
     },
   },
   androidStatusBar: {
