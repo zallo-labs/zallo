@@ -1,12 +1,10 @@
 import { isBigNumberish } from '@ethersproject/bignumber/lib/bignumber';
 import { Field, FieldOptions } from '@nestjs/graphql';
 import { UserInputError } from 'apollo-server-core';
-import { BigNumber } from 'ethers';
+import { BigNumber, ethers } from 'ethers';
 import { GraphQLScalarType, Kind } from 'graphql';
 
 const description = '256-bit unsigned integer';
-
-const max = BigNumber.from(2).pow(256).sub(1); // 2^256 -1
 
 const error = new UserInputError(`Provided value is not a ${description}`);
 
@@ -14,7 +12,7 @@ const parse = (value: unknown): BigNumber => {
   try {
     if (isBigNumberish(value)) {
       const bn = BigNumber.from(value);
-      if (bn.gte(0) && bn.lte(max)) return bn;
+      if (bn.gte(0) && bn.lte(ethers.constants.MaxUint256)) return bn;
     }
   } catch (_) {
     //
