@@ -283,6 +283,47 @@ export interface GetApiSafesVariables {
 // This file was automatically generated and should not be edited.
 
 // ====================================================
+// GraphQL query operation: GetApiTxs
+// ====================================================
+
+export interface GetApiTxs_txs_ops {
+  __typename: "Op";
+  hash: string;
+  to: string;
+  value: any;
+  data: string;
+  nonce: any;
+}
+
+export interface GetApiTxs_txs_approvals {
+  __typename: "Approval";
+  approverId: string;
+  signature: string;
+}
+
+export interface GetApiTxs_txs {
+  __typename: "Tx";
+  id: string;
+  safeId: string;
+  hash: string;
+  ops: GetApiTxs_txs_ops[] | null;
+  approvals: GetApiTxs_txs_approvals[] | null;
+}
+
+export interface GetApiTxs {
+  txs: GetApiTxs_txs[];
+}
+
+export interface GetApiTxsVariables {
+  safe: any;
+}
+
+/* tslint:disable */
+/* eslint-disable */
+// @generated
+// This file was automatically generated and should not be edited.
+
+// ====================================================
 // GraphQL fragment: ContactFields
 // ====================================================
 
@@ -347,6 +388,39 @@ export interface SafeFields {
   name: string | null;
   deploySalt: string | null;
   groups: SafeFields_groups[] | null;
+}
+
+/* tslint:disable */
+/* eslint-disable */
+// @generated
+// This file was automatically generated and should not be edited.
+
+// ====================================================
+// GraphQL fragment: TxFields
+// ====================================================
+
+export interface TxFields_ops {
+  __typename: "Op";
+  hash: string;
+  to: string;
+  value: any;
+  data: string;
+  nonce: any;
+}
+
+export interface TxFields_approvals {
+  __typename: "Approval";
+  approverId: string;
+  signature: string;
+}
+
+export interface TxFields {
+  __typename: "Tx";
+  id: string;
+  safeId: string;
+  hash: string;
+  ops: TxFields_ops[] | null;
+  approvals: TxFields_approvals[] | null;
 }
 
 /* tslint:disable */
@@ -1506,7 +1580,7 @@ export interface StringNullableFilter {
 }
 
 export interface TxCreateManySafeInput {
-  txHash: string;
+  hash: string;
 }
 
 export interface TxCreateManySafeInputEnvelope {
@@ -1549,38 +1623,38 @@ export interface TxCreateOrConnectWithoutSafeInput {
 }
 
 export interface TxCreateWithoutApprovalsInput {
+  hash: string;
   ops?: OpCreateNestedManyWithoutTxInput | null;
   safe: SafeCreateNestedOneWithoutTxsInput;
-  txHash: string;
 }
 
 export interface TxCreateWithoutOpsInput {
   approvals?: ApprovalCreateNestedManyWithoutTxInput | null;
+  hash: string;
   safe: SafeCreateNestedOneWithoutTxsInput;
-  txHash: string;
 }
 
 export interface TxCreateWithoutSafeInput {
   approvals?: ApprovalCreateNestedManyWithoutTxInput | null;
+  hash: string;
   ops?: OpCreateNestedManyWithoutTxInput | null;
-  txHash: string;
 }
 
-export interface TxSafeIdTxHashCompoundUniqueInput {
+export interface TxSafeIdHashCompoundUniqueInput {
+  hash: string;
   safeId: string;
-  txHash: string;
 }
 
 export interface TxScalarWhereInput {
   AND?: TxScalarWhereInput[] | null;
   NOT?: TxScalarWhereInput[] | null;
   OR?: TxScalarWhereInput[] | null;
+  hash?: StringFilter | null;
   safeId?: StringFilter | null;
-  txHash?: StringFilter | null;
 }
 
 export interface TxUpdateManyMutationInput {
-  txHash?: StringFieldUpdateOperationsInput | null;
+  hash?: StringFieldUpdateOperationsInput | null;
 }
 
 export interface TxUpdateManyWithWhereWithoutSafeInput {
@@ -1624,21 +1698,21 @@ export interface TxUpdateWithWhereUniqueWithoutSafeInput {
 }
 
 export interface TxUpdateWithoutApprovalsInput {
+  hash?: StringFieldUpdateOperationsInput | null;
   ops?: OpUpdateManyWithoutTxInput | null;
   safe?: SafeUpdateOneRequiredWithoutTxsInput | null;
-  txHash?: StringFieldUpdateOperationsInput | null;
 }
 
 export interface TxUpdateWithoutOpsInput {
   approvals?: ApprovalUpdateManyWithoutTxInput | null;
+  hash?: StringFieldUpdateOperationsInput | null;
   safe?: SafeUpdateOneRequiredWithoutTxsInput | null;
-  txHash?: StringFieldUpdateOperationsInput | null;
 }
 
 export interface TxUpdateWithoutSafeInput {
   approvals?: ApprovalUpdateManyWithoutTxInput | null;
+  hash?: StringFieldUpdateOperationsInput | null;
   ops?: OpUpdateManyWithoutTxInput | null;
-  txHash?: StringFieldUpdateOperationsInput | null;
 }
 
 export interface TxUpsertWithWhereUniqueWithoutSafeInput {
@@ -1658,7 +1732,7 @@ export interface TxUpsertWithoutOpsInput {
 }
 
 export interface TxWhereUniqueInput {
-  safeId_txHash?: TxSafeIdTxHashCompoundUniqueInput | null;
+  safeId_hash?: TxSafeIdHashCompoundUniqueInput | null;
 }
 
 //==============================================================

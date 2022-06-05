@@ -4,11 +4,12 @@ import {
 } from '@ethersproject/abstract-signer';
 import { BytesLike, ethers } from 'ethers';
 import { Wallet } from 'zksync-web3';
-import { Address } from './addr';
-import { Safe } from './contracts';
-import { SignerStruct } from './contracts/Safe';
+import { Address, ZERO_ADDR } from './addr';
+import { Safe, SignerStruct } from './contracts/Safe';
 
-export type Op = Parameters<Safe['execute']>[0];
+export type Op = Omit<Parameters<Safe['execute']>[0], 'to'> & {
+  to: Address;
+};
 
 export interface SignedOp {
   tx: Op;
@@ -64,7 +65,7 @@ export const signTx = async (wallet: Wallet, safe: Address, ...ops: Op[]) =>
   wallet._signTypedData(await getDomain(safe), ...typedDataParams(ops));
 
 export const createOp = (op: Partial<Op>): Op => ({
-  to: '0x0000000000000000000000000000000000000000',
+  to: ZERO_ADDR,
   value: 0,
   data: [],
   nonce: 0, // TODO: generated random number
