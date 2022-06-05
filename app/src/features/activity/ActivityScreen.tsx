@@ -1,27 +1,29 @@
 import { Box } from '@components/Box';
 import { Timestamp } from '@components/Timestamp';
 import { TabNavigatorScreenProps } from '@features/navigation/TabNavigator';
-import { Transfer, useTransfers } from '@gql/queries/useTransfers';
+import { useTxs } from '@gql/queries/useTxs';
+import { useIndependentTransfers } from '@gql/queries/useIndependentTransfers';
 import { groupBy } from 'lib';
 import { useMemo } from 'react';
 import { SectionList } from 'react-native';
 import { Subheading } from 'react-native-paper';
-import { TransferItem } from './TransferItem';
+import { Activity, ActivityItem } from './ActivityItem';
 
 interface Section {
   date: number;
-  data: Transfer[];
+  data: Activity[];
 }
 
 export type ActivityScreenProps = TabNavigatorScreenProps<'Activity'>;
 
 export const ActivityScreen = (_props: ActivityScreenProps) => {
-  const { transfers } = useTransfers();
+  const { transfers } = useIndependentTransfers();
+  const { txs } = useTxs();
 
   const sections: Section[] = useMemo(
     () =>
       [
-        ...groupBy(transfers, (t) =>
+        ...groupBy([...transfers, ...txs], (t) =>
           t.timestamp
             .set({ hour: 0, minute: 0, second: 0, millisecond: 0 })
             .toSeconds(),
@@ -36,7 +38,7 @@ export const ActivityScreen = (_props: ActivityScreenProps) => {
           }),
         )
         .sort((a, b) => b.date - a.date),
-    [transfers],
+    [transfers, txs],
   );
 
   return (
@@ -52,7 +54,7 @@ export const ActivityScreen = (_props: ActivityScreenProps) => {
           </Box>
         )}
         renderItem={({ item }) => (
-          <TransferItem transfer={item} px={3} py={2} />
+          <ActivityItem activity={item} px={3} py={2} />
         )}
       />
     </Box>

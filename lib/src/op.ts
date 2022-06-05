@@ -2,14 +2,18 @@ import {
   TypedDataDomain,
   TypedDataField,
 } from '@ethersproject/abstract-signer';
-import { BytesLike, ethers } from 'ethers';
+import { BigNumber, BytesLike, ethers } from 'ethers';
 import { Wallet } from 'zksync-web3';
 import { Address, ZERO_ADDR } from './addr';
-import { Safe, SignerStruct } from './contracts/Safe';
+import { ZERO } from './bignum';
+import { SignerStruct } from './contracts/Safe';
 
-export type Op = Omit<Parameters<Safe['execute']>[0], 'to'> & {
+export interface Op {
   to: Address;
-};
+  value: BigNumber;
+  data: BytesLike;
+  nonce: BigNumber;
+}
 
 export interface SignedOp {
   tx: Op;
@@ -66,8 +70,8 @@ export const signTx = async (wallet: Wallet, safe: Address, ...ops: Op[]) =>
 
 export const createOp = (op: Partial<Op>): Op => ({
   to: ZERO_ADDR,
-  value: 0,
+  value: ZERO,
   data: [],
-  nonce: 0, // TODO: generated random number
+  nonce: ZERO, // TODO: generated random number
   ...op,
 });

@@ -6,6 +6,7 @@ export * from './util/mappedTypes';
 
 export * from './addr';
 export * from './approver';
+export * from "./bignum";
 export * from './counterfactual';
 export * from './deploy';
 export * from './events';

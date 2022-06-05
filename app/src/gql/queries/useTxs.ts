@@ -42,19 +42,19 @@ query GetSubTxs($safe: String!) {
 // }
 
 export interface ProposedTx {
+  id: Id;
   type: TxType;
   hash: BytesLike;
   ops: Op[];
   approvals: Signer[];
   // comments: Comment[];
+  timestamp: DateTime;
 }
 
 export interface ExecutedTx extends ProposedTx {
-  id: Id;
   responses: BytesLike[];
   executor: Address;
   blockHash: BytesLike;
-  timestamp: DateTime;
   transfers: Transfer[];
 }
 
@@ -109,6 +109,7 @@ fragment TxFields on Tx {
     approverId
     signature
   }
+  createdAt
 }
 `;
 
@@ -134,6 +135,7 @@ const useApiProposedTxs = () => {
     () =>
       data?.txs.map(
         (tx): ProposedTx => ({
+          id: toId(tx.id),
           type: tx.ops.length === 1 ? TxType.SINGLE : TxType.MULTI,
           hash: tx.hash,
           ops: tx.ops.map((op) => ({
@@ -144,6 +146,7 @@ const useApiProposedTxs = () => {
             addr: address(a.approverId),
             signature: a.signature,
           })),
+          timestamp: DateTime.fromISO(tx.createdAt),
         }),
       ) ?? [],
     [data],
@@ -168,6 +171,8 @@ export const useTxs = () => {
           requireBoth: (sub, api): ExecutedTx => ({
             ...sub,
             ...api,
+            id: sub.id,
+            timestamp: sub.timestamp,
           }),
           either: ({ sub, api }): Tx => sub ?? api,
         },

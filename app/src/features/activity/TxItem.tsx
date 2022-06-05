@@ -4,22 +4,25 @@ import { Addr } from '@components/Addr';
 import { Item, ItemProps } from '@components/list/Item';
 import { TokenIcon } from '@components/token/TokenIcon';
 import { TokenValue } from '@components/token/TokenValue';
-import { isInTransfer, Transfer } from '@gql/queries/useIndependentTransfers';
+import { getSighash, useContractMethod } from '@gql/queries/useContractMethod';
+import { Tx } from '@gql/queries/useTxs';
 import { Caption, Paragraph, Subheading, useTheme } from 'react-native-paper';
-import { useToken } from '~/token/useToken';
+import { ETH } from '~/token/tokens';
 import { useTokenValue } from '~/token/useTokenValue';
+import { sumBn } from "lib";
 
-export interface TransferItemProps extends ItemProps {
-  transfer: Transfer;
+const token = ETH;
+
+export interface TxItemProps extends ItemProps {
+  tx: Tx;
 }
 
-export const TransferItem = ({
-  transfer: t,
-  ...itemProps
-}: TransferItemProps) => {
+export const TxItem = ({ tx, ...itemProps }: TxItemProps) => {
   const { colors } = useTheme();
-  const token = useToken(t.tokenAddr);
-  const { fiatValue } = useTokenValue(token, t.value);
+  const { fiatValue } = useTokenValue(token, sumBn(tx.ops.map(op => op.value)));
+  const { methodFragment } = useContractMethod(tx.ops[0].to, tx.ops[0].data);
+
+  const methodName = methodFragment?.name ?? getSighash(tx.ops[0].data);
 
   return (
     <Item
@@ -27,11 +30,11 @@ export const TransferItem = ({
       Main={
         <Box vertical justifyContent="space-between">
           <Subheading style={{ fontSize: 20, marginVertical: 0 }}>
-            <Addr addr={isInTransfer(t) ? t.from : t.to} />
+            <Addr addr={tx.ops[0].to} />
           </Subheading>
 
           <Caption style={{ fontSize: 15, marginVertical: 0 }}>
-            Thanks for the cookies
+            {methodName}
           </Caption>
         </Box>
       }
@@ -43,12 +46,10 @@ export const TransferItem = ({
 
           <Paragraph
             style={{
-              ...(!t.value.eq(0) && {
-                color: isInTransfer(t) ? colors.success : colors.error,
-              }),
+              ...(!tx.ops[0].value.eq(0) && { color: colors.success }),
             }}
           >
-            <TokenValue token={token} value={t.value} />
+            <TokenValue token={token} value={tx.ops[0].value} />
           </Paragraph>
         </Box>
       }

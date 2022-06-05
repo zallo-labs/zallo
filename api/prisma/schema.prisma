@@ -88,6 +88,7 @@ model Tx {
   ops       Op[]
   approvals Approval[]
   // comments Comment[]
+  createdAt DateTime   @default(now())
 
   @@id([safeId, hash])
 }

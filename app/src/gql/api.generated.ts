@@ -308,6 +308,7 @@ export interface GetApiTxs_txs {
   hash: string;
   ops: GetApiTxs_txs_ops[] | null;
   approvals: GetApiTxs_txs_approvals[] | null;
+  createdAt: any;
 }
 
 export interface GetApiTxs {
@@ -421,6 +422,7 @@ export interface TxFields {
   hash: string;
   ops: TxFields_ops[] | null;
   approvals: TxFields_approvals[] | null;
+  createdAt: any;
 }
 
 /* tslint:disable */
@@ -827,6 +829,21 @@ export interface ContactWhereUniqueInput {
   name_identifier?: ContactName_identifierCompoundUniqueInput | null;
 }
 
+export interface DateTimeFieldUpdateOperationsInput {
+  set?: any | null;
+}
+
+export interface DateTimeFilter {
+  equals?: any | null;
+  gt?: any | null;
+  gte?: any | null;
+  in?: any[] | null;
+  lt?: any | null;
+  lte?: any | null;
+  not?: NestedDateTimeFilter | null;
+  notIn?: any[] | null;
+}
+
 export interface DecimalFieldUpdateOperationsInput {
   decrement?: any | null;
   divide?: any | null;
@@ -1130,6 +1147,17 @@ export interface GroupUpsertWithoutApproversInput {
 
 export interface GroupWhereUniqueInput {
   safeId_hash?: GroupSafeIdHashCompoundUniqueInput | null;
+}
+
+export interface NestedDateTimeFilter {
+  equals?: any | null;
+  gt?: any | null;
+  gte?: any | null;
+  in?: any[] | null;
+  lt?: any | null;
+  lte?: any | null;
+  not?: NestedDateTimeFilter | null;
+  notIn?: any[] | null;
 }
 
 export interface NestedDecimalFilter {
@@ -1580,6 +1608,7 @@ export interface StringNullableFilter {
 }
 
 export interface TxCreateManySafeInput {
+  createdAt?: any | null;
   hash: string;
 }
 
@@ -1623,6 +1652,7 @@ export interface TxCreateOrConnectWithoutSafeInput {
 }
 
 export interface TxCreateWithoutApprovalsInput {
+  createdAt?: any | null;
   hash: string;
   ops?: OpCreateNestedManyWithoutTxInput | null;
   safe: SafeCreateNestedOneWithoutTxsInput;
@@ -1630,12 +1660,14 @@ export interface TxCreateWithoutApprovalsInput {
 
 export interface TxCreateWithoutOpsInput {
   approvals?: ApprovalCreateNestedManyWithoutTxInput | null;
+  createdAt?: any | null;
   hash: string;
   safe: SafeCreateNestedOneWithoutTxsInput;
 }
 
 export interface TxCreateWithoutSafeInput {
   approvals?: ApprovalCreateNestedManyWithoutTxInput | null;
+  createdAt?: any | null;
   hash: string;
   ops?: OpCreateNestedManyWithoutTxInput | null;
 }
@@ -1649,11 +1681,13 @@ export interface TxScalarWhereInput {
   AND?: TxScalarWhereInput[] | null;
   NOT?: TxScalarWhereInput[] | null;
   OR?: TxScalarWhereInput[] | null;
+  createdAt?: DateTimeFilter | null;
   hash?: StringFilter | null;
   safeId?: StringFilter | null;
 }
 
 export interface TxUpdateManyMutationInput {
+  createdAt?: DateTimeFieldUpdateOperationsInput | null;
   hash?: StringFieldUpdateOperationsInput | null;
 }
 
@@ -1698,6 +1732,7 @@ export interface TxUpdateWithWhereUniqueWithoutSafeInput {
 }
 
 export interface TxUpdateWithoutApprovalsInput {
+  createdAt?: DateTimeFieldUpdateOperationsInput | null;
   hash?: StringFieldUpdateOperationsInput | null;
   ops?: OpUpdateManyWithoutTxInput | null;
   safe?: SafeUpdateOneRequiredWithoutTxsInput | null;
@@ -1705,12 +1740,14 @@ export interface TxUpdateWithoutApprovalsInput {
 
 export interface TxUpdateWithoutOpsInput {
   approvals?: ApprovalUpdateManyWithoutTxInput | null;
+  createdAt?: DateTimeFieldUpdateOperationsInput | null;
   hash?: StringFieldUpdateOperationsInput | null;
   safe?: SafeUpdateOneRequiredWithoutTxsInput | null;
 }
 
 export interface TxUpdateWithoutSafeInput {
   approvals?: ApprovalUpdateManyWithoutTxInput | null;
+  createdAt?: DateTimeFieldUpdateOperationsInput | null;
   hash?: StringFieldUpdateOperationsInput | null;
   ops?: OpUpdateManyWithoutTxInput | null;
 }
