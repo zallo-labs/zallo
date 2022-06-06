@@ -27,11 +27,11 @@ export const TransferItem = ({
       Main={
         <Box vertical justifyContent="space-between">
           <Subheading style={{ fontSize: 20, marginVertical: 0 }}>
-            <Addr addr={isInTransfer(t) ? t.from : t.to} />
+            <Addr addr={t.addr} />
           </Subheading>
 
           <Caption style={{ fontSize: 15, marginVertical: 0 }}>
-            Thanks for the cookies
+            Transfer
           </Caption>
         </Box>
       }

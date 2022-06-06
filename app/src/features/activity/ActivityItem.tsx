@@ -1,7 +1,7 @@
 import { ItemProps } from '@components/list/Item';
 import { Tx } from '@gql/queries/useTxs';
 import { isTransfer, Transfer } from '@gql/queries/useIndependentTransfers';
-import { TxItem } from './TxItem';
+import { TxItem } from './tx/TxItem';
 import { TransferItem } from './TransferItem';
 
 export type Activity = Tx | Transfer;

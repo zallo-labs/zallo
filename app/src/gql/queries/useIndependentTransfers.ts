@@ -41,6 +41,7 @@ query GetTransfers($safe: String!) {
 interface Base {
   id: Id;
   tokenAddr: Address;
+  addr: Address;
   value: BigNumber;
   blockHash: BytesLike;
   timestamp: DateTime;
@@ -59,6 +60,7 @@ export type Transfer = InTransfer | OutTransfer;
 export const fieldsToTransfer = (t: GetTransfers_transfers): Transfer => ({
   id: toId(t.id),
   tokenAddr: address(t.token),
+  addr: address(t.type === TransferType.IN ? t.from : t.to),
   value: BigNumber.from(t.value),
   blockHash: t.blockHash,
   timestamp: DateTime.fromSeconds(parseInt(t.timestamp)),

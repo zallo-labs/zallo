@@ -168,6 +168,50 @@ export interface UpsertSafeVariables {
 // This file was automatically generated and should not be edited.
 
 // ====================================================
+// GraphQL mutation operation: ApproveTx
+// ====================================================
+
+export interface ApproveTx_approve_ops {
+  __typename: "Op";
+  hash: string;
+  to: string;
+  value: any;
+  data: string;
+  nonce: any;
+}
+
+export interface ApproveTx_approve_approvals {
+  __typename: "Approval";
+  approverId: string;
+  signature: string;
+}
+
+export interface ApproveTx_approve {
+  __typename: "Tx";
+  id: string;
+  safeId: string;
+  hash: string;
+  ops: ApproveTx_approve_ops[] | null;
+  approvals: ApproveTx_approve_approvals[] | null;
+  createdAt: any;
+}
+
+export interface ApproveTx {
+  approve: ApproveTx_approve | null;
+}
+
+export interface ApproveTxVariables {
+  safe: any;
+  txHash: any;
+  signature: any;
+}
+
+/* tslint:disable */
+/* eslint-disable */
+// @generated
+// This file was automatically generated and should not be edited.
+
+// ====================================================
 // GraphQL query operation: GetContacts
 // ====================================================
 
@@ -204,6 +248,50 @@ export interface GetContractMethod {
 export interface GetContractMethodVariables {
   contract: any;
   sighash: any;
+}
+
+/* tslint:disable */
+/* eslint-disable */
+// @generated
+// This file was automatically generated and should not be edited.
+
+// ====================================================
+// GraphQL mutation operation: ProposeTx
+// ====================================================
+
+export interface ProposeTx_proposeTx_ops {
+  __typename: "Op";
+  hash: string;
+  to: string;
+  value: any;
+  data: string;
+  nonce: any;
+}
+
+export interface ProposeTx_proposeTx_approvals {
+  __typename: "Approval";
+  approverId: string;
+  signature: string;
+}
+
+export interface ProposeTx_proposeTx {
+  __typename: "Tx";
+  id: string;
+  safeId: string;
+  hash: string;
+  ops: ProposeTx_proposeTx_ops[] | null;
+  approvals: ProposeTx_proposeTx_approvals[] | null;
+  createdAt: any;
+}
+
+export interface ProposeTx {
+  proposeTx: ProposeTx_proposeTx;
+}
+
+export interface ProposeTxVariables {
+  safe: any;
+  ops: OpInput[];
+  signature: any;
 }
 
 /* tslint:disable */
@@ -1269,6 +1357,13 @@ export interface OpCreateWithoutTxInput {
   nonce: any;
   safe: SafeCreateNestedOneWithoutOpsInput;
   to: string;
+  value: any;
+}
+
+export interface OpInput {
+  data: any;
+  nonce: any;
+  to: any;
   value: any;
 }
 

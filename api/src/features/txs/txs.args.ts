@@ -28,7 +28,7 @@ export class OpInput {
 }
 
 @ArgsType()
-export class CreateTxArgs {
+export class ProposeTxArgs {
   @AddressField()
   safe: Address;
 
@@ -36,7 +36,7 @@ export class CreateTxArgs {
   ops: OpInput[];
 
   @BytesField()
-  signature: BytesLike;
+  signature: string;
 }
 
 @ArgsType()

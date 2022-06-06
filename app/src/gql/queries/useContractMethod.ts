@@ -44,7 +44,9 @@ export const useContractMethod = (contract: Address, funcData: BytesLike) => {
 
   const methodFragment: FunctionFragment | undefined = useMemo(
     () =>
-      isSafe
+      sighash === '0x'
+        ? undefined
+        : isSafe
         ? SAFE_INTERFACE.getFunction(sighash as any)
         : data
         ? FunctionFragment.from(JSON.parse(data?.contractMethod.fragment))
@@ -58,5 +60,10 @@ export const useContractMethod = (contract: Address, funcData: BytesLike) => {
     [methodFragment],
   );
 
-  return { methodFragment, methodInterface, ...rest };
+  const methodName = useMemo(
+    () => methodFragment?.name ?? (sighash === '0x' ? 'Send' : sighash),
+    [sighash, methodFragment],
+  );
+
+  return { methodFragment, methodInterface, methodName, sighash, ...rest };
 };

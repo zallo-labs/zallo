@@ -5,7 +5,7 @@ import { apiGql, subGql } from '@gql/clients';
 import { combine, combineRest, simpleKeyExtractor } from '@gql/combine';
 import { useApiClient, useSubgraphClient } from '@gql/GqlProvider';
 import { GetSubTxs, GetSubTxsVariables, TxType } from '@gql/subgraph.generated';
-import { BytesLike } from 'ethers';
+import { BigNumber, BytesLike } from 'ethers';
 import { address, Address, Id, Op, Signer, toId } from 'lib';
 import { DateTime } from 'luxon';
 import { useMemo } from 'react';
@@ -41,14 +41,21 @@ query GetSubTxs($safe: String!) {
 //   likes: Address[];
 // }
 
+export interface OpWithHash extends Op {
+  hash: BytesLike;
+}
+
+export type TxStatus = 'proposed' | 'executed'; // TODO: pending & reverted
+
 export interface ProposedTx {
   id: Id;
   type: TxType;
   hash: BytesLike;
-  ops: Op[];
+  ops: OpWithHash[];
   approvals: Signer[];
   // comments: Comment[];
   timestamp: DateTime;
+  status: TxStatus;
 }
 
 export interface ExecutedTx extends ProposedTx {
@@ -85,6 +92,7 @@ const useSubExecutedTxs = () => {
           transfers: t.transfers.map(fieldsToTransfer),
           ops: [],
           approvals: [],
+          status: 'executed',
         }),
       ) ?? [],
     [data],
@@ -133,22 +141,28 @@ const useApiProposedTxs = () => {
 
   const proposedTxs: ProposedTx[] = useMemo(
     () =>
-      data?.txs.map(
-        (tx): ProposedTx => ({
+      data?.txs.map((tx): ProposedTx => {
+        const approvals: Signer[] = tx.approvals.map((a) => ({
+          addr: address(a.approverId),
+          signature: a.signature,
+        }));
+
+        return {
           id: toId(tx.id),
           type: tx.ops.length === 1 ? TxType.SINGLE : TxType.MULTI,
           hash: tx.hash,
           ops: tx.ops.map((op) => ({
-            ...op,
+            hash: op.hash,
             to: address(op.to),
+            value: BigNumber.from(op.value),
+            data: op.data,
+            nonce: BigNumber.from(op.nonce),
           })),
-          approvals: tx.approvals.map((a) => ({
-            addr: address(a.approverId),
-            signature: a.signature,
-          })),
+          approvals,
           timestamp: DateTime.fromISO(tx.createdAt),
-        }),
-      ) ?? [],
+          status: 'proposed',
+        };
+      }) ?? [],
     [data],
   );
 
@@ -173,12 +187,19 @@ export const useTxs = () => {
             ...api,
             id: sub.id,
             timestamp: sub.timestamp,
+            status: sub.status,
           }),
           either: ({ sub, api }): Tx => sub ?? api,
         },
       ),
     [subExecutedTxs, proposedTxs],
   );
+
+  console.log({
+    subExecutedTxs,
+    proposedTxs,
+    txs,
+  });
 
   return { txs, ...rest };
 };

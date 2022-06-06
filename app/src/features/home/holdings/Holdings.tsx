@@ -1,38 +1,45 @@
 import { Box } from '@components/Box';
 import { SurfaceContainer } from '@components/list/SurfaceContainer';
-import { useExecute } from '@features/execute/useExecute';
-import { createSt } from '@features/execute/util';
+import { useExecute } from '@gql/queries/useExecute';
 import { useSafe } from '@features/safe/SafeProvider';
 import { useWallet } from '@features/wallet/useWallet';
 import { ethers } from 'ethers';
+import { address, createOp } from 'lib';
 import useAsyncEffect from 'use-async-effect';
 import { getTokenContract } from '~/token/token';
 import { DAI, ETH, LINK, USDC, WBTC } from '~/token/tokens';
-import { useTokenBalance } from '~/token/useTokenBalance';
 import { useTokenBalances } from '~/token/useTokenBalances';
 import { Holding } from './Holding';
-
-const token = USDC;
+import { useProposeTx } from '@gql/queries/useProposeTx';
 
 export const Holdings = () => {
   const { balances } = useTokenBalances();
   const { safe } = useSafe();
   const wallet = useWallet();
 
-  const tokenBalance = useTokenBalance(token);
   const execute = useExecute();
+  const propose = useProposeTx();
 
   useAsyncEffect(async () => {
-    const transferTx = createSt({
-      to: token.addr,
-      data: getTokenContract(token).interface.encodeFunctionData('transfer', [
-        wallet.address,
-        ethers.utils.parseUnits('18', token.decimals),
+    const usdcTransfer = createOp({
+      to: address(USDC.addr),
+      data: getTokenContract(USDC).interface.encodeFunctionData('transfer', [
+        address(wallet.address),
+        ethers.utils.parseUnits('6.28889', USDC.decimals),
       ]),
     });
 
-    // await execute(transferTx);
-  }, [safe]);
+    const daiTransfer = createOp({
+      to: address(DAI.addr),
+      data: getTokenContract(DAI).interface.encodeFunctionData('transfer', [
+        address(wallet.address),
+        ethers.utils.parseUnits('25', DAI.decimals),
+      ]),
+    });
+
+    // await propose(usdcTransfer, daiTransfer);
+    // await execute(usdcTransfer, daiTransfer);
+  }, [safe, propose]);
 
   return (
     <SurfaceContainer separator={<Box my={2} />}>

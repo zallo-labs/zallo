@@ -1,5 +1,5 @@
 import { useMutation } from '@apollo/client';
-import { useExecute } from '@features/execute/useExecute';
+import { useExecute } from '@gql/queries/useExecute';
 import { useSafe } from '@features/safe/SafeProvider';
 import { useIsDeployed } from '@features/safe/useIsDeployed';
 import { useWallet } from '@features/wallet/useWallet';
