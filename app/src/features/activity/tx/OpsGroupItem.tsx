@@ -6,27 +6,27 @@ import { TokenIcon } from '@components/token/TokenIcon';
 import { Paragraph, Subheading } from 'react-native-paper';
 import { ETH } from '~/token/tokens';
 import { useTokenValue } from '~/token/useTokenValue';
-import { Address, sumBn } from 'lib';
-import { TxOpRow } from './TxOpRow';
+import { Address, Op, sumBn } from 'lib';
+import { OpRow } from './TxOpRow';
 import { OpWithHash } from '@gql/queries/useTxs';
 import { ethers } from 'ethers';
 import { useToken } from '~/token/useToken';
+import { TotalOpsGroupValue } from './TotalOpsGroupValue';
 
 export interface OpsGroup {
   to: Address;
   ops: OpWithHash[];
 }
 
-export interface TxOpsGroupItemProps extends ItemProps {
+export interface OpsGroupItemProps extends ItemProps {
   group: OpsGroup;
 }
 
-export const TxOpsGroupItem = ({
+export const OpsGroupItem = ({
   group: { to, ops },
   ...itemProps
-}: TxOpsGroupItemProps) => {
+}: OpsGroupItemProps) => {
   const token = useToken(to) ?? ETH;
-  const { fiatValue } = useTokenValue(token, sumBn(ops.map((op) => op.value)));
 
   return (
     <Item
@@ -39,12 +39,12 @@ export const TxOpsGroupItem = ({
             </Subheading>
 
             <Paragraph>
-              <FiatValue value={fiatValue} />
+              <TotalOpsGroupValue to={to} ops={ops} />
             </Paragraph>
           </Box>
 
           {ops.map((op) => (
-            <TxOpRow key={ethers.utils.hexlify(op.hash)} op={op} />
+            <OpRow key={ethers.utils.hexlify(op.hash)} op={op} />
           ))}
         </Box>
       }

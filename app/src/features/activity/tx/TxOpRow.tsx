@@ -6,11 +6,11 @@ import { Caption, Paragraph, useTheme } from 'react-native-paper';
 import { ETH } from '~/token/tokens';
 import { TransferMethodValue } from './TransferMethodValue';
 
-export interface TxOpRowProps {
+export interface OpRowProps {
   op: Op;
 }
 
-export const TxOpRow = ({ op: { to, value, data } }: TxOpRowProps) => {
+export const OpRow = ({ op: { to, value, data } }: OpRowProps) => {
   const { colors } = useTheme();
   const { methodName } = useContractMethod(to, data);
 

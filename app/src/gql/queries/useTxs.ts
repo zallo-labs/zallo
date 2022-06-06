@@ -195,11 +195,5 @@ export const useTxs = () => {
     [subExecutedTxs, proposedTxs],
   );
 
-  console.log({
-    subExecutedTxs,
-    proposedTxs,
-    txs,
-  });
-
   return { txs, ...rest };
 };

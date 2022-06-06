@@ -4,7 +4,7 @@ import { ItemProps } from '@components/list/Item';
 import { isExecutedTx, Tx } from '@gql/queries/useTxs';
 import { useTheme } from 'react-native-paper';
 import { TransferItem } from '../TransferItem';
-import { OpsGroup, TxOpsGroupItem } from './TxOpsGroupItem';
+import { OpsGroup, OpsGroupItem } from './OpsGroupItem';
 
 export interface TxItemProps extends ItemProps {
   tx: Tx;
@@ -39,7 +39,7 @@ export const TxItem = ({ tx, ...itemProps }: TxItemProps) => {
       {groups.length > 1 && <Divider mx={3} />}
 
       {groups.map((group) => (
-        <TxOpsGroupItem key={group.to} group={group} {...itemProps} />
+        <OpsGroupItem key={group.to} group={group} {...itemProps} />
       ))}
 
       {isExecutedTx(tx) &&
