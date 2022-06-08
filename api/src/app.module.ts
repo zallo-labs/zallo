@@ -16,6 +16,7 @@ import { ContactsModule } from './features/contacts/contacts.module';
 import { GroupApproverModule } from './features/group-approver/group-approver.module';
 import { ContractMethodsModule } from './features/contract-methods/contract-methods.module';
 import { TxsModule } from './features/txs/txs.module';
+import { SubmissionsModule } from './features/submissions/submissions.module';
 
 @Module({
   imports: [
@@ -36,6 +37,7 @@ import { TxsModule } from './features/txs/txs.module';
     GroupApproverModule,
     GroupsModule,
     SafesModule,
+    SubmissionsModule,
     TxsModule,
   ],
   providers: [

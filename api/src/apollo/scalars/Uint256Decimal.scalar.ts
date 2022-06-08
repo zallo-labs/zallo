@@ -30,7 +30,12 @@ export const GqlUint256Decimal = new GraphQLScalarType({
   serialize: (value: Decimal) => value.toString(),
   parseValue: (value: unknown) => parse(value),
   parseLiteral: (ast) => {
-    if (ast.kind === Kind.STRING) return parse(ast.value);
+    if (
+      ast.kind === Kind.STRING ||
+      ast.kind === Kind.INT ||
+      ast.kind === Kind.FLOAT
+    )
+      return parse(ast.value);
     throw error;
   },
 });

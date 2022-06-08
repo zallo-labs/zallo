@@ -11,7 +11,6 @@ import {
 import { Prisma } from '@prisma/client';
 import { UserInputError } from 'apollo-server-core';
 import { BytesLike, ethers } from 'ethers';
-import * as zk from 'zksync-web3';
 import { GraphQLResolveInfo } from 'graphql';
 import { Address, hashTx } from 'lib';
 import { PrismaService } from 'nestjs-prisma';
@@ -27,10 +26,15 @@ import {
   TxsArgs,
   RevokeApprovalArgs,
 } from './txs.args';
+import { Submission } from '@gen/submission/submission.model';
+import { SubmissionsService } from '../submissions/submissions.service';
 
 @Resolver(() => Tx)
 export class TxsResolver {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private submissionsService: SubmissionsService,
+  ) {}
 
   @Query(() => [Tx])
   async txs(
@@ -51,6 +55,13 @@ export class TxsResolver {
   @ResolveField(() => String)
   async id(@Parent() tx: Tx): Promise<string> {
     return `${tx.safeId}-${tx.hash}`;
+  }
+
+  @ResolveField(() => [Submission])
+  async submissions(@Parent() tx: Tx): Promise<Submission[]> {
+    return await this.submissionsService.updateUnfinalized(
+      tx.submissions ?? [],
+    );
   }
 
   @Mutation(() => Tx)

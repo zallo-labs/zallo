@@ -26,7 +26,8 @@ export const GqlUint256Bn = new GraphQLScalarType({
   serialize: (value: BigNumber) => value.toString(),
   parseValue: (value: unknown) => parse(value),
   parseLiteral: (ast) => {
-    if (ast.kind === Kind.STRING) return parse(ast.value);
+    if (ast.kind === Kind.STRING || ast.kind === Kind.INT)
+      return parse(ast.value);
     throw error;
   },
 });

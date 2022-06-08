@@ -82,15 +82,28 @@ model ContractMethod {
 }
 
 model Tx {
-  safe      Safe       @relation(fields: [safeId], references: [id], onDelete: Cascade)
-  safeId    String     @db.Char(42) // address
-  hash      String     @db.Char(66) // bytes32
-  ops       Op[]
-  approvals Approval[]
+  safe        Safe         @relation(fields: [safeId], references: [id], onDelete: Cascade)
+  safeId      String       @db.Char(42) // address
+  hash        String       @db.Char(66) // bytes32
+  ops         Op[]
+  approvals   Approval[]
+  createdAt   DateTime     @default(now())
+  submissions Submission[]
   // comments Comment[]
-  createdAt DateTime   @default(now())
 
   @@id([safeId, hash])
+}
+
+model Submission {
+  hash      String   @id @db.Char(66) // bytes32
+  tx        Tx       @relation(fields: [safeId, txHash], references: [safeId, hash], onDelete: Cascade)
+  safeId    String   @db.Char(42) // address
+  txHash    String   @db.Char(66) // bytes32
+  createdAt DateTime @default(now())
+  nonce     Int
+  gasLimit  Decimal  @db.Decimal(19, 0)
+  gasPrice  Decimal? @db.Decimal(19, 0)
+  finalized Boolean
 }
 
 model Op {
