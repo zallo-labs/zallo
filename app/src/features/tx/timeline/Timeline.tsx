@@ -1,7 +1,7 @@
 import { Addr } from '@components/Addr';
 import { Box } from '@components/Box';
 import { Timestamp } from '@components/Timestamp';
-import { isExecutedTx, Tx, TxStatus } from '@gql/queries/useTxs';
+import { isExecutedTx, Tx, TxStatus } from '~/queries/useTxs';
 import { hexlify } from 'ethers/lib/utils';
 import { useState } from 'react';
 import { Pressable } from 'react-native';

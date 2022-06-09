@@ -1,6 +1,6 @@
 import { useMemo } from 'react';
 import { ethers } from 'ethers';
-import { CombinedGroup } from '@queries';
+import { CombinedGroup } from '~/queries';
 import { elipseTruncate } from '@util/format';
 
 export interface FormattedGroupNameProps {

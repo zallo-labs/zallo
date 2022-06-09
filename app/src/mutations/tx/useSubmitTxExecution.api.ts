@@ -6,7 +6,7 @@ import {
 } from '@gql/api.generated';
 import { apiGql } from '@gql/clients';
 import { useApiClient } from '@gql/GqlProvider';
-import { Tx } from '@gql/queries/useTxs';
+import { Tx } from '~/queries/useTxs';
 import { ethers } from 'ethers';
 import { useCallback } from 'react';
 import { TransactionResponse } from 'zksync-web3/build/types';

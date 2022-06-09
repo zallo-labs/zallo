@@ -1,7 +1,7 @@
 import { useRef } from 'react';
 import BottomSheet from '@gorhom/bottom-sheet';
 import { Sheet } from './Sheet';
-import { Tx } from '@gql/queries/useTxs';
+import { Tx } from '~/queries/useTxs';
 import { TxItem } from '@features/activity/tx/TxItem';
 import { Timeline } from './timeline/Timeline';
 

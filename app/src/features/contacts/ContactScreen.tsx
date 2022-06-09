@@ -4,14 +4,14 @@ import * as Yup from 'yup';
 import { address, Address, tryAddress } from 'lib';
 import { FormikTextField } from '@components/fields/FormikTextField';
 import { RootNavigatorScreenProps } from '@features/navigation/RootNavigator';
-import { Contact, useContacts } from '@queries';
+import { Contact, useContacts } from '~/queries';
 import { FormikSubmitFab } from '@components/fields/FormikSubmitFab';
-import { useUpsertContact } from '@mutations';
+import { useUpsertContact } from '~/mutations';
 import { ADDR_YUP_SCHEMA } from '@util/yup';
 import { Actions } from '@components/Actions';
 import { Container } from '@components/list/Container';
 import { Box } from '@components/Box';
-import { useDeleteContact } from '@gql/mutations/useDeleteContact';
+import { useDeleteContact } from '~/mutations/useDeleteContact';
 
 interface Values {
   addr: string;

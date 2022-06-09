@@ -5,7 +5,7 @@ import { useSafe } from '@features/safe/SafeProvider';
 import { apiGql } from '@gql/clients';
 import { UpsertSafe, UpsertSafeVariables } from '@gql/api.generated';
 import { useApiClient } from '@gql/GqlProvider';
-import { API_SAFE_FIELDS_FRAGMENT, CombinedSafe } from '@queries';
+import { API_SAFE_FIELDS_FRAGMENT, CombinedSafe } from '~/queries';
 import { ethers } from 'ethers';
 
 const API_UPDATE_SAFE_MUTATION = apiGql`

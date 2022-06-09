@@ -1,6 +1,6 @@
 import { FiatValue } from '@components/FiatValue';
-import { useLazyContractMethod } from '@gql/queries/useContractMethod';
-import { useTokenPrice } from '@queries';
+import { useLazyContractMethod } from '~/queries/useContractMethod';
+import { useTokenPrice } from '~/queries';
 import { BigNumber } from 'ethers';
 import { Address, Op, sumBn, ZERO } from 'lib';
 import { useState } from 'react';

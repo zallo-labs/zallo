@@ -1,11 +1,8 @@
 import { Box } from '@components/Box';
 import { Timestamp } from '@components/Timestamp';
 import { TabNavigatorScreenProps } from '@features/navigation/TabNavigator';
-import { isTx, Tx, useTxs } from '@gql/queries/useTxs';
-import {
-  isTransfer,
-  useIndependentTransfers,
-} from '@gql/queries/useIndependentTransfers';
+import { isTx, Tx, useTxs } from '~/queries/useTxs';
+import { useIndependentTransfers } from '~/queries/useIndependentTransfers';
 import { groupBy } from 'lib';
 import { useMemo } from 'react';
 import { SectionList } from 'react-native';

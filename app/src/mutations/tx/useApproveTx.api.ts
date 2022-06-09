@@ -6,7 +6,7 @@ import { apiGql } from '@gql/clients';
 import { useApiClient } from '@gql/GqlProvider';
 import { signTx } from 'lib';
 import { useCallback } from 'react';
-import { API_TX_FIELDS, Tx } from '../../queries/useTxs';
+import { API_TX_FIELDS, Tx } from '~/queries/useTxs';
 
 const MUTATION = apiGql`
 ${API_TX_FIELDS}

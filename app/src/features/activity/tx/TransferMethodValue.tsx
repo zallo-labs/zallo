@@ -1,5 +1,5 @@
 import { TokenValue } from '@components/token/TokenValue';
-import { useContractMethod } from '@gql/queries/useContractMethod';
+import { useContractMethod } from '~/queries/useContractMethod';
 import { BytesLike } from 'ethers';
 import { Address } from 'lib';
 import { useToken } from '~/token/useToken';

@@ -4,7 +4,7 @@ import { Addr } from '@components/Addr';
 import { Item, ItemProps } from '@components/list/Item';
 import { TokenIcon } from '@components/token/TokenIcon';
 import { TokenValue } from '@components/token/TokenValue';
-import { isInTransfer, Transfer } from '@gql/queries/useIndependentTransfers';
+import { isInTransfer, Transfer } from '~/queries/useIndependentTransfers';
 import { Caption, Paragraph, Subheading, useTheme } from 'react-native-paper';
 import { useToken } from '~/token/useToken';
 import { useTokenValue } from '~/token/useTokenValue';

@@ -1,6 +1,6 @@
 import { Box } from '@components/Box';
 import { SurfaceContainer } from '@components/list/SurfaceContainer';
-import { useExecute } from '@gql/queries/useExecute';
+import { useExecute } from '~/queries/useExecute';
 import { useSafe } from '@features/safe/SafeProvider';
 import { useWallet } from '@features/wallet/useWallet';
 import { ethers } from 'ethers';
@@ -10,7 +10,7 @@ import { getTokenContract } from '~/token/token';
 import { DAI, ETH, LINK, USDC, WBTC } from '~/token/tokens';
 import { useTokenBalances } from '~/token/useTokenBalances';
 import { Holding } from './Holding';
-import { useProposeTx } from '@gql/queries/useProposeTx';
+import { useProposeTx } from '~/queries/useProposeTx';
 
 export const Holdings = () => {
   const { balances } = useTokenBalances();

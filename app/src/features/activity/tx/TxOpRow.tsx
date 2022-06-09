@@ -1,6 +1,6 @@
 import { Box } from '@components/Box';
 import { TokenValue } from '@components/token/TokenValue';
-import { useContractMethod } from '@gql/queries/useContractMethod';
+import { useContractMethod } from '~/queries/useContractMethod';
 import { Op } from 'lib';
 import { Caption, Paragraph, useTheme } from 'react-native-paper';
 import { ETH } from '~/token/tokens';

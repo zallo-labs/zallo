@@ -1,4 +1,4 @@
-import { TokenPrice, useTokenPrice } from '@queries';
+import { TokenPrice, useTokenPrice } from '~/queries';
 import { BigNumber, ethers } from 'ethers';
 import { useMemo } from 'react';
 import { FIAT_DECIMALS } from './fiat';

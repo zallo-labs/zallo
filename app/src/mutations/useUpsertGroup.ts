@@ -1,5 +1,5 @@
 import { useMutation } from '@apollo/client';
-import { useExecute } from '@gql/queries/useExecute';
+import { useExecute } from '~/queries/useExecute';
 import { useSafe } from '@features/safe/SafeProvider';
 import { useIsDeployed } from '@features/safe/useIsDeployed';
 import { useWallet } from '@features/wallet/useWallet';
@@ -10,7 +10,7 @@ import {
 } from '@gql/api.generated';
 import { apiGql } from '@gql/clients';
 import { useApiClient } from '@gql/GqlProvider';
-import { API_GROUP_FIELDS_FRAGMENT, CombinedGroup } from '@queries';
+import { API_GROUP_FIELDS_FRAGMENT, CombinedGroup } from '~/queries';
 import { ethers } from 'ethers';
 import { createOp, Group, hashGroup, isPresent, toSafeGroup } from 'lib';
 

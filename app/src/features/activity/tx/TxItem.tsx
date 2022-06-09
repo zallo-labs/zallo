@@ -1,7 +1,7 @@
 import { Box } from '@components/Box';
 import { Divider } from '@components/Divider';
 import { ItemProps } from '@components/list/Item';
-import { isExecutedTx, Tx } from '@gql/queries/useTxs';
+import { isExecutedTx, Tx } from '~/queries/useTxs';
 import { useTheme } from 'react-native-paper';
 import { TransferItem } from '../TransferItem';
 import { OpsGroup, OpsGroupItem } from './OpsGroupItem';

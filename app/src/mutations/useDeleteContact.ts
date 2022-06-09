@@ -7,7 +7,7 @@ import {
 } from '@gql/api.generated';
 import { apiGql } from '@gql/clients';
 import { useApiClient } from '@gql/GqlProvider';
-import { API_CONTACTS_QUERY, Contact } from '@queries';
+import { API_CONTACTS_QUERY, Contact } from '~/queries';
 import { toId } from 'lib';
 import { useCallback } from 'react';
 

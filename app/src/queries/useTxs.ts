@@ -4,7 +4,7 @@ import { GetApiTxs, GetApiTxsVariables } from '@gql/api.generated';
 import { apiGql, subGql } from '@gql/clients';
 import { combine, combineRest, simpleKeyExtractor } from '@gql/combine';
 import { useApiClient, useSubgraphClient } from '@gql/GqlProvider';
-import { SUBMISSION_FIELDS } from '@gql/mutations/tx/useSubmitTxExecution.api';
+import { SUBMISSION_FIELDS } from '~/mutations/tx/useSubmitTxExecution.api';
 import { GetSubTxs, GetSubTxsVariables, TxType } from '@gql/subgraph.generated';
 import { BigNumber, BytesLike } from 'ethers';
 import { address, Address, Id, Op, Signer, toId } from 'lib';

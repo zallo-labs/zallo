@@ -8,7 +8,7 @@ import { ETH } from '~/token/tokens';
 import { useTokenValue } from '~/token/useTokenValue';
 import { Address, Op, sumBn } from 'lib';
 import { OpRow } from './TxOpRow';
-import { OpWithHash } from '@gql/queries/useTxs';
+import { OpWithHash } from '~/queries/useTxs';
 import { ethers } from 'ethers';
 import { useToken } from '~/token/useToken';
 import { TotalOpsGroupValue } from './TotalOpsGroupValue';

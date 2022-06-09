@@ -4,7 +4,7 @@ import { Item } from '@components/list/Item';
 import { Token } from '~/token/token';
 import { TokenIcon } from '@components/token/TokenIcon';
 import { useTokenBalance } from '~/token/useTokenBalance';
-import { useTokenPrice } from '@gql/queries/useTokenPrice';
+import { useTokenPrice } from '~/queries/useTokenPrice';
 import { Box } from '@components/Box';
 import { PriceDelta } from '@components/PriceDelta';
 import { TokenValue } from '@components/token/TokenValue';

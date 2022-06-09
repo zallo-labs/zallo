@@ -5,7 +5,7 @@ import { Address } from 'lib';
 import { Addr } from '@components/Addr';
 import { Identicon } from '@components/Identicon';
 import { Item, ItemProps, SECONDARY_ICON_SIZE } from '@components/list/Item';
-import { Contact } from '@queries';
+import { Contact } from '~/queries';
 import { ContactsScreenProps } from './ContactsScreen';
 
 export interface ContactItemProps extends ItemProps {

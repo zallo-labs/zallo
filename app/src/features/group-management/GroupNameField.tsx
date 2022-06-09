@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useDebounce } from 'use-debounce';
-import { CombinedGroup } from '@queries';
-import { useUpsertGroup } from '@gql/mutations/useUpsertGroup';
+import { CombinedGroup } from '~/queries';
+import { useUpsertGroup } from '~/mutations/useUpsertGroup';
 import { TextField } from '@components/fields/TextField';
 
 export interface GroupNameFieldProps {

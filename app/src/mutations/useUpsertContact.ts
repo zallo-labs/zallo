@@ -13,7 +13,7 @@ import {
   API_CONTACT_FIELDS,
   Contact,
   NewContact,
-} from '@gql/queries/useContacts';
+} from '~/queries/useContacts';
 import { useWallet } from '@features/wallet/useWallet';
 import { toId } from 'lib';
 

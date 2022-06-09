@@ -6,7 +6,7 @@ import FuzzySearch from 'fuzzy-search';
 import { Box } from '@components/Box';
 import { RootNavigatorScreenProps } from '@features/navigation/RootNavigator';
 import { AddrLink } from '@features/qr/addrLink';
-import { Contact, useContacts } from '@gql/queries/useContacts';
+import { Contact, useContacts } from '~/queries/useContacts';
 import { TextField } from '@components/fields/TextField';
 import { ContactItem } from './ContactItem';
 import { CreateContactButton } from './CreateContactButton';

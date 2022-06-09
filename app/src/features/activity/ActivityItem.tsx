@@ -1,6 +1,6 @@
 import { ItemProps } from '@components/list/Item';
-import { Tx } from '@gql/queries/useTxs';
-import { isTransfer, Transfer } from '@gql/queries/useIndependentTransfers';
+import { Tx } from '~/queries/useTxs';
+import { isTransfer, Transfer } from '~/queries/useIndependentTransfers';
 import { TxItem } from './tx/TxItem';
 import { TransferItem } from './TransferItem';
 

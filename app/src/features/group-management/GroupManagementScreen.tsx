@@ -6,8 +6,8 @@ import { RootNavigatorScreenProps } from '@features/navigation/RootNavigator';
 import { useGroup, useSafe } from '@features/safe/SafeProvider';
 import { GroupManagement } from './GroupManagement';
 import { ADDR_YUP_SCHEMA } from '@util/yup';
-import { useUpsertGroup } from '@gql/mutations/useUpsertGroup';
-import { CombinedGroup } from '@queries';
+import { useUpsertGroup } from '~/mutations/useUpsertGroup';
+import { CombinedGroup } from '~/queries';
 
 const getSchema = (groups: CombinedGroup[]): Yup.SchemaOf<Group> =>
   Yup.object({
