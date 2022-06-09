@@ -23,7 +23,7 @@ export class ContractMethodsService {
   constructor(private prisma: PrismaService) {}
 
   async tryFetchAbi(addr: Address): Promise<Interface | undefined> {
-    return this.tryFetchEtherscanAbi(addr) ?? this.tryFetchDecompiledAbi(addr);
+    return await this.tryFetchEtherscanAbi(addr) ?? await this.tryFetchDecompiledAbi(addr);
   }
 
   async populateDbWithAbi(contract: Address, contractInterface: Interface) {
