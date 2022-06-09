@@ -37,7 +37,7 @@ declare global {
 
 // https://github.com/callstack/react-native-paper/blob/main/src/styles/DarkTheme.tsx
 // https://akveo.github.io/react-native-ui-kitten/docs/design-system/eva-dark-theme
-const surface = '#151A30'; // Dark blue/grey
+const surface = '#2b324d';
 
 export const PAPER_THEME: ReactNativePaper.Theme = {
   ...PaperDarkTheme,

@@ -8,9 +8,16 @@ import { OpsGroup, OpsGroupItem } from './OpsGroupItem';
 
 export interface TxItemProps extends ItemProps {
   tx: Tx;
+  status?: boolean;
+  dividers?: boolean;
 }
 
-export const TxItem = ({ tx, ...itemProps }: TxItemProps) => {
+export const TxItem = ({
+  tx,
+  status = true,
+  dividers = true,
+  ...itemProps
+}: TxItemProps) => {
   const { colors } = useTheme();
 
   const groups: OpsGroup[] = tx.ops.reduce((groups: OpsGroup[], op) => {
@@ -28,15 +35,18 @@ export const TxItem = ({ tx, ...itemProps }: TxItemProps) => {
     return groups;
   }, []);
 
+  const showDividers = dividers && groups.length > 1;
+
   return (
     <Box
       vertical
-      {...(tx.status === 'proposed' && {
-        borderLeftWidth: 3,
-        borderLeftColor: colors.primary,
-      })}
+      {...(status &&
+        tx.status === 'proposed' && {
+          borderLeftWidth: 3,
+          borderLeftColor: colors.primary,
+        })}
     >
-      {groups.length > 1 && <Divider mx={3} />}
+      {showDividers && <Divider mx={3} />}
 
       {groups.map((group) => (
         <OpsGroupItem key={group.to} group={group} {...itemProps} />
@@ -45,7 +55,7 @@ export const TxItem = ({ tx, ...itemProps }: TxItemProps) => {
       {isExecutedTx(tx) &&
         tx.transfers.map((t) => <TransferItem key={t.id} transfer={t} />)}
 
-      {groups.length > 1 && <Divider mx={3} />}
+      {showDividers && <Divider mx={3} />}
     </Box>
   );
 };

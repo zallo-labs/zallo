@@ -57,25 +57,6 @@ export class SubmissionsResolver {
     const transaction = await this.provider.getTransaction(submission.hash);
     if (!transaction) throw new UserInputError('Transaction not found');
 
-    // const submissions = await this.prisma.tx
-    //   .update({
-    //     where: { safeId_hash: { safeId: safe, hash: txHash } },
-    //     data: {
-    //       submission: {
-    //         create: {
-    //           hash: submission.hash,
-    //           nonce: transaction.nonce,
-    //           gasLimit: BigInt(transaction.gasLimit.toString()),
-    //           gasPrice: transaction.gasPrice
-    //             ? BigInt(transaction.gasPrice.toString())
-    //             : undefined,
-    //           finalized: this.service.isFinalised(transaction),
-    //         },
-    //       },
-    //     },
-    //   })
-    //   .submission({ ...getSelect(info) });
-
     return await this.prisma.submission.create({
       data: {
         tx: {

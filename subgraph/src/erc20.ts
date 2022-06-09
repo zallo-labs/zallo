@@ -1,6 +1,6 @@
 import { Transfer as TransferEvent } from '../generated/ERC20/ERC20';
 import { getSafeObjId, getTransferId, getTxId } from './id';
-import { Safe as SafeObj, Transfer, Tx } from '../generated/schema';
+import { Safe as SafeObj, Transfer } from '../generated/schema';
 
 export function handleTransfer(e: TransferEvent): void {
   // Only handle transfers from or to a safe
@@ -11,8 +11,8 @@ export function handleTransfer(e: TransferEvent): void {
   const transfer = new Transfer(getTransferId(e));
 
   transfer.safe = safe.id;
-  const txId = getTxId(e.transaction);
-  if (Tx.load(txId)) transfer.tx = txId;
+  transfer.tx = getTxId(e.transaction);
+  transfer.txHash = e.transaction.hash;
   transfer.token = e.address;
   transfer.type = safe.id == e.params.from.toHex() ? 'OUT' : 'IN';
   transfer.from = e.params.from;

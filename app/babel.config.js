@@ -25,6 +25,7 @@ module.exports = function (api) {
         //   ast: true,
         // },
       ],
+      'react-native-reanimated/plugin',
     ],
     env: {
       production: {

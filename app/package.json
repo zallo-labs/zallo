@@ -22,8 +22,9 @@
   "expo-yarn-workspaces": {
     "//": "https://www.npmjs.com/package/expo-yarn-workspaces"
   },
+  "//": "Apollo can't be updated until cjs files are natively supported - https://github.com/facebook/metro/issues/535; workaround breaks react-reanimated - https://github.com/gorhom/react-native-bottom-sheet/issues/732",
   "dependencies": {
-    "@apollo/client": "3.5.10",
+    "@apollo/client": "3.4.16",
     "@ethersproject/shims": "^5.6.0",
     "@expo/config": "^6.0.19",
     "@expo/vector-icons": "^13.0.0",
@@ -64,6 +65,8 @@
     "react-dom": "17.0.2",
     "react-intl": "^5.24.8",
     "react-native": "0.68.2",
+    "react-native-collapsible": "^1.6.0",
+    "react-native-dashed-line": "^1.1.0",
     "react-native-gesture-handler": "~2.2.1",
     "react-native-get-random-values": "~1.8.0",
     "react-native-jazzicon": "^0.1.2",

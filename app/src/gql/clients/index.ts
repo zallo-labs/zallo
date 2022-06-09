@@ -15,9 +15,13 @@ import { getPersistedCache } from './cache';
 
 export { gql as apiGql, gql as subGql, gql as uniswapGql };
 
+// https://www.apollographql.com/docs/react/data/queries/#supported-fetch-policies
 const defaultOptions: DefaultOptions = {
   watchQuery: {
-    fetchPolicy: 'cache-and-network',
+    fetchPolicy: 'cache-first',
+  },
+  query: {
+    fetchPolicy: 'cache-first',
   },
 };
 

@@ -4,6 +4,173 @@
 // This file was automatically generated and should not be edited.
 
 // ====================================================
+// GraphQL mutation operation: ApproveTx
+// ====================================================
+
+export interface ApproveTx_approve_ops {
+  __typename: "Op";
+  hash: string;
+  to: string;
+  value: any;
+  data: string;
+  nonce: any;
+}
+
+export interface ApproveTx_approve_approvals {
+  __typename: "Approval";
+  approverId: string;
+  signature: string;
+  createdAt: any;
+}
+
+export interface ApproveTx_approve_submissions {
+  __typename: "Submission";
+  id: string;
+  hash: string;
+  nonce: number;
+  gasLimit: any;
+  gasPrice: any | null;
+  finalized: boolean;
+  createdAt: any;
+}
+
+export interface ApproveTx_approve {
+  __typename: "Tx";
+  id: string;
+  safeId: string;
+  hash: string;
+  ops: ApproveTx_approve_ops[] | null;
+  approvals: ApproveTx_approve_approvals[] | null;
+  createdAt: any;
+  submissions: ApproveTx_approve_submissions[] | null;
+}
+
+export interface ApproveTx {
+  approve: ApproveTx_approve | null;
+}
+
+export interface ApproveTxVariables {
+  safe: any;
+  txHash: any;
+  signature: any;
+}
+
+/* tslint:disable */
+/* eslint-disable */
+// @generated
+// This file was automatically generated and should not be edited.
+
+// ====================================================
+// GraphQL mutation operation: Propose
+// ====================================================
+
+export interface Propose_proposeTx_ops {
+  __typename: "Op";
+  hash: string;
+  to: string;
+  value: any;
+  data: string;
+  nonce: any;
+}
+
+export interface Propose_proposeTx_approvals {
+  __typename: "Approval";
+  approverId: string;
+  signature: string;
+  createdAt: any;
+}
+
+export interface Propose_proposeTx_submissions {
+  __typename: "Submission";
+  id: string;
+  hash: string;
+  nonce: number;
+  gasLimit: any;
+  gasPrice: any | null;
+  finalized: boolean;
+  createdAt: any;
+}
+
+export interface Propose_proposeTx {
+  __typename: "Tx";
+  id: string;
+  safeId: string;
+  hash: string;
+  ops: Propose_proposeTx_ops[] | null;
+  approvals: Propose_proposeTx_approvals[] | null;
+  createdAt: any;
+  submissions: Propose_proposeTx_submissions[] | null;
+}
+
+export interface Propose {
+  proposeTx: Propose_proposeTx;
+}
+
+export interface ProposeVariables {
+  safe: any;
+  ops: OpInput[];
+  signature: any;
+}
+
+/* tslint:disable */
+/* eslint-disable */
+// @generated
+// This file was automatically generated and should not be edited.
+
+// ====================================================
+// GraphQL mutation operation: RevokeApproval
+// ====================================================
+
+export interface RevokeApproval_revokeApproval {
+  __typename: "Tx";
+  id: string;
+}
+
+export interface RevokeApproval {
+  revokeApproval: RevokeApproval_revokeApproval | null;
+}
+
+export interface RevokeApprovalVariables {
+  safe: any;
+  txHash: any;
+}
+
+/* tslint:disable */
+/* eslint-disable */
+// @generated
+// This file was automatically generated and should not be edited.
+
+// ====================================================
+// GraphQL mutation operation: SubmitTxExecution
+// ====================================================
+
+export interface SubmitTxExecution_submitTxExecution {
+  __typename: "Submission";
+  id: string;
+  hash: string;
+  nonce: number;
+  gasLimit: any;
+  gasPrice: any | null;
+  finalized: boolean;
+  createdAt: any;
+}
+
+export interface SubmitTxExecution {
+  submitTxExecution: SubmitTxExecution_submitTxExecution;
+}
+
+export interface SubmitTxExecutionVariables {
+  safe: any;
+  txHash: any;
+  submission: SubmissionInput;
+}
+
+/* tslint:disable */
+/* eslint-disable */
+// @generated
+// This file was automatically generated and should not be edited.
+
+// ====================================================
 // GraphQL mutation operation: CreateCfSafe
 // ====================================================
 
@@ -168,50 +335,6 @@ export interface UpsertSafeVariables {
 // This file was automatically generated and should not be edited.
 
 // ====================================================
-// GraphQL mutation operation: ApproveTx
-// ====================================================
-
-export interface ApproveTx_approve_ops {
-  __typename: "Op";
-  hash: string;
-  to: string;
-  value: any;
-  data: string;
-  nonce: any;
-}
-
-export interface ApproveTx_approve_approvals {
-  __typename: "Approval";
-  approverId: string;
-  signature: string;
-}
-
-export interface ApproveTx_approve {
-  __typename: "Tx";
-  id: string;
-  safeId: string;
-  hash: string;
-  ops: ApproveTx_approve_ops[] | null;
-  approvals: ApproveTx_approve_approvals[] | null;
-  createdAt: any;
-}
-
-export interface ApproveTx {
-  approve: ApproveTx_approve | null;
-}
-
-export interface ApproveTxVariables {
-  safe: any;
-  txHash: any;
-  signature: any;
-}
-
-/* tslint:disable */
-/* eslint-disable */
-// @generated
-// This file was automatically generated and should not be edited.
-
-// ====================================================
 // GraphQL query operation: GetContacts
 // ====================================================
 
@@ -272,6 +395,18 @@ export interface ProposeTx_proposeTx_approvals {
   __typename: "Approval";
   approverId: string;
   signature: string;
+  createdAt: any;
+}
+
+export interface ProposeTx_proposeTx_submissions {
+  __typename: "Submission";
+  id: string;
+  hash: string;
+  nonce: number;
+  gasLimit: any;
+  gasPrice: any | null;
+  finalized: boolean;
+  createdAt: any;
 }
 
 export interface ProposeTx_proposeTx {
@@ -282,6 +417,7 @@ export interface ProposeTx_proposeTx {
   ops: ProposeTx_proposeTx_ops[] | null;
   approvals: ProposeTx_proposeTx_approvals[] | null;
   createdAt: any;
+  submissions: ProposeTx_proposeTx_submissions[] | null;
 }
 
 export interface ProposeTx {
@@ -387,6 +523,18 @@ export interface GetApiTxs_txs_approvals {
   __typename: "Approval";
   approverId: string;
   signature: string;
+  createdAt: any;
+}
+
+export interface GetApiTxs_txs_submissions {
+  __typename: "Submission";
+  id: string;
+  hash: string;
+  nonce: number;
+  gasLimit: any;
+  gasPrice: any | null;
+  finalized: boolean;
+  createdAt: any;
 }
 
 export interface GetApiTxs_txs {
@@ -397,6 +545,7 @@ export interface GetApiTxs_txs {
   ops: GetApiTxs_txs_ops[] | null;
   approvals: GetApiTxs_txs_approvals[] | null;
   createdAt: any;
+  submissions: GetApiTxs_txs_submissions[] | null;
 }
 
 export interface GetApiTxs {
@@ -405,6 +554,26 @@ export interface GetApiTxs {
 
 export interface GetApiTxsVariables {
   safe: any;
+}
+
+/* tslint:disable */
+/* eslint-disable */
+// @generated
+// This file was automatically generated and should not be edited.
+
+// ====================================================
+// GraphQL fragment: SubmissionFields
+// ====================================================
+
+export interface SubmissionFields {
+  __typename: "Submission";
+  id: string;
+  hash: string;
+  nonce: number;
+  gasLimit: any;
+  gasPrice: any | null;
+  finalized: boolean;
+  createdAt: any;
 }
 
 /* tslint:disable */
@@ -501,6 +670,18 @@ export interface TxFields_approvals {
   __typename: "Approval";
   approverId: string;
   signature: string;
+  createdAt: any;
+}
+
+export interface TxFields_submissions {
+  __typename: "Submission";
+  id: string;
+  hash: string;
+  nonce: number;
+  gasLimit: any;
+  gasPrice: any | null;
+  finalized: boolean;
+  createdAt: any;
 }
 
 export interface TxFields {
@@ -511,6 +692,7 @@ export interface TxFields {
   ops: TxFields_ops[] | null;
   approvals: TxFields_approvals[] | null;
   createdAt: any;
+  submissions: TxFields_submissions[] | null;
 }
 
 /* tslint:disable */
@@ -528,6 +710,7 @@ export enum QueryMode {
 }
 
 export interface ApprovalCreateManyApproverInput {
+  createdAt?: any | null;
   safeId: string;
   signature: string;
   txHash: string;
@@ -540,6 +723,7 @@ export interface ApprovalCreateManyApproverInputEnvelope {
 
 export interface ApprovalCreateManySafeInput {
   approverId: string;
+  createdAt?: any | null;
   signature: string;
   txHash: string;
 }
@@ -551,6 +735,7 @@ export interface ApprovalCreateManySafeInputEnvelope {
 
 export interface ApprovalCreateManyTxInput {
   approverId: string;
+  createdAt?: any | null;
   signature: string;
 }
 
@@ -596,6 +781,7 @@ export interface ApprovalCreateOrConnectWithoutTxInput {
 }
 
 export interface ApprovalCreateWithoutApproverInput {
+  createdAt?: any | null;
   safe: SafeCreateNestedOneWithoutApprovalsInput;
   signature: string;
   tx: TxCreateNestedOneWithoutApprovalsInput;
@@ -603,12 +789,14 @@ export interface ApprovalCreateWithoutApproverInput {
 
 export interface ApprovalCreateWithoutSafeInput {
   approver: ApproverCreateNestedOneWithoutApprovalsInput;
+  createdAt?: any | null;
   signature: string;
   tx: TxCreateNestedOneWithoutApprovalsInput;
 }
 
 export interface ApprovalCreateWithoutTxInput {
   approver: ApproverCreateNestedOneWithoutApprovalsInput;
+  createdAt?: any | null;
   safe: SafeCreateNestedOneWithoutApprovalsInput;
   signature: string;
 }
@@ -624,12 +812,14 @@ export interface ApprovalScalarWhereInput {
   NOT?: ApprovalScalarWhereInput[] | null;
   OR?: ApprovalScalarWhereInput[] | null;
   approverId?: StringFilter | null;
+  createdAt?: DateTimeFilter | null;
   safeId?: StringFilter | null;
   signature?: StringFilter | null;
   txHash?: StringFilter | null;
 }
 
 export interface ApprovalUpdateManyMutationInput {
+  createdAt?: DateTimeFieldUpdateOperationsInput | null;
   signature?: StringFieldUpdateOperationsInput | null;
 }
 
@@ -706,6 +896,7 @@ export interface ApprovalUpdateWithWhereUniqueWithoutTxInput {
 }
 
 export interface ApprovalUpdateWithoutApproverInput {
+  createdAt?: DateTimeFieldUpdateOperationsInput | null;
   safe?: SafeUpdateOneRequiredWithoutApprovalsInput | null;
   signature?: StringFieldUpdateOperationsInput | null;
   tx?: TxUpdateOneRequiredWithoutApprovalsInput | null;
@@ -713,12 +904,14 @@ export interface ApprovalUpdateWithoutApproverInput {
 
 export interface ApprovalUpdateWithoutSafeInput {
   approver?: ApproverUpdateOneRequiredWithoutApprovalsInput | null;
+  createdAt?: DateTimeFieldUpdateOperationsInput | null;
   signature?: StringFieldUpdateOperationsInput | null;
   tx?: TxUpdateOneRequiredWithoutApprovalsInput | null;
 }
 
 export interface ApprovalUpdateWithoutTxInput {
   approver?: ApproverUpdateOneRequiredWithoutApprovalsInput | null;
+  createdAt?: DateTimeFieldUpdateOperationsInput | null;
   safe?: SafeUpdateOneRequiredWithoutApprovalsInput | null;
   signature?: StringFieldUpdateOperationsInput | null;
 }
@@ -824,6 +1017,15 @@ export interface ApproverUpsertWithoutGroupsInput {
 
 export interface ApproverWhereUniqueInput {
   id?: string | null;
+}
+
+export interface BoolFieldUpdateOperationsInput {
+  set?: boolean | null;
+}
+
+export interface BoolFilter {
+  equals?: boolean | null;
+  not?: NestedBoolFilter | null;
 }
 
 export interface ContactApproverIdAddrCompoundUniqueInput {
@@ -948,6 +1150,17 @@ export interface DecimalFilter {
   lt?: any | null;
   lte?: any | null;
   not?: NestedDecimalFilter | null;
+  notIn?: any[] | null;
+}
+
+export interface DecimalNullableFilter {
+  equals?: any | null;
+  gt?: any | null;
+  gte?: any | null;
+  in?: any[] | null;
+  lt?: any | null;
+  lte?: any | null;
+  not?: NestedDecimalNullableFilter | null;
   notIn?: any[] | null;
 }
 
@@ -1237,6 +1450,30 @@ export interface GroupWhereUniqueInput {
   safeId_hash?: GroupSafeIdHashCompoundUniqueInput | null;
 }
 
+export interface IntFieldUpdateOperationsInput {
+  decrement?: number | null;
+  divide?: number | null;
+  increment?: number | null;
+  multiply?: number | null;
+  set?: number | null;
+}
+
+export interface IntFilter {
+  equals?: number | null;
+  gt?: number | null;
+  gte?: number | null;
+  in?: number[] | null;
+  lt?: number | null;
+  lte?: number | null;
+  not?: NestedIntFilter | null;
+  notIn?: number[] | null;
+}
+
+export interface NestedBoolFilter {
+  equals?: boolean | null;
+  not?: NestedBoolFilter | null;
+}
+
 export interface NestedDateTimeFilter {
   equals?: any | null;
   gt?: any | null;
@@ -1257,6 +1494,28 @@ export interface NestedDecimalFilter {
   lte?: any | null;
   not?: NestedDecimalFilter | null;
   notIn?: any[] | null;
+}
+
+export interface NestedDecimalNullableFilter {
+  equals?: any | null;
+  gt?: any | null;
+  gte?: any | null;
+  in?: any[] | null;
+  lt?: any | null;
+  lte?: any | null;
+  not?: NestedDecimalNullableFilter | null;
+  notIn?: any[] | null;
+}
+
+export interface NestedIntFilter {
+  equals?: number | null;
+  gt?: number | null;
+  gte?: number | null;
+  in?: number[] | null;
+  lt?: number | null;
+  lte?: number | null;
+  not?: NestedIntFilter | null;
+  notIn?: number[] | null;
 }
 
 export interface NestedStringFilter {
@@ -1285,6 +1544,14 @@ export interface NestedStringNullableFilter {
   not?: NestedStringNullableFilter | null;
   notIn?: string[] | null;
   startsWith?: string | null;
+}
+
+export interface NullableDecimalFieldUpdateOperationsInput {
+  decrement?: any | null;
+  divide?: any | null;
+  increment?: any | null;
+  multiply?: any | null;
+  set?: any | null;
 }
 
 export interface NullableStringFieldUpdateOperationsInput {
@@ -1702,6 +1969,111 @@ export interface StringNullableFilter {
   startsWith?: string | null;
 }
 
+export interface SubmissionCreateManyTxInput {
+  createdAt?: any | null;
+  finalized: boolean;
+  gasLimit: any;
+  gasPrice?: any | null;
+  hash: string;
+  nonce: number;
+}
+
+export interface SubmissionCreateManyTxInputEnvelope {
+  data: SubmissionCreateManyTxInput[];
+  skipDuplicates?: boolean | null;
+}
+
+export interface SubmissionCreateNestedManyWithoutTxInput {
+  connect?: SubmissionWhereUniqueInput[] | null;
+  connectOrCreate?: SubmissionCreateOrConnectWithoutTxInput[] | null;
+  create?: SubmissionCreateWithoutTxInput[] | null;
+  createMany?: SubmissionCreateManyTxInputEnvelope | null;
+}
+
+export interface SubmissionCreateOrConnectWithoutTxInput {
+  create: SubmissionCreateWithoutTxInput;
+  where: SubmissionWhereUniqueInput;
+}
+
+export interface SubmissionCreateWithoutTxInput {
+  createdAt?: any | null;
+  finalized: boolean;
+  gasLimit: any;
+  gasPrice?: any | null;
+  hash: string;
+  nonce: number;
+}
+
+export interface SubmissionInput {
+  hash: any;
+}
+
+export interface SubmissionScalarWhereInput {
+  AND?: SubmissionScalarWhereInput[] | null;
+  NOT?: SubmissionScalarWhereInput[] | null;
+  OR?: SubmissionScalarWhereInput[] | null;
+  createdAt?: DateTimeFilter | null;
+  finalized?: BoolFilter | null;
+  gasLimit?: DecimalFilter | null;
+  gasPrice?: DecimalNullableFilter | null;
+  hash?: StringFilter | null;
+  nonce?: IntFilter | null;
+  safeId?: StringFilter | null;
+  txHash?: StringFilter | null;
+}
+
+export interface SubmissionUpdateManyMutationInput {
+  createdAt?: DateTimeFieldUpdateOperationsInput | null;
+  finalized?: BoolFieldUpdateOperationsInput | null;
+  gasLimit?: DecimalFieldUpdateOperationsInput | null;
+  gasPrice?: NullableDecimalFieldUpdateOperationsInput | null;
+  hash?: StringFieldUpdateOperationsInput | null;
+  nonce?: IntFieldUpdateOperationsInput | null;
+}
+
+export interface SubmissionUpdateManyWithWhereWithoutTxInput {
+  data: SubmissionUpdateManyMutationInput;
+  where: SubmissionScalarWhereInput;
+}
+
+export interface SubmissionUpdateManyWithoutTxInput {
+  connect?: SubmissionWhereUniqueInput[] | null;
+  connectOrCreate?: SubmissionCreateOrConnectWithoutTxInput[] | null;
+  create?: SubmissionCreateWithoutTxInput[] | null;
+  createMany?: SubmissionCreateManyTxInputEnvelope | null;
+  delete?: SubmissionWhereUniqueInput[] | null;
+  deleteMany?: SubmissionScalarWhereInput[] | null;
+  disconnect?: SubmissionWhereUniqueInput[] | null;
+  set?: SubmissionWhereUniqueInput[] | null;
+  update?: SubmissionUpdateWithWhereUniqueWithoutTxInput[] | null;
+  updateMany?: SubmissionUpdateManyWithWhereWithoutTxInput[] | null;
+  upsert?: SubmissionUpsertWithWhereUniqueWithoutTxInput[] | null;
+}
+
+export interface SubmissionUpdateWithWhereUniqueWithoutTxInput {
+  data: SubmissionUpdateWithoutTxInput;
+  where: SubmissionWhereUniqueInput;
+}
+
+export interface SubmissionUpdateWithoutTxInput {
+  createdAt?: DateTimeFieldUpdateOperationsInput | null;
+  finalized?: BoolFieldUpdateOperationsInput | null;
+  gasLimit?: DecimalFieldUpdateOperationsInput | null;
+  gasPrice?: NullableDecimalFieldUpdateOperationsInput | null;
+  hash?: StringFieldUpdateOperationsInput | null;
+  nonce?: IntFieldUpdateOperationsInput | null;
+}
+
+export interface SubmissionUpsertWithWhereUniqueWithoutTxInput {
+  create: SubmissionCreateWithoutTxInput;
+  update: SubmissionUpdateWithoutTxInput;
+  where: SubmissionWhereUniqueInput;
+}
+
+export interface SubmissionWhereUniqueInput {
+  hash?: string | null;
+}
+
 export interface TxCreateManySafeInput {
   createdAt?: any | null;
   hash: string;
@@ -1751,6 +2123,7 @@ export interface TxCreateWithoutApprovalsInput {
   hash: string;
   ops?: OpCreateNestedManyWithoutTxInput | null;
   safe: SafeCreateNestedOneWithoutTxsInput;
+  submissions?: SubmissionCreateNestedManyWithoutTxInput | null;
 }
 
 export interface TxCreateWithoutOpsInput {
@@ -1758,6 +2131,7 @@ export interface TxCreateWithoutOpsInput {
   createdAt?: any | null;
   hash: string;
   safe: SafeCreateNestedOneWithoutTxsInput;
+  submissions?: SubmissionCreateNestedManyWithoutTxInput | null;
 }
 
 export interface TxCreateWithoutSafeInput {
@@ -1765,6 +2139,7 @@ export interface TxCreateWithoutSafeInput {
   createdAt?: any | null;
   hash: string;
   ops?: OpCreateNestedManyWithoutTxInput | null;
+  submissions?: SubmissionCreateNestedManyWithoutTxInput | null;
 }
 
 export interface TxSafeIdHashCompoundUniqueInput {
@@ -1831,6 +2206,7 @@ export interface TxUpdateWithoutApprovalsInput {
   hash?: StringFieldUpdateOperationsInput | null;
   ops?: OpUpdateManyWithoutTxInput | null;
   safe?: SafeUpdateOneRequiredWithoutTxsInput | null;
+  submissions?: SubmissionUpdateManyWithoutTxInput | null;
 }
 
 export interface TxUpdateWithoutOpsInput {
@@ -1838,6 +2214,7 @@ export interface TxUpdateWithoutOpsInput {
   createdAt?: DateTimeFieldUpdateOperationsInput | null;
   hash?: StringFieldUpdateOperationsInput | null;
   safe?: SafeUpdateOneRequiredWithoutTxsInput | null;
+  submissions?: SubmissionUpdateManyWithoutTxInput | null;
 }
 
 export interface TxUpdateWithoutSafeInput {
@@ -1845,6 +2222,7 @@ export interface TxUpdateWithoutSafeInput {
   createdAt?: DateTimeFieldUpdateOperationsInput | null;
   hash?: StringFieldUpdateOperationsInput | null;
   ops?: OpUpdateManyWithoutTxInput | null;
+  submissions?: SubmissionUpdateManyWithoutTxInput | null;
 }
 
 export interface TxUpsertWithWhereUniqueWithoutSafeInput {

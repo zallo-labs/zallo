@@ -128,6 +128,7 @@ model Approval {
   tx         Tx       @relation(fields: [safeId, txHash], references: [safeId, hash], onDelete: Cascade)
   txHash     String   @db.Char(66) // bytes32
   signature  String // bytes
+  createdAt  DateTime @default(now())
 
   @@id([safeId, txHash, approverId])
 }

@@ -1,13 +1,18 @@
 import { Box } from '@components/Box';
 import { Timestamp } from '@components/Timestamp';
 import { TabNavigatorScreenProps } from '@features/navigation/TabNavigator';
-import { useTxs } from '@gql/queries/useTxs';
-import { useIndependentTransfers } from '@gql/queries/useIndependentTransfers';
+import { isTx, Tx, useTxs } from '@gql/queries/useTxs';
+import {
+  isTransfer,
+  useIndependentTransfers,
+} from '@gql/queries/useIndependentTransfers';
 import { groupBy } from 'lib';
 import { useMemo } from 'react';
 import { SectionList } from 'react-native';
 import { Subheading } from 'react-native-paper';
 import { Activity, ActivityItem } from './ActivityItem';
+import { TxSheet } from '@features/tx/TxSheet';
+import { useState } from 'react';
 
 interface Section {
   date: number;
@@ -41,6 +46,8 @@ export const ActivityScreen = (_props: ActivityScreenProps) => {
     [transfers, txs],
   );
 
+  const [selected, setSelected] = useState<Tx | undefined>(undefined);
+
   return (
     <Box flex={1}>
       <SectionList
@@ -49,14 +56,22 @@ export const ActivityScreen = (_props: ActivityScreenProps) => {
         renderSectionHeader={({ section: { date: timestamp } }) => (
           <Box mx={3} mt={2} mb={1}>
             <Subheading>
-              <Timestamp>{timestamp}</Timestamp>
+              <Timestamp weekday>{timestamp}</Timestamp>
             </Subheading>
           </Box>
         )}
         renderItem={({ item }) => (
-          <ActivityItem activity={item} px={3} py={2} />
+          <ActivityItem
+            activity={item}
+            px={3}
+            py={2}
+            {...(isTx(item) && {
+              onPress: () => setSelected(item),
+            })}
+          />
         )}
       />
+      {selected && <TxSheet tx={selected} />}
     </Box>
   );
 };

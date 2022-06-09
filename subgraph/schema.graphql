@@ -53,6 +53,7 @@ type Transfer @entity {
   id: ID!
   safe: Safe!
   tx: Tx
+  txHash: Bytes!
   token: Bytes!
   type: TransferType!
   from: Bytes!

@@ -71,7 +71,7 @@ export const useContractMethod = (contract: Address, funcData: BytesLike) => {
 export const useLazyContractMethod = () => {
   const { safe } = useSafe();
 
-  const [getMethod] = useLazyQuery<
+  const [getMethod, result] = useLazyQuery<
     GetContractMethod,
     GetContractMethodVariables
   >(API_QUERY, {

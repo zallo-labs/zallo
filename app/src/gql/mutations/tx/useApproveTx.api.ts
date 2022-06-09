@@ -6,9 +6,9 @@ import { apiGql } from '@gql/clients';
 import { useApiClient } from '@gql/GqlProvider';
 import { signTx } from 'lib';
 import { useCallback } from 'react';
-import { API_TX_FIELDS, Tx } from './useTxs';
+import { API_TX_FIELDS, Tx } from '../../queries/useTxs';
 
-const API_MUTATION = apiGql`
+const MUTATION = apiGql`
 ${API_TX_FIELDS}
 
 mutation ApproveTx($safe: Address!, $txHash: Bytes32!, $signature: Bytes!) {
@@ -22,7 +22,7 @@ export const useApproveTx = () => {
   const { safe } = useSafe();
   const wallet = useWallet();
 
-  const [mutate] = useMutation<ApproveTx, ApproveTxVariables>(API_MUTATION, {
+  const [mutate] = useMutation<ApproveTx, ApproveTxVariables>(MUTATION, {
     client: useApiClient(),
   });
 

@@ -49,6 +49,7 @@ dataSources:
         - name: ERC20
           file: ../lib/abi/erc20.json
       entities:
+        - Tx
         - Transfer
         # - TokenTransferApproval
       eventHandlers:

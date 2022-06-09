@@ -39,7 +39,8 @@ export const OpsGroupItem = ({
             </Subheading>
 
             <Paragraph>
-              <TotalOpsGroupValue to={to} ops={ops} />
+              {/* TODO: FIX */}
+              {/* <TotalOpsGroupValue to={to} ops={ops} /> */}
             </Paragraph>
           </Box>
 

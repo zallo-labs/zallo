@@ -4,6 +4,7 @@ import { GetApiTxs, GetApiTxsVariables } from '@gql/api.generated';
 import { apiGql, subGql } from '@gql/clients';
 import { combine, combineRest, simpleKeyExtractor } from '@gql/combine';
 import { useApiClient, useSubgraphClient } from '@gql/GqlProvider';
+import { SUBMISSION_FIELDS } from '@gql/mutations/tx/useSubmitTxExecution.api';
 import { GetSubTxs, GetSubTxsVariables, TxType } from '@gql/subgraph.generated';
 import { BigNumber, BytesLike } from 'ethers';
 import { address, Address, Id, Op, Signer, toId } from 'lib';
@@ -45,15 +46,34 @@ export interface OpWithHash extends Op {
   hash: BytesLike;
 }
 
-export type TxStatus = 'proposed' | 'executed'; // TODO: pending & reverted
+export enum TxStatus {
+  Proposed,
+  Submitted,
+  Executed,
+}
+
+export interface Approval extends Signer {
+  timestamp: DateTime;
+}
+
+export interface Submission {
+  hash: BytesLike;
+  nonce: number;
+  gasLimit: BigNumber;
+  gasPrice?: BigNumber;
+  finalized: boolean;
+  createdAt: DateTime;
+}
 
 export interface ProposedTx {
   id: Id;
   type: TxType;
   hash: BytesLike;
   ops: OpWithHash[];
-  approvals: Signer[];
+  approvals: Approval[];
+  submissions: Submission[];
   // comments: Comment[];
+  proposedAt: DateTime;
   timestamp: DateTime;
   status: TxStatus;
 }
@@ -61,12 +81,15 @@ export interface ProposedTx {
 export interface ExecutedTx extends ProposedTx {
   responses: BytesLike[];
   executor: Address;
+  executedAt: DateTime;
   blockHash: BytesLike;
   transfers: Transfer[];
 }
 
 export type Tx = ProposedTx | ExecutedTx;
 
+export const isTx = (e: unknown): e is Tx =>
+  typeof e === 'object' && 'ops' in e;
 export const isExecutedTx = (tx: Tx): tx is ExecutedTx => 'responses' in tx;
 export const isProposedTx = (tx: Tx): tx is ProposedTx => !isExecutedTx(tx);
 
@@ -80,21 +103,26 @@ const useSubExecutedTxs = () => {
 
   const executedTxs: ExecutedTx[] = useMemo(
     () =>
-      data?.txes.map(
-        (t): ExecutedTx => ({
+      data?.txes.map((t): ExecutedTx => {
+        const timestamp = DateTime.fromSeconds(parseInt(t.timestamp));
+
+        return {
           id: toId(t.id),
           type: t.type,
           hash: t.hash,
           responses: t.responses,
           executor: address(t.executor),
           blockHash: t.blockHash,
-          timestamp: DateTime.fromSeconds(parseInt(t.timestamp)),
+          proposedAt: timestamp,
+          executedAt: timestamp,
+          timestamp,
           transfers: t.transfers.map(fieldsToTransfer),
           ops: [],
           approvals: [],
-          status: 'executed',
-        }),
-      ) ?? [],
+          submissions: [],
+          status: TxStatus.Executed,
+        };
+      }) ?? [],
     [data],
   );
 
@@ -102,6 +130,8 @@ const useSubExecutedTxs = () => {
 };
 
 export const API_TX_FIELDS = apiGql`
+${SUBMISSION_FIELDS}
+
 fragment TxFields on Tx {
   id
   safeId
@@ -116,8 +146,12 @@ fragment TxFields on Tx {
   approvals {
     approverId
     signature
+    createdAt
   }
   createdAt
+  submissions {
+    ...SubmissionFields
+  }
 }
 `;
 
@@ -142,9 +176,12 @@ const useApiProposedTxs = () => {
   const proposedTxs: ProposedTx[] = useMemo(
     () =>
       data?.txs.map((tx): ProposedTx => {
-        const approvals: Signer[] = tx.approvals.map((a) => ({
+        const timestamp = DateTime.fromISO(tx.createdAt);
+
+        const approvals: Approval[] = tx.approvals.map((a) => ({
           addr: address(a.approverId),
           signature: a.signature,
+          timestamp: DateTime.fromISO(a.createdAt),
         }));
 
         return {
@@ -159,8 +196,19 @@ const useApiProposedTxs = () => {
             nonce: BigNumber.from(op.nonce),
           })),
           approvals,
-          timestamp: DateTime.fromISO(tx.createdAt),
-          status: 'proposed',
+          submissions: tx.submissions.map((s) => ({
+            hash: s.hash,
+            nonce: s.nonce,
+            gasLimit: BigNumber.from(s.gasLimit),
+            gasPrice: s.gasPrice ? BigNumber.from(s.gasPrice) : undefined,
+            finalized: s.finalized,
+            createdAt: DateTime.fromISO(s.createdAt),
+          })),
+          proposedAt: timestamp,
+          timestamp,
+          status: tx.submissions.length
+            ? TxStatus.Submitted
+            : TxStatus.Proposed,
         };
       }) ?? [],
     [data],
@@ -189,7 +237,8 @@ export const useTxs = () => {
             timestamp: sub.timestamp,
             status: sub.status,
           }),
-          either: ({ sub, api }): Tx => sub ?? api,
+          atLeastApi: (_, api) => api,
+          // either: ({ sub, api }): Tx => sub ?? api,
         },
       ),
     [subExecutedTxs, proposedTxs],
