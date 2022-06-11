@@ -11,7 +11,7 @@ import BottomSheet, {
   useBottomSheetDynamicSnapPoints,
 } from '@gorhom/bottom-sheet';
 import { useTheme } from 'react-native-paper';
-import { TxSheetBackground } from './TxSheetBackground';
+import { SheetBackground } from './SheetBackground';
 import { ChildrenProps } from '@util/children';
 
 type BottomSheetProps = Omit<
@@ -42,10 +42,6 @@ export const Sheet = forwardRef(
       handleContentLayout,
     } = useBottomSheetDynamicSnapPoints(snapPoints);
 
-    const handleSheetChanges = useCallback((index: number) => {
-      //
-    }, []);
-
     // TODO: fix scroll view https://github.com/gorhom/react-native-bottom-sheet/issues/658
     return (
       <BottomSheet
@@ -53,11 +49,8 @@ export const Sheet = forwardRef(
         snapPoints={animatedSnapPoints}
         handleHeight={animatedHandleHeight}
         contentHeight={animatedContentHeight}
-        onChange={handleSheetChanges}
-        backgroundComponent={TxSheetBackground}
-        handleIndicatorStyle={{
-          backgroundColor: colors.onSurface,
-        }}
+        backgroundComponent={SheetBackground}
+        handleIndicatorStyle={{ backgroundColor: colors.onSurface }}
         {...bottomSheetProps}
       >
         {/* <BottomSheetScrollView onLayout={handleContentLayout}>

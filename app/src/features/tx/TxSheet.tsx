@@ -1,21 +1,36 @@
 import { useRef } from 'react';
 import BottomSheet from '@gorhom/bottom-sheet';
-import { Sheet } from './Sheet';
-import { Tx } from '~/queries/useTxs';
-import { TxItem } from '@features/activity/tx/TxItem';
+import { Sheet } from './sheet/Sheet';
 import { Timeline } from './timeline/Timeline';
+import { Activity, ActivityItem } from '@features/activity/ActivityItem';
+import { isTx } from '~/queries/tx/useTxs';
 
 export interface TxSheetProps {
-  tx: Tx;
+  activity: Activity;
+  onClose: () => void;
 }
 
-export const TxSheet = ({ tx }: TxSheetProps) => {
+export const ActivitySheet = ({ activity, onClose }: TxSheetProps) => {
   const sheetRef = useRef<BottomSheet>(null);
 
   return (
-    <Sheet ref={sheetRef} initialSnapPoints={[]}>
-      <TxItem tx={tx} status={false} dividers={false} px={3} py={2} />
-      <Timeline tx={tx} />
+    <Sheet
+      ref={sheetRef}
+      initialSnapPoints={[]}
+      onClose={onClose}
+      enablePanDownToClose
+    >
+      <ActivityItem
+        activity={activity}
+        px={3}
+        py={2}
+        txProps={{
+          status: false,
+          dividers: false,
+        }}
+      />
+
+      {isTx(activity) && <Timeline tx={activity} />}
     </Sheet>
   );
 };

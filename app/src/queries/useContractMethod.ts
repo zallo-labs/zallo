@@ -1,4 +1,4 @@
-import { QueryResult, useLazyQuery, useQuery } from '@apollo/client';
+import { ApolloQueryResult, useQuery } from '@apollo/client';
 import { useSafe } from '@features/safe/SafeProvider';
 import {
   GetContractMethod,
@@ -28,7 +28,7 @@ export const getSighash = (data: BytesLike): string =>
   ethers.utils.hexDataSlice(data, 0, 4);
 
 const transform = (
-  { data, ...rest }: QueryResult<GetContractMethod, GetContractMethodVariables>,
+  { data, ...rest }: ApolloQueryResult<GetContractMethod>,
   sighash: string,
   isSafe: boolean,
 ) => {
@@ -37,8 +37,8 @@ const transform = (
       ? undefined
       : isSafe
       ? SAFE_INTERFACE.getFunction(sighash as any)
-      : data
-      ? FunctionFragment.from(JSON.parse(data?.contractMethod.fragment))
+      : data?.contractMethod?.fragment
+      ? FunctionFragment.from(JSON.parse(data.contractMethod.fragment))
       : undefined;
 
   const methodInterface = methodFragment
@@ -70,26 +70,24 @@ export const useContractMethod = (contract: Address, funcData: BytesLike) => {
 
 export const useLazyContractMethod = () => {
   const { safe } = useSafe();
-
-  const [getMethod, result] = useLazyQuery<
-    GetContractMethod,
-    GetContractMethodVariables
-  >(API_QUERY, {
-    client: useApiClient(),
-  });
+  const client = useApiClient();
 
   const get = useCallback(
     async (contract: Address, funcData: BytesLike) => {
       const isSafe = contract === safe.address;
       const sighash = getSighash(funcData);
 
-      const result = await getMethod({
+      const result = await client.query<
+        GetContractMethod,
+        GetContractMethodVariables
+      >({
+        query: API_QUERY,
         variables: { contract, sighash },
       });
 
       return transform(result, sighash, isSafe);
     },
-    [getMethod, safe.address],
+    [safe.address, client],
   );
 
   return get;

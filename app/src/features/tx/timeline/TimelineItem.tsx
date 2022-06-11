@@ -4,7 +4,11 @@ import { useTheme } from 'react-native-paper';
 import { TimelineConnector } from './TimelineConnector';
 import { TimelineDot } from './TimelineDot';
 
-export type TimelineItemStatus = 'current' | 'future' | 'done';
+export type TimelineItemStatus =
+  | 'requires-action'
+  | 'in-progress'
+  | 'complete'
+  | 'future';
 
 export interface TimelineItemProps extends BoxProps {
   Left?: ReactNode;
@@ -24,14 +28,18 @@ export const TimelineItem = ({
 }: TimelineItemProps) => {
   const { colors } = useTheme();
 
-  const color = useMemo(() => {
+  const [dotColor, connectorColor] = useMemo(() => {
     switch (status) {
-      case 'done':
-        return colors.success;
-      case 'current':
-        return colors.primary;
+      case 'requires-action':
+        return [colors.primary, colors.onSurface];
+      case 'in-progress':
+        return [colors.primary, colors.primary];
+      case 'complete':
+        return [colors.success, colors.success];
       case 'future':
-        return colors.text;
+        return [colors.onSurface, colors.onSurface];
+      default:
+        throw new Error('Unhandled timeline item status');
     }
   }, [status, colors]);
 
@@ -44,14 +52,17 @@ export const TimelineItem = ({
       <Box vertical alignItems="center" mx={3}>
         <Box my={2}>
           {RenderDot ? (
-            <RenderDot color={color} />
+            <RenderDot color={dotColor} />
           ) : (
-            <TimelineDot color={color} />
+            <TimelineDot color={dotColor} />
           )}
         </Box>
 
         {connector && (
-          <TimelineConnector color={color} dotted={status === 'current'} />
+          <TimelineConnector
+            color={connectorColor}
+            dotted={status === 'in-progress'}
+          />
         )}
       </Box>
 

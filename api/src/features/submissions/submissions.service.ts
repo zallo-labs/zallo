@@ -1,9 +1,9 @@
 import { Submission } from '@gen/submission/submission.model';
 import { Injectable } from '@nestjs/common';
+import { filterAsync } from 'lib';
 import { PrismaService } from 'nestjs-prisma';
 import { TransactionResponse } from 'zksync-web3/build/types';
 import { ProviderService } from '~/provider/provider.service';
-import { filterAsync } from '~/util/filter';
 
 @Injectable()
 export class SubmissionsService {

@@ -1,14 +1,12 @@
 import { Box } from '@components/Box';
-import { FiatValue } from '@components/FiatValue';
 import { Addr } from '@components/Addr';
 import { Item, ItemProps } from '@components/list/Item';
 import { TokenIcon } from '@components/token/TokenIcon';
-import { Paragraph, Subheading } from 'react-native-paper';
+import { Paragraph, Subheading, useTheme } from 'react-native-paper';
 import { ETH } from '~/token/tokens';
-import { useTokenValue } from '~/token/useTokenValue';
-import { Address, Op, sumBn } from 'lib';
-import { OpRow } from './TxOpRow';
-import { OpWithHash } from '~/queries/useTxs';
+import { Address } from 'lib';
+import { OpRow } from './OpRow';
+import { OpWithHash } from '~/queries/tx/useTxs';
 import { ethers } from 'ethers';
 import { useToken } from '~/token/useToken';
 import { TotalOpsGroupValue } from './TotalOpsGroupValue';
@@ -26,6 +24,7 @@ export const OpsGroupItem = ({
   group: { to, ops },
   ...itemProps
 }: OpsGroupItemProps) => {
+  const { colors } = useTheme();
   const token = useToken(to) ?? ETH;
 
   return (
@@ -38,9 +37,8 @@ export const OpsGroupItem = ({
               <Addr addr={to} />
             </Subheading>
 
-            <Paragraph>
-              {/* TODO: FIX */}
-              {/* <TotalOpsGroupValue to={to} ops={ops} /> */}
+            <Paragraph style={{ color: colors.lighterText }}>
+              <TotalOpsGroupValue to={to} ops={ops} hideZero />
             </Paragraph>
           </Box>
 

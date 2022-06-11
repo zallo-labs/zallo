@@ -64,10 +64,8 @@ export class SubmissionsResolver {
         },
         hash: submission.hash,
         nonce: transaction.nonce,
-        gasLimit: BigInt(transaction.gasLimit.toString()),
-        gasPrice: transaction.gasPrice
-          ? BigInt(transaction.gasPrice.toString())
-          : undefined,
+        gasLimit: transaction.gasLimit.toString(),
+        gasPrice: transaction.gasPrice?.toString(),
         finalized: this.service.isFinalised(transaction),
       },
       ...getSelect(info),

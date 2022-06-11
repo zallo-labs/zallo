@@ -1,4 +1,5 @@
 import { ethers } from 'hardhat';
+import { address } from 'lib';
 import {
   expect,
   deploy,
@@ -43,7 +44,7 @@ describe('Execution', () => {
       const nonApprover = allSigners[allSigners.length - 1];
 
       const signedTx = await createSignedTx(safe, groupHash, approvers, {
-        to: nonApprover.address,
+        to: address(nonApprover.address),
       });
 
       await safe.connect(nonApprover).execute(...signedTx, {

@@ -1,20 +1,17 @@
 import { useQuery } from '@apollo/client';
 import { useSafe } from '@features/safe/SafeProvider';
+import { useWallet } from '@features/wallet/useWallet';
 import { GetApiTxs, GetApiTxsVariables } from '@gql/api.generated';
 import { apiGql, subGql } from '@gql/clients';
 import { combine, combineRest, simpleKeyExtractor } from '@gql/combine';
 import { useApiClient, useSubgraphClient } from '@gql/GqlProvider';
-import { SUBMISSION_FIELDS } from '~/mutations/tx/useSubmitTxExecution.api';
 import { GetSubTxs, GetSubTxsVariables, TxType } from '@gql/subgraph.generated';
 import { BigNumber, BytesLike } from 'ethers';
 import { address, Address, Id, Op, Signer, toId } from 'lib';
 import { DateTime } from 'luxon';
 import { useMemo } from 'react';
-import {
-  fieldsToTransfer,
-  Transfer,
-  TRANSFER_FIELDS,
-} from './useIndependentTransfers';
+import { SUBMISSION_FIELDS } from '~/mutations/tx/submit/useApiSubmitExecution';
+import { fieldsToTransfer, Transfer, TRANSFER_FIELDS } from './transfer';
 
 const SUB_QUERY = subGql`
 ${TRANSFER_FIELDS}
@@ -71,6 +68,7 @@ export interface ProposedTx {
   hash: BytesLike;
   ops: OpWithHash[];
   approvals: Approval[];
+  userHasApproved: boolean;
   submissions: Submission[];
   // comments: Comment[];
   proposedAt: DateTime;
@@ -119,6 +117,7 @@ const useSubExecutedTxs = () => {
           transfers: t.transfers.map(fieldsToTransfer),
           ops: [],
           approvals: [],
+          userHasApproved: false,
           submissions: [],
           status: TxStatus.Executed,
         };
@@ -167,6 +166,7 @@ query GetApiTxs($safe: Address!) {
 
 const useApiProposedTxs = () => {
   const { safe } = useSafe();
+  const wallet = useWallet();
 
   const { data, ...rest } = useQuery<GetApiTxs, GetApiTxsVariables>(API_QUERY, {
     client: useApiClient(),
@@ -196,6 +196,7 @@ const useApiProposedTxs = () => {
             nonce: BigNumber.from(op.nonce),
           })),
           approvals,
+          userHasApproved: !!approvals.find(a => a.addr === wallet.address),
           submissions: tx.submissions.map((s) => ({
             hash: s.hash,
             nonce: s.nonce,
@@ -211,7 +212,7 @@ const useApiProposedTxs = () => {
             : TxStatus.Proposed,
         };
       }) ?? [],
-    [data],
+    [data, wallet.address],
   );
 
   return { proposedTxs, ...rest };

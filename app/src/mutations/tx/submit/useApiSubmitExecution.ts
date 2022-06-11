@@ -6,10 +6,9 @@ import {
 } from '@gql/api.generated';
 import { apiGql } from '@gql/clients';
 import { useApiClient } from '@gql/GqlProvider';
-import { Tx } from '~/queries/useTxs';
-import { ethers } from 'ethers';
+import { Tx } from '~/queries/tx/useTxs';
+import { ContractTransaction, ethers } from 'ethers';
 import { useCallback } from 'react';
-import { TransactionResponse } from 'zksync-web3/build/types';
 
 export const SUBMISSION_FIELDS = apiGql`
 fragment SubmissionFields on Submission {
@@ -33,7 +32,7 @@ mutation SubmitTxExecution($safe: Address! $txHash: Bytes32!, $submission: Submi
 }
 `;
 
-export const useSubmitTxExecution = () => {
+export const useApiSubmitExecution = () => {
   const { safe } = useSafe();
 
   const [mutation] = useMutation<SubmitTxExecution, SubmitTxExecutionVariables>(
@@ -42,8 +41,10 @@ export const useSubmitTxExecution = () => {
   );
 
   const submit = useCallback(
-    (tx: Tx, txResp: TransactionResponse) =>
-      mutation({
+    async (tx: Tx, txResp: ContractTransaction) => {
+      console.log('Submitting execution');
+
+      const r = await mutation({
         variables: {
           safe: safe.address,
           txHash: ethers.utils.hexlify(tx.hash),
@@ -51,7 +52,10 @@ export const useSubmitTxExecution = () => {
             hash: txResp.hash,
           },
         },
-      }),
+      });
+
+      return r;
+    },
     [safe.address, mutation],
   );
 

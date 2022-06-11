@@ -28,6 +28,7 @@ export interface GetTransfers {
 
 export interface GetTransfersVariables {
   safe: string;
+  txs?: string[] | null;
 }
 
 /* tslint:disable */

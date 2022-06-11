@@ -40,11 +40,6 @@ export const compareAddresses = (a: Address, b: Address) => {
   return 0;
 };
 
-export interface Signer {
-  addr: Address;
-  signature: BytesLike;
-}
-
 /* Module augmentation; including in a .ts file to compile into lib's typings */
 declare module './contracts' {
   export interface Safe {

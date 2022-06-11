@@ -15,6 +15,11 @@ export interface Op {
   nonce: BigNumber;
 }
 
+export const isOp = (e: unknown): e is Op =>
+  typeof e === 'object' &&
+  e !== null &&
+  ['to', 'value', 'data', 'nonce'].every((k) => k in e);
+
 export interface SignedOp {
   tx: Op;
   groupHash: BytesLike;

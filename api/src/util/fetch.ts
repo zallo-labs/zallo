@@ -8,3 +8,12 @@ const defaults: RequestInitWithRetry = {
 };
 
 export const fetch = getFetch(isoFetch, defaults);
+
+export const fetchJson = async (...params: Parameters<typeof fetch>) => {
+  try {
+    const resp = await fetch(...params);
+    return await resp.json();
+  } catch (_) {
+    return undefined;
+  }
+};

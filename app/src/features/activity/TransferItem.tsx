@@ -4,10 +4,10 @@ import { Addr } from '@components/Addr';
 import { Item, ItemProps } from '@components/list/Item';
 import { TokenIcon } from '@components/token/TokenIcon';
 import { TokenValue } from '@components/token/TokenValue';
-import { isInTransfer, Transfer } from '~/queries/useIndependentTransfers';
 import { Caption, Paragraph, Subheading, useTheme } from 'react-native-paper';
 import { useToken } from '~/token/useToken';
 import { useTokenValue } from '~/token/useTokenValue';
+import { isInTransfer, Transfer } from '~/queries/tx/transfer';
 
 export interface TransferItemProps extends ItemProps {
   transfer: Transfer;
@@ -27,17 +27,18 @@ export const TransferItem = ({
       Main={
         <Box vertical justifyContent="space-between">
           <Subheading style={{ fontSize: 20, marginVertical: 0 }}>
-            <Addr addr={t.addr} />
+            <Addr addr={t.tokenAddr} />
           </Subheading>
 
           <Caption style={{ fontSize: 15, marginVertical: 0 }}>
-            Transfer
+            {`transfer ${isInTransfer(t) ? 'from' : 'to'} `}
+            <Addr addr={t.addr} />
           </Caption>
         </Box>
       }
       Right={
         <Box vertical alignItems="flex-end">
-          <Paragraph>
+          <Paragraph style={{ color: colors.lighterText }}>
             <FiatValue value={fiatValue} />
           </Paragraph>
 

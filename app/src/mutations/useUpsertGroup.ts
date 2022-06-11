@@ -1,5 +1,4 @@
 import { useMutation } from '@apollo/client';
-import { useExecute } from '~/queries/useExecute';
 import { useSafe } from '@features/safe/SafeProvider';
 import { useIsDeployed } from '@features/safe/useIsDeployed';
 import { useWallet } from '@features/wallet/useWallet';
@@ -13,6 +12,7 @@ import { useApiClient } from '@gql/GqlProvider';
 import { API_GROUP_FIELDS_FRAGMENT, CombinedGroup } from '~/queries';
 import { ethers } from 'ethers';
 import { createOp, Group, hashGroup, isPresent, toSafeGroup } from 'lib';
+import { useGetExecute } from './tx/useExecute';
 
 const API_MUTATION = apiGql`
 ${API_GROUP_FIELDS_FRAGMENT}
@@ -116,7 +116,7 @@ const useUpsertApiGroup = () => {
 
 const useSafeUpsert = () => {
   const { safe } = useSafe();
-  const execute = useExecute();
+  const getExecute = useGetExecute();
 
   const upsert = async (cur: Group, prev?: Group) => {
     if (prev && hashGroup(prev) === hashGroup(cur)) return;
@@ -137,7 +137,7 @@ const useSafeUpsert = () => {
         })
       : undefined;
 
-    await execute(...[addOp, rmOp].filter(isPresent));
+    await getExecute([addOp, rmOp].filter(isPresent))();
   };
 
   return upsert;

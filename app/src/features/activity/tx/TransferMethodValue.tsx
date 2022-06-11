@@ -1,10 +1,8 @@
 import { TokenValue } from '@components/token/TokenValue';
-import { useContractMethod } from '~/queries/useContractMethod';
 import { BytesLike } from 'ethers';
 import { Address } from 'lib';
 import { useToken } from '~/token/useToken';
-
-export const TRANSFER_METHOD_SIGHASH = '0xa9059cbb';
+import { useDecodedTransfer } from './useDecodedTransfer';
 
 export interface TransferMethodValueProps {
   to: Address;
@@ -13,14 +11,9 @@ export interface TransferMethodValueProps {
 
 export const TransferMethodValue = ({ to, data }: TransferMethodValueProps) => {
   const token = useToken(to);
-  const { sighash, methodFragment, methodInterface } = useContractMethod(
-    to,
-    data,
-  );
+  const decoded = useDecodedTransfer(to, data);
 
-  if (!token || sighash !== TRANSFER_METHOD_SIGHASH) return null;
+  if (!token || !decoded) return null;
 
-  const [_to, value] = methodInterface.decodeFunctionData(methodFragment, data);
-
-  return <TokenValue token={token} value={value} />;
+  return <TokenValue token={token} value={decoded.value} />;
 };

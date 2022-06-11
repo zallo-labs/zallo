@@ -1,10 +1,9 @@
 import { Box } from '@components/Box';
 import { Divider } from '@components/Divider';
 import { ItemProps } from '@components/list/Item';
-import { isExecutedTx, Tx } from '~/queries/useTxs';
-import { useTheme } from 'react-native-paper';
-import { TransferItem } from '../TransferItem';
+import { Tx } from '~/queries/tx/useTxs';
 import { OpsGroup, OpsGroupItem } from './OpsGroupItem';
+import { useTxStatusStyles } from '../useTxStatusStyles';
 
 export interface TxItemProps extends ItemProps {
   tx: Tx;
@@ -18,7 +17,7 @@ export const TxItem = ({
   dividers = true,
   ...itemProps
 }: TxItemProps) => {
-  const { colors } = useTheme();
+  const statusStyles = useTxStatusStyles(tx);
 
   const groups: OpsGroup[] = tx.ops.reduce((groups: OpsGroup[], op) => {
     const lastGroup = groups[groups.length - 1];
@@ -38,22 +37,17 @@ export const TxItem = ({
   const showDividers = dividers && groups.length > 1;
 
   return (
-    <Box
-      vertical
-      {...(status &&
-        tx.status === 'proposed' && {
-          borderLeftWidth: 3,
-          borderLeftColor: colors.primary,
-        })}
-    >
+    <Box vertical {...(status && statusStyles)}>
       {showDividers && <Divider mx={3} />}
 
       {groups.map((group) => (
         <OpsGroupItem key={group.to} group={group} {...itemProps} />
       ))}
 
-      {isExecutedTx(tx) &&
-        tx.transfers.map((t) => <TransferItem key={t.id} transfer={t} />)}
+      {/* {isExecutedTx(tx) &&
+        tx.transfers.map((t) => (
+          <TransferItem key={t.id} transfer={t} {...itemProps} />
+        ))} */}
 
       {showDividers && <Divider mx={3} />}
     </Box>

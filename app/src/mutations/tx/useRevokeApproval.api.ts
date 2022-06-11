@@ -3,7 +3,7 @@ import { useSafe } from '@features/safe/SafeProvider';
 import { RevokeApproval, RevokeApprovalVariables } from '@gql/api.generated';
 import { apiGql } from '@gql/clients';
 import { useApiClient } from '@gql/GqlProvider';
-import { Tx } from '~/queries/useTxs';
+import { Tx } from '~/queries/tx/useTxs';
 import { hexlify } from 'ethers/lib/utils';
 import { useCallback } from 'react';
 
@@ -24,7 +24,7 @@ export const useRevokeApproval = () => {
   );
 
   const revoke = useCallback(
-    () => (tx: Tx) =>
+    (tx: Tx) =>
       mutation({
         variables: {
           safe: safe.address,

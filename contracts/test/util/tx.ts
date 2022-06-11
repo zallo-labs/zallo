@@ -1,5 +1,5 @@
 import * as zk from 'zksync-web3';
-import { Address, compareAddresses, createOp, Safe, signTx, Op } from 'lib';
+import { createOp, Safe, signTx, Op, toSafeSigners, Signer } from 'lib';
 import { SignerStruct } from 'lib/src/contracts/Safe';
 import { BytesLike } from 'ethers';
 
@@ -27,16 +27,16 @@ export async function createSignedTx(
 
   const ops = txOpts.map(createOp);
 
-  const signers = (
+  const signers = toSafeSigners(
     await Promise.all(
       wallets.map(
-        async (wallet): Promise<SignerStruct> => ({
+        async (wallet): Promise<Signer> => ({
           addr: wallet.address,
           signature: await signTx(wallet, safe.address, ...ops),
         }),
       ),
-    )
-  ).sort((a, b) => compareAddresses(a.addr as Address, b.addr as Address));
+    ),
+  );
 
   return [ops.length > 1 ? ops : ops[0], groupHash, signers];
 }

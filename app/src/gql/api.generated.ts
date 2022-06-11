@@ -4,6 +4,36 @@
 // This file was automatically generated and should not be edited.
 
 // ====================================================
+// GraphQL mutation operation: SubmitTxExecution
+// ====================================================
+
+export interface SubmitTxExecution_submitTxExecution {
+  __typename: "Submission";
+  id: string;
+  hash: string;
+  nonce: number;
+  gasLimit: any;
+  gasPrice: any | null;
+  finalized: boolean;
+  createdAt: any;
+}
+
+export interface SubmitTxExecution {
+  submitTxExecution: SubmitTxExecution_submitTxExecution;
+}
+
+export interface SubmitTxExecutionVariables {
+  safe: any;
+  txHash: any;
+  submission: SubmissionInput;
+}
+
+/* tslint:disable */
+/* eslint-disable */
+// @generated
+// This file was automatically generated and should not be edited.
+
+// ====================================================
 // GraphQL mutation operation: ApproveTx
 // ====================================================
 
@@ -61,10 +91,10 @@ export interface ApproveTxVariables {
 // This file was automatically generated and should not be edited.
 
 // ====================================================
-// GraphQL mutation operation: Propose
+// GraphQL mutation operation: ProposeTx
 // ====================================================
 
-export interface Propose_proposeTx_ops {
+export interface ProposeTx_proposeTx_ops {
   __typename: "Op";
   hash: string;
   to: string;
@@ -73,14 +103,14 @@ export interface Propose_proposeTx_ops {
   nonce: any;
 }
 
-export interface Propose_proposeTx_approvals {
+export interface ProposeTx_proposeTx_approvals {
   __typename: "Approval";
   approverId: string;
   signature: string;
   createdAt: any;
 }
 
-export interface Propose_proposeTx_submissions {
+export interface ProposeTx_proposeTx_submissions {
   __typename: "Submission";
   id: string;
   hash: string;
@@ -91,22 +121,22 @@ export interface Propose_proposeTx_submissions {
   createdAt: any;
 }
 
-export interface Propose_proposeTx {
+export interface ProposeTx_proposeTx {
   __typename: "Tx";
   id: string;
   safeId: string;
   hash: string;
-  ops: Propose_proposeTx_ops[] | null;
-  approvals: Propose_proposeTx_approvals[] | null;
+  ops: ProposeTx_proposeTx_ops[] | null;
+  approvals: ProposeTx_proposeTx_approvals[] | null;
   createdAt: any;
-  submissions: Propose_proposeTx_submissions[] | null;
+  submissions: ProposeTx_proposeTx_submissions[] | null;
 }
 
-export interface Propose {
-  proposeTx: Propose_proposeTx;
+export interface ProposeTx {
+  proposeTx: ProposeTx_proposeTx;
 }
 
-export interface ProposeVariables {
+export interface ProposeTxVariables {
   safe: any;
   ops: OpInput[];
   signature: any;
@@ -133,36 +163,6 @@ export interface RevokeApproval {
 export interface RevokeApprovalVariables {
   safe: any;
   txHash: any;
-}
-
-/* tslint:disable */
-/* eslint-disable */
-// @generated
-// This file was automatically generated and should not be edited.
-
-// ====================================================
-// GraphQL mutation operation: SubmitTxExecution
-// ====================================================
-
-export interface SubmitTxExecution_submitTxExecution {
-  __typename: "Submission";
-  id: string;
-  hash: string;
-  nonce: number;
-  gasLimit: any;
-  gasPrice: any | null;
-  finalized: boolean;
-  createdAt: any;
-}
-
-export interface SubmitTxExecution {
-  submitTxExecution: SubmitTxExecution_submitTxExecution;
-}
-
-export interface SubmitTxExecutionVariables {
-  safe: any;
-  txHash: any;
-  submission: SubmissionInput;
 }
 
 /* tslint:disable */
@@ -371,63 +371,6 @@ export interface GetContractMethod {
 export interface GetContractMethodVariables {
   contract: any;
   sighash: any;
-}
-
-/* tslint:disable */
-/* eslint-disable */
-// @generated
-// This file was automatically generated and should not be edited.
-
-// ====================================================
-// GraphQL mutation operation: ProposeTx
-// ====================================================
-
-export interface ProposeTx_proposeTx_ops {
-  __typename: "Op";
-  hash: string;
-  to: string;
-  value: any;
-  data: string;
-  nonce: any;
-}
-
-export interface ProposeTx_proposeTx_approvals {
-  __typename: "Approval";
-  approverId: string;
-  signature: string;
-  createdAt: any;
-}
-
-export interface ProposeTx_proposeTx_submissions {
-  __typename: "Submission";
-  id: string;
-  hash: string;
-  nonce: number;
-  gasLimit: any;
-  gasPrice: any | null;
-  finalized: boolean;
-  createdAt: any;
-}
-
-export interface ProposeTx_proposeTx {
-  __typename: "Tx";
-  id: string;
-  safeId: string;
-  hash: string;
-  ops: ProposeTx_proposeTx_ops[] | null;
-  approvals: ProposeTx_proposeTx_approvals[] | null;
-  createdAt: any;
-  submissions: ProposeTx_proposeTx_submissions[] | null;
-}
-
-export interface ProposeTx {
-  proposeTx: ProposeTx_proposeTx;
-}
-
-export interface ProposeTxVariables {
-  safe: any;
-  ops: OpInput[];
-  signature: any;
 }
 
 /* tslint:disable */

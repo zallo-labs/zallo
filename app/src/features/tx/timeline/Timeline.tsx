@@ -1,20 +1,18 @@
 import { Addr } from '@components/Addr';
 import { Box } from '@components/Box';
 import { Timestamp } from '@components/Timestamp';
-import { isExecutedTx, Tx, TxStatus } from '~/queries/useTxs';
+import { isExecutedTx, Tx, TxStatus } from '~/queries/tx/useTxs';
 import { hexlify } from 'ethers/lib/utils';
 import { useState } from 'react';
 import { Pressable } from 'react-native';
 import Collapsible from 'react-native-collapsible';
-import {
-  Button,
-  Caption,
-  Paragraph,
-  Subheading,
-  useTheme,
-} from 'react-native-paper';
+import { Caption, Paragraph, Subheading, useTheme } from 'react-native-paper';
 import { TimelineChevron } from './TimelineChevron';
 import { TimelineItem, TimelineItemStatus } from './TimelineItem';
+import { useGroupsReachedThreshold } from '~/mutations/tx/useGroupsReachedThreshold';
+import { useExecute } from '~/mutations/tx/useExecute';
+import { useRevokeApproval } from '~/mutations/tx/useRevokeApproval.api';
+import { TimelineButton } from './TimelineButton';
 
 export interface TimelineProps {
   tx: Tx;
@@ -22,23 +20,40 @@ export interface TimelineProps {
 
 export const Timeline = ({ tx }: TimelineProps) => {
   const { colors } = useTheme();
+  const execute = useExecute(tx);
+  const isApproved = !!useGroupsReachedThreshold()(tx);
+  const revoke = useRevokeApproval();
 
   const getStatus = (status: TxStatus, isLast?: boolean): TimelineItemStatus =>
     tx.status > status || (isLast && tx.status === status)
-      ? 'done'
+      ? 'complete'
       : tx.status === status
-      ? 'current'
+      ? 'in-progress'
       : 'future';
 
   const [expanded, setExpanded] = useState(false);
 
-  const proposeStatus = getStatus(TxStatus.Proposed);
+  const proposeStatus = isApproved ? 'complete' : getStatus(TxStatus.Proposed);
 
   return (
     <Box vertical mt={1} mb={1} minHeight={200}>
       <Pressable onPress={() => setExpanded((prev) => !prev)}>
         <TimelineItem
-          Left={<Subheading>Propose</Subheading>}
+          Left={
+            execute?.step === 'approve' ? (
+              <TimelineButton color={colors.primary} onPress={execute}>
+                Approve
+              </TimelineButton>
+            ) : execute?.step === 'execute' &&
+              tx.userHasApproved &&
+              !tx.submissions.length ? (
+              <TimelineButton color={colors.accent} onPress={() => revoke(tx)}>
+                Revoke
+              </TimelineButton>
+            ) : (
+              <Subheading>Approve</Subheading>
+            )
+          }
           Right={
             <Box>
               <Caption>
@@ -52,9 +67,11 @@ export const Timeline = ({ tx }: TimelineProps) => {
           }
           status={proposeStatus}
           connector
-          renderDot={(props) => (
-            <TimelineChevron {...props} expanded={expanded} />
-          )}
+          {...(tx.approvals.length > 1 && {
+            renderDot: (props) => (
+              <TimelineChevron {...props} expanded={expanded} />
+            ),
+          })}
         />
 
         <Collapsible collapsed={!expanded}>
@@ -80,7 +97,15 @@ export const Timeline = ({ tx }: TimelineProps) => {
       </Pressable>
 
       <TimelineItem
-        Left={<Subheading>Submit</Subheading>}
+        Left={
+          execute?.step === 'execute' && tx.status === TxStatus.Proposed ? (
+            <TimelineButton color={colors.primary} onPress={execute}>
+              Execute
+            </TimelineButton>
+          ) : (
+            <Subheading>Execute</Subheading>
+          )
+        }
         Right={
           <Box>
             {tx.submissions.map((s) => (
@@ -93,12 +118,16 @@ export const Timeline = ({ tx }: TimelineProps) => {
             ))}
           </Box>
         }
-        status={getStatus(TxStatus.Submitted)}
+        status={
+          tx.status === TxStatus.Proposed && isApproved
+            ? 'requires-action'
+            : getStatus(TxStatus.Submitted)
+        }
         connector
       />
 
       <TimelineItem
-        Left={<Subheading>Execute</Subheading>}
+        Left={<Subheading>Finalize</Subheading>}
         Right={
           isExecutedTx(tx) && (
             <Box>

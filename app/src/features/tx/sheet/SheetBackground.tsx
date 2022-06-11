@@ -5,7 +5,7 @@ import Animated from 'react-native-reanimated';
 
 const RADIUS = 17;
 
-export const TxSheetBackground = (props: BottomSheetBackgroundProps) => {
+export const SheetBackground = (props: BottomSheetBackgroundProps) => {
   const { colors } = useTheme();
 
   const style = useMemo(
