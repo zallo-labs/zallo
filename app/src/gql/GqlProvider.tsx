@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useState } from 'react';
+import { createContext, useContext, useState } from 'react';
 import { ApolloClient, NormalizedCacheObject } from '@apollo/client';
 
 import { ChildrenProps } from '@util/children';
@@ -11,6 +11,8 @@ import {
   useCreateApiClient,
 } from './clients';
 import { Suspend } from '@components/Suspender';
+import useAsyncEffect from 'use-async-effect';
+import { mapAsync } from 'lib';
 
 const clientNames = [
   API_CLIENT_NAME,
@@ -37,24 +39,24 @@ export const GqlProvider = ({ children }: ChildrenProps) => {
   const createApiClient = useCreateApiClient();
 
   const [clients, setClients] = useState<GqlClients | Partial<GqlClients>>({});
-  useEffect(() => {
-    if (isGqlClients(clients)) return;
-
-    (
+  useAsyncEffect(async () => {
+    const newClients = await mapAsync(
       [
         [API_CLIENT_NAME, createApiClient],
         [SUBGRAPH_CLIENT_NAME, createSubgraphClient],
         [UNISWAP_CLIENT_NAME, createUniswapClient],
-      ] as const
-    ).forEach(async ([name, createClient]) => {
-      const client = await createClient();
+      ],
+      async ([name, create]: [
+        string,
+        () => Promise<ApolloClient<NormalizedCacheObject>>,
+      ]): Promise<[string, ApolloClient<NormalizedCacheObject>]> => [
+        name,
+        await create(),
+      ],
+    );
 
-      setClients((clients) => ({
-        ...clients,
-        [name]: client,
-      }));
-    });
-  }, [clients, createApiClient]);
+    setClients(Object.fromEntries(newClients));
+  }, [createApiClient]);
 
   if (!isGqlClients(clients)) return <Suspend />;
 
