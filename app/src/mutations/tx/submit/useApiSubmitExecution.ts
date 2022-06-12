@@ -8,26 +8,14 @@ import {
 } from '@gql/api.generated';
 import { apiGql } from '@gql/clients';
 import { useApiClient } from '@gql/GqlProvider';
-import { API_GET_TXS_QUERY, Tx } from '~/queries/tx/useTxs';
+import { API_GET_TXS_QUERY, API_SUBMISSION_FIELDS, Tx } from '~/queries/tx/useTxs';
 import { ContractTransaction, ethers } from 'ethers';
 import { useCallback } from 'react';
 import { toId } from 'lib';
 import { DateTime } from 'luxon';
 
-export const SUBMISSION_FIELDS = apiGql`
-fragment SubmissionFields on Submission {
-	id
-  hash
-  nonce
-  gasLimit
-  gasPrice
-  finalized
-  createdAt
-}
-`;
-
 const MUTATION = apiGql`
-${SUBMISSION_FIELDS}
+${API_SUBMISSION_FIELDS}
 
 mutation SubmitTxExecution($safe: Address! $txHash: Bytes32!, $submission: SubmissionInput!) {
   submitTxExecution(safe: $safe, txHash: $txHash, submission: $submission) {

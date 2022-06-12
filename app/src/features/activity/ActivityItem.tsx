@@ -16,11 +16,9 @@ export const ActivityItem = ({
   activity,
   txProps,
   ...itemProps
-}: ActivityItemProps) => {
-  if (isTransfer(activity))
-    return (
-      <TransferItem transfer={activity} {...TX_STATUS_INSET} {...itemProps} />
-    );
-
-  return <TxItem tx={activity} {...txProps} {...itemProps} />;
-};
+}: ActivityItemProps) =>
+  isTransfer(activity) ? (
+    <TransferItem transfer={activity} {...TX_STATUS_INSET} {...itemProps} />
+  ) : (
+    <TxItem tx={activity} {...txProps} {...itemProps} />
+  );

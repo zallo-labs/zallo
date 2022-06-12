@@ -10,7 +10,6 @@ import { BigNumber, BytesLike } from 'ethers';
 import { address, Address, Id, Op, Signer, toId } from 'lib';
 import { DateTime } from 'luxon';
 import { useMemo } from 'react';
-import { SUBMISSION_FIELDS } from '~/mutations/tx/submit/useApiSubmitExecution';
 import { fieldsToTransfer, Transfer, TRANSFER_FIELDS } from './transfer';
 
 const SUB_QUERY = subGql`
@@ -128,8 +127,20 @@ const useSubExecutedTxs = () => {
   return { executedTxs, ...rest };
 };
 
+export const API_SUBMISSION_FIELDS = apiGql`
+fragment SubmissionFields on Submission {
+	id
+  hash
+  nonce
+  gasLimit
+  gasPrice
+  finalized
+  createdAt
+}
+`;
+
 export const API_TX_FIELDS = apiGql`
-${SUBMISSION_FIELDS}
+${API_SUBMISSION_FIELDS}
 
 fragment TxFields on Tx {
   id
@@ -168,10 +179,13 @@ const useApiProposedTxs = () => {
   const { safe } = useSafe();
   const wallet = useWallet();
 
-  const { data, ...rest } = useQuery<GetApiTxs, GetApiTxsVariables>(API_GET_TXS_QUERY, {
-    client: useApiClient(),
-    variables: { safe: safe.address },
-  });
+  const { data, ...rest } = useQuery<GetApiTxs, GetApiTxsVariables>(
+    API_GET_TXS_QUERY,
+    {
+      client: useApiClient(),
+      variables: { safe: safe.address },
+    },
+  );
 
   const proposedTxs: ProposedTx[] = useMemo(
     () =>
@@ -196,7 +210,7 @@ const useApiProposedTxs = () => {
             nonce: BigNumber.from(op.nonce),
           })),
           approvals,
-          userHasApproved: !!approvals.find(a => a.addr === wallet.address),
+          userHasApproved: !!approvals.find((a) => a.addr === wallet.address),
           submissions: tx.submissions.map((s) => ({
             hash: s.hash,
             nonce: s.nonce,

@@ -27,7 +27,7 @@ const Tab = createMaterialTopTabNavigator<TabNavigatorParamList>();
 
 export const TabNavigator = () => (
   <Tab.Navigator initialRouteName="Activity" tabBar={() => null}>
-    <Tab.Screen name="Activity" component={ActivityScreen} />
     <Tab.Screen name="Home" component={HomeScreen} />
+    <Tab.Screen name="Activity" component={ActivityScreen} />
   </Tab.Navigator>
 );
