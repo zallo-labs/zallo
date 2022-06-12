@@ -1,14 +1,18 @@
 import { useMutation } from '@apollo/client';
 import { useSafe } from '@features/safe/SafeProvider';
 import {
+  GetApiTxs,
+  GetApiTxsVariables,
   SubmitTxExecution,
   SubmitTxExecutionVariables,
 } from '@gql/api.generated';
 import { apiGql } from '@gql/clients';
 import { useApiClient } from '@gql/GqlProvider';
-import { Tx } from '~/queries/tx/useTxs';
+import { API_GET_TXS_QUERY, Tx } from '~/queries/tx/useTxs';
 import { ContractTransaction, ethers } from 'ethers';
 import { useCallback } from 'react';
+import { toId } from 'lib';
+import { DateTime } from 'luxon';
 
 export const SUBMISSION_FIELDS = apiGql`
 fragment SubmissionFields on Submission {
@@ -50,6 +54,43 @@ export const useApiSubmitExecution = () => {
           txHash: ethers.utils.hexlify(tx.hash),
           submission: {
             hash: txResp.hash,
+          },
+        },
+        update: (cache, { data: { submitTxExecution: submission } }) => {
+          const queryOpts = {
+            query: API_GET_TXS_QUERY,
+            variables: { safe: safe.address },
+          };
+          const data = cache.readQuery<GetApiTxs, GetApiTxsVariables>(
+            queryOpts,
+          );
+
+          const newTxs = [...data.txs];
+
+          const i = newTxs.findIndex((t) => t.id === tx.id);
+          if (i >= 0) {
+            newTxs[i] = {
+              ...newTxs[i],
+              submissions: [...newTxs[i].submissions, submission],
+            };
+          }
+
+          cache.writeQuery<GetApiTxs, GetApiTxsVariables>({
+            ...queryOpts,
+            overwrite: true,
+            data: { txs: newTxs },
+          });
+        },
+        optimisticResponse: {
+          submitTxExecution: {
+            __typename: 'Submission',
+            id: toId(txResp.hash),
+            hash: txResp.hash,
+            nonce: txResp.nonce,
+            gasLimit: txResp.gasLimit.toString(),
+            gasPrice: txResp.gasPrice?.toString(),
+            finalized: txResp.confirmations > 0,
+            createdAt: DateTime.now().toISO(),
           },
         },
       });

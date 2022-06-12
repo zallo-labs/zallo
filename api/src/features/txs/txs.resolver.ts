@@ -12,7 +12,7 @@ import { Prisma } from '@prisma/client';
 import { UserInputError } from 'apollo-server-core';
 import { BytesLike, ethers } from 'ethers';
 import { GraphQLResolveInfo } from 'graphql';
-import { Address, hashTx } from 'lib';
+import { Address, hashTx, Id, toId } from 'lib';
 import { PrismaService } from 'nestjs-prisma';
 import { UserAddr } from '~/decorators/user.decorator';
 import {
@@ -25,6 +25,7 @@ import {
   ApproveArgs,
   TxsArgs,
   RevokeApprovalArgs,
+  RevokeApprovalResp,
 } from './txs.args';
 import { Submission } from '@gen/submission/submission.model';
 import { SubmissionsService } from '../submissions/submissions.service';
@@ -53,8 +54,8 @@ export class TxsResolver {
   }
 
   @ResolveField(() => String)
-  async id(@Parent() tx: Tx): Promise<string> {
-    return `${tx.safeId}-${tx.hash}`;
+  id(@Parent() tx: Tx): Id {
+    return this.toId(tx);
   }
 
   @ResolveField(() => [Submission])
@@ -140,12 +141,11 @@ export class TxsResolver {
     });
   }
 
-  @Mutation(() => Tx, { nullable: true })
+  @Mutation(() => RevokeApprovalResp)
   async revokeApproval(
     @Args() { safe, txHash }: RevokeApprovalArgs,
-    @Info() info: GraphQLResolveInfo,
     @UserAddr() user: Address,
-  ): Promise<Tx | null> {
+  ): Promise<RevokeApprovalResp> {
     const tx = await this.prisma.tx.update({
       where: { safeId_hash: { safeId: safe, hash: txHash } },
       data: {
@@ -159,25 +159,19 @@ export class TxsResolver {
           },
         },
       },
-      ...getSelect(info),
     });
 
     // Delete tx if no approvals are left
     const approvalsLeft = await this.prisma.approval.count({
-      where: {
-        safeId: safe,
-        txHash,
-      },
+      where: { safeId: safe, txHash },
     });
 
-    if (approvalsLeft) {
-      return tx;
-    } else {
+    if (!approvalsLeft)
       await this.prisma.tx.delete({
         where: { safeId_hash: { safeId: safe, hash: txHash } },
       });
-      return null;
-    }
+
+    return { id: this.toId(tx) };
   }
 
   private async verifySignatureOrThrow(
@@ -188,5 +182,9 @@ export class TxsResolver {
     // TODO: fix
     // if (!(await zk.utils.isMessageSignatureCorrect(user, txHash, signature)))
     //   throw new UserInputError('Invalid signature');
+  }
+
+  private toId({ safeId, hash }: { safeId: string; hash: string }): Id {
+    return toId(`${safeId}-${hash}`);
   }
 }

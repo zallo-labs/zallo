@@ -12,7 +12,7 @@ import { useState } from 'react';
 import { Actions } from '@components/Actions';
 import { ethers } from 'ethers';
 import { getTokenContract } from '~/token/token';
-import { DAI, USDC } from '~/token/tokens';
+import { DAI, LINK, USDC, WBTC } from '~/token/tokens';
 import { useWallet } from '@features/wallet/useWallet';
 import { useExecute } from '~/mutations/tx/useExecute';
 import { useExternalTransfers } from '~/queries/tx/useExternalTransfers';
@@ -53,14 +53,14 @@ export const ActivityScreen = (_props: ActivityScreenProps) => {
 
   const [selected, setSelected] = useState<Activity | undefined>(undefined);
 
-  const daiTransfer: Op = createOp({
-    to: address(DAI.addr),
-    data: getTokenContract(DAI).interface.encodeFunctionData('transfer', [
+  const transfer: Op = createOp({
+    to: address(USDC.addr),
+    data: getTokenContract(USDC).interface.encodeFunctionData('transfer', [
       address(wallet.address),
-      ethers.utils.parseUnits('20', DAI.decimals),
+      ethers.utils.parseUnits('0.0501', USDC.decimals),
     ]),
   });
-  const execute = useExecute(daiTransfer);
+  const execute = useExecute(transfer);
 
   return (
     <Box flex={1}>
@@ -91,9 +91,9 @@ export const ActivityScreen = (_props: ActivityScreenProps) => {
         />
       )}
 
-      {/* <Actions>
+      <Actions>
         {execute && <Button onPress={execute}>{execute.step}</Button>}
-      </Actions> */}
+      </Actions>
     </Box>
   );
 };

@@ -20,9 +20,9 @@ const defaultOptions: DefaultOptions = {
   watchQuery: {
     fetchPolicy: 'cache-and-network',
   },
-  query: {
-    fetchPolicy: 'cache-first',
-  },
+  // query: {
+  //   fetchPolicy: 'cache-first',
+  // },
 };
 
 export const API_CLIENT_NAME = 'api';

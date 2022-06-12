@@ -154,7 +154,7 @@ fragment TxFields on Tx {
 }
 `;
 
-const API_QUERY = apiGql`
+export const API_GET_TXS_QUERY = apiGql`
 ${API_TX_FIELDS}
 
 query GetApiTxs($safe: Address!) {
@@ -168,7 +168,7 @@ const useApiProposedTxs = () => {
   const { safe } = useSafe();
   const wallet = useWallet();
 
-  const { data, ...rest } = useQuery<GetApiTxs, GetApiTxsVariables>(API_QUERY, {
+  const { data, ...rest } = useQuery<GetApiTxs, GetApiTxsVariables>(API_GET_TXS_QUERY, {
     client: useApiClient(),
     variables: { safe: safe.address },
   });

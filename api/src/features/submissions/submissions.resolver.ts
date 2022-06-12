@@ -10,7 +10,7 @@ import {
 } from '@nestjs/graphql';
 import { UserInputError } from 'apollo-server-core';
 import { GraphQLResolveInfo } from 'graphql';
-import { Address } from 'lib';
+import { Address, Id, toId } from 'lib';
 import { PrismaService } from 'nestjs-prisma';
 import { ProviderService } from '~/provider/provider.service';
 import { getSelect } from '~/util/test';
@@ -42,8 +42,8 @@ export class SubmissionsResolver {
   }
 
   @ResolveField(() => String)
-  id(@Parent() submission: Submission): string {
-    return submission.hash;
+  id(@Parent() submission: Submission): Id {
+    return toId(submission.hash);
   }
 
   @Mutation(() => Submission)

@@ -28,7 +28,54 @@ export interface GetTransfers {
 
 export interface GetTransfersVariables {
   safe: string;
-  txs?: string[] | null;
+  txs: string[];
+}
+
+/* tslint:disable */
+/* eslint-disable */
+// @generated
+// This file was automatically generated and should not be edited.
+
+// ====================================================
+// GraphQL query operation: GetSubTxs
+// ====================================================
+
+export interface GetSubTxs_txes_transfers {
+  __typename: "Transfer";
+  /**
+   * {tx.id}-{tx.log.index}
+   */
+  id: string;
+  type: TransferType;
+  token: any;
+  from: any;
+  to: any;
+  value: any;
+  blockHash: any;
+  timestamp: any;
+}
+
+export interface GetSubTxs_txes {
+  __typename: "Tx";
+  /**
+   * {tx.hash}
+   */
+  id: string;
+  type: TxType;
+  hash: any;
+  responses: any[];
+  executor: any;
+  blockHash: any;
+  timestamp: any;
+  transfers: GetSubTxs_txes_transfers[];
+}
+
+export interface GetSubTxs {
+  txes: GetSubTxs_txes[];
+}
+
+export interface GetSubTxsVariables {
+  safe: string;
 }
 
 /* tslint:disable */
@@ -95,53 +142,6 @@ export interface GetSubSafes {
 
 export interface GetSubSafesVariables {
   approver: string;
-}
-
-/* tslint:disable */
-/* eslint-disable */
-// @generated
-// This file was automatically generated and should not be edited.
-
-// ====================================================
-// GraphQL query operation: GetSubTxs
-// ====================================================
-
-export interface GetSubTxs_txes_transfers {
-  __typename: "Transfer";
-  /**
-   * {tx.id}-{tx.log.index}
-   */
-  id: string;
-  type: TransferType;
-  token: any;
-  from: any;
-  to: any;
-  value: any;
-  blockHash: any;
-  timestamp: any;
-}
-
-export interface GetSubTxs_txes {
-  __typename: "Tx";
-  /**
-   * {tx.hash}
-   */
-  id: string;
-  type: TxType;
-  hash: any;
-  responses: any[];
-  executor: any;
-  blockHash: any;
-  timestamp: any;
-  transfers: GetSubTxs_txes_transfers[];
-}
-
-export interface GetSubTxs {
-  txes: GetSubTxs_txes[];
-}
-
-export interface GetSubTxsVariables {
-  safe: string;
 }
 
 /* tslint:disable */

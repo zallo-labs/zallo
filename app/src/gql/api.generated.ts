@@ -37,42 +37,9 @@ export interface SubmitTxExecutionVariables {
 // GraphQL mutation operation: ApproveTx
 // ====================================================
 
-export interface ApproveTx_approve_ops {
-  __typename: "Op";
-  hash: string;
-  to: string;
-  value: any;
-  data: string;
-  nonce: any;
-}
-
-export interface ApproveTx_approve_approvals {
-  __typename: "Approval";
-  approverId: string;
-  signature: string;
-  createdAt: any;
-}
-
-export interface ApproveTx_approve_submissions {
-  __typename: "Submission";
-  id: string;
-  hash: string;
-  nonce: number;
-  gasLimit: any;
-  gasPrice: any | null;
-  finalized: boolean;
-  createdAt: any;
-}
-
 export interface ApproveTx_approve {
   __typename: "Tx";
   id: string;
-  safeId: string;
-  hash: string;
-  ops: ApproveTx_approve_ops[] | null;
-  approvals: ApproveTx_approve_approvals[] | null;
-  createdAt: any;
-  submissions: ApproveTx_approve_submissions[] | null;
 }
 
 export interface ApproveTx {
@@ -152,12 +119,12 @@ export interface ProposeTxVariables {
 // ====================================================
 
 export interface RevokeApproval_revokeApproval {
-  __typename: "Tx";
-  id: string;
+  __typename: "RevokeApprovalResp";
+  id: string | null;
 }
 
 export interface RevokeApproval {
-  revokeApproval: RevokeApproval_revokeApproval | null;
+  revokeApproval: RevokeApproval_revokeApproval;
 }
 
 export interface RevokeApprovalVariables {
@@ -335,6 +302,61 @@ export interface UpsertSafeVariables {
 // This file was automatically generated and should not be edited.
 
 // ====================================================
+// GraphQL query operation: GetApiTxs
+// ====================================================
+
+export interface GetApiTxs_txs_ops {
+  __typename: "Op";
+  hash: string;
+  to: string;
+  value: any;
+  data: string;
+  nonce: any;
+}
+
+export interface GetApiTxs_txs_approvals {
+  __typename: "Approval";
+  approverId: string;
+  signature: string;
+  createdAt: any;
+}
+
+export interface GetApiTxs_txs_submissions {
+  __typename: "Submission";
+  id: string;
+  hash: string;
+  nonce: number;
+  gasLimit: any;
+  gasPrice: any | null;
+  finalized: boolean;
+  createdAt: any;
+}
+
+export interface GetApiTxs_txs {
+  __typename: "Tx";
+  id: string;
+  safeId: string;
+  hash: string;
+  ops: GetApiTxs_txs_ops[] | null;
+  approvals: GetApiTxs_txs_approvals[] | null;
+  createdAt: any;
+  submissions: GetApiTxs_txs_submissions[] | null;
+}
+
+export interface GetApiTxs {
+  txs: GetApiTxs_txs[];
+}
+
+export interface GetApiTxsVariables {
+  safe: any;
+}
+
+/* tslint:disable */
+/* eslint-disable */
+// @generated
+// This file was automatically generated and should not be edited.
+
+// ====================================================
 // GraphQL query operation: GetContacts
 // ====================================================
 
@@ -450,61 +472,6 @@ export interface GetApiSafesVariables {
 // This file was automatically generated and should not be edited.
 
 // ====================================================
-// GraphQL query operation: GetApiTxs
-// ====================================================
-
-export interface GetApiTxs_txs_ops {
-  __typename: "Op";
-  hash: string;
-  to: string;
-  value: any;
-  data: string;
-  nonce: any;
-}
-
-export interface GetApiTxs_txs_approvals {
-  __typename: "Approval";
-  approverId: string;
-  signature: string;
-  createdAt: any;
-}
-
-export interface GetApiTxs_txs_submissions {
-  __typename: "Submission";
-  id: string;
-  hash: string;
-  nonce: number;
-  gasLimit: any;
-  gasPrice: any | null;
-  finalized: boolean;
-  createdAt: any;
-}
-
-export interface GetApiTxs_txs {
-  __typename: "Tx";
-  id: string;
-  safeId: string;
-  hash: string;
-  ops: GetApiTxs_txs_ops[] | null;
-  approvals: GetApiTxs_txs_approvals[] | null;
-  createdAt: any;
-  submissions: GetApiTxs_txs_submissions[] | null;
-}
-
-export interface GetApiTxs {
-  txs: GetApiTxs_txs[];
-}
-
-export interface GetApiTxsVariables {
-  safe: any;
-}
-
-/* tslint:disable */
-/* eslint-disable */
-// @generated
-// This file was automatically generated and should not be edited.
-
-// ====================================================
 // GraphQL fragment: SubmissionFields
 // ====================================================
 
@@ -517,6 +484,53 @@ export interface SubmissionFields {
   gasPrice: any | null;
   finalized: boolean;
   createdAt: any;
+}
+
+/* tslint:disable */
+/* eslint-disable */
+// @generated
+// This file was automatically generated and should not be edited.
+
+// ====================================================
+// GraphQL fragment: TxFields
+// ====================================================
+
+export interface TxFields_ops {
+  __typename: "Op";
+  hash: string;
+  to: string;
+  value: any;
+  data: string;
+  nonce: any;
+}
+
+export interface TxFields_approvals {
+  __typename: "Approval";
+  approverId: string;
+  signature: string;
+  createdAt: any;
+}
+
+export interface TxFields_submissions {
+  __typename: "Submission";
+  id: string;
+  hash: string;
+  nonce: number;
+  gasLimit: any;
+  gasPrice: any | null;
+  finalized: boolean;
+  createdAt: any;
+}
+
+export interface TxFields {
+  __typename: "Tx";
+  id: string;
+  safeId: string;
+  hash: string;
+  ops: TxFields_ops[] | null;
+  approvals: TxFields_approvals[] | null;
+  createdAt: any;
+  submissions: TxFields_submissions[] | null;
 }
 
 /* tslint:disable */
@@ -589,53 +603,6 @@ export interface SafeFields {
   name: string | null;
   deploySalt: string | null;
   groups: SafeFields_groups[] | null;
-}
-
-/* tslint:disable */
-/* eslint-disable */
-// @generated
-// This file was automatically generated and should not be edited.
-
-// ====================================================
-// GraphQL fragment: TxFields
-// ====================================================
-
-export interface TxFields_ops {
-  __typename: "Op";
-  hash: string;
-  to: string;
-  value: any;
-  data: string;
-  nonce: any;
-}
-
-export interface TxFields_approvals {
-  __typename: "Approval";
-  approverId: string;
-  signature: string;
-  createdAt: any;
-}
-
-export interface TxFields_submissions {
-  __typename: "Submission";
-  id: string;
-  hash: string;
-  nonce: number;
-  gasLimit: any;
-  gasPrice: any | null;
-  finalized: boolean;
-  createdAt: any;
-}
-
-export interface TxFields {
-  __typename: "Tx";
-  id: string;
-  safeId: string;
-  hash: string;
-  ops: TxFields_ops[] | null;
-  approvals: TxFields_approvals[] | null;
-  createdAt: any;
-  submissions: TxFields_submissions[] | null;
 }
 
 /* tslint:disable */

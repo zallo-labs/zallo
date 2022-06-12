@@ -47,24 +47,19 @@ export const useUpsertContact = () => {
           newAddr: cur.addr,
           name: cur.name,
         },
-        optimisticResponse: {
-          upsertContact: {
-            __typename: 'Contact',
-            id: curId,
-            ...cur,
-          },
-        },
         update: (cache, { data: { upsertContact } }) => {
-          const data: GetContacts = cache.readQuery({
+          const data = cache.readQuery<GetContacts>({
             query: API_CONTACTS_QUERY,
           });
 
           // Insert into query list
           if (!data.contacts.map((c) => c.id).includes(upsertContact.id)) {
-            const newData: GetContacts = {
-              contacts: [...data.contacts, upsertContact],
-            };
-            cache.writeQuery({ query: API_CONTACTS_QUERY, data: newData });
+            cache.writeQuery<GetContacts>({
+              query: API_CONTACTS_QUERY,
+              data: {
+                contacts: [...data.contacts, upsertContact],
+              },
+            });
           }
 
           // Evict previous contact if ID has changed
@@ -76,6 +71,13 @@ export const useUpsertContact = () => {
               }),
             });
           }
+        },
+        optimisticResponse: {
+          upsertContact: {
+            __typename: 'Contact',
+            id: curId,
+            ...cur,
+          },
         },
       });
     },
