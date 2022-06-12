@@ -12,13 +12,13 @@ export const authSessionRequestHandler = () =>
     resave: true,
     saveUninitialized: true,
     cookie: {
-      maxAge: Duration.fromObject({ days: 1 }).toMillis(),
+      maxAge: Duration.fromObject({ days: 7 }).toMillis(),
       // Allow cookies created on dev to be used on prod, but not vice-versa
       ...(IS_PROD && { secure: IS_PROD }),
     },
     store: new PrismaSessionStore(new PrismaClient(), {
       dbRecordIdIsSessionId: true,
       logger: Logger,
-      checkPeriod: Duration.fromObject({ days: 1 }).toMillis(),
+      checkPeriod: Duration.fromObject({ hours: 2 }).toMillis(),
     }),
   });
