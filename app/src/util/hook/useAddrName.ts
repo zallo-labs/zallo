@@ -17,9 +17,17 @@ export const useAddrName = (addr: Address) => {
     [contacts, addr],
   );
 
-  return wallet.address === addr
-    ? 'Myself'
-    : addr === safe.address && safeName
-    ? safeName
-    : contact?.name ?? token?.name ?? elipseTruncate(addr, 6, 4);
+  return useMemo(() => {
+    if (wallet.address === addr) return 'Myself';
+    if (addr === safe.address && safeName) return safeName;
+
+    return contact?.name ?? token?.name ?? elipseTruncate(addr, 6, 4);
+  }, [
+    addr,
+    contact?.name,
+    safe.address,
+    safeName,
+    token?.name,
+    wallet.address,
+  ]);
 };

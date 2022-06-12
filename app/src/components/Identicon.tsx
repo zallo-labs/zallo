@@ -1,6 +1,6 @@
 import { useAddrName } from '@util/hook/useAddrName';
 import { BytesLike, ethers } from 'ethers';
-import { isBytesLike } from 'ethers/lib/utils';
+import { hexlify, isBytesLike } from 'ethers/lib/utils';
 import { useMemo } from 'react';
 import { LogBox, Platform } from 'react-native';
 import Jazzicon, { IJazziconProps } from 'react-native-jazzicon';
@@ -23,7 +23,7 @@ export const Identicon = ({ seed: input, ...props }: IdenticonProps) => {
   const seed = useMemo(() => {
     if (typeof input === 'number') return input;
 
-    if (isBytesLike(input)) input = ethers.utils.hexlify(input);
+    if (isBytesLike(input)) input = hexlify(input);
 
     if (!ethers.utils.isHexString(input)) {
       throw new Error(

@@ -38,6 +38,7 @@ export interface PersistAtomOptions<T> {
   load?: Load<T>;
   storage?: Storage;
   ignoreDefault?: boolean;
+  saveIf?: (value: T) => boolean;
 }
 
 export const persistAtom =
@@ -46,6 +47,7 @@ export const persistAtom =
     load = JSON.parse,
     storage = AsyncStorage,
     ignoreDefault,
+    saveIf,
   }: PersistAtomOptions<T> = {}): AtomEffect<T> =>
   ({ setSelf, onSet, node: { key } }) => {
     // Loads the saved value, otherwise uses the default value
@@ -59,7 +61,7 @@ export const persistAtom =
     onSet((newValue, _oldValue, isReset) => {
       if (isReset && ignoreDefault) {
         storage.removeItem(key);
-      } else {
+      } else if (!saveIf || saveIf(newValue)) {
         storage.setItem(key, serialize(newValue, save));
       }
     });
