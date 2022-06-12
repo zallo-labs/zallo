@@ -1,9 +1,16 @@
-import { createContext, useContext, useState } from 'react';
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useState,
+} from 'react';
 import { ApolloClient, NormalizedCacheObject } from '@apollo/client';
 
 import { ChildrenProps } from '@util/children';
 import {
   API_CLIENT_NAME,
+  ClientCreator,
   createSubgraphClient,
   createUniswapClient,
   SUBGRAPH_CLIENT_NAME,
@@ -11,8 +18,6 @@ import {
   useCreateApiClient,
 } from './clients';
 import { Suspend } from '@components/Suspender';
-import useAsyncEffect from 'use-async-effect';
-import { mapAsync } from 'lib';
 
 const clientNames = [
   API_CLIENT_NAME,
@@ -36,26 +41,21 @@ export const useSubgraphClient = () => useGqlClients().subgraph;
 export const useUniswapClient = () => useGqlClients().uniswap;
 
 export const GqlProvider = ({ children }: ChildrenProps) => {
-  const createApiClient = useCreateApiClient();
-
   const [clients, setClients] = useState<GqlClients | Partial<GqlClients>>({});
-  useAsyncEffect(async () => {
-    const newClients = await mapAsync(
-      [
-        [API_CLIENT_NAME, createApiClient],
-        [SUBGRAPH_CLIENT_NAME, createSubgraphClient],
-        [UNISWAP_CLIENT_NAME, createUniswapClient],
-      ],
-      async ([name, create]: [
-        string,
-        () => Promise<ApolloClient<NormalizedCacheObject>>,
-      ]): Promise<[string, ApolloClient<NormalizedCacheObject>]> => [
-        name,
-        await create(),
-      ],
-    );
 
-    setClients(Object.fromEntries(newClients));
+  const create = async (name: Name, creator: ClientCreator) => {
+    const client = await creator();
+    setClients((clients) => ({ ...clients, [name]: client }));
+  };
+
+  useEffect(() => {
+    create(SUBGRAPH_CLIENT_NAME, createSubgraphClient);
+    create(UNISWAP_CLIENT_NAME, createUniswapClient);
+  }, []);
+
+  const createApiClient = useCreateApiClient();
+  useEffect(() => {
+    create(API_CLIENT_NAME, createApiClient);
   }, [createApiClient]);
 
   if (!isGqlClients(clients)) return <Suspend />;

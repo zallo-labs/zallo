@@ -4,17 +4,23 @@ import {
   DefaultOptions,
   gql,
   HttpLink,
+  InMemoryCache,
+  NormalizedCacheObject,
 } from '@apollo/client';
 import { RetryLink } from '@apollo/client/link/retry';
+import { MaybePromise } from 'lib';
 import { Duration } from 'luxon';
+import { useCallback, useMemo } from 'react';
 
 import { CONFIG } from '~/config';
-import { useWallet } from '@features/wallet/useWallet';
-import { createAuthFlowLink } from './apiAuthFlowLink';
+import { useAuthFlowLink } from './apiAuthFlowLink';
 import { getPersistedCache } from './cache';
-import { useCallback } from 'react';
 
 export { gql as apiGql, gql as subGql, gql as uniswapGql };
+
+export type ClientCreator = () => MaybePromise<
+  ApolloClient<NormalizedCacheObject>
+>;
 
 // https://www.apollographql.com/docs/react/data/queries/#supported-fetch-policies
 const defaultOptions: DefaultOptions = {
@@ -27,27 +33,32 @@ const defaultOptions: DefaultOptions = {
 };
 
 export const API_CLIENT_NAME = 'api';
-export const useCreateApiClient = () => {
-  const wallet = useWallet();
+export const useCreateApiClient = (): ClientCreator => {
+  const authFlowLink = useAuthFlowLink();
+
+  const cache: Promise<InMemoryCache> = useMemo(
+    () => getPersistedCache(API_CLIENT_NAME),
+    [],
+  );
 
   return useCallback(
     async () =>
       new ApolloClient({
         name: API_CLIENT_NAME,
-        cache: await getPersistedCache(API_CLIENT_NAME),
+        cache: await cache,
         link: ApolloLink.from([
           new RetryLink(),
-          createAuthFlowLink(wallet),
+          authFlowLink,
           new HttpLink({ uri: CONFIG.api.gqlUrl }),
         ]),
         defaultOptions,
       }),
-    [wallet],
+    [authFlowLink, cache],
   );
 };
 
 export const SUBGRAPH_CLIENT_NAME = 'subgraph';
-export const createSubgraphClient = async () =>
+export const createSubgraphClient: ClientCreator = async () =>
   new ApolloClient({
     name: SUBGRAPH_CLIENT_NAME,
     cache: await getPersistedCache(SUBGRAPH_CLIENT_NAME),
@@ -59,7 +70,7 @@ export const createSubgraphClient = async () =>
   });
 
 export const UNISWAP_CLIENT_NAME = 'uniswap';
-export const createUniswapClient = async () =>
+export const createUniswapClient: ClientCreator = async () =>
   new ApolloClient({
     name: UNISWAP_CLIENT_NAME,
     cache: await getPersistedCache(UNISWAP_CLIENT_NAME),
