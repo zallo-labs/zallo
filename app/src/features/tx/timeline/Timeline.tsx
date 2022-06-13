@@ -44,9 +44,7 @@ export const Timeline = ({ tx }: TimelineProps) => {
               <TimelineButton color={colors.primary} onPress={execute}>
                 Approve
               </TimelineButton>
-            ) : execute?.step === 'execute' &&
-              tx.userHasApproved &&
-              !tx.submissions.length ? (
+            ) : tx.userHasApproved && !tx.submissions.length ? (
               <TimelineButton color={colors.accent} onPress={() => revoke(tx)}>
                 Revoke
               </TimelineButton>
