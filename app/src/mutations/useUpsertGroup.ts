@@ -12,7 +12,7 @@ import { useApiClient } from '@gql/GqlProvider';
 import { API_GROUP_FIELDS_FRAGMENT, CombinedGroup } from '~/queries';
 import { ethers } from 'ethers';
 import { createOp, Group, hashGroup, isPresent, toSafeGroup } from 'lib';
-import { useGetExecute } from './tx/useExecute';
+import { usePropose } from '@features/tx/propose/ProposeProvider';
 
 const API_MUTATION = apiGql`
 ${API_GROUP_FIELDS_FRAGMENT}
@@ -116,7 +116,7 @@ const useUpsertApiGroup = () => {
 
 const useSafeUpsert = () => {
   const { safe } = useSafe();
-  const getExecute = useGetExecute();
+  const propose = usePropose();
 
   const upsert = async (cur: Group, prev?: Group) => {
     if (prev && hashGroup(prev) === hashGroup(cur)) return;
@@ -137,7 +137,7 @@ const useSafeUpsert = () => {
         })
       : undefined;
 
-    await getExecute([addOp, rmOp].filter(isPresent))();
+    propose(...[addOp, rmOp].filter(isPresent));
   };
 
   return upsert;
@@ -149,7 +149,7 @@ export const useUpsertGroup = () => {
 
   const upsert = async (cur: CombinedGroup, prev?: CombinedGroup) => {
     await upsertSafeGroup(cur, prev);
-    await upsertApiGroup(cur, prev);
+    // await upsertApiGroup(cur, prev);
 
     // TODO: update cache
   };

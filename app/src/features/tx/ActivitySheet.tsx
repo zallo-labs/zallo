@@ -5,12 +5,12 @@ import { Timeline } from './timeline/Timeline';
 import { Activity, ActivityItem } from '@features/activity/ActivityItem';
 import { isTx } from '~/queries/tx/useTxs';
 
-export interface TxSheetProps {
+export interface ActivitySheetProps {
   activity: Activity;
   onClose: () => void;
 }
 
-export const ActivitySheet = ({ activity, onClose }: TxSheetProps) => {
+export const ActivitySheet = ({ activity, onClose }: ActivitySheetProps) => {
   const sheetRef = useRef<BottomSheet>(null);
 
   return (

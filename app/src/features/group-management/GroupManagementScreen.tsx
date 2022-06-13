@@ -8,6 +8,7 @@ import { GroupManagement } from './GroupManagement';
 import { ADDR_YUP_SCHEMA } from '@util/yup';
 import { useUpsertGroup } from '~/mutations/useUpsertGroup';
 import { CombinedGroup } from '~/queries';
+import { withProposeProvider } from '@features/tx/propose/ProposeProvider';
 
 const getSchema = (groups: CombinedGroup[]): Yup.SchemaOf<Group> =>
   Yup.object({
@@ -44,42 +45,45 @@ export interface GroupManagementScreenParams {
 export type GroupManagementScreenProps =
   RootNavigatorScreenProps<'GroupManagement'>;
 
-export const GroupManagementScreen = ({
-  route,
-}: GroupManagementScreenProps) => {
-  const { groupId, selected } = route.params;
-  const initialGroup = useGroup(groupId);
+export const GroupManagementScreen = withProposeProvider(
+  ({ route }: GroupManagementScreenProps) => {
+    const { groupId, selected } = route.params;
+    const initialGroup = useGroup(groupId);
 
-  const { groups } = useSafe();
-  const upsertGroup = useUpsertGroup();
+    const { groups } = useSafe();
+    const upsertGroup = useUpsertGroup();
 
-  const handleSubmit = async (values: Group, helpers: FormikHelpers<Group>) => {
-    const newGroup = { ...initialGroup, ...values };
-    await upsertGroup(newGroup, initialGroup);
+    const handleSubmit = async (
+      values: Group,
+      helpers: FormikHelpers<Group>,
+    ) => {
+      const newGroup = { ...initialGroup, ...values };
+      await upsertGroup(newGroup, initialGroup);
 
-    helpers.setSubmitting(false);
-  };
+      helpers.setSubmitting(false);
+    };
 
-  const schema = useMemo(
-    () => getSchema(groups.filter((g) => g.id !== groupId)),
-    [groups, groupId],
-  );
+    const schema = useMemo(
+      () => getSchema(groups.filter((g) => g.id !== groupId)),
+      [groups, groupId],
+    );
 
-  return (
-    <Formik
-      initialValues={{ approvers: initialGroup.approvers }}
-      enableReinitialize
-      onSubmit={handleSubmit}
-      validationSchema={schema}
-    >
-      {({ values, setFieldValue }) => (
-        <GroupManagement
-          approvers={values.approvers}
-          setApprovers={(approvers) => setFieldValue('approvers', approvers)}
-          selected={selected}
-          initialGroup={initialGroup}
-        />
-      )}
-    </Formik>
-  );
-};
+    return (
+      <Formik
+        initialValues={{ approvers: initialGroup.approvers }}
+        enableReinitialize
+        onSubmit={handleSubmit}
+        validationSchema={schema}
+      >
+        {({ values, setFieldValue }) => (
+          <GroupManagement
+            approvers={values.approvers}
+            setApprovers={(approvers) => setFieldValue('approvers', approvers)}
+            selected={selected}
+            initialGroup={initialGroup}
+          />
+        )}
+      </Formik>
+    );
+  },
+);

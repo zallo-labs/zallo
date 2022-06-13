@@ -7,6 +7,7 @@ import { Wallet } from 'zksync-web3';
 import { Address, ZERO_ADDR } from './addr';
 import { ZERO } from './bignum';
 import { SignerStruct } from './contracts/Safe';
+import { createIsObj } from './util/mappedTypes';
 
 export interface Op {
   to: Address;
@@ -15,10 +16,7 @@ export interface Op {
   nonce: BigNumber;
 }
 
-export const isOp = (e: unknown): e is Op =>
-  typeof e === 'object' &&
-  e !== null &&
-  ['to', 'value', 'data', 'nonce'].every((k) => k in e);
+export const isOp = createIsObj<Op>('to', 'value', 'data', 'nonce');
 
 export interface SignedOp {
   tx: Op;

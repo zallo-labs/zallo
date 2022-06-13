@@ -44,11 +44,6 @@ export const TxItem = ({
         <OpsGroupItem key={group.to} group={group} {...itemProps} />
       ))}
 
-      {/* {isExecutedTx(tx) &&
-        tx.transfers.map((t) => (
-          <TransferItem key={t.id} transfer={t} {...itemProps} />
-        ))} */}
-
       {showDividers && <Divider mx={3} />}
     </Box>
   );

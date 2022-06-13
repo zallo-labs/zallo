@@ -7,7 +7,7 @@ import { combine, combineRest, simpleKeyExtractor } from '@gql/combine';
 import { useApiClient, useSubgraphClient } from '@gql/GqlProvider';
 import { GetSubTxs, GetSubTxsVariables, TxType } from '@gql/subgraph.generated';
 import { BigNumber, BytesLike } from 'ethers';
-import { address, Address, Id, Op, Signer, toId } from 'lib';
+import { address, Address, Id, Op, Signer, toId, createIsObj } from 'lib';
 import { DateTime } from 'luxon';
 import { useMemo } from 'react';
 import { fieldsToTransfer, Transfer, TRANSFER_FIELDS } from './transfer';
@@ -85,10 +85,19 @@ export interface ExecutedTx extends ProposedTx {
 
 export type Tx = ProposedTx | ExecutedTx;
 
-export const isTx = (e: unknown): e is Tx =>
-  typeof e === 'object' && 'ops' in e;
-export const isExecutedTx = (tx: Tx): tx is ExecutedTx => 'responses' in tx;
-export const isProposedTx = (tx: Tx): tx is ProposedTx => !isExecutedTx(tx);
+export const isTx = createIsObj<Tx>(
+  'type',
+  'hash',
+  'ops',
+  'approvals',
+  'submissions',
+);
+
+export const isExecutedTx = (e: unknown): e is ExecutedTx =>
+  isTx(e) && 'responses' in e;
+
+export const isProposedTx = (e: unknown): e is ProposedTx =>
+  isTx(e) && !('responses' in e);
 
 const useSubExecutedTxs = () => {
   const { safe } = useSafe();
