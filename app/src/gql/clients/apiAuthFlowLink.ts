@@ -3,89 +3,88 @@ import { setContext } from '@apollo/client/link/context';
 import { onError } from '@apollo/client/link/error';
 import { NetworkError } from '@apollo/client/errors';
 import { SiweMessage } from 'siwe';
-import * as storage from 'expo-secure-store';
-
+import { tryAcquire, E_ALREADY_LOCKED, Mutex } from 'async-mutex';
+import * as zk from 'zksync-web3';
 import { CONFIG } from '~/config';
 import { PROVIDER } from '~/provider';
-import { walletState } from '@features/wallet/useWallet';
-import {
-  selector,
-  atom,
-  useRecoilValue,
-  useResetRecoilState,
-  useRecoilRefresher_UNSTABLE,
-} from 'recoil';
+import { useWallet } from '@features/wallet/useWallet';
+import { atom, useRecoilState } from 'recoil';
 import { getSecureStore, persistAtom } from '@util/persistAtom';
-import { useMemo } from 'react';
+import { useCallback, useMemo } from 'react';
 
 interface Token {
   message: SiweMessage;
   signature: string;
 }
 
+const fetchMutex = new Mutex();
+
 const isServerError = (e?: NetworkError): e is ServerError =>
   e?.name === 'ServerError';
 
-// https://test.com/abc/123 -> test.com; RN has no URL support )':
+// https://test.com/abc/123 -> test.com; RN lacks URL support )':
 const getHost = (url: string) => {
   const start = url.indexOf('//') + 2;
   const end = url.indexOf('/', start);
   return url.slice(start, end);
 };
 
-const fetchTokenSelector = selector<Token>({
-  key: 'fetchToken',
-  get: async ({ get }): Promise<Token> => {
-    const wallet = get(walletState);
+const fetchToken = async (wallet: zk.Wallet): Promise<Token> => {
+  const nonceRes = await fetch(`${CONFIG.api.url}/auth/nonce`, {
+    credentials: 'include',
+  });
+  const nonce = await nonceRes.text();
 
-    const nonceRes = await fetch(`${CONFIG.api.url}/auth/nonce`, {
-      credentials: 'include',
-    });
-    const nonce = await nonceRes.text();
+  const message = new SiweMessage({
+    address: wallet.address,
+    nonce,
+    statement: 'Sign into MetaSafe',
+    chainId: PROVIDER.network.chainId,
+    version: '1',
+    uri: CONFIG.api.url,
+    domain: getHost(CONFIG.api.url),
+  });
 
-    const message = new SiweMessage({
-      address: wallet.address,
-      nonce,
-      statement: 'Sign into MetaSafe',
-      chainId: PROVIDER.network.chainId,
-      version: '1',
-      uri: CONFIG.api.url,
-      domain: getHost(CONFIG.api.url),
-    });
+  return {
+    message,
+    signature: await wallet.signMessage(message.prepareMessage()),
+  };
+};
 
-    return {
-      message,
-      signature: await wallet.signMessage(message.prepareMessage()),
-    };
-  },
-});
-
-const apiTokenState = atom<Token>({
+const apiTokenState = atom<Token | null>({
   key: 'apiToken',
-  default: fetchTokenSelector,
+  default: null,
   effects: [
     persistAtom({
       storage: getSecureStore(),
+      ignoreDefault: true,
     }),
   ],
 });
 
 export const useAuthFlowLink = () => {
-  const token = useRecoilValue(apiTokenState);
-  const resetToken = useResetRecoilState(apiTokenState);
-  const refreshFetchToken = useRecoilRefresher_UNSTABLE(fetchTokenSelector);
+  const wallet = useWallet();
+  const [token, setToken] = useRecoilState(apiTokenState);
+
+  const reset = useCallback(async () => {
+    // Ensure token is reset exactly once at any given time
+    try {
+      await tryAcquire(fetchMutex).runExclusive(async () => {
+        setToken(await fetchToken(wallet));
+      });
+    } catch (e) {
+      if (e === E_ALREADY_LOCKED) {
+        await fetchMutex.waitForUnlock();
+      } else {
+        throw e;
+      }
+    }
+  }, [wallet, setToken]);
 
   const authLink: ApolloLink = useMemo(
     () =>
       setContext(async (_request, prevContext) => {
-        // Disregard token if the message has expired
-        if (
-          !token ||
-          (token.message.expirationTime &&
-            new Date(token.message.expirationTime) <= new Date())
-        ) {
-          resetToken();
-        }
+        if (!token) await reset();
 
         return {
           ...prevContext,
@@ -95,19 +94,17 @@ export const useAuthFlowLink = () => {
           },
         };
       }),
-    [resetToken, token],
+    [reset, token],
   );
 
   const onUnauthorizedLink: ApolloLink = useMemo(
     () =>
       onError(({ networkError, forward, operation }) => {
         if (isServerError(networkError) && networkError.statusCode === 401) {
-          refreshFetchToken();
-          resetToken();
-          forward(operation);
+          fromPromise(reset()).flatMap(() => forward(operation));
         }
       }),
-    [refreshFetchToken, resetToken],
+    [reset],
   );
 
   const link = useMemo(

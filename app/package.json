@@ -35,6 +35,7 @@
     "@react-navigation/native-stack": "^6.6.1",
     "@sentry/react-native": "^3.4.2",
     "apollo3-cache-persist": "^0.14.0",
+    "async-mutex": "^0.3.2",
     "babel-plugin-formatjs": "^10.3.19",
     "color": "^4.2.3",
     "config": "workspace:*",

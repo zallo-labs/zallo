@@ -9342,6 +9342,7 @@ __metadata:
     "@types/styled-system": ^5.1.15
     apollo: 2.33.10
     apollo3-cache-persist: ^0.14.0
+    async-mutex: ^0.3.2
     babel-plugin-formatjs: ^10.3.19
     color: ^4.2.3
     concurrently: ^7.1.0
@@ -9758,6 +9759,15 @@ __metadata:
   version: 1.0.1
   resolution: "async-limiter@npm:1.0.1"
   checksum: 2b849695b465d93ad44c116220dee29a5aeb63adac16c1088983c339b0de57d76e82533e8e364a93a9f997f28bbfc6a92948cefc120652bd07f3b59f8d75cf2b
+  languageName: node
+  linkType: hard
+
+"async-mutex@npm:^0.3.2":
+  version: 0.3.2
+  resolution: "async-mutex@npm:0.3.2"
+  dependencies:
+    tslib: ^2.3.1
+  checksum: 620b771dfdea1cad0a6b712915c31a1e3ca880a8cf1eae92b4590f435995e0260929c6ebaae0b9126b1456790ea498064b5bb9a506948cda760f48d3d0dcc4c8
   languageName: node
   linkType: hard
 
