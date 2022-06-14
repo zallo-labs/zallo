@@ -2,17 +2,17 @@ import {
   ComponentPropsWithoutRef,
   forwardRef,
   MutableRefObject,
-  useCallback,
   useMemo,
 } from 'react';
 import BottomSheet, {
   BottomSheetScrollView,
-  BottomSheetView,
   useBottomSheetDynamicSnapPoints,
 } from '@gorhom/bottom-sheet';
 import { useTheme } from 'react-native-paper';
 import { SheetBackground } from './SheetBackground';
 import { ChildrenProps } from '@util/children';
+import { useWindowDimensions, View } from 'react-native';
+import { useAnimatedStyle } from 'react-native-reanimated';
 
 type BottomSheetProps = Omit<
   Partial<ComponentPropsWithoutRef<typeof BottomSheet>>,
@@ -42,7 +42,14 @@ export const Sheet = forwardRef(
       handleContentLayout,
     } = useBottomSheetDynamicSnapPoints(snapPoints);
 
-    // TODO: fix scroll view https://github.com/gorhom/react-native-bottom-sheet/issues/658
+    const { height: windowHeight } = useWindowDimensions();
+    const scrollViewAnimatedStyles = useAnimatedStyle(() => {
+      const contentHeight = animatedContentHeight.value;
+      const handleHeight = animatedHandleHeight.value;
+
+      return { height: Math.min(contentHeight, windowHeight - handleHeight) };
+    });
+
     return (
       <BottomSheet
         ref={ref}
@@ -53,12 +60,9 @@ export const Sheet = forwardRef(
         handleIndicatorStyle={{ backgroundColor: colors.onSurface }}
         {...bottomSheetProps}
       >
-        {/* <BottomSheetScrollView onLayout={handleContentLayout}>
-          {children}
-        </BottomSheetScrollView> */}
-        <BottomSheetView onLayout={handleContentLayout}>
-          {children}
-        </BottomSheetView>
+        <BottomSheetScrollView style={scrollViewAnimatedStyles}>
+          <View onLayout={handleContentLayout}>{children}</View>
+        </BottomSheetScrollView>
       </BottomSheet>
     );
   },
