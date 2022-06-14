@@ -30,7 +30,8 @@ model Safe {
   txs        Tx[]
   ops        Op[]
   approvals  Approval[]
-  // comments   Comment[]
+  comments   Comment[]
+  reactions  Reaction[]
 }
 
 model Group {
@@ -48,7 +49,8 @@ model Approver {
   groups    GroupApprover[]
   contacts  Contact[]
   approvals Approval[]
-  // comments Comment[]
+  comments  Comment[]
+  reactions Reaction[]
 }
 
 model GroupApprover {
@@ -89,7 +91,6 @@ model Tx {
   approvals   Approval[]
   createdAt   DateTime     @default(now())
   submissions Submission[]
-  // comments Comment[]
 
   @@id([safeId, hash])
 }
@@ -133,16 +134,36 @@ model Approval {
   @@id([safeId, txHash, approverId])
 }
 
-// model Comment {
-//   id        Int      @id @default(autoincrement())
-//   safe      Safe     @relation(fields: [safeId], references: [id], onDelete: Cascade)
-//   safeId    String   @db.Char(42) // address
-//   tx        Tx       @relation(fields: [safeId, txHash], references: [safeId, txhash], onDelete: Cascade)
-//   txHash    String   @db.Char(66) // bytes32
-//   author    Approver @relation(fields: [authorId], references: [id], onDelete: Cascade)
-//   authorId  String   @db.Char(42) // address
-//   content   String
-//   createdAt DateTime @default(now())
-//   updatedAt DateTime @updatedAt()
-//   likes     String[]
-// }
+model Comment {
+  safe   Safe   @relation(fields: [safeId], references: [id], onDelete: Cascade)
+  safeId String @db.Char(42) // address
+  key    String
+  nonce  Int    @default(autoincrement())
+
+  author    Approver @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  authorId  String   @db.Char(42) // address
+  content   String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt()
+
+  reactions Reaction[]
+
+  @@id([safeId, key, nonce])
+  @@index([safeId, key])
+}
+
+model Reaction {
+  comment    Comment  @relation(fields: [safeId, key, nonce], references: [safeId, key, nonce], onDelete: Cascade)
+  safe       Safe     @relation(fields: [safeId], references: [id], onDelete: Cascade)
+  safeId     String   @db.Char(42) // address
+  key        String
+  nonce      Int
+  approver   Approver @relation(fields: [approverId], references: [id])
+  approverId String   @db.Char(42) // address
+
+  emojis    String[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt()
+
+  @@id([safeId, key, nonce, approverId])
+}

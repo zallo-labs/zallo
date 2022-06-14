@@ -17,6 +17,8 @@ import { GroupApproverModule } from './features/group-approver/group-approver.mo
 import { ContractMethodsModule } from './features/contract-methods/contract-methods.module';
 import { TxsModule } from './features/txs/txs.module';
 import { SubmissionsModule } from './features/submissions/submissions.module';
+import { CommentsModule } from './features/comments/comments.module';
+import { ReactionsModule } from './features/reactions/reactions.module';
 
 @Module({
   imports: [
@@ -32,10 +34,12 @@ import { SubmissionsModule } from './features/submissions/submissions.module';
     HealthModule,
     // Features
     ApproversModule,
+    CommentsModule,
     ContactsModule,
     ContractMethodsModule,
     GroupApproverModule,
     GroupsModule,
+    ReactionsModule,
     SafesModule,
     SubmissionsModule,
     TxsModule,
