@@ -30,7 +30,7 @@ module.exports = {
       'warn',
       {
         additionalHooks:
-          '(useRecoilCallback|useRecoilTransaction_UNSTABLE|useAsyncEffect)',
+          '(useRecoilCallback|useRecoilTransaction_UNSTABLE)',
       },
     ],
     '@typescript-eslint/no-empty-interface': 'off',

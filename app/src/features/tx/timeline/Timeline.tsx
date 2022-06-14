@@ -14,6 +14,8 @@ import { useExecute } from '~/mutations/tx/useExecute';
 import { useRevokeApproval } from '~/mutations/tx/useRevokeApproval.api';
 import { TimelineButton } from './TimelineButton';
 
+const itemStyles = { marginVertical: 0 };
+
 export interface TimelineProps {
   tx: Tx;
 }
@@ -36,7 +38,7 @@ export const Timeline = ({ tx }: TimelineProps) => {
   const proposeStatus = isApproved ? 'complete' : getStatus(TxStatus.Proposed);
 
   return (
-    <Box vertical mt={1} mb={1}>
+    <Box>
       <Pressable onPress={() => setExpanded((prev) => !prev)}>
         <TimelineItem
           Left={
@@ -49,7 +51,7 @@ export const Timeline = ({ tx }: TimelineProps) => {
                 Revoke
               </TimelineButton>
             ) : (
-              <Subheading>Approve</Subheading>
+              <Subheading style={itemStyles}>Approve</Subheading>
             )
           }
           Right={
@@ -101,7 +103,7 @@ export const Timeline = ({ tx }: TimelineProps) => {
               Execute
             </TimelineButton>
           ) : (
-            <Subheading>Execute</Subheading>
+            <Subheading style={itemStyles}>Execute</Subheading>
           )
         }
         Right={
@@ -125,7 +127,7 @@ export const Timeline = ({ tx }: TimelineProps) => {
       />
 
       <TimelineItem
-        Left={<Subheading>Finalize</Subheading>}
+        Left={<Subheading style={itemStyles}>Finalize</Subheading>}
         Right={
           isExecutedTx(tx) && (
             <Box>

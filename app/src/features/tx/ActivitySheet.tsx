@@ -1,10 +1,15 @@
 import { useRef } from 'react';
 import BottomSheet from '@gorhom/bottom-sheet';
 import { Sheet } from './sheet/Sheet';
-import { Timeline } from './timeline/Timeline';
 import { Activity, ActivityItem } from '@features/activity/ActivityItem';
-import { isTx } from '~/queries/tx/useTxs';
-import { TxDetails } from './details/TxDetails';
+import { isExecutedTx, isTx } from '~/queries/tx/useTxs';
+import { TxDetailsAccordion } from './details/TxDetailsAccordion';
+import { TxTransfersAccordion } from './TxTransfersAccordion';
+import { Box } from '@components/Box';
+import { AccordionProps } from '@components/Accordion';
+import { TimelineAccordion } from './timeline/TimelineAccordion';
+
+const accordionProps: Partial<AccordionProps> = { mx: 3, my: 2 };
 
 export interface ActivitySheetProps {
   activity: Activity;
@@ -24,16 +29,29 @@ export const ActivitySheet = ({ activity, onClose }: ActivitySheetProps) => {
       <ActivityItem
         activity={activity}
         px={3}
-        py={2}
         txProps={{
           status: false,
           dividers: false,
         }}
       />
 
-      {isTx(activity) && <Timeline tx={activity} />}
+      {isTx(activity) && (
+        <>
+          <TimelineAccordion
+            tx={activity}
+            {...accordionProps}
+            initiallyExpanded
+          />
 
-      {isTx(activity) && <TxDetails tx={activity} />}
+          <TxDetailsAccordion tx={activity} {...accordionProps} />
+
+          {isExecutedTx(activity) && (
+            <TxTransfersAccordion tx={activity} {...accordionProps} />
+          )}
+        </>
+      )}
+
+      <Box mb={1} />
     </Sheet>
   );
 };

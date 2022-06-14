@@ -2,24 +2,26 @@ import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { FC, ReactNode, useCallback, useState } from 'react';
 import { Pressable } from 'react-native';
 import Collapsible from 'react-native-collapsible';
-import { Paragraph, Subheading, useTheme } from 'react-native-paper';
+import { Subheading, useTheme } from 'react-native-paper';
 import { Box, BoxProps } from './Box';
-import { PRIMARY_ICON_SIZE, SECONDARY_ICON_SIZE } from './list/Item';
+import { SECONDARY_ICON_SIZE } from './list/Item';
 
 export interface AccordionProps extends BoxProps {
   children: ReactNode;
   left?: FC<{ color: string }>;
   title: string;
+  initiallyExpanded?: boolean;
 }
 
 export const Accordion = ({
   children,
   left: Left,
   title,
+  initiallyExpanded,
   ...boxProps
 }: AccordionProps) => {
   const { colors } = useTheme();
-  const [expanded, setExpanded] = useState(false);
+  const [expanded, setExpanded] = useState(initiallyExpanded);
 
   const toggle = useCallback(() => setExpanded((prev) => !prev), [setExpanded]);
 

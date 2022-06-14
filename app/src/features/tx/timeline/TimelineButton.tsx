@@ -18,6 +18,7 @@ export const TimelineButton = ({
       style={{
         color,
         fontWeight: 'bold',
+        marginVertical: 0,
         ...STYLES.dropShadow,
       }}
     >
