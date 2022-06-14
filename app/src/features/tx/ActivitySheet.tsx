@@ -4,6 +4,7 @@ import { Sheet } from './sheet/Sheet';
 import { Timeline } from './timeline/Timeline';
 import { Activity, ActivityItem } from '@features/activity/ActivityItem';
 import { isTx } from '~/queries/tx/useTxs';
+import { TxDetails } from './details/TxDetails';
 
 export interface ActivitySheetProps {
   activity: Activity;
@@ -31,6 +32,8 @@ export const ActivitySheet = ({ activity, onClose }: ActivitySheetProps) => {
       />
 
       {isTx(activity) && <Timeline tx={activity} />}
+
+      {isTx(activity) && <TxDetails tx={activity} />}
     </Sheet>
   );
 };

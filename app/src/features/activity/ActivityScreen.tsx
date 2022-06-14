@@ -1,13 +1,13 @@
 import { Box } from '@components/Box';
 import { Timestamp } from '@components/Timestamp';
 import { TabNavigatorScreenProps } from '@features/navigation/TabNavigator';
-import { isTx, Tx, useTxs } from '~/queries/tx/useTxs';
-import { address, createOp, groupBy, Op } from 'lib';
+import { useTxs } from '~/queries/tx/useTxs';
+import { address, createOp, groupBy, Id, Op } from 'lib';
 import { useMemo } from 'react';
 import { SectionList } from 'react-native';
 import { Button, Subheading } from 'react-native-paper';
 import { Activity, ActivityItem } from './ActivityItem';
-import { ActivitySheet } from '@features/tx/TxSheet';
+import { ActivitySheet } from '@features/tx/ActivitySheet';
 import { useState } from 'react';
 import { Actions } from '@components/Actions';
 import { ethers } from 'ethers';
@@ -27,14 +27,18 @@ export type ActivityScreenProps = TabNavigatorScreenProps<'Activity'>;
 export const ActivityScreen = (_props: ActivityScreenProps) => {
   const { transfers } = useExternalTransfers();
   const { txs } = useTxs();
-
   const wallet = useWallet();
+
+  const activities: Activity[] = useMemo(
+    () => [...transfers, ...txs],
+    [transfers, txs],
+  );
 
   const sections: Section[] = useMemo(
     () =>
       [
-        ...groupBy([...transfers, ...txs], (t) =>
-          t.timestamp
+        ...groupBy(activities, (a) =>
+          a.timestamp
             .set({ hour: 0, minute: 0, second: 0, millisecond: 0 })
             .toSeconds(),
         ).entries(),
@@ -48,10 +52,14 @@ export const ActivityScreen = (_props: ActivityScreenProps) => {
           }),
         )
         .sort((a, b) => b.date - a.date),
-    [transfers, txs],
+    [activities],
   );
 
-  const [selected, setSelected] = useState<Activity | undefined>(undefined);
+  const [selected, setSelected] = useState<Id | undefined>(undefined);
+  const selectedActivity: Activity | undefined = useMemo(
+    () => activities.find((a) => a.id === selected),
+    [activities, selected],
+  );
 
   const transfer: Op = createOp({
     to: address(USDC.addr),
@@ -79,21 +87,21 @@ export const ActivityScreen = (_props: ActivityScreenProps) => {
             activity={item}
             px={3}
             py={2}
-            onPress={() => setSelected(item)}
+            onPress={() => setSelected(item.id)}
           />
         )}
       />
 
-      {selected && (
+      {selectedActivity && (
         <ActivitySheet
-          activity={selected}
+          activity={selectedActivity}
           onClose={() => setSelected(undefined)}
         />
       )}
 
-      <Actions>
+      {/* <Actions>
         {execute && <Button onPress={execute}>{execute.step}</Button>}
-      </Actions>
+      </Actions> */}
     </Box>
   );
 };

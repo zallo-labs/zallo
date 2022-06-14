@@ -36,7 +36,7 @@ export const Timeline = ({ tx }: TimelineProps) => {
   const proposeStatus = isApproved ? 'complete' : getStatus(TxStatus.Proposed);
 
   return (
-    <Box vertical mt={1} mb={1} minHeight={200}>
+    <Box vertical mt={1} mb={1}>
       <Pressable onPress={() => setExpanded((prev) => !prev)}>
         <TimelineItem
           Left={

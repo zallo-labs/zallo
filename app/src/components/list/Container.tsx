@@ -1,10 +1,9 @@
 import React, { ReactNode, useMemo } from 'react';
 import { ChildrenProps, getNodeKey } from '@util/children';
 import { Box, BoxProps } from '@components/Box';
-import { Divider } from '@components/Divider';
 
 export interface ContainerProps extends ChildrenProps, BoxProps {
-  separator?: ReactNode | boolean;
+  separator?: ReactNode | BoxProps;
   horizontal?: boolean;
 }
 
@@ -25,13 +24,7 @@ export const Container = ({
         <Box key={getNodeKey(child, i)} horizontal={horizontal}>
           {child}
 
-          {separator && i < children.length - 1 ? (
-            typeof separator === 'boolean' ? (
-              <Divider />
-            ) : (
-              separator
-            )
-          ) : null}
+          {separator && i < children.length - 1 ? separator : null}
         </Box>
       ))}
     </Box>
