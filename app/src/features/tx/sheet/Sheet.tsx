@@ -5,14 +5,12 @@ import {
   useMemo,
 } from 'react';
 import BottomSheet, {
-  BottomSheetScrollView,
   useBottomSheetDynamicSnapPoints,
 } from '@gorhom/bottom-sheet';
 import { useTheme } from 'react-native-paper';
 import { SheetBackground } from './SheetBackground';
 import { ChildrenProps } from '@util/children';
-import { useWindowDimensions, View } from 'react-native';
-import { useAnimatedStyle } from 'react-native-reanimated';
+import { SheetScrollRoot } from './SheetScrollRoot';
 
 type BottomSheetProps = Omit<
   Partial<ComponentPropsWithoutRef<typeof BottomSheet>>,
@@ -42,14 +40,6 @@ export const Sheet = forwardRef(
       handleContentLayout,
     } = useBottomSheetDynamicSnapPoints(snapPoints);
 
-    const { height: windowHeight } = useWindowDimensions();
-    const scrollViewAnimatedStyles = useAnimatedStyle(() => {
-      const contentHeight = animatedContentHeight.value;
-      const handleHeight = animatedHandleHeight.value;
-
-      return { height: Math.min(contentHeight, windowHeight - handleHeight) };
-    });
-
     return (
       <BottomSheet
         ref={ref}
@@ -58,11 +48,15 @@ export const Sheet = forwardRef(
         contentHeight={animatedContentHeight}
         backgroundComponent={SheetBackground}
         handleIndicatorStyle={{ backgroundColor: colors.onSurface }}
+        keyboardBlurBehavior="restore"
         {...bottomSheetProps}
       >
-        <BottomSheetScrollView style={scrollViewAnimatedStyles}>
-          <View onLayout={handleContentLayout}>{children}</View>
-        </BottomSheetScrollView>
+        <SheetScrollRoot
+          animatedContentHeight={animatedContentHeight}
+          handleContentLayout={handleContentLayout}
+        >
+          {children}
+        </SheetScrollRoot>
       </BottomSheet>
     );
   },
