@@ -4,6 +4,126 @@
 // This file was automatically generated and should not be edited.
 
 // ====================================================
+// GraphQL mutation operation: CreateComment
+// ====================================================
+
+export interface CreateComment_createComment_reactions {
+  __typename: "Reaction";
+  id: string;
+  safeId: string;
+  key: string;
+  nonce: number;
+  approverId: string;
+  emojis: string[] | null;
+}
+
+export interface CreateComment_createComment {
+  __typename: "Comment";
+  id: string;
+  safeId: string;
+  key: string;
+  nonce: number;
+  authorId: string;
+  content: string;
+  createdAt: any;
+  updatedAt: any;
+  reactions: CreateComment_createComment_reactions[] | null;
+}
+
+export interface CreateComment {
+  createComment: CreateComment_createComment;
+}
+
+export interface CreateCommentVariables {
+  safe: any;
+  key: any;
+  content: string;
+}
+
+/* tslint:disable */
+/* eslint-disable */
+// @generated
+// This file was automatically generated and should not be edited.
+
+// ====================================================
+// GraphQL mutation operation: DeleteComment
+// ====================================================
+
+export interface DeleteComment_deleteComment {
+  __typename: "Comment";
+  id: string;
+}
+
+export interface DeleteComment {
+  deleteComment: DeleteComment_deleteComment | null;
+}
+
+export interface DeleteCommentVariables {
+  safe: any;
+  key: any;
+  nonce: number;
+}
+
+/* tslint:disable */
+/* eslint-disable */
+// @generated
+// This file was automatically generated and should not be edited.
+
+// ====================================================
+// GraphQL mutation operation: DeleteReaction
+// ====================================================
+
+export interface DeleteReaction_deleteReaction {
+  __typename: "Reaction";
+  id: string;
+}
+
+export interface DeleteReaction {
+  deleteReaction: DeleteReaction_deleteReaction | null;
+}
+
+export interface DeleteReactionVariables {
+  safe: any;
+  key: any;
+  nonce: number;
+}
+
+/* tslint:disable */
+/* eslint-disable */
+// @generated
+// This file was automatically generated and should not be edited.
+
+// ====================================================
+// GraphQL mutation operation: ReactToComment
+// ====================================================
+
+export interface ReactToComment_reactToComment {
+  __typename: "Reaction";
+  id: string;
+  safeId: string;
+  key: string;
+  nonce: number;
+  approverId: string;
+  emojis: string[] | null;
+}
+
+export interface ReactToComment {
+  reactToComment: ReactToComment_reactToComment | null;
+}
+
+export interface ReactToCommentVariables {
+  safe: any;
+  key: any;
+  nonce: number;
+  emojis: string[];
+}
+
+/* tslint:disable */
+/* eslint-disable */
+// @generated
+// This file was automatically generated and should not be edited.
+
+// ====================================================
 // GraphQL mutation operation: SubmitTxExecution
 // ====================================================
 
@@ -357,6 +477,47 @@ export interface GetApiTxsVariables {
 // This file was automatically generated and should not be edited.
 
 // ====================================================
+// GraphQL query operation: CommentsQuery
+// ====================================================
+
+export interface CommentsQuery_comments_reactions {
+  __typename: "Reaction";
+  id: string;
+  safeId: string;
+  key: string;
+  nonce: number;
+  approverId: string;
+  emojis: string[] | null;
+}
+
+export interface CommentsQuery_comments {
+  __typename: "Comment";
+  id: string;
+  safeId: string;
+  key: string;
+  nonce: number;
+  authorId: string;
+  content: string;
+  createdAt: any;
+  updatedAt: any;
+  reactions: CommentsQuery_comments_reactions[] | null;
+}
+
+export interface CommentsQuery {
+  comments: CommentsQuery_comments[];
+}
+
+export interface CommentsQueryVariables {
+  safe: any;
+  key: any;
+}
+
+/* tslint:disable */
+/* eslint-disable */
+// @generated
+// This file was automatically generated and should not be edited.
+
+// ====================================================
 // GraphQL query operation: GetContacts
 // ====================================================
 
@@ -531,6 +692,57 @@ export interface TxFields {
   approvals: TxFields_approvals[] | null;
   createdAt: any;
   submissions: TxFields_submissions[] | null;
+}
+
+/* tslint:disable */
+/* eslint-disable */
+// @generated
+// This file was automatically generated and should not be edited.
+
+// ====================================================
+// GraphQL fragment: ReactionFields
+// ====================================================
+
+export interface ReactionFields {
+  __typename: "Reaction";
+  id: string;
+  safeId: string;
+  key: string;
+  nonce: number;
+  approverId: string;
+  emojis: string[] | null;
+}
+
+/* tslint:disable */
+/* eslint-disable */
+// @generated
+// This file was automatically generated and should not be edited.
+
+// ====================================================
+// GraphQL fragment: CommentFields
+// ====================================================
+
+export interface CommentFields_reactions {
+  __typename: "Reaction";
+  id: string;
+  safeId: string;
+  key: string;
+  nonce: number;
+  approverId: string;
+  emojis: string[] | null;
+}
+
+export interface CommentFields {
+  __typename: "Comment";
+  id: string;
+  safeId: string;
+  key: string;
+  nonce: number;
+  authorId: string;
+  content: string;
+  createdAt: any;
+  updatedAt: any;
+  reactions: CommentFields_reactions[] | null;
 }
 
 /* tslint:disable */
@@ -854,14 +1066,31 @@ export interface ApproverCreateNestedOneWithoutApprovalsInput {
   create?: ApproverCreateWithoutApprovalsInput | null;
 }
 
+export interface ApproverCreateNestedOneWithoutCommentsInput {
+  connect?: ApproverWhereUniqueInput | null;
+  connectOrCreate?: ApproverCreateOrConnectWithoutCommentsInput | null;
+  create?: ApproverCreateWithoutCommentsInput | null;
+}
+
 export interface ApproverCreateNestedOneWithoutGroupsInput {
   connect?: ApproverWhereUniqueInput | null;
   connectOrCreate?: ApproverCreateOrConnectWithoutGroupsInput | null;
   create?: ApproverCreateWithoutGroupsInput | null;
 }
 
+export interface ApproverCreateNestedOneWithoutReactionsInput {
+  connect?: ApproverWhereUniqueInput | null;
+  connectOrCreate?: ApproverCreateOrConnectWithoutReactionsInput | null;
+  create?: ApproverCreateWithoutReactionsInput | null;
+}
+
 export interface ApproverCreateOrConnectWithoutApprovalsInput {
   create: ApproverCreateWithoutApprovalsInput;
+  where: ApproverWhereUniqueInput;
+}
+
+export interface ApproverCreateOrConnectWithoutCommentsInput {
+  create: ApproverCreateWithoutCommentsInput;
   where: ApproverWhereUniqueInput;
 }
 
@@ -870,15 +1099,40 @@ export interface ApproverCreateOrConnectWithoutGroupsInput {
   where: ApproverWhereUniqueInput;
 }
 
+export interface ApproverCreateOrConnectWithoutReactionsInput {
+  create: ApproverCreateWithoutReactionsInput;
+  where: ApproverWhereUniqueInput;
+}
+
 export interface ApproverCreateWithoutApprovalsInput {
+  comments?: CommentCreateNestedManyWithoutAuthorInput | null;
   contacts?: ContactCreateNestedManyWithoutApproverInput | null;
   groups?: GroupApproverCreateNestedManyWithoutApproverInput | null;
   id: string;
+  reactions?: ReactionCreateNestedManyWithoutApproverInput | null;
+}
+
+export interface ApproverCreateWithoutCommentsInput {
+  approvals?: ApprovalCreateNestedManyWithoutApproverInput | null;
+  contacts?: ContactCreateNestedManyWithoutApproverInput | null;
+  groups?: GroupApproverCreateNestedManyWithoutApproverInput | null;
+  id: string;
+  reactions?: ReactionCreateNestedManyWithoutApproverInput | null;
 }
 
 export interface ApproverCreateWithoutGroupsInput {
   approvals?: ApprovalCreateNestedManyWithoutApproverInput | null;
+  comments?: CommentCreateNestedManyWithoutAuthorInput | null;
   contacts?: ContactCreateNestedManyWithoutApproverInput | null;
+  id: string;
+  reactions?: ReactionCreateNestedManyWithoutApproverInput | null;
+}
+
+export interface ApproverCreateWithoutReactionsInput {
+  approvals?: ApprovalCreateNestedManyWithoutApproverInput | null;
+  comments?: CommentCreateNestedManyWithoutAuthorInput | null;
+  contacts?: ContactCreateNestedManyWithoutApproverInput | null;
+  groups?: GroupApproverCreateNestedManyWithoutApproverInput | null;
   id: string;
 }
 
@@ -895,6 +1149,14 @@ export interface ApproverUpdateOneRequiredWithoutApprovalsInput {
   upsert?: ApproverUpsertWithoutApprovalsInput | null;
 }
 
+export interface ApproverUpdateOneRequiredWithoutCommentsInput {
+  connect?: ApproverWhereUniqueInput | null;
+  connectOrCreate?: ApproverCreateOrConnectWithoutCommentsInput | null;
+  create?: ApproverCreateWithoutCommentsInput | null;
+  update?: ApproverUpdateWithoutCommentsInput | null;
+  upsert?: ApproverUpsertWithoutCommentsInput | null;
+}
+
 export interface ApproverUpdateOneRequiredWithoutGroupsInput {
   connect?: ApproverWhereUniqueInput | null;
   connectOrCreate?: ApproverCreateOrConnectWithoutGroupsInput | null;
@@ -903,15 +1165,43 @@ export interface ApproverUpdateOneRequiredWithoutGroupsInput {
   upsert?: ApproverUpsertWithoutGroupsInput | null;
 }
 
+export interface ApproverUpdateOneRequiredWithoutReactionsInput {
+  connect?: ApproverWhereUniqueInput | null;
+  connectOrCreate?: ApproverCreateOrConnectWithoutReactionsInput | null;
+  create?: ApproverCreateWithoutReactionsInput | null;
+  update?: ApproverUpdateWithoutReactionsInput | null;
+  upsert?: ApproverUpsertWithoutReactionsInput | null;
+}
+
 export interface ApproverUpdateWithoutApprovalsInput {
+  comments?: CommentUpdateManyWithoutAuthorInput | null;
   contacts?: ContactUpdateManyWithoutApproverInput | null;
   groups?: GroupApproverUpdateManyWithoutApproverInput | null;
   id?: StringFieldUpdateOperationsInput | null;
+  reactions?: ReactionUpdateManyWithoutApproverInput | null;
+}
+
+export interface ApproverUpdateWithoutCommentsInput {
+  approvals?: ApprovalUpdateManyWithoutApproverInput | null;
+  contacts?: ContactUpdateManyWithoutApproverInput | null;
+  groups?: GroupApproverUpdateManyWithoutApproverInput | null;
+  id?: StringFieldUpdateOperationsInput | null;
+  reactions?: ReactionUpdateManyWithoutApproverInput | null;
 }
 
 export interface ApproverUpdateWithoutGroupsInput {
   approvals?: ApprovalUpdateManyWithoutApproverInput | null;
+  comments?: CommentUpdateManyWithoutAuthorInput | null;
   contacts?: ContactUpdateManyWithoutApproverInput | null;
+  id?: StringFieldUpdateOperationsInput | null;
+  reactions?: ReactionUpdateManyWithoutApproverInput | null;
+}
+
+export interface ApproverUpdateWithoutReactionsInput {
+  approvals?: ApprovalUpdateManyWithoutApproverInput | null;
+  comments?: CommentUpdateManyWithoutAuthorInput | null;
+  contacts?: ContactUpdateManyWithoutApproverInput | null;
+  groups?: GroupApproverUpdateManyWithoutApproverInput | null;
   id?: StringFieldUpdateOperationsInput | null;
 }
 
@@ -920,9 +1210,19 @@ export interface ApproverUpsertWithoutApprovalsInput {
   update: ApproverUpdateWithoutApprovalsInput;
 }
 
+export interface ApproverUpsertWithoutCommentsInput {
+  create: ApproverCreateWithoutCommentsInput;
+  update: ApproverUpdateWithoutCommentsInput;
+}
+
 export interface ApproverUpsertWithoutGroupsInput {
   create: ApproverCreateWithoutGroupsInput;
   update: ApproverUpdateWithoutGroupsInput;
+}
+
+export interface ApproverUpsertWithoutReactionsInput {
+  create: ApproverCreateWithoutReactionsInput;
+  update: ApproverUpdateWithoutReactionsInput;
 }
 
 export interface ApproverWhereUniqueInput {
@@ -936,6 +1236,233 @@ export interface BoolFieldUpdateOperationsInput {
 export interface BoolFilter {
   equals?: boolean | null;
   not?: NestedBoolFilter | null;
+}
+
+export interface CommentCreateManyAuthorInput {
+  content: string;
+  createdAt?: any | null;
+  key: string;
+  nonce?: number | null;
+  safeId: string;
+  updatedAt?: any | null;
+}
+
+export interface CommentCreateManyAuthorInputEnvelope {
+  data: CommentCreateManyAuthorInput[];
+  skipDuplicates?: boolean | null;
+}
+
+export interface CommentCreateManySafeInput {
+  authorId: string;
+  content: string;
+  createdAt?: any | null;
+  key: string;
+  nonce?: number | null;
+  updatedAt?: any | null;
+}
+
+export interface CommentCreateManySafeInputEnvelope {
+  data: CommentCreateManySafeInput[];
+  skipDuplicates?: boolean | null;
+}
+
+export interface CommentCreateNestedManyWithoutAuthorInput {
+  connect?: CommentWhereUniqueInput[] | null;
+  connectOrCreate?: CommentCreateOrConnectWithoutAuthorInput[] | null;
+  create?: CommentCreateWithoutAuthorInput[] | null;
+  createMany?: CommentCreateManyAuthorInputEnvelope | null;
+}
+
+export interface CommentCreateNestedManyWithoutSafeInput {
+  connect?: CommentWhereUniqueInput[] | null;
+  connectOrCreate?: CommentCreateOrConnectWithoutSafeInput[] | null;
+  create?: CommentCreateWithoutSafeInput[] | null;
+  createMany?: CommentCreateManySafeInputEnvelope | null;
+}
+
+export interface CommentCreateNestedOneWithoutReactionsInput {
+  connect?: CommentWhereUniqueInput | null;
+  connectOrCreate?: CommentCreateOrConnectWithoutReactionsInput | null;
+  create?: CommentCreateWithoutReactionsInput | null;
+}
+
+export interface CommentCreateOrConnectWithoutAuthorInput {
+  create: CommentCreateWithoutAuthorInput;
+  where: CommentWhereUniqueInput;
+}
+
+export interface CommentCreateOrConnectWithoutReactionsInput {
+  create: CommentCreateWithoutReactionsInput;
+  where: CommentWhereUniqueInput;
+}
+
+export interface CommentCreateOrConnectWithoutSafeInput {
+  create: CommentCreateWithoutSafeInput;
+  where: CommentWhereUniqueInput;
+}
+
+export interface CommentCreateWithoutAuthorInput {
+  content: string;
+  createdAt?: any | null;
+  key: string;
+  nonce?: number | null;
+  reactions?: ReactionCreateNestedManyWithoutCommentInput | null;
+  safe: SafeCreateNestedOneWithoutCommentsInput;
+  updatedAt?: any | null;
+}
+
+export interface CommentCreateWithoutReactionsInput {
+  author: ApproverCreateNestedOneWithoutCommentsInput;
+  content: string;
+  createdAt?: any | null;
+  key: string;
+  nonce?: number | null;
+  safe: SafeCreateNestedOneWithoutCommentsInput;
+  updatedAt?: any | null;
+}
+
+export interface CommentCreateWithoutSafeInput {
+  author: ApproverCreateNestedOneWithoutCommentsInput;
+  content: string;
+  createdAt?: any | null;
+  key: string;
+  nonce?: number | null;
+  reactions?: ReactionCreateNestedManyWithoutCommentInput | null;
+  updatedAt?: any | null;
+}
+
+export interface CommentSafeIdKeyNonceCompoundUniqueInput {
+  key: string;
+  nonce: number;
+  safeId: string;
+}
+
+export interface CommentScalarWhereInput {
+  AND?: CommentScalarWhereInput[] | null;
+  NOT?: CommentScalarWhereInput[] | null;
+  OR?: CommentScalarWhereInput[] | null;
+  authorId?: StringFilter | null;
+  content?: StringFilter | null;
+  createdAt?: DateTimeFilter | null;
+  key?: StringFilter | null;
+  nonce?: IntFilter | null;
+  safeId?: StringFilter | null;
+  updatedAt?: DateTimeFilter | null;
+}
+
+export interface CommentUpdateManyMutationInput {
+  content?: StringFieldUpdateOperationsInput | null;
+  createdAt?: DateTimeFieldUpdateOperationsInput | null;
+  key?: StringFieldUpdateOperationsInput | null;
+  nonce?: IntFieldUpdateOperationsInput | null;
+  updatedAt?: DateTimeFieldUpdateOperationsInput | null;
+}
+
+export interface CommentUpdateManyWithWhereWithoutAuthorInput {
+  data: CommentUpdateManyMutationInput;
+  where: CommentScalarWhereInput;
+}
+
+export interface CommentUpdateManyWithWhereWithoutSafeInput {
+  data: CommentUpdateManyMutationInput;
+  where: CommentScalarWhereInput;
+}
+
+export interface CommentUpdateManyWithoutAuthorInput {
+  connect?: CommentWhereUniqueInput[] | null;
+  connectOrCreate?: CommentCreateOrConnectWithoutAuthorInput[] | null;
+  create?: CommentCreateWithoutAuthorInput[] | null;
+  createMany?: CommentCreateManyAuthorInputEnvelope | null;
+  delete?: CommentWhereUniqueInput[] | null;
+  deleteMany?: CommentScalarWhereInput[] | null;
+  disconnect?: CommentWhereUniqueInput[] | null;
+  set?: CommentWhereUniqueInput[] | null;
+  update?: CommentUpdateWithWhereUniqueWithoutAuthorInput[] | null;
+  updateMany?: CommentUpdateManyWithWhereWithoutAuthorInput[] | null;
+  upsert?: CommentUpsertWithWhereUniqueWithoutAuthorInput[] | null;
+}
+
+export interface CommentUpdateManyWithoutSafeInput {
+  connect?: CommentWhereUniqueInput[] | null;
+  connectOrCreate?: CommentCreateOrConnectWithoutSafeInput[] | null;
+  create?: CommentCreateWithoutSafeInput[] | null;
+  createMany?: CommentCreateManySafeInputEnvelope | null;
+  delete?: CommentWhereUniqueInput[] | null;
+  deleteMany?: CommentScalarWhereInput[] | null;
+  disconnect?: CommentWhereUniqueInput[] | null;
+  set?: CommentWhereUniqueInput[] | null;
+  update?: CommentUpdateWithWhereUniqueWithoutSafeInput[] | null;
+  updateMany?: CommentUpdateManyWithWhereWithoutSafeInput[] | null;
+  upsert?: CommentUpsertWithWhereUniqueWithoutSafeInput[] | null;
+}
+
+export interface CommentUpdateOneRequiredWithoutReactionsInput {
+  connect?: CommentWhereUniqueInput | null;
+  connectOrCreate?: CommentCreateOrConnectWithoutReactionsInput | null;
+  create?: CommentCreateWithoutReactionsInput | null;
+  update?: CommentUpdateWithoutReactionsInput | null;
+  upsert?: CommentUpsertWithoutReactionsInput | null;
+}
+
+export interface CommentUpdateWithWhereUniqueWithoutAuthorInput {
+  data: CommentUpdateWithoutAuthorInput;
+  where: CommentWhereUniqueInput;
+}
+
+export interface CommentUpdateWithWhereUniqueWithoutSafeInput {
+  data: CommentUpdateWithoutSafeInput;
+  where: CommentWhereUniqueInput;
+}
+
+export interface CommentUpdateWithoutAuthorInput {
+  content?: StringFieldUpdateOperationsInput | null;
+  createdAt?: DateTimeFieldUpdateOperationsInput | null;
+  key?: StringFieldUpdateOperationsInput | null;
+  nonce?: IntFieldUpdateOperationsInput | null;
+  reactions?: ReactionUpdateManyWithoutCommentInput | null;
+  safe?: SafeUpdateOneRequiredWithoutCommentsInput | null;
+  updatedAt?: DateTimeFieldUpdateOperationsInput | null;
+}
+
+export interface CommentUpdateWithoutReactionsInput {
+  author?: ApproverUpdateOneRequiredWithoutCommentsInput | null;
+  content?: StringFieldUpdateOperationsInput | null;
+  createdAt?: DateTimeFieldUpdateOperationsInput | null;
+  key?: StringFieldUpdateOperationsInput | null;
+  nonce?: IntFieldUpdateOperationsInput | null;
+  safe?: SafeUpdateOneRequiredWithoutCommentsInput | null;
+  updatedAt?: DateTimeFieldUpdateOperationsInput | null;
+}
+
+export interface CommentUpdateWithoutSafeInput {
+  author?: ApproverUpdateOneRequiredWithoutCommentsInput | null;
+  content?: StringFieldUpdateOperationsInput | null;
+  createdAt?: DateTimeFieldUpdateOperationsInput | null;
+  key?: StringFieldUpdateOperationsInput | null;
+  nonce?: IntFieldUpdateOperationsInput | null;
+  reactions?: ReactionUpdateManyWithoutCommentInput | null;
+  updatedAt?: DateTimeFieldUpdateOperationsInput | null;
+}
+
+export interface CommentUpsertWithWhereUniqueWithoutAuthorInput {
+  create: CommentCreateWithoutAuthorInput;
+  update: CommentUpdateWithoutAuthorInput;
+  where: CommentWhereUniqueInput;
+}
+
+export interface CommentUpsertWithWhereUniqueWithoutSafeInput {
+  create: CommentCreateWithoutSafeInput;
+  update: CommentUpdateWithoutSafeInput;
+  where: CommentWhereUniqueInput;
+}
+
+export interface CommentUpsertWithoutReactionsInput {
+  create: CommentCreateWithoutReactionsInput;
+  update: CommentUpdateWithoutReactionsInput;
+}
+
+export interface CommentWhereUniqueInput {
+  safeId_key_nonce?: CommentSafeIdKeyNonceCompoundUniqueInput | null;
 }
 
 export interface ContactApproverIdAddrCompoundUniqueInput {
@@ -1653,13 +2180,268 @@ export interface OpWhereUniqueInput {
   safeId_txHash_hash?: OpSafeIdTxHashHashCompoundUniqueInput | null;
 }
 
+export interface ReactionCreateManyApproverInput {
+  createdAt?: any | null;
+  emojis?: ReactionCreateemojisInput | null;
+  key: string;
+  nonce: number;
+  safeId: string;
+  updatedAt?: any | null;
+}
+
+export interface ReactionCreateManyApproverInputEnvelope {
+  data: ReactionCreateManyApproverInput[];
+  skipDuplicates?: boolean | null;
+}
+
+export interface ReactionCreateManyCommentInput {
+  approverId: string;
+  createdAt?: any | null;
+  emojis?: ReactionCreateemojisInput | null;
+  updatedAt?: any | null;
+}
+
+export interface ReactionCreateManyCommentInputEnvelope {
+  data: ReactionCreateManyCommentInput[];
+  skipDuplicates?: boolean | null;
+}
+
+export interface ReactionCreateManySafeInput {
+  approverId: string;
+  createdAt?: any | null;
+  emojis?: ReactionCreateemojisInput | null;
+  key: string;
+  nonce: number;
+  updatedAt?: any | null;
+}
+
+export interface ReactionCreateManySafeInputEnvelope {
+  data: ReactionCreateManySafeInput[];
+  skipDuplicates?: boolean | null;
+}
+
+export interface ReactionCreateNestedManyWithoutApproverInput {
+  connect?: ReactionWhereUniqueInput[] | null;
+  connectOrCreate?: ReactionCreateOrConnectWithoutApproverInput[] | null;
+  create?: ReactionCreateWithoutApproverInput[] | null;
+  createMany?: ReactionCreateManyApproverInputEnvelope | null;
+}
+
+export interface ReactionCreateNestedManyWithoutCommentInput {
+  connect?: ReactionWhereUniqueInput[] | null;
+  connectOrCreate?: ReactionCreateOrConnectWithoutCommentInput[] | null;
+  create?: ReactionCreateWithoutCommentInput[] | null;
+  createMany?: ReactionCreateManyCommentInputEnvelope | null;
+}
+
+export interface ReactionCreateNestedManyWithoutSafeInput {
+  connect?: ReactionWhereUniqueInput[] | null;
+  connectOrCreate?: ReactionCreateOrConnectWithoutSafeInput[] | null;
+  create?: ReactionCreateWithoutSafeInput[] | null;
+  createMany?: ReactionCreateManySafeInputEnvelope | null;
+}
+
+export interface ReactionCreateOrConnectWithoutApproverInput {
+  create: ReactionCreateWithoutApproverInput;
+  where: ReactionWhereUniqueInput;
+}
+
+export interface ReactionCreateOrConnectWithoutCommentInput {
+  create: ReactionCreateWithoutCommentInput;
+  where: ReactionWhereUniqueInput;
+}
+
+export interface ReactionCreateOrConnectWithoutSafeInput {
+  create: ReactionCreateWithoutSafeInput;
+  where: ReactionWhereUniqueInput;
+}
+
+export interface ReactionCreateWithoutApproverInput {
+  comment: CommentCreateNestedOneWithoutReactionsInput;
+  createdAt?: any | null;
+  emojis?: ReactionCreateemojisInput | null;
+  safe: SafeCreateNestedOneWithoutReactionsInput;
+  updatedAt?: any | null;
+}
+
+export interface ReactionCreateWithoutCommentInput {
+  approver: ApproverCreateNestedOneWithoutReactionsInput;
+  createdAt?: any | null;
+  emojis?: ReactionCreateemojisInput | null;
+  safe: SafeCreateNestedOneWithoutReactionsInput;
+  updatedAt?: any | null;
+}
+
+export interface ReactionCreateWithoutSafeInput {
+  approver: ApproverCreateNestedOneWithoutReactionsInput;
+  comment: CommentCreateNestedOneWithoutReactionsInput;
+  createdAt?: any | null;
+  emojis?: ReactionCreateemojisInput | null;
+  updatedAt?: any | null;
+}
+
+export interface ReactionCreateemojisInput {
+  set: string[];
+}
+
+export interface ReactionSafeIdKeyNonceApproverIdCompoundUniqueInput {
+  approverId: string;
+  key: string;
+  nonce: number;
+  safeId: string;
+}
+
+export interface ReactionScalarWhereInput {
+  AND?: ReactionScalarWhereInput[] | null;
+  NOT?: ReactionScalarWhereInput[] | null;
+  OR?: ReactionScalarWhereInput[] | null;
+  approverId?: StringFilter | null;
+  createdAt?: DateTimeFilter | null;
+  emojis?: StringNullableListFilter | null;
+  key?: StringFilter | null;
+  nonce?: IntFilter | null;
+  safeId?: StringFilter | null;
+  updatedAt?: DateTimeFilter | null;
+}
+
+export interface ReactionUpdateManyMutationInput {
+  createdAt?: DateTimeFieldUpdateOperationsInput | null;
+  emojis?: ReactionUpdateemojisInput | null;
+  updatedAt?: DateTimeFieldUpdateOperationsInput | null;
+}
+
+export interface ReactionUpdateManyWithWhereWithoutApproverInput {
+  data: ReactionUpdateManyMutationInput;
+  where: ReactionScalarWhereInput;
+}
+
+export interface ReactionUpdateManyWithWhereWithoutCommentInput {
+  data: ReactionUpdateManyMutationInput;
+  where: ReactionScalarWhereInput;
+}
+
+export interface ReactionUpdateManyWithWhereWithoutSafeInput {
+  data: ReactionUpdateManyMutationInput;
+  where: ReactionScalarWhereInput;
+}
+
+export interface ReactionUpdateManyWithoutApproverInput {
+  connect?: ReactionWhereUniqueInput[] | null;
+  connectOrCreate?: ReactionCreateOrConnectWithoutApproverInput[] | null;
+  create?: ReactionCreateWithoutApproverInput[] | null;
+  createMany?: ReactionCreateManyApproverInputEnvelope | null;
+  delete?: ReactionWhereUniqueInput[] | null;
+  deleteMany?: ReactionScalarWhereInput[] | null;
+  disconnect?: ReactionWhereUniqueInput[] | null;
+  set?: ReactionWhereUniqueInput[] | null;
+  update?: ReactionUpdateWithWhereUniqueWithoutApproverInput[] | null;
+  updateMany?: ReactionUpdateManyWithWhereWithoutApproverInput[] | null;
+  upsert?: ReactionUpsertWithWhereUniqueWithoutApproverInput[] | null;
+}
+
+export interface ReactionUpdateManyWithoutCommentInput {
+  connect?: ReactionWhereUniqueInput[] | null;
+  connectOrCreate?: ReactionCreateOrConnectWithoutCommentInput[] | null;
+  create?: ReactionCreateWithoutCommentInput[] | null;
+  createMany?: ReactionCreateManyCommentInputEnvelope | null;
+  delete?: ReactionWhereUniqueInput[] | null;
+  deleteMany?: ReactionScalarWhereInput[] | null;
+  disconnect?: ReactionWhereUniqueInput[] | null;
+  set?: ReactionWhereUniqueInput[] | null;
+  update?: ReactionUpdateWithWhereUniqueWithoutCommentInput[] | null;
+  updateMany?: ReactionUpdateManyWithWhereWithoutCommentInput[] | null;
+  upsert?: ReactionUpsertWithWhereUniqueWithoutCommentInput[] | null;
+}
+
+export interface ReactionUpdateManyWithoutSafeInput {
+  connect?: ReactionWhereUniqueInput[] | null;
+  connectOrCreate?: ReactionCreateOrConnectWithoutSafeInput[] | null;
+  create?: ReactionCreateWithoutSafeInput[] | null;
+  createMany?: ReactionCreateManySafeInputEnvelope | null;
+  delete?: ReactionWhereUniqueInput[] | null;
+  deleteMany?: ReactionScalarWhereInput[] | null;
+  disconnect?: ReactionWhereUniqueInput[] | null;
+  set?: ReactionWhereUniqueInput[] | null;
+  update?: ReactionUpdateWithWhereUniqueWithoutSafeInput[] | null;
+  updateMany?: ReactionUpdateManyWithWhereWithoutSafeInput[] | null;
+  upsert?: ReactionUpsertWithWhereUniqueWithoutSafeInput[] | null;
+}
+
+export interface ReactionUpdateWithWhereUniqueWithoutApproverInput {
+  data: ReactionUpdateWithoutApproverInput;
+  where: ReactionWhereUniqueInput;
+}
+
+export interface ReactionUpdateWithWhereUniqueWithoutCommentInput {
+  data: ReactionUpdateWithoutCommentInput;
+  where: ReactionWhereUniqueInput;
+}
+
+export interface ReactionUpdateWithWhereUniqueWithoutSafeInput {
+  data: ReactionUpdateWithoutSafeInput;
+  where: ReactionWhereUniqueInput;
+}
+
+export interface ReactionUpdateWithoutApproverInput {
+  comment?: CommentUpdateOneRequiredWithoutReactionsInput | null;
+  createdAt?: DateTimeFieldUpdateOperationsInput | null;
+  emojis?: ReactionUpdateemojisInput | null;
+  safe?: SafeUpdateOneRequiredWithoutReactionsInput | null;
+  updatedAt?: DateTimeFieldUpdateOperationsInput | null;
+}
+
+export interface ReactionUpdateWithoutCommentInput {
+  approver?: ApproverUpdateOneRequiredWithoutReactionsInput | null;
+  createdAt?: DateTimeFieldUpdateOperationsInput | null;
+  emojis?: ReactionUpdateemojisInput | null;
+  safe?: SafeUpdateOneRequiredWithoutReactionsInput | null;
+  updatedAt?: DateTimeFieldUpdateOperationsInput | null;
+}
+
+export interface ReactionUpdateWithoutSafeInput {
+  approver?: ApproverUpdateOneRequiredWithoutReactionsInput | null;
+  comment?: CommentUpdateOneRequiredWithoutReactionsInput | null;
+  createdAt?: DateTimeFieldUpdateOperationsInput | null;
+  emojis?: ReactionUpdateemojisInput | null;
+  updatedAt?: DateTimeFieldUpdateOperationsInput | null;
+}
+
+export interface ReactionUpdateemojisInput {
+  push?: string[] | null;
+  set?: string[] | null;
+}
+
+export interface ReactionUpsertWithWhereUniqueWithoutApproverInput {
+  create: ReactionCreateWithoutApproverInput;
+  update: ReactionUpdateWithoutApproverInput;
+  where: ReactionWhereUniqueInput;
+}
+
+export interface ReactionUpsertWithWhereUniqueWithoutCommentInput {
+  create: ReactionCreateWithoutCommentInput;
+  update: ReactionUpdateWithoutCommentInput;
+  where: ReactionWhereUniqueInput;
+}
+
+export interface ReactionUpsertWithWhereUniqueWithoutSafeInput {
+  create: ReactionCreateWithoutSafeInput;
+  update: ReactionUpdateWithoutSafeInput;
+  where: ReactionWhereUniqueInput;
+}
+
+export interface ReactionWhereUniqueInput {
+  safeId_key_nonce_approverId?: ReactionSafeIdKeyNonceApproverIdCompoundUniqueInput | null;
+}
+
 export interface SafeCreateInput {
   approvals?: ApprovalCreateNestedManyWithoutSafeInput | null;
+  comments?: CommentCreateNestedManyWithoutSafeInput | null;
   deploySalt?: string | null;
   groups?: GroupCreateNestedManyWithoutSafeInput | null;
   id: string;
   name?: string | null;
   ops?: OpCreateNestedManyWithoutSafeInput | null;
+  reactions?: ReactionCreateNestedManyWithoutSafeInput | null;
   txs?: TxCreateNestedManyWithoutSafeInput | null;
 }
 
@@ -1667,6 +2449,12 @@ export interface SafeCreateNestedOneWithoutApprovalsInput {
   connect?: SafeWhereUniqueInput | null;
   connectOrCreate?: SafeCreateOrConnectWithoutApprovalsInput | null;
   create?: SafeCreateWithoutApprovalsInput | null;
+}
+
+export interface SafeCreateNestedOneWithoutCommentsInput {
+  connect?: SafeWhereUniqueInput | null;
+  connectOrCreate?: SafeCreateOrConnectWithoutCommentsInput | null;
+  create?: SafeCreateWithoutCommentsInput | null;
 }
 
 export interface SafeCreateNestedOneWithoutGroupsInput {
@@ -1681,6 +2469,12 @@ export interface SafeCreateNestedOneWithoutOpsInput {
   create?: SafeCreateWithoutOpsInput | null;
 }
 
+export interface SafeCreateNestedOneWithoutReactionsInput {
+  connect?: SafeWhereUniqueInput | null;
+  connectOrCreate?: SafeCreateOrConnectWithoutReactionsInput | null;
+  create?: SafeCreateWithoutReactionsInput | null;
+}
+
 export interface SafeCreateNestedOneWithoutTxsInput {
   connect?: SafeWhereUniqueInput | null;
   connectOrCreate?: SafeCreateOrConnectWithoutTxsInput | null;
@@ -1689,6 +2483,11 @@ export interface SafeCreateNestedOneWithoutTxsInput {
 
 export interface SafeCreateOrConnectWithoutApprovalsInput {
   create: SafeCreateWithoutApprovalsInput;
+  where: SafeWhereUniqueInput;
+}
+
+export interface SafeCreateOrConnectWithoutCommentsInput {
+  create: SafeCreateWithoutCommentsInput;
   where: SafeWhereUniqueInput;
 }
 
@@ -1702,54 +2501,91 @@ export interface SafeCreateOrConnectWithoutOpsInput {
   where: SafeWhereUniqueInput;
 }
 
+export interface SafeCreateOrConnectWithoutReactionsInput {
+  create: SafeCreateWithoutReactionsInput;
+  where: SafeWhereUniqueInput;
+}
+
 export interface SafeCreateOrConnectWithoutTxsInput {
   create: SafeCreateWithoutTxsInput;
   where: SafeWhereUniqueInput;
 }
 
 export interface SafeCreateWithoutApprovalsInput {
+  comments?: CommentCreateNestedManyWithoutSafeInput | null;
   deploySalt?: string | null;
   groups?: GroupCreateNestedManyWithoutSafeInput | null;
   id: string;
   name?: string | null;
   ops?: OpCreateNestedManyWithoutSafeInput | null;
+  reactions?: ReactionCreateNestedManyWithoutSafeInput | null;
+  txs?: TxCreateNestedManyWithoutSafeInput | null;
+}
+
+export interface SafeCreateWithoutCommentsInput {
+  approvals?: ApprovalCreateNestedManyWithoutSafeInput | null;
+  deploySalt?: string | null;
+  groups?: GroupCreateNestedManyWithoutSafeInput | null;
+  id: string;
+  name?: string | null;
+  ops?: OpCreateNestedManyWithoutSafeInput | null;
+  reactions?: ReactionCreateNestedManyWithoutSafeInput | null;
   txs?: TxCreateNestedManyWithoutSafeInput | null;
 }
 
 export interface SafeCreateWithoutGroupsInput {
   approvals?: ApprovalCreateNestedManyWithoutSafeInput | null;
+  comments?: CommentCreateNestedManyWithoutSafeInput | null;
   deploySalt?: string | null;
   id: string;
   name?: string | null;
   ops?: OpCreateNestedManyWithoutSafeInput | null;
+  reactions?: ReactionCreateNestedManyWithoutSafeInput | null;
   txs?: TxCreateNestedManyWithoutSafeInput | null;
 }
 
 export interface SafeCreateWithoutOpsInput {
   approvals?: ApprovalCreateNestedManyWithoutSafeInput | null;
+  comments?: CommentCreateNestedManyWithoutSafeInput | null;
   deploySalt?: string | null;
   groups?: GroupCreateNestedManyWithoutSafeInput | null;
   id: string;
   name?: string | null;
+  reactions?: ReactionCreateNestedManyWithoutSafeInput | null;
   txs?: TxCreateNestedManyWithoutSafeInput | null;
 }
 
-export interface SafeCreateWithoutTxsInput {
+export interface SafeCreateWithoutReactionsInput {
   approvals?: ApprovalCreateNestedManyWithoutSafeInput | null;
+  comments?: CommentCreateNestedManyWithoutSafeInput | null;
   deploySalt?: string | null;
   groups?: GroupCreateNestedManyWithoutSafeInput | null;
   id: string;
   name?: string | null;
   ops?: OpCreateNestedManyWithoutSafeInput | null;
+  txs?: TxCreateNestedManyWithoutSafeInput | null;
+}
+
+export interface SafeCreateWithoutTxsInput {
+  approvals?: ApprovalCreateNestedManyWithoutSafeInput | null;
+  comments?: CommentCreateNestedManyWithoutSafeInput | null;
+  deploySalt?: string | null;
+  groups?: GroupCreateNestedManyWithoutSafeInput | null;
+  id: string;
+  name?: string | null;
+  ops?: OpCreateNestedManyWithoutSafeInput | null;
+  reactions?: ReactionCreateNestedManyWithoutSafeInput | null;
 }
 
 export interface SafeUpdateInput {
   approvals?: ApprovalUpdateManyWithoutSafeInput | null;
+  comments?: CommentUpdateManyWithoutSafeInput | null;
   deploySalt?: NullableStringFieldUpdateOperationsInput | null;
   groups?: GroupUpdateManyWithoutSafeInput | null;
   id?: StringFieldUpdateOperationsInput | null;
   name?: NullableStringFieldUpdateOperationsInput | null;
   ops?: OpUpdateManyWithoutSafeInput | null;
+  reactions?: ReactionUpdateManyWithoutSafeInput | null;
   txs?: TxUpdateManyWithoutSafeInput | null;
 }
 
@@ -1759,6 +2595,14 @@ export interface SafeUpdateOneRequiredWithoutApprovalsInput {
   create?: SafeCreateWithoutApprovalsInput | null;
   update?: SafeUpdateWithoutApprovalsInput | null;
   upsert?: SafeUpsertWithoutApprovalsInput | null;
+}
+
+export interface SafeUpdateOneRequiredWithoutCommentsInput {
+  connect?: SafeWhereUniqueInput | null;
+  connectOrCreate?: SafeCreateOrConnectWithoutCommentsInput | null;
+  create?: SafeCreateWithoutCommentsInput | null;
+  update?: SafeUpdateWithoutCommentsInput | null;
+  upsert?: SafeUpsertWithoutCommentsInput | null;
 }
 
 export interface SafeUpdateOneRequiredWithoutGroupsInput {
@@ -1777,6 +2621,14 @@ export interface SafeUpdateOneRequiredWithoutOpsInput {
   upsert?: SafeUpsertWithoutOpsInput | null;
 }
 
+export interface SafeUpdateOneRequiredWithoutReactionsInput {
+  connect?: SafeWhereUniqueInput | null;
+  connectOrCreate?: SafeCreateOrConnectWithoutReactionsInput | null;
+  create?: SafeCreateWithoutReactionsInput | null;
+  update?: SafeUpdateWithoutReactionsInput | null;
+  upsert?: SafeUpsertWithoutReactionsInput | null;
+}
+
 export interface SafeUpdateOneRequiredWithoutTxsInput {
   connect?: SafeWhereUniqueInput | null;
   connectOrCreate?: SafeCreateOrConnectWithoutTxsInput | null;
@@ -1786,44 +2638,79 @@ export interface SafeUpdateOneRequiredWithoutTxsInput {
 }
 
 export interface SafeUpdateWithoutApprovalsInput {
+  comments?: CommentUpdateManyWithoutSafeInput | null;
   deploySalt?: NullableStringFieldUpdateOperationsInput | null;
   groups?: GroupUpdateManyWithoutSafeInput | null;
   id?: StringFieldUpdateOperationsInput | null;
   name?: NullableStringFieldUpdateOperationsInput | null;
   ops?: OpUpdateManyWithoutSafeInput | null;
+  reactions?: ReactionUpdateManyWithoutSafeInput | null;
+  txs?: TxUpdateManyWithoutSafeInput | null;
+}
+
+export interface SafeUpdateWithoutCommentsInput {
+  approvals?: ApprovalUpdateManyWithoutSafeInput | null;
+  deploySalt?: NullableStringFieldUpdateOperationsInput | null;
+  groups?: GroupUpdateManyWithoutSafeInput | null;
+  id?: StringFieldUpdateOperationsInput | null;
+  name?: NullableStringFieldUpdateOperationsInput | null;
+  ops?: OpUpdateManyWithoutSafeInput | null;
+  reactions?: ReactionUpdateManyWithoutSafeInput | null;
   txs?: TxUpdateManyWithoutSafeInput | null;
 }
 
 export interface SafeUpdateWithoutGroupsInput {
   approvals?: ApprovalUpdateManyWithoutSafeInput | null;
+  comments?: CommentUpdateManyWithoutSafeInput | null;
   deploySalt?: NullableStringFieldUpdateOperationsInput | null;
   id?: StringFieldUpdateOperationsInput | null;
   name?: NullableStringFieldUpdateOperationsInput | null;
   ops?: OpUpdateManyWithoutSafeInput | null;
+  reactions?: ReactionUpdateManyWithoutSafeInput | null;
   txs?: TxUpdateManyWithoutSafeInput | null;
 }
 
 export interface SafeUpdateWithoutOpsInput {
   approvals?: ApprovalUpdateManyWithoutSafeInput | null;
+  comments?: CommentUpdateManyWithoutSafeInput | null;
   deploySalt?: NullableStringFieldUpdateOperationsInput | null;
   groups?: GroupUpdateManyWithoutSafeInput | null;
   id?: StringFieldUpdateOperationsInput | null;
   name?: NullableStringFieldUpdateOperationsInput | null;
+  reactions?: ReactionUpdateManyWithoutSafeInput | null;
   txs?: TxUpdateManyWithoutSafeInput | null;
 }
 
-export interface SafeUpdateWithoutTxsInput {
+export interface SafeUpdateWithoutReactionsInput {
   approvals?: ApprovalUpdateManyWithoutSafeInput | null;
+  comments?: CommentUpdateManyWithoutSafeInput | null;
   deploySalt?: NullableStringFieldUpdateOperationsInput | null;
   groups?: GroupUpdateManyWithoutSafeInput | null;
   id?: StringFieldUpdateOperationsInput | null;
   name?: NullableStringFieldUpdateOperationsInput | null;
   ops?: OpUpdateManyWithoutSafeInput | null;
+  txs?: TxUpdateManyWithoutSafeInput | null;
+}
+
+export interface SafeUpdateWithoutTxsInput {
+  approvals?: ApprovalUpdateManyWithoutSafeInput | null;
+  comments?: CommentUpdateManyWithoutSafeInput | null;
+  deploySalt?: NullableStringFieldUpdateOperationsInput | null;
+  groups?: GroupUpdateManyWithoutSafeInput | null;
+  id?: StringFieldUpdateOperationsInput | null;
+  name?: NullableStringFieldUpdateOperationsInput | null;
+  ops?: OpUpdateManyWithoutSafeInput | null;
+  reactions?: ReactionUpdateManyWithoutSafeInput | null;
 }
 
 export interface SafeUpsertWithoutApprovalsInput {
   create: SafeCreateWithoutApprovalsInput;
   update: SafeUpdateWithoutApprovalsInput;
+}
+
+export interface SafeUpsertWithoutCommentsInput {
+  create: SafeCreateWithoutCommentsInput;
+  update: SafeUpdateWithoutCommentsInput;
 }
 
 export interface SafeUpsertWithoutGroupsInput {
@@ -1834,6 +2721,11 @@ export interface SafeUpsertWithoutGroupsInput {
 export interface SafeUpsertWithoutOpsInput {
   create: SafeCreateWithoutOpsInput;
   update: SafeUpdateWithoutOpsInput;
+}
+
+export interface SafeUpsertWithoutReactionsInput {
+  create: SafeCreateWithoutReactionsInput;
+  update: SafeUpdateWithoutReactionsInput;
 }
 
 export interface SafeUpsertWithoutTxsInput {
@@ -1877,6 +2769,14 @@ export interface StringNullableFilter {
   not?: NestedStringNullableFilter | null;
   notIn?: string[] | null;
   startsWith?: string | null;
+}
+
+export interface StringNullableListFilter {
+  equals?: string[] | null;
+  has?: string | null;
+  hasEvery?: string[] | null;
+  hasSome?: string[] | null;
+  isEmpty?: boolean | null;
 }
 
 export interface SubmissionCreateManyTxInput {

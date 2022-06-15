@@ -31,13 +31,6 @@ query GetSubTxs($safe: String!) {
 }
 `;
 
-// export interface Comment {
-//   id: Id;
-//   author: Address;
-//   content: string;
-//   likes: Address[];
-// }
-
 export interface OpWithHash extends Op {
   hash: BytesLike;
 }
