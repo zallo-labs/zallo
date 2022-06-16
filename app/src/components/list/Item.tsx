@@ -1,6 +1,6 @@
-import { ForwardedRef, forwardRef, ReactNode } from 'react';
+import { ReactNode } from 'react';
 import { Box, BoxProps } from '@components/Box';
-import { GestureResponderEvent, Pressable, View } from 'react-native';
+import { GestureResponderEvent, Pressable } from 'react-native';
 import { ItemSkeleton } from './ItemSkeleton';
 import { withSkeleton } from '@components/skeleton/withSkeleton';
 
@@ -11,7 +11,9 @@ export interface ItemProps extends BoxProps {
   Left?: ReactNode;
   leftContainer?: BoxProps;
   Main?: ReactNode;
+  mainContainer?: BoxProps;
   Right?: ReactNode;
+  rightContainer?: BoxProps;
   onPress?: (event: GestureResponderEvent) => void;
   onLongPress?: (event: GestureResponderEvent) => void;
   disabled?: boolean;
@@ -22,7 +24,9 @@ export const Item = withSkeleton(
     Left,
     leftContainer,
     Main,
+    mainContainer,
     Right,
+    rightContainer,
     onPress,
     onLongPress,
     disabled,
@@ -36,7 +40,6 @@ export const Item = withSkeleton(
       <Box
         horizontal
         justifyContent="space-between"
-        alignItems="center"
         {...boxProps}
         style={[
           {
@@ -45,21 +48,23 @@ export const Item = withSkeleton(
           boxProps.style,
         ]}
       >
-        <Box
-          flex={1}
-          horizontal
-          justifyContent="flex-start"
-          alignItems="center"
-        >
-          {Left && (
-            <Box mr={3} {...leftContainer}>
-              {Left}
-            </Box>
-          )}
-          {Main && <Box flex={1}>{Main}</Box>}
-        </Box>
+        {Left && (
+          <Box vertical justifyContent="center" mr={3} {...leftContainer}>
+            {Left}
+          </Box>
+        )}
 
-        {Right}
+        {Main && (
+          <Box flex={1} vertical justifyContent="center" {...mainContainer}>
+            {Main}
+          </Box>
+        )}
+
+        {Right && (
+          <Box vertical justifyContent="center" {...rightContainer}>
+            {Right}
+          </Box>
+        )}
       </Box>
     </Pressable>
   ),
