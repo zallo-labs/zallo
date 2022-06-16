@@ -1,12 +1,13 @@
 import { useQuery } from '@apollo/client';
 import { useSafe } from '@features/safe/SafeProvider';
 import { apiGql } from '@gql/clients';
-import { Tx } from './tx/useTxs';
+import { isTx, Tx } from './tx/useTxs';
 import { CommentsQuery, CommentsQueryVariables } from '@gql/api.generated';
 import { useApiClient } from '@gql/GqlProvider';
 import { address, Address, Id, toId } from 'lib';
 import { DateTime } from 'luxon';
 import { useMemo } from 'react';
+import { isTransfer, Transfer } from './tx/transfer';
 
 export const REACTION_FIELDS = apiGql`
 fragment ReactionFields on Reaction {
@@ -63,7 +64,10 @@ export interface Reaction {
   emojis: string[];
 }
 
-export type Commentable = Tx;
+export type Commentable = Tx | Transfer;
+
+export const isCommentable = (e: unknown): e is Commentable =>
+  isTx(e) || isTransfer(e);
 
 export const getCommentableKey = (c: Commentable): Id => toId(`tx:${c.id}`);
 
@@ -100,7 +104,7 @@ export const useComments = (commentable: Commentable) => {
           createdAt: DateTime.fromISO(c.createdAt),
           updatedAt: DateTime.fromISO(c.updatedAt),
         }),
-      ),
+      ) ?? [],
     [data],
   );
 

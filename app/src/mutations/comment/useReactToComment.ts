@@ -35,7 +35,7 @@ export const createReactionId = (
   wallet: Address,
 ): Id => toId(`${createCommentId(safe, c.key, c.nonce)}-${wallet}`);
 
-export const useReactToComments = () => {
+export const useReactToComment = () => {
   const { safe } = useSafe();
   const wallet = useWallet();
 
@@ -66,13 +66,16 @@ export const useReactToComments = () => {
 
           cache.writeQuery<CommentsQuery, CommentsQueryVariables>({
             ...opts,
+            overwrite: true,
             data: {
               comments: data.comments.map((comment) => {
                 if (comment.id !== c.id) return comment;
 
                 return {
                   ...comment,
-                  reactions: [...comment.reactions, reactToComment],
+                  reactions: [...comment.reactions, reactToComment].filter(
+                    (r) => r.emojis.length,
+                  ),
                 };
               }),
             },

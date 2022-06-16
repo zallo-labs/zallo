@@ -8,6 +8,8 @@ import { TxTransfersAccordion } from './TxTransfersAccordion';
 import { Box } from '@components/Box';
 import { AccordionProps } from '@components/Accordion';
 import { TimelineAccordion } from './timeline/TimelineAccordion';
+import { CommentsAccordion } from './comments/CommentsAccordion';
+import { isCommentable } from '~/queries/useComments';
 
 const accordionProps: Partial<AccordionProps> = { mx: 3, my: 2 };
 
@@ -49,6 +51,14 @@ export const ActivitySheet = ({ activity, onClose }: ActivitySheetProps) => {
             <TxTransfersAccordion tx={activity} {...accordionProps} />
           )}
         </>
+      )}
+
+      {isCommentable(activity) && (
+        <CommentsAccordion
+          commentable={activity}
+          {...accordionProps}
+          initiallyExpanded
+        />
       )}
 
       <Box mb={1} />

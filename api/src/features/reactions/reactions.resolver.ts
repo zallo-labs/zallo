@@ -17,7 +17,6 @@ import {
   connectOrCreateSafe,
 } from '~/util/connect-or-create';
 import { getSelect } from '~/util/test';
-import { UniqueCommentArgs } from '../comments/comments.args';
 import { ReactToCommentArgs } from './reactions.args';
 
 @Resolver(() => Reaction)
@@ -37,6 +36,7 @@ export class ReactionsResolver {
   ): Promise<Reaction | null> {
     const commentId = { safeId: safe, key, nonce };
 
+    // if (emojis.length) {
     return this.prisma.reaction.upsert({
       where: {
         safeId_key_nonce_approverId: {
@@ -51,28 +51,23 @@ export class ReactionsResolver {
         emojis,
       },
       update: {
-        emojis: { set: emojis },
+        // Ensure emojis are unique
+        emojis: { set: [...new Set(emojis)] },
       },
       ...getSelect(info),
     });
-  }
-
-  @Mutation(() => Reaction, { nullable: true })
-  async deleteReaction(
-    @Args() { safe, key, nonce }: UniqueCommentArgs,
-    @Info() info: GraphQLResolveInfo,
-    @UserAddr() user: Address,
-  ): Promise<Reaction | null> {
-    return this.prisma.reaction.delete({
-      where: {
-        safeId_key_nonce_approverId: {
-          safeId: safe,
-          key,
-          nonce,
-          approverId: user,
-        },
-      },
-      ...getSelect(info),
-    });
+    // } else {
+    //   return this.prisma.reaction.delete({
+    //     where: {
+    //       safeId_key_nonce_approverId: {
+    //         safeId: safe,
+    //         key,
+    //         nonce,
+    //         approverId: user,
+    //       },
+    //     },
+    //     ...getSelect(info),
+    //   });
+    // }
   }
 }
