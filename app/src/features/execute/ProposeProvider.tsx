@@ -11,7 +11,7 @@ import {
   useState,
 } from 'react';
 import { ProposedTx, TxStatus, useTxs } from '~/queries/tx/useTxs';
-import { ActivitySheet } from '../ActivitySheet';
+import { ActivitySheet } from '../tx/ActivitySheet';
 
 const opsToProposedTx = async (
   safe: Address,

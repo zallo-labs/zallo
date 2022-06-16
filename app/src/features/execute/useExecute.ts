@@ -2,10 +2,10 @@ import { useWallet } from '@features/wallet/useWallet';
 import { MaybePromise } from 'lib';
 import { useCallback } from 'react';
 import { isExecutedTx, Tx, TxStatus } from '~/queries/tx/useTxs';
-import { useApproveTx } from './useApproveTx.api';
-import { useGroupsReachedThreshold } from './useGroupsReachedThreshold';
-import { useSubmitExecute } from './submit/useSubmitExecute';
-import { useProposeApiTx } from './useProposeApiTx.api';
+import { useApproveTx } from '../../mutations/tx/useApproveTx.api';
+import { useGetGroupsApproved } from './useGroupsApproved';
+import { useSubmitExecute } from '../../mutations/tx/submit/useSubmitExecute';
+import { useProposeApiTx } from '../../mutations/tx/useProposeApiTx.api';
 
 export type ExecuteStep = 'propose' | 'approve' | 'await-approval' | 'execute';
 
@@ -23,7 +23,7 @@ const asEf = (step: ExecuteStep, f: ExecuteFuncBase) => {
 export const useGetExecute = () => {
   const wallet = useWallet();
   const approve = useApproveTx();
-  const groupsReachedThreshold = useGroupsReachedThreshold();
+  const getGroupsApproved = useGetGroupsApproved();
   const submit = useSubmitExecute();
   const propose = useProposeApiTx();
 
@@ -41,17 +41,17 @@ export const useGetExecute = () => {
       if (!userHasApproved) return asEf('approve', () => approve(tx));
 
       // Execute if threshold has been reached
-      const groupsReached = groupsReachedThreshold(tx);
-      if (!groupsReached)
+      const groups = getGroupsApproved(tx);
+      if (!groups)
         return asEf('await-approval', () => {
           throw new Error('Execute called during await-approval step');
         });
 
-      const group = groupsReached[0];
+      const group = groups[0];
 
       return asEf('execute', () => submit(tx, group));
     },
-    [groupsReachedThreshold, propose, wallet.address, approve, submit],
+    [getGroupsApproved, propose, wallet.address, approve, submit],
   );
 
   return getExecute;

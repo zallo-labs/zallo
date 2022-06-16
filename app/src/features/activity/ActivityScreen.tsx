@@ -18,7 +18,7 @@ import { useExternalTransfers } from '~/queries/tx/useExternalTransfers';
 import {
   usePropose,
   withProposeProvider,
-} from '@features/tx/propose/ProposeProvider';
+} from '@features/execute/ProposeProvider';
 
 interface Section {
   date: number;

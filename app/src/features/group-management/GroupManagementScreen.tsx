@@ -8,7 +8,7 @@ import { GroupManagement } from './GroupManagement';
 import { ADDR_YUP_SCHEMA } from '@util/yup';
 import { useUpsertGroup } from '~/mutations/useUpsertGroup';
 import { CombinedGroup } from '~/queries';
-import { withProposeProvider } from '@features/tx/propose/ProposeProvider';
+import { withProposeProvider } from '@features/execute/ProposeProvider';
 
 const getSchema = (groups: CombinedGroup[]): Yup.SchemaOf<Group> =>
   Yup.object({
