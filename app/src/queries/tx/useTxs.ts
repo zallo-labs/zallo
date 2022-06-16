@@ -36,6 +36,7 @@ export interface OpWithHash extends Op {
 }
 
 export enum TxStatus {
+  PreProposal,
   Proposed,
   Submitted,
   Executed,
@@ -56,7 +57,6 @@ export interface Submission {
 
 export interface ProposedTx {
   id: Id;
-  type: TxType;
   hash: BytesLike;
   ops: OpWithHash[];
   approvals: Approval[];
@@ -79,7 +79,6 @@ export interface ExecutedTx extends ProposedTx {
 export type Tx = ProposedTx | ExecutedTx;
 
 export const isTx = createIsObj<Tx>(
-  'type',
   'hash',
   'ops',
   'approvals',
@@ -107,7 +106,6 @@ const useSubExecutedTxs = () => {
 
         return {
           id: toId(t.id),
-          type: t.type,
           hash: t.hash,
           responses: t.responses,
           executor: address(t.executor),
@@ -202,7 +200,6 @@ const useApiProposedTxs = () => {
 
         return {
           id: toId(tx.id),
-          type: tx.ops.length === 1 ? TxType.SINGLE : TxType.MULTI,
           hash: tx.hash,
           ops: tx.ops.map((op) => ({
             hash: op.hash,

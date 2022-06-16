@@ -4,7 +4,7 @@ import { Timestamp } from '@components/Timestamp';
 import { isExecutedTx, Tx, TxStatus } from '~/queries/tx/useTxs';
 import { hexlify } from 'ethers/lib/utils';
 import { useState } from 'react';
-import { Pressable } from 'react-native';
+import { TouchableOpacity } from 'react-native';
 import Collapsible from 'react-native-collapsible';
 import { Caption, Paragraph, Subheading, useTheme } from 'react-native-paper';
 import { TimelineChevron } from './TimelineChevron';
@@ -35,11 +35,18 @@ export const Timeline = ({ tx }: TimelineProps) => {
 
   const [expanded, setExpanded] = useState(false);
 
-  const proposeStatus = isApproved ? 'complete' : getStatus(TxStatus.Proposed);
+  const proposeStatus = isApproved
+    ? 'complete'
+    : tx.status === TxStatus.PreProposal
+    ? 'requires-action'
+    : getStatus(TxStatus.Proposed);
 
   return (
     <Box>
-      <Pressable onPress={() => setExpanded((prev) => !prev)}>
+      <TouchableOpacity
+        onPress={() => setExpanded((prev) => !prev)}
+        disabled={tx.approvals.length <= 1}
+      >
         <TimelineItem
           Left={
             execute?.step === 'approve' ? (
@@ -50,20 +57,26 @@ export const Timeline = ({ tx }: TimelineProps) => {
               <TimelineButton color={colors.accent} onPress={() => revoke(tx)}>
                 Revoke
               </TimelineButton>
+            ) : tx.status === TxStatus.PreProposal ? (
+              <TimelineButton color={colors.primary} onPress={execute}>
+                Propose
+              </TimelineButton>
             ) : (
               <Subheading style={itemStyles}>Approve</Subheading>
             )
           }
           Right={
-            <Box>
-              <Caption>
-                <Timestamp time>{tx.proposedAt}</Timestamp>
-              </Caption>
+            tx.status >= TxStatus.Proposed && tx.approvals.length ? (
+              <Box>
+                <Caption>
+                  <Timestamp time>{tx.proposedAt}</Timestamp>
+                </Caption>
 
-              <Paragraph>
-                <Addr addr={tx.approvals[0].addr} />
-              </Paragraph>
-            </Box>
+                <Paragraph>
+                  <Addr addr={tx.approvals[0].addr} />
+                </Paragraph>
+              </Box>
+            ) : undefined
           }
           status={proposeStatus}
           connector
@@ -94,7 +107,7 @@ export const Timeline = ({ tx }: TimelineProps) => {
             />
           ))}
         </Collapsible>
-      </Pressable>
+      </TouchableOpacity>
 
       <TimelineItem
         Left={

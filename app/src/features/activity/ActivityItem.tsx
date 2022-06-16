@@ -5,9 +5,8 @@ import { TransferItem } from './TransferItem';
 import { isTransfer, Transfer } from '~/queries/tx/transfer';
 import { TX_STATUS_INSET } from './useTxStatusStyles';
 import { Title } from 'react-native-paper';
-import { OpsActivity } from '@features/tx/propose/opsActivity';
 
-export type Activity = Tx | Transfer | OpsActivity;
+export type Activity = Tx | Transfer;
 
 export interface ActivityItemProps extends ItemProps {
   activity: Activity;

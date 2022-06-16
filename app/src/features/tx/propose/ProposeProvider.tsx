@@ -1,5 +1,7 @@
+import { useSafe } from '@features/safe/SafeProvider';
 import { ChildrenProps } from '@util/children';
-import { Op } from 'lib';
+import { Address, hashTx, mapAsync, Op, toId } from 'lib';
+import { DateTime } from 'luxon';
 import {
   createContext,
   FC,
@@ -8,10 +10,33 @@ import {
   useMemo,
   useState,
 } from 'react';
+import { ProposedTx, TxStatus, useTxs } from '~/queries/tx/useTxs';
 import { ActivitySheet } from '../ActivitySheet';
-import { createOpsActivity, OpsActivity } from './opsActivity';
 
-type Propose = (...ops: Op[]) => void;
+const opsToProposedTx = async (
+  safe: Address,
+  ops: Op[],
+): Promise<ProposedTx> => {
+  const now = DateTime.now();
+  const hash = await hashTx(safe, ...ops);
+
+  return {
+    id: toId(`${safe}-${hash}`),
+    hash,
+    ops: await mapAsync(ops, async (op) => ({
+      ...op,
+      hash: await hashTx(safe, op),
+    })),
+    approvals: [],
+    userHasApproved: false,
+    submissions: [],
+    proposedAt: now,
+    timestamp: now,
+    status: TxStatus.PreProposal,
+  };
+};
+
+type Propose = (...ops: Op[]) => Promise<void>;
 
 interface Context {
   propose: Propose;
@@ -19,28 +44,39 @@ interface Context {
 
 const context = createContext<Context>({
   propose: () => {
-    throw new Error('Uninitialized');
+    throw new Error(`${ProposeProvider.name} is not initialized}`);
   },
 });
 
 export interface ActivityProviderProps extends ChildrenProps {}
 
 export const ProposeProvider = ({ children }: ActivityProviderProps) => {
-  const [ops, setOps] = useState<OpsActivity | undefined>();
+  const { safe } = useSafe();
+  const { txs } = useTxs();
 
-  const handleClose = useCallback(() => setOps(undefined), [setOps]);
+  const [opsTx, setOpsTx] = useState<ProposedTx | undefined>();
 
   const value: Context = useMemo(
     () => ({
-      propose: (...ops) => setOps(createOpsActivity(ops)),
+      propose: async (...ops) =>
+        setOpsTx(await opsToProposedTx(safe.address, ops)),
     }),
-    [setOps],
+    [safe.address],
   );
+
+  const matchingTx = useMemo(
+    () => opsTx && txs.find((t) => t.id === opsTx.id),
+    [opsTx, txs],
+  );
+
+  const handleClose = useCallback(() => setOpsTx(undefined), [setOpsTx]);
 
   return (
     <context.Provider value={value}>
       {children}
-      {ops && <ActivitySheet activity={ops} onClose={handleClose} />}
+      {opsTx && (
+        <ActivitySheet activity={matchingTx ?? opsTx} onClose={handleClose} />
+      )}
     </context.Provider>
   );
 };

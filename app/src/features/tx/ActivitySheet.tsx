@@ -54,11 +54,7 @@ export const ActivitySheet = ({ activity, onClose }: ActivitySheetProps) => {
       )}
 
       {isCommentable(activity) && (
-        <CommentsAccordion
-          commentable={activity}
-          {...accordionProps}
-          initiallyExpanded
-        />
+        <CommentsAccordion commentable={activity} {...accordionProps} />
       )}
 
       <Box mb={1} />

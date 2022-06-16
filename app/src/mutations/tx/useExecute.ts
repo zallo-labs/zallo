@@ -1,13 +1,11 @@
 import { useWallet } from '@features/wallet/useWallet';
-import { MaybePromise, Op } from 'lib';
+import { MaybePromise } from 'lib';
 import { useCallback } from 'react';
-import { ExecutedTx, isExecutedTx, isTx, ProposedTx } from '~/queries/tx/useTxs';
+import { isExecutedTx, Tx, TxStatus } from '~/queries/tx/useTxs';
 import { useApproveTx } from './useApproveTx.api';
 import { useGroupsReachedThreshold } from './useGroupsReachedThreshold';
 import { useSubmitExecute } from './submit/useSubmitExecute';
-import { useProposeTx } from './useProposeTx.api';
-
-export type ProposedTxish = ProposedTx | Op | Op[];
+import { useProposeApiTx } from './useProposeApiTx.api';
 
 export type ExecuteStep = 'propose' | 'approve' | 'await-approval' | 'execute';
 
@@ -27,17 +25,14 @@ export const useGetExecute = () => {
   const approve = useApproveTx();
   const groupsReachedThreshold = useGroupsReachedThreshold();
   const submit = useSubmitExecute();
-  const propose = useProposeTx();
+  const propose = useProposeApiTx();
 
   const getExecute = useCallback(
-    (tx: ProposedTxish | ExecutedTx): ExecuteFunc => {
-      // Op | Op[]
-      if (!isTx(tx))
-        return asEf('propose', () =>
-          propose(...(Array.isArray(tx) ? tx : [tx])),
-        );
-
+    (tx: Tx): ExecuteFunc => {
       if (isExecutedTx(tx)) return undefined;
+
+      if (tx.status === TxStatus.PreProposal)
+        return asEf('propose', () => propose(...tx.ops));
 
       // Approve if user hasn't approved
       const userHasApproved = !!tx.approvals.find(
@@ -62,4 +57,6 @@ export const useGetExecute = () => {
   return getExecute;
 };
 
-export const useExecute = (tx: ProposedTxish) => useGetExecute()(tx);
+type ProposeArgs = Parameters<ReturnType<typeof useGetExecute>>;
+
+export const useExecute = (...args: ProposeArgs) => useGetExecute()(...args);

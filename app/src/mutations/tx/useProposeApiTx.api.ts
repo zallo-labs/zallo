@@ -26,7 +26,7 @@ mutation ProposeTx($safe: Address!, $ops: [OpInput!]!, $signature: Bytes!) {
 }
 `;
 
-export const useProposeTx = () => {
+export const useProposeApiTx = () => {
   const { safe } = useSafe();
   const wallet = useWallet();
 
