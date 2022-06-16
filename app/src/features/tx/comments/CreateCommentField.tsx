@@ -34,6 +34,7 @@ export const CreateCommentField = ({
           name="send"
           onPress={handleSubmit}
           disabled={!content}
+          forceTextInputFocus={false}
         />
       }
     />

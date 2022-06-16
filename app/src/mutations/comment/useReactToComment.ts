@@ -71,9 +71,13 @@ export const useReactToComment = () => {
               comments: data.comments.map((comment) => {
                 if (comment.id !== c.id) return comment;
 
+                const reactionsWithoutCur = comment.reactions.filter(
+                  (r) => r.approverId !== reactToComment.approverId,
+                );
+
                 return {
                   ...comment,
-                  reactions: [...comment.reactions, reactToComment].filter(
+                  reactions: [...reactionsWithoutCur, reactToComment].filter(
                     (r) => r.emojis.length,
                   ),
                 };

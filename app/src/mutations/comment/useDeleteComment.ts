@@ -1,5 +1,6 @@
 import { useMutation } from '@apollo/client';
 import { useSafe } from '@features/safe/SafeProvider';
+import { useWallet } from '@features/wallet/useWallet';
 import {
   CommentsQuery,
   CommentsQueryVariables,
@@ -22,6 +23,7 @@ mutation DeleteComment($safe: Address!, $key: Id!, $nonce: Int!) {
 
 export const useDeleteComment = () => {
   const { safe } = useSafe();
+  const wallet = useWallet();
 
   const [mutate] = useMutation<DeleteComment, DeleteCommentVariables>(
     MUTATION,
@@ -29,8 +31,11 @@ export const useDeleteComment = () => {
   );
 
   const del = useCallback(
-    (c: Comment) =>
-      mutate({
+    (c: Comment) => {
+      if (c.author !== wallet.address)
+        throw new Error("Can't delete comment that you didn't write");
+
+      return mutate({
         variables: {
           safe: safe.address,
           key: c.key,
@@ -56,7 +61,7 @@ export const useDeleteComment = () => {
             ...opts,
             overwrite: true,
             data: {
-              comments: data.comments.filter((c) => c.id === id),
+              comments: data.comments.filter((c) => c.id !== id),
             },
           });
         },
@@ -66,8 +71,9 @@ export const useDeleteComment = () => {
             id: c.id,
           },
         },
-      }),
-    [mutate, safe.address],
+      });
+    },
+    [mutate, safe.address, wallet.address],
   );
 
   return del;

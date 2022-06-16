@@ -28,7 +28,7 @@ export const ApproverItem = ({
           ? showError("Can't delete only approver")
           : setApprover(undefined)
       }
-      disabled={isOnlyApprover}
+      enabled={!isOnlyApprover}
     >
       <Item
         Left={<Identicon seed={approver.addr} />}

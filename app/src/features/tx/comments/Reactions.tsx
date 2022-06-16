@@ -4,7 +4,7 @@ import { useWallet } from '@features/wallet/useWallet';
 import { Address } from 'lib';
 import _ from 'lodash';
 import { useCallback, useMemo } from 'react';
-import { Badge, Caption, Chip, useTheme } from 'react-native-paper';
+import { Caption, Chip } from 'react-native-paper';
 import { useReactToComment } from '~/mutations/comment/useReactToComment';
 import { Comment } from '~/queries/useComments';
 import { EMOJIS, getOwnReactions } from './ReactPopover';
@@ -20,7 +20,6 @@ export interface ReactionsProps {
 }
 
 export const Reactions = ({ comment }: ReactionsProps) => {
-  const { colors } = useTheme();
   const wallet = useWallet();
   const react = useReactToComment();
 
