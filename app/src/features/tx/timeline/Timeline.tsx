@@ -9,10 +9,16 @@ import Collapsible from 'react-native-collapsible';
 import { Caption, Paragraph, Subheading, useTheme } from 'react-native-paper';
 import { TimelineChevron } from './TimelineChevron';
 import { TimelineItem, TimelineItemStatus } from './TimelineItem';
-import { useGroupsReachedThreshold } from '~/mutations/tx/useGroupsReachedThreshold';
-import { useExecute } from '~/mutations/tx/useExecute';
+import { useGroupsApproved } from '@features/execute/useGroupsApproved';
+import { useExecute } from '@features/execute/useExecute';
 import { useRevokeApproval } from '~/mutations/tx/useRevokeApproval.api';
 import { TimelineButton } from './TimelineButton';
+import { useGroupTotals } from '@features/execute/useGroupTotals';
+import _ from 'lodash';
+import { PERCENT_THRESHOLD } from 'lib';
+import { Percent } from '@components/Percent';
+
+const THRESHOLD_AFFIX = ` /${PERCENT_THRESHOLD}%`;
 
 const itemStyles = { marginVertical: 0 };
 
@@ -23,8 +29,16 @@ export interface TimelineProps {
 export const Timeline = ({ tx }: TimelineProps) => {
   const { colors } = useTheme();
   const execute = useExecute(tx);
-  const isApproved = !!useGroupsReachedThreshold()(tx);
   const revoke = useRevokeApproval();
+  const isApproved = !!useGroupsApproved(tx);
+  const groupTotals = useGroupTotals(tx);
+
+  const closestGroupTotal = _.maxBy(groupTotals, 'total')?.total ?? 0;
+
+  console.log({
+    tx,
+    groupTotals,
+  });
 
   const getStatus = (status: TxStatus, isLast?: boolean): TimelineItemStatus =>
     tx.status > status || (isLast && tx.status === status)
@@ -49,21 +63,33 @@ export const Timeline = ({ tx }: TimelineProps) => {
       >
         <TimelineItem
           Left={
-            execute?.step === 'approve' ? (
-              <TimelineButton color={colors.primary} onPress={execute}>
-                Approve
-              </TimelineButton>
-            ) : tx.userHasApproved && !tx.submissions.length ? (
-              <TimelineButton color={colors.accent} onPress={() => revoke(tx)}>
-                Revoke
-              </TimelineButton>
-            ) : tx.status === TxStatus.PreProposal ? (
-              <TimelineButton color={colors.primary} onPress={execute}>
-                Propose
-              </TimelineButton>
-            ) : (
-              <Subheading style={itemStyles}>Approve</Subheading>
-            )
+            <Box vertical alignItems="flex-end">
+              {execute?.step === 'approve' ? (
+                <TimelineButton color={colors.primary} onPress={execute}>
+                  Approve
+                </TimelineButton>
+              ) : tx.userHasApproved && !tx.submissions.length ? (
+                <TimelineButton
+                  color={colors.accent}
+                  onPress={() => revoke(tx)}
+                >
+                  Revoke
+                </TimelineButton>
+              ) : tx.status === TxStatus.PreProposal ? (
+                <TimelineButton color={colors.primary} onPress={execute}>
+                  Propose
+                </TimelineButton>
+              ) : (
+                <Subheading style={itemStyles}>Approve</Subheading>
+              )}
+
+              {!isApproved && (
+                <Paragraph>
+                  <Percent>{closestGroupTotal}</Percent>
+                  <Caption>{THRESHOLD_AFFIX}</Caption>
+                </Paragraph>
+              )}
+            </Box>
           }
           Right={
             tx.status >= TxStatus.Proposed && tx.approvals.length ? (
