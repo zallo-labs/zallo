@@ -11,6 +11,7 @@ import { useTheme } from 'react-native-paper';
 import { SheetBackground } from './SheetBackground';
 import { ChildrenProps } from '@util/children';
 import { SheetScrollRoot } from './SheetScrollRoot';
+import { SheetBackdrop } from './SheetBackdrop';
 
 type BottomSheetProps = Omit<
   Partial<ComponentPropsWithoutRef<typeof BottomSheet>>,
@@ -47,6 +48,7 @@ export const Sheet = forwardRef(
         handleHeight={animatedHandleHeight}
         contentHeight={animatedContentHeight}
         backgroundComponent={SheetBackground}
+        backdropComponent={SheetBackdrop}
         handleIndicatorStyle={{ backgroundColor: colors.onSurface }}
         keyboardBlurBehavior="restore"
         {...bottomSheetProps}
