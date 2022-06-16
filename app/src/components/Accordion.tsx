@@ -1,6 +1,6 @@
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { FC, ReactNode, useCallback, useState } from 'react';
-import { Pressable } from 'react-native';
+import { Pressable, TouchableOpacity } from 'react-native';
 import Collapsible from 'react-native-collapsible';
 import { Subheading, useTheme } from 'react-native-paper';
 import { Box, BoxProps } from './Box';
@@ -31,7 +31,7 @@ export const Accordion = ({
 
   return (
     <>
-      <Pressable onPress={toggle}>
+      <TouchableOpacity onPress={toggle}>
         <Box horizontal alignItems="center" {...boxProps}>
           {Left && (
             <Box mr={2}>
@@ -49,7 +49,7 @@ export const Accordion = ({
             style={{ color: colors.onBackground }}
           />
         </Box>
-      </Pressable>
+      </TouchableOpacity>
 
       <Collapsible collapsed={!expanded}>{children}</Collapsible>
     </>

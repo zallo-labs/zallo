@@ -1,9 +1,9 @@
 import { Addr } from '@components/Addr';
-import { Box, BoxProps } from '@components/Box';
+import { BoxProps } from '@components/Box';
 import { Identicon } from '@components/Identicon';
-import { Item, ItemProps } from '@components/list/Item';
+import { Item } from '@components/list/Item';
 import { useCallback, useMemo, useRef, useState } from 'react';
-import { LogBox, Pressable } from 'react-native';
+import { LogBox, TouchableOpacity } from 'react-native';
 import { Paragraph } from 'react-native-paper';
 import { Comment } from '~/queries/useComments';
 import { ReactPopover } from './ReactPopover';
@@ -38,17 +38,19 @@ export const CommentItem = ({ comment: c, ...boxProps }: CommentItemProps) => {
         Left={<Identicon seed={c.author} />}
         leftContainer={{ marginRight: 2, justifyContent: 'flex-start' }}
         Main={
-          <Pressable ref={ref} onLongPress={() => setShowAdd(true)}>
-            <Paragraph>
-              <Paragraph style={{ fontWeight: 'bold' }}>
-                <Addr addr={c.author} />
-              </Paragraph>
+          <>
+            <TouchableOpacity ref={ref} onLongPress={() => setShowAdd(true)}>
+              <Paragraph>
+                <Paragraph style={{ fontWeight: 'bold' }}>
+                  <Addr addr={c.author} />
+                </Paragraph>
 
-              {` ${c.content}`}
-            </Paragraph>
+                {` ${c.content}`}
+              </Paragraph>
+            </TouchableOpacity>
 
             <Reactions comment={c} />
-          </Pressable>
+          </>
         }
         {...boxProps}
       />

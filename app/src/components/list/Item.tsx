@@ -1,6 +1,6 @@
 import { ReactNode } from 'react';
 import { Box, BoxProps } from '@components/Box';
-import { GestureResponderEvent, Pressable } from 'react-native';
+import { GestureResponderEvent, TouchableOpacity } from 'react-native';
 import { ItemSkeleton } from './ItemSkeleton';
 import { withSkeleton } from '@components/skeleton/withSkeleton';
 
@@ -32,7 +32,7 @@ export const Item = withSkeleton(
     disabled,
     ...boxProps
   }: ItemProps) => (
-    <Pressable
+    <TouchableOpacity
       disabled={disabled || !onPress}
       onPress={!disabled && onPress}
       onLongPress={!disabled && onLongPress}
@@ -66,7 +66,7 @@ export const Item = withSkeleton(
           </Box>
         )}
       </Box>
-    </Pressable>
+    </TouchableOpacity>
   ),
   ItemSkeleton,
 );

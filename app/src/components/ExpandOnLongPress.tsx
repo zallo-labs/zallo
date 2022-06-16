@@ -1,5 +1,5 @@
 import { ReactNode, useCallback, useState } from 'react';
-import { Pressable } from 'react-native';
+import { TouchableOpacity } from 'react-native';
 
 export interface ExpandOnLongPress {
   collapsed: ReactNode;
@@ -12,8 +12,8 @@ export const ExpandOnLongPress = (props: ExpandOnLongPress) => {
   const toggle = useCallback(() => setExpanded((prev) => !prev), [setExpanded]);
 
   return (
-    <Pressable onLongPress={toggle}>
+    <TouchableOpacity onLongPress={toggle}>
       {expanded ? props.expanded : props.collapsed}
-    </Pressable>
+    </TouchableOpacity>
   );
 };

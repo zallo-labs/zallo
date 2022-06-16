@@ -1,5 +1,5 @@
 import { FC, useState } from 'react';
-import { Pressable } from 'react-native';
+import { TouchableOpacity } from 'react-native';
 import { ChildrenProps } from '@util/children';
 import { Addr, AddrProps } from './Addr';
 
@@ -14,10 +14,10 @@ export const ExpandableAddr = ({
   const [full, setFull] = useState(props.full);
 
   return (
-    <Pressable onLongPress={() => setFull((prev) => !prev)}>
+    <TouchableOpacity onLongPress={() => setFull((prev) => !prev)}>
       <Child>
         <Addr {...props} full={full} />
       </Child>
-    </Pressable>
+    </TouchableOpacity>
   );
 };

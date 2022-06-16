@@ -1,5 +1,5 @@
 import { STYLES } from '@util/styles';
-import { Pressable } from 'react-native';
+import { TouchableOpacity } from 'react-native';
 import { Subheading } from 'react-native-paper';
 
 export interface ExecuteButtonProps {
@@ -13,7 +13,7 @@ export const TimelineButton = ({
   color,
   children,
 }: ExecuteButtonProps) => (
-  <Pressable onPress={onPress}>
+  <TouchableOpacity onPress={onPress}>
     <Subheading
       style={{
         color,
@@ -24,5 +24,5 @@ export const TimelineButton = ({
     >
       {children.toUpperCase()}
     </Subheading>
-  </Pressable>
+  </TouchableOpacity>
 );
