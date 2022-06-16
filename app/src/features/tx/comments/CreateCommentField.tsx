@@ -26,9 +26,9 @@ export const CreateCommentField = ({
     <SheetTextField
       value={content}
       onChangeText={setContent}
-      dense
       label="Comment"
       style={{ backgroundColor: colors.surface }}
+      multiline
       right={
         <TextInput.Icon
           name="send"

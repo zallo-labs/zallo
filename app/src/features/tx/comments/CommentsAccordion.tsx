@@ -25,10 +25,10 @@ export const CommentsAccordion = ({
       {...accordionProps}
     >
       {comments.map((c) => (
-        <CommentItem key={c.id} comment={c} px={3} py={2} />
+        <CommentItem key={c.id} comment={c} px={3} my={2} />
       ))}
 
-      <Box mx={3} my={2}>
+      <Box mx={3}>
         <CreateCommentField commentable={commentable} />
       </Box>
     </Accordion>

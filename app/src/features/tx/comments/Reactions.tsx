@@ -17,9 +17,10 @@ type GroupedEmoji = {
 
 export interface ReactionsProps {
   comment: Comment;
+  verticalOffset?: number;
 }
 
-export const Reactions = ({ comment }: ReactionsProps) => {
+export const Reactions = ({ comment, verticalOffset }: ReactionsProps) => {
   const wallet = useWallet();
   const react = useReactToComment();
 
@@ -56,13 +57,13 @@ export const Reactions = ({ comment }: ReactionsProps) => {
     <Container
       horizontal
       justifyContent="flex-end"
-      separator={<Box mr={1} />}
+      separator={<Box ml={1} />}
       mx={4}
     >
       {emojis.map((g) => (
         <Box key={g.emoji}>
           <Chip
-            style={{ marginTop: -15 }}
+            style={{ marginTop: verticalOffset }}
             selected={g.userHasApproved}
             onPress={() => handlePress(g)}
           >

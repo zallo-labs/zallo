@@ -1,5 +1,5 @@
 import { Addr } from '@components/Addr';
-import { Box } from '@components/Box';
+import { Box, BoxProps } from '@components/Box';
 import { Identicon } from '@components/Identicon';
 import { Item, ItemProps } from '@components/list/Item';
 import { useCallback, useMemo, useRef, useState } from 'react';
@@ -14,11 +14,11 @@ import { useWallet } from '@features/wallet/useWallet';
 
 LogBox.ignoreLogs(['ViewPropTypes will be removed from React Native']);
 
-export interface CommentItemProps extends ItemProps {
+export interface CommentItemProps extends BoxProps {
   comment: Comment;
 }
 
-export const CommentItem = ({ comment: c, ...itemProps }: CommentItemProps) => {
+export const CommentItem = ({ comment: c, ...boxProps }: CommentItemProps) => {
   const wallet = useWallet();
   const del = useDeleteComment();
 
@@ -34,33 +34,31 @@ export const CommentItem = ({ comment: c, ...itemProps }: CommentItemProps) => {
 
   return (
     <SwipeToDelete onDelete={handleDelete} enabled={isAuthor}>
-      <Box>
-        <Pressable ref={ref} onLongPress={() => setShowAdd(true)}>
-          <Item
-            Left={<Identicon seed={c.author} />}
-            leftContainer={{ marginRight: 2 }}
-            Main={
-              <Paragraph>
-                <Paragraph style={{ fontWeight: 'bold' }}>
-                  <Addr addr={c.author} />
-                </Paragraph>
-
-                {` ${c.content}`}
+      <Item
+        Left={<Identicon seed={c.author} />}
+        leftContainer={{ marginRight: 2, justifyContent: 'flex-start' }}
+        Main={
+          <Pressable ref={ref} onLongPress={() => setShowAdd(true)}>
+            <Paragraph>
+              <Paragraph style={{ fontWeight: 'bold' }}>
+                <Addr addr={c.author} />
               </Paragraph>
-            }
-            {...itemProps}
-          />
-        </Pressable>
 
-        <Reactions comment={c} />
+              {` ${c.content}`}
+            </Paragraph>
 
-        <ReactPopover
-          comment={c}
-          from={ref}
-          isVisible={showAdd}
-          onRequestClose={() => setShowAdd(false)}
-        />
-      </Box>
+            <Reactions comment={c} />
+          </Pressable>
+        }
+        {...boxProps}
+      />
+
+      <ReactPopover
+        comment={c}
+        from={ref}
+        isVisible={showAdd}
+        onRequestClose={() => setShowAdd(false)}
+      />
     </SwipeToDelete>
   );
 };

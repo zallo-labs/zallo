@@ -47,8 +47,8 @@ export const ReactPopover = ({
       <Container
         horizontal
         justifyContent="flex-end"
-        separator={<Box mr={1} />}
-        mx={3}
+        separator={<Box ml={1} />}
+        mx={4}
       >
         {emojis.map((emoji) => (
           <Chip
