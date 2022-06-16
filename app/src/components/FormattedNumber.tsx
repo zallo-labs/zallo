@@ -6,7 +6,7 @@ export type Numberish = number | string | BigNumber;
 
 export interface FormattedValueProps extends FormatNumberOptions {
   value: Numberish;
-  unitDecimals: number;
+  unitDecimals?: number;
   extendedFractionDigits?: number;
   postFormat?: (value: string) => string;
 }
