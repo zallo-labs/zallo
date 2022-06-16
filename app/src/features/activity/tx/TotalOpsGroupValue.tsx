@@ -26,7 +26,7 @@ export const TotalOpsGroupValue = ({
 
   const [value, setValue] = useState<TokenValue>({ fiatValue: 0, ethValue: 0 });
 
-  useAsyncEffect(async () => {
+  useAsyncEffect(async (isMounted) => {
     const values = await mapAsync(ops, async (op) => {
       const { methodFragment, methodInterface } = await getContractMethod(
         op.to,
@@ -41,7 +41,8 @@ export const TotalOpsGroupValue = ({
       return decoded?.value ?? ZERO;
     });
 
-    setValue(getTokenValue(token, sumBn(values), price));
+    const newValue = getTokenValue(token, sumBn(values), price);
+    if (isMounted()) setValue(newValue);
   }, []);
 
   if (hideZero && !value.fiatValue) return null;
