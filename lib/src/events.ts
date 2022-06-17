@@ -2,6 +2,7 @@ export const SafeEvent = {
   Deposit: 'Deposit',
   GroupAdded: 'GroupAdded',
   GroupRemoved: 'GroupRemoved',
+  GroupUpdated: 'GroupUpdated',
 };
 
 export const SafeError = {

@@ -5,21 +5,21 @@ import { BytesLike } from 'ethers';
 
 export async function createSignedTx(
   safe: Safe,
-  groupHash: BytesLike,
+  groupId: BytesLike,
   wallets: zk.Wallet[],
   txOpts: Partial<Op>,
 ): Promise<[Op, BytesLike, SignerStruct[]]>;
 
 export async function createSignedTx(
   safe: Safe,
-  groupHash: BytesLike,
+  groupId: BytesLike,
   wallets: zk.Wallet[],
   txOpts: Partial<Op>[],
 ): Promise<[Op[], BytesLike, SignerStruct[]]>;
 
 export async function createSignedTx(
   safe: Safe,
-  groupHash: BytesLike,
+  groupId: BytesLike,
   wallets: zk.Wallet[],
   txOpts: Partial<Op> | Partial<Op>[],
 ): Promise<[Op | Op[], BytesLike, SignerStruct[]]> {
@@ -38,5 +38,5 @@ export async function createSignedTx(
     ),
   );
 
-  return [ops.length > 1 ? ops : ops[0], groupHash, signers];
+  return [ops.length > 1 ? ops : ops[0], groupId, signers];
 }

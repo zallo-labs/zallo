@@ -3,6 +3,7 @@ import { ApproverStruct } from './contracts/Safe';
 import { Address, compareAddresses } from './addr';
 import { percentToFixedWeight } from './weight';
 import { toId } from './id';
+import { hexlify, randomBytes } from 'ethers/lib/utils';
 
 export interface SafeApprover extends ApproverStruct {
   addr: Address;
@@ -41,9 +42,9 @@ export const toSafeGroup = (group: Groupish): SafeGroup => ({
 });
 
 export const getGroupId = (safeId: string, group: Groupish): string =>
-  toId(`${safeId}-${hashGroup(group)}`);
+  toId(`${safeId}-${hashApprovers(group)}`);
 
-export const hashGroup = (group: Groupish): BytesLike =>
+export const hashApprovers = (group: Groupish): BytesLike =>
   ethers.utils.keccak256(abiEncodeGroup(group));
 
 export const abiEncodeGroup = (group: Groupish) => {
@@ -54,3 +55,5 @@ export const abiEncodeGroup = (group: Groupish) => {
     [approvers.map(toSafeApprover)],
   );
 };
+
+export const randomGroupId = () => hexlify(randomBytes(32));

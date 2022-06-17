@@ -39,6 +39,7 @@ contracts/artifacts
 contracts/artifacts-zk
 contracts/cache-zk
 contracts/coverage*
+contracts/zk
 
 
 ## Lib

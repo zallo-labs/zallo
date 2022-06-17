@@ -12,6 +12,7 @@ struct Approver {
 
 struct Group {
   mapping(address => int256) approvers;
+  bytes32 approversHash;
 }
 
 struct Op {
