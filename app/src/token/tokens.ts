@@ -3,7 +3,7 @@ import { createToken as token } from './token';
 
 export const ETH = token({
   name: 'Ether',
-  symbol: 'ETH',
+  symbol: 'Ξ',
   decimals: 18,
   addresses: {
     mainnet: '0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2', // wETH
@@ -56,10 +56,7 @@ export const LINK = token({
     mainnet: '0x514910771af9ca656af840dff83e8264ecf986ca',
     testnet: '0x63bfb2118771bd0da7A6936667A7BB705A06c1bA',
   },
-  iconUri:
-    'https://www.dropbox.com/s/ssw8vtai9eaw4z0/LINK%20Token%20Icon%20White.svg?dl=0',
-  // iconUri:
-  //   'https://www.dropbox.com/s/6ly5r6aqp9bse7w/LINK%20Token%20Icon%20White.png?dl=0',
+  iconUri: 'https://s2.coinmarketcap.com/static/img/coins/64x64/1975.png',
 });
 
 export const USDT = token({

@@ -2,31 +2,34 @@ import { ApolloLink, fromPromise, ServerError } from '@apollo/client';
 import { setContext } from '@apollo/client/link/context';
 import { onError } from '@apollo/client/link/error';
 import { NetworkError } from '@apollo/client/errors';
-import * as SecureStore from 'expo-secure-store';
 import { SiweMessage } from 'siwe';
-import { Wallet } from 'ethers';
-
+import { tryAcquire, E_ALREADY_LOCKED, Mutex } from 'async-mutex';
+import * as zk from 'zksync-web3';
 import { CONFIG } from '~/config';
 import { PROVIDER } from '~/provider';
-
-const TOKEN_KEY = 'api-token';
+import { useWallet } from '@features/wallet/useWallet';
+import { atom, useRecoilState } from 'recoil';
+import { getSecureStore, persistAtom } from '@util/persistAtom';
+import { useCallback, useMemo } from 'react';
 
 interface Token {
   message: SiweMessage;
   signature: string;
 }
 
+const fetchMutex = new Mutex();
+
 const isServerError = (e?: NetworkError): e is ServerError =>
   e?.name === 'ServerError';
 
-// https://test.com/abc/123 -> test.com; RN has no URL support )':
+// https://test.com/abc/123 -> test.com; RN lacks URL support )':
 const getHost = (url: string) => {
   const start = url.indexOf('//') + 2;
   const end = url.indexOf('/', start);
   return url.slice(start, end);
 };
 
-const fetchNewToken = async (wallet: Wallet) => {
+const fetchToken = async (wallet: zk.Wallet): Promise<Token> => {
   const nonceRes = await fetch(`${CONFIG.api.url}/auth/nonce`, {
     credentials: 'include',
   });
@@ -42,48 +45,72 @@ const fetchNewToken = async (wallet: Wallet) => {
     domain: getHost(CONFIG.api.url),
   });
 
-  const token: Token = {
+  return {
     message,
     signature: await wallet.signMessage(message.prepareMessage()),
   };
-
-  await SecureStore.setItemAsync(TOKEN_KEY, JSON.stringify(token));
-
-  return token;
 };
 
-const createWithTokenLink = (wallet: Wallet) =>
-  setContext(async (_request, prevContext) => {
-    let data: Token | null = JSON.parse(
-      await SecureStore.getItemAsync(TOKEN_KEY),
-    );
-
-    // Disregard data if the message has expired
-    if (
-      data?.message.expirationTime &&
-      new Date(data.message.expirationTime) <= new Date()
-    ) {
-      data = null;
-    }
-
-    if (!data) data = await fetchNewToken(wallet);
-
-    return {
-      ...prevContext,
-      headers: {
-        ...prevContext.headers,
-        authorization: JSON.stringify(data),
-      },
-    };
-  });
-
-const resetTokenLink = onError(({ networkError, forward, operation }) => {
-  if (isServerError(networkError) && networkError.statusCode === 401) {
-    return fromPromise(SecureStore.deleteItemAsync(TOKEN_KEY)).flatMap(() =>
-      forward(operation),
-    );
-  }
+const apiTokenState = atom<Token | null>({
+  key: 'apiToken',
+  default: null,
+  effects: [
+    persistAtom({
+      storage: getSecureStore(),
+      ignoreDefault: true,
+    }),
+  ],
 });
 
-export const createAuthFlowLink = (wallet: Wallet) =>
-  ApolloLink.from([createWithTokenLink(wallet), resetTokenLink]);
+export const useAuthFlowLink = () => {
+  const wallet = useWallet();
+  const [token, setToken] = useRecoilState(apiTokenState);
+
+  const reset = useCallback(async () => {
+    // Ensure token is reset exactly once at any given time
+    try {
+      await tryAcquire(fetchMutex).runExclusive(async () => {
+        setToken(await fetchToken(wallet));
+      });
+    } catch (e) {
+      if (e === E_ALREADY_LOCKED) {
+        await fetchMutex.waitForUnlock();
+      } else {
+        throw e;
+      }
+    }
+  }, [wallet, setToken]);
+
+  const authLink: ApolloLink = useMemo(
+    () =>
+      setContext(async (_request, prevContext) => {
+        if (!token) await reset();
+
+        return {
+          ...prevContext,
+          headers: {
+            ...prevContext.headers,
+            authorization: JSON.stringify(token),
+          },
+        };
+      }),
+    [reset, token],
+  );
+
+  const onUnauthorizedLink: ApolloLink = useMemo(
+    () =>
+      onError(({ networkError, forward, operation }) => {
+        if (isServerError(networkError) && networkError.statusCode === 401) {
+          fromPromise(reset()).flatMap(() => forward(operation));
+        }
+      }),
+    [reset],
+  );
+
+  const link = useMemo(
+    () => ApolloLink.from([authLink, onUnauthorizedLink]),
+    [authLink, onUnauthorizedLink],
+  );
+
+  return link;
+};

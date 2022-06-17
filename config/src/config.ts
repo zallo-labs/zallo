@@ -16,7 +16,7 @@ const chain = getChain(E.CHAIN?.toLowerCase() ?? defaultChain);
 
 const factoryAddresses: Record<ChainName, string> = {
   metanet: '0xe441CF0795aF14DdB9f7984Da85CD36DB1B8790d',
-  testnet: '0xAF5353dAcE2252aFb4dAE92f8b6770804Ffca4b9',
+  testnet: '0x94104Bf15A1b3e7f5054fB91BE72a115218BF45D',
 };
 
 export const CONFIG = {
@@ -49,6 +49,7 @@ export const CONFIG = {
     authToken: E.SENTRY_AUTH_TOKEN,
   },
   isDocker: E.IS_DOCKER?.toLowerCase() === 'true',
+  useZksolcBin: E.USE_ZKSOLC_BIN?.toLowerCase() === 'true',
 } as const;
 
 export default CONFIG;

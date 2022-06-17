@@ -13,7 +13,7 @@ import '@typechain/hardhat';
 import 'hardhat-gas-reporter';
 import 'hardhat-abi-exporter';
 import 'hardhat-tracer';
-import 'solidity-coverage';
+// import 'solidity-coverage';
 
 // Tasks
 import './tasks/accounts';
@@ -32,7 +32,8 @@ const config: HardhatUserConfig = {
   },
   zksolc: {
     version: '0.1.0',
-    compilerSource: CONFIG.isDocker ? 'binary' : 'docker',
+    compilerSource:
+      CONFIG.isDocker || CONFIG.useZksolcBin ? 'binary' : 'docker',
     settings: {
       optimizer: {
         enabled: true,
@@ -57,7 +58,8 @@ const config: HardhatUserConfig = {
   },
   // Plugins
   typechain: {
-    outDir: '../lib/src/typechain',
+    outDir: '../lib/src/contracts',
+    target: 'ethers-v5',
   },
   gasReporter: {
     // https://github.com/cgewecke/eth-gas-reporter#options

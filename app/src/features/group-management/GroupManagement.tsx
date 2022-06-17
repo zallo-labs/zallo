@@ -9,7 +9,7 @@ import { GroupNameField } from './GroupNameField';
 import { FormikErrors } from '@components/fields/FormikErrors';
 import { Actions } from '@components/Actions';
 import { FormikSubmitFab } from '@components/fields/FormikSubmitFab';
-import { CombinedGroup } from '@queries';
+import { CombinedGroup } from '~/queries';
 import { Container } from '@components/list/Container';
 import { ScreenScrollRoot } from '@components/ScreenScrollRoot';
 import { ActionsSpaceFooter } from '@components/ActionsSpaceFooter';

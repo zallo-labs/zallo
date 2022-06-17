@@ -14,6 +14,11 @@ import { ProviderModule } from './provider/provider.module';
 import { GroupsModule } from './features/groups/groups.module';
 import { ContactsModule } from './features/contacts/contacts.module';
 import { GroupApproverModule } from './features/group-approver/group-approver.module';
+import { ContractMethodsModule } from './features/contract-methods/contract-methods.module';
+import { TxsModule } from './features/txs/txs.module';
+import { SubmissionsModule } from './features/submissions/submissions.module';
+import { CommentsModule } from './features/comments/comments.module';
+import { ReactionsModule } from './features/reactions/reactions.module';
 
 @Module({
   imports: [
@@ -29,10 +34,15 @@ import { GroupApproverModule } from './features/group-approver/group-approver.mo
     HealthModule,
     // Features
     ApproversModule,
+    CommentsModule,
     ContactsModule,
-    GroupsModule,
-    SafesModule,
+    ContractMethodsModule,
     GroupApproverModule,
+    GroupsModule,
+    ReactionsModule,
+    SafesModule,
+    SubmissionsModule,
+    TxsModule,
   ],
   providers: [
     {

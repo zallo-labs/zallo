@@ -5,11 +5,12 @@ import { GraphQLError, GraphQLResolveInfo } from 'graphql';
 
 import {
   address,
-  Approver,
   calculateSafeAddress,
   getGroupApproverId,
   getGroupId,
+  Group,
   hashGroup,
+  toSafeGroup,
 } from 'lib';
 import { Safe } from '@gen/safe/safe.model';
 import { FindManySafeArgs } from '@gen/safe/find-many-safe.args';
@@ -66,19 +67,21 @@ export class SafesResolver {
     @Args() args: CreateCfSafeArgs,
     @Info() info: GraphQLResolveInfo,
   ): Promise<Safe> {
-    const approvers: Approver[] = args.approvers.map((a) => ({
-      ...a,
-      addr: address(a.addr),
-    }));
+    const group: Group = {
+      approvers: args.approvers.map((a) => ({
+        ...a,
+        addr: address(a.addr),
+      })),
+    };
 
-    if (!approvers.filter((a) => a.addr === user).length)
+    if (!group.approvers.filter((a) => a.addr === user).length)
       throw new GraphQLError('User must be part of group');
 
     const { addr: safeAddr, salt } = await calculateSafeAddress(
-      [approvers],
+      [toSafeGroup(group).approvers],
       this.provider.factory,
     );
-    const groupHash = hashGroup({ approvers });
+    const groupHash = hashGroup(group);
 
     return this.prisma.safe.create({
       data: {
@@ -86,10 +89,10 @@ export class SafesResolver {
         deploySalt: ethers.utils.hexlify(salt),
         groups: {
           create: {
-            id: getGroupId(safeAddr, { approvers }),
+            id: getGroupId(safeAddr, group),
             hash: groupHash,
             approvers: {
-              create: approvers.map((a) => ({
+              create: group.approvers.map((a) => ({
                 id: getGroupApproverId(safeAddr, groupHash, a),
                 approver: {
                   connectOrCreate: {

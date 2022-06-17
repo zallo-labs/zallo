@@ -4,9 +4,9 @@ import { Address } from 'lib';
 import { ethers } from 'ethers';
 import FuzzySearch from 'fuzzy-search';
 import { Box } from '@components/Box';
-import { RootStackScreenProps } from '@features/navigation/RootNavigation';
+import { RootNavigatorScreenProps } from '@features/navigation/RootNavigator';
 import { AddrLink } from '@features/qr/addrLink';
-import { Contact, useContacts } from '@gql/queries/useContacts';
+import { Contact, useContacts } from '~/queries/useContacts';
 import { TextField } from '@components/fields/TextField';
 import { ContactItem } from './ContactItem';
 import { CreateContactButton } from './CreateContactButton';
@@ -23,7 +23,7 @@ export interface ContactsScreenParams {
   scannedAddr?: AddrLink;
 }
 
-export type ContactsScreenProps = RootStackScreenProps<'Contacts'>;
+export type ContactsScreenProps = RootNavigatorScreenProps<'Contacts'>;
 
 export const ContactsScreen = ({
   navigation,

@@ -15,7 +15,7 @@ const defaultWallet = (() => {
   return wallet.connect(PROVIDER).connectToL1(ETH_PROVIDER);
 })();
 
-const walletState = atom<zk.Wallet>({
+export const walletState = atom<zk.Wallet>({
   key: 'wallet',
   default: defaultWallet,
   effects: [

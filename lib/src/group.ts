@@ -1,8 +1,9 @@
-import { BigNumberish, ethers } from 'ethers';
-import { ApproverStruct } from './typechain/Safe';
+import { BigNumberish, BytesLike, ethers } from 'ethers';
+import { ApproverStruct } from './contracts/Safe';
 import { Address, compareAddresses } from './addr';
 import { percentToFixedWeight } from './weight';
 import { toId } from './id';
+import { hexlify, randomBytes } from 'ethers/lib/utils';
 
 export interface SafeApprover extends ApproverStruct {
   addr: Address;
@@ -34,23 +35,25 @@ export interface Group {
 
 export type Groupish = Group | SafeGroup;
 
-export const toGroupStruct = (group: Groupish): SafeGroup => ({
+export const toSafeGroup = (group: Groupish): SafeGroup => ({
   approvers: group.approvers
     .map(toSafeApprover)
     .sort((a, b) => compareAddresses(a.addr, b.addr)),
 });
 
 export const getGroupId = (safeId: string, group: Groupish): string =>
-  toId(`${safeId}-${hashGroup(group)}`);
+  toId(`${safeId}-${hashApprovers(group)}`);
 
-export const hashGroup = (group: Groupish): string =>
+export const hashApprovers = (group: Groupish): BytesLike =>
   ethers.utils.keccak256(abiEncodeGroup(group));
 
 export const abiEncodeGroup = (group: Groupish) => {
-  const { approvers } = toGroupStruct(group);
+  const { approvers } = toSafeGroup(group);
 
   return ethers.utils.defaultAbiCoder.encode(
     ['tuple(address addr, uint96 weight)[]'],
     [approvers.map(toSafeApprover)],
   );
 };
+
+export const randomGroupId = () => hexlify(randomBytes(32));

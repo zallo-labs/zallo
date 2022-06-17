@@ -2,8 +2,8 @@ import { createContext, useContext, useEffect, useMemo, useRef } from 'react';
 import useAsyncEffect from 'use-async-effect';
 import { atom, useRecoilState } from 'recoil';
 
-import { useCreateCfSafe } from '@mutations';
-import { CombinedSafe, useSafes } from '@queries';
+import { useCreateCfSafe } from '~/mutations';
+import { CombinedSafe, useSafes } from '~/queries';
 import { ChildrenProps } from '@util/children';
 import { Address } from 'lib';
 import { Suspend } from '@components/Suspender';
@@ -46,7 +46,7 @@ export const SafeProvider = ({ children }: ChildrenProps) => {
     // Select a safe
     if (!loading && safes?.length && !selected) {
       const picked = safes.findIndex((s) =>
-        s.safe.address.startsWith('0xC888'),
+        s.safe.address.startsWith('0x961e'),
       );
       setSelectedAddr(safes[picked >= 0 ? picked : 0].safe.address);
     }

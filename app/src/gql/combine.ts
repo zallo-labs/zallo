@@ -55,8 +55,6 @@ export const combine = <Sub, Api, K, C>(
 
       if ((sub || api) && isEitherCombiner(combiner))
         return combiner.either({ sub, api });
-
-      throw new Error(`Unhandled combiner: ${combiner}`);
     })
     .filter(isPresent);
 };

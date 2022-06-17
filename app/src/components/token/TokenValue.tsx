@@ -1,24 +1,17 @@
-import { useMemo } from 'react';
-import { useIntl } from 'react-intl';
-import { BigNumber, ethers } from 'ethers';
-
 import { Token } from '~/token/token';
+import { FormattedNumber, Numberish } from '@components/FormattedNumber';
 
 export interface TokenValueProps {
   token: Token;
-  value: number | string | BigNumber;
+  value: Numberish;
 }
 
-export const TokenValue = ({ token, value }: TokenValueProps) => {
-  const intl = useIntl();
-
-  const formatted = useMemo(() => {
-    if (BigNumber.isBigNumber(value))
-      value = `${ethers.utils.formatUnits(value, token.decimals)} ${token.symbol}`;
-    if (typeof value === 'string') value = parseFloat(value);
-
-    return `${intl.formatNumber(value)} ${token.symbol}`;
-  }, [token, value, intl]);
-
-  return <>{formatted}</>;
-};
+export const TokenValue = ({ token, value }: TokenValueProps) => (
+  <FormattedNumber
+    value={value}
+    unitDecimals={token.decimals}
+    maximumFractionDigits={2}
+    extendedFractionDigits={3}
+    postFormat={(v) => `${v} ${token.symbol}`}
+  />
+);

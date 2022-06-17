@@ -1,13 +1,21 @@
-import { TOKENS } from './token';
+import { HARDCODED_TOKENS } from './token';
 import { useTokenBalance } from './useTokenBalance';
+import { useTokenValue } from './useTokenValue';
 
 export const useTokenBalances = () => {
-  const balances = TOKENS.map((token) => ({
-    token,
-    // Calling the hook here is safe because TOKENS is constant
+  const balances = HARDCODED_TOKENS.map((token) => {
+    // FIXME: useTokenBalance hook used in loop
     // eslint-disable-next-line react-hooks/rules-of-hooks
-    ...useTokenBalance(token),
-  })).sort((a, b) => b.fiatValue - a.fiatValue);
+    const balance = useTokenBalance(token);
+    // eslint-disable-next-line react-hooks/rules-of-hooks
+    const values = useTokenValue(token, balance);
+
+    return {
+      token,
+      balance,
+      ...values,
+    };
+  }).sort((a, b) => b.fiatValue - a.fiatValue);
 
   const totalEthValue = balances.reduce(
     (sum, balance) => sum + balance.ethValue,

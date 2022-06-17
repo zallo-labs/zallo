@@ -1,9 +1,16 @@
-import { createContext, useContext, useEffect, useState } from 'react';
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useState,
+} from 'react';
 import { ApolloClient, NormalizedCacheObject } from '@apollo/client';
 
 import { ChildrenProps } from '@util/children';
 import {
   API_CLIENT_NAME,
+  ClientCreator,
   createSubgraphClient,
   createUniswapClient,
   SUBGRAPH_CLIENT_NAME,
@@ -34,27 +41,22 @@ export const useSubgraphClient = () => useGqlClients().subgraph;
 export const useUniswapClient = () => useGqlClients().uniswap;
 
 export const GqlProvider = ({ children }: ChildrenProps) => {
-  const createApiClient = useCreateApiClient();
-
   const [clients, setClients] = useState<GqlClients | Partial<GqlClients>>({});
+
+  const create = async (name: Name, creator: ClientCreator) => {
+    const client = await creator();
+    setClients((clients) => ({ ...clients, [name]: client }));
+  };
+
   useEffect(() => {
-    if (isGqlClients(clients)) return;
+    create(SUBGRAPH_CLIENT_NAME, createSubgraphClient);
+    create(UNISWAP_CLIENT_NAME, createUniswapClient);
+  }, []);
 
-    (
-      [
-        [API_CLIENT_NAME, createApiClient],
-        [SUBGRAPH_CLIENT_NAME, createSubgraphClient],
-        [UNISWAP_CLIENT_NAME, createUniswapClient],
-      ] as const
-    ).forEach(async ([name, createClient]) => {
-      const client = await createClient();
-
-      setClients((clients) => ({
-        ...clients,
-        [name]: client,
-      }));
-    });
-  }, [clients, createApiClient]);
+  const createApiClient = useCreateApiClient();
+  useEffect(() => {
+    create(API_CLIENT_NAME, createApiClient);
+  }, [createApiClient]);
 
   if (!isGqlClients(clients)) return <Suspend />;
 

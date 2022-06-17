@@ -1,13 +1,12 @@
 import { ScrollView } from 'react-native';
-
 import { Box } from '@components/Box';
-import { RootStackScreenProps } from '@features/navigation/RootNavigation';
 import { Holdings } from './holdings/Holdings';
 import { SafeBalance } from './SafeBalance';
 import { HomeActions } from './actions/HomeActions';
 import { SafeHeader } from '@features/safe/SafeHeader';
+import { TabNavigatorScreenProps } from '@features/navigation/TabNavigator';
 
-export type HomeScreenProps = RootStackScreenProps<'Home'>;
+export type HomeScreenProps = TabNavigatorScreenProps<'Home'>;
 
 export const HomeScreen = (_props: HomeScreenProps) => (
   <Box flex={1} mt="5%">

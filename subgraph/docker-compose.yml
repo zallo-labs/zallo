@@ -1,9 +1,9 @@
 version: '3'
 services:
   graph-node:
-    image: graphprotocol/graph-node:v0.25.2
+    image: graphprotocol/graph-node:e64083a
     ports:
-      - '8000:8000'
+      - '80:8000'
       - '8001:8001'
       - '8020:8020'
       - '8030:8030'
@@ -18,10 +18,12 @@ services:
       postgres_db: graph-node
       ipfs: 'ipfs:5001'
       # Change next line if you want to connect to a different JSON-RPC endpoint
-      ethereum: 'mainnet:http://${DOCKER_GATEWAY_HOST:-host.docker.internal}:8545'
+      #ethereum: 'testnet:http://${DOCKER_GATEWAY_HOST:-host.docker.internal}:3055'
+      ethereum: 'zkSync2-testnet:https://zksync2-testnet.zksync.dev'
       GRAPH_LOG: info
+      GRAPH_ETHEREUM_MAX_BLOCK_RANGE_SIZE: 100
   ipfs:
-    image: ipfs/go-ipfs:v0.4.23
+    image: ipfs/go-ipfs:v0.12.2
     ports:
       - '5001:5001'
     volumes:

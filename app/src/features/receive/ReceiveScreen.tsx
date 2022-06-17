@@ -3,13 +3,13 @@ import { FAB, Title } from 'react-native-paper';
 import { useKeepAwake } from 'expo-keep-awake';
 
 import { Box } from '@components/Box';
-import { RootStackScreenProps } from '@features/navigation/RootNavigation';
+import { RootNavigatorScreenProps } from '@features/navigation/RootNavigator';
 import { QrCode } from '@features/qr/QrCode';
 import { useSafe } from '@features/safe/SafeProvider';
 import { useMaxBrighness } from './useMaxBrightness';
 import { ExpandableAddr } from '@components/ExpandableAddr';
 
-export type ReceiveScreenProps = RootStackScreenProps<'Receive'>;
+export type ReceiveScreenProps = RootNavigatorScreenProps<'Receive'>;
 
 export const ReceiveScreen = (_props: ReceiveScreenProps) => {
   const { safe } = useSafe();

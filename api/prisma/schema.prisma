@@ -23,16 +23,21 @@ model Session {
 }
 
 model Safe {
-  id         String  @id
+  id         String     @id @db.Char(42) // address
   groups     Group[]
   name       String?
-  deploySalt String?
+  deploySalt String?    @db.Char(66) // bytes32
+  txs        Tx[]
+  ops        Op[]
+  approvals  Approval[]
+  comments   Comment[]
+  reactions  Reaction[]
 }
 
 model Group {
   safe      Safe            @relation(fields: [safeId], references: [id], onDelete: Cascade)
-  safeId    String
-  hash      String
+  safeId    String          @db.Char(42) // address
+  hash      String          @db.Char(66) // bytes32
   approvers GroupApprover[]
   name      String?
 
@@ -40,28 +45,125 @@ model Group {
 }
 
 model Approver {
-  id       String          @id
-  groups   GroupApprover[]
-  contacts Contact[]
+  id        String          @id @db.Char(42) // address
+  groups    GroupApprover[]
+  contacts  Contact[]
+  approvals Approval[]
+  comments  Comment[]
+  reactions Reaction[]
 }
 
 model GroupApprover {
   group      Group    @relation(fields: [safeId, groupHash], references: [safeId, hash], onDelete: Cascade)
-  safeId     String
-  groupHash  String
+  safeId     String   @db.Char(42) // address
+  groupHash  String   @db.Char(66) // bytes32
   approver   Approver @relation(fields: [approverId], references: [id], onDelete: Cascade)
-  approverId String
-  weight     Decimal // Percent
+  approverId String   @db.Char(42) // address
+  weight     Decimal  @db.Decimal(79, 0) // uint256
 
   @@id([safeId, groupHash, approverId])
 }
 
 model Contact {
   approver   Approver @relation(fields: [approverId], references: [id])
-  approverId String
-  addr       String
+  approverId String   @db.Char(42) // address
+  addr       String   @db.Char(42) // address
   name       String
 
   @@id([approverId, addr])
   @@unique([approverId, name], name: "name_identifier")
+}
+
+model ContractMethod {
+  contract String @db.Char(42) // address
+  sighash  String @db.Char(10) // bytes4
+  fragment Json
+
+  @@id([contract, sighash])
+  @@index([sighash])
+}
+
+model Tx {
+  safe        Safe         @relation(fields: [safeId], references: [id], onDelete: Cascade)
+  safeId      String       @db.Char(42) // address
+  hash        String       @db.Char(66) // bytes32
+  ops         Op[]
+  approvals   Approval[]
+  createdAt   DateTime     @default(now())
+  submissions Submission[]
+
+  @@id([safeId, hash])
+}
+
+model Submission {
+  hash      String   @id @db.Char(66) // bytes32
+  tx        Tx       @relation(fields: [safeId, txHash], references: [safeId, hash], onDelete: Cascade)
+  safeId    String   @db.Char(42) // address
+  txHash    String   @db.Char(66) // bytes32
+  createdAt DateTime @default(now())
+  nonce     Int
+  gasLimit  Decimal  @db.Decimal(19, 0)
+  gasPrice  Decimal? @db.Decimal(19, 0)
+  finalized Boolean
+}
+
+model Op {
+  safe   Safe    @relation(fields: [safeId], references: [id], onDelete: Cascade)
+  safeId String  @db.Char(42) // address
+  tx     Tx      @relation(fields: [safeId, txHash], references: [safeId, hash], onDelete: Cascade)
+  txHash String  @db.Char(66) // bytes32
+  hash   String  @db.Char(66) // bytes32
+  to     String  @db.Char(42) // address
+  value  Decimal @db.Decimal(79, 0) // uint256
+  data   String // bytes
+  nonce  Decimal @db.Decimal(79, 0) // uint256
+
+  @@id([safeId, txHash, hash])
+}
+
+model Approval {
+  approver   Approver @relation(fields: [approverId], references: [id])
+  approverId String   @db.Char(42) // address
+  safe       Safe     @relation(fields: [safeId], references: [id], onDelete: Cascade)
+  safeId     String   @db.Char(42) // address
+  tx         Tx       @relation(fields: [safeId, txHash], references: [safeId, hash], onDelete: Cascade)
+  txHash     String   @db.Char(66) // bytes32
+  signature  String // bytes
+  createdAt  DateTime @default(now())
+
+  @@id([safeId, txHash, approverId])
+}
+
+model Comment {
+  safe   Safe   @relation(fields: [safeId], references: [id], onDelete: Cascade)
+  safeId String @db.Char(42) // address
+  key    String
+  nonce  Int    @default(autoincrement())
+
+  author    Approver @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  authorId  String   @db.Char(42) // address
+  content   String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt()
+
+  reactions Reaction[]
+
+  @@id([safeId, key, nonce])
+  @@index([safeId, key])
+}
+
+model Reaction {
+  comment    Comment  @relation(fields: [safeId, key, nonce], references: [safeId, key, nonce], onDelete: Cascade)
+  safe       Safe     @relation(fields: [safeId], references: [id], onDelete: Cascade)
+  safeId     String   @db.Char(42) // address
+  key        String
+  nonce      Int
+  approver   Approver @relation(fields: [approverId], references: [id])
+  approverId String   @db.Char(42) // address
+
+  emojis    String[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt()
+
+  @@id([safeId, key, nonce, approverId])
 }

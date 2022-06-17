@@ -7,11 +7,11 @@ import './Types.sol';
 contract Factory {
   error FailedOnDeploy();
 
-  function create(Approver[] calldata _approvers)
+  function create(bytes32 _groupId, Approver[] calldata _approvers)
     external
     returns (address addr)
   {
-    Safe safe = new Safe(_approvers);
+    Safe safe = new Safe(_groupId, _approvers);
     return address(safe);
   }
 

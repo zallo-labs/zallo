@@ -1,5 +1,5 @@
 import { Box } from '@components/Box';
-import { RootStackScreenProps } from '@features/navigation/RootNavigation';
+import { RootNavigatorScreenProps } from '@features/navigation/RootNavigator';
 import { SafeNameField } from './SafeNameField';
 import { Header } from '@components/Header';
 import { SafeIcon } from '@features/home/SafeIcon';
@@ -9,7 +9,8 @@ import { GroupItem } from './GroupItem';
 import { ActionsSpaceFooter } from '@components/ActionsSpaceFooter';
 import { Divider } from 'react-native-paper';
 
-export type SafeManagementScreenProps = RootStackScreenProps<'SafeManagement'>;
+export type SafeManagementScreenProps =
+  RootNavigatorScreenProps<'SafeManagement'>;
 
 export const SafeManagementScreen = (_props: SafeManagementScreenProps) => {
   const { groups } = useSafe();

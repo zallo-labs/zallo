@@ -1,24 +1,18 @@
+import { Bytes } from '@graphprotocol/graph-ts';
 import {
   Deposit as DepositEvent,
-  Execution,
   GroupAdded,
   GroupRemoved,
-} from '../generated/Safe/Safe';
-import {
-  Deposit,
-  Group,
-  GroupApprover,
+  MultiTransaction,
   Transaction,
-  TransactionApprover,
-} from '../generated/schema';
+} from '../generated/Safe/Safe';
+import { Group, GroupApprover, Transfer, Tx } from '../generated/schema';
 import {
-  getApproverId,
-  getDepositId,
   getGroupApproverId,
   getGroupId,
   getSafeObjId,
-  getTransactionApproverId,
-  getTransactionId,
+  getTransferId,
+  getTxId,
 } from './id';
 import {
   getOrCreateApprover,
@@ -61,48 +55,50 @@ export function handleGroupRemoved(e: GroupRemoved): void {
   }
 }
 
+// zkSync ETH token
+const ETH_TOKEN: Bytes = Bytes.fromHexString(
+  '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE',
+);
+
 export function handleDeposit(e: DepositEvent): void {
-  const deposit = new Deposit(getDepositId(e));
+  const transfer = new Transfer(getTransferId(e));
 
-  deposit.safe = getSafeObjId(e.address);
-  deposit.from = e.params.from;
-  deposit.value = e.params.value;
-  deposit.blockHash = e.block.hash;
-  deposit.timestamp = e.block.timestamp;
+  transfer.safe = getSafeObjId(e.address);
+  transfer.token = ETH_TOKEN;
+  transfer.type = 'IN';
+  transfer.from = e.params.from;
+  transfer.to = e.address;
+  transfer.value = e.params.value;
+  transfer.blockHash = e.block.hash;
+  transfer.timestamp = e.block.timestamp;
 
-  deposit.save();
+  transfer.save();
 }
 
-export function handleExecution(e: Execution): void {
-  const safe = getSafe(e);
-  const p = e.params;
+export function handleTransaction(e: Transaction): void {
+  const tx = new Tx(getTxId(e.transaction));
 
-  const id = getTransactionId(safe, p.tx);
-  const tx = new Transaction(id);
-
-  tx.safe = getSafeObjId(safe._address);
-  tx.to = p.tx.to;
-  tx.value = p.tx.value;
-  tx.data = p.tx.data;
-  tx.nonce = p.tx.nonce;
-  tx.response = p.response;
-  tx.executor = p.executor;
+  tx.safe = getSafeObjId(getSafe(e)._address);
+  tx.type = 'SINGLE';
+  tx.hash = e.params.txHash;
+  tx.responses = [e.params.response];
+  tx.executor = e.transaction.from;
   tx.blockHash = e.block.hash;
   tx.timestamp = e.block.timestamp;
-  tx.group = getGroupId(safe._address, p.groupHash);
 
   tx.save();
+}
 
-  // Create TransactionApprovers
-  for (let i = 0; i < p.approvers.length; i++) {
-    const approverId = getApproverId(p.approvers[i]);
+export function handleMultiTransaction(e: MultiTransaction): void {
+  const tx = new Tx(getTxId(e.transaction));
 
-    const txApprover = new TransactionApprover(
-      getTransactionApproverId(id, approverId),
-    );
-    txApprover.transaction = tx.id;
-    txApprover.approver = approverId;
+  tx.safe = getSafeObjId(getSafe(e)._address);
+  tx.type = 'MULTI';
+  tx.hash = e.params.txHash;
+  tx.responses = e.params.responses;
+  tx.executor = e.transaction.from;
+  tx.blockHash = e.block.hash;
+  tx.timestamp = e.block.timestamp;
 
-    txApprover.save();
-  }
+  tx.save();
 }

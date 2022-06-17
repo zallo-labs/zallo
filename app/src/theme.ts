@@ -35,9 +35,10 @@ declare global {
   }
 }
 
-// https://github.com/callstack/react-native-paper/blob/main/src/styles/DarkTheme.tsx
+// https://github.com/callstack/react-native-paper/blob/main/src/styles/themes/v3/DarkTheme.tsx
 // https://akveo.github.io/react-native-ui-kitten/docs/design-system/eva-dark-theme
-const surface = '#151A30'; // Dark blue/grey
+const surface = '#2b324d';
+const onBackground = '#e9e2d9';
 
 export const PAPER_THEME: ReactNativePaper.Theme = {
   ...PaperDarkTheme,
@@ -55,9 +56,9 @@ export const PAPER_THEME: ReactNativePaper.Theme = {
     onAccentContainer: '#ffd8e3',
 
     background: '#151A30', // Dark blue/grey
-    onBackground: '#e9e2d9',
+    onBackground,
     surface,
-    onSurface: '#e9e2d9',
+    onSurface: onBackground,
     opaqueSurface: new Color(surface).alpha(0.8).string(),
     outline: '#989080',
 

@@ -1,14 +1,17 @@
-export * from './typechain';
+export * from './contracts';
+export { Erc20, Erc20__factory } from './typechain';
 
 export * from './util/arrays';
 export * from './util/mappedTypes';
 
 export * from './addr';
 export * from './approver';
+export * from './bignum';
 export * from './counterfactual';
 export * from './deploy';
 export * from './events';
 export * from './group';
 export * from './id';
-export * from './tx';
+export * from './op';
+export * from './signers';
 export * from './weight';

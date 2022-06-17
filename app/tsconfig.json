@@ -7,8 +7,6 @@
     "paths": {
       "@components/*": ["./src/components/*"],
       "@features/*": ["./src/features/*"],
-      "@mutations": ["./src/gql/mutations"],
-      "@queries": ["./src/gql/queries"],
       "@gql/*": ["./src/gql/*"],
       "@util/*": ["./src/util/*"],
       "~/*": ["./src/*"]

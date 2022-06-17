@@ -1,4 +1,4 @@
 {
-  "network": "testnet",
-  "startBlock": 433152
+  "network": "zkSync2-testnet",
+  "startBlock": 1182221
 }

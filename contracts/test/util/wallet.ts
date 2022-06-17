@@ -2,8 +2,11 @@ import * as hre from 'hardhat';
 import * as zk from 'zksync-web3';
 import CONFIG from 'config';
 import metanetWallets from '../../metanet-wallets.json';
+import { providers } from 'ethers';
 
-export const ethProvider = hre.ethers.getDefaultProvider(CONFIG.chain.ethUrl);
+export const ethProvider: providers.BaseProvider =
+  hre.ethers.getDefaultProvider(CONFIG.chain.ethUrl);
+
 export const zkProvider = new zk.Provider(CONFIG.chain.zksyncUrl);
 
 // export const zkProvider = zk.Provider.getDefaultProvider();

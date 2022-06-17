@@ -1,6 +1,6 @@
 import { InMemoryCache } from '@apollo/client';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { persistCache } from 'apollo3-cache-persist';
+import { AsyncStorageWrapper, persistCache } from 'apollo3-cache-persist';
 
 export const getPersistedCache = async (clientName: string) => {
   const cache = new InMemoryCache();
@@ -8,7 +8,7 @@ export const getPersistedCache = async (clientName: string) => {
   await persistCache({
     key: clientName,
     cache,
-    storage: AsyncStorage,
+    storage: new AsyncStorageWrapper(AsyncStorage),
   });
 
   return cache;

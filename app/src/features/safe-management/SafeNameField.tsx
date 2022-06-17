@@ -3,7 +3,7 @@ import { useDebounce } from 'use-debounce';
 
 import { useSafe } from '@features/safe/SafeProvider';
 import { Box } from '@components/Box';
-import { useUpsertSafe } from '@gql/mutations/useUpsertSafe';
+import { useUpsertSafe } from '~/mutations/useUpsertSafe';
 import { TextField } from '@components/fields/TextField';
 
 export const SafeNameField = () => {

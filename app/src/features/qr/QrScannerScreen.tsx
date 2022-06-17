@@ -3,19 +3,19 @@ import { StyleSheet } from 'react-native';
 import { BarCodeScanningResult, Camera } from 'expo-camera';
 import useAsyncEffect from 'use-async-effect';
 import {
-  RootParamList,
-  RootStackScreenProps,
-} from '@features/navigation/RootNavigation';
+  RootNavigatorParamList,
+  RootNavigatorScreenProps,
+} from '@features/navigation/RootNavigator';
 import { parseAddrLink } from './addrLink';
 import { BarCodeScanner } from 'expo-barcode-scanner';
 import { Box } from '@components/Box';
 import { Title } from 'react-native-paper';
 
 export type QrScannerParams = {
-  screen: keyof RootParamList;
+  screen: keyof RootNavigatorParamList;
 };
 
-export type QrScannerScreenProps = RootStackScreenProps<'QrScanner'>;
+export type QrScannerScreenProps = RootNavigatorScreenProps<'QrScanner'>;
 
 export const QrScannerScreen = ({
   navigation,

@@ -4,7 +4,7 @@ import { GroupName } from '@components/GroupName';
 import { Identicon } from '@components/Identicon';
 import { Item, ItemProps } from '@components/list/Item';
 import { HomeScreenProps } from '@features/home/HomeScreen';
-import { CombinedGroup } from '@queries';
+import { CombinedGroup } from '~/queries';
 
 export interface GroupItemProps extends ItemProps {
   group: CombinedGroup;

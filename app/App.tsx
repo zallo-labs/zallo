@@ -5,7 +5,7 @@ import { RecoilRoot } from 'recoil';
 
 import '~/provider';
 import { SafeProvider } from '@features/safe/SafeProvider';
-import { RootNavigation } from '@features/navigation/RootNavigation';
+import { RootNavigator } from '@features/navigation/RootNavigator';
 import { SafeArea } from '@components/SafeArea';
 import { NAV_THEME, PAPER_THEME } from '~/theme';
 import { LocalizatonProvider } from '@features/localization/LocalizationProvider';
@@ -30,7 +30,7 @@ export default () => (
                     <StatusBar />
                     <SafeProvider>
                       <NavigationContainer theme={NAV_THEME}>
-                        <RootNavigation />
+                        <RootNavigator />
                       </NavigationContainer>
                     </SafeProvider>
                   </GqlProvider>

@@ -1,5 +1,5 @@
 import { FC } from 'react';
-import { Pressable } from 'react-native';
+import { Pressable, TouchableOpacity } from 'react-native';
 import { Text, useTheme } from 'react-native-paper';
 
 import { Box } from '@components/Box';
@@ -37,7 +37,7 @@ export const HomeActionButton = ({
 
   return (
     <Box mx={2}>
-      <Pressable onPress={onClick}>
+      <TouchableOpacity onPress={onClick}>
         <Box vertical center>
           <Icon size={30} color={color} />
 
@@ -45,7 +45,7 @@ export const HomeActionButton = ({
             <Text style={{ color }}>{label}</Text>
           </Box>
         </Box>
-      </Pressable>
+      </TouchableOpacity>
     </Box>
   );
 };

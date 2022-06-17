@@ -1,18 +1,34 @@
 type Safe @entity {
   "{address}"
   id: ID!
+  txs: [Tx!]! @derivedFrom(field: "safe")
   groups: [Group!]! @derivedFrom(field: "safe")
-  deposits: [Deposit!]! @derivedFrom(field: "safe")
-  transactions: [Transaction!]! @derivedFrom(field: "safe")
-  proposedTransactions: [ProposedTx!]! @derivedFrom(field: "safe")
+  transfers: [Transfer!]! @derivedFrom(field: "safe")
+}
+
+type Tx @entity {
+  "{tx.hash}"
+  id: ID!
+  safe: Safe!
+  type: TxType!
+  hash: Bytes!
+  responses: [Bytes!]!
+  # Metadata
+  executor: Bytes!
+  blockHash: Bytes!
+  timestamp: BigInt!
+  transfers: [Transfer!]! @derivedFrom(field: "tx")
+}
+
+enum TxType {
+  SINGLE
+  MULTI
 }
 
 type Approver @entity {
   "{address}"
   id: ID!
   groups: [GroupApprover!]! @derivedFrom(field: "approver")
-  transactions: [TransactionApprover!]! @derivedFrom(field: "approver")
-  proposedTransactions: [ProposedTxApprover!]! @derivedFrom(field: "approver")
 }
 
 type Group @entity {
@@ -22,7 +38,6 @@ type Group @entity {
   hash: Bytes!
   active: Boolean!
   approvers: [GroupApprover!]! @derivedFrom(field: "group")
-  transactions: [Transaction!]! @derivedFrom(field: "group")
 }
 
 type GroupApprover @entity {
@@ -33,57 +48,35 @@ type GroupApprover @entity {
   weight: BigInt!
 }
 
-type Deposit @entity {
-  "{tx.hash}-{tx.log.index}"
+type Transfer @entity {
+  "{tx.id}-{tx.log.index}"
   id: ID!
   safe: Safe!
+  tx: Tx
+  txHash: Bytes!
+  token: Bytes!
+  type: TransferType!
   from: Bytes!
-  value: BigInt!
-  blockHash: Bytes!
-  timestamp: BigInt!
-}
-
-type Transaction @entity {
-  "{EIP712_hash(txData)}"
-  id: ID!
-  safe: Safe!
-  # Inputs
   to: Bytes!
   value: BigInt!
-  data: Bytes!
-  nonce: BigInt!
-  # Output
-  response: Bytes!
   # Metadata
-  executor: Bytes!
   blockHash: Bytes!
   timestamp: BigInt!
-  # Relationships
-  group: Group!
-  approvers: [TransactionApprover!]! @derivedFrom(field: "transaction")
 }
 
-type TransactionApprover @entity {
-  "{transaction.id}-{approver.id}"
-  id: ID!
-  transaction: Transaction!
-  approver: Approver!
+enum TransferType {
+  IN
+  OUT
 }
 
-type ProposedTx @entity {
-  id: ID! # EIP712_hash(txData)
-  safe: Safe!
-  # Inputs
-  to: Bytes!
-  value: BigInt!
-  data: Bytes!
-  nonce: BigInt!
-  # Relationships
-  approvers: [ProposedTxApprover!]! @derivedFrom(field: "proposedTx")
-}
-
-type ProposedTxApprover @entity {
-  id: ID! # proposedTx.id-approver.id
-  proposedTx: ProposedTx!
-  approver: Approver!
-}
+# type TokenTransferApproval @entity {
+#   "{tx.hash}-{tx.log.index}"
+#   id: ID!
+#   # token: Token!
+#   token: Bytes!
+#   safe: Safe!
+#   type: String!
+#   owner: Bytes!
+#   spender: Bytes!
+#   value: BigInt!
+# }

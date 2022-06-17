@@ -8,6 +8,23 @@ interface Storage {
   removeItem: (key: string) => Promise<void>;
 }
 
+type Save<T> = (value: T) => string;
+type Load<T> = (saved: string) => T;
+
+interface Wrapped {
+  data: string;
+}
+
+const serialize = <T>(data: T, save: Save<T>): string => {
+  const wrapped: Wrapped = { data: save(data) ?? null };
+  return JSON.stringify(wrapped);
+};
+
+const deserialize = <T>(serialized: string, load: Load<T>): T => {
+  const wrapped: Wrapped = JSON.parse(serialized);
+  return load(wrapped.data ?? null);
+};
+
 export const getSecureStore = (
   options?: SecureStore.SecureStoreOptions,
 ): Storage => ({
@@ -17,10 +34,11 @@ export const getSecureStore = (
 });
 
 export interface PersistAtomOptions<T> {
-  save?: (value: T) => string;
-  load?: (saved: string) => T;
+  save?: Save<T>;
+  load?: Load<T>;
   storage?: Storage;
   ignoreDefault?: boolean;
+  saveIf?: (value: T) => boolean;
 }
 
 export const persistAtom =
@@ -29,12 +47,13 @@ export const persistAtom =
     load = JSON.parse,
     storage = AsyncStorage,
     ignoreDefault,
+    saveIf,
   }: PersistAtomOptions<T> = {}): AtomEffect<T> =>
   ({ setSelf, onSet, node: { key } }) => {
     // Loads the saved value, otherwise uses the default value
     setSelf(
       storage.getItem(key).then((saved) => {
-        return saved != null ? load(saved) : new DefaultValue();
+        return saved != null ? deserialize(saved, load) : new DefaultValue();
       }),
     );
 
@@ -42,8 +61,8 @@ export const persistAtom =
     onSet((newValue, _oldValue, isReset) => {
       if (isReset && ignoreDefault) {
         storage.removeItem(key);
-      } else {
-        storage.setItem(key, save(newValue));
+      } else if (!saveIf || saveIf(newValue)) {
+        storage.setItem(key, serialize(newValue, save));
       }
     });
   };

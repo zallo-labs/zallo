@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import { CombinedGroup } from '@queries';
+import { CombinedGroup } from '~/queries';
 import { hexlify } from 'ethers/lib/utils';
 
 export interface GroupNameProps {

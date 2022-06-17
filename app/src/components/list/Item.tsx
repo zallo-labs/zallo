@@ -1,45 +1,72 @@
 import { ReactNode } from 'react';
 import { Box, BoxProps } from '@components/Box';
-import { GestureResponderEvent, Pressable } from 'react-native';
+import { GestureResponderEvent, TouchableOpacity } from 'react-native';
+import { ItemSkeleton } from './ItemSkeleton';
+import { withSkeleton } from '@components/skeleton/withSkeleton';
 
 export const PRIMARY_ICON_SIZE = 40;
 export const SECONDARY_ICON_SIZE = 24;
 
 export interface ItemProps extends BoxProps {
   Left?: ReactNode;
+  leftContainer?: BoxProps;
   Main?: ReactNode;
+  mainContainer?: BoxProps;
   Right?: ReactNode;
+  rightContainer?: BoxProps;
   onPress?: (event: GestureResponderEvent) => void;
+  onLongPress?: (event: GestureResponderEvent) => void;
   disabled?: boolean;
 }
 
-export const Item = ({
-  Left,
-  Main,
-  Right,
-  onPress,
-  disabled,
-  ...boxProps
-}: ItemProps) => (
-  <Pressable disabled={disabled || !onPress} onPress={!disabled && onPress}>
-    <Box
-      horizontal
-      justifyContent="space-between"
-      alignItems="center"
-      {...boxProps}
-      style={[
-        {
-          ...(disabled && { opacity: 0.4 }),
-        },
-        boxProps.style,
-      ]}
+export const Item = withSkeleton(
+  ({
+    Left,
+    leftContainer,
+    Main,
+    mainContainer,
+    Right,
+    rightContainer,
+    onPress,
+    onLongPress,
+    disabled,
+    ...boxProps
+  }: ItemProps) => (
+    <TouchableOpacity
+      disabled={disabled || !onPress}
+      onPress={!disabled && onPress}
+      onLongPress={!disabled && onLongPress}
     >
-      <Box flex={1} horizontal justifyContent="flex-start" alignItems="center">
-        {Left && <Box mr={3}>{Left}</Box>}
-        {Main && <Box flex={1}>{Main}</Box>}
-      </Box>
+      <Box
+        horizontal
+        justifyContent="space-between"
+        {...boxProps}
+        style={[
+          {
+            ...(disabled && { opacity: 0.4 }),
+          },
+          boxProps.style,
+        ]}
+      >
+        {Left && (
+          <Box vertical justifyContent="center" mr={3} {...leftContainer}>
+            {Left}
+          </Box>
+        )}
 
-      {Right}
-    </Box>
-  </Pressable>
+        {Main && (
+          <Box flex={1} vertical justifyContent="center" {...mainContainer}>
+            {Main}
+          </Box>
+        )}
+
+        {Right && (
+          <Box vertical justifyContent="center" {...rightContainer}>
+            {Right}
+          </Box>
+        )}
+      </Box>
+    </TouchableOpacity>
+  ),
+  ItemSkeleton,
 );

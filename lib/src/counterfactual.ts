@@ -1,5 +1,5 @@
 import { BytesLike, ethers } from 'ethers';
-import { Factory } from './typechain';
+import { Factory } from './contracts';
 import { SafeConstructorArgs } from './deploy';
 import { address } from './addr';
 
@@ -21,7 +21,11 @@ export const calculateSafeAddress = async (
   // };
 
   return {
-    addr: address(await factory.callStatic.create(...args)),
+    addr: address(
+      await factory.callStatic.create(...args, {
+        gasLimit: 100_000,
+      }),
+    ),
     salt: '0x00',
   };
 };

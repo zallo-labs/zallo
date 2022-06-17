@@ -1,7 +1,10 @@
 import { ApolloDriverConfig, ApolloDriver } from '@nestjs/apollo';
 import { Module } from '@nestjs/common';
 import { GraphQLModule } from '@nestjs/graphql';
-import { ApolloServerPluginLandingPageGraphQLPlaygroundOptions } from 'apollo-server-core';
+import {
+  ApolloServerPluginLandingPageGraphQLPlaygroundOptions,
+  ApolloServerPluginLandingPageLocalDefault,
+} from 'apollo-server-core';
 
 import { IS_DEV } from 'config';
 import { AddressMiddleware } from './address.middleware';
@@ -26,20 +29,24 @@ const settings: ApolloServerPluginLandingPageGraphQLPlaygroundOptions['settings'
       buildSchemaOptions: {
         fieldMiddleware: [IdMiddleware, AddressMiddleware],
       },
+      // plugins: [new LoggingPlugin()],
       playground: {
         settings,
       },
-      // plugins: [new LoggingPlugin()]
-      // Http error on dev
-      //   playground: false,
-      //   plugins: IS_DEV
-      //     ? [
-      //         ApolloServerPluginLandingPageLocalDefault({
-      //           includeCookies: true,
-      //           variables: settings,
-      //         }),
-      //       ]
-      //     : [],
+      // Breaks on firefox
+      // playground: false,
+      // plugins: IS_DEV
+      //   ? [
+      //       ApolloServerPluginLandingPageLocalDefault({
+      //         includeCookies: true,
+      //         variables: settings as Record<string, string>,
+      //       }),
+      //     ]
+      //   : [],
+      cors: {
+        origin: 'https://studio.apollographql.com',
+        credentials: true,
+      },
     }),
   ],
 })

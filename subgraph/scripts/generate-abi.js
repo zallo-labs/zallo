@@ -6,7 +6,6 @@ const isError = (v) => v.type === 'error';
 
 const isNestedArr = (v) => v.inputs && v.inputs.some((i) => i.type && i.type.endsWith('[][]'));
 
-// const safeAbi = abi.filter((v) => !isError(v));
 const safeAbi = abi.filter((v) => !(isError(v) || isNestedArr(v)));
 
 const folder = './generated';

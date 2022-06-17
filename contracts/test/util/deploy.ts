@@ -5,18 +5,19 @@ import {
   deploySafe,
   getFactory,
   getSafe,
-  hashGroup,
+  hashApprovers,
   SafeConstructorArgs,
   SafeGroup,
   TestSafe__factory,
   address,
-  toGroupStruct,
+  toSafeGroup,
+  randomGroupId,
 } from 'lib';
 import { allSigners, wallet } from './wallet';
 import { BytesLike } from 'ethers';
 
 export const toSafeGroupTest = (...approvers: [string, number][]): SafeGroup =>
-  toGroupStruct({
+  toSafeGroup({
     approvers: approvers.map(([addr, weight]) => ({
       addr: address(addr),
       weight,
@@ -57,6 +58,8 @@ export const deploy = async (weights: number[], _salt?: BytesLike) => {
   const approvers = allSigners.slice(0, weights.length);
   const others = allSigners.slice(weights.length);
 
+  const groupId = randomGroupId();
+
   const group = toSafeGroupTest(
     ...approvers.map((approver, i): [string, number] => [
       approver.address,
@@ -67,7 +70,7 @@ export const deploy = async (weights: number[], _salt?: BytesLike) => {
   const { factory } = await deployFactory();
   const deployData = await deploySafe({
     signer: allSigners[0],
-    args: [group.approvers],
+    args: [groupId, group.approvers],
     factory,
     // salt,
   });
@@ -79,7 +82,8 @@ export const deploy = async (weights: number[], _salt?: BytesLike) => {
     approvers,
     others,
     group,
-    groupHash: hashGroup(group),
+    groupHash: hashApprovers(group),
+    groupId,
   };
 };
 

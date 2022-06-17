@@ -3,7 +3,7 @@ pragma solidity ^0.8.0;
 
 // Fixed-point percentage with a precision of 28; e.g. 5.2% = 0.52 * 10 ** 28
 // An int256 can safely hold ~7e47 uint96s (min. bytes required to store the precision)
-int256 constant _100_PERCENT_WEIGHT = 10**28;
+int256 constant THRESHOLD = 10**28;
 
 struct Approver {
   address addr;
@@ -12,9 +12,10 @@ struct Approver {
 
 struct Group {
   mapping(address => int256) approvers;
+  bytes32 approversHash;
 }
 
-struct Tx {
+struct Op {
   address to;
   uint256 value;
   bytes data;
@@ -24,9 +25,4 @@ struct Tx {
 struct Signer {
   address addr;
   bytes signature;
-}
-
-struct SignedTx {
-  Tx tx;
-  Signer[] signers;
 }
