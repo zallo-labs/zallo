@@ -6,9 +6,9 @@ import { RootNavigatorScreenProps } from '@features/navigation/RootNavigator';
 import { useGroup, useSafe } from '@features/safe/SafeProvider';
 import { GroupManagement } from './GroupManagement';
 import { ADDR_YUP_SCHEMA } from '@util/yup';
-import { useUpsertGroup } from '~/mutations/useUpsertGroup';
 import { CombinedGroup } from '~/queries';
 import { withProposeProvider } from '@features/execute/ProposeProvider';
+import { useUpsertSafeGroup } from '~/mutations/group/useUpsertSafeGroup';
 
 const getSchema = (groups: CombinedGroup[]): Yup.SchemaOf<Group> =>
   Yup.object({
@@ -51,7 +51,7 @@ export const GroupManagementScreen = withProposeProvider(
     const initialGroup = useGroup(groupId);
 
     const { groups } = useSafe();
-    const upsertGroup = useUpsertGroup();
+    const upsertGroup = useUpsertSafeGroup();
 
     const handleSubmit = async (
       values: Group,

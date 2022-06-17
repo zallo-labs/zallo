@@ -10,9 +10,8 @@ import {
 import { apiGql } from '@gql/clients';
 import { useApiClient } from '@gql/GqlProvider';
 import { API_GROUP_FIELDS_FRAGMENT, CombinedGroup } from '~/queries';
-import { ethers } from 'ethers';
-import { createOp, Group, hashGroup, isPresent, toSafeGroup } from 'lib';
-import { usePropose } from '@features/tx/propose/ProposeProvider';
+import { hashGroup } from 'lib';
+import { hexlify } from 'ethers/lib/utils';
 
 const API_MUTATION = apiGql`
 ${API_GROUP_FIELDS_FRAGMENT}
@@ -28,23 +27,21 @@ mutation UpsertGroup(
 }
 `;
 
-const useUpsertApiGroup = () => {
+export const useUpsertApiGroup = () => {
   const { safe } = useSafe();
   const isDeployed = useIsDeployed();
   const wallet = useWallet();
 
   const [mutation] = useMutation<UpsertGroup, UpsertGroupVariables>(
     API_MUTATION,
-    {
-      client: useApiClient(),
-    },
+    { client: useApiClient() },
   );
 
   const upsert = (cur: CombinedGroup, prev?: CombinedGroup) => {
     // Ensure cur hash & id are up to date
     cur.hash = hashGroup(cur);
 
-    const groupHash = ethers.utils.hexlify(prev?.hash ?? cur.hash);
+    const groupHash = hexlify(prev?.hash ?? cur.hash);
 
     // Only maintain a list of approvers if the safe is counterfactual
     const approvers: GroupApproverUpdateManyWithoutGroupInput = !isDeployed
@@ -89,7 +86,7 @@ const useUpsertApiGroup = () => {
         },
         create: {
           name: cur.name,
-          hash: ethers.utils.hexlify(cur.hash),
+          hash: hexlify(cur.hash),
           approvers,
           safe: {
             connectOrCreate: {
@@ -100,7 +97,7 @@ const useUpsertApiGroup = () => {
         },
         update: {
           ...(cur.hash !== prev?.hash && {
-            hash: { set: ethers.utils.hexlify(cur.hash) },
+            hash: { set: hexlify(cur.hash) },
           }),
           ...(approvers !== prev?.approvers && {
             approvers: approvers ?? { set: [] },
@@ -109,49 +106,6 @@ const useUpsertApiGroup = () => {
         },
       },
     });
-  };
-
-  return upsert;
-};
-
-const useSafeUpsert = () => {
-  const { safe } = useSafe();
-  const propose = usePropose();
-
-  const upsert = async (cur: Group, prev?: Group) => {
-    if (prev && hashGroup(prev) === hashGroup(cur)) return;
-
-    const addOp = createOp({
-      to: safe.address,
-      data: safe.interface.encodeFunctionData('addGroup', [
-        toSafeGroup(cur).approvers,
-      ]),
-    });
-
-    const rmOp = prev
-      ? createOp({
-          to: safe.address,
-          data: safe.interface.encodeFunctionData('removeGroup', [
-            hashGroup(prev),
-          ]),
-        })
-      : undefined;
-
-    propose(...[addOp, rmOp].filter(isPresent));
-  };
-
-  return upsert;
-};
-
-export const useUpsertGroup = () => {
-  const upsertApiGroup = useUpsertApiGroup();
-  const upsertSafeGroup = useSafeUpsert();
-
-  const upsert = async (cur: CombinedGroup, prev?: CombinedGroup) => {
-    await upsertSafeGroup(cur, prev);
-    // await upsertApiGroup(cur, prev);
-
-    // TODO: update cache
   };
 
   return upsert;
