@@ -9,10 +9,10 @@ import './Types.sol';
 import './EIP712.sol';
 
 /* Errors */
-error OnlyCallableBySafe();
+error NotSafe();
 
-error ApproverWeightExceedsMax();
-error TotalWeightInsufficient();
+error ApproverExceedsThreshold();
+error BelowThreshold();
 
 error SignaturesNotAscending();
 error ApproversNotAscending();
@@ -113,7 +113,7 @@ contract Safe is EIP712 {
     Group storage group = groups[_groupHash];
     address[] memory approvers = new address[](_signers.length);
 
-    int256 req = _100_PERCENT_WEIGHT;
+    int256 req = THRESHOLD;
     for (uint256 i = 0; req > 0 && i < _signers.length; i++) {
       Signer calldata signer = _signers[i];
 
@@ -132,7 +132,7 @@ contract Safe is EIP712 {
       }
     }
 
-    if (req > 0) revert TotalWeightInsufficient();
+    if (req > 0) revert BelowThreshold();
   }
 
   function _call(Op calldata _op) internal returns (bytes memory) {
@@ -154,12 +154,12 @@ contract Safe is EIP712 {
     Group storage group = groups[groupHash];
 
     // The group has to be able to sum to >= 100%
-    int256 req = _100_PERCENT_WEIGHT;
+    int256 req = THRESHOLD;
     for (uint256 i = 0; i < _approvers.length; i++) {
       Approver memory approver = _approvers[i];
       int256 weight = int256(uint256(approver.weight));
 
-      if (weight > _100_PERCENT_WEIGHT) revert ApproverWeightExceedsMax();
+      if (weight > THRESHOLD) revert ApproverExceedsThreshold();
 
       group.approvers[approver.addr] = weight;
 
@@ -169,7 +169,7 @@ contract Safe is EIP712 {
       }
     }
 
-    if (req > 0) revert TotalWeightInsufficient();
+    if (req > 0) revert BelowThreshold();
 
     emit GroupAdded(_approvers);
 
@@ -185,11 +185,11 @@ contract Safe is EIP712 {
   }
 
   function _isPrimaryApprover(bytes32 _groupHash) internal view returns (bool) {
-    return groups[_groupHash].approvers[msg.sender] == _100_PERCENT_WEIGHT;
+    return groups[_groupHash].approvers[msg.sender] == THRESHOLD;
   }
 
   modifier onlySafe() {
-    if (msg.sender != address(this)) revert OnlyCallableBySafe();
+    if (msg.sender != address(this)) revert NotSafe();
     _;
   }
 
