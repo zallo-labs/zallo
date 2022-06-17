@@ -11,7 +11,7 @@ import { ADDR_YUP_SCHEMA } from '@util/yup';
 import { Actions } from '@components/Actions';
 import { Container } from '@components/list/Container';
 import { Box } from '@components/Box';
-import { useDeleteContact } from '~/mutations/useDeleteContact';
+import { useDeleteContact } from '~/mutations/contact/useDeleteContact';
 
 interface Values {
   addr: string;

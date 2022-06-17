@@ -1,2 +1,2 @@
 export * from './useCreateCfSafe';
-export * from './useUpsertContact';
+export * from './contact/useUpsertContact';
