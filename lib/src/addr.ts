@@ -1,4 +1,4 @@
-import { BytesLike, ethers } from 'ethers';
+import { ethers } from 'ethers';
 import 'zksync-web3';
 
 export type Address = string & { readonly isAddress: true };

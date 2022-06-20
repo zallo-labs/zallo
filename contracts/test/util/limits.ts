@@ -1,6 +1,0 @@
-export enum GasLimit {
-  EXECUTE = 100_000,
-  MULTI_EXECUTE = 200_000,
-  ADD_GROUP = 100_000,
-  REMOVE_GROUP = 50_000,
-}

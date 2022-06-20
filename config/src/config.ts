@@ -14,9 +14,8 @@ const apiUrl = E.API_URL ?? `http://[::1]:${apiPort}`;
 const defaultChain: ChainName = 'testnet';
 const chain = getChain(E.CHAIN?.toLowerCase() ?? defaultChain);
 
-const factoryAddresses: Record<ChainName, string> = {
-  metanet: '0xe441CF0795aF14DdB9f7984Da85CD36DB1B8790d',
-  testnet: '0x94104Bf15A1b3e7f5054fB91BE72a115218BF45D',
+const factoryAddresses: Partial<Record<ChainName, string>> = {
+  testnet: '0x800f1a95d02e4E19931E4E93f92937f7ec813517',
 };
 
 export const CONFIG = {

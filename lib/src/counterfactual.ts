@@ -1,13 +1,13 @@
 import { BytesLike, ethers } from 'ethers';
 import { Factory } from './contracts';
-import { SafeConstructorArgs } from './deploy';
+import { SafeConstructorDeployArgs } from './deploy';
 import { address } from './addr';
 
 export const getRandomSalt = () => ethers.utils.randomBytes(32);
 
 // CREATE address calculation
 export const calculateSafeAddress = async (
-  args: SafeConstructorArgs,
+  args: SafeConstructorDeployArgs,
   factory: Factory,
   _salt?: BytesLike,
 ) => {

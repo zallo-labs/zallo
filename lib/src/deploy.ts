@@ -3,9 +3,21 @@ import { address, Addresslike } from './addr';
 
 import { calculateSafeAddress } from './counterfactual';
 import { Safe, Factory, Factory__factory, Safe__factory } from './contracts';
-import { ApproverStruct } from './contracts/Safe';
+import { Groupish, toSafeGroup } from './group';
+import { SafeApprover } from './approver';
 
-export type SafeConstructorArgs = [BytesLike, ApproverStruct[]];
+export interface SafeConstructorArgs {
+  group: Groupish;
+}
+
+export type SafeConstructorDeployArgs = [BytesLike, SafeApprover[]];
+
+export const toSafeConstructorDeployArgs = (
+  args: SafeConstructorArgs,
+): SafeConstructorDeployArgs => {
+  const g = toSafeGroup(args.group);
+  return [g.id, g.approvers];
+};
 
 export const getFactory = (addr: Addresslike, signer: Signer) =>
   new Factory__factory().attach(address(addr)).connect(signer);
@@ -21,12 +33,13 @@ interface DeploySafeParams {
 }
 
 export const deploySafe = async ({
-  args,
+  args: args,
   factory,
   signer,
   salt: _salt,
 }: DeploySafeParams) => {
-  const { addr, salt } = await calculateSafeAddress(args, factory, _salt);
+  const deployArgs = toSafeConstructorDeployArgs(args);
+  const { addr, salt } = await calculateSafeAddress(deployArgs, factory, _salt);
 
   // zkSync FIXME: create2 support
   // const bytecode = new Safe__factory().getDeployTransaction(...args).data!;
@@ -34,7 +47,7 @@ export const deploySafe = async ({
   //   gasLimit: 10_000_000,
   // });
 
-  const deployTx = await factory.create(...args, {
+  const deployTx = await factory.create(...deployArgs, {
     gasLimit: 1_000_000,
   });
   const deployReceipt = await deployTx.wait();
