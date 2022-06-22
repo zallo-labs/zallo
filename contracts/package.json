@@ -8,7 +8,7 @@
     "analyze": "myth analyze src/*",
     "test": "CHAIN=local hardhat test",
     "test:debug": "yarn test --logs --trace",
-    "node:localhost": "hardhat node --hostname 0.0.0.0",
+    "local-node": "zksync-node/start.sh", 
     "deploy-factory:testnet": "CHAIN=testnet ts-node scripts/deployFactory.ts",
     "deploy-safe:testnet": "CHAIN=testnet ts-node scripts/deploySafe.ts",
     "clean": "hardhat clean && npx rimraf artifacts cache"

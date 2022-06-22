@@ -47,7 +47,7 @@ jobs:
         run: yarn contracts build
 
       - name: Run local zksync node
-        run: zksync-node/start.sh
+        run: yarn contracts local-node
 
       - name: 🧪 Test
         run: yarn contracts test

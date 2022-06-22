@@ -2,7 +2,7 @@ import { Submission } from '@gen/submission/submission.model';
 import { Injectable } from '@nestjs/common';
 import { filterAsync } from 'lib';
 import { PrismaService } from 'nestjs-prisma';
-import { TransactionResponse } from 'zksync-web3/build/types';
+import { TransactionResponse } from 'zksync-web3/build/src/types';
 import { ProviderService } from '~/provider/provider.service';
 
 @Injectable()
@@ -34,6 +34,6 @@ export class SubmissionsService {
   }
 
   isFinalised(transaction: TransactionResponse) {
-    return transaction.confirmations >= 7;
+    return transaction.confirmations >= 1;
   }
 }

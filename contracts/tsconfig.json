@@ -14,7 +14,7 @@
     "./tasks",
     "./test",
     "./typechain",
-    "./local-wallets.json"
+    "./zksync-node/rich-wallets.json"
   ],
   "files": ["./hardhat.config.ts"],
   "references": [{ "path": "../config" }, { "path": "../lib" }]
