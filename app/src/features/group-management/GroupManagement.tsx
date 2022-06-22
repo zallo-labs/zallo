@@ -61,7 +61,7 @@ export const GroupManagement = ({
         <Box mx={3} mt={4}>
           <Header
             Middle={<GroupNameField group={initialGroup} />}
-            Right={<Identicon seed={initialGroup.hash} />}
+            Right={<Identicon seed={initialGroup.ref} />}
           />
 
           <Box horizontal center>

@@ -4,7 +4,7 @@ import { PrismaModule } from 'nestjs-prisma';
 
 import { loggingMiddleware } from './prisma/prisma.logging';
 import { HealthModule } from './health/health.module';
-import { ApproversModule } from './features/approvers/approvers.module';
+import { UsersModule } from './features/users/users.module';
 import { SafesModule } from './features/safes/safes.module';
 import { AuthModule } from './auth/auth.module';
 import { AuthGuard } from './auth/auth.guard';
@@ -13,7 +13,7 @@ import { AuthMiddleware } from './auth/auth.middleware';
 import { ProviderModule } from './provider/provider.module';
 import { GroupsModule } from './features/groups/groups.module';
 import { ContactsModule } from './features/contacts/contacts.module';
-import { GroupApproverModule } from './features/group-approver/group-approver.module';
+import { ApproversModule } from './features/approvers/approvers.module';
 import { ContractMethodsModule } from './features/contract-methods/contract-methods.module';
 import { TxsModule } from './features/txs/txs.module';
 import { SubmissionsModule } from './features/submissions/submissions.module';
@@ -37,12 +37,12 @@ import { ReactionsModule } from './features/reactions/reactions.module';
     CommentsModule,
     ContactsModule,
     ContractMethodsModule,
-    GroupApproverModule,
     GroupsModule,
     ReactionsModule,
     SafesModule,
     SubmissionsModule,
     TxsModule,
+    UsersModule,
   ],
   providers: [
     {

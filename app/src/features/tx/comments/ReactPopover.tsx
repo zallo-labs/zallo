@@ -12,7 +12,7 @@ import { Comment } from '~/queries/useComments';
 export const EMOJIS = ['👍', '😄', '❤️', '🚀'];
 
 export const getOwnReactions = (c: Comment, wallet: Address) =>
-  c.reactions.find((r) => r.approver === wallet)?.emojis ?? [];
+  c.reactions.find((r) => r.user === wallet)?.emojis ?? [];
 
 export interface ReactPopoverProps extends PopoverProps {
   comment: Comment;

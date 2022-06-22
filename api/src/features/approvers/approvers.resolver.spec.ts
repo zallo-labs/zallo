@@ -1,4 +1,3 @@
-import { createMock } from '@golevelup/ts-jest';
 import { Test, TestingModule } from '@nestjs/testing';
 import { ApproversResolver } from './approvers.resolver';
 
@@ -8,9 +7,7 @@ describe('ApproversResolver', () => {
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [ApproversResolver],
-    })
-      .useMocker(createMock)
-      .compile();
+    }).compile();
 
     resolver = module.get<ApproversResolver>(ApproversResolver);
   });

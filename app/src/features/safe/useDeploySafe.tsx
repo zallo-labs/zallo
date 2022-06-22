@@ -23,7 +23,7 @@ export const useDeploySafe = () => {
 
     const r = await deploySafe({
       factory: getFactory(CONFIG.factoryAddress, wallet),
-      args: [group.approvers],
+      args: { group },
       signer: wallet,
       salt: deploySalt,
     });

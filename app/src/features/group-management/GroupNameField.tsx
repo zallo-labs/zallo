@@ -16,7 +16,7 @@ export const GroupNameField = ({ group }: GroupNameFieldProps) => {
 
   useEffect(() => {
     if (debouncedName !== group.name)
-      upsertGroup({ ...group, name: debouncedName }, group);
+      upsertGroup({ ...group, name: debouncedName });
   }, [debouncedName, group, upsertGroup]);
 
   return (

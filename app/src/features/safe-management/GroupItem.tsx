@@ -1,10 +1,10 @@
 import { Subheading } from 'react-native-paper';
 import { useNavigation } from '@react-navigation/native';
-import { GroupName } from '@components/GroupName';
 import { Identicon } from '@components/Identicon';
 import { Item, ItemProps } from '@components/list/Item';
 import { HomeScreenProps } from '@features/home/HomeScreen';
 import { CombinedGroup } from '~/queries';
+import { GroupName } from '@components/FormattedGroupName';
 
 export interface GroupItemProps extends ItemProps {
   group: CombinedGroup;
@@ -15,7 +15,7 @@ export const GroupItem = ({ group, ...liProps }: GroupItemProps) => {
 
   return (
     <Item
-      Left={<Identicon seed={group.hash} />}
+      Left={<Identicon seed={group.ref} />}
       Main={
         <Subheading>
           <GroupName group={group} />

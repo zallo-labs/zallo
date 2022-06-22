@@ -28,7 +28,7 @@ describe('Merkle proof', () => {
 
     const tree = getMerkleTree(group);
 
-    expect(await safe.getMerkleRoot(group.id)).to.eq(tree.getHexRoot());
+    expect(await safe.getMerkleRoot(group.ref)).to.eq(tree.getHexRoot());
   });
 
   it('should verify valid multi-proof', async () => {

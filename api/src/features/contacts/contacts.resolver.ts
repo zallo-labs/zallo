@@ -53,7 +53,7 @@ export class ContactsResolver {
 
   @ResolveField(() => String)
   id(@Parent() contact: Contact, @UserAddr() user: Address): Id {
-    return toId(`${contact.approverId || user}-${contact.addr}`);
+    return toId(`${contact.userId || user}-${contact.addr}`);
   }
 
   @Mutation(() => Contact, { nullable: true })
@@ -95,8 +95,8 @@ export class ContactsResolver {
   ): Promise<DeleteContactResp> {
     await this.prisma.contact.delete({
       where: {
-        approverId_addr: {
-          approverId: user,
+        userId_addr: {
+          userId: user,
           addr,
         },
       },

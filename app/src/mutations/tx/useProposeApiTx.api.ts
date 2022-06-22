@@ -83,7 +83,7 @@ export const useProposeApiTx = () => {
             approvals: [
               {
                 __typename: 'Approval',
-                approverId: wallet.address,
+                userId: wallet.address,
                 signature,
                 createdAt,
               },

@@ -16,7 +16,7 @@ import { Address, hashTx, Id, toId } from 'lib';
 import { PrismaService } from 'nestjs-prisma';
 import { UserAddr } from '~/decorators/user.decorator';
 import {
-  connectOrCreateApprover,
+  connectOrCreateUser,
   connectOrCreateSafe,
 } from '~/util/connect-or-create';
 import { getSelect } from '~/util/test';
@@ -99,7 +99,7 @@ export class TxsResolver {
         },
         approvals: {
           create: {
-            approver: connectOrCreateApprover(user),
+            approver: connectOrCreateUser(user),
             safe: connectOrCreateSafe(safe),
             signature,
           },
@@ -108,7 +108,7 @@ export class TxsResolver {
       update: {
         approvals: {
           create: {
-            approver: connectOrCreateApprover(user),
+            approver: connectOrCreateUser(user),
             safe: connectOrCreateSafe(safe),
             signature,
           },
@@ -132,7 +132,7 @@ export class TxsResolver {
         approvals: {
           create: {
             safe: connectOrCreateSafe(safe),
-            approver: connectOrCreateApprover(user),
+            approver: connectOrCreateUser(user),
             signature: ethers.utils.hexlify(signature),
           },
         },
@@ -151,10 +151,10 @@ export class TxsResolver {
       data: {
         approvals: {
           delete: {
-            safeId_txHash_approverId: {
+            safeId_txHash_userId: {
               safeId: safe,
               txHash,
-              approverId: user,
+              userId: user,
             },
           },
         },

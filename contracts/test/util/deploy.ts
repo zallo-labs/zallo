@@ -17,7 +17,7 @@ import { allSigners, wallet } from './wallet';
 import { BytesLike, ContractTransaction } from 'ethers';
 
 export const toSafeGroupTest = (...approvers: [string, number][]): Group => ({
-  id: randomGroupId(),
+  ref: randomGroupId(),
   approvers: approvers.map(([addr, weight]) => ({
     addr: address(addr),
     weight,

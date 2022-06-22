@@ -1,5 +1,5 @@
 import { ByteArray, Bytes, crypto, ethereum } from '@graphprotocol/graph-ts';
-import { ExecutionTxStruct, Safe } from '../generated/Safe/Safe';
+// import { ExecutionTxStruct, Safe } from '../generated/Safe/Safe';
 
 const CHAIN_ID = 0; // zkSync FIXME: chain id is always 0
 
@@ -48,29 +48,29 @@ function typedDataHash(
   return Bytes.fromByteArray(hash);
 }
 
-export function hashTx(safe: Safe, tx: ExecutionTxStruct): Bytes {
-  const type = ethereum.Value.fromFixedBytes(Bytes.fromByteArray(TX_TYPEHASH));
-  const to = ethereum.Value.fromAddress(tx.to);
-  const value = ethereum.Value.fromUnsignedBigInt(tx.value);
-  const dataHash = crypto.keccak256(
-    ethereum.encode(ethereum.Value.fromBytes(tx.data))!,
-  );
-  const dataHashValue = ethereum.Value.fromFixedBytes(
-    Bytes.fromByteArray(dataHash),
-  );
-  const nonce = ethereum.Value.fromUnsignedBigInt(tx.nonce);
+// export function hashTx(safe: Safe, tx: ExecutionTxStruct): Bytes {
+//   const type = ethereum.Value.fromFixedBytes(Bytes.fromByteArray(TX_TYPEHASH));
+//   const to = ethereum.Value.fromAddress(tx.to);
+//   const value = ethereum.Value.fromUnsignedBigInt(tx.value);
+//   const dataHash = crypto.keccak256(
+//     ethereum.encode(ethereum.Value.fromBytes(tx.data))!,
+//   );
+//   const dataHashValue = ethereum.Value.fromFixedBytes(
+//     Bytes.fromByteArray(dataHash),
+//   );
+//   const nonce = ethereum.Value.fromUnsignedBigInt(tx.nonce);
 
-  const tuple = changetype<ethereum.Tuple>([
-    type,
-    to,
-    value,
-    dataHashValue,
-    nonce,
-  ]);
+//   const tuple = changetype<ethereum.Tuple>([
+//     type,
+//     to,
+//     value,
+//     dataHashValue,
+//     nonce,
+//   ]);
 
-  const structHash = crypto.keccak256(
-    ethereum.encode(ethereum.Value.fromTuple(tuple))!,
-  );
+//   const structHash = crypto.keccak256(
+//     ethereum.encode(ethereum.Value.fromTuple(tuple))!,
+//   );
 
-  return typedDataHash(safe, Bytes.fromByteArray(structHash));
-}
+//   return typedDataHash(safe, Bytes.fromByteArray(structHash));
+// }

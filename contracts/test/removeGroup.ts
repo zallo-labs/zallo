@@ -19,7 +19,7 @@ describe('RemoveGroup', () => {
     const tx = await execute(safe as any, group, group.approvers, rmGroupOp);
 
     await tx.wait();
-    expect(await safe.getMerkleRoot(group.id)).to.eq(
+    expect(await safe.getMerkleRoot(group.ref)).to.eq(
       ethers.utils.formatBytes32String(''),
     );
   });

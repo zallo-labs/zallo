@@ -1,4 +1,5 @@
-import { BytesLike } from 'ethers';
+import { BytesLike, Overrides } from 'ethers';
+import { merge } from 'lodash';
 import {
   Approverish,
   hashApprover,
@@ -13,6 +14,10 @@ import { SignatureLike, toCompactSignature } from './signature';
 
 export const EXECUTE_GAS_LIMIT = 50_000;
 export const MULTI_EXECUTE_GAS_LIMIT = 100_000;
+
+const defaultOverrides: Overrides = {
+  gasLimit: 50000,
+};
 
 export type Signerish = Approverish & {
   signature: SignatureLike;
@@ -36,15 +41,23 @@ export const executeTx = async (
   ops: Op | Op[],
   group: Group,
   signers: Signerish[],
+  overrides?: Overrides,
 ) => {
   if (ops instanceof Array && ops.length === 1) ops = ops[0];
 
   const { approvers, signatures } = split(signers);
   const { proof, proofFlags } = getMultiProof(group, approvers);
 
-  const args = [group.id, approvers, signatures, proof, proofFlags] as const;
+  const args = [
+    group.ref,
+    approvers,
+    signatures,
+    proof,
+    proofFlags,
+    merge(defaultOverrides, overrides),
+  ] as const;
 
   return ops instanceof Array
-    ? safe.multiExecute(ops, ...args, { gasLimit: MULTI_EXECUTE_GAS_LIMIT })
-    : safe.execute(ops, ...args, { gasLimit: EXECUTE_GAS_LIMIT });
+    ? safe.multiExecute(ops, ...args)
+    : safe.execute(ops, ...args);
 };

@@ -2,6 +2,8 @@ import { BigNumber, BytesLike, ethers } from 'ethers';
 import { Address } from './addr';
 import { percentToFixedWeight } from './weight';
 import keccak256 from 'keccak256';
+import { getGroupId } from './group';
+import { toId } from './id';
 
 export interface SafeApprover {
   addr: Address;
@@ -43,8 +45,5 @@ export const hashApprover = (approver: Approverish) =>
 export const approversToLeaves = (approvers: Approverish[]) =>
   approvers.map(hashApprover).sort(Buffer.compare);
 
-export const getGroupApproverId = (
-  safeId: string,
-  groupHash: BytesLike,
-  approver: Approver,
-) => `${safeId}-${ethers.utils.hexlify(groupHash)}-${approver.addr}`;
+export const getApproverId = (safe: string, groupRef: BytesLike, user: string) =>
+  toId(`${getGroupId(safe, groupRef)}-${user}`);

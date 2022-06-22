@@ -16,11 +16,11 @@ contract Safe is ISafe, EIP712 {
   mapping(bytes32 => bool) txExecuted;
 
   /// @notice Merkle root of the state of each group
-  /// @dev groupId => merkleRoot
+  /// @dev groupRef => merkleRoot
   mapping(bytes32 => bytes32) merkleRoots;
 
-  constructor(bytes32 _groupId, Approver[] memory _approvers) {
-    _upsertGroup(_groupId, _approvers);
+  constructor(bytes32 _groupRef, Approver[] memory _approvers) {
+    _upsertGroup(_groupRef, _approvers);
   }
 
   receive() external payable {
@@ -30,14 +30,14 @@ contract Safe is ISafe, EIP712 {
   // @inheritdoc ISafe
   function execute(
     Op calldata _op,
-    bytes32 _groupId,
+    bytes32 _groupRef,
     Approver[] calldata _approvers,
     bytes[] calldata _signatures,
     bytes32[] calldata _proof,
     uint256[] calldata _proofFlags
   ) external returns (bytes memory response) {
     bytes32 txHash = _hashTx(_op);
-    _verifyTx(txHash, _groupId, _approvers, _signatures, _proof, _proofFlags);
+    _verifyTx(txHash, _groupRef, _approvers, _signatures, _proof, _proofFlags);
 
     response = _call(txHash, _op);
     emit Transaction(txHash, response);
@@ -46,14 +46,14 @@ contract Safe is ISafe, EIP712 {
   // @inheritdoc ISafe
   function multiExecute(
     Op[] calldata _ops,
-    bytes32 _groupId,
+    bytes32 _groupRef,
     Approver[] calldata _approvers,
     bytes[] calldata _signatures,
     bytes32[] calldata _proof,
     uint256[] calldata _proofFlags
   ) external returns (bytes[] memory responses) {
     bytes32 txHash = _hashTx(_ops);
-    _verifyTx(txHash, _groupId, _approvers, _signatures, _proof, _proofFlags);
+    _verifyTx(txHash, _groupRef, _approvers, _signatures, _proof, _proofFlags);
 
     responses = new bytes[](_ops.length);
     for (uint256 i = 0; i < _ops.length; i++) {
@@ -64,17 +64,17 @@ contract Safe is ISafe, EIP712 {
   }
 
   // @inheritdoc ISafe
-  function upsertGroup(bytes32 _groupId, Approver[] calldata _approvers)
+  function upsertGroup(bytes32 _groupRef, Approver[] calldata _approvers)
     external
     onlySafe
   {
-    _upsertGroup(_groupId, _approvers);
+    _upsertGroup(_groupRef, _approvers);
   }
 
   // @inheritdoc ISafe
-  function removeGroup(bytes32 _groupId) external onlySafe {
-    delete merkleRoots[_groupId];
-    emit GroupRemoved(_groupId);
+  function removeGroup(bytes32 _groupRef) external onlySafe {
+    delete merkleRoots[_groupRef];
+    emit GroupRemoved(_groupRef);
   }
 
   function _call(bytes32 _txHash, Op calldata _op) internal returns (bytes memory) {
@@ -100,7 +100,7 @@ contract Safe is ISafe, EIP712 {
 
   function _verifyTx(
     bytes32 _txHash,
-    bytes32 _groupId,
+    bytes32 _groupRef,
     Approver[] calldata _approvers,
     bytes[] calldata _signatures,
     bytes32[] calldata _proof,
@@ -109,7 +109,7 @@ contract Safe is ISafe, EIP712 {
     _preventReentrancy(_txHash);
     _validateApproverSignatures(_txHash, _approvers, _signatures);
     _satisfiesThreshold(_approvers);
-    _verifyMultiProof(_proof, _proofFlags, merkleRoots[_groupId], _approvers);
+    _verifyMultiProof(_proof, _proofFlags, merkleRoots[_groupRef], _approvers);
   }
 
   function _preventReentrancy(bytes32 _txHash) internal {
@@ -171,15 +171,15 @@ contract Safe is ISafe, EIP712 {
     }
   }
 
-  function _upsertGroup(bytes32 _groupId, Approver[] memory _approvers)
+  function _upsertGroup(bytes32 _groupRef, Approver[] memory _approvers)
     internal
   {
     _satisfiesThreshold(_approvers);
 
     bytes32[] memory leaves = _getLeaves(_approvers);
-    merkleRoots[_groupId] = leaves.merkleRoot();
+    merkleRoots[_groupRef] = leaves.merkleRoot();
 
-    emit GroupUpserted(_groupId, _approvers);
+    emit GroupUpserted(_groupRef, _approvers);
   }
 
   modifier onlySafe() {

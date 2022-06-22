@@ -1,54 +1,65 @@
 import { Bytes } from '@graphprotocol/graph-ts';
 import {
-  Deposit as DepositEvent,
-  GroupAdded,
+  GroupUpserted,
   GroupRemoved,
-  MultiTransaction,
   Transaction,
+  MultiTransaction,
+  TransactionReverted,
+  Received,
 } from '../generated/Safe/Safe';
-import { Group, GroupApprover, Transfer, Tx } from '../generated/schema';
 import {
-  getGroupApproverId,
+  Approver,
+  ApproverSet,
+  Group,
+  Transfer,
+  Tx,
+} from '../generated/schema';
+import {
+  getApproverId,
+  getApproverSetId,
   getGroupId,
-  getSafeObjId,
+  getSafeId,
   getTransferId,
   getTxId,
 } from './id';
 import {
-  getOrCreateApprover,
-  getOrCreateSafeObj,
-  getSafe,
-  hashGroup,
+  getOrCreateUser,
+  getOrCreateGroup,
+  getOrCreateSafe,
+  getSafeContract,
 } from './util';
 
-export function handleGroupAdded(e: GroupAdded): void {
-  const safe = getSafe(e);
-  const hash = hashGroup(e.params.approvers);
-  const id = getGroupId(safe._address, hash);
+export function handleGroupUpserted(e: GroupUpserted): void {
+  const safe = getOrCreateSafe(e.address);
 
-  const group = new Group(id);
-  group.safe = getOrCreateSafeObj(safe._address).id;
-  group.hash = hash;
+  const group = getOrCreateGroup(getGroupId(safe.id, e.params.groupRef));
+  group.safe = safe.id;
+  group.ref = e.params.groupRef;
   group.active = true;
-
   group.save();
 
-  // Create GroupApprovers & maybe Approver
+  // Add an approvers set
+  const set = new ApproverSet(getApproverSetId(group.id, e.block.hash));
+  set.group = group.id;
+  set.blockHash = e.block.hash;
+  set.timestamp = e.block.timestamp;
+  set.save();
+
   for (let i = 0; i < e.params.approvers.length; i++) {
-    const approverStruct = e.params.approvers[i];
-    const approverId = getOrCreateApprover(approverStruct.addr).id;
+    const a = e.params.approvers[i];
+    const user = getOrCreateUser(a.addr);
 
-    const groupApprover = new GroupApprover(getGroupApproverId(id, approverId));
-    groupApprover.group = id;
-    groupApprover.approver = approverId;
-    groupApprover.weight = approverStruct.weight;
-
-    groupApprover.save();
+    const approver = new Approver(getApproverId(set.id, user.id));
+    approver.user = user.id;
+    approver.approverSet = set.id;
+    approver.weight = a.weight;
+    approver.save();
   }
 }
 
 export function handleGroupRemoved(e: GroupRemoved): void {
-  const group = Group.load(getGroupId(e.address, e.params.groupHash));
+  const safe = getOrCreateSafe(e.address);
+  const group = Group.load(getGroupId(safe.id, e.params.groupRef));
   if (group) {
     group.active = false;
     group.save();
@@ -60,10 +71,10 @@ const ETH_TOKEN: Bytes = Bytes.fromHexString(
   '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE',
 );
 
-export function handleDeposit(e: DepositEvent): void {
+export function handleReceive(e: Received): void {
   const transfer = new Transfer(getTransferId(e));
 
-  transfer.safe = getSafeObjId(e.address);
+  transfer.safe = getSafeId(e.address);
   transfer.token = ETH_TOKEN;
   transfer.type = 'IN';
   transfer.from = e.params.from;
@@ -78,10 +89,11 @@ export function handleDeposit(e: DepositEvent): void {
 export function handleTransaction(e: Transaction): void {
   const tx = new Tx(getTxId(e.transaction));
 
-  tx.safe = getSafeObjId(getSafe(e)._address);
-  tx.type = 'SINGLE';
+  tx.safe = getSafeId(getSafeContract(e)._address);
   tx.hash = e.params.txHash;
+  tx.reverted = false;
   tx.responses = [e.params.response];
+  tx.nResponses = tx.responses.length;
   tx.executor = e.transaction.from;
   tx.blockHash = e.block.hash;
   tx.timestamp = e.block.timestamp;
@@ -92,10 +104,26 @@ export function handleTransaction(e: Transaction): void {
 export function handleMultiTransaction(e: MultiTransaction): void {
   const tx = new Tx(getTxId(e.transaction));
 
-  tx.safe = getSafeObjId(getSafe(e)._address);
-  tx.type = 'MULTI';
+  tx.safe = getSafeId(getSafeContract(e)._address);
   tx.hash = e.params.txHash;
+  tx.reverted = false;
   tx.responses = e.params.responses;
+  tx.nResponses = tx.responses.length;
+  tx.executor = e.transaction.from;
+  tx.blockHash = e.block.hash;
+  tx.timestamp = e.block.timestamp;
+
+  tx.save();
+}
+
+export function handleTransactionReverted(e: TransactionReverted): void {
+  const tx = new Tx(getTxId(e.transaction));
+
+  tx.safe = getSafeId(getSafeContract(e)._address);
+  tx.hash = e.params.txHash;
+  tx.reverted = true;
+  tx.responses = [e.params.response];
+  tx.nResponses = tx.responses.length;
   tx.executor = e.transaction.from;
   tx.blockHash = e.block.hash;
   tx.timestamp = e.block.timestamp;

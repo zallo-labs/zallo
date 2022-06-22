@@ -1,5 +1,6 @@
 import { BytesLike, ethers } from 'ethers';
 import { hexlify, randomBytes } from 'ethers/lib/utils';
+import { isEqual } from 'lodash';
 import {
   Approver,
   SafeApprover,
@@ -7,22 +8,23 @@ import {
   toSafeApprovers,
 } from './approver';
 import { Safe } from './contracts';
+import { Id, toId } from './id';
 import { createOp, Op } from './op';
 
 export interface SafeGroup {
-  id: BytesLike;
+  ref: BytesLike;
   approvers: SafeApprover[];
 }
 
 export interface Group {
-  id: BytesLike;
+  ref: BytesLike;
   approvers: Approver[];
 }
 
 export type Groupish = Group | SafeGroup;
 
 export const toSafeGroup = (group: Groupish): SafeGroup => ({
-  id: group.id,
+  ref: group.ref,
   approvers: toSafeApprovers(group.approvers),
 });
 
@@ -35,13 +37,16 @@ export const abiEncodeGroup = (group: Groupish) => {
   );
 };
 
-export const randomGroupId = () => hexlify(randomBytes(32));
+export const randomGroupRef = () => hexlify(randomBytes(32));
+
+export const getGroupId = (safe: string, groupRef: BytesLike): Id =>
+  toId(`${safe}-${hexlify(groupRef)}`);
 
 export const createUpsertGroupOp = (safe: Safe, group: Groupish): Op =>
   createOp({
     to: safe.address,
     data: safe.interface.encodeFunctionData('upsertGroup', [
-      group.id,
+      group.ref,
       toSafeApprovers(group.approvers),
     ]),
   });
@@ -49,5 +54,15 @@ export const createUpsertGroupOp = (safe: Safe, group: Groupish): Op =>
 export const createRemoveGroupOp = (safe: Safe, group: Groupish): Op =>
   createOp({
     to: safe.address,
-    data: safe.interface.encodeFunctionData('removeGroup', [group.id]),
+    data: safe.interface.encodeFunctionData('removeGroup', [group.ref]),
   });
+
+export const groupEquiv = (
+  aGroupish: Groupish,
+  bGroupish: Groupish,
+): boolean => {
+  const a = toSafeGroup(aGroupish);
+  const b = toSafeGroup(bGroupish);
+
+  return isEqual(a.approvers, b.approvers);
+};

@@ -16,7 +16,7 @@ export const toSafeConstructorDeployArgs = (
   args: SafeConstructorArgs,
 ): SafeConstructorDeployArgs => {
   const g = toSafeGroup(args.group);
-  return [g.id, g.approvers];
+  return [g.ref, g.approvers];
 };
 
 export const getFactory = (addr: Addresslike, signer: Signer) =>

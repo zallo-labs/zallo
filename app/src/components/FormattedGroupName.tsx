@@ -1,18 +1,16 @@
 import { useMemo } from 'react';
-import { ethers } from 'ethers';
 import { CombinedGroup } from '~/queries';
 import { elipseTruncate } from '@util/format';
+import { hexlify } from 'ethers/lib/utils';
 
-export interface FormattedGroupNameProps {
+export interface GroupNameProps {
   group: CombinedGroup;
 }
 
-export const FormattedGroupName = ({
-  group: { id, name, hash },
-}: FormattedGroupNameProps) => {
+export const GroupName = ({ group: { name, ref } }: GroupNameProps) => {
   const formatted = useMemo(
-    () => name || elipseTruncate(ethers.utils.hexlify(hash), 6, 4),
-    [name, hash],
+    () => name || elipseTruncate(hexlify(ref), 6, 4),
+    [name, ref],
   );
 
   return <>{formatted}</>;

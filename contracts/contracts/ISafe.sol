@@ -27,8 +27,8 @@ interface ISafe {
   event Transaction(bytes32 txHash, bytes response);
   event TransactionReverted(bytes32 txHash, bytes response);
   event MultiTransaction(bytes32 txHash, bytes[] responses);
-  event GroupUpserted(bytes32 groupId, Approver[] approvers);
-  event GroupRemoved(bytes32 groupId);
+  event GroupUpserted(bytes32 groupRef, Approver[] approvers);
+  event GroupRemoved(bytes32 groupRef);
 
   /* Errors */
   error ExecutionReverted();
@@ -42,7 +42,7 @@ interface ISafe {
 
   /// @notice Execute an op
   /// @param _op Op to be executed
-  /// @param _groupId ID of the group the approvers belong to
+  /// @param _groupRef Reference of the group the approvers belong to
   /// @param _approvers Approvers approving the op
   /// @param _signatures Signatures of the approvers
   /// @param _proof Merkle proof of the group
@@ -50,7 +50,7 @@ interface ISafe {
   /// @return response The response of the op
   function execute(
     Op calldata _op,
-    bytes32 _groupId,
+    bytes32 _groupRef,
     Approver[] calldata _approvers,
     bytes[] calldata _signatures,
     bytes32[] calldata _proof,
@@ -59,7 +59,7 @@ interface ISafe {
 
   /// @notice Execute multiple ops atomically
   /// @param _ops Ops to be executed
-  /// @param _groupId ID of the group the approvers belong to
+  /// @param _groupRef Reference of the group the approvers belong to
   /// @param _approvers Approvers approving the op
   /// @param _signatures Signatures of the approvers
   /// @param _proof Merkle proof of the group
@@ -67,7 +67,7 @@ interface ISafe {
   /// @return responses The reponses of the ops
   function multiExecute(
     Op[] calldata _ops,
-    bytes32 _groupId,
+    bytes32 _groupRef,
     Approver[] calldata _approvers,
     bytes[] calldata _signatures,
     bytes32[] calldata _proof,
@@ -76,13 +76,13 @@ interface ISafe {
 
   /// @notice Upsert (create or update) a group
   /// @dev Only callable by the safe
-  /// @param _groupId ID of the group to be upserted
+  /// @param _groupRef Reference of the group to be upserted
   /// @param _approvers Approvers to make up the group
-  function upsertGroup(bytes32 _groupId, Approver[] calldata _approvers)
+  function upsertGroup(bytes32 _groupRef, Approver[] calldata _approvers)
     external;
 
   /// @notice Remove a group
   /// @dev Only callable by the safe
-  /// @param _groupId ID of the group to be removed
-  function removeGroup(bytes32 _groupId) external;
+  /// @param _groupRef Reference of the group to be removed
+  function removeGroup(bytes32 _groupRef) external;
 }

@@ -47,14 +47,14 @@ describe('UpsertGroup', () => {
     await tx.wait();
 
     const tree = getMerkleTree(newGroup);
-    expect(await safe.getMerkleRoot(newGroup.id)).to.eq(tree.getHexRoot());
+    expect(await safe.getMerkleRoot(newGroup.ref)).to.eq(tree.getHexRoot());
   });
 
   it('should be reverted when not called by the safe', async () => {
     const { safe, group } = await deploy([100]);
 
     const tx = await safe.upsertGroup(
-      group.id,
+      group.ref,
       toSafeApprovers(group.approvers),
       { gasLimit: EXECUTE_GAS_LIMIT },
     );

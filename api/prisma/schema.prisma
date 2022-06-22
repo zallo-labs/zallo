@@ -35,43 +35,43 @@ model Safe {
 }
 
 model Group {
-  safe      Safe            @relation(fields: [safeId], references: [id], onDelete: Cascade)
-  safeId    String          @db.Char(42) // address
-  hash      String          @db.Char(66) // bytes32
-  approvers GroupApprover[]
+  safe      Safe       @relation(fields: [safeId], references: [id], onDelete: Cascade)
+  safeId    String     @db.Char(42) // address
+  ref       String     @db.Char(66) // bytes32
+  approvers Approver[]
   name      String?
 
-  @@id([safeId, hash])
+  @@id([safeId, ref])
 }
 
-model Approver {
-  id        String          @id @db.Char(42) // address
-  groups    GroupApprover[]
+model User {
+  id        String     @id @db.Char(42) // address
+  groups    Approver[]
   contacts  Contact[]
   approvals Approval[]
   comments  Comment[]
   reactions Reaction[]
 }
 
-model GroupApprover {
-  group      Group    @relation(fields: [safeId, groupHash], references: [safeId, hash], onDelete: Cascade)
-  safeId     String   @db.Char(42) // address
-  groupHash  String   @db.Char(66) // bytes32
-  approver   Approver @relation(fields: [approverId], references: [id], onDelete: Cascade)
-  approverId String   @db.Char(42) // address
-  weight     Decimal  @db.Decimal(79, 0) // uint256
+model Approver {
+  group    Group   @relation(fields: [safeId, groupRef], references: [safeId, ref], onDelete: Cascade)
+  safeId   String  @db.Char(42) // address
+  groupRef String  @db.Char(66) // bytes32
+  user     User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId   String  @db.Char(42) // address
+  weight   Decimal @db.Decimal(79, 0) // uint256
 
-  @@id([safeId, groupHash, approverId])
+  @@id([safeId, groupRef, userId])
 }
 
 model Contact {
-  approver   Approver @relation(fields: [approverId], references: [id])
-  approverId String   @db.Char(42) // address
-  addr       String   @db.Char(42) // address
-  name       String
+  user   User   @relation(fields: [userId], references: [id])
+  userId String @db.Char(42) // address
+  addr   String @db.Char(42) // address
+  name   String
 
-  @@id([approverId, addr])
-  @@unique([approverId, name], name: "name_identifier")
+  @@id([userId, addr])
+  @@unique([userId, name], name: "name_identifier")
 }
 
 model ContractMethod {
@@ -122,16 +122,16 @@ model Op {
 }
 
 model Approval {
-  approver   Approver @relation(fields: [approverId], references: [id])
-  approverId String   @db.Char(42) // address
-  safe       Safe     @relation(fields: [safeId], references: [id], onDelete: Cascade)
-  safeId     String   @db.Char(42) // address
-  tx         Tx       @relation(fields: [safeId, txHash], references: [safeId, hash], onDelete: Cascade)
-  txHash     String   @db.Char(66) // bytes32
-  signature  String // bytes
-  createdAt  DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id])
+  userId    String   @db.Char(42) // address
+  safe      Safe     @relation(fields: [safeId], references: [id], onDelete: Cascade)
+  safeId    String   @db.Char(42) // address
+  tx        Tx       @relation(fields: [safeId, txHash], references: [safeId, hash], onDelete: Cascade)
+  txHash    String   @db.Char(66) // bytes32
+  signature String // bytes
+  createdAt DateTime @default(now())
 
-  @@id([safeId, txHash, approverId])
+  @@id([safeId, txHash, userId])
 }
 
 model Comment {
@@ -140,7 +140,7 @@ model Comment {
   key    String
   nonce  Int    @default(autoincrement())
 
-  author    Approver @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  author    User     @relation(fields: [authorId], references: [id], onDelete: Cascade)
   authorId  String   @db.Char(42) // address
   content   String
   createdAt DateTime @default(now())
@@ -153,17 +153,16 @@ model Comment {
 }
 
 model Reaction {
-  comment    Comment  @relation(fields: [safeId, key, nonce], references: [safeId, key, nonce], onDelete: Cascade)
-  safe       Safe     @relation(fields: [safeId], references: [id], onDelete: Cascade)
-  safeId     String   @db.Char(42) // address
-  key        String
-  nonce      Int
-  approver   Approver @relation(fields: [approverId], references: [id])
-  approverId String   @db.Char(42) // address
-
+  comment   Comment  @relation(fields: [safeId, key, nonce], references: [safeId, key, nonce], onDelete: Cascade)
+  safe      Safe     @relation(fields: [safeId], references: [id], onDelete: Cascade)
+  safeId    String   @db.Char(42) // address
+  key       String
+  nonce     Int
+  user      User     @relation(fields: [userId], references: [id])
+  userId    String   @db.Char(42) // address
   emojis    String[]
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt()
 
-  @@id([safeId, key, nonce, approverId])
+  @@id([safeId, key, nonce, userId])
 }

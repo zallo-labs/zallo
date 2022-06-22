@@ -1,17 +1,17 @@
-import { ArgsType, Field, InputType } from '@nestjs/graphql';
+import { ArgsType, InputType } from '@nestjs/graphql';
 import { Address, Approver as SafeApprover } from 'lib';
-
-@ArgsType()
-export class CreateCfSafeArgs {
-  @Field(() => [ApproverInput])
-  approvers: ApproverInput[];
-}
+import { AddressField } from '~/apollo/scalars/Address.scalar';
+import { GroupInput } from '../groups/groups.args';
 
 @InputType()
 export class ApproverInput implements SafeApprover {
-  @Field()
+  @AddressField()
   addr: Address;
 
-  @Field(() => String)
   weight: number;
+}
+
+@ArgsType()
+export class CreateCfSafeArgs {
+  group: GroupInput;
 }
