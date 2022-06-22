@@ -71,7 +71,7 @@
     "rxjs": "^7.5.5",
     "siwe": "^1.1.6",
     "type-graphql": "^1.1.1",
-    "zksync-web3": "^0.4.0"
+    "zksync-web3": "^0.7.4"
   },
   "devDependencies": {
     "@nestjs/cli": "^8.2.3",

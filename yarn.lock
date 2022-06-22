@@ -4622,7 +4622,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@matterlabs/hardhat-zksync-deploy@npm:^0.1.2, @matterlabs/hardhat-zksync-deploy@npm:^0.1.5":
+"@matterlabs/hardhat-zksync-deploy@npm:^0.1.2":
   version: 0.1.5
   resolution: "@matterlabs/hardhat-zksync-deploy@npm:0.1.5"
   dependencies:
@@ -4635,6 +4635,19 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@matterlabs/hardhat-zksync-deploy@npm:^0.3.2":
+  version: 0.3.2
+  resolution: "@matterlabs/hardhat-zksync-deploy@npm:0.3.2"
+  dependencies:
+    glob: ^8.0.1
+  peerDependencies:
+    ethers: ~5.5.4
+    hardhat: ^2.9.0
+    zksync-web3: ^0.7.0
+  checksum: d87d9f05e03cdd4c8aa5eca4840bf7974144a5cd6754b2b06137c020f31b650944038de50381f5493558fde03f323067fef5ab4e912df0c61104c7908689ee77
+  languageName: node
+  linkType: hard
+
 "@matterlabs/hardhat-zksync-solc@npm:^0.2.1":
   version: 0.2.4
   resolution: "@matterlabs/hardhat-zksync-solc@npm:0.2.4"
@@ -4644,19 +4657,6 @@ __metadata:
   peerDependencies:
     hardhat: ^2.9.0
   checksum: 9256681b52ff943f24b0ec1c98611ef035cb2462514a8e4817a5cbf3da1df4299614498ab80c173968020e0e9fc78036101fc53154a46c0b4537e302082b18ff
-  languageName: node
-  linkType: hard
-
-"@matterlabs/hardhat-zksync-solc@npm:^0.3.2":
-  version: 0.3.2
-  resolution: "@matterlabs/hardhat-zksync-solc@npm:0.3.2"
-  dependencies:
-    "@nomiclabs/hardhat-docker": ^2.0.0
-    dockerode: ^3.3.1
-    semver: ^7.3.7
-  peerDependencies:
-    hardhat: ^2.9.0
-  checksum: cf8cca3844c39246d5fad267c22d0fe65f8235a8aaf1ec790e37147218d60158d67492ab96b7c833f08e63a0eb29a830f4defd06c0b5bbbd993bf49c5176683b
   languageName: node
   linkType: hard
 
@@ -8829,7 +8829,7 @@ __metadata:
     tsconfig-paths: ^3.14.0
     type-graphql: ^1.1.1
     typescript: ^4.6.2
-    zksync-web3: ^0.4.0
+    zksync-web3: ^0.7.4
   languageName: unknown
   linkType: soft
 
@@ -9360,7 +9360,7 @@ __metadata:
     use-async-effect: ^2.2.5
     use-debounce: ^8.0.1
     yup: ^0.32.11
-    zksync-web3: ^0.4.0
+    zksync-web3: ^0.7.4
   languageName: unknown
   linkType: soft
 
@@ -12915,7 +12915,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "contracts@workspace:contracts"
   dependencies:
-    "@matterlabs/hardhat-zksync-deploy": ^0.1.5
+    "@matterlabs/hardhat-zksync-deploy": ^0.3.2
     "@matterlabs/hardhat-zksync-solc": ^0.3.4
     "@matterlabs/signature-checker": ^1.0.0
     "@nomiclabs/hardhat-ethers": ^2.0.6
@@ -12959,7 +12959,7 @@ __metadata:
     ts-node: ^10.8.0
     typechain: ^8.1.0
     typescript: ^4.7.3
-    zksync-web3: ^0.4.0
+    zksync-web3: ^0.7.4
   languageName: unknown
   linkType: soft
 
@@ -18243,6 +18243,19 @@ __metadata:
   languageName: node
   linkType: hard
 
+"glob@npm:^8.0.1":
+  version: 8.0.3
+  resolution: "glob@npm:8.0.3"
+  dependencies:
+    fs.realpath: ^1.0.0
+    inflight: ^1.0.4
+    inherits: 2
+    minimatch: ^5.0.1
+    once: ^1.3.0
+  checksum: 50bcdea19d8e79d8de5f460b1939ffc2b3299eac28deb502093fdca22a78efebc03e66bf54f0abc3d3d07d8134d19a32850288b7440d77e072aa55f9d33b18c5
+  languageName: node
+  linkType: hard
+
 "global-agent@npm:2.2.0":
   version: 2.2.0
   resolution: "global-agent@npm:2.2.0"
@@ -22733,8 +22746,8 @@ __metadata:
   resolution: "lib@workspace:lib"
   dependencies:
     "@ethersproject/bignumber": ^5.6.0
-    "@matterlabs/hardhat-zksync-deploy": ^0.1.5
-    "@matterlabs/hardhat-zksync-solc": ^0.3.2
+    "@matterlabs/hardhat-zksync-deploy": ^0.3.2
+    "@matterlabs/hardhat-zksync-solc": ^0.3.4
     "@typechain/ethers-v5": ^10.0.0
     ethers: ^5.6.8
     keccak256: ^1.0.6
@@ -22742,7 +22755,7 @@ __metadata:
     merkletreejs: ^0.2.32
     typechain: ^8.0.0
     typescript: ^4.7.2
-    zksync-web3: ^0.4.0
+    zksync-web3: ^0.7.4
   languageName: unknown
   linkType: soft
 
@@ -35242,11 +35255,11 @@ __metadata:
   languageName: node
   linkType: hard
 
-"zksync-web3@npm:^0.4.0":
-  version: 0.4.0
-  resolution: "zksync-web3@npm:0.4.0"
+"zksync-web3@npm:^0.7.4":
+  version: 0.7.4
+  resolution: "zksync-web3@npm:0.7.4"
   peerDependencies:
     ethers: ~5.5.0
-  checksum: 76f2956ef09d2b3d6806b2990cf6aad4508f23ef8cdfc0089a64a16d178395dabc5fff30abad7997acb012567dc0565326af2a148ce40d45d747eed22439e812
+  checksum: 8636090acc20596c5eaf10428151c1df44fc8e1e5c3f101cee6c311078d76f3bc629f6bc73208a961083e649ba223f46707014cfc2da4400fc9fdcade07e5cda
   languageName: node
   linkType: hard

@@ -10,7 +10,7 @@ import { BoolArray } from "./BoolArray.sol";
 
 contract Safe is ISafe, EIP712 {
   using SignatureChecker for address;
-  using { MerkleProof.merkleRoot, MerkleProof.processMultiProof } for bytes32[];
+  using MerkleProof for bytes32[];
 
   /// @dev txHash => hasBeenExecuted
   mapping(bytes32 => bool) txExecuted;

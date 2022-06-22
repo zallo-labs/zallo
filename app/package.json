@@ -93,7 +93,7 @@
     "use-async-effect": "^2.2.5",
     "use-debounce": "^8.0.1",
     "yup": "^0.32.11",
-    "zksync-web3": "^0.4.0"
+    "zksync-web3": "^0.7.4"
   },
   "devDependencies": {
     "@babel/core": "^7.12.9",
