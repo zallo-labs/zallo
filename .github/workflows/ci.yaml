@@ -53,7 +53,7 @@ jobs:
           path: zksync-local
 
       - name: Run local zksync node
-        run: zksync-local/start.sh
+        run: (cd zksync-local && ./start.sh)
 
       - name: 🧪 Test
         run: yarn contracts test
