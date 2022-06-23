@@ -6,18 +6,18 @@ import {
   getSafe,
   TestSafe__factory,
   address,
-  randomGroupId,
   Group,
   SafeConstructorArgs,
   toSafeConstructorDeployArgs,
   Factory,
   Address,
+  randomGroupRef,
 } from 'lib';
 import { allSigners, wallet } from './wallet';
 import { BytesLike, ContractTransaction } from 'ethers';
 
 export const toSafeGroupTest = (...approvers: [string, number][]): Group => ({
-  ref: randomGroupId(),
+  ref: randomGroupRef(),
   approvers: approvers.map(([addr, weight]) => ({
     addr: address(addr),
     weight,
@@ -33,7 +33,9 @@ export const deployFactory = async (
   deployTx: ContractTransaction;
 }> => {
   const artifact = await deployer.loadArtifact('Factory');
-  const contract = await deployer.deploy(artifact, [], feeToken);
+  const contract = await deployer.deploy(artifact, [], {
+    customData: { feeToken },
+  });
   await contract.deployed();
 
   return {
@@ -50,7 +52,7 @@ export const deploySafeDirect = async (
   const contract = await deployer.deploy(
     artifact,
     toSafeConstructorDeployArgs(args),
-    feeToken,
+    { customData: { feeToken } },
   );
   await contract.deployed();
 
@@ -108,7 +110,7 @@ export const deployTestSafe = async (
   const contract = await deployer.deploy(
     artifact,
     toSafeConstructorDeployArgs({ group }),
-    feeToken,
+    { customData: { feeToken } },
   );
   await contract.deployed();
 

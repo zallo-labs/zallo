@@ -34,6 +34,15 @@ jobs:
       - name: 🚧 Checkout
         uses: actions/checkout@v2
 
+      - name: 🚧 Checkout zksync-local
+        uses: actions/checkout@v3
+        with:
+          repository: hbriese/zksync-local
+          path: zksync-local
+
+      - name: 🚧 Start local zksync node
+        run: (cd zksync-local && ./start.sh)
+
       - name: 🚧 Use Node ${{ matrix.node-version }}
         uses: actions/setup-node@v2
         with:
@@ -45,15 +54,6 @@ jobs:
 
       - name: 🏗️ Build
         run: yarn contracts build
-
-      - name: Checkout zksync-local
-        uses: actions/checkout@v3
-        with:
-          repository: hbriese/zksync-local
-          path: zksync-local
-
-      - name: Run local zksync node
-        run: (cd zksync-local && ./start.sh)
 
       - name: 🧪 Test
         run: yarn contracts test

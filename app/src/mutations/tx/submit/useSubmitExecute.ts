@@ -1,14 +1,12 @@
 import { useSafe } from '@features/safe/SafeProvider';
-import { Overrides } from 'ethers';
-import { executeTx, Signerish } from 'lib';
+import { executeTx, Signerish, CombinedOverrides } from 'lib';
 import { useCallback } from 'react';
 import { CombinedGroup } from '~/queries';
 import { ProposedTx } from '~/queries/tx/useTxs';
 import { USDC } from '~/token/tokens';
 import { useApiSubmitExecution } from './useApiSubmitExecution';
 
-const overrides: Overrides = {
-  // https://v2-docs.zksync.io/api/js/features.html#overrides
+const overrides: CombinedOverrides = {
   customData: {
     feeToken: USDC.addr,
   },

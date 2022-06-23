@@ -1,5 +1,6 @@
 import { BytesLike, Overrides } from 'ethers';
 import { merge } from 'lodash';
+import { Address } from './addr';
 import {
   Approverish,
   hashApprover,
@@ -15,7 +16,16 @@ import { SignatureLike, toCompactSignature } from './signature';
 export const EXECUTE_GAS_LIMIT = 50_000;
 export const MULTI_EXECUTE_GAS_LIMIT = 100_000;
 
-const defaultOverrides: Overrides = {
+// https://v2-docs.zksync.io/api/js/features.html#overrides
+export interface zkOverrides {
+  customData?: {
+    feeToken?: Address;
+  };
+}
+
+export type CombinedOverrides = Overrides & zkOverrides;
+
+const defaultOverrides: CombinedOverrides = {
   gasLimit: 50000,
 };
 
@@ -41,7 +51,7 @@ export const executeTx = async (
   ops: Op | Op[],
   group: Group,
   signers: Signerish[],
-  overrides?: Overrides,
+  overrides?: CombinedOverrides,
 ) => {
   if (ops instanceof Array && ops.length === 1) ops = ops[0];
 
