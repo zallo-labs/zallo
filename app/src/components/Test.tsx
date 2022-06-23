@@ -1,11 +1,3 @@
-import { View } from 'react-native';
+import { Text } from 'react-native';
 
-import { Paragraph } from 'react-native-paper';
-
-export default () => {
-  return (
-    <View style={{ display: 'flex', flexDirection: 'column' }}>
-      <Paragraph>Test</Paragraph>
-    </View>
-  );
-};
+export default () => <Text>Snapshot test!</Text>;

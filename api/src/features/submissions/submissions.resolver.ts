@@ -13,7 +13,7 @@ import { GraphQLResolveInfo } from 'graphql';
 import { Address, Id, toId } from 'lib';
 import { PrismaService } from 'nestjs-prisma';
 import { ProviderService } from '~/provider/provider.service';
-import { getSelect } from '~/util/test';
+import { getSelect } from '~/util/select';
 import { SubmissionsArgs, SubmitTxExecutionArgs } from './submissions.args';
 import { SubmissionsService } from './submissions.service';
 

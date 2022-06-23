@@ -17,7 +17,7 @@ import { FindUniqueSafeArgs } from '@gen/safe/find-unique-safe.args';
 import { CreateCfSafeArgs } from './safes.args';
 import { UserAddr } from '~/decorators/user.decorator';
 import { ProviderService } from '../../provider/provider.service';
-import { getSelect } from '~/util/test';
+import { getSelect } from '~/util/select';
 import { UpsertOneSafeArgs } from '@gen/safe/upsert-one-safe.args';
 
 @Resolver(() => Safe)

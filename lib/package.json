@@ -10,7 +10,8 @@
     "generate": "yarn generate:contracts && yarn generate:typechain",
     "typechain": "typechain",
     "clean": "npx rimraf dist",
-    "start": "yarn build --watch"
+    "start": "yarn build --watch",
+    "test": "jest"
   },
   "dependencies": {
     "@ethersproject/bignumber": "^5.6.0",
@@ -25,6 +26,9 @@
     "zksync-web3": "^0.7.4"
   },
   "devDependencies": {
-    "typescript": "^4.7.2"
+    "@types/jest": "^28.1.3",
+    "jest": "^28.1.1",
+    "ts-jest": "^28.0.5",
+    "typescript": "^4.7.4"
   }
 }

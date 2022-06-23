@@ -1,5 +1,11 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
+exports[`Test renders correctly 1`] = `
+<Text>
+  Snapshot test!
+</Text>
+`;
+
 exports[`renders correctly 1`] = `
 <Text>
   Snapshot test!

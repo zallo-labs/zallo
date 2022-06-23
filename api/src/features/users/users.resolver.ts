@@ -10,7 +10,7 @@ import { PrismaService } from 'nestjs-prisma';
 
 import { Safe } from '@gen/safe/safe.model';
 import { GraphQLResolveInfo } from 'graphql';
-import { getSelect } from '~/util/test';
+import { getSelect } from '~/util/select';
 import { GetAddrNameArgs } from './users.input';
 import { UserAddr } from '~/decorators/user.decorator';
 import { User } from '@gen/user/user.model';

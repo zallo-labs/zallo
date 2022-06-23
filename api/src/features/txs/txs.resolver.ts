@@ -19,7 +19,7 @@ import {
   connectOrCreateUser,
   connectOrCreateSafe,
 } from '~/util/connect-or-create';
-import { getSelect } from '~/util/test';
+import { getSelect } from '~/util/select';
 import {
   ProposeTxArgs,
   ApproveArgs,

@@ -1,8 +1,10 @@
-import { Text } from 'react-native';
-import renderer from 'react-test-renderer';
+import Test from '@components/Test';
+import { render } from '@testing-library/react-native';
 
-it('renders correctly', () => {
-  const tree = renderer.create(<Text>Snapshot test!</Text>).toJSON();
+describe('Test', () => {
+  it('renders correctly', async () => {
+    const tree = render(<Test />);
 
-  expect(tree).toMatchSnapshot();
+    expect(tree.toJSON()).toMatchSnapshot();
+  });
 });

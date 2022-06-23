@@ -4,5 +4,6 @@
     ".expo": true,
     ".vscode": true,
     "node_modules": true
-  }
+  },
+  "jest.jestCommandLine": "yarn test"
 }

@@ -13,7 +13,7 @@ import { FindManyGroupArgs } from '@gen/group/find-many-group.args';
 import { FindUniqueGroupArgs } from '@gen/group/find-unique-group.args';
 import { Group } from '@gen/group/group.model';
 import { GraphQLResolveInfo } from 'graphql';
-import { getSelect } from '~/util/test';
+import { getSelect } from '~/util/select';
 import { UpsertOneGroupArgs } from '@gen/group/upsert-one-group.args';
 import { getGroupId } from 'lib';
 import { UpsertGroupArgs } from './groups.args';

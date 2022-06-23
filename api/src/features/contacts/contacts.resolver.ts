@@ -11,7 +11,7 @@ import { Contact } from '@gen/contact/contact.model';
 import { PrismaService } from 'nestjs-prisma';
 import { FindUniqueContactArgs } from '@gen/contact/find-unique-contact.args';
 import { GraphQLResolveInfo } from 'graphql';
-import { getSelect } from '~/util/test';
+import { getSelect } from '~/util/select';
 import { UserAddr } from '~/decorators/user.decorator';
 import { Address, Id, toId } from 'lib';
 import {

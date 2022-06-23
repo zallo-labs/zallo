@@ -25,6 +25,9 @@ jobs:
       - name: 🏗️ Build
         run: yarn lib build
 
+      - name: 🧪 Test
+        run: yarn lib test
+
   contracts:
     runs-on: ubuntu-latest
     strategy:
