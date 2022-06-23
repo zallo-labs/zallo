@@ -46,8 +46,14 @@ jobs:
       - name: 🏗️ Build
         run: yarn contracts build
 
+      - name: Checkout zksync-local
+        uses: actions/checkout@v3
+        with:
+          repository: hbriese/zksync-local
+          path: zksync-local
+
       - name: Run local zksync node
-        run: yarn contracts local-node
+        run: zksync-local/start.sh
 
       - name: 🧪 Test
         run: yarn contracts test

@@ -1,7 +1,7 @@
 import * as hre from 'hardhat';
 import * as zk from 'zksync-web3';
 import CONFIG from 'config';
-import localWallets from '../../zksync-node/rich-wallets.json';
+import localWallets from '../../local-wallets.json';
 import { providers } from 'ethers';
 import { address } from 'lib';
 
