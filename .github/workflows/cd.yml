@@ -12,13 +12,13 @@ concurrency:
   cancel-in-progress: true
 
 env:
+  CHAIN: testnet
   INFURA_ID: ${{ secrets.INFURA_ID }}
   INFURA_SECRET: ${{ secrets.INFURA_SECRET }}
   ALCHEMY_API_KEY: ${{ secrets.ALCHEMY_API_KEY }}
   SESSION_SECRET: ${{ secrets.SESSION_SECRET }}
   API_URL: ${{ secrets.API_URL }}
   SUBGRAPH_GQL_URL: ${{ secrets.SUBGRAPH_GQL_URL }}
-  CHAIN: testnet
   SENTRY_DSN: ${{ secrets.SENTRY_DSN }}
   SENTRY_ORG: ${{ secrets.SENTRY_ORG }}
   SENTRY_PROJECT: ${{ secrets.SENTRY_PROJECT }}
