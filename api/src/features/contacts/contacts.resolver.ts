@@ -15,11 +15,12 @@ import { getSelect } from '~/util/select';
 import { UserAddr } from '~/decorators/user.decorator';
 import { Address, Id, toId } from 'lib';
 import {
-  Contacts2Args,
+  ContactsArgs,
   DeleteContactArgs,
   DeleteContactResp,
   UpsertContactArgs,
 } from './contacts.args';
+import { connectOrCreateUser } from '~/util/connect-or-create';
 
 @Resolver(() => Contact)
 export class ContactsResolver {
@@ -38,16 +39,14 @@ export class ContactsResolver {
 
   @Query(() => [Contact])
   async contacts(
-    @Args() args: Contacts2Args,
+    @Args() args: ContactsArgs,
     @Info() info: GraphQLResolveInfo,
     @UserAddr() user: Address,
   ): Promise<Contact[]> {
     return this.prisma.contact.findMany({
       ...args,
+      where: { userId: user },
       ...getSelect(info),
-      where: {
-        approverId: user,
-      },
     });
   }
 
@@ -65,18 +64,13 @@ export class ContactsResolver {
     const { prevAddr, newAddr, name } = args;
     return this.prisma.contact.upsert({
       where: {
-        approverId_addr: {
-          approverId: user,
+        userId_addr: {
+          userId: user,
           addr: prevAddr ?? newAddr,
         },
       },
       create: {
-        approver: {
-          connectOrCreate: {
-            where: { id: user },
-            create: { id: user },
-          },
-        },
+        user: connectOrCreateUser(user),
         addr: newAddr,
         name,
       },

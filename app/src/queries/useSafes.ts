@@ -142,7 +142,6 @@ const useApiSafes = () => {
     {
       client: useApiClient(),
       variables: { safes: subSafeIds },
-      skip: !subSafeIds.length,
     },
   );
 

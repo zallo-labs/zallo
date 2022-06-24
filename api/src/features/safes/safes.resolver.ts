@@ -1,16 +1,8 @@
 import { Args, Info, Mutation, Query, Resolver } from '@nestjs/graphql';
 import { PrismaService } from 'nestjs-prisma';
-import { ethers } from 'ethers';
 import { GraphQLError, GraphQLResolveInfo } from 'graphql';
 
-import {
-  address,
-  calculateSafeAddress,
-  getApproverId,
-  Group,
-  getGroupId,
-  toSafeConstructorDeployArgs,
-} from 'lib';
+import { calculateSafeAddress, toSafeConstructorDeployArgs } from 'lib';
 import { Safe } from '@gen/safe/safe.model';
 import { FindManySafeArgs } from '@gen/safe/find-many-safe.args';
 import { FindUniqueSafeArgs } from '@gen/safe/find-unique-safe.args';
@@ -19,6 +11,7 @@ import { UserAddr } from '~/decorators/user.decorator';
 import { ProviderService } from '../../provider/provider.service';
 import { getSelect } from '~/util/select';
 import { UpsertOneSafeArgs } from '@gen/safe/upsert-one-safe.args';
+import { connectOrCreateUser } from '~/util/connect-or-create';
 
 @Resolver(() => Safe)
 export class SafesResolver {
@@ -74,28 +67,24 @@ export class SafesResolver {
       this.provider.factory,
     );
 
-    return this.prisma.safe.create({
-      data: {
+    return await this.prisma.safe.upsert({
+      where: { id: safe },
+      create: {
         id: safe,
-        deploySalt: ethers.utils.hexlify(salt),
+        deploySalt: salt,
         groups: {
           create: {
-            id: getGroupId(safe, group.ref),
+            ref: group.ref,
             approvers: {
               create: group.approvers.map((a) => ({
-                id: getApproverId(safe, group.ref, a.addr),
-                approver: {
-                  connectOrCreate: {
-                    where: { id: a.addr },
-                    create: { id: a.addr },
-                  },
-                },
+                user: connectOrCreateUser(a.addr),
                 weight: a.weight.toString(),
               })),
             },
           },
         },
       },
+      update: {},
       ...getSelect(info),
     });
   }

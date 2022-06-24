@@ -3949,9 +3949,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@gorhom/bottom-sheet@npm:^4.3.1":
-  version: 4.3.1
-  resolution: "@gorhom/bottom-sheet@npm:4.3.1"
+"@gorhom/bottom-sheet@npm:^4.3.2":
+  version: 4.3.2
+  resolution: "@gorhom/bottom-sheet@npm:4.3.2"
   dependencies:
     "@gorhom/portal": 1.0.13
     invariant: ^2.2.4
@@ -3962,7 +3962,7 @@ __metadata:
     react-native: "*"
     react-native-gesture-handler: ">=1.10.1"
     react-native-reanimated: ">=2.2.0"
-  checksum: 9251e93ddf78b8caaa8ff2955ae1fe08de240e8f98220fb955fe192959281ec3effa155850edcd671ce587c5cdcff0419c4285f6093599802f0a48d4757ca827
+  checksum: e8d4ecb82bd6f6dbc1dd555199bbb62665dfac7e30a1aa0f88664bce0196a4b9d4d2fcb5ec59eff6c319a40541776e71bbbb22c0e1274e68bb07afb3b66fd403
   languageName: node
   linkType: hard
 
@@ -9290,7 +9290,7 @@ __metadata:
     "@ethersproject/shims": ^5.6.0
     "@expo/config": ^6.0.19
     "@expo/vector-icons": ^13.0.0
-    "@gorhom/bottom-sheet": ^4.3.1
+    "@gorhom/bottom-sheet": ^4.3.2
     "@react-native-async-storage/async-storage": ~1.17.3
     "@react-navigation/material-top-tabs": ^6.2.1
     "@react-navigation/native": ^6.0.10
@@ -9364,7 +9364,7 @@ __metadata:
     react-native-vector-icons: ^9.1.0
     react-native-web: 0.17.7
     react-test-renderer: 17.0.1
-    recoil: ^0.7.3-alpha.2
+    recoil: ^0.7.4
     recoil-persist: ^4.2.0
     rimraf: ^3.0.2
     sentry-expo: ^4.2.0
@@ -9374,10 +9374,10 @@ __metadata:
     ts-jest: ^28.0.5
     ts-node: ^10.8.1
     typescript: ^4.7.4
-    use-async-effect: ^2.2.5
+    use-async-effect: ^2.2.6
     use-debounce: ^8.0.1
     yup: ^0.32.11
-    zksync-web3: ^0.7.4
+    zksync-web3: ^0.7.6
   languageName: unknown
   linkType: soft
 
@@ -12961,7 +12961,7 @@ __metadata:
     ts-node: ^10.8.0
     typechain: ^8.1.0
     typescript: ^4.7.3
-    zksync-web3: ^0.7.4
+    zksync-web3: ^0.7.6
   languageName: unknown
   linkType: soft
 
@@ -22317,7 +22317,7 @@ __metadata:
     ts-jest: ^28.0.5
     typechain: ^8.0.0
     typescript: ^4.7.4
-    zksync-web3: ^0.7.4
+    zksync-web3: ^0.7.6
   languageName: unknown
   linkType: soft
 
@@ -27636,8 +27636,8 @@ __metadata:
   linkType: hard
 
 "react-native-paper@npm:^4.12.0":
-  version: 4.12.0
-  resolution: "react-native-paper@npm:4.12.0"
+  version: 4.12.1
+  resolution: "react-native-paper@npm:4.12.1"
   dependencies:
     "@callstack/react-theme-provider": ^3.0.7
     color: ^3.1.2
@@ -27646,7 +27646,7 @@ __metadata:
     react: "*"
     react-native: "*"
     react-native-vector-icons: "*"
-  checksum: ccae6194c30340512fd81aca52a332a934a5ff9b80bec758f3d0571bbc6f7fe1edafa1bcfc0be0d5156d96faeb17668f6e724a4a73a8b2f4d1ec21be4d627eda
+  checksum: 0f570971f57dd490aba204d6ea0426c71d5b3f731e124a2ed6e29e7be61827a0edb1672192dd985c634fc7d8a65bd15ad9dd6f3ed277ee3ad3b5a5e3da8dc4c8
   languageName: node
   linkType: hard
 
@@ -28050,9 +28050,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"recoil@npm:^0.7.3-alpha.2":
-  version: 0.7.3-alpha.2
-  resolution: "recoil@npm:0.7.3-alpha.2"
+"recoil@npm:^0.7.4":
+  version: 0.7.4
+  resolution: "recoil@npm:0.7.4"
   dependencies:
     hamt_plus: 1.0.2
   peerDependencies:
@@ -28062,7 +28062,7 @@ __metadata:
       optional: true
     react-native:
       optional: true
-  checksum: 3af4b8ef88f0602515bd2730a8dba12f9aa866db5ce1310e5dc8a431b2e5bd4b5e16b9bc9b2e496b0024b78ece80ebfd61797eb4e64b6cbc62e4e23833d02c6a
+  checksum: 797b97ee74b2fbbb8e4dda8a951b13569d45a3440cfc05e870056255ff22c73aa816de70d66168a5b9ebe16c14d262777947dd752c8cb9559ef8ae3fbb586472
   languageName: node
   linkType: hard
 
@@ -32570,12 +32570,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"use-async-effect@npm:^2.2.5":
-  version: 2.2.5
-  resolution: "use-async-effect@npm:2.2.5"
+"use-async-effect@npm:^2.2.6":
+  version: 2.2.6
+  resolution: "use-async-effect@npm:2.2.6"
   peerDependencies:
-    react: ^16.8.0 || ^17.0.0
-  checksum: 69cdaecbcb9d88ae8d5b6764752507e499baca4e8893f535a358fb9069b92a792378a8ecd0699240307535e692dbfa1db7d8a3f1980e291a7a8cc6c94ddcd47b
+    react: ^16.8.0 || ^17.0.0 || ^18.0.0
+  checksum: 050c3b2146245b5688c6c63c3d791ae2c2c4ae57a94c0a8ce1e635ab5bb2406e73114b4ea2c1dca1be460ceb720e550e4d9745092243482ec52cb1f93e524e3d
   languageName: node
   linkType: hard
 
@@ -34678,5 +34678,14 @@ __metadata:
   peerDependencies:
     ethers: ~5.5.0
   checksum: 8636090acc20596c5eaf10428151c1df44fc8e1e5c3f101cee6c311078d76f3bc629f6bc73208a961083e649ba223f46707014cfc2da4400fc9fdcade07e5cda
+  languageName: node
+  linkType: hard
+
+"zksync-web3@npm:^0.7.6":
+  version: 0.7.6
+  resolution: "zksync-web3@npm:0.7.6"
+  peerDependencies:
+    ethers: ~5.5.0
+  checksum: 7018e1c41201c473ac4104817f73bb0f8ccf779ed345eb80fbbeaf2aa0f90e6b421964026cc078a8dc927d230076a85e65d19e19b495f3dd4e4a98f78895f6e5
   languageName: node
   linkType: hard

@@ -42,6 +42,12 @@ export const randomGroupRef = () => hexlify(randomBytes(32));
 export const getGroupId = (safe: string, groupRef: BytesLike): Id =>
   toId(`${safe}-${hexlify(groupRef)}`);
 
+export const getApproverId = (
+  safe: string,
+  groupRef: BytesLike,
+  user: string,
+) => toId(`${getGroupId(safe, groupRef)}-${user}`);
+
 export const createUpsertGroupOp = (safe: Safe, group: Groupish): Op =>
   createOp({
     to: safe.address,

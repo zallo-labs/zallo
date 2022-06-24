@@ -27,7 +27,7 @@ contract Safe is ISafe, EIP712 {
     emit Received(msg.sender, msg.value);
   }
 
-  // @inheritdoc ISafe
+  /// @inheritdoc ISafe
   function execute(
     Op calldata _op,
     bytes32 _groupRef,
@@ -43,7 +43,7 @@ contract Safe is ISafe, EIP712 {
     emit Transaction(txHash, response);
   }
 
-  // @inheritdoc ISafe
+  /// @inheritdoc ISafe
   function multiExecute(
     Op[] calldata _ops,
     bytes32 _groupRef,
@@ -63,7 +63,7 @@ contract Safe is ISafe, EIP712 {
     emit MultiTransaction(txHash, responses);
   }
 
-  // @inheritdoc ISafe
+  /// @inheritdoc ISafe
   function upsertGroup(bytes32 _groupRef, Approver[] calldata _approvers)
     external
     onlySafe
@@ -71,7 +71,7 @@ contract Safe is ISafe, EIP712 {
     _upsertGroup(_groupRef, _approvers);
   }
 
-  // @inheritdoc ISafe
+  /// @inheritdoc ISafe
   function removeGroup(bytes32 _groupRef) external onlySafe {
     delete merkleRoots[_groupRef];
     emit GroupRemoved(_groupRef);
