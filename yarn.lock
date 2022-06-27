@@ -9352,7 +9352,7 @@ __metadata:
     react-native-jazzicon: ^0.1.2
     react-native-keyboard-aware-scroll-view: ^0.9.5
     react-native-pager-view: 5.4.15
-    react-native-paper: ^4.12.0
+    react-native-paper: ^4.12.1
     react-native-popover-view: ^5.0.1
     react-native-qrcode-svg: ^6.1.2
     react-native-reanimated: ~2.8.0
@@ -27635,7 +27635,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"react-native-paper@npm:^4.12.0":
+"react-native-paper@npm:^4.12.1":
   version: 4.12.1
   resolution: "react-native-paper@npm:4.12.1"
   dependencies:
