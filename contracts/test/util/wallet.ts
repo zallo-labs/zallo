@@ -18,4 +18,4 @@ export const wallet = CONFIG.wallet.privateKey
   ? new zk.Wallet(CONFIG.wallet.privateKey, zkProvider)
   : allSigners[0];
 
-export const USDC = address('0xd35CCeEAD182dcee0F148EbaC9447DA2c4D449c4');
+export const USDC = address('0x54a14D7559BAF2C8e8Fa504E019d32479739018c');

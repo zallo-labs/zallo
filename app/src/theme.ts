@@ -40,6 +40,10 @@ declare global {
 const surface = '#2b324d';
 const onBackground = '#e9e2d9';
 
+/* Notes
+ * Placeholder color is replaced with onSurfaceVariant
+*/
+
 export const PAPER_THEME: ReactNativePaper.Theme = {
   ...PaperDarkTheme,
   colors: {

@@ -2,6 +2,7 @@ import { BytesLike, ethers } from 'ethers';
 import { Factory } from './contracts';
 import { SafeConstructorDeployArgs } from './deploy';
 import { address } from './addr';
+import { hexlify, randomBytes } from 'ethers/lib/utils';
 
 export const getRandomSalt = () => ethers.utils.randomBytes(32);
 
@@ -26,7 +27,7 @@ export const calculateSafeAddress = async (
         gasLimit: 100_000,
       }),
     ),
-    salt: '0x00',
+    salt: hexlify(randomBytes(32)),
   };
 };
 
