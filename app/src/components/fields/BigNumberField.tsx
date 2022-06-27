@@ -23,7 +23,7 @@ const normalise = (s?: string | undefined) => {
   return s;
 };
 
-const VALID_INPUT_PATTERN = /^(?:\d,?)*(?:\.\d*)?$/;
+const VALID_INPUT_PATTERN = /^(?:\d+,?)*(?:\.\d*)?$/;
 const isValidInput = (input: string) => !!input.match(VALID_INPUT_PATTERN);
 
 export interface BigNumberFieldProps
