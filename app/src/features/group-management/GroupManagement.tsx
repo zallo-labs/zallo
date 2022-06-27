@@ -53,6 +53,7 @@ export const GroupManagement = ({
   const addApprover = () =>
     navigation.navigate('Contacts', {
       disabledAddrs: approvers.map((a) => a.addr),
+      target: { route: 'GroupManagement', output: 'selected' },
     });
 
   return (

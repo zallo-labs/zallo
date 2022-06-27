@@ -1,26 +1,31 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { FAB, TextInput, Title, useTheme } from 'react-native-paper';
+import { Appbar, Title } from 'react-native-paper';
 import { Address } from 'lib';
 import { ethers } from 'ethers';
 import FuzzySearch from 'fuzzy-search';
 import { Box } from '@components/Box';
 import { RootNavigatorScreenProps } from '@features/navigation/RootNavigator';
-import { AddrLink } from '@features/qr/addrLink';
 import { Contact, useContacts } from '~/queries/useContacts';
-import { TextField } from '@components/fields/TextField';
 import { ContactItem } from './ContactItem';
 import { CreateContactButton } from './CreateContactButton';
 import { SelectAddressButton } from './SelectAddressButton';
 import { FlatList } from 'react-native';
 import { Actions } from '@components/Actions';
 import { ActionsSpaceFooter } from '@components/ActionsSpaceFooter';
+import { NavTarget, navToTarget } from '@features/navigation/target';
+import { AppbarBack } from '@components/AppbarBack';
+import { AppbarRoot } from '@components/AppbarRoot';
+import { BasicTextField } from '@components/fields/BasicTextField';
+import { ErrorText } from '@components/ErrorText';
 
 const CONTACT_SEARCH_FIELDS: (keyof Contact)[] = ['name', 'addr'];
 
 export interface ContactsScreenParams {
+  target: NavTarget;
   disabledAddrs?: Address[];
+
   // Callbacks
-  scannedAddr?: AddrLink;
+  scanned?: Address;
 }
 
 export type ContactsScreenProps = RootNavigatorScreenProps<'Contacts'>;
@@ -29,9 +34,8 @@ export const ContactsScreen = ({
   navigation,
   route: { params },
 }: ContactsScreenProps) => {
-  const { disabledAddrs, scannedAddr } = params;
+  const { disabledAddrs, scanned, target } = params;
   const { contacts: allContacts } = useContacts();
-  const { colors, radius } = useTheme();
 
   const [search, setSearch] = useState('');
   const [error, setError] = useState(false);
@@ -39,21 +43,17 @@ export const ContactsScreen = ({
   const select = useCallback(
     (addr: Address) => {
       if (ethers.utils.isAddress(addr)) {
-        navigation.navigate({
-          name: 'GroupManagement',
-          params: { selected: addr },
-          merge: true,
-        });
+        navToTarget(navigation, target, addr);
       } else {
         setError(true);
       }
     },
-    [navigation, setError],
+    [navigation, setError, target],
   );
 
   useEffect(() => {
-    if (scannedAddr) select(scannedAddr.target_address);
-  }, [scannedAddr, select]);
+    if (scanned) select(scanned);
+  }, [scanned, select]);
 
   const contacts = useMemo(() => {
     const sorted = allContacts.sort((a, b) => a.name.localeCompare(b.name));
@@ -66,35 +66,47 @@ export const ContactsScreen = ({
   }, [allContacts, search]);
 
   return (
-    <Box flex={1}>
+    <>
       <FlatList
         ListHeaderComponent={
-          <Box
-            p={2}
-            backgroundColor={colors.opaqueSurface}
-            borderBottomLeftRadius={radius}
-            borderBottomRightRadius={radius}
-          >
-            <TextField
-              value={search}
-              onChangeText={(value) => {
-                setError(false);
-                setSearch(value);
-              }}
-              label="Search"
-              placeholder="Search by name or address"
-              right={
-                <TextInput.Icon
-                  name="line-scan"
-                  onPress={() =>
-                    navigation.navigate('QrScanner', { screen: 'Contacts' })
-                  }
-                />
-              }
-              error={error && 'Not a valid address'}
-            />
+          <Box>
+            <AppbarRoot>
+              <AppbarBack />
 
-            <SelectAddressButton input={search} select={select} />
+              <Box vertical flex={1}>
+                <BasicTextField
+                  value={search}
+                  onChangeText={(value) => {
+                    setError(false);
+                    setSearch(value);
+                  }}
+                  placeholder="Search by name or address"
+                  style={{ fontSize: 16 }}
+                />
+              </Box>
+
+              <Appbar.Action
+                icon="line-scan"
+                onPress={() =>
+                  navigation.navigate('QrScanner', {
+                    target: { route: 'Contacts', output: 'scanned' },
+                  })
+                }
+              />
+            </AppbarRoot>
+
+            {!error ? (
+              <SelectAddressButton
+                input={search}
+                select={select}
+                mx={3}
+                my={2}
+              />
+            ) : (
+              <Box center mt={2}>
+                <ErrorText error="Invalid address!" as={Title} />
+              </Box>
+            )}
           </Box>
         }
         stickyHeaderIndices={[0]}
@@ -104,7 +116,8 @@ export const ContactsScreen = ({
             contact={contact}
             select={select}
             disabled={disabledAddrs?.includes(contact.addr)}
-            p={2}
+            px={3}
+            py={2}
           />
         )}
         keyExtractor={(contact) => contact.addr}
@@ -114,6 +127,6 @@ export const ContactsScreen = ({
       <Actions>
         <CreateContactButton input={search} />
       </Actions>
-    </Box>
+    </>
   );
 };

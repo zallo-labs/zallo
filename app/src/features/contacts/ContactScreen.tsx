@@ -94,11 +94,14 @@ export const ContactScreen = ({
             label="Address"
             placeholder="0xBae..."
             wrap
+            textAlignVertical="center"
             right={
               <TextInput.Icon
                 name="line-scan"
                 onPress={() =>
-                  navigation.navigate('QrScanner', { screen: 'Contact' })
+                  navigation.navigate('QrScanner', {
+                    target: { route: 'Contact', output: 'addr' },
+                  })
                 }
               />
             }
