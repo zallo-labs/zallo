@@ -47,7 +47,7 @@ export class ReactionsResolver {
       create: {
         safe: connectOrCreateSafe(safe),
         comment: { connect: { safeId_key_nonce: commentId } },
-        approver: connectOrCreateUser(user),
+        user: connectOrCreateUser(user),
         emojis,
       },
       update: {

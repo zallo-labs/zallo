@@ -10,7 +10,7 @@ export const authSessionRequestHandler = () =>
   session({
     secret: CONFIG.sessionSecret!,
     resave: true,
-    saveUninitialized: true,
+    saveUninitialized: false,
     cookie: {
       maxAge: Duration.fromObject({ days: 7 }).toMillis(),
       // Allow cookies created on dev to be used on prod, but not vice-versa

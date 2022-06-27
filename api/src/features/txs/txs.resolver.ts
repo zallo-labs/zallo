@@ -12,7 +12,7 @@ import { Prisma } from '@prisma/client';
 import { UserInputError } from 'apollo-server-core';
 import { BytesLike, ethers } from 'ethers';
 import { GraphQLResolveInfo } from 'graphql';
-import { Address, hashTx, Id, toId } from 'lib';
+import { Address, hashTx, Id, mapAsync, toId } from 'lib';
 import { PrismaService } from 'nestjs-prisma';
 import { UserAddr } from '~/decorators/user.decorator';
 import {
@@ -84,22 +84,21 @@ export class TxsResolver {
         hash: txHash,
         ops: {
           createMany: {
-            data: await Promise.all(
-              ops.map(
-                async (op): Promise<Prisma.OpCreateManyTxInput> => ({
-                  hash: await hashTx(safe, op),
-                  to: op.to,
-                  value: op.value.toString(),
-                  data: ethers.utils.hexlify(op.data),
-                  nonce: op.nonce.toString(),
-                }),
-              ),
+            data: await mapAsync(
+              ops,
+              async (op): Promise<Prisma.OpCreateManyTxInput> => ({
+                hash: await hashTx(safe, op),
+                to: op.to,
+                value: op.value.toString(),
+                data: ethers.utils.hexlify(op.data),
+                nonce: op.nonce.toString(),
+              }),
             ),
           },
         },
         approvals: {
           create: {
-            approver: connectOrCreateUser(user),
+            user: connectOrCreateUser(user),
             safe: connectOrCreateSafe(safe),
             signature,
           },
@@ -108,7 +107,7 @@ export class TxsResolver {
       update: {
         approvals: {
           create: {
-            approver: connectOrCreateUser(user),
+            user: connectOrCreateUser(user),
             safe: connectOrCreateSafe(safe),
             signature,
           },
@@ -132,7 +131,7 @@ export class TxsResolver {
         approvals: {
           create: {
             safe: connectOrCreateSafe(safe),
-            approver: connectOrCreateUser(user),
+            user: connectOrCreateUser(user),
             signature: ethers.utils.hexlify(signature),
           },
         },

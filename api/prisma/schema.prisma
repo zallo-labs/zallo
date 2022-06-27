@@ -114,9 +114,9 @@ model Op {
   txHash String  @db.Char(66) // bytes32
   hash   String  @db.Char(66) // bytes32
   to     String  @db.Char(42) // address
-  value  Decimal @db.Decimal(79, 0) // uint256
+  value  String //@db.Decimal(79, 0) // uint256
   data   String // bytes
-  nonce  Decimal @db.Decimal(79, 0) // uint256
+  nonce  String //@db.Decimal(79, 0) // uint256
 
   @@id([safeId, txHash, hash])
 }
