@@ -28,38 +28,39 @@ jobs:
       - name: 🧪 Test
         run: yarn lib test
 
-  contracts:
-    runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        node-version: [16.x]
-    steps:
-      - name: 🚧 Checkout
-        uses: actions/checkout@v2
+  # TODO: re-enable once zksync-local node is fixed
+  # contracts:
+  #   runs-on: ubuntu-latest
+  #   strategy:
+  #     matrix:
+  #       node-version: [16.x]
+  #   steps:
+  #     - name: 🚧 Checkout
+  #       uses: actions/checkout@v2
 
-      - name: 🚧 Checkout zksync-local
-        uses: actions/checkout@v3
-        with:
-          repository: hbriese/zksync-local
-          path: zksync-local
+  #     - name: 🚧 Checkout zksync-local
+  #       uses: actions/checkout@v3
+  #       with:
+  #         repository: hbriese/zksync-local
+  #         path: zksync-local
 
-      - name: 🚧 Start local zksync node
-        run: (cd zksync-local && ./start.sh)
+  #     - name: 🚧 Start local zksync node
+  #       run: (cd zksync-local && ./start.sh)
 
-      - name: 🚧 Use Node ${{ matrix.node-version }}
-        uses: actions/setup-node@v2
-        with:
-          node-version: ${{ matrix.node-version }}
-          cache: 'yarn'
+  #     - name: 🚧 Use Node ${{ matrix.node-version }}
+  #       uses: actions/setup-node@v2
+  #       with:
+  #         node-version: ${{ matrix.node-version }}
+  #         cache: 'yarn'
 
-      - name: 📦 Install
-        run: yarn install
+  #     - name: 📦 Install
+  #       run: yarn install
 
-      - name: 🏗️ Build
-        run: yarn contracts build
+  #     - name: 🏗️ Build
+  #       run: yarn contracts build
 
-      - name: 🧪 Test
-        run: yarn contracts test
+  #     - name: 🧪 Test
+  #       run: yarn contracts test
 
   subgraph:
     runs-on: ubuntu-latest
