@@ -1,6 +1,6 @@
 import { useSafe } from '@features/safe/SafeProvider';
 import { ChildrenProps } from '@util/children';
-import { Address, hashTx, mapAsync, Op, toId } from 'lib';
+import { Address, createOp, hashTx, mapAsync, Op, toId } from 'lib';
 import { DateTime } from 'luxon';
 import {
   createContext,
@@ -36,7 +36,7 @@ const opsToProposedTx = async (
   };
 };
 
-type Propose = (...ops: Op[]) => Promise<void>;
+type Propose = (...ops: Partial<Op>[]) => Promise<void>;
 
 interface Context {
   propose: Propose;
@@ -59,7 +59,7 @@ export const ProposeProvider = ({ children }: ActivityProviderProps) => {
   const value: Context = useMemo(
     () => ({
       propose: async (...ops) =>
-        setOpsTx(await opsToProposedTx(safe.address, ops)),
+        setOpsTx(await opsToProposedTx(safe.address, ops.map(createOp))),
     }),
     [safe.address],
   );
