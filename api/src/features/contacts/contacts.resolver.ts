@@ -11,15 +11,16 @@ import { Contact } from '@gen/contact/contact.model';
 import { PrismaService } from 'nestjs-prisma';
 import { FindUniqueContactArgs } from '@gen/contact/find-unique-contact.args';
 import { GraphQLResolveInfo } from 'graphql';
-import { getSelect } from '~/util/test';
+import { getSelect } from '~/util/select';
 import { UserAddr } from '~/decorators/user.decorator';
 import { Address, Id, toId } from 'lib';
 import {
-  Contacts2Args,
+  ContactsArgs,
   DeleteContactArgs,
   DeleteContactResp,
   UpsertContactArgs,
 } from './contacts.args';
+import { connectOrCreateUser } from '~/util/connect-or-create';
 
 @Resolver(() => Contact)
 export class ContactsResolver {
@@ -38,22 +39,20 @@ export class ContactsResolver {
 
   @Query(() => [Contact])
   async contacts(
-    @Args() args: Contacts2Args,
+    @Args() args: ContactsArgs,
     @Info() info: GraphQLResolveInfo,
     @UserAddr() user: Address,
   ): Promise<Contact[]> {
     return this.prisma.contact.findMany({
       ...args,
+      where: { userId: user },
       ...getSelect(info),
-      where: {
-        approverId: user,
-      },
     });
   }
 
   @ResolveField(() => String)
   id(@Parent() contact: Contact, @UserAddr() user: Address): Id {
-    return toId(`${contact.approverId || user}-${contact.addr}`);
+    return toId(`${contact.userId || user}-${contact.addr}`);
   }
 
   @Mutation(() => Contact, { nullable: true })
@@ -65,18 +64,13 @@ export class ContactsResolver {
     const { prevAddr, newAddr, name } = args;
     return this.prisma.contact.upsert({
       where: {
-        approverId_addr: {
-          approverId: user,
+        userId_addr: {
+          userId: user,
           addr: prevAddr ?? newAddr,
         },
       },
       create: {
-        approver: {
-          connectOrCreate: {
-            where: { id: user },
-            create: { id: user },
-          },
-        },
+        user: connectOrCreateUser(user),
         addr: newAddr,
         name,
       },
@@ -95,8 +89,8 @@ export class ContactsResolver {
   ): Promise<DeleteContactResp> {
     await this.prisma.contact.delete({
       where: {
-        approverId_addr: {
-          approverId: user,
+        userId_addr: {
+          userId: user,
           addr,
         },
       },

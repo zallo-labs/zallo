@@ -13,10 +13,10 @@ import { Address, Id, toId } from 'lib';
 import { PrismaService } from 'nestjs-prisma';
 import { UserAddr } from '~/decorators/user.decorator';
 import {
-  connectOrCreateApprover,
+  connectOrCreateUser,
   connectOrCreateSafe,
 } from '~/util/connect-or-create';
-import { getSelect } from '~/util/test';
+import { getSelect } from '~/util/select';
 import {
   CreateCommentArgs,
   UniqueCommentArgs,
@@ -58,7 +58,7 @@ export class CommentsResolver {
       data: {
         safe: connectOrCreateSafe(safe),
         key,
-        author: connectOrCreateApprover(user),
+        author: connectOrCreateUser(user),
         content,
       },
       ...getSelect(info),

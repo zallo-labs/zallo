@@ -10,9 +10,10 @@ type Tx @entity {
   "{tx.hash}"
   id: ID!
   safe: Safe!
-  type: TxType!
   hash: Bytes!
+  reverted: Boolean!
   responses: [Bytes!]!
+  nResponses: Int!
   # Metadata
   executor: Bytes!
   blockHash: Bytes!
@@ -20,31 +21,35 @@ type Tx @entity {
   transfers: [Transfer!]! @derivedFrom(field: "tx")
 }
 
-enum TxType {
-  SINGLE
-  MULTI
-}
-
-type Approver @entity {
+type User @entity {
   "{address}"
   id: ID!
-  groups: [GroupApprover!]! @derivedFrom(field: "approver")
+  approvers: [Approver!]! @derivedFrom(field: "user")
 }
 
 type Group @entity {
   "{safe.id}-{hash}"
   id: ID!
   safe: Safe!
-  hash: Bytes!
+  ref: Bytes!
   active: Boolean!
-  approvers: [GroupApprover!]! @derivedFrom(field: "group")
+  approverSets: [ApproverSet!]! @derivedFrom(field: "group")
 }
 
-type GroupApprover @entity {
-  "{group.id}-{approver.id}"
-  id: ID! # safe-group.hash-approver.id
+type ApproverSet @entity {
+  "{group.id}-{blockHash}"
+  id: ID!
   group: Group!
-  approver: Approver!
+  blockHash: Bytes!
+  timestamp: BigInt!
+  approvers: [Approver!]! @derivedFrom(field: "approverSet")
+}
+
+type Approver @entity {
+  "{set.id}-{user.id}"
+  id: ID!
+  user: User!
+  approverSet: ApproverSet!
   weight: BigInt!
 }
 

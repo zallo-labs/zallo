@@ -13,28 +13,36 @@ import {
   Id,
 } from 'lib';
 import { useWallet } from '@features/wallet/useWallet';
-import { GetApiSafes, GetApiSafesVariables } from '@gql/api.generated';
-import { GetSubSafes, GetSubSafesVariables } from '@gql/subgraph.generated';
 import { subGql, apiGql } from '@gql/clients';
 import { combineRest, combine, simpleKeyExtractor } from '@gql/combine';
 import { useApiClient, useSubgraphClient } from '@gql/GqlProvider';
+import { SQuerySafes, SQuerySafesVariables } from '@gql/subgraph.generated';
+import { AQueryUserSafes, AQueryUserSafesVariables } from '@gql/api.generated';
 
 const SUB_QUERY = subGql`
-query GetSubSafes($approver: ID!) {
-  approver(id: $approver) {
-    groups {
-      group {
-        safe {
-          id
-          groups {
+query SQuerySafes($user: ID!) {
+  user(id: $user) {
+    id
+    approvers {
+      approverSet {
+        group {
+          safe {
             id
-            hash
-            active
-            approvers {
-              approver {
+            groups {
+              id
+              ref
+              active
+              approverSets(first: 1, orderBy: blockHash, orderDirection: desc) {
                 id
+                blockHash
+                timestamp
+                approvers {
+                  user {
+                    id
+                  }
+                  weight
+                }
               }
-              weight
             }
           }
         }
@@ -44,21 +52,21 @@ query GetSubSafes($approver: ID!) {
 }
 `;
 
-const useSubSafes = () => {
+export const useSubSafes = () => {
   const wallet = useWallet();
 
-  const { data, ...rest } = useQuery<GetSubSafes, GetSubSafesVariables>(
+  const { data, ...rest } = useQuery<SQuerySafes, SQuerySafesVariables>(
     SUB_QUERY,
     {
       client: useSubgraphClient(),
-      variables: { approver: wallet.address.toLowerCase() },
+      variables: { user: toId(wallet.address) },
     },
   );
 
   const safes =
-    data?.approver?.groups.map((g) => ({
-      ...g.group.safe,
-      id: toId(g.group.safe.id),
+    data?.user?.approvers.map((a) => ({
+      id: toId(a.approverSet.group.safe.id),
+      groups: a.approverSet.group.safe.groups,
     })) ?? [];
 
   return { data: filterUnique(safes, (safe) => toId(safe.id)), ...rest };
@@ -72,10 +80,10 @@ const subSafeToCombined = (
     safe: getSafe(sub.id, wallet),
     groups: sub.groups.map((g) => ({
       id: toId(g.id),
-      hash: g.hash,
+      ref: g.ref,
       active: g.active,
-      approvers: g.approvers.map((a) => ({
-        addr: address(a.approver.id),
+      approvers: g.approverSets[0].approvers.map((a) => ({
+        addr: address(a.user.id),
         weight: fixedWeightToPercent(a.weight),
       })),
     })),
@@ -85,10 +93,10 @@ const subSafeToCombined = (
 export const API_GROUP_FIELDS_FRAGMENT = apiGql`
 fragment GroupFields on Group {
   id
-  hash
+  ref
   safeId
   approvers {
-    approverId
+    userId
     weight
   }
   name
@@ -108,11 +116,11 @@ fragment SafeFields on Safe {
 }
 `;
 
-const API_QUERY = apiGql`
+export const AQUERY_USER_SAFES = apiGql`
 ${API_SAFE_FIELDS_FRAGMENT}
 
-query GetApiSafes($approver: String!, $safes: [String!]) {
-  approver(where: { id: $approver }) {
+query AQueryUserSafes($safes: [String!]) {
+  user {
     id
     safes {
       ...SafeFields
@@ -126,21 +134,19 @@ query GetApiSafes($approver: String!, $safes: [String!]) {
 `;
 
 const useApiSafes = () => {
-  const wallet = useWallet();
   const { data: subSafes } = useSubSafes();
 
   const subSafeIds = subSafes.map((s) => address(s.id));
-  const { data, ...rest } = useQuery<GetApiSafes, GetApiSafesVariables>(
-    API_QUERY,
+  const { data, ...rest } = useQuery<AQueryUserSafes, AQueryUserSafesVariables>(
+    AQUERY_USER_SAFES,
     {
       client: useApiClient(),
-      variables: { approver: wallet.address, safes: subSafeIds },
-      skip: !subSafeIds.length,
+      variables: { safes: subSafeIds },
     },
   );
 
   const safes = filterUnique(
-    [...(data?.approver?.safes ?? []), ...(data?.safes ?? [])].map((safe) => ({
+    [...(data?.user?.safes ?? []), ...(data?.safes ?? [])].map((safe) => ({
       ...safe,
       id: toId(safe.id),
     })),
@@ -152,7 +158,7 @@ const useApiSafes = () => {
 
 export interface CombinedGroup {
   id: Id;
-  hash: BytesLike;
+  ref: string;
   active: boolean;
   approvers: Approver[];
   name?: string;
@@ -172,11 +178,11 @@ export const apiSafeToCombined = (
   const groups: CombinedGroup[] =
     api.groups?.map((g) => ({
       id: toId(g.id),
-      hash: g.hash,
+      ref: g.ref,
       active: true,
       approvers:
         g.approvers?.map((g) => ({
-          addr: address(g.approverId),
+          addr: address(g.userId),
           weight: fixedWeightToPercent(g.weight),
         })) ?? [],
       name: g.name,
@@ -215,7 +221,7 @@ export const useSafes = () => {
               {
                 either: ({ sub, api }): CombinedGroup => ({
                   id: sub?.id ?? api?.id,
-                  hash: sub?.hash ?? api?.hash,
+                  ref: sub?.ref ?? api?.ref,
                   active: sub?.active ?? api?.active,
                   approvers: filterUnique(
                     [...(sub?.approvers ?? []), ...(api?.approvers ?? [])],

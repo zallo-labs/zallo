@@ -24,16 +24,18 @@ dataSources:
         - GroupApprover
         - TokenTransfer
       eventHandlers:
-        - event: GroupAdded((address,uint96)[])
-          handler: handleGroupAdded
+        - event: GroupUpserted(bytes32,(address,uint96)[])
+          handler: handleGroupUpserted
         - event: GroupRemoved(bytes32)
           handler: handleGroupRemoved
-        - event: Deposit(address,uint256)
-          handler: handleDeposit
+        - event: Received(address,uint256)
+          handler: handleReceived
         - event: Transaction(bytes32,bytes)
           handler: handleTransaction
         - event: MultiTransaction(bytes32,bytes[])
           handler: handleMultiTransaction
+        - event: TransactionReverted(bytes32,bytes)
+          handler: handleTransactionReverted
   - name: ERC20
     kind: ethereum/contract
     network: {{network}}

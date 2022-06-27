@@ -6,7 +6,6 @@ import {
   ApproveTxVariables,
   GetApiTxs,
   GetApiTxsVariables,
-  GetApiTxs_txs,
 } from '@gql/api.generated';
 import { apiGql } from '@gql/clients';
 import { useApiClient } from '@gql/GqlProvider';
@@ -62,7 +61,7 @@ export const useApproveTx = () => {
                     ...tx.approvals,
                     {
                       __typename: 'Approval',
-                      approverId: wallet.address,
+                      userId: wallet.address,
                       createdAt: DateTime.now().toISO(),
                       signature,
                     },

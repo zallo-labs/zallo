@@ -1,29 +1,31 @@
 import { Address, Bytes, ethereum } from '@graphprotocol/graph-ts';
 
-export function getSafeObjId(safe: Address): string {
+export function getSafeId(safe: Address): string {
   // {address}
   return safe.toHex();
 }
 
-export function getApproverId(approver: Address): string {
+export function getUserId(user: Address): string {
   // {address}
-  return approver.toHex();
+  return user.toHex();
 }
 
-export function getGroupId(safe: Address, hash: Bytes): string {
+export function getGroupId(safeId: string, ref: Bytes): string {
   // {safe.id}-{hash}
-  return `${safe.toHex()}-${hash.toHex()}`;
+  return `${safeId}-${ref.toHex()}`;
 }
 
-export function getGroupApproverId(
-  groupId: string,
-  approverId: string,
-): string {
-  // {group.id}-{approver.id}
-  return `${groupId}-${approverId}`;
+export function getApproverSetId(groupId: string, blockHash: Bytes): string {
+  // {groupId}-{blockHash}
+  return `${groupId}-${blockHash.toHex()}`;
 }
 
-export function getDepositId(e: ethereum.Event): string {
+export function getApproverId(setId: string, userId: string): string {
+  // {set.id}-{approver.id}
+  return `${setId}-${userId}`;
+}
+
+export function getReceiveId(e: ethereum.Event): string {
   // {tx.hash}-{tx.log.index}
   return `${e.transaction.hash.toHex()}-${e.transactionLogIndex}`;
 }

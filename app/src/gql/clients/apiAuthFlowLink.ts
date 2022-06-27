@@ -1,7 +1,7 @@
 import { ApolloLink, fromPromise, ServerError } from '@apollo/client';
 import { setContext } from '@apollo/client/link/context';
 import { onError } from '@apollo/client/link/error';
-import { NetworkError } from '@apollo/client/errors';
+// import { NetworkError } from '@apollo/client/errors';
 import { SiweMessage } from 'siwe';
 import { tryAcquire, E_ALREADY_LOCKED, Mutex } from 'async-mutex';
 import * as zk from 'zksync-web3';
@@ -19,8 +19,8 @@ interface Token {
 
 const fetchMutex = new Mutex();
 
-const isServerError = (e?: NetworkError): e is ServerError =>
-  e?.name === 'ServerError';
+const isServerError = (e?: unknown): e is ServerError =>
+  typeof e === "object" && e !== null && e["name"] === 'ServerError';
 
 // https://test.com/abc/123 -> test.com; RN lacks URL support )':
 const getHost = (url: string) => {

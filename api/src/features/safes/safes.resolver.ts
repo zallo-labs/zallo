@@ -1,25 +1,17 @@
 import { Args, Info, Mutation, Query, Resolver } from '@nestjs/graphql';
 import { PrismaService } from 'nestjs-prisma';
-import { ethers } from 'ethers';
 import { GraphQLError, GraphQLResolveInfo } from 'graphql';
 
-import {
-  address,
-  calculateSafeAddress,
-  getGroupApproverId,
-  getGroupId,
-  Group,
-  hashGroup,
-  toSafeGroup,
-} from 'lib';
+import { calculateSafeAddress, toSafeConstructorDeployArgs } from 'lib';
 import { Safe } from '@gen/safe/safe.model';
 import { FindManySafeArgs } from '@gen/safe/find-many-safe.args';
 import { FindUniqueSafeArgs } from '@gen/safe/find-unique-safe.args';
 import { CreateCfSafeArgs } from './safes.args';
 import { UserAddr } from '~/decorators/user.decorator';
 import { ProviderService } from '../../provider/provider.service';
-import { getSelect } from '~/util/test';
+import { getSelect } from '~/util/select';
 import { UpsertOneSafeArgs } from '@gen/safe/upsert-one-safe.args';
+import { connectOrCreateUser } from '~/util/connect-or-create';
 
 @Resolver(() => Safe)
 export class SafesResolver {
@@ -64,48 +56,35 @@ export class SafesResolver {
   @Mutation(() => Safe)
   async createCfSafe(
     @UserAddr() user: string,
-    @Args() args: CreateCfSafeArgs,
+    @Args() { group }: CreateCfSafeArgs,
     @Info() info: GraphQLResolveInfo,
   ): Promise<Safe> {
-    const group: Group = {
-      approvers: args.approvers.map((a) => ({
-        ...a,
-        addr: address(a.addr),
-      })),
-    };
-
     if (!group.approvers.filter((a) => a.addr === user).length)
       throw new GraphQLError('User must be part of group');
 
-    const { addr: safeAddr, salt } = await calculateSafeAddress(
-      [toSafeGroup(group).approvers],
+    const { addr: safe, salt } = await calculateSafeAddress(
+      toSafeConstructorDeployArgs({ group }),
       this.provider.factory,
     );
-    const groupHash = hashGroup(group);
 
-    return this.prisma.safe.create({
-      data: {
-        id: safeAddr,
-        deploySalt: ethers.utils.hexlify(salt),
+    return await this.prisma.safe.upsert({
+      where: { id: safe },
+      create: {
+        id: safe,
+        deploySalt: salt,
         groups: {
           create: {
-            id: getGroupId(safeAddr, group),
-            hash: groupHash,
+            ref: group.ref,
             approvers: {
               create: group.approvers.map((a) => ({
-                id: getGroupApproverId(safeAddr, groupHash, a),
-                approver: {
-                  connectOrCreate: {
-                    where: { id: a.addr },
-                    create: { id: a.addr },
-                  },
-                },
+                user: connectOrCreateUser(a.addr),
                 weight: a.weight.toString(),
               })),
             },
           },
         },
       },
+      update: {},
       ...getSelect(info),
     });
   }

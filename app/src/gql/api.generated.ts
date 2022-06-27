@@ -13,7 +13,7 @@ export interface CreateComment_createComment_reactions {
   safeId: string;
   key: string;
   nonce: number;
-  approverId: string;
+  userId: string;
   emojis: string[] | null;
 }
 
@@ -70,30 +70,6 @@ export interface DeleteCommentVariables {
 // This file was automatically generated and should not be edited.
 
 // ====================================================
-// GraphQL mutation operation: DeleteReaction
-// ====================================================
-
-export interface DeleteReaction_deleteReaction {
-  __typename: "Reaction";
-  id: string;
-}
-
-export interface DeleteReaction {
-  deleteReaction: DeleteReaction_deleteReaction | null;
-}
-
-export interface DeleteReactionVariables {
-  safe: any;
-  key: any;
-  nonce: number;
-}
-
-/* tslint:disable */
-/* eslint-disable */
-// @generated
-// This file was automatically generated and should not be edited.
-
-// ====================================================
 // GraphQL mutation operation: ReactToComment
 // ====================================================
 
@@ -103,7 +79,7 @@ export interface ReactToComment_reactToComment {
   safeId: string;
   key: string;
   nonce: number;
-  approverId: string;
+  userId: string;
   emojis: string[] | null;
 }
 
@@ -116,6 +92,87 @@ export interface ReactToCommentVariables {
   key: any;
   nonce: number;
   emojis: string[];
+}
+
+/* tslint:disable */
+/* eslint-disable */
+// @generated
+// This file was automatically generated and should not be edited.
+
+// ====================================================
+// GraphQL mutation operation: DeleteContact
+// ====================================================
+
+export interface DeleteContact_deleteContact {
+  __typename: "DeleteContactResp";
+  id: string;
+}
+
+export interface DeleteContact {
+  deleteContact: DeleteContact_deleteContact;
+}
+
+export interface DeleteContactVariables {
+  addr: any;
+}
+
+/* tslint:disable */
+/* eslint-disable */
+// @generated
+// This file was automatically generated and should not be edited.
+
+// ====================================================
+// GraphQL mutation operation: UpsertContact
+// ====================================================
+
+export interface UpsertContact_upsertContact {
+  __typename: "Contact";
+  id: string;
+  addr: string;
+  name: string;
+}
+
+export interface UpsertContact {
+  upsertContact: UpsertContact_upsertContact | null;
+}
+
+export interface UpsertContactVariables {
+  prevAddr?: any | null;
+  newAddr: any;
+  name: string;
+}
+
+/* tslint:disable */
+/* eslint-disable */
+// @generated
+// This file was automatically generated and should not be edited.
+
+// ====================================================
+// GraphQL mutation operation: UpsertGroup
+// ====================================================
+
+export interface UpsertGroup_upsertGroup_approvers {
+  __typename: "Approver";
+  userId: string;
+  weight: any;
+}
+
+export interface UpsertGroup_upsertGroup {
+  __typename: "Group";
+  id: string;
+  ref: string;
+  safeId: string;
+  approvers: UpsertGroup_upsertGroup_approvers[] | null;
+  name: string | null;
+}
+
+export interface UpsertGroup {
+  upsertGroup: UpsertGroup_upsertGroup | null;
+}
+
+export interface UpsertGroupVariables {
+  safe: any;
+  group: GroupInput;
 }
 
 /* tslint:disable */
@@ -192,7 +249,7 @@ export interface ProposeTx_proposeTx_ops {
 
 export interface ProposeTx_proposeTx_approvals {
   __typename: "Approval";
-  approverId: string;
+  userId: string;
   signature: string;
   createdAt: any;
 }
@@ -262,15 +319,15 @@ export interface RevokeApprovalVariables {
 // ====================================================
 
 export interface CreateCfSafe_createCfSafe_groups_approvers {
-  __typename: "GroupApprover";
-  approverId: string;
+  __typename: "Approver";
+  userId: string;
   weight: any;
 }
 
 export interface CreateCfSafe_createCfSafe_groups {
   __typename: "Group";
   id: string;
-  hash: string;
+  ref: string;
   safeId: string;
   approvers: CreateCfSafe_createCfSafe_groups_approvers[] | null;
   name: string | null;
@@ -289,89 +346,7 @@ export interface CreateCfSafe {
 }
 
 export interface CreateCfSafeVariables {
-  approvers: ApproverInput[];
-}
-
-/* tslint:disable */
-/* eslint-disable */
-// @generated
-// This file was automatically generated and should not be edited.
-
-// ====================================================
-// GraphQL mutation operation: DeleteContact
-// ====================================================
-
-export interface DeleteContact_deleteContact {
-  __typename: "DeleteContactResp";
-  id: string;
-}
-
-export interface DeleteContact {
-  deleteContact: DeleteContact_deleteContact;
-}
-
-export interface DeleteContactVariables {
-  addr: any;
-}
-
-/* tslint:disable */
-/* eslint-disable */
-// @generated
-// This file was automatically generated and should not be edited.
-
-// ====================================================
-// GraphQL mutation operation: UpsertContact
-// ====================================================
-
-export interface UpsertContact_upsertContact {
-  __typename: "Contact";
-  id: string;
-  addr: string;
-  name: string;
-}
-
-export interface UpsertContact {
-  upsertContact: UpsertContact_upsertContact | null;
-}
-
-export interface UpsertContactVariables {
-  prevAddr?: any | null;
-  newAddr: any;
-  name: string;
-}
-
-/* tslint:disable */
-/* eslint-disable */
-// @generated
-// This file was automatically generated and should not be edited.
-
-// ====================================================
-// GraphQL mutation operation: UpsertGroup
-// ====================================================
-
-export interface UpsertGroup_upsertGroup_approvers {
-  __typename: "GroupApprover";
-  approverId: string;
-  weight: any;
-}
-
-export interface UpsertGroup_upsertGroup {
-  __typename: "Group";
-  id: string;
-  hash: string;
-  safeId: string;
-  approvers: UpsertGroup_upsertGroup_approvers[] | null;
-  name: string | null;
-}
-
-export interface UpsertGroup {
-  upsertGroup: UpsertGroup_upsertGroup | null;
-}
-
-export interface UpsertGroupVariables {
-  where: GroupWhereUniqueInput;
-  create: GroupCreateInput;
-  update: GroupUpdateInput;
+  group: GroupInput;
 }
 
 /* tslint:disable */
@@ -384,15 +359,15 @@ export interface UpsertGroupVariables {
 // ====================================================
 
 export interface UpsertSafe_upsertSafe_groups_approvers {
-  __typename: "GroupApprover";
-  approverId: string;
+  __typename: "Approver";
+  userId: string;
   weight: any;
 }
 
 export interface UpsertSafe_upsertSafe_groups {
   __typename: "Group";
   id: string;
-  hash: string;
+  ref: string;
   safeId: string;
   approvers: UpsertSafe_upsertSafe_groups_approvers[] | null;
   name: string | null;
@@ -436,7 +411,7 @@ export interface GetApiTxs_txs_ops {
 
 export interface GetApiTxs_txs_approvals {
   __typename: "Approval";
-  approverId: string;
+  userId: string;
   signature: string;
   createdAt: any;
 }
@@ -486,7 +461,7 @@ export interface CommentsQuery_comments_reactions {
   safeId: string;
   key: string;
   nonce: number;
-  approverId: string;
+  userId: string;
   emojis: string[] | null;
 }
 
@@ -562,68 +537,67 @@ export interface GetContractMethodVariables {
 // This file was automatically generated and should not be edited.
 
 // ====================================================
-// GraphQL query operation: GetApiSafes
+// GraphQL query operation: AQueryUserSafes
 // ====================================================
 
-export interface GetApiSafes_approver_safes_groups_approvers {
-  __typename: "GroupApprover";
-  approverId: string;
-  weight: any;
-}
-
-export interface GetApiSafes_approver_safes_groups {
-  __typename: "Group";
-  id: string;
-  hash: string;
-  safeId: string;
-  approvers: GetApiSafes_approver_safes_groups_approvers[] | null;
-  name: string | null;
-}
-
-export interface GetApiSafes_approver_safes {
-  __typename: "Safe";
-  id: string;
-  name: string | null;
-  deploySalt: string | null;
-  groups: GetApiSafes_approver_safes_groups[] | null;
-}
-
-export interface GetApiSafes_approver {
+export interface AQueryUserSafes_user_safes_groups_approvers {
   __typename: "Approver";
-  id: string;
-  safes: GetApiSafes_approver_safes[];
-}
-
-export interface GetApiSafes_safes_groups_approvers {
-  __typename: "GroupApprover";
-  approverId: string;
+  userId: string;
   weight: any;
 }
 
-export interface GetApiSafes_safes_groups {
+export interface AQueryUserSafes_user_safes_groups {
   __typename: "Group";
   id: string;
-  hash: string;
+  ref: string;
   safeId: string;
-  approvers: GetApiSafes_safes_groups_approvers[] | null;
+  approvers: AQueryUserSafes_user_safes_groups_approvers[] | null;
   name: string | null;
 }
 
-export interface GetApiSafes_safes {
+export interface AQueryUserSafes_user_safes {
   __typename: "Safe";
   id: string;
   name: string | null;
   deploySalt: string | null;
-  groups: GetApiSafes_safes_groups[] | null;
+  groups: AQueryUserSafes_user_safes_groups[] | null;
 }
 
-export interface GetApiSafes {
-  approver: GetApiSafes_approver | null;
-  safes: GetApiSafes_safes[];
+export interface AQueryUserSafes_user {
+  __typename: "User";
+  id: string;
+  safes: AQueryUserSafes_user_safes[];
 }
 
-export interface GetApiSafesVariables {
-  approver: string;
+export interface AQueryUserSafes_safes_groups_approvers {
+  __typename: "Approver";
+  userId: string;
+  weight: any;
+}
+
+export interface AQueryUserSafes_safes_groups {
+  __typename: "Group";
+  id: string;
+  ref: string;
+  safeId: string;
+  approvers: AQueryUserSafes_safes_groups_approvers[] | null;
+  name: string | null;
+}
+
+export interface AQueryUserSafes_safes {
+  __typename: "Safe";
+  id: string;
+  name: string | null;
+  deploySalt: string | null;
+  groups: AQueryUserSafes_safes_groups[] | null;
+}
+
+export interface AQueryUserSafes {
+  user: AQueryUserSafes_user | null;
+  safes: AQueryUserSafes_safes[];
+}
+
+export interface AQueryUserSafesVariables {
   safes?: string[] | null;
 }
 
@@ -667,7 +641,7 @@ export interface TxFields_ops {
 
 export interface TxFields_approvals {
   __typename: "Approval";
-  approverId: string;
+  userId: string;
   signature: string;
   createdAt: any;
 }
@@ -709,7 +683,7 @@ export interface ReactionFields {
   safeId: string;
   key: string;
   nonce: number;
-  approverId: string;
+  userId: string;
   emojis: string[] | null;
 }
 
@@ -728,7 +702,7 @@ export interface CommentFields_reactions {
   safeId: string;
   key: string;
   nonce: number;
-  approverId: string;
+  userId: string;
   emojis: string[] | null;
 }
 
@@ -771,15 +745,15 @@ export interface ContactFields {
 // ====================================================
 
 export interface GroupFields_approvers {
-  __typename: "GroupApprover";
-  approverId: string;
+  __typename: "Approver";
+  userId: string;
   weight: any;
 }
 
 export interface GroupFields {
   __typename: "Group";
   id: string;
-  hash: string;
+  ref: string;
   safeId: string;
   approvers: GroupFields_approvers[] | null;
   name: string | null;
@@ -795,15 +769,15 @@ export interface GroupFields {
 // ====================================================
 
 export interface SafeFields_groups_approvers {
-  __typename: "GroupApprover";
-  approverId: string;
+  __typename: "Approver";
+  userId: string;
   weight: any;
 }
 
 export interface SafeFields_groups {
   __typename: "Group";
   id: string;
-  hash: string;
+  ref: string;
   safeId: string;
   approvers: SafeFields_groups_approvers[] | null;
   name: string | null;
@@ -831,23 +805,11 @@ export enum QueryMode {
   insensitive = "insensitive",
 }
 
-export interface ApprovalCreateManyApproverInput {
-  createdAt?: any | null;
-  safeId: string;
-  signature: string;
-  txHash: string;
-}
-
-export interface ApprovalCreateManyApproverInputEnvelope {
-  data: ApprovalCreateManyApproverInput[];
-  skipDuplicates?: boolean | null;
-}
-
 export interface ApprovalCreateManySafeInput {
-  approverId: string;
   createdAt?: any | null;
   signature: string;
   txHash: string;
+  userId: string;
 }
 
 export interface ApprovalCreateManySafeInputEnvelope {
@@ -856,9 +818,9 @@ export interface ApprovalCreateManySafeInputEnvelope {
 }
 
 export interface ApprovalCreateManyTxInput {
-  approverId: string;
   createdAt?: any | null;
   signature: string;
+  userId: string;
 }
 
 export interface ApprovalCreateManyTxInputEnvelope {
@@ -866,11 +828,16 @@ export interface ApprovalCreateManyTxInputEnvelope {
   skipDuplicates?: boolean | null;
 }
 
-export interface ApprovalCreateNestedManyWithoutApproverInput {
-  connect?: ApprovalWhereUniqueInput[] | null;
-  connectOrCreate?: ApprovalCreateOrConnectWithoutApproverInput[] | null;
-  create?: ApprovalCreateWithoutApproverInput[] | null;
-  createMany?: ApprovalCreateManyApproverInputEnvelope | null;
+export interface ApprovalCreateManyUserInput {
+  createdAt?: any | null;
+  safeId: string;
+  signature: string;
+  txHash: string;
+}
+
+export interface ApprovalCreateManyUserInputEnvelope {
+  data: ApprovalCreateManyUserInput[];
+  skipDuplicates?: boolean | null;
 }
 
 export interface ApprovalCreateNestedManyWithoutSafeInput {
@@ -887,9 +854,11 @@ export interface ApprovalCreateNestedManyWithoutTxInput {
   createMany?: ApprovalCreateManyTxInputEnvelope | null;
 }
 
-export interface ApprovalCreateOrConnectWithoutApproverInput {
-  create: ApprovalCreateWithoutApproverInput;
-  where: ApprovalWhereUniqueInput;
+export interface ApprovalCreateNestedManyWithoutUserInput {
+  connect?: ApprovalWhereUniqueInput[] | null;
+  connectOrCreate?: ApprovalCreateOrConnectWithoutUserInput[] | null;
+  create?: ApprovalCreateWithoutUserInput[] | null;
+  createMany?: ApprovalCreateManyUserInputEnvelope | null;
 }
 
 export interface ApprovalCreateOrConnectWithoutSafeInput {
@@ -902,52 +871,52 @@ export interface ApprovalCreateOrConnectWithoutTxInput {
   where: ApprovalWhereUniqueInput;
 }
 
-export interface ApprovalCreateWithoutApproverInput {
-  createdAt?: any | null;
-  safe: SafeCreateNestedOneWithoutApprovalsInput;
-  signature: string;
-  tx: TxCreateNestedOneWithoutApprovalsInput;
+export interface ApprovalCreateOrConnectWithoutUserInput {
+  create: ApprovalCreateWithoutUserInput;
+  where: ApprovalWhereUniqueInput;
 }
 
 export interface ApprovalCreateWithoutSafeInput {
-  approver: ApproverCreateNestedOneWithoutApprovalsInput;
   createdAt?: any | null;
+  signature: string;
+  tx: TxCreateNestedOneWithoutApprovalsInput;
+  user: UserCreateNestedOneWithoutApprovalsInput;
+}
+
+export interface ApprovalCreateWithoutTxInput {
+  createdAt?: any | null;
+  safe: SafeCreateNestedOneWithoutApprovalsInput;
+  signature: string;
+  user: UserCreateNestedOneWithoutApprovalsInput;
+}
+
+export interface ApprovalCreateWithoutUserInput {
+  createdAt?: any | null;
+  safe: SafeCreateNestedOneWithoutApprovalsInput;
   signature: string;
   tx: TxCreateNestedOneWithoutApprovalsInput;
 }
 
-export interface ApprovalCreateWithoutTxInput {
-  approver: ApproverCreateNestedOneWithoutApprovalsInput;
-  createdAt?: any | null;
-  safe: SafeCreateNestedOneWithoutApprovalsInput;
-  signature: string;
-}
-
-export interface ApprovalSafeIdTxHashApproverIdCompoundUniqueInput {
-  approverId: string;
+export interface ApprovalSafeIdTxHashUserIdCompoundUniqueInput {
   safeId: string;
   txHash: string;
+  userId: string;
 }
 
 export interface ApprovalScalarWhereInput {
   AND?: ApprovalScalarWhereInput[] | null;
   NOT?: ApprovalScalarWhereInput[] | null;
   OR?: ApprovalScalarWhereInput[] | null;
-  approverId?: StringFilter | null;
   createdAt?: DateTimeFilter | null;
   safeId?: StringFilter | null;
   signature?: StringFilter | null;
   txHash?: StringFilter | null;
+  userId?: StringFilter | null;
 }
 
 export interface ApprovalUpdateManyMutationInput {
   createdAt?: DateTimeFieldUpdateOperationsInput | null;
   signature?: StringFieldUpdateOperationsInput | null;
-}
-
-export interface ApprovalUpdateManyWithWhereWithoutApproverInput {
-  data: ApprovalUpdateManyMutationInput;
-  where: ApprovalScalarWhereInput;
 }
 
 export interface ApprovalUpdateManyWithWhereWithoutSafeInput {
@@ -960,18 +929,9 @@ export interface ApprovalUpdateManyWithWhereWithoutTxInput {
   where: ApprovalScalarWhereInput;
 }
 
-export interface ApprovalUpdateManyWithoutApproverInput {
-  connect?: ApprovalWhereUniqueInput[] | null;
-  connectOrCreate?: ApprovalCreateOrConnectWithoutApproverInput[] | null;
-  create?: ApprovalCreateWithoutApproverInput[] | null;
-  createMany?: ApprovalCreateManyApproverInputEnvelope | null;
-  delete?: ApprovalWhereUniqueInput[] | null;
-  deleteMany?: ApprovalScalarWhereInput[] | null;
-  disconnect?: ApprovalWhereUniqueInput[] | null;
-  set?: ApprovalWhereUniqueInput[] | null;
-  update?: ApprovalUpdateWithWhereUniqueWithoutApproverInput[] | null;
-  updateMany?: ApprovalUpdateManyWithWhereWithoutApproverInput[] | null;
-  upsert?: ApprovalUpsertWithWhereUniqueWithoutApproverInput[] | null;
+export interface ApprovalUpdateManyWithWhereWithoutUserInput {
+  data: ApprovalUpdateManyMutationInput;
+  where: ApprovalScalarWhereInput;
 }
 
 export interface ApprovalUpdateManyWithoutSafeInput {
@@ -1002,9 +962,18 @@ export interface ApprovalUpdateManyWithoutTxInput {
   upsert?: ApprovalUpsertWithWhereUniqueWithoutTxInput[] | null;
 }
 
-export interface ApprovalUpdateWithWhereUniqueWithoutApproverInput {
-  data: ApprovalUpdateWithoutApproverInput;
-  where: ApprovalWhereUniqueInput;
+export interface ApprovalUpdateManyWithoutUserInput {
+  connect?: ApprovalWhereUniqueInput[] | null;
+  connectOrCreate?: ApprovalCreateOrConnectWithoutUserInput[] | null;
+  create?: ApprovalCreateWithoutUserInput[] | null;
+  createMany?: ApprovalCreateManyUserInputEnvelope | null;
+  delete?: ApprovalWhereUniqueInput[] | null;
+  deleteMany?: ApprovalScalarWhereInput[] | null;
+  disconnect?: ApprovalWhereUniqueInput[] | null;
+  set?: ApprovalWhereUniqueInput[] | null;
+  update?: ApprovalUpdateWithWhereUniqueWithoutUserInput[] | null;
+  updateMany?: ApprovalUpdateManyWithWhereWithoutUserInput[] | null;
+  upsert?: ApprovalUpsertWithWhereUniqueWithoutUserInput[] | null;
 }
 
 export interface ApprovalUpdateWithWhereUniqueWithoutSafeInput {
@@ -1017,31 +986,30 @@ export interface ApprovalUpdateWithWhereUniqueWithoutTxInput {
   where: ApprovalWhereUniqueInput;
 }
 
-export interface ApprovalUpdateWithoutApproverInput {
-  createdAt?: DateTimeFieldUpdateOperationsInput | null;
-  safe?: SafeUpdateOneRequiredWithoutApprovalsInput | null;
-  signature?: StringFieldUpdateOperationsInput | null;
-  tx?: TxUpdateOneRequiredWithoutApprovalsInput | null;
+export interface ApprovalUpdateWithWhereUniqueWithoutUserInput {
+  data: ApprovalUpdateWithoutUserInput;
+  where: ApprovalWhereUniqueInput;
 }
 
 export interface ApprovalUpdateWithoutSafeInput {
-  approver?: ApproverUpdateOneRequiredWithoutApprovalsInput | null;
   createdAt?: DateTimeFieldUpdateOperationsInput | null;
   signature?: StringFieldUpdateOperationsInput | null;
   tx?: TxUpdateOneRequiredWithoutApprovalsInput | null;
+  user?: UserUpdateOneRequiredWithoutApprovalsInput | null;
 }
 
 export interface ApprovalUpdateWithoutTxInput {
-  approver?: ApproverUpdateOneRequiredWithoutApprovalsInput | null;
   createdAt?: DateTimeFieldUpdateOperationsInput | null;
   safe?: SafeUpdateOneRequiredWithoutApprovalsInput | null;
   signature?: StringFieldUpdateOperationsInput | null;
+  user?: UserUpdateOneRequiredWithoutApprovalsInput | null;
 }
 
-export interface ApprovalUpsertWithWhereUniqueWithoutApproverInput {
-  create: ApprovalCreateWithoutApproverInput;
-  update: ApprovalUpdateWithoutApproverInput;
-  where: ApprovalWhereUniqueInput;
+export interface ApprovalUpdateWithoutUserInput {
+  createdAt?: DateTimeFieldUpdateOperationsInput | null;
+  safe?: SafeUpdateOneRequiredWithoutApprovalsInput | null;
+  signature?: StringFieldUpdateOperationsInput | null;
+  tx?: TxUpdateOneRequiredWithoutApprovalsInput | null;
 }
 
 export interface ApprovalUpsertWithWhereUniqueWithoutSafeInput {
@@ -1056,177 +1024,168 @@ export interface ApprovalUpsertWithWhereUniqueWithoutTxInput {
   where: ApprovalWhereUniqueInput;
 }
 
+export interface ApprovalUpsertWithWhereUniqueWithoutUserInput {
+  create: ApprovalCreateWithoutUserInput;
+  update: ApprovalUpdateWithoutUserInput;
+  where: ApprovalWhereUniqueInput;
+}
+
 export interface ApprovalWhereUniqueInput {
-  safeId_txHash_approverId?: ApprovalSafeIdTxHashApproverIdCompoundUniqueInput | null;
+  safeId_txHash_userId?: ApprovalSafeIdTxHashUserIdCompoundUniqueInput | null;
 }
 
-export interface ApproverCreateNestedOneWithoutApprovalsInput {
-  connect?: ApproverWhereUniqueInput | null;
-  connectOrCreate?: ApproverCreateOrConnectWithoutApprovalsInput | null;
-  create?: ApproverCreateWithoutApprovalsInput | null;
+export interface ApproverCreateManyGroupInput {
+  userId: string;
+  weight: any;
 }
 
-export interface ApproverCreateNestedOneWithoutCommentsInput {
-  connect?: ApproverWhereUniqueInput | null;
-  connectOrCreate?: ApproverCreateOrConnectWithoutCommentsInput | null;
-  create?: ApproverCreateWithoutCommentsInput | null;
+export interface ApproverCreateManyGroupInputEnvelope {
+  data: ApproverCreateManyGroupInput[];
+  skipDuplicates?: boolean | null;
 }
 
-export interface ApproverCreateNestedOneWithoutGroupsInput {
-  connect?: ApproverWhereUniqueInput | null;
-  connectOrCreate?: ApproverCreateOrConnectWithoutGroupsInput | null;
-  create?: ApproverCreateWithoutGroupsInput | null;
+export interface ApproverCreateManyUserInput {
+  groupRef: string;
+  safeId: string;
+  weight: any;
 }
 
-export interface ApproverCreateNestedOneWithoutReactionsInput {
-  connect?: ApproverWhereUniqueInput | null;
-  connectOrCreate?: ApproverCreateOrConnectWithoutReactionsInput | null;
-  create?: ApproverCreateWithoutReactionsInput | null;
+export interface ApproverCreateManyUserInputEnvelope {
+  data: ApproverCreateManyUserInput[];
+  skipDuplicates?: boolean | null;
 }
 
-export interface ApproverCreateOrConnectWithoutApprovalsInput {
-  create: ApproverCreateWithoutApprovalsInput;
+export interface ApproverCreateNestedManyWithoutGroupInput {
+  connect?: ApproverWhereUniqueInput[] | null;
+  connectOrCreate?: ApproverCreateOrConnectWithoutGroupInput[] | null;
+  create?: ApproverCreateWithoutGroupInput[] | null;
+  createMany?: ApproverCreateManyGroupInputEnvelope | null;
+}
+
+export interface ApproverCreateNestedManyWithoutUserInput {
+  connect?: ApproverWhereUniqueInput[] | null;
+  connectOrCreate?: ApproverCreateOrConnectWithoutUserInput[] | null;
+  create?: ApproverCreateWithoutUserInput[] | null;
+  createMany?: ApproverCreateManyUserInputEnvelope | null;
+}
+
+export interface ApproverCreateOrConnectWithoutGroupInput {
+  create: ApproverCreateWithoutGroupInput;
   where: ApproverWhereUniqueInput;
 }
 
-export interface ApproverCreateOrConnectWithoutCommentsInput {
-  create: ApproverCreateWithoutCommentsInput;
+export interface ApproverCreateOrConnectWithoutUserInput {
+  create: ApproverCreateWithoutUserInput;
   where: ApproverWhereUniqueInput;
 }
 
-export interface ApproverCreateOrConnectWithoutGroupsInput {
-  create: ApproverCreateWithoutGroupsInput;
-  where: ApproverWhereUniqueInput;
+export interface ApproverCreateWithoutGroupInput {
+  user: UserCreateNestedOneWithoutGroupsInput;
+  weight: any;
 }
 
-export interface ApproverCreateOrConnectWithoutReactionsInput {
-  create: ApproverCreateWithoutReactionsInput;
-  where: ApproverWhereUniqueInput;
-}
-
-export interface ApproverCreateWithoutApprovalsInput {
-  comments?: CommentCreateNestedManyWithoutAuthorInput | null;
-  contacts?: ContactCreateNestedManyWithoutApproverInput | null;
-  groups?: GroupApproverCreateNestedManyWithoutApproverInput | null;
-  id: string;
-  reactions?: ReactionCreateNestedManyWithoutApproverInput | null;
-}
-
-export interface ApproverCreateWithoutCommentsInput {
-  approvals?: ApprovalCreateNestedManyWithoutApproverInput | null;
-  contacts?: ContactCreateNestedManyWithoutApproverInput | null;
-  groups?: GroupApproverCreateNestedManyWithoutApproverInput | null;
-  id: string;
-  reactions?: ReactionCreateNestedManyWithoutApproverInput | null;
-}
-
-export interface ApproverCreateWithoutGroupsInput {
-  approvals?: ApprovalCreateNestedManyWithoutApproverInput | null;
-  comments?: CommentCreateNestedManyWithoutAuthorInput | null;
-  contacts?: ContactCreateNestedManyWithoutApproverInput | null;
-  id: string;
-  reactions?: ReactionCreateNestedManyWithoutApproverInput | null;
-}
-
-export interface ApproverCreateWithoutReactionsInput {
-  approvals?: ApprovalCreateNestedManyWithoutApproverInput | null;
-  comments?: CommentCreateNestedManyWithoutAuthorInput | null;
-  contacts?: ContactCreateNestedManyWithoutApproverInput | null;
-  groups?: GroupApproverCreateNestedManyWithoutApproverInput | null;
-  id: string;
+export interface ApproverCreateWithoutUserInput {
+  group: GroupCreateNestedOneWithoutApproversInput;
+  weight: any;
 }
 
 export interface ApproverInput {
-  addr: string;
-  weight: string;
+  addr: any;
+  weight: number;
 }
 
-export interface ApproverUpdateOneRequiredWithoutApprovalsInput {
-  connect?: ApproverWhereUniqueInput | null;
-  connectOrCreate?: ApproverCreateOrConnectWithoutApprovalsInput | null;
-  create?: ApproverCreateWithoutApprovalsInput | null;
-  update?: ApproverUpdateWithoutApprovalsInput | null;
-  upsert?: ApproverUpsertWithoutApprovalsInput | null;
+export interface ApproverSafeIdGroupRefUserIdCompoundUniqueInput {
+  groupRef: string;
+  safeId: string;
+  userId: string;
 }
 
-export interface ApproverUpdateOneRequiredWithoutCommentsInput {
-  connect?: ApproverWhereUniqueInput | null;
-  connectOrCreate?: ApproverCreateOrConnectWithoutCommentsInput | null;
-  create?: ApproverCreateWithoutCommentsInput | null;
-  update?: ApproverUpdateWithoutCommentsInput | null;
-  upsert?: ApproverUpsertWithoutCommentsInput | null;
+export interface ApproverScalarWhereInput {
+  AND?: ApproverScalarWhereInput[] | null;
+  NOT?: ApproverScalarWhereInput[] | null;
+  OR?: ApproverScalarWhereInput[] | null;
+  groupRef?: StringFilter | null;
+  safeId?: StringFilter | null;
+  userId?: StringFilter | null;
+  weight?: DecimalFilter | null;
 }
 
-export interface ApproverUpdateOneRequiredWithoutGroupsInput {
-  connect?: ApproverWhereUniqueInput | null;
-  connectOrCreate?: ApproverCreateOrConnectWithoutGroupsInput | null;
-  create?: ApproverCreateWithoutGroupsInput | null;
-  update?: ApproverUpdateWithoutGroupsInput | null;
-  upsert?: ApproverUpsertWithoutGroupsInput | null;
+export interface ApproverUpdateManyMutationInput {
+  weight?: DecimalFieldUpdateOperationsInput | null;
 }
 
-export interface ApproverUpdateOneRequiredWithoutReactionsInput {
-  connect?: ApproverWhereUniqueInput | null;
-  connectOrCreate?: ApproverCreateOrConnectWithoutReactionsInput | null;
-  create?: ApproverCreateWithoutReactionsInput | null;
-  update?: ApproverUpdateWithoutReactionsInput | null;
-  upsert?: ApproverUpsertWithoutReactionsInput | null;
+export interface ApproverUpdateManyWithWhereWithoutGroupInput {
+  data: ApproverUpdateManyMutationInput;
+  where: ApproverScalarWhereInput;
 }
 
-export interface ApproverUpdateWithoutApprovalsInput {
-  comments?: CommentUpdateManyWithoutAuthorInput | null;
-  contacts?: ContactUpdateManyWithoutApproverInput | null;
-  groups?: GroupApproverUpdateManyWithoutApproverInput | null;
-  id?: StringFieldUpdateOperationsInput | null;
-  reactions?: ReactionUpdateManyWithoutApproverInput | null;
+export interface ApproverUpdateManyWithWhereWithoutUserInput {
+  data: ApproverUpdateManyMutationInput;
+  where: ApproverScalarWhereInput;
 }
 
-export interface ApproverUpdateWithoutCommentsInput {
-  approvals?: ApprovalUpdateManyWithoutApproverInput | null;
-  contacts?: ContactUpdateManyWithoutApproverInput | null;
-  groups?: GroupApproverUpdateManyWithoutApproverInput | null;
-  id?: StringFieldUpdateOperationsInput | null;
-  reactions?: ReactionUpdateManyWithoutApproverInput | null;
+export interface ApproverUpdateManyWithoutGroupInput {
+  connect?: ApproverWhereUniqueInput[] | null;
+  connectOrCreate?: ApproverCreateOrConnectWithoutGroupInput[] | null;
+  create?: ApproverCreateWithoutGroupInput[] | null;
+  createMany?: ApproverCreateManyGroupInputEnvelope | null;
+  delete?: ApproverWhereUniqueInput[] | null;
+  deleteMany?: ApproverScalarWhereInput[] | null;
+  disconnect?: ApproverWhereUniqueInput[] | null;
+  set?: ApproverWhereUniqueInput[] | null;
+  update?: ApproverUpdateWithWhereUniqueWithoutGroupInput[] | null;
+  updateMany?: ApproverUpdateManyWithWhereWithoutGroupInput[] | null;
+  upsert?: ApproverUpsertWithWhereUniqueWithoutGroupInput[] | null;
 }
 
-export interface ApproverUpdateWithoutGroupsInput {
-  approvals?: ApprovalUpdateManyWithoutApproverInput | null;
-  comments?: CommentUpdateManyWithoutAuthorInput | null;
-  contacts?: ContactUpdateManyWithoutApproverInput | null;
-  id?: StringFieldUpdateOperationsInput | null;
-  reactions?: ReactionUpdateManyWithoutApproverInput | null;
+export interface ApproverUpdateManyWithoutUserInput {
+  connect?: ApproverWhereUniqueInput[] | null;
+  connectOrCreate?: ApproverCreateOrConnectWithoutUserInput[] | null;
+  create?: ApproverCreateWithoutUserInput[] | null;
+  createMany?: ApproverCreateManyUserInputEnvelope | null;
+  delete?: ApproverWhereUniqueInput[] | null;
+  deleteMany?: ApproverScalarWhereInput[] | null;
+  disconnect?: ApproverWhereUniqueInput[] | null;
+  set?: ApproverWhereUniqueInput[] | null;
+  update?: ApproverUpdateWithWhereUniqueWithoutUserInput[] | null;
+  updateMany?: ApproverUpdateManyWithWhereWithoutUserInput[] | null;
+  upsert?: ApproverUpsertWithWhereUniqueWithoutUserInput[] | null;
 }
 
-export interface ApproverUpdateWithoutReactionsInput {
-  approvals?: ApprovalUpdateManyWithoutApproverInput | null;
-  comments?: CommentUpdateManyWithoutAuthorInput | null;
-  contacts?: ContactUpdateManyWithoutApproverInput | null;
-  groups?: GroupApproverUpdateManyWithoutApproverInput | null;
-  id?: StringFieldUpdateOperationsInput | null;
+export interface ApproverUpdateWithWhereUniqueWithoutGroupInput {
+  data: ApproverUpdateWithoutGroupInput;
+  where: ApproverWhereUniqueInput;
 }
 
-export interface ApproverUpsertWithoutApprovalsInput {
-  create: ApproverCreateWithoutApprovalsInput;
-  update: ApproverUpdateWithoutApprovalsInput;
+export interface ApproverUpdateWithWhereUniqueWithoutUserInput {
+  data: ApproverUpdateWithoutUserInput;
+  where: ApproverWhereUniqueInput;
 }
 
-export interface ApproverUpsertWithoutCommentsInput {
-  create: ApproverCreateWithoutCommentsInput;
-  update: ApproverUpdateWithoutCommentsInput;
+export interface ApproverUpdateWithoutGroupInput {
+  user?: UserUpdateOneRequiredWithoutGroupsInput | null;
+  weight?: DecimalFieldUpdateOperationsInput | null;
 }
 
-export interface ApproverUpsertWithoutGroupsInput {
-  create: ApproverCreateWithoutGroupsInput;
-  update: ApproverUpdateWithoutGroupsInput;
+export interface ApproverUpdateWithoutUserInput {
+  group?: GroupUpdateOneRequiredWithoutApproversInput | null;
+  weight?: DecimalFieldUpdateOperationsInput | null;
 }
 
-export interface ApproverUpsertWithoutReactionsInput {
-  create: ApproverCreateWithoutReactionsInput;
-  update: ApproverUpdateWithoutReactionsInput;
+export interface ApproverUpsertWithWhereUniqueWithoutGroupInput {
+  create: ApproverCreateWithoutGroupInput;
+  update: ApproverUpdateWithoutGroupInput;
+  where: ApproverWhereUniqueInput;
+}
+
+export interface ApproverUpsertWithWhereUniqueWithoutUserInput {
+  create: ApproverCreateWithoutUserInput;
+  update: ApproverUpdateWithoutUserInput;
+  where: ApproverWhereUniqueInput;
 }
 
 export interface ApproverWhereUniqueInput {
-  id?: string | null;
+  safeId_groupRef_userId?: ApproverSafeIdGroupRefUserIdCompoundUniqueInput | null;
 }
 
 export interface BoolFieldUpdateOperationsInput {
@@ -1312,7 +1271,7 @@ export interface CommentCreateWithoutAuthorInput {
 }
 
 export interface CommentCreateWithoutReactionsInput {
-  author: ApproverCreateNestedOneWithoutCommentsInput;
+  author: UserCreateNestedOneWithoutCommentsInput;
   content: string;
   createdAt?: any | null;
   key: string;
@@ -1322,7 +1281,7 @@ export interface CommentCreateWithoutReactionsInput {
 }
 
 export interface CommentCreateWithoutSafeInput {
-  author: ApproverCreateNestedOneWithoutCommentsInput;
+  author: UserCreateNestedOneWithoutCommentsInput;
   content: string;
   createdAt?: any | null;
   key: string;
@@ -1425,7 +1384,7 @@ export interface CommentUpdateWithoutAuthorInput {
 }
 
 export interface CommentUpdateWithoutReactionsInput {
-  author?: ApproverUpdateOneRequiredWithoutCommentsInput | null;
+  author?: UserUpdateOneRequiredWithoutCommentsInput | null;
   content?: StringFieldUpdateOperationsInput | null;
   createdAt?: DateTimeFieldUpdateOperationsInput | null;
   key?: StringFieldUpdateOperationsInput | null;
@@ -1435,7 +1394,7 @@ export interface CommentUpdateWithoutReactionsInput {
 }
 
 export interface CommentUpdateWithoutSafeInput {
-  author?: ApproverUpdateOneRequiredWithoutCommentsInput | null;
+  author?: UserUpdateOneRequiredWithoutCommentsInput | null;
   content?: StringFieldUpdateOperationsInput | null;
   createdAt?: DateTimeFieldUpdateOperationsInput | null;
   key?: StringFieldUpdateOperationsInput | null;
@@ -1465,41 +1424,36 @@ export interface CommentWhereUniqueInput {
   safeId_key_nonce?: CommentSafeIdKeyNonceCompoundUniqueInput | null;
 }
 
-export interface ContactApproverIdAddrCompoundUniqueInput {
-  addr: string;
-  approverId: string;
-}
-
-export interface ContactCreateManyApproverInput {
+export interface ContactCreateManyUserInput {
   addr: string;
   name: string;
 }
 
-export interface ContactCreateManyApproverInputEnvelope {
-  data: ContactCreateManyApproverInput[];
+export interface ContactCreateManyUserInputEnvelope {
+  data: ContactCreateManyUserInput[];
   skipDuplicates?: boolean | null;
 }
 
-export interface ContactCreateNestedManyWithoutApproverInput {
+export interface ContactCreateNestedManyWithoutUserInput {
   connect?: ContactWhereUniqueInput[] | null;
-  connectOrCreate?: ContactCreateOrConnectWithoutApproverInput[] | null;
-  create?: ContactCreateWithoutApproverInput[] | null;
-  createMany?: ContactCreateManyApproverInputEnvelope | null;
+  connectOrCreate?: ContactCreateOrConnectWithoutUserInput[] | null;
+  create?: ContactCreateWithoutUserInput[] | null;
+  createMany?: ContactCreateManyUserInputEnvelope | null;
 }
 
-export interface ContactCreateOrConnectWithoutApproverInput {
-  create: ContactCreateWithoutApproverInput;
+export interface ContactCreateOrConnectWithoutUserInput {
+  create: ContactCreateWithoutUserInput;
   where: ContactWhereUniqueInput;
 }
 
-export interface ContactCreateWithoutApproverInput {
+export interface ContactCreateWithoutUserInput {
   addr: string;
   name: string;
 }
 
 export interface ContactName_identifierCompoundUniqueInput {
-  approverId: string;
   name: string;
+  userId: string;
 }
 
 export interface ContactScalarWhereInput {
@@ -1507,8 +1461,8 @@ export interface ContactScalarWhereInput {
   NOT?: ContactScalarWhereInput[] | null;
   OR?: ContactScalarWhereInput[] | null;
   addr?: StringFilter | null;
-  approverId?: StringFilter | null;
   name?: StringFilter | null;
+  userId?: StringFilter | null;
 }
 
 export interface ContactUpdateManyMutationInput {
@@ -1516,44 +1470,49 @@ export interface ContactUpdateManyMutationInput {
   name?: StringFieldUpdateOperationsInput | null;
 }
 
-export interface ContactUpdateManyWithWhereWithoutApproverInput {
+export interface ContactUpdateManyWithWhereWithoutUserInput {
   data: ContactUpdateManyMutationInput;
   where: ContactScalarWhereInput;
 }
 
-export interface ContactUpdateManyWithoutApproverInput {
+export interface ContactUpdateManyWithoutUserInput {
   connect?: ContactWhereUniqueInput[] | null;
-  connectOrCreate?: ContactCreateOrConnectWithoutApproverInput[] | null;
-  create?: ContactCreateWithoutApproverInput[] | null;
-  createMany?: ContactCreateManyApproverInputEnvelope | null;
+  connectOrCreate?: ContactCreateOrConnectWithoutUserInput[] | null;
+  create?: ContactCreateWithoutUserInput[] | null;
+  createMany?: ContactCreateManyUserInputEnvelope | null;
   delete?: ContactWhereUniqueInput[] | null;
   deleteMany?: ContactScalarWhereInput[] | null;
   disconnect?: ContactWhereUniqueInput[] | null;
   set?: ContactWhereUniqueInput[] | null;
-  update?: ContactUpdateWithWhereUniqueWithoutApproverInput[] | null;
-  updateMany?: ContactUpdateManyWithWhereWithoutApproverInput[] | null;
-  upsert?: ContactUpsertWithWhereUniqueWithoutApproverInput[] | null;
+  update?: ContactUpdateWithWhereUniqueWithoutUserInput[] | null;
+  updateMany?: ContactUpdateManyWithWhereWithoutUserInput[] | null;
+  upsert?: ContactUpsertWithWhereUniqueWithoutUserInput[] | null;
 }
 
-export interface ContactUpdateWithWhereUniqueWithoutApproverInput {
-  data: ContactUpdateWithoutApproverInput;
+export interface ContactUpdateWithWhereUniqueWithoutUserInput {
+  data: ContactUpdateWithoutUserInput;
   where: ContactWhereUniqueInput;
 }
 
-export interface ContactUpdateWithoutApproverInput {
+export interface ContactUpdateWithoutUserInput {
   addr?: StringFieldUpdateOperationsInput | null;
   name?: StringFieldUpdateOperationsInput | null;
 }
 
-export interface ContactUpsertWithWhereUniqueWithoutApproverInput {
-  create: ContactCreateWithoutApproverInput;
-  update: ContactUpdateWithoutApproverInput;
+export interface ContactUpsertWithWhereUniqueWithoutUserInput {
+  create: ContactCreateWithoutUserInput;
+  update: ContactUpdateWithoutUserInput;
   where: ContactWhereUniqueInput;
 }
 
+export interface ContactUserIdAddrCompoundUniqueInput {
+  addr: string;
+  userId: string;
+}
+
 export interface ContactWhereUniqueInput {
-  approverId_addr?: ContactApproverIdAddrCompoundUniqueInput | null;
   name_identifier?: ContactName_identifierCompoundUniqueInput | null;
+  userId_addr?: ContactUserIdAddrCompoundUniqueInput | null;
 }
 
 export interface DateTimeFieldUpdateOperationsInput {
@@ -1601,165 +1560,9 @@ export interface DecimalNullableFilter {
   notIn?: any[] | null;
 }
 
-export interface GroupApproverCreateManyApproverInput {
-  groupHash: string;
-  safeId: string;
-  weight: any;
-}
-
-export interface GroupApproverCreateManyApproverInputEnvelope {
-  data: GroupApproverCreateManyApproverInput[];
-  skipDuplicates?: boolean | null;
-}
-
-export interface GroupApproverCreateManyGroupInput {
-  approverId: string;
-  weight: any;
-}
-
-export interface GroupApproverCreateManyGroupInputEnvelope {
-  data: GroupApproverCreateManyGroupInput[];
-  skipDuplicates?: boolean | null;
-}
-
-export interface GroupApproverCreateNestedManyWithoutApproverInput {
-  connect?: GroupApproverWhereUniqueInput[] | null;
-  connectOrCreate?: GroupApproverCreateOrConnectWithoutApproverInput[] | null;
-  create?: GroupApproverCreateWithoutApproverInput[] | null;
-  createMany?: GroupApproverCreateManyApproverInputEnvelope | null;
-}
-
-export interface GroupApproverCreateNestedManyWithoutGroupInput {
-  connect?: GroupApproverWhereUniqueInput[] | null;
-  connectOrCreate?: GroupApproverCreateOrConnectWithoutGroupInput[] | null;
-  create?: GroupApproverCreateWithoutGroupInput[] | null;
-  createMany?: GroupApproverCreateManyGroupInputEnvelope | null;
-}
-
-export interface GroupApproverCreateOrConnectWithoutApproverInput {
-  create: GroupApproverCreateWithoutApproverInput;
-  where: GroupApproverWhereUniqueInput;
-}
-
-export interface GroupApproverCreateOrConnectWithoutGroupInput {
-  create: GroupApproverCreateWithoutGroupInput;
-  where: GroupApproverWhereUniqueInput;
-}
-
-export interface GroupApproverCreateWithoutApproverInput {
-  group: GroupCreateNestedOneWithoutApproversInput;
-  weight: any;
-}
-
-export interface GroupApproverCreateWithoutGroupInput {
-  approver: ApproverCreateNestedOneWithoutGroupsInput;
-  weight: any;
-}
-
-export interface GroupApproverSafeIdGroupHashApproverIdCompoundUniqueInput {
-  approverId: string;
-  groupHash: string;
-  safeId: string;
-}
-
-export interface GroupApproverScalarWhereInput {
-  AND?: GroupApproverScalarWhereInput[] | null;
-  NOT?: GroupApproverScalarWhereInput[] | null;
-  OR?: GroupApproverScalarWhereInput[] | null;
-  approverId?: StringFilter | null;
-  groupHash?: StringFilter | null;
-  safeId?: StringFilter | null;
-  weight?: DecimalFilter | null;
-}
-
-export interface GroupApproverUpdateManyMutationInput {
-  weight?: DecimalFieldUpdateOperationsInput | null;
-}
-
-export interface GroupApproverUpdateManyWithWhereWithoutApproverInput {
-  data: GroupApproverUpdateManyMutationInput;
-  where: GroupApproverScalarWhereInput;
-}
-
-export interface GroupApproverUpdateManyWithWhereWithoutGroupInput {
-  data: GroupApproverUpdateManyMutationInput;
-  where: GroupApproverScalarWhereInput;
-}
-
-export interface GroupApproverUpdateManyWithoutApproverInput {
-  connect?: GroupApproverWhereUniqueInput[] | null;
-  connectOrCreate?: GroupApproverCreateOrConnectWithoutApproverInput[] | null;
-  create?: GroupApproverCreateWithoutApproverInput[] | null;
-  createMany?: GroupApproverCreateManyApproverInputEnvelope | null;
-  delete?: GroupApproverWhereUniqueInput[] | null;
-  deleteMany?: GroupApproverScalarWhereInput[] | null;
-  disconnect?: GroupApproverWhereUniqueInput[] | null;
-  set?: GroupApproverWhereUniqueInput[] | null;
-  update?: GroupApproverUpdateWithWhereUniqueWithoutApproverInput[] | null;
-  updateMany?: GroupApproverUpdateManyWithWhereWithoutApproverInput[] | null;
-  upsert?: GroupApproverUpsertWithWhereUniqueWithoutApproverInput[] | null;
-}
-
-export interface GroupApproverUpdateManyWithoutGroupInput {
-  connect?: GroupApproverWhereUniqueInput[] | null;
-  connectOrCreate?: GroupApproverCreateOrConnectWithoutGroupInput[] | null;
-  create?: GroupApproverCreateWithoutGroupInput[] | null;
-  createMany?: GroupApproverCreateManyGroupInputEnvelope | null;
-  delete?: GroupApproverWhereUniqueInput[] | null;
-  deleteMany?: GroupApproverScalarWhereInput[] | null;
-  disconnect?: GroupApproverWhereUniqueInput[] | null;
-  set?: GroupApproverWhereUniqueInput[] | null;
-  update?: GroupApproverUpdateWithWhereUniqueWithoutGroupInput[] | null;
-  updateMany?: GroupApproverUpdateManyWithWhereWithoutGroupInput[] | null;
-  upsert?: GroupApproverUpsertWithWhereUniqueWithoutGroupInput[] | null;
-}
-
-export interface GroupApproverUpdateWithWhereUniqueWithoutApproverInput {
-  data: GroupApproverUpdateWithoutApproverInput;
-  where: GroupApproverWhereUniqueInput;
-}
-
-export interface GroupApproverUpdateWithWhereUniqueWithoutGroupInput {
-  data: GroupApproverUpdateWithoutGroupInput;
-  where: GroupApproverWhereUniqueInput;
-}
-
-export interface GroupApproverUpdateWithoutApproverInput {
-  group?: GroupUpdateOneRequiredWithoutApproversInput | null;
-  weight?: DecimalFieldUpdateOperationsInput | null;
-}
-
-export interface GroupApproverUpdateWithoutGroupInput {
-  approver?: ApproverUpdateOneRequiredWithoutGroupsInput | null;
-  weight?: DecimalFieldUpdateOperationsInput | null;
-}
-
-export interface GroupApproverUpsertWithWhereUniqueWithoutApproverInput {
-  create: GroupApproverCreateWithoutApproverInput;
-  update: GroupApproverUpdateWithoutApproverInput;
-  where: GroupApproverWhereUniqueInput;
-}
-
-export interface GroupApproverUpsertWithWhereUniqueWithoutGroupInput {
-  create: GroupApproverCreateWithoutGroupInput;
-  update: GroupApproverUpdateWithoutGroupInput;
-  where: GroupApproverWhereUniqueInput;
-}
-
-export interface GroupApproverWhereUniqueInput {
-  safeId_groupHash_approverId?: GroupApproverSafeIdGroupHashApproverIdCompoundUniqueInput | null;
-}
-
-export interface GroupCreateInput {
-  approvers?: GroupApproverCreateNestedManyWithoutGroupInput | null;
-  hash: string;
-  name?: string | null;
-  safe: SafeCreateNestedOneWithoutGroupsInput;
-}
-
 export interface GroupCreateManySafeInput {
-  hash: string;
   name?: string | null;
+  ref: string;
 }
 
 export interface GroupCreateManySafeInputEnvelope {
@@ -1791,19 +1594,25 @@ export interface GroupCreateOrConnectWithoutSafeInput {
 }
 
 export interface GroupCreateWithoutApproversInput {
-  hash: string;
   name?: string | null;
+  ref: string;
   safe: SafeCreateNestedOneWithoutGroupsInput;
 }
 
 export interface GroupCreateWithoutSafeInput {
-  approvers?: GroupApproverCreateNestedManyWithoutGroupInput | null;
-  hash: string;
+  approvers?: ApproverCreateNestedManyWithoutGroupInput | null;
   name?: string | null;
+  ref: string;
 }
 
-export interface GroupSafeIdHashCompoundUniqueInput {
-  hash: string;
+export interface GroupInput {
+  approvers: ApproverInput[];
+  name?: string | null;
+  ref: any;
+}
+
+export interface GroupSafeIdRefCompoundUniqueInput {
+  ref: string;
   safeId: string;
 }
 
@@ -1811,21 +1620,14 @@ export interface GroupScalarWhereInput {
   AND?: GroupScalarWhereInput[] | null;
   NOT?: GroupScalarWhereInput[] | null;
   OR?: GroupScalarWhereInput[] | null;
-  hash?: StringFilter | null;
   name?: StringNullableFilter | null;
+  ref?: StringFilter | null;
   safeId?: StringFilter | null;
 }
 
-export interface GroupUpdateInput {
-  approvers?: GroupApproverUpdateManyWithoutGroupInput | null;
-  hash?: StringFieldUpdateOperationsInput | null;
-  name?: NullableStringFieldUpdateOperationsInput | null;
-  safe?: SafeUpdateOneRequiredWithoutGroupsInput | null;
-}
-
 export interface GroupUpdateManyMutationInput {
-  hash?: StringFieldUpdateOperationsInput | null;
   name?: NullableStringFieldUpdateOperationsInput | null;
+  ref?: StringFieldUpdateOperationsInput | null;
 }
 
 export interface GroupUpdateManyWithWhereWithoutSafeInput {
@@ -1861,15 +1663,15 @@ export interface GroupUpdateWithWhereUniqueWithoutSafeInput {
 }
 
 export interface GroupUpdateWithoutApproversInput {
-  hash?: StringFieldUpdateOperationsInput | null;
   name?: NullableStringFieldUpdateOperationsInput | null;
+  ref?: StringFieldUpdateOperationsInput | null;
   safe?: SafeUpdateOneRequiredWithoutGroupsInput | null;
 }
 
 export interface GroupUpdateWithoutSafeInput {
-  approvers?: GroupApproverUpdateManyWithoutGroupInput | null;
-  hash?: StringFieldUpdateOperationsInput | null;
+  approvers?: ApproverUpdateManyWithoutGroupInput | null;
   name?: NullableStringFieldUpdateOperationsInput | null;
+  ref?: StringFieldUpdateOperationsInput | null;
 }
 
 export interface GroupUpsertWithWhereUniqueWithoutSafeInput {
@@ -1884,7 +1686,7 @@ export interface GroupUpsertWithoutApproversInput {
 }
 
 export interface GroupWhereUniqueInput {
-  safeId_hash?: GroupSafeIdHashCompoundUniqueInput | null;
+  safeId_ref?: GroupSafeIdRefCompoundUniqueInput | null;
 }
 
 export interface IntFieldUpdateOperationsInput {
@@ -2180,25 +1982,11 @@ export interface OpWhereUniqueInput {
   safeId_txHash_hash?: OpSafeIdTxHashHashCompoundUniqueInput | null;
 }
 
-export interface ReactionCreateManyApproverInput {
-  createdAt?: any | null;
-  emojis?: ReactionCreateemojisInput | null;
-  key: string;
-  nonce: number;
-  safeId: string;
-  updatedAt?: any | null;
-}
-
-export interface ReactionCreateManyApproverInputEnvelope {
-  data: ReactionCreateManyApproverInput[];
-  skipDuplicates?: boolean | null;
-}
-
 export interface ReactionCreateManyCommentInput {
-  approverId: string;
   createdAt?: any | null;
   emojis?: ReactionCreateemojisInput | null;
   updatedAt?: any | null;
+  userId: string;
 }
 
 export interface ReactionCreateManyCommentInputEnvelope {
@@ -2207,12 +1995,12 @@ export interface ReactionCreateManyCommentInputEnvelope {
 }
 
 export interface ReactionCreateManySafeInput {
-  approverId: string;
   createdAt?: any | null;
   emojis?: ReactionCreateemojisInput | null;
   key: string;
   nonce: number;
   updatedAt?: any | null;
+  userId: string;
 }
 
 export interface ReactionCreateManySafeInputEnvelope {
@@ -2220,11 +2008,18 @@ export interface ReactionCreateManySafeInputEnvelope {
   skipDuplicates?: boolean | null;
 }
 
-export interface ReactionCreateNestedManyWithoutApproverInput {
-  connect?: ReactionWhereUniqueInput[] | null;
-  connectOrCreate?: ReactionCreateOrConnectWithoutApproverInput[] | null;
-  create?: ReactionCreateWithoutApproverInput[] | null;
-  createMany?: ReactionCreateManyApproverInputEnvelope | null;
+export interface ReactionCreateManyUserInput {
+  createdAt?: any | null;
+  emojis?: ReactionCreateemojisInput | null;
+  key: string;
+  nonce: number;
+  safeId: string;
+  updatedAt?: any | null;
+}
+
+export interface ReactionCreateManyUserInputEnvelope {
+  data: ReactionCreateManyUserInput[];
+  skipDuplicates?: boolean | null;
 }
 
 export interface ReactionCreateNestedManyWithoutCommentInput {
@@ -2241,9 +2036,11 @@ export interface ReactionCreateNestedManyWithoutSafeInput {
   createMany?: ReactionCreateManySafeInputEnvelope | null;
 }
 
-export interface ReactionCreateOrConnectWithoutApproverInput {
-  create: ReactionCreateWithoutApproverInput;
-  where: ReactionWhereUniqueInput;
+export interface ReactionCreateNestedManyWithoutUserInput {
+  connect?: ReactionWhereUniqueInput[] | null;
+  connectOrCreate?: ReactionCreateOrConnectWithoutUserInput[] | null;
+  create?: ReactionCreateWithoutUserInput[] | null;
+  createMany?: ReactionCreateManyUserInputEnvelope | null;
 }
 
 export interface ReactionCreateOrConnectWithoutCommentInput {
@@ -2256,27 +2053,32 @@ export interface ReactionCreateOrConnectWithoutSafeInput {
   where: ReactionWhereUniqueInput;
 }
 
-export interface ReactionCreateWithoutApproverInput {
-  comment: CommentCreateNestedOneWithoutReactionsInput;
-  createdAt?: any | null;
-  emojis?: ReactionCreateemojisInput | null;
-  safe: SafeCreateNestedOneWithoutReactionsInput;
-  updatedAt?: any | null;
+export interface ReactionCreateOrConnectWithoutUserInput {
+  create: ReactionCreateWithoutUserInput;
+  where: ReactionWhereUniqueInput;
 }
 
 export interface ReactionCreateWithoutCommentInput {
-  approver: ApproverCreateNestedOneWithoutReactionsInput;
   createdAt?: any | null;
   emojis?: ReactionCreateemojisInput | null;
   safe: SafeCreateNestedOneWithoutReactionsInput;
   updatedAt?: any | null;
+  user: UserCreateNestedOneWithoutReactionsInput;
 }
 
 export interface ReactionCreateWithoutSafeInput {
-  approver: ApproverCreateNestedOneWithoutReactionsInput;
   comment: CommentCreateNestedOneWithoutReactionsInput;
   createdAt?: any | null;
   emojis?: ReactionCreateemojisInput | null;
+  updatedAt?: any | null;
+  user: UserCreateNestedOneWithoutReactionsInput;
+}
+
+export interface ReactionCreateWithoutUserInput {
+  comment: CommentCreateNestedOneWithoutReactionsInput;
+  createdAt?: any | null;
+  emojis?: ReactionCreateemojisInput | null;
+  safe: SafeCreateNestedOneWithoutReactionsInput;
   updatedAt?: any | null;
 }
 
@@ -2284,35 +2086,30 @@ export interface ReactionCreateemojisInput {
   set: string[];
 }
 
-export interface ReactionSafeIdKeyNonceApproverIdCompoundUniqueInput {
-  approverId: string;
+export interface ReactionSafeIdKeyNonceUserIdCompoundUniqueInput {
   key: string;
   nonce: number;
   safeId: string;
+  userId: string;
 }
 
 export interface ReactionScalarWhereInput {
   AND?: ReactionScalarWhereInput[] | null;
   NOT?: ReactionScalarWhereInput[] | null;
   OR?: ReactionScalarWhereInput[] | null;
-  approverId?: StringFilter | null;
   createdAt?: DateTimeFilter | null;
   emojis?: StringNullableListFilter | null;
   key?: StringFilter | null;
   nonce?: IntFilter | null;
   safeId?: StringFilter | null;
   updatedAt?: DateTimeFilter | null;
+  userId?: StringFilter | null;
 }
 
 export interface ReactionUpdateManyMutationInput {
   createdAt?: DateTimeFieldUpdateOperationsInput | null;
   emojis?: ReactionUpdateemojisInput | null;
   updatedAt?: DateTimeFieldUpdateOperationsInput | null;
-}
-
-export interface ReactionUpdateManyWithWhereWithoutApproverInput {
-  data: ReactionUpdateManyMutationInput;
-  where: ReactionScalarWhereInput;
 }
 
 export interface ReactionUpdateManyWithWhereWithoutCommentInput {
@@ -2325,18 +2122,9 @@ export interface ReactionUpdateManyWithWhereWithoutSafeInput {
   where: ReactionScalarWhereInput;
 }
 
-export interface ReactionUpdateManyWithoutApproverInput {
-  connect?: ReactionWhereUniqueInput[] | null;
-  connectOrCreate?: ReactionCreateOrConnectWithoutApproverInput[] | null;
-  create?: ReactionCreateWithoutApproverInput[] | null;
-  createMany?: ReactionCreateManyApproverInputEnvelope | null;
-  delete?: ReactionWhereUniqueInput[] | null;
-  deleteMany?: ReactionScalarWhereInput[] | null;
-  disconnect?: ReactionWhereUniqueInput[] | null;
-  set?: ReactionWhereUniqueInput[] | null;
-  update?: ReactionUpdateWithWhereUniqueWithoutApproverInput[] | null;
-  updateMany?: ReactionUpdateManyWithWhereWithoutApproverInput[] | null;
-  upsert?: ReactionUpsertWithWhereUniqueWithoutApproverInput[] | null;
+export interface ReactionUpdateManyWithWhereWithoutUserInput {
+  data: ReactionUpdateManyMutationInput;
+  where: ReactionScalarWhereInput;
 }
 
 export interface ReactionUpdateManyWithoutCommentInput {
@@ -2367,9 +2155,18 @@ export interface ReactionUpdateManyWithoutSafeInput {
   upsert?: ReactionUpsertWithWhereUniqueWithoutSafeInput[] | null;
 }
 
-export interface ReactionUpdateWithWhereUniqueWithoutApproverInput {
-  data: ReactionUpdateWithoutApproverInput;
-  where: ReactionWhereUniqueInput;
+export interface ReactionUpdateManyWithoutUserInput {
+  connect?: ReactionWhereUniqueInput[] | null;
+  connectOrCreate?: ReactionCreateOrConnectWithoutUserInput[] | null;
+  create?: ReactionCreateWithoutUserInput[] | null;
+  createMany?: ReactionCreateManyUserInputEnvelope | null;
+  delete?: ReactionWhereUniqueInput[] | null;
+  deleteMany?: ReactionScalarWhereInput[] | null;
+  disconnect?: ReactionWhereUniqueInput[] | null;
+  set?: ReactionWhereUniqueInput[] | null;
+  update?: ReactionUpdateWithWhereUniqueWithoutUserInput[] | null;
+  updateMany?: ReactionUpdateManyWithWhereWithoutUserInput[] | null;
+  upsert?: ReactionUpsertWithWhereUniqueWithoutUserInput[] | null;
 }
 
 export interface ReactionUpdateWithWhereUniqueWithoutCommentInput {
@@ -2382,39 +2179,38 @@ export interface ReactionUpdateWithWhereUniqueWithoutSafeInput {
   where: ReactionWhereUniqueInput;
 }
 
-export interface ReactionUpdateWithoutApproverInput {
-  comment?: CommentUpdateOneRequiredWithoutReactionsInput | null;
-  createdAt?: DateTimeFieldUpdateOperationsInput | null;
-  emojis?: ReactionUpdateemojisInput | null;
-  safe?: SafeUpdateOneRequiredWithoutReactionsInput | null;
-  updatedAt?: DateTimeFieldUpdateOperationsInput | null;
+export interface ReactionUpdateWithWhereUniqueWithoutUserInput {
+  data: ReactionUpdateWithoutUserInput;
+  where: ReactionWhereUniqueInput;
 }
 
 export interface ReactionUpdateWithoutCommentInput {
-  approver?: ApproverUpdateOneRequiredWithoutReactionsInput | null;
   createdAt?: DateTimeFieldUpdateOperationsInput | null;
   emojis?: ReactionUpdateemojisInput | null;
   safe?: SafeUpdateOneRequiredWithoutReactionsInput | null;
   updatedAt?: DateTimeFieldUpdateOperationsInput | null;
+  user?: UserUpdateOneRequiredWithoutReactionsInput | null;
 }
 
 export interface ReactionUpdateWithoutSafeInput {
-  approver?: ApproverUpdateOneRequiredWithoutReactionsInput | null;
   comment?: CommentUpdateOneRequiredWithoutReactionsInput | null;
   createdAt?: DateTimeFieldUpdateOperationsInput | null;
   emojis?: ReactionUpdateemojisInput | null;
+  updatedAt?: DateTimeFieldUpdateOperationsInput | null;
+  user?: UserUpdateOneRequiredWithoutReactionsInput | null;
+}
+
+export interface ReactionUpdateWithoutUserInput {
+  comment?: CommentUpdateOneRequiredWithoutReactionsInput | null;
+  createdAt?: DateTimeFieldUpdateOperationsInput | null;
+  emojis?: ReactionUpdateemojisInput | null;
+  safe?: SafeUpdateOneRequiredWithoutReactionsInput | null;
   updatedAt?: DateTimeFieldUpdateOperationsInput | null;
 }
 
 export interface ReactionUpdateemojisInput {
   push?: string[] | null;
   set?: string[] | null;
-}
-
-export interface ReactionUpsertWithWhereUniqueWithoutApproverInput {
-  create: ReactionCreateWithoutApproverInput;
-  update: ReactionUpdateWithoutApproverInput;
-  where: ReactionWhereUniqueInput;
 }
 
 export interface ReactionUpsertWithWhereUniqueWithoutCommentInput {
@@ -2429,8 +2225,14 @@ export interface ReactionUpsertWithWhereUniqueWithoutSafeInput {
   where: ReactionWhereUniqueInput;
 }
 
+export interface ReactionUpsertWithWhereUniqueWithoutUserInput {
+  create: ReactionCreateWithoutUserInput;
+  update: ReactionUpdateWithoutUserInput;
+  where: ReactionWhereUniqueInput;
+}
+
 export interface ReactionWhereUniqueInput {
-  safeId_key_nonce_approverId?: ReactionSafeIdKeyNonceApproverIdCompoundUniqueInput | null;
+  safeId_key_nonce_userId?: ReactionSafeIdKeyNonceUserIdCompoundUniqueInput | null;
 }
 
 export interface SafeCreateInput {
@@ -3053,6 +2855,170 @@ export interface TxUpsertWithoutOpsInput {
 
 export interface TxWhereUniqueInput {
   safeId_hash?: TxSafeIdHashCompoundUniqueInput | null;
+}
+
+export interface UserCreateNestedOneWithoutApprovalsInput {
+  connect?: UserWhereUniqueInput | null;
+  connectOrCreate?: UserCreateOrConnectWithoutApprovalsInput | null;
+  create?: UserCreateWithoutApprovalsInput | null;
+}
+
+export interface UserCreateNestedOneWithoutCommentsInput {
+  connect?: UserWhereUniqueInput | null;
+  connectOrCreate?: UserCreateOrConnectWithoutCommentsInput | null;
+  create?: UserCreateWithoutCommentsInput | null;
+}
+
+export interface UserCreateNestedOneWithoutGroupsInput {
+  connect?: UserWhereUniqueInput | null;
+  connectOrCreate?: UserCreateOrConnectWithoutGroupsInput | null;
+  create?: UserCreateWithoutGroupsInput | null;
+}
+
+export interface UserCreateNestedOneWithoutReactionsInput {
+  connect?: UserWhereUniqueInput | null;
+  connectOrCreate?: UserCreateOrConnectWithoutReactionsInput | null;
+  create?: UserCreateWithoutReactionsInput | null;
+}
+
+export interface UserCreateOrConnectWithoutApprovalsInput {
+  create: UserCreateWithoutApprovalsInput;
+  where: UserWhereUniqueInput;
+}
+
+export interface UserCreateOrConnectWithoutCommentsInput {
+  create: UserCreateWithoutCommentsInput;
+  where: UserWhereUniqueInput;
+}
+
+export interface UserCreateOrConnectWithoutGroupsInput {
+  create: UserCreateWithoutGroupsInput;
+  where: UserWhereUniqueInput;
+}
+
+export interface UserCreateOrConnectWithoutReactionsInput {
+  create: UserCreateWithoutReactionsInput;
+  where: UserWhereUniqueInput;
+}
+
+export interface UserCreateWithoutApprovalsInput {
+  comments?: CommentCreateNestedManyWithoutAuthorInput | null;
+  contacts?: ContactCreateNestedManyWithoutUserInput | null;
+  groups?: ApproverCreateNestedManyWithoutUserInput | null;
+  id: string;
+  reactions?: ReactionCreateNestedManyWithoutUserInput | null;
+}
+
+export interface UserCreateWithoutCommentsInput {
+  approvals?: ApprovalCreateNestedManyWithoutUserInput | null;
+  contacts?: ContactCreateNestedManyWithoutUserInput | null;
+  groups?: ApproverCreateNestedManyWithoutUserInput | null;
+  id: string;
+  reactions?: ReactionCreateNestedManyWithoutUserInput | null;
+}
+
+export interface UserCreateWithoutGroupsInput {
+  approvals?: ApprovalCreateNestedManyWithoutUserInput | null;
+  comments?: CommentCreateNestedManyWithoutAuthorInput | null;
+  contacts?: ContactCreateNestedManyWithoutUserInput | null;
+  id: string;
+  reactions?: ReactionCreateNestedManyWithoutUserInput | null;
+}
+
+export interface UserCreateWithoutReactionsInput {
+  approvals?: ApprovalCreateNestedManyWithoutUserInput | null;
+  comments?: CommentCreateNestedManyWithoutAuthorInput | null;
+  contacts?: ContactCreateNestedManyWithoutUserInput | null;
+  groups?: ApproverCreateNestedManyWithoutUserInput | null;
+  id: string;
+}
+
+export interface UserUpdateOneRequiredWithoutApprovalsInput {
+  connect?: UserWhereUniqueInput | null;
+  connectOrCreate?: UserCreateOrConnectWithoutApprovalsInput | null;
+  create?: UserCreateWithoutApprovalsInput | null;
+  update?: UserUpdateWithoutApprovalsInput | null;
+  upsert?: UserUpsertWithoutApprovalsInput | null;
+}
+
+export interface UserUpdateOneRequiredWithoutCommentsInput {
+  connect?: UserWhereUniqueInput | null;
+  connectOrCreate?: UserCreateOrConnectWithoutCommentsInput | null;
+  create?: UserCreateWithoutCommentsInput | null;
+  update?: UserUpdateWithoutCommentsInput | null;
+  upsert?: UserUpsertWithoutCommentsInput | null;
+}
+
+export interface UserUpdateOneRequiredWithoutGroupsInput {
+  connect?: UserWhereUniqueInput | null;
+  connectOrCreate?: UserCreateOrConnectWithoutGroupsInput | null;
+  create?: UserCreateWithoutGroupsInput | null;
+  update?: UserUpdateWithoutGroupsInput | null;
+  upsert?: UserUpsertWithoutGroupsInput | null;
+}
+
+export interface UserUpdateOneRequiredWithoutReactionsInput {
+  connect?: UserWhereUniqueInput | null;
+  connectOrCreate?: UserCreateOrConnectWithoutReactionsInput | null;
+  create?: UserCreateWithoutReactionsInput | null;
+  update?: UserUpdateWithoutReactionsInput | null;
+  upsert?: UserUpsertWithoutReactionsInput | null;
+}
+
+export interface UserUpdateWithoutApprovalsInput {
+  comments?: CommentUpdateManyWithoutAuthorInput | null;
+  contacts?: ContactUpdateManyWithoutUserInput | null;
+  groups?: ApproverUpdateManyWithoutUserInput | null;
+  id?: StringFieldUpdateOperationsInput | null;
+  reactions?: ReactionUpdateManyWithoutUserInput | null;
+}
+
+export interface UserUpdateWithoutCommentsInput {
+  approvals?: ApprovalUpdateManyWithoutUserInput | null;
+  contacts?: ContactUpdateManyWithoutUserInput | null;
+  groups?: ApproverUpdateManyWithoutUserInput | null;
+  id?: StringFieldUpdateOperationsInput | null;
+  reactions?: ReactionUpdateManyWithoutUserInput | null;
+}
+
+export interface UserUpdateWithoutGroupsInput {
+  approvals?: ApprovalUpdateManyWithoutUserInput | null;
+  comments?: CommentUpdateManyWithoutAuthorInput | null;
+  contacts?: ContactUpdateManyWithoutUserInput | null;
+  id?: StringFieldUpdateOperationsInput | null;
+  reactions?: ReactionUpdateManyWithoutUserInput | null;
+}
+
+export interface UserUpdateWithoutReactionsInput {
+  approvals?: ApprovalUpdateManyWithoutUserInput | null;
+  comments?: CommentUpdateManyWithoutAuthorInput | null;
+  contacts?: ContactUpdateManyWithoutUserInput | null;
+  groups?: ApproverUpdateManyWithoutUserInput | null;
+  id?: StringFieldUpdateOperationsInput | null;
+}
+
+export interface UserUpsertWithoutApprovalsInput {
+  create: UserCreateWithoutApprovalsInput;
+  update: UserUpdateWithoutApprovalsInput;
+}
+
+export interface UserUpsertWithoutCommentsInput {
+  create: UserCreateWithoutCommentsInput;
+  update: UserUpdateWithoutCommentsInput;
+}
+
+export interface UserUpsertWithoutGroupsInput {
+  create: UserCreateWithoutGroupsInput;
+  update: UserUpdateWithoutGroupsInput;
+}
+
+export interface UserUpsertWithoutReactionsInput {
+  create: UserCreateWithoutReactionsInput;
+  update: UserUpdateWithoutReactionsInput;
+}
+
+export interface UserWhereUniqueInput {
+  id?: string | null;
 }
 
 //==============================================================

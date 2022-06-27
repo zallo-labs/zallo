@@ -2,7 +2,6 @@
 pragma solidity ^0.8.0;
 
 import './Safe.sol';
-import './Types.sol';
 
 contract Factory {
   error FailedOnDeploy();

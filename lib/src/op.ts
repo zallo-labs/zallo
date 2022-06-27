@@ -3,10 +3,11 @@ import {
   TypedDataField,
 } from '@ethersproject/abstract-signer';
 import { BigNumber, BytesLike, ethers } from 'ethers';
+import { randomBytes } from 'ethers/lib/utils';
 import { Wallet } from 'zksync-web3';
 import { Address, ZERO_ADDR } from './addr';
 import { ZERO } from './bignum';
-import { SignerStruct } from './contracts/Safe';
+import { SignatureLike, toCompactSignature } from './signature';
 import { createIsObj } from './util/mappedTypes';
 
 export interface Op {
@@ -18,17 +19,17 @@ export interface Op {
 
 export const isOp = createIsObj<Op>('to', 'value', 'data', 'nonce');
 
-export interface SignedOp {
-  tx: Op;
-  groupHash: BytesLike;
-  signers: SignerStruct[];
-}
+// export interface SignedOp {
+//   tx: Op;
+//   groupHash: BytesLike;
+//   signers: SignerStruct[];
+// }
 
-export interface SignedOps {
-  txs: Op[];
-  groupHash: BytesLike;
-  signers: SignerStruct[];
-}
+// export interface SignedOps {
+//   txs: Op[];
+//   groupHash: BytesLike;
+//   signers: SignerStruct[];
+// }
 
 const EIP712_TYPES_OP: Record<string, TypedDataField[]> = {
   Op: [
@@ -68,13 +69,21 @@ export const hashTx = async (contract: Address, ...ops: Op[]) =>
     ...typedDataParams(ops),
   );
 
-export const signTx = async (wallet: Wallet, safe: Address, ...ops: Op[]) =>
-  wallet._signTypedData(await getDomain(safe), ...typedDataParams(ops));
+export const signTx = async (wallet: Wallet, safe: Address, ...ops: Op[]) => {
+  // _signTypedData returns a 65 byte signature
+  const longSig = await wallet._signTypedData(
+    await getDomain(safe),
+    ...typedDataParams(ops),
+  );
+
+  // Convert to a compact 64 byte signature (eip-2098)
+  return toCompactSignature(longSig);
+};
 
 export const createOp = (op: Partial<Op>): Op => ({
   to: ZERO_ADDR,
   value: ZERO,
   data: [],
-  nonce: ZERO, // TODO: generated random number
+  nonce: BigNumber.from(randomBytes(32)),
   ...op,
 });

@@ -26,7 +26,11 @@ export type TabNavigatorScreenProps<K extends keyof TabNavigatorParamList> =
 const Tab = createMaterialTopTabNavigator<TabNavigatorParamList>();
 
 export const TabNavigator = () => (
-  <Tab.Navigator initialRouteName="Activity" tabBar={() => null}>
+  <Tab.Navigator
+    initialRouteName="Home"
+    tabBar={() => null}
+    screenOptions={{ lazy: true }}
+  >
     <Tab.Screen name="Home" component={HomeScreen} />
     <Tab.Screen name="Activity" component={ActivityScreen} />
   </Tab.Navigator>

@@ -41,12 +41,8 @@
     "editor.defaultFormatter": "esbenp.prettier-vscode"
   },
   "react-native.packager.port": 19000,
-  "jest.autoEnable": false,
-  "jest.disabledWorkspaceFolders": [
-    "ROOT",
-    "config",
-    "contracts",
-    "lib",
-    "subgraph"
-  ]
+  "jest.autoRun": "off",
+  "jest.testExplorer": {
+    "enabled": false
+  }
 }

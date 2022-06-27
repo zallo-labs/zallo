@@ -1,5 +1,5 @@
 import { FC } from 'react';
-import { Pressable, TouchableOpacity } from 'react-native';
+import { TouchableOpacity } from 'react-native';
 import { Text, useTheme } from 'react-native-paper';
 
 import { Box } from '@components/Box';

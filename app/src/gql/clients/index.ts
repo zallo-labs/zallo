@@ -49,7 +49,7 @@ export const useCreateApiClient = (): ClientCreator => {
         link: ApolloLink.from([
           new RetryLink(),
           authFlowLink,
-          new HttpLink({ uri: CONFIG.api.gqlUrl }),
+          new HttpLink({ uri: CONFIG.api.gqlUrl, credentials: 'include' }),
         ]),
         defaultOptions,
       }),

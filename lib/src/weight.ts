@@ -4,7 +4,7 @@ import { BigNumber, ethers } from 'ethers';
 const weightPrecision = 28;
 const percentPrecision = 2;
 
-export const percentToFixedWeight = (weight: number) =>
+export const percentToFixedWeight = (weight: number): BigNumber =>
   parseFixed(`${weight}`, weightPrecision - percentPrecision);
 
 export const PERCENT_THRESHOLD = 100;

@@ -1,7 +1,7 @@
 import { useMemo } from 'react';
 import { Formik, FormikHelpers } from 'formik';
 import * as Yup from 'yup';
-import { Address, Group, hashGroup, Approver } from 'lib';
+import { Address, Group, Approver, Id, groupEquiv } from 'lib';
 import { RootNavigatorScreenProps } from '@features/navigation/RootNavigator';
 import { useGroup, useSafe } from '@features/safe/SafeProvider';
 import { GroupManagement } from './GroupManagement';
@@ -10,7 +10,7 @@ import { CombinedGroup } from '~/queries';
 import { withProposeProvider } from '@features/execute/ProposeProvider';
 import { useUpsertSafeGroup } from '~/mutations/group/useUpsertSafeGroup';
 
-const getSchema = (groups: CombinedGroup[]): Yup.SchemaOf<Group> =>
+const getSchema = (groups: CombinedGroup[]): Yup.SchemaOf<Omit<Group, 'ref'>> =>
   Yup.object({
     approvers: Yup.array()
       .of(
@@ -24,9 +24,11 @@ const getSchema = (groups: CombinedGroup[]): Yup.SchemaOf<Group> =>
       .min(1)
       .test(
         'unique',
-        'Group already exists',
-        (approvers: Approver[]) =>
-          !groups.map((g) => g.hash).includes(hashGroup({ approvers })),
+        'Equivalent group already exists',
+        (approvers: Approver[]) => {
+          const stubGroup: Group = { ref: '', approvers };
+          return !groups.find((g) => groupEquiv(g, stubGroup));
+        },
       )
       .test(
         'threshold',
@@ -70,7 +72,7 @@ export const GroupManagementScreen = withProposeProvider(
 
     return (
       <Formik
-        initialValues={{ approvers: initialGroup.approvers }}
+        initialValues={initialGroup}
         enableReinitialize
         onSubmit={handleSubmit}
         validationSchema={schema}

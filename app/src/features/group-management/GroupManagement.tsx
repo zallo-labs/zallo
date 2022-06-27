@@ -53,6 +53,7 @@ export const GroupManagement = ({
   const addApprover = () =>
     navigation.navigate('Contacts', {
       disabledAddrs: approvers.map((a) => a.addr),
+      target: { route: 'GroupManagement', output: 'selected' },
     });
 
   return (
@@ -61,7 +62,7 @@ export const GroupManagement = ({
         <Box mx={3} mt={4}>
           <Header
             Middle={<GroupNameField group={initialGroup} />}
-            Right={<Identicon seed={initialGroup.hash} />}
+            Right={<Identicon seed={initialGroup.ref} />}
           />
 
           <Box horizontal center>

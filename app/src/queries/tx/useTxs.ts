@@ -5,9 +5,9 @@ import { GetApiTxs, GetApiTxsVariables } from '@gql/api.generated';
 import { apiGql, subGql } from '@gql/clients';
 import { combine, combineRest, simpleKeyExtractor } from '@gql/combine';
 import { useApiClient, useSubgraphClient } from '@gql/GqlProvider';
-import { GetSubTxs, GetSubTxsVariables, TxType } from '@gql/subgraph.generated';
+import { SQueryTxs, SQueryTxsVariables } from '@gql/subgraph.generated';
 import { BigNumber, BytesLike } from 'ethers';
-import { address, Address, Id, Op, Signer, toId, createIsObj } from 'lib';
+import { address, Address, Id, Op, toId, createIsObj } from 'lib';
 import { DateTime } from 'luxon';
 import { useMemo } from 'react';
 import { fieldsToTransfer, Transfer, TRANSFER_FIELDS } from './transfer';
@@ -15,10 +15,9 @@ import { fieldsToTransfer, Transfer, TRANSFER_FIELDS } from './transfer';
 const SUB_QUERY = subGql`
 ${TRANSFER_FIELDS}
 
-query GetSubTxs($safe: String!) {
+query SQueryTxs($safe: String!) {
   txes(where: { safe: $safe }) {
     id
-    type
     hash
     responses
     executor
@@ -42,7 +41,9 @@ export enum TxStatus {
   Executed,
 }
 
-export interface Approval extends Signer {
+export interface Approval {
+  addr: Address;
+  signature: BytesLike;
   timestamp: DateTime;
 }
 
@@ -78,12 +79,7 @@ export interface ExecutedTx extends ProposedTx {
 
 export type Tx = ProposedTx | ExecutedTx;
 
-export const isTx = createIsObj<Tx>(
-  'hash',
-  'ops',
-  'approvals',
-  'submissions',
-);
+export const isTx = createIsObj<Tx>('hash', 'ops', 'approvals', 'submissions');
 
 export const isExecutedTx = (e: unknown): e is ExecutedTx =>
   isTx(e) && 'responses' in e;
@@ -94,7 +90,7 @@ export const isProposedTx = (e: unknown): e is ProposedTx =>
 const useSubExecutedTxs = () => {
   const { safe } = useSafe();
 
-  const { data, ...rest } = useQuery<GetSubTxs, GetSubTxsVariables>(SUB_QUERY, {
+  const { data, ...rest } = useQuery<SQueryTxs, SQueryTxsVariables>(SUB_QUERY, {
     client: useSubgraphClient(),
     variables: { safe: toId(safe.address) },
   });
@@ -154,7 +150,7 @@ fragment TxFields on Tx {
     nonce
   }
   approvals {
-    approverId
+    userId
     signature
     createdAt
   }
@@ -193,7 +189,7 @@ const useApiProposedTxs = () => {
         const timestamp = DateTime.fromISO(tx.createdAt);
 
         const approvals: Approval[] = tx.approvals.map((a) => ({
-          addr: address(a.approverId),
+          addr: address(a.userId),
           signature: a.signature,
           timestamp: DateTime.fromISO(a.createdAt),
         }));

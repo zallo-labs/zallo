@@ -6,13 +6,13 @@ import { apiSafeToCombined, API_SAFE_FIELDS_FRAGMENT } from '~/queries';
 import { CreateCfSafe, CreateCfSafeVariables } from '@gql/api.generated';
 import { apiGql } from '@gql/clients';
 import { useApiClient } from '@gql/GqlProvider';
-import { toId } from 'lib';
+import { PERCENT_THRESHOLD, randomGroupRef, toId } from 'lib';
 
 const API_MUTATION = apiGql`
 ${API_SAFE_FIELDS_FRAGMENT}
 
-mutation CreateCfSafe($approvers: [ApproverInput!]!) {
-    createCfSafe(approvers: $approvers) {
+mutation CreateCfSafe($group: GroupInput!) {
+    createCfSafe(group: $group) {
       ...SafeFields
     }
 }
@@ -26,12 +26,15 @@ export const useCreateCfSafe = () => {
     {
       client: useApiClient(),
       variables: {
-        approvers: [
-          {
-            addr: wallet.address,
-            weight: '100',
-          },
-        ],
+        group: {
+          ref: randomGroupRef(),
+          approvers: [
+            {
+              addr: wallet.address,
+              weight: PERCENT_THRESHOLD,
+            },
+          ],
+        },
       },
     },
   );

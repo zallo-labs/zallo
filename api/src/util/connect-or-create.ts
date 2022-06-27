@@ -1,4 +1,4 @@
-import { ApproverCreateNestedOneWithoutApprovalsInput } from '@gen/approver/approver-create-nested-one-without-approvals.input';
+import { UserCreateNestedOneWithoutApprovalsInput } from '@gen/user/user-create-nested-one-without-approvals.input';
 import { SafeCreateNestedOneWithoutApprovalsInput } from '@gen/safe/safe-create-nested-one-without-approvals.input';
 import { Address } from 'lib';
 
@@ -11,11 +11,11 @@ export const connectOrCreateSafe = (
   },
 });
 
-export const connectOrCreateApprover = (
-  approver: Address,
-): ApproverCreateNestedOneWithoutApprovalsInput => ({
+export const connectOrCreateUser = (
+  addr: Address,
+): UserCreateNestedOneWithoutApprovalsInput => ({
   connectOrCreate: {
-    where: { id: approver },
-    create: { id: approver },
+    where: { id: addr },
+    create: { id: addr },
   },
 });

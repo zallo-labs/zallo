@@ -1,4 +1,4 @@
-export type ChainName = 'metanet' | 'testnet';
+export type ChainName = 'testnet' | 'local';
 
 export interface Chain {
   name: ChainName;
@@ -9,15 +9,15 @@ export interface Chain {
 export type Chains = Record<ChainName, Chain>;
 
 export const CHAINS: Chains = {
-  metanet: {
-    name: 'metanet',
-    zksyncUrl: 'http://metanet.metasafe.fi:3050',
-    ethUrl: 'http://metanet.metasafe.fi:8545',
-  },
   testnet: {
     name: 'testnet',
     zksyncUrl: 'https://zksync2-testnet.zksync.dev',
     ethUrl: 'goerli',
+  },
+  local: {
+    name: 'local',
+    zksyncUrl: 'http://localhost:3050',
+    ethUrl: 'http://localhost:8545',
   },
 };
 

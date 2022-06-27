@@ -35,11 +35,6 @@ export const Timeline = ({ tx }: TimelineProps) => {
 
   const closestGroupTotal = _.maxBy(groupTotals, 'total')?.total ?? 0;
 
-  console.log({
-    tx,
-    groupTotals,
-  });
-
   const getStatus = (status: TxStatus, isLast?: boolean): TimelineItemStatus =>
     tx.status > status || (isLast && tx.status === status)
       ? 'complete'
@@ -83,7 +78,7 @@ export const Timeline = ({ tx }: TimelineProps) => {
                 <Subheading style={itemStyles}>Approve</Subheading>
               )}
 
-              {!isApproved && (
+              {execute?.step === 'approve' && !isApproved && (
                 <Paragraph>
                   <Percent>{closestGroupTotal}</Percent>
                   <Caption>{THRESHOLD_AFFIX}</Caption>

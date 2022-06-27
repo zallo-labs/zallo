@@ -5,5 +5,9 @@
     "artifacts-zk": true,
     "cache-zk": true,
     "node_modules": true
+  },
+  "jest.autoRun": "off",
+  "jest.testExplorer": {
+    "enabled": false
   }
 }

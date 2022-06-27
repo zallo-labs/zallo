@@ -2,19 +2,32 @@
 pragma solidity ^0.8.0;
 
 import './Safe.sol';
-import './Types.sol';
+import {BoolArray} from './BoolArray.sol';
 
 contract TestSafe is Safe {
-  constructor(Approver[] memory _approvers)
-    Safe(bytes32(uint256(1)), getApprovers())
+  constructor(bytes32 _groupId, Approver[] memory _approvers)
+    Safe(_groupId, _approvers)
   {}
 
-  function hashApprovers(Approver[] memory _approvers)
+  function verifyMultiProof(
+    bytes32[] calldata _proof,
+    uint256[] calldata _proofFlags,
+    bytes32 _root,
+    Approver[] calldata _approvers
+  ) external pure {
+    return _verifyMultiProof(_proof, _proofFlags, _root, _approvers);
+  }
+
+  function getMerkleRoot(bytes32 _groupId) external view returns (bytes32) {
+    return merkleRoots[_groupId];
+  }
+
+  function getLeaves(Approver[] memory _approvers)
     external
     pure
-    returns (bytes32)
+    returns (bytes32[] memory leaves)
   {
-    return _hashApprovers(_approvers);
+    return _getLeaves(_approvers);
   }
 
   function hashTx(Op calldata _op) external returns (bytes32) {
@@ -29,12 +42,23 @@ contract TestSafe is Safe {
     return _domainSeparator();
   }
 
-  function getApprovers() private pure returns (Approver[] memory approvers) {
-    approvers = new Approver[](1);
+  function threshold() external pure returns (int256) {
+    return THRESHOLD;
+  }
 
-    approvers[0] = Approver({
-      addr: address(0x0000000000000000000000000000000000000001),
-      weight: uint96(int96(THRESHOLD))
-    });
+  function boolArrayLength(uint256[] calldata _bools)
+    external
+    pure
+    returns (uint256)
+  {
+    return BoolArray.length(_bools);
+  }
+
+  function boolArrayAtIndex(uint256[] calldata _bools, uint256 _index)
+    external
+    pure
+    returns (bool)
+  {
+    return BoolArray.atIndex(_bools, _index);
   }
 }

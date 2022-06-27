@@ -4,5 +4,7 @@
     "outDir": "dist",
     "rootDir": "src", // Root of outdir
     "tsBuildInfoFile": "dist/.tsbuildinfo"
-  }
+  },
+  "include": ["src/**/*"],
+  "exclude": ["src/**/*.spec.ts"]
 }

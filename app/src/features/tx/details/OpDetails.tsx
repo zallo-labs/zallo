@@ -51,7 +51,11 @@ export const OpDetails = ({ op, title }: OpDetailsProps) => {
 
       <OpDetailsRow
         title="nonce"
-        content={<Paragraph>{op.nonce.toString()}</Paragraph>}
+        content={
+          <ExpandableText text={op.nonce.toString()} beginLen={8} endLen={8}>
+            {({ text }) => <Paragraph>{text}</Paragraph>}
+          </ExpandableText>
+        }
       />
 
       <DecodedOpDetails op={op} />

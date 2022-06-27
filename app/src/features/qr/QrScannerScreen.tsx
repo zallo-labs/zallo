@@ -2,17 +2,15 @@ import { useState } from 'react';
 import { StyleSheet } from 'react-native';
 import { BarCodeScanningResult, Camera } from 'expo-camera';
 import useAsyncEffect from 'use-async-effect';
-import {
-  RootNavigatorParamList,
-  RootNavigatorScreenProps,
-} from '@features/navigation/RootNavigator';
+import { RootNavigatorScreenProps } from '@features/navigation/RootNavigator';
 import { parseAddrLink } from './addrLink';
 import { BarCodeScanner } from 'expo-barcode-scanner';
 import { Box } from '@components/Box';
 import { Title } from 'react-native-paper';
+import { NavTarget, navToTarget } from '@features/navigation/target';
 
 export type QrScannerParams = {
-  screen: keyof RootNavigatorParamList;
+  target: NavTarget;
 };
 
 export type QrScannerScreenProps = RootNavigatorScreenProps<'QrScanner'>;
@@ -20,7 +18,7 @@ export type QrScannerScreenProps = RootNavigatorScreenProps<'QrScanner'>;
 export const QrScannerScreen = ({
   navigation,
   route: {
-    params: { screen },
+    params: { target },
   },
 }: QrScannerScreenProps) => {
   const [hasPermission, setHasPermission] = useState(false);
@@ -35,12 +33,7 @@ export const QrScannerScreen = ({
     try {
       const addrLink = parseAddrLink(data);
       setScanned(true);
-
-      navigation.navigate({
-        name: screen,
-        params: { scannedAddr: addrLink },
-        merge: true,
-      });
+      navToTarget(navigation, target, addrLink.target_address);
     } catch (e) {
       // The correct QR wasn't scanned, do nothing
     }

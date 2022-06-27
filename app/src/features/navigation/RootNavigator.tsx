@@ -19,12 +19,19 @@ import {
   ContactScreenParams,
 } from '@features/contacts/ContactScreen';
 import { TabNavigator, TabNavigatorParams } from './TabNavigator';
+import { SendScreen, SendScreenParams } from '@features/send/SendScreen';
+import {
+  SelectTokenScreen,
+  SelectTokenScreenParams,
+} from '@features/select-token/SelectTokenScreen';
 
 export type RootNavigatorParamList = {
   TabNavigator: TabNavigatorParams;
   Receive: undefined;
   SafeManagement: undefined;
   GroupManagement: GroupManagementScreenParams;
+  Send: SendScreenParams;
+  SelectToken: SelectTokenScreenParams;
   // Modal
   Contacts: ContactsScreenParams;
   Contact: ContactScreenParams;
@@ -43,6 +50,8 @@ export const RootNavigator = () => (
       <Stack.Screen name="Receive" component={ReceiveScreen} />
       <Stack.Screen name="SafeManagement" component={SafeManagementScreen} />
       <Stack.Screen name="GroupManagement" component={GroupManagementScreen} />
+      <Stack.Screen name="Send" component={SendScreen} />
+      <Stack.Screen name="SelectToken" component={SelectTokenScreen} />
     </Stack.Group>
 
     <Stack.Group screenOptions={{ presentation: 'modal' }}>

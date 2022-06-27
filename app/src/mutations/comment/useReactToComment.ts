@@ -72,7 +72,7 @@ export const useReactToComment = () => {
                 if (comment.id !== c.id) return comment;
 
                 const reactionsWithoutCur = comment.reactions.filter(
-                  (r) => r.approverId !== reactToComment.approverId,
+                  (r) => r.userId !== reactToComment.userId,
                 );
 
                 return {
@@ -92,7 +92,7 @@ export const useReactToComment = () => {
             safeId: safe.address,
             key: c.key,
             nonce: c.nonce,
-            approverId: wallet.address,
+            userId: wallet.address,
             emojis,
           },
         },

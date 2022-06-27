@@ -9,13 +9,18 @@ import {
   Resolver,
 } from '@nestjs/graphql';
 
-import { GroupApprover } from '@gen/group-approver/group-approver.model';
 import { FindManyGroupArgs } from '@gen/group/find-many-group.args';
 import { FindUniqueGroupArgs } from '@gen/group/find-unique-group.args';
 import { Group } from '@gen/group/group.model';
 import { GraphQLResolveInfo } from 'graphql';
-import { getSelect } from '~/util/test';
+import { getSelect } from '~/util/select';
 import { UpsertOneGroupArgs } from '@gen/group/upsert-one-group.args';
+import { getGroupId } from 'lib';
+import { UpsertGroupArgs } from './groups.args';
+import {
+  connectOrCreateSafe,
+  connectOrCreateUser,
+} from '~/util/connect-or-create';
 
 @Resolver(() => Group)
 export class GroupsResolver {
@@ -45,37 +50,55 @@ export class GroupsResolver {
 
   @ResolveField(() => String)
   id(@Parent() group: Group): string {
-    return `${group.safeId}-${group.hash}`;
-  }
-
-  @ResolveField(() => [GroupApprover])
-  async approvers(@Parent() group: Group): Promise<GroupApprover[]> {
-    return (
-      (
-        await this.prisma.group.findUnique({
-          where: {
-            safeId_hash: {
-              safeId: group.safeId,
-              hash: group.hash,
-            },
-          },
-          select: {
-            approvers: {
-              include: { approver: true },
-            },
-          },
-        })
-      )?.approvers ?? []
-    );
+    return getGroupId(group.safeId, group.ref);
   }
 
   @Mutation(() => Group, { nullable: true })
   async upsertGroup(
-    @Args() args: UpsertOneGroupArgs,
+    @Args() { safe, group: { ref, approvers, name } }: UpsertGroupArgs,
     @Info() info: GraphQLResolveInfo,
   ): Promise<Group | null> {
     return this.prisma.group.upsert({
-      ...args,
+      where: {
+        safeId_ref: {
+          safeId: safe,
+          ref,
+        },
+      },
+      create: {
+        safe: connectOrCreateSafe(safe),
+        ref,
+        name,
+        approvers: {
+          createMany: {
+            data: approvers.map((a) => ({
+              userId: a.addr,
+              weight: a.weight,
+            })),
+          },
+        },
+      },
+      update: {
+        name: { set: name ?? null },
+        approvers: {
+          upsert: approvers.map((a) => ({
+            where: {
+              safeId_groupRef_userId: {
+                safeId: safe,
+                groupRef: ref,
+                userId: a.addr,
+              },
+            },
+            create: {
+              user: connectOrCreateUser(a.addr),
+              weight: a.weight,
+            },
+            update: {
+              weight: { set: a.weight },
+            },
+          })),
+        },
+      },
       ...getSelect(info),
     });
   }

@@ -4,7 +4,7 @@ import { Address, Id } from 'lib';
 import { AddressField } from '~/apollo/scalars/Address.scalar';
 
 @ArgsType()
-export class Contacts2Args extends OmitType(FindManyContactArgs, ['where']) {}
+export class ContactsArgs extends OmitType(FindManyContactArgs, ['where']) {}
 
 @ArgsType()
 export class DeleteContactArgs {

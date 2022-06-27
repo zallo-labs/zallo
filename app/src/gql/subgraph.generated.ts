@@ -37,10 +37,10 @@ export interface GetTransfersVariables {
 // This file was automatically generated and should not be edited.
 
 // ====================================================
-// GraphQL query operation: GetSubTxs
+// GraphQL query operation: SQueryTxs
 // ====================================================
 
-export interface GetSubTxs_txes_transfers {
+export interface SQueryTxs_txes_transfers {
   __typename: "Transfer";
   /**
    * {tx.id}-{tx.log.index}
@@ -55,26 +55,25 @@ export interface GetSubTxs_txes_transfers {
   timestamp: any;
 }
 
-export interface GetSubTxs_txes {
+export interface SQueryTxs_txes {
   __typename: "Tx";
   /**
    * {tx.hash}
    */
   id: string;
-  type: TxType;
   hash: any;
   responses: any[];
   executor: any;
   blockHash: any;
   timestamp: any;
-  transfers: GetSubTxs_txes_transfers[];
+  transfers: SQueryTxs_txes_transfers[];
 }
 
-export interface GetSubTxs {
-  txes: GetSubTxs_txes[];
+export interface SQueryTxs {
+  txes: SQueryTxs_txes[];
 }
 
-export interface GetSubTxsVariables {
+export interface SQueryTxsVariables {
   safe: string;
 }
 
@@ -84,64 +83,84 @@ export interface GetSubTxsVariables {
 // This file was automatically generated and should not be edited.
 
 // ====================================================
-// GraphQL query operation: GetSubSafes
+// GraphQL query operation: SQuerySafes
 // ====================================================
 
-export interface GetSubSafes_approver_groups_group_safe_groups_approvers_approver {
-  __typename: "Approver";
+export interface SQuerySafes_user_approvers_approverSet_group_safe_groups_approverSets_approvers_user {
+  __typename: "User";
   /**
    * {address}
    */
   id: string;
 }
 
-export interface GetSubSafes_approver_groups_group_safe_groups_approvers {
-  __typename: "GroupApprover";
-  approver: GetSubSafes_approver_groups_group_safe_groups_approvers_approver;
+export interface SQuerySafes_user_approvers_approverSet_group_safe_groups_approverSets_approvers {
+  __typename: "Approver";
+  user: SQuerySafes_user_approvers_approverSet_group_safe_groups_approverSets_approvers_user;
   weight: any;
 }
 
-export interface GetSubSafes_approver_groups_group_safe_groups {
+export interface SQuerySafes_user_approvers_approverSet_group_safe_groups_approverSets {
+  __typename: "ApproverSet";
+  /**
+   * {group.id}-{blockHash}
+   */
+  id: string;
+  blockHash: any;
+  timestamp: any;
+  approvers: SQuerySafes_user_approvers_approverSet_group_safe_groups_approverSets_approvers[];
+}
+
+export interface SQuerySafes_user_approvers_approverSet_group_safe_groups {
   __typename: "Group";
   /**
    * {safe.id}-{hash}
    */
   id: string;
-  hash: any;
+  ref: any;
   active: boolean;
-  approvers: GetSubSafes_approver_groups_group_safe_groups_approvers[];
+  approverSets: SQuerySafes_user_approvers_approverSet_group_safe_groups_approverSets[];
 }
 
-export interface GetSubSafes_approver_groups_group_safe {
+export interface SQuerySafes_user_approvers_approverSet_group_safe {
   __typename: "Safe";
   /**
    * {address}
    */
   id: string;
-  groups: GetSubSafes_approver_groups_group_safe_groups[];
+  groups: SQuerySafes_user_approvers_approverSet_group_safe_groups[];
 }
 
-export interface GetSubSafes_approver_groups_group {
+export interface SQuerySafes_user_approvers_approverSet_group {
   __typename: "Group";
-  safe: GetSubSafes_approver_groups_group_safe;
+  safe: SQuerySafes_user_approvers_approverSet_group_safe;
 }
 
-export interface GetSubSafes_approver_groups {
-  __typename: "GroupApprover";
-  group: GetSubSafes_approver_groups_group;
+export interface SQuerySafes_user_approvers_approverSet {
+  __typename: "ApproverSet";
+  group: SQuerySafes_user_approvers_approverSet_group;
 }
 
-export interface GetSubSafes_approver {
+export interface SQuerySafes_user_approvers {
   __typename: "Approver";
-  groups: GetSubSafes_approver_groups[];
+  approverSet: SQuerySafes_user_approvers_approverSet;
 }
 
-export interface GetSubSafes {
-  approver: GetSubSafes_approver | null;
+export interface SQuerySafes_user {
+  __typename: "User";
+  /**
+   * {address}
+   */
+  id: string;
+  approvers: SQuerySafes_user_approvers[];
 }
 
-export interface GetSubSafesVariables {
-  approver: string;
+export interface SQuerySafes {
+  user: SQuerySafes_user | null;
+}
+
+export interface SQuerySafesVariables {
+  user: string;
 }
 
 /* tslint:disable */
@@ -180,11 +199,6 @@ export interface TransferFields {
 export enum TransferType {
   IN = "IN",
   OUT = "OUT",
-}
-
-export enum TxType {
-  MULTI = "MULTI",
-  SINGLE = "SINGLE",
 }
 
 //==============================================================

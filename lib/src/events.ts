@@ -1,14 +1,19 @@
 export const SafeEvent = {
-  Deposit: 'Deposit',
-  GroupAdded: 'GroupAdded',
+  Received: 'Received',
+  Transaction: 'Transaction',
+  TransactionReverted: 'TransactionReverted',
+  MultiTransaction: 'MultiTransaction',
+  GroupUpserted: 'GroupUpserted',
   GroupRemoved: 'GroupRemoved',
-  GroupUpdated: 'GroupUpdated',
 };
 
 export const SafeError = {
-  OnlyCallableBySafe: 'OnlyCallableBySafe',
-  NotPrimaryApprover: 'NotPrimaryApprover',
-  TotalGroupWeightLessThan100Percent: 'TotalGroupWeightLessThan100Percent',
-  TotalApprovalWeightsInsufficient: 'TotalApprovalWeightsInsufficient',
   ExecutionReverted: 'ExecutionReverted',
+  TxAlreadyExecuted: 'TxAlreadyExecuted',
+  ApproversSignaturesLenMismatch: 'ApproversSignaturesLenMismatch',
+  InvalidSignature: 'InvalidSignature',
+  BelowThreshold: 'BelowThreshold',
+  InvalidProof: 'InvalidProof',
+  ApproverHashesNotAscending: 'ApproverHashesNotAscending',
+  OnlyCallableBySafe: 'OnlyCallableBySafe',
 };

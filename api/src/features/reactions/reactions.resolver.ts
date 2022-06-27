@@ -13,10 +13,10 @@ import { Address, Id, toId } from 'lib';
 import { PrismaService } from 'nestjs-prisma';
 import { UserAddr } from '~/decorators/user.decorator';
 import {
-  connectOrCreateApprover,
+  connectOrCreateUser,
   connectOrCreateSafe,
 } from '~/util/connect-or-create';
-import { getSelect } from '~/util/test';
+import { getSelect } from '~/util/select';
 import { ReactToCommentArgs } from './reactions.args';
 
 @Resolver(() => Reaction)
@@ -25,7 +25,7 @@ export class ReactionsResolver {
 
   @ResolveField(() => String)
   async id(@Parent() r: Reaction): Promise<Id> {
-    return toId(`${r.safeId}-${r.key}-${r.nonce}-${r.approverId}`);
+    return toId(`${r.safeId}-${r.key}-${r.nonce}-${r.userId}`);
   }
 
   @Mutation(() => Reaction, { nullable: true })
@@ -47,7 +47,7 @@ export class ReactionsResolver {
       create: {
         safe: connectOrCreateSafe(safe),
         comment: { connect: { safeId_key_nonce: commentId } },
-        approver: connectOrCreateApprover(user),
+        user: connectOrCreateUser(user),
         emojis,
       },
       update: {

@@ -4,5 +4,7 @@
     "dist": true,
     "generated": true,
     "node_modules": true
-  }
+  },
+  "jest.jestCommandLine": "yarn test",
+  "jest.autoRun": "off"
 }

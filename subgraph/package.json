@@ -11,7 +11,7 @@
     "create:metasafe": "graph create --node http://graph.metasafe.fi:8020/ hbriese/metasafe",
     "remove:metasafe": "graph remove --node http://graph.metasafe.fi:8020/ hbriese/metasafe",
     "deploy:metasafe": "graph deploy --node http://graph.metasafe.fi:8020/ --ipfs http://graph.metasafe.fi:5001 hbriese/metasafe",
-    "deploy:hosted": "graph deploy --product hosted-service hbriese/metasafe"
+    "deploy:hosted": "graph deploy --product hosted-service hbriese/metasafe2"
   },
   "dependencies": {
     "@graphprotocol/graph-cli": "0.30.1",

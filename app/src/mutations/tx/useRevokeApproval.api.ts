@@ -42,7 +42,7 @@ export const useRevokeApproval = () => {
         if (i >= 0) {
           const tx = newTxs[i];
           const approvals = tx.approvals.filter(
-            (a) => a.approverId !== wallet.address,
+            (a) => a.userId !== wallet.address,
           );
 
           if (approvals.length) {

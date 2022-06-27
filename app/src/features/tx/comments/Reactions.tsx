@@ -26,7 +26,7 @@ export const Reactions = ({ comment, verticalOffset }: ReactionsProps) => {
 
   const emojis: GroupedEmoji[] = useMemo(() => {
     const allReactions = comment.reactions.flatMap((r) =>
-      r.emojis.map((emoji) => ({ emoji, approver: r.approver })),
+      r.emojis.map((emoji) => ({ emoji, approver: r.user })),
     );
 
     const grouped = Object.entries(_.groupBy(allReactions, (e) => e.emoji));

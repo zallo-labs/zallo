@@ -3,7 +3,7 @@ pragma solidity ^0.8.0;
 
 import '@openzeppelin/contracts/utils/cryptography/ECDSA.sol';
 
-import './Types.sol';
+import './ISafe.sol';
 
 bytes32 constant DOMAIN_TYPE_HASH = keccak256(
   'EIP712Domain(uint256 chainId,address verifyingContract)'

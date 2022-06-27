@@ -1,34 +1,41 @@
 import * as hre from 'hardhat';
 import { Deployer } from '@matterlabs/hardhat-zksync-deploy';
-import { Address } from 'zksync-web3/build/types';
 import {
   deploySafe,
   getFactory,
   getSafe,
-  hashApprovers,
-  SafeConstructorArgs,
-  SafeGroup,
   TestSafe__factory,
   address,
-  toSafeGroup,
-  randomGroupId,
+  Group,
+  SafeConstructorArgs,
+  toSafeConstructorDeployArgs,
+  Factory,
+  Address,
+  randomGroupRef,
 } from 'lib';
 import { allSigners, wallet } from './wallet';
-import { BytesLike } from 'ethers';
+import { BytesLike, ContractTransaction } from 'ethers';
 
-export const toSafeGroupTest = (...approvers: [string, number][]): SafeGroup =>
-  toSafeGroup({
-    approvers: approvers.map(([addr, weight]) => ({
-      addr: address(addr),
-      weight,
-    })),
-  });
+export const toSafeGroupTest = (...approvers: [string, number][]): Group => ({
+  ref: randomGroupRef(),
+  approvers: approvers.map(([addr, weight]) => ({
+    addr: address(addr),
+    weight,
+  })),
+});
 
 export const deployer = new Deployer(hre, wallet);
 
-export const deployFactory = async (feeToken?: Address) => {
+export const deployFactory = async (
+  feeToken?: Address,
+): Promise<{
+  factory: Factory;
+  deployTx: ContractTransaction;
+}> => {
   const artifact = await deployer.loadArtifact('Factory');
-  const contract = await deployer.deploy(artifact, [], feeToken);
+  const contract = await deployer.deploy(artifact, [], {
+    customData: { feeToken },
+  });
   await contract.deployed();
 
   return {
@@ -42,7 +49,11 @@ export const deploySafeDirect = async (
   feeToken?: Address,
 ) => {
   const artifact = await deployer.loadArtifact('Safe');
-  const contract = await deployer.deploy(artifact, args, feeToken);
+  const contract = await deployer.deploy(
+    artifact,
+    toSafeConstructorDeployArgs(args),
+    { customData: { feeToken } },
+  );
   await contract.deployed();
 
   return {
@@ -54,11 +65,8 @@ export const deploySafeDirect = async (
 export const deploy = async (weights: number[], _salt?: BytesLike) => {
   if (!weights.length) throw Error('No weights provided');
 
-  // const allSigners = await ethers.getSigners();
   const approvers = allSigners.slice(0, weights.length);
   const others = allSigners.slice(weights.length);
-
-  const groupId = randomGroupId();
 
   const group = toSafeGroupTest(
     ...approvers.map((approver, i): [string, number] => [
@@ -70,7 +78,7 @@ export const deploy = async (weights: number[], _salt?: BytesLike) => {
   const { factory } = await deployFactory();
   const deployData = await deploySafe({
     signer: allSigners[0],
-    args: [groupId, group.approvers],
+    args: { group },
     factory,
     // salt,
   });
@@ -79,24 +87,37 @@ export const deploy = async (weights: number[], _salt?: BytesLike) => {
     ...deployData,
     deployer: wallet,
     factory,
-    approvers,
-    others,
     group,
-    groupHash: hashApprovers(group),
-    groupId,
+    others,
   };
 };
 
-export const deployTestSafe = async (feeToken?: Address) => {
-  const group = toSafeGroupTest([wallet.address, 100]);
+export const deployTestSafe = async (
+  weights: number[] = [100],
+  feeToken?: Address,
+) => {
+  const approvers = allSigners.slice(0, weights.length);
+  const others = allSigners.slice(weights.length);
+
+  const group = toSafeGroupTest(
+    ...approvers.map((approver, i): [string, number] => [
+      approver.address,
+      weights[i],
+    ]),
+  );
 
   const artifact = await deployer.loadArtifact('TestSafe');
-  const contract = await deployer.deploy(artifact, [group.approvers], feeToken);
+  const contract = await deployer.deploy(
+    artifact,
+    toSafeConstructorDeployArgs({ group }),
+    { customData: { feeToken } },
+  );
   await contract.deployed();
 
   return {
     safe: new TestSafe__factory().attach(contract.address).connect(wallet),
     deployTx: contract.deployTransaction,
     group,
+    others,
   };
 };

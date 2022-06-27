@@ -6,11 +6,13 @@ import { useIsDeployed } from '@features/safe/useIsDeployed';
 import { useDeploySafe } from '@features/safe/useDeploySafe';
 import { HomeScreenProps } from '../HomeScreen';
 import { HomeActionButton } from './HomeActionButton';
+import { useNavigateToSend } from '@features/send/SendScreen';
 
 export const HomeActions = () => {
   const navigation = useNavigation<HomeScreenProps['navigation']>();
   const isDeployed = useIsDeployed();
   const deploySafe = useDeploySafe();
+  const navigateToSend = useNavigateToSend();
 
   const deployRequiredDisabled = (label: string) =>
     !isDeployed && `Safe must be deployed to ${label}`;
@@ -20,9 +22,7 @@ export const HomeActions = () => {
       <HomeActionButton
         label="SEND"
         icon={(props) => <MaterialCommunityIcons name="arrow-up" {...props} />}
-        onClick={() => {
-          // TODO:
-        }}
+        onClick={navigateToSend}
         disabled={deployRequiredDisabled('send')}
       />
 

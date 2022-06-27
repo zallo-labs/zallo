@@ -14,7 +14,7 @@
     "./tasks",
     "./test",
     "./typechain",
-    "./metanet-wallets.json"
+    "./local-wallets.json"
   ],
   "files": ["./hardhat.config.ts"],
   "references": [{ "path": "../config" }, { "path": "../lib" }]

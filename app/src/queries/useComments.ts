@@ -8,6 +8,7 @@ import { address, Address, Id, toId } from 'lib';
 import { DateTime } from 'luxon';
 import { useMemo } from 'react';
 import { isTransfer, Transfer } from './tx/transfer';
+import { Activity } from '@features/activity/ActivityItem';
 
 export const REACTION_FIELDS = apiGql`
 fragment ReactionFields on Reaction {
@@ -15,7 +16,7 @@ fragment ReactionFields on Reaction {
   safeId
   key
   nonce
-  approverId
+  userId
   emojis
 }
 `;
@@ -60,13 +61,13 @@ export interface Comment {
 }
 
 export interface Reaction {
-  approver: Address;
+  user: Address;
   emojis: string[];
 }
 
 export type Commentable = Tx | Transfer;
 
-export const isCommentable = (e: unknown): e is Commentable =>
+export const isCommentable = (e: Activity): e is Commentable =>
   isTx(e) || isTransfer(e);
 
 export const getCommentableKey = (c: Commentable): Id => toId(`tx:${c.id}`);
@@ -97,7 +98,7 @@ export const useComments = (commentable: Commentable) => {
           content: c.content,
           reactions: c.reactions.map(
             (r): Reaction => ({
-              approver: address(r.approverId),
+              user: address(r.userId),
               emojis: r.emojis,
             }),
           ),
