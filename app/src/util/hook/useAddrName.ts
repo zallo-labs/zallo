@@ -6,6 +6,8 @@ import { useMemo } from 'react';
 import { useToken } from '~/token/useToken';
 import { elipseTruncate } from '@util/format';
 
+export const truncatedAddr = (addr: Address) => elipseTruncate(addr, 6, 4);
+
 export const useAddrName = (addr: Address) => {
   const wallet = useWallet();
   const { contacts } = useContacts();
@@ -21,7 +23,7 @@ export const useAddrName = (addr: Address) => {
     if (wallet.address === addr) return 'Myself';
     if (addr === safe.address && safeName) return safeName;
 
-    return contact?.name ?? token?.name ?? elipseTruncate(addr, 6, 4);
+    return contact?.name ?? token?.name ?? truncatedAddr(addr);
   }, [
     addr,
     contact?.name,

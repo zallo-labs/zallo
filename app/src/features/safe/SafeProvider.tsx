@@ -1,16 +1,32 @@
-import { createContext, useContext, useEffect, useMemo, useRef } from 'react';
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useRef,
+} from 'react';
 import useAsyncEffect from 'use-async-effect';
-import { atom, useRecoilState } from 'recoil';
+import { atom, SetterOrUpdater, useRecoilState } from 'recoil';
 
-import { useCreateCfSafe } from '~/mutations';
+import { useCreateCounterfactualSafe } from '~/mutations';
 import { CombinedSafe, useSafes } from '~/queries';
 import { ChildrenProps } from '@util/children';
 import { Address } from 'lib';
 import { Suspend } from '@components/Suspender';
+import { persistAtom } from '@util/persistAtom';
 
-const SafeContext = createContext<CombinedSafe | undefined>(undefined);
+interface SafeContext {
+  safe: CombinedSafe;
+  select: SetterOrUpdater<Address>;
+  createSafe: () => Promise<void>;
+}
 
-export const useSafe = () => useContext(SafeContext)!;
+const Context = createContext<SafeContext | undefined>(undefined);
+
+export const useSafesContext = () => useContext(Context)!;
+
+export const useSafe = () => useSafesContext().safe;
 
 export const useGroup = (id: string) =>
   useSafe().groups.find((g) => g.id === id);
@@ -18,43 +34,55 @@ export const useGroup = (id: string) =>
 const selectedSafeAddrState = atom<Address | undefined>({
   key: 'selectedSafeAddr',
   default: undefined,
+  effects: [
+    persistAtom({
+      ignoreDefault: true,
+    }),
+  ],
 });
 
 export const SafeProvider = ({ children }: ChildrenProps) => {
-  const { safes, loading, refetch } = useSafes();
-  const createCfSafe = useCreateCfSafe();
+  const { safes, loading } = useSafes();
+  const createCfSafeMutation = useCreateCounterfactualSafe();
   const [selectedAddr, setSelectedAddr] = useRecoilState(selectedSafeAddrState);
+
+  const createSafe = useCallback(
+    async () => setSelectedAddr(await createCfSafeMutation()),
+    [createCfSafeMutation, setSelectedAddr],
+  );
 
   const initializing = useRef(false);
   useAsyncEffect(async () => {
-    if (!safes?.length && !loading) {
+    if (!loading && !safes?.length) {
       initializing.current = true;
 
-      await createCfSafe();
-      refetch();
+      await createSafe();
 
       initializing.current = false;
     }
-  }, [safes, loading, initializing, createCfSafe, refetch]);
+  }, [safes, loading, initializing]);
 
   const selected = useMemo(
     () => safes.find((s) => s.safe.address === selectedAddr),
     [safes, selectedAddr],
   );
 
+  // Change selection to an available safe if the selection isn't available
   useEffect(() => {
-    // Select a safe
-    if (!loading && safes?.length && !selected) {
-      const picked = safes.findIndex((s) =>
-        s.safe.address.startsWith('0x961e'),
-      );
-      setSelectedAddr(safes[picked >= 0 ? picked : 0].safe.address);
-    }
-  }, [safes, loading, selected, setSelectedAddr]);
+    if (!loading && safes?.length && !selected)
+      setSelectedAddr(safes[0].safe.address);
+  }, [loading, safes, selected, setSelectedAddr]);
+
+  const value: SafeContext = useMemo(
+    () => ({
+      safe: selected,
+      select: setSelectedAddr,
+      createSafe,
+    }),
+    [createSafe, selected, setSelectedAddr],
+  );
 
   if (!selected) return <Suspend />;
 
-  return (
-    <SafeContext.Provider value={selected}>{children}</SafeContext.Provider>
-  );
+  return <Context.Provider value={value}>{children}</Context.Provider>;
 };

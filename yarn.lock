@@ -9331,11 +9331,13 @@ __metadata:
     expo-yarn-workspaces: ^2.0.0
     formik: ^2.2.9
     fuzzy-search: ^3.2.1
+    immer: ^9.0.15
     intl: ^1.2.5
     jest: ^28.1.1
     jest-expo: ^45.0.1
     lib: "workspace:*"
     luxon: ^2.3.1
+    node-libs-react-native: ^1.2.1
     react: 17.0.2
     react-content-loader: ^6.2.0
     react-dom: 17.0.2
@@ -9648,7 +9650,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"assert@npm:^1.1.1":
+"assert@npm:^1.1.1, assert@npm:^1.4.1":
   version: 1.5.0
   resolution: "assert@npm:1.5.0"
   dependencies:
@@ -10813,6 +10815,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"base-64@npm:^0.1.0":
+  version: 0.1.0
+  resolution: "base-64@npm:0.1.0"
+  checksum: 5a42938f82372ab5392cbacc85a5a78115cbbd9dbef9f7540fa47d78763a3a8bd7d598475f0d92341f66285afd377509851a9bb5c67bbecb89686e9255d5b3eb
+  languageName: node
+  linkType: hard
+
 "base-x@npm:^3.0.2, base-x@npm:^3.0.8":
   version: 3.0.9
   resolution: "base-x@npm:3.0.9"
@@ -11281,7 +11290,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"browserify-sign@npm:^4.0.0":
+"browserify-sign@npm:^4.0.0, browserify-sign@npm:^4.0.4":
   version: 4.2.1
   resolution: "browserify-sign@npm:4.2.1"
   dependencies:
@@ -11469,7 +11478,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"buffer@npm:^4.3.0":
+"buffer@npm:^4.3.0, buffer@npm:^4.9.1":
   version: 4.9.2
   resolution: "buffer@npm:4.9.2"
   dependencies:
@@ -13186,7 +13195,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"create-hmac@npm:^1.1.0, create-hmac@npm:^1.1.4, create-hmac@npm:^1.1.7":
+"create-hmac@npm:^1.1.0, create-hmac@npm:^1.1.2, create-hmac@npm:^1.1.4, create-hmac@npm:^1.1.7":
   version: 1.1.7
   resolution: "create-hmac@npm:1.1.7"
   dependencies:
@@ -16120,6 +16129,13 @@ __metadata:
   version: 4.0.7
   resolution: "eventemitter3@npm:4.0.7"
   checksum: 1875311c42fcfe9c707b2712c32664a245629b42bb0a5a84439762dd0fd637fc54d078155ea83c2af9e0323c9ac13687e03cfba79b03af9f40c89b4960099374
+  languageName: node
+  linkType: hard
+
+"events@npm:^1.0.0":
+  version: 1.1.1
+  resolution: "events@npm:1.1.1"
+  checksum: 40431eb005cc4c57861b93d44c2981a49e7feb99df84cf551baed299ceea4444edf7744733f6a6667e942af687359b1f4a87ec1ec4f21d5127dac48a782039b9
   languageName: node
   linkType: hard
 
@@ -19436,6 +19452,13 @@ __metadata:
   version: 8.0.1
   resolution: "immer@npm:8.0.1"
   checksum: 63d875c04882b862481a0a692816e5982975a47a57619698bc1bb52963ad3b624911991708b2b81a7af6fdac15083d408e43932d83a6a61216e5a4503efd4095
+  languageName: node
+  linkType: hard
+
+"immer@npm:^9.0.15":
+  version: 9.0.15
+  resolution: "immer@npm:9.0.15"
+  checksum: 92e3d63e810e3c3c2bb61b70c45443e37ef983ad12924e3edaf03725ae5979618f5b473439bb3bb4a8c4769f25132f18dec10ea15c40f0b20da5691ff96ff611
   languageName: node
   linkType: hard
 
@@ -24801,6 +24824,37 @@ __metadata:
   languageName: node
   linkType: hard
 
+"node-libs-react-native@npm:^1.2.1":
+  version: 1.2.1
+  resolution: "node-libs-react-native@npm:1.2.1"
+  dependencies:
+    assert: ^1.4.1
+    base-64: ^0.1.0
+    browserify-zlib: ^0.2.0
+    buffer: ^6.0.3
+    console-browserify: ^1.1.0
+    constants-browserify: ^1.0.0
+    domain-browser: ^1.1.1
+    events: ^1.0.0
+    https-browserify: ^1.0.0
+    os-browserify: ^0.3.0
+    path-browserify: 0.0.0
+    process: ^0.11.0
+    punycode: ^2.1.0
+    querystring-es3: ^0.2.0
+    react-native-crypto: ^2.0.1
+    react-native-randombytes: ^3.5.1
+    readable-stream: ^2.2.9
+    stream-http: ^2.3.1
+    string_decoder: ^1.0.3
+    timers-browserify: ^2.0.2
+    tty-browserify: 0.0.0
+    url: ^0.11.0
+    util: ^0.10.3
+  checksum: 50223ee01505045a5d5728ea8458c89e0b0e94f0d792741b03635a8be43b99e68350e943327841affa00ef0497511c6b6a81823db7cf94c6b49bfd041e661a36
+  languageName: node
+  linkType: hard
+
 "node-releases@npm:^1.1.61":
   version: 1.1.77
   resolution: "node-releases@npm:1.1.77"
@@ -25850,6 +25904,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"path-browserify@npm:0.0.0":
+  version: 0.0.0
+  resolution: "path-browserify@npm:0.0.0"
+  checksum: 6a6755c7813a8c9652d137729976d9828aa6d1a7bf9de985b0e79aa3617f646d037449a82e71d229ce3351aae01705f8e07a7f0ca62bb1e147d4001be737c6b5
+  languageName: node
+  linkType: hard
+
 "path-browserify@npm:0.0.1":
   version: 0.0.1
   resolution: "path-browserify@npm:0.0.1"
@@ -25982,6 +26043,15 @@ __metadata:
   version: 1.1.1
   resolution: "pathval@npm:1.1.1"
   checksum: 090e3147716647fb7fb5b4b8c8e5b55e5d0a6086d085b6cd23f3d3c01fcf0ff56fd3cc22f2f4a033bd2e46ed55d61ed8379e123b42afe7d531a2a5fc8bb556d6
+  languageName: node
+  linkType: hard
+
+"pbkdf2@npm:3.0.8":
+  version: 3.0.8
+  resolution: "pbkdf2@npm:3.0.8"
+  dependencies:
+    create-hmac: ^1.1.2
+  checksum: e63a29896a148f758a91b7933bd414830c4cb40673d93e4da379e4204c7182da7c6aac53ce6f4dabd25b21ab2892f4b9dca89a8beb567e90d31f1bb2dec593dc
   languageName: node
   linkType: hard
 
@@ -26809,7 +26879,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"process@npm:^0.11.10":
+"process@npm:^0.11.0, process@npm:^0.11.10":
   version: 0.11.10
   resolution: "process@npm:0.11.10"
   checksum: bfcce49814f7d172a6e6a14d5fa3ac92cc3d0c3b9feb1279774708a719e19acd673995226351a082a9ae99978254e320ccda4240ddc474ba31a76c79491ca7c3
@@ -27573,6 +27643,26 @@ __metadata:
   languageName: node
   linkType: hard
 
+"react-native-crypto@npm:^2.0.1":
+  version: 2.2.0
+  resolution: "react-native-crypto@npm:2.2.0"
+  dependencies:
+    browserify-cipher: ^1.0.0
+    browserify-sign: ^4.0.4
+    create-ecdh: ^4.0.0
+    create-hash: ^1.1.0
+    create-hmac: ^1.1.0
+    diffie-hellman: ^5.0.0
+    inherits: ^2.0.1
+    pbkdf2: 3.0.8
+    public-encrypt: ^4.0.0
+    randomfill: ^1.0.3
+  peerDependencies:
+    react-native-randombytes: ">=2.0.0 <4.0.0"
+  checksum: 52631bf32e5d3e0aad9329e3271808a30b91f8a072d4a0c2791105cd3c3aac5d1a63a4016a570790342baa7fc4b10f15024e4d6df47e57906197d7587af450e1
+  languageName: node
+  linkType: hard
+
 "react-native-dashed-line@npm:^1.1.0":
   version: 1.1.0
   resolution: "react-native-dashed-line@npm:1.1.0"
@@ -27689,6 +27779,16 @@ __metadata:
     react-native: ">=0.63.4"
     react-native-svg: ^12.1.0
   checksum: 2e3150bf872a7c545527130dcca352c7d903df89d880333e0b046ef2079f5368d83a38df50f13b66ed9a52efdb5b90c7e027e3c96ce3e25ca3053996799d4826
+  languageName: node
+  linkType: hard
+
+"react-native-randombytes@npm:^3.5.1":
+  version: 3.6.1
+  resolution: "react-native-randombytes@npm:3.6.1"
+  dependencies:
+    buffer: ^4.9.1
+    sjcl: ^1.0.3
+  checksum: a0d8ec80e1a4573d8c4924cb52b01007fe2ae1d3698bb5e1e1330246f0ae307af4e7df236e176f438a7f69151e321a36a633f53dbb61f1c965a960f572bd3b1e
   languageName: node
   linkType: hard
 
@@ -29614,6 +29714,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"sjcl@npm:^1.0.3":
+  version: 1.0.8
+  resolution: "sjcl@npm:1.0.8"
+  checksum: ae5bc8172dec88376fbb1c8508f2be24c1dd064be2af25368e6267824b6a84b52b515546b48c8f72460c715a39e934b077f0bf2adefc36c22527bff57ec06e1d
+  languageName: node
+  linkType: hard
+
 "slash@npm:^1.0.0":
   version: 1.0.0
   resolution: "slash@npm:1.0.0"
@@ -30300,7 +30407,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"stream-http@npm:^2.7.2":
+"stream-http@npm:^2.3.1, stream-http@npm:^2.7.2":
   version: 2.8.3
   resolution: "stream-http@npm:2.8.3"
   dependencies:
@@ -30449,7 +30556,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"string_decoder@npm:^1.0.0, string_decoder@npm:^1.1.1, string_decoder@npm:^1.2.0":
+"string_decoder@npm:^1.0.0, string_decoder@npm:^1.0.3, string_decoder@npm:^1.1.1, string_decoder@npm:^1.2.0":
   version: 1.3.0
   resolution: "string_decoder@npm:1.3.0"
   dependencies:
@@ -31349,7 +31456,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"timers-browserify@npm:^2.0.4":
+"timers-browserify@npm:^2.0.2, timers-browserify@npm:^2.0.4":
   version: 2.0.12
   resolution: "timers-browserify@npm:2.0.12"
   dependencies:
@@ -32634,6 +32741,15 @@ __metadata:
   dependencies:
     inherits: 2.0.1
   checksum: bd800f5d237a82caddb61723a6cbe45297d25dd258651a31335a4d5d981fd033cb4771f82db3d5d59b582b187cb69cfe727dc6f4d8d7826f686ee6c07ce611e0
+  languageName: node
+  linkType: hard
+
+"util@npm:^0.10.3":
+  version: 0.10.4
+  resolution: "util@npm:0.10.4"
+  dependencies:
+    inherits: 2.0.3
+  checksum: 913f9a90d05a60e91f91af01b8bd37e06bca4cc02d7b49e01089f9d5b78be2fffd61fb1a41b517de7238c5fc7337fa939c62d1fb4eb82e014894c7bee6637aaf
   languageName: node
   linkType: hard
 

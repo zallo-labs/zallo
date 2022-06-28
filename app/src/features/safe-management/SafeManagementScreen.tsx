@@ -1,6 +1,5 @@
 import { Box } from '@components/Box';
 import { RootNavigatorScreenProps } from '@features/navigation/RootNavigator';
-import { SafeNameField } from './SafeNameField';
 import { Header } from '@components/Header';
 import { SafeIcon } from '@features/home/SafeIcon';
 import { useSafe } from '@features/safe/SafeProvider';
@@ -20,7 +19,6 @@ export const SafeManagementScreen = (_props: SafeManagementScreenProps) => {
       <FlatList
         ListHeaderComponent={
           <Header
-            Middle={<SafeNameField />}
             Right={<SafeIcon />}
             mx={2}
             mt={3}
