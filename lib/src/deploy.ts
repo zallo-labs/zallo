@@ -33,7 +33,7 @@ interface DeploySafeParams {
 }
 
 export const deploySafe = async ({
-  args: args,
+  args,
   factory,
   signer,
   salt: _salt,
@@ -50,15 +50,12 @@ export const deploySafe = async ({
   const deployTx = await factory.create(...deployArgs, {
     gasLimit: 1_000_000,
   });
-  const deployReceipt = await deployTx.wait();
-
-  const safe = getSafe(addr, signer);
 
   return {
-    safe,
+    safe: getSafe(addr, signer),
     salt,
     deployTx,
-    deployReceipt,
+    deployReceipt: await deployTx.wait(),
   };
 };
 

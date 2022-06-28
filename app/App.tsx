@@ -1,3 +1,4 @@
+import 'node-libs-react-native/globals';
 import { Suspense } from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { Provider as PaperProvider } from 'react-native-paper';
@@ -6,7 +7,7 @@ import { RecoilRoot } from 'recoil';
 import '~/provider';
 import { SafeProvider } from '@features/safe/SafeProvider';
 import { RootNavigator } from '@features/navigation/RootNavigator';
-import { SafeArea } from '@components/SafeArea';
+import { Background } from '@components/Background';
 import { NAV_THEME, PAPER_THEME } from '~/theme';
 import { LocalizatonProvider } from '@features/localization/LocalizationProvider';
 import { GqlProvider } from '@gql/GqlProvider';
@@ -14,20 +15,20 @@ import { Toast } from '@components/Toast';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { ErrorBoundary } from '@components/ErrorBoundary';
 import { Splash } from '@components/Splash';
-import { StatusBar } from '@components/StatusBar';
+import { StatusBar } from 'expo-status-bar';
 import { AuthGate } from '@features/AuthGate';
 
 export default () => (
   <LocalizatonProvider>
     <PaperProvider theme={PAPER_THEME}>
-      <ErrorBoundary>
-        <Suspense fallback={<Splash />}>
-          <RecoilRoot>
-            <GestureHandlerRootView style={{ flex: 1 }}>
-              <SafeArea>
+      <Background>
+        <ErrorBoundary>
+          <Suspense fallback={<Splash />}>
+            <RecoilRoot>
+              <GestureHandlerRootView style={{ flex: 1 }}>
                 <AuthGate>
                   <GqlProvider>
-                    <StatusBar />
+                    <StatusBar style="inverted" />
                     <SafeProvider>
                       <NavigationContainer theme={NAV_THEME}>
                         <RootNavigator />
@@ -36,11 +37,11 @@ export default () => (
                   </GqlProvider>
                 </AuthGate>
                 <Toast />
-              </SafeArea>
-            </GestureHandlerRootView>
-          </RecoilRoot>
-        </Suspense>
-      </ErrorBoundary>
+              </GestureHandlerRootView>
+            </RecoilRoot>
+          </Suspense>
+        </ErrorBoundary>
+      </Background>
     </PaperProvider>
   </LocalizatonProvider>
 );

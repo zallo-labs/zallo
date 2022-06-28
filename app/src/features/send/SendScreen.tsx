@@ -1,7 +1,6 @@
 import { Actions } from '@components/Actions';
 import { useFormattedAddr } from '@components/Addr';
 import { AppbarBack } from '@components/AppbarBack';
-import { AppbarRoot } from '@components/AppbarRoot';
 import { Box } from '@components/Box';
 import {
   usePropose,
@@ -73,13 +72,13 @@ export const SendScreen = withProposeProvider(
     return (
       <Box flex={1}>
         {/* TODO: MD3 - mode="medium" */}
-        <AppbarRoot>
+        <Appbar.Header>
           <AppbarBack />
 
           <Appbar.Content title={`To ${formattedTo}`} />
 
           <Appbar.Action icon="close" onPress={navigation.popToTop} />
-        </AppbarRoot>
+        </Appbar.Header>
 
         <Box horizontal justifyContent="center" mt={100} mb={50}>
           <SendTokenChip token={token} />

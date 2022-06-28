@@ -1,5 +1,4 @@
 import { AppbarBack } from '@components/AppbarBack';
-import { AppbarRoot } from '@components/AppbarRoot';
 import { useNavigation } from '@react-navigation/native';
 import { Address } from 'lib';
 import { Appbar } from 'react-native-paper';
@@ -19,7 +18,7 @@ export const ContactsAppbar = ({
   const navigation = useNavigation<ContactsScreenProps['navigation']>();
 
   return (
-    <AppbarRoot>
+    <Appbar.Header>
       <AppbarBack />
 
       {/* Search */}
@@ -32,6 +31,6 @@ export const ContactsAppbar = ({
           })
         }
       />
-    </AppbarRoot>
+    </Appbar.Header>
   );
 };
