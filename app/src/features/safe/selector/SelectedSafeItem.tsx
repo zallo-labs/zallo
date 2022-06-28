@@ -18,10 +18,7 @@ export const SelectedSafeItem = ({
   const [name, setName] = useState(safe.name ?? '');
 
   const submit = () => {
-    if (name !== safe.name) {
-      console.log(name);
-      upsertSafe({ safe: safe.safe.address, name });
-    }
+    if (name !== safe.name) upsertSafe({ ...safe, name });
     setEdit(false);
   };
 

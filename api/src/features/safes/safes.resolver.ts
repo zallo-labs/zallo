@@ -1,12 +1,11 @@
 import { Args, Info, Mutation, Query, Resolver } from '@nestjs/graphql';
 import { PrismaService } from 'nestjs-prisma';
-import { GraphQLError, GraphQLResolveInfo } from 'graphql';
+import { GraphQLResolveInfo } from 'graphql';
 
 import { Safe } from '@gen/safe/safe.model';
 import { FindManySafeArgs } from '@gen/safe/find-many-safe.args';
 import { FindUniqueSafeArgs } from '@gen/safe/find-unique-safe.args';
-import { CreateCfSafeArgs, UpsertSafeArgs } from './safes.args';
-import { UserAddr } from '~/decorators/user.decorator';
+import { UpsertSafeArgs } from './safes.args';
 import { getSelect } from '~/util/select';
 import { connectOrCreateUser } from '~/util/connect-or-create';
 
@@ -109,37 +108,6 @@ export class SafesResolver {
           },
         }),
       },
-      ...getSelect(info),
-    });
-  }
-
-  @Mutation(() => Safe)
-  async upsertCounterfactualSafe(
-    @Args() { safe, salt, group }: CreateCfSafeArgs,
-    @UserAddr() user: string,
-    @Info() info: GraphQLResolveInfo,
-  ): Promise<Safe> {
-    if (!group.approvers.filter((a) => a.addr === user).length)
-      throw new GraphQLError('User must be part of group');
-
-    return await this.prisma.safe.upsert({
-      where: { id: safe },
-      create: {
-        id: safe,
-        deploySalt: salt,
-        groups: {
-          create: {
-            ref: group.ref,
-            approvers: {
-              create: group.approvers.map((a) => ({
-                user: connectOrCreateUser(a.addr),
-                weight: a.weight.toString(),
-              })),
-            },
-          },
-        },
-      },
-      update: {},
       ...getSelect(info),
     });
   }

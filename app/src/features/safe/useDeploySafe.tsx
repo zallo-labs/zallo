@@ -8,7 +8,8 @@ import { useSetRecoilState } from 'recoil';
 import { useSafeFactory } from './useSafeFactory';
 
 export const useDeploySafe = () => {
-  const { groups, deploySalt, safe } = useSafe();
+  const combinedSafe = useSafe();
+  const { groups, deploySalt, safe } = combinedSafe;
   const isDeployed = useIsDeployed();
   const wallet = useWallet();
   const factory = useSafeFactory();
@@ -32,7 +33,8 @@ export const useDeploySafe = () => {
 
     setIsDeployed(true);
 
-    if (!deploySalt && r.salt) upsertSafe({ deploySalt: r.salt });
+    if (!deploySalt && r.salt)
+      upsertSafe({ ...combinedSafe, deploySalt: r.salt });
 
     showSuccess('Safe deployed');
   };

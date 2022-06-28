@@ -1,10 +1,12 @@
 import 'node-libs-react-native/globals';
+import '~/provider';
+import '@util/configImmer';
+
 import { Suspense } from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { Provider as PaperProvider } from 'react-native-paper';
 import { RecoilRoot } from 'recoil';
 
-import '~/provider';
 import { SafeProvider } from '@features/safe/SafeProvider';
 import { RootNavigator } from '@features/navigation/RootNavigator';
 import { Background } from '@components/Background';

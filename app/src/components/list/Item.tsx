@@ -3,7 +3,7 @@ import { Box, BoxProps } from '@components/Box';
 import { GestureResponderEvent, TouchableOpacity } from 'react-native';
 import { ItemSkeleton } from './ItemSkeleton';
 import { withSkeleton } from '@components/skeleton/withSkeleton';
-import { useTheme } from 'react-native-paper';
+import { TouchableRipple, useTheme } from 'react-native-paper';
 
 export const PRIMARY_ICON_SIZE = 40;
 export const SECONDARY_ICON_SIZE = 24;
@@ -38,10 +38,11 @@ export const Item = withSkeleton(
     const { colors } = useTheme();
 
     return (
-      <TouchableOpacity
+      <TouchableRipple
         disabled={disabled || !onPress}
         onPress={!disabled && onPress}
         onLongPress={!disabled && onLongPress}
+        rippleColor={colors.primary}
       >
         <Box
           horizontal
@@ -76,7 +77,7 @@ export const Item = withSkeleton(
             </Box>
           )}
         </Box>
-      </TouchableOpacity>
+      </TouchableRipple>
     );
   },
   ItemSkeleton,

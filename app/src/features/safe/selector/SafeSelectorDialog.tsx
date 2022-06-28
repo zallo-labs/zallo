@@ -9,7 +9,9 @@ import { SelectedSafeItem } from './SelectedSafeItem';
 
 const itemPadding: Partial<BoxProps> = {
   px: 2,
-  py: 3,
+  py: 2,
+  mx: 2,
+  my: 1,
 };
 
 export interface SafeSelectorDialogProps {
@@ -46,7 +48,7 @@ export const SafeSelectorDialog = ({
         width: '100%',
       }}
     >
-      <Box backgroundColor={colors.surface} mx={2} py={3} px={2}>
+      <Box backgroundColor={colors.surface} mx={2} py={2}>
         <SelectedSafeItem safe={safe} {...itemPadding} />
 
         {otherSafes.map((safe) => (
@@ -61,22 +63,29 @@ export const SafeSelectorDialog = ({
           />
         ))}
 
-        <Box horizontal px={2} py={1}>
-          <Button
-            mode="text"
-            labelStyle={{ color: colors.accent }}
-            onPress={async () => {
-              setCreatingSafe(true);
-              await createSafe();
-              hide();
-              setCreatingSafe(false);
-            }}
-            disabled={creatingSafe}
-          >
-            <Box width={PRIMARY_ICON_SIZE} ml={1} />
-            {creatingSafe ? 'Creating safe...' : 'Create'}
-          </Button>
-        </Box>
+        <Button
+          mode="text"
+          labelStyle={{ color: colors.accent }}
+          onPress={() => {
+            setCreatingSafe(true);
+            createSafe();
+            // Component unmounts, no need to hide dialog
+          }}
+          disabled={creatingSafe}
+          style={{
+            flex: 1,
+          }}
+          contentStyle={{
+            flex: 1,
+            flexDirection: 'row',
+            justifyContent: 'flex-start',
+            paddingHorizontal: 2,
+            paddingVertical: 6,
+          }}
+        >
+          <Box width={PRIMARY_ICON_SIZE} ml={1} />
+          {creatingSafe ? 'Creating safe...' : 'Create'}
+        </Button>
       </Box>
     </Dialog>
   );

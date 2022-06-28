@@ -9,12 +9,12 @@ import {
 import useAsyncEffect from 'use-async-effect';
 import { atom, SetterOrUpdater, useRecoilState } from 'recoil';
 
-import { useCreateCounterfactualSafe } from '~/mutations';
 import { CombinedSafe, useSafes } from '~/queries';
 import { ChildrenProps } from '@util/children';
 import { Address } from 'lib';
 import { Suspend } from '@components/Suspender';
 import { persistAtom } from '@util/persistAtom';
+import { useCreateCounterfactualSafe2 } from './useCreateCounterfactualSafe';
 
 interface SafeContext {
   safe: CombinedSafe;
@@ -43,7 +43,7 @@ const selectedSafeAddrState = atom<Address | undefined>({
 
 export const SafeProvider = ({ children }: ChildrenProps) => {
   const { safes, loading } = useSafes();
-  const createCfSafeMutation = useCreateCounterfactualSafe();
+  const createCfSafeMutation = useCreateCounterfactualSafe2();
   const [selectedAddr, setSelectedAddr] = useRecoilState(selectedSafeAddrState);
 
   const createSafe = useCallback(

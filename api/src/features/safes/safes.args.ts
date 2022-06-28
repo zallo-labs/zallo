@@ -24,14 +24,3 @@ export class UpsertSafeArgs {
 
   groups?: GroupInput[];
 }
-
-@ArgsType()
-export class CreateCfSafeArgs {
-  @AddressField()
-  safe: Address;
-
-  @Bytes32Field()
-  salt: string;
-
-  group: GroupInput;
-}
