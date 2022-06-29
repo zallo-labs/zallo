@@ -7,6 +7,7 @@ import { useDeploySafe } from '@features/safe/useDeploySafe';
 import { HomeScreenProps } from '../HomeScreen';
 import { HomeActionButton } from './HomeActionButton';
 import { useNavigateToSend } from '@features/send/SendScreen';
+import { ReceiveIcon, SendIcon } from '@util/icons';
 
 export const HomeActions = () => {
   const navigation = useNavigation<HomeScreenProps['navigation']>();
@@ -21,16 +22,14 @@ export const HomeActions = () => {
     <Box horizontal>
       <HomeActionButton
         label="SEND"
-        icon={(props) => <MaterialCommunityIcons name="arrow-up" {...props} />}
+        icon={SendIcon}
         onClick={navigateToSend}
         disabled={deployRequiredDisabled('send')}
       />
 
       <HomeActionButton
         label="RECEIVE"
-        icon={(props) => (
-          <MaterialCommunityIcons name="arrow-down" {...props} />
-        )}
+        icon={ReceiveIcon}
         onClick={() => navigation.navigate('Receive')}
       />
 

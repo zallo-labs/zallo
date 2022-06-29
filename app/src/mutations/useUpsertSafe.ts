@@ -100,9 +100,17 @@ export const useUpsertSafe = () => {
             ...opts,
             overwrite: true,
             data: produce(data, (data) => {
-              if (subSafeIds.includes(address(safe.id))) {
-                if (!data) data = { safes: [], user: null };
+              if (!data)
+                data = {
+                  safes: [],
+                  user: {
+                    __typename: 'User',
+                    id: wallet.address,
+                    safes: [],
+                  },
+                };
 
+              if (subSafeIds.includes(address(safe.id))) {
                 const i = data.safes.findIndex((s) => s.id === safe.id);
                 if (i >= 0) {
                   data.safes[i] = safe;
@@ -110,16 +118,6 @@ export const useUpsertSafe = () => {
                   data.safes.push(safe);
                 }
               } else {
-                if (!data)
-                  data = {
-                    safes: [],
-                    user: {
-                      __typename: 'User',
-                      id: wallet.address,
-                      safes: [],
-                    },
-                  };
-
                 const i = data.user.safes.findIndex((s) => s.id === safe.id);
                 if (i >= 0) {
                   data.user.safes[i] = safe;

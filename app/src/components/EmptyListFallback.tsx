@@ -1,10 +1,11 @@
 import { ReactNode } from 'react';
 import { useWindowDimensions } from 'react-native';
-import { Headline, Title } from 'react-native-paper';
+import { Headline, Title, useTheme } from 'react-native-paper';
 import { Box } from './Box';
+import { PRIMARY_ICON_SIZE } from './list/Item';
 
 export interface EmptyListFallbackProps {
-  Icon?: ReactNode;
+  Icon?: ((props: { color: string; size: number }) => ReactNode) | ReactNode;
   title: string;
   subtitle?: string;
 }
@@ -15,6 +16,9 @@ export const EmptyListFallback = ({
   subtitle,
 }: EmptyListFallbackProps) => {
   const { height } = useWindowDimensions();
+  const { colors } = useTheme();
+
+  console.log(typeof Icon)
 
   return (
     // Set height manually since flex={1} doesn't work within FlexList on Android
@@ -22,7 +26,11 @@ export const EmptyListFallback = ({
       <Box flex={1} />
 
       <Box flex={2} alignItems="center">
-        {Icon}
+        {typeof Icon === 'function' ? (
+          <Icon color={colors.onBackground} size={PRIMARY_ICON_SIZE} />
+        ) : (
+          Icon
+        )}
 
         <Box my={10}>
           <Headline style={{ textAlign: 'center' }}>{title}</Headline>

@@ -3,13 +3,16 @@ import { Box } from '@components/Box';
 import { Chevron } from '@components/Chevron';
 import { useSafe } from '@features/safe/SafeProvider';
 import { SafeSelectorDialog } from '@features/safe/selector/SafeSelectorDialog';
+import { useNavigation } from '@react-navigation/native';
 import { useState } from 'react';
 import { TouchableOpacity } from 'react-native';
 import { Appbar, Portal, Title, useTheme } from 'react-native-paper';
+import { HomeScreenProps } from './HomeScreen';
 
 export const HomeAppbar = () => {
   const { colors } = useTheme();
   const { safe } = useSafe();
+  const navigation = useNavigation<HomeScreenProps["navigation"]>();
 
   const [menuVisible, setMenuVisible] = useState(false);
 
@@ -19,9 +22,7 @@ export const HomeAppbar = () => {
       <Appbar.Header>
         <Appbar.Action
           icon="menu"
-          onPress={() => {
-            // TODO: implement
-          }}
+          onPress={navigation.openDrawer}
         />
 
         <Box flex={1} mx={3}>

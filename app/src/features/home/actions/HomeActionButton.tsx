@@ -1,14 +1,15 @@
-import { FC } from 'react';
+import { ComponentPropsWithoutRef, FC } from 'react';
 import { TouchableOpacity } from 'react-native';
 import { Text, useTheme } from 'react-native-paper';
 
 import { Box } from '@components/Box';
 import { showError } from '@components/Toast';
+import { MaterialIcons } from '@expo/vector-icons';
 
-interface IconProps {
-  size: number;
-  color: string;
-}
+type IconProps = Pick<
+  ComponentPropsWithoutRef<typeof MaterialIcons>,
+  'size' | 'color'
+>;
 
 export interface HomeActionButtonProps {
   label: string;

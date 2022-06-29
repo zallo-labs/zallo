@@ -3,11 +3,11 @@ import { Box } from '@components/Box';
 import { Holdings } from './holdings/Holdings';
 import { SafeBalance } from './SafeBalance';
 import { HomeActions } from './actions/HomeActions';
-import { TabNavigatorScreenProps } from '@features/navigation/TabNavigator';
 import { HomeAppbar } from './HomeAppbar';
 import { Portal } from 'react-native-paper';
+import { DrawerNavigatorScreenProps } from '@features/navigation/DrawerNavigator';
 
-export type HomeScreenProps = TabNavigatorScreenProps<'Home'>;
+export type HomeScreenProps = DrawerNavigatorScreenProps<'Home'>;
 
 export const HomeScreen = (_props: HomeScreenProps) => {
   return (

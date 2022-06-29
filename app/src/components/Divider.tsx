@@ -8,7 +8,7 @@ export const Divider = (props: BoxProps) => {
 
   return (
     <Box
-      borderBottomColor={colors.text}
+      borderBottomColor={colors.outline}
       borderBottomWidth={StyleSheet.hairlineWidth}
       alignSelf="stretch"
       {...props}

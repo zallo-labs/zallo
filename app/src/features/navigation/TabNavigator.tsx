@@ -2,16 +2,16 @@ import {
   createMaterialTopTabNavigator,
   MaterialTopTabScreenProps,
 } from '@react-navigation/material-top-tabs';
-import { HomeScreen } from '@features/home/HomeScreen';
 import { ActivityScreen } from '@features/activity/ActivityScreen';
 import { RootNavigatorScreenProps } from './RootNavigator';
 import {
   CompositeScreenProps,
   NavigatorScreenParams,
 } from '@react-navigation/native';
+import { DrawerNavigator } from './DrawerNavigator';
 
 export type TabNavigatorParamList = {
-  Home: undefined;
+  DrawerNavigator: undefined;
   Activity: undefined;
 };
 
@@ -27,11 +27,11 @@ const Tab = createMaterialTopTabNavigator<TabNavigatorParamList>();
 
 export const TabNavigator = () => (
   <Tab.Navigator
-    initialRouteName="Home"
+    initialRouteName="DrawerNavigator"
     tabBar={() => null}
     screenOptions={{ lazy: true }}
   >
-    <Tab.Screen name="Home" component={HomeScreen} />
+    <Tab.Screen name="DrawerNavigator" component={DrawerNavigator} />
     <Tab.Screen name="Activity" component={ActivityScreen} />
   </Tab.Navigator>
 );
