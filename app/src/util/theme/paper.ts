@@ -32,7 +32,12 @@ declare global {
       lighterText: string;
     }
 
-    interface Theme extends StyledComponentsTheme {}
+    interface Theme extends StyledComponentsTheme {
+      iconSize: {
+        small: number;
+        medium: number;
+      };
+    }
   }
 }
 
@@ -74,5 +79,10 @@ export const PAPER_THEME: ReactNativePaper.Theme = {
     error: '#FF3D71', // Red/Pink
     delete: '#DD2C00', // Red
     lighterText: new Color(PaperDarkTheme.colors.text).alpha(0.7).hexa(),
+  },
+
+  iconSize: {
+    small: 24,
+    medium: 40,
   },
 };

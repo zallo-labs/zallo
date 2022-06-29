@@ -1,11 +1,9 @@
-import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { FC, ReactNode, useCallback, useState } from 'react';
-import { Pressable, TouchableOpacity } from 'react-native';
+import { TouchableOpacity } from 'react-native';
 import Collapsible from 'react-native-collapsible';
 import { Subheading, useTheme } from 'react-native-paper';
 import { Box, BoxProps } from './Box';
 import { Chevron } from './Chevron';
-import { SECONDARY_ICON_SIZE } from './list/Item';
 
 export interface AccordionProps extends BoxProps {
   children: ReactNode;
@@ -21,7 +19,7 @@ export const Accordion = ({
   initiallyExpanded,
   ...boxProps
 }: AccordionProps) => {
-  const { colors } = useTheme();
+  const { colors, iconSize } = useTheme();
   const [expanded, setExpanded] = useState(initiallyExpanded);
 
   const toggle = useCallback(() => setExpanded((prev) => !prev), [setExpanded]);
@@ -46,7 +44,7 @@ export const Accordion = ({
 
           <Chevron
             expanded={expanded}
-            size={SECONDARY_ICON_SIZE}
+            size={iconSize.small}
             color={colors.onSurface}
           />
         </Box>

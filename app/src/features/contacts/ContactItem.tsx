@@ -4,7 +4,7 @@ import { MaterialIcons } from '@expo/vector-icons';
 import { Address } from 'lib';
 import { Addr } from '@components/Addr';
 import { Identicon } from '@components/Identicon';
-import { Item, ItemProps, SECONDARY_ICON_SIZE } from '@components/list/Item';
+import { Item, ItemProps } from '@components/list/Item';
 import { Contact } from '~/queries';
 import { ContactsScreenProps } from './ContactsScreen';
 
@@ -20,7 +20,7 @@ export const ContactItem = ({
   disabled,
   ...itemProps
 }: ContactItemProps) => {
-  const { colors } = useTheme();
+  const { colors, iconSize } = useTheme();
   const navigation = useNavigation<ContactsScreenProps['navigation']>();
 
   return (
@@ -34,7 +34,7 @@ export const ContactItem = ({
       Right={
         <MaterialIcons
           name="edit"
-          size={SECONDARY_ICON_SIZE}
+          size={iconSize.small}
           color={colors.onSurface}
           onPress={() => navigation.navigate('Contact', { addr: contact.addr })}
         />

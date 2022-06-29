@@ -1,7 +1,7 @@
 import { Accordion, AccordionProps } from '@components/Accordion';
-import { SECONDARY_ICON_SIZE } from '@components/list/Item';
 import { AntDesign } from '@expo/vector-icons';
 import { TransferItem } from '@features/activity/TransferItem';
+import { useTheme } from 'react-native-paper';
 import { ExecutedTx } from '~/queries/tx/useTxs';
 
 export interface TxTransfersAccordionProps extends Partial<AccordionProps> {
@@ -12,13 +12,15 @@ export const TxTransfersAccordion = ({
   tx,
   ...accordionProps
 }: TxTransfersAccordionProps) => {
+  const { iconSize } = useTheme();
+
   if (!tx.transfers.length) return null;
 
   return (
     <Accordion
       title="Transfers"
       left={(props) => (
-        <AntDesign name="swap" size={SECONDARY_ICON_SIZE} {...props} />
+        <AntDesign name="swap" size={iconSize.small} {...props} />
       )}
       {...accordionProps}
     >

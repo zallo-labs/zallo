@@ -1,10 +1,10 @@
 import { Accordion, AccordionProps } from '@components/Accordion';
 import { Box } from '@components/Box';
-import { SECONDARY_ICON_SIZE } from '@components/list/Item';
 import { MaterialIcons } from '@expo/vector-icons';
 import { Commentable, useComments } from '~/queries/useComments';
 import { CreateCommentField } from './CreateCommentField';
 import { CommentItem } from './CommentItem';
+import { useTheme } from 'react-native-paper';
 
 export interface CommentsAccordionProps extends Partial<AccordionProps> {
   commentable: Commentable;
@@ -14,13 +14,14 @@ export const CommentsAccordion = ({
   commentable,
   ...accordionProps
 }: CommentsAccordionProps) => {
+  const { iconSize } = useTheme();
   const { comments } = useComments(commentable);
 
   return (
     <Accordion
       title="Comments"
       left={(props) => (
-        <MaterialIcons {...props} name="comment" size={SECONDARY_ICON_SIZE} />
+        <MaterialIcons {...props} name="comment" size={iconSize.small} />
       )}
       {...accordionProps}
     >

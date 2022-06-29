@@ -1,12 +1,9 @@
 import { ReactNode } from 'react';
 import { Box, BoxProps } from '@components/Box';
-import { GestureResponderEvent, TouchableOpacity } from 'react-native';
+import { GestureResponderEvent } from 'react-native';
 import { ItemSkeleton } from './ItemSkeleton';
 import { withSkeleton } from '@components/skeleton/withSkeleton';
 import { TouchableRipple, useTheme } from 'react-native-paper';
-
-export const PRIMARY_ICON_SIZE = 40;
-export const SECONDARY_ICON_SIZE = 24;
 
 export interface ItemProps extends BoxProps {
   Left?: ReactNode;

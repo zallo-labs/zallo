@@ -1,5 +1,4 @@
 import { Box, BoxProps } from '@components/Box';
-import { PRIMARY_ICON_SIZE } from '@components/list/Item';
 import { space } from '@util/theme/styledComponents';
 import { useMemo, useState } from 'react';
 import { Button, Dialog, useTheme } from 'react-native-paper';
@@ -24,7 +23,7 @@ export const SafeSelectorDialog = ({
   visible,
   hide,
 }: SafeSelectorDialogProps) => {
-  const { colors } = useTheme();
+  const { colors, iconSize } = useTheme();
   const { select, createSafe } = useSafesContext();
   const { safes: allSafes } = useSafes();
   const safe = useSafe();
@@ -83,7 +82,7 @@ export const SafeSelectorDialog = ({
             paddingVertical: space(2),
           }}
         >
-          <Box width={PRIMARY_ICON_SIZE} ml={1} />
+          <Box width={iconSize.medium} ml={1} />
           {creatingSafe ? 'Creating safe...' : 'Create'}
         </Button>
       </Box>

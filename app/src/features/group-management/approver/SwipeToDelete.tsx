@@ -1,6 +1,4 @@
-import { SECONDARY_ICON_SIZE } from '@components/list/Item';
 import { MaterialIcons } from '@expo/vector-icons';
-import { ChildrenProps } from '@util/children';
 import { ReactNode, useCallback } from 'react';
 import { Animated } from 'react-native';
 import { RectButton, Swipeable } from 'react-native-gesture-handler';
@@ -21,7 +19,7 @@ export const SwipeToDelete = ({
   onDelete,
   ...swipeableProps
 }: SwipeToDeleteProps) => {
-  const { colors } = useTheme();
+  const { colors, iconSize } = useTheme();
 
   const renderRightActions = useCallback(
     (
@@ -46,14 +44,14 @@ export const SwipeToDelete = ({
           >
             <AnimatedMaterialIcon
               name="delete"
-              size={SECONDARY_ICON_SIZE}
+              size={iconSize.small}
               color={colors.onSurface}
             />
           </RectButton>
         </Animated.View>
       );
     },
-    [colors.delete, colors.onSurface, onDelete],
+    [colors.delete, colors.onSurface, iconSize.small, onDelete],
   );
 
   return (

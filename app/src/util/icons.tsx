@@ -25,4 +25,4 @@ export const ActivityIcon = materialCommunity('chart-timeline-variant');
 export const SendIcon = materialCommunity('arrow-up');
 export const ReceiveIcon = materialCommunity('arrow-down');
 export const ContactsIcon = materialCommunity('contacts');
-export const WalletIcon = ionicon('wallet');
+export const HomeIcon = ionicon('wallet');

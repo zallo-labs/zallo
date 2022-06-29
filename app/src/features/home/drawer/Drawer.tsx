@@ -1,9 +1,10 @@
 import { Box } from '@components/Box';
 import { DrawerContentComponentProps } from '@react-navigation/drawer';
-import { ActivityIcon, ContactsIcon, WalletIcon } from '@util/icons';
+import { ActivityIcon, ContactsIcon, HomeIcon } from '@util/icons';
 import { ScrollView } from 'react-native-gesture-handler';
 import { Drawer as PaperDrawer } from 'react-native-paper';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { DrawerGroupsSection } from './DrawerGroupsSection';
 import { DrawerItem } from './DrawerItem';
 
 export interface DrawerProps extends DrawerContentComponentProps {}
@@ -25,10 +26,16 @@ export const Drawer = (props: DrawerProps) => {
       <ScrollView>
         <PaperDrawer.Section title="MetaSafe">
           {/* Drawer is only visible on Home screen so it's always active */}
-          <DrawerItem screen="Home" icon={WalletIcon} active />
+          <DrawerItem
+            screen="Home"
+            icon={HomeIcon}
+            active
+          />
           <DrawerItem screen="Activity" icon={ActivityIcon} />
           <DrawerItem screen="Contacts" icon={ContactsIcon} />
         </PaperDrawer.Section>
+
+        <DrawerGroupsSection />
       </ScrollView>
 
       {/* <Divider mx={2} />
