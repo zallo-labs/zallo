@@ -18,6 +18,7 @@ export const useCreateCounterfactualSafe2 = () => {
     const group: UpsertableGroup = {
       ref: randomGroupRef(),
       approvers: [{ addr: wallet.address, weight: PERCENT_THRESHOLD }],
+      name: '',
     };
 
     const { addr: safe, salt } = await calculateSafeAddress(

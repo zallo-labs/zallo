@@ -6,13 +6,13 @@ import { BasicTextField, BasicTextFieldProps } from './BasicTextField';
 const toStr = (v: BigNumber | undefined, decimal: number) =>
   v ? formatUnits(v, decimal) : '';
 
-const TRAILING_COMMAS_PATTERN = /\.+$/;
+const TRAILING_DECIMALS_PATTERN = /\.+$/;
 const normalise = (s?: string | undefined) => {
   // Remove all commas, replaceAll isn't supported by RN Android
   s = s.split(',').join('');
 
   // Remove trailing decimal separators (e.g. '.')
-  s = s.replace(TRAILING_COMMAS_PATTERN, '');
+  s = s.replace(TRAILING_DECIMALS_PATTERN, '');
 
   // Remove trailing .0
   if (s.endsWith('.0')) s = s.slice(0, -2);
@@ -23,7 +23,7 @@ const normalise = (s?: string | undefined) => {
   return s;
 };
 
-const VALID_INPUT_PATTERN = /^(?:\d+,?)*(?:\.\d*)?$/;
+const VALID_INPUT_PATTERN = /^(?:\d,?)*(?:\.\d*)?$/;
 const isValidInput = (input: string) => !!input.match(VALID_INPUT_PATTERN);
 
 export interface BigNumberFieldProps
