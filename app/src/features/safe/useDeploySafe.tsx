@@ -1,16 +1,18 @@
-import { deploySafe, getFactory } from 'lib';
+import { deploySafe } from 'lib';
 import { useSafe } from '@features/safe/SafeProvider';
 import { useWallet } from '@features/wallet/useWallet';
 import { useUpsertSafe } from '~/mutations/useUpsertSafe';
 import { showInfo, showSuccess } from '@components/Toast';
-import { CONFIG } from '~/config';
 import { isDeployedState, useIsDeployed } from './useIsDeployed';
 import { useSetRecoilState } from 'recoil';
+import { useSafeFactory } from './useSafeFactory';
 
 export const useDeploySafe = () => {
-  const { groups, deploySalt, safe } = useSafe();
+  const combinedSafe = useSafe();
+  const { groups, deploySalt, safe } = combinedSafe;
   const isDeployed = useIsDeployed();
   const wallet = useWallet();
+  const factory = useSafeFactory();
   const upsertSafe = useUpsertSafe();
   const setIsDeployed = useSetRecoilState(isDeployedState(safe.address));
 
@@ -22,7 +24,7 @@ export const useDeploySafe = () => {
     const group = groups[0];
 
     const r = await deploySafe({
-      factory: getFactory(CONFIG.factoryAddress, wallet),
+      factory,
       args: { group },
       signer: wallet,
       salt: deploySalt,
@@ -31,7 +33,8 @@ export const useDeploySafe = () => {
 
     setIsDeployed(true);
 
-    if (!deploySalt && r.salt) upsertSafe({ deploySalt: r.salt });
+    if (!deploySalt && r.salt)
+      upsertSafe({ ...combinedSafe, deploySalt: r.salt });
 
     showSuccess('Safe deployed');
   };

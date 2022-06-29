@@ -4,6 +4,7 @@ import { Pressable, TouchableOpacity } from 'react-native';
 import Collapsible from 'react-native-collapsible';
 import { Subheading, useTheme } from 'react-native-paper';
 import { Box, BoxProps } from './Box';
+import { Chevron } from './Chevron';
 import { SECONDARY_ICON_SIZE } from './list/Item';
 
 export interface AccordionProps extends BoxProps {
@@ -43,10 +44,10 @@ export const Accordion = ({
             <Subheading style={style}>{title}</Subheading>
           </Box>
 
-          <MaterialCommunityIcons
-            name={expanded ? 'chevron-up' : 'chevron-down'}
+          <Chevron
+            expanded={expanded}
             size={SECONDARY_ICON_SIZE}
-            style={{ color: colors.onBackground }}
+            color={colors.onSurface}
           />
         </Box>
       </TouchableOpacity>

@@ -1,6 +1,6 @@
-import { ComponentProps, ComponentPropsWithoutRef } from 'react';
+import { ComponentPropsWithoutRef, ReactNode } from 'react';
 import { ViewProps } from 'react-native';
-import { Surface, useTheme } from 'react-native-paper';
+import { Surface } from 'react-native-paper';
 import styled from 'styled-components/native';
 import {
   borders,
@@ -17,7 +17,9 @@ import {
 
 import { ChildrenProps } from '@util/children';
 
-export interface InternalBoxProps
+type SurfaceProps = ComponentPropsWithoutRef<typeof Surface>;
+
+export interface InternalProps
   extends ChildrenProps,
     ViewProps,
     BordersProps,
@@ -31,34 +33,34 @@ export interface InternalBoxProps
   vertical?: boolean;
 }
 
-const InternalBox = styled.View<InternalBoxProps>`
+const Internal = styled(Surface)<InternalProps & SurfaceProps>`
   ${flexbox};
   ${layout};
   ${borders};
   ${space};
   ${color};
 
-  ${(props: InternalBoxProps) =>
+  ${(props: InternalProps) =>
     props.flexed &&
     `
     flex: 1;
   `}
 
-  ${(props: InternalBoxProps) =>
+  ${(props: InternalProps) =>
     props.center &&
     `
     justifyContent: center;
     alignItems: center;
   `}
 
-  ${(props: InternalBoxProps) =>
+  ${(props: InternalProps) =>
     props.horizontal &&
     `
     display: flex;
     flexDirection: row;
   `}
 
-  ${(props: InternalBoxProps) =>
+  ${(props: InternalProps) =>
     props.vertical &&
     `
     display: flex;
@@ -66,38 +68,35 @@ const InternalBox = styled.View<InternalBoxProps>`
   `}
 `;
 
-type SurfaceStyleProps = ComponentPropsWithoutRef<typeof Surface>['style'];
-
-export interface BoxProps extends InternalBoxProps {
-  surface?: boolean | SurfaceStyleProps;
-  rounded?: boolean;
-}
+export type BoxProps = Omit<SurfaceProps, 'children'> &
+  InternalProps & {
+    children?: ReactNode;
+    surface?: boolean;
+    rounded?: number | boolean;
+  };
 
 export const Box = ({
   children,
   surface,
-  rounded,
-  accessibilityRole: _,
+  style,
+  // accessibilityRole: _,
   ...props
 }: BoxProps) => {
-  const theme = useTheme();
+  if (props.rounded)
+    props.borderRadius = props.rounded === true ? 2 : props.rounded;
 
-  const borderRadius = rounded ? theme.radius : undefined;
-
-  return surface ? (
-    <Surface
-      style={{
-        ...(typeof surface === 'object' ? surface : undefined),
-        borderRadius: rounded && theme.radius,
-      }}
+  return (
+    <Internal
+      {...(props as any)}
+      style={[
+        {
+          ...(!surface &&
+            !props.backgroundColor && { backgroundColor: undefined }),
+        },
+        style,
+      ]}
     >
-      <InternalBox mx={3} my={3} {...props}>
-        {children}
-      </InternalBox>
-    </Surface>
-  ) : (
-    <InternalBox borderRadius={borderRadius} {...props}>
       {children}
-    </InternalBox>
+    </Internal>
   );
 };

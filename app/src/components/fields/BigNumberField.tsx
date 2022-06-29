@@ -23,7 +23,7 @@ const normalise = (s?: string | undefined) => {
   return s;
 };
 
-const VALID_INPUT_PATTERN = /^(?:\d+(?:,\d*?)?)*\.?\d*$/;
+const VALID_INPUT_PATTERN = /^(?:\d+,?)*(?:\.\d*)?$/;
 const isValidInput = (input: string) => !!input.match(VALID_INPUT_PATTERN);
 
 export interface BigNumberFieldProps
@@ -41,20 +41,14 @@ export const BigNumberField = ({
 }: BigNumberFieldProps) => {
   const [input, setInput] = useState(toStr(value, decimals));
 
-  console.log(value?.toString());
-
   const handleStrChange = useCallback(
     (value: string) => {
       if (!isValidInput(value)) return;
 
       setInput(value);
 
-      try {
-        const normalised = normalise(value);
-        onChange(parseUnits(normalised, decimals));
-      } catch (e) {
-        console.log({ e });
-      }
+      const normalised = normalise(value);
+      onChange(parseUnits(normalised, decimals));
     },
     [decimals, onChange],
   );

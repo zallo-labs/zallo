@@ -14,7 +14,6 @@ import { Actions } from '@components/Actions';
 import { ActionsSpaceFooter } from '@components/ActionsSpaceFooter';
 import { NavTarget, navToTarget } from '@features/navigation/target';
 import { AppbarBack } from '@components/AppbarBack';
-import { AppbarRoot } from '@components/AppbarRoot';
 import { BasicTextField } from '@components/fields/BasicTextField';
 import { ErrorText } from '@components/ErrorText';
 
@@ -70,7 +69,7 @@ export const ContactsScreen = ({
       <FlatList
         ListHeaderComponent={
           <Box>
-            <AppbarRoot>
+            <Appbar.Header>
               <AppbarBack />
 
               <Box vertical flex={1}>
@@ -93,7 +92,7 @@ export const ContactsScreen = ({
                   })
                 }
               />
-            </AppbarRoot>
+            </Appbar.Header>
 
             {!error ? (
               <SelectAddressButton

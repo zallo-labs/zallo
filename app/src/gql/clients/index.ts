@@ -26,6 +26,7 @@ export type ClientCreator = () => MaybePromise<
 const defaultOptions: DefaultOptions = {
   watchQuery: {
     fetchPolicy: 'cache-and-network',
+    errorPolicy: 'all',
   },
   // query: {
   //   fetchPolicy: 'cache-first',

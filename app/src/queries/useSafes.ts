@@ -18,6 +18,7 @@ import { combineRest, combine, simpleKeyExtractor } from '@gql/combine';
 import { useApiClient, useSubgraphClient } from '@gql/GqlProvider';
 import { SQuerySafes, SQuerySafesVariables } from '@gql/subgraph.generated';
 import { AQueryUserSafes, AQueryUserSafesVariables } from '@gql/api.generated';
+import { useMemo } from 'react';
 
 const SUB_QUERY = subGql`
 query SQuerySafes($user: ID!) {
@@ -136,7 +137,11 @@ query AQueryUserSafes($safes: [String!]) {
 const useApiSafes = () => {
   const { data: subSafes } = useSubSafes();
 
-  const subSafeIds = subSafes.map((s) => address(s.id));
+  const subSafeIds = useMemo(
+    () => subSafes.map((s) => address(s.id)),
+    [subSafes],
+  );
+
   const { data, ...rest } = useQuery<AQueryUserSafes, AQueryUserSafesVariables>(
     AQUERY_USER_SAFES,
     {
@@ -183,7 +188,7 @@ export const apiSafeToCombined = (
       approvers:
         g.approvers?.map((g) => ({
           addr: address(g.userId),
-          weight: fixedWeightToPercent(g.weight),
+          weight: parseFloat(g.weight),
         })) ?? [],
       name: g.name,
     })) ?? [];

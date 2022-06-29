@@ -3,29 +3,34 @@ import { Box } from '@components/Box';
 import { Holdings } from './holdings/Holdings';
 import { SafeBalance } from './SafeBalance';
 import { HomeActions } from './actions/HomeActions';
-import { SafeHeader } from '@features/safe/SafeHeader';
-import { TabNavigatorScreenProps } from '@features/navigation/TabNavigator';
+import { HomeAppbar } from './HomeAppbar';
+import { Portal } from 'react-native-paper';
+import { DrawerNavigatorScreenProps } from '@features/navigation/DrawerNavigator';
 
-export type HomeScreenProps = TabNavigatorScreenProps<'Home'>;
+export type HomeScreenProps = DrawerNavigatorScreenProps<'Home'>;
 
-export const HomeScreen = (_props: HomeScreenProps) => (
-  <Box flex={1} mt="5%">
-    <ScrollView>
-      <Box mx="5%">
-        <SafeHeader />
+export const HomeScreen = (_props: HomeScreenProps) => {
+  return (
+    <Box flex={1}>
+      <Portal.Host>
+        <HomeAppbar />
 
-        <Box center my="15%">
-          <Box mb={4}>
-            <SafeBalance />
+        <ScrollView>
+          <Box mx="5%">
+            <Box center my="15%">
+              <Box mb={4}>
+                <SafeBalance />
+              </Box>
+
+              <HomeActions />
+            </Box>
           </Box>
 
-          <HomeActions />
-        </Box>
-      </Box>
-
-      <Box>
-        <Holdings />
-      </Box>
-    </ScrollView>
-  </Box>
-);
+          <Box>
+            <Holdings />
+          </Box>
+        </ScrollView>
+      </Portal.Host>
+    </Box>
+  );
+};

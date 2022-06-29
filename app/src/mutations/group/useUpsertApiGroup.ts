@@ -11,6 +11,7 @@ import { apiGql } from '@gql/clients';
 import { useApiClient } from '@gql/GqlProvider';
 import { QueryOpts } from '@gql/update';
 import { address } from 'lib';
+import { useMemo } from 'react';
 import {
   API_GROUP_FIELDS_FRAGMENT,
   AQUERY_USER_SAFES,
@@ -33,7 +34,10 @@ export const useUpsertApiGroup = () => {
   const { data: subSafes } = useSubSafes();
   const isDeployed = useIsDeployed();
 
-  const subSafeIds = subSafes.map((s) => address(s.id));
+  const subSafeIds = useMemo(
+    () => subSafes.map((s) => address(s.id)),
+    [subSafes],
+  );
 
   const [mutation] = useMutation<UpsertGroup, UpsertGroupVariables>(
     API_MUTATION,

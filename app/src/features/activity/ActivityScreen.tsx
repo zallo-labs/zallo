@@ -12,11 +12,7 @@ import { useState } from 'react';
 import { useExternalTransfers } from '~/queries/tx/useExternalTransfers';
 import { withSkeleton } from '@components/skeleton/withSkeleton';
 import { GenericListScreenSkeleton } from '@components/GenericScreenSkeleton';
-import { EmptyListFallback } from '@components/EmptyListFallback';
-import { MaterialCommunityIcons } from '@expo/vector-icons';
-import { PRIMARY_ICON_SIZE } from '@components/list/Item';
 import { NoActivites } from './NoActivities';
-import { AppbarRoot } from '@components/AppbarRoot';
 import { BasicTextField } from '@components/fields/BasicTextField';
 
 interface Section {
@@ -66,10 +62,10 @@ export const ActivityScreen = withSkeleton((_props: ActivityScreenProps) => {
     <Box flex={1}>
       <SectionList
         ListHeaderComponent={
-          <AppbarRoot>
+          <Appbar.Header>
             <Box vertical flex={1} mx={2}>
               <BasicTextField
-                value={""}
+                value={''}
                 onChangeText={(value) => {
                   // TODO: implement
                 }}
@@ -78,8 +74,11 @@ export const ActivityScreen = withSkeleton((_props: ActivityScreenProps) => {
               />
             </Box>
 
-            <Appbar.Action icon="calendar-range" onPress={() => alert('Search')} />
-          </AppbarRoot>
+            <Appbar.Action
+              icon="calendar-range"
+              onPress={() => alert('Search')}
+            />
+          </Appbar.Header>
         }
         sections={sections}
         keyExtractor={(t) => t.id}

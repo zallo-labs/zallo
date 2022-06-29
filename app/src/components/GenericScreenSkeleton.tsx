@@ -1,5 +1,5 @@
+import { Appbar } from 'react-native-paper';
 import { AppbarBack } from './AppbarBack';
-import { AppbarRoot } from './AppbarRoot';
 import { Box } from './Box';
 import { Container } from './list/Container';
 import { ItemSkeleton } from './list/ItemSkeleton';
@@ -8,11 +8,11 @@ import { LineSkeleton } from './skeleton/LineSkeleton';
 export const GenericListScreenSkeleton = () => {
   return (
     <Box>
-      <AppbarRoot>
+      <Appbar.Header>
         <AppbarBack />
 
         <LineSkeleton width={150} />
-      </AppbarRoot>
+      </Appbar.Header>
 
       <Container>
         {[...new Array(3)].map((_, i) => (

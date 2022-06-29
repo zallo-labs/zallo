@@ -7,7 +7,6 @@ import { RootNavigatorScreenProps } from '@features/navigation/RootNavigator';
 import { QrCode } from '@features/qr/QrCode';
 import { useSafe } from '@features/safe/SafeProvider';
 import { useMaxBrighness } from './useMaxBrightness';
-import { AppbarRoot } from '@components/AppbarRoot';
 import { AppbarBack } from '@components/AppbarBack';
 
 export type ReceiveScreenProps = RootNavigatorScreenProps<'Receive'>;
@@ -25,10 +24,10 @@ export const ReceiveScreen = (_props: ReceiveScreenProps) => {
 
   return (
     <Box flex={1}>
-      <AppbarRoot>
+      <Appbar.Header>
         <AppbarBack />
         <Appbar.Content title="Receive" />
-      </AppbarRoot>
+      </Appbar.Header>
 
       <Box
         flex={1}
