@@ -7,11 +7,9 @@ import {
   AQueryUserSafesVariables,
   UpsertSafe,
   UpsertSafeVariables,
-  UpsertSafe_upsertSafe,
 } from '@gql/api.generated';
 import { useApiClient } from '@gql/GqlProvider';
 import { API_SAFE_FIELDS_FRAGMENT } from '~/queries';
-import { BytesLike, hexlify } from 'ethers/lib/utils';
 import { address, Address, getGroupId, Safe, toId } from 'lib';
 import { QueryOpts } from '@gql/update';
 import {
@@ -55,21 +53,20 @@ export const useUpsertSafe = () => {
   );
 
   return useCallback(
-    ({ safe: safeArg, deploySalt: hexSalt, name, groups }: UpsertSafeArgs) => {
+    ({ safe: safeArg, deploySalt, name, groups }: UpsertSafeArgs) => {
       const safe = typeof safeArg === 'object' ? safeArg.address : safeArg;
-      const deploySalt = hexSalt ? hexlify(hexSalt) : undefined;
 
       return mutation({
         variables: {
           safe,
-          deploySalt,
+          deploySalt: deploySalt ?? null,
           name,
         },
         optimisticResponse: {
           upsertSafe: {
             __typename: 'Safe',
             id: toId(safe),
-            deploySalt,
+            deploySalt: deploySalt ?? null,
             name,
             groups: groups.map((g) => ({
               __typename: 'Group',

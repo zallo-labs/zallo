@@ -11,7 +11,7 @@ CREATE TABLE "Session" (
 -- CreateTable
 CREATE TABLE "Safe" (
     "id" CHAR(42) NOT NULL,
-    "name" TEXT,
+    "name" TEXT NOT NULL DEFAULT E'',
     "deploySalt" CHAR(66),
 
     CONSTRAINT "Safe_pkey" PRIMARY KEY ("id")
@@ -21,7 +21,7 @@ CREATE TABLE "Safe" (
 CREATE TABLE "Group" (
     "safeId" CHAR(42) NOT NULL,
     "ref" CHAR(66) NOT NULL,
-    "name" TEXT,
+    "name" TEXT NOT NULL DEFAULT E'',
 
     CONSTRAINT "Group_pkey" PRIMARY KEY ("safeId","ref")
 );
@@ -90,9 +90,9 @@ CREATE TABLE "Op" (
     "txHash" CHAR(66) NOT NULL,
     "hash" CHAR(66) NOT NULL,
     "to" CHAR(42) NOT NULL,
-    "value" DECIMAL(79,0) NOT NULL,
+    "value" TEXT NOT NULL,
     "data" TEXT NOT NULL,
-    "nonce" DECIMAL(79,0) NOT NULL,
+    "nonce" TEXT NOT NULL,
 
     CONSTRAINT "Op_pkey" PRIMARY KEY ("safeId","txHash","hash")
 );

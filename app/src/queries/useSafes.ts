@@ -79,10 +79,12 @@ const subSafeToCombined = (
 ): CombinedSafe => {
   return {
     safe: getSafe(sub.id, wallet),
+    name: '',
     groups: sub.groups.map((g) => ({
       id: toId(g.id),
       ref: g.ref,
       active: g.active,
+      name: '',
       approvers: g.approverSets[0].approvers.map((a) => ({
         addr: address(a.user.id),
         weight: fixedWeightToPercent(a.weight),
@@ -166,13 +168,13 @@ export interface CombinedGroup {
   ref: string;
   active: boolean;
   approvers: Approver[];
-  name?: string;
+  name: string;
 }
 
 export interface CombinedSafe {
   safe: Safe;
-  name?: string;
-  deploySalt?: BytesLike;
+  name: string;
+  deploySalt?: string;
   groups: CombinedGroup[];
 }
 
@@ -190,12 +192,12 @@ export const apiSafeToCombined = (
           addr: address(g.userId),
           weight: parseFloat(g.weight),
         })) ?? [],
-      name: g.name,
+      name: g.name ?? '',
     })) ?? [];
 
   return {
     safe: getSafe(api.id, wallet),
-    name: api.name,
+    name: api.name ?? '',
     deploySalt: api.deploySalt,
     groups,
   };
@@ -232,7 +234,7 @@ export const useSafes = () => {
                     [...(sub?.approvers ?? []), ...(api?.approvers ?? [])],
                     (a) => a.addr,
                   ),
-                  name: sub?.name ?? api?.name,
+                  name: api?.name ?? sub?.name,
                 }),
               },
             ).filter((group) => group.active && group.approvers.length > 0),

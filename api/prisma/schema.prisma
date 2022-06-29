@@ -25,7 +25,7 @@ model Session {
 model Safe {
   id         String     @id @db.Char(42) // address
   groups     Group[]
-  name       String?
+  name       String     @default("")
   deploySalt String?    @db.Char(66) // bytes32
   txs        Tx[]
   ops        Op[]
@@ -39,7 +39,7 @@ model Group {
   safeId    String     @db.Char(42) // address
   ref       String     @db.Char(66) // bytes32
   approvers Approver[]
-  name      String?
+  name      String     @default("")
 
   @@id([safeId, ref])
 }
@@ -108,12 +108,12 @@ model Submission {
 }
 
 model Op {
-  safe   Safe    @relation(fields: [safeId], references: [id], onDelete: Cascade)
-  safeId String  @db.Char(42) // address
-  tx     Tx      @relation(fields: [safeId, txHash], references: [safeId, hash], onDelete: Cascade)
-  txHash String  @db.Char(66) // bytes32
-  hash   String  @db.Char(66) // bytes32
-  to     String  @db.Char(42) // address
+  safe   Safe   @relation(fields: [safeId], references: [id], onDelete: Cascade)
+  safeId String @db.Char(42) // address
+  tx     Tx     @relation(fields: [safeId, txHash], references: [safeId, hash], onDelete: Cascade)
+  txHash String @db.Char(66) // bytes32
+  hash   String @db.Char(66) // bytes32
+  to     String @db.Char(42) // address
   value  String //@db.Decimal(79, 0) // uint256
   data   String // bytes
   nonce  String //@db.Decimal(79, 0) // uint256
