@@ -2526,23 +2526,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@ethersproject/abi@npm:5.6.3, @ethersproject/abi@npm:^5.6.3":
-  version: 5.6.3
-  resolution: "@ethersproject/abi@npm:5.6.3"
-  dependencies:
-    "@ethersproject/address": ^5.6.1
-    "@ethersproject/bignumber": ^5.6.2
-    "@ethersproject/bytes": ^5.6.1
-    "@ethersproject/constants": ^5.6.1
-    "@ethersproject/hash": ^5.6.1
-    "@ethersproject/keccak256": ^5.6.1
-    "@ethersproject/logger": ^5.6.0
-    "@ethersproject/properties": ^5.6.0
-    "@ethersproject/strings": ^5.6.1
-  checksum: 64b89ca153c22dbe95cc024abac7e08849f92b9b33b024b67da6ac127706d37fcbd36cf5713a462b8c3371b49664c4181ca4ab81e6ee55413ea5265e8b59f175
-  languageName: node
-  linkType: hard
-
 "@ethersproject/abi@npm:5.6.4":
   version: 5.6.4
   resolution: "@ethersproject/abi@npm:5.6.4"
@@ -2557,6 +2540,23 @@ __metadata:
     "@ethersproject/properties": ^5.6.0
     "@ethersproject/strings": ^5.6.1
   checksum: b5e70fa13a29e1143131a0ed25053a3d355c07353e13d436f42add33f40753b5541a088cf31a1ccca6448bb1d773a41ece0bf8367490d3f2ad394a4c26f4876f
+  languageName: node
+  linkType: hard
+
+"@ethersproject/abi@npm:^5.6.3":
+  version: 5.6.3
+  resolution: "@ethersproject/abi@npm:5.6.3"
+  dependencies:
+    "@ethersproject/address": ^5.6.1
+    "@ethersproject/bignumber": ^5.6.2
+    "@ethersproject/bytes": ^5.6.1
+    "@ethersproject/constants": ^5.6.1
+    "@ethersproject/hash": ^5.6.1
+    "@ethersproject/keccak256": ^5.6.1
+    "@ethersproject/logger": ^5.6.0
+    "@ethersproject/properties": ^5.6.0
+    "@ethersproject/strings": ^5.6.1
+  checksum: 64b89ca153c22dbe95cc024abac7e08849f92b9b33b024b67da6ac127706d37fcbd36cf5713a462b8c3371b49664c4181ca4ab81e6ee55413ea5265e8b59f175
   languageName: node
   linkType: hard
 
@@ -2924,30 +2924,21 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@ethersproject/networks@npm:5.6.1":
-  version: 5.6.1
-  resolution: "@ethersproject/networks@npm:5.6.1"
-  dependencies:
-    "@ethersproject/logger": ^5.6.0
-  checksum: e894369e58b45563653155df6f6db9a919448fc077a74a8fcc3fa10423335250372243868bcc2cc08857f081af6320a3a62d322340d2e5364fb25c258c978b9e
-  languageName: node
-  linkType: hard
-
-"@ethersproject/networks@npm:5.6.3, @ethersproject/networks@npm:^5.6.3":
-  version: 5.6.3
-  resolution: "@ethersproject/networks@npm:5.6.3"
-  dependencies:
-    "@ethersproject/logger": ^5.6.0
-  checksum: 94d2981eeed0accb69124cfb9a807552ada98b370415c9d906018bd70a33bc5a1286ff01eb2a3ce213c12334fcc7ab635ad0429f25a687b9b8f34d26d21df74b
-  languageName: node
-  linkType: hard
-
 "@ethersproject/networks@npm:5.6.4":
   version: 5.6.4
   resolution: "@ethersproject/networks@npm:5.6.4"
   dependencies:
     "@ethersproject/logger": ^5.6.0
   checksum: d41c07497de4ace3f57e972428685a8703a867600cf01f2bc15a21fcb7f99afb3f05b3d8dbb29ac206473368f30d60b98dc445cc38403be4cbe6f804f70e5173
+  languageName: node
+  linkType: hard
+
+"@ethersproject/networks@npm:^5.6.3":
+  version: 5.6.3
+  resolution: "@ethersproject/networks@npm:5.6.3"
+  dependencies:
+    "@ethersproject/logger": ^5.6.0
+  checksum: 94d2981eeed0accb69124cfb9a807552ada98b370415c9d906018bd70a33bc5a1286ff01eb2a3ce213c12334fcc7ab635ad0429f25a687b9b8f34d26d21df74b
   languageName: node
   linkType: hard
 
@@ -3004,33 +2995,6 @@ __metadata:
     bech32: 1.1.4
     ws: 7.4.6
   checksum: c6d6ab73064ee4a7793d4cb599e2b0ff7d61b510c2ffece249a95c60043e07ef40c7c55f097569141a7f50fd82f7bb3956d44e1715997ec91da25216a5ce51b6
-  languageName: node
-  linkType: hard
-
-"@ethersproject/providers@npm:5.6.2":
-  version: 5.6.2
-  resolution: "@ethersproject/providers@npm:5.6.2"
-  dependencies:
-    "@ethersproject/abstract-provider": ^5.6.0
-    "@ethersproject/abstract-signer": ^5.6.0
-    "@ethersproject/address": ^5.6.0
-    "@ethersproject/basex": ^5.6.0
-    "@ethersproject/bignumber": ^5.6.0
-    "@ethersproject/bytes": ^5.6.0
-    "@ethersproject/constants": ^5.6.0
-    "@ethersproject/hash": ^5.6.0
-    "@ethersproject/logger": ^5.6.0
-    "@ethersproject/networks": ^5.6.0
-    "@ethersproject/properties": ^5.6.0
-    "@ethersproject/random": ^5.6.0
-    "@ethersproject/rlp": ^5.6.0
-    "@ethersproject/sha2": ^5.6.0
-    "@ethersproject/strings": ^5.6.0
-    "@ethersproject/transactions": ^5.6.0
-    "@ethersproject/web": ^5.6.0
-    bech32: 1.1.4
-    ws: 7.4.6
-  checksum: 30409755c227eab65a94ec3d7834560af5d0c7a2359855e597c0ecdfd312e851324ab8d47d0afcf60efa7a008b75c23be1a1a9d219872f99aa165283139f543a
   languageName: node
   linkType: hard
 
@@ -3832,12 +3796,22 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@formatjs/fast-memoize@npm:1.2.1":
-  version: 1.2.1
-  resolution: "@formatjs/fast-memoize@npm:1.2.1"
+"@formatjs/ecma402-abstract@npm:1.11.7":
+  version: 1.11.7
+  resolution: "@formatjs/ecma402-abstract@npm:1.11.7"
   dependencies:
-    tslib: ^2.1.0
-  checksum: 7df9e941142be16e5862afe7387926cec44ec136d2c2f9a7e1598cb6c8c23a65e420ed90251ec9b48df083f5473b10d6fbbee2e9fc7233d5bf1f27efffba59a7
+    "@formatjs/intl-localematcher": 0.2.28
+    tslib: 2.4.0
+  checksum: e01271dd67f82f8a0008172da0ab97afbd955fc124260d226d957cc0153652740f33a1267a7a56fd46878c670caaaf9b84c70e88c39c6c6e719d96b200ad2a40
+  languageName: node
+  linkType: hard
+
+"@formatjs/fast-memoize@npm:1.2.4":
+  version: 1.2.4
+  resolution: "@formatjs/fast-memoize@npm:1.2.4"
+  dependencies:
+    tslib: 2.4.0
+  checksum: 52c59b52c4eaf1e87d7458b5b21c9fd8864ce7737941881f35a67be828ddcdf64f1eb13a4e1e291dbfe770ca42f0d3508a8a5f771aba51b878b9b264f0c3e0f8
   languageName: node
   linkType: hard
 
@@ -3852,6 +3826,17 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@formatjs/icu-messageformat-parser@npm:2.1.3":
+  version: 2.1.3
+  resolution: "@formatjs/icu-messageformat-parser@npm:2.1.3"
+  dependencies:
+    "@formatjs/ecma402-abstract": 1.11.7
+    "@formatjs/icu-skeleton-parser": 1.3.9
+    tslib: 2.4.0
+  checksum: b39285756815b984ab5a4ef7c2f3f9e4b621dbf402fad887d52f7a458d1c59e317e3457643407ec153de184ea62df8858c4862945e1d7dea646b2f65616b1215
+  languageName: node
+  linkType: hard
+
 "@formatjs/icu-skeleton-parser@npm:1.3.6":
   version: 1.3.6
   resolution: "@formatjs/icu-skeleton-parser@npm:1.3.6"
@@ -3862,25 +3847,35 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@formatjs/intl-displaynames@npm:5.4.3":
-  version: 5.4.3
-  resolution: "@formatjs/intl-displaynames@npm:5.4.3"
+"@formatjs/icu-skeleton-parser@npm:1.3.9":
+  version: 1.3.9
+  resolution: "@formatjs/icu-skeleton-parser@npm:1.3.9"
   dependencies:
-    "@formatjs/ecma402-abstract": 1.11.4
-    "@formatjs/intl-localematcher": 0.2.25
-    tslib: ^2.1.0
-  checksum: 5d9444ce6b0f906fb95e657e276f341c6eb96d76411182f35a05388fa8da8d5af0ede3641c8316f9d08aeedae6fcc152ccc34f3bff67b1f20295472bbaa6626b
+    "@formatjs/ecma402-abstract": 1.11.7
+    tslib: 2.4.0
+  checksum: c4e43e9ce6f64f3649a1b4791cf2a655af95ff3688133a29776a40e59ef98381faf8646854fc58ea432d7f65d70649c159941f1a24c658c944253d572113b436
   languageName: node
   linkType: hard
 
-"@formatjs/intl-listformat@npm:6.5.3":
-  version: 6.5.3
-  resolution: "@formatjs/intl-listformat@npm:6.5.3"
+"@formatjs/intl-displaynames@npm:6.0.2":
+  version: 6.0.2
+  resolution: "@formatjs/intl-displaynames@npm:6.0.2"
   dependencies:
-    "@formatjs/ecma402-abstract": 1.11.4
-    "@formatjs/intl-localematcher": 0.2.25
-    tslib: ^2.1.0
-  checksum: e641b7f82eb2a9ea8fdfc66783356e4c438c6fdd23fb64e05d2712d0bf06c18fc54ac80f46fadd158c4f3920d2d970bc3ecb4718d30df7abaf5b1de8f6b55f17
+    "@formatjs/ecma402-abstract": 1.11.7
+    "@formatjs/intl-localematcher": 0.2.28
+    tslib: 2.4.0
+  checksum: 60ae2656070d033470005ff4ef3e915b3a4736e126c6fcdb4678ce802abaf1aa4d4d76f8e75a8748d8abfa18bd8ac3cbee5bbe728e9b5c017234ae30a2e581ee
+  languageName: node
+  linkType: hard
+
+"@formatjs/intl-listformat@npm:7.0.2":
+  version: 7.0.2
+  resolution: "@formatjs/intl-listformat@npm:7.0.2"
+  dependencies:
+    "@formatjs/ecma402-abstract": 1.11.7
+    "@formatjs/intl-localematcher": 0.2.28
+    tslib: 2.4.0
+  checksum: fc2e7139e4472f4219092503d1bd58be57675beb944e18c3aca039a925069dd2084d21963706c5da91b88a51ff2eb4ab60cd5f716815fcc57a735387a3791158
   languageName: node
   linkType: hard
 
@@ -3893,23 +3888,32 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@formatjs/intl@npm:2.1.1":
-  version: 2.1.1
-  resolution: "@formatjs/intl@npm:2.1.1"
+"@formatjs/intl-localematcher@npm:0.2.28":
+  version: 0.2.28
+  resolution: "@formatjs/intl-localematcher@npm:0.2.28"
   dependencies:
-    "@formatjs/ecma402-abstract": 1.11.4
-    "@formatjs/fast-memoize": 1.2.1
-    "@formatjs/icu-messageformat-parser": 2.0.19
-    "@formatjs/intl-displaynames": 5.4.3
-    "@formatjs/intl-listformat": 6.5.3
-    intl-messageformat: 9.12.0
-    tslib: ^2.1.0
+    tslib: 2.4.0
+  checksum: 5906c3ff997f57b9e8c968b9d3c4cbd94352b9cda58b338f436855091845cf1f364bd261815cccd67f22faa530834d6cb05a0677a1ee6f457e68847cbab928f4
+  languageName: node
+  linkType: hard
+
+"@formatjs/intl@npm:2.3.0":
+  version: 2.3.0
+  resolution: "@formatjs/intl@npm:2.3.0"
+  dependencies:
+    "@formatjs/ecma402-abstract": 1.11.7
+    "@formatjs/fast-memoize": 1.2.4
+    "@formatjs/icu-messageformat-parser": 2.1.3
+    "@formatjs/intl-displaynames": 6.0.2
+    "@formatjs/intl-listformat": 7.0.2
+    intl-messageformat: 10.1.0
+    tslib: 2.4.0
   peerDependencies:
     typescript: ^4.5
   peerDependenciesMeta:
     typescript:
       optional: true
-  checksum: 6046cfdc71a3def398e4a94edcf0384fb428ce5dc504cdb1af91d8644ae38e5e8aabdb9187e22d8253045d38f24534996bbd70c2d8e5f0106f0cb05bed2e44ca
+  checksum: d3a8a1011876651f118c63de1a5db4f4c3bf043a9e9438a77e9c3f62147386f98b07ed1f78c80a071057b66055ae105feaf27c8fb70a57441fb9d3c85fa982b4
   languageName: node
   linkType: hard
 
@@ -7303,14 +7307,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/react@npm:16 || 17":
-  version: 17.0.44
-  resolution: "@types/react@npm:17.0.44"
+"@types/react@npm:16 || 17 || 18":
+  version: 18.0.14
+  resolution: "@types/react@npm:18.0.14"
   dependencies:
     "@types/prop-types": "*"
     "@types/scheduler": "*"
     csstype: ^3.0.2
-  checksum: ebee02778ca08f954c316dc907802264e0121c87b8fa2e7e0156ab0ef2a1b0a09d968c016a3600ec4c9a17dc09b4274f292d9b15a1a5369bb7e4072def82808f
+  checksum: 608eb57a383eedc54c79949673e5e8314f6b0c61542bff58721c8c47a18c23e2832e77c656050c2c2c004b62cf25582136c7c56fe1b6263a285c065fae31dbcf
   languageName: node
   linkType: hard
 
@@ -8831,7 +8835,7 @@ __metadata:
     eslint: ^8.11.0
     eslint-config-prettier: ^8.5.0
     eslint-plugin-prettier: ^4.0.0
-    ethers: ^5.6.2
+    ethers: ^5.6.9
     express-session: ^1.17.2
     fetch-retry: ^5.0.2
     graphql: ^16.3.0
@@ -8858,7 +8862,7 @@ __metadata:
     tsconfig-paths: ^3.14.0
     type-graphql: ^1.1.1
     typescript: ^4.7.4
-    zksync-web3: ^0.7.4
+    zksync-web3: ^0.7.8
   languageName: unknown
   linkType: soft
 
@@ -9332,7 +9336,7 @@ __metadata:
     config: "workspace:*"
     eslint-plugin-formatjs: ^3.1.0
     eth-url-parser: ^1.0.4
-    ethers: ^5.6.1
+    ethers: ^5.6.9
     expo: ^45.0.6
     expo-application: ~4.1.0
     expo-asset: ~8.5.0
@@ -9356,12 +9360,12 @@ __metadata:
     jest: ^28.1.1
     jest-expo: ^45.0.1
     lib: "workspace:*"
-    luxon: ^2.3.1
+    luxon: ^2.4.0
     node-libs-react-native: ^1.2.1
     react: 17.0.2
     react-content-loader: ^6.2.0
     react-dom: 17.0.2
-    react-intl: ^5.24.8
+    react-intl: ^6.0.4
     react-native: 0.68.2
     react-native-collapsible: ^1.6.0
     react-native-dashed-line: ^1.1.0
@@ -9371,7 +9375,7 @@ __metadata:
     react-native-keyboard-aware-scroll-view: ^0.9.5
     react-native-pager-view: 5.4.15
     react-native-paper: ^4.12.1
-    react-native-popover-view: ^5.0.1
+    react-native-popover-view: ^5.0.2
     react-native-qrcode-svg: ^6.1.2
     react-native-reanimated: ~2.8.0
     react-native-safe-area-context: 4.2.4
@@ -9395,7 +9399,7 @@ __metadata:
     use-async-effect: ^2.2.6
     use-debounce: ^8.0.1
     yup: ^0.32.11
-    zksync-web3: ^0.7.6
+    zksync-web3: ^0.7.8
   languageName: unknown
   linkType: soft
 
@@ -12986,7 +12990,7 @@ __metadata:
     ts-node: ^10.8.1
     typechain: ^8.1.0
     typescript: ^4.7.4
-    zksync-web3: ^0.7.6
+    zksync-web3: ^0.7.8
   languageName: unknown
   linkType: soft
 
@@ -15987,82 +15991,6 @@ __metadata:
     "@ethersproject/web": 5.6.0
     "@ethersproject/wordlists": 5.6.0
   checksum: f04079034d4c7f51e5c69a3ee55c38ca70bd5bd9b2680a5e6b594c92a09c8a88882e7d57991eb0ff9d0a95f900511cdccbccedbfc829f3995d01ad5d6f85156d
-  languageName: node
-  linkType: hard
-
-"ethers@npm:^5.6.2":
-  version: 5.6.2
-  resolution: "ethers@npm:5.6.2"
-  dependencies:
-    "@ethersproject/abi": 5.6.0
-    "@ethersproject/abstract-provider": 5.6.0
-    "@ethersproject/abstract-signer": 5.6.0
-    "@ethersproject/address": 5.6.0
-    "@ethersproject/base64": 5.6.0
-    "@ethersproject/basex": 5.6.0
-    "@ethersproject/bignumber": 5.6.0
-    "@ethersproject/bytes": 5.6.1
-    "@ethersproject/constants": 5.6.0
-    "@ethersproject/contracts": 5.6.0
-    "@ethersproject/hash": 5.6.0
-    "@ethersproject/hdnode": 5.6.0
-    "@ethersproject/json-wallets": 5.6.0
-    "@ethersproject/keccak256": 5.6.0
-    "@ethersproject/logger": 5.6.0
-    "@ethersproject/networks": 5.6.1
-    "@ethersproject/pbkdf2": 5.6.0
-    "@ethersproject/properties": 5.6.0
-    "@ethersproject/providers": 5.6.2
-    "@ethersproject/random": 5.6.0
-    "@ethersproject/rlp": 5.6.0
-    "@ethersproject/sha2": 5.6.0
-    "@ethersproject/signing-key": 5.6.0
-    "@ethersproject/solidity": 5.6.0
-    "@ethersproject/strings": 5.6.0
-    "@ethersproject/transactions": 5.6.0
-    "@ethersproject/units": 5.6.0
-    "@ethersproject/wallet": 5.6.0
-    "@ethersproject/web": 5.6.0
-    "@ethersproject/wordlists": 5.6.0
-  checksum: 47458ba83140bff55e884ae4e7f1558b0bb3a4d90b98c002d60387cfc1fe7c5cac7a6903930880e6d7e791ebdc5409a16c634e77bcb0cc56d85ccd6b5441c7ad
-  languageName: node
-  linkType: hard
-
-"ethers@npm:^5.6.8":
-  version: 5.6.8
-  resolution: "ethers@npm:5.6.8"
-  dependencies:
-    "@ethersproject/abi": 5.6.3
-    "@ethersproject/abstract-provider": 5.6.1
-    "@ethersproject/abstract-signer": 5.6.2
-    "@ethersproject/address": 5.6.1
-    "@ethersproject/base64": 5.6.1
-    "@ethersproject/basex": 5.6.1
-    "@ethersproject/bignumber": 5.6.2
-    "@ethersproject/bytes": 5.6.1
-    "@ethersproject/constants": 5.6.1
-    "@ethersproject/contracts": 5.6.2
-    "@ethersproject/hash": 5.6.1
-    "@ethersproject/hdnode": 5.6.2
-    "@ethersproject/json-wallets": 5.6.1
-    "@ethersproject/keccak256": 5.6.1
-    "@ethersproject/logger": 5.6.0
-    "@ethersproject/networks": 5.6.3
-    "@ethersproject/pbkdf2": 5.6.1
-    "@ethersproject/properties": 5.6.0
-    "@ethersproject/providers": 5.6.8
-    "@ethersproject/random": 5.6.1
-    "@ethersproject/rlp": 5.6.1
-    "@ethersproject/sha2": 5.6.1
-    "@ethersproject/signing-key": 5.6.2
-    "@ethersproject/solidity": 5.6.1
-    "@ethersproject/strings": 5.6.1
-    "@ethersproject/transactions": 5.6.2
-    "@ethersproject/units": 5.6.1
-    "@ethersproject/wallet": 5.6.2
-    "@ethersproject/web": 5.6.1
-    "@ethersproject/wordlists": 5.6.1
-  checksum: 3ef1e1509e96029839330bef465c368fee140d98c4fb23d743a0904b7ebdf70fa3c79683a2350355c9400497a5c179fe988d84a2b578d756f09c80462a94f614
   languageName: node
   linkType: hard
 
@@ -19721,15 +19649,15 @@ __metadata:
   languageName: node
   linkType: hard
 
-"intl-messageformat@npm:9.12.0":
-  version: 9.12.0
-  resolution: "intl-messageformat@npm:9.12.0"
+"intl-messageformat@npm:10.1.0":
+  version: 10.1.0
+  resolution: "intl-messageformat@npm:10.1.0"
   dependencies:
-    "@formatjs/ecma402-abstract": 1.11.4
-    "@formatjs/fast-memoize": 1.2.1
-    "@formatjs/icu-messageformat-parser": 2.0.19
-    tslib: ^2.1.0
-  checksum: 0df8d383cae950e4a9be150a5219d22ae339a295c7ec523be96b7ae8c19dee4ea9df15c2a6d7eba0bfb4f3fd0ae1b7b0a78ff12cd9ed374d073b48d83fb20267
+    "@formatjs/ecma402-abstract": 1.11.7
+    "@formatjs/fast-memoize": 1.2.4
+    "@formatjs/icu-messageformat-parser": 2.1.3
+    tslib: 2.4.0
+  checksum: 04660765d9814b111e0a6a44ce6c2f6ef524d51d5ba8e6e27765d0c2cc09dd61b974080af8e0fc2de5cd209e1cf722658b4cccac25c417b998a4f7326c636da3
   languageName: node
   linkType: hard
 
@@ -22386,15 +22314,15 @@ __metadata:
     "@matterlabs/hardhat-zksync-solc": ^0.3.4
     "@typechain/ethers-v5": ^10.0.0
     "@types/jest": ^28.1.3
-    ethers: ^5.6.8
+    ethers: ^5.6.9
     jest: ^28.1.1
     keccak256: ^1.0.6
     lodash: ^4.17.21
     merkletreejs: ^0.2.32
     ts-jest: ^28.0.5
-    typechain: ^8.0.0
+    typechain: ^8.1.0
     typescript: ^4.7.4
-    zksync-web3: ^0.7.6
+    zksync-web3: ^0.7.8
   languageName: unknown
   linkType: soft
 
@@ -23048,6 +22976,13 @@ __metadata:
   version: 2.3.1
   resolution: "luxon@npm:2.3.1"
   checksum: ce5eec873a0172a0956618531e28010e8d8319a8b3a836b893d0f92239413a1fc5f77841ca24988e27bd61e8b2748e160e9dfcb13e92d7f031c1e31ad1c8ae91
+  languageName: node
+  linkType: hard
+
+"luxon@npm:^2.4.0":
+  version: 2.4.0
+  resolution: "luxon@npm:2.4.0"
+  checksum: 6071028d65cc3d3bdab5e6a3995dd97411c92bb3b3163a02deb7b7014318ad3a6fd750ae77131c42141b717c14aef8880d3130f265281d500ef2365f7265b3f3
   languageName: node
   linkType: hard
 
@@ -27001,7 +26936,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"prop-types@npm:*, prop-types@npm:^15.6.0, prop-types@npm:^15.6.2, prop-types@npm:^15.7.2":
+"prop-types@npm:*, prop-types@npm:^15.6.0, prop-types@npm:^15.6.2, prop-types@npm:^15.7.2, prop-types@npm:^15.8.1":
   version: 15.8.1
   resolution: "prop-types@npm:15.8.1"
   dependencies:
@@ -27596,27 +27531,27 @@ __metadata:
   languageName: node
   linkType: hard
 
-"react-intl@npm:^5.24.8":
-  version: 5.24.8
-  resolution: "react-intl@npm:5.24.8"
+"react-intl@npm:^6.0.4":
+  version: 6.0.4
+  resolution: "react-intl@npm:6.0.4"
   dependencies:
-    "@formatjs/ecma402-abstract": 1.11.4
-    "@formatjs/icu-messageformat-parser": 2.0.19
-    "@formatjs/intl": 2.1.1
-    "@formatjs/intl-displaynames": 5.4.3
-    "@formatjs/intl-listformat": 6.5.3
+    "@formatjs/ecma402-abstract": 1.11.7
+    "@formatjs/icu-messageformat-parser": 2.1.3
+    "@formatjs/intl": 2.3.0
+    "@formatjs/intl-displaynames": 6.0.2
+    "@formatjs/intl-listformat": 7.0.2
     "@types/hoist-non-react-statics": ^3.3.1
-    "@types/react": 16 || 17
+    "@types/react": 16 || 17 || 18
     hoist-non-react-statics: ^3.3.2
-    intl-messageformat: 9.12.0
-    tslib: ^2.1.0
+    intl-messageformat: 10.1.0
+    tslib: 2.4.0
   peerDependencies:
-    react: ^16.3.0 || 17
+    react: ^16.6.0 || 17 || 18
     typescript: ^4.5
   peerDependenciesMeta:
     typescript:
       optional: true
-  checksum: d321745ebec6012cc97d57d9502cca990f93a29b75436752cd5cbd885b799eba16fb76222c06549c91617a75d9cfd05db520069211f4141503e184f994da19b0
+  checksum: f84f4f9952561e939464e765552f1f2520d3bf916c301d9f1ca53c045613e42bd215a0c062883bf09feaba7ce493b46193d8d282b4f367f39214305131c52b72
   languageName: node
   linkType: hard
 
@@ -27781,10 +27716,13 @@ __metadata:
   languageName: node
   linkType: hard
 
-"react-native-popover-view@npm:^5.0.1":
-  version: 5.0.1
-  resolution: "react-native-popover-view@npm:5.0.1"
-  checksum: 316f4e0b70db8357cd1f7790262d118447d882508277fc53a661f00301879a438e4528671a1206fccd091505aff4c1ae752407106e05fb35a8347387838d339a
+"react-native-popover-view@npm:^5.0.2":
+  version: 5.0.2
+  resolution: "react-native-popover-view@npm:5.0.2"
+  dependencies:
+    deprecated-react-native-prop-types: ^2.3.0
+    prop-types: ^15.8.1
+  checksum: ae912db90465242f456e39b83dc0e8e42a0bd57da0dc7df750bb9ab101c83a8975a736f0f1746561fb0c8d14fa7fd776cb657b1572ac04325e5e13a8bd67614c
   languageName: node
   linkType: hard
 
@@ -32143,28 +32081,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"typechain@npm:^8.0.0":
-  version: 8.0.0
-  resolution: "typechain@npm:8.0.0"
-  dependencies:
-    "@types/prettier": ^2.1.1
-    debug: ^4.3.1
-    fs-extra: ^7.0.0
-    glob: 7.1.7
-    js-sha3: ^0.8.0
-    lodash: ^4.17.15
-    mkdirp: ^1.0.4
-    prettier: ^2.3.1
-    ts-command-line-args: ^2.2.0
-    ts-essentials: ^7.0.1
-  peerDependencies:
-    typescript: ">=4.3.0"
-  bin:
-    typechain: dist/cli/cli.js
-  checksum: c049cc84ac3cf3a5ed8374db750b7b9adcfc523bb1940e1b8bafef063297aed081a5378560c3fbccd1f5d130d32c9ba9678654dfe00d97fb1dfa17d04a933450
-  languageName: node
-  linkType: hard
-
 "typechain@npm:^8.1.0":
   version: 8.1.0
   resolution: "typechain@npm:8.1.0"
@@ -34771,20 +34687,11 @@ __metadata:
   languageName: node
   linkType: hard
 
-"zksync-web3@npm:^0.7.4":
-  version: 0.7.4
-  resolution: "zksync-web3@npm:0.7.4"
+"zksync-web3@npm:^0.7.8":
+  version: 0.7.8
+  resolution: "zksync-web3@npm:0.7.8"
   peerDependencies:
     ethers: ~5.5.0
-  checksum: 8636090acc20596c5eaf10428151c1df44fc8e1e5c3f101cee6c311078d76f3bc629f6bc73208a961083e649ba223f46707014cfc2da4400fc9fdcade07e5cda
-  languageName: node
-  linkType: hard
-
-"zksync-web3@npm:^0.7.6":
-  version: 0.7.6
-  resolution: "zksync-web3@npm:0.7.6"
-  peerDependencies:
-    ethers: ~5.5.0
-  checksum: 7018e1c41201c473ac4104817f73bb0f8ccf779ed345eb80fbbeaf2aa0f90e6b421964026cc078a8dc927d230076a85e65d19e19b495f3dd4e4a98f78895f6e5
+  checksum: d899c62afa48a65d5a873a26fb49cad06fe1042d929b85c207d2eae917b6d7137e2b09733c5a24bff692a37bc44f34e7683198b3cff6d128210bc3ef9deb1acb
   languageName: node
   linkType: hard
