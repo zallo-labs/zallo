@@ -9,16 +9,16 @@ export const SurfaceContainer = ({
   children,
   ...containerProps
 }: SurfaceContainerProps) => {
-  const { radius } = useTheme();
+  const { radii } = useTheme();
 
   const surface = useMemo(
     () => ({
-      borderTopLeftRadius: radius,
-      borderTopRightRadius: radius,
-      borderBottomLeftRadius: radius,
-      borderBottomRightRadius: radius,
+      borderTopLeftRadius: radii[1],
+      borderTopRightRadius: radii[1],
+      borderBottomLeftRadius: radii[1],
+      borderBottomRightRadius: radii[1],
     }),
-    [radius],
+    [radii],
   );
 
   return (

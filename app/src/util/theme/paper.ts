@@ -1,6 +1,9 @@
 import { DarkTheme as PaperDarkTheme } from 'react-native-paper';
-import { DarkTheme as NavDarkTheme } from '@react-navigation/native';
 import Color from 'color';
+import {
+  StyledComponentsTheme,
+  STYLED_COMPONENTS_THEME,
+} from './styledComponents';
 
 declare global {
   // eslint-disable-next-line @typescript-eslint/no-namespace
@@ -29,9 +32,7 @@ declare global {
       lighterText: string;
     }
 
-    interface Theme {
-      radius: number;
-    }
+    interface Theme extends StyledComponentsTheme {}
   }
 }
 
@@ -42,10 +43,11 @@ const onBackground = '#e9e2d9';
 
 /* Notes
  * Placeholder color is replaced with onSurfaceVariant
-*/
+ */
 
 export const PAPER_THEME: ReactNativePaper.Theme = {
   ...PaperDarkTheme,
+  ...STYLED_COMPONENTS_THEME,
   colors: {
     ...PaperDarkTheme.colors,
 
@@ -72,16 +74,5 @@ export const PAPER_THEME: ReactNativePaper.Theme = {
     error: '#FF3D71', // Red/Pink
     delete: '#DD2C00', // Red
     lighterText: new Color(PaperDarkTheme.colors.text).alpha(0.7).hexa(),
-  },
-
-  radius: PaperDarkTheme.roundness * 5,
-};
-
-export const NAV_THEME = {
-  ...NavDarkTheme,
-  ...PAPER_THEME,
-  colors: {
-    ...NavDarkTheme.colors,
-    ...PAPER_THEME.colors,
   },
 };
