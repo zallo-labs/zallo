@@ -9,7 +9,7 @@ export interface TimelineDotProps extends BoxProps {
 export const TimelineDot = ({ color, ...boxProps }: TimelineDotProps) => {
   return (
     <Box
-      borderRadius={WIDTH}
+      rounded={WIDTH}
       borderStyle="solid"
       borderWidth={WIDTH}
       borderColor={color}

@@ -1,5 +1,6 @@
 import { Box, BoxProps } from '@components/Box';
 import { PRIMARY_ICON_SIZE } from '@components/list/Item';
+import { space } from '@util/theme/styledComponents';
 import { useMemo, useState } from 'react';
 import { Button, Dialog, useTheme } from 'react-native-paper';
 import { useSafes } from '~/queries';
@@ -40,15 +41,14 @@ export const SafeSelectorDialog = ({
       visible={visible}
       onDismiss={hide}
       style={{
-        display: 'flex',
-        backgroundColor: 'transparent',
-        marginHorizontal: 0,
         position: 'absolute',
         top: 20,
         width: '100%',
+        backgroundColor: undefined,
+        marginHorizontal: 0,
       }}
     >
-      <Box backgroundColor={colors.surface} mx={2} py={2}>
+      <Box surface rounded mx={1} py={2}>
         <SelectedSafeItem safe={safe} {...itemPadding} />
 
         {otherSafes.map((safe) => (
@@ -79,8 +79,8 @@ export const SafeSelectorDialog = ({
             flex: 1,
             flexDirection: 'row',
             justifyContent: 'flex-start',
-            paddingHorizontal: 2,
-            paddingVertical: 6,
+            paddingHorizontal: space(3),
+            paddingVertical: space(2),
           }}
         >
           <Box width={PRIMARY_ICON_SIZE} ml={1} />
