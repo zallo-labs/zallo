@@ -1,5 +1,10 @@
 import { Controller, Get } from '@nestjs/common';
-import { HealthCheck, HealthCheckService, HttpHealthIndicator } from '@nestjs/terminus';
+import {
+  HealthCheck,
+  HealthCheckService,
+  HttpHealthIndicator,
+} from '@nestjs/terminus';
+import { Public } from '~/decorators/public.decorator';
 import { PrismaHealthIndicator } from './prismaHealth.indicator';
 
 @Controller('health')
@@ -10,6 +15,7 @@ export class HealthController {
     private prismaHealth: PrismaHealthIndicator,
   ) {}
 
+  @Public()
   @Get()
   @HealthCheck()
   check() {
