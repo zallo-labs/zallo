@@ -17,8 +17,6 @@ export const EmptyListFallback = ({
   const { height } = useWindowDimensions();
   const { colors, iconSize } = useTheme();
 
-  console.log(typeof Icon);
-
   return (
     // Set height manually since flex={1} doesn't work within FlexList on Android
     <Box flex={1} height={height}>

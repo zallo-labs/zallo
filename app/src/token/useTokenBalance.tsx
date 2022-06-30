@@ -5,6 +5,7 @@ import { PROVIDER } from '~/provider';
 import { atomFamily, useRecoilValue } from 'recoil';
 import { Address } from 'lib';
 import { persistAtom } from '@util/persistAtom';
+import { captureException, Severity } from '@util/sentry/sentry';
 
 type BalanceKey = {
   addr: Address;
@@ -17,7 +18,10 @@ const tokenBalanceState = atomFamily<BigNumber, BalanceKey>({
     try {
       return PROVIDER.getBalance(addr, undefined, token);
     } catch (e) {
-      console.error('Failed to fetch balance', { token, e });
+      captureException(e, {
+        level: Severity.Error,
+        extra: { token, addr },
+      });
       return BigNumber.from(0);
     }
   },
