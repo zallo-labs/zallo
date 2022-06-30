@@ -44,7 +44,7 @@ export const ErrorBoundary = ({ children }: ChildrenProps) => (
   <Sentry.Native.ErrorBoundary
     fallback={({ resetError }) => <Fallback resetError={resetError} />}
     onError={(error) => {
-      console.log('ErrorBoundary:', error);
+      console.error('ErrorBoundary:', error);
     }}
   >
     {children}

@@ -19,6 +19,7 @@ import { StatusBar } from 'expo-status-bar';
 import { AuthGate } from '@features/AuthGate';
 import { NAVIGATION_THEME } from '@util/theme/navigation';
 import { ThemeProvider } from '@util/theme/ThemeProvider';
+import { SentryUser } from '@components/SentryUser';
 
 export default () => (
   <LocalizatonProvider>
@@ -27,6 +28,7 @@ export default () => (
         <ErrorBoundary>
           <Suspense fallback={<Splash />}>
             <RecoilRoot>
+              <SentryUser />
               <GestureHandlerRootView style={{ flex: 1 }}>
                 <AuthGate>
                   <GqlProvider>
