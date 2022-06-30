@@ -10,7 +10,7 @@ import { PROVIDER } from '~/provider';
 import { useWallet } from '@features/wallet/useWallet';
 import { atom, useRecoilState } from 'recoil';
 import { getSecureStore, persistAtom } from '@util/persistAtom';
-import { useCallback, useMemo } from 'react';
+import { useCallback, useMemo, useRef } from 'react';
 
 interface Token {
   message: SiweMessage;
@@ -20,7 +20,7 @@ interface Token {
 const fetchMutex = new Mutex();
 
 const isServerError = (e?: unknown): e is ServerError =>
-  typeof e === "object" && e !== null && e["name"] === 'ServerError';
+  typeof e === 'object' && e !== null && e['name'] === 'ServerError';
 
 // https://test.com/abc/123 -> test.com; RN lacks URL support )':
 const getHost = (url: string) => {
@@ -66,11 +66,14 @@ export const useAuthFlowLink = () => {
   const wallet = useWallet();
   const [token, setToken] = useRecoilState(apiTokenState);
 
+  const tokenRef = useRef<Token>(token);
+
   const reset = useCallback(async () => {
     // Ensure token is reset exactly once at any given time
     try {
       await tryAcquire(fetchMutex).runExclusive(async () => {
-        setToken(await fetchToken(wallet));
+        tokenRef.current = await fetchToken(wallet);
+        setToken(tokenRef.current);
       });
     } catch (e) {
       if (e === E_ALREADY_LOCKED) {
@@ -84,17 +87,17 @@ export const useAuthFlowLink = () => {
   const authLink: ApolloLink = useMemo(
     () =>
       setContext(async (_request, prevContext) => {
-        if (!token) await reset();
+        if (!tokenRef.current) await reset();
 
         return {
           ...prevContext,
           headers: {
             ...prevContext.headers,
-            authorization: JSON.stringify(token),
+            authorization: JSON.stringify(tokenRef.current),
           },
         };
       }),
-    [reset, token],
+    [reset],
   );
 
   const onUnauthorizedLink: ApolloLink = useMemo(
