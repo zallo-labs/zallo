@@ -34,3 +34,4 @@ export const DeleteIcon = materialCommunity('delete');
 export const EditIcon = materialCommunity('pencil');
 export const AcceptIcon = materialCommunity('check');
 export const RejectIcon = materialCommunity('close');
+export const ScanIcon = materialCommunity('line-scan');

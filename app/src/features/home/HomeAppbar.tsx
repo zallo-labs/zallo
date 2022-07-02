@@ -4,6 +4,7 @@ import { Chevron } from '@components/Chevron';
 import { useSafe } from '@features/safe/SafeProvider';
 import { SafeSelectorDialog } from '@features/safe/selector/SafeSelectorDialog';
 import { useNavigation } from '@react-navigation/native';
+import { ScanIcon } from '@util/icons';
 import { useState } from 'react';
 import { TouchableOpacity } from 'react-native';
 import { Appbar, Portal, Title, useTheme } from 'react-native-paper';
@@ -42,7 +43,7 @@ export const HomeAppbar = () => {
         </Box>
 
         <Appbar.Action
-          icon="line-scan"
+          icon={ScanIcon}
           onPress={() => {
             // TODO: implement
           }}
