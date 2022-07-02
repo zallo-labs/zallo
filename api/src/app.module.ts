@@ -19,6 +19,7 @@ import { TxsModule } from './features/txs/txs.module';
 import { SubmissionsModule } from './features/submissions/submissions.module';
 import { CommentsModule } from './features/comments/comments.module';
 import { ReactionsModule } from './features/reactions/reactions.module';
+import { SubgraphModule } from './features/subgraph/subgraph.module';
 
 @Module({
   imports: [
@@ -40,6 +41,7 @@ import { ReactionsModule } from './features/reactions/reactions.module';
     GroupsModule,
     ReactionsModule,
     SafesModule,
+    SubgraphModule,
     SubmissionsModule,
     TxsModule,
     UsersModule,

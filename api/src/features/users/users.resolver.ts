@@ -16,10 +16,14 @@ import { UserAddr } from '~/decorators/user.decorator';
 import { User } from '@gen/user/user.model';
 import { UpsertOneUserArgs } from '@gen/user/upsert-one-user.args';
 import { Address } from 'lib';
+import { SubgraphService } from '../subgraph/subgraph.service';
 
 @Resolver(() => User)
 export class UsersResolver {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private subgraph: SubgraphService,
+  ) {}
 
   @Query(() => User, { nullable: true })
   async user(
@@ -37,25 +41,26 @@ export class UsersResolver {
     @UserAddr() user: Address,
     @Info() info: GraphQLResolveInfo,
   ): Promise<Safe[]> {
-    const res = await this.prisma.user.findUnique({
-      where: { id: user },
-      select: {
-        groups: {
-          select: {
-            group: {
-              select: {
-                safe: {
-                  ...getSelect(info),
+    return this.prisma.safe.findMany({
+      where: {
+        OR: [
+          // Deployed safe - approvers aren't stored
+          { id: { in: await this.subgraph.userSafes(user) } },
+          // Counterfactual safes
+          {
+            groups: {
+              some: {
+                approvers: {
+                  some: { userId: { equals: user } },
                 },
               },
             },
           },
-          distinct: 'safeId',
-        },
+        ],
       },
+      distinct: 'id',
+      ...getSelect(info),
     });
-
-    return res?.groups.flatMap((g) => g.group.safe) ?? [];
   }
 
   @Query(() => String, { nullable: true })
