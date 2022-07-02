@@ -37,6 +37,11 @@ declare global {
         small: number;
         medium: number;
       };
+
+      iconButton: {
+        size: number;
+        containerSize: number;
+      }
     }
   }
 }
@@ -85,4 +90,8 @@ export const PAPER_THEME: ReactNativePaper.Theme = {
     small: 24,
     medium: 40,
   },
+  iconButton: {
+    size: 24,
+    containerSize: 40,
+  }
 };

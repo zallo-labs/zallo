@@ -1,7 +1,14 @@
 import { useMemo } from 'react';
 import { Formik, FormikHelpers } from 'formik';
 import * as Yup from 'yup';
-import { Address, Group, Approver, Id, groupEquiv } from 'lib';
+import {
+  Address,
+  Group,
+  Approver,
+  groupEquiv,
+  randomGroupRef,
+  getGroupId,
+} from 'lib';
 import { RootNavigatorScreenProps } from '@features/navigation/RootNavigator';
 import { useGroup, useSafe } from '@features/safe/SafeProvider';
 import { GroupManagement } from './GroupManagement';
@@ -38,6 +45,17 @@ const getSchema = (groups: CombinedGroup[]): Yup.SchemaOf<Omit<Group, 'ref'>> =>
       ),
   });
 
+const createDefault = (safe: Address): CombinedGroup => {
+  const ref = randomGroupRef();
+  return {
+    id: getGroupId(safe, ref),
+    ref,
+    name: '',
+    approvers: [],
+    active: true,
+  };
+};
+
 export interface GroupManagementScreenParams {
   groupId?: string;
   // Callbacks
@@ -49,11 +67,11 @@ export type GroupManagementScreenProps =
 
 export const GroupManagementScreen = withProposeProvider(
   ({ route }: GroupManagementScreenProps) => {
-    const { groupId, selected } = route.params;
-    const initialGroup = useGroup(groupId);
-
-    const { groups } = useSafe();
+    const { safe, groups } = useSafe();
     const upsertGroup = useUpsertSafeGroup();
+
+    const defaultGroup = useMemo(() => createDefault(safe.address), [safe]);
+    const initialGroup = useGroup(route.params?.groupId) ?? defaultGroup;
 
     const handleSubmit = async (
       values: Group,
@@ -66,8 +84,8 @@ export const GroupManagementScreen = withProposeProvider(
     };
 
     const schema = useMemo(
-      () => getSchema(groups.filter((g) => g.id !== groupId)),
-      [groups, groupId],
+      () => getSchema(groups.filter((g) => g.id !== initialGroup.id)),
+      [groups, initialGroup],
     );
 
     return (
@@ -81,7 +99,7 @@ export const GroupManagementScreen = withProposeProvider(
           <GroupManagement
             approvers={values.approvers}
             setApprovers={(approvers) => setFieldValue('approvers', approvers)}
-            selected={selected}
+            selected={route.params?.selected}
             initialGroup={initialGroup}
           />
         )}
