@@ -10,7 +10,7 @@ import { EditIcon } from '@util/icons';
 
 export interface ContactItemProps extends ItemProps {
   contact: Contact;
-  select: (addr: Address) => void;
+  select?: (addr: Address) => void;
   disabled?: boolean;
 }
 
@@ -38,7 +38,7 @@ export const ContactItem = ({
           onPress={() => navigation.navigate('Contact', { addr: contact.addr })}
         />
       }
-      onPress={() => select(contact.addr)}
+      onPress={select ? () => select(contact.addr) : undefined}
       disabled={disabled}
       {...itemProps}
     />

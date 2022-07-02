@@ -12,6 +12,7 @@ import { Actions } from '@components/Actions';
 import { Container } from '@components/list/Container';
 import { Box } from '@components/Box';
 import { useDeleteContact } from '~/mutations/contact/useDeleteContact';
+import { ScanIcon } from '@util/icons';
 
 interface Values {
   addr: string;
@@ -95,7 +96,7 @@ export const ContactScreen = ({ navigation, route }: ContactScreenProps) => {
             textAlignVertical="center"
             right={
               <TextInput.Icon
-                name="line-scan"
+                name={ScanIcon}
                 onPress={() =>
                   navigation.navigate('QrScanner', {
                     target: { route: 'Contact', output: 'addr' },

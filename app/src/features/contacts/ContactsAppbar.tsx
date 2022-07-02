@@ -1,5 +1,6 @@
 import { AppbarBack } from '@components/AppbarBack';
 import { useNavigation } from '@react-navigation/native';
+import { ScanIcon } from '@util/icons';
 import { Address } from 'lib';
 import { Appbar } from 'react-native-paper';
 import { ContactsScreenProps } from './ContactsScreen';
@@ -24,7 +25,7 @@ export const ContactsAppbar = ({
       {/* Search */}
 
       <Appbar.Action
-        icon="line-scan"
+        icon={ScanIcon}
         onPress={() =>
           navigation.navigate('QrScanner', {
             target: { route: 'Contacts', output: 'scanned' },
