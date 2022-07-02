@@ -1,5 +1,5 @@
 import { useQuery } from '@apollo/client';
-import { BytesLike, Signer } from 'ethers';
+import { Signer } from 'ethers';
 
 import {
   ArrVal,
@@ -17,8 +17,7 @@ import { subGql, apiGql } from '@gql/clients';
 import { combineRest, combine, simpleKeyExtractor } from '@gql/combine';
 import { useApiClient, useSubgraphClient } from '@gql/GqlProvider';
 import { SQuerySafes, SQuerySafesVariables } from '@gql/subgraph.generated';
-import { AQueryUserSafes, AQueryUserSafesVariables } from '@gql/api.generated';
-import { useMemo } from 'react';
+import { AQueryUserSafes } from '@gql/api.generated';
 
 const SUB_QUERY = subGql`
 query SQuerySafes($user: ID!) {
@@ -122,38 +121,23 @@ fragment SafeFields on Safe {
 export const AQUERY_USER_SAFES = apiGql`
 ${API_SAFE_FIELDS_FRAGMENT}
 
-query AQueryUserSafes($safes: [String!]) {
+query AQueryUserSafes {
   user {
     id
     safes {
       ...SafeFields
     }
   }
-
-  safes(where: { id: { in: $safes, mode: insensitive } }) {
-    ...SafeFields
-  }
 }
 `;
 
 const useApiSafes = () => {
-  const { data: subSafes } = useSubSafes();
-
-  const subSafeIds = useMemo(
-    () => subSafes.map((s) => address(s.id)),
-    [subSafes],
-  );
-
-  const { data, ...rest } = useQuery<AQueryUserSafes, AQueryUserSafesVariables>(
-    AQUERY_USER_SAFES,
-    {
-      client: useApiClient(),
-      variables: { safes: subSafeIds },
-    },
-  );
+  const { data, ...rest } = useQuery<AQueryUserSafes>(AQUERY_USER_SAFES, {
+    client: useApiClient(),
+  });
 
   const safes = filterUnique(
-    [...(data?.user?.safes ?? []), ...(data?.safes ?? [])].map((safe) => ({
+    (data?.user?.safes ?? []).map((safe) => ({
       ...safe,
       id: toId(safe.id),
     })),

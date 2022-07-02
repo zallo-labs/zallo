@@ -3,21 +3,20 @@ import { useSafe } from '@features/safe/SafeProvider';
 import { useIsDeployed } from '@features/safe/useIsDeployed';
 import {
   AQueryUserSafes,
-  AQueryUserSafesVariables,
   UpsertGroup,
   UpsertGroupVariables,
 } from '@gql/api.generated';
 import { apiGql } from '@gql/clients';
 import { useApiClient } from '@gql/GqlProvider';
 import { QueryOpts } from '@gql/update';
-import { address } from 'lib';
-import { useMemo } from 'react';
 import {
   API_GROUP_FIELDS_FRAGMENT,
   AQUERY_USER_SAFES,
   CombinedGroup,
-  useSubSafes,
 } from '~/queries';
+import produce from 'immer';
+import { useWallet } from '@features/wallet/useWallet';
+import { toId } from 'lib';
 
 const API_MUTATION = apiGql`
 ${API_GROUP_FIELDS_FRAGMENT}
@@ -30,14 +29,9 @@ mutation UpsertGroup($safe: Address!, $group: GroupInput!) {
 `;
 
 export const useUpsertApiGroup = () => {
+  const wallet = useWallet();
   const { safe } = useSafe();
-  const { data: subSafes } = useSubSafes();
   const isDeployed = useIsDeployed();
-
-  const subSafeIds = useMemo(
-    () => subSafes.map((s) => address(s.id)),
-    [subSafes],
-  );
 
   const [mutation] = useMutation<UpsertGroup, UpsertGroupVariables>(
     API_MUTATION,
@@ -45,15 +39,14 @@ export const useUpsertApiGroup = () => {
   );
 
   const upsert = (g: CombinedGroup) => {
-    // Only maintain a list of approvers if the safe is counterfactual
-    const approvers = isDeployed ? [] : g.approvers;
-
     return mutation({
       variables: {
         safe: safe.address,
         group: {
-          ...g,
-          approvers,
+          ref: g.ref,
+          name: g.name,
+          // Only maintain a list of approvers if the safe is counterfactual
+          approvers: isDeployed ? [] : g.approvers,
         },
       },
       optimisticResponse: {
@@ -62,7 +55,7 @@ export const useUpsertApiGroup = () => {
           id: g.id,
           ref: g.ref,
           safeId: safe.address,
-          approvers: approvers.map((a) => ({
+          approvers: g.approvers.map((a) => ({
             __typename: 'Approver',
             userId: a.addr,
             weight: a.weight,
@@ -71,31 +64,48 @@ export const useUpsertApiGroup = () => {
         },
       },
       update: (cache, { data: { upsertGroup } }) => {
-        const opts: QueryOpts<AQueryUserSafesVariables> = {
+        const opts: QueryOpts<never> = {
           query: AQUERY_USER_SAFES,
-          variables: { safes: subSafeIds },
         };
 
-        const data = cache.readQuery<AQueryUserSafes, AQueryUserSafesVariables>(
-          opts,
-        );
+        const data = cache.readQuery<AQueryUserSafes>(opts);
 
-        cache.writeQuery<AQueryUserSafes, AQueryUserSafesVariables>({
+        cache.writeQuery<AQueryUserSafes>({
           ...opts,
           overwrite: true,
-          data: {
-            ...data,
-            safes: data.safes.map((s) => {
-              if (s.id !== safe.address) return s;
-
-              const groupsExc = s.groups.filter((g) => g.id !== upsertGroup.id);
-
-              return {
-                ...s,
-                groups: [...groupsExc, upsertGroup],
+          data: produce(data, (data) => {
+            if (!data) {
+              data = {
+                user: {
+                  __typename: 'User',
+                  id: wallet.address,
+                  safes: [],
+                },
               };
-            }),
-          },
+            }
+
+            const safeId = toId(safe.address);
+            const safeIndex = data.user.safes.findIndex((s) => s.id === safeId);
+
+            if (safeIndex >= 0) {
+              const groupIndex = data.user.safes[safeIndex].groups.findIndex(
+                (g) => g.id === upsertGroup.id,
+              );
+              if (groupIndex >= 0) {
+                data.user.safes[safeIndex].groups[groupIndex] = upsertGroup;
+              } else {
+                data.user.safes[safeIndex].groups.push(upsertGroup);
+              }
+            } else {
+              data.user.safes.push({
+                __typename: 'Safe',
+                id: toId(safe.address),
+                deploySalt: '',
+                name: '',
+                groups: [upsertGroup],
+              });
+            }
+          }),
         });
       },
     });
