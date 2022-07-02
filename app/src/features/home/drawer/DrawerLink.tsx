@@ -1,9 +1,5 @@
-import {
-  useNavigation,
-  useNavigationState,
-  useRoute,
-} from '@react-navigation/native';
-import { ComponentPropsWithoutRef, useCallback, useMemo } from 'react';
+import { useNavigation, useRoute } from '@react-navigation/native';
+import { ComponentPropsWithoutRef, useCallback } from 'react';
 import { Drawer } from 'react-native-paper';
 import { HomeScreenProps } from '../HomeScreen';
 import { DrawerNavigatorParamList } from '@features/navigation/DrawerNavigator';
@@ -15,14 +11,14 @@ type Screen =
   | keyof TabNavigatorParamList
   | keyof DrawerNavigatorParamList;
 
-type DItemProps = ComponentPropsWithoutRef<typeof Drawer.Item>;
+type DrawerItemProps = ComponentPropsWithoutRef<typeof Drawer.Item>;
 
-export type DrawerItemProps = Omit<DItemProps, 'label'> & {
+export type DrawerLinkProps = Omit<DrawerItemProps, 'label'> & {
   screen: Screen;
   label?: string;
 };
 
-export const DrawerItem = ({ screen, ...props }: DrawerItemProps) => {
+export const DrawerLink = ({ screen, ...props }: DrawerLinkProps) => {
   const navigation = useNavigation<HomeScreenProps['navigation']>();
   const route = useRoute();
 
@@ -30,13 +26,7 @@ export const DrawerItem = ({ screen, ...props }: DrawerItemProps) => {
 
   const handlePress = useCallback(() => {
     navigation.navigate(screen);
-    // navigation.closeDrawer();
   }, [navigation, screen]);
-
-  // console.log({
-  //   route,
-  //   state: navigation.getState()
-  // });
 
   return (
     <Drawer.Item
