@@ -29,11 +29,8 @@ export interface ContactsScreenParams {
 
 export type ContactsScreenProps = RootNavigatorScreenProps<'Contacts'>;
 
-export const ContactsScreen = ({
-  navigation,
-  route: { params },
-}: ContactsScreenProps) => {
-  const { disabledAddrs, scanned, target } = params;
+export const ContactsScreen = ({ navigation, route }: ContactsScreenProps) => {
+  const { disabledAddrs, scanned, target } = route.params ?? {};
   const { contacts: allContacts } = useContacts();
 
   const [search, setSearch] = useState('');

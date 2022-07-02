@@ -18,7 +18,7 @@ interface Values {
   name: string;
 }
 
-const name = (k: keyof Values) => k;
+const field = (k: keyof Values) => k;
 
 const getSchema = (contacts: Contact[]): Yup.SchemaOf<Values> =>
   Yup.object({
@@ -44,22 +44,20 @@ export interface ContactScreenParams {
 
 export type ContactScreenProps = RootNavigatorScreenProps<'Contact'>;
 
-export const ContactScreen = ({
-  navigation,
-  route: { params },
-}: ContactScreenProps) => {
+export const ContactScreen = ({ navigation, route }: ContactScreenProps) => {
+  const { addr, name } = route.params ?? {};
   const { colors } = useTheme();
   const { contacts } = useContacts();
   const upsertContact = useUpsertContact();
   const deleteContact = useDeleteContact();
 
-  const existingContact = params?.addr
-    ? contacts.find((c) => c.addr === params.addr)
+  const existingContact = addr
+    ? contacts.find((c) => c.addr === addr)
     : undefined;
 
   const initialValues: Values = {
-    name: existingContact?.name ?? params.name ?? '',
-    addr: existingContact?.addr ?? params.addr ?? '',
+    name: existingContact?.name ?? name ?? '',
+    addr: existingContact?.addr ?? addr ?? '',
   };
 
   const handleSubmit = async (values: Values) => {
@@ -84,13 +82,13 @@ export const ContactScreen = ({
       <>
         <Container flex={1} mt={5} mx={3} separator={<Box my={2} />}>
           <FormikTextField
-            name={name('name')}
+            name={field('name')}
             label="Name"
             placeholder="Vitalik Buterin"
           />
 
           <FormikTextField
-            name={name('addr')}
+            name={field('addr')}
             label="Address"
             placeholder="0xBae..."
             wrap

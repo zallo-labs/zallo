@@ -67,11 +67,12 @@ export type GroupManagementScreenProps =
 
 export const GroupManagementScreen = withProposeProvider(
   ({ route }: GroupManagementScreenProps) => {
+    const { groupId, selected } = route.params ?? {};
     const { safe, groups } = useSafe();
     const upsertGroup = useUpsertSafeGroup();
 
     const defaultGroup = useMemo(() => createDefault(safe.address), [safe]);
-    const initialGroup = useGroup(route.params?.groupId) ?? defaultGroup;
+    const initialGroup = useGroup(groupId) ?? defaultGroup;
 
     const handleSubmit = async (
       values: Group,
@@ -99,7 +100,7 @@ export const GroupManagementScreen = withProposeProvider(
           <GroupManagement
             approvers={values.approvers}
             setApprovers={(approvers) => setFieldValue('approvers', approvers)}
-            selected={route.params?.selected}
+            selected={selected}
             initialGroup={initialGroup}
           />
         )}
