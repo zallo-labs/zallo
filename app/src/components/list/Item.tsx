@@ -1,4 +1,4 @@
-import { ReactNode } from 'react';
+import { ReactNode, useMemo } from 'react';
 import { Box, BoxProps } from '@components/Box';
 import { GestureResponderEvent } from 'react-native';
 import { ItemSkeleton } from './ItemSkeleton';
@@ -34,6 +34,20 @@ export const Item = withSkeleton(
   }: ItemProps) => {
     const { colors } = useTheme();
 
+    const style: BoxProps['style'] = useMemo(
+      () => [
+        {
+          ...(disabled && { opacity: 0.5 }),
+          ...(selected && {
+            backgroundColor: colors.accentContainer,
+            borderRadius: 1000,
+          }),
+        },
+        boxProps.style,
+      ],
+      [boxProps.style, colors.accentContainer, disabled, selected],
+    );
+
     return (
       <TouchableRipple
         disabled={disabled || !onPress}
@@ -45,16 +59,7 @@ export const Item = withSkeleton(
           horizontal
           justifyContent="space-between"
           {...boxProps}
-          style={[
-            {
-              ...(disabled && { opacity: 0.4 }),
-              ...(selected && {
-                backgroundColor: colors.accentContainer,
-                borderRadius: 1000,
-              }),
-            },
-            boxProps.style,
-          ]}
+          style={style}
         >
           {Left && (
             <Box vertical justifyContent="center" mr={3} {...leftContainer}>
