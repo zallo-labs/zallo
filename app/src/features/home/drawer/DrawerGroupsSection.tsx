@@ -1,12 +1,11 @@
 import { effectiveGroupName } from '@components/FormattedGroupName';
 import { Identicon } from '@components/Identicon';
 import { useSafe } from '@features/safe/SafeProvider';
-import { useNavigation } from '@react-navigation/native';
 import { Drawer } from 'react-native-paper';
-import { HomeScreenProps } from '../HomeScreen';
+import { useDrawerNavigation } from './Drawer';
 
 export const DrawerGroupsSection = () => {
-  const navigation = useNavigation<HomeScreenProps['navigation']>();
+  const navigate = useDrawerNavigation();
   const { groups } = useSafe();
 
   return (
@@ -16,16 +15,14 @@ export const DrawerGroupsSection = () => {
           key={g.id}
           label={effectiveGroupName(g)}
           icon={(props) => <Identicon size={props.size} seed={g.ref} />}
-          onPress={() =>
-            navigation.navigate('GroupManagement', { groupId: g.id })
-          }
+          onPress={() => navigate('GroupManagement', { groupId: g.id })}
         />
       ))}
 
       <Drawer.Item
         label="Add"
         icon="account-multiple-plus"
-        onPress={() => navigation.navigate('GroupManagement')}
+        onPress={() => navigate('GroupManagement')}
       />
     </Drawer.Section>
   );
