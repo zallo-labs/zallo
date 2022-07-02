@@ -17,7 +17,7 @@ export const SelectAddressButton = ({
 
   // Only select button if it's a valid address
   const addr = tryAddress(input);
-  // if (!addr) return null;
+  if (!addr) return null;
 
   return (
     <Item
