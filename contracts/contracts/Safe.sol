@@ -125,20 +125,24 @@ contract Safe is ISafe, EIP712 {
     if (_approvers.length != _signatures.length)
       revert ApproversSignaturesLenMismatch();
 
-    for (uint256 i = 0; i < _approvers.length; i++) {
-      address approver = _approvers[i].addr;
+    address approver;
+    for (uint256 i = 0; i < _approvers.length;) {
+      approver = _approvers[i].addr;
 
       if (!approver.checkSignature(_txHash, _signatures[i]))
         revert InvalidSignature(approver);
+
+      unchecked { ++i; }
     }
   }
 
   function _satisfiesThreshold(Approver[] memory _approvers) internal pure {
     int256 req = THRESHOLD;
-    for (uint256 i = 0; i < _approvers.length; i++) {
+    for (uint256 i = 0; i < _approvers.length;) {
       // Can't negative overflow - int256 can safely hold ~7e47 uint96s
       unchecked {
         req -= int256(uint256(_approvers[i].weight));
+        ++i;
       }
     }
 
@@ -162,12 +166,14 @@ contract Safe is ISafe, EIP712 {
     returns (bytes32[] memory leaves)
   {
     leaves = new bytes32[](_approvers.length);
-    for (uint256 i = 0; i < _approvers.length; i++) {
+    for (uint256 i = 0; i < _approvers.length;) {
       leaves[i] = keccak256(abi.encode(_approvers[i]));
 
       // Hashes need to be sorted
       if (i > 0 && leaves[i] < leaves[i - 1])
         revert ApproverHashesNotAscending();
+
+      unchecked { ++i; }
     }
   }
 

@@ -31,10 +31,14 @@ library MerkleProof {
     //   get the next hash.
     // - depending on the flag, either another value for the "main queue" (merging branches) or an element from the
     //   `proof` array.
-    for (uint256 i = 0; i < totalHashes; i++) {
-      bytes32 a = leafPos < leavesLen ? leaves[leafPos++] : hashes[hashPos++];
-      bytes32 b = leafPos < leavesLen ? leaves[leafPos++] : hashes[hashPos++];
+    bytes32 a;
+    bytes32 b;
+    for (uint256 i = 0; i < totalHashes;) {
+      a = leafPos < leavesLen ? leaves[leafPos++] : hashes[hashPos++];
+      b = leafPos < leavesLen ? leaves[leafPos++] : hashes[hashPos++];
       hashes[i] = _hashPair(a, b);
+
+      unchecked { ++i; }
     }
 
     if (totalHashes > 0) {
@@ -73,12 +77,16 @@ library MerkleProof {
     //   get the next hash.
     // - depending on the flag, either another value for the "main queue" (merging branches) or an element from the
     //   `proof` array.
-    for (uint256 i = 0; i < totalHashes; i++) {
-      bytes32 a = leafPos < leavesLen ? leaves[leafPos++] : hashes[hashPos++];
-      bytes32 b = BoolArray.atIndex(proofFlags, i)
+    bytes32 a;
+    bytes32 b;
+    for (uint256 i = 0; i < totalHashes;) {
+      a = leafPos < leavesLen ? leaves[leafPos++] : hashes[hashPos++];
+      b = BoolArray.atIndex(proofFlags, i)
         ? leafPos < leavesLen ? leaves[leafPos++] : hashes[hashPos++]
         : proof[proofPos++];
       hashes[i] = _hashPair(a, b);
+
+      unchecked { ++i; }
     }
 
     if (totalHashes > 0) {

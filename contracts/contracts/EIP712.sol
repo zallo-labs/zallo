@@ -46,8 +46,10 @@ contract EIP712 {
 
   function _hashTx(Op[] calldata _ops) internal returns (bytes32) {
     bytes32[] memory opHashes = new bytes32[](_ops.length);
-    for (uint i = 0; i < _ops.length; i++) {
+    for (uint i = 0; i < _ops.length;) {
       opHashes[i] = _hashOpStruct(_ops[i]);
+
+      unchecked { ++i; }
     }
 
     bytes32 txsStructHash = keccak256(
