@@ -2,6 +2,7 @@ import * as zk from 'zksync-web3';
 import { createToken as token } from './token';
 
 export const ETH = token({
+  type: "ETH",
   name: 'Ether',
   symbol: 'Ξ',
   decimals: 18,

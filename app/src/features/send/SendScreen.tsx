@@ -13,7 +13,7 @@ import { BigNumber } from 'ethers';
 import { Address, ZERO } from 'lib';
 import { useCallback, useState } from 'react';
 import { Appbar, FAB } from 'react-native-paper';
-import { getTokenContract, Token } from '~/token/token';
+import { createTransferOp, getTokenContract, Token } from '~/token/token';
 import { SendInput } from './SendInput';
 import { SendTokenChip } from './SendTokenChip';
 
@@ -58,14 +58,7 @@ export const SendScreen = withProposeProvider(
     const [amount, setAmount] = useState<BigNumber | undefined>();
 
     const send = useCallback(
-      () =>
-        propose({
-          to: token.addr,
-          data: getTokenContract(token).interface.encodeFunctionData(
-            'transfer',
-            [to, amount ?? ZERO],
-          ),
-        }),
+      () => propose(createTransferOp(token, to, amount)),
       [amount, propose, to, token],
     );
 
