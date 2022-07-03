@@ -28,6 +28,7 @@ const config: HardhatUserConfig = {
       optimizer: {
         enabled: true,
       },
+      viaIR: true,
     },
   },
   zksolc: {

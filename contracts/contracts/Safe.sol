@@ -56,8 +56,10 @@ contract Safe is ISafe, EIP712 {
     _verifyTx(txHash, _groupRef, _approvers, _signatures, _proof, _proofFlags);
 
     responses = new bytes[](_ops.length);
-    for (uint256 i = 0; i < _ops.length; i++) {
+    for (uint256 i = 0; i < _ops.length;) {
       responses[i] = _call(txHash, _ops[i]);
+
+      unchecked { ++i; }
     }
 
     emit MultiTransaction(txHash, responses);
