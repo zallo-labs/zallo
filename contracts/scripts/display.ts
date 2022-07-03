@@ -1,6 +1,6 @@
 import { ethers } from 'hardhat';
 import { TransactionResponse } from '@ethersproject/abstract-provider';
-import { Address } from 'zksync-web3/build/types';
+import { Address } from 'lib';
 
 export const displayTx = async (addr: Address, tx: TransactionResponse) => {
   const receipt = await tx.wait();
