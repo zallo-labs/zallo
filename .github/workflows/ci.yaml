@@ -3,6 +3,9 @@ name: CI
 
 on: [push]
 
+env:
+  SUBGRAPH_GQL_URL: ${{ secrets.SUBGRAPH_GQL_URL }}
+
 jobs:
   lib:
     runs-on: ubuntu-latest
