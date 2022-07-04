@@ -17,7 +17,9 @@ import { CombinedGroup } from '~/queries';
 import { withProposeProvider } from '@features/execute/ProposeProvider';
 import { useUpsertSafeGroup } from '~/mutations/group/useUpsertSafeGroup';
 
-const getSchema = (groups: CombinedGroup[]): Yup.SchemaOf<Omit<Group, 'ref'>> =>
+type Values = Pick<Group, 'approvers'>;
+
+const getSchema = (groups: CombinedGroup[]): Yup.SchemaOf<Values> =>
   Yup.object({
     approvers: Yup.array()
       .of(
@@ -74,6 +76,11 @@ export const GroupManagementScreen = withProposeProvider(
     const defaultGroup = useMemo(() => createDefault(safe.address), [safe]);
     const initialGroup = useGroup(groupId) ?? defaultGroup;
 
+    const initialValues: Values = useMemo(
+      () => ({ approvers: initialGroup.approvers }),
+      [initialGroup],
+    );
+
     const handleSubmit = async (
       values: Group,
       helpers: FormikHelpers<Group>,
@@ -91,7 +98,7 @@ export const GroupManagementScreen = withProposeProvider(
 
     return (
       <Formik
-        initialValues={initialGroup}
+        initialValues={initialValues}
         enableReinitialize
         onSubmit={handleSubmit}
         validationSchema={schema}
