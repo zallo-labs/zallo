@@ -8,7 +8,8 @@ import {
   useRecoilValue,
   selector,
 } from 'recoil';
-import { HARDCODED_TOKENS, Token } from './token';
+import { Token } from './token';
+import { HARDCODED_TOKENS } from './tokens';
 
 const tokenAddressesState = atom<Address[]>({
   key: 'tokenAddresses',
@@ -49,7 +50,7 @@ const tokenSelector = selectorFamily<Token | null, Address>({
     },
 });
 
-const allTokensSelector = selector({
+export const allTokensSelector = selector({
   key: 'allTokens',
   get: ({ get }) => {
     const addresses = get(tokenAddressesState);

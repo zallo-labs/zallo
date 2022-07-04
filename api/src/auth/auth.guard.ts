@@ -1,4 +1,9 @@
-import { Injectable, CanActivate, ExecutionContext } from '@nestjs/common';
+import {
+  Injectable,
+  CanActivate,
+  ExecutionContext,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { GqlExecutionContext } from '@nestjs/graphql';
 import { Ctx } from '~/request/ctx';
@@ -11,6 +16,9 @@ export class AuthGuard implements CanActivate {
   canActivate(context: ExecutionContext): boolean {
     const ctx = GqlExecutionContext.create(context).getContext<Ctx>();
 
-    return ctx.req.userMessage !== undefined || isPublic(this.reflector, context);
+    if (!ctx.req.userMessage && !isPublic(this.reflector, context))
+      throw new UnauthorizedException();
+
+    return true;
   }
 }

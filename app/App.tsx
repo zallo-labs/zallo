@@ -3,7 +3,6 @@ import '~/provider';
 import '@util/configImmer';
 
 import { Suspense } from 'react';
-import { NavigationContainer } from '@react-navigation/native';
 import { RecoilRoot } from 'recoil';
 
 import { SafeProvider } from '@features/safe/SafeProvider';
@@ -13,37 +12,40 @@ import { LocalizatonProvider } from '@features/localization/LocalizationProvider
 import { GqlProvider } from '@gql/GqlProvider';
 import { Toast } from '@components/Toast';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
-import { ErrorBoundary } from '@components/ErrorBoundary';
+import { ErrorBoundary } from '@util/sentry/ErrorBoundary';
 import { Splash } from '@components/Splash';
 import { StatusBar } from 'expo-status-bar';
 import { AuthGate } from '@features/AuthGate';
-import { NAVIGATION_THEME } from '@util/theme/navigation';
 import { ThemeProvider } from '@util/theme/ThemeProvider';
+import { SentryUser } from '@util/sentry/SentryUser';
+import { NavigationProvider } from '@features/navigation/NavigationProvider';
+import { withSentry } from '@util/sentry/sentry';
 
-export default () => (
+export default withSentry(() => (
   <LocalizatonProvider>
     <ThemeProvider>
       <Background>
-        <ErrorBoundary>
-          <Suspense fallback={<Splash />}>
-            <RecoilRoot>
-              <GestureHandlerRootView style={{ flex: 1 }}>
+        <GestureHandlerRootView style={{ flex: 1 }}>
+          <ErrorBoundary>
+            <Suspense fallback={<Splash />}>
+              <RecoilRoot>
+                <SentryUser />
                 <AuthGate>
                   <GqlProvider>
                     <StatusBar style="inverted" />
                     <SafeProvider>
-                      <NavigationContainer theme={NAVIGATION_THEME}>
+                      <NavigationProvider>
                         <RootNavigator />
-                      </NavigationContainer>
+                      </NavigationProvider>
                     </SafeProvider>
                   </GqlProvider>
                 </AuthGate>
                 <Toast />
-              </GestureHandlerRootView>
-            </RecoilRoot>
-          </Suspense>
-        </ErrorBoundary>
+              </RecoilRoot>
+            </Suspense>
+          </ErrorBoundary>
+        </GestureHandlerRootView>
       </Background>
     </ThemeProvider>
   </LocalizatonProvider>
-);
+));

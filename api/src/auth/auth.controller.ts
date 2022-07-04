@@ -5,8 +5,8 @@ import { generateNonce } from 'siwe';
 import { Public } from '~/decorators/public.decorator';
 
 @Controller('auth')
-@Public()
 export class AuthController {
+  @Public()
   @Get('nonce')
   nonce(@RequestDec() req: Request): string {
     if (

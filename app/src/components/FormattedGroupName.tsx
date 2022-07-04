@@ -1,17 +1,16 @@
 import { useMemo } from 'react';
 import { CombinedGroup } from '~/queries';
 import { elipseTruncate } from '@util/format';
-import { hexlify } from 'ethers/lib/utils';
+
+export const effectiveGroupName = ({ name, ref }: CombinedGroup) =>
+  name || elipseTruncate(ref, 6, 4);
 
 export interface GroupNameProps {
   group: CombinedGroup;
 }
 
-export const GroupName = ({ group: { name, ref } }: GroupNameProps) => {
-  const formatted = useMemo(
-    () => name || elipseTruncate(hexlify(ref), 6, 4),
-    [name, ref],
-  );
+export const GroupName = ({ group }: GroupNameProps) => {
+  const formatted = useMemo(() => effectiveGroupName(group), [group]);
 
   return <>{formatted}</>;
 };

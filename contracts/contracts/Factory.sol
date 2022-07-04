@@ -14,6 +14,7 @@ contract Factory {
     return address(safe);
   }
 
+  // zkSync TODO: re-enable once issue is resolved - https://v2-docs.zksync.io/dev/testnet/known-issues.html#can-not-use-create-create2-opcodes-with-raw-bytecode
   // function create(bytes memory _bytecode, bytes32 _salt)
   //   external
   //   returns (address addr)

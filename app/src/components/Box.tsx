@@ -17,9 +17,7 @@ import {
 
 import { ChildrenProps } from '@util/children';
 
-type SurfaceProps = ComponentPropsWithoutRef<typeof Surface>;
-
-export interface InternalProps
+export interface StyledProps
   extends ChildrenProps,
     ViewProps,
     BordersProps,
@@ -33,34 +31,35 @@ export interface InternalProps
   vertical?: boolean;
 }
 
-const Internal = styled(Surface)<InternalProps & SurfaceProps>`
+// TODO: move to Animated.View once this issue is resolved: https://github.com/software-mansion/react-native-reanimated/issues/3209
+const Internal = styled(Surface)<StyledProps>`
   ${flexbox};
   ${layout};
   ${borders};
   ${space};
   ${color};
 
-  ${(props: InternalProps) =>
+  ${(props: StyledProps) =>
     props.flexed &&
     `
     flex: 1;
   `}
 
-  ${(props: InternalProps) =>
+  ${(props: StyledProps) =>
     props.center &&
     `
     justifyContent: center;
     alignItems: center;
   `}
 
-  ${(props: InternalProps) =>
+  ${(props: StyledProps) =>
     props.horizontal &&
     `
     display: flex;
     flexDirection: row;
   `}
 
-  ${(props: InternalProps) =>
+  ${(props: StyledProps) =>
     props.vertical &&
     `
     display: flex;
@@ -68,20 +67,17 @@ const Internal = styled(Surface)<InternalProps & SurfaceProps>`
   `}
 `;
 
-export type BoxProps = Omit<SurfaceProps, 'children'> &
-  InternalProps & {
-    children?: ReactNode;
-    surface?: boolean;
-    rounded?: number | boolean;
-  };
+type SurfaceProps = ComponentPropsWithoutRef<typeof Surface>;
+type InternalProps = SurfaceProps & StyledProps;
+// type InternalProps = ComponentPropsWithoutRef<typeof Internal>;
 
-export const Box = ({
-  children,
-  surface,
-  style,
-  // accessibilityRole: _,
-  ...props
-}: BoxProps) => {
+export type BoxProps = Omit<InternalProps, 'children'> & {
+  children?: ReactNode;
+  surface?: boolean;
+  rounded?: number | boolean;
+};
+
+export const Box = ({ children, surface, style, ...props }: BoxProps) => {
   if (props.rounded)
     props.borderRadius = props.rounded === true ? 2 : props.rounded;
 

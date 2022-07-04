@@ -14,7 +14,6 @@ import { FindUniqueGroupArgs } from '@gen/group/find-unique-group.args';
 import { Group } from '@gen/group/group.model';
 import { GraphQLResolveInfo } from 'graphql';
 import { getSelect } from '~/util/select';
-import { UpsertOneGroupArgs } from '@gen/group/upsert-one-group.args';
 import { getGroupId } from 'lib';
 import { UpsertGroupArgs } from './groups.args';
 import {
@@ -79,7 +78,7 @@ export class GroupsResolver {
         },
       },
       update: {
-        name: { set: name ?? null },
+        name: { set: name },
         approvers: {
           upsert: approvers.map((a) => ({
             where: {

@@ -1,16 +1,16 @@
 import { Subheading, useTheme } from 'react-native-paper';
 import { useNavigation } from '@react-navigation/native';
-import { MaterialIcons } from '@expo/vector-icons';
 import { Address } from 'lib';
 import { Addr } from '@components/Addr';
 import { Identicon } from '@components/Identicon';
-import { Item, ItemProps, SECONDARY_ICON_SIZE } from '@components/list/Item';
+import { Item, ItemProps } from '@components/list/Item';
 import { Contact } from '~/queries';
 import { ContactsScreenProps } from './ContactsScreen';
+import { EditIcon } from '@util/icons';
 
 export interface ContactItemProps extends ItemProps {
   contact: Contact;
-  select: (addr: Address) => void;
+  select?: (addr: Address) => void;
   disabled?: boolean;
 }
 
@@ -20,7 +20,7 @@ export const ContactItem = ({
   disabled,
   ...itemProps
 }: ContactItemProps) => {
-  const { colors } = useTheme();
+  const { colors, iconSize } = useTheme();
   const navigation = useNavigation<ContactsScreenProps['navigation']>();
 
   return (
@@ -32,14 +32,13 @@ export const ContactItem = ({
         </Subheading>
       }
       Right={
-        <MaterialIcons
-          name="edit"
-          size={SECONDARY_ICON_SIZE}
+        <EditIcon
+          size={iconSize.small}
           color={colors.onSurface}
           onPress={() => navigation.navigate('Contact', { addr: contact.addr })}
         />
       }
-      onPress={() => select(contact.addr)}
+      onPress={select ? () => select(contact.addr) : undefined}
       disabled={disabled}
       {...itemProps}
     />

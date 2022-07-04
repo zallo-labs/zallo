@@ -1,9 +1,12 @@
 import { useQuery } from '@apollo/client';
+import { useWallet } from '@features/wallet/useWallet';
 import { GetContacts } from '@gql/api.generated';
 import { apiGql } from '@gql/clients';
 import { useApiClient } from '@gql/GqlProvider';
-import { address, Address, Id, toId } from 'lib';
+import { truncatedAddr } from '@util/hook/useAddrName';
+import { address, Address, filterFirst, Id, toId } from 'lib';
 import { useMemo } from 'react';
+import { useSafes } from './useSafes';
 
 export const API_CONTACT_FIELDS = apiGql`
 fragment ContactFields on Contact {
@@ -24,6 +27,9 @@ query GetContacts {
 `;
 
 export const useContacts = () => {
+  const { safes } = useSafes();
+  const wallet = useWallet();
+
   const { data, ...rest } = useQuery<GetContacts>(API_CONTACTS_QUERY, {
     client: useApiClient(),
   });
@@ -38,7 +44,28 @@ export const useContacts = () => {
     [data],
   );
 
-  return { contacts, ...rest };
+  // Show this device & other safes as contacts
+  const safeContacts = safes.map(
+    ({ name, safe: { address } }): Contact => ({
+      id: toId(address),
+      addr: address,
+      name: name ?? truncatedAddr(address),
+    }),
+  );
+
+  const thisDeviceContact: Contact = {
+    id: toId(wallet.address),
+    addr: wallet.address,
+    name: 'Myself',
+  };
+
+  // Exclude created safes & wallet contacts if they're already in the list
+  const combinedContacts = filterFirst(
+    [...contacts, ...safeContacts, thisDeviceContact],
+    (contact) => contact.id,
+  );
+
+  return { contacts: combinedContacts, ...rest };
 };
 
 export interface NewContact {

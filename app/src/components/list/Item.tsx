@@ -1,12 +1,9 @@
-import { ReactNode } from 'react';
+import { ReactNode, useMemo } from 'react';
 import { Box, BoxProps } from '@components/Box';
-import { GestureResponderEvent, TouchableOpacity } from 'react-native';
+import { GestureResponderEvent } from 'react-native';
 import { ItemSkeleton } from './ItemSkeleton';
 import { withSkeleton } from '@components/skeleton/withSkeleton';
 import { TouchableRipple, useTheme } from 'react-native-paper';
-
-export const PRIMARY_ICON_SIZE = 40;
-export const SECONDARY_ICON_SIZE = 24;
 
 export interface ItemProps extends BoxProps {
   Left?: ReactNode;
@@ -37,6 +34,20 @@ export const Item = withSkeleton(
   }: ItemProps) => {
     const { colors } = useTheme();
 
+    const style: BoxProps['style'] = useMemo(
+      () => [
+        {
+          ...(disabled && { opacity: 0.5 }),
+          ...(selected && {
+            backgroundColor: colors.accentContainer,
+            borderRadius: 1000,
+          }),
+        },
+        boxProps.style,
+      ],
+      [boxProps.style, colors.accentContainer, disabled, selected],
+    );
+
     return (
       <TouchableRipple
         disabled={disabled || !onPress}
@@ -48,16 +59,7 @@ export const Item = withSkeleton(
           horizontal
           justifyContent="space-between"
           {...boxProps}
-          style={[
-            {
-              ...(disabled && { opacity: 0.4 }),
-              ...(selected && {
-                backgroundColor: colors.accentContainer,
-                borderRadius: 1000,
-              }),
-            },
-            boxProps.style,
-          ]}
+          style={style}
         >
           {Left && (
             <Box vertical justifyContent="center" mr={3} {...leftContainer}>

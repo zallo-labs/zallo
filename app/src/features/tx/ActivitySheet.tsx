@@ -3,13 +3,13 @@ import BottomSheet from '@gorhom/bottom-sheet';
 import { Sheet } from './sheet/Sheet';
 import { Activity, ActivityItem } from '@features/activity/ActivityItem';
 import { isExecutedTx, isTx } from '~/queries/tx/useTxs';
-import { TxDetailsAccordion } from './details/TxDetailsAccordion';
+import { TxDetails } from './details/TxDetails';
 import { TxTransfersAccordion } from './TxTransfersAccordion';
 import { Box } from '@components/Box';
-import { AccordionProps } from '@components/Accordion';
-import { TimelineAccordion } from './timeline/TimelineAccordion';
-import { CommentsAccordion } from './comments/CommentsAccordion';
+import { Accordion, AccordionProps } from '@components/Accordion';
+import { Comments } from './comments/Comments';
 import { isCommentable } from '~/queries/useComments';
+import { Timeline } from './timeline/Timeline';
 
 const accordionProps: Partial<AccordionProps> = { mx: 3, my: 2 };
 
@@ -39,13 +39,13 @@ export const ActivitySheet = ({ activity, onClose }: ActivitySheetProps) => {
 
       {isTx(activity) && (
         <>
-          <TimelineAccordion
-            tx={activity}
-            {...accordionProps}
-            initiallyExpanded
-          />
+          <Accordion title="Timeline" initiallyExpanded {...accordionProps}>
+            <Timeline tx={activity} />
+          </Accordion>
 
-          <TxDetailsAccordion tx={activity} {...accordionProps} />
+          <Accordion title="Details" {...accordionProps}>
+            <TxDetails tx={activity} />
+          </Accordion>
 
           {isExecutedTx(activity) && (
             <TxTransfersAccordion tx={activity} {...accordionProps} />
@@ -54,10 +54,12 @@ export const ActivitySheet = ({ activity, onClose }: ActivitySheetProps) => {
       )}
 
       {isCommentable(activity) && (
-        <CommentsAccordion commentable={activity} {...accordionProps} />
+        <Accordion title="Comments" {...accordionProps}>
+          <Comments commentable={activity} />
+        </Accordion>
       )}
 
-      <Box mb={1} />
+      <Box mb={3} />
     </Sheet>
   );
 };

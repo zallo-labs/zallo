@@ -5,8 +5,8 @@ import { useMemo } from 'react';
 import { LogBox, Platform } from 'react-native';
 import Jazzicon, { IJazziconProps } from 'react-native-jazzicon';
 import { LabelIcon } from './LabelIcon';
-import { PRIMARY_ICON_SIZE } from './list/Item';
 import { isAddress } from 'lib';
+import { useTheme } from 'react-native-paper';
 
 // react-native-jazzicon causes a warning; see https://github.com/stanislaw-glogowski/react-native-jazzicon/pull/1
 if (Platform.OS !== 'web')
@@ -17,6 +17,8 @@ export type IdenticonProps = Omit<IJazziconProps, 'seed' | 'address'> & {
 };
 
 export const Identicon = ({ seed: input, ...props }: IdenticonProps) => {
+  const { iconSize } = useTheme();
+
   const name =
     typeof input === 'string' && isAddress(input) ? useAddrName(input) : null;
 
@@ -36,5 +38,5 @@ export const Identicon = ({ seed: input, ...props }: IdenticonProps) => {
 
   if (name) return <LabelIcon label={name} />;
 
-  return <Jazzicon size={PRIMARY_ICON_SIZE} {...props} seed={seed} />;
+  return <Jazzicon size={iconSize.medium} {...props} seed={seed} />;
 };

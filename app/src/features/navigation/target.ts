@@ -22,35 +22,35 @@ const isNested = <Route extends keyof RootNavigatorParamList>(
 
 export const navToTarget = <Value, Route extends keyof RootNavigatorParamList>(
   navigation: Pick<NavigationHelpers<RootNavigatorParamList>, 'navigate'>,
-  nav: NavTarget<Route>,
+  target: NavTarget<Route>,
   v?: Value,
 ) => {
-  if (!isNested(nav)) {
+  if (!isNested(target)) {
     return navigation.navigate({
-      name: nav.route,
-      params: nav.params,
+      name: target.route,
+      params: target.params,
       merge: true,
     });
   }
 
-  const params = nav.target
+  const params = target.target
     ? {
-        ...nav.params,
+        ...target.params,
         target: {
-          ...nav.target,
+          ...target.target,
           params: {
-            ...nav.target.params,
-            [nav.output]: v,
+            ...target.target.params,
+            [target.output]: v,
           },
         },
       }
     : {
-        ...nav.params,
-        [nav.output]: v,
+        ...target.params,
+        [target.output]: v,
       };
 
   navigation.navigate({
-    name: nav.route,
+    name: target.route,
     params,
     merge: true,
   });

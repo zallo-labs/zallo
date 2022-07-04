@@ -1,9 +1,9 @@
 import { useQuery } from '@apollo/client';
-import { BytesLike, Signer } from 'ethers';
+import { Signer } from 'ethers';
 
 import {
   ArrVal,
-  filterUnique,
+  filterFirst,
   Safe,
   getSafe,
   fixedWeightToPercent,
@@ -17,8 +17,7 @@ import { subGql, apiGql } from '@gql/clients';
 import { combineRest, combine, simpleKeyExtractor } from '@gql/combine';
 import { useApiClient, useSubgraphClient } from '@gql/GqlProvider';
 import { SQuerySafes, SQuerySafesVariables } from '@gql/subgraph.generated';
-import { AQueryUserSafes, AQueryUserSafesVariables } from '@gql/api.generated';
-import { useMemo } from 'react';
+import { AQueryUserSafes } from '@gql/api.generated';
 
 const SUB_QUERY = subGql`
 query SQuerySafes($user: ID!) {
@@ -70,7 +69,7 @@ export const useSubSafes = () => {
       groups: a.approverSet.group.safe.groups,
     })) ?? [];
 
-  return { data: filterUnique(safes, (safe) => toId(safe.id)), ...rest };
+  return { data: filterFirst(safes, (safe) => toId(safe.id)), ...rest };
 };
 
 const subSafeToCombined = (
@@ -122,38 +121,23 @@ fragment SafeFields on Safe {
 export const AQUERY_USER_SAFES = apiGql`
 ${API_SAFE_FIELDS_FRAGMENT}
 
-query AQueryUserSafes($safes: [String!]) {
+query AQueryUserSafes {
   user {
     id
     safes {
       ...SafeFields
     }
   }
-
-  safes(where: { id: { in: $safes, mode: insensitive } }) {
-    ...SafeFields
-  }
 }
 `;
 
 const useApiSafes = () => {
-  const { data: subSafes } = useSubSafes();
+  const { data, ...rest } = useQuery<AQueryUserSafes>(AQUERY_USER_SAFES, {
+    client: useApiClient(),
+  });
 
-  const subSafeIds = useMemo(
-    () => subSafes.map((s) => address(s.id)),
-    [subSafes],
-  );
-
-  const { data, ...rest } = useQuery<AQueryUserSafes, AQueryUserSafesVariables>(
-    AQUERY_USER_SAFES,
-    {
-      client: useApiClient(),
-      variables: { safes: subSafeIds },
-    },
-  );
-
-  const safes = filterUnique(
-    [...(data?.user?.safes ?? []), ...(data?.safes ?? [])].map((safe) => ({
+  const safes = filterFirst(
+    (data?.user?.safes ?? []).map((safe) => ({
       ...safe,
       id: toId(safe.id),
     })),
@@ -230,7 +214,7 @@ export const useSafes = () => {
                   id: sub?.id ?? api?.id,
                   ref: sub?.ref ?? api?.ref,
                   active: sub?.active ?? api?.active,
-                  approvers: filterUnique(
+                  approvers: filterFirst(
                     [...(sub?.approvers ?? []), ...(api?.approvers ?? [])],
                     (a) => a.addr,
                   ),

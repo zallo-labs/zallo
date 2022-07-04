@@ -15,7 +15,7 @@ const defaultChain: ChainName = 'testnet';
 const chain = getChain(E.CHAIN?.toLowerCase() ?? defaultChain);
 
 const factoryAddresses: Partial<Record<ChainName, string>> = {
-  testnet: '0xA9C3271227CC1dAbcE6774612217864382fBA975',
+  testnet: '0x757AFce30240E5Bab30546180463d144E0531359',
 };
 
 export const CONFIG = {

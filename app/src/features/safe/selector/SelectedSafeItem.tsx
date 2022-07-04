@@ -1,5 +1,4 @@
 import { TextField } from '@components/fields/TextField';
-import { SECONDARY_ICON_SIZE } from '@components/list/Item';
 import { useState } from 'react';
 import { IconButton, TextInput, useTheme } from 'react-native-paper';
 import { useUpsertSafe } from '~/mutations/useUpsertSafe';
@@ -11,7 +10,7 @@ export const SelectedSafeItem = ({
   safe,
   ...itemProps
 }: SelectedSafeItemProps) => {
-  const { colors } = useTheme();
+  const { colors, iconSize } = useTheme();
   const upsertSafe = useUpsertSafe();
 
   const [edit, setEdit] = useState(false);
@@ -46,7 +45,7 @@ export const SelectedSafeItem = ({
             Right: (
               <IconButton
                 icon="pencil"
-                size={SECONDARY_ICON_SIZE}
+                size={iconSize.small}
                 color={colors.onSurface}
                 onPress={() => setEdit(true)}
               />

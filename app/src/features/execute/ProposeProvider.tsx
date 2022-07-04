@@ -1,4 +1,6 @@
+import { showError } from '@components/Toast';
 import { useSafe } from '@features/safe/SafeProvider';
+import { useIsDeployed } from '@features/safe/useIsDeployed';
 import { ChildrenProps } from '@util/children';
 import { Address, createOp, hashTx, mapAsync, Op, toId } from 'lib';
 import { DateTime } from 'luxon';
@@ -53,15 +55,23 @@ export interface ActivityProviderProps extends ChildrenProps {}
 export const ProposeProvider = ({ children }: ActivityProviderProps) => {
   const { safe } = useSafe();
   const { txs } = useTxs();
+  const isDeployed = useIsDeployed();
 
   const [opsTx, setOpsTx] = useState<ProposedTx | undefined>();
 
   const value: Context = useMemo(
     () => ({
-      propose: async (...ops) =>
-        setOpsTx(await opsToProposedTx(safe.address, ops.map(createOp))),
+      propose: async (...ops) => {
+        if (!isDeployed) {
+          showError('Safe is not deployed');
+          return;
+        }
+
+        const tx = await opsToProposedTx(safe.address, ops.map(createOp));
+        setOpsTx(tx);
+      },
     }),
-    [safe.address],
+    [isDeployed, safe.address],
   );
 
   const matchingTx = useMemo(

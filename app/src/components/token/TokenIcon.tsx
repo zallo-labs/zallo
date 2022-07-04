@@ -1,10 +1,10 @@
 import { useMemo, useState } from 'react';
 import { Image } from 'react-native';
-import { PRIMARY_ICON_SIZE } from '../list/Item';
 import { LabelIcon } from '@components/LabelIcon';
 
 import { Token } from '~/token/token';
 import { SvgUri } from '@components/SvgUri';
+import { useTheme } from 'react-native-paper';
 
 export interface TokenIconProps {
   token: Token;
@@ -15,15 +15,17 @@ export const TokenIcon = ({
   token: { iconUri, symbol },
   size,
 }: TokenIconProps) => {
+  const { iconSize } = useTheme();
+
   const [fallback, setFallback] = useState(false);
   const handleError = () => setFallback(true);
 
   const dimensions = useMemo(
     () => ({
-      width: size ?? PRIMARY_ICON_SIZE,
-      height: size ?? PRIMARY_ICON_SIZE,
+      width: size ?? iconSize.medium,
+      height: size ?? iconSize.medium,
     }),
-    [size],
+    [iconSize.medium, size],
   );
 
   if (fallback) return <LabelIcon label={symbol} />;

@@ -1,15 +1,12 @@
-import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { FC, ReactNode, useCallback, useState } from 'react';
-import { Pressable, TouchableOpacity } from 'react-native';
-import Collapsible from 'react-native-collapsible';
+import { TouchableOpacity } from 'react-native';
 import { Subheading, useTheme } from 'react-native-paper';
 import { Box, BoxProps } from './Box';
 import { Chevron } from './Chevron';
-import { SECONDARY_ICON_SIZE } from './list/Item';
 
 export interface AccordionProps extends BoxProps {
   children: ReactNode;
-  left?: FC<{ color: string }>;
+  left?: FC<{ color: string; size: number }>;
   title: string;
   initiallyExpanded?: boolean;
 }
@@ -21,14 +18,12 @@ export const Accordion = ({
   initiallyExpanded,
   ...boxProps
 }: AccordionProps) => {
-  const { colors } = useTheme();
+  const { colors, iconSize } = useTheme();
   const [expanded, setExpanded] = useState(initiallyExpanded);
 
   const toggle = useCallback(() => setExpanded((prev) => !prev), [setExpanded]);
 
-  const style = expanded
-    ? { color: colors.primary }
-    : { color: colors.onBackground };
+  const color = expanded ? colors.onSurface : colors.placeholder;
 
   return (
     <>
@@ -36,23 +31,19 @@ export const Accordion = ({
         <Box horizontal alignItems="center" {...boxProps}>
           {Left && (
             <Box mr={2}>
-              <Left {...style} />
+              <Left color={color} size={iconSize.small} />
             </Box>
           )}
 
           <Box flex={1}>
-            <Subheading style={style}>{title}</Subheading>
+            <Subheading style={{ color }}>{title}</Subheading>
           </Box>
 
-          <Chevron
-            expanded={expanded}
-            size={SECONDARY_ICON_SIZE}
-            color={colors.onSurface}
-          />
+          <Chevron expanded={expanded} size={iconSize.small} color={color} />
         </Box>
       </TouchableOpacity>
 
-      <Collapsible collapsed={!expanded}>{children}</Collapsible>
+      {expanded && children}
     </>
   );
 };

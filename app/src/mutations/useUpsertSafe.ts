@@ -1,22 +1,20 @@
-import { useCallback, useMemo } from 'react';
+import { useCallback } from 'react';
 import { useMutation } from '@apollo/client';
 
 import { apiGql } from '@gql/clients';
 import {
   AQueryUserSafes,
-  AQueryUserSafesVariables,
   UpsertSafe,
   UpsertSafeVariables,
 } from '@gql/api.generated';
 import { useApiClient } from '@gql/GqlProvider';
 import { API_SAFE_FIELDS_FRAGMENT } from '~/queries';
-import { address, Address, getGroupId, Safe, toId } from 'lib';
+import { Address, getGroupId, Safe, toId } from 'lib';
 import { QueryOpts } from '@gql/update';
 import {
   AQUERY_USER_SAFES,
   CombinedGroup,
   CombinedSafe,
-  useSubSafes,
 } from '~/queries/useSafes';
 import produce from 'immer';
 import { useWallet } from '@features/wallet/useWallet';
@@ -24,7 +22,7 @@ import { useWallet } from '@features/wallet/useWallet';
 const API_UPDATE_SAFE_MUTATION = apiGql`
 ${API_SAFE_FIELDS_FRAGMENT}
 
-mutation UpsertSafe($safe: Address!, $deploySalt: Bytes32, $name: String, $groups: [GroupInput!]) {
+mutation UpsertSafe($safe: Address!, $deploySalt: Bytes32, $name: String!, $groups: [GroupInput!]) {
   upsertSafe(safe: $safe, deploySalt: $deploySalt, name: $name, groups: $groups) {
     ...SafeFields
   }
@@ -40,12 +38,6 @@ export type UpsertSafeArgs = Pick<CombinedSafe, 'deploySalt' | 'name'> & {
 
 export const useUpsertSafe = () => {
   const wallet = useWallet();
-  const { data: subSafes } = useSubSafes();
-
-  const subSafeIds = useMemo(
-    () => subSafes.map((s) => address(s.id)),
-    [subSafes],
-  );
 
   const [mutation] = useMutation<UpsertSafe, UpsertSafeVariables>(
     API_UPDATE_SAFE_MUTATION,
@@ -61,6 +53,14 @@ export const useUpsertSafe = () => {
           safe,
           deploySalt: deploySalt ?? null,
           name,
+          groups: groups.map((g) => ({
+            ref: g.ref,
+            name: g.name,
+            approvers: g.approvers.map((a) => ({
+              addr: a.addr,
+              weight: a.weight,
+            })),
+          })),
         },
         optimisticResponse: {
           upsertSafe: {
@@ -83,50 +83,37 @@ export const useUpsertSafe = () => {
           },
         },
         update: (cache, { data: { upsertSafe: safe } }) => {
-          const opts: QueryOpts<AQueryUserSafesVariables> = {
+          const opts: QueryOpts<never> = {
             query: AQUERY_USER_SAFES,
-            variables: { safes: subSafeIds },
           };
 
-          const data = cache.readQuery<
-            AQueryUserSafes,
-            AQueryUserSafesVariables
-          >(opts);
+          const data = cache.readQuery<AQueryUserSafes>(opts);
 
-          cache.writeQuery<AQueryUserSafes, AQueryUserSafesVariables>({
+          cache.writeQuery<AQueryUserSafes>({
             ...opts,
             overwrite: true,
             data: produce(data, (data) => {
-              if (!data)
+              if (!data) {
                 data = {
-                  safes: [],
                   user: {
                     __typename: 'User',
                     id: wallet.address,
                     safes: [],
                   },
                 };
+              }
 
-              if (subSafeIds.includes(address(safe.id))) {
-                const i = data.safes.findIndex((s) => s.id === safe.id);
-                if (i >= 0) {
-                  data.safes[i] = safe;
-                } else {
-                  data.safes.push(safe);
-                }
+              const i = data.user.safes.findIndex((s) => s.id === safe.id);
+              if (i >= 0) {
+                data.user.safes[i] = safe;
               } else {
-                const i = data.user.safes.findIndex((s) => s.id === safe.id);
-                if (i >= 0) {
-                  data.user.safes[i] = safe;
-                } else {
-                  data.user.safes.push(safe);
-                }
+                data.user.safes.push(safe);
               }
             }),
           });
         },
       });
     },
-    [mutation, subSafeIds, wallet.address],
+    [mutation, wallet.address],
   );
 };

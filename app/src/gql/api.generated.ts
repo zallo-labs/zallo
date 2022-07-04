@@ -163,7 +163,7 @@ export interface UpsertGroup_upsertGroup {
   ref: string;
   safeId: string;
   approvers: UpsertGroup_upsertGroup_approvers[] | null;
-  name: string | null;
+  name: string;
 }
 
 export interface UpsertGroup {
@@ -315,48 +315,6 @@ export interface RevokeApprovalVariables {
 // This file was automatically generated and should not be edited.
 
 // ====================================================
-// GraphQL mutation operation: UpsertCounterfactualSafe
-// ====================================================
-
-export interface UpsertCounterfactualSafe_upsertCounterfactualSafe_groups_approvers {
-  __typename: "Approver";
-  userId: string;
-  weight: any;
-}
-
-export interface UpsertCounterfactualSafe_upsertCounterfactualSafe_groups {
-  __typename: "Group";
-  id: string;
-  ref: string;
-  safeId: string;
-  approvers: UpsertCounterfactualSafe_upsertCounterfactualSafe_groups_approvers[] | null;
-  name: string | null;
-}
-
-export interface UpsertCounterfactualSafe_upsertCounterfactualSafe {
-  __typename: "Safe";
-  id: string;
-  name: string | null;
-  deploySalt: string | null;
-  groups: UpsertCounterfactualSafe_upsertCounterfactualSafe_groups[] | null;
-}
-
-export interface UpsertCounterfactualSafe {
-  upsertCounterfactualSafe: UpsertCounterfactualSafe_upsertCounterfactualSafe;
-}
-
-export interface UpsertCounterfactualSafeVariables {
-  safe: any;
-  salt: any;
-  group: GroupInput;
-}
-
-/* tslint:disable */
-/* eslint-disable */
-// @generated
-// This file was automatically generated and should not be edited.
-
-// ====================================================
 // GraphQL mutation operation: UpsertSafe
 // ====================================================
 
@@ -372,13 +330,13 @@ export interface UpsertSafe_upsertSafe_groups {
   ref: string;
   safeId: string;
   approvers: UpsertSafe_upsertSafe_groups_approvers[] | null;
-  name: string | null;
+  name: string;
 }
 
 export interface UpsertSafe_upsertSafe {
   __typename: "Safe";
   id: string;
-  name: string | null;
+  name: string;
   deploySalt: string | null;
   groups: UpsertSafe_upsertSafe_groups[] | null;
 }
@@ -555,13 +513,13 @@ export interface AQueryUserSafes_user_safes_groups {
   ref: string;
   safeId: string;
   approvers: AQueryUserSafes_user_safes_groups_approvers[] | null;
-  name: string | null;
+  name: string;
 }
 
 export interface AQueryUserSafes_user_safes {
   __typename: "Safe";
   id: string;
-  name: string | null;
+  name: string;
   deploySalt: string | null;
   groups: AQueryUserSafes_user_safes_groups[] | null;
 }
@@ -572,36 +530,8 @@ export interface AQueryUserSafes_user {
   safes: AQueryUserSafes_user_safes[];
 }
 
-export interface AQueryUserSafes_safes_groups_approvers {
-  __typename: "Approver";
-  userId: string;
-  weight: any;
-}
-
-export interface AQueryUserSafes_safes_groups {
-  __typename: "Group";
-  id: string;
-  ref: string;
-  safeId: string;
-  approvers: AQueryUserSafes_safes_groups_approvers[] | null;
-  name: string | null;
-}
-
-export interface AQueryUserSafes_safes {
-  __typename: "Safe";
-  id: string;
-  name: string | null;
-  deploySalt: string | null;
-  groups: AQueryUserSafes_safes_groups[] | null;
-}
-
 export interface AQueryUserSafes {
   user: AQueryUserSafes_user | null;
-  safes: AQueryUserSafes_safes[];
-}
-
-export interface AQueryUserSafesVariables {
-  safes?: string[] | null;
 }
 
 /* tslint:disable */
@@ -759,7 +689,7 @@ export interface GroupFields {
   ref: string;
   safeId: string;
   approvers: GroupFields_approvers[] | null;
-  name: string | null;
+  name: string;
 }
 
 /* tslint:disable */
@@ -783,13 +713,13 @@ export interface SafeFields_groups {
   ref: string;
   safeId: string;
   approvers: SafeFields_groups_approvers[] | null;
-  name: string | null;
+  name: string;
 }
 
 export interface SafeFields {
   __typename: "Safe";
   id: string;
-  name: string | null;
+  name: string;
   deploySalt: string | null;
   groups: SafeFields_groups[] | null;
 }

@@ -21,8 +21,17 @@ const materialCommunity: Curried<typeof MaterialCommunityIcons> =
 const ionicon: Curried<typeof Ionicons> = (name) => (props) =>
   <Ionicons name={name} {...props} />;
 
+// Screens
 export const ActivityIcon = materialCommunity('chart-timeline-variant');
 export const SendIcon = materialCommunity('arrow-up');
 export const ReceiveIcon = materialCommunity('arrow-down');
 export const ContactsIcon = materialCommunity('contacts');
-export const WalletIcon = ionicon('wallet');
+export const HomeIcon = ionicon('wallet');
+
+// Other
+export const AddIcon = materialCommunity('plus');
+export const DeleteIcon = materialCommunity('delete');
+export const EditIcon = materialCommunity('pencil');
+export const AcceptIcon = materialCommunity('check');
+export const RejectIcon = materialCommunity('close');
+export const ScanIcon = materialCommunity('line-scan');
