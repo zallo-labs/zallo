@@ -8,6 +8,7 @@ import { useNavigation } from '@react-navigation/native';
 import { AcceptIcon, AddIcon, DeleteIcon, RejectIcon } from '@util/icons';
 import { createRemoveGroupOp } from 'lib';
 import { useState } from 'react';
+import { Keyboard } from 'react-native';
 import { Appbar, useTheme } from 'react-native-paper';
 import { useUpsertApiGroup } from '~/mutations/group/useUpsertApiGroup';
 import { CombinedGroup } from '~/queries';
@@ -34,11 +35,17 @@ export const GroupAppbar = ({ group }: GroupAppbarProps) => {
 
   const [name, setName] = useState(group.name);
 
-  const saveName = () => {
+  const acceptName = () => {
     upsertApiGroup({
       ...group,
       name,
     });
+    Keyboard.dismiss();
+  };
+
+  const rejectName = () => {
+    setName(group.name);
+    Keyboard.dismiss();
   };
 
   return (
@@ -71,12 +78,12 @@ export const GroupAppbar = ({ group }: GroupAppbarProps) => {
           <Appbar.Action
             icon={AcceptIcon}
             color={colors.onSurface}
-            onPress={saveName}
+            onPress={acceptName}
           />
           <Appbar.Action
             icon={RejectIcon}
             color={colors.onSurface}
-            onPress={() => setName(group.name)}
+            onPress={rejectName}
           />
         </>
       )}
