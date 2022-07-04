@@ -50,7 +50,7 @@ const tokenSelector = selectorFamily<Token | null, Address>({
     },
 });
 
-const allTokensSelector = selector({
+export const allTokensSelector = selector({
   key: 'allTokens',
   get: ({ get }) => {
     const addresses = get(tokenAddressesState);
