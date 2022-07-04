@@ -4,7 +4,7 @@ import { GetContacts } from '@gql/api.generated';
 import { apiGql } from '@gql/clients';
 import { useApiClient } from '@gql/GqlProvider';
 import { truncatedAddr } from '@util/hook/useAddrName';
-import { address, Address, filterFirstUnique, Id, toId } from 'lib';
+import { address, Address, filterFirst, Id, toId } from 'lib';
 import { useMemo } from 'react';
 import { useSafes } from './useSafes';
 
@@ -60,7 +60,7 @@ export const useContacts = () => {
   };
 
   // Exclude created safes & wallet contacts if they're already in the list
-  const combinedContacts = filterFirstUnique(
+  const combinedContacts = filterFirst(
     [...contacts, ...safeContacts, thisDeviceContact],
     (contact) => contact.id,
   );

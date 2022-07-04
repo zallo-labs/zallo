@@ -9,7 +9,7 @@ import { useCallback } from 'react';
 import { UpsertableGroup, useUpsertSafe } from '~/mutations/useUpsertSafe';
 import { useSafeFactory } from './useSafeFactory';
 
-export const useCreateCounterfactualSafe2 = () => {
+export const useCreateCounterfactualSafe = () => {
   const wallet = useWallet();
   const factory = useSafeFactory();
   const upsertSafe = useUpsertSafe();

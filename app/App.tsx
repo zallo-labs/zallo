@@ -25,11 +25,11 @@ export default withSentry(() => (
   <LocalizatonProvider>
     <ThemeProvider>
       <Background>
-        <ErrorBoundary>
-          <Suspense fallback={<Splash />}>
-            <RecoilRoot>
-              <SentryUser />
-              <GestureHandlerRootView style={{ flex: 1 }}>
+        <GestureHandlerRootView style={{ flex: 1 }}>
+          <ErrorBoundary>
+            <Suspense fallback={<Splash />}>
+              <RecoilRoot>
+                <SentryUser />
                 <AuthGate>
                   <GqlProvider>
                     <StatusBar style="inverted" />
@@ -41,10 +41,10 @@ export default withSentry(() => (
                   </GqlProvider>
                 </AuthGate>
                 <Toast />
-              </GestureHandlerRootView>
-            </RecoilRoot>
-          </Suspense>
-        </ErrorBoundary>
+              </RecoilRoot>
+            </Suspense>
+          </ErrorBoundary>
+        </GestureHandlerRootView>
       </Background>
     </ThemeProvider>
   </LocalizatonProvider>

@@ -14,7 +14,7 @@ import { ChildrenProps } from '@util/children';
 import { Address } from 'lib';
 import { Suspend } from '@components/Suspender';
 import { persistAtom } from '@util/persistAtom';
-import { useCreateCounterfactualSafe2 } from './useCreateCounterfactualSafe';
+import { useCreateCounterfactualSafe } from './useCreateCounterfactualSafe';
 
 interface SafeContext {
   safe: CombinedSafe;
@@ -43,7 +43,7 @@ const selectedSafeAddrState = atom<Address | undefined>({
 
 export const SafeProvider = ({ children }: ChildrenProps) => {
   const { safes, loading } = useSafes();
-  const createCfSafeMutation = useCreateCounterfactualSafe2();
+  const createCfSafeMutation = useCreateCounterfactualSafe();
   const [selectedAddr, setSelectedAddr] = useRecoilState(selectedSafeAddrState);
 
   const createSafe = useCallback(

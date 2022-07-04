@@ -13,7 +13,7 @@ import { HomeScreenProps } from './HomeScreen';
 export const HomeAppbar = () => {
   const { colors } = useTheme();
   const { safe } = useSafe();
-  const navigation = useNavigation<HomeScreenProps["navigation"]>();
+  const navigation = useNavigation<HomeScreenProps['navigation']>();
 
   const [menuVisible, setMenuVisible] = useState(false);
 
@@ -21,10 +21,7 @@ export const HomeAppbar = () => {
     <>
       {/* TODO: MD3 - mode="center-aligned" */}
       <Appbar.Header>
-        <Appbar.Action
-          icon="menu"
-          onPress={navigation.openDrawer}
-        />
+        <Appbar.Action icon="menu" onPress={navigation.openDrawer} />
 
         <Box flex={1} mx={3}>
           <TouchableOpacity onPress={() => setMenuVisible(true)}>
@@ -46,6 +43,16 @@ export const HomeAppbar = () => {
           icon={ScanIcon}
           onPress={() => {
             // TODO: implement
+            navigation.navigate('QrScanner', {
+              target: {
+                route: "SelectToken",
+                output: 'to',
+                target: {
+                  route: 'Send',
+                  output: 'token',
+                },
+              },
+            });
           }}
         />
       </Appbar.Header>

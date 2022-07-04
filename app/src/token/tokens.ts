@@ -1,8 +1,16 @@
 import * as zk from 'zksync-web3';
-import { createToken as token } from './token';
+import { createToken, Token } from './token';
+
+export const HARDCODED_TOKENS: Token[] = [];
+
+const token = (...args: Parameters<typeof createToken>) => {
+  const token = createToken(...args);
+  if (token.addr) HARDCODED_TOKENS.push(token);
+  return token;
+};
 
 export const ETH = token({
-  type: "ETH",
+  type: 'ETH',
   name: 'Ether',
   symbol: 'Ξ',
   decimals: 18,

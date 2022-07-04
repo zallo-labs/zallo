@@ -8,7 +8,8 @@ import {
   useRecoilValue,
   selector,
 } from 'recoil';
-import { HARDCODED_TOKENS, Token } from './token';
+import { Token } from './token';
+import { HARDCODED_TOKENS } from './tokens';
 
 const tokenAddressesState = atom<Address[]>({
   key: 'tokenAddresses',

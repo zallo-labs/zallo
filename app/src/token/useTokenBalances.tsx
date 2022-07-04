@@ -1,4 +1,4 @@
-import { HARDCODED_TOKENS } from './token';
+import { HARDCODED_TOKENS } from './tokens';
 import { useTokenBalance } from './useTokenBalance';
 import { useTokenValue } from './useTokenValue';
 

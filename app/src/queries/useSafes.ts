@@ -3,7 +3,7 @@ import { Signer } from 'ethers';
 
 import {
   ArrVal,
-  filterFirstUnique,
+  filterFirst,
   Safe,
   getSafe,
   fixedWeightToPercent,
@@ -69,7 +69,7 @@ export const useSubSafes = () => {
       groups: a.approverSet.group.safe.groups,
     })) ?? [];
 
-  return { data: filterFirstUnique(safes, (safe) => toId(safe.id)), ...rest };
+  return { data: filterFirst(safes, (safe) => toId(safe.id)), ...rest };
 };
 
 const subSafeToCombined = (
@@ -136,7 +136,7 @@ const useApiSafes = () => {
     client: useApiClient(),
   });
 
-  const safes = filterFirstUnique(
+  const safes = filterFirst(
     (data?.user?.safes ?? []).map((safe) => ({
       ...safe,
       id: toId(safe.id),
@@ -214,7 +214,7 @@ export const useSafes = () => {
                   id: sub?.id ?? api?.id,
                   ref: sub?.ref ?? api?.ref,
                   active: sub?.active ?? api?.active,
-                  approvers: filterFirstUnique(
+                  approvers: filterFirst(
                     [...(sub?.approvers ?? []), ...(api?.approvers ?? [])],
                     (a) => a.addr,
                   ),

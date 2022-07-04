@@ -21,7 +21,7 @@ export const groupBy = <K, V>(items: V[], key: (item: V) => K): Map<K, V[]> => {
   return m;
 };
 
-export const filterFirstUnique = <K, V>(items: V[], key: (item: V) => K): V[] =>
+export const filterFirst = <K, V>(items: V[], key: (item: V) => K): V[] =>
   [...groupBy(items, key).values()].map((v) => v[0]);
 
 export const mapAsync = async <T, U>(
