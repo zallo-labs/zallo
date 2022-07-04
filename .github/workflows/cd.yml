@@ -41,7 +41,7 @@ jobs:
           process_type: web
           dockerfile_directory: ./
           dockerfile_name: Dockerfile
-          # docker_options: ""
+          docker_options: "--build-arg subgraph_gql_url=$SUBGRAPH_GQL_URL"
 
   subgraph:
     if: ${{ github.event.workflow_run.conclusion == 'success' }}

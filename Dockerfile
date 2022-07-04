@@ -3,8 +3,11 @@ FROM matterlabs/zksolc:latest AS zksolc
 # Unsupported commands: https://devcenter.heroku.com/articles/container-registry-and-runtime#unsupported-dockerfile-commands
 FROM node:16-bullseye
 
+ARG subgraph_gql_url
+
 ENV NODE_ENV="development"
 ENV IS_DOCKER="true"
+ENV SUBGRAPH_GQL_URL=${subgraph_gql_url}
 
 USER node
 ADD --chown=node:node ./ /metasafe
