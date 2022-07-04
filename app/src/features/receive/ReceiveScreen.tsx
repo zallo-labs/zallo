@@ -8,6 +8,7 @@ import { QrCode } from '@features/qr/QrCode';
 import { useSafe } from '@features/safe/SafeProvider';
 import { useMaxBrighness } from './useMaxBrightness';
 import { AppbarBack } from '@components/AppbarBack';
+import { SharableAddr } from '@components/SharableAddr';
 
 export type ReceiveScreenProps = RootNavigatorScreenProps<'Receive'>;
 
@@ -41,9 +42,13 @@ export const ReceiveScreen = (_props: ReceiveScreenProps) => {
         </Box>
 
         <Box flex={1}>
-          <Title style={{ textAlign: 'center', opacity: 0.8 }}>
-            {safe.address}
-          </Title>
+          <SharableAddr addr={safe.address} initiallyExpanded>
+            {({ value }) => (
+              <Title style={{ textAlign: 'center', opacity: 0.8 }}>
+                {value}
+              </Title>
+            )}
+          </SharableAddr>
         </Box>
 
         <Box alignSelf="flex-end" mb={4}>
