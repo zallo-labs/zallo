@@ -7,9 +7,9 @@ import { useSafe } from '@features/safe/SafeProvider';
 import { useNavigation } from '@react-navigation/native';
 import { AcceptIcon, AddIcon, DeleteIcon, RejectIcon } from '@util/icons';
 import { createRemoveGroupOp } from 'lib';
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { Keyboard } from 'react-native';
-import { Appbar, useTheme } from 'react-native-paper';
+import { Appbar, Title, useTheme } from 'react-native-paper';
 import { useUpsertApiGroup } from '~/mutations/group/useUpsertApiGroup';
 import { CombinedGroup } from '~/queries';
 import { GroupManagementScreenProps } from './GroupManagementScreen';
@@ -21,9 +21,14 @@ export interface GroupAppbarProps {
 export const GroupAppbar = ({ group }: GroupAppbarProps) => {
   const navigation = useNavigation<GroupManagementScreenProps['navigation']>();
   const { colors } = useTheme();
-  const { safe } = useSafe();
+  const { safe, groups } = useSafe();
   const propose = usePropose();
   const upsertApiGroup = useUpsertApiGroup();
+
+  const isExisting = useMemo(
+    () => !!groups.find((g) => g.id === group.id),
+    [groups, group.id],
+  );
 
   const addApprover = () =>
     navigation.navigate('Contacts', {
@@ -52,13 +57,17 @@ export const GroupAppbar = ({ group }: GroupAppbarProps) => {
     <Appbar.Header>
       <AppbarBack />
 
-      <Box flex={1}>
-        <BasicTextField
-          value={name}
-          onChangeText={setName}
-          placeholder={effectiveGroupName(group)}
-        />
-      </Box>
+      {isExisting ? (
+        <Box flex={1}>
+          <BasicTextField
+            value={name}
+            onChangeText={setName}
+            placeholder={effectiveGroupName(group)}
+          />
+        </Box>
+      ) : (
+        <Appbar.Content title="Create group" />
+      )}
 
       {name === group.name ? (
         <>
@@ -67,11 +76,13 @@ export const GroupAppbar = ({ group }: GroupAppbarProps) => {
             onPress={addApprover}
             color={colors.onSurface}
           />
-          <Appbar.Action
-            icon={DeleteIcon}
-            onPress={deleteGroup}
-            color={colors.onSurface}
-          />
+          {isExisting && (
+            <Appbar.Action
+              icon={DeleteIcon}
+              onPress={deleteGroup}
+              color={colors.onSurface}
+            />
+          )}
         </>
       ) : (
         <>
