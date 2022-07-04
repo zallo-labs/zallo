@@ -20,6 +20,6 @@ export const useAddrName = (addr: Address) => {
   return useMemo(() => {
     if (addr === safe.address && safeName) return safeName;
 
-    return contact?.name ?? token?.name ?? truncatedAddr(addr);
+    return contact?.name || token?.name || truncatedAddr(addr);
   }, [addr, contact?.name, safe.address, safeName, token?.name]);
 };
