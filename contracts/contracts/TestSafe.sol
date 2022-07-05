@@ -5,37 +5,41 @@ import './Safe.sol';
 import {BoolArray} from './BoolArray.sol';
 
 contract TestSafe is Safe {
-  constructor(bytes32 _groupRef, Approver[] memory _approvers)
-    Safe(_groupRef, _approvers)
+  constructor(bytes32 groupRef, Approver[] memory approvers)
+    Safe(groupRef, approvers)
   {}
 
-  function verifyMultiProof(
-    bytes32 _root,
-    bytes32[] calldata _proof,
-    uint256[] calldata _proofFlags,
-    Approver[] calldata _approvers
-  ) external pure {
-    return _verifyMultiProof(_root, _proof, _proofFlags, _approvers);
+  function testExecuteTransaction(Transaction calldata transaction) external {
+    _executeTransaction(_hashTx(transaction), transaction);
   }
 
-  function getGroupMerkleRoot(bytes32 _groupRef)
+  function verifyMultiProof(
+    bytes32 root,
+    bytes32[] calldata proof,
+    uint256[] calldata proofFlags,
+    Approver[] calldata approvers
+  ) external pure {
+    return _verifyMultiProof(root, proof, proofFlags, approvers);
+  }
+
+  function getGroupMerkleRoot(bytes32 groupRef)
     external
     view
     returns (bytes32)
   {
-    return groupMerkleRoots[_groupRef];
+    return _groupMerkleRoots[groupRef];
   }
 
-  function getLeaves(Approver[] memory _approvers)
+  function getLeaves(Approver[] memory approvers)
     external
     pure
     returns (bytes32[] memory leaves)
   {
-    return _getLeaves(_approvers);
+    return _getLeaves(approvers);
   }
 
-  function hashTx(Transaction calldata _tx) external returns (bytes32) {
-    return _hashTx(_tx);
+  function hashTx(Transaction calldata transaction) external returns (bytes32) {
+    return _hashTx(transaction);
   }
 
   function domainSeparator() external returns (bytes32) {
@@ -46,19 +50,19 @@ contract TestSafe is Safe {
     return THRESHOLD;
   }
 
-  function boolArrayLength(uint256[] calldata _bools)
+  function boolArrayLength(uint256[] calldata bools)
     external
     pure
     returns (uint256)
   {
-    return BoolArray.length(_bools);
+    return BoolArray.length(bools);
   }
 
-  function boolArrayAtIndex(uint256[] calldata _bools, uint256 _index)
+  function boolArrayAtIndex(uint256[] calldata bools, uint256 index)
     external
     pure
     returns (bool)
   {
-    return BoolArray.atIndex(_bools, _index);
+    return BoolArray.atIndex(bools, index);
   }
 }

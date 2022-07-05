@@ -56,44 +56,48 @@ interface ISafe is IERC1271, IAccountAbstraction {
   error OnlyCallableBySafe();
 
   /// @notice ERC-1271: checks whether the hash was signed with the given signature
-  /// @param _txHash Hash of the tx
-  /// @param _txSignature Signature of the tx
+  /// @param txHash Hash of the tx
+  /// @param txSignature Signature of the tx
   /// @return magicValue EIP1271_SUCCESS if the signature is valid, reverts otherwise
-  function isValidSignature(bytes32 _txHash, bytes memory _txSignature)
+  function isValidSignature(bytes32 txHash, bytes memory txSignature)
     external
     view
     returns (bytes4 magicValue);
 
   /// @notice AA: validation of whether the transaction originated from the safe
   /// @dev We can safely avoid not limiting this to being called just by the bootloader
-  /// @param _tx Transaction to be validated
-  function validateTransaction(Transaction calldata _tx) external payable;
+  /// @param transaction Transaction to be validated
+  function validateTransaction(Transaction calldata transaction)
+    external
+    payable;
 
   /// @notice AA: execution of the transaction
   /// @dev Only callable by the bootloader
   /// @dev Transaction *must* be validated prior to execution
-  /// @param _tx Transaction to be executed
-  function executeTransaction(Transaction calldata _tx) external payable;
+  /// @param transaction Transaction to be executed
+  function executeTransaction(Transaction calldata transaction)
+    external
+    payable;
 
   /// @notice AA: execution of a transaction from an address other than the bootloader
-  /// @param _tx Transaction to be validated and executed
-  function executeTransactionFromOutside(Transaction calldata _tx)
+  /// @param transaction Transaction to be validated and executed
+  function executeTransactionFromOutside(Transaction calldata transaction)
     external
     payable;
 
   /// @notice Upsert (create or update) a group
   /// @dev Only callable by the safe
-  /// @param _groupRef Reference of the group to be upserted
-  /// @param _approvers Approvers to make up the group
-  function upsertGroup(bytes32 _groupRef, Approver[] calldata _approvers)
+  /// @param groupRef Reference of the group to be upserted
+  /// @param approvers Approvers to make up the group
+  function upsertGroup(bytes32 groupRef, Approver[] calldata approvers)
     external;
 
   /// @notice Remove a group
   /// @dev Only callable by the safe
-  /// @param _groupRef Reference of the group to be removed
-  function removeGroup(bytes32 _groupRef) external;
+  /// @param groupRef Reference of the group to be removed
+  function removeGroup(bytes32 groupRef) external;
 
-  /// @param _txHash Hash of the transaction
+  /// @param txHash Hash of the transaction
   /// @return True if the transaction has been executed
-  function hasBeenExecuted(bytes32 _txHash) external view returns (bool);
+  function hasBeenExecuted(bytes32 txHash) external view returns (bool);
 }

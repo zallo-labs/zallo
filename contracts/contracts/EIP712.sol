@@ -17,21 +17,21 @@ bytes32 constant TX_TYPEHASH = keccak256(
 // https://github.com/ethereum/EIPs/blob/master/EIPS/eip-712.md
 // Heavily inspired by: https://github.com/OpenZeppelin/openzeppelin-contracts/blob/master/contracts/utils/cryptography/draft-EIP712.sol
 contract EIP712 {
-  uint256 private cachedChainId;
-  bytes32 private cachedDomainSeparator;
+  uint256 private _cachedChainId;
+  bytes32 private _cachedDomainSeparator;
 
   constructor() {
     _build();
   }
 
-  function _hashTx(Transaction calldata _tx) internal returns (bytes32) {
+  function _hashTx(Transaction calldata t) internal returns (bytes32) {
     bytes32 dataHash = keccak256(
       abi.encode(
         TX_TYPEHASH,
-        _tx.to,
-        _tx.reserved[1], // value
-        keccak256(_tx.data),
-        _tx.reserved[0] // nonce
+        t.to,
+        t.reserved[1], // value
+        keccak256(t.data),
+        t.reserved[0] // nonce
       )
     );
 
@@ -41,16 +41,16 @@ contract EIP712 {
   function _domainSeparator() internal returns (bytes32) {
     // Re-generate the domain separator in case of a chain fork
     // As cachedChainId is 0, which isn't a valid chainId, so this branch will always execute on first run
-    if (block.chainid != cachedChainId) _build();
+    if (block.chainid != _cachedChainId) _build();
 
-    return cachedDomainSeparator;
+    return _cachedDomainSeparator;
   }
 
   function _build() private {
-    cachedChainId = block.chainid;
+    _cachedChainId = block.chainid;
 
-    cachedDomainSeparator = keccak256(
-      abi.encode(DOMAIN_TYPE_HASH, cachedChainId, address(this))
+    _cachedDomainSeparator = keccak256(
+      abi.encode(DOMAIN_TYPE_HASH, _cachedChainId, address(this))
     );
   }
 

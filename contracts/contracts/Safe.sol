@@ -17,112 +17,111 @@ contract Safe is ISafe, EIP712 {
 
   /* Storage */
   /// @notice Bit map of executed txs
-  mapping(uint256 => uint256) executedTxs;
+  mapping(uint256 => uint256) _executedTxs;
 
   /// @notice Merkle root of the state of each group
   /// @dev groupRef => merkleRoot
   /// @dev Leaves: [approver 1, ..., approver n]
-  mapping(bytes32 => bytes32) groupMerkleRoots;
+  mapping(bytes32 => bytes32) _groupMerkleRoots;
 
   /* External/public functions */
-  constructor(bytes32 _groupRef, Approver[] memory _approvers) {
-    _upsertGroup(_groupRef, _approvers);
+  constructor(bytes32 groupRef, Approver[] memory approvers) {
+    _upsertGroup(groupRef, approvers);
   }
 
   receive() external payable emitWhenPaid {}
 
   /// @inheritdoc ISafe
-  function isValidSignature(bytes32 _txHash, bytes memory _txSignature)
+  function isValidSignature(bytes32 txHash, bytes memory txSignature)
     external
     view
     returns (bytes4)
   {
-    _validateSignature(_txHash, _txSignature);
+    _validateSignature(txHash, txSignature);
     return EIP1271_SUCCESS;
   }
 
   /// @inheritdoc ISafe
-  function validateTransaction(Transaction calldata _tx)
+  function validateTransaction(Transaction calldata transaction)
     external
     payable
     emitWhenPaid
   {
-    _validateTransaction(_hashTx(_tx), _tx);
+    _validateTransaction(_hashTx(transaction), transaction);
   }
 
   /// @inheritdoc ISafe
-  function executeTransaction(Transaction calldata _tx)
+  function executeTransaction(Transaction calldata transaction)
     external
     payable
     onlyBootloader
     emitWhenPaid
   {
-    _executeTransaction(_hashTx(_tx), _tx);
+    _executeTransaction(_hashTx(transaction), transaction);
   }
 
   /// @inheritdoc ISafe
-  function executeTransactionFromOutside(Transaction calldata _tx)
+  function executeTransactionFromOutside(Transaction calldata transaction)
     external
     payable
     emitWhenPaid
   {
-    bytes32 txHash = _hashTx(_tx);
-    _validateTransaction(txHash, _tx);
-    _executeTransaction(txHash, _tx);
+    bytes32 txHash = _hashTx(transaction);
+    _validateTransaction(txHash, transaction);
+    _executeTransaction(txHash, transaction);
   }
 
   /// @inheritdoc ISafe
-  function upsertGroup(bytes32 _groupRef, Approver[] calldata _approvers)
+  function upsertGroup(bytes32 groupRef, Approver[] calldata approvers)
     external
     onlySafe
   {
-    _upsertGroup(_groupRef, _approvers);
+    _upsertGroup(groupRef, approvers);
   }
 
   /// @inheritdoc ISafe
-  function removeGroup(bytes32 _groupRef) external onlySafe {
-    delete groupMerkleRoots[_groupRef];
-    emit GroupRemoved(_groupRef);
+  function removeGroup(bytes32 groupRef) external onlySafe {
+    delete _groupMerkleRoots[groupRef];
+    emit GroupRemoved(groupRef);
   }
 
   /// @inheritdoc ISafe
-  function hasBeenExecuted(bytes32 _txHash) public view returns (bool) {
-    uint256 index = uint256(_txHash);
+  function hasBeenExecuted(bytes32 txHash) public view returns (bool) {
+    uint256 index = uint256(txHash);
     uint256 wordIndex = index / 256;
     uint256 bitIndex = index % 256;
     uint256 mask = (1 << bitIndex);
-    return executedTxs[wordIndex] & mask == mask;
+    return _executedTxs[wordIndex] & mask == mask;
   }
 
-  function _setExecuted(bytes32 _txHash) internal {
-    uint256 index = uint256(_txHash);
+  function _setExecuted(bytes32 txHash) internal {
+    uint256 index = uint256(txHash);
     uint256 wordIndex = index / 256;
     uint256 bitIndex = index % 256;
-    executedTxs[wordIndex] = executedTxs[wordIndex] | (1 << bitIndex);
+    _executedTxs[wordIndex] = _executedTxs[wordIndex] | (1 << bitIndex);
   }
 
-  function _validateTransaction(bytes32 _txHash, Transaction calldata _tx)
-    internal
-    view
-  {
-    if (hasBeenExecuted(_txHash)) revert TxAlreadyExecuted();
+  function _validateTransaction(
+    bytes32 txHash,
+    Transaction calldata transaction
+  ) internal view {
+    if (hasBeenExecuted(txHash)) revert TxAlreadyExecuted();
 
-    _validateSignature(_txHash, _tx.signature);
+    _validateSignature(txHash, transaction.signature);
   }
 
-  /// @dev Only to be called post validation!
-  function _executeTransaction(bytes32 _txHash, Transaction calldata _tx)
+  function _executeTransaction(bytes32 txHash, Transaction calldata t)
     internal
   {
-    _setExecuted(_txHash);
+    _setExecuted(txHash);
 
-    address to = address(uint160(_tx.to));
-    (bool success, bytes memory response) = to.call{value: _tx.reserved[1]}(
-      _tx.data
+    address to = address(uint160(t.to));
+    (bool success, bytes memory response) = to.call{value: t.reserved[1]}(
+      t.data
     );
 
     if (!success) {
-      emit TxReverted(_txHash, response);
+      emit TxReverted(txHash, response);
 
       if (response.length > 0) {
         assembly {
@@ -134,19 +133,19 @@ contract Safe is ISafe, EIP712 {
       }
     }
 
-    emit TxExecuted(_txHash, response);
+    emit TxExecuted(txHash, response);
   }
 
-  function _validateSignature(bytes32 _txHash, bytes memory _txSignature)
+  function _validateSignature(bytes32 txHash, bytes memory txSignature)
     internal
     view
   {
-    TxSignature memory sig = abi.decode(_txSignature, (TxSignature));
+    TxSignature memory sig = abi.decode(txSignature, (TxSignature));
 
-    _validateSigners(_txHash, sig.approvers, sig.signatures);
+    _validateSigners(txHash, sig.approvers, sig.signatures);
     _satisfiesThreshold(sig.approvers);
     _verifyMultiProof(
-      groupMerkleRoots[sig.groupRef],
+      _groupMerkleRoots[sig.groupRef],
       sig.proof,
       sig.proofFlags,
       sig.approvers
@@ -154,16 +153,16 @@ contract Safe is ISafe, EIP712 {
   }
 
   function _validateSigners(
-    bytes32 _txHash,
-    Approver[] memory _approvers,
-    bytes[] memory _signatures
+    bytes32 txHash,
+    Approver[] memory approvers,
+    bytes[] memory signatures
   ) internal pure {
-    if (_approvers.length != _signatures.length)
+    if (approvers.length != signatures.length)
       revert ApproverSignaturesMismatch();
 
-    for (uint256 i = 0; i < _approvers.length; ) {
-      if (!_approvers[i].addr.checkSignature(_txHash, _signatures[i]))
-        revert InvalidSignature(_approvers[i].addr);
+    for (uint256 i = 0; i < approvers.length; ) {
+      if (!approvers[i].addr.checkSignature(txHash, signatures[i]))
+        revert InvalidSignature(approvers[i].addr);
 
       unchecked {
         ++i;
@@ -171,12 +170,12 @@ contract Safe is ISafe, EIP712 {
     }
   }
 
-  function _satisfiesThreshold(Approver[] memory _approvers) internal pure {
+  function _satisfiesThreshold(Approver[] memory approvers) internal pure {
     int256 required = THRESHOLD;
-    for (uint256 i = 0; i < _approvers.length; ) {
+    for (uint256 i = 0; i < approvers.length; ) {
       // Can't cause a negative overflow as required (int256) can safely hold ~7e47 weights (uint96)
       unchecked {
-        required -= int256(uint256(_approvers[i].weight));
+        required -= int256(uint256(approvers[i].weight));
         ++i;
       }
     }
@@ -185,24 +184,24 @@ contract Safe is ISafe, EIP712 {
   }
 
   function _verifyMultiProof(
-    bytes32 _root,
-    bytes32[] memory _proof,
-    uint256[] memory _proofFlags,
-    Approver[] memory _approvers
+    bytes32 root,
+    bytes32[] memory proof,
+    uint256[] memory proofFlags,
+    Approver[] memory approvers
   ) internal pure {
-    bytes32[] memory leaves = _getLeaves(_approvers);
-    if (_proof.processMultiProof(_proofFlags, leaves) != _root)
+    bytes32[] memory leaves = _getLeaves(approvers);
+    if (proof.processMultiProof(proofFlags, leaves) != root)
       revert InvalidProof();
   }
 
-  function _getLeaves(Approver[] memory _approvers)
+  function _getLeaves(Approver[] memory approvers)
     internal
     pure
     returns (bytes32[] memory leaves)
   {
-    leaves = new bytes32[](_approvers.length);
-    for (uint256 i = 0; i < _approvers.length; ) {
-      leaves[i] = keccak256(abi.encode(_approvers[i]));
+    leaves = new bytes32[](approvers.length);
+    for (uint256 i = 0; i < approvers.length; ) {
+      leaves[i] = keccak256(abi.encode(approvers[i]));
 
       // Hashes need to be sorted
       if (i > 0 && leaves[i] < leaves[i - 1])
@@ -214,15 +213,15 @@ contract Safe is ISafe, EIP712 {
     }
   }
 
-  function _upsertGroup(bytes32 _groupRef, Approver[] memory _approvers)
+  function _upsertGroup(bytes32 groupRef, Approver[] memory approvers)
     internal
   {
-    _satisfiesThreshold(_approvers);
+    _satisfiesThreshold(approvers);
 
-    bytes32[] memory leaves = _getLeaves(_approvers);
-    groupMerkleRoots[_groupRef] = leaves.merkleRoot();
+    bytes32[] memory leaves = _getLeaves(approvers);
+    _groupMerkleRoots[groupRef] = leaves.merkleRoot();
 
-    emit GroupUpserted(_groupRef, _approvers);
+    emit GroupUpserted(groupRef, approvers);
   }
 
   modifier onlyBootloader() {
