@@ -1,25 +1,29 @@
-// SPDX-License-Identifier: AGPL-3.0-or-later
+// // SPDX-License-Identifier: AGPL-3.0-or-later
 pragma solidity ^0.8.0;
 
 import './Safe.sol';
 import {BoolArray} from './BoolArray.sol';
 
 contract TestSafe is Safe {
-  constructor(bytes32 _groupId, Approver[] memory _approvers)
-    Safe(_groupId, _approvers)
+  constructor(bytes32 _groupRef, Approver[] memory _approvers)
+    Safe(_groupRef, _approvers)
   {}
 
   function verifyMultiProof(
+    bytes32 _root,
     bytes32[] calldata _proof,
     uint256[] calldata _proofFlags,
-    bytes32 _root,
     Approver[] calldata _approvers
   ) external pure {
-    return _verifyMultiProof(_proof, _proofFlags, _root, _approvers);
+    return _verifyMultiProof(_root, _proof, _proofFlags, _approvers);
   }
 
-  function getMerkleRoot(bytes32 _groupId) external view returns (bytes32) {
-    return merkleRoots[_groupId];
+  function getGroupMerkleRoot(bytes32 _groupRef)
+    external
+    view
+    returns (bytes32)
+  {
+    return groupMerkleRoots[_groupRef];
   }
 
   function getLeaves(Approver[] memory _approvers)
@@ -30,12 +34,8 @@ contract TestSafe is Safe {
     return _getLeaves(_approvers);
   }
 
-  function hashTx(Op calldata _op) external returns (bytes32) {
-    return _hashTx(_op);
-  }
-
-  function hashMultiTx(Op[] calldata _ops) external returns (bytes32) {
-    return _hashTx(_ops);
+  function hashTx(Transaction calldata _tx) external returns (bytes32) {
+    return _hashTx(_tx);
   }
 
   function domainSeparator() external returns (bytes32) {

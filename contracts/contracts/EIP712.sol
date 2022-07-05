@@ -2,6 +2,7 @@
 pragma solidity ^0.8.0;
 
 import '@openzeppelin/contracts/utils/cryptography/ECDSA.sol';
+import '@matterlabs/zksync-contracts/l2/system-contracts/TransactionHelper.sol';
 
 import './ISafe.sol';
 
@@ -9,12 +10,8 @@ bytes32 constant DOMAIN_TYPE_HASH = keccak256(
   'EIP712Domain(uint256 chainId,address verifyingContract)'
 );
 
-bytes32 constant OP_TYPEHASH = keccak256(
-  'Op(address to,uint256 value,bytes data,uint256 nonce)'
-);
-
-bytes32 constant OPS_TYPEHASH = keccak256(
-  'Ops(Op[] ops)Op(address to,uint256 value,bytes data,uint256 nonce)'
+bytes32 constant TX_TYPEHASH = keccak256(
+  'Tx(address to,uint256 value,bytes data,uint256 nonce)'
 );
 
 // https://github.com/ethereum/EIPs/blob/master/EIPS/eip-712.md
@@ -27,36 +24,18 @@ contract EIP712 {
     _build();
   }
 
-  function _hashOpStruct(Op calldata _op) internal pure returns (bytes32) {
-    return
-      keccak256(
-        abi.encode(
-          OP_TYPEHASH,
-          _op.to,
-          _op.value,
-          keccak256(_op.data),
-          _op.nonce
-        )
-      );
-  }
-
-  function _hashTx(Op calldata _op) internal returns (bytes32) {
-    return _typedDataHash(_hashOpStruct(_op));
-  }
-
-  function _hashTx(Op[] calldata _ops) internal returns (bytes32) {
-    bytes32[] memory opHashes = new bytes32[](_ops.length);
-    for (uint i = 0; i < _ops.length;) {
-      opHashes[i] = _hashOpStruct(_ops[i]);
-
-      unchecked { ++i; }
-    }
-
-    bytes32 txsStructHash = keccak256(
-      abi.encode(OPS_TYPEHASH, keccak256(abi.encodePacked(opHashes)))
+  function _hashTx(Transaction calldata _tx) internal returns (bytes32) {
+    bytes32 dataHash = keccak256(
+      abi.encode(
+        TX_TYPEHASH,
+        _tx.to,
+        _tx.reserved[1], // value
+        keccak256(_tx.data),
+        _tx.reserved[0] // nonce
+      )
     );
 
-    return _typedDataHash(txsStructHash);
+    return _typedDataHash(dataHash);
   }
 
   function _domainSeparator() internal returns (bytes32) {

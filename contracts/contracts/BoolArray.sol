@@ -11,17 +11,13 @@ uint256 constant HEADER_OFFSET = SLOT - HEADER;
 /// [ Header (# of bools) | bool 0 | ... | bool 223 ]
 /// [ bool 224 | .................................. ]
 library BoolArray {
-  function length(uint256[] calldata bools)
-    internal
-    pure
-    returns (uint256)
-  {
+  function length(uint256[] memory bools) internal pure returns (uint256) {
     if (bools.length == 0) return 0;
 
     return bools[0] >> HEADER_OFFSET;
   }
 
-  function atIndex(uint256[] calldata bools, uint256 itemIndex)
+  function atIndex(uint256[] memory bools, uint256 itemIndex)
     internal
     pure
     returns (bool)
