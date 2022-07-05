@@ -8,13 +8,15 @@ import {
   address,
   Group,
   SafeConstructorArgs,
-  toSafeConstructorDeployArgs,
   Factory,
   Address,
   randomGroupRef,
+  toSafeConstructorDeployArgs,
+  PERCENT_THRESHOLD,
 } from 'lib';
 import { allSigners, wallet } from './wallet';
 import { BytesLike, ContractTransaction } from 'ethers';
+import * as zk from 'zksync-web3';
 
 export const toSafeGroupTest = (...approvers: [string, number][]): Group => ({
   ref: randomGroupRef(),
@@ -32,10 +34,16 @@ export const deployFactory = async (
   factory: Factory;
   deployTx: ContractTransaction;
 }> => {
+  const safeArtifact = await deployer.loadArtifact('Safe');
+  const safeBytecodeHash = zk.utils.hashBytecode(safeArtifact.bytecode);
+
   const artifact = await deployer.loadArtifact('Factory');
-  const contract = await deployer.deploy(artifact, [], {
-    customData: { feeToken },
-  });
+  const contract = await deployer.deploy(
+    artifact,
+    [safeBytecodeHash],
+    { customData: { feeToken } },
+    [safeArtifact.bytecode],
+  );
   await contract.deployed();
 
   return {
@@ -57,7 +65,7 @@ export const deploySafeDirect = async (
   await contract.deployed();
 
   return {
-    safe: getSafe(address(contract.address), wallet),
+    safe: getSafe(contract.address),
     deployTx: contract.deployTransaction,
   };
 };
@@ -93,7 +101,7 @@ export const deploy = async (weights: number[], _salt?: BytesLike) => {
 };
 
 export const deployTestSafe = async (
-  weights: number[] = [100],
+  weights: number[] = [PERCENT_THRESHOLD],
   feeToken?: Address,
 ) => {
   const approvers = allSigners.slice(0, weights.length);
