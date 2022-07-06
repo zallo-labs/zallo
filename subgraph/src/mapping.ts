@@ -68,7 +68,7 @@ export function handleGroupRemoved(e: GroupRemoved): void {
 
 // zkSync ETH token
 const ETH_TOKEN: Bytes = Bytes.fromHexString(
-  '0x000000000000000000000000000000000000800a',
+  '0x0000000000000000000000000000000000000000',
 );
 
 export function handleReceive(e: Received): void {
