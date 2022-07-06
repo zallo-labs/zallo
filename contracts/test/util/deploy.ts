@@ -13,10 +13,13 @@ import {
   randomGroupRef,
   toSafeConstructorDeployArgs,
   PERCENT_THRESHOLD,
+  MultiExecutor,
+  MultiExecutor__factory,
 } from 'lib';
 import { allSigners, wallet } from './wallet';
-import { BytesLike, ContractTransaction } from 'ethers';
+import { ContractTransaction } from 'ethers';
 import * as zk from 'zksync-web3';
+import { parseEther } from 'ethers/lib/utils';
 
 export const toSafeGroupTest = (...approvers: [string, number][]): Group => ({
   ref: randomGroupRef(),
@@ -70,7 +73,7 @@ export const deploySafeDirect = async (
   };
 };
 
-export const deploy = async (weights: number[], _salt?: BytesLike) => {
+export const deploy = async (weights: number[]) => {
   if (!weights.length) throw Error('No weights provided');
 
   const approvers = allSigners.slice(0, weights.length);
@@ -85,15 +88,17 @@ export const deploy = async (weights: number[], _salt?: BytesLike) => {
 
   const { factory } = await deployFactory();
   const deployData = await deploySafe({
-    signer: allSigners[0],
     args: { group },
     factory,
-    // salt,
+  });
+
+  await wallet.sendTransaction({
+    to: deployData.safe.address,
+    value: parseEther('0.01'),
   });
 
   return {
     ...deployData,
-    deployer: wallet,
     factory,
     group,
     others,
@@ -127,5 +132,25 @@ export const deployTestSafe = async (
     deployTx: contract.deployTransaction,
     group,
     others,
+  };
+};
+
+export const deployMultiExecutor = async (
+  feeToken?: Address,
+): Promise<{
+  executor: MultiExecutor;
+  deployTx: ContractTransaction;
+}> => {
+  const artifact = await deployer.loadArtifact('MultiExecutor');
+  const contract = await deployer.deploy(artifact, [], {
+    customData: { feeToken },
+  });
+  await contract.deployed();
+
+  return {
+    executor: new MultiExecutor__factory()
+      .attach(address(contract.address))
+      .connect(wallet),
+    deployTx: contract.deployTransaction,
   };
 };
