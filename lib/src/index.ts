@@ -16,6 +16,6 @@ export * from './execute';
 export * from './group';
 export * from './id';
 export * from './merkle';
-export * from './op';
+export * from './tx';
 export * from './signature';
 export * from './weight';

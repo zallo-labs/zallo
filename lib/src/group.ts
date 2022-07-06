@@ -9,7 +9,7 @@ import {
 } from './approver';
 import { Safe } from './contracts';
 import { Id, toId } from './id';
-import { createOp, Op } from './op';
+import { createTx, Tx } from './tx';
 
 export interface SafeGroup {
   ref: BytesLike;
@@ -48,8 +48,8 @@ export const getApproverId = (
   user: string,
 ) => toId(`${getGroupId(safe, groupRef)}-${user}`);
 
-export const createUpsertGroupOp = (safe: Safe, group: Groupish): Op =>
-  createOp({
+export const createUpsertGroupOp = (safe: Safe, group: Groupish): Tx =>
+  createTx({
     to: safe.address,
     data: safe.interface.encodeFunctionData('upsertGroup', [
       group.ref,
@@ -57,8 +57,8 @@ export const createUpsertGroupOp = (safe: Safe, group: Groupish): Op =>
     ]),
   });
 
-export const createRemoveGroupOp = (safe: Safe, group: Groupish): Op =>
-  createOp({
+export const createRemoveGroupOp = (safe: Safe, group: Groupish): Tx =>
+  createTx({
     to: safe.address,
     data: safe.interface.encodeFunctionData('removeGroup', [group.ref]),
   });

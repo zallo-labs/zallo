@@ -17,7 +17,7 @@ export const calculateSafeAddress = async (
 ) => {
   const addr = zk.utils.create2Address(
     factory.address,
-    await factory.safeBytecodeHash(),
+    await factory._safeBytecodeHash(),
     salt,
     toSafeConstructorDeployArgsBytes(args),
   );

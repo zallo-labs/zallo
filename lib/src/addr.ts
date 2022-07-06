@@ -49,6 +49,10 @@ declare module './contracts' {
   export interface Factory {
     address: Address;
   }
+
+  export interface MultiExecutor {
+    address: Address;
+  }
 }
 
 declare module './typechain' {

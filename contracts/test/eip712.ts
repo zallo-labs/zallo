@@ -1,6 +1,6 @@
 import { ethers } from 'ethers';
-import { address, createOp, getDomain, hashTx } from 'lib';
-import { deployTestSafe, expect, wallet } from './util';
+import { address, createTx, getDomain, hashTx } from 'lib';
+import { deployTestSafe, expect, toSafeTransaction, wallet } from './util';
 
 describe('EIP712', () => {
   it('Domain separator', async () => {
@@ -17,22 +17,10 @@ describe('EIP712', () => {
   it('hashTx', async () => {
     const { safe } = await deployTestSafe();
 
-    const tx = createOp({ to: wallet.address });
+    const tx = createTx({ to: wallet.address });
 
     const expected = await hashTx(address(safe.address), tx);
-    const actual = await safe.callStatic.hashTx(tx);
-
-    expect(actual).to.eq(expected);
-  });
-
-  it('hashMultiTx', async () => {
-    const { safe } = await deployTestSafe();
-
-    const op = createOp({ to: wallet.address });
-    const ops = [op, op];
-
-    const expected = await hashTx(address(safe.address), ...ops);
-    const actual = await safe.callStatic.hashMultiTx(ops);
+    const actual = await safe.callStatic.hashTx(toSafeTransaction(safe, tx));
 
     expect(actual).to.eq(expected);
   });

@@ -1,4 +1,5 @@
 import { ChainName, getChain } from './chain';
+import { FACTORY, MULTI_EXECUTOR } from './contracts';
 
 try {
   require('dotenv').config({ path: '../.env' });
@@ -13,10 +14,6 @@ const apiUrl = E.API_URL ?? `http://[::1]:${apiPort}`;
 
 const defaultChain: ChainName = 'testnet';
 const chain = getChain(E.CHAIN?.toLowerCase() ?? defaultChain);
-
-const factoryAddresses: Partial<Record<ChainName, string>> = {
-  testnet: '0x757AFce30240E5Bab30546180463d144E0531359',
-};
 
 export const CONFIG = {
   env:
@@ -40,7 +37,8 @@ export const CONFIG = {
   },
   sessionSecret: E.SESSION_SECRET,
   subgraphGqlUrl: E.SUBGRAPH_GQL_URL,
-  factoryAddress: factoryAddresses[chain.name],
+  factoryAddress: FACTORY[chain.name],
+  multiExecutorAddress: MULTI_EXECUTOR[chain.name],
   sentry: {
     dsn: E.SENTRY_DSN,
     org: E.SENTRY_ORG,

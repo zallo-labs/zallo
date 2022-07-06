@@ -7,16 +7,21 @@ export const maybeToArray = <T>(maybe: MaybeArray<T>): T[] =>
 
 const x = typeof '';
 type TypeOf = typeof x;
+type Checker = (e: unknown) => boolean;
 
 export const createIsObj =
-  <T extends object>(...fields: (keyof T | [keyof T, TypeOf])[]) =>
+  <T extends object>(...fields: (keyof T | [keyof T, TypeOf | Checker])[]) =>
   (e: unknown): e is T =>
     typeof e === 'object' &&
     e !== null &&
     fields.every((field) => {
       if (Array.isArray(field)) {
         const [name, type] = field;
-        return name in e && typeof (e as T)[name] === type;
+        if (!(name in e)) return false;
+
+        return typeof type === 'function'
+          ? type((e as T)[name])
+          : typeof (e as T)[name] === type;
       } else {
         return field in e;
       }

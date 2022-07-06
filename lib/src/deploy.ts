@@ -41,7 +41,6 @@ export const getSafe = (addr: Addresslike) =>
 interface DeploySafeParams {
   args: SafeConstructorArgs;
   factory: Factory;
-  signer: Signer;
   salt?: BytesLike;
 }
 
@@ -56,7 +55,7 @@ export const deploySafe = async ({
   const deployTx = await factory.deploySafe(salt, constructorDeployData);
 
   return {
-    safe: getSafe(addr),
+    safe: getSafe(addr).connect(factory.provider),
     salt,
     deployTx,
     deployReceipt: await deployTx.wait(),
