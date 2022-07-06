@@ -6,11 +6,11 @@
     "build": "yarn build:libs && yarn compile",
     "typechain": "hardhat typechain",
     "analyze": "myth analyze src/*",
-    "test": "CHAIN=local hardhat test",
+    "test": "CHAIN=testnet hardhat test",
     "test:debug": "yarn test --logs --trace",
-    "deploy-factory:testnet": "CHAIN=testnet ts-node scripts/deployFactory.ts",
     "deploy-safe:testnet": "CHAIN=testnet ts-node scripts/deploySafe.ts",
-    "deploy-test": "CHAIN=local hardhat deployTest.ts",
+    "deploy-factory:testnet": "CHAIN=testnet ts-node scripts/deployFactory.ts",
+    "deploy-multi-executor:testnet": "CHAIN=testnet ts-node scripts/deployMultiExecutor.ts",
     "clean": "hardhat clean && npx rimraf artifacts cache"
   },
   "devDependencies": {
@@ -60,6 +60,6 @@
     "ts-node": "^10.8.1",
     "typechain": "^8.1.0",
     "typescript": "^4.7.4",
-    "zksync-web3": "^0.7.8"
+    "zksync-web3": "^0.7.9"
   }
 }
