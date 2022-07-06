@@ -11,7 +11,7 @@ bytes32 constant DOMAIN_TYPE_HASH = keccak256(
 );
 
 bytes32 constant TX_TYPEHASH = keccak256(
-  'Tx(address to,uint256 value,bytes data,uint256 nonce)'
+  'Tx(address to,uint256 value,bytes data,bytes8 salt)'
 );
 
 // https://github.com/ethereum/EIPs/blob/master/EIPS/eip-712.md
@@ -24,14 +24,25 @@ contract EIP712 {
     _build();
   }
 
+  function _getTransactionData(Transaction calldata t)
+    internal
+    pure
+    returns (bytes memory)
+  {
+    (, bytes memory data) = abi.decode(t.data, (bytes8, bytes));
+    return data;
+  }
+
   function _hashTx(Transaction calldata t) internal returns (bytes32) {
+    (bytes8 salt, bytes memory data) = abi.decode(t.data, (bytes8, bytes));
+
     bytes32 dataHash = keccak256(
       abi.encode(
         TX_TYPEHASH,
         t.to,
         t.reserved[1], // value
-        keccak256(t.data),
-        t.reserved[0] // nonce
+        keccak256(data),
+        salt
       )
     );
 

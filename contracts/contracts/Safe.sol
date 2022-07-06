@@ -29,12 +29,15 @@ contract Safe is ISafe, EIP712 {
     _upsertGroup(groupRef, approvers);
   }
 
+  fallback() external payable emitWhenPaid {}
+
   receive() external payable emitWhenPaid {}
 
   /// @inheritdoc ISafe
   function isValidSignature(bytes32 txHash, bytes memory txSignature)
     external
     view
+    override
     returns (bytes4)
   {
     _validateSignature(txHash, txSignature);
@@ -45,6 +48,7 @@ contract Safe is ISafe, EIP712 {
   function validateTransaction(Transaction calldata transaction)
     external
     payable
+    override
     emitWhenPaid
   {
     _validateTransaction(_hashTx(transaction), transaction);
@@ -54,6 +58,7 @@ contract Safe is ISafe, EIP712 {
   function executeTransaction(Transaction calldata transaction)
     external
     payable
+    override
     onlyBootloader
     emitWhenPaid
   {
@@ -64,6 +69,7 @@ contract Safe is ISafe, EIP712 {
   function executeTransactionFromOutside(Transaction calldata transaction)
     external
     payable
+    override
     emitWhenPaid
   {
     bytes32 txHash = _hashTx(transaction);
@@ -104,10 +110,15 @@ contract Safe is ISafe, EIP712 {
   function _validateTransaction(
     bytes32 txHash,
     Transaction calldata transaction
-  ) internal view {
+  ) internal {
     if (hasBeenExecuted(txHash)) revert TxAlreadyExecuted();
 
     _validateSignature(txHash, transaction.signature);
+
+    // Increment zksync nonce, a requirement of zkSync AA - https://v2-docs.zksync.io/dev/zksync-v2/aa.html
+    NONCE_HOLDER_SYSTEM_CONTRACT.incrementNonceIfEquals(
+      transaction.reserved[0] // nonce
+    );
   }
 
   function _executeTransaction(bytes32 txHash, Transaction calldata t)
@@ -117,7 +128,7 @@ contract Safe is ISafe, EIP712 {
 
     address to = address(uint160(t.to));
     (bool success, bytes memory response) = to.call{value: t.reserved[1]}(
-      t.data
+      _getTransactionData(t)
     );
 
     if (!success) {
