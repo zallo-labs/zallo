@@ -36,7 +36,7 @@ describe('isValidSignature', () => {
     await expect(validTxCheck).to.be.reverted;
   });
 
-  it("should be reverted if the signatures don't meet threshold", async () => {
+  it("should be reverted if the signers don't meet the threshold", async () => {
     const { safe, group } = await deploy([50, 50]);
 
     const tx = createTx({});

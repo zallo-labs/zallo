@@ -3,18 +3,21 @@
 ## isValidSignature
 - should return the magic value if the signature is valid
 - should be reverted if the hash doesn't match the signature
-- should be reverted if the signatures don't meet threshold
+- should be reverted if the signers don't meet the threshold
 
 
 ## validateTransaction
-Not tested as this function defers to isValidSignature
+*Assumes that isValidSignature*
+
+- should revert when the transaction has already been executed
 
 
 ## executeTransaction
 - should revert when not called by the bootloader[1]
-- should successfully execute a transaction
+- should successfully execute a transaction with a single approver
+- shoudl successfully execute a transaction with mutliple approvers
 - should set the transaction as executed
-- should emit the response
+- should emit the response to the tx
 - should pass through the revert message if the called contract reverts with a message
 - should revert if the called contract reverts
 
@@ -22,7 +25,7 @@ Not tested as this function defers to isValidSignature
 
 
 ## executeTransactionFromOutside
-*Assumes that validateTransaction and executeTransaction are called*, thus inheriting these tests in a sense
+*Assumes that validateTransaction and executeTransaction are called*
 
 - should be callable from any address
 

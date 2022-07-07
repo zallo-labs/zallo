@@ -2,7 +2,7 @@ import {
   TypedDataDomain,
   TypedDataField,
 } from '@ethersproject/abstract-signer';
-import { BigNumber, BigNumberish, BytesLike, ethers } from 'ethers';
+import { BigNumber, BigNumberish, BytesLike, Contract, ethers } from 'ethers';
 import { hexlify, randomBytes } from 'ethers/lib/utils';
 import { Wallet } from 'zksync-web3';
 import { address, Address, ZERO_ADDR } from './addr';
@@ -30,14 +30,17 @@ const TX_EIP712_TYPE: Record<string, TypedDataField[]> = {
 };
 
 export const getDomain = async (
-  verifyingContract: Address,
+  verifyingContract: Address | Contract,
 ): Promise<TypedDataDomain> => ({
   // chainId: (await contract.provider.getNetwork()).chainId,
   chainId: 0, // ZKSYNC: block.chainid always returns 0 - https://v2-docs.zksync.io/dev/zksync-v2/temp-limits.html#unsupported-opcodes
-  verifyingContract,
+  verifyingContract:
+    typeof verifyingContract === 'string'
+      ? verifyingContract
+      : verifyingContract.address,
 });
 
-export const hashTx = async (contract: Address, tx: Tx) =>
+export const hashTx = async (contract: Address | Contract, tx: Tx) =>
   ethers.utils._TypedDataEncoder.hash(
     await getDomain(contract),
     TX_EIP712_TYPE,
