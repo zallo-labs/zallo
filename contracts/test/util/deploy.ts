@@ -92,10 +92,11 @@ export const deploy = async (weights: number[]) => {
     factory,
   });
 
-  await wallet.sendTransaction({
+  const txResp = await wallet.sendTransaction({
     to: deployData.safe.address,
-    value: parseEther('0.01'),
+    value: parseEther('0.00001'),
   });
+  await txResp.wait();
 
   return {
     ...deployData,

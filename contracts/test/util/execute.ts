@@ -13,7 +13,7 @@ import {
 import { TransactionStruct } from 'lib/src/contracts/contracts/ISafe';
 import { allSigners } from './wallet';
 import { defaultAbiCoder } from 'ethers/lib/utils';
-import { Contract } from "ethers";
+import { Contract } from 'ethers';
 
 export const getSigners = async (
   safe: Safe,
