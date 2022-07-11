@@ -8,8 +8,8 @@ import '@matterlabs/zksync-contracts/l2/system-contracts/Constants.sol';
 
 import './ISafe.sol';
 import './EIP712.sol';
-import {MerkleProof} from './MerkleProof.sol';
-import {BoolArray} from './BoolArray.sol';
+import {MerkleProof} from './utils/MerkleProof.sol';
+import {BoolArray} from './utils/BoolArray.sol';
 
 contract Safe is ISafe, EIP712 {
   using SignatureChecker for address;

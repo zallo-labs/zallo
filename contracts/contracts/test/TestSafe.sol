@@ -1,8 +1,8 @@
 // // SPDX-License-Identifier: AGPL-3.0-or-later
 pragma solidity ^0.8.0;
 
-import './Safe.sol';
-import {BoolArray} from './BoolArray.sol';
+import '../Safe.sol';
+import {BoolArray} from '../utils/BoolArray.sol';
 
 contract TestSafe is Safe {
   constructor(bytes32 groupRef, Approver[] memory approvers)
