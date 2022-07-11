@@ -48,7 +48,7 @@ export const getApproverId = (
   user: string,
 ) => toId(`${getGroupId(safe, groupRef)}-${user}`);
 
-export const createUpsertGroupOp = (safe: Safe, group: Groupish): Tx =>
+export const createUpsertGroupTx = (safe: Safe, group: Groupish): Tx =>
   createTx({
     to: safe.address,
     data: safe.interface.encodeFunctionData('upsertGroup', [
@@ -57,7 +57,7 @@ export const createUpsertGroupOp = (safe: Safe, group: Groupish): Tx =>
     ]),
   });
 
-export const createRemoveGroupOp = (safe: Safe, group: Groupish): Tx =>
+export const createRemoveGroupTx = (safe: Safe, group: Groupish): Tx =>
   createTx({
     to: safe.address,
     data: safe.interface.encodeFunctionData('removeGroup', [group.ref]),

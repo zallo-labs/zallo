@@ -7,7 +7,7 @@ import * as zk from 'zksync-web3';
 import { Eip712Meta, TransactionRequest } from 'zksync-web3/build/src/types';
 import { defaultAbiCoder } from 'ethers/lib/utils';
 
-const VERIFICATION_GAS = 20_000;
+const EXTRA_VERIFICATION_GAS_PER_SIGNER = 10_000;
 
 export interface ExecuteTxOptions {
   customData?: Overrides & Omit<Eip712Meta, 'aaParams'>;
@@ -28,13 +28,15 @@ export const executeTx = async (
     data: defaultAbiCoder.encode(['bytes8', 'bytes'], [tx.salt, tx.data]),
   };
 
+  const extraGas = (signers.length - 1) * EXTRA_VERIFICATION_GAS_PER_SIGNER;
+
   const req: TransactionRequest = {
     ...basicReq,
     type: 0x71, // AA type, apparently this will be changed to 0x80 at some point
     nonce: await provider.getTransactionCount(safe),
     chainId: (await provider.getNetwork()).chainId,
     gasPrice: await provider.getGasPrice(),
-    gasLimit: (await provider.estimateGas(basicReq)).add(VERIFICATION_GAS),
+    gasLimit: (await provider.estimateGas(basicReq)).add(extraGas),
     customData: {
       feeToken: zk.utils.ETH_ADDRESS,
       ...opts.customData,

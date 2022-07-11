@@ -68,7 +68,10 @@ describe('UpsertGroup', () => {
   it("should revert if the approvers don't meet the threshold", async () => {
     const { safe, group, others } = await deploy([100]);
 
-    const newGroup = toSafeGroupTest([others[0].address, 80]);
+    const newGroup = toSafeGroupTest([
+      others[0].address,
+      PERCENT_THRESHOLD - 0.1,
+    ]);
 
     const txResp = await execute(
       safe,

@@ -8,7 +8,6 @@ import { Wallet } from 'zksync-web3';
 import { address, Address, ZERO_ADDR } from './addr';
 import { ZERO } from './bignum';
 import { Bytes8 } from './bytes';
-import { toCompactSignature } from './signature';
 import { createIsObj } from './util/mappedTypes';
 
 export interface Tx {
@@ -56,7 +55,7 @@ export const signTx = async (wallet: Wallet, safe: Address, tx: Tx) => {
   );
 
   // Convert to a compact 64 byte signature (eip-2098)
-  return toCompactSignature(longSig);
+  return ethers.utils.splitSignature(longSig).compact
 };
 
 export const randomSalt = (): Bytes8 => hexlify(randomBytes(8));
@@ -71,6 +70,6 @@ export interface TxDef {
 export const createTx = (tx: TxDef): Tx => ({
   to: (tx.to && address(tx.to)) || ZERO_ADDR,
   value: tx.value !== undefined ? BigNumber.from(tx.value) : ZERO,
-  data: tx.data ? hexlify(tx.data) : [],
+  data: tx.data ? hexlify(tx.data) : "0x",
   salt: tx.salt || randomSalt(),
 });
