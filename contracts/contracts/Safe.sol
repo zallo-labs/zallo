@@ -111,14 +111,13 @@ contract Safe is ISafe, EIP712 {
     bytes32 txHash,
     Transaction calldata transaction
   ) internal {
-    if (hasBeenExecuted(txHash)) revert TxAlreadyExecuted();
-
-    _validateSignature(txHash, transaction.signature);
-
-    // Increment zksync nonce, a requirement of zkSync AA - https://v2-docs.zksync.io/dev/zksync-v2/aa.html
     NONCE_HOLDER_SYSTEM_CONTRACT.incrementNonceIfEquals(
       transaction.reserved[0] // nonce
     );
+
+    if (hasBeenExecuted(txHash)) revert TxAlreadyExecuted();
+
+    _validateSignature(txHash, transaction.signature);
   }
 
   function _executeTransaction(bytes32 txHash, Transaction calldata t)
@@ -151,15 +150,24 @@ contract Safe is ISafe, EIP712 {
     internal
     view
   {
-    TxSignature memory sig = abi.decode(txSignature, (TxSignature));
+    (
+      bytes32 groupRef,
+      Approver[] memory approvers,
+      bytes[] memory signatures,
+      bytes32[] memory proof,
+      uint256[] memory proofFlags
+    ) = abi.decode(
+        txSignature,
+        (bytes32, Approver[], bytes[], bytes32[], uint256[])
+      );
 
-    _validateSigners(txHash, sig.approvers, sig.signatures);
-    _satisfiesThreshold(sig.approvers);
+    _validateSigners(txHash, approvers, signatures);
+    _satisfiesThreshold(approvers);
     _verifyMultiProof(
-      _groupMerkleRoots[sig.groupRef],
-      sig.proof,
-      sig.proofFlags,
-      sig.approvers
+      _groupMerkleRoots[groupRef],
+      proof,
+      proofFlags,
+      approvers
     );
   }
 

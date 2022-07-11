@@ -56,7 +56,7 @@ library MerkleProof {
     bytes32[] memory proof,
     uint256[] memory proofFlags,
     bytes32[] memory leaves
-  ) internal pure returns (bytes32 root) {
+  ) internal pure returns (bytes32) {
     // This function rebuild the root hash by traversing the tree up from the leaves. The root is rebuilt by
     // consuming and producing values on a queue. The queue starts with the `leaves` array, then goes onto the
     // `hashes` array. At the end of the process, the last hash in the `hashes` array should contain the root of

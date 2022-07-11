@@ -22,20 +22,6 @@ struct Approver {
   uint96 weight;
 }
 
-/// @notice Transaction signature
-/// @param _groupRef Reference of the group the approvers belong to
-/// @param _approvers Approvers approving the op
-/// @param _signatures Signatures of the approvers
-/// @param _proof Merkle proof of the group
-/// @param _proofFlags BoolArray of flags for the merkle proof
-struct TxSignature {
-  bytes32 groupRef;
-  Approver[] approvers;
-  bytes[] signatures;
-  bytes32[] proof;
-  uint256[] proofFlags;
-}
-
 interface ISafe is IERC1271, IAccountAbstraction {
   /* Events */
   event TxExecuted(bytes32 txHash, bytes response);

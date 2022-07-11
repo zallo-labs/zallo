@@ -1,4 +1,4 @@
-import { BigNumber, BytesLike, ethers } from 'ethers';
+import { BytesLike, ethers } from 'ethers';
 import { defaultAbiCoder } from 'ethers/lib/utils';
 import {
   Approverish,
@@ -6,15 +6,13 @@ import {
   SafeApprover,
   toSafeApprover,
 } from './approver';
-import { BoolArray } from './boolArray';
-import { ApproverStruct } from './contracts/contracts/ISafe';
 import { Groupish } from './group';
 import { getMultiProof } from './merkle';
 
 export type SignatureLike = Parameters<typeof ethers.utils.splitSignature>[0];
 
 export type Signerish = Approverish & {
-  signature: SignatureLike;
+  signature: BytesLike;
 };
 
 const split = (approversWithSigs: Signerish[]) =>
@@ -24,19 +22,11 @@ const split = (approversWithSigs: Signerish[]) =>
     .reduce(
       (acc, { signature, ...approver }) => {
         acc.approvers.push(approver);
-        acc.signatures.push(toCompactSignature(signature));
+        acc.signatures.push(signature);
         return acc;
       },
       { approvers: [] as SafeApprover[], signatures: [] as BytesLike[] },
     );
-
-interface TxSignature {
-  groupRef: BytesLike;
-  approvers: SafeApprover[];
-  signatures: BytesLike[];
-  proof: BytesLike[];
-  proofFlags: BoolArray;
-}
 
 export const createTxSignature = (
   group: Groupish,
@@ -47,20 +37,12 @@ export const createTxSignature = (
 
   return defaultAbiCoder.encode(
     [
-      '(bytes32 groupRef, (address addr, uint96 weight)[] approvers, bytes[] signatures, bytes32[] proof, uint256[] proofFlags)',
+      'bytes32 groupRef',
+      '(address addr, uint96 weight)[] approvers',
+      'bytes[] signatures',
+      'bytes32[] proof',
+      'uint256[] proofFlags',
     ],
-    [
-      {
-        groupRef: group.ref,
-        approvers,
-        signatures,
-        proof,
-        proofFlags,
-      } as TxSignature,
-    ],
+    [group.ref, approvers, signatures, proof, proofFlags],
   );
 };
-
-// https://github.com/ethereum/EIPs/blob/master/EIPS/eip-2098.md
-export const toCompactSignature = (signature: SignatureLike) =>
-  ethers.utils.splitSignature(signature).compact;
