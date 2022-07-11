@@ -54,7 +54,7 @@ declare module './contracts' {
     address: Address;
   }
 
-  export interface MultiExecutor {
+  export interface Multicall {
     address: Address;
   }
 }

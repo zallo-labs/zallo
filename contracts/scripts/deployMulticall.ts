@@ -1,11 +1,11 @@
 import { USDC } from '../test/util/wallet';
-import { deployMultiExecutor } from '../test/util/deploy';
+import { deployMulticall } from '../test/util/deploy';
 import { displayTx } from './display';
 
 const main = async () => {
-  const { executor, deployTx } = await deployMultiExecutor(USDC);
+  const { multicall, deployTx } = await deployMulticall(USDC);
 
-  await displayTx(executor.address, deployTx);
+  await displayTx(multicall.address, deployTx);
 };
 
 main().catch((error) => {

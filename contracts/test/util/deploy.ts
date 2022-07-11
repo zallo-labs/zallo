@@ -13,8 +13,8 @@ import {
   randomGroupRef,
   toSafeConstructorDeployArgs,
   PERCENT_THRESHOLD,
-  MultiExecutor,
-  MultiExecutor__factory,
+  Multicall,
+  Multicall__factory,
   toSafeConstructorDeployArgsBytes,
   getRandomDeploySalt,
 } from 'lib';
@@ -151,20 +151,20 @@ export const deployTestSafe = async (
   };
 };
 
-export const deployMultiExecutor = async (
+export const deployMulticall = async (
   feeToken?: Address,
 ): Promise<{
-  executor: MultiExecutor;
+  multicall: Multicall;
   deployTx: ContractTransaction;
 }> => {
-  const artifact = await deployer.loadArtifact('MultiExecutor');
+  const artifact = await deployer.loadArtifact('Multicall');
   const contract = await deployer.deploy(artifact, [], {
     customData: { feeToken },
   });
   await contract.deployed();
 
   return {
-    executor: new MultiExecutor__factory()
+    multicall: new Multicall__factory()
       .attach(address(contract.address))
       .connect(wallet),
     deployTx: contract.deployTransaction,

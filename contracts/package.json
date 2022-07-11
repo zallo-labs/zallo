@@ -10,7 +10,7 @@
     "test:debug": "yarn test --logs --trace",
     "deploy-safe:testnet": "CHAIN=testnet ts-node scripts/deploySafe.ts",
     "deploy-factory:testnet": "CHAIN=testnet ts-node scripts/deployFactory.ts",
-    "deploy-multi-executor:testnet": "CHAIN=testnet ts-node scripts/deployMultiExecutor.ts",
+    "deploy-multicall:testnet": "CHAIN=testnet ts-node scripts/deployMultiCall.ts",
     "clean": "hardhat clean && npx rimraf artifacts cache"
   },
   "devDependencies": {
