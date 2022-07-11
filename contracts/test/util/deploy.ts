@@ -15,6 +15,9 @@ import {
   PERCENT_THRESHOLD,
   MultiExecutor,
   MultiExecutor__factory,
+  randomTxSalt,
+  toSafeConstructorDeployArgsBytes,
+  getRandomDeploySalt,
 } from 'lib';
 import { allSigners, wallet } from './wallet';
 import { ContractTransaction } from 'ethers';
@@ -32,12 +35,13 @@ export const toSafeGroupTest = (...approvers: [string, number][]): Group => ({
 export const deployer = new Deployer(hre, wallet);
 
 export const deployFactory = async (
+  contractName = 'Safe',
   feeToken?: Address,
 ): Promise<{
   factory: Factory;
   deployTx: ContractTransaction;
 }> => {
-  const safeArtifact = await deployer.loadArtifact('Safe');
+  const safeArtifact = await deployer.loadArtifact(contractName);
   const safeBytecodeHash = zk.utils.hashBytecode(safeArtifact.bytecode);
 
   const artifact = await deployer.loadArtifact('Factory');
@@ -108,7 +112,6 @@ export const deploy = async (weights: number[]) => {
 
 export const deployTestSafe = async (
   weights: number[] = [PERCENT_THRESHOLD],
-  feeToken?: Address,
 ) => {
   const approvers = allSigners.slice(0, weights.length);
   const others = allSigners.slice(weights.length);
@@ -120,17 +123,28 @@ export const deployTestSafe = async (
     ]),
   );
 
-  const artifact = await deployer.loadArtifact('TestSafe');
-  const contract = await deployer.deploy(
-    artifact,
-    toSafeConstructorDeployArgs({ group }),
-    { customData: { feeToken } },
+  const { factory } = await deployFactory('TestSafe');
+  const deployArgsBytes = toSafeConstructorDeployArgsBytes({ group });
+
+  const salt = getRandomDeploySalt();
+  const addr = zk.utils.create2Address(
+    factory.address,
+    await factory._safeBytecodeHash(),
+    salt,
+    deployArgsBytes,
   );
-  await contract.deployed();
+
+  const deployTx = await factory.deploySafe(salt, deployArgsBytes);
+  await deployTx.wait();
+
+  const txResp = await wallet.sendTransaction({
+    to: addr,
+    value: parseEther('0.00001'),
+  });
+  await txResp.wait();
 
   return {
-    safe: new TestSafe__factory().attach(contract.address).connect(wallet),
-    deployTx: contract.deployTransaction,
+    safe: new TestSafe__factory().attach(addr).connect(wallet),
     group,
     others,
   };

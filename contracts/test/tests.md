@@ -1,10 +1,14 @@
 # Tests
 
+## constructor
+*Assumed to only call upsertGroup*
+
 ## isValidSignature
 - should return the magic value if the signature is valid
+- should successfully valdiate the signature of a single approver
+- should successfully validate the signature of multiple approvers
 - should be reverted if the hash doesn't match the signature
 - should be reverted if the signers don't meet the threshold
-
 
 ## validateTransaction
 *Assumes that isValidSignature*
@@ -15,7 +19,7 @@
 ## executeTransaction
 - should revert when not called by the bootloader[1]
 - should successfully execute a transaction with a single approver
-- shoudl successfully execute a transaction with mutliple approvers
+- should successfully execute a transaction with a multiple approvers
 - should set the transaction as executed
 - should emit the response to the tx
 - should pass through the revert message if the called contract reverts with a message
@@ -29,3 +33,21 @@
 
 - should be callable from any address
 
+## upsertGroup
+- should successfully execute
+- should emit event
+- should generate the correct group merkle root
+- should revert if called from an address other than the safe
+- should revert if the approvers don't meet the threshold
+
+
+## removeGroup
+- should successfully execute & emit event
+- should zero group's merkle root
+
+
+## merkle
+- lib should generate valid multi-proof
+- should generated valid merkle root
+- should verify valid multi-proof
+- should reject an invalid multi-proof
