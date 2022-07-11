@@ -52,7 +52,7 @@ describe('executeTransaction', () => {
   });
 
   it('should successfully execute a transaction with mutliple approvers', async () => {
-    const { safe, group } = await deploy([100, 50, 30]);
+    const { safe, group } = await deploy([30, 20, 40, 10]);
 
     const tx = createTx({ to: wallet.address });
 
