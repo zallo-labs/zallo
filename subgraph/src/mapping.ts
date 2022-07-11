@@ -2,9 +2,8 @@ import { Bytes } from '@graphprotocol/graph-ts';
 import {
   GroupUpserted,
   GroupRemoved,
-  Transaction,
-  MultiTransaction,
-  TransactionReverted,
+  TxExecuted,
+  TxReverted,
   Received,
 } from '../generated/Safe/Safe';
 import {
@@ -22,12 +21,55 @@ import {
   getTransferId,
   getTxId,
 } from './id';
-import {
-  getOrCreateUser,
-  getOrCreateGroup,
-  getOrCreateSafe,
-  getSafeContract,
-} from './util';
+import { getOrCreateUser, getOrCreateGroup, getOrCreateSafe } from './util';
+
+// zkSync ETH token
+const ETH_TOKEN: Bytes = Bytes.fromHexString(
+  '0x0000000000000000000000000000000000000000',
+);
+
+export function handleReceive(e: Received): void {
+  const transfer = new Transfer(getTransferId(e));
+
+  transfer.safe = getSafeId(e.address);
+  transfer.token = ETH_TOKEN;
+  transfer.type = 'IN';
+  transfer.from = e.params.from;
+  transfer.to = e.address;
+  transfer.value = e.params.value;
+  transfer.blockHash = e.block.hash;
+  transfer.timestamp = e.block.timestamp;
+
+  transfer.save();
+}
+
+export function handleTxExecuted(e: TxExecuted): void {
+  const tx = new Tx(getTxId(e.transaction));
+
+  tx.safe = getSafeId(e.address);
+  tx.hash = e.params.txHash;
+  tx.success = true;
+  tx.response = e.params.response;
+  tx.executor = e.transaction.from;
+  tx.blockHash = e.block.hash;
+  tx.timestamp = e.block.timestamp;
+
+  tx.save();
+}
+
+export function handleTxReverted(e: TxReverted): void {
+  const tx = new Tx(getTxId(e.transaction));
+
+  tx.safe = getSafeId(e.address);
+  tx.hash = e.params.txHash;
+  tx.success = false;
+  tx.response = e.params.response;
+  tx.executor = e.transaction.from;
+  tx.blockHash = e.block.hash;
+  tx.timestamp = e.block.timestamp;
+
+  tx.save();
+}
 
 export function handleGroupUpserted(e: GroupUpserted): void {
   const safe = getOrCreateSafe(e.address);
@@ -64,69 +106,4 @@ export function handleGroupRemoved(e: GroupRemoved): void {
     group.active = false;
     group.save();
   }
-}
-
-// zkSync ETH token
-const ETH_TOKEN: Bytes = Bytes.fromHexString(
-  '0x0000000000000000000000000000000000000000',
-);
-
-export function handleReceive(e: Received): void {
-  const transfer = new Transfer(getTransferId(e));
-
-  transfer.safe = getSafeId(e.address);
-  transfer.token = ETH_TOKEN;
-  transfer.type = 'IN';
-  transfer.from = e.params.from;
-  transfer.to = e.address;
-  transfer.value = e.params.value;
-  transfer.blockHash = e.block.hash;
-  transfer.timestamp = e.block.timestamp;
-
-  transfer.save();
-}
-
-export function handleTransaction(e: Transaction): void {
-  const tx = new Tx(getTxId(e.transaction));
-
-  tx.safe = getSafeId(getSafeContract(e)._address);
-  tx.hash = e.params.txHash;
-  tx.reverted = false;
-  tx.responses = [e.params.response];
-  tx.nResponses = tx.responses.length;
-  tx.executor = e.transaction.from;
-  tx.blockHash = e.block.hash;
-  tx.timestamp = e.block.timestamp;
-
-  tx.save();
-}
-
-export function handleMultiTransaction(e: MultiTransaction): void {
-  const tx = new Tx(getTxId(e.transaction));
-
-  tx.safe = getSafeId(getSafeContract(e)._address);
-  tx.hash = e.params.txHash;
-  tx.reverted = false;
-  tx.responses = e.params.responses;
-  tx.nResponses = tx.responses.length;
-  tx.executor = e.transaction.from;
-  tx.blockHash = e.block.hash;
-  tx.timestamp = e.block.timestamp;
-
-  tx.save();
-}
-
-export function handleTransactionReverted(e: TransactionReverted): void {
-  const tx = new Tx(getTxId(e.transaction));
-
-  tx.safe = getSafeId(getSafeContract(e)._address);
-  tx.hash = e.params.txHash;
-  tx.reverted = true;
-  tx.responses = [e.params.response];
-  tx.nResponses = tx.responses.length;
-  tx.executor = e.transaction.from;
-  tx.blockHash = e.block.hash;
-  tx.timestamp = e.block.timestamp;
-
-  tx.save();
 }

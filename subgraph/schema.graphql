@@ -11,9 +11,8 @@ type Tx @entity {
   id: ID!
   safe: Safe!
   hash: Bytes!
-  reverted: Boolean!
-  responses: [Bytes!]!
-  nResponses: Int!
+  success: Boolean!
+  response: Bytes!
   # Metadata
   executor: Bytes!
   blockHash: Bytes!
