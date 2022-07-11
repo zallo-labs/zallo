@@ -65,6 +65,10 @@ CREATE TABLE "ContractMethod" (
 CREATE TABLE "Tx" (
     "safeId" CHAR(42) NOT NULL,
     "hash" CHAR(66) NOT NULL,
+    "to" CHAR(42) NOT NULL,
+    "value" TEXT NOT NULL,
+    "data" TEXT NOT NULL,
+    "salt" CHAR(66) NOT NULL,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
     CONSTRAINT "Tx_pkey" PRIMARY KEY ("safeId","hash")
@@ -82,19 +86,6 @@ CREATE TABLE "Submission" (
     "finalized" BOOLEAN NOT NULL,
 
     CONSTRAINT "Submission_pkey" PRIMARY KEY ("hash")
-);
-
--- CreateTable
-CREATE TABLE "Op" (
-    "safeId" CHAR(42) NOT NULL,
-    "txHash" CHAR(66) NOT NULL,
-    "hash" CHAR(66) NOT NULL,
-    "to" CHAR(42) NOT NULL,
-    "value" TEXT NOT NULL,
-    "data" TEXT NOT NULL,
-    "nonce" TEXT NOT NULL,
-
-    CONSTRAINT "Op_pkey" PRIMARY KEY ("safeId","txHash","hash")
 );
 
 -- CreateTable
@@ -163,12 +154,6 @@ ALTER TABLE "Tx" ADD CONSTRAINT "Tx_safeId_fkey" FOREIGN KEY ("safeId") REFERENC
 
 -- AddForeignKey
 ALTER TABLE "Submission" ADD CONSTRAINT "Submission_safeId_txHash_fkey" FOREIGN KEY ("safeId", "txHash") REFERENCES "Tx"("safeId", "hash") ON DELETE CASCADE ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE "Op" ADD CONSTRAINT "Op_safeId_fkey" FOREIGN KEY ("safeId") REFERENCES "Safe"("id") ON DELETE CASCADE ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE "Op" ADD CONSTRAINT "Op_safeId_txHash_fkey" FOREIGN KEY ("safeId", "txHash") REFERENCES "Tx"("safeId", "hash") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "Approval" ADD CONSTRAINT "Approval_safeId_fkey" FOREIGN KEY ("safeId") REFERENCES "Safe"("id") ON DELETE CASCADE ON UPDATE CASCADE;

@@ -28,7 +28,6 @@ model Safe {
   name       String     @default("")
   deploySalt String?    @db.Char(66) // bytes32
   txs        Tx[]
-  ops        Op[]
   approvals  Approval[]
   comments   Comment[]
   reactions  Reaction[]
@@ -87,7 +86,10 @@ model Tx {
   safe        Safe         @relation(fields: [safeId], references: [id], onDelete: Cascade)
   safeId      String       @db.Char(42) // address
   hash        String       @db.Char(66) // bytes32
-  ops         Op[]
+  to          String       @db.Char(42) // address
+  value       String //@db.Decimal(79, 0) // uint256
+  data        String // bytes
+  salt        String       @db.Char(66) // bytes32
   approvals   Approval[]
   createdAt   DateTime     @default(now())
   submissions Submission[]
@@ -105,20 +107,6 @@ model Submission {
   gasLimit  Decimal  @db.Decimal(19, 0)
   gasPrice  Decimal? @db.Decimal(19, 0)
   finalized Boolean
-}
-
-model Op {
-  safe   Safe   @relation(fields: [safeId], references: [id], onDelete: Cascade)
-  safeId String @db.Char(42) // address
-  tx     Tx     @relation(fields: [safeId, txHash], references: [safeId, hash], onDelete: Cascade)
-  txHash String @db.Char(66) // bytes32
-  hash   String @db.Char(66) // bytes32
-  to     String @db.Char(42) // address
-  value  String //@db.Decimal(79, 0) // uint256
-  data   String // bytes
-  nonce  String //@db.Decimal(79, 0) // uint256
-
-  @@id([safeId, txHash, hash])
 }
 
 model Approval {

@@ -13,7 +13,7 @@ export class TxsArgs {
 }
 
 @InputType()
-export class OpInput {
+export class TxInput {
   @AddressField()
   to: Address;
 
@@ -23,8 +23,8 @@ export class OpInput {
   @BytesField()
   data: BytesLike;
 
-  @Uint256BnField()
-  nonce: BigNumber;
+  @Bytes32Field()
+  salt: string
 }
 
 @ArgsType()
@@ -32,8 +32,7 @@ export class ProposeTxArgs {
   @AddressField()
   safe: Address;
 
-  @Field(() => [OpInput])
-  ops: OpInput[];
+  tx: TxInput;
 
   @BytesField()
   signature: string;
