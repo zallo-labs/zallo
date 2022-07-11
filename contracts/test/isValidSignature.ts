@@ -4,9 +4,9 @@ import { expect, deploy, getSigners, wallet } from './util';
 
 describe('isValidSignature', () => {
   it('should return the magic value if the signature is valid', async () => {
-    const { safe, group } = await deploy([50, 50]);
+    const { safe, group } = await deploy([50, 40, 20]);
 
-    const tx = createTx({});
+    const tx = createTx({ to: wallet.address });
     const txHash = await hashTx(safe.address, tx);
 
     const signers = await getSigners(safe, group.approvers, tx);
@@ -22,7 +22,7 @@ describe('isValidSignature', () => {
   it("should be reverted if the hash doesn't match the signature", async () => {
     const { safe, group } = await deploy([50, 50]);
 
-    const tx = createTx({});
+    const tx = createTx({ to: wallet.address });
     const signers = await getSigners(safe, group.approvers, tx);
     const txSignature = createTxSignature(group, signers);
 

@@ -28,16 +28,16 @@ describe('Merkle proof', () => {
 
     const tree = getMerkleTree(group);
 
-    expect(await safe.getMerkleRoot(group.ref)).to.eq(tree.getHexRoot());
+    expect(await safe.getGroupMerkleRoot(group.ref)).to.eq(tree.getHexRoot());
   });
 
   it('should verify valid multi-proof', async () => {
-    const { safe, group } = await deployTestSafe([50, 20, 10, 40, 30, 5]);
+    const { safe, group } = await deployTestSafe([40, 60, 20]);
 
     const approvers = group.approvers.slice(0, 2);
     const { proof, proofFlags, root } = getMultiProof(group, approvers);
 
-    const tx = safe.verifyMultiProof(proof, proofFlags, root, approvers);
+    const tx = safe.verifyMultiProof(root, proof, proofFlags, approvers);
 
     await expect(tx).to.eventually.not.be.rejected;
   });
@@ -51,7 +51,7 @@ describe('Merkle proof', () => {
     const { proof, proofFlags, root } = getMultiProof(group, validApprovers);
 
     const invalidApprovers = [{ addr: others[0].address, weight: 100 }];
-    const tx = safe.verifyMultiProof(proof, proofFlags, root, invalidApprovers);
+    const tx = safe.verifyMultiProof(root, proof, proofFlags, invalidApprovers);
 
     await expect(tx).to.eventually.be.rejected;
   });
