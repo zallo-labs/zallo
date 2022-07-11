@@ -23,22 +23,13 @@ import './tasks/deposit';
 // https://hardhat.org/config/
 const config: HardhatUserConfig = {
   solidity: {
-    version: '0.8.13',
-    settings: {
-      optimizer: {
-        enabled: true,
-      },
-      viaIR: true,
-    },
+    version: '0.8.12',
   },
   zksolc: {
     version: '0.1.0',
     compilerSource:
       CONFIG.isDocker || CONFIG.useZksolcBin ? 'binary' : 'docker',
     settings: {
-      optimizer: {
-        enabled: true,
-      },
       compilerPath: 'zksolc', // only used for compilerSource=binary
       experimental: {
         dockerImage: 'matterlabs/zksolc',
