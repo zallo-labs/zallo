@@ -1,7 +1,7 @@
 import { BytesLike, Signer } from 'ethers';
 import { address, Addresslike } from './addr';
 
-import { calculateSafeAddress, getRandomSalt } from './counterfactual';
+import { calculateSafeAddress, getRandomDeploySalt } from './counterfactual';
 import { Safe, Factory, Factory__factory, Safe__factory } from './contracts';
 import { Groupish, toSafeGroup } from './group';
 import { SafeApprover } from './approver';
@@ -47,7 +47,7 @@ interface DeploySafeParams {
 export const deploySafe = async ({
   args,
   factory,
-  salt = getRandomSalt(),
+  salt = getRandomDeploySalt(),
 }: DeploySafeParams) => {
   const addr = await calculateSafeAddress(args, factory, salt);
 
@@ -55,7 +55,7 @@ export const deploySafe = async ({
   const deployTx = await factory.deploySafe(salt, constructorDeployData);
 
   return {
-    safe: getSafe(addr).connect(factory.provider),
+    safe: getSafe(addr).connect(factory.signer),
     salt,
     deployTx,
     deployReceipt: await deployTx.wait(),

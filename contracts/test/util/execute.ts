@@ -12,7 +12,7 @@ import {
 } from 'lib';
 import { TransactionStruct } from 'lib/src/contracts/contracts/ISafe';
 import { allSigners } from './wallet';
-import { defaultAbiCoder } from 'ethers/lib/utils';
+import { BytesLike, defaultAbiCoder } from 'ethers/lib/utils';
 import { Contract } from 'ethers';
 
 export const getSigners = async (
@@ -50,6 +50,7 @@ export const execute = async (
 export const toSafeTransaction = (
   safe: Contract,
   txDef: TxDef,
+  signature: BytesLike = "0x"
 ): TransactionStruct => {
   const tx = createTx(txDef);
 
@@ -63,7 +64,7 @@ export const toSafeTransaction = (
     ergsPrice: 0,
     reserved: [0, tx.value, 0, 0, 0, 0],
     data: defaultAbiCoder.encode(['bytes8', 'bytes'], [tx.salt, tx.data]),
-    signature: '0x',
+    signature,
     reservedDynamic: '0x',
   };
 };

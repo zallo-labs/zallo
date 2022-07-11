@@ -3,12 +3,14 @@
 ## constructor
 *Assumed to only call upsertGroup*
 
+
 ## isValidSignature
 - should return the magic value if the signature is valid
 - should successfully valdiate the signature of a single approver
 - should successfully validate the signature of multiple approvers
 - should be reverted if the hash doesn't match the signature
 - should be reverted if the signers don't meet the threshold
+
 
 ## validateTransaction
 *Assumes that isValidSignature*
@@ -33,6 +35,7 @@
 
 - should be callable from any address
 
+
 ## upsertGroup
 - should successfully execute
 - should emit event
@@ -44,6 +47,11 @@
 ## removeGroup
 - should successfully execute & emit event
 - should zero group's merkle root
+
+
+## hasBeenExecuted
+- should show an executed tx hash as being executed
+- should not show an unexecuted tx as being executed
 
 
 ## merkle
