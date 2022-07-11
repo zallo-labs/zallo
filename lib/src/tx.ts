@@ -55,10 +55,10 @@ export const signTx = async (wallet: Wallet, safe: Address, tx: Tx) => {
   );
 
   // Convert to a compact 64 byte signature (eip-2098)
-  return ethers.utils.splitSignature(longSig).compact
+  return ethers.utils.splitSignature(longSig).compact;
 };
 
-export const randomSalt = (): Bytes8 => hexlify(randomBytes(8));
+export const randomTxSalt = (): Bytes8 => hexlify(randomBytes(8));
 
 export interface TxDef {
   to?: Address | string;
@@ -70,6 +70,6 @@ export interface TxDef {
 export const createTx = (tx: TxDef): Tx => ({
   to: (tx.to && address(tx.to)) || ZERO_ADDR,
   value: tx.value !== undefined ? BigNumber.from(tx.value) : ZERO,
-  data: tx.data ? hexlify(tx.data) : "0x",
-  salt: tx.salt || randomSalt(),
+  data: tx.data ? hexlify(tx.data) : '0x',
+  salt: tx.salt || randomTxSalt(),
 });

@@ -8,7 +8,7 @@ import { address } from './addr';
 import { hexlify, randomBytes } from 'ethers/lib/utils';
 import * as zk from 'zksync-web3';
 
-export const getRandomSalt = () => hexlify(randomBytes(32));
+export const getRandomDeploySalt = () => hexlify(randomBytes(32));
 
 export const calculateSafeAddress = async (
   args: SafeConstructorArgs,
