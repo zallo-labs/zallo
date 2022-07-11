@@ -14,25 +14,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@angular-devkit/core@npm:13.1.4":
-  version: 13.1.4
-  resolution: "@angular-devkit/core@npm:13.1.4"
-  dependencies:
-    ajv: 8.8.2
-    ajv-formats: 2.1.1
-    fast-json-stable-stringify: 2.1.0
-    magic-string: 0.25.7
-    rxjs: 6.6.7
-    source-map: 0.7.3
-  peerDependencies:
-    chokidar: ^3.5.2
-  peerDependenciesMeta:
-    chokidar:
-      optional: true
-  checksum: 9e1c0bffd9888d14242417b995f93fa6c4f74552325eda4c93a1108fd2896dccdcd6a6d570e1fa20fd62f7bbed18a3be29764406be5712668901d6f57b8a4a8b
-  languageName: node
-  linkType: hard
-
 "@angular-devkit/core@npm:13.2.5":
   version: 13.2.5
   resolution: "@angular-devkit/core@npm:13.2.5"
@@ -52,7 +33,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@angular-devkit/core@npm:13.3.0, @angular-devkit/core@npm:^13.1.3":
+"@angular-devkit/core@npm:13.3.0":
   version: 13.3.0
   resolution: "@angular-devkit/core@npm:13.3.0"
   dependencies:
@@ -68,6 +49,25 @@ __metadata:
     chokidar:
       optional: true
   checksum: 131f8462b8be0a42dcac6c9369cc4b927fa3febd8cbe7099c969fc4ca816334ca9e5970a8fe1353e95b40fe35e8c5b96a759d9f0a3a8864fe4a20df9a8ec3d8b
+  languageName: node
+  linkType: hard
+
+"@angular-devkit/core@npm:13.3.8, @angular-devkit/core@npm:^13.3.0":
+  version: 13.3.8
+  resolution: "@angular-devkit/core@npm:13.3.8"
+  dependencies:
+    ajv: 8.9.0
+    ajv-formats: 2.1.1
+    fast-json-stable-stringify: 2.1.0
+    magic-string: 0.25.7
+    rxjs: 6.6.7
+    source-map: 0.7.3
+  peerDependencies:
+    chokidar: ^3.5.2
+  peerDependenciesMeta:
+    chokidar:
+      optional: true
+  checksum: 407252352f6d6a87372d110ba77d6cacc99d37eebef121210b17481e288e0a70c935b381d36af88a2b06847357bbe9334cb8fda7553698561c5d58e38040dbf7
   languageName: node
   linkType: hard
 
@@ -87,19 +87,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@angular-devkit/schematics@npm:13.1.4":
-  version: 13.1.4
-  resolution: "@angular-devkit/schematics@npm:13.1.4"
-  dependencies:
-    "@angular-devkit/core": 13.1.4
-    jsonc-parser: 3.0.0
-    magic-string: 0.25.7
-    ora: 5.4.1
-    rxjs: 6.6.7
-  checksum: e0b415e1948315e1732bc1fa9125e8c37115a28b5fb707bc1f204f3220e9f8ece920104a42fd2de2f2e7b7205fc2ee8d83465ac1c8d6b498a4c290583462a266
-  languageName: node
-  linkType: hard
-
 "@angular-devkit/schematics@npm:13.2.5":
   version: 13.2.5
   resolution: "@angular-devkit/schematics@npm:13.2.5"
@@ -113,7 +100,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@angular-devkit/schematics@npm:13.3.0, @angular-devkit/schematics@npm:^13.1.3":
+"@angular-devkit/schematics@npm:13.3.0":
   version: 13.3.0
   resolution: "@angular-devkit/schematics@npm:13.3.0"
   dependencies:
@@ -123,6 +110,19 @@ __metadata:
     ora: 5.4.1
     rxjs: 6.6.7
   checksum: 788b2647641319f7ad4274f3c999b99e356f56f6cb6314e790c4c0a51b10d572fe9e0c1e8e7a2db19b823981f933a8575c32305ba20874c10771f5350b534d13
+  languageName: node
+  linkType: hard
+
+"@angular-devkit/schematics@npm:13.3.8, @angular-devkit/schematics@npm:^13.3.0":
+  version: 13.3.8
+  resolution: "@angular-devkit/schematics@npm:13.3.8"
+  dependencies:
+    "@angular-devkit/core": 13.3.8
+    jsonc-parser: 3.0.0
+    magic-string: 0.25.7
+    ora: 5.4.1
+    rxjs: 6.6.7
+  checksum: f2474349b7a8665f60c8d1651302e2e219fd2f3e919b8ea74bef1bdbb4698939a90a2f9728e1133a847c45bc6a82e1ea0333da14d91166fe3573ebb44672da40
   languageName: node
   linkType: hard
 
@@ -4796,34 +4796,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@nestjs/apollo@npm:^10.0.9":
-  version: 10.0.11
-  resolution: "@nestjs/apollo@npm:10.0.11"
-  dependencies:
-    iterall: 1.3.0
-    lodash.omit: 4.5.0
-    tslib: 2.4.0
-  peerDependencies:
-    "@apollo/gateway": ^0.44.1 || ^0.46.0 || ^0.48.0 || ^0.49.0 || ^0.50.0
-    "@nestjs/common": ^8.2.3
-    "@nestjs/core": ^8.2.3
-    "@nestjs/graphql": ^10.0.0
-    apollo-server-core: ^3.5.0
-    apollo-server-express: ^3.5.0
-    apollo-server-fastify: ^3.5.0
-  peerDependenciesMeta:
-    "@apollo/gateway":
-      optional: true
-    apollo-server-core:
-      optional: true
-    apollo-server-express:
-      optional: true
-    apollo-server-fastify:
-      optional: true
-  checksum: 6460e87ba785693d80693e9053d5e9ce3ad057c692a52231a3868b444dbef5bd3cb57de66f31c2d8003a00211efdc853e996922b8fab83c21e0a40cc5f131eab
-  languageName: node
-  linkType: hard
-
 "@nestjs/axios@npm:^0.0.7":
   version: 0.0.7
   resolution: "@nestjs/axios@npm:0.0.7"
@@ -5461,14 +5433,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@prisma/debug@npm:3.14.0":
-  version: 3.14.0
-  resolution: "@prisma/debug@npm:3.14.0"
+"@prisma/debug@npm:3.15.2":
+  version: 3.15.2
+  resolution: "@prisma/debug@npm:3.15.2"
   dependencies:
     "@types/debug": 4.1.7
-    ms: 2.1.3
+    debug: 4.3.4
     strip-ansi: 6.0.1
-  checksum: 6a8397eda2e190b07af518d8cb792193c29d641be9ac87b67bf7ae16088a14fd1c24c9f6c3c1b80ceb88b4f51c5f870f279d18548a7c78fbba0b11d7934d3d2b
+  checksum: 4a15ab929c0799e883a37026fdb6fc31e5da8d8b426b2fecef67ec449d63a90f87906ec4d38b801b2c6798169f3db21be5e9f814640dc0513da8af49971e7a5c
   languageName: node
   linkType: hard
 
@@ -5486,15 +5458,15 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@prisma/generator-helper@npm:^3.13.0":
-  version: 3.14.0
-  resolution: "@prisma/generator-helper@npm:3.14.0"
+"@prisma/generator-helper@npm:^3.14.0":
+  version: 3.15.2
+  resolution: "@prisma/generator-helper@npm:3.15.2"
   dependencies:
-    "@prisma/debug": 3.14.0
+    "@prisma/debug": 3.15.2
     "@types/cross-spawn": 6.0.2
     chalk: 4.1.2
     cross-spawn: 7.0.3
-  checksum: 53de4b85675432e52a14137af1dadafaf0b9695062c2f57dd06f86cf64f5a8df122b1cc411947fd084a68e9f7fadca7f13cd380498a360fb1ffe99ceb4991f8d
+  checksum: c6dcf81f6b0fbf7b482436b0d6c311fc41dc584abc67ff6a3f5b72959afc8aa4412a9ddbad7c14226136426c2824eed5a4dd83c78077cd546260b83335e4e5cb
   languageName: node
   linkType: hard
 
@@ -5571,9 +5543,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@quixo3/prisma-session-store@npm:^3.1.3":
-  version: 3.1.3
-  resolution: "@quixo3/prisma-session-store@npm:3.1.3"
+"@quixo3/prisma-session-store@npm:^3.1.8":
+  version: 3.1.8
+  resolution: "@quixo3/prisma-session-store@npm:3.1.8"
   dependencies:
     cuid: ^2.1.8
     ts-dedent: ^2.2.0
@@ -5581,7 +5553,7 @@ __metadata:
   peerDependencies:
     "@prisma/client": ">=2.16.1"
     express-session: ">=1.17.1"
-  checksum: 3e88c8ef27e7cd61177c89c804ba018736de54fb137dc21b12241fcf3a62021343b3907ef3bc2cc845ba2616185cb933047075a482ea60a8c7fbc1856fed115b
+  checksum: e7b1e3d6d1e0068803ae79de3491679c3150430ceb10a64b448cbbf77bb58e606a78f11944ac2bbd3c59f39319824dc5f44a2fd9fc75eb8a9f0f30ba9bac0cc6
   languageName: node
   linkType: hard
 
@@ -5973,14 +5945,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@schematics/angular@npm:~13.1.3":
-  version: 13.1.4
-  resolution: "@schematics/angular@npm:13.1.4"
+"@schematics/angular@npm:~13.3.0":
+  version: 13.3.8
+  resolution: "@schematics/angular@npm:13.3.8"
   dependencies:
-    "@angular-devkit/core": 13.1.4
-    "@angular-devkit/schematics": 13.1.4
+    "@angular-devkit/core": 13.3.8
+    "@angular-devkit/schematics": 13.3.8
     jsonc-parser: 3.0.0
-  checksum: d825fe82dd333ffb5041ccd3ba1c3b67dad57b4c706b6b7bd3d9c45a4830a8bf136527914db77391b4f1d8b805c8ac4dcc49c4831228fba9eb588e1890e08b00
+  checksum: c0f9e803108b01027a5ab9970cbccd7e399f429a14388799f1b03e0fee4b060101cd19954dbba407e07bff2f1b560289a12994899a6805c0ca00b624dfe4bcc9
   languageName: node
   linkType: hard
 
@@ -8711,18 +8683,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"ajv@npm:8.8.2":
-  version: 8.8.2
-  resolution: "ajv@npm:8.8.2"
-  dependencies:
-    fast-deep-equal: ^3.1.1
-    json-schema-traverse: ^1.0.0
-    require-from-string: ^2.0.2
-    uri-js: ^4.2.2
-  checksum: 90849ef03c4f4f7051d15f655120137b89e3205537d683beebd39d95f40c0ca00ea8476cd999602d2f433863e7e4bf1b81d1869d1e07f4dcf56d71b6430a605c
-  languageName: node
-  linkType: hard
-
 "ajv@npm:8.9.0":
   version: 8.9.0
   resolution: "ajv@npm:8.9.0"
@@ -8984,7 +8944,7 @@ __metadata:
     "@nestjs/testing": ^8.4.1
     "@paljs/plugins": ^4.0.18
     "@prisma/client": ^4.0.0
-    "@quixo3/prisma-session-store": ^3.1.3
+    "@quixo3/prisma-session-store": ^3.1.8
     "@types/express": ^4.17.13
     "@types/express-session": ^1.17.4
     "@types/isomorphic-fetch": ^0.0.36
@@ -8997,17 +8957,18 @@ __metadata:
     apollo: 2.34.0
     apollo-server-core: ^3.6.4
     apollo-server-express: ^3.6.4
+    class-transformer: ^0.5.1
     class-validator: ^0.13.2
     config: "workspace:*"
     cross-fetch: ^3.1.5
-    dotenv: ^16.0.0
-    dotenv-cli: ^5.0.0
+    dotenv: ^16.0.1
+    dotenv-cli: ^6.0.0
     eslint: ^8.11.0
     eslint-config-prettier: ^8.5.0
     eslint-plugin-prettier: ^4.0.0
     ethers: ^5.6.9
     express-session: ^1.17.2
-    fetch-retry: ^5.0.2
+    fetch-retry: ^5.0.3
     graphql: ^16.3.0
     graphql-fields: ^2.0.3
     graphql-scalars: ^1.15.0
@@ -9015,24 +8976,24 @@ __metadata:
     isomorphic-fetch: ^3.0.0
     jest: ^28.1.1
     lib: "workspace:*"
-    luxon: ^2.3.1
-    nestjs-prisma: ^0.15.1
+    luxon: ^3.0.1
+    nestjs-prisma: ^0.16.0
     prettier: ^2.6.0
     prisma: ^4.0.0
-    prisma-graphql-type-decimal: ^2.0.0
-    prisma-nestjs-graphql: ^15.3.1
+    prisma-graphql-type-decimal: ^2.0.4
+    prisma-nestjs-graphql: ^16.0.1
     reflect-metadata: ^0.1.13
-    rxjs: ^7.5.5
+    rxjs: ^7.5.6
     siwe: ^1.1.6
     source-map-support: ^0.5.21
     supertest: ^6.2.2
     ts-jest: ^28.0.5
     ts-loader: ^9.3.1
-    ts-node: ^10.8.1
+    ts-node: ^10.8.2
     tsconfig-paths: ^3.14.0
     type-graphql: ^1.1.1
     typescript: ^4.7.4
-    zksync-web3: ^0.7.8
+    zksync-web3: ^0.7.9
   languageName: unknown
   linkType: soft
 
@@ -12386,6 +12347,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"class-transformer@npm:^0.5.1":
+  version: 0.5.1
+  resolution: "class-transformer@npm:0.5.1"
+  checksum: f191c8b4cc4239990f5efdd790cabdd852c243ed66248e39f6616a349c910c6eed2d9fd1fbf7ee6ea89f69b4f1d0b493b27347fe0cd0ae26b47c3745a805b6d3
+  languageName: node
+  linkType: hard
+
 "class-utils@npm:^0.3.5":
   version: 0.3.6
   resolution: "class-utils@npm:0.3.6"
@@ -13846,7 +13814,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"debug@npm:4, debug@npm:^4.0.1, debug@npm:^4.1.0, debug@npm:^4.1.1, debug@npm:^4.3.1, debug@npm:^4.3.2, debug@npm:^4.3.3, debug@npm:^4.3.4":
+"debug@npm:4, debug@npm:4.3.4, debug@npm:^4.0.1, debug@npm:^4.1.0, debug@npm:^4.1.1, debug@npm:^4.3.1, debug@npm:^4.3.2, debug@npm:^4.3.3, debug@npm:^4.3.4":
   version: 4.3.4
   resolution: "debug@npm:4.3.4"
   dependencies:
@@ -14571,9 +14539,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"dotenv-cli@npm:^5.0.0":
-  version: 5.0.0
-  resolution: "dotenv-cli@npm:5.0.0"
+"dotenv-cli@npm:^6.0.0":
+  version: 6.0.0
+  resolution: "dotenv-cli@npm:6.0.0"
   dependencies:
     cross-spawn: ^7.0.3
     dotenv: ^16.0.0
@@ -14581,7 +14549,7 @@ __metadata:
     minimist: ^1.2.5
   bin:
     dotenv: cli.js
-  checksum: 283238fd23eca018f71b1b044f765e45756defaf7457705ad8ac2e5e602fbf092979d16962508f6ea05a2f004d099ee5573add8dc84cd2abe7d6c999d09521da
+  checksum: 3db5a363eedd24d428001a956d9b8c72094983bfe0e0e722cda7803b614daf85dde9c9beb5d9fa28a139a5c594533ecd8f9d8430a90c244175e81c9a40abc5b1
   languageName: node
   linkType: hard
 
@@ -17102,10 +17070,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"fetch-retry@npm:^5.0.2":
-  version: 5.0.2
-  resolution: "fetch-retry@npm:5.0.2"
-  checksum: 888d81e2a872cd47d4e5cf9156e13e7b73cb902a677f882a88fb3d8d5fb029a4238b44b07328dfb7735860b038fdc3d92acbef7f07d8633a314e4809d2f1f9c0
+"fetch-retry@npm:^5.0.3":
+  version: 5.0.3
+  resolution: "fetch-retry@npm:5.0.3"
+  checksum: b4eebc04bd41651417e89ae9287e5b9e5421970ce07058c6e1e22f7d9c1cd5f935fc39a328fd66b433247c0ae1bb8a6b2d48c073d5a9f911992f72c5d311b14d
   languageName: node
   linkType: hard
 
@@ -23177,17 +23145,17 @@ __metadata:
   languageName: node
   linkType: hard
 
-"luxon@npm:^2.3.1":
-  version: 2.3.1
-  resolution: "luxon@npm:2.3.1"
-  checksum: ce5eec873a0172a0956618531e28010e8d8319a8b3a836b893d0f92239413a1fc5f77841ca24988e27bd61e8b2748e160e9dfcb13e92d7f031c1e31ad1c8ae91
-  languageName: node
-  linkType: hard
-
 "luxon@npm:^2.4.0":
   version: 2.4.0
   resolution: "luxon@npm:2.4.0"
   checksum: 6071028d65cc3d3bdab5e6a3995dd97411c92bb3b3163a02deb7b7014318ad3a6fd750ae77131c42141b717c14aef8880d3130f265281d500ef2365f7265b3f3
+  languageName: node
+  linkType: hard
+
+"luxon@npm:^3.0.1":
+  version: 3.0.1
+  resolution: "luxon@npm:3.0.1"
+  checksum: aa966eb919bf95b1bd819cda784d1f6f66e3fb65bd9ec7bf68b6a978eeb4e3e14f7e2275021b473f93b15b6b7ba2e5a30471e53add3929a7e695fcfd6dd40ec8
   languageName: node
   linkType: hard
 
@@ -24772,19 +24740,19 @@ __metadata:
   languageName: node
   linkType: hard
 
-"nestjs-prisma@npm:^0.15.1":
-  version: 0.15.1
-  resolution: "nestjs-prisma@npm:0.15.1"
+"nestjs-prisma@npm:^0.16.0":
+  version: 0.16.0
+  resolution: "nestjs-prisma@npm:0.16.0"
   dependencies:
-    "@angular-devkit/core": ^13.1.3
-    "@angular-devkit/schematics": ^13.1.3
-    "@schematics/angular": ~13.1.3
+    "@angular-devkit/core": ^13.3.0
+    "@angular-devkit/schematics": ^13.3.0
+    "@schematics/angular": ~13.3.0
   peerDependencies:
     "@nestjs/common": ^7.0.0 || ^8.0.0
     "@nestjs/platform-express": ^7.0.0 || ^8.0.0
     "@prisma/client": ^2.0.0 || ^3.0.0
     prisma: ^2.0.0 || ^3.0.0
-  checksum: 4fcadbd1b72224c92424040e495933c2fb35d910cc1dc13688580865ef1a5397d132b04296891dacb03f7263861d8b4326f19a8f36050cd23c4caf399c2b1f50
+  checksum: 6145a5318efc9d8b4d1e7cd070175c6c0f61de9e0dff8e6b201efe59c2836a21e5aa129e29c5c108f747eeac1b57a2bd3659b298a8cbc38930a7d0fa810149eb
   languageName: node
   linkType: hard
 
@@ -26983,22 +26951,21 @@ __metadata:
   languageName: node
   linkType: hard
 
-"prisma-graphql-type-decimal@npm:^2.0.0":
-  version: 2.0.0
-  resolution: "prisma-graphql-type-decimal@npm:2.0.0"
+"prisma-graphql-type-decimal@npm:^2.0.4":
+  version: 2.0.4
+  resolution: "prisma-graphql-type-decimal@npm:2.0.4"
   peerDependencies:
     "@prisma/client": ">=3.9"
     graphql: ">=16"
-  checksum: ecd2a7010a6d50a42f2bba132002655ddab82661e3b64e5e552394491f3aa6c9f47295ddf33d954b203f8240a10827daf537a56a16023d89fa044a72650d456f
+  checksum: cfcdd6aa9c44ab0dd16642da8ba14a4ac6eefddf206092e3e05e41a438c139219feca3205706d6eb8d4e18e5734c5147a461b4772025b3f85c85a0e7c055efe0
   languageName: node
   linkType: hard
 
-"prisma-nestjs-graphql@npm:^15.3.1":
-  version: 15.3.1
-  resolution: "prisma-nestjs-graphql@npm:15.3.1"
+"prisma-nestjs-graphql@npm:^16.0.1":
+  version: 16.0.1
+  resolution: "prisma-nestjs-graphql@npm:16.0.1"
   dependencies:
-    "@nestjs/apollo": ^10.0.9
-    "@prisma/generator-helper": ^3.13.0
+    "@prisma/generator-helper": ^3.14.0
     await-event-emitter: ^2.0.2
     filenamify: 4.X
     flat: ^5.0.2
@@ -27011,7 +26978,7 @@ __metadata:
     ts-morph: ">=11"
   bin:
     prisma-nestjs-graphql: bin.js
-  checksum: fd92f0d0778e5a994e60480568f99163b60d8e96aeea64352943af2e580e0abafec5fd30181308ec667bc6a377ac2d9a56ade4403daa4b9b0771f7d2e3495093
+  checksum: d65d66dc0d2818341af9f3e79e5c252db8f3ff2b2956d22ab8cd1272d715627b165fcc9ca2ed38fe3e844007e0cabdb696989c9ec01fe7cddaef88f2ca1481d5
   languageName: node
   linkType: hard
 
@@ -29130,12 +29097,21 @@ __metadata:
   languageName: node
   linkType: hard
 
-"rxjs@npm:^7.2.0, rxjs@npm:^7.5.5":
+"rxjs@npm:^7.2.0":
   version: 7.5.5
   resolution: "rxjs@npm:7.5.5"
   dependencies:
     tslib: ^2.1.0
   checksum: e034f60805210cce756dd2f49664a8108780b117cf5d0e2281506e9e6387f7b4f1532d974a8c8b09314fa7a16dd2f6cff3462072a5789672b5dcb45c4173f3c6
+  languageName: node
+  linkType: hard
+
+"rxjs@npm:^7.5.6":
+  version: 7.5.6
+  resolution: "rxjs@npm:7.5.6"
+  dependencies:
+    tslib: ^2.1.0
+  checksum: fc05f01364a74dac57490fb3e07ea63b422af04017fae1db641a009073f902ef69f285c5daac31359620dc8d9aee7d81e42b370ca2a8573d1feae0b04329383b
   languageName: node
   linkType: hard
 
@@ -31999,6 +31975,44 @@ __metadata:
     ts-node-transpile-only: dist/bin-transpile.js
     ts-script: dist/bin-script-deprecated.js
   checksum: 7d1aa7aa3ae1c0459c4922ed0dbfbade442cfe0c25aebaf620cdf1774f112c8d7a9b14934cb6719274917f35b2c503ba87bcaf5e16a0d39ba0f68ce3e7728363
+  languageName: node
+  linkType: hard
+
+"ts-node@npm:^10.8.2":
+  version: 10.8.2
+  resolution: "ts-node@npm:10.8.2"
+  dependencies:
+    "@cspotcode/source-map-support": ^0.8.0
+    "@tsconfig/node10": ^1.0.7
+    "@tsconfig/node12": ^1.0.7
+    "@tsconfig/node14": ^1.0.0
+    "@tsconfig/node16": ^1.0.2
+    acorn: ^8.4.1
+    acorn-walk: ^8.1.1
+    arg: ^4.1.0
+    create-require: ^1.1.0
+    diff: ^4.0.1
+    make-error: ^1.1.1
+    v8-compile-cache-lib: ^3.0.1
+    yn: 3.1.1
+  peerDependencies:
+    "@swc/core": ">=1.2.50"
+    "@swc/wasm": ">=1.2.50"
+    "@types/node": "*"
+    typescript: ">=2.7"
+  peerDependenciesMeta:
+    "@swc/core":
+      optional: true
+    "@swc/wasm":
+      optional: true
+  bin:
+    ts-node: dist/bin.js
+    ts-node-cwd: dist/bin-cwd.js
+    ts-node-esm: dist/bin-esm.js
+    ts-node-script: dist/bin-script.js
+    ts-node-transpile-only: dist/bin-transpile.js
+    ts-script: dist/bin-script-deprecated.js
+  checksum: 1eede939beed9f4db35bcc88d78ef803815b99dcdbed1ecac728d861d74dc694918a7f0f437aa08d026193743a31e7e00e2ee34f875f909b5879981c1808e2a7
   languageName: node
   linkType: hard
 
