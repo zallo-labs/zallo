@@ -15,7 +15,6 @@ import {
   PERCENT_THRESHOLD,
   MultiExecutor,
   MultiExecutor__factory,
-  randomTxSalt,
   toSafeConstructorDeployArgsBytes,
   getRandomDeploySalt,
 } from 'lib';
@@ -23,6 +22,8 @@ import { allSigners, wallet } from './wallet';
 import { ContractTransaction } from 'ethers';
 import * as zk from 'zksync-web3';
 import { parseEther } from 'ethers/lib/utils';
+
+const SAFE_START_BALANCE = parseEther('0.000001');
 
 export const toSafeGroupTest = (...approvers: [string, number][]): Group => ({
   ref: randomGroupRef(),
@@ -98,7 +99,7 @@ export const deploy = async (weights: number[]) => {
 
   const txResp = await wallet.sendTransaction({
     to: deployData.safe.address,
-    value: parseEther('0.00001'),
+    value: SAFE_START_BALANCE,
   });
   await txResp.wait();
 
@@ -139,7 +140,7 @@ export const deployTestSafe = async (
 
   const txResp = await wallet.sendTransaction({
     to: addr,
-    value: parseEther('0.00001'),
+    value: SAFE_START_BALANCE,
   });
   await txResp.wait();
 
