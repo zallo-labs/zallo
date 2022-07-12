@@ -1,0 +1,13 @@
+diff --git a/Jazzicon.js b/Jazzicon.js
+index b43586b7eeb83b028b0f83747795c97baf795cc8..8105fc49de5ad48fb6996b9e3b207d1ed80ba0c1 100644
+--- a/Jazzicon.js
++++ b/Jazzicon.js
+@@ -30,7 +30,7 @@ class Jazzicon extends React.Component {
+             colors: constants_1.colors.map((hex) => (new Color(hex)).rotate(amount).hex()),
+         };
+     }
+-    componentWillReceiveProps(props) {
++    UNSAFE_componentWillReceiveProps(props) {
+         this.setState(Jazzicon.propsToState(props));
+     }
+     render() {

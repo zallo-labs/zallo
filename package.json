@@ -35,6 +35,7 @@
     "eslint-plugin-react-hooks": "^4.5.0"
   },
   "resolutions": {
-    "graphql": "^15.8.0"
+    "graphql": "^15.8.0",
+    "react-native-jazzicon@0.1.2": "patch:react-native-jazzicon@npm:0.1.2#.yarn/patches/react-native-jazzicon-npm-0.1.2-c1633b051f.patch"
   }
 }

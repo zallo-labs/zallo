@@ -9496,7 +9496,7 @@ __metadata:
     react-native-dashed-line: ^1.1.0
     react-native-gesture-handler: ~2.2.1
     react-native-get-random-values: ~1.8.0
-    react-native-jazzicon: ^0.1.2
+    react-native-jazzicon: "patch:react-native-jazzicon@npm:^0.1.2#../.yarn/patches/react-native-jazzicon-npm-0.1.2-c1633b051f.patch"
     react-native-keyboard-aware-scroll-view: ^0.9.5
     react-native-pager-view: 5.4.15
     react-native-paper: ^4.12.1
@@ -27843,6 +27843,20 @@ __metadata:
     react-native: ^0.56.0
     react-native-svg: ^6.5.2
   checksum: c49ec82ba047399476915ef3b2c2297962721655ea9e5561beec0d05990dd5bc9dfbb6fd1ce3d637f5596ec5db5c963aa2d90930dbb784a9f956e2656fceaf37
+  languageName: node
+  linkType: hard
+
+"react-native-jazzicon@patch:react-native-jazzicon@npm:^0.1.2#../.yarn/patches/react-native-jazzicon-npm-0.1.2-c1633b051f.patch::locator=app%40workspace%3Aapp":
+  version: 0.1.2
+  resolution: "react-native-jazzicon@patch:react-native-jazzicon@npm%3A0.1.2#../.yarn/patches/react-native-jazzicon-npm-0.1.2-c1633b051f.patch::version=0.1.2&hash=2ab973&locator=app%40workspace%3Aapp"
+  dependencies:
+    color: ^3.0.0
+    mersenne-twister: ^1.1.0
+  peerDependencies:
+    react: ^16.4.2
+    react-native: ^0.56.0
+    react-native-svg: ^6.5.2
+  checksum: 626fc78e8e844e7eea2ebef4082b8a22c82a2d0f6b29a3ecfe0387108a5e1c8407cb6534ee07d2e452b5803eb675df6ae308d758718a3c45f169da90ec186231
   languageName: node
   linkType: hard
 
