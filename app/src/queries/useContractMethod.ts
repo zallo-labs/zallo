@@ -24,7 +24,7 @@ query GetContractMethod($contract: Address!, $sighash: Bytes!) {
 }
 `;
 
-export const getSighash = (data: BytesLike): string =>
+export const getDataSighash = (data: BytesLike): string =>
   ethers.utils.hexDataSlice(data, 0, 4);
 
 const transform = (
@@ -55,7 +55,7 @@ export const useContractMethod = (contract: Address, funcData: BytesLike) => {
   const { safe } = useSafe();
 
   const isSafe = contract === safe.address;
-  const sighash = getSighash(funcData);
+  const sighash = getDataSighash(funcData);
 
   const res = useQuery<GetContractMethod, GetContractMethodVariables>(
     API_QUERY,
@@ -75,7 +75,7 @@ export const useLazyContractMethod = () => {
   const get = useCallback(
     async (contract: Address, funcData: BytesLike) => {
       const isSafe = contract === safe.address;
-      const sighash = getSighash(funcData);
+      const sighash = getDataSighash(funcData);
 
       const result = await client.query<
         GetContractMethod,

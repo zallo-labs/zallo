@@ -2,7 +2,8 @@ import { showError } from '@components/Toast';
 import { useSafe } from '@features/safe/SafeProvider';
 import { useIsDeployed } from '@features/safe/useIsDeployed';
 import { ChildrenProps } from '@util/children';
-import { Address, createOp, hashTx, mapAsync, Op, toId } from 'lib';
+import { callsToTxReq } from '@util/multicall';
+import { Address, hashTx, toId, CallDef } from 'lib';
 import { DateTime } from 'luxon';
 import {
   createContext,
@@ -15,20 +16,18 @@ import {
 import { ProposedTx, TxStatus, useTxs } from '~/queries/tx/useTxs';
 import { ActivitySheet } from '../tx/ActivitySheet';
 
-const opsToProposedTx = async (
+const txReqToProposedTx = async (
   safe: Address,
-  ops: Op[],
+  callDefs: CallDef[],
 ): Promise<ProposedTx> => {
+  const txReq = await callsToTxReq(callDefs);
+  const hash = await hashTx(safe, txReq);
   const now = DateTime.now();
-  const hash = await hashTx(safe, ...ops);
 
   return {
     id: toId(`${safe}-${hash}`),
     hash,
-    ops: await mapAsync(ops, async (op) => ({
-      ...op,
-      hash: await hashTx(safe, op),
-    })),
+    ...txReq,
     approvals: [],
     userHasApproved: false,
     submissions: [],
@@ -38,7 +37,7 @@ const opsToProposedTx = async (
   };
 };
 
-type Propose = (...ops: Partial<Op>[]) => Promise<void>;
+type Propose = (...callDefs: CallDef[]) => Promise<void>;
 
 interface Context {
   propose: Propose;
@@ -57,35 +56,34 @@ export const ProposeProvider = ({ children }: ActivityProviderProps) => {
   const { txs } = useTxs();
   const isDeployed = useIsDeployed();
 
-  const [opsTx, setOpsTx] = useState<ProposedTx | undefined>();
+  const [tx, setTx] = useState<ProposedTx | undefined>();
 
   const value: Context = useMemo(
     () => ({
-      propose: async (...ops) => {
+      propose: async (...callDefs) => {
         if (!isDeployed) {
-          showError('Safe is not deployed');
+          showError('Deploy safe first');
           return;
         }
 
-        const tx = await opsToProposedTx(safe.address, ops.map(createOp));
-        setOpsTx(tx);
+        setTx(await txReqToProposedTx(safe.address, callDefs));
       },
     }),
     [isDeployed, safe.address],
   );
 
   const matchingTx = useMemo(
-    () => opsTx && txs.find((t) => t.id === opsTx.id),
-    [opsTx, txs],
+    () => tx && txs.find((t) => t.id === tx.id),
+    [tx, txs],
   );
 
-  const handleClose = useCallback(() => setOpsTx(undefined), [setOpsTx]);
+  const handleClose = useCallback(() => setTx(undefined), [setTx]);
 
   return (
     <context.Provider value={value}>
       {children}
-      {opsTx && (
-        <ActivitySheet activity={matchingTx ?? opsTx} onClose={handleClose} />
+      {tx && (
+        <ActivitySheet activity={matchingTx ?? tx} onClose={handleClose} />
       )}
     </context.Provider>
   );

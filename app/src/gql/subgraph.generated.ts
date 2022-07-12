@@ -62,7 +62,8 @@ export interface SQueryTxs_txes {
    */
   id: string;
   hash: any;
-  responses: any[];
+  success: boolean;
+  response: any;
   executor: any;
   blockHash: any;
   timestamp: any;

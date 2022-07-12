@@ -1,6 +1,6 @@
 import { usePropose } from '@features/execute/ProposeProvider';
 import { useSafe } from '@features/safe/SafeProvider';
-import { Group, createUpsertGroupOp, groupEquiv } from 'lib';
+import { createUpsertGroupTx, Group, groupEquiv } from 'lib';
 import { useCallback } from 'react';
 
 export const useUpsertSafeGroup = () => {
@@ -12,7 +12,7 @@ export const useUpsertSafeGroup = () => {
       if (prev && groupEquiv(cur, prev))
         throw new Error('Upserting group when cur ≡ prev');
 
-      return await propose(createUpsertGroupOp(safe, cur));
+      return await propose(createUpsertGroupTx(safe, cur));
     },
     [safe, propose],
   );

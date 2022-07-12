@@ -10,10 +10,10 @@ import { HomeScreenProps } from '@features/home/HomeScreen';
 import { RootNavigatorScreenProps } from '@features/navigation/RootNavigator';
 import { useNavigation } from '@react-navigation/native';
 import { BigNumber } from 'ethers';
-import { Address, ZERO } from 'lib';
+import { Address } from 'lib';
 import { useCallback, useState } from 'react';
 import { Appbar, FAB } from 'react-native-paper';
-import { createTransferOp, getTokenContract, Token } from '~/token/token';
+import { createTransferTx, Token } from '~/token/token';
 import { SendInput } from './SendInput';
 import { SendTokenChip } from './SendTokenChip';
 
@@ -58,7 +58,7 @@ export const SendScreen = withProposeProvider(
     const [amount, setAmount] = useState<BigNumber | undefined>();
 
     const send = useCallback(
-      () => propose(createTransferOp(token, to, amount)),
+      () => propose(createTransferTx(token, to, amount)),
       [amount, propose, to, token],
     );
 

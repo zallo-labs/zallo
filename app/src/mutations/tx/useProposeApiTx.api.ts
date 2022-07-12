@@ -6,12 +6,11 @@ import {
   GetApiTxsVariables,
   ProposeTx,
   ProposeTxVariables,
-  ProposeTx_proposeTx_ops,
 } from '@gql/api.generated';
 import { apiGql } from '@gql/clients';
 import { useApiClient } from '@gql/GqlProvider';
 import { hexlify } from 'ethers/lib/utils';
-import { hashTx, mapAsync, Op, signTx, toId } from 'lib';
+import { createTx, hashTx, signTx, toId, TxDef } from 'lib';
 import { DateTime } from 'luxon';
 import { useCallback } from 'react';
 import { API_GET_TXS_QUERY, API_TX_FIELDS } from '~/queries/tx/useTxs';
@@ -19,8 +18,8 @@ import { API_GET_TXS_QUERY, API_TX_FIELDS } from '~/queries/tx/useTxs';
 const MUTATION = apiGql`
 ${API_TX_FIELDS}
 
-mutation ProposeTx($safe: Address!, $ops: [OpInput!]!, $signature: Bytes!) {
-  proposeTx(safe: $safe, ops: $ops, signature: $signature) {
+mutation ProposeTx($safe: Address!, $tx: TxInput!, $signature: Bytes!) {
+  proposeTx(safe: $safe, tx: $tx, signature: $signature) {
     ...TxFields
   }
 }
@@ -35,20 +34,21 @@ export const useProposeApiTx = () => {
   });
 
   const propose = useCallback(
-    async (...ops: Op[]) => {
-      const hash = await hashTx(safe.address, ...ops);
-      const signature = await signTx(wallet, safe.address, ...ops);
+    async (txDef: TxDef) => {
+      const txReq = createTx(txDef);
+      const hash = await hashTx(safe.address, txReq);
+      const signature = await signTx(wallet, safe.address, txReq);
       const createdAt = DateTime.now().toISO();
 
       return await mutation({
         variables: {
           safe: safe.address,
-          ops: ops.map((op) => ({
-            to: op.to,
-            value: op.value.toString(),
-            data: hexlify(op.data),
-            nonce: op.nonce.toString(),
-          })),
+          tx: {
+            to: txReq.to,
+            value: txReq.value.toString(),
+            data: hexlify(txReq.data),
+            salt: hexlify(txReq.salt),
+          },
           signature,
         },
         update: (cache, { data: { proposeTx } }) => {
@@ -69,17 +69,10 @@ export const useProposeApiTx = () => {
             id: toId(`${safe.address}-${hash}`),
             safeId: safe.address,
             hash,
-            ops: await mapAsync(
-              ops,
-              async (op): Promise<ProposeTx_proposeTx_ops> => ({
-                __typename: 'Op',
-                hash: await hashTx(safe.address, op),
-                to: op.to,
-                value: op.value.toString(),
-                data: hexlify(op.data),
-                nonce: op.nonce.toString(),
-              }),
-            ),
+            to: txReq.to,
+            value: txReq.value.toString(),
+            data: hexlify(txReq.data),
+            salt: hexlify(txReq.salt),
             approvals: [
               {
                 __typename: 'Approval',

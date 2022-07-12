@@ -4,7 +4,7 @@ import {
   executeTx,
   Group,
   mapAsync,
-  Tx,
+  TxReq,
   Safe,
   signTx,
   Signerish,
@@ -18,7 +18,7 @@ import { Contract } from 'ethers';
 export const getSigners = async (
   safe: Safe,
   approvers: Approver[],
-  tx: Tx,
+  tx: TxReq,
 ): Promise<Signerish[]> =>
   mapAsync(approvers, async (approver) => ({
     ...approver,
@@ -50,7 +50,7 @@ export const execute = async (
 export const toSafeTransaction = (
   safe: Contract,
   txDef: TxDef,
-  signature: BytesLike = "0x"
+  signature: BytesLike = '0x',
 ): TransactionStruct => {
   const tx = createTx(txDef);
 

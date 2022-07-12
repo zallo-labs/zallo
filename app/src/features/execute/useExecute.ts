@@ -32,7 +32,7 @@ export const useGetExecute = () => {
       if (isExecutedTx(tx)) return undefined;
 
       if (tx.status === TxStatus.PreProposal)
-        return asEf('propose', () => propose(...tx.ops));
+        return asEf('propose', () => propose(tx));
 
       // Approve if user hasn't approved
       const userHasApproved = !!tx.approvals.find(

@@ -34,7 +34,7 @@ export const useApproveTx = () => {
 
   const approve = useCallback(
     async (tx: Tx) => {
-      const signature = await signTx(wallet, safe.address, ...tx.ops);
+      const signature = await signTx(wallet, safe.address, tx);
 
       return await mutate({
         variables: {

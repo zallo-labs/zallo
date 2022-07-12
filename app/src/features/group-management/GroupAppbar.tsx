@@ -6,10 +6,10 @@ import { usePropose } from '@features/execute/ProposeProvider';
 import { useSafe } from '@features/safe/SafeProvider';
 import { useNavigation } from '@react-navigation/native';
 import { AcceptIcon, AddIcon, DeleteIcon, RejectIcon } from '@util/icons';
-import { createRemoveGroupOp } from 'lib';
+import { createRemoveGroupTx } from 'lib';
 import { useMemo, useState } from 'react';
 import { Keyboard } from 'react-native';
-import { Appbar, Title, useTheme } from 'react-native-paper';
+import { Appbar, useTheme } from 'react-native-paper';
 import { useUpsertApiGroup } from '~/mutations/group/useUpsertApiGroup';
 import { CombinedGroup } from '~/queries';
 import { GroupManagementScreenProps } from './GroupManagementScreen';
@@ -36,7 +36,7 @@ export const GroupAppbar = ({ group }: GroupAppbarProps) => {
       target: { route: 'GroupManagement', output: 'selected' },
     });
 
-  const deleteGroup = () => propose(createRemoveGroupOp(safe, group));
+  const deleteGroup = () => propose(createRemoveGroupTx(safe, group));
 
   const [name, setName] = useState(group.name);
 

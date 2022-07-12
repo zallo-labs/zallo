@@ -1,12 +1,15 @@
 import { BigNumber, BytesLike } from 'ethers';
 import { FunctionFragment, Interface } from 'ethers/lib/utils';
 import { address, Address } from 'lib';
-import { getSighash, useContractMethod } from '~/queries/useContractMethod';
+import { getDataSighash, useContractMethod } from '~/queries/useContractMethod';
+import { ERC20_INTERFACE } from '~/token/token';
 
-export const TRANSFER_METHOD_SIGHASH = '0xa9059cbb';
+const ERC20_TRANSFER_SIGHASH = ERC20_INTERFACE.getSighash(
+  ERC20_INTERFACE.functions['transfer(address,uint256)'],
+);
 
 export const isTransferMethod = (data: BytesLike) =>
-  getSighash(data) === TRANSFER_METHOD_SIGHASH;
+  getDataSighash(data) === ERC20_TRANSFER_SIGHASH;
 
 export interface DecodedTransfer {
   to: Address;

@@ -1,7 +1,7 @@
 import { Overrides } from 'ethers';
 import { Safe } from './contracts';
 import { Groupish } from './group';
-import { Tx } from './tx';
+import { TxReq } from './tx';
 import { createTxSignature, Signerish } from './signature';
 import * as zk from 'zksync-web3';
 import { Eip712Meta, TransactionRequest } from 'zksync-web3/build/src/types';
@@ -15,7 +15,7 @@ export interface ExecuteTxOptions {
 
 export const executeTx = async (
   { address: safe, provider }: Safe,
-  tx: Tx,
+  tx: TxReq,
   group: Groupish,
   signers: Signerish[],
   opts: ExecuteTxOptions = {},

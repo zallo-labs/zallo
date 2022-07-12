@@ -3,62 +3,53 @@ import { Box } from '@components/Box';
 import { ExpandableText } from '@components/ExpandableText';
 import { TokenValue } from '@components/token/TokenValue';
 import { hexlify } from 'ethers/lib/utils';
-import { Op } from 'lib';
+import { Call } from 'lib';
 import { Paragraph, Subheading } from 'react-native-paper';
 import { ETH } from '~/token/tokens';
 import { useToken } from '~/token/useToken';
-import { DecodedOpDetails } from './DecodedOpDetails';
-import { OpDetailsRow } from './OpDetailsRow';
+import { DecodedOpDetails } from './DecodedCallDetails';
+import { CallDetailsRow } from './CallDetailsRow';
 
-export interface OpDetailsProps {
-  op: Op;
+export interface CallDetailsProps {
+  call: Call;
   title?: string;
 }
 
-export const OpDetails = ({ op, title }: OpDetailsProps) => {
-  const token = useToken(op.to) ?? ETH;
+export const CallDetails = ({ call, title }: CallDetailsProps) => {
+  const token = useToken(call.to) ?? ETH;
 
   return (
     <Box vertical>
       {title && <Subheading style={{ fontWeight: 'bold' }}>{title}</Subheading>}
 
-      <OpDetailsRow
+      <CallDetailsRow
         title="to"
         content={
           <Paragraph>
-            <Addr addr={op.to} />
+            <Addr addr={call.to} />
           </Paragraph>
         }
       />
 
-      <OpDetailsRow
+      <CallDetailsRow
         title="value"
         content={
           <Paragraph>
-            <TokenValue token={token} value={op.value} />
+            <TokenValue token={token} value={call.value} />
           </Paragraph>
         }
       />
 
-      <OpDetailsRow
+      <CallDetailsRow
         title="data"
         content={
-          <ExpandableText text={hexlify(op.data)} beginLen={8} endLen={8}>
+          <ExpandableText text={hexlify(call.data)} beginLen={8} endLen={8}>
             {({ text }) => <Paragraph>{text}</Paragraph>}
           </ExpandableText>
         }
       />
 
-      <OpDetailsRow
-        title="nonce"
-        content={
-          <ExpandableText text={op.nonce.toString()} beginLen={8} endLen={8}>
-            {({ text }) => <Paragraph>{text}</Paragraph>}
-          </ExpandableText>
-        }
-      />
-
-      <DecodedOpDetails op={op} />
+      <DecodedOpDetails call={call} />
     </Box>
   );
 };

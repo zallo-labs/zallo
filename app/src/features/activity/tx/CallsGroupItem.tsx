@@ -4,26 +4,24 @@ import { Item, ItemProps } from '@components/list/Item';
 import { TokenIcon } from '@components/token/TokenIcon';
 import { Paragraph, Subheading, useTheme } from 'react-native-paper';
 import { ETH } from '~/token/tokens';
-import { Address } from 'lib';
-import { OpRow } from './OpRow';
-import { OpWithHash } from '~/queries/tx/useTxs';
-import { ethers } from 'ethers';
+import { Address, Call } from 'lib';
+import { CallRow } from './CallRow';
 import { useToken } from '~/token/useToken';
-import { TotalOpsGroupValue } from './TotalOpsGroupValue';
+import { TotalCallsGroupValue } from './TotalCallsGroupValue';
 
-export interface OpsGroup {
+export interface CallsGroup {
   to: Address;
-  ops: OpWithHash[];
+  calls: Call[];
 }
 
-export interface OpsGroupItemProps extends ItemProps {
-  group: OpsGroup;
+export interface CallsGroupItemProps extends ItemProps {
+  group: CallsGroup;
 }
 
-export const OpsGroupItem = ({
-  group: { to, ops },
+export const CallsGroupItem = ({
+  group: { to, calls },
   ...itemProps
-}: OpsGroupItemProps) => {
+}: CallsGroupItemProps) => {
   const { colors } = useTheme();
   const token = useToken(to) ?? ETH;
 
@@ -38,12 +36,12 @@ export const OpsGroupItem = ({
             </Subheading>
 
             <Paragraph style={{ color: colors.lighterText }}>
-              <TotalOpsGroupValue to={to} ops={ops} hideZero />
+              <TotalCallsGroupValue to={to} calls={calls} hideZero />
             </Paragraph>
           </Box>
 
-          {ops.map((op) => (
-            <OpRow key={ethers.utils.hexlify(op.hash)} op={op} />
+          {calls.map((op, i) => (
+            <CallRow key={i} call={op} />
           ))}
         </Box>
       }

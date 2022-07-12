@@ -1,18 +1,18 @@
 import { Box } from '@components/Box';
 import { TokenValue } from '@components/token/TokenValue';
 import { useContractMethod } from '~/queries/useContractMethod';
-import { Op } from 'lib';
 import { Caption, Paragraph, useTheme } from 'react-native-paper';
 import { ETH } from '~/token/tokens';
 import { TransferMethodValue } from './TransferMethodValue';
 import { useDecodedTransfer } from './useDecodedTransfer';
 import { Addr } from '@components/Addr';
+import { Call } from 'lib';
 
-export interface OpRowProps {
-  op: Op;
+export interface CallRowProps {
+  call: Call;
 }
 
-export const OpRow = ({ op: { to, value, data } }: OpRowProps) => {
+export const CallRow = ({ call: { to, value, data } }: CallRowProps) => {
   const { colors } = useTheme();
   const { methodName } = useContractMethod(to, data);
   const decodedTransfer = useDecodedTransfer(to, data);

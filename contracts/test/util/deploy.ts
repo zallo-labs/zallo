@@ -73,7 +73,7 @@ export const deploySafeDirect = async (
   await contract.deployed();
 
   return {
-    safe: getSafe(contract.address),
+    safe: getSafe(contract.address, wallet),
     deployTx: contract.deployTransaction,
   };
 };

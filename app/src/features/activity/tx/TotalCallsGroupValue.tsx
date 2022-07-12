@@ -1,7 +1,7 @@
 import { FiatValue } from '@components/FiatValue';
 import { useLazyContractMethod } from '~/queries/useContractMethod';
 import { useTokenPrice } from '~/queries';
-import { Address, Op, sumBn, ZERO, mapAsync } from 'lib';
+import { Address, sumBn, ZERO, mapAsync, Call } from 'lib';
 import { useState } from 'react';
 import useAsyncEffect from 'use-async-effect';
 import { ETH } from '~/token/tokens';
@@ -9,17 +9,17 @@ import { useToken } from '~/token/useToken';
 import { getTokenValue, TokenValue } from '~/token/useTokenValue';
 import { tryDecodeTransfer } from './useDecodedTransfer';
 
-export interface TotalOpsGroupValueProps {
+export interface TotalCallsGroupValueProps {
   to: Address;
-  ops: Op[];
+  calls: Call[];
   hideZero?: boolean;
 }
 
-export const TotalOpsGroupValue = ({
+export const TotalCallsGroupValue = ({
   to,
-  ops,
+  calls,
   hideZero,
-}: TotalOpsGroupValueProps) => {
+}: TotalCallsGroupValueProps) => {
   const getContractMethod = useLazyContractMethod();
   const token = useToken(to) ?? ETH;
   const { price } = useTokenPrice(token);
@@ -27,14 +27,14 @@ export const TotalOpsGroupValue = ({
   const [value, setValue] = useState<TokenValue>({ fiatValue: 0, ethValue: 0 });
 
   useAsyncEffect(async (isMounted) => {
-    const values = await mapAsync(ops, async (op) => {
+    const values = await mapAsync(calls, async (call) => {
       const { methodFragment, methodInterface } = await getContractMethod(
-        op.to,
-        op.data,
+        call.to,
+        call.data,
       );
 
       const decoded = tryDecodeTransfer(
-        op.data,
+        call.data,
         methodFragment,
         methodInterface,
       );

@@ -1,16 +1,9 @@
 import { useSafe } from '@features/safe/SafeProvider';
-import { executeTx, Signerish, CombinedOverrides } from 'lib';
+import { executeTx, Signerish } from 'lib';
 import { useCallback } from 'react';
 import { CombinedGroup } from '~/queries';
 import { ProposedTx } from '~/queries/tx/useTxs';
-import { USDC } from '~/token/tokens';
 import { useApiSubmitExecution } from './useApiSubmitExecution';
-
-const overrides: CombinedOverrides = {
-  customData: {
-    feeToken: USDC.addr,
-  },
-};
 
 export const useSubmitExecute = () => {
   const { safe } = useSafe();
@@ -30,7 +23,7 @@ export const useSubmitExecute = () => {
         signers,
       });
 
-      const resp = await executeTx(safe, tx.ops, group, signers, overrides);
+      const resp = await executeTx(safe, tx, group, signers);
       await submitExecution(tx, resp);
     },
     [safe, submitExecution],

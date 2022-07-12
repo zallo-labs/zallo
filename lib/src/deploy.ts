@@ -35,8 +35,8 @@ export const toSafeConstructorDeployArgsBytes = (
 export const getFactory = (addr: Addresslike, signer: Signer) =>
   new Factory__factory().attach(address(addr)).connect(signer);
 
-export const getSafe = (addr: Addresslike) =>
-  new Safe__factory().attach(address(addr));
+export const getSafe = (addr: Addresslike, signer: Signer) =>
+  new Safe__factory().attach(address(addr)).connect(signer);
 
 interface DeploySafeParams {
   args: SafeConstructorArgs;
@@ -55,7 +55,7 @@ export const deploySafe = async ({
   const deployTx = await factory.deploySafe(salt, constructorDeployData);
 
   return {
-    safe: getSafe(addr).connect(factory.signer),
+    safe: getSafe(addr, factory.signer),
     salt,
     deployTx,
     deployReceipt: await deployTx.wait(),

@@ -1,9 +1,8 @@
-import { USDC } from '../test/util/wallet';
 import { deployFactory } from '../test/util/deploy';
 import { displayTx } from './display';
 
 const main = async () => {
-  const { factory, deployTx } = await deployFactory(USDC);
+  const { factory, deployTx } = await deployFactory();
 
   await displayTx(factory.address, deployTx);
 };

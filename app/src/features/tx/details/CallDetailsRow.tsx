@@ -2,16 +2,16 @@ import { Box, BoxProps } from '@components/Box';
 import { ReactNode } from 'react';
 import { Paragraph } from 'react-native-paper';
 
-export interface OpDetailsRowProps extends BoxProps {
+export interface CallDetailsRowProps extends BoxProps {
   title: string;
   content: ReactNode;
 }
 
-export const OpDetailsRow = ({
+export const CallDetailsRow = ({
   title,
   content,
   ...boxProps
-}: OpDetailsRowProps) => {
+}: CallDetailsRowProps) => {
   return (
     <Box horizontal {...boxProps}>
       <Box flex={1}>

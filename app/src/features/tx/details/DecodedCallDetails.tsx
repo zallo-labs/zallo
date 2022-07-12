@@ -2,25 +2,22 @@ import { ExpandableText } from '@components/ExpandableText';
 import { LineSkeleton } from '@components/skeleton/LineSkeleton';
 import { withSkeleton } from '@components/skeleton/withSkeleton';
 import { FormatTypes } from 'ethers/lib/utils';
-import { Op } from 'lib';
+import { Call } from 'lib';
 import { Caption, Paragraph } from 'react-native-paper';
 import { useContractMethod } from '~/queries/useContractMethod';
-import { OpDetailsRow } from './OpDetailsRow';
+import { CallDetailsRow } from './CallDetailsRow';
 
 export interface DecodedOpDetailsProps {
-  op: Op;
+  call: Call;
 }
 
 export const DecodedOpDetails = withSkeleton(
-  ({ op }: DecodedOpDetailsProps) => {
-    const { methodFragment, methodInterface } = useContractMethod(
-      op.to,
-      op.data,
-    );
+  ({ call: { to, data } }: DecodedOpDetailsProps) => {
+    const { methodFragment, methodInterface } = useContractMethod(to, data);
 
     if (!methodFragment || !methodInterface) return null;
 
-    const decoded = methodInterface.decodeFunctionData(methodFragment, op.data);
+    const decoded = methodInterface.decodeFunctionData(methodFragment, data);
 
     return (
       <>
@@ -30,7 +27,7 @@ export const DecodedOpDetails = withSkeleton(
         </Paragraph>
 
         {methodFragment.inputs.map((input, i) => (
-          <OpDetailsRow
+          <CallDetailsRow
             key={input.name}
             title={input.name}
             content={
