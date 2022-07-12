@@ -33,7 +33,6 @@ export const AuthGate = ({ children }: ChildrenProps) => {
   useAsyncEffect(
     async (isMounted) => {
       if (!auth.success) {
-        console.log('Authenticating...');
         const success = await tryAuthenticate();
         if (isMounted()) setAuth({ success });
       }
