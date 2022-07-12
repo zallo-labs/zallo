@@ -186,6 +186,7 @@ const useApiProposedTxs = () => {
     {
       client: useApiClient(),
       variables: { safe: safe.address },
+      pollInterval: 15 * 1000,
     },
   );
 

@@ -41,9 +41,7 @@ export const useReactToComment = () => {
 
   const [mutate] = useMutation<ReactToComment, ReactToCommentVariables>(
     MUTATION,
-    {
-      client: useApiClient(),
-    },
+    { client: useApiClient() },
   );
 
   const react = useCallback(

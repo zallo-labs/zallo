@@ -134,6 +134,7 @@ query AQueryUserSafes {
 const useApiSafes = () => {
   const { data, ...rest } = useQuery<AQueryUserSafes>(AQUERY_USER_SAFES, {
     client: useApiClient(),
+    pollInterval: 30 * 1000,
   });
 
   const safes = filterFirst(

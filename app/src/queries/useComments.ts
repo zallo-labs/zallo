@@ -84,6 +84,7 @@ export const useComments = (commentable: Commentable) => {
         safe: safe.address,
         key,
       },
+      pollInterval: 5 * 1000,
     },
   );
 
