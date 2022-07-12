@@ -4,7 +4,7 @@ import {
   useContext,
   useEffect,
   useMemo,
-  useRef,
+  useState,
 } from 'react';
 import useAsyncEffect from 'use-async-effect';
 import { atom, SetterOrUpdater, useRecoilState } from 'recoil';
@@ -51,16 +51,13 @@ export const SafeProvider = ({ children }: ChildrenProps) => {
     [createCfSafeMutation, setSelectedAddr],
   );
 
-  const initializing = useRef(false);
+  const [safeCreated, setSafeCreated] = useState(false);
   useAsyncEffect(async () => {
-    if (!loading && !safes?.length) {
-      initializing.current = true;
-
+    if (!safeCreated && !loading && !safes?.length) {
+      setSafeCreated(true);
       await createSafe();
-
-      initializing.current = false;
     }
-  }, [safes, loading, initializing]);
+  }, [safes, loading, safeCreated]);
 
   const selected = useMemo(
     () => safes.find((s) => s.safe.address === selectedAddr),
