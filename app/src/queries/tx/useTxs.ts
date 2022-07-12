@@ -6,7 +6,6 @@ import { apiGql, subGql } from '@gql/clients';
 import { combine, combineRest, simpleKeyExtractor } from '@gql/combine';
 import { useApiClient, useSubgraphClient } from '@gql/GqlProvider';
 import { SQueryTxs, SQueryTxsVariables } from '@gql/subgraph.generated';
-import { txReqToCalls } from '@util/multicall';
 import { BigNumber, BytesLike } from 'ethers';
 import {
   address,
@@ -14,7 +13,6 @@ import {
   Id,
   toId,
   createIsObj,
-  Call,
   TxReq,
   ZERO_ADDR,
   ZERO,
@@ -93,12 +91,15 @@ export const isExecutedTx = (e: unknown): e is ExecutedTx =>
 export const isProposedTx = (e: unknown): e is ProposedTx =>
   isTx(e) && !('responses' in e);
 
+export const QUERY_TXS_POLL_INTERVAL = 15 * 1000;
+
 const useSubExecutedTxs = () => {
   const { safe } = useSafe();
 
   const { data, ...rest } = useQuery<SQueryTxs, SQueryTxsVariables>(SUB_QUERY, {
     client: useSubgraphClient(),
     variables: { safe: toId(safe.address) },
+    pollInterval: QUERY_TXS_POLL_INTERVAL,
   });
 
   const executedTxs: ExecutedTx[] = useMemo(
@@ -186,7 +187,7 @@ const useApiProposedTxs = () => {
     {
       client: useApiClient(),
       variables: { safe: safe.address },
-      pollInterval: 15 * 1000,
+      pollInterval: QUERY_TXS_POLL_INTERVAL,
     },
   );
 

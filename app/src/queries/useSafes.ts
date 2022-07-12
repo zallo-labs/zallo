@@ -52,6 +52,8 @@ query SQuerySafes($user: ID!) {
 }
 `;
 
+const POLL_INTERVAL = 30 * 1000;
+
 export const useSubSafes = () => {
   const wallet = useWallet();
 
@@ -60,6 +62,7 @@ export const useSubSafes = () => {
     {
       client: useSubgraphClient(),
       variables: { user: toId(wallet.address) },
+      pollInterval: POLL_INTERVAL,
     },
   );
 
@@ -134,7 +137,7 @@ query AQueryUserSafes {
 const useApiSafes = () => {
   const { data, ...rest } = useQuery<AQueryUserSafes>(AQUERY_USER_SAFES, {
     client: useApiClient(),
-    pollInterval: 30 * 1000,
+    pollInterval: POLL_INTERVAL,
   });
 
   const safes = filterFirst(
