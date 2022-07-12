@@ -3977,9 +3977,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@gorhom/bottom-sheet@npm:^4.3.2":
-  version: 4.3.2
-  resolution: "@gorhom/bottom-sheet@npm:4.3.2"
+"@gorhom/bottom-sheet@npm:^4.4.2":
+  version: 4.4.2
+  resolution: "@gorhom/bottom-sheet@npm:4.4.2"
   dependencies:
     "@gorhom/portal": 1.0.13
     invariant: ^2.2.4
@@ -3990,7 +3990,7 @@ __metadata:
     react-native: "*"
     react-native-gesture-handler: ">=1.10.1"
     react-native-reanimated: ">=2.2.0"
-  checksum: e8d4ecb82bd6f6dbc1dd555199bbb62665dfac7e30a1aa0f88664bce0196a4b9d4d2fcb5ec59eff6c319a40541776e71bbbb22c0e1274e68bb07afb3b66fd403
+  checksum: 32034ec389df39b9b3ebd886eda02bb14b7bedf4c654dfb54c1b5bc1fe78f790011b279d02956d8805e9dfe3dd1fcdb416dc82cf3dcc7e13265475021adf7522
   languageName: node
   linkType: hard
 
@@ -9434,7 +9434,7 @@ __metadata:
     "@ethersproject/shims": ^5.6.0
     "@expo/config": ~6.0.19
     "@expo/vector-icons": ^13.0.0
-    "@gorhom/bottom-sheet": ^4.3.2
+    "@gorhom/bottom-sheet": ^4.4.2
     "@react-native-async-storage/async-storage": ~1.17.3
     "@react-navigation/drawer": ^6.4.2
     "@react-navigation/material-top-tabs": ^6.2.1
@@ -9476,7 +9476,7 @@ __metadata:
     expo-secure-store: ~11.2.0
     expo-splash-screen: ~0.15.1
     expo-status-bar: ~1.3.0
-    expo-updates: ~0.13.2
+    expo-updates: ~0.13.3
     expo-yarn-workspaces: ^2.0.0
     formik: ^2.2.9
     fuzzy-search: ^3.2.1
@@ -9485,7 +9485,7 @@ __metadata:
     jest: ^28.1.1
     jest-expo: ^45.0.1
     lib: "workspace:*"
-    luxon: ^2.4.0
+    luxon: ^3.0.1
     node-libs-react-native: ^1.2.1
     react: 17.0.2
     react-content-loader: ^6.2.0
@@ -9524,7 +9524,7 @@ __metadata:
     use-async-effect: ^2.2.6
     use-debounce: ^8.0.1
     yup: ^0.32.11
-    zksync-web3: ^0.7.8
+    zksync-web3: ^0.7.9
   languageName: unknown
   linkType: soft
 
@@ -16649,9 +16649,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"expo-updates@npm:~0.13.2":
-  version: 0.13.2
-  resolution: "expo-updates@npm:0.13.2"
+"expo-updates@npm:~0.13.3":
+  version: 0.13.3
+  resolution: "expo-updates@npm:0.13.3"
   dependencies:
     "@expo/code-signing-certificates": 0.0.1
     "@expo/config": ^6.0.14
@@ -16669,7 +16669,7 @@ __metadata:
     expo: "*"
   bin:
     expo-updates: bin/cli.js
-  checksum: 2b901e714bb2440f5003323de89a2feaffd6bf4a7e33de1b29e22e020446018545260c9ebc467b18105056a0cb0d8548d4cdc2945ecda2c12a1fc550debc8a33
+  checksum: 05b5f0f6152dc75c0efccd739f9882ae1a2b31b8140bf655c495854101b59fd4620387ed7a8ab8bf5317d8d206a7737b52a5596763e1cf18ca5d538a0f197900
   languageName: node
   linkType: hard
 
@@ -23142,13 +23142,6 @@ __metadata:
   version: 2.1.3
   resolution: "ltgt@npm:2.1.3"
   checksum: b09281f6aeccb34eda52588d21f9116f6e5b7ae1c79f6180bba06edcdcba50de9c6d199be7f817a7ae59819064e3ca7d066fe0bcc67e2458006e4e45cd05cb11
-  languageName: node
-  linkType: hard
-
-"luxon@npm:^2.4.0":
-  version: 2.4.0
-  resolution: "luxon@npm:2.4.0"
-  checksum: 6071028d65cc3d3bdab5e6a3995dd97411c92bb3b3163a02deb7b7014318ad3a6fd750ae77131c42141b717c14aef8880d3130f265281d500ef2365f7265b3f3
   languageName: node
   linkType: hard
 
@@ -34937,15 +34930,6 @@ __metadata:
   version: 0.8.15
   resolution: "zen-observable@npm:0.8.15"
   checksum: b7289084bc1fc74a559b7259faa23d3214b14b538a8843d2b001a35e27147833f4107590b1b44bf5bc7f6dfe6f488660d3a3725f268e09b3925b3476153b7821
-  languageName: node
-  linkType: hard
-
-"zksync-web3@npm:^0.7.8":
-  version: 0.7.8
-  resolution: "zksync-web3@npm:0.7.8"
-  peerDependencies:
-    ethers: ~5.5.0
-  checksum: d899c62afa48a65d5a873a26fb49cad06fe1042d929b85c207d2eae917b6d7137e2b09733c5a24bff692a37bc44f34e7683198b3cff6d128210bc3ef9deb1acb
   languageName: node
   linkType: hard
 
