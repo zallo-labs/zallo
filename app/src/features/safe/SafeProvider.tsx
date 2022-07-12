@@ -12,7 +12,7 @@ import { atom, SetterOrUpdater, useRecoilState } from 'recoil';
 import { ChildrenProps } from '@util/children';
 import { Address } from 'lib';
 import { Suspend } from '@components/Suspender';
-import { persistAtom } from '@util/persistAtom';
+import { persistAtom } from '@util/effect/persistAtom';
 import { useCreateCounterfactualSafe } from './useCreateCounterfactualSafe';
 import { CombinedSafe, useSafes } from '~/queries/useSafes';
 

@@ -9,7 +9,7 @@ import { CONFIG } from '~/config';
 import { PROVIDER } from '~/provider';
 import { useWallet } from '@features/wallet/useWallet';
 import { atom, useRecoilState } from 'recoil';
-import { getSecureStore, persistAtom } from '@util/persistAtom';
+import { getSecureStore, persistAtom } from '@util/effect/persistAtom';
 import { useCallback, useMemo, useRef } from 'react';
 
 interface Token {

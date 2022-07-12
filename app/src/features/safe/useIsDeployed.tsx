@@ -1,4 +1,4 @@
-import { persistAtom } from '@util/persistAtom';
+import { persistAtom } from '@util/effect/persistAtom';
 import { Address } from 'lib';
 import { atomFamily, useRecoilValue } from 'recoil';
 import { PROVIDER } from '~/provider';

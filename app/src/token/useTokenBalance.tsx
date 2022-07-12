@@ -6,7 +6,7 @@ import { atomFamily, selectorFamily, useRecoilValue } from 'recoil';
 import { Address } from 'lib';
 import { captureException, Severity } from '@util/sentry/sentry';
 import { allTokensSelector } from './useToken';
-import { refreshAtom } from '@util/refreshAtom';
+import { refreshAtom } from '@util/effect/refreshAtom';
 
 // [addr, token]
 type BalanceKey = [Address, Address];

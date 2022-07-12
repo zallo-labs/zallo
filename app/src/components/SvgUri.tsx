@@ -1,4 +1,4 @@
-import { persistAtom } from '@util/persistAtom';
+import { persistAtom } from '@util/effect/persistAtom';
 import { SvgProps, SvgXml } from 'react-native-svg';
 import { atomFamily, useRecoilValue } from 'recoil';
 
