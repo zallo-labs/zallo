@@ -28,7 +28,7 @@ const ETH_TOKEN: Bytes = Bytes.fromHexString(
   '0x0000000000000000000000000000000000000000',
 );
 
-export function handleReceive(e: Received): void {
+export function handleReceived(e: Received): void {
   const transfer = new Transfer(getTransferId(e));
 
   transfer.safe = getSafeId(e.address);
