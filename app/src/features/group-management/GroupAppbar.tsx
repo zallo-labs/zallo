@@ -11,7 +11,7 @@ import { useMemo, useState } from 'react';
 import { Keyboard } from 'react-native';
 import { Appbar, useTheme } from 'react-native-paper';
 import { useUpsertApiGroup } from '~/mutations/group/useUpsertApiGroup';
-import { CombinedGroup } from '~/queries';
+import { CombinedGroup } from '~/queries/useSafes';
 import { GroupManagementScreenProps } from './GroupManagementScreen';
 
 export interface GroupAppbarProps {

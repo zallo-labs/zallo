@@ -4,9 +4,9 @@ import { Address } from 'lib';
 import { Addr } from '@components/Addr';
 import { Identicon } from '@components/Identicon';
 import { Item, ItemProps } from '@components/list/Item';
-import { Contact } from '~/queries';
 import { ContactsScreenProps } from './ContactsScreen';
 import { EditIcon } from '@util/icons';
+import { Contact } from '~/queries/useContacts';
 
 export interface ContactItemProps extends ItemProps {
   contact: Contact;

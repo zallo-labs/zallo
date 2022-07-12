@@ -9,14 +9,14 @@ import {
 import { apiGql } from '@gql/clients';
 import { useApiClient } from '@gql/GqlProvider';
 import { QueryOpts } from '@gql/update';
-import {
-  API_GROUP_FIELDS_FRAGMENT,
-  AQUERY_USER_SAFES,
-  CombinedGroup,
-} from '~/queries';
 import produce from 'immer';
 import { useWallet } from '@features/wallet/useWallet';
 import { toId } from 'lib';
+import {
+  API_GROUP_FIELDS_FRAGMENT,
+  CombinedGroup,
+  AQUERY_USER_SAFES,
+} from '~/queries/useSafes';
 
 const API_MUTATION = apiGql`
 ${API_GROUP_FIELDS_FRAGMENT}

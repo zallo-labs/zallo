@@ -4,7 +4,7 @@ import { Drawer } from 'react-native-paper';
 import { DrawerNavigatorParamList } from '@features/navigation/DrawerNavigator';
 import { RootNavigatorParamList } from '@features/navigation/RootNavigator';
 import { TabNavigatorParamList } from '@features/navigation/TabNavigator';
-import { useDrawerNavigation } from './Drawer';
+import { useDrawerNavigation } from './DrawerNavigationProvider';
 
 type Screen =
   | keyof RootNavigatorParamList

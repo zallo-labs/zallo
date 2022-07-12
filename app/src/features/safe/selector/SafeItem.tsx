@@ -3,9 +3,10 @@ import { Identicon } from '@components/Identicon';
 import { Item, ItemProps } from '@components/list/Item';
 import { ItemSkeleton } from '@components/list/ItemSkeleton';
 import { withSkeleton } from '@components/skeleton/withSkeleton';
-import { truncatedAddr, useAddrName } from '@util/hook/useAddrName';
+import { truncatedAddr } from '@util/format';
+import { useAddrName } from '@util/hook/useAddrName';
 import { Caption, Title } from 'react-native-paper';
-import { CombinedSafe } from '~/queries';
+import { CombinedSafe } from '~/queries/useSafes';
 
 export interface SafeItemProps extends ItemProps {
   safe: CombinedSafe;

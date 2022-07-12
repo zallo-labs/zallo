@@ -1,11 +1,10 @@
 import { BytesLike, Signer } from 'ethers';
 import { address, Addresslike } from './addr';
-
-import { calculateSafeAddress, getRandomDeploySalt } from './counterfactual';
 import { Safe, Factory, Factory__factory, Safe__factory } from './contracts';
 import { Groupish, toSafeGroup } from './group';
 import { SafeApprover } from './approver';
-import { defaultAbiCoder } from 'ethers/lib/utils';
+import { defaultAbiCoder, hexlify, randomBytes } from 'ethers/lib/utils';
+import * as zk from 'zksync-web3';
 
 export interface SafeConstructorArgs {
   group: Groupish;
@@ -37,6 +36,23 @@ export const getFactory = (addr: Addresslike, signer: Signer) =>
 
 export const getSafe = (addr: Addresslike, signer: Signer) =>
   new Safe__factory().attach(address(addr)).connect(signer);
+
+export const getRandomDeploySalt = () => hexlify(randomBytes(32));
+
+export const calculateSafeAddress = async (
+  args: SafeConstructorArgs,
+  factory: Factory,
+  salt: BytesLike,
+) => {
+  const addr = zk.utils.create2Address(
+    factory.address,
+    await factory._safeBytecodeHash(),
+    salt,
+    toSafeConstructorDeployArgsBytes(args),
+  );
+
+  return address(addr);
+};
 
 interface DeploySafeParams {
   args: SafeConstructorArgs;

@@ -2,7 +2,7 @@ import { Address } from 'lib';
 import { FC, useCallback, useMemo, useState } from 'react';
 import { TouchableRipple } from 'react-native-paper';
 import { Share } from 'react-native';
-import { truncatedAddr } from '@util/hook/useAddrName';
+import { truncatedAddr } from '@util/format';
 
 export interface SharableAddrProps {
   children: FC<{ value: string }>;

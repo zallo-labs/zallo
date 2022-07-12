@@ -9,12 +9,12 @@ import {
 import useAsyncEffect from 'use-async-effect';
 import { atom, SetterOrUpdater, useRecoilState } from 'recoil';
 
-import { CombinedSafe, useSafes } from '~/queries';
 import { ChildrenProps } from '@util/children';
 import { Address } from 'lib';
 import { Suspend } from '@components/Suspender';
 import { persistAtom } from '@util/persistAtom';
 import { useCreateCounterfactualSafe } from './useCreateCounterfactualSafe';
+import { CombinedSafe, useSafes } from '~/queries/useSafes';
 
 interface SafeContext {
   safe: CombinedSafe;

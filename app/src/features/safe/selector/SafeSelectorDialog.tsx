@@ -2,7 +2,7 @@ import { Box, BoxProps } from '@components/Box';
 import { space } from '@util/theme/styledComponents';
 import { useMemo, useState } from 'react';
 import { Button, Dialog, useTheme } from 'react-native-paper';
-import { useSafes } from '~/queries';
+import { useSafes } from '~/queries/useSafes';
 import { useSafe, useSafesContext } from '../SafeProvider';
 import { SafeItem } from './SafeItem';
 import { SelectedSafeItem } from './SelectedSafeItem';

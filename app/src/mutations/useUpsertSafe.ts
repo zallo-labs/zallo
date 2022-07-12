@@ -8,10 +8,10 @@ import {
   UpsertSafeVariables,
 } from '@gql/api.generated';
 import { useApiClient } from '@gql/GqlProvider';
-import { API_SAFE_FIELDS_FRAGMENT } from '~/queries';
 import { Address, getGroupId, Safe, toId } from 'lib';
 import { QueryOpts } from '@gql/update';
 import {
+  API_SAFE_FIELDS_FRAGMENT,
   AQUERY_USER_SAFES,
   CombinedGroup,
   CombinedSafe,

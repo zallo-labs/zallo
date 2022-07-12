@@ -10,7 +10,6 @@ export * from './bignum';
 export * from './boolArray';
 export * from './bytes';
 export * from './call';
-export * from './counterfactual';
 export * from './deploy';
 export * from './events';
 export * from './execute';

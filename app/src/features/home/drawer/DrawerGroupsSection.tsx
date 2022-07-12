@@ -2,7 +2,7 @@ import { effectiveGroupName } from '@components/FormattedGroupName';
 import { Identicon } from '@components/Identicon';
 import { useSafe } from '@features/safe/SafeProvider';
 import { Drawer } from 'react-native-paper';
-import { useDrawerNavigation } from './Drawer';
+import { useDrawerNavigation } from './DrawerNavigationProvider';
 
 export const DrawerGroupsSection = () => {
   const navigate = useDrawerNavigation();

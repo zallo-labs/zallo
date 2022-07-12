@@ -3,8 +3,8 @@ import { useNavigation } from '@react-navigation/native';
 import { Identicon } from '@components/Identicon';
 import { Item, ItemProps } from '@components/list/Item';
 import { HomeScreenProps } from '@features/home/HomeScreen';
-import { CombinedGroup } from '~/queries';
 import { GroupName } from '@components/FormattedGroupName';
+import { CombinedGroup } from '~/queries/useSafes';
 
 export interface GroupItemProps extends ItemProps {
   group: CombinedGroup;

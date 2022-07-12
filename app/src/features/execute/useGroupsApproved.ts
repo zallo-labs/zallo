@@ -1,8 +1,8 @@
 import { memoizedHookCallbackResult } from '@util/memoizedHookCallbackResult';
 import { PERCENT_THRESHOLD } from 'lib';
 import { useCallback } from 'react';
-import { CombinedGroup } from '~/queries';
 import { ProposedTx } from '~/queries/tx/useTxs';
+import { CombinedGroup } from '~/queries/useSafes';
 import { useGetGroupTotals } from './useGroupTotals';
 
 export const useGetGroupsApproved = () => {

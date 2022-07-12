@@ -13,9 +13,9 @@ import { RootNavigatorScreenProps } from '@features/navigation/RootNavigator';
 import { useGroup, useSafe } from '@features/safe/SafeProvider';
 import { GroupManagement } from './GroupManagement';
 import { ADDR_YUP_SCHEMA } from '@util/yup';
-import { CombinedGroup } from '~/queries';
 import { withProposeProvider } from '@features/execute/ProposeProvider';
 import { useUpsertSafeGroup } from '~/mutations/group/useUpsertSafeGroup';
+import { CombinedGroup } from '~/queries/useSafes';
 
 type Values = Pick<Group, 'approvers'>;
 
