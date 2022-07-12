@@ -37,7 +37,6 @@ export interface PersistAtomOptions<T> {
   save?: Save<T>;
   load?: Load<T>;
   storage?: Storage;
-  ignoreDefault?: boolean;
   saveIf?: (value: T) => boolean;
 }
 
@@ -46,7 +45,6 @@ export const persistAtom =
     save = JSON.stringify,
     load = JSON.parse,
     storage = AsyncStorage,
-    ignoreDefault,
     saveIf,
   }: PersistAtomOptions<T> = {}): AtomEffect<T> =>
   ({ setSelf, onSet, node: { key } }) => {
@@ -59,7 +57,7 @@ export const persistAtom =
 
     // Subscribe to state changes and persist them to localForage
     onSet((newValue, _oldValue, isReset) => {
-      if (isReset && ignoreDefault) {
+      if (isReset) {
         storage.removeItem(key);
       } else if (!saveIf || saveIf(newValue)) {
         storage.setItem(key, serialize(newValue, save));

@@ -57,7 +57,7 @@ const apiTokenState = atom<Token | null>({
   effects: [
     persistAtom({
       storage: getSecureStore(),
-      ignoreDefault: true,
+      saveIf: (token) => token !== null,
     }),
   ],
 });

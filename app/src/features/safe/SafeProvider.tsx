@@ -36,7 +36,7 @@ const selectedSafeAddrState = atom<Address | undefined>({
   default: undefined,
   effects: [
     persistAtom({
-      ignoreDefault: true,
+      saveIf: (value) => value !== undefined,
     }),
   ],
 });
