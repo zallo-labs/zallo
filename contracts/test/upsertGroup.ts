@@ -1,8 +1,7 @@
 import {
-  createUpsertGroupOp,
-  EXECUTE_GAS_LIMIT,
+  createUpsertGroupTx,
   getMerkleTree,
-  Safe,
+  PERCENT_THRESHOLD,
   SafeEvent,
   toSafeApprovers,
 } from 'lib';
@@ -12,68 +11,75 @@ import {
   execute,
   toSafeGroupTest,
   deployTestSafe,
+  allSigners,
+  wallet,
 } from './util';
 
-describe('UpsertGroup', () => {
-  it('should succeed when appprover weights satisfies threshold', async () => {
-    const { safe, group, others } = await deploy([100]);
+const newGroup = toSafeGroupTest(
+  [allSigners[3].address, 40],
+  [allSigners[4].address, 40],
+  [allSigners[5].address, 20],
+);
 
-    const newGroup = toSafeGroupTest(
-      [others[0].address, 50],
-      [others[1].address, 50],
+describe('UpsertGroup', () => {
+  it('should successfully execute', async () => {
+    const { safe, group } = await deploy([100]);
+
+    await execute(
+      safe,
+      group,
+      group.approvers,
+      createUpsertGroupTx(safe, newGroup),
     );
+  });
+
+  it('should emit event', async () => {
+    const { safe, group } = await deploy([100]);
 
     const tx = await execute(
       safe,
       group,
       group.approvers,
-      createUpsertGroupOp(safe, newGroup),
+      createUpsertGroupTx(safe, newGroup),
     );
 
     await expect(tx).to.emit(safe, SafeEvent.GroupUpserted);
   });
 
-  it('should generate valid merkle root', async () => {
-    const { safe, group, others } = await deployTestSafe([125, 2, 28]);
+  it('should generate the correct group merkle root', async () => {
+    const { safe, group } = await deployTestSafe([50, 70, 12, 39]);
 
-    const newGroup = toSafeGroupTest([others[0].address, 100]);
-
-    const tx = await execute(
-      safe as any as Safe,
-      group,
-      group.approvers,
-      createUpsertGroupOp(safe as any as Safe, newGroup),
-    );
-    await tx.wait();
-
-    const tree = getMerkleTree(newGroup);
-    expect(await safe.getMerkleRoot(newGroup.ref)).to.eq(tree.getHexRoot());
+    const expectedRoot = getMerkleTree(group).getHexRoot();
+    expect(await safe.getGroupMerkleRoot(group.ref)).to.eq(expectedRoot);
   });
 
-  it('should be reverted when not called by the safe', async () => {
+  it('should revert if called from an address other than the safe', async () => {
     const { safe, group } = await deploy([100]);
 
-    const tx = await safe.upsertGroup(
-      group.ref,
-      toSafeApprovers(group.approvers),
-      { gasLimit: EXECUTE_GAS_LIMIT },
-    );
+    const tx = await safe
+      .connect(wallet)
+      .upsertGroup(group.ref, toSafeApprovers(group.approvers), {
+        gasLimit: 40_000,
+      });
 
     await expect(tx.wait()).to.be.reverted; // SafeError.OnlyCallableBySafe
   });
 
-  it('should be reverted when approver weights are bellow threshold', async () => {
-    const { safe, group, others } = await deploy([40, 40, 40]);
+  it("should revert if the approvers don't meet the threshold", async () => {
+    const { safe, group, others } = await deploy([100]);
 
-    const newGroup = toSafeGroupTest([others[0].address, 99.999999999]);
+    const newGroup = toSafeGroupTest([
+      others[0].address,
+      PERCENT_THRESHOLD - 0.1,
+    ]);
 
-    const tx = await execute(
+    const txResp = await execute(
       safe,
       group,
       group.approvers,
-      createUpsertGroupOp(safe, newGroup),
+      createUpsertGroupTx(safe, newGroup),
     );
 
-    await expect(tx.wait()).to.be.reverted; // SafeError.BelowThreshold
+    await expect(txResp.wait()).to.be.reverted; // SafeError.BelowThreshold
   });
 });

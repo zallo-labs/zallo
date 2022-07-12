@@ -6,22 +6,24 @@
     "build": "yarn build:libs && yarn compile",
     "typechain": "hardhat typechain",
     "analyze": "myth analyze src/*",
-    "test": "CHAIN=local hardhat test",
+    "test": "CHAIN=testnet hardhat test",
     "test:debug": "yarn test --logs --trace",
-    "deploy-factory:testnet": "CHAIN=testnet ts-node scripts/deployFactory.ts",
     "deploy-safe:testnet": "CHAIN=testnet ts-node scripts/deploySafe.ts",
-    "deploy-test": "CHAIN=local hardhat deployTest.ts",
+    "deploy-factory:testnet": "CHAIN=testnet ts-node scripts/deployFactory.ts",
+    "deploy-multicall:testnet": "CHAIN=testnet ts-node scripts/deployMulticall.ts",
     "clean": "hardhat clean && npx rimraf artifacts cache"
   },
   "devDependencies": {
-    "@matterlabs/hardhat-zksync-deploy": "^0.3.2",
-    "@matterlabs/hardhat-zksync-solc": "^0.3.4",
+    "@matterlabs/hardhat-zksync-deploy": "^0.3.5",
+    "@matterlabs/hardhat-zksync-solc": "^0.3.5",
     "@matterlabs/signature-checker": "^1.0.0",
+    "@matterlabs/zksync-contracts": "^0.2.4",
     "@nomiclabs/hardhat-ethers": "^2.0.6",
     "@nomiclabs/hardhat-etherscan": "^3.1.0",
     "@nomiclabs/hardhat-solhint": "2.0.1",
     "@nomiclabs/hardhat-waffle": "^2.0.3",
-    "@openzeppelin/contracts": "^4.7.0-rc.0",
+    "@openzeppelin/contracts": "^4.7.0",
+    "@openzeppelin/contracts-upgradeable": "^4.7.0",
     "@typechain/ethers-v5": "^10.1.0",
     "@typechain/hardhat": "^6.1.2",
     "@types/chai": "^4.3.1",
@@ -58,6 +60,6 @@
     "ts-node": "^10.8.1",
     "typechain": "^8.1.0",
     "typescript": "^4.7.4",
-    "zksync-web3": "^0.7.8"
+    "zksync-web3": "^0.7.9"
   }
 }

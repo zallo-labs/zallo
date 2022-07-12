@@ -1,11 +1,6 @@
-import { Address, ethereum } from '@graphprotocol/graph-ts';
-import { Safe as SafeContract } from '../generated/Safe/Safe';
+import { Address } from '@graphprotocol/graph-ts';
 import { User, Group, Safe } from '../generated/schema';
 import { getUserId, getSafeId } from './id';
-
-export function getSafeContract(e: ethereum.Event): SafeContract {
-  return SafeContract.bind(e.address);
-}
 
 export function getOrCreateSafe(addr: Address): Safe {
   const id = getSafeId(addr);

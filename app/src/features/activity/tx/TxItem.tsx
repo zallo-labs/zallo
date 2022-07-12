@@ -2,8 +2,10 @@ import { Box } from '@components/Box';
 import { Divider } from '@components/Divider';
 import { ItemProps } from '@components/list/Item';
 import { Tx } from '~/queries/tx/useTxs';
-import { OpsGroup, OpsGroupItem } from './OpsGroupItem';
+import { CallsGroup, CallsGroupItem } from './CallsGroupItem';
 import { useTxStatusStyles } from '../useTxStatusStyles';
+import { useMemo } from 'react';
+import { txReqToCalls } from '@util/multicall';
 
 export interface TxItemProps extends ItemProps {
   tx: Tx;
@@ -19,20 +21,24 @@ export const TxItem = ({
 }: TxItemProps) => {
   const statusStyles = useTxStatusStyles(tx);
 
-  const groups: OpsGroup[] = tx.ops.reduce((groups: OpsGroup[], op) => {
-    const lastGroup = groups[groups.length - 1];
+  const groups: CallsGroup[] = useMemo(
+    () =>
+      txReqToCalls(tx).reduce((groups: CallsGroup[], call) => {
+        const lastGroup = groups[groups.length - 1];
 
-    if (lastGroup?.to === op.to) {
-      lastGroup.ops.push(op);
-    } else {
-      groups.push({
-        to: op.to,
-        ops: [op],
-      });
-    }
+        if (lastGroup?.to === call.to) {
+          lastGroup.calls.push(call);
+        } else {
+          groups.push({
+            to: call.to,
+            calls: [call],
+          });
+        }
 
-    return groups;
-  }, []);
+        return groups;
+      }, []),
+    [tx],
+  );
 
   const showDividers = dividers && groups.length > 1;
 
@@ -41,7 +47,7 @@ export const TxItem = ({
       {showDividers && <Divider mx={3} />}
 
       {groups.map((group) => (
-        <OpsGroupItem key={group.to} group={group} {...itemProps} />
+        <CallsGroupItem key={group.to} group={group} {...itemProps} />
       ))}
 
       {showDividers && <Divider mx={3} />}

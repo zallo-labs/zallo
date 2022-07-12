@@ -1,4 +1,4 @@
-import { expect, wallet, zkProvider } from './util';
+import { expect, wallet, provider } from './util';
 
 describe('Network', function () {
   it('Can fetch wallet balance', async () => {
@@ -7,7 +7,7 @@ describe('Network', function () {
   });
 
   it('Can fetch block number', async () => {
-    const blockNumber = await zkProvider.getBlockNumber();
+    const blockNumber = await provider.getBlockNumber();
     expect(blockNumber).to.be.greaterThanOrEqual(0);
   });
 });

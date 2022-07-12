@@ -46,7 +46,15 @@ declare module './contracts' {
     address: Address;
   }
 
+  export interface TestSafe {
+    address: Address;
+  }
+
   export interface Factory {
+    address: Address;
+  }
+
+  export interface Multicall {
     address: Address;
   }
 }

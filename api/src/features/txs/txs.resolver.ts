@@ -8,11 +8,9 @@ import {
   ResolveField,
   Resolver,
 } from '@nestjs/graphql';
-import { Prisma } from '@prisma/client';
-import { UserInputError } from 'apollo-server-core';
 import { BytesLike, ethers } from 'ethers';
 import { GraphQLResolveInfo } from 'graphql';
-import { Address, hashTx, Id, mapAsync, toId } from 'lib';
+import { Address, hashTx, Id, toId } from 'lib';
 import { PrismaService } from 'nestjs-prisma';
 import { UserAddr } from '~/decorators/user.decorator';
 import {
@@ -67,14 +65,11 @@ export class TxsResolver {
 
   @Mutation(() => Tx)
   async proposeTx(
-    @Args() { safe, ops, signature }: ProposeTxArgs,
+    @Args() { safe, tx, signature }: ProposeTxArgs,
     @Info() info: GraphQLResolveInfo,
     @UserAddr() user: Address,
   ): Promise<Tx> {
-    if (!ops.length)
-      throw new UserInputError(`At least one operation is required`);
-
-    const txHash = await hashTx(safe, ...ops);
+    const txHash = await hashTx(safe, tx);
     await this.verifySignatureOrThrow(signature, user, txHash);
 
     return this.prisma.tx.upsert({
@@ -82,20 +77,10 @@ export class TxsResolver {
       create: {
         safe: connectOrCreateSafe(safe),
         hash: txHash,
-        ops: {
-          createMany: {
-            data: await mapAsync(
-              ops,
-              async (op): Promise<Prisma.OpCreateManyTxInput> => ({
-                hash: await hashTx(safe, op),
-                to: op.to,
-                value: op.value.toString(),
-                data: ethers.utils.hexlify(op.data),
-                nonce: op.nonce.toString(),
-              }),
-            ),
-          },
-        },
+        to: tx.to,
+        value: tx.value.toString(),
+        data: tx.data,
+        salt: tx.salt,
         approvals: {
           create: {
             user: connectOrCreateUser(user),

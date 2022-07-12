@@ -31,7 +31,7 @@ jobs:
       - name: 🧪 Test
         run: yarn lib test
 
-  # TODO: re-enable once zksync-local node is fixed
+  # TODO: re-enable once zksync-local node is fixed - https://v2-docs.zksync.io/api/hardhat/testing.html
   # contracts:
   #   runs-on: ubuntu-latest
   #   strategy:

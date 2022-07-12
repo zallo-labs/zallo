@@ -1,73 +1,51 @@
-import { BytesLike, Overrides } from 'ethers';
-import { merge } from 'lodash';
-import { Address } from './addr';
-import {
-  Approverish,
-  hashApprover,
-  SafeApprover,
-  toSafeApprover,
-} from './approver';
-import { Safe } from './contracts/Safe';
-import { Group } from './group';
-import { getMultiProof } from './merkle';
-import { Op } from './op';
-import { SignatureLike, toCompactSignature } from './signature';
+import { Overrides } from 'ethers';
+import { Safe } from './contracts';
+import { Groupish } from './group';
+import { TxReq } from './tx';
+import { createTxSignature, Signerish } from './signature';
+import * as zk from 'zksync-web3';
+import { Eip712Meta, TransactionRequest } from 'zksync-web3/build/src/types';
+import { defaultAbiCoder } from 'ethers/lib/utils';
 
-export const EXECUTE_GAS_LIMIT = 50_000;
-export const MULTI_EXECUTE_GAS_LIMIT = 100_000;
+const EXTRA_VERIFICATION_GAS_PER_SIGNER = 10_000;
 
-// https://v2-docs.zksync.io/api/js/features.html#overrides
-export interface zkOverrides {
-  customData?: {
-    feeToken?: Address;
-  };
+export interface ExecuteTxOptions {
+  customData?: Overrides & Omit<Eip712Meta, 'aaParams'>;
 }
 
-export type CombinedOverrides = Overrides & zkOverrides;
-
-const defaultOverrides: CombinedOverrides = {
-  gasLimit: 50000,
-};
-
-export type Signerish = Approverish & {
-  signature: SignatureLike;
-};
-
-const split = (approversWithSigs: Signerish[]) =>
-  approversWithSigs
-    .map((s) => ({ signature: s.signature, ...toSafeApprover(s) }))
-    .sort((a, b) => Buffer.compare(hashApprover(a), hashApprover(b)))
-    .reduce(
-      (acc, { signature, ...approver }) => {
-        acc.approvers.push(approver);
-        acc.signatures.push(toCompactSignature(signature));
-        return acc;
-      },
-      { approvers: [] as SafeApprover[], signatures: [] as BytesLike[] },
-    );
-
 export const executeTx = async (
-  safe: Safe,
-  ops: Op | Op[],
-  group: Group,
+  { address: safe, provider }: Safe,
+  tx: TxReq,
+  group: Groupish,
   signers: Signerish[],
-  overrides?: CombinedOverrides,
+  opts: ExecuteTxOptions = {},
 ) => {
-  if (ops instanceof Array && ops.length === 1) ops = ops[0];
+  const basicReq: TransactionRequest = {
+    // Don't spread to avoid adding extra fields
+    from: safe,
+    to: tx.to,
+    value: tx.value,
+    data: defaultAbiCoder.encode(['bytes8', 'bytes'], [tx.salt, tx.data]),
+  };
 
-  const { approvers, signatures } = split(signers);
-  const { proof, proofFlags } = getMultiProof(group, approvers);
+  const extraGas = (signers.length - 1) * EXTRA_VERIFICATION_GAS_PER_SIGNER;
 
-  const args = [
-    group.ref,
-    approvers,
-    signatures,
-    proof,
-    proofFlags,
-    merge(defaultOverrides, overrides),
-  ] as const;
+  const req: TransactionRequest = {
+    ...basicReq,
+    type: 0x71, // AA type, apparently this will be changed to 0x80 at some point
+    nonce: await provider.getTransactionCount(safe),
+    chainId: (await provider.getNetwork()).chainId,
+    gasPrice: await provider.getGasPrice(),
+    gasLimit: (await provider.estimateGas(basicReq)).add(extraGas),
+    customData: {
+      feeToken: zk.utils.ETH_ADDRESS,
+      ...opts.customData,
+      aaParams: {
+        from: safe,
+        signature: createTxSignature(group, signers),
+      },
+    },
+  };
 
-  return ops instanceof Array
-    ? safe.multiExecute(ops, ...args)
-    : safe.execute(ops, ...args);
+  return provider.sendTransaction(zk.utils.serialize(req));
 };

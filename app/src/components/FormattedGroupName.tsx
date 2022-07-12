@@ -1,6 +1,6 @@
 import { useMemo } from 'react';
-import { CombinedGroup } from '~/queries';
 import { elipseTruncate } from '@util/format';
+import { CombinedGroup } from '~/queries/useSafes';
 
 export const effectiveGroupName = ({ name, ref }: CombinedGroup) =>
   name || elipseTruncate(ref, 6, 4);

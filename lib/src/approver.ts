@@ -30,16 +30,14 @@ export const toSafeApprovers = (approvers: Approverish[]): SafeApprover[] =>
     .sort((a, b) => Buffer.compare(a.hash, b.hash))
     .map((a) => a.approver);
 
-export const abiEncodeApprover = (approver: Approverish): string => {
-  return ethers.utils.defaultAbiCoder.encode(
-    ['tuple(address addr, uint96 weight)'],
-    [toSafeApprover(approver)],
+export const abiEncodeApprover = (approverish: Approverish): string =>
+  ethers.utils.defaultAbiCoder.encode(
+    ['(address addr, uint96 weight)'],
+    [toSafeApprover(approverish)],
   );
-};
 
 export const hashApprover = (approver: Approverish) =>
   keccak256(abiEncodeApprover(approver));
 
 export const approversToLeaves = (approvers: Approverish[]) =>
   approvers.map(hashApprover).sort(Buffer.compare);
-

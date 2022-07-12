@@ -7,11 +7,11 @@ import { Box } from '@components/Box';
 import { FormikErrors } from '@components/fields/FormikErrors';
 import { Actions } from '@components/Actions';
 import { FormikSubmitFab } from '@components/fields/FormikSubmitFab';
-import { CombinedGroup } from '~/queries';
 import { ActionsSpaceFooter } from '@components/ActionsSpaceFooter';
 import { GroupAppbar } from './GroupAppbar';
 import { FlatList } from 'react-native';
 import { withProposeProvider } from '@features/execute/ProposeProvider';
+import { CombinedGroup } from '~/queries/useSafes';
 
 export interface GroupManagementProps {
   approvers: Approver[];

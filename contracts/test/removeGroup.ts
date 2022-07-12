@@ -1,25 +1,33 @@
 import { ethers } from 'ethers';
-import { createRemoveGroupOp, SafeEvent } from 'lib';
-import { deployTestSafe, execute, expect } from './util';
+import { createRemoveGroupTx, SafeEvent } from 'lib';
+import { deploy, deployTestSafe, execute, expect } from './util';
 
 describe('RemoveGroup', () => {
-  it('should successfully remove group', async () => {
-    const { safe, group } = await deployTestSafe();
+  it('should successfully execute & emit event', async () => {
+    const { safe, group } = await deploy([100]);
 
-    const rmGroupOp = createRemoveGroupOp(safe as any, group);
-    const tx = await execute(safe as any, group, group.approvers, rmGroupOp);
+    const txResp = await execute(
+      safe,
+      group,
+      group.approvers,
+      createRemoveGroupTx(safe, group),
+    );
 
-    await expect(tx).to.emit(safe, SafeEvent.GroupRemoved);
+    await expect(txResp).to.emit(safe, SafeEvent.GroupRemoved);
   });
 
-  it("should zero out group's merkle root", async () => {
-    const { safe, group } = await deployTestSafe();
+  it("should zero group's merkle root", async () => {
+    const { safe, group } = await deployTestSafe([100]);
 
-    const rmGroupOp = createRemoveGroupOp(safe as any, group);
-    const tx = await execute(safe as any, group, group.approvers, rmGroupOp);
+    const txResp = await execute(
+      safe,
+      group,
+      group.approvers,
+      createRemoveGroupTx(safe, group),
+    );
+    await txResp.wait();
 
-    await tx.wait();
-    expect(await safe.getMerkleRoot(group.ref)).to.eq(
+    expect(await safe.getGroupMerkleRoot(group.ref)).to.eq(
       ethers.utils.formatBytes32String(''),
     );
   });

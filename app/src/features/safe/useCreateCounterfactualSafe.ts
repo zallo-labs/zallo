@@ -1,9 +1,9 @@
 import { useWallet } from '@features/wallet/useWallet';
 import {
   calculateSafeAddress,
+  getRandomDeploySalt,
   PERCENT_THRESHOLD,
   randomGroupRef,
-  toSafeConstructorDeployArgs,
 } from 'lib';
 import { useCallback } from 'react';
 import { UpsertableGroup, useUpsertSafe } from '~/mutations/useUpsertSafe';
@@ -21,12 +21,10 @@ export const useCreateCounterfactualSafe = () => {
       name: '',
     };
 
-    const { addr: safe, salt } = await calculateSafeAddress(
-      toSafeConstructorDeployArgs({ group }),
-      factory,
-    );
+    const deploySalt = getRandomDeploySalt();
+    const safe = await calculateSafeAddress({ group }, factory, deploySalt);
 
-    await upsertSafe({ safe, deploySalt: salt, name: '', groups: [group] });
+    await upsertSafe({ safe, deploySalt, name: '', groups: [group] });
 
     return safe;
   }, [factory, upsertSafe, wallet.address]);

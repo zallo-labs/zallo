@@ -3,10 +3,10 @@ import {
   address,
   Address,
   Addresslike,
-  createOp,
+  createTx,
   Erc20,
   Erc20__factory,
-  Op,
+  TxReq,
 } from 'lib';
 import _ from 'lodash';
 import { CHAIN, PROVIDER } from '~/provider';
@@ -46,15 +46,17 @@ export const createToken = (def: TokenDef): Token => {
   return token;
 };
 
+export const ERC20_INTERFACE = Erc20__factory.createInterface();
+
 export const getTokenContract = (token: Token): Erc20 =>
   Erc20__factory.connect(token.addr, PROVIDER);
 
-export const createTransferOp = (
+export const createTransferTx = (
   token: Token,
   to: Address,
   amount: BigNumber,
-): Op => {
-  const op: Partial<Op> =
+): TxReq =>
+  createTx(
     token.type === 'ERC20'
       ? {
           // ERC20
@@ -68,7 +70,5 @@ export const createTransferOp = (
           // ETH
           to,
           value: amount,
-        };
-
-  return createOp(op);
-};
+        },
+  );

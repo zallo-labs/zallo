@@ -6,7 +6,6 @@ import {
   TestSafe,
   toBoolArray,
 } from 'lib';
-import { before } from 'mocha';
 import { deployTestSafe, expect } from './util';
 
 describe('BoolArray', () => {

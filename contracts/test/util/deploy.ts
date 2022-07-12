@@ -8,13 +8,22 @@ import {
   address,
   Group,
   SafeConstructorArgs,
-  toSafeConstructorDeployArgs,
   Factory,
   Address,
   randomGroupRef,
+  toSafeConstructorDeployArgs,
+  PERCENT_THRESHOLD,
+  Multicall,
+  Multicall__factory,
+  toSafeConstructorDeployArgsBytes,
+  getRandomDeploySalt,
 } from 'lib';
 import { allSigners, wallet } from './wallet';
-import { BytesLike, ContractTransaction } from 'ethers';
+import { ContractTransaction } from 'ethers';
+import * as zk from 'zksync-web3';
+import { parseEther } from 'ethers/lib/utils';
+
+const SAFE_START_BALANCE = parseEther('0.000001');
 
 export const toSafeGroupTest = (...approvers: [string, number][]): Group => ({
   ref: randomGroupRef(),
@@ -27,15 +36,22 @@ export const toSafeGroupTest = (...approvers: [string, number][]): Group => ({
 export const deployer = new Deployer(hre, wallet);
 
 export const deployFactory = async (
+  contractName = 'Safe',
   feeToken?: Address,
 ): Promise<{
   factory: Factory;
   deployTx: ContractTransaction;
 }> => {
+  const safeArtifact = await deployer.loadArtifact(contractName);
+  const safeBytecodeHash = zk.utils.hashBytecode(safeArtifact.bytecode);
+
   const artifact = await deployer.loadArtifact('Factory');
-  const contract = await deployer.deploy(artifact, [], {
-    customData: { feeToken },
-  });
+  const contract = await deployer.deploy(
+    artifact,
+    [safeBytecodeHash],
+    { customData: { feeToken } },
+    [safeArtifact.bytecode],
+  );
   await contract.deployed();
 
   return {
@@ -57,12 +73,12 @@ export const deploySafeDirect = async (
   await contract.deployed();
 
   return {
-    safe: getSafe(address(contract.address), wallet),
+    safe: getSafe(contract.address, wallet),
     deployTx: contract.deployTransaction,
   };
 };
 
-export const deploy = async (weights: number[], _salt?: BytesLike) => {
+export const deploy = async (weights: number[]) => {
   if (!weights.length) throw Error('No weights provided');
 
   const approvers = allSigners.slice(0, weights.length);
@@ -77,15 +93,18 @@ export const deploy = async (weights: number[], _salt?: BytesLike) => {
 
   const { factory } = await deployFactory();
   const deployData = await deploySafe({
-    signer: allSigners[0],
     args: { group },
     factory,
-    // salt,
   });
+
+  const txResp = await wallet.sendTransaction({
+    to: deployData.safe.address,
+    value: SAFE_START_BALANCE,
+  });
+  await txResp.wait();
 
   return {
     ...deployData,
-    deployer: wallet,
     factory,
     group,
     others,
@@ -93,8 +112,7 @@ export const deploy = async (weights: number[], _salt?: BytesLike) => {
 };
 
 export const deployTestSafe = async (
-  weights: number[] = [100],
-  feeToken?: Address,
+  weights: number[] = [PERCENT_THRESHOLD],
 ) => {
   const approvers = allSigners.slice(0, weights.length);
   const others = allSigners.slice(weights.length);
@@ -106,18 +124,49 @@ export const deployTestSafe = async (
     ]),
   );
 
-  const artifact = await deployer.loadArtifact('TestSafe');
-  const contract = await deployer.deploy(
-    artifact,
-    toSafeConstructorDeployArgs({ group }),
-    { customData: { feeToken } },
+  const { factory } = await deployFactory('TestSafe');
+  const deployArgsBytes = toSafeConstructorDeployArgsBytes({ group });
+
+  const salt = getRandomDeploySalt();
+  const addr = zk.utils.create2Address(
+    factory.address,
+    await factory._safeBytecodeHash(),
+    salt,
+    deployArgsBytes,
   );
+
+  const deployTx = await factory.deploySafe(salt, deployArgsBytes);
+  await deployTx.wait();
+
+  const txResp = await wallet.sendTransaction({
+    to: addr,
+    value: SAFE_START_BALANCE,
+  });
+  await txResp.wait();
+
+  return {
+    safe: new TestSafe__factory().attach(addr).connect(wallet),
+    group,
+    others,
+  };
+};
+
+export const deployMulticall = async (
+  feeToken?: Address,
+): Promise<{
+  multicall: Multicall;
+  deployTx: ContractTransaction;
+}> => {
+  const artifact = await deployer.loadArtifact('Multicall');
+  const contract = await deployer.deploy(artifact, [], {
+    customData: { feeToken },
+  });
   await contract.deployed();
 
   return {
-    safe: new TestSafe__factory().attach(contract.address).connect(wallet),
+    multicall: new Multicall__factory()
+      .attach(address(contract.address))
+      .connect(wallet),
     deployTx: contract.deployTransaction,
-    group,
-    others,
   };
 };

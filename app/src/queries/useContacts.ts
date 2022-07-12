@@ -3,7 +3,7 @@ import { useWallet } from '@features/wallet/useWallet';
 import { GetContacts } from '@gql/api.generated';
 import { apiGql } from '@gql/clients';
 import { useApiClient } from '@gql/GqlProvider';
-import { truncatedAddr } from '@util/hook/useAddrName';
+import { truncatedAddr } from '@util/format';
 import { address, Address, filterFirst, Id, toId } from 'lib';
 import { useMemo } from 'react';
 import { useSafes } from './useSafes';

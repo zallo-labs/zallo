@@ -6,8 +6,19 @@ import { apiGql, subGql } from '@gql/clients';
 import { combine, combineRest, simpleKeyExtractor } from '@gql/combine';
 import { useApiClient, useSubgraphClient } from '@gql/GqlProvider';
 import { SQueryTxs, SQueryTxsVariables } from '@gql/subgraph.generated';
+import { txReqToCalls } from '@util/multicall';
 import { BigNumber, BytesLike } from 'ethers';
-import { address, Address, Id, Op, toId, createIsObj } from 'lib';
+import {
+  address,
+  Address,
+  Id,
+  toId,
+  createIsObj,
+  Call,
+  TxReq,
+  ZERO_ADDR,
+  ZERO,
+} from 'lib';
 import { DateTime } from 'luxon';
 import { useMemo } from 'react';
 import { fieldsToTransfer, Transfer, TRANSFER_FIELDS } from './transfer';
@@ -19,7 +30,8 @@ query SQueryTxs($safe: String!) {
   txes(where: { safe: $safe }) {
     id
     hash
-    responses
+    success
+    response
     executor
     blockHash
     timestamp
@@ -29,10 +41,6 @@ query SQueryTxs($safe: String!) {
   }
 }
 `;
-
-export interface OpWithHash extends Op {
-  hash: BytesLike;
-}
 
 export enum TxStatus {
   PreProposal,
@@ -56,21 +64,19 @@ export interface Submission {
   createdAt: DateTime;
 }
 
-export interface ProposedTx {
+export interface ProposedTx extends TxReq {
   id: Id;
-  hash: BytesLike;
-  ops: OpWithHash[];
+  hash: string;
   approvals: Approval[];
   userHasApproved: boolean;
   submissions: Submission[];
-  // comments: Comment[];
   proposedAt: DateTime;
   timestamp: DateTime;
   status: TxStatus;
 }
 
 export interface ExecutedTx extends ProposedTx {
-  responses: BytesLike[];
+  response: BytesLike;
   executor: Address;
   executedAt: DateTime;
   blockHash: BytesLike;
@@ -79,7 +85,7 @@ export interface ExecutedTx extends ProposedTx {
 
 export type Tx = ProposedTx | ExecutedTx;
 
-export const isTx = createIsObj<Tx>('hash', 'ops', 'approvals', 'submissions');
+export const isTx = createIsObj<Tx>('hash', 'approvals', 'submissions');
 
 export const isExecutedTx = (e: unknown): e is ExecutedTx =>
   isTx(e) && 'responses' in e;
@@ -103,14 +109,17 @@ const useSubExecutedTxs = () => {
         return {
           id: toId(t.id),
           hash: t.hash,
-          responses: t.responses,
+          response: t.response,
           executor: address(t.executor),
           blockHash: t.blockHash,
           proposedAt: timestamp,
           executedAt: timestamp,
           timestamp,
           transfers: t.transfers.map(fieldsToTransfer),
-          ops: [],
+          to: ZERO_ADDR,
+          value: ZERO,
+          data: [],
+          salt: [],
           approvals: [],
           userHasApproved: false,
           submissions: [],
@@ -142,13 +151,10 @@ fragment TxFields on Tx {
   id
   safeId
   hash
-  ops {
-    hash
-    to
-    value
-    data
-    nonce
-  }
+  to
+  value
+  data
+  salt
   approvals {
     userId
     signature
@@ -194,16 +200,17 @@ const useApiProposedTxs = () => {
           timestamp: DateTime.fromISO(a.createdAt),
         }));
 
+        const txReq: TxReq = {
+          to: address(tx.to),
+          value: BigNumber.from(tx.value),
+          data: tx.data,
+          salt: tx.salt,
+        };
+
         return {
           id: toId(tx.id),
           hash: tx.hash,
-          ops: tx.ops.map((op) => ({
-            hash: op.hash,
-            to: address(op.to),
-            value: BigNumber.from(op.value),
-            data: op.data,
-            nonce: BigNumber.from(op.nonce),
-          })),
+          ...txReq,
           approvals,
           userHasApproved: !!approvals.find((a) => a.addr === wallet.address),
           submissions: tx.submissions.map((s) => ({

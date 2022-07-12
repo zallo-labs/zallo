@@ -1,11 +1,9 @@
 import { Address } from 'lib';
-import { useContacts } from '~/queries';
 import { useSafe } from '@features/safe/SafeProvider';
 import { useMemo } from 'react';
 import { useToken } from '~/token/useToken';
-import { elipseTruncate } from '@util/format';
-
-export const truncatedAddr = (addr: Address) => elipseTruncate(addr, 6, 4);
+import { useContacts } from '~/queries/useContacts';
+import { truncatedAddr } from '@util/format';
 
 export const useAddrName = (addr: Address) => {
   const { contacts } = useContacts();

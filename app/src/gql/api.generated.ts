@@ -238,15 +238,6 @@ export interface ApproveTxVariables {
 // GraphQL mutation operation: ProposeTx
 // ====================================================
 
-export interface ProposeTx_proposeTx_ops {
-  __typename: "Op";
-  hash: string;
-  to: string;
-  value: string;
-  data: string;
-  nonce: string;
-}
-
 export interface ProposeTx_proposeTx_approvals {
   __typename: "Approval";
   userId: string;
@@ -270,7 +261,10 @@ export interface ProposeTx_proposeTx {
   id: string;
   safeId: string;
   hash: string;
-  ops: ProposeTx_proposeTx_ops[] | null;
+  to: string;
+  value: string;
+  data: string;
+  salt: string;
   approvals: ProposeTx_proposeTx_approvals[] | null;
   createdAt: any;
   submissions: ProposeTx_proposeTx_submissions[] | null;
@@ -282,7 +276,7 @@ export interface ProposeTx {
 
 export interface ProposeTxVariables {
   safe: any;
-  ops: OpInput[];
+  tx: TxInput;
   signature: any;
 }
 
@@ -348,7 +342,7 @@ export interface UpsertSafe {
 export interface UpsertSafeVariables {
   safe: any;
   deploySalt?: any | null;
-  name?: string | null;
+  name: string;
   groups?: GroupInput[] | null;
 }
 
@@ -360,15 +354,6 @@ export interface UpsertSafeVariables {
 // ====================================================
 // GraphQL query operation: GetApiTxs
 // ====================================================
-
-export interface GetApiTxs_txs_ops {
-  __typename: "Op";
-  hash: string;
-  to: string;
-  value: string;
-  data: string;
-  nonce: string;
-}
 
 export interface GetApiTxs_txs_approvals {
   __typename: "Approval";
@@ -393,7 +378,10 @@ export interface GetApiTxs_txs {
   id: string;
   safeId: string;
   hash: string;
-  ops: GetApiTxs_txs_ops[] | null;
+  to: string;
+  value: string;
+  data: string;
+  salt: string;
   approvals: GetApiTxs_txs_approvals[] | null;
   createdAt: any;
   submissions: GetApiTxs_txs_submissions[] | null;
@@ -563,15 +551,6 @@ export interface SubmissionFields {
 // GraphQL fragment: TxFields
 // ====================================================
 
-export interface TxFields_ops {
-  __typename: "Op";
-  hash: string;
-  to: string;
-  value: string;
-  data: string;
-  nonce: string;
-}
-
 export interface TxFields_approvals {
   __typename: "Approval";
   userId: string;
@@ -595,7 +574,10 @@ export interface TxFields {
   id: string;
   safeId: string;
   hash: string;
-  ops: TxFields_ops[] | null;
+  to: string;
+  value: string;
+  data: string;
+  salt: string;
   approvals: TxFields_approvals[] | null;
   createdAt: any;
   submissions: TxFields_submissions[] | null;
@@ -740,19 +722,19 @@ export interface ApproverInput {
 
 export interface GroupInput {
   approvers: ApproverInput[];
-  name?: string | null;
+  name: string;
   ref: any;
-}
-
-export interface OpInput {
-  data: any;
-  nonce: any;
-  to: any;
-  value: any;
 }
 
 export interface SubmissionInput {
   hash: any;
+}
+
+export interface TxInput {
+  data: any;
+  salt: any;
+  to: any;
+  value: any;
 }
 
 //==============================================================
