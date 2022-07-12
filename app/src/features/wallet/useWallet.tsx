@@ -2,22 +2,12 @@ import * as storage from 'expo-secure-store';
 import * as zk from 'zksync-web3';
 
 import { ETH_PROVIDER, PROVIDER } from '~/provider';
-import { CONFIG, IS_DEV } from '~/config';
 import { atom, useRecoilValue } from 'recoil';
-import { getSecureStore, persistAtom } from '@util/persistAtom';
-
-const defaultWallet = (() => {
-  const wallet =
-    IS_DEV && CONFIG.wallet.privateKey
-      ? new zk.Wallet(CONFIG.wallet.privateKey)
-      : zk.Wallet.createRandom();
-
-  return wallet.connect(PROVIDER).connectToL1(ETH_PROVIDER);
-})();
+import { getSecureStore, persistAtom } from '@util/effect/persistAtom';
 
 export const walletState = atom<zk.Wallet>({
   key: 'wallet',
-  default: defaultWallet,
+  default: zk.Wallet.createRandom().connect(PROVIDER).connectToL1(ETH_PROVIDER),
   effects: [
     persistAtom({
       save: (wallet) => wallet.privateKey,
