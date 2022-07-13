@@ -5,7 +5,12 @@ import { showInfo, showSuccess } from '@components/Toast';
 import { isDeployedState, useIsDeployed } from './useIsDeployed';
 import { useSetRecoilState } from 'recoil';
 import { useSafeFactory } from './useSafeFactory';
-import { hexlify } from 'ethers/lib/utils';
+import { hexlify, parseEther } from 'ethers/lib/utils';
+import { useFaucet } from '~/mutations/useFacuet';
+import { useWallet } from '@features/wallet/useWallet';
+import { CHAIN } from '~/provider';
+
+const deployCost = parseEther('0.0001');
 
 export const useDeploySafe = () => {
   const combinedSafe = useSafe();
@@ -14,14 +19,20 @@ export const useDeploySafe = () => {
   const factory = useSafeFactory();
   const upsertSafe = useUpsertSafe();
   const setIsDeployed = useSetRecoilState(isDeployedState(safe.address));
+  const wallet = useWallet();
+  const faucet = useFaucet(wallet.address);
 
   if (isDeployed) return undefined;
 
   const deploy = async () => {
+    if (CHAIN.isTestnet) {
+      const walletBalance = await wallet.getBalance();
+      if (walletBalance.lt(deployCost)) await faucet();
+    }
+
     showInfo({ text1: 'Deploying safe...', visibilityTime: 8000 });
 
     const group = groups[0];
-
     const r = await deploySafe({
       factory,
       args: { group },

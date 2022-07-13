@@ -309,6 +309,23 @@ export interface RevokeApprovalVariables {
 // This file was automatically generated and should not be edited.
 
 // ====================================================
+// GraphQL mutation operation: UseFaucet
+// ====================================================
+
+export interface UseFaucet {
+  requestFunds: boolean;
+}
+
+export interface UseFaucetVariables {
+  recipient: any;
+}
+
+/* tslint:disable */
+/* eslint-disable */
+// @generated
+// This file was automatically generated and should not be edited.
+
+// ====================================================
 // GraphQL mutation operation: UpsertSafe
 // ====================================================
 
