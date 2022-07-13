@@ -1,0 +1,8 @@
+overwrite: true
+generates:
+  generated/generated.subgraph.ts:
+  schema: ${SUBGRAPH_GQL_URL}
+  documents: 'src/features/subgraph/**/*.ts'
+    plugins:
+      - 'typescript'
+      - 'typescript-operations'
