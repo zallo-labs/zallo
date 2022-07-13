@@ -1,5 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { FaucetResolver } from './faucet.resolver';
+import { createMock } from '@golevelup/ts-jest';
 
 describe('FaucetResolver', () => {
   let resolver: FaucetResolver;
@@ -7,7 +8,9 @@ describe('FaucetResolver', () => {
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [FaucetResolver],
-    }).compile();
+    })
+      .useMocker(createMock)
+      .compile();
 
     resolver = module.get<FaucetResolver>(FaucetResolver);
   });
