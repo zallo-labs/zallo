@@ -8,24 +8,16 @@ interface RequiredProps {
   children: ReactNode;
 }
 
-export interface ErrorTextProps<Props extends RequiredProps> {
+export interface ErrorTextProps {
   error: string | false;
-  as?: FC<Props>;
-  props?: Props;
+  children?: FC<RequiredProps>;
 }
 
-export const ErrorText = <Props extends RequiredProps>({
+export const ErrorText = ({
   error,
-  as: Component,
-  props,
-}: ErrorTextProps<Props>) => {
+  children: Component = Paragraph,
+}: ErrorTextProps) => {
   const { colors } = useTheme();
 
-  return Component ? (
-    <Component {...props} style={[props?.style ?? {}, { color: colors.error }]}>
-      {error}
-    </Component>
-  ) : (
-    <Paragraph style={{ color: colors.error }}>{error}</Paragraph>
-  );
+  return <Component style={{ color: colors.error }}>{error}</Component>;
 };

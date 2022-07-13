@@ -28,7 +28,7 @@ export const useGetExecute = () => {
   const propose = useProposeApiTx();
 
   const getExecute = useCallback(
-    (tx: Tx): ExecuteFunc => {
+    (tx: Tx): ExecuteFunc | undefined => {
       if (isExecutedTx(tx)) return undefined;
 
       if (tx.status === TxStatus.PreProposal)

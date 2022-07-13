@@ -82,24 +82,22 @@ export const useUpsertSafe = () => {
             })),
           },
         },
-        update: (cache, { data: { upsertSafe: safe } }) => {
-          const opts: QueryOpts<never> = {
-            query: AQUERY_USER_SAFES,
-          };
+        update: (cache, res) => {
+          const safe = res?.data?.upsertSafe;
+          if (!safe) return;
 
-          const data = cache.readQuery<AQueryUserSafes>(opts);
+          const opts: QueryOpts<never> = { query: AQUERY_USER_SAFES };
+          const data = cache.readQuery<AQueryUserSafes>(opts) ?? { user: null };
 
           cache.writeQuery<AQueryUserSafes>({
             ...opts,
             overwrite: true,
             data: produce(data, (data) => {
-              if (!data) {
-                data = {
-                  user: {
-                    __typename: 'User',
-                    id: wallet.address,
-                    safes: [],
-                  },
+              if (!data.user) {
+                data.user = {
+                  __typename: 'User',
+                  id: wallet.address,
+                  safes: [],
                 };
               }
 

@@ -9,13 +9,13 @@ const toStr = (v: BigNumber | undefined, decimal: number) =>
 const TRAILING_DECIMALS_PATTERN = /\.+$/;
 const normalise = (s?: string | undefined) => {
   // Remove all commas, replaceAll isn't supported by RN Android
-  s = s.split(',').join('');
+  s = s?.split(',').join('');
 
   // Remove trailing decimal separators (e.g. '.')
-  s = s.replace(TRAILING_DECIMALS_PATTERN, '');
+  s = s?.replace(TRAILING_DECIMALS_PATTERN, '');
 
   // Remove trailing .0
-  if (s.endsWith('.0')) s = s.slice(0, -2);
+  if (s?.endsWith('.0')) s = s.slice(0, -2);
 
   // Treat empty | undefined equivalent to zero
   if (!s) s = '0';

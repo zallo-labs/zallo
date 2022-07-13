@@ -7,7 +7,7 @@ export const useSafeFactory = () => {
   const wallet = useWallet();
 
   return useMemo(
-    () => Factory__factory.connect(CONFIG.factoryAddress, wallet),
+    () => Factory__factory.connect(CONFIG.factoryAddress!, wallet),
     [wallet],
   );
 };

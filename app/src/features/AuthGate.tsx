@@ -7,7 +7,7 @@ import { Suspend } from '@components/Suspender';
 import { DateTime } from 'luxon';
 
 const isStillActive = (lastActive?: DateTime) =>
-  lastActive && DateTime.now().diff(lastActive).as('minutes') < 5;
+  !!lastActive && DateTime.now().diff(lastActive).as('minutes') < 5;
 
 const tryAuthenticate = async () => {
   try {

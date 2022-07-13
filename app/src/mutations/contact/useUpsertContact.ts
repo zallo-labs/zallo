@@ -47,23 +47,26 @@ export const useUpsertContact = () => {
           newAddr: cur.addr,
           name: cur.name,
         },
-        update: (cache, { data: { upsertContact } }) => {
+        update: (cache, res) => {
+          const contact = res?.data?.upsertContact;
+          if (!contact) return;
+
           const data = cache.readQuery<GetContacts>({
             query: API_CONTACTS_QUERY,
-          });
+          }) ?? { contacts: [] };
 
           // Insert into query list
-          if (!data.contacts.map((c) => c.id).includes(upsertContact.id)) {
+          if (!data.contacts.map((c) => c.id).includes(contact.id)) {
             cache.writeQuery<GetContacts>({
               query: API_CONTACTS_QUERY,
               data: {
-                contacts: [...data.contacts, upsertContact],
+                contacts: [...data.contacts, contact],
               },
             });
           }
 
           // Evict previous contact if ID has changed
-          if (prev && prev.id !== upsertContact.id) {
+          if (prev && prev.id !== contact.id) {
             cache.evict({
               id: cache.identify({
                 __typename: 'Contact',

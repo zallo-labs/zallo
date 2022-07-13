@@ -51,16 +51,21 @@ export const useProposeApiTx = () => {
           },
           signature,
         },
-        update: (cache, { data: { proposeTx } }) => {
+        update: (cache, res) => {
+          const proposedTx = res?.data?.proposeTx;
+          if (!proposedTx) return;
+
           const opts = {
             query: API_GET_TXS_QUERY,
             variables: { safe: safe.address },
           };
-          const data = cache.readQuery<GetApiTxs, GetApiTxsVariables>(opts);
+          const data = cache.readQuery<GetApiTxs, GetApiTxsVariables>(opts) ?? {
+            txs: [],
+          };
 
           cache.writeQuery<GetApiTxs, GetApiTxsVariables>({
             ...opts,
-            data: { ...data, txs: [...data.txs, proposeTx] },
+            data: { ...data, txs: [...data.txs, proposedTx] },
           });
         },
         optimisticResponse: {

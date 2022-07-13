@@ -44,14 +44,17 @@ export interface TokenPrice {
 }
 
 export const useTokenPrice = (token: Token) => {
-  const tokenAddr = token.addresses.mainnet.toLowerCase();
-  const { data, ...rest } = useQuery<GetTokenPrice, GetTokenPriceVariables>(QUERY, {
-    client: useUniswapClient(),
-    variables: {
-      token: tokenAddr,
-      token2: tokenAddr,
+  const tokenAddr = token.addresses.mainnet?.toLowerCase() ?? '';
+  const { data, ...rest } = useQuery<GetTokenPrice, GetTokenPriceVariables>(
+    QUERY,
+    {
+      client: useUniswapClient(),
+      variables: {
+        token: tokenAddr,
+        token2: tokenAddr,
+      },
     },
-  });
+  );
 
   const hourly = (data?.tokenHourDatas ?? []).map(
     (data): TokenHourlyPrice => ({
@@ -74,8 +77,10 @@ export const useTokenPrice = (token: Token) => {
     yesterday: yesterday,
     delta: yd > 0 ? ((cur - yd) / yd) * 100 : 100,
     // parseEther() throws if the eth has > 18 decimals
-    currentEth: data?.token.derivedETH
-      ? ethers.utils.parseEther(parseFloat(data?.token.derivedETH).toFixed(ETH.decimals))
+    currentEth: data?.token?.derivedETH
+      ? ethers.utils.parseEther(
+          parseFloat(data.token.derivedETH).toFixed(ETH.decimals),
+        )
       : BigNumber.from(0),
   };
 

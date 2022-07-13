@@ -36,12 +36,12 @@ export const GroupManagement = withProposeProvider(
           ...approvers,
           { addr: selected, weight: PERCENT_THRESHOLD },
         ]);
-        navigation.setParams({ selected: null });
+        navigation.setParams({ selected: undefined });
       }
     }, [selected, approvers, setApprovers, navigation]);
 
     const handleSetApprover =
-      (approver: Approver) => (newApprover: Approver | undefined) => {
+      (approver: Approver) => (newApprover?: Approver) => {
         const i = approvers.findIndex((a) => a.addr === approver.addr);
         setApprovers(
           [

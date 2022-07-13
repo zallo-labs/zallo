@@ -97,10 +97,10 @@ export const useComments = (commentable: Commentable) => {
           nonce: c.nonce,
           author: address(c.authorId),
           content: c.content,
-          reactions: c.reactions.map(
+          reactions: (c.reactions ?? []).map(
             (r): Reaction => ({
               user: address(r.userId),
-              emojis: r.emojis,
+              emojis: r.emojis ?? [],
             }),
           ),
           createdAt: DateTime.fromISO(c.createdAt),

@@ -14,7 +14,7 @@ import { PROVIDER } from '~/provider';
 import { getDataSighash } from '~/queries/useContractMethod';
 
 export const MULTICALL = Multicall__factory.connect(
-  CONFIG.multicallAddress,
+  CONFIG.multicallAddress!,
   PROVIDER,
 );
 

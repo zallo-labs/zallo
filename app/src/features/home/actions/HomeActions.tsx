@@ -33,7 +33,7 @@ export const HomeActions = () => {
         onClick={() => navigation.navigate('Receive')}
       />
 
-      {!isDeployed && (
+      {deploySafe && (
         <HomeActionButton
           label="DEPLOY"
           icon={(props) => (

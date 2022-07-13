@@ -63,38 +63,35 @@ export const useUpsertApiGroup = () => {
           name: g.name,
         },
       },
-      update: (cache, { data: { upsertGroup } }) => {
-        const opts: QueryOpts<never> = {
-          query: AQUERY_USER_SAFES,
-        };
+      update: (cache, res) => {
+        const group = res?.data?.upsertGroup;
+        if (!group) return;
 
-        const data = cache.readQuery<AQueryUserSafes>(opts);
+        const opts: QueryOpts<never> = { query: AQUERY_USER_SAFES };
+        const data = cache.readQuery<AQueryUserSafes>(opts) ?? { user: null };
 
         cache.writeQuery<AQueryUserSafes>({
           ...opts,
           overwrite: true,
           data: produce(data, (data) => {
-            if (!data) {
-              data = {
-                user: {
-                  __typename: 'User',
-                  id: wallet.address,
-                  safes: [],
-                },
+            if (!data.user)
+              data.user = {
+                __typename: 'User',
+                id: wallet.address,
+                safes: [],
               };
-            }
 
             const safeId = toId(safe.address);
             const safeIndex = data.user.safes.findIndex((s) => s.id === safeId);
 
             if (safeIndex >= 0) {
-              const groupIndex = data.user.safes[safeIndex].groups.findIndex(
-                (g) => g.id === upsertGroup.id,
+              const groupIndex = data.user.safes[safeIndex].groups!.findIndex(
+                (g) => g.id === group.id,
               );
               if (groupIndex >= 0) {
-                data.user.safes[safeIndex].groups[groupIndex] = upsertGroup;
+                data.user.safes[safeIndex].groups![groupIndex] = group;
               } else {
-                data.user.safes[safeIndex].groups.push(upsertGroup);
+                data.user.safes[safeIndex].groups!.push(group);
               }
             } else {
               data.user.safes.push({
@@ -102,7 +99,7 @@ export const useUpsertApiGroup = () => {
                 id: toId(safe.address),
                 deploySalt: '',
                 name: '',
-                groups: [upsertGroup],
+                groups: [group],
               });
             }
           }),

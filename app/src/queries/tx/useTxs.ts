@@ -196,11 +196,12 @@ const useApiProposedTxs = () => {
       data?.txs.map((tx): ProposedTx => {
         const timestamp = DateTime.fromISO(tx.createdAt);
 
-        const approvals: Approval[] = tx.approvals.map((a) => ({
-          addr: address(a.userId),
-          signature: a.signature,
-          timestamp: DateTime.fromISO(a.createdAt),
-        }));
+        const approvals: Approval[] =
+          tx.approvals?.map((a) => ({
+            addr: address(a.userId),
+            signature: a.signature,
+            timestamp: DateTime.fromISO(a.createdAt),
+          })) ?? [];
 
         const txReq: TxReq = {
           to: address(tx.to),
@@ -215,17 +216,18 @@ const useApiProposedTxs = () => {
           ...txReq,
           approvals,
           userHasApproved: !!approvals.find((a) => a.addr === wallet.address),
-          submissions: tx.submissions.map((s) => ({
-            hash: s.hash,
-            nonce: s.nonce,
-            gasLimit: BigNumber.from(s.gasLimit),
-            gasPrice: s.gasPrice ? BigNumber.from(s.gasPrice) : undefined,
-            finalized: s.finalized,
-            createdAt: DateTime.fromISO(s.createdAt),
-          })),
+          submissions:
+            tx.submissions?.map((s) => ({
+              hash: s.hash,
+              nonce: s.nonce,
+              gasLimit: BigNumber.from(s.gasLimit),
+              gasPrice: s.gasPrice ? BigNumber.from(s.gasPrice) : undefined,
+              finalized: s.finalized,
+              createdAt: DateTime.fromISO(s.createdAt),
+            })) ?? [],
           proposedAt: timestamp,
           timestamp,
-          status: tx.submissions.length
+          status: tx.submissions?.length
             ? TxStatus.Submitted
             : TxStatus.Proposed,
         };

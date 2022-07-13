@@ -28,7 +28,7 @@ export const getDataSighash = (data: BytesLike): string =>
   ethers.utils.hexDataSlice(data, 0, 4);
 
 const transform = (
-  { data, ...rest }: ApolloQueryResult<GetContractMethod>,
+  data: ApolloQueryResult<GetContractMethod>['data'] | undefined,
   sighash: string,
   isSafe: boolean,
 ) => {
@@ -48,7 +48,7 @@ const transform = (
   const methodName =
     methodFragment?.name ?? (sighash === '0x' ? 'Send' : sighash);
 
-  return { methodFragment, methodInterface, methodName, sighash, ...rest };
+  return { methodFragment, methodInterface, methodName, sighash };
 };
 
 export const useContractMethod = (contract: Address, funcData: BytesLike) => {
@@ -65,7 +65,7 @@ export const useContractMethod = (contract: Address, funcData: BytesLike) => {
     },
   );
 
-  return transform(res, sighash, isSafe);
+  return transform(res?.data, sighash, isSafe);
 };
 
 export const useLazyContractMethod = () => {
@@ -85,7 +85,7 @@ export const useLazyContractMethod = () => {
         variables: { contract, sighash },
       });
 
-      return transform(result, sighash, isSafe);
+      return transform(result?.data, sighash, isSafe);
     },
     [safe.address, client],
   );

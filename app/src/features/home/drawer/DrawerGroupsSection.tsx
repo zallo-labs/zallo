@@ -22,7 +22,7 @@ export const DrawerGroupsSection = () => {
       <Drawer.Item
         label="Add"
         icon="account-multiple-plus"
-        onPress={() => navigate('GroupManagement')}
+        onPress={() => navigate('GroupManagement', {})}
       />
     </Drawer.Section>
   );

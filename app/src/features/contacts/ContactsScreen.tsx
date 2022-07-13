@@ -106,7 +106,7 @@ export const ContactsScreen = ({ navigation, route }: ContactsScreenProps) => {
 
             {error && (
               <Box center mt={2}>
-                <ErrorText error="Invalid address!" as={Title} />
+                <ErrorText error="Invalid address!">{Title}</ErrorText>
               </Box>
             )}
           </Box>

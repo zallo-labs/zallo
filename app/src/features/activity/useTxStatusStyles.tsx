@@ -13,7 +13,7 @@ export const useTxStatusStyles = (tx: Tx) => {
   const { colors } = useTheme();
   const isApproved = !!useGroupsApproved(tx);
 
-  let color = undefined;
+  let color: string | undefined = undefined;
   if (tx.status === TxStatus.Proposed) {
     color =
       !tx.userHasApproved || isApproved ? colors.primary : colors.onBackground;

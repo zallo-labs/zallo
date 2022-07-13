@@ -7,7 +7,9 @@ export const containsErrors = (errors: Errors<unknown>) =>
 const stringify = (errors: Errors<unknown>): string => {
   if (typeof errors === 'string') return errors;
 
-  return Object.values(errors).map(stringify).join('\n');
+  return Object.values(errors)
+    .map((e) => stringify(e as Errors<unknown>))
+    .join('\n');
 };
 
 export const FormikErrors = () => {

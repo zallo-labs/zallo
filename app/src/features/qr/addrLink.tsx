@@ -1,5 +1,7 @@
 // https://eips.ethereum.org/EIPS/eip-681
 // https://github.com/brunobar79/eth-url-parser
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-ignore
 import { parse, build } from 'eth-url-parser';
 import { Address } from 'lib';
 import { PROVIDER } from '~/provider';

@@ -41,18 +41,18 @@ export const useDeleteContact = () => {
         },
         update: (cache) => {
           // Remove from query list
-          const data: GetContacts = cache.readQuery({
+          const data = cache.readQuery<GetContacts>({
             query: API_CONTACTS_QUERY,
           });
 
-          const newData: GetContacts = {
-            contacts: data.contacts.filter((c) => c.id !== contact.id),
-          };
-
-          cache.writeQuery({
+          cache.writeQuery<GetContacts>({
             query: API_CONTACTS_QUERY,
-            data: newData,
             overwrite: true,
+            data: {
+              contacts: (data?.contacts ?? []).filter(
+                (c) => c.id !== contact.id,
+              ),
+            },
           });
         },
       }),

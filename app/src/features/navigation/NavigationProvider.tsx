@@ -13,17 +13,17 @@ import { useCallback, useRef } from 'react';
 
 export const NavigationProvider = ({ children }: ChildrenProps) => {
   const navigationRef = useNavigationContainerRef();
-  const routeNameRef = useRef<string>();
+  const routeNameRef = useRef<string | undefined>();
 
   const handleReady = useCallback(() => {
     SENTRY_ROUTING_INSTRUMENTATION.registerNavigationContainer(navigationRef);
 
-    routeNameRef.current = navigationRef.getCurrentRoute().name;
+    routeNameRef.current = navigationRef?.getCurrentRoute()?.name;
   }, [navigationRef]);
 
   const handleStateChange = useCallback(async () => {
     const previousRouteName = routeNameRef.current;
-    const currentRouteName = navigationRef.getCurrentRoute().name;
+    const currentRouteName = navigationRef.getCurrentRoute()?.name;
 
     if (previousRouteName !== currentRouteName) {
       addBreadcrumb({

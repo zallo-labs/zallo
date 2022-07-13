@@ -20,7 +20,7 @@ interface Token {
 const fetchMutex = new Mutex();
 
 const isServerError = (e?: unknown): e is ServerError =>
-  typeof e === 'object' && e !== null && e['name'] === 'ServerError';
+  typeof e === 'object' && e !== null && (e as any)['name'] === 'ServerError';
 
 // https://test.com/abc/123 -> test.com; RN lacks URL support )':
 const getHost = (url: string) => {
@@ -66,7 +66,7 @@ export const useAuthFlowLink = () => {
   const wallet = useWallet();
   const [token, setToken] = useRecoilState(apiTokenState);
 
-  const tokenRef = useRef<Token>(token);
+  const tokenRef = useRef<Token | undefined>(token!);
 
   const reset = useCallback(async () => {
     // Ensure token is reset exactly once at any given time

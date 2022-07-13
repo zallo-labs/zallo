@@ -70,7 +70,7 @@ export const Timeline = ({ tx }: TimelineProps) => {
                 >
                   Revoke
                 </TimelineButton>
-              ) : tx.status === TxStatus.PreProposal ? (
+              ) : execute && tx.status === TxStatus.PreProposal ? (
                 <TimelineButton color={colors.primary} onPress={execute}>
                   Propose
                 </TimelineButton>

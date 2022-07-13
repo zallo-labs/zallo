@@ -41,7 +41,7 @@ export interface EitherCombiner<Sub, Api, Combined> {
 
 export const isEitherCombiner = <Sub, Api, Combined>(
   c: Combiner<Sub, Api, Combined>,
-): c is AtLeastApiCombiner<Sub, Api, Combined> => 'either' in c;
+): c is EitherCombiner<Sub, Api, Combined> => 'either' in c;
 
 export type AtLeastOneCombiner<Sub, Api, Combined> = RequireAtLeastOne<
   Partial<RequireBothCombiner<Sub, Api, Combined>> &

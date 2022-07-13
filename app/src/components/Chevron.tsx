@@ -6,7 +6,7 @@ import Animated, {
   withTiming,
 } from 'react-native-reanimated';
 
-const getRotation = (expanded: boolean) => (expanded ? -180 : 0);
+const getRotation = (expanded?: boolean) => (expanded ? -180 : 0);
 
 export type MaterialCommunityIconsProps = ComponentPropsWithoutRef<
   typeof MaterialCommunityIcons
@@ -18,7 +18,7 @@ export const AnimatedMaterialCommunityIcons = Animated.createAnimatedComponent(
 
 export interface ChevronProps
   extends Omit<MaterialCommunityIconsProps, 'name'> {
-  expanded: boolean;
+  expanded?: boolean;
 }
 
 export const Chevron = ({ expanded, ...iconProps }: ChevronProps) => {

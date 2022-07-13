@@ -1,5 +1,6 @@
 import { persistAtom } from '@util/effect/persistAtom';
-import { Address } from 'lib';
+import { Unimplemented } from '@util/error/unimplemented';
+import { Address, isPresent } from 'lib';
 import {
   atom,
   atomFamily,
@@ -17,19 +18,19 @@ const tokenAddressesState = atom<Address[]>({
   effects: [persistAtom()],
 });
 
-const tokenValueState = atomFamily<Token | null, Address>({
+const tokenValueState = atomFamily<Token, Address>({
   key: 'token',
   default: (addr: Address) => {
     const token = HARDCODED_TOKENS.find((t) => t.addr === addr);
     if (token) return token;
 
-    // TODO: dynamic token support
-    return null;
+    // TODO: implement dynamic tokens
+    throw new Unimplemented('dynamic tokens');
   },
   effects: [persistAtom()],
 });
 
-export const tokenSelector = selectorFamily<Token | null, Address>({
+export const tokenSelector = selectorFamily<Token, Address>({
   key: 'token-access',
   get:
     (addr) =>

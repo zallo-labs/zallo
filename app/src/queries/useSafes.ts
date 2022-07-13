@@ -186,7 +186,7 @@ export const apiSafeToCombined = (
   return {
     safe: getSafe(api.id, wallet),
     name: api.name ?? '',
-    deploySalt: api.deploySalt,
+    deploySalt: api.deploySalt ?? undefined,
     groups,
   };
 };
@@ -206,8 +206,8 @@ export const useSafes = () => {
           const a = api ? apiSafeToCombined(api, wallet) : undefined;
 
           return {
-            safe: s?.safe ?? a?.safe,
-            name: a?.name || s?.name,
+            safe: s?.safe ?? a!.safe,
+            name: a?.name || s?.name || '',
             deploySalt: s?.deploySalt ?? s?.deploySalt,
             groups: combine(
               s?.groups ?? [],
@@ -215,21 +215,21 @@ export const useSafes = () => {
               simpleKeyExtractor('id'),
               {
                 either: ({ sub, api }): CombinedGroup => ({
-                  id: sub?.id ?? api?.id,
-                  ref: sub?.ref ?? api?.ref,
-                  active: sub?.active ?? api?.active,
+                  id: sub?.id ?? api!.id,
+                  ref: sub?.ref ?? api!.ref,
+                  active: sub?.active ?? api!.active,
                   approvers: filterFirst(
                     [...(sub?.approvers ?? []), ...(api?.approvers ?? [])],
                     (a) => a.addr,
                   ),
-                  name: api?.name ?? sub?.name,
+                  name: api?.name ?? sub?.name ?? '',
                 }),
               },
             ).filter((group) => group.active && group.approvers.length > 0),
           };
         },
       }).filter((safe) => safe.groups.length)
-    : undefined;
+    : [];
 
   return { safes, ...rest };
 };

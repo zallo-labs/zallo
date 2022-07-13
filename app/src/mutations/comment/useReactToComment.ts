@@ -53,7 +53,10 @@ export const useReactToComment = () => {
           nonce: c.nonce,
           emojis,
         },
-        update: (cache, { data: { reactToComment } }) => {
+        update: (cache, res) => {
+          const reaction = res?.data?.reactToComment;
+          if (!reaction) return;
+
           const opts: QueryOpts<CommentsQueryVariables> = {
             query: COMMENTS_QUERY,
             variables: { safe: safe.address, key: c.key },
@@ -66,17 +69,17 @@ export const useReactToComment = () => {
             ...opts,
             overwrite: true,
             data: {
-              comments: data.comments.map((comment) => {
+              comments: (data?.comments ?? []).map((comment) => {
                 if (comment.id !== c.id) return comment;
 
-                const reactionsWithoutCur = comment.reactions.filter(
-                  (r) => r.userId !== reactToComment.userId,
+                const reactionsWithoutCur = (comment.reactions ?? []).filter(
+                  (r) => r.userId !== reaction.userId,
                 );
 
                 return {
                   ...comment,
-                  reactions: [...reactionsWithoutCur, reactToComment].filter(
-                    (r) => r.emojis.length,
+                  reactions: [...reactionsWithoutCur, reaction].filter(
+                    (r) => (r.emojis ?? []).length,
                   ),
                 };
               }),

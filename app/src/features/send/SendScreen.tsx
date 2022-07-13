@@ -52,11 +52,6 @@ export const SendScreen = withProposeProvider(
 
     const [amount, setAmount] = useState<BigNumber | undefined>();
 
-    const send = useCallback(
-      () => propose(createTransferTx(token, to, amount)),
-      [amount, propose, to, token],
-    );
-
     return (
       <Box flex={1}>
         {/* TODO: MD3 - mode="medium" */}
@@ -75,7 +70,16 @@ export const SendScreen = withProposeProvider(
         <SendInput token={token} value={amount} onChange={setAmount} />
 
         <Actions>
-          <FAB icon="send" label="Send" onPress={send} />
+          <FAB
+            icon="send"
+            label="Send"
+            disabled={amount === undefined}
+            onPress={
+              amount !== undefined
+                ? () => propose(createTransferTx(token, to, amount))
+                : undefined
+            }
+          />
         </Actions>
       </Box>
     );

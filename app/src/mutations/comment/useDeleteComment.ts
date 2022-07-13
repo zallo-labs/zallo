@@ -41,14 +41,10 @@ export const useDeleteComment = () => {
           key: c.key,
           nonce: c.nonce,
         },
-        update: (
-          cache,
-          {
-            data: {
-              deleteComment: { id },
-            },
-          },
-        ) => {
+        update: (cache, res) => {
+          const id = res?.data?.deleteComment?.id;
+          if (!id) return;
+
           const opts: QueryOpts<CommentsQueryVariables> = {
             query: COMMENTS_QUERY,
             variables: { safe: safe.address, key: c.key },
@@ -61,7 +57,7 @@ export const useDeleteComment = () => {
             ...opts,
             overwrite: true,
             data: {
-              comments: data.comments.filter((c) => c.id !== id),
+              comments: (data?.comments ?? []).filter((c) => c.id !== id),
             },
           });
         },

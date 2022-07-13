@@ -32,8 +32,8 @@ const getSchema = (contacts: Contact[]): Yup.SchemaOf<Values> =>
     addr: ADDR_YUP_SCHEMA.test({
       message: 'Contact already exists for this address',
       test: (input) => {
-        const addr = tryAddress(input);
-        return !contacts.find((c) => c.addr === addr);
+        const addr = input && tryAddress(input);
+        return !addr || !contacts.find((c) => c.addr === addr);
       },
     }),
   });

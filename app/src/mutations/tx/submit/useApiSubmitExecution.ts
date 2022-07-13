@@ -48,14 +48,17 @@ export const useApiSubmitExecution = () => {
             hash: txResp.hash,
           },
         },
-        update: (cache, { data: { submitTxExecution: submission } }) => {
+        update: (cache, res) => {
+          const submission = res?.data?.submitTxExecution;
+          if (!submission) return;
+
           const queryOpts = {
             query: API_GET_TXS_QUERY,
             variables: { safe: safe.address },
           };
           const data = cache.readQuery<GetApiTxs, GetApiTxsVariables>(
             queryOpts,
-          );
+          ) ?? { txs: [] };
 
           const newTxs = [...data.txs];
 
@@ -63,7 +66,7 @@ export const useApiSubmitExecution = () => {
           if (i >= 0) {
             newTxs[i] = {
               ...newTxs[i],
-              submissions: [...newTxs[i].submissions, submission],
+              submissions: [...(newTxs[i].submissions ?? []), submission],
             };
           }
 

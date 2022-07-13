@@ -30,18 +30,23 @@ export const useRevokeApproval = () => {
     MUTATION,
     {
       client: useApiClient(),
-      update: (cache, { data: { revokeApproval } }) => {
+      update: (cache, res) => {
+        const revokedApproval = res?.data?.revokeApproval;
+        if (!revokedApproval) return;
+
         const queryOpts = {
           query: API_GET_TXS_QUERY,
           variables: { safe: safe.address },
         };
-        const data = cache.readQuery<GetApiTxs, GetApiTxsVariables>(queryOpts);
+        const data = cache.readQuery<GetApiTxs, GetApiTxsVariables>(
+          queryOpts,
+        ) ?? { txs: [] };
 
         const newTxs = [...data.txs];
-        const i = newTxs.findIndex((tx) => tx.id === revokeApproval.id);
+        const i = newTxs.findIndex((tx) => tx.id === revokedApproval.id);
         if (i >= 0) {
           const tx = newTxs[i];
-          const approvals = tx.approvals.filter(
+          const approvals = (tx.approvals ?? []).filter(
             (a) => a.userId !== wallet.address,
           );
 

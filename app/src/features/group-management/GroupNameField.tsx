@@ -11,7 +11,7 @@ export interface GroupNameFieldProps {
 export const GroupNameField = ({ group }: GroupNameFieldProps) => {
   const upsertGroup = useUpsertApiGroup();
 
-  const [name, setName] = useState<string | undefined>(group.name);
+  const [name, setName] = useState(group.name);
   const [debouncedName] = useDebounce(name, 500);
 
   useEffect(() => {

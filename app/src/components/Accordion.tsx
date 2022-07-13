@@ -19,7 +19,7 @@ export const Accordion = ({
   ...boxProps
 }: AccordionProps) => {
   const { colors, iconSize } = useTheme();
-  const [expanded, setExpanded] = useState(initiallyExpanded);
+  const [expanded, setExpanded] = useState(!!initiallyExpanded);
 
   const toggle = useCallback(() => setExpanded((prev) => !prev), [setExpanded]);
 

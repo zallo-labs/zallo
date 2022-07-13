@@ -3,7 +3,7 @@ import { useSafe } from '@features/safe/SafeProvider';
 import { Token } from './token';
 import { PROVIDER } from '~/provider';
 import { atomFamily, selectorFamily, useRecoilValue } from 'recoil';
-import { Address } from 'lib';
+import { Address, isPresent } from 'lib';
 import { captureException, Severity } from '@util/sentry/sentry';
 import { allTokensSelector } from './useToken';
 import { refreshAtom } from '@util/effect/refreshAtom';
@@ -49,10 +49,12 @@ const tokenBalancesSelector = selectorFamily<TokenWithBalance[], Address>({
   get:
     (addr) =>
     ({ get }) =>
-      get(allTokensSelector).map((token) => ({
-        ...token,
-        balance: get(tokenBalanceState([addr, token.addr])),
-      })),
+      get(allTokensSelector)
+        .filter(isPresent)
+        .map((token) => ({
+          ...token,
+          balance: get(tokenBalanceState([addr, token.addr])),
+        })),
 });
 
 export const useTokenBalances = () => {

@@ -42,23 +42,28 @@ export const useApproveTx = () => {
           txHash: tx.hash,
           signature,
         },
-        update: (cache, { data: { approve } }) => {
+        update: (cache, res) => {
+          const approvedTxId = res?.data?.approve?.id;
+          if (!approvedTxId) return;
+
           const opts = {
             query: API_GET_TXS_QUERY,
             variables: { safe: safe.address },
           };
-          const data = cache.readQuery<GetApiTxs, GetApiTxsVariables>(opts);
+          const data = cache.readQuery<GetApiTxs, GetApiTxsVariables>(opts) ?? {
+            txs: [],
+          };
 
           cache.writeQuery<GetApiTxs, GetApiTxsVariables>({
             ...opts,
             data: {
               txs: data.txs.map((tx) => {
-                if (tx.id !== approve.id) return tx;
+                if (tx.id !== approvedTxId) return tx;
 
                 return {
                   ...tx,
                   approvals: [
-                    ...tx.approvals,
+                    ...(tx.approvals ?? []),
                     {
                       __typename: 'Approval',
                       userId: wallet.address,

@@ -42,7 +42,10 @@ export const useCreateComment = (c: Commentable) => {
     MUTATION,
     {
       client: useApiClient(),
-      update: (cache, { data: { createComment } }) => {
+      update: (cache, res) => {
+        const comment = res?.data?.createComment;
+        if (!comment) return;
+
         const opts: QueryOpts<CommentsQueryVariables> = {
           query: COMMENTS_QUERY,
           variables: { safe: safe.address, key },
@@ -54,7 +57,7 @@ export const useCreateComment = (c: Commentable) => {
         cache.writeQuery<CommentsQuery, CommentsQueryVariables>({
           ...opts,
           data: {
-            comments: data.comments.concat(createComment),
+            comments: (data?.comments ?? []).concat(comment),
           },
         });
       },

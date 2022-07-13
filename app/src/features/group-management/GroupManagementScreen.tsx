@@ -8,6 +8,7 @@ import {
   groupEquiv,
   randomGroupRef,
   getGroupId,
+  Id,
 } from 'lib';
 import { RootNavigatorScreenProps } from '@features/navigation/RootNavigator';
 import { useGroup, useSafe } from '@features/safe/SafeProvider';
@@ -34,7 +35,7 @@ const getSchema = (groups: CombinedGroup[]): Yup.SchemaOf<Values> =>
       .test(
         'unique',
         'Equivalent group already exists',
-        (approvers: Approver[]) => {
+        (approvers: Approver[] = []) => {
           const stubGroup: Group = { ref: '', approvers };
           return !groups.find((g) => groupEquiv(g, stubGroup));
         },
@@ -42,7 +43,7 @@ const getSchema = (groups: CombinedGroup[]): Yup.SchemaOf<Values> =>
       .test(
         'threshold',
         'Group threshold must be >= 100%',
-        (approvers: Approver[]) =>
+        (approvers: Approver[] = []) =>
           approvers.reduce((acc, a) => acc + a.weight, 0) >= 100,
       ),
   });
@@ -59,7 +60,7 @@ const createDefault = (safe: Address): CombinedGroup => {
 };
 
 export interface GroupManagementScreenParams {
-  groupId?: string;
+  groupId?: Id;
   // Callbacks
   selected?: Address;
 }
@@ -82,8 +83,8 @@ export const GroupManagementScreen = withProposeProvider(
     );
 
     const handleSubmit = async (
-      values: Group,
-      helpers: FormikHelpers<Group>,
+      values: Values,
+      helpers: FormikHelpers<Values>,
     ) => {
       const newGroup = { ...initialGroup, ...values };
       await upsertGroup(newGroup, initialGroup);
