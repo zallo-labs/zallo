@@ -10,11 +10,12 @@ import useAsyncEffect from 'use-async-effect';
 import { atom, SetterOrUpdater, useRecoilState } from 'recoil';
 
 import { ChildrenProps } from '@util/children';
-import { Address } from 'lib';
+import { Address, Id } from 'lib';
 import { Suspend } from '@components/Suspender';
-import { persistAtom } from '@util/persistAtom';
+import { persistAtom } from '@util/effect/persistAtom';
 import { useCreateCounterfactualSafe } from './useCreateCounterfactualSafe';
-import { CombinedSafe, useSafes } from '~/queries/useSafes';
+import { CombinedSafe } from '~/queries/safe';
+import { useSafes } from '~/queries/safe/useSafes';
 
 interface SafeContext {
   safe: CombinedSafe;
@@ -28,15 +29,14 @@ export const useSafesContext = () => useContext(Context)!;
 
 export const useSafe = () => useSafesContext().safe;
 
-export const useGroup = (id: string) =>
-  useSafe().groups.find((g) => g.id === id);
+export const useGroup = (id?: Id) => useSafe().groups.find((g) => g.id === id);
 
 const selectedSafeAddrState = atom<Address | undefined>({
   key: 'selectedSafeAddr',
   default: undefined,
   effects: [
     persistAtom({
-      ignoreDefault: true,
+      saveIf: (value) => value !== undefined,
     }),
   ],
 });
@@ -70,16 +70,18 @@ export const SafeProvider = ({ children }: ChildrenProps) => {
       setSelectedAddr(safes[0].safe.address);
   }, [loading, safes, selected, setSelectedAddr]);
 
-  const value: SafeContext = useMemo(
-    () => ({
-      safe: selected,
-      select: setSelectedAddr,
-      createSafe,
-    }),
+  const value = useMemo(
+    () =>
+      selected &&
+      ({
+        safe: selected,
+        select: setSelectedAddr,
+        createSafe,
+      } as SafeContext),
     [createSafe, selected, setSelectedAddr],
   );
 
-  if (!selected) return <Suspend />;
+  if (!value) return <Suspend />;
 
   return <Context.Provider value={value}>{children}</Context.Provider>;
 };

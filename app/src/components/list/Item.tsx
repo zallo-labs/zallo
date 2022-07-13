@@ -51,8 +51,8 @@ export const Item = withSkeleton(
     return (
       <TouchableRipple
         disabled={disabled || !onPress}
-        onPress={!disabled && onPress}
-        onLongPress={!disabled && onLongPress}
+        onPress={!disabled ? onPress : undefined}
+        onLongPress={!disabled ? onLongPress : undefined}
         rippleColor={colors.primary}
       >
         <Box

@@ -1,23 +1,23 @@
-import { useMutation } from '@apollo/client';
+import { gql, useMutation } from '@apollo/client';
 import { useSafe } from '@features/safe/SafeProvider';
 import { useWallet } from '@features/wallet/useWallet';
 import {
-  ApproveTx,
-  ApproveTxVariables,
-  GetApiTxs,
-  GetApiTxsVariables,
-} from '@gql/api.generated';
-import { apiGql } from '@gql/clients';
+  ApproveTxMutation,
+  ApproveTxMutationVariables,
+  ApiTxsQuery,
+  ApiTxsQueryVariables,
+} from '@gql/generated.api';
 import { useApiClient } from '@gql/GqlProvider';
 import { signTx, toId } from 'lib';
 import { DateTime } from 'luxon';
 import { useCallback } from 'react';
-import { API_GET_TXS_QUERY, API_TX_FIELDS, Tx } from '~/queries/tx/useTxs';
+import { Tx } from '~/queries/tx';
+import { API_TX_FIELDS, API_GET_TXS_QUERY } from '~/queries/tx/useTxs.api';
 
-const MUTATION = apiGql`
-${API_TX_FIELDS}
+const MUTATION = gql`
+  ${API_TX_FIELDS}
 
-mutation ApproveTx($safe: Address!, $txHash: Bytes32!, $signature: Bytes!) {
+  mutation ApproveTx($safe: Address!, $txHash: Bytes32!, $signature: Bytes!) {
     approve(safe: $safe, txHash: $txHash, signature: $signature) {
       id
     }
@@ -28,9 +28,10 @@ export const useApproveTx = () => {
   const { safe } = useSafe();
   const wallet = useWallet();
 
-  const [mutate] = useMutation<ApproveTx, ApproveTxVariables>(MUTATION, {
-    client: useApiClient(),
-  });
+  const [mutate] = useMutation<ApproveTxMutation, ApproveTxMutationVariables>(
+    MUTATION,
+    { client: useApiClient() },
+  );
 
   const approve = useCallback(
     async (tx: Tx) => {
@@ -42,23 +43,30 @@ export const useApproveTx = () => {
           txHash: tx.hash,
           signature,
         },
-        update: (cache, { data: { approve } }) => {
+        update: (cache, res) => {
+          const approvedTxId = res?.data?.approve?.id;
+          if (!approvedTxId) return;
+
           const opts = {
             query: API_GET_TXS_QUERY,
             variables: { safe: safe.address },
           };
-          const data = cache.readQuery<GetApiTxs, GetApiTxsVariables>(opts);
+          const data = cache.readQuery<ApiTxsQuery, ApiTxsQueryVariables>(
+            opts,
+          ) ?? {
+            txs: [],
+          };
 
-          cache.writeQuery<GetApiTxs, GetApiTxsVariables>({
+          cache.writeQuery<ApiTxsQuery, ApiTxsQueryVariables>({
             ...opts,
             data: {
               txs: data.txs.map((tx) => {
-                if (tx.id !== approve.id) return tx;
+                if (tx.id !== approvedTxId) return tx;
 
                 return {
                   ...tx,
                   approvals: [
-                    ...tx.approvals,
+                    ...(tx.approvals ?? []),
                     {
                       __typename: 'Approval',
                       userId: wallet.address,

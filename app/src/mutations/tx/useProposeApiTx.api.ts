@@ -1,37 +1,37 @@
-import { useMutation } from '@apollo/client';
+import { gql, useMutation } from '@apollo/client';
 import { useSafe } from '@features/safe/SafeProvider';
 import { useWallet } from '@features/wallet/useWallet';
 import {
-  GetApiTxs,
-  GetApiTxsVariables,
-  ProposeTx,
-  ProposeTxVariables,
-} from '@gql/api.generated';
-import { apiGql } from '@gql/clients';
+  ApiTxsQuery,
+  ApiTxsQueryVariables,
+  ProposeTxMutation,
+  ProposeTxMutationVariables,
+} from '@gql/generated.api';
 import { useApiClient } from '@gql/GqlProvider';
 import { hexlify } from 'ethers/lib/utils';
 import { createTx, hashTx, signTx, toId, TxDef } from 'lib';
 import { DateTime } from 'luxon';
 import { useCallback } from 'react';
-import { API_GET_TXS_QUERY, API_TX_FIELDS } from '~/queries/tx/useTxs';
+import { API_GET_TXS_QUERY, API_TX_FIELDS } from '~/queries/tx/useTxs.api';
 
-const MUTATION = apiGql`
-${API_TX_FIELDS}
+const MUTATION = gql`
+  ${API_TX_FIELDS}
 
-mutation ProposeTx($safe: Address!, $tx: TxInput!, $signature: Bytes!) {
-  proposeTx(safe: $safe, tx: $tx, signature: $signature) {
-    ...TxFields
+  mutation ProposeTx($safe: Address!, $tx: TxInput!, $signature: Bytes!) {
+    proposeTx(safe: $safe, tx: $tx, signature: $signature) {
+      ...TxFields
+    }
   }
-}
 `;
 
 export const useProposeApiTx = () => {
   const { safe } = useSafe();
   const wallet = useWallet();
 
-  const [mutation] = useMutation<ProposeTx, ProposeTxVariables>(MUTATION, {
-    client: useApiClient(),
-  });
+  const [mutation] = useMutation<ProposeTxMutation, ProposeTxMutationVariables>(
+    MUTATION,
+    { client: useApiClient() },
+  );
 
   const propose = useCallback(
     async (txDef: TxDef) => {
@@ -51,16 +51,23 @@ export const useProposeApiTx = () => {
           },
           signature,
         },
-        update: (cache, { data: { proposeTx } }) => {
+        update: (cache, res) => {
+          const proposedTx = res?.data?.proposeTx;
+          if (!proposedTx) return;
+
           const opts = {
             query: API_GET_TXS_QUERY,
             variables: { safe: safe.address },
           };
-          const data = cache.readQuery<GetApiTxs, GetApiTxsVariables>(opts);
+          const data = cache.readQuery<ApiTxsQuery, ApiTxsQueryVariables>(
+            opts,
+          ) ?? {
+            txs: [],
+          };
 
-          cache.writeQuery<GetApiTxs, GetApiTxsVariables>({
+          cache.writeQuery<ApiTxsQuery, ApiTxsQueryVariables>({
             ...opts,
-            data: { ...data, txs: [...data.txs, proposeTx] },
+            data: { ...data, txs: [...data.txs, proposedTx] },
           });
         },
         optimisticResponse: {

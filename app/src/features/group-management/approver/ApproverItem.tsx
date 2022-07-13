@@ -9,7 +9,7 @@ import { showError } from '@components/Toast';
 
 export interface ApproverItemProps extends ItemProps {
   approver: Approver;
-  setApprover: (approver: Approver) => void;
+  setApprover: (approver?: Approver) => void;
   isOnlyApprover?: boolean;
 }
 

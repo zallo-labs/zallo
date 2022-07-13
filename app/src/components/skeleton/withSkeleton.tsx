@@ -1,8 +1,8 @@
+import { FC, ReactNode, Suspense } from 'react';
 import { isFunctionalComponent } from '@util/typing';
-import React, { FC, ReactNode, Suspense } from 'react';
 
 export const withSkeleton =
-  <Props,>(Component: FC<Props>, Skeleton: ReactNode | FC) =>
+  <Props,>(Component: FC<Props>, Skeleton: NonNullable<ReactNode> | FC) =>
   (props: Props) =>
     (
       <Suspense

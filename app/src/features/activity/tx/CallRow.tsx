@@ -1,12 +1,12 @@
 import { Box } from '@components/Box';
 import { TokenValue } from '@components/token/TokenValue';
-import { useContractMethod } from '~/queries/useContractMethod';
 import { Caption, Paragraph, useTheme } from 'react-native-paper';
 import { ETH } from '~/token/tokens';
 import { TransferMethodValue } from './TransferMethodValue';
 import { useDecodedTransfer } from './useDecodedTransfer';
 import { Addr } from '@components/Addr';
 import { Call } from 'lib';
+import { useContractMethod } from '~/queries/useContractMethod.api';
 
 export interface CallRowProps {
   call: Call;

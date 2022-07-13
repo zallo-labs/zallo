@@ -1,3 +1,4 @@
+import type { ChainName } from 'config';
 import { BigNumber } from 'ethers';
 import {
   address,
@@ -31,12 +32,15 @@ type TokenDef = Pick<Token, 'name' | 'symbol' | 'decimals'> & {
 
 export const createToken = (def: TokenDef): Token => {
   const addresses = _.mapValues(def.addresses, address);
-  const addr = address(def.addresses[CHAIN.name]);
+
+  if (CHAIN.name !== 'testnet') throw new Error('Only testnet is supported');
+  const addr = def.addresses[CHAIN.name];
+  if (!addr) throw new Error('Address not found');
 
   const token: Token = {
     type: 'ERC20',
     ...def,
-    addr,
+    addr: address(addr),
     addresses,
     iconUri:
       def.iconUri ??

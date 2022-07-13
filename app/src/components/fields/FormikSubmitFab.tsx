@@ -5,7 +5,7 @@ import { containsErrors } from './FormikErrors';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 
 const allTouched = (values: unknown, touched: Record<string, boolean>) =>
-  Object.keys(values).every((field) => touched[field]);
+  typeof values === "object" && values !== null && Object.keys(values).every((field) => touched[field]);
 
 export type FormikSubmitFabProps = Omit<
   ComponentPropsWithoutRef<typeof FAB>,

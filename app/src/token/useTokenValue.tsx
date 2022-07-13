@@ -1,6 +1,6 @@
 import { BigNumber, ethers } from 'ethers';
 import { useMemo } from 'react';
-import { TokenPrice, useTokenPrice } from '~/queries/useTokenPrice';
+import { TokenPrice, useTokenPrice } from '~/queries/useTokenPrice.uni';
 import { FIAT_DECIMALS } from './fiat';
 import { Token } from './token';
 import { ETH } from './tokens';

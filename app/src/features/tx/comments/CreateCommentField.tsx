@@ -1,8 +1,8 @@
 import { SheetTextField } from '@components/fields/SheetTextField';
 import { useState, useCallback } from 'react';
 import { TextInput, useTheme } from 'react-native-paper';
-import { useCreateComment } from '~/mutations/comment/useCreateComment';
-import { Commentable } from '~/queries/useComments';
+import { useCreateComment } from '~/mutations/comment/useCreateComment.api';
+import { Commentable } from '~/queries/useComments.api';
 
 export interface CreateCommentFieldProps {
   commentable: Commentable;

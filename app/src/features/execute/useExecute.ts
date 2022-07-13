@@ -1,11 +1,11 @@
 import { useWallet } from '@features/wallet/useWallet';
 import { MaybePromise } from 'lib';
 import { useCallback } from 'react';
-import { isExecutedTx, Tx, TxStatus } from '~/queries/tx/useTxs';
 import { useApproveTx } from '../../mutations/tx/useApproveTx.api';
 import { useGetGroupsApproved } from './useGroupsApproved';
 import { useSubmitExecute } from '../../mutations/tx/submit/useSubmitExecute';
 import { useProposeApiTx } from '../../mutations/tx/useProposeApiTx.api';
+import { isExecutedTx, Tx, TxStatus } from '~/queries/tx';
 
 export type ExecuteStep = 'propose' | 'approve' | 'await-approval' | 'execute';
 
@@ -28,7 +28,7 @@ export const useGetExecute = () => {
   const propose = useProposeApiTx();
 
   const getExecute = useCallback(
-    (tx: Tx): ExecuteFunc => {
+    (tx: Tx): ExecuteFunc | undefined => {
       if (isExecutedTx(tx)) return undefined;
 
       if (tx.status === TxStatus.PreProposal)

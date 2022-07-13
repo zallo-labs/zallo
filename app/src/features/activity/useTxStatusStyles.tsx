@@ -1,6 +1,6 @@
 import { useGroupsApproved } from '@features/execute/useGroupsApproved';
 import { useTheme } from 'react-native-paper';
-import { Tx, TxStatus } from '~/queries/tx/useTxs';
+import { Tx, TxStatus } from '~/queries/tx';
 
 const borderLeftWidth = 3;
 
@@ -13,7 +13,7 @@ export const useTxStatusStyles = (tx: Tx) => {
   const { colors } = useTheme();
   const isApproved = !!useGroupsApproved(tx);
 
-  let color = undefined;
+  let color: string | undefined = undefined;
   if (tx.status === TxStatus.Proposed) {
     color =
       !tx.userHasApproved || isApproved ? colors.primary : colors.onBackground;

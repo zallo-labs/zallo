@@ -11,7 +11,7 @@ import { ActionsSpaceFooter } from '@components/ActionsSpaceFooter';
 import { GroupAppbar } from './GroupAppbar';
 import { FlatList } from 'react-native';
 import { withProposeProvider } from '@features/execute/ProposeProvider';
-import { CombinedGroup } from '~/queries/useSafes';
+import { CombinedGroup } from '~/queries/safe';
 
 export interface GroupManagementProps {
   approvers: Approver[];
@@ -36,12 +36,12 @@ export const GroupManagement = withProposeProvider(
           ...approvers,
           { addr: selected, weight: PERCENT_THRESHOLD },
         ]);
-        navigation.setParams({ selected: null });
+        navigation.setParams({ selected: undefined });
       }
     }, [selected, approvers, setApprovers, navigation]);
 
     const handleSetApprover =
-      (approver: Approver) => (newApprover: Approver | undefined) => {
+      (approver: Approver) => (newApprover?: Approver) => {
         const i = approvers.findIndex((a) => a.addr === approver.addr);
         setApprovers(
           [

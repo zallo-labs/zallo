@@ -1,10 +1,4 @@
-import {
-  createContext,
-  useCallback,
-  useContext,
-  useEffect,
-  useState,
-} from 'react';
+import { createContext, useContext, useEffect, useState } from 'react';
 import { ApolloClient, NormalizedCacheObject } from '@apollo/client';
 
 import { ChildrenProps } from '@util/children';
@@ -35,7 +29,7 @@ export const isGqlClients = (
 
 const context = createContext<GqlClients | undefined>(undefined);
 
-const useGqlClients = () => useContext(context!);
+const useGqlClients = () => useContext(context)!;
 export const useApiClient = () => useGqlClients().api;
 export const useSubgraphClient = () => useGqlClients().subgraph;
 export const useUniswapClient = () => useGqlClients().uniswap;

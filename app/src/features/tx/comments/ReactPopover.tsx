@@ -6,8 +6,8 @@ import { Address } from 'lib';
 import { useWindowDimensions } from 'react-native';
 import { Chip, useTheme } from 'react-native-paper';
 import { PopoverPlacement } from 'react-native-popover-view';
-import { useReactToComment } from '~/mutations/comment/useReactToComment';
-import { Comment } from '~/queries/useComments';
+import { useReactToComment } from '~/mutations/comment/useReactToComment.api';
+import { Comment } from '~/queries/useComments.api';
 
 export const EMOJIS = ['👍', '😄', '❤️', '🚀'];
 

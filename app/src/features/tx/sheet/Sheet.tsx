@@ -1,7 +1,7 @@
 import {
   ComponentPropsWithoutRef,
+  ForwardedRef,
   forwardRef,
-  MutableRefObject,
   useMemo,
 } from 'react';
 import BottomSheet, {
@@ -25,7 +25,7 @@ export interface SheetProps extends ChildrenProps, BottomSheetProps {
 export const Sheet = forwardRef(
   (
     { children, initialSnapPoints = [], ...bottomSheetProps }: SheetProps,
-    ref: MutableRefObject<BottomSheet>,
+    ref: ForwardedRef<BottomSheet>,
   ) => {
     const { colors } = useTheme();
 

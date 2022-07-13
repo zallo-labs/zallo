@@ -1,7 +1,6 @@
 import { Addr } from '@components/Addr';
 import { Box } from '@components/Box';
 import { Timestamp } from '@components/Timestamp';
-import { isExecutedTx, Tx, TxStatus } from '~/queries/tx/useTxs';
 import { hexlify } from 'ethers/lib/utils';
 import { useState } from 'react';
 import { TouchableOpacity } from 'react-native';
@@ -17,6 +16,7 @@ import { useGroupTotals } from '@features/execute/useGroupTotals';
 import _ from 'lodash';
 import { PERCENT_THRESHOLD } from 'lib';
 import { Percent } from '@components/Percent';
+import { isExecutedTx, Tx, TxStatus } from '~/queries/tx';
 
 const THRESHOLD_AFFIX = ` /${PERCENT_THRESHOLD}%`;
 
@@ -70,7 +70,7 @@ export const Timeline = ({ tx }: TimelineProps) => {
                 >
                   Revoke
                 </TimelineButton>
-              ) : tx.status === TxStatus.PreProposal ? (
+              ) : execute && tx.status === TxStatus.PreProposal ? (
                 <TimelineButton color={colors.primary} onPress={execute}>
                   Propose
                 </TimelineButton>

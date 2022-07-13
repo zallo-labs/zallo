@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react';
 import { useDebounce } from 'use-debounce';
 import { TextField } from '@components/fields/TextField';
-import { useUpsertApiGroup } from '~/mutations/group/useUpsertApiGroup';
-import { CombinedGroup } from '~/queries/useSafes';
+import { useUpsertApiGroup } from '~/mutations/group/useUpsertGroup.api';
+import { CombinedGroup } from '~/queries/safe';
 
 export interface GroupNameFieldProps {
   group: CombinedGroup;
@@ -11,7 +11,7 @@ export interface GroupNameFieldProps {
 export const GroupNameField = ({ group }: GroupNameFieldProps) => {
   const upsertGroup = useUpsertApiGroup();
 
-  const [name, setName] = useState<string | undefined>(group.name);
+  const [name, setName] = useState(group.name);
   const [debouncedName] = useDebounce(name, 500);
 
   useEffect(() => {

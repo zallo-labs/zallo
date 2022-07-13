@@ -1,0 +1,23 @@
+overwrite: true
+generates:
+  src/gql/generated.api.tsx:
+    schema: ${API_GQL_URL}
+    documents: 'src/{mutations,queries}/**/*.api.ts'
+    plugins:
+      - 'typescript'
+      - 'typescript-operations'
+      - 'typescript-react-apollo'
+  src/gql/generated.sub.tsx:
+    schema: ${SUBGRAPH_GQL_URL}
+    documents: 'src/{mutations,queries}/**/*.sub.ts'
+    plugins:
+      - 'typescript'
+      - 'typescript-operations'
+      - 'typescript-react-apollo'
+  src/gql/generated.uni.tsx:
+    schema: 'https://api.thegraph.com/subgraphs/name/ianlapham/uniswap-v3-subgraph'
+    documents: 'src/{mutations,queries}/**/*.uni.ts'
+    plugins:
+      - 'typescript'
+      - 'typescript-operations'
+      - 'typescript-react-apollo'

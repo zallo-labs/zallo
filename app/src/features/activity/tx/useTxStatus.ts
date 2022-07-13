@@ -1,7 +1,7 @@
 import { useSafe } from '@features/safe/SafeProvider';
 import { PERCENT_THRESHOLD } from 'lib';
 import { useCallback } from 'react';
-import { Approval } from '~/queries/tx/useTxs';
+import { Approval } from '~/queries/tx';
 
 export const useIsApproved = () => {
   const { groups } = useSafe();

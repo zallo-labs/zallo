@@ -11,10 +11,10 @@ import {
 import { CallStructOutput } from 'lib/dist/contracts/contracts/Multicall';
 import { CONFIG } from '~/config';
 import { PROVIDER } from '~/provider';
-import { getDataSighash } from '~/queries/useContractMethod';
+import { getDataSighash } from '~/queries/useContractMethod.api';
 
 export const MULTICALL = Multicall__factory.connect(
-  CONFIG.multicallAddress,
+  CONFIG.multicallAddress!,
   PROVIDER,
 );
 

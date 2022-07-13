@@ -1,7 +1,7 @@
 import { TextField } from '@components/fields/TextField';
 import { useState } from 'react';
 import { IconButton, TextInput, useTheme } from 'react-native-paper';
-import { useUpsertSafe } from '~/mutations/useUpsertSafe';
+import { useUpsertSafe } from '~/mutations/useUpsertSafe.api';
 import { SafeItem, SafeItemProps } from './SafeItem';
 
 export interface SelectedSafeItemProps extends SafeItemProps {}

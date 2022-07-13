@@ -5,8 +5,8 @@ import { Address } from 'lib';
 import _ from 'lodash';
 import { useCallback, useMemo } from 'react';
 import { Caption, Chip } from 'react-native-paper';
-import { useReactToComment } from '~/mutations/comment/useReactToComment';
-import { Comment } from '~/queries/useComments';
+import { useReactToComment } from '~/mutations/comment/useReactToComment.api';
+import { Comment } from '~/queries/useComments.api';
 import { EMOJIS, getOwnReactions } from './ReactPopover';
 
 type GroupedEmoji = {

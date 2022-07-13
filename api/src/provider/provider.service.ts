@@ -16,7 +16,12 @@ export class ProviderService extends zk.Provider {
     this.chain = CONFIG.chain;
     this.ethProvider = ethers.providers.getDefaultProvider(this.chain.ethUrl);
 
-    this.wallet = zk.Wallet.createRandom().connect(this).connectToL1(this.ethProvider);
+    const wallet =
+      this.chain.isTestnet && CONFIG.wallet.privateKey
+        ? new zk.Wallet(CONFIG.wallet.privateKey)
+        : zk.Wallet.createRandom();
+    this.wallet = wallet.connect(this).connectToL1(this.ethProvider);
+
     this.factory = getFactory(CONFIG.factoryAddress!, this.wallet);
   }
 }

@@ -1,4 +1,5 @@
-import { persistAtom } from '@util/persistAtom';
+import { persistAtom } from '@util/effect/persistAtom';
+import { Unimplemented } from '@util/error/unimplemented';
 import { Address } from 'lib';
 import {
   atom,
@@ -17,19 +18,19 @@ const tokenAddressesState = atom<Address[]>({
   effects: [persistAtom()],
 });
 
-const tokenValueState = atomFamily<Token | null, Address>({
+const tokenValueState = atomFamily<Token, Address>({
   key: 'token',
   default: (addr: Address) => {
     const token = HARDCODED_TOKENS.find((t) => t.addr === addr);
     if (token) return token;
 
-    // TODO: dynamic token support
-    return null;
+    // TODO: implement dynamic tokens
+    throw new Unimplemented(`dynamic tokens; ${addr}`);
   },
   effects: [persistAtom()],
 });
 
-const tokenSelector = selectorFamily<Token | null, Address>({
+export const tokenSelector = selectorFamily<Token, Address>({
   key: 'token-access',
   get:
     (addr) =>
@@ -50,6 +51,8 @@ const tokenSelector = selectorFamily<Token | null, Address>({
     },
 });
 
+export const useToken = (addr: Address) => useRecoilValue(tokenSelector(addr));
+
 export const allTokensSelector = selector({
   key: 'allTokens',
   get: ({ get }) => {
@@ -58,6 +61,15 @@ export const allTokensSelector = selector({
   },
 });
 
-export const useToken = (addr: Address) => useRecoilValue(tokenSelector(addr));
-
 export const useTokens = () => useRecoilValue(allTokensSelector);
+
+const maybeTokenSelector = selectorFamily<Token | null, Address>({
+  key: 'maybeToken',
+  get:
+    (addr) =>
+    ({ get }) =>
+      get(tokenAddressesState).includes(addr) ? get(tokenSelector(addr)) : null,
+});
+
+export const useMaybeToken = (addr: Address) =>
+  useRecoilValue(maybeTokenSelector(addr));

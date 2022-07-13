@@ -14,7 +14,7 @@ import { address, Address, toId } from 'lib';
 import {
   UserSafesQuery,
   UserSafesQueryVariables,
-} from '@gen/subgraph.generated';
+} from '@gen/generated.subgraph';
 
 @Injectable()
 export class SubgraphService extends ApolloClient<NormalizedCacheObject> {
@@ -34,7 +34,7 @@ export class SubgraphService extends ApolloClient<NormalizedCacheObject> {
   public async userSafes(user: Address): Promise<Address[]> {
     const { data } = await this.query<UserSafesQuery, UserSafesQueryVariables>({
       query: gql`
-        query UserSafesQuery($user: ID!) {
+        query UserSafes($user: ID!) {
           user(id: $user) {
             id
             approvers {

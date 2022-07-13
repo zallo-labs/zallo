@@ -5,7 +5,7 @@ import { ethers } from 'ethers';
 import FuzzySearch from 'fuzzy-search';
 import { Box } from '@components/Box';
 import { RootNavigatorScreenProps } from '@features/navigation/RootNavigator';
-import { Contact, useContacts } from '~/queries/useContacts';
+import { Contact, useContacts } from '~/queries/useContacts.api';
 import { ContactItem } from './ContactItem';
 import { CreateContactButton } from './CreateContactButton';
 import { SelectAddressButton } from './SelectAddressButton';
@@ -106,7 +106,7 @@ export const ContactsScreen = ({ navigation, route }: ContactsScreenProps) => {
 
             {error && (
               <Box center mt={2}>
-                <ErrorText error="Invalid address!" as={Title} />
+                <ErrorText error="Invalid address!">{Title}</ErrorText>
               </Box>
             )}
           </Box>

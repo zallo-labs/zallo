@@ -6,7 +6,7 @@ import {
   randomGroupRef,
 } from 'lib';
 import { useCallback } from 'react';
-import { UpsertableGroup, useUpsertSafe } from '~/mutations/useUpsertSafe';
+import { useUpsertSafe, UpsertableGroup } from '~/mutations/useUpsertSafe.api';
 import { useSafeFactory } from './useSafeFactory';
 
 export const useCreateCounterfactualSafe = () => {

@@ -54,7 +54,7 @@ export const combine = <Sub, Api, K, C>(
         return combiner.atLeastApi(sub, api);
 
       if ((sub || api) && isEitherCombiner(combiner))
-        return combiner.either({ sub, api });
+        return combiner.either({ sub: sub!, api });
     })
     .filter(isPresent);
 };
