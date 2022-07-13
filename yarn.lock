@@ -4097,7 +4097,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@graphql-codegen/cli@npm:2.8.0, @graphql-codegen/cli@npm:^2.8.0":
+"@graphql-codegen/cli@npm:2.8.0":
   version: 2.8.0
   resolution: "@graphql-codegen/cli@npm:2.8.0"
   dependencies:
@@ -9481,7 +9481,9 @@ __metadata:
   dependencies:
     "@apollo/client": 3.6.9
     "@golevelup/ts-jest": ^0.3.2
-    "@graphql-codegen/cli": ^2.8.0
+    "@graphql-codegen/cli": 2.8.0
+    "@graphql-codegen/typescript": 2.7.1
+    "@graphql-codegen/typescript-operations": 2.5.1
     "@graphql-tools/delegate": ^8.5.4
     "@graphql-tools/stitch": ^8.5.2
     "@graphql-tools/utils": ^8.6.3
