@@ -12,10 +12,7 @@
     "start:android": "yarn start --android",
     "test": "yarn typecheck && jest --forceExit",
     "typecheck": "tsc --noEmit",
-    "generate": "yarn clean && concurrently --names api,sub,uni -c yellow,blue \"yarn generate:api\" \"yarn generate:sg\" \"yarn generate:uniswap\"",
-    "generate:api": "apollo client:codegen ./src/gql/api.generated.ts --config ./src/gql/clients/api.apollo-config.js --target typescript --outputFlat",
-    "generate:sg": "apollo client:codegen ./src/gql/subgraph.generated.ts --config ./src/gql/clients/subgraph.apollo-config.js --target typescript --outputFlat",
-    "generate:uniswap": "apollo client:codegen ./src/gql/uniswap.generated.ts --config ./src/gql/clients/uniswap.apollo-config.js --target typescript --outputFlat",
+    "generate": "DOTENV_CONFIG_PATH=\"../.env\" graphql-codegen --require dotenv/config --config codegen.yml",
     "clean": "rimraf web-build"
   },
   "expo-yarn-workspaces": {
@@ -100,6 +97,11 @@
   },
   "devDependencies": {
     "@babel/core": "^7.12.9",
+    "@graphql-codegen/cli": "2.8.0",
+    "@graphql-codegen/introspection": "2.2.0",
+    "@graphql-codegen/typescript": "2.7.1",
+    "@graphql-codegen/typescript-operations": "2.5.1",
+    "@graphql-codegen/typescript-react-apollo": "3.3.1",
     "@testing-library/jest-native": "^4.0.5",
     "@testing-library/react-native": "^9.1.0",
     "@types/color": "^3.0.3",

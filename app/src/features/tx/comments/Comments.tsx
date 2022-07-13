@@ -1,7 +1,7 @@
 import { Box } from '@components/Box';
-import { Commentable, useComments } from '~/queries/useComments';
 import { CreateCommentField } from './CreateCommentField';
 import { CommentItem } from './CommentItem';
+import { Commentable, useComments } from '~/queries/useComments.api';
 
 export interface CommentsProps {
   commentable: Commentable;

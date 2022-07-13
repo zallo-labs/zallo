@@ -2,14 +2,14 @@ import { useRef } from 'react';
 import BottomSheet from '@gorhom/bottom-sheet';
 import { Sheet } from './sheet/Sheet';
 import { Activity, ActivityItem } from '@features/activity/ActivityItem';
-import { isExecutedTx, isTx } from '~/queries/tx/useTxs';
 import { TxDetails } from './details/TxDetails';
 import { TxTransfersAccordion } from './TxTransfersAccordion';
 import { Box } from '@components/Box';
 import { Accordion, AccordionProps } from '@components/Accordion';
 import { Comments } from './comments/Comments';
-import { isCommentable } from '~/queries/useComments';
 import { Timeline } from './timeline/Timeline';
+import { isTx, isExecutedTx } from '~/queries/tx';
+import { isCommentable } from '~/queries/useComments.api';
 
 const accordionProps: Partial<AccordionProps> = { mx: 3, my: 2 };
 

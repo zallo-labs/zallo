@@ -4,12 +4,12 @@ import { Item } from '@components/list/Item';
 import { Token } from '~/token/token';
 import { TokenIcon } from '@components/token/TokenIcon';
 import { useTokenBalance } from '~/token/useTokenBalance';
-import { useTokenPrice } from '~/queries/useTokenPrice';
 import { Box } from '@components/Box';
 import { PriceDelta } from '@components/PriceDelta';
 import { TokenValue } from '@components/token/TokenValue';
 import { FiatValue } from '@components/FiatValue';
 import { useTokenValue } from '~/token/useTokenValue';
+import { useTokenPrice } from '~/queries/useTokenPrice.uni';
 
 export interface HoldingProps {
   token: Token;

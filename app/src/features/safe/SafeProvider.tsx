@@ -14,7 +14,8 @@ import { Address, Id } from 'lib';
 import { Suspend } from '@components/Suspender';
 import { persistAtom } from '@util/effect/persistAtom';
 import { useCreateCounterfactualSafe } from './useCreateCounterfactualSafe';
-import { CombinedSafe, useSafes } from '~/queries/useSafes';
+import { CombinedSafe } from '~/queries/safe';
+import { useSafes } from '~/queries/safe/useSafes';
 
 interface SafeContext {
   safe: CombinedSafe;

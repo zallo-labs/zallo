@@ -2,7 +2,7 @@ import { Divider } from '@components/Divider';
 import { Container } from '@components/list/Container';
 import { txReqToCalls } from '@util/multicall';
 import { useMemo } from 'react';
-import { Tx } from '~/queries/tx/useTxs';
+import { Tx } from '~/queries/tx';
 import { CallDetails } from './CallDetails';
 
 export interface TxDetailsProps {

@@ -15,8 +15,8 @@ import { useGroup, useSafe } from '@features/safe/SafeProvider';
 import { GroupManagement } from './GroupManagement';
 import { ADDR_YUP_SCHEMA } from '@util/yup';
 import { withProposeProvider } from '@features/execute/ProposeProvider';
-import { useUpsertSafeGroup } from '~/mutations/group/useUpsertSafeGroup';
-import { CombinedGroup } from '~/queries/useSafes';
+import { useUpsertSafeGroup } from '~/mutations/group/useUpsertGroup.safe';
+import { CombinedGroup } from '~/queries/safe';
 
 type Values = Pick<Group, 'approvers'>;
 

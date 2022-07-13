@@ -5,14 +5,14 @@ import { address, Address, tryAddress } from 'lib';
 import { FormikTextField } from '@components/fields/FormikTextField';
 import { RootNavigatorScreenProps } from '@features/navigation/RootNavigator';
 import { FormikSubmitFab } from '@components/fields/FormikSubmitFab';
-import { useUpsertContact } from '~/mutations';
 import { ADDR_YUP_SCHEMA } from '@util/yup';
 import { Actions } from '@components/Actions';
 import { Container } from '@components/list/Container';
 import { Box } from '@components/Box';
-import { useDeleteContact } from '~/mutations/contact/useDeleteContact';
 import { ScanIcon } from '@util/icons';
-import { Contact, useContacts } from '~/queries/useContacts';
+import { Contact, useContacts } from '~/queries/useContacts.api';
+import { useDeleteContact } from '~/mutations/contact/useDeleteContact.api';
+import { useUpsertContact } from '~/mutations/contact/useUpsertContact.api';
 
 interface Values {
   addr: string;

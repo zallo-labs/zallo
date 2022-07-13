@@ -1,13 +1,13 @@
 import { FiatValue } from '@components/FiatValue';
-import { useLazyContractMethod } from '~/queries/useContractMethod';
 import { Address, sumBn, ZERO, mapAsync, Call } from 'lib';
 import { useState } from 'react';
 import useAsyncEffect from 'use-async-effect';
+import { useLazyContractMethod } from '~/queries/useContractMethod.api';
+import { useTokenPrice } from '~/queries/useTokenPrice.uni';
 import { ETH } from '~/token/tokens';
 import { useToken } from '~/token/useToken';
 import { getTokenValue, TokenValue } from '~/token/useTokenValue';
 import { tryDecodeTransfer } from './useDecodedTransfer';
-import { useTokenPrice } from '~/queries/useTokenPrice';
 
 export interface TotalCallsGroupValueProps {
   to: Address;

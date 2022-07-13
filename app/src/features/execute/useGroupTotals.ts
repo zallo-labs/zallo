@@ -1,7 +1,7 @@
 import { useSafe } from '@features/safe/SafeProvider';
 import { memoizedHookCallbackResult } from '@util/memoizedHookCallbackResult';
 import { useCallback } from 'react';
-import { ProposedTx } from '~/queries/tx/useTxs';
+import { ProposedTx } from '~/queries/tx';
 
 export const useGetGroupTotals = () => {
   const { groups } = useSafe();

@@ -1,7 +1,7 @@
 import { BigNumber, BytesLike } from 'ethers';
 import { FunctionFragment, Interface } from 'ethers/lib/utils';
 import { address, Address } from 'lib';
-import { getDataSighash, useContractMethod } from '~/queries/useContractMethod';
+import { getDataSighash, useContractMethod } from '~/queries/useContractMethod.api';
 import { ERC20_INTERFACE } from '~/token/token';
 
 const ERC20_TRANSFER_SIGHASH = ERC20_INTERFACE.getSighash(

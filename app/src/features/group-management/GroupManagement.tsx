@@ -11,7 +11,7 @@ import { ActionsSpaceFooter } from '@components/ActionsSpaceFooter';
 import { GroupAppbar } from './GroupAppbar';
 import { FlatList } from 'react-native';
 import { withProposeProvider } from '@features/execute/ProposeProvider';
-import { CombinedGroup } from '~/queries/useSafes';
+import { CombinedGroup } from '~/queries/safe';
 
 export interface GroupManagementProps {
   approvers: Approver[];

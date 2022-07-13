@@ -4,7 +4,7 @@ import { withSkeleton } from '@components/skeleton/withSkeleton';
 import { FormatTypes } from 'ethers/lib/utils';
 import { Call } from 'lib';
 import { Caption, Paragraph } from 'react-native-paper';
-import { useContractMethod } from '~/queries/useContractMethod';
+import { useContractMethod } from '~/queries/useContractMethod.api';
 import { CallDetailsRow } from './CallDetailsRow';
 
 export interface DecodedOpDetailsProps {

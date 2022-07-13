@@ -1,9 +1,9 @@
 import { useSafe } from '@features/safe/SafeProvider';
 import { executeTx, Signerish } from 'lib';
 import { useCallback } from 'react';
-import { ProposedTx } from '~/queries/tx/useTxs';
-import { CombinedGroup } from '~/queries/useSafes';
-import { useApiSubmitExecution } from './useApiSubmitExecution';
+import { CombinedGroup } from '~/queries/safe';
+import { ProposedTx } from '~/queries/tx';
+import { useApiSubmitExecution } from './useSubmitExecution.api';
 
 export const useSubmitExecute = () => {
   const { safe } = useSafe();

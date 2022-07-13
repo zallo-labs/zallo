@@ -1,11 +1,11 @@
 import { Box } from '@components/Box';
 import { Divider } from '@components/Divider';
 import { ItemProps } from '@components/list/Item';
-import { Tx } from '~/queries/tx/useTxs';
 import { CallsGroup, CallsGroupItem } from './CallsGroupItem';
 import { useTxStatusStyles } from '../useTxStatusStyles';
 import { useMemo } from 'react';
 import { txReqToCalls } from '@util/multicall';
+import { Tx } from '~/queries/tx';
 
 export interface TxItemProps extends ItemProps {
   tx: Tx;

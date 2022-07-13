@@ -2,7 +2,7 @@ import { Address } from 'lib';
 import { useSafe } from '@features/safe/SafeProvider';
 import { useMemo } from 'react';
 import { useMaybeToken } from '~/token/useToken';
-import { useContacts } from '~/queries/useContacts';
+import { useContacts } from '~/queries/useContacts.api';
 import { truncatedAddr } from '@util/format';
 import { useAddrEns } from './useAddrEns';
 

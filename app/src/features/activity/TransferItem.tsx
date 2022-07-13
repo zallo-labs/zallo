@@ -7,7 +7,7 @@ import { TokenValue } from '@components/token/TokenValue';
 import { Caption, Paragraph, Subheading, useTheme } from 'react-native-paper';
 import { useToken } from '~/token/useToken';
 import { useTokenValue } from '~/token/useTokenValue';
-import { isInTransfer, Transfer } from '~/queries/tx/transfer';
+import { Transfer, isInTransfer } from '~/queries/tx/transfer.sub';
 
 export interface TransferItemProps extends ItemProps {
   transfer: Transfer;

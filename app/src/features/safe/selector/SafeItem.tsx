@@ -6,7 +6,7 @@ import { withSkeleton } from '@components/skeleton/withSkeleton';
 import { truncatedAddr } from '@util/format';
 import { useAddrName } from '@util/hook/useAddrName';
 import { Caption, Title } from 'react-native-paper';
-import { CombinedSafe } from '~/queries/useSafes';
+import { CombinedSafe } from '~/queries/safe';
 
 export interface SafeItemProps extends ItemProps {
   safe: CombinedSafe;

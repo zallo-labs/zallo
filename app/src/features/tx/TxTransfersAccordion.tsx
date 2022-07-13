@@ -1,6 +1,6 @@
 import { Accordion, AccordionProps } from '@components/Accordion';
 import { TransferItem } from '@features/activity/TransferItem';
-import { ExecutedTx } from '~/queries/tx/useTxs';
+import { ExecutedTx } from '~/queries/tx';
 
 export interface TxTransfersAccordionProps extends Partial<AccordionProps> {
   tx: ExecutedTx;

@@ -13,7 +13,8 @@ import {
   useMemo,
   useState,
 } from 'react';
-import { ProposedTx, TxStatus, useTxs } from '~/queries/tx/useTxs';
+import { ProposedTx, TxStatus } from '~/queries/tx';
+import { useTxs } from '~/queries/tx/useTxs';
 import { ActivitySheet } from '../tx/ActivitySheet';
 
 const txReqToProposedTx = async (

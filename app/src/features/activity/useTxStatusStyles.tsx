@@ -1,6 +1,6 @@
 import { useGroupsApproved } from '@features/execute/useGroupsApproved';
 import { useTheme } from 'react-native-paper';
-import { Tx, TxStatus } from '~/queries/tx/useTxs';
+import { Tx, TxStatus } from '~/queries/tx';
 
 const borderLeftWidth = 3;
 
