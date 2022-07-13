@@ -1,9 +1,10 @@
 import { Box } from '@components/Box';
+import { Container } from '@components/list/Container';
 import { TokenIcon } from '@components/token/TokenIcon';
 import { TokenValue } from '@components/token/TokenValue';
 import { useNavigation } from '@react-navigation/native';
 import { TouchableOpacity } from 'react-native';
-import { Card, Headline, Title } from 'react-native-paper';
+import { Card, Title } from 'react-native-paper';
 import { Token } from '~/token/token';
 import { useTokenBalance } from '~/token/useTokenBalance';
 import { SendScreenProps } from './SendScreen';
@@ -28,15 +29,20 @@ export const SendTokenChip = ({ token }: SendTokenChipProps) => {
           })
         }
       >
-        <Box horizontal alignItems="center" m={2}>
-          <TokenIcon token={token} size={30} />
+        <Container
+          horizontal
+          alignItems="center"
+          m={2}
+          separator={<Box mx={1} />}
+        >
+          <TokenIcon token={token} size={40} />
 
-          <Headline>{` ${token.symbol}  `}</Headline>
-
-          <Title style={{ opacity: 0.8 }}>
+          <Title>
             <TokenValue token={token} value={balance} noSymbol />
           </Title>
-        </Box>
+
+          <Title style={{ opacity: 0.8 }}>{token.symbol}</Title>
+        </Container>
       </TouchableOpacity>
     </Card>
   );
