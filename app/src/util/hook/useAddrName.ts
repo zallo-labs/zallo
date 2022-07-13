@@ -4,20 +4,26 @@ import { useMemo } from 'react';
 import { useToken } from '~/token/useToken';
 import { useContacts } from '~/queries/useContacts';
 import { truncatedAddr } from '@util/format';
+import { useAddrEns } from './useAddrEns';
 
 export const useAddrName = (addr: Address) => {
   const { contacts } = useContacts();
   const { safe, name: safeName } = useSafe();
   const token = useToken(addr);
+  const ens = useAddrEns(addr);
 
   const contact = useMemo(
     () => contacts.find((c) => c.addr === addr),
     [contacts, addr],
   );
 
-  return useMemo(() => {
-    if (addr === safe.address && safeName) return safeName;
-
-    return contact?.name || token?.name || truncatedAddr(addr);
-  }, [addr, contact?.name, safe.address, safeName, token?.name]);
+  return useMemo(
+    () =>
+      (addr === safe.address && safeName) ||
+      contact?.name ||
+      token?.name ||
+      ens ||
+      truncatedAddr(addr),
+    [addr, contact?.name, ens, safe.address, safeName, token?.name],
+  );
 };
