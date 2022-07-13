@@ -1,6 +1,6 @@
 import { persistAtom } from '@util/effect/persistAtom';
 import { Unimplemented } from '@util/error/unimplemented';
-import { Address, isPresent } from 'lib';
+import { Address } from 'lib';
 import {
   atom,
   atomFamily,
@@ -25,7 +25,7 @@ const tokenValueState = atomFamily<Token, Address>({
     if (token) return token;
 
     // TODO: implement dynamic tokens
-    throw new Unimplemented('dynamic tokens');
+    throw new Unimplemented(`dynamic tokens; ${addr}`);
   },
   effects: [persistAtom()],
 });
@@ -51,6 +51,8 @@ export const tokenSelector = selectorFamily<Token, Address>({
     },
 });
 
+export const useToken = (addr: Address) => useRecoilValue(tokenSelector(addr));
+
 export const allTokensSelector = selector({
   key: 'allTokens',
   get: ({ get }) => {
@@ -59,6 +61,15 @@ export const allTokensSelector = selector({
   },
 });
 
-export const useToken = (addr: Address) => useRecoilValue(tokenSelector(addr));
-
 export const useTokens = () => useRecoilValue(allTokensSelector);
+
+const maybeTokenSelector = selectorFamily<Token | null, Address>({
+  key: 'maybeToken',
+  get:
+    (addr) =>
+    ({ get }) =>
+      get(tokenAddressesState).includes(addr) ? get(tokenSelector(addr)) : null,
+});
+
+export const useMaybeToken = (addr: Address) =>
+  useRecoilValue(maybeTokenSelector(addr));

@@ -1,7 +1,7 @@
 import { Address } from 'lib';
 import { useSafe } from '@features/safe/SafeProvider';
 import { useMemo } from 'react';
-import { useToken } from '~/token/useToken';
+import { useMaybeToken } from '~/token/useToken';
 import { useContacts } from '~/queries/useContacts';
 import { truncatedAddr } from '@util/format';
 import { useAddrEns } from './useAddrEns';
@@ -9,7 +9,7 @@ import { useAddrEns } from './useAddrEns';
 export const useAddrName = (addr: Address) => {
   const { contacts } = useContacts();
   const { safe, name: safeName } = useSafe();
-  const token = useToken(addr);
+  const token = useMaybeToken(addr);
   const ens = useAddrEns(addr);
 
   const contact = useMemo(
