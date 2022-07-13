@@ -29,7 +29,7 @@ const tokenValueState = atomFamily<Token | null, Address>({
   effects: [persistAtom()],
 });
 
-const tokenSelector = selectorFamily<Token | null, Address>({
+export const tokenSelector = selectorFamily<Token | null, Address>({
   key: 'token-access',
   get:
     (addr) =>

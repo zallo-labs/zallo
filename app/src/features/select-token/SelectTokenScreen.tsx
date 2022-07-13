@@ -8,6 +8,7 @@ import { Token } from '~/token/token';
 import { useTokens } from '~/token/useToken';
 import { SelectTokenAppbar } from './SelectTokenAppbar';
 import { SelectTokenItem } from './SelectTokenItem';
+import { useSetLastToken } from './useLastToken';
 
 export interface SelectTokenScreenParams {
   target: NavTarget;
@@ -23,6 +24,7 @@ export const SelectTokenScreen = withSkeleton(
     },
   }: SelectTokenScreenProps) => {
     const unsortedTokens = useTokens();
+    const setLastToken = useSetLastToken();
 
     const tokens = useMemo(
       () => [...unsortedTokens].sort((a, b) => a.name.localeCompare(b.name)),
@@ -30,8 +32,11 @@ export const SelectTokenScreen = withSkeleton(
     );
 
     const select = useCallback(
-      (token: Token) => navToTarget(navigation, target, token),
-      [navigation, target],
+      (token: Token) => {
+        setLastToken(token.addr);
+        navToTarget(navigation, target, token);
+      },
+      [navigation, setLastToken, target],
     );
 
     return (
