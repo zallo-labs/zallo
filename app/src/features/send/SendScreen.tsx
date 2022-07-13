@@ -8,6 +8,7 @@ import {
 } from '@features/execute/ProposeProvider';
 import { HomeScreenProps } from '@features/home/HomeScreen';
 import { RootNavigatorScreenProps } from '@features/navigation/RootNavigator';
+import { useLastToken } from '@features/select-token/useLastToken';
 import { useNavigation } from '@react-navigation/native';
 import { BigNumber } from 'ethers';
 import { Address } from 'lib';
@@ -18,7 +19,7 @@ import { SendInput } from './SendInput';
 import { SendTokenChip } from './SendTokenChip';
 
 export interface SendScreenParams {
-  to?: Address;
+  to: Address;
   token?: Token;
 }
 
@@ -27,16 +28,12 @@ export const useNavigateToSend = () => {
 
   return useCallback(
     () =>
-      // Contacts {to} -> SelectToken {token} -> Send(to, token)
+      // Contacts {to} -> Send(to)
       navigation.navigate('Contacts', {
         target: {
-          route: 'SelectToken',
           output: 'to',
 
-          target: {
-            route: 'Send',
-            output: 'token',
-          },
+          route: 'Send',
         },
       }),
     [navigation],
@@ -46,14 +43,12 @@ export const useNavigateToSend = () => {
 export type SendScreenProps = RootNavigatorScreenProps<'Send'>;
 
 export const SendScreen = withProposeProvider(
-  ({
-    navigation,
-    route: {
-      params: { to, token },
-    },
-  }: SendScreenProps) => {
+  ({ navigation, route }: SendScreenProps) => {
+    const { to } = route.params;
     const propose = usePropose();
     const formattedTo = useFormattedAddr({ addr: to });
+    const lastToken = useLastToken();
+    const token = route.params.token ?? lastToken;
 
     const [amount, setAmount] = useState<BigNumber | undefined>();
 
