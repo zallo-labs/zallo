@@ -7,11 +7,8 @@ USER node
 ADD --chown=node:node ./ /metasafe
 WORKDIR /metasafe
 
-RUN echo $SUBGRAPH_GQL_URL
-
 # Setup
 RUN yarn
 RUN yarn api build
 
-# Migrate needs to occur on start, as Render doesn't have a release command - https://feedback.render.com/features/p/release-phase-script
-CMD yarn api prisma migrate deploy && yarn api start:prod
+CMD yarn api start:prod

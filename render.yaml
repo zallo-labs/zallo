@@ -4,9 +4,10 @@ services:
     env: docker
     branch: render # TODO: change to main
     autoDeploy: false # Deployed via cd.yml (Github Actions)
-    # dockerCommand: defaults to Dockerfile command, passing envs as build-args
     dockerfilePath: ./api/Dockerfile
     dockerContext: ./
+    # DB migration needs to occur on start as Render doesn't have a release command - https://feedback.render.com/features/p/release-phase-script
+    dockerCommand: yarn api prisma migrate deploy && yarn api start:prod
     healthCheckPath: /health
     envVars:
       - fromGroup: api-vars
