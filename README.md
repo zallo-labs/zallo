@@ -31,34 +31,6 @@ DOCKER_BUILDKIT=1 docker build -t metasafe-api --build-arg SUBGRAPH_GQL_URL=$SUB
 docker run --rm metasafe-api
 ```
 
-### Hosted
-
-#### Setup
-
-```bash
-# Login
-heroku login
-heroku container:login
-
-# Configure
-heroku create metasafe-api --manifest --remote heroku-api
-heroku stack:set container -a metasafe-api
-heroku addons:create heroku-postgresql -a metasafe-api --name metasafe-api-database --as DATABASE
-heroku addons:create heroku-postgresql -a metasafe-api --name metasafe-api-shadow-database --as SHADOW_DATABASE
-```
-
-#### Manual Deployment
-
-```bash
-heroku container:push web -a metasafe-api
-heroku container:release web -a metasafe-api
-```
-
-#### Logs
-
-```bash
-heroku logs --tail -a metasafe-api
-```
 
 ## App
 
