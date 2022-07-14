@@ -4,7 +4,7 @@ services:
     env: node
     branch: render # TODO: change to main
     autoDeploy: false # Deployed via cd.yml (Github Actions)
-    buildCommand: yarn set version stable && yarn && yarn api build && yarn api prisma migrate deploy
+    buildCommand: yarn set version --only-if-needed .yarn/releases/* && yarn && yarn api build && yarn api prisma migrate deploy
     startCommand: yarn api start:prod
     healthCheckPath: /health
     envVars:
