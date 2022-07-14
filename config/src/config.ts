@@ -45,8 +45,6 @@ export const CONFIG = {
     project: E.SENTRY_PROJECT,
     authToken: E.SENTRY_AUTH_TOKEN,
   },
-  isDocker: E.IS_DOCKER?.toLowerCase() === 'true',
-  useZksolcBin: E.USE_ZKSOLC_BIN?.toLowerCase() === 'true',
 } as const;
 
 export default CONFIG;
