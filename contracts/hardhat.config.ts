@@ -27,10 +27,9 @@ const config: HardhatUserConfig = {
   },
   zksolc: {
     version: '0.1.0',
-    compilerSource:
-      CONFIG.isDocker || CONFIG.useZksolcBin ? 'binary' : 'docker',
+    compilerSource: 'binary',
     settings: {
-      compilerPath: 'zksolc', // only used for compilerSource=binary
+      compilerPath: './zksolc', // only used when compilerSource=binary
       experimental: {
         dockerImage: 'matterlabs/zksolc',
       },
