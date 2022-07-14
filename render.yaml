@@ -19,9 +19,9 @@ services:
         sync: false
       - key: CHAIN
         value: testnet
-      - key: WALLET_ADDRESS_TESTNET
+      - key: WALLET_ADDRESS
         sync: false
-      - key: WALLET_PRIVATE_KEY_TESTNET
+      - key: WALLET_PRIVATE_KEY
         sync: false
     region: oregon
     plan: starter
