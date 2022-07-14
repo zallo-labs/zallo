@@ -2,7 +2,8 @@ services:
   - type: web
     name: api
     env: node
-    branch: render  # TODO: change to main
+    branch: render # TODO: change to main
+    autoDeploy: false # Deployed via cd.yml (Github Actions)
     buildCommand: yarn api build && yarn api prisma migrate deploy
     startCommand: yarn api start:prod
     healthCheckPath: /health
@@ -24,7 +25,6 @@ services:
       targetCPUPercent: 70
     domains:
       - api.metasafe.fi
-
 
 databases:
   - name: api-db
