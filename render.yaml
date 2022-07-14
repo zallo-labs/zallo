@@ -5,6 +5,8 @@ services:
     branch: render # TODO: change to main
     autoDeploy: false # Deployed via cd.yml (Github Actions)
     # dockerCommand: defaults to Dockerfile command, passing envs as build-args
+    dockerfilePath: ./api/Dockerfile
+    dockerContext: ./
     healthCheckPath: /health
     envVars:
       - fromGroup: api-vars
