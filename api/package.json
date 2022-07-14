@@ -2,10 +2,6 @@
   "name": "api",
   "version": "0.1.0",
   "private": true,
-  "engines": {
-    "node": "16.x",
-    "yarn": "3.x"
-  },
   "prisma": {
     "seed": "ts-node prisma/seed.ts"
   },

@@ -4,7 +4,7 @@ services:
     env: node
     branch: render # TODO: change to main
     autoDeploy: false # Deployed via cd.yml (Github Actions)
-    buildCommand: npm install -g yarn && yarn && yarn api build && yarn api prisma migrate deploy
+    buildCommand: yarn set version stable && yarn && yarn api build && yarn api prisma migrate deploy
     startCommand: yarn api start:prod
     healthCheckPath: /health
     envVars:
@@ -19,8 +19,6 @@ services:
         sync: false
       - key: WALLET_PRIVATE_KEY_TESTNET
         sync: false
-      - key: SKIP_INSTALL_DEPS
-        value: true
     region: oregon
     plan: starter
     scaling:
