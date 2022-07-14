@@ -13,7 +13,7 @@ export const refreshAtom =
   <T>({ fetch, interval, cancelIf }: RefreshAtomOptions<T>): AtomEffect<T> =>
   ({ setSelf, onSet }) => {
     let isActive = true;
-    let handle: number | undefined = undefined;
+    let handle: NodeJS.Timer | undefined = undefined;
 
     const maybeCancel = (value: DefaultValue | T) => {
       if (isActive && handle !== undefined && cancelIf?.(value)) {
