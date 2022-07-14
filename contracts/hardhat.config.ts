@@ -21,10 +21,6 @@ import './tasks/accounts';
 import './tasks/balance';
 import './tasks/deposit';
 
-console.log({
-  compilerPath: join(__dirname, 'zksolc'),
-});
-
 // https://hardhat.org/config/
 const config: HardhatUserConfig = {
   solidity: {

@@ -11,4 +11,5 @@ WORKDIR /metasafe
 RUN yarn
 RUN yarn api build
 
-CMD yarn api start:prod
+# Migrate needs to occur on start, as Render doesn't have a release command - https://feedback.render.com/features/p/release-phase-script
+CMD yarn api prisma migrate deploy && yarn api start:prod
