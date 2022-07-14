@@ -26,8 +26,8 @@ export const CONFIG = {
   },
   coinmarketcapApiKey: E.COINMARKETCAP_API_KEY,
   wallet: {
-    address: E[`WALLET_ADDRESS_${chain.name.toUpperCase()}`],
-    privateKey: E[`WALLET_PRIVATE_KEY_${chain.name.toUpperCase()}`],
+    address: E.WALLET_ADDRESS,
+    privateKey: E.WALLET_PRIVATE_KEY,
   },
   databaseUrl: E.DATABASE_URL,
   api: {
@@ -45,8 +45,6 @@ export const CONFIG = {
     project: E.SENTRY_PROJECT,
     authToken: E.SENTRY_AUTH_TOKEN,
   },
-  isDocker: E.IS_DOCKER?.toLowerCase() === 'true',
-  useZksolcBin: E.USE_ZKSOLC_BIN?.toLowerCase() === 'true',
 } as const;
 
 export default CONFIG;

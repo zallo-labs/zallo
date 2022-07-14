@@ -7854,17 +7854,17 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/node@npm:^12.12.6, @types/node@npm:^12.20.47":
+"@types/node@npm:^12.12.6":
   version: 12.20.47
   resolution: "@types/node@npm:12.20.47"
   checksum: 97487af02fada4342e1bd47f9c9ebf601c12b85cbf17056ba73a315339ae996490403f2d4d1d799d8078cfe43a59e33370b4a5ae2d4fb79dd02359f4691934b4
   languageName: node
   linkType: hard
 
-"@types/node@npm:^16.0.0":
-  version: 16.11.26
-  resolution: "@types/node@npm:16.11.26"
-  checksum: 57757caaba3f0d95de82198cb276a1002c49b710108c932a1d02d7c91ff2fa57cfe2dd19fde60853b6dd90b0964b3cf35557981d2628e20aed6a909057aedfe6
+"@types/node@npm:^16.11.7":
+  version: 16.11.44
+  resolution: "@types/node@npm:16.11.44"
+  checksum: 6fc2214bab40bbab1d76e02bd2fbcc1b5ed0ae383b4c892bcde6c231734582fca8a45185eb1b0283bae434600d3e44bdacbbdc05725661910e6372778e1881c1
   languageName: node
   linkType: hard
 
@@ -9507,7 +9507,6 @@ __metadata:
     "@types/isomorphic-fetch": ^0.0.36
     "@types/jest": ^28.1.3
     "@types/luxon": ^2.3.1
-    "@types/node": ^16.0.0
     "@types/supertest": ^2.0.11
     "@typescript-eslint/eslint-plugin": ^5.15.0
     "@typescript-eslint/parser": ^5.15.0
@@ -13694,7 +13693,6 @@ __metadata:
     "@types/chai": ^4.3.1
     "@types/chai-as-promised": ^7.1.5
     "@types/mocha": ^9.1.1
-    "@types/node": ^12.20.47
     "@typescript-eslint/eslint-plugin": ^5.29.0
     "@typescript-eslint/parser": ^5.29.0
     chai: ^4.3.6
@@ -19242,7 +19240,7 @@ __metadata:
     yargs-parser: ^16.1.0
   bin:
     gluegun: bin/gluegun
-  checksum: 39134821c7233bae61fa0d85bcc5ab4ccd2cbe00173c53cc3cab74c4f29d54de939809832fc4e9bedb896a0795313d28f854bc7d5abe7b154bf7d77c319398bd
+  checksum: 8d331ff800d15e05eec8045df702c08f6100a63a737ebf7af7e26892a38155ab6e625a8d74f90ce7d7f5c0e30be3c43a672fa97427e09a7deb36876d3f661853
   languageName: node
   linkType: hard
 
@@ -24560,10 +24558,12 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "metasafe@workspace:."
   dependencies:
+    "@types/node": ^16.11.7
     "@typescript-eslint/eslint-plugin": ^5.15.0
     "@typescript-eslint/parser": ^5.15.0
     eslint: ^8.11.0
     eslint-plugin-react-hooks: ^4.5.0
+    node-gyp: ^9.1.0
   languageName: unknown
   linkType: soft
 
@@ -25904,6 +25904,26 @@ __metadata:
     node-gyp-build-optional: optional.js
     node-gyp-build-test: build-test.js
   checksum: 1ecab16d9f275174d516e223f60f65ebe07540347d5c04a6a7d6921060b7f2e3af4f19463d9d1dcedc452e275c2ae71354a99405e55ebd5b655bb2f38025c728
+  languageName: node
+  linkType: hard
+
+"node-gyp@npm:^9.1.0":
+  version: 9.1.0
+  resolution: "node-gyp@npm:9.1.0"
+  dependencies:
+    env-paths: ^2.2.0
+    glob: ^7.1.4
+    graceful-fs: ^4.2.6
+    make-fetch-happen: ^10.0.3
+    nopt: ^5.0.0
+    npmlog: ^6.0.0
+    rimraf: ^3.0.2
+    semver: ^7.3.5
+    tar: ^6.1.2
+    which: ^2.0.2
+  bin:
+    node-gyp: bin/node-gyp.js
+  checksum: 1437fa4a879b5b9010604128e8da8609b57c66034262087539ee04a8b764b8436af2be01bab66f8fc729a3adba2dcc21b10a32b9f552696c3fa8cd657d134fc4
   languageName: node
   linkType: hard
 
@@ -33532,7 +33552,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"typescript@npm:4.6.2, typescript@npm:^4.6.2":
+"typescript@npm:4.6.2":
   version: 4.6.2
   resolution: "typescript@npm:4.6.2"
   bin:
@@ -33552,7 +33572,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"typescript@npm:^4.7.4":
+"typescript@npm:^4.6.2, typescript@npm:^4.7.4":
   version: 4.7.4
   resolution: "typescript@npm:4.7.4"
   bin:
@@ -33562,9 +33582,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"typescript@patch:typescript@4.6.2#~builtin<compat/typescript>, typescript@patch:typescript@^4.6.2#~builtin<compat/typescript>":
+"typescript@patch:typescript@4.6.2#~builtin<compat/typescript>":
   version: 4.6.2
-  resolution: "typescript@patch:typescript@npm%3A4.6.2#~builtin<compat/typescript>::version=4.6.2&hash=bda367"
+  resolution: "typescript@patch:typescript@npm%3A4.6.2#~builtin<compat/typescript>::version=4.6.2&hash=7ad353"
   bin:
     tsc: bin/tsc
     tsserver: bin/tsserver
@@ -33574,7 +33594,7 @@ __metadata:
 
 "typescript@patch:typescript@^4.5#~builtin<compat/typescript>":
   version: 4.6.3
-  resolution: "typescript@patch:typescript@npm%3A4.6.3#~builtin<compat/typescript>::version=4.6.3&hash=bda367"
+  resolution: "typescript@patch:typescript@npm%3A4.6.3#~builtin<compat/typescript>::version=4.6.3&hash=7ad353"
   bin:
     tsc: bin/tsc
     tsserver: bin/tsserver
@@ -33582,13 +33602,13 @@ __metadata:
   languageName: node
   linkType: hard
 
-"typescript@patch:typescript@^4.7.4#~builtin<compat/typescript>":
+"typescript@patch:typescript@^4.6.2#~builtin<compat/typescript>, typescript@patch:typescript@^4.7.4#~builtin<compat/typescript>":
   version: 4.7.4
-  resolution: "typescript@patch:typescript@npm%3A4.7.4#~builtin<compat/typescript>::version=4.7.4&hash=bda367"
+  resolution: "typescript@patch:typescript@npm%3A4.7.4#~builtin<compat/typescript>::version=4.7.4&hash=7ad353"
   bin:
     tsc: bin/tsc
     tsserver: bin/tsserver
-  checksum: 96d3030cb01143570567cb4f3a616b10df65f658f0e74e853e77a089a6a954e35c800be7db8b9bfe9a1ae05d9c2897e281359f65e4caa1caf266368e1c4febd3
+  checksum: 9096d8f6c16cb80ef3bf96fcbbd055bf1c4a43bd14f3b7be45a9fbe7ada46ec977f604d5feed3263b4f2aa7d4c7477ce5f9cd87de0d6feedec69a983f3a4f93e
   languageName: node
   linkType: hard
 

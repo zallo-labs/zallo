@@ -1,6 +1,6 @@
 {
   "name": "metasafe",
-  "packageManager": "yarn@3.2.0",
+  "packageManager": "yarn@3.2.1",
   "private": true,
   "version": "0.1.0",
   "author": "Hayden Briese <haydenbriese@gmail.com>",
@@ -29,6 +29,7 @@
     "yarn": "3.x"
   },
   "devDependencies": {
+    "@types/node": "^16.11.7",
     "@typescript-eslint/eslint-plugin": "^5.15.0",
     "@typescript-eslint/parser": "^5.15.0",
     "eslint": "^8.11.0",
@@ -37,5 +38,8 @@
   "resolutions": {
     "graphql": "^15.8.0",
     "react-native-jazzicon@0.1.2": "patch:react-native-jazzicon@npm:0.1.2#.yarn/patches/react-native-jazzicon-npm-0.1.2-c1633b051f.patch"
+  },
+  "dependencies": {
+    "node-gyp": "^9.1.0"
   }
 }

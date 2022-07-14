@@ -1,5 +1,6 @@
 import type { HardhatUserConfig } from 'hardhat/config';
 import { CONFIG } from 'config';
+import { join } from 'path';
 
 import '@matterlabs/hardhat-zksync-deploy';
 import '@matterlabs/hardhat-zksync-solc';
@@ -27,10 +28,9 @@ const config: HardhatUserConfig = {
   },
   zksolc: {
     version: '0.1.0',
-    compilerSource:
-      CONFIG.isDocker || CONFIG.useZksolcBin ? 'binary' : 'docker',
+    compilerSource: 'binary',
     settings: {
-      compilerPath: 'zksolc', // only used for compilerSource=binary
+      compilerPath: join(__dirname, 'zksolc'), // only used when compilerSource=binary
       experimental: {
         dockerImage: 'matterlabs/zksolc',
       },

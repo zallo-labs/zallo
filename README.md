@@ -3,7 +3,7 @@
 ## Setup
 
 ```bash
-yarn install
+yarn
 ```
 
 ## API
@@ -24,11 +24,11 @@ yarn api start
 #### Docker
 
 ```bash
-# Build
-docker build -t metasafe-api .
+# Build image
+DOCKER_BUILDKIT=1 docker build -t metasafe-api --build-arg SUBGRAPH_GQL_URL=$SUBGRAPH_GQL_URL .
 
-# Run
-docker run --rm metasafe-api:latest
+# Run container
+docker run --rm metasafe-api
 ```
 
 ### Hosted
