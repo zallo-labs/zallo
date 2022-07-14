@@ -16,6 +16,7 @@ services:
       - key: CHAIN
         value: testnet
       - key: WALLET_PRIVATE_KEY_TESTNET
+        sync: false
     region: oregon
     plan: starter
     scaling:
