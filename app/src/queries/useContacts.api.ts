@@ -44,25 +44,31 @@ export const useContacts = () => {
   );
 
   // Show this device & other safes as contacts
-  const safeContacts = safes.map(
-    ({ name, safe: { address } }): Contact => ({
-      id: toId(address),
-      addr: address,
-      name: name ?? truncatedAddr(address),
-    }),
+  const safeContacts = useMemo(
+    () =>
+      safes.map(
+        ({ name, safe: { address } }): Contact => ({
+          id: toId(address),
+          addr: address,
+          name: name ?? truncatedAddr(address),
+        }),
+      ),
+    [safes],
   );
-
-  const thisDeviceContact: Contact = {
-    id: toId(wallet.address),
-    addr: wallet.address,
-    name: 'Myself',
-  };
 
   // Exclude created safes & wallet contacts if they're already in the list
-  const combinedContacts = filterFirst(
-    [...contacts, ...safeContacts, thisDeviceContact],
-    (contact) => contact.id,
-  );
+  const combinedContacts = useMemo(() => {
+    const thisDeviceContact: Contact = {
+      id: toId(wallet.address),
+      addr: wallet.address,
+      name: 'Myself',
+    };
+
+    return filterFirst(
+      [...contacts, ...safeContacts, thisDeviceContact],
+      (contact) => contact.addr,
+    );
+  }, [contacts, safeContacts, wallet.address]);
 
   return { contacts: combinedContacts, ...rest };
 };
