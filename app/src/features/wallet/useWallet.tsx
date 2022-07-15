@@ -13,8 +13,7 @@ export const walletState = atom<zk.Wallet>({
       save: (wallet) => wallet.privateKey,
       load: (privateKey) => new zk.Wallet(privateKey, PROVIDER, ETH_PROVIDER),
       storage: getSecureStore({
-        // requireAuthentication: true,   // Requires biometric authentication
-        keychainAccessible: storage.WHEN_UNLOCKED, // iOS: PK is available on any unlocked synced device; consider using WHEN_UNLOCKED_THIS_DEVICE_ONLY
+        keychainAccessible: storage.WHEN_UNLOCKED_THIS_DEVICE_ONLY,
       }),
     }),
   ],
