@@ -37,7 +37,7 @@ export interface PersistAtomOptions<T> {
   save?: Save<T>;
   load?: Load<T>;
   storage?: Storage;
-  saveIf?: (value: T) => boolean;
+  saveIf?: (value: T, isDefault: boolean) => boolean;
 }
 
 export const persistAtom =
@@ -57,10 +57,10 @@ export const persistAtom =
 
     // Subscribe to state changes and persist them to localForage
     onSet((newValue, _oldValue, isReset) => {
-      if (isReset) {
-        storage.removeItem(key);
-      } else if (!saveIf || saveIf(newValue)) {
+      if (!saveIf || saveIf(newValue, isReset)) {
         storage.setItem(key, serialize(newValue, save));
+      } else {
+        storage.removeItem(key);
       }
     });
   };
