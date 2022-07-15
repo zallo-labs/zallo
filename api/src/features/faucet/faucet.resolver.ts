@@ -27,8 +27,6 @@ export class FaucetResolver {
     });
     await txResp.wait();
 
-    console.log(txResp.hash);
-
     return true;
   }
 }
