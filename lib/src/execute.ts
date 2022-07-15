@@ -6,6 +6,7 @@ import { createTxSignature, Signerish } from './signature';
 import * as zk from 'zksync-web3';
 import { Eip712Meta, TransactionRequest } from 'zksync-web3/build/src/types';
 import { defaultAbiCoder } from 'ethers/lib/utils';
+import { EIP712_TX_TYPE } from 'zksync-web3/build/src/utils';
 
 const EXTRA_VERIFICATION_GAS_PER_SIGNER = 10_000;
 
@@ -32,7 +33,7 @@ export const executeTx = async (
 
   const req: TransactionRequest = {
     ...basicReq,
-    type: 0x71, // AA type, apparently this will be changed to 0x80 at some point
+    type: EIP712_TX_TYPE,
     nonce: await provider.getTransactionCount(safe),
     chainId: (await provider.getNetwork()).chainId,
     gasPrice: await provider.getGasPrice(),
