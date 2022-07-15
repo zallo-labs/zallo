@@ -7,8 +7,8 @@ import { tryAcquire, E_ALREADY_LOCKED, Mutex } from 'async-mutex';
 import * as zk from 'zksync-web3';
 import { CONFIG } from '~/config';
 import { PROVIDER } from '~/provider';
-import { useWallet } from '@features/wallet/useWallet';
-import { atom, useRecoilState } from 'recoil';
+import { useWallet, walletState } from '@features/wallet/useWallet';
+import { atom, selector, useRecoilState } from 'recoil';
 import { getSecureStore, persistAtom } from '@util/effect/persistAtom';
 import { useCallback, useMemo, useRef } from 'react';
 
@@ -51,13 +51,15 @@ const fetchToken = async (wallet: zk.Wallet): Promise<Token> => {
   };
 };
 
-const apiTokenState = atom<Token | null>({
+const apiTokenState = atom<Token>({
   key: 'apiToken',
-  default: null,
+  default: selector({
+    key: 'fetchApiToken',
+    get: ({ get }) => fetchToken(get(walletState)),
+  }),
   effects: [
     persistAtom({
       storage: getSecureStore(),
-      saveIf: (token) => token !== null,
     }),
   ],
 });
@@ -66,7 +68,7 @@ export const useAuthFlowLink = () => {
   const wallet = useWallet();
   const [token, setToken] = useRecoilState(apiTokenState);
 
-  const tokenRef = useRef<Token | undefined>(token!);
+  const tokenRef = useRef<Token>(token);
 
   const reset = useCallback(async () => {
     // Ensure token is reset exactly once at any given time
