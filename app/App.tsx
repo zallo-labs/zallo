@@ -29,8 +29,8 @@ export default withSentry(() => (
           <ErrorBoundary>
             <Suspense fallback={<Splash />}>
               <RecoilRoot>
-                <SentryUser />
                 <AuthGate>
+                  <SentryUser />
                   <GqlProvider>
                     <StatusBar style="inverted" />
                     <SafeProvider>
