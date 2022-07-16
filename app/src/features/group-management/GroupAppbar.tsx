@@ -1,7 +1,7 @@
 import { AppbarBack } from '@components/AppbarBack';
 import { Box } from '@components/Box';
 import { BasicTextField } from '@components/fields/BasicTextField';
-import { effectiveGroupName } from '@components/FormattedGroupName';
+import { effectiveGroupName } from '@components/GroupName';
 import { usePropose } from '@features/execute/ProposeProvider';
 import { useSafe } from '@features/safe/SafeProvider';
 import { useNavigation } from '@react-navigation/native';

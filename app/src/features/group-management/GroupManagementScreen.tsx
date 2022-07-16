@@ -9,6 +9,7 @@ import {
   randomGroupRef,
   getGroupId,
   Id,
+  PERCENT_THRESHOLD,
 } from 'lib';
 import { RootNavigatorScreenProps } from '@features/navigation/RootNavigator';
 import { useGroup, useSafe } from '@features/safe/SafeProvider';
@@ -17,6 +18,9 @@ import { ADDR_YUP_SCHEMA } from '@util/yup';
 import { withProposeProvider } from '@features/execute/ProposeProvider';
 import { useUpsertSafeGroup } from '~/mutations/group/useUpsertGroup.safe';
 import { CombinedGroup } from '~/queries/safe';
+import { elipseTruncate } from '@util/format';
+import { truncateGroupRef } from '@components/GroupName';
+import { useWallet } from '@features/wallet/useWallet';
 
 type Values = Pick<Group, 'approvers'>;
 
@@ -48,17 +52,6 @@ const getSchema = (groups: CombinedGroup[]): Yup.SchemaOf<Values> =>
       ),
   });
 
-const createDefault = (safe: Address): CombinedGroup => {
-  const ref = randomGroupRef();
-  return {
-    id: getGroupId(safe, ref),
-    ref,
-    name: '',
-    approvers: [],
-    active: true,
-  };
-};
-
 export interface GroupManagementScreenParams {
   groupId?: Id;
   // Callbacks
@@ -72,9 +65,24 @@ export const GroupManagementScreen = withProposeProvider(
   ({ route }: GroupManagementScreenProps) => {
     const { groupId, selected } = route.params ?? {};
     const { safe, groups } = useSafe();
+    const wallet = useWallet();
     const upsertGroup = useUpsertSafeGroup();
 
-    const defaultGroup = useMemo(() => createDefault(safe.address), [safe]);
+    const defaultGroup: CombinedGroup = useMemo(() => {
+      const ref = randomGroupRef();
+      return {
+        id: getGroupId(safe.address, ref),
+        ref,
+        name: '',
+        approvers: [
+          {
+            addr: wallet.address,
+            weight: PERCENT_THRESHOLD,
+          },
+        ],
+        active: true,
+      };
+    }, [safe.address, wallet.address]);
     const initialGroup = useGroup(groupId) ?? defaultGroup;
 
     const initialValues: Values = useMemo(

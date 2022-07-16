@@ -1,4 +1,4 @@
-import { effectiveGroupName } from '@components/FormattedGroupName';
+import { effectiveGroupName } from '@components/GroupName';
 import { Identicon } from '@components/Identicon';
 import { useSafe } from '@features/safe/SafeProvider';
 import { Drawer } from 'react-native-paper';
