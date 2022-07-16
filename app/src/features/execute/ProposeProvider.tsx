@@ -1,4 +1,4 @@
-import { showError } from '@components/Toast';
+import { showError } from '@components/ToastProvider';
 import { useSafe } from '@features/safe/SafeProvider';
 import { useIsDeployed } from '@features/safe/useIsDeployed';
 import { ChildrenProps } from '@util/children';

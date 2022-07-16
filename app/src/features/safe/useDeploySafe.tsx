@@ -1,6 +1,6 @@
 import { deploySafe } from 'lib';
 import { useSafe } from '@features/safe/SafeProvider';
-import { showInfo, showSuccess } from '@components/Toast';
+import { showInfo, showSuccess } from '@components/ToastProvider';
 import { isDeployedState, useIsDeployed } from './useIsDeployed';
 import { useSetRecoilState } from 'recoil';
 import { useSafeFactory } from './useSafeFactory';

@@ -10,7 +10,7 @@ import { RootNavigator } from '@features/navigation/RootNavigator';
 import { Background } from '@components/Background';
 import { LocalizatonProvider } from '@features/localization/LocalizationProvider';
 import { GqlProvider } from '@gql/GqlProvider';
-import { Toast } from '@components/Toast';
+import { ToastProvider } from '@components/ToastProvider';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { ErrorBoundary } from '@util/sentry/ErrorBoundary';
 import { Splash } from '@components/Splash';
@@ -40,7 +40,7 @@ export default withSentry(() => (
                     </SafeProvider>
                   </GqlProvider>
                 </AuthGate>
-                <Toast />
+                <ToastProvider />
               </RecoilRoot>
             </Suspense>
           </ErrorBoundary>

@@ -3,7 +3,7 @@ import { TouchableOpacity } from 'react-native';
 import { Text, useTheme } from 'react-native-paper';
 
 import { Box } from '@components/Box';
-import { showError } from '@components/Toast';
+import { showError } from '@components/ToastProvider';
 import { MaterialIcons } from '@expo/vector-icons';
 
 type IconProps = Pick<

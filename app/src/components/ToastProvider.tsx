@@ -27,7 +27,7 @@ export const showError = (params: ShowParams) =>
     type: 'error',
   });
 
-export const Toast = () => {
+export const ToastProvider = () => {
   const { colors } = useTheme();
 
   return (
@@ -37,11 +37,11 @@ export const Toast = () => {
           <BaseToast
             {...props}
             style={{
-              backgroundColor: colors.primaryContainer,
+              backgroundColor: colors.surface,
               borderLeftColor: colors.info,
             }}
             text1Style={{
-              color: colors.onPrimaryContainer,
+              color: colors.onSurface,
             }}
           />
         ),
@@ -50,11 +50,11 @@ export const Toast = () => {
           <BaseToast
             {...props}
             style={{
-              backgroundColor: colors.primaryContainer,
+              backgroundColor: colors.surface,
               borderLeftColor: colors.success,
             }}
             text1Style={{
-              color: colors.onPrimaryContainer,
+              color: colors.onSurface,
             }}
           />
         ),
@@ -63,11 +63,11 @@ export const Toast = () => {
           <BaseToast
             {...props}
             style={{
-              backgroundColor: colors.primaryContainer,
+              backgroundColor: colors.surface,
               borderLeftColor: colors.error,
             }}
             text1Style={{
-              color: colors.onPrimaryContainer,
+              color: colors.onSurface,
             }}
           />
         ),

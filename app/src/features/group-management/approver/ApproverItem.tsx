@@ -5,7 +5,7 @@ import { Identicon } from '@components/Identicon';
 import { Item, ItemProps } from '@components/list/Item';
 import { WeightField } from './WeightField';
 import { SwipeToDelete } from './SwipeToDelete';
-import { showError } from '@components/Toast';
+import { showError } from '@components/ToastProvider';
 
 export interface ApproverItemProps extends ItemProps {
   approver: Approver;
