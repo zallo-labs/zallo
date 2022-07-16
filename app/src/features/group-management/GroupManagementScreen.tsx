@@ -18,8 +18,6 @@ import { ADDR_YUP_SCHEMA } from '@util/yup';
 import { withProposeProvider } from '@features/execute/ProposeProvider';
 import { useUpsertSafeGroup } from '~/mutations/group/useUpsertGroup.safe';
 import { CombinedGroup } from '~/queries/safe';
-import { elipseTruncate } from '@util/format';
-import { truncateGroupRef } from '@components/GroupName';
 import { useWallet } from '@features/wallet/useWallet';
 
 type Values = Pick<Group, 'approvers'>;

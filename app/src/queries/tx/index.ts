@@ -54,4 +54,4 @@ export const isExecutedTx = (e: unknown): e is ExecutedTx =>
 export const isProposedTx = (e: unknown): e is ProposedTx =>
   isTx(e) && !('responses' in e);
 
-export const QUERY_TXS_POLL_INTERVAL = 15 * 1000;
+export const QUERY_TXS_POLL_INTERVAL = 10 * 1000;

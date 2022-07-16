@@ -51,6 +51,7 @@ export const useTokenPrice = (token: Token) => {
         token: tokenAddr,
         token2: tokenAddr,
       },
+      pollInterval: 15 * 1000,
     },
   );
 

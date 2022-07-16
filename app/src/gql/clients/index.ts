@@ -2,21 +2,17 @@ import {
   ApolloClient,
   ApolloLink,
   DefaultOptions,
-  gql,
   HttpLink,
   InMemoryCache,
   NormalizedCacheObject,
 } from '@apollo/client';
 import { RetryLink } from '@apollo/client/link/retry';
 import { MaybePromise } from 'lib';
-import { Duration } from 'luxon';
 import { useCallback, useMemo } from 'react';
 
 import { CONFIG } from '~/config';
 import { useAuthFlowLink } from './apiAuthFlowLink';
 import { getPersistedCache } from './cache';
-
-export { gql as apiGql, gql as subGql, gql as uniswapGql };
 
 export type ClientCreator = () => MaybePromise<
   ApolloClient<NormalizedCacheObject>
@@ -28,9 +24,6 @@ const defaultOptions: DefaultOptions = {
     fetchPolicy: 'cache-and-network',
     errorPolicy: 'all',
   },
-  // query: {
-  //   fetchPolicy: 'cache-first',
-  // },
 };
 
 export const API_CLIENT_NAME = 'api';
@@ -81,11 +74,5 @@ export const createUniswapClient: ClientCreator = async () =>
         uri: 'https://api.thegraph.com/subgraphs/name/ianlapham/uniswap-v3-subgraph',
       }),
     ]),
-    defaultOptions: {
-      ...defaultOptions,
-      watchQuery: {
-        ...defaultOptions.watchQuery,
-        pollInterval: Duration.fromObject({ seconds: 15 }).toMillis(),
-      },
-    },
+    defaultOptions,
   });
