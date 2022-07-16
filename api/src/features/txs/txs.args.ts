@@ -4,6 +4,7 @@ import { Address, Id } from 'lib';
 import { AddressField } from '~/apollo/scalars/Address.scalar';
 import { BytesField } from '~/apollo/scalars/Bytes.scalar';
 import { Bytes32Field } from '~/apollo/scalars/Bytes32.scalar';
+import { Bytes8Field } from '~/apollo/scalars/Bytes8.scalar';
 import { Uint256BnField } from '~/apollo/scalars/Uint256Bn.scalar';
 
 @ArgsType()
@@ -23,8 +24,8 @@ export class TxInput {
   @BytesField()
   data: BytesLike;
 
-  @Bytes32Field()
-  salt: string
+  @Bytes8Field()
+  salt: string;
 }
 
 @ArgsType()
