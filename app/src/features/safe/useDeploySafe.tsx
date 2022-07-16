@@ -25,12 +25,12 @@ export const useDeploySafe = () => {
   if (isDeployed) return undefined;
 
   const deploy = async () => {
+    showInfo({ text1: 'Deploying safe...', autoHide: false });
+
     if (CHAIN.isTestnet) {
       const walletBalance = await wallet.getBalance();
       if (walletBalance.lt(deployCost)) await faucet();
     }
-
-    showInfo({ text1: 'Deploying safe...', visibilityTime: 8000 });
 
     const group = groups[0];
     const r = await deploySafe({
