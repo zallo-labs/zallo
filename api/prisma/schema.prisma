@@ -87,7 +87,7 @@ model Tx {
   to          String       @db.Char(42) // address
   value       String //@db.Decimal(79, 0) // uint256
   data        String // bytes
-  salt        String       @db.Char(66) // bytes32
+  salt        String       @db.Char(18) // bytes8
   approvals   Approval[]
   createdAt   DateTime     @default(now())
   submissions Submission[]
