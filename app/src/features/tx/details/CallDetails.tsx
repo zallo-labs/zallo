@@ -6,7 +6,7 @@ import { hexlify } from 'ethers/lib/utils';
 import { Call } from 'lib';
 import { Paragraph, Subheading } from 'react-native-paper';
 import { ETH } from '~/token/tokens';
-import { useToken } from '~/token/useToken';
+import { useMaybeToken } from '~/token/useToken';
 import { DecodedOpDetails } from './DecodedCallDetails';
 import { CallDetailsRow } from './CallDetailsRow';
 
@@ -16,7 +16,7 @@ export interface CallDetailsProps {
 }
 
 export const CallDetails = ({ call, title }: CallDetailsProps) => {
-  const token = useToken(call.to) ?? ETH;
+  const token = useMaybeToken(call.to) ?? ETH;
 
   return (
     <Box vertical>

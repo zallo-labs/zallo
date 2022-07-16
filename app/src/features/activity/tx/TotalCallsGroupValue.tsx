@@ -5,7 +5,7 @@ import useAsyncEffect from 'use-async-effect';
 import { useLazyContractMethod } from '~/queries/useContractMethod.api';
 import { useTokenPrice } from '~/queries/useTokenPrice.uni';
 import { ETH } from '~/token/tokens';
-import { useToken } from '~/token/useToken';
+import { useMaybeToken } from '~/token/useToken';
 import { getTokenValue, TokenValue } from '~/token/useTokenValue';
 import { tryDecodeTransfer } from './useDecodedTransfer';
 
@@ -21,7 +21,7 @@ export const TotalCallsGroupValue = ({
   hideZero,
 }: TotalCallsGroupValueProps) => {
   const getContractMethod = useLazyContractMethod();
-  const token = useToken(to) ?? ETH;
+  const token = useMaybeToken(to) ?? ETH;
   const { price } = useTokenPrice(token);
 
   const [value, setValue] = useState<TokenValue>({ fiatValue: 0, ethValue: 0 });

@@ -6,7 +6,7 @@ import { Paragraph, Subheading, useTheme } from 'react-native-paper';
 import { ETH } from '~/token/tokens';
 import { Address, Call } from 'lib';
 import { CallRow } from './CallRow';
-import { useToken } from '~/token/useToken';
+import { useMaybeToken } from '~/token/useToken';
 import { TotalCallsGroupValue } from './TotalCallsGroupValue';
 
 export interface CallsGroup {
@@ -23,7 +23,7 @@ export const CallsGroupItem = ({
   ...itemProps
 }: CallsGroupItemProps) => {
   const { colors } = useTheme();
-  const token = useToken(to) ?? ETH;
+  const token = useMaybeToken(to) ?? ETH;
 
   return (
     <Item
