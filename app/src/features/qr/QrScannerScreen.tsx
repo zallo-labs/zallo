@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { StyleSheet } from 'react-native';
 import { BarCodeScanningResult, Camera } from 'expo-camera';
 import useAsyncEffect from 'use-async-effect';
@@ -6,7 +6,7 @@ import { RootNavigatorScreenProps } from '@features/navigation/RootNavigator';
 import { parseAddrLink } from './addrLink';
 import { BarCodeScanner } from 'expo-barcode-scanner';
 import { Box } from '@components/Box';
-import { Title } from 'react-native-paper';
+import { Button, Title } from 'react-native-paper';
 import { NavTarget, navToTarget } from '@features/navigation/target';
 
 export type QrScannerParams = {
@@ -22,13 +22,19 @@ export const QrScannerScreen = ({
   },
 }: QrScannerScreenProps) => {
   const [hasPermission, setHasPermission] = useState(false);
-  const [scanned, setScanned] = useState(false);
-
-  useAsyncEffect(async () => {
-    const { status } = await Camera.requestCameraPermissionsAsync();
-    setHasPermission(status === 'granted');
+  const [canAskAgain, setCanAskAgain] = useState(false);
+  const tryGrant = useCallback(async () => {
+    const { granted, canAskAgain } =
+      await Camera.requestCameraPermissionsAsync();
+    setHasPermission(granted);
+    setCanAskAgain(canAskAgain);
   }, []);
 
+  useEffect(() => {
+    tryGrant();
+  }, [tryGrant]);
+
+  const [scanned, setScanned] = useState(false);
   const handleBarCodeScanned = ({ data }: BarCodeScanningResult) => {
     try {
       const addrLink = parseAddrLink(data);
@@ -41,10 +47,11 @@ export const QrScannerScreen = ({
 
   if (!hasPermission) {
     return (
-      <Box vertical center>
-        <Title>
-          Please give permission to access the camera in order to scan a QR code
+      <Box flex={1} vertical center mx={2}>
+        <Title style={{ textAlign: 'center' }}>
+          Please grant camera permissions in order to scan a QR code
         </Title>
+        {canAskAgain && <Button onPress={tryGrant}>Grant</Button>}
       </Box>
     );
   }
