@@ -1,17 +1,15 @@
 import { Addr } from '@components/Addr';
 import { Box } from '@components/Box';
-import { Chevron } from '@components/Chevron';
 import { useSafe } from '@features/safe/SafeProvider';
 import { SafeSelectorDialog } from '@features/safe/selector/SafeSelectorDialog';
 import { useNavigation } from '@react-navigation/native';
 import { ScanIcon } from '@util/icons';
 import { useState } from 'react';
 import { TouchableOpacity } from 'react-native';
-import { Appbar, Portal, Title, useTheme } from 'react-native-paper';
+import { Appbar, Portal, Title } from 'react-native-paper';
 import { HomeScreenProps } from './HomeScreen';
 
 export const HomeAppbar = () => {
-  const { colors } = useTheme();
   const { safe } = useSafe();
   const navigation = useNavigation<HomeScreenProps['navigation']>();
 
@@ -23,19 +21,11 @@ export const HomeAppbar = () => {
       <Appbar.Header>
         <Appbar.Action icon="menu" onPress={navigation.openDrawer} />
 
-        <Box flex={1} mx={3}>
+        <Box flex={1} horizontal justifyContent="center" mx={3}>
           <TouchableOpacity onPress={() => setMenuVisible(true)}>
-            <Box horizontal justifyContent="center" alignItems="center">
-              <Title numberOfLines={1}>
-                <Addr addr={safe.address} />
-              </Title>
-
-              <Chevron
-                expanded={menuVisible}
-                color={colors.onSurface}
-                size={20}
-              />
-            </Box>
+            <Title>
+              <Addr addr={safe.address} />
+            </Title>
           </TouchableOpacity>
         </Box>
 
@@ -45,7 +35,7 @@ export const HomeAppbar = () => {
             // TODO: implement
             navigation.navigate('QrScanner', {
               target: {
-                route: "SelectToken",
+                route: 'SelectToken',
                 output: 'to',
                 target: {
                   route: 'Send',
