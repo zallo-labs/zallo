@@ -18,8 +18,20 @@ export interface ItemProps extends BoxProps {
   selected?: boolean;
 }
 
-export const Item = withSkeleton(
-  ({
+const unpackProps = ({
+  Left,
+  leftContainer,
+  Main,
+  mainContainer,
+  Right,
+  rightContainer,
+  onPress,
+  onLongPress,
+  disabled,
+  selected,
+  ...boxProps
+}: ItemProps) => {
+  return {
     Left,
     leftContainer,
     Main,
@@ -30,8 +42,26 @@ export const Item = withSkeleton(
     onLongPress,
     disabled,
     selected,
-    ...boxProps
-  }: ItemProps) => {
+    boxProps,
+  };
+};
+
+export const Item = withSkeleton(
+  (props: ItemProps) => {
+    const {
+      Left,
+      leftContainer,
+      Main,
+      mainContainer,
+      Right,
+      rightContainer,
+      onPress,
+      onLongPress,
+      disabled,
+      selected,
+      boxProps,
+    } = unpackProps(props);
+
     const { colors } = useTheme();
 
     const style: BoxProps['style'] = useMemo(
@@ -82,5 +112,5 @@ export const Item = withSkeleton(
       </TouchableRipple>
     );
   },
-  ItemSkeleton,
+  (props) => <ItemSkeleton {...unpackProps(props).boxProps} />,
 );
