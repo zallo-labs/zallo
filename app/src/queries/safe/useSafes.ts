@@ -23,7 +23,7 @@ export const useSafes = () => {
             return {
               safe: s?.safe ?? a!.safe,
               name: a?.name || s?.name || '',
-              deploySalt: s?.deploySalt ?? s?.deploySalt,
+              deploySalt: a?.deploySalt ?? s?.deploySalt,
               groups: combine(
                 s?.groups ?? [],
                 a?.groups ?? [],
