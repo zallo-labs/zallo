@@ -1,4 +1,5 @@
 import { useWallet } from '@features/wallet/useWallet';
+import { elipseTruncate } from '@util/format';
 import {
   calculateSafeAddress,
   getRandomDeploySalt,
@@ -24,7 +25,12 @@ export const useCreateCounterfactualSafe = () => {
     const deploySalt = getRandomDeploySalt();
     const safe = await calculateSafeAddress({ group }, factory, deploySalt);
 
-    await upsertSafe({ safe, deploySalt, name: '', groups: [group] });
+    await upsertSafe({
+      safe,
+      deploySalt,
+      name: `Safe ${elipseTruncate(deploySalt, 6, 4)}`,
+      groups: [group],
+    });
 
     return safe;
   }, [factory, upsertSafe, wallet.address]);
