@@ -7,7 +7,6 @@ import '@ethersproject/shims';
 import { ethers } from 'ethers';
 import { LogBox, Platform } from 'react-native';
 import * as zk from 'zksync-web3';
-
 import { CONFIG } from '~/config';
 import { Logger } from 'ethers/lib/utils';
 import { captureEvent } from '@util/sentry/sentry';
@@ -20,7 +19,7 @@ if (Platform.OS !== 'web') LogBox.ignoreLogs(['Setting a timer']);
 export const CHAIN = CONFIG.chain;
 
 export const PROVIDER = new zk.Provider(CHAIN.zksyncUrl);
-export const ETH_PROVIDER = ethers.getDefaultProvider(CHAIN.ethUrl);
+// export const ETH_PROVIDER = ethers.getDefaultProvider(CHAIN.ethUrl);
 
 const ethersLevelToSentrySeverity = (level: LogLevel): SeverityLevel => {
   switch (level) {
