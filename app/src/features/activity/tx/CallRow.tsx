@@ -37,9 +37,9 @@ export const CallRow = ({ call: { to, value, data } }: CallRowProps) => {
           </Paragraph>
         )}
 
-        <Paragraph style={{ color: colors.error }}>
-          <TransferMethodValue to={to} data={data} />
-        </Paragraph>
+        <TransferMethodValue to={to} data={data}>
+          {Paragraph}
+        </TransferMethodValue>
       </Box>
     </Box>
   );
