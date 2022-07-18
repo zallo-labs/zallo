@@ -31,23 +31,27 @@ export const CallDetails = ({ call, title }: CallDetailsProps) => {
         }
       />
 
-      <CallDetailsRow
-        title="value"
-        content={
-          <Paragraph>
-            <TokenValue token={token} value={call.value} />
-          </Paragraph>
-        }
-      />
+      {call.value.gt(0) && (
+        <CallDetailsRow
+          title="value"
+          content={
+            <Paragraph>
+              <TokenValue token={token} value={call.value} />
+            </Paragraph>
+          }
+        />
+      )}
 
-      <CallDetailsRow
-        title="data"
-        content={
-          <ExpandableText text={hexlify(call.data)} beginLen={8} endLen={8}>
-            {({ text }) => <Paragraph>{text}</Paragraph>}
-          </ExpandableText>
-        }
-      />
+      {call.data !== '0x' && (
+        <CallDetailsRow
+          title="data"
+          content={
+            <ExpandableText text={hexlify(call.data)} beginLen={8} endLen={8}>
+              {({ text }) => <Paragraph>{text}</Paragraph>}
+            </ExpandableText>
+          }
+        />
+      )}
 
       <DecodedOpDetails call={call} />
     </Box>
