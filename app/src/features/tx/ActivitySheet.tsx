@@ -11,7 +11,7 @@ import { Timeline } from './timeline/Timeline';
 import { isTx, isExecutedTx } from '~/queries/tx';
 import { isCommentable } from '~/queries/useComments.api';
 
-const accordionProps: Partial<AccordionProps> = { mx: 3, my: 2 };
+const accordionProps: Partial<AccordionProps> = { mx: 3, my: 1 };
 
 export interface ActivitySheetProps {
   activity: Activity;
