@@ -25,7 +25,7 @@ import { getOrCreateUser, getOrCreateGroup, getOrCreateSafe } from './util';
 
 // zkSync ETH token
 const ETH_TOKEN: Bytes = Bytes.fromHexString(
-  '0x0000000000000000000000000000000000000000',
+  '0x000000000000000000000000000000000000800a',
 );
 
 export function handleReceived(e: Received): void {
