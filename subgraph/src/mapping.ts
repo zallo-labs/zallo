@@ -31,7 +31,9 @@ const ETH_TOKEN: Bytes = Bytes.fromHexString(
 export function handleReceived(e: Received): void {
   const transfer = new Transfer(getTransferId(e));
 
-  transfer.safe = getSafeId(e.address);
+  transfer.safe = getOrCreateSafe(e.address).id;
+  transfer.tx = getTxId(e.transaction);
+  transfer.txHash = e.transaction.hash;
   transfer.token = ETH_TOKEN;
   transfer.type = 'IN';
   transfer.from = e.params.from;
