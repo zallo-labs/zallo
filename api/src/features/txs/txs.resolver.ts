@@ -10,7 +10,14 @@ import {
 } from '@nestjs/graphql';
 import { BytesLike, ethers } from 'ethers';
 import { GraphQLResolveInfo } from 'graphql';
-import { Address, hashTx, Id, toId } from 'lib';
+import {
+  Address,
+  hashTx,
+  Id,
+  SignatureLike,
+  toId,
+  validateEcdsaSignature,
+} from 'lib';
 import { PrismaService } from 'nestjs-prisma';
 import { UserAddr } from '~/decorators/user.decorator';
 import {
@@ -27,6 +34,7 @@ import {
 } from './txs.args';
 import { Submission } from '@gen/submission/submission.model';
 import { SubmissionsService } from '../submissions/submissions.service';
+import { UserInputError } from 'apollo-server-core';
 
 @Resolver(() => Tx)
 export class TxsResolver {
@@ -70,7 +78,7 @@ export class TxsResolver {
     @UserAddr() user: Address,
   ): Promise<Tx> {
     const txHash = await hashTx(safe, tx);
-    await this.verifySignatureOrThrow(signature, user, txHash);
+    await this.verifySignature(user, txHash, signature);
 
     return this.prisma.tx.upsert({
       where: { safeId_hash: { hash: txHash, safeId: safe } },
@@ -108,7 +116,7 @@ export class TxsResolver {
     @Info() info: GraphQLResolveInfo,
     @UserAddr() user: Address,
   ): Promise<Tx | null> {
-    await this.verifySignatureOrThrow(signature, user, txHash);
+    await this.verifySignature(user, txHash, signature);
 
     return this.prisma.tx.update({
       where: { safeId_hash: { safeId: safe, hash: txHash } },
@@ -158,14 +166,13 @@ export class TxsResolver {
     return { id: this.toId(tx) };
   }
 
-  private async verifySignatureOrThrow(
-    signature: BytesLike,
+  private async verifySignature(
     user: Address,
     txHash: BytesLike,
+    signature: SignatureLike,
   ) {
-    // TODO: fix
-    // if (!(await zk.utils.isMessageSignatureCorrect(user, txHash, signature)))
-    //   throw new UserInputError('Invalid signature');
+    const isValid = validateEcdsaSignature(user, txHash, signature);
+    if (!isValid) throw new UserInputError('Invalid signature');
   }
 
   private toId({ safeId, hash }: { safeId: string; hash: string }): Id {
