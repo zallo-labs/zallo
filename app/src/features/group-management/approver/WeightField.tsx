@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { TextInput } from 'react-native-paper';
 import { TextField } from '@components/fields/TextField';
+import { useNumberInput } from '@components/fields/useNumberInput';
 
 export interface WeightFieldProps {
   weight: number;
@@ -8,32 +9,33 @@ export interface WeightFieldProps {
 }
 
 export const WeightField = ({ weight, setWeight }: WeightFieldProps) => {
+  const { value, onChangeText, ...inputProps } = useNumberInput({
+    value: weight,
+    onChange: setWeight,
+  });
+
   const [error, setError] = useState<string | undefined>();
 
   const handleChange = (value: string) => {
-    const r = parseFloat(value.replace(',', ''));
+    onChangeText(value);
 
-    if (isNaN(r)) {
-      setWeight(0);
-    } else if (r < 0) {
-      setError('Min 0%');
-    } else if (r > 100) {
-      setError('Max 100%');
-    } else {
-      if (error) setError(undefined);
-      setWeight(r);
+    const parsed = parseFloat(value);
+    if (value && parsed <= 0) {
+      setError('Min >0');
+    } else if (parsed > 100) {
+      setError('Max 100');
+    } else if (error) {
+      setError(undefined);
     }
   };
 
   return (
     <TextField
-      keyboardType="decimal-pad"
-      autoComplete="off"
-      placeholder="0"
+      value={value}
+      onChangeText={handleChange}
+      {...inputProps}
       right={<TextInput.Affix text="%" />}
       dense
-      value={`${weight}`}
-      onChangeText={handleChange}
       error={error}
       noOutline
       noBackground

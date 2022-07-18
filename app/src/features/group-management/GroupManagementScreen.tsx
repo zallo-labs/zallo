@@ -29,7 +29,14 @@ const getSchema = (groups: CombinedGroup[]): Yup.SchemaOf<Values> =>
         Yup.object()
           .shape({
             addr: ADDR_YUP_SCHEMA,
-            weight: Yup.number().min(0).max(100).required(),
+            weight: Yup.number()
+              .test({
+                name: 'min',
+                test: (value) => !!value,
+                message: 'Approver weight must be > 0',
+              })
+              .max(100, ({ max }) => `Approver weight must be <= ${max}`)
+              .required(),
           })
           .required(),
       )
