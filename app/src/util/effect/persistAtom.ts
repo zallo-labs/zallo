@@ -47,10 +47,10 @@ export const persistAtom =
   ({ setSelf, onSet, node: { key } }) => {
     // Loads the saved value, otherwise uses the default value
     setSelf(
-      storage.getItem(key).then((saved) => {
-        if (saved === null) return new DefaultValue();
+      storage.getItem(key).then((wrapped) => {
+        if (wrapped === null) return new DefaultValue();
 
-        const { data, version: dataVersion }: Wrapped = JSON.parse(saved);
+        const { data, version: dataVersion }: Wrapped = JSON.parse(wrapped);
         if (dataVersion !== version)
           return migrate
             ? migrate(load(data), dataVersion)
