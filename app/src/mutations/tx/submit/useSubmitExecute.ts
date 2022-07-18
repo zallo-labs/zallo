@@ -17,12 +17,6 @@ export const useSubmitExecute = () => {
         signature: approval.signature,
       }));
 
-      console.log('Executing', {
-        tx,
-        group,
-        signers,
-      });
-
       const resp = await executeTx(safe, tx, group, signers);
       await submitExecution(tx, resp);
     },
