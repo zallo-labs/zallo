@@ -16,7 +16,7 @@ import {
   Id,
   SignatureLike,
   toId,
-  validateEcdsaSignature,
+  validateSignature,
 } from 'lib';
 import { PrismaService } from 'nestjs-prisma';
 import { UserAddr } from '~/decorators/user.decorator';
@@ -78,7 +78,7 @@ export class TxsResolver {
     @UserAddr() user: Address,
   ): Promise<Tx> {
     const txHash = await hashTx(safe, tx);
-    await this.verifySignature(user, txHash, signature);
+    await this.validateSignatureOrThrow(user, txHash, signature);
 
     return this.prisma.tx.upsert({
       where: { safeId_hash: { hash: txHash, safeId: safe } },
@@ -116,7 +116,7 @@ export class TxsResolver {
     @Info() info: GraphQLResolveInfo,
     @UserAddr() user: Address,
   ): Promise<Tx | null> {
-    await this.verifySignature(user, txHash, signature);
+    await this.validateSignatureOrThrow(user, txHash, signature);
 
     return this.prisma.tx.update({
       where: { safeId_hash: { safeId: safe, hash: txHash } },
@@ -166,12 +166,12 @@ export class TxsResolver {
     return { id: this.toId(tx) };
   }
 
-  private async verifySignature(
+  private async validateSignatureOrThrow(
     user: Address,
     txHash: BytesLike,
     signature: SignatureLike,
   ) {
-    const isValid = validateEcdsaSignature(user, txHash, signature);
+    const isValid = validateSignature(user, txHash, signature);
     if (!isValid) throw new UserInputError('Invalid signature');
   }
 
