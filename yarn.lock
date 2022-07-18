@@ -3529,7 +3529,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@expo/config-plugins@npm:4.1.5":
+"@expo/config-plugins@npm:4.1.5, @expo/config-plugins@npm:^4.0.15":
   version: 4.1.5
   resolution: "@expo/config-plugins@npm:4.1.5"
   dependencies:
@@ -6500,18 +6500,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@sentry/browser@npm:7.3.1":
-  version: 7.3.1
-  resolution: "@sentry/browser@npm:7.3.1"
-  dependencies:
-    "@sentry/core": 7.3.1
-    "@sentry/types": 7.3.1
-    "@sentry/utils": 7.3.1
-    tslib: ^1.9.3
-  checksum: d30a3a664fe58e9b333d195d9644ac0f322f17fbd17e5f3ecc845f376c5f7f3ef0a30458f9f546d98b79ff9368c1db77fcd8ab05bfbe1af24327bf0e023fb205
-  languageName: node
-  linkType: hard
-
 "@sentry/browser@npm:^6.12.0":
   version: 6.19.7
   resolution: "@sentry/browser@npm:6.19.7"
@@ -6524,7 +6512,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@sentry/cli@npm:^1.52.4, @sentry/cli@npm:^1.74.2, @sentry/cli@npm:^1.74.4":
+"@sentry/cli@npm:^1.52.4, @sentry/cli@npm:^1.74.2":
   version: 1.74.4
   resolution: "@sentry/cli@npm:1.74.4"
   dependencies:
@@ -6580,18 +6568,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@sentry/core@npm:7.3.1":
-  version: 7.3.1
-  resolution: "@sentry/core@npm:7.3.1"
-  dependencies:
-    "@sentry/hub": 7.3.1
-    "@sentry/types": 7.3.1
-    "@sentry/utils": 7.3.1
-    tslib: ^1.9.3
-  checksum: db5d98d2c588f5cf37984b54319f9bbb01c7db1334c58b8242031857d1cf9a60105c52b592672d17c2aa5c792e455499913b52a83ed6bd10d7bb678f27221aa1
-  languageName: node
-  linkType: hard
-
 "@sentry/hub@npm:5.30.0":
   version: 5.30.0
   resolution: "@sentry/hub@npm:5.30.0"
@@ -6625,17 +6601,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@sentry/hub@npm:7.3.1":
-  version: 7.3.1
-  resolution: "@sentry/hub@npm:7.3.1"
-  dependencies:
-    "@sentry/types": 7.3.1
-    "@sentry/utils": 7.3.1
-    tslib: ^1.9.3
-  checksum: aa4e4dd149ce2a3b2293d0727a99a2bbb0d16ddac07cec9365085d17fc37e5da385ab066a57a25c61cebd582504505041435293f3e1b9711ebaa094a3a25be7c
-  languageName: node
-  linkType: hard
-
 "@sentry/integrations@npm:6.19.2":
   version: 6.19.2
   resolution: "@sentry/integrations@npm:6.19.2"
@@ -6645,18 +6610,6 @@ __metadata:
     localforage: ^1.8.1
     tslib: ^1.9.3
   checksum: 298cff982882a619d6c9c7d43431dff4898323eaa79095c6028acea4c98b90f15ffcd03583bc2e5a7ddab1c567fe8ecc438f73c7910fc60f6f1fc95a48806197
-  languageName: node
-  linkType: hard
-
-"@sentry/integrations@npm:7.3.1":
-  version: 7.3.1
-  resolution: "@sentry/integrations@npm:7.3.1"
-  dependencies:
-    "@sentry/types": 7.3.1
-    "@sentry/utils": 7.3.1
-    localforage: ^1.8.1
-    tslib: ^1.9.3
-  checksum: ae4d9b8d41ac31ec965502db4b921752364269488faf806f0287fe53fc9cc239ea435d50ced75fe5d69a7e14e6a62b069039098d1e5fdf5710a42fbb47f2379e
   languageName: node
   linkType: hard
 
@@ -6743,27 +6696,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@sentry/react-native@npm:^4.1.0":
-  version: 4.1.0
-  resolution: "@sentry/react-native@npm:4.1.0"
-  dependencies:
-    "@sentry/browser": 7.3.1
-    "@sentry/cli": ^1.74.4
-    "@sentry/core": 7.3.1
-    "@sentry/hub": 7.3.1
-    "@sentry/integrations": 7.3.1
-    "@sentry/react": 7.3.1
-    "@sentry/tracing": 7.3.1
-    "@sentry/types": 7.3.1
-    "@sentry/utils": 7.3.1
-    "@sentry/wizard": ^1.2.17
-  peerDependencies:
-    react: ">=16.4.1"
-    react-native: ">=0.56.0"
-  checksum: c555f3bfa7df95a3dcbd80ec0f9cab290a9d1c078b890ff6e56e2dec27c45b48a87885aa2f3191bab808b44b2633ac07aeb2363c2a0cb750a60411ca02caf08e
-  languageName: node
-  linkType: hard
-
 "@sentry/react@npm:6.19.2":
   version: 6.19.2
   resolution: "@sentry/react@npm:6.19.2"
@@ -6777,21 +6709,6 @@ __metadata:
   peerDependencies:
     react: 15.x || 16.x || 17.x
   checksum: 6acf67623908084409011e0297d9738ab45f97b34e32097ec9f831cc98768a579f9c951b0a4625316d9eabd678f9fb093b6dcb9ec1c388dd009438465cfe604c
-  languageName: node
-  linkType: hard
-
-"@sentry/react@npm:7.3.1":
-  version: 7.3.1
-  resolution: "@sentry/react@npm:7.3.1"
-  dependencies:
-    "@sentry/browser": 7.3.1
-    "@sentry/types": 7.3.1
-    "@sentry/utils": 7.3.1
-    hoist-non-react-statics: ^3.3.2
-    tslib: ^1.9.3
-  peerDependencies:
-    react: 15.x || 16.x || 17.x || 18.x
-  checksum: 0fe161aa6ed4ffac0761d5572e017f071b77cb30cbbc4e13fd0a9eba5ad0f752a0287208234631045d6946be1713d035479411e9b3b1e165c569a800babb469d
   languageName: node
   linkType: hard
 
@@ -6821,18 +6738,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@sentry/tracing@npm:7.3.1":
-  version: 7.3.1
-  resolution: "@sentry/tracing@npm:7.3.1"
-  dependencies:
-    "@sentry/hub": 7.3.1
-    "@sentry/types": 7.3.1
-    "@sentry/utils": 7.3.1
-    tslib: ^1.9.3
-  checksum: 5d01f502a59340e5e35c2aca5ff18d6bec4cc5c774c6b6915733f3d2899d6b868be9a8fc24baff5f708b3eac68c5e2ddf9109d592389c52b429155d0ca394a81
-  languageName: node
-  linkType: hard
-
 "@sentry/types@npm:5.30.0":
   version: 5.30.0
   resolution: "@sentry/types@npm:5.30.0"
@@ -6851,13 +6756,6 @@ __metadata:
   version: 6.19.7
   resolution: "@sentry/types@npm:6.19.7"
   checksum: f46ef74a33376ad6ea9b128115515c58eb9369d89293c60aa67abca26b5d5d519aa4d0a736db56ae0d75ffd816643d62187018298523cbc2e6c2fb3a6b2a9035
-  languageName: node
-  linkType: hard
-
-"@sentry/types@npm:7.3.1":
-  version: 7.3.1
-  resolution: "@sentry/types@npm:7.3.1"
-  checksum: b75919d5b6490215ad1d15735342d0f60e5044c5de162fe47af704f14a27f458dd8b7b37484f9b0fc9749fa8c34aa90feaff7abdb4f8cbb92a4b9139860f6bd2
   languageName: node
   linkType: hard
 
@@ -6888,16 +6786,6 @@ __metadata:
     "@sentry/types": 6.19.7
     tslib: ^1.9.3
   checksum: a000223b9c646c64e3565e79cace1eeb75114342b768367c4dddd646476c215eb1bddfb70c63f05e2352d3bce2d7d415344e4757a001605d0e01ac74da5dd306
-  languageName: node
-  linkType: hard
-
-"@sentry/utils@npm:7.3.1":
-  version: 7.3.1
-  resolution: "@sentry/utils@npm:7.3.1"
-  dependencies:
-    "@sentry/types": 7.3.1
-    tslib: ^1.9.3
-  checksum: 37fb6db19c5a4eb79b8322c31f091e6bce39d8a5e4c8fe5232d9b554ad45dd72b25f7b3ac7c65cb35e3d2dc1097bf8578dbdc996e8f8df19fbb027cb446ecc8b
   languageName: node
   linkType: hard
 
@@ -10001,7 +9889,7 @@ __metadata:
     "@react-navigation/material-top-tabs": ^6.2.1
     "@react-navigation/native": ^6.0.10
     "@react-navigation/native-stack": ^6.6.1
-    "@sentry/react-native": ^4.1.0
+    "@sentry/react-native": ^3.1.1
     "@testing-library/jest-native": ^4.0.5
     "@testing-library/react-native": ^9.1.0
     "@types/color": ^3.0.3
@@ -10029,7 +9917,9 @@ __metadata:
     expo-barcode-scanner: ~11.3.0
     expo-brightness: ~10.2.0
     expo-camera: ~12.2.0
+    expo-community-flipper: ^45.1.0
     expo-constants: ~13.1.1
+    expo-dev-client: ~1.0.1
     expo-device: ~4.2.0
     expo-keep-awake: ~10.1.1
     expo-local-authentication: ~12.2.0
@@ -10055,6 +9945,7 @@ __metadata:
     react-native: 0.68.2
     react-native-collapsible: ^1.6.0
     react-native-dashed-line: ^1.1.0
+    react-native-flipper: ^0.154.0
     react-native-gesture-handler: ~2.2.1
     react-native-get-random-values: ~1.8.0
     react-native-jazzicon: "patch:react-native-jazzicon@npm:^0.1.2#../.yarn/patches/react-native-jazzicon-npm-0.1.2-c1633b051f.patch"
@@ -17117,6 +17008,16 @@ __metadata:
   languageName: node
   linkType: hard
 
+"expo-community-flipper@npm:^45.1.0":
+  version: 45.1.0
+  resolution: "expo-community-flipper@npm:45.1.0"
+  dependencies:
+    "@expo/config-plugins": ^4.0.15
+    resolve-from: ^5.0.0
+  checksum: 723b2d249bcbde051b141e8b14c78b0d7104b901243953b0a139c04088566ac751f062ec01b47c5fe62488e02ec77b23b2ba75425ca91764f0322b94696cd2c6
+  languageName: node
+  linkType: hard
+
 "expo-constants@npm:~13.1.1":
   version: 13.1.1
   resolution: "expo-constants@npm:13.1.1"
@@ -17126,6 +17027,58 @@ __metadata:
   peerDependencies:
     expo: "*"
   checksum: 2a0be73a2e27854bbb398b89868141784c29455b3041f00b0a4209fb2a5d2ecb36aa17d5c06c005a1ec0df8652641446eec74dffb3d0eb2c4245e7e04a90897f
+  languageName: node
+  linkType: hard
+
+"expo-dev-client@npm:~1.0.1":
+  version: 1.0.1
+  resolution: "expo-dev-client@npm:1.0.1"
+  dependencies:
+    "@expo/config-plugins": ^4.0.14
+    expo-dev-launcher: 1.0.1
+    expo-dev-menu: 1.0.1
+    expo-dev-menu-interface: 0.7.0
+    expo-manifests: ~0.3.0
+    expo-updates-interface: ~0.6.0
+  peerDependencies:
+    expo: "*"
+  checksum: aa78df986cca4ae92dc0415fea77c1949d6c6097962ef2ba79e0dc48377d97f967a2aa13b5ba916481e7cedf53fd7ced358737a492297e7b191a671f3d15a320
+  languageName: node
+  linkType: hard
+
+"expo-dev-launcher@npm:1.0.1":
+  version: 1.0.1
+  resolution: "expo-dev-launcher@npm:1.0.1"
+  dependencies:
+    "@expo/config-plugins": ^4.0.14
+    expo-dev-menu: 1.0.1
+    resolve-from: ^5.0.0
+    semver: ^7.3.5
+  peerDependencies:
+    expo: "*"
+  checksum: c90f2c28092ed4e03432ad76a4c9d576704290de2e1598b742fe2170270d33fd52572b0a7f071b7875902b0e0d28e701978f20745cf937bce1c8ac6b7187db94
+  languageName: node
+  linkType: hard
+
+"expo-dev-menu-interface@npm:0.7.0":
+  version: 0.7.0
+  resolution: "expo-dev-menu-interface@npm:0.7.0"
+  peerDependencies:
+    expo: "*"
+  checksum: d1869bdcec37e5612583de891b445efc7e045844b9da5a03d2ffb46e0e52b58e4a085d9a22f222dbd4f5aeaefbe90fb01db827a95a1dba54def03fdd4bc46f5f
+  languageName: node
+  linkType: hard
+
+"expo-dev-menu@npm:1.0.1":
+  version: 1.0.1
+  resolution: "expo-dev-menu@npm:1.0.1"
+  dependencies:
+    "@expo/config-plugins": ^4.0.14
+    expo-dev-menu-interface: 0.7.0
+    semver: ^7.3.5
+  peerDependencies:
+    expo: "*"
+  checksum: 73ea582524a05c88b136eecb8556c62db9389c93ffe59faf1a5c19602a4db7270aa83cb41002c9173bacb0b5fad53256e201eb6bb3118e5b537c45cd6aaa2489
   languageName: node
   linkType: hard
 
@@ -28863,6 +28816,16 @@ __metadata:
   version: 1.1.0
   resolution: "react-native-dashed-line@npm:1.1.0"
   checksum: 8be97e53929b9ec16c98037e8c59429e7784d1d93c60750e3a572185518fd4ff8b8cbe947707d991b6c0ea040ce71630517a2737b09b1b11f4814fbadb5d2c81
+  languageName: node
+  linkType: hard
+
+"react-native-flipper@npm:^0.154.0":
+  version: 0.154.0
+  resolution: "react-native-flipper@npm:0.154.0"
+  peerDependencies:
+    react: ^16.8.0 || ^17.0.0
+    react-native: ">0.62.0"
+  checksum: 70c73fbde7d0151a682ba10dcf9e9223674a1f04ffeff62b9ed394a07475f74eb583de8080665a0311ebb4f961687f9b6edcf1e75c92e6252d3a5e7963dfa312
   languageName: node
   linkType: hard
 

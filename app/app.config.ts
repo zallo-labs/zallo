@@ -8,8 +8,12 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
   slug: 'metasafe',
   version: '0.1.0',
   githubUrl: 'https://github.com/hbriese/metasafe',
-  extra: CONFIG,
-  plugins: ['sentry-expo'],
+  jsEngine: 'hermes',
+  extra: {
+    ...CONFIG,
+    flipperHack: 'React Native packager is running',
+  },
+  plugins: ['sentry-expo', 'expo-community-flipper'],
   hooks: {
     postPublish: [
       {
