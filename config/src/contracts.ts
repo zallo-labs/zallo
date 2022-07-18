@@ -1,7 +1,7 @@
 import { ChainName } from './chain';
 
 export const FACTORY: Partial<Record<ChainName, string>> = {
-  testnet: '0x66712Fd70f384257a91228463F128C94ceBb490D',
+  testnet: '0xa6006D4a729ac019Eb0AB8c1eA477433cf8b9A47',
 };
 
 export const MULTICALL: Partial<Record<ChainName, string>> = {
