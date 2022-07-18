@@ -50,7 +50,7 @@ export const useContacts = () => {
         ({ name, safe: { address } }): Contact => ({
           id: toId(address),
           addr: address,
-          name: name ?? truncatedAddr(address),
+          name: name ?? `Safe ${truncatedAddr(address)}`,
         }),
       ),
     [safes],

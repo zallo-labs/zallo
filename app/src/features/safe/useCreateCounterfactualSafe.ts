@@ -28,7 +28,7 @@ export const useCreateCounterfactualSafe = () => {
     await upsertSafe({
       safe,
       deploySalt,
-      name: `Safe ${elipseTruncate(deploySalt, 6, 4)}`,
+      name: '',
       groups: [group],
     });
 
