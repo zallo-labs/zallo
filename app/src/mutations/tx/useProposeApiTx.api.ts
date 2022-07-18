@@ -35,19 +35,19 @@ export const useProposeApiTx = () => {
 
   const propose = useCallback(
     async (txDef: TxDef) => {
-      const txReq = createTx(txDef);
-      const hash = await hashTx(safe.address, txReq);
-      const signature = await signTx(wallet, safe.address, txReq);
+      const tx = createTx(txDef);
+      const hash = await hashTx(safe.address, tx);
+      const signature = await signTx(wallet, safe.address, tx);
       const createdAt = DateTime.now().toISO();
 
       return await mutation({
         variables: {
           safe: safe.address,
           tx: {
-            to: txReq.to,
-            value: txReq.value.toString(),
-            data: hexlify(txReq.data),
-            salt: hexlify(txReq.salt),
+            to: tx.to,
+            value: tx.value.toString(),
+            data: hexlify(tx.data),
+            salt: hexlify(tx.salt),
           },
           signature,
         },
@@ -76,10 +76,10 @@ export const useProposeApiTx = () => {
             id: toId(`${safe.address}-${hash}`),
             safeId: safe.address,
             hash,
-            to: txReq.to,
-            value: txReq.value.toString(),
-            data: hexlify(txReq.data),
-            salt: hexlify(txReq.salt),
+            to: tx.to,
+            value: tx.value.toString(),
+            data: hexlify(tx.data),
+            salt: hexlify(tx.salt),
             approvals: [
               {
                 __typename: 'Approval',

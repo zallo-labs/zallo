@@ -4,7 +4,7 @@ import { useWallet } from '@features/wallet/useWallet';
 import { ApiTxsQuery, ApiTxsQueryVariables } from '@gql/generated.api';
 import { useApiClient } from '@gql/GqlProvider';
 import { BigNumber } from 'ethers';
-import { address, TxReq, toId } from 'lib';
+import { address, toId } from 'lib';
 import { DateTime } from 'luxon';
 import { useMemo } from 'react';
 import { QUERY_TXS_POLL_INTERVAL, ProposedTx, Approval, TxStatus } from '.';
@@ -79,17 +79,13 @@ export const useApiProposedTxs = () => {
             timestamp: DateTime.fromISO(a.createdAt),
           })) ?? [];
 
-        const txReq: TxReq = {
+        return {
+          id: toId(tx.id),
+          hash: tx.hash,
           to: address(tx.to),
           value: BigNumber.from(tx.value),
           data: tx.data,
           salt: tx.salt,
-        };
-
-        return {
-          id: toId(tx.id),
-          hash: tx.hash,
-          ...txReq,
           approvals,
           userHasApproved: !!approvals.find((a) => a.addr === wallet.address),
           submissions:
