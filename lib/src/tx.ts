@@ -4,7 +4,6 @@ import {
 } from '@ethersproject/abstract-signer';
 import { BigNumber, Contract, ethers } from 'ethers';
 import { hexlify, isBytesLike, randomBytes } from 'ethers/lib/utils';
-import { Wallet } from 'zksync-web3';
 import { Address, isAddress } from './addr';
 import { Bytes8 } from './bytes';
 import { Call, CallDef, createCall } from './call';
@@ -24,7 +23,7 @@ const isTxReqExtras = createIsObj<TxReq>(['salt', isBytesLike]);
 export const isTxReq = (e: unknown): e is TxReq =>
   isCall(e) && isTxReqExtras(e);
 
-const TX_EIP712_TYPE: Record<string, TypedDataField[]> = {
+export const TX_EIP712_TYPE: Record<string, TypedDataField[]> = {
   Tx: [
     { name: 'to', type: 'address' },
     { name: 'value', type: 'uint256' },
@@ -44,24 +43,12 @@ export const getDomain = async (
       : verifyingContract.address,
 });
 
-export const hashTx = async (contract: Address | Contract, tx: TxReq) =>
+export const hashTx = async (safe: Address | Contract, tx: TxReq) =>
   ethers.utils._TypedDataEncoder.hash(
-    await getDomain(contract),
-    TX_EIP712_TYPE,
-    tx,
-  );
-
-export const signTx = async (wallet: Wallet, safe: Address, tx: TxReq) => {
-  // _signTypedData returns a 65 byte signature
-  const longSig = await wallet._signTypedData(
     await getDomain(safe),
     TX_EIP712_TYPE,
     tx,
   );
-
-  // Convert to a compact 64 byte signature (eip-2098)
-  return ethers.utils.splitSignature(longSig).compact;
-};
 
 export const randomTxSalt = (): Bytes8 => hexlify(randomBytes(8));
 
