@@ -6,16 +6,13 @@ import { BasicTextField, BasicTextFieldProps } from './BasicTextField';
 const toStr = (v: BigNumber | undefined, decimal: number) =>
   v ? formatUnits(v, decimal) : '';
 
-const TRAILING_DECIMALS_PATTERN = /\.+$/;
-const normalise = (s?: string | undefined) => {
+const TRAILING_DECIMALS_AND_ZERO_PATTERN = /(?:[.0])+$/;
+const normalise = (s?: string) => {
   // Remove all commas, replaceAll isn't supported by RN Android
   s = s?.split(',').join('');
 
   // Remove trailing decimal separators (e.g. '.')
-  s = s?.replace(TRAILING_DECIMALS_PATTERN, '');
-
-  // Remove trailing .0
-  if (s?.endsWith('.0')) s = s.slice(0, -2);
+  s = s?.replace(TRAILING_DECIMALS_AND_ZERO_PATTERN, '');
 
   // Treat empty | undefined equivalent to zero
   if (!s) s = '0';
