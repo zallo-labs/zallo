@@ -37,7 +37,7 @@ export interface TokenPrice {
   hourly: TokenHourlyPrice[];
   current: BigNumber;
   yesterday: BigNumber;
-  delta: number;
+  change: number;
   currentEth: BigNumber;
 }
 
@@ -74,7 +74,7 @@ export const useTokenPrice = (token: Token) => {
     hourly,
     current: current,
     yesterday: yesterday,
-    delta: yd > 0 ? ((cur - yd) / yd) * 100 : 100,
+    change: yd > 0 ? ((cur - yd) / yd) * 100 : 100,
     // parseEther() throws if the eth has > 18 decimals
     currentEth: data?.token?.derivedETH
       ? ethers.utils.parseEther(

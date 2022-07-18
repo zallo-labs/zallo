@@ -5,7 +5,7 @@ import { Token } from '~/token/token';
 import { TokenIcon } from '@components/token/TokenIcon';
 import { useTokenBalance } from '~/token/useTokenBalance';
 import { Box } from '@components/Box';
-import { PriceDelta } from '@components/PriceDelta';
+import { PriceChange } from '@components/PriceDelta';
 import { TokenValue } from '@components/token/TokenValue';
 import { FiatValue } from '@components/FiatValue';
 import { useTokenValue } from '~/token/useTokenValue';
@@ -37,7 +37,7 @@ export const Holding = ({ token }: HoldingProps) => {
           <Paragraph>
             <FiatValue value={fiatValue} />
           </Paragraph>
-          <PriceDelta delta={price.delta} />
+          <PriceChange change={price.change} />
         </Box>
       }
     />

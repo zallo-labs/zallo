@@ -2,22 +2,22 @@ import { Paragraph, useTheme } from 'react-native-paper';
 import { Percent } from './Percent';
 
 export interface PriceDeltaProps {
-  delta: number;
+  change: number;
 }
 
-export const PriceDelta = ({ delta }: PriceDeltaProps) => {
+export const PriceChange = ({ change }: PriceDeltaProps) => {
   const { colors } = useTheme();
 
   const color =
-    delta !== 0
-      ? delta > 0
+    change !== 0
+      ? change > 0
         ? colors.success
         : colors.error
       : colors.placeholder;
 
   return (
     <Paragraph style={{ color }}>
-      <Percent sign>{delta}</Percent>
+      <Percent sign>{change}</Percent>
     </Paragraph>
   );
 };
