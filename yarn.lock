@@ -5210,16 +5210,16 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@matterlabs/hardhat-zksync-deploy@npm:^0.3.5":
-  version: 0.3.5
-  resolution: "@matterlabs/hardhat-zksync-deploy@npm:0.3.5"
+"@matterlabs/hardhat-zksync-deploy@npm:^0.3.6":
+  version: 0.3.6
+  resolution: "@matterlabs/hardhat-zksync-deploy@npm:0.3.6"
   dependencies:
     glob: ^8.0.1
   peerDependencies:
-    ethers: ~5.5.4
-    hardhat: ^2.9.0
-    zksync-web3: ^0.7.8
-  checksum: c3febcec291559effc42ec975b73c18b42b970efe0eed88b9c6095ac26a2bfdd7b3c095c786e4d67d9b3b5f408bc10c024a2763a4907e1c53e6ef7f47823d2e0
+    ethers: ~5.6.9
+    hardhat: ^2.10.1
+    zksync-web3: ^0.7.9
+  checksum: 9af798c17483d4822c46fd73a14b287e86718d9bd82eba70da5e22bc243115d372d6ee5648d7d34a4a23e07153eb84df556019789215f36766fa93cce7fa78d5
   languageName: node
   linkType: hard
 
@@ -5235,16 +5235,15 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@matterlabs/hardhat-zksync-solc@npm:^0.3.5":
-  version: 0.3.5
-  resolution: "@matterlabs/hardhat-zksync-solc@npm:0.3.5"
+"@matterlabs/hardhat-zksync-solc@npm:^0.3.6":
+  version: 0.3.6
+  resolution: "@matterlabs/hardhat-zksync-solc@npm:0.3.6"
   dependencies:
     "@nomiclabs/hardhat-docker": ^2.0.0
     dockerode: ^3.3.1
-    semver: ^7.3.7
   peerDependencies:
-    hardhat: ^2.9.0
-  checksum: 361d60078fe6980b6bb383e0f25b87855e51710987c7a9d3b16f0b379fe5a9ab8044035a93e30f644a2051f35d43a382c1f3f5d611db7b8450420c9a83ba52cb
+    hardhat: ^2.10.1
+  checksum: 51cd25aee1c0ed24b3e7209fb1e1a96567efdc4cb59a4f7750318d879998d8bd5e3d488d0f3199ba49b5d8c0dcae6a96ee54e14d7871abce914a8ab91eaef30e
   languageName: node
   linkType: hard
 
@@ -13569,8 +13568,8 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "contracts@workspace:contracts"
   dependencies:
-    "@matterlabs/hardhat-zksync-deploy": ^0.3.5
-    "@matterlabs/hardhat-zksync-solc": ^0.3.5
+    "@matterlabs/hardhat-zksync-deploy": ^0.3.6
+    "@matterlabs/hardhat-zksync-solc": ^0.3.6
     "@matterlabs/signature-checker": ^1.0.0
     "@matterlabs/zksync-contracts": ^0.2.4
     "@nomiclabs/hardhat-ethers": ^2.0.6
@@ -23345,7 +23344,7 @@ __metadata:
   resolution: "lib@workspace:lib"
   dependencies:
     "@ethersproject/bignumber": ^5.6.0
-    "@matterlabs/hardhat-zksync-deploy": ^0.3.5
+    "@matterlabs/hardhat-zksync-deploy": ^0.3.6
     "@typechain/ethers-v5": ^10.0.0
     "@types/jest": ^28.1.3
     ethers: ^5.6.9

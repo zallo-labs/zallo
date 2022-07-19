@@ -14,8 +14,8 @@
     "clean": "hardhat clean && npx rimraf artifacts cache"
   },
   "devDependencies": {
-    "@matterlabs/hardhat-zksync-deploy": "^0.3.5",
-    "@matterlabs/hardhat-zksync-solc": "^0.3.5",
+    "@matterlabs/hardhat-zksync-deploy": "^0.3.6",
+    "@matterlabs/hardhat-zksync-solc": "^0.3.6",
     "@matterlabs/signature-checker": "^1.0.0",
     "@matterlabs/zksync-contracts": "^0.2.4",
     "@nomiclabs/hardhat-ethers": "^2.0.6",
