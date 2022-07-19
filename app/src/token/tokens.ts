@@ -16,7 +16,7 @@ export const ETH = token({
   decimals: 18,
   addresses: {
     mainnet: '0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2', // wETH
-    testnet: '0x000000000000000000000000000000000000800a',
+    testnet: zk.utils.ETH_ADDRESS,
   },
   iconUri:
     'https://cloudfront-us-east-1.images.arcpublishing.com/coindesk/ZJZZK5B2ZNF25LYQHMUTBTOMLU.png',
