@@ -6,6 +6,7 @@ import '@openzeppelin/contracts/interfaces/IERC1155Receiver.sol';
 import './ERC721Receiver.sol';
 
 abstract contract ERC1155Reciever is IERC1155Receiver {
+  /// @inheritdoc IERC1155Receiver
   function onERC1155Received(
     address operator,
     address from,
@@ -16,6 +17,7 @@ abstract contract ERC1155Reciever is IERC1155Receiver {
     return IERC1155Receiver.onERC1155Received.selector;
   }
 
+  /// @inheritdoc IERC1155Receiver
   function onERC1155BatchReceived(
     address operator,
     address from,

@@ -8,6 +8,7 @@ import '@openzeppelin/contracts/interfaces/IERC1155Receiver.sol';
 import './ERC721Receiver.sol';
 
 abstract contract ERC165 is IERC165 {
+  /// @inheritdoc IERC165
   function supportsInterface(bytes4 interfaceId)
     external
     pure
