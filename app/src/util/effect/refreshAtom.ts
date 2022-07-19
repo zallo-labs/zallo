@@ -1,29 +1,20 @@
-import { mapAsync, MaybePromise } from 'lib';
-import { AtomEffect, DefaultValue, RecoilValue } from 'recoil';
+import { MaybePromise } from 'lib';
+import { AtomEffect, DefaultValue } from 'recoil';
 
-type RecoilValueArray<T extends Array<unknown>> = {
-  [K in keyof T]: RecoilValue<T[K]>;
-};
-
-type ParamOption<P> = P extends [unknown]
-  ? { params: RecoilValueArray<P> }
-  : { params?: [] };
+interface FetchParams {
+  get: Parameters<AtomEffect<unknown>>[0]['getPromise'];
+}
 
 type FetchResult<T> = DefaultValue | MaybePromise<T>;
 
-export type RefreshAtomOptions<T, P extends unknown[]> = {
-  fetch: (...params: P) => FetchResult<T>;
+export interface RefreshAtomOptions<T> {
+  fetch: (params: FetchParams) => FetchResult<T>;
   interval: number;
   cancelIf?: (value: DefaultValue | T) => boolean;
-} & ParamOption<P>;
+}
 
 export const refreshAtom =
-  <T, Params extends unknown[]>({
-    fetch,
-    params,
-    interval,
-    cancelIf,
-  }: RefreshAtomOptions<T, Params>): AtomEffect<T> =>
+  <T>({ fetch, interval, cancelIf }: RefreshAtomOptions<T>): AtomEffect<T> =>
   ({ setSelf, onSet, getPromise }) => {
     let isActive = true;
     let handle: NodeJS.Timer | undefined = undefined;
@@ -36,8 +27,7 @@ export const refreshAtom =
     };
 
     handle = setInterval(async () => {
-      const rParams = (await mapAsync(params ?? [], getPromise)) as Params;
-      const value = await fetch(...rParams);
+      const value = await fetch({ get: getPromise });
 
       setSelf(value);
       maybeCancel(value);
