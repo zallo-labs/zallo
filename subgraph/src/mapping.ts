@@ -1,49 +1,18 @@
-import { Bytes } from '@graphprotocol/graph-ts';
 import {
   GroupUpserted,
   GroupRemoved,
   TxExecuted,
   TxReverted,
-  Received,
 } from '../generated/Safe/Safe';
-import {
-  Approver,
-  ApproverSet,
-  Group,
-  Transfer,
-  Tx,
-} from '../generated/schema';
+import { Approver, ApproverSet, Group, Tx } from '../generated/schema';
 import {
   getApproverId,
   getApproverSetId,
   getGroupId,
   getSafeId,
-  getTransferId,
   getTxId,
 } from './id';
 import { getOrCreateUser, getOrCreateGroup, getOrCreateSafe } from './util';
-
-// zkSync ETH token
-const ETH_TOKEN: Bytes = Bytes.fromHexString(
-  '0x000000000000000000000000000000000000800a',
-);
-
-export function handleReceived(e: Received): void {
-  const transfer = new Transfer(getTransferId(e));
-
-  transfer.safe = getOrCreateSafe(e.address).id;
-  transfer.tx = getTxId(e.transaction);
-  transfer.txHash = e.transaction.hash;
-  transfer.token = ETH_TOKEN;
-  transfer.type = 'IN';
-  transfer.from = e.params.from;
-  transfer.to = e.address;
-  transfer.value = e.params.value;
-  transfer.blockHash = e.block.hash;
-  transfer.timestamp = e.block.timestamp;
-
-  transfer.save();
-}
 
 export function handleTxExecuted(e: TxExecuted): void {
   const tx = new Tx(getTxId(e.transaction));

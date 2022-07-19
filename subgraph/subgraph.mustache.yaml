@@ -24,8 +24,6 @@ dataSources:
         - GroupApprover
         - TokenTransfer
       eventHandlers:
-        - event: Received(address,uint256)
-          handler: handleReceived
         - event: TxExecuted(bytes32,bytes)
           handler: handleTxExecuted
         - event: TxReverted(bytes32,bytes)

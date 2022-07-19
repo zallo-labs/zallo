@@ -28,7 +28,6 @@ interface ISafe is IERC1271, IAccountAbstraction {
   event TxReverted(bytes32 txHash, bytes response);
   event GroupUpserted(bytes32 groupRef, Approver[] approvers);
   event GroupRemoved(bytes32 groupRef);
-  event Received(address from, uint256 value);
 
   /* Errors */
   error ExecutionReverted();

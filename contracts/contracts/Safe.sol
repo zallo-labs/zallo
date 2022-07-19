@@ -29,9 +29,9 @@ contract Safe is ISafe, EIP712 {
     _upsertGroup(groupRef, approvers);
   }
 
-  fallback() external payable emitWhenPaid {}
+  fallback() external payable {}
 
-  receive() external payable emitWhenPaid {}
+  receive() external payable {}
 
   /// @inheritdoc ISafe
   function isValidSignature(bytes32 txHash, bytes memory txSignature)
@@ -49,7 +49,6 @@ contract Safe is ISafe, EIP712 {
     external
     payable
     override
-    emitWhenPaid
   {
     _validateTransaction(_hashTx(transaction), transaction);
   }
@@ -60,7 +59,6 @@ contract Safe is ISafe, EIP712 {
     payable
     override
     onlyBootloader
-    emitWhenPaid
   {
     _executeTransaction(_hashTx(transaction), transaction);
   }
@@ -70,7 +68,6 @@ contract Safe is ISafe, EIP712 {
     external
     payable
     override
-    emitWhenPaid
   {
     bytes32 txHash = _hashTx(transaction);
     _validateTransaction(txHash, transaction);
@@ -251,11 +248,6 @@ contract Safe is ISafe, EIP712 {
 
   modifier onlySafe() {
     if (msg.sender != address(this)) revert OnlyCallableBySafe();
-    _;
-  }
-
-  modifier emitWhenPaid() {
-    if (msg.value > 0) emit Received(msg.sender, msg.value);
     _;
   }
 }
