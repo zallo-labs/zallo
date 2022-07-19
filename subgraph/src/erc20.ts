@@ -1,6 +1,18 @@
 import { Transfer as TransferEvent } from '../generated/ERC20/ERC20';
 import { getSafeId, getTransferId, getTxId } from './id';
 import { Safe, Transfer } from '../generated/schema';
+import { Address } from '@graphprotocol/graph-ts';
+
+const ETH_ADDR: Address = Address.fromString(
+  '0x000000000000000000000000000000000000800a',
+);
+const ETH_SUB_ADDR: Address = Address.fromString(
+  '0x0000000000000000000000000000000000000000',
+);
+
+function transformEthAddress(address: Address): Address {
+  return address == ETH_ADDR ? ETH_SUB_ADDR : address;
+}
 
 export function handleTransfer(e: TransferEvent): void {
   // Only handle transfers from or to a safe
@@ -13,7 +25,7 @@ export function handleTransfer(e: TransferEvent): void {
   transfer.safe = safe.id;
   transfer.tx = getTxId(e.transaction);
   transfer.txHash = e.transaction.hash;
-  transfer.token = e.address;
+  transfer.token = transformEthAddress(e.address);
   transfer.type = safe.id == e.params.from.toHex() ? 'OUT' : 'IN';
   transfer.from = e.params.from;
   transfer.to = e.params.to;
