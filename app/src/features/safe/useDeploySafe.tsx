@@ -9,6 +9,7 @@ import { useWallet } from '@features/wallet/useWallet';
 import { CHAIN } from '~/provider';
 import { useFaucet } from '~/mutations/useFacuet.api';
 import { useUpsertSafe } from '~/mutations/useUpsertSafe.api';
+import { useCallback } from 'react';
 
 const deployCost = parseEther('0.0001');
 
@@ -22,9 +23,7 @@ export const useDeploySafe = () => {
   const wallet = useWallet();
   const faucet = useFaucet(wallet.address);
 
-  if (isDeployed) return undefined;
-
-  const deploy = async () => {
+  const deploy = useCallback(async () => {
     showInfo({ text1: 'Deploying safe...', autoHide: false });
 
     if (CHAIN.isTestnet) {
@@ -46,7 +45,16 @@ export const useDeploySafe = () => {
       upsertSafe({ ...combinedSafe, deploySalt: hexlify(r.salt) });
 
     showSuccess('Safe deployed');
-  };
+  }, [
+    combinedSafe,
+    deploySalt,
+    factory,
+    faucet,
+    groups,
+    setIsDeployed,
+    upsertSafe,
+    wallet,
+  ]);
 
-  return deploy;
+  return !isDeployed ? deploy : undefined;
 };

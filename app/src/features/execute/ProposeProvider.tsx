@@ -1,6 +1,4 @@
-import { showError } from '@components/ToastProvider';
 import { useSafe } from '@features/safe/SafeProvider';
-import { useIsDeployed } from '@features/safe/useIsDeployed';
 import { ChildrenProps } from '@util/children';
 import { callsToTxReq } from '@util/multicall';
 import { Address, hashTx, toId, CallDef } from 'lib';
@@ -55,22 +53,16 @@ export interface ActivityProviderProps extends ChildrenProps {}
 export const ProposeProvider = ({ children }: ActivityProviderProps) => {
   const { safe } = useSafe();
   const { txs } = useTxs();
-  const isDeployed = useIsDeployed();
 
   const [tx, setTx] = useState<ProposedTx | undefined>();
 
   const value: Context = useMemo(
     () => ({
       propose: async (...callDefs) => {
-        if (!isDeployed) {
-          showError('Deploy safe first');
-          return;
-        }
-
         setTx(await txReqToProposedTx(safe.address, callDefs));
       },
     }),
-    [isDeployed, safe.address],
+    [safe.address],
   );
 
   const matchingTx = useMemo(

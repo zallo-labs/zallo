@@ -3,7 +3,6 @@ import { TouchableOpacity } from 'react-native';
 import { Text, useTheme } from 'react-native-paper';
 
 import { Box } from '@components/Box';
-import { showError } from '@components/ToastProvider';
 import { MaterialIcons } from '@expo/vector-icons';
 
 type IconProps = Pick<
@@ -15,35 +14,23 @@ export interface HomeActionButtonProps {
   label: string;
   icon: FC<IconProps>;
   onClick: () => void;
-  disabled?: boolean | string;
 }
 
 export const HomeActionButton = ({
   icon: Icon,
   label,
-  onClick: onClickProp,
-  disabled,
+  onClick,
 }: HomeActionButtonProps) => {
   const { colors } = useTheme();
-
-  const color = disabled ? colors.placeholder : colors.primary;
-
-  const onClick = () => {
-    if (!disabled) {
-      onClickProp();
-    } else if (typeof disabled === 'string') {
-      showError({ text1: disabled });
-    }
-  };
 
   return (
     <Box mx={2}>
       <TouchableOpacity onPress={onClick}>
         <Box vertical center>
-          <Icon size={30} color={color} />
+          <Icon size={30} color={colors.primary} />
 
           <Box mt={2}>
-            <Text style={{ color }}>{label}</Text>
+            <Text style={{ color: colors.primary }}>{label}</Text>
           </Box>
         </Box>
       </TouchableOpacity>

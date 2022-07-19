@@ -2,7 +2,6 @@ import { AntDesign, MaterialCommunityIcons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 
 import { Box } from '@components/Box';
-import { useIsDeployed } from '@features/safe/useIsDeployed';
 import { useDeploySafe } from '@features/safe/useDeploySafe';
 import { HomeScreenProps } from '../HomeScreen';
 import { HomeActionButton } from './HomeActionButton';
@@ -11,21 +10,12 @@ import { ReceiveIcon, SendIcon } from '@util/icons';
 
 export const HomeActions = () => {
   const navigation = useNavigation<HomeScreenProps['navigation']>();
-  const isDeployed = useIsDeployed();
-  const deploySafe = useDeploySafe();
+  const deploy = useDeploySafe();
   const navigateToSend = useNavigateToSend();
-
-  const deployRequiredDisabled = (label: string) =>
-    !isDeployed && `Safe must be deployed to ${label}`;
 
   return (
     <Box horizontal>
-      <HomeActionButton
-        label="SEND"
-        icon={SendIcon}
-        onClick={navigateToSend}
-        disabled={deployRequiredDisabled('send')}
-      />
+      <HomeActionButton label="SEND" icon={SendIcon} onClick={navigateToSend} />
 
       <HomeActionButton
         label="RECEIVE"
@@ -33,13 +23,13 @@ export const HomeActions = () => {
         onClick={() => navigation.navigate('Receive')}
       />
 
-      {deploySafe && (
+      {deploy && (
         <HomeActionButton
           label="DEPLOY"
           icon={(props) => (
             <MaterialCommunityIcons name="rocket-launch" {...props} />
           )}
-          onClick={deploySafe}
+          onClick={deploy}
         />
       )}
 
@@ -49,7 +39,6 @@ export const HomeActions = () => {
         onClick={() => {
           // TODO:
         }}
-        disabled={deployRequiredDisabled('swap')}
       />
     </Box>
   );
