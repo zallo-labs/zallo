@@ -31,9 +31,9 @@ contract Safe is ISafe, EIP712, ERC165, ERC721Receiver {
     _upsertGroup(groupRef, approvers);
   }
 
-  fallback() external payable {}
-
   receive() external payable {}
+
+  fallback() external payable {}
 
   /// @inheritdoc ISafe
   function isValidSignature(bytes32 txHash, bytes memory txSignature)
