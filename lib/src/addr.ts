@@ -1,5 +1,5 @@
 import { ethers } from 'ethers';
-import 'zksync-web3';
+import * as zk from 'zksync-web3';
 
 export type Address = string & { readonly isAddress: true };
 
@@ -44,6 +44,7 @@ export const compareAddresses = (a: Address, b: Address) => {
 declare module './contracts' {
   export interface Safe {
     address: Address;
+    provider: zk.Provider,
   }
 
   export interface TestSafe {
