@@ -1,11 +1,13 @@
 {
   "search.exclude": {
-    "**/.git/**": true,
     "**/.expo/**": true,
-    "**/.yarn/**": true,
+    "**/.git/**": true,
     "**/.pnp.*": true,
+    "**/.yarn/**": true,
+    "**/dist/**": true,
     "**/node_modules/**": true,
-    "subgraph/data/**": true
+    "subgraph/data/**": true,
+    "yarn.lock": true
   },
   "files.watcherExclude": {
     "**/.git/**": true,
