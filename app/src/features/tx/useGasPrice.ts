@@ -15,7 +15,7 @@ const gasPrice = atom({
   effects: [
     refreshAtom({
       fetch,
-      fetchParams: [feeTokenAddr],
+      params: [feeTokenAddr],
       interval: 5 * 1000,
     }),
   ],
