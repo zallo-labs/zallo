@@ -8,10 +8,12 @@ import '@matterlabs/zksync-contracts/l2/system-contracts/Constants.sol';
 
 import './ISafe.sol';
 import './EIP712.sol';
+import './ERC165.sol';
+import './ERC721Receiver.sol';
 import {MerkleProof} from './utils/MerkleProof.sol';
 import {BoolArray} from './utils/BoolArray.sol';
 
-contract Safe is ISafe, EIP712 {
+contract Safe is ISafe, EIP712, ERC165, ERC721Receiver {
   using SignatureChecker for address;
   using MerkleProof for bytes32[];
 
@@ -29,9 +31,9 @@ contract Safe is ISafe, EIP712 {
     _upsertGroup(groupRef, approvers);
   }
 
-  fallback() external payable {}
-
   receive() external payable {}
+
+  fallback() external payable {}
 
   /// @inheritdoc ISafe
   function isValidSignature(bytes32 txHash, bytes memory txSignature)
