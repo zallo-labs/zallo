@@ -8,6 +8,8 @@ import {
   ApiTxsQueryVariables,
 } from '@gql/generated.api';
 import { useApiClient } from '@gql/GqlProvider';
+import assert from 'assert';
+import produce from 'immer';
 import { signTx, toId } from 'lib';
 import { DateTime } from 'luxon';
 import { useCallback } from 'react';
@@ -59,24 +61,20 @@ export const useApproveTx = () => {
 
           cache.writeQuery<ApiTxsQuery, ApiTxsQueryVariables>({
             ...opts,
-            data: {
-              txs: data.txs.map((tx) => {
-                if (tx.id !== approvedTxId) return tx;
+            data: produce(data, (data) => {
+              const i = data.txs.findIndex((t) => t.id === tx.id);
+              assert(i >= 0, 'Tx being approved exists');
 
-                return {
-                  ...tx,
-                  approvals: [
-                    ...(tx.approvals ?? []),
-                    {
-                      __typename: 'Approval',
-                      userId: wallet.address,
-                      createdAt: DateTime.now().toISO(),
-                      signature,
-                    },
-                  ],
-                };
-              }),
-            },
+              data.txs[i].approvals = [
+                ...(data.txs[i].approvals ?? []),
+                {
+                  __typename: 'Approval',
+                  userId: wallet.address,
+                  createdAt: DateTime.now().toISO(),
+                  signature,
+                },
+              ];
+            }),
           });
         },
         optimisticResponse: {

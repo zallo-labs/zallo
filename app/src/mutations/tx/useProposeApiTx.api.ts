@@ -9,6 +9,7 @@ import {
 } from '@gql/generated.api';
 import { useApiClient } from '@gql/GqlProvider';
 import { hexlify } from 'ethers/lib/utils';
+import produce from 'immer';
 import { createTx, hashTx, signTx, toId, TxDef } from 'lib';
 import { DateTime } from 'luxon';
 import { useCallback } from 'react';
@@ -67,7 +68,15 @@ export const useProposeApiTx = () => {
 
           cache.writeQuery<ApiTxsQuery, ApiTxsQueryVariables>({
             ...opts,
-            data: { ...data, txs: [...data.txs, proposedTx] },
+            data: produce(data, (data) => {
+              // The actual response will overwrite the optimistic response as the createdAt times will differ
+              const i = data.txs.findIndex((tx) => tx.id === proposedTx.id);
+              if (i >= 0) {
+                data.txs[i] = proposedTx;
+              } else {
+                data.txs.push(proposedTx);
+              }
+            }),
           });
         },
         optimisticResponse: {

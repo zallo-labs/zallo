@@ -13,6 +13,8 @@ import { useWallet } from '@features/wallet/useWallet';
 import { toId } from 'lib';
 import { API_GET_TXS_QUERY } from '~/queries/tx/useTxs.api';
 import { Tx } from '~/queries/tx';
+import produce from 'immer';
+import assert from 'assert';
 
 const MUTATION = gql`
   mutation RevokeApproval($safe: Address!, $txHash: Bytes32!) {
@@ -43,25 +45,21 @@ export const useRevokeApproval = () => {
         queryOpts,
       ) ?? { txs: [] };
 
-      const newTxs = [...data.txs];
-      const i = newTxs.findIndex((tx) => tx.id === revokedApproval.id);
-      if (i >= 0) {
-        const tx = newTxs[i];
-        const approvals = (tx.approvals ?? []).filter(
-          (a) => a.userId !== wallet.address,
-        );
-
-        if (approvals.length) {
-          newTxs[i] = { ...tx, approvals };
-        } else {
-          newTxs.splice(i, 1);
-        }
-      }
-
       cache.writeQuery<ApiTxsQuery, ApiTxsQueryVariables>({
         ...queryOpts,
         overwrite: true,
-        data: { txs: newTxs },
+        data: produce(data, (data) => {
+          const i = data.txs.findIndex((tx) => tx.id === revokedApproval.id);
+          assert(i >= 0, 'Tx being revoked exists');
+
+          // Revoke approval
+          data.txs[i].approvals = data.txs[i].approvals?.filter(
+            (a) => a.userId !== wallet.address,
+          );
+
+          // Revoke tx if it no longer has any approvals
+          if (!data.txs[i].approvals?.length) data.txs.splice(i, 1);
+        }),
       });
     },
   });

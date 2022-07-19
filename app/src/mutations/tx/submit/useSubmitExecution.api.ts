@@ -16,6 +16,8 @@ import {
   API_GET_TXS_QUERY,
 } from '~/queries/tx/useTxs.api';
 import { Tx } from '~/queries/tx';
+import produce from 'immer';
+import assert from 'assert';
 
 const MUTATION = gql`
   ${API_SUBMISSION_FIELDS}
@@ -61,20 +63,19 @@ export const useApiSubmitExecution = () => {
             queryOpts,
           ) ?? { txs: [] };
 
-          const newTxs = [...data.txs];
-
-          const i = newTxs.findIndex((t) => t.id === tx.id);
-          if (i >= 0) {
-            newTxs[i] = {
-              ...newTxs[i],
-              submissions: [...(newTxs[i].submissions ?? []), submission],
-            };
-          }
-
           cache.writeQuery<ApiTxsQuery, ApiTxsQueryVariables>({
             ...queryOpts,
             overwrite: true,
-            data: { txs: newTxs },
+            // data: { txs: newTxs },
+            data: produce(data, (data) => {
+              const i = data.txs.findIndex((t) => t.id === tx.id);
+              assert(i >= 0, 'Tx exists for submission');
+
+              data.txs[i].submissions = [
+                ...(data.txs[i].submissions ?? []),
+                submission,
+              ];
+            }),
           });
         },
         optimisticResponse: {
