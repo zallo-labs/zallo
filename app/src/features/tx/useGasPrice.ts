@@ -4,7 +4,7 @@ import { atom, selector, useRecoilValue } from 'recoil';
 import { PROVIDER } from '~/provider';
 import { feeTokenAddr } from './useFeeToken';
 
-const fetch = (feeToken: Address) => PROVIDER.getGasPrice();
+const fetch = (feeToken: Address) => PROVIDER.getGasPrice(feeToken);
 
 const gasPrice = atom({
   key: 'gasPrice',
