@@ -7,44 +7,45 @@ import {
 import '@matterlabs/zksync-contracts/l2/system-contracts/Constants.sol';
 
 import './ISafe.sol';
+import './Initializable.sol';
 import './EIP712.sol';
 import './ERC165.sol';
 import './ERC721Receiver.sol';
 import {MerkleProof} from './utils/MerkleProof.sol';
 import {BoolArray} from './utils/BoolArray.sol';
 
-contract Safe is ISafe, EIP712, ERC165, ERC721Receiver {
+contract Safe is ISafe, Initializable, EIP712, ERC165, ERC721Receiver {
   using SignatureChecker for address;
   using MerkleProof for bytes32[];
 
-  /* Storage */
-  /// @notice Bit map of executed txs
-  mapping(uint256 => uint256) _executedTxs;
+  /*//////////////////////////////////////////////////////////////
+                             INITIALIZATION
+  //////////////////////////////////////////////////////////////*/
 
-  /// @notice Merkle root of the state of each group
-  /// @dev groupRef => merkleRoot
-  /// @dev Leaves: [approver 1, ..., approver n]
-  mapping(bytes32 => bytes32) _groupMerkleRoots;
+  constructor() {
+    // Prevent the contract from being initialized, thereby only allowing use through a proxy
+    _preventInitialization();
+  }
 
-  /* External/public functions */
-  constructor(bytes32 groupRef, Approver[] memory approvers) {
+  function initialize(bytes32 groupRef, Approver[] memory approvers)
+    external
+    initializer
+  {
+    EIP712._initialize();
     _upsertGroup(groupRef, approvers);
   }
+
+  /*//////////////////////////////////////////////////////////////
+                                FALLBACK
+  //////////////////////////////////////////////////////////////*/
 
   receive() external payable {}
 
   fallback() external payable {}
 
-  /// @inheritdoc ISafe
-  function isValidSignature(bytes32 txHash, bytes memory txSignature)
-    external
-    view
-    override
-    returns (bytes4)
-  {
-    _validateSignature(txHash, txSignature);
-    return EIP1271_SUCCESS;
-  }
+  /*//////////////////////////////////////////////////////////////
+                          TRANSACTION HANDLING
+  //////////////////////////////////////////////////////////////*/
 
   /// @inheritdoc ISafe
   function validateTransaction(Transaction calldata transaction)
@@ -74,36 +75,6 @@ contract Safe is ISafe, EIP712, ERC165, ERC721Receiver {
     bytes32 txHash = _hashTx(transaction);
     _validateTransaction(txHash, transaction);
     _executeTransaction(txHash, transaction);
-  }
-
-  /// @inheritdoc ISafe
-  function upsertGroup(bytes32 groupRef, Approver[] calldata approvers)
-    external
-    onlySafe
-  {
-    _upsertGroup(groupRef, approvers);
-  }
-
-  /// @inheritdoc ISafe
-  function removeGroup(bytes32 groupRef) external onlySafe {
-    delete _groupMerkleRoots[groupRef];
-    emit GroupRemoved(groupRef);
-  }
-
-  /// @inheritdoc ISafe
-  function hasBeenExecuted(bytes32 txHash) public view returns (bool) {
-    uint256 index = uint256(txHash);
-    uint256 wordIndex = index / 256;
-    uint256 bitIndex = index % 256;
-    uint256 mask = (1 << bitIndex);
-    return _executedTxs[wordIndex] & mask == mask;
-  }
-
-  function _setExecuted(bytes32 txHash) internal {
-    uint256 index = uint256(txHash);
-    uint256 wordIndex = index / 256;
-    uint256 bitIndex = index % 256;
-    _executedTxs[wordIndex] = _executedTxs[wordIndex] | (1 << bitIndex);
   }
 
   function _validateTransaction(
@@ -145,6 +116,50 @@ contract Safe is ISafe, EIP712, ERC165, ERC721Receiver {
     emit TxExecuted(txHash, response);
   }
 
+  /*//////////////////////////////////////////////////////////////
+                            GROUP MANAGEMENT
+  //////////////////////////////////////////////////////////////*/
+
+  /// @inheritdoc ISafe
+  function upsertGroup(bytes32 groupRef, Approver[] calldata approvers)
+    external
+    onlySafe
+  {
+    _upsertGroup(groupRef, approvers);
+  }
+
+  /// @inheritdoc ISafe
+  function removeGroup(bytes32 groupRef) external onlySafe {
+    delete _groupMerkleRoots()[groupRef];
+    emit GroupRemoved(groupRef);
+  }
+
+  function _upsertGroup(bytes32 groupRef, Approver[] memory approvers)
+    internal
+  {
+    _satisfiesThreshold(approvers);
+
+    bytes32[] memory leaves = _getMerkleLeaves(approvers);
+    _groupMerkleRoots()[groupRef] = leaves.merkleRoot();
+
+    emit GroupUpserted(groupRef, approvers);
+  }
+
+  /*//////////////////////////////////////////////////////////////
+                          SIGNATURE VALIDATION
+  //////////////////////////////////////////////////////////////*/
+
+  /// @inheritdoc ISafe
+  function isValidSignature(bytes32 txHash, bytes memory txSignature)
+    external
+    view
+    override
+    returns (bytes4)
+  {
+    _validateSignature(txHash, txSignature);
+    return EIP1271_SUCCESS;
+  }
+
   function _validateSignature(bytes32 txHash, bytes memory txSignature)
     internal
     view
@@ -163,7 +178,7 @@ contract Safe is ISafe, EIP712, ERC165, ERC721Receiver {
     _validateSigners(txHash, approvers, signatures);
     _satisfiesThreshold(approvers);
     _verifyMultiProof(
-      _groupMerkleRoots[groupRef],
+      _groupMerkleRoots()[groupRef],
       proof,
       proofFlags,
       approvers
@@ -201,18 +216,44 @@ contract Safe is ISafe, EIP712, ERC165, ERC721Receiver {
     if (required > 0) revert BelowThreshold();
   }
 
+  /*//////////////////////////////////////////////////////////////
+                           GROUP MERKLE ROOTS
+  //////////////////////////////////////////////////////////////*/
+
+  // TODO: set mapping directly once "Invalid stack item name: slot" is fixed - https://github.com/ethereum/solidity/issues/13259
+  struct GroupMerkleRootsStruct {
+    mapping(bytes32 => bytes32) groupMerkleRoots;
+  }
+
+  /// @notice Merkle root of the state of each group
+  /// @dev groupRef => merkleRoot
+  /// @dev Leaves: [approver 1, ..., approver n]
+  function _groupMerkleRoots()
+    internal
+    view
+    returns (mapping(bytes32 => bytes32) storage)
+  {
+    GroupMerkleRootsStruct storage s;
+    assembly {
+      // keccack256('Safe.groupMerkleRoots')
+      s.slot := 0xed40d626ce12519ab37591279a85e0a52bfad0c2776563d70506f626f959d1d9
+    }
+
+    return s.groupMerkleRoots;
+  }
+
   function _verifyMultiProof(
     bytes32 root,
     bytes32[] memory proof,
     uint256[] memory proofFlags,
     Approver[] memory approvers
   ) internal pure {
-    bytes32[] memory leaves = _getLeaves(approvers);
+    bytes32[] memory leaves = _getMerkleLeaves(approvers);
     if (proof.processMultiProof(proofFlags, leaves) != root)
       revert InvalidProof();
   }
 
-  function _getLeaves(Approver[] memory approvers)
+  function _getMerkleLeaves(Approver[] memory approvers)
     internal
     pure
     returns (bytes32[] memory leaves)
@@ -231,16 +272,49 @@ contract Safe is ISafe, EIP712, ERC165, ERC721Receiver {
     }
   }
 
-  function _upsertGroup(bytes32 groupRef, Approver[] memory approvers)
-    internal
-  {
-    _satisfiesThreshold(approvers);
+  /*//////////////////////////////////////////////////////////////
+                          EXECUTED TRANSACTIONS
+  //////////////////////////////////////////////////////////////*/
 
-    bytes32[] memory leaves = _getLeaves(approvers);
-    _groupMerkleRoots[groupRef] = leaves.merkleRoot();
-
-    emit GroupUpserted(groupRef, approvers);
+  struct ExecutedTxsStruct {
+    mapping(uint256 => uint256) executedTxs;
   }
+
+  /// @notice Bit map of executed txs
+  function _executedTxs()
+    internal
+    view
+    returns (mapping(uint256 => uint256) storage executedTxs)
+  {
+    ExecutedTxsStruct storage s;
+    assembly {
+      // keccack256('Safe.executedTxs')
+      s.slot := 0x15ba30df93b4c3cb0ce8d6d46f0557ce67e35fa465f91b1e9f374907a64a201b
+    }
+    return s.executedTxs;
+  }
+
+  /// @inheritdoc ISafe
+  function hasBeenExecuted(bytes32 txHash) public view returns (bool) {
+    uint256 index = uint256(txHash);
+    uint256 wordIndex = index / 256;
+    uint256 bitIndex = index % 256;
+    uint256 mask = (1 << bitIndex);
+    return _executedTxs()[wordIndex] & mask == mask;
+  }
+
+  function _setExecuted(bytes32 txHash) internal {
+    uint256 index = uint256(txHash);
+    uint256 wordIndex = index / 256;
+    uint256 bitIndex = index % 256;
+
+    mapping(uint256 => uint256) storage executedTxs = _executedTxs();
+    executedTxs[wordIndex] = executedTxs[wordIndex] | (1 << bitIndex);
+  }
+
+  /*//////////////////////////////////////////////////////////////
+                                MODIFIERS
+  //////////////////////////////////////////////////////////////*/
 
   modifier onlyBootloader() {
     if (msg.sender != BOOTLOADER_FORMAL_ADDRESS)
