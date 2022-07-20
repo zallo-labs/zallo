@@ -7,14 +7,22 @@ import {
 import '@matterlabs/zksync-contracts/l2/system-contracts/Constants.sol';
 
 import './ISafe.sol';
+import './SelfOwned.sol';
 import './Initializable.sol';
-import './EIP712.sol';
+import './Upgradeable.sol';
 import './ERC165.sol';
 import './ERC721Receiver.sol';
 import {MerkleProof} from './utils/MerkleProof.sol';
 import {BoolArray} from './utils/BoolArray.sol';
 
-contract Safe is ISafe, Initializable, EIP712, ERC165, ERC721Receiver {
+contract Safe is
+  ISafe,
+  SelfOwned,
+  Initializable,
+  Upgradeable,
+  ERC165,
+  ERC721Receiver
+{
   using SignatureChecker for address;
   using MerkleProof for bytes32[];
 
@@ -31,7 +39,6 @@ contract Safe is ISafe, Initializable, EIP712, ERC165, ERC721Receiver {
     external
     initializer
   {
-    EIP712._initialize();
     _upsertGroup(groupRef, approvers);
   }
 
@@ -90,32 +97,6 @@ contract Safe is ISafe, Initializable, EIP712, ERC165, ERC721Receiver {
     _validateSignature(txHash, transaction.signature);
   }
 
-  function _executeTransaction(bytes32 txHash, Transaction calldata t)
-    internal
-  {
-    _setExecuted(txHash);
-
-    address to = address(uint160(t.to));
-    (bool success, bytes memory response) = to.call{value: t.reserved[1]}(
-      _getTransactionData(t)
-    );
-
-    if (!success) {
-      emit TxReverted(txHash, response);
-
-      if (response.length > 0) {
-        assembly {
-          let returndata_size := mload(response)
-          revert(add(32, response), returndata_size)
-        }
-      } else {
-        revert ExecutionReverted();
-      }
-    }
-
-    emit TxExecuted(txHash, response);
-  }
-
   /*//////////////////////////////////////////////////////////////
                             GROUP MANAGEMENT
   //////////////////////////////////////////////////////////////*/
@@ -123,13 +104,13 @@ contract Safe is ISafe, Initializable, EIP712, ERC165, ERC721Receiver {
   /// @inheritdoc ISafe
   function upsertGroup(bytes32 groupRef, Approver[] calldata approvers)
     external
-    onlySafe
+    onlySelf
   {
     _upsertGroup(groupRef, approvers);
   }
 
   /// @inheritdoc ISafe
-  function removeGroup(bytes32 groupRef) external onlySafe {
+  function removeGroup(bytes32 groupRef) external onlySelf {
     delete _groupMerkleRoots()[groupRef];
     emit GroupRemoved(groupRef);
   }
@@ -273,57 +254,12 @@ contract Safe is ISafe, Initializable, EIP712, ERC165, ERC721Receiver {
   }
 
   /*//////////////////////////////////////////////////////////////
-                          EXECUTED TRANSACTIONS
-  //////////////////////////////////////////////////////////////*/
-
-  struct ExecutedTxsStruct {
-    mapping(uint256 => uint256) executedTxs;
-  }
-
-  /// @notice Bit map of executed txs
-  function _executedTxs()
-    internal
-    view
-    returns (mapping(uint256 => uint256) storage executedTxs)
-  {
-    ExecutedTxsStruct storage s;
-    assembly {
-      // keccack256('Safe.executedTxs')
-      s.slot := 0x15ba30df93b4c3cb0ce8d6d46f0557ce67e35fa465f91b1e9f374907a64a201b
-    }
-    return s.executedTxs;
-  }
-
-  /// @inheritdoc ISafe
-  function hasBeenExecuted(bytes32 txHash) public view returns (bool) {
-    uint256 index = uint256(txHash);
-    uint256 wordIndex = index / 256;
-    uint256 bitIndex = index % 256;
-    uint256 mask = (1 << bitIndex);
-    return _executedTxs()[wordIndex] & mask == mask;
-  }
-
-  function _setExecuted(bytes32 txHash) internal {
-    uint256 index = uint256(txHash);
-    uint256 wordIndex = index / 256;
-    uint256 bitIndex = index % 256;
-
-    mapping(uint256 => uint256) storage executedTxs = _executedTxs();
-    executedTxs[wordIndex] = executedTxs[wordIndex] | (1 << bitIndex);
-  }
-
-  /*//////////////////////////////////////////////////////////////
                                 MODIFIERS
   //////////////////////////////////////////////////////////////*/
 
   modifier onlyBootloader() {
     if (msg.sender != BOOTLOADER_FORMAL_ADDRESS)
       revert OnlyCallableByBootloader();
-    _;
-  }
-
-  modifier onlySafe() {
-    if (msg.sender != address(this)) revert OnlyCallableBySafe();
     _;
   }
 }

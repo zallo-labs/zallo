@@ -24,13 +24,10 @@ struct Approver {
 
 interface ISafe is IERC1271, IAccountAbstraction {
   /* Events */
-  event TxExecuted(bytes32 txHash, bytes response);
-  event TxReverted(bytes32 txHash, bytes response);
   event GroupUpserted(bytes32 groupRef, Approver[] approvers);
   event GroupRemoved(bytes32 groupRef);
 
   /* Errors */
-  error ExecutionReverted();
   error ApproverSignaturesMismatch();
   error TxAlreadyExecuted();
   error InvalidSignature(address signer);
@@ -38,7 +35,6 @@ interface ISafe is IERC1271, IAccountAbstraction {
   error InvalidProof();
   error ApproverHashesNotAscending();
   error OnlyCallableByBootloader();
-  error OnlyCallableBySafe();
 
   /// @notice ERC-1271: checks whether the hash was signed with the given signature
   /// @param txHash Hash of the tx
@@ -81,8 +77,4 @@ interface ISafe is IERC1271, IAccountAbstraction {
   /// @dev Only callable by the safe
   /// @param groupRef Reference of the group to be removed
   function removeGroup(bytes32 groupRef) external;
-
-  /// @param txHash Hash of the transaction
-  /// @return True if the transaction has been executed
-  function hasBeenExecuted(bytes32 txHash) external view returns (bool);
 }
