@@ -10,6 +10,7 @@ import './ISafe.sol';
 import './SelfOwned.sol';
 import './Initializable.sol';
 import './Upgradeable.sol';
+import './TransactionExecutor.sol';
 import './ERC165.sol';
 import './ERC721Receiver.sol';
 import {MerkleProof} from './utils/MerkleProof.sol';
@@ -20,6 +21,7 @@ contract Safe is
   SelfOwned,
   Initializable,
   Upgradeable,
+  TransactionExecutor,
   ERC165,
   ERC721Receiver
 {
