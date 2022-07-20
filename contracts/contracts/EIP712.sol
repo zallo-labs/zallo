@@ -2,97 +2,49 @@
 pragma solidity ^0.8.0;
 
 import '@openzeppelin/contracts/utils/cryptography/ECDSA.sol';
-import '@matterlabs/zksync-contracts/l2/system-contracts/TransactionHelper.sol';
-
-import './ISafe.sol';
 
 /// @dev https://github.com/ethereum/EIPs/blob/master/EIPS/eip-712.md
-/// inspired by: https://github.com/OpenZeppelin/openzeppelin-contracts/blob/master/contracts/utils/cryptography/draft-EIP712.sol
-contract EIP712 {
+/// Inspired by: https://github.com/OpenZeppelin/openzeppelin-contracts/blob/master/contracts/utils/cryptography/draft-EIP712.sol
+abstract contract EIP712 {
   /*//////////////////////////////////////////////////////////////
                                 CONSTANTS
   //////////////////////////////////////////////////////////////*/
 
-  bytes32 private constant DOMAIN_TYPE_HASH =
+  bytes32 private constant _DOMAIN_TYPE_HASH =
     keccak256('EIP712Domain(uint256 chainId,address verifyingContract)');
 
-  bytes32 private constant TX_TYPE_HASH =
-    keccak256('Tx(address to,uint256 value,bytes data,bytes8 salt)');
+  uint256 private immutable _CACHED_CHAIN_ID;
+
+  bytes32 private immutable _CACHED_DOMAIN_SEPARATOR;
 
   /*//////////////////////////////////////////////////////////////
-                                 STORAGE
+                             INITIALIZATION
   //////////////////////////////////////////////////////////////*/
 
-  struct Cache {
-    uint256 chainId;
-    bytes32 domainSeparator;
-  }
-
-  function _cache() private pure returns (Cache storage cache) {
-    assembly {
-      // keccak256('EIP712.cache')
-      cache.slot := 0xf68dba10f18cdfecf8223ec52f26de948874e5e780caea01bb809a6e4c0e4d20
-    }
-  }
-
-  /*//////////////////////////////////////////////////////////////
-                               INITIALIZE
-  //////////////////////////////////////////////////////////////*/
-
-  function _initialize() internal {
-    _buildCachedDomainSeparator(_cache());
+  constructor() {
+    _CACHED_CHAIN_ID = block.chainid;
+    _CACHED_DOMAIN_SEPARATOR = _buildDomainSeparator();
   }
 
   /*//////////////////////////////////////////////////////////////
                            TYPED DATA HASHING
   //////////////////////////////////////////////////////////////*/
 
-  function _typedDataHash(bytes32 structHash) private returns (bytes32) {
+  function _typedDataHash(bytes32 structHash) internal view returns (bytes32) {
     return ECDSA.toTypedDataHash(_domainSeparator(), structHash);
   }
 
-  function _domainSeparator() internal returns (bytes32) {
+  function _domainSeparator() internal view returns (bytes32) {
     // Re-generate the domain separator in case of a chain fork
-    Cache storage cache = _cache();
-    if (block.chainid != cache.chainId) _buildCachedDomainSeparator(cache);
-
-    return cache.domainSeparator;
+    if (block.chainid == _CACHED_CHAIN_ID) {
+      return _CACHED_DOMAIN_SEPARATOR;
+    } else {
+      return _buildDomainSeparator();
+    }
   }
 
-  function _buildCachedDomainSeparator(Cache storage cache) internal {
-    cache.chainId = block.chainid;
-
-    cache.domainSeparator = keccak256(
-      abi.encode(DOMAIN_TYPE_HASH, block.chainid, address(this))
-    );
-  }
-
-  /*//////////////////////////////////////////////////////////////
-                           TRANSACTION HASHING
-  //////////////////////////////////////////////////////////////*/
-
-  function _hashTx(Transaction calldata t) internal returns (bytes32) {
-    (bytes8 salt, bytes memory data) = abi.decode(t.data, (bytes8, bytes));
-
-    bytes32 dataHash = keccak256(
-      abi.encode(
-        TX_TYPE_HASH,
-        t.to,
-        t.reserved[1], // value
-        keccak256(data),
-        salt
-      )
-    );
-
-    return _typedDataHash(dataHash);
-  }
-
-  function _getTransactionData(Transaction calldata t)
-    internal
-    pure
-    returns (bytes memory)
-  {
-    (, bytes memory data) = abi.decode(t.data, (bytes8, bytes));
-    return data;
+  function _buildDomainSeparator() private view returns (bytes32) {
+    return
+      keccak256(abi.encode(_DOMAIN_TYPE_HASH, block.chainid, address(this)));
   }
 }
