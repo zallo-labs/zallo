@@ -26,11 +26,15 @@ contract TestSafe is Safe {
     return _groupMerkleRoots()[groupRef];
   }
 
-  function hashTx(Transaction calldata transaction) external returns (bytes32) {
+  function hashTx(Transaction calldata transaction)
+    external
+    view
+    returns (bytes32)
+  {
     return _hashTx(transaction);
   }
 
-  function domainSeparator() external returns (bytes32) {
+  function domainSeparator() external view returns (bytes32) {
     return _domainSeparator();
   }
 
