@@ -2,7 +2,7 @@ import { gql, useQuery } from '@apollo/client';
 import { useWallet } from '@features/wallet/useWallet';
 import { UserSafesQuery } from '@gql/generated.api';
 import { useApiClient } from '@gql/GqlProvider';
-import { filterFirst, toId, address, getSafe } from 'lib';
+import { filterFirst, toId, address, connectSafe } from 'lib';
 import { CombinedGroup, CombinedSafe, QUERY_SAFES_POLL_INTERVAL } from '.';
 
 export const API_GROUP_FIELDS_FRAGMENT = gql`
@@ -75,7 +75,7 @@ export const useApiSafes = () => {
       })) ?? [];
 
     return {
-      safe: getSafe(s.id, wallet),
+      safe: connectSafe(s.id, wallet),
       name: s.name ?? '',
       deploySalt: s.deploySalt ?? undefined,
       groups,
