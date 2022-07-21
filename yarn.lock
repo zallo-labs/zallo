@@ -2349,17 +2349,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@ethersproject/bignumber@npm:^5.6.0":
-  version: 5.6.0
-  resolution: "@ethersproject/bignumber@npm:5.6.0"
-  dependencies:
-    "@ethersproject/bytes": ^5.6.0
-    "@ethersproject/logger": ^5.6.0
-    bn.js: ^4.11.9
-  checksum: cb1e0d712a1d991d7c74c66d34522413a2fd832e10bc15158b24e07f61e80a221689947936790334137c11c582f3f4d184d3ccf3036e09e4df1b2026923962b4
-  languageName: node
-  linkType: hard
-
 "@ethersproject/bytes@npm:5.6.1, @ethersproject/bytes@npm:>=5.0.0-beta.129, @ethersproject/bytes@npm:^5.0.4, @ethersproject/bytes@npm:^5.6.1":
   version: 5.6.1
   resolution: "@ethersproject/bytes@npm:5.6.1"
@@ -2369,7 +2358,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@ethersproject/bytes@npm:^5.0.0, @ethersproject/bytes@npm:^5.6.0":
+"@ethersproject/bytes@npm:^5.0.0":
   version: 5.6.0
   resolution: "@ethersproject/bytes@npm:5.6.0"
   dependencies:
@@ -3020,7 +3009,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@expo/metro-config@npm:0.3.21, @expo/metro-config@npm:~0.3.16, @expo/metro-config@npm:~0.3.7":
+"@expo/metro-config@npm:0.3.21, @expo/metro-config@npm:~0.3.16, @expo/metro-config@npm:~0.3.18, @expo/metro-config@npm:~0.3.7":
   version: 0.3.21
   resolution: "@expo/metro-config@npm:0.3.21"
   dependencies:
@@ -3405,9 +3394,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@graphprotocol/graph-cli@npm:0.32.0":
-  version: 0.32.0
-  resolution: "@graphprotocol/graph-cli@npm:0.32.0"
+"@graphprotocol/graph-cli@npm:0.33.0":
+  version: 0.33.0
+  resolution: "@graphprotocol/graph-cli@npm:0.33.0"
   dependencies:
     assemblyscript: 0.19.10
     binary-install-raw: 0.0.13
@@ -3436,7 +3425,7 @@ __metadata:
     yaml: 1.9.2
   bin:
     graph: bin/graph
-  checksum: a1af8c5c5efab1a46ef91e184101da0e96ed733f97179e1392ba051c6f75fba429eb07b78449c302a62fff5685d2de5766ae5774d4bbcb9e62bb14b5e617d248
+  checksum: adf4a2da0e420d76e1eb3ae45ecff11369c18d6e8f318cde2eb43939dd391ff856056c012c3ca2abd69351a59077dc3259ec1f83d01941128b07341a60a6a908
   languageName: node
   linkType: hard
 
@@ -4539,13 +4528,13 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@matterlabs/signature-checker@npm:^1.0.0":
-  version: 1.0.0
-  resolution: "@matterlabs/signature-checker@npm:1.0.0"
+"@matterlabs/signature-checker@npm:^1.1.0":
+  version: 1.1.0
+  resolution: "@matterlabs/signature-checker@npm:1.1.0"
   dependencies:
     "@matterlabs/hardhat-zksync-deploy": ^0.1.2
     "@matterlabs/hardhat-zksync-solc": ^0.2.1
-  checksum: 879d2c46d39544bef8a860990510398417a8643c9e9f6983f7ed8aa99cdc10ec35c855b48722db5965028d28481815623bb401267fa7131a38c25bb7d0392bb9
+  checksum: 88d8d684352d6cf07abf71c702a2dfef5237d12e710c3260f58aa18d17b54e76c791892d34dcfb56ee99612c0a836c54bc27509769ac0daaf38ed3a80d1588d4
   languageName: node
   linkType: hard
 
@@ -5224,28 +5213,28 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@openzeppelin/contracts-upgradeable@npm:^4.7.0":
-  version: 4.7.0
-  resolution: "@openzeppelin/contracts-upgradeable@npm:4.7.0"
-  checksum: 8966b38fa45a5c3fe313cff713d8cc0ba9f6a480a4d3c4032f5b05be5dd68c8bf0b215de8b0263c9e613856872e6e7edccfd33e00e68a307f88bec429361be7c
+"@openzeppelin/contracts-upgradeable@npm:^4.7.1":
+  version: 4.7.1
+  resolution: "@openzeppelin/contracts-upgradeable@npm:4.7.1"
+  checksum: ae6d0ec4d83f030735c2166607e6c179b712854195e6ab48db66dd9aedbdcf0caf2bb91293ab30197c2597e6a828aa99a7a528d0a4e01a56f20ee5e894b07971
   languageName: node
   linkType: hard
 
-"@openzeppelin/contracts@npm:^4.7.0":
-  version: 4.7.0
-  resolution: "@openzeppelin/contracts@npm:4.7.0"
-  checksum: ac917e668505ffbd300fcb00fd2f39b5f1153f77f82d482988336a881134b806b2d820f4293962691ef4d6f9f8ee5ecc71da82c6eb6ad2f02810511e90fa0d96
+"@openzeppelin/contracts@npm:^4.7.1":
+  version: 4.7.1
+  resolution: "@openzeppelin/contracts@npm:4.7.1"
+  checksum: 6377e978edb83dafd68e784d3e1334fc5a4adb9afcf855a44a66e1e8046c25894cb230e7dce54bdaa01f00a38248bb8d45780864a1f429e8ef9ffe666a005bf4
   languageName: node
   linkType: hard
 
-"@paljs/plugins@npm:^4.0.18":
-  version: 4.0.18
-  resolution: "@paljs/plugins@npm:4.0.18"
+"@paljs/plugins@npm:^4.1.0":
+  version: 4.1.0
+  resolution: "@paljs/plugins@npm:4.1.0"
   dependencies:
     "@paljs/types": ^4.0.18
     graphql-fields: 2.0.3
     graphql-tag: 2.12.6
-  checksum: 8983c2271e47da6ebaaabcd8e76509b5f3edd5c48450cbd72b17f02f1a575f7a1d34223f4f6f70dcce9b65a9ea58278be26fc571a00ca7d83b4abacca639309e
+  checksum: f03bacd0464235b31390a8171e571e0214636d915ca13cda802da20dc12e4bdbdaf36b74064aad2246f4c8cc84da24a05865de11e99c4d6e770c316e5bda577a
   languageName: node
   linkType: hard
 
@@ -5256,17 +5245,17 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@prisma/client@npm:^4.0.0":
-  version: 4.0.0
-  resolution: "@prisma/client@npm:4.0.0"
+"@prisma/client@npm:^4.1.0":
+  version: 4.1.0
+  resolution: "@prisma/client@npm:4.1.0"
   dependencies:
-    "@prisma/engines-version": 3.16.0-49.da41d2bb3406da22087b849f0e911199ba4fbf11
+    "@prisma/engines-version": 4.1.0-48.8d8414deb360336e4698a65aa45a1fbaf1ce13d8
   peerDependencies:
     prisma: "*"
   peerDependenciesMeta:
     prisma:
       optional: true
-  checksum: 93cd563881e15092303697e1c8177bcfaea6ec8f4ce48950f57bc9b74dd7ffd3929a8c5ad8130457fb8c1b889cad0799cbb928e39e2ebf37310daf41e9cb8312
+  checksum: bd722305284c633f9c1f8c92efb4db47ab8d47ce12384ed75b99880333f017a69f5ce65d546b306a0fe3a21e9d068e287ce96b4421c7b657e5b1c949673f8179
   languageName: node
   linkType: hard
 
@@ -5281,17 +5270,17 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@prisma/engines-version@npm:3.16.0-49.da41d2bb3406da22087b849f0e911199ba4fbf11":
-  version: 3.16.0-49.da41d2bb3406da22087b849f0e911199ba4fbf11
-  resolution: "@prisma/engines-version@npm:3.16.0-49.da41d2bb3406da22087b849f0e911199ba4fbf11"
-  checksum: edea5a5189bad83e4cfa4d98543d9d437ab0d505826d202415d5ed9ac893d1cd3e6b89b01ddfd059f61799945cc69c9b2b8e4bc7a93e1be0ac458ab1bc04ba93
+"@prisma/engines-version@npm:4.1.0-48.8d8414deb360336e4698a65aa45a1fbaf1ce13d8":
+  version: 4.1.0-48.8d8414deb360336e4698a65aa45a1fbaf1ce13d8
+  resolution: "@prisma/engines-version@npm:4.1.0-48.8d8414deb360336e4698a65aa45a1fbaf1ce13d8"
+  checksum: 6c2e937663439589412f5b5765abbae6aeed0df10640a9fdd5a8d39b77981e95b5b5871ed865e50ef8e4c150511f455d7b3acbf44cd3cae4a67732489dc58fec
   languageName: node
   linkType: hard
 
-"@prisma/engines@npm:3.16.0-49.da41d2bb3406da22087b849f0e911199ba4fbf11":
-  version: 3.16.0-49.da41d2bb3406da22087b849f0e911199ba4fbf11
-  resolution: "@prisma/engines@npm:3.16.0-49.da41d2bb3406da22087b849f0e911199ba4fbf11"
-  checksum: 0738eb730da2a4c6d77fb9f104a951731a975dd5ca7317637081c38f377c65b39f0a0b8db23ffe40390279f39aca2cde467aba14fb1acd6398ff01dc256f0033
+"@prisma/engines@npm:4.1.0":
+  version: 4.1.0
+  resolution: "@prisma/engines@npm:4.1.0"
+  checksum: b549d20b18d224388f267d92e9a53e4570064c74eff02bb7f2259cefdf060785a65c49afb5d6f897a3ab907a50425b0dff83ed06018ce5d465f0583a9dc4b893
   languageName: node
   linkType: hard
 
@@ -8745,8 +8734,8 @@ __metadata:
     "@nestjs/schematics": ^8.0.8
     "@nestjs/terminus": ^8.0.6
     "@nestjs/testing": ^8.4.1
-    "@paljs/plugins": ^4.0.18
-    "@prisma/client": ^4.0.0
+    "@paljs/plugins": ^4.1.0
+    "@prisma/client": ^4.1.0
     "@quixo3/prisma-session-store": ^3.1.8
     "@types/express": ^4.17.13
     "@types/express-session": ^1.17.4
@@ -8781,7 +8770,7 @@ __metadata:
     luxon: ^3.0.1
     nestjs-prisma: ^0.16.0
     prettier: ^2.6.0
-    prisma: ^4.0.0
+    prisma: ^4.1.0
     prisma-graphql-type-decimal: ^2.0.4
     prisma-nestjs-graphql: ^16.0.1
     reflect-metadata: ^0.1.13
@@ -8795,7 +8784,7 @@ __metadata:
     tsconfig-paths: ^3.14.0
     type-graphql: ^1.1.1
     typescript: ^4.7.4
-    zksync-web3: ^0.7.9
+    zksync-web3: ^0.7.11
   languageName: unknown
   linkType: soft
 
@@ -9257,7 +9246,7 @@ __metadata:
     expo-splash-screen: ~0.15.1
     expo-status-bar: ~1.3.0
     expo-updates: ~0.13.3
-    expo-yarn-workspaces: ^2.0.0
+    expo-yarn-workspaces: ^2.0.1
     formik: ^2.2.9
     fuzzy-search: ^3.2.1
     immer: ^9.0.15
@@ -9305,7 +9294,7 @@ __metadata:
     use-async-effect: ^2.2.6
     use-debounce: ^8.0.1
     yup: ^0.32.11
-    zksync-web3: ^0.7.9
+    zksync-web3: ^0.7.11
   languageName: unknown
   linkType: soft
 
@@ -12818,14 +12807,14 @@ __metadata:
   dependencies:
     "@matterlabs/hardhat-zksync-deploy": ^0.3.6
     "@matterlabs/hardhat-zksync-solc": ^0.3.6
-    "@matterlabs/signature-checker": ^1.0.0
+    "@matterlabs/signature-checker": ^1.1.0
     "@matterlabs/zksync-contracts": ^0.2.4
     "@nomiclabs/hardhat-ethers": ^2.0.6
     "@nomiclabs/hardhat-etherscan": ^3.1.0
     "@nomiclabs/hardhat-solhint": 2.0.1
     "@nomiclabs/hardhat-waffle": ^2.0.3
-    "@openzeppelin/contracts": ^4.7.0
-    "@openzeppelin/contracts-upgradeable": ^4.7.0
+    "@openzeppelin/contracts": ^4.7.1
+    "@openzeppelin/contracts-upgradeable": ^4.7.1
     "@typechain/ethers-v5": ^10.1.0
     "@typechain/hardhat": ^6.1.2
     "@types/chai": ^4.3.1
@@ -12855,13 +12844,13 @@ __metadata:
     merkletreejs: ^0.2.32
     prettier: ^2.7.1
     prettier-plugin-solidity: ^1.0.0-beta.19
-    solc: 0.8.13
+    solc: 0.8.15
     solhint: ^3.3.7
     solidity-coverage: ^0.7.21
     ts-node: ^10.8.1
     typechain: ^8.1.0
     typescript: ^4.7.4
-    zksync-web3: ^0.7.9
+    zksync-web3: ^0.7.11
   languageName: unknown
   linkType: soft
 
@@ -16461,11 +16450,11 @@ __metadata:
   languageName: node
   linkType: hard
 
-"expo-yarn-workspaces@npm:^2.0.0":
-  version: 2.0.0
-  resolution: "expo-yarn-workspaces@npm:2.0.0"
+"expo-yarn-workspaces@npm:^2.0.1":
+  version: 2.0.1
+  resolution: "expo-yarn-workspaces@npm:2.0.1"
   dependencies:
-    "@expo/metro-config": ~0.3.7
+    "@expo/metro-config": ~0.3.18
     "@expo/webpack-config": ~0.16.14
     debug: ^4.3.2
     find-yarn-workspace-root: ^2.0.0
@@ -16474,7 +16463,7 @@ __metadata:
     mkdirp: ^0.5.1
   bin:
     expo-yarn-workspaces: bin/expo-yarn-workspaces.js
-  checksum: 8b4c3180b7af05fdedbf2590a2607bd2a329fe6dfc2d77b637d38e58fb4d32d2fb467463933b4f0c08771d978d2da374c933c1dc33e365817d566530de911deb
+  checksum: b629adedeff0e5ced1ed89067e0e672ffca642f496bd57e3c2d40d98e52dcda480331eef41a2eb6fac1d0d79441825cbc17c19018cbb2bf8fb8cd9e73856513a
   languageName: node
   linkType: hard
 
@@ -22478,7 +22467,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "lib@workspace:lib"
   dependencies:
-    "@ethersproject/bignumber": ^5.6.0
+    "@ethersproject/bignumber": ^5.6.2
     "@matterlabs/hardhat-zksync-deploy": ^0.3.6
     "@typechain/ethers-v5": ^10.0.0
     "@types/jest": ^28.1.3
@@ -22490,7 +22479,7 @@ __metadata:
     ts-jest: ^28.0.5
     typechain: ^8.1.0
     typescript: ^4.7.4
-    zksync-web3: ^0.7.9
+    zksync-web3: ^0.7.11
   languageName: unknown
   linkType: soft
 
@@ -27082,15 +27071,15 @@ __metadata:
   languageName: node
   linkType: hard
 
-"prisma@npm:^4.0.0":
-  version: 4.0.0
-  resolution: "prisma@npm:4.0.0"
+"prisma@npm:^4.1.0":
+  version: 4.1.0
+  resolution: "prisma@npm:4.1.0"
   dependencies:
-    "@prisma/engines": 3.16.0-49.da41d2bb3406da22087b849f0e911199ba4fbf11
+    "@prisma/engines": 4.1.0
   bin:
     prisma: build/index.js
     prisma2: build/index.js
-  checksum: aef399c6b265fe892112ffc3ade0e5e50804fef982c4162f976a9c370e09e17235541a6f371255ec6c2ada332ef8b8db5e21f0f47f09befed133984a0c00f0c0
+  checksum: c566f03e8d0547c42fa8fe67f772c477dc68993654347434aac5317a2a1799470dedabdbc428a7d48375f8930e0fcd6c41e9a0d85686315ff7bfcdf3f73a9d56
   languageName: node
   linkType: hard
 
@@ -30177,9 +30166,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"solc@npm:0.8.13":
-  version: 0.8.13
-  resolution: "solc@npm:0.8.13"
+"solc@npm:0.8.15":
+  version: 0.8.15
+  resolution: "solc@npm:0.8.15"
   dependencies:
     command-exists: ^1.2.8
     commander: ^8.1.0
@@ -30190,7 +30179,7 @@ __metadata:
     tmp: 0.0.33
   bin:
     solcjs: solc.js
-  checksum: 210a012155a29017f2c6c56a7a0e1e46658b2da75fb99341677a69955b87d90e09810570461012ca89007288a2e9245d033a30d8f5baf599c7b60c0a30b119ba
+  checksum: a11de198bc5d481485a4a4803fb08a81a56dd9ffa7cdc62f8d6d5fc669f72e7cb4b22789004d54481353463421f6e6e3d1dffe7365b6d0ed5f37baee303266db
   languageName: node
   linkType: hard
 
@@ -31094,7 +31083,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "subgraph@workspace:subgraph"
   dependencies:
-    "@graphprotocol/graph-cli": 0.32.0
+    "@graphprotocol/graph-cli": 0.33.0
     "@graphprotocol/graph-ts": 0.27.0
     mustache: ^4.2.0
   languageName: unknown
@@ -35152,11 +35141,11 @@ __metadata:
   languageName: node
   linkType: hard
 
-"zksync-web3@npm:^0.7.9":
-  version: 0.7.10
-  resolution: "zksync-web3@npm:0.7.10"
+"zksync-web3@npm:^0.7.11":
+  version: 0.7.11
+  resolution: "zksync-web3@npm:0.7.11"
   peerDependencies:
     ethers: ~5.5.0
-  checksum: aecde1737a646499b4cac4ef681db325e6bca9bec8efcc11ea8e88f7477bfb62f19c8933e78099ea6f88d346cf0112df5794155b767eb099576f7a89d02138c8
+  checksum: bae8adfefed929077e2f89aa7c8ba8f7f84180ac0754ef3a265d1f4c505b3286bce85c53de58052ad3b7d49a6c93db30d30207a61de15e2f716782fe1d8b6992
   languageName: node
   linkType: hard
