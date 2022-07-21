@@ -4,20 +4,20 @@ pragma solidity ^0.8.0;
 import '@matterlabs/zksync-contracts/l2/system-contracts/Constants.sol';
 
 contract Factory {
-  bytes32 public immutable _safeBytecodeHash;
+  bytes32 public immutable _BYTECODE_HASH;
 
-  constructor(bytes32 safeBytecodeHash) {
-    _safeBytecodeHash = safeBytecodeHash;
+  constructor(bytes32 bytecodeHash) {
+    _BYTECODE_HASH = bytecodeHash;
   }
 
-  function deploySafe(bytes32 salt, bytes calldata constructorArgsData)
+  function deploy(bytes32 salt, bytes calldata constructorArgsData)
     external
     returns (address)
   {
     return
       DEPLOYER_SYSTEM_CONTRACT.create2AA(
         salt,
-        _safeBytecodeHash,
+        _BYTECODE_HASH,
         0,
         constructorArgsData
       );
