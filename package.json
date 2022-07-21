@@ -37,7 +37,8 @@
   },
   "resolutions": {
     "graphql": "^15.8.0",
-    "react-native-jazzicon@0.1.2": "patch:react-native-jazzicon@npm:0.1.2#.yarn/patches/react-native-jazzicon-npm-0.1.2-c1633b051f.patch"
+    "react-native-jazzicon@0.1.2": "patch:react-native-jazzicon@npm:0.1.2#.yarn/patches/react-native-jazzicon-npm-0.1.2-c1633b051f.patch",
+    "@types/react": "17.x"
   },
   "dependencies": {
     "node-gyp": "^9.1.0"
