@@ -172,12 +172,12 @@ contract Safe is
     bytes32 txHash,
     Approver[] memory approvers,
     bytes[] memory signatures
-  ) internal pure {
+  ) internal view {
     if (approvers.length != signatures.length)
       revert ApproverSignaturesMismatch();
 
     for (uint256 i = 0; i < approvers.length; ) {
-      if (!approvers[i].addr.checkSignature(txHash, signatures[i]))
+      if (!approvers[i].addr.isValidSignatureNow(txHash, signatures[i]))
         revert InvalidSignature(approvers[i].addr);
 
       unchecked {
