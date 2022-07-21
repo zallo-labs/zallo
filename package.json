@@ -29,11 +29,11 @@
     "yarn": "3.x"
   },
   "devDependencies": {
-    "@types/node": "^16.11.45",
-    "@typescript-eslint/eslint-plugin": "^5.30.7",
-    "@typescript-eslint/parser": "^5.30.7",
-    "eslint": "^8.20.0",
-    "eslint-plugin-react-hooks": "^4.6.0"
+    "@types/node": "^16.11.7",
+    "@typescript-eslint/eslint-plugin": "^5.15.0",
+    "@typescript-eslint/parser": "^5.15.0",
+    "eslint": "^8.11.0",
+    "eslint-plugin-react-hooks": "^4.5.0"
   },
   "resolutions": {
     "graphql": "^15.8.0",
