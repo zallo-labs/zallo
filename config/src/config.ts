@@ -1,5 +1,5 @@
 import { ChainName, getChain } from './chain';
-import { FACTORY, MULTICALL } from './contracts';
+import { PROXY_FACTORY, MULTICALL, SAFE_IMPL } from './contracts';
 
 try {
   require('dotenv').config({ path: '../.env' });
@@ -37,7 +37,8 @@ export const CONFIG = {
   },
   sessionSecret: E.SESSION_SECRET,
   subgraphGqlUrl: E.SUBGRAPH_GQL_URL,
-  factoryAddress: FACTORY[chain.name],
+  safeImplAddress: SAFE_IMPL[chain.name],
+  proxyFactoryAddress: PROXY_FACTORY[chain.name],
   multicallAddress: MULTICALL[chain.name],
   sentry: {
     dsn: E.SENTRY_DSN,

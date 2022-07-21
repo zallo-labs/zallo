@@ -4,7 +4,7 @@
  */
 import 'react-native-get-random-values';
 import '@ethersproject/shims';
-import { ethers } from 'ethers';
+import 'ethers';
 import { LogBox, Platform } from 'react-native';
 import * as zk from 'zksync-web3';
 import { CONFIG } from '~/config';
@@ -12,6 +12,7 @@ import { Logger } from 'ethers/lib/utils';
 import { captureEvent } from '@util/sentry/sentry';
 import { LogLevel } from '@ethersproject/logger';
 import { SeverityLevel } from '@sentry/browser';
+import { address } from 'lib';
 
 // Ethers uses long timers; these tasks WON'T be executed when the app is in the background but will resume once re-opened
 if (Platform.OS !== 'web') LogBox.ignoreLogs(['Setting a timer']);
@@ -20,6 +21,8 @@ export const CHAIN = CONFIG.chain;
 
 export const PROVIDER = new zk.Provider(CHAIN.zksyncUrl);
 // export const ETH_PROVIDER = ethers.getDefaultProvider(CHAIN.ethUrl);
+
+export const SAFE_IMPL = address(CONFIG.safeImplAddress!);
 
 const ethersLevelToSentrySeverity = (level: LogLevel): SeverityLevel => {
   switch (level) {

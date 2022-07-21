@@ -4,7 +4,6 @@ import {
   execute,
   deploy,
   deployer,
-  USDC,
   provider as provider,
   toSafeTransaction,
   wallet,
@@ -15,9 +14,7 @@ describe('executeTransaction', () => {
   let tester: Tester;
   before(async () => {
     const artifact = await deployer.loadArtifact('Tester');
-    tester = (await deployer.deploy(artifact, [], {
-      customData: { feeToken: USDC },
-    })) as Tester;
+    tester = (await deployer.deploy(artifact, [], {})) as Tester;
     await tester.deployed();
   });
 

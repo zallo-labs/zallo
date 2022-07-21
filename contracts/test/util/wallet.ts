@@ -10,8 +10,9 @@ export const allSigners = localWallets.map(
   (w) => new zk.Wallet(w.privateKey, provider),
 );
 
-export const wallet = CONFIG.wallet.privateKey
-  ? new zk.Wallet(CONFIG.wallet.privateKey, provider)
-  : allSigners[0];
+export const wallet =
+  CONFIG.chain.name === 'local'
+    ? allSigners[0]
+    : new zk.Wallet(CONFIG.wallet.privateKey!, provider);
 
 export const USDC = address('0x54a14D7559BAF2C8e8Fa504E019d32479739018c');

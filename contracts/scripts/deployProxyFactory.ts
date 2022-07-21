@@ -1,8 +1,8 @@
-import { deployFactory } from '../test/util/deploy';
+import { deployFactory } from '../test/util';
 import { displayTx } from './display';
 
 const main = async () => {
-  const { factory, deployTx } = await deployFactory();
+  const { factory, deployTx } = await deployFactory('ERC1967Proxy');
 
   await displayTx(factory.address, deployTx);
 };

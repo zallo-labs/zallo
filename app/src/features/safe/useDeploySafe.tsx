@@ -1,12 +1,12 @@
-import { deploySafe } from 'lib';
+import { deploySafeProxy } from 'lib';
 import { useSafe } from '@features/safe/SafeProvider';
 import { showInfo, showSuccess } from '@components/ToastProvider';
 import { isDeployedState, useIsDeployed } from './useIsDeployed';
 import { useSetRecoilState } from 'recoil';
-import { useSafeFactory } from './useSafeFactory';
+import { useSafeProxyFactory } from './useSafeProxyFactory';
 import { hexlify, parseEther } from 'ethers/lib/utils';
 import { useWallet } from '@features/wallet/useWallet';
-import { CHAIN } from '~/provider';
+import { CHAIN, SAFE_IMPL } from '~/provider';
 import { useFaucet } from '~/mutations/useFacuet.api';
 import { useUpsertSafe } from '~/mutations/useUpsertSafe.api';
 import { useCallback } from 'react';
@@ -17,7 +17,7 @@ export const useDeploySafe = () => {
   const combinedSafe = useSafe();
   const { groups, deploySalt, safe } = combinedSafe;
   const isDeployed = useIsDeployed();
-  const factory = useSafeFactory();
+  const factory = useSafeProxyFactory();
   const upsertSafe = useUpsertSafe();
   const setIsDeployed = useSetRecoilState(isDeployedState(safe.address));
   const wallet = useWallet();
@@ -32,11 +32,11 @@ export const useDeploySafe = () => {
     }
 
     const group = groups[0];
-    const r = await deploySafe({
+    const r = await deploySafeProxy(
+      { group, impl: SAFE_IMPL },
       factory,
-      args: { group },
-      salt: deploySalt,
-    });
+      deploySalt,
+    );
     await r.safe.deployed();
 
     setIsDeployed(true);

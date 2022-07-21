@@ -1,4 +1,17 @@
-export * from './contracts';
+export {
+  Safe,
+  Safe__factory,
+  Factory,
+  Factory__factory,
+  ERC1967Proxy as SafeProxy,
+  ERC1967Proxy__factory as SafeProxy__factory,
+  Upgradeable,
+  Multicall,
+  Multicall__factory,
+  TestSafe,
+  TestSafe__factory,
+  Tester,
+} from './contracts';
 export { Erc20, Erc20__factory } from './typechain';
 
 export * from './util/arrays';
@@ -16,6 +29,7 @@ export * from './execute';
 export * from './group';
 export * from './id';
 export * from './merkle';
-export * from './tx';
 export * from './signature';
+export * from './tx';
+export * from './upgrade';
 export * from './weight';

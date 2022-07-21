@@ -44,14 +44,19 @@ export const compareAddresses = (a: Address, b: Address) => {
 declare module './contracts' {
   export interface Safe {
     address: Address;
-    provider: zk.Provider,
+    provider: zk.Provider;
   }
 
   export interface TestSafe {
     address: Address;
+    provider: zk.Provider;
   }
 
   export interface Factory {
+    address: Address;
+  }
+
+  export interface Upgradeable {
     address: Address;
   }
 

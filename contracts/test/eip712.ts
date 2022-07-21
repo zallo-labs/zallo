@@ -1,5 +1,5 @@
 import { ethers } from 'ethers';
-import { address, createTx, getDomain, hashTx } from 'lib';
+import { createTx, getDomain, hashTx } from 'lib';
 import { deployTestSafe, expect, toSafeTransaction, wallet } from './util';
 
 describe('EIP712', () => {
@@ -7,9 +7,9 @@ describe('EIP712', () => {
     const { safe } = await deployTestSafe();
 
     const expected = ethers.utils._TypedDataEncoder.hashDomain(
-      await getDomain(address(safe.address)),
+      await getDomain(safe),
     );
-    const actual = await safe.callStatic.domainSeparator();
+    const actual = await safe.domainSeparator();
 
     expect(actual).to.eq(expected);
   });
@@ -19,8 +19,8 @@ describe('EIP712', () => {
 
     const tx = createTx({ to: wallet.address });
 
-    const expected = await hashTx(address(safe.address), tx);
-    const actual = await safe.callStatic.hashTx(toSafeTransaction(safe, tx));
+    const expected = await hashTx(safe.address, tx);
+    const actual = await safe.hashTx(toSafeTransaction(safe, tx));
 
     expect(actual).to.eq(expected);
   });

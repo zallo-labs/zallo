@@ -3,7 +3,7 @@ import { expect, deploy, deployFactory } from './util';
 
 describe('Factory', () => {
   it('Deploys', async () => {
-    await deployFactory();
+    await deployFactory('ERC1967Proxy');
   });
 
   it('Calculated address matches deploy', async () => {
