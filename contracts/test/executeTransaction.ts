@@ -1,12 +1,16 @@
-import { createTx, createTxSignature, hashTx, Tester } from 'lib';
+import {
+  createTx,
+  hashTx,
+  Tester,
+  toTransactionRequest,
+  toTransactionStruct,
+} from 'lib';
 import {
   expect,
   execute,
   deploy,
   deployer,
-  USDC,
   provider as provider,
-  toSafeTransaction,
   wallet,
   getSigners,
 } from './util';
@@ -15,9 +19,7 @@ describe('executeTransaction', () => {
   let tester: Tester;
   before(async () => {
     const artifact = await deployer.loadArtifact('Tester');
-    tester = (await deployer.deploy(artifact, [], {
-      customData: { feeToken: USDC },
-    })) as Tester;
+    tester = (await deployer.deploy(artifact, [], {})) as Tester;
     await tester.deployed();
   });
 
@@ -26,11 +28,9 @@ describe('executeTransaction', () => {
 
     const tx = createTx({ to: wallet.address });
     const signers = await getSigners(safe, group.approvers, tx);
+    const txReq = await toTransactionRequest(safe, tx, group, signers);
 
-    const txResp = safe.executeTransaction({
-      ...toSafeTransaction(safe, tx),
-      signature: createTxSignature(group, signers),
-    });
+    const txResp = safe.executeTransaction(toTransactionStruct(txReq));
 
     await expect(txResp).to.be.reverted;
   });

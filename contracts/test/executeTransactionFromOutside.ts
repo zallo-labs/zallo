@@ -1,8 +1,7 @@
-import { createTx, createTxSignature } from 'lib';
+import { createTx, toTransactionRequest, toTransactionStruct } from 'lib';
 import {
   deploy,
   allSigners,
-  toSafeTransaction,
   provider,
   getSigners,
   wallet,
@@ -19,11 +18,11 @@ describe('executeTransactionFromOutside', () => {
     const preBalance = await provider.getBalance(to);
 
     const signers = await getSigners(safe, group.approvers, tx);
-    const signature = createTxSignature(group, signers);
+    const txReq = await toTransactionRequest(safe, tx, group, signers);
 
     const txResp = await safe
       .connect(wallet)
-      .executeTransactionFromOutside(toSafeTransaction(safe, tx, signature));
+      .executeTransactionFromOutside(toTransactionStruct(txReq));
 
     await txResp.wait();
 

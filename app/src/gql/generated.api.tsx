@@ -15,6 +15,7 @@ export type Scalars = {
   Float: number;
   Address: any;
   Bytes: any;
+  Bytes8: any;
   Bytes32: any;
   DateTime: any;
   Decimal: any;
@@ -1251,6 +1252,7 @@ export type MutationUpsertGroupArgs = {
 export type MutationUpsertSafeArgs = {
   deploySalt?: InputMaybe<Scalars['Bytes32']>;
   groups?: InputMaybe<Array<GroupInput>>;
+  impl?: InputMaybe<Scalars['Address']>;
   name?: InputMaybe<Scalars['String']>;
   safe: Scalars['Address'];
 };
@@ -1751,6 +1753,7 @@ export type Safe = {
   deploySalt?: Maybe<Scalars['String']>;
   groups?: Maybe<Array<Group>>;
   id: Scalars['ID'];
+  impl?: Maybe<Scalars['String']>;
   name: Scalars['String'];
   reactions?: Maybe<Array<Reaction>>;
   txs?: Maybe<Array<Tx>>;
@@ -1825,6 +1828,7 @@ export type SafeCreateWithoutApprovalsInput = {
   deploySalt?: InputMaybe<Scalars['String']>;
   groups?: InputMaybe<GroupCreateNestedManyWithoutSafeInput>;
   id: Scalars['String'];
+  impl?: InputMaybe<Scalars['String']>;
   name?: InputMaybe<Scalars['String']>;
   reactions?: InputMaybe<ReactionCreateNestedManyWithoutSafeInput>;
   txs?: InputMaybe<TxCreateNestedManyWithoutSafeInput>;
@@ -1835,6 +1839,7 @@ export type SafeCreateWithoutCommentsInput = {
   deploySalt?: InputMaybe<Scalars['String']>;
   groups?: InputMaybe<GroupCreateNestedManyWithoutSafeInput>;
   id: Scalars['String'];
+  impl?: InputMaybe<Scalars['String']>;
   name?: InputMaybe<Scalars['String']>;
   reactions?: InputMaybe<ReactionCreateNestedManyWithoutSafeInput>;
   txs?: InputMaybe<TxCreateNestedManyWithoutSafeInput>;
@@ -1845,6 +1850,7 @@ export type SafeCreateWithoutGroupsInput = {
   comments?: InputMaybe<CommentCreateNestedManyWithoutSafeInput>;
   deploySalt?: InputMaybe<Scalars['String']>;
   id: Scalars['String'];
+  impl?: InputMaybe<Scalars['String']>;
   name?: InputMaybe<Scalars['String']>;
   reactions?: InputMaybe<ReactionCreateNestedManyWithoutSafeInput>;
   txs?: InputMaybe<TxCreateNestedManyWithoutSafeInput>;
@@ -1856,6 +1862,7 @@ export type SafeCreateWithoutReactionsInput = {
   deploySalt?: InputMaybe<Scalars['String']>;
   groups?: InputMaybe<GroupCreateNestedManyWithoutSafeInput>;
   id: Scalars['String'];
+  impl?: InputMaybe<Scalars['String']>;
   name?: InputMaybe<Scalars['String']>;
   txs?: InputMaybe<TxCreateNestedManyWithoutSafeInput>;
 };
@@ -1866,6 +1873,7 @@ export type SafeCreateWithoutTxsInput = {
   deploySalt?: InputMaybe<Scalars['String']>;
   groups?: InputMaybe<GroupCreateNestedManyWithoutSafeInput>;
   id: Scalars['String'];
+  impl?: InputMaybe<Scalars['String']>;
   name?: InputMaybe<Scalars['String']>;
   reactions?: InputMaybe<ReactionCreateNestedManyWithoutSafeInput>;
 };
@@ -1876,6 +1884,7 @@ export type SafeOrderByWithRelationInput = {
   deploySalt?: InputMaybe<SortOrder>;
   groups?: InputMaybe<GroupOrderByRelationAggregateInput>;
   id?: InputMaybe<SortOrder>;
+  impl?: InputMaybe<SortOrder>;
   name?: InputMaybe<SortOrder>;
   reactions?: InputMaybe<ReactionOrderByRelationAggregateInput>;
   txs?: InputMaybe<TxOrderByRelationAggregateInput>;
@@ -1889,6 +1898,7 @@ export type SafeRelationFilter = {
 export enum SafeScalarFieldEnum {
   DeploySalt = 'deploySalt',
   Id = 'id',
+  Impl = 'impl',
   Name = 'name'
 }
 
@@ -1937,6 +1947,7 @@ export type SafeUpdateWithoutApprovalsInput = {
   deploySalt?: InputMaybe<NullableStringFieldUpdateOperationsInput>;
   groups?: InputMaybe<GroupUpdateManyWithoutSafeNestedInput>;
   id?: InputMaybe<StringFieldUpdateOperationsInput>;
+  impl?: InputMaybe<NullableStringFieldUpdateOperationsInput>;
   name?: InputMaybe<StringFieldUpdateOperationsInput>;
   reactions?: InputMaybe<ReactionUpdateManyWithoutSafeNestedInput>;
   txs?: InputMaybe<TxUpdateManyWithoutSafeNestedInput>;
@@ -1947,6 +1958,7 @@ export type SafeUpdateWithoutCommentsInput = {
   deploySalt?: InputMaybe<NullableStringFieldUpdateOperationsInput>;
   groups?: InputMaybe<GroupUpdateManyWithoutSafeNestedInput>;
   id?: InputMaybe<StringFieldUpdateOperationsInput>;
+  impl?: InputMaybe<NullableStringFieldUpdateOperationsInput>;
   name?: InputMaybe<StringFieldUpdateOperationsInput>;
   reactions?: InputMaybe<ReactionUpdateManyWithoutSafeNestedInput>;
   txs?: InputMaybe<TxUpdateManyWithoutSafeNestedInput>;
@@ -1957,6 +1969,7 @@ export type SafeUpdateWithoutGroupsInput = {
   comments?: InputMaybe<CommentUpdateManyWithoutSafeNestedInput>;
   deploySalt?: InputMaybe<NullableStringFieldUpdateOperationsInput>;
   id?: InputMaybe<StringFieldUpdateOperationsInput>;
+  impl?: InputMaybe<NullableStringFieldUpdateOperationsInput>;
   name?: InputMaybe<StringFieldUpdateOperationsInput>;
   reactions?: InputMaybe<ReactionUpdateManyWithoutSafeNestedInput>;
   txs?: InputMaybe<TxUpdateManyWithoutSafeNestedInput>;
@@ -1968,6 +1981,7 @@ export type SafeUpdateWithoutReactionsInput = {
   deploySalt?: InputMaybe<NullableStringFieldUpdateOperationsInput>;
   groups?: InputMaybe<GroupUpdateManyWithoutSafeNestedInput>;
   id?: InputMaybe<StringFieldUpdateOperationsInput>;
+  impl?: InputMaybe<NullableStringFieldUpdateOperationsInput>;
   name?: InputMaybe<StringFieldUpdateOperationsInput>;
   txs?: InputMaybe<TxUpdateManyWithoutSafeNestedInput>;
 };
@@ -1978,6 +1992,7 @@ export type SafeUpdateWithoutTxsInput = {
   deploySalt?: InputMaybe<NullableStringFieldUpdateOperationsInput>;
   groups?: InputMaybe<GroupUpdateManyWithoutSafeNestedInput>;
   id?: InputMaybe<StringFieldUpdateOperationsInput>;
+  impl?: InputMaybe<NullableStringFieldUpdateOperationsInput>;
   name?: InputMaybe<StringFieldUpdateOperationsInput>;
   reactions?: InputMaybe<ReactionUpdateManyWithoutSafeNestedInput>;
 };
@@ -2016,6 +2031,7 @@ export type SafeWhereInput = {
   deploySalt?: InputMaybe<StringNullableFilter>;
   groups?: InputMaybe<GroupListRelationFilter>;
   id?: InputMaybe<StringFilter>;
+  impl?: InputMaybe<StringNullableFilter>;
   name?: InputMaybe<StringFilter>;
   reactions?: InputMaybe<ReactionListRelationFilter>;
   txs?: InputMaybe<TxListRelationFilter>;
@@ -2295,7 +2311,7 @@ export type TxCreateWithoutSafeInput = {
 
 export type TxInput = {
   data: Scalars['Bytes'];
-  salt: Scalars['Bytes32'];
+  salt: Scalars['Bytes8'];
   to: Scalars['Address'];
   value: Scalars['Uint256'];
 };
@@ -2753,21 +2769,22 @@ export type UseFaucetMutation = { __typename?: 'Mutation', requestFunds: boolean
 export type UpsertSafeMutationVariables = Exact<{
   safe: Scalars['Address'];
   deploySalt?: InputMaybe<Scalars['Bytes32']>;
+  impl?: InputMaybe<Scalars['Address']>;
   name: Scalars['String'];
   groups?: InputMaybe<Array<GroupInput> | GroupInput>;
 }>;
 
 
-export type UpsertSafeMutation = { __typename?: 'Mutation', upsertSafe: { __typename?: 'Safe', id: string, name: string, deploySalt?: string | null, groups?: Array<{ __typename?: 'Group', id: string, ref: string, safeId: string, name: string, approvers?: Array<{ __typename?: 'Approver', userId: string, weight: any }> | null }> | null } };
+export type UpsertSafeMutation = { __typename?: 'Mutation', upsertSafe: { __typename?: 'Safe', id: string, name: string, deploySalt?: string | null, impl?: string | null, groups?: Array<{ __typename?: 'Group', id: string, ref: string, safeId: string, name: string, approvers?: Array<{ __typename?: 'Approver', userId: string, weight: any }> | null }> | null } };
 
 export type GroupFieldsFragment = { __typename?: 'Group', id: string, ref: string, safeId: string, name: string, approvers?: Array<{ __typename?: 'Approver', userId: string, weight: any }> | null };
 
-export type SafeFieldsFragment = { __typename?: 'Safe', id: string, name: string, deploySalt?: string | null, groups?: Array<{ __typename?: 'Group', id: string, ref: string, safeId: string, name: string, approvers?: Array<{ __typename?: 'Approver', userId: string, weight: any }> | null }> | null };
+export type SafeFieldsFragment = { __typename?: 'Safe', id: string, name: string, deploySalt?: string | null, impl?: string | null, groups?: Array<{ __typename?: 'Group', id: string, ref: string, safeId: string, name: string, approvers?: Array<{ __typename?: 'Approver', userId: string, weight: any }> | null }> | null };
 
 export type UserSafesQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type UserSafesQuery = { __typename?: 'Query', user?: { __typename?: 'User', id: string, safes: Array<{ __typename?: 'Safe', id: string, name: string, deploySalt?: string | null, groups?: Array<{ __typename?: 'Group', id: string, ref: string, safeId: string, name: string, approvers?: Array<{ __typename?: 'Approver', userId: string, weight: any }> | null }> | null }> } | null };
+export type UserSafesQuery = { __typename?: 'Query', user?: { __typename?: 'User', id: string, safes: Array<{ __typename?: 'Safe', id: string, name: string, deploySalt?: string | null, impl?: string | null, groups?: Array<{ __typename?: 'Group', id: string, ref: string, safeId: string, name: string, approvers?: Array<{ __typename?: 'Approver', userId: string, weight: any }> | null }> | null }> } | null };
 
 export type SubmissionFieldsFragment = { __typename?: 'Submission', id: string, hash: string, nonce: number, gasLimit: any, gasPrice?: any | null, finalized: boolean, createdAt: any };
 
@@ -2824,6 +2841,7 @@ export const SafeFieldsFragmentDoc = gql`
   id
   name
   deploySalt
+  impl
   groups {
     ...GroupFields
   }
@@ -3271,8 +3289,14 @@ export type UseFaucetMutationHookResult = ReturnType<typeof useUseFaucetMutation
 export type UseFaucetMutationResult = Apollo.MutationResult<UseFaucetMutation>;
 export type UseFaucetMutationOptions = Apollo.BaseMutationOptions<UseFaucetMutation, UseFaucetMutationVariables>;
 export const UpsertSafeDocument = gql`
-    mutation UpsertSafe($safe: Address!, $deploySalt: Bytes32, $name: String!, $groups: [GroupInput!]) {
-  upsertSafe(safe: $safe, deploySalt: $deploySalt, name: $name, groups: $groups) {
+    mutation UpsertSafe($safe: Address!, $deploySalt: Bytes32, $impl: Address, $name: String!, $groups: [GroupInput!]) {
+  upsertSafe(
+    safe: $safe
+    deploySalt: $deploySalt
+    impl: $impl
+    name: $name
+    groups: $groups
+  ) {
     ...SafeFields
   }
 }
@@ -3294,6 +3318,7 @@ export type UpsertSafeMutationFn = Apollo.MutationFunction<UpsertSafeMutation, U
  *   variables: {
  *      safe: // value for 'safe'
  *      deploySalt: // value for 'deploySalt'
+ *      impl: // value for 'impl'
  *      name: // value for 'name'
  *      groups: // value for 'groups'
  *   },

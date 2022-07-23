@@ -15,12 +15,14 @@ describe('BoolArray', () => {
 
   before(async () => {
     safe = (await deployTestSafe()).safe;
-  });
+  });                                                                                                                                                                     
 
   it('should successfully create a bool array', async () => {
-    const expected = BigNumber.from("0x09d3800000000000000000000000000000000000000000000000000000");
+    const expected = BigNumber.from(
+      '0x09d3800000000000000000000000000000000000000000000000000000',
+    );
     expect(bools[0]).to.eq(expected);
-  })
+  });
 
   it('should succeed at reading the length', async () => {
     const expected = values.length;

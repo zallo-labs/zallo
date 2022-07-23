@@ -1,16 +1,23 @@
 import { Address } from '@graphprotocol/graph-ts';
 import { User, Group, Safe } from '../generated/schema';
-import { getUserId, getSafeId } from './id';
+import { getUserId, getSafeId, getSafeImplId } from './id';
 
-export function getOrCreateSafe(addr: Address): Safe {
+export const ZERO_ADDR: Address = Address.zero();
+
+export function getOrCreateSafeWithImpl(addr: Address, impl: Address): Safe {
   const id = getSafeId(addr);
   let safe = Safe.load(id);
   if (!safe) {
     safe = new Safe(id);
+    safe.impl = getSafeImplId(impl);
     safe.save();
   }
 
   return safe;
+}
+
+export function getOrCreateSafe(addr: Address): Safe {
+  return getOrCreateSafeWithImpl(addr, ZERO_ADDR);
 }
 
 export function getOrCreateGroup(id: string): Group {

@@ -1,80 +1,90 @@
-import { BytesLike, Signer } from 'ethers';
-import { address, Addresslike } from './addr';
-import { Safe, Factory, Factory__factory, Safe__factory } from './contracts';
+import { BytesLike, ethers, Signer } from 'ethers';
+import { Address, address, Addresslike } from './addr';
+import {
+  Safe,
+  Factory,
+  Factory__factory,
+  Safe__factory,
+  ERC1967Proxy,
+  ERC1967Proxy__factory,
+} from './contracts';
 import { Groupish, toSafeGroup } from './group';
-import { SafeApprover } from './approver';
 import { defaultAbiCoder, hexlify, randomBytes } from 'ethers/lib/utils';
 import * as zk from 'zksync-web3';
+
+export interface Proxy extends ERC1967Proxy {}
+export class ProxyFactory extends ERC1967Proxy__factory {}
+
+export const randomBytes32 = () => hexlify(randomBytes(32));
+export const randomDeploySalt = randomBytes32;
+
+const createConnect =
+  <T>(f: (addr: string, signer: Signer | ethers.providers.Provider) => T) =>
+  (addr: Addresslike, signer: Signer | ethers.providers.Provider): T =>
+    f(address(addr), signer);
+
+export const connectFactory = createConnect(Factory__factory.connect);
+export const connectSafe = createConnect(Safe__factory.connect);
+export const connectProxy = createConnect(ProxyFactory.connect);
 
 export interface SafeConstructorArgs {
   group: Groupish;
 }
 
-export type SafeConstructorDeployArgs = [BytesLike, SafeApprover[]];
+export interface ProxyConstructorArgs extends SafeConstructorArgs {
+  impl: Address;
+}
 
-export const toSafeConstructorDeployArgs = (
-  args: SafeConstructorArgs,
-): SafeConstructorDeployArgs => {
-  const g = toSafeGroup(args.group);
-  return [g.ref, g.approvers];
+export const encodeProxyConstructorArgs = ({
+  group,
+  impl,
+}: ProxyConstructorArgs) => {
+  const g = toSafeGroup(group);
+
+  const safeInterface = Safe__factory.createInterface();
+  const encodedInitializeCall = safeInterface.encodeFunctionData('initialize', [
+    g.ref,
+    g.approvers,
+  ]);
+
+  return defaultAbiCoder.encode(
+    // constructor(address _logic, bytes memory _data)
+    ['address', 'bytes'],
+    [impl, encodedInitializeCall],
+  );
 };
 
-export type SafeConstructorDeployArgsBytes = BytesLike & {
-  isSafeConstructorDeployArgsBytes: true;
-};
-
-export const toSafeConstructorDeployArgsBytes = (
-  args: SafeConstructorArgs,
-): SafeConstructorDeployArgsBytes =>
-  defaultAbiCoder.encode(
-    ['bytes32', '(address addr,uint96 weight)[]'],
-    toSafeConstructorDeployArgs(args),
-  ) as SafeConstructorDeployArgsBytes;
-
-export const getFactory = (addr: Addresslike, signer: Signer) =>
-  new Factory__factory().attach(address(addr)).connect(signer);
-
-export const getSafe = (addr: Addresslike, signer: Signer) =>
-  new Safe__factory().attach(address(addr)).connect(signer);
-
-export const getRandomDeploySalt = () => hexlify(randomBytes(32));
-
-export const calculateSafeAddress = async (
-  args: SafeConstructorArgs,
+export const calculateProxyAddress = async (
+  args: ProxyConstructorArgs,
   factory: Factory,
   salt: BytesLike,
 ) => {
   const addr = zk.utils.create2Address(
     factory.address,
-    await factory._safeBytecodeHash(),
+    await factory._BYTECODE_HASH(),
     salt,
-    toSafeConstructorDeployArgsBytes(args),
+    encodeProxyConstructorArgs(args),
   );
 
   return address(addr);
 };
 
-interface DeploySafeParams {
-  args: SafeConstructorArgs;
-  factory: Factory;
-  salt?: BytesLike;
-}
+export const deploySafeProxy = async (
+  args: ProxyConstructorArgs,
+  factory: Factory,
+  salt = randomDeploySalt(),
+) => {
+  const addr = await calculateProxyAddress(args, factory, salt);
 
-export const deploySafe = async ({
-  args,
-  factory,
-  salt = getRandomDeploySalt(),
-}: DeploySafeParams) => {
-  const addr = await calculateSafeAddress(args, factory, salt);
-
-  const constructorDeployData = toSafeConstructorDeployArgsBytes(args);
-  const deployTx = await factory.deploySafe(salt, constructorDeployData);
+  const encodedConstructorData = encodeProxyConstructorArgs(args);
+  const deployTx = await factory.deploy(salt, encodedConstructorData);
+  await deployTx.wait();
 
   return {
-    safe: getSafe(addr, factory.signer),
+    proxy: connectProxy(addr, factory.signer),
+    safe: connectSafe(addr, factory.signer),
     salt,
     deployTx,
-    deployReceipt: await deployTx.wait(),
   };
 };
 

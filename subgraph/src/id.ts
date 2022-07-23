@@ -5,6 +5,11 @@ export function getSafeId(safe: Address): string {
   return safe.toHex();
 }
 
+export function getSafeImplId(impl: Address): string {
+  // {address}
+  return impl.toHex();
+}
+
 export function getUserId(user: Address): string {
   // {address}
   return user.toHex();

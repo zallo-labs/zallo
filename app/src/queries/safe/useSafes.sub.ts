@@ -2,7 +2,13 @@ import { gql, useQuery } from '@apollo/client';
 import { useWallet } from '@features/wallet/useWallet';
 import { useSubgraphClient } from '@gql/GqlProvider';
 import { UserSafesQuery, UserSafesQueryVariables } from '@gql/generated.sub';
-import { toId, filterFirst, getSafe, address, fixedWeightToPercent } from 'lib';
+import {
+  toId,
+  filterFirst,
+  connectSafe,
+  address,
+  fixedWeightToPercent,
+} from 'lib';
 import { CombinedSafe, QUERY_SAFES_POLL_INTERVAL } from '.';
 
 const SUB_QUERY = gql`
@@ -14,6 +20,9 @@ const SUB_QUERY = gql`
           group {
             safe {
               id
+              impl {
+                id
+              }
               groups {
                 id
                 ref
@@ -55,15 +64,19 @@ export const useSubSafes = () => {
   );
 
   const safes = filterFirst(
-    data?.user?.approvers.map((a) => ({
-      id: toId(a.approverSet.group.safe.id),
-      groups: a.approverSet.group.safe.groups,
-    })) ?? [],
-    (safe) => toId(safe.id),
+    data?.user?.approvers.map(
+      ({
+        approverSet: {
+          group: { safe },
+        },
+      }) => safe,
+    ) ?? [],
+    (safe) => safe.id,
   );
 
   const combinedSafes: CombinedSafe[] = safes.map((s) => ({
-    safe: getSafe(s.id, wallet),
+    safe: connectSafe(s.id, wallet),
+    impl: address(s.impl.id),
     name: '',
     groups: s.groups.map((g) => ({
       id: toId(g.id),

@@ -1,26 +1,38 @@
 import { ethers } from 'ethers';
-import { address, createTx, getDomain, hashTx } from 'lib';
-import { deployTestSafe, expect, toSafeTransaction, wallet } from './util';
+import {
+  createTx,
+  getDomain,
+  hashTx,
+  toTransactionRequest,
+  toTransactionStruct,
+} from 'lib';
+import { deployTestSafe, expect, getSigners, wallet } from './util';
 
 describe('EIP712', () => {
   it('Domain separator', async () => {
     const { safe } = await deployTestSafe();
 
     const expected = ethers.utils._TypedDataEncoder.hashDomain(
-      await getDomain(address(safe.address)),
+      await getDomain(safe),
     );
-    const actual = await safe.callStatic.domainSeparator();
+    const actual = await safe.domainSeparator();
 
     expect(actual).to.eq(expected);
   });
 
   it('hashTx', async () => {
-    const { safe } = await deployTestSafe();
+    const { safe, group } = await deployTestSafe();
 
     const tx = createTx({ to: wallet.address });
+    const txReq = await toTransactionRequest(
+      safe,
+      tx,
+      group,
+      await getSigners(safe, group.approvers, tx),
+    );
 
-    const expected = await hashTx(address(safe.address), tx);
-    const actual = await safe.callStatic.hashTx(toSafeTransaction(safe, tx));
+    const expected = await hashTx(safe.address, tx);
+    const actual = await safe.hashTx(toTransactionStruct(txReq));
 
     expect(actual).to.eq(expected);
   });

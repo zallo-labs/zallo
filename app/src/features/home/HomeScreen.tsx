@@ -6,10 +6,11 @@ import { HomeActions } from './actions/HomeActions';
 import { HomeAppbar } from './HomeAppbar';
 import { Portal } from 'react-native-paper';
 import { DrawerNavigatorScreenProps } from '@features/navigation/DrawerNavigator';
+import { withProposeProvider } from '@features/execute/ProposeProvider';
 
 export type HomeScreenProps = DrawerNavigatorScreenProps<'Home'>;
 
-export const HomeScreen = (_props: HomeScreenProps) => {
+export const HomeScreen = withProposeProvider((_props: HomeScreenProps) => {
   return (
     <Box flex={1}>
       <Portal.Host>
@@ -33,4 +34,4 @@ export const HomeScreen = (_props: HomeScreenProps) => {
       </Portal.Host>
     </Box>
   );
-};
+});

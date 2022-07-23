@@ -5,10 +5,6 @@ import '../Safe.sol';
 import {BoolArray} from '../utils/BoolArray.sol';
 
 contract TestSafe is Safe {
-  constructor(bytes32 groupRef, Approver[] memory approvers)
-    Safe(groupRef, approvers)
-  {}
-
   function testExecuteTransaction(Transaction calldata transaction) external {
     _executeTransaction(_hashTx(transaction), transaction);
   }
@@ -27,22 +23,18 @@ contract TestSafe is Safe {
     view
     returns (bytes32)
   {
-    return _groupMerkleRoots[groupRef];
+    return _groupMerkleRoots()[groupRef];
   }
 
-  function getLeaves(Approver[] memory approvers)
+  function hashTx(Transaction calldata transaction)
     external
-    pure
-    returns (bytes32[] memory leaves)
+    view
+    returns (bytes32)
   {
-    return _getLeaves(approvers);
-  }
-
-  function hashTx(Transaction calldata transaction) external returns (bytes32) {
     return _hashTx(transaction);
   }
 
-  function domainSeparator() external returns (bytes32) {
+  function domainSeparator() external view returns (bytes32) {
     return _domainSeparator();
   }
 

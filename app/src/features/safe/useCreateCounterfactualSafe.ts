@@ -1,18 +1,18 @@
 import { useWallet } from '@features/wallet/useWallet';
-import { elipseTruncate } from '@util/format';
 import {
-  calculateSafeAddress,
-  getRandomDeploySalt,
+  randomDeploySalt,
   PERCENT_THRESHOLD,
   randomGroupRef,
+  calculateProxyAddress,
 } from 'lib';
 import { useCallback } from 'react';
 import { useUpsertSafe, UpsertableGroup } from '~/mutations/useUpsertSafe.api';
-import { useSafeFactory } from './useSafeFactory';
+import { SAFE_IMPL } from '~/provider';
+import { useSafeProxyFactory } from './useSafeProxyFactory';
 
 export const useCreateCounterfactualSafe = () => {
   const wallet = useWallet();
-  const factory = useSafeFactory();
+  const factory = useSafeProxyFactory();
   const upsertSafe = useUpsertSafe();
 
   return useCallback(async () => {
@@ -22,12 +22,17 @@ export const useCreateCounterfactualSafe = () => {
       name: '',
     };
 
-    const deploySalt = getRandomDeploySalt();
-    const safe = await calculateSafeAddress({ group }, factory, deploySalt);
+    const deploySalt = randomDeploySalt();
+    const safe = await calculateProxyAddress(
+      { group, impl: SAFE_IMPL },
+      factory,
+      deploySalt,
+    );
 
     await upsertSafe({
       safe,
       deploySalt,
+      impl: SAFE_IMPL,
       name: '',
       groups: [group],
     });

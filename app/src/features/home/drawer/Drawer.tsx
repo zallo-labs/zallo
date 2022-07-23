@@ -1,5 +1,6 @@
 import { Box } from '@components/Box';
 import { Divider } from '@components/Divider';
+import { withProposeProvider } from '@features/execute/ProposeProvider';
 import { DrawerContentComponentProps } from '@react-navigation/drawer';
 import { ActivityIcon, ContactsIcon, HomeIcon } from '@util/icons';
 import { useCallback } from 'react';

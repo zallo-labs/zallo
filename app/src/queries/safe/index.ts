@@ -1,4 +1,4 @@
-import { Approver, Id, Safe } from 'lib';
+import { Address, Approver, Id, Safe } from 'lib';
 
 export const QUERY_SAFES_POLL_INTERVAL = 30 * 1000;
 
@@ -14,5 +14,6 @@ export interface CombinedSafe {
   safe: Safe;
   name: string;
   deploySalt?: string;
+  impl: Address;
   groups: CombinedGroup[];
 }

@@ -51,12 +51,9 @@ const fetchToken = async (wallet: zk.Wallet): Promise<Token> => {
   };
 };
 
-const apiTokenState = atom<Token>({
+const apiTokenState = atom<Token | null>({
   key: 'apiToken',
-  default: selector({
-    key: 'fetchApiToken',
-    get: ({ get }) => fetchToken(get(walletState)),
-  }),
+  default: null,
   effects: [
     persistAtom({
       storage: getSecureStore(),
@@ -68,7 +65,7 @@ export const useAuthFlowLink = () => {
   const wallet = useWallet();
   const [token, setToken] = useRecoilState(apiTokenState);
 
-  const tokenRef = useRef<Token>(token);
+  const tokenRef = useRef<Token | null>(token);
 
   const reset = useCallback(async () => {
     // Ensure token is reset exactly once at any given time

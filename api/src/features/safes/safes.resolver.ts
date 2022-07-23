@@ -37,7 +37,7 @@ export class SafesResolver {
 
   @Mutation(() => Safe)
   async upsertSafe(
-    @Args() { safe, deploySalt, name, groups }: UpsertSafeArgs,
+    @Args() { safe, deploySalt, impl, name, groups }: UpsertSafeArgs,
     @Info() info: GraphQLResolveInfo,
   ): Promise<Safe> {
     return this.prisma.safe.upsert({
@@ -45,6 +45,7 @@ export class SafesResolver {
       create: {
         id: safe,
         deploySalt,
+        impl,
         name,
         ...(groups && {
           groups: {
@@ -64,6 +65,7 @@ export class SafesResolver {
       update: {
         ...(name && { name: { set: name } }),
         ...(deploySalt && { deploySalt: { set: deploySalt } }),
+        ...(impl &&  { impl: { set: impl } }),
         ...(groups && {
           groups: {
             upsert: groups.map((g) => ({

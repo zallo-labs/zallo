@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { ethers } from 'ethers';
 import * as zk from 'zksync-web3';
 import CONFIG, { Chain } from 'config';
-import { Factory, getFactory } from 'lib';
+import { Factory, connectFactory } from 'lib';
 
 @Injectable()
 export class ProviderService extends zk.Provider {
@@ -22,6 +22,6 @@ export class ProviderService extends zk.Provider {
         : zk.Wallet.createRandom();
     this.wallet = wallet.connect(this).connectToL1(this.ethProvider);
 
-    this.factory = getFactory(CONFIG.factoryAddress!, this.wallet);
+    this.factory = connectFactory(CONFIG.proxyFactoryAddress!, this.wallet);
   }
 }

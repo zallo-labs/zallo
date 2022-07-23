@@ -24,10 +24,10 @@ import './tasks/deposit';
 // https://hardhat.org/config/
 const config: HardhatUserConfig = {
   solidity: {
-    version: '0.8.12',
+    version: '0.8.15',
   },
   zksolc: {
-    version: '0.1.0',
+    // version: '0.1.0',
     compilerSource: 'binary',
     settings: {
       compilerPath: join(__dirname, 'zksolc'), // only used when compilerSource=binary
@@ -66,6 +66,7 @@ const config: HardhatUserConfig = {
     runOnCompile: true,
     path: './abi',
     flat: true,
+    only: ['Safe$', 'ERC1967Proxy$'],
   },
 };
 
