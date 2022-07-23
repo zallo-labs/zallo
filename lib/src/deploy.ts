@@ -1,5 +1,5 @@
-import { BytesLike } from 'ethers';
-import { Address, address } from './addr';
+import { BytesLike, ethers, Signer } from 'ethers';
+import { Address, address, Addresslike } from './addr';
 import {
   Safe,
   Factory,
@@ -18,12 +18,20 @@ export class ProxyFactory extends ERC1967Proxy__factory {}
 export const randomBytes32 = () => hexlify(randomBytes(32));
 export const randomDeploySalt = randomBytes32;
 
-export const connectFactory = Factory__factory.connect;
-export const connectSafe = Safe__factory.connect;
-export const connectProxy = ProxyFactory.connect;
+const createConnect =
+  <T>(f: (addr: string, signer: Signer | ethers.providers.Provider) => T) =>
+  (addr: Addresslike, signer: Signer | ethers.providers.Provider): T =>
+    f(address(addr), signer);
 
-export interface ProxyConstructorArgs {
+export const connectFactory = createConnect(Factory__factory.connect);
+export const connectSafe = createConnect(Safe__factory.connect);
+export const connectProxy = createConnect(ProxyFactory.connect);
+
+export interface SafeConstructorArgs {
   group: Groupish;
+}
+
+export interface ProxyConstructorArgs extends SafeConstructorArgs {
   impl: Address;
 }
 
