@@ -3,6 +3,7 @@ import { useWallet } from '@features/wallet/useWallet';
 import { UserSafesQuery } from '@gql/generated.api';
 import { useApiClient } from '@gql/GqlProvider';
 import { filterFirst, toId, address, connectSafe } from 'lib';
+import { SAFE_IMPL } from '~/provider';
 import { CombinedGroup, CombinedSafe, QUERY_SAFES_POLL_INTERVAL } from '.';
 
 export const API_GROUP_FIELDS_FRAGMENT = gql`
@@ -25,6 +26,7 @@ export const API_SAFE_FIELDS_FRAGMENT = gql`
     id
     name
     deploySalt
+    impl
     groups {
       ...GroupFields
     }
@@ -78,6 +80,7 @@ export const useApiSafes = () => {
       safe: connectSafe(s.id, wallet),
       name: s.name ?? '',
       deploySalt: s.deploySalt ?? undefined,
+      impl: s.impl ? address(s.impl) : SAFE_IMPL,
       groups,
     };
   });

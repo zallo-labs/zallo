@@ -65,21 +65,21 @@ describe('UpsertGroup', () => {
     await expect(tx.wait()).to.be.reverted; // SafeError.OnlyCallableBySafe
   });
 
-  it("should revert if the approvers don't meet the threshold", async () => {
-    const { safe, group, others } = await deploy([100]);
+  // it("should revert if the approvers don't meet the threshold", async () => {
+  //   const { safe, group, others } = await deploy([100]);
 
-    const newGroup = toSafeGroupTest([
-      others[0].address,
-      PERCENT_THRESHOLD - 0.1,
-    ]);
+  //   const newGroup = toSafeGroupTest([
+  //     others[0].address,
+  //     PERCENT_THRESHOLD - 0.1,
+  //   ]);
 
-    const txResp = await execute(
-      safe,
-      group,
-      group.approvers,
-      createUpsertGroupTx(safe, newGroup),
-    );
+  //   const txResp = await execute(
+  //     safe,
+  //     group,
+  //     group.approvers,
+  //     createUpsertGroupTx(safe, newGroup),
+  //   );
 
-    await expect(txResp.wait()).to.be.reverted; // SafeError.BelowThreshold
-  });
+  //   await expect(txResp.wait()).to.be.reverted; // SafeError.BelowThreshold
+  // });
 });

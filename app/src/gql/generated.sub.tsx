@@ -272,6 +272,8 @@ export type Query = {
   group?: Maybe<Group>;
   groups: Array<Group>;
   safe?: Maybe<Safe>;
+  safeImpl?: Maybe<SafeImpl>;
+  safeImpls: Array<SafeImpl>;
   safes: Array<Safe>;
   transfer?: Maybe<Transfer>;
   transfers: Array<Transfer>;
@@ -348,6 +350,24 @@ export type QuerySafeArgs = {
 };
 
 
+export type QuerySafeImplArgs = {
+  block?: InputMaybe<Block_Height>;
+  id: Scalars['ID'];
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type QuerySafeImplsArgs = {
+  block?: InputMaybe<Block_Height>;
+  first?: InputMaybe<Scalars['Int']>;
+  orderBy?: InputMaybe<SafeImpl_OrderBy>;
+  orderDirection?: InputMaybe<OrderDirection>;
+  skip?: InputMaybe<Scalars['Int']>;
+  subgraphError?: _SubgraphErrorPolicy_;
+  where?: InputMaybe<SafeImpl_Filter>;
+};
+
+
 export type QuerySafesArgs = {
   block?: InputMaybe<Block_Height>;
   first?: InputMaybe<Scalars['Int']>;
@@ -417,6 +437,7 @@ export type Safe = {
   groups: Array<Group>;
   /** {address} */
   id: Scalars['ID'];
+  impl: SafeImpl;
   transfers: Array<Transfer>;
   txs: Array<Tx>;
 };
@@ -448,6 +469,59 @@ export type SafeTxsArgs = {
   where?: InputMaybe<Tx_Filter>;
 };
 
+export type SafeImpl = {
+  __typename?: 'SafeImpl';
+  blockHash: Scalars['Bytes'];
+  /** {address} */
+  id: Scalars['ID'];
+  proxies: Array<Safe>;
+  timestamp: Scalars['BigInt'];
+};
+
+
+export type SafeImplProxiesArgs = {
+  first?: InputMaybe<Scalars['Int']>;
+  orderBy?: InputMaybe<Safe_OrderBy>;
+  orderDirection?: InputMaybe<OrderDirection>;
+  skip?: InputMaybe<Scalars['Int']>;
+  where?: InputMaybe<Safe_Filter>;
+};
+
+export type SafeImpl_Filter = {
+  /** Filter for the block changed event. */
+  _change_block?: InputMaybe<BlockChangedFilter>;
+  blockHash?: InputMaybe<Scalars['Bytes']>;
+  blockHash_contains?: InputMaybe<Scalars['Bytes']>;
+  blockHash_in?: InputMaybe<Array<Scalars['Bytes']>>;
+  blockHash_not?: InputMaybe<Scalars['Bytes']>;
+  blockHash_not_contains?: InputMaybe<Scalars['Bytes']>;
+  blockHash_not_in?: InputMaybe<Array<Scalars['Bytes']>>;
+  id?: InputMaybe<Scalars['ID']>;
+  id_gt?: InputMaybe<Scalars['ID']>;
+  id_gte?: InputMaybe<Scalars['ID']>;
+  id_in?: InputMaybe<Array<Scalars['ID']>>;
+  id_lt?: InputMaybe<Scalars['ID']>;
+  id_lte?: InputMaybe<Scalars['ID']>;
+  id_not?: InputMaybe<Scalars['ID']>;
+  id_not_in?: InputMaybe<Array<Scalars['ID']>>;
+  proxies_?: InputMaybe<Safe_Filter>;
+  timestamp?: InputMaybe<Scalars['BigInt']>;
+  timestamp_gt?: InputMaybe<Scalars['BigInt']>;
+  timestamp_gte?: InputMaybe<Scalars['BigInt']>;
+  timestamp_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  timestamp_lt?: InputMaybe<Scalars['BigInt']>;
+  timestamp_lte?: InputMaybe<Scalars['BigInt']>;
+  timestamp_not?: InputMaybe<Scalars['BigInt']>;
+  timestamp_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+};
+
+export enum SafeImpl_OrderBy {
+  BlockHash = 'blockHash',
+  Id = 'id',
+  Proxies = 'proxies',
+  Timestamp = 'timestamp'
+}
+
 export type Safe_Filter = {
   /** Filter for the block changed event. */
   _change_block?: InputMaybe<BlockChangedFilter>;
@@ -460,6 +534,27 @@ export type Safe_Filter = {
   id_lte?: InputMaybe<Scalars['ID']>;
   id_not?: InputMaybe<Scalars['ID']>;
   id_not_in?: InputMaybe<Array<Scalars['ID']>>;
+  impl?: InputMaybe<Scalars['String']>;
+  impl_?: InputMaybe<SafeImpl_Filter>;
+  impl_contains?: InputMaybe<Scalars['String']>;
+  impl_contains_nocase?: InputMaybe<Scalars['String']>;
+  impl_ends_with?: InputMaybe<Scalars['String']>;
+  impl_ends_with_nocase?: InputMaybe<Scalars['String']>;
+  impl_gt?: InputMaybe<Scalars['String']>;
+  impl_gte?: InputMaybe<Scalars['String']>;
+  impl_in?: InputMaybe<Array<Scalars['String']>>;
+  impl_lt?: InputMaybe<Scalars['String']>;
+  impl_lte?: InputMaybe<Scalars['String']>;
+  impl_not?: InputMaybe<Scalars['String']>;
+  impl_not_contains?: InputMaybe<Scalars['String']>;
+  impl_not_contains_nocase?: InputMaybe<Scalars['String']>;
+  impl_not_ends_with?: InputMaybe<Scalars['String']>;
+  impl_not_ends_with_nocase?: InputMaybe<Scalars['String']>;
+  impl_not_in?: InputMaybe<Array<Scalars['String']>>;
+  impl_not_starts_with?: InputMaybe<Scalars['String']>;
+  impl_not_starts_with_nocase?: InputMaybe<Scalars['String']>;
+  impl_starts_with?: InputMaybe<Scalars['String']>;
+  impl_starts_with_nocase?: InputMaybe<Scalars['String']>;
   transfers_?: InputMaybe<Transfer_Filter>;
   txs_?: InputMaybe<Tx_Filter>;
 };
@@ -467,6 +562,7 @@ export type Safe_Filter = {
 export enum Safe_OrderBy {
   Groups = 'groups',
   Id = 'id',
+  Impl = 'impl',
   Transfers = 'transfers',
   Txs = 'txs'
 }
@@ -482,6 +578,8 @@ export type Subscription = {
   group?: Maybe<Group>;
   groups: Array<Group>;
   safe?: Maybe<Safe>;
+  safeImpl?: Maybe<SafeImpl>;
+  safeImpls: Array<SafeImpl>;
   safes: Array<Safe>;
   transfer?: Maybe<Transfer>;
   transfers: Array<Transfer>;
@@ -555,6 +653,24 @@ export type SubscriptionSafeArgs = {
   block?: InputMaybe<Block_Height>;
   id: Scalars['ID'];
   subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type SubscriptionSafeImplArgs = {
+  block?: InputMaybe<Block_Height>;
+  id: Scalars['ID'];
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type SubscriptionSafeImplsArgs = {
+  block?: InputMaybe<Block_Height>;
+  first?: InputMaybe<Scalars['Int']>;
+  orderBy?: InputMaybe<SafeImpl_OrderBy>;
+  orderDirection?: InputMaybe<OrderDirection>;
+  skip?: InputMaybe<Scalars['Int']>;
+  subgraphError?: _SubgraphErrorPolicy_;
+  where?: InputMaybe<SafeImpl_Filter>;
 };
 
 
@@ -940,7 +1056,7 @@ export type UserSafesQueryVariables = Exact<{
 }>;
 
 
-export type UserSafesQuery = { __typename?: 'Query', user?: { __typename?: 'User', id: string, approvers: Array<{ __typename?: 'Approver', approverSet: { __typename?: 'ApproverSet', group: { __typename?: 'Group', safe: { __typename?: 'Safe', id: string, groups: Array<{ __typename?: 'Group', id: string, ref: any, active: boolean, approverSets: Array<{ __typename?: 'ApproverSet', id: string, blockHash: any, timestamp: any, approvers: Array<{ __typename?: 'Approver', weight: any, user: { __typename?: 'User', id: string } }> }> }> } } } }> } | null };
+export type UserSafesQuery = { __typename?: 'Query', user?: { __typename?: 'User', id: string, approvers: Array<{ __typename?: 'Approver', approverSet: { __typename?: 'ApproverSet', group: { __typename?: 'Group', safe: { __typename?: 'Safe', id: string, impl: { __typename?: 'SafeImpl', id: string }, groups: Array<{ __typename?: 'Group', id: string, ref: any, active: boolean, approverSets: Array<{ __typename?: 'ApproverSet', id: string, blockHash: any, timestamp: any, approvers: Array<{ __typename?: 'Approver', weight: any, user: { __typename?: 'User', id: string } }> }> }> } } } }> } | null };
 
 export type TransferFieldsFragment = { __typename?: 'Transfer', id: string, type: TransferType, token: any, from: any, to: any, value: any, blockHash: any, timestamp: any };
 
@@ -980,6 +1096,9 @@ export const UserSafesDocument = gql`
         group {
           safe {
             id
+            impl {
+              id
+            }
             groups {
               id
               ref

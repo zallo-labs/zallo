@@ -32,6 +32,7 @@ export const useCreateCounterfactualSafe = () => {
     await upsertSafe({
       safe,
       deploySalt,
+      impl: SAFE_IMPL,
       name: '',
       groups: [group],
     });

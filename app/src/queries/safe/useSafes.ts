@@ -24,6 +24,7 @@ export const useSafes = () => {
               safe: s?.safe ?? a!.safe,
               name: a?.name || s?.name || '',
               deploySalt: a?.deploySalt ?? s?.deploySalt,
+              impl: s?.impl ?? a!.impl,
               groups: combine(
                 s?.groups ?? [],
                 a?.groups ?? [],

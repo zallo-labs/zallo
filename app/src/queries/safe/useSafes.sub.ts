@@ -20,6 +20,9 @@ const SUB_QUERY = gql`
           group {
             safe {
               id
+              impl {
+                id
+              }
               groups {
                 id
                 ref
@@ -61,15 +64,19 @@ export const useSubSafes = () => {
   );
 
   const safes = filterFirst(
-    data?.user?.approvers.map((a) => ({
-      id: toId(a.approverSet.group.safe.id),
-      groups: a.approverSet.group.safe.groups,
-    })) ?? [],
-    (safe) => toId(safe.id),
+    data?.user?.approvers.map(
+      ({
+        approverSet: {
+          group: { safe },
+        },
+      }) => safe,
+    ) ?? [],
+    (safe) => safe.id,
   );
 
   const combinedSafes: CombinedSafe[] = safes.map((s) => ({
     safe: connectSafe(s.id, wallet),
+    impl: address(s.impl.id),
     name: '',
     groups: s.groups.map((g) => ({
       id: toId(g.id),

@@ -22,12 +22,14 @@ const API_UPDATE_SAFE_MUTATION = gql`
   mutation UpsertSafe(
     $safe: Address!
     $deploySalt: Bytes32
+    $impl: Address
     $name: String!
     $groups: [GroupInput!]
   ) {
     upsertSafe(
       safe: $safe
       deploySalt: $deploySalt
+      impl: $impl
       name: $name
       groups: $groups
     ) {
@@ -38,7 +40,10 @@ const API_UPDATE_SAFE_MUTATION = gql`
 
 export type UpsertableGroup = Pick<CombinedGroup, 'ref' | 'approvers' | 'name'>;
 
-export type UpsertSafeArgs = Pick<CombinedSafe, 'deploySalt' | 'name'> & {
+export type UpsertSafeArgs = Pick<
+  CombinedSafe,
+  'deploySalt' | 'impl' | 'name'
+> & {
   safe: Address | Safe;
   groups: UpsertableGroup[];
 };
@@ -52,13 +57,14 @@ export const useUpsertSafe = () => {
   >(API_UPDATE_SAFE_MUTATION, { client: useApiClient() });
 
   return useCallback(
-    ({ safe: safeArg, deploySalt, name, groups }: UpsertSafeArgs) => {
+    ({ safe: safeArg, deploySalt, impl, name, groups }: UpsertSafeArgs) => {
       const safe = typeof safeArg === 'object' ? safeArg.address : safeArg;
 
       return mutation({
         variables: {
           safe,
           deploySalt: deploySalt ?? null,
+          impl: impl ?? null,
           name,
           groups: groups.map((g) => ({
             ref: g.ref,
@@ -74,6 +80,7 @@ export const useUpsertSafe = () => {
             __typename: 'Safe',
             id: toId(safe),
             deploySalt: deploySalt ?? null,
+            impl: impl ?? null,
             name,
             groups: groups.map((g) => ({
               __typename: 'Group',

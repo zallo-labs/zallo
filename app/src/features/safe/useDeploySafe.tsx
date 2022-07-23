@@ -33,7 +33,7 @@ export const useDeploySafe = () => {
 
     const group = groups[0];
     const r = await deploySafeProxy(
-      { group, impl: SAFE_IMPL },
+      { group, impl: combinedSafe.impl },
       factory,
       deploySalt,
     );

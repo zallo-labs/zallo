@@ -10,10 +10,7 @@ import {
   Signerish,
   TxDef,
 } from 'lib';
-import { TransactionStruct } from 'lib/src/contracts/contracts/ISafe';
 import { allSigners } from './wallet';
-import { BytesLike, defaultAbiCoder } from 'ethers/lib/utils';
-import { Contract } from 'ethers';
 
 export const getSigners = async (
   safe: Safe,
@@ -45,26 +42,4 @@ export const execute = async (
     signers,
     // { customData: { feeToken: USDC } }
   );
-};
-
-export const toSafeTransaction = (
-  safe: Contract,
-  txDef: TxDef,
-  signature: BytesLike = '0x',
-): TransactionStruct => {
-  const tx = createTx(txDef);
-
-  return {
-    txType: 0,
-    from: safe.address,
-    to: tx.to,
-    feeToken: 0,
-    ergsLimit: 0,
-    ergsPerPubdataByteLimit: 0,
-    ergsPrice: 0,
-    reserved: [0, tx.value, 0, 0, 0, 0],
-    data: defaultAbiCoder.encode(['bytes8', 'bytes'], [tx.salt, tx.data]),
-    signature,
-    reservedDynamic: '0x',
-  };
 };

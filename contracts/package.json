@@ -6,7 +6,7 @@
     "build": "yarn build:libs && yarn compile",
     "typechain": "hardhat typechain",
     "analyze": "myth analyze src/*",
-    "test": "CHAIN=local hardhat test",
+    "test": "CHAIN=testnet hardhat test",
     "test:debug": "yarn test --logs --trace",
     "deploy-multicall:testnet": "CHAIN=testnet ts-node scripts/deployMulticall.ts",
     "deploy-proxy-factory:testnet": "CHAIN=testnet ts-node scripts/deployProxyFactory.ts",

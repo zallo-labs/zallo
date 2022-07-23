@@ -1,9 +1,18 @@
 type Safe @entity {
   "{address}"
   id: ID!
+  impl: SafeImpl!
   txs: [Tx!]! @derivedFrom(field: "safe")
   groups: [Group!]! @derivedFrom(field: "safe")
   transfers: [Transfer!]! @derivedFrom(field: "safe")
+}
+
+type SafeImpl @entity {
+  "{address}"
+  id: ID!
+  blockHash: Bytes!
+  timestamp: BigInt!
+  proxies: [Safe!]! @derivedFrom(field: "impl")
 }
 
 type Tx @entity {

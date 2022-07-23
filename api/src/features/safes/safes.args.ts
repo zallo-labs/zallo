@@ -12,6 +12,9 @@ export class UpsertSafeArgs {
   @Bytes32Field({ nullable: true })
   deploySalt?: string;
 
+  @AddressField()
+  impl?: Address;
+
   name?: string;
 
   groups?: GroupInput[];

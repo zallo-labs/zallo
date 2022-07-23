@@ -22,7 +22,6 @@ dataSources:
         - Approver
         - Group
         - GroupApprover
-        - TokenTransfer
       eventHandlers:
         - event: TxExecuted(bytes32,bytes)
           handler: handleTxExecuted
@@ -32,6 +31,27 @@ dataSources:
           handler: handleGroupUpserted
         - event: GroupRemoved(bytes32)
           handler: handleGroupRemoved
+  - name: ERC1967Proxy
+    kind: ethereum/contract
+    network: {{network}}
+    source:
+      abi: ERC1967Proxy
+      startBlock: {{startBlock}}
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.7
+      language: wasm/assemblyscript
+      file: ./src/proxy.ts
+      abis:
+        - name: ERC1967Proxy
+          file: ../contracts/abi/ERC1967Proxy.json
+      entities:
+        - Safe
+        - SafeImpl
+      eventHandlers:
+        - event: Upgraded(indexed address)
+          handler: handleUpgraded
+
   - name: ERC20
     kind: ethereum/contract
     network: {{network}}

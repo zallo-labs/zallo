@@ -1,6 +1,6 @@
 datasource db {
-  provider          = "postgresql"
-  url               = env("DATABASE_URL")
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
 }
 
 generator client {
@@ -25,6 +25,7 @@ model Safe {
   groups     Group[]
   name       String     @default("")
   deploySalt String?    @db.Char(66) // bytes32
+  impl       String?    @db.Char(42) // address
   txs        Tx[]
   approvals  Approval[]
   comments   Comment[]
