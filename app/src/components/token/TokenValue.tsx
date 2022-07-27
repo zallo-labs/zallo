@@ -1,9 +1,10 @@
 import { Token } from '~/token/token';
-import { FormattedNumber, Numberish } from '@components/FormattedNumber';
+import { FormattedNumber } from '@components/FormattedNumber';
+import { BigNumberish } from 'ethers';
 
 export interface TokenValueProps {
   token: Token;
-  value: Numberish;
+  value: BigNumberish;
   noSymbol?: boolean;
 }
 

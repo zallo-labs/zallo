@@ -1,8 +1,9 @@
+import { BigNumberish } from 'ethers';
 import { FIAT_DECIMALS } from '~/token/fiat';
-import { FormattedNumber, Numberish } from './FormattedNumber';
+import { FormattedNumber } from './FormattedNumber';
 
 export interface FormattedFiatProps {
-  value: Numberish;
+  value: BigNumberish;
 }
 
 export const FiatValue = ({ value }: FormattedFiatProps) => (

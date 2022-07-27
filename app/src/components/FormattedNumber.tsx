@@ -1,11 +1,9 @@
 import { useMemo } from 'react';
-import { BigNumber, ethers } from 'ethers';
+import { BigNumber, BigNumberish, ethers } from 'ethers';
 import { FormatNumberOptions, useIntl } from 'react-intl';
 
-export type Numberish = number | string | BigNumber;
-
 export interface FormattedValueProps extends FormatNumberOptions {
-  value: Numberish;
+  value: BigNumberish;
   unitDecimals?: number;
   extendedFractionDigits?: number;
   postFormat?: (value: string) => string;
@@ -30,6 +28,7 @@ export const FormattedNumber = ({
     if (BigNumber.isBigNumber(v)) v = ethers.utils.formatUnits(v, unitDecimals);
 
     if (typeof v === 'string') v = parseFloat(v);
+    if (typeof v !== 'number') v = BigNumber.from(v).toNumber();
 
     const isLt = v < extendedMin && v > 0;
     if (isLt) v = extendedMin;
