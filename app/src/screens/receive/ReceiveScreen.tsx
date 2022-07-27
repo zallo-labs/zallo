@@ -1,8 +1,8 @@
 import { Box } from '@components/Box';
 import { Container } from '@components/list/Container';
 import { QrCode } from '@features/qr/QrCode';
-import { AccountCard } from '~/components2/AccountCard/AccountCard';
-import { useSelectedAccount } from '~/components2/AccountCard/useSelectedAccount';
+import { AccountCard } from '~/components2/account/AccountCard';
+import { useSelectedAccount } from '~/components2/account/useSelectedAccount';
 import { TokenCard } from '~/components2/token/TokenCard';
 import { ETH } from '~/token/tokens';
 import { ReceiveAppbar } from './ReceiveAppbar';
