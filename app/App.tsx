@@ -5,8 +5,6 @@ import '@util/configImmer';
 import { Suspense } from 'react';
 import { RecoilRoot } from 'recoil';
 
-import { SafeProvider } from '@features/safe/SafeProvider';
-import { RootNavigator } from '@features/navigation/RootNavigator';
 import { Background } from '@components/Background';
 import { LocalizatonProvider } from '@features/localization/LocalizationProvider';
 import { GqlProvider } from '@gql/GqlProvider';
@@ -20,30 +18,33 @@ import { ThemeProvider } from '@util/theme/ThemeProvider';
 import { SentryUser } from '@util/sentry/SentryUser';
 import { NavigationProvider } from '@features/navigation/NavigationProvider';
 import { withSentry } from '@util/sentry/sentry';
+import { RootNavigator } from '~/navigation/RootNavigator';
+import { SafeProvider } from '@features/safe/SafeProvider';
 
 export default withSentry(() => (
   <LocalizatonProvider>
     <ThemeProvider>
       <Background>
         <GestureHandlerRootView style={{ flex: 1 }}>
-          <ErrorBoundary>
-            <Suspense fallback={<Splash />}>
-              <RecoilRoot>
-                <AuthGate>
-                  <SentryUser />
-                  <GqlProvider>
-                    <StatusBar style="inverted" />
-                    <SafeProvider>
-                      <NavigationProvider>
-                        <RootNavigator />
-                      </NavigationProvider>
-                    </SafeProvider>
-                  </GqlProvider>
-                </AuthGate>
-                <ToastProvider />
-              </RecoilRoot>
-            </Suspense>
-          </ErrorBoundary>
+          {/* <ErrorBoundary> */}
+          <Suspense fallback={<Splash />}>
+            <RecoilRoot>
+              <AuthGate>
+                <SentryUser />
+                <GqlProvider>
+                  <StatusBar style="inverted" />
+                  <SafeProvider>
+                    {/* TODO: replace with onboarding screens */}
+                    <NavigationProvider>
+                      <RootNavigator />
+                    </NavigationProvider>
+                  </SafeProvider>
+                </GqlProvider>
+              </AuthGate>
+              <ToastProvider />
+            </RecoilRoot>
+          </Suspense>
+          {/* </ErrorBoundary> */}
         </GestureHandlerRootView>
       </Background>
     </ThemeProvider>

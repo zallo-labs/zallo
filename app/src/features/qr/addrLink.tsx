@@ -4,7 +4,7 @@
 // @ts-ignore
 import { parse, build } from 'eth-url-parser';
 import { Address } from 'lib';
-import { PROVIDER } from '~/provider';
+import { CHAIN_ID } from '~/provider';
 
 export interface AddrLink {
   scheme: string;
@@ -15,7 +15,7 @@ export interface AddrLink {
 
 const getDefaults = (): Partial<AddrLink> => ({
   scheme: 'ethereum',
-  chain_id: PROVIDER.network.chainId,
+  chain_id: CHAIN_ID,
 });
 
 export type BuildAddrLinkOptions = Pick<AddrLink, 'target_address'> &

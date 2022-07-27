@@ -38,4 +38,4 @@ export const ScanIcon = materialCommunity('line-scan');
 
 // New
 export const MenuIcon = materialCommunity('menu');
-export const ShareIcon = materialCommunity('share');
+export const ShareIcon = materialCommunity('share-variant');

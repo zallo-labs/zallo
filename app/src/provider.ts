@@ -22,6 +22,8 @@ export const CHAIN = CONFIG.chain;
 export const PROVIDER = new zk.Provider(CHAIN.zksyncUrl);
 // export const ETH_PROVIDER = ethers.getDefaultProvider(CHAIN.ethUrl);
 
+export const CHAIN_ID = PROVIDER?.network?.chainId ?? 280;
+
 export const SAFE_IMPL = address(CONFIG.safeImplAddress!);
 
 const ethersLevelToSentrySeverity = (level: LogLevel): SeverityLevel => {

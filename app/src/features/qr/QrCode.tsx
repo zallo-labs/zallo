@@ -1,6 +1,6 @@
+import { useTheme } from '@util/theme/paper';
 import { Address } from 'lib';
 import { useWindowDimensions } from 'react-native';
-import { useTheme } from 'react-native-paper';
 import QRCode from 'react-native-qrcode-svg';
 import { buildAddrLink } from './addrLink';
 
@@ -20,10 +20,11 @@ export const QrCode = ({ addr }: QrCodeProps) => {
     <QRCode
       value={link}
       size={Math.min(window.width, window.height) * 0.8}
-      backgroundColor={colors.background}
+      color={colors.onBackground}
+      backgroundColor="transparent"
       ecl="M"
       enableLinearGradient
-      linearGradient={[colors.primary, colors.accent]}
+      linearGradient={[colors.tertiary, colors.primary]}
     />
   );
 };
