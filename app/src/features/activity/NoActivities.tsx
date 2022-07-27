@@ -1,5 +1,5 @@
 import { EmptyListFallback } from '@components/EmptyListFallback';
-import { ActivityIcon } from '@util/icons';
+import { ActivityIcon } from '@util/theme/icons';
 
 export const NoActivites = () => (
   <EmptyListFallback

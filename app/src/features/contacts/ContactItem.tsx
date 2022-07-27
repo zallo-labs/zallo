@@ -5,7 +5,7 @@ import { Addr } from '@components/Addr';
 import { Identicon } from '@components/Identicon';
 import { Item, ItemProps } from '@components/list/Item';
 import { ContactsScreenProps } from './ContactsScreen';
-import { EditIcon } from '@util/icons';
+import { EditIcon } from '@util/theme/icons';
 import { Contact } from '~/queries/useContacts.api';
 
 export interface ContactItemProps extends ItemProps {

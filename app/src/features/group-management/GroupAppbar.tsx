@@ -5,7 +5,7 @@ import { effectiveGroupName } from '@components/GroupName';
 import { usePropose } from '@features/execute/ProposeProvider';
 import { useSafe } from '@features/safe/SafeProvider';
 import { useNavigation } from '@react-navigation/native';
-import { AcceptIcon, AddIcon, DeleteIcon, RejectIcon } from '@util/icons';
+import { AcceptIcon, AddIcon, DeleteIcon, RejectIcon } from '@util/theme/icons';
 import { createRemoveGroupTx } from 'lib';
 import { useMemo, useState } from 'react';
 import { Keyboard } from 'react-native';

@@ -2,7 +2,7 @@ import { Box } from '@components/Box';
 import { Divider } from '@components/Divider';
 import { withProposeProvider } from '@features/execute/ProposeProvider';
 import { DrawerContentComponentProps } from '@react-navigation/drawer';
-import { ActivityIcon, ContactsIcon, HomeIcon } from '@util/icons';
+import { ActivityIcon, ContactsIcon, HomeIcon } from '@util/theme/icons';
 import { useCallback } from 'react';
 import { ScrollView } from 'react-native-gesture-handler';
 import { Drawer as PaperDrawer } from 'react-native-paper';
