@@ -1,12 +1,13 @@
+import { ComponentPropsWithoutRef, useState } from 'react';
+import { BottomNavigation, Text } from 'react-native-paper';
+import { ReceiveScreen } from '~/screens/receive/ReceiveScreen';
+
+// TODO: switch to Navigation when updated with RNP 6 support - https://github.com/react-navigation/react-navigation/blob/main/packages/material-bottom-tabs/package.json
 // import {
 //   createMaterialBottomTabNavigator,
 //   MaterialBottomTabScreenProps,
 // } from '@react-navigation/material-bottom-tabs';
-import { ComponentPropsWithoutRef, useState } from 'react';
-import { BottomNavigation } from 'react-native-paper';
-import { ReceiveScreen } from '~/screens/receive/ReceiveScreen';
 
-// TODO: switch to Navigation when updated with RNP 6 support - https://github.com/react-navigation/react-navigation/blob/main/packages/material-bottom-tabs/package.json
 // export type BottomNavigatorParamList = {
 //   Receive: undefined;
 // };
@@ -22,25 +23,48 @@ import { ReceiveScreen } from '~/screens/receive/ReceiveScreen';
 //   </Navigation.Navigator>
 // )
 
+const Unimplemented = () => <Text>Unimplemented</Text>;
+
 type Routes = ComponentPropsWithoutRef<
   typeof BottomNavigation
 >['navigationState']['routes'];
 
 const routes: Routes = [
   {
-    key: 'receive',
+    key: 'Pay',
+    title: 'Pay',
+    focusedIcon: 'contactless-payment-circle',
+    unfocusedIcon: 'contactless-payment-circle-outline',
+  },
+  {
+    key: 'Accounts',
+    title: 'Accounts',
+    focusedIcon: 'view-stream',
+    unfocusedIcon: 'view-stream-outline',
+  },
+  {
+    key: 'Activity',
+    title: 'Activity',
+    focusedIcon: 'calendar',
+    unfocusedIcon: 'calendar-outline',
+  },
+  {
+    key: 'Receive',
     title: 'Receive',
     focusedIcon: 'qrcode',
     unfocusedIcon: 'qrcode',
   },
 ];
 
-export const BottomNavigator = () => {
-  const [index, setIndex] = useState(0);
+const renderScene = BottomNavigation.SceneMap({
+  Pay: Unimplemented,
+  Accounts: Unimplemented,
+  Activity: Unimplemented,
+  Receive: ReceiveScreen,
+});
 
-  const renderScene = BottomNavigation.SceneMap({
-    Receive: ReceiveScreen,
-  });
+export const BottomNavigator = () => {
+  const [index, setIndex] = useState(3);
 
   return (
     <BottomNavigation
