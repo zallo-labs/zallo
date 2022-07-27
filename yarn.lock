@@ -9258,7 +9258,7 @@ __metadata:
     react-native-jazzicon: "patch:react-native-jazzicon@npm:^0.1.2#../.yarn/patches/react-native-jazzicon-npm-0.1.2-c1633b051f.patch"
     react-native-keyboard-aware-scroll-view: ^0.9.5
     react-native-pager-view: 5.4.15
-    react-native-paper: ^4.12.1
+    react-native-paper: ^5.0.0-rc.3
     react-native-popover-view: ^5.0.2
     react-native-qrcode-svg: ^6.1.2
     react-native-reanimated: ~2.8.0
@@ -27974,9 +27974,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"react-native-paper@npm:^4.12.1":
-  version: 4.12.2
-  resolution: "react-native-paper@npm:4.12.2"
+"react-native-paper@npm:^5.0.0-rc.3":
+  version: 5.0.0-rc.3
+  resolution: "react-native-paper@npm:5.0.0-rc.3"
   dependencies:
     "@callstack/react-theme-provider": ^3.0.7
     color: ^3.1.2
@@ -27985,7 +27985,7 @@ __metadata:
     react: "*"
     react-native: "*"
     react-native-vector-icons: "*"
-  checksum: 591833deb94abec5abeb75296a6170d20943a307c8fb01ee8840db4c071dc6c3999d450b6407cfa13f6e1481c3693809955590c31ac374ba6626c96b1d52d9b0
+  checksum: 3d7e13f6939e0b341584c1bbcc84f4e4e21b9aa6bb371403cbedd095c9e6b54f6bb3e8c6b6ee268b4908c89aec994c4744e15be62af3c3eb8c111438fe8c92db
   languageName: node
   linkType: hard
 
