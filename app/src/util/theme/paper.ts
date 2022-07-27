@@ -1,27 +1,17 @@
-import { MD3DarkTheme as PaperDarkTheme } from 'react-native-paper';
-import Color from 'color';
 import {
-  StyledComponentsTheme,
-  STYLED_COMPONENTS_THEME,
-} from './styledComponents';
+  MD3DarkTheme as PaperDarkTheme,
+  useTheme as baseUseTheme,
+} from 'react-native-paper';
+import { STYLED_COMPONENTS_THEME } from './styledComponents';
 
-// declare global {
-//   interface Theme extends StyledComponentsTheme {
-//     iconSize: {
-//       small: number;
-//       medium: number;
-//     };
-
-//     iconButton: {
-//       size: number;
-//       containerSize: number;
-//     };
-//   }
-// }
+const overrided: typeof PaperDarkTheme = {
+  ...PaperDarkTheme,
+  roundness: 8,
+};
 
 // https://github.com/callstack/react-native-paper/blob/main/src/styles/themes/v3/DarkTheme.tsx
 export const PAPER_THEME = {
-  ...PaperDarkTheme,
+  ...overrided,
   ...STYLED_COMPONENTS_THEME,
   colors: {
     ...PaperDarkTheme.colors,
@@ -35,6 +25,7 @@ export const PAPER_THEME = {
   iconSize: {
     small: 24,
     medium: 40,
+    large: 60,
   },
   iconButton: {
     size: 24,
@@ -43,3 +34,14 @@ export const PAPER_THEME = {
 };
 
 export type ThemeOverride = typeof PAPER_THEME;
+
+declare global {
+  // eslint-disable-next-line @typescript-eslint/no-namespace
+  namespace ReactNativePaper {
+    // type Theme = ThemeOverride;
+    interface Theme extends ThemeOverride {}
+  }
+}
+
+export const useTheme = (overrides?: Partial<ThemeOverride>): ThemeOverride =>
+  baseUseTheme(overrides);

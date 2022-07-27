@@ -1,4 +1,4 @@
-import { BigNumber, ethers } from 'ethers';
+import { BigNumber, BigNumberish, ethers } from 'ethers';
 import { useMemo } from 'react';
 import { TokenPrice, useTokenPrice } from '~/queries/useTokenPrice.uni';
 import { FIAT_DECIMALS } from './fiat';
@@ -32,13 +32,11 @@ export const getTokenValue = (
   return { fiatValue, ethValue };
 };
 
-export const useTokenValue = (token: Token, amount: BigNumber) => {
+export const useTokenValue = (token: Token, amount: BigNumberish) => {
   const { price } = useTokenPrice(token);
 
-  const value = useMemo(
-    () => getTokenValue(token, amount, price),
+  return useMemo(
+    () => getTokenValue(token, BigNumber.from(amount), price),
     [token, amount, price],
   );
-
-  return value;
 };

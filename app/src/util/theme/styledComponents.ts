@@ -4,7 +4,7 @@ export interface StyledComponentsTheme {
   radii: number[];
 }
 
-const spaceDef = [0, 4, 8, 16, 32, 64];
+const spaceDef = [0, 4, 8, 16, 32, 48, 64];
 export const STYLED_COMPONENTS_THEME: StyledComponentsTheme = {
   space: spaceDef,
   radii: spaceDef,
