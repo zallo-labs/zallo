@@ -1,6 +1,5 @@
-import { ComponentPropsWithoutRef, ReactNode } from 'react';
-import { ViewProps } from 'react-native';
-import { Surface } from 'react-native-paper';
+import { ReactNode } from 'react';
+import { View, ViewProps } from 'react-native';
 import styled from 'styled-components/native';
 import {
   borders,
@@ -32,7 +31,7 @@ export interface StyledProps
 }
 
 // TODO: move to Animated.View once this issue is resolved: https://github.com/software-mansion/react-native-reanimated/issues/3209
-const Internal = styled(Surface)<StyledProps>`
+const Internal = styled(View)<StyledProps>`
   ${flexbox};
   ${layout};
   ${borders};
@@ -67,32 +66,12 @@ const Internal = styled(Surface)<StyledProps>`
   `}
 `;
 
-type SurfaceProps = ComponentPropsWithoutRef<typeof Surface>;
-type InternalProps = SurfaceProps & StyledProps;
-// type InternalProps = ComponentPropsWithoutRef<typeof Internal>;
+type InternalProps = ViewProps & StyledProps;
 
 export type BoxProps = Omit<InternalProps, 'children'> & {
   children?: ReactNode;
-  surface?: boolean;
-  rounded?: number | boolean;
 };
 
-export const Box = ({ children, surface, style, ...props }: BoxProps) => {
-  if (props.rounded)
-    props.borderRadius = props.rounded === true ? 2 : props.rounded;
-
-  return (
-    <Internal
-      {...(props as any)}
-      style={[
-        {
-          ...(!surface &&
-            !props.backgroundColor && { backgroundColor: undefined }),
-        },
-        style,
-      ]}
-    >
-      {children}
-    </Internal>
-  );
+export const Box = ({ children, ...props }: BoxProps) => {
+  return <Internal {...props}>{children}</Internal>;
 };
