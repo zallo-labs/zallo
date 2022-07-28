@@ -17,9 +17,9 @@ export const ReceiveScreen = () => {
       <Box flex={1} justifyContent="space-around" mx={4} my={3}>
         <QrCode addr={safe.safe.address} />
 
-        <Container separator={<Box my={3} />}>
+        <Container separator={<Box my={2} />}>
           <TokenCard token={ETH} />
-          <AccountCard />
+          <AccountCard large balance={false} />
         </Container>
       </Box>
     </Box>
