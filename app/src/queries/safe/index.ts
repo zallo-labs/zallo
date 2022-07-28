@@ -17,3 +17,19 @@ export interface CombinedSafe {
   impl: Address;
   groups: CombinedGroup[];
 }
+
+export interface CombinedSafe2 {
+  safe: Safe;
+  name: string;
+  deploySalt?: string;
+  impl: Address;
+}
+
+export interface CombinedAccount {
+  id: Id;
+  ref: string;
+  active: boolean;
+  approvers: Approver[];
+  name: string;
+  safe: CombinedSafe2;
+}
