@@ -1,6 +1,6 @@
 import { ComponentPropsWithoutRef, ReactNode } from 'react';
 import { ViewProps } from 'react-native';
-import { Surface } from 'react-native-paper';
+import { Surface, TouchableRipple } from 'react-native-paper';
 import styled from 'styled-components/native';
 import {
   borders,
@@ -70,20 +70,34 @@ const Internal = styled(Surface)<StyledProps>`
 
 type SurfaceProps = ComponentPropsWithoutRef<typeof Surface>;
 type InternalProps = SurfaceProps & StyledProps;
+type TouchableRippleProps = ComponentPropsWithoutRef<typeof TouchableRipple>;
 
-export type CardProps = Omit<InternalProps, 'children'> & {
-  children?: ReactNode;
-};
+export type CardProps = Omit<InternalProps, 'children'> &
+  Pick<TouchableRippleProps, 'onPress' | 'onLongPress'> & {
+    children?: ReactNode;
+  };
 
-export const Card = ({ children, ...props }: CardProps) => {
+export const Card = ({
+  children,
+  onPress,
+  onLongPress,
+  ...props
+}: CardProps) => {
   const { roundness } = useTheme();
 
   return (
-    <Internal
-      {...(props as any)}
-      style={[{ borderRadius: roundness }, props.style]}
+    <TouchableRipple
+      onPress={onPress}
+      onLongPress={onLongPress}
+      borderless
+      style={{ borderRadius: roundness }}
     >
-      {children}
-    </Internal>
+      <Internal
+        {...(props as any)}
+        style={[{ borderRadius: roundness }, props.style]}
+      >
+        {children}
+      </Internal>
+    </TouchableRipple>
   );
 };
