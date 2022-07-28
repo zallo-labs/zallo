@@ -1,7 +1,7 @@
 import { Box } from '@components/Box';
 import { Container } from '@components/list/Container';
 import { QrCode } from '@features/qr/QrCode';
-import { AccountCard } from '~/components2/account/AccountCard';
+import { SelectedAccountCard } from '~/components2/account/SelectedAccountCard';
 import { useSelectedAccount } from '~/components2/account/useSelectedAccount';
 import { TokenCard } from '~/components2/token/TokenCard';
 import { ETH } from '~/token/tokens';
@@ -19,7 +19,7 @@ export const ReceiveScreen = () => {
 
         <Container separator={<Box my={2} />}>
           <TokenCard token={ETH} />
-          <AccountCard large balance={false} />
+          <SelectedAccountCard large balance={false} />
         </Container>
       </Box>
     </Box>

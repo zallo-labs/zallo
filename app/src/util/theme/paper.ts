@@ -2,7 +2,7 @@ import {
   MD3DarkTheme as PaperDarkTheme,
   useTheme as baseUseTheme,
 } from 'react-native-paper';
-import { STYLED_COMPONENTS_THEME } from './styledComponents';
+import { space } from './styledComponents';
 
 const overrided: typeof PaperDarkTheme = {
   ...PaperDarkTheme,
@@ -12,14 +12,31 @@ const overrided: typeof PaperDarkTheme = {
 // https://github.com/callstack/react-native-paper/blob/main/src/styles/themes/v3/DarkTheme.tsx
 export const PAPER_THEME = {
   ...overrided,
-  ...STYLED_COMPONENTS_THEME,
   colors: {
-    ...PaperDarkTheme.colors,
+    ...overrided.colors,
 
     success: '#48C12A', // Green
     info: '#559EFC', // Blue
     warning: '#FFAF30', // Orange
-    // lighterText: new Color(PaperDarkTheme.colors.onSurface).alpha(0.7).hexa(),
+  },
+
+  space,
+  onBackground: (backgroundColor?: string) => {
+    if (backgroundColor) {
+      const bgKey = Object.keys(overrided.colors).find(
+        (key) => (overrided.colors as any)[key] === backgroundColor,
+      );
+
+      if (bgKey) {
+        const onColor = (overrided.colors as any)[
+          `on${bgKey[0].toUpperCase()}${bgKey.slice(1)}`
+        ];
+
+        if (onColor) return onColor;
+      }
+    }
+
+    return overrided.colors.onSurface;
   },
 
   iconSize: {

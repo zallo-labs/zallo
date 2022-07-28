@@ -1,6 +1,6 @@
 import { ComponentPropsWithoutRef, ReactNode } from 'react';
 import { ViewProps } from 'react-native';
-import { Card as BaseCard, TouchableRipple } from 'react-native-paper';
+import { Surface, TouchableRipple } from 'react-native-paper';
 import styled from 'styled-components/native';
 import {
   borders,
@@ -32,7 +32,7 @@ export interface StyledProps
 }
 
 // TODO: move to Animated.View once this issue is resolved: https://github.com/software-mansion/react-native-reanimated/issues/3209
-const Internal = styled(BaseCard)<StyledProps>`
+const Internal = styled(Surface)<StyledProps>`
   ${flexbox};
   ${layout};
   ${borders};
@@ -67,23 +67,22 @@ const Internal = styled(BaseCard)<StyledProps>`
   `}
 `;
 
-type BaseCardProps = ComponentPropsWithoutRef<typeof BaseCard>;
-type InternalProps = BaseCardProps & StyledProps;
+type SurfaceProps = ComponentPropsWithoutRef<typeof Surface>;
+type InternalProps = SurfaceProps & StyledProps;
 type TouchableRippleProps = ComponentPropsWithoutRef<typeof TouchableRipple>;
 
-export type CardProps = Omit<InternalProps, 'children'> &
+export type CardOldProps = Omit<InternalProps, 'children'> &
   Pick<TouchableRippleProps, 'onPress' | 'onLongPress'> & {
     children?: ReactNode;
   };
 
-export const Card = ({
+export const CardOld = ({
   children,
   onPress,
   onLongPress,
-  elevation,
   ...props
-}: CardProps) => {
-  const { colors, roundness } = useTheme();
+}: CardOldProps) => {
+  const { roundness } = useTheme();
 
   return (
     <TouchableRipple
@@ -93,11 +92,9 @@ export const Card = ({
       style={{ borderRadius: roundness }}
     >
       <Internal
-        backgroundColor={
-          colors.elevation[`level${elevation?.toString()}` as any] ||
-          colors.elevation.level1
-        }
         {...(props as any)}
+        elevation={2}
+        style={[{ borderRadius: roundness }, props.style]}
       >
         {children}
       </Internal>

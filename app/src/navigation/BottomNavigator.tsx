@@ -1,6 +1,7 @@
 import { ComponentPropsWithoutRef, useState } from 'react';
 import { BottomNavigation, Text } from 'react-native-paper';
 import { ReceiveScreen } from '~/screens/receive/ReceiveScreen';
+import { RootNavigatorScreenProps } from './RootNavigator';
 
 // TODO: switch to Navigation when updated with RNP 6 support - https://github.com/react-navigation/react-navigation/blob/main/packages/material-bottom-tabs/package.json
 // import {
@@ -63,7 +64,9 @@ const renderScene = BottomNavigation.SceneMap({
   Receive: ReceiveScreen,
 });
 
-export const BottomNavigator = () => {
+export type BottomNavigatorProps = RootNavigatorScreenProps<'BottomNavigator'>;
+
+export const BottomNavigator = (_props: BottomNavigatorProps) => {
   const [index, setIndex] = useState(3);
 
   return (

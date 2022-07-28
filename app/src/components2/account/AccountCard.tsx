@@ -1,52 +1,44 @@
 import { Addr } from '@components/Addr';
 import { Box } from '@components/Box';
-import { useNavigation } from '@react-navigation/native';
 import { useTheme } from '@util/theme/paper';
 import { Text } from 'react-native-paper';
-import { BottomNavigatorProps } from '~/navigation/BottomNavigator';
-import { Card } from '../card/Card';
+import { CombinedAccount } from '~/queries/safe';
+import { Card, CardProps } from '../card/Card';
 import { AccountName } from './AccountName';
-import { useSelectedAccount } from './useSelectedAccount';
 
 export interface AccountCardProps {
-  large?: boolean;
+  account: CombinedAccount;
   balance?: boolean;
+  cardProps?: CardProps;
+  large?: boolean;
 }
 
-export const AccountCard = ({ large, balance = true }: AccountCardProps) => {
-  const navigation = useNavigation<BottomNavigatorProps['navigation']>();
-  const { colors } = useTheme();
-  const selected = useSelectedAccount();
+export const AccountCard = ({
+  account,
+  balance = true,
+  cardProps,
+  large = false,
+}: AccountCardProps) => {
+  const { onBackground } = useTheme();
+
+  const textStyle = {
+    color: onBackground(cardProps?.backgroundColor),
+  };
 
   return (
-    <Card
-      vertical
-      backgroundColor={colors.tertiaryContainer}
-      p={3}
-      {...(large && { minHeight: 120 })}
-      onPress={() => navigation.push('SelectAccount')}
-    >
-      <Text
-        variant={`title${large ? 'Large' : 'Medium'}`}
-        style={{ color: colors.onTertiaryContainer }}
-      >
-        <AccountName account={selected} />
+    <Card vertical p={3} {...cardProps} {...(large && { minHeight: 120 })}>
+      <Text variant={`title${large ? 'Large' : 'Medium'}`} style={textStyle}>
+        <AccountName account={account} />
       </Text>
 
       <Box flexGrow={1} horizontal>
-        <Text
-          variant="bodyMedium"
-          style={{ flex: 1, color: colors.onTertiaryContainer }}
-        >
-          <Addr addr={selected.safe.safe.address} />
+        <Text style={[textStyle, { flexGrow: 1 }]} variant="bodyMedium">
+          <Addr addr={account.safe.safe.address} />
         </Text>
 
         {balance && (
           <Box vertical justifyContent="flex-end">
-            <Text
-              variant="bodyLarge"
-              style={{ color: colors.onTertiaryContainer }}
-            >
+            <Text style={textStyle} variant="bodyLarge">
               $xxx,xxx
             </Text>
           </Box>

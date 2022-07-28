@@ -1,13 +1,9 @@
 import { persistAtom } from '@util/effect/persistAtom';
 import { Address, GroupRef, toGroupRef } from 'lib';
-import { useMemo } from 'react';
+import { useCallback, useMemo } from 'react';
 import { atom, useRecoilValue, useSetRecoilState } from 'recoil';
-import { CombinedGroup, CombinedSafe } from '~/queries/safe';
+import { CombinedAccount } from '~/queries/safe';
 import { useSafes } from '~/queries/safe/useSafes';
-
-export interface SafeAccount extends CombinedGroup {
-  safe: CombinedSafe;
-}
 
 type AccountKey = [Address, GroupRef];
 
@@ -17,7 +13,7 @@ const selectedAccount = atom<AccountKey | null>({
   effects: [persistAtom()],
 });
 
-export const useSelectedAccount = (): SafeAccount => {
+export const useSelectedAccount = (): CombinedAccount => {
   const { safes } = useSafes();
   const [safeAddr, accRef]: AccountKey = useRecoilValue(selectedAccount) ?? [
     safes[0]!.safe.address,
@@ -32,4 +28,11 @@ export const useSelectedAccount = (): SafeAccount => {
   }, [accRef, safeAddr, safes]);
 };
 
-export const useSetSelectedAccount = () => useSetRecoilState(selectedAccount);
+export const useSetSelectedAccount = () => {
+  const select = useSetRecoilState(selectedAccount);
+
+  return useCallback(
+    (acc: CombinedAccount) => select([acc.safe.safe.address, acc.ref]),
+    [select],
+  );
+};
