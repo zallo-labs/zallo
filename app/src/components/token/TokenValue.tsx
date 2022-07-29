@@ -5,15 +5,19 @@ import { BigNumberish } from 'ethers';
 export interface TokenValueProps {
   token: Token;
   value: BigNumberish;
-  noSymbol?: boolean;
+  symbol?: boolean;
 }
 
-export const TokenValue = ({ token, value, noSymbol }: TokenValueProps) => (
+export const TokenValue = ({
+  token,
+  value,
+  symbol = true,
+}: TokenValueProps) => (
   <FormattedNumber
     value={value}
     unitDecimals={token.decimals}
     maximumFractionDigits={2}
     extendedFractionDigits={3}
-    postFormat={noSymbol ? undefined : (v) => `${v} ${token.symbol}`}
+    postFormat={symbol ? (v) => `${v} ${token.symbol}` : undefined}
   />
 );
