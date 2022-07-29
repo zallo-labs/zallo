@@ -28,7 +28,7 @@ export const useSelectedAccount = (): CombinedAccount => {
   }, [accRef, safeAddr, safes]);
 };
 
-export const useSetSelectedAccount = () => {
+export const useSelectAccount = () => {
   const select = useSetRecoilState(selectedAccount);
 
   return useCallback(

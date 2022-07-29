@@ -3,7 +3,7 @@ import { Box } from '@components/Box';
 import { FlatList } from 'react-native';
 import { Appbar } from 'react-native-paper';
 import { AccountCard } from '~/components2/account/AccountCard';
-import { useSetSelectedAccount } from '~/components2/account/useSelectedAccount';
+import { useSelectAccount } from '~/components2/account/useSelectedAccount';
 import { RootNavigatorScreenProps } from '~/navigation/RootNavigator';
 import { useAccounts } from '~/queries/safe/useAccounts';
 
@@ -14,7 +14,7 @@ export const SelectAccountScreen = ({
   navigation,
 }: SelectAccountScreenProps) => {
   const { accounts } = useAccounts();
-  const setSelected = useSetSelectedAccount();
+  const setSelected = useSelectAccount();
 
   return (
     <Box>

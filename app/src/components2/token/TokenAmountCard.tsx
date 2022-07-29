@@ -4,15 +4,15 @@ import { BigNumberish } from 'ethers';
 import { Text } from 'react-native-paper';
 import { Token } from '~/token/token';
 import { useTokenValue } from '~/token/useTokenValue';
-import { CardItem } from '../card/CardItem';
+import { CardItem, CardItemProps } from '../card/CardItem';
 import { TokenAmount } from './TokenAmount';
 
-export interface TokenAmountCardProps {
+export interface TokenAmountCardProps extends CardItemProps {
   token: Token;
   amount: BigNumberish;
 }
 
-export const TokenAmountCard = ({ token: t, amount }: TokenAmountCardProps) => {
+export const TokenAmountCard = ({ token: t, amount, ...itemProps }: TokenAmountCardProps) => {
   const { fiatValue } = useTokenValue(t, amount);
 
   return (
@@ -31,6 +31,7 @@ export const TokenAmountCard = ({ token: t, amount }: TokenAmountCardProps) => {
           <FiatValue value={fiatValue} />
         </Text>
       }
+      {...itemProps}
     />
   );
 };
