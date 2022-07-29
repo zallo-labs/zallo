@@ -42,3 +42,4 @@ export const ShareIcon = materialCommunity('share-variant');
 export const CheckIcon = materialCommunity('check');
 export const CloseIcon = materialCommunity('close');
 export const SwapIcon = materialCommunity('swap-vertical');
+export const SearchIcon = material("search");
