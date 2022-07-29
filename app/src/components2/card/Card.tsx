@@ -80,7 +80,7 @@ export const Card = ({
   children,
   onPress,
   onLongPress,
-  elevation,
+  elevation = 2,
   ...props
 }: CardProps) => {
   const { colors, roundness } = useTheme();

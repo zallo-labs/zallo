@@ -1,3 +1,4 @@
+import { useTheme } from '@util/theme/paper';
 import ContentLoader, {
   IContentLoaderProps,
 } from 'react-content-loader/native';
@@ -16,16 +17,20 @@ export const Skeleton = ({
   width,
   height,
   ...props
-}: SkeletonProps) => (
-  <ContentLoader
-    speed={2}
-    width={width}
-    height={height}
-    viewBox={`0 0 ${width} ${height}`}
-    backgroundColor="#e9e2d9"
-    foregroundColor="#ffb0c9"
-    {...props}
-  >
-    {children}
-  </ContentLoader>
-);
+}: SkeletonProps) => {
+  const { colors } = useTheme();
+
+  return (
+    <ContentLoader
+      speed={2}
+      width={width}
+      height={height}
+      viewBox={`0 0 ${width} ${height}`}
+      backgroundColor={colors.surfaceVariant}
+      foregroundColor={colors.secondary}
+      {...props}
+    >
+      {children}
+    </ContentLoader>
+  );
+};
