@@ -6,7 +6,6 @@ import { space } from './styledComponents';
 
 const overrided: typeof PaperDarkTheme = {
   ...PaperDarkTheme,
-  roundness: 8,
 };
 
 // https://github.com/callstack/react-native-paper/blob/main/src/styles/themes/v3/DarkTheme.tsx
