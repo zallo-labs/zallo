@@ -59,7 +59,7 @@ export const AmountInput = ({ amount, setAmount }: AmountInputProps) => {
   return (
     <Box>
       <Box horizontal justifyContent="space-between" alignItems="center">
-        <Box width={iconButton.containerSize + 8}>
+        <Box width={iconButton.containerSize}>
           {type !== 'fiat' && <Text variant="headlineSmall">$</Text>}
         </Box>
 
@@ -80,18 +80,18 @@ export const AmountInput = ({ amount, setAmount }: AmountInputProps) => {
       </Box>
 
       <Box horizontal justifyContent="space-between" alignItems="center">
-        <Box width={20}>
+        <Box width={iconButton.containerSize}>
           {type === 'fiat' && <Text variant="displaySmall">$</Text>}
         </Box>
 
         <BasicTextField
           {...input}
           textAlign="center"
-          style={[typescale.displayLarge]}
+          style={[typescale.displayLarge, { flex: 1 }]}
           placeholderTextColor={colors.secondary}
         />
 
-        <Box width={20} />
+        <Box width={iconButton.containerSize} />
       </Box>
     </Box>
   );
