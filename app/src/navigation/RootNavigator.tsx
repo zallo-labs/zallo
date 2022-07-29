@@ -8,9 +8,14 @@ import {
   AmountScreenParams,
 } from '~/screens/amount/AmountScreen';
 import { BottomNavigator } from './BottomNavigator';
+import {
+  TokensScreen,
+  TokensScreenParams,
+} from '~/screens/tokens/TokensScreen';
 
 export type RootNavigatorParamList = {
   BottomNavigator: undefined;
+  Tokens: TokensScreenParams;
   SelectAccount: undefined;
   Amount: AmountScreenParams;
 };
@@ -23,6 +28,7 @@ const Navigation = createNativeStackNavigator<RootNavigatorParamList>();
 export const RootNavigator = () => (
   <Navigation.Navigator screenOptions={{ headerShown: false }}>
     <Navigation.Screen name="BottomNavigator" component={BottomNavigator} />
+    <Navigation.Screen name="Tokens" component={TokensScreen} />
     <Navigation.Screen name="SelectAccount" component={SelectAccountScreen} />
     <Navigation.Screen name="Amount" component={AmountScreen} />
   </Navigation.Navigator>

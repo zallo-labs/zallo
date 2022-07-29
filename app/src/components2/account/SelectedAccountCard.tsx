@@ -18,7 +18,7 @@ export const SelectedAccountCard = (props: SelectedAccountCardProps) => {
       account={selected}
       cardProps={{
         backgroundColor: colors.tertiaryContainer,
-        onPress: () => navigation.push('SelectAccount'),
+        onPress: () => navigation.navigate('SelectAccount'),
       }}
     />
   );

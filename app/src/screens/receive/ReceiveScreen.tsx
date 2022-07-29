@@ -48,7 +48,9 @@ export const ReceiveScreen = () => {
             <Button
               icon="plus"
               style={{ alignSelf: 'flex-end' }}
-              onPress={() => navigation.push('Amount', { onChange: setAmount })}
+              onPress={() =>
+                navigation.navigate('Amount', { onChange: setAmount })
+              }
             >
               Amount
             </Button>

@@ -19,8 +19,8 @@ export const SelectableTokenAmount = ({
 
   const handlePress = useCallback(
     () =>
-      navigation.push('Amount', {
-        onChange: onChange,
+      navigation.navigate('Amount', {
+        onChange,
       }),
     [navigation, onChange],
   );
