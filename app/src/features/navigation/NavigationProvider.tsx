@@ -10,6 +10,11 @@ import {
 } from '@util/sentry/sentry';
 import { NAVIGATION_THEME } from '@util/theme/navigation';
 import { useCallback, useRef } from 'react';
+import { LogBox } from 'react-native';
+
+LogBox.ignoreLogs([
+  'Non-serializable values were found in the navigation state',
+]);
 
 export const NavigationProvider = ({ children }: ChildrenProps) => {
   const navigationRef = useNavigationContainerRef();
