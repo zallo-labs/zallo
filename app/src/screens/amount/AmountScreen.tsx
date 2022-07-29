@@ -1,13 +1,16 @@
 import { AppbarBack } from '@components/AppbarBack';
 import { Box } from '@components/Box';
+import { usePrevious } from '@util/hook/usePrevious';
 import { CheckIcon, CloseIcon } from '@util/theme/icons';
 import { BigNumber } from 'ethers';
 import { ZERO } from 'lib';
-import { useCallback, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import { Appbar } from 'react-native-paper';
 import { FAB } from '~/components2/FAB';
 import { SelectedTokenCard } from '~/components2/token/SelectedTokenCard';
+import { useSelectedToken } from '~/components2/token/useSelectedToken';
 import { RootNavigatorScreenProps } from '~/navigation/RootNavigator';
+import { convertTokenAmount, Token } from '~/token/token';
 import { AmountInput } from './AmountInput';
 
 export interface AmountScreenParams {
@@ -30,6 +33,15 @@ export const AmountScreen = ({ navigation, route }: AmountScreenProps) => {
     onChange(amount);
     navigation.goBack();
   }, [amount, navigation, onChange]);
+
+  const token = useSelectedToken();
+  const [prevToken, setPrevToken] = useState<Token>(token);
+  useMemo(() => {
+    if (prevToken !== token && amount) {
+      setAmount(convertTokenAmount(amount, prevToken, token));
+      setPrevToken(token);
+    }
+  }, [amount, prevToken, setAmount, token]);
 
   return (
     <Box flex={1}>

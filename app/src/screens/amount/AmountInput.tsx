@@ -3,15 +3,17 @@ import { FiatValue } from '@components/FiatValue';
 import { BasicTextField } from '@components/fields/BasicTextField';
 import { useBigNumberInput } from '@components/fields/useBigNumberInput';
 import { TokenValue } from '@components/token/TokenValue';
+import { usePrevious } from '@util/hook/usePrevious';
 import { SwapIcon } from '@util/theme/icons';
 import { useTheme } from '@util/theme/paper';
 import { BigNumber } from 'ethers';
 import { ZERO } from 'lib';
-import { useCallback, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import { IconButton, Text } from 'react-native-paper';
 import { useSelectedToken } from '~/components2/token/useSelectedToken';
 import { useTokenPrice } from '~/queries/useTokenPrice.uni';
 import { fiatToBigNumber, fiatToToken, FIAT_DECIMALS } from '~/token/fiat';
+import { convertTokenAmount } from '~/token/token';
 import { useTokenValue } from '~/token/useTokenValue';
 
 export interface AmountInputProps {
@@ -55,6 +57,10 @@ export const AmountInput = ({ amount, setAmount }: AmountInputProps) => {
       setValue(amount);
     }
   }, [amount, fiatValue, type]);
+
+  useMemo(() => {
+    if (type === 'token' && value !== amount) setValue(amount);
+  }, [amount, type, value]);
 
   return (
     <Box>

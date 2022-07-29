@@ -76,3 +76,16 @@ export const createTransferTx = (
           value: amount,
         },
   );
+
+export const convertTokenAmount = (
+  amount: BigNumber,
+  prevToken: Token,
+  newToken: Token,
+): BigNumber => {
+  const decimalsDiff = prevToken.decimals - newToken.decimals;
+  if (decimalsDiff === 0) return amount;
+
+  const div = BigNumber.from(10).pow(Math.abs(decimalsDiff));
+
+  return decimalsDiff >= 0 ? amount.div(div) : amount.mul(div);
+};
