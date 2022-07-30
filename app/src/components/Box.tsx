@@ -72,6 +72,4 @@ export type BoxProps = Omit<InternalProps, 'children'> & {
   children?: ReactNode;
 };
 
-export const Box = ({ children, ...props }: BoxProps) => {
-  return <Internal {...props}>{children}</Internal>;
-};
+export const Box = (props: BoxProps) => <Internal {...props} />;

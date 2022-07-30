@@ -1,5 +1,6 @@
 import { AppbarBack } from '@components/AppbarBack';
 import { Box } from '@components/Box';
+import { useAppbarHeader } from '@util/hook/useAppbarHeader';
 import { FlatList } from 'react-native';
 import { Appbar } from 'react-native-paper';
 import { AccountCard } from '~/components2/account/AccountCard';
@@ -14,14 +15,15 @@ export const SelectAccountScreen = ({
   navigation,
 }: SelectAccountScreenProps) => {
   const { accounts } = useAccounts();
+  const { AppbarHeader, scrollHandler } = useAppbarHeader();
   const setSelected = useSelectAccount();
 
   return (
     <Box>
-      <Appbar.Header>
+      <AppbarHeader>
         <AppbarBack />
         <Appbar.Content title="Select Account" />
-      </Appbar.Header>
+      </AppbarHeader>
 
       <Box m={3}>
         <FlatList
@@ -38,6 +40,8 @@ export const SelectAccountScreen = ({
               }}
             />
           )}
+          onScroll={scrollHandler}
+          showsVerticalScrollIndicator={false}
         />
       </Box>
     </Box>
