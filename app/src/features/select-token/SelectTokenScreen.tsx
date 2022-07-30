@@ -1,4 +1,4 @@
-import { GenericListScreenSkeleton } from '@components/GenericScreenSkeleton';
+import { ListScreenSkeleton } from '@components/ListScreenSkeleton';
 import { withSkeleton } from '@components/skeleton/withSkeleton';
 import { RootNavigatorScreenProps } from '@features/navigation/RootNavigator';
 import { NavTarget, navToTarget } from '@features/navigation/target';
@@ -54,5 +54,5 @@ export const SelectTokenScreen = withSkeleton(
       />
     );
   },
-  GenericListScreenSkeleton,
+  ListScreenSkeleton,
 );

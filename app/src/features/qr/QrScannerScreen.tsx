@@ -1,7 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
 import { StyleSheet } from 'react-native';
 import { BarCodeScanningResult, Camera } from 'expo-camera';
-import useAsyncEffect from 'use-async-effect';
 import { RootNavigatorScreenProps } from '@features/navigation/RootNavigator';
 import { parseAddrLink } from './addrLink';
 import { BarCodeScanner } from 'expo-barcode-scanner';

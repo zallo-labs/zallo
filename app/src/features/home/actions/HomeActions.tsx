@@ -6,7 +6,7 @@ import { useDeploySafe } from '@features/safe/useDeploySafe';
 import { HomeScreenProps } from '../HomeScreen';
 import { HomeActionButton } from './HomeActionButton';
 import { useNavigateToSend } from '@features/send/SendScreen';
-import { ReceiveIcon, SendIcon } from '@util/icons';
+import { ReceiveIcon, SendIcon } from '@util/theme/icons';
 import { usePropose } from '@features/execute/ProposeProvider';
 import { useSafe } from '@features/safe/SafeProvider';
 import { SAFE_IMPL } from '~/provider';

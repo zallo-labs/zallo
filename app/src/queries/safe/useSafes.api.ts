@@ -2,7 +2,7 @@ import { gql, useQuery } from '@apollo/client';
 import { useWallet } from '@features/wallet/useWallet';
 import { UserSafesQuery } from '@gql/generated.api';
 import { useApiClient } from '@gql/GqlProvider';
-import { filterFirst, toId, address, connectSafe } from 'lib';
+import { filterFirst, toId, address, connectSafe, toGroupRef } from 'lib';
 import { SAFE_IMPL } from '~/provider';
 import { CombinedGroup, CombinedSafe, QUERY_SAFES_POLL_INTERVAL } from '.';
 
@@ -66,7 +66,7 @@ export const useApiSafes = () => {
     const groups: CombinedGroup[] =
       s.groups?.map((g) => ({
         id: toId(g.id),
-        ref: g.ref,
+        ref: toGroupRef(g.ref),
         active: true,
         approvers:
           g.approvers?.map((g) => ({

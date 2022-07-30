@@ -1,9 +1,10 @@
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { ChildrenProps } from '@util/children';
-import { Subheading, Title, useTheme } from 'react-native-paper';
+import { Subheading, Title } from 'react-native-paper';
 import { Box } from '../../components/Box';
 import { useEffect } from 'react';
 import { Native as Sentry } from 'sentry-expo';
+import { useTheme } from '@util/theme/paper';
 
 interface FallbackProps {
   resetError: () => void;

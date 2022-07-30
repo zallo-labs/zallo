@@ -1,6 +1,8 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { KeyboardType } from 'react-native';
 
+const JS_NUMBER_MAX_DECIMALS = 16;
+
 const toStr = (value?: number) => value?.toString() ?? '';
 
 const normalise = (s?: string) => {
@@ -19,16 +21,25 @@ const normalise = (s?: string) => {
   return s;
 };
 
-const VALID_INPUT_PATTERN = /^(?:\d,?)*(?:\.\d*)?$/;
-const isValidInput = (input: string) => !!input.match(VALID_INPUT_PATTERN);
-
 export interface UseNumberInputOptions {
   value?: number;
   onChange: (value: number) => void;
+  maxDecimals?: number;
 }
 
-export const useNumberInput = ({ value, onChange }: UseNumberInputOptions) => {
+export const useNumberInput = ({
+  value,
+  onChange,
+  maxDecimals = JS_NUMBER_MAX_DECIMALS,
+}: UseNumberInputOptions) => {
   const [input, setInput] = useState(toStr(value));
+
+  const isValidInput = useMemo(() => {
+    const validPattern = new RegExp(
+      `^(?:\\d,?)*(?:\\.\\d{0,${maxDecimals}})?$`,
+    );
+    return (input: string) => !!input.match(validPattern);
+  }, [maxDecimals]);
 
   const handleStrChange = useCallback(
     (value: string) => {
@@ -39,7 +50,7 @@ export const useNumberInput = ({ value, onChange }: UseNumberInputOptions) => {
       const normalised = normalise(value);
       onChange(parseFloat(normalised));
     },
-    [onChange],
+    [isValidInput, onChange],
   );
 
   // Update str if value changes externally; detect these changes by checking for equivalence

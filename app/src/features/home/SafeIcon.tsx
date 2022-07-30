@@ -9,7 +9,7 @@ export const SafeIcon = () => {
   const { safe } = useSafe();
 
   return (
-    <TouchableOpacity onPress={() => navigation.push('SafeManagement')}>
+    <TouchableOpacity onPress={() => navigation.navigate('SafeManagement')}>
       <Identicon seed={safe.address} />
     </TouchableOpacity>
   );

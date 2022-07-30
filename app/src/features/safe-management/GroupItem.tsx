@@ -21,7 +21,9 @@ export const GroupItem = ({ group, ...liProps }: GroupItemProps) => {
           <GroupName group={group} />
         </Subheading>
       }
-      onPress={() => navigation.push('GroupManagement', { groupId: group.id })}
+      onPress={() =>
+        navigation.navigate('GroupManagement', { groupId: group.id })
+      }
       {...liProps}
     />
   );

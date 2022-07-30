@@ -1,6 +1,6 @@
 import { View } from 'react-native';
-import { useTheme } from 'react-native-paper';
 import { ChildrenProps } from '@util/children';
+import { useTheme } from '@util/theme/paper';
 
 export const Background = ({ children }: ChildrenProps) => {
   const { colors } = useTheme();

@@ -1,5 +1,5 @@
 import { BytesLike, ethers } from 'ethers';
-import { hexlify, randomBytes } from 'ethers/lib/utils';
+import { hexDataLength, hexlify, randomBytes } from 'ethers/lib/utils';
 import { isEqual } from 'lodash';
 import {
   Approver,
@@ -10,6 +10,13 @@ import {
 import { Safe } from './contracts';
 import { Id, toId } from './id';
 import { createTx, TxReq } from './tx';
+
+export type GroupRef = string & { isGroupRef: true };
+
+export const toGroupRef = (v: string): GroupRef => {
+  if (hexDataLength(v) !== 32) throw new Error('Invalid group ref: ' + v);
+  return v as GroupRef;
+};
 
 export interface SafeGroup {
   ref: BytesLike;

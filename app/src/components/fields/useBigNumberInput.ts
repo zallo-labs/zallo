@@ -11,9 +11,10 @@ export interface UseBigNumberInputOptions {
 export const useBigNumberInput = ({
   value,
   onChange,
-  decimals = 0,
+  decimals,
 }: UseBigNumberInputOptions) =>
   useNumberInput({
-    value: value && parseFloat(formatUnits(value, decimals)),
-    onChange: (value) => onChange(parseUnits(value.toString(), decimals)),
+    value: value && parseFloat(formatUnits(value, decimals ?? 0)),
+    onChange: (value) => onChange(parseUnits(value.toString(), decimals ?? 0)),
+    maxDecimals: decimals,
   });

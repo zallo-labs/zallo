@@ -3,7 +3,7 @@ import { Box } from '@components/Box';
 import { useSafe } from '@features/safe/SafeProvider';
 import { SafeSelectorDialog } from '@features/safe/selector/SafeSelectorDialog';
 import { useNavigation } from '@react-navigation/native';
-import { ScanIcon } from '@util/icons';
+import { ScanIcon } from '@util/theme/icons';
 import { useState } from 'react';
 import { TouchableOpacity } from 'react-native';
 import { Appbar, Portal, Title } from 'react-native-paper';

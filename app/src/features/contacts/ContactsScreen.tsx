@@ -16,7 +16,7 @@ import { NavTarget, navToTarget } from '@features/navigation/target';
 import { AppbarBack } from '@components/AppbarBack';
 import { BasicTextField } from '@components/fields/BasicTextField';
 import { ErrorText } from '@components/ErrorText';
-import { ScanIcon } from '@util/icons';
+import { ScanIcon } from '@util/theme/icons';
 
 const CONTACT_SEARCH_FIELDS: (keyof Contact)[] = ['name', 'addr'];
 

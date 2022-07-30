@@ -8,6 +8,7 @@ import {
   connectSafe,
   address,
   fixedWeightToPercent,
+  toGroupRef,
 } from 'lib';
 import { CombinedSafe, QUERY_SAFES_POLL_INTERVAL } from '.';
 
@@ -80,7 +81,7 @@ export const useSubSafes = () => {
     name: '',
     groups: s.groups.map((g) => ({
       id: toId(g.id),
-      ref: g.ref,
+      ref: toGroupRef(g.ref),
       active: g.active,
       name: '',
       approvers: g.approverSets[0].approvers.map((a) => ({

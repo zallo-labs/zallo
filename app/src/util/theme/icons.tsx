@@ -35,3 +35,13 @@ export const EditIcon = materialCommunity('pencil');
 export const AcceptIcon = materialCommunity('check');
 export const RejectIcon = materialCommunity('close');
 export const ScanIcon = materialCommunity('line-scan');
+
+// New
+export const MenuIcon = materialCommunity('menu');
+export const ShareIcon = materialCommunity('share-variant');
+export const CheckIcon = materialCommunity('check');
+export const CloseIcon = materialCommunity('close');
+export const CancelIcon = CloseIcon;
+export const SwapIcon = materialCommunity('swap-vertical');
+export const SearchIcon = material('search');
+export const PlusIcon = materialCommunity('plus');

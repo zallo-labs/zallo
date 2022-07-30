@@ -4,7 +4,7 @@ import { LabelIcon } from '@components/LabelIcon';
 
 import { Token } from '~/token/token';
 import { SvgUri } from '@components/SvgUri';
-import { useTheme } from 'react-native-paper';
+import { useTheme } from '@util/theme/paper';
 
 export interface TokenIconProps {
   token: Token;
