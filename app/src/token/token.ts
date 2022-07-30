@@ -1,4 +1,3 @@
-import type { ChainName } from 'config';
 import { BigNumber } from 'ethers';
 import {
   address,

@@ -2,10 +2,11 @@ import { AppbarBack } from '@components/AppbarBack';
 import { Box } from '@components/Box';
 import { ListScreenSkeleton } from '@components/ListScreenSkeleton';
 import { withSkeleton } from '@components/skeleton/withSkeleton';
-import { useAppbarHeader } from '@util/hook/useAppbarHeader';
-import { PlusIcon, SearchIcon } from '@util/theme/icons';
+import { useAppbarHeader } from '~/components2/Appbar/useAppbarHeader';
+import { PlusIcon } from '@util/theme/icons';
 import { FlatList } from 'react-native';
-import { Appbar } from 'react-native-paper';
+import { AppbarSearch } from '~/components2/Appbar/AppbarSearch';
+import { useFuzzySearch } from '~/components2/Appbar/useFuzzySearch';
 import { FAB } from '~/components2/FAB';
 import { TokenBalanceCard } from '~/components2/token/TokenBalanceCard';
 import { RootNavigatorScreenProps } from '~/navigation/RootNavigator';
@@ -22,14 +23,19 @@ export const TokensScreen = withSkeleton(
   ({ navigation, route }: TokensScreenProps) => {
     const { onSelect } = route.params;
     const { AppbarHeader, scrollHandler } = useAppbarHeader();
-    const tokens = useTokens();
+    const [tokens, searchProps] = useFuzzySearch(useTokens(), [
+      'name',
+      'symbol',
+    ]);
 
     return (
       <Box flex={1}>
         <AppbarHeader>
           <AppbarBack />
-          <Appbar.Content title={onSelect ? 'Select Token' : 'Tokens'} />
-          <Appbar.Action icon={SearchIcon} />
+          <AppbarSearch
+            title={onSelect ? 'Select Token' : 'Tokens'}
+            {...searchProps}
+          />
         </AppbarHeader>
 
         <Box mx={3}>
