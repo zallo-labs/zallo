@@ -5245,9 +5245,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@prisma/client@npm:^4.1.0":
-  version: 4.1.0
-  resolution: "@prisma/client@npm:4.1.0"
+"@prisma/client@npm:^4.1.1":
+  version: 4.1.1
+  resolution: "@prisma/client@npm:4.1.1"
   dependencies:
     "@prisma/engines-version": 4.1.0-48.8d8414deb360336e4698a65aa45a1fbaf1ce13d8
   peerDependencies:
@@ -5255,18 +5255,18 @@ __metadata:
   peerDependenciesMeta:
     prisma:
       optional: true
-  checksum: bd722305284c633f9c1f8c92efb4db47ab8d47ce12384ed75b99880333f017a69f5ce65d546b306a0fe3a21e9d068e287ce96b4421c7b657e5b1c949673f8179
+  checksum: 0251ebba98c5212e5d2fabfadac945c5977b6e48c1baeaa5d962cd2d486524304e14f320870df879c7cc83de2783d0dd3fee9c63bcdd300bd88d2b5f8f461ed0
   languageName: node
   linkType: hard
 
-"@prisma/debug@npm:3.15.2":
-  version: 3.15.2
-  resolution: "@prisma/debug@npm:3.15.2"
+"@prisma/debug@npm:4.1.1":
+  version: 4.1.1
+  resolution: "@prisma/debug@npm:4.1.1"
   dependencies:
     "@types/debug": 4.1.7
     debug: 4.3.4
     strip-ansi: 6.0.1
-  checksum: 4a15ab929c0799e883a37026fdb6fc31e5da8d8b426b2fecef67ec449d63a90f87906ec4d38b801b2c6798169f3db21be5e9f814640dc0513da8af49971e7a5c
+  checksum: c4a8a76d9630cc11c65355d9705aa0f05605a7bf7c2eb5568e58eac73320b7e038ab0e394cec8a94eaeedddc96dfd5f8b4d9c8f55bdf8f5b0e258cbb6f44baa1
   languageName: node
   linkType: hard
 
@@ -5277,22 +5277,22 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@prisma/engines@npm:4.1.0":
-  version: 4.1.0
-  resolution: "@prisma/engines@npm:4.1.0"
-  checksum: b549d20b18d224388f267d92e9a53e4570064c74eff02bb7f2259cefdf060785a65c49afb5d6f897a3ab907a50425b0dff83ed06018ce5d465f0583a9dc4b893
+"@prisma/engines@npm:4.1.1":
+  version: 4.1.1
+  resolution: "@prisma/engines@npm:4.1.1"
+  checksum: 23877091007c288065b002cedc70273bc1a5eb601e3bae767549521aeffbd58775f079ba61fd9516546befe0a6c50db2fb2469f33b1e2ee847f5b1056ac4a07a
   languageName: node
   linkType: hard
 
-"@prisma/generator-helper@npm:^3.14.0":
-  version: 3.15.2
-  resolution: "@prisma/generator-helper@npm:3.15.2"
+"@prisma/generator-helper@npm:^4.0.0":
+  version: 4.1.1
+  resolution: "@prisma/generator-helper@npm:4.1.1"
   dependencies:
-    "@prisma/debug": 3.15.2
+    "@prisma/debug": 4.1.1
     "@types/cross-spawn": 6.0.2
     chalk: 4.1.2
     cross-spawn: 7.0.3
-  checksum: c6dcf81f6b0fbf7b482436b0d6c311fc41dc584abc67ff6a3f5b72959afc8aa4412a9ddbad7c14226136426c2824eed5a4dd83c78077cd546260b83335e4e5cb
+  checksum: 038cbaa5e4d2cd06e017f56726f4d6b8e0865ca86ac0de27b0532481b4779fbac81222017b86a919379774290d8abb66020ca7df4b616117f01c9dfd245cd920
   languageName: node
   linkType: hard
 
@@ -8740,7 +8740,7 @@ __metadata:
     "@nestjs/terminus": ^8.0.6
     "@nestjs/testing": ^8.4.1
     "@paljs/plugins": ^4.1.0
-    "@prisma/client": ^4.1.0
+    "@prisma/client": ^4.1.1
     "@quixo3/prisma-session-store": ^3.1.8
     "@types/express": ^4.17.13
     "@types/express-session": ^1.17.4
@@ -8773,11 +8773,11 @@ __metadata:
     jest: ^28.1.1
     lib: "workspace:*"
     luxon: ^3.0.1
-    nestjs-prisma: ^0.16.0
+    nestjs-prisma: ^0.17.0
     prettier: ^2.6.0
-    prisma: ^4.1.0
+    prisma: ^4.1.1
     prisma-graphql-type-decimal: ^2.0.4
-    prisma-nestjs-graphql: ^16.0.1
+    prisma-nestjs-graphql: ^17.0.0
     reflect-metadata: ^0.1.13
     rxjs: ^7.5.6
     siwe: ^1.1.6
@@ -24820,19 +24820,19 @@ __metadata:
   languageName: node
   linkType: hard
 
-"nestjs-prisma@npm:^0.16.0":
-  version: 0.16.0
-  resolution: "nestjs-prisma@npm:0.16.0"
+"nestjs-prisma@npm:^0.17.0":
+  version: 0.17.0
+  resolution: "nestjs-prisma@npm:0.17.0"
   dependencies:
     "@angular-devkit/core": ^13.3.0
     "@angular-devkit/schematics": ^13.3.0
     "@schematics/angular": ~13.3.0
   peerDependencies:
-    "@nestjs/common": ^7.0.0 || ^8.0.0
-    "@nestjs/platform-express": ^7.0.0 || ^8.0.0
-    "@prisma/client": ^2.0.0 || ^3.0.0
-    prisma: ^2.0.0 || ^3.0.0
-  checksum: 6145a5318efc9d8b4d1e7cd070175c6c0f61de9e0dff8e6b201efe59c2836a21e5aa129e29c5c108f747eeac1b57a2bd3659b298a8cbc38930a7d0fa810149eb
+    "@nestjs/common": ^7.0.0 || ^8.0.0 || ^9.0.0
+    "@nestjs/platform-express": ^7.0.0 || ^8.0.0 || ^9.0.0
+    "@prisma/client": ^2.0.0 || ^3.0.0 || ^4.0.0
+    prisma: ^2.0.0 || ^3.0.0 || ^4.0.0
+  checksum: c2a3b90de00d671743180796ae9bfd98ab87a134113fa1af080802bf8febb31a012b3b6bba1f4ed710323eb158643cbbfd4200c8c7d6760beead7b0e68bcda6b
   languageName: node
   linkType: hard
 
@@ -27056,11 +27056,11 @@ __metadata:
   languageName: node
   linkType: hard
 
-"prisma-nestjs-graphql@npm:^16.0.1":
-  version: 16.0.1
-  resolution: "prisma-nestjs-graphql@npm:16.0.1"
+"prisma-nestjs-graphql@npm:^17.0.0":
+  version: 17.0.0
+  resolution: "prisma-nestjs-graphql@npm:17.0.0"
   dependencies:
-    "@prisma/generator-helper": ^3.14.0
+    "@prisma/generator-helper": ^4.0.0
     await-event-emitter: ^2.0.2
     filenamify: 4.X
     flat: ^5.0.2
@@ -27073,19 +27073,19 @@ __metadata:
     ts-morph: ">=11"
   bin:
     prisma-nestjs-graphql: bin.js
-  checksum: d65d66dc0d2818341af9f3e79e5c252db8f3ff2b2956d22ab8cd1272d715627b165fcc9ca2ed38fe3e844007e0cabdb696989c9ec01fe7cddaef88f2ca1481d5
+  checksum: 0a967f33530a54a3d35dc11bcaa8356ab47c4406b8a811006f9c3a247d3a28cffc63d9121ce88622cfac14bc6bccfeb5c4624aecf8015ef7cc682a2fee3b4434
   languageName: node
   linkType: hard
 
-"prisma@npm:^4.1.0":
-  version: 4.1.0
-  resolution: "prisma@npm:4.1.0"
+"prisma@npm:^4.1.1":
+  version: 4.1.1
+  resolution: "prisma@npm:4.1.1"
   dependencies:
-    "@prisma/engines": 4.1.0
+    "@prisma/engines": 4.1.1
   bin:
     prisma: build/index.js
     prisma2: build/index.js
-  checksum: c566f03e8d0547c42fa8fe67f772c477dc68993654347434aac5317a2a1799470dedabdbc428a7d48375f8930e0fcd6c41e9a0d85686315ff7bfcdf3f73a9d56
+  checksum: fdaa0cb464e00700539eced334f743fbc669336076cbe12c3a7bbd043c546baa9792064a216ae2ca061c5cb05d720b8fc6e2c6f7e434ab3d1d63ec9f25fa525f
   languageName: node
   linkType: hard
 
