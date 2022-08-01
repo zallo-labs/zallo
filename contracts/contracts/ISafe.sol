@@ -4,36 +4,38 @@ pragma solidity ^0.8.0;
 import '@matterlabs/zksync-contracts/l2/system-contracts/interfaces/IAccountAbstraction.sol';
 import '@openzeppelin/contracts/interfaces/IERC1271.sol';
 
-/* Constants */
-// Fixed-point percentage with a precision of 28; e.g. 5.2% = 0.52 * (100 ** 27)
-// int256 can safely hold ~7e47 uint96s
-int256 constant THRESHOLD = 10**28;
+/*//////////////////////////////////////////////////////////////
+                                CONSTANTS
+  //////////////////////////////////////////////////////////////*/
 
 bytes4 constant EIP1271_SUCCESS = bytes4(
   keccak256('isValidSignature(bytes32,bytes)')
 );
 
-/* Types */
-/// @notice Approver belonging to a group
-/// @param addr Address of the approver
-/// @param weight Fixed-point weight of precision 28; see THRESHOLD for more information
-struct Approver {
-  address addr;
-  uint96 weight;
-}
+/*//////////////////////////////////////////////////////////////
+                                  TYPES
+//////////////////////////////////////////////////////////////*/
+
+type Ref is bytes4;
 
 interface ISafe is IERC1271, IAccountAbstraction {
-  /* Events */
-  event GroupUpserted(bytes32 groupRef, Approver[] approvers);
-  event GroupRemoved(bytes32 groupRef);
+  /*//////////////////////////////////////////////////////////////
+                                 EVENTS
+  //////////////////////////////////////////////////////////////*/
 
-  /* Errors */
+  event AccountUpserted(Ref accountRef, address[][] quorums);
+  event AccountRemoved(Ref accountRef);
+
+  /*//////////////////////////////////////////////////////////////
+                                 ERRORS
+  //////////////////////////////////////////////////////////////*/
+
   error ApproverSignaturesMismatch();
   error TxAlreadyExecuted();
-  error InvalidSignature(address signer);
-  error BelowThreshold();
+  error InvalidSignature(address approver);
   error InvalidProof();
-  error ApproverHashesNotAscending();
+  error QuorumNotAscending();
+  error QuorumHashesNotAscending();
   error OnlyCallableByBootloader();
 
   /// @notice ERC-1271: checks whether the hash was signed with the given signature
@@ -66,15 +68,14 @@ interface ISafe is IERC1271, IAccountAbstraction {
     external
     payable;
 
-  /// @notice Upsert (create or update) a group
+  /// @notice Upsert (create or update) an account
   /// @dev Only callable by the safe
-  /// @param groupRef Reference of the group to be upserted
-  /// @param approvers Approvers to make up the group
-  function upsertGroup(bytes32 groupRef, Approver[] calldata approvers)
-    external;
+  /// @param accountRef Reference of the account to be upserted
+  /// @param quorums Quorums to make up the account
+  function upsertAccount(Ref accountRef, address[][] calldata quorums) external;
 
-  /// @notice Remove a group
+  /// @notice Remove an account
   /// @dev Only callable by the safe
-  /// @param groupRef Reference of the group to be removed
-  function removeGroup(bytes32 groupRef) external;
+  /// @param accountRef Reference of the account to be removed
+  function removeAccount(Ref accountRef) external;
 }
