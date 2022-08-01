@@ -223,6 +223,8 @@ contract Safe is
     pure
     returns (bytes32)
   {
+    if (quorum.length == 0) revert EmptyQuorum();
+
     // Ensure quorum is sorted ascending
     for (uint256 i = 1; i < quorum.length; ) {
       if (quorum[i] < quorum[i - 1]) revert QuorumNotAscending();
@@ -240,12 +242,15 @@ contract Safe is
     pure
     returns (bytes32[] memory leaves)
   {
+    if (quorums.length == 0) revert EmptyQuorums();
+
     leaves = new bytes32[](quorums.length);
     for (uint256 i = 0; i < quorums.length; ) {
       leaves[i] = _getQuorumMerkleLeaf(quorums[i]);
 
-      // Leaves need to be sorted
-      if (i > 0 && leaves[i] < leaves[i - 1]) revert QuorumHashesNotAscending();
+      // Leaves need to be sorted asc and unique
+      if (i > 0 && leaves[i] < leaves[i - 1])
+        revert QuorumHashesNotUniqueAndAscending();
 
       unchecked {
         ++i;

@@ -35,7 +35,9 @@ interface ISafe is IERC1271, IAccountAbstraction {
   error InvalidSignature(address approver);
   error InvalidProof();
   error QuorumNotAscending();
-  error QuorumHashesNotAscending();
+  error EmptyQuorum();
+  error EmptyQuorums();
+  error QuorumHashesNotUniqueAndAscending();
   error OnlyCallableByBootloader();
 
   /// @notice ERC-1271: checks whether the hash was signed with the given signature
@@ -45,6 +47,7 @@ interface ISafe is IERC1271, IAccountAbstraction {
   function isValidSignature(bytes32 txHash, bytes memory txSignature)
     external
     view
+    override
     returns (bytes4 magicValue);
 
   /// @notice AA: validation of whether the transaction originated from the safe
@@ -52,7 +55,8 @@ interface ISafe is IERC1271, IAccountAbstraction {
   /// @param transaction Transaction to be validated
   function validateTransaction(Transaction calldata transaction)
     external
-    payable;
+    payable
+    override;
 
   /// @notice AA: execution of the transaction
   /// @dev Only callable by the bootloader
@@ -60,13 +64,15 @@ interface ISafe is IERC1271, IAccountAbstraction {
   /// @param transaction Transaction to be executed
   function executeTransaction(Transaction calldata transaction)
     external
-    payable;
+    payable
+    override;
 
   /// @notice AA: execution of a transaction from an address other than the bootloader
   /// @param transaction Transaction to be validated and executed
   function executeTransactionFromOutside(Transaction calldata transaction)
     external
-    payable;
+    payable
+    override;
 
   /// @notice Upsert (create or update) an account
   /// @dev Only callable by the safe
