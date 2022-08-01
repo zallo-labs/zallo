@@ -3,7 +3,12 @@ import {
   TypedDataField,
 } from '@ethersproject/abstract-signer';
 import { BigNumber, Contract, ethers } from 'ethers';
-import { hexlify, isBytesLike, randomBytes } from 'ethers/lib/utils';
+import {
+  hexDataLength,
+  hexlify,
+  isBytesLike,
+  randomBytes,
+} from 'ethers/lib/utils';
 import { Address, isAddress } from './addr';
 import { Bytes8 } from './bytes';
 import { Call, CallDef, createCall } from './call';
@@ -50,10 +55,21 @@ export const hashTx = async (safe: Address | Contract, tx: TxReq) =>
     tx,
   );
 
-export const randomTxSalt = (): Bytes8 => hexlify(randomBytes(8));
+export type TxSalt = string & { isTxSalt: true };
+const TX_SALT_BYTES = 8;
+
+export const randomTxSalt = (): TxSalt =>
+  hexlify(randomBytes(TX_SALT_BYTES)) as TxSalt;
+
+export const toTxSalt = (v: string): TxSalt => {
+  if (hexDataLength(v) !== TX_SALT_BYTES)
+    throw new Error('Invalid tx salt: ' + v);
+
+  return v as TxSalt;
+};
 
 export interface TxDef extends CallDef {
-  salt?: Bytes8;
+  salt?: TxSalt;
 }
 
 export const createTx = (tx: TxDef): TxReq => ({

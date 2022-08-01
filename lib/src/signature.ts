@@ -1,51 +1,46 @@
 import { BytesLike, ethers, Wallet } from 'ethers';
 import { defaultAbiCoder } from 'ethers/lib/utils';
-import { Address } from './addr';
-import {
-  Approverish,
-  hashApprover,
-  SafeApprover,
-  toSafeApprover,
-} from './approver';
-import { Groupish } from './group';
+import { Account } from './account';
+import { Address, compareAddresses } from './addr';
 import { getMultiProof } from './merkle';
+import { Quorum } from './quorum';
 import { TxReq, getDomain, TX_EIP712_TYPE } from './tx';
 
 export type SignatureLike = Parameters<typeof ethers.utils.splitSignature>[0];
 
-export type Signerish = Approverish & {
+export interface Signerish {
+  approver: Address;
   signature: BytesLike;
-};
+}
 
 const split = (approversWithSigs: Signerish[]) =>
   approversWithSigs
-    .map((s) => ({ signature: s.signature, ...toSafeApprover(s) }))
-    .sort((a, b) => Buffer.compare(hashApprover(a), hashApprover(b)))
+    .sort((a, b) => compareAddresses(a.approver, b.approver))
     .reduce(
-      (acc, { signature, ...approver }) => {
-        acc.approvers.push(approver);
+      (acc, { approver, signature }) => {
+        acc.quorum.push(approver);
         acc.signatures.push(signature);
         return acc;
       },
-      { approvers: [] as SafeApprover[], signatures: [] as BytesLike[] },
+      { quorum: [] as unknown as Quorum, signatures: [] as BytesLike[] },
     );
 
 export const createTxSignature = (
-  group: Groupish,
+  account: Account,
   signers: Signerish[],
 ): BytesLike => {
-  const { approvers, signatures } = split(signers);
-  const { proof, proofFlags } = getMultiProof(group, approvers);
+  const { quorum, signatures } = split(signers);
+  const { proof, proofFlags } = getMultiProof(account, quorum);
 
   return defaultAbiCoder.encode(
     [
-      'bytes32 groupRef',
-      '(address addr, uint96 weight)[] approvers',
+      'bytes4 accountRef',
+      'address[] quorum',
       'bytes[] signatures',
       'bytes32[] proof',
       'uint256[] proofFlags',
     ],
-    [group.ref, approvers, signatures, proof, proofFlags],
+    [account.ref, quorum, signatures, proof, proofFlags],
   );
 };
 

@@ -8,15 +8,30 @@ import {
   ERC1967Proxy,
   ERC1967Proxy__factory,
 } from './contracts';
-import { Groupish, toSafeGroup } from './group';
-import { defaultAbiCoder, hexlify, randomBytes } from 'ethers/lib/utils';
+import { Account } from './account';
+import {
+  defaultAbiCoder,
+  hexDataLength,
+  hexlify,
+  randomBytes,
+} from 'ethers/lib/utils';
 import * as zk from 'zksync-web3';
 
 export interface Proxy extends ERC1967Proxy {}
 export class ProxyFactory extends ERC1967Proxy__factory {}
 
-export const randomBytes32 = () => hexlify(randomBytes(32));
-export const randomDeploySalt = randomBytes32;
+export type DeploySalt = string & { isDeploySalt: true };
+const DEPLOY_SALT_BYTES = 32;
+
+export const toDeploySalt = (v: string): DeploySalt => {
+  if (hexDataLength(v) !== DEPLOY_SALT_BYTES)
+    throw new Error('Invalid deploy salt: ' + v);
+
+  return v as DeploySalt;
+};
+
+export const randomDeploySalt = () =>
+  hexlify(randomBytes(DEPLOY_SALT_BYTES)) as DeploySalt;
 
 const createConnect =
   <T>(f: (addr: string, signer: Signer | ethers.providers.Provider) => T) =>
@@ -28,7 +43,7 @@ export const connectSafe = createConnect(Safe__factory.connect);
 export const connectProxy = createConnect(ProxyFactory.connect);
 
 export interface SafeConstructorArgs {
-  group: Groupish;
+  account: Account;
 }
 
 export interface ProxyConstructorArgs extends SafeConstructorArgs {
@@ -36,15 +51,13 @@ export interface ProxyConstructorArgs extends SafeConstructorArgs {
 }
 
 export const encodeProxyConstructorArgs = ({
-  group,
+  account,
   impl,
 }: ProxyConstructorArgs) => {
-  const g = toSafeGroup(group);
-
   const safeInterface = Safe__factory.createInterface();
   const encodedInitializeCall = safeInterface.encodeFunctionData('initialize', [
-    g.ref,
-    g.approvers,
+    account.ref,
+    account.quorums,
   ]);
 
   return defaultAbiCoder.encode(

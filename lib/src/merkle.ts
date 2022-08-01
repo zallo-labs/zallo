@@ -1,11 +1,11 @@
-import { Groupish } from './group';
 import keccak256 from 'keccak256';
 import MerkleTree from 'merkletreejs';
-import { Approverish, approversToLeaves } from './approver';
+import { Account } from './account';
 import { BoolArray, toBoolArray } from './boolArray';
+import { Quorum, quorumToLeaf } from './quorum';
 
-export const getMerkleTree = (group: Groupish): MerkleTree => {
-  const leaves = approversToLeaves(group.approvers);
+export const getMerkleTree = (account: Account): MerkleTree => {
+  const leaves = account.quorums.map(quorumToLeaf);
   return new MerkleTree(leaves, keccak256, { sort: true });
 };
 
@@ -18,13 +18,10 @@ export interface MultiProof {
   proofLeaves: Buffer[];
 }
 
-export const getMultiProof = (
-  group: Groupish,
-  approvers: Approverish[],
-): MultiProof => {
-  const tree = getMerkleTree(group);
+export const getMultiProof = (account: Account, quorum: Quorum): MultiProof => {
+  const tree = getMerkleTree(account);
 
-  const proofLeaves = approversToLeaves(approvers);
+  const proofLeaves = [quorumToLeaf(quorum)];
   const proof = tree.getMultiProof(proofLeaves);
   const rawProofFlags = tree.getProofFlags(proofLeaves, proof);
 
