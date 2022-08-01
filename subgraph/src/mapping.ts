@@ -5,7 +5,7 @@ import {
   TxReverted,
 } from '../generated/Safe/Safe';
 import { Account, Tx } from '../generated/schema';
-import { getAccountId, getSafeId, getTxId } from './id';
+import { getSafeId, getTxId, getAccountId } from './id';
 import { getOrCreateQuorum } from './quorum';
 import { getOrCreateAccount, getOrCreateSafe } from './util';
 

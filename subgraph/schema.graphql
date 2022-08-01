@@ -29,7 +29,7 @@ type Tx @entity {
   transfers: [Transfer!]! @derivedFrom(field: "tx")
 }
 
-type Approver @entity {
+type User @entity {
   "{address}"
   id: ID!
   quorums: [Quorum!]! @derivedFrom(field: "approvers")
@@ -49,7 +49,7 @@ type Quorum @entity {
   id: ID!
   hash: Bytes!
   account: Account!
-  approvers: [Approver!]!
+  approvers: [User!]!
   active: Boolean!
   blockHash: Bytes!
   timestamp: BigInt!

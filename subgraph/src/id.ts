@@ -10,7 +10,7 @@ export function getSafeImplId(impl: Address): string {
   return impl.toHex();
 }
 
-export function getApproverId(approver: Address): string {
+export function getUserId(approver: Address): string {
   // {address}
   return approver.toHex();
 }

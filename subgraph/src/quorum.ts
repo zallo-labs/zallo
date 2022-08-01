@@ -1,6 +1,6 @@
 import { Address, Bytes, crypto, ethereum } from '@graphprotocol/graph-ts';
 import { Account, Quorum } from '../generated/schema';
-import { getOrCreateApprover } from './util';
+import { getOrCreateUser } from './util';
 
 export function getQuorumId(accountId: string, quorumHash: Bytes): string {
   // {account.id}-{hash}
@@ -41,7 +41,7 @@ function quorumBytesToApprovers(quorumBytes: Bytes): string[] {
     );
 
     const addr = Address.fromBytes(Address.fromUint8Array(x));
-    approvers[i] = getOrCreateApprover(addr).id;
+    approvers[i] = getOrCreateUser(addr).id;
   }
 
   return approvers;
