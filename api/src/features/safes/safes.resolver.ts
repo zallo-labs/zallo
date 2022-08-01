@@ -7,7 +7,16 @@ import { FindManySafeArgs } from '@gen/safe/find-many-safe.args';
 import { FindUniqueSafeArgs } from '@gen/safe/find-unique-safe.args';
 import { UpsertSafeArgs } from './safes.args';
 import { getSelect } from '~/util/select';
-import { connectOrCreateUser } from '~/util/connect-or-create';
+import {
+  connectOrCreateSafe,
+  connectOrCreateUser,
+} from '~/util/connect-or-create';
+import { hashQuorum } from 'lib';
+import { AccountCreateWithoutSafeInput } from '@gen/account/account-create-without-safe.input';
+import { QuorumCreateWithoutAccountInput } from '@gen/quorum/quorum-create-without-account.input';
+import { ApproverCreateNestedManyWithoutQuorumInput } from '@gen/approver/approver-create-nested-many-without-quorum.input';
+import { ApproverCreateWithoutQuorumInput } from '@gen/approver/approver-create-without-quorum.input';
+import { QuorumCreateOrConnectWithoutAccountInput } from '@gen/quorum/quorum-create-or-connect-without-account.input';
 
 @Resolver(() => Safe)
 export class SafesResolver {
@@ -37,7 +46,7 @@ export class SafesResolver {
 
   @Mutation(() => Safe)
   async upsertSafe(
-    @Args() { safe, deploySalt, impl, name, groups }: UpsertSafeArgs,
+    @Args() { safe, deploySalt, impl, name, accounts }: UpsertSafeArgs,
     @Info() info: GraphQLResolveInfo,
   ): Promise<Safe> {
     return this.prisma.safe.upsert({
@@ -47,15 +56,34 @@ export class SafesResolver {
         deploySalt,
         impl,
         name,
-        ...(groups && {
-          groups: {
-            create: groups.map((g) => ({
-              ref: g.ref,
-              name: g.name,
-              approvers: {
-                create: g.approvers.map((a) => ({
-                  user: connectOrCreateUser(a.addr),
-                  weight: a.weight,
+        ...(accounts && {
+          accounts: {
+            create: accounts.map((a) => ({
+              ref: a.ref,
+              name: a.name,
+              quorums: {
+                // QuorumCreateNestedManyWithoutAccountInput
+                create: a.quorums.map((quorum) => ({
+                  // ApproverUncheckedCreateNestedManyWithoutQuorumInput
+                  hash: hashQuorum(quorum),
+                  approvers: {
+                    create: quorum.map(
+                      (approver): ApproverCreateWithoutQuorumInput => ({
+                        safe: {
+                          connect: { id: safe },
+                        },
+                        account: {
+                          connect: {
+                            safeId_ref: {
+                              safeId: safe,
+                              ref: a.ref,
+                            },
+                          },
+                        },
+                        user: connectOrCreateUser(approver),
+                      }),
+                    ),
+                  },
                 })),
               },
             })),
@@ -65,45 +93,61 @@ export class SafesResolver {
       update: {
         ...(name && { name: { set: name } }),
         ...(deploySalt && { deploySalt: { set: deploySalt } }),
-        ...(impl &&  { impl: { set: impl } }),
-        ...(groups && {
-          groups: {
-            upsert: groups.map((g) => ({
+        ...(impl && { impl: { set: impl } }),
+        ...(accounts && {
+          accounts: {
+            upsert: accounts.map((a) => ({
               where: {
                 safeId_ref: {
                   safeId: safe,
-                  ref: g.ref,
+                  ref: a.ref,
                 },
               },
               create: {
-                ref: g.ref,
-                name: g.ref,
-                approvers: {
-                  create: g.approvers.map((a) => ({
-                    user: connectOrCreateUser(a.addr),
-                    weight: a.weight,
+                ref: a.ref,
+                name: a.ref,
+                quorums: {
+                  create: a.quorums.map((quorum) => ({
+                    hash: hashQuorum(quorum),
+                    approvers: {
+                      createMany: {
+                        data: quorum.map((approver) => ({
+                          userId: approver,
+                        })),
+                      },
+                    },
                   })),
                 },
               },
               update: {
-                name: { set: g.name },
-                approvers: {
-                  upsert: g.approvers.map((a) => ({
-                    where: {
-                      safeId_groupRef_userId: {
-                        safeId: safe,
-                        groupRef: g.ref,
-                        userId: a.addr,
-                      },
+                name: { set: a.name },
+                quorums: {
+                  connectOrCreate: a.quorums.map(
+                    (q): QuorumCreateOrConnectWithoutAccountInput => {
+                      const hash = hashQuorum(q);
+
+                      return {
+                        where: {
+                          safeId_accountRef_hash: {
+                            safeId: safe,
+                            accountRef: a.ref,
+                            hash,
+                          },
+                        },
+                        create: {
+                          safe: connectOrCreateSafe(safe),
+                          hash,
+                          approvers: {
+                            createMany: {
+                              data: q.map((approver) => ({
+                                userId: approver,
+                              })),
+                            },
+                          },
+                        },
+                      };
                     },
-                    create: {
-                      user: connectOrCreateUser(a.addr),
-                      weight: a.weight,
-                    },
-                    update: {
-                      weight: { set: a.weight },
-                    },
-                  })),
+                  ),
                 },
               },
             })),

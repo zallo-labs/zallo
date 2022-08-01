@@ -11,7 +11,7 @@ import { AuthGuard } from './auth/auth.guard';
 import { ApolloModule } from './apollo/apollo.module';
 import { AuthMiddleware } from './auth/auth.middleware';
 import { ProviderModule } from './provider/provider.module';
-import { GroupsModule } from './features/groups/groups.module';
+import { AccountsModule } from './features/accounts/accounts.module';
 import { ContactsModule } from './features/contacts/contacts.module';
 import { ApproversModule } from './features/approvers/approvers.module';
 import { ContractMethodsModule } from './features/contract-methods/contract-methods.module';
@@ -40,7 +40,7 @@ import { FaucetModule } from './features/faucet/faucet.module';
     ContactsModule,
     ContractMethodsModule,
     FaucetModule,
-    GroupsModule,
+    AccountsModule,
     ReactionsModule,
     SafesModule,
     SubgraphModule,

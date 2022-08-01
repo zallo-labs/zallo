@@ -1,6 +1,7 @@
 import { Address, compareAddresses } from './addr';
 import keccak256 from 'keccak256';
-import { defaultAbiCoder } from 'ethers/lib/utils';
+import { defaultAbiCoder, hexlify } from 'ethers/lib/utils';
+import { bufferToBytes } from './bytes';
 
 export type Quorum = Address[] & { isQuorum: true };
 
@@ -9,6 +10,9 @@ export const toQuorum = (approvers: Address[]): Quorum =>
 
 export const quorumToLeaf = (quorum: Quorum) =>
   keccak256(defaultAbiCoder.encode(['address[]'], [quorum]));
+
+export const hashQuorum = (quorum: Quorum): string =>
+  hexlify(bufferToBytes(quorumToLeaf(quorum)));
 
 export type Quorums = Quorum[] & { isQuorums: true };
 

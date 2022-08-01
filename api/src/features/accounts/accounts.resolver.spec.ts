@@ -1,19 +1,18 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { createMock } from '@golevelup/ts-jest';
+import { AccountsResolver } from './accounts.resolver';
 
-import { GroupsResolver } from './groups.resolver';
-
-describe('GroupsResolver', () => {
-  let resolver: GroupsResolver;
+describe(AccountsResolver.name, () => {
+  let resolver: AccountsResolver;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      providers: [GroupsResolver],
+      providers: [AccountsResolver],
     })
       .useMocker(createMock)
       .compile();
 
-    resolver = module.get<GroupsResolver>(GroupsResolver);
+    resolver = module.get(AccountsResolver);
   });
 
   it('should be defined', () => {

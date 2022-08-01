@@ -13,17 +13,18 @@ CREATE TABLE "Safe" (
     "id" CHAR(42) NOT NULL,
     "name" TEXT NOT NULL DEFAULT '',
     "deploySalt" CHAR(66),
+    "impl" CHAR(42),
 
     CONSTRAINT "Safe_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
-CREATE TABLE "Group" (
+CREATE TABLE "Account" (
     "safeId" CHAR(42) NOT NULL,
-    "ref" CHAR(66) NOT NULL,
+    "ref" CHAR(10) NOT NULL,
     "name" TEXT NOT NULL DEFAULT '',
 
-    CONSTRAINT "Group_pkey" PRIMARY KEY ("safeId","ref")
+    CONSTRAINT "Account_pkey" PRIMARY KEY ("safeId","ref")
 );
 
 -- CreateTable
@@ -34,13 +35,22 @@ CREATE TABLE "User" (
 );
 
 -- CreateTable
+CREATE TABLE "Quorum" (
+    "safeId" CHAR(42) NOT NULL,
+    "accountRef" CHAR(10) NOT NULL,
+    "hash" CHAR(66) NOT NULL,
+
+    CONSTRAINT "Quorum_pkey" PRIMARY KEY ("safeId","accountRef","hash")
+);
+
+-- CreateTable
 CREATE TABLE "Approver" (
     "safeId" CHAR(42) NOT NULL,
-    "groupRef" CHAR(66) NOT NULL,
+    "accountRef" CHAR(10) NOT NULL,
+    "quorumHash" CHAR(66) NOT NULL,
     "userId" CHAR(42) NOT NULL,
-    "weight" DECIMAL(79,0) NOT NULL,
 
-    CONSTRAINT "Approver_pkey" PRIMARY KEY ("safeId","groupRef","userId")
+    CONSTRAINT "Approver_pkey" PRIMARY KEY ("safeId","accountRef","quorumHash","userId")
 );
 
 -- CreateTable
@@ -68,7 +78,7 @@ CREATE TABLE "Tx" (
     "to" CHAR(42) NOT NULL,
     "value" TEXT NOT NULL,
     "data" TEXT NOT NULL,
-    "salt" CHAR(66) NOT NULL,
+    "salt" CHAR(18) NOT NULL,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
     CONSTRAINT "Tx_pkey" PRIMARY KEY ("safeId","hash")
@@ -138,10 +148,22 @@ CREATE INDEX "ContractMethod_sighash_idx" ON "ContractMethod"("sighash");
 CREATE INDEX "Comment_safeId_key_idx" ON "Comment"("safeId", "key");
 
 -- AddForeignKey
-ALTER TABLE "Group" ADD CONSTRAINT "Group_safeId_fkey" FOREIGN KEY ("safeId") REFERENCES "Safe"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE "Account" ADD CONSTRAINT "Account_safeId_fkey" FOREIGN KEY ("safeId") REFERENCES "Safe"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "Approver" ADD CONSTRAINT "Approver_safeId_groupRef_fkey" FOREIGN KEY ("safeId", "groupRef") REFERENCES "Group"("safeId", "ref") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE "Quorum" ADD CONSTRAINT "Quorum_safeId_fkey" FOREIGN KEY ("safeId") REFERENCES "Safe"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "Quorum" ADD CONSTRAINT "Quorum_safeId_accountRef_fkey" FOREIGN KEY ("safeId", "accountRef") REFERENCES "Account"("safeId", "ref") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "Approver" ADD CONSTRAINT "Approver_safeId_fkey" FOREIGN KEY ("safeId") REFERENCES "Safe"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "Approver" ADD CONSTRAINT "Approver_safeId_accountRef_fkey" FOREIGN KEY ("safeId", "accountRef") REFERENCES "Account"("safeId", "ref") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "Approver" ADD CONSTRAINT "Approver_safeId_accountRef_quorumHash_fkey" FOREIGN KEY ("safeId", "accountRef", "quorumHash") REFERENCES "Quorum"("safeId", "accountRef", "hash") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "Approver" ADD CONSTRAINT "Approver_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE CASCADE ON UPDATE CASCADE;
@@ -156,10 +178,10 @@ ALTER TABLE "Tx" ADD CONSTRAINT "Tx_safeId_fkey" FOREIGN KEY ("safeId") REFERENC
 ALTER TABLE "Submission" ADD CONSTRAINT "Submission_safeId_txHash_fkey" FOREIGN KEY ("safeId", "txHash") REFERENCES "Tx"("safeId", "hash") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "Approval" ADD CONSTRAINT "Approval_safeId_fkey" FOREIGN KEY ("safeId") REFERENCES "Safe"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE "Approval" ADD CONSTRAINT "Approval_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "Approval" ADD CONSTRAINT "Approval_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "Approval" ADD CONSTRAINT "Approval_safeId_fkey" FOREIGN KEY ("safeId") REFERENCES "Safe"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "Approval" ADD CONSTRAINT "Approval_safeId_txHash_fkey" FOREIGN KEY ("safeId", "txHash") REFERENCES "Tx"("safeId", "hash") ON DELETE CASCADE ON UPDATE CASCADE;
@@ -174,7 +196,7 @@ ALTER TABLE "Comment" ADD CONSTRAINT "Comment_authorId_fkey" FOREIGN KEY ("autho
 ALTER TABLE "Reaction" ADD CONSTRAINT "Reaction_safeId_fkey" FOREIGN KEY ("safeId") REFERENCES "Safe"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "Reaction" ADD CONSTRAINT "Reaction_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "Reaction" ADD CONSTRAINT "Reaction_safeId_key_nonce_fkey" FOREIGN KEY ("safeId", "key", "nonce") REFERENCES "Comment"("safeId", "key", "nonce") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "Reaction" ADD CONSTRAINT "Reaction_safeId_key_nonce_fkey" FOREIGN KEY ("safeId", "key", "nonce") REFERENCES "Comment"("safeId", "key", "nonce") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE "Reaction" ADD CONSTRAINT "Reaction_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
