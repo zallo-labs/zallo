@@ -3,14 +3,15 @@ import { Deployer } from '@matterlabs/hardhat-zksync-deploy';
 import {
   connectFactory,
   address,
-  Group,
   Address,
-  randomGroupRef,
   Multicall,
   Multicall__factory,
   deploySafeProxy,
-  PERCENT_THRESHOLD,
   TestSafe__factory,
+  randomAccountRef,
+  Account,
+  toQuorums,
+  toQuorum,
 } from 'lib';
 import { allSigners, wallet } from './wallet';
 import { ContractTransaction } from 'ethers';
@@ -18,14 +19,6 @@ import * as zk from 'zksync-web3';
 import { parseEther } from 'ethers/lib/utils';
 
 const SAFE_START_BALANCE = parseEther('0.000001');
-
-export const toSafeGroupTest = (...approvers: [string, number][]): Group => ({
-  ref: randomGroupRef(),
-  approvers: approvers.map(([addr, weight]) => ({
-    addr: address(addr),
-    weight,
-  })),
-});
 
 export const deployer = new Deployer(hre, wallet);
 
@@ -71,24 +64,26 @@ export const deploySafeImpl = async ({
 };
 
 export const deploy = async (
-  weights: number[] = [PERCENT_THRESHOLD],
+  quorumSize = 3,
   contractName: 'Safe' | 'TestSafe' = 'Safe',
 ) => {
-  if (!weights.length) throw Error('No weights provided');
+  const approvers = allSigners
+    .slice(0, quorumSize)
+    .map((approver) => approver.address);
+  const others = allSigners
+    .slice(quorumSize)
+    .map((approver) => approver.address);
 
-  const approvers = allSigners.slice(0, weights.length);
-  const others = allSigners.slice(weights.length);
+  const quorum = toQuorum(approvers);
 
-  const group = toSafeGroupTest(
-    ...approvers.map((approver, i): [string, number] => [
-      approver.address,
-      weights[i],
-    ]),
-  );
+  const account: Account = {
+    ref: randomAccountRef(),
+    quorums: toQuorums([quorum]),
+  };
 
   const { impl } = await deploySafeImpl({ contractName });
   const { factory } = await deployFactory('ERC1967Proxy');
-  const deployData = await deploySafeProxy({ group, impl }, factory);
+  const deployData = await deploySafeProxy({ account, impl }, factory);
 
   const txResp = await wallet.sendTransaction({
     to: deployData.safe.address,
@@ -100,13 +95,14 @@ export const deploy = async (
     ...deployData,
     impl,
     factory,
-    group,
+    account,
+    quorum,
     others,
   };
 };
 
-export const deployTestSafe = async (weights?: number[]) => {
-  const { safe, ...rest } = await deploy(weights, 'TestSafe');
+export const deployTestSafe = async (quorumSize?: number) => {
+  const { safe, ...rest } = await deploy(quorumSize, 'TestSafe');
 
   return {
     safe: TestSafe__factory.connect(safe.address, wallet),

@@ -7,12 +7,12 @@ describe('Factory', () => {
   });
 
   it('Calculated address matches deploy', async () => {
-    const { safe, deployTx } = await deploy([100]);
-    await expect(deployTx).to.emit(safe, SafeEvent.GroupUpserted);
+    const { safe, deployTx } = await deploy();
+    await expect(deployTx).to.emit(safe, SafeEvent.AccountUpserted);
   });
 
   it('Deploys safe', async () => {
-    const { safe, deployTx } = await deploy([100]);
-    await expect(deployTx).to.emit(safe, SafeEvent.GroupUpserted);
+    const { safe, deployTx } = await deploy();
+    await expect(deployTx).to.emit(safe, SafeEvent.AccountUpserted);
   });
 });

@@ -24,11 +24,11 @@ describe('executeTransaction', () => {
   });
 
   it('should revert when not called by the bootloader', async () => {
-    const { safe, group } = await deploy([100]);
+    const { safe, account, quorum } = await deploy();
 
     const tx = createTx({ to: wallet.address });
-    const signers = await getSigners(safe, group.approvers, tx);
-    const txReq = await toTransactionRequest(safe, tx, group, signers);
+    const signers = await getSigners(safe, quorum, tx);
+    const txReq = await toTransactionRequest(safe, tx, account, signers);
 
     const txResp = safe.executeTransaction(toTransactionStruct(txReq));
 
@@ -36,13 +36,13 @@ describe('executeTransaction', () => {
   });
 
   it('should successfully execute a transaction with a single approver', async () => {
-    const { safe, group } = await deploy([100]);
+    const { safe, account, quorum } = await deploy(1);
 
     const to = tester.address;
     const startingBalance = await provider.getBalance(to);
 
     const value = 1;
-    const txResp = await execute(safe, group, group.approvers, {
+    const txResp = await execute(safe, account, quorum, {
       to,
       value,
     });
@@ -52,19 +52,19 @@ describe('executeTransaction', () => {
   });
 
   it('should successfully execute a transaction with mutliple approvers', async () => {
-    const { safe, group } = await deploy([30, 20, 40, 10]);
+    const { safe, account, quorum } = await deploy(5);
 
     const tx = createTx({ to: wallet.address });
 
-    const txResp = await execute(safe, group, group.approvers, tx);
+    const txResp = await execute(safe, account, quorum, tx);
     await txResp.wait();
   });
 
   it('should set the transaction as executed', async () => {
-    const { safe, group } = await deploy([100]);
+    const { safe, account, quorum } = await deploy();
 
     const tx = createTx({ to: tester.address });
-    const txResp = await execute(safe, group, group.approvers, tx);
+    const txResp = await execute(safe, account, quorum, tx);
     await txResp.wait();
 
     expect(await safe.hasBeenExecuted(await hashTx(safe, tx))).to.be.true;

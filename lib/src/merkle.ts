@@ -23,6 +23,7 @@ export const getMultiProof = (account: Account, quorum: Quorum): MultiProof => {
 
   const proofLeaves = [quorumToLeaf(quorum)];
   const proof = tree.getMultiProof(proofLeaves);
+
   const rawProofFlags = tree.getProofFlags(proofLeaves, proof);
 
   return {

@@ -9,7 +9,6 @@
 - should successfully valdiate the signature of a single approver
 - should successfully validate the signature of multiple approvers
 - should be reverted if the hash doesn't match the signature
-- should be reverted if the signers don't meet the threshold
 
 
 ## validateTransaction
@@ -36,17 +35,16 @@
 - should be callable from any address
 
 
-## upsertGroup
+## upsertAccount
 - should successfully execute
 - should emit event
-- should generate the correct group merkle root
+- should generate the correct account merkle root
 - should revert if called from an address other than the safe
-- should revert if the approvers don't meet the threshold
 
 
-## removeGroup
+## removeAccount
 - should successfully execute & emit event
-- should zero group's merkle root
+- should zero account's merkle root
 
 
 ## hasBeenExecuted

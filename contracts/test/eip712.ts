@@ -21,14 +21,14 @@ describe('EIP712', () => {
   });
 
   it('hashTx', async () => {
-    const { safe, group } = await deployTestSafe();
+    const { safe, account, quorum } = await deployTestSafe();
 
     const tx = createTx({ to: wallet.address });
     const txReq = await toTransactionRequest(
       safe,
       tx,
-      group,
-      await getSigners(safe, group.approvers, tx),
+      account,
+      await getSigners(safe, quorum, tx),
     );
 
     const expected = await hashTx(safe.address, tx);

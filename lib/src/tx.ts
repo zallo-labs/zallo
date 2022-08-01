@@ -10,12 +10,11 @@ import {
   randomBytes,
 } from 'ethers/lib/utils';
 import { Address, isAddress } from './addr';
-import { Bytes8 } from './bytes';
 import { Call, CallDef, createCall } from './call';
 import { createIsObj } from './util/mappedTypes';
 
 export interface TxReq extends Call {
-  salt: Bytes8;
+  salt: TxSalt;
 }
 
 export const isCall = createIsObj<Call>(
