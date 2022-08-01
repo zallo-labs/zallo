@@ -3,7 +3,7 @@ type Safe @entity {
   id: ID!
   impl: SafeImpl!
   txs: [Tx!]! @derivedFrom(field: "safe")
-  groups: [Group!]! @derivedFrom(field: "safe")
+  accounts: [Account!]! @derivedFrom(field: "safe")
   transfers: [Transfer!]! @derivedFrom(field: "safe")
 }
 
@@ -29,37 +29,38 @@ type Tx @entity {
   transfers: [Transfer!]! @derivedFrom(field: "tx")
 }
 
-type User @entity {
+type Approver @entity {
   "{address}"
   id: ID!
-  approvers: [Approver!]! @derivedFrom(field: "user")
+  quorums: [Quorum!]! @derivedFrom(field: "approvers")
 }
 
-type Group @entity {
+type Account @entity {
   "{safe.id}-{hash}"
   id: ID!
   safe: Safe!
   ref: Bytes!
   active: Boolean!
-  approverSets: [ApproverSet!]! @derivedFrom(field: "group")
+  quorums: [Quorum!]! @derivedFrom(field: "account")
 }
 
-type ApproverSet @entity {
-  "{group.id}-{blockHash}"
+type Quorum @entity {
+  "{account.id}-{hash}"
   id: ID!
-  group: Group!
+  hash: Bytes!
+  account: Account!
+  approvers: [Approver!]!
+  active: Boolean!
   blockHash: Bytes!
   timestamp: BigInt!
-  approvers: [Approver!]! @derivedFrom(field: "approverSet")
 }
 
-type Approver @entity {
-  "{set.id}-{user.id}"
-  id: ID!
-  user: User!
-  approverSet: ApproverSet!
-  weight: BigInt!
-}
+# type QuorumApprover @entity {
+#   "{quorum.id}-${approver.id}"
+#   id: ID!
+#   quorum: Quorum!
+#   approver: Approver!
+# }
 
 type Transfer @entity {
   "{tx.id}-{tx.log.index}"

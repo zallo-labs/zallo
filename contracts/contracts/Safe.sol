@@ -121,7 +121,15 @@ contract Safe is
     bytes32[] memory leaves = _getQuorumsMerkleLeaves(quorums);
     _accountMerkleRoots()[accountRef] = leaves.merkleRoot();
 
-    emit AccountUpserted(accountRef, quorums);
+    // TODO: change quorums back to address[][] once graph-cli can handle it - https://github.com/graphprotocol/graph-cli/issues/342
+    bytes[] memory bytesQuorums = new bytes[](quorums.length);
+    for (uint256 i = 0; i < quorums.length; ) {
+      bytesQuorums[i] = abi.encode(quorums[i]);
+      unchecked {
+        ++i;
+      }
+    }
+    emit AccountUpserted(accountRef, bytesQuorums);
   }
 
   /*//////////////////////////////////////////////////////////////

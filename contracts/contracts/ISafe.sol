@@ -23,7 +23,8 @@ interface ISafe is IERC1271, IAccountAbstraction {
                                  EVENTS
   //////////////////////////////////////////////////////////////*/
 
-  event AccountUpserted(Ref accountRef, address[][] quorums);
+  // TODO: change quorums back to address[][] once graph-cli can handle it - https://github.com/graphprotocol/graph-cli/issues/342
+  event AccountUpserted(Ref accountRef, bytes[] quorums);
   event AccountRemoved(Ref accountRef);
 
   /*//////////////////////////////////////////////////////////////
