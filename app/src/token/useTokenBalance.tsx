@@ -1,5 +1,4 @@
 import { BigNumber } from 'ethers';
-import { useSafe } from '@features/safe/SafeProvider';
 import { Token } from './token';
 import { PROVIDER } from '~/provider';
 import { atomFamily, selectorFamily, useRecoilValue } from 'recoil';
@@ -7,6 +6,7 @@ import { Address, isPresent } from 'lib';
 import { captureException, Severity } from '@util/sentry/sentry';
 import { allTokensSelector } from './useToken';
 import { refreshAtom } from '@util/effect/refreshAtom';
+import { useSelectedAccount } from '~/components2/account/useSelectedAccount';
 
 // [addr, token]
 type BalanceKey = [Address, Address];
@@ -35,9 +35,9 @@ export const tokenBalanceState = atomFamily<BigNumber, BalanceKey>({
 });
 
 export const useTokenBalance = (token: Token) => {
-  const { contract: safe } = useSafe();
+  const { safeAddr } = useSelectedAccount();
 
-  return useRecoilValue(tokenBalanceState([safe.address, token.addr]));
+  return useRecoilValue(tokenBalanceState([safeAddr, token.addr]));
 };
 
 export interface TokenWithBalance extends Token {
@@ -58,7 +58,7 @@ const tokenBalancesSelector = selectorFamily<TokenWithBalance[], Address>({
 });
 
 export const useTokenBalances = () => {
-  const { contract: safe } = useSafe();
+  const { safeAddr } = useSelectedAccount();
 
-  return useRecoilValue(tokenBalancesSelector(safe.address));
+  return useRecoilValue(tokenBalancesSelector(safeAddr));
 };
