@@ -1,18 +1,14 @@
-import { ComponentPropsWithoutRef, useMemo } from 'react';
+import { useMemo } from 'react';
 import { useFormikContext } from 'formik';
-import { FAB, useTheme } from 'react-native-paper';
 import { containsErrors } from './FormikErrors';
-import { MaterialCommunityIcons } from '@expo/vector-icons';
+import { FAB, FABProps } from '~/components2/FAB';
 
 const allTouched = (values: unknown, touched: Record<string, boolean>) =>
-  typeof values === "object" && values !== null && Object.keys(values).every((field) => touched[field]);
+  typeof values === 'object' &&
+  values !== null &&
+  Object.keys(values).every((field) => touched[field]);
 
-export type FormikSubmitFabProps = Omit<
-  ComponentPropsWithoutRef<typeof FAB>,
-  'icon'
-> & {
-  // FAB icon prop is untyped, but uses MaterialCommunityIcons
-  icon: ComponentPropsWithoutRef<typeof MaterialCommunityIcons>['name'];
+export type FormikSubmitFabProps = FABProps & {
   hideWhenClean?: boolean;
 };
 
@@ -22,7 +18,6 @@ export const FormikSubmitFab = ({
 }: FormikSubmitFabProps) => {
   const { submitForm, isSubmitting, dirty, errors, touched, initialValues } =
     useFormikContext();
-  const { colors } = useTheme();
 
   const disabled = useMemo(
     () =>
@@ -37,13 +32,8 @@ export const FormikSubmitFab = ({
     <FAB
       onPress={submitForm}
       disabled={disabled}
+      loading={isSubmitting}
       {...props}
-      style={[
-        {
-          ...(!disabled && { backgroundColor: colors.primary }),
-        },
-        props.style,
-      ]}
     />
   );
 };
