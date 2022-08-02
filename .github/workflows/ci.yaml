@@ -37,6 +37,9 @@ jobs:
       matrix:
         node-version: [16.x]
     steps:
+      - name: 🚧 Checkout
+        uses: actions/checkout@v2
+
       - name: 🚧 Checkout zksync-local
         uses: actions/checkout@v3
         with:
@@ -45,9 +48,6 @@ jobs:
 
       - name: 🚧 Start local zksync node
         run: (cd zksync-local && ./start.sh)
-
-      - name: 🚧 Checkout
-        uses: actions/checkout@v2
 
       - name: 🚧 Use Node ${{ matrix.node-version }}
         uses: actions/setup-node@v2
