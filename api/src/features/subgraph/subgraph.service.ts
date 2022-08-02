@@ -10,10 +10,10 @@ import {
 import { RetryLink } from '@apollo/client/link/retry';
 import fetch from 'cross-fetch';
 import { CONFIG } from 'config';
-import { AccountRef, address, Address, toId } from 'lib';
+import { AccountRef, address, Address, toAccountRef, toId } from 'lib';
 import {
-  UserSafesQuery,
-  UserSafesQueryVariables,
+  UserAccountsQuery,
+  UserAccountsQueryVariables,
 } from '@gen/generated.subgraph';
 
 export interface SafeAccount {
@@ -36,21 +36,20 @@ export class SubgraphService extends ApolloClient<NormalizedCacheObject> {
     });
   }
 
-  public async userSafes(user: Address): Promise<Address[]> {
-    const { data } = await this.query<UserSafesQuery, UserSafesQueryVariables>({
+  public async userAccounts(user: Address): Promise<SafeAccount[]> {
+    const { data } = await this.query<
+      UserAccountsQuery,
+      UserAccountsQueryVariables
+    >({
       query: gql`
-        query UserSafes($user: ID!) {
+        query UserAccounts($user: ID!) {
           user(id: $user) {
-            id
-            approvers {
-              approverSet {
-                group {
-                  safe {
-                    id
-                    groups {
-                      active
-                    }
-                  }
+            quorums(where: { active: true }) {
+              account {
+                id
+                ref
+                safe {
+                  id
                 }
               }
             }
@@ -61,15 +60,10 @@ export class SubgraphService extends ApolloClient<NormalizedCacheObject> {
     });
 
     return (
-      data.user?.approvers
-        .map((a) => a.approverSet.group.safe)
-        .filter((s) => s.groups.some((g) => g.active))
-        .map((s) => address(s.id)) ?? []
+      data.user?.quorums.map((quorum) => ({
+        safe: address(quorum.account.safe.id),
+        accountRef: toAccountRef(quorum.account.ref),
+      })) ?? []
     );
-  }
-
-  public async userAccounts(user: Address): Promise<SafeAccount[]> {
-    // TODO: implement
-    return [];
   }
 }
