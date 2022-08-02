@@ -1,4 +1,4 @@
-import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
+import { Module } from '@nestjs/common';
 import { APP_GUARD } from '@nestjs/core';
 import { PrismaModule } from 'nestjs-prisma';
 
@@ -9,7 +9,6 @@ import { SafesModule } from './features/safes/safes.module';
 import { AuthModule } from './auth/auth.module';
 import { AuthGuard } from './auth/auth.guard';
 import { ApolloModule } from './apollo/apollo.module';
-import { AuthMiddleware } from './auth/auth.middleware';
 import { ProviderModule } from './provider/provider.module';
 import { AccountsModule } from './features/accounts/accounts.module';
 import { ContactsModule } from './features/contacts/contacts.module';
@@ -33,8 +32,8 @@ import CONFIG from 'config';
       },
     }),
     RedisModule.forRoot({ config: { url: CONFIG.redisUrl } }),
-    ApolloModule,
     AuthModule,
+    ApolloModule,
     ProviderModule,
     HealthModule,
     // Features
@@ -58,8 +57,4 @@ import CONFIG from 'config';
     },
   ],
 })
-export class AppModule implements NestModule {
-  configure(consumer: MiddlewareConsumer) {
-    consumer.apply(AuthMiddleware).forRoutes('*');
-  }
-}
+export class AppModule {}

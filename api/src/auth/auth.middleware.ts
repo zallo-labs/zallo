@@ -1,4 +1,9 @@
-import { Logger, NestMiddleware, UnauthorizedException } from '@nestjs/common';
+import {
+  Injectable,
+  Logger,
+  NestMiddleware,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { Request, Response, NextFunction } from 'express';
 import { SiweMessage } from 'siwe';
 
@@ -22,6 +27,7 @@ const isLocalPlayground = (req: Request) =>
 const isIntrospection = (req: Request) =>
   req.body?.operationName === 'IntrospectionQuery';
 
+@Injectable()
 export class AuthMiddleware implements NestMiddleware {
   async use(req: Request, _res: Response, next: NextFunction) {
     const token = req.headers.authorization;

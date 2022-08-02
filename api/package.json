@@ -61,7 +61,6 @@
     "lib": "workspace:*",
     "luxon": "^3.0.1",
     "nestjs-prisma": "^0.17.0",
-    "nestjs-session": "^2.0.0",
     "prisma": "^4.1.1",
     "prisma-graphql-type-decimal": "^2.0.4",
     "prisma-nestjs-graphql": "^17.0.0",

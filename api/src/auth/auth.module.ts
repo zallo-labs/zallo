@@ -1,37 +1,15 @@
-import { Module } from '@nestjs/common';
-import {
-  NestSessionOptions,
-  SessionModule as BaseSessionModule,
-} from 'nestjs-session';
-import CONFIG from 'config';
-import { Duration } from 'luxon';
-import { RedisModule, RedisService } from '@liaoliaots/nestjs-redis';
-import session from 'express-session';
-import createStore from 'connect-redis';
+import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
+import { RedisModule } from '@liaoliaots/nestjs-redis';
 import { AuthController } from './auth.controller';
-
-const RedisStore = createStore(session);
+import { AuthMiddleware } from './auth.middleware';
+import { SessionMiddleware } from './session.middleware';
 
 @Module({
-  imports: [
-    BaseSessionModule.forRootAsync({
-      imports: [RedisModule],
-      inject: [RedisService],
-      useFactory: async (redis: RedisService): Promise<NestSessionOptions> => ({
-        session: {
-          secret: CONFIG.sessionSecret!,
-          resave: false,
-          saveUninitialized: false,
-          cookie: {
-            maxAge: Duration.fromObject({ days: 7 }).toMillis(),
-            secure: true,
-            sameSite: 'none',
-          },
-          store: new RedisStore({ client: redis.getClient() }),
-        },
-      }),
-    }),
-  ],
+  imports: [RedisModule],
   controllers: [AuthController],
 })
-export class AuthModule {}
+export class AuthModule implements NestModule {
+  configure(consumer: MiddlewareConsumer) {
+    consumer.apply(SessionMiddleware, AuthMiddleware).forRoutes('*');
+  }
+}
