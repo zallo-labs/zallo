@@ -19,7 +19,6 @@ import { SentryUser } from '@util/sentry/SentryUser';
 import { NavigationProvider } from '@features/navigation/NavigationProvider';
 import { withSentry } from '@util/sentry/sentry';
 import { RootNavigator } from '~/navigation/RootNavigator';
-import { SafeProvider } from '@features/safe/SafeProvider';
 
 export default withSentry(() => (
   <LocalizatonProvider>
@@ -27,23 +26,20 @@ export default withSentry(() => (
       <Background>
         <GestureHandlerRootView style={{ flex: 1 }}>
           <ErrorBoundary>
-          <Suspense fallback={<Splash />}>
-            <RecoilRoot>
-              <AuthGate>
-                <SentryUser />
-                <GqlProvider>
-                  <StatusBar style="inverted" />
-                  <SafeProvider>
-                    {/* TODO: replace with onboarding screens */}
+            <Suspense fallback={<Splash />}>
+              <RecoilRoot>
+                <AuthGate>
+                  <SentryUser />
+                  <GqlProvider>
+                    <StatusBar style="inverted" />
                     <NavigationProvider>
                       <RootNavigator />
                     </NavigationProvider>
-                  </SafeProvider>
-                </GqlProvider>
-              </AuthGate>
-              <ToastProvider />
-            </RecoilRoot>
-          </Suspense>
+                  </GqlProvider>
+                </AuthGate>
+                <ToastProvider />
+              </RecoilRoot>
+            </Suspense>
           </ErrorBoundary>
         </GestureHandlerRootView>
       </Background>
