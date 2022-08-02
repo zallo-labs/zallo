@@ -21,6 +21,8 @@ import { CommentsModule } from './features/comments/comments.module';
 import { ReactionsModule } from './features/reactions/reactions.module';
 import { SubgraphModule } from './features/subgraph/subgraph.module';
 import { FaucetModule } from './features/faucet/faucet.module';
+import { RedisModule } from '@liaoliaots/nestjs-redis';
+import CONFIG from 'config';
 
 @Module({
   imports: [
@@ -30,6 +32,7 @@ import { FaucetModule } from './features/faucet/faucet.module';
         middlewares: [loggingMiddleware()],
       },
     }),
+    RedisModule.forRoot({ config: { url: CONFIG.redisUrl } }),
     ApolloModule,
     AuthModule,
     ProviderModule,
