@@ -5,6 +5,12 @@ import { Bytes32Field } from '~/apollo/scalars/Bytes32.scalar';
 import { AccountInput } from '../accounts/accounts.args';
 
 @ArgsType()
+export class SafeArgs {
+  @AddressField()
+  id: Address;
+}
+
+@ArgsType()
 export class UpsertSafeArgs {
   @AddressField()
   safe: Address;

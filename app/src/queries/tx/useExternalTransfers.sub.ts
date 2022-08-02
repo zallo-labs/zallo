@@ -20,7 +20,7 @@ const QUERY = gql`
 
 // Transfers not included in a tx
 export const useExternalTransfers = () => {
-  const { safe } = useSafe();
+  const { contract: safe } = useSafe();
   const { txs } = useTxs();
 
   const { data, ...rest } = useQuery<TransfersQuery, TransfersQueryVariables>(

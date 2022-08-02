@@ -15,7 +15,7 @@ const deployCost = parseEther('0.0001');
 
 export const useDeploySafe = () => {
   const combinedSafe = useSafe();
-  const { groups, deploySalt, safe } = combinedSafe;
+  const { groups, deploySalt, contract: safe } = combinedSafe;
   const isDeployed = useIsDeployed();
   const factory = useSafeProxyFactory();
   const upsertSafe = useUpsertSafe();

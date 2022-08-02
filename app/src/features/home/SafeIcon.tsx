@@ -6,7 +6,7 @@ import { HomeScreenProps } from './HomeScreen';
 
 export const SafeIcon = () => {
   const navigation = useNavigation<HomeScreenProps['navigation']>();
-  const { safe } = useSafe();
+  const { contract: safe } = useSafe();
 
   return (
     <TouchableOpacity onPress={() => navigation.navigate('SafeManagement')}>

@@ -13,7 +13,7 @@ import { SharableAddr } from '@components/SharableAddr';
 export type ReceiveScreenProps = RootNavigatorScreenProps<'Receive'>;
 
 export const ReceiveScreen = (_props: ReceiveScreenProps) => {
-  const { safe } = useSafe();
+  const { contract: safe } = useSafe();
   useMaxBrighness();
   useKeepAwake();
 

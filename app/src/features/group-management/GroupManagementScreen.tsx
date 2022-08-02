@@ -16,13 +16,13 @@ import { useGroup, useSafe } from '@features/safe/SafeProvider';
 import { GroupManagement } from './GroupManagement';
 import { ADDR_YUP_SCHEMA } from '@util/yup';
 import { withProposeProvider } from '@features/execute/ProposeProvider';
-import { useUpsertSafeGroup } from '~/mutations/group/useUpsertGroup.safe';
-import { CombinedGroup } from '~/queries/safe';
+import { useUpsertSafeGroup } from '~/mutations/account/useUpsertGroup.safe';
+import { CombinedAccount } from '~/queries/accounts';
 import { useWallet } from '@features/wallet/useWallet';
 
 type Values = Pick<Group, 'approvers'>;
 
-const getSchema = (groups: CombinedGroup[]): Yup.SchemaOf<Values> =>
+const getSchema = (groups: CombinedAccount[]): Yup.SchemaOf<Values> =>
   Yup.object({
     approvers: Yup.array()
       .of(
@@ -69,11 +69,11 @@ export type GroupManagementScreenProps =
 export const GroupManagementScreen = withProposeProvider(
   ({ route }: GroupManagementScreenProps) => {
     const { groupId, selected } = route.params ?? {};
-    const { safe, groups } = useSafe();
+    const { contract: safe, groups } = useSafe();
     const wallet = useWallet();
     const upsertGroup = useUpsertSafeGroup();
 
-    const defaultGroup: CombinedGroup = useMemo(() => {
+    const defaultGroup: CombinedAccount = useMemo(() => {
       const ref = randomGroupRef();
       return {
         id: getGroupId(safe.address, ref),

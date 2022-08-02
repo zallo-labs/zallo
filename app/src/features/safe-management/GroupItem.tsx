@@ -4,10 +4,10 @@ import { Identicon } from '@components/Identicon';
 import { Item, ItemProps } from '@components/list/Item';
 import { HomeScreenProps } from '@features/home/HomeScreen';
 import { GroupName } from '@components/GroupName';
-import { CombinedGroup } from '~/queries/safe';
+import { CombinedAccount } from '~/queries/accounts';
 
 export interface GroupItemProps extends ItemProps {
-  group: CombinedGroup;
+  group: CombinedAccount;
 }
 
 export const GroupItem = ({ group, ...liProps }: GroupItemProps) => {

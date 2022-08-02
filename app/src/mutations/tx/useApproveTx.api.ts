@@ -1,5 +1,4 @@
 import { gql, useMutation } from '@apollo/client';
-import { useSafe } from '@features/safe/SafeProvider';
 import { useWallet } from '@features/wallet/useWallet';
 import {
   ApproveTxMutation,
@@ -13,6 +12,7 @@ import produce from 'immer';
 import { signTx, toId } from 'lib';
 import { DateTime } from 'luxon';
 import { useCallback } from 'react';
+import { useSelectedAccount } from '~/components2/account/useSelectedAccount';
 import { Tx } from '~/queries/tx';
 import { API_TX_FIELDS, API_GET_TXS_QUERY } from '~/queries/tx/useTxs.api';
 
@@ -27,7 +27,7 @@ const MUTATION = gql`
 `;
 
 export const useApproveTx = () => {
-  const { safe } = useSafe();
+  const { safeAddr } = useSelectedAccount();
   const wallet = useWallet();
 
   const [mutate] = useMutation<ApproveTxMutation, ApproveTxMutationVariables>(
@@ -37,11 +37,11 @@ export const useApproveTx = () => {
 
   const approve = useCallback(
     async (tx: Tx) => {
-      const signature = await signTx(wallet, safe.address, tx);
+      const signature = await signTx(wallet, safeAddr, tx);
 
       return await mutate({
         variables: {
-          safe: safe.address,
+          safe: safeAddr,
           txHash: tx.hash,
           signature,
         },
@@ -51,7 +51,7 @@ export const useApproveTx = () => {
 
           const opts = {
             query: API_GET_TXS_QUERY,
-            variables: { safe: safe.address },
+            variables: { safe: safeAddr },
           };
           const data = cache.readQuery<ApiTxsQuery, ApiTxsQueryVariables>(
             opts,
@@ -80,12 +80,12 @@ export const useApproveTx = () => {
         optimisticResponse: {
           approve: {
             __typename: 'Tx',
-            id: toId(`${safe.address}-${tx.hash}`),
+            id: toId(`${safeAddr}-${tx.hash}`),
           },
         },
       });
     },
-    [mutate, safe.address, wallet],
+    [mutate, safeAddr, wallet],
   );
 
   return approve;

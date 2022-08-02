@@ -33,6 +33,7 @@ type User @entity {
   "{address}"
   id: ID!
   quorums: [Quorum!]! @derivedFrom(field: "approvers")
+  # TODO: accounts: [Account!]! @derivedFrom(field: "users")
 }
 
 type Account @entity {
@@ -42,6 +43,7 @@ type Account @entity {
   ref: Bytes!
   active: Boolean!
   quorums: [Quorum!]! @derivedFrom(field: "account")
+  # TODO: users: [User!]!
 }
 
 type Quorum @entity {

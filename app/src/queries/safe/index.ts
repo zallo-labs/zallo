@@ -1,35 +1,11 @@
-import { Address, Approver, GroupRef, Id, Safe } from 'lib';
+import { Safe, Address, Id } from 'lib';
 
-export const QUERY_SAFES_POLL_INTERVAL = 30 * 1000;
-
-export interface CombinedGroup {
-  id: Id;
-  ref: GroupRef;
-  active: boolean;
-  approvers: Approver[];
-  name: string;
-}
+export const QUERY_SAFE_POLL_INTERVAL = 30 * 1000;
 
 export interface CombinedSafe {
-  safe: Safe;
-  name: string;
-  deploySalt?: string;
-  impl: Address;
-  groups: CombinedGroup[];
-}
-
-export interface CombinedSafe2 {
-  safe: Safe;
-  name: string;
-  deploySalt?: string;
-  impl: Address;
-}
-
-export interface CombinedAccount {
   id: Id;
-  ref: GroupRef;
-  active: boolean;
-  approvers: Approver[];
-  name: string;
-  safe: CombinedSafe2;
+  contract: Safe;
+  impl: Address;
+  deploySalt?: string;
+  name?: string;
 }

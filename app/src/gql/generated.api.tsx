@@ -15,13 +15,246 @@ export type Scalars = {
   Float: number;
   Address: any;
   Bytes: any;
+  Bytes4: any;
   Bytes8: any;
   Bytes32: any;
   DateTime: any;
   Decimal: any;
   Id: any;
   JSON: any;
+  QuorumScalar: any;
   Uint256: any;
+};
+
+export type Account = {
+  __typename?: 'Account';
+  _count: AccountCount;
+  approvers?: Maybe<Array<Approver>>;
+  id: Scalars['String'];
+  name: Scalars['String'];
+  quorums?: Maybe<Array<Quorum>>;
+  ref: Scalars['String'];
+  safe: Safe;
+  safeId: Scalars['String'];
+};
+
+export type AccountCount = {
+  __typename?: 'AccountCount';
+  approvers: Scalars['Int'];
+  quorums: Scalars['Int'];
+};
+
+export type AccountCreateManySafeInput = {
+  name?: InputMaybe<Scalars['String']>;
+  ref: Scalars['String'];
+};
+
+export type AccountCreateManySafeInputEnvelope = {
+  data: Array<AccountCreateManySafeInput>;
+  skipDuplicates?: InputMaybe<Scalars['Boolean']>;
+};
+
+export type AccountCreateNestedManyWithoutSafeInput = {
+  connect?: InputMaybe<Array<AccountWhereUniqueInput>>;
+  connectOrCreate?: InputMaybe<Array<AccountCreateOrConnectWithoutSafeInput>>;
+  create?: InputMaybe<Array<AccountCreateWithoutSafeInput>>;
+  createMany?: InputMaybe<AccountCreateManySafeInputEnvelope>;
+};
+
+export type AccountCreateNestedOneWithoutApproversInput = {
+  connect?: InputMaybe<AccountWhereUniqueInput>;
+  connectOrCreate?: InputMaybe<AccountCreateOrConnectWithoutApproversInput>;
+  create?: InputMaybe<AccountCreateWithoutApproversInput>;
+};
+
+export type AccountCreateNestedOneWithoutQuorumsInput = {
+  connect?: InputMaybe<AccountWhereUniqueInput>;
+  connectOrCreate?: InputMaybe<AccountCreateOrConnectWithoutQuorumsInput>;
+  create?: InputMaybe<AccountCreateWithoutQuorumsInput>;
+};
+
+export type AccountCreateOrConnectWithoutApproversInput = {
+  create: AccountCreateWithoutApproversInput;
+  where: AccountWhereUniqueInput;
+};
+
+export type AccountCreateOrConnectWithoutQuorumsInput = {
+  create: AccountCreateWithoutQuorumsInput;
+  where: AccountWhereUniqueInput;
+};
+
+export type AccountCreateOrConnectWithoutSafeInput = {
+  create: AccountCreateWithoutSafeInput;
+  where: AccountWhereUniqueInput;
+};
+
+export type AccountCreateWithoutApproversInput = {
+  name?: InputMaybe<Scalars['String']>;
+  quorums?: InputMaybe<QuorumCreateNestedManyWithoutAccountInput>;
+  ref: Scalars['String'];
+  safe: SafeCreateNestedOneWithoutAccountsInput;
+};
+
+export type AccountCreateWithoutQuorumsInput = {
+  approvers?: InputMaybe<ApproverCreateNestedManyWithoutAccountInput>;
+  name?: InputMaybe<Scalars['String']>;
+  ref: Scalars['String'];
+  safe: SafeCreateNestedOneWithoutAccountsInput;
+};
+
+export type AccountCreateWithoutSafeInput = {
+  approvers?: InputMaybe<ApproverCreateNestedManyWithoutAccountInput>;
+  name?: InputMaybe<Scalars['String']>;
+  quorums?: InputMaybe<QuorumCreateNestedManyWithoutAccountInput>;
+  ref: Scalars['String'];
+};
+
+export type AccountInput = {
+  name?: InputMaybe<Scalars['String']>;
+  quorums: Array<Scalars['QuorumScalar']>;
+  ref: Scalars['Bytes4'];
+};
+
+export type AccountListRelationFilter = {
+  every?: InputMaybe<AccountWhereInput>;
+  none?: InputMaybe<AccountWhereInput>;
+  some?: InputMaybe<AccountWhereInput>;
+};
+
+export type AccountOrderByRelationAggregateInput = {
+  _count?: InputMaybe<SortOrder>;
+};
+
+export type AccountOrderByWithRelationInput = {
+  approvers?: InputMaybe<ApproverOrderByRelationAggregateInput>;
+  name?: InputMaybe<SortOrder>;
+  quorums?: InputMaybe<QuorumOrderByRelationAggregateInput>;
+  ref?: InputMaybe<SortOrder>;
+  safe?: InputMaybe<SafeOrderByWithRelationInput>;
+  safeId?: InputMaybe<SortOrder>;
+};
+
+export type AccountRelationFilter = {
+  is?: InputMaybe<AccountWhereInput>;
+  isNot?: InputMaybe<AccountWhereInput>;
+};
+
+export type AccountSafeIdRefCompoundUniqueInput = {
+  ref: Scalars['String'];
+  safeId: Scalars['String'];
+};
+
+export enum AccountScalarFieldEnum {
+  Name = 'name',
+  Ref = 'ref',
+  SafeId = 'safeId'
+}
+
+export type AccountScalarWhereInput = {
+  AND?: InputMaybe<Array<AccountScalarWhereInput>>;
+  NOT?: InputMaybe<Array<AccountScalarWhereInput>>;
+  OR?: InputMaybe<Array<AccountScalarWhereInput>>;
+  name?: InputMaybe<StringFilter>;
+  ref?: InputMaybe<StringFilter>;
+  safeId?: InputMaybe<StringFilter>;
+};
+
+export type AccountUpdateManyMutationInput = {
+  name?: InputMaybe<StringFieldUpdateOperationsInput>;
+  ref?: InputMaybe<StringFieldUpdateOperationsInput>;
+};
+
+export type AccountUpdateManyWithWhereWithoutSafeInput = {
+  data: AccountUpdateManyMutationInput;
+  where: AccountScalarWhereInput;
+};
+
+export type AccountUpdateManyWithoutSafeNestedInput = {
+  connect?: InputMaybe<Array<AccountWhereUniqueInput>>;
+  connectOrCreate?: InputMaybe<Array<AccountCreateOrConnectWithoutSafeInput>>;
+  create?: InputMaybe<Array<AccountCreateWithoutSafeInput>>;
+  createMany?: InputMaybe<AccountCreateManySafeInputEnvelope>;
+  delete?: InputMaybe<Array<AccountWhereUniqueInput>>;
+  deleteMany?: InputMaybe<Array<AccountScalarWhereInput>>;
+  disconnect?: InputMaybe<Array<AccountWhereUniqueInput>>;
+  set?: InputMaybe<Array<AccountWhereUniqueInput>>;
+  update?: InputMaybe<Array<AccountUpdateWithWhereUniqueWithoutSafeInput>>;
+  updateMany?: InputMaybe<Array<AccountUpdateManyWithWhereWithoutSafeInput>>;
+  upsert?: InputMaybe<Array<AccountUpsertWithWhereUniqueWithoutSafeInput>>;
+};
+
+export type AccountUpdateOneRequiredWithoutApproversNestedInput = {
+  connect?: InputMaybe<AccountWhereUniqueInput>;
+  connectOrCreate?: InputMaybe<AccountCreateOrConnectWithoutApproversInput>;
+  create?: InputMaybe<AccountCreateWithoutApproversInput>;
+  update?: InputMaybe<AccountUpdateWithoutApproversInput>;
+  upsert?: InputMaybe<AccountUpsertWithoutApproversInput>;
+};
+
+export type AccountUpdateOneRequiredWithoutQuorumsNestedInput = {
+  connect?: InputMaybe<AccountWhereUniqueInput>;
+  connectOrCreate?: InputMaybe<AccountCreateOrConnectWithoutQuorumsInput>;
+  create?: InputMaybe<AccountCreateWithoutQuorumsInput>;
+  update?: InputMaybe<AccountUpdateWithoutQuorumsInput>;
+  upsert?: InputMaybe<AccountUpsertWithoutQuorumsInput>;
+};
+
+export type AccountUpdateWithWhereUniqueWithoutSafeInput = {
+  data: AccountUpdateWithoutSafeInput;
+  where: AccountWhereUniqueInput;
+};
+
+export type AccountUpdateWithoutApproversInput = {
+  name?: InputMaybe<StringFieldUpdateOperationsInput>;
+  quorums?: InputMaybe<QuorumUpdateManyWithoutAccountNestedInput>;
+  ref?: InputMaybe<StringFieldUpdateOperationsInput>;
+  safe?: InputMaybe<SafeUpdateOneRequiredWithoutAccountsNestedInput>;
+};
+
+export type AccountUpdateWithoutQuorumsInput = {
+  approvers?: InputMaybe<ApproverUpdateManyWithoutAccountNestedInput>;
+  name?: InputMaybe<StringFieldUpdateOperationsInput>;
+  ref?: InputMaybe<StringFieldUpdateOperationsInput>;
+  safe?: InputMaybe<SafeUpdateOneRequiredWithoutAccountsNestedInput>;
+};
+
+export type AccountUpdateWithoutSafeInput = {
+  approvers?: InputMaybe<ApproverUpdateManyWithoutAccountNestedInput>;
+  name?: InputMaybe<StringFieldUpdateOperationsInput>;
+  quorums?: InputMaybe<QuorumUpdateManyWithoutAccountNestedInput>;
+  ref?: InputMaybe<StringFieldUpdateOperationsInput>;
+};
+
+export type AccountUpsertWithWhereUniqueWithoutSafeInput = {
+  create: AccountCreateWithoutSafeInput;
+  update: AccountUpdateWithoutSafeInput;
+  where: AccountWhereUniqueInput;
+};
+
+export type AccountUpsertWithoutApproversInput = {
+  create: AccountCreateWithoutApproversInput;
+  update: AccountUpdateWithoutApproversInput;
+};
+
+export type AccountUpsertWithoutQuorumsInput = {
+  create: AccountCreateWithoutQuorumsInput;
+  update: AccountUpdateWithoutQuorumsInput;
+};
+
+export type AccountWhereInput = {
+  AND?: InputMaybe<Array<AccountWhereInput>>;
+  NOT?: InputMaybe<Array<AccountWhereInput>>;
+  OR?: InputMaybe<Array<AccountWhereInput>>;
+  approvers?: InputMaybe<ApproverListRelationFilter>;
+  name?: InputMaybe<StringFilter>;
+  quorums?: InputMaybe<QuorumListRelationFilter>;
+  ref?: InputMaybe<StringFilter>;
+  safe?: InputMaybe<SafeRelationFilter>;
+  safeId?: InputMaybe<StringFilter>;
+};
+
+export type AccountWhereUniqueInput = {
+  safeId_ref?: InputMaybe<AccountSafeIdRefCompoundUniqueInput>;
 };
 
 export type Approval = {
@@ -291,29 +524,51 @@ export type ApprovalWhereUniqueInput = {
 
 export type Approver = {
   __typename?: 'Approver';
-  group: Group;
-  groupRef: Scalars['String'];
+  account: Account;
+  accountRef: Scalars['String'];
   id: Scalars['String'];
+  quorum: Quorum;
+  quorumHash: Scalars['String'];
+  safe: Safe;
   safeId: Scalars['String'];
   user: User;
   userId: Scalars['String'];
-  weight: Scalars['Decimal'];
 };
 
-export type ApproverCreateManyGroupInput = {
+export type ApproverCreateManyAccountInput = {
+  quorumHash: Scalars['String'];
   userId: Scalars['String'];
-  weight: Scalars['Decimal'];
 };
 
-export type ApproverCreateManyGroupInputEnvelope = {
-  data: Array<ApproverCreateManyGroupInput>;
+export type ApproverCreateManyAccountInputEnvelope = {
+  data: Array<ApproverCreateManyAccountInput>;
+  skipDuplicates?: InputMaybe<Scalars['Boolean']>;
+};
+
+export type ApproverCreateManyQuorumInput = {
+  userId: Scalars['String'];
+};
+
+export type ApproverCreateManyQuorumInputEnvelope = {
+  data: Array<ApproverCreateManyQuorumInput>;
+  skipDuplicates?: InputMaybe<Scalars['Boolean']>;
+};
+
+export type ApproverCreateManySafeInput = {
+  accountRef: Scalars['String'];
+  quorumHash: Scalars['String'];
+  userId: Scalars['String'];
+};
+
+export type ApproverCreateManySafeInputEnvelope = {
+  data: Array<ApproverCreateManySafeInput>;
   skipDuplicates?: InputMaybe<Scalars['Boolean']>;
 };
 
 export type ApproverCreateManyUserInput = {
-  groupRef: Scalars['String'];
+  accountRef: Scalars['String'];
+  quorumHash: Scalars['String'];
   safeId: Scalars['String'];
-  weight: Scalars['Decimal'];
 };
 
 export type ApproverCreateManyUserInputEnvelope = {
@@ -321,11 +576,25 @@ export type ApproverCreateManyUserInputEnvelope = {
   skipDuplicates?: InputMaybe<Scalars['Boolean']>;
 };
 
-export type ApproverCreateNestedManyWithoutGroupInput = {
+export type ApproverCreateNestedManyWithoutAccountInput = {
   connect?: InputMaybe<Array<ApproverWhereUniqueInput>>;
-  connectOrCreate?: InputMaybe<Array<ApproverCreateOrConnectWithoutGroupInput>>;
-  create?: InputMaybe<Array<ApproverCreateWithoutGroupInput>>;
-  createMany?: InputMaybe<ApproverCreateManyGroupInputEnvelope>;
+  connectOrCreate?: InputMaybe<Array<ApproverCreateOrConnectWithoutAccountInput>>;
+  create?: InputMaybe<Array<ApproverCreateWithoutAccountInput>>;
+  createMany?: InputMaybe<ApproverCreateManyAccountInputEnvelope>;
+};
+
+export type ApproverCreateNestedManyWithoutQuorumInput = {
+  connect?: InputMaybe<Array<ApproverWhereUniqueInput>>;
+  connectOrCreate?: InputMaybe<Array<ApproverCreateOrConnectWithoutQuorumInput>>;
+  create?: InputMaybe<Array<ApproverCreateWithoutQuorumInput>>;
+  createMany?: InputMaybe<ApproverCreateManyQuorumInputEnvelope>;
+};
+
+export type ApproverCreateNestedManyWithoutSafeInput = {
+  connect?: InputMaybe<Array<ApproverWhereUniqueInput>>;
+  connectOrCreate?: InputMaybe<Array<ApproverCreateOrConnectWithoutSafeInput>>;
+  create?: InputMaybe<Array<ApproverCreateWithoutSafeInput>>;
+  createMany?: InputMaybe<ApproverCreateManySafeInputEnvelope>;
 };
 
 export type ApproverCreateNestedManyWithoutUserInput = {
@@ -335,8 +604,18 @@ export type ApproverCreateNestedManyWithoutUserInput = {
   createMany?: InputMaybe<ApproverCreateManyUserInputEnvelope>;
 };
 
-export type ApproverCreateOrConnectWithoutGroupInput = {
-  create: ApproverCreateWithoutGroupInput;
+export type ApproverCreateOrConnectWithoutAccountInput = {
+  create: ApproverCreateWithoutAccountInput;
+  where: ApproverWhereUniqueInput;
+};
+
+export type ApproverCreateOrConnectWithoutQuorumInput = {
+  create: ApproverCreateWithoutQuorumInput;
+  where: ApproverWhereUniqueInput;
+};
+
+export type ApproverCreateOrConnectWithoutSafeInput = {
+  create: ApproverCreateWithoutSafeInput;
   where: ApproverWhereUniqueInput;
 };
 
@@ -345,19 +624,28 @@ export type ApproverCreateOrConnectWithoutUserInput = {
   where: ApproverWhereUniqueInput;
 };
 
-export type ApproverCreateWithoutGroupInput = {
-  user: UserCreateNestedOneWithoutGroupsInput;
-  weight: Scalars['Decimal'];
+export type ApproverCreateWithoutAccountInput = {
+  quorum: QuorumCreateNestedOneWithoutApproversInput;
+  safe: SafeCreateNestedOneWithoutApproversInput;
+  user: UserCreateNestedOneWithoutApproversInput;
+};
+
+export type ApproverCreateWithoutQuorumInput = {
+  account: AccountCreateNestedOneWithoutApproversInput;
+  safe: SafeCreateNestedOneWithoutApproversInput;
+  user: UserCreateNestedOneWithoutApproversInput;
+};
+
+export type ApproverCreateWithoutSafeInput = {
+  account: AccountCreateNestedOneWithoutApproversInput;
+  quorum: QuorumCreateNestedOneWithoutApproversInput;
+  user: UserCreateNestedOneWithoutApproversInput;
 };
 
 export type ApproverCreateWithoutUserInput = {
-  group: GroupCreateNestedOneWithoutApproversInput;
-  weight: Scalars['Decimal'];
-};
-
-export type ApproverInput = {
-  addr: Scalars['Address'];
-  weight: Scalars['Float'];
+  account: AccountCreateNestedOneWithoutApproversInput;
+  quorum: QuorumCreateNestedOneWithoutApproversInput;
+  safe: SafeCreateNestedOneWithoutApproversInput;
 };
 
 export type ApproverListRelationFilter = {
@@ -370,8 +658,9 @@ export type ApproverOrderByRelationAggregateInput = {
   _count?: InputMaybe<SortOrder>;
 };
 
-export type ApproverSafeIdGroupRefUserIdCompoundUniqueInput = {
-  groupRef: Scalars['String'];
+export type ApproverSafeIdAccountRefQuorumHashUserIdCompoundUniqueInput = {
+  accountRef: Scalars['String'];
+  quorumHash: Scalars['String'];
   safeId: Scalars['String'];
   userId: Scalars['String'];
 };
@@ -380,38 +669,78 @@ export type ApproverScalarWhereInput = {
   AND?: InputMaybe<Array<ApproverScalarWhereInput>>;
   NOT?: InputMaybe<Array<ApproverScalarWhereInput>>;
   OR?: InputMaybe<Array<ApproverScalarWhereInput>>;
-  groupRef?: InputMaybe<StringFilter>;
+  accountRef?: InputMaybe<StringFilter>;
+  quorumHash?: InputMaybe<StringFilter>;
   safeId?: InputMaybe<StringFilter>;
   userId?: InputMaybe<StringFilter>;
-  weight?: InputMaybe<DecimalFilter>;
 };
 
-export type ApproverUpdateManyMutationInput = {
-  weight?: InputMaybe<DecimalFieldUpdateOperationsInput>;
+export type ApproverUncheckedUpdateManyWithoutApproversInput = {
+  accountRef?: InputMaybe<StringFieldUpdateOperationsInput>;
+  quorumHash?: InputMaybe<StringFieldUpdateOperationsInput>;
+  userId?: InputMaybe<StringFieldUpdateOperationsInput>;
 };
 
-export type ApproverUpdateManyWithWhereWithoutGroupInput = {
-  data: ApproverUpdateManyMutationInput;
+export type ApproverUpdateManyWithWhereWithoutAccountInput = {
+  data: ApproverUncheckedUpdateManyWithoutApproversInput;
+  where: ApproverScalarWhereInput;
+};
+
+export type ApproverUpdateManyWithWhereWithoutQuorumInput = {
+  data: ApproverUncheckedUpdateManyWithoutApproversInput;
+  where: ApproverScalarWhereInput;
+};
+
+export type ApproverUpdateManyWithWhereWithoutSafeInput = {
+  data: ApproverUncheckedUpdateManyWithoutApproversInput;
   where: ApproverScalarWhereInput;
 };
 
 export type ApproverUpdateManyWithWhereWithoutUserInput = {
-  data: ApproverUpdateManyMutationInput;
+  data: ApproverUncheckedUpdateManyWithoutApproversInput;
   where: ApproverScalarWhereInput;
 };
 
-export type ApproverUpdateManyWithoutGroupNestedInput = {
+export type ApproverUpdateManyWithoutAccountNestedInput = {
   connect?: InputMaybe<Array<ApproverWhereUniqueInput>>;
-  connectOrCreate?: InputMaybe<Array<ApproverCreateOrConnectWithoutGroupInput>>;
-  create?: InputMaybe<Array<ApproverCreateWithoutGroupInput>>;
-  createMany?: InputMaybe<ApproverCreateManyGroupInputEnvelope>;
+  connectOrCreate?: InputMaybe<Array<ApproverCreateOrConnectWithoutAccountInput>>;
+  create?: InputMaybe<Array<ApproverCreateWithoutAccountInput>>;
+  createMany?: InputMaybe<ApproverCreateManyAccountInputEnvelope>;
   delete?: InputMaybe<Array<ApproverWhereUniqueInput>>;
   deleteMany?: InputMaybe<Array<ApproverScalarWhereInput>>;
   disconnect?: InputMaybe<Array<ApproverWhereUniqueInput>>;
   set?: InputMaybe<Array<ApproverWhereUniqueInput>>;
-  update?: InputMaybe<Array<ApproverUpdateWithWhereUniqueWithoutGroupInput>>;
-  updateMany?: InputMaybe<Array<ApproverUpdateManyWithWhereWithoutGroupInput>>;
-  upsert?: InputMaybe<Array<ApproverUpsertWithWhereUniqueWithoutGroupInput>>;
+  update?: InputMaybe<Array<ApproverUpdateWithWhereUniqueWithoutAccountInput>>;
+  updateMany?: InputMaybe<Array<ApproverUpdateManyWithWhereWithoutAccountInput>>;
+  upsert?: InputMaybe<Array<ApproverUpsertWithWhereUniqueWithoutAccountInput>>;
+};
+
+export type ApproverUpdateManyWithoutQuorumNestedInput = {
+  connect?: InputMaybe<Array<ApproverWhereUniqueInput>>;
+  connectOrCreate?: InputMaybe<Array<ApproverCreateOrConnectWithoutQuorumInput>>;
+  create?: InputMaybe<Array<ApproverCreateWithoutQuorumInput>>;
+  createMany?: InputMaybe<ApproverCreateManyQuorumInputEnvelope>;
+  delete?: InputMaybe<Array<ApproverWhereUniqueInput>>;
+  deleteMany?: InputMaybe<Array<ApproverScalarWhereInput>>;
+  disconnect?: InputMaybe<Array<ApproverWhereUniqueInput>>;
+  set?: InputMaybe<Array<ApproverWhereUniqueInput>>;
+  update?: InputMaybe<Array<ApproverUpdateWithWhereUniqueWithoutQuorumInput>>;
+  updateMany?: InputMaybe<Array<ApproverUpdateManyWithWhereWithoutQuorumInput>>;
+  upsert?: InputMaybe<Array<ApproverUpsertWithWhereUniqueWithoutQuorumInput>>;
+};
+
+export type ApproverUpdateManyWithoutSafeNestedInput = {
+  connect?: InputMaybe<Array<ApproverWhereUniqueInput>>;
+  connectOrCreate?: InputMaybe<Array<ApproverCreateOrConnectWithoutSafeInput>>;
+  create?: InputMaybe<Array<ApproverCreateWithoutSafeInput>>;
+  createMany?: InputMaybe<ApproverCreateManySafeInputEnvelope>;
+  delete?: InputMaybe<Array<ApproverWhereUniqueInput>>;
+  deleteMany?: InputMaybe<Array<ApproverScalarWhereInput>>;
+  disconnect?: InputMaybe<Array<ApproverWhereUniqueInput>>;
+  set?: InputMaybe<Array<ApproverWhereUniqueInput>>;
+  update?: InputMaybe<Array<ApproverUpdateWithWhereUniqueWithoutSafeInput>>;
+  updateMany?: InputMaybe<Array<ApproverUpdateManyWithWhereWithoutSafeInput>>;
+  upsert?: InputMaybe<Array<ApproverUpsertWithWhereUniqueWithoutSafeInput>>;
 };
 
 export type ApproverUpdateManyWithoutUserNestedInput = {
@@ -428,8 +757,18 @@ export type ApproverUpdateManyWithoutUserNestedInput = {
   upsert?: InputMaybe<Array<ApproverUpsertWithWhereUniqueWithoutUserInput>>;
 };
 
-export type ApproverUpdateWithWhereUniqueWithoutGroupInput = {
-  data: ApproverUpdateWithoutGroupInput;
+export type ApproverUpdateWithWhereUniqueWithoutAccountInput = {
+  data: ApproverUpdateWithoutAccountInput;
+  where: ApproverWhereUniqueInput;
+};
+
+export type ApproverUpdateWithWhereUniqueWithoutQuorumInput = {
+  data: ApproverUpdateWithoutQuorumInput;
+  where: ApproverWhereUniqueInput;
+};
+
+export type ApproverUpdateWithWhereUniqueWithoutSafeInput = {
+  data: ApproverUpdateWithoutSafeInput;
   where: ApproverWhereUniqueInput;
 };
 
@@ -438,19 +777,45 @@ export type ApproverUpdateWithWhereUniqueWithoutUserInput = {
   where: ApproverWhereUniqueInput;
 };
 
-export type ApproverUpdateWithoutGroupInput = {
-  user?: InputMaybe<UserUpdateOneRequiredWithoutGroupsNestedInput>;
-  weight?: InputMaybe<DecimalFieldUpdateOperationsInput>;
+export type ApproverUpdateWithoutAccountInput = {
+  quorum?: InputMaybe<QuorumUpdateOneRequiredWithoutApproversNestedInput>;
+  safe?: InputMaybe<SafeUpdateOneRequiredWithoutApproversNestedInput>;
+  user?: InputMaybe<UserUpdateOneRequiredWithoutApproversNestedInput>;
+};
+
+export type ApproverUpdateWithoutQuorumInput = {
+  account?: InputMaybe<AccountUpdateOneRequiredWithoutApproversNestedInput>;
+  safe?: InputMaybe<SafeUpdateOneRequiredWithoutApproversNestedInput>;
+  user?: InputMaybe<UserUpdateOneRequiredWithoutApproversNestedInput>;
+};
+
+export type ApproverUpdateWithoutSafeInput = {
+  account?: InputMaybe<AccountUpdateOneRequiredWithoutApproversNestedInput>;
+  quorum?: InputMaybe<QuorumUpdateOneRequiredWithoutApproversNestedInput>;
+  user?: InputMaybe<UserUpdateOneRequiredWithoutApproversNestedInput>;
 };
 
 export type ApproverUpdateWithoutUserInput = {
-  group?: InputMaybe<GroupUpdateOneRequiredWithoutApproversNestedInput>;
-  weight?: InputMaybe<DecimalFieldUpdateOperationsInput>;
+  account?: InputMaybe<AccountUpdateOneRequiredWithoutApproversNestedInput>;
+  quorum?: InputMaybe<QuorumUpdateOneRequiredWithoutApproversNestedInput>;
+  safe?: InputMaybe<SafeUpdateOneRequiredWithoutApproversNestedInput>;
 };
 
-export type ApproverUpsertWithWhereUniqueWithoutGroupInput = {
-  create: ApproverCreateWithoutGroupInput;
-  update: ApproverUpdateWithoutGroupInput;
+export type ApproverUpsertWithWhereUniqueWithoutAccountInput = {
+  create: ApproverCreateWithoutAccountInput;
+  update: ApproverUpdateWithoutAccountInput;
+  where: ApproverWhereUniqueInput;
+};
+
+export type ApproverUpsertWithWhereUniqueWithoutQuorumInput = {
+  create: ApproverCreateWithoutQuorumInput;
+  update: ApproverUpdateWithoutQuorumInput;
+  where: ApproverWhereUniqueInput;
+};
+
+export type ApproverUpsertWithWhereUniqueWithoutSafeInput = {
+  create: ApproverCreateWithoutSafeInput;
+  update: ApproverUpdateWithoutSafeInput;
   where: ApproverWhereUniqueInput;
 };
 
@@ -464,16 +829,18 @@ export type ApproverWhereInput = {
   AND?: InputMaybe<Array<ApproverWhereInput>>;
   NOT?: InputMaybe<Array<ApproverWhereInput>>;
   OR?: InputMaybe<Array<ApproverWhereInput>>;
-  group?: InputMaybe<GroupRelationFilter>;
-  groupRef?: InputMaybe<StringFilter>;
+  account?: InputMaybe<AccountRelationFilter>;
+  accountRef?: InputMaybe<StringFilter>;
+  quorum?: InputMaybe<QuorumRelationFilter>;
+  quorumHash?: InputMaybe<StringFilter>;
+  safe?: InputMaybe<SafeRelationFilter>;
   safeId?: InputMaybe<StringFilter>;
   user?: InputMaybe<UserRelationFilter>;
   userId?: InputMaybe<StringFilter>;
-  weight?: InputMaybe<DecimalFilter>;
 };
 
 export type ApproverWhereUniqueInput = {
-  safeId_groupRef_userId?: InputMaybe<ApproverSafeIdGroupRefUserIdCompoundUniqueInput>;
+  safeId_accountRef_quorumHash_userId?: InputMaybe<ApproverSafeIdAccountRefQuorumHashUserIdCompoundUniqueInput>;
 };
 
 export type BoolFieldUpdateOperationsInput = {
@@ -955,191 +1322,6 @@ export type DeleteContactResp = {
   id: Scalars['String'];
 };
 
-export type Group = {
-  __typename?: 'Group';
-  _count: GroupCount;
-  approvers?: Maybe<Array<Approver>>;
-  id: Scalars['String'];
-  name: Scalars['String'];
-  ref: Scalars['String'];
-  safe: Safe;
-  safeId: Scalars['String'];
-};
-
-export type GroupCount = {
-  __typename?: 'GroupCount';
-  approvers: Scalars['Int'];
-};
-
-export type GroupCreateManySafeInput = {
-  name?: InputMaybe<Scalars['String']>;
-  ref: Scalars['String'];
-};
-
-export type GroupCreateManySafeInputEnvelope = {
-  data: Array<GroupCreateManySafeInput>;
-  skipDuplicates?: InputMaybe<Scalars['Boolean']>;
-};
-
-export type GroupCreateNestedManyWithoutSafeInput = {
-  connect?: InputMaybe<Array<GroupWhereUniqueInput>>;
-  connectOrCreate?: InputMaybe<Array<GroupCreateOrConnectWithoutSafeInput>>;
-  create?: InputMaybe<Array<GroupCreateWithoutSafeInput>>;
-  createMany?: InputMaybe<GroupCreateManySafeInputEnvelope>;
-};
-
-export type GroupCreateNestedOneWithoutApproversInput = {
-  connect?: InputMaybe<GroupWhereUniqueInput>;
-  connectOrCreate?: InputMaybe<GroupCreateOrConnectWithoutApproversInput>;
-  create?: InputMaybe<GroupCreateWithoutApproversInput>;
-};
-
-export type GroupCreateOrConnectWithoutApproversInput = {
-  create: GroupCreateWithoutApproversInput;
-  where: GroupWhereUniqueInput;
-};
-
-export type GroupCreateOrConnectWithoutSafeInput = {
-  create: GroupCreateWithoutSafeInput;
-  where: GroupWhereUniqueInput;
-};
-
-export type GroupCreateWithoutApproversInput = {
-  name?: InputMaybe<Scalars['String']>;
-  ref: Scalars['String'];
-  safe: SafeCreateNestedOneWithoutGroupsInput;
-};
-
-export type GroupCreateWithoutSafeInput = {
-  approvers?: InputMaybe<ApproverCreateNestedManyWithoutGroupInput>;
-  name?: InputMaybe<Scalars['String']>;
-  ref: Scalars['String'];
-};
-
-export type GroupInput = {
-  approvers: Array<ApproverInput>;
-  name: Scalars['String'];
-  ref: Scalars['Bytes32'];
-};
-
-export type GroupListRelationFilter = {
-  every?: InputMaybe<GroupWhereInput>;
-  none?: InputMaybe<GroupWhereInput>;
-  some?: InputMaybe<GroupWhereInput>;
-};
-
-export type GroupOrderByRelationAggregateInput = {
-  _count?: InputMaybe<SortOrder>;
-};
-
-export type GroupOrderByWithRelationInput = {
-  approvers?: InputMaybe<ApproverOrderByRelationAggregateInput>;
-  name?: InputMaybe<SortOrder>;
-  ref?: InputMaybe<SortOrder>;
-  safe?: InputMaybe<SafeOrderByWithRelationInput>;
-  safeId?: InputMaybe<SortOrder>;
-};
-
-export type GroupRelationFilter = {
-  is?: InputMaybe<GroupWhereInput>;
-  isNot?: InputMaybe<GroupWhereInput>;
-};
-
-export type GroupSafeIdRefCompoundUniqueInput = {
-  ref: Scalars['String'];
-  safeId: Scalars['String'];
-};
-
-export enum GroupScalarFieldEnum {
-  Name = 'name',
-  Ref = 'ref',
-  SafeId = 'safeId'
-}
-
-export type GroupScalarWhereInput = {
-  AND?: InputMaybe<Array<GroupScalarWhereInput>>;
-  NOT?: InputMaybe<Array<GroupScalarWhereInput>>;
-  OR?: InputMaybe<Array<GroupScalarWhereInput>>;
-  name?: InputMaybe<StringFilter>;
-  ref?: InputMaybe<StringFilter>;
-  safeId?: InputMaybe<StringFilter>;
-};
-
-export type GroupUpdateManyMutationInput = {
-  name?: InputMaybe<StringFieldUpdateOperationsInput>;
-  ref?: InputMaybe<StringFieldUpdateOperationsInput>;
-};
-
-export type GroupUpdateManyWithWhereWithoutSafeInput = {
-  data: GroupUpdateManyMutationInput;
-  where: GroupScalarWhereInput;
-};
-
-export type GroupUpdateManyWithoutSafeNestedInput = {
-  connect?: InputMaybe<Array<GroupWhereUniqueInput>>;
-  connectOrCreate?: InputMaybe<Array<GroupCreateOrConnectWithoutSafeInput>>;
-  create?: InputMaybe<Array<GroupCreateWithoutSafeInput>>;
-  createMany?: InputMaybe<GroupCreateManySafeInputEnvelope>;
-  delete?: InputMaybe<Array<GroupWhereUniqueInput>>;
-  deleteMany?: InputMaybe<Array<GroupScalarWhereInput>>;
-  disconnect?: InputMaybe<Array<GroupWhereUniqueInput>>;
-  set?: InputMaybe<Array<GroupWhereUniqueInput>>;
-  update?: InputMaybe<Array<GroupUpdateWithWhereUniqueWithoutSafeInput>>;
-  updateMany?: InputMaybe<Array<GroupUpdateManyWithWhereWithoutSafeInput>>;
-  upsert?: InputMaybe<Array<GroupUpsertWithWhereUniqueWithoutSafeInput>>;
-};
-
-export type GroupUpdateOneRequiredWithoutApproversNestedInput = {
-  connect?: InputMaybe<GroupWhereUniqueInput>;
-  connectOrCreate?: InputMaybe<GroupCreateOrConnectWithoutApproversInput>;
-  create?: InputMaybe<GroupCreateWithoutApproversInput>;
-  update?: InputMaybe<GroupUpdateWithoutApproversInput>;
-  upsert?: InputMaybe<GroupUpsertWithoutApproversInput>;
-};
-
-export type GroupUpdateWithWhereUniqueWithoutSafeInput = {
-  data: GroupUpdateWithoutSafeInput;
-  where: GroupWhereUniqueInput;
-};
-
-export type GroupUpdateWithoutApproversInput = {
-  name?: InputMaybe<StringFieldUpdateOperationsInput>;
-  ref?: InputMaybe<StringFieldUpdateOperationsInput>;
-  safe?: InputMaybe<SafeUpdateOneRequiredWithoutGroupsNestedInput>;
-};
-
-export type GroupUpdateWithoutSafeInput = {
-  approvers?: InputMaybe<ApproverUpdateManyWithoutGroupNestedInput>;
-  name?: InputMaybe<StringFieldUpdateOperationsInput>;
-  ref?: InputMaybe<StringFieldUpdateOperationsInput>;
-};
-
-export type GroupUpsertWithWhereUniqueWithoutSafeInput = {
-  create: GroupCreateWithoutSafeInput;
-  update: GroupUpdateWithoutSafeInput;
-  where: GroupWhereUniqueInput;
-};
-
-export type GroupUpsertWithoutApproversInput = {
-  create: GroupCreateWithoutApproversInput;
-  update: GroupUpdateWithoutApproversInput;
-};
-
-export type GroupWhereInput = {
-  AND?: InputMaybe<Array<GroupWhereInput>>;
-  NOT?: InputMaybe<Array<GroupWhereInput>>;
-  OR?: InputMaybe<Array<GroupWhereInput>>;
-  approvers?: InputMaybe<ApproverListRelationFilter>;
-  name?: InputMaybe<StringFilter>;
-  ref?: InputMaybe<StringFilter>;
-  safe?: InputMaybe<SafeRelationFilter>;
-  safeId?: InputMaybe<StringFilter>;
-};
-
-export type GroupWhereUniqueInput = {
-  safeId_ref?: InputMaybe<GroupSafeIdRefCompoundUniqueInput>;
-};
-
 export type IntFieldUpdateOperationsInput = {
   decrement?: InputMaybe<Scalars['Int']>;
   divide?: InputMaybe<Scalars['Int']>;
@@ -1170,8 +1352,8 @@ export type Mutation = {
   requestFunds: Scalars['Boolean'];
   revokeApproval: RevokeApprovalResp;
   submitTxExecution: Submission;
+  upsertAccount?: Maybe<Account>;
   upsertContact?: Maybe<Contact>;
-  upsertGroup?: Maybe<Group>;
   upsertSafe: Safe;
   upsertUser: User;
 };
@@ -1236,6 +1418,12 @@ export type MutationSubmitTxExecutionArgs = {
 };
 
 
+export type MutationUpsertAccountArgs = {
+  account: AccountInput;
+  safe: Scalars['Address'];
+};
+
+
 export type MutationUpsertContactArgs = {
   name: Scalars['String'];
   newAddr: Scalars['Address'];
@@ -1243,15 +1431,9 @@ export type MutationUpsertContactArgs = {
 };
 
 
-export type MutationUpsertGroupArgs = {
-  group: GroupInput;
-  safe: Scalars['Address'];
-};
-
-
 export type MutationUpsertSafeArgs = {
+  accounts?: InputMaybe<Array<AccountInput>>;
   deploySalt?: InputMaybe<Scalars['Bytes32']>;
-  groups?: InputMaybe<Array<GroupInput>>;
   impl?: InputMaybe<Scalars['Address']>;
   name?: InputMaybe<Scalars['String']>;
   safe: Scalars['Address'];
@@ -1355,18 +1537,34 @@ export type NullableStringFieldUpdateOperationsInput = {
 
 export type Query = {
   __typename?: 'Query';
+  account?: Maybe<Account>;
+  accounts: Array<Account>;
   addrName?: Maybe<Scalars['String']>;
   comments: Array<Comment>;
   contact?: Maybe<Contact>;
   contacts: Array<Contact>;
   contractMethod?: Maybe<ContractMethod>;
-  group?: Maybe<Group>;
-  groups: Array<Group>;
   safe?: Maybe<Safe>;
   safes: Array<Safe>;
   submissions: Array<Submission>;
   txs: Array<Tx>;
   user?: Maybe<User>;
+  userAccounts: Array<Account>;
+};
+
+
+export type QueryAccountArgs = {
+  where: AccountWhereUniqueInput;
+};
+
+
+export type QueryAccountsArgs = {
+  cursor?: InputMaybe<AccountWhereUniqueInput>;
+  distinct?: InputMaybe<Array<AccountScalarFieldEnum>>;
+  orderBy?: InputMaybe<Array<AccountOrderByWithRelationInput>>;
+  skip?: InputMaybe<Scalars['Int']>;
+  take?: InputMaybe<Scalars['Int']>;
+  where?: InputMaybe<AccountWhereInput>;
 };
 
 
@@ -1401,23 +1599,8 @@ export type QueryContractMethodArgs = {
 };
 
 
-export type QueryGroupArgs = {
-  where: GroupWhereUniqueInput;
-};
-
-
-export type QueryGroupsArgs = {
-  cursor?: InputMaybe<GroupWhereUniqueInput>;
-  distinct?: InputMaybe<Array<GroupScalarFieldEnum>>;
-  orderBy?: InputMaybe<Array<GroupOrderByWithRelationInput>>;
-  skip?: InputMaybe<Scalars['Int']>;
-  take?: InputMaybe<Scalars['Int']>;
-  where?: InputMaybe<GroupWhereInput>;
-};
-
-
 export type QuerySafeArgs = {
-  where: SafeWhereUniqueInput;
+  id: Scalars['Address'];
 };
 
 
@@ -1445,6 +1628,235 @@ export enum QueryMode {
   Default = 'default',
   Insensitive = 'insensitive'
 }
+
+export type Quorum = {
+  __typename?: 'Quorum';
+  _count: QuorumCount;
+  account: Account;
+  accountRef: Scalars['String'];
+  approvers?: Maybe<Array<Approver>>;
+  hash: Scalars['String'];
+  safe: Safe;
+  safeId: Scalars['String'];
+};
+
+export type QuorumCount = {
+  __typename?: 'QuorumCount';
+  approvers: Scalars['Int'];
+};
+
+export type QuorumCreateManyAccountInput = {
+  hash: Scalars['String'];
+};
+
+export type QuorumCreateManyAccountInputEnvelope = {
+  data: Array<QuorumCreateManyAccountInput>;
+  skipDuplicates?: InputMaybe<Scalars['Boolean']>;
+};
+
+export type QuorumCreateManySafeInput = {
+  accountRef: Scalars['String'];
+  hash: Scalars['String'];
+};
+
+export type QuorumCreateManySafeInputEnvelope = {
+  data: Array<QuorumCreateManySafeInput>;
+  skipDuplicates?: InputMaybe<Scalars['Boolean']>;
+};
+
+export type QuorumCreateNestedManyWithoutAccountInput = {
+  connect?: InputMaybe<Array<QuorumWhereUniqueInput>>;
+  connectOrCreate?: InputMaybe<Array<QuorumCreateOrConnectWithoutAccountInput>>;
+  create?: InputMaybe<Array<QuorumCreateWithoutAccountInput>>;
+  createMany?: InputMaybe<QuorumCreateManyAccountInputEnvelope>;
+};
+
+export type QuorumCreateNestedManyWithoutSafeInput = {
+  connect?: InputMaybe<Array<QuorumWhereUniqueInput>>;
+  connectOrCreate?: InputMaybe<Array<QuorumCreateOrConnectWithoutSafeInput>>;
+  create?: InputMaybe<Array<QuorumCreateWithoutSafeInput>>;
+  createMany?: InputMaybe<QuorumCreateManySafeInputEnvelope>;
+};
+
+export type QuorumCreateNestedOneWithoutApproversInput = {
+  connect?: InputMaybe<QuorumWhereUniqueInput>;
+  connectOrCreate?: InputMaybe<QuorumCreateOrConnectWithoutApproversInput>;
+  create?: InputMaybe<QuorumCreateWithoutApproversInput>;
+};
+
+export type QuorumCreateOrConnectWithoutAccountInput = {
+  create: QuorumCreateWithoutAccountInput;
+  where: QuorumWhereUniqueInput;
+};
+
+export type QuorumCreateOrConnectWithoutApproversInput = {
+  create: QuorumCreateWithoutApproversInput;
+  where: QuorumWhereUniqueInput;
+};
+
+export type QuorumCreateOrConnectWithoutSafeInput = {
+  create: QuorumCreateWithoutSafeInput;
+  where: QuorumWhereUniqueInput;
+};
+
+export type QuorumCreateWithoutAccountInput = {
+  approvers?: InputMaybe<ApproverCreateNestedManyWithoutQuorumInput>;
+  hash: Scalars['String'];
+  safe: SafeCreateNestedOneWithoutQuorumsInput;
+};
+
+export type QuorumCreateWithoutApproversInput = {
+  account: AccountCreateNestedOneWithoutQuorumsInput;
+  hash: Scalars['String'];
+  safe: SafeCreateNestedOneWithoutQuorumsInput;
+};
+
+export type QuorumCreateWithoutSafeInput = {
+  account: AccountCreateNestedOneWithoutQuorumsInput;
+  approvers?: InputMaybe<ApproverCreateNestedManyWithoutQuorumInput>;
+  hash: Scalars['String'];
+};
+
+export type QuorumListRelationFilter = {
+  every?: InputMaybe<QuorumWhereInput>;
+  none?: InputMaybe<QuorumWhereInput>;
+  some?: InputMaybe<QuorumWhereInput>;
+};
+
+export type QuorumOrderByRelationAggregateInput = {
+  _count?: InputMaybe<SortOrder>;
+};
+
+export type QuorumRelationFilter = {
+  is?: InputMaybe<QuorumWhereInput>;
+  isNot?: InputMaybe<QuorumWhereInput>;
+};
+
+export type QuorumSafeIdAccountRefHashCompoundUniqueInput = {
+  accountRef: Scalars['String'];
+  hash: Scalars['String'];
+  safeId: Scalars['String'];
+};
+
+export type QuorumScalarWhereInput = {
+  AND?: InputMaybe<Array<QuorumScalarWhereInput>>;
+  NOT?: InputMaybe<Array<QuorumScalarWhereInput>>;
+  OR?: InputMaybe<Array<QuorumScalarWhereInput>>;
+  accountRef?: InputMaybe<StringFilter>;
+  hash?: InputMaybe<StringFilter>;
+  safeId?: InputMaybe<StringFilter>;
+};
+
+export type QuorumUpdateManyMutationInput = {
+  hash?: InputMaybe<StringFieldUpdateOperationsInput>;
+};
+
+export type QuorumUpdateManyWithWhereWithoutAccountInput = {
+  data: QuorumUpdateManyMutationInput;
+  where: QuorumScalarWhereInput;
+};
+
+export type QuorumUpdateManyWithWhereWithoutSafeInput = {
+  data: QuorumUpdateManyMutationInput;
+  where: QuorumScalarWhereInput;
+};
+
+export type QuorumUpdateManyWithoutAccountNestedInput = {
+  connect?: InputMaybe<Array<QuorumWhereUniqueInput>>;
+  connectOrCreate?: InputMaybe<Array<QuorumCreateOrConnectWithoutAccountInput>>;
+  create?: InputMaybe<Array<QuorumCreateWithoutAccountInput>>;
+  createMany?: InputMaybe<QuorumCreateManyAccountInputEnvelope>;
+  delete?: InputMaybe<Array<QuorumWhereUniqueInput>>;
+  deleteMany?: InputMaybe<Array<QuorumScalarWhereInput>>;
+  disconnect?: InputMaybe<Array<QuorumWhereUniqueInput>>;
+  set?: InputMaybe<Array<QuorumWhereUniqueInput>>;
+  update?: InputMaybe<Array<QuorumUpdateWithWhereUniqueWithoutAccountInput>>;
+  updateMany?: InputMaybe<Array<QuorumUpdateManyWithWhereWithoutAccountInput>>;
+  upsert?: InputMaybe<Array<QuorumUpsertWithWhereUniqueWithoutAccountInput>>;
+};
+
+export type QuorumUpdateManyWithoutSafeNestedInput = {
+  connect?: InputMaybe<Array<QuorumWhereUniqueInput>>;
+  connectOrCreate?: InputMaybe<Array<QuorumCreateOrConnectWithoutSafeInput>>;
+  create?: InputMaybe<Array<QuorumCreateWithoutSafeInput>>;
+  createMany?: InputMaybe<QuorumCreateManySafeInputEnvelope>;
+  delete?: InputMaybe<Array<QuorumWhereUniqueInput>>;
+  deleteMany?: InputMaybe<Array<QuorumScalarWhereInput>>;
+  disconnect?: InputMaybe<Array<QuorumWhereUniqueInput>>;
+  set?: InputMaybe<Array<QuorumWhereUniqueInput>>;
+  update?: InputMaybe<Array<QuorumUpdateWithWhereUniqueWithoutSafeInput>>;
+  updateMany?: InputMaybe<Array<QuorumUpdateManyWithWhereWithoutSafeInput>>;
+  upsert?: InputMaybe<Array<QuorumUpsertWithWhereUniqueWithoutSafeInput>>;
+};
+
+export type QuorumUpdateOneRequiredWithoutApproversNestedInput = {
+  connect?: InputMaybe<QuorumWhereUniqueInput>;
+  connectOrCreate?: InputMaybe<QuorumCreateOrConnectWithoutApproversInput>;
+  create?: InputMaybe<QuorumCreateWithoutApproversInput>;
+  update?: InputMaybe<QuorumUpdateWithoutApproversInput>;
+  upsert?: InputMaybe<QuorumUpsertWithoutApproversInput>;
+};
+
+export type QuorumUpdateWithWhereUniqueWithoutAccountInput = {
+  data: QuorumUpdateWithoutAccountInput;
+  where: QuorumWhereUniqueInput;
+};
+
+export type QuorumUpdateWithWhereUniqueWithoutSafeInput = {
+  data: QuorumUpdateWithoutSafeInput;
+  where: QuorumWhereUniqueInput;
+};
+
+export type QuorumUpdateWithoutAccountInput = {
+  approvers?: InputMaybe<ApproverUpdateManyWithoutQuorumNestedInput>;
+  hash?: InputMaybe<StringFieldUpdateOperationsInput>;
+  safe?: InputMaybe<SafeUpdateOneRequiredWithoutQuorumsNestedInput>;
+};
+
+export type QuorumUpdateWithoutApproversInput = {
+  account?: InputMaybe<AccountUpdateOneRequiredWithoutQuorumsNestedInput>;
+  hash?: InputMaybe<StringFieldUpdateOperationsInput>;
+  safe?: InputMaybe<SafeUpdateOneRequiredWithoutQuorumsNestedInput>;
+};
+
+export type QuorumUpdateWithoutSafeInput = {
+  account?: InputMaybe<AccountUpdateOneRequiredWithoutQuorumsNestedInput>;
+  approvers?: InputMaybe<ApproverUpdateManyWithoutQuorumNestedInput>;
+  hash?: InputMaybe<StringFieldUpdateOperationsInput>;
+};
+
+export type QuorumUpsertWithWhereUniqueWithoutAccountInput = {
+  create: QuorumCreateWithoutAccountInput;
+  update: QuorumUpdateWithoutAccountInput;
+  where: QuorumWhereUniqueInput;
+};
+
+export type QuorumUpsertWithWhereUniqueWithoutSafeInput = {
+  create: QuorumCreateWithoutSafeInput;
+  update: QuorumUpdateWithoutSafeInput;
+  where: QuorumWhereUniqueInput;
+};
+
+export type QuorumUpsertWithoutApproversInput = {
+  create: QuorumCreateWithoutApproversInput;
+  update: QuorumUpdateWithoutApproversInput;
+};
+
+export type QuorumWhereInput = {
+  AND?: InputMaybe<Array<QuorumWhereInput>>;
+  NOT?: InputMaybe<Array<QuorumWhereInput>>;
+  OR?: InputMaybe<Array<QuorumWhereInput>>;
+  account?: InputMaybe<AccountRelationFilter>;
+  accountRef?: InputMaybe<StringFilter>;
+  approvers?: InputMaybe<ApproverListRelationFilter>;
+  hash?: InputMaybe<StringFilter>;
+  safe?: InputMaybe<SafeRelationFilter>;
+  safeId?: InputMaybe<StringFilter>;
+};
+
+export type QuorumWhereUniqueInput = {
+  safeId_accountRef_hash?: InputMaybe<QuorumSafeIdAccountRefHashCompoundUniqueInput>;
+};
 
 export type Reaction = {
   __typename?: 'Reaction';
@@ -1748,24 +2160,34 @@ export type RevokeApprovalResp = {
 export type Safe = {
   __typename?: 'Safe';
   _count: SafeCount;
+  accounts?: Maybe<Array<Account>>;
   approvals?: Maybe<Array<Approval>>;
+  approvers?: Maybe<Array<Approver>>;
   comments?: Maybe<Array<Comment>>;
   deploySalt?: Maybe<Scalars['String']>;
-  groups?: Maybe<Array<Group>>;
   id: Scalars['ID'];
   impl?: Maybe<Scalars['String']>;
   name: Scalars['String'];
+  quorums?: Maybe<Array<Quorum>>;
   reactions?: Maybe<Array<Reaction>>;
   txs?: Maybe<Array<Tx>>;
 };
 
 export type SafeCount = {
   __typename?: 'SafeCount';
+  accounts: Scalars['Int'];
   approvals: Scalars['Int'];
+  approvers: Scalars['Int'];
   comments: Scalars['Int'];
-  groups: Scalars['Int'];
+  quorums: Scalars['Int'];
   reactions: Scalars['Int'];
   txs: Scalars['Int'];
+};
+
+export type SafeCreateNestedOneWithoutAccountsInput = {
+  connect?: InputMaybe<SafeWhereUniqueInput>;
+  connectOrCreate?: InputMaybe<SafeCreateOrConnectWithoutAccountsInput>;
+  create?: InputMaybe<SafeCreateWithoutAccountsInput>;
 };
 
 export type SafeCreateNestedOneWithoutApprovalsInput = {
@@ -1774,16 +2196,22 @@ export type SafeCreateNestedOneWithoutApprovalsInput = {
   create?: InputMaybe<SafeCreateWithoutApprovalsInput>;
 };
 
+export type SafeCreateNestedOneWithoutApproversInput = {
+  connect?: InputMaybe<SafeWhereUniqueInput>;
+  connectOrCreate?: InputMaybe<SafeCreateOrConnectWithoutApproversInput>;
+  create?: InputMaybe<SafeCreateWithoutApproversInput>;
+};
+
 export type SafeCreateNestedOneWithoutCommentsInput = {
   connect?: InputMaybe<SafeWhereUniqueInput>;
   connectOrCreate?: InputMaybe<SafeCreateOrConnectWithoutCommentsInput>;
   create?: InputMaybe<SafeCreateWithoutCommentsInput>;
 };
 
-export type SafeCreateNestedOneWithoutGroupsInput = {
+export type SafeCreateNestedOneWithoutQuorumsInput = {
   connect?: InputMaybe<SafeWhereUniqueInput>;
-  connectOrCreate?: InputMaybe<SafeCreateOrConnectWithoutGroupsInput>;
-  create?: InputMaybe<SafeCreateWithoutGroupsInput>;
+  connectOrCreate?: InputMaybe<SafeCreateOrConnectWithoutQuorumsInput>;
+  create?: InputMaybe<SafeCreateWithoutQuorumsInput>;
 };
 
 export type SafeCreateNestedOneWithoutReactionsInput = {
@@ -1798,8 +2226,18 @@ export type SafeCreateNestedOneWithoutTxsInput = {
   create?: InputMaybe<SafeCreateWithoutTxsInput>;
 };
 
+export type SafeCreateOrConnectWithoutAccountsInput = {
+  create: SafeCreateWithoutAccountsInput;
+  where: SafeWhereUniqueInput;
+};
+
 export type SafeCreateOrConnectWithoutApprovalsInput = {
   create: SafeCreateWithoutApprovalsInput;
+  where: SafeWhereUniqueInput;
+};
+
+export type SafeCreateOrConnectWithoutApproversInput = {
+  create: SafeCreateWithoutApproversInput;
   where: SafeWhereUniqueInput;
 };
 
@@ -1808,8 +2246,8 @@ export type SafeCreateOrConnectWithoutCommentsInput = {
   where: SafeWhereUniqueInput;
 };
 
-export type SafeCreateOrConnectWithoutGroupsInput = {
-  create: SafeCreateWithoutGroupsInput;
+export type SafeCreateOrConnectWithoutQuorumsInput = {
+  create: SafeCreateWithoutQuorumsInput;
   where: SafeWhereUniqueInput;
 };
 
@@ -1823,30 +2261,62 @@ export type SafeCreateOrConnectWithoutTxsInput = {
   where: SafeWhereUniqueInput;
 };
 
-export type SafeCreateWithoutApprovalsInput = {
+export type SafeCreateWithoutAccountsInput = {
+  approvals?: InputMaybe<ApprovalCreateNestedManyWithoutSafeInput>;
+  approvers?: InputMaybe<ApproverCreateNestedManyWithoutSafeInput>;
   comments?: InputMaybe<CommentCreateNestedManyWithoutSafeInput>;
   deploySalt?: InputMaybe<Scalars['String']>;
-  groups?: InputMaybe<GroupCreateNestedManyWithoutSafeInput>;
   id: Scalars['String'];
   impl?: InputMaybe<Scalars['String']>;
   name?: InputMaybe<Scalars['String']>;
+  quorums?: InputMaybe<QuorumCreateNestedManyWithoutSafeInput>;
+  reactions?: InputMaybe<ReactionCreateNestedManyWithoutSafeInput>;
+  txs?: InputMaybe<TxCreateNestedManyWithoutSafeInput>;
+};
+
+export type SafeCreateWithoutApprovalsInput = {
+  accounts?: InputMaybe<AccountCreateNestedManyWithoutSafeInput>;
+  approvers?: InputMaybe<ApproverCreateNestedManyWithoutSafeInput>;
+  comments?: InputMaybe<CommentCreateNestedManyWithoutSafeInput>;
+  deploySalt?: InputMaybe<Scalars['String']>;
+  id: Scalars['String'];
+  impl?: InputMaybe<Scalars['String']>;
+  name?: InputMaybe<Scalars['String']>;
+  quorums?: InputMaybe<QuorumCreateNestedManyWithoutSafeInput>;
+  reactions?: InputMaybe<ReactionCreateNestedManyWithoutSafeInput>;
+  txs?: InputMaybe<TxCreateNestedManyWithoutSafeInput>;
+};
+
+export type SafeCreateWithoutApproversInput = {
+  accounts?: InputMaybe<AccountCreateNestedManyWithoutSafeInput>;
+  approvals?: InputMaybe<ApprovalCreateNestedManyWithoutSafeInput>;
+  comments?: InputMaybe<CommentCreateNestedManyWithoutSafeInput>;
+  deploySalt?: InputMaybe<Scalars['String']>;
+  id: Scalars['String'];
+  impl?: InputMaybe<Scalars['String']>;
+  name?: InputMaybe<Scalars['String']>;
+  quorums?: InputMaybe<QuorumCreateNestedManyWithoutSafeInput>;
   reactions?: InputMaybe<ReactionCreateNestedManyWithoutSafeInput>;
   txs?: InputMaybe<TxCreateNestedManyWithoutSafeInput>;
 };
 
 export type SafeCreateWithoutCommentsInput = {
+  accounts?: InputMaybe<AccountCreateNestedManyWithoutSafeInput>;
   approvals?: InputMaybe<ApprovalCreateNestedManyWithoutSafeInput>;
+  approvers?: InputMaybe<ApproverCreateNestedManyWithoutSafeInput>;
   deploySalt?: InputMaybe<Scalars['String']>;
-  groups?: InputMaybe<GroupCreateNestedManyWithoutSafeInput>;
   id: Scalars['String'];
   impl?: InputMaybe<Scalars['String']>;
   name?: InputMaybe<Scalars['String']>;
+  quorums?: InputMaybe<QuorumCreateNestedManyWithoutSafeInput>;
   reactions?: InputMaybe<ReactionCreateNestedManyWithoutSafeInput>;
   txs?: InputMaybe<TxCreateNestedManyWithoutSafeInput>;
 };
 
-export type SafeCreateWithoutGroupsInput = {
+export type SafeCreateWithoutQuorumsInput = {
+  accounts?: InputMaybe<AccountCreateNestedManyWithoutSafeInput>;
   approvals?: InputMaybe<ApprovalCreateNestedManyWithoutSafeInput>;
+  approvers?: InputMaybe<ApproverCreateNestedManyWithoutSafeInput>;
   comments?: InputMaybe<CommentCreateNestedManyWithoutSafeInput>;
   deploySalt?: InputMaybe<Scalars['String']>;
   id: Scalars['String'];
@@ -1857,35 +2327,41 @@ export type SafeCreateWithoutGroupsInput = {
 };
 
 export type SafeCreateWithoutReactionsInput = {
+  accounts?: InputMaybe<AccountCreateNestedManyWithoutSafeInput>;
   approvals?: InputMaybe<ApprovalCreateNestedManyWithoutSafeInput>;
+  approvers?: InputMaybe<ApproverCreateNestedManyWithoutSafeInput>;
   comments?: InputMaybe<CommentCreateNestedManyWithoutSafeInput>;
   deploySalt?: InputMaybe<Scalars['String']>;
-  groups?: InputMaybe<GroupCreateNestedManyWithoutSafeInput>;
   id: Scalars['String'];
   impl?: InputMaybe<Scalars['String']>;
   name?: InputMaybe<Scalars['String']>;
+  quorums?: InputMaybe<QuorumCreateNestedManyWithoutSafeInput>;
   txs?: InputMaybe<TxCreateNestedManyWithoutSafeInput>;
 };
 
 export type SafeCreateWithoutTxsInput = {
+  accounts?: InputMaybe<AccountCreateNestedManyWithoutSafeInput>;
   approvals?: InputMaybe<ApprovalCreateNestedManyWithoutSafeInput>;
+  approvers?: InputMaybe<ApproverCreateNestedManyWithoutSafeInput>;
   comments?: InputMaybe<CommentCreateNestedManyWithoutSafeInput>;
   deploySalt?: InputMaybe<Scalars['String']>;
-  groups?: InputMaybe<GroupCreateNestedManyWithoutSafeInput>;
   id: Scalars['String'];
   impl?: InputMaybe<Scalars['String']>;
   name?: InputMaybe<Scalars['String']>;
+  quorums?: InputMaybe<QuorumCreateNestedManyWithoutSafeInput>;
   reactions?: InputMaybe<ReactionCreateNestedManyWithoutSafeInput>;
 };
 
 export type SafeOrderByWithRelationInput = {
+  accounts?: InputMaybe<AccountOrderByRelationAggregateInput>;
   approvals?: InputMaybe<ApprovalOrderByRelationAggregateInput>;
+  approvers?: InputMaybe<ApproverOrderByRelationAggregateInput>;
   comments?: InputMaybe<CommentOrderByRelationAggregateInput>;
   deploySalt?: InputMaybe<SortOrder>;
-  groups?: InputMaybe<GroupOrderByRelationAggregateInput>;
   id?: InputMaybe<SortOrder>;
   impl?: InputMaybe<SortOrder>;
   name?: InputMaybe<SortOrder>;
+  quorums?: InputMaybe<QuorumOrderByRelationAggregateInput>;
   reactions?: InputMaybe<ReactionOrderByRelationAggregateInput>;
   txs?: InputMaybe<TxOrderByRelationAggregateInput>;
 };
@@ -1902,12 +2378,28 @@ export enum SafeScalarFieldEnum {
   Name = 'name'
 }
 
+export type SafeUpdateOneRequiredWithoutAccountsNestedInput = {
+  connect?: InputMaybe<SafeWhereUniqueInput>;
+  connectOrCreate?: InputMaybe<SafeCreateOrConnectWithoutAccountsInput>;
+  create?: InputMaybe<SafeCreateWithoutAccountsInput>;
+  update?: InputMaybe<SafeUpdateWithoutAccountsInput>;
+  upsert?: InputMaybe<SafeUpsertWithoutAccountsInput>;
+};
+
 export type SafeUpdateOneRequiredWithoutApprovalsNestedInput = {
   connect?: InputMaybe<SafeWhereUniqueInput>;
   connectOrCreate?: InputMaybe<SafeCreateOrConnectWithoutApprovalsInput>;
   create?: InputMaybe<SafeCreateWithoutApprovalsInput>;
   update?: InputMaybe<SafeUpdateWithoutApprovalsInput>;
   upsert?: InputMaybe<SafeUpsertWithoutApprovalsInput>;
+};
+
+export type SafeUpdateOneRequiredWithoutApproversNestedInput = {
+  connect?: InputMaybe<SafeWhereUniqueInput>;
+  connectOrCreate?: InputMaybe<SafeCreateOrConnectWithoutApproversInput>;
+  create?: InputMaybe<SafeCreateWithoutApproversInput>;
+  update?: InputMaybe<SafeUpdateWithoutApproversInput>;
+  upsert?: InputMaybe<SafeUpsertWithoutApproversInput>;
 };
 
 export type SafeUpdateOneRequiredWithoutCommentsNestedInput = {
@@ -1918,12 +2410,12 @@ export type SafeUpdateOneRequiredWithoutCommentsNestedInput = {
   upsert?: InputMaybe<SafeUpsertWithoutCommentsInput>;
 };
 
-export type SafeUpdateOneRequiredWithoutGroupsNestedInput = {
+export type SafeUpdateOneRequiredWithoutQuorumsNestedInput = {
   connect?: InputMaybe<SafeWhereUniqueInput>;
-  connectOrCreate?: InputMaybe<SafeCreateOrConnectWithoutGroupsInput>;
-  create?: InputMaybe<SafeCreateWithoutGroupsInput>;
-  update?: InputMaybe<SafeUpdateWithoutGroupsInput>;
-  upsert?: InputMaybe<SafeUpsertWithoutGroupsInput>;
+  connectOrCreate?: InputMaybe<SafeCreateOrConnectWithoutQuorumsInput>;
+  create?: InputMaybe<SafeCreateWithoutQuorumsInput>;
+  update?: InputMaybe<SafeUpdateWithoutQuorumsInput>;
+  upsert?: InputMaybe<SafeUpsertWithoutQuorumsInput>;
 };
 
 export type SafeUpdateOneRequiredWithoutReactionsNestedInput = {
@@ -1942,30 +2434,62 @@ export type SafeUpdateOneRequiredWithoutTxsNestedInput = {
   upsert?: InputMaybe<SafeUpsertWithoutTxsInput>;
 };
 
-export type SafeUpdateWithoutApprovalsInput = {
+export type SafeUpdateWithoutAccountsInput = {
+  approvals?: InputMaybe<ApprovalUpdateManyWithoutSafeNestedInput>;
+  approvers?: InputMaybe<ApproverUpdateManyWithoutSafeNestedInput>;
   comments?: InputMaybe<CommentUpdateManyWithoutSafeNestedInput>;
   deploySalt?: InputMaybe<NullableStringFieldUpdateOperationsInput>;
-  groups?: InputMaybe<GroupUpdateManyWithoutSafeNestedInput>;
   id?: InputMaybe<StringFieldUpdateOperationsInput>;
   impl?: InputMaybe<NullableStringFieldUpdateOperationsInput>;
   name?: InputMaybe<StringFieldUpdateOperationsInput>;
+  quorums?: InputMaybe<QuorumUpdateManyWithoutSafeNestedInput>;
+  reactions?: InputMaybe<ReactionUpdateManyWithoutSafeNestedInput>;
+  txs?: InputMaybe<TxUpdateManyWithoutSafeNestedInput>;
+};
+
+export type SafeUpdateWithoutApprovalsInput = {
+  accounts?: InputMaybe<AccountUpdateManyWithoutSafeNestedInput>;
+  approvers?: InputMaybe<ApproverUpdateManyWithoutSafeNestedInput>;
+  comments?: InputMaybe<CommentUpdateManyWithoutSafeNestedInput>;
+  deploySalt?: InputMaybe<NullableStringFieldUpdateOperationsInput>;
+  id?: InputMaybe<StringFieldUpdateOperationsInput>;
+  impl?: InputMaybe<NullableStringFieldUpdateOperationsInput>;
+  name?: InputMaybe<StringFieldUpdateOperationsInput>;
+  quorums?: InputMaybe<QuorumUpdateManyWithoutSafeNestedInput>;
+  reactions?: InputMaybe<ReactionUpdateManyWithoutSafeNestedInput>;
+  txs?: InputMaybe<TxUpdateManyWithoutSafeNestedInput>;
+};
+
+export type SafeUpdateWithoutApproversInput = {
+  accounts?: InputMaybe<AccountUpdateManyWithoutSafeNestedInput>;
+  approvals?: InputMaybe<ApprovalUpdateManyWithoutSafeNestedInput>;
+  comments?: InputMaybe<CommentUpdateManyWithoutSafeNestedInput>;
+  deploySalt?: InputMaybe<NullableStringFieldUpdateOperationsInput>;
+  id?: InputMaybe<StringFieldUpdateOperationsInput>;
+  impl?: InputMaybe<NullableStringFieldUpdateOperationsInput>;
+  name?: InputMaybe<StringFieldUpdateOperationsInput>;
+  quorums?: InputMaybe<QuorumUpdateManyWithoutSafeNestedInput>;
   reactions?: InputMaybe<ReactionUpdateManyWithoutSafeNestedInput>;
   txs?: InputMaybe<TxUpdateManyWithoutSafeNestedInput>;
 };
 
 export type SafeUpdateWithoutCommentsInput = {
+  accounts?: InputMaybe<AccountUpdateManyWithoutSafeNestedInput>;
   approvals?: InputMaybe<ApprovalUpdateManyWithoutSafeNestedInput>;
+  approvers?: InputMaybe<ApproverUpdateManyWithoutSafeNestedInput>;
   deploySalt?: InputMaybe<NullableStringFieldUpdateOperationsInput>;
-  groups?: InputMaybe<GroupUpdateManyWithoutSafeNestedInput>;
   id?: InputMaybe<StringFieldUpdateOperationsInput>;
   impl?: InputMaybe<NullableStringFieldUpdateOperationsInput>;
   name?: InputMaybe<StringFieldUpdateOperationsInput>;
+  quorums?: InputMaybe<QuorumUpdateManyWithoutSafeNestedInput>;
   reactions?: InputMaybe<ReactionUpdateManyWithoutSafeNestedInput>;
   txs?: InputMaybe<TxUpdateManyWithoutSafeNestedInput>;
 };
 
-export type SafeUpdateWithoutGroupsInput = {
+export type SafeUpdateWithoutQuorumsInput = {
+  accounts?: InputMaybe<AccountUpdateManyWithoutSafeNestedInput>;
   approvals?: InputMaybe<ApprovalUpdateManyWithoutSafeNestedInput>;
+  approvers?: InputMaybe<ApproverUpdateManyWithoutSafeNestedInput>;
   comments?: InputMaybe<CommentUpdateManyWithoutSafeNestedInput>;
   deploySalt?: InputMaybe<NullableStringFieldUpdateOperationsInput>;
   id?: InputMaybe<StringFieldUpdateOperationsInput>;
@@ -1976,25 +2500,34 @@ export type SafeUpdateWithoutGroupsInput = {
 };
 
 export type SafeUpdateWithoutReactionsInput = {
+  accounts?: InputMaybe<AccountUpdateManyWithoutSafeNestedInput>;
   approvals?: InputMaybe<ApprovalUpdateManyWithoutSafeNestedInput>;
+  approvers?: InputMaybe<ApproverUpdateManyWithoutSafeNestedInput>;
   comments?: InputMaybe<CommentUpdateManyWithoutSafeNestedInput>;
   deploySalt?: InputMaybe<NullableStringFieldUpdateOperationsInput>;
-  groups?: InputMaybe<GroupUpdateManyWithoutSafeNestedInput>;
   id?: InputMaybe<StringFieldUpdateOperationsInput>;
   impl?: InputMaybe<NullableStringFieldUpdateOperationsInput>;
   name?: InputMaybe<StringFieldUpdateOperationsInput>;
+  quorums?: InputMaybe<QuorumUpdateManyWithoutSafeNestedInput>;
   txs?: InputMaybe<TxUpdateManyWithoutSafeNestedInput>;
 };
 
 export type SafeUpdateWithoutTxsInput = {
+  accounts?: InputMaybe<AccountUpdateManyWithoutSafeNestedInput>;
   approvals?: InputMaybe<ApprovalUpdateManyWithoutSafeNestedInput>;
+  approvers?: InputMaybe<ApproverUpdateManyWithoutSafeNestedInput>;
   comments?: InputMaybe<CommentUpdateManyWithoutSafeNestedInput>;
   deploySalt?: InputMaybe<NullableStringFieldUpdateOperationsInput>;
-  groups?: InputMaybe<GroupUpdateManyWithoutSafeNestedInput>;
   id?: InputMaybe<StringFieldUpdateOperationsInput>;
   impl?: InputMaybe<NullableStringFieldUpdateOperationsInput>;
   name?: InputMaybe<StringFieldUpdateOperationsInput>;
+  quorums?: InputMaybe<QuorumUpdateManyWithoutSafeNestedInput>;
   reactions?: InputMaybe<ReactionUpdateManyWithoutSafeNestedInput>;
+};
+
+export type SafeUpsertWithoutAccountsInput = {
+  create: SafeCreateWithoutAccountsInput;
+  update: SafeUpdateWithoutAccountsInput;
 };
 
 export type SafeUpsertWithoutApprovalsInput = {
@@ -2002,14 +2535,19 @@ export type SafeUpsertWithoutApprovalsInput = {
   update: SafeUpdateWithoutApprovalsInput;
 };
 
+export type SafeUpsertWithoutApproversInput = {
+  create: SafeCreateWithoutApproversInput;
+  update: SafeUpdateWithoutApproversInput;
+};
+
 export type SafeUpsertWithoutCommentsInput = {
   create: SafeCreateWithoutCommentsInput;
   update: SafeUpdateWithoutCommentsInput;
 };
 
-export type SafeUpsertWithoutGroupsInput = {
-  create: SafeCreateWithoutGroupsInput;
-  update: SafeUpdateWithoutGroupsInput;
+export type SafeUpsertWithoutQuorumsInput = {
+  create: SafeCreateWithoutQuorumsInput;
+  update: SafeUpdateWithoutQuorumsInput;
 };
 
 export type SafeUpsertWithoutReactionsInput = {
@@ -2026,13 +2564,15 @@ export type SafeWhereInput = {
   AND?: InputMaybe<Array<SafeWhereInput>>;
   NOT?: InputMaybe<Array<SafeWhereInput>>;
   OR?: InputMaybe<Array<SafeWhereInput>>;
+  accounts?: InputMaybe<AccountListRelationFilter>;
   approvals?: InputMaybe<ApprovalListRelationFilter>;
+  approvers?: InputMaybe<ApproverListRelationFilter>;
   comments?: InputMaybe<CommentListRelationFilter>;
   deploySalt?: InputMaybe<StringNullableFilter>;
-  groups?: InputMaybe<GroupListRelationFilter>;
   id?: InputMaybe<StringFilter>;
   impl?: InputMaybe<StringNullableFilter>;
   name?: InputMaybe<StringFilter>;
+  quorums?: InputMaybe<QuorumListRelationFilter>;
   reactions?: InputMaybe<ReactionListRelationFilter>;
   txs?: InputMaybe<TxListRelationFilter>;
 };
@@ -2447,9 +2987,9 @@ export type User = {
   __typename?: 'User';
   _count: UserCount;
   approvals?: Maybe<Array<Approval>>;
+  approvers?: Maybe<Array<Approver>>;
   comments?: Maybe<Array<Comment>>;
   contacts?: Maybe<Array<Contact>>;
-  groups?: Maybe<Array<Approver>>;
   id: Scalars['ID'];
   reactions?: Maybe<Array<Reaction>>;
   safes: Array<Safe>;
@@ -2458,17 +2998,17 @@ export type User = {
 export type UserCount = {
   __typename?: 'UserCount';
   approvals: Scalars['Int'];
+  approvers: Scalars['Int'];
   comments: Scalars['Int'];
   contacts: Scalars['Int'];
-  groups: Scalars['Int'];
   reactions: Scalars['Int'];
 };
 
 export type UserCreateInput = {
   approvals?: InputMaybe<ApprovalCreateNestedManyWithoutUserInput>;
+  approvers?: InputMaybe<ApproverCreateNestedManyWithoutUserInput>;
   comments?: InputMaybe<CommentCreateNestedManyWithoutAuthorInput>;
   contacts?: InputMaybe<ContactCreateNestedManyWithoutUserInput>;
-  groups?: InputMaybe<ApproverCreateNestedManyWithoutUserInput>;
   id: Scalars['String'];
   reactions?: InputMaybe<ReactionCreateNestedManyWithoutUserInput>;
 };
@@ -2479,16 +3019,16 @@ export type UserCreateNestedOneWithoutApprovalsInput = {
   create?: InputMaybe<UserCreateWithoutApprovalsInput>;
 };
 
+export type UserCreateNestedOneWithoutApproversInput = {
+  connect?: InputMaybe<UserWhereUniqueInput>;
+  connectOrCreate?: InputMaybe<UserCreateOrConnectWithoutApproversInput>;
+  create?: InputMaybe<UserCreateWithoutApproversInput>;
+};
+
 export type UserCreateNestedOneWithoutCommentsInput = {
   connect?: InputMaybe<UserWhereUniqueInput>;
   connectOrCreate?: InputMaybe<UserCreateOrConnectWithoutCommentsInput>;
   create?: InputMaybe<UserCreateWithoutCommentsInput>;
-};
-
-export type UserCreateNestedOneWithoutGroupsInput = {
-  connect?: InputMaybe<UserWhereUniqueInput>;
-  connectOrCreate?: InputMaybe<UserCreateOrConnectWithoutGroupsInput>;
-  create?: InputMaybe<UserCreateWithoutGroupsInput>;
 };
 
 export type UserCreateNestedOneWithoutReactionsInput = {
@@ -2502,13 +3042,13 @@ export type UserCreateOrConnectWithoutApprovalsInput = {
   where: UserWhereUniqueInput;
 };
 
-export type UserCreateOrConnectWithoutCommentsInput = {
-  create: UserCreateWithoutCommentsInput;
+export type UserCreateOrConnectWithoutApproversInput = {
+  create: UserCreateWithoutApproversInput;
   where: UserWhereUniqueInput;
 };
 
-export type UserCreateOrConnectWithoutGroupsInput = {
-  create: UserCreateWithoutGroupsInput;
+export type UserCreateOrConnectWithoutCommentsInput = {
+  create: UserCreateWithoutCommentsInput;
   where: UserWhereUniqueInput;
 };
 
@@ -2518,24 +3058,24 @@ export type UserCreateOrConnectWithoutReactionsInput = {
 };
 
 export type UserCreateWithoutApprovalsInput = {
+  approvers?: InputMaybe<ApproverCreateNestedManyWithoutUserInput>;
   comments?: InputMaybe<CommentCreateNestedManyWithoutAuthorInput>;
   contacts?: InputMaybe<ContactCreateNestedManyWithoutUserInput>;
-  groups?: InputMaybe<ApproverCreateNestedManyWithoutUserInput>;
+  id: Scalars['String'];
+  reactions?: InputMaybe<ReactionCreateNestedManyWithoutUserInput>;
+};
+
+export type UserCreateWithoutApproversInput = {
+  approvals?: InputMaybe<ApprovalCreateNestedManyWithoutUserInput>;
+  comments?: InputMaybe<CommentCreateNestedManyWithoutAuthorInput>;
+  contacts?: InputMaybe<ContactCreateNestedManyWithoutUserInput>;
   id: Scalars['String'];
   reactions?: InputMaybe<ReactionCreateNestedManyWithoutUserInput>;
 };
 
 export type UserCreateWithoutCommentsInput = {
   approvals?: InputMaybe<ApprovalCreateNestedManyWithoutUserInput>;
-  contacts?: InputMaybe<ContactCreateNestedManyWithoutUserInput>;
-  groups?: InputMaybe<ApproverCreateNestedManyWithoutUserInput>;
-  id: Scalars['String'];
-  reactions?: InputMaybe<ReactionCreateNestedManyWithoutUserInput>;
-};
-
-export type UserCreateWithoutGroupsInput = {
-  approvals?: InputMaybe<ApprovalCreateNestedManyWithoutUserInput>;
-  comments?: InputMaybe<CommentCreateNestedManyWithoutAuthorInput>;
+  approvers?: InputMaybe<ApproverCreateNestedManyWithoutUserInput>;
   contacts?: InputMaybe<ContactCreateNestedManyWithoutUserInput>;
   id: Scalars['String'];
   reactions?: InputMaybe<ReactionCreateNestedManyWithoutUserInput>;
@@ -2543,17 +3083,17 @@ export type UserCreateWithoutGroupsInput = {
 
 export type UserCreateWithoutReactionsInput = {
   approvals?: InputMaybe<ApprovalCreateNestedManyWithoutUserInput>;
+  approvers?: InputMaybe<ApproverCreateNestedManyWithoutUserInput>;
   comments?: InputMaybe<CommentCreateNestedManyWithoutAuthorInput>;
   contacts?: InputMaybe<ContactCreateNestedManyWithoutUserInput>;
-  groups?: InputMaybe<ApproverCreateNestedManyWithoutUserInput>;
   id: Scalars['String'];
 };
 
 export type UserOrderByWithRelationInput = {
   approvals?: InputMaybe<ApprovalOrderByRelationAggregateInput>;
+  approvers?: InputMaybe<ApproverOrderByRelationAggregateInput>;
   comments?: InputMaybe<CommentOrderByRelationAggregateInput>;
   contacts?: InputMaybe<ContactOrderByRelationAggregateInput>;
-  groups?: InputMaybe<ApproverOrderByRelationAggregateInput>;
   id?: InputMaybe<SortOrder>;
   reactions?: InputMaybe<ReactionOrderByRelationAggregateInput>;
 };
@@ -2565,9 +3105,9 @@ export type UserRelationFilter = {
 
 export type UserUpdateInput = {
   approvals?: InputMaybe<ApprovalUpdateManyWithoutUserNestedInput>;
+  approvers?: InputMaybe<ApproverUpdateManyWithoutUserNestedInput>;
   comments?: InputMaybe<CommentUpdateManyWithoutAuthorNestedInput>;
   contacts?: InputMaybe<ContactUpdateManyWithoutUserNestedInput>;
-  groups?: InputMaybe<ApproverUpdateManyWithoutUserNestedInput>;
   id?: InputMaybe<StringFieldUpdateOperationsInput>;
   reactions?: InputMaybe<ReactionUpdateManyWithoutUserNestedInput>;
 };
@@ -2580,20 +3120,20 @@ export type UserUpdateOneRequiredWithoutApprovalsNestedInput = {
   upsert?: InputMaybe<UserUpsertWithoutApprovalsInput>;
 };
 
+export type UserUpdateOneRequiredWithoutApproversNestedInput = {
+  connect?: InputMaybe<UserWhereUniqueInput>;
+  connectOrCreate?: InputMaybe<UserCreateOrConnectWithoutApproversInput>;
+  create?: InputMaybe<UserCreateWithoutApproversInput>;
+  update?: InputMaybe<UserUpdateWithoutApproversInput>;
+  upsert?: InputMaybe<UserUpsertWithoutApproversInput>;
+};
+
 export type UserUpdateOneRequiredWithoutCommentsNestedInput = {
   connect?: InputMaybe<UserWhereUniqueInput>;
   connectOrCreate?: InputMaybe<UserCreateOrConnectWithoutCommentsInput>;
   create?: InputMaybe<UserCreateWithoutCommentsInput>;
   update?: InputMaybe<UserUpdateWithoutCommentsInput>;
   upsert?: InputMaybe<UserUpsertWithoutCommentsInput>;
-};
-
-export type UserUpdateOneRequiredWithoutGroupsNestedInput = {
-  connect?: InputMaybe<UserWhereUniqueInput>;
-  connectOrCreate?: InputMaybe<UserCreateOrConnectWithoutGroupsInput>;
-  create?: InputMaybe<UserCreateWithoutGroupsInput>;
-  update?: InputMaybe<UserUpdateWithoutGroupsInput>;
-  upsert?: InputMaybe<UserUpsertWithoutGroupsInput>;
 };
 
 export type UserUpdateOneRequiredWithoutReactionsNestedInput = {
@@ -2605,24 +3145,24 @@ export type UserUpdateOneRequiredWithoutReactionsNestedInput = {
 };
 
 export type UserUpdateWithoutApprovalsInput = {
+  approvers?: InputMaybe<ApproverUpdateManyWithoutUserNestedInput>;
   comments?: InputMaybe<CommentUpdateManyWithoutAuthorNestedInput>;
   contacts?: InputMaybe<ContactUpdateManyWithoutUserNestedInput>;
-  groups?: InputMaybe<ApproverUpdateManyWithoutUserNestedInput>;
+  id?: InputMaybe<StringFieldUpdateOperationsInput>;
+  reactions?: InputMaybe<ReactionUpdateManyWithoutUserNestedInput>;
+};
+
+export type UserUpdateWithoutApproversInput = {
+  approvals?: InputMaybe<ApprovalUpdateManyWithoutUserNestedInput>;
+  comments?: InputMaybe<CommentUpdateManyWithoutAuthorNestedInput>;
+  contacts?: InputMaybe<ContactUpdateManyWithoutUserNestedInput>;
   id?: InputMaybe<StringFieldUpdateOperationsInput>;
   reactions?: InputMaybe<ReactionUpdateManyWithoutUserNestedInput>;
 };
 
 export type UserUpdateWithoutCommentsInput = {
   approvals?: InputMaybe<ApprovalUpdateManyWithoutUserNestedInput>;
-  contacts?: InputMaybe<ContactUpdateManyWithoutUserNestedInput>;
-  groups?: InputMaybe<ApproverUpdateManyWithoutUserNestedInput>;
-  id?: InputMaybe<StringFieldUpdateOperationsInput>;
-  reactions?: InputMaybe<ReactionUpdateManyWithoutUserNestedInput>;
-};
-
-export type UserUpdateWithoutGroupsInput = {
-  approvals?: InputMaybe<ApprovalUpdateManyWithoutUserNestedInput>;
-  comments?: InputMaybe<CommentUpdateManyWithoutAuthorNestedInput>;
+  approvers?: InputMaybe<ApproverUpdateManyWithoutUserNestedInput>;
   contacts?: InputMaybe<ContactUpdateManyWithoutUserNestedInput>;
   id?: InputMaybe<StringFieldUpdateOperationsInput>;
   reactions?: InputMaybe<ReactionUpdateManyWithoutUserNestedInput>;
@@ -2630,9 +3170,9 @@ export type UserUpdateWithoutGroupsInput = {
 
 export type UserUpdateWithoutReactionsInput = {
   approvals?: InputMaybe<ApprovalUpdateManyWithoutUserNestedInput>;
+  approvers?: InputMaybe<ApproverUpdateManyWithoutUserNestedInput>;
   comments?: InputMaybe<CommentUpdateManyWithoutAuthorNestedInput>;
   contacts?: InputMaybe<ContactUpdateManyWithoutUserNestedInput>;
-  groups?: InputMaybe<ApproverUpdateManyWithoutUserNestedInput>;
   id?: InputMaybe<StringFieldUpdateOperationsInput>;
 };
 
@@ -2641,14 +3181,14 @@ export type UserUpsertWithoutApprovalsInput = {
   update: UserUpdateWithoutApprovalsInput;
 };
 
+export type UserUpsertWithoutApproversInput = {
+  create: UserCreateWithoutApproversInput;
+  update: UserUpdateWithoutApproversInput;
+};
+
 export type UserUpsertWithoutCommentsInput = {
   create: UserCreateWithoutCommentsInput;
   update: UserUpdateWithoutCommentsInput;
-};
-
-export type UserUpsertWithoutGroupsInput = {
-  create: UserCreateWithoutGroupsInput;
-  update: UserUpdateWithoutGroupsInput;
 };
 
 export type UserUpsertWithoutReactionsInput = {
@@ -2661,9 +3201,9 @@ export type UserWhereInput = {
   NOT?: InputMaybe<Array<UserWhereInput>>;
   OR?: InputMaybe<Array<UserWhereInput>>;
   approvals?: InputMaybe<ApprovalListRelationFilter>;
+  approvers?: InputMaybe<ApproverListRelationFilter>;
   comments?: InputMaybe<CommentListRelationFilter>;
   contacts?: InputMaybe<ContactListRelationFilter>;
-  groups?: InputMaybe<ApproverListRelationFilter>;
   id?: InputMaybe<StringFilter>;
   reactions?: InputMaybe<ReactionListRelationFilter>;
 };
@@ -2671,6 +3211,14 @@ export type UserWhereInput = {
 export type UserWhereUniqueInput = {
   id?: InputMaybe<Scalars['String']>;
 };
+
+export type UpsertAccountMutationVariables = Exact<{
+  account: AccountInput;
+  safe: Scalars['Address'];
+}>;
+
+
+export type UpsertAccountMutation = { __typename?: 'Mutation', upsertAccount?: { __typename?: 'Account', id: string, safeId: string, ref: string, name: string, quorums?: Array<{ __typename?: 'Quorum', approvers?: Array<{ __typename?: 'Approver', userId: string }> | null }> | null } | null };
 
 export type CreateCommentMutationVariables = Exact<{
   safe: Scalars['Address'];
@@ -2716,14 +3264,6 @@ export type UpsertContactMutationVariables = Exact<{
 
 export type UpsertContactMutation = { __typename?: 'Mutation', upsertContact?: { __typename?: 'Contact', id: string, addr: string, name: string } | null };
 
-export type UpsertGroupMutationVariables = Exact<{
-  safe: Scalars['Address'];
-  group: GroupInput;
-}>;
-
-
-export type UpsertGroupMutation = { __typename?: 'Mutation', upsertGroup?: { __typename?: 'Group', id: string, ref: string, safeId: string, name: string, approvers?: Array<{ __typename?: 'Approver', userId: string, weight: any }> | null } | null };
-
 export type SubmitTxExecutionMutationVariables = Exact<{
   safe: Scalars['Address'];
   txHash: Scalars['Bytes32'];
@@ -2766,25 +3306,21 @@ export type UseFaucetMutationVariables = Exact<{
 
 export type UseFaucetMutation = { __typename?: 'Mutation', requestFunds: boolean };
 
-export type UpsertSafeMutationVariables = Exact<{
-  safe: Scalars['Address'];
-  deploySalt?: InputMaybe<Scalars['Bytes32']>;
-  impl?: InputMaybe<Scalars['Address']>;
-  name: Scalars['String'];
-  groups?: InputMaybe<Array<GroupInput> | GroupInput>;
+export type AccountFieldsFragment = { __typename?: 'Account', id: string, safeId: string, ref: string, name: string, quorums?: Array<{ __typename?: 'Quorum', approvers?: Array<{ __typename?: 'Approver', userId: string }> | null }> | null };
+
+export type UserAccountsQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type UserAccountsQuery = { __typename?: 'Query', userAccounts: Array<{ __typename?: 'Account', id: string, safeId: string, ref: string, name: string, quorums?: Array<{ __typename?: 'Quorum', approvers?: Array<{ __typename?: 'Approver', userId: string }> | null }> | null }> };
+
+export type SafeFieldsFragment = { __typename?: 'Safe', id: string, name: string, impl?: string | null, deploySalt?: string | null };
+
+export type SafeQueryVariables = Exact<{
+  id: Scalars['Address'];
 }>;
 
 
-export type UpsertSafeMutation = { __typename?: 'Mutation', upsertSafe: { __typename?: 'Safe', id: string, name: string, deploySalt?: string | null, impl?: string | null, groups?: Array<{ __typename?: 'Group', id: string, ref: string, safeId: string, name: string, approvers?: Array<{ __typename?: 'Approver', userId: string, weight: any }> | null }> | null } };
-
-export type GroupFieldsFragment = { __typename?: 'Group', id: string, ref: string, safeId: string, name: string, approvers?: Array<{ __typename?: 'Approver', userId: string, weight: any }> | null };
-
-export type SafeFieldsFragment = { __typename?: 'Safe', id: string, name: string, deploySalt?: string | null, impl?: string | null, groups?: Array<{ __typename?: 'Group', id: string, ref: string, safeId: string, name: string, approvers?: Array<{ __typename?: 'Approver', userId: string, weight: any }> | null }> | null };
-
-export type UserSafesQueryVariables = Exact<{ [key: string]: never; }>;
-
-
-export type UserSafesQuery = { __typename?: 'Query', user?: { __typename?: 'User', id: string, safes: Array<{ __typename?: 'Safe', id: string, name: string, deploySalt?: string | null, impl?: string | null, groups?: Array<{ __typename?: 'Group', id: string, ref: string, safeId: string, name: string, approvers?: Array<{ __typename?: 'Approver', userId: string, weight: any }> | null }> | null }> } | null };
+export type SafeQuery = { __typename?: 'Query', safe?: { __typename?: 'Safe', id: string, name: string, impl?: string | null, deploySalt?: string | null } | null };
 
 export type SubmissionFieldsFragment = { __typename?: 'Submission', id: string, hash: string, nonce: number, gasLimit: any, gasPrice?: any | null, finalized: boolean, createdAt: any };
 
@@ -2824,29 +3360,27 @@ export type ContractMethodQueryVariables = Exact<{
 
 export type ContractMethodQuery = { __typename?: 'Query', contractMethod?: { __typename?: 'ContractMethod', id: string, fragment: any } | null };
 
-export const GroupFieldsFragmentDoc = gql`
-    fragment GroupFields on Group {
+export const AccountFieldsFragmentDoc = gql`
+    fragment AccountFields on Account {
   id
-  ref
   safeId
-  approvers {
-    userId
-    weight
-  }
+  ref
   name
+  quorums {
+    approvers {
+      userId
+    }
+  }
 }
     `;
 export const SafeFieldsFragmentDoc = gql`
     fragment SafeFields on Safe {
   id
   name
-  deploySalt
   impl
-  groups {
-    ...GroupFields
-  }
+  deploySalt
 }
-    ${GroupFieldsFragmentDoc}`;
+    `;
 export const SubmissionFieldsFragmentDoc = gql`
     fragment SubmissionFields on Submission {
   id
@@ -2910,6 +3444,40 @@ export const ContactFieldsFragmentDoc = gql`
   name
 }
     `;
+export const UpsertAccountDocument = gql`
+    mutation UpsertAccount($account: AccountInput!, $safe: Address!) {
+  upsertAccount(account: $account, safe: $safe) {
+    ...AccountFields
+  }
+}
+    ${AccountFieldsFragmentDoc}`;
+export type UpsertAccountMutationFn = Apollo.MutationFunction<UpsertAccountMutation, UpsertAccountMutationVariables>;
+
+/**
+ * __useUpsertAccountMutation__
+ *
+ * To run a mutation, you first call `useUpsertAccountMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUpsertAccountMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [upsertAccountMutation, { data, loading, error }] = useUpsertAccountMutation({
+ *   variables: {
+ *      account: // value for 'account'
+ *      safe: // value for 'safe'
+ *   },
+ * });
+ */
+export function useUpsertAccountMutation(baseOptions?: Apollo.MutationHookOptions<UpsertAccountMutation, UpsertAccountMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<UpsertAccountMutation, UpsertAccountMutationVariables>(UpsertAccountDocument, options);
+      }
+export type UpsertAccountMutationHookResult = ReturnType<typeof useUpsertAccountMutation>;
+export type UpsertAccountMutationResult = Apollo.MutationResult<UpsertAccountMutation>;
+export type UpsertAccountMutationOptions = Apollo.BaseMutationOptions<UpsertAccountMutation, UpsertAccountMutationVariables>;
 export const CreateCommentDocument = gql`
     mutation CreateComment($safe: Address!, $key: Id!, $content: String!) {
   createComment(safe: $safe, key: $key, content: $content) {
@@ -3084,40 +3652,6 @@ export function useUpsertContactMutation(baseOptions?: Apollo.MutationHookOption
 export type UpsertContactMutationHookResult = ReturnType<typeof useUpsertContactMutation>;
 export type UpsertContactMutationResult = Apollo.MutationResult<UpsertContactMutation>;
 export type UpsertContactMutationOptions = Apollo.BaseMutationOptions<UpsertContactMutation, UpsertContactMutationVariables>;
-export const UpsertGroupDocument = gql`
-    mutation UpsertGroup($safe: Address!, $group: GroupInput!) {
-  upsertGroup(safe: $safe, group: $group) {
-    ...GroupFields
-  }
-}
-    ${GroupFieldsFragmentDoc}`;
-export type UpsertGroupMutationFn = Apollo.MutationFunction<UpsertGroupMutation, UpsertGroupMutationVariables>;
-
-/**
- * __useUpsertGroupMutation__
- *
- * To run a mutation, you first call `useUpsertGroupMutation` within a React component and pass it any options that fit your needs.
- * When your component renders, `useUpsertGroupMutation` returns a tuple that includes:
- * - A mutate function that you can call at any time to execute the mutation
- * - An object with fields that represent the current status of the mutation's execution
- *
- * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
- *
- * @example
- * const [upsertGroupMutation, { data, loading, error }] = useUpsertGroupMutation({
- *   variables: {
- *      safe: // value for 'safe'
- *      group: // value for 'group'
- *   },
- * });
- */
-export function useUpsertGroupMutation(baseOptions?: Apollo.MutationHookOptions<UpsertGroupMutation, UpsertGroupMutationVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useMutation<UpsertGroupMutation, UpsertGroupMutationVariables>(UpsertGroupDocument, options);
-      }
-export type UpsertGroupMutationHookResult = ReturnType<typeof useUpsertGroupMutation>;
-export type UpsertGroupMutationResult = Apollo.MutationResult<UpsertGroupMutation>;
-export type UpsertGroupMutationOptions = Apollo.BaseMutationOptions<UpsertGroupMutation, UpsertGroupMutationVariables>;
 export const SubmitTxExecutionDocument = gql`
     mutation SubmitTxExecution($safe: Address!, $txHash: Bytes32!, $submission: SubmissionInput!) {
   submitTxExecution(safe: $safe, txHash: $txHash, submission: $submission) {
@@ -3288,86 +3822,75 @@ export function useUseFaucetMutation(baseOptions?: Apollo.MutationHookOptions<Us
 export type UseFaucetMutationHookResult = ReturnType<typeof useUseFaucetMutation>;
 export type UseFaucetMutationResult = Apollo.MutationResult<UseFaucetMutation>;
 export type UseFaucetMutationOptions = Apollo.BaseMutationOptions<UseFaucetMutation, UseFaucetMutationVariables>;
-export const UpsertSafeDocument = gql`
-    mutation UpsertSafe($safe: Address!, $deploySalt: Bytes32, $impl: Address, $name: String!, $groups: [GroupInput!]) {
-  upsertSafe(
-    safe: $safe
-    deploySalt: $deploySalt
-    impl: $impl
-    name: $name
-    groups: $groups
-  ) {
-    ...SafeFields
+export const UserAccountsDocument = gql`
+    query UserAccounts {
+  userAccounts {
+    ...AccountFields
   }
 }
-    ${SafeFieldsFragmentDoc}`;
-export type UpsertSafeMutationFn = Apollo.MutationFunction<UpsertSafeMutation, UpsertSafeMutationVariables>;
+    ${AccountFieldsFragmentDoc}`;
 
 /**
- * __useUpsertSafeMutation__
+ * __useUserAccountsQuery__
  *
- * To run a mutation, you first call `useUpsertSafeMutation` within a React component and pass it any options that fit your needs.
- * When your component renders, `useUpsertSafeMutation` returns a tuple that includes:
- * - A mutate function that you can call at any time to execute the mutation
- * - An object with fields that represent the current status of the mutation's execution
- *
- * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
- *
- * @example
- * const [upsertSafeMutation, { data, loading, error }] = useUpsertSafeMutation({
- *   variables: {
- *      safe: // value for 'safe'
- *      deploySalt: // value for 'deploySalt'
- *      impl: // value for 'impl'
- *      name: // value for 'name'
- *      groups: // value for 'groups'
- *   },
- * });
- */
-export function useUpsertSafeMutation(baseOptions?: Apollo.MutationHookOptions<UpsertSafeMutation, UpsertSafeMutationVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useMutation<UpsertSafeMutation, UpsertSafeMutationVariables>(UpsertSafeDocument, options);
-      }
-export type UpsertSafeMutationHookResult = ReturnType<typeof useUpsertSafeMutation>;
-export type UpsertSafeMutationResult = Apollo.MutationResult<UpsertSafeMutation>;
-export type UpsertSafeMutationOptions = Apollo.BaseMutationOptions<UpsertSafeMutation, UpsertSafeMutationVariables>;
-export const UserSafesDocument = gql`
-    query UserSafes {
-  user {
-    id
-    safes {
-      ...SafeFields
-    }
-  }
-}
-    ${SafeFieldsFragmentDoc}`;
-
-/**
- * __useUserSafesQuery__
- *
- * To run a query within a React component, call `useUserSafesQuery` and pass it any options that fit your needs.
- * When your component renders, `useUserSafesQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * To run a query within a React component, call `useUserAccountsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useUserAccountsQuery` returns an object from Apollo Client that contains loading, error, and data properties
  * you can use to render your UI.
  *
  * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
  *
  * @example
- * const { data, loading, error } = useUserSafesQuery({
+ * const { data, loading, error } = useUserAccountsQuery({
  *   variables: {
  *   },
  * });
  */
-export function useUserSafesQuery(baseOptions?: Apollo.QueryHookOptions<UserSafesQuery, UserSafesQueryVariables>) {
+export function useUserAccountsQuery(baseOptions?: Apollo.QueryHookOptions<UserAccountsQuery, UserAccountsQueryVariables>) {
         const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useQuery<UserSafesQuery, UserSafesQueryVariables>(UserSafesDocument, options);
+        return Apollo.useQuery<UserAccountsQuery, UserAccountsQueryVariables>(UserAccountsDocument, options);
       }
-export function useUserSafesLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<UserSafesQuery, UserSafesQueryVariables>) {
+export function useUserAccountsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<UserAccountsQuery, UserAccountsQueryVariables>) {
           const options = {...defaultOptions, ...baseOptions}
-          return Apollo.useLazyQuery<UserSafesQuery, UserSafesQueryVariables>(UserSafesDocument, options);
+          return Apollo.useLazyQuery<UserAccountsQuery, UserAccountsQueryVariables>(UserAccountsDocument, options);
         }
-export type UserSafesQueryHookResult = ReturnType<typeof useUserSafesQuery>;
-export type UserSafesLazyQueryHookResult = ReturnType<typeof useUserSafesLazyQuery>;
-export type UserSafesQueryResult = Apollo.QueryResult<UserSafesQuery, UserSafesQueryVariables>;
+export type UserAccountsQueryHookResult = ReturnType<typeof useUserAccountsQuery>;
+export type UserAccountsLazyQueryHookResult = ReturnType<typeof useUserAccountsLazyQuery>;
+export type UserAccountsQueryResult = Apollo.QueryResult<UserAccountsQuery, UserAccountsQueryVariables>;
+export const SafeDocument = gql`
+    query Safe($id: Address!) {
+  safe(id: $id) {
+    ...SafeFields
+  }
+}
+    ${SafeFieldsFragmentDoc}`;
+
+/**
+ * __useSafeQuery__
+ *
+ * To run a query within a React component, call `useSafeQuery` and pass it any options that fit your needs.
+ * When your component renders, `useSafeQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useSafeQuery({
+ *   variables: {
+ *      id: // value for 'id'
+ *   },
+ * });
+ */
+export function useSafeQuery(baseOptions: Apollo.QueryHookOptions<SafeQuery, SafeQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<SafeQuery, SafeQueryVariables>(SafeDocument, options);
+      }
+export function useSafeLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<SafeQuery, SafeQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<SafeQuery, SafeQueryVariables>(SafeDocument, options);
+        }
+export type SafeQueryHookResult = ReturnType<typeof useSafeQuery>;
+export type SafeLazyQueryHookResult = ReturnType<typeof useSafeLazyQuery>;
+export type SafeQueryResult = Apollo.QueryResult<SafeQuery, SafeQueryVariables>;
 export const ApiTxsDocument = gql`
     query ApiTxs($safe: Address!) {
   txs(safe: $safe) {

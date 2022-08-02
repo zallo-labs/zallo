@@ -28,7 +28,7 @@ const SUB_QUERY = gql`
 `;
 
 export const useSubExecutedTxs = () => {
-  const { safe } = useSafe();
+  const { contract: safe } = useSafe();
 
   const { data, ...rest } = useQuery<SubTxsQuery, SubTxsQueryVariables>(
     SUB_QUERY,
@@ -57,7 +57,7 @@ export const useSubExecutedTxs = () => {
           to: ZERO_ADDR,
           value: ZERO,
           data: [],
-          salt: [],
+          salt: undefined as any,
           approvals: [],
           userHasApproved: false,
           submissions: [],

@@ -2,7 +2,7 @@ import { Addr } from '@components/Addr';
 import { Box } from '@components/Box';
 import { useTheme } from '@util/theme/paper';
 import { Text } from 'react-native-paper';
-import { CombinedAccount } from '~/queries/safe';
+import { CombinedAccount } from '~/queries/accounts';
 import { Card, CardProps } from '../card/Card';
 import { AccountName } from './AccountName';
 
@@ -33,7 +33,7 @@ export const AccountCard = ({
 
       <Box flexGrow={1} horizontal>
         <Text style={[textStyle, { flexGrow: 1 }]} variant="bodyMedium">
-          <Addr addr={account.safe.safe.address} />
+          <Addr addr={account.safe.contract.address} />
         </Text>
 
         {balance && (

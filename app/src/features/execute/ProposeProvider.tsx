@@ -51,7 +51,7 @@ const context = createContext<Context>({
 export interface ActivityProviderProps extends ChildrenProps {}
 
 export const ProposeProvider = ({ children }: ActivityProviderProps) => {
-  const { safe } = useSafe();
+  const { contract: safe } = useSafe();
   const { txs } = useTxs();
 
   const [tx, setTx] = useState<ProposedTx | undefined>();

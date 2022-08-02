@@ -4,18 +4,13 @@ import { GraphQLModule } from '@nestjs/graphql';
 import {
   ApolloServerPluginLandingPageGraphQLPlaygroundOptions,
   ApolloServerPluginLandingPageLocalDefault,
+  ApolloServerPluginInlineTrace,
 } from 'apollo-server-core';
-
 import { IS_DEV } from 'config';
 import { AddressMiddleware } from './address.middleware';
 import { IdMiddleware } from './id.middleware';
 
 export const GQL_ENDPOINT = '/graphql';
-
-const settings: ApolloServerPluginLandingPageGraphQLPlaygroundOptions['settings'] =
-  {
-    'request.credentials': 'include',
-  };
 
 @Module({
   imports: [
@@ -30,23 +25,22 @@ const settings: ApolloServerPluginLandingPageGraphQLPlaygroundOptions['settings'
         fieldMiddleware: [IdMiddleware, AddressMiddleware],
       },
       // plugins: [new LoggingPlugin()],
-      playground: {
-        settings,
-      },
-      // Breaks on firefox
-      // playground: false,
-      // plugins: IS_DEV
-      //   ? [
-      //       ApolloServerPluginLandingPageLocalDefault({
-      //         includeCookies: true,
-      //         variables: settings as Record<string, string>,
-      //       }),
-      //     ]
-      //   : [],
       cors: {
         origin: 'https://studio.apollographql.com',
         credentials: true,
       },
+      playground: false,
+      plugins: IS_DEV
+        ? [
+            ApolloServerPluginLandingPageLocalDefault({
+              includeCookies: true,
+              variables: {
+                'request.credentials': 'include',
+              } as ApolloServerPluginLandingPageGraphQLPlaygroundOptions['settings'],
+            }),
+            ApolloServerPluginInlineTrace(),
+          ]
+        : [],
     }),
   ],
 })

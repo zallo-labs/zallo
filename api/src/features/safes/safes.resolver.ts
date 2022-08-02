@@ -4,19 +4,15 @@ import { GraphQLResolveInfo } from 'graphql';
 
 import { Safe } from '@gen/safe/safe.model';
 import { FindManySafeArgs } from '@gen/safe/find-many-safe.args';
-import { FindUniqueSafeArgs } from '@gen/safe/find-unique-safe.args';
-import { UpsertSafeArgs } from './safes.args';
+import { SafeArgs, UpsertSafeArgs } from './safes.args';
 import { getSelect } from '~/util/select';
 import {
   connectOrCreateSafe,
   connectOrCreateUser,
 } from '~/util/connect-or-create';
 import { hashQuorum } from 'lib';
-import { AccountCreateWithoutSafeInput } from '@gen/account/account-create-without-safe.input';
-import { QuorumCreateWithoutAccountInput } from '@gen/quorum/quorum-create-without-account.input';
-import { ApproverCreateNestedManyWithoutQuorumInput } from '@gen/approver/approver-create-nested-many-without-quorum.input';
-import { ApproverCreateWithoutQuorumInput } from '@gen/approver/approver-create-without-quorum.input';
 import { QuorumCreateOrConnectWithoutAccountInput } from '@gen/quorum/quorum-create-or-connect-without-account.input';
+import { Prisma } from '@prisma/client';
 
 @Resolver(() => Safe)
 export class SafesResolver {
@@ -24,11 +20,11 @@ export class SafesResolver {
 
   @Query(() => Safe, { nullable: true })
   async safe(
-    @Args() args: FindUniqueSafeArgs,
+    @Args() { id }: SafeArgs,
     @Info() info: GraphQLResolveInfo,
   ): Promise<Safe | null> {
     return this.prisma.safe.findUnique({
-      ...args,
+      where: { id },
       ...getSelect(info),
     });
   }
@@ -62,13 +58,11 @@ export class SafesResolver {
               ref: a.ref,
               name: a.name,
               quorums: {
-                // QuorumCreateNestedManyWithoutAccountInput
                 create: a.quorums.map((quorum) => ({
-                  // ApproverUncheckedCreateNestedManyWithoutQuorumInput
                   hash: hashQuorum(quorum),
                   approvers: {
                     create: quorum.map(
-                      (approver): ApproverCreateWithoutQuorumInput => ({
+                      (approver): Prisma.ApproverCreateWithoutQuorumInput => ({
                         safe: {
                           connect: { id: safe },
                         },

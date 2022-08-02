@@ -11,13 +11,13 @@ import { ActionsSpaceFooter } from '@components/ActionsSpaceFooter';
 import { GroupAppbar } from './GroupAppbar';
 import { FlatList } from 'react-native';
 import { withProposeProvider } from '@features/execute/ProposeProvider';
-import { CombinedGroup } from '~/queries/safe';
+import { CombinedAccount } from '~/queries/accounts';
 
 export interface GroupManagementProps {
   approvers: Approver[];
   setApprovers: (approvers: Approver[]) => void;
   selected?: Address;
-  initialGroup: CombinedGroup;
+  initialGroup: CombinedAccount;
 }
 
 export const GroupManagement = withProposeProvider(

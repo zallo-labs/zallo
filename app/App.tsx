@@ -26,7 +26,7 @@ export default withSentry(() => (
     <ThemeProvider>
       <Background>
         <GestureHandlerRootView style={{ flex: 1 }}>
-          {/* <ErrorBoundary> */}
+          <ErrorBoundary>
           <Suspense fallback={<Splash />}>
             <RecoilRoot>
               <AuthGate>
@@ -44,7 +44,7 @@ export default withSentry(() => (
               <ToastProvider />
             </RecoilRoot>
           </Suspense>
-          {/* </ErrorBoundary> */}
+          </ErrorBoundary>
         </GestureHandlerRootView>
       </Background>
     </ThemeProvider>

@@ -12,7 +12,7 @@ export class AccountInput {
   @QuorumsField()
   quorums: Quorums;
 
-  name: string;
+  name?: string;
 }
 
 @ArgsType()

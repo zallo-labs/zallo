@@ -6,14 +6,17 @@ import { withSkeleton } from '@components/skeleton/withSkeleton';
 import { truncatedAddr } from '@util/format';
 import { useAddrName } from '@util/hook/useAddrName';
 import { Caption, Title } from 'react-native-paper';
-import { CombinedSafe } from '~/queries/safe';
+import { CombinedSafe } from '~/queries/accounts';
 
 export interface SafeItemProps extends ItemProps {
   safe: CombinedSafe;
 }
 
 export const SafeItem = withSkeleton(
-  ({ safe: { safe, name: givenName }, ...itemProps }: SafeItemProps) => {
+  ({
+    safe: { contract: safe, name: givenName },
+    ...itemProps
+  }: SafeItemProps) => {
     const addrName = useAddrName(safe.address);
     const name = givenName || addrName;
 

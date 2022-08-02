@@ -5,7 +5,7 @@ import { useApiClient } from '@gql/GqlProvider';
 import { truncatedAddr } from '@util/format';
 import { address, Address, filterFirst, Id, toId } from 'lib';
 import { useMemo } from 'react';
-import { useSafes } from './safe/useSafes';
+import { useAccounts } from './accounts/useAccounts';
 
 export const API_CONTACT_FIELDS = gql`
   fragment ContactFields on Contact {
@@ -26,7 +26,7 @@ export const API_CONTACTS_QUERY = gql`
 `;
 
 export const useContacts = () => {
-  const { safes } = useSafes();
+  const { safes } = useAccounts();
   const wallet = useWallet();
 
   const { data, ...rest } = useQuery<ContactsQuery>(API_CONTACTS_QUERY, {
@@ -47,7 +47,7 @@ export const useContacts = () => {
   const safeContacts = useMemo(
     () =>
       safes.map(
-        ({ name, safe: { address } }): Contact => ({
+        ({ name, contract: { address } }): Contact => ({
           id: toId(address),
           addr: address,
           name: name || `Safe ${truncatedAddr(address)}`,

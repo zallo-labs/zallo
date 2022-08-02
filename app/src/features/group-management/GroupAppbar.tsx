@@ -10,20 +10,20 @@ import { createRemoveGroupTx } from 'lib';
 import { useMemo, useState } from 'react';
 import { Keyboard } from 'react-native';
 import { Appbar, useTheme } from 'react-native-paper';
-import { useUpsertApiGroup } from '~/mutations/group/useUpsertGroup.api';
-import { CombinedGroup } from '~/queries/safe';
+import { useUpsertApiAccount } from '~/mutations/account/useUpsertAccount.api';
+import { CombinedAccount } from '~/queries/accounts';
 import { GroupManagementScreenProps } from './GroupManagementScreen';
 
 export interface GroupAppbarProps {
-  group: CombinedGroup;
+  group: CombinedAccount;
 }
 
 export const GroupAppbar = ({ group }: GroupAppbarProps) => {
   const navigation = useNavigation<GroupManagementScreenProps['navigation']>();
   const { colors } = useTheme();
-  const { safe, groups } = useSafe();
+  const { contract: safe, groups } = useSafe();
   const propose = usePropose();
-  const upsertApiGroup = useUpsertApiGroup();
+  const upsertApiGroup = useUpsertApiAccount();
 
   const isExisting = useMemo(
     () => !!groups.find((g) => g.id === group.id),

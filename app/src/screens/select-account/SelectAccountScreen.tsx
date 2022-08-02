@@ -6,7 +6,7 @@ import { Appbar } from 'react-native-paper';
 import { AccountCard } from '~/components2/account/AccountCard';
 import { useSelectAccount } from '~/components2/account/useSelectedAccount';
 import { RootNavigatorScreenProps } from '~/navigation/RootNavigator';
-import { useAccounts } from '~/queries/safe/useAccounts';
+import { useAccounts } from '~/queries/accounts/useAccounts';
 
 export type SelectAccountScreenProps =
   RootNavigatorScreenProps<'SelectAccount'>;

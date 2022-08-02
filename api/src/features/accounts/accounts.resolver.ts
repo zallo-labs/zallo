@@ -11,15 +11,24 @@ import {
 import { GraphQLResolveInfo } from 'graphql';
 import { getSelect } from '~/util/select';
 import { UpsertAccountArgs } from './accounts.args';
-import { connectOrCreateSafe } from '~/util/connect-or-create';
+import {
+  connectOrCreateSafe,
+  connectOrCreateUser,
+} from '~/util/connect-or-create';
 import { Account } from '@gen/account/account.model';
 import { FindUniqueAccountArgs } from '@gen/account/find-unique-account.args';
 import { FindManyAccountArgs } from '@gen/account/find-many-account.args';
-import { getAccountId, hashQuorum, toAccountRef } from 'lib';
+import { Address, getAccountId, hashQuorum, toAccountRef } from 'lib';
+import { Prisma } from '@prisma/client';
+import { UserAddr } from '~/decorators/user.decorator';
+import { SubgraphService } from '../subgraph/subgraph.service';
 
 @Resolver(() => Account)
 export class AccountsResolver {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private subgraph: SubgraphService,
+  ) {}
 
   @Query(() => Account, { nullable: true })
   async account(
@@ -39,6 +48,35 @@ export class AccountsResolver {
   ): Promise<Account[]> {
     return this.prisma.account.findMany({
       ...args,
+      ...getSelect(info),
+    });
+  }
+
+  @Query(() => [Account])
+  async userAccounts(
+    @UserAddr() user: Address,
+    @Info() info: GraphQLResolveInfo,
+  ): Promise<Account[]> {
+    const subAccounts = await this.subgraph.userAccounts(user);
+
+    return this.prisma.account.findMany({
+      where: {
+        OR: [
+          {
+            approvers: {
+              some: {
+                userId: { equals: user },
+              },
+            },
+          },
+          ...subAccounts.map(
+            ({ safe, accountRef }): Prisma.AccountWhereInput => ({
+              safeId: { equals: safe },
+              ref: { equals: accountRef },
+            }),
+          ),
+        ],
+      },
       ...getSelect(info),
     });
   }
@@ -68,14 +106,21 @@ export class AccountsResolver {
           create: quorums.map((quorum) => ({
             hash: hashQuorum(quorum),
             approvers: {
-              createMany: {
-                data: quorum.map((approver) => ({
-                  userId: approver,
-                })),
-              },
+              create: quorum.map((approver) => ({
+                safe: { connect: { id: safe } },
+                account: {
+                  connect: {
+                    safeId_ref: {
+                      safeId: safe,
+                      ref,
+                    },
+                  },
+                },
+                user: connectOrCreateUser(approver),
+              })),
             },
           })),
-        },
+        } as Prisma.QuorumCreateNestedManyWithoutAccountInput,
       },
       update: {
         name: { set: name },
@@ -93,13 +138,19 @@ export class AccountsResolver {
               },
               create: {
                 hash,
-                safe: connectOrCreateSafe(safe),
                 approvers: {
-                  createMany: {
-                    data: quorum.map((approver) => ({
-                      userId: approver,
-                    })),
-                  },
+                  create: quorum.map((approver) => ({
+                    safe: { connect: { id: safe } },
+                    account: {
+                      connect: {
+                        safeId_ref: {
+                          safeId: safe,
+                          ref,
+                        },
+                      },
+                    },
+                    user: connectOrCreateUser(approver),
+                  })),
                 },
               },
             };
