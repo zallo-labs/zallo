@@ -1,6 +1,5 @@
 import { ethers, Overrides } from 'ethers';
 import { Safe } from './contracts';
-import { Groupish } from './group';
 import { isTxReq, TxReq } from './tx';
 import { createTxSignature, Signerish } from './signature';
 import * as zk from 'zksync-web3';
@@ -8,6 +7,7 @@ import { Eip712Meta, TransactionRequest } from 'zksync-web3/build/src/types';
 import { defaultAbiCoder } from 'ethers/lib/utils';
 import { EIP712_TX_TYPE } from 'zksync-web3/build/src/utils';
 import { TransactionStruct } from './contracts/contracts/Safe';
+import { Account } from './account';
 
 const toPartialTransactionRequest = (tx: TxReq): TransactionRequest => ({
   // Don't spread to avoid adding extra fields
@@ -56,7 +56,7 @@ export interface ExecuteTxOptions {
 export const toTransactionRequest = async (
   safe: Safe,
   tx: TxReq,
-  group: Groupish,
+  account: Account,
   signers: Signerish[],
   opts: ExecuteTxOptions = {},
 ): Promise<TransactionRequest> => {
@@ -76,7 +76,7 @@ export const toTransactionRequest = async (
       ...opts.customData,
       aaParams: {
         from: safe.address,
-        signature: createTxSignature(group, signers),
+        signature: createTxSignature(account, signers),
       },
     },
   };

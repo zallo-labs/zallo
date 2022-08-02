@@ -1,7 +1,7 @@
 import { ChainName } from './chain';
 
 export const SAFE_IMPL: Partial<Record<ChainName, string>> = {
-  testnet: '0xb2EB6D528f0021035CcD8073FE598C5100e4Cabe',
+  testnet: '0xEBfD7a9e989994cDfCEe93d5EDe3f282bEf14529',
 };
 
 export const PROXY_FACTORY: Partial<Record<ChainName, string>> = {

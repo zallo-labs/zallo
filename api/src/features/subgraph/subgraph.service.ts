@@ -10,11 +10,16 @@ import {
 import { RetryLink } from '@apollo/client/link/retry';
 import fetch from 'cross-fetch';
 import { CONFIG } from 'config';
-import { address, Address, toId } from 'lib';
+import { AccountRef, address, Address, toId } from 'lib';
 import {
   UserSafesQuery,
   UserSafesQueryVariables,
 } from '@gen/generated.subgraph';
+
+export interface SafeAccount {
+  safe: Address;
+  accountRef: AccountRef;
+}
 
 @Injectable()
 export class SubgraphService extends ApolloClient<NormalizedCacheObject> {
@@ -61,5 +66,10 @@ export class SubgraphService extends ApolloClient<NormalizedCacheObject> {
         .filter((s) => s.groups.some((g) => g.active))
         .map((s) => address(s.id)) ?? []
     );
+  }
+
+  public async userAccounts(user: Address): Promise<SafeAccount[]> {
+    // TODO: implement
+    return [];
   }
 }

@@ -1,19 +1,23 @@
 export const SafeEvent = {
-  Received: 'Received',
+  AccountUpserted: 'AccountUpserted',
+  AccountRemoved: 'AccountRemoved',
+  // TransactionExecutor
   Transaction: 'Transaction',
   TransactionReverted: 'TransactionReverted',
-  MultiTransaction: 'MultiTransaction',
-  GroupUpserted: 'GroupUpserted',
-  GroupRemoved: 'GroupRemoved',
 };
 
 export const SafeError = {
-  ExecutionReverted: 'ExecutionReverted',
+  ApproverSignaturesMismatch: 'ApproverSignaturesMismatch',
   TxAlreadyExecuted: 'TxAlreadyExecuted',
-  ApproversSignaturesLenMismatch: 'ApproversSignaturesLenMismatch',
   InvalidSignature: 'InvalidSignature',
-  BelowThreshold: 'BelowThreshold',
   InvalidProof: 'InvalidProof',
-  ApproverHashesNotAscending: 'ApproverHashesNotAscending',
+  QuorumNotAscending: 'QuorumNotAscending',
+  QuorumHashesNotAscending: 'QuorumHashesNotAscending',
+  OnlyCallableByBootloader: 'OnlyCallableByBootloader',
+  // SelfOwned
   OnlyCallableBySafe: 'OnlyCallableBySafe',
+  // TransactionExecutor
+  ExecutionReverted: 'ExecutionReverted',
+  // Multicall
+  CallReverted: 'CallReverted',
 };

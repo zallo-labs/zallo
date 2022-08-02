@@ -1,6 +1,6 @@
 import { ArgsType, Field, InputType, ObjectType } from '@nestjs/graphql';
 import { BigNumber, BytesLike } from 'ethers';
-import { Address, Id } from 'lib';
+import { Address, Id, TxSalt } from 'lib';
 import { AddressField } from '~/apollo/scalars/Address.scalar';
 import { BytesField } from '~/apollo/scalars/Bytes.scalar';
 import { Bytes32Field } from '~/apollo/scalars/Bytes32.scalar';
@@ -25,7 +25,7 @@ export class TxInput {
   data: BytesLike;
 
   @Bytes8Field()
-  salt: string;
+  salt: TxSalt;
 }
 
 @ArgsType()

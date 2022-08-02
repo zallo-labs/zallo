@@ -1,5 +1,4 @@
 import { gql, useMutation } from '@apollo/client';
-import { useSafe } from '@features/safe/SafeProvider';
 import {
   ApiTxsQuery,
   ApiTxsQueryVariables,
@@ -15,6 +14,7 @@ import { API_GET_TXS_QUERY } from '~/queries/tx/useTxs.api';
 import { Tx } from '~/queries/tx';
 import produce from 'immer';
 import assert from 'assert';
+import { useSelectedAccount } from '~/components2/account/useSelectedAccount';
 
 const MUTATION = gql`
   mutation RevokeApproval($safe: Address!, $txHash: Bytes32!) {
@@ -25,7 +25,7 @@ const MUTATION = gql`
 `;
 
 export const useRevokeApproval = () => {
-  const { safe } = useSafe();
+  const { safeAddr } = useSelectedAccount();
   const wallet = useWallet();
 
   const [mutation] = useMutation<
@@ -39,7 +39,7 @@ export const useRevokeApproval = () => {
 
       const queryOpts = {
         query: API_GET_TXS_QUERY,
-        variables: { safe: safe.address },
+        variables: { safe: safeAddr },
       };
       const data = cache.readQuery<ApiTxsQuery, ApiTxsQueryVariables>(
         queryOpts,
@@ -68,17 +68,17 @@ export const useRevokeApproval = () => {
     (tx: Tx) =>
       mutation({
         variables: {
-          safe: safe.address,
+          safe: safeAddr,
           txHash: hexlify(tx.hash),
         },
         optimisticResponse: {
           revokeApproval: {
             __typename: 'RevokeApprovalResp',
-            id: toId(`${safe.address}-${tx.hash}`),
+            id: toId(`${safeAddr}-${tx.hash}`),
           },
         },
       }),
-    [mutation, safe.address],
+    [mutation, safeAddr],
   );
 
   return revoke;

@@ -16,7 +16,8 @@ const parseToken = (token: string): Token => {
 };
 
 const isLocalPlayground = (req: Request) =>
-  req.headers.origin?.endsWith(`[::1]:${CONFIG.api.port}`);
+  req.headers.origin?.endsWith(`[::1]:${CONFIG.api.port}`) ||
+  req.headers.origin?.startsWith('https://studio.apollographql.com');
 
 const isIntrospection = (req: Request) =>
   req.body?.operationName === 'IntrospectionQuery';

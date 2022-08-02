@@ -13,17 +13,17 @@ contract TestSafe is Safe {
     bytes32 root,
     bytes32[] calldata proof,
     uint256[] calldata proofFlags,
-    Approver[] calldata approvers
+    address[] calldata quorum
   ) external pure {
-    return _verifyMultiProof(root, proof, proofFlags, approvers);
+    return _verifyMultiProof(root, proof, proofFlags, quorum);
   }
 
-  function getGroupMerkleRoot(bytes32 groupRef)
+  function getAccountMerkleRoot(Ref accountRef)
     external
     view
     returns (bytes32)
   {
-    return _groupMerkleRoots()[groupRef];
+    return _accountMerkleRoots()[accountRef];
   }
 
   function hashTx(Transaction calldata transaction)
@@ -36,10 +36,6 @@ contract TestSafe is Safe {
 
   function domainSeparator() external view returns (bytes32) {
     return _domainSeparator();
-  }
-
-  function threshold() external pure returns (int256) {
-    return THRESHOLD;
   }
 
   function boolArrayLength(uint256[] calldata bools)

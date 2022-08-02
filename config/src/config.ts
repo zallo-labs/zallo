@@ -27,9 +27,10 @@ export const CONFIG = {
   coinmarketcapApiKey: E.COINMARKETCAP_API_KEY,
   wallet: {
     address: E.WALLET_ADDRESS,
-    privateKey: E.WALLET_PRIVATE_KEY,
+    privateKey: E.WALLET_PRIVATE_KEY, 
   },
   databaseUrl: E.DATABASE_URL,
+  redisUrl: E.REDIS_URL,
   api: {
     port: apiPort,
     url: apiUrl,

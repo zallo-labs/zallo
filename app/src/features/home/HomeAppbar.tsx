@@ -10,7 +10,7 @@ import { Appbar, Portal, Title } from 'react-native-paper';
 import { HomeScreenProps } from './HomeScreen';
 
 export const HomeAppbar = () => {
-  const { safe } = useSafe();
+  const { contract: safe } = useSafe();
   const navigation = useNavigation<HomeScreenProps['navigation']>();
 
   const [menuVisible, setMenuVisible] = useState(false);

@@ -2,7 +2,7 @@ import { Box, BoxProps } from '@components/Box';
 import { space } from '@util/theme/styledComponents';
 import { useMemo, useState } from 'react';
 import { Button, Dialog, useTheme } from 'react-native-paper';
-import { useSafes } from '~/queries/safe/useSafes';
+import { useAccounts } from '~/queries/accounts/useAccounts';
 import { useSafe, useSafesContext } from '../SafeProvider';
 import { SafeItem } from './SafeItem';
 import { SelectedSafeItem } from './SelectedSafeItem';
@@ -25,13 +25,13 @@ export const SafeSelectorDialog = ({
 }: SafeSelectorDialogProps) => {
   const { colors, iconSize } = useTheme();
   const { select, createSafe } = useSafesContext();
-  const { safes: allSafes } = useSafes();
+  const { safes: allSafes } = useAccounts();
   const safe = useSafe();
 
   const [creatingSafe, setCreatingSafe] = useState(false);
 
   const otherSafes = useMemo(
-    () => allSafes.filter((s) => s.safe.address !== safe.safe.address),
+    () => allSafes.filter((s) => s.contract.address !== safe.contract.address),
     [allSafes, safe],
   );
 
@@ -52,10 +52,10 @@ export const SafeSelectorDialog = ({
 
         {otherSafes.map((safe) => (
           <SafeItem
-            key={safe.safe.address}
+            key={safe.contract.address}
             safe={safe}
             onPress={() => {
-              select(safe.safe.address);
+              select(safe.contract.address);
               hide();
             }}
             {...itemPadding}

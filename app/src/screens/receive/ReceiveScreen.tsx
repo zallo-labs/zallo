@@ -21,14 +21,15 @@ export const ReceiveScreen = () => {
   const [amount, setAmount] = useState<BigNumber | undefined>();
 
   const url = useMemo(() => {
-    if (!amount) return buildAddrLink({ target_address: safe.safe.address });
+    if (!amount)
+      return buildAddrLink({ target_address: safe.contract.address });
 
     return buildTransferLink(
-      { target_address: safe.safe.address },
+      { target_address: safe.contract.address },
       token,
       amount,
     );
-  }, [amount, safe.safe.address, token]);
+  }, [amount, safe.contract.address, token]);
 
   return (
     <Box flex={1}>

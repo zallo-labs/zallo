@@ -51,7 +51,7 @@ const transform = (
 };
 
 export const useContractMethod = (contract: Address, funcData: BytesLike) => {
-  const { safe } = useSafe();
+  const { contract: safe } = useSafe();
 
   const isSafe = contract === safe.address;
   const sighash = getDataSighash(funcData);
@@ -68,7 +68,7 @@ export const useContractMethod = (contract: Address, funcData: BytesLike) => {
 };
 
 export const useLazyContractMethod = () => {
-  const { safe } = useSafe();
+  const { contract: safe } = useSafe();
   const client = useApiClient();
 
   const get = useCallback(

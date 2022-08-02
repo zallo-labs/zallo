@@ -16,7 +16,7 @@ export const HomeActions = () => {
   const navigation = useNavigation<HomeScreenProps['navigation']>();
   const deploy = useDeploySafe();
   const navigateToSend = useNavigateToSend();
-  const { safe, impl } = useSafe();
+  const { contract: safe, impl } = useSafe();
   const propose = usePropose();
 
   const updateAvailable = SAFE_IMPL !== impl;

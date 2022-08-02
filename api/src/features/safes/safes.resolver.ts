@@ -4,10 +4,15 @@ import { GraphQLResolveInfo } from 'graphql';
 
 import { Safe } from '@gen/safe/safe.model';
 import { FindManySafeArgs } from '@gen/safe/find-many-safe.args';
-import { FindUniqueSafeArgs } from '@gen/safe/find-unique-safe.args';
-import { UpsertSafeArgs } from './safes.args';
+import { SafeArgs, UpsertSafeArgs } from './safes.args';
 import { getSelect } from '~/util/select';
-import { connectOrCreateUser } from '~/util/connect-or-create';
+import {
+  connectOrCreateSafe,
+  connectOrCreateUser,
+} from '~/util/connect-or-create';
+import { hashQuorum } from 'lib';
+import { QuorumCreateOrConnectWithoutAccountInput } from '@gen/quorum/quorum-create-or-connect-without-account.input';
+import { Prisma } from '@prisma/client';
 
 @Resolver(() => Safe)
 export class SafesResolver {
@@ -15,11 +20,11 @@ export class SafesResolver {
 
   @Query(() => Safe, { nullable: true })
   async safe(
-    @Args() args: FindUniqueSafeArgs,
+    @Args() { id }: SafeArgs,
     @Info() info: GraphQLResolveInfo,
   ): Promise<Safe | null> {
     return this.prisma.safe.findUnique({
-      ...args,
+      where: { id },
       ...getSelect(info),
     });
   }
@@ -37,7 +42,7 @@ export class SafesResolver {
 
   @Mutation(() => Safe)
   async upsertSafe(
-    @Args() { safe, deploySalt, impl, name, groups }: UpsertSafeArgs,
+    @Args() { safe, deploySalt, impl, name, accounts }: UpsertSafeArgs,
     @Info() info: GraphQLResolveInfo,
   ): Promise<Safe> {
     return this.prisma.safe.upsert({
@@ -47,15 +52,32 @@ export class SafesResolver {
         deploySalt,
         impl,
         name,
-        ...(groups && {
-          groups: {
-            create: groups.map((g) => ({
-              ref: g.ref,
-              name: g.name,
-              approvers: {
-                create: g.approvers.map((a) => ({
-                  user: connectOrCreateUser(a.addr),
-                  weight: a.weight,
+        ...(accounts && {
+          accounts: {
+            create: accounts.map((a) => ({
+              ref: a.ref,
+              name: a.name,
+              quorums: {
+                create: a.quorums.map((quorum) => ({
+                  hash: hashQuorum(quorum),
+                  approvers: {
+                    create: quorum.map(
+                      (approver): Prisma.ApproverCreateWithoutQuorumInput => ({
+                        safe: {
+                          connect: { id: safe },
+                        },
+                        account: {
+                          connect: {
+                            safeId_ref: {
+                              safeId: safe,
+                              ref: a.ref,
+                            },
+                          },
+                        },
+                        user: connectOrCreateUser(approver),
+                      }),
+                    ),
+                  },
                 })),
               },
             })),
@@ -65,45 +87,61 @@ export class SafesResolver {
       update: {
         ...(name && { name: { set: name } }),
         ...(deploySalt && { deploySalt: { set: deploySalt } }),
-        ...(impl &&  { impl: { set: impl } }),
-        ...(groups && {
-          groups: {
-            upsert: groups.map((g) => ({
+        ...(impl && { impl: { set: impl } }),
+        ...(accounts && {
+          accounts: {
+            upsert: accounts.map((a) => ({
               where: {
                 safeId_ref: {
                   safeId: safe,
-                  ref: g.ref,
+                  ref: a.ref,
                 },
               },
               create: {
-                ref: g.ref,
-                name: g.ref,
-                approvers: {
-                  create: g.approvers.map((a) => ({
-                    user: connectOrCreateUser(a.addr),
-                    weight: a.weight,
+                ref: a.ref,
+                name: a.ref,
+                quorums: {
+                  create: a.quorums.map((quorum) => ({
+                    hash: hashQuorum(quorum),
+                    approvers: {
+                      createMany: {
+                        data: quorum.map((approver) => ({
+                          userId: approver,
+                        })),
+                      },
+                    },
                   })),
                 },
               },
               update: {
-                name: { set: g.name },
-                approvers: {
-                  upsert: g.approvers.map((a) => ({
-                    where: {
-                      safeId_groupRef_userId: {
-                        safeId: safe,
-                        groupRef: g.ref,
-                        userId: a.addr,
-                      },
+                name: { set: a.name },
+                quorums: {
+                  connectOrCreate: a.quorums.map(
+                    (q): QuorumCreateOrConnectWithoutAccountInput => {
+                      const hash = hashQuorum(q);
+
+                      return {
+                        where: {
+                          safeId_accountRef_hash: {
+                            safeId: safe,
+                            accountRef: a.ref,
+                            hash,
+                          },
+                        },
+                        create: {
+                          safe: connectOrCreateSafe(safe),
+                          hash,
+                          approvers: {
+                            createMany: {
+                              data: q.map((approver) => ({
+                                userId: approver,
+                              })),
+                            },
+                          },
+                        },
+                      };
                     },
-                    create: {
-                      user: connectOrCreateUser(a.addr),
-                      weight: a.weight,
-                    },
-                    update: {
-                      weight: { set: a.weight },
-                    },
-                  })),
+                  ),
                 },
               },
             })),

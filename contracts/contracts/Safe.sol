@@ -37,11 +37,11 @@ contract Safe is
     _preventInitialization();
   }
 
-  function initialize(bytes32 groupRef, Approver[] memory approvers)
+  function initialize(Ref accountRef, address[][] memory quorums)
     external
     initializer
   {
-    _upsertGroup(groupRef, approvers);
+    _upsertAccount(accountRef, quorums);
   }
 
   /*//////////////////////////////////////////////////////////////
@@ -104,28 +104,32 @@ contract Safe is
   //////////////////////////////////////////////////////////////*/
 
   /// @inheritdoc ISafe
-  function upsertGroup(bytes32 groupRef, Approver[] calldata approvers)
+  function upsertAccount(Ref accountRef, address[][] calldata quorums)
     external
     onlySelf
   {
-    _upsertGroup(groupRef, approvers);
+    _upsertAccount(accountRef, quorums);
   }
 
   /// @inheritdoc ISafe
-  function removeGroup(bytes32 groupRef) external onlySelf {
-    delete _groupMerkleRoots()[groupRef];
-    emit GroupRemoved(groupRef);
+  function removeAccount(Ref accountRef) external onlySelf {
+    delete _accountMerkleRoots()[accountRef];
+    emit AccountRemoved(accountRef);
   }
 
-  function _upsertGroup(bytes32 groupRef, Approver[] memory approvers)
-    internal
-  {
-    _satisfiesThreshold(approvers);
+  function _upsertAccount(Ref accountRef, address[][] memory quorums) internal {
+    bytes32[] memory leaves = _getQuorumsMerkleLeaves(quorums);
+    _accountMerkleRoots()[accountRef] = leaves.merkleRoot();
 
-    bytes32[] memory leaves = _getMerkleLeaves(approvers);
-    _groupMerkleRoots()[groupRef] = leaves.merkleRoot();
-
-    emit GroupUpserted(groupRef, approvers);
+    // TODO: change quorums back to address[][] once graph-cli can handle it - https://github.com/graphprotocol/graph-cli/issues/342
+    bytes[] memory bytesQuorums = new bytes[](quorums.length);
+    for (uint256 i = 0; i < quorums.length; ) {
+      bytesQuorums[i] = abi.encode(quorums[i]);
+      unchecked {
+        ++i;
+      }
+    }
+    emit AccountUpserted(accountRef, bytesQuorums);
   }
 
   /*//////////////////////////////////////////////////////////////
@@ -148,55 +152,40 @@ contract Safe is
     view
   {
     (
-      bytes32 groupRef,
-      Approver[] memory approvers,
+      Ref accountRef,
+      address[] memory quorum,
       bytes[] memory signatures,
       bytes32[] memory proof,
       uint256[] memory proofFlags
     ) = abi.decode(
         txSignature,
-        (bytes32, Approver[], bytes[], bytes32[], uint256[])
+        (Ref, address[], bytes[], bytes32[], uint256[])
       );
 
-    _validateSigners(txHash, approvers, signatures);
-    _satisfiesThreshold(approvers);
+    _validateSigners(txHash, quorum, signatures);
     _verifyMultiProof(
-      _groupMerkleRoots()[groupRef],
+      _accountMerkleRoots()[accountRef],
       proof,
       proofFlags,
-      approvers
+      quorum
     );
   }
 
   function _validateSigners(
     bytes32 txHash,
-    Approver[] memory approvers,
+    address[] memory quorum,
     bytes[] memory signatures
   ) internal view {
-    if (approvers.length != signatures.length)
-      revert ApproverSignaturesMismatch();
+    if (quorum.length != signatures.length) revert ApproverSignaturesMismatch();
 
-    for (uint256 i = 0; i < approvers.length; ) {
-      if (!approvers[i].addr.isValidSignatureNow(txHash, signatures[i]))
-        revert InvalidSignature(approvers[i].addr);
+    for (uint256 i = 0; i < quorum.length; ) {
+      if (!quorum[i].isValidSignatureNow(txHash, signatures[i]))
+        revert InvalidSignature(quorum[i]);
 
       unchecked {
         ++i;
       }
     }
-  }
-
-  function _satisfiesThreshold(Approver[] memory approvers) internal pure {
-    int256 required = THRESHOLD;
-    for (uint256 i = 0; i < approvers.length; ) {
-      // Can't cause a negative overflow as required (int256) can safely hold ~7e47 weights (uint96)
-      unchecked {
-        required -= int256(uint256(approvers[i].weight));
-        ++i;
-      }
-    }
-
-    if (required > 0) revert BelowThreshold();
   }
 
   /*//////////////////////////////////////////////////////////////
@@ -204,50 +193,72 @@ contract Safe is
   //////////////////////////////////////////////////////////////*/
 
   // TODO: set mapping directly once "Invalid stack item name: slot" is fixed - https://github.com/ethereum/solidity/issues/13259
-  struct GroupMerkleRootsStruct {
-    mapping(bytes32 => bytes32) groupMerkleRoots;
+  struct AccountMerkleRootsStruct {
+    mapping(Ref => bytes32) accountMerkleRoots;
   }
 
-  /// @notice Merkle root of the state of each group
-  /// @dev groupRef => merkleRoot
+  /// @notice Merkle root of the state of each account
+  /// @dev accountRef => merkleRoot
   /// @dev Leaves: [approver 1, ..., approver n]
-  function _groupMerkleRoots()
+  function _accountMerkleRoots()
     internal
     view
-    returns (mapping(bytes32 => bytes32) storage)
+    returns (mapping(Ref => bytes32) storage)
   {
-    GroupMerkleRootsStruct storage s;
+    AccountMerkleRootsStruct storage s;
     assembly {
-      // keccack256('Safe.groupMerkleRoots')
-      s.slot := 0xed40d626ce12519ab37591279a85e0a52bfad0c2776563d70506f626f959d1d9
+      // keccack256('Safe.accountMerkleRoots')
+      s.slot := 0x421bd8653147f40ab61f0a77b49453d98827367bebd29b1035f755b045bfdb1a
     }
 
-    return s.groupMerkleRoots;
+    return s.accountMerkleRoots;
   }
 
   function _verifyMultiProof(
     bytes32 root,
     bytes32[] memory proof,
     uint256[] memory proofFlags,
-    Approver[] memory approvers
+    address[] memory quorum
   ) internal pure {
-    bytes32[] memory leaves = _getMerkleLeaves(approvers);
+    bytes32[] memory leaves = new bytes32[](1);
+    leaves[0] = _getQuorumMerkleLeaf(quorum);
     if (proof.processMultiProof(proofFlags, leaves) != root)
       revert InvalidProof();
   }
 
-  function _getMerkleLeaves(Approver[] memory approvers)
+  function _getQuorumMerkleLeaf(address[] memory quorum)
+    internal
+    pure
+    returns (bytes32)
+  {
+    if (quorum.length == 0) revert EmptyQuorum();
+
+    // Ensure quorum is sorted ascending
+    for (uint256 i = 1; i < quorum.length; ) {
+      if (quorum[i] < quorum[i - 1]) revert QuorumNotAscending();
+
+      unchecked {
+        ++i;
+      }
+    }
+
+    return keccak256(abi.encode(quorum));
+  }
+
+  function _getQuorumsMerkleLeaves(address[][] memory quorums)
     internal
     pure
     returns (bytes32[] memory leaves)
   {
-    leaves = new bytes32[](approvers.length);
-    for (uint256 i = 0; i < approvers.length; ) {
-      leaves[i] = keccak256(abi.encode(approvers[i]));
+    if (quorums.length == 0) revert EmptyQuorums();
 
-      // Hashes need to be sorted
+    leaves = new bytes32[](quorums.length);
+    for (uint256 i = 0; i < quorums.length; ) {
+      leaves[i] = _getQuorumMerkleLeaf(quorums[i]);
+
+      // Leaves need to be sorted asc and unique
       if (i > 0 && leaves[i] < leaves[i - 1])
-        revert ApproverHashesNotAscending();
+        revert QuorumHashesNotUniqueAndAscending();
 
       unchecked {
         ++i;

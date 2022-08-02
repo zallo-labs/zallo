@@ -1,5 +1,4 @@
 import { gql, useMutation } from '@apollo/client';
-import { useSafe } from '@features/safe/SafeProvider';
 import { useWallet } from '@features/wallet/useWallet';
 import {
   CommentsQuery,
@@ -11,6 +10,7 @@ import { useApiClient } from '@gql/GqlProvider';
 import { QueryOpts } from '@gql/update';
 import { Address, Id, toId } from 'lib';
 import { useCallback } from 'react';
+import { useSelectedAccount } from '~/components2/account/useSelectedAccount';
 import {
   Comment,
   COMMENTS_QUERY,
@@ -40,7 +40,7 @@ export const createReactionId = (
 ): Id => toId(`${createCommentId(safe, c.key, c.nonce)}-${wallet}`);
 
 export const useReactToComment = () => {
-  const { safe } = useSafe();
+  const { safeAddr } = useSelectedAccount();
   const wallet = useWallet();
 
   const [mutate] = useMutation<
@@ -52,7 +52,7 @@ export const useReactToComment = () => {
     (c: Comment, emojis: string[]) =>
       mutate({
         variables: {
-          safe: safe.address,
+          safe: safeAddr,
           key: c.key,
           nonce: c.nonce,
           emojis,
@@ -63,7 +63,7 @@ export const useReactToComment = () => {
 
           const opts: QueryOpts<CommentsQueryVariables> = {
             query: COMMENTS_QUERY,
-            variables: { safe: safe.address, key: c.key },
+            variables: { safe: safeAddr, key: c.key },
           };
           const data = cache.readQuery<CommentsQuery, CommentsQueryVariables>(
             opts,
@@ -93,8 +93,8 @@ export const useReactToComment = () => {
         optimisticResponse: {
           reactToComment: {
             __typename: 'Reaction',
-            id: createReactionId(safe.address, c, wallet.address),
-            safeId: safe.address,
+            id: createReactionId(safeAddr, c, wallet.address),
+            safeId: safeAddr,
             key: c.key,
             nonce: c.nonce,
             userId: wallet.address,
@@ -102,7 +102,7 @@ export const useReactToComment = () => {
           },
         },
       }),
-    [mutate, safe.address, wallet.address],
+    [mutate, safeAddr, wallet.address],
   );
 
   return react;

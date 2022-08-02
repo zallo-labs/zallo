@@ -45,13 +45,15 @@ export class UsersResolver {
       where: {
         OR: [
           // Deployed safe - approvers aren't stored
-          { id: { in: await this.subgraph.userSafes(user) } },
+          // { id: { in: await this.subgraph.userSafes(user) } },
           // Counterfactual safes
           {
-            groups: {
+            accounts: {
               some: {
                 approvers: {
-                  some: { userId: { equals: user } },
+                  some: {
+                    userId: { equals: user },
+                  },
                 },
               },
             },

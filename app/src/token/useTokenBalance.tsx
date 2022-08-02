@@ -35,7 +35,7 @@ export const tokenBalanceState = atomFamily<BigNumber, BalanceKey>({
 });
 
 export const useTokenBalance = (token: Token) => {
-  const { safe } = useSafe();
+  const { contract: safe } = useSafe();
 
   return useRecoilValue(tokenBalanceState([safe.address, token.addr]));
 };
@@ -58,7 +58,7 @@ const tokenBalancesSelector = selectorFamily<TokenWithBalance[], Address>({
 });
 
 export const useTokenBalances = () => {
-  const { safe } = useSafe();
+  const { contract: safe } = useSafe();
 
   return useRecoilValue(tokenBalancesSelector(safe.address));
 };

@@ -4,36 +4,41 @@ pragma solidity ^0.8.0;
 import '@matterlabs/zksync-contracts/l2/system-contracts/interfaces/IAccountAbstraction.sol';
 import '@openzeppelin/contracts/interfaces/IERC1271.sol';
 
-/* Constants */
-// Fixed-point percentage with a precision of 28; e.g. 5.2% = 0.52 * (100 ** 27)
-// int256 can safely hold ~7e47 uint96s
-int256 constant THRESHOLD = 10**28;
+/*//////////////////////////////////////////////////////////////
+                                CONSTANTS
+  //////////////////////////////////////////////////////////////*/
 
 bytes4 constant EIP1271_SUCCESS = bytes4(
   keccak256('isValidSignature(bytes32,bytes)')
 );
 
-/* Types */
-/// @notice Approver belonging to a group
-/// @param addr Address of the approver
-/// @param weight Fixed-point weight of precision 28; see THRESHOLD for more information
-struct Approver {
-  address addr;
-  uint96 weight;
-}
+/*//////////////////////////////////////////////////////////////
+                                  TYPES
+//////////////////////////////////////////////////////////////*/
+
+type Ref is bytes4;
 
 interface ISafe is IERC1271, IAccountAbstraction {
-  /* Events */
-  event GroupUpserted(bytes32 groupRef, Approver[] approvers);
-  event GroupRemoved(bytes32 groupRef);
+  /*//////////////////////////////////////////////////////////////
+                                 EVENTS
+  //////////////////////////////////////////////////////////////*/
 
-  /* Errors */
+  // TODO: change quorums back to address[][] once graph-cli can handle it - https://github.com/graphprotocol/graph-cli/issues/342
+  event AccountUpserted(Ref accountRef, bytes[] quorums);
+  event AccountRemoved(Ref accountRef);
+
+  /*//////////////////////////////////////////////////////////////
+                                 ERRORS
+  //////////////////////////////////////////////////////////////*/
+
   error ApproverSignaturesMismatch();
   error TxAlreadyExecuted();
-  error InvalidSignature(address signer);
-  error BelowThreshold();
+  error InvalidSignature(address approver);
   error InvalidProof();
-  error ApproverHashesNotAscending();
+  error QuorumNotAscending();
+  error EmptyQuorum();
+  error EmptyQuorums();
+  error QuorumHashesNotUniqueAndAscending();
   error OnlyCallableByBootloader();
 
   /// @notice ERC-1271: checks whether the hash was signed with the given signature
@@ -43,6 +48,7 @@ interface ISafe is IERC1271, IAccountAbstraction {
   function isValidSignature(bytes32 txHash, bytes memory txSignature)
     external
     view
+    override
     returns (bytes4 magicValue);
 
   /// @notice AA: validation of whether the transaction originated from the safe
@@ -50,7 +56,8 @@ interface ISafe is IERC1271, IAccountAbstraction {
   /// @param transaction Transaction to be validated
   function validateTransaction(Transaction calldata transaction)
     external
-    payable;
+    payable
+    override;
 
   /// @notice AA: execution of the transaction
   /// @dev Only callable by the bootloader
@@ -58,23 +65,24 @@ interface ISafe is IERC1271, IAccountAbstraction {
   /// @param transaction Transaction to be executed
   function executeTransaction(Transaction calldata transaction)
     external
-    payable;
+    payable
+    override;
 
   /// @notice AA: execution of a transaction from an address other than the bootloader
   /// @param transaction Transaction to be validated and executed
   function executeTransactionFromOutside(Transaction calldata transaction)
     external
-    payable;
+    payable
+    override;
 
-  /// @notice Upsert (create or update) a group
+  /// @notice Upsert (create or update) an account
   /// @dev Only callable by the safe
-  /// @param groupRef Reference of the group to be upserted
-  /// @param approvers Approvers to make up the group
-  function upsertGroup(bytes32 groupRef, Approver[] calldata approvers)
-    external;
+  /// @param accountRef Reference of the account to be upserted
+  /// @param quorums Quorums to make up the account
+  function upsertAccount(Ref accountRef, address[][] calldata quorums) external;
 
-  /// @notice Remove a group
+  /// @notice Remove an account
   /// @dev Only callable by the safe
-  /// @param groupRef Reference of the group to be removed
-  function removeGroup(bytes32 groupRef) external;
+  /// @param accountRef Reference of the account to be removed
+  function removeAccount(Ref accountRef) external;
 }

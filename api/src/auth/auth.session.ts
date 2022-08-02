@@ -1,24 +1,27 @@
-import { Logger } from '@nestjs/common';
-import { PrismaClient } from '@prisma/client';
-import { PrismaSessionStore } from '@quixo3/prisma-session-store';
 import session from 'express-session';
 import { Duration } from 'luxon';
+import CONFIG from 'config';
+import { createClient } from 'redis';
+import createStore from 'connect-redis';
 
-import CONFIG, { IS_PROD } from 'config';
+const RedisStore = createStore(session);
+
+const redisClient = createClient({
+  url: CONFIG.redisUrl,
+});
+redisClient.connect();
 
 export const authSessionRequestHandler = () =>
   session({
     secret: CONFIG.sessionSecret!,
-    resave: true,
-    saveUninitialized: true,
+    resave: false,
+    saveUninitialized: false,
     cookie: {
       maxAge: Duration.fromObject({ days: 7 }).toMillis(),
-      // Allow cookies created on dev to be used on prod, but not vice-versa
-      // ...(IS_PROD && { secure: IS_PROD }),
+      secure: true,
+      sameSite: 'none',
     },
-    store: new PrismaSessionStore(new PrismaClient(), {
-      dbRecordIdIsSessionId: true,
-      logger: Logger,
-      checkPeriod: Duration.fromObject({ hours: 2 }).toMillis(),
+    store: new RedisStore({
+      client: redisClient,
     }),
   });

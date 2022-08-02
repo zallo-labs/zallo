@@ -1,11 +1,12 @@
 import { persistAtom } from '@util/effect/persistAtom';
-import { Address, GroupRef, toGroupRef } from 'lib';
+import { AccountRef, Address } from 'lib';
 import { useCallback, useMemo } from 'react';
 import { atom, useRecoilValue, useSetRecoilState } from 'recoil';
-import { CombinedAccount } from '~/queries/safe';
-import { useSafes } from '~/queries/safe/useSafes';
+import { CombinedAccount } from '~/queries/accounts';
+import { useAccounts } from '~/queries/accounts/useAccounts';
+import { useSafe } from '~/queries/safe/useSafe';
 
-type AccountKey = [Address, GroupRef];
+type AccountKey = [Address, AccountRef];
 
 const selectedAccount = atom<AccountKey | null>({
   key: 'selectedAccount',
@@ -13,26 +14,29 @@ const selectedAccount = atom<AccountKey | null>({
   effects: [persistAtom()],
 });
 
-export const useSelectedAccount = (): CombinedAccount => {
-  const { safes } = useSafes();
-  const [safeAddr, accRef]: AccountKey = useRecoilValue(selectedAccount) ?? [
-    safes[0]!.safe.address,
-    toGroupRef(safes[0].groups[0].ref),
-  ];
+export const useSelectedAccount = () => {
+  const { accounts } = useAccounts();
+  const key = useRecoilValue(selectedAccount);
+  const { safe } = useSafe(key?.[0] ?? accounts[0].safeAddr);
 
   return useMemo(() => {
-    const safe = safes.find(({ safe }) => safe.address === safeAddr)!;
-    const group = safe.groups.find((g) => g.ref === accRef)!;
+    const account =
+      (key &&
+        accounts.find((a) => a.safeAddr === key[0] && a.ref === key[1])) ||
+      accounts[0];
 
-    return { ...group, safe };
-  }, [accRef, safeAddr, safes]);
+    return {
+      ...account,
+      safe,
+    };
+  }, [accounts, key, safe]);
 };
 
 export const useSelectAccount = () => {
   const select = useSetRecoilState(selectedAccount);
 
   return useCallback(
-    (acc: CombinedAccount) => select([acc.safe.safe.address, acc.ref]),
+    (acc: CombinedAccount) => select([acc.safeAddr, acc.ref]),
     [select],
   );
 };

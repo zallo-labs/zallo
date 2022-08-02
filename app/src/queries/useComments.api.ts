@@ -72,7 +72,7 @@ export const isCommentable = (e: Activity): e is Commentable =>
 export const getCommentableKey = (c: Commentable): Id => toId(`tx:${c.id}`);
 
 export const useComments = (commentable: Commentable) => {
-  const { safe } = useSafe();
+  const { contract: safe } = useSafe();
   const key = getCommentableKey(commentable);
 
   const { data, ...rest } = useQuery<CommentsQuery, CommentsQueryVariables>(

@@ -1,5 +1,4 @@
 import { gql, useMutation } from '@apollo/client';
-import { useSafe } from '@features/safe/SafeProvider';
 import { useWallet } from '@features/wallet/useWallet';
 import {
   ApiTxsQuery,
@@ -13,6 +12,7 @@ import produce from 'immer';
 import { createTx, hashTx, signTx, toId, TxDef } from 'lib';
 import { DateTime } from 'luxon';
 import { useCallback } from 'react';
+import { useSelectedAccount } from '~/components2/account/useSelectedAccount';
 import { API_GET_TXS_QUERY, API_TX_FIELDS } from '~/queries/tx/useTxs.api';
 
 const MUTATION = gql`
@@ -26,7 +26,7 @@ const MUTATION = gql`
 `;
 
 export const useProposeApiTx = () => {
-  const { safe } = useSafe();
+  const { safeAddr } = useSelectedAccount();
   const wallet = useWallet();
 
   const [mutation] = useMutation<ProposeTxMutation, ProposeTxMutationVariables>(
@@ -37,13 +37,13 @@ export const useProposeApiTx = () => {
   const propose = useCallback(
     async (txDef: TxDef) => {
       const tx = createTx(txDef);
-      const hash = await hashTx(safe.address, tx);
-      const signature = await signTx(wallet, safe.address, tx);
+      const hash = await hashTx(safeAddr, tx);
+      const signature = await signTx(wallet, safeAddr, tx);
       const createdAt = DateTime.now().toISO();
 
       return await mutation({
         variables: {
-          safe: safe.address,
+          safe: safeAddr,
           tx: {
             to: tx.to,
             value: tx.value.toString(),
@@ -58,7 +58,7 @@ export const useProposeApiTx = () => {
 
           const opts = {
             query: API_GET_TXS_QUERY,
-            variables: { safe: safe.address },
+            variables: { safe: safeAddr },
           };
           const data = cache.readQuery<ApiTxsQuery, ApiTxsQueryVariables>(
             opts,
@@ -82,8 +82,8 @@ export const useProposeApiTx = () => {
         optimisticResponse: {
           proposeTx: {
             __typename: 'Tx',
-            id: toId(`${safe.address}-${hash}`),
-            safeId: safe.address,
+            id: toId(`${safeAddr}-${hash}`),
+            safeId: safeAddr,
             hash,
             to: tx.to,
             value: tx.value.toString(),
@@ -103,7 +103,7 @@ export const useProposeApiTx = () => {
         },
       });
     },
-    [mutation, wallet, safe.address],
+    [mutation, wallet, safeAddr],
   );
 
   return propose;

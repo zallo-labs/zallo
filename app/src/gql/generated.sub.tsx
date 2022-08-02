@@ -18,198 +18,32 @@ export type Scalars = {
   Bytes: any;
 };
 
-export type Approver = {
-  __typename?: 'Approver';
-  approverSet: ApproverSet;
-  /** {set.id}-{user.id} */
-  id: Scalars['ID'];
-  user: User;
-  weight: Scalars['BigInt'];
-};
-
-export type ApproverSet = {
-  __typename?: 'ApproverSet';
-  approvers: Array<Approver>;
-  blockHash: Scalars['Bytes'];
-  group: Group;
-  /** {group.id}-{blockHash} */
-  id: Scalars['ID'];
-  timestamp: Scalars['BigInt'];
-};
-
-
-export type ApproverSetApproversArgs = {
-  first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<Approver_OrderBy>;
-  orderDirection?: InputMaybe<OrderDirection>;
-  skip?: InputMaybe<Scalars['Int']>;
-  where?: InputMaybe<Approver_Filter>;
-};
-
-export type ApproverSet_Filter = {
-  /** Filter for the block changed event. */
-  _change_block?: InputMaybe<BlockChangedFilter>;
-  approvers_?: InputMaybe<Approver_Filter>;
-  blockHash?: InputMaybe<Scalars['Bytes']>;
-  blockHash_contains?: InputMaybe<Scalars['Bytes']>;
-  blockHash_in?: InputMaybe<Array<Scalars['Bytes']>>;
-  blockHash_not?: InputMaybe<Scalars['Bytes']>;
-  blockHash_not_contains?: InputMaybe<Scalars['Bytes']>;
-  blockHash_not_in?: InputMaybe<Array<Scalars['Bytes']>>;
-  group?: InputMaybe<Scalars['String']>;
-  group_?: InputMaybe<Group_Filter>;
-  group_contains?: InputMaybe<Scalars['String']>;
-  group_contains_nocase?: InputMaybe<Scalars['String']>;
-  group_ends_with?: InputMaybe<Scalars['String']>;
-  group_ends_with_nocase?: InputMaybe<Scalars['String']>;
-  group_gt?: InputMaybe<Scalars['String']>;
-  group_gte?: InputMaybe<Scalars['String']>;
-  group_in?: InputMaybe<Array<Scalars['String']>>;
-  group_lt?: InputMaybe<Scalars['String']>;
-  group_lte?: InputMaybe<Scalars['String']>;
-  group_not?: InputMaybe<Scalars['String']>;
-  group_not_contains?: InputMaybe<Scalars['String']>;
-  group_not_contains_nocase?: InputMaybe<Scalars['String']>;
-  group_not_ends_with?: InputMaybe<Scalars['String']>;
-  group_not_ends_with_nocase?: InputMaybe<Scalars['String']>;
-  group_not_in?: InputMaybe<Array<Scalars['String']>>;
-  group_not_starts_with?: InputMaybe<Scalars['String']>;
-  group_not_starts_with_nocase?: InputMaybe<Scalars['String']>;
-  group_starts_with?: InputMaybe<Scalars['String']>;
-  group_starts_with_nocase?: InputMaybe<Scalars['String']>;
-  id?: InputMaybe<Scalars['ID']>;
-  id_gt?: InputMaybe<Scalars['ID']>;
-  id_gte?: InputMaybe<Scalars['ID']>;
-  id_in?: InputMaybe<Array<Scalars['ID']>>;
-  id_lt?: InputMaybe<Scalars['ID']>;
-  id_lte?: InputMaybe<Scalars['ID']>;
-  id_not?: InputMaybe<Scalars['ID']>;
-  id_not_in?: InputMaybe<Array<Scalars['ID']>>;
-  timestamp?: InputMaybe<Scalars['BigInt']>;
-  timestamp_gt?: InputMaybe<Scalars['BigInt']>;
-  timestamp_gte?: InputMaybe<Scalars['BigInt']>;
-  timestamp_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  timestamp_lt?: InputMaybe<Scalars['BigInt']>;
-  timestamp_lte?: InputMaybe<Scalars['BigInt']>;
-  timestamp_not?: InputMaybe<Scalars['BigInt']>;
-  timestamp_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-};
-
-export enum ApproverSet_OrderBy {
-  Approvers = 'approvers',
-  BlockHash = 'blockHash',
-  Group = 'group',
-  Id = 'id',
-  Timestamp = 'timestamp'
-}
-
-export type Approver_Filter = {
-  /** Filter for the block changed event. */
-  _change_block?: InputMaybe<BlockChangedFilter>;
-  approverSet?: InputMaybe<Scalars['String']>;
-  approverSet_?: InputMaybe<ApproverSet_Filter>;
-  approverSet_contains?: InputMaybe<Scalars['String']>;
-  approverSet_contains_nocase?: InputMaybe<Scalars['String']>;
-  approverSet_ends_with?: InputMaybe<Scalars['String']>;
-  approverSet_ends_with_nocase?: InputMaybe<Scalars['String']>;
-  approverSet_gt?: InputMaybe<Scalars['String']>;
-  approverSet_gte?: InputMaybe<Scalars['String']>;
-  approverSet_in?: InputMaybe<Array<Scalars['String']>>;
-  approverSet_lt?: InputMaybe<Scalars['String']>;
-  approverSet_lte?: InputMaybe<Scalars['String']>;
-  approverSet_not?: InputMaybe<Scalars['String']>;
-  approverSet_not_contains?: InputMaybe<Scalars['String']>;
-  approverSet_not_contains_nocase?: InputMaybe<Scalars['String']>;
-  approverSet_not_ends_with?: InputMaybe<Scalars['String']>;
-  approverSet_not_ends_with_nocase?: InputMaybe<Scalars['String']>;
-  approverSet_not_in?: InputMaybe<Array<Scalars['String']>>;
-  approverSet_not_starts_with?: InputMaybe<Scalars['String']>;
-  approverSet_not_starts_with_nocase?: InputMaybe<Scalars['String']>;
-  approverSet_starts_with?: InputMaybe<Scalars['String']>;
-  approverSet_starts_with_nocase?: InputMaybe<Scalars['String']>;
-  id?: InputMaybe<Scalars['ID']>;
-  id_gt?: InputMaybe<Scalars['ID']>;
-  id_gte?: InputMaybe<Scalars['ID']>;
-  id_in?: InputMaybe<Array<Scalars['ID']>>;
-  id_lt?: InputMaybe<Scalars['ID']>;
-  id_lte?: InputMaybe<Scalars['ID']>;
-  id_not?: InputMaybe<Scalars['ID']>;
-  id_not_in?: InputMaybe<Array<Scalars['ID']>>;
-  user?: InputMaybe<Scalars['String']>;
-  user_?: InputMaybe<User_Filter>;
-  user_contains?: InputMaybe<Scalars['String']>;
-  user_contains_nocase?: InputMaybe<Scalars['String']>;
-  user_ends_with?: InputMaybe<Scalars['String']>;
-  user_ends_with_nocase?: InputMaybe<Scalars['String']>;
-  user_gt?: InputMaybe<Scalars['String']>;
-  user_gte?: InputMaybe<Scalars['String']>;
-  user_in?: InputMaybe<Array<Scalars['String']>>;
-  user_lt?: InputMaybe<Scalars['String']>;
-  user_lte?: InputMaybe<Scalars['String']>;
-  user_not?: InputMaybe<Scalars['String']>;
-  user_not_contains?: InputMaybe<Scalars['String']>;
-  user_not_contains_nocase?: InputMaybe<Scalars['String']>;
-  user_not_ends_with?: InputMaybe<Scalars['String']>;
-  user_not_ends_with_nocase?: InputMaybe<Scalars['String']>;
-  user_not_in?: InputMaybe<Array<Scalars['String']>>;
-  user_not_starts_with?: InputMaybe<Scalars['String']>;
-  user_not_starts_with_nocase?: InputMaybe<Scalars['String']>;
-  user_starts_with?: InputMaybe<Scalars['String']>;
-  user_starts_with_nocase?: InputMaybe<Scalars['String']>;
-  weight?: InputMaybe<Scalars['BigInt']>;
-  weight_gt?: InputMaybe<Scalars['BigInt']>;
-  weight_gte?: InputMaybe<Scalars['BigInt']>;
-  weight_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  weight_lt?: InputMaybe<Scalars['BigInt']>;
-  weight_lte?: InputMaybe<Scalars['BigInt']>;
-  weight_not?: InputMaybe<Scalars['BigInt']>;
-  weight_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-};
-
-export enum Approver_OrderBy {
-  ApproverSet = 'approverSet',
-  Id = 'id',
-  User = 'user',
-  Weight = 'weight'
-}
-
-export type BlockChangedFilter = {
-  number_gte: Scalars['Int'];
-};
-
-export type Block_Height = {
-  hash?: InputMaybe<Scalars['Bytes']>;
-  number?: InputMaybe<Scalars['Int']>;
-  number_gte?: InputMaybe<Scalars['Int']>;
-};
-
-export type Group = {
-  __typename?: 'Group';
+export type Account = {
+  __typename?: 'Account';
   active: Scalars['Boolean'];
-  approverSets: Array<ApproverSet>;
   /** {safe.id}-{hash} */
   id: Scalars['ID'];
+  quorums: Array<Quorum>;
   ref: Scalars['Bytes'];
   safe: Safe;
 };
 
 
-export type GroupApproverSetsArgs = {
+export type AccountQuorumsArgs = {
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<ApproverSet_OrderBy>;
+  orderBy?: InputMaybe<Quorum_OrderBy>;
   orderDirection?: InputMaybe<OrderDirection>;
   skip?: InputMaybe<Scalars['Int']>;
-  where?: InputMaybe<ApproverSet_Filter>;
+  where?: InputMaybe<Quorum_Filter>;
 };
 
-export type Group_Filter = {
+export type Account_Filter = {
   /** Filter for the block changed event. */
   _change_block?: InputMaybe<BlockChangedFilter>;
   active?: InputMaybe<Scalars['Boolean']>;
   active_in?: InputMaybe<Array<Scalars['Boolean']>>;
   active_not?: InputMaybe<Scalars['Boolean']>;
   active_not_in?: InputMaybe<Array<Scalars['Boolean']>>;
-  approverSets_?: InputMaybe<ApproverSet_Filter>;
   id?: InputMaybe<Scalars['ID']>;
   id_gt?: InputMaybe<Scalars['ID']>;
   id_gte?: InputMaybe<Scalars['ID']>;
@@ -218,6 +52,7 @@ export type Group_Filter = {
   id_lte?: InputMaybe<Scalars['ID']>;
   id_not?: InputMaybe<Scalars['ID']>;
   id_not_in?: InputMaybe<Array<Scalars['ID']>>;
+  quorums_?: InputMaybe<Quorum_Filter>;
   ref?: InputMaybe<Scalars['Bytes']>;
   ref_contains?: InputMaybe<Scalars['Bytes']>;
   ref_in?: InputMaybe<Array<Scalars['Bytes']>>;
@@ -247,13 +82,23 @@ export type Group_Filter = {
   safe_starts_with_nocase?: InputMaybe<Scalars['String']>;
 };
 
-export enum Group_OrderBy {
+export enum Account_OrderBy {
   Active = 'active',
-  ApproverSets = 'approverSets',
   Id = 'id',
+  Quorums = 'quorums',
   Ref = 'ref',
   Safe = 'safe'
 }
+
+export type BlockChangedFilter = {
+  number_gte: Scalars['Int'];
+};
+
+export type Block_Height = {
+  hash?: InputMaybe<Scalars['Bytes']>;
+  number?: InputMaybe<Scalars['Int']>;
+  number_gte?: InputMaybe<Scalars['Int']>;
+};
 
 /** Defines the order direction, either ascending or descending */
 export enum OrderDirection {
@@ -265,12 +110,10 @@ export type Query = {
   __typename?: 'Query';
   /** Access to subgraph metadata */
   _meta?: Maybe<_Meta_>;
-  approver?: Maybe<Approver>;
-  approverSet?: Maybe<ApproverSet>;
-  approverSets: Array<ApproverSet>;
-  approvers: Array<Approver>;
-  group?: Maybe<Group>;
-  groups: Array<Group>;
+  account?: Maybe<Account>;
+  accounts: Array<Account>;
+  quorum?: Maybe<Quorum>;
+  quorums: Array<Quorum>;
   safe?: Maybe<Safe>;
   safeImpl?: Maybe<SafeImpl>;
   safeImpls: Array<SafeImpl>;
@@ -289,57 +132,39 @@ export type Query_MetaArgs = {
 };
 
 
-export type QueryApproverArgs = {
+export type QueryAccountArgs = {
   block?: InputMaybe<Block_Height>;
   id: Scalars['ID'];
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type QueryApproverSetArgs = {
+export type QueryAccountsArgs = {
+  block?: InputMaybe<Block_Height>;
+  first?: InputMaybe<Scalars['Int']>;
+  orderBy?: InputMaybe<Account_OrderBy>;
+  orderDirection?: InputMaybe<OrderDirection>;
+  skip?: InputMaybe<Scalars['Int']>;
+  subgraphError?: _SubgraphErrorPolicy_;
+  where?: InputMaybe<Account_Filter>;
+};
+
+
+export type QueryQuorumArgs = {
   block?: InputMaybe<Block_Height>;
   id: Scalars['ID'];
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type QueryApproverSetsArgs = {
+export type QueryQuorumsArgs = {
   block?: InputMaybe<Block_Height>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<ApproverSet_OrderBy>;
+  orderBy?: InputMaybe<Quorum_OrderBy>;
   orderDirection?: InputMaybe<OrderDirection>;
   skip?: InputMaybe<Scalars['Int']>;
   subgraphError?: _SubgraphErrorPolicy_;
-  where?: InputMaybe<ApproverSet_Filter>;
-};
-
-
-export type QueryApproversArgs = {
-  block?: InputMaybe<Block_Height>;
-  first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<Approver_OrderBy>;
-  orderDirection?: InputMaybe<OrderDirection>;
-  skip?: InputMaybe<Scalars['Int']>;
-  subgraphError?: _SubgraphErrorPolicy_;
-  where?: InputMaybe<Approver_Filter>;
-};
-
-
-export type QueryGroupArgs = {
-  block?: InputMaybe<Block_Height>;
-  id: Scalars['ID'];
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-
-export type QueryGroupsArgs = {
-  block?: InputMaybe<Block_Height>;
-  first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<Group_OrderBy>;
-  orderDirection?: InputMaybe<OrderDirection>;
-  skip?: InputMaybe<Scalars['Int']>;
-  subgraphError?: _SubgraphErrorPolicy_;
-  where?: InputMaybe<Group_Filter>;
+  where?: InputMaybe<Quorum_Filter>;
 };
 
 
@@ -432,9 +257,105 @@ export type QueryUsersArgs = {
   where?: InputMaybe<User_Filter>;
 };
 
+export type Quorum = {
+  __typename?: 'Quorum';
+  account: Account;
+  active: Scalars['Boolean'];
+  approvers: Array<User>;
+  blockHash: Scalars['Bytes'];
+  hash: Scalars['Bytes'];
+  /** {account.id}-{hash} */
+  id: Scalars['ID'];
+  timestamp: Scalars['BigInt'];
+};
+
+
+export type QuorumApproversArgs = {
+  first?: InputMaybe<Scalars['Int']>;
+  orderBy?: InputMaybe<User_OrderBy>;
+  orderDirection?: InputMaybe<OrderDirection>;
+  skip?: InputMaybe<Scalars['Int']>;
+  where?: InputMaybe<User_Filter>;
+};
+
+export type Quorum_Filter = {
+  /** Filter for the block changed event. */
+  _change_block?: InputMaybe<BlockChangedFilter>;
+  account?: InputMaybe<Scalars['String']>;
+  account_?: InputMaybe<Account_Filter>;
+  account_contains?: InputMaybe<Scalars['String']>;
+  account_contains_nocase?: InputMaybe<Scalars['String']>;
+  account_ends_with?: InputMaybe<Scalars['String']>;
+  account_ends_with_nocase?: InputMaybe<Scalars['String']>;
+  account_gt?: InputMaybe<Scalars['String']>;
+  account_gte?: InputMaybe<Scalars['String']>;
+  account_in?: InputMaybe<Array<Scalars['String']>>;
+  account_lt?: InputMaybe<Scalars['String']>;
+  account_lte?: InputMaybe<Scalars['String']>;
+  account_not?: InputMaybe<Scalars['String']>;
+  account_not_contains?: InputMaybe<Scalars['String']>;
+  account_not_contains_nocase?: InputMaybe<Scalars['String']>;
+  account_not_ends_with?: InputMaybe<Scalars['String']>;
+  account_not_ends_with_nocase?: InputMaybe<Scalars['String']>;
+  account_not_in?: InputMaybe<Array<Scalars['String']>>;
+  account_not_starts_with?: InputMaybe<Scalars['String']>;
+  account_not_starts_with_nocase?: InputMaybe<Scalars['String']>;
+  account_starts_with?: InputMaybe<Scalars['String']>;
+  account_starts_with_nocase?: InputMaybe<Scalars['String']>;
+  active?: InputMaybe<Scalars['Boolean']>;
+  active_in?: InputMaybe<Array<Scalars['Boolean']>>;
+  active_not?: InputMaybe<Scalars['Boolean']>;
+  active_not_in?: InputMaybe<Array<Scalars['Boolean']>>;
+  approvers?: InputMaybe<Array<Scalars['String']>>;
+  approvers_?: InputMaybe<User_Filter>;
+  approvers_contains?: InputMaybe<Array<Scalars['String']>>;
+  approvers_contains_nocase?: InputMaybe<Array<Scalars['String']>>;
+  approvers_not?: InputMaybe<Array<Scalars['String']>>;
+  approvers_not_contains?: InputMaybe<Array<Scalars['String']>>;
+  approvers_not_contains_nocase?: InputMaybe<Array<Scalars['String']>>;
+  blockHash?: InputMaybe<Scalars['Bytes']>;
+  blockHash_contains?: InputMaybe<Scalars['Bytes']>;
+  blockHash_in?: InputMaybe<Array<Scalars['Bytes']>>;
+  blockHash_not?: InputMaybe<Scalars['Bytes']>;
+  blockHash_not_contains?: InputMaybe<Scalars['Bytes']>;
+  blockHash_not_in?: InputMaybe<Array<Scalars['Bytes']>>;
+  hash?: InputMaybe<Scalars['Bytes']>;
+  hash_contains?: InputMaybe<Scalars['Bytes']>;
+  hash_in?: InputMaybe<Array<Scalars['Bytes']>>;
+  hash_not?: InputMaybe<Scalars['Bytes']>;
+  hash_not_contains?: InputMaybe<Scalars['Bytes']>;
+  hash_not_in?: InputMaybe<Array<Scalars['Bytes']>>;
+  id?: InputMaybe<Scalars['ID']>;
+  id_gt?: InputMaybe<Scalars['ID']>;
+  id_gte?: InputMaybe<Scalars['ID']>;
+  id_in?: InputMaybe<Array<Scalars['ID']>>;
+  id_lt?: InputMaybe<Scalars['ID']>;
+  id_lte?: InputMaybe<Scalars['ID']>;
+  id_not?: InputMaybe<Scalars['ID']>;
+  id_not_in?: InputMaybe<Array<Scalars['ID']>>;
+  timestamp?: InputMaybe<Scalars['BigInt']>;
+  timestamp_gt?: InputMaybe<Scalars['BigInt']>;
+  timestamp_gte?: InputMaybe<Scalars['BigInt']>;
+  timestamp_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  timestamp_lt?: InputMaybe<Scalars['BigInt']>;
+  timestamp_lte?: InputMaybe<Scalars['BigInt']>;
+  timestamp_not?: InputMaybe<Scalars['BigInt']>;
+  timestamp_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+};
+
+export enum Quorum_OrderBy {
+  Account = 'account',
+  Active = 'active',
+  Approvers = 'approvers',
+  BlockHash = 'blockHash',
+  Hash = 'hash',
+  Id = 'id',
+  Timestamp = 'timestamp'
+}
+
 export type Safe = {
   __typename?: 'Safe';
-  groups: Array<Group>;
+  accounts: Array<Account>;
   /** {address} */
   id: Scalars['ID'];
   impl: SafeImpl;
@@ -443,12 +364,12 @@ export type Safe = {
 };
 
 
-export type SafeGroupsArgs = {
+export type SafeAccountsArgs = {
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<Group_OrderBy>;
+  orderBy?: InputMaybe<Account_OrderBy>;
   orderDirection?: InputMaybe<OrderDirection>;
   skip?: InputMaybe<Scalars['Int']>;
-  where?: InputMaybe<Group_Filter>;
+  where?: InputMaybe<Account_Filter>;
 };
 
 
@@ -525,7 +446,7 @@ export enum SafeImpl_OrderBy {
 export type Safe_Filter = {
   /** Filter for the block changed event. */
   _change_block?: InputMaybe<BlockChangedFilter>;
-  groups_?: InputMaybe<Group_Filter>;
+  accounts_?: InputMaybe<Account_Filter>;
   id?: InputMaybe<Scalars['ID']>;
   id_gt?: InputMaybe<Scalars['ID']>;
   id_gte?: InputMaybe<Scalars['ID']>;
@@ -560,7 +481,7 @@ export type Safe_Filter = {
 };
 
 export enum Safe_OrderBy {
-  Groups = 'groups',
+  Accounts = 'accounts',
   Id = 'id',
   Impl = 'impl',
   Transfers = 'transfers',
@@ -571,12 +492,10 @@ export type Subscription = {
   __typename?: 'Subscription';
   /** Access to subgraph metadata */
   _meta?: Maybe<_Meta_>;
-  approver?: Maybe<Approver>;
-  approverSet?: Maybe<ApproverSet>;
-  approverSets: Array<ApproverSet>;
-  approvers: Array<Approver>;
-  group?: Maybe<Group>;
-  groups: Array<Group>;
+  account?: Maybe<Account>;
+  accounts: Array<Account>;
+  quorum?: Maybe<Quorum>;
+  quorums: Array<Quorum>;
   safe?: Maybe<Safe>;
   safeImpl?: Maybe<SafeImpl>;
   safeImpls: Array<SafeImpl>;
@@ -595,57 +514,39 @@ export type Subscription_MetaArgs = {
 };
 
 
-export type SubscriptionApproverArgs = {
+export type SubscriptionAccountArgs = {
   block?: InputMaybe<Block_Height>;
   id: Scalars['ID'];
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type SubscriptionApproverSetArgs = {
+export type SubscriptionAccountsArgs = {
+  block?: InputMaybe<Block_Height>;
+  first?: InputMaybe<Scalars['Int']>;
+  orderBy?: InputMaybe<Account_OrderBy>;
+  orderDirection?: InputMaybe<OrderDirection>;
+  skip?: InputMaybe<Scalars['Int']>;
+  subgraphError?: _SubgraphErrorPolicy_;
+  where?: InputMaybe<Account_Filter>;
+};
+
+
+export type SubscriptionQuorumArgs = {
   block?: InputMaybe<Block_Height>;
   id: Scalars['ID'];
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type SubscriptionApproverSetsArgs = {
+export type SubscriptionQuorumsArgs = {
   block?: InputMaybe<Block_Height>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<ApproverSet_OrderBy>;
+  orderBy?: InputMaybe<Quorum_OrderBy>;
   orderDirection?: InputMaybe<OrderDirection>;
   skip?: InputMaybe<Scalars['Int']>;
   subgraphError?: _SubgraphErrorPolicy_;
-  where?: InputMaybe<ApproverSet_Filter>;
-};
-
-
-export type SubscriptionApproversArgs = {
-  block?: InputMaybe<Block_Height>;
-  first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<Approver_OrderBy>;
-  orderDirection?: InputMaybe<OrderDirection>;
-  skip?: InputMaybe<Scalars['Int']>;
-  subgraphError?: _SubgraphErrorPolicy_;
-  where?: InputMaybe<Approver_Filter>;
-};
-
-
-export type SubscriptionGroupArgs = {
-  block?: InputMaybe<Block_Height>;
-  id: Scalars['ID'];
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-
-export type SubscriptionGroupsArgs = {
-  block?: InputMaybe<Block_Height>;
-  first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<Group_OrderBy>;
-  orderDirection?: InputMaybe<OrderDirection>;
-  skip?: InputMaybe<Scalars['Int']>;
-  subgraphError?: _SubgraphErrorPolicy_;
-  where?: InputMaybe<Group_Filter>;
+  where?: InputMaybe<Quorum_Filter>;
 };
 
 
@@ -986,24 +887,23 @@ export enum Tx_OrderBy {
 
 export type User = {
   __typename?: 'User';
-  approvers: Array<Approver>;
   /** {address} */
   id: Scalars['ID'];
+  quorums: Array<Quorum>;
 };
 
 
-export type UserApproversArgs = {
+export type UserQuorumsArgs = {
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<Approver_OrderBy>;
+  orderBy?: InputMaybe<Quorum_OrderBy>;
   orderDirection?: InputMaybe<OrderDirection>;
   skip?: InputMaybe<Scalars['Int']>;
-  where?: InputMaybe<Approver_Filter>;
+  where?: InputMaybe<Quorum_Filter>;
 };
 
 export type User_Filter = {
   /** Filter for the block changed event. */
   _change_block?: InputMaybe<BlockChangedFilter>;
-  approvers_?: InputMaybe<Approver_Filter>;
   id?: InputMaybe<Scalars['ID']>;
   id_gt?: InputMaybe<Scalars['ID']>;
   id_gte?: InputMaybe<Scalars['ID']>;
@@ -1012,11 +912,12 @@ export type User_Filter = {
   id_lte?: InputMaybe<Scalars['ID']>;
   id_not?: InputMaybe<Scalars['ID']>;
   id_not_in?: InputMaybe<Array<Scalars['ID']>>;
+  quorums_?: InputMaybe<Quorum_Filter>;
 };
 
 export enum User_OrderBy {
-  Approvers = 'approvers',
-  Id = 'id'
+  Id = 'id',
+  Quorums = 'quorums'
 }
 
 export type _Block_ = {
@@ -1051,12 +952,19 @@ export enum _SubgraphErrorPolicy_ {
   Deny = 'deny'
 }
 
-export type UserSafesQueryVariables = Exact<{
+export type UserAccountsQueryVariables = Exact<{
   user: Scalars['ID'];
 }>;
 
 
-export type UserSafesQuery = { __typename?: 'Query', user?: { __typename?: 'User', id: string, approvers: Array<{ __typename?: 'Approver', approverSet: { __typename?: 'ApproverSet', group: { __typename?: 'Group', safe: { __typename?: 'Safe', id: string, impl: { __typename?: 'SafeImpl', id: string }, groups: Array<{ __typename?: 'Group', id: string, ref: any, active: boolean, approverSets: Array<{ __typename?: 'ApproverSet', id: string, blockHash: any, timestamp: any, approvers: Array<{ __typename?: 'Approver', weight: any, user: { __typename?: 'User', id: string } }> }> }> } } } }> } | null };
+export type UserAccountsQuery = { __typename?: 'Query', user?: { __typename?: 'User', quorums: Array<{ __typename?: 'Quorum', account: { __typename?: 'Account', id: string, ref: any, safe: { __typename?: 'Safe', id: string }, quorums: Array<{ __typename?: 'Quorum', id: string, hash: any, timestamp: any, approvers: Array<{ __typename?: 'User', id: string }> }> } }> } | null };
+
+export type SafeQueryVariables = Exact<{
+  safe: Scalars['ID'];
+}>;
+
+
+export type SafeQuery = { __typename?: 'Query', safe?: { __typename?: 'Safe', impl: { __typename?: 'SafeImpl', id: string } } | null };
 
 export type TransferFieldsFragment = { __typename?: 'Transfer', id: string, type: TransferType, token: any, from: any, to: any, value: any, blockHash: any, timestamp: any };
 
@@ -1087,35 +995,23 @@ export const TransferFieldsFragmentDoc = gql`
   timestamp
 }
     `;
-export const UserSafesDocument = gql`
-    query UserSafes($user: ID!) {
+export const UserAccountsDocument = gql`
+    query UserAccounts($user: ID!) {
   user(id: $user) {
-    id
-    approvers {
-      approverSet {
-        group {
-          safe {
+    quorums(where: {active: true}) {
+      account {
+        id
+        ref
+        safe {
+          id
+        }
+        quorums(where: {active: true}) {
+          id
+          hash
+          approvers {
             id
-            impl {
-              id
-            }
-            groups {
-              id
-              ref
-              active
-              approverSets(first: 1, orderBy: blockHash, orderDirection: desc) {
-                id
-                blockHash
-                timestamp
-                approvers {
-                  user {
-                    id
-                  }
-                  weight
-                }
-              }
-            }
           }
+          timestamp
         }
       }
     }
@@ -1124,32 +1020,69 @@ export const UserSafesDocument = gql`
     `;
 
 /**
- * __useUserSafesQuery__
+ * __useUserAccountsQuery__
  *
- * To run a query within a React component, call `useUserSafesQuery` and pass it any options that fit your needs.
- * When your component renders, `useUserSafesQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * To run a query within a React component, call `useUserAccountsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useUserAccountsQuery` returns an object from Apollo Client that contains loading, error, and data properties
  * you can use to render your UI.
  *
  * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
  *
  * @example
- * const { data, loading, error } = useUserSafesQuery({
+ * const { data, loading, error } = useUserAccountsQuery({
  *   variables: {
  *      user: // value for 'user'
  *   },
  * });
  */
-export function useUserSafesQuery(baseOptions: Apollo.QueryHookOptions<UserSafesQuery, UserSafesQueryVariables>) {
+export function useUserAccountsQuery(baseOptions: Apollo.QueryHookOptions<UserAccountsQuery, UserAccountsQueryVariables>) {
         const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useQuery<UserSafesQuery, UserSafesQueryVariables>(UserSafesDocument, options);
+        return Apollo.useQuery<UserAccountsQuery, UserAccountsQueryVariables>(UserAccountsDocument, options);
       }
-export function useUserSafesLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<UserSafesQuery, UserSafesQueryVariables>) {
+export function useUserAccountsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<UserAccountsQuery, UserAccountsQueryVariables>) {
           const options = {...defaultOptions, ...baseOptions}
-          return Apollo.useLazyQuery<UserSafesQuery, UserSafesQueryVariables>(UserSafesDocument, options);
+          return Apollo.useLazyQuery<UserAccountsQuery, UserAccountsQueryVariables>(UserAccountsDocument, options);
         }
-export type UserSafesQueryHookResult = ReturnType<typeof useUserSafesQuery>;
-export type UserSafesLazyQueryHookResult = ReturnType<typeof useUserSafesLazyQuery>;
-export type UserSafesQueryResult = Apollo.QueryResult<UserSafesQuery, UserSafesQueryVariables>;
+export type UserAccountsQueryHookResult = ReturnType<typeof useUserAccountsQuery>;
+export type UserAccountsLazyQueryHookResult = ReturnType<typeof useUserAccountsLazyQuery>;
+export type UserAccountsQueryResult = Apollo.QueryResult<UserAccountsQuery, UserAccountsQueryVariables>;
+export const SafeDocument = gql`
+    query Safe($safe: ID!) {
+  safe(id: $safe) {
+    impl {
+      id
+    }
+  }
+}
+    `;
+
+/**
+ * __useSafeQuery__
+ *
+ * To run a query within a React component, call `useSafeQuery` and pass it any options that fit your needs.
+ * When your component renders, `useSafeQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useSafeQuery({
+ *   variables: {
+ *      safe: // value for 'safe'
+ *   },
+ * });
+ */
+export function useSafeQuery(baseOptions: Apollo.QueryHookOptions<SafeQuery, SafeQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<SafeQuery, SafeQueryVariables>(SafeDocument, options);
+      }
+export function useSafeLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<SafeQuery, SafeQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<SafeQuery, SafeQueryVariables>(SafeDocument, options);
+        }
+export type SafeQueryHookResult = ReturnType<typeof useSafeQuery>;
+export type SafeLazyQueryHookResult = ReturnType<typeof useSafeLazyQuery>;
+export type SafeQueryResult = Apollo.QueryResult<SafeQuery, SafeQueryVariables>;
 export const TransfersDocument = gql`
     query Transfers($safe: String!, $txs: [String!]!) {
   transfers(where: {safe: $safe, tx_not_in: $txs}) {

@@ -22,7 +22,7 @@ export const isDeployedState = atomFamily<boolean, Address>({
 });
 
 export const useIsDeployed = (addr?: Address) => {
-  const { safe } = useSafe();
+  const { contract: safe } = useSafe();
 
   return useRecoilValue(isDeployedState(addr ?? safe.address));
 };

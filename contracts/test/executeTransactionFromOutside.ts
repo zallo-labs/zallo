@@ -10,15 +10,15 @@ import {
 
 describe('executeTransactionFromOutside', () => {
   it('should be callable from any address', async () => {
-    const { safe, group } = await deploy([100]);
+    const { safe, account, quorum } = await deploy();
 
     const to = allSigners[2].address;
     const value = 1;
     const tx = createTx({ to, value });
     const preBalance = await provider.getBalance(to);
 
-    const signers = await getSigners(safe, group.approvers, tx);
-    const txReq = await toTransactionRequest(safe, tx, group, signers);
+    const signers = await getSigners(safe, quorum, tx);
+    const txReq = await toTransactionRequest(safe, tx, account, signers);
 
     const txResp = await safe
       .connect(wallet)

@@ -27,10 +27,10 @@ dataSources:
           handler: handleTxExecuted
         - event: TxReverted(bytes32,bytes)
           handler: handleTxReverted
-        - event: GroupUpserted(bytes32,(address,uint96)[])
-          handler: handleGroupUpserted
-        - event: GroupRemoved(bytes32)
-          handler: handleGroupRemoved
+        - event: AccountUpserted(bytes4,bytes[])
+          handler: handleAccountUpserted
+        - event: AccountRemoved(bytes4)
+          handler: handleAccountRemoved
   - name: ERC1967Proxy
     kind: ethereum/contract
     network: {{network}}

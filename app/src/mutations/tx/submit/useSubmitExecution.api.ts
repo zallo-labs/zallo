@@ -1,5 +1,4 @@
 import { gql, useMutation } from '@apollo/client';
-import { useSafe } from '@features/safe/SafeProvider';
 import {
   ApiTxsQuery,
   ApiTxsQueryVariables,
@@ -18,6 +17,7 @@ import {
 import { Tx } from '~/queries/tx';
 import produce from 'immer';
 import assert from 'assert';
+import { useSelectedAccount } from '~/components2/account/useSelectedAccount';
 
 const MUTATION = gql`
   ${API_SUBMISSION_FIELDS}
@@ -34,7 +34,7 @@ const MUTATION = gql`
 `;
 
 export const useApiSubmitExecution = () => {
-  const { safe } = useSafe();
+  const { safeAddr } = useSelectedAccount();
 
   const [mutation] = useMutation<
     SubmitTxExecutionMutation,
@@ -45,7 +45,7 @@ export const useApiSubmitExecution = () => {
     async (tx: Tx, txResp: ContractTransaction) => {
       const r = await mutation({
         variables: {
-          safe: safe.address,
+          safe: safeAddr,
           txHash: ethers.utils.hexlify(tx.hash),
           submission: {
             hash: txResp.hash,
@@ -57,7 +57,7 @@ export const useApiSubmitExecution = () => {
 
           const queryOpts = {
             query: API_GET_TXS_QUERY,
-            variables: { safe: safe.address },
+            variables: { safe: safeAddr },
           };
           const data = cache.readQuery<ApiTxsQuery, ApiTxsQueryVariables>(
             queryOpts,
@@ -94,7 +94,7 @@ export const useApiSubmitExecution = () => {
 
       return r;
     },
-    [safe.address, mutation],
+    [safeAddr, mutation],
   );
 
   return submit;

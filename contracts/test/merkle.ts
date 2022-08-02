@@ -1,17 +1,27 @@
-import { getMerkleTree, getMultiProof } from 'lib';
-import { allSigners, deployTestSafe, expect, toSafeGroupTest } from './util';
+import {
+  Account,
+  getMerkleTree,
+  getMultiProof,
+  randomAccountRef,
+  toQuorum,
+  toQuorums,
+} from 'lib';
+import { allSigners, deployTestSafe, expect } from './util';
 
 describe('Merkle proof', () => {
   it('lib should generate valid multi-proof', async () => {
-    const group = toSafeGroupTest(
-      [allSigners[0].address, 100],
-      [allSigners[1].address, 50],
-    );
+    const account: Account = {
+      ref: randomAccountRef(),
+      quorums: toQuorums([
+        toQuorum([allSigners[0].address, allSigners[1].address]),
+        toQuorum([allSigners[2].address, allSigners[3].address]),
+      ]),
+    };
+    const quorum = account.quorums[0];
 
-    const approvers = [group.approvers[0], group.approvers[1]];
     const { tree, root, proof, rawProofFlags, proofLeaves } = getMultiProof(
-      group,
-      approvers,
+      account,
+      quorum,
     );
 
     const verified = tree.verifyMultiProofWithFlags(
@@ -24,34 +34,37 @@ describe('Merkle proof', () => {
   });
 
   it('should generated valid merkle root', async () => {
-    const { safe, group } = await deployTestSafe([125, 2, 28]);
+    const { safe, account } = await deployTestSafe();
 
-    const tree = getMerkleTree(group);
+    const tree = getMerkleTree(account);
 
-    expect(await safe.getGroupMerkleRoot(group.ref)).to.eq(tree.getHexRoot());
+    expect(await safe.getAccountMerkleRoot(account.ref)).to.eq(
+      tree.getHexRoot(),
+    );
   });
 
   it('should verify valid multi-proof', async () => {
-    const { safe, group } = await deployTestSafe([40, 60, 20]);
+    const { safe, account, quorum } = await deployTestSafe();
 
-    const approvers = group.approvers.slice(0, 2);
-    const { proof, proofFlags, root } = getMultiProof(group, approvers);
+    const { proof, proofFlags, root } = getMultiProof(account, quorum);
 
-    const tx = safe.verifyMultiProof(root, proof, proofFlags, approvers);
+    const tx = safe.verifyMultiProof(root, proof, proofFlags, quorum);
 
     await expect(tx).to.eventually.not.be.rejected;
   });
 
   it('should reject an invalid multi-proof', async () => {
-    const { safe, group, others } = await deployTestSafe([
-      50, 20, 10, 40, 30, 5,
-    ]);
+    const {
+      safe,
+      account,
+      quorum: validQuorum,
+      others,
+    } = await deployTestSafe();
 
-    const validApprovers = group.approvers.slice(0, 2);
-    const { proof, proofFlags, root } = getMultiProof(group, validApprovers);
+    const { proof, proofFlags, root } = getMultiProof(account, validQuorum);
 
-    const invalidApprovers = [{ addr: others[0].address, weight: 100 }];
-    const tx = safe.verifyMultiProof(root, proof, proofFlags, invalidApprovers);
+    const invalidQuorum = toQuorum(others.slice(0, 3));
+    const tx = safe.verifyMultiProof(root, proof, proofFlags, invalidQuorum);
 
     await expect(tx).to.eventually.be.rejected;
   });

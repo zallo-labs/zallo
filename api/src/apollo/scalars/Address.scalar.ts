@@ -28,3 +28,9 @@ export const AddressField =
   (target, propertyKey) => {
     Field(() => GqlAddress, options)(target, propertyKey);
   };
+
+export const AddressesField =
+  (options?: FieldOptions): PropertyDecorator =>
+  (target, propertyKey) => {
+    Field(() => [GqlAddress], options)(target, propertyKey);
+  };

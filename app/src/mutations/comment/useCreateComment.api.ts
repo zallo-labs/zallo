@@ -1,5 +1,4 @@
 import { gql, useMutation } from '@apollo/client';
-import { useSafe } from '@features/safe/SafeProvider';
 import { useWallet } from '@features/wallet/useWallet';
 import {
   CommentsQuery,
@@ -12,6 +11,7 @@ import { QueryOpts } from '@gql/update';
 import { Address, Id, toId } from 'lib';
 import { DateTime } from 'luxon';
 import { useCallback } from 'react';
+import { useSelectedAccount } from '~/components2/account/useSelectedAccount';
 import {
   COMMENT_FIELDS,
   Commentable,
@@ -33,7 +33,7 @@ export const createCommentId = (safe: Address, key: Id, nonce: number): Id =>
   toId(`${safe}-${key}-${nonce}`);
 
 export const useCreateComment = (c: Commentable) => {
-  const { safe } = useSafe();
+  const { safeAddr } = useSelectedAccount();
   const wallet = useWallet();
   const key = getCommentableKey(c);
 
@@ -48,7 +48,7 @@ export const useCreateComment = (c: Commentable) => {
 
       const opts: QueryOpts<CommentsQueryVariables> = {
         query: COMMENTS_QUERY,
-        variables: { safe: safe.address, key },
+        variables: { safe: safeAddr, key },
       };
       const data = cache.readQuery<CommentsQuery, CommentsQueryVariables>(opts);
 
@@ -67,15 +67,15 @@ export const useCreateComment = (c: Commentable) => {
 
       return mutate({
         variables: {
-          safe: safe.address,
+          safe: safeAddr,
           key,
           content,
         },
         optimisticResponse: {
           createComment: {
             __typename: 'Comment',
-            id: createCommentId(safe.address, key, 0),
-            safeId: safe.address,
+            id: createCommentId(safeAddr, key, 0),
+            safeId: safeAddr,
             key,
             nonce: 0,
             authorId: wallet.address,
@@ -87,7 +87,7 @@ export const useCreateComment = (c: Commentable) => {
         },
       });
     },
-    [mutate, safe.address, key, wallet.address],
+    [mutate, safeAddr, key, wallet.address],
   );
 
   return create;

@@ -8,7 +8,7 @@ import { useAddrEns } from './useAddrEns';
 
 export const useAddrName = (addr: Address) => {
   const { contacts } = useContacts();
-  const { safe, name: safeName } = useSafe();
+  const { contract: safe, name: safeName } = useSafe();
   const token = useMaybeToken(addr);
   const ens = useAddrEns(addr);
 
