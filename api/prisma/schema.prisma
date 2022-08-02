@@ -12,14 +12,6 @@ generator nestgraphql {
   output   = "../generated"
 }
 
-// https://www.npmjs.com/package/@quixo3/prisma-session-store
-model Session {
-  id        String   @id
-  sid       String   @unique
-  data      String
-  expiresAt DateTime
-}
-
 model Safe {
   id         String  @id @db.Char(42) // address
   name       String  @default("")
