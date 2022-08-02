@@ -7,5 +7,5 @@ export interface CombinedSafe {
   contract: Safe;
   impl: Address;
   deploySalt?: string;
-  name?: string;
+  name: string;
 }

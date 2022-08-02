@@ -6,6 +6,6 @@ export interface CombinedAccount {
   id: Id;
   safeAddr: Address;
   ref: AccountRef;
-  name?: string;
+  name: string;
   quorums: Quorums;
 }

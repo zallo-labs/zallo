@@ -32,6 +32,7 @@ export const useSubSafe = (safeAddr: Address) => {
             id: toId(safeAddr),
             contract: connectSafe(safeAddr, wallet),
             impl: address(data.safe.impl.id),
+            name: '',
           }
         : undefined,
     [data?.safe, safeAddr, wallet],

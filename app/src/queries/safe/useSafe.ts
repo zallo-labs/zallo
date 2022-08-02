@@ -18,7 +18,7 @@ export const useSafe = (safeAddr: Address) => {
       contract: connectSafe(safeAddr, wallet),
       impl: subSafe?.impl ?? apiSafe?.impl ?? SAFE_IMPL,
       deploySalt: apiSafe?.deploySalt,
-      name: apiSafe?.name,
+      name: apiSafe?.name ?? '',
     }),
     [
       safeAddr,

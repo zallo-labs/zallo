@@ -51,6 +51,7 @@ export const useSubUserAccounts = () => {
         id: toId(account.id),
         safeAddr: address(account.safe.id),
         ref: toAccountRef(account.ref),
+        name: "",
         quorums: toQuorums(
           account.quorums.map((quorum) =>
             toQuorum(quorum.approvers.map((a) => address(a.id))),

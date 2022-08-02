@@ -15,7 +15,7 @@ export const useAccounts = () => {
       id: s?.id || a!.id,
       safeAddr: s?.safeAddr || a!.safeAddr,
       ref: s?.ref || a!.ref,
-      name: a?.name,
+      name: a?.name ?? '',
       quorums: toQuorums(
         filterFirst([...(s?.quorums ?? []), ...(a?.quorums ?? [])], (quorum) =>
           hashQuorum(quorum),

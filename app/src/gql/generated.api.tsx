@@ -3264,6 +3264,17 @@ export type UpsertContactMutationVariables = Exact<{
 
 export type UpsertContactMutation = { __typename?: 'Mutation', upsertContact?: { __typename?: 'Contact', id: string, addr: string, name: string } | null };
 
+export type UpsertSafeMutationVariables = Exact<{
+  safe: Scalars['Address'];
+  impl?: InputMaybe<Scalars['Address']>;
+  deploySalt?: InputMaybe<Scalars['Bytes32']>;
+  name?: InputMaybe<Scalars['String']>;
+  accounts?: InputMaybe<Array<AccountInput> | AccountInput>;
+}>;
+
+
+export type UpsertSafeMutation = { __typename?: 'Mutation', upsertSafe: { __typename?: 'Safe', id: string, name: string, impl?: string | null, deploySalt?: string | null, accounts?: Array<{ __typename?: 'Account', id: string, safeId: string, ref: string, name: string, quorums?: Array<{ __typename?: 'Quorum', approvers?: Array<{ __typename?: 'Approver', userId: string }> | null }> | null }> | null } };
+
 export type SubmitTxExecutionMutationVariables = Exact<{
   safe: Scalars['Address'];
   txHash: Scalars['Bytes32'];
@@ -3652,6 +3663,55 @@ export function useUpsertContactMutation(baseOptions?: Apollo.MutationHookOption
 export type UpsertContactMutationHookResult = ReturnType<typeof useUpsertContactMutation>;
 export type UpsertContactMutationResult = Apollo.MutationResult<UpsertContactMutation>;
 export type UpsertContactMutationOptions = Apollo.BaseMutationOptions<UpsertContactMutation, UpsertContactMutationVariables>;
+export const UpsertSafeDocument = gql`
+    mutation UpsertSafe($safe: Address!, $impl: Address, $deploySalt: Bytes32, $name: String, $accounts: [AccountInput!]) {
+  upsertSafe(
+    safe: $safe
+    impl: $impl
+    deploySalt: $deploySalt
+    name: $name
+    accounts: $accounts
+  ) {
+    id
+    name
+    impl
+    deploySalt
+    accounts {
+      ...AccountFields
+    }
+  }
+}
+    ${AccountFieldsFragmentDoc}`;
+export type UpsertSafeMutationFn = Apollo.MutationFunction<UpsertSafeMutation, UpsertSafeMutationVariables>;
+
+/**
+ * __useUpsertSafeMutation__
+ *
+ * To run a mutation, you first call `useUpsertSafeMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUpsertSafeMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [upsertSafeMutation, { data, loading, error }] = useUpsertSafeMutation({
+ *   variables: {
+ *      safe: // value for 'safe'
+ *      impl: // value for 'impl'
+ *      deploySalt: // value for 'deploySalt'
+ *      name: // value for 'name'
+ *      accounts: // value for 'accounts'
+ *   },
+ * });
+ */
+export function useUpsertSafeMutation(baseOptions?: Apollo.MutationHookOptions<UpsertSafeMutation, UpsertSafeMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<UpsertSafeMutation, UpsertSafeMutationVariables>(UpsertSafeDocument, options);
+      }
+export type UpsertSafeMutationHookResult = ReturnType<typeof useUpsertSafeMutation>;
+export type UpsertSafeMutationResult = Apollo.MutationResult<UpsertSafeMutation>;
+export type UpsertSafeMutationOptions = Apollo.BaseMutationOptions<UpsertSafeMutation, UpsertSafeMutationVariables>;
 export const SubmitTxExecutionDocument = gql`
     mutation SubmitTxExecution($safe: Address!, $txHash: Bytes32!, $submission: SubmissionInput!) {
   submitTxExecution(safe: $safe, txHash: $txHash, submission: $submission) {

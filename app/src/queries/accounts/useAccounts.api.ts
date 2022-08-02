@@ -45,7 +45,7 @@ export const useApiUserAccounts = () => {
           id: toId(acc.id),
           safeAddr: address(acc.safeId),
           ref: toAccountRef(acc.ref),
-          name: acc.name ? acc.name : undefined,
+          name: acc.name,
           quorums: toQuorums(
             acc.quorums?.map((quorum) =>
               toQuorum(quorum.approvers?.map((a) => address(a.userId)) ?? []),
