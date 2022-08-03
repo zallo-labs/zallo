@@ -33,7 +33,7 @@ export const AccountCard = ({
 
       <Box flexGrow={1} horizontal>
         <Text style={[textStyle, { flexGrow: 1 }]} variant="bodyMedium">
-          <Addr addr={account.safe.contract.address} />
+          <Addr addr={account.safeAddr} />
         </Text>
 
         {balance && (

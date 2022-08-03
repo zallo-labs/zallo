@@ -10,9 +10,7 @@ export interface AddrProps {
 export const useFormattedAddr = ({ addr, full }: AddrProps) => {
   const name = useAddrName(addr);
 
-  const formatted = useMemo(() => (full ? addr : name), [addr, full, name]);
-
-  return formatted;
+  return useMemo(() => (full ? addr : name), [addr, full, name]);
 };
 
 export const Addr = (props: AddrProps) => <>{useFormattedAddr(props)}</>;
