@@ -19,8 +19,8 @@ export class SessionMiddleware implements NestMiddleware {
       saveUninitialized: false,
       cookie: {
         maxAge: Duration.fromObject({ days: 7 }).toMillis(),
-        secure: true,
-        sameSite: 'none',
+        // secure: true,
+        // sameSite: true,    // Enable once secure=true is enabled
       },
       store: new RedisStore({ client: redisService.getClient() }),
     });
