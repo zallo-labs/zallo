@@ -1550,6 +1550,7 @@ export type Query = {
   txs: Array<Tx>;
   user?: Maybe<User>;
   userAccounts: Array<Account>;
+  userSafes: Array<Safe>;
 };
 
 
@@ -3333,6 +3334,11 @@ export type SafeQueryVariables = Exact<{
 
 export type SafeQuery = { __typename?: 'Query', safe?: { __typename?: 'Safe', id: string, name: string, impl?: string | null, deploySalt?: string | null } | null };
 
+export type UserSafesQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type UserSafesQuery = { __typename?: 'Query', userSafes: Array<{ __typename?: 'Safe', id: string, name: string, impl?: string | null, deploySalt?: string | null }> };
+
 export type SubmissionFieldsFragment = { __typename?: 'Submission', id: string, hash: string, nonce: number, gasLimit: any, gasPrice?: any | null, finalized: boolean, createdAt: any };
 
 export type TxFieldsFragment = { __typename?: 'Tx', id: string, safeId: string, hash: string, to: string, value: string, data: string, salt: string, createdAt: any, approvals?: Array<{ __typename?: 'Approval', userId: string, signature: string, createdAt: any }> | null, submissions?: Array<{ __typename?: 'Submission', id: string, hash: string, nonce: number, gasLimit: any, gasPrice?: any | null, finalized: boolean, createdAt: any }> | null };
@@ -3951,6 +3957,40 @@ export function useSafeLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<SafeQ
 export type SafeQueryHookResult = ReturnType<typeof useSafeQuery>;
 export type SafeLazyQueryHookResult = ReturnType<typeof useSafeLazyQuery>;
 export type SafeQueryResult = Apollo.QueryResult<SafeQuery, SafeQueryVariables>;
+export const UserSafesDocument = gql`
+    query UserSafes {
+  userSafes {
+    ...SafeFields
+  }
+}
+    ${SafeFieldsFragmentDoc}`;
+
+/**
+ * __useUserSafesQuery__
+ *
+ * To run a query within a React component, call `useUserSafesQuery` and pass it any options that fit your needs.
+ * When your component renders, `useUserSafesQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useUserSafesQuery({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useUserSafesQuery(baseOptions?: Apollo.QueryHookOptions<UserSafesQuery, UserSafesQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<UserSafesQuery, UserSafesQueryVariables>(UserSafesDocument, options);
+      }
+export function useUserSafesLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<UserSafesQuery, UserSafesQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<UserSafesQuery, UserSafesQueryVariables>(UserSafesDocument, options);
+        }
+export type UserSafesQueryHookResult = ReturnType<typeof useUserSafesQuery>;
+export type UserSafesLazyQueryHookResult = ReturnType<typeof useUserSafesLazyQuery>;
+export type UserSafesQueryResult = Apollo.QueryResult<UserSafesQuery, UserSafesQueryVariables>;
 export const ApiTxsDocument = gql`
     query ApiTxs($safe: Address!) {
   txs(safe: $safe) {

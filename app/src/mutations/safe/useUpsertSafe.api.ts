@@ -6,10 +6,14 @@ import { API_ACCOUNT_FIELDS } from '~/queries/accounts/useAccounts.api';
 import {
   SafeQuery,
   SafeQueryVariables,
+  UserSafesQuery,
+  UserSafesQueryVariables,
   useUpsertSafeMutation,
 } from '@gql/generated.api';
 import { Address, getAccountId, hashQuorum, toId } from 'lib';
 import { API_SAFE_QUERY } from '~/queries/safe/useSafe.api';
+import { API_USER_SAFES_QUERY } from '~/queries/safe/useSafes.api';
+import produce from 'immer';
 
 export const API_QUERY_UPSERT_SAFE = gql`
   ${API_ACCOUNT_FIELDS}
@@ -99,15 +103,43 @@ export const useUpsertApiSafe = () => {
         const safe = res?.data?.upsertSafe;
         if (!safe) return;
 
-        const opts: QueryOpts<SafeQueryVariables> = { query: API_SAFE_QUERY };
+        // Safe query
+        const safeOpts: QueryOpts<SafeQueryVariables> = {
+          query: API_SAFE_QUERY,
+          variables: { id: safe.id },
+        };
 
         cache.writeQuery<SafeQuery>({
-          ...opts,
+          ...safeOpts,
           overwrite: true,
           data: {
             __typename: 'Query',
             safe,
           },
+        });
+
+        // UserSafes query
+        const safesOpts: QueryOpts<UserSafesQueryVariables> = {
+          query: API_USER_SAFES_QUERY,
+        };
+
+        const data: UserSafesQuery = cache.readQuery<UserSafesQuery>(
+          safesOpts,
+        ) ?? {
+          userSafes: [],
+        };
+
+        cache.writeQuery<UserSafesQuery>({
+          ...safesOpts,
+          overwrite: true,
+          data: produce(data, (data) => {
+            const i = data.userSafes.findIndex((s) => s.id === safe.id);
+            if (i >= 0) {
+              data.userSafes[i] = safe;
+            } else {
+              data.userSafes.push(safe);
+            }
+          }),
         });
       },
     });

@@ -10,13 +10,18 @@ import {
   connectOrCreateSafe,
   connectOrCreateUser,
 } from '~/util/connect-or-create';
-import { hashQuorum } from 'lib';
+import { address, Address, hashQuorum } from 'lib';
 import { QuorumCreateOrConnectWithoutAccountInput } from '@gen/quorum/quorum-create-or-connect-without-account.input';
 import { Prisma } from '@prisma/client';
+import { UserAddr } from '~/decorators/user.decorator';
+import { SubgraphService } from '../subgraph/subgraph.service';
 
 @Resolver(() => Safe)
 export class SafesResolver {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private subgraph: SubgraphService,
+  ) {}
 
   @Query(() => Safe, { nullable: true })
   async safe(
@@ -36,6 +41,31 @@ export class SafesResolver {
   ): Promise<Safe[]> {
     return this.prisma.safe.findMany({
       ...args,
+      ...getSelect(info),
+    });
+  }
+
+  @Query(() => [Safe])
+  async userSafes(
+    @UserAddr() user: Address,
+    @Info() info: GraphQLResolveInfo,
+  ): Promise<Safe[]> {
+    const subSafes = await this.subgraph.userSafes(user);
+
+    return this.prisma.safe.findMany({
+      where: {
+        OR: [
+          { id: { in: subSafes } },
+          {
+            approvers: {
+              some: {
+                userId: user,
+              },
+            },
+          },
+        ],
+      },
+      distinct: 'id',
       ...getSelect(info),
     });
   }

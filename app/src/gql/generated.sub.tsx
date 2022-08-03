@@ -966,6 +966,13 @@ export type SafeQueryVariables = Exact<{
 
 export type SafeQuery = { __typename?: 'Query', safe?: { __typename?: 'Safe', impl: { __typename?: 'SafeImpl', id: string } } | null };
 
+export type UserSafesQueryVariables = Exact<{
+  user: Scalars['ID'];
+}>;
+
+
+export type UserSafesQuery = { __typename?: 'Query', user?: { __typename?: 'User', quorums: Array<{ __typename?: 'Quorum', account: { __typename?: 'Account', safe: { __typename?: 'Safe', id: string, impl: { __typename?: 'SafeImpl', id: string } } } }> } | null };
+
 export type TransferFieldsFragment = { __typename?: 'Transfer', id: string, type: TransferType, token: any, from: any, to: any, value: any, blockHash: any, timestamp: any };
 
 export type TransfersQueryVariables = Exact<{
@@ -1083,6 +1090,50 @@ export function useSafeLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<SafeQ
 export type SafeQueryHookResult = ReturnType<typeof useSafeQuery>;
 export type SafeLazyQueryHookResult = ReturnType<typeof useSafeLazyQuery>;
 export type SafeQueryResult = Apollo.QueryResult<SafeQuery, SafeQueryVariables>;
+export const UserSafesDocument = gql`
+    query UserSafes($user: ID!) {
+  user(id: $user) {
+    quorums(where: {active: true}) {
+      account {
+        safe {
+          id
+          impl {
+            id
+          }
+        }
+      }
+    }
+  }
+}
+    `;
+
+/**
+ * __useUserSafesQuery__
+ *
+ * To run a query within a React component, call `useUserSafesQuery` and pass it any options that fit your needs.
+ * When your component renders, `useUserSafesQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useUserSafesQuery({
+ *   variables: {
+ *      user: // value for 'user'
+ *   },
+ * });
+ */
+export function useUserSafesQuery(baseOptions: Apollo.QueryHookOptions<UserSafesQuery, UserSafesQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<UserSafesQuery, UserSafesQueryVariables>(UserSafesDocument, options);
+      }
+export function useUserSafesLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<UserSafesQuery, UserSafesQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<UserSafesQuery, UserSafesQueryVariables>(UserSafesDocument, options);
+        }
+export type UserSafesQueryHookResult = ReturnType<typeof useUserSafesQuery>;
+export type UserSafesLazyQueryHookResult = ReturnType<typeof useUserSafesLazyQuery>;
+export type UserSafesQueryResult = Apollo.QueryResult<UserSafesQuery, UserSafesQueryVariables>;
 export const TransfersDocument = gql`
     query Transfers($safe: String!, $txs: [String!]!) {
   transfers(where: {safe: $safe, tx_not_in: $txs}) {
