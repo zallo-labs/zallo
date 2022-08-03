@@ -11,7 +11,7 @@ export class AuthController {
   nonce(@RequestDec() req: Request): string {
     if (
       !req.session.nonce ||
-      (req.session.cookie.expires && req.session.cookie.expires >= new Date())
+      (req.session.cookie.expires && req.session.cookie.expires <= new Date())
     ) {
       req.session.nonce = generateNonce();
     }
