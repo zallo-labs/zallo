@@ -6,18 +6,17 @@ import { CombinedAccount } from '~/queries/accounts';
 import { Card, CardProps } from '../card/Card';
 import { AccountName } from './AccountName';
 
-export interface AccountCardProps {
+export interface AccountCardProps extends CardProps {
   account: CombinedAccount;
   balance?: boolean;
-  cardProps?: CardProps;
   large?: boolean;
 }
 
 export const AccountCard = ({
   account,
   balance = true,
-  cardProps,
   large = false,
+  ...cardProps
 }: AccountCardProps) => {
   const { onBackground } = useTheme();
 
@@ -26,7 +25,7 @@ export const AccountCard = ({
   };
 
   return (
-    <Card vertical p={3} {...cardProps} {...(large && { minHeight: 120 })}>
+    <Card p={3} {...cardProps} {...(large && { minHeight: 120 })}>
       <Text variant={`title${large ? 'Large' : 'Medium'}`} style={textStyle}>
         <AccountName account={account} />
       </Text>
