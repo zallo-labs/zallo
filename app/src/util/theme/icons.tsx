@@ -45,3 +45,4 @@ export const CancelIcon = CloseIcon;
 export const SwapIcon = materialCommunity('swap-vertical');
 export const SearchIcon = material('search');
 export const PlusIcon = materialCommunity('plus');
+export const SettingsIcon = materialCommunity('cog-outline');

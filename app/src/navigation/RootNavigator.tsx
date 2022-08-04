@@ -15,12 +15,27 @@ import {
 import { useAccounts } from '~/queries/accounts/useAccounts';
 import { CreateFirstAccountScreen } from '~/screens/onboard/CreateFirstAccountScreen';
 import { useMemo } from 'react';
+import {
+  AccountScreen,
+  AccountScreenParams,
+} from '~/screens/account/AccountScreen';
+import {
+  ConfigureScreen,
+  ConfigureScreenParams,
+} from '~/screens/configure/ConfigureScreen';
+import {
+  QuorumScreen,
+  QuorumScreenParams,
+} from '~/screens/quorum/QuorumScreen';
 
 export type RootNavigatorParamList = {
   BottomNavigator: undefined;
   Tokens: TokensScreenParams;
   SelectAccount: undefined;
   Amount: AmountScreenParams;
+  Account: AccountScreenParams;
+  Configure: ConfigureScreenParams;
+  Quorum: QuorumScreenParams;
   // Onboarding
   CreateFirstAccount: undefined;
 };
@@ -47,6 +62,9 @@ export const RootNavigator = () => {
       <Navigation.Screen name="Tokens" component={TokensScreen} />
       <Navigation.Screen name="SelectAccount" component={SelectAccountScreen} />
       <Navigation.Screen name="Amount" component={AmountScreen} />
+      <Navigation.Screen name="Account" component={AccountScreen} />
+      <Navigation.Screen name="Configure" component={ConfigureScreen} />
+      <Navigation.Screen name="Quorum" component={QuorumScreen} />
 
       <Navigation.Group key="Onboarding">
         <Navigation.Screen

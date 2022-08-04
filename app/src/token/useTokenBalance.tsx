@@ -40,7 +40,8 @@ export const useTokenBalance = (token: Token) => {
   return useRecoilValue(tokenBalanceState([safeAddr, token.addr]));
 };
 
-export interface TokenWithBalance extends Token {
+export interface TokenWithBalance {
+  token: Token;
   balance: BigNumber;
 }
 
@@ -52,13 +53,10 @@ const tokenBalancesSelector = selectorFamily<TokenWithBalance[], Address>({
       get(allTokensSelector)
         .filter(isPresent)
         .map((token) => ({
-          ...token,
+          token,
           balance: get(tokenBalanceState([addr, token.addr])),
         })),
 });
 
-export const useTokenBalances = () => {
-  const { safeAddr } = useSelectedAccount();
-
-  return useRecoilValue(tokenBalancesSelector(safeAddr));
-};
+export const useTokenBalances = (addr: Address) =>
+  useRecoilValue(tokenBalancesSelector(addr));

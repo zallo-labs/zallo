@@ -3,9 +3,11 @@ import {
   address,
   Address,
   Addresslike,
+  createIsObj,
   createTx,
   Erc20,
   Erc20__factory,
+  isAddress,
   TxReq,
 } from 'lib';
 import _ from 'lodash';
@@ -22,6 +24,15 @@ export interface Token {
   addresses: Partial<Record<'mainnet' | 'testnet', Address>>;
   iconUri: string;
 }
+
+export const isToken = createIsObj<Token>(
+  ['type', 'string'],
+  ['name', 'string'],
+  ['symbol', 'string'],
+  ['decimals', 'number'],
+  ['addr', isAddress],
+  ['iconUri', 'string'],
+);
 
 type TokenDef = Pick<Token, 'name' | 'symbol' | 'decimals'> & {
   type?: TokenType;
