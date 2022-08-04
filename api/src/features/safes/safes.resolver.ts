@@ -6,12 +6,8 @@ import { Safe } from '@gen/safe/safe.model';
 import { FindManySafeArgs } from '@gen/safe/find-many-safe.args';
 import { SafeArgs, UpsertSafeArgs as CreateSafeArgs } from './safes.args';
 import { getSelect } from '~/util/select';
-import {
-  connectOrCreateSafe,
-  connectOrCreateUser,
-} from '~/util/connect-or-create';
-import { address, Address, DEPLOY_TX_HASH, hashQuorum, ZERO_ADDR } from 'lib';
-import { QuorumCreateOrConnectWithoutAccountInput } from '@gen/quorum/quorum-create-or-connect-without-account.input';
+import { connectOrCreateUser } from '~/util/connect-or-create';
+import { Address, hashQuorum } from 'lib';
 import { Prisma } from '@prisma/client';
 import { UserAddr } from '~/decorators/user.decorator';
 import { SubgraphService } from '../subgraph/subgraph.service';
