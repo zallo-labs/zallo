@@ -11,7 +11,9 @@ import {
 import { BytesLike, ethers } from 'ethers';
 import { GraphQLResolveInfo } from 'graphql';
 import {
+  address,
   Address,
+  getTxId,
   hashTx,
   Id,
   SignatureLike,
@@ -61,7 +63,7 @@ export class TxsResolver {
 
   @ResolveField(() => String)
   id(@Parent() tx: Tx): Id {
-    return this.toId(tx);
+    return getTxId(tx.safeId, tx.hash);
   }
 
   @ResolveField(() => [Submission])
@@ -163,7 +165,7 @@ export class TxsResolver {
         where: { safeId_hash: { safeId: safe, hash: txHash } },
       });
 
-    return { id: this.toId(tx) };
+    return { id: getTxId(safe, txHash) };
   }
 
   private async validateSignatureOrThrow(
@@ -173,9 +175,5 @@ export class TxsResolver {
   ) {
     const isValid = validateSignature(user, txHash, signature);
     if (!isValid) throw new UserInputError('Invalid signature');
-  }
-
-  private toId({ safeId, hash }: { safeId: string; hash: string }): Id {
-    return toId(`${safeId}-${hash}`);
   }
 }

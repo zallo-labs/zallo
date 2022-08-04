@@ -10,7 +10,12 @@ import {
 } from '@nestjs/graphql';
 import { GraphQLResolveInfo } from 'graphql';
 import { getSelect } from '~/util/select';
-import { UpsertAccountArgs } from './accounts.args';
+import {
+  AccountId,
+  DeleteAccountArgs,
+  SetAccountNameArgs,
+  SetQuorumsArgs as SetAccountQuorumsArgs,
+} from './accounts.args';
 import {
   connectOrCreateSafe,
   connectOrCreateUser,
@@ -18,7 +23,7 @@ import {
 import { Account } from '@gen/account/account.model';
 import { FindUniqueAccountArgs } from '@gen/account/find-unique-account.args';
 import { FindManyAccountArgs } from '@gen/account/find-many-account.args';
-import { Address, getAccountId, hashQuorum, toAccountRef } from 'lib';
+import { Address, getAccountId, hashQuorum, Quorum, toAccountRef } from 'lib';
 import { Prisma } from '@prisma/client';
 import { UserAddr } from '~/decorators/user.decorator';
 import { SubgraphService } from '../subgraph/subgraph.service';
@@ -29,6 +34,11 @@ export class AccountsResolver {
     private prisma: PrismaService,
     private subgraph: SubgraphService,
   ) {}
+
+  @ResolveField(() => String)
+  id(@Parent() acc: Account): string {
+    return getAccountId(acc.safeId, toAccountRef(acc.ref));
+  }
 
   @Query(() => Account, { nullable: true })
   async account(
@@ -81,49 +91,57 @@ export class AccountsResolver {
     });
   }
 
-  @ResolveField(() => String)
-  id(@Parent() acc: Account): string {
-    return getAccountId(acc.safeId, toAccountRef(acc.ref));
-  }
-
-  @Mutation(() => Account, { nullable: true })
-  async upsertAccount(
-    @Args() { safe, account: { ref, quorums, name } }: UpsertAccountArgs,
+  @Mutation(() => Account)
+  async setAccountName(
+    @Args() { id, name }: SetAccountNameArgs,
     @Info() info: GraphQLResolveInfo,
-  ): Promise<Account | null> {
+  ): Promise<Account> {
     return this.prisma.account.upsert({
-      where: {
-        safeId_ref: {
-          safeId: safe,
-          ref,
-        },
-      },
+      where: { safeId_ref: id },
       create: {
-        safe: connectOrCreateSafe(safe),
-        ref,
+        safe: connectOrCreateSafe(id.safeId),
+        ref: id.ref,
         name,
-        quorums: {
-          create: quorums.map((quorum) => ({
-            hash: hashQuorum(quorum),
-            approvers: {
-              create: quorum.map((approver) => ({
-                safe: { connect: { id: safe } },
-                account: {
-                  connect: {
-                    safeId_ref: {
-                      safeId: safe,
-                      ref,
-                    },
-                  },
-                },
-                user: connectOrCreateUser(approver),
-              })),
-            },
-          })),
-        } as Prisma.QuorumCreateNestedManyWithoutAccountInput,
       },
       update: {
         name: { set: name },
+      },
+      ...getSelect(info),
+    });
+  }
+
+  @Mutation(() => Account, { nullable: true })
+  async setAccountQuroums(
+    @Args() { id, quorums, txHash }: SetAccountQuorumsArgs,
+    @Info() info: GraphQLResolveInfo,
+  ): Promise<Account> {
+    const existingTxHash = (
+      await this.prisma.account.findUnique({
+        where: {
+          safeId_ref: id,
+        },
+        select: { txHash: true },
+      })
+    )?.txHash;
+
+    return this.prisma.account.upsert({
+      where: {
+        safeId_ref: id,
+      },
+      create: {
+        safe: connectOrCreateSafe(id.safeId),
+        ref: id.ref,
+        txHash,
+        quorums: {
+          create: quorums.map((quorum) =>
+            this.createQuorum(id, txHash, quorum),
+          ),
+        },
+      },
+      update: {
+        ...(!existingTxHash && {
+          txHash: { set: { txHash } },
+        }),
         quorums: {
           connectOrCreate: quorums.map((quorum) => {
             const hash = hashQuorum(quorum);
@@ -131,33 +149,46 @@ export class AccountsResolver {
             return {
               where: {
                 safeId_accountRef_hash: {
-                  safeId: safe,
-                  accountRef: ref,
+                  safeId: id.safeId,
+                  accountRef: id.ref,
                   hash,
                 },
               },
-              create: {
-                hash,
-                approvers: {
-                  create: quorum.map((approver) => ({
-                    safe: { connect: { id: safe } },
-                    account: {
-                      connect: {
-                        safeId_ref: {
-                          safeId: safe,
-                          ref,
-                        },
-                      },
-                    },
-                    user: connectOrCreateUser(approver),
-                  })),
-                },
-              },
+              create: this.createQuorum(id, txHash, quorum),
             };
           }),
         },
       },
       ...getSelect(info),
     });
+  }
+
+  @Mutation(() => Boolean)
+  deleteAccount(@Args() { id }: DeleteAccountArgs): boolean {
+    this.prisma.account.delete({
+      where: {
+        safeId_ref: id,
+      },
+    });
+
+    return true;
+  }
+
+  private createQuorum(
+    id: AccountId,
+    txHash: string,
+    quorum: Quorum,
+  ): Prisma.QuorumUncheckedCreateWithoutAccountInput {
+    return {
+      hash: hashQuorum(quorum),
+      txHash,
+      approvers: {
+        create: quorum.map((approver) => ({
+          safe: { connect: { id: id.safeId } },
+          account: { connect: { safeId_ref: id } },
+          user: connectOrCreateUser(approver),
+        })),
+      },
+    };
   }
 }

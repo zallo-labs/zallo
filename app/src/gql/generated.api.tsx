@@ -36,6 +36,8 @@ export type Account = {
   ref: Scalars['String'];
   safe: Safe;
   safeId: Scalars['String'];
+  tx?: Maybe<Tx>;
+  txHash?: Maybe<Scalars['String']>;
 };
 
 export type AccountCount = {
@@ -47,6 +49,7 @@ export type AccountCount = {
 export type AccountCreateManySafeInput = {
   name?: InputMaybe<Scalars['String']>;
   ref: Scalars['String'];
+  txHash?: InputMaybe<Scalars['String']>;
 };
 
 export type AccountCreateManySafeInputEnvelope = {
@@ -73,6 +76,12 @@ export type AccountCreateNestedOneWithoutQuorumsInput = {
   create?: InputMaybe<AccountCreateWithoutQuorumsInput>;
 };
 
+export type AccountCreateNestedOneWithoutTxInput = {
+  connect?: InputMaybe<AccountWhereUniqueInput>;
+  connectOrCreate?: InputMaybe<AccountCreateOrConnectWithoutTxInput>;
+  create?: InputMaybe<AccountCreateWithoutTxInput>;
+};
+
 export type AccountCreateOrConnectWithoutApproversInput = {
   create: AccountCreateWithoutApproversInput;
   where: AccountWhereUniqueInput;
@@ -88,11 +97,17 @@ export type AccountCreateOrConnectWithoutSafeInput = {
   where: AccountWhereUniqueInput;
 };
 
+export type AccountCreateOrConnectWithoutTxInput = {
+  create: AccountCreateWithoutTxInput;
+  where: AccountWhereUniqueInput;
+};
+
 export type AccountCreateWithoutApproversInput = {
   name?: InputMaybe<Scalars['String']>;
   quorums?: InputMaybe<QuorumCreateNestedManyWithoutAccountInput>;
   ref: Scalars['String'];
   safe: SafeCreateNestedOneWithoutAccountsInput;
+  tx?: InputMaybe<TxCreateNestedOneWithoutAccountTxInput>;
 };
 
 export type AccountCreateWithoutQuorumsInput = {
@@ -100,6 +115,7 @@ export type AccountCreateWithoutQuorumsInput = {
   name?: InputMaybe<Scalars['String']>;
   ref: Scalars['String'];
   safe: SafeCreateNestedOneWithoutAccountsInput;
+  tx?: InputMaybe<TxCreateNestedOneWithoutAccountTxInput>;
 };
 
 export type AccountCreateWithoutSafeInput = {
@@ -107,12 +123,20 @@ export type AccountCreateWithoutSafeInput = {
   name?: InputMaybe<Scalars['String']>;
   quorums?: InputMaybe<QuorumCreateNestedManyWithoutAccountInput>;
   ref: Scalars['String'];
+  tx?: InputMaybe<TxCreateNestedOneWithoutAccountTxInput>;
 };
 
-export type AccountInput = {
+export type AccountCreateWithoutTxInput = {
+  approvers?: InputMaybe<ApproverCreateNestedManyWithoutAccountInput>;
   name?: InputMaybe<Scalars['String']>;
-  quorums: Array<Scalars['QuorumScalar']>;
+  quorums?: InputMaybe<QuorumCreateNestedManyWithoutAccountInput>;
+  ref: Scalars['String'];
+  safe: SafeCreateNestedOneWithoutAccountsInput;
+};
+
+export type AccountId = {
   ref: Scalars['Bytes4'];
+  safeId: Scalars['Address'];
 };
 
 export type AccountListRelationFilter = {
@@ -132,6 +156,8 @@ export type AccountOrderByWithRelationInput = {
   ref?: InputMaybe<SortOrder>;
   safe?: InputMaybe<SafeOrderByWithRelationInput>;
   safeId?: InputMaybe<SortOrder>;
+  tx?: InputMaybe<TxOrderByWithRelationInput>;
+  txHash?: InputMaybe<SortOrder>;
 };
 
 export type AccountRelationFilter = {
@@ -144,10 +170,16 @@ export type AccountSafeIdRefCompoundUniqueInput = {
   safeId: Scalars['String'];
 };
 
+export type AccountSafeIdTxHashCompoundUniqueInput = {
+  safeId: Scalars['String'];
+  txHash: Scalars['String'];
+};
+
 export enum AccountScalarFieldEnum {
   Name = 'name',
   Ref = 'ref',
-  SafeId = 'safeId'
+  SafeId = 'safeId',
+  TxHash = 'txHash'
 }
 
 export type AccountScalarWhereInput = {
@@ -157,6 +189,7 @@ export type AccountScalarWhereInput = {
   name?: InputMaybe<StringFilter>;
   ref?: InputMaybe<StringFilter>;
   safeId?: InputMaybe<StringFilter>;
+  txHash?: InputMaybe<StringNullableFilter>;
 };
 
 export type AccountUpdateManyMutationInput = {
@@ -199,6 +232,16 @@ export type AccountUpdateOneRequiredWithoutQuorumsNestedInput = {
   upsert?: InputMaybe<AccountUpsertWithoutQuorumsInput>;
 };
 
+export type AccountUpdateOneWithoutTxNestedInput = {
+  connect?: InputMaybe<AccountWhereUniqueInput>;
+  connectOrCreate?: InputMaybe<AccountCreateOrConnectWithoutTxInput>;
+  create?: InputMaybe<AccountCreateWithoutTxInput>;
+  delete?: InputMaybe<Scalars['Boolean']>;
+  disconnect?: InputMaybe<Scalars['Boolean']>;
+  update?: InputMaybe<AccountUpdateWithoutTxInput>;
+  upsert?: InputMaybe<AccountUpsertWithoutTxInput>;
+};
+
 export type AccountUpdateWithWhereUniqueWithoutSafeInput = {
   data: AccountUpdateWithoutSafeInput;
   where: AccountWhereUniqueInput;
@@ -209,6 +252,7 @@ export type AccountUpdateWithoutApproversInput = {
   quorums?: InputMaybe<QuorumUpdateManyWithoutAccountNestedInput>;
   ref?: InputMaybe<StringFieldUpdateOperationsInput>;
   safe?: InputMaybe<SafeUpdateOneRequiredWithoutAccountsNestedInput>;
+  tx?: InputMaybe<TxUpdateOneWithoutAccountTxNestedInput>;
 };
 
 export type AccountUpdateWithoutQuorumsInput = {
@@ -216,6 +260,7 @@ export type AccountUpdateWithoutQuorumsInput = {
   name?: InputMaybe<StringFieldUpdateOperationsInput>;
   ref?: InputMaybe<StringFieldUpdateOperationsInput>;
   safe?: InputMaybe<SafeUpdateOneRequiredWithoutAccountsNestedInput>;
+  tx?: InputMaybe<TxUpdateOneWithoutAccountTxNestedInput>;
 };
 
 export type AccountUpdateWithoutSafeInput = {
@@ -223,6 +268,15 @@ export type AccountUpdateWithoutSafeInput = {
   name?: InputMaybe<StringFieldUpdateOperationsInput>;
   quorums?: InputMaybe<QuorumUpdateManyWithoutAccountNestedInput>;
   ref?: InputMaybe<StringFieldUpdateOperationsInput>;
+  tx?: InputMaybe<TxUpdateOneWithoutAccountTxNestedInput>;
+};
+
+export type AccountUpdateWithoutTxInput = {
+  approvers?: InputMaybe<ApproverUpdateManyWithoutAccountNestedInput>;
+  name?: InputMaybe<StringFieldUpdateOperationsInput>;
+  quorums?: InputMaybe<QuorumUpdateManyWithoutAccountNestedInput>;
+  ref?: InputMaybe<StringFieldUpdateOperationsInput>;
+  safe?: InputMaybe<SafeUpdateOneRequiredWithoutAccountsNestedInput>;
 };
 
 export type AccountUpsertWithWhereUniqueWithoutSafeInput = {
@@ -241,6 +295,11 @@ export type AccountUpsertWithoutQuorumsInput = {
   update: AccountUpdateWithoutQuorumsInput;
 };
 
+export type AccountUpsertWithoutTxInput = {
+  create: AccountCreateWithoutTxInput;
+  update: AccountUpdateWithoutTxInput;
+};
+
 export type AccountWhereInput = {
   AND?: InputMaybe<Array<AccountWhereInput>>;
   NOT?: InputMaybe<Array<AccountWhereInput>>;
@@ -251,10 +310,19 @@ export type AccountWhereInput = {
   ref?: InputMaybe<StringFilter>;
   safe?: InputMaybe<SafeRelationFilter>;
   safeId?: InputMaybe<StringFilter>;
+  tx?: InputMaybe<TxRelationFilter>;
+  txHash?: InputMaybe<StringNullableFilter>;
 };
 
 export type AccountWhereUniqueInput = {
   safeId_ref?: InputMaybe<AccountSafeIdRefCompoundUniqueInput>;
+  safeId_txHash?: InputMaybe<AccountSafeIdTxHashCompoundUniqueInput>;
+};
+
+export type AccountWithoutSafeInput = {
+  name: Scalars['String'];
+  quorums: Array<Scalars['QuorumScalar']>;
+  ref: Scalars['Bytes4'];
 };
 
 export type Approval = {
@@ -678,7 +746,7 @@ export type ApproverScalarWhereInput = {
 export type ApproverUncheckedUpdateManyWithoutApproversInput = {
   accountRef?: InputMaybe<StringFieldUpdateOperationsInput>;
   quorumHash?: InputMaybe<StringFieldUpdateOperationsInput>;
-  userId?: InputMaybe<StringFieldUpdateOperationsInput>;
+  safeId?: InputMaybe<StringFieldUpdateOperationsInput>;
 };
 
 export type ApproverUpdateManyWithWhereWithoutAccountInput = {
@@ -1345,16 +1413,18 @@ export type Mutation = {
   __typename?: 'Mutation';
   approve?: Maybe<Tx>;
   createComment: Comment;
+  createSafe: Safe;
+  deleteAccount: Scalars['Boolean'];
   deleteComment?: Maybe<Comment>;
   deleteContact: DeleteContactResp;
   proposeTx: Tx;
   reactToComment?: Maybe<Reaction>;
   requestFunds: Scalars['Boolean'];
   revokeApproval: RevokeApprovalResp;
+  setAccountName: Account;
+  setAccountQuroums?: Maybe<Account>;
   submitTxExecution: Submission;
-  upsertAccount?: Maybe<Account>;
   upsertContact?: Maybe<Contact>;
-  upsertSafe: Safe;
   upsertUser: User;
 };
 
@@ -1370,6 +1440,20 @@ export type MutationCreateCommentArgs = {
   content: Scalars['String'];
   key: Scalars['Id'];
   safe: Scalars['Address'];
+};
+
+
+export type MutationCreateSafeArgs = {
+  accounts?: InputMaybe<Array<AccountWithoutSafeInput>>;
+  deploySalt?: InputMaybe<Scalars['Bytes32']>;
+  impl: Scalars['Address'];
+  name: Scalars['String'];
+  safe: Scalars['Address'];
+};
+
+
+export type MutationDeleteAccountArgs = {
+  id: AccountId;
 };
 
 
@@ -1411,6 +1495,19 @@ export type MutationRevokeApprovalArgs = {
 };
 
 
+export type MutationSetAccountNameArgs = {
+  id: AccountId;
+  name: Scalars['String'];
+};
+
+
+export type MutationSetAccountQuroumsArgs = {
+  id: AccountId;
+  quorums: Array<Scalars['QuorumScalar']>;
+  txHash: Scalars['Bytes32'];
+};
+
+
 export type MutationSubmitTxExecutionArgs = {
   safe: Scalars['Address'];
   submission: SubmissionInput;
@@ -1418,25 +1515,10 @@ export type MutationSubmitTxExecutionArgs = {
 };
 
 
-export type MutationUpsertAccountArgs = {
-  account: AccountInput;
-  safe: Scalars['Address'];
-};
-
-
 export type MutationUpsertContactArgs = {
   name: Scalars['String'];
   newAddr: Scalars['Address'];
   prevAddr?: InputMaybe<Scalars['Address']>;
-};
-
-
-export type MutationUpsertSafeArgs = {
-  accounts?: InputMaybe<Array<AccountInput>>;
-  deploySalt?: InputMaybe<Scalars['Bytes32']>;
-  impl?: InputMaybe<Scalars['Address']>;
-  name?: InputMaybe<Scalars['String']>;
-  safe: Scalars['Address'];
 };
 
 
@@ -1639,6 +1721,8 @@ export type Quorum = {
   hash: Scalars['String'];
   safe: Safe;
   safeId: Scalars['String'];
+  tx?: Maybe<Tx>;
+  txHash?: Maybe<Scalars['String']>;
 };
 
 export type QuorumCount = {
@@ -1648,6 +1732,7 @@ export type QuorumCount = {
 
 export type QuorumCreateManyAccountInput = {
   hash: Scalars['String'];
+  txHash?: InputMaybe<Scalars['String']>;
 };
 
 export type QuorumCreateManyAccountInputEnvelope = {
@@ -1658,6 +1743,7 @@ export type QuorumCreateManyAccountInputEnvelope = {
 export type QuorumCreateManySafeInput = {
   accountRef: Scalars['String'];
   hash: Scalars['String'];
+  txHash?: InputMaybe<Scalars['String']>;
 };
 
 export type QuorumCreateManySafeInputEnvelope = {
@@ -1685,6 +1771,12 @@ export type QuorumCreateNestedOneWithoutApproversInput = {
   create?: InputMaybe<QuorumCreateWithoutApproversInput>;
 };
 
+export type QuorumCreateNestedOneWithoutTxInput = {
+  connect?: InputMaybe<QuorumWhereUniqueInput>;
+  connectOrCreate?: InputMaybe<QuorumCreateOrConnectWithoutTxInput>;
+  create?: InputMaybe<QuorumCreateWithoutTxInput>;
+};
+
 export type QuorumCreateOrConnectWithoutAccountInput = {
   create: QuorumCreateWithoutAccountInput;
   where: QuorumWhereUniqueInput;
@@ -1700,22 +1792,37 @@ export type QuorumCreateOrConnectWithoutSafeInput = {
   where: QuorumWhereUniqueInput;
 };
 
+export type QuorumCreateOrConnectWithoutTxInput = {
+  create: QuorumCreateWithoutTxInput;
+  where: QuorumWhereUniqueInput;
+};
+
 export type QuorumCreateWithoutAccountInput = {
   approvers?: InputMaybe<ApproverCreateNestedManyWithoutQuorumInput>;
   hash: Scalars['String'];
   safe: SafeCreateNestedOneWithoutQuorumsInput;
+  tx?: InputMaybe<TxCreateNestedOneWithoutQuorumTxInput>;
 };
 
 export type QuorumCreateWithoutApproversInput = {
   account: AccountCreateNestedOneWithoutQuorumsInput;
   hash: Scalars['String'];
   safe: SafeCreateNestedOneWithoutQuorumsInput;
+  tx?: InputMaybe<TxCreateNestedOneWithoutQuorumTxInput>;
 };
 
 export type QuorumCreateWithoutSafeInput = {
   account: AccountCreateNestedOneWithoutQuorumsInput;
   approvers?: InputMaybe<ApproverCreateNestedManyWithoutQuorumInput>;
   hash: Scalars['String'];
+  tx?: InputMaybe<TxCreateNestedOneWithoutQuorumTxInput>;
+};
+
+export type QuorumCreateWithoutTxInput = {
+  account: AccountCreateNestedOneWithoutQuorumsInput;
+  approvers?: InputMaybe<ApproverCreateNestedManyWithoutQuorumInput>;
+  hash: Scalars['String'];
+  safe: SafeCreateNestedOneWithoutQuorumsInput;
 };
 
 export type QuorumListRelationFilter = {
@@ -1726,6 +1833,17 @@ export type QuorumListRelationFilter = {
 
 export type QuorumOrderByRelationAggregateInput = {
   _count?: InputMaybe<SortOrder>;
+};
+
+export type QuorumOrderByWithRelationInput = {
+  account?: InputMaybe<AccountOrderByWithRelationInput>;
+  accountRef?: InputMaybe<SortOrder>;
+  approvers?: InputMaybe<ApproverOrderByRelationAggregateInput>;
+  hash?: InputMaybe<SortOrder>;
+  safe?: InputMaybe<SafeOrderByWithRelationInput>;
+  safeId?: InputMaybe<SortOrder>;
+  tx?: InputMaybe<TxOrderByWithRelationInput>;
+  txHash?: InputMaybe<SortOrder>;
 };
 
 export type QuorumRelationFilter = {
@@ -1739,6 +1857,11 @@ export type QuorumSafeIdAccountRefHashCompoundUniqueInput = {
   safeId: Scalars['String'];
 };
 
+export type QuorumSafeIdTxHashCompoundUniqueInput = {
+  safeId: Scalars['String'];
+  txHash: Scalars['String'];
+};
+
 export type QuorumScalarWhereInput = {
   AND?: InputMaybe<Array<QuorumScalarWhereInput>>;
   NOT?: InputMaybe<Array<QuorumScalarWhereInput>>;
@@ -1746,6 +1869,7 @@ export type QuorumScalarWhereInput = {
   accountRef?: InputMaybe<StringFilter>;
   hash?: InputMaybe<StringFilter>;
   safeId?: InputMaybe<StringFilter>;
+  txHash?: InputMaybe<StringNullableFilter>;
 };
 
 export type QuorumUpdateManyMutationInput = {
@@ -1798,6 +1922,16 @@ export type QuorumUpdateOneRequiredWithoutApproversNestedInput = {
   upsert?: InputMaybe<QuorumUpsertWithoutApproversInput>;
 };
 
+export type QuorumUpdateOneWithoutTxNestedInput = {
+  connect?: InputMaybe<QuorumWhereUniqueInput>;
+  connectOrCreate?: InputMaybe<QuorumCreateOrConnectWithoutTxInput>;
+  create?: InputMaybe<QuorumCreateWithoutTxInput>;
+  delete?: InputMaybe<Scalars['Boolean']>;
+  disconnect?: InputMaybe<Scalars['Boolean']>;
+  update?: InputMaybe<QuorumUpdateWithoutTxInput>;
+  upsert?: InputMaybe<QuorumUpsertWithoutTxInput>;
+};
+
 export type QuorumUpdateWithWhereUniqueWithoutAccountInput = {
   data: QuorumUpdateWithoutAccountInput;
   where: QuorumWhereUniqueInput;
@@ -1812,18 +1946,28 @@ export type QuorumUpdateWithoutAccountInput = {
   approvers?: InputMaybe<ApproverUpdateManyWithoutQuorumNestedInput>;
   hash?: InputMaybe<StringFieldUpdateOperationsInput>;
   safe?: InputMaybe<SafeUpdateOneRequiredWithoutQuorumsNestedInput>;
+  tx?: InputMaybe<TxUpdateOneWithoutQuorumTxNestedInput>;
 };
 
 export type QuorumUpdateWithoutApproversInput = {
   account?: InputMaybe<AccountUpdateOneRequiredWithoutQuorumsNestedInput>;
   hash?: InputMaybe<StringFieldUpdateOperationsInput>;
   safe?: InputMaybe<SafeUpdateOneRequiredWithoutQuorumsNestedInput>;
+  tx?: InputMaybe<TxUpdateOneWithoutQuorumTxNestedInput>;
 };
 
 export type QuorumUpdateWithoutSafeInput = {
   account?: InputMaybe<AccountUpdateOneRequiredWithoutQuorumsNestedInput>;
   approvers?: InputMaybe<ApproverUpdateManyWithoutQuorumNestedInput>;
   hash?: InputMaybe<StringFieldUpdateOperationsInput>;
+  tx?: InputMaybe<TxUpdateOneWithoutQuorumTxNestedInput>;
+};
+
+export type QuorumUpdateWithoutTxInput = {
+  account?: InputMaybe<AccountUpdateOneRequiredWithoutQuorumsNestedInput>;
+  approvers?: InputMaybe<ApproverUpdateManyWithoutQuorumNestedInput>;
+  hash?: InputMaybe<StringFieldUpdateOperationsInput>;
+  safe?: InputMaybe<SafeUpdateOneRequiredWithoutQuorumsNestedInput>;
 };
 
 export type QuorumUpsertWithWhereUniqueWithoutAccountInput = {
@@ -1843,6 +1987,11 @@ export type QuorumUpsertWithoutApproversInput = {
   update: QuorumUpdateWithoutApproversInput;
 };
 
+export type QuorumUpsertWithoutTxInput = {
+  create: QuorumCreateWithoutTxInput;
+  update: QuorumUpdateWithoutTxInput;
+};
+
 export type QuorumWhereInput = {
   AND?: InputMaybe<Array<QuorumWhereInput>>;
   NOT?: InputMaybe<Array<QuorumWhereInput>>;
@@ -1853,10 +2002,13 @@ export type QuorumWhereInput = {
   hash?: InputMaybe<StringFilter>;
   safe?: InputMaybe<SafeRelationFilter>;
   safeId?: InputMaybe<StringFilter>;
+  tx?: InputMaybe<TxRelationFilter>;
+  txHash?: InputMaybe<StringNullableFilter>;
 };
 
 export type QuorumWhereUniqueInput = {
   safeId_accountRef_hash?: InputMaybe<QuorumSafeIdAccountRefHashCompoundUniqueInput>;
+  safeId_txHash?: InputMaybe<QuorumSafeIdTxHashCompoundUniqueInput>;
 };
 
 export type Reaction = {
@@ -2688,6 +2840,10 @@ export type SubmissionListRelationFilter = {
   some?: InputMaybe<SubmissionWhereInput>;
 };
 
+export type SubmissionOrderByRelationAggregateInput = {
+  _count?: InputMaybe<SortOrder>;
+};
+
 export type SubmissionScalarWhereInput = {
   AND?: InputMaybe<Array<SubmissionScalarWhereInput>>;
   NOT?: InputMaybe<Array<SubmissionScalarWhereInput>>;
@@ -2772,11 +2928,13 @@ export type SubmissionWhereUniqueInput = {
 export type Tx = {
   __typename?: 'Tx';
   _count: TxCount;
+  accountTx?: Maybe<Account>;
   approvals?: Maybe<Array<Approval>>;
   createdAt: Scalars['DateTime'];
   data: Scalars['String'];
   hash: Scalars['String'];
   id: Scalars['String'];
+  quorumTx?: Maybe<Quorum>;
   safe: Safe;
   safeId: Scalars['String'];
   salt: Scalars['String'];
@@ -2812,14 +2970,36 @@ export type TxCreateNestedManyWithoutSafeInput = {
   createMany?: InputMaybe<TxCreateManySafeInputEnvelope>;
 };
 
+export type TxCreateNestedOneWithoutAccountTxInput = {
+  connect?: InputMaybe<TxWhereUniqueInput>;
+  connectOrCreate?: InputMaybe<TxCreateOrConnectWithoutAccountTxInput>;
+  create?: InputMaybe<TxCreateWithoutAccountTxInput>;
+};
+
 export type TxCreateNestedOneWithoutApprovalsInput = {
   connect?: InputMaybe<TxWhereUniqueInput>;
   connectOrCreate?: InputMaybe<TxCreateOrConnectWithoutApprovalsInput>;
   create?: InputMaybe<TxCreateWithoutApprovalsInput>;
 };
 
+export type TxCreateNestedOneWithoutQuorumTxInput = {
+  connect?: InputMaybe<TxWhereUniqueInput>;
+  connectOrCreate?: InputMaybe<TxCreateOrConnectWithoutQuorumTxInput>;
+  create?: InputMaybe<TxCreateWithoutQuorumTxInput>;
+};
+
+export type TxCreateOrConnectWithoutAccountTxInput = {
+  create: TxCreateWithoutAccountTxInput;
+  where: TxWhereUniqueInput;
+};
+
 export type TxCreateOrConnectWithoutApprovalsInput = {
   create: TxCreateWithoutApprovalsInput;
+  where: TxWhereUniqueInput;
+};
+
+export type TxCreateOrConnectWithoutQuorumTxInput = {
+  create: TxCreateWithoutQuorumTxInput;
   where: TxWhereUniqueInput;
 };
 
@@ -2828,7 +3008,35 @@ export type TxCreateOrConnectWithoutSafeInput = {
   where: TxWhereUniqueInput;
 };
 
+export type TxCreateWithoutAccountTxInput = {
+  approvals?: InputMaybe<ApprovalCreateNestedManyWithoutTxInput>;
+  createdAt?: InputMaybe<Scalars['DateTime']>;
+  data: Scalars['String'];
+  hash: Scalars['String'];
+  quorumTx?: InputMaybe<QuorumCreateNestedOneWithoutTxInput>;
+  safe: SafeCreateNestedOneWithoutTxsInput;
+  salt: Scalars['String'];
+  submissions?: InputMaybe<SubmissionCreateNestedManyWithoutTxInput>;
+  to: Scalars['String'];
+  value: Scalars['String'];
+};
+
 export type TxCreateWithoutApprovalsInput = {
+  accountTx?: InputMaybe<AccountCreateNestedOneWithoutTxInput>;
+  createdAt?: InputMaybe<Scalars['DateTime']>;
+  data: Scalars['String'];
+  hash: Scalars['String'];
+  quorumTx?: InputMaybe<QuorumCreateNestedOneWithoutTxInput>;
+  safe: SafeCreateNestedOneWithoutTxsInput;
+  salt: Scalars['String'];
+  submissions?: InputMaybe<SubmissionCreateNestedManyWithoutTxInput>;
+  to: Scalars['String'];
+  value: Scalars['String'];
+};
+
+export type TxCreateWithoutQuorumTxInput = {
+  accountTx?: InputMaybe<AccountCreateNestedOneWithoutTxInput>;
+  approvals?: InputMaybe<ApprovalCreateNestedManyWithoutTxInput>;
   createdAt?: InputMaybe<Scalars['DateTime']>;
   data: Scalars['String'];
   hash: Scalars['String'];
@@ -2840,10 +3048,12 @@ export type TxCreateWithoutApprovalsInput = {
 };
 
 export type TxCreateWithoutSafeInput = {
+  accountTx?: InputMaybe<AccountCreateNestedOneWithoutTxInput>;
   approvals?: InputMaybe<ApprovalCreateNestedManyWithoutTxInput>;
   createdAt?: InputMaybe<Scalars['DateTime']>;
   data: Scalars['String'];
   hash: Scalars['String'];
+  quorumTx?: InputMaybe<QuorumCreateNestedOneWithoutTxInput>;
   salt: Scalars['String'];
   submissions?: InputMaybe<SubmissionCreateNestedManyWithoutTxInput>;
   to: Scalars['String'];
@@ -2865,6 +3075,21 @@ export type TxListRelationFilter = {
 
 export type TxOrderByRelationAggregateInput = {
   _count?: InputMaybe<SortOrder>;
+};
+
+export type TxOrderByWithRelationInput = {
+  accountTx?: InputMaybe<AccountOrderByWithRelationInput>;
+  approvals?: InputMaybe<ApprovalOrderByRelationAggregateInput>;
+  createdAt?: InputMaybe<SortOrder>;
+  data?: InputMaybe<SortOrder>;
+  hash?: InputMaybe<SortOrder>;
+  quorumTx?: InputMaybe<QuorumOrderByWithRelationInput>;
+  safe?: InputMaybe<SafeOrderByWithRelationInput>;
+  safeId?: InputMaybe<SortOrder>;
+  salt?: InputMaybe<SortOrder>;
+  submissions?: InputMaybe<SubmissionOrderByRelationAggregateInput>;
+  to?: InputMaybe<SortOrder>;
+  value?: InputMaybe<SortOrder>;
 };
 
 export type TxRelationFilter = {
@@ -2926,12 +3151,60 @@ export type TxUpdateOneRequiredWithoutApprovalsNestedInput = {
   upsert?: InputMaybe<TxUpsertWithoutApprovalsInput>;
 };
 
+export type TxUpdateOneWithoutAccountTxNestedInput = {
+  connect?: InputMaybe<TxWhereUniqueInput>;
+  connectOrCreate?: InputMaybe<TxCreateOrConnectWithoutAccountTxInput>;
+  create?: InputMaybe<TxCreateWithoutAccountTxInput>;
+  delete?: InputMaybe<Scalars['Boolean']>;
+  disconnect?: InputMaybe<Scalars['Boolean']>;
+  update?: InputMaybe<TxUpdateWithoutAccountTxInput>;
+  upsert?: InputMaybe<TxUpsertWithoutAccountTxInput>;
+};
+
+export type TxUpdateOneWithoutQuorumTxNestedInput = {
+  connect?: InputMaybe<TxWhereUniqueInput>;
+  connectOrCreate?: InputMaybe<TxCreateOrConnectWithoutQuorumTxInput>;
+  create?: InputMaybe<TxCreateWithoutQuorumTxInput>;
+  delete?: InputMaybe<Scalars['Boolean']>;
+  disconnect?: InputMaybe<Scalars['Boolean']>;
+  update?: InputMaybe<TxUpdateWithoutQuorumTxInput>;
+  upsert?: InputMaybe<TxUpsertWithoutQuorumTxInput>;
+};
+
 export type TxUpdateWithWhereUniqueWithoutSafeInput = {
   data: TxUpdateWithoutSafeInput;
   where: TxWhereUniqueInput;
 };
 
+export type TxUpdateWithoutAccountTxInput = {
+  approvals?: InputMaybe<ApprovalUpdateManyWithoutTxNestedInput>;
+  createdAt?: InputMaybe<DateTimeFieldUpdateOperationsInput>;
+  data?: InputMaybe<StringFieldUpdateOperationsInput>;
+  hash?: InputMaybe<StringFieldUpdateOperationsInput>;
+  quorumTx?: InputMaybe<QuorumUpdateOneWithoutTxNestedInput>;
+  safe?: InputMaybe<SafeUpdateOneRequiredWithoutTxsNestedInput>;
+  salt?: InputMaybe<StringFieldUpdateOperationsInput>;
+  submissions?: InputMaybe<SubmissionUpdateManyWithoutTxNestedInput>;
+  to?: InputMaybe<StringFieldUpdateOperationsInput>;
+  value?: InputMaybe<StringFieldUpdateOperationsInput>;
+};
+
 export type TxUpdateWithoutApprovalsInput = {
+  accountTx?: InputMaybe<AccountUpdateOneWithoutTxNestedInput>;
+  createdAt?: InputMaybe<DateTimeFieldUpdateOperationsInput>;
+  data?: InputMaybe<StringFieldUpdateOperationsInput>;
+  hash?: InputMaybe<StringFieldUpdateOperationsInput>;
+  quorumTx?: InputMaybe<QuorumUpdateOneWithoutTxNestedInput>;
+  safe?: InputMaybe<SafeUpdateOneRequiredWithoutTxsNestedInput>;
+  salt?: InputMaybe<StringFieldUpdateOperationsInput>;
+  submissions?: InputMaybe<SubmissionUpdateManyWithoutTxNestedInput>;
+  to?: InputMaybe<StringFieldUpdateOperationsInput>;
+  value?: InputMaybe<StringFieldUpdateOperationsInput>;
+};
+
+export type TxUpdateWithoutQuorumTxInput = {
+  accountTx?: InputMaybe<AccountUpdateOneWithoutTxNestedInput>;
+  approvals?: InputMaybe<ApprovalUpdateManyWithoutTxNestedInput>;
   createdAt?: InputMaybe<DateTimeFieldUpdateOperationsInput>;
   data?: InputMaybe<StringFieldUpdateOperationsInput>;
   hash?: InputMaybe<StringFieldUpdateOperationsInput>;
@@ -2943,10 +3216,12 @@ export type TxUpdateWithoutApprovalsInput = {
 };
 
 export type TxUpdateWithoutSafeInput = {
+  accountTx?: InputMaybe<AccountUpdateOneWithoutTxNestedInput>;
   approvals?: InputMaybe<ApprovalUpdateManyWithoutTxNestedInput>;
   createdAt?: InputMaybe<DateTimeFieldUpdateOperationsInput>;
   data?: InputMaybe<StringFieldUpdateOperationsInput>;
   hash?: InputMaybe<StringFieldUpdateOperationsInput>;
+  quorumTx?: InputMaybe<QuorumUpdateOneWithoutTxNestedInput>;
   salt?: InputMaybe<StringFieldUpdateOperationsInput>;
   submissions?: InputMaybe<SubmissionUpdateManyWithoutTxNestedInput>;
   to?: InputMaybe<StringFieldUpdateOperationsInput>;
@@ -2959,19 +3234,31 @@ export type TxUpsertWithWhereUniqueWithoutSafeInput = {
   where: TxWhereUniqueInput;
 };
 
+export type TxUpsertWithoutAccountTxInput = {
+  create: TxCreateWithoutAccountTxInput;
+  update: TxUpdateWithoutAccountTxInput;
+};
+
 export type TxUpsertWithoutApprovalsInput = {
   create: TxCreateWithoutApprovalsInput;
   update: TxUpdateWithoutApprovalsInput;
+};
+
+export type TxUpsertWithoutQuorumTxInput = {
+  create: TxCreateWithoutQuorumTxInput;
+  update: TxUpdateWithoutQuorumTxInput;
 };
 
 export type TxWhereInput = {
   AND?: InputMaybe<Array<TxWhereInput>>;
   NOT?: InputMaybe<Array<TxWhereInput>>;
   OR?: InputMaybe<Array<TxWhereInput>>;
+  accountTx?: InputMaybe<AccountRelationFilter>;
   approvals?: InputMaybe<ApprovalListRelationFilter>;
   createdAt?: InputMaybe<DateTimeFilter>;
   data?: InputMaybe<StringFilter>;
   hash?: InputMaybe<StringFilter>;
+  quorumTx?: InputMaybe<QuorumRelationFilter>;
   safe?: InputMaybe<SafeRelationFilter>;
   safeId?: InputMaybe<StringFilter>;
   salt?: InputMaybe<StringFilter>;
@@ -3213,13 +3500,29 @@ export type UserWhereUniqueInput = {
   id?: InputMaybe<Scalars['String']>;
 };
 
-export type UpsertAccountMutationVariables = Exact<{
-  account: AccountInput;
-  safe: Scalars['Address'];
+export type DeleteAccountMutationVariables = Exact<{
+  id: AccountId;
 }>;
 
 
-export type UpsertAccountMutation = { __typename?: 'Mutation', upsertAccount?: { __typename?: 'Account', id: string, safeId: string, ref: string, name: string, quorums?: Array<{ __typename?: 'Quorum', approvers?: Array<{ __typename?: 'Approver', userId: string }> | null }> | null } | null };
+export type DeleteAccountMutation = { __typename?: 'Mutation', deleteAccount: boolean };
+
+export type SetAccountNameMutationVariables = Exact<{
+  id: AccountId;
+  name: Scalars['String'];
+}>;
+
+
+export type SetAccountNameMutation = { __typename?: 'Mutation', setAccountName: { __typename?: 'Account', id: string, safeId: string, ref: string, name: string, quorums?: Array<{ __typename?: 'Quorum', approvers?: Array<{ __typename?: 'Approver', userId: string }> | null }> | null } };
+
+export type SetAccountQuorumsMutationVariables = Exact<{
+  setQuroumsId: AccountId;
+  quorums: Array<Scalars['QuorumScalar']> | Scalars['QuorumScalar'];
+  txHash: Scalars['Bytes32'];
+}>;
+
+
+export type SetAccountQuorumsMutation = { __typename?: 'Mutation', setAccountQuroums?: { __typename?: 'Account', id: string, safeId: string, ref: string, name: string, quorums?: Array<{ __typename?: 'Quorum', approvers?: Array<{ __typename?: 'Approver', userId: string }> | null }> | null } | null };
 
 export type CreateCommentMutationVariables = Exact<{
   safe: Scalars['Address'];
@@ -3265,16 +3568,16 @@ export type UpsertContactMutationVariables = Exact<{
 
 export type UpsertContactMutation = { __typename?: 'Mutation', upsertContact?: { __typename?: 'Contact', id: string, addr: string, name: string } | null };
 
-export type UpsertSafeMutationVariables = Exact<{
+export type CreateSafeMutationVariables = Exact<{
   safe: Scalars['Address'];
-  impl?: InputMaybe<Scalars['Address']>;
-  deploySalt?: InputMaybe<Scalars['Bytes32']>;
-  name?: InputMaybe<Scalars['String']>;
-  accounts?: InputMaybe<Array<AccountInput> | AccountInput>;
+  impl: Scalars['Address'];
+  deploySalt: Scalars['Bytes32'];
+  name: Scalars['String'];
+  accounts: Array<AccountWithoutSafeInput> | AccountWithoutSafeInput;
 }>;
 
 
-export type UpsertSafeMutation = { __typename?: 'Mutation', upsertSafe: { __typename?: 'Safe', id: string, name: string, impl?: string | null, deploySalt?: string | null, accounts?: Array<{ __typename?: 'Account', id: string, safeId: string, ref: string, name: string, quorums?: Array<{ __typename?: 'Quorum', approvers?: Array<{ __typename?: 'Approver', userId: string }> | null }> | null }> | null } };
+export type CreateSafeMutation = { __typename?: 'Mutation', createSafe: { __typename?: 'Safe', id: string, name: string, impl?: string | null, deploySalt?: string | null, accounts?: Array<{ __typename?: 'Account', id: string, safeId: string, ref: string, name: string, quorums?: Array<{ __typename?: 'Quorum', approvers?: Array<{ __typename?: 'Approver', userId: string }> | null }> | null }> | null } };
 
 export type SubmitTxExecutionMutationVariables = Exact<{
   safe: Scalars['Address'];
@@ -3461,40 +3764,106 @@ export const ContactFieldsFragmentDoc = gql`
   name
 }
     `;
-export const UpsertAccountDocument = gql`
-    mutation UpsertAccount($account: AccountInput!, $safe: Address!) {
-  upsertAccount(account: $account, safe: $safe) {
-    ...AccountFields
-  }
+export const DeleteAccountDocument = gql`
+    mutation DeleteAccount($id: AccountId!) {
+  deleteAccount(id: $id)
 }
-    ${AccountFieldsFragmentDoc}`;
-export type UpsertAccountMutationFn = Apollo.MutationFunction<UpsertAccountMutation, UpsertAccountMutationVariables>;
+    `;
+export type DeleteAccountMutationFn = Apollo.MutationFunction<DeleteAccountMutation, DeleteAccountMutationVariables>;
 
 /**
- * __useUpsertAccountMutation__
+ * __useDeleteAccountMutation__
  *
- * To run a mutation, you first call `useUpsertAccountMutation` within a React component and pass it any options that fit your needs.
- * When your component renders, `useUpsertAccountMutation` returns a tuple that includes:
+ * To run a mutation, you first call `useDeleteAccountMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useDeleteAccountMutation` returns a tuple that includes:
  * - A mutate function that you can call at any time to execute the mutation
  * - An object with fields that represent the current status of the mutation's execution
  *
  * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
  *
  * @example
- * const [upsertAccountMutation, { data, loading, error }] = useUpsertAccountMutation({
+ * const [deleteAccountMutation, { data, loading, error }] = useDeleteAccountMutation({
  *   variables: {
- *      account: // value for 'account'
- *      safe: // value for 'safe'
+ *      id: // value for 'id'
  *   },
  * });
  */
-export function useUpsertAccountMutation(baseOptions?: Apollo.MutationHookOptions<UpsertAccountMutation, UpsertAccountMutationVariables>) {
+export function useDeleteAccountMutation(baseOptions?: Apollo.MutationHookOptions<DeleteAccountMutation, DeleteAccountMutationVariables>) {
         const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useMutation<UpsertAccountMutation, UpsertAccountMutationVariables>(UpsertAccountDocument, options);
+        return Apollo.useMutation<DeleteAccountMutation, DeleteAccountMutationVariables>(DeleteAccountDocument, options);
       }
-export type UpsertAccountMutationHookResult = ReturnType<typeof useUpsertAccountMutation>;
-export type UpsertAccountMutationResult = Apollo.MutationResult<UpsertAccountMutation>;
-export type UpsertAccountMutationOptions = Apollo.BaseMutationOptions<UpsertAccountMutation, UpsertAccountMutationVariables>;
+export type DeleteAccountMutationHookResult = ReturnType<typeof useDeleteAccountMutation>;
+export type DeleteAccountMutationResult = Apollo.MutationResult<DeleteAccountMutation>;
+export type DeleteAccountMutationOptions = Apollo.BaseMutationOptions<DeleteAccountMutation, DeleteAccountMutationVariables>;
+export const SetAccountNameDocument = gql`
+    mutation SetAccountName($id: AccountId!, $name: String!) {
+  setAccountName(id: $id, name: $name) {
+    ...AccountFields
+  }
+}
+    ${AccountFieldsFragmentDoc}`;
+export type SetAccountNameMutationFn = Apollo.MutationFunction<SetAccountNameMutation, SetAccountNameMutationVariables>;
+
+/**
+ * __useSetAccountNameMutation__
+ *
+ * To run a mutation, you first call `useSetAccountNameMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useSetAccountNameMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [setAccountNameMutation, { data, loading, error }] = useSetAccountNameMutation({
+ *   variables: {
+ *      id: // value for 'id'
+ *      name: // value for 'name'
+ *   },
+ * });
+ */
+export function useSetAccountNameMutation(baseOptions?: Apollo.MutationHookOptions<SetAccountNameMutation, SetAccountNameMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<SetAccountNameMutation, SetAccountNameMutationVariables>(SetAccountNameDocument, options);
+      }
+export type SetAccountNameMutationHookResult = ReturnType<typeof useSetAccountNameMutation>;
+export type SetAccountNameMutationResult = Apollo.MutationResult<SetAccountNameMutation>;
+export type SetAccountNameMutationOptions = Apollo.BaseMutationOptions<SetAccountNameMutation, SetAccountNameMutationVariables>;
+export const SetAccountQuorumsDocument = gql`
+    mutation SetAccountQuorums($setQuroumsId: AccountId!, $quorums: [QuorumScalar!]!, $txHash: Bytes32!) {
+  setAccountQuroums(id: $setQuroumsId, quorums: $quorums, txHash: $txHash) {
+    ...AccountFields
+  }
+}
+    ${AccountFieldsFragmentDoc}`;
+export type SetAccountQuorumsMutationFn = Apollo.MutationFunction<SetAccountQuorumsMutation, SetAccountQuorumsMutationVariables>;
+
+/**
+ * __useSetAccountQuorumsMutation__
+ *
+ * To run a mutation, you first call `useSetAccountQuorumsMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useSetAccountQuorumsMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [setAccountQuorumsMutation, { data, loading, error }] = useSetAccountQuorumsMutation({
+ *   variables: {
+ *      setQuroumsId: // value for 'setQuroumsId'
+ *      quorums: // value for 'quorums'
+ *      txHash: // value for 'txHash'
+ *   },
+ * });
+ */
+export function useSetAccountQuorumsMutation(baseOptions?: Apollo.MutationHookOptions<SetAccountQuorumsMutation, SetAccountQuorumsMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<SetAccountQuorumsMutation, SetAccountQuorumsMutationVariables>(SetAccountQuorumsDocument, options);
+      }
+export type SetAccountQuorumsMutationHookResult = ReturnType<typeof useSetAccountQuorumsMutation>;
+export type SetAccountQuorumsMutationResult = Apollo.MutationResult<SetAccountQuorumsMutation>;
+export type SetAccountQuorumsMutationOptions = Apollo.BaseMutationOptions<SetAccountQuorumsMutation, SetAccountQuorumsMutationVariables>;
 export const CreateCommentDocument = gql`
     mutation CreateComment($safe: Address!, $key: Id!, $content: String!) {
   createComment(safe: $safe, key: $key, content: $content) {
@@ -3669,39 +4038,37 @@ export function useUpsertContactMutation(baseOptions?: Apollo.MutationHookOption
 export type UpsertContactMutationHookResult = ReturnType<typeof useUpsertContactMutation>;
 export type UpsertContactMutationResult = Apollo.MutationResult<UpsertContactMutation>;
 export type UpsertContactMutationOptions = Apollo.BaseMutationOptions<UpsertContactMutation, UpsertContactMutationVariables>;
-export const UpsertSafeDocument = gql`
-    mutation UpsertSafe($safe: Address!, $impl: Address, $deploySalt: Bytes32, $name: String, $accounts: [AccountInput!]) {
-  upsertSafe(
+export const CreateSafeDocument = gql`
+    mutation CreateSafe($safe: Address!, $impl: Address!, $deploySalt: Bytes32!, $name: String!, $accounts: [AccountWithoutSafeInput!]!) {
+  createSafe(
     safe: $safe
     impl: $impl
     deploySalt: $deploySalt
     name: $name
     accounts: $accounts
   ) {
-    id
-    name
-    impl
-    deploySalt
+    ...SafeFields
     accounts {
       ...AccountFields
     }
   }
 }
-    ${AccountFieldsFragmentDoc}`;
-export type UpsertSafeMutationFn = Apollo.MutationFunction<UpsertSafeMutation, UpsertSafeMutationVariables>;
+    ${SafeFieldsFragmentDoc}
+${AccountFieldsFragmentDoc}`;
+export type CreateSafeMutationFn = Apollo.MutationFunction<CreateSafeMutation, CreateSafeMutationVariables>;
 
 /**
- * __useUpsertSafeMutation__
+ * __useCreateSafeMutation__
  *
- * To run a mutation, you first call `useUpsertSafeMutation` within a React component and pass it any options that fit your needs.
- * When your component renders, `useUpsertSafeMutation` returns a tuple that includes:
+ * To run a mutation, you first call `useCreateSafeMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useCreateSafeMutation` returns a tuple that includes:
  * - A mutate function that you can call at any time to execute the mutation
  * - An object with fields that represent the current status of the mutation's execution
  *
  * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
  *
  * @example
- * const [upsertSafeMutation, { data, loading, error }] = useUpsertSafeMutation({
+ * const [createSafeMutation, { data, loading, error }] = useCreateSafeMutation({
  *   variables: {
  *      safe: // value for 'safe'
  *      impl: // value for 'impl'
@@ -3711,13 +4078,13 @@ export type UpsertSafeMutationFn = Apollo.MutationFunction<UpsertSafeMutation, U
  *   },
  * });
  */
-export function useUpsertSafeMutation(baseOptions?: Apollo.MutationHookOptions<UpsertSafeMutation, UpsertSafeMutationVariables>) {
+export function useCreateSafeMutation(baseOptions?: Apollo.MutationHookOptions<CreateSafeMutation, CreateSafeMutationVariables>) {
         const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useMutation<UpsertSafeMutation, UpsertSafeMutationVariables>(UpsertSafeDocument, options);
+        return Apollo.useMutation<CreateSafeMutation, CreateSafeMutationVariables>(CreateSafeDocument, options);
       }
-export type UpsertSafeMutationHookResult = ReturnType<typeof useUpsertSafeMutation>;
-export type UpsertSafeMutationResult = Apollo.MutationResult<UpsertSafeMutation>;
-export type UpsertSafeMutationOptions = Apollo.BaseMutationOptions<UpsertSafeMutation, UpsertSafeMutationVariables>;
+export type CreateSafeMutationHookResult = ReturnType<typeof useCreateSafeMutation>;
+export type CreateSafeMutationResult = Apollo.MutationResult<CreateSafeMutation>;
+export type CreateSafeMutationOptions = Apollo.BaseMutationOptions<CreateSafeMutation, CreateSafeMutationVariables>;
 export const SubmitTxExecutionDocument = gql`
     mutation SubmitTxExecution($safe: Address!, $txHash: Bytes32!, $submission: SubmissionInput!) {
   submitTxExecution(safe: $safe, txHash: $txHash, submission: $submission) {

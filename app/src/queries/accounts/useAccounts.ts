@@ -1,4 +1,4 @@
-import { filterFirst, hashQuorum, toQuorums } from 'lib';
+import { filterFirst, hashQuorum } from 'lib';
 import { combineRest, combine, simpleKeyExtractor } from '@gql/combine';
 import { CombinedAccount } from '.';
 import { useApiUserAccounts } from './useAccounts.api';
@@ -16,10 +16,11 @@ export const useAccounts = () => {
       safeAddr: s?.safeAddr || a!.safeAddr,
       ref: s?.ref || a!.ref,
       name: a?.name ?? '',
-      quorums: toQuorums(
-        filterFirst([...(s?.quorums ?? []), ...(a?.quorums ?? [])], (quorum) =>
-          hashQuorum(quorum),
-        ),
+      active: s?.active,
+      quorums: filterFirst(
+        [...(s?.quorums ?? []), ...(a?.quorums ?? [])],
+        (q) => hashQuorum(q.approvers),
+        (a, b) => Number(b.active) - Number(a.active),
       ),
     }),
   });

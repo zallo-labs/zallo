@@ -4,13 +4,13 @@ import { GraphQLResolveInfo } from 'graphql';
 
 import { Safe } from '@gen/safe/safe.model';
 import { FindManySafeArgs } from '@gen/safe/find-many-safe.args';
-import { SafeArgs, UpsertSafeArgs } from './safes.args';
+import { SafeArgs, UpsertSafeArgs as CreateSafeArgs } from './safes.args';
 import { getSelect } from '~/util/select';
 import {
   connectOrCreateSafe,
   connectOrCreateUser,
 } from '~/util/connect-or-create';
-import { address, Address, hashQuorum } from 'lib';
+import { address, Address, DEPLOY_TX_HASH, hashQuorum, ZERO_ADDR } from 'lib';
 import { QuorumCreateOrConnectWithoutAccountInput } from '@gen/quorum/quorum-create-or-connect-without-account.input';
 import { Prisma } from '@prisma/client';
 import { UserAddr } from '~/decorators/user.decorator';
@@ -71,31 +71,28 @@ export class SafesResolver {
   }
 
   @Mutation(() => Safe)
-  async upsertSafe(
-    @Args() { safe, deploySalt, impl, name, accounts }: UpsertSafeArgs,
+  async createSafe(
+    @Args() { safe, deploySalt, impl, name, accounts }: CreateSafeArgs,
     @Info() info: GraphQLResolveInfo,
   ): Promise<Safe> {
-    return this.prisma.safe.upsert({
-      where: { id: safe },
-      create: {
+    return this.prisma.safe.create({
+      data: {
         id: safe,
         deploySalt,
         impl,
         name,
         ...(accounts && {
           accounts: {
-            create: accounts.map((a) => ({
-              ref: a.ref,
-              name: a.name,
-              quorums: {
-                create: a.quorums.map((quorum) => ({
-                  hash: hashQuorum(quorum),
-                  approvers: {
-                    create: quorum.map(
-                      (approver): Prisma.ApproverCreateWithoutQuorumInput => ({
-                        safe: {
-                          connect: { id: safe },
-                        },
+            create: accounts.map(
+              (a): Prisma.AccountUncheckedCreateWithoutSafeInput => ({
+                ref: a.ref,
+                name: a.name,
+                quorums: {
+                  create: a.quorums.map((quorum) => ({
+                    hash: hashQuorum(quorum),
+                    approvers: {
+                      create: quorum.map((approver) => ({
+                        safe: { connect: { id: safe } },
                         account: {
                           connect: {
                             safeId_ref: {
@@ -105,76 +102,12 @@ export class SafesResolver {
                           },
                         },
                         user: connectOrCreateUser(approver),
-                      }),
-                    ),
-                  },
-                })),
-              },
-            })),
-          },
-        }),
-      },
-      update: {
-        ...(name && { name: { set: name } }),
-        ...(deploySalt && { deploySalt: { set: deploySalt } }),
-        ...(impl && { impl: { set: impl } }),
-        ...(accounts && {
-          accounts: {
-            upsert: accounts.map((a) => ({
-              where: {
-                safeId_ref: {
-                  safeId: safe,
-                  ref: a.ref,
-                },
-              },
-              create: {
-                ref: a.ref,
-                name: a.ref,
-                quorums: {
-                  create: a.quorums.map((quorum) => ({
-                    hash: hashQuorum(quorum),
-                    approvers: {
-                      createMany: {
-                        data: quorum.map((approver) => ({
-                          userId: approver,
-                        })),
-                      },
+                      })),
                     },
                   })),
                 },
-              },
-              update: {
-                name: { set: a.name },
-                quorums: {
-                  connectOrCreate: a.quorums.map(
-                    (q): QuorumCreateOrConnectWithoutAccountInput => {
-                      const hash = hashQuorum(q);
-
-                      return {
-                        where: {
-                          safeId_accountRef_hash: {
-                            safeId: safe,
-                            accountRef: a.ref,
-                            hash,
-                          },
-                        },
-                        create: {
-                          safe: connectOrCreateSafe(safe),
-                          hash,
-                          approvers: {
-                            createMany: {
-                              data: q.map((approver) => ({
-                                userId: approver,
-                              })),
-                            },
-                          },
-                        },
-                      };
-                    },
-                  ),
-                },
-              },
-            })),
+              }),
+            ),
           },
         }),
       },

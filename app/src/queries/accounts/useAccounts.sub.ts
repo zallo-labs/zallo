@@ -1,8 +1,12 @@
 import { gql, useQuery } from '@apollo/client';
 import { useWallet } from '@features/wallet/useWallet';
 import { useSubgraphClient } from '@gql/GqlProvider';
-import { address, toAccountRef, toId, toQuorum, toQuorums } from 'lib';
-import { CombinedAccount, QUERY_ACCOUNTS_POLL_INTERVAL } from '.';
+import { address, toAccountRef, toId, toQuorum } from 'lib';
+import {
+  CombinedAccount,
+  CombinedQuorum,
+  QUERY_ACCOUNTS_POLL_INTERVAL,
+} from '.';
 import { useMemo } from 'react';
 import {
   UserAccountsQuery,
@@ -51,11 +55,12 @@ export const useSubUserAccounts = () => {
         id: toId(account.id),
         safeAddr: address(account.safe.id),
         ref: toAccountRef(account.ref),
-        name: "",
-        quorums: toQuorums(
-          account.quorums.map((quorum) =>
-            toQuorum(quorum.approvers.map((a) => address(a.id))),
-          ),
+        name: '',
+        quorums: account.quorums.map(
+          (quorum): CombinedQuorum => ({
+            approvers: toQuorum(quorum.approvers.map((a) => address(a.id))),
+            active: true,
+          }),
         ),
       })) ?? [],
     [data?.user?.quorums],
