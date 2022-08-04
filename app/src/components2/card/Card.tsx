@@ -76,6 +76,8 @@ export type CardProps = Omit<InternalProps, 'children'> &
     children?: ReactNode;
   };
 
+const borderRadius = 12;
+
 export const Card = ({
   children,
   onPress,
@@ -83,14 +85,14 @@ export const Card = ({
   elevation = 2,
   ...props
 }: CardProps) => {
-  const { colors, roundness } = useTheme();
+  const { colors } = useTheme();
 
   return (
     <TouchableRipple
       onPress={onPress}
       onLongPress={onLongPress}
       borderless
-      style={{ borderRadius: roundness }}
+      style={{ borderRadius }}
     >
       <Internal
         backgroundColor={
@@ -98,6 +100,7 @@ export const Card = ({
           colors.elevation.level1
         }
         {...(props as any)}
+        style={[{ borderRadius }, props.style]}
       >
         {children}
       </Internal>
