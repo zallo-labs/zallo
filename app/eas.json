@@ -1,0 +1,26 @@
+{
+  "cli": {
+    "version": ">= 0.57.0",
+    "requireCommit": true
+  },
+  "build": {
+    "production": {
+      "node": "16.14.2",
+      "env": {
+        "ENTRY_FILE": "./__generated__/AppEntry.js"
+      }
+    },
+    "preview": {
+      "extends": "production",
+      "distribution": "internal"
+    },
+    "development": {
+      "extends": "production",
+      "distribution": "internal",
+      "developmentClient": true
+    }
+  },
+  "submit": {
+    "production": {}
+  }
+}
