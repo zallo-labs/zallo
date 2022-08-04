@@ -8,7 +8,7 @@ import { useCallback } from 'react';
 import { FormikTextField } from '@components/fields/FormikTextField';
 import { FormikSubmitFab } from '@components/fields/FormikSubmitFab';
 import { CheckIcon } from '@util/theme/icons';
-import { useCreateApiSafe } from '~/mutations/safe/useCreateApiSafe';
+import { useCreateApiSafe } from '~/mutations/safe/useCreateSafe.api';
 
 const initialValues = {
   safeName: '',

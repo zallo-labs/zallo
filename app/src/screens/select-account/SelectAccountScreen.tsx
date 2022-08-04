@@ -15,7 +15,7 @@ export const SelectAccountScreen = ({
   navigation,
 }: SelectAccountScreenProps) => {
   const { accounts } = useAccounts();
-  const { AppbarHeader, scrollHandler } = useAppbarHeader();
+  const { AppbarHeader, handleScroll } = useAppbarHeader();
   const setSelected = useSelectAccount();
 
   return (
@@ -32,15 +32,13 @@ export const SelectAccountScreen = ({
           renderItem={({ item }) => (
             <AccountCard
               account={item}
-              cardProps={{
-                onPress: () => {
-                  setSelected(item);
-                  navigation.goBack();
-                },
+              onPress={() => {
+                setSelected(item);
+                navigation.goBack();
               }}
             />
           )}
-          onScroll={scrollHandler}
+          onScroll={handleScroll}
           showsVerticalScrollIndicator={false}
         />
       </Box>

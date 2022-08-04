@@ -1,5 +1,5 @@
 import { Box } from '@components/Box';
-import { ListScreenSkeleton } from '@components/ListScreenSkeleton';
+import { ListScreenSkeleton } from '@components/skeleton/ListScreenSkeleton';
 import { withSkeleton } from '@components/skeleton/withSkeleton';
 import { useNavigation } from '@react-navigation/native';
 import { MenuIcon, PlusIcon } from '@util/theme/icons';
@@ -12,7 +12,7 @@ import { useAccounts } from '~/queries/accounts/useAccounts';
 
 export const AccountsScreen = withSkeleton(() => {
   const { navigate } = useNavigation<BottomNavigatorProps['navigation']>();
-  const { AppbarHeader, scrollHandler } = useAppbarHeader();
+  const { AppbarHeader, handleScroll } = useAppbarHeader();
   const { accounts } = useAccounts();
 
   return (
@@ -22,7 +22,10 @@ export const AccountsScreen = withSkeleton(() => {
 
         <Appbar.Content title="Accounts" />
 
-        <Appbar.Action icon={PlusIcon} onPress={() => navigate('CreateFirstAccount')} />
+        <Appbar.Action
+          icon={PlusIcon}
+          onPress={() => navigate('CreateFirstAccount')}
+        />
       </AppbarHeader>
 
       <Box m={3}>
@@ -32,10 +35,10 @@ export const AccountsScreen = withSkeleton(() => {
           renderItem={({ item: account }) => (
             <AccountCard
               account={account}
-              onPress={() => navigate('Account', { account })}
+              onPress={() => navigate('Account', { id: account })}
             />
           )}
-          onScroll={scrollHandler}
+          onScroll={handleScroll}
         />
       </Box>
     </Box>

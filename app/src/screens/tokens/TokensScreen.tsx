@@ -1,6 +1,6 @@
 import { AppbarBack } from '@components/AppbarBack';
 import { Box } from '@components/Box';
-import { ListScreenSkeleton } from '@components/ListScreenSkeleton';
+import { ListScreenSkeleton } from '@components/skeleton/ListScreenSkeleton';
 import { withSkeleton } from '@components/skeleton/withSkeleton';
 import { useAppbarHeader } from '~/components2/Appbar/useAppbarHeader';
 import { PlusIcon } from '@util/theme/icons';
@@ -22,7 +22,7 @@ export type TokensScreenProps = RootNavigatorScreenProps<'Tokens'>;
 export const TokensScreen = withSkeleton(
   ({ navigation, route }: TokensScreenProps) => {
     const { onSelect } = route.params;
-    const { AppbarHeader, scrollHandler } = useAppbarHeader();
+    const { AppbarHeader, handleScroll } = useAppbarHeader();
     const [tokens, searchProps] = useFuzzySearch(useTokens(), [
       'name',
       'symbol',
@@ -40,7 +40,6 @@ export const TokensScreen = withSkeleton(
 
         <Box mx={3}>
           <FlatList
-            data={tokens}
             renderItem={({ item }) => (
               <TokenBalanceCard
                 token={item}
@@ -53,8 +52,9 @@ export const TokensScreen = withSkeleton(
               />
             )}
             ItemSeparatorComponent={() => <Box my={2} />}
+            data={tokens}
             showsVerticalScrollIndicator={false}
-            onScroll={scrollHandler}
+            onScroll={handleScroll}
           />
         </Box>
 

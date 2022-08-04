@@ -2,12 +2,12 @@ import { useState, useCallback, ComponentPropsWithoutRef } from 'react';
 import { NativeSyntheticEvent, NativeScrollEvent } from 'react-native';
 import { Appbar } from 'react-native-paper';
 
-type AppbarHeaderProps = ComponentPropsWithoutRef<typeof Appbar.Header>;
+export type AppbarHeaderProps = ComponentPropsWithoutRef<typeof Appbar.Header>;
 
 export const useAppbarHeader = () => {
   const [hasScrolled, setHasScrolled] = useState(false);
 
-  const scrollHandler = useCallback(
+  const handleScroll = useCallback(
     ({ nativeEvent }: NativeSyntheticEvent<NativeScrollEvent>) => {
       const newHasScrolled = nativeEvent.contentOffset.y > 0;
       if (hasScrolled !== newHasScrolled) setHasScrolled(newHasScrolled);
@@ -22,5 +22,5 @@ export const useAppbarHeader = () => {
     [hasScrolled],
   );
 
-  return { AppbarHeader, scrollHandler };
+  return { AppbarHeader, handleScroll };
 };

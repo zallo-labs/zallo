@@ -1,9 +1,4 @@
-import { HomeScreenProps } from '@features/home/HomeScreen';
-import { useNavigation } from '@react-navigation/native';
 import { Appbar } from 'react-native-paper';
+import { useGoBack } from '~/components2/Appbar/useGoBack';
 
-export const AppbarBack = () => {
-  const navigation = useNavigation<HomeScreenProps['navigation']>();
-
-  return <Appbar.BackAction onPress={navigation.goBack} />;
-};
+export const AppbarBack = () => <Appbar.BackAction onPress={useGoBack()} />;
