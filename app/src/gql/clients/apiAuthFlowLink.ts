@@ -7,8 +7,8 @@ import { tryAcquire, E_ALREADY_LOCKED, Mutex } from 'async-mutex';
 import * as zk from 'zksync-web3';
 import { CONFIG } from '~/config';
 import { PROVIDER } from '~/provider';
-import { useWallet, walletState } from '@features/wallet/useWallet';
-import { atom, selector, useRecoilState } from 'recoil';
+import { useWallet } from '@features/wallet/useWallet';
+import { atom, useRecoilState } from 'recoil';
 import { getSecureStore, persistAtom } from '@util/effect/persistAtom';
 import { useCallback, useMemo, useRef } from 'react';
 
@@ -104,6 +104,8 @@ export const useAuthFlowLink = () => {
       onError(({ networkError, forward, operation }) => {
         if (isServerError(networkError) && networkError.statusCode === 401) {
           fromPromise(reset()).flatMap(() => forward(operation));
+        } else {
+          console.log(JSON.stringify(networkError));
         }
       }),
     [reset],
