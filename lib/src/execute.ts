@@ -6,7 +6,7 @@ import * as zk from 'zksync-web3';
 import { Eip712Meta, TransactionRequest } from 'zksync-web3/build/src/types';
 import { defaultAbiCoder } from 'ethers/lib/utils';
 import { EIP712_TX_TYPE } from 'zksync-web3/build/src/utils';
-import { TransactionStruct } from './contracts/contracts/Safe';
+import { TransactionStruct } from './contracts/Safe';
 import { Account } from './account';
 
 const toPartialTransactionRequest = (tx: TxReq): TransactionRequest => ({

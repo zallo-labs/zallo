@@ -4,13 +4,12 @@
   "main": "dist/index",
   "types": "dist/index",
   "scripts": {
-    "build": "yarn generate && tsc --build",
-    "generate:contracts": "(cd .. && yarn config-ws build && yarn contracts typechain)",
-    "generate:typechain": "yarn typechain --target ethers-v5 --out-dir ./src/typechain './abi/*.json'",
-    "generate": "yarn generate:contracts && yarn generate:typechain",
-    "typechain": "typechain",
-    "clean": "npx rimraf dist",
     "start": "yarn build --watch",
+    "build": "yarn generate && tsc --build",
+    "generate": "yarn generate:contracts && yarn generate:typechain",
+    "generate:contracts": "typechain --target ethers-v5 --out-dir ./src/contracts --input-dir '../contracts/abi' '../contracts/abi/*.json'",
+    "generate:typechain": "typechain --target ethers-v5 --out-dir ./src/typechain './abi/*.json'",
+    "clean": "npx rimraf dist",
     "test": "jest"
   },
   "dependencies": {

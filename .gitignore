@@ -34,7 +34,6 @@ app/.vscode/.react
 
 
 ## Contracts
-contracts/abi
 contracts/artifacts
 contracts/artifacts-zk
 contracts/cache-zk
