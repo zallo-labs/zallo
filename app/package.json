@@ -5,15 +5,16 @@
   "main": "__generated__/AppEntry.js",
   "scripts": {
     "postinstall": "expo-yarn-workspaces postinstall",
-    "publish": "expo publish --non-interactive",
-    "prebuild": "yarn build:libs && yarn typecheck",
-    "eas-build-post-install": "yarn build:libs",
+    "prebuild": "yarn build:libs",
+    "eas-build-post-install": "yarn prebuild",
     "build:web": "yarn prebuild && expo build:web",
     "start": "expo start",
     "start:android": "yarn start --android",
     "test": "yarn typecheck && jest --forceExit",
     "typecheck": "tsc --noEmit",
     "generate": "DOTENV_CONFIG_PATH=\"../.env\" graphql-codegen --require dotenv/config --config codegen.yml",
+    "eas:build": "eas build --platform all --non-interactive",
+    "eas:publish-update": "eas update --auto",
     "clean": "rimraf web-build"
   },
   "expo-yarn-workspaces": {

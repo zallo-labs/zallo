@@ -90,12 +90,16 @@ jobs:
         with:
           token: ${{ secrets.EXPO_TOKEN }}
           expo-version: latest
+          eas-version: latest
 
       - name: 📦 Install
         run: yarn install
 
-      - name: 🏗️ Build Libs
-        run: yarn build:libs
+      - name: 🏗️ Prebuild
+        run: yarn app prebuild
 
-      - name: 🚀 Publish
-        run: yarn app publish
+      - name: 🏗️ Build
+        run: yarn app eas:build
+
+      - name: 🚀 Publish update
+        run: yarn app eas:publish-update
