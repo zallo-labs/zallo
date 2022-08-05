@@ -68,9 +68,6 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
       backgroundColor: '#151A30',
     },
   },
-  androidStatusBar: {
-    barStyle: 'light-content',
-  },
   web: {
     favicon: './assets/favicon.png',
   },
