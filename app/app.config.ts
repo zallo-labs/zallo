@@ -49,6 +49,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
   },
   assetBundlePatterns: ['**/*'],
   ios: {
+    bundleIdentifier: "fi.metasafe",
     supportsTablet: true,
     infoPlist: {
       NSCameraUsageDescription:
