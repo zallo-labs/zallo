@@ -7,7 +7,7 @@
     "postinstall": "expo-yarn-workspaces postinstall",
     "prebuild": "(cd .. && yarn lib build)",
     "eas-build-post-install": "yarn prebuild",
-    "start": "yarn with-env -- expo start",
+    "start": "yarn with-env -- expo start --dev-client",
     "test": "yarn typecheck && jest --forceExit",
     "typecheck": "tsc --noEmit",
     "generate": "yarn with-env -- graphql-codegen --config codegen.yml",
