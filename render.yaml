@@ -4,11 +4,13 @@ services:
     env: node
     branch: main
     autoDeploy: false # Deployed via cd.yml (Github Actions)
-    buildCommand: yarn api build
-    startCommand: yarn start:prod
+    buildCommand: yarn set version stable && yarn && yarn api build
+    startCommand: yarn api prisma migrate deploy && yarn api start:prod
     healthCheckPath: /health
     envVars:
       - fromGroup: api-vars
+      - key: SKIP_INSTALL_DEPS
+        value: true
       - key: DATABASE_URL
         fromDatabase:
           name: api-db
