@@ -62,7 +62,7 @@ jobs:
         run: yarn contracts build
 
       - name: 💤 Wait for local zksync node to start
-        run: sleep 60
+        run: sleep 90
 
       - name: 🧪 Test
         run: yarn contracts test
