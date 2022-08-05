@@ -98,8 +98,5 @@ jobs:
       - name: 🏗️ Prebuild
         run: yarn app prebuild
 
-      - name: 🏗️ Build
-        run: yarn app eas build --profile preview --platform android
-
-      # - name: 🚀 Publish update
-      #   run: yarn app eas update --auto
+      - name: 🚀 Publish update
+        run: yarn app eas update --auto --non-interactive

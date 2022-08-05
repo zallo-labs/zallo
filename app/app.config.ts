@@ -17,9 +17,12 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
   ...config,
   name: 'metasafe',
   slug: 'metasafe',
-  version: '0.1.0',
   githubUrl: 'https://github.com/hbriese/metasafe',
   jsEngine: 'hermes',
+  version: '0.1.0',
+  runtimeVersion: {
+    policy: 'sdkVersion',
+  },
   extra: {
     ...CONFIG,
     flipperHack: 'React Native packager is running',
@@ -49,7 +52,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
   },
   assetBundlePatterns: ['**/*'],
   ios: {
-    bundleIdentifier: "fi.metasafe",
+    bundleIdentifier: 'fi.metasafe',
     supportsTablet: true,
     infoPlist: {
       NSCameraUsageDescription:
@@ -70,5 +73,8 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
   },
   web: {
     favicon: './assets/favicon.png',
+  },
+  updates: {
+    url: 'https://u.expo.dev/4bd8f1aa-83b2-4cff-b0d7-2321254ba96d',
   },
 });

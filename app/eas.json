@@ -4,6 +4,7 @@
   },
   "build": {
     "production": {
+      "channel": "production",
       "node": "16.14.2",
       "env": {
         "ENTRY_FILE": "./__generated__/AppEntry.js",
@@ -12,10 +13,12 @@
     },
     "preview": {
       "extends": "production",
+      "channel": "main",
       "distribution": "internal"
     },
     "development": {
       "extends": "production",
+      "channel": "main",
       "distribution": "internal",
       "developmentClient": true
     }
