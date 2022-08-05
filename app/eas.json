@@ -6,7 +6,8 @@
     "production": {
       "node": "16.14.2",
       "env": {
-        "ENTRY_FILE": "./__generated__/AppEntry.js"
+        "ENTRY_FILE": "./__generated__/AppEntry.js",
+        "CHAIN": "testnet"
       }
     },
     "preview": {

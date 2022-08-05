@@ -1,5 +1,16 @@
 import { ExpoConfig, ConfigContext } from '@expo/config';
-// const { CONFIG } = require('config');
+
+const E = process.env;
+
+export const CONFIG = {
+  env: E.NODE_ENV === 'development' ? 'development' : 'production',
+  chainName: E.CHAIN!,
+  sentryDsn: E.SENTRY_DSN!,
+  apiUrl: E.API_URL!,
+  subgraphGqlUrl: E.SUBGRAPH_GQL_URL!,
+} as const;
+
+export type Config = typeof CONFIG;
 
 // https://docs.expo.dev/versions/latest/config/app/
 export default ({ config }: ConfigContext): ExpoConfig => ({
@@ -10,23 +21,23 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
   githubUrl: 'https://github.com/hbriese/metasafe',
   jsEngine: 'hermes',
   extra: {
-    // ...CONFIG,
+    ...CONFIG,
     flipperHack: 'React Native packager is running',
   },
   plugins: ['sentry-expo', 'expo-community-flipper'],
   hooks: {
     postPublish: [
-      // {
-      //   file: 'sentry-expo/upload-sourcemaps',
-      //   config: {
-      //     // https://github.com/expo/sentry-expo/blob/master/src/hooks/upload-sourcemaps.ts
-      //     organization: CONFIG.sentry.org,
-      //     project: CONFIG.sentry.project,
-      //     authToken: CONFIG.sentry.authToken,
-      //     setCommits: true,
-      //     deployEnv: CONFIG.env,
-      //   },
-      // },
+      {
+        file: 'sentry-expo/upload-sourcemaps',
+        config: {
+          // https://github.com/expo/sentry-expo/blob/master/src/hooks/upload-sourcemaps.ts
+          organization: E.SENTRY_ORG,
+          project: E.SENTRY_PROJECT,
+          authToken: E.SENTRY_AUTH_TOKEN,
+          deployEnv: E.env,
+          setCommits: true,
+        },
+      },
     ],
   },
   orientation: 'portrait',

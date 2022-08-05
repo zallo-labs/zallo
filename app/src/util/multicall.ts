@@ -9,14 +9,10 @@ import {
   TxReq,
 } from 'lib';
 import { CallStructOutput } from 'lib/dist/contracts/contracts/Multicall';
-import { CONFIG } from '~/config';
-import { PROVIDER } from '~/provider';
+import { MULTICALL_ADDR, PROVIDER } from '~/provider';
 import { getDataSighash } from '~/queries/useContractMethod.api';
 
-export const MULTICALL = Multicall__factory.connect(
-  CONFIG.multicallAddress!,
-  PROVIDER,
-);
+export const MULTICALL = Multicall__factory.connect(MULTICALL_ADDR, PROVIDER);
 
 export const callsToTxReq = async (callDefs: CallDef[]): Promise<TxReq> => {
   const calls = callDefs.map(createCall);

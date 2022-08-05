@@ -9,7 +9,6 @@ import {
 import { RetryLink } from '@apollo/client/link/retry';
 import { MaybePromise } from 'lib';
 import { useCallback, useMemo } from 'react';
-
 import { CONFIG } from '~/config';
 import { useAuthFlowLink } from './apiAuthFlowLink';
 import { getPersistedCache } from './cache';
@@ -43,7 +42,10 @@ export const useCreateApiClient = (): ClientCreator => {
         link: ApolloLink.from([
           new RetryLink(),
           authFlowLink,
-          new HttpLink({ uri: CONFIG.api.gqlUrl, credentials: 'include' }),
+          new HttpLink({
+            uri: `${CONFIG.apiUrl}/graphql`,
+            credentials: 'include',
+          }),
         ]),
         defaultOptions,
       }),

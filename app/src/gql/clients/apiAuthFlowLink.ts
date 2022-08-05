@@ -30,7 +30,7 @@ const getHost = (url: string) => {
 };
 
 const fetchToken = async (wallet: zk.Wallet): Promise<Token> => {
-  const nonceRes = await fetch(`${CONFIG.api.url}/auth/nonce`, {
+  const nonceRes = await fetch(`${CONFIG.apiUrl}/auth/nonce`, {
     credentials: 'include',
   });
   const nonce = await nonceRes.text();
@@ -41,8 +41,8 @@ const fetchToken = async (wallet: zk.Wallet): Promise<Token> => {
     statement: 'Sign into MetaSafe',
     chainId: PROVIDER.network.chainId,
     version: '1',
-    uri: CONFIG.api.url,
-    domain: getHost(CONFIG.api.url),
+    uri: CONFIG.apiUrl,
+    domain: getHost(CONFIG.apiUrl),
   });
 
   return {

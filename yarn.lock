@@ -9880,6 +9880,7 @@ __metadata:
     color: ^4.2.3
     concurrently: ^7.3.0
     config: "workspace:*"
+    dotenv-cli: ^6.0.0
     eas-cli: ^0.57.0
     eslint-plugin-formatjs: ^3.1.5
     eth-url-parser: ^1.0.4
