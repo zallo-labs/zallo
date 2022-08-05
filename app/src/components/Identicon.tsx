@@ -19,8 +19,8 @@ export type IdenticonProps = Omit<IJazziconProps, 'seed' | 'address'> & {
 export const Identicon = ({ seed: input, ...props }: IdenticonProps) => {
   const { iconSize } = useTheme();
 
-  const name =
-    typeof input === 'string' && isAddress(input) ? useAddrName(input) : null;
+  // const name =
+  //   typeof input === 'string' && isAddress(input) ? useAddrName(input) : null;
 
   const seed = useMemo(() => {
     if (typeof input === 'number') return input;
@@ -36,7 +36,7 @@ export const Identicon = ({ seed: input, ...props }: IdenticonProps) => {
     return parseInt(input.slice(2, 10), 16);
   }, [input]);
 
-  if (name) return <LabelIcon label={name} />;
+  // if (name) return <LabelIcon label={name} />;
 
   return <Jazzicon size={iconSize.medium} {...props} seed={seed} />;
 };
