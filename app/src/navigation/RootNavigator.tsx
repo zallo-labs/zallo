@@ -27,6 +27,7 @@ import {
   QuorumScreen,
   QuorumScreenParams,
 } from '~/screens/quorum/QuorumScreen';
+import { ContactsScreen, ContactsScreenParams } from '~/screens/contacts/ContactsScreen';
 
 export type RootNavigatorParamList = {
   BottomNavigator: undefined;
@@ -36,6 +37,7 @@ export type RootNavigatorParamList = {
   Account: AccountScreenParams;
   Configure: ConfigureScreenParams;
   Quorum: QuorumScreenParams;
+  Contacts: ContactsScreenParams;
   // Onboarding
   CreateFirstAccount: undefined;
 };
@@ -65,6 +67,7 @@ export const RootNavigator = () => {
       <Navigation.Screen name="Account" component={AccountScreen} />
       <Navigation.Screen name="Configure" component={ConfigureScreen} />
       <Navigation.Screen name="Quorum" component={QuorumScreen} />
+      <Navigation.Screen name="Contacts" component={ContactsScreen} />
 
       <Navigation.Group key="Onboarding">
         <Navigation.Screen
