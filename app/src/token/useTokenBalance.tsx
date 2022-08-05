@@ -7,6 +7,7 @@ import { captureException, Severity } from '@util/sentry/sentry';
 import { allTokensSelector } from './useToken';
 import { refreshAtom } from '@util/effect/refreshAtom';
 import { useSelectedAccount } from '~/components2/account/useSelectedAccount';
+import { persistAtom } from '@util/effect/persistAtom';
 
 // [addr, token]
 type BalanceKey = [Address, Address];
@@ -27,6 +28,7 @@ export const tokenBalanceState = atomFamily<BigNumber, BalanceKey>({
   key: 'tokenBalance',
   default: (key) => fetch(key),
   effects: (key) => [
+    persistAtom(),
     refreshAtom({
       fetch: () => fetch(key),
       interval: 10 * 1000,
