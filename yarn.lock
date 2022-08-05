@@ -19329,7 +19329,7 @@ __metadata:
     yargs-parser: ^16.1.0
   bin:
     gluegun: bin/gluegun
-  checksum: 8d331ff800d15e05eec8045df702c08f6100a63a737ebf7af7e26892a38155ab6e625a8d74f90ce7d7f5c0e30be3c43a672fa97427e09a7deb36876d3f661853
+  checksum: f7a573447561af36ebe5012a2fee68df90d8a6287ac1c8aaa6d7a95c82480181ca66ba7e3d5dbeaa672bab14fd736c85806b2049926a4100a14cec5d80f53413
   languageName: node
   linkType: hard
 
@@ -34054,7 +34054,7 @@ __metadata:
 
 "typescript@patch:typescript@4.7.4#~builtin<compat/typescript>, typescript@patch:typescript@^4.7.4#~builtin<compat/typescript>":
   version: 4.7.4
-  resolution: "typescript@patch:typescript@npm%3A4.7.4#~builtin<compat/typescript>::version=4.7.4&hash=7ad353"
+  resolution: "typescript@patch:typescript@npm%3A4.7.4#~builtin<compat/typescript>::version=4.7.4&hash=f456af"
   bin:
     tsc: bin/tsc
     tsserver: bin/tsserver
@@ -34064,7 +34064,7 @@ __metadata:
 
 "typescript@patch:typescript@^4.5#~builtin<compat/typescript>":
   version: 4.6.3
-  resolution: "typescript@patch:typescript@npm%3A4.6.3#~builtin<compat/typescript>::version=4.6.3&hash=7ad353"
+  resolution: "typescript@patch:typescript@npm%3A4.6.3#~builtin<compat/typescript>::version=4.6.3&hash=f456af"
   bin:
     tsc: bin/tsc
     tsserver: bin/tsserver
