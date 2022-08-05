@@ -99,7 +99,7 @@ jobs:
         run: yarn app prebuild
 
       - name: 🏗️ Build
-        run: yarn app eas:build
+        run: yarn app eas build --profile preview --platform android
 
-      - name: 🚀 Publish update
-        run: yarn app eas:publish-update
+      # - name: 🚀 Publish update
+      #   run: yarn app eas update --auto
