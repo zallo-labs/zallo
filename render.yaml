@@ -6,8 +6,6 @@ services:
     autoDeploy: false # Deployed via cd.yml (Github Actions)
     buildCommand: yarn api build
     startCommand: yarn start:prod
-    dockerContext: ./
-    # dockerCommand: defaults to running dockerfile CMD
     healthCheckPath: /health
     envVars:
       - fromGroup: api-vars
