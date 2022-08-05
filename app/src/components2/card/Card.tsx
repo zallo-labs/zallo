@@ -16,6 +16,7 @@ import {
 
 import { ChildrenProps } from '@util/children';
 import { useTheme } from '@util/theme/paper';
+import { Box } from '@components/Box';
 
 export interface StyledProps
   extends ChildrenProps,
@@ -72,25 +73,29 @@ type InternalProps = BaseCardProps & StyledProps;
 type TouchableRippleProps = ComponentPropsWithoutRef<typeof TouchableRipple>;
 
 export type CardProps = Omit<InternalProps, 'children'> &
-  Pick<TouchableRippleProps, 'onPress' | 'onLongPress'> & {
+  Pick<TouchableRippleProps, 'onPress' | 'onLongPress' | 'disabled'> & {
     children?: ReactNode;
   };
+
+const borderRadius = 12;
 
 export const Card = ({
   children,
   onPress,
   onLongPress,
+  disabled,
   elevation = 2,
   ...props
 }: CardProps) => {
-  const { colors, roundness } = useTheme();
+  const { colors } = useTheme();
 
   return (
     <TouchableRipple
       onPress={onPress}
       onLongPress={onLongPress}
+      disabled={disabled}
       borderless
-      style={{ borderRadius: roundness }}
+      style={{ borderRadius }}
     >
       <Internal
         backgroundColor={
@@ -98,6 +103,10 @@ export const Card = ({
           colors.elevation.level1
         }
         {...(props as any)}
+        style={[
+          { borderRadius, ...(disabled && { opacity: 0.38 }) },
+          props.style,
+        ]}
       >
         {children}
       </Internal>

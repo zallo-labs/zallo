@@ -8,7 +8,7 @@ import { useCallback } from 'react';
 import { FormikTextField } from '@components/fields/FormikTextField';
 import { FormikSubmitFab } from '@components/fields/FormikSubmitFab';
 import { CheckIcon } from '@util/theme/icons';
-import { useCreateApiSafe } from '~/mutations/safe/useCreateApiSafe';
+import { useCreateApiSafe } from '~/mutations/safe/useCreateSafe.api';
 
 const initialValues = {
   safeName: '',
@@ -18,8 +18,8 @@ const initialValues = {
 type Values = typeof initialValues;
 
 const schema: Yup.SchemaOf<Values> = Yup.object({
-  safeName: Yup.string().required(),
-  accountName: Yup.string().required(),
+  safeName: Yup.string().required('Required'),
+  accountName: Yup.string().required('Required'),
 });
 
 export type CreateFirstAccountScreenProps =
@@ -41,6 +41,7 @@ export const CreateFirstAccountScreen = ({
   return (
     <Box flex={1}>
       <Appbar.Header mode="medium">
+        <Appbar.BackAction />
         {/* <Appbar.BackAction onPress={() => navigation.navigate('Register')} /> */}
         <Appbar.Content title="Create Account" />
       </Appbar.Header>
@@ -50,13 +51,15 @@ export const CreateFirstAccountScreen = ({
         validationSchema={schema}
         onSubmit={handleSubmit}
       >
-        <Container vertical m={4} separator={<Box my={4} />}>
-          <FormikTextField name="safeName" label="Safe name" />
+        <>
+          <Container vertical m={4} separator={<Box my={3} />}>
+            <FormikTextField name="safeName" label="Safe name" />
 
-          <FormikTextField name="accountName" label="Account name" />
+            <FormikTextField name="accountName" label="Account name" />
+          </Container>
 
           <FormikSubmitFab icon={CheckIcon} label="Create" />
-        </Container>
+        </>
       </Formik>
     </Box>
   );

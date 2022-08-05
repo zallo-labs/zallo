@@ -9,7 +9,7 @@
    id="svg5"
    sodipodi:docname="icon.svg"
    inkscape:version="1.1.2 (0a00cf5339, 2022-02-04)"
-   inkscape:export-filename="/home/h/Projects/metasafe/app/assets/favicon.png"
+   inkscape:export-filename="/home/h/Projects/metasafe/app/assets/adaptive-icon.png"
    inkscape:export-xdpi="96"
    inkscape:export-ydpi="96"
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
@@ -37,9 +37,9 @@
      inkscape:snap-bbox="true"
      inkscape:zoom="1"
      inkscape:cx="515.5"
-     inkscape:cy="458.5"
+     inkscape:cy="458"
      inkscape:window-width="2560"
-     inkscape:window-height="1376"
+     inkscape:window-height="1403"
      inkscape:window-x="0"
      inkscape:window-y="0"
      inkscape:window-maximized="1"
@@ -71,7 +71,7 @@
      id="layer1">
     <g
        id="g4282"
-       transform="matrix(10.8,0,0,10.8,-146.80002,-141.41229)"
+       transform="matrix(9.1102681,0,0,9.1102681,-36.130278,-39.779932)"
        style="stroke:#f3c00b;stroke-opacity:1">
       <g
          id="g6699"
@@ -82,12 +82,13 @@
            cx="34.986061"
            cy="82.992439"
            r="7.5" />
-        <circle
+        <ellipse
            style="fill:none;stroke:#f3c00b;stroke-width:1.66667;stroke-linecap:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;paint-order:normal"
            id="path251-3"
            cx="85.537949"
            cy="82.933418"
-           r="7.5" />
+           rx="7.499999"
+           ry="7.5" />
         <path
            style="fill:none;stroke:#f3c00b;stroke-width:1.67;stroke-linecap:round;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
            d="m 45.259261,85.038175 c 10.726227,4e-6 19.999999,0 30,0"

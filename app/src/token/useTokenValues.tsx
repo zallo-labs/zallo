@@ -1,15 +1,17 @@
+import { Address } from 'lib';
 import { useTokenBalances } from './useTokenBalance';
 import { useTokenValue } from './useTokenValue';
 
-export const useTokenValues = () => {
-  const tokenBalances = useTokenBalances();
+export const useTokenValues = (addr: Address) => {
+  const tokenBalances = useTokenBalances(addr);
 
   const balances = tokenBalances
-    .map((tokenWithBalance) => ({
-      ...tokenWithBalance,
+    .map(({ token, balance }) => ({
+      token,
+      balance,
       // FIX: this is not good... This could be fixed by importing token values into recoil and using a selector
       // eslint-disable-next-line react-hooks/rules-of-hooks
-      ...useTokenValue(tokenWithBalance, tokenWithBalance.balance),
+      ...useTokenValue(token, balance),
     }))
     .sort((a, b) => b.fiatValue - a.fiatValue);
 

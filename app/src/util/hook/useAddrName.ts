@@ -4,11 +4,9 @@ import { useMaybeToken } from '~/token/useToken';
 import { useContacts } from '~/queries/useContacts.api';
 import { truncatedAddr } from '@util/format';
 import { useAddrEns } from './useAddrEns';
-import { useSelectedAccount } from '~/components2/account/useSelectedAccount';
 
 export const useAddrName = (addr: Address) => {
   const { contacts } = useContacts();
-  const { safeAddr, name: safeName } = useSelectedAccount();
   const token = useMaybeToken(addr);
   const ens = useAddrEns(addr);
 
@@ -18,12 +16,7 @@ export const useAddrName = (addr: Address) => {
   );
 
   return useMemo(
-    () =>
-      (addr === safeAddr && safeName) ||
-      contact?.name ||
-      token?.name ||
-      ens ||
-      truncatedAddr(addr),
-    [addr, contact?.name, ens, safeAddr, safeName, token?.name],
+    () => contact?.name || token?.name || ens || truncatedAddr(addr),
+    [addr, contact?.name, ens, token?.name],
   );
 };

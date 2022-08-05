@@ -1,5 +1,6 @@
 import { ComponentPropsWithoutRef, useState } from 'react';
 import { BottomNavigation, Text } from 'react-native-paper';
+import { AccountsScreen } from '~/screens/accounts/AccountsScreen';
 import { ReceiveScreen } from '~/screens/receive/ReceiveScreen';
 import { RootNavigatorScreenProps } from './RootNavigator';
 
@@ -59,7 +60,7 @@ const routes: Routes = [
 
 const renderScene = BottomNavigation.SceneMap({
   Pay: Unimplemented,
-  Accounts: Unimplemented,
+  Accounts: AccountsScreen,
   Activity: Unimplemented,
   Receive: ReceiveScreen,
 });
@@ -67,7 +68,7 @@ const renderScene = BottomNavigation.SceneMap({
 export type BottomNavigatorProps = RootNavigatorScreenProps<'BottomNavigator'>;
 
 export const BottomNavigator = (_props: BottomNavigatorProps) => {
-  const [index, setIndex] = useState(3);
+  const [index, setIndex] = useState(1);
 
   return (
     <BottomNavigation

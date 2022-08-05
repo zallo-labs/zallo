@@ -1,7 +1,7 @@
 import { gql, useQuery } from '@apollo/client';
 import { UserAccountsQuery } from '@gql/generated.api';
 import { useApiClient } from '@gql/GqlProvider';
-import { toId, address, toAccountRef, toQuorum, toQuorums } from 'lib';
+import { toId, address, toAccountRef, toQuorum } from 'lib';
 import { useMemo } from 'react';
 import { CombinedAccount, QUERY_ACCOUNTS_POLL_INTERVAL } from '.';
 
@@ -46,11 +46,12 @@ export const useApiUserAccounts = () => {
           safeAddr: address(acc.safeId),
           ref: toAccountRef(acc.ref),
           name: acc.name,
-          quorums: toQuorums(
-            acc.quorums?.map((quorum) =>
-              toQuorum(quorum.approvers?.map((a) => address(a.userId)) ?? []),
-            ) ?? [],
-          ),
+          quorums:
+            acc.quorums?.map((quorum) => ({
+              approvers: toQuorum(
+                quorum.approvers?.map((a) => address(a.userId)) ?? [],
+              ),
+            })) ?? [],
         }),
       ) ?? [],
     [data?.userAccounts],

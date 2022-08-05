@@ -8,7 +8,7 @@ import { GQL_ENDPOINT } from './apollo/apollo.module';
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
-  // app.enableCors({ credentials: true });
+  // app.enableCors({ credentials: true });   // Breaks apollo studio
 
   await app.listen(CONFIG.api.port);
   Logger.debug(`${await app.getUrl()}${GQL_ENDPOINT}`);

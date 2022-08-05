@@ -10,7 +10,7 @@ import { Activity, ActivityItem } from './ActivityItem';
 import { ActivitySheet } from '@features/tx/ActivitySheet';
 import { useState } from 'react';
 import { withSkeleton } from '@components/skeleton/withSkeleton';
-import { ListScreenSkeleton } from '@components/ListScreenSkeleton';
+import { ListScreenSkeleton } from '@components/skeleton/ListScreenSkeleton';
 import { NoActivites } from './NoActivities';
 import { BasicTextField } from '@components/fields/BasicTextField';
 import { useExternalTransfers } from '~/queries/tx/useExternalTransfers.sub';

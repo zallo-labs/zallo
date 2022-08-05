@@ -66,7 +66,7 @@ const config: HardhatUserConfig = {
     runOnCompile: true,
     path: './abi',
     flat: true,
-    only: ['Safe$', 'ERC1967Proxy$'],
+    only: ['Safe$', 'ERC1967Proxy$', 'Tester$', 'Multicall$', 'Factory$'],
   },
 };
 

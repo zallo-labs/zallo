@@ -1,14 +1,28 @@
 import { ExpoConfig, ConfigContext } from '@expo/config';
-const { CONFIG } = require('config');
+
+const E = process.env;
+
+export const CONFIG = {
+  env: E.NODE_ENV === 'development' ? 'development' : 'production',
+  chainName: E.CHAIN!,
+  sentryDsn: E.SENTRY_DSN!,
+  apiUrl: E.API_URL!,
+  subgraphGqlUrl: E.SUBGRAPH_GQL_URL!,
+} as const;
+
+export type Config = typeof CONFIG;
 
 // https://docs.expo.dev/versions/latest/config/app/
 export default ({ config }: ConfigContext): ExpoConfig => ({
   ...config,
   name: 'metasafe',
   slug: 'metasafe',
-  version: '0.1.0',
   githubUrl: 'https://github.com/hbriese/metasafe',
   jsEngine: 'hermes',
+  version: '0.1.0',
+  runtimeVersion: {
+    policy: 'sdkVersion',
+  },
   extra: {
     ...CONFIG,
     flipperHack: 'React Native packager is running',
@@ -20,11 +34,11 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
         file: 'sentry-expo/upload-sourcemaps',
         config: {
           // https://github.com/expo/sentry-expo/blob/master/src/hooks/upload-sourcemaps.ts
-          organization: CONFIG.sentry.org,
-          project: CONFIG.sentry.project,
-          authToken: CONFIG.sentry.authToken,
+          organization: E.SENTRY_ORG,
+          project: E.SENTRY_PROJECT,
+          authToken: E.SENTRY_AUTH_TOKEN,
+          deployEnv: E.env,
           setCommits: true,
-          deployEnv: CONFIG.env,
         },
       },
     ],
@@ -36,11 +50,9 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     resizeMode: 'contain',
     backgroundColor: '#151A30',
   },
-  updates: {
-    fallbackToCacheTimeout: 0,
-  },
   assetBundlePatterns: ['**/*'],
   ios: {
+    bundleIdentifier: 'fi.metasafe',
     supportsTablet: true,
     infoPlist: {
       NSCameraUsageDescription:
@@ -50,6 +62,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     },
   },
   android: {
+    package: 'fi.metasafe',
     adaptiveIcon: {
       foregroundImage: './assets/adaptive-icon.png',
       backgroundColor: '#151A30',
@@ -60,5 +73,8 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
   },
   web: {
     favicon: './assets/favicon.png',
+  },
+  updates: {
+    url: 'https://u.expo.dev/4bd8f1aa-83b2-4cff-b0d7-2321254ba96d',
   },
 });

@@ -12,19 +12,27 @@ import { Logger } from 'ethers/lib/utils';
 import { captureEvent } from '@util/sentry/sentry';
 import { LogLevel } from '@ethersproject/logger';
 import { SeverityLevel } from '@sentry/browser';
-import { address } from 'lib';
+import {
+  address,
+  getChain,
+  MULTICALL_ADDRS,
+  PROXY_FACTORY_ADDRS,
+  SAFE_IMPL_ADDRS,
+} from 'lib';
 
 // Ethers uses long timers; these tasks WON'T be executed when the app is in the background but will resume once re-opened
 if (Platform.OS !== 'web') LogBox.ignoreLogs(['Setting a timer']);
 
-export const CHAIN = CONFIG.chain;
+export const CHAIN = getChain(CONFIG.chainName);
 
 export const PROVIDER = new zk.Provider(CHAIN.zksyncUrl);
 // export const ETH_PROVIDER = ethers.getDefaultProvider(CHAIN.ethUrl);
 
 export const CHAIN_ID = PROVIDER?.network?.chainId ?? 280;
 
-export const SAFE_IMPL = address(CONFIG.safeImplAddress!);
+export const SAFE_IMPL = address(SAFE_IMPL_ADDRS[CHAIN.name]!);
+export const PROXY_FACTORY_ADDR = address(PROXY_FACTORY_ADDRS[CHAIN.name]!);
+export const MULTICALL_ADDR = address(MULTICALL_ADDRS[CHAIN.name]!);
 
 const ethersLevelToSentrySeverity = (level: LogLevel): SeverityLevel => {
   switch (level) {

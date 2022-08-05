@@ -1,10 +1,11 @@
 services:
   - type: web
     name: api
-    env: docker
+    env: node
     branch: main
     autoDeploy: false # Deployed via cd.yml (Github Actions)
-    dockerfilePath: ./api/Dockerfile
+    buildCommand: yarn api build
+    startCommand: yarn start:prod
     dockerContext: ./
     # dockerCommand: defaults to running dockerfile CMD
     healthCheckPath: /health

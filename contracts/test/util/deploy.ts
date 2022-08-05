@@ -123,9 +123,7 @@ export const deployMulticall = async (
   await contract.deployed();
 
   return {
-    multicall: new Multicall__factory()
-      .attach(address(contract.address))
-      .connect(wallet),
+    multicall: Multicall__factory.connect(contract.address, wallet),
     deployTx: contract.deployTransaction,
   };
 };

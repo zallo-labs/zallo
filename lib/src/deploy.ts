@@ -5,7 +5,6 @@ import {
   Factory,
   Factory__factory,
   Safe__factory,
-  ERC1967Proxy,
   ERC1967Proxy__factory,
 } from './contracts';
 import { Account } from './account';
@@ -16,9 +15,6 @@ import {
   randomBytes,
 } from 'ethers/lib/utils';
 import * as zk from 'zksync-web3';
-
-export interface Proxy extends ERC1967Proxy {}
-export class ProxyFactory extends ERC1967Proxy__factory {}
 
 export type DeploySalt = string & { isDeploySalt: true };
 const DEPLOY_SALT_BYTES = 32;
@@ -40,7 +36,7 @@ const createConnect =
 
 export const connectFactory = createConnect(Factory__factory.connect);
 export const connectSafe = createConnect(Safe__factory.connect);
-export const connectProxy = createConnect(ProxyFactory.connect);
+export const connectProxy = createConnect(ERC1967Proxy__factory.connect);
 
 export interface SafeConstructorArgs {
   account: Account;

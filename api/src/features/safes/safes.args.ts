@@ -1,8 +1,9 @@
-import { ArgsType } from '@nestjs/graphql';
-import { Address } from 'lib';
+import { ArgsType, InputType } from '@nestjs/graphql';
+import { AccountRef, Address, Quorums } from 'lib';
 import { AddressField } from '~/apollo/scalars/Address.scalar';
 import { Bytes32Field } from '~/apollo/scalars/Bytes32.scalar';
-import { AccountInput } from '../accounts/accounts.args';
+import { Bytes4Field } from '~/apollo/scalars/Bytes4.scalar';
+import { QuorumsField } from '~/apollo/scalars/Quorum.scalar';
 
 @ArgsType()
 export class SafeArgs {
@@ -19,9 +20,20 @@ export class UpsertSafeArgs {
   deploySalt?: string;
 
   @AddressField()
-  impl?: Address;
+  impl: Address;
 
-  name?: string;
+  name: string;
 
-  accounts?: AccountInput[];
+  accounts?: AccountWithoutSafeInput[];
+}
+
+@InputType()
+export class AccountWithoutSafeInput {
+  @Bytes4Field()
+  ref: AccountRef;
+
+  @QuorumsField()
+  quorums: Quorums;
+
+  name: string;
 }

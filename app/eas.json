@@ -1,0 +1,29 @@
+{
+  "cli": {
+    "version": ">= 0.57.0"
+  },
+  "build": {
+    "production": {
+      "channel": "production",
+      "node": "16.14.2",
+      "env": {
+        "ENTRY_FILE": "./__generated__/AppEntry.js",
+        "CHAIN": "testnet"
+      }
+    },
+    "preview": {
+      "extends": "production",
+      "channel": "main",
+      "distribution": "internal"
+    },
+    "development": {
+      "extends": "production",
+      "channel": "main",
+      "distribution": "internal",
+      "developmentClient": true
+    }
+  },
+  "submit": {
+    "production": {}
+  }
+}

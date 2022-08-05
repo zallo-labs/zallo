@@ -10,7 +10,14 @@ import {
 import { RetryLink } from '@apollo/client/link/retry';
 import fetch from 'cross-fetch';
 import { CONFIG } from 'config';
-import { AccountRef, address, Address, toAccountRef, toId } from 'lib';
+import {
+  AccountRef,
+  address,
+  Address,
+  filterFirst,
+  toAccountRef,
+  toId,
+} from 'lib';
 import {
   UserAccountsQuery,
   UserAccountsQueryVariables,
@@ -22,9 +29,11 @@ export interface SafeAccount {
 }
 
 @Injectable()
-export class SubgraphService extends ApolloClient<NormalizedCacheObject> {
+export class SubgraphService {
+  public client: ApolloClient<NormalizedCacheObject>;
+
   constructor() {
-    super({
+    this.client = new ApolloClient({
       link: ApolloLink.from([
         new RetryLink(),
         new HttpLink({
@@ -37,7 +46,7 @@ export class SubgraphService extends ApolloClient<NormalizedCacheObject> {
   }
 
   public async userAccounts(user: Address): Promise<SafeAccount[]> {
-    const { data } = await this.query<
+    const { data } = await this.client.query<
       UserAccountsQuery,
       UserAccountsQueryVariables
     >({
@@ -65,5 +74,10 @@ export class SubgraphService extends ApolloClient<NormalizedCacheObject> {
         accountRef: toAccountRef(quorum.account.ref),
       })) ?? []
     );
+  }
+
+  public async userSafes(user: Address): Promise<Address[]> {
+    const safes = (await this.userAccounts(user)).map(({ safe }) => safe);
+    return filterFirst(safes, (safe) => safe);
   }
 }

@@ -1,3 +1,4 @@
+import { useTheme } from '@util/theme/paper';
 import { Rect } from 'react-content-loader/native';
 import { Skeleton } from './Skeleton';
 
@@ -9,15 +10,19 @@ export interface LineSkeletonProps {
 export const LineSkeleton = ({
   width = 100,
   height = 10,
-}: LineSkeletonProps) => (
-  <Skeleton width={width} height={height}>
-    <Rect
-      x="0"
-      y="0"
-      rx={height / 2}
-      ry={height / 2}
-      width={width}
-      height={height}
-    />
-  </Skeleton>
-);
+}: LineSkeletonProps) => {
+  const { roundness } = useTheme();
+
+  return (
+    <Skeleton width={width} height={height}>
+      <Rect
+        x="0"
+        y="0"
+        rx={roundness}
+        ry={roundness}
+        width={width}
+        height={height}
+      />
+    </Skeleton>
+  );
+};

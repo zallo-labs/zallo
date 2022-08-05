@@ -5,7 +5,7 @@ import { useApiClient } from '@gql/GqlProvider';
 import { truncatedAddr } from '@util/format';
 import { address, Address, filterFirst, Id, toId } from 'lib';
 import { useMemo } from 'react';
-import { useAccounts } from './accounts/useAccounts';
+import { useSafes } from './safe/useSafes';
 
 export const API_CONTACT_FIELDS = gql`
   fragment ContactFields on Contact {
@@ -26,7 +26,7 @@ export const API_CONTACTS_QUERY = gql`
 `;
 
 export const useContacts = () => {
-  const { safes } = useAccounts();
+  const { safes } = useSafes();
   const wallet = useWallet();
 
   const { data, ...rest } = useQuery<ContactsQuery>(API_CONTACTS_QUERY, {

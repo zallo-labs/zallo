@@ -41,7 +41,7 @@ export const compareAddresses = (a: Address, b: Address) => {
 };
 
 /* Module augmentation; including in a .ts file to compile into lib's typings */
-declare module './contracts' {
+declare module './contracts/index' {
   export interface Safe {
     address: Address;
     provider: zk.Provider;

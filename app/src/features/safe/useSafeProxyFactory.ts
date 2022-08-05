@@ -1,13 +1,10 @@
 import { useMemo } from 'react';
 import { connectFactory } from 'lib';
-import { CONFIG } from '~/config';
 import { useWallet } from '@features/wallet/useWallet';
+import { PROXY_FACTORY_ADDR } from '~/provider';
 
 export const useSafeProxyFactory = () => {
   const wallet = useWallet();
 
-  return useMemo(
-    () => connectFactory(CONFIG.proxyFactoryAddress!, wallet),
-    [wallet],
-  );
+  return useMemo(() => connectFactory(PROXY_FACTORY_ADDR, wallet), [wallet]);
 };

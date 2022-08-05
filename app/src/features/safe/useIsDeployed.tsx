@@ -3,7 +3,6 @@ import { refreshAtom } from '@util/effect/refreshAtom';
 import { Address } from 'lib';
 import { atomFamily, useRecoilValue } from 'recoil';
 import { PROVIDER } from '~/provider';
-import { useSafe } from './SafeProvider';
 
 const fetch = async (addr: Address) => (await PROVIDER.getCode(addr)) !== '0x';
 
@@ -21,8 +20,5 @@ export const isDeployedState = atomFamily<boolean, Address>({
   ],
 });
 
-export const useIsDeployed = (addr?: Address) => {
-  const { contract: safe } = useSafe();
-
-  return useRecoilValue(isDeployedState(addr ?? safe.address));
-};
+export const useIsDeployed = (addr: Address) =>
+  useRecoilValue(isDeployedState(addr));

@@ -1,10 +1,9 @@
-import { UserCreateNestedOneWithoutApprovalsInput } from '@gen/user/user-create-nested-one-without-approvals.input';
-import { SafeCreateNestedOneWithoutApprovalsInput } from '@gen/safe/safe-create-nested-one-without-approvals.input';
+import { Prisma } from '@prisma/client';
 import { Address } from 'lib';
 
 export const connectOrCreateSafe = (
   safe: Address,
-): SafeCreateNestedOneWithoutApprovalsInput => ({
+): Prisma.SafeCreateNestedOneWithoutAccountsInput => ({
   connectOrCreate: {
     where: { id: safe },
     create: { id: safe },
@@ -13,7 +12,7 @@ export const connectOrCreateSafe = (
 
 export const connectOrCreateUser = (
   addr: Address,
-): UserCreateNestedOneWithoutApprovalsInput => ({
+): Prisma.UserCreateNestedOneWithoutApprovalsInput => ({
   connectOrCreate: {
     where: { id: addr },
     create: { id: addr },

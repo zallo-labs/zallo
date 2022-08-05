@@ -12,52 +12,57 @@ import { useSelectedToken } from '~/components2/token/useSelectedToken';
 import { Button } from 'react-native-paper';
 import { useNavigation } from '@react-navigation/native';
 import { BottomNavigatorProps } from '~/navigation/BottomNavigator';
+import { withSkeleton } from '@components/skeleton/withSkeleton';
+import { ScreenSkeleton } from '@components/skeleton/ScreenSkeleton';
 
-export const ReceiveScreen = () => {
-  const { safe } = useSelectedAccount();
-  const token = useSelectedToken();
-  const navigation = useNavigation<BottomNavigatorProps['navigation']>();
+export const ReceiveScreen = withSkeleton(
+  () => {
+    const { safe } = useSelectedAccount();
+    const token = useSelectedToken();
+    const navigation = useNavigation<BottomNavigatorProps['navigation']>();
 
-  const [amount, setAmount] = useState<BigNumber | undefined>();
+    const [amount, setAmount] = useState<BigNumber | undefined>();
 
-  const url = useMemo(() => {
-    if (!amount)
-      return buildAddrLink({ target_address: safe.contract.address });
+    const url = useMemo(() => {
+      if (!amount)
+        return buildAddrLink({ target_address: safe.contract.address });
 
-    return buildTransferLink(
-      { target_address: safe.contract.address },
-      token,
-      amount,
-    );
-  }, [amount, safe.contract.address, token]);
+      return buildTransferLink(
+        { target_address: safe.contract.address },
+        token,
+        amount,
+      );
+    }, [amount, safe.contract.address, token]);
 
-  return (
-    <Box flex={1}>
-      <ReceiveAppbar url={url} />
+    return (
+      <Box flex={1}>
+        <ReceiveAppbar url={url} />
 
-      <Box flex={1} justifyContent="space-around" mx={4} my={3}>
-        <QrCode value={url} />
+        <Box flex={1} justifyContent="space-around" mx={4} my={3}>
+          <QrCode value={url} />
 
-        <Container separator={<Box my={2} />}>
-          {amount && (
-            <SelectableTokenAmount amount={amount} onChange={setAmount} />
-          )}
+          <Container separator={<Box my={2} />}>
+            {amount && (
+              <SelectableTokenAmount amount={amount} onChange={setAmount} />
+            )}
 
-          <SelectedAccountCard large balance={false} />
+            <SelectedAccountCard large balance={false} />
 
-          {!amount && (
-            <Button
-              icon="plus"
-              style={{ alignSelf: 'flex-end' }}
-              onPress={() =>
-                navigation.navigate('Amount', { onChange: setAmount })
-              }
-            >
-              Amount
-            </Button>
-          )}
-        </Container>
+            {!amount && (
+              <Button
+                icon="plus"
+                style={{ alignSelf: 'flex-end' }}
+                onPress={() =>
+                  navigation.navigate('Amount', { onChange: setAmount })
+                }
+              >
+                Amount
+              </Button>
+            )}
+          </Container>
+        </Box>
       </Box>
-    </Box>
-  );
-};
+    );
+  },
+  () => <ScreenSkeleton menu mode="center-aligned" />,
+);

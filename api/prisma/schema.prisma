@@ -12,6 +12,16 @@ generator nestgraphql {
   output   = "../generated"
 }
 
+model User {
+  id String @id @db.Char(42) // address
+
+  contacts  Contact[]
+  approvals Approval[]
+  comments  Comment[]
+  reactions Reaction[]
+  approvers Approver[]
+}
+
 model Safe {
   id         String  @id @db.Char(42) // address
   name       String  @default("")
@@ -33,20 +43,15 @@ model Account {
   ref    String @db.Char(10) // bytes4
   name   String @default("")
 
+  // Tx
+  txHash String? @db.Char(66) // bytes32
+  tx     Tx?     @relation(fields: [safeId, txHash], references: [safeId, hash])
+
   quorums   Quorum[]
   approvers Approver[]
 
   @@id([safeId, ref])
-}
-
-model User {
-  id String @id @db.Char(42) // address
-
-  contacts  Contact[]
-  approvals Approval[]
-  comments  Comment[]
-  reactions Reaction[]
-  approvers Approver[]
+  @@unique([safeId, txHash])
 }
 
 model Quorum {
@@ -56,9 +61,14 @@ model Quorum {
   accountRef String  @db.Char(10) // bytes4
   hash       String  @db.Char(66) // bytes32
 
+  // Tx
+  txHash String? @db.Char(66) // bytes32
+  tx     Tx?     @relation(fields: [safeId, txHash], references: [safeId, hash])
+
   approvers Approver[]
 
   @@id([safeId, accountRef, hash])
+  @@unique([safeId, txHash])
 }
 
 model Approver {
@@ -105,6 +115,10 @@ model Tx {
   approvals   Approval[]
   createdAt   DateTime     @default(now())
   submissions Submission[]
+
+  // Operations
+  accountTx Account?
+  quorumTx  Quorum?
 
   @@id([safeId, hash])
 }

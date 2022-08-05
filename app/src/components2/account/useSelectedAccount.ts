@@ -4,7 +4,7 @@ import { useCallback, useMemo } from 'react';
 import { atom, useRecoilValue, useSetRecoilState } from 'recoil';
 import { CombinedAccount } from '~/queries/accounts';
 import { useAccounts } from '~/queries/accounts/useAccounts';
-import { useSafe } from '~/queries/safe/useSafe';
+import { useSafes } from '~/queries/safe/useSafes';
 
 type AccountKey = [Address, AccountRef];
 
@@ -16,8 +16,8 @@ const selectedAccount = atom<AccountKey | null>({
 
 export const useSelectedAccount = () => {
   const { accounts } = useAccounts();
+  const { safes } = useSafes();
   const key = useRecoilValue(selectedAccount);
-  const { safe } = useSafe(key?.[0] ?? accounts[0].safeAddr);
 
   return useMemo(() => {
     const account =
@@ -25,11 +25,10 @@ export const useSelectedAccount = () => {
         accounts.find((a) => a.safeAddr === key[0] && a.ref === key[1])) ||
       accounts[0];
 
-    return {
-      ...account,
-      safe,
-    };
-  }, [accounts, key, safe]);
+    const safe = safes.find((s) => s.contract.address === account.safeAddr)!;
+
+    return { ...account, safe };
+  }, [accounts, key, safes]);
 };
 
 export const useSelectAccount = () => {

@@ -17,6 +17,8 @@ export const API_SAFE_FIELDS = gql`
 `;
 
 export const API_SAFE_QUERY = gql`
+  ${API_SAFE_FIELDS}
+
   query Safe($id: Address!) {
     safe(id: $id) {
       ...SafeFields

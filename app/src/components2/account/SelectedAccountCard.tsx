@@ -9,17 +9,15 @@ export interface SelectedAccountCardProps
 
 export const SelectedAccountCard = (props: SelectedAccountCardProps) => {
   const { colors } = useTheme();
-  const navigation = useNavigation<BottomNavigatorProps['navigation']>();
+  const { navigate } = useNavigation<BottomNavigatorProps['navigation']>();
   const selected = useSelectedAccount();
 
   return (
     <AccountCard
       {...props}
       account={selected}
-      cardProps={{
-        backgroundColor: colors.tertiaryContainer,
-        onPress: () => navigation.navigate('SelectAccount'),
-      }}
+      backgroundColor={colors.tertiaryContainer}
+      onPress={() => navigate('SelectAccount')}
     />
   );
 };

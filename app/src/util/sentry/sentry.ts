@@ -6,7 +6,7 @@ export const SENTRY_ROUTING_INSTRUMENTATION =
 
 export const withSentry = <P>(RootComponent: React.ComponentType<P>) => {
   init({
-    dsn: CONFIG.sentry.dsn,
+    dsn: CONFIG.sentryDsn,
     environment: CONFIG.env,
     // enableInExpoDevelopment: true,
     // debug: true,
