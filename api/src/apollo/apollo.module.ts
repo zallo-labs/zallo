@@ -31,17 +31,19 @@ export const GQL_ENDPOINT = '/graphql';
         fieldMiddleware: [IdMiddleware, AddressMiddleware],
       },
       playground: false,
-      plugins: IS_DEV
-        ? [
-            ApolloServerPluginLandingPageLocalDefault({
-              includeCookies: true,
-              variables: {
-                'request.credentials': 'include',
-              } as ApolloServerPluginLandingPageGraphQLPlaygroundOptions['settings'],
-            }),
-            ApolloServerPluginInlineTrace(),
-          ]
-        : [],
+      plugins: [
+        ...(IS_DEV
+          ? [
+              ApolloServerPluginLandingPageLocalDefault({
+                includeCookies: true,
+                variables: {
+                  'request.credentials': 'include',
+                } as ApolloServerPluginLandingPageGraphQLPlaygroundOptions['settings'],
+              }),
+              ApolloServerPluginInlineTrace(),
+            ]
+          : []),
+      ],
     }),
   ],
 })
