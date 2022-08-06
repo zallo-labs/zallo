@@ -21,13 +21,14 @@ export const GQL_ENDPOINT = '/graphql';
       debug: IS_DEV,
       introspection: true,
       path: GQL_ENDPOINT,
-      buildSchemaOptions: {
-        fieldMiddleware: [IdMiddleware, AddressMiddleware],
-      },
+      cache: 'bounded',
       // plugins: [new LoggingPlugin()],
       cors: {
         origin: 'https://studio.apollographql.com',
         credentials: true,
+      },
+      buildSchemaOptions: {
+        fieldMiddleware: [IdMiddleware, AddressMiddleware],
       },
       playground: false,
       plugins: IS_DEV
