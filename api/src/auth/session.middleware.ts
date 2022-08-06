@@ -1,10 +1,11 @@
-import { RedisService } from '@liaoliaots/nestjs-redis';
 import { Injectable, NestMiddleware } from '@nestjs/common';
 import { NextFunction, Request, RequestHandler, Response } from 'express';
 import session from 'express-session';
 import createStore from 'connect-redis';
 import CONFIG from 'config';
 import { Duration } from 'luxon';
+import { InjectRedis } from '@liaoliaots/nestjs-redis';
+import Redis from 'ioredis';
 
 const RedisStore = createStore(session);
 
@@ -12,7 +13,7 @@ const RedisStore = createStore(session);
 export class SessionMiddleware implements NestMiddleware {
   private sessionHandler: RequestHandler;
 
-  constructor(redisService: RedisService) {
+  constructor(@InjectRedis() private readonly redis: Redis) {
     this.sessionHandler = session({
       secret: CONFIG.sessionSecret!,
       resave: false,
@@ -22,7 +23,7 @@ export class SessionMiddleware implements NestMiddleware {
         // secure: true,
         // sameSite: true,    // Enable once secure=true is enabled
       },
-      store: new RedisStore({ client: redisService.getClient() }),
+      store: new RedisStore({ client: redis }),
     });
   }
 

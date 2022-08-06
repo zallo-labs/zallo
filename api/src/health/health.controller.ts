@@ -5,7 +5,8 @@ import {
   HttpHealthIndicator,
 } from '@nestjs/terminus';
 import { Public } from '~/decorators/public.decorator';
-import { PrismaHealthIndicator } from './prismaHealth.indicator';
+import { PrismaHealthIndicator } from './prisma.indicator';
+import { RedisHealthIndicator } from './redis.indicator';
 
 @Controller('health')
 export class HealthController {
@@ -13,6 +14,7 @@ export class HealthController {
     private health: HealthCheckService,
     private http: HttpHealthIndicator,
     private prismaHealth: PrismaHealthIndicator,
+    private redisHealth: RedisHealthIndicator,
   ) {}
 
   @Public()
@@ -22,6 +24,7 @@ export class HealthController {
     return this.health.check([
       () => this.http.pingCheck('google', 'https://google.com'),
       () => this.prismaHealth.isHealthy('prisma'),
+      () => this.redisHealth.isHealthy('redis'),
     ]);
   }
 }
