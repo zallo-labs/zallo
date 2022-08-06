@@ -38,12 +38,6 @@ export const CONFIG = {
   safeImplAddress: SAFE_IMPL[chain.name],
   proxyFactoryAddress: PROXY_FACTORY[chain.name],
   multicallAddress: MULTICALL[chain.name],
-  sentry: {
-    dsn: E.SENTRY_DSN,
-    org: E.SENTRY_ORG,
-    project: E.SENTRY_PROJECT,
-    authToken: E.SENTRY_AUTH_TOKEN,
-  },
 } as const;
 
 export default CONFIG;
