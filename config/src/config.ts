@@ -10,7 +10,6 @@ try {
 const E = process?.env ?? {};
 
 const apiPort = E.PORT || 3000;
-const apiUrl = E.API_URL ?? `http://[::1]:${apiPort}`;
 
 const defaultChain: ChainName = 'testnet';
 const chain = getChain(E.CHAIN?.toLowerCase() ?? defaultChain);
@@ -27,14 +26,12 @@ export const CONFIG = {
   coinmarketcapApiKey: E.COINMARKETCAP_API_KEY,
   wallet: {
     address: E.WALLET_ADDRESS,
-    privateKey: E.WALLET_PRIVATE_KEY, 
+    privateKey: E.WALLET_PRIVATE_KEY,
   },
   databaseUrl: E.DATABASE_URL,
   redisUrl: E.REDIS_URL,
   api: {
     port: apiPort,
-    url: apiUrl,
-    gqlUrl: `${apiUrl}/graphql`,
   },
   sessionSecret: E.SESSION_SECRET,
   subgraphGqlUrl: E.SUBGRAPH_GQL_URL,

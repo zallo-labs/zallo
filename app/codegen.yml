@@ -1,7 +1,7 @@
 overwrite: true
 generates:
   src/gql/generated.api.tsx:
-    schema: ${API_GQL_URL}
+    schema: ${API_URL}/graphql
     documents: 'src/{mutations,queries}/**/*.api.ts'
     plugins:
       - 'typescript'
