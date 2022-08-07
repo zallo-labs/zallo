@@ -27,7 +27,10 @@ import {
   QuorumScreen,
   QuorumScreenParams,
 } from '~/screens/quorum/QuorumScreen';
-import { ContactsScreen, ContactsScreenParams } from '~/screens/contacts/ContactsScreen';
+import {
+  ContactsScreen,
+  ContactsScreenParams,
+} from '~/screens/contacts/ContactsScreen';
 
 export type RootNavigatorParamList = {
   BottomNavigator: undefined;
@@ -50,16 +53,17 @@ const Navigation = createNativeStackNavigator<RootNavigatorParamList>();
 export const RootNavigator = () => {
   const { accounts } = useAccounts();
 
-  const initialRoute = useMemo((): keyof RootNavigatorParamList => {
-    if (accounts.length === 0) return 'CreateFirstAccount';
-    return 'BottomNavigator';
-  }, [accounts.length]);
-
   return (
-    <Navigation.Navigator
-      initialRouteName={initialRoute}
-      screenOptions={{ headerShown: false }}
-    >
+    <Navigation.Navigator screenOptions={{ headerShown: false }}>
+      <Navigation.Group key="Onboarding">
+        {accounts.length === 0 && (
+          <Navigation.Screen
+            name="CreateFirstAccount"
+            component={CreateFirstAccountScreen}
+          />
+        )}
+      </Navigation.Group>
+
       <Navigation.Screen name="BottomNavigator" component={BottomNavigator} />
       <Navigation.Screen name="Tokens" component={TokensScreen} />
       <Navigation.Screen name="SelectAccount" component={SelectAccountScreen} />
@@ -68,13 +72,6 @@ export const RootNavigator = () => {
       <Navigation.Screen name="Configure" component={ConfigureScreen} />
       <Navigation.Screen name="Quorum" component={QuorumScreen} />
       <Navigation.Screen name="Contacts" component={ContactsScreen} />
-
-      <Navigation.Group key="Onboarding">
-        <Navigation.Screen
-          name="CreateFirstAccount"
-          component={CreateFirstAccountScreen}
-        />
-      </Navigation.Group>
     </Navigation.Navigator>
   );
 };

@@ -9,6 +9,7 @@ import { FormikTextField } from '@components/fields/FormikTextField';
 import { FormikSubmitFab } from '@components/fields/FormikSubmitFab';
 import { CheckIcon } from '@util/theme/icons';
 import { useCreateApiSafe } from '~/mutations/safe/useCreateSafe.api';
+import { useGoBack } from '~/components2/Appbar/useGoBack';
 
 const initialValues = {
   safeName: '',
@@ -41,8 +42,7 @@ export const CreateFirstAccountScreen = ({
   return (
     <Box flex={1}>
       <Appbar.Header mode="medium">
-        <Appbar.BackAction />
-        {/* <Appbar.BackAction onPress={() => navigation.navigate('Register')} /> */}
+        <Appbar.BackAction onPress={useGoBack()} />
         <Appbar.Content title="Create Account" />
       </Appbar.Header>
 
