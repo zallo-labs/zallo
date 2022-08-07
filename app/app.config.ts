@@ -15,8 +15,9 @@ export type Config = typeof CONFIG;
 // https://docs.expo.dev/versions/latest/config/app/
 export default ({ config }: ConfigContext): ExpoConfig => ({
   ...config,
-  name: 'allopay',
-  slug: 'allopay',
+  name: 'AlloPay',
+  slug: 'app',
+  owner: 'allopay',
   githubUrl: 'https://github.com/allopay/allopay',
   jsEngine: 'hermes',
   version: '0.1.0',
@@ -72,6 +73,6 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     favicon: './assets/favicon.png',
   },
   updates: {
-    url: 'https://u.expo.dev/4bd8f1aa-83b2-4cff-b0d7-2321254ba96d',
+    url: 'https://u.expo.dev/f8f4def1-b838-4dec-8b50-6c07995c4ff5',
   },
 });
