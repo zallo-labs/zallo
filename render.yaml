@@ -34,7 +34,7 @@ services:
       targetMemoryPercent: 70
       targetCPUPercent: 70
     domains:
-      - api.metasafe.fi
+      - api.allopay.io
   - type: redis
     name: api-redis
     region: oregon
