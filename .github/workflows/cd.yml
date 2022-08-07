@@ -56,7 +56,7 @@ jobs:
         run: yarn subgraph build
 
       - name: 🚀 Deploy
-        run: yarn subgraph deploy:metasafe
+        run: yarn subgraph deploy:hosted
 
   api:
     if: ${{ github.event.workflow_run.conclusion == 'success' }}

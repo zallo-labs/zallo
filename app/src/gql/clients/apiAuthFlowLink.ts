@@ -38,7 +38,7 @@ const fetchToken = async (wallet: zk.Wallet): Promise<Token> => {
   const message = new SiweMessage({
     address: wallet.address,
     nonce,
-    statement: 'Sign into MetaSafe',
+    statement: 'Sign into AlloPay',
     chainId: PROVIDER.network.chainId,
     version: '1',
     uri: CONFIG.apiUrl,
