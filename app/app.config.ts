@@ -15,9 +15,9 @@ export type Config = typeof CONFIG;
 // https://docs.expo.dev/versions/latest/config/app/
 export default ({ config }: ConfigContext): ExpoConfig => ({
   ...config,
-  name: 'metasafe',
-  slug: 'metasafe',
-  githubUrl: 'https://github.com/hbriese/metasafe',
+  name: 'allopay',
+  slug: 'allopay',
+  githubUrl: 'https://github.com/allopay/allopay',
   jsEngine: 'hermes',
   version: '0.1.0',
   runtimeVersion: {
@@ -52,7 +52,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
   },
   assetBundlePatterns: ['**/*'],
   ios: {
-    bundleIdentifier: 'fi.metasafe',
+    bundleIdentifier: 'io.allopay',
     supportsTablet: true,
     infoPlist: {
       NSCameraUsageDescription:
@@ -62,7 +62,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     },
   },
   android: {
-    package: 'fi.metasafe',
+    package: 'io.allopay',
     adaptiveIcon: {
       foregroundImage: './assets/adaptive-icon.png',
       backgroundColor: '#151A30',
