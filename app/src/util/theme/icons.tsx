@@ -46,3 +46,8 @@ export const SwapIcon = materialCommunity('swap-vertical');
 export const SearchIcon = material('search');
 export const PlusIcon = materialCommunity('plus');
 export const SettingsIcon = materialCommunity('cog-outline');
+export const PayIcon = materialCommunity('contactless-payment');
+export const PayCircleIcon = materialCommunity('contactless-payment-circle');
+export const PayCircleOutlineIcon = materialCommunity(
+  'contactless-payment-circle-outline',
+);

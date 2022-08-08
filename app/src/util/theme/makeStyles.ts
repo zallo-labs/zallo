@@ -15,13 +15,13 @@ export function makeStyles<
     | NamedStyles<T>
     | ((theme: ThemeOverride, params: Params) => T | NamedStyles<T>),
 ) {
-  return function useStyles(params: Params): T {
+  return function useStyles(params?: Params): T {
     const theme = useTheme();
 
     return useMemo(() => {
-      if (typeof styles === 'function') styles = styles(theme, params);
-
-      return StyleSheet.create(styles as T | NamedStyles<T>);
-    }, [params, theme]);
+      return typeof styles === 'function'
+        ? StyleSheet.create(styles(theme, params!))
+        : StyleSheet.create(styles);
+    }, [styles, params, theme]);
   };
 }

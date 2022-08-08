@@ -9938,7 +9938,7 @@ __metadata:
     react-native-get-random-values: ~1.8.0
     react-native-jazzicon: "patch:react-native-jazzicon@npm:^0.1.2#../.yarn/patches/react-native-jazzicon-npm-0.1.2-c1633b051f.patch"
     react-native-keyboard-aware-scroll-view: ^0.9.5
-    react-native-pager-view: 5.4.15
+    react-native-pager-view: 6.0.0-rc.2
     react-native-paper: ^5.0.0-rc.3
     react-native-popover-view: ^5.0.2
     react-native-qrcode-svg: ^6.1.2
@@ -29374,13 +29374,13 @@ __metadata:
   languageName: node
   linkType: hard
 
-"react-native-pager-view@npm:5.4.15":
-  version: 5.4.15
-  resolution: "react-native-pager-view@npm:5.4.15"
+"react-native-pager-view@npm:6.0.0-rc.2":
+  version: 6.0.0-rc.2
+  resolution: "react-native-pager-view@npm:6.0.0-rc.2"
   peerDependencies:
     react: "*"
     react-native: "*"
-  checksum: 037257c1c370610c56184e19c5e02dee04fc70a9c4216b14c0611ec9566ff1dfe075e49e3404a0a03b6e4335e5b226d1092b38022eaa36e66c05c35ff909961f
+  checksum: a10695f8e62222df00c38da150e9c4d0f40d2123d3f11d817c22bd7cfecdeaf1b43547d6c584440752b2ac84133ebd36663b439e1511782ee2216fbb9e77aef2
   languageName: node
   linkType: hard
 

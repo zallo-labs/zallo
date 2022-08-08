@@ -79,7 +79,7 @@
     "react-native-get-random-values": "~1.8.0",
     "react-native-jazzicon": "patch:react-native-jazzicon@npm:^0.1.2#../.yarn/patches/react-native-jazzicon-npm-0.1.2-c1633b051f.patch",
     "react-native-keyboard-aware-scroll-view": "^0.9.5",
-    "react-native-pager-view": "5.4.15",
+    "react-native-pager-view": "6.0.0-rc.2",
     "react-native-paper": "^5.0.0-rc.3",
     "react-native-popover-view": "^5.0.2",
     "react-native-qrcode-svg": "^6.1.2",

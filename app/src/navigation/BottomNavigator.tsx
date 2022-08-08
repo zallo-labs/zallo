@@ -1,6 +1,7 @@
+import { PayCircleIcon, PayCircleOutlineIcon } from '@util/theme/icons';
 import { ComponentPropsWithoutRef, useState } from 'react';
 import { BottomNavigation, Text } from 'react-native-paper';
-import { AccountsScreen } from '~/screens/accounts/AccountsScreen';
+import { HomeScreen } from '~/screens/home/HomeScreen';
 import { ReceiveScreen } from '~/screens/receive/ReceiveScreen';
 import { RootNavigatorScreenProps } from './RootNavigator';
 
@@ -33,16 +34,10 @@ type Routes = ComponentPropsWithoutRef<
 
 const routes: Routes = [
   {
-    key: 'Pay',
-    title: 'Pay',
-    focusedIcon: 'contactless-payment-circle',
-    unfocusedIcon: 'contactless-payment-circle-outline',
-  },
-  {
-    key: 'Accounts',
-    title: 'Accounts',
-    focusedIcon: 'view-stream',
-    unfocusedIcon: 'view-stream-outline',
+    key: 'Home',
+    title: 'Home',
+    focusedIcon: PayCircleIcon,
+    unfocusedIcon: PayCircleOutlineIcon,
   },
   {
     key: 'Activity',
@@ -59,8 +54,7 @@ const routes: Routes = [
 ];
 
 const renderScene = BottomNavigation.SceneMap({
-  Pay: Unimplemented,
-  Accounts: AccountsScreen,
+  Home: HomeScreen,
   Activity: Unimplemented,
   Receive: ReceiveScreen,
 });
@@ -68,7 +62,7 @@ const renderScene = BottomNavigation.SceneMap({
 export type BottomNavigatorProps = RootNavigatorScreenProps<'BottomNavigator'>;
 
 export const BottomNavigator = (_props: BottomNavigatorProps) => {
-  const [index, setIndex] = useState(1);
+  const [index, setIndex] = useState(0);
 
   return (
     <BottomNavigation
