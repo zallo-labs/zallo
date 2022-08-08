@@ -2,7 +2,7 @@ import { useEffect } from 'react';
 import * as SplashScreen from 'expo-splash-screen';
 import { Box } from './Box';
 import { Image, ImageRequireSource } from 'react-native';
-import Constants from 'expo-constants';
+import { SPLASH } from '~/config';
 const splash: ImageRequireSource = require('../../assets/splash.png');
 
 export const Splash = () => {
@@ -16,13 +16,13 @@ export const Splash = () => {
   }, []);
 
   return (
-    <Box flex={1} backgroundColor={Constants.manifest!.splash!.backgroundColor}>
+    <Box flex={1} backgroundColor={SPLASH?.backgroundColor}>
       <Image
         source={splash}
         style={{
           width: '100%',
           height: '100%',
-          resizeMode: Constants.manifest!.splash!.resizeMode,
+          resizeMode: SPLASH?.resizeMode,
         }}
       />
     </Box>
