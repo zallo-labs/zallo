@@ -27,37 +27,28 @@ export const WalletSelector = () => {
   const handlePageSelected = useCallback(
     ({ nativeEvent: { position: newPos } }: PagerViewOnPageSelectedEvent) => {
       setPosition(newPos);
-      // select(wallets[newPos]);
+      select(wallets[newPos]);
     },
     [select, wallets],
-  );
-
-  const wallets2 = useMemo(
-    () => [
-      ...wallets,
-      { ...wallets[0], id: toId('1') },
-      { ...wallets[0], id: toId('2') },
-    ],
-    [wallets],
   );
 
   return (
     <Box>
       <LazyPagerView
         renderItem={({ item, index }) => (
-          <Box key={index + 1} mx={4}>
+          <Box key={index + 1} mx={5}>
             <WalletCard wallet={item} available />
           </Box>
         )}
         style={styles.viewPager}
-        data={wallets2}
+        data={wallets}
         keyExtractor={(item) => item.id}
         initialPage={position}
         onPageSelected={handlePageSelected}
       />
 
       <Box horizontal justifyContent="center" mt={3}>
-        <Indicator n={wallets2.length} position={position} />
+        <Indicator n={wallets.length} position={position} />
       </Box>
     </Box>
   );

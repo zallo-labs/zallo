@@ -4,7 +4,9 @@ import { Container } from '@components/list/Container';
 import { PriceChange } from '@components/PriceDelta';
 import { TokenIcon } from '@components/token/TokenIcon';
 import { TokenValue } from '@components/token/TokenValue';
+import { makeStyles } from '@util/theme/makeStyles';
 import { BigNumber } from 'ethers';
+import { StyleSheet } from 'react-native';
 import { Text } from 'react-native-paper';
 import { useTokenPrice } from '~/queries/useTokenPrice.uni';
 import { Token } from '~/token/token';
@@ -17,14 +19,16 @@ export interface TokenCardProps {
   price?: boolean;
   change?: boolean;
   fiatAmount?: boolean;
-  amount?: BigNumber;
+  amount?: BigNumber | 'balance';
   remaining?: boolean;
 }
 
-export const TokenCard = ({ token: t, amount, ...props }: TokenCardProps) => {
+export const TokenCard = ({ token: t, ...props }: TokenCardProps) => {
+  const styles = useStyles();
   const { price } = useTokenPrice(t);
   const balance = useTokenBalance(t);
-  const { fiatValue } = useTokenValue(t, amount ?? balance);
+  const amount = (props.amount !== 'balance' && props.amount) || balance;
+  const { fiatValue } = useTokenValue(t, amount);
 
   return (
     <CardItem
@@ -56,8 +60,18 @@ export const TokenCard = ({ token: t, amount, ...props }: TokenCardProps) => {
             <TokenValue token={t} value={amount} symbol={false} />
           </Text>
         ),
-        props.remaining && <Text variant="bodyMedium">/xxx</Text>,
+        props.remaining && (
+          <Text variant="bodyMedium" style={styles.opaqueText}>
+            /xxx
+          </Text>
+        ),
       ]}
     />
   );
 };
+
+const useStyles = makeStyles(({ colors }) => ({
+  opaqueText: {
+    color: colors.onSurfaceOpaque,
+  },
+}));
