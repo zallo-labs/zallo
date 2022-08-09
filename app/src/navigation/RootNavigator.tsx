@@ -12,8 +12,6 @@ import {
   TokensScreen,
   TokensScreenParams,
 } from '~/screens/tokens/TokensScreen';
-import { useAccounts } from '~/queries/accounts/useAccounts';
-import { CreateFirstAccountScreen } from '~/screens/onboard/CreateFirstAccountScreen';
 import {
   AccountScreen,
   AccountScreenParams,
@@ -31,6 +29,9 @@ import {
   ContactsScreenParams,
 } from '~/screens/contacts/ContactsScreen';
 import { ScanScreen, ScanScreenParams } from '~/screens/scan/ScanScreen';
+import { CreateAccountScreen } from '~/screens/onboard/CreateAccountScreen';
+import { NameScreen } from '~/screens/onboard/Name/NameScreen';
+import { useShowOnboarding } from '~/screens/onboard/useShowOnboarding';
 
 export type RootNavigatorParamList = {
   BottomNavigator: undefined;
@@ -43,7 +44,8 @@ export type RootNavigatorParamList = {
   Contacts: ContactsScreenParams;
   Scan: ScanScreenParams;
   // Onboarding
-  CreateFirstAccount: undefined;
+  Name: undefined;
+  CreateAccount: undefined;
 };
 
 export type RootNavigatorScreenProps<K extends keyof RootNavigatorParamList> =
@@ -52,18 +54,18 @@ export type RootNavigatorScreenProps<K extends keyof RootNavigatorParamList> =
 const Navigation = createNativeStackNavigator<RootNavigatorParamList>();
 
 export const RootNavigator = () => {
-  const { accounts } = useAccounts();
-
+  const showOnboarding = useShowOnboarding();
   return (
     <Navigation.Navigator screenOptions={{ headerShown: false }}>
-      <Navigation.Group key="Onboarding">
-        {accounts.length === 0 && (
+      {showOnboarding && (
+        <Navigation.Group key="Onboarding">
+          <Navigation.Screen name="Name" component={NameScreen} />
           <Navigation.Screen
-            name="CreateFirstAccount"
-            component={CreateFirstAccountScreen}
+            name="CreateAccount"
+            component={CreateAccountScreen}
           />
-        )}
-      </Navigation.Group>
+        </Navigation.Group>
+      )}
 
       <Navigation.Screen name="BottomNavigator" component={BottomNavigator} />
       <Navigation.Screen name="Tokens" component={TokensScreen} />

@@ -52,3 +52,4 @@ export const PayCircleOutlineIcon = materialCommunity(
   'contactless-payment-circle-outline',
 );
 export const BackIcon = material('arrow-back');
+export const NextIcon = material('arrow-forward');
