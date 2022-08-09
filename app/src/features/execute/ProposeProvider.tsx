@@ -1,4 +1,4 @@
-import { useSafe } from '@features/safe/SafeProvider';
+import { useAccount } from '@features/account/AccountProvider';
 import { ChildrenProps } from '@util/children';
 import { callsToTxReq } from '@util/multicall';
 import { Address, hashTx, toId, CallDef } from 'lib';
@@ -16,15 +16,15 @@ import { useTxs } from '~/queries/tx/useTxs';
 import { ActivitySheet } from '../tx/ActivitySheet';
 
 const txReqToProposedTx = async (
-  safe: Address,
+  account: Address,
   callDefs: CallDef[],
 ): Promise<ProposedTx> => {
   const txReq = await callsToTxReq(callDefs);
-  const hash = await hashTx(safe, txReq);
+  const hash = await hashTx(account, txReq);
   const now = DateTime.now();
 
   return {
-    id: toId(`${safe}-${hash}`),
+    id: toId(`${account}-${hash}`),
     hash,
     ...txReq,
     approvals: [],
@@ -51,7 +51,7 @@ const context = createContext<Context>({
 export interface ActivityProviderProps extends ChildrenProps {}
 
 export const ProposeProvider = ({ children }: ActivityProviderProps) => {
-  const { contract: safe } = useSafe();
+  const { contract: account } = useAccount();
   const { txs } = useTxs();
 
   const [tx, setTx] = useState<ProposedTx | undefined>();
@@ -59,10 +59,10 @@ export const ProposeProvider = ({ children }: ActivityProviderProps) => {
   const value: Context = useMemo(
     () => ({
       propose: async (...callDefs) => {
-        setTx(await txReqToProposedTx(safe.address, callDefs));
+        setTx(await txReqToProposedTx(account.address, callDefs));
       },
     }),
-    [safe.address],
+    [account.address],
   );
 
   const matchingTx = useMemo(

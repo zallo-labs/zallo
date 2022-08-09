@@ -4,7 +4,7 @@ import {
 } from '@react-navigation/native-stack';
 
 import { ReceiveScreen } from '@features/receive/ReceiveScreen';
-import { SafeManagementScreen } from '@features/safe-management/SafeManagementScreen';
+import { AccountManagementScreen } from '@features/account-management/AccountManagementScreen';
 import {
   GroupManagementScreen,
   GroupManagementScreenParams,
@@ -28,7 +28,7 @@ import {
 export type RootNavigatorParamList = {
   TabNavigator: TabNavigatorParams;
   Receive: undefined;
-  SafeManagement: undefined;
+  AccountManagement: undefined;
   GroupManagement: GroupManagementScreenParams;
   Send: SendScreenParams;
   SelectToken: SelectTokenScreenParams;
@@ -48,7 +48,10 @@ export const RootNavigator = () => (
     <Stack.Group>
       <Stack.Screen name="TabNavigator" component={TabNavigator} />
       <Stack.Screen name="Receive" component={ReceiveScreen} />
-      <Stack.Screen name="SafeManagement" component={SafeManagementScreen} />
+      <Stack.Screen
+        name="AccountManagement"
+        component={AccountManagementScreen}
+      />
       <Stack.Screen name="GroupManagement" component={GroupManagementScreen} />
       <Stack.Screen name="Send" component={SendScreen} />
       <Stack.Screen name="SelectToken" component={SelectTokenScreen} />

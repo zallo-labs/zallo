@@ -3,19 +3,19 @@ import {
   BoolArray,
   boolArrayLength,
   boolAtIndex,
-  TestSafe,
+  TestAccount,
   toBoolArray,
 } from 'lib';
-import { deployTestSafe, expect } from './util';
+import { deployTestAccount, expect } from './util';
 
 describe('BoolArray', () => {
-  let safe: TestSafe;
+  let account: TestAccount;
   const values = [true, true, false, true, false, false, true, true, true];
   const bools = toBoolArray(values);
 
   before(async () => {
-    safe = (await deployTestSafe()).safe;
-  });                                                                                                                                                                     
+    account = (await deployTestAccount()).account;
+  });
 
   it('should successfully create a bool array', async () => {
     const expected = BigNumber.from(
@@ -27,14 +27,14 @@ describe('BoolArray', () => {
   it('should succeed at reading the length', async () => {
     const expected = values.length;
     expect(boolArrayLength(bools)).to.eq(expected);
-    expect(await safe.boolArrayLength(bools)).to.eq(expected);
+    expect(await account.boolArrayLength(bools)).to.eq(expected);
   });
 
   it('should succeed at reading the value at an index', async () => {
     for (let i = 0; i < values.length; i++) {
       const expected = values[i];
       expect(boolAtIndex(bools, i)).to.eq(expected);
-      expect(await safe.boolArrayAtIndex(bools, i)).to.eq(expected);
+      expect(await account.boolArrayAtIndex(bools, i)).to.eq(expected);
     }
   });
 
@@ -42,6 +42,6 @@ describe('BoolArray', () => {
     const emptyBools: BoolArray = [];
     const expected = 0;
     expect(boolArrayLength(emptyBools)).to.eq(expected);
-    expect(await safe.boolArrayLength(emptyBools)).to.eq(expected);
+    expect(await account.boolArrayLength(emptyBools)).to.eq(expected);
   });
 });

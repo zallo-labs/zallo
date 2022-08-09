@@ -12,7 +12,7 @@ import {
   Contact,
   NewContact,
 } from '~/queries/useContacts.api';
-import { useWallet } from '@features/wallet/useWallet';
+import { useDevice } from '@features/device/useDevice';
 import { toId } from 'lib';
 
 const API_MUTATION = gql`
@@ -30,7 +30,7 @@ const API_MUTATION = gql`
 `;
 
 export const useUpsertContact = () => {
-  const wallet = useWallet();
+  const device = useDevice();
 
   const [mutation] = useMutation<
     UpsertContactMutation,
@@ -41,7 +41,7 @@ export const useUpsertContact = () => {
 
   const upsert = useCallback(
     (cur: NewContact, prev?: Contact) => {
-      const curId = toId(`${wallet.address}-${cur.addr}`);
+      const curId = toId(`${device.address}-${cur.addr}`);
 
       return mutation({
         variables: {
@@ -86,7 +86,7 @@ export const useUpsertContact = () => {
         },
       });
     },
-    [mutation, wallet.address],
+    [mutation, device.address],
   );
 
   return upsert;

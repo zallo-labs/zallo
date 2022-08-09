@@ -1,5 +1,5 @@
 import { gql, useMutation } from '@apollo/client';
-import { useWallet } from '@features/wallet/useWallet';
+import { useDevice } from '@features/device/useDevice';
 import {
   CommentsQuery,
   CommentsQueryVariables,
@@ -11,7 +11,7 @@ import { QueryOpts } from '@gql/update';
 import { Address, Id, toId } from 'lib';
 import { DateTime } from 'luxon';
 import { useCallback } from 'react';
-import { useSelectedAccount } from '~/components2/account/useSelectedAccount';
+import { useSelectedWallet } from '~/components2/wallet/useSelectedWallet';
 import {
   COMMENT_FIELDS,
   Commentable,
@@ -22,19 +22,19 @@ import {
 const MUTATION = gql`
   ${COMMENT_FIELDS}
 
-  mutation CreateComment($safe: Address!, $key: Id!, $content: String!) {
-    createComment(safe: $safe, key: $key, content: $content) {
+  mutation CreateComment($account: Address!, $key: Id!, $content: String!) {
+    createComment(account: $account, key: $key, content: $content) {
       ...CommentFields
     }
   }
 `;
 
-export const createCommentId = (safe: Address, key: Id, nonce: number): Id =>
-  toId(`${safe}-${key}-${nonce}`);
+export const createCommentId = (account: Address, key: Id, nonce: number): Id =>
+  toId(`${account}-${key}-${nonce}`);
 
 export const useCreateComment = (c: Commentable) => {
-  const { safeAddr } = useSelectedAccount();
-  const wallet = useWallet();
+  const { accountAddr } = useSelectedWallet();
+  const device = useDevice();
   const key = getCommentableKey(c);
 
   const [mutate] = useMutation<
@@ -48,7 +48,7 @@ export const useCreateComment = (c: Commentable) => {
 
       const opts: QueryOpts<CommentsQueryVariables> = {
         query: COMMENTS_QUERY,
-        variables: { safe: safeAddr, key },
+        variables: { account: accountAddr, key },
       };
       const data = cache.readQuery<CommentsQuery, CommentsQueryVariables>(opts);
 
@@ -67,18 +67,18 @@ export const useCreateComment = (c: Commentable) => {
 
       return mutate({
         variables: {
-          safe: safeAddr,
+          account: accountAddr,
           key,
           content,
         },
         optimisticResponse: {
           createComment: {
             __typename: 'Comment',
-            id: createCommentId(safeAddr, key, 0),
-            safeId: safeAddr,
+            id: createCommentId(accountAddr, key, 0),
+            accountId: accountAddr,
             key,
             nonce: 0,
-            authorId: wallet.address,
+            authorId: device.address,
             content,
             createdAt: now,
             updatedAt: now,
@@ -87,7 +87,7 @@ export const useCreateComment = (c: Commentable) => {
         },
       });
     },
-    [mutate, safeAddr, key, wallet.address],
+    [mutate, accountAddr, key, device.address],
   );
 
   return create;

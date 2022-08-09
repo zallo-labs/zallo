@@ -1,25 +1,25 @@
 import { Address, Bytes, crypto, ethereum } from '@graphprotocol/graph-ts';
-import { Account, Quorum } from '../generated/schema';
+import { Wallet, Quorum } from '../generated/schema';
 import { getOrCreateUser } from './util';
 
-export function getQuorumId(accountId: string, quorumHash: Bytes): string {
-  // {account.id}-{hash}
-  return `${accountId}-${quorumHash.toHex()}`;
+export function getQuorumId(walletId: string, quorumHash: Bytes): string {
+  // {wallet.id}-{hash}
+  return `${walletId}-${quorumHash.toHex()}`;
 }
 
 export function getOrCreateQuorum(
-  account: Account,
+  wallet: Wallet,
   quorumBytes: Bytes,
   event: ethereum.Event,
 ): Quorum {
   const hash = Bytes.fromByteArray(crypto.keccak256(quorumBytes));
-  const id = getQuorumId(account.id, hash);
+  const id = getQuorumId(wallet.id, hash);
   let quorum = Quorum.load(id);
   if (quorum) return quorum;
 
   quorum = new Quorum(id);
   quorum.hash = hash;
-  quorum.account = account.id;
+  quorum.wallet = wallet.id;
   quorum.approvers = quorumBytesToApprovers(quorumBytes);
   quorum.active = true;
   quorum.blockHash = event.block.hash;

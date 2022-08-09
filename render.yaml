@@ -31,8 +31,8 @@ services:
     scaling:
       minInstances: 1
       maxInstances: 2
-      targetMemoryPercent: 70
       targetCPUPercent: 70
+      targetMemoryPercent: 80
     domains:
       - api.allopay.io
   - type: redis

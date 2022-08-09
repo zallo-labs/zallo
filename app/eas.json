@@ -20,7 +20,10 @@
       "extends": "production",
       "channel": "main",
       "distribution": "internal",
-      "developmentClient": true
+      "developmentClient": true,
+      "env": {
+        "NODE_ENV": "development"
+      }
     }
   },
   "submit": {

@@ -2,7 +2,7 @@ import {
   createNativeStackNavigator,
   NativeStackScreenProps,
 } from '@react-navigation/native-stack';
-import { SelectAccountScreen } from '~/screens/select-account/SelectAccountScreen';
+import { SelectWalletScreen } from '~/screens/select-wallet/SelectWalletScreen';
 import {
   AmountScreen,
   AmountScreenParams,
@@ -12,13 +12,10 @@ import {
   TokensScreen,
   TokensScreenParams,
 } from '~/screens/tokens/TokensScreen';
-import { useAccounts } from '~/queries/accounts/useAccounts';
-import { CreateFirstAccountScreen } from '~/screens/onboard/CreateFirstAccountScreen';
-import { useMemo } from 'react';
 import {
-  AccountScreen,
-  AccountScreenParams,
-} from '~/screens/account/AccountScreen';
+  WalletScreen,
+  WalletScreenParams,
+} from '~/screens/wallet/WalletScreen';
 import {
   ConfigureScreen,
   ConfigureScreenParams,
@@ -31,18 +28,24 @@ import {
   ContactsScreen,
   ContactsScreenParams,
 } from '~/screens/contacts/ContactsScreen';
+import { ScanScreen, ScanScreenParams } from '~/screens/scan/ScanScreen';
+import { CreateAccountScreen } from '~/screens/onboard/CreateAccountScreen';
+import { NameScreen } from '~/screens/onboard/Name/NameScreen';
+import { useShowOnboarding } from '~/screens/onboard/useShowOnboarding';
 
 export type RootNavigatorParamList = {
   BottomNavigator: undefined;
   Tokens: TokensScreenParams;
-  SelectAccount: undefined;
+  SelectWallet: undefined;
   Amount: AmountScreenParams;
-  Account: AccountScreenParams;
+  Wallet: WalletScreenParams;
   Configure: ConfigureScreenParams;
   Quorum: QuorumScreenParams;
   Contacts: ContactsScreenParams;
+  Scan: ScanScreenParams;
   // Onboarding
-  CreateFirstAccount: undefined;
+  Name: undefined;
+  CreateAccount: undefined;
 };
 
 export type RootNavigatorScreenProps<K extends keyof RootNavigatorParamList> =
@@ -51,27 +54,28 @@ export type RootNavigatorScreenProps<K extends keyof RootNavigatorParamList> =
 const Navigation = createNativeStackNavigator<RootNavigatorParamList>();
 
 export const RootNavigator = () => {
-  const { accounts } = useAccounts();
-
+  const showOnboarding = useShowOnboarding();
   return (
     <Navigation.Navigator screenOptions={{ headerShown: false }}>
-      <Navigation.Group key="Onboarding">
-        {accounts.length === 0 && (
+      {showOnboarding && (
+        <Navigation.Group key="Onboarding">
+          <Navigation.Screen name="Name" component={NameScreen} />
           <Navigation.Screen
-            name="CreateFirstAccount"
-            component={CreateFirstAccountScreen}
+            name="CreateAccount"
+            component={CreateAccountScreen}
           />
-        )}
-      </Navigation.Group>
+        </Navigation.Group>
+      )}
 
       <Navigation.Screen name="BottomNavigator" component={BottomNavigator} />
       <Navigation.Screen name="Tokens" component={TokensScreen} />
-      <Navigation.Screen name="SelectAccount" component={SelectAccountScreen} />
+      <Navigation.Screen name="SelectWallet" component={SelectWalletScreen} />
       <Navigation.Screen name="Amount" component={AmountScreen} />
-      <Navigation.Screen name="Account" component={AccountScreen} />
+      <Navigation.Screen name="Wallet" component={WalletScreen} />
       <Navigation.Screen name="Configure" component={ConfigureScreen} />
       <Navigation.Screen name="Quorum" component={QuorumScreen} />
       <Navigation.Screen name="Contacts" component={ContactsScreen} />
+      <Navigation.Screen name="Scan" component={ScanScreen} />
     </Navigation.Navigator>
   );
 };

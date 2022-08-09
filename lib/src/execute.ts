@@ -1,13 +1,13 @@
 import { ethers, Overrides } from 'ethers';
-import { Safe } from './contracts';
+import { Account } from './contracts';
 import { isTxReq, TxReq } from './tx';
 import { createTxSignature, Signerish } from './signature';
 import * as zk from 'zksync-web3';
 import { Eip712Meta, TransactionRequest } from 'zksync-web3/build/src/types';
 import { defaultAbiCoder } from 'ethers/lib/utils';
 import { EIP712_TX_TYPE } from 'zksync-web3/build/src/utils';
-import { TransactionStruct } from './contracts/Safe';
-import { Account } from './account';
+import { TransactionStruct } from './contracts/Account';
+import { Wallet } from './wallet';
 
 const toPartialTransactionRequest = (tx: TxReq): TransactionRequest => ({
   // Don't spread to avoid adding extra fields
@@ -54,20 +54,20 @@ export interface ExecuteTxOptions {
 }
 
 export const toTransactionRequest = async (
-  safe: Safe,
-  tx: TxReq,
   account: Account,
+  tx: TxReq,
+  wallet: Wallet,
   signers: Signerish[],
   opts: ExecuteTxOptions = {},
 ): Promise<TransactionRequest> => {
-  const provider = safe.provider;
+  const provider = account.provider;
   const basicReq = toPartialTransactionRequest(tx);
 
   return {
     ...basicReq,
-    from: safe.address,
+    from: account.address,
     type: EIP712_TX_TYPE,
-    nonce: await provider.getTransactionCount(safe.address),
+    nonce: await provider.getTransactionCount(account.address),
     chainId: (await provider.getNetwork()).chainId,
     gasPrice: await provider.getGasPrice(opts.customData?.feeToken),
     gasLimit: await estimateTxGas(basicReq, provider, signers.length),
@@ -75,8 +75,8 @@ export const toTransactionRequest = async (
       feeToken: zk.utils.ETH_ADDRESS,
       ...opts.customData,
       aaParams: {
-        from: safe.address,
-        signature: createTxSignature(account, signers),
+        from: account.address,
+        signature: createTxSignature(wallet, signers),
       },
     },
   };

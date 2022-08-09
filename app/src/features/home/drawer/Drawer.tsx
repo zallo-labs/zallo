@@ -6,7 +6,7 @@ import { ActivityIcon, ContactsIcon, HomeIcon } from '@util/theme/icons';
 import { useCallback } from 'react';
 import { ScrollView } from 'react-native-gesture-handler';
 import { Drawer as PaperDrawer } from 'react-native-paper';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useAccountAreaInsets } from 'react-native-safe-area-context';
 import { DeviceIdItem } from './DeviceIdItem';
 import { DrawerGroupsSection } from './DrawerGroupsSection';
 import { DrawerLink } from './DrawerLink';
@@ -18,7 +18,7 @@ import {
 export interface DrawerProps extends DrawerContentComponentProps {}
 
 export const Drawer = ({ navigation }: DrawerProps) => {
-  const insets = useSafeAreaInsets();
+  const insets = useAccountAreaInsets();
 
   const navigate: DrawerNavigate = useCallback(
     (...params: Parameters<DrawerNavigate>) => {
@@ -41,7 +41,7 @@ export const Drawer = ({ navigation }: DrawerProps) => {
         }}
       >
         <ScrollView>
-          <PaperDrawer.Section title="MetaSafe">
+          <PaperDrawer.Section title="MetaAccount">
             {/* Drawer is only visible on Home screen so it's always active */}
             <DrawerLink screen="Home" icon={HomeIcon} active />
             <DrawerLink screen="Activity" icon={ActivityIcon} />

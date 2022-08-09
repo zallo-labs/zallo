@@ -6,7 +6,7 @@ import {
 import { ChildrenProps } from '@util/children';
 import { LayoutChangeEvent, useWindowDimensions, View } from 'react-native';
 import { SharedValue, useAnimatedStyle } from 'react-native-reanimated';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useAccountAreaInsets } from 'react-native-safe-area-context';
 
 export interface SheetScrollRootProps extends ChildrenProps {
   animatedContentHeight: SharedValue<number>;
@@ -19,7 +19,7 @@ export const SheetScrollRoot = ({
   handleContentLayout,
 }: SheetScrollRootProps) => {
   const { height: windowHeight } = useWindowDimensions();
-  const insets = useSafeAreaInsets();
+  const insets = useAccountAreaInsets();
   const {
     animatedKeyboardHeight,
     animatedKeyboardState,

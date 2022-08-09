@@ -1,12 +1,12 @@
 import { effectiveGroupName } from '@components/GroupName';
 import { Identicon } from '@components/Identicon';
-import { useSafe } from '@features/safe/SafeProvider';
+import { useAccount } from '@features/account/AccountProvider';
 import { Drawer } from 'react-native-paper';
 import { useDrawerNavigation } from './DrawerNavigationProvider';
 
 export const DrawerGroupsSection = () => {
   const navigate = useDrawerNavigation();
-  const { groups } = useSafe();
+  const { groups } = useAccount();
 
   return (
     <Drawer.Section title="Groups">
@@ -21,7 +21,7 @@ export const DrawerGroupsSection = () => {
 
       <Drawer.Item
         label="Add"
-        icon="account-multiple-plus"
+        icon="wallet-multiple-plus"
         onPress={() => navigate('GroupManagement', {})}
       />
     </Drawer.Section>

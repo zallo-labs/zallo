@@ -9931,6 +9931,7 @@ __metadata:
     react-dom: 17.0.2
     react-intl: ^6.0.4
     react-native: 0.68.2
+    react-native-barcode-mask: ^1.2.4
     react-native-collapsible: ^1.6.0
     react-native-dashed-line: ^1.1.0
     react-native-flipper: ^0.154.0
@@ -9938,7 +9939,7 @@ __metadata:
     react-native-get-random-values: ~1.8.0
     react-native-jazzicon: "patch:react-native-jazzicon@npm:^0.1.2#../.yarn/patches/react-native-jazzicon-npm-0.1.2-c1633b051f.patch"
     react-native-keyboard-aware-scroll-view: ^0.9.5
-    react-native-pager-view: 5.4.15
+    react-native-pager-view: 6.0.0-rc.2
     react-native-paper: ^5.0.0-rc.3
     react-native-popover-view: ^5.0.2
     react-native-qrcode-svg: ^6.1.2
@@ -29235,6 +29236,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"react-native-barcode-mask@npm:^1.2.4":
+  version: 1.2.4
+  resolution: "react-native-barcode-mask@npm:1.2.4"
+  dependencies:
+    prop-types: ^15.6.2
+  checksum: 1cdf2b3497fdaaa6a39a42393a0265e9a47e9dba82258cc027a7ab3503f6f56a3c4721816cd6adc272c3ee30b5e386bd0be0a1aa76073616c583d9a4de5a883c
+  languageName: node
+  linkType: hard
+
 "react-native-codegen@npm:^0.0.17":
   version: 0.0.17
   resolution: "react-native-codegen@npm:0.0.17"
@@ -29374,13 +29384,13 @@ __metadata:
   languageName: node
   linkType: hard
 
-"react-native-pager-view@npm:5.4.15":
-  version: 5.4.15
-  resolution: "react-native-pager-view@npm:5.4.15"
+"react-native-pager-view@npm:6.0.0-rc.2":
+  version: 6.0.0-rc.2
+  resolution: "react-native-pager-view@npm:6.0.0-rc.2"
   peerDependencies:
     react: "*"
     react-native: "*"
-  checksum: 037257c1c370610c56184e19c5e02dee04fc70a9c4216b14c0611ec9566ff1dfe075e49e3404a0a03b6e4335e5b226d1092b38022eaa36e66c05c35ff909961f
+  checksum: a10695f8e62222df00c38da150e9c4d0f40d2123d3f11d817c22bd7cfecdeaf1b43547d6c584440752b2ac84133ebd36663b439e1511782ee2216fbb9e77aef2
   languageName: node
   linkType: hard
 

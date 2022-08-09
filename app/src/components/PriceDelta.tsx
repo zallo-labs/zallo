@@ -1,4 +1,5 @@
-import { Paragraph, useTheme } from 'react-native-paper';
+import { makeStyles } from '@util/theme/makeStyles';
+import { Paragraph } from 'react-native-paper';
 import { Percent } from './Percent';
 
 export interface PriceDeltaProps {
@@ -6,18 +7,22 @@ export interface PriceDeltaProps {
 }
 
 export const PriceChange = ({ change }: PriceDeltaProps) => {
-  const { colors } = useTheme();
+  const styles = useStyles();
 
-  const color =
-    change !== 0
-      ? change > 0
-        ? colors.success
-        : colors.error
-      : colors.placeholder;
+  if (change === 0) return null;
 
   return (
-    <Paragraph style={{ color }}>
+    <Paragraph style={change > 0 ? styles.positive : styles.negative}>
       <Percent sign>{change}</Percent>
     </Paragraph>
   );
 };
+
+const useStyles = makeStyles(({ colors }) => ({
+  positive: {
+    color: colors.success,
+  },
+  negative: {
+    color: colors.error,
+  },
+}));

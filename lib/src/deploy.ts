@@ -1,13 +1,13 @@
 import { BytesLike, ethers, Signer } from 'ethers';
 import { Address, address, Addresslike } from './addr';
 import {
-  Safe,
+  Account,
   Factory,
   Factory__factory,
-  Safe__factory,
+  Account__factory,
   ERC1967Proxy__factory,
 } from './contracts';
-import { Account } from './account';
+import { Wallet } from './wallet';
 import {
   defaultAbiCoder,
   hexDataLength,
@@ -35,26 +35,26 @@ const createConnect =
     f(address(addr), signer);
 
 export const connectFactory = createConnect(Factory__factory.connect);
-export const connectSafe = createConnect(Safe__factory.connect);
+export const connectAccount = createConnect(Account__factory.connect);
 export const connectProxy = createConnect(ERC1967Proxy__factory.connect);
 
-export interface SafeConstructorArgs {
-  account: Account;
+export interface AccountConstructorArgs {
+  wallet: Wallet;
 }
 
-export interface ProxyConstructorArgs extends SafeConstructorArgs {
+export interface ProxyConstructorArgs extends AccountConstructorArgs {
   impl: Address;
 }
 
 export const encodeProxyConstructorArgs = ({
-  account,
+  wallet,
   impl,
 }: ProxyConstructorArgs) => {
-  const safeInterface = Safe__factory.createInterface();
-  const encodedInitializeCall = safeInterface.encodeFunctionData('initialize', [
-    account.ref,
-    account.quorums,
-  ]);
+  const accountInterface = Account__factory.createInterface();
+  const encodedInitializeCall = accountInterface.encodeFunctionData(
+    'initialize',
+    [wallet.ref, wallet.quorums],
+  );
 
   return defaultAbiCoder.encode(
     // constructor(address _logic, bytes memory _data)
@@ -78,7 +78,7 @@ export const calculateProxyAddress = async (
   return address(addr);
 };
 
-export const deploySafeProxy = async (
+export const deployAccountProxy = async (
   args: ProxyConstructorArgs,
   factory: Factory,
   salt = randomDeploySalt(),
@@ -91,11 +91,11 @@ export const deploySafeProxy = async (
 
   return {
     proxy: connectProxy(addr, factory.signer),
-    safe: connectSafe(addr, factory.signer),
+    account: connectAccount(addr, factory.signer),
     salt,
     deployTx,
   };
 };
 
-export const isDeployed = async (safe: Safe) =>
-  (await safe.provider.getCode(safe.address)) !== '0x';
+export const isDeployed = async (account: Account) =>
+  (await account.provider.getCode(account.address)) !== '0x';

@@ -1,11 +1,11 @@
 import { gql, useQuery } from '@apollo/client';
-import { useWallet } from '@features/wallet/useWallet';
+import { useDevice } from '@features/device/useDevice';
 import { ContactsQuery } from '@gql/generated.api';
 import { useApiClient } from '@gql/GqlProvider';
 import { truncatedAddr } from '@util/format';
 import { address, Address, filterFirst, Id, toId } from 'lib';
 import { useMemo } from 'react';
-import { useSafes } from './safe/useSafes';
+import { useAccounts } from './account/useAccounts';
 
 export const API_CONTACT_FIELDS = gql`
   fragment ContactFields on Contact {
@@ -26,8 +26,8 @@ export const API_CONTACTS_QUERY = gql`
 `;
 
 export const useContacts = () => {
-  const { safes } = useSafes();
-  const wallet = useWallet();
+  const { accounts } = useAccounts();
+  const device = useDevice();
 
   const { data, ...rest } = useQuery<ContactsQuery>(API_CONTACTS_QUERY, {
     client: useApiClient(),
@@ -43,32 +43,32 @@ export const useContacts = () => {
     [data],
   );
 
-  // Show this device & other safes as contacts
-  const safeContacts = useMemo(
+  // Show this device & other accounts as contacts
+  const accountContacts = useMemo(
     () =>
-      safes.map(
+      accounts.map(
         ({ name, contract: { address } }): Contact => ({
           id: toId(address),
           addr: address,
-          name: name || `Safe ${truncatedAddr(address)}`,
+          name: name || `Account ${truncatedAddr(address)}`,
         }),
       ),
-    [safes],
+    [accounts],
   );
 
-  // Exclude created safes & wallet contacts if they're already in the list
+  // Exclude created accounts & wallet contacts if they're already in the list
   const combinedContacts = useMemo(() => {
     const thisDeviceContact: Contact = {
-      id: toId(wallet.address),
-      addr: wallet.address,
+      id: toId(device.address),
+      addr: device.address,
       name: 'Myself',
     };
 
     return filterFirst(
-      [...contacts, ...safeContacts, thisDeviceContact],
+      [...contacts, ...accountContacts, thisDeviceContact],
       (contact) => contact.addr,
     );
-  }, [contacts, safeContacts, wallet.address]);
+  }, [contacts, accountContacts, device.address]);
 
   return { contacts: combinedContacts, ...rest };
 };

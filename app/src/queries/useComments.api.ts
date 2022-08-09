@@ -1,5 +1,5 @@
 import { gql, useQuery } from '@apollo/client';
-import { useSafe } from '@features/safe/SafeProvider';
+import { useAccount } from '@features/account/AccountProvider';
 import { CommentsQuery, CommentsQueryVariables } from '@gql/generated.api';
 import { useApiClient } from '@gql/GqlProvider';
 import { address, Address, Id, toId } from 'lib';
@@ -12,7 +12,7 @@ import { isTx, Tx } from './tx';
 export const REACTION_FIELDS = gql`
   fragment ReactionFields on Reaction {
     id
-    safeId
+    accountId
     key
     nonce
     userId
@@ -25,7 +25,7 @@ export const COMMENT_FIELDS = gql`
 
   fragment CommentFields on Comment {
     id
-    safeId
+    accountId
     key
     nonce
     authorId
@@ -41,8 +41,8 @@ export const COMMENT_FIELDS = gql`
 export const COMMENTS_QUERY = gql`
   ${COMMENT_FIELDS}
 
-  query Comments($safe: Address!, $key: Id!) {
-    comments(safe: $safe, key: $key) {
+  query Comments($account: Address!, $key: Id!) {
+    comments(account: $account, key: $key) {
       ...CommentFields
     }
   }
@@ -72,7 +72,7 @@ export const isCommentable = (e: Activity): e is Commentable =>
 export const getCommentableKey = (c: Commentable): Id => toId(`tx:${c.id}`);
 
 export const useComments = (commentable: Commentable) => {
-  const { contract: safe } = useSafe();
+  const { contract: account } = useAccount();
   const key = getCommentableKey(commentable);
 
   const { data, ...rest } = useQuery<CommentsQuery, CommentsQueryVariables>(
@@ -80,7 +80,7 @@ export const useComments = (commentable: Commentable) => {
     {
       client: useApiClient(),
       variables: {
-        safe: safe.address,
+        account: account.address,
         key,
       },
       pollInterval: 3 * 1000,

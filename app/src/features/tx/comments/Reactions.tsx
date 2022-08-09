@@ -1,6 +1,6 @@
 import { Box } from '@components/Box';
 import { Container } from '@components/list/Container';
-import { useWallet } from '@features/wallet/useWallet';
+import { useDevice } from '@features/device/useDevice';
 import { Address } from 'lib';
 import _ from 'lodash';
 import { useCallback, useMemo } from 'react';
@@ -21,7 +21,7 @@ export interface ReactionsProps {
 }
 
 export const Reactions = ({ comment, verticalOffset }: ReactionsProps) => {
-  const wallet = useWallet();
+  const device = useDevice();
   const react = useReactToComment();
 
   const emojis: GroupedEmoji[] = useMemo(() => {
@@ -34,15 +34,15 @@ export const Reactions = ({ comment, verticalOffset }: ReactionsProps) => {
 
     return Object.values(sorted).map(([emoji, grouped]) => {
       const approvers = grouped.map((g) => g.approver);
-      const userHasApproved = approvers.includes(wallet.address);
+      const userHasApproved = approvers.includes(device.address);
 
       return { emoji, approvers, userHasApproved };
     });
-  }, [comment.reactions, wallet.address]);
+  }, [comment.reactions, device.address]);
 
   const handlePress = useCallback(
     ({ emoji, userHasApproved }: GroupedEmoji) => {
-      const ownEmojis = getOwnReactions(comment, wallet.address);
+      const ownEmojis = getOwnReactions(comment, device.address);
 
       const newEmojis = userHasApproved
         ? ownEmojis.filter((e) => e !== emoji)
@@ -50,7 +50,7 @@ export const Reactions = ({ comment, verticalOffset }: ReactionsProps) => {
 
       react(comment, newEmojis);
     },
-    [comment, wallet.address, react],
+    [comment, device.address, react],
   );
 
   return (

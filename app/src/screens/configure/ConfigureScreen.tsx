@@ -10,34 +10,34 @@ import { FlatList } from 'react-native';
 import { Text } from 'react-native-paper';
 import { useAppbarHeader } from '~/components2/Appbar/useAppbarHeader';
 import { FAB } from '~/components2/FAB';
-import { useSetAccountName } from '~/mutations/account/useSetAccountName.api';
+import { useSetWalletName } from '~/mutations/wallet/useSetWalletName.api';
 import { RootNavigatorScreenProps } from '~/navigation/RootNavigator';
-import { AccountId, CombinedQuorum } from '~/queries/accounts';
-import { useAccount } from '~/queries/accounts/useAccount';
+import { WalletId, CombinedQuorum } from '~/queries/wallets';
+import { useWallet } from '~/queries/wallets/useWallet';
 import { QuorumCard } from '../../components2/QuorumCard';
 import { ConfigureAppbar } from './ConfigureAppbar';
 
 export interface ConfigureScreenParams {
-  id: AccountId;
+  id: WalletId;
 }
 
 export type ConfigureScreenProps = RootNavigatorScreenProps<'Configure'>;
 
 export const ConfigureScreen = withSkeleton(
   ({ route, navigation: { navigate } }: ConfigureScreenProps) => {
-    const account = useAccount(route.params.id);
+    const wallet = useWallet(route.params.id);
     const { AppbarHeader, handleScroll } = useAppbarHeader();
     const { space } = useTheme();
-    const setName = useSetAccountName();
+    const setName = useSetWalletName();
 
-    const [quorums, setQuorums] = useState(account.quorums);
+    const [quorums, setQuorums] = useState(wallet.quorums);
 
     const isModified = useMemo(
-      () => !_.isEqual(account.quorums, quorums),
-      [account.quorums, quorums],
+      () => !_.isEqual(wallet.quorums, quorums),
+      [wallet.quorums, quorums],
     );
 
-    const saveName = (name: string) => setName({ ...account, name });
+    const saveName = (name: string) => setName({ ...wallet, name });
 
     const configureQuorum = (quorum: CombinedQuorum) => () =>
       navigate('Quorum', {
@@ -52,13 +52,13 @@ export const ConfigureScreen = withSkeleton(
 
     return (
       <Box flex={1}>
-        <ConfigureAppbar account={account} AppbarHeader={AppbarHeader} />
+        <ConfigureAppbar wallet={wallet} AppbarHeader={AppbarHeader} />
 
         <FlatList
           ListHeaderComponent={() => (
             <>
               <SubmittableTextField
-                value={account.name}
+                value={wallet.name}
                 onSubmit={saveName}
                 hasError={(v) => !v.length && 'Required'}
               />

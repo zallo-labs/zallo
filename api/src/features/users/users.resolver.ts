@@ -8,7 +8,7 @@ import {
 } from '@nestjs/graphql';
 import { PrismaService } from 'nestjs-prisma';
 
-import { Safe } from '@gen/safe/safe.model';
+import { Account } from '@gen/account/account.model';
 import { GraphQLResolveInfo } from 'graphql';
 import { getSelect } from '~/util/select';
 import { GetAddrNameArgs } from './users.input';
@@ -36,19 +36,19 @@ export class UsersResolver {
     });
   }
 
-  @ResolveField(() => [Safe])
-  async safes(
+  @ResolveField(() => [Account])
+  async accounts(
     @UserAddr() user: Address,
     @Info() info: GraphQLResolveInfo,
-  ): Promise<Safe[]> {
-    return this.prisma.safe.findMany({
+  ): Promise<Account[]> {
+    return this.prisma.account.findMany({
       where: {
         OR: [
-          // Deployed safe - approvers aren't stored
-          // { id: { in: await this.subgraph.userSafes(user) } },
-          // Counterfactual safes
+          // Deployed account - approvers aren't stored
+          // { id: { in: await this.subgraph.userAccounts(user) } },
+          // Counterfactual accounts
           {
-            accounts: {
+            wallets: {
               some: {
                 approvers: {
                   some: {
@@ -82,12 +82,12 @@ export class UsersResolver {
 
     if (contact) return contact.name;
 
-    const safe = await this.prisma.safe.findUnique({
+    const account = await this.prisma.account.findUnique({
       where: { id: addr },
       select: { name: true },
     });
 
-    return safe?.name || null;
+    return account?.name || null;
   }
 
   @Mutation(() => User)

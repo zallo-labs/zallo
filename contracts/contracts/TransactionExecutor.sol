@@ -84,8 +84,8 @@ abstract contract TransactionExecutor is EIP712 {
   {
     ExecutedTxsStruct storage s;
     assembly {
-      // keccack256('Safe.executedTxs')
-      s.slot := 0x15ba30df93b4c3cb0ce8d6d46f0557ce67e35fa465f91b1e9f374907a64a201b
+      // keccack256('TransactionExecutor.executedTxs')
+      s.slot := 0xbc27dde5fff032543400d18687eab3abfc68350f0bf6dbd89802dbc845940024
     }
     return s.executedTxs;
   }

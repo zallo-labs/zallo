@@ -2,6 +2,7 @@ import { FC, ReactNode } from 'react';
 import { Box } from '@components/Box';
 import { isFunctionalComponent } from '@util/typing';
 import { Card, CardProps } from './Card';
+import { withKeys } from '@util/children';
 
 export interface CardItemWithoutSkeletonProps extends CardProps {
   Left?: ReactNode | FC;
@@ -21,7 +22,7 @@ export const CardItemWithoutSkeleton = ({
         <Left />
       ) : (
         <Box justifyContent="center" mr={3}>
-          {Left}
+          {withKeys(Left)}
         </Box>
       )}
 
@@ -29,14 +30,16 @@ export const CardItemWithoutSkeleton = ({
         <Main />
       ) : (
         <Box flex={1} justifyContent="center">
-          {Main}
+          {withKeys(Main)}
         </Box>
       )}
 
       {Right && isFunctionalComponent(Right) ? (
         <Right />
       ) : (
-        <Box justifyContent="center">{Right}</Box>
+        <Box justifyContent="center" alignItems="flex-end">
+          {withKeys(Right)}
+        </Box>
       )}
     </Box>
   </Card>

@@ -1,5 +1,5 @@
 import { gql, useQuery } from '@apollo/client';
-import { useSafe } from '@features/safe/SafeProvider';
+import { useAccount } from '@features/account/AccountProvider';
 import { useSubgraphClient } from '@gql/GqlProvider';
 import { SubTxsQuery, SubTxsQueryVariables } from '@gql/generated.sub';
 import { toId, address, ZERO_ADDR, ZERO } from 'lib';
@@ -11,8 +11,8 @@ import { QUERY_TXS_POLL_INTERVAL, ExecutedTx, TxStatus } from '.';
 const SUB_QUERY = gql`
   ${TRANSFER_FIELDS}
 
-  query SubTxs($safe: String!) {
-    txes(where: { safe: $safe }) {
+  query SubTxs($account: String!) {
+    txes(where: { account: $account }) {
       id
       hash
       success
@@ -28,13 +28,13 @@ const SUB_QUERY = gql`
 `;
 
 export const useSubExecutedTxs = () => {
-  const { contract: safe } = useSafe();
+  const { contract: account } = useAccount();
 
   const { data, ...rest } = useQuery<SubTxsQuery, SubTxsQueryVariables>(
     SUB_QUERY,
     {
       client: useSubgraphClient(),
-      variables: { safe: toId(safe.address) },
+      variables: { account: toId(account.address) },
       pollInterval: QUERY_TXS_POLL_INTERVAL,
     },
   );

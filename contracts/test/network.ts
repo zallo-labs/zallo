@@ -1,8 +1,8 @@
-import { expect, wallet, provider } from './util';
+import { expect, device, provider } from './util';
 
 describe('Network', function () {
   it('Can fetch wallet balance', async () => {
-    const balance = await wallet.getBalance();
+    const balance = await device.getBalance();
     expect(balance.gte(0)).to.be.true;
   });
 

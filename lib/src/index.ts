@@ -1,14 +1,14 @@
 export {
-  Safe,
-  Safe__factory,
+  Account,
+  Account__factory,
   Factory,
   Factory__factory,
-  ERC1967Proxy as SafeProxy,
-  ERC1967Proxy__factory as SafeProxy__factory,
+  ERC1967Proxy as AccountProxy,
+  ERC1967Proxy__factory as AccountProxy__factory,
   Multicall,
   Multicall__factory,
-  TestSafe,
-  TestSafe__factory,
+  TestAccount,
+  TestAccount__factory,
   Tester,
 } from './contracts';
 export { Erc20, Erc20__factory } from './typechain';
@@ -25,11 +25,12 @@ export * from './call';
 export * from './chain';
 export * from './contractsAddrs';
 export * from './deploy';
+export * from './device';
 export * from './events';
 export * from './execute';
-export * from './account';
 export * from './id';
 export * from './merkle';
 export * from './signature';
 export * from './tx';
 export * from './upgrade';
+export * from './wallet';

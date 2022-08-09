@@ -1,9 +1,9 @@
 import { Address } from './addr';
-import { Safe } from './contracts';
+import { Account } from './contracts';
 import { createTx } from './tx';
 
-export const createUpgradeToTx = (safe: Safe, newImpl: Address) =>
+export const createUpgradeToTx = (account: Account, newImpl: Address) =>
   createTx({
-    to: safe.address,
-    data: safe.interface.encodeFunctionData('upgradeTo', [newImpl]),
+    to: account.address,
+    data: account.interface.encodeFunctionData('upgradeTo', [newImpl]),
   });

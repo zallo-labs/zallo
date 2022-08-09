@@ -14,7 +14,7 @@ import { PrismaService } from 'nestjs-prisma';
 import { UserAddr } from '~/decorators/user.decorator';
 import {
   connectOrCreateUser,
-  connectOrCreateSafe,
+  connectOrCreateAccount,
 } from '~/util/connect-or-create';
 import { getSelect } from '~/util/select';
 import {
@@ -29,12 +29,12 @@ export class CommentsResolver {
 
   @Query(() => [Comment])
   async comments(
-    @Args() { safe, key }: ManyCommentsArgs,
+    @Args() { account, key }: ManyCommentsArgs,
     @Info() info: GraphQLResolveInfo,
   ): Promise<Comment[]> {
     const r = await this.prisma.comment.findMany({
       where: {
-        safeId: safe,
+        accountId: account,
         key,
       },
       ...getSelect(info),
@@ -45,18 +45,18 @@ export class CommentsResolver {
 
   @ResolveField(() => String)
   async id(@Parent() c: Comment): Promise<Id> {
-    return toId(`${c.safeId}-${c.key}-${c.nonce}`);
+    return toId(`${c.accountId}-${c.key}-${c.nonce}`);
   }
 
   @Mutation(() => Comment)
   async createComment(
-    @Args() { safe, key, content }: CreateCommentArgs,
+    @Args() { account, key, content }: CreateCommentArgs,
     @UserAddr() user: Address,
     @Info() info: GraphQLResolveInfo,
   ): Promise<Comment> {
     return this.prisma.comment.create({
       data: {
-        safe: connectOrCreateSafe(safe),
+        account: connectOrCreateAccount(account),
         key,
         author: connectOrCreateUser(user),
         content,
@@ -67,12 +67,12 @@ export class CommentsResolver {
 
   @Mutation(() => Comment, { nullable: true })
   async deleteComment(
-    @Args() { safe, key, nonce }: UniqueCommentArgs,
+    @Args() { account, key, nonce }: UniqueCommentArgs,
   ): Promise<Comment | null> {
     return this.prisma.comment.delete({
       where: {
-        safeId_key_nonce: {
-          safeId: safe,
+        accountId_key_nonce: {
+          accountId: account,
           key,
           nonce,
         },

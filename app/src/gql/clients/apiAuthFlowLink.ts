@@ -7,7 +7,7 @@ import { tryAcquire, E_ALREADY_LOCKED, Mutex } from 'async-mutex';
 import * as zk from 'zksync-web3';
 import { CONFIG } from '~/config';
 import { PROVIDER } from '~/provider';
-import { useWallet } from '@features/wallet/useWallet';
+import { useDevice } from '@features/device/useDevice';
 import { atom, useRecoilState } from 'recoil';
 import { getSecureStore, persistAtom } from '@util/effect/persistAtom';
 import { useCallback, useMemo, useRef } from 'react';
@@ -62,7 +62,7 @@ const apiTokenState = atom<Token | null>({
 });
 
 export const useAuthFlowLink = () => {
-  const wallet = useWallet();
+  const device = useDevice();
   const [token, setToken] = useRecoilState(apiTokenState);
 
   const tokenRef = useRef<Token | null>(token);
@@ -71,7 +71,7 @@ export const useAuthFlowLink = () => {
     // Ensure token is reset exactly once at any given time
     try {
       await tryAcquire(fetchMutex).runExclusive(async () => {
-        tokenRef.current = await fetchToken(wallet);
+        tokenRef.current = await fetchToken(device);
         setToken(tokenRef.current);
       });
     } catch (e) {
@@ -81,7 +81,7 @@ export const useAuthFlowLink = () => {
         throw e;
       }
     }
-  }, [wallet, setToken]);
+  }, [device, setToken]);
 
   const authLink: ApolloLink = useMemo(
     () =>

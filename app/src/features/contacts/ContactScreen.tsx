@@ -121,7 +121,7 @@ export const ContactScreen = ({ navigation, route }: ContactScreenProps) => {
           )}
 
           <FormikSubmitFab
-            icon={existingContact ? 'content-save' : 'account-plus'}
+            icon={existingContact ? 'content-save' : 'wallet-plus'}
             label={existingContact ? 'Save' : 'Create'}
             hideWhenClean={!!existingContact}
           />

@@ -8,7 +8,7 @@ import { Paragraph } from 'react-native-paper';
 import { ReactPopover } from './ReactPopover';
 import { Reactions } from './Reactions';
 import { SwipeToDelete } from '@features/group-management/approver/SwipeToDelete';
-import { useWallet } from '@features/wallet/useWallet';
+import { useDevice } from '@features/device/useDevice';
 import { Comment } from '~/queries/useComments.api';
 import { useDeleteComment } from '~/mutations/comment/useDeleteComment.api';
 
@@ -19,7 +19,7 @@ export interface CommentItemProps extends BoxProps {
 }
 
 export const CommentItem = ({ comment: c, ...boxProps }: CommentItemProps) => {
-  const wallet = useWallet();
+  const device = useDevice();
   const del = useDeleteComment();
 
   const ref = useRef<TouchableOpacity>();
@@ -28,8 +28,8 @@ export const CommentItem = ({ comment: c, ...boxProps }: CommentItemProps) => {
   const handleDelete = useCallback(() => del(c), [c, del]);
 
   const isAuthor = useMemo(
-    () => c.author === wallet.address,
-    [c.author, wallet.address],
+    () => c.author === device.address,
+    [c.author, device.address],
   );
 
   return (

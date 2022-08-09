@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { ethers } from 'ethers';
 import * as zk from 'zksync-web3';
 import CONFIG, { Chain } from 'config';
-import { Factory, connectFactory, Address, Safe, connectSafe } from 'lib';
+import { Factory, connectFactory, Address, Account, connectAccount } from 'lib';
 
 @Injectable()
 export class ProviderService extends zk.Provider {
@@ -25,7 +25,7 @@ export class ProviderService extends zk.Provider {
     this.factory = connectFactory(CONFIG.proxyFactoryAddress!, this.wallet);
   }
 
-  public connectSafe(safe: Address): Safe {
-    return connectSafe(safe, this);
+  public connectAccount(account: Address): Account {
+    return connectAccount(account, this);
   }
 }

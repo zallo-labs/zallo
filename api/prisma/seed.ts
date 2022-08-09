@@ -3,7 +3,7 @@ import { PrismaClient } from '@prisma/client';
 const prisma = new PrismaClient();
 
 const main = async () => {
-  // await prisma.$executeRawUnsafe(`TRUNCATE TABLE "public"."Contact" CASCADE`);
+  // await prisma.$executeRawUnaccount(`TRUNCATE TABLE "public"."Contact" CASCADE`);
 };
 
 main()

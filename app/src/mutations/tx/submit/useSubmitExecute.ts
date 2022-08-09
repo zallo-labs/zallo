@@ -1,20 +1,20 @@
-import { useDeploySafe } from '@features/safe/useDeploySafe';
+import { useDeployAccount } from '@features/account/useDeployAccount';
 import { useFeeToken } from '@features/tx/useFeeToken';
 import { executeTx, Signerish } from 'lib';
 import { useCallback } from 'react';
-import { useSelectedAccount } from '~/components2/account/useSelectedAccount';
-import { CombinedAccount } from '~/queries/accounts';
+import { useSelectedWallet } from '~/components2/wallet/useSelectedWallet';
+import { CombinedWallet } from '~/queries/wallets';
 import { ProposedTx } from '~/queries/tx';
 import { useApiSubmitExecution } from './useSubmitExecution.api';
 
 export const useSubmitExecute = () => {
-  const { safe } = useSelectedAccount();
+  const { account } = useSelectedWallet();
   const submitExecution = useApiSubmitExecution();
-  const deploy = useDeploySafe();
+  const deploy = useDeployAccount();
   const feeToken = useFeeToken();
 
   const execute = useCallback(
-    async (tx: ProposedTx, acc: CombinedAccount) => {
+    async (tx: ProposedTx, acc: CombinedWallet) => {
       // Deploy if not already deployed
       await deploy?.();
 
@@ -23,14 +23,14 @@ export const useSubmitExecute = () => {
         signature: approval.signature,
       }));
 
-      const resp = await executeTx(safe.contract, tx, acc, signers, {
+      const resp = await executeTx(account.contract, tx, acc, signers, {
         customData: {
           feeToken: feeToken.addr,
         },
       });
       await submitExecution(tx, resp);
     },
-    [deploy, feeToken.addr, safe.contract, submitExecution],
+    [deploy, feeToken.addr, account.contract, submitExecution],
   );
 
   return execute;

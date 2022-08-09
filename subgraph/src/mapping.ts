@@ -1,18 +1,18 @@
 import {
-  AccountUpserted,
-  AccountRemoved,
+  WalletUpserted,
+  WalletRemoved,
   TxExecuted,
   TxReverted,
-} from '../generated/Safe/Safe';
-import { Account, Tx } from '../generated/schema';
-import { getSafeId, getTxId, getAccountId } from './id';
+} from '../generated/Account/Account';
+import { Wallet, Tx } from '../generated/schema';
+import { getAccountId, getTxId, getWalletId } from './id';
 import { getOrCreateQuorum } from './quorum';
-import { getOrCreateAccount, getOrCreateSafe } from './util';
+import { getOrCreateWallet, getOrCreateAccount } from './util';
 
 export function handleTxExecuted(e: TxExecuted): void {
   const tx = new Tx(getTxId(e.transaction));
 
-  tx.safe = getSafeId(e.address);
+  tx.account = getAccountId(e.address);
   tx.hash = e.params.txHash;
   tx.success = true;
   tx.response = e.params.response;
@@ -26,7 +26,7 @@ export function handleTxExecuted(e: TxExecuted): void {
 export function handleTxReverted(e: TxReverted): void {
   const tx = new Tx(getTxId(e.transaction));
 
-  tx.safe = getSafeId(e.address);
+  tx.account = getAccountId(e.address);
   tx.hash = e.params.txHash;
   tx.success = false;
   tx.response = e.params.response;
@@ -37,29 +37,27 @@ export function handleTxReverted(e: TxReverted): void {
   tx.save();
 }
 
-export function handleAccountUpserted(e: AccountUpserted): void {
-  const safe = getOrCreateSafe(e.address);
+export function handleWalletUpserted(e: WalletUpserted): void {
+  const account = getOrCreateAccount(e.address);
 
-  const account = getOrCreateAccount(
-    getAccountId(safe.id, e.params.accountRef),
-  );
-  account.safe = safe.id;
-  account.ref = e.params.accountRef;
-  account.active = true;
-  account.save();
+  const wallet = getOrCreateWallet(getWalletId(account.id, e.params.walletRef));
+  wallet.account = account.id;
+  wallet.ref = e.params.walletRef;
+  wallet.active = true;
+  wallet.save();
 
   // Add quorums
   for (let i = 0; i < e.params.quorums.length; ++i) {
     const quorumBytes = e.params.quorums[i];
-    getOrCreateQuorum(account, quorumBytes, e);
+    getOrCreateQuorum(wallet, quorumBytes, e);
   }
 }
 
-export function handleAccountRemoved(e: AccountRemoved): void {
-  const safe = getOrCreateSafe(e.address);
-  const account = Account.load(getAccountId(safe.id, e.params.accountRef));
-  if (account) {
-    account.active = false;
-    account.save();
+export function handleWalletRemoved(e: WalletRemoved): void {
+  const account = getOrCreateAccount(e.address);
+  const wallet = Wallet.load(getWalletId(account.id, e.params.walletRef));
+  if (wallet) {
+    wallet.active = false;
+    wallet.save();
   }
 }

@@ -14,7 +14,7 @@ import { PrismaService } from 'nestjs-prisma';
 import { UserAddr } from '~/decorators/user.decorator';
 import {
   connectOrCreateUser,
-  connectOrCreateSafe,
+  connectOrCreateAccount,
 } from '~/util/connect-or-create';
 import { getSelect } from '~/util/select';
 import { ReactToCommentArgs } from './reactions.args';
@@ -25,28 +25,28 @@ export class ReactionsResolver {
 
   @ResolveField(() => String)
   async id(@Parent() r: Reaction): Promise<Id> {
-    return toId(`${r.safeId}-${r.key}-${r.nonce}-${r.userId}`);
+    return toId(`${r.accountId}-${r.key}-${r.nonce}-${r.userId}`);
   }
 
   @Mutation(() => Reaction, { nullable: true })
   async reactToComment(
-    @Args() { safe, key, nonce, emojis }: ReactToCommentArgs,
+    @Args() { account, key, nonce, emojis }: ReactToCommentArgs,
     @Info() info: GraphQLResolveInfo,
     @UserAddr() user: Address,
   ): Promise<Reaction | null> {
-    const commentId = { safeId: safe, key, nonce };
+    const commentId = { accountId: account, key, nonce };
 
     // if (emojis.length) {
     return this.prisma.reaction.upsert({
       where: {
-        safeId_key_nonce_approverId: {
+        accountId_key_nonce_approverId: {
           ...commentId,
           approverId: user,
         },
       },
       create: {
-        safe: connectOrCreateSafe(safe),
-        comment: { connect: { safeId_key_nonce: commentId } },
+        account: connectOrCreateAccount(account),
+        comment: { connect: { accountId_key_nonce: commentId } },
         user: connectOrCreateUser(user),
         emojis,
       },
@@ -59,8 +59,8 @@ export class ReactionsResolver {
     // } else {
     //   return this.prisma.reaction.delete({
     //     where: {
-    //       safeId_key_nonce_approverId: {
-    //         safeId: safe,
+    //       accountId_key_nonce_approverId: {
+    //         accountId: account,
     //         key,
     //         nonce,
     //         approverId: user,

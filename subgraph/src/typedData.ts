@@ -1,5 +1,5 @@
 import { ByteArray, Bytes, crypto, ethereum } from '@graphprotocol/graph-ts';
-// import { ExecutionTxStruct, Safe } from '../generated/Safe/Safe';
+// import { ExecutionTxStruct, Account } from '../generated/Account/Account';
 
 const CHAIN_ID = 0; // zkSync FIXME: chain id is always 0
 
@@ -48,7 +48,7 @@ function typedDataHash(
   return Bytes.fromByteArray(hash);
 }
 
-// export function hashTx(safe: Safe, tx: ExecutionTxStruct): Bytes {
+// export function hashTx(account: Account, tx: ExecutionTxStruct): Bytes {
 //   const type = ethereum.Value.fromFixedBytes(Bytes.fromByteArray(TX_TYPEHASH));
 //   const to = ethereum.Value.fromAddress(tx.to);
 //   const value = ethereum.Value.fromUnsignedBigInt(tx.value);
@@ -72,5 +72,5 @@ function typedDataHash(
 //     ethereum.encode(ethereum.Value.fromTuple(tuple))!,
 //   );
 
-//   return typedDataHash(safe, Bytes.fromByteArray(structHash));
+//   return typedDataHash(account, Bytes.fromByteArray(structHash));
 // }

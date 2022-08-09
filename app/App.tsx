@@ -24,7 +24,7 @@ export default withSentry(() => (
   <LocalizatonProvider>
     <ThemeProvider>
       <Background>
-        <StatusBar />
+        <StatusBar style="light" backgroundColor="transparent" />
         <GestureHandlerRootView style={{ flex: 1 }}>
           <ErrorBoundary>
             <Suspense fallback={<Splash />}>

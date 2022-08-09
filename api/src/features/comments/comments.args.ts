@@ -6,7 +6,7 @@ import { IdField } from '~/apollo/scalars/Id.scalar';
 @ArgsType()
 export class ManyCommentsArgs {
   @AddressField()
-  safe: Address;
+  account: Address;
 
   @IdField()
   key: Id;

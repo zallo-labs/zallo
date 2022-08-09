@@ -3,6 +3,10 @@ import {
   useTheme as baseUseTheme,
 } from 'react-native-paper';
 import { space } from './styledComponents';
+import color from 'color';
+
+const c = (c: string, f: (color: color<string>) => color<string>) =>
+  f(color(c)).rgb().string();
 
 const overrided: typeof PaperDarkTheme = {
   ...PaperDarkTheme,
@@ -13,6 +17,8 @@ export const PAPER_THEME = {
   ...overrided,
   colors: {
     ...overrided.colors,
+
+    onSurfaceOpaque: c(overrided.colors.onSurface, (c) => c.alpha(0.7)),
 
     success: '#48C12A', // Green
     info: '#559EFC', // Blue

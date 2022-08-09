@@ -1,12 +1,12 @@
-export const SafeEvent = {
-  AccountUpserted: 'AccountUpserted',
-  AccountRemoved: 'AccountRemoved',
+export const AccountEvent = {
+  WalletUpserted: 'WalletUpserted',
+  WalletRemoved: 'WalletRemoved',
   // TransactionExecutor
   Transaction: 'Transaction',
   TransactionReverted: 'TransactionReverted',
 };
 
-export const SafeError = {
+export const AccountError = {
   ApproverSignaturesMismatch: 'ApproverSignaturesMismatch',
   TxAlreadyExecuted: 'TxAlreadyExecuted',
   InvalidSignature: 'InvalidSignature',
@@ -15,7 +15,7 @@ export const SafeError = {
   QuorumHashesNotAscending: 'QuorumHashesNotAscending',
   OnlyCallableByBootloader: 'OnlyCallableByBootloader',
   // SelfOwned
-  OnlyCallableBySafe: 'OnlyCallableBySafe',
+  OnlyCallableBySelf: 'OnlyCallableBySelf',
   // TransactionExecutor
   ExecutionReverted: 'ExecutionReverted',
   // Multicall
