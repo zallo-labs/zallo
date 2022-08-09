@@ -14,7 +14,6 @@ import {
 } from '~/screens/tokens/TokensScreen';
 import { useAccounts } from '~/queries/accounts/useAccounts';
 import { CreateFirstAccountScreen } from '~/screens/onboard/CreateFirstAccountScreen';
-import { useMemo } from 'react';
 import {
   AccountScreen,
   AccountScreenParams,
@@ -31,6 +30,7 @@ import {
   ContactsScreen,
   ContactsScreenParams,
 } from '~/screens/contacts/ContactsScreen';
+import { ScanScreen, ScanScreenParams } from '~/screens/scan/ScanScreen';
 
 export type RootNavigatorParamList = {
   BottomNavigator: undefined;
@@ -41,6 +41,7 @@ export type RootNavigatorParamList = {
   Configure: ConfigureScreenParams;
   Quorum: QuorumScreenParams;
   Contacts: ContactsScreenParams;
+  Scan: ScanScreenParams;
   // Onboarding
   CreateFirstAccount: undefined;
 };
@@ -72,6 +73,7 @@ export const RootNavigator = () => {
       <Navigation.Screen name="Configure" component={ConfigureScreen} />
       <Navigation.Screen name="Quorum" component={QuorumScreen} />
       <Navigation.Screen name="Contacts" component={ContactsScreen} />
+      <Navigation.Screen name="Scan" component={ScanScreen} />
     </Navigation.Navigator>
   );
 };

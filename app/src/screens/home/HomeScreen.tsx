@@ -1,14 +1,13 @@
 import { Box } from '@components/Box';
 import { FiatValue } from '@components/FiatValue';
-import { ScanIcon } from '@util/theme/icons';
 import { FlatList } from 'react-native';
-import { Appbar, Text } from 'react-native-paper';
+import { Text } from 'react-native-paper';
 import { useSelectedAccount } from '~/components2/account/useSelectedAccount';
-import { AppbarMenu } from '~/components2/Appbar/AppbarMenu';
 import { useAppbarHeader } from '~/components2/Appbar/useAppbarHeader';
 import { TokenCard } from '~/components2/token/TokenCard';
 import { useTokens } from '~/token/useToken';
 import { useTokenValues } from '~/token/useTokenValues';
+import { HomeAppbar } from './HomeAppbar';
 import { WalletSelector } from './WalletSelector';
 
 export const HomeScreen = () => {
@@ -19,11 +18,7 @@ export const HomeScreen = () => {
 
   return (
     <Box>
-      <AppbarHeader>
-        <AppbarMenu />
-        <Appbar.Content title="" />
-        <Appbar.Action icon={ScanIcon} />
-      </AppbarHeader>
+      <HomeAppbar AppbarHeader={AppbarHeader} />
 
       <FlatList
         ListHeaderComponent={
