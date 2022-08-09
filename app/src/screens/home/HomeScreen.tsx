@@ -15,8 +15,10 @@ import { useTokenValues } from '~/token/useTokenValues';
 import { HomeAppbar } from './HomeAppbar';
 import { WalletSelector } from './WalletSelector';
 import { sortBy } from 'lodash';
+import { withSkeleton } from '@components/skeleton/withSkeleton';
+import { ListScreenSkeleton } from '@components/skeleton/ListScreenSkeleton';
 
-export const HomeScreen = () => {
+export const HomeScreen = withSkeleton(() => {
   const { AppbarHeader, handleScroll } = useAppbarHeader();
   const allTokens = useTokens();
   const wallet = useSelectedAccount();
@@ -67,4 +69,4 @@ export const HomeScreen = () => {
       />
     </Box>
   );
-};
+}, ListScreenSkeleton);

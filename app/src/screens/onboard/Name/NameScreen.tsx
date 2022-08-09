@@ -1,11 +1,9 @@
 import { AppbarBack } from '@components/AppbarBack';
 import { Box } from '@components/Box';
-import { TextField } from '@components/fields/TextField';
 import { NextIcon } from '@util/theme/icons';
 import { makeStyles } from '@util/theme/makeStyles';
 import { Formik } from 'formik';
 import { Appbar, Text } from 'react-native-paper';
-import { FAB } from '~/components2/FAB';
 import { RootNavigatorScreenProps } from '~/navigation/RootNavigator';
 import { useName, useSetName } from './useName';
 import * as Yup from 'yup';
