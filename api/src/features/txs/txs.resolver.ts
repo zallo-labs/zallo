@@ -24,7 +24,7 @@ import { PrismaService } from 'nestjs-prisma';
 import { UserAddr } from '~/decorators/user.decorator';
 import {
   connectOrCreateUser,
-  connectOrCreateSafe,
+  connectOrCreateAccount,
 } from '~/util/connect-or-create';
 import { getSelect } from '~/util/select';
 import {
@@ -47,13 +47,13 @@ export class TxsResolver {
 
   @Query(() => [Tx])
   async txs(
-    @Args() { safe }: TxsArgs,
+    @Args() { account }: TxsArgs,
     @Info() info: GraphQLResolveInfo,
   ): Promise<Tx[]> {
     return (
-      (await this.prisma.safe
+      (await this.prisma.account
         .findUnique({
-          where: { id: safe },
+          where: { id: account },
         })
         .txs({
           ...getSelect(info),
@@ -63,7 +63,7 @@ export class TxsResolver {
 
   @ResolveField(() => String)
   id(@Parent() tx: Tx): Id {
-    return getTxId(tx.safeId, tx.hash);
+    return getTxId(tx.accountId, tx.hash);
   }
 
   @ResolveField(() => [Submission])
@@ -75,17 +75,17 @@ export class TxsResolver {
 
   @Mutation(() => Tx)
   async proposeTx(
-    @Args() { safe, tx, signature }: ProposeTxArgs,
+    @Args() { account, tx, signature }: ProposeTxArgs,
     @Info() info: GraphQLResolveInfo,
     @UserAddr() user: Address,
   ): Promise<Tx> {
-    const txHash = await hashTx(safe, tx);
+    const txHash = await hashTx(account, tx);
     await this.validateSignatureOrThrow(user, txHash, signature);
 
     return this.prisma.tx.upsert({
-      where: { safeId_hash: { hash: txHash, safeId: safe } },
+      where: { accountId_hash: { hash: txHash, accountId: account } },
       create: {
-        safe: connectOrCreateSafe(safe),
+        account: connectOrCreateAccount(account),
         hash: txHash,
         to: tx.to,
         value: tx.value.toString(),
@@ -94,7 +94,7 @@ export class TxsResolver {
         approvals: {
           create: {
             user: connectOrCreateUser(user),
-            safe: connectOrCreateSafe(safe),
+            account: connectOrCreateAccount(account),
             signature,
           },
         },
@@ -103,7 +103,7 @@ export class TxsResolver {
         approvals: {
           create: {
             user: connectOrCreateUser(user),
-            safe: connectOrCreateSafe(safe),
+            account: connectOrCreateAccount(account),
             signature,
           },
         },
@@ -114,18 +114,18 @@ export class TxsResolver {
 
   @Mutation(() => Tx, { nullable: true })
   async approve(
-    @Args() { safe, txHash, signature }: ApproveArgs,
+    @Args() { account, txHash, signature }: ApproveArgs,
     @Info() info: GraphQLResolveInfo,
     @UserAddr() user: Address,
   ): Promise<Tx | null> {
     await this.validateSignatureOrThrow(user, txHash, signature);
 
     return this.prisma.tx.update({
-      where: { safeId_hash: { safeId: safe, hash: txHash } },
+      where: { accountId_hash: { accountId: account, hash: txHash } },
       data: {
         approvals: {
           create: {
-            safe: connectOrCreateSafe(safe),
+            account: connectOrCreateAccount(account),
             user: connectOrCreateUser(user),
             signature: ethers.utils.hexlify(signature),
           },
@@ -137,16 +137,16 @@ export class TxsResolver {
 
   @Mutation(() => RevokeApprovalResp)
   async revokeApproval(
-    @Args() { safe, txHash }: RevokeApprovalArgs,
+    @Args() { account, txHash }: RevokeApprovalArgs,
     @UserAddr() user: Address,
   ): Promise<RevokeApprovalResp> {
     const tx = await this.prisma.tx.update({
-      where: { safeId_hash: { safeId: safe, hash: txHash } },
+      where: { accountId_hash: { accountId: account, hash: txHash } },
       data: {
         approvals: {
           delete: {
-            safeId_txHash_userId: {
-              safeId: safe,
+            accountId_txHash_userId: {
+              accountId: account,
               txHash,
               userId: user,
             },
@@ -157,15 +157,15 @@ export class TxsResolver {
 
     // Delete tx if no approvals are left
     const approvalsLeft = await this.prisma.approval.count({
-      where: { safeId: safe, txHash },
+      where: { accountId: account, txHash },
     });
 
     if (!approvalsLeft)
       await this.prisma.tx.delete({
-        where: { safeId_hash: { safeId: safe, hash: txHash } },
+        where: { accountId_hash: { accountId: account, hash: txHash } },
       });
 
-    return { id: getTxId(safe, txHash) };
+    return { id: getTxId(account, txHash) };
   }
 
   private async validateSignatureOrThrow(

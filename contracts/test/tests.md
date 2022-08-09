@@ -35,16 +35,16 @@
 - should be callable from any address
 
 
-## upsertAccount
+## upsertWallet
 - should successfully execute
 - should emit event
-- should generate the correct account merkle root
-- should revert if called from an address other than the safe
+- should generate the correct wallet merkle root
+- should revert if called from an address other than the account
 
 
-## removeAccount
+## removeWallet
 - should successfully execute & emit event
-- should zero account's merkle root
+- should zero wallet's merkle root
 
 
 ## hasBeenExecuted

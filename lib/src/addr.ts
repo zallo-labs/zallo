@@ -42,12 +42,12 @@ export const compareAddresses = (a: Address, b: Address) => {
 
 /* Module augmentation; including in a .ts file to compile into lib's typings */
 declare module './contracts/index' {
-  export interface Safe {
+  export interface Account {
     address: Address;
     provider: zk.Provider;
   }
 
-  export interface TestSafe {
+  export interface TestAccount {
     address: Address;
     provider: zk.Provider;
   }

@@ -3,7 +3,7 @@ import { FiatValue } from '@components/FiatValue';
 import { useMemo } from 'react';
 import { FlatList } from 'react-native';
 import { Text } from 'react-native-paper';
-import { useSelectedAccount } from '~/components2/account/useSelectedAccount';
+import { useSelectedWallet } from '~/components2/wallet/useSelectedWallet';
 import { useAppbarHeader } from '~/components2/Appbar/useAppbarHeader';
 import { TokenCard } from '~/components2/token/TokenCard';
 import {
@@ -21,8 +21,8 @@ import { ListScreenSkeleton } from '@components/skeleton/ListScreenSkeleton';
 export const HomeScreen = withSkeleton(() => {
   const { AppbarHeader, handleScroll } = useAppbarHeader();
   const allTokens = useTokens();
-  const wallet = useSelectedAccount();
-  const { totalFiatValue } = useTokenValues(wallet.safeAddr);
+  const wallet = useSelectedWallet();
+  const { totalFiatValue } = useTokenValues(wallet.accountAddr);
   const selectedToken = useSelectedToken();
   const selectToken = useSelectToken();
 

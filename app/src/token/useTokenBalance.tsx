@@ -6,7 +6,7 @@ import { Address, isPresent } from 'lib';
 import { captureException, Severity } from '@util/sentry/sentry';
 import { allTokensSelector } from './useToken';
 import { refreshAtom } from '@util/effect/refreshAtom';
-import { useSelectedAccount } from '~/components2/account/useSelectedAccount';
+import { useSelectedWallet } from '~/components2/wallet/useSelectedWallet';
 import { persistAtom } from '@util/effect/persistAtom';
 
 // [addr, token]
@@ -37,9 +37,9 @@ export const tokenBalanceState = atomFamily<BigNumber, BalanceKey>({
 });
 
 export const useTokenBalance = (token: Token) => {
-  const { safeAddr } = useSelectedAccount();
+  const { accountAddr } = useSelectedWallet();
 
-  return useRecoilValue(tokenBalanceState([safeAddr, token.addr]));
+  return useRecoilValue(tokenBalanceState([accountAddr, token.addr]));
 };
 
 export interface TokenWithBalance {

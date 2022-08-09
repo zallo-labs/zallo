@@ -4,7 +4,7 @@ import { Container } from '@components/list/Container';
 import { memo } from 'react';
 import { Text } from 'react-native-paper';
 import { Card, CardProps } from '~/components2/card/Card';
-import { CombinedQuorum } from '~/queries/accounts';
+import { CombinedQuorum } from '~/queries/wallets';
 
 export interface QuorumCardProps extends CardProps {
   quorum: CombinedQuorum;

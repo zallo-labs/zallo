@@ -18,7 +18,7 @@ export const CreateContactButton = ({ input }: CreateContactButtonProps) => {
 
   return (
     <FAB
-      icon="account-plus"
+      icon="wallet-plus"
       label="Create"
       onPress={() => navigation.navigate('Contact', { name: input })}
     />

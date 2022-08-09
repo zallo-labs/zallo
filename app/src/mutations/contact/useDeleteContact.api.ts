@@ -1,5 +1,5 @@
 import { gql, useMutation } from '@apollo/client';
-import { useWallet } from '@features/wallet/useWallet';
+import { useDevice } from '@features/device/useDevice';
 import {
   DeleteContactMutation,
   DeleteContactMutationVariables,
@@ -19,7 +19,7 @@ const API_MUTATION = gql`
 `;
 
 export const useDeleteContact = () => {
-  const wallet = useWallet();
+  const device = useDevice();
 
   const [mutation] = useMutation<
     DeleteContactMutation,
@@ -35,7 +35,7 @@ export const useDeleteContact = () => {
         optimisticResponse: {
           deleteContact: {
             __typename: 'DeleteContactResp',
-            id: toId(`${wallet.address}-${contact.addr}`),
+            id: toId(`${device.address}-${contact.addr}`),
           },
         },
         update: (cache) => {
@@ -55,7 +55,7 @@ export const useDeleteContact = () => {
           });
         },
       }),
-    [mutation, wallet.address],
+    [mutation, device.address],
   );
 
   return del;

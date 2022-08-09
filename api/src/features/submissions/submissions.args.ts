@@ -6,7 +6,7 @@ import { Bytes32Field } from '~/apollo/scalars/Bytes32.scalar';
 @ArgsType()
 export class SubmissionsArgs {
   @AddressField()
-  safe: Address;
+  account: Address;
 
   @Bytes32Field()
   txHash: string;

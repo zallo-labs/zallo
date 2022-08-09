@@ -1,5 +1,5 @@
 import { gql, useQuery } from '@apollo/client';
-import { useSafe } from '@features/safe/SafeProvider';
+import { useAccount } from '@features/account/AccountProvider';
 import { useSubgraphClient } from '@gql/GqlProvider';
 import { TransfersQuery, TransfersQueryVariables } from '@gql/generated.sub';
 import { toId } from 'lib';
@@ -11,8 +11,8 @@ import { useTxs } from './useTxs';
 const QUERY = gql`
   ${TRANSFER_FIELDS}
 
-  query Transfers($safe: String!, $txs: [String!]!) {
-    transfers(where: { safe: $safe, tx_not_in: $txs }) {
+  query Transfers($account: String!, $txs: [String!]!) {
+    transfers(where: { account: $account, tx_not_in: $txs }) {
       ...TransferFields
     }
   }
@@ -20,7 +20,7 @@ const QUERY = gql`
 
 // Transfers not included in a tx
 export const useExternalTransfers = () => {
-  const { contract: safe } = useSafe();
+  const { contract: account } = useAccount();
   const { txs } = useTxs();
 
   const { data, ...rest } = useQuery<TransfersQuery, TransfersQueryVariables>(
@@ -28,7 +28,7 @@ export const useExternalTransfers = () => {
     {
       client: useSubgraphClient(),
       variables: {
-        safe: toId(safe.address),
+        account: toId(account.address),
         // Subgraph returns nothing when *_not_in is empty, so use a dummy value
         txs: txs.length ? txs.map((tx) => tx.id) : ['dummy'],
       },

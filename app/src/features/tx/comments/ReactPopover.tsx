@@ -1,7 +1,7 @@
 import { Box } from '@components/Box';
 import { Container } from '@components/list/Container';
 import { Popover, PopoverProps } from '@components/Popover';
-import { useWallet } from '@features/wallet/useWallet';
+import { useDevice } from '@features/device/useDevice';
 import { Address } from 'lib';
 import { useWindowDimensions } from 'react-native';
 import { Chip, useTheme } from 'react-native-paper';
@@ -25,10 +25,10 @@ export const ReactPopover = ({
 }: ReactPopoverProps) => {
   const { colors } = useTheme();
   const { width } = useWindowDimensions();
-  const wallet = useWallet();
+  const device = useDevice();
   const react = useReactToComment();
 
-  const ownEmojies = getOwnReactions(c, wallet.address);
+  const ownEmojies = getOwnReactions(c, device.address);
 
   const emojis = EMOJIS.filter((emoji) => !ownEmojies.some((e) => e === emoji));
 

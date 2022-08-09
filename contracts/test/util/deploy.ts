@@ -6,21 +6,21 @@ import {
   Address,
   Multicall,
   Multicall__factory,
-  deploySafeProxy,
-  TestSafe__factory,
-  randomAccountRef,
-  Account,
+  deployAccountProxy,
+  TestAccount__factory,
+  randomWalletRef,
+  Wallet,
   toQuorums,
   toQuorum,
 } from 'lib';
-import { allSigners, wallet } from './wallet';
+import { allSigners, device } from './wallet';
 import { ContractTransaction } from 'ethers';
 import * as zk from 'zksync-web3';
 import { parseEther } from 'ethers/lib/utils';
 
-const SAFE_START_BALANCE = parseEther('0.000001');
+const ACCOUNT_START_BALANCE = parseEther('0.000001');
 
-export const deployer = new Deployer(hre, wallet);
+export const deployer = new Deployer(hre, device);
 
 export const deployFactory = async (
   contractName: 'ERC1967Proxy',
@@ -39,16 +39,16 @@ export const deployFactory = async (
   await contract.deployed();
 
   return {
-    factory: connectFactory(contract.address, wallet),
+    factory: connectFactory(contract.address, device),
     deployTx: contract.deployTransaction,
   };
 };
 
-export const deploySafeImpl = async ({
-  contractName = 'Safe',
+export const deployAccountImpl = async ({
+  contractName = 'Account',
   feeToken,
 }: {
-  contractName?: 'Safe' | 'TestSafe';
+  contractName?: 'Account' | 'TestAccount';
   feeToken?: Address;
 } = {}) => {
   const artifact = await deployer.loadArtifact(contractName);
@@ -65,7 +65,7 @@ export const deploySafeImpl = async ({
 
 export const deploy = async (
   quorumSize = 3,
-  contractName: 'Safe' | 'TestSafe' = 'Safe',
+  contractName: 'Account' | 'TestAccount' = 'Account',
 ) => {
   const approvers = allSigners
     .slice(0, quorumSize)
@@ -76,18 +76,18 @@ export const deploy = async (
 
   const quorum = toQuorum(approvers);
 
-  const account: Account = {
-    ref: randomAccountRef(),
+  const wallet: Wallet = {
+    ref: randomWalletRef(),
     quorums: toQuorums([quorum]),
   };
 
-  const { impl } = await deploySafeImpl({ contractName });
+  const { impl } = await deployAccountImpl({ contractName });
   const { factory } = await deployFactory('ERC1967Proxy');
-  const deployData = await deploySafeProxy({ account, impl }, factory);
+  const deployData = await deployAccountProxy({ wallet, impl }, factory);
 
-  const txResp = await wallet.sendTransaction({
-    to: deployData.safe.address,
-    value: SAFE_START_BALANCE,
+  const txResp = await device.sendTransaction({
+    to: deployData.account.address,
+    value: ACCOUNT_START_BALANCE,
   });
   await txResp.wait();
 
@@ -95,17 +95,17 @@ export const deploy = async (
     ...deployData,
     impl,
     factory,
-    account,
+    wallet,
     quorum,
     others,
   };
 };
 
-export const deployTestSafe = async (quorumSize?: number) => {
-  const { safe, ...rest } = await deploy(quorumSize, 'TestSafe');
+export const deployTestAccount = async (quorumSize?: number) => {
+  const { account, ...rest } = await deploy(quorumSize, 'TestAccount');
 
   return {
-    safe: TestSafe__factory.connect(safe.address, wallet),
+    account: TestAccount__factory.connect(account.address, device),
     ...rest,
   };
 };
@@ -123,7 +123,7 @@ export const deployMulticall = async (
   await contract.deployed();
 
   return {
-    multicall: Multicall__factory.connect(contract.address, wallet),
+    multicall: Multicall__factory.connect(contract.address, device),
     deployTx: contract.deployTransaction,
   };
 };

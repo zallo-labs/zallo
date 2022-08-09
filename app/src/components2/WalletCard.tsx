@@ -5,7 +5,7 @@ import { withSkeleton } from '@components/skeleton/withSkeleton';
 import { PayIcon } from '@util/theme/icons';
 import { useTheme } from '@util/theme/paper';
 import { Text } from 'react-native-paper';
-import { CombinedAccount } from '~/queries/accounts';
+import { CombinedWallet } from '~/queries/wallets';
 import { useTokenValues } from '~/token/useTokenValues';
 import { Card, CardProps } from './card/Card';
 import { CardItemSkeleton } from './card/CardItemSkeleton';
@@ -13,14 +13,14 @@ import { CardItemSkeleton } from './card/CardItemSkeleton';
 export const WALLET_CARD_HEIGHT = 160;
 
 export interface WalletCardProps extends CardProps {
-  wallet: CombinedAccount;
+  wallet: CombinedWallet;
   available?: boolean;
 }
 
 export const WalletCard = withSkeleton(
   ({ wallet, available, ...cardProps }: WalletCardProps) => {
     const { colors } = useTheme();
-    const { totalFiatValue } = useTokenValues(wallet.safeAddr);
+    const { totalFiatValue } = useTokenValues(wallet.accountAddr);
 
     const colorStyle = { color: colors.onTertiaryContainer };
 
@@ -39,7 +39,7 @@ export const WalletCard = withSkeleton(
               </Text>
 
               <Text variant="bodyMedium" style={colorStyle}>
-                <Addr addr={wallet.safeAddr} />
+                <Addr addr={wallet.accountAddr} />
               </Text>
             </Box>
 

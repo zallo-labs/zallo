@@ -1,4 +1,4 @@
-import { SafeEvent } from 'lib';
+import { AccountEvent } from 'lib';
 import { expect, deploy, deployFactory } from './util';
 
 describe('Factory', () => {
@@ -7,12 +7,12 @@ describe('Factory', () => {
   });
 
   it('Calculated address matches deploy', async () => {
-    const { safe, deployTx } = await deploy();
-    await expect(deployTx).to.emit(safe, SafeEvent.AccountUpserted);
+    const { account, deployTx } = await deploy();
+    await expect(deployTx).to.emit(account, AccountEvent.WalletUpserted);
   });
 
-  it('Deploys safe', async () => {
-    const { safe, deployTx } = await deploy();
-    await expect(deployTx).to.emit(safe, SafeEvent.AccountUpserted);
+  it('Deploys account', async () => {
+    const { account, deployTx } = await deploy();
+    await expect(deployTx).to.emit(account, AccountEvent.WalletUpserted);
   });
 });

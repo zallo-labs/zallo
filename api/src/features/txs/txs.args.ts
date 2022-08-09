@@ -10,7 +10,7 @@ import { Uint256BnField } from '~/apollo/scalars/Uint256Bn.scalar';
 @ArgsType()
 export class TxsArgs {
   @AddressField()
-  safe: Address;
+  account: Address;
 }
 
 @InputType()
@@ -31,7 +31,7 @@ export class TxInput {
 @ArgsType()
 export class ProposeTxArgs {
   @AddressField()
-  safe: Address;
+  account: Address;
 
   tx: TxInput;
 
@@ -42,7 +42,7 @@ export class ProposeTxArgs {
 @ArgsType()
 export class RevokeApprovalArgs {
   @AddressField()
-  safe: Address;
+  account: Address;
 
   @Bytes32Field()
   txHash: string;

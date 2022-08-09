@@ -1,7 +1,7 @@
 import { ScrollView } from 'react-native';
 import { Box } from '@components/Box';
 import { Holdings } from './holdings/Holdings';
-import { SafeBalance } from './SafeBalance';
+import { AccountBalance } from './AccountBalance';
 import { HomeActions } from './actions/HomeActions';
 import { HomeAppbar } from './HomeAppbar';
 import { Portal } from 'react-native-paper';
@@ -20,7 +20,7 @@ export const HomeScreen = withProposeProvider((_props: HomeScreenProps) => {
           <Box mx="5%">
             <Box center my="15%">
               <Box mb={4}>
-                <SafeBalance />
+                <AccountBalance />
               </Box>
 
               <HomeActions />

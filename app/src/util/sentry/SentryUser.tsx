@@ -1,9 +1,9 @@
-import { useWallet } from '@features/wallet/useWallet';
+import { useDevice } from '@features/device/useDevice';
 import { Native } from 'sentry-expo';
 
 export const SentryUser = () => {
-  const wallet = useWallet();
-  Native.setUser({ id: wallet.address });
+  const device = useDevice();
+  Native.setUser({ id: device.address });
 
   return null;
 };

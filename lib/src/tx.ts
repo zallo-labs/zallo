@@ -48,9 +48,9 @@ export const getDomain = async (
       : verifyingContract.address,
 });
 
-export const hashTx = async (safe: Address | Contract, tx: TxReq) =>
+export const hashTx = async (account: Address | Contract, tx: TxReq) =>
   ethers.utils._TypedDataEncoder.hash(
-    await getDomain(safe),
+    await getDomain(account),
     TX_EIP712_TYPE,
     tx,
   );
@@ -77,5 +77,5 @@ export const createTx = (tx: TxDef): TxReq => ({
   salt: tx.salt || randomTxSalt(),
 });
 
-export const getTxId = (safe: string, txHash: string): Id =>
-  toId(`${safe}-${txHash}`);
+export const getTxId = (account: string, txHash: string): Id =>
+  toId(`${account}-${txHash}`);

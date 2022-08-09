@@ -1,8 +1,8 @@
 import { Box } from '@components/Box';
 import { Container } from '@components/list/Container';
 import { QrCode } from '@features/qr/QrCode';
-import { SelectedAccountCard } from '~/components2/account/SelectedAccountCard';
-import { useSelectedAccount } from '~/components2/account/useSelectedAccount';
+import { SelectedWalletCard } from '~/components2/wallet/SelectedWalletCard';
+import { useSelectedWallet } from '~/components2/wallet/useSelectedWallet';
 import { ReceiveAppbar } from './ReceiveAppbar';
 import { buildAddrLink, buildTransferLink } from '@features/qr/addrLink';
 import { useMemo, useState } from 'react';
@@ -17,7 +17,7 @@ import { ScreenSkeleton } from '@components/skeleton/ScreenSkeleton';
 
 export const ReceiveScreen = withSkeleton(
   () => {
-    const { safe } = useSelectedAccount();
+    const { account } = useSelectedWallet();
     const token = useSelectedToken();
     const navigation = useNavigation<BottomNavigatorProps['navigation']>();
 
@@ -25,14 +25,14 @@ export const ReceiveScreen = withSkeleton(
 
     const url = useMemo(() => {
       if (!amount)
-        return buildAddrLink({ target_address: safe.contract.address });
+        return buildAddrLink({ target_address: account.contract.address });
 
       return buildTransferLink(
-        { target_address: safe.contract.address },
+        { target_address: account.contract.address },
         token,
         amount,
       );
-    }, [amount, safe.contract.address, token]);
+    }, [amount, account.contract.address, token]);
 
     return (
       <Box flex={1}>
@@ -46,7 +46,7 @@ export const ReceiveScreen = withSkeleton(
               <SelectableTokenAmount amount={amount} onChange={setAmount} />
             )}
 
-            <SelectedAccountCard large balance={false} />
+            <SelectedWalletCard large balance={false} />
 
             {!amount && (
               <Button

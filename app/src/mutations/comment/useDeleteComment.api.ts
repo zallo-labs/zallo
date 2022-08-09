@@ -1,5 +1,5 @@
 import { gql, useMutation } from '@apollo/client';
-import { useWallet } from '@features/wallet/useWallet';
+import { useDevice } from '@features/device/useDevice';
 import {
   CommentsQuery,
   CommentsQueryVariables,
@@ -9,20 +9,20 @@ import {
 import { useApiClient } from '@gql/GqlProvider';
 import { QueryOpts } from '@gql/update';
 import { useCallback } from 'react';
-import { useSelectedAccount } from '~/components2/account/useSelectedAccount';
+import { useSelectedWallet } from '~/components2/wallet/useSelectedWallet';
 import { Comment, COMMENTS_QUERY } from '~/queries/useComments.api';
 
 const MUTATION = gql`
-  mutation DeleteComment($safe: Address!, $key: Id!, $nonce: Int!) {
-    deleteComment(safe: $safe, key: $key, nonce: $nonce) {
+  mutation DeleteComment($account: Address!, $key: Id!, $nonce: Int!) {
+    deleteComment(account: $account, key: $key, nonce: $nonce) {
       id
     }
   }
 `;
 
 export const useDeleteComment = () => {
-  const { safeAddr } = useSelectedAccount();
-  const wallet = useWallet();
+  const { accountAddr } = useSelectedWallet();
+  const device = useDevice();
 
   const [mutate] = useMutation<
     DeleteCommentMutation,
@@ -31,12 +31,12 @@ export const useDeleteComment = () => {
 
   const del = useCallback(
     (c: Comment) => {
-      if (c.author !== wallet.address)
+      if (c.author !== device.address)
         throw new Error("Can't delete comment that you didn't write");
 
       return mutate({
         variables: {
-          safe: safeAddr,
+          account: accountAddr,
           key: c.key,
           nonce: c.nonce,
         },
@@ -46,7 +46,7 @@ export const useDeleteComment = () => {
 
           const opts: QueryOpts<CommentsQueryVariables> = {
             query: COMMENTS_QUERY,
-            variables: { safe: safeAddr, key: c.key },
+            variables: { account: accountAddr, key: c.key },
           };
           const data = cache.readQuery<CommentsQuery, CommentsQueryVariables>(
             opts,
@@ -68,7 +68,7 @@ export const useDeleteComment = () => {
         },
       });
     },
-    [mutate, safeAddr, wallet.address],
+    [mutate, accountAddr, device.address],
   );
 
   return del;

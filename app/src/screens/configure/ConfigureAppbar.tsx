@@ -4,21 +4,21 @@ import { FC, useCallback } from 'react';
 import { Appbar } from 'react-native-paper';
 import { AppbarHeaderProps } from '~/components2/Appbar/useAppbarHeader';
 import { useGoBack } from '~/components2/Appbar/useGoBack';
-import { useDeleteAccount } from '~/mutations/account/delete/useDeleteAccount';
-import { CombinedAccount } from '~/queries/accounts';
+import { useDeleteWallet } from '~/mutations/wallet/delete/useDeleteWallet';
+import { CombinedWallet } from '~/queries/wallets';
 import { ConfigureScreenProps } from './ConfigureScreen';
 
 export interface ConfigureAppbarProps {
-  account: CombinedAccount;
+  wallet: CombinedWallet;
   AppbarHeader: FC<AppbarHeaderProps>;
 }
 
 export const ConfigureAppbar = ({
-  account,
+  wallet,
   AppbarHeader,
 }: ConfigureAppbarProps) => {
   const { navigate } = useNavigation<ConfigureScreenProps['navigation']>();
-  const deleteAccount = useDeleteAccount(account);
+  const deleteWallet = useDeleteWallet(wallet);
 
   const addQuorum = useCallback(() => navigate('Quorum', {}), [navigate]);
 
@@ -29,7 +29,7 @@ export const ConfigureAppbar = ({
       <Appbar.Content title="Configure" />
 
       <Appbar.Action icon={AddIcon} onPress={addQuorum} />
-      <Appbar.Action icon={DeleteIcon} onPress={deleteAccount} />
+      <Appbar.Action icon={DeleteIcon} onPress={deleteWallet} />
     </AppbarHeader>
   );
 };

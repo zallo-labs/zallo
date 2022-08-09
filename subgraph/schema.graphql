@@ -1,24 +1,24 @@
-type Safe @entity {
+type Account @entity {
   "{address}"
   id: ID!
-  impl: SafeImpl!
-  txs: [Tx!]! @derivedFrom(field: "safe")
-  accounts: [Account!]! @derivedFrom(field: "safe")
-  transfers: [Transfer!]! @derivedFrom(field: "safe")
+  impl: AccountImpl!
+  txs: [Tx!]! @derivedFrom(field: "account")
+  wallets: [Wallet!]! @derivedFrom(field: "account")
+  transfers: [Transfer!]! @derivedFrom(field: "account")
 }
 
-type SafeImpl @entity {
+type AccountImpl @entity {
   "{address}"
   id: ID!
   blockHash: Bytes!
   timestamp: BigInt!
-  proxies: [Safe!]! @derivedFrom(field: "impl")
+  proxies: [Account!]! @derivedFrom(field: "impl")
 }
 
 type Tx @entity {
   "{tx.hash}"
   id: ID!
-  safe: Safe!
+  account: Account!
   hash: Bytes!
   success: Boolean!
   response: Bytes!
@@ -33,24 +33,24 @@ type User @entity {
   "{address}"
   id: ID!
   quorums: [Quorum!]! @derivedFrom(field: "approvers")
-  # TODO: accounts: [Account!]! @derivedFrom(field: "users")
+  # TODO: wallets: [Wallet!]! @derivedFrom(field: "users")
 }
 
-type Account @entity {
-  "{safe.id}-{hash}"
+type Wallet @entity {
+  "{account.id}-{hash}"
   id: ID!
-  safe: Safe!
+  account: Account!
   ref: Bytes!
   active: Boolean!
-  quorums: [Quorum!]! @derivedFrom(field: "account")
+  quorums: [Quorum!]! @derivedFrom(field: "wallet")
   # TODO: users: [User!]!
 }
 
 type Quorum @entity {
-  "{account.id}-{hash}"
+  "{wallet.id}-{hash}"
   id: ID!
   hash: Bytes!
-  account: Account!
+  wallet: Wallet!
   approvers: [User!]!
   active: Boolean!
   blockHash: Bytes!
@@ -67,7 +67,7 @@ type Quorum @entity {
 type Transfer @entity {
   "{tx.id}-{tx.log.index}"
   id: ID!
-  safe: Safe!
+  account: Account!
   tx: Tx
   txHash: Bytes!
   token: Bytes!
@@ -90,7 +90,7 @@ enum TransferType {
 #   id: ID!
 #   # token: Token!
 #   token: Bytes!
-#   safe: Safe!
+#   account: Account!
 #   type: String!
 #   owner: Bytes!
 #   spender: Bytes!

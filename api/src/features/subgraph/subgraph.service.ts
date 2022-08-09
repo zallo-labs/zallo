@@ -11,21 +11,21 @@ import { RetryLink } from '@apollo/client/link/retry';
 import fetch from 'cross-fetch';
 import { CONFIG } from 'config';
 import {
-  AccountRef,
+  WalletRef,
   address,
   Address,
   filterFirst,
-  toAccountRef,
+  toWalletRef,
   toId,
 } from 'lib';
 import {
-  UserAccountsQuery,
-  UserAccountsQueryVariables,
+  UserWalletsQuery,
+  UserWalletsQueryVariables,
 } from '@gen/generated.subgraph';
 
-export interface SafeAccount {
-  safe: Address;
-  accountRef: AccountRef;
+export interface AccountWallet {
+  account: Address;
+  walletRef: WalletRef;
 }
 
 @Injectable()
@@ -45,19 +45,19 @@ export class SubgraphService {
     });
   }
 
-  public async userAccounts(user: Address): Promise<SafeAccount[]> {
+  public async userWallets(user: Address): Promise<AccountWallet[]> {
     const { data } = await this.client.query<
-      UserAccountsQuery,
-      UserAccountsQueryVariables
+      UserWalletsQuery,
+      UserWalletsQueryVariables
     >({
       query: gql`
-        query UserAccounts($user: ID!) {
+        query UserWallets($user: ID!) {
           user(id: $user) {
             quorums(where: { active: true }) {
-              account {
+              wallet {
                 id
                 ref
-                safe {
+                account {
                   id
                 }
               }
@@ -70,14 +70,16 @@ export class SubgraphService {
 
     return (
       data.user?.quorums.map((quorum) => ({
-        safe: address(quorum.account.safe.id),
-        accountRef: toAccountRef(quorum.account.ref),
+        account: address(quorum.wallet.account.id),
+        walletRef: toWalletRef(quorum.wallet.ref),
       })) ?? []
     );
   }
 
-  public async userSafes(user: Address): Promise<Address[]> {
-    const safes = (await this.userAccounts(user)).map(({ safe }) => safe);
-    return filterFirst(safes, (safe) => safe);
+  public async userAccounts(user: Address): Promise<Address[]> {
+    const accounts = (await this.userWallets(user)).map(
+      ({ account }) => account,
+    );
+    return filterFirst(accounts, (account) => account);
   }
 }

@@ -12,17 +12,17 @@ import {
   PERCENT_THRESHOLD,
 } from 'lib';
 import { RootNavigatorScreenProps } from '@features/navigation/RootNavigator';
-import { useGroup, useSafe } from '@features/safe/SafeProvider';
+import { useGroup, useAccount } from '@features/account/AccountProvider';
 import { GroupManagement } from './GroupManagement';
 import { ADDR_YUP_SCHEMA } from '@util/yup';
 import { withProposeProvider } from '@features/execute/ProposeProvider';
-import { useUpsertSafeGroup } from '~/mutations/account/useUpsertGroup.safe';
-import { CombinedAccount } from '~/queries/accounts';
-import { useWallet } from '@features/wallet/useWallet';
+import { useUpsertAccountGroup } from '~/mutations/wallet/useUpsertGroup.account';
+import { CombinedWallet } from '~/queries/wallets';
+import { useDevice } from '@features/device/useDevice';
 
 type Values = Pick<Group, 'approvers'>;
 
-const getSchema = (groups: CombinedAccount[]): Yup.SchemaOf<Values> =>
+const getSchema = (groups: CombinedWallet[]): Yup.SchemaOf<Values> =>
   Yup.object({
     approvers: Yup.array()
       .of(
@@ -69,25 +69,25 @@ export type GroupManagementScreenProps =
 export const GroupManagementScreen = withProposeProvider(
   ({ route }: GroupManagementScreenProps) => {
     const { groupId, selected } = route.params ?? {};
-    const { contract: safe, groups } = useSafe();
-    const wallet = useWallet();
-    const upsertGroup = useUpsertSafeGroup();
+    const { contract: account, groups } = useAccount();
+    const device = useDevice();
+    const upsertGroup = useUpsertAccountGroup();
 
-    const defaultGroup: CombinedAccount = useMemo(() => {
+    const defaultGroup: CombinedWallet = useMemo(() => {
       const ref = randomGroupRef();
       return {
-        id: getGroupId(safe.address, ref),
+        id: getGroupId(account.address, ref),
         ref,
         name: '',
         approvers: [
           {
-            addr: wallet.address,
+            addr: device.address,
             weight: PERCENT_THRESHOLD,
           },
         ],
         active: true,
       };
-    }, [safe.address, wallet.address]);
+    }, [account.address, device.address]);
     const initialGroup = useGroup(groupId) ?? defaultGroup;
 
     const initialValues: Values = useMemo(

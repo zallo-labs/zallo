@@ -7,7 +7,7 @@ import { useCallback } from 'react';
 import { FormikTextField } from '@components/fields/FormikTextField';
 import { FormikSubmitFab } from '@components/fields/FormikSubmitFab';
 import { CheckIcon } from '@util/theme/icons';
-import { useCreateApiSafe } from '~/mutations/safe/useCreateSafe.api';
+import { useCreateApiAccount } from '~/mutations/account/useCreateAccount.api';
 import { AppbarBack } from '@components/AppbarBack';
 import { makeStyles } from '@util/theme/makeStyles';
 import { useName } from './Name/useName';
@@ -20,22 +20,19 @@ const schema: Yup.SchemaOf<Values> = Yup.object({
   name: Yup.string().required('Required'),
 });
 
-export type CreateAccountScreenProps =
-  RootNavigatorScreenProps<'CreateAccount'>;
+export type CreateWalletScreenProps = RootNavigatorScreenProps<'CreateWallet'>;
 
-export const CreateAccountScreen = ({
-  navigation,
-}: CreateAccountScreenProps) => {
+export const CreateWalletScreen = ({ navigation }: CreateWalletScreenProps) => {
   const styles = useStyles();
-  const createSafe = useCreateApiSafe();
+  const createAccount = useCreateApiAccount();
   const name = useName();
 
   const handleSubmit = useCallback(
     async ({ name }: Values) => {
-      await createSafe(name, 'Spending');
+      await createAccount(name, 'Spending');
       navigation.navigate('BottomNavigator');
     },
-    [createSafe, navigation],
+    [createAccount, navigation],
   );
 
   return (
@@ -45,13 +42,13 @@ export const CreateAccountScreen = ({
       </Appbar.Header>
 
       <Formik
-        initialValues={{ name: `${name}'s Account` }}
+        initialValues={{ name: `${name}'s Wallet` }}
         onSubmit={handleSubmit}
         validationSchema={schema}
       >
         <>
           <Box mx={4}>
-            <Text style={styles.input}>Create account</Text>
+            <Text style={styles.input}>Create wallet</Text>
 
             <FormikTextField name="name" label="Name" />
           </Box>

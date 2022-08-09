@@ -17,24 +17,28 @@ import {
 import { Tx } from '~/queries/tx';
 import produce from 'immer';
 import assert from 'assert';
-import { useSelectedAccount } from '~/components2/account/useSelectedAccount';
+import { useSelectedWallet } from '~/components2/wallet/useSelectedWallet';
 
 const MUTATION = gql`
   ${API_SUBMISSION_FIELDS}
 
   mutation SubmitTxExecution(
-    $safe: Address!
+    $account: Address!
     $txHash: Bytes32!
     $submission: SubmissionInput!
   ) {
-    submitTxExecution(safe: $safe, txHash: $txHash, submission: $submission) {
+    submitTxExecution(
+      account: $account
+      txHash: $txHash
+      submission: $submission
+    ) {
       ...SubmissionFields
     }
   }
 `;
 
 export const useApiSubmitExecution = () => {
-  const { safeAddr } = useSelectedAccount();
+  const { accountAddr } = useSelectedWallet();
 
   const [mutation] = useMutation<
     SubmitTxExecutionMutation,
@@ -45,7 +49,7 @@ export const useApiSubmitExecution = () => {
     async (tx: Tx, txResp: ContractTransaction) => {
       const r = await mutation({
         variables: {
-          safe: safeAddr,
+          account: accountAddr,
           txHash: ethers.utils.hexlify(tx.hash),
           submission: {
             hash: txResp.hash,
@@ -57,7 +61,7 @@ export const useApiSubmitExecution = () => {
 
           const queryOpts = {
             query: API_GET_TXS_QUERY,
-            variables: { safe: safeAddr },
+            variables: { account: accountAddr },
           };
           const data = cache.readQuery<ApiTxsQuery, ApiTxsQueryVariables>(
             queryOpts,
@@ -94,7 +98,7 @@ export const useApiSubmitExecution = () => {
 
       return r;
     },
-    [safeAddr, mutation],
+    [accountAddr, mutation],
   );
 
   return submit;

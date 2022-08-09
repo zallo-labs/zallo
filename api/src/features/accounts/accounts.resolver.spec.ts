@@ -1,8 +1,8 @@
-import { Test, TestingModule } from '@nestjs/testing';
 import { createMock } from '@golevelup/ts-jest';
+import { Test, TestingModule } from '@nestjs/testing';
 import { AccountsResolver } from './accounts.resolver';
 
-describe(AccountsResolver.name, () => {
+describe('AccountsResolver', () => {
   let resolver: AccountsResolver;
 
   beforeEach(async () => {
@@ -12,7 +12,7 @@ describe(AccountsResolver.name, () => {
       .useMocker(createMock)
       .compile();
 
-    resolver = module.get(AccountsResolver);
+    resolver = module.get<AccountsResolver>(AccountsResolver);
   });
 
   it('should be defined', () => {

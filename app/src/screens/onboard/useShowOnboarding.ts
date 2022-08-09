@@ -1,3 +1,3 @@
-import { useAccounts } from '~/queries/accounts/useAccounts';
+import { useWallets } from '~/queries/wallets/useWallets';
 
-export const useShowOnboarding = () => useAccounts().accounts.length === 0;
+export const useShowOnboarding = () => useWallets().wallets.length === 0;

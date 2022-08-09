@@ -1,5 +1,5 @@
 import { ChainName, getChain } from './chain';
-import { PROXY_FACTORY, MULTICALL, SAFE_IMPL } from './contracts';
+import { PROXY_FACTORY, MULTICALL, ACCOUNT_IMPL } from './contracts';
 
 try {
   require('dotenv').config({ path: '../.env' });
@@ -35,7 +35,7 @@ export const CONFIG = {
   },
   sessionSecret: E.SESSION_SECRET,
   subgraphGqlUrl: E.SUBGRAPH_GQL_URL,
-  safeImplAddress: SAFE_IMPL[chain.name],
+  accountImplAddress: ACCOUNT_IMPL[chain.name],
   proxyFactoryAddress: PROXY_FACTORY[chain.name],
   multicallAddress: MULTICALL[chain.name],
 } as const;

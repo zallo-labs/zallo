@@ -2,7 +2,7 @@ import {
   createNativeStackNavigator,
   NativeStackScreenProps,
 } from '@react-navigation/native-stack';
-import { SelectAccountScreen } from '~/screens/select-account/SelectAccountScreen';
+import { SelectWalletScreen } from '~/screens/select-wallet/SelectWalletScreen';
 import {
   AmountScreen,
   AmountScreenParams,
@@ -13,9 +13,9 @@ import {
   TokensScreenParams,
 } from '~/screens/tokens/TokensScreen';
 import {
-  AccountScreen,
-  AccountScreenParams,
-} from '~/screens/account/AccountScreen';
+  WalletScreen,
+  WalletScreenParams,
+} from '~/screens/wallet/WalletScreen';
 import {
   ConfigureScreen,
   ConfigureScreenParams,
@@ -29,23 +29,23 @@ import {
   ContactsScreenParams,
 } from '~/screens/contacts/ContactsScreen';
 import { ScanScreen, ScanScreenParams } from '~/screens/scan/ScanScreen';
-import { CreateAccountScreen } from '~/screens/onboard/CreateAccountScreen';
+import { CreateWalletScreen } from '~/screens/onboard/CreateWalletScreen';
 import { NameScreen } from '~/screens/onboard/Name/NameScreen';
 import { useShowOnboarding } from '~/screens/onboard/useShowOnboarding';
 
 export type RootNavigatorParamList = {
   BottomNavigator: undefined;
   Tokens: TokensScreenParams;
-  SelectAccount: undefined;
+  SelectWallet: undefined;
   Amount: AmountScreenParams;
-  Account: AccountScreenParams;
+  Wallet: WalletScreenParams;
   Configure: ConfigureScreenParams;
   Quorum: QuorumScreenParams;
   Contacts: ContactsScreenParams;
   Scan: ScanScreenParams;
   // Onboarding
   Name: undefined;
-  CreateAccount: undefined;
+  CreateWallet: undefined;
 };
 
 export type RootNavigatorScreenProps<K extends keyof RootNavigatorParamList> =
@@ -61,17 +61,17 @@ export const RootNavigator = () => {
         <Navigation.Group key="Onboarding">
           <Navigation.Screen name="Name" component={NameScreen} />
           <Navigation.Screen
-            name="CreateAccount"
-            component={CreateAccountScreen}
+            name="CreateWallet"
+            component={CreateWalletScreen}
           />
         </Navigation.Group>
       )}
 
       <Navigation.Screen name="BottomNavigator" component={BottomNavigator} />
       <Navigation.Screen name="Tokens" component={TokensScreen} />
-      <Navigation.Screen name="SelectAccount" component={SelectAccountScreen} />
+      <Navigation.Screen name="SelectWallet" component={SelectWalletScreen} />
       <Navigation.Screen name="Amount" component={AmountScreen} />
-      <Navigation.Screen name="Account" component={AccountScreen} />
+      <Navigation.Screen name="Wallet" component={WalletScreen} />
       <Navigation.Screen name="Configure" component={ConfigureScreen} />
       <Navigation.Screen name="Quorum" component={QuorumScreen} />
       <Navigation.Screen name="Contacts" component={ContactsScreen} />

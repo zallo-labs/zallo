@@ -1,11 +1,11 @@
 import keccak256 from 'keccak256';
 import MerkleTree from 'merkletreejs';
-import { Account } from './account';
+import { Wallet } from './wallet';
 import { BoolArray, toBoolArray } from './boolArray';
 import { Quorum, quorumToLeaf } from './quorum';
 
-export const getMerkleTree = (account: Account): MerkleTree => {
-  const leaves = account.quorums.map(quorumToLeaf);
+export const getMerkleTree = (wallet: Wallet): MerkleTree => {
+  const leaves = wallet.quorums.map(quorumToLeaf);
   return new MerkleTree(leaves, keccak256, { sort: true });
 };
 
@@ -18,8 +18,8 @@ export interface MultiProof {
   proofLeaves: Buffer[];
 }
 
-export const getMultiProof = (account: Account, quorum: Quorum): MultiProof => {
-  const tree = getMerkleTree(account);
+export const getMultiProof = (wallet: Wallet, quorum: Quorum): MultiProof => {
+  const tree = getMerkleTree(wallet);
 
   const proofLeaves = [quorumToLeaf(quorum)];
   const proof = tree.getMultiProof(proofLeaves);

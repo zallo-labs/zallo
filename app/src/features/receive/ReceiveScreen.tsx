@@ -5,7 +5,7 @@ import { useKeepAwake } from 'expo-keep-awake';
 import { Box } from '@components/Box';
 import { RootNavigatorScreenProps } from '@features/navigation/RootNavigator';
 import { QrCode } from '@features/qr/QrCode';
-import { useSafe } from '@features/safe/SafeProvider';
+import { useAccount } from '@features/account/AccountProvider';
 import { useMaxBrighness } from './useMaxBrightness';
 import { AppbarBack } from '@components/AppbarBack';
 import { SharableAddr } from '@components/SharableAddr';
@@ -13,14 +13,14 @@ import { SharableAddr } from '@components/SharableAddr';
 export type ReceiveScreenProps = RootNavigatorScreenProps<'Receive'>;
 
 export const ReceiveScreen = (_props: ReceiveScreenProps) => {
-  const { contract: safe } = useSafe();
+  const { contract: account } = useAccount();
   useMaxBrighness();
   useKeepAwake();
 
   const share = () =>
     Share.share({
-      message: safe.address,
-      url: safe.address,
+      message: account.address,
+      url: account.address,
     });
 
   return (
@@ -38,11 +38,11 @@ export const ReceiveScreen = (_props: ReceiveScreenProps) => {
         mx={4}
       >
         <Box flex={3} center>
-          <QrCode addr={safe.address} />
+          <QrCode addr={account.address} />
         </Box>
 
         <Box flex={1}>
-          <SharableAddr addr={safe.address} initiallyExpanded>
+          <SharableAddr addr={account.address} initiallyExpanded>
             {({ value }) => (
               <Title style={{ textAlign: 'center', opacity: 0.8 }}>
                 {value}

@@ -29,7 +29,7 @@ export const NameScreen = ({ navigation }: NameScreenProps) => {
 
   const handleSubmit = ({ name }: Values) => {
     setName(name);
-    navigation.navigate('CreateAccount');
+    navigation.navigate('CreateWallet');
   };
 
   return (

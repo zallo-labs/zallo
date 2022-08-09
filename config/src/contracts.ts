@@ -1,6 +1,6 @@
 import { ChainName } from './chain';
 
-export const SAFE_IMPL: Partial<Record<ChainName, string>> = {
+export const ACCOUNT_IMPL: Partial<Record<ChainName, string>> = {
   testnet: '0xEBfD7a9e989994cDfCEe93d5EDe3f282bEf14529',
 };
 

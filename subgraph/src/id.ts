@@ -1,11 +1,11 @@
 import { Address, Bytes, ethereum } from '@graphprotocol/graph-ts';
 
-export function getSafeId(safe: Address): string {
+export function getAccountId(account: Address): string {
   // {address}
-  return safe.toHex();
+  return account.toHex();
 }
 
-export function getSafeImplId(impl: Address): string {
+export function getAccountImplId(impl: Address): string {
   // {address}
   return impl.toHex();
 }
@@ -15,9 +15,9 @@ export function getUserId(approver: Address): string {
   return approver.toHex();
 }
 
-export function getAccountId(safeId: string, ref: Bytes): string {
-  // {safe.id}-{hash}
-  return `${safeId}-${ref.toHex()}`;
+export function getWalletId(accountId: string, ref: Bytes): string {
+  // {account.id}-{hash}
+  return `${accountId}-${ref.toHex()}`;
 }
 
 export function getTxId(tx: ethereum.Transaction): string {

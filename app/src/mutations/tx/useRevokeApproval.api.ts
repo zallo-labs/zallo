@@ -8,25 +8,25 @@ import {
 import { useApiClient } from '@gql/GqlProvider';
 import { hexlify } from 'ethers/lib/utils';
 import { useCallback } from 'react';
-import { useWallet } from '@features/wallet/useWallet';
+import { useDevice } from '@features/device/useDevice';
 import { toId } from 'lib';
 import { API_GET_TXS_QUERY } from '~/queries/tx/useTxs.api';
 import { Tx } from '~/queries/tx';
 import produce from 'immer';
 import assert from 'assert';
-import { useSelectedAccount } from '~/components2/account/useSelectedAccount';
+import { useSelectedWallet } from '~/components2/wallet/useSelectedWallet';
 
 const MUTATION = gql`
-  mutation RevokeApproval($safe: Address!, $txHash: Bytes32!) {
-    revokeApproval(safe: $safe, txHash: $txHash) {
+  mutation RevokeApproval($account: Address!, $txHash: Bytes32!) {
+    revokeApproval(account: $account, txHash: $txHash) {
       id
     }
   }
 `;
 
 export const useRevokeApproval = () => {
-  const { safeAddr } = useSelectedAccount();
-  const wallet = useWallet();
+  const { accountAddr } = useSelectedWallet();
+  const device = useDevice();
 
   const [mutation] = useMutation<
     RevokeApprovalMutation,
@@ -39,7 +39,7 @@ export const useRevokeApproval = () => {
 
       const queryOpts = {
         query: API_GET_TXS_QUERY,
-        variables: { safe: safeAddr },
+        variables: { account: accountAddr },
       };
       const data = cache.readQuery<ApiTxsQuery, ApiTxsQueryVariables>(
         queryOpts,
@@ -54,7 +54,7 @@ export const useRevokeApproval = () => {
 
           // Revoke approval
           data.txs[i].approvals = data.txs[i].approvals?.filter(
-            (a) => a.userId !== wallet.address,
+            (a) => a.userId !== device.address,
           );
 
           // Revoke tx if it no longer has any approvals
@@ -68,17 +68,17 @@ export const useRevokeApproval = () => {
     (tx: Tx) =>
       mutation({
         variables: {
-          safe: safeAddr,
+          account: accountAddr,
           txHash: hexlify(tx.hash),
         },
         optimisticResponse: {
           revokeApproval: {
             __typename: 'RevokeApprovalResp',
-            id: toId(`${safeAddr}-${tx.hash}`),
+            id: toId(`${accountAddr}-${tx.hash}`),
           },
         },
       }),
-    [mutation, safeAddr],
+    [mutation, accountAddr],
   );
 
   return revoke;

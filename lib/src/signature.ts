@@ -1,6 +1,6 @@
-import { BytesLike, ethers, Wallet } from 'ethers';
+import { BytesLike, ethers } from 'ethers';
 import { defaultAbiCoder } from 'ethers/lib/utils';
-import { Account } from './account';
+import { Wallet } from './wallet';
 import { Address, compareAddresses } from './addr';
 import { getMultiProof } from './merkle';
 import { Quorum } from './quorum';
@@ -26,28 +26,32 @@ const split = (approversWithSigs: Signerish[]) =>
     );
 
 export const createTxSignature = (
-  account: Account,
+  wallet: Wallet,
   signers: Signerish[],
 ): BytesLike => {
   const { quorum, signatures } = split(signers);
-  const { proof, proofFlags } = getMultiProof(account, quorum);
+  const { proof, proofFlags } = getMultiProof(wallet, quorum);
 
   return defaultAbiCoder.encode(
     [
-      'bytes4 accountRef',
+      'bytes4 walletRef',
       'address[] quorum',
       'bytes[] signatures',
       'bytes32[] proof',
       'uint256[] proofFlags',
     ],
-    [account.ref, quorum, signatures, proof, proofFlags],
+    [wallet.ref, quorum, signatures, proof, proofFlags],
   );
 };
 
-export const signTx = async (wallet: Wallet, safe: Address, tx: TxReq) => {
+export const signTx = async (
+  device: ethers.Wallet,
+  account: Address,
+  tx: TxReq,
+) => {
   // _signTypedData returns a 65 byte signature
-  const longSig = await wallet._signTypedData(
-    await getDomain(safe),
+  const longSig = await device._signTypedData(
+    await getDomain(account),
     TX_EIP712_TYPE,
     tx,
   );

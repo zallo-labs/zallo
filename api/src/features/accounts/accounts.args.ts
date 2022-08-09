@@ -1,38 +1,39 @@
 import { ArgsType, InputType } from '@nestjs/graphql';
-import { AccountRef, Address, Quorums } from 'lib';
+import { WalletRef, Address, Quorums } from 'lib';
 import { AddressField } from '~/apollo/scalars/Address.scalar';
 import { Bytes32Field } from '~/apollo/scalars/Bytes32.scalar';
 import { Bytes4Field } from '~/apollo/scalars/Bytes4.scalar';
 import { QuorumsField } from '~/apollo/scalars/Quorum.scalar';
 
-@InputType()
-export class AccountId {
+@ArgsType()
+export class AccountArgs {
   @AddressField()
-  safeId: Address;
-
-  @Bytes4Field()
-  ref: AccountRef;
+  id: Address;
 }
 
 @ArgsType()
-export class SetAccountNameArgs {
-  id: AccountId;
+export class UpsertAccountArgs {
+  @AddressField()
+  account: Address;
+
+  @Bytes32Field({ nullable: true })
+  deploySalt?: string;
+
+  @AddressField()
+  impl: Address;
 
   name: string;
+
+  wallets?: WalletWithoutAccountInput[];
 }
 
-@ArgsType()
-export class SetQuorumsArgs {
-  id: AccountId;
+@InputType()
+export class WalletWithoutAccountInput {
+  @Bytes4Field()
+  ref: WalletRef;
 
   @QuorumsField()
   quorums: Quorums;
 
-  @Bytes32Field()
-  txHash: string;
-}
-
-@ArgsType()
-export class DeleteAccountArgs {
-  id: AccountId;
+  name: string;
 }

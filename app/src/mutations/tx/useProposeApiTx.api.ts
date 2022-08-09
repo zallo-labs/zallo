@@ -1,5 +1,5 @@
 import { gql, useMutation } from '@apollo/client';
-import { useWallet } from '@features/wallet/useWallet';
+import { useDevice } from '@features/device/useDevice';
 import {
   ApiTxsQuery,
   ApiTxsQueryVariables,
@@ -12,22 +12,22 @@ import produce from 'immer';
 import { createTx, hashTx, signTx, toId, TxDef } from 'lib';
 import { DateTime } from 'luxon';
 import { useCallback } from 'react';
-import { useSelectedAccount } from '~/components2/account/useSelectedAccount';
+import { useSelectedWallet } from '~/components2/wallet/useSelectedWallet';
 import { API_GET_TXS_QUERY, API_TX_FIELDS } from '~/queries/tx/useTxs.api';
 
 const MUTATION = gql`
   ${API_TX_FIELDS}
 
-  mutation ProposeTx($safe: Address!, $tx: TxInput!, $signature: Bytes!) {
-    proposeTx(safe: $safe, tx: $tx, signature: $signature) {
+  mutation ProposeTx($account: Address!, $tx: TxInput!, $signature: Bytes!) {
+    proposeTx(account: $account, tx: $tx, signature: $signature) {
       ...TxFields
     }
   }
 `;
 
 export const useProposeApiTx = () => {
-  const { safeAddr } = useSelectedAccount();
-  const wallet = useWallet();
+  const { accountAddr } = useSelectedWallet();
+  const device = useDevice();
 
   const [mutation] = useMutation<ProposeTxMutation, ProposeTxMutationVariables>(
     MUTATION,
@@ -37,13 +37,13 @@ export const useProposeApiTx = () => {
   const propose = useCallback(
     async (txDef: TxDef) => {
       const tx = createTx(txDef);
-      const hash = await hashTx(safeAddr, tx);
-      const signature = await signTx(wallet, safeAddr, tx);
+      const hash = await hashTx(accountAddr, tx);
+      const signature = await signTx(device, accountAddr, tx);
       const createdAt = DateTime.now().toISO();
 
       return await mutation({
         variables: {
-          safe: safeAddr,
+          account: accountAddr,
           tx: {
             to: tx.to,
             value: tx.value.toString(),
@@ -58,7 +58,7 @@ export const useProposeApiTx = () => {
 
           const opts = {
             query: API_GET_TXS_QUERY,
-            variables: { safe: safeAddr },
+            variables: { account: accountAddr },
           };
           const data = cache.readQuery<ApiTxsQuery, ApiTxsQueryVariables>(
             opts,
@@ -82,8 +82,8 @@ export const useProposeApiTx = () => {
         optimisticResponse: {
           proposeTx: {
             __typename: 'Tx',
-            id: toId(`${safeAddr}-${hash}`),
-            safeId: safeAddr,
+            id: toId(`${accountAddr}-${hash}`),
+            accountId: accountAddr,
             hash,
             to: tx.to,
             value: tx.value.toString(),
@@ -92,7 +92,7 @@ export const useProposeApiTx = () => {
             approvals: [
               {
                 __typename: 'Approval',
-                userId: wallet.address,
+                userId: device.address,
                 signature,
                 createdAt,
               },
@@ -103,7 +103,7 @@ export const useProposeApiTx = () => {
         },
       });
     },
-    [mutation, wallet, safeAddr],
+    [mutation, device, accountAddr],
   );
 
   return propose;

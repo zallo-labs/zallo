@@ -1,15 +1,15 @@
 import { useEffect, useState } from 'react';
 import { useDebounce } from 'use-debounce';
 import { TextField } from '@components/fields/TextField';
-import { useUpsertApiAccount } from '~/mutations/account/useUpsertAccount.api';
-import { CombinedAccount } from '~/queries/accounts';
+import { useUpsertApiWallet } from '~/mutations/wallet/useUpsertWallet.api';
+import { CombinedWallet } from '~/queries/wallets';
 
 export interface GroupNameFieldProps {
-  group: CombinedAccount;
+  group: CombinedWallet;
 }
 
 export const GroupNameField = ({ group }: GroupNameFieldProps) => {
-  const upsertGroup = useUpsertApiAccount();
+  const upsertGroup = useUpsertApiWallet();
 
   const [name, setName] = useState(group.name);
   const [debouncedName] = useDebounce(name, 500);

@@ -1,12 +1,12 @@
 import { Prisma } from '@prisma/client';
 import { Address } from 'lib';
 
-export const connectOrCreateSafe = (
-  safe: Address,
-): Prisma.SafeCreateNestedOneWithoutAccountsInput => ({
+export const connectOrCreateAccount = (
+  account: Address,
+): Prisma.AccountCreateNestedOneWithoutWalletsInput => ({
   connectOrCreate: {
-    where: { id: safe },
-    create: { id: safe },
+    where: { id: account },
+    create: { id: account },
   },
 });
 

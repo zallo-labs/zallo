@@ -1,5 +1,5 @@
 import { gql, useMutation } from '@apollo/client';
-import { useWallet } from '@features/wallet/useWallet';
+import { useDevice } from '@features/device/useDevice';
 import {
   CommentsQuery,
   CommentsQueryVariables,
@@ -10,7 +10,7 @@ import { useApiClient } from '@gql/GqlProvider';
 import { QueryOpts } from '@gql/update';
 import { Address, Id, toId } from 'lib';
 import { useCallback } from 'react';
-import { useSelectedAccount } from '~/components2/account/useSelectedAccount';
+import { useSelectedWallet } from '~/components2/wallet/useSelectedWallet';
 import {
   Comment,
   COMMENTS_QUERY,
@@ -22,26 +22,31 @@ const MUTATION = gql`
   ${REACTION_FIELDS}
 
   mutation ReactToComment(
-    $safe: Address!
+    $account: Address!
     $key: Id!
     $nonce: Int!
     $emojis: [String!]!
   ) {
-    reactToComment(safe: $safe, key: $key, nonce: $nonce, emojis: $emojis) {
+    reactToComment(
+      account: $account
+      key: $key
+      nonce: $nonce
+      emojis: $emojis
+    ) {
       ...ReactionFields
     }
   }
 `;
 
 export const createReactionId = (
-  safe: Address,
+  account: Address,
   c: Comment,
   wallet: Address,
-): Id => toId(`${createCommentId(safe, c.key, c.nonce)}-${wallet}`);
+): Id => toId(`${createCommentId(account, c.key, c.nonce)}-${wallet}`);
 
 export const useReactToComment = () => {
-  const { safeAddr } = useSelectedAccount();
-  const wallet = useWallet();
+  const { accountAddr } = useSelectedWallet();
+  const device = useDevice();
 
   const [mutate] = useMutation<
     ReactToCommentMutation,
@@ -52,7 +57,7 @@ export const useReactToComment = () => {
     (c: Comment, emojis: string[]) =>
       mutate({
         variables: {
-          safe: safeAddr,
+          account: accountAddr,
           key: c.key,
           nonce: c.nonce,
           emojis,
@@ -63,7 +68,7 @@ export const useReactToComment = () => {
 
           const opts: QueryOpts<CommentsQueryVariables> = {
             query: COMMENTS_QUERY,
-            variables: { safe: safeAddr, key: c.key },
+            variables: { account: accountAddr, key: c.key },
           };
           const data = cache.readQuery<CommentsQuery, CommentsQueryVariables>(
             opts,
@@ -93,16 +98,16 @@ export const useReactToComment = () => {
         optimisticResponse: {
           reactToComment: {
             __typename: 'Reaction',
-            id: createReactionId(safeAddr, c, wallet.address),
-            safeId: safeAddr,
+            id: createReactionId(accountAddr, c, device.address),
+            accountId: accountAddr,
             key: c.key,
             nonce: c.nonce,
-            userId: wallet.address,
+            userId: device.address,
             emojis,
           },
         },
       }),
-    [mutate, safeAddr, wallet.address],
+    [mutate, accountAddr, device.address],
   );
 
   return react;

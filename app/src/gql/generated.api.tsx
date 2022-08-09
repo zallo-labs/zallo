@@ -29,39 +29,34 @@ export type Scalars = {
 export type Account = {
   __typename?: 'Account';
   _count: AccountCount;
+  approvals?: Maybe<Array<Approval>>;
   approvers?: Maybe<Array<Approver>>;
-  id: Scalars['String'];
+  comments?: Maybe<Array<Comment>>;
+  deploySalt?: Maybe<Scalars['String']>;
+  id: Scalars['ID'];
+  impl?: Maybe<Scalars['String']>;
   name: Scalars['String'];
   quorums?: Maybe<Array<Quorum>>;
-  ref: Scalars['String'];
-  safe: Safe;
-  safeId: Scalars['String'];
-  tx?: Maybe<Tx>;
-  txHash?: Maybe<Scalars['String']>;
+  reactions?: Maybe<Array<Reaction>>;
+  txs?: Maybe<Array<Tx>>;
+  wallets?: Maybe<Array<Wallet>>;
 };
 
 export type AccountCount = {
   __typename?: 'AccountCount';
+  approvals: Scalars['Int'];
   approvers: Scalars['Int'];
+  comments: Scalars['Int'];
   quorums: Scalars['Int'];
+  reactions: Scalars['Int'];
+  txs: Scalars['Int'];
+  wallets: Scalars['Int'];
 };
 
-export type AccountCreateManySafeInput = {
-  name?: InputMaybe<Scalars['String']>;
-  ref: Scalars['String'];
-  txHash?: InputMaybe<Scalars['String']>;
-};
-
-export type AccountCreateManySafeInputEnvelope = {
-  data: Array<AccountCreateManySafeInput>;
-  skipDuplicates?: InputMaybe<Scalars['Boolean']>;
-};
-
-export type AccountCreateNestedManyWithoutSafeInput = {
-  connect?: InputMaybe<Array<AccountWhereUniqueInput>>;
-  connectOrCreate?: InputMaybe<Array<AccountCreateOrConnectWithoutSafeInput>>;
-  create?: InputMaybe<Array<AccountCreateWithoutSafeInput>>;
-  createMany?: InputMaybe<AccountCreateManySafeInputEnvelope>;
+export type AccountCreateNestedOneWithoutApprovalsInput = {
+  connect?: InputMaybe<AccountWhereUniqueInput>;
+  connectOrCreate?: InputMaybe<AccountCreateOrConnectWithoutApprovalsInput>;
+  create?: InputMaybe<AccountCreateWithoutApprovalsInput>;
 };
 
 export type AccountCreateNestedOneWithoutApproversInput = {
@@ -70,20 +65,48 @@ export type AccountCreateNestedOneWithoutApproversInput = {
   create?: InputMaybe<AccountCreateWithoutApproversInput>;
 };
 
+export type AccountCreateNestedOneWithoutCommentsInput = {
+  connect?: InputMaybe<AccountWhereUniqueInput>;
+  connectOrCreate?: InputMaybe<AccountCreateOrConnectWithoutCommentsInput>;
+  create?: InputMaybe<AccountCreateWithoutCommentsInput>;
+};
+
 export type AccountCreateNestedOneWithoutQuorumsInput = {
   connect?: InputMaybe<AccountWhereUniqueInput>;
   connectOrCreate?: InputMaybe<AccountCreateOrConnectWithoutQuorumsInput>;
   create?: InputMaybe<AccountCreateWithoutQuorumsInput>;
 };
 
-export type AccountCreateNestedOneWithoutTxInput = {
+export type AccountCreateNestedOneWithoutReactionsInput = {
   connect?: InputMaybe<AccountWhereUniqueInput>;
-  connectOrCreate?: InputMaybe<AccountCreateOrConnectWithoutTxInput>;
-  create?: InputMaybe<AccountCreateWithoutTxInput>;
+  connectOrCreate?: InputMaybe<AccountCreateOrConnectWithoutReactionsInput>;
+  create?: InputMaybe<AccountCreateWithoutReactionsInput>;
+};
+
+export type AccountCreateNestedOneWithoutTxsInput = {
+  connect?: InputMaybe<AccountWhereUniqueInput>;
+  connectOrCreate?: InputMaybe<AccountCreateOrConnectWithoutTxsInput>;
+  create?: InputMaybe<AccountCreateWithoutTxsInput>;
+};
+
+export type AccountCreateNestedOneWithoutWalletsInput = {
+  connect?: InputMaybe<AccountWhereUniqueInput>;
+  connectOrCreate?: InputMaybe<AccountCreateOrConnectWithoutWalletsInput>;
+  create?: InputMaybe<AccountCreateWithoutWalletsInput>;
+};
+
+export type AccountCreateOrConnectWithoutApprovalsInput = {
+  create: AccountCreateWithoutApprovalsInput;
+  where: AccountWhereUniqueInput;
 };
 
 export type AccountCreateOrConnectWithoutApproversInput = {
   create: AccountCreateWithoutApproversInput;
+  where: AccountWhereUniqueInput;
+};
+
+export type AccountCreateOrConnectWithoutCommentsInput = {
+  create: AccountCreateWithoutCommentsInput;
   where: AccountWhereUniqueInput;
 };
 
@@ -92,72 +115,124 @@ export type AccountCreateOrConnectWithoutQuorumsInput = {
   where: AccountWhereUniqueInput;
 };
 
-export type AccountCreateOrConnectWithoutSafeInput = {
-  create: AccountCreateWithoutSafeInput;
+export type AccountCreateOrConnectWithoutReactionsInput = {
+  create: AccountCreateWithoutReactionsInput;
   where: AccountWhereUniqueInput;
 };
 
-export type AccountCreateOrConnectWithoutTxInput = {
-  create: AccountCreateWithoutTxInput;
+export type AccountCreateOrConnectWithoutTxsInput = {
+  create: AccountCreateWithoutTxsInput;
   where: AccountWhereUniqueInput;
+};
+
+export type AccountCreateOrConnectWithoutWalletsInput = {
+  create: AccountCreateWithoutWalletsInput;
+  where: AccountWhereUniqueInput;
+};
+
+export type AccountCreateWithoutApprovalsInput = {
+  approvers?: InputMaybe<ApproverCreateNestedManyWithoutAccountInput>;
+  comments?: InputMaybe<CommentCreateNestedManyWithoutAccountInput>;
+  deploySalt?: InputMaybe<Scalars['String']>;
+  id: Scalars['String'];
+  impl?: InputMaybe<Scalars['String']>;
+  name?: InputMaybe<Scalars['String']>;
+  quorums?: InputMaybe<QuorumCreateNestedManyWithoutAccountInput>;
+  reactions?: InputMaybe<ReactionCreateNestedManyWithoutAccountInput>;
+  txs?: InputMaybe<TxCreateNestedManyWithoutAccountInput>;
+  wallets?: InputMaybe<WalletCreateNestedManyWithoutAccountInput>;
 };
 
 export type AccountCreateWithoutApproversInput = {
+  approvals?: InputMaybe<ApprovalCreateNestedManyWithoutAccountInput>;
+  comments?: InputMaybe<CommentCreateNestedManyWithoutAccountInput>;
+  deploySalt?: InputMaybe<Scalars['String']>;
+  id: Scalars['String'];
+  impl?: InputMaybe<Scalars['String']>;
   name?: InputMaybe<Scalars['String']>;
   quorums?: InputMaybe<QuorumCreateNestedManyWithoutAccountInput>;
-  ref: Scalars['String'];
-  safe: SafeCreateNestedOneWithoutAccountsInput;
-  tx?: InputMaybe<TxCreateNestedOneWithoutAccountTxInput>;
+  reactions?: InputMaybe<ReactionCreateNestedManyWithoutAccountInput>;
+  txs?: InputMaybe<TxCreateNestedManyWithoutAccountInput>;
+  wallets?: InputMaybe<WalletCreateNestedManyWithoutAccountInput>;
+};
+
+export type AccountCreateWithoutCommentsInput = {
+  approvals?: InputMaybe<ApprovalCreateNestedManyWithoutAccountInput>;
+  approvers?: InputMaybe<ApproverCreateNestedManyWithoutAccountInput>;
+  deploySalt?: InputMaybe<Scalars['String']>;
+  id: Scalars['String'];
+  impl?: InputMaybe<Scalars['String']>;
+  name?: InputMaybe<Scalars['String']>;
+  quorums?: InputMaybe<QuorumCreateNestedManyWithoutAccountInput>;
+  reactions?: InputMaybe<ReactionCreateNestedManyWithoutAccountInput>;
+  txs?: InputMaybe<TxCreateNestedManyWithoutAccountInput>;
+  wallets?: InputMaybe<WalletCreateNestedManyWithoutAccountInput>;
 };
 
 export type AccountCreateWithoutQuorumsInput = {
+  approvals?: InputMaybe<ApprovalCreateNestedManyWithoutAccountInput>;
   approvers?: InputMaybe<ApproverCreateNestedManyWithoutAccountInput>;
+  comments?: InputMaybe<CommentCreateNestedManyWithoutAccountInput>;
+  deploySalt?: InputMaybe<Scalars['String']>;
+  id: Scalars['String'];
+  impl?: InputMaybe<Scalars['String']>;
   name?: InputMaybe<Scalars['String']>;
-  ref: Scalars['String'];
-  safe: SafeCreateNestedOneWithoutAccountsInput;
-  tx?: InputMaybe<TxCreateNestedOneWithoutAccountTxInput>;
+  reactions?: InputMaybe<ReactionCreateNestedManyWithoutAccountInput>;
+  txs?: InputMaybe<TxCreateNestedManyWithoutAccountInput>;
+  wallets?: InputMaybe<WalletCreateNestedManyWithoutAccountInput>;
 };
 
-export type AccountCreateWithoutSafeInput = {
+export type AccountCreateWithoutReactionsInput = {
+  approvals?: InputMaybe<ApprovalCreateNestedManyWithoutAccountInput>;
   approvers?: InputMaybe<ApproverCreateNestedManyWithoutAccountInput>;
+  comments?: InputMaybe<CommentCreateNestedManyWithoutAccountInput>;
+  deploySalt?: InputMaybe<Scalars['String']>;
+  id: Scalars['String'];
+  impl?: InputMaybe<Scalars['String']>;
   name?: InputMaybe<Scalars['String']>;
   quorums?: InputMaybe<QuorumCreateNestedManyWithoutAccountInput>;
-  ref: Scalars['String'];
-  tx?: InputMaybe<TxCreateNestedOneWithoutAccountTxInput>;
+  txs?: InputMaybe<TxCreateNestedManyWithoutAccountInput>;
+  wallets?: InputMaybe<WalletCreateNestedManyWithoutAccountInput>;
 };
 
-export type AccountCreateWithoutTxInput = {
+export type AccountCreateWithoutTxsInput = {
+  approvals?: InputMaybe<ApprovalCreateNestedManyWithoutAccountInput>;
   approvers?: InputMaybe<ApproverCreateNestedManyWithoutAccountInput>;
+  comments?: InputMaybe<CommentCreateNestedManyWithoutAccountInput>;
+  deploySalt?: InputMaybe<Scalars['String']>;
+  id: Scalars['String'];
+  impl?: InputMaybe<Scalars['String']>;
   name?: InputMaybe<Scalars['String']>;
   quorums?: InputMaybe<QuorumCreateNestedManyWithoutAccountInput>;
-  ref: Scalars['String'];
-  safe: SafeCreateNestedOneWithoutAccountsInput;
+  reactions?: InputMaybe<ReactionCreateNestedManyWithoutAccountInput>;
+  wallets?: InputMaybe<WalletCreateNestedManyWithoutAccountInput>;
 };
 
-export type AccountId = {
-  ref: Scalars['Bytes4'];
-  safeId: Scalars['Address'];
-};
-
-export type AccountListRelationFilter = {
-  every?: InputMaybe<AccountWhereInput>;
-  none?: InputMaybe<AccountWhereInput>;
-  some?: InputMaybe<AccountWhereInput>;
-};
-
-export type AccountOrderByRelationAggregateInput = {
-  _count?: InputMaybe<SortOrder>;
+export type AccountCreateWithoutWalletsInput = {
+  approvals?: InputMaybe<ApprovalCreateNestedManyWithoutAccountInput>;
+  approvers?: InputMaybe<ApproverCreateNestedManyWithoutAccountInput>;
+  comments?: InputMaybe<CommentCreateNestedManyWithoutAccountInput>;
+  deploySalt?: InputMaybe<Scalars['String']>;
+  id: Scalars['String'];
+  impl?: InputMaybe<Scalars['String']>;
+  name?: InputMaybe<Scalars['String']>;
+  quorums?: InputMaybe<QuorumCreateNestedManyWithoutAccountInput>;
+  reactions?: InputMaybe<ReactionCreateNestedManyWithoutAccountInput>;
+  txs?: InputMaybe<TxCreateNestedManyWithoutAccountInput>;
 };
 
 export type AccountOrderByWithRelationInput = {
+  approvals?: InputMaybe<ApprovalOrderByRelationAggregateInput>;
   approvers?: InputMaybe<ApproverOrderByRelationAggregateInput>;
+  comments?: InputMaybe<CommentOrderByRelationAggregateInput>;
+  deploySalt?: InputMaybe<SortOrder>;
+  id?: InputMaybe<SortOrder>;
+  impl?: InputMaybe<SortOrder>;
   name?: InputMaybe<SortOrder>;
   quorums?: InputMaybe<QuorumOrderByRelationAggregateInput>;
-  ref?: InputMaybe<SortOrder>;
-  safe?: InputMaybe<SafeOrderByWithRelationInput>;
-  safeId?: InputMaybe<SortOrder>;
-  tx?: InputMaybe<TxOrderByWithRelationInput>;
-  txHash?: InputMaybe<SortOrder>;
+  reactions?: InputMaybe<ReactionOrderByRelationAggregateInput>;
+  txs?: InputMaybe<TxOrderByRelationAggregateInput>;
+  wallets?: InputMaybe<WalletOrderByRelationAggregateInput>;
 };
 
 export type AccountRelationFilter = {
@@ -165,55 +240,19 @@ export type AccountRelationFilter = {
   isNot?: InputMaybe<AccountWhereInput>;
 };
 
-export type AccountSafeIdRefCompoundUniqueInput = {
-  ref: Scalars['String'];
-  safeId: Scalars['String'];
-};
-
-export type AccountSafeIdTxHashCompoundUniqueInput = {
-  safeId: Scalars['String'];
-  txHash: Scalars['String'];
-};
-
 export enum AccountScalarFieldEnum {
-  Name = 'name',
-  Ref = 'ref',
-  SafeId = 'safeId',
-  TxHash = 'txHash'
+  DeploySalt = 'deploySalt',
+  Id = 'id',
+  Impl = 'impl',
+  Name = 'name'
 }
 
-export type AccountScalarWhereInput = {
-  AND?: InputMaybe<Array<AccountScalarWhereInput>>;
-  NOT?: InputMaybe<Array<AccountScalarWhereInput>>;
-  OR?: InputMaybe<Array<AccountScalarWhereInput>>;
-  name?: InputMaybe<StringFilter>;
-  ref?: InputMaybe<StringFilter>;
-  safeId?: InputMaybe<StringFilter>;
-  txHash?: InputMaybe<StringNullableFilter>;
-};
-
-export type AccountUpdateManyMutationInput = {
-  name?: InputMaybe<StringFieldUpdateOperationsInput>;
-  ref?: InputMaybe<StringFieldUpdateOperationsInput>;
-};
-
-export type AccountUpdateManyWithWhereWithoutSafeInput = {
-  data: AccountUpdateManyMutationInput;
-  where: AccountScalarWhereInput;
-};
-
-export type AccountUpdateManyWithoutSafeNestedInput = {
-  connect?: InputMaybe<Array<AccountWhereUniqueInput>>;
-  connectOrCreate?: InputMaybe<Array<AccountCreateOrConnectWithoutSafeInput>>;
-  create?: InputMaybe<Array<AccountCreateWithoutSafeInput>>;
-  createMany?: InputMaybe<AccountCreateManySafeInputEnvelope>;
-  delete?: InputMaybe<Array<AccountWhereUniqueInput>>;
-  deleteMany?: InputMaybe<Array<AccountScalarWhereInput>>;
-  disconnect?: InputMaybe<Array<AccountWhereUniqueInput>>;
-  set?: InputMaybe<Array<AccountWhereUniqueInput>>;
-  update?: InputMaybe<Array<AccountUpdateWithWhereUniqueWithoutSafeInput>>;
-  updateMany?: InputMaybe<Array<AccountUpdateManyWithWhereWithoutSafeInput>>;
-  upsert?: InputMaybe<Array<AccountUpsertWithWhereUniqueWithoutSafeInput>>;
+export type AccountUpdateOneRequiredWithoutApprovalsNestedInput = {
+  connect?: InputMaybe<AccountWhereUniqueInput>;
+  connectOrCreate?: InputMaybe<AccountCreateOrConnectWithoutApprovalsInput>;
+  create?: InputMaybe<AccountCreateWithoutApprovalsInput>;
+  update?: InputMaybe<AccountUpdateWithoutApprovalsInput>;
+  upsert?: InputMaybe<AccountUpsertWithoutApprovalsInput>;
 };
 
 export type AccountUpdateOneRequiredWithoutApproversNestedInput = {
@@ -224,6 +263,14 @@ export type AccountUpdateOneRequiredWithoutApproversNestedInput = {
   upsert?: InputMaybe<AccountUpsertWithoutApproversInput>;
 };
 
+export type AccountUpdateOneRequiredWithoutCommentsNestedInput = {
+  connect?: InputMaybe<AccountWhereUniqueInput>;
+  connectOrCreate?: InputMaybe<AccountCreateOrConnectWithoutCommentsInput>;
+  create?: InputMaybe<AccountCreateWithoutCommentsInput>;
+  update?: InputMaybe<AccountUpdateWithoutCommentsInput>;
+  upsert?: InputMaybe<AccountUpsertWithoutCommentsInput>;
+};
+
 export type AccountUpdateOneRequiredWithoutQuorumsNestedInput = {
   connect?: InputMaybe<AccountWhereUniqueInput>;
   connectOrCreate?: InputMaybe<AccountCreateOrConnectWithoutQuorumsInput>;
@@ -232,57 +279,124 @@ export type AccountUpdateOneRequiredWithoutQuorumsNestedInput = {
   upsert?: InputMaybe<AccountUpsertWithoutQuorumsInput>;
 };
 
-export type AccountUpdateOneWithoutTxNestedInput = {
+export type AccountUpdateOneRequiredWithoutReactionsNestedInput = {
   connect?: InputMaybe<AccountWhereUniqueInput>;
-  connectOrCreate?: InputMaybe<AccountCreateOrConnectWithoutTxInput>;
-  create?: InputMaybe<AccountCreateWithoutTxInput>;
-  delete?: InputMaybe<Scalars['Boolean']>;
-  disconnect?: InputMaybe<Scalars['Boolean']>;
-  update?: InputMaybe<AccountUpdateWithoutTxInput>;
-  upsert?: InputMaybe<AccountUpsertWithoutTxInput>;
+  connectOrCreate?: InputMaybe<AccountCreateOrConnectWithoutReactionsInput>;
+  create?: InputMaybe<AccountCreateWithoutReactionsInput>;
+  update?: InputMaybe<AccountUpdateWithoutReactionsInput>;
+  upsert?: InputMaybe<AccountUpsertWithoutReactionsInput>;
 };
 
-export type AccountUpdateWithWhereUniqueWithoutSafeInput = {
-  data: AccountUpdateWithoutSafeInput;
-  where: AccountWhereUniqueInput;
+export type AccountUpdateOneRequiredWithoutTxsNestedInput = {
+  connect?: InputMaybe<AccountWhereUniqueInput>;
+  connectOrCreate?: InputMaybe<AccountCreateOrConnectWithoutTxsInput>;
+  create?: InputMaybe<AccountCreateWithoutTxsInput>;
+  update?: InputMaybe<AccountUpdateWithoutTxsInput>;
+  upsert?: InputMaybe<AccountUpsertWithoutTxsInput>;
+};
+
+export type AccountUpdateOneRequiredWithoutWalletsNestedInput = {
+  connect?: InputMaybe<AccountWhereUniqueInput>;
+  connectOrCreate?: InputMaybe<AccountCreateOrConnectWithoutWalletsInput>;
+  create?: InputMaybe<AccountCreateWithoutWalletsInput>;
+  update?: InputMaybe<AccountUpdateWithoutWalletsInput>;
+  upsert?: InputMaybe<AccountUpsertWithoutWalletsInput>;
+};
+
+export type AccountUpdateWithoutApprovalsInput = {
+  approvers?: InputMaybe<ApproverUpdateManyWithoutAccountNestedInput>;
+  comments?: InputMaybe<CommentUpdateManyWithoutAccountNestedInput>;
+  deploySalt?: InputMaybe<NullableStringFieldUpdateOperationsInput>;
+  id?: InputMaybe<StringFieldUpdateOperationsInput>;
+  impl?: InputMaybe<NullableStringFieldUpdateOperationsInput>;
+  name?: InputMaybe<StringFieldUpdateOperationsInput>;
+  quorums?: InputMaybe<QuorumUpdateManyWithoutAccountNestedInput>;
+  reactions?: InputMaybe<ReactionUpdateManyWithoutAccountNestedInput>;
+  txs?: InputMaybe<TxUpdateManyWithoutAccountNestedInput>;
+  wallets?: InputMaybe<WalletUpdateManyWithoutAccountNestedInput>;
 };
 
 export type AccountUpdateWithoutApproversInput = {
+  approvals?: InputMaybe<ApprovalUpdateManyWithoutAccountNestedInput>;
+  comments?: InputMaybe<CommentUpdateManyWithoutAccountNestedInput>;
+  deploySalt?: InputMaybe<NullableStringFieldUpdateOperationsInput>;
+  id?: InputMaybe<StringFieldUpdateOperationsInput>;
+  impl?: InputMaybe<NullableStringFieldUpdateOperationsInput>;
   name?: InputMaybe<StringFieldUpdateOperationsInput>;
   quorums?: InputMaybe<QuorumUpdateManyWithoutAccountNestedInput>;
-  ref?: InputMaybe<StringFieldUpdateOperationsInput>;
-  safe?: InputMaybe<SafeUpdateOneRequiredWithoutAccountsNestedInput>;
-  tx?: InputMaybe<TxUpdateOneWithoutAccountTxNestedInput>;
+  reactions?: InputMaybe<ReactionUpdateManyWithoutAccountNestedInput>;
+  txs?: InputMaybe<TxUpdateManyWithoutAccountNestedInput>;
+  wallets?: InputMaybe<WalletUpdateManyWithoutAccountNestedInput>;
+};
+
+export type AccountUpdateWithoutCommentsInput = {
+  approvals?: InputMaybe<ApprovalUpdateManyWithoutAccountNestedInput>;
+  approvers?: InputMaybe<ApproverUpdateManyWithoutAccountNestedInput>;
+  deploySalt?: InputMaybe<NullableStringFieldUpdateOperationsInput>;
+  id?: InputMaybe<StringFieldUpdateOperationsInput>;
+  impl?: InputMaybe<NullableStringFieldUpdateOperationsInput>;
+  name?: InputMaybe<StringFieldUpdateOperationsInput>;
+  quorums?: InputMaybe<QuorumUpdateManyWithoutAccountNestedInput>;
+  reactions?: InputMaybe<ReactionUpdateManyWithoutAccountNestedInput>;
+  txs?: InputMaybe<TxUpdateManyWithoutAccountNestedInput>;
+  wallets?: InputMaybe<WalletUpdateManyWithoutAccountNestedInput>;
 };
 
 export type AccountUpdateWithoutQuorumsInput = {
+  approvals?: InputMaybe<ApprovalUpdateManyWithoutAccountNestedInput>;
   approvers?: InputMaybe<ApproverUpdateManyWithoutAccountNestedInput>;
+  comments?: InputMaybe<CommentUpdateManyWithoutAccountNestedInput>;
+  deploySalt?: InputMaybe<NullableStringFieldUpdateOperationsInput>;
+  id?: InputMaybe<StringFieldUpdateOperationsInput>;
+  impl?: InputMaybe<NullableStringFieldUpdateOperationsInput>;
   name?: InputMaybe<StringFieldUpdateOperationsInput>;
-  ref?: InputMaybe<StringFieldUpdateOperationsInput>;
-  safe?: InputMaybe<SafeUpdateOneRequiredWithoutAccountsNestedInput>;
-  tx?: InputMaybe<TxUpdateOneWithoutAccountTxNestedInput>;
+  reactions?: InputMaybe<ReactionUpdateManyWithoutAccountNestedInput>;
+  txs?: InputMaybe<TxUpdateManyWithoutAccountNestedInput>;
+  wallets?: InputMaybe<WalletUpdateManyWithoutAccountNestedInput>;
 };
 
-export type AccountUpdateWithoutSafeInput = {
+export type AccountUpdateWithoutReactionsInput = {
+  approvals?: InputMaybe<ApprovalUpdateManyWithoutAccountNestedInput>;
   approvers?: InputMaybe<ApproverUpdateManyWithoutAccountNestedInput>;
+  comments?: InputMaybe<CommentUpdateManyWithoutAccountNestedInput>;
+  deploySalt?: InputMaybe<NullableStringFieldUpdateOperationsInput>;
+  id?: InputMaybe<StringFieldUpdateOperationsInput>;
+  impl?: InputMaybe<NullableStringFieldUpdateOperationsInput>;
   name?: InputMaybe<StringFieldUpdateOperationsInput>;
   quorums?: InputMaybe<QuorumUpdateManyWithoutAccountNestedInput>;
-  ref?: InputMaybe<StringFieldUpdateOperationsInput>;
-  tx?: InputMaybe<TxUpdateOneWithoutAccountTxNestedInput>;
+  txs?: InputMaybe<TxUpdateManyWithoutAccountNestedInput>;
+  wallets?: InputMaybe<WalletUpdateManyWithoutAccountNestedInput>;
 };
 
-export type AccountUpdateWithoutTxInput = {
+export type AccountUpdateWithoutTxsInput = {
+  approvals?: InputMaybe<ApprovalUpdateManyWithoutAccountNestedInput>;
   approvers?: InputMaybe<ApproverUpdateManyWithoutAccountNestedInput>;
+  comments?: InputMaybe<CommentUpdateManyWithoutAccountNestedInput>;
+  deploySalt?: InputMaybe<NullableStringFieldUpdateOperationsInput>;
+  id?: InputMaybe<StringFieldUpdateOperationsInput>;
+  impl?: InputMaybe<NullableStringFieldUpdateOperationsInput>;
   name?: InputMaybe<StringFieldUpdateOperationsInput>;
   quorums?: InputMaybe<QuorumUpdateManyWithoutAccountNestedInput>;
-  ref?: InputMaybe<StringFieldUpdateOperationsInput>;
-  safe?: InputMaybe<SafeUpdateOneRequiredWithoutAccountsNestedInput>;
+  reactions?: InputMaybe<ReactionUpdateManyWithoutAccountNestedInput>;
+  wallets?: InputMaybe<WalletUpdateManyWithoutAccountNestedInput>;
 };
 
-export type AccountUpsertWithWhereUniqueWithoutSafeInput = {
-  create: AccountCreateWithoutSafeInput;
-  update: AccountUpdateWithoutSafeInput;
-  where: AccountWhereUniqueInput;
+export type AccountUpdateWithoutWalletsInput = {
+  approvals?: InputMaybe<ApprovalUpdateManyWithoutAccountNestedInput>;
+  approvers?: InputMaybe<ApproverUpdateManyWithoutAccountNestedInput>;
+  comments?: InputMaybe<CommentUpdateManyWithoutAccountNestedInput>;
+  deploySalt?: InputMaybe<NullableStringFieldUpdateOperationsInput>;
+  id?: InputMaybe<StringFieldUpdateOperationsInput>;
+  impl?: InputMaybe<NullableStringFieldUpdateOperationsInput>;
+  name?: InputMaybe<StringFieldUpdateOperationsInput>;
+  quorums?: InputMaybe<QuorumUpdateManyWithoutAccountNestedInput>;
+  reactions?: InputMaybe<ReactionUpdateManyWithoutAccountNestedInput>;
+  txs?: InputMaybe<TxUpdateManyWithoutAccountNestedInput>;
+};
+
+export type AccountUpsertWithoutApprovalsInput = {
+  create: AccountCreateWithoutApprovalsInput;
+  update: AccountUpdateWithoutApprovalsInput;
 };
 
 export type AccountUpsertWithoutApproversInput = {
@@ -290,46 +404,57 @@ export type AccountUpsertWithoutApproversInput = {
   update: AccountUpdateWithoutApproversInput;
 };
 
+export type AccountUpsertWithoutCommentsInput = {
+  create: AccountCreateWithoutCommentsInput;
+  update: AccountUpdateWithoutCommentsInput;
+};
+
 export type AccountUpsertWithoutQuorumsInput = {
   create: AccountCreateWithoutQuorumsInput;
   update: AccountUpdateWithoutQuorumsInput;
 };
 
-export type AccountUpsertWithoutTxInput = {
-  create: AccountCreateWithoutTxInput;
-  update: AccountUpdateWithoutTxInput;
+export type AccountUpsertWithoutReactionsInput = {
+  create: AccountCreateWithoutReactionsInput;
+  update: AccountUpdateWithoutReactionsInput;
+};
+
+export type AccountUpsertWithoutTxsInput = {
+  create: AccountCreateWithoutTxsInput;
+  update: AccountUpdateWithoutTxsInput;
+};
+
+export type AccountUpsertWithoutWalletsInput = {
+  create: AccountCreateWithoutWalletsInput;
+  update: AccountUpdateWithoutWalletsInput;
 };
 
 export type AccountWhereInput = {
   AND?: InputMaybe<Array<AccountWhereInput>>;
   NOT?: InputMaybe<Array<AccountWhereInput>>;
   OR?: InputMaybe<Array<AccountWhereInput>>;
+  approvals?: InputMaybe<ApprovalListRelationFilter>;
   approvers?: InputMaybe<ApproverListRelationFilter>;
+  comments?: InputMaybe<CommentListRelationFilter>;
+  deploySalt?: InputMaybe<StringNullableFilter>;
+  id?: InputMaybe<StringFilter>;
+  impl?: InputMaybe<StringNullableFilter>;
   name?: InputMaybe<StringFilter>;
   quorums?: InputMaybe<QuorumListRelationFilter>;
-  ref?: InputMaybe<StringFilter>;
-  safe?: InputMaybe<SafeRelationFilter>;
-  safeId?: InputMaybe<StringFilter>;
-  tx?: InputMaybe<TxRelationFilter>;
-  txHash?: InputMaybe<StringNullableFilter>;
+  reactions?: InputMaybe<ReactionListRelationFilter>;
+  txs?: InputMaybe<TxListRelationFilter>;
+  wallets?: InputMaybe<WalletListRelationFilter>;
 };
 
 export type AccountWhereUniqueInput = {
-  safeId_ref?: InputMaybe<AccountSafeIdRefCompoundUniqueInput>;
-  safeId_txHash?: InputMaybe<AccountSafeIdTxHashCompoundUniqueInput>;
-};
-
-export type AccountWithoutSafeInput = {
-  name: Scalars['String'];
-  quorums: Array<Scalars['QuorumScalar']>;
-  ref: Scalars['Bytes4'];
+  id?: InputMaybe<Scalars['String']>;
 };
 
 export type Approval = {
   __typename?: 'Approval';
+  account: Account;
+  accountId: Scalars['String'];
   createdAt: Scalars['DateTime'];
-  safe: Safe;
-  safeId: Scalars['String'];
   signature: Scalars['String'];
   tx: Tx;
   txHash: Scalars['String'];
@@ -337,15 +462,21 @@ export type Approval = {
   userId: Scalars['String'];
 };
 
-export type ApprovalCreateManySafeInput = {
+export type ApprovalAccountIdTxHashUserIdCompoundUniqueInput = {
+  accountId: Scalars['String'];
+  txHash: Scalars['String'];
+  userId: Scalars['String'];
+};
+
+export type ApprovalCreateManyAccountInput = {
   createdAt?: InputMaybe<Scalars['DateTime']>;
   signature: Scalars['String'];
   txHash: Scalars['String'];
   userId: Scalars['String'];
 };
 
-export type ApprovalCreateManySafeInputEnvelope = {
-  data: Array<ApprovalCreateManySafeInput>;
+export type ApprovalCreateManyAccountInputEnvelope = {
+  data: Array<ApprovalCreateManyAccountInput>;
   skipDuplicates?: InputMaybe<Scalars['Boolean']>;
 };
 
@@ -361,8 +492,8 @@ export type ApprovalCreateManyTxInputEnvelope = {
 };
 
 export type ApprovalCreateManyUserInput = {
+  accountId: Scalars['String'];
   createdAt?: InputMaybe<Scalars['DateTime']>;
-  safeId: Scalars['String'];
   signature: Scalars['String'];
   txHash: Scalars['String'];
 };
@@ -372,11 +503,11 @@ export type ApprovalCreateManyUserInputEnvelope = {
   skipDuplicates?: InputMaybe<Scalars['Boolean']>;
 };
 
-export type ApprovalCreateNestedManyWithoutSafeInput = {
+export type ApprovalCreateNestedManyWithoutAccountInput = {
   connect?: InputMaybe<Array<ApprovalWhereUniqueInput>>;
-  connectOrCreate?: InputMaybe<Array<ApprovalCreateOrConnectWithoutSafeInput>>;
-  create?: InputMaybe<Array<ApprovalCreateWithoutSafeInput>>;
-  createMany?: InputMaybe<ApprovalCreateManySafeInputEnvelope>;
+  connectOrCreate?: InputMaybe<Array<ApprovalCreateOrConnectWithoutAccountInput>>;
+  create?: InputMaybe<Array<ApprovalCreateWithoutAccountInput>>;
+  createMany?: InputMaybe<ApprovalCreateManyAccountInputEnvelope>;
 };
 
 export type ApprovalCreateNestedManyWithoutTxInput = {
@@ -393,8 +524,8 @@ export type ApprovalCreateNestedManyWithoutUserInput = {
   createMany?: InputMaybe<ApprovalCreateManyUserInputEnvelope>;
 };
 
-export type ApprovalCreateOrConnectWithoutSafeInput = {
-  create: ApprovalCreateWithoutSafeInput;
+export type ApprovalCreateOrConnectWithoutAccountInput = {
+  create: ApprovalCreateWithoutAccountInput;
   where: ApprovalWhereUniqueInput;
 };
 
@@ -408,7 +539,7 @@ export type ApprovalCreateOrConnectWithoutUserInput = {
   where: ApprovalWhereUniqueInput;
 };
 
-export type ApprovalCreateWithoutSafeInput = {
+export type ApprovalCreateWithoutAccountInput = {
   createdAt?: InputMaybe<Scalars['DateTime']>;
   signature: Scalars['String'];
   tx: TxCreateNestedOneWithoutApprovalsInput;
@@ -416,15 +547,15 @@ export type ApprovalCreateWithoutSafeInput = {
 };
 
 export type ApprovalCreateWithoutTxInput = {
+  account: AccountCreateNestedOneWithoutApprovalsInput;
   createdAt?: InputMaybe<Scalars['DateTime']>;
-  safe: SafeCreateNestedOneWithoutApprovalsInput;
   signature: Scalars['String'];
   user: UserCreateNestedOneWithoutApprovalsInput;
 };
 
 export type ApprovalCreateWithoutUserInput = {
+  account: AccountCreateNestedOneWithoutApprovalsInput;
   createdAt?: InputMaybe<Scalars['DateTime']>;
-  safe: SafeCreateNestedOneWithoutApprovalsInput;
   signature: Scalars['String'];
   tx: TxCreateNestedOneWithoutApprovalsInput;
 };
@@ -439,18 +570,12 @@ export type ApprovalOrderByRelationAggregateInput = {
   _count?: InputMaybe<SortOrder>;
 };
 
-export type ApprovalSafeIdTxHashUserIdCompoundUniqueInput = {
-  safeId: Scalars['String'];
-  txHash: Scalars['String'];
-  userId: Scalars['String'];
-};
-
 export type ApprovalScalarWhereInput = {
   AND?: InputMaybe<Array<ApprovalScalarWhereInput>>;
   NOT?: InputMaybe<Array<ApprovalScalarWhereInput>>;
   OR?: InputMaybe<Array<ApprovalScalarWhereInput>>;
+  accountId?: InputMaybe<StringFilter>;
   createdAt?: InputMaybe<DateTimeFilter>;
-  safeId?: InputMaybe<StringFilter>;
   signature?: InputMaybe<StringFilter>;
   txHash?: InputMaybe<StringFilter>;
   userId?: InputMaybe<StringFilter>;
@@ -461,7 +586,7 @@ export type ApprovalUpdateManyMutationInput = {
   signature?: InputMaybe<StringFieldUpdateOperationsInput>;
 };
 
-export type ApprovalUpdateManyWithWhereWithoutSafeInput = {
+export type ApprovalUpdateManyWithWhereWithoutAccountInput = {
   data: ApprovalUpdateManyMutationInput;
   where: ApprovalScalarWhereInput;
 };
@@ -476,18 +601,18 @@ export type ApprovalUpdateManyWithWhereWithoutUserInput = {
   where: ApprovalScalarWhereInput;
 };
 
-export type ApprovalUpdateManyWithoutSafeNestedInput = {
+export type ApprovalUpdateManyWithoutAccountNestedInput = {
   connect?: InputMaybe<Array<ApprovalWhereUniqueInput>>;
-  connectOrCreate?: InputMaybe<Array<ApprovalCreateOrConnectWithoutSafeInput>>;
-  create?: InputMaybe<Array<ApprovalCreateWithoutSafeInput>>;
-  createMany?: InputMaybe<ApprovalCreateManySafeInputEnvelope>;
+  connectOrCreate?: InputMaybe<Array<ApprovalCreateOrConnectWithoutAccountInput>>;
+  create?: InputMaybe<Array<ApprovalCreateWithoutAccountInput>>;
+  createMany?: InputMaybe<ApprovalCreateManyAccountInputEnvelope>;
   delete?: InputMaybe<Array<ApprovalWhereUniqueInput>>;
   deleteMany?: InputMaybe<Array<ApprovalScalarWhereInput>>;
   disconnect?: InputMaybe<Array<ApprovalWhereUniqueInput>>;
   set?: InputMaybe<Array<ApprovalWhereUniqueInput>>;
-  update?: InputMaybe<Array<ApprovalUpdateWithWhereUniqueWithoutSafeInput>>;
-  updateMany?: InputMaybe<Array<ApprovalUpdateManyWithWhereWithoutSafeInput>>;
-  upsert?: InputMaybe<Array<ApprovalUpsertWithWhereUniqueWithoutSafeInput>>;
+  update?: InputMaybe<Array<ApprovalUpdateWithWhereUniqueWithoutAccountInput>>;
+  updateMany?: InputMaybe<Array<ApprovalUpdateManyWithWhereWithoutAccountInput>>;
+  upsert?: InputMaybe<Array<ApprovalUpsertWithWhereUniqueWithoutAccountInput>>;
 };
 
 export type ApprovalUpdateManyWithoutTxNestedInput = {
@@ -518,8 +643,8 @@ export type ApprovalUpdateManyWithoutUserNestedInput = {
   upsert?: InputMaybe<Array<ApprovalUpsertWithWhereUniqueWithoutUserInput>>;
 };
 
-export type ApprovalUpdateWithWhereUniqueWithoutSafeInput = {
-  data: ApprovalUpdateWithoutSafeInput;
+export type ApprovalUpdateWithWhereUniqueWithoutAccountInput = {
+  data: ApprovalUpdateWithoutAccountInput;
   where: ApprovalWhereUniqueInput;
 };
 
@@ -533,7 +658,7 @@ export type ApprovalUpdateWithWhereUniqueWithoutUserInput = {
   where: ApprovalWhereUniqueInput;
 };
 
-export type ApprovalUpdateWithoutSafeInput = {
+export type ApprovalUpdateWithoutAccountInput = {
   createdAt?: InputMaybe<DateTimeFieldUpdateOperationsInput>;
   signature?: InputMaybe<StringFieldUpdateOperationsInput>;
   tx?: InputMaybe<TxUpdateOneRequiredWithoutApprovalsNestedInput>;
@@ -541,22 +666,22 @@ export type ApprovalUpdateWithoutSafeInput = {
 };
 
 export type ApprovalUpdateWithoutTxInput = {
+  account?: InputMaybe<AccountUpdateOneRequiredWithoutApprovalsNestedInput>;
   createdAt?: InputMaybe<DateTimeFieldUpdateOperationsInput>;
-  safe?: InputMaybe<SafeUpdateOneRequiredWithoutApprovalsNestedInput>;
   signature?: InputMaybe<StringFieldUpdateOperationsInput>;
   user?: InputMaybe<UserUpdateOneRequiredWithoutApprovalsNestedInput>;
 };
 
 export type ApprovalUpdateWithoutUserInput = {
+  account?: InputMaybe<AccountUpdateOneRequiredWithoutApprovalsNestedInput>;
   createdAt?: InputMaybe<DateTimeFieldUpdateOperationsInput>;
-  safe?: InputMaybe<SafeUpdateOneRequiredWithoutApprovalsNestedInput>;
   signature?: InputMaybe<StringFieldUpdateOperationsInput>;
   tx?: InputMaybe<TxUpdateOneRequiredWithoutApprovalsNestedInput>;
 };
 
-export type ApprovalUpsertWithWhereUniqueWithoutSafeInput = {
-  create: ApprovalCreateWithoutSafeInput;
-  update: ApprovalUpdateWithoutSafeInput;
+export type ApprovalUpsertWithWhereUniqueWithoutAccountInput = {
+  create: ApprovalCreateWithoutAccountInput;
+  update: ApprovalUpdateWithoutAccountInput;
   where: ApprovalWhereUniqueInput;
 };
 
@@ -576,9 +701,9 @@ export type ApprovalWhereInput = {
   AND?: InputMaybe<Array<ApprovalWhereInput>>;
   NOT?: InputMaybe<Array<ApprovalWhereInput>>;
   OR?: InputMaybe<Array<ApprovalWhereInput>>;
+  account?: InputMaybe<AccountRelationFilter>;
+  accountId?: InputMaybe<StringFilter>;
   createdAt?: InputMaybe<DateTimeFilter>;
-  safe?: InputMaybe<SafeRelationFilter>;
-  safeId?: InputMaybe<StringFilter>;
   signature?: InputMaybe<StringFilter>;
   tx?: InputMaybe<TxRelationFilter>;
   txHash?: InputMaybe<StringFilter>;
@@ -587,25 +712,33 @@ export type ApprovalWhereInput = {
 };
 
 export type ApprovalWhereUniqueInput = {
-  safeId_txHash_userId?: InputMaybe<ApprovalSafeIdTxHashUserIdCompoundUniqueInput>;
+  accountId_txHash_userId?: InputMaybe<ApprovalAccountIdTxHashUserIdCompoundUniqueInput>;
 };
 
 export type Approver = {
   __typename?: 'Approver';
   account: Account;
-  accountRef: Scalars['String'];
+  accountId: Scalars['String'];
   id: Scalars['String'];
   quorum: Quorum;
   quorumHash: Scalars['String'];
-  safe: Safe;
-  safeId: Scalars['String'];
   user: User;
   userId: Scalars['String'];
+  wallet: Wallet;
+  walletRef: Scalars['String'];
+};
+
+export type ApproverAccountIdWalletRefQuorumHashUserIdCompoundUniqueInput = {
+  accountId: Scalars['String'];
+  quorumHash: Scalars['String'];
+  userId: Scalars['String'];
+  walletRef: Scalars['String'];
 };
 
 export type ApproverCreateManyAccountInput = {
   quorumHash: Scalars['String'];
   userId: Scalars['String'];
+  walletRef: Scalars['String'];
 };
 
 export type ApproverCreateManyAccountInputEnvelope = {
@@ -622,25 +755,24 @@ export type ApproverCreateManyQuorumInputEnvelope = {
   skipDuplicates?: InputMaybe<Scalars['Boolean']>;
 };
 
-export type ApproverCreateManySafeInput = {
-  accountRef: Scalars['String'];
-  quorumHash: Scalars['String'];
-  userId: Scalars['String'];
-};
-
-export type ApproverCreateManySafeInputEnvelope = {
-  data: Array<ApproverCreateManySafeInput>;
-  skipDuplicates?: InputMaybe<Scalars['Boolean']>;
-};
-
 export type ApproverCreateManyUserInput = {
-  accountRef: Scalars['String'];
+  accountId: Scalars['String'];
   quorumHash: Scalars['String'];
-  safeId: Scalars['String'];
+  walletRef: Scalars['String'];
 };
 
 export type ApproverCreateManyUserInputEnvelope = {
   data: Array<ApproverCreateManyUserInput>;
+  skipDuplicates?: InputMaybe<Scalars['Boolean']>;
+};
+
+export type ApproverCreateManyWalletInput = {
+  quorumHash: Scalars['String'];
+  userId: Scalars['String'];
+};
+
+export type ApproverCreateManyWalletInputEnvelope = {
+  data: Array<ApproverCreateManyWalletInput>;
   skipDuplicates?: InputMaybe<Scalars['Boolean']>;
 };
 
@@ -658,18 +790,18 @@ export type ApproverCreateNestedManyWithoutQuorumInput = {
   createMany?: InputMaybe<ApproverCreateManyQuorumInputEnvelope>;
 };
 
-export type ApproverCreateNestedManyWithoutSafeInput = {
-  connect?: InputMaybe<Array<ApproverWhereUniqueInput>>;
-  connectOrCreate?: InputMaybe<Array<ApproverCreateOrConnectWithoutSafeInput>>;
-  create?: InputMaybe<Array<ApproverCreateWithoutSafeInput>>;
-  createMany?: InputMaybe<ApproverCreateManySafeInputEnvelope>;
-};
-
 export type ApproverCreateNestedManyWithoutUserInput = {
   connect?: InputMaybe<Array<ApproverWhereUniqueInput>>;
   connectOrCreate?: InputMaybe<Array<ApproverCreateOrConnectWithoutUserInput>>;
   create?: InputMaybe<Array<ApproverCreateWithoutUserInput>>;
   createMany?: InputMaybe<ApproverCreateManyUserInputEnvelope>;
+};
+
+export type ApproverCreateNestedManyWithoutWalletInput = {
+  connect?: InputMaybe<Array<ApproverWhereUniqueInput>>;
+  connectOrCreate?: InputMaybe<Array<ApproverCreateOrConnectWithoutWalletInput>>;
+  create?: InputMaybe<Array<ApproverCreateWithoutWalletInput>>;
+  createMany?: InputMaybe<ApproverCreateManyWalletInputEnvelope>;
 };
 
 export type ApproverCreateOrConnectWithoutAccountInput = {
@@ -682,38 +814,38 @@ export type ApproverCreateOrConnectWithoutQuorumInput = {
   where: ApproverWhereUniqueInput;
 };
 
-export type ApproverCreateOrConnectWithoutSafeInput = {
-  create: ApproverCreateWithoutSafeInput;
-  where: ApproverWhereUniqueInput;
-};
-
 export type ApproverCreateOrConnectWithoutUserInput = {
   create: ApproverCreateWithoutUserInput;
   where: ApproverWhereUniqueInput;
 };
 
+export type ApproverCreateOrConnectWithoutWalletInput = {
+  create: ApproverCreateWithoutWalletInput;
+  where: ApproverWhereUniqueInput;
+};
+
 export type ApproverCreateWithoutAccountInput = {
   quorum: QuorumCreateNestedOneWithoutApproversInput;
-  safe: SafeCreateNestedOneWithoutApproversInput;
   user: UserCreateNestedOneWithoutApproversInput;
+  wallet: WalletCreateNestedOneWithoutApproversInput;
 };
 
 export type ApproverCreateWithoutQuorumInput = {
   account: AccountCreateNestedOneWithoutApproversInput;
-  safe: SafeCreateNestedOneWithoutApproversInput;
   user: UserCreateNestedOneWithoutApproversInput;
-};
-
-export type ApproverCreateWithoutSafeInput = {
-  account: AccountCreateNestedOneWithoutApproversInput;
-  quorum: QuorumCreateNestedOneWithoutApproversInput;
-  user: UserCreateNestedOneWithoutApproversInput;
+  wallet: WalletCreateNestedOneWithoutApproversInput;
 };
 
 export type ApproverCreateWithoutUserInput = {
   account: AccountCreateNestedOneWithoutApproversInput;
   quorum: QuorumCreateNestedOneWithoutApproversInput;
-  safe: SafeCreateNestedOneWithoutApproversInput;
+  wallet: WalletCreateNestedOneWithoutApproversInput;
+};
+
+export type ApproverCreateWithoutWalletInput = {
+  account: AccountCreateNestedOneWithoutApproversInput;
+  quorum: QuorumCreateNestedOneWithoutApproversInput;
+  user: UserCreateNestedOneWithoutApproversInput;
 };
 
 export type ApproverListRelationFilter = {
@@ -726,27 +858,20 @@ export type ApproverOrderByRelationAggregateInput = {
   _count?: InputMaybe<SortOrder>;
 };
 
-export type ApproverSafeIdAccountRefQuorumHashUserIdCompoundUniqueInput = {
-  accountRef: Scalars['String'];
-  quorumHash: Scalars['String'];
-  safeId: Scalars['String'];
-  userId: Scalars['String'];
-};
-
 export type ApproverScalarWhereInput = {
   AND?: InputMaybe<Array<ApproverScalarWhereInput>>;
   NOT?: InputMaybe<Array<ApproverScalarWhereInput>>;
   OR?: InputMaybe<Array<ApproverScalarWhereInput>>;
-  accountRef?: InputMaybe<StringFilter>;
+  accountId?: InputMaybe<StringFilter>;
   quorumHash?: InputMaybe<StringFilter>;
-  safeId?: InputMaybe<StringFilter>;
   userId?: InputMaybe<StringFilter>;
+  walletRef?: InputMaybe<StringFilter>;
 };
 
 export type ApproverUncheckedUpdateManyWithoutApproversInput = {
-  accountRef?: InputMaybe<StringFieldUpdateOperationsInput>;
+  accountId?: InputMaybe<StringFieldUpdateOperationsInput>;
   quorumHash?: InputMaybe<StringFieldUpdateOperationsInput>;
-  safeId?: InputMaybe<StringFieldUpdateOperationsInput>;
+  walletRef?: InputMaybe<StringFieldUpdateOperationsInput>;
 };
 
 export type ApproverUpdateManyWithWhereWithoutAccountInput = {
@@ -759,12 +884,12 @@ export type ApproverUpdateManyWithWhereWithoutQuorumInput = {
   where: ApproverScalarWhereInput;
 };
 
-export type ApproverUpdateManyWithWhereWithoutSafeInput = {
+export type ApproverUpdateManyWithWhereWithoutUserInput = {
   data: ApproverUncheckedUpdateManyWithoutApproversInput;
   where: ApproverScalarWhereInput;
 };
 
-export type ApproverUpdateManyWithWhereWithoutUserInput = {
+export type ApproverUpdateManyWithWhereWithoutWalletInput = {
   data: ApproverUncheckedUpdateManyWithoutApproversInput;
   where: ApproverScalarWhereInput;
 };
@@ -797,20 +922,6 @@ export type ApproverUpdateManyWithoutQuorumNestedInput = {
   upsert?: InputMaybe<Array<ApproverUpsertWithWhereUniqueWithoutQuorumInput>>;
 };
 
-export type ApproverUpdateManyWithoutSafeNestedInput = {
-  connect?: InputMaybe<Array<ApproverWhereUniqueInput>>;
-  connectOrCreate?: InputMaybe<Array<ApproverCreateOrConnectWithoutSafeInput>>;
-  create?: InputMaybe<Array<ApproverCreateWithoutSafeInput>>;
-  createMany?: InputMaybe<ApproverCreateManySafeInputEnvelope>;
-  delete?: InputMaybe<Array<ApproverWhereUniqueInput>>;
-  deleteMany?: InputMaybe<Array<ApproverScalarWhereInput>>;
-  disconnect?: InputMaybe<Array<ApproverWhereUniqueInput>>;
-  set?: InputMaybe<Array<ApproverWhereUniqueInput>>;
-  update?: InputMaybe<Array<ApproverUpdateWithWhereUniqueWithoutSafeInput>>;
-  updateMany?: InputMaybe<Array<ApproverUpdateManyWithWhereWithoutSafeInput>>;
-  upsert?: InputMaybe<Array<ApproverUpsertWithWhereUniqueWithoutSafeInput>>;
-};
-
 export type ApproverUpdateManyWithoutUserNestedInput = {
   connect?: InputMaybe<Array<ApproverWhereUniqueInput>>;
   connectOrCreate?: InputMaybe<Array<ApproverCreateOrConnectWithoutUserInput>>;
@@ -825,6 +936,20 @@ export type ApproverUpdateManyWithoutUserNestedInput = {
   upsert?: InputMaybe<Array<ApproverUpsertWithWhereUniqueWithoutUserInput>>;
 };
 
+export type ApproverUpdateManyWithoutWalletNestedInput = {
+  connect?: InputMaybe<Array<ApproverWhereUniqueInput>>;
+  connectOrCreate?: InputMaybe<Array<ApproverCreateOrConnectWithoutWalletInput>>;
+  create?: InputMaybe<Array<ApproverCreateWithoutWalletInput>>;
+  createMany?: InputMaybe<ApproverCreateManyWalletInputEnvelope>;
+  delete?: InputMaybe<Array<ApproverWhereUniqueInput>>;
+  deleteMany?: InputMaybe<Array<ApproverScalarWhereInput>>;
+  disconnect?: InputMaybe<Array<ApproverWhereUniqueInput>>;
+  set?: InputMaybe<Array<ApproverWhereUniqueInput>>;
+  update?: InputMaybe<Array<ApproverUpdateWithWhereUniqueWithoutWalletInput>>;
+  updateMany?: InputMaybe<Array<ApproverUpdateManyWithWhereWithoutWalletInput>>;
+  upsert?: InputMaybe<Array<ApproverUpsertWithWhereUniqueWithoutWalletInput>>;
+};
+
 export type ApproverUpdateWithWhereUniqueWithoutAccountInput = {
   data: ApproverUpdateWithoutAccountInput;
   where: ApproverWhereUniqueInput;
@@ -835,38 +960,38 @@ export type ApproverUpdateWithWhereUniqueWithoutQuorumInput = {
   where: ApproverWhereUniqueInput;
 };
 
-export type ApproverUpdateWithWhereUniqueWithoutSafeInput = {
-  data: ApproverUpdateWithoutSafeInput;
-  where: ApproverWhereUniqueInput;
-};
-
 export type ApproverUpdateWithWhereUniqueWithoutUserInput = {
   data: ApproverUpdateWithoutUserInput;
   where: ApproverWhereUniqueInput;
 };
 
+export type ApproverUpdateWithWhereUniqueWithoutWalletInput = {
+  data: ApproverUpdateWithoutWalletInput;
+  where: ApproverWhereUniqueInput;
+};
+
 export type ApproverUpdateWithoutAccountInput = {
   quorum?: InputMaybe<QuorumUpdateOneRequiredWithoutApproversNestedInput>;
-  safe?: InputMaybe<SafeUpdateOneRequiredWithoutApproversNestedInput>;
   user?: InputMaybe<UserUpdateOneRequiredWithoutApproversNestedInput>;
+  wallet?: InputMaybe<WalletUpdateOneRequiredWithoutApproversNestedInput>;
 };
 
 export type ApproverUpdateWithoutQuorumInput = {
   account?: InputMaybe<AccountUpdateOneRequiredWithoutApproversNestedInput>;
-  safe?: InputMaybe<SafeUpdateOneRequiredWithoutApproversNestedInput>;
   user?: InputMaybe<UserUpdateOneRequiredWithoutApproversNestedInput>;
-};
-
-export type ApproverUpdateWithoutSafeInput = {
-  account?: InputMaybe<AccountUpdateOneRequiredWithoutApproversNestedInput>;
-  quorum?: InputMaybe<QuorumUpdateOneRequiredWithoutApproversNestedInput>;
-  user?: InputMaybe<UserUpdateOneRequiredWithoutApproversNestedInput>;
+  wallet?: InputMaybe<WalletUpdateOneRequiredWithoutApproversNestedInput>;
 };
 
 export type ApproverUpdateWithoutUserInput = {
   account?: InputMaybe<AccountUpdateOneRequiredWithoutApproversNestedInput>;
   quorum?: InputMaybe<QuorumUpdateOneRequiredWithoutApproversNestedInput>;
-  safe?: InputMaybe<SafeUpdateOneRequiredWithoutApproversNestedInput>;
+  wallet?: InputMaybe<WalletUpdateOneRequiredWithoutApproversNestedInput>;
+};
+
+export type ApproverUpdateWithoutWalletInput = {
+  account?: InputMaybe<AccountUpdateOneRequiredWithoutApproversNestedInput>;
+  quorum?: InputMaybe<QuorumUpdateOneRequiredWithoutApproversNestedInput>;
+  user?: InputMaybe<UserUpdateOneRequiredWithoutApproversNestedInput>;
 };
 
 export type ApproverUpsertWithWhereUniqueWithoutAccountInput = {
@@ -881,15 +1006,15 @@ export type ApproverUpsertWithWhereUniqueWithoutQuorumInput = {
   where: ApproverWhereUniqueInput;
 };
 
-export type ApproverUpsertWithWhereUniqueWithoutSafeInput = {
-  create: ApproverCreateWithoutSafeInput;
-  update: ApproverUpdateWithoutSafeInput;
-  where: ApproverWhereUniqueInput;
-};
-
 export type ApproverUpsertWithWhereUniqueWithoutUserInput = {
   create: ApproverCreateWithoutUserInput;
   update: ApproverUpdateWithoutUserInput;
+  where: ApproverWhereUniqueInput;
+};
+
+export type ApproverUpsertWithWhereUniqueWithoutWalletInput = {
+  create: ApproverCreateWithoutWalletInput;
+  update: ApproverUpdateWithoutWalletInput;
   where: ApproverWhereUniqueInput;
 };
 
@@ -898,17 +1023,17 @@ export type ApproverWhereInput = {
   NOT?: InputMaybe<Array<ApproverWhereInput>>;
   OR?: InputMaybe<Array<ApproverWhereInput>>;
   account?: InputMaybe<AccountRelationFilter>;
-  accountRef?: InputMaybe<StringFilter>;
+  accountId?: InputMaybe<StringFilter>;
   quorum?: InputMaybe<QuorumRelationFilter>;
   quorumHash?: InputMaybe<StringFilter>;
-  safe?: InputMaybe<SafeRelationFilter>;
-  safeId?: InputMaybe<StringFilter>;
   user?: InputMaybe<UserRelationFilter>;
   userId?: InputMaybe<StringFilter>;
+  wallet?: InputMaybe<WalletRelationFilter>;
+  walletRef?: InputMaybe<StringFilter>;
 };
 
 export type ApproverWhereUniqueInput = {
-  safeId_accountRef_quorumHash_userId?: InputMaybe<ApproverSafeIdAccountRefQuorumHashUserIdCompoundUniqueInput>;
+  accountId_walletRef_quorumHash_userId?: InputMaybe<ApproverAccountIdWalletRefQuorumHashUserIdCompoundUniqueInput>;
 };
 
 export type BoolFieldUpdateOperationsInput = {
@@ -923,6 +1048,8 @@ export type BoolFilter = {
 export type Comment = {
   __typename?: 'Comment';
   _count: CommentCount;
+  account: Account;
+  accountId: Scalars['String'];
   author: User;
   authorId: Scalars['String'];
   content: Scalars['String'];
@@ -931,9 +1058,13 @@ export type Comment = {
   key: Scalars['String'];
   nonce: Scalars['Int'];
   reactions?: Maybe<Array<Reaction>>;
-  safe: Safe;
-  safeId: Scalars['String'];
   updatedAt: Scalars['DateTime'];
+};
+
+export type CommentAccountIdKeyNonceCompoundUniqueInput = {
+  accountId: Scalars['String'];
+  key: Scalars['String'];
+  nonce: Scalars['Int'];
 };
 
 export type CommentCount = {
@@ -941,21 +1072,7 @@ export type CommentCount = {
   reactions: Scalars['Int'];
 };
 
-export type CommentCreateManyAuthorInput = {
-  content: Scalars['String'];
-  createdAt?: InputMaybe<Scalars['DateTime']>;
-  key: Scalars['String'];
-  nonce?: InputMaybe<Scalars['Int']>;
-  safeId: Scalars['String'];
-  updatedAt?: InputMaybe<Scalars['DateTime']>;
-};
-
-export type CommentCreateManyAuthorInputEnvelope = {
-  data: Array<CommentCreateManyAuthorInput>;
-  skipDuplicates?: InputMaybe<Scalars['Boolean']>;
-};
-
-export type CommentCreateManySafeInput = {
+export type CommentCreateManyAccountInput = {
   authorId: Scalars['String'];
   content: Scalars['String'];
   createdAt?: InputMaybe<Scalars['DateTime']>;
@@ -964,9 +1081,30 @@ export type CommentCreateManySafeInput = {
   updatedAt?: InputMaybe<Scalars['DateTime']>;
 };
 
-export type CommentCreateManySafeInputEnvelope = {
-  data: Array<CommentCreateManySafeInput>;
+export type CommentCreateManyAccountInputEnvelope = {
+  data: Array<CommentCreateManyAccountInput>;
   skipDuplicates?: InputMaybe<Scalars['Boolean']>;
+};
+
+export type CommentCreateManyAuthorInput = {
+  accountId: Scalars['String'];
+  content: Scalars['String'];
+  createdAt?: InputMaybe<Scalars['DateTime']>;
+  key: Scalars['String'];
+  nonce?: InputMaybe<Scalars['Int']>;
+  updatedAt?: InputMaybe<Scalars['DateTime']>;
+};
+
+export type CommentCreateManyAuthorInputEnvelope = {
+  data: Array<CommentCreateManyAuthorInput>;
+  skipDuplicates?: InputMaybe<Scalars['Boolean']>;
+};
+
+export type CommentCreateNestedManyWithoutAccountInput = {
+  connect?: InputMaybe<Array<CommentWhereUniqueInput>>;
+  connectOrCreate?: InputMaybe<Array<CommentCreateOrConnectWithoutAccountInput>>;
+  create?: InputMaybe<Array<CommentCreateWithoutAccountInput>>;
+  createMany?: InputMaybe<CommentCreateManyAccountInputEnvelope>;
 };
 
 export type CommentCreateNestedManyWithoutAuthorInput = {
@@ -976,17 +1114,15 @@ export type CommentCreateNestedManyWithoutAuthorInput = {
   createMany?: InputMaybe<CommentCreateManyAuthorInputEnvelope>;
 };
 
-export type CommentCreateNestedManyWithoutSafeInput = {
-  connect?: InputMaybe<Array<CommentWhereUniqueInput>>;
-  connectOrCreate?: InputMaybe<Array<CommentCreateOrConnectWithoutSafeInput>>;
-  create?: InputMaybe<Array<CommentCreateWithoutSafeInput>>;
-  createMany?: InputMaybe<CommentCreateManySafeInputEnvelope>;
-};
-
 export type CommentCreateNestedOneWithoutReactionsInput = {
   connect?: InputMaybe<CommentWhereUniqueInput>;
   connectOrCreate?: InputMaybe<CommentCreateOrConnectWithoutReactionsInput>;
   create?: InputMaybe<CommentCreateWithoutReactionsInput>;
+};
+
+export type CommentCreateOrConnectWithoutAccountInput = {
+  create: CommentCreateWithoutAccountInput;
+  where: CommentWhereUniqueInput;
 };
 
 export type CommentCreateOrConnectWithoutAuthorInput = {
@@ -999,38 +1135,33 @@ export type CommentCreateOrConnectWithoutReactionsInput = {
   where: CommentWhereUniqueInput;
 };
 
-export type CommentCreateOrConnectWithoutSafeInput = {
-  create: CommentCreateWithoutSafeInput;
-  where: CommentWhereUniqueInput;
-};
-
-export type CommentCreateWithoutAuthorInput = {
+export type CommentCreateWithoutAccountInput = {
+  author: UserCreateNestedOneWithoutCommentsInput;
   content: Scalars['String'];
   createdAt?: InputMaybe<Scalars['DateTime']>;
   key: Scalars['String'];
   nonce?: InputMaybe<Scalars['Int']>;
   reactions?: InputMaybe<ReactionCreateNestedManyWithoutCommentInput>;
-  safe: SafeCreateNestedOneWithoutCommentsInput;
+  updatedAt?: InputMaybe<Scalars['DateTime']>;
+};
+
+export type CommentCreateWithoutAuthorInput = {
+  account: AccountCreateNestedOneWithoutCommentsInput;
+  content: Scalars['String'];
+  createdAt?: InputMaybe<Scalars['DateTime']>;
+  key: Scalars['String'];
+  nonce?: InputMaybe<Scalars['Int']>;
+  reactions?: InputMaybe<ReactionCreateNestedManyWithoutCommentInput>;
   updatedAt?: InputMaybe<Scalars['DateTime']>;
 };
 
 export type CommentCreateWithoutReactionsInput = {
+  account: AccountCreateNestedOneWithoutCommentsInput;
   author: UserCreateNestedOneWithoutCommentsInput;
   content: Scalars['String'];
   createdAt?: InputMaybe<Scalars['DateTime']>;
   key: Scalars['String'];
   nonce?: InputMaybe<Scalars['Int']>;
-  safe: SafeCreateNestedOneWithoutCommentsInput;
-  updatedAt?: InputMaybe<Scalars['DateTime']>;
-};
-
-export type CommentCreateWithoutSafeInput = {
-  author: UserCreateNestedOneWithoutCommentsInput;
-  content: Scalars['String'];
-  createdAt?: InputMaybe<Scalars['DateTime']>;
-  key: Scalars['String'];
-  nonce?: InputMaybe<Scalars['Int']>;
-  reactions?: InputMaybe<ReactionCreateNestedManyWithoutCommentInput>;
   updatedAt?: InputMaybe<Scalars['DateTime']>;
 };
 
@@ -1049,22 +1180,16 @@ export type CommentRelationFilter = {
   isNot?: InputMaybe<CommentWhereInput>;
 };
 
-export type CommentSafeIdKeyNonceCompoundUniqueInput = {
-  key: Scalars['String'];
-  nonce: Scalars['Int'];
-  safeId: Scalars['String'];
-};
-
 export type CommentScalarWhereInput = {
   AND?: InputMaybe<Array<CommentScalarWhereInput>>;
   NOT?: InputMaybe<Array<CommentScalarWhereInput>>;
   OR?: InputMaybe<Array<CommentScalarWhereInput>>;
+  accountId?: InputMaybe<StringFilter>;
   authorId?: InputMaybe<StringFilter>;
   content?: InputMaybe<StringFilter>;
   createdAt?: InputMaybe<DateTimeFilter>;
   key?: InputMaybe<StringFilter>;
   nonce?: InputMaybe<IntFilter>;
-  safeId?: InputMaybe<StringFilter>;
   updatedAt?: InputMaybe<DateTimeFilter>;
 };
 
@@ -1076,14 +1201,28 @@ export type CommentUpdateManyMutationInput = {
   updatedAt?: InputMaybe<DateTimeFieldUpdateOperationsInput>;
 };
 
+export type CommentUpdateManyWithWhereWithoutAccountInput = {
+  data: CommentUpdateManyMutationInput;
+  where: CommentScalarWhereInput;
+};
+
 export type CommentUpdateManyWithWhereWithoutAuthorInput = {
   data: CommentUpdateManyMutationInput;
   where: CommentScalarWhereInput;
 };
 
-export type CommentUpdateManyWithWhereWithoutSafeInput = {
-  data: CommentUpdateManyMutationInput;
-  where: CommentScalarWhereInput;
+export type CommentUpdateManyWithoutAccountNestedInput = {
+  connect?: InputMaybe<Array<CommentWhereUniqueInput>>;
+  connectOrCreate?: InputMaybe<Array<CommentCreateOrConnectWithoutAccountInput>>;
+  create?: InputMaybe<Array<CommentCreateWithoutAccountInput>>;
+  createMany?: InputMaybe<CommentCreateManyAccountInputEnvelope>;
+  delete?: InputMaybe<Array<CommentWhereUniqueInput>>;
+  deleteMany?: InputMaybe<Array<CommentScalarWhereInput>>;
+  disconnect?: InputMaybe<Array<CommentWhereUniqueInput>>;
+  set?: InputMaybe<Array<CommentWhereUniqueInput>>;
+  update?: InputMaybe<Array<CommentUpdateWithWhereUniqueWithoutAccountInput>>;
+  updateMany?: InputMaybe<Array<CommentUpdateManyWithWhereWithoutAccountInput>>;
+  upsert?: InputMaybe<Array<CommentUpsertWithWhereUniqueWithoutAccountInput>>;
 };
 
 export type CommentUpdateManyWithoutAuthorNestedInput = {
@@ -1100,20 +1239,6 @@ export type CommentUpdateManyWithoutAuthorNestedInput = {
   upsert?: InputMaybe<Array<CommentUpsertWithWhereUniqueWithoutAuthorInput>>;
 };
 
-export type CommentUpdateManyWithoutSafeNestedInput = {
-  connect?: InputMaybe<Array<CommentWhereUniqueInput>>;
-  connectOrCreate?: InputMaybe<Array<CommentCreateOrConnectWithoutSafeInput>>;
-  create?: InputMaybe<Array<CommentCreateWithoutSafeInput>>;
-  createMany?: InputMaybe<CommentCreateManySafeInputEnvelope>;
-  delete?: InputMaybe<Array<CommentWhereUniqueInput>>;
-  deleteMany?: InputMaybe<Array<CommentScalarWhereInput>>;
-  disconnect?: InputMaybe<Array<CommentWhereUniqueInput>>;
-  set?: InputMaybe<Array<CommentWhereUniqueInput>>;
-  update?: InputMaybe<Array<CommentUpdateWithWhereUniqueWithoutSafeInput>>;
-  updateMany?: InputMaybe<Array<CommentUpdateManyWithWhereWithoutSafeInput>>;
-  upsert?: InputMaybe<Array<CommentUpsertWithWhereUniqueWithoutSafeInput>>;
-};
-
 export type CommentUpdateOneRequiredWithoutReactionsNestedInput = {
   connect?: InputMaybe<CommentWhereUniqueInput>;
   connectOrCreate?: InputMaybe<CommentCreateOrConnectWithoutReactionsInput>;
@@ -1122,55 +1247,55 @@ export type CommentUpdateOneRequiredWithoutReactionsNestedInput = {
   upsert?: InputMaybe<CommentUpsertWithoutReactionsInput>;
 };
 
+export type CommentUpdateWithWhereUniqueWithoutAccountInput = {
+  data: CommentUpdateWithoutAccountInput;
+  where: CommentWhereUniqueInput;
+};
+
 export type CommentUpdateWithWhereUniqueWithoutAuthorInput = {
   data: CommentUpdateWithoutAuthorInput;
   where: CommentWhereUniqueInput;
 };
 
-export type CommentUpdateWithWhereUniqueWithoutSafeInput = {
-  data: CommentUpdateWithoutSafeInput;
-  where: CommentWhereUniqueInput;
-};
-
-export type CommentUpdateWithoutAuthorInput = {
+export type CommentUpdateWithoutAccountInput = {
+  author?: InputMaybe<UserUpdateOneRequiredWithoutCommentsNestedInput>;
   content?: InputMaybe<StringFieldUpdateOperationsInput>;
   createdAt?: InputMaybe<DateTimeFieldUpdateOperationsInput>;
   key?: InputMaybe<StringFieldUpdateOperationsInput>;
   nonce?: InputMaybe<IntFieldUpdateOperationsInput>;
   reactions?: InputMaybe<ReactionUpdateManyWithoutCommentNestedInput>;
-  safe?: InputMaybe<SafeUpdateOneRequiredWithoutCommentsNestedInput>;
+  updatedAt?: InputMaybe<DateTimeFieldUpdateOperationsInput>;
+};
+
+export type CommentUpdateWithoutAuthorInput = {
+  account?: InputMaybe<AccountUpdateOneRequiredWithoutCommentsNestedInput>;
+  content?: InputMaybe<StringFieldUpdateOperationsInput>;
+  createdAt?: InputMaybe<DateTimeFieldUpdateOperationsInput>;
+  key?: InputMaybe<StringFieldUpdateOperationsInput>;
+  nonce?: InputMaybe<IntFieldUpdateOperationsInput>;
+  reactions?: InputMaybe<ReactionUpdateManyWithoutCommentNestedInput>;
   updatedAt?: InputMaybe<DateTimeFieldUpdateOperationsInput>;
 };
 
 export type CommentUpdateWithoutReactionsInput = {
+  account?: InputMaybe<AccountUpdateOneRequiredWithoutCommentsNestedInput>;
   author?: InputMaybe<UserUpdateOneRequiredWithoutCommentsNestedInput>;
   content?: InputMaybe<StringFieldUpdateOperationsInput>;
   createdAt?: InputMaybe<DateTimeFieldUpdateOperationsInput>;
   key?: InputMaybe<StringFieldUpdateOperationsInput>;
   nonce?: InputMaybe<IntFieldUpdateOperationsInput>;
-  safe?: InputMaybe<SafeUpdateOneRequiredWithoutCommentsNestedInput>;
   updatedAt?: InputMaybe<DateTimeFieldUpdateOperationsInput>;
 };
 
-export type CommentUpdateWithoutSafeInput = {
-  author?: InputMaybe<UserUpdateOneRequiredWithoutCommentsNestedInput>;
-  content?: InputMaybe<StringFieldUpdateOperationsInput>;
-  createdAt?: InputMaybe<DateTimeFieldUpdateOperationsInput>;
-  key?: InputMaybe<StringFieldUpdateOperationsInput>;
-  nonce?: InputMaybe<IntFieldUpdateOperationsInput>;
-  reactions?: InputMaybe<ReactionUpdateManyWithoutCommentNestedInput>;
-  updatedAt?: InputMaybe<DateTimeFieldUpdateOperationsInput>;
+export type CommentUpsertWithWhereUniqueWithoutAccountInput = {
+  create: CommentCreateWithoutAccountInput;
+  update: CommentUpdateWithoutAccountInput;
+  where: CommentWhereUniqueInput;
 };
 
 export type CommentUpsertWithWhereUniqueWithoutAuthorInput = {
   create: CommentCreateWithoutAuthorInput;
   update: CommentUpdateWithoutAuthorInput;
-  where: CommentWhereUniqueInput;
-};
-
-export type CommentUpsertWithWhereUniqueWithoutSafeInput = {
-  create: CommentCreateWithoutSafeInput;
-  update: CommentUpdateWithoutSafeInput;
   where: CommentWhereUniqueInput;
 };
 
@@ -1183,6 +1308,8 @@ export type CommentWhereInput = {
   AND?: InputMaybe<Array<CommentWhereInput>>;
   NOT?: InputMaybe<Array<CommentWhereInput>>;
   OR?: InputMaybe<Array<CommentWhereInput>>;
+  account?: InputMaybe<AccountRelationFilter>;
+  accountId?: InputMaybe<StringFilter>;
   author?: InputMaybe<UserRelationFilter>;
   authorId?: InputMaybe<StringFilter>;
   content?: InputMaybe<StringFilter>;
@@ -1190,13 +1317,11 @@ export type CommentWhereInput = {
   key?: InputMaybe<StringFilter>;
   nonce?: InputMaybe<IntFilter>;
   reactions?: InputMaybe<ReactionListRelationFilter>;
-  safe?: InputMaybe<SafeRelationFilter>;
-  safeId?: InputMaybe<StringFilter>;
   updatedAt?: InputMaybe<DateTimeFilter>;
 };
 
 export type CommentWhereUniqueInput = {
-  safeId_key_nonce?: InputMaybe<CommentSafeIdKeyNonceCompoundUniqueInput>;
+  accountId_key_nonce?: InputMaybe<CommentAccountIdKeyNonceCompoundUniqueInput>;
 };
 
 export type Contact = {
@@ -1412,17 +1537,17 @@ export type IntFilter = {
 export type Mutation = {
   __typename?: 'Mutation';
   approve?: Maybe<Tx>;
+  createAccount: Account;
   createComment: Comment;
-  createSafe: Safe;
-  deleteAccount: Scalars['Boolean'];
   deleteComment?: Maybe<Comment>;
   deleteContact: DeleteContactResp;
+  deleteWallet: Scalars['Boolean'];
   proposeTx: Tx;
   reactToComment?: Maybe<Reaction>;
   requestFunds: Scalars['Boolean'];
   revokeApproval: RevokeApprovalResp;
-  setAccountName: Account;
-  setAccountQuroums?: Maybe<Account>;
+  setWalletName: Wallet;
+  setWalletQuroums?: Maybe<Wallet>;
   submitTxExecution: Submission;
   upsertContact?: Maybe<Contact>;
   upsertUser: User;
@@ -1430,37 +1555,32 @@ export type Mutation = {
 
 
 export type MutationApproveArgs = {
-  safe: Scalars['Address'];
+  account: Scalars['Address'];
   signature: Scalars['Bytes'];
   txHash: Scalars['Bytes32'];
 };
 
 
-export type MutationCreateCommentArgs = {
-  content: Scalars['String'];
-  key: Scalars['Id'];
-  safe: Scalars['Address'];
-};
-
-
-export type MutationCreateSafeArgs = {
-  accounts?: InputMaybe<Array<AccountWithoutSafeInput>>;
+export type MutationCreateAccountArgs = {
+  account: Scalars['Address'];
   deploySalt?: InputMaybe<Scalars['Bytes32']>;
   impl: Scalars['Address'];
   name: Scalars['String'];
-  safe: Scalars['Address'];
+  wallets?: InputMaybe<Array<WalletWithoutAccountInput>>;
 };
 
 
-export type MutationDeleteAccountArgs = {
-  id: AccountId;
+export type MutationCreateCommentArgs = {
+  account: Scalars['Address'];
+  content: Scalars['String'];
+  key: Scalars['Id'];
 };
 
 
 export type MutationDeleteCommentArgs = {
+  account: Scalars['Address'];
   key: Scalars['Id'];
   nonce: Scalars['Int'];
-  safe: Scalars['Address'];
 };
 
 
@@ -1469,18 +1589,23 @@ export type MutationDeleteContactArgs = {
 };
 
 
+export type MutationDeleteWalletArgs = {
+  id: WalletId;
+};
+
+
 export type MutationProposeTxArgs = {
-  safe: Scalars['Address'];
+  account: Scalars['Address'];
   signature: Scalars['Bytes'];
   tx: TxInput;
 };
 
 
 export type MutationReactToCommentArgs = {
+  account: Scalars['Address'];
   emojis: Array<Scalars['String']>;
   key: Scalars['Id'];
   nonce: Scalars['Int'];
-  safe: Scalars['Address'];
 };
 
 
@@ -1490,26 +1615,26 @@ export type MutationRequestFundsArgs = {
 
 
 export type MutationRevokeApprovalArgs = {
-  safe: Scalars['Address'];
+  account: Scalars['Address'];
   txHash: Scalars['Bytes32'];
 };
 
 
-export type MutationSetAccountNameArgs = {
-  id: AccountId;
+export type MutationSetWalletNameArgs = {
+  id: WalletId;
   name: Scalars['String'];
 };
 
 
-export type MutationSetAccountQuroumsArgs = {
-  id: AccountId;
+export type MutationSetWalletQuroumsArgs = {
+  id: WalletId;
   quorums: Array<Scalars['QuorumScalar']>;
   txHash: Scalars['Bytes32'];
 };
 
 
 export type MutationSubmitTxExecutionArgs = {
-  safe: Scalars['Address'];
+  account: Scalars['Address'];
   submission: SubmissionInput;
   txHash: Scalars['Bytes32'];
 };
@@ -1626,18 +1751,18 @@ export type Query = {
   contact?: Maybe<Contact>;
   contacts: Array<Contact>;
   contractMethod?: Maybe<ContractMethod>;
-  safe?: Maybe<Safe>;
-  safes: Array<Safe>;
   submissions: Array<Submission>;
   txs: Array<Tx>;
   user?: Maybe<User>;
   userAccounts: Array<Account>;
-  userSafes: Array<Safe>;
+  userWallets: Array<Wallet>;
+  wallet?: Maybe<Wallet>;
+  wallets: Array<Wallet>;
 };
 
 
 export type QueryAccountArgs = {
-  where: AccountWhereUniqueInput;
+  id: Scalars['Address'];
 };
 
 
@@ -1657,8 +1782,8 @@ export type QueryAddrNameArgs = {
 
 
 export type QueryCommentsArgs = {
+  account: Scalars['Address'];
   key: Scalars['Id'];
-  safe: Scalars['Address'];
 };
 
 
@@ -1682,29 +1807,29 @@ export type QueryContractMethodArgs = {
 };
 
 
-export type QuerySafeArgs = {
-  id: Scalars['Address'];
-};
-
-
-export type QuerySafesArgs = {
-  cursor?: InputMaybe<SafeWhereUniqueInput>;
-  distinct?: InputMaybe<Array<SafeScalarFieldEnum>>;
-  orderBy?: InputMaybe<Array<SafeOrderByWithRelationInput>>;
-  skip?: InputMaybe<Scalars['Int']>;
-  take?: InputMaybe<Scalars['Int']>;
-  where?: InputMaybe<SafeWhereInput>;
-};
-
-
 export type QuerySubmissionsArgs = {
-  safe: Scalars['Address'];
+  account: Scalars['Address'];
   txHash: Scalars['Bytes32'];
 };
 
 
 export type QueryTxsArgs = {
-  safe: Scalars['Address'];
+  account: Scalars['Address'];
+};
+
+
+export type QueryWalletArgs = {
+  where: WalletWhereUniqueInput;
+};
+
+
+export type QueryWalletsArgs = {
+  cursor?: InputMaybe<WalletWhereUniqueInput>;
+  distinct?: InputMaybe<Array<WalletScalarFieldEnum>>;
+  orderBy?: InputMaybe<Array<WalletOrderByWithRelationInput>>;
+  skip?: InputMaybe<Scalars['Int']>;
+  take?: InputMaybe<Scalars['Int']>;
+  where?: InputMaybe<WalletWhereInput>;
 };
 
 export enum QueryMode {
@@ -1716,13 +1841,24 @@ export type Quorum = {
   __typename?: 'Quorum';
   _count: QuorumCount;
   account: Account;
-  accountRef: Scalars['String'];
+  accountId: Scalars['String'];
   approvers?: Maybe<Array<Approver>>;
   hash: Scalars['String'];
-  safe: Safe;
-  safeId: Scalars['String'];
   tx?: Maybe<Tx>;
   txHash?: Maybe<Scalars['String']>;
+  wallet: Wallet;
+  walletRef: Scalars['String'];
+};
+
+export type QuorumAccountIdTxHashCompoundUniqueInput = {
+  accountId: Scalars['String'];
+  txHash: Scalars['String'];
+};
+
+export type QuorumAccountIdWalletRefHashCompoundUniqueInput = {
+  accountId: Scalars['String'];
+  hash: Scalars['String'];
+  walletRef: Scalars['String'];
 };
 
 export type QuorumCount = {
@@ -1733,6 +1869,7 @@ export type QuorumCount = {
 export type QuorumCreateManyAccountInput = {
   hash: Scalars['String'];
   txHash?: InputMaybe<Scalars['String']>;
+  walletRef: Scalars['String'];
 };
 
 export type QuorumCreateManyAccountInputEnvelope = {
@@ -1740,14 +1877,13 @@ export type QuorumCreateManyAccountInputEnvelope = {
   skipDuplicates?: InputMaybe<Scalars['Boolean']>;
 };
 
-export type QuorumCreateManySafeInput = {
-  accountRef: Scalars['String'];
+export type QuorumCreateManyWalletInput = {
   hash: Scalars['String'];
   txHash?: InputMaybe<Scalars['String']>;
 };
 
-export type QuorumCreateManySafeInputEnvelope = {
-  data: Array<QuorumCreateManySafeInput>;
+export type QuorumCreateManyWalletInputEnvelope = {
+  data: Array<QuorumCreateManyWalletInput>;
   skipDuplicates?: InputMaybe<Scalars['Boolean']>;
 };
 
@@ -1758,11 +1894,11 @@ export type QuorumCreateNestedManyWithoutAccountInput = {
   createMany?: InputMaybe<QuorumCreateManyAccountInputEnvelope>;
 };
 
-export type QuorumCreateNestedManyWithoutSafeInput = {
+export type QuorumCreateNestedManyWithoutWalletInput = {
   connect?: InputMaybe<Array<QuorumWhereUniqueInput>>;
-  connectOrCreate?: InputMaybe<Array<QuorumCreateOrConnectWithoutSafeInput>>;
-  create?: InputMaybe<Array<QuorumCreateWithoutSafeInput>>;
-  createMany?: InputMaybe<QuorumCreateManySafeInputEnvelope>;
+  connectOrCreate?: InputMaybe<Array<QuorumCreateOrConnectWithoutWalletInput>>;
+  create?: InputMaybe<Array<QuorumCreateWithoutWalletInput>>;
+  createMany?: InputMaybe<QuorumCreateManyWalletInputEnvelope>;
 };
 
 export type QuorumCreateNestedOneWithoutApproversInput = {
@@ -1787,42 +1923,42 @@ export type QuorumCreateOrConnectWithoutApproversInput = {
   where: QuorumWhereUniqueInput;
 };
 
-export type QuorumCreateOrConnectWithoutSafeInput = {
-  create: QuorumCreateWithoutSafeInput;
+export type QuorumCreateOrConnectWithoutTxInput = {
+  create: QuorumCreateWithoutTxInput;
   where: QuorumWhereUniqueInput;
 };
 
-export type QuorumCreateOrConnectWithoutTxInput = {
-  create: QuorumCreateWithoutTxInput;
+export type QuorumCreateOrConnectWithoutWalletInput = {
+  create: QuorumCreateWithoutWalletInput;
   where: QuorumWhereUniqueInput;
 };
 
 export type QuorumCreateWithoutAccountInput = {
   approvers?: InputMaybe<ApproverCreateNestedManyWithoutQuorumInput>;
   hash: Scalars['String'];
-  safe: SafeCreateNestedOneWithoutQuorumsInput;
   tx?: InputMaybe<TxCreateNestedOneWithoutQuorumTxInput>;
+  wallet: WalletCreateNestedOneWithoutQuorumsInput;
 };
 
 export type QuorumCreateWithoutApproversInput = {
   account: AccountCreateNestedOneWithoutQuorumsInput;
   hash: Scalars['String'];
-  safe: SafeCreateNestedOneWithoutQuorumsInput;
   tx?: InputMaybe<TxCreateNestedOneWithoutQuorumTxInput>;
-};
-
-export type QuorumCreateWithoutSafeInput = {
-  account: AccountCreateNestedOneWithoutQuorumsInput;
-  approvers?: InputMaybe<ApproverCreateNestedManyWithoutQuorumInput>;
-  hash: Scalars['String'];
-  tx?: InputMaybe<TxCreateNestedOneWithoutQuorumTxInput>;
+  wallet: WalletCreateNestedOneWithoutQuorumsInput;
 };
 
 export type QuorumCreateWithoutTxInput = {
   account: AccountCreateNestedOneWithoutQuorumsInput;
   approvers?: InputMaybe<ApproverCreateNestedManyWithoutQuorumInput>;
   hash: Scalars['String'];
-  safe: SafeCreateNestedOneWithoutQuorumsInput;
+  wallet: WalletCreateNestedOneWithoutQuorumsInput;
+};
+
+export type QuorumCreateWithoutWalletInput = {
+  account: AccountCreateNestedOneWithoutQuorumsInput;
+  approvers?: InputMaybe<ApproverCreateNestedManyWithoutQuorumInput>;
+  hash: Scalars['String'];
+  tx?: InputMaybe<TxCreateNestedOneWithoutQuorumTxInput>;
 };
 
 export type QuorumListRelationFilter = {
@@ -1837,13 +1973,13 @@ export type QuorumOrderByRelationAggregateInput = {
 
 export type QuorumOrderByWithRelationInput = {
   account?: InputMaybe<AccountOrderByWithRelationInput>;
-  accountRef?: InputMaybe<SortOrder>;
+  accountId?: InputMaybe<SortOrder>;
   approvers?: InputMaybe<ApproverOrderByRelationAggregateInput>;
   hash?: InputMaybe<SortOrder>;
-  safe?: InputMaybe<SafeOrderByWithRelationInput>;
-  safeId?: InputMaybe<SortOrder>;
   tx?: InputMaybe<TxOrderByWithRelationInput>;
   txHash?: InputMaybe<SortOrder>;
+  wallet?: InputMaybe<WalletOrderByWithRelationInput>;
+  walletRef?: InputMaybe<SortOrder>;
 };
 
 export type QuorumRelationFilter = {
@@ -1851,25 +1987,14 @@ export type QuorumRelationFilter = {
   isNot?: InputMaybe<QuorumWhereInput>;
 };
 
-export type QuorumSafeIdAccountRefHashCompoundUniqueInput = {
-  accountRef: Scalars['String'];
-  hash: Scalars['String'];
-  safeId: Scalars['String'];
-};
-
-export type QuorumSafeIdTxHashCompoundUniqueInput = {
-  safeId: Scalars['String'];
-  txHash: Scalars['String'];
-};
-
 export type QuorumScalarWhereInput = {
   AND?: InputMaybe<Array<QuorumScalarWhereInput>>;
   NOT?: InputMaybe<Array<QuorumScalarWhereInput>>;
   OR?: InputMaybe<Array<QuorumScalarWhereInput>>;
-  accountRef?: InputMaybe<StringFilter>;
+  accountId?: InputMaybe<StringFilter>;
   hash?: InputMaybe<StringFilter>;
-  safeId?: InputMaybe<StringFilter>;
   txHash?: InputMaybe<StringNullableFilter>;
+  walletRef?: InputMaybe<StringFilter>;
 };
 
 export type QuorumUpdateManyMutationInput = {
@@ -1881,7 +2006,7 @@ export type QuorumUpdateManyWithWhereWithoutAccountInput = {
   where: QuorumScalarWhereInput;
 };
 
-export type QuorumUpdateManyWithWhereWithoutSafeInput = {
+export type QuorumUpdateManyWithWhereWithoutWalletInput = {
   data: QuorumUpdateManyMutationInput;
   where: QuorumScalarWhereInput;
 };
@@ -1900,18 +2025,18 @@ export type QuorumUpdateManyWithoutAccountNestedInput = {
   upsert?: InputMaybe<Array<QuorumUpsertWithWhereUniqueWithoutAccountInput>>;
 };
 
-export type QuorumUpdateManyWithoutSafeNestedInput = {
+export type QuorumUpdateManyWithoutWalletNestedInput = {
   connect?: InputMaybe<Array<QuorumWhereUniqueInput>>;
-  connectOrCreate?: InputMaybe<Array<QuorumCreateOrConnectWithoutSafeInput>>;
-  create?: InputMaybe<Array<QuorumCreateWithoutSafeInput>>;
-  createMany?: InputMaybe<QuorumCreateManySafeInputEnvelope>;
+  connectOrCreate?: InputMaybe<Array<QuorumCreateOrConnectWithoutWalletInput>>;
+  create?: InputMaybe<Array<QuorumCreateWithoutWalletInput>>;
+  createMany?: InputMaybe<QuorumCreateManyWalletInputEnvelope>;
   delete?: InputMaybe<Array<QuorumWhereUniqueInput>>;
   deleteMany?: InputMaybe<Array<QuorumScalarWhereInput>>;
   disconnect?: InputMaybe<Array<QuorumWhereUniqueInput>>;
   set?: InputMaybe<Array<QuorumWhereUniqueInput>>;
-  update?: InputMaybe<Array<QuorumUpdateWithWhereUniqueWithoutSafeInput>>;
-  updateMany?: InputMaybe<Array<QuorumUpdateManyWithWhereWithoutSafeInput>>;
-  upsert?: InputMaybe<Array<QuorumUpsertWithWhereUniqueWithoutSafeInput>>;
+  update?: InputMaybe<Array<QuorumUpdateWithWhereUniqueWithoutWalletInput>>;
+  updateMany?: InputMaybe<Array<QuorumUpdateManyWithWhereWithoutWalletInput>>;
+  upsert?: InputMaybe<Array<QuorumUpsertWithWhereUniqueWithoutWalletInput>>;
 };
 
 export type QuorumUpdateOneRequiredWithoutApproversNestedInput = {
@@ -1937,37 +2062,37 @@ export type QuorumUpdateWithWhereUniqueWithoutAccountInput = {
   where: QuorumWhereUniqueInput;
 };
 
-export type QuorumUpdateWithWhereUniqueWithoutSafeInput = {
-  data: QuorumUpdateWithoutSafeInput;
+export type QuorumUpdateWithWhereUniqueWithoutWalletInput = {
+  data: QuorumUpdateWithoutWalletInput;
   where: QuorumWhereUniqueInput;
 };
 
 export type QuorumUpdateWithoutAccountInput = {
   approvers?: InputMaybe<ApproverUpdateManyWithoutQuorumNestedInput>;
   hash?: InputMaybe<StringFieldUpdateOperationsInput>;
-  safe?: InputMaybe<SafeUpdateOneRequiredWithoutQuorumsNestedInput>;
   tx?: InputMaybe<TxUpdateOneWithoutQuorumTxNestedInput>;
+  wallet?: InputMaybe<WalletUpdateOneRequiredWithoutQuorumsNestedInput>;
 };
 
 export type QuorumUpdateWithoutApproversInput = {
   account?: InputMaybe<AccountUpdateOneRequiredWithoutQuorumsNestedInput>;
   hash?: InputMaybe<StringFieldUpdateOperationsInput>;
-  safe?: InputMaybe<SafeUpdateOneRequiredWithoutQuorumsNestedInput>;
   tx?: InputMaybe<TxUpdateOneWithoutQuorumTxNestedInput>;
-};
-
-export type QuorumUpdateWithoutSafeInput = {
-  account?: InputMaybe<AccountUpdateOneRequiredWithoutQuorumsNestedInput>;
-  approvers?: InputMaybe<ApproverUpdateManyWithoutQuorumNestedInput>;
-  hash?: InputMaybe<StringFieldUpdateOperationsInput>;
-  tx?: InputMaybe<TxUpdateOneWithoutQuorumTxNestedInput>;
+  wallet?: InputMaybe<WalletUpdateOneRequiredWithoutQuorumsNestedInput>;
 };
 
 export type QuorumUpdateWithoutTxInput = {
   account?: InputMaybe<AccountUpdateOneRequiredWithoutQuorumsNestedInput>;
   approvers?: InputMaybe<ApproverUpdateManyWithoutQuorumNestedInput>;
   hash?: InputMaybe<StringFieldUpdateOperationsInput>;
-  safe?: InputMaybe<SafeUpdateOneRequiredWithoutQuorumsNestedInput>;
+  wallet?: InputMaybe<WalletUpdateOneRequiredWithoutQuorumsNestedInput>;
+};
+
+export type QuorumUpdateWithoutWalletInput = {
+  account?: InputMaybe<AccountUpdateOneRequiredWithoutQuorumsNestedInput>;
+  approvers?: InputMaybe<ApproverUpdateManyWithoutQuorumNestedInput>;
+  hash?: InputMaybe<StringFieldUpdateOperationsInput>;
+  tx?: InputMaybe<TxUpdateOneWithoutQuorumTxNestedInput>;
 };
 
 export type QuorumUpsertWithWhereUniqueWithoutAccountInput = {
@@ -1976,9 +2101,9 @@ export type QuorumUpsertWithWhereUniqueWithoutAccountInput = {
   where: QuorumWhereUniqueInput;
 };
 
-export type QuorumUpsertWithWhereUniqueWithoutSafeInput = {
-  create: QuorumCreateWithoutSafeInput;
-  update: QuorumUpdateWithoutSafeInput;
+export type QuorumUpsertWithWhereUniqueWithoutWalletInput = {
+  create: QuorumCreateWithoutWalletInput;
+  update: QuorumUpdateWithoutWalletInput;
   where: QuorumWhereUniqueInput;
 };
 
@@ -1997,33 +2122,54 @@ export type QuorumWhereInput = {
   NOT?: InputMaybe<Array<QuorumWhereInput>>;
   OR?: InputMaybe<Array<QuorumWhereInput>>;
   account?: InputMaybe<AccountRelationFilter>;
-  accountRef?: InputMaybe<StringFilter>;
+  accountId?: InputMaybe<StringFilter>;
   approvers?: InputMaybe<ApproverListRelationFilter>;
   hash?: InputMaybe<StringFilter>;
-  safe?: InputMaybe<SafeRelationFilter>;
-  safeId?: InputMaybe<StringFilter>;
   tx?: InputMaybe<TxRelationFilter>;
   txHash?: InputMaybe<StringNullableFilter>;
+  wallet?: InputMaybe<WalletRelationFilter>;
+  walletRef?: InputMaybe<StringFilter>;
 };
 
 export type QuorumWhereUniqueInput = {
-  safeId_accountRef_hash?: InputMaybe<QuorumSafeIdAccountRefHashCompoundUniqueInput>;
-  safeId_txHash?: InputMaybe<QuorumSafeIdTxHashCompoundUniqueInput>;
+  accountId_txHash?: InputMaybe<QuorumAccountIdTxHashCompoundUniqueInput>;
+  accountId_walletRef_hash?: InputMaybe<QuorumAccountIdWalletRefHashCompoundUniqueInput>;
 };
 
 export type Reaction = {
   __typename?: 'Reaction';
+  account: Account;
+  accountId: Scalars['String'];
   comment: Comment;
   createdAt: Scalars['DateTime'];
   emojis?: Maybe<Array<Scalars['String']>>;
   id: Scalars['String'];
   key: Scalars['String'];
   nonce: Scalars['Int'];
-  safe: Safe;
-  safeId: Scalars['String'];
   updatedAt: Scalars['DateTime'];
   user: User;
   userId: Scalars['String'];
+};
+
+export type ReactionAccountIdKeyNonceUserIdCompoundUniqueInput = {
+  accountId: Scalars['String'];
+  key: Scalars['String'];
+  nonce: Scalars['Int'];
+  userId: Scalars['String'];
+};
+
+export type ReactionCreateManyAccountInput = {
+  createdAt?: InputMaybe<Scalars['DateTime']>;
+  emojis?: InputMaybe<ReactionCreateemojisInput>;
+  key: Scalars['String'];
+  nonce: Scalars['Int'];
+  updatedAt?: InputMaybe<Scalars['DateTime']>;
+  userId: Scalars['String'];
+};
+
+export type ReactionCreateManyAccountInputEnvelope = {
+  data: Array<ReactionCreateManyAccountInput>;
+  skipDuplicates?: InputMaybe<Scalars['Boolean']>;
 };
 
 export type ReactionCreateManyCommentInput = {
@@ -2038,32 +2184,25 @@ export type ReactionCreateManyCommentInputEnvelope = {
   skipDuplicates?: InputMaybe<Scalars['Boolean']>;
 };
 
-export type ReactionCreateManySafeInput = {
-  createdAt?: InputMaybe<Scalars['DateTime']>;
-  emojis?: InputMaybe<ReactionCreateemojisInput>;
-  key: Scalars['String'];
-  nonce: Scalars['Int'];
-  updatedAt?: InputMaybe<Scalars['DateTime']>;
-  userId: Scalars['String'];
-};
-
-export type ReactionCreateManySafeInputEnvelope = {
-  data: Array<ReactionCreateManySafeInput>;
-  skipDuplicates?: InputMaybe<Scalars['Boolean']>;
-};
-
 export type ReactionCreateManyUserInput = {
+  accountId: Scalars['String'];
   createdAt?: InputMaybe<Scalars['DateTime']>;
   emojis?: InputMaybe<ReactionCreateemojisInput>;
   key: Scalars['String'];
   nonce: Scalars['Int'];
-  safeId: Scalars['String'];
   updatedAt?: InputMaybe<Scalars['DateTime']>;
 };
 
 export type ReactionCreateManyUserInputEnvelope = {
   data: Array<ReactionCreateManyUserInput>;
   skipDuplicates?: InputMaybe<Scalars['Boolean']>;
+};
+
+export type ReactionCreateNestedManyWithoutAccountInput = {
+  connect?: InputMaybe<Array<ReactionWhereUniqueInput>>;
+  connectOrCreate?: InputMaybe<Array<ReactionCreateOrConnectWithoutAccountInput>>;
+  create?: InputMaybe<Array<ReactionCreateWithoutAccountInput>>;
+  createMany?: InputMaybe<ReactionCreateManyAccountInputEnvelope>;
 };
 
 export type ReactionCreateNestedManyWithoutCommentInput = {
@@ -2073,13 +2212,6 @@ export type ReactionCreateNestedManyWithoutCommentInput = {
   createMany?: InputMaybe<ReactionCreateManyCommentInputEnvelope>;
 };
 
-export type ReactionCreateNestedManyWithoutSafeInput = {
-  connect?: InputMaybe<Array<ReactionWhereUniqueInput>>;
-  connectOrCreate?: InputMaybe<Array<ReactionCreateOrConnectWithoutSafeInput>>;
-  create?: InputMaybe<Array<ReactionCreateWithoutSafeInput>>;
-  createMany?: InputMaybe<ReactionCreateManySafeInputEnvelope>;
-};
-
 export type ReactionCreateNestedManyWithoutUserInput = {
   connect?: InputMaybe<Array<ReactionWhereUniqueInput>>;
   connectOrCreate?: InputMaybe<Array<ReactionCreateOrConnectWithoutUserInput>>;
@@ -2087,13 +2219,13 @@ export type ReactionCreateNestedManyWithoutUserInput = {
   createMany?: InputMaybe<ReactionCreateManyUserInputEnvelope>;
 };
 
-export type ReactionCreateOrConnectWithoutCommentInput = {
-  create: ReactionCreateWithoutCommentInput;
+export type ReactionCreateOrConnectWithoutAccountInput = {
+  create: ReactionCreateWithoutAccountInput;
   where: ReactionWhereUniqueInput;
 };
 
-export type ReactionCreateOrConnectWithoutSafeInput = {
-  create: ReactionCreateWithoutSafeInput;
+export type ReactionCreateOrConnectWithoutCommentInput = {
+  create: ReactionCreateWithoutCommentInput;
   where: ReactionWhereUniqueInput;
 };
 
@@ -2102,16 +2234,16 @@ export type ReactionCreateOrConnectWithoutUserInput = {
   where: ReactionWhereUniqueInput;
 };
 
-export type ReactionCreateWithoutCommentInput = {
+export type ReactionCreateWithoutAccountInput = {
+  comment: CommentCreateNestedOneWithoutReactionsInput;
   createdAt?: InputMaybe<Scalars['DateTime']>;
   emojis?: InputMaybe<ReactionCreateemojisInput>;
-  safe: SafeCreateNestedOneWithoutReactionsInput;
   updatedAt?: InputMaybe<Scalars['DateTime']>;
   user: UserCreateNestedOneWithoutReactionsInput;
 };
 
-export type ReactionCreateWithoutSafeInput = {
-  comment: CommentCreateNestedOneWithoutReactionsInput;
+export type ReactionCreateWithoutCommentInput = {
+  account: AccountCreateNestedOneWithoutReactionsInput;
   createdAt?: InputMaybe<Scalars['DateTime']>;
   emojis?: InputMaybe<ReactionCreateemojisInput>;
   updatedAt?: InputMaybe<Scalars['DateTime']>;
@@ -2119,10 +2251,10 @@ export type ReactionCreateWithoutSafeInput = {
 };
 
 export type ReactionCreateWithoutUserInput = {
+  account: AccountCreateNestedOneWithoutReactionsInput;
   comment: CommentCreateNestedOneWithoutReactionsInput;
   createdAt?: InputMaybe<Scalars['DateTime']>;
   emojis?: InputMaybe<ReactionCreateemojisInput>;
-  safe: SafeCreateNestedOneWithoutReactionsInput;
   updatedAt?: InputMaybe<Scalars['DateTime']>;
 };
 
@@ -2140,22 +2272,15 @@ export type ReactionOrderByRelationAggregateInput = {
   _count?: InputMaybe<SortOrder>;
 };
 
-export type ReactionSafeIdKeyNonceUserIdCompoundUniqueInput = {
-  key: Scalars['String'];
-  nonce: Scalars['Int'];
-  safeId: Scalars['String'];
-  userId: Scalars['String'];
-};
-
 export type ReactionScalarWhereInput = {
   AND?: InputMaybe<Array<ReactionScalarWhereInput>>;
   NOT?: InputMaybe<Array<ReactionScalarWhereInput>>;
   OR?: InputMaybe<Array<ReactionScalarWhereInput>>;
+  accountId?: InputMaybe<StringFilter>;
   createdAt?: InputMaybe<DateTimeFilter>;
   emojis?: InputMaybe<StringNullableListFilter>;
   key?: InputMaybe<StringFilter>;
   nonce?: InputMaybe<IntFilter>;
-  safeId?: InputMaybe<StringFilter>;
   updatedAt?: InputMaybe<DateTimeFilter>;
   userId?: InputMaybe<StringFilter>;
 };
@@ -2166,12 +2291,12 @@ export type ReactionUpdateManyMutationInput = {
   updatedAt?: InputMaybe<DateTimeFieldUpdateOperationsInput>;
 };
 
-export type ReactionUpdateManyWithWhereWithoutCommentInput = {
+export type ReactionUpdateManyWithWhereWithoutAccountInput = {
   data: ReactionUpdateManyMutationInput;
   where: ReactionScalarWhereInput;
 };
 
-export type ReactionUpdateManyWithWhereWithoutSafeInput = {
+export type ReactionUpdateManyWithWhereWithoutCommentInput = {
   data: ReactionUpdateManyMutationInput;
   where: ReactionScalarWhereInput;
 };
@@ -2179,6 +2304,20 @@ export type ReactionUpdateManyWithWhereWithoutSafeInput = {
 export type ReactionUpdateManyWithWhereWithoutUserInput = {
   data: ReactionUpdateManyMutationInput;
   where: ReactionScalarWhereInput;
+};
+
+export type ReactionUpdateManyWithoutAccountNestedInput = {
+  connect?: InputMaybe<Array<ReactionWhereUniqueInput>>;
+  connectOrCreate?: InputMaybe<Array<ReactionCreateOrConnectWithoutAccountInput>>;
+  create?: InputMaybe<Array<ReactionCreateWithoutAccountInput>>;
+  createMany?: InputMaybe<ReactionCreateManyAccountInputEnvelope>;
+  delete?: InputMaybe<Array<ReactionWhereUniqueInput>>;
+  deleteMany?: InputMaybe<Array<ReactionScalarWhereInput>>;
+  disconnect?: InputMaybe<Array<ReactionWhereUniqueInput>>;
+  set?: InputMaybe<Array<ReactionWhereUniqueInput>>;
+  update?: InputMaybe<Array<ReactionUpdateWithWhereUniqueWithoutAccountInput>>;
+  updateMany?: InputMaybe<Array<ReactionUpdateManyWithWhereWithoutAccountInput>>;
+  upsert?: InputMaybe<Array<ReactionUpsertWithWhereUniqueWithoutAccountInput>>;
 };
 
 export type ReactionUpdateManyWithoutCommentNestedInput = {
@@ -2195,20 +2334,6 @@ export type ReactionUpdateManyWithoutCommentNestedInput = {
   upsert?: InputMaybe<Array<ReactionUpsertWithWhereUniqueWithoutCommentInput>>;
 };
 
-export type ReactionUpdateManyWithoutSafeNestedInput = {
-  connect?: InputMaybe<Array<ReactionWhereUniqueInput>>;
-  connectOrCreate?: InputMaybe<Array<ReactionCreateOrConnectWithoutSafeInput>>;
-  create?: InputMaybe<Array<ReactionCreateWithoutSafeInput>>;
-  createMany?: InputMaybe<ReactionCreateManySafeInputEnvelope>;
-  delete?: InputMaybe<Array<ReactionWhereUniqueInput>>;
-  deleteMany?: InputMaybe<Array<ReactionScalarWhereInput>>;
-  disconnect?: InputMaybe<Array<ReactionWhereUniqueInput>>;
-  set?: InputMaybe<Array<ReactionWhereUniqueInput>>;
-  update?: InputMaybe<Array<ReactionUpdateWithWhereUniqueWithoutSafeInput>>;
-  updateMany?: InputMaybe<Array<ReactionUpdateManyWithWhereWithoutSafeInput>>;
-  upsert?: InputMaybe<Array<ReactionUpsertWithWhereUniqueWithoutSafeInput>>;
-};
-
 export type ReactionUpdateManyWithoutUserNestedInput = {
   connect?: InputMaybe<Array<ReactionWhereUniqueInput>>;
   connectOrCreate?: InputMaybe<Array<ReactionCreateOrConnectWithoutUserInput>>;
@@ -2223,13 +2348,13 @@ export type ReactionUpdateManyWithoutUserNestedInput = {
   upsert?: InputMaybe<Array<ReactionUpsertWithWhereUniqueWithoutUserInput>>;
 };
 
-export type ReactionUpdateWithWhereUniqueWithoutCommentInput = {
-  data: ReactionUpdateWithoutCommentInput;
+export type ReactionUpdateWithWhereUniqueWithoutAccountInput = {
+  data: ReactionUpdateWithoutAccountInput;
   where: ReactionWhereUniqueInput;
 };
 
-export type ReactionUpdateWithWhereUniqueWithoutSafeInput = {
-  data: ReactionUpdateWithoutSafeInput;
+export type ReactionUpdateWithWhereUniqueWithoutCommentInput = {
+  data: ReactionUpdateWithoutCommentInput;
   where: ReactionWhereUniqueInput;
 };
 
@@ -2238,16 +2363,16 @@ export type ReactionUpdateWithWhereUniqueWithoutUserInput = {
   where: ReactionWhereUniqueInput;
 };
 
-export type ReactionUpdateWithoutCommentInput = {
+export type ReactionUpdateWithoutAccountInput = {
+  comment?: InputMaybe<CommentUpdateOneRequiredWithoutReactionsNestedInput>;
   createdAt?: InputMaybe<DateTimeFieldUpdateOperationsInput>;
   emojis?: InputMaybe<ReactionUpdateemojisInput>;
-  safe?: InputMaybe<SafeUpdateOneRequiredWithoutReactionsNestedInput>;
   updatedAt?: InputMaybe<DateTimeFieldUpdateOperationsInput>;
   user?: InputMaybe<UserUpdateOneRequiredWithoutReactionsNestedInput>;
 };
 
-export type ReactionUpdateWithoutSafeInput = {
-  comment?: InputMaybe<CommentUpdateOneRequiredWithoutReactionsNestedInput>;
+export type ReactionUpdateWithoutCommentInput = {
+  account?: InputMaybe<AccountUpdateOneRequiredWithoutReactionsNestedInput>;
   createdAt?: InputMaybe<DateTimeFieldUpdateOperationsInput>;
   emojis?: InputMaybe<ReactionUpdateemojisInput>;
   updatedAt?: InputMaybe<DateTimeFieldUpdateOperationsInput>;
@@ -2255,10 +2380,10 @@ export type ReactionUpdateWithoutSafeInput = {
 };
 
 export type ReactionUpdateWithoutUserInput = {
+  account?: InputMaybe<AccountUpdateOneRequiredWithoutReactionsNestedInput>;
   comment?: InputMaybe<CommentUpdateOneRequiredWithoutReactionsNestedInput>;
   createdAt?: InputMaybe<DateTimeFieldUpdateOperationsInput>;
   emojis?: InputMaybe<ReactionUpdateemojisInput>;
-  safe?: InputMaybe<SafeUpdateOneRequiredWithoutReactionsNestedInput>;
   updatedAt?: InputMaybe<DateTimeFieldUpdateOperationsInput>;
 };
 
@@ -2267,15 +2392,15 @@ export type ReactionUpdateemojisInput = {
   set?: InputMaybe<Array<Scalars['String']>>;
 };
 
-export type ReactionUpsertWithWhereUniqueWithoutCommentInput = {
-  create: ReactionCreateWithoutCommentInput;
-  update: ReactionUpdateWithoutCommentInput;
+export type ReactionUpsertWithWhereUniqueWithoutAccountInput = {
+  create: ReactionCreateWithoutAccountInput;
+  update: ReactionUpdateWithoutAccountInput;
   where: ReactionWhereUniqueInput;
 };
 
-export type ReactionUpsertWithWhereUniqueWithoutSafeInput = {
-  create: ReactionCreateWithoutSafeInput;
-  update: ReactionUpdateWithoutSafeInput;
+export type ReactionUpsertWithWhereUniqueWithoutCommentInput = {
+  create: ReactionCreateWithoutCommentInput;
+  update: ReactionUpdateWithoutCommentInput;
   where: ReactionWhereUniqueInput;
 };
 
@@ -2289,449 +2414,25 @@ export type ReactionWhereInput = {
   AND?: InputMaybe<Array<ReactionWhereInput>>;
   NOT?: InputMaybe<Array<ReactionWhereInput>>;
   OR?: InputMaybe<Array<ReactionWhereInput>>;
+  account?: InputMaybe<AccountRelationFilter>;
+  accountId?: InputMaybe<StringFilter>;
   comment?: InputMaybe<CommentRelationFilter>;
   createdAt?: InputMaybe<DateTimeFilter>;
   emojis?: InputMaybe<StringNullableListFilter>;
   key?: InputMaybe<StringFilter>;
   nonce?: InputMaybe<IntFilter>;
-  safe?: InputMaybe<SafeRelationFilter>;
-  safeId?: InputMaybe<StringFilter>;
   updatedAt?: InputMaybe<DateTimeFilter>;
   user?: InputMaybe<UserRelationFilter>;
   userId?: InputMaybe<StringFilter>;
 };
 
 export type ReactionWhereUniqueInput = {
-  safeId_key_nonce_userId?: InputMaybe<ReactionSafeIdKeyNonceUserIdCompoundUniqueInput>;
+  accountId_key_nonce_userId?: InputMaybe<ReactionAccountIdKeyNonceUserIdCompoundUniqueInput>;
 };
 
 export type RevokeApprovalResp = {
   __typename?: 'RevokeApprovalResp';
   id?: Maybe<Scalars['String']>;
-};
-
-export type Safe = {
-  __typename?: 'Safe';
-  _count: SafeCount;
-  accounts?: Maybe<Array<Account>>;
-  approvals?: Maybe<Array<Approval>>;
-  approvers?: Maybe<Array<Approver>>;
-  comments?: Maybe<Array<Comment>>;
-  deploySalt?: Maybe<Scalars['String']>;
-  id: Scalars['ID'];
-  impl?: Maybe<Scalars['String']>;
-  name: Scalars['String'];
-  quorums?: Maybe<Array<Quorum>>;
-  reactions?: Maybe<Array<Reaction>>;
-  txs?: Maybe<Array<Tx>>;
-};
-
-export type SafeCount = {
-  __typename?: 'SafeCount';
-  accounts: Scalars['Int'];
-  approvals: Scalars['Int'];
-  approvers: Scalars['Int'];
-  comments: Scalars['Int'];
-  quorums: Scalars['Int'];
-  reactions: Scalars['Int'];
-  txs: Scalars['Int'];
-};
-
-export type SafeCreateNestedOneWithoutAccountsInput = {
-  connect?: InputMaybe<SafeWhereUniqueInput>;
-  connectOrCreate?: InputMaybe<SafeCreateOrConnectWithoutAccountsInput>;
-  create?: InputMaybe<SafeCreateWithoutAccountsInput>;
-};
-
-export type SafeCreateNestedOneWithoutApprovalsInput = {
-  connect?: InputMaybe<SafeWhereUniqueInput>;
-  connectOrCreate?: InputMaybe<SafeCreateOrConnectWithoutApprovalsInput>;
-  create?: InputMaybe<SafeCreateWithoutApprovalsInput>;
-};
-
-export type SafeCreateNestedOneWithoutApproversInput = {
-  connect?: InputMaybe<SafeWhereUniqueInput>;
-  connectOrCreate?: InputMaybe<SafeCreateOrConnectWithoutApproversInput>;
-  create?: InputMaybe<SafeCreateWithoutApproversInput>;
-};
-
-export type SafeCreateNestedOneWithoutCommentsInput = {
-  connect?: InputMaybe<SafeWhereUniqueInput>;
-  connectOrCreate?: InputMaybe<SafeCreateOrConnectWithoutCommentsInput>;
-  create?: InputMaybe<SafeCreateWithoutCommentsInput>;
-};
-
-export type SafeCreateNestedOneWithoutQuorumsInput = {
-  connect?: InputMaybe<SafeWhereUniqueInput>;
-  connectOrCreate?: InputMaybe<SafeCreateOrConnectWithoutQuorumsInput>;
-  create?: InputMaybe<SafeCreateWithoutQuorumsInput>;
-};
-
-export type SafeCreateNestedOneWithoutReactionsInput = {
-  connect?: InputMaybe<SafeWhereUniqueInput>;
-  connectOrCreate?: InputMaybe<SafeCreateOrConnectWithoutReactionsInput>;
-  create?: InputMaybe<SafeCreateWithoutReactionsInput>;
-};
-
-export type SafeCreateNestedOneWithoutTxsInput = {
-  connect?: InputMaybe<SafeWhereUniqueInput>;
-  connectOrCreate?: InputMaybe<SafeCreateOrConnectWithoutTxsInput>;
-  create?: InputMaybe<SafeCreateWithoutTxsInput>;
-};
-
-export type SafeCreateOrConnectWithoutAccountsInput = {
-  create: SafeCreateWithoutAccountsInput;
-  where: SafeWhereUniqueInput;
-};
-
-export type SafeCreateOrConnectWithoutApprovalsInput = {
-  create: SafeCreateWithoutApprovalsInput;
-  where: SafeWhereUniqueInput;
-};
-
-export type SafeCreateOrConnectWithoutApproversInput = {
-  create: SafeCreateWithoutApproversInput;
-  where: SafeWhereUniqueInput;
-};
-
-export type SafeCreateOrConnectWithoutCommentsInput = {
-  create: SafeCreateWithoutCommentsInput;
-  where: SafeWhereUniqueInput;
-};
-
-export type SafeCreateOrConnectWithoutQuorumsInput = {
-  create: SafeCreateWithoutQuorumsInput;
-  where: SafeWhereUniqueInput;
-};
-
-export type SafeCreateOrConnectWithoutReactionsInput = {
-  create: SafeCreateWithoutReactionsInput;
-  where: SafeWhereUniqueInput;
-};
-
-export type SafeCreateOrConnectWithoutTxsInput = {
-  create: SafeCreateWithoutTxsInput;
-  where: SafeWhereUniqueInput;
-};
-
-export type SafeCreateWithoutAccountsInput = {
-  approvals?: InputMaybe<ApprovalCreateNestedManyWithoutSafeInput>;
-  approvers?: InputMaybe<ApproverCreateNestedManyWithoutSafeInput>;
-  comments?: InputMaybe<CommentCreateNestedManyWithoutSafeInput>;
-  deploySalt?: InputMaybe<Scalars['String']>;
-  id: Scalars['String'];
-  impl?: InputMaybe<Scalars['String']>;
-  name?: InputMaybe<Scalars['String']>;
-  quorums?: InputMaybe<QuorumCreateNestedManyWithoutSafeInput>;
-  reactions?: InputMaybe<ReactionCreateNestedManyWithoutSafeInput>;
-  txs?: InputMaybe<TxCreateNestedManyWithoutSafeInput>;
-};
-
-export type SafeCreateWithoutApprovalsInput = {
-  accounts?: InputMaybe<AccountCreateNestedManyWithoutSafeInput>;
-  approvers?: InputMaybe<ApproverCreateNestedManyWithoutSafeInput>;
-  comments?: InputMaybe<CommentCreateNestedManyWithoutSafeInput>;
-  deploySalt?: InputMaybe<Scalars['String']>;
-  id: Scalars['String'];
-  impl?: InputMaybe<Scalars['String']>;
-  name?: InputMaybe<Scalars['String']>;
-  quorums?: InputMaybe<QuorumCreateNestedManyWithoutSafeInput>;
-  reactions?: InputMaybe<ReactionCreateNestedManyWithoutSafeInput>;
-  txs?: InputMaybe<TxCreateNestedManyWithoutSafeInput>;
-};
-
-export type SafeCreateWithoutApproversInput = {
-  accounts?: InputMaybe<AccountCreateNestedManyWithoutSafeInput>;
-  approvals?: InputMaybe<ApprovalCreateNestedManyWithoutSafeInput>;
-  comments?: InputMaybe<CommentCreateNestedManyWithoutSafeInput>;
-  deploySalt?: InputMaybe<Scalars['String']>;
-  id: Scalars['String'];
-  impl?: InputMaybe<Scalars['String']>;
-  name?: InputMaybe<Scalars['String']>;
-  quorums?: InputMaybe<QuorumCreateNestedManyWithoutSafeInput>;
-  reactions?: InputMaybe<ReactionCreateNestedManyWithoutSafeInput>;
-  txs?: InputMaybe<TxCreateNestedManyWithoutSafeInput>;
-};
-
-export type SafeCreateWithoutCommentsInput = {
-  accounts?: InputMaybe<AccountCreateNestedManyWithoutSafeInput>;
-  approvals?: InputMaybe<ApprovalCreateNestedManyWithoutSafeInput>;
-  approvers?: InputMaybe<ApproverCreateNestedManyWithoutSafeInput>;
-  deploySalt?: InputMaybe<Scalars['String']>;
-  id: Scalars['String'];
-  impl?: InputMaybe<Scalars['String']>;
-  name?: InputMaybe<Scalars['String']>;
-  quorums?: InputMaybe<QuorumCreateNestedManyWithoutSafeInput>;
-  reactions?: InputMaybe<ReactionCreateNestedManyWithoutSafeInput>;
-  txs?: InputMaybe<TxCreateNestedManyWithoutSafeInput>;
-};
-
-export type SafeCreateWithoutQuorumsInput = {
-  accounts?: InputMaybe<AccountCreateNestedManyWithoutSafeInput>;
-  approvals?: InputMaybe<ApprovalCreateNestedManyWithoutSafeInput>;
-  approvers?: InputMaybe<ApproverCreateNestedManyWithoutSafeInput>;
-  comments?: InputMaybe<CommentCreateNestedManyWithoutSafeInput>;
-  deploySalt?: InputMaybe<Scalars['String']>;
-  id: Scalars['String'];
-  impl?: InputMaybe<Scalars['String']>;
-  name?: InputMaybe<Scalars['String']>;
-  reactions?: InputMaybe<ReactionCreateNestedManyWithoutSafeInput>;
-  txs?: InputMaybe<TxCreateNestedManyWithoutSafeInput>;
-};
-
-export type SafeCreateWithoutReactionsInput = {
-  accounts?: InputMaybe<AccountCreateNestedManyWithoutSafeInput>;
-  approvals?: InputMaybe<ApprovalCreateNestedManyWithoutSafeInput>;
-  approvers?: InputMaybe<ApproverCreateNestedManyWithoutSafeInput>;
-  comments?: InputMaybe<CommentCreateNestedManyWithoutSafeInput>;
-  deploySalt?: InputMaybe<Scalars['String']>;
-  id: Scalars['String'];
-  impl?: InputMaybe<Scalars['String']>;
-  name?: InputMaybe<Scalars['String']>;
-  quorums?: InputMaybe<QuorumCreateNestedManyWithoutSafeInput>;
-  txs?: InputMaybe<TxCreateNestedManyWithoutSafeInput>;
-};
-
-export type SafeCreateWithoutTxsInput = {
-  accounts?: InputMaybe<AccountCreateNestedManyWithoutSafeInput>;
-  approvals?: InputMaybe<ApprovalCreateNestedManyWithoutSafeInput>;
-  approvers?: InputMaybe<ApproverCreateNestedManyWithoutSafeInput>;
-  comments?: InputMaybe<CommentCreateNestedManyWithoutSafeInput>;
-  deploySalt?: InputMaybe<Scalars['String']>;
-  id: Scalars['String'];
-  impl?: InputMaybe<Scalars['String']>;
-  name?: InputMaybe<Scalars['String']>;
-  quorums?: InputMaybe<QuorumCreateNestedManyWithoutSafeInput>;
-  reactions?: InputMaybe<ReactionCreateNestedManyWithoutSafeInput>;
-};
-
-export type SafeOrderByWithRelationInput = {
-  accounts?: InputMaybe<AccountOrderByRelationAggregateInput>;
-  approvals?: InputMaybe<ApprovalOrderByRelationAggregateInput>;
-  approvers?: InputMaybe<ApproverOrderByRelationAggregateInput>;
-  comments?: InputMaybe<CommentOrderByRelationAggregateInput>;
-  deploySalt?: InputMaybe<SortOrder>;
-  id?: InputMaybe<SortOrder>;
-  impl?: InputMaybe<SortOrder>;
-  name?: InputMaybe<SortOrder>;
-  quorums?: InputMaybe<QuorumOrderByRelationAggregateInput>;
-  reactions?: InputMaybe<ReactionOrderByRelationAggregateInput>;
-  txs?: InputMaybe<TxOrderByRelationAggregateInput>;
-};
-
-export type SafeRelationFilter = {
-  is?: InputMaybe<SafeWhereInput>;
-  isNot?: InputMaybe<SafeWhereInput>;
-};
-
-export enum SafeScalarFieldEnum {
-  DeploySalt = 'deploySalt',
-  Id = 'id',
-  Impl = 'impl',
-  Name = 'name'
-}
-
-export type SafeUpdateOneRequiredWithoutAccountsNestedInput = {
-  connect?: InputMaybe<SafeWhereUniqueInput>;
-  connectOrCreate?: InputMaybe<SafeCreateOrConnectWithoutAccountsInput>;
-  create?: InputMaybe<SafeCreateWithoutAccountsInput>;
-  update?: InputMaybe<SafeUpdateWithoutAccountsInput>;
-  upsert?: InputMaybe<SafeUpsertWithoutAccountsInput>;
-};
-
-export type SafeUpdateOneRequiredWithoutApprovalsNestedInput = {
-  connect?: InputMaybe<SafeWhereUniqueInput>;
-  connectOrCreate?: InputMaybe<SafeCreateOrConnectWithoutApprovalsInput>;
-  create?: InputMaybe<SafeCreateWithoutApprovalsInput>;
-  update?: InputMaybe<SafeUpdateWithoutApprovalsInput>;
-  upsert?: InputMaybe<SafeUpsertWithoutApprovalsInput>;
-};
-
-export type SafeUpdateOneRequiredWithoutApproversNestedInput = {
-  connect?: InputMaybe<SafeWhereUniqueInput>;
-  connectOrCreate?: InputMaybe<SafeCreateOrConnectWithoutApproversInput>;
-  create?: InputMaybe<SafeCreateWithoutApproversInput>;
-  update?: InputMaybe<SafeUpdateWithoutApproversInput>;
-  upsert?: InputMaybe<SafeUpsertWithoutApproversInput>;
-};
-
-export type SafeUpdateOneRequiredWithoutCommentsNestedInput = {
-  connect?: InputMaybe<SafeWhereUniqueInput>;
-  connectOrCreate?: InputMaybe<SafeCreateOrConnectWithoutCommentsInput>;
-  create?: InputMaybe<SafeCreateWithoutCommentsInput>;
-  update?: InputMaybe<SafeUpdateWithoutCommentsInput>;
-  upsert?: InputMaybe<SafeUpsertWithoutCommentsInput>;
-};
-
-export type SafeUpdateOneRequiredWithoutQuorumsNestedInput = {
-  connect?: InputMaybe<SafeWhereUniqueInput>;
-  connectOrCreate?: InputMaybe<SafeCreateOrConnectWithoutQuorumsInput>;
-  create?: InputMaybe<SafeCreateWithoutQuorumsInput>;
-  update?: InputMaybe<SafeUpdateWithoutQuorumsInput>;
-  upsert?: InputMaybe<SafeUpsertWithoutQuorumsInput>;
-};
-
-export type SafeUpdateOneRequiredWithoutReactionsNestedInput = {
-  connect?: InputMaybe<SafeWhereUniqueInput>;
-  connectOrCreate?: InputMaybe<SafeCreateOrConnectWithoutReactionsInput>;
-  create?: InputMaybe<SafeCreateWithoutReactionsInput>;
-  update?: InputMaybe<SafeUpdateWithoutReactionsInput>;
-  upsert?: InputMaybe<SafeUpsertWithoutReactionsInput>;
-};
-
-export type SafeUpdateOneRequiredWithoutTxsNestedInput = {
-  connect?: InputMaybe<SafeWhereUniqueInput>;
-  connectOrCreate?: InputMaybe<SafeCreateOrConnectWithoutTxsInput>;
-  create?: InputMaybe<SafeCreateWithoutTxsInput>;
-  update?: InputMaybe<SafeUpdateWithoutTxsInput>;
-  upsert?: InputMaybe<SafeUpsertWithoutTxsInput>;
-};
-
-export type SafeUpdateWithoutAccountsInput = {
-  approvals?: InputMaybe<ApprovalUpdateManyWithoutSafeNestedInput>;
-  approvers?: InputMaybe<ApproverUpdateManyWithoutSafeNestedInput>;
-  comments?: InputMaybe<CommentUpdateManyWithoutSafeNestedInput>;
-  deploySalt?: InputMaybe<NullableStringFieldUpdateOperationsInput>;
-  id?: InputMaybe<StringFieldUpdateOperationsInput>;
-  impl?: InputMaybe<NullableStringFieldUpdateOperationsInput>;
-  name?: InputMaybe<StringFieldUpdateOperationsInput>;
-  quorums?: InputMaybe<QuorumUpdateManyWithoutSafeNestedInput>;
-  reactions?: InputMaybe<ReactionUpdateManyWithoutSafeNestedInput>;
-  txs?: InputMaybe<TxUpdateManyWithoutSafeNestedInput>;
-};
-
-export type SafeUpdateWithoutApprovalsInput = {
-  accounts?: InputMaybe<AccountUpdateManyWithoutSafeNestedInput>;
-  approvers?: InputMaybe<ApproverUpdateManyWithoutSafeNestedInput>;
-  comments?: InputMaybe<CommentUpdateManyWithoutSafeNestedInput>;
-  deploySalt?: InputMaybe<NullableStringFieldUpdateOperationsInput>;
-  id?: InputMaybe<StringFieldUpdateOperationsInput>;
-  impl?: InputMaybe<NullableStringFieldUpdateOperationsInput>;
-  name?: InputMaybe<StringFieldUpdateOperationsInput>;
-  quorums?: InputMaybe<QuorumUpdateManyWithoutSafeNestedInput>;
-  reactions?: InputMaybe<ReactionUpdateManyWithoutSafeNestedInput>;
-  txs?: InputMaybe<TxUpdateManyWithoutSafeNestedInput>;
-};
-
-export type SafeUpdateWithoutApproversInput = {
-  accounts?: InputMaybe<AccountUpdateManyWithoutSafeNestedInput>;
-  approvals?: InputMaybe<ApprovalUpdateManyWithoutSafeNestedInput>;
-  comments?: InputMaybe<CommentUpdateManyWithoutSafeNestedInput>;
-  deploySalt?: InputMaybe<NullableStringFieldUpdateOperationsInput>;
-  id?: InputMaybe<StringFieldUpdateOperationsInput>;
-  impl?: InputMaybe<NullableStringFieldUpdateOperationsInput>;
-  name?: InputMaybe<StringFieldUpdateOperationsInput>;
-  quorums?: InputMaybe<QuorumUpdateManyWithoutSafeNestedInput>;
-  reactions?: InputMaybe<ReactionUpdateManyWithoutSafeNestedInput>;
-  txs?: InputMaybe<TxUpdateManyWithoutSafeNestedInput>;
-};
-
-export type SafeUpdateWithoutCommentsInput = {
-  accounts?: InputMaybe<AccountUpdateManyWithoutSafeNestedInput>;
-  approvals?: InputMaybe<ApprovalUpdateManyWithoutSafeNestedInput>;
-  approvers?: InputMaybe<ApproverUpdateManyWithoutSafeNestedInput>;
-  deploySalt?: InputMaybe<NullableStringFieldUpdateOperationsInput>;
-  id?: InputMaybe<StringFieldUpdateOperationsInput>;
-  impl?: InputMaybe<NullableStringFieldUpdateOperationsInput>;
-  name?: InputMaybe<StringFieldUpdateOperationsInput>;
-  quorums?: InputMaybe<QuorumUpdateManyWithoutSafeNestedInput>;
-  reactions?: InputMaybe<ReactionUpdateManyWithoutSafeNestedInput>;
-  txs?: InputMaybe<TxUpdateManyWithoutSafeNestedInput>;
-};
-
-export type SafeUpdateWithoutQuorumsInput = {
-  accounts?: InputMaybe<AccountUpdateManyWithoutSafeNestedInput>;
-  approvals?: InputMaybe<ApprovalUpdateManyWithoutSafeNestedInput>;
-  approvers?: InputMaybe<ApproverUpdateManyWithoutSafeNestedInput>;
-  comments?: InputMaybe<CommentUpdateManyWithoutSafeNestedInput>;
-  deploySalt?: InputMaybe<NullableStringFieldUpdateOperationsInput>;
-  id?: InputMaybe<StringFieldUpdateOperationsInput>;
-  impl?: InputMaybe<NullableStringFieldUpdateOperationsInput>;
-  name?: InputMaybe<StringFieldUpdateOperationsInput>;
-  reactions?: InputMaybe<ReactionUpdateManyWithoutSafeNestedInput>;
-  txs?: InputMaybe<TxUpdateManyWithoutSafeNestedInput>;
-};
-
-export type SafeUpdateWithoutReactionsInput = {
-  accounts?: InputMaybe<AccountUpdateManyWithoutSafeNestedInput>;
-  approvals?: InputMaybe<ApprovalUpdateManyWithoutSafeNestedInput>;
-  approvers?: InputMaybe<ApproverUpdateManyWithoutSafeNestedInput>;
-  comments?: InputMaybe<CommentUpdateManyWithoutSafeNestedInput>;
-  deploySalt?: InputMaybe<NullableStringFieldUpdateOperationsInput>;
-  id?: InputMaybe<StringFieldUpdateOperationsInput>;
-  impl?: InputMaybe<NullableStringFieldUpdateOperationsInput>;
-  name?: InputMaybe<StringFieldUpdateOperationsInput>;
-  quorums?: InputMaybe<QuorumUpdateManyWithoutSafeNestedInput>;
-  txs?: InputMaybe<TxUpdateManyWithoutSafeNestedInput>;
-};
-
-export type SafeUpdateWithoutTxsInput = {
-  accounts?: InputMaybe<AccountUpdateManyWithoutSafeNestedInput>;
-  approvals?: InputMaybe<ApprovalUpdateManyWithoutSafeNestedInput>;
-  approvers?: InputMaybe<ApproverUpdateManyWithoutSafeNestedInput>;
-  comments?: InputMaybe<CommentUpdateManyWithoutSafeNestedInput>;
-  deploySalt?: InputMaybe<NullableStringFieldUpdateOperationsInput>;
-  id?: InputMaybe<StringFieldUpdateOperationsInput>;
-  impl?: InputMaybe<NullableStringFieldUpdateOperationsInput>;
-  name?: InputMaybe<StringFieldUpdateOperationsInput>;
-  quorums?: InputMaybe<QuorumUpdateManyWithoutSafeNestedInput>;
-  reactions?: InputMaybe<ReactionUpdateManyWithoutSafeNestedInput>;
-};
-
-export type SafeUpsertWithoutAccountsInput = {
-  create: SafeCreateWithoutAccountsInput;
-  update: SafeUpdateWithoutAccountsInput;
-};
-
-export type SafeUpsertWithoutApprovalsInput = {
-  create: SafeCreateWithoutApprovalsInput;
-  update: SafeUpdateWithoutApprovalsInput;
-};
-
-export type SafeUpsertWithoutApproversInput = {
-  create: SafeCreateWithoutApproversInput;
-  update: SafeUpdateWithoutApproversInput;
-};
-
-export type SafeUpsertWithoutCommentsInput = {
-  create: SafeCreateWithoutCommentsInput;
-  update: SafeUpdateWithoutCommentsInput;
-};
-
-export type SafeUpsertWithoutQuorumsInput = {
-  create: SafeCreateWithoutQuorumsInput;
-  update: SafeUpdateWithoutQuorumsInput;
-};
-
-export type SafeUpsertWithoutReactionsInput = {
-  create: SafeCreateWithoutReactionsInput;
-  update: SafeUpdateWithoutReactionsInput;
-};
-
-export type SafeUpsertWithoutTxsInput = {
-  create: SafeCreateWithoutTxsInput;
-  update: SafeUpdateWithoutTxsInput;
-};
-
-export type SafeWhereInput = {
-  AND?: InputMaybe<Array<SafeWhereInput>>;
-  NOT?: InputMaybe<Array<SafeWhereInput>>;
-  OR?: InputMaybe<Array<SafeWhereInput>>;
-  accounts?: InputMaybe<AccountListRelationFilter>;
-  approvals?: InputMaybe<ApprovalListRelationFilter>;
-  approvers?: InputMaybe<ApproverListRelationFilter>;
-  comments?: InputMaybe<CommentListRelationFilter>;
-  deploySalt?: InputMaybe<StringNullableFilter>;
-  id?: InputMaybe<StringFilter>;
-  impl?: InputMaybe<StringNullableFilter>;
-  name?: InputMaybe<StringFilter>;
-  quorums?: InputMaybe<QuorumListRelationFilter>;
-  reactions?: InputMaybe<ReactionListRelationFilter>;
-  txs?: InputMaybe<TxListRelationFilter>;
-};
-
-export type SafeWhereUniqueInput = {
-  id?: InputMaybe<Scalars['String']>;
 };
 
 export enum SortOrder {
@@ -2783,6 +2484,7 @@ export type StringNullableListFilter = {
 
 export type Submission = {
   __typename?: 'Submission';
+  accountId: Scalars['String'];
   createdAt: Scalars['DateTime'];
   finalized: Scalars['Boolean'];
   gasLimit: Scalars['Decimal'];
@@ -2790,7 +2492,6 @@ export type Submission = {
   hash: Scalars['ID'];
   id: Scalars['String'];
   nonce: Scalars['Int'];
-  safeId: Scalars['String'];
   tx: Tx;
   txHash: Scalars['String'];
 };
@@ -2848,13 +2549,13 @@ export type SubmissionScalarWhereInput = {
   AND?: InputMaybe<Array<SubmissionScalarWhereInput>>;
   NOT?: InputMaybe<Array<SubmissionScalarWhereInput>>;
   OR?: InputMaybe<Array<SubmissionScalarWhereInput>>;
+  accountId?: InputMaybe<StringFilter>;
   createdAt?: InputMaybe<DateTimeFilter>;
   finalized?: InputMaybe<BoolFilter>;
   gasLimit?: InputMaybe<DecimalFilter>;
   gasPrice?: InputMaybe<DecimalNullableFilter>;
   hash?: InputMaybe<StringFilter>;
   nonce?: InputMaybe<IntFilter>;
-  safeId?: InputMaybe<StringFilter>;
   txHash?: InputMaybe<StringFilter>;
 };
 
@@ -2910,13 +2611,13 @@ export type SubmissionWhereInput = {
   AND?: InputMaybe<Array<SubmissionWhereInput>>;
   NOT?: InputMaybe<Array<SubmissionWhereInput>>;
   OR?: InputMaybe<Array<SubmissionWhereInput>>;
+  accountId?: InputMaybe<StringFilter>;
   createdAt?: InputMaybe<DateTimeFilter>;
   finalized?: InputMaybe<BoolFilter>;
   gasLimit?: InputMaybe<DecimalFilter>;
   gasPrice?: InputMaybe<DecimalNullableFilter>;
   hash?: InputMaybe<StringFilter>;
   nonce?: InputMaybe<IntFilter>;
-  safeId?: InputMaybe<StringFilter>;
   tx?: InputMaybe<TxRelationFilter>;
   txHash?: InputMaybe<StringFilter>;
 };
@@ -2928,19 +2629,24 @@ export type SubmissionWhereUniqueInput = {
 export type Tx = {
   __typename?: 'Tx';
   _count: TxCount;
-  accountTx?: Maybe<Account>;
+  account: Account;
+  accountId: Scalars['String'];
   approvals?: Maybe<Array<Approval>>;
   createdAt: Scalars['DateTime'];
   data: Scalars['String'];
   hash: Scalars['String'];
   id: Scalars['String'];
   quorumTx?: Maybe<Quorum>;
-  safe: Safe;
-  safeId: Scalars['String'];
   salt: Scalars['String'];
   submissions?: Maybe<Array<Submission>>;
   to: Scalars['String'];
   value: Scalars['String'];
+  walletTx?: Maybe<Wallet>;
+};
+
+export type TxAccountIdHashCompoundUniqueInput = {
+  accountId: Scalars['String'];
+  hash: Scalars['String'];
 };
 
 export type TxCount = {
@@ -2949,7 +2655,7 @@ export type TxCount = {
   submissions: Scalars['Int'];
 };
 
-export type TxCreateManySafeInput = {
+export type TxCreateManyAccountInput = {
   createdAt?: InputMaybe<Scalars['DateTime']>;
   data: Scalars['String'];
   hash: Scalars['String'];
@@ -2958,22 +2664,16 @@ export type TxCreateManySafeInput = {
   value: Scalars['String'];
 };
 
-export type TxCreateManySafeInputEnvelope = {
-  data: Array<TxCreateManySafeInput>;
+export type TxCreateManyAccountInputEnvelope = {
+  data: Array<TxCreateManyAccountInput>;
   skipDuplicates?: InputMaybe<Scalars['Boolean']>;
 };
 
-export type TxCreateNestedManyWithoutSafeInput = {
+export type TxCreateNestedManyWithoutAccountInput = {
   connect?: InputMaybe<Array<TxWhereUniqueInput>>;
-  connectOrCreate?: InputMaybe<Array<TxCreateOrConnectWithoutSafeInput>>;
-  create?: InputMaybe<Array<TxCreateWithoutSafeInput>>;
-  createMany?: InputMaybe<TxCreateManySafeInputEnvelope>;
-};
-
-export type TxCreateNestedOneWithoutAccountTxInput = {
-  connect?: InputMaybe<TxWhereUniqueInput>;
-  connectOrCreate?: InputMaybe<TxCreateOrConnectWithoutAccountTxInput>;
-  create?: InputMaybe<TxCreateWithoutAccountTxInput>;
+  connectOrCreate?: InputMaybe<Array<TxCreateOrConnectWithoutAccountInput>>;
+  create?: InputMaybe<Array<TxCreateWithoutAccountInput>>;
+  createMany?: InputMaybe<TxCreateManyAccountInputEnvelope>;
 };
 
 export type TxCreateNestedOneWithoutApprovalsInput = {
@@ -2988,8 +2688,14 @@ export type TxCreateNestedOneWithoutQuorumTxInput = {
   create?: InputMaybe<TxCreateWithoutQuorumTxInput>;
 };
 
-export type TxCreateOrConnectWithoutAccountTxInput = {
-  create: TxCreateWithoutAccountTxInput;
+export type TxCreateNestedOneWithoutWalletTxInput = {
+  connect?: InputMaybe<TxWhereUniqueInput>;
+  connectOrCreate?: InputMaybe<TxCreateOrConnectWithoutWalletTxInput>;
+  create?: InputMaybe<TxCreateWithoutWalletTxInput>;
+};
+
+export type TxCreateOrConnectWithoutAccountInput = {
+  create: TxCreateWithoutAccountInput;
   where: TxWhereUniqueInput;
 };
 
@@ -3003,52 +2709,52 @@ export type TxCreateOrConnectWithoutQuorumTxInput = {
   where: TxWhereUniqueInput;
 };
 
-export type TxCreateOrConnectWithoutSafeInput = {
-  create: TxCreateWithoutSafeInput;
+export type TxCreateOrConnectWithoutWalletTxInput = {
+  create: TxCreateWithoutWalletTxInput;
   where: TxWhereUniqueInput;
 };
 
-export type TxCreateWithoutAccountTxInput = {
+export type TxCreateWithoutAccountInput = {
   approvals?: InputMaybe<ApprovalCreateNestedManyWithoutTxInput>;
   createdAt?: InputMaybe<Scalars['DateTime']>;
   data: Scalars['String'];
   hash: Scalars['String'];
   quorumTx?: InputMaybe<QuorumCreateNestedOneWithoutTxInput>;
-  safe: SafeCreateNestedOneWithoutTxsInput;
   salt: Scalars['String'];
   submissions?: InputMaybe<SubmissionCreateNestedManyWithoutTxInput>;
   to: Scalars['String'];
   value: Scalars['String'];
+  walletTx?: InputMaybe<WalletCreateNestedOneWithoutTxInput>;
 };
 
 export type TxCreateWithoutApprovalsInput = {
-  accountTx?: InputMaybe<AccountCreateNestedOneWithoutTxInput>;
+  account: AccountCreateNestedOneWithoutTxsInput;
   createdAt?: InputMaybe<Scalars['DateTime']>;
   data: Scalars['String'];
   hash: Scalars['String'];
   quorumTx?: InputMaybe<QuorumCreateNestedOneWithoutTxInput>;
-  safe: SafeCreateNestedOneWithoutTxsInput;
   salt: Scalars['String'];
   submissions?: InputMaybe<SubmissionCreateNestedManyWithoutTxInput>;
   to: Scalars['String'];
   value: Scalars['String'];
+  walletTx?: InputMaybe<WalletCreateNestedOneWithoutTxInput>;
 };
 
 export type TxCreateWithoutQuorumTxInput = {
-  accountTx?: InputMaybe<AccountCreateNestedOneWithoutTxInput>;
+  account: AccountCreateNestedOneWithoutTxsInput;
   approvals?: InputMaybe<ApprovalCreateNestedManyWithoutTxInput>;
   createdAt?: InputMaybe<Scalars['DateTime']>;
   data: Scalars['String'];
   hash: Scalars['String'];
-  safe: SafeCreateNestedOneWithoutTxsInput;
   salt: Scalars['String'];
   submissions?: InputMaybe<SubmissionCreateNestedManyWithoutTxInput>;
   to: Scalars['String'];
   value: Scalars['String'];
+  walletTx?: InputMaybe<WalletCreateNestedOneWithoutTxInput>;
 };
 
-export type TxCreateWithoutSafeInput = {
-  accountTx?: InputMaybe<AccountCreateNestedOneWithoutTxInput>;
+export type TxCreateWithoutWalletTxInput = {
+  account: AccountCreateNestedOneWithoutTxsInput;
   approvals?: InputMaybe<ApprovalCreateNestedManyWithoutTxInput>;
   createdAt?: InputMaybe<Scalars['DateTime']>;
   data: Scalars['String'];
@@ -3078,18 +2784,18 @@ export type TxOrderByRelationAggregateInput = {
 };
 
 export type TxOrderByWithRelationInput = {
-  accountTx?: InputMaybe<AccountOrderByWithRelationInput>;
+  account?: InputMaybe<AccountOrderByWithRelationInput>;
+  accountId?: InputMaybe<SortOrder>;
   approvals?: InputMaybe<ApprovalOrderByRelationAggregateInput>;
   createdAt?: InputMaybe<SortOrder>;
   data?: InputMaybe<SortOrder>;
   hash?: InputMaybe<SortOrder>;
   quorumTx?: InputMaybe<QuorumOrderByWithRelationInput>;
-  safe?: InputMaybe<SafeOrderByWithRelationInput>;
-  safeId?: InputMaybe<SortOrder>;
   salt?: InputMaybe<SortOrder>;
   submissions?: InputMaybe<SubmissionOrderByRelationAggregateInput>;
   to?: InputMaybe<SortOrder>;
   value?: InputMaybe<SortOrder>;
+  walletTx?: InputMaybe<WalletOrderByWithRelationInput>;
 };
 
 export type TxRelationFilter = {
@@ -3097,19 +2803,14 @@ export type TxRelationFilter = {
   isNot?: InputMaybe<TxWhereInput>;
 };
 
-export type TxSafeIdHashCompoundUniqueInput = {
-  hash: Scalars['String'];
-  safeId: Scalars['String'];
-};
-
 export type TxScalarWhereInput = {
   AND?: InputMaybe<Array<TxScalarWhereInput>>;
   NOT?: InputMaybe<Array<TxScalarWhereInput>>;
   OR?: InputMaybe<Array<TxScalarWhereInput>>;
+  accountId?: InputMaybe<StringFilter>;
   createdAt?: InputMaybe<DateTimeFilter>;
   data?: InputMaybe<StringFilter>;
   hash?: InputMaybe<StringFilter>;
-  safeId?: InputMaybe<StringFilter>;
   salt?: InputMaybe<StringFilter>;
   to?: InputMaybe<StringFilter>;
   value?: InputMaybe<StringFilter>;
@@ -3124,23 +2825,23 @@ export type TxUpdateManyMutationInput = {
   value?: InputMaybe<StringFieldUpdateOperationsInput>;
 };
 
-export type TxUpdateManyWithWhereWithoutSafeInput = {
+export type TxUpdateManyWithWhereWithoutAccountInput = {
   data: TxUpdateManyMutationInput;
   where: TxScalarWhereInput;
 };
 
-export type TxUpdateManyWithoutSafeNestedInput = {
+export type TxUpdateManyWithoutAccountNestedInput = {
   connect?: InputMaybe<Array<TxWhereUniqueInput>>;
-  connectOrCreate?: InputMaybe<Array<TxCreateOrConnectWithoutSafeInput>>;
-  create?: InputMaybe<Array<TxCreateWithoutSafeInput>>;
-  createMany?: InputMaybe<TxCreateManySafeInputEnvelope>;
+  connectOrCreate?: InputMaybe<Array<TxCreateOrConnectWithoutAccountInput>>;
+  create?: InputMaybe<Array<TxCreateWithoutAccountInput>>;
+  createMany?: InputMaybe<TxCreateManyAccountInputEnvelope>;
   delete?: InputMaybe<Array<TxWhereUniqueInput>>;
   deleteMany?: InputMaybe<Array<TxScalarWhereInput>>;
   disconnect?: InputMaybe<Array<TxWhereUniqueInput>>;
   set?: InputMaybe<Array<TxWhereUniqueInput>>;
-  update?: InputMaybe<Array<TxUpdateWithWhereUniqueWithoutSafeInput>>;
-  updateMany?: InputMaybe<Array<TxUpdateManyWithWhereWithoutSafeInput>>;
-  upsert?: InputMaybe<Array<TxUpsertWithWhereUniqueWithoutSafeInput>>;
+  update?: InputMaybe<Array<TxUpdateWithWhereUniqueWithoutAccountInput>>;
+  updateMany?: InputMaybe<Array<TxUpdateManyWithWhereWithoutAccountInput>>;
+  upsert?: InputMaybe<Array<TxUpsertWithWhereUniqueWithoutAccountInput>>;
 };
 
 export type TxUpdateOneRequiredWithoutApprovalsNestedInput = {
@@ -3149,16 +2850,6 @@ export type TxUpdateOneRequiredWithoutApprovalsNestedInput = {
   create?: InputMaybe<TxCreateWithoutApprovalsInput>;
   update?: InputMaybe<TxUpdateWithoutApprovalsInput>;
   upsert?: InputMaybe<TxUpsertWithoutApprovalsInput>;
-};
-
-export type TxUpdateOneWithoutAccountTxNestedInput = {
-  connect?: InputMaybe<TxWhereUniqueInput>;
-  connectOrCreate?: InputMaybe<TxCreateOrConnectWithoutAccountTxInput>;
-  create?: InputMaybe<TxCreateWithoutAccountTxInput>;
-  delete?: InputMaybe<Scalars['Boolean']>;
-  disconnect?: InputMaybe<Scalars['Boolean']>;
-  update?: InputMaybe<TxUpdateWithoutAccountTxInput>;
-  upsert?: InputMaybe<TxUpsertWithoutAccountTxInput>;
 };
 
 export type TxUpdateOneWithoutQuorumTxNestedInput = {
@@ -3171,52 +2862,62 @@ export type TxUpdateOneWithoutQuorumTxNestedInput = {
   upsert?: InputMaybe<TxUpsertWithoutQuorumTxInput>;
 };
 
-export type TxUpdateWithWhereUniqueWithoutSafeInput = {
-  data: TxUpdateWithoutSafeInput;
+export type TxUpdateOneWithoutWalletTxNestedInput = {
+  connect?: InputMaybe<TxWhereUniqueInput>;
+  connectOrCreate?: InputMaybe<TxCreateOrConnectWithoutWalletTxInput>;
+  create?: InputMaybe<TxCreateWithoutWalletTxInput>;
+  delete?: InputMaybe<Scalars['Boolean']>;
+  disconnect?: InputMaybe<Scalars['Boolean']>;
+  update?: InputMaybe<TxUpdateWithoutWalletTxInput>;
+  upsert?: InputMaybe<TxUpsertWithoutWalletTxInput>;
+};
+
+export type TxUpdateWithWhereUniqueWithoutAccountInput = {
+  data: TxUpdateWithoutAccountInput;
   where: TxWhereUniqueInput;
 };
 
-export type TxUpdateWithoutAccountTxInput = {
+export type TxUpdateWithoutAccountInput = {
   approvals?: InputMaybe<ApprovalUpdateManyWithoutTxNestedInput>;
   createdAt?: InputMaybe<DateTimeFieldUpdateOperationsInput>;
   data?: InputMaybe<StringFieldUpdateOperationsInput>;
   hash?: InputMaybe<StringFieldUpdateOperationsInput>;
   quorumTx?: InputMaybe<QuorumUpdateOneWithoutTxNestedInput>;
-  safe?: InputMaybe<SafeUpdateOneRequiredWithoutTxsNestedInput>;
   salt?: InputMaybe<StringFieldUpdateOperationsInput>;
   submissions?: InputMaybe<SubmissionUpdateManyWithoutTxNestedInput>;
   to?: InputMaybe<StringFieldUpdateOperationsInput>;
   value?: InputMaybe<StringFieldUpdateOperationsInput>;
+  walletTx?: InputMaybe<WalletUpdateOneWithoutTxNestedInput>;
 };
 
 export type TxUpdateWithoutApprovalsInput = {
-  accountTx?: InputMaybe<AccountUpdateOneWithoutTxNestedInput>;
+  account?: InputMaybe<AccountUpdateOneRequiredWithoutTxsNestedInput>;
   createdAt?: InputMaybe<DateTimeFieldUpdateOperationsInput>;
   data?: InputMaybe<StringFieldUpdateOperationsInput>;
   hash?: InputMaybe<StringFieldUpdateOperationsInput>;
   quorumTx?: InputMaybe<QuorumUpdateOneWithoutTxNestedInput>;
-  safe?: InputMaybe<SafeUpdateOneRequiredWithoutTxsNestedInput>;
   salt?: InputMaybe<StringFieldUpdateOperationsInput>;
   submissions?: InputMaybe<SubmissionUpdateManyWithoutTxNestedInput>;
   to?: InputMaybe<StringFieldUpdateOperationsInput>;
   value?: InputMaybe<StringFieldUpdateOperationsInput>;
+  walletTx?: InputMaybe<WalletUpdateOneWithoutTxNestedInput>;
 };
 
 export type TxUpdateWithoutQuorumTxInput = {
-  accountTx?: InputMaybe<AccountUpdateOneWithoutTxNestedInput>;
+  account?: InputMaybe<AccountUpdateOneRequiredWithoutTxsNestedInput>;
   approvals?: InputMaybe<ApprovalUpdateManyWithoutTxNestedInput>;
   createdAt?: InputMaybe<DateTimeFieldUpdateOperationsInput>;
   data?: InputMaybe<StringFieldUpdateOperationsInput>;
   hash?: InputMaybe<StringFieldUpdateOperationsInput>;
-  safe?: InputMaybe<SafeUpdateOneRequiredWithoutTxsNestedInput>;
   salt?: InputMaybe<StringFieldUpdateOperationsInput>;
   submissions?: InputMaybe<SubmissionUpdateManyWithoutTxNestedInput>;
   to?: InputMaybe<StringFieldUpdateOperationsInput>;
   value?: InputMaybe<StringFieldUpdateOperationsInput>;
+  walletTx?: InputMaybe<WalletUpdateOneWithoutTxNestedInput>;
 };
 
-export type TxUpdateWithoutSafeInput = {
-  accountTx?: InputMaybe<AccountUpdateOneWithoutTxNestedInput>;
+export type TxUpdateWithoutWalletTxInput = {
+  account?: InputMaybe<AccountUpdateOneRequiredWithoutTxsNestedInput>;
   approvals?: InputMaybe<ApprovalUpdateManyWithoutTxNestedInput>;
   createdAt?: InputMaybe<DateTimeFieldUpdateOperationsInput>;
   data?: InputMaybe<StringFieldUpdateOperationsInput>;
@@ -3228,15 +2929,10 @@ export type TxUpdateWithoutSafeInput = {
   value?: InputMaybe<StringFieldUpdateOperationsInput>;
 };
 
-export type TxUpsertWithWhereUniqueWithoutSafeInput = {
-  create: TxCreateWithoutSafeInput;
-  update: TxUpdateWithoutSafeInput;
+export type TxUpsertWithWhereUniqueWithoutAccountInput = {
+  create: TxCreateWithoutAccountInput;
+  update: TxUpdateWithoutAccountInput;
   where: TxWhereUniqueInput;
-};
-
-export type TxUpsertWithoutAccountTxInput = {
-  create: TxCreateWithoutAccountTxInput;
-  update: TxUpdateWithoutAccountTxInput;
 };
 
 export type TxUpsertWithoutApprovalsInput = {
@@ -3249,38 +2945,43 @@ export type TxUpsertWithoutQuorumTxInput = {
   update: TxUpdateWithoutQuorumTxInput;
 };
 
+export type TxUpsertWithoutWalletTxInput = {
+  create: TxCreateWithoutWalletTxInput;
+  update: TxUpdateWithoutWalletTxInput;
+};
+
 export type TxWhereInput = {
   AND?: InputMaybe<Array<TxWhereInput>>;
   NOT?: InputMaybe<Array<TxWhereInput>>;
   OR?: InputMaybe<Array<TxWhereInput>>;
-  accountTx?: InputMaybe<AccountRelationFilter>;
+  account?: InputMaybe<AccountRelationFilter>;
+  accountId?: InputMaybe<StringFilter>;
   approvals?: InputMaybe<ApprovalListRelationFilter>;
   createdAt?: InputMaybe<DateTimeFilter>;
   data?: InputMaybe<StringFilter>;
   hash?: InputMaybe<StringFilter>;
   quorumTx?: InputMaybe<QuorumRelationFilter>;
-  safe?: InputMaybe<SafeRelationFilter>;
-  safeId?: InputMaybe<StringFilter>;
   salt?: InputMaybe<StringFilter>;
   submissions?: InputMaybe<SubmissionListRelationFilter>;
   to?: InputMaybe<StringFilter>;
   value?: InputMaybe<StringFilter>;
+  walletTx?: InputMaybe<WalletRelationFilter>;
 };
 
 export type TxWhereUniqueInput = {
-  safeId_hash?: InputMaybe<TxSafeIdHashCompoundUniqueInput>;
+  accountId_hash?: InputMaybe<TxAccountIdHashCompoundUniqueInput>;
 };
 
 export type User = {
   __typename?: 'User';
   _count: UserCount;
+  accounts: Array<Account>;
   approvals?: Maybe<Array<Approval>>;
   approvers?: Maybe<Array<Approver>>;
   comments?: Maybe<Array<Comment>>;
   contacts?: Maybe<Array<Contact>>;
   id: Scalars['ID'];
   reactions?: Maybe<Array<Reaction>>;
-  safes: Array<Safe>;
 };
 
 export type UserCount = {
@@ -3500,41 +3201,327 @@ export type UserWhereUniqueInput = {
   id?: InputMaybe<Scalars['String']>;
 };
 
-export type DeleteAccountMutationVariables = Exact<{
-  id: AccountId;
-}>;
-
-
-export type DeleteAccountMutation = { __typename?: 'Mutation', deleteAccount: boolean };
-
-export type SetAccountNameMutationVariables = Exact<{
-  id: AccountId;
+export type Wallet = {
+  __typename?: 'Wallet';
+  _count: WalletCount;
+  account: Account;
+  accountId: Scalars['String'];
+  approvers?: Maybe<Array<Approver>>;
+  id: Scalars['String'];
   name: Scalars['String'];
+  quorums?: Maybe<Array<Quorum>>;
+  ref: Scalars['String'];
+  tx?: Maybe<Tx>;
+  txHash?: Maybe<Scalars['String']>;
+};
+
+export type WalletAccountIdRefCompoundUniqueInput = {
+  accountId: Scalars['String'];
+  ref: Scalars['String'];
+};
+
+export type WalletAccountIdTxHashCompoundUniqueInput = {
+  accountId: Scalars['String'];
+  txHash: Scalars['String'];
+};
+
+export type WalletCount = {
+  __typename?: 'WalletCount';
+  approvers: Scalars['Int'];
+  quorums: Scalars['Int'];
+};
+
+export type WalletCreateManyAccountInput = {
+  name?: InputMaybe<Scalars['String']>;
+  ref: Scalars['String'];
+  txHash?: InputMaybe<Scalars['String']>;
+};
+
+export type WalletCreateManyAccountInputEnvelope = {
+  data: Array<WalletCreateManyAccountInput>;
+  skipDuplicates?: InputMaybe<Scalars['Boolean']>;
+};
+
+export type WalletCreateNestedManyWithoutAccountInput = {
+  connect?: InputMaybe<Array<WalletWhereUniqueInput>>;
+  connectOrCreate?: InputMaybe<Array<WalletCreateOrConnectWithoutAccountInput>>;
+  create?: InputMaybe<Array<WalletCreateWithoutAccountInput>>;
+  createMany?: InputMaybe<WalletCreateManyAccountInputEnvelope>;
+};
+
+export type WalletCreateNestedOneWithoutApproversInput = {
+  connect?: InputMaybe<WalletWhereUniqueInput>;
+  connectOrCreate?: InputMaybe<WalletCreateOrConnectWithoutApproversInput>;
+  create?: InputMaybe<WalletCreateWithoutApproversInput>;
+};
+
+export type WalletCreateNestedOneWithoutQuorumsInput = {
+  connect?: InputMaybe<WalletWhereUniqueInput>;
+  connectOrCreate?: InputMaybe<WalletCreateOrConnectWithoutQuorumsInput>;
+  create?: InputMaybe<WalletCreateWithoutQuorumsInput>;
+};
+
+export type WalletCreateNestedOneWithoutTxInput = {
+  connect?: InputMaybe<WalletWhereUniqueInput>;
+  connectOrCreate?: InputMaybe<WalletCreateOrConnectWithoutTxInput>;
+  create?: InputMaybe<WalletCreateWithoutTxInput>;
+};
+
+export type WalletCreateOrConnectWithoutAccountInput = {
+  create: WalletCreateWithoutAccountInput;
+  where: WalletWhereUniqueInput;
+};
+
+export type WalletCreateOrConnectWithoutApproversInput = {
+  create: WalletCreateWithoutApproversInput;
+  where: WalletWhereUniqueInput;
+};
+
+export type WalletCreateOrConnectWithoutQuorumsInput = {
+  create: WalletCreateWithoutQuorumsInput;
+  where: WalletWhereUniqueInput;
+};
+
+export type WalletCreateOrConnectWithoutTxInput = {
+  create: WalletCreateWithoutTxInput;
+  where: WalletWhereUniqueInput;
+};
+
+export type WalletCreateWithoutAccountInput = {
+  approvers?: InputMaybe<ApproverCreateNestedManyWithoutWalletInput>;
+  name?: InputMaybe<Scalars['String']>;
+  quorums?: InputMaybe<QuorumCreateNestedManyWithoutWalletInput>;
+  ref: Scalars['String'];
+  tx?: InputMaybe<TxCreateNestedOneWithoutWalletTxInput>;
+};
+
+export type WalletCreateWithoutApproversInput = {
+  account: AccountCreateNestedOneWithoutWalletsInput;
+  name?: InputMaybe<Scalars['String']>;
+  quorums?: InputMaybe<QuorumCreateNestedManyWithoutWalletInput>;
+  ref: Scalars['String'];
+  tx?: InputMaybe<TxCreateNestedOneWithoutWalletTxInput>;
+};
+
+export type WalletCreateWithoutQuorumsInput = {
+  account: AccountCreateNestedOneWithoutWalletsInput;
+  approvers?: InputMaybe<ApproverCreateNestedManyWithoutWalletInput>;
+  name?: InputMaybe<Scalars['String']>;
+  ref: Scalars['String'];
+  tx?: InputMaybe<TxCreateNestedOneWithoutWalletTxInput>;
+};
+
+export type WalletCreateWithoutTxInput = {
+  account: AccountCreateNestedOneWithoutWalletsInput;
+  approvers?: InputMaybe<ApproverCreateNestedManyWithoutWalletInput>;
+  name?: InputMaybe<Scalars['String']>;
+  quorums?: InputMaybe<QuorumCreateNestedManyWithoutWalletInput>;
+  ref: Scalars['String'];
+};
+
+export type WalletId = {
+  accountId: Scalars['Address'];
+  ref: Scalars['Bytes4'];
+};
+
+export type WalletListRelationFilter = {
+  every?: InputMaybe<WalletWhereInput>;
+  none?: InputMaybe<WalletWhereInput>;
+  some?: InputMaybe<WalletWhereInput>;
+};
+
+export type WalletOrderByRelationAggregateInput = {
+  _count?: InputMaybe<SortOrder>;
+};
+
+export type WalletOrderByWithRelationInput = {
+  account?: InputMaybe<AccountOrderByWithRelationInput>;
+  accountId?: InputMaybe<SortOrder>;
+  approvers?: InputMaybe<ApproverOrderByRelationAggregateInput>;
+  name?: InputMaybe<SortOrder>;
+  quorums?: InputMaybe<QuorumOrderByRelationAggregateInput>;
+  ref?: InputMaybe<SortOrder>;
+  tx?: InputMaybe<TxOrderByWithRelationInput>;
+  txHash?: InputMaybe<SortOrder>;
+};
+
+export type WalletRelationFilter = {
+  is?: InputMaybe<WalletWhereInput>;
+  isNot?: InputMaybe<WalletWhereInput>;
+};
+
+export enum WalletScalarFieldEnum {
+  AccountId = 'accountId',
+  Name = 'name',
+  Ref = 'ref',
+  TxHash = 'txHash'
+}
+
+export type WalletScalarWhereInput = {
+  AND?: InputMaybe<Array<WalletScalarWhereInput>>;
+  NOT?: InputMaybe<Array<WalletScalarWhereInput>>;
+  OR?: InputMaybe<Array<WalletScalarWhereInput>>;
+  accountId?: InputMaybe<StringFilter>;
+  name?: InputMaybe<StringFilter>;
+  ref?: InputMaybe<StringFilter>;
+  txHash?: InputMaybe<StringNullableFilter>;
+};
+
+export type WalletUpdateManyMutationInput = {
+  name?: InputMaybe<StringFieldUpdateOperationsInput>;
+  ref?: InputMaybe<StringFieldUpdateOperationsInput>;
+};
+
+export type WalletUpdateManyWithWhereWithoutAccountInput = {
+  data: WalletUpdateManyMutationInput;
+  where: WalletScalarWhereInput;
+};
+
+export type WalletUpdateManyWithoutAccountNestedInput = {
+  connect?: InputMaybe<Array<WalletWhereUniqueInput>>;
+  connectOrCreate?: InputMaybe<Array<WalletCreateOrConnectWithoutAccountInput>>;
+  create?: InputMaybe<Array<WalletCreateWithoutAccountInput>>;
+  createMany?: InputMaybe<WalletCreateManyAccountInputEnvelope>;
+  delete?: InputMaybe<Array<WalletWhereUniqueInput>>;
+  deleteMany?: InputMaybe<Array<WalletScalarWhereInput>>;
+  disconnect?: InputMaybe<Array<WalletWhereUniqueInput>>;
+  set?: InputMaybe<Array<WalletWhereUniqueInput>>;
+  update?: InputMaybe<Array<WalletUpdateWithWhereUniqueWithoutAccountInput>>;
+  updateMany?: InputMaybe<Array<WalletUpdateManyWithWhereWithoutAccountInput>>;
+  upsert?: InputMaybe<Array<WalletUpsertWithWhereUniqueWithoutAccountInput>>;
+};
+
+export type WalletUpdateOneRequiredWithoutApproversNestedInput = {
+  connect?: InputMaybe<WalletWhereUniqueInput>;
+  connectOrCreate?: InputMaybe<WalletCreateOrConnectWithoutApproversInput>;
+  create?: InputMaybe<WalletCreateWithoutApproversInput>;
+  update?: InputMaybe<WalletUpdateWithoutApproversInput>;
+  upsert?: InputMaybe<WalletUpsertWithoutApproversInput>;
+};
+
+export type WalletUpdateOneRequiredWithoutQuorumsNestedInput = {
+  connect?: InputMaybe<WalletWhereUniqueInput>;
+  connectOrCreate?: InputMaybe<WalletCreateOrConnectWithoutQuorumsInput>;
+  create?: InputMaybe<WalletCreateWithoutQuorumsInput>;
+  update?: InputMaybe<WalletUpdateWithoutQuorumsInput>;
+  upsert?: InputMaybe<WalletUpsertWithoutQuorumsInput>;
+};
+
+export type WalletUpdateOneWithoutTxNestedInput = {
+  connect?: InputMaybe<WalletWhereUniqueInput>;
+  connectOrCreate?: InputMaybe<WalletCreateOrConnectWithoutTxInput>;
+  create?: InputMaybe<WalletCreateWithoutTxInput>;
+  delete?: InputMaybe<Scalars['Boolean']>;
+  disconnect?: InputMaybe<Scalars['Boolean']>;
+  update?: InputMaybe<WalletUpdateWithoutTxInput>;
+  upsert?: InputMaybe<WalletUpsertWithoutTxInput>;
+};
+
+export type WalletUpdateWithWhereUniqueWithoutAccountInput = {
+  data: WalletUpdateWithoutAccountInput;
+  where: WalletWhereUniqueInput;
+};
+
+export type WalletUpdateWithoutAccountInput = {
+  approvers?: InputMaybe<ApproverUpdateManyWithoutWalletNestedInput>;
+  name?: InputMaybe<StringFieldUpdateOperationsInput>;
+  quorums?: InputMaybe<QuorumUpdateManyWithoutWalletNestedInput>;
+  ref?: InputMaybe<StringFieldUpdateOperationsInput>;
+  tx?: InputMaybe<TxUpdateOneWithoutWalletTxNestedInput>;
+};
+
+export type WalletUpdateWithoutApproversInput = {
+  account?: InputMaybe<AccountUpdateOneRequiredWithoutWalletsNestedInput>;
+  name?: InputMaybe<StringFieldUpdateOperationsInput>;
+  quorums?: InputMaybe<QuorumUpdateManyWithoutWalletNestedInput>;
+  ref?: InputMaybe<StringFieldUpdateOperationsInput>;
+  tx?: InputMaybe<TxUpdateOneWithoutWalletTxNestedInput>;
+};
+
+export type WalletUpdateWithoutQuorumsInput = {
+  account?: InputMaybe<AccountUpdateOneRequiredWithoutWalletsNestedInput>;
+  approvers?: InputMaybe<ApproverUpdateManyWithoutWalletNestedInput>;
+  name?: InputMaybe<StringFieldUpdateOperationsInput>;
+  ref?: InputMaybe<StringFieldUpdateOperationsInput>;
+  tx?: InputMaybe<TxUpdateOneWithoutWalletTxNestedInput>;
+};
+
+export type WalletUpdateWithoutTxInput = {
+  account?: InputMaybe<AccountUpdateOneRequiredWithoutWalletsNestedInput>;
+  approvers?: InputMaybe<ApproverUpdateManyWithoutWalletNestedInput>;
+  name?: InputMaybe<StringFieldUpdateOperationsInput>;
+  quorums?: InputMaybe<QuorumUpdateManyWithoutWalletNestedInput>;
+  ref?: InputMaybe<StringFieldUpdateOperationsInput>;
+};
+
+export type WalletUpsertWithWhereUniqueWithoutAccountInput = {
+  create: WalletCreateWithoutAccountInput;
+  update: WalletUpdateWithoutAccountInput;
+  where: WalletWhereUniqueInput;
+};
+
+export type WalletUpsertWithoutApproversInput = {
+  create: WalletCreateWithoutApproversInput;
+  update: WalletUpdateWithoutApproversInput;
+};
+
+export type WalletUpsertWithoutQuorumsInput = {
+  create: WalletCreateWithoutQuorumsInput;
+  update: WalletUpdateWithoutQuorumsInput;
+};
+
+export type WalletUpsertWithoutTxInput = {
+  create: WalletCreateWithoutTxInput;
+  update: WalletUpdateWithoutTxInput;
+};
+
+export type WalletWhereInput = {
+  AND?: InputMaybe<Array<WalletWhereInput>>;
+  NOT?: InputMaybe<Array<WalletWhereInput>>;
+  OR?: InputMaybe<Array<WalletWhereInput>>;
+  account?: InputMaybe<AccountRelationFilter>;
+  accountId?: InputMaybe<StringFilter>;
+  approvers?: InputMaybe<ApproverListRelationFilter>;
+  name?: InputMaybe<StringFilter>;
+  quorums?: InputMaybe<QuorumListRelationFilter>;
+  ref?: InputMaybe<StringFilter>;
+  tx?: InputMaybe<TxRelationFilter>;
+  txHash?: InputMaybe<StringNullableFilter>;
+};
+
+export type WalletWhereUniqueInput = {
+  accountId_ref?: InputMaybe<WalletAccountIdRefCompoundUniqueInput>;
+  accountId_txHash?: InputMaybe<WalletAccountIdTxHashCompoundUniqueInput>;
+};
+
+export type WalletWithoutAccountInput = {
+  name: Scalars['String'];
+  quorums: Array<Scalars['QuorumScalar']>;
+  ref: Scalars['Bytes4'];
+};
+
+export type CreateAccountMutationVariables = Exact<{
+  account: Scalars['Address'];
+  impl: Scalars['Address'];
+  deploySalt: Scalars['Bytes32'];
+  name: Scalars['String'];
+  wallets: Array<WalletWithoutAccountInput> | WalletWithoutAccountInput;
 }>;
 
 
-export type SetAccountNameMutation = { __typename?: 'Mutation', setAccountName: { __typename?: 'Account', id: string, safeId: string, ref: string, name: string, quorums?: Array<{ __typename?: 'Quorum', approvers?: Array<{ __typename?: 'Approver', userId: string }> | null }> | null } };
-
-export type SetAccountQuorumsMutationVariables = Exact<{
-  setQuroumsId: AccountId;
-  quorums: Array<Scalars['QuorumScalar']> | Scalars['QuorumScalar'];
-  txHash: Scalars['Bytes32'];
-}>;
-
-
-export type SetAccountQuorumsMutation = { __typename?: 'Mutation', setAccountQuroums?: { __typename?: 'Account', id: string, safeId: string, ref: string, name: string, quorums?: Array<{ __typename?: 'Quorum', approvers?: Array<{ __typename?: 'Approver', userId: string }> | null }> | null } | null };
+export type CreateAccountMutation = { __typename?: 'Mutation', createAccount: { __typename?: 'Account', id: string, name: string, impl?: string | null, deploySalt?: string | null, wallets?: Array<{ __typename?: 'Wallet', id: string, accountId: string, ref: string, name: string, quorums?: Array<{ __typename?: 'Quorum', approvers?: Array<{ __typename?: 'Approver', userId: string }> | null }> | null }> | null } };
 
 export type CreateCommentMutationVariables = Exact<{
-  safe: Scalars['Address'];
+  account: Scalars['Address'];
   key: Scalars['Id'];
   content: Scalars['String'];
 }>;
 
 
-export type CreateCommentMutation = { __typename?: 'Mutation', createComment: { __typename?: 'Comment', id: string, safeId: string, key: string, nonce: number, authorId: string, content: string, createdAt: any, updatedAt: any, reactions?: Array<{ __typename?: 'Reaction', id: string, safeId: string, key: string, nonce: number, userId: string, emojis?: Array<string> | null }> | null } };
+export type CreateCommentMutation = { __typename?: 'Mutation', createComment: { __typename?: 'Comment', id: string, accountId: string, key: string, nonce: number, authorId: string, content: string, createdAt: any, updatedAt: any, reactions?: Array<{ __typename?: 'Reaction', id: string, accountId: string, key: string, nonce: number, userId: string, emojis?: Array<string> | null }> | null } };
 
 export type DeleteCommentMutationVariables = Exact<{
-  safe: Scalars['Address'];
+  account: Scalars['Address'];
   key: Scalars['Id'];
   nonce: Scalars['Int'];
 }>;
@@ -3543,14 +3530,14 @@ export type DeleteCommentMutationVariables = Exact<{
 export type DeleteCommentMutation = { __typename?: 'Mutation', deleteComment?: { __typename?: 'Comment', id: string } | null };
 
 export type ReactToCommentMutationVariables = Exact<{
-  safe: Scalars['Address'];
+  account: Scalars['Address'];
   key: Scalars['Id'];
   nonce: Scalars['Int'];
   emojis: Array<Scalars['String']> | Scalars['String'];
 }>;
 
 
-export type ReactToCommentMutation = { __typename?: 'Mutation', reactToComment?: { __typename?: 'Reaction', id: string, safeId: string, key: string, nonce: number, userId: string, emojis?: Array<string> | null } | null };
+export type ReactToCommentMutation = { __typename?: 'Mutation', reactToComment?: { __typename?: 'Reaction', id: string, accountId: string, key: string, nonce: number, userId: string, emojis?: Array<string> | null } | null };
 
 export type DeleteContactMutationVariables = Exact<{
   addr: Scalars['Address'];
@@ -3568,19 +3555,8 @@ export type UpsertContactMutationVariables = Exact<{
 
 export type UpsertContactMutation = { __typename?: 'Mutation', upsertContact?: { __typename?: 'Contact', id: string, addr: string, name: string } | null };
 
-export type CreateSafeMutationVariables = Exact<{
-  safe: Scalars['Address'];
-  impl: Scalars['Address'];
-  deploySalt: Scalars['Bytes32'];
-  name: Scalars['String'];
-  accounts: Array<AccountWithoutSafeInput> | AccountWithoutSafeInput;
-}>;
-
-
-export type CreateSafeMutation = { __typename?: 'Mutation', createSafe: { __typename?: 'Safe', id: string, name: string, impl?: string | null, deploySalt?: string | null, accounts?: Array<{ __typename?: 'Account', id: string, safeId: string, ref: string, name: string, quorums?: Array<{ __typename?: 'Quorum', approvers?: Array<{ __typename?: 'Approver', userId: string }> | null }> | null }> | null } };
-
 export type SubmitTxExecutionMutationVariables = Exact<{
-  safe: Scalars['Address'];
+  account: Scalars['Address'];
   txHash: Scalars['Bytes32'];
   submission: SubmissionInput;
 }>;
@@ -3589,7 +3565,7 @@ export type SubmitTxExecutionMutationVariables = Exact<{
 export type SubmitTxExecutionMutation = { __typename?: 'Mutation', submitTxExecution: { __typename?: 'Submission', id: string, hash: string, nonce: number, gasLimit: any, gasPrice?: any | null, finalized: boolean, createdAt: any } };
 
 export type ApproveTxMutationVariables = Exact<{
-  safe: Scalars['Address'];
+  account: Scalars['Address'];
   txHash: Scalars['Bytes32'];
   signature: Scalars['Bytes'];
 }>;
@@ -3598,16 +3574,16 @@ export type ApproveTxMutationVariables = Exact<{
 export type ApproveTxMutation = { __typename?: 'Mutation', approve?: { __typename?: 'Tx', id: string } | null };
 
 export type ProposeTxMutationVariables = Exact<{
-  safe: Scalars['Address'];
+  account: Scalars['Address'];
   tx: TxInput;
   signature: Scalars['Bytes'];
 }>;
 
 
-export type ProposeTxMutation = { __typename?: 'Mutation', proposeTx: { __typename?: 'Tx', id: string, safeId: string, hash: string, to: string, value: string, data: string, salt: string, createdAt: any, approvals?: Array<{ __typename?: 'Approval', userId: string, signature: string, createdAt: any }> | null, submissions?: Array<{ __typename?: 'Submission', id: string, hash: string, nonce: number, gasLimit: any, gasPrice?: any | null, finalized: boolean, createdAt: any }> | null } };
+export type ProposeTxMutation = { __typename?: 'Mutation', proposeTx: { __typename?: 'Tx', id: string, accountId: string, hash: string, to: string, value: string, data: string, salt: string, createdAt: any, approvals?: Array<{ __typename?: 'Approval', userId: string, signature: string, createdAt: any }> | null, submissions?: Array<{ __typename?: 'Submission', id: string, hash: string, nonce: number, gasLimit: any, gasPrice?: any | null, finalized: boolean, createdAt: any }> | null } };
 
 export type RevokeApprovalMutationVariables = Exact<{
-  safe: Scalars['Address'];
+  account: Scalars['Address'];
   txHash: Scalars['Bytes32'];
 }>;
 
@@ -3621,49 +3597,66 @@ export type UseFaucetMutationVariables = Exact<{
 
 export type UseFaucetMutation = { __typename?: 'Mutation', requestFunds: boolean };
 
-export type AccountFieldsFragment = { __typename?: 'Account', id: string, safeId: string, ref: string, name: string, quorums?: Array<{ __typename?: 'Quorum', approvers?: Array<{ __typename?: 'Approver', userId: string }> | null }> | null };
+export type DeleteWalletMutationVariables = Exact<{
+  id: WalletId;
+}>;
 
-export type UserAccountsQueryVariables = Exact<{ [key: string]: never; }>;
+
+export type DeleteWalletMutation = { __typename?: 'Mutation', deleteWallet: boolean };
+
+export type SetWalletNameMutationVariables = Exact<{
+  id: WalletId;
+  name: Scalars['String'];
+}>;
 
 
-export type UserAccountsQuery = { __typename?: 'Query', userAccounts: Array<{ __typename?: 'Account', id: string, safeId: string, ref: string, name: string, quorums?: Array<{ __typename?: 'Quorum', approvers?: Array<{ __typename?: 'Approver', userId: string }> | null }> | null }> };
+export type SetWalletNameMutation = { __typename?: 'Mutation', setWalletName: { __typename?: 'Wallet', id: string, accountId: string, ref: string, name: string, quorums?: Array<{ __typename?: 'Quorum', approvers?: Array<{ __typename?: 'Approver', userId: string }> | null }> | null } };
 
-export type SafeFieldsFragment = { __typename?: 'Safe', id: string, name: string, impl?: string | null, deploySalt?: string | null };
+export type SetWalletQuorumsMutationVariables = Exact<{
+  setQuroumsId: WalletId;
+  quorums: Array<Scalars['QuorumScalar']> | Scalars['QuorumScalar'];
+  txHash: Scalars['Bytes32'];
+}>;
 
-export type SafeQueryVariables = Exact<{
+
+export type SetWalletQuorumsMutation = { __typename?: 'Mutation', setWalletQuroums?: { __typename?: 'Wallet', id: string, accountId: string, ref: string, name: string, quorums?: Array<{ __typename?: 'Quorum', approvers?: Array<{ __typename?: 'Approver', userId: string }> | null }> | null } | null };
+
+export type AccountFieldsFragment = { __typename?: 'Account', id: string, name: string, impl?: string | null, deploySalt?: string | null };
+
+export type AccountQueryVariables = Exact<{
   id: Scalars['Address'];
 }>;
 
 
-export type SafeQuery = { __typename?: 'Query', safe?: { __typename?: 'Safe', id: string, name: string, impl?: string | null, deploySalt?: string | null } | null };
+export type AccountQuery = { __typename?: 'Query', account?: { __typename?: 'Account', id: string, name: string, impl?: string | null, deploySalt?: string | null } | null };
 
-export type UserSafesQueryVariables = Exact<{ [key: string]: never; }>;
+export type UserAccountsQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type UserSafesQuery = { __typename?: 'Query', userSafes: Array<{ __typename?: 'Safe', id: string, name: string, impl?: string | null, deploySalt?: string | null }> };
+export type UserAccountsQuery = { __typename?: 'Query', userAccounts: Array<{ __typename?: 'Account', id: string, name: string, impl?: string | null, deploySalt?: string | null }> };
 
 export type SubmissionFieldsFragment = { __typename?: 'Submission', id: string, hash: string, nonce: number, gasLimit: any, gasPrice?: any | null, finalized: boolean, createdAt: any };
 
-export type TxFieldsFragment = { __typename?: 'Tx', id: string, safeId: string, hash: string, to: string, value: string, data: string, salt: string, createdAt: any, approvals?: Array<{ __typename?: 'Approval', userId: string, signature: string, createdAt: any }> | null, submissions?: Array<{ __typename?: 'Submission', id: string, hash: string, nonce: number, gasLimit: any, gasPrice?: any | null, finalized: boolean, createdAt: any }> | null };
+export type TxFieldsFragment = { __typename?: 'Tx', id: string, accountId: string, hash: string, to: string, value: string, data: string, salt: string, createdAt: any, approvals?: Array<{ __typename?: 'Approval', userId: string, signature: string, createdAt: any }> | null, submissions?: Array<{ __typename?: 'Submission', id: string, hash: string, nonce: number, gasLimit: any, gasPrice?: any | null, finalized: boolean, createdAt: any }> | null };
 
 export type ApiTxsQueryVariables = Exact<{
-  safe: Scalars['Address'];
+  account: Scalars['Address'];
 }>;
 
 
-export type ApiTxsQuery = { __typename?: 'Query', txs: Array<{ __typename?: 'Tx', id: string, safeId: string, hash: string, to: string, value: string, data: string, salt: string, createdAt: any, approvals?: Array<{ __typename?: 'Approval', userId: string, signature: string, createdAt: any }> | null, submissions?: Array<{ __typename?: 'Submission', id: string, hash: string, nonce: number, gasLimit: any, gasPrice?: any | null, finalized: boolean, createdAt: any }> | null }> };
+export type ApiTxsQuery = { __typename?: 'Query', txs: Array<{ __typename?: 'Tx', id: string, accountId: string, hash: string, to: string, value: string, data: string, salt: string, createdAt: any, approvals?: Array<{ __typename?: 'Approval', userId: string, signature: string, createdAt: any }> | null, submissions?: Array<{ __typename?: 'Submission', id: string, hash: string, nonce: number, gasLimit: any, gasPrice?: any | null, finalized: boolean, createdAt: any }> | null }> };
 
-export type ReactionFieldsFragment = { __typename?: 'Reaction', id: string, safeId: string, key: string, nonce: number, userId: string, emojis?: Array<string> | null };
+export type ReactionFieldsFragment = { __typename?: 'Reaction', id: string, accountId: string, key: string, nonce: number, userId: string, emojis?: Array<string> | null };
 
-export type CommentFieldsFragment = { __typename?: 'Comment', id: string, safeId: string, key: string, nonce: number, authorId: string, content: string, createdAt: any, updatedAt: any, reactions?: Array<{ __typename?: 'Reaction', id: string, safeId: string, key: string, nonce: number, userId: string, emojis?: Array<string> | null }> | null };
+export type CommentFieldsFragment = { __typename?: 'Comment', id: string, accountId: string, key: string, nonce: number, authorId: string, content: string, createdAt: any, updatedAt: any, reactions?: Array<{ __typename?: 'Reaction', id: string, accountId: string, key: string, nonce: number, userId: string, emojis?: Array<string> | null }> | null };
 
 export type CommentsQueryVariables = Exact<{
-  safe: Scalars['Address'];
+  account: Scalars['Address'];
   key: Scalars['Id'];
 }>;
 
 
-export type CommentsQuery = { __typename?: 'Query', comments: Array<{ __typename?: 'Comment', id: string, safeId: string, key: string, nonce: number, authorId: string, content: string, createdAt: any, updatedAt: any, reactions?: Array<{ __typename?: 'Reaction', id: string, safeId: string, key: string, nonce: number, userId: string, emojis?: Array<string> | null }> | null }> };
+export type CommentsQuery = { __typename?: 'Query', comments: Array<{ __typename?: 'Comment', id: string, accountId: string, key: string, nonce: number, authorId: string, content: string, createdAt: any, updatedAt: any, reactions?: Array<{ __typename?: 'Reaction', id: string, accountId: string, key: string, nonce: number, userId: string, emojis?: Array<string> | null }> | null }> };
 
 export type ContactFieldsFragment = { __typename?: 'Contact', id: string, addr: string, name: string };
 
@@ -3680,21 +3673,15 @@ export type ContractMethodQueryVariables = Exact<{
 
 export type ContractMethodQuery = { __typename?: 'Query', contractMethod?: { __typename?: 'ContractMethod', id: string, fragment: any } | null };
 
+export type WalletFieldsFragment = { __typename?: 'Wallet', id: string, accountId: string, ref: string, name: string, quorums?: Array<{ __typename?: 'Quorum', approvers?: Array<{ __typename?: 'Approver', userId: string }> | null }> | null };
+
+export type UserWalletsQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type UserWalletsQuery = { __typename?: 'Query', userWallets: Array<{ __typename?: 'Wallet', id: string, accountId: string, ref: string, name: string, quorums?: Array<{ __typename?: 'Quorum', approvers?: Array<{ __typename?: 'Approver', userId: string }> | null }> | null }> };
+
 export const AccountFieldsFragmentDoc = gql`
     fragment AccountFields on Account {
-  id
-  safeId
-  ref
-  name
-  quorums {
-    approvers {
-      userId
-    }
-  }
-}
-    `;
-export const SafeFieldsFragmentDoc = gql`
-    fragment SafeFields on Safe {
   id
   name
   impl
@@ -3715,7 +3702,7 @@ export const SubmissionFieldsFragmentDoc = gql`
 export const TxFieldsFragmentDoc = gql`
     fragment TxFields on Tx {
   id
-  safeId
+  accountId
   hash
   to
   value
@@ -3735,7 +3722,7 @@ export const TxFieldsFragmentDoc = gql`
 export const ReactionFieldsFragmentDoc = gql`
     fragment ReactionFields on Reaction {
   id
-  safeId
+  accountId
   key
   nonce
   userId
@@ -3745,7 +3732,7 @@ export const ReactionFieldsFragmentDoc = gql`
 export const CommentFieldsFragmentDoc = gql`
     fragment CommentFields on Comment {
   id
-  safeId
+  accountId
   key
   nonce
   authorId
@@ -3764,109 +3751,69 @@ export const ContactFieldsFragmentDoc = gql`
   name
 }
     `;
-export const DeleteAccountDocument = gql`
-    mutation DeleteAccount($id: AccountId!) {
-  deleteAccount(id: $id)
+export const WalletFieldsFragmentDoc = gql`
+    fragment WalletFields on Wallet {
+  id
+  accountId
+  ref
+  name
+  quorums {
+    approvers {
+      userId
+    }
+  }
 }
     `;
-export type DeleteAccountMutationFn = Apollo.MutationFunction<DeleteAccountMutation, DeleteAccountMutationVariables>;
-
-/**
- * __useDeleteAccountMutation__
- *
- * To run a mutation, you first call `useDeleteAccountMutation` within a React component and pass it any options that fit your needs.
- * When your component renders, `useDeleteAccountMutation` returns a tuple that includes:
- * - A mutate function that you can call at any time to execute the mutation
- * - An object with fields that represent the current status of the mutation's execution
- *
- * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
- *
- * @example
- * const [deleteAccountMutation, { data, loading, error }] = useDeleteAccountMutation({
- *   variables: {
- *      id: // value for 'id'
- *   },
- * });
- */
-export function useDeleteAccountMutation(baseOptions?: Apollo.MutationHookOptions<DeleteAccountMutation, DeleteAccountMutationVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useMutation<DeleteAccountMutation, DeleteAccountMutationVariables>(DeleteAccountDocument, options);
-      }
-export type DeleteAccountMutationHookResult = ReturnType<typeof useDeleteAccountMutation>;
-export type DeleteAccountMutationResult = Apollo.MutationResult<DeleteAccountMutation>;
-export type DeleteAccountMutationOptions = Apollo.BaseMutationOptions<DeleteAccountMutation, DeleteAccountMutationVariables>;
-export const SetAccountNameDocument = gql`
-    mutation SetAccountName($id: AccountId!, $name: String!) {
-  setAccountName(id: $id, name: $name) {
+export const CreateAccountDocument = gql`
+    mutation CreateAccount($account: Address!, $impl: Address!, $deploySalt: Bytes32!, $name: String!, $wallets: [WalletWithoutAccountInput!]!) {
+  createAccount(
+    account: $account
+    impl: $impl
+    deploySalt: $deploySalt
+    name: $name
+    wallets: $wallets
+  ) {
     ...AccountFields
+    wallets {
+      ...WalletFields
+    }
   }
 }
-    ${AccountFieldsFragmentDoc}`;
-export type SetAccountNameMutationFn = Apollo.MutationFunction<SetAccountNameMutation, SetAccountNameMutationVariables>;
+    ${AccountFieldsFragmentDoc}
+${WalletFieldsFragmentDoc}`;
+export type CreateAccountMutationFn = Apollo.MutationFunction<CreateAccountMutation, CreateAccountMutationVariables>;
 
 /**
- * __useSetAccountNameMutation__
+ * __useCreateAccountMutation__
  *
- * To run a mutation, you first call `useSetAccountNameMutation` within a React component and pass it any options that fit your needs.
- * When your component renders, `useSetAccountNameMutation` returns a tuple that includes:
+ * To run a mutation, you first call `useCreateAccountMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useCreateAccountMutation` returns a tuple that includes:
  * - A mutate function that you can call at any time to execute the mutation
  * - An object with fields that represent the current status of the mutation's execution
  *
  * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
  *
  * @example
- * const [setAccountNameMutation, { data, loading, error }] = useSetAccountNameMutation({
+ * const [createAccountMutation, { data, loading, error }] = useCreateAccountMutation({
  *   variables: {
- *      id: // value for 'id'
+ *      account: // value for 'account'
+ *      impl: // value for 'impl'
+ *      deploySalt: // value for 'deploySalt'
  *      name: // value for 'name'
+ *      wallets: // value for 'wallets'
  *   },
  * });
  */
-export function useSetAccountNameMutation(baseOptions?: Apollo.MutationHookOptions<SetAccountNameMutation, SetAccountNameMutationVariables>) {
+export function useCreateAccountMutation(baseOptions?: Apollo.MutationHookOptions<CreateAccountMutation, CreateAccountMutationVariables>) {
         const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useMutation<SetAccountNameMutation, SetAccountNameMutationVariables>(SetAccountNameDocument, options);
+        return Apollo.useMutation<CreateAccountMutation, CreateAccountMutationVariables>(CreateAccountDocument, options);
       }
-export type SetAccountNameMutationHookResult = ReturnType<typeof useSetAccountNameMutation>;
-export type SetAccountNameMutationResult = Apollo.MutationResult<SetAccountNameMutation>;
-export type SetAccountNameMutationOptions = Apollo.BaseMutationOptions<SetAccountNameMutation, SetAccountNameMutationVariables>;
-export const SetAccountQuorumsDocument = gql`
-    mutation SetAccountQuorums($setQuroumsId: AccountId!, $quorums: [QuorumScalar!]!, $txHash: Bytes32!) {
-  setAccountQuroums(id: $setQuroumsId, quorums: $quorums, txHash: $txHash) {
-    ...AccountFields
-  }
-}
-    ${AccountFieldsFragmentDoc}`;
-export type SetAccountQuorumsMutationFn = Apollo.MutationFunction<SetAccountQuorumsMutation, SetAccountQuorumsMutationVariables>;
-
-/**
- * __useSetAccountQuorumsMutation__
- *
- * To run a mutation, you first call `useSetAccountQuorumsMutation` within a React component and pass it any options that fit your needs.
- * When your component renders, `useSetAccountQuorumsMutation` returns a tuple that includes:
- * - A mutate function that you can call at any time to execute the mutation
- * - An object with fields that represent the current status of the mutation's execution
- *
- * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
- *
- * @example
- * const [setAccountQuorumsMutation, { data, loading, error }] = useSetAccountQuorumsMutation({
- *   variables: {
- *      setQuroumsId: // value for 'setQuroumsId'
- *      quorums: // value for 'quorums'
- *      txHash: // value for 'txHash'
- *   },
- * });
- */
-export function useSetAccountQuorumsMutation(baseOptions?: Apollo.MutationHookOptions<SetAccountQuorumsMutation, SetAccountQuorumsMutationVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useMutation<SetAccountQuorumsMutation, SetAccountQuorumsMutationVariables>(SetAccountQuorumsDocument, options);
-      }
-export type SetAccountQuorumsMutationHookResult = ReturnType<typeof useSetAccountQuorumsMutation>;
-export type SetAccountQuorumsMutationResult = Apollo.MutationResult<SetAccountQuorumsMutation>;
-export type SetAccountQuorumsMutationOptions = Apollo.BaseMutationOptions<SetAccountQuorumsMutation, SetAccountQuorumsMutationVariables>;
+export type CreateAccountMutationHookResult = ReturnType<typeof useCreateAccountMutation>;
+export type CreateAccountMutationResult = Apollo.MutationResult<CreateAccountMutation>;
+export type CreateAccountMutationOptions = Apollo.BaseMutationOptions<CreateAccountMutation, CreateAccountMutationVariables>;
 export const CreateCommentDocument = gql`
-    mutation CreateComment($safe: Address!, $key: Id!, $content: String!) {
-  createComment(safe: $safe, key: $key, content: $content) {
+    mutation CreateComment($account: Address!, $key: Id!, $content: String!) {
+  createComment(account: $account, key: $key, content: $content) {
     ...CommentFields
   }
 }
@@ -3886,7 +3833,7 @@ export type CreateCommentMutationFn = Apollo.MutationFunction<CreateCommentMutat
  * @example
  * const [createCommentMutation, { data, loading, error }] = useCreateCommentMutation({
  *   variables: {
- *      safe: // value for 'safe'
+ *      account: // value for 'account'
  *      key: // value for 'key'
  *      content: // value for 'content'
  *   },
@@ -3900,8 +3847,8 @@ export type CreateCommentMutationHookResult = ReturnType<typeof useCreateComment
 export type CreateCommentMutationResult = Apollo.MutationResult<CreateCommentMutation>;
 export type CreateCommentMutationOptions = Apollo.BaseMutationOptions<CreateCommentMutation, CreateCommentMutationVariables>;
 export const DeleteCommentDocument = gql`
-    mutation DeleteComment($safe: Address!, $key: Id!, $nonce: Int!) {
-  deleteComment(safe: $safe, key: $key, nonce: $nonce) {
+    mutation DeleteComment($account: Address!, $key: Id!, $nonce: Int!) {
+  deleteComment(account: $account, key: $key, nonce: $nonce) {
     id
   }
 }
@@ -3921,7 +3868,7 @@ export type DeleteCommentMutationFn = Apollo.MutationFunction<DeleteCommentMutat
  * @example
  * const [deleteCommentMutation, { data, loading, error }] = useDeleteCommentMutation({
  *   variables: {
- *      safe: // value for 'safe'
+ *      account: // value for 'account'
  *      key: // value for 'key'
  *      nonce: // value for 'nonce'
  *   },
@@ -3935,8 +3882,8 @@ export type DeleteCommentMutationHookResult = ReturnType<typeof useDeleteComment
 export type DeleteCommentMutationResult = Apollo.MutationResult<DeleteCommentMutation>;
 export type DeleteCommentMutationOptions = Apollo.BaseMutationOptions<DeleteCommentMutation, DeleteCommentMutationVariables>;
 export const ReactToCommentDocument = gql`
-    mutation ReactToComment($safe: Address!, $key: Id!, $nonce: Int!, $emojis: [String!]!) {
-  reactToComment(safe: $safe, key: $key, nonce: $nonce, emojis: $emojis) {
+    mutation ReactToComment($account: Address!, $key: Id!, $nonce: Int!, $emojis: [String!]!) {
+  reactToComment(account: $account, key: $key, nonce: $nonce, emojis: $emojis) {
     ...ReactionFields
   }
 }
@@ -3956,7 +3903,7 @@ export type ReactToCommentMutationFn = Apollo.MutationFunction<ReactToCommentMut
  * @example
  * const [reactToCommentMutation, { data, loading, error }] = useReactToCommentMutation({
  *   variables: {
- *      safe: // value for 'safe'
+ *      account: // value for 'account'
  *      key: // value for 'key'
  *      nonce: // value for 'nonce'
  *      emojis: // value for 'emojis'
@@ -4038,56 +3985,9 @@ export function useUpsertContactMutation(baseOptions?: Apollo.MutationHookOption
 export type UpsertContactMutationHookResult = ReturnType<typeof useUpsertContactMutation>;
 export type UpsertContactMutationResult = Apollo.MutationResult<UpsertContactMutation>;
 export type UpsertContactMutationOptions = Apollo.BaseMutationOptions<UpsertContactMutation, UpsertContactMutationVariables>;
-export const CreateSafeDocument = gql`
-    mutation CreateSafe($safe: Address!, $impl: Address!, $deploySalt: Bytes32!, $name: String!, $accounts: [AccountWithoutSafeInput!]!) {
-  createSafe(
-    safe: $safe
-    impl: $impl
-    deploySalt: $deploySalt
-    name: $name
-    accounts: $accounts
-  ) {
-    ...SafeFields
-    accounts {
-      ...AccountFields
-    }
-  }
-}
-    ${SafeFieldsFragmentDoc}
-${AccountFieldsFragmentDoc}`;
-export type CreateSafeMutationFn = Apollo.MutationFunction<CreateSafeMutation, CreateSafeMutationVariables>;
-
-/**
- * __useCreateSafeMutation__
- *
- * To run a mutation, you first call `useCreateSafeMutation` within a React component and pass it any options that fit your needs.
- * When your component renders, `useCreateSafeMutation` returns a tuple that includes:
- * - A mutate function that you can call at any time to execute the mutation
- * - An object with fields that represent the current status of the mutation's execution
- *
- * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
- *
- * @example
- * const [createSafeMutation, { data, loading, error }] = useCreateSafeMutation({
- *   variables: {
- *      safe: // value for 'safe'
- *      impl: // value for 'impl'
- *      deploySalt: // value for 'deploySalt'
- *      name: // value for 'name'
- *      accounts: // value for 'accounts'
- *   },
- * });
- */
-export function useCreateSafeMutation(baseOptions?: Apollo.MutationHookOptions<CreateSafeMutation, CreateSafeMutationVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useMutation<CreateSafeMutation, CreateSafeMutationVariables>(CreateSafeDocument, options);
-      }
-export type CreateSafeMutationHookResult = ReturnType<typeof useCreateSafeMutation>;
-export type CreateSafeMutationResult = Apollo.MutationResult<CreateSafeMutation>;
-export type CreateSafeMutationOptions = Apollo.BaseMutationOptions<CreateSafeMutation, CreateSafeMutationVariables>;
 export const SubmitTxExecutionDocument = gql`
-    mutation SubmitTxExecution($safe: Address!, $txHash: Bytes32!, $submission: SubmissionInput!) {
-  submitTxExecution(safe: $safe, txHash: $txHash, submission: $submission) {
+    mutation SubmitTxExecution($account: Address!, $txHash: Bytes32!, $submission: SubmissionInput!) {
+  submitTxExecution(account: $account, txHash: $txHash, submission: $submission) {
     ...SubmissionFields
   }
 }
@@ -4107,7 +4007,7 @@ export type SubmitTxExecutionMutationFn = Apollo.MutationFunction<SubmitTxExecut
  * @example
  * const [submitTxExecutionMutation, { data, loading, error }] = useSubmitTxExecutionMutation({
  *   variables: {
- *      safe: // value for 'safe'
+ *      account: // value for 'account'
  *      txHash: // value for 'txHash'
  *      submission: // value for 'submission'
  *   },
@@ -4121,8 +4021,8 @@ export type SubmitTxExecutionMutationHookResult = ReturnType<typeof useSubmitTxE
 export type SubmitTxExecutionMutationResult = Apollo.MutationResult<SubmitTxExecutionMutation>;
 export type SubmitTxExecutionMutationOptions = Apollo.BaseMutationOptions<SubmitTxExecutionMutation, SubmitTxExecutionMutationVariables>;
 export const ApproveTxDocument = gql`
-    mutation ApproveTx($safe: Address!, $txHash: Bytes32!, $signature: Bytes!) {
-  approve(safe: $safe, txHash: $txHash, signature: $signature) {
+    mutation ApproveTx($account: Address!, $txHash: Bytes32!, $signature: Bytes!) {
+  approve(account: $account, txHash: $txHash, signature: $signature) {
     id
   }
 }
@@ -4142,7 +4042,7 @@ export type ApproveTxMutationFn = Apollo.MutationFunction<ApproveTxMutation, App
  * @example
  * const [approveTxMutation, { data, loading, error }] = useApproveTxMutation({
  *   variables: {
- *      safe: // value for 'safe'
+ *      account: // value for 'account'
  *      txHash: // value for 'txHash'
  *      signature: // value for 'signature'
  *   },
@@ -4156,8 +4056,8 @@ export type ApproveTxMutationHookResult = ReturnType<typeof useApproveTxMutation
 export type ApproveTxMutationResult = Apollo.MutationResult<ApproveTxMutation>;
 export type ApproveTxMutationOptions = Apollo.BaseMutationOptions<ApproveTxMutation, ApproveTxMutationVariables>;
 export const ProposeTxDocument = gql`
-    mutation ProposeTx($safe: Address!, $tx: TxInput!, $signature: Bytes!) {
-  proposeTx(safe: $safe, tx: $tx, signature: $signature) {
+    mutation ProposeTx($account: Address!, $tx: TxInput!, $signature: Bytes!) {
+  proposeTx(account: $account, tx: $tx, signature: $signature) {
     ...TxFields
   }
 }
@@ -4177,7 +4077,7 @@ export type ProposeTxMutationFn = Apollo.MutationFunction<ProposeTxMutation, Pro
  * @example
  * const [proposeTxMutation, { data, loading, error }] = useProposeTxMutation({
  *   variables: {
- *      safe: // value for 'safe'
+ *      account: // value for 'account'
  *      tx: // value for 'tx'
  *      signature: // value for 'signature'
  *   },
@@ -4191,8 +4091,8 @@ export type ProposeTxMutationHookResult = ReturnType<typeof useProposeTxMutation
 export type ProposeTxMutationResult = Apollo.MutationResult<ProposeTxMutation>;
 export type ProposeTxMutationOptions = Apollo.BaseMutationOptions<ProposeTxMutation, ProposeTxMutationVariables>;
 export const RevokeApprovalDocument = gql`
-    mutation RevokeApproval($safe: Address!, $txHash: Bytes32!) {
-  revokeApproval(safe: $safe, txHash: $txHash) {
+    mutation RevokeApproval($account: Address!, $txHash: Bytes32!) {
+  revokeApproval(account: $account, txHash: $txHash) {
     id
   }
 }
@@ -4212,7 +4112,7 @@ export type RevokeApprovalMutationFn = Apollo.MutationFunction<RevokeApprovalMut
  * @example
  * const [revokeApprovalMutation, { data, loading, error }] = useRevokeApprovalMutation({
  *   variables: {
- *      safe: // value for 'safe'
+ *      account: // value for 'account'
  *      txHash: // value for 'txHash'
  *   },
  * });
@@ -4255,6 +4155,141 @@ export function useUseFaucetMutation(baseOptions?: Apollo.MutationHookOptions<Us
 export type UseFaucetMutationHookResult = ReturnType<typeof useUseFaucetMutation>;
 export type UseFaucetMutationResult = Apollo.MutationResult<UseFaucetMutation>;
 export type UseFaucetMutationOptions = Apollo.BaseMutationOptions<UseFaucetMutation, UseFaucetMutationVariables>;
+export const DeleteWalletDocument = gql`
+    mutation DeleteWallet($id: WalletId!) {
+  deleteWallet(id: $id)
+}
+    `;
+export type DeleteWalletMutationFn = Apollo.MutationFunction<DeleteWalletMutation, DeleteWalletMutationVariables>;
+
+/**
+ * __useDeleteWalletMutation__
+ *
+ * To run a mutation, you first call `useDeleteWalletMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useDeleteWalletMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [deleteWalletMutation, { data, loading, error }] = useDeleteWalletMutation({
+ *   variables: {
+ *      id: // value for 'id'
+ *   },
+ * });
+ */
+export function useDeleteWalletMutation(baseOptions?: Apollo.MutationHookOptions<DeleteWalletMutation, DeleteWalletMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<DeleteWalletMutation, DeleteWalletMutationVariables>(DeleteWalletDocument, options);
+      }
+export type DeleteWalletMutationHookResult = ReturnType<typeof useDeleteWalletMutation>;
+export type DeleteWalletMutationResult = Apollo.MutationResult<DeleteWalletMutation>;
+export type DeleteWalletMutationOptions = Apollo.BaseMutationOptions<DeleteWalletMutation, DeleteWalletMutationVariables>;
+export const SetWalletNameDocument = gql`
+    mutation SetWalletName($id: WalletId!, $name: String!) {
+  setWalletName(id: $id, name: $name) {
+    ...WalletFields
+  }
+}
+    ${WalletFieldsFragmentDoc}`;
+export type SetWalletNameMutationFn = Apollo.MutationFunction<SetWalletNameMutation, SetWalletNameMutationVariables>;
+
+/**
+ * __useSetWalletNameMutation__
+ *
+ * To run a mutation, you first call `useSetWalletNameMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useSetWalletNameMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [setWalletNameMutation, { data, loading, error }] = useSetWalletNameMutation({
+ *   variables: {
+ *      id: // value for 'id'
+ *      name: // value for 'name'
+ *   },
+ * });
+ */
+export function useSetWalletNameMutation(baseOptions?: Apollo.MutationHookOptions<SetWalletNameMutation, SetWalletNameMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<SetWalletNameMutation, SetWalletNameMutationVariables>(SetWalletNameDocument, options);
+      }
+export type SetWalletNameMutationHookResult = ReturnType<typeof useSetWalletNameMutation>;
+export type SetWalletNameMutationResult = Apollo.MutationResult<SetWalletNameMutation>;
+export type SetWalletNameMutationOptions = Apollo.BaseMutationOptions<SetWalletNameMutation, SetWalletNameMutationVariables>;
+export const SetWalletQuorumsDocument = gql`
+    mutation SetWalletQuorums($setQuroumsId: WalletId!, $quorums: [QuorumScalar!]!, $txHash: Bytes32!) {
+  setWalletQuroums(id: $setQuroumsId, quorums: $quorums, txHash: $txHash) {
+    ...WalletFields
+  }
+}
+    ${WalletFieldsFragmentDoc}`;
+export type SetWalletQuorumsMutationFn = Apollo.MutationFunction<SetWalletQuorumsMutation, SetWalletQuorumsMutationVariables>;
+
+/**
+ * __useSetWalletQuorumsMutation__
+ *
+ * To run a mutation, you first call `useSetWalletQuorumsMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useSetWalletQuorumsMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [setWalletQuorumsMutation, { data, loading, error }] = useSetWalletQuorumsMutation({
+ *   variables: {
+ *      setQuroumsId: // value for 'setQuroumsId'
+ *      quorums: // value for 'quorums'
+ *      txHash: // value for 'txHash'
+ *   },
+ * });
+ */
+export function useSetWalletQuorumsMutation(baseOptions?: Apollo.MutationHookOptions<SetWalletQuorumsMutation, SetWalletQuorumsMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<SetWalletQuorumsMutation, SetWalletQuorumsMutationVariables>(SetWalletQuorumsDocument, options);
+      }
+export type SetWalletQuorumsMutationHookResult = ReturnType<typeof useSetWalletQuorumsMutation>;
+export type SetWalletQuorumsMutationResult = Apollo.MutationResult<SetWalletQuorumsMutation>;
+export type SetWalletQuorumsMutationOptions = Apollo.BaseMutationOptions<SetWalletQuorumsMutation, SetWalletQuorumsMutationVariables>;
+export const AccountDocument = gql`
+    query Account($id: Address!) {
+  account(id: $id) {
+    ...AccountFields
+  }
+}
+    ${AccountFieldsFragmentDoc}`;
+
+/**
+ * __useAccountQuery__
+ *
+ * To run a query within a React component, call `useAccountQuery` and pass it any options that fit your needs.
+ * When your component renders, `useAccountQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useAccountQuery({
+ *   variables: {
+ *      id: // value for 'id'
+ *   },
+ * });
+ */
+export function useAccountQuery(baseOptions: Apollo.QueryHookOptions<AccountQuery, AccountQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<AccountQuery, AccountQueryVariables>(AccountDocument, options);
+      }
+export function useAccountLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<AccountQuery, AccountQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<AccountQuery, AccountQueryVariables>(AccountDocument, options);
+        }
+export type AccountQueryHookResult = ReturnType<typeof useAccountQuery>;
+export type AccountLazyQueryHookResult = ReturnType<typeof useAccountLazyQuery>;
+export type AccountQueryResult = Apollo.QueryResult<AccountQuery, AccountQueryVariables>;
 export const UserAccountsDocument = gql`
     query UserAccounts {
   userAccounts {
@@ -4289,78 +4324,9 @@ export function useUserAccountsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptio
 export type UserAccountsQueryHookResult = ReturnType<typeof useUserAccountsQuery>;
 export type UserAccountsLazyQueryHookResult = ReturnType<typeof useUserAccountsLazyQuery>;
 export type UserAccountsQueryResult = Apollo.QueryResult<UserAccountsQuery, UserAccountsQueryVariables>;
-export const SafeDocument = gql`
-    query Safe($id: Address!) {
-  safe(id: $id) {
-    ...SafeFields
-  }
-}
-    ${SafeFieldsFragmentDoc}`;
-
-/**
- * __useSafeQuery__
- *
- * To run a query within a React component, call `useSafeQuery` and pass it any options that fit your needs.
- * When your component renders, `useSafeQuery` returns an object from Apollo Client that contains loading, error, and data properties
- * you can use to render your UI.
- *
- * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
- *
- * @example
- * const { data, loading, error } = useSafeQuery({
- *   variables: {
- *      id: // value for 'id'
- *   },
- * });
- */
-export function useSafeQuery(baseOptions: Apollo.QueryHookOptions<SafeQuery, SafeQueryVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useQuery<SafeQuery, SafeQueryVariables>(SafeDocument, options);
-      }
-export function useSafeLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<SafeQuery, SafeQueryVariables>) {
-          const options = {...defaultOptions, ...baseOptions}
-          return Apollo.useLazyQuery<SafeQuery, SafeQueryVariables>(SafeDocument, options);
-        }
-export type SafeQueryHookResult = ReturnType<typeof useSafeQuery>;
-export type SafeLazyQueryHookResult = ReturnType<typeof useSafeLazyQuery>;
-export type SafeQueryResult = Apollo.QueryResult<SafeQuery, SafeQueryVariables>;
-export const UserSafesDocument = gql`
-    query UserSafes {
-  userSafes {
-    ...SafeFields
-  }
-}
-    ${SafeFieldsFragmentDoc}`;
-
-/**
- * __useUserSafesQuery__
- *
- * To run a query within a React component, call `useUserSafesQuery` and pass it any options that fit your needs.
- * When your component renders, `useUserSafesQuery` returns an object from Apollo Client that contains loading, error, and data properties
- * you can use to render your UI.
- *
- * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
- *
- * @example
- * const { data, loading, error } = useUserSafesQuery({
- *   variables: {
- *   },
- * });
- */
-export function useUserSafesQuery(baseOptions?: Apollo.QueryHookOptions<UserSafesQuery, UserSafesQueryVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useQuery<UserSafesQuery, UserSafesQueryVariables>(UserSafesDocument, options);
-      }
-export function useUserSafesLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<UserSafesQuery, UserSafesQueryVariables>) {
-          const options = {...defaultOptions, ...baseOptions}
-          return Apollo.useLazyQuery<UserSafesQuery, UserSafesQueryVariables>(UserSafesDocument, options);
-        }
-export type UserSafesQueryHookResult = ReturnType<typeof useUserSafesQuery>;
-export type UserSafesLazyQueryHookResult = ReturnType<typeof useUserSafesLazyQuery>;
-export type UserSafesQueryResult = Apollo.QueryResult<UserSafesQuery, UserSafesQueryVariables>;
 export const ApiTxsDocument = gql`
-    query ApiTxs($safe: Address!) {
-  txs(safe: $safe) {
+    query ApiTxs($account: Address!) {
+  txs(account: $account) {
     ...TxFields
   }
 }
@@ -4378,7 +4344,7 @@ export const ApiTxsDocument = gql`
  * @example
  * const { data, loading, error } = useApiTxsQuery({
  *   variables: {
- *      safe: // value for 'safe'
+ *      account: // value for 'account'
  *   },
  * });
  */
@@ -4394,8 +4360,8 @@ export type ApiTxsQueryHookResult = ReturnType<typeof useApiTxsQuery>;
 export type ApiTxsLazyQueryHookResult = ReturnType<typeof useApiTxsLazyQuery>;
 export type ApiTxsQueryResult = Apollo.QueryResult<ApiTxsQuery, ApiTxsQueryVariables>;
 export const CommentsDocument = gql`
-    query Comments($safe: Address!, $key: Id!) {
-  comments(safe: $safe, key: $key) {
+    query Comments($account: Address!, $key: Id!) {
+  comments(account: $account, key: $key) {
     ...CommentFields
   }
 }
@@ -4413,7 +4379,7 @@ export const CommentsDocument = gql`
  * @example
  * const { data, loading, error } = useCommentsQuery({
  *   variables: {
- *      safe: // value for 'safe'
+ *      account: // value for 'account'
  *      key: // value for 'key'
  *   },
  * });
@@ -4500,3 +4466,37 @@ export function useContractMethodLazyQuery(baseOptions?: Apollo.LazyQueryHookOpt
 export type ContractMethodQueryHookResult = ReturnType<typeof useContractMethodQuery>;
 export type ContractMethodLazyQueryHookResult = ReturnType<typeof useContractMethodLazyQuery>;
 export type ContractMethodQueryResult = Apollo.QueryResult<ContractMethodQuery, ContractMethodQueryVariables>;
+export const UserWalletsDocument = gql`
+    query UserWallets {
+  userWallets {
+    ...WalletFields
+  }
+}
+    ${WalletFieldsFragmentDoc}`;
+
+/**
+ * __useUserWalletsQuery__
+ *
+ * To run a query within a React component, call `useUserWalletsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useUserWalletsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useUserWalletsQuery({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useUserWalletsQuery(baseOptions?: Apollo.QueryHookOptions<UserWalletsQuery, UserWalletsQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<UserWalletsQuery, UserWalletsQueryVariables>(UserWalletsDocument, options);
+      }
+export function useUserWalletsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<UserWalletsQuery, UserWalletsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<UserWalletsQuery, UserWalletsQueryVariables>(UserWalletsDocument, options);
+        }
+export type UserWalletsQueryHookResult = ReturnType<typeof useUserWalletsQuery>;
+export type UserWalletsLazyQueryHookResult = ReturnType<typeof useUserWalletsLazyQuery>;
+export type UserWalletsQueryResult = Apollo.QueryResult<UserWalletsQuery, UserWalletsQueryVariables>;

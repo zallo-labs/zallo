@@ -17,7 +17,7 @@ import {
   getChain,
   MULTICALL_ADDRS,
   PROXY_FACTORY_ADDRS,
-  SAFE_IMPL_ADDRS,
+  ACCOUNT_IMPL_ADDRS,
 } from 'lib';
 
 // Ethers uses long timers; these tasks WON'T be executed when the app is in the background but will resume once re-opened
@@ -30,7 +30,7 @@ export const PROVIDER = new zk.Provider(CHAIN.zksyncUrl);
 
 export const CHAIN_ID = PROVIDER?.network?.chainId ?? 280;
 
-export const SAFE_IMPL = address(SAFE_IMPL_ADDRS[CHAIN.name]!);
+export const ACCOUNT_IMPL = address(ACCOUNT_IMPL_ADDRS[CHAIN.name]!);
 export const PROXY_FACTORY_ADDR = address(PROXY_FACTORY_ADDRS[CHAIN.name]!);
 export const MULTICALL_ADDR = address(MULTICALL_ADDRS[CHAIN.name]!);
 

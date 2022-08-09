@@ -1,5 +1,5 @@
 import { ApolloQueryResult, gql, useQuery } from '@apollo/client';
-import { useSafe } from '@features/safe/SafeProvider';
+import { useAccount } from '@features/account/AccountProvider';
 import {
   ContractMethodQuery,
   ContractMethodQueryVariables,
@@ -9,10 +9,10 @@ import { Contract } from 'ethers';
 import { ethers } from 'ethers';
 import { BytesLike } from 'ethers';
 import { FunctionFragment } from 'ethers/lib/utils';
-import { Address, Safe__factory } from 'lib';
+import { Address, Account__factory } from 'lib';
 import { useCallback } from 'react';
 
-const SAFE_INTERFACE = Safe__factory.createInterface();
+const ACCOUNT_INTERFACE = Account__factory.createInterface();
 
 const API_QUERY = gql`
   query ContractMethod($contract: Address!, $sighash: Bytes!) {
@@ -29,13 +29,13 @@ export const getDataSighash = (data: BytesLike): string =>
 const transform = (
   data: ApolloQueryResult<ContractMethodQuery>['data'] | undefined,
   sighash: string,
-  isSafe: boolean,
+  isAccount: boolean,
 ) => {
   const methodFragment: FunctionFragment | undefined =
     sighash === '0x'
       ? undefined
-      : isSafe
-      ? SAFE_INTERFACE.getFunction(sighash as any)
+      : isAccount
+      ? ACCOUNT_INTERFACE.getFunction(sighash as any)
       : data?.contractMethod?.fragment
       ? FunctionFragment.from(JSON.parse(data.contractMethod.fragment))
       : undefined;
@@ -51,9 +51,9 @@ const transform = (
 };
 
 export const useContractMethod = (contract: Address, funcData: BytesLike) => {
-  const { contract: safe } = useSafe();
+  const { contract: account } = useAccount();
 
-  const isSafe = contract === safe.address;
+  const isAccount = contract === account.address;
   const sighash = getDataSighash(funcData);
 
   const res = useQuery<ContractMethodQuery, ContractMethodQueryVariables>(
@@ -64,16 +64,16 @@ export const useContractMethod = (contract: Address, funcData: BytesLike) => {
     },
   );
 
-  return transform(res?.data, sighash, isSafe);
+  return transform(res?.data, sighash, isAccount);
 };
 
 export const useLazyContractMethod = () => {
-  const { contract: safe } = useSafe();
+  const { contract: account } = useAccount();
   const client = useApiClient();
 
   const get = useCallback(
     async (contract: Address, funcData: BytesLike) => {
-      const isSafe = contract === safe.address;
+      const isAccount = contract === account.address;
       const sighash = getDataSighash(funcData);
 
       const result = await client.query<
@@ -84,9 +84,9 @@ export const useLazyContractMethod = () => {
         variables: { contract, sighash },
       });
 
-      return transform(result?.data, sighash, isSafe);
+      return transform(result?.data, sighash, isAccount);
     },
-    [safe.address, client],
+    [account.address, client],
   );
 
   return get;

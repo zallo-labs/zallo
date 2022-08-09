@@ -11,7 +11,7 @@ import {
   deploy,
   deployer,
   provider as provider,
-  wallet,
+  device,
   getSigners,
 } from './util';
 
@@ -24,25 +24,25 @@ describe('executeTransaction', () => {
   });
 
   it('should revert when not called by the bootloader', async () => {
-    const { safe, account, quorum } = await deploy();
+    const { account, wallet, quorum } = await deploy();
 
-    const tx = createTx({ to: wallet.address });
-    const signers = await getSigners(safe, quorum, tx);
-    const txReq = await toTransactionRequest(safe, tx, account, signers);
+    const tx = createTx({ to: device.address });
+    const signers = await getSigners(account, quorum, tx);
+    const txReq = await toTransactionRequest(account, tx, wallet, signers);
 
-    const txResp = safe.executeTransaction(toTransactionStruct(txReq));
+    const txResp = account.executeTransaction(toTransactionStruct(txReq));
 
     await expect(txResp).to.be.reverted;
   });
 
   it('should successfully execute a transaction with a single approver', async () => {
-    const { safe, account, quorum } = await deploy(1);
+    const { account, wallet, quorum } = await deploy(1);
 
     const to = tester.address;
     const startingBalance = await provider.getBalance(to);
 
     const value = 1;
-    const txResp = await execute(safe, account, quorum, {
+    const txResp = await execute(account, wallet, quorum, {
       to,
       value,
     });
@@ -52,21 +52,21 @@ describe('executeTransaction', () => {
   });
 
   it('should successfully execute a transaction with mutliple approvers', async () => {
-    const { safe, account, quorum } = await deploy(5);
+    const { account, wallet, quorum } = await deploy(5);
 
-    const tx = createTx({ to: wallet.address });
+    const tx = createTx({ to: device.address });
 
-    const txResp = await execute(safe, account, quorum, tx);
+    const txResp = await execute(account, wallet, quorum, tx);
     await txResp.wait();
   });
 
   it('should set the transaction as executed', async () => {
-    const { safe, account, quorum } = await deploy();
+    const { account, wallet, quorum } = await deploy();
 
     const tx = createTx({ to: tester.address });
-    const txResp = await execute(safe, account, quorum, tx);
+    const txResp = await execute(account, wallet, quorum, tx);
     await txResp.wait();
 
-    expect(await safe.hasBeenExecuted(await hashTx(safe, tx))).to.be.true;
+    expect(await account.hasBeenExecuted(await hashTx(account, tx))).to.be.true;
   });
 });

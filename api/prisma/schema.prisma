@@ -22,13 +22,13 @@ model User {
   approvers Approver[]
 }
 
-model Safe {
+model Account {
   id         String  @id @db.Char(42) // address
   name       String  @default("")
   deploySalt String? @db.Char(66) // bytes32
   impl       String? @db.Char(42) // address
 
-  accounts  Account[]
+  wallets   Wallet[]
   quorums   Quorum[]
   txs       Tx[]
   approvals Approval[]
@@ -37,51 +37,51 @@ model Safe {
   approvers Approver[]
 }
 
-model Account {
-  safe   Safe   @relation(fields: [safeId], references: [id], onDelete: Cascade)
-  safeId String @db.Char(42) // address
-  ref    String @db.Char(10) // bytes4
-  name   String @default("")
+model Wallet {
+  account   Account @relation(fields: [accountId], references: [id], onDelete: Cascade)
+  accountId String  @db.Char(42) // address
+  ref       String  @db.Char(10) // bytes4
+  name      String  @default("")
 
   // Tx
   txHash String? @db.Char(66) // bytes32
-  tx     Tx?     @relation(fields: [safeId, txHash], references: [safeId, hash])
+  tx     Tx?     @relation(fields: [accountId, txHash], references: [accountId, hash])
 
   quorums   Quorum[]
   approvers Approver[]
 
-  @@id([safeId, ref])
-  @@unique([safeId, txHash])
+  @@id([accountId, ref])
+  @@unique([accountId, txHash])
 }
 
 model Quorum {
-  safe       Safe    @relation(fields: [safeId], references: [id], onDelete: Cascade)
-  safeId     String  @db.Char(42) // address
-  account    Account @relation(fields: [safeId, accountRef], references: [safeId, ref], onDelete: Cascade)
-  accountRef String  @db.Char(10) // bytes4
-  hash       String  @db.Char(66) // bytes32
+  account   Account @relation(fields: [accountId], references: [id], onDelete: Cascade)
+  accountId String  @db.Char(42) // address
+  wallet    Wallet  @relation(fields: [accountId, walletRef], references: [accountId, ref], onDelete: Cascade)
+  walletRef String  @db.Char(10) // bytes4
+  hash      String  @db.Char(66) // bytes32
 
   // Tx
   txHash String? @db.Char(66) // bytes32
-  tx     Tx?     @relation(fields: [safeId, txHash], references: [safeId, hash])
+  tx     Tx?     @relation(fields: [accountId, txHash], references: [accountId, hash])
 
   approvers Approver[]
 
-  @@id([safeId, accountRef, hash])
-  @@unique([safeId, txHash])
+  @@id([accountId, walletRef, hash])
+  @@unique([accountId, txHash])
 }
 
 model Approver {
-  safe       Safe    @relation(fields: [safeId], references: [id], onDelete: Cascade)
-  safeId     String  @db.Char(42) // address
-  account    Account @relation(fields: [safeId, accountRef], references: [safeId, ref], onDelete: Cascade)
-  accountRef String  @db.Char(10) // bytes4
-  quorum     Quorum  @relation(fields: [safeId, accountRef, quorumHash], references: [safeId, accountRef, hash], onDelete: Cascade)
+  account    Account @relation(fields: [accountId], references: [id], onDelete: Cascade)
+  accountId  String  @db.Char(42) // address
+  wallet     Wallet  @relation(fields: [accountId, walletRef], references: [accountId, ref], onDelete: Cascade)
+  walletRef  String  @db.Char(10) // bytes4
+  quorum     Quorum  @relation(fields: [accountId, walletRef, quorumHash], references: [accountId, walletRef, hash], onDelete: Cascade)
   quorumHash String  @db.Char(66) // bytes32
   user       User    @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId     String  @db.Char(42) // address
 
-  @@id([safeId, accountRef, quorumHash, userId])
+  @@id([accountId, walletRef, quorumHash, userId])
 }
 
 model Contact {
@@ -104,29 +104,29 @@ model ContractMethod {
 }
 
 model Tx {
-  safe   Safe   @relation(fields: [safeId], references: [id], onDelete: Cascade)
-  safeId String @db.Char(42) // address
-  hash   String @db.Char(66) // bytes32
-  to     String @db.Char(42) // address
-  value  String //@db.Decimal(79, 0) // uint256
-  data   String // bytes
-  salt   String @db.Char(18) // bytes8
+  account   Account @relation(fields: [accountId], references: [id], onDelete: Cascade)
+  accountId String  @db.Char(42) // address
+  hash      String  @db.Char(66) // bytes32
+  to        String  @db.Char(42) // address
+  value     String //@db.Decimal(79, 0) // uint256
+  data      String // bytes
+  salt      String  @db.Char(18) // bytes8
 
   approvals   Approval[]
   createdAt   DateTime     @default(now())
   submissions Submission[]
 
   // Operations
-  accountTx Account?
-  quorumTx  Quorum?
+  walletTx Wallet?
+  quorumTx Quorum?
 
-  @@id([safeId, hash])
+  @@id([accountId, hash])
 }
 
 model Submission {
   hash      String   @id @db.Char(66) // bytes32
-  tx        Tx       @relation(fields: [safeId, txHash], references: [safeId, hash], onDelete: Cascade)
-  safeId    String   @db.Char(42) // address
+  tx        Tx       @relation(fields: [accountId, txHash], references: [accountId, hash], onDelete: Cascade)
+  accountId String   @db.Char(42) // address
   txHash    String   @db.Char(66) // bytes32
   createdAt DateTime @default(now())
   nonce     Int
@@ -138,21 +138,21 @@ model Submission {
 model Approval {
   user      User     @relation(fields: [userId], references: [id])
   userId    String   @db.Char(42) // address
-  safe      Safe     @relation(fields: [safeId], references: [id], onDelete: Cascade)
-  safeId    String   @db.Char(42) // address
-  tx        Tx       @relation(fields: [safeId, txHash], references: [safeId, hash], onDelete: Cascade)
+  account   Account  @relation(fields: [accountId], references: [id], onDelete: Cascade)
+  accountId String   @db.Char(42) // address
+  tx        Tx       @relation(fields: [accountId, txHash], references: [accountId, hash], onDelete: Cascade)
   txHash    String   @db.Char(66) // bytes32
   signature String // bytes
   createdAt DateTime @default(now())
 
-  @@id([safeId, txHash, userId])
+  @@id([accountId, txHash, userId])
 }
 
 model Comment {
-  safe   Safe   @relation(fields: [safeId], references: [id], onDelete: Cascade)
-  safeId String @db.Char(42) // address
-  key    String
-  nonce  Int    @default(autoincrement())
+  account   Account @relation(fields: [accountId], references: [id], onDelete: Cascade)
+  accountId String  @db.Char(42) // address
+  key       String
+  nonce     Int     @default(autoincrement())
 
   author    User     @relation(fields: [authorId], references: [id], onDelete: Cascade)
   authorId  String   @db.Char(42) // address
@@ -162,22 +162,22 @@ model Comment {
 
   reactions Reaction[]
 
-  @@id([safeId, key, nonce])
-  @@index([safeId, key])
+  @@id([accountId, key, nonce])
+  @@index([accountId, key])
 }
 
 model Reaction {
-  safe   Safe   @relation(fields: [safeId], references: [id], onDelete: Cascade)
-  safeId String @db.Char(42) // address
-  key    String
-  nonce  Int
+  account   Account @relation(fields: [accountId], references: [id], onDelete: Cascade)
+  accountId String  @db.Char(42) // address
+  key       String
+  nonce     Int
 
-  comment   Comment  @relation(fields: [safeId, key, nonce], references: [safeId, key, nonce], onDelete: Cascade)
+  comment   Comment  @relation(fields: [accountId, key, nonce], references: [accountId, key, nonce], onDelete: Cascade)
   user      User     @relation(fields: [userId], references: [id])
   userId    String   @db.Char(42) // address
   emojis    String[]
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt()
 
-  @@id([safeId, key, nonce, userId])
+  @@id([accountId, key, nonce, userId])
 }

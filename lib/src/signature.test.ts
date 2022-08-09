@@ -4,24 +4,24 @@ import { ZERO_ADDR } from './addr';
 import { hexDataLength } from 'ethers/lib/utils';
 import { signTx, validateSignature } from './signature';
 
-const wallet = zk.Wallet.createRandom();
-const safe = ZERO_ADDR;
+const device = zk.Wallet.createRandom();
+const account = ZERO_ADDR;
 
 const tx = createTx({
-  to: wallet.address,
+  to: device.address,
   data: '0x12',
   value: 231,
 });
 
 describe('signature', () => {
   it('signing should return a 64B signature', async () => {
-    const signature = await signTx(wallet, safe, tx);
+    const signature = await signTx(device, account, tx);
     expect(hexDataLength(signature)).toBe(64);
   });
 
   it('signature should successfully validate', async () => {
-    const signature = await signTx(wallet, safe, tx);
-    const txHash = await hashTx(safe, tx);
-    expect(validateSignature(wallet.address, txHash, signature)).toBeTruthy;
+    const signature = await signTx(device, account, tx);
+    const txHash = await hashTx(account, tx);
+    expect(validateSignature(device.address, txHash, signature)).toBeTruthy;
   });
 });

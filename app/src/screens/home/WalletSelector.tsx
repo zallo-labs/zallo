@@ -7,18 +7,18 @@ import {
   PagerViewOnPageSelectedEvent,
 } from 'react-native-pager-view';
 import {
-  useSelectAccount,
-  useSelectedAccount,
-} from '~/components2/account/useSelectedAccount';
+  useSelectWallet,
+  useSelectedWallet,
+} from '~/components2/wallet/useSelectedWallet';
 import { Indicator } from '~/components2/Indicator/Indicator';
 import { WalletCard, WALLET_CARD_HEIGHT } from '~/components2/WalletCard';
-import { useAccounts } from '~/queries/accounts/useAccounts';
+import { useWallets } from '~/queries/wallets/useWallets';
 
 export const WalletSelector = () => {
-  const { accounts: wallets } = useAccounts();
+  const { wallets: wallets } = useWallets();
   const styles = useStyles();
-  const selected = useSelectedAccount();
-  const select = useSelectAccount();
+  const selected = useSelectedWallet();
+  const select = useSelectWallet();
 
   const [position, setPosition] = useState(() =>
     wallets.findIndex((w) => w.id === selected.id),

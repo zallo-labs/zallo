@@ -2,11 +2,11 @@ specVersion: 0.0.5
 schema:
   file: ./schema.graphql
 dataSources:
-  - name: Safe
+  - name: Account
     kind: ethereum/contract
     network: {{network}}
     source:
-      abi: Safe
+      abi: Account
       startBlock: {{startBlock}}
     mapping:
       kind: ethereum/events
@@ -14,10 +14,10 @@ dataSources:
       language: wasm/assemblyscript
       file: ./src/mapping.ts
       abis:
-        - name: Safe
-          file: ./generated/Safe-fixed.json
+        - name: Account
+          file: ./generated/Account-fixed.json
       entities:
-        - Safe
+        - Account
         - Tx
         - Approver
         - Group
@@ -27,10 +27,10 @@ dataSources:
           handler: handleTxExecuted
         - event: TxReverted(bytes32,bytes)
           handler: handleTxReverted
-        - event: AccountUpserted(bytes4,bytes[])
-          handler: handleAccountUpserted
-        - event: AccountRemoved(bytes4)
-          handler: handleAccountRemoved
+        - event: WalletUpserted(bytes4,bytes[])
+          handler: handleWalletUpserted
+        - event: WalletRemoved(bytes4)
+          handler: handleWalletRemoved
   - name: ERC1967Proxy
     kind: ethereum/contract
     network: {{network}}
@@ -46,8 +46,8 @@ dataSources:
         - name: ERC1967Proxy
           file: ../contracts/abi/ERC1967Proxy.json
       entities:
-        - Safe
-        - SafeImpl
+        - Account
+        - AccountImpl
       eventHandlers:
         - event: Upgraded(indexed address)
           handler: handleUpgraded

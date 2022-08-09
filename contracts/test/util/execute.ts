@@ -3,17 +3,17 @@ import {
   executeTx,
   mapAsync,
   TxReq,
-  Safe,
+  Account,
   signTx,
   Signerish,
   TxDef,
   Quorum,
-  Account,
+  Wallet,
 } from 'lib';
 import { allSigners } from './wallet';
 
 export const getSigners = async (
-  safe: Safe,
+  account: Account,
   quorum: Quorum,
   tx: TxReq,
 ): Promise<Signerish[]> =>
@@ -21,24 +21,24 @@ export const getSigners = async (
     approver,
     signature: await signTx(
       allSigners.find((w) => w.address === approver)!,
-      safe.address,
+      account.address,
       tx,
     ),
   }));
 
 export const execute = async (
-  safe: Safe,
   account: Account,
+  wallet: Wallet,
   quorum: Quorum,
   txDef: TxDef,
 ) => {
   const tx = createTx(txDef);
-  const signers = await getSigners(safe, quorum, tx);
+  const signers = await getSigners(account, quorum, tx);
 
   return await executeTx(
-    safe,
-    tx,
     account,
+    tx,
+    wallet,
     signers,
     // { customData: { feeToken: USDC } }
   );

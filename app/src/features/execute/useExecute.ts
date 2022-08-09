@@ -1,4 +1,4 @@
-import { useWallet } from '@features/wallet/useWallet';
+import { useDevice } from '@features/device/useDevice';
 import { MaybePromise } from 'lib';
 import { useCallback } from 'react';
 import { useApproveTx } from '../../mutations/tx/useApproveTx.api';
@@ -21,7 +21,7 @@ const asEf = (step: ExecuteStep, f: ExecuteFuncBase) => {
 };
 
 export const useGetExecute = () => {
-  const wallet = useWallet();
+  const device = useDevice();
   const approve = useApproveTx();
   const getGroupsApproved = useGetGroupsApproved();
   const submit = useSubmitExecute();
@@ -36,7 +36,7 @@ export const useGetExecute = () => {
 
       // Approve if user hasn't approved
       const userHasApproved = !!tx.approvals.find(
-        (a) => a.addr === wallet.address,
+        (a) => a.addr === device.address,
       );
       if (!userHasApproved) return asEf('approve', () => approve(tx));
 
@@ -51,7 +51,7 @@ export const useGetExecute = () => {
 
       return asEf('execute', () => submit(tx, group));
     },
-    [getGroupsApproved, propose, wallet.address, approve, submit],
+    [getGroupsApproved, propose, device.address, approve, submit],
   );
 
   return getExecute;

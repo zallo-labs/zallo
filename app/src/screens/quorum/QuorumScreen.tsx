@@ -8,7 +8,7 @@ import { useAppbarHeader } from '~/components2/Appbar/useAppbarHeader';
 import { useGoBack } from '~/components2/Appbar/useGoBack';
 import { AddrCard } from '~/components2/addr/AddrCard';
 import { RootNavigatorScreenProps } from '~/navigation/RootNavigator';
-import { CombinedQuorum } from '~/queries/accounts';
+import { CombinedQuorum } from '~/queries/wallets';
 import { useMemo, useState } from 'react';
 import { AppbarFAB } from '~/components2/Appbar/AppbarFAB';
 import _ from 'lodash';

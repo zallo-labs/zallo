@@ -1,6 +1,6 @@
 import { gql, useQuery } from '@apollo/client';
-import { useSafe } from '@features/safe/SafeProvider';
-import { useWallet } from '@features/wallet/useWallet';
+import { useAccount } from '@features/account/AccountProvider';
+import { useDevice } from '@features/device/useDevice';
 import { ApiTxsQuery, ApiTxsQueryVariables } from '@gql/generated.api';
 import { useApiClient } from '@gql/GqlProvider';
 import { BigNumber } from 'ethers';
@@ -26,7 +26,7 @@ export const API_TX_FIELDS = gql`
 
   fragment TxFields on Tx {
     id
-    safeId
+    accountId
     hash
     to
     value
@@ -47,22 +47,22 @@ export const API_TX_FIELDS = gql`
 export const API_GET_TXS_QUERY = gql`
   ${API_TX_FIELDS}
 
-  query ApiTxs($safe: Address!) {
-    txs(safe: $safe) {
+  query ApiTxs($account: Address!) {
+    txs(account: $account) {
       ...TxFields
     }
   }
 `;
 
 export const useApiProposedTxs = () => {
-  const { contract: safe } = useSafe();
-  const wallet = useWallet();
+  const { contract: account } = useAccount();
+  const device = useDevice();
 
   const { data, ...rest } = useQuery<ApiTxsQuery, ApiTxsQueryVariables>(
     API_GET_TXS_QUERY,
     {
       client: useApiClient(),
-      variables: { safe: safe.address },
+      variables: { account: account.address },
       pollInterval: QUERY_TXS_POLL_INTERVAL,
     },
   );
@@ -87,7 +87,7 @@ export const useApiProposedTxs = () => {
           data: tx.data,
           salt: toTxSalt(tx.salt),
           approvals,
-          userHasApproved: !!approvals.find((a) => a.addr === wallet.address),
+          userHasApproved: !!approvals.find((a) => a.addr === device.address),
           submissions:
             tx.submissions?.map((s) => ({
               hash: s.hash,
@@ -104,7 +104,7 @@ export const useApiProposedTxs = () => {
             : TxStatus.Proposed,
         };
       }) ?? [],
-    [data, wallet.address],
+    [data, device.address],
   );
 
   return { proposedTxs, ...rest };

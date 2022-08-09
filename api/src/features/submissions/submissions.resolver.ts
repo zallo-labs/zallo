@@ -27,12 +27,12 @@ export class SubmissionsResolver {
 
   @Query(() => [Submission])
   async submissions(
-    @Args() { safe, txHash }: SubmissionsArgs,
+    @Args() { account, txHash }: SubmissionsArgs,
     @Info() info: GraphQLResolveInfo,
   ): Promise<Submission[]> {
     const submissions = await this.prisma.tx
       .findUnique({
-        where: { safeId_hash: { safeId: safe, hash: txHash } },
+        where: { accountId_hash: { accountId: account, hash: txHash } },
       })
       .submissions({
         ...getSelect(info),
@@ -48,10 +48,10 @@ export class SubmissionsResolver {
 
   @Mutation(() => Submission)
   async submitTxExecution(
-    @Args() { safe, txHash, submission }: SubmitTxExecutionArgs,
+    @Args() { account, txHash, submission }: SubmitTxExecutionArgs,
     @Info() info: GraphQLResolveInfo,
   ): Promise<Submission> {
-    if (!(await this.isValid(safe, txHash, submission.hash)))
+    if (!(await this.isValid(account, txHash, submission.hash)))
       throw new UserInputError("Submission doesn't match transaction");
 
     const transaction = await this.provider.getTransaction(submission.hash);
@@ -60,7 +60,7 @@ export class SubmissionsResolver {
     return await this.prisma.submission.create({
       data: {
         tx: {
-          connect: { safeId_hash: { safeId: safe, hash: txHash } },
+          connect: { accountId_hash: { accountId: account, hash: txHash } },
         },
         hash: submission.hash,
         nonce: transaction.nonce,
@@ -72,7 +72,11 @@ export class SubmissionsResolver {
     });
   }
 
-  private async isValid(safe: Address, txHash: string, submissionHash: string) {
+  private async isValid(
+    account: Address,
+    txHash: string,
+    submissionHash: string,
+  ) {
     // TODO: verify submission is valid
     return true;
   }

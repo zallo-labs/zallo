@@ -1,5 +1,5 @@
 import { gql, useMutation } from '@apollo/client';
-import { useWallet } from '@features/wallet/useWallet';
+import { useDevice } from '@features/device/useDevice';
 import {
   ApproveTxMutation,
   ApproveTxMutationVariables,
@@ -12,23 +12,27 @@ import produce from 'immer';
 import { signTx, toId } from 'lib';
 import { DateTime } from 'luxon';
 import { useCallback } from 'react';
-import { useSelectedAccount } from '~/components2/account/useSelectedAccount';
+import { useSelectedWallet } from '~/components2/wallet/useSelectedWallet';
 import { Tx } from '~/queries/tx';
 import { API_TX_FIELDS, API_GET_TXS_QUERY } from '~/queries/tx/useTxs.api';
 
 const MUTATION = gql`
   ${API_TX_FIELDS}
 
-  mutation ApproveTx($safe: Address!, $txHash: Bytes32!, $signature: Bytes!) {
-    approve(safe: $safe, txHash: $txHash, signature: $signature) {
+  mutation ApproveTx(
+    $account: Address!
+    $txHash: Bytes32!
+    $signature: Bytes!
+  ) {
+    approve(account: $account, txHash: $txHash, signature: $signature) {
       id
     }
   }
 `;
 
 export const useApproveTx = () => {
-  const { safeAddr } = useSelectedAccount();
-  const wallet = useWallet();
+  const { accountAddr } = useSelectedWallet();
+  const device = useDevice();
 
   const [mutate] = useMutation<ApproveTxMutation, ApproveTxMutationVariables>(
     MUTATION,
@@ -37,11 +41,11 @@ export const useApproveTx = () => {
 
   const approve = useCallback(
     async (tx: Tx) => {
-      const signature = await signTx(wallet, safeAddr, tx);
+      const signature = await signTx(device, accountAddr, tx);
 
       return await mutate({
         variables: {
-          safe: safeAddr,
+          account: accountAddr,
           txHash: tx.hash,
           signature,
         },
@@ -51,7 +55,7 @@ export const useApproveTx = () => {
 
           const opts = {
             query: API_GET_TXS_QUERY,
-            variables: { safe: safeAddr },
+            variables: { account: accountAddr },
           };
           const data = cache.readQuery<ApiTxsQuery, ApiTxsQueryVariables>(
             opts,
@@ -69,7 +73,7 @@ export const useApproveTx = () => {
                 ...(data.txs[i].approvals ?? []),
                 {
                   __typename: 'Approval',
-                  userId: wallet.address,
+                  userId: device.address,
                   createdAt: DateTime.now().toISO(),
                   signature,
                 },
@@ -80,12 +84,12 @@ export const useApproveTx = () => {
         optimisticResponse: {
           approve: {
             __typename: 'Tx',
-            id: toId(`${safeAddr}-${tx.hash}`),
+            id: toId(`${accountAddr}-${tx.hash}`),
           },
         },
       });
     },
-    [mutate, safeAddr, wallet],
+    [mutate, accountAddr, device],
   );
 
   return approve;
