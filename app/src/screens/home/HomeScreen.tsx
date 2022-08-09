@@ -14,7 +14,6 @@ import { useTokens } from '~/token/useToken';
 import { useTokenValues } from '~/token/useTokenValues';
 import { HomeAppbar } from './HomeAppbar';
 import { WalletSelector } from './WalletSelector';
-import { sortBy } from 'lodash';
 import { withSkeleton } from '@components/skeleton/withSkeleton';
 import { ListScreenSkeleton } from '@components/skeleton/ListScreenSkeleton';
 
@@ -27,7 +26,10 @@ export const HomeScreen = withSkeleton(() => {
   const selectToken = useSelectToken();
 
   const tokens = useMemo(
-    () => sortBy(allTokens, (t) => t.addr === selectedToken.addr),
+    () => [
+      selectedToken,
+      ...allTokens.filter((t) => t.addr !== selectedToken.addr),
+    ],
     [allTokens, selectedToken],
   );
 
@@ -58,7 +60,11 @@ export const HomeScreen = withSkeleton(() => {
               change
               remaining
               selected={index === 0}
-              onPress={() => selectToken(item)}
+              onLongPress={() => selectToken(item)}
+              onPress={() => {
+                // onPress is required to be set for onLongPress to work in RNP
+                // https://github.com/callstack/react-native-paper/issues/3303
+              }}
             />
           </Box>
         )}
