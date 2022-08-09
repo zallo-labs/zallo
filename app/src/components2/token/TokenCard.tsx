@@ -6,28 +6,37 @@ import { TokenIcon } from '@components/token/TokenIcon';
 import { TokenValue } from '@components/token/TokenValue';
 import { makeStyles } from '@util/theme/makeStyles';
 import { BigNumber } from 'ethers';
-import { StyleSheet } from 'react-native';
 import { Text } from 'react-native-paper';
 import { useTokenPrice } from '~/queries/useTokenPrice.uni';
 import { Token } from '~/token/token';
 import { useTokenBalance } from '~/token/useTokenBalance';
 import { useTokenValue } from '~/token/useTokenValue';
-import { CardItem } from '../card/CardItem';
+import { CardItem, CardItemProps } from '../card/CardItem';
 
-export interface TokenCardProps {
+export interface TokenCardProps extends CardItemProps {
   token: Token;
   price?: boolean;
   change?: boolean;
   fiatAmount?: boolean;
   amount?: BigNumber | 'balance';
   remaining?: boolean;
+  selected?: boolean;
 }
 
-export const TokenCard = ({ token: t, ...props }: TokenCardProps) => {
+export const TokenCard = ({
+  token: t,
+  selected,
+  price: showPrice,
+  change: showChange,
+  fiatAmount: showFiatAmount,
+  amount: amountProp,
+  remaining: showRemaining,
+  ...props
+}: TokenCardProps) => {
   const styles = useStyles();
   const { price } = useTokenPrice(t);
   const balance = useTokenBalance(t);
-  const amount = (props.amount !== 'balance' && props.amount) || balance;
+  const amount = (amountProp !== 'balance' && amountProp) || balance;
   const { fiatValue } = useTokenValue(t, amount);
 
   return (
@@ -35,13 +44,13 @@ export const TokenCard = ({ token: t, ...props }: TokenCardProps) => {
       Left={<TokenIcon token={t} />}
       Main={[
         <Text variant="titleMedium">{t.name}</Text>,
-        props.price && (
+        showPrice && (
           <Container horizontal separator={<Box mx={1} />}>
             <Text variant="bodyMedium">
               <FiatValue value={price.current} />
             </Text>
 
-            {props.change && (
+            {showChange && (
               <Text variant="bodyMedium">
                 <PriceChange change={price.change} />
               </Text>
@@ -50,7 +59,7 @@ export const TokenCard = ({ token: t, ...props }: TokenCardProps) => {
         ),
       ]}
       Right={[
-        props.fiatAmount && (
+        showFiatAmount && (
           <Text variant="titleSmall">
             <FiatValue value={fiatValue} />
           </Text>
@@ -60,17 +69,22 @@ export const TokenCard = ({ token: t, ...props }: TokenCardProps) => {
             <TokenValue token={t} value={amount} symbol={false} />
           </Text>
         ),
-        props.remaining && (
+        showRemaining && (
           <Text variant="bodyMedium" style={styles.opaqueText}>
             /xxx
           </Text>
         ),
       ]}
+      {...props}
+      {...(selected && { style: [props.style, styles.selected] })}
     />
   );
 };
 
 const useStyles = makeStyles(({ colors }) => ({
+  selected: {
+    backgroundColor: colors.surfaceVariant,
+  },
   opaqueText: {
     color: colors.onSurfaceOpaque,
   },
