@@ -6,6 +6,10 @@
     "production": {
       "channel": "production",
       "node": "16.14.2",
+      "android": {
+        "serviceAccountKeyPath": "./play-service-account.secret.json",
+        "track": "internal"
+      },
       "env": {
         "ENTRY_FILE": "./__generated__/AppEntry.js",
         "CHAIN": "testnet"

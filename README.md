@@ -1,5 +1,10 @@
 # AlloPay
 
+## Configuration
+
+- See .env.template
+- app/play-service-account.secret.json
+
 ## Setup
 
 ```bash
