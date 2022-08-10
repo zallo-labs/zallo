@@ -6,6 +6,7 @@
 **/generated
 **/node_modules
 **/__generated__
+**/*.secret.*
 
 # Yarn
 **/.yarn/*
