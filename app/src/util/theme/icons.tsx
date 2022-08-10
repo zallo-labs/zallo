@@ -58,3 +58,4 @@ export const BackIcon = material('arrow-back');
 export const NextIcon = material('arrow-forward');
 export const IssueIcon = materialCommunity('github');
 export const FeedbackIcon = materialCommunity('chat');
+export const TokenIcon = materialCommunity('currency-eth');

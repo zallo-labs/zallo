@@ -8,6 +8,7 @@ import {
   FeedbackIcon,
   IssueIcon,
   SettingsIcon,
+  TokenIcon,
   WalletIcon,
 } from '@util/theme/icons';
 import { useCallback } from 'react';
@@ -35,6 +36,11 @@ export const DrawerContent = ({ navigation }: DrawerContentProps) => {
           label="Contacts"
           icon={ContactsIcon}
           onPress={() => navigate('Contacts', {})}
+        />
+        <Drawer.Item
+          label="Tokens"
+          icon={TokenIcon}
+          onPress={() => navigate('Tokens', {})}
         />
       </Drawer.Section>
 
