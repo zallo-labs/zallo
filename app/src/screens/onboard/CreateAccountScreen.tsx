@@ -30,7 +30,7 @@ export const CreateAccountScreen = ({ navigation }: CreateAccountScreenProps) =>
   const handleSubmit = useCallback(
     async ({ name }: Values) => {
       await createAccount(name, 'Spending');
-      navigation.navigate('BottomNavigator');
+      navigation.navigate('DrawerNavigator');
     },
     [createAccount, navigation],
   );

@@ -3,7 +3,7 @@ import { AppbarBack } from '@components/AppbarBack';
 import { Box } from '@components/Box';
 import { ListScreenSkeleton } from '@components/skeleton/ListScreenSkeleton';
 import { withSkeleton } from '@components/skeleton/withSkeleton';
-import { SettingsIcon } from '@util/theme/icons';
+import { SettingsOutlineIcon } from '@util/theme/icons';
 import { useTheme } from '@util/theme/paper';
 import { FlatList } from 'react-native';
 import { Appbar, Text } from 'react-native-paper';
@@ -34,7 +34,7 @@ export const WalletScreen = withSkeleton(
           <AppbarBack />
           <Appbar.Content title={wallet.name} />
           <Appbar.Action
-            icon={SettingsIcon}
+            icon={SettingsOutlineIcon}
             onPress={() =>
               navigation.navigate('Configure', { id: route.params.id })
             }

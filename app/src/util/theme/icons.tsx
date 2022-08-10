@@ -25,7 +25,7 @@ const ionicon: Curried<typeof Ionicons> = (name) => (props) =>
 export const ActivityIcon = materialCommunity('chart-timeline-variant');
 export const SendIcon = materialCommunity('arrow-up');
 export const ReceiveIcon = materialCommunity('arrow-down');
-export const ContactsIcon = materialCommunity('contacts');
+export const ContactsIcon = material('people');
 export const HomeIcon = ionicon('wallet');
 
 // Other
@@ -45,11 +45,16 @@ export const CancelIcon = CloseIcon;
 export const SwapIcon = materialCommunity('swap-vertical');
 export const SearchIcon = material('search');
 export const PlusIcon = materialCommunity('plus');
-export const SettingsIcon = materialCommunity('cog-outline');
+export const SettingsIcon = materialCommunity('cog');
+export const SettingsOutlineIcon = materialCommunity('cog-outline');
 export const PayIcon = materialCommunity('contactless-payment');
 export const PayCircleIcon = materialCommunity('contactless-payment-circle');
 export const PayCircleOutlineIcon = materialCommunity(
   'contactless-payment-circle-outline',
 );
+export const AccountIcon = materialCommunity('bank');
+export const WalletIcon = ionicon('md-wallet');
 export const BackIcon = material('arrow-back');
 export const NextIcon = material('arrow-forward');
+export const IssueIcon = materialCommunity('github');
+export const FeedbackIcon = materialCommunity('chat');
