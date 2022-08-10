@@ -1,14 +1,15 @@
 import { gql, useMutation } from '@apollo/client';
-import { useDevice } from '@features/device/useDevice';
 import {
   DeleteContactMutation,
   DeleteContactMutationVariables,
   ContactsQuery,
 } from '@gql/generated.api';
 import { useApiClient } from '@gql/GqlProvider';
-import { toId } from 'lib';
 import { useCallback } from 'react';
-import { Contact, API_CONTACTS_QUERY } from '~/queries/useContacts.api';
+import {
+  Contact,
+  API_CONTACTS_QUERY,
+} from '~/queries/contacts/useContacts.api';
 
 const API_MUTATION = gql`
   mutation DeleteContact($addr: Address!) {
@@ -19,8 +20,6 @@ const API_MUTATION = gql`
 `;
 
 export const useDeleteContact = () => {
-  const device = useDevice();
-
   const [mutation] = useMutation<
     DeleteContactMutation,
     DeleteContactMutationVariables
@@ -35,7 +34,7 @@ export const useDeleteContact = () => {
         optimisticResponse: {
           deleteContact: {
             __typename: 'DeleteContactResp',
-            id: toId(`${device.address}-${contact.addr}`),
+            id: contact.id,
           },
         },
         update: (cache) => {
@@ -55,7 +54,7 @@ export const useDeleteContact = () => {
           });
         },
       }),
-    [mutation, device.address],
+    [mutation],
   );
 
   return del;

@@ -2,7 +2,7 @@ import { FAB } from 'react-native-paper';
 import { useNavigation } from '@react-navigation/native';
 import { ContactsScreenProps } from './ContactsScreen';
 import { tryAddress } from 'lib';
-import { useContacts } from '~/queries/useContacts.api';
+import { useContacts } from '~/queries/contacts/useContacts.api';
 
 export interface CreateContactButtonProps {
   input: string;

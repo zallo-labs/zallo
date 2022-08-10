@@ -5,7 +5,7 @@ import { useApiClient } from '@gql/GqlProvider';
 import { truncatedAddr } from '@util/format';
 import { address, Address, filterFirst, Id, toId } from 'lib';
 import { useMemo } from 'react';
-import { useAccounts } from './account/useAccounts';
+import { useAccounts } from '../account/useAccounts';
 
 export const API_CONTACT_FIELDS = gql`
   fragment ContactFields on Contact {

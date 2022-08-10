@@ -5,7 +5,7 @@ import { ethers } from 'ethers';
 import FuzzySearch from 'fuzzy-search';
 import { Box } from '@components/Box';
 import { RootNavigatorScreenProps } from '@features/navigation/RootNavigator';
-import { Contact, useContacts } from '~/queries/useContacts.api';
+import { Contact, useContacts } from '~/queries/contacts/useContacts.api';
 import { ContactItem } from './ContactItem';
 import { CreateContactButton } from './CreateContactButton';
 import { SelectAddressButton } from './SelectAddressButton';

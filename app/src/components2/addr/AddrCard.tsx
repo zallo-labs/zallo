@@ -1,7 +1,7 @@
 import { elipseTruncate } from '@util/format';
 import { useMemo } from 'react';
 import { Text } from 'react-native-paper';
-import { useContacts } from '~/queries/useContacts.api';
+import { useContacts } from '~/queries/contacts/useContacts.api';
 import { CardItem, CardItemProps } from '../card/CardItem';
 import { Identicon } from '@components/Identicon';
 import { Address } from 'lib';

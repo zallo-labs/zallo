@@ -11,7 +11,7 @@ import {
   API_CONTACT_FIELDS,
   Contact,
   NewContact,
-} from '~/queries/useContacts.api';
+} from '~/queries/contacts/useContacts.api';
 import { useDevice } from '@features/device/useDevice';
 import { toId } from 'lib';
 

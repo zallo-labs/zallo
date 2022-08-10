@@ -1,7 +1,7 @@
 import { Address } from 'lib';
 import { useMemo } from 'react';
 import { useMaybeToken } from '~/token/useToken';
-import { useContacts } from '~/queries/useContacts.api';
+import { useContacts } from '~/queries/contacts/useContacts.api';
 import { truncatedAddr } from '@util/format';
 import { useAddrEns } from './useAddrEns';
 

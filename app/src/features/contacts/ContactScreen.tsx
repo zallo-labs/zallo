@@ -10,7 +10,7 @@ import { Actions } from '@components/Actions';
 import { Container } from '@components/list/Container';
 import { Box } from '@components/Box';
 import { ScanIcon } from '@util/theme/icons';
-import { Contact, useContacts } from '~/queries/useContacts.api';
+import { Contact, useContacts } from '~/queries/contacts/useContacts.api';
 import { useDeleteContact } from '~/mutations/contact/useDeleteContact.api';
 import { useUpsertContact } from '~/mutations/contact/useUpsertContact.api';
 
