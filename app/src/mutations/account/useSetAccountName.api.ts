@@ -24,7 +24,7 @@ export const useSetAccountName = () => {
   const [mutate] = useSetAccountNameMutation({ client: useApiClient() });
 
   return useCallback(
-    ({ id, name }: CombinedAccount) =>
+    ({ id, addr, name }: CombinedAccount) =>
       mutate({
         variables: { account: id, name },
         optimisticResponse: {
@@ -39,7 +39,7 @@ export const useSetAccountName = () => {
           // Account
           const opts: QueryOpts<AccountQueryVariables> = {
             query: API_ACCOUNT_QUERY,
-            variables: { account: id },
+            variables: { account: addr },
           };
 
           const data = cache.readQuery<AccountQuery>(opts);
