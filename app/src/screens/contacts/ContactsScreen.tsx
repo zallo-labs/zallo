@@ -10,10 +10,10 @@ import { useAppbarHeader } from '~/components2/Appbar/useAppbarHeader';
 import { useFuzzySearch } from '~/components2/Appbar/useFuzzySearch';
 import { FAB } from '~/components2/FAB';
 import { RootNavigatorScreenProps } from '~/navigation/RootNavigator';
-import { Contact, useContacts } from '~/queries/useContacts.api';
+import { Contact, useContacts } from '~/queries/contacts/useContacts.api';
 
 export interface ContactsScreenParams {
-  onSelect: (contact: Contact) => void;
+  onSelect?: (contact: Contact) => void;
   disabled?: Address[];
 }
 
@@ -27,6 +27,8 @@ export const ContactsScreen = ({ route, navigation }: ContactsScreenProps) => {
 
   const [contacts, searchProps] = useFuzzySearch(allContacts, ['name', 'addr']);
 
+  const create = () => navigation.navigate('Contact', {});
+
   return (
     <Box flex={1}>
       <AppbarHeader>
@@ -39,8 +41,12 @@ export const ContactsScreen = ({ route, navigation }: ContactsScreenProps) => {
           <AddrCard
             addr={item.addr}
             onPress={() => {
-              onSelect(item);
-              navigation.goBack();
+              if (onSelect) {
+                onSelect(item);
+                navigation.goBack();
+              } else {
+                navigation.navigate('Contact', { addr: item.addr });
+              }
             }}
             disabled={disabled?.includes(item.addr)}
           />
@@ -52,7 +58,7 @@ export const ContactsScreen = ({ route, navigation }: ContactsScreenProps) => {
         showsVerticalScrollIndicator={false}
       />
 
-      <FAB icon={AddIcon} label="Add contact" />
+      <FAB icon={AddIcon} label="Add contact" onPress={create} />
     </Box>
   );
 };

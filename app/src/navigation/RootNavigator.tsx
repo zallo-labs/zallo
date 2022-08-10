@@ -7,7 +7,6 @@ import {
   AmountScreen,
   AmountScreenParams,
 } from '~/screens/amount/AmountScreen';
-import { BottomNavigator } from './BottomNavigator';
 import {
   TokensScreen,
   TokensScreenParams,
@@ -32,9 +31,14 @@ import { ScanScreen, ScanScreenParams } from '~/screens/scan/ScanScreen';
 import { CreateAccountScreen } from '~/screens/onboard/CreateAccountScreen';
 import { NameScreen } from '~/screens/onboard/Name/NameScreen';
 import { useShowOnboarding } from '~/screens/onboard/useShowOnboarding';
+import { DrawerNavigator } from './Drawer/DrawerNavigator';
+import {
+  ContactScreen,
+  ContactScreenParams,
+} from '~/screens/contacts/ContactScreen';
 
 export type RootNavigatorParamList = {
-  BottomNavigator: undefined;
+  DrawerNavigator: undefined;
   Tokens: TokensScreenParams;
   SelectWallet: undefined;
   Amount: AmountScreenParams;
@@ -42,6 +46,7 @@ export type RootNavigatorParamList = {
   Configure: ConfigureScreenParams;
   Quorum: QuorumScreenParams;
   Contacts: ContactsScreenParams;
+  Contact: ContactScreenParams;
   Scan: ScanScreenParams;
   // Onboarding
   Name: undefined;
@@ -67,7 +72,7 @@ export const RootNavigator = () => {
         </Navigation.Group>
       )}
 
-      <Navigation.Screen name="BottomNavigator" component={BottomNavigator} />
+      <Navigation.Screen name="DrawerNavigator" component={DrawerNavigator} />
       <Navigation.Screen name="Tokens" component={TokensScreen} />
       <Navigation.Screen name="SelectWallet" component={SelectWalletScreen} />
       <Navigation.Screen name="Amount" component={AmountScreen} />
@@ -75,6 +80,7 @@ export const RootNavigator = () => {
       <Navigation.Screen name="Configure" component={ConfigureScreen} />
       <Navigation.Screen name="Quorum" component={QuorumScreen} />
       <Navigation.Screen name="Contacts" component={ContactsScreen} />
+      <Navigation.Screen name="Contact" component={ContactScreen} />
       <Navigation.Screen name="Scan" component={ScanScreen} />
     </Navigation.Navigator>
   );
