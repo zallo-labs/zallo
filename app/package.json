@@ -38,7 +38,7 @@
     "babel-plugin-formatjs": "^10.3.19",
     "color": "^4.2.3",
     "config": "workspace:*",
-    "eas-cli": "^0.57.0",
+    "eas-cli": "^0.59.0",
     "eth-url-parser": "^1.0.4",
     "ethers": "^5.6.9",
     "expo": "^45.0.6",
