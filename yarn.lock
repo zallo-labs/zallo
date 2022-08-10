@@ -9904,7 +9904,7 @@ __metadata:
     expo-barcode-scanner: ~11.3.0
     expo-brightness: ~10.2.0
     expo-camera: ~12.2.0
-    expo-cli: ^6.0.1
+    expo-cli: ^6.0.2
     expo-community-flipper: ^45.1.0
     expo-constants: ~13.1.1
     expo-dev-client: ~1.0.1
@@ -17068,9 +17068,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"expo-cli@npm:^6.0.1":
-  version: 6.0.1
-  resolution: "expo-cli@npm:6.0.1"
+"expo-cli@npm:^6.0.2":
+  version: 6.0.2
+  resolution: "expo-cli@npm:6.0.2"
   dependencies:
     "@babel/runtime": 7.9.0
     "@expo/apple-utils": 0.0.0-alpha.31
@@ -17127,11 +17127,11 @@ __metadata:
     url-join: 4.0.0
     uuid: ^8.0.0
     wrap-ansi: ^7.0.0
-    xdl: 59.2.49
+    xdl: 59.2.50
   bin:
     expo: bin/expo.js
     expo-cli: bin/expo.js
-  checksum: 60c70056d23a38e8a01240ae9a64658012fb62366749a8afab1fffec6c825ccc721b4595d3f363ba26d9c3917e13a66824f7357d559f827500b11dae9224bab3
+  checksum: 3e5421b0f66f4fde05496b367394d44ca2fa4a62cc02acd985d2da778ddcdc90e2060113ee0fac61d74beb7f9f89118cc3d3ada0c6742ebf5028884634194cd0
   languageName: node
   linkType: hard
 
@@ -36241,9 +36241,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"xdl@npm:59.2.49":
-  version: 59.2.49
-  resolution: "xdl@npm:59.2.49"
+"xdl@npm:59.2.50":
+  version: 59.2.50
+  resolution: "xdl@npm:59.2.50"
   dependencies:
     "@expo/bunyan": 4.0.0
     "@expo/config": 6.0.24
@@ -36309,7 +36309,7 @@ __metadata:
     webpack: 4.43.0
     webpack-dev-server: 3.11.0
     wrap-ansi: ^7.0.0
-  checksum: 13473c1d4dca2352f83063ce0aff6cf414dd0c90ab7512076d2bbaff1a883ea5c652a11829642b67226c532c054edbdd33e83236697862c0afdabe7cdafd3ce0
+  checksum: 411e37bdbdc258efa416d4139ba2948ad091bafb337f32e3f354bdca6e28234dafe8bca7274f1b8330fb950ff604b06be5454af3cbac4a66d67a2cd09b764452
   languageName: node
   linkType: hard
 
