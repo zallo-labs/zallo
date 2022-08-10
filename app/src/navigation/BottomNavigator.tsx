@@ -34,6 +34,12 @@ type Routes = ComponentPropsWithoutRef<
 
 const routes: Routes = [
   {
+    key: 'Receive',
+    title: 'Receive',
+    focusedIcon: 'qrcode',
+    unfocusedIcon: 'qrcode',
+  },
+  {
     key: 'Home',
     title: 'Home',
     focusedIcon: PayCircleIcon,
@@ -45,25 +51,19 @@ const routes: Routes = [
     focusedIcon: 'calendar',
     unfocusedIcon: 'calendar-outline',
   },
-  {
-    key: 'Receive',
-    title: 'Receive',
-    focusedIcon: 'qrcode',
-    unfocusedIcon: 'qrcode',
-  },
 ];
 
 const renderScene = BottomNavigation.SceneMap({
+  Receive: ReceiveScreen,
   Home: HomeScreen,
   Activity: Unimplemented,
-  Receive: ReceiveScreen,
 });
 
 export type BottomNavigatorProps =
   DrawerNavigatorScreenProps<'BottomNavigator'>;
 
 export const BottomNavigator = (_props: BottomNavigatorProps) => {
-  const [index, setIndex] = useState(0);
+  const [index, setIndex] = useState(1);
 
   return (
     <BottomNavigation

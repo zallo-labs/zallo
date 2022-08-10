@@ -983,7 +983,7 @@ export type WalletQueryVariables = Exact<{
 
 export type WalletQuery = { __typename?: 'Query', wallet?: { __typename?: 'Wallet', id: string, ref: any, quorums: Array<{ __typename?: 'Quorum', id: string, hash: any, timestamp: any, approvers: Array<{ __typename?: 'User', id: string }> }>, account: { __typename?: 'Account', id: string } } | null };
 
-export type WalletIdFieldsFragment = { __typename?: 'Wallet', id: string, ref: any, account: { __typename?: 'Account', id: string } };
+export type SubWalletIdFieldsFragment = { __typename?: 'Wallet', id: string, ref: any, account: { __typename?: 'Account', id: string } };
 
 export type UserWalletIdsQueryVariables = Exact<{
   user: Scalars['ID'];
@@ -1004,8 +1004,8 @@ export const TransferFieldsFragmentDoc = gql`
   timestamp
 }
     `;
-export const WalletIdFieldsFragmentDoc = gql`
-    fragment WalletIdFields on Wallet {
+export const SubWalletIdFieldsFragmentDoc = gql`
+    fragment SubWalletIdFields on Wallet {
   id
   account {
     id
@@ -1021,11 +1021,11 @@ export const AccountDocument = gql`
       id
     }
     wallets {
-      ...WalletIdFields
+      ...SubWalletIdFields
     }
   }
 }
-    ${WalletIdFieldsFragmentDoc}`;
+    ${SubWalletIdFieldsFragmentDoc}`;
 
 /**
  * __useAccountQuery__
@@ -1137,7 +1137,7 @@ export type SubTxsQueryResult = Apollo.QueryResult<SubTxsQuery, SubTxsQueryVaria
 export const WalletDocument = gql`
     query Wallet($wallet: ID!) {
   wallet(id: $wallet) {
-    ...WalletIdFields
+    ...SubWalletIdFields
     quorums(where: {active: true}) {
       id
       hash
@@ -1148,7 +1148,7 @@ export const WalletDocument = gql`
     }
   }
 }
-    ${WalletIdFieldsFragmentDoc}`;
+    ${SubWalletIdFieldsFragmentDoc}`;
 
 /**
  * __useWalletQuery__
@@ -1182,12 +1182,12 @@ export const UserWalletIdsDocument = gql`
   user(id: $user) {
     quorums(where: {active: true}) {
       wallet {
-        ...WalletIdFields
+        ...SubWalletIdFields
       }
     }
   }
 }
-    ${WalletIdFieldsFragmentDoc}`;
+    ${SubWalletIdFieldsFragmentDoc}`;
 
 /**
  * __useUserWalletIdsQuery__

@@ -4,31 +4,47 @@ import { ScreenSkeleton } from '@components/skeleton/ScreenSkeleton';
 import { withSkeleton } from '@components/skeleton/withSkeleton';
 import { CheckIcon } from '@util/theme/icons';
 import { useTheme } from '@util/theme/paper';
+import { Address, getWalletId, randomWalletRef } from 'lib';
 import _ from 'lodash';
 import { useMemo, useState } from 'react';
 import { FlatList } from 'react-native';
 import { Text } from 'react-native-paper';
 import { useAppbarHeader } from '~/components2/Appbar/useAppbarHeader';
 import { FAB } from '~/components2/FAB';
+import { QuorumCard } from '~/components2/QuorumCard';
 import { useSetWalletName } from '~/mutations/wallet/useSetWalletName.api';
 import { RootNavigatorScreenProps } from '~/navigation/RootNavigator';
-import { WalletId, CombinedQuorum } from '~/queries/wallets';
+import { WalletId, CombinedQuorum, CombinedWallet } from '~/queries/wallets';
 import { useWallet } from '~/queries/wallets/useWallet';
-import { QuorumCard } from '../../components2/QuorumCard';
-import { ConfigureAppbar } from './ConfigureAppbar';
+import { WalletAppbar } from './WalletAppbar';
 
-export interface ConfigureScreenParams {
-  id: WalletId;
+export interface WalletScreenParams {
+  account: Address;
+  id?: WalletId;
 }
 
-export type ConfigureScreenProps = RootNavigatorScreenProps<'Configure'>;
+export type WalletScreenProps = RootNavigatorScreenProps<'Wallet'>;
 
-export const ConfigureScreen = withSkeleton(
-  ({ route, navigation: { navigate } }: ConfigureScreenProps) => {
-    const wallet = useWallet(route.params.id);
+export const WalletScreen = withSkeleton(
+  ({ route, navigation: { navigate } }: WalletScreenProps) => {
+    const { account, id } = route.params;
+    const existing = useWallet(id);
     const { AppbarHeader, handleScroll } = useAppbarHeader();
     const { space } = useTheme();
     const setName = useSetWalletName();
+
+    const wallet: CombinedWallet = useMemo(() => {
+      if (existing) return existing;
+
+      const ref = randomWalletRef();
+      return {
+        id: getWalletId(account, ref),
+        accountAddr: account,
+        ref,
+        name: '',
+        quorums: [],
+      };
+    }, [account, existing]);
 
     const [quorums, setQuorums] = useState(wallet.quorums);
 
@@ -38,6 +54,9 @@ export const ConfigureScreen = withSkeleton(
     );
 
     const saveName = (name: string) => setName({ ...wallet, name });
+
+    const addQuorum = (quroum: CombinedQuorum) =>
+      setQuorums((quorums) => [...quorums, quroum]);
 
     const configureQuorum = (quorum: CombinedQuorum) => () =>
       navigate('Quorum', {
@@ -52,7 +71,11 @@ export const ConfigureScreen = withSkeleton(
 
     return (
       <Box flex={1}>
-        <ConfigureAppbar wallet={wallet} AppbarHeader={AppbarHeader} />
+        <WalletAppbar
+          wallet={wallet}
+          AppbarHeader={AppbarHeader}
+          addQuorum={addQuorum}
+        />
 
         <FlatList
           ListHeaderComponent={() => (

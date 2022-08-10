@@ -6,11 +6,11 @@ import { QUERY_WALLETS_POLL_INTERVAL, WalletId } from '.';
 import { useMemo } from 'react';
 import {
   useUserWalletIdsQuery,
-  WalletIdFieldsFragment,
+  SubWalletIdFieldsFragment,
 } from '@gql/generated.sub';
 
 export const SUB_WALLET_ID_FIELDS = gql`
-  fragment WalletIdFields on Wallet {
+  fragment SubWalletIdFields on Wallet {
     id
     account {
       id
@@ -26,14 +26,16 @@ gql`
     user(id: $user) {
       quorums(where: { active: true }) {
         wallet {
-          ...WalletIdFields
+          ...SubWalletIdFields
         }
       }
     }
   }
 `;
 
-export const subWalletFieldsToId = (w: WalletIdFieldsFragment): WalletId => ({
+export const subWalletFieldsToId = (
+  w: SubWalletIdFieldsFragment,
+): WalletId => ({
   id: toId(w.id),
   accountAddr: address(w.account.id),
   ref: toWalletRef(w.ref),

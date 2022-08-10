@@ -26,7 +26,7 @@ export const useSelectedWallet = () => {
           ref: walletId[1],
         }
       : walletIds[0],
-  );
+  )!;
 };
 
 export const useSelectWallet = () => {

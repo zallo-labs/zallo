@@ -6,6 +6,7 @@ import { Account } from '@gen/account/account.model';
 import { FindManyAccountArgs } from '@gen/account/find-many-account.args';
 import {
   AccountArgs,
+  SetAccountNameArgs,
   UpsertAccountArgs as CreateAccountArgs,
 } from './accounts.args';
 import { getSelect } from '~/util/select';
@@ -109,6 +110,24 @@ export class AccountsResolver {
             ),
           },
         }),
+      },
+      ...getSelect(info),
+    });
+  }
+
+  @Mutation(() => Account)
+  async setAccountName(
+    @Args() { id, name }: SetAccountNameArgs,
+    @Info() info: GraphQLResolveInfo,
+  ): Promise<Account> {
+    return this.prisma.account.upsert({
+      where: { id },
+      create: {
+        id,
+        name,
+      },
+      update: {
+        name: { set: name },
       },
       ...getSelect(info),
     });

@@ -14,11 +14,7 @@ import {
 import {
   WalletScreen,
   WalletScreenParams,
-} from '~/screens/wallet/WalletScreen';
-import {
-  ConfigureScreen,
-  ConfigureScreenParams,
-} from '~/screens/configure/ConfigureScreen';
+} from '~/screens/wallets/WalletScreen';
 import {
   QuorumScreen,
   QuorumScreenParams,
@@ -36,14 +32,25 @@ import {
   ContactScreen,
   ContactScreenParams,
 } from '~/screens/contacts/ContactScreen';
+import { WalletsScreen } from '~/screens/wallets/WalletsScreen';
+import {
+  AccountsScreen,
+  AccountsScreenParams,
+} from '~/screens/accounts/AccountsScreen';
+import {
+  AccountScreen,
+  AccountScreenParams,
+} from '~/screens/accounts/AccountScreen';
 
 export type RootNavigatorParamList = {
   DrawerNavigator: undefined;
   Tokens: TokensScreenParams;
   SelectWallet: undefined;
   Amount: AmountScreenParams;
+  Accounts: AccountsScreenParams;
+  Account: AccountScreenParams;
+  Wallets: undefined;
   Wallet: WalletScreenParams;
-  Configure: ConfigureScreenParams;
   Quorum: QuorumScreenParams;
   Contacts: ContactsScreenParams;
   Contact: ContactScreenParams;
@@ -76,8 +83,10 @@ export const RootNavigator = () => {
       <Navigation.Screen name="Tokens" component={TokensScreen} />
       <Navigation.Screen name="SelectWallet" component={SelectWalletScreen} />
       <Navigation.Screen name="Amount" component={AmountScreen} />
+      <Navigation.Screen name="Accounts" component={AccountsScreen} />
+      <Navigation.Screen name="Account" component={AccountScreen} />
+      <Navigation.Screen name="Wallets" component={WalletsScreen} />
       <Navigation.Screen name="Wallet" component={WalletScreen} />
-      <Navigation.Screen name="Configure" component={ConfigureScreen} />
       <Navigation.Screen name="Quorum" component={QuorumScreen} />
       <Navigation.Screen name="Contacts" component={ContactsScreen} />
       <Navigation.Screen name="Contact" component={ContactScreen} />

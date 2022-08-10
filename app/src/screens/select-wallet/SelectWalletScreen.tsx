@@ -6,7 +6,7 @@ import { Appbar } from 'react-native-paper';
 import { useSelectWallet } from '~/components2/wallet/useSelectedWallet';
 import { RootNavigatorScreenProps } from '~/navigation/RootNavigator';
 import { useWalletIds } from '~/queries/wallets/useWalletIds';
-import { WalletCard } from '~/components2/wallet/WalletCard';
+import { WalletPaymentCard } from '~/components2/wallet/WalletPaymentCard';
 
 export type SelectWalletScreenProps = RootNavigatorScreenProps<'SelectWallet'>;
 
@@ -25,7 +25,7 @@ export const SelectWalletScreen = ({ navigation }: SelectWalletScreenProps) => {
       <Box m={3}>
         <FlatList
           renderItem={({ item }) => (
-            <WalletCard
+            <WalletPaymentCard
               id={item}
               onPress={() => {
                 setSelected(item);

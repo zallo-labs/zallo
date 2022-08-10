@@ -10,7 +10,10 @@ import {
   useSelectedWallet,
 } from '~/components2/wallet/useSelectedWallet';
 import { Indicator } from '~/components2/Indicator/Indicator';
-import { WalletCard, WALLET_CARD_HEIGHT } from '~/components2/wallet/WalletCard';
+import {
+  WalletPaymentCard,
+  WALLET_CARD_HEIGHT,
+} from '~/components2/wallet/WalletPaymentCard';
 import { useWalletIds } from '~/queries/wallets/useWalletIds';
 
 export const WalletSelector = () => {
@@ -36,7 +39,7 @@ export const WalletSelector = () => {
       <LazyPagerView
         renderItem={({ item, index }) => (
           <Box key={index + 1} mx={5}>
-            <WalletCard id={item} available />
+            <WalletPaymentCard id={item} available />
           </Box>
         )}
         style={styles.viewPager}

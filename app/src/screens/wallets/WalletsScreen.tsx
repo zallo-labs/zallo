@@ -5,15 +5,15 @@ import { useNavigation } from '@react-navigation/native';
 import { MenuIcon, PlusIcon } from '@util/theme/icons';
 import { FlatList } from 'react-native';
 import { Appbar } from 'react-native-paper';
-import { WalletCard } from '~/components2/wallet/WalletCard';
 import { useAppbarHeader } from '~/components2/Appbar/useAppbarHeader';
+import { WalletCard } from '~/components2/wallet/WalletCard';
 import { BottomNavigatorProps } from '~/navigation/BottomNavigator';
-import { useWallets } from '~/queries/wallets/useWallets';
+import { useWalletIds } from '~/queries/wallets/useWalletIds';
 
 export const WalletsScreen = withSkeleton(() => {
   const { navigate } = useNavigation<BottomNavigatorProps['navigation']>();
   const { AppbarHeader, handleScroll } = useAppbarHeader();
-  const { wallets } = useWallets();
+  const { walletIds } = useWalletIds();
 
   return (
     <Box flex={1}>
@@ -24,21 +24,27 @@ export const WalletsScreen = withSkeleton(() => {
 
         <Appbar.Action
           icon={PlusIcon}
-          onPress={() => navigate('CreateFirstWallet')}
+          onPress={() => navigate('CreateAccount')}
         />
       </AppbarHeader>
 
-      <Box m={3}>
+      <Box m={4}>
         <FlatList
-          data={wallets}
-          keyExtractor={(wallet) => wallet.id}
-          renderItem={({ item: wallet }) => (
+          renderItem={({ item }) => (
             <WalletCard
-              wallet={wallet}
-              onPress={() => navigate('Wallet', { id: wallet })}
+              id={item}
+              onPress={() => {
+                navigate('Accounts', {
+                  onSelect: (account) => {
+                    navigate('Wallet', { id: item, account });
+                  },
+                });
+              }}
             />
           )}
+          data={walletIds}
           onScroll={handleScroll}
+          showsVerticalScrollIndicator={false}
         />
       </Box>
     </Box>

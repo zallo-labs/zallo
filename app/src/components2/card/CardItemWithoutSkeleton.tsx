@@ -18,29 +18,32 @@ export const CardItemWithoutSkeleton = ({
 }: CardItemWithoutSkeletonProps) => (
   <Card p={3} {...cardProps}>
     <Box horizontal justifyContent="space-between">
-      {Left && isFunctionalComponent(Left) ? (
-        <Left />
-      ) : (
-        <Box justifyContent="center" mr={3}>
-          {withKeys(Left)}
-        </Box>
-      )}
+      {Left &&
+        (isFunctionalComponent(Left) ? (
+          <Left />
+        ) : (
+          <Box justifyContent="center" mr={3}>
+            {withKeys(Left)}
+          </Box>
+        ))}
 
-      {Main && isFunctionalComponent(Main) ? (
-        <Main />
-      ) : (
-        <Box flex={1} justifyContent="center">
-          {withKeys(Main)}
-        </Box>
-      )}
+      {Main &&
+        (isFunctionalComponent(Main) ? (
+          <Main />
+        ) : (
+          <Box flex={1} justifyContent="center">
+            {withKeys(Main)}
+          </Box>
+        ))}
 
-      {Right && isFunctionalComponent(Right) ? (
-        <Right />
-      ) : (
-        <Box justifyContent="center" alignItems="flex-end">
-          {withKeys(Right)}
-        </Box>
-      )}
+      {Right &&
+        (isFunctionalComponent(Right) ? (
+          <Right />
+        ) : (
+          <Box justifyContent="center" alignItems="flex-end">
+            {withKeys(Right)}
+          </Box>
+        ))}
     </Box>
   </Card>
 );

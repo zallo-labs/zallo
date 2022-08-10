@@ -45,8 +45,16 @@ export const DrawerContent = ({ navigation }: DrawerContentProps) => {
       </Drawer.Section>
 
       <Drawer.Section title="Configuration">
-        <Drawer.Item label="Wallets" icon={WalletIcon} />
-        <Drawer.Item label="Accounts" icon={AccountIcon} />
+        <Drawer.Item
+          label="Accounts"
+          icon={AccountIcon}
+          onPress={() => navigate('Accounts')}
+        />
+        {/* <Drawer.Item
+          label="Wallets"
+          icon={WalletIcon}
+          onPress={() => navigate('Wallets')}
+        /> */}
         <Drawer.Item label="Settings" icon={SettingsIcon} />
       </Drawer.Section>
 

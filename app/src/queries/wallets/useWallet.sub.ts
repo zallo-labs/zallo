@@ -16,7 +16,7 @@ gql`
 
   query Wallet($wallet: ID!) {
     wallet(id: $wallet) {
-      ...WalletIdFields
+      ...SubWalletIdFields
       quorums(where: { active: true }) {
         id
         hash

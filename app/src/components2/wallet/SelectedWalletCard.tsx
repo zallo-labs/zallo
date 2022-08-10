@@ -1,11 +1,11 @@
 import { useNavigation } from '@react-navigation/native';
 import { useTheme } from '@util/theme/paper';
 import { BottomNavigatorProps } from '~/navigation/BottomNavigator';
-import { WalletCard, WalletCardProps } from './WalletCard';
+import { WalletPaymentCard, WalletPaymentCardProps } from './WalletPaymentCard';
 import { useSelectedWallet } from './useSelectedWallet';
 
 export interface SelectedWalletCardProps
-  extends Omit<WalletCardProps, 'wallet'> {}
+  extends Omit<WalletPaymentCardProps, 'wallet'> {}
 
 export const SelectedWalletCard = (props: SelectedWalletCardProps) => {
   const { colors } = useTheme();
@@ -13,7 +13,7 @@ export const SelectedWalletCard = (props: SelectedWalletCardProps) => {
   const selected = useSelectedWallet();
 
   return (
-    <WalletCard
+    <WalletPaymentCard
       {...props}
       wallet={selected}
       backgroundColor={colors.tertiaryContainer}

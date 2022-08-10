@@ -11,6 +11,17 @@ export class AccountArgs {
   id: Address;
 }
 
+@InputType()
+export class WalletWithoutAccountInput {
+  @Bytes4Field()
+  ref: WalletRef;
+
+  @QuorumsField()
+  quorums: Quorums;
+
+  name: string;
+}
+
 @ArgsType()
 export class UpsertAccountArgs {
   @AddressField()
@@ -27,13 +38,10 @@ export class UpsertAccountArgs {
   wallets?: WalletWithoutAccountInput[];
 }
 
-@InputType()
-export class WalletWithoutAccountInput {
-  @Bytes4Field()
-  ref: WalletRef;
-
-  @QuorumsField()
-  quorums: Quorums;
+@ArgsType()
+export class SetAccountNameArgs {
+  @AddressField()
+  id: Address;
 
   name: string;
 }

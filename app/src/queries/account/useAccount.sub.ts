@@ -20,7 +20,7 @@ gql`
         id
       }
       wallets {
-        ...WalletIdFields
+        ...SubWalletIdFields
       }
     }
   }

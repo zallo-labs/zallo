@@ -42,11 +42,12 @@ export const useApiAccount = (addr?: Address) => {
     client: useApiClient(),
     pollInterval: QUERY_ACCOUNT_POLL_INTERVAL,
     variables: { account: addr },
+    skip: !addr,
   });
 
   const apiAccount = useMemo((): CombinedAccount | undefined => {
     const acc = data?.account;
-    if (!acc) return undefined;
+    if (!acc?.id) return undefined;
 
     return {
       id: toId(acc.id),

@@ -1546,6 +1546,7 @@ export type Mutation = {
   reactToComment?: Maybe<Reaction>;
   requestFunds: Scalars['Boolean'];
   revokeApproval: RevokeApprovalResp;
+  setAccountName: Account;
   setWalletName: Wallet;
   setWalletQuroums?: Maybe<Wallet>;
   submitTxExecution: Submission;
@@ -1617,6 +1618,12 @@ export type MutationRequestFundsArgs = {
 export type MutationRevokeApprovalArgs = {
   account: Scalars['Address'];
   txHash: Scalars['Bytes32'];
+};
+
+
+export type MutationSetAccountNameArgs = {
+  id: Scalars['Address'];
+  name: Scalars['String'];
 };
 
 
@@ -3511,6 +3518,14 @@ export type CreateAccountMutationVariables = Exact<{
 
 export type CreateAccountMutation = { __typename?: 'Mutation', createAccount: { __typename?: 'Account', id: string } };
 
+export type SetAccountNameMutationVariables = Exact<{
+  account: Scalars['Address'];
+  name: Scalars['String'];
+}>;
+
+
+export type SetAccountNameMutation = { __typename?: 'Mutation', setAccountName: { __typename?: 'Account', id: string } };
+
 export type CreateCommentMutationVariables = Exact<{
   account: Scalars['Address'];
   key: Scalars['Id'];
@@ -3806,6 +3821,40 @@ export function useCreateAccountMutation(baseOptions?: Apollo.MutationHookOption
 export type CreateAccountMutationHookResult = ReturnType<typeof useCreateAccountMutation>;
 export type CreateAccountMutationResult = Apollo.MutationResult<CreateAccountMutation>;
 export type CreateAccountMutationOptions = Apollo.BaseMutationOptions<CreateAccountMutation, CreateAccountMutationVariables>;
+export const SetAccountNameDocument = gql`
+    mutation SetAccountName($account: Address!, $name: String!) {
+  setAccountName(id: $account, name: $name) {
+    id
+  }
+}
+    `;
+export type SetAccountNameMutationFn = Apollo.MutationFunction<SetAccountNameMutation, SetAccountNameMutationVariables>;
+
+/**
+ * __useSetAccountNameMutation__
+ *
+ * To run a mutation, you first call `useSetAccountNameMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useSetAccountNameMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [setAccountNameMutation, { data, loading, error }] = useSetAccountNameMutation({
+ *   variables: {
+ *      account: // value for 'account'
+ *      name: // value for 'name'
+ *   },
+ * });
+ */
+export function useSetAccountNameMutation(baseOptions?: Apollo.MutationHookOptions<SetAccountNameMutation, SetAccountNameMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<SetAccountNameMutation, SetAccountNameMutationVariables>(SetAccountNameDocument, options);
+      }
+export type SetAccountNameMutationHookResult = ReturnType<typeof useSetAccountNameMutation>;
+export type SetAccountNameMutationResult = Apollo.MutationResult<SetAccountNameMutation>;
+export type SetAccountNameMutationOptions = Apollo.BaseMutationOptions<SetAccountNameMutation, SetAccountNameMutationVariables>;
 export const CreateCommentDocument = gql`
     mutation CreateComment($account: Address!, $key: Id!, $content: String!) {
   createComment(account: $account, key: $key, content: $content) {

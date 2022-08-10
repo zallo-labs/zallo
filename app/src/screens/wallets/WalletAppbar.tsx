@@ -5,22 +5,32 @@ import { Appbar } from 'react-native-paper';
 import { AppbarHeaderProps } from '~/components2/Appbar/useAppbarHeader';
 import { useGoBack } from '~/components2/Appbar/useGoBack';
 import { useDeleteWallet } from '~/mutations/wallet/delete/useDeleteWallet';
-import { CombinedWallet } from '~/queries/wallets';
-import { ConfigureScreenProps } from './ConfigureScreen';
+import { CombinedQuorum, CombinedWallet } from '~/queries/wallets';
+import { WalletScreenProps } from './WalletScreen';
 
-export interface ConfigureAppbarProps {
+export interface WalletAppbarProps {
   wallet: CombinedWallet;
   AppbarHeader: FC<AppbarHeaderProps>;
+  addQuorum: (quorum: CombinedQuorum) => void;
 }
 
-export const ConfigureAppbar = ({
+export const WalletAppbar = ({
   wallet,
   AppbarHeader,
-}: ConfigureAppbarProps) => {
-  const { navigate } = useNavigation<ConfigureScreenProps['navigation']>();
+  addQuorum,
+}: WalletAppbarProps) => {
+  const { navigate } = useNavigation<WalletScreenProps['navigation']>();
   const deleteWallet = useDeleteWallet(wallet);
 
-  const addQuorum = useCallback(() => navigate('Quorum', {}), [navigate]);
+  const add = useCallback(
+    () =>
+      navigate('Quorum', {
+        onChange: (quorum) => {
+          if (quorum) addQuorum(quorum);
+        },
+      }),
+    [addQuorum, navigate],
+  );
 
   return (
     <AppbarHeader mode="medium">
@@ -28,7 +38,7 @@ export const ConfigureAppbar = ({
 
       <Appbar.Content title="Configure" />
 
-      <Appbar.Action icon={AddIcon} onPress={addQuorum} />
+      <Appbar.Action icon={AddIcon} onPress={add} />
       <Appbar.Action icon={DeleteIcon} onPress={deleteWallet} />
     </AppbarHeader>
   );
