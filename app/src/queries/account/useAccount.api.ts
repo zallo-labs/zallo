@@ -35,7 +35,7 @@ export const API_ACCOUNT_QUERY = gql`
   }
 `;
 
-export const useApiAccount = (addr: Address) => {
+export const useApiAccount = (addr?: Address) => {
   const device = useDevice();
 
   const { data, ...rest } = useAccountQuery({
@@ -49,9 +49,9 @@ export const useApiAccount = (addr: Address) => {
     if (!acc) return undefined;
 
     return {
-      id: toId(addr),
-      addr,
-      contract: connectAccount(addr, device),
+      id: toId(acc.id),
+      addr: addr!,
+      contract: connectAccount(addr!, device),
       impl: acc.impl ? address(acc.impl) : ACCOUNT_IMPL,
       deploySalt: acc.deploySalt || undefined,
       name: acc.name,

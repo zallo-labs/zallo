@@ -29,11 +29,12 @@ gql`
   }
 `;
 
-export const useSubWallet = (id: WalletId) => {
+export const useSubWallet = (id?: WalletId) => {
   const { data, ...rest } = useWalletQuery({
     client: useSubgraphClient(),
     pollInterval: QUERY_WALLETS_POLL_INTERVAL,
-    variables: { wallet: id.id },
+    variables: { wallet: id?.id ?? '' },
+    skip: !id,
   });
 
   const subWallet = useMemo((): CombinedWallet | undefined => {

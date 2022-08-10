@@ -4,7 +4,7 @@ import { CombinedAccount } from '.';
 import { useApiAccount } from './useAccount.api';
 import { useSubAccount } from './useAccount.sub';
 
-export const useAccount = (addr: Address) => {
+export const useAccount = (addr?: Address) => {
   const { subAccount: s } = useSubAccount(addr);
   const { apiAccount: a } = useApiAccount(addr);
 
@@ -13,7 +13,7 @@ export const useAccount = (addr: Address) => {
 
     return {
       id: s?.id ?? a!.id,
-      addr,
+      addr: s?.addr ?? a!.addr,
       contract: s?.contract ?? a!.contract,
       impl: s?.impl ?? a!.impl,
       name: a?.name ?? '',
@@ -22,5 +22,5 @@ export const useAccount = (addr: Address) => {
         (w) => w.id,
       ),
     };
-  }, [a, addr, s]);
+  }, [a, s]);
 };

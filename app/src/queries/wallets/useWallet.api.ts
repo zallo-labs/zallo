@@ -22,13 +22,14 @@ export const API_QUERY_WALLET = gql`
   }
 `;
 
-export const useApiWallet = (id: WalletId) => {
+export const useApiWallet = (id?: WalletId) => {
   const { data, ...rest } = useWalletQuery({
     client: useApiClient(),
     pollInterval: QUERY_WALLETS_POLL_INTERVAL,
     variables: {
-      wallet: { accountId: id.accountAddr, ref: id.ref },
+      wallet: { accountId: id?.accountAddr, ref: id?.ref },
     },
+    skip: !id,
   });
 
   const apiWallet = useMemo((): CombinedWallet | undefined => {

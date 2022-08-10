@@ -26,13 +26,14 @@ gql`
   }
 `;
 
-export const useSubAccount = (addr: Address) => {
+export const useSubAccount = (addr?: Address) => {
   const device = useDevice();
 
   const { data, ...rest } = useAccountQuery({
     client: useSubgraphClient(),
     pollInterval: QUERY_ACCOUNT_POLL_INTERVAL,
-    variables: { account: toId(addr) },
+    variables: { account: addr ? toId(addr) : '' },
+    skip: !addr,
   });
 
   const subAccount = useMemo((): CombinedAccount | undefined => {
@@ -40,9 +41,9 @@ export const useSubAccount = (addr: Address) => {
     if (!acc) return undefined;
 
     return {
-      id: toId(addr),
-      addr: addr,
-      contract: connectAccount(addr, device),
+      id: toId(acc.id),
+      addr: addr!,
+      contract: connectAccount(addr!, device),
       impl: address(acc.impl.id),
       name: '',
       walletIds: acc.wallets.map(subWalletFieldsToId),
