@@ -9,9 +9,10 @@ import { WalletId } from '~/queries/wallets';
 import { useWallet } from '~/queries/wallets/useWallet';
 import { useTokenValues } from '~/token/useTokenValues';
 import { Card, CardProps } from '../card/Card';
-import { CardItemSkeleton } from '../card/CardItemSkeleton';
-
-export const WALLET_CARD_HEIGHT = 160;
+import {
+  WalletPaymentCardSkeleton,
+  WALLET_PAYMENT_CARD_HEIGHT,
+} from './WalletPaymentCardSkeleton';
 
 export interface WalletPaymentCardProps extends CardProps {
   id: WalletId;
@@ -29,7 +30,7 @@ export const WalletPaymentCard = withSkeleton(
     return (
       <Card
         p={3}
-        height={WALLET_CARD_HEIGHT}
+        height={WALLET_PAYMENT_CARD_HEIGHT}
         backgroundColor={colors.tertiaryContainer}
         {...cardProps}
       >
@@ -59,5 +60,5 @@ export const WalletPaymentCard = withSkeleton(
       </Card>
     );
   },
-  CardItemSkeleton,
+  WalletPaymentCardSkeleton,
 );

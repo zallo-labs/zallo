@@ -10,11 +10,9 @@ import {
   useSelectedWallet,
 } from '~/components2/wallet/useSelectedWallet';
 import { Indicator } from '~/components2/Indicator/Indicator';
-import {
-  WalletPaymentCard,
-  WALLET_CARD_HEIGHT,
-} from '~/components2/wallet/WalletPaymentCard';
+import { WalletPaymentCard } from '~/components2/wallet/WalletPaymentCard';
 import { useWalletIds } from '~/queries/wallets/useWalletIds';
+import { WALLET_PAYMENT_CARD_HEIGHT } from '~/components2/wallet/WalletPaymentCardSkeleton';
 
 export const WalletSelector = () => {
   const { walletIds } = useWalletIds();
@@ -38,7 +36,7 @@ export const WalletSelector = () => {
     <Box>
       <LazyPagerView
         renderItem={({ item, index }) => (
-          <Box key={index + 1} mx={5}>
+          <Box key={index + 1} mx={4}>
             <WalletPaymentCard id={item} available />
           </Box>
         )}
@@ -58,6 +56,6 @@ export const WalletSelector = () => {
 
 const useStyles = makeStyles(() => ({
   viewPager: {
-    height: WALLET_CARD_HEIGHT,
+    height: WALLET_PAYMENT_CARD_HEIGHT,
   },
 }));

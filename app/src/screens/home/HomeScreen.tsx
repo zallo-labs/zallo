@@ -15,7 +15,7 @@ import { useTokenValues } from '~/token/useTokenValues';
 import { HomeAppbar } from './HomeAppbar';
 import { WalletSelector } from './WalletSelector';
 import { withSkeleton } from '@components/skeleton/withSkeleton';
-import { ListScreenSkeleton } from '@components/skeleton/ListScreenSkeleton';
+import { HomeScreenSkeleton } from './HomeScreenSkeleton';
 
 export const HomeScreen = withSkeleton(() => {
   const { AppbarHeader, handleScroll } = useAppbarHeader();
@@ -52,7 +52,7 @@ export const HomeScreen = withSkeleton(() => {
           </>
         }
         renderItem={({ item, index }) => (
-          <Box mx={4}>
+          <Box mx={3}>
             <TokenCard
               token={item}
               amount="balance"
@@ -75,4 +75,4 @@ export const HomeScreen = withSkeleton(() => {
       />
     </Box>
   );
-}, ListScreenSkeleton);
+}, HomeScreenSkeleton);
