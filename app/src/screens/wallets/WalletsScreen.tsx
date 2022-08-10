@@ -1,8 +1,9 @@
+import { AppbarBack } from '@components/AppbarBack';
 import { Box } from '@components/Box';
 import { ListScreenSkeleton } from '@components/skeleton/ListScreenSkeleton';
 import { withSkeleton } from '@components/skeleton/withSkeleton';
 import { useNavigation } from '@react-navigation/native';
-import { MenuIcon, PlusIcon } from '@util/theme/icons';
+import { PlusIcon } from '@util/theme/icons';
 import { FlatList } from 'react-native';
 import { Appbar } from 'react-native-paper';
 import { useAppbarHeader } from '~/components2/Appbar/useAppbarHeader';
@@ -18,7 +19,7 @@ export const WalletsScreen = withSkeleton(() => {
   return (
     <Box flex={1}>
       <AppbarHeader mode="center-aligned">
-        <Appbar.Action icon={MenuIcon} onPress={() => alert('Unimplemented')} />
+        <AppbarBack />
 
         <Appbar.Content title="Wallets" />
 
