@@ -10,9 +10,9 @@ import { AddrCard } from '~/components2/addr/AddrCard';
 import { RootNavigatorScreenProps } from '~/navigation/RootNavigator';
 import { CombinedQuorum } from '~/queries/wallets';
 import { useMemo, useState } from 'react';
-import { AppbarFAB } from '~/components2/Appbar/AppbarFAB';
 import _ from 'lodash';
 import { FAB } from '~/components2/FAB';
+import { BottomAppbar } from '~/components2/Appbar/BottomAppbar';
 
 export interface QuorumScreenParams {
   quorum?: CombinedQuorum;
@@ -95,12 +95,12 @@ export const QuorumScreen = ({ route, navigation }: QuorumScreenProps) => {
       />
 
       {selected ? (
-        <Appbar style={{ backgroundColor: colors.surfaceVariant }}>
+        <BottomAppbar>
           <Appbar.Action icon={EditIcon} onPress={replaceSelectedApprover} />
           <Appbar.Action icon={DeleteIcon} onPress={removeSelectedApprover} />
 
-          {isModified && <AppbarFAB icon={CheckIcon} onPress={apply} />}
-        </Appbar>
+          {isModified && <FAB appbar icon={CheckIcon} onPress={apply} />}
+        </BottomAppbar>
       ) : (
         <>
           {isModified && (
