@@ -29,7 +29,7 @@ export const WalletsScreen = withSkeleton(() => {
         />
       </AppbarHeader>
 
-      <Box m={4}>
+      <Box m={3}>
         <FlatList
           renderItem={({ item }) => (
             <WalletCard

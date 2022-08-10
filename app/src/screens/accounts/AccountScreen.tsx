@@ -1,6 +1,5 @@
 import { Box } from '@components/Box';
 import { SubmittableTextField } from '@components/fields/SubmittableTextField';
-import { Suspend } from '@components/Suspender';
 import { DeleteIcon, PlusIcon } from '@util/theme/icons';
 import { makeStyles } from '@util/theme/makeStyles';
 import { Address } from 'lib';
@@ -85,7 +84,7 @@ export const AccountScreen = ({ route, navigation }: AccountScreenProps) => {
 
 const useStyles = makeStyles(({ space }) => ({
   list: {
-    marginHorizontal: space(4),
+    marginHorizontal: space(3),
   },
   create: {
     alignSelf: 'flex-end',

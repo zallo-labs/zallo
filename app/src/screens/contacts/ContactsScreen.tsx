@@ -1,7 +1,7 @@
 import { AppbarBack } from '@components/AppbarBack';
 import { Box } from '@components/Box';
 import { AddIcon } from '@util/theme/icons';
-import { useTheme } from '@util/theme/paper';
+import { makeStyles } from '@util/theme/makeStyles';
 import { Address } from 'lib';
 import { FlatList } from 'react-native';
 import { AddrCard } from '~/components2/addr/AddrCard';
@@ -21,8 +21,8 @@ export type ContactsScreenProps = RootNavigatorScreenProps<'Contacts'>;
 
 export const ContactsScreen = ({ route, navigation }: ContactsScreenProps) => {
   const { onSelect, disabled } = route.params;
+  const styles = useStyles();
   const { AppbarHeader, handleScroll } = useAppbarHeader();
-  const { space } = useTheme();
   const { contacts: allContacts } = useContacts();
 
   const [contacts, searchProps] = useFuzzySearch(allContacts, ['name', 'addr']);
@@ -52,7 +52,7 @@ export const ContactsScreen = ({ route, navigation }: ContactsScreenProps) => {
           />
         )}
         ItemSeparatorComponent={() => <Box my={2} />}
-        style={{ marginHorizontal: space(3) }}
+        style={styles.list}
         data={contacts}
         onScroll={handleScroll}
         showsVerticalScrollIndicator={false}
@@ -62,3 +62,9 @@ export const ContactsScreen = ({ route, navigation }: ContactsScreenProps) => {
     </Box>
   );
 };
+
+const useStyles = makeStyles(({ space }) => ({
+  list: {
+    marginHorizontal: space(3),
+  },
+}));

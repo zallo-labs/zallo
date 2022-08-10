@@ -69,7 +69,7 @@ export const AccountsScreen = withSkeleton(
 
 const useStyles = makeStyles(({ space }) => ({
   list: {
-    marginHorizontal: space(4),
+    marginHorizontal: space(3),
   },
   create: {
     alignSelf: 'flex-end',

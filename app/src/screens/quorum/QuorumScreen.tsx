@@ -13,6 +13,7 @@ import { useMemo, useState } from 'react';
 import _ from 'lodash';
 import { FAB } from '~/components2/FAB';
 import { BottomAppbar } from '~/components2/Appbar/BottomAppbar';
+import { makeStyles } from '@util/theme/makeStyles';
 
 export interface QuorumScreenParams {
   quorum?: CombinedQuorum;
@@ -24,8 +25,9 @@ export type QuorumScreenProps = RootNavigatorScreenProps<'Quorum'>;
 export const QuorumScreen = ({ route, navigation }: QuorumScreenProps) => {
   const { onChange, quorum = { approvers: [] as unknown as Quorum } } =
     route.params;
+  const styles = useStyles();
   const { AppbarHeader, handleScroll } = useAppbarHeader();
-  const { colors, space } = useTheme();
+  const { colors } = useTheme();
 
   const [approvers, setApprovers] = useState<Quorum>(quorum.approvers);
   const [selected, setSelected] = useState<Address | undefined>(undefined);
@@ -83,12 +85,12 @@ export const QuorumScreen = ({ route, navigation }: QuorumScreenProps) => {
               setSelected((prev) => (prev !== item ? item : undefined))
             }
             {...(selected === item && {
-              backgroundColor: colors.surfaceVariant,
+              style: styles.selected,
             })}
           />
         )}
         ItemSeparatorComponent={() => <Box my={2} />}
-        style={{ marginHorizontal: space(3) }}
+        style={styles.list}
         data={approvers}
         onScroll={handleScroll}
         showsVerticalScrollIndicator={false}
@@ -111,3 +113,12 @@ export const QuorumScreen = ({ route, navigation }: QuorumScreenProps) => {
     </Box>
   );
 };
+
+const useStyles = makeStyles(({ colors, space }) => ({
+  list: {
+    marginHorizontal: space(3),
+  },
+  selected: {
+    backgroundColor: colors.surfaceVariant,
+  },
+}));

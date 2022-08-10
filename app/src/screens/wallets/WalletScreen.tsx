@@ -3,6 +3,7 @@ import { SubmittableTextField } from '@components/fields/SubmittableTextField';
 import { ScreenSkeleton } from '@components/skeleton/ScreenSkeleton';
 import { withSkeleton } from '@components/skeleton/withSkeleton';
 import { CheckIcon } from '@util/theme/icons';
+import { makeStyles } from '@util/theme/makeStyles';
 import { useTheme } from '@util/theme/paper';
 import { Address, getWalletId, randomWalletRef } from 'lib';
 import _ from 'lodash';
@@ -28,9 +29,9 @@ export type WalletScreenProps = RootNavigatorScreenProps<'Wallet'>;
 export const WalletScreen = withSkeleton(
   ({ route, navigation: { navigate } }: WalletScreenProps) => {
     const { account, id } = route.params;
+    const styles = useStyles();
     const existing = useWallet(id);
     const { AppbarHeader, handleScroll } = useAppbarHeader();
-    const { space } = useTheme();
     const setName = useSetWalletName();
 
     const wallet: CombinedWallet = useMemo(() => {
@@ -95,7 +96,7 @@ export const WalletScreen = withSkeleton(
             <QuorumCard quorum={quorum} onPress={configureQuorum(quorum)} />
           )}
           ItemSeparatorComponent={() => <Box my={2} />}
-          style={{ marginHorizontal: space(3) }}
+          style={styles.list}
           data={quorums}
           onScroll={handleScroll}
           showsVerticalScrollIndicator={false}
@@ -115,3 +116,9 @@ export const WalletScreen = withSkeleton(
   },
   ScreenSkeleton,
 );
+
+const useStyles = makeStyles(({ space }) => ({
+  list: {
+    marginHorizontal: space(3),
+  },
+}));
