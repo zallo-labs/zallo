@@ -17,22 +17,17 @@ import { ScreenSkeleton } from '@components/skeleton/ScreenSkeleton';
 
 export const ReceiveScreen = withSkeleton(
   () => {
-    const { account } = useSelectedWallet();
+    const { accountAddr } = useSelectedWallet();
     const token = useSelectedToken();
     const navigation = useNavigation<BottomNavigatorProps['navigation']>();
 
     const [amount, setAmount] = useState<BigNumber | undefined>();
 
     const url = useMemo(() => {
-      if (!amount)
-        return buildAddrLink({ target_address: account.contract.address });
+      if (!amount) return buildAddrLink({ target_address: accountAddr });
 
-      return buildTransferLink(
-        { target_address: account.contract.address },
-        token,
-        amount,
-      );
-    }, [amount, account.contract.address, token]);
+      return buildTransferLink({ target_address: accountAddr }, token, amount);
+    }, [amount, accountAddr, token]);
 
     return (
       <Box flex={1}>

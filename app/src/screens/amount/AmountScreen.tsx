@@ -1,6 +1,5 @@
 import { AppbarBack } from '@components/AppbarBack';
 import { Box } from '@components/Box';
-import { usePrevious } from '@util/hook/usePrevious';
 import { CheckIcon, CloseIcon } from '@util/theme/icons';
 import { BigNumber } from 'ethers';
 import { ZERO } from 'lib';

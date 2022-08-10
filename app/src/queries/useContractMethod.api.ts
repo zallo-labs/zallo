@@ -1,5 +1,4 @@
 import { ApolloQueryResult, gql, useQuery } from '@apollo/client';
-import { useAccount } from '@features/account/AccountProvider';
 import {
   ContractMethodQuery,
   ContractMethodQueryVariables,

@@ -1,56 +1,63 @@
-import { gql, useQuery } from '@apollo/client';
+import { gql } from '@apollo/client';
 import { useDevice } from '@features/device/useDevice';
-import { AccountQuery, AccountQueryVariables } from '@gql/generated.api';
+import { useAccountQuery } from '@gql/generated.api';
 import { useApiClient } from '@gql/GqlProvider';
-import { Address, address, connectAccount, Id, toId } from 'lib';
+import { Address, address, connectAccount, toId } from 'lib';
 import { useMemo } from 'react';
 import { ACCOUNT_IMPL } from '~/provider';
 import { CombinedAccount, QUERY_ACCOUNT_POLL_INTERVAL } from '.';
+import {
+  apiWalletFieldsToId,
+  API_WALLET_ID_FIELDS,
+} from '../wallets/useWalletIds.api';
 
 export const API_ACCOUNT_FIELDS = gql`
+  ${API_WALLET_ID_FIELDS}
+
   fragment AccountFields on Account {
     id
     name
     impl
     deploySalt
+    wallets {
+      ...WalletIdFields
+    }
   }
 `;
 
 export const API_ACCOUNT_QUERY = gql`
   ${API_ACCOUNT_FIELDS}
 
-  query Account($id: Address!) {
-    account(id: $id) {
+  query Account($account: Address!) {
+    account(id: $account) {
       ...AccountFields
     }
   }
 `;
 
-export const useApiAccount = (accountAddr: Address) => {
+export const useApiAccount = (addr: Address) => {
   const device = useDevice();
 
-  const { data, ...rest } = useQuery<AccountQuery, AccountQueryVariables>(
-    API_ACCOUNT_QUERY,
-    {
-      client: useApiClient(),
-      variables: { id: accountAddr },
-      pollInterval: QUERY_ACCOUNT_POLL_INTERVAL,
-    },
-  );
+  const { data, ...rest } = useAccountQuery({
+    client: useApiClient(),
+    pollInterval: QUERY_ACCOUNT_POLL_INTERVAL,
+    variables: { account: addr },
+  });
 
-  const account = useMemo(
-    (): CombinedAccount | undefined =>
-      data?.account
-        ? {
-            id: toId(accountAddr),
-            contract: connectAccount(accountAddr, device),
-            impl: data.account.impl ? address(data.account.impl) : ACCOUNT_IMPL,
-            deploySalt: data.account.deploySalt || undefined,
-            name: data.account.name,
-          }
-        : undefined,
-    [data?.account, accountAddr, device],
-  );
+  const apiAccount = useMemo((): CombinedAccount | undefined => {
+    const acc = data?.account;
+    if (!acc) return undefined;
 
-  return { data: account, ...rest };
+    return {
+      id: toId(addr),
+      addr,
+      contract: connectAccount(addr, device),
+      impl: acc.impl ? address(acc.impl) : ACCOUNT_IMPL,
+      deploySalt: acc.deploySalt || undefined,
+      name: acc.name,
+      walletIds: acc.wallets?.map(apiWalletFieldsToId) ?? [],
+    };
+  }, [data?.account, addr, device]);
+
+  return { apiAccount, ...rest };
 };

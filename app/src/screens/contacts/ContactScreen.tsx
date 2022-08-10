@@ -1,24 +1,19 @@
 import { Box } from '@components/Box';
 import { Formik } from 'formik';
 import { Address, isAddress } from 'lib';
-import { Appbar, Button } from 'react-native-paper';
-import { useGoBack } from '~/components2/Appbar/useGoBack';
+import { Button } from 'react-native-paper';
 import { RootNavigatorScreenProps } from '~/navigation/RootNavigator';
 import { useContact } from '~/queries/contacts/useContact';
 import * as Yup from 'yup';
 import { ADDR_YUP_SCHEMA } from '@util/yup';
 import { FormikTextField } from '@components/fields/FormikTextField';
-import { Container } from '@components/list/Container';
-import { BottomAppbar } from '~/components2/Appbar/BottomAppbar';
-import { CheckIcon, DeleteIcon, ScanIcon, ShareIcon } from '@util/theme/icons';
+import { CheckIcon, ScanIcon } from '@util/theme/icons';
 import { useUpsertContact } from '~/mutations/contact/useUpsertContact.api';
-import { useDeleteContact } from '~/mutations/contact/useDeleteContact.api';
 import assert from 'assert';
 import { FormikSubmitFab } from '@components/fields/FormikSubmitFab';
-import { Share, StyleSheet } from 'react-native';
+import { StyleSheet } from 'react-native';
 import { Contact, useContacts } from '~/queries/contacts/useContacts.api';
 import { useCallback, useMemo } from 'react';
-import { buildAddrLink } from '@features/qr/addrLink';
 import { ContactAppbar } from './ContactAppbar';
 
 const defaultValues = {

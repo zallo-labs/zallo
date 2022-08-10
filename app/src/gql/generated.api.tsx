@@ -1819,7 +1819,7 @@ export type QueryTxsArgs = {
 
 
 export type QueryWalletArgs = {
-  where: WalletWhereUniqueInput;
+  id: WalletId;
 };
 
 
@@ -3509,7 +3509,7 @@ export type CreateAccountMutationVariables = Exact<{
 }>;
 
 
-export type CreateAccountMutation = { __typename?: 'Mutation', createAccount: { __typename?: 'Account', id: string, name: string, impl?: string | null, deploySalt?: string | null, wallets?: Array<{ __typename?: 'Wallet', id: string, accountId: string, ref: string, name: string, quorums?: Array<{ __typename?: 'Quorum', approvers?: Array<{ __typename?: 'Approver', userId: string }> | null }> | null }> | null } };
+export type CreateAccountMutation = { __typename?: 'Mutation', createAccount: { __typename?: 'Account', id: string } };
 
 export type CreateCommentMutationVariables = Exact<{
   account: Scalars['Address'];
@@ -3610,7 +3610,7 @@ export type SetWalletNameMutationVariables = Exact<{
 }>;
 
 
-export type SetWalletNameMutation = { __typename?: 'Mutation', setWalletName: { __typename?: 'Wallet', id: string, accountId: string, ref: string, name: string, quorums?: Array<{ __typename?: 'Quorum', approvers?: Array<{ __typename?: 'Approver', userId: string }> | null }> | null } };
+export type SetWalletNameMutation = { __typename?: 'Mutation', setWalletName: { __typename?: 'Wallet', id: string } };
 
 export type SetWalletQuorumsMutationVariables = Exact<{
   setQuroumsId: WalletId;
@@ -3619,21 +3619,23 @@ export type SetWalletQuorumsMutationVariables = Exact<{
 }>;
 
 
-export type SetWalletQuorumsMutation = { __typename?: 'Mutation', setWalletQuroums?: { __typename?: 'Wallet', id: string, accountId: string, ref: string, name: string, quorums?: Array<{ __typename?: 'Quorum', approvers?: Array<{ __typename?: 'Approver', userId: string }> | null }> | null } | null };
+export type SetWalletQuorumsMutation = { __typename?: 'Mutation', setWalletQuroums?: { __typename?: 'Wallet', id: string } | null };
 
-export type AccountFieldsFragment = { __typename?: 'Account', id: string, name: string, impl?: string | null, deploySalt?: string | null };
+export type AccountFieldsFragment = { __typename?: 'Account', id: string, name: string, impl?: string | null, deploySalt?: string | null, wallets?: Array<{ __typename?: 'Wallet', id: string, accountId: string, ref: string }> | null };
 
 export type AccountQueryVariables = Exact<{
-  id: Scalars['Address'];
+  account: Scalars['Address'];
 }>;
 
 
-export type AccountQuery = { __typename?: 'Query', account?: { __typename?: 'Account', id: string, name: string, impl?: string | null, deploySalt?: string | null } | null };
+export type AccountQuery = { __typename?: 'Query', account?: { __typename?: 'Account', id: string, name: string, impl?: string | null, deploySalt?: string | null, wallets?: Array<{ __typename?: 'Wallet', id: string, accountId: string, ref: string }> | null } | null };
 
-export type UserAccountsQueryVariables = Exact<{ [key: string]: never; }>;
+export type ContactFieldsFragment = { __typename?: 'Contact', id: string, addr: string, name: string };
+
+export type ContactsQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type UserAccountsQuery = { __typename?: 'Query', userAccounts: Array<{ __typename?: 'Account', id: string, name: string, impl?: string | null, deploySalt?: string | null }> };
+export type ContactsQuery = { __typename?: 'Query', contacts: Array<{ __typename?: 'Contact', id: string, addr: string, name: string }> };
 
 export type SubmissionFieldsFragment = { __typename?: 'Submission', id: string, hash: string, nonce: number, gasLimit: any, gasPrice?: any | null, finalized: boolean, createdAt: any };
 
@@ -3658,13 +3660,6 @@ export type CommentsQueryVariables = Exact<{
 
 export type CommentsQuery = { __typename?: 'Query', comments: Array<{ __typename?: 'Comment', id: string, accountId: string, key: string, nonce: number, authorId: string, content: string, createdAt: any, updatedAt: any, reactions?: Array<{ __typename?: 'Reaction', id: string, accountId: string, key: string, nonce: number, userId: string, emojis?: Array<string> | null }> | null }> };
 
-export type ContactFieldsFragment = { __typename?: 'Contact', id: string, addr: string, name: string };
-
-export type ContactsQueryVariables = Exact<{ [key: string]: never; }>;
-
-
-export type ContactsQuery = { __typename?: 'Query', contacts: Array<{ __typename?: 'Contact', id: string, addr: string, name: string }> };
-
 export type ContractMethodQueryVariables = Exact<{
   contract: Scalars['Address'];
   sighash: Scalars['Bytes'];
@@ -3673,19 +3668,43 @@ export type ContractMethodQueryVariables = Exact<{
 
 export type ContractMethodQuery = { __typename?: 'Query', contractMethod?: { __typename?: 'ContractMethod', id: string, fragment: any } | null };
 
-export type WalletFieldsFragment = { __typename?: 'Wallet', id: string, accountId: string, ref: string, name: string, quorums?: Array<{ __typename?: 'Quorum', approvers?: Array<{ __typename?: 'Approver', userId: string }> | null }> | null };
+export type WalletQueryVariables = Exact<{
+  wallet: WalletId;
+}>;
 
-export type UserWalletsQueryVariables = Exact<{ [key: string]: never; }>;
+
+export type WalletQuery = { __typename?: 'Query', wallet?: { __typename?: 'Wallet', name: string, id: string, accountId: string, ref: string, quorums?: Array<{ __typename?: 'Quorum', approvers?: Array<{ __typename?: 'Approver', userId: string }> | null }> | null } | null };
+
+export type WalletIdFieldsFragment = { __typename?: 'Wallet', id: string, accountId: string, ref: string };
+
+export type UserWalletIdsQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type UserWalletsQuery = { __typename?: 'Query', userWallets: Array<{ __typename?: 'Wallet', id: string, accountId: string, ref: string, name: string, quorums?: Array<{ __typename?: 'Quorum', approvers?: Array<{ __typename?: 'Approver', userId: string }> | null }> | null }> };
+export type UserWalletIdsQuery = { __typename?: 'Query', userWallets: Array<{ __typename?: 'Wallet', id: string, accountId: string, ref: string }> };
 
+export const WalletIdFieldsFragmentDoc = gql`
+    fragment WalletIdFields on Wallet {
+  id
+  accountId
+  ref
+}
+    `;
 export const AccountFieldsFragmentDoc = gql`
     fragment AccountFields on Account {
   id
   name
   impl
   deploySalt
+  wallets {
+    ...WalletIdFields
+  }
+}
+    ${WalletIdFieldsFragmentDoc}`;
+export const ContactFieldsFragmentDoc = gql`
+    fragment ContactFields on Contact {
+  id
+  addr
+  name
 }
     `;
 export const SubmissionFieldsFragmentDoc = gql`
@@ -3744,26 +3763,6 @@ export const CommentFieldsFragmentDoc = gql`
   }
 }
     ${ReactionFieldsFragmentDoc}`;
-export const ContactFieldsFragmentDoc = gql`
-    fragment ContactFields on Contact {
-  id
-  addr
-  name
-}
-    `;
-export const WalletFieldsFragmentDoc = gql`
-    fragment WalletFields on Wallet {
-  id
-  accountId
-  ref
-  name
-  quorums {
-    approvers {
-      userId
-    }
-  }
-}
-    `;
 export const CreateAccountDocument = gql`
     mutation CreateAccount($account: Address!, $impl: Address!, $deploySalt: Bytes32!, $name: String!, $wallets: [WalletWithoutAccountInput!]!) {
   createAccount(
@@ -3773,14 +3772,10 @@ export const CreateAccountDocument = gql`
     name: $name
     wallets: $wallets
   ) {
-    ...AccountFields
-    wallets {
-      ...WalletFields
-    }
+    id
   }
 }
-    ${AccountFieldsFragmentDoc}
-${WalletFieldsFragmentDoc}`;
+    `;
 export type CreateAccountMutationFn = Apollo.MutationFunction<CreateAccountMutation, CreateAccountMutationVariables>;
 
 /**
@@ -4189,10 +4184,10 @@ export type DeleteWalletMutationOptions = Apollo.BaseMutationOptions<DeleteWalle
 export const SetWalletNameDocument = gql`
     mutation SetWalletName($id: WalletId!, $name: String!) {
   setWalletName(id: $id, name: $name) {
-    ...WalletFields
+    id
   }
 }
-    ${WalletFieldsFragmentDoc}`;
+    `;
 export type SetWalletNameMutationFn = Apollo.MutationFunction<SetWalletNameMutation, SetWalletNameMutationVariables>;
 
 /**
@@ -4223,10 +4218,10 @@ export type SetWalletNameMutationOptions = Apollo.BaseMutationOptions<SetWalletN
 export const SetWalletQuorumsDocument = gql`
     mutation SetWalletQuorums($setQuroumsId: WalletId!, $quorums: [QuorumScalar!]!, $txHash: Bytes32!) {
   setWalletQuroums(id: $setQuroumsId, quorums: $quorums, txHash: $txHash) {
-    ...WalletFields
+    id
   }
 }
-    ${WalletFieldsFragmentDoc}`;
+    `;
 export type SetWalletQuorumsMutationFn = Apollo.MutationFunction<SetWalletQuorumsMutation, SetWalletQuorumsMutationVariables>;
 
 /**
@@ -4256,8 +4251,8 @@ export type SetWalletQuorumsMutationHookResult = ReturnType<typeof useSetWalletQ
 export type SetWalletQuorumsMutationResult = Apollo.MutationResult<SetWalletQuorumsMutation>;
 export type SetWalletQuorumsMutationOptions = Apollo.BaseMutationOptions<SetWalletQuorumsMutation, SetWalletQuorumsMutationVariables>;
 export const AccountDocument = gql`
-    query Account($id: Address!) {
-  account(id: $id) {
+    query Account($account: Address!) {
+  account(id: $account) {
     ...AccountFields
   }
 }
@@ -4275,7 +4270,7 @@ export const AccountDocument = gql`
  * @example
  * const { data, loading, error } = useAccountQuery({
  *   variables: {
- *      id: // value for 'id'
+ *      account: // value for 'account'
  *   },
  * });
  */
@@ -4290,40 +4285,40 @@ export function useAccountLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<Ac
 export type AccountQueryHookResult = ReturnType<typeof useAccountQuery>;
 export type AccountLazyQueryHookResult = ReturnType<typeof useAccountLazyQuery>;
 export type AccountQueryResult = Apollo.QueryResult<AccountQuery, AccountQueryVariables>;
-export const UserAccountsDocument = gql`
-    query UserAccounts {
-  userAccounts {
-    ...AccountFields
+export const ContactsDocument = gql`
+    query Contacts {
+  contacts {
+    ...ContactFields
   }
 }
-    ${AccountFieldsFragmentDoc}`;
+    ${ContactFieldsFragmentDoc}`;
 
 /**
- * __useUserAccountsQuery__
+ * __useContactsQuery__
  *
- * To run a query within a React component, call `useUserAccountsQuery` and pass it any options that fit your needs.
- * When your component renders, `useUserAccountsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * To run a query within a React component, call `useContactsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useContactsQuery` returns an object from Apollo Client that contains loading, error, and data properties
  * you can use to render your UI.
  *
  * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
  *
  * @example
- * const { data, loading, error } = useUserAccountsQuery({
+ * const { data, loading, error } = useContactsQuery({
  *   variables: {
  *   },
  * });
  */
-export function useUserAccountsQuery(baseOptions?: Apollo.QueryHookOptions<UserAccountsQuery, UserAccountsQueryVariables>) {
+export function useContactsQuery(baseOptions?: Apollo.QueryHookOptions<ContactsQuery, ContactsQueryVariables>) {
         const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useQuery<UserAccountsQuery, UserAccountsQueryVariables>(UserAccountsDocument, options);
+        return Apollo.useQuery<ContactsQuery, ContactsQueryVariables>(ContactsDocument, options);
       }
-export function useUserAccountsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<UserAccountsQuery, UserAccountsQueryVariables>) {
+export function useContactsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<ContactsQuery, ContactsQueryVariables>) {
           const options = {...defaultOptions, ...baseOptions}
-          return Apollo.useLazyQuery<UserAccountsQuery, UserAccountsQueryVariables>(UserAccountsDocument, options);
+          return Apollo.useLazyQuery<ContactsQuery, ContactsQueryVariables>(ContactsDocument, options);
         }
-export type UserAccountsQueryHookResult = ReturnType<typeof useUserAccountsQuery>;
-export type UserAccountsLazyQueryHookResult = ReturnType<typeof useUserAccountsLazyQuery>;
-export type UserAccountsQueryResult = Apollo.QueryResult<UserAccountsQuery, UserAccountsQueryVariables>;
+export type ContactsQueryHookResult = ReturnType<typeof useContactsQuery>;
+export type ContactsLazyQueryHookResult = ReturnType<typeof useContactsLazyQuery>;
+export type ContactsQueryResult = Apollo.QueryResult<ContactsQuery, ContactsQueryVariables>;
 export const ApiTxsDocument = gql`
     query ApiTxs($account: Address!) {
   txs(account: $account) {
@@ -4395,40 +4390,6 @@ export function useCommentsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<C
 export type CommentsQueryHookResult = ReturnType<typeof useCommentsQuery>;
 export type CommentsLazyQueryHookResult = ReturnType<typeof useCommentsLazyQuery>;
 export type CommentsQueryResult = Apollo.QueryResult<CommentsQuery, CommentsQueryVariables>;
-export const ContactsDocument = gql`
-    query Contacts {
-  contacts {
-    ...ContactFields
-  }
-}
-    ${ContactFieldsFragmentDoc}`;
-
-/**
- * __useContactsQuery__
- *
- * To run a query within a React component, call `useContactsQuery` and pass it any options that fit your needs.
- * When your component renders, `useContactsQuery` returns an object from Apollo Client that contains loading, error, and data properties
- * you can use to render your UI.
- *
- * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
- *
- * @example
- * const { data, loading, error } = useContactsQuery({
- *   variables: {
- *   },
- * });
- */
-export function useContactsQuery(baseOptions?: Apollo.QueryHookOptions<ContactsQuery, ContactsQueryVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useQuery<ContactsQuery, ContactsQueryVariables>(ContactsDocument, options);
-      }
-export function useContactsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<ContactsQuery, ContactsQueryVariables>) {
-          const options = {...defaultOptions, ...baseOptions}
-          return Apollo.useLazyQuery<ContactsQuery, ContactsQueryVariables>(ContactsDocument, options);
-        }
-export type ContactsQueryHookResult = ReturnType<typeof useContactsQuery>;
-export type ContactsLazyQueryHookResult = ReturnType<typeof useContactsLazyQuery>;
-export type ContactsQueryResult = Apollo.QueryResult<ContactsQuery, ContactsQueryVariables>;
 export const ContractMethodDocument = gql`
     query ContractMethod($contract: Address!, $sighash: Bytes!) {
   contractMethod(contract: $contract, sighash: $sighash) {
@@ -4466,37 +4427,78 @@ export function useContractMethodLazyQuery(baseOptions?: Apollo.LazyQueryHookOpt
 export type ContractMethodQueryHookResult = ReturnType<typeof useContractMethodQuery>;
 export type ContractMethodLazyQueryHookResult = ReturnType<typeof useContractMethodLazyQuery>;
 export type ContractMethodQueryResult = Apollo.QueryResult<ContractMethodQuery, ContractMethodQueryVariables>;
-export const UserWalletsDocument = gql`
-    query UserWallets {
-  userWallets {
-    ...WalletFields
+export const WalletDocument = gql`
+    query Wallet($wallet: WalletId!) {
+  wallet(id: $wallet) {
+    ...WalletIdFields
+    name
+    quorums {
+      approvers {
+        userId
+      }
+    }
   }
 }
-    ${WalletFieldsFragmentDoc}`;
+    ${WalletIdFieldsFragmentDoc}`;
 
 /**
- * __useUserWalletsQuery__
+ * __useWalletQuery__
  *
- * To run a query within a React component, call `useUserWalletsQuery` and pass it any options that fit your needs.
- * When your component renders, `useUserWalletsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * To run a query within a React component, call `useWalletQuery` and pass it any options that fit your needs.
+ * When your component renders, `useWalletQuery` returns an object from Apollo Client that contains loading, error, and data properties
  * you can use to render your UI.
  *
  * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
  *
  * @example
- * const { data, loading, error } = useUserWalletsQuery({
+ * const { data, loading, error } = useWalletQuery({
+ *   variables: {
+ *      wallet: // value for 'wallet'
+ *   },
+ * });
+ */
+export function useWalletQuery(baseOptions: Apollo.QueryHookOptions<WalletQuery, WalletQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<WalletQuery, WalletQueryVariables>(WalletDocument, options);
+      }
+export function useWalletLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<WalletQuery, WalletQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<WalletQuery, WalletQueryVariables>(WalletDocument, options);
+        }
+export type WalletQueryHookResult = ReturnType<typeof useWalletQuery>;
+export type WalletLazyQueryHookResult = ReturnType<typeof useWalletLazyQuery>;
+export type WalletQueryResult = Apollo.QueryResult<WalletQuery, WalletQueryVariables>;
+export const UserWalletIdsDocument = gql`
+    query UserWalletIds {
+  userWallets {
+    ...WalletIdFields
+  }
+}
+    ${WalletIdFieldsFragmentDoc}`;
+
+/**
+ * __useUserWalletIdsQuery__
+ *
+ * To run a query within a React component, call `useUserWalletIdsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useUserWalletIdsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useUserWalletIdsQuery({
  *   variables: {
  *   },
  * });
  */
-export function useUserWalletsQuery(baseOptions?: Apollo.QueryHookOptions<UserWalletsQuery, UserWalletsQueryVariables>) {
+export function useUserWalletIdsQuery(baseOptions?: Apollo.QueryHookOptions<UserWalletIdsQuery, UserWalletIdsQueryVariables>) {
         const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useQuery<UserWalletsQuery, UserWalletsQueryVariables>(UserWalletsDocument, options);
+        return Apollo.useQuery<UserWalletIdsQuery, UserWalletIdsQueryVariables>(UserWalletIdsDocument, options);
       }
-export function useUserWalletsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<UserWalletsQuery, UserWalletsQueryVariables>) {
+export function useUserWalletIdsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<UserWalletIdsQuery, UserWalletIdsQueryVariables>) {
           const options = {...defaultOptions, ...baseOptions}
-          return Apollo.useLazyQuery<UserWalletsQuery, UserWalletsQueryVariables>(UserWalletsDocument, options);
+          return Apollo.useLazyQuery<UserWalletIdsQuery, UserWalletIdsQueryVariables>(UserWalletIdsDocument, options);
         }
-export type UserWalletsQueryHookResult = ReturnType<typeof useUserWalletsQuery>;
-export type UserWalletsLazyQueryHookResult = ReturnType<typeof useUserWalletsLazyQuery>;
-export type UserWalletsQueryResult = Apollo.QueryResult<UserWalletsQuery, UserWalletsQueryVariables>;
+export type UserWalletIdsQueryHookResult = ReturnType<typeof useUserWalletIdsQuery>;
+export type UserWalletIdsLazyQueryHookResult = ReturnType<typeof useUserWalletIdsLazyQuery>;
+export type UserWalletIdsQueryResult = Apollo.QueryResult<UserWalletIdsQuery, UserWalletIdsQueryVariables>;

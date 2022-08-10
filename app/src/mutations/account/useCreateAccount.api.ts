@@ -6,36 +6,30 @@ import {
   AccountQuery,
   AccountQueryVariables,
   useCreateAccountMutation,
-  UserAccountsQuery,
-  UserAccountsQueryVariables,
+  UserWalletIdsQuery,
+  UserWalletIdsQueryVariables,
+  WalletQuery,
+  WalletQueryVariables,
 } from '@gql/generated.api';
 import {
   Address,
   calculateProxyAddress,
-  getWalletId,
-  hashQuorum,
   randomWalletRef,
   randomDeploySalt,
   toId,
   toQuorums,
   toQuorum,
+  getWalletId,
 } from 'lib';
 import { API_ACCOUNT_QUERY } from '~/queries/account/useAccount.api';
-import {
-  API_ACCOUNT_FIELDS,
-  API_USER_ACCOUNTS_QUERY,
-} from '~/queries/account/useAccounts.api';
 import produce from 'immer';
-import { API_WALLET_FIELDS } from '~/queries/wallets/useWallets.api';
-import { updateApiUserWalletsCache } from '../wallet/useSetWalletQuorums.api';
 import { ACCOUNT_IMPL } from '~/provider';
 import { useDevice } from '@features/device/useDevice';
 import { useAccountProxyFactory } from '@features/account/useAccountProxyFactory';
+import { API_QUERY_WALLET } from '~/queries/wallets/useWallet.api';
+import { API_QUERY_USER_WALLETS } from '~/queries/wallets/useWalletIds.api';
 
-export const API_QUERY_UPSERT_ACCOUNT = gql`
-  ${API_ACCOUNT_FIELDS}
-  ${API_WALLET_FIELDS}
-
+gql`
   mutation CreateAccount(
     $account: Address!
     $impl: Address!
@@ -50,10 +44,7 @@ export const API_QUERY_UPSERT_ACCOUNT = gql`
       name: $name
       wallets: $wallets
     ) {
-      ...AccountFields
-      wallets {
-        ...WalletFields
-      }
+      id
     }
   }
 `;
@@ -110,70 +101,80 @@ export const useCreateApiAccount = () => {
         createAccount: {
           __typename: 'Account',
           id: toId(accountAddr),
-          impl,
-          deploySalt,
-          name,
-          wallets: wallets.map((acc) => ({
-            __typename: 'Wallet',
-            id: getWalletId(accountAddr, acc.ref),
-            accountId: accountAddr,
-            ref: acc.ref,
-            name: acc.name,
-            quorums: acc.quorums.map((quorum) => ({
-              __typename: 'Quorum',
-              hash: hashQuorum(quorum.approvers),
-              approvers: quorum.approvers.map((approver) => ({
-                __typename: 'Approver',
-                userId: approver,
-              })),
-            })),
-          })),
         },
       },
       update: (cache, res) => {
         if (!res?.data?.createAccount) return;
-        const { wallets, ...account } = res.data.createAccount;
 
-        // Account query
-        const accountOpts: QueryOpts<AccountQueryVariables> = {
+        // Account: create
+        cache.writeQuery<AccountQuery, AccountQueryVariables>({
           query: API_ACCOUNT_QUERY,
-          variables: { id: account.id },
-        };
-
-        cache.writeQuery<AccountQuery>({
-          ...accountOpts,
-          overwrite: true,
+          variables: { account: accountAddr },
           data: {
-            account,
+            account: {
+              id: toId(accountAddr),
+              name,
+              deploySalt,
+              impl,
+              wallets: wallets.map((w) => ({
+                __typename: 'Wallet',
+                id: getWalletId(accountAddr, w.ref),
+                accountId: accountAddr,
+                ref: w.ref,
+              })),
+            },
           },
         });
 
-        // UserAccounts query
-        const accountsOpts: QueryOpts<UserAccountsQueryVariables> = {
-          query: API_USER_ACCOUNTS_QUERY,
+        // Wallet: create each wallet
+        for (const w of wallets) {
+          cache.writeQuery<WalletQuery, WalletQueryVariables>({
+            query: API_QUERY_WALLET,
+            variables: { wallet: { accountId: accountAddr, ref: w.ref } },
+            data: {
+              wallet: {
+                __typename: 'Wallet',
+                id: getWalletId(accountAddr, w.ref),
+                accountId: accountAddr,
+                ref: w.ref,
+                name: w.name,
+                quorums: w.quorums.map((q) => ({
+                  __typename: 'Quorum',
+                  approvers: q.approvers.map((approver) => ({
+                    __typename: 'Approver',
+                    userId: approver,
+                  })),
+                })),
+              },
+            },
+          });
+        }
+
+        // UserWalletIds: add wallets
+        const userWalletIdsOpts: QueryOpts<UserWalletIdsQueryVariables> = {
+          query: API_QUERY_USER_WALLETS,
+          variables: {},
         };
 
-        const data: UserAccountsQuery = cache.readQuery<UserAccountsQuery>(
-          accountsOpts,
-        ) ?? {
-          userAccounts: [],
-        };
+        const userWalletIdsData: UserWalletIdsQuery =
+          cache.readQuery<UserWalletIdsQuery>(userWalletIdsOpts) ?? {
+            userWallets: [],
+          };
 
-        cache.writeQuery<UserAccountsQuery>({
-          ...accountsOpts,
+        cache.writeQuery<UserWalletIdsQuery>({
+          ...userWalletIdsOpts,
           overwrite: true,
-          data: produce(data, (data) => {
-            const i = data.userAccounts.findIndex((s) => s.id === account.id);
-            if (i >= 0) {
-              data.userAccounts[i] = account;
-            } else {
-              data.userAccounts.push(account);
-            }
+          data: produce(userWalletIdsData, (data) => {
+            data.userWallets.push(
+              ...wallets.map((w): UserWalletIdsQuery['userWallets'][0] => ({
+                __typename: 'Wallet',
+                id: getWalletId(accountAddr, w.ref),
+                accountId: accountAddr,
+                ref: w.ref,
+              })),
+            );
           }),
         });
-
-        // User wallets
-        if (wallets) updateApiUserWalletsCache(cache, wallets);
       },
     });
   };

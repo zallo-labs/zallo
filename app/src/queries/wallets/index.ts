@@ -10,12 +10,12 @@ export interface CombinedQuorum {
 export const isCombinedQuorum = createIsObj<CombinedQuorum>('approvers');
 
 export interface WalletId {
+  id: Id;
   accountAddr: Address;
   ref: WalletRef;
 }
 
 export interface CombinedWallet extends WalletId {
-  id: Id;
   name: string;
   quorums: CombinedQuorum[];
   active?: boolean;

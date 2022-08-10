@@ -15,6 +15,11 @@ export class WalletId {
 }
 
 @ArgsType()
+export class WalletArgs {
+  id: WalletId;
+}
+
+@ArgsType()
 export class SetWalletNameArgs {
   id: WalletId;
 
@@ -30,9 +35,4 @@ export class SetQuorumsArgs {
 
   @Bytes32Field()
   txHash: string;
-}
-
-@ArgsType()
-export class DeleteWalletArgs {
-  id: WalletId;
 }

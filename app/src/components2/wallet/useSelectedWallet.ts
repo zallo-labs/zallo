@@ -1,10 +1,10 @@
 import { persistAtom } from '@util/effect/persistAtom';
-import { WalletRef, Address } from 'lib';
-import { useCallback, useMemo } from 'react';
+import { WalletRef, Address, getWalletId } from 'lib';
+import { useCallback } from 'react';
 import { atom, useRecoilValue, useSetRecoilState } from 'recoil';
-import { CombinedWallet } from '~/queries/wallets';
-import { useWallets } from '~/queries/wallets/useWallets';
-import { useAccounts } from '~/queries/account/useAccounts';
+import { WalletId } from '~/queries/wallets';
+import { useWallet } from '~/queries/wallets/useWallet';
+import { useWalletIds } from '~/queries/wallets/useWalletIds';
 
 type WalletKey = [Address, WalletRef];
 
@@ -15,29 +15,25 @@ const selectedWallet = atom<WalletKey | null>({
 });
 
 export const useSelectedWallet = () => {
-  const { wallets } = useWallets();
-  const { accounts } = useAccounts();
-  const key = useRecoilValue(selectedWallet);
+  const { walletIds } = useWalletIds();
+  const walletId = useRecoilValue(selectedWallet);
 
-  return useMemo(() => {
-    const wallet =
-      (key &&
-        wallets.find((a) => a.accountAddr === key[0] && a.ref === key[1])) ||
-      wallets[0];
-
-    const account = accounts.find(
-      (s) => s.contract.address === wallet.accountAddr,
-    )!;
-
-    return { ...wallet, account };
-  }, [wallets, key, accounts]);
+  return useWallet(
+    walletId
+      ? {
+          id: getWalletId(walletId[0], walletId[1]),
+          accountAddr: walletId[0],
+          ref: walletId[1],
+        }
+      : walletIds[0],
+  );
 };
 
 export const useSelectWallet = () => {
   const select = useSetRecoilState(selectedWallet);
 
   return useCallback(
-    (acc: CombinedWallet) => select([acc.accountAddr, acc.ref]),
+    (acc: WalletId) => select([acc.accountAddr, acc.ref]),
     [select],
   );
 };

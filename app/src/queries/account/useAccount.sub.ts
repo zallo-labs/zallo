@@ -1,45 +1,53 @@
-import { gql, useQuery } from '@apollo/client';
+import { gql } from '@apollo/client';
 import { useDevice } from '@features/device/useDevice';
-import { AccountQuery, AccountQueryVariables } from '@gql/generated.sub';
+import { useAccountQuery } from '@gql/generated.sub';
 import { useSubgraphClient } from '@gql/GqlProvider';
 import { Address, address, connectAccount, toId } from 'lib';
 import { useMemo } from 'react';
 import { QUERY_ACCOUNT_POLL_INTERVAL, CombinedAccount } from '.';
+import {
+  subWalletFieldsToId,
+  SUB_WALLET_ID_FIELDS,
+} from '../wallets/useWalletIds.sub';
 
-const QUERY = gql`
+gql`
+  ${SUB_WALLET_ID_FIELDS}
+
   query Account($account: ID!) {
     account(id: $account) {
+      id
       impl {
         id
+      }
+      wallets {
+        ...WalletIdFields
       }
     }
   }
 `;
 
-export const useSubAccount = (accountAddr: Address) => {
+export const useSubAccount = (addr: Address) => {
   const device = useDevice();
 
-  const { data, ...rest } = useQuery<AccountQuery, AccountQueryVariables>(
-    QUERY,
-    {
-      client: useSubgraphClient(),
-      variables: { account: toId(accountAddr) },
-      pollInterval: QUERY_ACCOUNT_POLL_INTERVAL,
-    },
-  );
+  const { data, ...rest } = useAccountQuery({
+    client: useSubgraphClient(),
+    pollInterval: QUERY_ACCOUNT_POLL_INTERVAL,
+    variables: { account: toId(addr) },
+  });
 
-  const account = useMemo(
-    (): CombinedAccount | undefined =>
-      data?.account
-        ? {
-            id: toId(accountAddr),
-            contract: connectAccount(accountAddr, device),
-            impl: address(data.account.impl.id),
-            name: '',
-          }
-        : undefined,
-    [data?.account, accountAddr, device],
-  );
+  const subAccount = useMemo((): CombinedAccount | undefined => {
+    const acc = data?.account;
+    if (!acc) return undefined;
 
-  return { data: account, ...rest };
+    return {
+      id: toId(addr),
+      addr: addr,
+      contract: connectAccount(addr, device),
+      impl: address(acc.impl.id),
+      name: '',
+      walletIds: acc.wallets.map(subWalletFieldsToId),
+    };
+  }, [data?.account, addr, device]);
+
+  return { subAccount, ...rest };
 };

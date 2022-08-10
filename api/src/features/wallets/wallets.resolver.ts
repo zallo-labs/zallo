@@ -12,16 +12,15 @@ import { GraphQLResolveInfo } from 'graphql';
 import { getSelect } from '~/util/select';
 import {
   WalletId,
-  DeleteWalletArgs,
   SetWalletNameArgs,
   SetQuorumsArgs as SetWalletQuorumsArgs,
+  WalletArgs,
 } from './wallets.args';
 import {
   connectOrCreateAccount,
   connectOrCreateUser,
 } from '~/util/connect-or-create';
 import { Wallet } from '@gen/wallet/wallet.model';
-import { FindUniqueWalletArgs } from '@gen/wallet/find-unique-wallet.args';
 import { FindManyWalletArgs } from '@gen/wallet/find-many-wallet.args';
 import { Address, getWalletId, hashQuorum, Quorum, toWalletRef } from 'lib';
 import { Prisma } from '@prisma/client';
@@ -42,11 +41,11 @@ export class WalletsResolver {
 
   @Query(() => Wallet, { nullable: true })
   async wallet(
-    @Args() args: FindUniqueWalletArgs,
+    @Args() { id }: WalletArgs,
     @Info() info: GraphQLResolveInfo,
   ): Promise<Wallet | null> {
     return this.prisma.wallet.findUnique({
-      ...args,
+      where: { accountId_ref: id },
       ...getSelect(info),
     });
   }
@@ -164,7 +163,7 @@ export class WalletsResolver {
   }
 
   @Mutation(() => Boolean)
-  deleteWallet(@Args() { id }: DeleteWalletArgs): boolean {
+  deleteWallet(@Args() { id }: WalletArgs): boolean {
     this.prisma.wallet.delete({
       where: {
         accountId_ref: id,

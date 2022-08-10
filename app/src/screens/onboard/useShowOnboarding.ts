@@ -1,3 +1,3 @@
-import { useWallets } from '~/queries/wallets/useWallets';
+import { useWalletIds } from '~/queries/wallets/useWalletIds';
 
-export const useShowOnboarding = () => useWallets().wallets.length === 0;
+export const useShowOnboarding = () => useWalletIds().walletIds.length === 0;

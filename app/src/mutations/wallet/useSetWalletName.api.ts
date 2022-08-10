@@ -1,17 +1,20 @@
 import { gql } from '@apollo/client';
-import { useSetWalletNameMutation } from '@gql/generated.api';
+import {
+  useSetWalletNameMutation,
+  WalletQuery,
+  WalletQueryVariables,
+} from '@gql/generated.api';
 import { useApiClient } from '@gql/GqlProvider';
+import { QueryOpts } from '@gql/update';
+import produce from 'immer';
 import { useCallback } from 'react';
 import { CombinedWallet } from '~/queries/wallets';
-import { API_WALLET_FIELDS } from '~/queries/wallets/useWallets.api';
-import { updateApiUserWalletsCache } from './useSetWalletQuorums.api';
+import { API_QUERY_WALLET } from '~/queries/wallets/useWallet.api';
 
-const QUERY = gql`
-  ${API_WALLET_FIELDS}
-
+gql`
   mutation SetWalletName($id: WalletId!, $name: String!) {
     setWalletName(id: $id, name: $name) {
-      ...WalletFields
+      id
     }
   }
 `;
@@ -20,7 +23,7 @@ export const useSetWalletName = () => {
   const [mutate] = useSetWalletNameMutation({ client: useApiClient() });
 
   return useCallback(
-    ({ id, accountAddr, ref, name, quorums }: CombinedWallet) => {
+    ({ id, accountAddr, ref, name }: CombinedWallet) => {
       return mutate({
         variables: {
           id: { accountId: accountAddr, ref },
@@ -30,21 +33,37 @@ export const useSetWalletName = () => {
           setWalletName: {
             __typename: 'Wallet',
             id,
-            accountId: accountAddr,
-            ref,
-            name,
-            quorums: quorums.map((quorum) => ({
-              __typename: 'Quorum',
-              approvers: quorum.approvers.map((approver) => ({
-                __typename: 'Approver',
-                userId: approver,
-              })),
-            })),
           },
         },
         update: (cache, result) => {
-          const acc = result.data?.setWalletName;
-          if (acc) updateApiUserWalletsCache(cache, [acc]);
+          if (!result.data?.setWalletName) return;
+
+          // Wallet; upsert name
+          const opts: QueryOpts<WalletQueryVariables> = {
+            query: API_QUERY_WALLET,
+            variables: { wallet: { accountId: accountAddr, ref } },
+          };
+
+          const data: WalletQuery = cache.readQuery<WalletQuery>(opts) ?? {
+            wallet: null,
+          };
+
+          cache.writeQuery<WalletQuery>({
+            ...opts,
+            overwrite: true,
+            data: produce(data, (data) => {
+              if (data.wallet) {
+                data.wallet.name = name;
+              } else {
+                data.wallet = {
+                  id,
+                  accountId: accountAddr,
+                  ref,
+                  name,
+                };
+              }
+            }),
+          });
         },
       });
     },

@@ -3,7 +3,6 @@ import { FiatValue } from '@components/FiatValue';
 import { BasicTextField } from '@components/fields/BasicTextField';
 import { useBigNumberInput } from '@components/fields/useBigNumberInput';
 import { TokenValue } from '@components/token/TokenValue';
-import { usePrevious } from '@util/hook/usePrevious';
 import { SwapIcon } from '@util/theme/icons';
 import { useTheme } from '@util/theme/paper';
 import { BigNumber } from 'ethers';
@@ -13,7 +12,6 @@ import { IconButton, Text } from 'react-native-paper';
 import { useSelectedToken } from '~/components2/token/useSelectedToken';
 import { useTokenPrice } from '~/queries/useTokenPrice.uni';
 import { fiatToBigNumber, fiatToToken, FIAT_DECIMALS } from '~/token/fiat';
-import { convertTokenAmount } from '~/token/token';
 import { useTokenValue } from '~/token/useTokenValue';
 
 export interface AmountInputProps {
