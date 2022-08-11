@@ -1,5 +1,5 @@
-import { CardItemProps } from '../card/CardItem';
-import { CardItemSkeleton } from '../card/CardItemSkeleton';
+import { CardItemProps } from '~/components2/card/CardItem';
+import { CardItemSkeleton } from '~/components2/card/CardItemSkeleton';
 
 export const WALLET_PAYMENT_CARD_HEIGHT = 160;
 

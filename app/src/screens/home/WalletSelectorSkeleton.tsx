@@ -1,6 +1,6 @@
 import { Box } from '@components/Box';
 import { Indicator } from '~/components2/Indicator/Indicator';
-import { WalletPaymentCardSkeleton } from '~/components2/wallet/WalletPaymentCardSkeleton';
+import { WalletPaymentCardSkeleton } from '~/components2/wallet/payment/WalletPaymentCardSkeleton';
 
 export const WalletSelectorSkeleton = () => (
   <Box mx={4}>

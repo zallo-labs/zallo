@@ -1,8 +1,7 @@
 import { Box } from '@components/Box';
 import { makeStyles } from '@util/theme/makeStyles';
 import { useCallback, useState } from 'react';
-import {
-  LazyPagerView,
+import PagerView, {
   PagerViewOnPageSelectedEvent,
 } from 'react-native-pager-view';
 import {
@@ -10,9 +9,10 @@ import {
   useSelectedWallet,
 } from '~/components2/wallet/useSelectedWallet';
 import { Indicator } from '~/components2/Indicator/Indicator';
-import { WalletPaymentCard } from '~/components2/wallet/WalletPaymentCard';
+import { WalletPaymentCard } from '~/components2/wallet/payment/WalletPaymentCard';
 import { useWalletIds } from '~/queries/wallets/useWalletIds';
-import { WALLET_PAYMENT_CARD_HEIGHT } from '~/components2/wallet/WalletPaymentCardSkeleton';
+import { NewWalletPaymentCard } from '~/components2/wallet/payment/NewWalletPaymentCard';
+import { WALLET_PAYMENT_CARD_HEIGHT } from '~/components2/wallet/payment/WalletPaymentCardSkeleton';
 
 export const WalletSelector = () => {
   const { walletIds } = useWalletIds();
@@ -27,35 +27,42 @@ export const WalletSelector = () => {
   const handlePageSelected = useCallback(
     ({ nativeEvent: { position: newPos } }: PagerViewOnPageSelectedEvent) => {
       setPosition(newPos);
-      select(walletIds[newPos]);
+      if (newPos < walletIds.length) select(walletIds[newPos]);
     },
     [select, walletIds],
   );
 
   return (
     <Box>
-      <LazyPagerView
-        renderItem={({ item, index }) => (
-          <Box key={index + 1} mx={4}>
-            <WalletPaymentCard id={item} available />
-          </Box>
-        )}
+      <PagerView
         style={styles.viewPager}
-        data={walletIds}
-        keyExtractor={(item) => item.id}
         initialPage={position}
         onPageSelected={handlePageSelected}
-      />
+      >
+        {walletIds.map((id, i) => (
+          <Box key={i + 1} mx={4}>
+            <WalletPaymentCard id={id} available />
+          </Box>
+        ))}
+
+        <Box key={walletIds.length + 1} mx={4}>
+          <NewWalletPaymentCard
+            onPress={() => {
+              // TODO: add wallet
+            }}
+          />
+        </Box>
+      </PagerView>
 
       <Box horizontal justifyContent="center" mt={3}>
-        <Indicator n={walletIds.length} position={position} />
+        <Indicator n={walletIds.length + 1} position={position} />
       </Box>
     </Box>
   );
 };
 
-const useStyles = makeStyles(() => ({
+const useStyles = makeStyles({
   viewPager: {
     height: WALLET_PAYMENT_CARD_HEIGHT,
   },
-}));
+});

@@ -6,7 +6,7 @@ import { Appbar } from 'react-native-paper';
 import { useSelectWallet } from '~/components2/wallet/useSelectedWallet';
 import { RootNavigatorScreenProps } from '~/navigation/RootNavigator';
 import { useWalletIds } from '~/queries/wallets/useWalletIds';
-import { WalletPaymentCard } from '~/components2/wallet/WalletPaymentCard';
+import { WalletPaymentCard } from '~/components2/wallet/payment/WalletPaymentCard';
 
 export type SelectWalletScreenProps = RootNavigatorScreenProps<'SelectWallet'>;
 

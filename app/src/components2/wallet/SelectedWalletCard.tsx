@@ -1,7 +1,7 @@
 import { useNavigation } from '@react-navigation/native';
 import { useTheme } from '@util/theme/paper';
 import { BottomNavigatorProps } from '~/navigation/BottomNavigator';
-import { WalletPaymentCard, WalletPaymentCardProps } from './WalletPaymentCard';
+import { WalletPaymentCard, WalletPaymentCardProps } from './payment/WalletPaymentCard';
 import { useSelectedWallet } from './useSelectedWallet';
 
 export interface SelectedWalletCardProps

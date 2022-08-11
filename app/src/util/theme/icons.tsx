@@ -45,6 +45,7 @@ export const CancelIcon = CloseIcon;
 export const SwapIcon = materialCommunity('swap-vertical');
 export const SearchIcon = material('search');
 export const PlusIcon = materialCommunity('plus');
+export const PlusCircleIcon = materialCommunity('plus-circle-outline');
 export const SettingsIcon = materialCommunity('cog');
 export const SettingsOutlineIcon = materialCommunity('cog-outline');
 export const PayIcon = materialCommunity('contactless-payment');

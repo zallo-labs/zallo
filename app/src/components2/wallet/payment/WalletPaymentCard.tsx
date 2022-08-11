@@ -5,10 +5,10 @@ import { withSkeleton } from '@components/skeleton/withSkeleton';
 import { PayIcon } from '@util/theme/icons';
 import { useTheme } from '@util/theme/paper';
 import { Text } from 'react-native-paper';
+import { Card, CardProps } from '~/components2/card/Card';
 import { WalletId } from '~/queries/wallets';
 import { useWallet } from '~/queries/wallets/useWallet';
 import { useTokenValues } from '~/token/useTokenValues';
-import { Card, CardProps } from '../card/Card';
 import {
   WalletPaymentCardSkeleton,
   WALLET_PAYMENT_CARD_HEIGHT,
