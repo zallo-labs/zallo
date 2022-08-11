@@ -2,7 +2,7 @@ import { Address } from 'lib';
 import { useTokenBalances } from './useTokenBalance';
 import { useTokenValue } from './useTokenValue';
 
-export const useTokenValues = (addr: Address) => {
+export const useTokenValues = (addr?: Address) => {
   const tokenBalances = useTokenBalances(addr);
 
   const balances = tokenBalances

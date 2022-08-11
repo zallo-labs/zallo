@@ -21,7 +21,7 @@ export const HomeScreen = withSkeleton(() => {
   const { AppbarHeader, handleScroll } = useAppbarHeader();
   const allTokens = useTokens();
   const wallet = useSelectedWallet();
-  const { totalFiatValue } = useTokenValues(wallet.accountAddr);
+  const { totalFiatValue } = useTokenValues(wallet?.accountAddr);
   const selectedToken = useSelectedToken();
   const selectToken = useSelectToken();
 

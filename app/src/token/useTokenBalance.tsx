@@ -2,7 +2,7 @@ import { BigNumber } from 'ethers';
 import { Token } from './token';
 import { PROVIDER } from '~/provider';
 import { atomFamily, selectorFamily, useRecoilValue } from 'recoil';
-import { Address, isPresent } from 'lib';
+import { Address, isPresent, ZERO } from 'lib';
 import { captureException, Severity } from '@util/sentry/sentry';
 import { allTokensSelector } from './useToken';
 import { refreshAtom } from '@util/effect/refreshAtom';
@@ -10,10 +10,12 @@ import { useSelectedWallet } from '~/components2/wallet/useSelectedWallet';
 import { persistAtom } from '@util/effect/persistAtom';
 
 // [addr, token]
-type BalanceKey = [Address, Address];
+type BalanceKey = [Address | null, Address];
 
 const fetch = async ([addr, token]: BalanceKey) => {
   try {
+    if (!addr) return ZERO;
+
     return PROVIDER.getBalance(addr, undefined, token);
   } catch (e) {
     captureException(e, {
@@ -47,18 +49,24 @@ export interface TokenWithBalance {
   balance: BigNumber;
 }
 
-const tokenBalancesSelector = selectorFamily<TokenWithBalance[], Address>({
+const tokenBalancesSelector = selectorFamily<
+  TokenWithBalance[],
+  Address | null
+>({
   key: 'tokenBalances',
   get:
     (addr) =>
-    ({ get }) =>
-      get(allTokensSelector)
+    ({ get }) => {
+      if (!addr) return [];
+
+      return get(allTokensSelector)
         .filter(isPresent)
         .map((token) => ({
           token,
           balance: get(tokenBalanceState([addr, token.addr])),
-        })),
+        }));
+    },
 });
 
-export const useTokenBalances = (addr: Address) =>
-  useRecoilValue(tokenBalancesSelector(addr));
+export const useTokenBalances = (addr?: Address) =>
+  useRecoilValue(tokenBalancesSelector(addr ?? null));
