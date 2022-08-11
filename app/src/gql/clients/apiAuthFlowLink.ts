@@ -11,6 +11,7 @@ import { useDevice } from '@features/device/useDevice';
 import { atom, useRecoilState } from 'recoil';
 import { getSecureStore, persistAtom } from '@util/effect/persistAtom';
 import { useCallback, useMemo, useRef } from 'react';
+import { captureException } from '@util/sentry/sentry';
 
 interface Token {
   message: SiweMessage;
@@ -19,7 +20,7 @@ interface Token {
 
 const fetchMutex = new Mutex();
 
-const isServerError = (e?: unknown): e is ServerError =>
+export const isServerError = (e?: unknown): e is ServerError =>
   typeof e === 'object' && e !== null && (e as any)['name'] === 'ServerError';
 
 // https://test.com/abc/123 -> test.com; RN lacks URL support )':
@@ -105,7 +106,9 @@ export const useAuthFlowLink = () => {
         if (isServerError(networkError) && networkError.statusCode === 401) {
           fromPromise(reset()).flatMap(() => forward(operation));
         } else {
-          console.log(JSON.stringify(networkError));
+          captureException(networkError, {
+            extra: { operation },
+          });
         }
       }),
     [reset],
