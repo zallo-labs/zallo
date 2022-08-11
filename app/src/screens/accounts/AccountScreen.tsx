@@ -1,5 +1,8 @@
 import { Box } from '@components/Box';
 import { SubmittableTextField } from '@components/fields/SubmittableTextField';
+import { ScreenSkeleton } from '@components/skeleton/ScreenSkeleton';
+import { withSkeleton } from '@components/skeleton/withSkeleton';
+import { Suspend } from '@components/Suspender';
 import { DeleteIcon, PlusIcon } from '@util/theme/icons';
 import { makeStyles } from '@util/theme/makeStyles';
 import { Address } from 'lib';
@@ -19,68 +22,78 @@ export interface AccountScreenParams {
 
 export type AccountScreenProps = RootNavigatorScreenProps<'Account'>;
 
-export const AccountScreen = ({ route, navigation }: AccountScreenProps) => {
-  const styles = useStyles();
-  const { AppbarHeader, handleScroll } = useAppbarHeader();
-  const deleteAccount = useDeleteAccount();
-  const setName = useSetAccountName();
-  const existing = useAccount(route.params.id)!;
-  const goBack = useGoBack();
+export const AccountScreen = withSkeleton(
+  ({ route, navigation }: AccountScreenProps) => {
+    const styles = useStyles();
+    const { AppbarHeader, handleScroll } = useAppbarHeader();
+    const deleteAccount = useDeleteAccount();
+    const setName = useSetAccountName();
+    const { account: existing, loading } = useAccount(route.params.id)!;
+    const goBack = useGoBack();
 
-  const account = existing!;
+    const account = existing!;
 
-  return (
-    <Box>
-      <AppbarHeader mode="medium">
-        <Appbar.BackAction onPress={goBack} />
-        <Appbar.Content title="Account" />
+    if (loading) return <Suspend />;
 
-        {existing && (
-          <Appbar.Action
-            icon={DeleteIcon}
-            onPress={() => deleteAccount(existing)}
-          />
-        )}
-      </AppbarHeader>
+    return (
+      <Box>
+        <AppbarHeader mode="medium">
+          <Appbar.BackAction onPress={goBack} />
+          <Appbar.Content title="Account" />
 
-      <FlatList
-        ListHeaderComponent={
-          <Box my={3}>
-            <SubmittableTextField
-              value={account.name}
-              onSubmit={(name) => setName({ ...existing, name })}
+          {existing && (
+            <Appbar.Action
+              icon={DeleteIcon}
+              onPress={() => deleteAccount(existing)}
             />
-          </Box>
-        }
-        renderItem={({ item }) => (
-          <WalletCard
-            id={item}
-            available
-            onPress={() =>
-              navigation.navigate('Wallet', { account: account.addr, id: item })
-            }
-          />
-        )}
-        ItemSeparatorComponent={() => <Box my={2} />}
-        ListFooterComponent={
-          <Button
-            style={styles.create}
-            icon={PlusIcon}
-            onPress={() =>
-              navigation.navigate('Wallet', { account: account.addr })
-            }
-          >
-            Create
-          </Button>
-        }
-        style={styles.list}
-        data={account.walletIds}
-        onScroll={handleScroll}
-        showsVerticalScrollIndicator={false}
-      />
-    </Box>
-  );
-};
+          )}
+        </AppbarHeader>
+
+        <FlatList
+          ListHeaderComponent={
+            <Box my={3}>
+              <SubmittableTextField
+                value={account.name}
+                onSubmit={(name) => {
+                  if (existing) setName({ ...existing, name });
+                }}
+              />
+            </Box>
+          }
+          renderItem={({ item }) => (
+            <WalletCard
+              id={item}
+              available
+              onPress={() =>
+                navigation.navigate('Wallet', {
+                  account: account.addr,
+                  id: item,
+                })
+              }
+            />
+          )}
+          ItemSeparatorComponent={() => <Box my={2} />}
+          ListFooterComponent={
+            <Button
+              style={styles.create}
+              icon={PlusIcon}
+              onPress={() =>
+                navigation.navigate('Wallet', { account: account.addr })
+              }
+            >
+              Create
+            </Button>
+          }
+          style={styles.list}
+          data={account.walletIds}
+          onScroll={handleScroll}
+          showsVerticalScrollIndicator={false}
+        />
+      </Box>
+    );
+  },
+  ScreenSkeleton,
+);
 
 const useStyles = makeStyles(({ space }) => ({
   list: {

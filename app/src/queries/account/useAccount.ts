@@ -1,3 +1,4 @@
+import { combineRest } from '@gql/combine';
 import { Address, filterFirst } from 'lib';
 import { useMemo } from 'react';
 import { CombinedAccount } from '.';
@@ -5,10 +6,12 @@ import { useApiAccount } from './useAccount.api';
 import { useSubAccount } from './useAccount.sub';
 
 export const useAccount = (addr?: Address) => {
-  const { subAccount: s } = useSubAccount(addr);
-  const { apiAccount: a } = useApiAccount(addr);
+  const { subAccount: s, ...subRest } = useSubAccount(addr);
+  const { apiAccount: a, ...apiRest } = useApiAccount(addr);
 
-  return useMemo((): CombinedAccount | undefined => {
+  const rest = useMemo(() => combineRest(subRest, apiRest), [subRest, apiRest]);
+
+  const account = useMemo((): CombinedAccount | undefined => {
     if (!s && !a) return undefined;
 
     return {
@@ -23,4 +26,6 @@ export const useAccount = (addr?: Address) => {
       ),
     };
   }, [a, s]);
+
+  return { account, ...rest };
 };
