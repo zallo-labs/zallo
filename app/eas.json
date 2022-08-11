@@ -1,23 +1,33 @@
 {
   "cli": {
-    "version": ">= 0.57.0"
+    "version": ">= 0.59.0",
+    "appVersionSource": "remote"
   },
   "build": {
-    "production": {
-      "channel": "production",
+    "base": {
       "node": "16.14.2",
       "env": {
         "ENTRY_FILE": "./__generated__/AppEntry.js",
         "CHAIN": "testnet"
       }
     },
+    "production": {
+      "extends": "base",
+      "channel": "production",
+      "android": {
+        "autoIncrement": true
+      },
+      "ios": {
+        "autoIncrement": true
+      }
+    },
     "preview": {
-      "extends": "production",
+      "extends": "base",
       "channel": "main",
       "distribution": "internal"
     },
     "development": {
-      "extends": "production",
+      "extends": "base",
       "channel": "main",
       "distribution": "internal",
       "developmentClient": true,

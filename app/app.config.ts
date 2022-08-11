@@ -52,6 +52,13 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     backgroundColor: '#151A30',
   },
   assetBundlePatterns: ['**/*'],
+  android: {
+    package: 'io.allopay',
+    adaptiveIcon: {
+      foregroundImage: './assets/adaptive-icon.png',
+      backgroundColor: '#151A30',
+    },
+  },
   ios: {
     bundleIdentifier: 'io.allopay',
     supportsTablet: true,
@@ -60,13 +67,6 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
         'This app uses the camera to scan QR codes of addresses.',
       NSFaceIDUsageDescription:
         'This app uses Face ID to authenticate the user.',
-    },
-  },
-  android: {
-    package: 'io.allopay',
-    adaptiveIcon: {
-      foregroundImage: './assets/adaptive-icon.png',
-      backgroundColor: '#151A30',
     },
   },
   web: {
