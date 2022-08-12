@@ -1,7 +1,7 @@
 import { gql } from '@apollo/client';
 import { useApiClient } from '@gql/GqlProvider';
 import { QueryOpts } from '@gql/update';
-import { CombinedWallet } from '~/queries/wallets';
+import { CombinedWallet, toWallet } from '~/queries/wallets';
 import {
   AccountQuery,
   AccountQueryVariables,
@@ -17,7 +17,6 @@ import {
   randomWalletRef,
   randomDeploySalt,
   toId,
-  toQuorums,
   toQuorum,
   getWalletId,
 } from 'lib';
@@ -76,10 +75,7 @@ export const useCreateApiAccount = () => {
     const accountAddr = await calculateProxyAddress(
       {
         impl,
-        wallet: {
-          ref: wallet.ref,
-          quorums: toQuorums(wallet.quorums.map((q) => q.approvers)),
-        },
+        wallet: toWallet(wallet),
       },
       factory,
       deploySalt,

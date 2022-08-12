@@ -1,27 +1,22 @@
 import { gql, useMutation } from '@apollo/client';
 import {
-  ApiTxsQuery,
-  ApiTxsQueryVariables,
   SubmitTxExecutionMutation,
   SubmitTxExecutionMutationVariables,
+  TxQuery,
+  TxQueryVariables,
+  useSubmitTxExecutionMutation,
 } from '@gql/generated.api';
 import { useApiClient } from '@gql/GqlProvider';
 import { ContractTransaction, ethers } from 'ethers';
 import { useCallback } from 'react';
 import { toId } from 'lib';
 import { DateTime } from 'luxon';
-import {
-  API_SUBMISSION_FIELDS,
-  API_GET_TXS_QUERY,
-} from '~/queries/tx/useTxs.api';
 import { Tx } from '~/queries/tx';
 import produce from 'immer';
-import assert from 'assert';
-import { useSelectedWallet } from '~/components2/wallet/useSelectedWallet';
+import { QueryOpts } from '@gql/update';
+import { API_QUERY_TX } from '~/queries/tx/useTx.api';
 
-const MUTATION = gql`
-  ${API_SUBMISSION_FIELDS}
-
+gql`
   mutation SubmitTxExecution(
     $account: Address!
     $txHash: Bytes32!
@@ -32,53 +27,49 @@ const MUTATION = gql`
       txHash: $txHash
       submission: $submission
     ) {
-      ...SubmissionFields
+      id
+      hash
+      nonce
+      gasLimit
+      gasPrice
+      finalized
+      createdAt
     }
   }
 `;
 
 export const useApiSubmitExecution = () => {
-  const { accountAddr } = useSelectedWallet();
-
-  const [mutation] = useMutation<
-    SubmitTxExecutionMutation,
-    SubmitTxExecutionMutationVariables
-  >(MUTATION, { client: useApiClient() });
+  const [mutation] = useSubmitTxExecutionMutation({ client: useApiClient() });
 
   const submit = useCallback(
     async (tx: Tx, txResp: ContractTransaction) => {
       const r = await mutation({
         variables: {
-          account: accountAddr,
+          account: tx.account,
           txHash: ethers.utils.hexlify(tx.hash),
           submission: {
             hash: txResp.hash,
           },
         },
         update: (cache, res) => {
-          const submission = res?.data?.submitTxExecution;
+          const submission = res.data?.submitTxExecution;
           if (!submission) return;
 
-          const queryOpts = {
-            query: API_GET_TXS_QUERY,
-            variables: { account: accountAddr },
+          // Tx
+          const opts: QueryOpts<TxQueryVariables> = {
+            query: API_QUERY_TX,
+            variables: {
+              account: tx.account,
+              hash: tx.hash,
+            },
           };
-          const data = cache.readQuery<ApiTxsQuery, ApiTxsQueryVariables>(
-            queryOpts,
-          ) ?? { txs: [] };
 
-          cache.writeQuery<ApiTxsQuery, ApiTxsQueryVariables>({
-            ...queryOpts,
-            overwrite: true,
-            // data: { txs: newTxs },
+          const data: TxQuery = cache.readQuery<TxQuery>(opts) ?? { tx: null };
+
+          cache.writeQuery<TxQuery>({
+            ...opts,
             data: produce(data, (data) => {
-              const i = data.txs.findIndex((t) => t.id === tx.id);
-              assert(i >= 0, 'Tx exists for submission');
-
-              data.txs[i].submissions = [
-                ...(data.txs[i].submissions ?? []),
-                submission,
-              ];
+              data.tx?.submissions?.push(submission);
             }),
           });
         },
@@ -98,7 +89,7 @@ export const useApiSubmitExecution = () => {
 
       return r;
     },
-    [accountAddr, mutation],
+    [mutation],
   );
 
   return submit;

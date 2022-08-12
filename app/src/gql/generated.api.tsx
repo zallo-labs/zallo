@@ -1557,8 +1557,8 @@ export type Mutation = {
 
 export type MutationApproveArgs = {
   account: Scalars['Address'];
+  hash: Scalars['Bytes32'];
   signature: Scalars['Bytes'];
-  txHash: Scalars['Bytes32'];
 };
 
 
@@ -1617,7 +1617,7 @@ export type MutationRequestFundsArgs = {
 
 export type MutationRevokeApprovalArgs = {
   account: Scalars['Address'];
-  txHash: Scalars['Bytes32'];
+  hash: Scalars['Bytes32'];
 };
 
 
@@ -1759,6 +1759,7 @@ export type Query = {
   contacts: Array<Contact>;
   contractMethod?: Maybe<ContractMethod>;
   submissions: Array<Submission>;
+  tx?: Maybe<Tx>;
   txs: Array<Tx>;
   user?: Maybe<User>;
   userAccounts: Array<Account>;
@@ -1820,8 +1821,14 @@ export type QuerySubmissionsArgs = {
 };
 
 
-export type QueryTxsArgs = {
+export type QueryTxArgs = {
   account: Scalars['Address'];
+  hash: Scalars['Bytes32'];
+};
+
+
+export type QueryTxsArgs = {
+  accounts: Array<Scalars['Address']>;
 };
 
 
@@ -3652,16 +3659,22 @@ export type ContactsQueryVariables = Exact<{ [key: string]: never; }>;
 
 export type ContactsQuery = { __typename?: 'Query', contacts: Array<{ __typename?: 'Contact', id: string, addr: string, name: string }> };
 
-export type SubmissionFieldsFragment = { __typename?: 'Submission', id: string, hash: string, nonce: number, gasLimit: any, gasPrice?: any | null, finalized: boolean, createdAt: any };
-
 export type TxFieldsFragment = { __typename?: 'Tx', id: string, accountId: string, hash: string, to: string, value: string, data: string, salt: string, createdAt: any, approvals?: Array<{ __typename?: 'Approval', userId: string, signature: string, createdAt: any }> | null, submissions?: Array<{ __typename?: 'Submission', id: string, hash: string, nonce: number, gasLimit: any, gasPrice?: any | null, finalized: boolean, createdAt: any }> | null };
 
-export type ApiTxsQueryVariables = Exact<{
+export type TxQueryVariables = Exact<{
   account: Scalars['Address'];
+  hash: Scalars['Bytes32'];
 }>;
 
 
-export type ApiTxsQuery = { __typename?: 'Query', txs: Array<{ __typename?: 'Tx', id: string, accountId: string, hash: string, to: string, value: string, data: string, salt: string, createdAt: any, approvals?: Array<{ __typename?: 'Approval', userId: string, signature: string, createdAt: any }> | null, submissions?: Array<{ __typename?: 'Submission', id: string, hash: string, nonce: number, gasLimit: any, gasPrice?: any | null, finalized: boolean, createdAt: any }> | null }> };
+export type TxQuery = { __typename?: 'Query', tx?: { __typename?: 'Tx', id: string, accountId: string, hash: string, to: string, value: string, data: string, salt: string, createdAt: any, approvals?: Array<{ __typename?: 'Approval', userId: string, signature: string, createdAt: any }> | null, submissions?: Array<{ __typename?: 'Submission', id: string, hash: string, nonce: number, gasLimit: any, gasPrice?: any | null, finalized: boolean, createdAt: any }> | null } | null };
+
+export type TxsMetadataQueryVariables = Exact<{
+  accounts: Array<Scalars['Address']> | Scalars['Address'];
+}>;
+
+
+export type TxsMetadataQuery = { __typename?: 'Query', txs: Array<{ __typename?: 'Tx', id: string, accountId: string, hash: string, createdAt: any }> };
 
 export type ReactionFieldsFragment = { __typename?: 'Reaction', id: string, accountId: string, key: string, nonce: number, userId: string, emojis?: Array<string> | null };
 
@@ -3722,17 +3735,6 @@ export const ContactFieldsFragmentDoc = gql`
   name
 }
     `;
-export const SubmissionFieldsFragmentDoc = gql`
-    fragment SubmissionFields on Submission {
-  id
-  hash
-  nonce
-  gasLimit
-  gasPrice
-  finalized
-  createdAt
-}
-    `;
 export const TxFieldsFragmentDoc = gql`
     fragment TxFields on Tx {
   id
@@ -3749,10 +3751,16 @@ export const TxFieldsFragmentDoc = gql`
   }
   createdAt
   submissions {
-    ...SubmissionFields
+    id
+    hash
+    nonce
+    gasLimit
+    gasPrice
+    finalized
+    createdAt
   }
 }
-    ${SubmissionFieldsFragmentDoc}`;
+    `;
 export const ReactionFieldsFragmentDoc = gql`
     fragment ReactionFields on Reaction {
   id
@@ -4032,10 +4040,16 @@ export type UpsertContactMutationOptions = Apollo.BaseMutationOptions<UpsertCont
 export const SubmitTxExecutionDocument = gql`
     mutation SubmitTxExecution($account: Address!, $txHash: Bytes32!, $submission: SubmissionInput!) {
   submitTxExecution(account: $account, txHash: $txHash, submission: $submission) {
-    ...SubmissionFields
+    id
+    hash
+    nonce
+    gasLimit
+    gasPrice
+    finalized
+    createdAt
   }
 }
-    ${SubmissionFieldsFragmentDoc}`;
+    `;
 export type SubmitTxExecutionMutationFn = Apollo.MutationFunction<SubmitTxExecutionMutation, SubmitTxExecutionMutationVariables>;
 
 /**
@@ -4066,7 +4080,7 @@ export type SubmitTxExecutionMutationResult = Apollo.MutationResult<SubmitTxExec
 export type SubmitTxExecutionMutationOptions = Apollo.BaseMutationOptions<SubmitTxExecutionMutation, SubmitTxExecutionMutationVariables>;
 export const ApproveTxDocument = gql`
     mutation ApproveTx($account: Address!, $txHash: Bytes32!, $signature: Bytes!) {
-  approve(account: $account, txHash: $txHash, signature: $signature) {
+  approve(account: $account, hash: $txHash, signature: $signature) {
     id
   }
 }
@@ -4136,7 +4150,7 @@ export type ProposeTxMutationResult = Apollo.MutationResult<ProposeTxMutation>;
 export type ProposeTxMutationOptions = Apollo.BaseMutationOptions<ProposeTxMutation, ProposeTxMutationVariables>;
 export const RevokeApprovalDocument = gql`
     mutation RevokeApproval($account: Address!, $txHash: Bytes32!) {
-  revokeApproval(account: $account, txHash: $txHash) {
+  revokeApproval(account: $account, hash: $txHash) {
     id
   }
 }
@@ -4368,41 +4382,80 @@ export function useContactsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<C
 export type ContactsQueryHookResult = ReturnType<typeof useContactsQuery>;
 export type ContactsLazyQueryHookResult = ReturnType<typeof useContactsLazyQuery>;
 export type ContactsQueryResult = Apollo.QueryResult<ContactsQuery, ContactsQueryVariables>;
-export const ApiTxsDocument = gql`
-    query ApiTxs($account: Address!) {
-  txs(account: $account) {
+export const TxDocument = gql`
+    query Tx($account: Address!, $hash: Bytes32!) {
+  tx(account: $account, hash: $hash) {
     ...TxFields
   }
 }
     ${TxFieldsFragmentDoc}`;
 
 /**
- * __useApiTxsQuery__
+ * __useTxQuery__
  *
- * To run a query within a React component, call `useApiTxsQuery` and pass it any options that fit your needs.
- * When your component renders, `useApiTxsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * To run a query within a React component, call `useTxQuery` and pass it any options that fit your needs.
+ * When your component renders, `useTxQuery` returns an object from Apollo Client that contains loading, error, and data properties
  * you can use to render your UI.
  *
  * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
  *
  * @example
- * const { data, loading, error } = useApiTxsQuery({
+ * const { data, loading, error } = useTxQuery({
  *   variables: {
  *      account: // value for 'account'
+ *      hash: // value for 'hash'
  *   },
  * });
  */
-export function useApiTxsQuery(baseOptions: Apollo.QueryHookOptions<ApiTxsQuery, ApiTxsQueryVariables>) {
+export function useTxQuery(baseOptions: Apollo.QueryHookOptions<TxQuery, TxQueryVariables>) {
         const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useQuery<ApiTxsQuery, ApiTxsQueryVariables>(ApiTxsDocument, options);
+        return Apollo.useQuery<TxQuery, TxQueryVariables>(TxDocument, options);
       }
-export function useApiTxsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<ApiTxsQuery, ApiTxsQueryVariables>) {
+export function useTxLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<TxQuery, TxQueryVariables>) {
           const options = {...defaultOptions, ...baseOptions}
-          return Apollo.useLazyQuery<ApiTxsQuery, ApiTxsQueryVariables>(ApiTxsDocument, options);
+          return Apollo.useLazyQuery<TxQuery, TxQueryVariables>(TxDocument, options);
         }
-export type ApiTxsQueryHookResult = ReturnType<typeof useApiTxsQuery>;
-export type ApiTxsLazyQueryHookResult = ReturnType<typeof useApiTxsLazyQuery>;
-export type ApiTxsQueryResult = Apollo.QueryResult<ApiTxsQuery, ApiTxsQueryVariables>;
+export type TxQueryHookResult = ReturnType<typeof useTxQuery>;
+export type TxLazyQueryHookResult = ReturnType<typeof useTxLazyQuery>;
+export type TxQueryResult = Apollo.QueryResult<TxQuery, TxQueryVariables>;
+export const TxsMetadataDocument = gql`
+    query TxsMetadata($accounts: [Address!]!) {
+  txs(accounts: $accounts) {
+    id
+    accountId
+    hash
+    createdAt
+  }
+}
+    `;
+
+/**
+ * __useTxsMetadataQuery__
+ *
+ * To run a query within a React component, call `useTxsMetadataQuery` and pass it any options that fit your needs.
+ * When your component renders, `useTxsMetadataQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useTxsMetadataQuery({
+ *   variables: {
+ *      accounts: // value for 'accounts'
+ *   },
+ * });
+ */
+export function useTxsMetadataQuery(baseOptions: Apollo.QueryHookOptions<TxsMetadataQuery, TxsMetadataQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<TxsMetadataQuery, TxsMetadataQueryVariables>(TxsMetadataDocument, options);
+      }
+export function useTxsMetadataLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<TxsMetadataQuery, TxsMetadataQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<TxsMetadataQuery, TxsMetadataQueryVariables>(TxsMetadataDocument, options);
+        }
+export type TxsMetadataQueryHookResult = ReturnType<typeof useTxsMetadataQuery>;
+export type TxsMetadataLazyQueryHookResult = ReturnType<typeof useTxsMetadataLazyQuery>;
+export type TxsMetadataQueryResult = Apollo.QueryResult<TxsMetadataQuery, TxsMetadataQueryVariables>;
 export const CommentsDocument = gql`
     query Comments($account: Address!, $key: Id!) {
   comments(account: $account, key: $key) {

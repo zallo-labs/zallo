@@ -969,12 +969,19 @@ export type TransfersQueryVariables = Exact<{
 
 export type TransfersQuery = { __typename?: 'Query', transfers: Array<{ __typename?: 'Transfer', id: string, type: TransferType, token: any, from: any, to: any, value: any, blockHash: any, timestamp: any }> };
 
-export type SubTxsQueryVariables = Exact<{
-  account: Scalars['String'];
+export type TxQueryVariables = Exact<{
+  id: Scalars['ID'];
 }>;
 
 
-export type SubTxsQuery = { __typename?: 'Query', txes: Array<{ __typename?: 'Tx', id: string, hash: any, success: boolean, response: any, executor: any, blockHash: any, timestamp: any, transfers: Array<{ __typename?: 'Transfer', id: string, type: TransferType, token: any, from: any, to: any, value: any, blockHash: any, timestamp: any }> }> };
+export type TxQuery = { __typename?: 'Query', tx?: { __typename?: 'Tx', id: string, hash: any, success: boolean, response: any, executor: any, blockHash: any, timestamp: any, account: { __typename?: 'Account', id: string }, transfers: Array<{ __typename?: 'Transfer', id: string, token: any, type: TransferType, from: any, to: any, value: any, blockHash: any, timestamp: any }> } | null };
+
+export type TxsMetadataQueryVariables = Exact<{
+  accounts: Array<Scalars['String']> | Scalars['String'];
+}>;
+
+
+export type TxsMetadataQuery = { __typename?: 'Query', txes: Array<{ __typename?: 'Tx', id: string, timestamp: any }> };
 
 export type WalletQueryVariables = Exact<{
   wallet: Scalars['ID'];
@@ -1090,10 +1097,13 @@ export function useTransfersLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<
 export type TransfersQueryHookResult = ReturnType<typeof useTransfersQuery>;
 export type TransfersLazyQueryHookResult = ReturnType<typeof useTransfersLazyQuery>;
 export type TransfersQueryResult = Apollo.QueryResult<TransfersQuery, TransfersQueryVariables>;
-export const SubTxsDocument = gql`
-    query SubTxs($account: String!) {
-  txes(where: {account: $account}) {
+export const TxDocument = gql`
+    query Tx($id: ID!) {
+  tx(id: $id) {
     id
+    account {
+      id
+    }
     hash
     success
     response
@@ -1101,39 +1111,82 @@ export const SubTxsDocument = gql`
     blockHash
     timestamp
     transfers {
-      ...TransferFields
+      id
+      token
+      type
+      from
+      to
+      value
+      blockHash
+      timestamp
     }
   }
 }
-    ${TransferFieldsFragmentDoc}`;
+    `;
 
 /**
- * __useSubTxsQuery__
+ * __useTxQuery__
  *
- * To run a query within a React component, call `useSubTxsQuery` and pass it any options that fit your needs.
- * When your component renders, `useSubTxsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * To run a query within a React component, call `useTxQuery` and pass it any options that fit your needs.
+ * When your component renders, `useTxQuery` returns an object from Apollo Client that contains loading, error, and data properties
  * you can use to render your UI.
  *
  * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
  *
  * @example
- * const { data, loading, error } = useSubTxsQuery({
+ * const { data, loading, error } = useTxQuery({
  *   variables: {
- *      account: // value for 'account'
+ *      id: // value for 'id'
  *   },
  * });
  */
-export function useSubTxsQuery(baseOptions: Apollo.QueryHookOptions<SubTxsQuery, SubTxsQueryVariables>) {
+export function useTxQuery(baseOptions: Apollo.QueryHookOptions<TxQuery, TxQueryVariables>) {
         const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useQuery<SubTxsQuery, SubTxsQueryVariables>(SubTxsDocument, options);
+        return Apollo.useQuery<TxQuery, TxQueryVariables>(TxDocument, options);
       }
-export function useSubTxsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<SubTxsQuery, SubTxsQueryVariables>) {
+export function useTxLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<TxQuery, TxQueryVariables>) {
           const options = {...defaultOptions, ...baseOptions}
-          return Apollo.useLazyQuery<SubTxsQuery, SubTxsQueryVariables>(SubTxsDocument, options);
+          return Apollo.useLazyQuery<TxQuery, TxQueryVariables>(TxDocument, options);
         }
-export type SubTxsQueryHookResult = ReturnType<typeof useSubTxsQuery>;
-export type SubTxsLazyQueryHookResult = ReturnType<typeof useSubTxsLazyQuery>;
-export type SubTxsQueryResult = Apollo.QueryResult<SubTxsQuery, SubTxsQueryVariables>;
+export type TxQueryHookResult = ReturnType<typeof useTxQuery>;
+export type TxLazyQueryHookResult = ReturnType<typeof useTxLazyQuery>;
+export type TxQueryResult = Apollo.QueryResult<TxQuery, TxQueryVariables>;
+export const TxsMetadataDocument = gql`
+    query TxsMetadata($accounts: [String!]!) {
+  txes(where: {account_in: $accounts}) {
+    id
+    timestamp
+  }
+}
+    `;
+
+/**
+ * __useTxsMetadataQuery__
+ *
+ * To run a query within a React component, call `useTxsMetadataQuery` and pass it any options that fit your needs.
+ * When your component renders, `useTxsMetadataQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useTxsMetadataQuery({
+ *   variables: {
+ *      accounts: // value for 'accounts'
+ *   },
+ * });
+ */
+export function useTxsMetadataQuery(baseOptions: Apollo.QueryHookOptions<TxsMetadataQuery, TxsMetadataQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<TxsMetadataQuery, TxsMetadataQueryVariables>(TxsMetadataDocument, options);
+      }
+export function useTxsMetadataLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<TxsMetadataQuery, TxsMetadataQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<TxsMetadataQuery, TxsMetadataQueryVariables>(TxsMetadataDocument, options);
+        }
+export type TxsMetadataQueryHookResult = ReturnType<typeof useTxsMetadataQuery>;
+export type TxsMetadataLazyQueryHookResult = ReturnType<typeof useTxsMetadataLazyQuery>;
+export type TxsMetadataQueryResult = Apollo.QueryResult<TxsMetadataQuery, TxsMetadataQueryVariables>;
 export const WalletDocument = gql`
     query Wallet($wallet: ID!) {
   wallet(id: $wallet) {

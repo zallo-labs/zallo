@@ -1,21 +1,23 @@
-import { usePropose } from '@features/execute/ProposeProvider';
-import { Wallet, walletEquiv, createUpsertWalletTx } from 'lib';
+import { walletEquiv, createUpsertWalletTx } from 'lib';
 import { useCallback } from 'react';
-import { useSelectedWallet } from '~/components2/wallet/useSelectedWallet';
+import { useAccount } from '~/queries/account/useAccount';
+import { CombinedWallet, toWallet } from '~/queries/wallets';
+import { useProposeTx } from '../tx/propose/useProposeTx';
 
-export const useUpsertWallet = () => {
-  const { account } = useSelectedWallet();
-  const propose = usePropose();
+export const useUpsertWallet = (wallet: CombinedWallet) => {
+  const account = useAccount(wallet.accountAddr).account!;
+  const propose = useProposeTx(wallet);
 
-  const upsert = useCallback(
-    async (cur: Wallet, prev?: Wallet) => {
-      if (prev && walletEquiv(cur, prev))
+  return useCallback(
+    async (cur: CombinedWallet, prev?: CombinedWallet) => {
+      if (prev && walletEquiv(toWallet(cur), toWallet(prev))) {
         throw new Error('Upserting wallet when cur ≡ prev');
+      }
 
-      return await propose(createUpsertWalletTx(account.contract, cur));
+      return await propose(
+        createUpsertWalletTx(account.contract, toWallet(cur)),
+      );
     },
     [account.contract, propose],
   );
-
-  return upsert;
 };

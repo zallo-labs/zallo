@@ -1,5 +1,5 @@
 import { ArgsType, InputType } from '@nestjs/graphql';
-import { WalletRef, Address, Quorums } from 'lib';
+import { WalletRef, Address, Quorum } from 'lib';
 import { AddressField } from '~/apollo/scalars/Address.scalar';
 import { Bytes32Field } from '~/apollo/scalars/Bytes32.scalar';
 import { Bytes4Field } from '~/apollo/scalars/Bytes4.scalar';
@@ -17,7 +17,7 @@ export class WalletWithoutAccountInput {
   ref: WalletRef;
 
   @QuorumsField()
-  quorums: Quorums;
+  quorums: Quorum[];
 
   name: string;
 }

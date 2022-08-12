@@ -1,4 +1,12 @@
-import { WalletRef, Address, createIsObj, Id, Quorum } from 'lib';
+import {
+  WalletRef,
+  Address,
+  createIsObj,
+  Id,
+  Quorum,
+  Wallet,
+  sortQuorums,
+} from 'lib';
 
 export const QUERY_WALLETS_POLL_INTERVAL = 30 * 1000;
 
@@ -20,3 +28,8 @@ export interface CombinedWallet extends WalletId {
   quorums: CombinedQuorum[];
   active?: boolean;
 }
+
+export const toWallet = (w: Pick<CombinedWallet, 'ref' | 'quorums'>): Wallet => ({
+  ref: w.ref,
+  quorums: sortQuorums(w.quorums.map((q) => q.approvers)),
+});

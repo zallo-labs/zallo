@@ -3,13 +3,6 @@ import { Address, TxReq, Id, createIsObj } from 'lib';
 import { DateTime } from 'luxon';
 import { Transfer } from './transfer.sub';
 
-export enum TxStatus {
-  PreProposal,
-  Proposed,
-  Submitted,
-  Executed,
-}
-
 export interface Approval {
   addr: Address;
   signature: BytesLike;
@@ -25,15 +18,21 @@ export interface Submission {
   createdAt: DateTime;
 }
 
-export interface ProposedTx extends TxReq {
-  id: Id;
+export interface TxId {
+  account: Address;
   hash: string;
+}
+
+export interface TxMetadata extends TxId {
+  id: Id;
+  timestamp: DateTime;
+}
+
+export interface ProposedTx extends TxMetadata, TxReq {
   approvals: Approval[];
   userHasApproved: boolean;
   submissions: Submission[];
   proposedAt: DateTime;
-  timestamp: DateTime;
-  status: TxStatus;
 }
 
 export interface ExecutedTx extends ProposedTx {
