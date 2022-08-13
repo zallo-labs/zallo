@@ -25,7 +25,11 @@ export const WalletsScreen = withSkeleton(() => {
 
         <Appbar.Action
           icon={PlusIcon}
-          onPress={() => navigate('CreateAccount')}
+          onPress={() =>
+            navigate('Accounts', {
+              onSelect: (account) => navigate('Wallet', { account }),
+            })
+          }
         />
       </AppbarHeader>
 

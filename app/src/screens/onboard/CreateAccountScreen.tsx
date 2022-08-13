@@ -23,7 +23,7 @@ const schema: Yup.SchemaOf<Values> = Yup.object({
 });
 
 export interface CreateAccountScreenParams {
-  navigate: (navigate: Navigate, account: Address) => void;
+  navigate: (account: Address, navigate: Navigate) => void;
 }
 
 export type CreateAccountScreenProps =
@@ -39,12 +39,10 @@ export const CreateAccountScreen = ({
 
   const handleSubmit = useCallback(
     async ({ name }: Values) => {
-      const acc = await createAccount(name, 'Spending');
+      const res = await createAccount(name, 'Spending');
+      const account = address(res.data!.createAccount.id);
 
-      route.params.navigate(
-        navigation.navigate,
-        address(acc.data!.createAccount.id),
-      );
+      route.params.navigate(account, navigation.navigate);
     },
     [createAccount, navigation.navigate, route.params],
   );

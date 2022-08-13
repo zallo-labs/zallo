@@ -4,6 +4,7 @@ import { withSkeleton } from '@components/skeleton/withSkeleton';
 import { PlusIcon } from '@util/theme/icons';
 import { makeStyles } from '@util/theme/makeStyles';
 import { Address } from 'lib';
+import { useCallback } from 'react';
 import { FlatList } from 'react-native';
 import { Appbar, Button } from 'react-native-paper';
 import { AccountCard } from '~/components2/account/AccountCard';
@@ -25,6 +26,17 @@ export const AccountsScreen = withSkeleton(
     const { AppbarHeader, handleScroll } = useAppbarHeader();
     const accounts = useAccountIds();
 
+    const select = useCallback(
+      (account: Address) => {
+        if (onSelect) {
+          onSelect(account);
+        } else {
+          navigate('Account', { id: account });
+        }
+      },
+      [navigate, onSelect],
+    );
+
     return (
       <Box>
         <AppbarHeader mode="medium">
@@ -34,16 +46,7 @@ export const AccountsScreen = withSkeleton(
 
         <FlatList
           renderItem={({ item }) => (
-            <AccountCard
-              id={item}
-              onPress={() => {
-                if (onSelect) {
-                  onSelect(item);
-                } else {
-                  navigate('Account', { id: item });
-                }
-              }}
-            />
+            <AccountCard id={item} onPress={() => select(item)} />
           )}
           ItemSeparatorComponent={() => <Box my={2} />}
           ListFooterComponent={
@@ -53,8 +56,7 @@ export const AccountsScreen = withSkeleton(
               style={styles.create}
               onPress={() =>
                 navigate('CreateAccount', {
-                  navigate: (navigate, accountId) =>
-                    navigate('Account', { id: accountId }),
+                  navigate: (accountId) => select(accountId),
                 })
               }
             >

@@ -2,7 +2,6 @@ import {
   createNativeStackNavigator,
   NativeStackScreenProps,
 } from '@react-navigation/native-stack';
-import { SelectWalletScreen } from '~/screens/select-wallet/SelectWalletScreen';
 import {
   AmountScreen,
   AmountScreenParams,
@@ -52,9 +51,6 @@ import {
 export type RootNavigatorParamList = {
   DrawerNavigator: undefined;
   Transaction: TransactionScreenParams;
-  Tokens: TokensScreenParams;
-  SelectWallet: undefined;
-  Amount: AmountScreenParams;
   Accounts: AccountsScreenParams;
   Account: AccountScreenParams;
   Wallets: undefined;
@@ -63,6 +59,8 @@ export type RootNavigatorParamList = {
   Contacts: ContactsScreenParams;
   Contact: ContactScreenParams;
   Scan: ScanScreenParams;
+  Tokens: TokensScreenParams;
+  Amount: AmountScreenParams;
   // Onboarding
   Name: undefined;
   CreateAccount: CreateAccountScreenParams;
@@ -84,17 +82,14 @@ export const RootNavigator = () => {
             name="CreateAccount"
             component={CreateAccountScreen}
             initialParams={{
-              navigate: (navigate) => navigate('BottomNavigator'),
+              navigate: (_account, navigate) => navigate('BottomNavigator'),
             }}
           />
         </Navigation.Group>
       )}
 
-      <Navigation.Screen name="Transaction" component={TransactionScreen} />
       <Navigation.Screen name="DrawerNavigator" component={DrawerNavigator} />
-      <Navigation.Screen name="Tokens" component={TokensScreen} />
-      <Navigation.Screen name="SelectWallet" component={SelectWalletScreen} />
-      <Navigation.Screen name="Amount" component={AmountScreen} />
+      <Navigation.Screen name="Transaction" component={TransactionScreen} />
       <Navigation.Screen name="Accounts" component={AccountsScreen} />
       <Navigation.Screen name="Account" component={AccountScreen} />
       <Navigation.Screen name="Wallets" component={WalletsScreen} />
@@ -103,6 +98,8 @@ export const RootNavigator = () => {
       <Navigation.Screen name="Contacts" component={ContactsScreen} />
       <Navigation.Screen name="Contact" component={ContactScreen} />
       <Navigation.Screen name="Scan" component={ScanScreen} />
+      <Navigation.Screen name="Tokens" component={TokensScreen} />
+      <Navigation.Screen name="Amount" component={AmountScreen} />
     </Navigation.Navigator>
   );
 };
