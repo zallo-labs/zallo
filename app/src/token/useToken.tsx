@@ -63,13 +63,18 @@ export const allTokensSelector = selector({
 
 export const useTokens = () => useRecoilValue(allTokensSelector);
 
-const maybeTokenSelector = selectorFamily<Token | null, Address>({
+const maybeTokenSelector = selectorFamily<Token | null, Address | undefined>({
   key: 'maybeToken',
   get:
     (addr) =>
-    ({ get }) =>
-      get(tokenAddressesState).includes(addr) ? get(tokenSelector(addr)) : null,
+    ({ get }) => {
+      if (!addr) return null;
+
+      return get(tokenAddressesState).includes(addr)
+        ? get(tokenSelector(addr))
+        : null;
+    },
 });
 
-export const useMaybeToken = (addr: Address) =>
+export const useMaybeToken = (addr?: Address) =>
   useRecoilValue(maybeTokenSelector(addr));

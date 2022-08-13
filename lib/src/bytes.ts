@@ -8,3 +8,5 @@ export const byteslikeToBuffer = (b: BytesLike): Buffer =>
 
 export const bufferToBytes = (b: Buffer): Bytes =>
   Uint8Array.from([...b.values()]);
+
+export const zeroHexBytes = (nBytes: number) => '0x' + '0'.repeat(nBytes * 2);

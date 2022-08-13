@@ -46,7 +46,7 @@ export const HomeScreen = withSkeleton(() => {
 
             <Box horizontal justifyContent="flex-end" mt={3} mb={2} mx={4}>
               <Text variant="titleLarge">
-                <FiatValue value={totalFiatValue} />
+                <FiatValue value={totalFiatValue} showZero />
               </Text>
             </Box>
           </>

@@ -9,7 +9,8 @@ import {
   isBytesLike,
   randomBytes,
 } from 'ethers/lib/utils';
-import { Address, isAddress } from './addr';
+import { address, Address, isAddress } from './addr';
+import { zeroHexBytes } from './bytes';
 import { Call, CallDef, createCall } from './call';
 import { Id, toId } from './id';
 import { createIsObj } from './util/mappedTypes';
@@ -68,6 +69,8 @@ export const toTxSalt = (v: string): TxSalt => {
   return v as TxSalt;
 };
 
+export const ZERO_TX_SALT = zeroHexBytes(TX_SALT_BYTES) as TxSalt;
+
 export interface TxDef extends CallDef {
   salt?: TxSalt;
 }
@@ -79,3 +82,12 @@ export const createTx = (tx: TxDef): TxReq => ({
 
 export const getTxId = (account: string, txHash: string): Id =>
   toId(`${account}-${txHash}`);
+
+export const getTxIdParts = (id: Id) => {
+  const [account, hash] = id.split('-');
+
+  return {
+    account: address(account),
+    hash,
+  };
+};

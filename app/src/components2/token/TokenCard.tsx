@@ -61,12 +61,12 @@ export const TokenCard = ({
       Right={[
         showFiatAmount && (
           <Text variant="titleSmall">
-            <FiatValue value={fiatValue} />
+            <FiatValue value={fiatValue} showZero />
           </Text>
         ),
         amount && (
           <Text variant="titleSmall">
-            <TokenValue token={t} value={amount} symbol={false} />
+            <TokenValue token={t} value={amount} symbol={false} showZero />
           </Text>
         ),
         showRemaining && (

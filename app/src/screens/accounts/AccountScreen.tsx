@@ -26,7 +26,6 @@ export const AccountScreen = withSkeleton(
   ({ route, navigation }: AccountScreenProps) => {
     const styles = useStyles();
     const { AppbarHeader, handleScroll } = useAppbarHeader();
-    const deleteAccount = useDeleteAccount();
     const setName = useSetAccountName();
     const { account: existing, loading } = useAccount(route.params.id)!;
     const goBack = useGoBack();
@@ -40,13 +39,6 @@ export const AccountScreen = withSkeleton(
         <AppbarHeader mode="medium">
           <Appbar.BackAction onPress={goBack} />
           <Appbar.Content title="Account" />
-
-          {existing && (
-            <Appbar.Action
-              icon={DeleteIcon}
-              onPress={() => deleteAccount(existing)}
-            />
-          )}
         </AppbarHeader>
 
         <FlatList

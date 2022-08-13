@@ -4,7 +4,6 @@ import { ScreenSkeleton } from '@components/skeleton/ScreenSkeleton';
 import { withSkeleton } from '@components/skeleton/withSkeleton';
 import { CheckIcon } from '@util/theme/icons';
 import { makeStyles } from '@util/theme/makeStyles';
-import { useTheme } from '@util/theme/paper';
 import { Address, getWalletId, randomWalletRef } from 'lib';
 import _ from 'lodash';
 import { useMemo, useState } from 'react';
@@ -14,6 +13,7 @@ import { useAppbarHeader } from '~/components2/Appbar/useAppbarHeader';
 import { FAB } from '~/components2/FAB';
 import { QuorumCard } from '~/components2/QuorumCard';
 import { useSetWalletName } from '~/mutations/wallet/useSetWalletName.api';
+import { useUpsertWallet } from '~/mutations/wallet/useUpsertWallet';
 import { RootNavigatorScreenProps } from '~/navigation/RootNavigator';
 import { WalletId, CombinedQuorum, CombinedWallet } from '~/queries/wallets';
 import { useWallet } from '~/queries/wallets/useWallet';
@@ -46,6 +46,7 @@ export const WalletScreen = withSkeleton(
         quorums: [],
       };
     }, [account, existing]);
+    const upsertWallet = useUpsertWallet(wallet);
 
     const [quorums, setQuorums] = useState(wallet.quorums);
 
@@ -106,9 +107,7 @@ export const WalletScreen = withSkeleton(
           <FAB
             icon={CheckIcon}
             label="Apply"
-            onPress={() => {
-              // TODO: implement propose
-            }}
+            onPress={() => upsertWallet(wallet, existing)}
           />
         )}
       </Box>

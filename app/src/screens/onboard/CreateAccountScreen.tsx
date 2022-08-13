@@ -11,6 +11,8 @@ import { useCreateApiAccount } from '~/mutations/account/useCreateAccount.api';
 import { AppbarBack } from '@components/AppbarBack';
 import { makeStyles } from '@util/theme/makeStyles';
 import { useName } from './Name/useName';
+import { Navigate } from '~/navigation';
+import { address, Address } from 'lib';
 
 interface Values {
   name: string;
@@ -20,19 +22,31 @@ const schema: Yup.SchemaOf<Values> = Yup.object({
   name: Yup.string().required('Required'),
 });
 
-export type CreateAccountScreenProps = RootNavigatorScreenProps<'CreateAccount'>;
+export interface CreateAccountScreenParams {
+  navigate: (navigate: Navigate, account: Address) => void;
+}
 
-export const CreateAccountScreen = ({ navigation }: CreateAccountScreenProps) => {
+export type CreateAccountScreenProps =
+  RootNavigatorScreenProps<'CreateAccount'>;
+
+export const CreateAccountScreen = ({
+  navigation,
+  route,
+}: CreateAccountScreenProps) => {
   const styles = useStyles();
   const createAccount = useCreateApiAccount();
   const name = useName();
 
   const handleSubmit = useCallback(
     async ({ name }: Values) => {
-      await createAccount(name, 'Spending');
-      navigation.navigate('DrawerNavigator');
+      const acc = await createAccount(name, 'Spending');
+
+      route.params.navigate(
+        navigation.navigate,
+        address(acc.data!.createAccount.id),
+      );
     },
-    [createAccount, navigation],
+    [createAccount, navigation.navigate, route.params],
   );
 
   return (

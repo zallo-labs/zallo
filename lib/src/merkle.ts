@@ -2,10 +2,10 @@ import keccak256 from 'keccak256';
 import MerkleTree from 'merkletreejs';
 import { Wallet } from './wallet';
 import { BoolArray, toBoolArray } from './boolArray';
-import { Quorum, quorumToLeaf } from './quorum';
+import { Quorum, quorumToLeaf, sortQuorums } from './quorum';
 
 export const getMerkleTree = (wallet: Wallet): MerkleTree => {
-  const leaves = wallet.quorums.map(quorumToLeaf);
+  const leaves = sortQuorums(wallet.quorums).map(quorumToLeaf);
   return new MerkleTree(leaves, keccak256, { sort: true });
 };
 

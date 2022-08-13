@@ -10,8 +10,8 @@ import {
   TestAccount__factory,
   randomWalletRef,
   Wallet,
-  toQuorums,
   toQuorum,
+  sortQuorums,
 } from 'lib';
 import { allSigners, device } from './wallet';
 import { ContractTransaction } from 'ethers';
@@ -78,7 +78,7 @@ export const deploy = async (
 
   const wallet: Wallet = {
     ref: randomWalletRef(),
-    quorums: toQuorums([quorum]),
+    quorums: sortQuorums([quorum]),
   };
 
   const { impl } = await deployAccountImpl({ contractName });

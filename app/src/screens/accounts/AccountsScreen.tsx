@@ -51,7 +51,12 @@ export const AccountsScreen = withSkeleton(
               icon={PlusIcon}
               mode="text"
               style={styles.create}
-              // onPress={() => navigate('Account', {})}
+              onPress={() =>
+                navigate('CreateAccount', {
+                  navigate: (navigate, accountId) =>
+                    navigate('Account', { id: accountId }),
+                })
+              }
             >
               Create
             </Button>

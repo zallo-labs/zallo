@@ -1,6 +1,7 @@
 import { PayCircleIcon, PayCircleOutlineIcon } from '@util/theme/icons';
 import { ComponentPropsWithoutRef, useState } from 'react';
 import { BottomNavigation, Text } from 'react-native-paper';
+import { ActivityScreen } from '~/screens/activity/ActivityScreen';
 import { HomeScreen } from '~/screens/home/HomeScreen';
 import { ReceiveScreen } from '~/screens/receive/ReceiveScreen';
 import { DrawerNavigatorScreenProps } from './Drawer/DrawerNavigator';
@@ -56,7 +57,7 @@ const routes: Routes = [
 const renderScene = BottomNavigation.SceneMap({
   Receive: ReceiveScreen,
   Home: HomeScreen,
-  Activity: Unimplemented,
+  Activity: ActivityScreen,
 });
 
 export type BottomNavigatorProps =
