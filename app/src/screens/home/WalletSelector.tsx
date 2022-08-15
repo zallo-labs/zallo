@@ -13,12 +13,14 @@ import { WalletPaymentCard } from '~/components2/wallet/payment/WalletPaymentCar
 import { useWalletIds } from '~/queries/wallets/useWalletIds';
 import { NewWalletPaymentCard } from '~/components2/wallet/payment/NewWalletPaymentCard';
 import { WALLET_PAYMENT_CARD_HEIGHT } from '~/components2/wallet/payment/WalletPaymentCardSkeleton';
+import { useCreateWallet } from '~/mutations/wallet/useCreateWallet';
 
 export const WalletSelector = () => {
   const { walletIds } = useWalletIds();
   const styles = useStyles();
   const selected = useSelectedWallet();
   const select = useSelectWallet();
+  const createWallet = useCreateWallet();
 
   const [position, setPosition] = useState(() =>
     walletIds.findIndex((w) => w.id === selected.id),
@@ -46,11 +48,7 @@ export const WalletSelector = () => {
         ))}
 
         <Box key={walletIds.length + 1} mx={4}>
-          <NewWalletPaymentCard
-            onPress={() => {
-              // TODO: add wallet
-            }}
-          />
+          <NewWalletPaymentCard onPress={createWallet} />
         </Box>
       </PagerView>
 
