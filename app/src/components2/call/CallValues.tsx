@@ -1,5 +1,5 @@
 import { Box } from '@components/Box';
-import { FiatValue } from '@components/FiatValue';
+import { FiatValue } from '~/components2/fiat/FiatValue';
 import { TokenValue } from '@components/token/TokenValue';
 import { useDecodedTransfer } from '@features/activity/tx/useDecodedTransfer';
 import { Call, ZERO } from 'lib';
@@ -24,17 +24,23 @@ export const CallValues = ({ call, token, textStyle }: CallValuesProps) => {
 
   return (
     <Box vertical justifyContent="space-around" alignItems="flex-end">
-      <Text variant="titleMedium" style={textStyle}>
-        <FiatValue value={totalFiat} />
-      </Text>
+      {!!totalFiat && (
+        <Text variant="titleMedium" style={textStyle}>
+          <FiatValue value={totalFiat} />
+        </Text>
+      )}
 
-      <Text variant="bodyMedium" style={textStyle}>
-        <TokenValue token={ETH} value={call.value} />
-      </Text>
+      {!call.value.isZero() && (
+        <Text variant="bodyMedium" style={textStyle}>
+          <TokenValue token={ETH} value={call.value} />
+        </Text>
+      )}
 
-      <Text variant="bodyMedium" style={textStyle}>
-        <TokenValue token={token} value={transferAmount} />
-      </Text>
+      {!transferAmount.isZero && (
+        <Text variant="bodyMedium" style={textStyle}>
+          <TokenValue token={token} value={transferAmount} />
+        </Text>
+      )}
     </Box>
   );
 };
