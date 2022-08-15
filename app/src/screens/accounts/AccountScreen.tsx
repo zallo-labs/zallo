@@ -56,7 +56,6 @@ export const AccountScreen = withSkeleton(
               id={item}
               available
               showAccount={false}
-              showZero
               onPress={() =>
                 navigation.navigate('Wallet', {
                   account: account.addr,

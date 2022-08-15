@@ -3,9 +3,9 @@ import { Box } from '@components/Box';
 import { withSkeleton } from '@components/skeleton/withSkeleton';
 import { Address } from 'lib';
 import { Text } from 'react-native-paper';
-import { Balance } from '../Balance';
 import { Card, CardProps } from '../card/Card';
 import { CardItemSkeleton } from '../card/CardItemSkeleton';
+import { FiatBalance } from '../fiat/FiatBalance';
 
 export interface AccountCardProps extends CardProps {
   id: Address;
@@ -21,7 +21,7 @@ export const AccountCard = withSkeleton(
 
         <Box flexGrow={1} horizontal justifyContent="flex-end">
           <Text variant="bodyLarge">
-            <Balance addr={id} />
+            <FiatBalance addr={id} />
           </Text>
         </Box>
       </Card>

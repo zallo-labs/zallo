@@ -1,6 +1,5 @@
 import { Addr } from '@components/Addr';
 import { Box } from '@components/Box';
-import { FiatValue } from '@components/FiatValue';
 import { withSkeleton } from '@components/skeleton/withSkeleton';
 import { PayIcon } from '@util/theme/icons';
 import { useTheme } from '@util/theme/paper';
@@ -8,11 +7,12 @@ import { Text } from 'react-native-paper';
 import { Card, CardProps } from '~/components2/card/Card';
 import { WalletId } from '~/queries/wallets';
 import { useWallet } from '~/queries/wallets/useWallet';
-import { useTokenValues } from '~/token/useTokenValues';
 import {
   WalletPaymentCardSkeleton,
   WALLET_PAYMENT_CARD_HEIGHT,
 } from './WalletPaymentCardSkeleton';
+import { FiatBalance } from '~/components2/fiat/FiatBalance';
+import { Suspend } from '@components/Suspender';
 
 export interface WalletPaymentCardProps extends CardProps {
   id: WalletId;
@@ -21,11 +21,12 @@ export interface WalletPaymentCardProps extends CardProps {
 
 export const WalletPaymentCard = withSkeleton(
   ({ id, available, ...cardProps }: WalletPaymentCardProps) => {
-    const wallet = useWallet(id)!;
+    const wallet = useWallet(id);
     const { colors } = useTheme();
-    const { totalFiatValue } = useTokenValues(wallet.accountAddr);
 
     const colorStyle = { color: colors.onTertiaryContainer };
+
+    if (!wallet) return <Suspend />;
 
     return (
       <Card
@@ -52,7 +53,11 @@ export const WalletPaymentCard = withSkeleton(
           <Box horizontal justifyContent="flex-end">
             {available && (
               <Text variant="bodyLarge" style={colorStyle}>
-                <FiatValue value={totalFiatValue} /> available
+                <FiatBalance
+                  addr={wallet.accountAddr}
+                  rightAffix=" available"
+                  showZero
+                />
               </Text>
             )}
           </Box>

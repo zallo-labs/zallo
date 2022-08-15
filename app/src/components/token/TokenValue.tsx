@@ -1,22 +1,18 @@
 import { Token } from '~/token/token';
 import { FormattedNumber } from '@components/FormattedNumber';
-import { BigNumber, BigNumberish } from 'ethers';
+import { BigNumberish } from 'ethers';
 
 export interface TokenValueProps {
   token: Token;
   value: BigNumberish;
   symbol?: boolean;
-  showZero?: boolean;
 }
 
 export const TokenValue = ({
   token,
   value,
   symbol = true,
-  showZero,
 }: TokenValueProps) => {
-  if (BigNumber.from(value).isZero() && !showZero) return null;
-
   return (
     <FormattedNumber
       value={value}

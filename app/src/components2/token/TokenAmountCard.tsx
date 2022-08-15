@@ -1,4 +1,4 @@
-import { FiatValue } from '@components/FiatValue';
+import { FiatValue } from '~/components2/fiat/FiatValue';
 import { TokenIcon } from '@components/token/TokenIcon';
 import { BigNumberish } from 'ethers';
 import { Text } from 'react-native-paper';

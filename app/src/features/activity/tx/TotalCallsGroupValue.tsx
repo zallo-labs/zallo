@@ -1,4 +1,4 @@
-import { FiatValue } from '@components/FiatValue';
+import { FiatValue } from '~/components2/fiat/FiatValue';
 import { Address, sumBn, ZERO, mapAsync, Call } from 'lib';
 import { useState } from 'react';
 import useAsyncEffect from 'use-async-effect';

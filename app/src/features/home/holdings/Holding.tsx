@@ -7,7 +7,7 @@ import { useTokenBalance } from '~/token/useTokenBalance';
 import { Box } from '@components/Box';
 import { PriceChange } from '@components/PriceDelta';
 import { TokenValue } from '@components/token/TokenValue';
-import { FiatValue } from '@components/FiatValue';
+import { FiatValue } from '~/components2/fiat/FiatValue';
 import { useTokenValue } from '~/token/useTokenValue';
 import { useTokenPrice } from '~/queries/useTokenPrice.uni';
 

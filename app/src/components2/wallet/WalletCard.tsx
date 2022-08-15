@@ -1,35 +1,44 @@
 import { Addr } from '@components/Addr';
-import { FiatValue } from '@components/FiatValue';
 import { withSkeleton } from '@components/skeleton/withSkeleton';
+import { Suspend } from '@components/Suspender';
 import { Text } from 'react-native-paper';
 import { WalletId } from '~/queries/wallets';
 import { useWallet } from '~/queries/wallets/useWallet';
-import { useTokenValues } from '~/token/useTokenValues';
 import { CardItem, CardItemProps } from '../card/CardItem';
 import { CardItemSkeleton } from '../card/CardItemSkeleton';
+import { FiatBalance } from '../fiat/FiatBalance';
 
 export interface WalletCardProps extends CardItemProps {
   id: WalletId;
   available?: boolean;
+  showAccount?: boolean;
 }
 
 export const WalletCard = withSkeleton(
-  ({ id, available, ...props }: WalletCardProps) => {
-    const wallet = useWallet(id)!;
-    const { totalFiatValue } = useTokenValues(wallet.accountAddr);
+  ({
+    id,
+    available,
+    showAccount = true,
+    ...props
+  }: WalletCardProps) => {
+    const wallet = useWallet(id);
+
+    if (!wallet) return <Suspend />;
 
     return (
       <CardItem
         Main={[
           <Text variant="titleMedium">{wallet.name}</Text>,
-          <Text variant="bodySmall">
-            <Addr addr={wallet.accountAddr} />
-          </Text>,
+          showAccount && (
+            <Text variant="bodySmall">
+              <Addr addr={wallet.accountAddr} />
+            </Text>
+          ),
         ]}
         {...(available && {
           Right: (
             <Text variant="bodyLarge">
-              <FiatValue value={totalFiatValue} /> available
+              <FiatBalance addr={wallet?.accountAddr} rightAffix=" available" />
             </Text>
           ),
         })}

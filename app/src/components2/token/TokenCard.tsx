@@ -1,5 +1,5 @@
 import { Box } from '@components/Box';
-import { FiatValue } from '@components/FiatValue';
+import { FiatValue } from '~/components2/fiat/FiatValue';
 import { Container } from '@components/list/Container';
 import { PriceChange } from '@components/PriceDelta';
 import { TokenIcon } from '@components/token/TokenIcon';
@@ -61,12 +61,12 @@ export const TokenCard = ({
       Right={[
         showFiatAmount && (
           <Text variant="titleSmall">
-            <FiatValue value={fiatValue} showZero />
+            <FiatValue value={fiatValue} />
           </Text>
         ),
         amount && (
           <Text variant="titleSmall">
-            <TokenValue token={t} value={amount} symbol={false} showZero />
+            <TokenValue token={t} value={amount} symbol={false} />
           </Text>
         ),
         showRemaining && (

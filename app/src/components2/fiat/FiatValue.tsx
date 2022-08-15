@@ -1,6 +1,6 @@
-import { BigNumber, BigNumberish } from 'ethers';
+import { BigNumberish } from 'ethers';
 import { FIAT_DECIMALS } from '~/token/fiat';
-import { FormattedNumber } from './FormattedNumber';
+import { FormattedNumber } from '../../components/FormattedNumber';
 
 const currency = 'USD';
 
@@ -10,16 +10,12 @@ const withoutSymbol = (value: string, currency: string) =>
 export interface FormattedFiatProps {
   value: BigNumberish;
   symbol?: boolean;
-  showZero?: boolean;
 }
 
 export const FiatValue = ({
   value,
   symbol = true,
-  showZero,
 }: FormattedFiatProps) => {
-  if (BigNumber.from(value).isZero() && !showZero) return null;
-
   return (
     <FormattedNumber
       value={value}
