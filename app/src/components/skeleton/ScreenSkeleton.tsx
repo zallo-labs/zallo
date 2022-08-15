@@ -10,18 +10,20 @@ export interface ScreenSkeletonProps {
   children?: ReactNode;
   mode?: AppbarHeaderProps['mode'];
   menu?: boolean;
+  title?: boolean;
 }
 
 export const ScreenSkeleton = ({
   children,
   mode,
   menu,
+  title = true,
 }: ScreenSkeletonProps) => (
   <Box>
     <Appbar.Header mode={mode}>
       {menu ? <Appbar.Action icon={MenuIcon} /> : <AppbarBack />}
 
-      <Appbar.Content title={<LineSkeleton width={150} />} />
+      {title && <Appbar.Content title={<LineSkeleton width={150} />} />}
     </Appbar.Header>
 
     {children}
