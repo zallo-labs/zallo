@@ -3,7 +3,7 @@ import { SubmittableTextField } from '@components/fields/SubmittableTextField';
 import { ScreenSkeleton } from '@components/skeleton/ScreenSkeleton';
 import { withSkeleton } from '@components/skeleton/withSkeleton';
 import { Suspend } from '@components/Suspender';
-import { DeleteIcon, PlusIcon } from '@util/theme/icons';
+import { PlusIcon } from '@util/theme/icons';
 import { makeStyles } from '@util/theme/makeStyles';
 import { Address } from 'lib';
 import { FlatList } from 'react-native-gesture-handler';
@@ -11,7 +11,6 @@ import { Appbar, Button } from 'react-native-paper';
 import { useAppbarHeader } from '~/components2/Appbar/useAppbarHeader';
 import { useGoBack } from '~/components2/Appbar/useGoBack';
 import { WalletCard } from '~/components2/wallet/WalletCard';
-import { useDeleteAccount } from '~/mutations/account/useDeleteAccount';
 import { useSetAccountName } from '~/mutations/account/useSetAccountName.api';
 import { RootNavigatorScreenProps } from '~/navigation/RootNavigator';
 import { useAccount } from '~/queries/account/useAccount';
@@ -56,6 +55,8 @@ export const AccountScreen = withSkeleton(
             <WalletCard
               id={item}
               available
+              showAccount={false}
+              showZero
               onPress={() =>
                 navigation.navigate('Wallet', {
                   account: account.addr,
@@ -93,5 +94,6 @@ const useStyles = makeStyles(({ space }) => ({
   },
   create: {
     alignSelf: 'flex-end',
+    marginTop: space(2),
   },
 }));

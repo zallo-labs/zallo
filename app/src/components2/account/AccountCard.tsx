@@ -14,7 +14,7 @@ export interface AccountCardProps extends CardProps {
 export const AccountCard = withSkeleton(
   ({ id, ...cardProps }: AccountCardProps) => {
     return (
-      <Card p={3} {...cardProps}>
+      <Card {...cardProps}>
         <Text variant="titleMedium">
           <Addr addr={id} />
         </Text>
