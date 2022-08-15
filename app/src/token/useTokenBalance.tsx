@@ -3,7 +3,7 @@ import { Token } from './token';
 import { PROVIDER } from '~/provider';
 import { atomFamily, selectorFamily, useRecoilValue } from 'recoil';
 import { Address, isPresent, ZERO } from 'lib';
-import { captureException, Severity } from '@util/sentry/sentry';
+import { captureException } from '@util/sentry/sentry';
 import { allTokensSelector } from './useToken';
 import { refreshAtom } from '@util/effect/refreshAtom';
 import { useSelectedWallet } from '~/components2/wallet/useSelectedWallet';
@@ -19,7 +19,7 @@ const fetch = async ([addr, token]: BalanceKey) => {
     return PROVIDER.getBalance(addr, undefined, token);
   } catch (e) {
     captureException(e, {
-      level: Severity.Error,
+      level: 'error',
       extra: { token, addr },
     });
     return BigNumber.from(0);

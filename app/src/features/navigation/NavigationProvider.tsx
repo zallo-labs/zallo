@@ -5,7 +5,6 @@ import {
 import { ChildrenProps } from '@util/children';
 import {
   addBreadcrumb,
-  Severity,
   SENTRY_ROUTING_INSTRUMENTATION,
 } from '@util/sentry/sentry';
 import { NAVIGATION_THEME } from '@util/theme/navigation';
@@ -32,7 +31,7 @@ export const NavigationProvider = ({ children }: ChildrenProps) => {
 
     if (previousRouteName !== currentRouteName) {
       addBreadcrumb({
-        level: Severity.Info,
+        level: 'info',
         type: 'navigation',
         data: {
           from: previousRouteName,

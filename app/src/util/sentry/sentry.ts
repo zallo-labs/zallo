@@ -44,4 +44,4 @@ export const captureMessage = (
   return Sentry.captureMessage(...params);
 };
 
-export const { Severity, addBreadcrumb } = Sentry;
+export const { addBreadcrumb } = Sentry;
