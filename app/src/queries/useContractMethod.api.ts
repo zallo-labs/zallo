@@ -9,7 +9,8 @@ import { ethers } from 'ethers';
 import { BytesLike } from 'ethers';
 import { FunctionFragment } from 'ethers/lib/utils';
 import { Address, Account__factory } from 'lib';
-import { useCallback } from 'react';
+import { useMemo } from 'react';
+import { useApiUserAccountsMetadata } from './account/useAccountsMetadata.api';
 
 const ACCOUNT_INTERFACE = Account__factory.createInterface();
 
@@ -50,10 +51,13 @@ const transform = (
 };
 
 export const useContractMethod = (contract: Address, funcData: BytesLike) => {
-  const { contract: account } = useAccount();
-
-  const isAccount = contract === account.address;
+  const { apiAccountsMetadata } = useApiUserAccountsMetadata();
   const sighash = getDataSighash(funcData);
+
+  const isAccount = useMemo(
+    () => !!apiAccountsMetadata.find((a) => a.addr === contract),
+    [apiAccountsMetadata, contract],
+  );
 
   const res = useQuery<ContractMethodQuery, ContractMethodQueryVariables>(
     API_QUERY,
@@ -66,27 +70,27 @@ export const useContractMethod = (contract: Address, funcData: BytesLike) => {
   return transform(res?.data, sighash, isAccount);
 };
 
-export const useLazyContractMethod = () => {
-  const { contract: account } = useAccount();
-  const client = useApiClient();
+// export const useLazyContractMethod = () => {
+//   const { contract: account } = useAccount();
+//   const client = useApiClient();
 
-  const get = useCallback(
-    async (contract: Address, funcData: BytesLike) => {
-      const isAccount = contract === account.address;
-      const sighash = getDataSighash(funcData);
+//   const get = useCallback(
+//     async (contract: Address, funcData: BytesLike) => {
+//       const isAccount = contract === account.address;
+//       const sighash = getDataSighash(funcData);
 
-      const result = await client.query<
-        ContractMethodQuery,
-        ContractMethodQueryVariables
-      >({
-        query: API_QUERY,
-        variables: { contract, sighash },
-      });
+//       const result = await client.query<
+//         ContractMethodQuery,
+//         ContractMethodQueryVariables
+//       >({
+//         query: API_QUERY,
+//         variables: { contract, sighash },
+//       });
 
-      return transform(result?.data, sighash, isAccount);
-    },
-    [account.address, client],
-  );
+//       return transform(result?.data, sighash, isAccount);
+//     },
+//     [account.address, client],
+//   );
 
-  return get;
-};
+//   return get;
+// };
