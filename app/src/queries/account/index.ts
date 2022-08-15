@@ -3,12 +3,15 @@ import { WalletId } from '../wallets';
 
 export const QUERY_ACCOUNT_POLL_INTERVAL = 30 * 1000;
 
-export interface CombinedAccount {
+export interface AccountMetadata {
   id: Id;
   addr: Address;
+  name: string;
+}
+
+export interface CombinedAccount extends AccountMetadata {
   contract: Account;
   impl: Address;
   deploySalt?: string;
-  name: string;
   walletIds: WalletId[];
 }

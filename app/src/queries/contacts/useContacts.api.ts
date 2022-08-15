@@ -6,6 +6,7 @@ import { truncatedAddr } from '@util/format';
 import { address, Address, filterFirst, Id, toId } from 'lib';
 import { useMemo } from 'react';
 import { useAccountIds } from '../account/useAccountIds';
+import { useApiUserAccountsMetadata } from '../account/useAccountsMetadata.api';
 
 export const API_CONTACT_FIELDS = gql`
   fragment ContactFields on Contact {
@@ -27,7 +28,7 @@ export const API_CONTACTS_QUERY = gql`
 
 export const useContacts = () => {
   const device = useDevice();
-  // const accountIds = useAccountIds();
+  const { apiAccountsMetadata } = useApiUserAccountsMetadata();
 
   const { data, ...rest } = useQuery<ContactsQuery>(API_CONTACTS_QUERY, {
     client: useApiClient(),
@@ -44,19 +45,17 @@ export const useContacts = () => {
   );
 
   // Show this device & other accounts as contacts
-  // const accountContacts = useMemo(
-  //   () =>
-  //     accounts.map(
-  //       ({ name, contract: { address } }): Contact => ({
-  //         id: toId(address),
-  //         addr: address,
-  //         name: name || `Account ${truncatedAddr(address)}`,
-  //       }),
-  //     ),
-  //   [accounts],
-  // );
-  // TODO: fix showing user accounts as contacts
-  const accountContacts: Contact[] = [];
+  const accountContacts = useMemo(
+    () =>
+      apiAccountsMetadata.map(
+        ({ id, addr, name }): Contact => ({
+          id: id,
+          addr: addr,
+          name: name || `Account ${truncatedAddr(addr)}`,
+        }),
+      ),
+    [apiAccountsMetadata],
+  );
 
   // Exclude created accounts & wallet contacts if they're already in the list
   const combinedContacts = useMemo(() => {
