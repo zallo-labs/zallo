@@ -4,9 +4,8 @@ import { withSkeleton } from '@components/skeleton/withSkeleton';
 import { Suspend } from '@components/Suspender';
 import { TokenIcon } from '@components/token/TokenIcon';
 import { makeStyles } from '@util/theme/makeStyles';
-import { useMemo } from 'react';
 import { Text } from 'react-native-paper';
-import { isProposedTx, Tx, TxId } from '~/queries/tx';
+import { Tx, TxId } from '~/queries/tx';
 import { useTx } from '~/queries/tx/useTx';
 import { ETH } from '~/token/tokens';
 import { useMaybeToken } from '~/token/useToken';
@@ -28,37 +27,35 @@ export const CallCard = withSkeleton(({ id, ...cardProps }: CallCardProps) => {
 
   return (
     <Card horizontal {...cardProps} style={[styles.card, cardProps.style]}>
-      <Box flex={1} horizontal alignItems="center">
-        <TokenIcon token={token} />
+      <Box horizontal>
+        <Box flex={1} horizontal alignItems="center">
+          <TokenIcon token={token} />
 
-        <Box flex={1} vertical justifyContent="space-around" ml={3}>
-          <Text variant="titleMedium" style={styles.text}>
-            <Addr addr={tx.to} />
-          </Text>
+          <Box flex={1} vertical ml={3}>
+            <Text variant="titleMedium" style={styles.text}>
+              <Addr addr={tx.to} />
+            </Text>
 
-          <Text variant="bodyMedium" style={styles.text}>
-            <CallMethod call={tx} />
-          </Text>
+            <Text variant="bodyMedium" style={styles.text}>
+              <CallMethod call={tx} />
+            </Text>
+          </Box>
         </Box>
-      </Box>
 
-      <CallValues call={tx} token={token} textStyle={styles.text} />
+        <CallValues call={tx} token={token} textStyle={styles.text} />
+      </Box>
     </Card>
   );
 }, CardItemSkeleton);
 
 const useStyles = makeStyles(({ colors, onBackground }, tx?: Tx) => {
-  const backgroundColor: string | undefined = useMemo(() => {
-    if (!tx) return undefined;
-
-    if (isProposedTx(tx)) {
-      return !tx.userHasApproved && !tx.submissions.length
+  let backgroundColor: string | undefined = undefined;
+  if (tx) {
+    backgroundColor =
+      !tx.userHasApproved && !tx.submissions.length
         ? colors.primaryContainer
         : colors.secondaryContainer;
-    }
-
-    return undefined;
-  }, [tx, colors]);
+  }
 
   return {
     card: {
