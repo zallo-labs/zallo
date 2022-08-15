@@ -15,6 +15,7 @@ import {
   SetWalletNameArgs,
   SetQuorumsArgs as SetWalletQuorumsArgs,
   WalletArgs,
+  UpsertWalletArgs,
 } from './wallets.args';
 import {
   connectOrCreateAccount,
@@ -140,6 +141,63 @@ export class WalletsResolver {
       update: {
         ...(!existingTxHash && {
           txHash: { set: { txHash } },
+        }),
+        quorums: {
+          connectOrCreate: quorums.map((quorum) => {
+            const hash = hashQuorum(quorum);
+
+            return {
+              where: {
+                accountId_walletRef_hash: {
+                  accountId: id.accountId,
+                  walletRef: id.ref,
+                  hash,
+                },
+              },
+              create: this.createQuorum(id, txHash, quorum),
+            };
+          }),
+        },
+      },
+      ...getSelect(info),
+    });
+  }
+
+  @Mutation(() => Wallet, { nullable: true })
+  async upsertWallet(
+    @Args() { id, name, quorums, txHash }: UpsertWalletArgs,
+    @Info() info: GraphQLResolveInfo,
+  ): Promise<Wallet> {
+    const existingTxHash = (
+      await this.prisma.wallet.findUnique({
+        where: {
+          accountId_ref: id,
+        },
+        select: { txHash: true },
+      })
+    )?.txHash;
+
+    return this.prisma.wallet.upsert({
+      where: {
+        accountId_ref: id,
+      },
+      create: {
+        account: connectOrCreateAccount(id.accountId),
+        ref: id.ref,
+        txHash,
+        name,
+        quorums: {
+          create: quorums.map((quorum) =>
+            this.createQuorum(id, txHash, quorum),
+          ),
+        },
+      },
+      update: {
+        ...(!existingTxHash && {
+          txHash: { set: { txHash } },
+        }),
+        ...(name && {
+          name: { set: name },
         }),
         quorums: {
           connectOrCreate: quorums.map((quorum) => {

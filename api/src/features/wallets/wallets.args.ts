@@ -36,3 +36,16 @@ export class SetQuorumsArgs {
   @Bytes32Field()
   txHash: string;
 }
+
+@ArgsType()
+export class UpsertWalletArgs {
+  id: WalletId;
+
+  name?: string;
+
+  @QuorumsField()
+  quorums: Quorum[];
+
+  @Bytes32Field()
+  txHash: string;
+}

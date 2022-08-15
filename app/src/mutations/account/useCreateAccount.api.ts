@@ -6,6 +6,9 @@ import {
   AccountQuery,
   AccountQueryVariables,
   useCreateAccountMutation,
+  UserAccountsMetadataDocument,
+  UserAccountsMetadataQuery,
+  UserAccountsMetadataQueryVariables,
   UserWalletIdsQuery,
   UserWalletIdsQueryVariables,
   WalletQuery,
@@ -100,7 +103,41 @@ export const useCreateApiAccount = () => {
         },
       },
       update: (cache, res) => {
-        if (!res?.data?.createAccount) return;
+        const id = res.data?.createAccount.id;
+        if (!id) return;
+
+        {
+          // User Account Metadata; upsert
+          const opts: QueryOpts<UserAccountsMetadataQueryVariables> = {
+            query: UserAccountsMetadataDocument,
+            variables: {},
+          };
+
+          const data: UserAccountsMetadataQuery =
+            cache.readQuery<UserAccountsMetadataQuery>(opts) ?? {
+              userAccounts: [],
+            };
+
+          cache.writeQuery<UserAccountsMetadataQuery>({
+            ...opts,
+            data: produce(data, (data) => {
+              const i = data.userAccounts.findIndex((a) => a.id === id);
+              if (i >= 0) {
+                data.userAccounts[i] = {
+                  __typename: 'Account',
+                  id,
+                  name,
+                };
+              } else {
+                data.userAccounts.push({
+                  __typename: 'Account',
+                  id,
+                  name,
+                });
+              }
+            }),
+          });
+        }
 
         // Account: create
         cache.writeQuery<AccountQuery, AccountQueryVariables>({
@@ -146,31 +183,37 @@ export const useCreateApiAccount = () => {
           });
         }
 
-        // UserWalletIds: add wallets
-        const userWalletIdsOpts: QueryOpts<UserWalletIdsQueryVariables> = {
-          query: API_QUERY_USER_WALLETS,
-          variables: {},
-        };
+        {
+          // UserWalletIds: add wallet ids if missing
+          const opts: QueryOpts<UserWalletIdsQueryVariables> = {
+            query: API_QUERY_USER_WALLETS,
+            variables: {},
+          };
 
-        const userWalletIdsData: UserWalletIdsQuery =
-          cache.readQuery<UserWalletIdsQuery>(userWalletIdsOpts) ?? {
+          const data: UserWalletIdsQuery = cache.readQuery<UserWalletIdsQuery>(
+            opts,
+          ) ?? {
             userWallets: [],
           };
 
-        cache.writeQuery<UserWalletIdsQuery>({
-          ...userWalletIdsOpts,
-          overwrite: true,
-          data: produce(userWalletIdsData, (data) => {
-            data.userWallets.push(
-              ...wallets.map((w): UserWalletIdsQuery['userWallets'][0] => ({
-                __typename: 'Wallet',
-                id: getWalletId(accountAddr, w.ref),
-                accountId: accountAddr,
-                ref: w.ref,
-              })),
-            );
-          }),
-        });
+          cache.writeQuery<UserWalletIdsQuery>({
+            ...opts,
+            overwrite: true,
+            data: produce(data, (data) => {
+              const walletId = getWalletId(accountAddr, wallet.ref);
+              if (!data.userWallets.find((w) => w.id === walletId)) {
+                data.userWallets.push(
+                  ...wallets.map((w): UserWalletIdsQuery['userWallets'][0] => ({
+                    __typename: 'Wallet',
+                    id: getWalletId(accountAddr, w.ref),
+                    accountId: accountAddr,
+                    ref: w.ref,
+                  })),
+                );
+              }
+            }),
+          });
+        }
       },
     });
   };

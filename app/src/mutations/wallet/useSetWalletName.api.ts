@@ -60,6 +60,7 @@ export const useSetWalletName = () => {
                   accountId: accountAddr,
                   ref,
                   name,
+                  quorums: [],
                 };
               }
             }),

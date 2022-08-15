@@ -8,12 +8,14 @@ import { FlatList } from 'react-native';
 import { Appbar } from 'react-native-paper';
 import { useAppbarHeader } from '~/components2/Appbar/useAppbarHeader';
 import { WalletCard } from '~/components2/wallet/WalletCard';
+import { useCreateWallet } from '~/mutations/wallet/useCreateWallet';
 import { BottomNavigatorProps } from '~/navigation/BottomNavigator';
 import { useWalletIds } from '~/queries/wallets/useWalletIds';
 
 export const WalletsScreen = withSkeleton(() => {
   const { navigate } = useNavigation<BottomNavigatorProps['navigation']>();
   const { AppbarHeader, handleScroll } = useAppbarHeader();
+  const createWallet = useCreateWallet();
   const { walletIds } = useWalletIds();
 
   return (
@@ -23,14 +25,7 @@ export const WalletsScreen = withSkeleton(() => {
 
         <Appbar.Content title="Wallets" />
 
-        <Appbar.Action
-          icon={PlusIcon}
-          onPress={() =>
-            navigate('Accounts', {
-              onSelect: (account) => navigate('Wallet', { account }),
-            })
-          }
-        />
+        <Appbar.Action icon={PlusIcon} onPress={createWallet} />
       </AppbarHeader>
 
       <Box m={3}>

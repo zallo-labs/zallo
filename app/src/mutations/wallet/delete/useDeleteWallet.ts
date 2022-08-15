@@ -1,15 +1,20 @@
+import { createRemoveGroupTx } from 'lib';
 import { useCallback } from 'react';
-import { CombinedWallet } from '~/queries/wallets';
+import { useProposeTx } from '~/mutations/tx/propose/useProposeTx';
+import { useAccount } from '~/queries/account/useAccount';
+import { CombinedWallet, toWallet } from '~/queries/wallets';
 import { useApiDeleteWallet } from './useDeleteWallet.api';
 
 export const useDeleteWallet = (wallet: CombinedWallet) => {
+  const account = useAccount(wallet.accountAddr).account!;
+  const propose = useProposeTx(wallet);
   const apiDelete = useApiDeleteWallet();
 
   return useCallback(() => {
     if (wallet.active) {
-      // TODO: propose delete
+      propose(createRemoveGroupTx(account.contract, toWallet(wallet)));
     } else {
       return apiDelete(wallet);
     }
-  }, [wallet, apiDelete]);
+  }, [wallet, propose, account.contract, apiDelete]);
 };

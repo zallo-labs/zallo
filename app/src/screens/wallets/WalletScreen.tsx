@@ -2,13 +2,13 @@ import { Box } from '@components/Box';
 import { SubmittableTextField } from '@components/fields/SubmittableTextField';
 import { ScreenSkeleton } from '@components/skeleton/ScreenSkeleton';
 import { withSkeleton } from '@components/skeleton/withSkeleton';
-import { CheckIcon } from '@util/theme/icons';
+import { CheckIcon, PlusIcon } from '@util/theme/icons';
 import { makeStyles } from '@util/theme/makeStyles';
 import { Address, getWalletId, randomWalletRef } from 'lib';
 import _ from 'lodash';
-import { useMemo, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import { FlatList } from 'react-native';
-import { Text } from 'react-native-paper';
+import { Button, Text } from 'react-native-paper';
 import { useAppbarHeader } from '~/components2/Appbar/useAppbarHeader';
 import { FAB } from '~/components2/FAB';
 import { QuorumCard } from '~/components2/QuorumCard';
@@ -34,7 +34,7 @@ export const WalletScreen = withSkeleton(
     const { AppbarHeader, handleScroll } = useAppbarHeader();
     const setName = useSetWalletName();
 
-    const wallet: CombinedWallet = useMemo(() => {
+    const initialWallet: CombinedWallet = useMemo(() => {
       if (existing) return existing;
 
       const ref = randomWalletRef();
@@ -46,37 +46,64 @@ export const WalletScreen = withSkeleton(
         quorums: [],
       };
     }, [account, existing]);
+    const [wallet, setWallet] = useState(initialWallet);
+
     const upsertWallet = useUpsertWallet(wallet);
 
-    const [quorums, setQuorums] = useState(wallet.quorums);
-
     const isModified = useMemo(
-      () => !_.isEqual(wallet.quorums, quorums),
-      [wallet.quorums, quorums],
+      () => !_.isEqual(initialWallet.quorums, wallet.quorums),
+      [initialWallet.quorums, wallet.quorums],
     );
 
-    const saveName = (name: string) => setName({ ...wallet, name });
+    const saveName = useCallback(
+      (name: string) => {
+        if (existing) {
+          setName({ ...wallet, name });
+        } else {
+          setWallet((wallet) => ({ ...wallet, name }));
+        }
+      },
+      [existing, setName, wallet],
+    );
 
-    const addQuorum = (quroum: CombinedQuorum) =>
-      setQuorums((quorums) => [...quorums, quroum]);
+    const addQuorum = useCallback(
+      () =>
+        navigate('Quorum', {
+          onChange: (quorum) => {
+            if (quorum) {
+              setWallet((wallet) => ({
+                ...wallet,
+                quorums: [...wallet.quorums, quorum],
+              }));
+            }
+          },
+        }),
+      [navigate],
+    );
 
-    const configureQuorum = (quorum: CombinedQuorum) => () =>
-      navigate('Quorum', {
-        quorum,
-        onChange: (newQuorum?: CombinedQuorum) =>
-          setQuorums((quorums) => {
-            const withoutOld = quorums.filter((q) => q !== quorum);
+    const configureQuorum = useCallback(
+      (quorum: CombinedQuorum) => () =>
+        navigate('Quorum', {
+          quorum,
+          onChange: (newQuorum?: CombinedQuorum) =>
+            setWallet((wallet) => {
+              const withoutOld = wallet.quorums.filter((q) => q !== quorum);
 
-            return newQuorum ? [...withoutOld, newQuorum] : withoutOld;
-          }),
-      });
+              return {
+                ...wallet,
+                quorums: newQuorum ? [...withoutOld, newQuorum] : withoutOld,
+              };
+            }),
+        }),
+      [navigate],
+    );
 
     return (
       <Box flex={1}>
         <WalletAppbar
           wallet={wallet}
           AppbarHeader={AppbarHeader}
-          addQuorum={addQuorum}
+          existing={!!existing}
         />
 
         <FlatList
@@ -86,6 +113,7 @@ export const WalletScreen = withSkeleton(
                 value={wallet.name}
                 onSubmit={saveName}
                 hasError={(v) => !v.length && 'Required'}
+                autoFocus={!wallet.name}
               />
 
               <Box my={3}>
@@ -97,8 +125,17 @@ export const WalletScreen = withSkeleton(
             <QuorumCard quorum={quorum} onPress={configureQuorum(quorum)} />
           )}
           ItemSeparatorComponent={() => <Box my={2} />}
+          ListFooterComponent={
+            <Button
+              style={styles.addQuorum}
+              icon={PlusIcon}
+              onPress={addQuorum}
+            >
+              Add
+            </Button>
+          }
           style={styles.list}
-          data={quorums}
+          data={wallet.quorums}
           onScroll={handleScroll}
           showsVerticalScrollIndicator={false}
         />
@@ -119,5 +156,9 @@ export const WalletScreen = withSkeleton(
 const useStyles = makeStyles(({ space }) => ({
   list: {
     marginHorizontal: space(3),
+  },
+  addQuorum: {
+    alignSelf: 'flex-end',
+    marginTop: space(2),
   },
 }));
