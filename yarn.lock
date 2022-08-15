@@ -3515,9 +3515,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@gorhom/bottom-sheet@npm:^4.4.2":
-  version: 4.4.2
-  resolution: "@gorhom/bottom-sheet@npm:4.4.2"
+"@gorhom/bottom-sheet@npm:^4.4.3":
+  version: 4.4.3
+  resolution: "@gorhom/bottom-sheet@npm:4.4.3"
   dependencies:
     "@gorhom/portal": 1.0.13
     invariant: ^2.2.4
@@ -3528,7 +3528,7 @@ __metadata:
     react-native: "*"
     react-native-gesture-handler: ">=1.10.1"
     react-native-reanimated: ">=2.2.0"
-  checksum: 32034ec389df39b9b3ebd886eda02bb14b7bedf4c654dfb54c1b5bc1fe78f790011b279d02956d8805e9dfe3dd1fcdb416dc82cf3dcc7e13265475021adf7522
+  checksum: d71305d2c87f5b264411a8c0096bce4e8be7e481d8a0a50e923ac512a10e65833c5118c4a81dd4d6b33fdf6b3a2febf93bfa9cdabd206ed3f85ff357548451a9
   languageName: node
   linkType: hard
 
@@ -6106,7 +6106,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@react-navigation/native@npm:^6.0.10":
+"@react-navigation/native@npm:^6.0.11":
   version: 6.0.11
   resolution: "@react-navigation/native@npm:6.0.11"
   dependencies:
@@ -9581,7 +9581,7 @@ __metadata:
     "@ethersproject/shims": ^5.6.0
     "@expo/config": ^7.0.0
     "@expo/vector-icons": ^13.0.0
-    "@gorhom/bottom-sheet": ^4.4.2
+    "@gorhom/bottom-sheet": ^4.4.3
     "@graphql-codegen/cli": 2.11.3
     "@graphql-codegen/introspection": 2.2.0
     "@graphql-codegen/typescript": 2.7.2
@@ -9591,7 +9591,7 @@ __metadata:
     "@react-navigation/drawer": ^6.4.3
     "@react-navigation/material-bottom-tabs": ^6.2.2
     "@react-navigation/material-top-tabs": ^6.2.2
-    "@react-navigation/native": ^6.0.10
+    "@react-navigation/native": ^6.0.11
     "@react-navigation/native-stack": ^6.7.0
     "@sentry/react-native": ^4.1.3
     "@testing-library/jest-native": ^4.0.5
@@ -9608,7 +9608,7 @@ __metadata:
     apollo: 2.34.0
     apollo3-cache-persist: ^0.14.1
     async-mutex: ^0.3.2
-    babel-plugin-formatjs: ^10.3.19
+    babel-plugin-formatjs: ^10.3.25
     color: ^4.2.3
     concurrently: ^7.3.0
     config: "workspace:*"
@@ -9670,7 +9670,7 @@ __metadata:
     react-native-vector-icons: ^9.1.0
     react-native-web: ~0.18.7
     react-test-renderer: 17.0.1
-    recoil: ^0.7.4
+    recoil: ^0.7.5
     recoil-persist: ^4.2.0
     rimraf: ^3.0.2
     sentry-expo: ~5.0.2
@@ -10455,7 +10455,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"babel-plugin-formatjs@npm:^10.3.19":
+"babel-plugin-formatjs@npm:^10.3.25":
   version: 10.3.25
   resolution: "babel-plugin-formatjs@npm:10.3.25"
   dependencies:
@@ -28947,9 +28947,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"recoil@npm:^0.7.4":
-  version: 0.7.4
-  resolution: "recoil@npm:0.7.4"
+"recoil@npm:^0.7.5":
+  version: 0.7.5
+  resolution: "recoil@npm:0.7.5"
   dependencies:
     hamt_plus: 1.0.2
   peerDependencies:
@@ -28959,7 +28959,7 @@ __metadata:
       optional: true
     react-native:
       optional: true
-  checksum: 797b97ee74b2fbbb8e4dda8a951b13569d45a3440cfc05e870056255ff22c73aa816de70d66168a5b9ebe16c14d262777947dd752c8cb9559ef8ae3fbb586472
+  checksum: 19b410cca6839c8b886b91378112e12de3e0393b547211dafcf7a272c1aa2d7af6c09a9ed39fb3e1997abe5f3d6583e3774dc9f9cdda8c36e4cb0be64a1b17ce
   languageName: node
   linkType: hard
 
