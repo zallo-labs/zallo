@@ -81,7 +81,7 @@ export const ContactScreen = ({ route, navigation }: ContactScreenProps) => {
               <FormikTextField name="name" label="Name" />
 
               <Box mt={3} mb={2}>
-                <FormikTextField name="addr" label="Address" multiline />
+                <FormikTextField name="addr" label="Address" multiline blurOnSubmit />
               </Box>
 
               <Button
