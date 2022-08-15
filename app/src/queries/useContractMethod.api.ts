@@ -40,14 +40,19 @@ const transform = (
       ? FunctionFragment.from(JSON.parse(data.contractMethod.fragment))
       : undefined;
 
-  const methodInterface = methodFragment
+  const contractInterface = methodFragment
     ? Contract.getInterface([methodFragment])
     : undefined;
 
   const methodName =
     methodFragment?.name ?? (sighash === '0x' ? 'Send' : sighash);
 
-  return { methodFragment, methodInterface, methodName, sighash };
+  return {
+    methodFragment,
+    contractInterface,
+    methodName,
+    sighash,
+  };
 };
 
 export const useContractMethod = (contract: Address, funcData: BytesLike) => {
@@ -67,7 +72,10 @@ export const useContractMethod = (contract: Address, funcData: BytesLike) => {
     },
   );
 
-  return transform(res?.data, sighash, isAccount);
+  return useMemo(
+    () => transform(res?.data, sighash, isAccount),
+    [isAccount, res?.data, sighash],
+  );
 };
 
 // export const useLazyContractMethod = () => {

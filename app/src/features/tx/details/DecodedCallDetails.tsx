@@ -13,7 +13,8 @@ export interface DecodedOpDetailsProps {
 
 export const DecodedOpDetails = withSkeleton(
   ({ call: { to, data } }: DecodedOpDetailsProps) => {
-    const { methodFragment, methodInterface } = useContractMethod(to, data);
+    const { methodFragment, contractInterface: methodInterface } =
+      useContractMethod(to, data);
 
     if (!methodFragment || !methodInterface) return null;
 

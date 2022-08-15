@@ -13,56 +13,78 @@ import { Card, CardProps } from '../card/Card';
 import { CardItemSkeleton } from '../card/CardItemSkeleton';
 import { CallMethod } from './CallMethod';
 import { CallValues } from './CallValues';
+import { DetailedCallMethod } from './DetailedCallMethod';
+
+export type CallCardVariant = 'compact' | 'full';
+
+interface StyleProps {
+  tx?: Tx;
+  variant: CallCardVariant;
+}
 
 export interface CallCardProps extends CardProps {
   id: TxId;
+  variant?: CallCardVariant;
 }
 
-export const CallCard = withSkeleton(({ id, ...cardProps }: CallCardProps) => {
-  const { tx, loading } = useTx(id);
-  const token = useMaybeToken(tx?.to) ?? ETH;
-  const styles = useStyles(tx);
+export const CallCard = withSkeleton(
+  ({ id, variant = 'compact', ...cardProps }: CallCardProps) => {
+    const { tx, loading } = useTx(id);
+    const token = useMaybeToken(tx?.to) ?? ETH;
+    const styles = useStyles({ tx, variant });
 
-  if (!tx || loading) return <Suspend />;
+    if (!tx || loading) return <Suspend />;
 
-  return (
-    <Card horizontal {...cardProps} style={[styles.card, cardProps.style]}>
-      <Box horizontal>
-        <Box flex={1} horizontal alignItems="center">
-          <TokenIcon token={token} />
+    return (
+      <Card {...cardProps} style={[styles.card, cardProps.style]}>
+        <Box horizontal>
+          <Box flex={1} horizontal alignItems="center">
+            <TokenIcon token={token} />
 
-          <Box flex={1} vertical ml={3}>
-            <Text variant="titleMedium" style={styles.text}>
-              <Addr addr={tx.to} />
-            </Text>
+            <Box flex={1} vertical ml={3}>
+              <Text variant="titleMedium" style={styles.text}>
+                <Addr addr={tx.to} />
+              </Text>
 
-            <Text variant="bodyMedium" style={styles.text}>
-              <CallMethod call={tx} />
-            </Text>
+              {variant === 'compact' && (
+                <Text variant="bodyMedium" style={styles.text}>
+                  <CallMethod call={tx} />
+                </Text>
+              )}
+            </Box>
           </Box>
+
+          <CallValues call={tx} token={token} textStyle={styles.text} />
         </Box>
 
-        <CallValues call={tx} token={token} textStyle={styles.text} />
-      </Box>
-    </Card>
-  );
-}, CardItemSkeleton);
+        {variant === 'full' && (
+          <Box mt={3}>
+            <DetailedCallMethod call={tx} />
+          </Box>
+        )}
+      </Card>
+    );
+  },
+  CardItemSkeleton,
+);
 
-const useStyles = makeStyles(({ colors, onBackground }, tx?: Tx) => {
-  let backgroundColor: string | undefined = undefined;
-  if (tx) {
-    backgroundColor =
-      !tx.userHasApproved && !tx.submissions.length
-        ? colors.primaryContainer
-        : colors.secondaryContainer;
-  }
+const useStyles = makeStyles(
+  ({ colors, onBackground }, { tx, variant }: StyleProps) => {
+    let backgroundColor: string | undefined = undefined;
+    if (variant === 'compact' && tx) {
+      backgroundColor =
+        !tx.userHasApproved && !tx.submissions.length
+          ? colors.primaryContainer
+          : colors.secondaryContainer;
+    }
 
-  return {
-    card: {
-      ...(backgroundColor && { backgroundColor }),
-    },
-    text: {
-      color: onBackground(backgroundColor),
-    },
-  };
-});
+    return {
+      card: {
+        ...(backgroundColor && { backgroundColor }),
+      },
+      text: {
+        color: onBackground(backgroundColor),
+      },
+    };
+  },
+);

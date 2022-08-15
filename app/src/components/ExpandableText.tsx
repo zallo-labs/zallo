@@ -3,27 +3,27 @@ import { FC, useMemo } from 'react';
 import { ExpandOnLongPress } from './ExpandOnLongPress';
 
 export type ExpandableTextProps = {
-  children: FC<{ text: string }>;
-  text: string;
+  children: FC<{ value: string }>;
+  value: string;
   beginLen?: number;
   endLen?: number;
 };
 
 export const ExpandableText = ({
   children: Component,
-  text,
+  value,
   beginLen = 3,
-  endLen = 3,
+  endLen = beginLen,
 }: ExpandableTextProps) => {
   const truncated = useMemo(
-    () => elipseTruncate(text, beginLen, endLen),
-    [beginLen, endLen, text],
+    () => elipseTruncate(value, beginLen, endLen),
+    [beginLen, endLen, value],
   );
 
   return (
     <ExpandOnLongPress
-      collapsed={<Component text={truncated} />}
-      expanded={<Component text={text} />}
+      collapsed={<Component value={truncated} />}
+      expanded={<Component value={value} />}
     />
   );
 };

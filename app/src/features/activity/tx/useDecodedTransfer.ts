@@ -1,7 +1,10 @@
 import { BigNumber, BytesLike } from 'ethers';
 import { FunctionFragment, Interface } from 'ethers/lib/utils';
 import { address, Address } from 'lib';
-import { getDataSighash, useContractMethod } from '~/queries/useContractMethod.api';
+import {
+  getDataSighash,
+  useContractMethod,
+} from '~/queries/useContractMethod.api';
 import { ERC20_INTERFACE } from '~/token/token';
 
 const ERC20_TRANSFER_SIGHASH = ERC20_INTERFACE.getSighash(
@@ -36,7 +39,8 @@ export const useDecodedTransfer = (
   to: Address,
   data: BytesLike,
 ): DecodedTransfer | undefined => {
-  const { methodFragment, methodInterface } = useContractMethod(to, data);
+  const { methodFragment, contractInterface: methodInterface } =
+    useContractMethod(to, data);
 
   return tryDecodeTransfer(data, methodFragment, methodInterface);
 };
