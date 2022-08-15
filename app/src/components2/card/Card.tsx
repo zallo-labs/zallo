@@ -102,6 +102,7 @@ export const Card = ({
           colors.elevation[`level${elevation?.toString()}` as any] ||
           colors.elevation.level1
         }
+        p={3}
         {...(props as any)}
         style={[
           { borderRadius, ...(disabled && { opacity: 0.38 }) },

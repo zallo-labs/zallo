@@ -16,7 +16,7 @@ export const CardItemWithoutSkeleton = ({
   Right,
   ...cardProps
 }: CardItemWithoutSkeletonProps) => (
-  <Card p={3} {...cardProps}>
+  <Card {...cardProps}>
     <Box horizontal justifyContent="space-between">
       {Left &&
         (isFunctionalComponent(Left) ? (

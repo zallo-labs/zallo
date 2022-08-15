@@ -11,7 +11,7 @@ export interface QuorumCardProps extends CardProps {
 }
 
 export const QuorumCard = memo(({ quorum, ...cardProps }: QuorumCardProps) => (
-  <Card p={3} {...cardProps}>
+  <Card {...cardProps}>
     <Container horizontal separator={<Box mx={2} />}>
       {quorum.approvers.map((approver) => (
         <Text key={approver} variant="bodyMedium">
