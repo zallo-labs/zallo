@@ -1,6 +1,6 @@
 import { combineRest } from '@gql/combine';
 import { useMemo } from 'react';
-import { Tx, TxId } from '.';
+import { Submission, Tx, TxId } from '.';
 import { useApiTx } from './useTx.api';
 import { useSubTx } from './useTx.sub';
 
@@ -16,6 +16,14 @@ export const useTx = (id: TxId) => {
       ...subTx,
       ...apiTx,
       timestamp: subTx.timestamp,
+      status: subTx.status ?? apiTx.status,
+      // Only the last submission *may* be successful
+      submissions: apiTx.submissions.filter(
+        (submission, i): Submission => ({
+          ...submission,
+          failed: i < apiTx.submissions.length - 1 || subTx.status === 'failed',
+        }),
+      ),
     };
   }, [apiTx, subTx]);
 

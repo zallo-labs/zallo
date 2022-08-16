@@ -64,7 +64,7 @@ export type BottomNavigatorProps =
   DrawerNavigatorScreenProps<'BottomNavigator'>;
 
 export const BottomNavigator = (_props: BottomNavigatorProps) => {
-  const [index, setIndex] = useState(1);
+  const [index, setIndex] = useState(2);
 
   return (
     <BottomNavigation

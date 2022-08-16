@@ -6,7 +6,7 @@ import { BigNumber } from 'ethers';
 import { address, toId, toTxSalt } from 'lib';
 import { DateTime } from 'luxon';
 import { useMemo } from 'react';
-import { Approval, ProposedTx, TxId } from '.';
+import { Approval, ProposedTx, Submission, TxId } from '.';
 
 export const API_TX_FIELDS = gql`
   fragment TxFields on Tx {
@@ -80,16 +80,19 @@ export const useApiTx = (id: TxId) => {
       approvals,
       userHasApproved: !!approvals.find((a) => a.addr === device.address),
       submissions:
-        tx.submissions?.map((s) => ({
-          hash: s.hash,
-          nonce: s.nonce,
-          gasLimit: BigNumber.from(s.gasLimit),
-          gasPrice: s.gasPrice ? BigNumber.from(s.gasPrice) : undefined,
-          finalized: s.finalized,
-          createdAt: DateTime.fromISO(s.createdAt),
-        })) ?? [],
+        tx.submissions?.map(
+          (s): Submission => ({
+            hash: s.hash,
+            nonce: s.nonce,
+            gasLimit: BigNumber.from(s.gasLimit),
+            gasPrice: s.gasPrice ? BigNumber.from(s.gasPrice) : undefined,
+            finalized: s.finalized,
+            timestamp: DateTime.fromISO(s.createdAt),
+          }),
+        ) ?? [],
       proposedAt: timestamp,
       timestamp,
+      status: tx.submissions?.length ? 'submitted' : 'proposed',
     };
   }, [data?.tx, device.address]);
 

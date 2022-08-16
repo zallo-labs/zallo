@@ -3,7 +3,7 @@ import { MaybePromise } from 'lib';
 import { useCallback } from 'react';
 import { useApproveTx } from '../../mutations/tx/useApproveTx.api';
 import { useGetGroupsApproved } from './useGroupsApproved';
-import { useSubmitExecute } from '../../mutations/tx/submit/useSubmitExecute';
+import { useExecute } from '../../mutations/tx/execute/useExecute';
 import { useProposeApiTx } from '../../mutations/tx/propose/useProposeApiTx.api';
 import { isExecutedTx, Tx, TxStatus } from '~/queries/tx';
 
@@ -24,7 +24,7 @@ export const useGetExecute = () => {
   const device = useDevice();
   const approve = useApproveTx();
   const getGroupsApproved = useGetGroupsApproved();
-  const submit = useSubmitExecute();
+  const submit = useExecute();
   const propose = useProposeApiTx();
 
   const getExecute = useCallback(

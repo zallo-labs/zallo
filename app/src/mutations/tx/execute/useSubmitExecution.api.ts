@@ -1,7 +1,5 @@
-import { gql, useMutation } from '@apollo/client';
+import { gql } from '@apollo/client';
 import {
-  SubmitTxExecutionMutation,
-  SubmitTxExecutionMutationVariables,
   TxQuery,
   TxQueryVariables,
   useSubmitTxExecutionMutation,

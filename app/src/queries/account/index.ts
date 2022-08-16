@@ -1,4 +1,4 @@
-import { Account, Address, Id } from 'lib';
+import { Account, Address, DeploySalt, Id } from 'lib';
 import { WalletId } from '../wallets';
 
 export const QUERY_ACCOUNT_POLL_INTERVAL = 30 * 1000;
@@ -12,6 +12,6 @@ export interface AccountMetadata {
 export interface CombinedAccount extends AccountMetadata {
   contract: Account;
   impl: Address;
-  deploySalt?: string;
+  deploySalt?: DeploySalt;
   walletIds: WalletId[];
 }

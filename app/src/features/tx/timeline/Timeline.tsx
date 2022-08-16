@@ -147,7 +147,7 @@ export const Timeline = ({ tx }: TimelineProps) => {
                 key={hexlify(s.hash)}
                 style={!s.finalized ? { color: colors.primary } : undefined}
               >
-                <Timestamp time>{s.createdAt}</Timestamp>
+                <Timestamp time>{s.timestamp}</Timestamp>
               </Caption>
             ))}
           </Box>

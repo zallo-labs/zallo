@@ -1,5 +1,6 @@
 import { BytesLike, BigNumber } from 'ethers';
-import { Address, TxReq, Id, createIsObj } from 'lib';
+import { isBytesLike } from 'ethers/lib/utils';
+import { Address, TxReq, Id, createIsObj, createIs } from 'lib';
 import { DateTime } from 'luxon';
 import { Transfer } from './transfer.sub';
 
@@ -15,13 +16,26 @@ export interface Submission {
   gasLimit: BigNumber;
   gasPrice?: BigNumber;
   finalized: boolean;
-  createdAt: DateTime;
+  timestamp: DateTime;
+  failed?: boolean;
 }
+
+export const isSubmission = createIs<Submission>({
+  hash: isBytesLike,
+  nonce: 'number',
+  gasLimit: BigNumber.isBigNumber,
+  gasPrice: (e) => BigNumber.isBigNumber(e) || e === undefined,
+  finalized: 'boolean',
+  timestamp: DateTime.isDateTime,
+  failed: (e) => typeof e === 'boolean' || e === undefined,
+});
 
 export interface TxId {
   account: Address;
   hash: string;
 }
+
+export type TxStatus = 'proposed' | 'submitted' | 'failed' | 'executed';
 
 export interface TxMetadata extends TxId {
   id: Id;
@@ -33,6 +47,7 @@ export interface ProposedTx extends TxMetadata, TxReq {
   userHasApproved: boolean;
   submissions: Submission[];
   proposedAt: DateTime;
+  status: TxStatus;
 }
 
 export interface ExecutedTx extends ProposedTx {

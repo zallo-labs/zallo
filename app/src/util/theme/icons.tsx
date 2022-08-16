@@ -11,6 +11,8 @@ type Curried<C extends ElementType, Props = ComponentPropsWithoutRef<C>> = (
   name: NameProp<Props>,
 ) => FC<Omit<Props, 'name'>>;
 
+export type IconColor = ComponentPropsWithoutRef<typeof MaterialIcons>['color'];
+
 const material: Curried<typeof MaterialIcons> = (name) => (props) =>
   <MaterialIcons name={name} {...props} />;
 
@@ -23,7 +25,7 @@ const ionicon: Curried<typeof Ionicons> = (name) => (props) =>
 
 // Screens
 export const ActivityIcon = materialCommunity('chart-timeline-variant');
-export const SendIcon = materialCommunity('arrow-up');
+export const SendIcon = materialCommunity('send');
 export const ReceiveIcon = materialCommunity('arrow-down');
 export const ContactsIcon = material('people');
 export const HomeIcon = ionicon('wallet');
@@ -42,6 +44,8 @@ export const ShareIcon = materialCommunity('share-variant');
 export const CheckIcon = materialCommunity('check');
 export const CloseIcon = materialCommunity('close');
 export const CancelIcon = CloseIcon;
+export const ErrorIcon = material('error');
+export const RetryIcon = material('redo');
 export const SwapIcon = materialCommunity('swap-vertical');
 export const SearchIcon = material('search');
 export const PlusIcon = materialCommunity('plus');

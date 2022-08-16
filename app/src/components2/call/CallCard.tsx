@@ -29,11 +29,11 @@ export interface CallCardProps extends CardProps {
 
 export const CallCard = withSkeleton(
   ({ id, variant = 'compact', ...cardProps }: CallCardProps) => {
-    const { tx, loading } = useTx(id);
+    const { tx } = useTx(id);
     const token = useMaybeToken(tx?.to) ?? ETH;
     const styles = useStyles({ tx, variant });
 
-    if (!tx || loading) return <Suspend />;
+    if (!tx) return <Suspend />;
 
     return (
       <Card {...cardProps} style={[styles.card, cardProps.style]}>

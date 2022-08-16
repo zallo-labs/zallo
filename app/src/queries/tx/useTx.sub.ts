@@ -76,6 +76,7 @@ export const useSubTx = (id: TxId) => {
       approvals: [],
       userHasApproved: false,
       submissions: [],
+      status: t.success ? 'executed' : 'failed',
     };
   }, [data?.tx]);
 

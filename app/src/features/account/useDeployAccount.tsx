@@ -1,26 +1,26 @@
 import { deployAccountProxy } from 'lib';
-import { useAccount } from '@features/account/AccountProvider';
 import { showInfo, showSuccess } from '@components/ToastProvider';
-import { isDeployedState, useIsDeployed } from './useIsDeployed';
-import { useSetRecoilState } from 'recoil';
+import { useIsDeployed, useSetDeployed } from './useIsDeployed';
 import { useAccountProxyFactory } from './useAccountProxyFactory';
-import { hexlify, parseEther } from 'ethers/lib/utils';
+import { parseEther } from 'ethers/lib/utils';
 import { useDevice } from '@features/device/useDevice';
-import { CHAIN, ACCOUNT_IMPL } from '~/provider';
+import { CHAIN } from '~/provider';
 import { useFaucet } from '~/mutations/useFacuet.api';
-import { useUpsertAccount } from '~/mutations/useUpsertAccount.api';
 import { useCallback } from 'react';
+import { CombinedAccount } from '~/queries/account';
+import { CombinedWallet, toWallet } from '~/queries/wallets';
+import assert from 'assert';
 
 const deployCost = parseEther('0.0001');
 
-export const useDeployAccount = () => {
-  const combinedAccount = useAccount();
-  const { groups, deploySalt, contract: account } = combinedAccount;
-  const isDeployed = useIsDeployed();
-  const factory = useAccountProxyFactory();
-  const upsertAccount = useUpsertAccount();
-  const setIsDeployed = useSetRecoilState(isDeployedState(account.address));
+export const useDeployAccount = (
+  account: CombinedAccount,
+  wallet: CombinedWallet,
+) => {
   const device = useDevice();
+  const isDeployed = useIsDeployed(account.addr);
+  const factory = useAccountProxyFactory();
+  const setDeployed = useSetDeployed(account.addr);
   const faucet = useFaucet(device.address);
 
   const deploy = useCallback(async () => {
@@ -31,29 +31,26 @@ export const useDeployAccount = () => {
       if (walletBalance.lt(deployCost)) await faucet();
     }
 
-    const group = groups[0];
+    const deploySalt = account.deploySalt;
+    assert(deploySalt);
+
     const r = await deployAccountProxy(
-      { group, impl: combinedAccount.impl },
+      { impl: account.impl, wallet: toWallet(wallet) },
       factory,
       deploySalt,
     );
     await r.account.deployed();
 
-    setIsDeployed(true);
-
-    if (!deploySalt && r.salt)
-      upsertAccount({ ...combinedAccount, deploySalt: hexlify(r.salt) });
-
+    setDeployed(true);
     showSuccess('Account deployed');
   }, [
-    combinedAccount,
-    deploySalt,
+    account.deploySalt,
+    account.impl,
+    wallet,
     factory,
-    faucet,
-    groups,
-    setIsDeployed,
-    upsertAccount,
+    setDeployed,
     device,
+    faucet,
   ]);
 
   return !isDeployed ? deploy : undefined;

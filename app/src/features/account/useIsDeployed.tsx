@@ -1,12 +1,12 @@
 import { persistAtom } from '@util/effect/persistAtom';
 import { refreshAtom } from '@util/effect/refreshAtom';
 import { Address } from 'lib';
-import { atomFamily, useRecoilValue } from 'recoil';
+import { atomFamily, useRecoilValue, useSetRecoilState } from 'recoil';
 import { PROVIDER } from '~/provider';
 
 const fetch = async (addr: Address) => (await PROVIDER.getCode(addr)) !== '0x';
 
-export const isDeployedState = atomFamily<boolean, Address>({
+const isDeployedState = atomFamily<boolean, Address>({
   key: 'isDeployed',
   default: fetch,
   effects: (addr) => [
@@ -22,3 +22,6 @@ export const isDeployedState = atomFamily<boolean, Address>({
 
 export const useIsDeployed = (addr: Address) =>
   useRecoilValue(isDeployedState(addr));
+
+export const useSetDeployed = (addr: Address) =>
+  useSetRecoilState(isDeployedState(addr));
