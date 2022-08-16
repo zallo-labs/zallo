@@ -14,12 +14,14 @@ import { useNavigation } from '@react-navigation/native';
 import { BottomNavigatorProps } from '~/navigation/BottomNavigator';
 import { withSkeleton } from '@components/skeleton/withSkeleton';
 import { ScreenSkeleton } from '@components/skeleton/ScreenSkeleton';
+import { useKeepAwakeWhenFocussed } from '@util/hook/useKeepAwakeWhenFocussed';
 
 export const ReceiveScreen = withSkeleton(
   () => {
+    const navigation = useNavigation<BottomNavigatorProps['navigation']>();
     const { accountAddr } = useSelectedWallet();
     const token = useSelectedToken();
-    const navigation = useNavigation<BottomNavigatorProps['navigation']>();
+    useKeepAwakeWhenFocussed();
 
     const [amount, setAmount] = useState<BigNumber | undefined>();
 
