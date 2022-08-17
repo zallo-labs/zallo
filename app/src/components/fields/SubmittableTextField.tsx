@@ -1,17 +1,15 @@
-import { CheckIcon } from '@util/theme/icons';
 import { useMemo, useState } from 'react';
-import { TextInput } from 'react-native-paper';
 import { TextField, TextFieldProps } from './TextField';
 
 export interface SubmittableTextFieldProps
   extends Omit<TextFieldProps, 'value'> {
-  value: string;
+  value?: string;
   onSubmit: (value: string) => void;
   hasError?: (value: string) => string | false;
 }
 
 export const SubmittableTextField = ({
-  value,
+  value = '',
   onSubmit,
   hasError,
   ...fieldProps
@@ -22,16 +20,10 @@ export const SubmittableTextField = ({
 
   return (
     <TextField
-      label="Name"
       value={input}
       onChangeText={setInput}
       error={error}
-      {...(input !== value &&
-        !error && {
-          right: (
-            <TextInput.Icon name={CheckIcon} onPress={() => onSubmit(input)} />
-          ),
-        })}
+      onSubmitEditing={() => !error && input !== value && onSubmit(input)}
       {...fieldProps}
     />
   );

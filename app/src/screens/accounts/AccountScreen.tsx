@@ -44,6 +44,7 @@ export const AccountScreen = withSkeleton(
           ListHeaderComponent={
             <Box my={3}>
               <SubmittableTextField
+                label="Name"
                 value={account.name}
                 onSubmit={(name) => {
                   if (existing) setName({ ...existing, name });

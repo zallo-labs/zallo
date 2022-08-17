@@ -110,6 +110,7 @@ export const WalletScreen = withSkeleton(
           ListHeaderComponent={() => (
             <>
               <SubmittableTextField
+                label="Name"
                 value={wallet.name}
                 onSubmit={saveName}
                 hasError={(v) => !v.length && 'Required'}
