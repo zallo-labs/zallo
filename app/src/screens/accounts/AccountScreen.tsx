@@ -14,19 +14,22 @@ import { WalletCard } from '~/components2/wallet/WalletCard';
 import { useSetAccountName } from '~/mutations/account/useSetAccountName.api';
 import { RootNavigatorScreenProps } from '~/navigation/RootNavigator';
 import { useAccount } from '~/queries/account/useAccount';
+import { WalletId } from '~/queries/wallets';
 
 export interface AccountScreenParams {
   id: Address;
+  onSelectWallet?: (wallet: WalletId) => void;
 }
 
 export type AccountScreenProps = RootNavigatorScreenProps<'Account'>;
 
 export const AccountScreen = withSkeleton(
-  ({ route, navigation }: AccountScreenProps) => {
+  ({ route, navigation: { navigate } }: AccountScreenProps) => {
+    const { id, onSelectWallet } = route.params;
+    const { account: existing, loading } = useAccount(id)!;
     const styles = useStyles();
     const { AppbarHeader, handleScroll } = useAppbarHeader();
     const setName = useSetAccountName();
-    const { account: existing, loading } = useAccount(route.params.id)!;
     const goBack = useGoBack();
 
     const account = existing!;
@@ -57,12 +60,16 @@ export const AccountScreen = withSkeleton(
               id={item}
               available
               showAccount={false}
-              onPress={() =>
-                navigation.navigate('Wallet', {
-                  account: account.addr,
-                  id: item,
-                })
-              }
+              onPress={() => {
+                if (onSelectWallet) {
+                  onSelectWallet(item);
+                } else {
+                  navigate('Wallet', {
+                    account: account.addr,
+                    id: item,
+                  });
+                }
+              }}
             />
           )}
           ItemSeparatorComponent={() => <Box my={2} />}
@@ -70,9 +77,7 @@ export const AccountScreen = withSkeleton(
             <Button
               style={styles.create}
               icon={PlusIcon}
-              onPress={() =>
-                navigation.navigate('Wallet', { account: account.addr })
-              }
+              onPress={() => navigate('Wallet', { account: account.addr })}
             >
               Create
             </Button>

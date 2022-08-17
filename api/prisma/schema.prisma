@@ -45,10 +45,11 @@ model Wallet {
 
   // Tx
   txHash String? @db.Char(66) // bytes32
-  tx     Tx?     @relation(fields: [accountId, txHash], references: [accountId, hash])
+  tx     Tx?     @relation(name: "walletCreation", fields: [accountId, txHash], references: [accountId, hash])
 
   quorums   Quorum[]
   approvers Approver[]
+  txs       Tx[]       @relation(name: "txs")
 
   @@id([accountId, ref])
   @@unique([accountId, txHash])
@@ -111,13 +112,15 @@ model Tx {
   value     String //@db.Decimal(79, 0) // uint256
   data      String // bytes
   salt      String  @db.Char(18) // bytes8
+  wallet    Wallet  @relation(name: "txs", fields: [accountId, walletRef], references: [accountId, ref], onDelete: Cascade)
+  walletRef String  @db.Char(10) // bytes4
 
   approvals   Approval[]
   createdAt   DateTime     @default(now())
   submissions Submission[]
 
   // Operations
-  walletTx Wallet?
+  walletTx Wallet? @relation(name: "walletCreation")
   quorumTx Quorum?
 
   @@id([accountId, hash])

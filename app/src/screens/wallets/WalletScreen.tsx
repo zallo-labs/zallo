@@ -49,6 +49,7 @@ export const WalletScreen = withSkeleton(
     const [wallet, setWallet] = useState(initialWallet);
 
     const upsertWallet = useUpsertWallet(wallet);
+    const [upserting, setUpserting] = useState(false);
 
     const isModified = useMemo(
       () => !_.isEqual(initialWallet.quorums, wallet.quorums),
@@ -145,7 +146,12 @@ export const WalletScreen = withSkeleton(
           <FAB
             icon={CheckIcon}
             label="Apply"
-            onPress={() => upsertWallet(wallet, existing)}
+            loading={upserting}
+            onPress={async () => {
+              setUpserting(true);
+              await upsertWallet(wallet, existing);
+              setUpserting(false);
+            }}
           />
         )}
       </Box>

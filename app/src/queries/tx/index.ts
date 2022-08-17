@@ -1,7 +1,8 @@
 import { BytesLike, BigNumber } from 'ethers';
 import { isBytesLike } from 'ethers/lib/utils';
-import { Address, TxReq, Id, createIsObj, createIs } from 'lib';
+import { Address, TxReq, Id, createIsObj, createIs, WalletRef } from 'lib';
 import { DateTime } from 'luxon';
+import { WalletId } from '../wallets';
 import { Transfer } from './transfer.sub';
 
 export interface Approval {
@@ -43,6 +44,7 @@ export interface TxMetadata extends TxId {
 }
 
 export interface ProposedTx extends TxMetadata, TxReq {
+  wallet?: WalletId;
   approvals: Approval[];
   userHasApproved: boolean;
   submissions: Submission[];

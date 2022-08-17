@@ -1,9 +1,10 @@
 import { ArgsType, Field, InputType, ObjectType } from '@nestjs/graphql';
 import { BigNumber, BytesLike } from 'ethers';
-import { Address, Id, TxSalt } from 'lib';
+import { Address, Id, TxSalt, WalletRef } from 'lib';
 import { AddressField, GqlAddress } from '~/apollo/scalars/Address.scalar';
 import { BytesField } from '~/apollo/scalars/Bytes.scalar';
 import { Bytes32Field } from '~/apollo/scalars/Bytes32.scalar';
+import { Bytes4Field } from '~/apollo/scalars/Bytes4.scalar';
 import { Bytes8Field } from '~/apollo/scalars/Bytes8.scalar';
 import { Uint256BnField } from '~/apollo/scalars/Uint256Bn.scalar';
 
@@ -42,6 +43,9 @@ export class ProposeTxArgs {
   @AddressField()
   account: Address;
 
+  @Bytes4Field()
+  walletRef: WalletRef;
+
   tx: TxInput;
 
   @BytesField()
@@ -58,4 +62,10 @@ export class RevokeApprovalResp {
 export class ApproveArgs extends UniqueTxArgs {
   @BytesField()
   signature: BytesLike;
+}
+
+@ArgsType()
+export class ChangeTxWalletArgs extends UniqueTxArgs {
+  @Bytes4Field()
+  walletRef: WalletRef;
 }

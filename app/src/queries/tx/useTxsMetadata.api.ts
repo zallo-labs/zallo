@@ -7,7 +7,7 @@ import { useMemo } from 'react';
 import { TxMetadata } from '.';
 import { useAccountIds } from '../account/useAccountIds';
 
-export const API_QUERY_TX_IDS = gql`
+gql`
   query TxsMetadata($accounts: [Address!]!) {
     txs(accounts: $accounts) {
       id

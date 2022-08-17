@@ -13,7 +13,7 @@ import { Card, CardProps } from '../card/Card';
 import { CardItemSkeleton } from '../card/CardItemSkeleton';
 import { CallMethod } from './CallMethod';
 import { CallValues } from './CallValues';
-import { DetailedCallMethod } from './DetailedCallMethod';
+import { DetailedCallMethod } from '../../screens/transaction/details/DetailedCallMethod';
 
 export type CallCardVariant = 'compact' | 'full';
 

@@ -1,5 +1,5 @@
 import { Prisma } from '@prisma/client';
-import { Address } from 'lib';
+import { Address, WalletRef } from 'lib';
 
 export const connectOrCreateAccount = (
   account: Address,
@@ -16,5 +16,23 @@ export const connectOrCreateUser = (
   connectOrCreate: {
     where: { id: addr },
     create: { id: addr },
+  },
+});
+
+export const connectOrCreateWallet = (
+  account: Address,
+  ref: WalletRef,
+): Prisma.WalletCreateNestedOneWithoutTxsInput => ({
+  connectOrCreate: {
+    where: {
+      accountId_ref: {
+        accountId: account,
+        ref,
+      },
+    },
+    create: {
+      account: connectOrCreateAccount(account),
+      ref,
+    },
   },
 });

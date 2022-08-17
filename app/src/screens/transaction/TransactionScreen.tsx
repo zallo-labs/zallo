@@ -1,18 +1,17 @@
-import { AppbarBack } from '@components/AppbarBack';
 import { Box } from '@components/Box';
 import { Container } from '@components/list/Container';
 import { ScreenSkeleton } from '@components/skeleton/ScreenSkeleton';
 import { withSkeleton } from '@components/skeleton/withSkeleton';
 import { Suspend } from '@components/Suspender';
-import { Appbar } from 'react-native-paper';
-import { useAppbarHeader } from '~/components2/Appbar/useAppbarHeader';
-import { CallCard } from '~/components2/call/CallCard';
-import { useSelectedWallet } from '~/components2/wallet/useSelectedWallet';
 import { RootNavigatorScreenProps } from '~/navigation/RootNavigator';
 import { ProposedTx, TxId } from '~/queries/tx';
 import { useTx } from '~/queries/tx/useTx';
 import { Comments } from './comments/Comments';
 import { TransactionStatus } from './status/TransactionStatus';
+import { TransactionAppbar } from './appbar/TransactionAppbar';
+import { useScrolled } from '~/components2/Appbar/useScrolled';
+import { useWallet } from '~/queries/wallets/useWallet';
+import { TransactionDetails } from './details/TransactionDetails';
 
 export interface TransactionScreenParams {
   id: TxId;
@@ -25,24 +24,20 @@ export const TransactionScreen = withSkeleton(
   ({ route }: TransactionScreenProps) => {
     const id = route.params.id;
     const { tx } = useTx(id);
-    const { AppbarHeader, handleScroll } = useAppbarHeader();
-    const wallet = useSelectedWallet(); // TODO: associate a wallet & quorum with a tx
+    const wallet = useWallet(tx?.wallet);
+    const [scrolled, handleScroll] = useScrolled();
 
     if (!tx || !wallet) return <Suspend />;
 
     return (
       <Box flex={1}>
-        <AppbarHeader>
-          <AppbarBack />
-          <Appbar.Content title="Transaction" />
-        </AppbarHeader>
+        <TransactionAppbar tx={tx} scrolled={scrolled} />
 
         <Box flex={1} mx={2}>
           <Comments
             ListHeaderComponent={
-              <Container separator={<Box my={2} />} mb={3}>
-                <CallCard id={id} variant="full" />
-
+              <Container my={3} separator={<Box mt={3} />}>
+                <TransactionDetails tx={tx} wallet={wallet} />
                 <TransactionStatus tx={tx} wallet={wallet} />
               </Container>
             }

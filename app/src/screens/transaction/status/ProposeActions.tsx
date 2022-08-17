@@ -1,7 +1,8 @@
 import { Suspend } from '@components/Suspender';
-import { SendIcon, CancelIcon, CheckIcon } from '@util/theme/icons';
-import { useCallback, useState } from 'react';
+import { SendIcon, CancelIcon, CheckIcon, QuorumIcon } from '@util/theme/icons';
+import { useState } from 'react';
 import { Button } from 'react-native-paper';
+import { useGoBack } from '~/components2/Appbar/useGoBack';
 import { useExecute } from '~/mutations/tx/execute/useExecute';
 import { useApproveTx } from '~/mutations/tx/useApproveTx.api';
 import { useRevokeApproval } from '~/mutations/tx/useRevokeApproval.api';
@@ -26,6 +27,7 @@ export const ProposeActions = ({
   const approve = useApproveTx();
   const revoke = useRevokeApproval();
   const executeMutation = useExecute(account, wallet, tx);
+  const goBack = useGoBack();
 
   const [submitting, setSubmitting] = useState(false);
 
@@ -36,6 +38,18 @@ export const ProposeActions = ({
       {!tx.userHasApproved && !isApproved && (
         <Button mode="contained" icon={CheckIcon} onPress={() => approve(tx)}>
           Approve
+        </Button>
+      )}
+
+      {tx.userHasApproved && !isApproved && (
+        <Button
+          mode="contained"
+          icon={QuorumIcon}
+          onPress={() => {
+            // TODO: select quorum (part of the wallet) to notify
+          }}
+        >
+          Request
         </Button>
       )}
 
@@ -59,7 +73,11 @@ export const ProposeActions = ({
           mode="contained-tonal"
           icon={CancelIcon}
           disabled={submitting}
-          onPress={() => revoke(tx)}
+          onPress={async () => {
+            const txWillBeDeleted = tx.approvals.length === 1;
+            await revoke(tx);
+            if (txWillBeDeleted) goBack();
+          }}
         >
           Revoke
         </Button>

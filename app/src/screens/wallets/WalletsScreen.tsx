@@ -33,13 +33,9 @@ export const WalletsScreen = withSkeleton(() => {
           renderItem={({ item }) => (
             <WalletCard
               id={item}
-              onPress={() => {
-                navigate('Accounts', {
-                  onSelect: (account) => {
-                    navigate('Wallet', { id: item, account });
-                  },
-                });
-              }}
+              onPress={() =>
+                navigate('Wallet', { id: item, account: item.accountAddr })
+              }
             />
           )}
           data={walletIds}

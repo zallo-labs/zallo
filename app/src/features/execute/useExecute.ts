@@ -4,7 +4,7 @@ import { useCallback } from 'react';
 import { useApproveTx } from '../../mutations/tx/useApproveTx.api';
 import { useGetGroupsApproved } from './useGroupsApproved';
 import { useExecute } from '../../mutations/tx/execute/useExecute';
-import { useProposeApiTx } from '../../mutations/tx/propose/useProposeApiTx.api';
+import { useApiProposeTx } from '../../mutations/tx/propose/useProposeTx.api';
 import { isExecutedTx, Tx, TxStatus } from '~/queries/tx';
 
 export type ExecuteStep = 'propose' | 'approve' | 'await-approval' | 'execute';
@@ -25,7 +25,7 @@ export const useGetExecute = () => {
   const approve = useApproveTx();
   const getGroupsApproved = useGetGroupsApproved();
   const submit = useExecute();
-  const propose = useProposeApiTx();
+  const propose = useApiProposeTx();
 
   const getExecute = useCallback(
     (tx: Tx): ExecuteFunc | undefined => {

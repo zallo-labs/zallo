@@ -3,7 +3,7 @@ import { useDevice } from '@features/device/useDevice';
 import { useTxQuery } from '@gql/generated.api';
 import { useApiClient } from '@gql/GqlProvider';
 import { BigNumber } from 'ethers';
-import { address, toId, toTxSalt } from 'lib';
+import { address, getWalletId, toId, toTxSalt, toWalletRef } from 'lib';
 import { DateTime } from 'luxon';
 import { useMemo } from 'react';
 import { Approval, ProposedTx, Submission, TxId } from '.';
@@ -17,6 +17,7 @@ export const API_TX_FIELDS = gql`
     value
     data
     salt
+    walletRef
     approvals {
       userId
       signature
@@ -69,14 +70,22 @@ export const useApiTx = (id: TxId) => {
         timestamp: DateTime.fromISO(a.createdAt),
       })) ?? [];
 
+    const account = address(tx.accountId);
+    const walletRef = toWalletRef(tx.walletRef);
+
     return {
       id: toId(tx.id),
-      account: address(tx.accountId),
+      account,
       hash: tx.hash,
       to: address(tx.to),
       value: BigNumber.from(tx.value),
       data: tx.data,
       salt: toTxSalt(tx.salt),
+      wallet: {
+        id: getWalletId(account, walletRef),
+        accountAddr: account,
+        ref: walletRef,
+      },
       approvals,
       userHasApproved: !!approvals.find((a) => a.addr === device.address),
       submissions:

@@ -1547,6 +1547,7 @@ export type Mutation = {
   requestFunds: Scalars['Boolean'];
   revokeApproval: RevokeApprovalResp;
   setAccountName: Account;
+  setTxWallet?: Maybe<Tx>;
   setWalletName: Wallet;
   setWalletQuroums?: Maybe<Wallet>;
   submitTxExecution: Submission;
@@ -1600,6 +1601,7 @@ export type MutationProposeTxArgs = {
   account: Scalars['Address'];
   signature: Scalars['Bytes'];
   tx: TxInput;
+  walletRef: Scalars['Bytes4'];
 };
 
 
@@ -1625,6 +1627,13 @@ export type MutationRevokeApprovalArgs = {
 export type MutationSetAccountNameArgs = {
   id: Scalars['Address'];
   name: Scalars['String'];
+};
+
+
+export type MutationSetTxWalletArgs = {
+  account: Scalars['Address'];
+  hash: Scalars['Bytes32'];
+  walletRef: Scalars['Bytes4'];
 };
 
 
@@ -2664,6 +2673,8 @@ export type Tx = {
   submissions?: Maybe<Array<Submission>>;
   to: Scalars['String'];
   value: Scalars['String'];
+  wallet: Wallet;
+  walletRef: Scalars['String'];
   walletTx?: Maybe<Wallet>;
 };
 
@@ -2685,10 +2696,25 @@ export type TxCreateManyAccountInput = {
   salt: Scalars['String'];
   to: Scalars['String'];
   value: Scalars['String'];
+  walletRef: Scalars['String'];
 };
 
 export type TxCreateManyAccountInputEnvelope = {
   data: Array<TxCreateManyAccountInput>;
+  skipDuplicates?: InputMaybe<Scalars['Boolean']>;
+};
+
+export type TxCreateManyWalletInput = {
+  createdAt?: InputMaybe<Scalars['DateTime']>;
+  data: Scalars['String'];
+  hash: Scalars['String'];
+  salt: Scalars['String'];
+  to: Scalars['String'];
+  value: Scalars['String'];
+};
+
+export type TxCreateManyWalletInputEnvelope = {
+  data: Array<TxCreateManyWalletInput>;
   skipDuplicates?: InputMaybe<Scalars['Boolean']>;
 };
 
@@ -2697,6 +2723,13 @@ export type TxCreateNestedManyWithoutAccountInput = {
   connectOrCreate?: InputMaybe<Array<TxCreateOrConnectWithoutAccountInput>>;
   create?: InputMaybe<Array<TxCreateWithoutAccountInput>>;
   createMany?: InputMaybe<TxCreateManyAccountInputEnvelope>;
+};
+
+export type TxCreateNestedManyWithoutWalletInput = {
+  connect?: InputMaybe<Array<TxWhereUniqueInput>>;
+  connectOrCreate?: InputMaybe<Array<TxCreateOrConnectWithoutWalletInput>>;
+  create?: InputMaybe<Array<TxCreateWithoutWalletInput>>;
+  createMany?: InputMaybe<TxCreateManyWalletInputEnvelope>;
 };
 
 export type TxCreateNestedOneWithoutApprovalsInput = {
@@ -2732,6 +2765,11 @@ export type TxCreateOrConnectWithoutQuorumTxInput = {
   where: TxWhereUniqueInput;
 };
 
+export type TxCreateOrConnectWithoutWalletInput = {
+  create: TxCreateWithoutWalletInput;
+  where: TxWhereUniqueInput;
+};
+
 export type TxCreateOrConnectWithoutWalletTxInput = {
   create: TxCreateWithoutWalletTxInput;
   where: TxWhereUniqueInput;
@@ -2747,6 +2785,7 @@ export type TxCreateWithoutAccountInput = {
   submissions?: InputMaybe<SubmissionCreateNestedManyWithoutTxInput>;
   to: Scalars['String'];
   value: Scalars['String'];
+  wallet: WalletCreateNestedOneWithoutTxsInput;
   walletTx?: InputMaybe<WalletCreateNestedOneWithoutTxInput>;
 };
 
@@ -2760,6 +2799,7 @@ export type TxCreateWithoutApprovalsInput = {
   submissions?: InputMaybe<SubmissionCreateNestedManyWithoutTxInput>;
   to: Scalars['String'];
   value: Scalars['String'];
+  wallet: WalletCreateNestedOneWithoutTxsInput;
   walletTx?: InputMaybe<WalletCreateNestedOneWithoutTxInput>;
 };
 
@@ -2769,6 +2809,21 @@ export type TxCreateWithoutQuorumTxInput = {
   createdAt?: InputMaybe<Scalars['DateTime']>;
   data: Scalars['String'];
   hash: Scalars['String'];
+  salt: Scalars['String'];
+  submissions?: InputMaybe<SubmissionCreateNestedManyWithoutTxInput>;
+  to: Scalars['String'];
+  value: Scalars['String'];
+  wallet: WalletCreateNestedOneWithoutTxsInput;
+  walletTx?: InputMaybe<WalletCreateNestedOneWithoutTxInput>;
+};
+
+export type TxCreateWithoutWalletInput = {
+  account: AccountCreateNestedOneWithoutTxsInput;
+  approvals?: InputMaybe<ApprovalCreateNestedManyWithoutTxInput>;
+  createdAt?: InputMaybe<Scalars['DateTime']>;
+  data: Scalars['String'];
+  hash: Scalars['String'];
+  quorumTx?: InputMaybe<QuorumCreateNestedOneWithoutTxInput>;
   salt: Scalars['String'];
   submissions?: InputMaybe<SubmissionCreateNestedManyWithoutTxInput>;
   to: Scalars['String'];
@@ -2787,6 +2842,7 @@ export type TxCreateWithoutWalletTxInput = {
   submissions?: InputMaybe<SubmissionCreateNestedManyWithoutTxInput>;
   to: Scalars['String'];
   value: Scalars['String'];
+  wallet: WalletCreateNestedOneWithoutTxsInput;
 };
 
 export type TxInput = {
@@ -2818,6 +2874,8 @@ export type TxOrderByWithRelationInput = {
   submissions?: InputMaybe<SubmissionOrderByRelationAggregateInput>;
   to?: InputMaybe<SortOrder>;
   value?: InputMaybe<SortOrder>;
+  wallet?: InputMaybe<WalletOrderByWithRelationInput>;
+  walletRef?: InputMaybe<SortOrder>;
   walletTx?: InputMaybe<WalletOrderByWithRelationInput>;
 };
 
@@ -2837,6 +2895,7 @@ export type TxScalarWhereInput = {
   salt?: InputMaybe<StringFilter>;
   to?: InputMaybe<StringFilter>;
   value?: InputMaybe<StringFilter>;
+  walletRef?: InputMaybe<StringFilter>;
 };
 
 export type TxUpdateManyMutationInput = {
@@ -2853,6 +2912,11 @@ export type TxUpdateManyWithWhereWithoutAccountInput = {
   where: TxScalarWhereInput;
 };
 
+export type TxUpdateManyWithWhereWithoutWalletInput = {
+  data: TxUpdateManyMutationInput;
+  where: TxScalarWhereInput;
+};
+
 export type TxUpdateManyWithoutAccountNestedInput = {
   connect?: InputMaybe<Array<TxWhereUniqueInput>>;
   connectOrCreate?: InputMaybe<Array<TxCreateOrConnectWithoutAccountInput>>;
@@ -2865,6 +2929,20 @@ export type TxUpdateManyWithoutAccountNestedInput = {
   update?: InputMaybe<Array<TxUpdateWithWhereUniqueWithoutAccountInput>>;
   updateMany?: InputMaybe<Array<TxUpdateManyWithWhereWithoutAccountInput>>;
   upsert?: InputMaybe<Array<TxUpsertWithWhereUniqueWithoutAccountInput>>;
+};
+
+export type TxUpdateManyWithoutWalletNestedInput = {
+  connect?: InputMaybe<Array<TxWhereUniqueInput>>;
+  connectOrCreate?: InputMaybe<Array<TxCreateOrConnectWithoutWalletInput>>;
+  create?: InputMaybe<Array<TxCreateWithoutWalletInput>>;
+  createMany?: InputMaybe<TxCreateManyWalletInputEnvelope>;
+  delete?: InputMaybe<Array<TxWhereUniqueInput>>;
+  deleteMany?: InputMaybe<Array<TxScalarWhereInput>>;
+  disconnect?: InputMaybe<Array<TxWhereUniqueInput>>;
+  set?: InputMaybe<Array<TxWhereUniqueInput>>;
+  update?: InputMaybe<Array<TxUpdateWithWhereUniqueWithoutWalletInput>>;
+  updateMany?: InputMaybe<Array<TxUpdateManyWithWhereWithoutWalletInput>>;
+  upsert?: InputMaybe<Array<TxUpsertWithWhereUniqueWithoutWalletInput>>;
 };
 
 export type TxUpdateOneRequiredWithoutApprovalsNestedInput = {
@@ -2900,6 +2978,11 @@ export type TxUpdateWithWhereUniqueWithoutAccountInput = {
   where: TxWhereUniqueInput;
 };
 
+export type TxUpdateWithWhereUniqueWithoutWalletInput = {
+  data: TxUpdateWithoutWalletInput;
+  where: TxWhereUniqueInput;
+};
+
 export type TxUpdateWithoutAccountInput = {
   approvals?: InputMaybe<ApprovalUpdateManyWithoutTxNestedInput>;
   createdAt?: InputMaybe<DateTimeFieldUpdateOperationsInput>;
@@ -2910,6 +2993,7 @@ export type TxUpdateWithoutAccountInput = {
   submissions?: InputMaybe<SubmissionUpdateManyWithoutTxNestedInput>;
   to?: InputMaybe<StringFieldUpdateOperationsInput>;
   value?: InputMaybe<StringFieldUpdateOperationsInput>;
+  wallet?: InputMaybe<WalletUpdateOneRequiredWithoutTxsNestedInput>;
   walletTx?: InputMaybe<WalletUpdateOneWithoutTxNestedInput>;
 };
 
@@ -2923,6 +3007,7 @@ export type TxUpdateWithoutApprovalsInput = {
   submissions?: InputMaybe<SubmissionUpdateManyWithoutTxNestedInput>;
   to?: InputMaybe<StringFieldUpdateOperationsInput>;
   value?: InputMaybe<StringFieldUpdateOperationsInput>;
+  wallet?: InputMaybe<WalletUpdateOneRequiredWithoutTxsNestedInput>;
   walletTx?: InputMaybe<WalletUpdateOneWithoutTxNestedInput>;
 };
 
@@ -2932,6 +3017,21 @@ export type TxUpdateWithoutQuorumTxInput = {
   createdAt?: InputMaybe<DateTimeFieldUpdateOperationsInput>;
   data?: InputMaybe<StringFieldUpdateOperationsInput>;
   hash?: InputMaybe<StringFieldUpdateOperationsInput>;
+  salt?: InputMaybe<StringFieldUpdateOperationsInput>;
+  submissions?: InputMaybe<SubmissionUpdateManyWithoutTxNestedInput>;
+  to?: InputMaybe<StringFieldUpdateOperationsInput>;
+  value?: InputMaybe<StringFieldUpdateOperationsInput>;
+  wallet?: InputMaybe<WalletUpdateOneRequiredWithoutTxsNestedInput>;
+  walletTx?: InputMaybe<WalletUpdateOneWithoutTxNestedInput>;
+};
+
+export type TxUpdateWithoutWalletInput = {
+  account?: InputMaybe<AccountUpdateOneRequiredWithoutTxsNestedInput>;
+  approvals?: InputMaybe<ApprovalUpdateManyWithoutTxNestedInput>;
+  createdAt?: InputMaybe<DateTimeFieldUpdateOperationsInput>;
+  data?: InputMaybe<StringFieldUpdateOperationsInput>;
+  hash?: InputMaybe<StringFieldUpdateOperationsInput>;
+  quorumTx?: InputMaybe<QuorumUpdateOneWithoutTxNestedInput>;
   salt?: InputMaybe<StringFieldUpdateOperationsInput>;
   submissions?: InputMaybe<SubmissionUpdateManyWithoutTxNestedInput>;
   to?: InputMaybe<StringFieldUpdateOperationsInput>;
@@ -2950,11 +3050,18 @@ export type TxUpdateWithoutWalletTxInput = {
   submissions?: InputMaybe<SubmissionUpdateManyWithoutTxNestedInput>;
   to?: InputMaybe<StringFieldUpdateOperationsInput>;
   value?: InputMaybe<StringFieldUpdateOperationsInput>;
+  wallet?: InputMaybe<WalletUpdateOneRequiredWithoutTxsNestedInput>;
 };
 
 export type TxUpsertWithWhereUniqueWithoutAccountInput = {
   create: TxCreateWithoutAccountInput;
   update: TxUpdateWithoutAccountInput;
+  where: TxWhereUniqueInput;
+};
+
+export type TxUpsertWithWhereUniqueWithoutWalletInput = {
+  create: TxCreateWithoutWalletInput;
+  update: TxUpdateWithoutWalletInput;
   where: TxWhereUniqueInput;
 };
 
@@ -2988,6 +3095,8 @@ export type TxWhereInput = {
   submissions?: InputMaybe<SubmissionListRelationFilter>;
   to?: InputMaybe<StringFilter>;
   value?: InputMaybe<StringFilter>;
+  wallet?: InputMaybe<WalletRelationFilter>;
+  walletRef?: InputMaybe<StringFilter>;
   walletTx?: InputMaybe<WalletRelationFilter>;
 };
 
@@ -3236,6 +3345,7 @@ export type Wallet = {
   ref: Scalars['String'];
   tx?: Maybe<Tx>;
   txHash?: Maybe<Scalars['String']>;
+  txs?: Maybe<Array<Tx>>;
 };
 
 export type WalletAccountIdRefCompoundUniqueInput = {
@@ -3252,6 +3362,7 @@ export type WalletCount = {
   __typename?: 'WalletCount';
   approvers: Scalars['Int'];
   quorums: Scalars['Int'];
+  txs: Scalars['Int'];
 };
 
 export type WalletCreateManyAccountInput = {
@@ -3290,6 +3401,12 @@ export type WalletCreateNestedOneWithoutTxInput = {
   create?: InputMaybe<WalletCreateWithoutTxInput>;
 };
 
+export type WalletCreateNestedOneWithoutTxsInput = {
+  connect?: InputMaybe<WalletWhereUniqueInput>;
+  connectOrCreate?: InputMaybe<WalletCreateOrConnectWithoutTxsInput>;
+  create?: InputMaybe<WalletCreateWithoutTxsInput>;
+};
+
 export type WalletCreateOrConnectWithoutAccountInput = {
   create: WalletCreateWithoutAccountInput;
   where: WalletWhereUniqueInput;
@@ -3310,12 +3427,18 @@ export type WalletCreateOrConnectWithoutTxInput = {
   where: WalletWhereUniqueInput;
 };
 
+export type WalletCreateOrConnectWithoutTxsInput = {
+  create: WalletCreateWithoutTxsInput;
+  where: WalletWhereUniqueInput;
+};
+
 export type WalletCreateWithoutAccountInput = {
   approvers?: InputMaybe<ApproverCreateNestedManyWithoutWalletInput>;
   name?: InputMaybe<Scalars['String']>;
   quorums?: InputMaybe<QuorumCreateNestedManyWithoutWalletInput>;
   ref: Scalars['String'];
   tx?: InputMaybe<TxCreateNestedOneWithoutWalletTxInput>;
+  txs?: InputMaybe<TxCreateNestedManyWithoutWalletInput>;
 };
 
 export type WalletCreateWithoutApproversInput = {
@@ -3324,6 +3447,7 @@ export type WalletCreateWithoutApproversInput = {
   quorums?: InputMaybe<QuorumCreateNestedManyWithoutWalletInput>;
   ref: Scalars['String'];
   tx?: InputMaybe<TxCreateNestedOneWithoutWalletTxInput>;
+  txs?: InputMaybe<TxCreateNestedManyWithoutWalletInput>;
 };
 
 export type WalletCreateWithoutQuorumsInput = {
@@ -3332,6 +3456,7 @@ export type WalletCreateWithoutQuorumsInput = {
   name?: InputMaybe<Scalars['String']>;
   ref: Scalars['String'];
   tx?: InputMaybe<TxCreateNestedOneWithoutWalletTxInput>;
+  txs?: InputMaybe<TxCreateNestedManyWithoutWalletInput>;
 };
 
 export type WalletCreateWithoutTxInput = {
@@ -3340,6 +3465,16 @@ export type WalletCreateWithoutTxInput = {
   name?: InputMaybe<Scalars['String']>;
   quorums?: InputMaybe<QuorumCreateNestedManyWithoutWalletInput>;
   ref: Scalars['String'];
+  txs?: InputMaybe<TxCreateNestedManyWithoutWalletInput>;
+};
+
+export type WalletCreateWithoutTxsInput = {
+  account: AccountCreateNestedOneWithoutWalletsInput;
+  approvers?: InputMaybe<ApproverCreateNestedManyWithoutWalletInput>;
+  name?: InputMaybe<Scalars['String']>;
+  quorums?: InputMaybe<QuorumCreateNestedManyWithoutWalletInput>;
+  ref: Scalars['String'];
+  tx?: InputMaybe<TxCreateNestedOneWithoutWalletTxInput>;
 };
 
 export type WalletId = {
@@ -3366,6 +3501,7 @@ export type WalletOrderByWithRelationInput = {
   ref?: InputMaybe<SortOrder>;
   tx?: InputMaybe<TxOrderByWithRelationInput>;
   txHash?: InputMaybe<SortOrder>;
+  txs?: InputMaybe<TxOrderByRelationAggregateInput>;
 };
 
 export type WalletRelationFilter = {
@@ -3430,6 +3566,14 @@ export type WalletUpdateOneRequiredWithoutQuorumsNestedInput = {
   upsert?: InputMaybe<WalletUpsertWithoutQuorumsInput>;
 };
 
+export type WalletUpdateOneRequiredWithoutTxsNestedInput = {
+  connect?: InputMaybe<WalletWhereUniqueInput>;
+  connectOrCreate?: InputMaybe<WalletCreateOrConnectWithoutTxsInput>;
+  create?: InputMaybe<WalletCreateWithoutTxsInput>;
+  update?: InputMaybe<WalletUpdateWithoutTxsInput>;
+  upsert?: InputMaybe<WalletUpsertWithoutTxsInput>;
+};
+
 export type WalletUpdateOneWithoutTxNestedInput = {
   connect?: InputMaybe<WalletWhereUniqueInput>;
   connectOrCreate?: InputMaybe<WalletCreateOrConnectWithoutTxInput>;
@@ -3451,6 +3595,7 @@ export type WalletUpdateWithoutAccountInput = {
   quorums?: InputMaybe<QuorumUpdateManyWithoutWalletNestedInput>;
   ref?: InputMaybe<StringFieldUpdateOperationsInput>;
   tx?: InputMaybe<TxUpdateOneWithoutWalletTxNestedInput>;
+  txs?: InputMaybe<TxUpdateManyWithoutWalletNestedInput>;
 };
 
 export type WalletUpdateWithoutApproversInput = {
@@ -3459,6 +3604,7 @@ export type WalletUpdateWithoutApproversInput = {
   quorums?: InputMaybe<QuorumUpdateManyWithoutWalletNestedInput>;
   ref?: InputMaybe<StringFieldUpdateOperationsInput>;
   tx?: InputMaybe<TxUpdateOneWithoutWalletTxNestedInput>;
+  txs?: InputMaybe<TxUpdateManyWithoutWalletNestedInput>;
 };
 
 export type WalletUpdateWithoutQuorumsInput = {
@@ -3467,6 +3613,7 @@ export type WalletUpdateWithoutQuorumsInput = {
   name?: InputMaybe<StringFieldUpdateOperationsInput>;
   ref?: InputMaybe<StringFieldUpdateOperationsInput>;
   tx?: InputMaybe<TxUpdateOneWithoutWalletTxNestedInput>;
+  txs?: InputMaybe<TxUpdateManyWithoutWalletNestedInput>;
 };
 
 export type WalletUpdateWithoutTxInput = {
@@ -3475,6 +3622,16 @@ export type WalletUpdateWithoutTxInput = {
   name?: InputMaybe<StringFieldUpdateOperationsInput>;
   quorums?: InputMaybe<QuorumUpdateManyWithoutWalletNestedInput>;
   ref?: InputMaybe<StringFieldUpdateOperationsInput>;
+  txs?: InputMaybe<TxUpdateManyWithoutWalletNestedInput>;
+};
+
+export type WalletUpdateWithoutTxsInput = {
+  account?: InputMaybe<AccountUpdateOneRequiredWithoutWalletsNestedInput>;
+  approvers?: InputMaybe<ApproverUpdateManyWithoutWalletNestedInput>;
+  name?: InputMaybe<StringFieldUpdateOperationsInput>;
+  quorums?: InputMaybe<QuorumUpdateManyWithoutWalletNestedInput>;
+  ref?: InputMaybe<StringFieldUpdateOperationsInput>;
+  tx?: InputMaybe<TxUpdateOneWithoutWalletTxNestedInput>;
 };
 
 export type WalletUpsertWithWhereUniqueWithoutAccountInput = {
@@ -3498,6 +3655,11 @@ export type WalletUpsertWithoutTxInput = {
   update: WalletUpdateWithoutTxInput;
 };
 
+export type WalletUpsertWithoutTxsInput = {
+  create: WalletCreateWithoutTxsInput;
+  update: WalletUpdateWithoutTxsInput;
+};
+
 export type WalletWhereInput = {
   AND?: InputMaybe<Array<WalletWhereInput>>;
   NOT?: InputMaybe<Array<WalletWhereInput>>;
@@ -3510,6 +3672,7 @@ export type WalletWhereInput = {
   ref?: InputMaybe<StringFilter>;
   tx?: InputMaybe<TxRelationFilter>;
   txHash?: InputMaybe<StringNullableFilter>;
+  txs?: InputMaybe<TxListRelationFilter>;
 };
 
 export type WalletWhereUniqueInput = {
@@ -3586,15 +3749,6 @@ export type UpsertContactMutationVariables = Exact<{
 
 export type UpsertContactMutation = { __typename?: 'Mutation', upsertContact?: { __typename?: 'Contact', id: string, addr: string, name: string } | null };
 
-export type ProposeTxMutationVariables = Exact<{
-  account: Scalars['Address'];
-  tx: TxInput;
-  signature: Scalars['Bytes'];
-}>;
-
-
-export type ProposeTxMutation = { __typename?: 'Mutation', proposeTx: { __typename?: 'Tx', id: string, accountId: string, hash: string, to: string, value: string, data: string, salt: string, createdAt: any, approvals?: Array<{ __typename?: 'Approval', userId: string, signature: string, createdAt: any }> | null, submissions?: Array<{ __typename?: 'Submission', id: string, hash: string, nonce: number, gasLimit: any, gasPrice?: any | null, finalized: boolean, createdAt: any }> | null } };
-
 export type SubmitTxExecutionMutationVariables = Exact<{
   account: Scalars['Address'];
   txHash: Scalars['Bytes32'];
@@ -3603,6 +3757,16 @@ export type SubmitTxExecutionMutationVariables = Exact<{
 
 
 export type SubmitTxExecutionMutation = { __typename?: 'Mutation', submitTxExecution: { __typename?: 'Submission', id: string, hash: string, nonce: number, gasLimit: any, gasPrice?: any | null, finalized: boolean, createdAt: any } };
+
+export type ProposeTxMutationVariables = Exact<{
+  account: Scalars['Address'];
+  walletRef: Scalars['Bytes4'];
+  tx: TxInput;
+  signature: Scalars['Bytes'];
+}>;
+
+
+export type ProposeTxMutation = { __typename?: 'Mutation', proposeTx: { __typename?: 'Tx', id: string, accountId: string, hash: string, to: string, value: string, data: string, salt: string, walletRef: string, createdAt: any, approvals?: Array<{ __typename?: 'Approval', userId: string, signature: string, createdAt: any }> | null, submissions?: Array<{ __typename?: 'Submission', id: string, hash: string, nonce: number, gasLimit: any, gasPrice?: any | null, finalized: boolean, createdAt: any }> | null } };
 
 export type ApproveTxMutationVariables = Exact<{
   account: Scalars['Address'];
@@ -3620,6 +3784,15 @@ export type RevokeApprovalMutationVariables = Exact<{
 
 
 export type RevokeApprovalMutation = { __typename?: 'Mutation', revokeApproval: { __typename?: 'RevokeApprovalResp', id?: string | null } };
+
+export type SetTxWallelMutationVariables = Exact<{
+  account: Scalars['Address'];
+  hash: Scalars['Bytes32'];
+  walletRef: Scalars['Bytes4'];
+}>;
+
+
+export type SetTxWallelMutation = { __typename?: 'Mutation', setTxWallet?: { __typename?: 'Tx', id: string } | null };
 
 export type UseFaucetMutationVariables = Exact<{
   recipient: Scalars['Address'];
@@ -3683,7 +3856,7 @@ export type ContactsQueryVariables = Exact<{ [key: string]: never; }>;
 
 export type ContactsQuery = { __typename?: 'Query', contacts: Array<{ __typename?: 'Contact', id: string, addr: string, name: string }> };
 
-export type TxFieldsFragment = { __typename?: 'Tx', id: string, accountId: string, hash: string, to: string, value: string, data: string, salt: string, createdAt: any, approvals?: Array<{ __typename?: 'Approval', userId: string, signature: string, createdAt: any }> | null, submissions?: Array<{ __typename?: 'Submission', id: string, hash: string, nonce: number, gasLimit: any, gasPrice?: any | null, finalized: boolean, createdAt: any }> | null };
+export type TxFieldsFragment = { __typename?: 'Tx', id: string, accountId: string, hash: string, to: string, value: string, data: string, salt: string, walletRef: string, createdAt: any, approvals?: Array<{ __typename?: 'Approval', userId: string, signature: string, createdAt: any }> | null, submissions?: Array<{ __typename?: 'Submission', id: string, hash: string, nonce: number, gasLimit: any, gasPrice?: any | null, finalized: boolean, createdAt: any }> | null };
 
 export type TxQueryVariables = Exact<{
   account: Scalars['Address'];
@@ -3691,7 +3864,7 @@ export type TxQueryVariables = Exact<{
 }>;
 
 
-export type TxQuery = { __typename?: 'Query', tx?: { __typename?: 'Tx', id: string, accountId: string, hash: string, to: string, value: string, data: string, salt: string, createdAt: any, approvals?: Array<{ __typename?: 'Approval', userId: string, signature: string, createdAt: any }> | null, submissions?: Array<{ __typename?: 'Submission', id: string, hash: string, nonce: number, gasLimit: any, gasPrice?: any | null, finalized: boolean, createdAt: any }> | null } | null };
+export type TxQuery = { __typename?: 'Query', tx?: { __typename?: 'Tx', id: string, accountId: string, hash: string, to: string, value: string, data: string, salt: string, walletRef: string, createdAt: any, approvals?: Array<{ __typename?: 'Approval', userId: string, signature: string, createdAt: any }> | null, submissions?: Array<{ __typename?: 'Submission', id: string, hash: string, nonce: number, gasLimit: any, gasPrice?: any | null, finalized: boolean, createdAt: any }> | null } | null };
 
 export type TxsMetadataQueryVariables = Exact<{
   accounts: Array<Scalars['Address']> | Scalars['Address'];
@@ -3768,6 +3941,7 @@ export const TxFieldsFragmentDoc = gql`
   value
   data
   salt
+  walletRef
   approvals {
     userId
     signature
@@ -4061,41 +4235,6 @@ export function useUpsertContactMutation(baseOptions?: Apollo.MutationHookOption
 export type UpsertContactMutationHookResult = ReturnType<typeof useUpsertContactMutation>;
 export type UpsertContactMutationResult = Apollo.MutationResult<UpsertContactMutation>;
 export type UpsertContactMutationOptions = Apollo.BaseMutationOptions<UpsertContactMutation, UpsertContactMutationVariables>;
-export const ProposeTxDocument = gql`
-    mutation ProposeTx($account: Address!, $tx: TxInput!, $signature: Bytes!) {
-  proposeTx(account: $account, tx: $tx, signature: $signature) {
-    ...TxFields
-  }
-}
-    ${TxFieldsFragmentDoc}`;
-export type ProposeTxMutationFn = Apollo.MutationFunction<ProposeTxMutation, ProposeTxMutationVariables>;
-
-/**
- * __useProposeTxMutation__
- *
- * To run a mutation, you first call `useProposeTxMutation` within a React component and pass it any options that fit your needs.
- * When your component renders, `useProposeTxMutation` returns a tuple that includes:
- * - A mutate function that you can call at any time to execute the mutation
- * - An object with fields that represent the current status of the mutation's execution
- *
- * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
- *
- * @example
- * const [proposeTxMutation, { data, loading, error }] = useProposeTxMutation({
- *   variables: {
- *      account: // value for 'account'
- *      tx: // value for 'tx'
- *      signature: // value for 'signature'
- *   },
- * });
- */
-export function useProposeTxMutation(baseOptions?: Apollo.MutationHookOptions<ProposeTxMutation, ProposeTxMutationVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useMutation<ProposeTxMutation, ProposeTxMutationVariables>(ProposeTxDocument, options);
-      }
-export type ProposeTxMutationHookResult = ReturnType<typeof useProposeTxMutation>;
-export type ProposeTxMutationResult = Apollo.MutationResult<ProposeTxMutation>;
-export type ProposeTxMutationOptions = Apollo.BaseMutationOptions<ProposeTxMutation, ProposeTxMutationVariables>;
 export const SubmitTxExecutionDocument = gql`
     mutation SubmitTxExecution($account: Address!, $txHash: Bytes32!, $submission: SubmissionInput!) {
   submitTxExecution(account: $account, txHash: $txHash, submission: $submission) {
@@ -4137,6 +4276,47 @@ export function useSubmitTxExecutionMutation(baseOptions?: Apollo.MutationHookOp
 export type SubmitTxExecutionMutationHookResult = ReturnType<typeof useSubmitTxExecutionMutation>;
 export type SubmitTxExecutionMutationResult = Apollo.MutationResult<SubmitTxExecutionMutation>;
 export type SubmitTxExecutionMutationOptions = Apollo.BaseMutationOptions<SubmitTxExecutionMutation, SubmitTxExecutionMutationVariables>;
+export const ProposeTxDocument = gql`
+    mutation ProposeTx($account: Address!, $walletRef: Bytes4!, $tx: TxInput!, $signature: Bytes!) {
+  proposeTx(
+    account: $account
+    walletRef: $walletRef
+    tx: $tx
+    signature: $signature
+  ) {
+    ...TxFields
+  }
+}
+    ${TxFieldsFragmentDoc}`;
+export type ProposeTxMutationFn = Apollo.MutationFunction<ProposeTxMutation, ProposeTxMutationVariables>;
+
+/**
+ * __useProposeTxMutation__
+ *
+ * To run a mutation, you first call `useProposeTxMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useProposeTxMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [proposeTxMutation, { data, loading, error }] = useProposeTxMutation({
+ *   variables: {
+ *      account: // value for 'account'
+ *      walletRef: // value for 'walletRef'
+ *      tx: // value for 'tx'
+ *      signature: // value for 'signature'
+ *   },
+ * });
+ */
+export function useProposeTxMutation(baseOptions?: Apollo.MutationHookOptions<ProposeTxMutation, ProposeTxMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<ProposeTxMutation, ProposeTxMutationVariables>(ProposeTxDocument, options);
+      }
+export type ProposeTxMutationHookResult = ReturnType<typeof useProposeTxMutation>;
+export type ProposeTxMutationResult = Apollo.MutationResult<ProposeTxMutation>;
+export type ProposeTxMutationOptions = Apollo.BaseMutationOptions<ProposeTxMutation, ProposeTxMutationVariables>;
 export const ApproveTxDocument = gql`
     mutation ApproveTx($account: Address!, $txHash: Bytes32!, $signature: Bytes!) {
   approve(account: $account, hash: $txHash, signature: $signature) {
@@ -4206,6 +4386,41 @@ export function useRevokeApprovalMutation(baseOptions?: Apollo.MutationHookOptio
 export type RevokeApprovalMutationHookResult = ReturnType<typeof useRevokeApprovalMutation>;
 export type RevokeApprovalMutationResult = Apollo.MutationResult<RevokeApprovalMutation>;
 export type RevokeApprovalMutationOptions = Apollo.BaseMutationOptions<RevokeApprovalMutation, RevokeApprovalMutationVariables>;
+export const SetTxWallelDocument = gql`
+    mutation SetTxWallel($account: Address!, $hash: Bytes32!, $walletRef: Bytes4!) {
+  setTxWallet(account: $account, hash: $hash, walletRef: $walletRef) {
+    id
+  }
+}
+    `;
+export type SetTxWallelMutationFn = Apollo.MutationFunction<SetTxWallelMutation, SetTxWallelMutationVariables>;
+
+/**
+ * __useSetTxWallelMutation__
+ *
+ * To run a mutation, you first call `useSetTxWallelMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useSetTxWallelMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [setTxWallelMutation, { data, loading, error }] = useSetTxWallelMutation({
+ *   variables: {
+ *      account: // value for 'account'
+ *      hash: // value for 'hash'
+ *      walletRef: // value for 'walletRef'
+ *   },
+ * });
+ */
+export function useSetTxWallelMutation(baseOptions?: Apollo.MutationHookOptions<SetTxWallelMutation, SetTxWallelMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<SetTxWallelMutation, SetTxWallelMutationVariables>(SetTxWallelDocument, options);
+      }
+export type SetTxWallelMutationHookResult = ReturnType<typeof useSetTxWallelMutation>;
+export type SetTxWallelMutationResult = Apollo.MutationResult<SetTxWallelMutation>;
+export type SetTxWallelMutationOptions = Apollo.BaseMutationOptions<SetTxWallelMutation, SetTxWallelMutationVariables>;
 export const UseFaucetDocument = gql`
     mutation UseFaucet($recipient: Address!) {
   requestFunds(recipient: $recipient)

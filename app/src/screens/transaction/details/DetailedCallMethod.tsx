@@ -1,3 +1,4 @@
+import { Accordion } from '@components/Accordion';
 import { Box } from '@components/Box';
 import { ExpandableText } from '@components/ExpandableText';
 import { Container } from '@components/list/Container';
@@ -7,7 +8,7 @@ import { Call } from 'lib';
 import { useMemo } from 'react';
 import { Text } from 'react-native-paper';
 import { useContractMethod } from '~/queries/useContractMethod.api';
-import { MethodInputRow } from './MethodInputRow';
+import { MethodInputRow } from '../../../components2/call/MethodInputRow';
 
 export interface DetailedCallMethodProps {
   call: Call;
@@ -42,14 +43,14 @@ export const DetailedCallMethod = ({ call }: DetailedCallMethodProps) => {
     );
 
   return (
-    <Container separator={<Box mt={1} />}>
-      <Text variant="titleMedium">{methodFragment.name}</Text>
-
-      {inputs.map((input) => (
-        <Box key={input.param.format()} ml={2}>
-          <MethodInputRow key={input.param.format()} {...input} />
-        </Box>
-      ))}
-    </Container>
+    <Accordion title={<Text variant="titleMedium">{methodFragment.name}</Text>}>
+      <Box mt={1}>
+        {inputs.map((input) => (
+          <Box key={input.param.format()} ml={2}>
+            <MethodInputRow key={input.param.format()} {...input} />
+          </Box>
+        ))}
+      </Box>
+    </Accordion>
   );
 };

@@ -23,6 +23,7 @@ import { UserAddr } from '~/decorators/user.decorator';
 import {
   connectOrCreateUser,
   connectOrCreateAccount,
+  connectOrCreateWallet,
 } from '~/util/connect-or-create';
 import { getSelect } from '~/util/select';
 import {
@@ -31,6 +32,7 @@ import {
   RevokeApprovalResp,
   UniqueTxArgs,
   TxsArgs,
+  ChangeTxWalletArgs,
 } from './txs.args';
 import { Submission } from '@gen/submission/submission.model';
 import { SubmissionsService } from '../submissions/submissions.service';
@@ -85,7 +87,7 @@ export class TxsResolver {
 
   @Mutation(() => Tx)
   async proposeTx(
-    @Args() { account, tx, signature }: ProposeTxArgs,
+    @Args() { account, walletRef, tx, signature }: ProposeTxArgs,
     @Info() info: GraphQLResolveInfo,
     @UserAddr() user: Address,
   ): Promise<Tx> {
@@ -101,6 +103,7 @@ export class TxsResolver {
         value: tx.value.toString(),
         data: tx.data,
         salt: tx.salt,
+        wallet: connectOrCreateWallet(account, walletRef),
         approvals: {
           create: {
             user: connectOrCreateUser(user),
@@ -176,6 +179,25 @@ export class TxsResolver {
       });
 
     return { id: getTxId(account, hash) };
+  }
+
+  @Mutation(() => Tx, { nullable: true })
+  async setTxWallet(
+    @Args() { account, hash, walletRef }: ChangeTxWalletArgs,
+    @Info() info: GraphQLResolveInfo,
+  ): Promise<Tx | null> {
+    return this.prisma.tx.update({
+      where: {
+        accountId_hash: {
+          accountId: account,
+          hash,
+        },
+      },
+      data: {
+        wallet: connectOrCreateWallet(account, walletRef),
+      },
+      ...getSelect(info),
+    });
   }
 
   private async validateSignatureOrThrow(

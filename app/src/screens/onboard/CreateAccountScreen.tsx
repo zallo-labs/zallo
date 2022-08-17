@@ -11,7 +11,7 @@ import { useCreateApiAccount } from '~/mutations/account/useCreateAccount.api';
 import { AppbarBack } from '@components/AppbarBack';
 import { makeStyles } from '@util/theme/makeStyles';
 import { useName } from './Name/useName';
-import { Navigate } from '~/navigation';
+import { Navigate } from '~/navigation/useRootNavigation';
 import { address, Address } from 'lib';
 
 interface Values {

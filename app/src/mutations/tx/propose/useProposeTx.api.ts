@@ -7,22 +7,33 @@ import {
 } from '@gql/generated.api';
 import { useApiClient } from '@gql/GqlProvider';
 import { hexlify } from 'ethers/lib/utils';
-import { Address, createTx, getTxId, hashTx, signTx, TxDef } from 'lib';
+import { createTx, getTxId, hashTx, signTx, TxDef } from 'lib';
 import { DateTime } from 'luxon';
 import { useCallback } from 'react';
 import { API_QUERY_TX, API_TX_FIELDS } from '~/queries/tx/useTx.api';
+import { CombinedWallet } from '~/queries/wallets';
 
 gql`
   ${API_TX_FIELDS}
 
-  mutation ProposeTx($account: Address!, $tx: TxInput!, $signature: Bytes!) {
-    proposeTx(account: $account, tx: $tx, signature: $signature) {
+  mutation ProposeTx(
+    $account: Address!
+    $walletRef: Bytes4!
+    $tx: TxInput!
+    $signature: Bytes!
+  ) {
+    proposeTx(
+      account: $account
+      walletRef: $walletRef
+      tx: $tx
+      signature: $signature
+    ) {
       ...TxFields
     }
   }
 `;
 
-export const useProposeApiTx = (accountAddr: Address) => {
+export const useApiProposeTx = (wallet: CombinedWallet) => {
   const device = useDevice();
 
   const [mutation] = useProposeTxMutation({ client: useApiClient() });
@@ -30,13 +41,14 @@ export const useProposeApiTx = (accountAddr: Address) => {
   const propose = useCallback(
     async (txDef: TxDef) => {
       const tx = createTx(txDef);
-      const hash = await hashTx(accountAddr, tx);
-      const signature = await signTx(device, accountAddr, tx);
+      const hash = await hashTx(wallet.accountAddr, tx);
+      const signature = await signTx(device, wallet.accountAddr, tx);
       const createdAt = DateTime.now().toISO();
 
       return await mutation({
         variables: {
-          account: accountAddr,
+          account: wallet.accountAddr,
+          walletRef: wallet.ref,
           tx: {
             to: tx.to,
             value: tx.value.toString(),
@@ -61,13 +73,14 @@ export const useProposeApiTx = (accountAddr: Address) => {
         optimisticResponse: {
           proposeTx: {
             __typename: 'Tx',
-            id: getTxId(accountAddr, hash),
-            accountId: accountAddr,
+            id: getTxId(wallet.accountAddr, hash),
+            accountId: wallet.accountAddr,
             hash,
             to: tx.to,
             value: tx.value.toString(),
             data: hexlify(tx.data),
             salt: hexlify(tx.salt),
+            walletRef: wallet.ref,
             approvals: [
               {
                 __typename: 'Approval',
@@ -82,7 +95,7 @@ export const useProposeApiTx = (accountAddr: Address) => {
         },
       });
     },
-    [accountAddr, device, mutation],
+    [wallet.accountAddr, wallet.ref, device, mutation],
   );
 
   return propose;

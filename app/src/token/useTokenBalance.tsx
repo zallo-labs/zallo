@@ -38,10 +38,12 @@ export const tokenBalanceState = atomFamily<BigNumber, BalanceKey>({
   ],
 });
 
-export const useTokenBalance = (token: Token) => {
-  const { accountAddr } = useSelectedWallet();
+export const useTokenBalance = (token: Token, account: Address) => {
+  const { accountAddr: selectedAccount } = useSelectedWallet();
 
-  return useRecoilValue(tokenBalanceState([accountAddr, token.addr]));
+  return useRecoilValue(
+    tokenBalanceState([account ?? selectedAccount, token.addr]),
+  );
 };
 
 export interface TokenWithBalance {

@@ -7,7 +7,7 @@ import { StyleProp, TextStyle } from 'react-native';
 import { Text } from 'react-native-paper';
 import { Token } from '~/token/token';
 import { ETH } from '~/token/tokens';
-import { useTokenValue } from '~/token/useTokenValue';
+import { useCallValues } from './useCallValues';
 
 export interface CallValuesProps {
   call: Call;
@@ -17,10 +17,7 @@ export interface CallValuesProps {
 
 export const CallValues = ({ call, token, textStyle }: CallValuesProps) => {
   const transferAmount = useDecodedTransfer(call.to, call.data)?.value ?? ZERO;
-  const ethValue = useTokenValue(ETH, call.value);
-  const transferValue = useTokenValue(token, transferAmount);
-
-  const totalFiat = ethValue.fiatValue + transferValue.fiatValue;
+  const { totalFiat } = useCallValues(call, token);
 
   return (
     <Box vertical justifyContent="space-around" alignItems="flex-end">
@@ -36,7 +33,7 @@ export const CallValues = ({ call, token, textStyle }: CallValuesProps) => {
         </Text>
       )}
 
-      {!transferAmount.isZero && (
+      {!transferAmount.isZero() && (
         <Text variant="bodyMedium" style={textStyle}>
           <TokenValue token={token} value={transferAmount} />
         </Text>

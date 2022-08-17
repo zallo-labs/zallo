@@ -4,11 +4,11 @@ import { useCallback } from 'react';
 import { BottomNavigatorProps } from '~/navigation/BottomNavigator';
 import { ProposedTx, TxId } from '~/queries/tx';
 import { CombinedWallet } from '~/queries/wallets';
-import { useProposeApiTx } from './useProposeApiTx.api';
+import { useApiProposeTx } from './useProposeTx.api';
 
 export const useProposeTx = (wallet: CombinedWallet) => {
   const navigation = useNavigation<BottomNavigatorProps['navigation']>();
-  const propose = useProposeApiTx(wallet.accountAddr);
+  const propose = useApiProposeTx(wallet);
 
   return useCallback(
     async (txDef: TxDef, onPropose?: (tx: ProposedTx) => void) => {
