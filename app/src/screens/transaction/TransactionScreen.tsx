@@ -11,6 +11,7 @@ import { useSelectedWallet } from '~/components2/wallet/useSelectedWallet';
 import { RootNavigatorScreenProps } from '~/navigation/RootNavigator';
 import { ProposedTx, TxId } from '~/queries/tx';
 import { useTx } from '~/queries/tx/useTx';
+import { Comments } from './comments/Comments';
 import { TransactionStatus } from './status/TransactionStatus';
 
 export interface TransactionScreenParams {
@@ -30,17 +31,25 @@ export const TransactionScreen = withSkeleton(
     if (!tx || !wallet) return <Suspend />;
 
     return (
-      <Box>
+      <Box flex={1}>
         <AppbarHeader>
           <AppbarBack />
           <Appbar.Content title="Transaction" />
         </AppbarHeader>
 
-        <Container mx={2} separator={<Box my={2} />}>
-          <CallCard id={id} variant="full" />
+        <Box flex={1} mx={2}>
+          <Comments
+            ListHeaderComponent={
+              <Container separator={<Box my={2} />} mb={3}>
+                <CallCard id={id} variant="full" />
 
-          <TransactionStatus tx={tx} wallet={wallet} />
-        </Container>
+                <TransactionStatus tx={tx} wallet={wallet} />
+              </Container>
+            }
+            tx={tx}
+            onScroll={handleScroll}
+          />
+        </Box>
       </Box>
     );
   },
