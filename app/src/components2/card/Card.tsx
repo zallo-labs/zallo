@@ -1,6 +1,6 @@
 import { ComponentPropsWithoutRef, ReactNode } from 'react';
 import { ViewProps } from 'react-native';
-import { Card as BaseCard, TouchableRipple } from 'react-native-paper';
+import { Surface as Base, TouchableRipple } from 'react-native-paper';
 import styled from 'styled-components/native';
 import {
   borders,
@@ -13,10 +13,8 @@ import {
   space,
   SpaceProps,
 } from 'styled-system';
-
 import { ChildrenProps } from '@util/children';
-import { useTheme } from '@util/theme/paper';
-import { Box } from '@components/Box';
+import { makeStyles } from '@util/theme/makeStyles';
 
 export interface StyledProps
   extends ChildrenProps,
@@ -33,7 +31,7 @@ export interface StyledProps
 }
 
 // TODO: move to Animated.View once this issue is resolved: https://github.com/software-mansion/react-native-reanimated/issues/3209
-const Internal = styled(BaseCard)<StyledProps>`
+const StyledBase = styled(Base)<StyledProps>`
   ${flexbox};
   ${layout};
   ${borders};
@@ -68,11 +66,11 @@ const Internal = styled(BaseCard)<StyledProps>`
   `}
 `;
 
-type BaseCardProps = ComponentPropsWithoutRef<typeof BaseCard>;
-type InternalProps = BaseCardProps & StyledProps;
+type BaseProps = ComponentPropsWithoutRef<typeof Base>;
+type StyledBaseProps = BaseProps & StyledProps;
 type TouchableRippleProps = ComponentPropsWithoutRef<typeof TouchableRipple>;
 
-export type CardProps = Omit<InternalProps, 'children'> &
+export type CardProps = Omit<StyledBaseProps, 'children' | 'theme'> &
   Pick<TouchableRippleProps, 'onPress' | 'onLongPress' | 'disabled'> & {
     children?: ReactNode;
   };
@@ -84,33 +82,33 @@ export const Card = ({
   onPress,
   onLongPress,
   disabled,
-  elevation = 2,
   ...props
 }: CardProps) => {
-  const { colors } = useTheme();
+  const styles = useStyles(disabled);
 
   return (
     <TouchableRipple
       onPress={onPress}
       onLongPress={onLongPress}
       disabled={disabled}
-      borderless
-      style={{ borderRadius }}
+      style={styles.borderRadius}
     >
-      <Internal
-        backgroundColor={
-          colors.elevation[`level${elevation?.toString()}` as any] ||
-          colors.elevation.level1
-        }
+      <StyledBase
         p={3}
-        {...(props as any)}
-        style={[
-          { borderRadius, ...(disabled && { opacity: 0.38 }) },
-          props.style,
-        ]}
+        {...props}
+        style={[styles.borderRadius, styles.card, props.style]}
       >
         {children}
-      </Internal>
+      </StyledBase>
     </TouchableRipple>
   );
 };
+
+const useStyles = makeStyles((_theme, disabled: boolean) => ({
+  borderRadius: {
+    borderRadius,
+  },
+  card: {
+    ...(disabled && { opacity: 0.38 }),
+  },
+}));
