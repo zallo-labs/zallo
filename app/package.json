@@ -58,6 +58,7 @@
     "expo-splash-screen": "~0.16.1",
     "expo-status-bar": "~1.4.0",
     "expo-updates": "~0.14.3",
+    "expo-web-browser": "~11.0.0",
     "expo-yarn-workspaces": "^2.0.2",
     "formik": "^2.2.9",
     "fuzzy-search": "^3.2.1",
