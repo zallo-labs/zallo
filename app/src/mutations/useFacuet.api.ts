@@ -1,26 +1,27 @@
-import { gql, useMutation } from '@apollo/client';
-import {
-  UseFaucetMutation,
-  UseFaucetMutationVariables,
-} from '@gql/generated.api';
+import { gql } from '@apollo/client';
+import { useRequestFundsMutation } from '@gql/generated.api';
 import { useApiClient } from '@gql/GqlProvider';
 import { Address } from 'lib';
 import { useCallback } from 'react';
+import { CHAIN } from '~/provider';
 
-const MUTATION = gql`
-  mutation UseFaucet($recipient: Address!) {
+gql`
+  mutation RequestFunds($recipient: Address!) {
     requestFunds(recipient: $recipient)
   }
 `;
 
-export const useFaucet = (recipient: Address) => {
-  const [mutation] = useMutation<UseFaucetMutation, UseFaucetMutationVariables>(
-    MUTATION,
-    {
-      client: useApiClient(),
-      variables: { recipient },
-    },
-  );
+export const useFaucet = () => {
+  const [mutation] = useRequestFundsMutation({ client: useApiClient() });
 
-  return useCallback(() => mutation(), [mutation]);
+  return useCallback(
+    async (recipient: Address) => {
+      if (CHAIN.isTestnet) {
+        await mutation({
+          variables: { recipient },
+        });
+      }
+    },
+    [mutation],
+  );
 };

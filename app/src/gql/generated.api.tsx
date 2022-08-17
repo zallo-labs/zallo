@@ -3794,12 +3794,12 @@ export type SetTxWallelMutationVariables = Exact<{
 
 export type SetTxWallelMutation = { __typename?: 'Mutation', setTxWallet?: { __typename?: 'Tx', id: string } | null };
 
-export type UseFaucetMutationVariables = Exact<{
+export type RequestFundsMutationVariables = Exact<{
   recipient: Scalars['Address'];
 }>;
 
 
-export type UseFaucetMutation = { __typename?: 'Mutation', requestFunds: boolean };
+export type RequestFundsMutation = { __typename?: 'Mutation', requestFunds: boolean };
 
 export type DeleteWalletMutationVariables = Exact<{
   id: WalletId;
@@ -4421,37 +4421,37 @@ export function useSetTxWallelMutation(baseOptions?: Apollo.MutationHookOptions<
 export type SetTxWallelMutationHookResult = ReturnType<typeof useSetTxWallelMutation>;
 export type SetTxWallelMutationResult = Apollo.MutationResult<SetTxWallelMutation>;
 export type SetTxWallelMutationOptions = Apollo.BaseMutationOptions<SetTxWallelMutation, SetTxWallelMutationVariables>;
-export const UseFaucetDocument = gql`
-    mutation UseFaucet($recipient: Address!) {
+export const RequestFundsDocument = gql`
+    mutation RequestFunds($recipient: Address!) {
   requestFunds(recipient: $recipient)
 }
     `;
-export type UseFaucetMutationFn = Apollo.MutationFunction<UseFaucetMutation, UseFaucetMutationVariables>;
+export type RequestFundsMutationFn = Apollo.MutationFunction<RequestFundsMutation, RequestFundsMutationVariables>;
 
 /**
- * __useUseFaucetMutation__
+ * __useRequestFundsMutation__
  *
- * To run a mutation, you first call `useUseFaucetMutation` within a React component and pass it any options that fit your needs.
- * When your component renders, `useUseFaucetMutation` returns a tuple that includes:
+ * To run a mutation, you first call `useRequestFundsMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useRequestFundsMutation` returns a tuple that includes:
  * - A mutate function that you can call at any time to execute the mutation
  * - An object with fields that represent the current status of the mutation's execution
  *
  * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
  *
  * @example
- * const [useFaucetMutation, { data, loading, error }] = useUseFaucetMutation({
+ * const [requestFundsMutation, { data, loading, error }] = useRequestFundsMutation({
  *   variables: {
  *      recipient: // value for 'recipient'
  *   },
  * });
  */
-export function useUseFaucetMutation(baseOptions?: Apollo.MutationHookOptions<UseFaucetMutation, UseFaucetMutationVariables>) {
+export function useRequestFundsMutation(baseOptions?: Apollo.MutationHookOptions<RequestFundsMutation, RequestFundsMutationVariables>) {
         const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useMutation<UseFaucetMutation, UseFaucetMutationVariables>(UseFaucetDocument, options);
+        return Apollo.useMutation<RequestFundsMutation, RequestFundsMutationVariables>(RequestFundsDocument, options);
       }
-export type UseFaucetMutationHookResult = ReturnType<typeof useUseFaucetMutation>;
-export type UseFaucetMutationResult = Apollo.MutationResult<UseFaucetMutation>;
-export type UseFaucetMutationOptions = Apollo.BaseMutationOptions<UseFaucetMutation, UseFaucetMutationVariables>;
+export type RequestFundsMutationHookResult = ReturnType<typeof useRequestFundsMutation>;
+export type RequestFundsMutationResult = Apollo.MutationResult<RequestFundsMutation>;
+export type RequestFundsMutationOptions = Apollo.BaseMutationOptions<RequestFundsMutation, RequestFundsMutationVariables>;
 export const DeleteWalletDocument = gql`
     mutation DeleteWallet($id: WalletId!) {
   deleteWallet(id: $id)

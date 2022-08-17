@@ -4,7 +4,6 @@ import '@util/configImmer';
 
 import { Suspense } from 'react';
 import { RecoilRoot } from 'recoil';
-
 import { Background } from '@components/Background';
 import { LocalizatonProvider } from '@features/localization/LocalizationProvider';
 import { GqlProvider } from '@gql/GqlProvider';
@@ -19,6 +18,7 @@ import { SentryUser } from '@util/sentry/SentryUser';
 import { NavigationProvider } from '@features/navigation/NavigationProvider';
 import { withSentry } from '@util/sentry/sentry';
 import { RootNavigator } from '~/navigation/RootNavigator';
+import { AutoFaucet } from '~/components2/AutoFaucet';
 
 export default withSentry(() => (
   <LocalizatonProvider>
@@ -35,6 +35,7 @@ export default withSentry(() => (
                     <NavigationProvider>
                       <RootNavigator />
                     </NavigationProvider>
+                    <AutoFaucet />
                   </GqlProvider>
                 </AuthGate>
                 <ToastProvider />
