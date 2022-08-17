@@ -13,12 +13,12 @@ export const useAccount = (addr?: Address) => {
 
   const account = useMemo((): CombinedAccount | undefined => {
     if (!s && !a) return undefined;
+    if (!s) return a;
+    if (!a) return s;
 
     return {
-      id: s?.id ?? a!.id,
-      addr: s?.addr ?? a!.addr,
-      contract: s?.contract ?? a!.contract,
-      impl: s?.impl ?? a!.impl,
+      ...a,
+      ...s,
       name: a?.name ?? '',
       walletIds: filterFirst(
         [...(s?.walletIds ?? []), ...(a?.walletIds ?? [])],
