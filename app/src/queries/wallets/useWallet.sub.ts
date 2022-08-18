@@ -21,7 +21,9 @@ gql`
         id
         hash
         approvers {
-          id
+          approver {
+            id
+          }
         }
         timestamp
       }
@@ -48,7 +50,9 @@ export const useSubWallet = (id?: WalletId) => {
       name: '',
       quorums: w.quorums.map(
         (quorum): CombinedQuorum => ({
-          approvers: toQuorum(quorum.approvers.map((a) => address(a.id))),
+          approvers: toQuorum(
+            quorum.approvers.map(({ approver }) => address(approver.id)),
+          ),
           active: true,
         }),
       ),

@@ -23,10 +23,10 @@ export function handleTransfer(e: TransferEvent): void {
   const transfer = new Transfer(getTransferId(e));
 
   transfer.account = account.id;
-  transfer.tx = getTxId(e.transaction);
-  transfer.txHash = e.transaction.hash;
+  transfer.tx = getTxId(account.id, e.transaction);
+  transfer.transactionHash = e.transaction.hash;
   transfer.token = transformEthAddress(e.address);
-  transfer.type = account.id == e.params.from.toHex() ? 'OUT' : 'IN';
+  transfer.type = account.id == e.params.from ? 'OUT' : 'IN';
   transfer.from = e.params.from;
   transfer.to = e.params.to;
   transfer.value = e.params.value;

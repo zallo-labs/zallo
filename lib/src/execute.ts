@@ -16,7 +16,7 @@ const toPartialTransactionRequest = (tx: TxReq): TransactionRequest => ({
   data: defaultAbiCoder.encode(['bytes8', 'bytes'], [tx.salt, tx.data]),
 });
 
-const EXTRA_VERIFICATION_GAS_PER_SIGNER = 10_000;
+const GAS_PER_SIGNER = 15_000;
 
 export const estimateTxGas = async (
   tx: TxReq | TransactionRequest,
@@ -26,7 +26,7 @@ export const estimateTxGas = async (
   const req = isTxReq(tx) ? toPartialTransactionRequest(tx) : tx;
   const baseGas = await provider.estimateGas(req);
 
-  const extraGas = (nSigners - 1) * EXTRA_VERIFICATION_GAS_PER_SIGNER;
+  const extraGas = nSigners * GAS_PER_SIGNER;
 
   return baseGas.add(extraGas);
 };

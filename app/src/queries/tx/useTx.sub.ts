@@ -1,20 +1,22 @@
 import { gql } from '@apollo/client';
-import { TransferType, useTxQuery } from '@gql/generated.sub';
+import { TransferType, useTxSubmissionsQuery } from '@gql/generated.sub';
 import { useSubgraphClient } from '@gql/GqlProvider';
 import { BigNumber } from 'ethers';
 import { address, getTxId, toId, ZERO, ZERO_ADDR, ZERO_TX_SALT } from 'lib';
 import { DateTime } from 'luxon';
 import { useMemo } from 'react';
-import { ExecutedTx, TxId } from '.';
+import { ExecutedTx, QUERY_TX_POLL_INTERVAL, TxId } from '.';
 
 gql`
-  query Tx($id: ID!) {
-    tx(id: $id) {
+  query TxSubmissions($account: String!, $hash: Bytes!) {
+    txes(
+      where: { account: $account, hash: $hash }
+      first: 1
+      orderBy: blockHash
+      orderDirection: desc
+    ) {
       id
-      account {
-        id
-      }
-      hash
+      transactionHash
       success
       response
       executor
@@ -35,23 +37,25 @@ gql`
 `;
 
 export const useSubTx = (id: TxId) => {
-  const { data, ...rest } = useTxQuery({
+  const { data, ...rest } = useTxSubmissionsQuery({
     client: useSubgraphClient(),
     variables: {
-      id: getTxId(id.account, id.hash),
+      account: toId(id.account),
+      hash: toId(id.hash),
     },
+    pollInterval: QUERY_TX_POLL_INTERVAL,
   });
 
   const tx = useMemo((): ExecutedTx | undefined => {
-    const t = data?.tx;
+    const t = data?.txes[0];
     if (!t) return undefined;
 
     const timestamp = DateTime.fromSeconds(parseInt(t.timestamp));
 
     return {
       id: toId(t.id),
-      account: address(t.account.id),
-      hash: t.hash,
+      account: address(id.account),
+      hash: id.hash,
       response: t.response,
       executor: address(t.executor),
       blockHash: t.blockHash,
@@ -75,10 +79,18 @@ export const useSubTx = (id: TxId) => {
       salt: ZERO_TX_SALT,
       approvals: [],
       userHasApproved: false,
-      submissions: [],
+      submissions: [
+        {
+          timestamp,
+          hash: t.transactionHash,
+          nonce: 0,
+          status: t.success ? 'success' : 'failure',
+          gasLimit: ZERO,
+        }
+      ],
       status: t.success ? 'executed' : 'failed',
     };
-  }, [data?.tx]);
+  }, [data?.txes, id.account, id.hash]);
 
   return { tx, ...rest };
 };

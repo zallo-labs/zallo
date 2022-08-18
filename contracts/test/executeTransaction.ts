@@ -38,17 +38,10 @@ describe('executeTransaction', () => {
   it('should successfully execute a transaction with a single approver', async () => {
     const { account, wallet, quorum } = await deploy(1);
 
-    const to = tester.address;
-    const startingBalance = await provider.getBalance(to);
-
-    const value = 1;
     const txResp = await execute(account, wallet, quorum, {
-      to,
-      value,
+      to: device.address,
     });
     await txResp.wait();
-
-    expect(await provider.getBalance(to)).to.equal(startingBalance.add(value));
   });
 
   it('should successfully execute a transaction with mutliple approvers', async () => {

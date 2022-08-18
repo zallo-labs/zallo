@@ -4,18 +4,15 @@ import { ApprovalRow } from './ApprovalRow';
 import { SubmissionRow } from './SubmissionRow';
 import { Container } from '@components/list/Container';
 import { Box } from '@components/Box';
-import { ExecutedRow } from './ExecutedRow';
-import { isPresent } from 'lib';
 
 enum EventType {
   Approval,
   Submission,
-  Executed,
 }
 
 export interface Event {
   _type: EventType;
-  item: Approval | Submission | Tx;
+  item: Approval | Submission;
 }
 
 const EventComponent = ({ event }: { event: Event }): JSX.Element => {
@@ -24,8 +21,6 @@ const EventComponent = ({ event }: { event: Event }): JSX.Element => {
       return <ApprovalRow approval={event.item as Approval} />;
     case EventType.Submission:
       return <SubmissionRow submission={event.item as Submission} />;
-    case EventType.Executed:
-      return <ExecutedRow tx={event.item as Tx} />;
   }
 };
 
@@ -34,28 +29,20 @@ export interface TransactionEventsProps {
 }
 
 export const TransactionEvents = ({ tx }: TransactionEventsProps) => {
-  const events = useMemo((): Event[] => {
-    return [
-      ...tx.approvals.map((item) => ({
-        item,
-        _type: EventType.Approval,
-      })),
-      ...tx.submissions.map((item) => ({
-        item,
-        _type: EventType.Submission,
-      })),
-      tx.status === 'executed'
-        ? {
-            item: tx,
-            _type: EventType.Executed,
-          }
-        : undefined,
-    ]
-      .filter(isPresent)
-      .sort(
-        (a, b) => a.item.timestamp.millisecond - b.item.timestamp.millisecond,
-      );
-  }, [tx]);
+  const events = useMemo(
+    (): Event[] =>
+      [
+        ...tx.approvals.map((item) => ({
+          item,
+          _type: EventType.Approval,
+        })),
+        ...tx.submissions.map((item) => ({
+          item,
+          _type: EventType.Submission,
+        })),
+      ].sort((a, b) => a.item.timestamp.diff(b.item.timestamp).milliseconds),
+    [tx],
+  );
 
   return (
     <Container separator={<Box my={2} />}>

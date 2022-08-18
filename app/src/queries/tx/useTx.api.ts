@@ -6,7 +6,13 @@ import { BigNumber } from 'ethers';
 import { address, getWalletId, toId, toTxSalt, toWalletRef } from 'lib';
 import { DateTime } from 'luxon';
 import { useMemo } from 'react';
-import { Approval, ProposedTx, Submission, TxId } from '.';
+import {
+  Approval,
+  ProposedTx,
+  QUERY_TX_POLL_INTERVAL,
+  Submission,
+  TxId,
+} from '.';
 
 export const API_TX_FIELDS = gql`
   fragment TxFields on Tx {
@@ -55,6 +61,7 @@ export const useApiTx = (id: TxId) => {
       account: id.account,
       hash: id.hash,
     },
+    pollInterval: QUERY_TX_POLL_INTERVAL,
   });
 
   const tx = useMemo((): ProposedTx | undefined => {
@@ -93,10 +100,10 @@ export const useApiTx = (id: TxId) => {
           (s): Submission => ({
             hash: s.hash,
             nonce: s.nonce,
+            status: 'pending',
+            timestamp: DateTime.fromISO(s.createdAt),
             gasLimit: BigNumber.from(s.gasLimit),
             gasPrice: s.gasPrice ? BigNumber.from(s.gasPrice) : undefined,
-            finalized: s.finalized,
-            timestamp: DateTime.fromISO(s.createdAt),
           }),
         ) ?? [],
       proposedAt: timestamp,

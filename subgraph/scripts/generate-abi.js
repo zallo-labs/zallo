@@ -7,6 +7,7 @@ const isError = (v) => v.type === 'error';
 const isNestedArr = (v) => v.inputs && v.inputs.some((i) => i.type && i.type.endsWith('[][]'));
 
 const accountAbi = abi.filter((v) => !(isError(v) || isNestedArr(v)));
+// const accountAbi = abi.filter((v) => !(isError(v)));
 
 const folder = './generated';
 if (!fs.existsSync(folder)) fs.mkdirSync(folder);

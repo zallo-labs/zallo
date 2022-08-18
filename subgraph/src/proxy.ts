@@ -1,19 +1,12 @@
 import { Upgraded } from '../generated/Account/Account';
-import { AccountImpl } from '../generated/schema';
-import { getAccountImplId } from './id';
-import { getOrCreateAccount } from './util';
+import { getOrCreateAccount, getOrCreateImpl } from './util';
 
 export function handleUpgraded(e: Upgraded): void {
-  const implId = getAccountImplId(e.params.implementation);
-  let impl = AccountImpl.load(implId);
-  if (!impl) {
-    impl = new AccountImpl(implId);
-    impl.blockHash = e.block.hash;
-    impl.timestamp = e.block.timestamp;
-    impl.save();
-  }
+  const impl = getOrCreateImpl(e.params.implementation, e.block);
 
-  const account = getOrCreateAccount(e.address);
-  account.impl = impl.id;
-  account.save();
+  const account = getOrCreateAccount(e.address, impl.id);
+  if (account.impl !== impl.id) {
+    account.impl = impl.id;
+    account.save();
+  }
 }

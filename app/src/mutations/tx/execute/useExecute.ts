@@ -13,12 +13,12 @@ export const useExecute = (
   tx: ProposedTx,
 ) => {
   const submitExecution = useApiSubmitExecution();
-  const deploy = useDeployAccount(account, wallet);
+  const deploy = useDeployAccount(account);
   const feeToken = useFeeToken();
 
   const execute = useCallback(async () => {
     // Deploy if not already deployed
-    await deploy?.();
+    await deploy?.(wallet);
 
     const signers: Signerish[] = tx.approvals.map((approval) => ({
       approver: approval.addr,

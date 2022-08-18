@@ -4,13 +4,14 @@ import { useSubgraphClient } from '@gql/GqlProvider';
 import { getTxIdParts, toId } from 'lib';
 import { DateTime } from 'luxon';
 import { useMemo } from 'react';
-import { TxMetadata } from '.';
+import { QUERY_TXS_METADATA_POLL_INTERVAL, TxMetadata } from '.';
 import { useAccountIds } from '../account/useAccountIds';
 
 gql`
   query TxsMetadata($accounts: [String!]!) {
     txes(where: { account_in: $accounts }) {
       id
+      hash
       timestamp
     }
   }
@@ -22,19 +23,20 @@ export const useSubTxsMetadata = () => {
   const { data, ...rest } = useTxsMetadataQuery({
     client: useSubgraphClient(),
     variables: { accounts },
+    pollInterval: QUERY_TXS_METADATA_POLL_INTERVAL,
   });
 
   const txs = useMemo(
     (): TxMetadata[] =>
       data?.txes.map((tx): TxMetadata => {
         const id = toId(tx.id);
-        const { account, hash } = getTxIdParts(id);
+        const { account } = getTxIdParts(id);
 
         return {
-          id,
+          id: toId(`${account}-${tx.hash}`),
           account,
-          hash,
-          timestamp: DateTime.fromISO(tx.timestamp),
+          hash: tx.hash,
+          timestamp: DateTime.fromSeconds(parseInt(tx.timestamp)),
         };
       }) ?? [],
     [data?.txes],

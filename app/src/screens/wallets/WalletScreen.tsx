@@ -15,7 +15,7 @@ import { QuorumCard } from '~/components2/QuorumCard';
 import { useSetWalletName } from '~/mutations/wallet/useSetWalletName.api';
 import { useUpsertWallet } from '~/mutations/wallet/useUpsertWallet';
 import { RootNavigatorScreenProps } from '~/navigation/RootNavigator';
-import { WalletId, CombinedQuorum, CombinedWallet } from '~/queries/wallets';
+import { WalletId, CombinedQuorum, CombinedWallet, toWallet } from '~/queries/wallets';
 import { useWallet } from '~/queries/wallets/useWallet';
 import { WalletAppbar } from './WalletAppbar';
 

@@ -24,9 +24,11 @@ gql`
 
   query UserWalletIds($user: ID!) {
     user(id: $user) {
-      quorums(where: { active: true }) {
-        wallet {
-          ...SubWalletIdFields
+      quorums {
+        quorum {
+          wallet {
+            ...SubWalletIdFields
+          }
         }
       }
     }
@@ -52,8 +54,9 @@ export const useSubUserWalletIds = () => {
 
   const wallets = useMemo(
     (): WalletId[] =>
-      data?.user?.quorums.map((quorum) => subWalletFieldsToId(quorum.wallet)) ??
-      [],
+      data?.user?.quorums.map(({ quorum }) =>
+        subWalletFieldsToId(quorum.wallet),
+      ) ?? [],
     [data?.user?.quorums],
   );
 

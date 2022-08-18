@@ -25,7 +25,7 @@ export interface AddrLink {
 
 const getDefaults = () => ({
   scheme: 'ethereum',
-  chain_id: CHAIN_ID,
+  chain_id: CHAIN_ID(),
   parameters: {},
 });
 

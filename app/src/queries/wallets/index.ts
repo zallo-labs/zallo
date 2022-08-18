@@ -29,7 +29,9 @@ export interface CombinedWallet extends WalletId {
   active?: boolean;
 }
 
-export const toWallet = (w: Pick<CombinedWallet, 'ref' | 'quorums'>): Wallet => ({
+export const toWallet = (
+  w: Pick<CombinedWallet, 'ref' | 'quorums'>,
+): Wallet => ({
   ref: w.ref,
   quorums: sortQuorums(w.quorums.map((q) => q.approvers)),
 });

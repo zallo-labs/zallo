@@ -18,6 +18,7 @@ dataSources:
           file: ./generated/Account-fixed.json
       entities:
         - Account
+        - AccountImpl
         - Tx
         - Approver
         - Group

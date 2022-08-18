@@ -15,6 +15,7 @@ import { useSetAccountName } from '~/mutations/account/useSetAccountName.api';
 import { RootNavigatorScreenProps } from '~/navigation/RootNavigator';
 import { useAccount } from '~/queries/account/useAccount';
 import { WalletId } from '~/queries/wallets';
+import { DeployAccountFAB } from './DeployAccountFAB';
 
 export interface AccountScreenParams {
   id: Address;
@@ -37,7 +38,7 @@ export const AccountScreen = withSkeleton(
     if (loading) return <Suspend />;
 
     return (
-      <Box>
+      <Box flex={1}>
         <AppbarHeader mode="medium">
           <Appbar.BackAction onPress={goBack} />
           <Appbar.Content title="Account" />
@@ -79,7 +80,7 @@ export const AccountScreen = withSkeleton(
               icon={PlusIcon}
               onPress={() => navigate('Wallet', { account: account.addr })}
             >
-              Create
+              Create wallet
             </Button>
           }
           style={styles.list}
@@ -87,6 +88,8 @@ export const AccountScreen = withSkeleton(
           onScroll={handleScroll}
           showsVerticalScrollIndicator={false}
         />
+
+        <DeployAccountFAB account={account} />
       </Box>
     );
   },

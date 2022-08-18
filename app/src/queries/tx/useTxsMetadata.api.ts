@@ -4,7 +4,7 @@ import { useApiClient } from '@gql/GqlProvider';
 import { address, toId } from 'lib';
 import { DateTime } from 'luxon';
 import { useMemo } from 'react';
-import { TxMetadata } from '.';
+import { QUERY_TXS_METADATA_POLL_INTERVAL, TxMetadata } from '.';
 import { useAccountIds } from '../account/useAccountIds';
 
 gql`
@@ -24,6 +24,7 @@ export const useApiTxsMetadata = () => {
   const { data, ...rest } = useTxsMetadataQuery({
     client: useApiClient(),
     variables: { accounts },
+    pollInterval: QUERY_TXS_METADATA_POLL_INTERVAL,
   });
 
   const txs = useMemo(

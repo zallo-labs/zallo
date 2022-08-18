@@ -38,6 +38,7 @@ export const WalletsScreen = withSkeleton(() => {
               }
             />
           )}
+          ItemSeparatorComponent={() => <Box my={2} />}
           data={walletIds}
           onScroll={handleScroll}
           showsVerticalScrollIndicator={false}

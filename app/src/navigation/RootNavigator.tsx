@@ -82,7 +82,7 @@ export const RootNavigator = () => {
             name="CreateAccount"
             component={CreateAccountScreen}
             initialParams={{
-              navigate: (_account, navigate) => navigate('BottomNavigator'),
+              navigate: (_account, navigate) => navigate('DrawerNavigator'),
             }}
           />
         </Navigation.Group>
@@ -92,6 +92,12 @@ export const RootNavigator = () => {
       <Navigation.Screen name="Transaction" component={TransactionScreen} />
       <Navigation.Screen name="Accounts" component={AccountsScreen} />
       <Navigation.Screen name="Account" component={AccountScreen} />
+      {!showOnboarding && (
+        <Navigation.Screen
+          name="CreateAccount"
+          component={CreateAccountScreen}
+        />
+      )}
       <Navigation.Screen name="Wallets" component={WalletsScreen} />
       <Navigation.Screen name="Wallet" component={WalletScreen} />
       <Navigation.Screen name="Quorum" component={QuorumScreen} />

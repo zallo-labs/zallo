@@ -67,7 +67,16 @@ export const useApiSubmitExecution = () => {
           cache.writeQuery<TxQuery>({
             ...opts,
             data: produce(data, (data) => {
-              data.tx?.submissions?.push(submission);
+              if (!data.tx?.submissions) return;
+
+              const i = data.tx.submissions.findIndex(
+                (s) => s.id === submission.id,
+              );
+              if (i >= 0) {
+                data.tx.submissions[i] = submission;
+              } else {
+                data.tx.submissions.push(submission);
+              }
             }),
           });
         },

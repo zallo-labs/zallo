@@ -1,6 +1,6 @@
 import { BytesLike, BigNumber } from 'ethers';
 import { isBytesLike } from 'ethers/lib/utils';
-import { Address, TxReq, Id, createIsObj, createIs, WalletRef } from 'lib';
+import { Address, TxReq, Id, createIsObj, createIs } from 'lib';
 import { DateTime } from 'luxon';
 import { WalletId } from '../wallets';
 import { Transfer } from './transfer.sub';
@@ -11,14 +11,15 @@ export interface Approval {
   timestamp: DateTime;
 }
 
+export type SubmissionStatus = "pending" | "success" | "failure";
+
 export interface Submission {
   hash: BytesLike;
   nonce: number;
+  status: SubmissionStatus;
+  timestamp: DateTime;
   gasLimit: BigNumber;
   gasPrice?: BigNumber;
-  finalized: boolean;
-  timestamp: DateTime;
-  failed?: boolean;
 }
 
 export const isSubmission = createIs<Submission>({
@@ -26,9 +27,8 @@ export const isSubmission = createIs<Submission>({
   nonce: 'number',
   gasLimit: BigNumber.isBigNumber,
   gasPrice: (e) => BigNumber.isBigNumber(e) || e === undefined,
-  finalized: 'boolean',
   timestamp: DateTime.isDateTime,
-  failed: (e) => typeof e === 'boolean' || e === undefined,
+  status: 'string',
 });
 
 export interface TxId {
@@ -70,4 +70,5 @@ export const isExecutedTx = (e: unknown): e is ExecutedTx =>
 export const isProposedTx = (e: unknown): e is ProposedTx =>
   isTx(e) && !('responses' in e);
 
-export const QUERY_TXS_POLL_INTERVAL = 10 * 1000;
+export const QUERY_TXS_METADATA_POLL_INTERVAL = 10 * 1000;
+export const QUERY_TX_POLL_INTERVAL = 5 * 1000;

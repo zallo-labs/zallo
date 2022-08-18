@@ -4,6 +4,7 @@ import { withSkeleton } from '@components/skeleton/withSkeleton';
 import { Suspend } from '@components/Suspender';
 import { TokenIcon } from '@components/token/TokenIcon';
 import { makeStyles } from '@util/theme/makeStyles';
+import { assertUnreachable } from 'lib';
 import { Text } from 'react-native-paper';
 import { Tx, TxId } from '~/queries/tx';
 import { useTx } from '~/queries/tx/useTx';
@@ -13,78 +14,66 @@ import { Card, CardProps } from '../card/Card';
 import { CardItemSkeleton } from '../card/CardItemSkeleton';
 import { CallMethod } from './CallMethod';
 import { CallValues } from './CallValues';
-import { DetailedCallMethod } from '../../screens/transaction/details/DetailedCallMethod';
-
-export type CallCardVariant = 'compact' | 'full';
-
-interface StyleProps {
-  tx?: Tx;
-  variant: CallCardVariant;
-}
 
 export interface CallCardProps extends CardProps {
   id: TxId;
-  variant?: CallCardVariant;
 }
 
-export const CallCard = withSkeleton(
-  ({ id, variant = 'compact', ...cardProps }: CallCardProps) => {
-    const { tx } = useTx(id);
-    const token = useMaybeToken(tx?.to) ?? ETH;
-    const styles = useStyles({ tx, variant });
+export const CallCard = withSkeleton(({ id, ...cardProps }: CallCardProps) => {
+  const { tx } = useTx(id);
+  const token = useMaybeToken(tx?.to) ?? ETH;
+  const styles = useStyles(tx);
 
-    if (!tx) return <Suspend />;
+  if (!tx) return <Suspend />;
 
-    return (
-      <Card {...cardProps} style={[styles.card, cardProps.style]}>
-        <Box horizontal>
-          <Box flex={1} horizontal alignItems="center">
-            <TokenIcon token={token} />
+  return (
+    <Card {...cardProps} elevation={4} style={[styles.card, cardProps.style]}>
+      <Box horizontal>
+        <Box flex={1} horizontal alignItems="center">
+          <TokenIcon token={token} />
 
-            <Box flex={1} vertical ml={3}>
-              <Text variant="titleMedium" style={styles.text}>
-                <Addr addr={tx.to} />
-              </Text>
+          <Box flex={1} vertical ml={3}>
+            <Text variant="titleMedium" style={styles.text}>
+              <Addr addr={tx.to} />
+            </Text>
 
-              {variant === 'compact' && (
-                <Text variant="bodyMedium" style={styles.text}>
-                  <CallMethod call={tx} />
-                </Text>
-              )}
-            </Box>
+            <Text variant="bodyMedium" style={styles.text}>
+              <CallMethod call={tx} />
+            </Text>
           </Box>
-
-          <CallValues call={tx} token={token} textStyle={styles.text} />
         </Box>
 
-        {variant === 'full' && (
-          <Box mt={3}>
-            <DetailedCallMethod call={tx} />
-          </Box>
-        )}
-      </Card>
-    );
-  },
-  CardItemSkeleton,
-);
+        <CallValues call={tx} token={token} textStyle={styles.text} />
+      </Box>
+    </Card>
+  );
+}, CardItemSkeleton);
 
-const useStyles = makeStyles(
-  ({ colors, onBackground }, { tx, variant }: StyleProps) => {
-    let backgroundColor: string | undefined = undefined;
-    if (variant === 'compact' && tx) {
-      backgroundColor =
-        !tx.userHasApproved && !tx.submissions.length
+const useStyles = makeStyles(({ colors, onBackground }, tx: Tx) => {
+  const backgroundColor = ((): string | undefined => {
+    switch (tx?.status) {
+      case 'proposed':
+        return !tx.userHasApproved
           ? colors.primaryContainer
           : colors.secondaryContainer;
+      case 'submitted':
+        return colors.secondaryContainer;
+      case 'failed':
+        return colors.errorContainer;
+      case 'executed':
+      case undefined:
+        return undefined;
+      default:
+        assertUnreachable(tx);
     }
+  })();
 
-    return {
-      card: {
-        ...(backgroundColor && { backgroundColor }),
-      },
-      text: {
-        color: onBackground(backgroundColor),
-      },
-    };
-  },
-);
+  return {
+    card: {
+      ...(backgroundColor && { backgroundColor }),
+    },
+    text: {
+      color: onBackground(backgroundColor),
+    },
+  };
+});

@@ -27,8 +27,6 @@ import { DrawerNavigatorScreenProps } from './Drawer/DrawerNavigator';
 //   </Navigation.Navigator>
 // )
 
-const Unimplemented = () => <Text>Unimplemented</Text>;
-
 type Routes = ComponentPropsWithoutRef<
   typeof BottomNavigation
 >['navigationState']['routes'];
