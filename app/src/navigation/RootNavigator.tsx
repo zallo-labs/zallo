@@ -42,7 +42,7 @@ import {
 import {
   AccountScreen,
   AccountScreenParams,
-} from '~/screens/accounts/AccountScreen';
+} from '~/screens/account/AccountScreen';
 import {
   TransactionScreen,
   TransactionScreenParams,
