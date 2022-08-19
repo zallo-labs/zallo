@@ -3,6 +3,7 @@ import { Box } from '@components/Box';
 import { makeStyles } from '@util/theme/makeStyles';
 import Collapsible from 'react-native-collapsible';
 import { Appbar } from 'react-native-paper';
+import { CARD_BORDER_RADIUS } from '~/components2/card/Card';
 import { Tx } from '~/queries/tx';
 import { TransactionWalletSelector } from './TransactionWalletSelector';
 
@@ -15,7 +16,7 @@ export const TransactionAppbar = ({ tx, scrolled }: TransactionAppbarProps) => {
   const styles = useStyles();
 
   return (
-    <Box style={styles.background}>
+    <Box style={[styles.container, styles.background]}>
       <Appbar.Header style={styles.background}>
         <AppbarBack iconColor={styles.text.color} />
         <Appbar.Content title="Transaction" titleStyle={styles.text} />
@@ -33,6 +34,10 @@ export const TransactionAppbar = ({ tx, scrolled }: TransactionAppbarProps) => {
 };
 
 const useStyles = makeStyles(({ colors, onBackground }) => ({
+  container: {
+    borderBottomLeftRadius: CARD_BORDER_RADIUS,
+    borderBottomRightRadius: CARD_BORDER_RADIUS,
+  },
   background: {
     backgroundColor: colors.tertiaryContainer,
   },
