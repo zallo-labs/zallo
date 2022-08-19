@@ -49,7 +49,7 @@ export const ActivityScreen = withSkeleton(() => {
 
   const sections = useMemo(() => toSections(txs), [txs]);
 
-  if (loading) return <Suspend />;
+  if (txs.length === 0 && loading) return <Suspend />;
 
   return (
     <Box>
