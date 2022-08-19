@@ -1,5 +1,5 @@
 import { Box } from '@components/Box';
-import { SubmittableTextField } from '@components/fields/SubmittableTextField';
+import { TextField } from '@components/fields/TextField';
 import { ScreenSkeleton } from '@components/skeleton/ScreenSkeleton';
 import { withSkeleton } from '@components/skeleton/withSkeleton';
 import { CheckIcon, PlusIcon } from '@util/theme/icons';
@@ -15,7 +15,7 @@ import { QuorumCard } from '~/components2/QuorumCard';
 import { useSetWalletName } from '~/mutations/wallet/useSetWalletName.api';
 import { useUpsertWallet } from '~/mutations/wallet/useUpsertWallet';
 import { RootNavigatorScreenProps } from '~/navigation/RootNavigator';
-import { WalletId, CombinedQuorum, CombinedWallet, toWallet } from '~/queries/wallets';
+import { WalletId, CombinedQuorum, CombinedWallet } from '~/queries/wallets';
 import { useWallet } from '~/queries/wallets/useWallet';
 import { WalletAppbar } from './WalletAppbar';
 
@@ -32,7 +32,7 @@ export const WalletScreen = withSkeleton(
     const styles = useStyles();
     const existing = useWallet(id);
     const { AppbarHeader, handleScroll } = useAppbarHeader();
-    const setName = useSetWalletName();
+    const setWalletName = useSetWalletName();
 
     const initialWallet: CombinedWallet = useMemo(() => {
       if (existing) return existing;
@@ -56,31 +56,17 @@ export const WalletScreen = withSkeleton(
       [initialWallet.quorums, wallet.quorums],
     );
 
-    const saveName = useCallback(
-      (name: string) => {
-        if (existing) {
-          setName({ ...wallet, name });
-        } else {
-          setWallet((wallet) => ({ ...wallet, name }));
-        }
-      },
-      [existing, setName, wallet],
-    );
-
-    const addQuorum = useCallback(
-      () =>
-        navigate('Quorum', {
-          onChange: (quorum) => {
-            if (quorum) {
-              setWallet((wallet) => ({
-                ...wallet,
-                quorums: [...wallet.quorums, quorum],
-              }));
-            }
-          },
-        }),
-      [navigate],
-    );
+    const addQuorum = () =>
+      navigate('Quorum', {
+        onChange: (quorum) => {
+          if (quorum) {
+            setWallet((wallet) => ({
+              ...wallet,
+              quorums: [...wallet.quorums, quorum],
+            }));
+          }
+        },
+      });
 
     const configureQuorum = useCallback(
       (quorum: CombinedQuorum) => () =>
@@ -108,13 +94,14 @@ export const WalletScreen = withSkeleton(
         />
 
         <FlatList
-          ListHeaderComponent={() => (
+          ListHeaderComponent={
             <>
-              <SubmittableTextField
+              <TextField
                 label="Name"
-                value={wallet.name}
-                onSubmit={saveName}
-                hasError={(v) => !v.length && 'Required'}
+                defaultValue={wallet.name}
+                onSubmitEditing={(event) => {
+                  setWalletName({ ...wallet, name: event.nativeEvent.text });
+                }}
                 autoFocus={!wallet.name}
               />
 
@@ -122,7 +109,7 @@ export const WalletScreen = withSkeleton(
                 <Text variant="titleSmall">Quorums</Text>
               </Box>
             </>
-          )}
+          }
           renderItem={({ item: quorum }) => (
             <QuorumCard quorum={quorum} onPress={configureQuorum(quorum)} />
           )}

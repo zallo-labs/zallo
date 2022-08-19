@@ -1,5 +1,5 @@
 import { Box } from '@components/Box';
-import { SubmittableTextField } from '@components/fields/SubmittableTextField';
+import { TextField } from '@components/fields/TextField';
 import { ScreenSkeleton } from '@components/skeleton/ScreenSkeleton';
 import { withSkeleton } from '@components/skeleton/withSkeleton';
 import { Suspend } from '@components/Suspender';
@@ -27,15 +27,13 @@ export type AccountScreenProps = RootNavigatorScreenProps<'Account'>;
 export const AccountScreen = withSkeleton(
   ({ route, navigation: { navigate } }: AccountScreenProps) => {
     const { id, onSelectWallet } = route.params;
-    const { account: existing, loading } = useAccount(id)!;
+    const { account } = useAccount(id);
     const styles = useStyles();
     const { AppbarHeader, handleScroll } = useAppbarHeader();
-    const setName = useSetAccountName();
+    const setAccountName = useSetAccountName();
     const goBack = useGoBack();
 
-    const account = existing!;
-
-    if (loading) return <Suspend />;
+    if (!account) return <Suspend />;
 
     return (
       <Box flex={1}>
@@ -46,13 +44,16 @@ export const AccountScreen = withSkeleton(
 
         <FlatList
           ListHeaderComponent={
-            <Box my={3}>
-              <SubmittableTextField
+            <Box mb={3}>
+              <TextField
                 label="Name"
-                value={account.name}
-                onSubmit={(name) => {
-                  if (existing) setName({ ...existing, name });
-                }}
+                defaultValue={account.name}
+                onSubmitEditing={(event) =>
+                  setAccountName({
+                    ...account,
+                    name: event.nativeEvent.text,
+                  })
+                }
               />
             </Box>
           }
