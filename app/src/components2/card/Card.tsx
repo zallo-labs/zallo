@@ -108,6 +108,7 @@ const useStyles = makeStyles(({ space }, disabled: boolean) => ({
     ...(disabled && { opacity: 0.38 }),
   },
   touchable: {
+    flexGrow: 1,
     padding: space(3),
   },
 }));

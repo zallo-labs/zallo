@@ -27,7 +27,6 @@ import {
   CreateAccountScreen,
   CreateAccountScreenParams,
 } from '~/screens/onboard/CreateAccountScreen';
-import { NameScreen } from '~/screens/onboard/Name/NameScreen';
 import { useShowOnboarding } from '~/screens/onboard/useShowOnboarding';
 import { DrawerNavigator } from './Drawer/DrawerNavigator';
 import {
@@ -47,6 +46,14 @@ import {
   TransactionScreen,
   TransactionScreenParams,
 } from '~/screens/transaction/TransactionScreen';
+import {
+  AlertModalScreen,
+  AlertModalScreenParams,
+} from '~/screens/alert/AlertModalScreen';
+import {
+  DeleteModalScreen,
+  DeleteModalScreenParams,
+} from '~/screens/alert/DeleteModalScreen';
 
 export type RootNavigatorParamList = {
   DrawerNavigator: undefined;
@@ -62,8 +69,10 @@ export type RootNavigatorParamList = {
   Tokens: TokensScreenParams;
   Amount: AmountScreenParams;
   // Onboarding
-  Name: undefined;
   CreateAccount: CreateAccountScreenParams;
+  // Modal
+  Alert: AlertModalScreenParams;
+  Delete: DeleteModalScreenParams;
 };
 
 export type RootNavigatorScreenProps<K extends keyof RootNavigatorParamList> =
@@ -77,7 +86,6 @@ export const RootNavigator = () => {
     <Navigation.Navigator screenOptions={{ headerShown: false }}>
       {showOnboarding && (
         <Navigation.Group key="Onboarding">
-          <Navigation.Screen name="Name" component={NameScreen} />
           <Navigation.Screen
             name="CreateAccount"
             component={CreateAccountScreen}
@@ -106,6 +114,11 @@ export const RootNavigator = () => {
       <Navigation.Screen name="Scan" component={ScanScreen} />
       <Navigation.Screen name="Tokens" component={TokensScreen} />
       <Navigation.Screen name="Amount" component={AmountScreen} />
+
+      <Navigation.Group screenOptions={{ presentation: 'transparentModal' }}>
+        <Navigation.Screen name="Alert" component={AlertModalScreen} />
+        <Navigation.Screen name="Delete" component={DeleteModalScreen} />
+      </Navigation.Group>
     </Navigation.Navigator>
   );
 };

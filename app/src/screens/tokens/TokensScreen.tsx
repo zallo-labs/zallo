@@ -52,6 +52,7 @@ export const TokensScreen = withSkeleton(
               />
             )}
             ItemSeparatorComponent={() => <Box my={2} />}
+            keyExtractor={(item) => item.addr}
             data={tokens}
             showsVerticalScrollIndicator={false}
             onScroll={handleScroll}

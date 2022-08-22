@@ -43,16 +43,18 @@ model Wallet {
   ref       String  @db.Char(10) // bytes4
   name      String  @default("")
 
-  // Tx
-  txHash String? @db.Char(66) // bytes32
-  tx     Tx?     @relation(name: "walletCreation", fields: [accountId, txHash], references: [accountId, hash])
+  createProposal     Tx?     @relation(name: "createWallet", fields: [accountId, createProposalHash], references: [accountId, hash], onDelete: Cascade)
+  createProposalHash String? @db.Char(66) // bytes32
+  removeProposal     Tx?     @relation(name: "removeWallet", fields: [accountId, removeProposalHash], references: [accountId, hash], onDelete: SetNull)
+  removeProposalHash String? @db.Char(66) // bytes32
 
   quorums   Quorum[]
   approvers Approver[]
   txs       Tx[]       @relation(name: "txs")
 
   @@id([accountId, ref])
-  @@unique([accountId, txHash])
+  @@unique([accountId, createProposalHash])
+  @@unique([accountId, removeProposalHash])
 }
 
 model Quorum {
@@ -62,14 +64,14 @@ model Quorum {
   walletRef String  @db.Char(10) // bytes4
   hash      String  @db.Char(66) // bytes32
 
-  // Tx
-  txHash String? @db.Char(66) // bytes32
-  tx     Tx?     @relation(fields: [accountId, txHash], references: [accountId, hash])
+  createProposal     Tx?     @relation(name: "createQuorum", fields: [accountId, createProposalHash], references: [accountId, hash], onDelete: Cascade)
+  createProposalHash String? @db.Char(66) // bytes32
+  removeProposal     Tx?     @relation(name: "removeQuorum", fields: [accountId, removeProposalHash], references: [accountId, hash], onDelete: SetNull)
+  removeProposalHash String? @db.Char(66) // bytes32
 
   approvers Approver[]
 
   @@id([accountId, walletRef, hash])
-  @@unique([accountId, txHash])
 }
 
 model Approver {
@@ -86,7 +88,7 @@ model Approver {
 }
 
 model Contact {
-  user   User   @relation(fields: [userId], references: [id])
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId String @db.Char(42) // address
   addr   String @db.Char(42) // address
   name   String
@@ -119,9 +121,10 @@ model Tx {
   createdAt   DateTime     @default(now())
   submissions Submission[]
 
-  // Operations
-  walletTx Wallet? @relation(name: "walletCreation")
-  quorumTx Quorum?
+  proposedCreateWallet  Wallet?  @relation(name: "createWallet")
+  proposedRemoveWallet  Wallet?  @relation(name: "removeWallet")
+  proposedCreateQuroums Quorum[] @relation(name: "createQuorum")
+  proposedRemoveQuroums Quorum[] @relation(name: "removeQuorum")
 
   @@id([accountId, hash])
 }
@@ -139,7 +142,7 @@ model Submission {
 }
 
 model Approval {
-  user      User     @relation(fields: [userId], references: [id])
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId    String   @db.Char(42) // address
   account   Account  @relation(fields: [accountId], references: [id], onDelete: Cascade)
   accountId String   @db.Char(42) // address
@@ -176,7 +179,7 @@ model Reaction {
   nonce     Int
 
   comment   Comment  @relation(fields: [accountId, key, nonce], references: [accountId, key, nonce], onDelete: Cascade)
-  user      User     @relation(fields: [userId], references: [id])
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId    String   @db.Char(42) // address
   emojis    String[]
   createdAt DateTime @default(now())

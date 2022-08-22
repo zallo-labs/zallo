@@ -1,13 +1,19 @@
 import { BigNumber } from 'ethers';
 import { Token } from './token';
 import { PROVIDER } from '~/provider';
-import { atomFamily, selectorFamily, useRecoilValue } from 'recoil';
-import { Address, isPresent, ZERO } from 'lib';
+import {
+  atomFamily,
+  selectorFamily,
+  useRecoilValue,
+  useSetRecoilState,
+} from 'recoil';
+import { Address, isPresent, ZERO, ZERO_ADDR } from 'lib';
 import { captureException } from '@util/sentry/sentry';
 import { allTokensSelector } from './useToken';
 import { refreshAtom } from '@util/effect/refreshAtom';
-import { useSelectedWallet } from '~/components2/wallet/useSelectedWallet';
 import { persistAtom } from '@util/effect/persistAtom';
+import { WalletId } from '~/queries/wallets';
+import { useCallback } from 'react';
 
 // [addr, token]
 type BalanceKey = [Address | null, Address];
@@ -30,7 +36,11 @@ export const tokenBalanceState = atomFamily<BigNumber, BalanceKey>({
   key: 'tokenBalance',
   default: (key) => fetch(key),
   effects: (key) => [
-    persistAtom(),
+    persistAtom({
+      save: (v) => v.toString(),
+      load: BigNumber.from,
+      version: 1,
+    }),
     refreshAtom({
       fetch: () => fetch(key),
       interval: 10 * 1000,
@@ -38,13 +48,31 @@ export const tokenBalanceState = atomFamily<BigNumber, BalanceKey>({
   ],
 });
 
-export const useTokenBalance = (token: Token, account: Address) => {
-  const { accountAddr: selectedAccount } = useSelectedWallet();
+type Target = Address | WalletId;
 
-  return useRecoilValue(
-    tokenBalanceState([account ?? selectedAccount, token.addr]),
+const targetAddress = (target?: Target): BalanceKey[0] =>
+  typeof target === 'object' ? target.accountAddr : target || null;
+
+export const useTokenBalance = (token: Token, account?: Address | WalletId) =>
+  useRecoilValue(tokenBalanceState([targetAddress(account), token.addr])) ??
+  ZERO;
+
+export const useUpdateTokenBalance = (
+  token: Token,
+  account?: Address | WalletId,
+) => {
+  const update = useSetRecoilState(
+    tokenBalanceState([targetAddress(account), token.addr]),
+  );
+
+  return useCallback(
+    async () => update(await fetch([targetAddress(account), token.addr])),
+    [account, token.addr, update],
   );
 };
+
+export const useTokenAvailable = (token: Token, wallet: WalletId) =>
+  useTokenBalance(token, wallet);
 
 export interface TokenWithBalance {
   token: Token;

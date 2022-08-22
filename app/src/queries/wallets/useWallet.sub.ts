@@ -10,6 +10,7 @@ import {
 import { useMemo } from 'react';
 import { useWalletQuery } from '@gql/generated.sub';
 import { SUB_WALLET_ID_FIELDS } from './useWalletIds.sub';
+import { elipseTruncate } from '@util/format';
 
 gql`
   ${SUB_WALLET_ID_FIELDS}
@@ -47,13 +48,14 @@ export const useSubWallet = (id?: WalletId) => {
       id: toId(w.id),
       accountAddr: address(w.account.id),
       ref: toWalletRef(w.ref),
-      name: '',
+      name: `${elipseTruncate(w.ref, 4)} wallet`,
+      state: 'active',
       quorums: w.quorums.map(
         (quorum): CombinedQuorum => ({
           approvers: toQuorum(
             quorum.approvers.map(({ approver }) => address(approver.id)),
           ),
-          active: true,
+          state: 'active',
         }),
       ),
     };

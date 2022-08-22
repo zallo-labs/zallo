@@ -50,13 +50,13 @@ export const AccountScreen = withSkeleton(
                     name: event.nativeEvent.text,
                   })
                 }
+                autoCorrect={false}
               />
             </Box>
           }
           renderItem={({ item }) => (
             <WalletCard
               id={item}
-              available
               showAccount={false}
               onPress={() => {
                 if (onSelectWallet) {
@@ -77,7 +77,7 @@ export const AccountScreen = withSkeleton(
               icon={PlusIcon}
               onPress={() => navigate('Wallet', { account: account.addr })}
             >
-              Add wallet
+              Wallet
             </Button>
           }
           style={styles.list}
@@ -98,6 +98,7 @@ const useStyles = makeStyles(({ space }) => ({
     marginHorizontal: space(3),
   },
   create: {
+    flex: 1,
     alignSelf: 'flex-end',
     marginTop: space(2),
   },

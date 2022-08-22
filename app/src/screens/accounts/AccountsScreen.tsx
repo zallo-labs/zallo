@@ -60,7 +60,7 @@ export const AccountsScreen = withSkeleton(
                 })
               }
             >
-              Create
+              Account
             </Button>
           }
           style={styles.list}

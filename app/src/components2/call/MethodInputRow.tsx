@@ -16,7 +16,7 @@ export const MethodInputRow = ({ param, data }: MethodRowProps) => {
     [data],
   );
 
-  const expandedData = useMemo(() => JSON.stringify(data, null, 2), [data]);
+  const expandedData = useMemo(() => JSON.stringify(data, null, 4), [data]);
 
   return (
     <ExpandOnLongPress

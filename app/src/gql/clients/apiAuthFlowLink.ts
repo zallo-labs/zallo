@@ -103,12 +103,23 @@ export const useAuthFlowLink = () => {
   const onUnauthorizedLink: ApolloLink = useMemo(
     () =>
       onError(({ networkError, forward, operation }) => {
-        if (isServerError(networkError) && networkError.statusCode === 401) {
-          fromPromise(reset()).flatMap(() => forward(operation));
+        if (isServerError(networkError)) {
+          if (networkError.statusCode === 401) {
+            fromPromise(reset()).flatMap(() => forward(operation));
+          } else {
+            console.error({
+              status: networkError.statusCode,
+              name: networkError.name,
+              message: networkError.message,
+              result: JSON.stringify(networkError.result),
+            });
+
+            captureException(networkError, {
+              extra: { operation },
+            });
+          }
         } else {
-          captureException(networkError, {
-            extra: { operation },
-          });
+          console.warn({ networkError });
         }
       }),
     [reset],

@@ -27,7 +27,7 @@ export const CallCard = withSkeleton(({ id, ...cardProps }: CallCardProps) => {
   if (!tx) return <Suspend />;
 
   return (
-    <Card {...cardProps} elevation={4} style={[styles.card, cardProps.style]}>
+    <Card {...cardProps} style={[styles.card, cardProps.style]}>
       <Box horizontal>
         <Box flex={1} horizontal alignItems="center">
           <TokenIcon token={token} />

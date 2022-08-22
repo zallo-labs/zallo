@@ -2,7 +2,7 @@ import { ExpoConfig, ConfigContext } from '@expo/config';
 
 const E = process.env;
 
-const chain = E.CHAIN!.toUpperCase();
+const chain = E?.CHAIN?.toUpperCase();
 export const CONFIG = {
   env: E.NODE_ENV === 'development' ? 'development' : 'production',
   chainName: chain,
@@ -28,10 +28,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
   runtimeVersion: {
     policy: 'sdkVersion',
   },
-  extra: {
-    ...CONFIG,
-    flipperHack: 'React Native packager is running',
-  },
+  extra: CONFIG,
   plugins: ['sentry-expo', 'expo-community-flipper'],
   hooks: {
     postPublish: [

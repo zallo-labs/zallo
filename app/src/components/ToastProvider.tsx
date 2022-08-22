@@ -1,4 +1,4 @@
-import { useTheme } from 'react-native-paper';
+import { useTheme } from '@util/theme/paper';
 import RnToast, {
   BaseToast,
   ToastShowParams,
@@ -37,11 +37,11 @@ export const ToastProvider = () => {
           <BaseToast
             {...props}
             style={{
-              backgroundColor: colors.surface,
+              backgroundColor: colors.surfaceVariant,
               borderLeftColor: colors.info,
             }}
             text1Style={{
-              color: colors.onSurface,
+              color: colors.onSurfaceVariant,
             }}
           />
         ),
@@ -50,11 +50,11 @@ export const ToastProvider = () => {
           <BaseToast
             {...props}
             style={{
-              backgroundColor: colors.surface,
+              backgroundColor: colors.surfaceVariant,
               borderLeftColor: colors.success,
             }}
             text1Style={{
-              color: colors.onSurface,
+              color: colors.onSurfaceVariant,
             }}
           />
         ),
@@ -63,11 +63,10 @@ export const ToastProvider = () => {
           <BaseToast
             {...props}
             style={{
-              backgroundColor: colors.surface,
-              borderLeftColor: colors.error,
+              backgroundColor: colors.errorContainer,
             }}
             text1Style={{
-              color: colors.onSurface,
+              color: colors.onErrorContainer,
             }}
           />
         ),

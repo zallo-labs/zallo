@@ -7,21 +7,17 @@ import { useWallet } from '~/queries/wallets/useWallet';
 import { CardItem, CardItemProps } from '../card/CardItem';
 import { CardItemSkeleton } from '../card/CardItemSkeleton';
 import { FiatBalance } from '../fiat/FiatBalance';
+import { useProposableStyle } from '../useProposableStyle';
 
 export interface WalletCardProps extends CardItemProps {
   id: WalletId;
-  available?: boolean;
   showAccount?: boolean;
 }
 
 export const WalletCard = withSkeleton(
-  ({
-    id,
-    available,
-    showAccount = true,
-    ...props
-  }: WalletCardProps) => {
+  ({ id, showAccount = true, ...props }: WalletCardProps) => {
     const wallet = useWallet(id);
+    const proposableStyle = useProposableStyle(wallet?.state);
 
     if (!wallet) return <Suspend />;
 
@@ -35,16 +31,15 @@ export const WalletCard = withSkeleton(
             </Text>
           ),
         ]}
-        {...(available && {
-          Right: (
-            <Text variant="bodyLarge">
-              <FiatBalance addr={wallet?.accountAddr} rightAffix=" available" />
-            </Text>
-          ),
-        })}
+        Right={
+          <Text variant="bodyLarge">
+            <FiatBalance addr={wallet?.accountAddr} rightAffix=" available" />
+          </Text>
+        }
         {...props}
+        style={[props.style, proposableStyle]}
       />
-    );
+  );
   },
   CardItemSkeleton,
 );

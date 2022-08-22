@@ -5,7 +5,7 @@ import {
   toNavigationStateRoutes,
   useRootNavigation,
 } from '~/navigation/useRootNavigation';
-import { ProposedTx, TxId } from '~/queries/tx';
+import { TxId } from '~/queries/tx';
 import { CombinedWallet } from '~/queries/wallets';
 import { useApiProposeTx } from './useProposeTx.api';
 
@@ -14,9 +14,11 @@ export const useProposeTx = (wallet: CombinedWallet) => {
   const propose = useApiProposeTx(wallet);
 
   return useCallback(
-    async (txDef: TxDef, onPropose?: (tx: ProposedTx) => void) => {
+    async (txDef: TxDef, onPropose?: (tx: TxId) => void) => {
       const tx = (await propose(txDef)).data!.proposeTx;
       const id: TxId = { account: address(tx.accountId), hash: tx.hash };
+
+      onPropose?.(id);
 
       navigation.dispatch(
         CommonActions.reset({
@@ -28,7 +30,7 @@ export const useProposeTx = (wallet: CombinedWallet) => {
             },
             {
               name: 'Transaction',
-              params: { id, onPropose },
+              params: { id },
             },
           ),
         }),

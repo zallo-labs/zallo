@@ -20,7 +20,8 @@ CREATE TABLE "Wallet" (
     "accountId" CHAR(42) NOT NULL,
     "ref" CHAR(10) NOT NULL,
     "name" TEXT NOT NULL DEFAULT '',
-    "txHash" CHAR(66),
+    "createProposalHash" CHAR(66),
+    "removeProposalHash" CHAR(66),
 
     CONSTRAINT "Wallet_pkey" PRIMARY KEY ("accountId","ref")
 );
@@ -30,7 +31,8 @@ CREATE TABLE "Quorum" (
     "accountId" CHAR(42) NOT NULL,
     "walletRef" CHAR(10) NOT NULL,
     "hash" CHAR(66) NOT NULL,
-    "txHash" CHAR(66),
+    "createProposalHash" CHAR(66),
+    "removeProposalHash" CHAR(66),
 
     CONSTRAINT "Quorum_pkey" PRIMARY KEY ("accountId","walletRef","hash")
 );
@@ -71,6 +73,7 @@ CREATE TABLE "Tx" (
     "value" TEXT NOT NULL,
     "data" TEXT NOT NULL,
     "salt" CHAR(18) NOT NULL,
+    "walletRef" CHAR(10) NOT NULL,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
     CONSTRAINT "Tx_pkey" PRIMARY KEY ("accountId","hash")
@@ -128,10 +131,10 @@ CREATE TABLE "Reaction" (
 );
 
 -- CreateIndex
-CREATE UNIQUE INDEX "Wallet_accountId_txHash_key" ON "Wallet"("accountId", "txHash");
+CREATE UNIQUE INDEX "Wallet_accountId_createProposalHash_key" ON "Wallet"("accountId", "createProposalHash");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "Quorum_accountId_txHash_key" ON "Quorum"("accountId", "txHash");
+CREATE UNIQUE INDEX "Wallet_accountId_removeProposalHash_key" ON "Wallet"("accountId", "removeProposalHash");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "Contact_userId_name_key" ON "Contact"("userId", "name");
@@ -146,7 +149,10 @@ CREATE INDEX "Comment_accountId_key_idx" ON "Comment"("accountId", "key");
 ALTER TABLE "Wallet" ADD CONSTRAINT "Wallet_accountId_fkey" FOREIGN KEY ("accountId") REFERENCES "Account"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "Wallet" ADD CONSTRAINT "Wallet_accountId_txHash_fkey" FOREIGN KEY ("accountId", "txHash") REFERENCES "Tx"("accountId", "hash") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "Wallet" ADD CONSTRAINT "Wallet_accountId_createProposalHash_fkey" FOREIGN KEY ("accountId", "createProposalHash") REFERENCES "Tx"("accountId", "hash") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "Wallet" ADD CONSTRAINT "Wallet_accountId_removeProposalHash_fkey" FOREIGN KEY ("accountId", "removeProposalHash") REFERENCES "Tx"("accountId", "hash") ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "Quorum" ADD CONSTRAINT "Quorum_accountId_fkey" FOREIGN KEY ("accountId") REFERENCES "Account"("id") ON DELETE CASCADE ON UPDATE CASCADE;
@@ -155,7 +161,10 @@ ALTER TABLE "Quorum" ADD CONSTRAINT "Quorum_accountId_fkey" FOREIGN KEY ("accoun
 ALTER TABLE "Quorum" ADD CONSTRAINT "Quorum_accountId_walletRef_fkey" FOREIGN KEY ("accountId", "walletRef") REFERENCES "Wallet"("accountId", "ref") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "Quorum" ADD CONSTRAINT "Quorum_accountId_txHash_fkey" FOREIGN KEY ("accountId", "txHash") REFERENCES "Tx"("accountId", "hash") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "Quorum" ADD CONSTRAINT "Quorum_accountId_createProposalHash_fkey" FOREIGN KEY ("accountId", "createProposalHash") REFERENCES "Tx"("accountId", "hash") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "Quorum" ADD CONSTRAINT "Quorum_accountId_removeProposalHash_fkey" FOREIGN KEY ("accountId", "removeProposalHash") REFERENCES "Tx"("accountId", "hash") ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "Approver" ADD CONSTRAINT "Approver_accountId_fkey" FOREIGN KEY ("accountId") REFERENCES "Account"("id") ON DELETE CASCADE ON UPDATE CASCADE;
@@ -170,16 +179,19 @@ ALTER TABLE "Approver" ADD CONSTRAINT "Approver_accountId_walletRef_quorumHash_f
 ALTER TABLE "Approver" ADD CONSTRAINT "Approver_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "Contact" ADD CONSTRAINT "Contact_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "Contact" ADD CONSTRAINT "Contact_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "Tx" ADD CONSTRAINT "Tx_accountId_fkey" FOREIGN KEY ("accountId") REFERENCES "Account"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
+ALTER TABLE "Tx" ADD CONSTRAINT "Tx_accountId_walletRef_fkey" FOREIGN KEY ("accountId", "walletRef") REFERENCES "Wallet"("accountId", "ref") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
 ALTER TABLE "Submission" ADD CONSTRAINT "Submission_accountId_txHash_fkey" FOREIGN KEY ("accountId", "txHash") REFERENCES "Tx"("accountId", "hash") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "Approval" ADD CONSTRAINT "Approval_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "Approval" ADD CONSTRAINT "Approval_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "Approval" ADD CONSTRAINT "Approval_accountId_fkey" FOREIGN KEY ("accountId") REFERENCES "Account"("id") ON DELETE CASCADE ON UPDATE CASCADE;
@@ -200,4 +212,4 @@ ALTER TABLE "Reaction" ADD CONSTRAINT "Reaction_accountId_fkey" FOREIGN KEY ("ac
 ALTER TABLE "Reaction" ADD CONSTRAINT "Reaction_accountId_key_nonce_fkey" FOREIGN KEY ("accountId", "key", "nonce") REFERENCES "Comment"("accountId", "key", "nonce") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "Reaction" ADD CONSTRAINT "Reaction_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "Reaction" ADD CONSTRAINT "Reaction_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE CASCADE ON UPDATE CASCADE;

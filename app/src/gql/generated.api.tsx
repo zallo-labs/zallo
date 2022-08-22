@@ -1549,7 +1549,6 @@ export type Mutation = {
   setAccountName: Account;
   setTxWallet?: Maybe<Tx>;
   setWalletName: Wallet;
-  setWalletQuroums?: Maybe<Wallet>;
   submitTxExecution: Submission;
   upsertContact?: Maybe<Contact>;
   upsertUser: User;
@@ -1594,6 +1593,7 @@ export type MutationDeleteContactArgs = {
 
 export type MutationDeleteWalletArgs = {
   id: WalletId;
+  proposalHash?: InputMaybe<Scalars['Bytes32']>;
 };
 
 
@@ -1643,13 +1643,6 @@ export type MutationSetWalletNameArgs = {
 };
 
 
-export type MutationSetWalletQuroumsArgs = {
-  id: WalletId;
-  quorums: Array<Scalars['QuorumScalar']>;
-  txHash: Scalars['Bytes32'];
-};
-
-
 export type MutationSubmitTxExecutionArgs = {
   account: Scalars['Address'];
   submission: SubmissionInput;
@@ -1674,8 +1667,8 @@ export type MutationUpsertUserArgs = {
 export type MutationUpsertWalletArgs = {
   id: WalletId;
   name?: InputMaybe<Scalars['String']>;
+  proposalHash: Scalars['Bytes32'];
   quorums: Array<Scalars['QuorumScalar']>;
-  txHash: Scalars['Bytes32'];
 };
 
 export type NestedBoolFilter = {
@@ -1875,16 +1868,13 @@ export type Quorum = {
   account: Account;
   accountId: Scalars['String'];
   approvers?: Maybe<Array<Approver>>;
+  createProposal?: Maybe<Tx>;
+  createProposalHash?: Maybe<Scalars['String']>;
   hash: Scalars['String'];
-  tx?: Maybe<Tx>;
-  txHash?: Maybe<Scalars['String']>;
+  removeProposal?: Maybe<Tx>;
+  removeProposalHash?: Maybe<Scalars['String']>;
   wallet: Wallet;
   walletRef: Scalars['String'];
-};
-
-export type QuorumAccountIdTxHashCompoundUniqueInput = {
-  accountId: Scalars['String'];
-  txHash: Scalars['String'];
 };
 
 export type QuorumAccountIdWalletRefHashCompoundUniqueInput = {
@@ -1899,8 +1889,9 @@ export type QuorumCount = {
 };
 
 export type QuorumCreateManyAccountInput = {
+  createProposalHash?: InputMaybe<Scalars['String']>;
   hash: Scalars['String'];
-  txHash?: InputMaybe<Scalars['String']>;
+  removeProposalHash?: InputMaybe<Scalars['String']>;
   walletRef: Scalars['String'];
 };
 
@@ -1909,9 +1900,32 @@ export type QuorumCreateManyAccountInputEnvelope = {
   skipDuplicates?: InputMaybe<Scalars['Boolean']>;
 };
 
-export type QuorumCreateManyWalletInput = {
+export type QuorumCreateManyCreateProposalInput = {
   hash: Scalars['String'];
-  txHash?: InputMaybe<Scalars['String']>;
+  removeProposalHash?: InputMaybe<Scalars['String']>;
+  walletRef: Scalars['String'];
+};
+
+export type QuorumCreateManyCreateProposalInputEnvelope = {
+  data: Array<QuorumCreateManyCreateProposalInput>;
+  skipDuplicates?: InputMaybe<Scalars['Boolean']>;
+};
+
+export type QuorumCreateManyRemoveProposalInput = {
+  createProposalHash?: InputMaybe<Scalars['String']>;
+  hash: Scalars['String'];
+  walletRef: Scalars['String'];
+};
+
+export type QuorumCreateManyRemoveProposalInputEnvelope = {
+  data: Array<QuorumCreateManyRemoveProposalInput>;
+  skipDuplicates?: InputMaybe<Scalars['Boolean']>;
+};
+
+export type QuorumCreateManyWalletInput = {
+  createProposalHash?: InputMaybe<Scalars['String']>;
+  hash: Scalars['String'];
+  removeProposalHash?: InputMaybe<Scalars['String']>;
 };
 
 export type QuorumCreateManyWalletInputEnvelope = {
@@ -1924,6 +1938,20 @@ export type QuorumCreateNestedManyWithoutAccountInput = {
   connectOrCreate?: InputMaybe<Array<QuorumCreateOrConnectWithoutAccountInput>>;
   create?: InputMaybe<Array<QuorumCreateWithoutAccountInput>>;
   createMany?: InputMaybe<QuorumCreateManyAccountInputEnvelope>;
+};
+
+export type QuorumCreateNestedManyWithoutCreateProposalInput = {
+  connect?: InputMaybe<Array<QuorumWhereUniqueInput>>;
+  connectOrCreate?: InputMaybe<Array<QuorumCreateOrConnectWithoutCreateProposalInput>>;
+  create?: InputMaybe<Array<QuorumCreateWithoutCreateProposalInput>>;
+  createMany?: InputMaybe<QuorumCreateManyCreateProposalInputEnvelope>;
+};
+
+export type QuorumCreateNestedManyWithoutRemoveProposalInput = {
+  connect?: InputMaybe<Array<QuorumWhereUniqueInput>>;
+  connectOrCreate?: InputMaybe<Array<QuorumCreateOrConnectWithoutRemoveProposalInput>>;
+  create?: InputMaybe<Array<QuorumCreateWithoutRemoveProposalInput>>;
+  createMany?: InputMaybe<QuorumCreateManyRemoveProposalInputEnvelope>;
 };
 
 export type QuorumCreateNestedManyWithoutWalletInput = {
@@ -1939,12 +1967,6 @@ export type QuorumCreateNestedOneWithoutApproversInput = {
   create?: InputMaybe<QuorumCreateWithoutApproversInput>;
 };
 
-export type QuorumCreateNestedOneWithoutTxInput = {
-  connect?: InputMaybe<QuorumWhereUniqueInput>;
-  connectOrCreate?: InputMaybe<QuorumCreateOrConnectWithoutTxInput>;
-  create?: InputMaybe<QuorumCreateWithoutTxInput>;
-};
-
 export type QuorumCreateOrConnectWithoutAccountInput = {
   create: QuorumCreateWithoutAccountInput;
   where: QuorumWhereUniqueInput;
@@ -1955,8 +1977,13 @@ export type QuorumCreateOrConnectWithoutApproversInput = {
   where: QuorumWhereUniqueInput;
 };
 
-export type QuorumCreateOrConnectWithoutTxInput = {
-  create: QuorumCreateWithoutTxInput;
+export type QuorumCreateOrConnectWithoutCreateProposalInput = {
+  create: QuorumCreateWithoutCreateProposalInput;
+  where: QuorumWhereUniqueInput;
+};
+
+export type QuorumCreateOrConnectWithoutRemoveProposalInput = {
+  create: QuorumCreateWithoutRemoveProposalInput;
   where: QuorumWhereUniqueInput;
 };
 
@@ -1967,21 +1994,32 @@ export type QuorumCreateOrConnectWithoutWalletInput = {
 
 export type QuorumCreateWithoutAccountInput = {
   approvers?: InputMaybe<ApproverCreateNestedManyWithoutQuorumInput>;
+  createProposal?: InputMaybe<TxCreateNestedOneWithoutProposedCreateQuroumsInput>;
   hash: Scalars['String'];
-  tx?: InputMaybe<TxCreateNestedOneWithoutQuorumTxInput>;
+  removeProposal?: InputMaybe<TxCreateNestedOneWithoutProposedRemoveQuroumsInput>;
   wallet: WalletCreateNestedOneWithoutQuorumsInput;
 };
 
 export type QuorumCreateWithoutApproversInput = {
   account: AccountCreateNestedOneWithoutQuorumsInput;
+  createProposal?: InputMaybe<TxCreateNestedOneWithoutProposedCreateQuroumsInput>;
   hash: Scalars['String'];
-  tx?: InputMaybe<TxCreateNestedOneWithoutQuorumTxInput>;
+  removeProposal?: InputMaybe<TxCreateNestedOneWithoutProposedRemoveQuroumsInput>;
   wallet: WalletCreateNestedOneWithoutQuorumsInput;
 };
 
-export type QuorumCreateWithoutTxInput = {
+export type QuorumCreateWithoutCreateProposalInput = {
   account: AccountCreateNestedOneWithoutQuorumsInput;
   approvers?: InputMaybe<ApproverCreateNestedManyWithoutQuorumInput>;
+  hash: Scalars['String'];
+  removeProposal?: InputMaybe<TxCreateNestedOneWithoutProposedRemoveQuroumsInput>;
+  wallet: WalletCreateNestedOneWithoutQuorumsInput;
+};
+
+export type QuorumCreateWithoutRemoveProposalInput = {
+  account: AccountCreateNestedOneWithoutQuorumsInput;
+  approvers?: InputMaybe<ApproverCreateNestedManyWithoutQuorumInput>;
+  createProposal?: InputMaybe<TxCreateNestedOneWithoutProposedCreateQuroumsInput>;
   hash: Scalars['String'];
   wallet: WalletCreateNestedOneWithoutQuorumsInput;
 };
@@ -1989,8 +2027,9 @@ export type QuorumCreateWithoutTxInput = {
 export type QuorumCreateWithoutWalletInput = {
   account: AccountCreateNestedOneWithoutQuorumsInput;
   approvers?: InputMaybe<ApproverCreateNestedManyWithoutQuorumInput>;
+  createProposal?: InputMaybe<TxCreateNestedOneWithoutProposedCreateQuroumsInput>;
   hash: Scalars['String'];
-  tx?: InputMaybe<TxCreateNestedOneWithoutQuorumTxInput>;
+  removeProposal?: InputMaybe<TxCreateNestedOneWithoutProposedRemoveQuroumsInput>;
 };
 
 export type QuorumListRelationFilter = {
@@ -2003,17 +2042,6 @@ export type QuorumOrderByRelationAggregateInput = {
   _count?: InputMaybe<SortOrder>;
 };
 
-export type QuorumOrderByWithRelationInput = {
-  account?: InputMaybe<AccountOrderByWithRelationInput>;
-  accountId?: InputMaybe<SortOrder>;
-  approvers?: InputMaybe<ApproverOrderByRelationAggregateInput>;
-  hash?: InputMaybe<SortOrder>;
-  tx?: InputMaybe<TxOrderByWithRelationInput>;
-  txHash?: InputMaybe<SortOrder>;
-  wallet?: InputMaybe<WalletOrderByWithRelationInput>;
-  walletRef?: InputMaybe<SortOrder>;
-};
-
 export type QuorumRelationFilter = {
   is?: InputMaybe<QuorumWhereInput>;
   isNot?: InputMaybe<QuorumWhereInput>;
@@ -2024,8 +2052,9 @@ export type QuorumScalarWhereInput = {
   NOT?: InputMaybe<Array<QuorumScalarWhereInput>>;
   OR?: InputMaybe<Array<QuorumScalarWhereInput>>;
   accountId?: InputMaybe<StringFilter>;
+  createProposalHash?: InputMaybe<StringNullableFilter>;
   hash?: InputMaybe<StringFilter>;
-  txHash?: InputMaybe<StringNullableFilter>;
+  removeProposalHash?: InputMaybe<StringNullableFilter>;
   walletRef?: InputMaybe<StringFilter>;
 };
 
@@ -2034,6 +2063,16 @@ export type QuorumUpdateManyMutationInput = {
 };
 
 export type QuorumUpdateManyWithWhereWithoutAccountInput = {
+  data: QuorumUpdateManyMutationInput;
+  where: QuorumScalarWhereInput;
+};
+
+export type QuorumUpdateManyWithWhereWithoutCreateProposalInput = {
+  data: QuorumUpdateManyMutationInput;
+  where: QuorumScalarWhereInput;
+};
+
+export type QuorumUpdateManyWithWhereWithoutRemoveProposalInput = {
   data: QuorumUpdateManyMutationInput;
   where: QuorumScalarWhereInput;
 };
@@ -2055,6 +2094,34 @@ export type QuorumUpdateManyWithoutAccountNestedInput = {
   update?: InputMaybe<Array<QuorumUpdateWithWhereUniqueWithoutAccountInput>>;
   updateMany?: InputMaybe<Array<QuorumUpdateManyWithWhereWithoutAccountInput>>;
   upsert?: InputMaybe<Array<QuorumUpsertWithWhereUniqueWithoutAccountInput>>;
+};
+
+export type QuorumUpdateManyWithoutCreateProposalNestedInput = {
+  connect?: InputMaybe<Array<QuorumWhereUniqueInput>>;
+  connectOrCreate?: InputMaybe<Array<QuorumCreateOrConnectWithoutCreateProposalInput>>;
+  create?: InputMaybe<Array<QuorumCreateWithoutCreateProposalInput>>;
+  createMany?: InputMaybe<QuorumCreateManyCreateProposalInputEnvelope>;
+  delete?: InputMaybe<Array<QuorumWhereUniqueInput>>;
+  deleteMany?: InputMaybe<Array<QuorumScalarWhereInput>>;
+  disconnect?: InputMaybe<Array<QuorumWhereUniqueInput>>;
+  set?: InputMaybe<Array<QuorumWhereUniqueInput>>;
+  update?: InputMaybe<Array<QuorumUpdateWithWhereUniqueWithoutCreateProposalInput>>;
+  updateMany?: InputMaybe<Array<QuorumUpdateManyWithWhereWithoutCreateProposalInput>>;
+  upsert?: InputMaybe<Array<QuorumUpsertWithWhereUniqueWithoutCreateProposalInput>>;
+};
+
+export type QuorumUpdateManyWithoutRemoveProposalNestedInput = {
+  connect?: InputMaybe<Array<QuorumWhereUniqueInput>>;
+  connectOrCreate?: InputMaybe<Array<QuorumCreateOrConnectWithoutRemoveProposalInput>>;
+  create?: InputMaybe<Array<QuorumCreateWithoutRemoveProposalInput>>;
+  createMany?: InputMaybe<QuorumCreateManyRemoveProposalInputEnvelope>;
+  delete?: InputMaybe<Array<QuorumWhereUniqueInput>>;
+  deleteMany?: InputMaybe<Array<QuorumScalarWhereInput>>;
+  disconnect?: InputMaybe<Array<QuorumWhereUniqueInput>>;
+  set?: InputMaybe<Array<QuorumWhereUniqueInput>>;
+  update?: InputMaybe<Array<QuorumUpdateWithWhereUniqueWithoutRemoveProposalInput>>;
+  updateMany?: InputMaybe<Array<QuorumUpdateManyWithWhereWithoutRemoveProposalInput>>;
+  upsert?: InputMaybe<Array<QuorumUpsertWithWhereUniqueWithoutRemoveProposalInput>>;
 };
 
 export type QuorumUpdateManyWithoutWalletNestedInput = {
@@ -2079,18 +2146,18 @@ export type QuorumUpdateOneRequiredWithoutApproversNestedInput = {
   upsert?: InputMaybe<QuorumUpsertWithoutApproversInput>;
 };
 
-export type QuorumUpdateOneWithoutTxNestedInput = {
-  connect?: InputMaybe<QuorumWhereUniqueInput>;
-  connectOrCreate?: InputMaybe<QuorumCreateOrConnectWithoutTxInput>;
-  create?: InputMaybe<QuorumCreateWithoutTxInput>;
-  delete?: InputMaybe<Scalars['Boolean']>;
-  disconnect?: InputMaybe<Scalars['Boolean']>;
-  update?: InputMaybe<QuorumUpdateWithoutTxInput>;
-  upsert?: InputMaybe<QuorumUpsertWithoutTxInput>;
-};
-
 export type QuorumUpdateWithWhereUniqueWithoutAccountInput = {
   data: QuorumUpdateWithoutAccountInput;
+  where: QuorumWhereUniqueInput;
+};
+
+export type QuorumUpdateWithWhereUniqueWithoutCreateProposalInput = {
+  data: QuorumUpdateWithoutCreateProposalInput;
+  where: QuorumWhereUniqueInput;
+};
+
+export type QuorumUpdateWithWhereUniqueWithoutRemoveProposalInput = {
+  data: QuorumUpdateWithoutRemoveProposalInput;
   where: QuorumWhereUniqueInput;
 };
 
@@ -2101,21 +2168,32 @@ export type QuorumUpdateWithWhereUniqueWithoutWalletInput = {
 
 export type QuorumUpdateWithoutAccountInput = {
   approvers?: InputMaybe<ApproverUpdateManyWithoutQuorumNestedInput>;
+  createProposal?: InputMaybe<TxUpdateOneWithoutProposedCreateQuroumsNestedInput>;
   hash?: InputMaybe<StringFieldUpdateOperationsInput>;
-  tx?: InputMaybe<TxUpdateOneWithoutQuorumTxNestedInput>;
+  removeProposal?: InputMaybe<TxUpdateOneWithoutProposedRemoveQuroumsNestedInput>;
   wallet?: InputMaybe<WalletUpdateOneRequiredWithoutQuorumsNestedInput>;
 };
 
 export type QuorumUpdateWithoutApproversInput = {
   account?: InputMaybe<AccountUpdateOneRequiredWithoutQuorumsNestedInput>;
+  createProposal?: InputMaybe<TxUpdateOneWithoutProposedCreateQuroumsNestedInput>;
   hash?: InputMaybe<StringFieldUpdateOperationsInput>;
-  tx?: InputMaybe<TxUpdateOneWithoutQuorumTxNestedInput>;
+  removeProposal?: InputMaybe<TxUpdateOneWithoutProposedRemoveQuroumsNestedInput>;
   wallet?: InputMaybe<WalletUpdateOneRequiredWithoutQuorumsNestedInput>;
 };
 
-export type QuorumUpdateWithoutTxInput = {
+export type QuorumUpdateWithoutCreateProposalInput = {
   account?: InputMaybe<AccountUpdateOneRequiredWithoutQuorumsNestedInput>;
   approvers?: InputMaybe<ApproverUpdateManyWithoutQuorumNestedInput>;
+  hash?: InputMaybe<StringFieldUpdateOperationsInput>;
+  removeProposal?: InputMaybe<TxUpdateOneWithoutProposedRemoveQuroumsNestedInput>;
+  wallet?: InputMaybe<WalletUpdateOneRequiredWithoutQuorumsNestedInput>;
+};
+
+export type QuorumUpdateWithoutRemoveProposalInput = {
+  account?: InputMaybe<AccountUpdateOneRequiredWithoutQuorumsNestedInput>;
+  approvers?: InputMaybe<ApproverUpdateManyWithoutQuorumNestedInput>;
+  createProposal?: InputMaybe<TxUpdateOneWithoutProposedCreateQuroumsNestedInput>;
   hash?: InputMaybe<StringFieldUpdateOperationsInput>;
   wallet?: InputMaybe<WalletUpdateOneRequiredWithoutQuorumsNestedInput>;
 };
@@ -2123,13 +2201,26 @@ export type QuorumUpdateWithoutTxInput = {
 export type QuorumUpdateWithoutWalletInput = {
   account?: InputMaybe<AccountUpdateOneRequiredWithoutQuorumsNestedInput>;
   approvers?: InputMaybe<ApproverUpdateManyWithoutQuorumNestedInput>;
+  createProposal?: InputMaybe<TxUpdateOneWithoutProposedCreateQuroumsNestedInput>;
   hash?: InputMaybe<StringFieldUpdateOperationsInput>;
-  tx?: InputMaybe<TxUpdateOneWithoutQuorumTxNestedInput>;
+  removeProposal?: InputMaybe<TxUpdateOneWithoutProposedRemoveQuroumsNestedInput>;
 };
 
 export type QuorumUpsertWithWhereUniqueWithoutAccountInput = {
   create: QuorumCreateWithoutAccountInput;
   update: QuorumUpdateWithoutAccountInput;
+  where: QuorumWhereUniqueInput;
+};
+
+export type QuorumUpsertWithWhereUniqueWithoutCreateProposalInput = {
+  create: QuorumCreateWithoutCreateProposalInput;
+  update: QuorumUpdateWithoutCreateProposalInput;
+  where: QuorumWhereUniqueInput;
+};
+
+export type QuorumUpsertWithWhereUniqueWithoutRemoveProposalInput = {
+  create: QuorumCreateWithoutRemoveProposalInput;
+  update: QuorumUpdateWithoutRemoveProposalInput;
   where: QuorumWhereUniqueInput;
 };
 
@@ -2144,11 +2235,6 @@ export type QuorumUpsertWithoutApproversInput = {
   update: QuorumUpdateWithoutApproversInput;
 };
 
-export type QuorumUpsertWithoutTxInput = {
-  create: QuorumCreateWithoutTxInput;
-  update: QuorumUpdateWithoutTxInput;
-};
-
 export type QuorumWhereInput = {
   AND?: InputMaybe<Array<QuorumWhereInput>>;
   NOT?: InputMaybe<Array<QuorumWhereInput>>;
@@ -2156,15 +2242,16 @@ export type QuorumWhereInput = {
   account?: InputMaybe<AccountRelationFilter>;
   accountId?: InputMaybe<StringFilter>;
   approvers?: InputMaybe<ApproverListRelationFilter>;
+  createProposal?: InputMaybe<TxRelationFilter>;
+  createProposalHash?: InputMaybe<StringNullableFilter>;
   hash?: InputMaybe<StringFilter>;
-  tx?: InputMaybe<TxRelationFilter>;
-  txHash?: InputMaybe<StringNullableFilter>;
+  removeProposal?: InputMaybe<TxRelationFilter>;
+  removeProposalHash?: InputMaybe<StringNullableFilter>;
   wallet?: InputMaybe<WalletRelationFilter>;
   walletRef?: InputMaybe<StringFilter>;
 };
 
 export type QuorumWhereUniqueInput = {
-  accountId_txHash?: InputMaybe<QuorumAccountIdTxHashCompoundUniqueInput>;
   accountId_walletRef_hash?: InputMaybe<QuorumAccountIdWalletRefHashCompoundUniqueInput>;
 };
 
@@ -2668,14 +2755,16 @@ export type Tx = {
   data: Scalars['String'];
   hash: Scalars['String'];
   id: Scalars['String'];
-  quorumTx?: Maybe<Quorum>;
+  proposedCreateQuroums?: Maybe<Array<Quorum>>;
+  proposedCreateWallet?: Maybe<Wallet>;
+  proposedRemoveQuroums?: Maybe<Array<Quorum>>;
+  proposedRemoveWallet?: Maybe<Wallet>;
   salt: Scalars['String'];
   submissions?: Maybe<Array<Submission>>;
   to: Scalars['String'];
   value: Scalars['String'];
   wallet: Wallet;
   walletRef: Scalars['String'];
-  walletTx?: Maybe<Wallet>;
 };
 
 export type TxAccountIdHashCompoundUniqueInput = {
@@ -2686,6 +2775,8 @@ export type TxAccountIdHashCompoundUniqueInput = {
 export type TxCount = {
   __typename?: 'TxCount';
   approvals: Scalars['Int'];
+  proposedCreateQuroums: Scalars['Int'];
+  proposedRemoveQuroums: Scalars['Int'];
   submissions: Scalars['Int'];
 };
 
@@ -2738,16 +2829,28 @@ export type TxCreateNestedOneWithoutApprovalsInput = {
   create?: InputMaybe<TxCreateWithoutApprovalsInput>;
 };
 
-export type TxCreateNestedOneWithoutQuorumTxInput = {
+export type TxCreateNestedOneWithoutProposedCreateQuroumsInput = {
   connect?: InputMaybe<TxWhereUniqueInput>;
-  connectOrCreate?: InputMaybe<TxCreateOrConnectWithoutQuorumTxInput>;
-  create?: InputMaybe<TxCreateWithoutQuorumTxInput>;
+  connectOrCreate?: InputMaybe<TxCreateOrConnectWithoutProposedCreateQuroumsInput>;
+  create?: InputMaybe<TxCreateWithoutProposedCreateQuroumsInput>;
 };
 
-export type TxCreateNestedOneWithoutWalletTxInput = {
+export type TxCreateNestedOneWithoutProposedCreateWalletInput = {
   connect?: InputMaybe<TxWhereUniqueInput>;
-  connectOrCreate?: InputMaybe<TxCreateOrConnectWithoutWalletTxInput>;
-  create?: InputMaybe<TxCreateWithoutWalletTxInput>;
+  connectOrCreate?: InputMaybe<TxCreateOrConnectWithoutProposedCreateWalletInput>;
+  create?: InputMaybe<TxCreateWithoutProposedCreateWalletInput>;
+};
+
+export type TxCreateNestedOneWithoutProposedRemoveQuroumsInput = {
+  connect?: InputMaybe<TxWhereUniqueInput>;
+  connectOrCreate?: InputMaybe<TxCreateOrConnectWithoutProposedRemoveQuroumsInput>;
+  create?: InputMaybe<TxCreateWithoutProposedRemoveQuroumsInput>;
+};
+
+export type TxCreateNestedOneWithoutProposedRemoveWalletInput = {
+  connect?: InputMaybe<TxWhereUniqueInput>;
+  connectOrCreate?: InputMaybe<TxCreateOrConnectWithoutProposedRemoveWalletInput>;
+  create?: InputMaybe<TxCreateWithoutProposedRemoveWalletInput>;
 };
 
 export type TxCreateOrConnectWithoutAccountInput = {
@@ -2760,8 +2863,23 @@ export type TxCreateOrConnectWithoutApprovalsInput = {
   where: TxWhereUniqueInput;
 };
 
-export type TxCreateOrConnectWithoutQuorumTxInput = {
-  create: TxCreateWithoutQuorumTxInput;
+export type TxCreateOrConnectWithoutProposedCreateQuroumsInput = {
+  create: TxCreateWithoutProposedCreateQuroumsInput;
+  where: TxWhereUniqueInput;
+};
+
+export type TxCreateOrConnectWithoutProposedCreateWalletInput = {
+  create: TxCreateWithoutProposedCreateWalletInput;
+  where: TxWhereUniqueInput;
+};
+
+export type TxCreateOrConnectWithoutProposedRemoveQuroumsInput = {
+  create: TxCreateWithoutProposedRemoveQuroumsInput;
+  where: TxWhereUniqueInput;
+};
+
+export type TxCreateOrConnectWithoutProposedRemoveWalletInput = {
+  create: TxCreateWithoutProposedRemoveWalletInput;
   where: TxWhereUniqueInput;
 };
 
@@ -2770,23 +2888,20 @@ export type TxCreateOrConnectWithoutWalletInput = {
   where: TxWhereUniqueInput;
 };
 
-export type TxCreateOrConnectWithoutWalletTxInput = {
-  create: TxCreateWithoutWalletTxInput;
-  where: TxWhereUniqueInput;
-};
-
 export type TxCreateWithoutAccountInput = {
   approvals?: InputMaybe<ApprovalCreateNestedManyWithoutTxInput>;
   createdAt?: InputMaybe<Scalars['DateTime']>;
   data: Scalars['String'];
   hash: Scalars['String'];
-  quorumTx?: InputMaybe<QuorumCreateNestedOneWithoutTxInput>;
+  proposedCreateQuroums?: InputMaybe<QuorumCreateNestedManyWithoutCreateProposalInput>;
+  proposedCreateWallet?: InputMaybe<WalletCreateNestedOneWithoutCreateProposalInput>;
+  proposedRemoveQuroums?: InputMaybe<QuorumCreateNestedManyWithoutRemoveProposalInput>;
+  proposedRemoveWallet?: InputMaybe<WalletCreateNestedOneWithoutRemoveProposalInput>;
   salt: Scalars['String'];
   submissions?: InputMaybe<SubmissionCreateNestedManyWithoutTxInput>;
   to: Scalars['String'];
   value: Scalars['String'];
   wallet: WalletCreateNestedOneWithoutTxsInput;
-  walletTx?: InputMaybe<WalletCreateNestedOneWithoutTxInput>;
 };
 
 export type TxCreateWithoutApprovalsInput = {
@@ -2794,27 +2909,79 @@ export type TxCreateWithoutApprovalsInput = {
   createdAt?: InputMaybe<Scalars['DateTime']>;
   data: Scalars['String'];
   hash: Scalars['String'];
-  quorumTx?: InputMaybe<QuorumCreateNestedOneWithoutTxInput>;
+  proposedCreateQuroums?: InputMaybe<QuorumCreateNestedManyWithoutCreateProposalInput>;
+  proposedCreateWallet?: InputMaybe<WalletCreateNestedOneWithoutCreateProposalInput>;
+  proposedRemoveQuroums?: InputMaybe<QuorumCreateNestedManyWithoutRemoveProposalInput>;
+  proposedRemoveWallet?: InputMaybe<WalletCreateNestedOneWithoutRemoveProposalInput>;
   salt: Scalars['String'];
   submissions?: InputMaybe<SubmissionCreateNestedManyWithoutTxInput>;
   to: Scalars['String'];
   value: Scalars['String'];
   wallet: WalletCreateNestedOneWithoutTxsInput;
-  walletTx?: InputMaybe<WalletCreateNestedOneWithoutTxInput>;
 };
 
-export type TxCreateWithoutQuorumTxInput = {
+export type TxCreateWithoutProposedCreateQuroumsInput = {
   account: AccountCreateNestedOneWithoutTxsInput;
   approvals?: InputMaybe<ApprovalCreateNestedManyWithoutTxInput>;
   createdAt?: InputMaybe<Scalars['DateTime']>;
   data: Scalars['String'];
   hash: Scalars['String'];
+  proposedCreateWallet?: InputMaybe<WalletCreateNestedOneWithoutCreateProposalInput>;
+  proposedRemoveQuroums?: InputMaybe<QuorumCreateNestedManyWithoutRemoveProposalInput>;
+  proposedRemoveWallet?: InputMaybe<WalletCreateNestedOneWithoutRemoveProposalInput>;
   salt: Scalars['String'];
   submissions?: InputMaybe<SubmissionCreateNestedManyWithoutTxInput>;
   to: Scalars['String'];
   value: Scalars['String'];
   wallet: WalletCreateNestedOneWithoutTxsInput;
-  walletTx?: InputMaybe<WalletCreateNestedOneWithoutTxInput>;
+};
+
+export type TxCreateWithoutProposedCreateWalletInput = {
+  account: AccountCreateNestedOneWithoutTxsInput;
+  approvals?: InputMaybe<ApprovalCreateNestedManyWithoutTxInput>;
+  createdAt?: InputMaybe<Scalars['DateTime']>;
+  data: Scalars['String'];
+  hash: Scalars['String'];
+  proposedCreateQuroums?: InputMaybe<QuorumCreateNestedManyWithoutCreateProposalInput>;
+  proposedRemoveQuroums?: InputMaybe<QuorumCreateNestedManyWithoutRemoveProposalInput>;
+  proposedRemoveWallet?: InputMaybe<WalletCreateNestedOneWithoutRemoveProposalInput>;
+  salt: Scalars['String'];
+  submissions?: InputMaybe<SubmissionCreateNestedManyWithoutTxInput>;
+  to: Scalars['String'];
+  value: Scalars['String'];
+  wallet: WalletCreateNestedOneWithoutTxsInput;
+};
+
+export type TxCreateWithoutProposedRemoveQuroumsInput = {
+  account: AccountCreateNestedOneWithoutTxsInput;
+  approvals?: InputMaybe<ApprovalCreateNestedManyWithoutTxInput>;
+  createdAt?: InputMaybe<Scalars['DateTime']>;
+  data: Scalars['String'];
+  hash: Scalars['String'];
+  proposedCreateQuroums?: InputMaybe<QuorumCreateNestedManyWithoutCreateProposalInput>;
+  proposedCreateWallet?: InputMaybe<WalletCreateNestedOneWithoutCreateProposalInput>;
+  proposedRemoveWallet?: InputMaybe<WalletCreateNestedOneWithoutRemoveProposalInput>;
+  salt: Scalars['String'];
+  submissions?: InputMaybe<SubmissionCreateNestedManyWithoutTxInput>;
+  to: Scalars['String'];
+  value: Scalars['String'];
+  wallet: WalletCreateNestedOneWithoutTxsInput;
+};
+
+export type TxCreateWithoutProposedRemoveWalletInput = {
+  account: AccountCreateNestedOneWithoutTxsInput;
+  approvals?: InputMaybe<ApprovalCreateNestedManyWithoutTxInput>;
+  createdAt?: InputMaybe<Scalars['DateTime']>;
+  data: Scalars['String'];
+  hash: Scalars['String'];
+  proposedCreateQuroums?: InputMaybe<QuorumCreateNestedManyWithoutCreateProposalInput>;
+  proposedCreateWallet?: InputMaybe<WalletCreateNestedOneWithoutCreateProposalInput>;
+  proposedRemoveQuroums?: InputMaybe<QuorumCreateNestedManyWithoutRemoveProposalInput>;
+  salt: Scalars['String'];
+  submissions?: InputMaybe<SubmissionCreateNestedManyWithoutTxInput>;
+  to: Scalars['String'];
+  value: Scalars['String'];
+  wallet: WalletCreateNestedOneWithoutTxsInput;
 };
 
 export type TxCreateWithoutWalletInput = {
@@ -2823,26 +2990,14 @@ export type TxCreateWithoutWalletInput = {
   createdAt?: InputMaybe<Scalars['DateTime']>;
   data: Scalars['String'];
   hash: Scalars['String'];
-  quorumTx?: InputMaybe<QuorumCreateNestedOneWithoutTxInput>;
+  proposedCreateQuroums?: InputMaybe<QuorumCreateNestedManyWithoutCreateProposalInput>;
+  proposedCreateWallet?: InputMaybe<WalletCreateNestedOneWithoutCreateProposalInput>;
+  proposedRemoveQuroums?: InputMaybe<QuorumCreateNestedManyWithoutRemoveProposalInput>;
+  proposedRemoveWallet?: InputMaybe<WalletCreateNestedOneWithoutRemoveProposalInput>;
   salt: Scalars['String'];
   submissions?: InputMaybe<SubmissionCreateNestedManyWithoutTxInput>;
   to: Scalars['String'];
   value: Scalars['String'];
-  walletTx?: InputMaybe<WalletCreateNestedOneWithoutTxInput>;
-};
-
-export type TxCreateWithoutWalletTxInput = {
-  account: AccountCreateNestedOneWithoutTxsInput;
-  approvals?: InputMaybe<ApprovalCreateNestedManyWithoutTxInput>;
-  createdAt?: InputMaybe<Scalars['DateTime']>;
-  data: Scalars['String'];
-  hash: Scalars['String'];
-  quorumTx?: InputMaybe<QuorumCreateNestedOneWithoutTxInput>;
-  salt: Scalars['String'];
-  submissions?: InputMaybe<SubmissionCreateNestedManyWithoutTxInput>;
-  to: Scalars['String'];
-  value: Scalars['String'];
-  wallet: WalletCreateNestedOneWithoutTxsInput;
 };
 
 export type TxInput = {
@@ -2869,14 +3024,16 @@ export type TxOrderByWithRelationInput = {
   createdAt?: InputMaybe<SortOrder>;
   data?: InputMaybe<SortOrder>;
   hash?: InputMaybe<SortOrder>;
-  quorumTx?: InputMaybe<QuorumOrderByWithRelationInput>;
+  proposedCreateQuroums?: InputMaybe<QuorumOrderByRelationAggregateInput>;
+  proposedCreateWallet?: InputMaybe<WalletOrderByWithRelationInput>;
+  proposedRemoveQuroums?: InputMaybe<QuorumOrderByRelationAggregateInput>;
+  proposedRemoveWallet?: InputMaybe<WalletOrderByWithRelationInput>;
   salt?: InputMaybe<SortOrder>;
   submissions?: InputMaybe<SubmissionOrderByRelationAggregateInput>;
   to?: InputMaybe<SortOrder>;
   value?: InputMaybe<SortOrder>;
   wallet?: InputMaybe<WalletOrderByWithRelationInput>;
   walletRef?: InputMaybe<SortOrder>;
-  walletTx?: InputMaybe<WalletOrderByWithRelationInput>;
 };
 
 export type TxRelationFilter = {
@@ -2953,24 +3110,44 @@ export type TxUpdateOneRequiredWithoutApprovalsNestedInput = {
   upsert?: InputMaybe<TxUpsertWithoutApprovalsInput>;
 };
 
-export type TxUpdateOneWithoutQuorumTxNestedInput = {
+export type TxUpdateOneWithoutProposedCreateQuroumsNestedInput = {
   connect?: InputMaybe<TxWhereUniqueInput>;
-  connectOrCreate?: InputMaybe<TxCreateOrConnectWithoutQuorumTxInput>;
-  create?: InputMaybe<TxCreateWithoutQuorumTxInput>;
+  connectOrCreate?: InputMaybe<TxCreateOrConnectWithoutProposedCreateQuroumsInput>;
+  create?: InputMaybe<TxCreateWithoutProposedCreateQuroumsInput>;
   delete?: InputMaybe<Scalars['Boolean']>;
   disconnect?: InputMaybe<Scalars['Boolean']>;
-  update?: InputMaybe<TxUpdateWithoutQuorumTxInput>;
-  upsert?: InputMaybe<TxUpsertWithoutQuorumTxInput>;
+  update?: InputMaybe<TxUpdateWithoutProposedCreateQuroumsInput>;
+  upsert?: InputMaybe<TxUpsertWithoutProposedCreateQuroumsInput>;
 };
 
-export type TxUpdateOneWithoutWalletTxNestedInput = {
+export type TxUpdateOneWithoutProposedCreateWalletNestedInput = {
   connect?: InputMaybe<TxWhereUniqueInput>;
-  connectOrCreate?: InputMaybe<TxCreateOrConnectWithoutWalletTxInput>;
-  create?: InputMaybe<TxCreateWithoutWalletTxInput>;
+  connectOrCreate?: InputMaybe<TxCreateOrConnectWithoutProposedCreateWalletInput>;
+  create?: InputMaybe<TxCreateWithoutProposedCreateWalletInput>;
   delete?: InputMaybe<Scalars['Boolean']>;
   disconnect?: InputMaybe<Scalars['Boolean']>;
-  update?: InputMaybe<TxUpdateWithoutWalletTxInput>;
-  upsert?: InputMaybe<TxUpsertWithoutWalletTxInput>;
+  update?: InputMaybe<TxUpdateWithoutProposedCreateWalletInput>;
+  upsert?: InputMaybe<TxUpsertWithoutProposedCreateWalletInput>;
+};
+
+export type TxUpdateOneWithoutProposedRemoveQuroumsNestedInput = {
+  connect?: InputMaybe<TxWhereUniqueInput>;
+  connectOrCreate?: InputMaybe<TxCreateOrConnectWithoutProposedRemoveQuroumsInput>;
+  create?: InputMaybe<TxCreateWithoutProposedRemoveQuroumsInput>;
+  delete?: InputMaybe<Scalars['Boolean']>;
+  disconnect?: InputMaybe<Scalars['Boolean']>;
+  update?: InputMaybe<TxUpdateWithoutProposedRemoveQuroumsInput>;
+  upsert?: InputMaybe<TxUpsertWithoutProposedRemoveQuroumsInput>;
+};
+
+export type TxUpdateOneWithoutProposedRemoveWalletNestedInput = {
+  connect?: InputMaybe<TxWhereUniqueInput>;
+  connectOrCreate?: InputMaybe<TxCreateOrConnectWithoutProposedRemoveWalletInput>;
+  create?: InputMaybe<TxCreateWithoutProposedRemoveWalletInput>;
+  delete?: InputMaybe<Scalars['Boolean']>;
+  disconnect?: InputMaybe<Scalars['Boolean']>;
+  update?: InputMaybe<TxUpdateWithoutProposedRemoveWalletInput>;
+  upsert?: InputMaybe<TxUpsertWithoutProposedRemoveWalletInput>;
 };
 
 export type TxUpdateWithWhereUniqueWithoutAccountInput = {
@@ -2988,13 +3165,15 @@ export type TxUpdateWithoutAccountInput = {
   createdAt?: InputMaybe<DateTimeFieldUpdateOperationsInput>;
   data?: InputMaybe<StringFieldUpdateOperationsInput>;
   hash?: InputMaybe<StringFieldUpdateOperationsInput>;
-  quorumTx?: InputMaybe<QuorumUpdateOneWithoutTxNestedInput>;
+  proposedCreateQuroums?: InputMaybe<QuorumUpdateManyWithoutCreateProposalNestedInput>;
+  proposedCreateWallet?: InputMaybe<WalletUpdateOneWithoutCreateProposalNestedInput>;
+  proposedRemoveQuroums?: InputMaybe<QuorumUpdateManyWithoutRemoveProposalNestedInput>;
+  proposedRemoveWallet?: InputMaybe<WalletUpdateOneWithoutRemoveProposalNestedInput>;
   salt?: InputMaybe<StringFieldUpdateOperationsInput>;
   submissions?: InputMaybe<SubmissionUpdateManyWithoutTxNestedInput>;
   to?: InputMaybe<StringFieldUpdateOperationsInput>;
   value?: InputMaybe<StringFieldUpdateOperationsInput>;
   wallet?: InputMaybe<WalletUpdateOneRequiredWithoutTxsNestedInput>;
-  walletTx?: InputMaybe<WalletUpdateOneWithoutTxNestedInput>;
 };
 
 export type TxUpdateWithoutApprovalsInput = {
@@ -3002,27 +3181,79 @@ export type TxUpdateWithoutApprovalsInput = {
   createdAt?: InputMaybe<DateTimeFieldUpdateOperationsInput>;
   data?: InputMaybe<StringFieldUpdateOperationsInput>;
   hash?: InputMaybe<StringFieldUpdateOperationsInput>;
-  quorumTx?: InputMaybe<QuorumUpdateOneWithoutTxNestedInput>;
+  proposedCreateQuroums?: InputMaybe<QuorumUpdateManyWithoutCreateProposalNestedInput>;
+  proposedCreateWallet?: InputMaybe<WalletUpdateOneWithoutCreateProposalNestedInput>;
+  proposedRemoveQuroums?: InputMaybe<QuorumUpdateManyWithoutRemoveProposalNestedInput>;
+  proposedRemoveWallet?: InputMaybe<WalletUpdateOneWithoutRemoveProposalNestedInput>;
   salt?: InputMaybe<StringFieldUpdateOperationsInput>;
   submissions?: InputMaybe<SubmissionUpdateManyWithoutTxNestedInput>;
   to?: InputMaybe<StringFieldUpdateOperationsInput>;
   value?: InputMaybe<StringFieldUpdateOperationsInput>;
   wallet?: InputMaybe<WalletUpdateOneRequiredWithoutTxsNestedInput>;
-  walletTx?: InputMaybe<WalletUpdateOneWithoutTxNestedInput>;
 };
 
-export type TxUpdateWithoutQuorumTxInput = {
+export type TxUpdateWithoutProposedCreateQuroumsInput = {
   account?: InputMaybe<AccountUpdateOneRequiredWithoutTxsNestedInput>;
   approvals?: InputMaybe<ApprovalUpdateManyWithoutTxNestedInput>;
   createdAt?: InputMaybe<DateTimeFieldUpdateOperationsInput>;
   data?: InputMaybe<StringFieldUpdateOperationsInput>;
   hash?: InputMaybe<StringFieldUpdateOperationsInput>;
+  proposedCreateWallet?: InputMaybe<WalletUpdateOneWithoutCreateProposalNestedInput>;
+  proposedRemoveQuroums?: InputMaybe<QuorumUpdateManyWithoutRemoveProposalNestedInput>;
+  proposedRemoveWallet?: InputMaybe<WalletUpdateOneWithoutRemoveProposalNestedInput>;
   salt?: InputMaybe<StringFieldUpdateOperationsInput>;
   submissions?: InputMaybe<SubmissionUpdateManyWithoutTxNestedInput>;
   to?: InputMaybe<StringFieldUpdateOperationsInput>;
   value?: InputMaybe<StringFieldUpdateOperationsInput>;
   wallet?: InputMaybe<WalletUpdateOneRequiredWithoutTxsNestedInput>;
-  walletTx?: InputMaybe<WalletUpdateOneWithoutTxNestedInput>;
+};
+
+export type TxUpdateWithoutProposedCreateWalletInput = {
+  account?: InputMaybe<AccountUpdateOneRequiredWithoutTxsNestedInput>;
+  approvals?: InputMaybe<ApprovalUpdateManyWithoutTxNestedInput>;
+  createdAt?: InputMaybe<DateTimeFieldUpdateOperationsInput>;
+  data?: InputMaybe<StringFieldUpdateOperationsInput>;
+  hash?: InputMaybe<StringFieldUpdateOperationsInput>;
+  proposedCreateQuroums?: InputMaybe<QuorumUpdateManyWithoutCreateProposalNestedInput>;
+  proposedRemoveQuroums?: InputMaybe<QuorumUpdateManyWithoutRemoveProposalNestedInput>;
+  proposedRemoveWallet?: InputMaybe<WalletUpdateOneWithoutRemoveProposalNestedInput>;
+  salt?: InputMaybe<StringFieldUpdateOperationsInput>;
+  submissions?: InputMaybe<SubmissionUpdateManyWithoutTxNestedInput>;
+  to?: InputMaybe<StringFieldUpdateOperationsInput>;
+  value?: InputMaybe<StringFieldUpdateOperationsInput>;
+  wallet?: InputMaybe<WalletUpdateOneRequiredWithoutTxsNestedInput>;
+};
+
+export type TxUpdateWithoutProposedRemoveQuroumsInput = {
+  account?: InputMaybe<AccountUpdateOneRequiredWithoutTxsNestedInput>;
+  approvals?: InputMaybe<ApprovalUpdateManyWithoutTxNestedInput>;
+  createdAt?: InputMaybe<DateTimeFieldUpdateOperationsInput>;
+  data?: InputMaybe<StringFieldUpdateOperationsInput>;
+  hash?: InputMaybe<StringFieldUpdateOperationsInput>;
+  proposedCreateQuroums?: InputMaybe<QuorumUpdateManyWithoutCreateProposalNestedInput>;
+  proposedCreateWallet?: InputMaybe<WalletUpdateOneWithoutCreateProposalNestedInput>;
+  proposedRemoveWallet?: InputMaybe<WalletUpdateOneWithoutRemoveProposalNestedInput>;
+  salt?: InputMaybe<StringFieldUpdateOperationsInput>;
+  submissions?: InputMaybe<SubmissionUpdateManyWithoutTxNestedInput>;
+  to?: InputMaybe<StringFieldUpdateOperationsInput>;
+  value?: InputMaybe<StringFieldUpdateOperationsInput>;
+  wallet?: InputMaybe<WalletUpdateOneRequiredWithoutTxsNestedInput>;
+};
+
+export type TxUpdateWithoutProposedRemoveWalletInput = {
+  account?: InputMaybe<AccountUpdateOneRequiredWithoutTxsNestedInput>;
+  approvals?: InputMaybe<ApprovalUpdateManyWithoutTxNestedInput>;
+  createdAt?: InputMaybe<DateTimeFieldUpdateOperationsInput>;
+  data?: InputMaybe<StringFieldUpdateOperationsInput>;
+  hash?: InputMaybe<StringFieldUpdateOperationsInput>;
+  proposedCreateQuroums?: InputMaybe<QuorumUpdateManyWithoutCreateProposalNestedInput>;
+  proposedCreateWallet?: InputMaybe<WalletUpdateOneWithoutCreateProposalNestedInput>;
+  proposedRemoveQuroums?: InputMaybe<QuorumUpdateManyWithoutRemoveProposalNestedInput>;
+  salt?: InputMaybe<StringFieldUpdateOperationsInput>;
+  submissions?: InputMaybe<SubmissionUpdateManyWithoutTxNestedInput>;
+  to?: InputMaybe<StringFieldUpdateOperationsInput>;
+  value?: InputMaybe<StringFieldUpdateOperationsInput>;
+  wallet?: InputMaybe<WalletUpdateOneRequiredWithoutTxsNestedInput>;
 };
 
 export type TxUpdateWithoutWalletInput = {
@@ -3031,26 +3262,14 @@ export type TxUpdateWithoutWalletInput = {
   createdAt?: InputMaybe<DateTimeFieldUpdateOperationsInput>;
   data?: InputMaybe<StringFieldUpdateOperationsInput>;
   hash?: InputMaybe<StringFieldUpdateOperationsInput>;
-  quorumTx?: InputMaybe<QuorumUpdateOneWithoutTxNestedInput>;
+  proposedCreateQuroums?: InputMaybe<QuorumUpdateManyWithoutCreateProposalNestedInput>;
+  proposedCreateWallet?: InputMaybe<WalletUpdateOneWithoutCreateProposalNestedInput>;
+  proposedRemoveQuroums?: InputMaybe<QuorumUpdateManyWithoutRemoveProposalNestedInput>;
+  proposedRemoveWallet?: InputMaybe<WalletUpdateOneWithoutRemoveProposalNestedInput>;
   salt?: InputMaybe<StringFieldUpdateOperationsInput>;
   submissions?: InputMaybe<SubmissionUpdateManyWithoutTxNestedInput>;
   to?: InputMaybe<StringFieldUpdateOperationsInput>;
   value?: InputMaybe<StringFieldUpdateOperationsInput>;
-  walletTx?: InputMaybe<WalletUpdateOneWithoutTxNestedInput>;
-};
-
-export type TxUpdateWithoutWalletTxInput = {
-  account?: InputMaybe<AccountUpdateOneRequiredWithoutTxsNestedInput>;
-  approvals?: InputMaybe<ApprovalUpdateManyWithoutTxNestedInput>;
-  createdAt?: InputMaybe<DateTimeFieldUpdateOperationsInput>;
-  data?: InputMaybe<StringFieldUpdateOperationsInput>;
-  hash?: InputMaybe<StringFieldUpdateOperationsInput>;
-  quorumTx?: InputMaybe<QuorumUpdateOneWithoutTxNestedInput>;
-  salt?: InputMaybe<StringFieldUpdateOperationsInput>;
-  submissions?: InputMaybe<SubmissionUpdateManyWithoutTxNestedInput>;
-  to?: InputMaybe<StringFieldUpdateOperationsInput>;
-  value?: InputMaybe<StringFieldUpdateOperationsInput>;
-  wallet?: InputMaybe<WalletUpdateOneRequiredWithoutTxsNestedInput>;
 };
 
 export type TxUpsertWithWhereUniqueWithoutAccountInput = {
@@ -3070,14 +3289,24 @@ export type TxUpsertWithoutApprovalsInput = {
   update: TxUpdateWithoutApprovalsInput;
 };
 
-export type TxUpsertWithoutQuorumTxInput = {
-  create: TxCreateWithoutQuorumTxInput;
-  update: TxUpdateWithoutQuorumTxInput;
+export type TxUpsertWithoutProposedCreateQuroumsInput = {
+  create: TxCreateWithoutProposedCreateQuroumsInput;
+  update: TxUpdateWithoutProposedCreateQuroumsInput;
 };
 
-export type TxUpsertWithoutWalletTxInput = {
-  create: TxCreateWithoutWalletTxInput;
-  update: TxUpdateWithoutWalletTxInput;
+export type TxUpsertWithoutProposedCreateWalletInput = {
+  create: TxCreateWithoutProposedCreateWalletInput;
+  update: TxUpdateWithoutProposedCreateWalletInput;
+};
+
+export type TxUpsertWithoutProposedRemoveQuroumsInput = {
+  create: TxCreateWithoutProposedRemoveQuroumsInput;
+  update: TxUpdateWithoutProposedRemoveQuroumsInput;
+};
+
+export type TxUpsertWithoutProposedRemoveWalletInput = {
+  create: TxCreateWithoutProposedRemoveWalletInput;
+  update: TxUpdateWithoutProposedRemoveWalletInput;
 };
 
 export type TxWhereInput = {
@@ -3090,14 +3319,16 @@ export type TxWhereInput = {
   createdAt?: InputMaybe<DateTimeFilter>;
   data?: InputMaybe<StringFilter>;
   hash?: InputMaybe<StringFilter>;
-  quorumTx?: InputMaybe<QuorumRelationFilter>;
+  proposedCreateQuroums?: InputMaybe<QuorumListRelationFilter>;
+  proposedCreateWallet?: InputMaybe<WalletRelationFilter>;
+  proposedRemoveQuroums?: InputMaybe<QuorumListRelationFilter>;
+  proposedRemoveWallet?: InputMaybe<WalletRelationFilter>;
   salt?: InputMaybe<StringFilter>;
   submissions?: InputMaybe<SubmissionListRelationFilter>;
   to?: InputMaybe<StringFilter>;
   value?: InputMaybe<StringFilter>;
   wallet?: InputMaybe<WalletRelationFilter>;
   walletRef?: InputMaybe<StringFilter>;
-  walletTx?: InputMaybe<WalletRelationFilter>;
 };
 
 export type TxWhereUniqueInput = {
@@ -3339,13 +3570,20 @@ export type Wallet = {
   account: Account;
   accountId: Scalars['String'];
   approvers?: Maybe<Array<Approver>>;
+  createProposal?: Maybe<Tx>;
+  createProposalHash?: Maybe<Scalars['String']>;
   id: Scalars['String'];
   name: Scalars['String'];
   quorums?: Maybe<Array<Quorum>>;
   ref: Scalars['String'];
-  tx?: Maybe<Tx>;
-  txHash?: Maybe<Scalars['String']>;
+  removeProposal?: Maybe<Tx>;
+  removeProposalHash?: Maybe<Scalars['String']>;
   txs?: Maybe<Array<Tx>>;
+};
+
+export type WalletAccountIdCreateProposalHashCompoundUniqueInput = {
+  accountId: Scalars['String'];
+  createProposalHash: Scalars['String'];
 };
 
 export type WalletAccountIdRefCompoundUniqueInput = {
@@ -3353,9 +3591,9 @@ export type WalletAccountIdRefCompoundUniqueInput = {
   ref: Scalars['String'];
 };
 
-export type WalletAccountIdTxHashCompoundUniqueInput = {
+export type WalletAccountIdRemoveProposalHashCompoundUniqueInput = {
   accountId: Scalars['String'];
-  txHash: Scalars['String'];
+  removeProposalHash: Scalars['String'];
 };
 
 export type WalletCount = {
@@ -3366,9 +3604,10 @@ export type WalletCount = {
 };
 
 export type WalletCreateManyAccountInput = {
+  createProposalHash?: InputMaybe<Scalars['String']>;
   name?: InputMaybe<Scalars['String']>;
   ref: Scalars['String'];
-  txHash?: InputMaybe<Scalars['String']>;
+  removeProposalHash?: InputMaybe<Scalars['String']>;
 };
 
 export type WalletCreateManyAccountInputEnvelope = {
@@ -3389,16 +3628,22 @@ export type WalletCreateNestedOneWithoutApproversInput = {
   create?: InputMaybe<WalletCreateWithoutApproversInput>;
 };
 
+export type WalletCreateNestedOneWithoutCreateProposalInput = {
+  connect?: InputMaybe<WalletWhereUniqueInput>;
+  connectOrCreate?: InputMaybe<WalletCreateOrConnectWithoutCreateProposalInput>;
+  create?: InputMaybe<WalletCreateWithoutCreateProposalInput>;
+};
+
 export type WalletCreateNestedOneWithoutQuorumsInput = {
   connect?: InputMaybe<WalletWhereUniqueInput>;
   connectOrCreate?: InputMaybe<WalletCreateOrConnectWithoutQuorumsInput>;
   create?: InputMaybe<WalletCreateWithoutQuorumsInput>;
 };
 
-export type WalletCreateNestedOneWithoutTxInput = {
+export type WalletCreateNestedOneWithoutRemoveProposalInput = {
   connect?: InputMaybe<WalletWhereUniqueInput>;
-  connectOrCreate?: InputMaybe<WalletCreateOrConnectWithoutTxInput>;
-  create?: InputMaybe<WalletCreateWithoutTxInput>;
+  connectOrCreate?: InputMaybe<WalletCreateOrConnectWithoutRemoveProposalInput>;
+  create?: InputMaybe<WalletCreateWithoutRemoveProposalInput>;
 };
 
 export type WalletCreateNestedOneWithoutTxsInput = {
@@ -3417,13 +3662,18 @@ export type WalletCreateOrConnectWithoutApproversInput = {
   where: WalletWhereUniqueInput;
 };
 
+export type WalletCreateOrConnectWithoutCreateProposalInput = {
+  create: WalletCreateWithoutCreateProposalInput;
+  where: WalletWhereUniqueInput;
+};
+
 export type WalletCreateOrConnectWithoutQuorumsInput = {
   create: WalletCreateWithoutQuorumsInput;
   where: WalletWhereUniqueInput;
 };
 
-export type WalletCreateOrConnectWithoutTxInput = {
-  create: WalletCreateWithoutTxInput;
+export type WalletCreateOrConnectWithoutRemoveProposalInput = {
+  create: WalletCreateWithoutRemoveProposalInput;
   where: WalletWhereUniqueInput;
 };
 
@@ -3434,34 +3684,48 @@ export type WalletCreateOrConnectWithoutTxsInput = {
 
 export type WalletCreateWithoutAccountInput = {
   approvers?: InputMaybe<ApproverCreateNestedManyWithoutWalletInput>;
+  createProposal?: InputMaybe<TxCreateNestedOneWithoutProposedCreateWalletInput>;
   name?: InputMaybe<Scalars['String']>;
   quorums?: InputMaybe<QuorumCreateNestedManyWithoutWalletInput>;
   ref: Scalars['String'];
-  tx?: InputMaybe<TxCreateNestedOneWithoutWalletTxInput>;
+  removeProposal?: InputMaybe<TxCreateNestedOneWithoutProposedRemoveWalletInput>;
   txs?: InputMaybe<TxCreateNestedManyWithoutWalletInput>;
 };
 
 export type WalletCreateWithoutApproversInput = {
   account: AccountCreateNestedOneWithoutWalletsInput;
+  createProposal?: InputMaybe<TxCreateNestedOneWithoutProposedCreateWalletInput>;
   name?: InputMaybe<Scalars['String']>;
   quorums?: InputMaybe<QuorumCreateNestedManyWithoutWalletInput>;
   ref: Scalars['String'];
-  tx?: InputMaybe<TxCreateNestedOneWithoutWalletTxInput>;
+  removeProposal?: InputMaybe<TxCreateNestedOneWithoutProposedRemoveWalletInput>;
+  txs?: InputMaybe<TxCreateNestedManyWithoutWalletInput>;
+};
+
+export type WalletCreateWithoutCreateProposalInput = {
+  account: AccountCreateNestedOneWithoutWalletsInput;
+  approvers?: InputMaybe<ApproverCreateNestedManyWithoutWalletInput>;
+  name?: InputMaybe<Scalars['String']>;
+  quorums?: InputMaybe<QuorumCreateNestedManyWithoutWalletInput>;
+  ref: Scalars['String'];
+  removeProposal?: InputMaybe<TxCreateNestedOneWithoutProposedRemoveWalletInput>;
   txs?: InputMaybe<TxCreateNestedManyWithoutWalletInput>;
 };
 
 export type WalletCreateWithoutQuorumsInput = {
   account: AccountCreateNestedOneWithoutWalletsInput;
   approvers?: InputMaybe<ApproverCreateNestedManyWithoutWalletInput>;
+  createProposal?: InputMaybe<TxCreateNestedOneWithoutProposedCreateWalletInput>;
   name?: InputMaybe<Scalars['String']>;
   ref: Scalars['String'];
-  tx?: InputMaybe<TxCreateNestedOneWithoutWalletTxInput>;
+  removeProposal?: InputMaybe<TxCreateNestedOneWithoutProposedRemoveWalletInput>;
   txs?: InputMaybe<TxCreateNestedManyWithoutWalletInput>;
 };
 
-export type WalletCreateWithoutTxInput = {
+export type WalletCreateWithoutRemoveProposalInput = {
   account: AccountCreateNestedOneWithoutWalletsInput;
   approvers?: InputMaybe<ApproverCreateNestedManyWithoutWalletInput>;
+  createProposal?: InputMaybe<TxCreateNestedOneWithoutProposedCreateWalletInput>;
   name?: InputMaybe<Scalars['String']>;
   quorums?: InputMaybe<QuorumCreateNestedManyWithoutWalletInput>;
   ref: Scalars['String'];
@@ -3471,10 +3735,11 @@ export type WalletCreateWithoutTxInput = {
 export type WalletCreateWithoutTxsInput = {
   account: AccountCreateNestedOneWithoutWalletsInput;
   approvers?: InputMaybe<ApproverCreateNestedManyWithoutWalletInput>;
+  createProposal?: InputMaybe<TxCreateNestedOneWithoutProposedCreateWalletInput>;
   name?: InputMaybe<Scalars['String']>;
   quorums?: InputMaybe<QuorumCreateNestedManyWithoutWalletInput>;
   ref: Scalars['String'];
-  tx?: InputMaybe<TxCreateNestedOneWithoutWalletTxInput>;
+  removeProposal?: InputMaybe<TxCreateNestedOneWithoutProposedRemoveWalletInput>;
 };
 
 export type WalletId = {
@@ -3496,11 +3761,13 @@ export type WalletOrderByWithRelationInput = {
   account?: InputMaybe<AccountOrderByWithRelationInput>;
   accountId?: InputMaybe<SortOrder>;
   approvers?: InputMaybe<ApproverOrderByRelationAggregateInput>;
+  createProposal?: InputMaybe<TxOrderByWithRelationInput>;
+  createProposalHash?: InputMaybe<SortOrder>;
   name?: InputMaybe<SortOrder>;
   quorums?: InputMaybe<QuorumOrderByRelationAggregateInput>;
   ref?: InputMaybe<SortOrder>;
-  tx?: InputMaybe<TxOrderByWithRelationInput>;
-  txHash?: InputMaybe<SortOrder>;
+  removeProposal?: InputMaybe<TxOrderByWithRelationInput>;
+  removeProposalHash?: InputMaybe<SortOrder>;
   txs?: InputMaybe<TxOrderByRelationAggregateInput>;
 };
 
@@ -3511,9 +3778,10 @@ export type WalletRelationFilter = {
 
 export enum WalletScalarFieldEnum {
   AccountId = 'accountId',
+  CreateProposalHash = 'createProposalHash',
   Name = 'name',
   Ref = 'ref',
-  TxHash = 'txHash'
+  RemoveProposalHash = 'removeProposalHash'
 }
 
 export type WalletScalarWhereInput = {
@@ -3521,9 +3789,10 @@ export type WalletScalarWhereInput = {
   NOT?: InputMaybe<Array<WalletScalarWhereInput>>;
   OR?: InputMaybe<Array<WalletScalarWhereInput>>;
   accountId?: InputMaybe<StringFilter>;
+  createProposalHash?: InputMaybe<StringNullableFilter>;
   name?: InputMaybe<StringFilter>;
   ref?: InputMaybe<StringFilter>;
-  txHash?: InputMaybe<StringNullableFilter>;
+  removeProposalHash?: InputMaybe<StringNullableFilter>;
 };
 
 export type WalletUpdateManyMutationInput = {
@@ -3574,14 +3843,24 @@ export type WalletUpdateOneRequiredWithoutTxsNestedInput = {
   upsert?: InputMaybe<WalletUpsertWithoutTxsInput>;
 };
 
-export type WalletUpdateOneWithoutTxNestedInput = {
+export type WalletUpdateOneWithoutCreateProposalNestedInput = {
   connect?: InputMaybe<WalletWhereUniqueInput>;
-  connectOrCreate?: InputMaybe<WalletCreateOrConnectWithoutTxInput>;
-  create?: InputMaybe<WalletCreateWithoutTxInput>;
+  connectOrCreate?: InputMaybe<WalletCreateOrConnectWithoutCreateProposalInput>;
+  create?: InputMaybe<WalletCreateWithoutCreateProposalInput>;
   delete?: InputMaybe<Scalars['Boolean']>;
   disconnect?: InputMaybe<Scalars['Boolean']>;
-  update?: InputMaybe<WalletUpdateWithoutTxInput>;
-  upsert?: InputMaybe<WalletUpsertWithoutTxInput>;
+  update?: InputMaybe<WalletUpdateWithoutCreateProposalInput>;
+  upsert?: InputMaybe<WalletUpsertWithoutCreateProposalInput>;
+};
+
+export type WalletUpdateOneWithoutRemoveProposalNestedInput = {
+  connect?: InputMaybe<WalletWhereUniqueInput>;
+  connectOrCreate?: InputMaybe<WalletCreateOrConnectWithoutRemoveProposalInput>;
+  create?: InputMaybe<WalletCreateWithoutRemoveProposalInput>;
+  delete?: InputMaybe<Scalars['Boolean']>;
+  disconnect?: InputMaybe<Scalars['Boolean']>;
+  update?: InputMaybe<WalletUpdateWithoutRemoveProposalInput>;
+  upsert?: InputMaybe<WalletUpsertWithoutRemoveProposalInput>;
 };
 
 export type WalletUpdateWithWhereUniqueWithoutAccountInput = {
@@ -3591,34 +3870,48 @@ export type WalletUpdateWithWhereUniqueWithoutAccountInput = {
 
 export type WalletUpdateWithoutAccountInput = {
   approvers?: InputMaybe<ApproverUpdateManyWithoutWalletNestedInput>;
+  createProposal?: InputMaybe<TxUpdateOneWithoutProposedCreateWalletNestedInput>;
   name?: InputMaybe<StringFieldUpdateOperationsInput>;
   quorums?: InputMaybe<QuorumUpdateManyWithoutWalletNestedInput>;
   ref?: InputMaybe<StringFieldUpdateOperationsInput>;
-  tx?: InputMaybe<TxUpdateOneWithoutWalletTxNestedInput>;
+  removeProposal?: InputMaybe<TxUpdateOneWithoutProposedRemoveWalletNestedInput>;
   txs?: InputMaybe<TxUpdateManyWithoutWalletNestedInput>;
 };
 
 export type WalletUpdateWithoutApproversInput = {
   account?: InputMaybe<AccountUpdateOneRequiredWithoutWalletsNestedInput>;
+  createProposal?: InputMaybe<TxUpdateOneWithoutProposedCreateWalletNestedInput>;
   name?: InputMaybe<StringFieldUpdateOperationsInput>;
   quorums?: InputMaybe<QuorumUpdateManyWithoutWalletNestedInput>;
   ref?: InputMaybe<StringFieldUpdateOperationsInput>;
-  tx?: InputMaybe<TxUpdateOneWithoutWalletTxNestedInput>;
+  removeProposal?: InputMaybe<TxUpdateOneWithoutProposedRemoveWalletNestedInput>;
+  txs?: InputMaybe<TxUpdateManyWithoutWalletNestedInput>;
+};
+
+export type WalletUpdateWithoutCreateProposalInput = {
+  account?: InputMaybe<AccountUpdateOneRequiredWithoutWalletsNestedInput>;
+  approvers?: InputMaybe<ApproverUpdateManyWithoutWalletNestedInput>;
+  name?: InputMaybe<StringFieldUpdateOperationsInput>;
+  quorums?: InputMaybe<QuorumUpdateManyWithoutWalletNestedInput>;
+  ref?: InputMaybe<StringFieldUpdateOperationsInput>;
+  removeProposal?: InputMaybe<TxUpdateOneWithoutProposedRemoveWalletNestedInput>;
   txs?: InputMaybe<TxUpdateManyWithoutWalletNestedInput>;
 };
 
 export type WalletUpdateWithoutQuorumsInput = {
   account?: InputMaybe<AccountUpdateOneRequiredWithoutWalletsNestedInput>;
   approvers?: InputMaybe<ApproverUpdateManyWithoutWalletNestedInput>;
+  createProposal?: InputMaybe<TxUpdateOneWithoutProposedCreateWalletNestedInput>;
   name?: InputMaybe<StringFieldUpdateOperationsInput>;
   ref?: InputMaybe<StringFieldUpdateOperationsInput>;
-  tx?: InputMaybe<TxUpdateOneWithoutWalletTxNestedInput>;
+  removeProposal?: InputMaybe<TxUpdateOneWithoutProposedRemoveWalletNestedInput>;
   txs?: InputMaybe<TxUpdateManyWithoutWalletNestedInput>;
 };
 
-export type WalletUpdateWithoutTxInput = {
+export type WalletUpdateWithoutRemoveProposalInput = {
   account?: InputMaybe<AccountUpdateOneRequiredWithoutWalletsNestedInput>;
   approvers?: InputMaybe<ApproverUpdateManyWithoutWalletNestedInput>;
+  createProposal?: InputMaybe<TxUpdateOneWithoutProposedCreateWalletNestedInput>;
   name?: InputMaybe<StringFieldUpdateOperationsInput>;
   quorums?: InputMaybe<QuorumUpdateManyWithoutWalletNestedInput>;
   ref?: InputMaybe<StringFieldUpdateOperationsInput>;
@@ -3628,10 +3921,11 @@ export type WalletUpdateWithoutTxInput = {
 export type WalletUpdateWithoutTxsInput = {
   account?: InputMaybe<AccountUpdateOneRequiredWithoutWalletsNestedInput>;
   approvers?: InputMaybe<ApproverUpdateManyWithoutWalletNestedInput>;
+  createProposal?: InputMaybe<TxUpdateOneWithoutProposedCreateWalletNestedInput>;
   name?: InputMaybe<StringFieldUpdateOperationsInput>;
   quorums?: InputMaybe<QuorumUpdateManyWithoutWalletNestedInput>;
   ref?: InputMaybe<StringFieldUpdateOperationsInput>;
-  tx?: InputMaybe<TxUpdateOneWithoutWalletTxNestedInput>;
+  removeProposal?: InputMaybe<TxUpdateOneWithoutProposedRemoveWalletNestedInput>;
 };
 
 export type WalletUpsertWithWhereUniqueWithoutAccountInput = {
@@ -3645,14 +3939,19 @@ export type WalletUpsertWithoutApproversInput = {
   update: WalletUpdateWithoutApproversInput;
 };
 
+export type WalletUpsertWithoutCreateProposalInput = {
+  create: WalletCreateWithoutCreateProposalInput;
+  update: WalletUpdateWithoutCreateProposalInput;
+};
+
 export type WalletUpsertWithoutQuorumsInput = {
   create: WalletCreateWithoutQuorumsInput;
   update: WalletUpdateWithoutQuorumsInput;
 };
 
-export type WalletUpsertWithoutTxInput = {
-  create: WalletCreateWithoutTxInput;
-  update: WalletUpdateWithoutTxInput;
+export type WalletUpsertWithoutRemoveProposalInput = {
+  create: WalletCreateWithoutRemoveProposalInput;
+  update: WalletUpdateWithoutRemoveProposalInput;
 };
 
 export type WalletUpsertWithoutTxsInput = {
@@ -3667,17 +3966,20 @@ export type WalletWhereInput = {
   account?: InputMaybe<AccountRelationFilter>;
   accountId?: InputMaybe<StringFilter>;
   approvers?: InputMaybe<ApproverListRelationFilter>;
+  createProposal?: InputMaybe<TxRelationFilter>;
+  createProposalHash?: InputMaybe<StringNullableFilter>;
   name?: InputMaybe<StringFilter>;
   quorums?: InputMaybe<QuorumListRelationFilter>;
   ref?: InputMaybe<StringFilter>;
-  tx?: InputMaybe<TxRelationFilter>;
-  txHash?: InputMaybe<StringNullableFilter>;
+  removeProposal?: InputMaybe<TxRelationFilter>;
+  removeProposalHash?: InputMaybe<StringNullableFilter>;
   txs?: InputMaybe<TxListRelationFilter>;
 };
 
 export type WalletWhereUniqueInput = {
+  accountId_createProposalHash?: InputMaybe<WalletAccountIdCreateProposalHashCompoundUniqueInput>;
   accountId_ref?: InputMaybe<WalletAccountIdRefCompoundUniqueInput>;
-  accountId_txHash?: InputMaybe<WalletAccountIdTxHashCompoundUniqueInput>;
+  accountId_removeProposalHash?: InputMaybe<WalletAccountIdRemoveProposalHashCompoundUniqueInput>;
 };
 
 export type WalletWithoutAccountInput = {
@@ -3816,15 +4118,6 @@ export type SetWalletNameMutationVariables = Exact<{
 
 export type SetWalletNameMutation = { __typename?: 'Mutation', setWalletName: { __typename?: 'Wallet', id: string } };
 
-export type SetWalletQuorumsMutationVariables = Exact<{
-  setQuroumsId: WalletId;
-  quorums: Array<Scalars['QuorumScalar']> | Scalars['QuorumScalar'];
-  txHash: Scalars['Bytes32'];
-}>;
-
-
-export type SetWalletQuorumsMutation = { __typename?: 'Mutation', setWalletQuroums?: { __typename?: 'Wallet', id: string } | null };
-
 export type UpsertWalletMutationVariables = Exact<{
   wallet: WalletId;
   name?: InputMaybe<Scalars['String']>;
@@ -3833,7 +4126,7 @@ export type UpsertWalletMutationVariables = Exact<{
 }>;
 
 
-export type UpsertWalletMutation = { __typename?: 'Mutation', upsertWallet?: { __typename?: 'Wallet', id: string } | null };
+export type UpsertWalletMutation = { __typename?: 'Mutation', upsertWallet?: { __typename?: 'Wallet', name: string, id: string, accountId: string, ref: string, quorums?: Array<{ __typename?: 'Quorum', approvers?: Array<{ __typename?: 'Approver', userId: string }> | null, createProposal?: { __typename?: 'Tx', submissions?: Array<{ __typename?: 'Submission', finalized: boolean }> | null } | null, removeProposal?: { __typename?: 'Tx', submissions?: Array<{ __typename?: 'Submission', finalized: boolean }> | null } | null }> | null, createProposal?: { __typename?: 'Tx', submissions?: Array<{ __typename?: 'Submission', finalized: boolean }> | null } | null, removeProposal?: { __typename?: 'Tx', submissions?: Array<{ __typename?: 'Submission', finalized: boolean }> | null } | null } | null };
 
 export type AccountFieldsFragment = { __typename?: 'Account', id: string, name: string, impl?: string | null, deploySalt?: string | null, wallets?: Array<{ __typename?: 'Wallet', id: string, accountId: string, ref: string }> | null };
 
@@ -3893,12 +4186,14 @@ export type ContractMethodQueryVariables = Exact<{
 
 export type ContractMethodQuery = { __typename?: 'Query', contractMethod?: { __typename?: 'ContractMethod', id: string, fragment: any } | null };
 
+export type WalletFieldsFragment = { __typename?: 'Wallet', name: string, id: string, accountId: string, ref: string, quorums?: Array<{ __typename?: 'Quorum', approvers?: Array<{ __typename?: 'Approver', userId: string }> | null, createProposal?: { __typename?: 'Tx', submissions?: Array<{ __typename?: 'Submission', finalized: boolean }> | null } | null, removeProposal?: { __typename?: 'Tx', submissions?: Array<{ __typename?: 'Submission', finalized: boolean }> | null } | null }> | null, createProposal?: { __typename?: 'Tx', submissions?: Array<{ __typename?: 'Submission', finalized: boolean }> | null } | null, removeProposal?: { __typename?: 'Tx', submissions?: Array<{ __typename?: 'Submission', finalized: boolean }> | null } | null };
+
 export type WalletQueryVariables = Exact<{
   wallet: WalletId;
 }>;
 
 
-export type WalletQuery = { __typename?: 'Query', wallet?: { __typename?: 'Wallet', name: string, id: string, accountId: string, ref: string, quorums?: Array<{ __typename?: 'Quorum', approvers?: Array<{ __typename?: 'Approver', userId: string }> | null }> | null } | null };
+export type WalletQuery = { __typename?: 'Query', wallet?: { __typename?: 'Wallet', name: string, id: string, accountId: string, ref: string, quorums?: Array<{ __typename?: 'Quorum', approvers?: Array<{ __typename?: 'Approver', userId: string }> | null, createProposal?: { __typename?: 'Tx', submissions?: Array<{ __typename?: 'Submission', finalized: boolean }> | null } | null, removeProposal?: { __typename?: 'Tx', submissions?: Array<{ __typename?: 'Submission', finalized: boolean }> | null } | null }> | null, createProposal?: { __typename?: 'Tx', submissions?: Array<{ __typename?: 'Submission', finalized: boolean }> | null } | null, removeProposal?: { __typename?: 'Tx', submissions?: Array<{ __typename?: 'Submission', finalized: boolean }> | null } | null } | null };
 
 export type WalletIdFieldsFragment = { __typename?: 'Wallet', id: string, accountId: string, ref: string };
 
@@ -3984,6 +4279,37 @@ export const CommentFieldsFragmentDoc = gql`
   }
 }
     ${ReactionFieldsFragmentDoc}`;
+export const WalletFieldsFragmentDoc = gql`
+    fragment WalletFields on Wallet {
+  ...WalletIdFields
+  name
+  quorums {
+    approvers {
+      userId
+    }
+    createProposal {
+      submissions {
+        finalized
+      }
+    }
+    removeProposal {
+      submissions {
+        finalized
+      }
+    }
+  }
+  createProposal {
+    submissions {
+      finalized
+    }
+  }
+  removeProposal {
+    submissions {
+      finalized
+    }
+  }
+}
+    ${WalletIdFieldsFragmentDoc}`;
 export const CreateAccountDocument = gql`
     mutation CreateAccount($account: Address!, $impl: Address!, $deploySalt: Bytes32!, $name: String!, $wallets: [WalletWithoutAccountInput!]!) {
   createAccount(
@@ -4517,48 +4843,13 @@ export function useSetWalletNameMutation(baseOptions?: Apollo.MutationHookOption
 export type SetWalletNameMutationHookResult = ReturnType<typeof useSetWalletNameMutation>;
 export type SetWalletNameMutationResult = Apollo.MutationResult<SetWalletNameMutation>;
 export type SetWalletNameMutationOptions = Apollo.BaseMutationOptions<SetWalletNameMutation, SetWalletNameMutationVariables>;
-export const SetWalletQuorumsDocument = gql`
-    mutation SetWalletQuorums($setQuroumsId: WalletId!, $quorums: [QuorumScalar!]!, $txHash: Bytes32!) {
-  setWalletQuroums(id: $setQuroumsId, quorums: $quorums, txHash: $txHash) {
-    id
-  }
-}
-    `;
-export type SetWalletQuorumsMutationFn = Apollo.MutationFunction<SetWalletQuorumsMutation, SetWalletQuorumsMutationVariables>;
-
-/**
- * __useSetWalletQuorumsMutation__
- *
- * To run a mutation, you first call `useSetWalletQuorumsMutation` within a React component and pass it any options that fit your needs.
- * When your component renders, `useSetWalletQuorumsMutation` returns a tuple that includes:
- * - A mutate function that you can call at any time to execute the mutation
- * - An object with fields that represent the current status of the mutation's execution
- *
- * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
- *
- * @example
- * const [setWalletQuorumsMutation, { data, loading, error }] = useSetWalletQuorumsMutation({
- *   variables: {
- *      setQuroumsId: // value for 'setQuroumsId'
- *      quorums: // value for 'quorums'
- *      txHash: // value for 'txHash'
- *   },
- * });
- */
-export function useSetWalletQuorumsMutation(baseOptions?: Apollo.MutationHookOptions<SetWalletQuorumsMutation, SetWalletQuorumsMutationVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useMutation<SetWalletQuorumsMutation, SetWalletQuorumsMutationVariables>(SetWalletQuorumsDocument, options);
-      }
-export type SetWalletQuorumsMutationHookResult = ReturnType<typeof useSetWalletQuorumsMutation>;
-export type SetWalletQuorumsMutationResult = Apollo.MutationResult<SetWalletQuorumsMutation>;
-export type SetWalletQuorumsMutationOptions = Apollo.BaseMutationOptions<SetWalletQuorumsMutation, SetWalletQuorumsMutationVariables>;
 export const UpsertWalletDocument = gql`
     mutation UpsertWallet($wallet: WalletId!, $name: String, $quorums: [QuorumScalar!]!, $txHash: Bytes32!) {
-  upsertWallet(id: $wallet, name: $name, quorums: $quorums, txHash: $txHash) {
-    id
+  upsertWallet(id: $wallet, name: $name, quorums: $quorums, proposalHash: $txHash) {
+    ...WalletFields
   }
 }
-    `;
+    ${WalletFieldsFragmentDoc}`;
 export type UpsertWalletMutationFn = Apollo.MutationFunction<UpsertWalletMutation, UpsertWalletMutationVariables>;
 
 /**
@@ -4842,16 +5133,10 @@ export type ContractMethodQueryResult = Apollo.QueryResult<ContractMethodQuery, 
 export const WalletDocument = gql`
     query Wallet($wallet: WalletId!) {
   wallet(id: $wallet) {
-    ...WalletIdFields
-    name
-    quorums {
-      approvers {
-        userId
-      }
-    }
+    ...WalletFields
   }
 }
-    ${WalletIdFieldsFragmentDoc}`;
+    ${WalletFieldsFragmentDoc}`;
 
 /**
  * __useWalletQuery__

@@ -13,6 +13,7 @@ import { RootNavigatorScreenProps } from '~/navigation/RootNavigator';
 import { Contact, useContacts } from '~/queries/contacts/useContacts.api';
 
 export interface ContactsScreenParams {
+  title?: string;
   onSelect?: (contact: Contact) => void;
   disabled?: Address[];
 }
@@ -20,7 +21,7 @@ export interface ContactsScreenParams {
 export type ContactsScreenProps = RootNavigatorScreenProps<'Contacts'>;
 
 export const ContactsScreen = ({ route, navigation }: ContactsScreenProps) => {
-  const { onSelect, disabled } = route.params;
+  const { title, onSelect, disabled } = route.params;
   const styles = useStyles();
   const { AppbarHeader, handleScroll } = useAppbarHeader();
   const { contacts: allContacts } = useContacts();
@@ -33,7 +34,7 @@ export const ContactsScreen = ({ route, navigation }: ContactsScreenProps) => {
     <Box flex={1}>
       <AppbarHeader>
         <AppbarBack />
-        <AppbarSearch title="Contacts" {...searchProps} />
+        <AppbarSearch title={title || 'Contacts'} {...searchProps} />
       </AppbarHeader>
 
       <FlatList
@@ -52,8 +53,10 @@ export const ContactsScreen = ({ route, navigation }: ContactsScreenProps) => {
           />
         )}
         ItemSeparatorComponent={() => <Box my={2} />}
+        keyExtractor={(item) => item.addr}
         style={styles.list}
         data={contacts}
+        extraData={[navigation, onSelect, disabled]}
         onScroll={handleScroll}
         showsVerticalScrollIndicator={false}
       />

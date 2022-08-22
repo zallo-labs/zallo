@@ -19,7 +19,7 @@ export const DeployAccountFAB = ({ account }: DeployAccountFABProps) => {
   return (
     <FAB
       icon={DeployIcon}
-      label="Deploy"
+      label="Apply"
       onPress={() => deploy?.(wallet)}
     />
   );

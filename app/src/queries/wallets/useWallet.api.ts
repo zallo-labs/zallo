@@ -1,26 +1,73 @@
 import { gql } from '@apollo/client';
-import { useWalletQuery } from '@gql/generated.api';
+import { useWalletQuery, WalletQuery } from '@gql/generated.api';
 import { useApiClient } from '@gql/GqlProvider';
 import { toId, address, toWalletRef, toQuorum } from 'lib';
 import { useMemo } from 'react';
-import { CombinedWallet, QUERY_WALLETS_POLL_INTERVAL, WalletId } from '.';
+import {
+  CombinedQuorum,
+  CombinedWallet,
+  ProposableState,
+  QUERY_WALLETS_POLL_INTERVAL,
+  WalletId,
+} from '.';
 import { API_WALLET_ID_FIELDS } from './useWalletIds.api';
 
-export const API_QUERY_WALLET = gql`
+export const API_WALLET_FIELDS = gql`
   ${API_WALLET_ID_FIELDS}
 
-  query Wallet($wallet: WalletId!) {
-    wallet(id: $wallet) {
-      ...WalletIdFields
-      name
-      quorums {
-        approvers {
-          userId
+  fragment WalletFields on Wallet {
+    ...WalletIdFields
+    name
+    quorums {
+      approvers {
+        userId
+      }
+      createProposal {
+        submissions {
+          finalized
         }
+      }
+      removeProposal {
+        submissions {
+          finalized
+        }
+      }
+    }
+    createProposal {
+      submissions {
+        finalized
+      }
+    }
+    removeProposal {
+      submissions {
+        finalized
       }
     }
   }
 `;
+
+export const API_QUERY_WALLET = gql`
+  ${API_WALLET_FIELDS}
+
+  query Wallet($wallet: WalletId!) {
+    wallet(id: $wallet) {
+      ...WalletFields
+    }
+  }
+`;
+
+type RemoveProposalable = Pick<
+  NonNullable<NonNullable<WalletQuery['wallet']>['quorums']>[0],
+  'removeProposal'
+>;
+
+const getProposalState = ({
+  removeProposal,
+}: RemoveProposalable): ProposableState =>
+  removeProposal?.submissions?.length &&
+  removeProposal.submissions.some((s) => s.finalized)
+    ? 'removed'
+    : 'added';
 
 export const useApiWallet = (id?: WalletId) => {
   const { data, ...rest } = useWalletQuery({
@@ -41,12 +88,16 @@ export const useApiWallet = (id?: WalletId) => {
       accountAddr: address(w.accountId),
       ref: toWalletRef(w.ref),
       name: w.name,
+      state: getProposalState(w),
       quorums:
-        w.quorums?.map((quorum) => ({
-          approvers: toQuorum(
-            quorum.approvers?.map((a) => address(a.userId)) ?? [],
-          ),
-        })) ?? [],
+        w.quorums?.map(
+          (quorum): CombinedQuorum => ({
+            approvers: toQuorum(
+              quorum.approvers?.map((a) => address(a.userId)) ?? [],
+            ),
+            state: getProposalState(quorum),
+          }),
+        ) ?? [],
     };
   }, [data?.wallet]);
 

@@ -31,7 +31,7 @@ export const CardItemWithoutSkeleton = ({
         (isFunctionalComponent(Main) ? (
           <Main />
         ) : (
-          <Box flex={1} justifyContent="center">
+          <Box flex={1} vertical justifyContent="space-around">
             {withKeys(Main)}
           </Box>
         ))}
@@ -40,7 +40,7 @@ export const CardItemWithoutSkeleton = ({
         (isFunctionalComponent(Right) ? (
           <Right />
         ) : (
-          <Box justifyContent="center" alignItems="flex-end">
+          <Box vertical justifyContent="space-around" alignItems="flex-end">
             {withKeys(Right)}
           </Box>
         ))}

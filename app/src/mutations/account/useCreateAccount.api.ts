@@ -65,9 +65,9 @@ export const useCreateApiAccount = () => {
   const [mutation] = useCreateAccountMutation({ client: useApiClient() });
 
   const upsert = async (name: string, walletName: string) => {
-    const wallet: Omit<CombinedWallet, 'id' | 'accountAddr'> = {
+    const wallet: Pick<CombinedWallet, 'ref' | 'quorums' | 'name'> = {
       ref: randomWalletRef(),
-      quorums: [{ approvers: toQuorum([device.address]) }],
+      quorums: [{ approvers: toQuorum([device.address]), state: 'added' }],
       name: walletName,
     };
     const wallets = [wallet];
@@ -171,8 +171,12 @@ export const useCreateApiAccount = () => {
                 accountId: accountAddr,
                 ref: w.ref,
                 name: w.name,
+                createProposal: null,
+                removeProposal: null,
                 quorums: w.quorums.map((q) => ({
                   __typename: 'Quorum',
+                  createProposal: null,
+                  removeProposal: null,
                   approvers: q.approvers.map((approver) => ({
                     __typename: 'Approver',
                     userId: approver,

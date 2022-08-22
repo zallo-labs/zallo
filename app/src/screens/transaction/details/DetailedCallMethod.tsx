@@ -34,7 +34,12 @@ export const DetailedCallMethod = ({ call }: DetailedCallMethodProps) => {
   if (!methodFragment)
     return (
       <Box>
-        <Text variant="titleMedium">Data</Text>
+        <Box horizontal justifyContent="space-between" alignItems="baseline">
+          <Text variant="titleMedium">Data</Text>
+          <Box ml={2}>
+            <Text variant="bodyMedium">Failed to decode</Text>
+          </Box>
+        </Box>
 
         <ExpandableText value={hexlify(call.data)} beginLen={18}>
           {({ value }) => <Text variant="bodySmall">{value}</Text>}

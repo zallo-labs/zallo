@@ -2,9 +2,11 @@ import { Box } from '@components/Box';
 import { useMemo } from 'react';
 import { FlatList } from 'react-native';
 import { Text } from 'react-native-paper';
-import { useSelectedWallet } from '~/components2/wallet/useSelectedWallet';
+import {
+  useSelectedWallet,
+  useSelectWallet,
+} from '~/components2/wallet/useSelectedWallet';
 import { useAppbarHeader } from '~/components2/Appbar/useAppbarHeader';
-import { TokenCard } from '~/components2/token/TokenCard';
 import {
   useSelectedToken,
   useSelectToken,
@@ -16,11 +18,13 @@ import { withSkeleton } from '@components/skeleton/withSkeleton';
 import { HomeScreenSkeleton } from './HomeScreenSkeleton';
 import { FiatBalance } from '~/components2/fiat/FiatBalance';
 import { Suspend } from '@components/Suspender';
+import { TokenHoldingCard } from '~/components2/token/TokenHoldingCard';
 
 export const HomeScreen = withSkeleton(() => {
   const { AppbarHeader, handleScroll } = useAppbarHeader();
   const allTokens = useTokens();
   const wallet = useSelectedWallet();
+  const selectWallet = useSelectWallet();
   const selectedToken = useSelectedToken();
   const selectToken = useSelectToken();
 
@@ -36,16 +40,20 @@ export const HomeScreen = withSkeleton(() => {
 
   return (
     <Box>
-      <HomeAppbar AppbarHeader={AppbarHeader} />
+      <HomeAppbar AppbarHeader={AppbarHeader} wallet={wallet} />
 
       <FlatList
         ListHeaderComponent={
           <>
             <Box my={3}>
-              <WalletSelector />
+              <WalletSelector
+                selected={wallet}
+                onSelect={selectWallet}
+                cardProps={{ available: true }}
+              />
             </Box>
 
-            <Box horizontal justifyContent="flex-end" mt={3} mb={2} mx={4}>
+            <Box horizontal justifyContent="flex-end" mb={2} mx={4}>
               <Text variant="titleLarge">
                 <FiatBalance addr={wallet.accountAddr} showZero />
               </Text>
@@ -54,12 +62,9 @@ export const HomeScreen = withSkeleton(() => {
         }
         renderItem={({ item, index }) => (
           <Box mx={3}>
-            <TokenCard
+            <TokenHoldingCard
               token={item}
-              amount="balance"
-              price
-              change
-              remaining
+              wallet={wallet}
               selected={index === 0}
               onLongPress={() => selectToken(item)}
               onPress={() => {

@@ -27,5 +27,5 @@ export const useFuzzySearch = <T extends object>(
 
   const values = useMemo(() => searcher.search(input), [input, searcher]);
 
-  return [values, searchProps];
+  return [[...values], searchProps];
 };

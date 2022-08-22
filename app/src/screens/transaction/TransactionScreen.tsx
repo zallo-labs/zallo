@@ -4,7 +4,7 @@ import { ScreenSkeleton } from '@components/skeleton/ScreenSkeleton';
 import { withSkeleton } from '@components/skeleton/withSkeleton';
 import { Suspend } from '@components/Suspender';
 import { RootNavigatorScreenProps } from '~/navigation/RootNavigator';
-import { ProposedTx, TxId } from '~/queries/tx';
+import { TxId } from '~/queries/tx';
 import { useTx } from '~/queries/tx/useTx';
 import { Comments } from './comments/Comments';
 import { TransactionStatus } from './status/TransactionStatus';
@@ -15,15 +15,13 @@ import { TransactionDetails } from './details/TransactionDetails';
 
 export interface TransactionScreenParams {
   id: TxId;
-  onPropose?: (tx: ProposedTx) => void;
 }
 
 export type TransactionScreenProps = RootNavigatorScreenProps<'Transaction'>;
 
 export const TransactionScreen = withSkeleton(
   ({ route }: TransactionScreenProps) => {
-    const id = route.params.id;
-    const { tx } = useTx(id);
+    const { tx } = useTx(route.params.id);
     const wallet = useWallet(tx?.wallet);
     const [scrolled, handleScroll] = useScrolled();
 

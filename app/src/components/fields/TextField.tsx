@@ -24,6 +24,7 @@ export const TextField = ({
     <Box>
       <Box>
         <TextInput
+          mode="outlined"
           // Control
           error={!!error}
           multiline={props.multiline ?? wrap}
@@ -31,8 +32,8 @@ export const TextField = ({
           // Outline
           outlineColor={outlineColor}
           underlineColor={outlineColor}
-          // Styling
-          mode="outlined"
+          // Other
+          autoCorrect={false}
           {...props}
           style={[
             {

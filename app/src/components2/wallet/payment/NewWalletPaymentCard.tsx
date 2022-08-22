@@ -10,9 +10,14 @@ export const NewWalletPaymentCard = (props: NewWalletPaymentCardProps) => {
   const { colors, iconSize } = useTheme();
 
   return (
-    <Card height={WALLET_PAYMENT_CARD_HEIGHT} {...props}>
+    <Card
+      height={WALLET_PAYMENT_CARD_HEIGHT}
+      borderColor={colors.tertiary}
+      borderWidth={1}
+      {...props}
+    >
       <Box flex={1} vertical center>
-        <PlusCircleIcon color={colors.primary} size={iconSize.medium} style={{ opacity: 0.8 }} />
+        <PlusCircleIcon color={colors.tertiary} size={iconSize.medium} />
       </Box>
     </Card>
   );

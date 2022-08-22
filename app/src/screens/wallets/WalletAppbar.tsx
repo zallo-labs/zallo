@@ -1,11 +1,13 @@
-import { useNavigation } from '@react-navigation/native';
-import { AddIcon, DeleteIcon } from '@util/theme/icons';
-import { FC, useCallback } from 'react';
+import { DeleteIcon } from '@util/theme/icons';
+import { FC } from 'react';
+import { Alert } from 'react-native';
 import { Appbar } from 'react-native-paper';
 import { AppbarHeaderProps } from '~/components2/Appbar/useAppbarHeader';
 import { useGoBack } from '~/components2/Appbar/useGoBack';
 import { useDeleteWallet } from '~/mutations/wallet/delete/useDeleteWallet';
+import { useRootNavigation } from '~/navigation/useRootNavigation';
 import { CombinedWallet } from '~/queries/wallets';
+import { useDeleteConfirmation } from '../alert/DeleteModalScreen';
 
 export interface WalletAppbarProps {
   wallet: CombinedWallet;
@@ -19,6 +21,7 @@ export const WalletAppbar = ({
   existing,
 }: WalletAppbarProps) => {
   const deleteWallet = useDeleteWallet(wallet);
+  const confirmDelete = useDeleteConfirmation();
 
   return (
     <AppbarHeader mode="medium">
@@ -26,7 +29,10 @@ export const WalletAppbar = ({
 
       <Appbar.Content title={existing ? 'Wallet' : 'Create Wallet'} />
 
-      <Appbar.Action icon={DeleteIcon} onPress={deleteWallet} />
+      <Appbar.Action
+        icon={DeleteIcon}
+        onPress={() => confirmDelete(deleteWallet)}
+      />
     </AppbarHeader>
   );
 };

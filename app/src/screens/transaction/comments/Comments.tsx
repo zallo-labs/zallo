@@ -55,6 +55,7 @@ export const Comments = ({ tx, ...listProps }: CommentsProps) => {
         onChangeText={setComment}
         style={styles.input}
         onSubmitEditing={handleComment}
+        autoCorrect
       />
     </>
   );

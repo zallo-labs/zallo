@@ -1,11 +1,10 @@
-import { gql, useQuery } from '@apollo/client';
+import { gql } from '@apollo/client';
 import { useDevice } from '@features/device/useDevice';
-import { ContactsQuery } from '@gql/generated.api';
+import { useContactsQuery } from '@gql/generated.api';
 import { useApiClient } from '@gql/GqlProvider';
 import { truncatedAddr } from '@util/format';
 import { address, Address, filterFirst, Id, toId } from 'lib';
 import { useMemo } from 'react';
-import { useAccountIds } from '../account/useAccountIds';
 import { useApiUserAccountsMetadata } from '../account/useAccountsMetadata.api';
 
 export const API_CONTACT_FIELDS = gql`
@@ -30,48 +29,38 @@ export const useContacts = () => {
   const device = useDevice();
   const { apiAccountsMetadata } = useApiUserAccountsMetadata();
 
-  const { data, ...rest } = useQuery<ContactsQuery>(API_CONTACTS_QUERY, {
-    client: useApiClient(),
-  });
+  const { data, ...rest } = useContactsQuery({ client: useApiClient() });
 
-  const contacts: Contact[] = useMemo(
-    () =>
+  const contacts = useMemo(() => {
+    // Include this device, and associated accounts as contacts if they aren't already
+    const remote: Contact[] =
       data?.contacts.map((c) => ({
         id: toId(c.id),
         addr: address(c.addr),
         name: c.name,
-      })) ?? [],
-    [data],
-  );
+      })) ?? [];
 
-  // Show this device & other accounts as contacts
-  const accountContacts = useMemo(
-    () =>
-      apiAccountsMetadata.map(
-        ({ id, addr, name }): Contact => ({
-          id: id,
-          addr: addr,
-          name: name || `Account ${truncatedAddr(addr)}`,
-        }),
-      ),
-    [apiAccountsMetadata],
-  );
+    const accountContacts = apiAccountsMetadata.map(
+      ({ id, addr, name }): Contact => ({
+        id: id,
+        addr: addr,
+        name: name || `Account ${truncatedAddr(addr)}`,
+      }),
+    );
 
-  // Exclude created accounts & wallet contacts if they're already in the list
-  const combinedContacts = useMemo(() => {
-    const thisDeviceContact: Contact = {
+    const thisDevice: Contact = {
       id: toId(device.address),
       addr: device.address,
-      name: 'Myself',
+      name: 'This device',
     };
 
     return filterFirst(
-      [...contacts, ...accountContacts, thisDeviceContact],
-      (contact) => contact.addr,
+      [...remote, ...accountContacts, thisDevice],
+      (c) => c.addr,
     );
-  }, [contacts, accountContacts, device.address]);
+  }, [apiAccountsMetadata, data?.contacts, device.address]);
 
-  return { contacts: combinedContacts, ...rest };
+  return { contacts, ...rest };
 };
 
 export interface NewContact {

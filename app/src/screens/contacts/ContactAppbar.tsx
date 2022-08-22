@@ -4,6 +4,7 @@ import { Share } from 'react-native';
 import { Appbar } from 'react-native-paper';
 import { useGoBack } from '~/components2/Appbar/useGoBack';
 import { useDeleteContact } from '~/mutations/contact/useDeleteContact.api';
+import { useRootNavigation } from '~/navigation/useRootNavigation';
 import { Contact } from '~/queries/contacts/useContacts.api';
 
 export interface ContactAppbarProps {
@@ -11,7 +12,8 @@ export interface ContactAppbarProps {
 }
 
 export const ContactAppbar = ({ existing }: ContactAppbarProps) => {
-  const del = useDeleteContact();
+  const navigation = useRootNavigation();
+  const remove = useDeleteContact();
 
   return (
     <Appbar.Header mode="medium">
@@ -34,7 +36,13 @@ export const ContactAppbar = ({ existing }: ContactAppbarProps) => {
       )}
 
       {existing && (
-        <Appbar.Action icon={DeleteIcon} onPress={() => del(existing)} />
+        <Appbar.Action
+          icon={DeleteIcon}
+          onPress={() => {
+            remove(existing);
+            navigation.goBack();
+          }}
+        />
       )}
     </Appbar.Header>
   );

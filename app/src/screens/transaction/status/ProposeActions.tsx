@@ -75,7 +75,7 @@ export const ProposeActions = ({
           disabled={submitting}
           onPress={async () => {
             const txWillBeDeleted = tx.approvals.length === 1;
-            await revoke(tx);
+            revoke(tx);
             if (txWillBeDeleted) goBack();
           }}
         >

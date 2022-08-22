@@ -4,7 +4,7 @@ import * as zk from 'zksync-web3';
 import { parseEther } from 'ethers/lib/utils';
 import { RequestFundsArgs } from './faucet.args';
 
-const AMOUNT = parseEther('0.001');
+const AMOUNT = parseEther('0.01');
 
 @Resolver()
 export class FaucetResolver {

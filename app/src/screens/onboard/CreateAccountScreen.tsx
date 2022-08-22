@@ -10,7 +10,6 @@ import { CheckIcon } from '@util/theme/icons';
 import { useCreateApiAccount } from '~/mutations/account/useCreateAccount.api';
 import { AppbarBack } from '@components/AppbarBack';
 import { makeStyles } from '@util/theme/makeStyles';
-import { useName } from './Name/useName';
 import { Navigate } from '~/navigation/useRootNavigation';
 import { address, Address } from 'lib';
 
@@ -35,7 +34,6 @@ export const CreateAccountScreen = ({
 }: CreateAccountScreenProps) => {
   const styles = useStyles();
   const createAccount = useCreateApiAccount();
-  const name = useName();
 
   const handleSubmit = useCallback(
     async ({ name }: Values) => {
@@ -54,13 +52,15 @@ export const CreateAccountScreen = ({
       </Appbar.Header>
 
       <Formik
-        initialValues={{ name: `${name}'s Account` }}
+        initialValues={{ name: '' }}
         onSubmit={handleSubmit}
         validationSchema={schema}
       >
         <>
           <Box mx={4}>
-            <Text style={styles.input}>Create Account</Text>
+            <Text style={styles.input}>
+              What should we call your organization?
+            </Text>
 
             <FormikTextField name="name" label="Name" />
           </Box>

@@ -11,8 +11,11 @@ import {
   WalletPaymentCardSkeleton,
   WALLET_PAYMENT_CARD_HEIGHT,
 } from './WalletPaymentCardSkeleton';
-import { FiatBalance } from '~/components2/fiat/FiatBalance';
 import { Suspend } from '@components/Suspender';
+import { useSelectedToken } from '~/components2/token/useSelectedToken';
+import { useTokenBalance } from '~/token/useTokenBalance';
+import { useTokenValue } from '~/token/useTokenValue';
+import { FiatValue } from '~/components2/fiat/FiatValue';
 
 export interface WalletPaymentCardProps extends CardProps {
   id: WalletId;
@@ -23,6 +26,8 @@ export const WalletPaymentCard = withSkeleton(
   ({ id, available, ...cardProps }: WalletPaymentCardProps) => {
     const wallet = useWallet(id);
     const { colors } = useTheme();
+    const token = useSelectedToken();
+    const { fiatValue } = useTokenValue(token, useTokenBalance(token, wallet));
 
     const colorStyle = { color: colors.onTertiaryContainer };
 
@@ -30,7 +35,6 @@ export const WalletPaymentCard = withSkeleton(
 
     return (
       <Card
-        p={3}
         height={WALLET_PAYMENT_CARD_HEIGHT}
         backgroundColor={colors.tertiaryContainer}
         {...cardProps}
@@ -50,17 +54,17 @@ export const WalletPaymentCard = withSkeleton(
             <PayIcon size={32} {...colorStyle} />
           </Box>
 
-          <Box horizontal justifyContent="flex-end">
-            {available && (
+          {available && (
+            <Box horizontal justifyContent="space-between">
               <Text variant="bodyLarge" style={colorStyle}>
-                <FiatBalance
-                  addr={wallet.accountAddr}
-                  rightAffix=" available"
-                  showZero
-                />
+                {token.symbol}
               </Text>
-            )}
-          </Box>
+
+              <Text variant="bodyLarge" style={colorStyle}>
+                <FiatValue value={fiatValue} /> available
+              </Text>
+            </Box>
+          )}
         </Box>
       </Card>
     );

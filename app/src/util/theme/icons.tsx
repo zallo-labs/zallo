@@ -25,7 +25,7 @@ const ionicon: Curried<typeof Ionicons> = (name) => (props) =>
 
 export const ActivityIcon = materialCommunity('chart-timeline-variant');
 export const SendIcon = materialCommunity('send');
-export const ReceiveIcon = materialCommunity('arrow-down');
+export const ReceiveIcon = materialCommunity('arrow-bottom-left');
 export const ContactsIcon = material('people');
 export const HomeIcon = ionicon('wallet');
 export const AddIcon = materialCommunity('plus');
@@ -63,3 +63,4 @@ export const TokenIcon = materialCommunity('currency-eth');
 export const ChevronRight = material('chevron-right');
 export const QuorumIcon = material('group');
 export const DeployIcon = materialCommunity('rocket-launch');
+export const UndoIcon = material('undo');

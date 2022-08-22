@@ -18,15 +18,15 @@ export const useSelectedWallet = () => {
   const { walletIds } = useWalletIds();
   const walletId = useRecoilValue(selectedWallet);
 
-  return useWallet(
-    walletId
-      ? {
-          id: getWalletId(walletId[0], walletId[1]),
-          accountAddr: walletId[0],
-          ref: walletId[1],
-        }
-      : walletIds[0],
-  )!;
+  const id = walletId
+    ? {
+        id: getWalletId(walletId[0], walletId[1]),
+        accountAddr: walletId[0],
+        ref: walletId[1],
+      }
+    : walletIds[0];
+
+  return useWallet(id);
 };
 
 export const useSelectWallet = () => {

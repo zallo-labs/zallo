@@ -47,5 +47,13 @@ export class UpsertWalletArgs {
   quorums: Quorum[];
 
   @Bytes32Field()
-  txHash: string;
+  proposalHash: string;
+}
+
+@ArgsType()
+export class RemoveWalletArgs {
+  id: WalletId;
+
+  @Bytes32Field({ nullable: true })
+  proposalHash?: string;
 }
