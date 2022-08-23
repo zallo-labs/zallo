@@ -1,6 +1,6 @@
-import { Box } from '@components/Box';
-import { TextField } from '@components/fields/TextField';
-import { makeStyles } from '@util/theme/makeStyles';
+import { Box } from '~/components/layout/Box';
+import { TextField } from '~/components/fields/TextField';
+import { makeStyles } from '~/util/theme/makeStyles';
 import { useCallback, useMemo, useState } from 'react';
 import { FlatList, FlatListProps } from 'react-native';
 import { useCreateComment } from '~/mutations/comment/useCreateComment.api';
@@ -15,7 +15,7 @@ export interface CommentsProps extends Partial<FlatListProps<Comment>> {
 export const Comments = ({ tx, ...listProps }: CommentsProps) => {
   const styles = useStyles();
   const { comments: unsortedComments } = useComments(tx);
-  const createComment = useCreateComment(tx);
+  const createComment = useCreateComment(tx, tx.account);
 
   // Display comments newer -> older
   const comments = useMemo(

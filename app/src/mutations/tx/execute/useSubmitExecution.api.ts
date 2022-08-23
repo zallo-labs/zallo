@@ -3,16 +3,16 @@ import {
   TxQuery,
   TxQueryVariables,
   useSubmitTxExecutionMutation,
-} from '@gql/generated.api';
-import { useApiClient } from '@gql/GqlProvider';
+} from '~/gql/generated.api';
+import { useApiClient } from '~/gql/GqlProvider';
 import { ContractTransaction, ethers } from 'ethers';
 import { useCallback } from 'react';
 import { toId } from 'lib';
 import { DateTime } from 'luxon';
 import { Tx } from '~/queries/tx';
 import produce from 'immer';
-import { QueryOpts } from '@gql/update';
-import { API_QUERY_TX } from '~/queries/tx/useTx.api';
+import { QueryOpts } from '~/gql/update';
+import { API_QUERY_TX } from '~/queries/tx/tx/useTx.api';
 
 gql`
   mutation SubmitTxExecution(

@@ -1,5 +1,5 @@
-import { Addr } from '@components/Addr';
-import { CheckIcon } from '@util/theme/icons';
+import { Addr } from '~/components/addr/Addr';
+import { CheckIcon } from '~/util/theme/icons';
 import { Approval } from '~/queries/tx';
 import { EventRow } from './EventRow';
 

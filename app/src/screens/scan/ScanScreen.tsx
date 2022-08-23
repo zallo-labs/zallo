@@ -1,16 +1,12 @@
 import { useCallback, useEffect, useState } from 'react';
 import { StyleSheet } from 'react-native';
 import { BarCodeScanningResult, Camera } from 'expo-camera';
-import { BarCodeScanner, BarCodeScannerProps } from 'expo-barcode-scanner';
-import { Box } from '@components/Box';
+import { BarCodeScanner } from 'expo-barcode-scanner';
+import { Box } from '~/components/layout/Box';
 import { Button, Title } from 'react-native-paper';
-import { AddrLink, parseAddrLink } from '@features/qr/addrLink';
+import { AddrLink, parseAddrLink } from '~/util/addrLink';
 import { RootNavigatorScreenProps } from '~/navigation/RootNavigator';
 import { Overlay } from './Overlay';
-
-const barCodeScannerSettings: BarCodeScannerProps = {
-  barCodeTypes: [BarCodeScanner.Constants.BarCodeType.qr],
-};
 
 export type ScanScreenParams = {
   onScan: (link: AddrLink) => void;
@@ -60,7 +56,9 @@ export const ScanScreen = ({ route }: ScanScreenProps) => {
   return (
     <Camera
       onBarCodeScanned={!scanned ? handleScanned : undefined}
-      barCodeScannerSettings={barCodeScannerSettings}
+      barCodeScannerSettings={{
+        barCodeTypes: [BarCodeScanner.Constants.BarCodeType.qr],
+      }}
       style={StyleSheet.absoluteFill}
       ratio="16:9"
     >

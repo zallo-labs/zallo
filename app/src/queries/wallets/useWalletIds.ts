@@ -1,4 +1,4 @@
-import { combineRest, combine, simpleKeyExtractor } from '@gql/combine';
+import { combineRest, combine, simpleKeyExtractor } from '~/gql/combine';
 import { WalletId } from '.';
 import { useSubUserWalletIds } from './useWalletIds.sub';
 import { useApiUserWalletIds } from './useWalletIds.api';

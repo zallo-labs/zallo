@@ -1,32 +1,31 @@
-import { Box } from '@components/Box';
-import { Container } from '@components/list/Container';
-import { QrCode } from '@features/qr/QrCode';
+import { Box } from '~/components/layout/Box';
 import {
   useSelectedWallet,
   useSelectWallet,
-} from '~/components2/wallet/useSelectedWallet';
+} from '~/components/wallet/useSelectedWallet';
 import { ReceiveAppbar } from './ReceiveAppbar';
-import { buildAddrLink, buildTransferLink } from '@features/qr/addrLink';
+import { buildAddrLink, buildTransferLink } from '~/util/addrLink';
 import { useMemo, useState } from 'react';
 import { BigNumber } from 'ethers';
-import { SelectableTokenAmount } from '~/components2/token/SelectableTokenAmount';
-import { useSelectedToken } from '~/components2/token/useSelectedToken';
+import { SelectableTokenAmount } from '~/components/token/SelectableTokenAmount';
+import { useSelectedToken } from '~/components/token/useSelectedToken';
 import { Button } from 'react-native-paper';
-import { useNavigation } from '@react-navigation/native';
-import { BottomNavigatorProps } from '~/navigation/BottomNavigator';
-import { withSkeleton } from '@components/skeleton/withSkeleton';
-import { ScreenSkeleton } from '@components/skeleton/ScreenSkeleton';
-import { useKeepAwakeWhenFocussed } from '@util/hook/useKeepAwakeWhenFocussed';
+import { withSkeleton } from '~/components/skeleton/withSkeleton';
+import { ScreenSkeleton } from '~/components/skeleton/ScreenSkeleton';
+import { useKeepAwakeWhenFocussed } from '~/util/hook/useKeepAwakeWhenFocussed';
 import { ZERO_ADDR } from 'lib';
-import { Suspend } from '@components/Suspender';
-import { WalletSelector } from '../home/WalletSelector';
-import { ReceiveIcon } from '@util/theme/icons';
+import { Suspend } from '~/components/Suspender';
+import { WalletSelector } from '../home/WalletSelector/WalletSelector';
+import { ReceiveIcon } from '~/util/theme/icons';
 import { StyleSheet } from 'react-native';
 import { useFaucet } from '~/mutations/useFacuet.api';
+import { useRootNavigation } from '~/navigation/useRootNavigation';
+import { Container } from '~/components/layout/Container';
+import { QrCode } from './QrCode';
 
 export const ReceiveScreen = withSkeleton(
   () => {
-    const navigation = useNavigation<BottomNavigatorProps['navigation']>();
+    const navigation = useRootNavigation();
     const wallet = useSelectedWallet();
     const selectWallet = useSelectWallet();
     const faucet = useFaucet(wallet?.accountAddr, true);

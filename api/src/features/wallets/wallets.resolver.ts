@@ -9,7 +9,7 @@ import {
   Resolver,
 } from '@nestjs/graphql';
 import { GraphQLResolveInfo } from 'graphql';
-import { getSelect } from '~/util/select';
+import { makeGetSelect } from '~/util/select';
 import {
   WalletId,
   SetWalletNameArgs,
@@ -28,6 +28,17 @@ import { Prisma } from '@prisma/client';
 import { UserAddr } from '~/decorators/user.decorator';
 import { SubgraphService } from '../subgraph/subgraph.service';
 import { UserInputError } from 'apollo-server-core';
+import { Tx } from '@gen/tx/tx.model';
+import assert from 'assert';
+
+const getSelect = makeGetSelect<{
+  Wallet: Prisma.WalletSelect;
+}>({
+  Wallet: {
+    accountId: true,
+    ref: true,
+  },
+});
 
 @Resolver(() => Wallet)
 export class WalletsResolver {
@@ -35,11 +46,6 @@ export class WalletsResolver {
     private prisma: PrismaService,
     private subgraph: SubgraphService,
   ) {}
-
-  @ResolveField(() => String)
-  id(@Parent() acc: Wallet): string {
-    return getWalletId(acc.accountId, toWalletRef(acc.ref));
-  }
 
   @Query(() => Wallet, { nullable: true })
   async wallet(
@@ -92,6 +98,25 @@ export class WalletsResolver {
     });
   }
 
+  @ResolveField(() => String)
+  id(@Parent() w: Wallet): string {
+    return getWalletId(w.accountId, toWalletRef(w.ref));
+  }
+
+  @ResolveField(() => Tx, { nullable: true })
+  async activeModificationProposal(
+    @Parent() w: Wallet,
+    @Info() info: GraphQLResolveInfo,
+  ): Promise<Tx | null> {
+    const txs = await this.prisma.tx.findMany({
+      where: this.getActiveModificationProposalsWhere(w.accountId, w.ref),
+      ...getSelect(info),
+    });
+
+    assert(txs.length <= 1);
+    return txs.length ? txs[0] : null;
+  }
+
   @Mutation(() => Wallet)
   async setWalletName(
     @Args() { id, name }: SetWalletNameArgs,
@@ -120,13 +145,7 @@ export class WalletsResolver {
     // Deleting prior unfinalized proposals related to the wallet will cascade delete a proposed wallet and quorums
     await this.prisma.tx.deleteMany({
       where: {
-        accountId: id.accountId,
-        walletRef: id.ref,
-        submissions: {
-          none: {
-            finalized: true,
-          },
-        },
+        ...this.getActiveModificationProposalsWhere(id.accountId, id.ref),
         hash: {
           not: proposalHash,
         },
@@ -260,6 +279,47 @@ export class WalletsResolver {
           user: connectOrCreateUser(approver),
         })),
       },
+    };
+  }
+
+  private getActiveModificationProposalsWhere(
+    accountId: string,
+    walletRef: string,
+  ): Prisma.TxWhereInput {
+    return {
+      accountId: accountId,
+      walletRef,
+      submissions: {
+        none: {
+          finalized: true,
+        },
+      },
+      OR: [
+        {
+          proposedCreateWallet: {
+            ref: walletRef,
+          },
+        },
+        {
+          proposedRemoveWallet: {
+            ref: walletRef,
+          },
+        },
+        {
+          proposedCreateQuroums: {
+            some: {
+              walletRef,
+            },
+          },
+        },
+        {
+          proposedRemoveQuroums: {
+            some: {
+              walletRef,
+            },
+          },
+        },
+      ],
     };
   }
 }

@@ -1,16 +1,16 @@
 import { gql, useMutation } from '@apollo/client';
-import { useDevice } from '@features/device/useDevice';
+import { useDevice } from '@network/useDevice';
 import {
   CommentsQuery,
   CommentsQueryVariables,
   DeleteCommentMutation,
   DeleteCommentMutationVariables,
-} from '@gql/generated.api';
-import { useApiClient } from '@gql/GqlProvider';
-import { QueryOpts } from '@gql/update';
+} from '~/gql/generated.api';
+import { useApiClient } from '~/gql/GqlProvider';
+import { QueryOpts } from '~/gql/update';
 import { useCallback } from 'react';
-import { useSelectedWallet } from '~/components2/wallet/useSelectedWallet';
 import { Comment, COMMENTS_QUERY } from '~/queries/useComments.api';
+import { Address } from 'lib';
 
 const MUTATION = gql`
   mutation DeleteComment($account: Address!, $key: Id!, $nonce: Int!) {
@@ -20,8 +20,7 @@ const MUTATION = gql`
   }
 `;
 
-export const useDeleteComment = () => {
-  const { accountAddr } = useSelectedWallet();
+export const useDeleteComment = (account: Address) => {
   const device = useDevice();
 
   const [mutate] = useMutation<
@@ -36,7 +35,7 @@ export const useDeleteComment = () => {
 
       return mutate({
         variables: {
-          account: accountAddr,
+          account,
           key: c.key,
           nonce: c.nonce,
         },
@@ -46,7 +45,7 @@ export const useDeleteComment = () => {
 
           const opts: QueryOpts<CommentsQueryVariables> = {
             query: COMMENTS_QUERY,
-            variables: { account: accountAddr, key: c.key },
+            variables: { account, key: c.key },
           };
           const data = cache.readQuery<CommentsQuery, CommentsQueryVariables>(
             opts,
@@ -68,7 +67,7 @@ export const useDeleteComment = () => {
         },
       });
     },
-    [mutate, accountAddr, device.address],
+    [mutate, account, device.address],
   );
 
   return del;

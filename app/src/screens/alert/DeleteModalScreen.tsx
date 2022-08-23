@@ -1,4 +1,4 @@
-import { useTheme } from '@util/theme/paper';
+import { useTheme } from '@theme/paper';
 import { useCallback } from 'react';
 import { RootNavigatorScreenProps } from '~/navigation/RootNavigator';
 import { useRootNavigation } from '~/navigation/useRootNavigation';

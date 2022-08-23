@@ -1,5 +1,5 @@
-import { ErrorIcon, FinalizedIcon, SendIcon } from '@util/theme/icons';
-import { useTheme } from '@util/theme/paper';
+import { ErrorIcon, FinalizedIcon, SendIcon } from '~/util/theme/icons';
+import { useTheme } from '@theme/paper';
 import { memo } from 'react';
 import { Submission } from '~/queries/tx';
 import { EventRow, EventRowProps } from './EventRow';

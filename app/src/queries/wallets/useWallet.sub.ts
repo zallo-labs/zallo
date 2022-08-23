@@ -1,5 +1,5 @@
 import { gql } from '@apollo/client';
-import { useSubgraphClient } from '@gql/GqlProvider';
+import { useSubgraphClient } from '~/gql/GqlProvider';
 import { address, toWalletRef, toId, toQuorum } from 'lib';
 import {
   CombinedWallet,
@@ -8,9 +8,9 @@ import {
   WalletId,
 } from '.';
 import { useMemo } from 'react';
-import { useWalletQuery } from '@gql/generated.sub';
+import { useWalletQuery } from '~/gql/generated.sub';
 import { SUB_WALLET_ID_FIELDS } from './useWalletIds.sub';
-import { elipseTruncate } from '@util/format';
+import { elipseTruncate } from '~/util/format';
 
 gql`
   ${SUB_WALLET_ID_FIELDS}

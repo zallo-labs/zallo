@@ -1,6 +1,6 @@
-import { Token } from '~/token/token';
-import { FormattedNumber } from '@components/FormattedNumber';
+import { Token } from '@token/token';
 import { BigNumberish } from 'ethers';
+import { FormattedNumber } from '../format/FormattedNumber';
 
 export interface TokenValueProps {
   token: Token;

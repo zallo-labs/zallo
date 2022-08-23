@@ -1,24 +1,27 @@
-import { Box } from '@components/Box';
+import { Box } from '~/components/layout/Box';
 import {
   CheckIcon,
   DeleteIcon,
   EditIcon,
   PlusIcon,
   UndoIcon,
-} from '@util/theme/icons';
-import { Address, Quorum, toQuorum } from 'lib';
+} from '~/util/theme/icons';
+import { Address } from 'lib';
 import { FlatList } from 'react-native';
 import { Appbar, Button } from 'react-native-paper';
-import { useAppbarHeader } from '~/components2/Appbar/useAppbarHeader';
-import { useGoBack } from '~/components2/Appbar/useGoBack';
-import { AddrCard } from '~/components2/addr/AddrCard';
+import { useAppbarHeader } from '~/components/Appbar/useAppbarHeader';
+import { useGoBack } from '~/components/Appbar/useGoBack';
 import { RootNavigatorScreenProps } from '~/navigation/RootNavigator';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import _ from 'lodash';
-import { FAB } from '~/components2/FAB';
-import { BottomAppbar } from '~/components2/Appbar/BottomAppbar';
-import { makeStyles } from '@util/theme/makeStyles';
+import { FAB } from '~/components/FAB';
+import { BottomAppbar } from '~/components/Appbar/BottomAppbar';
+import { makeStyles } from '~/util/theme/makeStyles';
 import { useDeleteConfirmation } from '../alert/DeleteModalScreen';
+import { ProposableState } from '~/queries/wallets';
+import { ProposalableStatus } from '~/components/ProposalableStatus';
+import { AppbarCenterContent } from '~/components/Appbar/AppbarCenterContent';
+import { AddrCard } from '~/components/addr/AddrCard';
 
 export interface QuorumScreenParams {
   approvers?: Address[];
@@ -26,6 +29,7 @@ export interface QuorumScreenParams {
   removeQuorum?: () => void;
   revertQuorum?: () => void;
   isRemoved?: boolean;
+  state: ProposableState;
 }
 
 export type QuorumScreenProps = RootNavigatorScreenProps<'Quorum'>;
@@ -38,6 +42,7 @@ export const QuorumScreen = ({
       onChange,
       removeQuorum,
       revertQuorum,
+      state,
     },
   },
 }: QuorumScreenProps) => {
@@ -92,7 +97,12 @@ export const QuorumScreen = ({
     <Box flex={1}>
       <AppbarHeader mode="medium">
         <Appbar.BackAction onPress={useGoBack()} />
+
         <Appbar.Content title="Quorum" />
+
+        <AppbarCenterContent>
+          <ProposalableStatus state={state} />
+        </AppbarCenterContent>
 
         {revertQuorum && (
           <Appbar.Action

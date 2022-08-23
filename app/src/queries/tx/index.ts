@@ -3,7 +3,6 @@ import { isBytesLike } from 'ethers/lib/utils';
 import { Address, TxReq, Id, createIsObj, createIs } from 'lib';
 import { DateTime } from 'luxon';
 import { WalletId } from '../wallets';
-import { Transfer } from './transfer.sub';
 
 export interface Approval {
   addr: Address;
@@ -57,7 +56,6 @@ export interface ExecutedTx extends ProposedTx {
   executor: Address;
   executedAt: DateTime;
   blockHash: BytesLike;
-  transfers: Transfer[];
 }
 
 export type Tx = ProposedTx | ExecutedTx;

@@ -1,17 +1,17 @@
-import { Box } from '@components/Box';
-import { ListScreenSkeleton } from '@components/skeleton/ListScreenSkeleton';
-import { withSkeleton } from '@components/skeleton/withSkeleton';
-import { PlusIcon } from '@util/theme/icons';
-import { makeStyles } from '@util/theme/makeStyles';
+import { Box } from '~/components/layout/Box';
+import { ListScreenSkeleton } from '~/components/skeleton/ListScreenSkeleton';
+import { withSkeleton } from '~/components/skeleton/withSkeleton';
+import { PlusIcon } from '~/util/theme/icons';
+import { makeStyles } from '~/util/theme/makeStyles';
 import { Address } from 'lib';
 import { useCallback } from 'react';
 import { FlatList } from 'react-native';
 import { Appbar, Button } from 'react-native-paper';
-import { AccountCard } from '~/components2/account/AccountCard';
-import { useAppbarHeader } from '~/components2/Appbar/useAppbarHeader';
-import { useGoBack } from '~/components2/Appbar/useGoBack';
+import { useAppbarHeader } from '~/components/Appbar/useAppbarHeader';
+import { useGoBack } from '~/components/Appbar/useGoBack';
 import { RootNavigatorScreenProps } from '~/navigation/RootNavigator';
 import { useAccountIds } from '~/queries/account/useAccountIds';
+import { AccountCard } from '../account/AccountCard';
 
 export interface AccountsScreenParams {
   onSelect?: (account: Address) => void;

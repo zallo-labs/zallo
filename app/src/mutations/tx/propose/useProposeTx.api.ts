@@ -1,17 +1,17 @@
 import { gql } from '@apollo/client';
-import { useDevice } from '@features/device/useDevice';
+import { useDevice } from '@network/useDevice';
 import {
   TxQuery,
   TxQueryVariables,
   useProposeTxMutation,
-} from '@gql/generated.api';
-import { useApiClient } from '@gql/GqlProvider';
+} from '~/gql/generated.api';
+import { useApiClient } from '~/gql/GqlProvider';
 import { hexlify } from 'ethers/lib/utils';
 import { createTx, getTxId, hashTx, signTx, TxDef } from 'lib';
 import { DateTime } from 'luxon';
 import { useCallback } from 'react';
-import { API_QUERY_TX, API_TX_FIELDS } from '~/queries/tx/useTx.api';
-import { CombinedWallet } from '~/queries/wallets';
+import { API_QUERY_TX, API_TX_FIELDS } from '~/queries/tx/tx/useTx.api';
+import { WalletId } from '~/queries/wallets';
 
 gql`
   ${API_TX_FIELDS}
@@ -33,13 +33,12 @@ gql`
   }
 `;
 
-export const useApiProposeTx = (wallet: CombinedWallet) => {
+export const useApiProposeTx = () => {
   const device = useDevice();
-
   const [mutation] = useProposeTxMutation({ client: useApiClient() });
 
   const propose = useCallback(
-    async (txDef: TxDef) => {
+    async (txDef: TxDef, wallet: WalletId) => {
       const tx = createTx(txDef);
       const hash = await hashTx(wallet.accountAddr, tx);
       const signature = await signTx(device, wallet.accountAddr, tx);
@@ -95,7 +94,7 @@ export const useApiProposeTx = (wallet: CombinedWallet) => {
         },
       });
     },
-    [wallet.accountAddr, wallet.ref, device, mutation],
+    [device, mutation],
   );
 
   return propose;

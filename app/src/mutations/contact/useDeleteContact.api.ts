@@ -3,8 +3,8 @@ import {
   DeleteContactMutation,
   DeleteContactMutationVariables,
   ContactsQuery,
-} from '@gql/generated.api';
-import { useApiClient } from '@gql/GqlProvider';
+} from '~/gql/generated.api';
+import { useApiClient } from '~/gql/GqlProvider';
 import { useCallback } from 'react';
 import {
   Contact,

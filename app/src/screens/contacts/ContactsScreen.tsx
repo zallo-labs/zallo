@@ -1,16 +1,16 @@
-import { AppbarBack } from '@components/AppbarBack';
-import { Box } from '@components/Box';
-import { AddIcon } from '@util/theme/icons';
-import { makeStyles } from '@util/theme/makeStyles';
+import { AppbarBack } from '~/components/Appbar/AppbarBack';
+import { Box } from '~/components/layout/Box';
+import { AddIcon } from '~/util/theme/icons';
+import { makeStyles } from '~/util/theme/makeStyles';
 import { Address } from 'lib';
 import { FlatList } from 'react-native';
-import { AddrCard } from '~/components2/addr/AddrCard';
-import { AppbarSearch } from '~/components2/Appbar/AppbarSearch';
-import { useAppbarHeader } from '~/components2/Appbar/useAppbarHeader';
-import { useFuzzySearch } from '~/components2/Appbar/useFuzzySearch';
-import { FAB } from '~/components2/FAB';
+import { AppbarSearch } from '~/components/Appbar/AppbarSearch';
+import { useAppbarHeader } from '~/components/Appbar/useAppbarHeader';
+import { FAB } from '~/components/FAB';
 import { RootNavigatorScreenProps } from '~/navigation/RootNavigator';
 import { Contact, useContacts } from '~/queries/contacts/useContacts.api';
+import { useFuzzySearch } from '@hook/useFuzzySearch';
+import { AddrCard } from '~/components/addr/AddrCard';
 
 export interface ContactsScreenParams {
   title?: string;

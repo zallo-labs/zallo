@@ -2,8 +2,8 @@ import { ApolloQueryResult, gql, useQuery } from '@apollo/client';
 import {
   ContractMethodQuery,
   ContractMethodQueryVariables,
-} from '@gql/generated.api';
-import { useApiClient } from '@gql/GqlProvider';
+} from '~/gql/generated.api';
+import { useApiClient } from '~/gql/GqlProvider';
 import { Contract } from 'ethers';
 import { ethers } from 'ethers';
 import { BytesLike } from 'ethers';

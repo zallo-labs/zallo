@@ -1,8 +1,8 @@
-import { buildAddrLink } from '@features/qr/addrLink';
-import { ShareIcon, DeleteIcon } from '@util/theme/icons';
+import { buildAddrLink } from '~/util/addrLink';
+import { ShareIcon, DeleteIcon } from '~/util/theme/icons';
 import { Share } from 'react-native';
 import { Appbar } from 'react-native-paper';
-import { useGoBack } from '~/components2/Appbar/useGoBack';
+import { useGoBack } from '~/components/Appbar/useGoBack';
 import { useDeleteContact } from '~/mutations/contact/useDeleteContact.api';
 import { useRootNavigation } from '~/navigation/useRootNavigation';
 import { Contact } from '~/queries/contacts/useContacts.api';

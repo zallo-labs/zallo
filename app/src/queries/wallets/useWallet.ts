@@ -1,4 +1,4 @@
-import { combine } from '@gql/combine';
+import { combine } from '~/gql/combine';
 import { hashQuorum, toQuorum } from 'lib';
 import { useMemo } from 'react';
 import { CombinedWallet, WalletId } from '.';
@@ -10,13 +10,12 @@ export const useWallet = (id?: WalletId) => {
   const { apiWallet: a } = useApiWallet(id);
 
   return useMemo((): CombinedWallet | undefined => {
-    if (!id) return undefined;
+    if (!s && !a) return undefined;
     if (!s) return a;
     if (!a) return s;
 
     return {
-      ...id,
-      name: a?.name ?? '',
+      ...a,
       state: a.state === 'removed' ? 'removed' : 'active',
       quorums: combine(
         s.quorums,

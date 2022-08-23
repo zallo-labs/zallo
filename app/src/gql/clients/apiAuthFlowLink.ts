@@ -5,13 +5,13 @@ import { onError } from '@apollo/client/link/error';
 import { SiweMessage } from 'siwe';
 import { tryAcquire, E_ALREADY_LOCKED, Mutex } from 'async-mutex';
 import * as zk from 'zksync-web3';
-import { CONFIG } from '~/config';
-import { PROVIDER } from '~/provider';
-import { useDevice } from '@features/device/useDevice';
+import { CONFIG } from '~/util/config';
+import { PROVIDER } from '~/util/network/provider';
 import { atom, useRecoilState } from 'recoil';
-import { getSecureStore, persistAtom } from '@util/effect/persistAtom';
+import { getSecureStore, persistAtom } from '~/util/effect/persistAtom';
 import { useCallback, useMemo, useRef } from 'react';
-import { captureException } from '@util/sentry/sentry';
+import { captureException } from '~/util/sentry/sentry';
+import { useDevice } from '@network/useDevice';
 
 interface Token {
   message: SiweMessage;

@@ -1,8 +1,8 @@
 import { gql } from '@apollo/client';
-import { useDevice } from '@features/device/useDevice';
-import { useContactsQuery } from '@gql/generated.api';
-import { useApiClient } from '@gql/GqlProvider';
-import { truncatedAddr } from '@util/format';
+import { useDevice } from '@network/useDevice';
+import { useContactsQuery } from '~/gql/generated.api';
+import { useApiClient } from '~/gql/GqlProvider';
+import { truncatedAddr } from '~/util/format';
 import { address, Address, filterFirst, Id, toId } from 'lib';
 import { useMemo } from 'react';
 import { useApiUserAccountsMetadata } from '../account/useAccountsMetadata.api';

@@ -3,9 +3,9 @@ import {
   AccountQuery,
   AccountQueryVariables,
   useSetAccountNameMutation,
-} from '@gql/generated.api';
-import { useApiClient } from '@gql/GqlProvider';
-import { QueryOpts } from '@gql/update';
+} from '~/gql/generated.api';
+import { useApiClient } from '~/gql/GqlProvider';
+import { QueryOpts } from '~/gql/update';
 import assert from 'assert';
 import produce from 'immer';
 import { useCallback } from 'react';

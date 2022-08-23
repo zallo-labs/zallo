@@ -1,8 +1,8 @@
-import { useTheme } from '@util/theme/paper';
+import { useTheme } from '@theme/paper';
 import { ReactNode, useCallback, useState } from 'react';
 import { TouchableOpacity } from 'react-native';
 import Collapsible from 'react-native-collapsible';
-import { Box } from './Box';
+import { Box } from '~/components/layout/Box';
 import { Chevron } from './Chevron';
 
 export interface AccordionProps {

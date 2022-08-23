@@ -1,14 +1,13 @@
-import { Accordion } from '@components/Accordion';
-import { Box } from '@components/Box';
-import { ExpandableText } from '@components/ExpandableText';
-import { Container } from '@components/list/Container';
-import { getMethodInputs } from '@util/getMethodInputs';
+import { Accordion } from '~/components/Accordion';
+import { Box } from '~/components/layout/Box';
+import { ExpandableText } from '~/components/ExpandableText';
+import { getMethodInputs } from '~/screens/transaction/details/getMethodInputs';
 import { hexlify } from 'ethers/lib/utils';
 import { Call } from 'lib';
 import { useMemo } from 'react';
 import { Text } from 'react-native-paper';
 import { useContractMethod } from '~/queries/useContractMethod.api';
-import { MethodInputRow } from '../../../components2/call/MethodInputRow';
+import { MethodInputRow } from '../../../components/call/MethodInputRow';
 
 export interface DetailedCallMethodProps {
   call: Call;

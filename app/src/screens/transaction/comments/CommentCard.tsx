@@ -1,9 +1,9 @@
-import { Addr } from '@components/Addr';
-import { Box } from '@components/Box';
-import { useDevice } from '@features/device/useDevice';
-import { makeStyles } from '@util/theme/makeStyles';
+import { Addr } from '~/components/addr/Addr';
+import { Box } from '~/components/layout/Box';
+import { useDevice } from '@network/useDevice';
+import { makeStyles } from '~/util/theme/makeStyles';
 import { Text } from 'react-native-paper';
-import { Card } from '~/components2/card/Card';
+import { Card } from '~/components/card/Card';
 import { Comment } from '~/queries/useComments.api';
 
 export interface CommentCardProps {

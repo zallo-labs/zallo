@@ -1,26 +1,24 @@
 import { useCallback } from 'react';
-import { gql, useMutation } from '@apollo/client';
+import { gql } from '@apollo/client';
 import {
   ContactsDocument,
   ContactsQuery,
   ContactsQueryVariables,
-  UpsertContactMutation,
-  UpsertContactMutationVariables,
   useUpsertContactMutation,
-} from '@gql/generated.api';
-import { useApiClient } from '@gql/GqlProvider';
+} from '~/gql/generated.api';
+import { useApiClient } from '~/gql/GqlProvider';
 import {
   API_CONTACTS_QUERY,
   API_CONTACT_FIELDS,
   Contact,
   NewContact,
 } from '~/queries/contacts/useContacts.api';
-import { useDevice } from '@features/device/useDevice';
+import { useDevice } from '@network/useDevice';
 import { toId } from 'lib';
-import { QueryOpts } from '@gql/update';
+import { QueryOpts } from '~/gql/update';
 import produce from 'immer';
 
-const API_MUTATION = gql`
+gql`
   ${API_CONTACT_FIELDS}
 
   mutation UpsertContact(

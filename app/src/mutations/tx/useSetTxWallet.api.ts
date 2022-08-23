@@ -3,13 +3,13 @@ import {
   TxQuery,
   TxQueryVariables,
   useSetTxWallelMutation,
-} from '@gql/generated.api';
-import { useApiClient } from '@gql/GqlProvider';
-import { QueryOpts } from '@gql/update';
+} from '~/gql/generated.api';
+import { useApiClient } from '~/gql/GqlProvider';
+import { QueryOpts } from '~/gql/update';
 import produce from 'immer';
 import { useCallback } from 'react';
 import { ProposedTx } from '~/queries/tx';
-import { API_QUERY_TX } from '~/queries/tx/useTx.api';
+import { API_QUERY_TX } from '~/queries/tx/tx/useTx.api';
 import { WalletId } from '~/queries/wallets';
 
 gql`

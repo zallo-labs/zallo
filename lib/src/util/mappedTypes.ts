@@ -5,6 +5,32 @@ export type MaybeArray<T> = T | T[];
 export const maybeToArray = <T>(maybe: MaybeArray<T>): T[] =>
   Array.isArray(maybe) ? maybe : [maybe];
 
+type TupleSplit<
+  T,
+  N extends number,
+  O extends readonly any[] = readonly [],
+> = O['length'] extends N
+  ? [O, T]
+  : T extends readonly [infer F, ...infer R]
+  ? TupleSplit<readonly [...R], N, readonly [...O, F]>
+  : [O, T];
+
+export type TakeFirst<
+  T extends readonly unknown[],
+  N extends number,
+> = TupleSplit<T, N>[0];
+
+export type SkipFirst<
+  T extends readonly unknown[],
+  N extends number = 1,
+> = TupleSplit<T, N>[1];
+
+export type TupleSlice<
+  T extends readonly unknown[],
+  S extends number,
+  E extends number,
+> = SkipFirst<TakeFirst<T, E>, S>;
+
 const x = typeof '';
 type Checker = typeof x | ((e: unknown) => boolean);
 

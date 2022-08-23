@@ -1,17 +1,17 @@
-import { Box } from '@components/Box';
-import { Container } from '@components/list/Container';
-import { ScreenSkeleton } from '@components/skeleton/ScreenSkeleton';
-import { withSkeleton } from '@components/skeleton/withSkeleton';
-import { Suspend } from '@components/Suspender';
+import { Box } from '~/components/layout/Box';
+import { ScreenSkeleton } from '~/components/skeleton/ScreenSkeleton';
+import { withSkeleton } from '~/components/skeleton/withSkeleton';
+import { Suspend } from '~/components/Suspender';
 import { RootNavigatorScreenProps } from '~/navigation/RootNavigator';
 import { TxId } from '~/queries/tx';
-import { useTx } from '~/queries/tx/useTx';
 import { Comments } from './comments/Comments';
 import { TransactionStatus } from './status/TransactionStatus';
 import { TransactionAppbar } from './appbar/TransactionAppbar';
-import { useScrolled } from '~/components2/Appbar/useScrolled';
 import { useWallet } from '~/queries/wallets/useWallet';
 import { TransactionDetails } from './details/TransactionDetails';
+import { useScrolled } from '@hook/useScrolled';
+import { Container } from '~/components/layout/Container';
+import { useTx } from '~/queries/tx/tx/useTx';
 
 export interface TransactionScreenParams {
   id: TxId;

@@ -5,7 +5,7 @@ const E = process.env;
 const chain = E?.CHAIN?.toUpperCase();
 export const CONFIG = {
   env: E.NODE_ENV === 'development' ? 'development' : 'production',
-  chainName: chain,
+  chainName: chain!,
   sentryDsn: E.SENTRY_DSN!,
   apiUrl: E.API_URL!,
   subgraphGqlUrl: E.SUBGRAPH_GQL_URL!,

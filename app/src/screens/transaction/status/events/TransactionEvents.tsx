@@ -2,8 +2,8 @@ import { useMemo } from 'react';
 import { Approval, Submission, Tx } from '~/queries/tx';
 import { ApprovalRow } from './ApprovalRow';
 import { SubmissionRow } from './SubmissionRow';
-import { Container } from '@components/list/Container';
-import { Box } from '@components/Box';
+import { Box } from '~/components/layout/Box';
+import { Container } from '~/components/layout/Container';
 
 enum EventType {
   Approval,

@@ -1,5 +1,5 @@
 import { Native as Sentry, init } from 'sentry-expo';
-import { CONFIG } from '~/config';
+import { CONFIG } from '~/util/config';
 
 export const SENTRY_ROUTING_INSTRUMENTATION =
   new Sentry.ReactNavigationInstrumentation();

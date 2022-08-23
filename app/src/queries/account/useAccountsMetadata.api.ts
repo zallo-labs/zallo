@@ -1,6 +1,6 @@
 import { gql } from '@apollo/client';
-import { useUserAccountsMetadataQuery } from '@gql/generated.api';
-import { useApiClient } from '@gql/GqlProvider';
+import { useUserAccountsMetadataQuery } from '~/gql/generated.api';
+import { useApiClient } from '~/gql/GqlProvider';
 import { address, toId } from 'lib';
 import { useMemo } from 'react';
 import { AccountMetadata, QUERY_ACCOUNT_POLL_INTERVAL } from '.';

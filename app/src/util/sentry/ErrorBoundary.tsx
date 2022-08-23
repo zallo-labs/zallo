@@ -1,10 +1,9 @@
 import { MaterialCommunityIcons } from '@expo/vector-icons';
-import { ChildrenProps } from '@util/children';
 import { Subheading, Title } from 'react-native-paper';
-import { Box } from '../../components/Box';
-import { useEffect } from 'react';
+import { ReactNode, useEffect } from 'react';
 import { Native as Sentry } from 'sentry-expo';
-import { useTheme } from '@util/theme/paper';
+import { useTheme } from '@theme/paper';
+import { Box } from '~/components/layout/Box';
 
 interface FallbackProps {
   resetError: () => void;
@@ -33,7 +32,11 @@ const Fallback = ({ resetError }: FallbackProps) => {
   );
 };
 
-export const ErrorBoundary = ({ children }: ChildrenProps) => (
+export interface ErrorBoundaryProps {
+  children: ReactNode;
+}
+
+export const ErrorBoundary = ({ children }: ErrorBoundaryProps) => (
   <Sentry.ErrorBoundary
     fallback={({ resetError }) => <Fallback resetError={resetError} />}
     onError={(error) => {

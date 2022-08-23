@@ -1,6 +1,6 @@
 import { gql } from '@apollo/client';
-import { useApiClient } from '@gql/GqlProvider';
-import { QueryOpts } from '@gql/update';
+import { useApiClient } from '~/gql/GqlProvider';
+import { QueryOpts } from '~/gql/update';
 import { CombinedWallet, toWallet } from '~/queries/wallets';
 import {
   AccountQuery,
@@ -13,7 +13,7 @@ import {
   UserWalletIdsQueryVariables,
   WalletQuery,
   WalletQueryVariables,
-} from '@gql/generated.api';
+} from '~/gql/generated.api';
 import {
   Address,
   calculateProxyAddress,
@@ -25,11 +25,11 @@ import {
 } from 'lib';
 import { API_ACCOUNT_QUERY } from '~/queries/account/useAccount.api';
 import produce from 'immer';
-import { ACCOUNT_IMPL } from '~/provider';
-import { useDevice } from '@features/device/useDevice';
-import { useAccountProxyFactory } from '@features/account/useAccountProxyFactory';
+import { ACCOUNT_IMPL } from '~/util/network/provider';
+import { useDevice } from '@network/useDevice';
 import { API_QUERY_WALLET } from '~/queries/wallets/useWallet.api';
 import { API_QUERY_USER_WALLETS } from '~/queries/wallets/useWalletIds.api';
+import { useAccountProxyFactory } from '@network/useAccountProxyFactory';
 
 gql`
   mutation CreateAccount(
@@ -168,8 +168,6 @@ export const useCreateApiAccount = () => {
               wallet: {
                 __typename: 'Wallet',
                 id: getWalletId(accountAddr, w.ref),
-                accountId: accountAddr,
-                ref: w.ref,
                 name: w.name,
                 createProposal: null,
                 removeProposal: null,

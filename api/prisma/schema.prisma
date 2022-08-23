@@ -45,7 +45,7 @@ model Wallet {
 
   createProposal     Tx?     @relation(name: "createWallet", fields: [accountId, createProposalHash], references: [accountId, hash], onDelete: Cascade)
   createProposalHash String? @db.Char(66) // bytes32
-  removeProposal     Tx?     @relation(name: "removeWallet", fields: [accountId, removeProposalHash], references: [accountId, hash], onDelete: SetNull)
+  removeProposal     Tx?     @relation(name: "removeWallet", fields: [accountId, removeProposalHash], references: [accountId, hash])
   removeProposalHash String? @db.Char(66) // bytes32
 
   quorums   Quorum[]

@@ -1,14 +1,16 @@
-import { Addr } from '@components/Addr';
-import { Box } from '@components/Box';
-import { Suspend } from '@components/Suspender';
-import { useNavigation } from '@react-navigation/native';
-import { ChevronRight } from '@util/theme/icons';
+import { Addr } from '~/components/addr/Addr';
+import { Box } from '~/components/layout/Box';
+import { Suspend } from '~/components/Suspender';
+import { useFocusEffect } from '@react-navigation/native';
+import { ChevronRight } from '~/util/theme/icons';
+import { Address } from 'lib';
+import { useCallback } from 'react';
 import { StyleProp, TextStyle } from 'react-native';
 import { IconButton, Text } from 'react-native-paper';
 import { useApiSetTxWallet } from '~/mutations/tx/useSetTxWallet.api';
+import { useRootNavigation } from '~/navigation/useRootNavigation';
 import { Tx } from '~/queries/tx';
 import { useWallet } from '~/queries/wallets/useWallet';
-import { TransactionScreenProps } from '../TransactionScreen';
 
 export interface TransactionWalletSelectorProps {
   tx: Tx;
@@ -21,9 +23,36 @@ export const TransactionWalletSelector = ({
   textStyle,
   iconColor,
 }: TransactionWalletSelectorProps) => {
-  const navigation = useNavigation<TransactionScreenProps['navigation']>();
+  const navigation = useRootNavigation();
   const wallet = useWallet(tx.wallet);
   const setWallet = useApiSetTxWallet(tx);
+
+  const selectWallet = useCallback(
+    (account: Address) =>
+      navigation.navigate('Account', {
+        id: account,
+        onSelectWallet: (wallet) => {
+          setWallet(wallet);
+          navigation.goBack();
+        },
+        showInactiveWallets: false,
+        title: 'Select executing wallet',
+      }),
+    [navigation, setWallet],
+  );
+
+  // Select another wallet from the same account if it's inactive
+  // A timeout is required as navigation fails if it occurs too quickly upon mount - https://github.com/react-navigation/react-navigation/issues/9182
+  useFocusEffect(
+    useCallback(() => {
+      const timer = setTimeout(() => {
+        if (wallet && wallet.state !== 'active')
+          selectWallet(wallet.accountAddr);
+      });
+
+      return () => clearTimeout(timer);
+    }, [selectWallet, wallet]),
+  );
 
   if (!wallet) return <Suspend />;
 
@@ -47,15 +76,7 @@ export const TransactionWalletSelector = ({
       <IconButton
         icon={ChevronRight}
         iconColor={iconColor}
-        onPress={() => {
-          navigation.navigate('Account', {
-            id: wallet.accountAddr,
-            onSelectWallet: (wallet) => {
-              setWallet(wallet);
-              navigation.goBack();
-            },
-          });
-        }}
+        onPress={() => selectWallet(wallet.accountAddr)}
       />
     </Box>
   );

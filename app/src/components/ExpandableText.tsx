@@ -1,5 +1,5 @@
-import { elipseTruncate } from '@util/format';
 import { FC, useMemo } from 'react';
+import { elipseTruncate } from '~/util/format';
 import { ExpandOnLongPress } from './ExpandOnLongPress';
 
 export type ExpandableTextProps = {

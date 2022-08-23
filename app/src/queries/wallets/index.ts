@@ -36,6 +36,7 @@ export interface WalletId {
   id: Id;
   accountAddr: Address;
   ref: WalletRef;
+  proposedModificationHash?: string;
 }
 
 export interface CombinedWallet extends WalletId {

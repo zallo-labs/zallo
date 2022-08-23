@@ -1,10 +1,10 @@
 import { gql, useQuery } from '@apollo/client';
 import { BigNumber, ethers } from 'ethers';
-import { TokenPriceQuery, TokenPriceQueryVariables } from '@gql/generated.uni';
-import { useUniswapClient } from '@gql/GqlProvider';
-import { Token } from '~/token/token';
-import { bigNumberToFiat, fiatToBigNumber } from '~/token/fiat';
-import { ETH } from '~/token/tokens';
+import { TokenPriceQuery, TokenPriceQueryVariables } from '~/gql/generated.uni';
+import { useUniswapClient } from '~/gql/GqlProvider';
+import { Token } from '@token/token';
+import { bigNumberToFiat, fiatToBigNumber } from '~/util/token/fiat';
+import { ETH } from '@token/tokens';
 
 const QUERY = gql`
   query TokenPrice($token: String!, $token2: ID!) {

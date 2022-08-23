@@ -1,10 +1,10 @@
 import { gql } from '@apollo/client';
-import { useDevice } from '@features/device/useDevice';
-import { useAccountQuery } from '@gql/generated.api';
-import { useApiClient } from '@gql/GqlProvider';
+import { useDevice } from '@network/useDevice';
+import { useAccountQuery } from '~/gql/generated.api';
+import { useApiClient } from '~/gql/GqlProvider';
 import { Address, address, connectAccount, toDeploySalt, toId } from 'lib';
 import { useMemo } from 'react';
-import { ACCOUNT_IMPL } from '~/provider';
+import { ACCOUNT_IMPL } from '~/util/network/provider';
 import { CombinedAccount, QUERY_ACCOUNT_POLL_INTERVAL } from '.';
 import {
   apiWalletFieldsToId,

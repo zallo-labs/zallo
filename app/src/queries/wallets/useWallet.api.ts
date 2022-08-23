@@ -1,7 +1,7 @@
 import { gql } from '@apollo/client';
-import { useWalletQuery, WalletQuery } from '@gql/generated.api';
-import { useApiClient } from '@gql/GqlProvider';
-import { toId, address, toWalletRef, toQuorum } from 'lib';
+import { useWalletQuery, WalletQuery } from '~/gql/generated.api';
+import { useApiClient } from '~/gql/GqlProvider';
+import { toId, address, toQuorum, getWalletId } from 'lib';
 import { useMemo } from 'react';
 import {
   CombinedQuorum,
@@ -10,38 +10,34 @@ import {
   QUERY_WALLETS_POLL_INTERVAL,
   WalletId,
 } from '.';
-import { API_WALLET_ID_FIELDS } from './useWalletIds.api';
 
 export const API_WALLET_FIELDS = gql`
-  ${API_WALLET_ID_FIELDS}
+  fragment ProposalFields on Tx {
+    hash
+    submissions {
+      finalized
+    }
+  }
 
   fragment WalletFields on Wallet {
-    ...WalletIdFields
+    id
     name
     quorums {
       approvers {
         userId
       }
       createProposal {
-        submissions {
-          finalized
-        }
+        ...ProposalFields
       }
       removeProposal {
-        submissions {
-          finalized
-        }
+        ...ProposalFields
       }
     }
     createProposal {
-      submissions {
-        finalized
-      }
+      ...ProposalFields
     }
     removeProposal {
-      submissions {
-        finalized
-      }
+      ...ProposalFields
     }
   }
 `;
@@ -69,24 +65,29 @@ const getProposalState = ({
     ? 'removed'
     : 'added';
 
+// Only a single proposed modification can exist at a time
+const getProposedModificationHash = (
+  ...proposals: RemoveProposalable['removeProposal'][]
+) => proposals.find((p) => p?.submissions?.every((s) => !s.finalized))?.hash;
+
 export const useApiWallet = (id?: WalletId) => {
   const { data, ...rest } = useWalletQuery({
     client: useApiClient(),
     pollInterval: QUERY_WALLETS_POLL_INTERVAL,
     variables: {
-      wallet: { accountId: id?.accountAddr, ref: id?.ref },
+      wallet: { accountId: id?.accountAddr ?? '', ref: id?.ref ?? '' },
     },
     skip: !id,
   });
 
   const apiWallet = useMemo((): CombinedWallet | undefined => {
-    if (!data?.wallet) return undefined;
+    const w = data?.wallet;
+    if (!w?.id) return undefined; // w.id is sometimes undefined sometimes when w is not 🤷
 
-    const w = data.wallet;
     return {
       id: toId(w.id),
-      accountAddr: address(w.accountId),
-      ref: toWalletRef(w.ref),
+      accountAddr: id!.accountAddr,
+      ref: id!.ref,
       name: w.name,
       state: getProposalState(w),
       quorums:
@@ -98,8 +99,14 @@ export const useApiWallet = (id?: WalletId) => {
             state: getProposalState(quorum),
           }),
         ) ?? [],
+      proposedModificationHash: getProposedModificationHash(
+        w.createProposal,
+        w.removeProposal,
+        ...(w.quorums?.flatMap((q) => [q.createProposal, q.removeProposal]) ??
+          []),
+      ),
     };
-  }, [data?.wallet]);
+  }, [data?.wallet, id]);
 
   return { apiWallet, ...rest };
 };

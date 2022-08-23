@@ -9,7 +9,7 @@ import {
 import { RetryLink } from '@apollo/client/link/retry';
 import { MaybePromise } from 'lib';
 import { useCallback, useMemo } from 'react';
-import { CONFIG } from '~/config';
+import { CONFIG } from '~/util/config';
 import { useAuthFlowLink } from './apiAuthFlowLink';
 import { getPersistedCache } from './cache';
 

@@ -1,6 +1,6 @@
-import { PayCircleIcon, PayCircleOutlineIcon } from '@util/theme/icons';
+import { PayCircleIcon, PayCircleOutlineIcon } from '~/util/theme/icons';
 import { ComponentPropsWithoutRef, useState } from 'react';
-import { BottomNavigation, Text } from 'react-native-paper';
+import { BottomNavigation } from 'react-native-paper';
 import { ActivityScreen } from '~/screens/activity/ActivityScreen';
 import { HomeScreen } from '~/screens/home/HomeScreen';
 import { ReceiveScreen } from '~/screens/receive/ReceiveScreen';

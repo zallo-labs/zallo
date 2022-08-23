@@ -1,12 +1,12 @@
-import { Box } from '@components/Box';
+import { Box } from '~/components/layout/Box';
 import { BigNumber } from 'ethers';
 import { Address } from 'lib';
 import { Text } from 'react-native-paper';
-import { FiatValue } from '~/components2/fiat/FiatValue';
-import { TokenAmount } from '~/components2/token/TokenAmount';
-import { Token } from '~/token/token';
-import { useTokenBalance } from '~/token/useTokenBalance';
-import { useTokenValue } from '~/token/useTokenValue';
+import { FiatValue } from '~/components/fiat/FiatValue';
+import { TokenAmount } from '~/components/token/TokenAmount';
+import { Token } from '@token/token';
+import { useTokenBalance } from '@token/useTokenBalance';
+import { useTokenValue } from '@token/useTokenValue';
 
 export interface TokenAmountRowProps {
   token: Token;

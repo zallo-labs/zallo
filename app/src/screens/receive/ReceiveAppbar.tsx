@@ -1,8 +1,8 @@
-import { ShareIcon } from '@util/theme/icons';
+import { ShareIcon } from '~/util/theme/icons';
 import { useCallback } from 'react';
 import { Share } from 'react-native';
 import { Appbar } from 'react-native-paper';
-import { AppbarMenu } from '~/components2/Appbar/AppbarMenu';
+import { AppbarMenu } from '~/components/Appbar/AppbarMenu';
 
 export interface ReceiveAppbarProps {
   url: string;

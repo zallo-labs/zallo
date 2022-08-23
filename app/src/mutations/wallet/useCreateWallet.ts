@@ -1,9 +1,8 @@
-import { useNavigation } from '@react-navigation/native';
 import { useCallback } from 'react';
-import { BottomNavigatorProps } from '~/navigation/BottomNavigator';
+import { useRootNavigation } from '~/navigation/useRootNavigation';
 
 export const useCreateWallet = () => {
-  const { navigate } = useNavigation<BottomNavigatorProps['navigation']>();
+  const { navigate } = useRootNavigation();
 
   return useCallback(
     () =>

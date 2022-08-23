@@ -1,15 +1,15 @@
-import { AppbarBack } from '@components/AppbarBack';
-import { Box } from '@components/Box';
-import { CheckIcon, CloseIcon } from '@util/theme/icons';
+import { AppbarBack } from '~/components/Appbar/AppbarBack';
+import { Box } from '~/components/layout/Box';
+import { CheckIcon, CloseIcon } from '~/util/theme/icons';
 import { BigNumber } from 'ethers';
 import { ZERO } from 'lib';
 import { useCallback, useMemo, useState } from 'react';
 import { Appbar } from 'react-native-paper';
-import { FAB } from '~/components2/FAB';
-import { SelectedTokenCard } from '~/components2/token/SelectedTokenCard';
-import { useSelectedToken } from '~/components2/token/useSelectedToken';
+import { FAB } from '~/components/FAB';
+import { SelectedTokenCard } from '~/components/token/SelectedTokenCard';
+import { useSelectedToken } from '~/components/token/useSelectedToken';
 import { RootNavigatorScreenProps } from '~/navigation/RootNavigator';
-import { convertTokenAmount, Token } from '~/token/token';
+import { convertTokenAmount, Token } from '@token/token';
 import { AmountInput } from './AmountInput';
 
 export interface AmountScreenParams {

@@ -1,4 +1,4 @@
-import { Suspend } from '@components/Suspender';
+import { Suspend } from '~/components/Suspender';
 import { useAccount } from '~/queries/account/useAccount';
 import { Tx } from '~/queries/tx';
 import { CombinedWallet } from '~/queries/wallets';

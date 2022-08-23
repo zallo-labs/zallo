@@ -3569,6 +3569,7 @@ export type Wallet = {
   _count: WalletCount;
   account: Account;
   accountId: Scalars['String'];
+  activeModificationProposal?: Maybe<Tx>;
   approvers?: Maybe<Array<Approver>>;
   createProposal?: Maybe<Tx>;
   createProposalHash?: Maybe<Scalars['String']>;
@@ -4126,7 +4127,7 @@ export type UpsertWalletMutationVariables = Exact<{
 }>;
 
 
-export type UpsertWalletMutation = { __typename?: 'Mutation', upsertWallet?: { __typename?: 'Wallet', name: string, id: string, accountId: string, ref: string, quorums?: Array<{ __typename?: 'Quorum', approvers?: Array<{ __typename?: 'Approver', userId: string }> | null, createProposal?: { __typename?: 'Tx', submissions?: Array<{ __typename?: 'Submission', finalized: boolean }> | null } | null, removeProposal?: { __typename?: 'Tx', submissions?: Array<{ __typename?: 'Submission', finalized: boolean }> | null } | null }> | null, createProposal?: { __typename?: 'Tx', submissions?: Array<{ __typename?: 'Submission', finalized: boolean }> | null } | null, removeProposal?: { __typename?: 'Tx', submissions?: Array<{ __typename?: 'Submission', finalized: boolean }> | null } | null } | null };
+export type UpsertWalletMutation = { __typename?: 'Mutation', upsertWallet?: { __typename?: 'Wallet', id: string, name: string, quorums?: Array<{ __typename?: 'Quorum', approvers?: Array<{ __typename?: 'Approver', userId: string }> | null, createProposal?: { __typename?: 'Tx', hash: string, submissions?: Array<{ __typename?: 'Submission', finalized: boolean }> | null } | null, removeProposal?: { __typename?: 'Tx', hash: string, submissions?: Array<{ __typename?: 'Submission', finalized: boolean }> | null } | null }> | null, createProposal?: { __typename?: 'Tx', hash: string, submissions?: Array<{ __typename?: 'Submission', finalized: boolean }> | null } | null, removeProposal?: { __typename?: 'Tx', hash: string, submissions?: Array<{ __typename?: 'Submission', finalized: boolean }> | null } | null } | null };
 
 export type AccountFieldsFragment = { __typename?: 'Account', id: string, name: string, impl?: string | null, deploySalt?: string | null, wallets?: Array<{ __typename?: 'Wallet', id: string, accountId: string, ref: string }> | null };
 
@@ -4186,14 +4187,16 @@ export type ContractMethodQueryVariables = Exact<{
 
 export type ContractMethodQuery = { __typename?: 'Query', contractMethod?: { __typename?: 'ContractMethod', id: string, fragment: any } | null };
 
-export type WalletFieldsFragment = { __typename?: 'Wallet', name: string, id: string, accountId: string, ref: string, quorums?: Array<{ __typename?: 'Quorum', approvers?: Array<{ __typename?: 'Approver', userId: string }> | null, createProposal?: { __typename?: 'Tx', submissions?: Array<{ __typename?: 'Submission', finalized: boolean }> | null } | null, removeProposal?: { __typename?: 'Tx', submissions?: Array<{ __typename?: 'Submission', finalized: boolean }> | null } | null }> | null, createProposal?: { __typename?: 'Tx', submissions?: Array<{ __typename?: 'Submission', finalized: boolean }> | null } | null, removeProposal?: { __typename?: 'Tx', submissions?: Array<{ __typename?: 'Submission', finalized: boolean }> | null } | null };
+export type ProposalFieldsFragment = { __typename?: 'Tx', hash: string, submissions?: Array<{ __typename?: 'Submission', finalized: boolean }> | null };
+
+export type WalletFieldsFragment = { __typename?: 'Wallet', id: string, name: string, quorums?: Array<{ __typename?: 'Quorum', approvers?: Array<{ __typename?: 'Approver', userId: string }> | null, createProposal?: { __typename?: 'Tx', hash: string, submissions?: Array<{ __typename?: 'Submission', finalized: boolean }> | null } | null, removeProposal?: { __typename?: 'Tx', hash: string, submissions?: Array<{ __typename?: 'Submission', finalized: boolean }> | null } | null }> | null, createProposal?: { __typename?: 'Tx', hash: string, submissions?: Array<{ __typename?: 'Submission', finalized: boolean }> | null } | null, removeProposal?: { __typename?: 'Tx', hash: string, submissions?: Array<{ __typename?: 'Submission', finalized: boolean }> | null } | null };
 
 export type WalletQueryVariables = Exact<{
   wallet: WalletId;
 }>;
 
 
-export type WalletQuery = { __typename?: 'Query', wallet?: { __typename?: 'Wallet', name: string, id: string, accountId: string, ref: string, quorums?: Array<{ __typename?: 'Quorum', approvers?: Array<{ __typename?: 'Approver', userId: string }> | null, createProposal?: { __typename?: 'Tx', submissions?: Array<{ __typename?: 'Submission', finalized: boolean }> | null } | null, removeProposal?: { __typename?: 'Tx', submissions?: Array<{ __typename?: 'Submission', finalized: boolean }> | null } | null }> | null, createProposal?: { __typename?: 'Tx', submissions?: Array<{ __typename?: 'Submission', finalized: boolean }> | null } | null, removeProposal?: { __typename?: 'Tx', submissions?: Array<{ __typename?: 'Submission', finalized: boolean }> | null } | null } | null };
+export type WalletQuery = { __typename?: 'Query', wallet?: { __typename?: 'Wallet', id: string, name: string, quorums?: Array<{ __typename?: 'Quorum', approvers?: Array<{ __typename?: 'Approver', userId: string }> | null, createProposal?: { __typename?: 'Tx', hash: string, submissions?: Array<{ __typename?: 'Submission', finalized: boolean }> | null } | null, removeProposal?: { __typename?: 'Tx', hash: string, submissions?: Array<{ __typename?: 'Submission', finalized: boolean }> | null } | null }> | null, createProposal?: { __typename?: 'Tx', hash: string, submissions?: Array<{ __typename?: 'Submission', finalized: boolean }> | null } | null, removeProposal?: { __typename?: 'Tx', hash: string, submissions?: Array<{ __typename?: 'Submission', finalized: boolean }> | null } | null } | null };
 
 export type WalletIdFieldsFragment = { __typename?: 'Wallet', id: string, accountId: string, ref: string };
 
@@ -4279,37 +4282,37 @@ export const CommentFieldsFragmentDoc = gql`
   }
 }
     ${ReactionFieldsFragmentDoc}`;
+export const ProposalFieldsFragmentDoc = gql`
+    fragment ProposalFields on Tx {
+  hash
+  submissions {
+    finalized
+  }
+}
+    `;
 export const WalletFieldsFragmentDoc = gql`
     fragment WalletFields on Wallet {
-  ...WalletIdFields
+  id
   name
   quorums {
     approvers {
       userId
     }
     createProposal {
-      submissions {
-        finalized
-      }
+      ...ProposalFields
     }
     removeProposal {
-      submissions {
-        finalized
-      }
+      ...ProposalFields
     }
   }
   createProposal {
-    submissions {
-      finalized
-    }
+    ...ProposalFields
   }
   removeProposal {
-    submissions {
-      finalized
-    }
+    ...ProposalFields
   }
 }
-    ${WalletIdFieldsFragmentDoc}`;
+    ${ProposalFieldsFragmentDoc}`;
 export const CreateAccountDocument = gql`
     mutation CreateAccount($account: Address!, $impl: Address!, $deploySalt: Bytes32!, $name: String!, $wallets: [WalletWithoutAccountInput!]!) {
   createAccount(

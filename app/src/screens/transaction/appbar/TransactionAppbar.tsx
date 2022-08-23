@@ -1,9 +1,9 @@
-import { AppbarBack } from '@components/AppbarBack';
-import { Box } from '@components/Box';
-import { makeStyles } from '@util/theme/makeStyles';
+import { AppbarBack } from '~/components/Appbar/AppbarBack';
+import { Box } from '~/components/layout/Box';
+import { makeStyles } from '~/util/theme/makeStyles';
 import Collapsible from 'react-native-collapsible';
 import { Appbar } from 'react-native-paper';
-import { CARD_BORDER_RADIUS } from '~/components2/card/Card';
+import { CARD_BORDER_RADIUS } from '~/components/card/Card';
 import { Tx } from '~/queries/tx';
 import { TransactionWalletSelector } from './TransactionWalletSelector';
 

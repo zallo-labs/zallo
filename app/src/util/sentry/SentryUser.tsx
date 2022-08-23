@@ -1,4 +1,4 @@
-import { useDevice } from '@features/device/useDevice';
+import { useDevice } from '@network/useDevice';
 import { Native } from 'sentry-expo';
 
 export const SentryUser = () => {

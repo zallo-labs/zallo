@@ -1,4 +1,4 @@
-import { useTheme } from '@util/theme/paper';
+import { useTheme } from '@theme/paper';
 import { TextInput, TextInputProps } from 'react-native';
 
 export interface BasicTextFieldProps extends TextInputProps {}

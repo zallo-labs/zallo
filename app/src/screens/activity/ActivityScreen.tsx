@@ -1,22 +1,21 @@
-import { Box } from '@components/Box';
-import { EmptyListFallback } from '@components/EmptyListFallback';
-import { ListScreenSkeleton } from '@components/skeleton/ListScreenSkeleton';
-import { withSkeleton } from '@components/skeleton/withSkeleton';
-import { Suspend } from '@components/Suspender';
-import { Timestamp } from '@components/Timestamp';
-import { useNavigation } from '@react-navigation/native';
-import { ActivityIcon } from '@util/theme/icons';
-import { makeStyles } from '@util/theme/makeStyles';
+import { Box } from '~/components/layout/Box';
+import { EmptyListFallback } from '~/components/EmptyListFallback';
+import { ListScreenSkeleton } from '~/components/skeleton/ListScreenSkeleton';
+import { withSkeleton } from '~/components/skeleton/withSkeleton';
+import { Suspend } from '~/components/Suspender';
+import { ActivityIcon } from '~/util/theme/icons';
+import { makeStyles } from '~/util/theme/makeStyles';
 import { groupBy } from 'lib';
 import { useMemo } from 'react';
 import { SectionList } from 'react-native';
 import { Appbar, Text } from 'react-native-paper';
-import { AppbarMenu } from '~/components2/Appbar/AppbarMenu';
-import { useAppbarHeader } from '~/components2/Appbar/useAppbarHeader';
-import { CallCard } from '~/components2/call/CallCard';
-import { BottomNavigatorProps } from '~/navigation/BottomNavigator';
+import { AppbarMenu } from '~/components/Appbar/AppbarMenu';
+import { useAppbarHeader } from '~/components/Appbar/useAppbarHeader';
+import { CallCard } from '~/components/call/CallCard';
 import { TxMetadata } from '~/queries/tx';
-import { useTxsMetadata } from '~/queries/tx/useTxsMetadata';
+import { useRootNavigation } from '~/navigation/useRootNavigation';
+import { Timestamp } from '~/components/format/Timestamp';
+import { useTxsMetadata } from '~/queries/tx/metadata/useTxsMetadata';
 
 interface Section {
   date: number;
@@ -44,7 +43,7 @@ const toSections = (txs: TxMetadata[]): Section[] =>
 export const ActivityScreen = withSkeleton(() => {
   const styles = useStyles();
   const { AppbarHeader, handleScroll } = useAppbarHeader();
-  const navigation = useNavigation<BottomNavigatorProps['navigation']>();
+  const navigation = useRootNavigation();
   const { txs, loading } = useTxsMetadata();
 
   const sections = useMemo(() => toSections(txs), [txs]);

@@ -11,10 +11,6 @@ import {
   TokensScreenParams,
 } from '~/screens/tokens/TokensScreen';
 import {
-  WalletScreen,
-  WalletScreenParams,
-} from '~/screens/wallets/WalletScreen';
-import {
   QuorumScreen,
   QuorumScreenParams,
 } from '~/screens/quorum/QuorumScreen';
@@ -54,6 +50,7 @@ import {
   DeleteModalScreen,
   DeleteModalScreenParams,
 } from '~/screens/alert/DeleteModalScreen';
+import { WalletScreen, WalletScreenParams } from '~/screens/wallet/WalletScreen';
 
 export type RootNavigatorParamList = {
   DrawerNavigator: undefined;

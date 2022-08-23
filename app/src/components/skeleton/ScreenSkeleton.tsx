@@ -1,9 +1,9 @@
-import { AppbarBack } from '@components/AppbarBack';
-import { Box } from '@components/Box';
-import { MenuIcon } from '@util/theme/icons';
+import { AppbarBack } from '~/components/Appbar/AppbarBack';
+import { Box } from '~/components/layout/Box';
+import { MenuIcon } from '~/util/theme/icons';
 import { ReactNode } from 'react';
 import { Appbar } from 'react-native-paper';
-import { AppbarHeaderProps } from '~/components2/Appbar/useAppbarHeader';
+import { AppbarHeaderProps } from '~/components/Appbar/useAppbarHeader';
 import { LineSkeleton } from './LineSkeleton';
 
 export interface ScreenSkeletonProps {

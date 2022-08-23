@@ -3,9 +3,9 @@ import {
   useSetWalletNameMutation,
   WalletQuery,
   WalletQueryVariables,
-} from '@gql/generated.api';
-import { useApiClient } from '@gql/GqlProvider';
-import { QueryOpts } from '@gql/update';
+} from '~/gql/generated.api';
+import { useApiClient } from '~/gql/GqlProvider';
+import { QueryOpts } from '~/gql/update';
 import produce from 'immer';
 import { useCallback } from 'react';
 import { CombinedWallet } from '~/queries/wallets';
@@ -57,8 +57,6 @@ export const useSetWalletName = () => {
               } else {
                 data.wallet = {
                   id,
-                  accountId: accountAddr,
-                  ref,
                   name,
                   quorums: [],
                 };

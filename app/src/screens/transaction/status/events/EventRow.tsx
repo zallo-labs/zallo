@@ -1,11 +1,11 @@
-import { Box } from '@components/Box';
-import { Container } from '@components/list/Container';
-import { Timestamp } from '@components/Timestamp';
-import { IconColor } from '@util/theme/icons';
-import { useTheme } from '@util/theme/paper';
+import { Box } from '~/components/layout/Box';
+import { IconColor } from '~/util/theme/icons';
+import { useTheme } from '@theme/paper';
 import { DateTime } from 'luxon';
 import { FC, ReactNode } from 'react';
 import { Text } from 'react-native-paper';
+import { Timestamp } from '~/components/format/Timestamp';
+import { Container } from '~/components/layout/Container';
 
 export interface EventRowProps {
   Icon: FC<{ color: IconColor }>;

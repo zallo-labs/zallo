@@ -6,16 +6,17 @@ import {
   useRootNavigation,
 } from '~/navigation/useRootNavigation';
 import { TxId } from '~/queries/tx';
-import { CombinedWallet } from '~/queries/wallets';
+import { WalletId } from '~/queries/wallets';
 import { useApiProposeTx } from './useProposeTx.api';
 
-export const useProposeTx = (wallet: CombinedWallet) => {
+export const useProposeTx = (wallet: WalletId) => {
   const navigation = useRootNavigation();
-  const propose = useApiProposeTx(wallet);
+  const propose = useApiProposeTx();
 
   return useCallback(
     async (txDef: TxDef, onPropose?: (tx: TxId) => void) => {
-      const tx = (await propose(txDef)).data!.proposeTx;
+      // Transaction must be attached to an active wallet
+      const tx = (await propose(txDef, wallet)).data!.proposeTx;
       const id: TxId = { account: address(tx.accountId), hash: tx.hash };
 
       onPropose?.(id);
@@ -36,6 +37,6 @@ export const useProposeTx = (wallet: CombinedWallet) => {
         }),
       );
     },
-    [navigation, propose],
+    [navigation, propose, wallet],
   );
 };

@@ -1,4 +1,4 @@
-import { RetryIcon } from '@util/theme/icons';
+import { RetryIcon } from '~/util/theme/icons';
 import { useState } from 'react';
 import { Button } from 'react-native-paper';
 import { useExecute } from '~/mutations/tx/execute/useExecute';

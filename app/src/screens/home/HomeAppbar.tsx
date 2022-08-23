@@ -1,9 +1,9 @@
-import { AddrLink } from '@features/qr/addrLink';
-import { ContactsIcon, ScanIcon } from '@util/theme/icons';
+import { AddrLink } from '~/util/addrLink';
+import { ContactsIcon, ScanIcon } from '~/util/theme/icons';
 import { FC, useCallback } from 'react';
 import { Appbar } from 'react-native-paper';
-import { AppbarMenu } from '~/components2/Appbar/AppbarMenu';
-import { AppbarHeaderProps } from '~/components2/Appbar/useAppbarHeader';
+import { AppbarMenu } from '~/components/Appbar/AppbarMenu';
+import { AppbarHeaderProps } from '~/components/Appbar/useAppbarHeader';
 import { useRootNavigation } from '~/navigation/useRootNavigation';
 import { CombinedWallet } from '~/queries/wallets';
 import { useSendToContact } from './useSendToContact';

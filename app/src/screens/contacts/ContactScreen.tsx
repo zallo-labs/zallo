@@ -1,16 +1,15 @@
-import { Box } from '@components/Box';
+import { Box } from '~/components/layout/Box';
 import { Formik } from 'formik';
 import { Address, isAddress } from 'lib';
 import { Button } from 'react-native-paper';
 import { RootNavigatorScreenProps } from '~/navigation/RootNavigator';
 import { useContact } from '~/queries/contacts/useContact';
 import * as Yup from 'yup';
-import { ADDR_YUP_SCHEMA } from '@util/yup';
-import { FormikTextField } from '@components/fields/FormikTextField';
-import { CheckIcon, ScanIcon } from '@util/theme/icons';
+import { FormikTextField } from '~/components/fields/FormikTextField';
+import { CheckIcon, ScanIcon } from '~/util/theme/icons';
 import { useUpsertContact } from '~/mutations/contact/useUpsertContact.api';
 import assert from 'assert';
-import { FormikSubmitFab } from '@components/fields/FormikSubmitFab';
+import { FormikSubmitFab } from '~/components/fields/FormikSubmitFab';
 import { StyleSheet } from 'react-native';
 import { Contact, useContacts } from '~/queries/contacts/useContacts.api';
 import { useCallback, useMemo } from 'react';
@@ -22,6 +21,11 @@ const defaultValues = {
 };
 
 type Values = typeof defaultValues;
+
+export const ADDR_YUP_SCHEMA = Yup.string().required('Required').test({
+  message: 'Must be a valid address',
+  test: isAddress,
+});
 
 const getSchema = (contacts: Contact[]): Yup.SchemaOf<Values> =>
   Yup.object({
@@ -81,7 +85,12 @@ export const ContactScreen = ({ route, navigation }: ContactScreenProps) => {
               <FormikTextField name="name" label="Name" />
 
               <Box mt={3} mb={2}>
-                <FormikTextField name="addr" label="Address" multiline blurOnSubmit />
+                <FormikTextField
+                  name="addr"
+                  label="Address"
+                  multiline
+                  blurOnSubmit
+                />
               </Box>
 
               <Button

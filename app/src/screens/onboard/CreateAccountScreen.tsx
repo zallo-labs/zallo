@@ -1,15 +1,15 @@
-import { Box } from '@components/Box';
+import { Box } from '~/components/layout/Box';
 import { Formik } from 'formik';
 import { Appbar, Text } from 'react-native-paper';
 import { RootNavigatorScreenProps } from '~/navigation/RootNavigator';
 import * as Yup from 'yup';
 import { useCallback } from 'react';
-import { FormikTextField } from '@components/fields/FormikTextField';
-import { FormikSubmitFab } from '@components/fields/FormikSubmitFab';
-import { CheckIcon } from '@util/theme/icons';
+import { FormikTextField } from '~/components/fields/FormikTextField';
+import { FormikSubmitFab } from '~/components/fields/FormikSubmitFab';
+import { CheckIcon } from '~/util/theme/icons';
 import { useCreateApiAccount } from '~/mutations/account/useCreateAccount.api';
-import { AppbarBack } from '@components/AppbarBack';
-import { makeStyles } from '@util/theme/makeStyles';
+import { AppbarBack } from '~/components/Appbar/AppbarBack';
+import { makeStyles } from '~/util/theme/makeStyles';
 import { Navigate } from '~/navigation/useRootNavigation';
 import { address, Address } from 'lib';
 

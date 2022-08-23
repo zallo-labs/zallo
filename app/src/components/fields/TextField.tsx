@@ -1,6 +1,6 @@
 import { ComponentPropsWithoutRef } from 'react';
 import { HelperText, TextInput } from 'react-native-paper';
-import { Box } from '@components/Box';
+import { Box } from '~/components/layout/Box';
 
 type TextInputProps = ComponentPropsWithoutRef<typeof TextInput>;
 

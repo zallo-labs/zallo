@@ -9,7 +9,7 @@ import {
   TxReq,
 } from 'lib';
 import { CallStructOutput } from 'lib/dist/contracts/contracts/Multicall';
-import { MULTICALL_ADDR, PROVIDER } from '~/provider';
+import { MULTICALL_ADDR, PROVIDER } from '~/util/network/provider';
 import { getDataSighash } from '~/queries/useContractMethod.api';
 
 export const MULTICALL = Multicall__factory.connect(MULTICALL_ADDR, PROVIDER);

@@ -1,16 +1,13 @@
 import { gql } from '@apollo/client';
-import { showInfo } from '@components/ToastProvider';
-import { useRequestFundsMutation } from '@gql/generated.api';
-import { useApiClient } from '@gql/GqlProvider';
+import { showInfo } from '~/provider/ToastProvider';
+import { useRequestFundsMutation } from '~/gql/generated.api';
+import { useApiClient } from '~/gql/GqlProvider';
 import { parseEther } from 'ethers/lib/utils';
 import { Address } from 'lib';
 import { useCallback } from 'react';
-import { CHAIN } from '~/provider';
-import { ETH } from '~/token/tokens';
-import {
-  useTokenBalance,
-  useUpdateTokenBalance,
-} from '~/token/useTokenBalance';
+import { CHAIN } from '~/util/network/provider';
+import { ETH } from '@token/tokens';
+import { useTokenBalance, useUpdateTokenBalance } from '@token/useTokenBalance';
 
 const FUND_BELOW_BALANCE = parseEther('0.01');
 

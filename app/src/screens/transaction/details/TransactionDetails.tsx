@@ -1,18 +1,18 @@
-import { Addr } from '@components/Addr';
-import { Box } from '@components/Box';
-import { TokenIcon } from '@components/token/TokenIcon';
+import { Addr } from '~/components/addr/Addr';
+import { Box } from '~/components/layout/Box';
 import { Text } from 'react-native-paper';
 import { DetailedCallMethod } from './DetailedCallMethod';
-import { useCallValues } from '~/components2/call/useCallValues';
-import { Card } from '~/components2/card/Card';
-import { FiatValue } from '~/components2/fiat/FiatValue';
+import { useCallValues } from '~/components/call/useCallValues';
+import { Card } from '~/components/card/Card';
+import { FiatValue } from '~/components/fiat/FiatValue';
 import { Tx } from '~/queries/tx';
 import { CombinedWallet } from '~/queries/wallets';
-import { ETH } from '~/token/tokens';
-import { useMaybeToken } from '~/token/useToken';
-import { useDecodedTransfer } from '@features/activity/tx/useDecodedTransfer';
+import { ETH } from '@token/tokens';
+import { useMaybeToken } from '@token/useToken';
 import { ZERO } from 'lib';
 import { TokenAmountRow } from './TokenAmountRow';
+import { useDecodedTransfer } from '~/components/call/useDecodedTransfer';
+import { TokenIcon } from '~/components/token/TokenIcon/TokenIcon';
 
 export interface TransactionDetailsProps {
   tx: Tx;

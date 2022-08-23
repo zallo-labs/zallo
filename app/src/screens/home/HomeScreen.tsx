@@ -1,24 +1,24 @@
-import { Box } from '@components/Box';
+import { Box } from '~/components/layout/Box';
 import { useMemo } from 'react';
 import { FlatList } from 'react-native';
 import { Text } from 'react-native-paper';
 import {
   useSelectedWallet,
   useSelectWallet,
-} from '~/components2/wallet/useSelectedWallet';
-import { useAppbarHeader } from '~/components2/Appbar/useAppbarHeader';
+} from '~/components/wallet/useSelectedWallet';
+import { useAppbarHeader } from '~/components/Appbar/useAppbarHeader';
 import {
   useSelectedToken,
   useSelectToken,
-} from '~/components2/token/useSelectedToken';
-import { useTokens } from '~/token/useToken';
+} from '~/components/token/useSelectedToken';
+import { useTokens } from '@token/useToken';
 import { HomeAppbar } from './HomeAppbar';
-import { WalletSelector } from './WalletSelector';
-import { withSkeleton } from '@components/skeleton/withSkeleton';
+import { WalletSelector } from './WalletSelector/WalletSelector';
+import { withSkeleton } from '~/components/skeleton/withSkeleton';
 import { HomeScreenSkeleton } from './HomeScreenSkeleton';
-import { FiatBalance } from '~/components2/fiat/FiatBalance';
-import { Suspend } from '@components/Suspender';
-import { TokenHoldingCard } from '~/components2/token/TokenHoldingCard';
+import { FiatBalance } from '~/components/fiat/FiatBalance';
+import { Suspend } from '~/components/Suspender';
+import { TokenHoldingCard } from '~/components/token/TokenHoldingCard';
 
 export const HomeScreen = withSkeleton(() => {
   const { AppbarHeader, handleScroll } = useAppbarHeader();

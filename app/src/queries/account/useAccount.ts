@@ -1,6 +1,6 @@
-import { combineRest } from '@gql/combine';
 import { Address, filterFirst } from 'lib';
 import { useMemo } from 'react';
+import { combineRest } from '~/gql/combine';
 import { CombinedAccount } from '.';
 import { useApiAccount } from './useAccount.api';
 import { useSubAccount } from './useAccount.sub';

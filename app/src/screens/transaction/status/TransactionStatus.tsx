@@ -1,6 +1,6 @@
-import { Box } from '@components/Box';
+import { Box } from '~/components/layout/Box';
 import { Text } from 'react-native-paper';
-import { Card } from '~/components2/card/Card';
+import { Card } from '~/components/card/Card';
 import { Tx, TxStatus } from '~/queries/tx';
 import { TransactionActions } from './TransactionActions';
 import { TransactionEvents } from './events/TransactionEvents';
