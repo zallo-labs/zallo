@@ -1,43 +1,34 @@
 import { gql } from '@apollo/client';
-import { useWalletQuery, WalletQuery } from '~/gql/generated.api';
+import { useWalletQuery } from '~/gql/generated.api';
 import { useApiClient } from '~/gql/GqlProvider';
 import { toId, address, toQuorum } from 'lib';
 import { useMemo } from 'react';
 import {
   CombinedQuorum,
   CombinedWallet,
-  ProposableState,
   QUERY_WALLETS_POLL_INTERVAL,
   WalletId,
 } from '.';
 
 export const API_WALLET_FIELDS = gql`
-  fragment ProposalFields on Tx {
-    hash
-    submissions {
-      finalized
-    }
-  }
-
   fragment WalletFields on Wallet {
     id
     name
+    state {
+      status
+      proposedModificationHash
+    }
     quorums {
+      accountId
+      walletRef
+      hash
       approvers {
         userId
       }
-      createProposal {
-        ...ProposalFields
+      state {
+        status
+        proposedModificationHash
       }
-      removeProposal {
-        ...ProposalFields
-      }
-    }
-    createProposal {
-      ...ProposalFields
-    }
-    removeProposal {
-      ...ProposalFields
     }
   }
 `;
@@ -51,24 +42,6 @@ export const API_QUERY_WALLET = gql`
     }
   }
 `;
-
-type RemoveProposalable = Pick<
-  NonNullable<NonNullable<WalletQuery['wallet']>['quorums']>[0],
-  'removeProposal'
->;
-
-const getProposalState = ({
-  removeProposal,
-}: RemoveProposalable): ProposableState =>
-  removeProposal?.submissions?.length ? 'removed' : 'added';
-
-const hasBeenRemoved = ({ removeProposal }: RemoveProposalable) =>
-  removeProposal?.submissions?.some((s) => s.finalized);
-
-// Only a single proposed modification can exist at a time
-const getProposedModificationHash = (
-  ...proposals: RemoveProposalable['removeProposal'][]
-) => proposals.find((p) => p?.submissions?.every((s) => !s.finalized))?.hash;
 
 export const useApiWallet = (id?: WalletId) => {
   const { data, ...rest } = useWalletQuery({
@@ -84,31 +57,28 @@ export const useApiWallet = (id?: WalletId) => {
     const w = data?.wallet;
     if (!w?.id) return undefined; // w.id is sometimes undefined sometimes when w is not 🤷
 
-    if (hasBeenRemoved(w)) return undefined;
+    if (!w.state) return undefined;
 
     return {
       id: toId(w.id),
       accountAddr: id!.accountAddr,
       ref: id!.ref,
       name: w.name,
-      state: getProposalState(w),
+      state: w.state.status,
+      proposedModificationHash: w.state.proposedModificationHash ?? undefined,
       quorums:
         w.quorums
-          ?.filter((q) => !hasBeenRemoved(q))
+          ?.filter((q) => q.state)
           .map(
             (quorum): CombinedQuorum => ({
               approvers: toQuorum(
                 quorum.approvers?.map((a) => address(a.userId)) ?? [],
               ),
-              state: getProposalState(quorum),
+              state: quorum.state!.status,
+              proposedModificationHash:
+                w.state!.proposedModificationHash ?? undefined,
             }),
           ) ?? [],
-      proposedModificationHash: getProposedModificationHash(
-        w.createProposal,
-        w.removeProposal,
-        ...(w.quorums?.flatMap((q) => [q.createProposal, q.removeProposal]) ??
-          []),
-      ),
     };
   }, [data?.wallet, id]);
 

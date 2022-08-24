@@ -61,7 +61,7 @@ const newWallet = (account: Address): CombinedWallet => {
     ref,
     name: '',
     quorums: [],
-    state: 'added',
+    state: 'add',
   };
 };
 
@@ -96,7 +96,7 @@ export const WalletScreen = withSkeleton(
     );
 
     const makeRemoveQuorum = useCallback((quorum: CombinedQuorum) => {
-      if (quorum.state === 'removed') return undefined;
+      if (quorum.state === 'remove') return undefined;
 
       return () =>
         setWallet((wallet) =>
@@ -106,9 +106,9 @@ export const WalletScreen = withSkeleton(
             );
 
             if (quorum.state === 'active') {
-              wallet.quorums[i].state = 'removed';
+              wallet.quorums[i].state = 'remove';
             } else {
-              assert(quorum.state === 'added');
+              assert(quorum.state === 'add');
               wallet.quorums.splice(i, 1);
             }
           }),
@@ -126,7 +126,7 @@ export const WalletScreen = withSkeleton(
               ...wallet.quorums,
               {
                 approvers: toQuorum(approvers),
-                state: 'added',
+                state: 'add',
               },
             ]);
           }
@@ -207,7 +207,7 @@ export const WalletScreen = withSkeleton(
                   onChange: makeSetQuorumApprovers(quorum),
                   revertQuorum: makeRevertQuorum(quorum),
                   removeQuorum:
-                    quorum.state !== 'removed'
+                    quorum.state !== 'remove'
                       ? makeRemoveQuorum(quorum)
                       : undefined,
                   state: quorum.state,
@@ -221,7 +221,7 @@ export const WalletScreen = withSkeleton(
               icon={PlusIcon}
               style={styles.addQuorum}
               onPress={() =>
-                navigate('Quorum', { onChange: addQuorum, state: 'added' })
+                navigate('Quorum', { onChange: addQuorum, state: 'add' })
               }
             >
               Quorum

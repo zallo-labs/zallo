@@ -1,7 +1,6 @@
 import { Module } from '@nestjs/common';
 import { APP_GUARD } from '@nestjs/core';
 import { PrismaModule } from 'nestjs-prisma';
-
 import { loggingMiddleware } from './prisma/prisma.logging';
 import { HealthModule } from './health/health.module';
 import { UsersModule } from './features/users/users.module';
@@ -22,6 +21,7 @@ import { SubgraphModule } from './features/subgraph/subgraph.module';
 import { FaucetModule } from './features/faucet/faucet.module';
 import { RedisModule } from '@liaoliaots/nestjs-redis';
 import CONFIG from 'config';
+import { QuorumsModule } from './features/quorums/quorums.module';
 
 @Module({
   imports: [
@@ -43,6 +43,7 @@ import CONFIG from 'config';
     ContactsModule,
     ContractMethodsModule,
     FaucetModule,
+    QuorumsModule,
     ReactionsModule,
     SubgraphModule,
     SubmissionsModule,

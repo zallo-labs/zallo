@@ -2,6 +2,7 @@ import { gql } from '@apollo/client';
 import { useApiClient } from '~/gql/GqlProvider';
 import { CombinedWallet } from '~/queries/wallets';
 import {
+  ProposableStatus,
   TxDocument,
   TxQuery,
   TxQueryVariables,
@@ -19,6 +20,7 @@ import {
 import { QueryOpts } from '~/gql/update';
 import produce from 'immer';
 import { useAccountIds } from '~/queries/account/useAccountIds';
+import { hashQuorum } from 'lib';
 
 gql`
   ${API_WALLET_FIELDS}
@@ -45,7 +47,7 @@ export const useApiUpsertWallet = () => {
   const [mutation] = useUpsertWalletMutation({ client: useApiClient() });
 
   const upsert = (w: CombinedWallet, txHash: string) => {
-    const quorums = w.quorums.filter((q) => q.state !== 'removed');
+    const quorums = w.quorums.filter((q) => q.state !== 'remove');
 
     return mutation({
       variables: {
@@ -62,17 +64,25 @@ export const useApiUpsertWallet = () => {
           __typename: 'Wallet',
           id: w.id,
           name: w.name,
+          state: {
+            status: w.state as ProposableStatus,
+            proposedModificationHash: w.proposedModificationHash ?? null,
+          },
           quorums: quorums.map((q) => ({
             __typename: 'Quorum',
-            createProposal: null,
-            removeProposal: null,
+            accountId: w.accountAddr,
+            walletRef: w.ref,
+            hash: hashQuorum(q.approvers),
             approvers: q.approvers.map((approver) => ({
               __typename: 'Approver',
               userId: approver,
             })),
+            state: {
+              __typename: 'ProposableState',
+              status: q.state as ProposableStatus,
+              modificationProposalHash: q.proposedModificationHash ?? null,
+            },
           })),
-          createProposal: null,
-          removeProposal: null,
         },
       },
       update: (cache, res) => {

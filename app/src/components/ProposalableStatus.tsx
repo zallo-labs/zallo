@@ -9,11 +9,11 @@ type ShownState = Exclude<ProposableState, 'active'>;
 
 const isShownState = (
   state: ProposableState | undefined,
-): state is ShownState => state === 'added' || state === 'removed';
+): state is ShownState => state === 'add' || state === 'remove';
 
 const LABEL: Record<ShownState, string> = {
-  added: 'Added',
-  removed: 'Removed',
+  add: 'Add',
+  remove: 'Remove',
 };
 
 export interface ProposalableStatusProps {
@@ -41,7 +41,7 @@ export const ProposalableStatus = ({
       textColor={
         state === 'active'
           ? colors.primary
-          : state === 'added'
+          : state === 'add'
           ? colors.success
           : colors.error
       }

@@ -2,7 +2,7 @@ import { createUpsertWalletTx } from 'lib';
 import { useMemo } from 'react';
 import { useProposeTx } from '~/mutations/tx/propose/useProposeTx';
 import { useAccount } from '~/queries/account/useAccount';
-import { CombinedWallet, toWallet } from '~/queries/wallets';
+import { CombinedWallet, toSafeWallet } from '~/queries/wallets';
 import { useApiUpsertWallet } from './useUpsertWallet.api';
 
 export const useUpsertWallet = (wallet: CombinedWallet) => {
@@ -14,13 +14,8 @@ export const useUpsertWallet = (wallet: CombinedWallet) => {
     () =>
       account?.contract &&
       (async (cur: CombinedWallet) => {
-        const proposedWallet: CombinedWallet = {
-          ...cur,
-          quorums: cur.quorums.filter((q) => q.state !== 'removed'),
-        };
-
         return await propose(
-          createUpsertWalletTx(account.contract, toWallet(proposedWallet)),
+          createUpsertWalletTx(account.contract, toSafeWallet(cur)),
           (tx) => apiUpsert(cur, tx.hash),
         );
       }),

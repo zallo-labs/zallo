@@ -14,9 +14,19 @@ export const useWallet = (id?: WalletId) => {
     if (!s) return a;
     if (!a) return s;
 
+    // console.log(
+    //   JSON.stringify(
+    //     {
+    //       a,
+    //     },
+    //     null,
+    //     2,
+    //   ),
+    // );
+
     return {
       ...a,
-      state: a.state === 'removed' ? 'removed' : 'active',
+      state: a.state === 'remove' ? 'remove' : 'active',
       quorums: combine(
         s.quorums,
         a.quorums,
@@ -30,8 +40,8 @@ export const useWallet = (id?: WalletId) => {
             if (!api) return sub;
 
             return {
-              state: api.state === 'removed' ? 'removed' : 'active',
-              approvers: sub.approvers,
+              ...api,
+              state: api.state === 'remove' ? 'remove' : 'active',
             };
           },
         },

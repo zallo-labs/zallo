@@ -1,10 +1,11 @@
 import { gql } from '@apollo/client';
 import { useApiClient } from '~/gql/GqlProvider';
 import { QueryOpts } from '~/gql/update';
-import { CombinedWallet, toWallet } from '~/queries/wallets';
+import { CombinedWallet, toSafeWallet } from '~/queries/wallets';
 import {
   AccountQuery,
   AccountQueryVariables,
+  ProposableStatus,
   useCreateAccountMutation,
   UserAccountsMetadataDocument,
   UserAccountsMetadataQuery,
@@ -22,6 +23,7 @@ import {
   toId,
   toQuorum,
   getWalletId,
+  hashQuorum,
 } from 'lib';
 import { API_ACCOUNT_QUERY } from '~/queries/account/useAccount.api';
 import produce from 'immer';
@@ -67,7 +69,7 @@ export const useCreateApiAccount = () => {
   const upsert = async (name: string, walletName: string) => {
     const wallet: Pick<CombinedWallet, 'ref' | 'quorums' | 'name'> = {
       ref: randomWalletRef(),
-      quorums: [{ approvers: toQuorum([device.address]), state: 'added' }],
+      quorums: [{ approvers: toQuorum([device.address]), state: 'add' }],
       name: walletName,
     };
     const wallets = [wallet];
@@ -78,7 +80,7 @@ export const useCreateApiAccount = () => {
     const accountAddr = await calculateProxyAddress(
       {
         impl,
-        wallet: toWallet(wallet),
+        wallet: toSafeWallet(wallet),
       },
       factory,
       deploySalt,
@@ -169,16 +171,25 @@ export const useCreateApiAccount = () => {
                 __typename: 'Wallet',
                 id: getWalletId(accountAddr, w.ref),
                 name: w.name,
-                createProposal: null,
-                removeProposal: null,
+                state: {
+                  __typename: 'ProposableState',
+                  status: ProposableStatus.Add,
+                  proposedModificationHash: null,
+                },
                 quorums: w.quorums.map((q) => ({
                   __typename: 'Quorum',
-                  createProposal: null,
-                  removeProposal: null,
+                  accountId: accountAddr,
+                  walletRef: w.ref,
+                  hash: hashQuorum(q.approvers),
                   approvers: q.approvers.map((approver) => ({
                     __typename: 'Approver',
                     userId: approver,
                   })),
+                  state: {
+                    __typename: 'ProposableState',
+                    status: ProposableStatus.Add,
+                    proposedModificationHash: null,
+                  },
                 })),
               },
             },

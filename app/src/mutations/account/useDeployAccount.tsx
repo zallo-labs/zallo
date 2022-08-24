@@ -6,7 +6,7 @@ import {
 import { useAccountProxyFactory } from '../../util/network/useAccountProxyFactory';
 import { useCallback, useState } from 'react';
 import { CombinedAccount } from '~/queries/account';
-import { CombinedWallet, toWallet } from '~/queries/wallets';
+import { CombinedWallet, toSafeWallet } from '~/queries/wallets';
 import assert from 'assert';
 import { useFaucet } from '~/mutations/useFacuet.api';
 import { useDevice } from '../../util/network/useDevice';
@@ -36,7 +36,7 @@ export const useDeployAccount = (
       assert(deploySalt);
 
       const r = await deployAccountProxy(
-        { impl: account.impl, wallet: toWallet(wallet) },
+        { impl: account.impl, wallet: toSafeWallet(wallet) },
         factory,
         deploySalt,
       );

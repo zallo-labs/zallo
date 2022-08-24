@@ -28,8 +28,7 @@ import { Prisma } from '@prisma/client';
 import { UserAddr } from '~/decorators/user.decorator';
 import { SubgraphService } from '../subgraph/subgraph.service';
 import { UserInputError } from 'apollo-server-core';
-import { Tx } from '@gen/tx/tx.model';
-import assert from 'assert';
+import { ProposableState, ProposableStatus } from './proposable.args';
 
 const getSelect = makeGetSelect<{
   Wallet: Prisma.WalletSelect;
@@ -103,18 +102,59 @@ export class WalletsResolver {
     return getWalletId(w.accountId, toWalletRef(w.ref));
   }
 
-  @ResolveField(() => Tx, { nullable: true })
-  async activeModificationProposal(
-    @Parent() w: Wallet,
-    @Info() info: GraphQLResolveInfo,
-  ): Promise<Tx | null> {
-    const txs = await this.prisma.tx.findMany({
-      where: this.getActiveModificationProposalsWhere(w.accountId, w.ref),
-      ...getSelect(info),
-    });
+  @ResolveField(() => ProposableState, { nullable: true })
+  async state(@Parent() w: Wallet): Promise<ProposableState | null> {
+    const { createProposal, removeProposal } =
+      await this.prisma.wallet.findUniqueOrThrow({
+        where: {
+          accountId_ref: {
+            accountId: w.accountId,
+            ref: w.ref,
+          },
+        },
+        select: {
+          createProposal: {
+            select: {
+              hash: true,
+              createdAt: true,
+              submissions: {
+                where: { finalized: true },
+              },
+            },
+          },
+          removeProposal: {
+            select: {
+              hash: true,
+              createdAt: true,
+              submissions: {
+                where: { finalized: true },
+              },
+            },
+          },
+        },
+      });
 
-    assert(txs.length <= 1);
-    return txs.length ? txs[0] : null;
+    // remove | deleted if it has a removeProposal that is newer than the create proposal
+    if (
+      removeProposal &&
+      (!createProposal || removeProposal.createdAt > createProposal.createdAt)
+    ) {
+      if (removeProposal.submissions.length) return null;
+
+      return {
+        status: ProposableStatus.remove,
+        proposedModificationHash: removeProposal.hash,
+      };
+    }
+
+    // Otherwise, active if the create proposal has a finalized submission otherwise it is added
+    if (createProposal?.submissions.length)
+      return { status: ProposableStatus.active };
+
+    return {
+      status: ProposableStatus.add,
+      proposedModificationHash: createProposal?.hash,
+    };
   }
 
   @Mutation(() => Wallet)
@@ -195,7 +235,7 @@ export class WalletsResolver {
             };
           }),
           // Mark quorums not included as being deleted by the proposal
-          // These quorums are all finalized; unfinalized quorums were deleted above
+          // These quorums are all finalized; unfinalized modification proposals, and thus their quorums, were deleted above
           updateMany: {
             where: {
               hash: {
@@ -207,7 +247,7 @@ export class WalletsResolver {
               removeProposalHash: proposalHash,
             },
           },
-        },
+        } as Prisma.QuorumUpdateManyWithoutWalletNestedInput,
       },
       ...getSelect(info),
     });

@@ -12,11 +12,12 @@ import {
 
 export const QUERY_WALLETS_POLL_INTERVAL = 30 * 1000;
 
-export type ProposableState = 'added' | 'active' | 'removed';
+export type ProposableState = 'active' | 'add' | 'remove';
 
 export interface CombinedQuorum {
   approvers: Quorum;
   state: ProposableState;
+  proposedModificationHash?: string;
 }
 
 export const isCombinedQuorum = createIsObj<CombinedQuorum>(
@@ -36,20 +37,22 @@ export interface WalletId {
   id: Id;
   accountAddr: Address;
   ref: WalletRef;
-  proposedModificationHash?: string;
 }
 
 export interface CombinedWallet extends WalletId {
   name: string;
   quorums: CombinedQuorum[];
   state: ProposableState;
+  proposedModificationHash?: string;
 }
 
-export const toWallet = (
+export const toSafeWallet = (
   w: Pick<CombinedWallet, 'ref' | 'quorums'>,
 ): Wallet => ({
   ref: w.ref,
-  quorums: sortQuorums(w.quorums.map((q) => q.approvers)),
+  quorums: sortQuorums(
+    w.quorums.filter((q) => q.state !== 'remove').map((q) => q.approvers),
+  ),
 });
 
 export const toActiveWallet = (
@@ -60,7 +63,7 @@ export const toActiveWallet = (
   return {
     ref: w.ref,
     quorums: sortQuorums(
-      w.quorums.filter((q) => q.state === 'active').map((q) => q.approvers),
+      w.quorums.filter((q) => q.state !== 'add').map((q) => q.approvers),
     ),
   };
 };

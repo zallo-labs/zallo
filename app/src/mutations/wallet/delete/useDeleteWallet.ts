@@ -3,7 +3,7 @@ import { createRemoveGroupTx } from 'lib';
 import { useCallback } from 'react';
 import { useProposeTx } from '~/mutations/tx/propose/useProposeTx';
 import { useAccount } from '~/queries/account/useAccount';
-import { CombinedWallet, toWallet } from '~/queries/wallets';
+import { CombinedWallet, toSafeWallet } from '~/queries/wallets';
 import { useApiDeleteWallet } from './useDeleteWallet.api';
 
 export const useDeleteWallet = (wallet: CombinedWallet) => {
@@ -14,7 +14,7 @@ export const useDeleteWallet = (wallet: CombinedWallet) => {
   return useCallback(() => {
     assert(account);
     if (wallet.state === 'active') {
-      propose(createRemoveGroupTx(account.contract, toWallet(wallet)));
+      propose(createRemoveGroupTx(account.contract, toSafeWallet(wallet)));
     } else {
       return apiDelete(wallet);
     }
