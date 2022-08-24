@@ -8,7 +8,10 @@
       "node": "16.14.2",
       "env": {
         "ENTRY_FILE": "./__generated__/AppEntry.js",
-        "CHAIN": "testnet"
+        "CHAIN": "testnet",
+        "ACCOUNT_IMPL_TESTNET": "0xA727EcE3b5964821519aD17fb14AAafaB5Ea401c",
+        "PROXY_FACTORY_TESTNET": "0xF75ac2fce11eF45219587619eed010C9C542987E",
+        "MULTI_CALL_TESTNET": "0x398044dfEEabe3E0c72D7e739A362cD98294c25c"
       }
     },
     "production": {
@@ -40,7 +43,8 @@
     "internal": {
       "android": {
         "track": "internal",
-        "serviceAccountKeyPath": "./play-service-account.secret.json"
+        "serviceAccountKeyPath": "./play-service-account.secret.json",
+        "releaseStatus": "draft"
       }
     }
   }
