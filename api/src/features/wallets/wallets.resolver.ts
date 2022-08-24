@@ -203,6 +203,7 @@ export class WalletsResolver {
               },
             },
             data: {
+              removeProposalAccountId: id.accountId,
               removeProposalHash: proposalHash,
             },
           },

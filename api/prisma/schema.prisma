@@ -43,10 +43,11 @@ model Wallet {
   ref       String  @db.Char(10) // bytes4
   name      String  @default("")
 
-  createProposal     Tx?     @relation(name: "createWallet", fields: [accountId, createProposalHash], references: [accountId, hash], onDelete: Cascade)
-  createProposalHash String? @db.Char(66) // bytes32
-  removeProposal     Tx?     @relation(name: "removeWallet", fields: [accountId, removeProposalHash], references: [accountId, hash])
-  removeProposalHash String? @db.Char(66) // bytes32
+  createProposal          Tx?     @relation(name: "createWallet", fields: [accountId, createProposalHash], references: [accountId, hash], onDelete: Cascade)
+  createProposalHash      String? @db.Char(66) // bytes32
+  removeProposal          Tx?     @relation(name: "removeWallet", fields: [removeProposalAccountId, removeProposalHash], references: [accountId, hash], onDelete: SetNull)
+  removeProposalAccountId String? @db.Char(42) // address; required as deleting the tx will set accountId to null
+  removeProposalHash      String? @db.Char(66) // bytes32
 
   quorums   Quorum[]
   approvers Approver[]
@@ -54,7 +55,7 @@ model Wallet {
 
   @@id([accountId, ref])
   @@unique([accountId, createProposalHash])
-  @@unique([accountId, removeProposalHash])
+  @@unique([removeProposalAccountId, removeProposalHash])
 }
 
 model Quorum {
@@ -64,10 +65,11 @@ model Quorum {
   walletRef String  @db.Char(10) // bytes4
   hash      String  @db.Char(66) // bytes32
 
-  createProposal     Tx?     @relation(name: "createQuorum", fields: [accountId, createProposalHash], references: [accountId, hash], onDelete: Cascade)
-  createProposalHash String? @db.Char(66) // bytes32
-  removeProposal     Tx?     @relation(name: "removeQuorum", fields: [accountId, removeProposalHash], references: [accountId, hash], onDelete: SetNull)
-  removeProposalHash String? @db.Char(66) // bytes32
+  createProposal          Tx?     @relation(name: "createQuorum", fields: [accountId, createProposalHash], references: [accountId, hash], onDelete: Cascade)
+  createProposalHash      String? @db.Char(66) // bytes32
+  removeProposal          Tx?     @relation(name: "removeQuorum", fields: [removeProposalAccountId, removeProposalHash], references: [accountId, hash], onDelete: SetNull)
+  removeProposalAccountId String? @db.Char(42) // address; required as deleting the tx will set accountId to null
+  removeProposalHash      String? @db.Char(66) // bytes32
 
   approvers Approver[]
 
