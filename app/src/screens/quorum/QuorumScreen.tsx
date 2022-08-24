@@ -1,70 +1,97 @@
-import { Box } from '@components/Box';
-import { CheckIcon, DeleteIcon, EditIcon, PlusIcon } from '@util/theme/icons';
-import { useTheme } from '@util/theme/paper';
-import { Address, Quorum, toQuorum } from 'lib';
+import { Box } from '~/components/layout/Box';
+import {
+  CheckIcon,
+  DeleteIcon,
+  EditIcon,
+  PlusIcon,
+  UndoIcon,
+} from '~/util/theme/icons';
+import { Address } from 'lib';
 import { FlatList } from 'react-native';
-import { Appbar } from 'react-native-paper';
-import { useAppbarHeader } from '~/components2/Appbar/useAppbarHeader';
-import { useGoBack } from '~/components2/Appbar/useGoBack';
-import { AddrCard } from '~/components2/addr/AddrCard';
+import { Appbar, Button } from 'react-native-paper';
+import { useAppbarHeader } from '~/components/Appbar/useAppbarHeader';
+import { useGoBack } from '~/components/Appbar/useGoBack';
 import { RootNavigatorScreenProps } from '~/navigation/RootNavigator';
-import { CombinedQuorum } from '~/queries/wallets';
-import { useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import _ from 'lodash';
-import { FAB } from '~/components2/FAB';
-import { BottomAppbar } from '~/components2/Appbar/BottomAppbar';
-import { makeStyles } from '@util/theme/makeStyles';
+import { FAB } from '~/components/FAB';
+import { BottomAppbar } from '~/components/Appbar/BottomAppbar';
+import { makeStyles } from '~/util/theme/makeStyles';
+import { useDeleteConfirmation } from '../alert/DeleteModalScreen';
+import { ProposableState } from '~/queries/wallets';
+import { ProposalableStatus } from '~/components/ProposalableStatus';
+import { AppbarCenterContent } from '~/components/Appbar/AppbarCenterContent';
+import { AddrCard } from '~/components/addr/AddrCard';
 
 export interface QuorumScreenParams {
-  quorum?: CombinedQuorum;
-  onChange: (quorum?: CombinedQuorum) => void;
+  approvers?: Address[];
+  onChange: (approvers: Address[]) => void;
+  removeQuorum?: () => void;
+  revertQuorum?: () => void;
+  isRemoved?: boolean;
+  state: ProposableState;
 }
 
 export type QuorumScreenProps = RootNavigatorScreenProps<'Quorum'>;
 
-export const QuorumScreen = ({ route, navigation }: QuorumScreenProps) => {
-  const { onChange, quorum = { approvers: [] as unknown as Quorum } } =
-    route.params;
+export const QuorumScreen = ({
+  navigation,
+  route: {
+    params: {
+      approvers: initialApprovers,
+      onChange,
+      removeQuorum,
+      revertQuorum,
+      state,
+    },
+  },
+}: QuorumScreenProps) => {
   const styles = useStyles();
   const { AppbarHeader, handleScroll } = useAppbarHeader();
-  const { colors } = useTheme();
+  const confirmDelete = useDeleteConfirmation();
 
-  const [approvers, setApprovers] = useState<Quorum>(quorum.approvers);
-  const [selected, setSelected] = useState<Address | undefined>(undefined);
+  const [approvers, setApprovers] = useState(initialApprovers ?? []);
+  const [selected, select] = useState<Address | undefined>(undefined);
 
   const isModified = useMemo(
-    () => !_.isEqual(approvers, quorum.approvers),
-    [approvers, quorum.approvers],
+    () => !_.isEqual(approvers, initialApprovers),
+    [approvers, initialApprovers],
   );
 
-  const addApprover = () =>
-    navigation.navigate('Contacts', {
-      disabled: approvers,
-      onSelect: (contact) =>
-        setApprovers(toQuorum([...approvers, contact.addr])),
-    });
+  const addApprover = useCallback(
+    () =>
+      navigation.navigate('Contacts', {
+        title: 'Add approver',
+        onSelect: (contact) => setApprovers([...approvers, contact.addr]),
+        disabled: approvers,
+      }),
+    [approvers, navigation],
+  );
 
-  const deleteQuorum = () => {
-    onChange(undefined);
-    navigation.goBack();
+  useEffect(() => {
+    if (approvers.length === 0) addApprover();
+  }, [addApprover, approvers.length]);
+
+  const replaceSelectedApprover = () => {
+    navigation.navigate('Contacts', {
+      title: 'Replace approver',
+      onSelect: (contact) =>
+        setApprovers([
+          ...approvers.filter((a) => a !== selected),
+          contact.addr,
+        ]),
+      disabled: approvers,
+    });
+    select(undefined);
   };
 
-  const replaceSelectedApprover = () =>
-    navigation.navigate('Contacts', {
-      disabled: approvers,
-      onSelect: (contact) =>
-        setApprovers(
-          toQuorum([...approvers.filter((a) => a !== selected), contact.addr]),
-        ),
-    });
-
   const removeSelectedApprover = () => {
-    setApprovers(toQuorum(approvers.filter((a) => a !== selected)));
-    setSelected(undefined);
+    setApprovers((approvers) => approvers.filter((a) => a !== selected));
+    select(undefined);
   };
 
   const apply = () => {
-    onChange({ ...quorum, approvers });
+    onChange(approvers);
     navigation.goBack();
   };
 
@@ -72,9 +99,34 @@ export const QuorumScreen = ({ route, navigation }: QuorumScreenProps) => {
     <Box flex={1}>
       <AppbarHeader mode="medium">
         <Appbar.BackAction onPress={useGoBack()} />
+
         <Appbar.Content title="Quorum" />
-        <Appbar.Action icon={PlusIcon} onPress={addApprover} />
-        <Appbar.Action icon={DeleteIcon} onPress={deleteQuorum} />
+
+        <AppbarCenterContent>
+          <ProposalableStatus state={state} />
+        </AppbarCenterContent>
+
+        {revertQuorum && (
+          <Appbar.Action
+            icon={UndoIcon}
+            onPress={() => {
+              revertQuorum();
+              navigation.goBack();
+            }}
+          />
+        )}
+
+        {removeQuorum && (
+          <Appbar.Action
+            icon={DeleteIcon}
+            onPress={() =>
+              confirmDelete(() => {
+                removeQuorum();
+                navigation.goBack();
+              })
+            }
+          />
+        )}
       </AppbarHeader>
 
       <FlatList
@@ -82,7 +134,7 @@ export const QuorumScreen = ({ route, navigation }: QuorumScreenProps) => {
           <AddrCard
             addr={item}
             onPress={() =>
-              setSelected((prev) => (prev !== item ? item : undefined))
+              select((selected) => (selected !== item ? item : undefined))
             }
             {...(selected === item && {
               style: styles.selected,
@@ -90,8 +142,19 @@ export const QuorumScreen = ({ route, navigation }: QuorumScreenProps) => {
           />
         )}
         ItemSeparatorComponent={() => <Box my={2} />}
+        ListFooterComponent={
+          <Button
+            icon={PlusIcon}
+            mode="text"
+            style={styles.create}
+            onPress={addApprover}
+          >
+            Approver
+          </Button>
+        }
         style={styles.list}
         data={approvers}
+        extraData={[selected, select]}
         onScroll={handleScroll}
         showsVerticalScrollIndicator={false}
       />
@@ -117,6 +180,10 @@ export const QuorumScreen = ({ route, navigation }: QuorumScreenProps) => {
 const useStyles = makeStyles(({ colors, space }) => ({
   list: {
     marginHorizontal: space(3),
+  },
+  create: {
+    alignSelf: 'flex-end',
+    marginTop: space(2),
   },
   selected: {
     backgroundColor: colors.surfaceVariant,

@@ -1,6 +1,6 @@
-import { Token } from '~/token/token';
-import { FormattedNumber } from '@components/FormattedNumber';
+import { Token } from '@token/token';
 import { BigNumberish } from 'ethers';
+import { FormattedNumber } from '../format/FormattedNumber';
 
 export interface TokenValueProps {
   token: Token;
@@ -12,12 +12,14 @@ export const TokenValue = ({
   token,
   value,
   symbol = true,
-}: TokenValueProps) => (
-  <FormattedNumber
-    value={value}
-    unitDecimals={token.decimals}
-    maximumFractionDigits={2}
-    extendedFractionDigits={3}
-    postFormat={symbol ? (v) => `${v} ${token.symbol}` : undefined}
-  />
-);
+}: TokenValueProps) => {
+  return (
+    <FormattedNumber
+      value={value}
+      unitDecimals={token.decimals}
+      maximumFractionDigits={2}
+      extendedFractionDigits={3}
+      postFormat={symbol ? (v) => `${v} ${token.symbol}` : undefined}
+    />
+  );
+};

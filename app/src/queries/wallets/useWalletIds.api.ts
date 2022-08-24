@@ -2,8 +2,8 @@ import { gql } from '@apollo/client';
 import {
   useUserWalletIdsQuery,
   WalletIdFieldsFragment,
-} from '@gql/generated.api';
-import { useApiClient } from '@gql/GqlProvider';
+} from '~/gql/generated.api';
+import { useApiClient } from '~/gql/GqlProvider';
 import { toId, address, toWalletRef } from 'lib';
 import { useMemo } from 'react';
 import { QUERY_WALLETS_POLL_INTERVAL, WalletId } from '.';

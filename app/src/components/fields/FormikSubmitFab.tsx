@@ -1,7 +1,7 @@
 import { useMemo } from 'react';
 import { useFormikContext } from 'formik';
 import { containsErrors } from './FormikErrors';
-import { FAB, FABProps } from '~/components2/FAB';
+import { FAB, FABProps } from '~/components/FAB';
 
 const allTouched = (values: unknown, touched: Record<string, boolean>) =>
   typeof values === 'object' &&

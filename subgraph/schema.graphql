@@ -1,6 +1,6 @@
 type Account @entity {
   "{address}"
-  id: ID!
+  id: Bytes!
   impl: AccountImpl!
   txs: [Tx!]! @derivedFrom(field: "account")
   wallets: [Wallet!]! @derivedFrom(field: "account")
@@ -9,16 +9,17 @@ type Account @entity {
 
 type AccountImpl @entity {
   "{address}"
-  id: ID!
+  id: Bytes!
   blockHash: Bytes!
   timestamp: BigInt!
   proxies: [Account!]! @derivedFrom(field: "impl")
 }
 
 type Tx @entity {
-  "{tx.hash}"
-  id: ID!
+  "{account.id}-{transaction.hash}"
+  id: String!
   account: Account!
+  transactionHash: Bytes!
   hash: Bytes!
   success: Boolean!
   response: Bytes!
@@ -31,45 +32,45 @@ type Tx @entity {
 
 type User @entity {
   "{address}"
-  id: ID!
-  quorums: [Quorum!]! @derivedFrom(field: "approvers")
+  id: Bytes!
+  # quorums: [Quorum!]! @derivedFrom(field: "approvers")
   # TODO: wallets: [Wallet!]! @derivedFrom(field: "users")
+  quorums: [QuorumApprover!]! @derivedFrom(field: "approver")
 }
 
 type Wallet @entity {
-  "{account.id}-{hash}"
-  id: ID!
+  "{account.id}-{ref}"
+  id: String!
   account: Account!
   ref: Bytes!
   active: Boolean!
-  quorums: [Quorum!]! @derivedFrom(field: "wallet")
-  # TODO: users: [User!]!
+  quorums: [Quorum!]!
+  # TODO: approvers: [User!]!
 }
 
 type Quorum @entity {
   "{wallet.id}-{hash}"
-  id: ID!
+  id: String!
   hash: Bytes!
   wallet: Wallet!
-  approvers: [User!]!
-  active: Boolean!
+  approvers: [QuorumApprover!]! @derivedFrom(field: "quorum")
   blockHash: Bytes!
   timestamp: BigInt!
 }
 
-# type QuorumApprover @entity {
-#   "{quorum.id}-${approver.id}"
-#   id: ID!
-#   quorum: Quorum!
-#   approver: Approver!
-# }
+type QuorumApprover @entity {
+  "{quorum.id}-{approver.id}"
+  id: String!
+  quorum: Quorum!
+  approver: User!
+}
 
 type Transfer @entity {
   "{tx.id}-{tx.log.index}"
-  id: ID!
+  id: String!
   account: Account!
   tx: Tx
-  txHash: Bytes!
+  transactionHash: Bytes!
   token: Bytes!
   type: TransferType!
   from: Bytes!

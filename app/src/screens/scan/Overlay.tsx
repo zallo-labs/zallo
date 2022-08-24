@@ -1,10 +1,10 @@
-import { BackIcon } from '@util/theme/icons';
-import { makeStyles } from '@util/theme/makeStyles';
+import { BackIcon } from '~/util/theme/icons';
+import { makeStyles } from '~/util/theme/makeStyles';
 import { IconButton } from 'react-native-paper';
 import { EdgeInsets, useSafeAreaInsets } from 'react-native-safe-area-context';
-import { useGoBack } from '~/components2/Appbar/useGoBack';
+import { useGoBack } from '~/components/Appbar/useGoBack';
 import BarcodeMask from 'react-native-barcode-mask';
-import { useTheme } from '@util/theme/paper';
+import { useTheme } from '@theme/paper';
 import { SafeAreaView } from 'react-native';
 
 export const Overlay = () => {

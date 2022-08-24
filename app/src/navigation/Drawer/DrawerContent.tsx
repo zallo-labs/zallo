@@ -8,15 +8,19 @@ import {
   FeedbackIcon,
   IssueIcon,
   SettingsIcon,
-  TokenIcon,
+  TokenCurrencyIcon,
   WalletIcon,
-} from '@util/theme/icons';
+} from '~/util/theme/icons';
 import { useCallback } from 'react';
 import { Linking } from 'react-native';
 import { Drawer } from 'react-native-paper';
-import { BottomNavigatorProps } from '../BottomNavigator';
+import * as WebBrowser from 'expo-web-browser';
+import { Navigate } from '../useRootNavigation';
 
-type Navigate = BottomNavigatorProps['navigation']['navigate'];
+enum Link {
+  Issues = 'https://github.com/AlloPay/AlloPay/issues',
+  Feedback = 'mailto:feedback@allopay.io',
+}
 
 export interface DrawerContentProps extends DrawerContentComponentProps {}
 
@@ -39,7 +43,7 @@ export const DrawerContent = ({ navigation }: DrawerContentProps) => {
         />
         <Drawer.Item
           label="Tokens"
-          icon={TokenIcon}
+          icon={TokenCurrencyIcon}
           onPress={() => navigate('Tokens', {})}
         />
       </Drawer.Section>
@@ -62,14 +66,12 @@ export const DrawerContent = ({ navigation }: DrawerContentProps) => {
         <Drawer.Item
           label="Report an issue"
           icon={IssueIcon}
-          onPress={() =>
-            Linking.openURL('https://github.com/AlloPay/AlloPay/issues')
-          }
+          onPress={() => WebBrowser.openBrowserAsync(Link.Issues)}
         />
         <Drawer.Item
           label="Provide feedback"
           icon={FeedbackIcon}
-          onPress={() => Linking.openURL('mailto:feedback@allopay.io')}
+          onPress={() => Linking.openURL(Link.Feedback)}
         />
       </Drawer.Section>
     </DrawerContentScrollView>

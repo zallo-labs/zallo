@@ -4,6 +4,7 @@
     ".expo": true,
     ".expo-shared": true,
     ".vscode": true,
+    "*.secret.*": true,
     "dist": true,
     "node_modules": true
   },

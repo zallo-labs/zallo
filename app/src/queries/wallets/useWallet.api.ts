@@ -1,23 +1,44 @@
 import { gql } from '@apollo/client';
-import { useWalletQuery } from '@gql/generated.api';
-import { useApiClient } from '@gql/GqlProvider';
-import { toId, address, toWalletRef, toQuorum } from 'lib';
+import { useWalletQuery } from '~/gql/generated.api';
+import { useApiClient } from '~/gql/GqlProvider';
+import { toId, address, toQuorum } from 'lib';
 import { useMemo } from 'react';
-import { CombinedWallet, QUERY_WALLETS_POLL_INTERVAL, WalletId } from '.';
-import { API_WALLET_ID_FIELDS } from './useWalletIds.api';
+import {
+  CombinedQuorum,
+  CombinedWallet,
+  QUERY_WALLETS_POLL_INTERVAL,
+  WalletId,
+} from '.';
+
+export const API_WALLET_FIELDS = gql`
+  fragment WalletFields on Wallet {
+    id
+    name
+    state {
+      status
+      proposedModificationHash
+    }
+    quorums {
+      accountId
+      walletRef
+      hash
+      approvers {
+        userId
+      }
+      state {
+        status
+        proposedModificationHash
+      }
+    }
+  }
+`;
 
 export const API_QUERY_WALLET = gql`
-  ${API_WALLET_ID_FIELDS}
+  ${API_WALLET_FIELDS}
 
   query Wallet($wallet: WalletId!) {
     wallet(id: $wallet) {
-      ...WalletIdFields
-      name
-      quorums {
-        approvers {
-          userId
-        }
-      }
+      ...WalletFields
     }
   }
 `;
@@ -27,28 +48,39 @@ export const useApiWallet = (id?: WalletId) => {
     client: useApiClient(),
     pollInterval: QUERY_WALLETS_POLL_INTERVAL,
     variables: {
-      wallet: { accountId: id?.accountAddr, ref: id?.ref },
+      wallet: { accountId: id?.accountAddr ?? '', ref: id?.ref ?? '' },
     },
     skip: !id,
   });
 
   const apiWallet = useMemo((): CombinedWallet | undefined => {
-    if (!data?.wallet) return undefined;
+    const w = data?.wallet;
+    if (!w?.id) return undefined; // w.id is sometimes undefined sometimes when w is not 🤷
 
-    const w = data.wallet;
+    if (!w.state) return undefined;
+
     return {
       id: toId(w.id),
-      accountAddr: address(w.accountId),
-      ref: toWalletRef(w.ref),
+      accountAddr: id!.accountAddr,
+      ref: id!.ref,
       name: w.name,
+      state: w.state.status,
+      proposedModificationHash: w.state.proposedModificationHash ?? undefined,
       quorums:
-        w.quorums?.map((quorum) => ({
-          approvers: toQuorum(
-            quorum.approvers?.map((a) => address(a.userId)) ?? [],
-          ),
-        })) ?? [],
+        w.quorums
+          ?.filter((q) => q.state)
+          .map(
+            (quorum): CombinedQuorum => ({
+              approvers: toQuorum(
+                quorum.approvers?.map((a) => address(a.userId)) ?? [],
+              ),
+              state: quorum.state!.status,
+              proposedModificationHash:
+                w.state!.proposedModificationHash ?? undefined,
+            }),
+          ) ?? [],
     };
-  }, [data?.wallet]);
+  }, [data?.wallet, id]);
 
   return { apiWallet, ...rest };
 };

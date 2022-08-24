@@ -1,27 +1,30 @@
-import { Box } from '@components/Box';
-import { FiatValue } from '@components/FiatValue';
+import { Box } from '~/components/layout/Box';
 import { useMemo } from 'react';
 import { FlatList } from 'react-native';
 import { Text } from 'react-native-paper';
-import { useSelectedWallet } from '~/components2/wallet/useSelectedWallet';
-import { useAppbarHeader } from '~/components2/Appbar/useAppbarHeader';
-import { TokenCard } from '~/components2/token/TokenCard';
+import {
+  useSelectedWallet,
+  useSelectWallet,
+} from '~/components/wallet/useSelectedWallet';
+import { useAppbarHeader } from '~/components/Appbar/useAppbarHeader';
 import {
   useSelectedToken,
   useSelectToken,
-} from '~/components2/token/useSelectedToken';
-import { useTokens } from '~/token/useToken';
-import { useTokenValues } from '~/token/useTokenValues';
+} from '~/components/token/useSelectedToken';
+import { useTokens } from '@token/useToken';
 import { HomeAppbar } from './HomeAppbar';
-import { WalletSelector } from './WalletSelector';
-import { withSkeleton } from '@components/skeleton/withSkeleton';
+import { WalletSelector } from './WalletSelector/WalletSelector';
+import { withSkeleton } from '~/components/skeleton/withSkeleton';
 import { HomeScreenSkeleton } from './HomeScreenSkeleton';
+import { FiatBalance } from '~/components/fiat/FiatBalance';
+import { Suspend } from '~/components/Suspender';
+import { TokenHoldingCard } from '~/components/token/TokenHoldingCard';
 
 export const HomeScreen = withSkeleton(() => {
   const { AppbarHeader, handleScroll } = useAppbarHeader();
   const allTokens = useTokens();
   const wallet = useSelectedWallet();
-  const { totalFiatValue } = useTokenValues(wallet?.accountAddr);
+  const selectWallet = useSelectWallet();
   const selectedToken = useSelectedToken();
   const selectToken = useSelectToken();
 
@@ -33,32 +36,35 @@ export const HomeScreen = withSkeleton(() => {
     [allTokens, selectedToken],
   );
 
+  if (!wallet) return <Suspend />;
+
   return (
     <Box>
-      <HomeAppbar AppbarHeader={AppbarHeader} />
+      <HomeAppbar AppbarHeader={AppbarHeader} wallet={wallet} />
 
       <FlatList
         ListHeaderComponent={
           <>
             <Box my={3}>
-              <WalletSelector />
+              <WalletSelector
+                selected={wallet}
+                onSelect={selectWallet}
+                cardProps={{ available: true }}
+              />
             </Box>
 
-            <Box horizontal justifyContent="flex-end" mt={3} mb={2} mx={4}>
+            <Box horizontal justifyContent="flex-end" mb={2} mx={4}>
               <Text variant="titleLarge">
-                <FiatValue value={totalFiatValue} />
+                <FiatBalance addr={wallet.accountAddr} showZero />
               </Text>
             </Box>
           </>
         }
         renderItem={({ item, index }) => (
           <Box mx={3}>
-            <TokenCard
+            <TokenHoldingCard
               token={item}
-              amount="balance"
-              price
-              change
-              remaining
+              wallet={wallet}
               selected={index === 0}
               onLongPress={() => selectToken(item)}
               onPress={() => {

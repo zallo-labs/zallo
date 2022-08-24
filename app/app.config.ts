@@ -2,12 +2,16 @@ import { ExpoConfig, ConfigContext } from '@expo/config';
 
 const E = process.env;
 
+const chain = E?.CHAIN?.toUpperCase();
 export const CONFIG = {
   env: E.NODE_ENV === 'development' ? 'development' : 'production',
-  chainName: E.CHAIN!,
+  chainName: chain!,
   sentryDsn: E.SENTRY_DSN!,
   apiUrl: E.API_URL!,
   subgraphGqlUrl: E.SUBGRAPH_GQL_URL!,
+  proxyFactory: E[`PROXY_FACTORY_${chain}`]!,
+  accountImpl: E[`ACCOUNT_IMPL_${chain}`]!,
+  multiCall: E[`MULTI_CALL_${chain}`]!,
 } as const;
 
 export type Config = typeof CONFIG;
@@ -24,10 +28,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
   runtimeVersion: {
     policy: 'sdkVersion',
   },
-  extra: {
-    ...CONFIG,
-    flipperHack: 'React Native packager is running',
-  },
+  extra: CONFIG,
   plugins: ['sentry-expo', 'expo-community-flipper'],
   hooks: {
     postPublish: [

@@ -1,13 +1,10 @@
 import { gql, useQuery } from '@apollo/client';
-import { useAccount } from '@features/account/AccountProvider';
-import { CommentsQuery, CommentsQueryVariables } from '@gql/generated.api';
-import { useApiClient } from '@gql/GqlProvider';
+import { CommentsQuery, CommentsQueryVariables } from '~/gql/generated.api';
+import { useApiClient } from '~/gql/GqlProvider';
 import { address, Address, Id, toId } from 'lib';
 import { DateTime } from 'luxon';
 import { useMemo } from 'react';
-import { isTransfer, Transfer } from './tx/transfer.sub';
-import { Activity } from '@features/activity/ActivityItem';
-import { isTx, Tx } from './tx';
+import { Tx } from './tx';
 
 export const REACTION_FIELDS = gql`
   fragment ReactionFields on Reaction {
@@ -64,15 +61,11 @@ export interface Reaction {
   emojis: string[];
 }
 
-export type Commentable = Tx | Transfer;
-
-export const isCommentable = (e: Activity): e is Commentable =>
-  isTx(e) || isTransfer(e);
+export type Commentable = Tx; // | Transfer;
 
 export const getCommentableKey = (c: Commentable): Id => toId(`tx:${c.id}`);
 
 export const useComments = (commentable: Commentable) => {
-  const { contract: account } = useAccount();
   const key = getCommentableKey(commentable);
 
   const { data, ...rest } = useQuery<CommentsQuery, CommentsQueryVariables>(
@@ -80,7 +73,7 @@ export const useComments = (commentable: Commentable) => {
     {
       client: useApiClient(),
       variables: {
-        account: account.address,
+        account: commentable.account,
         key,
       },
       pollInterval: 3 * 1000,

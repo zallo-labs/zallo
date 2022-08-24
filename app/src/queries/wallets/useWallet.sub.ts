@@ -1,5 +1,5 @@
 import { gql } from '@apollo/client';
-import { useSubgraphClient } from '@gql/GqlProvider';
+import { useSubgraphClient } from '~/gql/GqlProvider';
 import { address, toWalletRef, toId, toQuorum } from 'lib';
 import {
   CombinedWallet,
@@ -8,8 +8,9 @@ import {
   WalletId,
 } from '.';
 import { useMemo } from 'react';
-import { useWalletQuery } from '@gql/generated.sub';
+import { useWalletQuery } from '~/gql/generated.sub';
 import { SUB_WALLET_ID_FIELDS } from './useWalletIds.sub';
+import { elipseTruncate } from '~/util/format';
 
 gql`
   ${SUB_WALLET_ID_FIELDS}
@@ -17,11 +18,14 @@ gql`
   query Wallet($wallet: ID!) {
     wallet(id: $wallet) {
       ...SubWalletIdFields
-      quorums(where: { active: true }) {
+      active
+      quorums {
         id
         hash
         approvers {
-          id
+          approver {
+            id
+          }
         }
         timestamp
       }
@@ -41,15 +45,20 @@ export const useSubWallet = (id?: WalletId) => {
     if (!data?.wallet) return undefined;
 
     const w = data.wallet;
+    if (!w.active) return undefined;
+
     return {
       id: toId(w.id),
       accountAddr: address(w.account.id),
       ref: toWalletRef(w.ref),
-      name: '',
+      name: `${elipseTruncate(w.ref, 4)} wallet`,
+      state: 'active',
       quorums: w.quorums.map(
         (quorum): CombinedQuorum => ({
-          approvers: toQuorum(quorum.approvers.map((a) => address(a.id))),
-          active: true,
+          approvers: toQuorum(
+            quorum.approvers.map(({ approver }) => address(approver.id)),
+          ),
+          state: 'active',
         }),
       ),
     };

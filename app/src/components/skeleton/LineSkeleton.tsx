@@ -1,4 +1,4 @@
-import { useTheme } from '@util/theme/paper';
+import { useTheme } from '@theme/paper';
 import { Rect } from 'react-content-loader/native';
 import { Skeleton } from './Skeleton';
 

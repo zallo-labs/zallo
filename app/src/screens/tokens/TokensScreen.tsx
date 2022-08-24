@@ -1,17 +1,17 @@
-import { AppbarBack } from '@components/AppbarBack';
-import { Box } from '@components/Box';
-import { ListScreenSkeleton } from '@components/skeleton/ListScreenSkeleton';
-import { withSkeleton } from '@components/skeleton/withSkeleton';
-import { useAppbarHeader } from '~/components2/Appbar/useAppbarHeader';
-import { PlusIcon } from '@util/theme/icons';
+import { AppbarBack } from '~/components/Appbar/AppbarBack';
+import { Box } from '~/components/layout/Box';
+import { ListScreenSkeleton } from '~/components/skeleton/ListScreenSkeleton';
+import { withSkeleton } from '~/components/skeleton/withSkeleton';
+import { useAppbarHeader } from '~/components/Appbar/useAppbarHeader';
+import { PlusIcon } from '~/util/theme/icons';
 import { FlatList } from 'react-native';
-import { AppbarSearch } from '~/components2/Appbar/AppbarSearch';
-import { useFuzzySearch } from '~/components2/Appbar/useFuzzySearch';
-import { FAB } from '~/components2/FAB';
-import { TokenBalanceCard } from '~/components2/token/TokenBalanceCard';
+import { AppbarSearch } from '~/components/Appbar/AppbarSearch';
+import { FAB } from '~/components/FAB';
+import { TokenBalanceCard } from '~/components/token/TokenBalanceCard';
 import { RootNavigatorScreenProps } from '~/navigation/RootNavigator';
-import { Token } from '~/token/token';
-import { useTokens } from '~/token/useToken';
+import { Token } from '@token/token';
+import { useTokens } from '@token/useToken';
+import { useFuzzySearch } from '@hook/useFuzzySearch';
 
 export interface TokensScreenParams {
   onSelect?: (token: Token) => void;
@@ -52,6 +52,7 @@ export const TokensScreen = withSkeleton(
               />
             )}
             ItemSeparatorComponent={() => <Box my={2} />}
+            keyExtractor={(item) => item.addr}
             data={tokens}
             showsVerticalScrollIndicator={false}
             onScroll={handleScroll}

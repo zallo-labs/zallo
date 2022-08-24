@@ -53,12 +53,14 @@ export class SubgraphService {
       query: gql`
         query UserWallets($user: ID!) {
           user(id: $user) {
-            quorums(where: { active: true }) {
-              wallet {
-                id
-                ref
-                account {
+            quorums {
+              quorum {
+                wallet {
                   id
+                  ref
+                  account {
+                    id
+                  }
                 }
               }
             }
@@ -69,9 +71,9 @@ export class SubgraphService {
     });
 
     return (
-      data.user?.quorums.map((quorum) => ({
-        account: address(quorum.wallet.account.id),
-        walletRef: toWalletRef(quorum.wallet.ref),
+      data.user?.quorums.map(({ quorum: { wallet } }) => ({
+        account: address(wallet.account.id),
+        walletRef: toWalletRef(wallet.ref),
       })) ?? []
     );
   }

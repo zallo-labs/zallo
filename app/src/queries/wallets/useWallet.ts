@@ -1,4 +1,5 @@
-import { filterFirst, hashQuorum } from 'lib';
+import { combine } from '~/gql/combine';
+import { hashQuorum, toQuorum } from 'lib';
 import { useMemo } from 'react';
 import { CombinedWallet, WalletId } from '.';
 import { useApiWallet } from './useWallet.api';
@@ -9,17 +10,32 @@ export const useWallet = (id?: WalletId) => {
   const { apiWallet: a } = useApiWallet(id);
 
   return useMemo((): CombinedWallet | undefined => {
-    if (!id || (!s && !a)) return undefined;
+    if (!s && !a) return undefined;
+    if (!s) return a;
+    if (!a) return s;
 
     return {
-      ...id,
-      name: a?.name ?? '',
-      active: s?.active,
-      quorums: filterFirst(
-        [...(s?.quorums ?? []), ...(a?.quorums ?? [])],
-        (q) => hashQuorum(q.approvers),
-        (a, b) => Number(b.active) - Number(a.active),
+      ...a,
+      state: a.state === 'remove' ? 'remove' : 'active',
+      quorums: combine(
+        s.quorums,
+        a.quorums,
+        {
+          sub: (s) => hashQuorum(toQuorum(s.approvers)),
+          api: (a) => hashQuorum(toQuorum(a.approvers)),
+        },
+        {
+          either: ({ sub, api }) => {
+            if (!sub) return api!;
+            if (!api) return sub;
+
+            return {
+              ...api,
+              state: api.state === 'remove' ? 'remove' : 'active',
+            };
+          },
+        },
       ),
     };
-  }, [id, a, s]);
+  }, [a, s]);
 };

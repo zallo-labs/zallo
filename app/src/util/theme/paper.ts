@@ -26,7 +26,7 @@ export const PAPER_THEME = {
   },
 
   space,
-  onBackground: (backgroundColor?: string) => {
+  onBackground: (backgroundColor?: string): string | undefined => {
     if (backgroundColor) {
       const bgKey = Object.keys(overrided.colors).find(
         (key) => (overrided.colors as any)[key] === backgroundColor,

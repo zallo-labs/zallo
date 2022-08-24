@@ -1,24 +1,23 @@
 import 'node-libs-react-native/globals';
-import '~/provider';
-import '@util/configImmer';
+import '~/util/network/provider';
+import '~/util/immer';
 
 import { Suspense } from 'react';
 import { RecoilRoot } from 'recoil';
-
-import { Background } from '@components/Background';
-import { LocalizatonProvider } from '@features/localization/LocalizationProvider';
-import { GqlProvider } from '@gql/GqlProvider';
-import { ToastProvider } from '@components/ToastProvider';
+import { Background } from '~/components/layout/Background';
+import { LocalizatonProvider } from '~/provider/LocalizationProvider';
+import { GqlProvider } from '~/gql/GqlProvider';
+import { ToastProvider } from '~/provider/ToastProvider';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
-import { ErrorBoundary } from '@util/sentry/ErrorBoundary';
-import { Splash } from '@components/Splash';
+import { ErrorBoundary } from '~/util/sentry/ErrorBoundary';
+import { Splash } from '~/components/Splash';
 import { StatusBar } from 'expo-status-bar';
-import { AuthGate } from '@features/AuthGate';
-import { ThemeProvider } from '@util/theme/ThemeProvider';
-import { SentryUser } from '@util/sentry/SentryUser';
-import { NavigationProvider } from '@features/navigation/NavigationProvider';
-import { withSentry } from '@util/sentry/sentry';
+import { AuthGate } from '~/provider/AuthGate';
+import { ThemeProvider } from '~/util/theme/ThemeProvider';
+import { SentryUser } from '~/util/sentry/SentryUser';
+import { withSentry } from '~/util/sentry/sentry';
 import { RootNavigator } from '~/navigation/RootNavigator';
+import { NavigationProvider } from '~/navigation/NavigationProvider';
 
 export default withSentry(() => (
   <LocalizatonProvider>

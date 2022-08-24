@@ -1,8 +1,8 @@
 import { hexDataLength, hexlify, randomBytes } from 'ethers/lib/utils';
 import { isEqual } from 'lodash';
-import { Quorums } from './quorum';
 import { Account } from './contracts';
 import { Id, toId } from './id';
+import { Quorum, sortQuorums } from './quorum';
 import { createTx, TxReq } from './tx';
 
 export type WalletRef = string & { isWalletRef: true };
@@ -20,7 +20,7 @@ export const randomWalletRef = () =>
 
 export interface Wallet {
   ref: WalletRef;
-  quorums: Quorums;
+  quorums: Quorum[];
 }
 
 export const getWalletId = (account: string, walletRef: WalletRef): Id =>
@@ -48,4 +48,4 @@ export const createRemoveGroupTx = (account: Account, group: Wallet): TxReq =>
   });
 
 export const walletEquiv = (a: Wallet, b: Wallet): boolean =>
-  isEqual(a.quorums, b.quorums);
+  isEqual(sortQuorums(a.quorums), sortQuorums(b.quorums));

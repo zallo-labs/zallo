@@ -1,5 +1,4 @@
 import { QueryResult } from '@apollo/client';
-
 import { isPresent } from 'lib';
 import {
   AtLeastOneCombiner,

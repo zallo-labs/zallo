@@ -1,15 +1,18 @@
-import { Box } from '@components/Box';
+import { Box } from '~/components/layout/Box';
 import { ReactNode } from 'react';
-import { CardItemSkeleton } from '~/components2/card/CardItemSkeleton';
-import { Container } from '../list/Container';
-import { ScreenSkeleton } from './ScreenSkeleton';
+import { CardItemSkeleton } from '~/components/card/CardItemSkeleton';
+import { ScreenSkeleton, ScreenSkeletonProps } from './ScreenSkeleton';
+import { Container } from '~/components/layout/Container';
 
-export interface ListScreenSkeletonProps {
+export interface ListScreenSkeletonProps extends ScreenSkeletonProps {
   Header?: ReactNode;
 }
 
-export const ListScreenSkeleton = ({ Header }: ListScreenSkeletonProps) => (
-  <ScreenSkeleton>
+export const ListScreenSkeleton = ({
+  Header,
+  ...screenProps
+}: ListScreenSkeletonProps) => (
+  <ScreenSkeleton {...screenProps}>
     <Container mx={3} separator={<Box my={2} />}>
       {Header}
 

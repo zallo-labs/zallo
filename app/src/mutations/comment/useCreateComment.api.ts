@@ -1,17 +1,16 @@
 import { gql, useMutation } from '@apollo/client';
-import { useDevice } from '@features/device/useDevice';
+import { useDevice } from '@network/useDevice';
 import {
   CommentsQuery,
   CommentsQueryVariables,
   CreateCommentMutation,
   CreateCommentMutationVariables,
-} from '@gql/generated.api';
-import { useApiClient } from '@gql/GqlProvider';
-import { QueryOpts } from '@gql/update';
+} from '~/gql/generated.api';
+import { useApiClient } from '~/gql/GqlProvider';
+import { QueryOpts } from '~/gql/update';
 import { Address, Id, toId } from 'lib';
 import { DateTime } from 'luxon';
 import { useCallback } from 'react';
-import { useSelectedWallet } from '~/components2/wallet/useSelectedWallet';
 import {
   COMMENT_FIELDS,
   Commentable,
@@ -32,8 +31,7 @@ const MUTATION = gql`
 export const createCommentId = (account: Address, key: Id, nonce: number): Id =>
   toId(`${account}-${key}-${nonce}`);
 
-export const useCreateComment = (c: Commentable) => {
-  const { accountAddr } = useSelectedWallet();
+export const useCreateComment = (c: Commentable, account: Address) => {
   const device = useDevice();
   const key = getCommentableKey(c);
 
@@ -48,7 +46,7 @@ export const useCreateComment = (c: Commentable) => {
 
       const opts: QueryOpts<CommentsQueryVariables> = {
         query: COMMENTS_QUERY,
-        variables: { account: accountAddr, key },
+        variables: { account, key },
       };
       const data = cache.readQuery<CommentsQuery, CommentsQueryVariables>(opts);
 
@@ -67,15 +65,15 @@ export const useCreateComment = (c: Commentable) => {
 
       return mutate({
         variables: {
-          account: accountAddr,
+          account,
           key,
           content,
         },
         optimisticResponse: {
           createComment: {
             __typename: 'Comment',
-            id: createCommentId(accountAddr, key, 0),
-            accountId: accountAddr,
+            id: createCommentId(account, key, 0),
+            accountId: account,
             key,
             nonce: 0,
             authorId: device.address,
@@ -87,7 +85,7 @@ export const useCreateComment = (c: Commentable) => {
         },
       });
     },
-    [mutate, accountAddr, key, device.address],
+    [mutate, account, key, device.address],
   );
 
   return create;

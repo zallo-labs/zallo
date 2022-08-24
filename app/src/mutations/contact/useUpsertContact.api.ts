@@ -1,21 +1,24 @@
 import { useCallback } from 'react';
-import { gql, useMutation } from '@apollo/client';
+import { gql } from '@apollo/client';
 import {
+  ContactsDocument,
   ContactsQuery,
-  UpsertContactMutation,
-  UpsertContactMutationVariables,
-} from '@gql/generated.api';
-import { useApiClient } from '@gql/GqlProvider';
+  ContactsQueryVariables,
+  useUpsertContactMutation,
+} from '~/gql/generated.api';
+import { useApiClient } from '~/gql/GqlProvider';
 import {
   API_CONTACTS_QUERY,
   API_CONTACT_FIELDS,
   Contact,
   NewContact,
 } from '~/queries/contacts/useContacts.api';
-import { useDevice } from '@features/device/useDevice';
+import { useDevice } from '@network/useDevice';
 import { toId } from 'lib';
+import { QueryOpts } from '~/gql/update';
+import produce from 'immer';
 
-const API_MUTATION = gql`
+gql`
   ${API_CONTACT_FIELDS}
 
   mutation UpsertContact(
@@ -32,12 +35,7 @@ const API_MUTATION = gql`
 export const useUpsertContact = () => {
   const device = useDevice();
 
-  const [mutation] = useMutation<
-    UpsertContactMutation,
-    UpsertContactMutationVariables
-  >(API_MUTATION, {
-    client: useApiClient(),
-  });
+  const [mutation] = useUpsertContactMutation({ client: useApiClient() });
 
   const upsert = useCallback(
     (cur: NewContact, prev?: Contact) => {
@@ -49,21 +47,31 @@ export const useUpsertContact = () => {
           newAddr: cur.addr,
           name: cur.name,
         },
+        optimisticResponse: {
+          upsertContact: {
+            __typename: 'Contact',
+            id: curId,
+            ...cur,
+          },
+        },
         update: (cache, res) => {
           const contact = res?.data?.upsertContact;
           if (!contact) return;
 
-          const data = cache.readQuery<ContactsQuery>({
-            query: API_CONTACTS_QUERY,
-          }) ?? { contacts: [] };
+          const opts: QueryOpts<ContactsQueryVariables> = {
+            query: ContactsDocument,
+            variables: {},
+          };
+
+          const data = cache.readQuery<ContactsQuery>(opts) ?? { contacts: [] };
 
           // Insert into query list
-          if (!data.contacts.map((c) => c.id).includes(contact.id)) {
+          if (!data.contacts.find((c) => c.id === curId)) {
             cache.writeQuery<ContactsQuery>({
               query: API_CONTACTS_QUERY,
-              data: {
-                contacts: [...data.contacts, contact],
-              },
+              data: produce(data, (data) => {
+                data.contacts.push(contact);
+              }),
             });
           }
 
@@ -76,13 +84,6 @@ export const useUpsertContact = () => {
               }),
             });
           }
-        },
-        optimisticResponse: {
-          upsertContact: {
-            __typename: 'Contact',
-            id: curId,
-            ...cur,
-          },
         },
       });
     },

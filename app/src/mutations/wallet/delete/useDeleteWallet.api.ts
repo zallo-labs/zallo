@@ -7,9 +7,9 @@ import {
   UserWalletIdsQueryVariables,
   WalletQuery,
   WalletQueryVariables,
-} from '@gql/generated.api';
-import { useApiClient } from '@gql/GqlProvider';
-import { QueryOpts } from '@gql/update';
+} from '~/gql/generated.api';
+import { useApiClient } from '~/gql/GqlProvider';
+import { QueryOpts } from '~/gql/update';
 import produce from 'immer';
 import { useCallback } from 'react';
 import { API_ACCOUNT_QUERY } from '~/queries/account/useAccount.api';

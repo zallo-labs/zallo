@@ -1,18 +1,19 @@
-import { AppbarBack } from '@components/AppbarBack';
-import { Box } from '@components/Box';
-import { AddIcon } from '@util/theme/icons';
-import { makeStyles } from '@util/theme/makeStyles';
+import { AppbarBack } from '~/components/Appbar/AppbarBack';
+import { Box } from '~/components/layout/Box';
+import { AddIcon } from '~/util/theme/icons';
+import { makeStyles } from '~/util/theme/makeStyles';
 import { Address } from 'lib';
 import { FlatList } from 'react-native';
-import { AddrCard } from '~/components2/addr/AddrCard';
-import { AppbarSearch } from '~/components2/Appbar/AppbarSearch';
-import { useAppbarHeader } from '~/components2/Appbar/useAppbarHeader';
-import { useFuzzySearch } from '~/components2/Appbar/useFuzzySearch';
-import { FAB } from '~/components2/FAB';
+import { AppbarSearch } from '~/components/Appbar/AppbarSearch';
+import { useAppbarHeader } from '~/components/Appbar/useAppbarHeader';
+import { FAB } from '~/components/FAB';
 import { RootNavigatorScreenProps } from '~/navigation/RootNavigator';
 import { Contact, useContacts } from '~/queries/contacts/useContacts.api';
+import { useFuzzySearch } from '@hook/useFuzzySearch';
+import { AddrCard } from '~/components/addr/AddrCard';
 
 export interface ContactsScreenParams {
+  title?: string;
   onSelect?: (contact: Contact) => void;
   disabled?: Address[];
 }
@@ -20,7 +21,7 @@ export interface ContactsScreenParams {
 export type ContactsScreenProps = RootNavigatorScreenProps<'Contacts'>;
 
 export const ContactsScreen = ({ route, navigation }: ContactsScreenProps) => {
-  const { onSelect, disabled } = route.params;
+  const { title, onSelect, disabled } = route.params;
   const styles = useStyles();
   const { AppbarHeader, handleScroll } = useAppbarHeader();
   const { contacts: allContacts } = useContacts();
@@ -33,7 +34,7 @@ export const ContactsScreen = ({ route, navigation }: ContactsScreenProps) => {
     <Box flex={1}>
       <AppbarHeader>
         <AppbarBack />
-        <AppbarSearch title="Contacts" {...searchProps} />
+        <AppbarSearch title={title || 'Contacts'} {...searchProps} />
       </AppbarHeader>
 
       <FlatList
@@ -52,8 +53,10 @@ export const ContactsScreen = ({ route, navigation }: ContactsScreenProps) => {
           />
         )}
         ItemSeparatorComponent={() => <Box my={2} />}
+        keyExtractor={(item) => item.addr}
         style={styles.list}
         data={contacts}
+        extraData={[navigation, onSelect, disabled]}
         onScroll={handleScroll}
         showsVerticalScrollIndicator={false}
       />

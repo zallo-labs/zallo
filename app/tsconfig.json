@@ -6,10 +6,10 @@
 
     "baseUrl": "./",
     "paths": {
-      "@components/*": ["./src/components/*"],
-      "@features/*": ["./src/features/*"],
-      "@gql/*": ["./src/gql/*"],
-      "@util/*": ["./src/util/*"],
+      "@hook/*": ["./src/util/hook/*"],
+      "@network/*": ["./src/util/network/*"],
+      "@theme/*": ["./src/util/theme/*"],
+      "@token/*": ["./src/util/token/*"],
       "~/*": ["./src/*"]
     }
   }

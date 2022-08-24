@@ -1,18 +1,18 @@
-import { Box } from '@components/Box';
-import { FiatValue } from '@components/FiatValue';
-import { BasicTextField } from '@components/fields/BasicTextField';
-import { useBigNumberInput } from '@components/fields/useBigNumberInput';
-import { TokenValue } from '@components/token/TokenValue';
-import { SwapIcon } from '@util/theme/icons';
-import { useTheme } from '@util/theme/paper';
+import { Box } from '~/components/layout/Box';
+import { FiatValue } from '~/components/fiat/FiatValue';
+import { BasicTextField } from '~/components/fields/BasicTextField';
+import { useBigNumberInput } from '~/components/fields/useBigNumberInput';
+import { TokenValue } from '~/components/token/TokenValue';
+import { SwapIcon } from '~/util/theme/icons';
+import { useTheme } from '@theme/paper';
 import { BigNumber } from 'ethers';
 import { ZERO } from 'lib';
 import { useCallback, useMemo, useState } from 'react';
 import { IconButton, Text } from 'react-native-paper';
-import { useSelectedToken } from '~/components2/token/useSelectedToken';
+import { useSelectedToken } from '~/components/token/useSelectedToken';
 import { useTokenPrice } from '~/queries/useTokenPrice.uni';
-import { fiatToBigNumber, fiatToToken, FIAT_DECIMALS } from '~/token/fiat';
-import { useTokenValue } from '~/token/useTokenValue';
+import { fiatToBigNumber, fiatToToken, FIAT_DECIMALS } from '~/util/token/fiat';
+import { useTokenValue } from '@token/useTokenValue';
 
 export interface AmountInputProps {
   amount?: BigNumber;

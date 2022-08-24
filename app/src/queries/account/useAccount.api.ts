@@ -1,10 +1,10 @@
 import { gql } from '@apollo/client';
-import { useDevice } from '@features/device/useDevice';
-import { useAccountQuery } from '@gql/generated.api';
-import { useApiClient } from '@gql/GqlProvider';
-import { Address, address, connectAccount, toId } from 'lib';
+import { useDevice } from '@network/useDevice';
+import { useAccountQuery } from '~/gql/generated.api';
+import { useApiClient } from '~/gql/GqlProvider';
+import { Address, address, connectAccount, toDeploySalt, toId } from 'lib';
 import { useMemo } from 'react';
-import { ACCOUNT_IMPL } from '~/provider';
+import { ACCOUNT_IMPL } from '~/util/network/provider';
 import { CombinedAccount, QUERY_ACCOUNT_POLL_INTERVAL } from '.';
 import {
   apiWalletFieldsToId,
@@ -54,7 +54,7 @@ export const useApiAccount = (addr?: Address) => {
       addr: addr!,
       contract: connectAccount(addr!, device),
       impl: acc.impl ? address(acc.impl) : ACCOUNT_IMPL,
-      deploySalt: acc.deploySalt || undefined,
+      deploySalt: acc.deploySalt ? toDeploySalt(acc.deploySalt) : undefined,
       name: acc.name,
       walletIds: acc.wallets?.map(apiWalletFieldsToId) ?? [],
     };

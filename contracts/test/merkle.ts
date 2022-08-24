@@ -4,7 +4,7 @@ import {
   getMultiProof,
   randomWalletRef,
   toQuorum,
-  toQuorums,
+  sortQuorums,
 } from 'lib';
 import { allSigners, deployTestAccount, expect } from './util';
 
@@ -12,7 +12,7 @@ describe('Merkle proof', () => {
   it('lib should generate valid multi-proof', async () => {
     const wallet: Wallet = {
       ref: randomWalletRef(),
-      quorums: toQuorums([
+      quorums: sortQuorums([
         toQuorum([allSigners[0].address, allSigners[1].address]),
         toQuorum([allSigners[2].address, allSigners[3].address]),
       ]),

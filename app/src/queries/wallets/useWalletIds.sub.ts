@@ -1,13 +1,13 @@
 import { gql } from '@apollo/client';
-import { useDevice } from '@features/device/useDevice';
-import { useSubgraphClient } from '@gql/GqlProvider';
+import { useDevice } from '@network/useDevice';
+import { useSubgraphClient } from '~/gql/GqlProvider';
 import { address, toWalletRef, toId } from 'lib';
 import { QUERY_WALLETS_POLL_INTERVAL, WalletId } from '.';
 import { useMemo } from 'react';
 import {
   useUserWalletIdsQuery,
   SubWalletIdFieldsFragment,
-} from '@gql/generated.sub';
+} from '~/gql/generated.sub';
 
 export const SUB_WALLET_ID_FIELDS = gql`
   fragment SubWalletIdFields on Wallet {
@@ -24,9 +24,11 @@ gql`
 
   query UserWalletIds($user: ID!) {
     user(id: $user) {
-      quorums(where: { active: true }) {
-        wallet {
-          ...SubWalletIdFields
+      quorums {
+        quorum {
+          wallet {
+            ...SubWalletIdFields
+          }
         }
       }
     }
@@ -52,8 +54,9 @@ export const useSubUserWalletIds = () => {
 
   const wallets = useMemo(
     (): WalletId[] =>
-      data?.user?.quorums.map((quorum) => subWalletFieldsToId(quorum.wallet)) ??
-      [],
+      data?.user?.quorums.map(({ quorum }) =>
+        subWalletFieldsToId(quorum.wallet),
+      ) ?? [],
     [data?.user?.quorums],
   );
 

@@ -1,4 +1,4 @@
-import { useTheme } from '@util/theme/paper';
+import { useTheme } from '@theme/paper';
 import ContentLoader, {
   IContentLoaderProps,
 } from 'react-content-loader/native';

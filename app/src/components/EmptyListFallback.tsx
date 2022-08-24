@@ -1,7 +1,7 @@
 import { ReactNode } from 'react';
 import { useWindowDimensions } from 'react-native';
 import { Headline, Title, useTheme } from 'react-native-paper';
-import { Box } from './Box';
+import { Box } from '~/components/layout/Box';
 
 export interface EmptyListFallbackProps {
   Icon?: ((props: { color: string; size: number }) => ReactNode) | ReactNode;

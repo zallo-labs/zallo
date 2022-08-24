@@ -4,7 +4,7 @@ import {
   getMerkleTree,
   AccountEvent,
   toQuorum,
-  toQuorums,
+  sortQuorums,
 } from 'lib';
 import {
   deploy,
@@ -17,7 +17,7 @@ import {
 
 const newWallet = (wallet: Wallet): Wallet => ({
   ...wallet,
-  quorums: toQuorums([
+  quorums: sortQuorums([
     ...wallet.quorums,
     toQuorum([allSigners[4].address, allSigners[5].address]),
   ]),

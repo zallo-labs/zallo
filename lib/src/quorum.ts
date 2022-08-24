@@ -14,10 +14,8 @@ export const quorumToLeaf = (quorum: Quorum) =>
 export const hashQuorum = (quorum: Quorum): string =>
   hexlify(bufferToBytes(quorumToLeaf(quorum)));
 
-export type Quorums = Quorum[] & { isQuorums: true };
-
-export const toQuorums = (quorumsDef: Quorum[]): Quorums =>
-  quorumsDef
+export const sortQuorums = (quorums: Quorum[]): Quorum[] =>
+  quorums
     .map((q) => ({ q, leaf: quorumToLeaf(q) }))
     .sort((a, b) => Buffer.compare(a.leaf, b.leaf))
-    .map(({ q }) => q) as Quorums;
+    .map(({ q }) => q);

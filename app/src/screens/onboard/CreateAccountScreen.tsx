@@ -1,16 +1,17 @@
-import { Box } from '@components/Box';
+import { Box } from '~/components/layout/Box';
 import { Formik } from 'formik';
 import { Appbar, Text } from 'react-native-paper';
 import { RootNavigatorScreenProps } from '~/navigation/RootNavigator';
 import * as Yup from 'yup';
 import { useCallback } from 'react';
-import { FormikTextField } from '@components/fields/FormikTextField';
-import { FormikSubmitFab } from '@components/fields/FormikSubmitFab';
-import { CheckIcon } from '@util/theme/icons';
+import { FormikTextField } from '~/components/fields/FormikTextField';
+import { FormikSubmitFab } from '~/components/fields/FormikSubmitFab';
+import { CheckIcon } from '~/util/theme/icons';
 import { useCreateApiAccount } from '~/mutations/account/useCreateAccount.api';
-import { AppbarBack } from '@components/AppbarBack';
-import { makeStyles } from '@util/theme/makeStyles';
-import { useName } from './Name/useName';
+import { AppbarBack } from '~/components/Appbar/AppbarBack';
+import { makeStyles } from '~/util/theme/makeStyles';
+import { Navigate } from '~/navigation/useRootNavigation';
+import { address, Address } from 'lib';
 
 interface Values {
   name: string;
@@ -20,19 +21,28 @@ const schema: Yup.SchemaOf<Values> = Yup.object({
   name: Yup.string().required('Required'),
 });
 
-export type CreateAccountScreenProps = RootNavigatorScreenProps<'CreateAccount'>;
+export interface CreateAccountScreenParams {
+  navigate: (account: Address, navigate: Navigate) => void;
+}
 
-export const CreateAccountScreen = ({ navigation }: CreateAccountScreenProps) => {
+export type CreateAccountScreenProps =
+  RootNavigatorScreenProps<'CreateAccount'>;
+
+export const CreateAccountScreen = ({
+  navigation,
+  route,
+}: CreateAccountScreenProps) => {
   const styles = useStyles();
   const createAccount = useCreateApiAccount();
-  const name = useName();
 
   const handleSubmit = useCallback(
     async ({ name }: Values) => {
-      await createAccount(name, 'Spending');
-      navigation.navigate('DrawerNavigator');
+      const res = await createAccount(name, 'Spending');
+      const account = address(res.data!.createAccount.id);
+
+      route.params.navigate(account, navigation.navigate);
     },
-    [createAccount, navigation],
+    [createAccount, navigation.navigate, route.params],
   );
 
   return (
@@ -42,13 +52,15 @@ export const CreateAccountScreen = ({ navigation }: CreateAccountScreenProps) =>
       </Appbar.Header>
 
       <Formik
-        initialValues={{ name: `${name}'s Account` }}
+        initialValues={{ name: '' }}
         onSubmit={handleSubmit}
         validationSchema={schema}
       >
         <>
           <Box mx={4}>
-            <Text style={styles.input}>Create Account</Text>
+            <Text style={styles.input}>
+              What should we call your organization?
+            </Text>
 
             <FormikTextField name="name" label="Name" />
           </Box>

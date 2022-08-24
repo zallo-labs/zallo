@@ -1,3 +1,4 @@
+import { log } from '@graphprotocol/graph-ts';
 import {
   WalletUpserted,
   WalletRemoved,
@@ -7,12 +8,20 @@ import {
 import { Wallet, Tx } from '../generated/schema';
 import { getAccountId, getTxId, getWalletId } from './id';
 import { getOrCreateQuorum } from './quorum';
-import { getOrCreateWallet, getOrCreateAccount } from './util';
+import { getOrCreateAccountWithoutImpl } from './util';
 
 export function handleTxExecuted(e: TxExecuted): void {
-  const tx = new Tx(getTxId(e.transaction));
+  log.warning('Tx executed: {}\nAddr: {}\nHash: {}\n', [
+    e.transaction.hash.toHex(),
+    e.address.toHex(),
+    e.params.txHash.toHex(),
+  ]);
 
-  tx.account = getAccountId(e.address);
+  const accountId = getAccountId(e.address);
+  const tx = new Tx(getTxId(accountId, e.transaction));
+
+  tx.account = accountId;
+  tx.transactionHash = e.transaction.hash;
   tx.hash = e.params.txHash;
   tx.success = true;
   tx.response = e.params.response;
@@ -24,9 +33,13 @@ export function handleTxExecuted(e: TxExecuted): void {
 }
 
 export function handleTxReverted(e: TxReverted): void {
-  const tx = new Tx(getTxId(e.transaction));
+  log.warning('Tx reverted: {}', [e.transaction.hash.toHex()]);
 
-  tx.account = getAccountId(e.address);
+  const accountId = getAccountId(e.address);
+  const tx = new Tx(getTxId(accountId, e.transaction));
+
+  tx.account = accountId;
+  tx.transactionHash = e.transaction.hash;
   tx.hash = e.params.txHash;
   tx.success = false;
   tx.response = e.params.response;
@@ -38,23 +51,34 @@ export function handleTxReverted(e: TxReverted): void {
 }
 
 export function handleWalletUpserted(e: WalletUpserted): void {
-  const account = getOrCreateAccount(e.address);
+  log.warning('handleWalletUpserted', []);
 
-  const wallet = getOrCreateWallet(getWalletId(account.id, e.params.walletRef));
-  wallet.account = account.id;
-  wallet.ref = e.params.walletRef;
+  const account = getOrCreateAccountWithoutImpl(e.address, e.block);
+
+  const id = getWalletId(account.id, e.params.walletRef);
+  let wallet = Wallet.load(id);
+  if (!wallet) {
+    wallet = new Wallet(id);
+    wallet.account = account.id;
+    wallet.quorums = [];
+    wallet.ref = e.params.walletRef;
+  }
   wallet.active = true;
   wallet.save();
 
-  // Add quorums
+  const activeQuorums: string[] = [];
   for (let i = 0; i < e.params.quorums.length; ++i) {
     const quorumBytes = e.params.quorums[i];
-    getOrCreateQuorum(wallet, quorumBytes, e);
+    const q = getOrCreateQuorum(wallet, quorumBytes, e);
+    activeQuorums.push(q.id);
   }
+
+  wallet.quorums = activeQuorums;
+  wallet.save();
 }
 
 export function handleWalletRemoved(e: WalletRemoved): void {
-  const account = getOrCreateAccount(e.address);
+  const account = getOrCreateAccountWithoutImpl(e.address, e.block);
   const wallet = Wallet.load(getWalletId(account.id, e.params.walletRef));
   if (wallet) {
     wallet.active = false;

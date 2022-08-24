@@ -1,15 +1,11 @@
 import React, { ReactNode, useMemo } from 'react';
 
-export interface ChildrenProps {
-  children?: ReactNode;
-}
-
 export const getNodeKey = (node: ReactNode, index: number): string =>
   typeof node === 'object' && typeof (node as any)?.['key'] === 'string'
     ? (node as any)['key']
     : index.toString(36);
 
-export const withKeys = (children: Parameters<typeof React.Children.map>[0]) =>
+export const withKeys = (children: Parameters<typeof React.Children.toArray>[0]) =>
   React.Children.toArray(children)
     .filter(Boolean)
     .map((child, i) => (

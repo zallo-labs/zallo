@@ -1,7 +1,8 @@
-import { MenuIcon, ShareIcon } from '@util/theme/icons';
+import { ShareIcon } from '~/util/theme/icons';
 import { useCallback } from 'react';
 import { Share } from 'react-native';
 import { Appbar } from 'react-native-paper';
+import { AppbarMenu } from '~/components/Appbar/AppbarMenu';
 
 export interface ReceiveAppbarProps {
   url: string;
@@ -12,7 +13,7 @@ export const ReceiveAppbar = ({ url }: ReceiveAppbarProps) => {
 
   return (
     <Appbar.Header mode="center-aligned">
-      <Appbar.Action icon={MenuIcon} onPress={() => alert('Unimplemented')} />
+      <AppbarMenu />
 
       <Appbar.Content title="Receive" />
 

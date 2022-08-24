@@ -5,13 +5,13 @@ import { onError } from '@apollo/client/link/error';
 import { SiweMessage } from 'siwe';
 import { tryAcquire, E_ALREADY_LOCKED, Mutex } from 'async-mutex';
 import * as zk from 'zksync-web3';
-import { CONFIG } from '~/config';
-import { PROVIDER } from '~/provider';
-import { useDevice } from '@features/device/useDevice';
+import { CONFIG } from '~/util/config';
+import { PROVIDER } from '~/util/network/provider';
 import { atom, useRecoilState } from 'recoil';
-import { getSecureStore, persistAtom } from '@util/effect/persistAtom';
+import { getSecureStore, persistAtom } from '~/util/effect/persistAtom';
 import { useCallback, useMemo, useRef } from 'react';
-import { captureException } from '@util/sentry/sentry';
+import { captureException } from '~/util/sentry/sentry';
+import { useDevice } from '@network/useDevice';
 
 interface Token {
   message: SiweMessage;
@@ -103,12 +103,23 @@ export const useAuthFlowLink = () => {
   const onUnauthorizedLink: ApolloLink = useMemo(
     () =>
       onError(({ networkError, forward, operation }) => {
-        if (isServerError(networkError) && networkError.statusCode === 401) {
-          fromPromise(reset()).flatMap(() => forward(operation));
+        if (isServerError(networkError)) {
+          if (networkError.statusCode === 401) {
+            fromPromise(reset()).flatMap(() => forward(operation));
+          } else {
+            console.error({
+              status: networkError.statusCode,
+              name: networkError.name,
+              message: networkError.message,
+              result: JSON.stringify(networkError.result),
+            });
+
+            captureException(networkError, {
+              extra: { operation },
+            });
+          }
         } else {
-          captureException(networkError, {
-            extra: { operation },
-          });
+          console.warn({ networkError });
         }
       }),
     [reset],

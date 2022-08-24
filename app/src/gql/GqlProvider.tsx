@@ -1,7 +1,11 @@
-import { createContext, useContext, useEffect, useState } from 'react';
+import {
+  createContext,
+  ReactNode,
+  useContext,
+  useEffect,
+  useState,
+} from 'react';
 import { ApolloClient, NormalizedCacheObject } from '@apollo/client';
-
-import { ChildrenProps } from '@util/children';
 import {
   API_CLIENT_NAME,
   ClientCreator,
@@ -11,7 +15,7 @@ import {
   UNISWAP_CLIENT_NAME,
   useCreateApiClient,
 } from './clients';
-import { Suspend } from '@components/Suspender';
+import { Suspend } from '~/components/Suspender';
 
 const clientNames = [
   API_CLIENT_NAME,
@@ -34,7 +38,11 @@ export const useApiClient = () => useGqlClients().api;
 export const useSubgraphClient = () => useGqlClients().subgraph;
 export const useUniswapClient = () => useGqlClients().uniswap;
 
-export const GqlProvider = ({ children }: ChildrenProps) => {
+export interface GqlProviderProps {
+  children: ReactNode;
+}
+
+export const GqlProvider = ({ children }: GqlProviderProps) => {
   const [clients, setClients] = useState<GqlClients | Partial<GqlClients>>({});
 
   const create = async (name: Name, creator: ClientCreator) => {

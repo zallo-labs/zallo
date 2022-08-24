@@ -1,14 +1,8 @@
 import { BytesLike, BigNumber } from 'ethers';
-import { Address, TxReq, Id, createIsObj } from 'lib';
+import { isBytesLike } from 'ethers/lib/utils';
+import { Address, TxReq, Id, createIsObj, createIs } from 'lib';
 import { DateTime } from 'luxon';
-import { Transfer } from './transfer.sub';
-
-export enum TxStatus {
-  PreProposal,
-  Proposed,
-  Submitted,
-  Executed,
-}
+import { WalletId } from '../wallets';
 
 export interface Approval {
   addr: Address;
@@ -16,23 +10,44 @@ export interface Approval {
   timestamp: DateTime;
 }
 
+export type SubmissionStatus = "pending" | "success" | "failure";
+
 export interface Submission {
   hash: BytesLike;
   nonce: number;
+  status: SubmissionStatus;
+  timestamp: DateTime;
   gasLimit: BigNumber;
   gasPrice?: BigNumber;
-  finalized: boolean;
-  createdAt: DateTime;
 }
 
-export interface ProposedTx extends TxReq {
-  id: Id;
+export const isSubmission = createIs<Submission>({
+  hash: isBytesLike,
+  nonce: 'number',
+  gasLimit: BigNumber.isBigNumber,
+  gasPrice: (e) => BigNumber.isBigNumber(e) || e === undefined,
+  timestamp: DateTime.isDateTime,
+  status: 'string',
+});
+
+export interface TxId {
+  account: Address;
   hash: string;
+}
+
+export type TxStatus = 'proposed' | 'submitted' | 'failed' | 'executed';
+
+export interface TxMetadata extends TxId {
+  id: Id;
+  timestamp: DateTime;
+}
+
+export interface ProposedTx extends TxMetadata, TxReq {
+  wallet?: WalletId;
   approvals: Approval[];
   userHasApproved: boolean;
   submissions: Submission[];
   proposedAt: DateTime;
-  timestamp: DateTime;
   status: TxStatus;
 }
 
@@ -41,7 +56,6 @@ export interface ExecutedTx extends ProposedTx {
   executor: Address;
   executedAt: DateTime;
   blockHash: BytesLike;
-  transfers: Transfer[];
 }
 
 export type Tx = ProposedTx | ExecutedTx;
@@ -54,4 +68,5 @@ export const isExecutedTx = (e: unknown): e is ExecutedTx =>
 export const isProposedTx = (e: unknown): e is ProposedTx =>
   isTx(e) && !('responses' in e);
 
-export const QUERY_TXS_POLL_INTERVAL = 10 * 1000;
+export const QUERY_TXS_METADATA_POLL_INTERVAL = 10 * 1000;
+export const QUERY_TX_POLL_INTERVAL = 5 * 1000;
