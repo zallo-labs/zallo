@@ -1,6 +1,6 @@
 import 'node-libs-react-native/globals';
 import '~/util/network/provider';
-import '~/util/configImmer';
+import '~/util/immer';
 
 import { Suspense } from 'react';
 import { RecoilRoot } from 'recoil';
