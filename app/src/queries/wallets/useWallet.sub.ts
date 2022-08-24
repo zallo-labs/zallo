@@ -18,7 +18,8 @@ gql`
   query Wallet($wallet: ID!) {
     wallet(id: $wallet) {
       ...SubWalletIdFields
-      quorums(where: { active: true }) {
+      active
+      quorums {
         id
         hash
         approvers {
@@ -44,6 +45,8 @@ export const useSubWallet = (id?: WalletId) => {
     if (!data?.wallet) return undefined;
 
     const w = data.wallet;
+    if (!w.active) return undefined;
+
     return {
       id: toId(w.id),
       accountAddr: address(w.account.id),

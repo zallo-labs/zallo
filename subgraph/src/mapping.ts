@@ -60,28 +60,21 @@ export function handleWalletUpserted(e: WalletUpserted): void {
   if (!wallet) {
     wallet = new Wallet(id);
     wallet.account = account.id;
+    wallet.quorums = [];
     wallet.ref = e.params.walletRef;
   }
   wallet.active = true;
   wallet.save();
 
-  // const quorumIds = [];
-  // for (let i = 0; i < e.params.quorums.length; i++) {
-  //   quorumIds.push(getQuorumId(wallet.id, e.params.quorums[i]));
-  // }
-
-  // TODO: handle removing old quorums
-  // Remove prior quorums
-  // const existingQuorums = wallet.quorums;
-  // for (let i = 0; i < wallet.quorums.length; ++i) {
-  //   store.remove("Quorum", existingQuorums[i]);
-  // }
-
-  // Add quorums
+  const activeQuorums: string[] = [];
   for (let i = 0; i < e.params.quorums.length; ++i) {
     const quorumBytes = e.params.quorums[i];
-    getOrCreateQuorum(wallet, quorumBytes, e);
+    const q = getOrCreateQuorum(wallet, quorumBytes, e);
+    activeQuorums.push(q.id);
   }
+
+  wallet.quorums = activeQuorums;
+  wallet.save();
 }
 
 export function handleWalletRemoved(e: WalletRemoved): void {

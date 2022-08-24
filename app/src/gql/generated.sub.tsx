@@ -338,7 +338,6 @@ export type QueryWalletsArgs = {
 
 export type Quorum = {
   __typename?: 'Quorum';
-  active: Scalars['Boolean'];
   approvers: Array<QuorumApprover>;
   blockHash: Scalars['Bytes'];
   hash: Scalars['Bytes'];
@@ -441,10 +440,6 @@ export enum QuorumApprover_OrderBy {
 export type Quorum_Filter = {
   /** Filter for the block changed event. */
   _change_block?: InputMaybe<BlockChangedFilter>;
-  active?: InputMaybe<Scalars['Boolean']>;
-  active_in?: InputMaybe<Array<Scalars['Boolean']>>;
-  active_not?: InputMaybe<Scalars['Boolean']>;
-  active_not_in?: InputMaybe<Array<Scalars['Boolean']>>;
   approvers_?: InputMaybe<QuorumApprover_Filter>;
   blockHash?: InputMaybe<Scalars['Bytes']>;
   blockHash_contains?: InputMaybe<Scalars['Bytes']>;
@@ -510,7 +505,6 @@ export type Quorum_Filter = {
 };
 
 export enum Quorum_OrderBy {
-  Active = 'active',
   Approvers = 'approvers',
   BlockHash = 'blockHash',
   Hash = 'hash',
@@ -1068,7 +1062,13 @@ export type Wallet_Filter = {
   id_not_starts_with_nocase?: InputMaybe<Scalars['String']>;
   id_starts_with?: InputMaybe<Scalars['String']>;
   id_starts_with_nocase?: InputMaybe<Scalars['String']>;
+  quorums?: InputMaybe<Array<Scalars['String']>>;
   quorums_?: InputMaybe<Quorum_Filter>;
+  quorums_contains?: InputMaybe<Array<Scalars['String']>>;
+  quorums_contains_nocase?: InputMaybe<Array<Scalars['String']>>;
+  quorums_not?: InputMaybe<Array<Scalars['String']>>;
+  quorums_not_contains?: InputMaybe<Array<Scalars['String']>>;
+  quorums_not_contains_nocase?: InputMaybe<Array<Scalars['String']>>;
   ref?: InputMaybe<Scalars['Bytes']>;
   ref_contains?: InputMaybe<Scalars['Bytes']>;
   ref_in?: InputMaybe<Array<Scalars['Bytes']>>;
@@ -1124,15 +1124,12 @@ export type AccountQueryVariables = Exact<{
 
 export type AccountQuery = { __typename?: 'Query', account?: { __typename?: 'Account', id: any, impl: { __typename?: 'AccountImpl', id: any }, wallets: Array<{ __typename?: 'Wallet', id: string, ref: any, account: { __typename?: 'Account', id: any } }> } | null };
 
-export type TransferFieldsFragment = { __typename?: 'Transfer', id: string, type: TransferType, token: any, from: any, to: any, value: any, blockHash: any, timestamp: any };
-
-export type TransfersQueryVariables = Exact<{
-  account: Scalars['String'];
-  txs: Array<Scalars['String']> | Scalars['String'];
+export type TxsMetadataQueryVariables = Exact<{
+  accounts: Array<Scalars['String']> | Scalars['String'];
 }>;
 
 
-export type TransfersQuery = { __typename?: 'Query', transfers: Array<{ __typename?: 'Transfer', id: string, type: TransferType, token: any, from: any, to: any, value: any, blockHash: any, timestamp: any }> };
+export type TxsMetadataQuery = { __typename?: 'Query', txes: Array<{ __typename?: 'Tx', id: string, hash: any, timestamp: any }> };
 
 export type TxSubmissionsQueryVariables = Exact<{
   account: Scalars['String'];
@@ -1142,19 +1139,12 @@ export type TxSubmissionsQueryVariables = Exact<{
 
 export type TxSubmissionsQuery = { __typename?: 'Query', txes: Array<{ __typename?: 'Tx', id: string, transactionHash: any, success: boolean, response: any, executor: any, blockHash: any, timestamp: any, transfers: Array<{ __typename?: 'Transfer', id: string, token: any, type: TransferType, from: any, to: any, value: any, blockHash: any, timestamp: any }> }> };
 
-export type TxsMetadataQueryVariables = Exact<{
-  accounts: Array<Scalars['String']> | Scalars['String'];
-}>;
-
-
-export type TxsMetadataQuery = { __typename?: 'Query', txes: Array<{ __typename?: 'Tx', id: string, hash: any, timestamp: any }> };
-
 export type WalletQueryVariables = Exact<{
   wallet: Scalars['ID'];
 }>;
 
 
-export type WalletQuery = { __typename?: 'Query', wallet?: { __typename?: 'Wallet', id: string, ref: any, quorums: Array<{ __typename?: 'Quorum', id: string, hash: any, timestamp: any, approvers: Array<{ __typename?: 'QuorumApprover', approver: { __typename?: 'User', id: any } }> }>, account: { __typename?: 'Account', id: any } } | null };
+export type WalletQuery = { __typename?: 'Query', wallet?: { __typename?: 'Wallet', active: boolean, id: string, ref: any, quorums: Array<{ __typename?: 'Quorum', id: string, hash: any, timestamp: any, approvers: Array<{ __typename?: 'QuorumApprover', approver: { __typename?: 'User', id: any } }> }>, account: { __typename?: 'Account', id: any } } | null };
 
 export type SubWalletIdFieldsFragment = { __typename?: 'Wallet', id: string, ref: any, account: { __typename?: 'Account', id: any } };
 
@@ -1165,18 +1155,6 @@ export type UserWalletIdsQueryVariables = Exact<{
 
 export type UserWalletIdsQuery = { __typename?: 'Query', user?: { __typename?: 'User', quorums: Array<{ __typename?: 'QuorumApprover', quorum: { __typename?: 'Quorum', wallet: { __typename?: 'Wallet', id: string, ref: any, account: { __typename?: 'Account', id: any } } } }> } | null };
 
-export const TransferFieldsFragmentDoc = gql`
-    fragment TransferFields on Transfer {
-  id
-  type
-  token
-  from
-  to
-  value
-  blockHash
-  timestamp
-}
-    `;
 export const SubWalletIdFieldsFragmentDoc = gql`
     fragment SubWalletIdFields on Wallet {
   id
@@ -1227,42 +1205,43 @@ export function useAccountLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<Ac
 export type AccountQueryHookResult = ReturnType<typeof useAccountQuery>;
 export type AccountLazyQueryHookResult = ReturnType<typeof useAccountLazyQuery>;
 export type AccountQueryResult = Apollo.QueryResult<AccountQuery, AccountQueryVariables>;
-export const TransfersDocument = gql`
-    query Transfers($account: String!, $txs: [String!]!) {
-  transfers(where: {account: $account, tx_not_in: $txs}) {
-    ...TransferFields
+export const TxsMetadataDocument = gql`
+    query TxsMetadata($accounts: [String!]!) {
+  txes(where: {account_in: $accounts}) {
+    id
+    hash
+    timestamp
   }
 }
-    ${TransferFieldsFragmentDoc}`;
+    `;
 
 /**
- * __useTransfersQuery__
+ * __useTxsMetadataQuery__
  *
- * To run a query within a React component, call `useTransfersQuery` and pass it any options that fit your needs.
- * When your component renders, `useTransfersQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * To run a query within a React component, call `useTxsMetadataQuery` and pass it any options that fit your needs.
+ * When your component renders, `useTxsMetadataQuery` returns an object from Apollo Client that contains loading, error, and data properties
  * you can use to render your UI.
  *
  * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
  *
  * @example
- * const { data, loading, error } = useTransfersQuery({
+ * const { data, loading, error } = useTxsMetadataQuery({
  *   variables: {
- *      account: // value for 'account'
- *      txs: // value for 'txs'
+ *      accounts: // value for 'accounts'
  *   },
  * });
  */
-export function useTransfersQuery(baseOptions: Apollo.QueryHookOptions<TransfersQuery, TransfersQueryVariables>) {
+export function useTxsMetadataQuery(baseOptions: Apollo.QueryHookOptions<TxsMetadataQuery, TxsMetadataQueryVariables>) {
         const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useQuery<TransfersQuery, TransfersQueryVariables>(TransfersDocument, options);
+        return Apollo.useQuery<TxsMetadataQuery, TxsMetadataQueryVariables>(TxsMetadataDocument, options);
       }
-export function useTransfersLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<TransfersQuery, TransfersQueryVariables>) {
+export function useTxsMetadataLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<TxsMetadataQuery, TxsMetadataQueryVariables>) {
           const options = {...defaultOptions, ...baseOptions}
-          return Apollo.useLazyQuery<TransfersQuery, TransfersQueryVariables>(TransfersDocument, options);
+          return Apollo.useLazyQuery<TxsMetadataQuery, TxsMetadataQueryVariables>(TxsMetadataDocument, options);
         }
-export type TransfersQueryHookResult = ReturnType<typeof useTransfersQuery>;
-export type TransfersLazyQueryHookResult = ReturnType<typeof useTransfersLazyQuery>;
-export type TransfersQueryResult = Apollo.QueryResult<TransfersQuery, TransfersQueryVariables>;
+export type TxsMetadataQueryHookResult = ReturnType<typeof useTxsMetadataQuery>;
+export type TxsMetadataLazyQueryHookResult = ReturnType<typeof useTxsMetadataLazyQuery>;
+export type TxsMetadataQueryResult = Apollo.QueryResult<TxsMetadataQuery, TxsMetadataQueryVariables>;
 export const TxSubmissionsDocument = gql`
     query TxSubmissions($account: String!, $hash: Bytes!) {
   txes(
@@ -1320,48 +1299,12 @@ export function useTxSubmissionsLazyQuery(baseOptions?: Apollo.LazyQueryHookOpti
 export type TxSubmissionsQueryHookResult = ReturnType<typeof useTxSubmissionsQuery>;
 export type TxSubmissionsLazyQueryHookResult = ReturnType<typeof useTxSubmissionsLazyQuery>;
 export type TxSubmissionsQueryResult = Apollo.QueryResult<TxSubmissionsQuery, TxSubmissionsQueryVariables>;
-export const TxsMetadataDocument = gql`
-    query TxsMetadata($accounts: [String!]!) {
-  txes(where: {account_in: $accounts}) {
-    id
-    hash
-    timestamp
-  }
-}
-    `;
-
-/**
- * __useTxsMetadataQuery__
- *
- * To run a query within a React component, call `useTxsMetadataQuery` and pass it any options that fit your needs.
- * When your component renders, `useTxsMetadataQuery` returns an object from Apollo Client that contains loading, error, and data properties
- * you can use to render your UI.
- *
- * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
- *
- * @example
- * const { data, loading, error } = useTxsMetadataQuery({
- *   variables: {
- *      accounts: // value for 'accounts'
- *   },
- * });
- */
-export function useTxsMetadataQuery(baseOptions: Apollo.QueryHookOptions<TxsMetadataQuery, TxsMetadataQueryVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useQuery<TxsMetadataQuery, TxsMetadataQueryVariables>(TxsMetadataDocument, options);
-      }
-export function useTxsMetadataLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<TxsMetadataQuery, TxsMetadataQueryVariables>) {
-          const options = {...defaultOptions, ...baseOptions}
-          return Apollo.useLazyQuery<TxsMetadataQuery, TxsMetadataQueryVariables>(TxsMetadataDocument, options);
-        }
-export type TxsMetadataQueryHookResult = ReturnType<typeof useTxsMetadataQuery>;
-export type TxsMetadataLazyQueryHookResult = ReturnType<typeof useTxsMetadataLazyQuery>;
-export type TxsMetadataQueryResult = Apollo.QueryResult<TxsMetadataQuery, TxsMetadataQueryVariables>;
 export const WalletDocument = gql`
     query Wallet($wallet: ID!) {
   wallet(id: $wallet) {
     ...SubWalletIdFields
-    quorums(where: {active: true}) {
+    active
+    quorums {
       id
       hash
       approvers {

@@ -1872,6 +1872,7 @@ export type Quorum = {
   createProposalHash?: Maybe<Scalars['String']>;
   hash: Scalars['String'];
   removeProposal?: Maybe<Tx>;
+  removeProposalAccountId?: Maybe<Scalars['String']>;
   removeProposalHash?: Maybe<Scalars['String']>;
   wallet: Wallet;
   walletRef: Scalars['String'];
@@ -1891,6 +1892,7 @@ export type QuorumCount = {
 export type QuorumCreateManyAccountInput = {
   createProposalHash?: InputMaybe<Scalars['String']>;
   hash: Scalars['String'];
+  removeProposalAccountId?: InputMaybe<Scalars['String']>;
   removeProposalHash?: InputMaybe<Scalars['String']>;
   walletRef: Scalars['String'];
 };
@@ -1902,6 +1904,7 @@ export type QuorumCreateManyAccountInputEnvelope = {
 
 export type QuorumCreateManyCreateProposalInput = {
   hash: Scalars['String'];
+  removeProposalAccountId?: InputMaybe<Scalars['String']>;
   removeProposalHash?: InputMaybe<Scalars['String']>;
   walletRef: Scalars['String'];
 };
@@ -1912,6 +1915,7 @@ export type QuorumCreateManyCreateProposalInputEnvelope = {
 };
 
 export type QuorumCreateManyRemoveProposalInput = {
+  accountId: Scalars['String'];
   createProposalHash?: InputMaybe<Scalars['String']>;
   hash: Scalars['String'];
   walletRef: Scalars['String'];
@@ -1925,6 +1929,7 @@ export type QuorumCreateManyRemoveProposalInputEnvelope = {
 export type QuorumCreateManyWalletInput = {
   createProposalHash?: InputMaybe<Scalars['String']>;
   hash: Scalars['String'];
+  removeProposalAccountId?: InputMaybe<Scalars['String']>;
   removeProposalHash?: InputMaybe<Scalars['String']>;
 };
 
@@ -2054,6 +2059,7 @@ export type QuorumScalarWhereInput = {
   accountId?: InputMaybe<StringFilter>;
   createProposalHash?: InputMaybe<StringNullableFilter>;
   hash?: InputMaybe<StringFilter>;
+  removeProposalAccountId?: InputMaybe<StringNullableFilter>;
   removeProposalHash?: InputMaybe<StringNullableFilter>;
   walletRef?: InputMaybe<StringFilter>;
 };
@@ -2246,6 +2252,7 @@ export type QuorumWhereInput = {
   createProposalHash?: InputMaybe<StringNullableFilter>;
   hash?: InputMaybe<StringFilter>;
   removeProposal?: InputMaybe<TxRelationFilter>;
+  removeProposalAccountId?: InputMaybe<StringNullableFilter>;
   removeProposalHash?: InputMaybe<StringNullableFilter>;
   wallet?: InputMaybe<WalletRelationFilter>;
   walletRef?: InputMaybe<StringFilter>;
@@ -3578,6 +3585,7 @@ export type Wallet = {
   quorums?: Maybe<Array<Quorum>>;
   ref: Scalars['String'];
   removeProposal?: Maybe<Tx>;
+  removeProposalAccountId?: Maybe<Scalars['String']>;
   removeProposalHash?: Maybe<Scalars['String']>;
   txs?: Maybe<Array<Tx>>;
 };
@@ -3592,11 +3600,6 @@ export type WalletAccountIdRefCompoundUniqueInput = {
   ref: Scalars['String'];
 };
 
-export type WalletAccountIdRemoveProposalHashCompoundUniqueInput = {
-  accountId: Scalars['String'];
-  removeProposalHash: Scalars['String'];
-};
-
 export type WalletCount = {
   __typename?: 'WalletCount';
   approvers: Scalars['Int'];
@@ -3608,6 +3611,7 @@ export type WalletCreateManyAccountInput = {
   createProposalHash?: InputMaybe<Scalars['String']>;
   name?: InputMaybe<Scalars['String']>;
   ref: Scalars['String'];
+  removeProposalAccountId?: InputMaybe<Scalars['String']>;
   removeProposalHash?: InputMaybe<Scalars['String']>;
 };
 
@@ -3768,6 +3772,7 @@ export type WalletOrderByWithRelationInput = {
   quorums?: InputMaybe<QuorumOrderByRelationAggregateInput>;
   ref?: InputMaybe<SortOrder>;
   removeProposal?: InputMaybe<TxOrderByWithRelationInput>;
+  removeProposalAccountId?: InputMaybe<SortOrder>;
   removeProposalHash?: InputMaybe<SortOrder>;
   txs?: InputMaybe<TxOrderByRelationAggregateInput>;
 };
@@ -3777,11 +3782,17 @@ export type WalletRelationFilter = {
   isNot?: InputMaybe<WalletWhereInput>;
 };
 
+export type WalletRemoveProposalAccountIdRemoveProposalHashCompoundUniqueInput = {
+  removeProposalAccountId: Scalars['String'];
+  removeProposalHash: Scalars['String'];
+};
+
 export enum WalletScalarFieldEnum {
   AccountId = 'accountId',
   CreateProposalHash = 'createProposalHash',
   Name = 'name',
   Ref = 'ref',
+  RemoveProposalAccountId = 'removeProposalAccountId',
   RemoveProposalHash = 'removeProposalHash'
 }
 
@@ -3793,6 +3804,7 @@ export type WalletScalarWhereInput = {
   createProposalHash?: InputMaybe<StringNullableFilter>;
   name?: InputMaybe<StringFilter>;
   ref?: InputMaybe<StringFilter>;
+  removeProposalAccountId?: InputMaybe<StringNullableFilter>;
   removeProposalHash?: InputMaybe<StringNullableFilter>;
 };
 
@@ -3973,6 +3985,7 @@ export type WalletWhereInput = {
   quorums?: InputMaybe<QuorumListRelationFilter>;
   ref?: InputMaybe<StringFilter>;
   removeProposal?: InputMaybe<TxRelationFilter>;
+  removeProposalAccountId?: InputMaybe<StringNullableFilter>;
   removeProposalHash?: InputMaybe<StringNullableFilter>;
   txs?: InputMaybe<TxListRelationFilter>;
 };
@@ -3980,7 +3993,7 @@ export type WalletWhereInput = {
 export type WalletWhereUniqueInput = {
   accountId_createProposalHash?: InputMaybe<WalletAccountIdCreateProposalHashCompoundUniqueInput>;
   accountId_ref?: InputMaybe<WalletAccountIdRefCompoundUniqueInput>;
-  accountId_removeProposalHash?: InputMaybe<WalletAccountIdRemoveProposalHashCompoundUniqueInput>;
+  removeProposalAccountId_removeProposalHash?: InputMaybe<WalletRemoveProposalAccountIdRemoveProposalHashCompoundUniqueInput>;
 };
 
 export type WalletWithoutAccountInput = {
@@ -4052,6 +4065,23 @@ export type UpsertContactMutationVariables = Exact<{
 
 export type UpsertContactMutation = { __typename?: 'Mutation', upsertContact?: { __typename?: 'Contact', id: string, addr: string, name: string } | null };
 
+export type ApproveTxMutationVariables = Exact<{
+  account: Scalars['Address'];
+  txHash: Scalars['Bytes32'];
+  signature: Scalars['Bytes'];
+}>;
+
+
+export type ApproveTxMutation = { __typename?: 'Mutation', approve?: { __typename?: 'Tx', id: string } | null };
+
+export type RevokeApprovalMutationVariables = Exact<{
+  account: Scalars['Address'];
+  txHash: Scalars['Bytes32'];
+}>;
+
+
+export type RevokeApprovalMutation = { __typename?: 'Mutation', revokeApproval: { __typename?: 'RevokeApprovalResp', id?: string | null } };
+
 export type SubmitTxExecutionMutationVariables = Exact<{
   account: Scalars['Address'];
   txHash: Scalars['Bytes32'];
@@ -4070,23 +4100,6 @@ export type ProposeTxMutationVariables = Exact<{
 
 
 export type ProposeTxMutation = { __typename?: 'Mutation', proposeTx: { __typename?: 'Tx', id: string, accountId: string, hash: string, to: string, value: string, data: string, salt: string, walletRef: string, createdAt: any, approvals?: Array<{ __typename?: 'Approval', userId: string, signature: string, createdAt: any }> | null, submissions?: Array<{ __typename?: 'Submission', id: string, hash: string, nonce: number, gasLimit: any, gasPrice?: any | null, finalized: boolean, createdAt: any }> | null } };
-
-export type ApproveTxMutationVariables = Exact<{
-  account: Scalars['Address'];
-  txHash: Scalars['Bytes32'];
-  signature: Scalars['Bytes'];
-}>;
-
-
-export type ApproveTxMutation = { __typename?: 'Mutation', approve?: { __typename?: 'Tx', id: string } | null };
-
-export type RevokeApprovalMutationVariables = Exact<{
-  account: Scalars['Address'];
-  txHash: Scalars['Bytes32'];
-}>;
-
-
-export type RevokeApprovalMutation = { __typename?: 'Mutation', revokeApproval: { __typename?: 'RevokeApprovalResp', id?: string | null } };
 
 export type SetTxWallelMutationVariables = Exact<{
   account: Scalars['Address'];
@@ -4111,14 +4124,6 @@ export type DeleteWalletMutationVariables = Exact<{
 
 export type DeleteWalletMutation = { __typename?: 'Mutation', deleteWallet: boolean };
 
-export type SetWalletNameMutationVariables = Exact<{
-  id: WalletId;
-  name: Scalars['String'];
-}>;
-
-
-export type SetWalletNameMutation = { __typename?: 'Mutation', setWalletName: { __typename?: 'Wallet', id: string } };
-
 export type UpsertWalletMutationVariables = Exact<{
   wallet: WalletId;
   name?: InputMaybe<Scalars['String']>;
@@ -4128,6 +4133,14 @@ export type UpsertWalletMutationVariables = Exact<{
 
 
 export type UpsertWalletMutation = { __typename?: 'Mutation', upsertWallet?: { __typename?: 'Wallet', id: string, name: string, quorums?: Array<{ __typename?: 'Quorum', approvers?: Array<{ __typename?: 'Approver', userId: string }> | null, createProposal?: { __typename?: 'Tx', hash: string, submissions?: Array<{ __typename?: 'Submission', finalized: boolean }> | null } | null, removeProposal?: { __typename?: 'Tx', hash: string, submissions?: Array<{ __typename?: 'Submission', finalized: boolean }> | null } | null }> | null, createProposal?: { __typename?: 'Tx', hash: string, submissions?: Array<{ __typename?: 'Submission', finalized: boolean }> | null } | null, removeProposal?: { __typename?: 'Tx', hash: string, submissions?: Array<{ __typename?: 'Submission', finalized: boolean }> | null } | null } | null };
+
+export type SetWalletNameMutationVariables = Exact<{
+  id: WalletId;
+  name: Scalars['String'];
+}>;
+
+
+export type SetWalletNameMutation = { __typename?: 'Mutation', setWalletName: { __typename?: 'Wallet', id: string } };
 
 export type AccountFieldsFragment = { __typename?: 'Account', id: string, name: string, impl?: string | null, deploySalt?: string | null, wallets?: Array<{ __typename?: 'Wallet', id: string, accountId: string, ref: string }> | null };
 
@@ -4150,6 +4163,13 @@ export type ContactsQueryVariables = Exact<{ [key: string]: never; }>;
 
 export type ContactsQuery = { __typename?: 'Query', contacts: Array<{ __typename?: 'Contact', id: string, addr: string, name: string }> };
 
+export type TxsMetadataQueryVariables = Exact<{
+  accounts: Array<Scalars['Address']> | Scalars['Address'];
+}>;
+
+
+export type TxsMetadataQuery = { __typename?: 'Query', txs: Array<{ __typename?: 'Tx', id: string, accountId: string, hash: string, createdAt: any }> };
+
 export type TxFieldsFragment = { __typename?: 'Tx', id: string, accountId: string, hash: string, to: string, value: string, data: string, salt: string, walletRef: string, createdAt: any, approvals?: Array<{ __typename?: 'Approval', userId: string, signature: string, createdAt: any }> | null, submissions?: Array<{ __typename?: 'Submission', id: string, hash: string, nonce: number, gasLimit: any, gasPrice?: any | null, finalized: boolean, createdAt: any }> | null };
 
 export type TxQueryVariables = Exact<{
@@ -4159,13 +4179,6 @@ export type TxQueryVariables = Exact<{
 
 
 export type TxQuery = { __typename?: 'Query', tx?: { __typename?: 'Tx', id: string, accountId: string, hash: string, to: string, value: string, data: string, salt: string, walletRef: string, createdAt: any, approvals?: Array<{ __typename?: 'Approval', userId: string, signature: string, createdAt: any }> | null, submissions?: Array<{ __typename?: 'Submission', id: string, hash: string, nonce: number, gasLimit: any, gasPrice?: any | null, finalized: boolean, createdAt: any }> | null } | null };
-
-export type TxsMetadataQueryVariables = Exact<{
-  accounts: Array<Scalars['Address']> | Scalars['Address'];
-}>;
-
-
-export type TxsMetadataQuery = { __typename?: 'Query', txs: Array<{ __typename?: 'Tx', id: string, accountId: string, hash: string, createdAt: any }> };
 
 export type ReactionFieldsFragment = { __typename?: 'Reaction', id: string, accountId: string, key: string, nonce: number, userId: string, emojis?: Array<string> | null };
 
@@ -4564,6 +4577,75 @@ export function useUpsertContactMutation(baseOptions?: Apollo.MutationHookOption
 export type UpsertContactMutationHookResult = ReturnType<typeof useUpsertContactMutation>;
 export type UpsertContactMutationResult = Apollo.MutationResult<UpsertContactMutation>;
 export type UpsertContactMutationOptions = Apollo.BaseMutationOptions<UpsertContactMutation, UpsertContactMutationVariables>;
+export const ApproveTxDocument = gql`
+    mutation ApproveTx($account: Address!, $txHash: Bytes32!, $signature: Bytes!) {
+  approve(account: $account, hash: $txHash, signature: $signature) {
+    id
+  }
+}
+    `;
+export type ApproveTxMutationFn = Apollo.MutationFunction<ApproveTxMutation, ApproveTxMutationVariables>;
+
+/**
+ * __useApproveTxMutation__
+ *
+ * To run a mutation, you first call `useApproveTxMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useApproveTxMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [approveTxMutation, { data, loading, error }] = useApproveTxMutation({
+ *   variables: {
+ *      account: // value for 'account'
+ *      txHash: // value for 'txHash'
+ *      signature: // value for 'signature'
+ *   },
+ * });
+ */
+export function useApproveTxMutation(baseOptions?: Apollo.MutationHookOptions<ApproveTxMutation, ApproveTxMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<ApproveTxMutation, ApproveTxMutationVariables>(ApproveTxDocument, options);
+      }
+export type ApproveTxMutationHookResult = ReturnType<typeof useApproveTxMutation>;
+export type ApproveTxMutationResult = Apollo.MutationResult<ApproveTxMutation>;
+export type ApproveTxMutationOptions = Apollo.BaseMutationOptions<ApproveTxMutation, ApproveTxMutationVariables>;
+export const RevokeApprovalDocument = gql`
+    mutation RevokeApproval($account: Address!, $txHash: Bytes32!) {
+  revokeApproval(account: $account, hash: $txHash) {
+    id
+  }
+}
+    `;
+export type RevokeApprovalMutationFn = Apollo.MutationFunction<RevokeApprovalMutation, RevokeApprovalMutationVariables>;
+
+/**
+ * __useRevokeApprovalMutation__
+ *
+ * To run a mutation, you first call `useRevokeApprovalMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useRevokeApprovalMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [revokeApprovalMutation, { data, loading, error }] = useRevokeApprovalMutation({
+ *   variables: {
+ *      account: // value for 'account'
+ *      txHash: // value for 'txHash'
+ *   },
+ * });
+ */
+export function useRevokeApprovalMutation(baseOptions?: Apollo.MutationHookOptions<RevokeApprovalMutation, RevokeApprovalMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<RevokeApprovalMutation, RevokeApprovalMutationVariables>(RevokeApprovalDocument, options);
+      }
+export type RevokeApprovalMutationHookResult = ReturnType<typeof useRevokeApprovalMutation>;
+export type RevokeApprovalMutationResult = Apollo.MutationResult<RevokeApprovalMutation>;
+export type RevokeApprovalMutationOptions = Apollo.BaseMutationOptions<RevokeApprovalMutation, RevokeApprovalMutationVariables>;
 export const SubmitTxExecutionDocument = gql`
     mutation SubmitTxExecution($account: Address!, $txHash: Bytes32!, $submission: SubmissionInput!) {
   submitTxExecution(account: $account, txHash: $txHash, submission: $submission) {
@@ -4646,75 +4728,6 @@ export function useProposeTxMutation(baseOptions?: Apollo.MutationHookOptions<Pr
 export type ProposeTxMutationHookResult = ReturnType<typeof useProposeTxMutation>;
 export type ProposeTxMutationResult = Apollo.MutationResult<ProposeTxMutation>;
 export type ProposeTxMutationOptions = Apollo.BaseMutationOptions<ProposeTxMutation, ProposeTxMutationVariables>;
-export const ApproveTxDocument = gql`
-    mutation ApproveTx($account: Address!, $txHash: Bytes32!, $signature: Bytes!) {
-  approve(account: $account, hash: $txHash, signature: $signature) {
-    id
-  }
-}
-    `;
-export type ApproveTxMutationFn = Apollo.MutationFunction<ApproveTxMutation, ApproveTxMutationVariables>;
-
-/**
- * __useApproveTxMutation__
- *
- * To run a mutation, you first call `useApproveTxMutation` within a React component and pass it any options that fit your needs.
- * When your component renders, `useApproveTxMutation` returns a tuple that includes:
- * - A mutate function that you can call at any time to execute the mutation
- * - An object with fields that represent the current status of the mutation's execution
- *
- * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
- *
- * @example
- * const [approveTxMutation, { data, loading, error }] = useApproveTxMutation({
- *   variables: {
- *      account: // value for 'account'
- *      txHash: // value for 'txHash'
- *      signature: // value for 'signature'
- *   },
- * });
- */
-export function useApproveTxMutation(baseOptions?: Apollo.MutationHookOptions<ApproveTxMutation, ApproveTxMutationVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useMutation<ApproveTxMutation, ApproveTxMutationVariables>(ApproveTxDocument, options);
-      }
-export type ApproveTxMutationHookResult = ReturnType<typeof useApproveTxMutation>;
-export type ApproveTxMutationResult = Apollo.MutationResult<ApproveTxMutation>;
-export type ApproveTxMutationOptions = Apollo.BaseMutationOptions<ApproveTxMutation, ApproveTxMutationVariables>;
-export const RevokeApprovalDocument = gql`
-    mutation RevokeApproval($account: Address!, $txHash: Bytes32!) {
-  revokeApproval(account: $account, hash: $txHash) {
-    id
-  }
-}
-    `;
-export type RevokeApprovalMutationFn = Apollo.MutationFunction<RevokeApprovalMutation, RevokeApprovalMutationVariables>;
-
-/**
- * __useRevokeApprovalMutation__
- *
- * To run a mutation, you first call `useRevokeApprovalMutation` within a React component and pass it any options that fit your needs.
- * When your component renders, `useRevokeApprovalMutation` returns a tuple that includes:
- * - A mutate function that you can call at any time to execute the mutation
- * - An object with fields that represent the current status of the mutation's execution
- *
- * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
- *
- * @example
- * const [revokeApprovalMutation, { data, loading, error }] = useRevokeApprovalMutation({
- *   variables: {
- *      account: // value for 'account'
- *      txHash: // value for 'txHash'
- *   },
- * });
- */
-export function useRevokeApprovalMutation(baseOptions?: Apollo.MutationHookOptions<RevokeApprovalMutation, RevokeApprovalMutationVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useMutation<RevokeApprovalMutation, RevokeApprovalMutationVariables>(RevokeApprovalDocument, options);
-      }
-export type RevokeApprovalMutationHookResult = ReturnType<typeof useRevokeApprovalMutation>;
-export type RevokeApprovalMutationResult = Apollo.MutationResult<RevokeApprovalMutation>;
-export type RevokeApprovalMutationOptions = Apollo.BaseMutationOptions<RevokeApprovalMutation, RevokeApprovalMutationVariables>;
 export const SetTxWallelDocument = gql`
     mutation SetTxWallel($account: Address!, $hash: Bytes32!, $walletRef: Bytes4!) {
   setTxWallet(account: $account, hash: $hash, walletRef: $walletRef) {
@@ -4812,40 +4825,6 @@ export function useDeleteWalletMutation(baseOptions?: Apollo.MutationHookOptions
 export type DeleteWalletMutationHookResult = ReturnType<typeof useDeleteWalletMutation>;
 export type DeleteWalletMutationResult = Apollo.MutationResult<DeleteWalletMutation>;
 export type DeleteWalletMutationOptions = Apollo.BaseMutationOptions<DeleteWalletMutation, DeleteWalletMutationVariables>;
-export const SetWalletNameDocument = gql`
-    mutation SetWalletName($id: WalletId!, $name: String!) {
-  setWalletName(id: $id, name: $name) {
-    id
-  }
-}
-    `;
-export type SetWalletNameMutationFn = Apollo.MutationFunction<SetWalletNameMutation, SetWalletNameMutationVariables>;
-
-/**
- * __useSetWalletNameMutation__
- *
- * To run a mutation, you first call `useSetWalletNameMutation` within a React component and pass it any options that fit your needs.
- * When your component renders, `useSetWalletNameMutation` returns a tuple that includes:
- * - A mutate function that you can call at any time to execute the mutation
- * - An object with fields that represent the current status of the mutation's execution
- *
- * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
- *
- * @example
- * const [setWalletNameMutation, { data, loading, error }] = useSetWalletNameMutation({
- *   variables: {
- *      id: // value for 'id'
- *      name: // value for 'name'
- *   },
- * });
- */
-export function useSetWalletNameMutation(baseOptions?: Apollo.MutationHookOptions<SetWalletNameMutation, SetWalletNameMutationVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useMutation<SetWalletNameMutation, SetWalletNameMutationVariables>(SetWalletNameDocument, options);
-      }
-export type SetWalletNameMutationHookResult = ReturnType<typeof useSetWalletNameMutation>;
-export type SetWalletNameMutationResult = Apollo.MutationResult<SetWalletNameMutation>;
-export type SetWalletNameMutationOptions = Apollo.BaseMutationOptions<SetWalletNameMutation, SetWalletNameMutationVariables>;
 export const UpsertWalletDocument = gql`
     mutation UpsertWallet($wallet: WalletId!, $name: String, $quorums: [QuorumScalar!]!, $txHash: Bytes32!) {
   upsertWallet(id: $wallet, name: $name, quorums: $quorums, proposalHash: $txHash) {
@@ -4882,6 +4861,40 @@ export function useUpsertWalletMutation(baseOptions?: Apollo.MutationHookOptions
 export type UpsertWalletMutationHookResult = ReturnType<typeof useUpsertWalletMutation>;
 export type UpsertWalletMutationResult = Apollo.MutationResult<UpsertWalletMutation>;
 export type UpsertWalletMutationOptions = Apollo.BaseMutationOptions<UpsertWalletMutation, UpsertWalletMutationVariables>;
+export const SetWalletNameDocument = gql`
+    mutation SetWalletName($id: WalletId!, $name: String!) {
+  setWalletName(id: $id, name: $name) {
+    id
+  }
+}
+    `;
+export type SetWalletNameMutationFn = Apollo.MutationFunction<SetWalletNameMutation, SetWalletNameMutationVariables>;
+
+/**
+ * __useSetWalletNameMutation__
+ *
+ * To run a mutation, you first call `useSetWalletNameMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useSetWalletNameMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [setWalletNameMutation, { data, loading, error }] = useSetWalletNameMutation({
+ *   variables: {
+ *      id: // value for 'id'
+ *      name: // value for 'name'
+ *   },
+ * });
+ */
+export function useSetWalletNameMutation(baseOptions?: Apollo.MutationHookOptions<SetWalletNameMutation, SetWalletNameMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<SetWalletNameMutation, SetWalletNameMutationVariables>(SetWalletNameDocument, options);
+      }
+export type SetWalletNameMutationHookResult = ReturnType<typeof useSetWalletNameMutation>;
+export type SetWalletNameMutationResult = Apollo.MutationResult<SetWalletNameMutation>;
+export type SetWalletNameMutationOptions = Apollo.BaseMutationOptions<SetWalletNameMutation, SetWalletNameMutationVariables>;
 export const AccountDocument = gql`
     query Account($account: Address!) {
   account(id: $account) {
@@ -4986,42 +4999,6 @@ export function useContactsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<C
 export type ContactsQueryHookResult = ReturnType<typeof useContactsQuery>;
 export type ContactsLazyQueryHookResult = ReturnType<typeof useContactsLazyQuery>;
 export type ContactsQueryResult = Apollo.QueryResult<ContactsQuery, ContactsQueryVariables>;
-export const TxDocument = gql`
-    query Tx($account: Address!, $hash: Bytes32!) {
-  tx(account: $account, hash: $hash) {
-    ...TxFields
-  }
-}
-    ${TxFieldsFragmentDoc}`;
-
-/**
- * __useTxQuery__
- *
- * To run a query within a React component, call `useTxQuery` and pass it any options that fit your needs.
- * When your component renders, `useTxQuery` returns an object from Apollo Client that contains loading, error, and data properties
- * you can use to render your UI.
- *
- * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
- *
- * @example
- * const { data, loading, error } = useTxQuery({
- *   variables: {
- *      account: // value for 'account'
- *      hash: // value for 'hash'
- *   },
- * });
- */
-export function useTxQuery(baseOptions: Apollo.QueryHookOptions<TxQuery, TxQueryVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useQuery<TxQuery, TxQueryVariables>(TxDocument, options);
-      }
-export function useTxLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<TxQuery, TxQueryVariables>) {
-          const options = {...defaultOptions, ...baseOptions}
-          return Apollo.useLazyQuery<TxQuery, TxQueryVariables>(TxDocument, options);
-        }
-export type TxQueryHookResult = ReturnType<typeof useTxQuery>;
-export type TxLazyQueryHookResult = ReturnType<typeof useTxLazyQuery>;
-export type TxQueryResult = Apollo.QueryResult<TxQuery, TxQueryVariables>;
 export const TxsMetadataDocument = gql`
     query TxsMetadata($accounts: [Address!]!) {
   txs(accounts: $accounts) {
@@ -5060,6 +5037,42 @@ export function useTxsMetadataLazyQuery(baseOptions?: Apollo.LazyQueryHookOption
 export type TxsMetadataQueryHookResult = ReturnType<typeof useTxsMetadataQuery>;
 export type TxsMetadataLazyQueryHookResult = ReturnType<typeof useTxsMetadataLazyQuery>;
 export type TxsMetadataQueryResult = Apollo.QueryResult<TxsMetadataQuery, TxsMetadataQueryVariables>;
+export const TxDocument = gql`
+    query Tx($account: Address!, $hash: Bytes32!) {
+  tx(account: $account, hash: $hash) {
+    ...TxFields
+  }
+}
+    ${TxFieldsFragmentDoc}`;
+
+/**
+ * __useTxQuery__
+ *
+ * To run a query within a React component, call `useTxQuery` and pass it any options that fit your needs.
+ * When your component renders, `useTxQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useTxQuery({
+ *   variables: {
+ *      account: // value for 'account'
+ *      hash: // value for 'hash'
+ *   },
+ * });
+ */
+export function useTxQuery(baseOptions: Apollo.QueryHookOptions<TxQuery, TxQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<TxQuery, TxQueryVariables>(TxDocument, options);
+      }
+export function useTxLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<TxQuery, TxQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<TxQuery, TxQueryVariables>(TxDocument, options);
+        }
+export type TxQueryHookResult = ReturnType<typeof useTxQuery>;
+export type TxLazyQueryHookResult = ReturnType<typeof useTxLazyQuery>;
+export type TxQueryResult = Apollo.QueryResult<TxQuery, TxQueryVariables>;
 export const CommentsDocument = gql`
     query Comments($account: Address!, $key: Id!) {
   comments(account: $account, key: $key) {

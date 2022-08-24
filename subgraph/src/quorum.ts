@@ -1,4 +1,4 @@
-import { Address, Bytes, crypto, ethereum } from '@graphprotocol/graph-ts';
+import { Bytes, crypto, ethereum } from '@graphprotocol/graph-ts';
 import { Wallet, Quorum, QuorumApprover } from '../generated/schema';
 import { getOrCreateUser } from './util';
 
@@ -20,7 +20,6 @@ export function getOrCreateQuorum(
     quorum = new Quorum(id);
     quorum.hash = hash;
     quorum.wallet = wallet.id;
-    quorum.active = true;
     quorum.blockHash = event.block.hash;
     quorum.timestamp = event.block.timestamp;
     quorum.save();

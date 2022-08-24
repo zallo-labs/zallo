@@ -44,7 +44,7 @@ type Wallet @entity {
   account: Account!
   ref: Bytes!
   active: Boolean!
-  quorums: [Quorum!]! @derivedFrom(field: "wallet")
+  quorums: [Quorum!]!
   # TODO: approvers: [User!]!
 }
 
@@ -53,9 +53,7 @@ type Quorum @entity {
   id: String!
   hash: Bytes!
   wallet: Wallet!
-  # approvers: [User!]!
   approvers: [QuorumApprover!]! @derivedFrom(field: "quorum")
-  active: Boolean!
   blockHash: Bytes!
   timestamp: BigInt!
 }
