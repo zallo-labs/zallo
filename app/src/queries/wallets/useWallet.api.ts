@@ -1,7 +1,7 @@
 import { gql } from '@apollo/client';
 import { useWalletQuery, WalletQuery } from '~/gql/generated.api';
 import { useApiClient } from '~/gql/GqlProvider';
-import { toId, address, toQuorum, getWalletId } from 'lib';
+import { toId, address, toQuorum } from 'lib';
 import { useMemo } from 'react';
 import {
   CombinedQuorum,
@@ -60,10 +60,10 @@ type RemoveProposalable = Pick<
 const getProposalState = ({
   removeProposal,
 }: RemoveProposalable): ProposableState =>
-  removeProposal?.submissions?.length &&
-  removeProposal.submissions.some((s) => s.finalized)
-    ? 'removed'
-    : 'added';
+  removeProposal?.submissions?.length ? 'removed' : 'added';
+
+const hasBeenRemoved = ({ removeProposal }: RemoveProposalable) =>
+  removeProposal?.submissions?.some((s) => s.finalized);
 
 // Only a single proposed modification can exist at a time
 const getProposedModificationHash = (
@@ -84,6 +84,8 @@ export const useApiWallet = (id?: WalletId) => {
     const w = data?.wallet;
     if (!w?.id) return undefined; // w.id is sometimes undefined sometimes when w is not 🤷
 
+    if (hasBeenRemoved(w)) return undefined;
+
     return {
       id: toId(w.id),
       accountAddr: id!.accountAddr,
@@ -91,14 +93,16 @@ export const useApiWallet = (id?: WalletId) => {
       name: w.name,
       state: getProposalState(w),
       quorums:
-        w.quorums?.map(
-          (quorum): CombinedQuorum => ({
-            approvers: toQuorum(
-              quorum.approvers?.map((a) => address(a.userId)) ?? [],
-            ),
-            state: getProposalState(quorum),
-          }),
-        ) ?? [],
+        w.quorums
+          ?.filter((q) => !hasBeenRemoved(q))
+          .map(
+            (quorum): CombinedQuorum => ({
+              approvers: toQuorum(
+                quorum.approvers?.map((a) => address(a.userId)) ?? [],
+              ),
+              state: getProposalState(quorum),
+            }),
+          ) ?? [],
       proposedModificationHash: getProposedModificationHash(
         w.createProposal,
         w.removeProposal,

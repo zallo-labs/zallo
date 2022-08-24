@@ -37,5 +37,5 @@ export const useWallet = (id?: WalletId) => {
         },
       ),
     };
-  }, [id, a, s]);
+  }, [a, s]);
 };
