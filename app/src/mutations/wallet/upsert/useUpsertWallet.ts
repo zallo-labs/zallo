@@ -14,8 +14,13 @@ export const useUpsertWallet = (wallet: CombinedWallet) => {
     () =>
       account?.contract &&
       (async (cur: CombinedWallet) => {
+        const proposedWallet: CombinedWallet = {
+          ...cur,
+          quorums: cur.quorums.filter((q) => q.state !== 'removed'),
+        };
+
         return await propose(
-          createUpsertWalletTx(account.contract, toWallet(cur)),
+          createUpsertWalletTx(account.contract, toWallet(proposedWallet)),
           (tx) => apiUpsert(cur, tx.hash),
         );
       }),
