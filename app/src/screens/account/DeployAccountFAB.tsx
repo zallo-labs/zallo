@@ -12,11 +12,16 @@ export interface DeployAccountFABProps {
 export const DeployAccountFAB = ({ account }: DeployAccountFABProps) => {
   const wallet = useWallet(account.walletIds[0]);
   const isDeployed = useIsDeployed(account.addr);
-  const deploy = useDeployAccount(account);
+  const [deploy, deploying] = useDeployAccount(account);
 
   if (!wallet || isDeployed) return null;
 
   return (
-    <FAB icon={DeployIcon} label="Apply" onPress={() => deploy?.(wallet)} />
+    <FAB
+      icon={DeployIcon}
+      label="Apply"
+      loading={deploying}
+      onPress={() => deploy?.(wallet)}
+    />
   );
 };

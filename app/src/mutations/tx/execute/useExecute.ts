@@ -15,7 +15,7 @@ export const useExecute = (
   tx: ProposedTx,
 ) => {
   const submitExecution = useApiSubmitExecution();
-  const deploy = useDeployAccount(account);
+  const [deploy] = useDeployAccount(account);
   const feeToken = useFeeToken();
   const device = useDevice();
   const faucet = useFaucet(device.address);
