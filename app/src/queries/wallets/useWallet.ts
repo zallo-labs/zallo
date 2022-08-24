@@ -14,16 +14,6 @@ export const useWallet = (id?: WalletId) => {
     if (!s) return a;
     if (!a) return s;
 
-    // console.log(
-    //   JSON.stringify(
-    //     {
-    //       a,
-    //     },
-    //     null,
-    //     2,
-    //   ),
-    // );
-
     return {
       ...a,
       state: a.state === 'remove' ? 'remove' : 'active',
