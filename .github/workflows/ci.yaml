@@ -136,5 +136,8 @@ jobs:
       - name: 📦 Install
         run: yarn install
 
+      - name: 🏗️ Pre-Build
+        run: yarn app prebuild
+
       - name: 🧪 Test
         run: yarn app test
