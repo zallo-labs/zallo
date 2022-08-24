@@ -72,7 +72,7 @@ export const QuorumScreen = ({
     if (approvers.length === 0) addApprover();
   }, [addApprover, approvers.length]);
 
-  const replaceSelectedApprover = () =>
+  const replaceSelectedApprover = () => {
     navigation.navigate('Contacts', {
       title: 'Replace approver',
       onSelect: (contact) =>
@@ -82,6 +82,8 @@ export const QuorumScreen = ({
         ]),
       disabled: approvers,
     });
+    select(undefined);
+  };
 
   const removeSelectedApprover = () => {
     setApprovers((approvers) => approvers.filter((a) => a !== selected));
