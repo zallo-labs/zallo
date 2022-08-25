@@ -1,4 +1,4 @@
-import { ethers, Overrides } from 'ethers';
+import { BigNumber, ethers, Overrides } from 'ethers';
 import { Account } from './contracts';
 import { isTxReq, TxReq } from './tx';
 import { createTxSignature, Signerish } from './signature';
@@ -16,6 +16,7 @@ const toPartialTransactionRequest = (tx: TxReq): TransactionRequest => ({
   data: defaultAbiCoder.encode(['bytes8', 'bytes'], [tx.salt, tx.data]),
 });
 
+const FALLBACK_BASE_GAS = BigNumber.from(30_000);
 const GAS_PER_SIGNER = 15_000;
 
 export const estimateTxGas = async (
@@ -24,11 +25,15 @@ export const estimateTxGas = async (
   nSigners: number,
 ) => {
   const req = isTxReq(tx) ? toPartialTransactionRequest(tx) : tx;
-  const baseGas = await provider.estimateGas(req);
 
-  const extraGas = nSigners * GAS_PER_SIGNER;
+  let baseGas = FALLBACK_BASE_GAS;
+  try {
+    baseGas = await provider.estimateGas(req);
+  } catch (e) {
+    console.warn('Failed to estimate base gas', e);
+  }
 
-  return baseGas.add(extraGas);
+  return baseGas.add(nSigners * GAS_PER_SIGNER);
 };
 
 export const toTransactionStruct = (
