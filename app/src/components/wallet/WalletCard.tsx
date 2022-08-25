@@ -1,4 +1,3 @@
-import { ProposalableStatus } from '~/components/ProposalableStatus';
 import { withSkeleton } from '~/components/skeleton/withSkeleton';
 import { Text } from 'react-native-paper';
 import { WalletId } from '~/queries/wallets';
@@ -6,10 +5,10 @@ import { useWallet } from '~/queries/wallets/useWallet';
 import { Addr } from '~/components/addr/Addr';
 import { CardItem, CardItemProps } from '../card/CardItem';
 import { CardItemSkeleton } from '../card/CardItemSkeleton';
-import { FiatBalance } from '../fiat/FiatBalance';
 import { Suspend } from '~/components/Suspender';
 import { useTokenValues } from '@token/useTokenValues';
 import { FiatValue } from '../fiat/FiatValue';
+import { ProposableStatusIcon } from '../ProposableStatus/ProposableStatusIcon';
 
 export interface WalletCardProps extends CardItemProps {
   id: WalletId;
@@ -29,7 +28,7 @@ export const WalletCard = withSkeleton(
 
     if (!wallet) return <Suspend />;
 
-    if (!showInactive && wallet.state !== 'active') return null;
+    if (!showInactive && wallet.state.status === 'add') return null;
 
     return (
       <CardItem
@@ -42,12 +41,12 @@ export const WalletCard = withSkeleton(
           ),
         ]}
         Right={[
+          <ProposableStatusIcon state={wallet.state} />,
           totalFiatValue && (
             <Text variant="bodyLarge">
               <FiatValue value={totalFiatValue} /> available
             </Text>
           ),
-          <ProposalableStatus state={wallet.state} />,
         ]}
         {...props}
       />

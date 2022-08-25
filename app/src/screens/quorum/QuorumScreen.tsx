@@ -19,9 +19,9 @@ import { BottomAppbar } from '~/components/Appbar/BottomAppbar';
 import { makeStyles } from '~/util/theme/makeStyles';
 import { useDeleteConfirmation } from '../alert/DeleteModalScreen';
 import { ProposableState } from '~/queries/wallets';
-import { ProposalableStatus } from '~/components/ProposalableStatus';
-import { AppbarCenterContent } from '~/components/Appbar/AppbarCenterContent';
 import { AddrCard } from '~/components/addr/AddrCard';
+import { ProposableStatusButton } from '~/components/ProposableStatus/ProposableStatusButton';
+import { AppbarExtraContent } from '~/components/Appbar/AppbarExtraContent';
 
 export interface QuorumScreenParams {
   approvers?: Address[];
@@ -102,9 +102,9 @@ export const QuorumScreen = ({
 
         <Appbar.Content title="Quorum" />
 
-        <AppbarCenterContent>
-          <ProposalableStatus state={state} />
-        </AppbarCenterContent>
+        <AppbarExtraContent>
+          <ProposableStatusButton state={state} />
+        </AppbarExtraContent>
 
         {revertQuorum && (
           <Appbar.Action

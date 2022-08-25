@@ -4,8 +4,8 @@ import { memo } from 'react';
 import { Text } from 'react-native-paper';
 import { Card, CardProps } from '~/components/card/Card';
 import { CombinedQuorum } from '~/queries/wallets';
-import { ProposalableStatus } from '../../components/ProposalableStatus';
 import { Container } from '~/components/layout/Container';
+import { ProposableStatusIcon } from '~/components/ProposableStatus/ProposableStatusIcon';
 
 export interface QuorumCardProps extends CardProps {
   quorum: CombinedQuorum;
@@ -14,7 +14,7 @@ export interface QuorumCardProps extends CardProps {
 export const QuorumCard = memo(({ quorum, ...cardProps }: QuorumCardProps) => {
   return (
     <Card {...cardProps} style={[cardProps.style]}>
-      <Box horizontal alignItems="baseline">
+      <Box horizontal alignItems="center">
         <Container
           flex={1}
           horizontal
@@ -29,7 +29,7 @@ export const QuorumCard = memo(({ quorum, ...cardProps }: QuorumCardProps) => {
           ))}
         </Container>
 
-        <ProposalableStatus state={quorum.state} />
+        <ProposableStatusIcon state={quorum.state} />
       </Box>
     </Card>
   );

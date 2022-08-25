@@ -52,13 +52,13 @@ export const useSubWallet = (id?: WalletId) => {
       accountAddr: address(w.account.id),
       ref: toWalletRef(w.ref),
       name: `${elipseTruncate(w.ref, 4)} wallet`,
-      state: 'active',
+      state: { status: 'active' },
       quorums: w.quorums.map(
         (quorum): CombinedQuorum => ({
           approvers: toQuorum(
             quorum.approvers.map(({ approver }) => address(approver.id)),
           ),
-          state: 'active',
+          state: { status: 'active' },
         }),
       ),
     };

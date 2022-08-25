@@ -13,7 +13,7 @@ export const useDeleteWallet = (wallet: CombinedWallet) => {
 
   return useCallback(() => {
     assert(account);
-    if (wallet.state === 'active') {
+    if (wallet.state.status === 'active') {
       propose(createRemoveGroupTx(account.contract, toSafeWallet(wallet)));
     } else {
       return apiDelete(wallet);

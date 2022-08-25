@@ -5,10 +5,10 @@ import { Address } from 'lib';
 import { FC } from 'react';
 import { Share } from 'react-native';
 import { Appbar, Text } from 'react-native-paper';
-import { AppbarCenterContent } from '~/components/Appbar/AppbarCenterContent';
 import { AppbarHeaderProps } from '~/components/Appbar/useAppbarHeader';
 import { useGoBack } from '~/components/Appbar/useGoBack';
 import { useIsDeployed } from '@network/useIsDeployed';
+import { AppbarExtraContent } from '~/components/Appbar/AppbarExtraContent';
 
 export interface AccountAppbarProps {
   AppbarHeader: FC<AppbarHeaderProps>;
@@ -29,9 +29,9 @@ export const AccountAppbar = ({
       <Appbar.BackAction onPress={useGoBack()} />
 
       {!isDeployed && (
-        <AppbarCenterContent>
+        <AppbarExtraContent>
           <Text style={styles.inactive}>Inactive</Text>
-        </AppbarCenterContent>
+        </AppbarExtraContent>
       )}
 
       <Appbar.Content title={title || 'Account'} />

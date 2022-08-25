@@ -16,7 +16,10 @@ export const useWallet = (id?: WalletId) => {
 
     return {
       ...a,
-      state: a.state === 'remove' ? 'remove' : 'active',
+      state: {
+        ...a.state,
+        status: a.state.status === 'remove' ? a.state.status : s.state.status,
+      },
       quorums: combine(
         s.quorums,
         a.quorums,
@@ -25,13 +28,19 @@ export const useWallet = (id?: WalletId) => {
           api: (a) => hashQuorum(toQuorum(a.approvers)),
         },
         {
-          either: ({ sub, api }) => {
-            if (!sub) return api!;
-            if (!api) return sub;
+          either: ({ sub: sq, api: aq }) => {
+            if (!sq) return aq!;
+            if (!aq) return sq;
 
             return {
-              ...api,
-              state: api.state === 'remove' ? 'remove' : 'active',
+              ...aq,
+              state: {
+                ...aq.state,
+                status:
+                  aq.state.status === 'remove'
+                    ? aq.state.status
+                    : sq.state.status,
+              },
             };
           },
         },

@@ -59,26 +59,43 @@ export const useApiWallet = (id?: WalletId) => {
 
     if (!w.state) return undefined;
 
+    const quorums =
+      w.quorums
+        ?.filter((q) => q.state)
+        .map(
+          (quorum): CombinedQuorum => ({
+            approvers: toQuorum(
+              quorum.approvers?.map((a) => address(a.userId)) ?? [],
+            ),
+            state: {
+              status: quorum.state!.status,
+              proposedModification: quorum.state?.proposedModificationHash
+                ? {
+                    account: id!.accountAddr,
+                    hash: quorum.state?.proposedModificationHash,
+                  }
+                : undefined,
+            },
+          }),
+        ) ?? [];
+
+    // Find first inactive wallet's proposal
+    const proposedModification = quorums
+      .filter(
+        (q) => q.state.status !== 'active' && q.state.proposedModification,
+      )
+      .find((q) => q.state.proposedModification)?.state.proposedModification;
+
     return {
       id: toId(w.id),
       accountAddr: id!.accountAddr,
       ref: id!.ref,
       name: w.name,
-      state: w.state.status,
-      proposedModificationHash: w.state.proposedModificationHash ?? undefined,
-      quorums:
-        w.quorums
-          ?.filter((q) => q.state)
-          .map(
-            (quorum): CombinedQuorum => ({
-              approvers: toQuorum(
-                quorum.approvers?.map((a) => address(a.userId)) ?? [],
-              ),
-              state: quorum.state!.status,
-              proposedModificationHash:
-                w.state!.proposedModificationHash ?? undefined,
-            }),
-          ) ?? [],
+      state: {
+        status: w.state.status,
+        proposedModification,
+      },
+      quorums,
     };
   }, [data?.wallet, id]);
 

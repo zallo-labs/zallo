@@ -69,7 +69,9 @@ export const useCreateApiAccount = () => {
   const upsert = async (name: string, walletName: string) => {
     const wallet: Pick<CombinedWallet, 'ref' | 'quorums' | 'name'> = {
       ref: randomWalletRef(),
-      quorums: [{ approvers: toQuorum([device.address]), state: 'add' }],
+      quorums: [
+        { approvers: toQuorum([device.address]), state: { status: 'add' } },
+      ],
       name: walletName,
     };
     const wallets = [wallet];

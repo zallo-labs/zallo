@@ -46,7 +46,7 @@ export const TransactionWalletSelector = ({
   useFocusEffect(
     useCallback(() => {
       const timer = setTimeout(() => {
-        if (wallet && wallet.state !== 'active')
+        if (wallet && wallet.state.status !== 'active')
           selectWallet(wallet.accountAddr);
       });
 

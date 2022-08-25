@@ -61,7 +61,7 @@ const newWallet = (account: Address): CombinedWallet => {
     ref,
     name: '',
     quorums: [],
-    state: 'add',
+    state: { status: 'add' },
   };
 };
 
@@ -96,7 +96,7 @@ export const WalletScreen = withSkeleton(
     );
 
     const makeRemoveQuorum = useCallback((quorum: CombinedQuorum) => {
-      if (quorum.state === 'remove') return undefined;
+      if (quorum.state.status === 'remove') return undefined;
 
       return () =>
         setWallet((wallet) =>
@@ -105,10 +105,10 @@ export const WalletScreen = withSkeleton(
               (q) => hashQuorum(q.approvers) === hashQuorum(quorum.approvers),
             );
 
-            if (quorum.state === 'active') {
-              wallet.quorums[i].state = 'remove';
+            if (quorum.state.status === 'active') {
+              wallet.quorums[i].state.status = 'remove';
             } else {
-              assert(quorum.state === 'add');
+              assert(quorum.state.status === 'add');
               wallet.quorums.splice(i, 1);
             }
           }),
@@ -126,7 +126,7 @@ export const WalletScreen = withSkeleton(
               ...wallet.quorums,
               {
                 approvers: toQuorum(approvers),
-                state: 'add',
+                state: { status: 'add' },
               },
             ]);
           }
@@ -207,7 +207,7 @@ export const WalletScreen = withSkeleton(
                   onChange: makeSetQuorumApprovers(quorum),
                   revertQuorum: makeRevertQuorum(quorum),
                   removeQuorum:
-                    quorum.state !== 'remove'
+                    quorum.state.status !== 'remove'
                       ? makeRemoveQuorum(quorum)
                       : undefined,
                   state: quorum.state,
@@ -221,7 +221,10 @@ export const WalletScreen = withSkeleton(
               icon={PlusIcon}
               style={styles.addQuorum}
               onPress={() =>
-                navigate('Quorum', { onChange: addQuorum, state: 'add' })
+                navigate('Quorum', {
+                  onChange: addQuorum,
+                  state: { status: 'add' },
+                })
               }
             >
               Quorum
@@ -251,7 +254,7 @@ export const WalletScreen = withSkeleton(
               };
 
               const proposalExists = initialWallet.quorums.some(
-                (q) => q.state !== 'active',
+                (q) => q.state.status !== 'active',
               );
 
               if (proposalExists) {

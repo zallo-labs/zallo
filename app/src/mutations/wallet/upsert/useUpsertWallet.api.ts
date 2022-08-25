@@ -47,7 +47,7 @@ export const useApiUpsertWallet = () => {
   const [mutation] = useUpsertWalletMutation({ client: useApiClient() });
 
   const upsert = (w: CombinedWallet, txHash: string) => {
-    const quorums = w.quorums.filter((q) => q.state !== 'remove');
+    const quorums = w.quorums.filter((q) => q.state.status !== 'remove');
 
     return mutation({
       variables: {
@@ -65,8 +65,9 @@ export const useApiUpsertWallet = () => {
           id: w.id,
           name: w.name,
           state: {
-            status: w.state as ProposableStatus,
-            proposedModificationHash: w.proposedModificationHash ?? null,
+            status: w.state.status as ProposableStatus,
+            proposedModificationHash:
+              w.state.proposedModification?.hash ?? null,
           },
           quorums: quorums.map((q) => ({
             __typename: 'Quorum',
@@ -78,9 +79,9 @@ export const useApiUpsertWallet = () => {
               userId: approver,
             })),
             state: {
-              __typename: 'ProposableState',
-              status: q.state as ProposableStatus,
-              modificationProposalHash: q.proposedModificationHash ?? null,
+              status: q.state.status as ProposableStatus,
+              modificationProposalHash:
+                q.state.proposedModification?.hash ?? null,
             },
           })),
         },
@@ -99,7 +100,7 @@ export const useApiUpsertWallet = () => {
           data: { wallet },
         });
 
-        const superceededHash = w.proposedModificationHash;
+        const superceededHash = w.state.proposedModification?.hash;
         if (!superceededHash) return;
         {
           // TxsMetadata; remove superceeded

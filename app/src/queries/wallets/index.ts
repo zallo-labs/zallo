@@ -9,15 +9,20 @@ import {
   sortQuorums,
   quorumToLeaf,
 } from 'lib';
+import { TxId } from '../tx';
 
 export const QUERY_WALLETS_POLL_INTERVAL = 30 * 1000;
 
-export type ProposableState = 'active' | 'add' | 'remove';
+export type ProposableStatus = 'active' | 'add' | 'remove';
+
+export interface ProposableState {
+  status: ProposableStatus;
+  proposedModification?: TxId;
+}
 
 export interface CombinedQuorum {
   approvers: Quorum;
   state: ProposableState;
-  proposedModificationHash?: string;
 }
 
 export const isCombinedQuorum = createIsObj<CombinedQuorum>(
@@ -43,7 +48,6 @@ export interface CombinedWallet extends WalletId {
   name: string;
   quorums: CombinedQuorum[];
   state: ProposableState;
-  proposedModificationHash?: string;
 }
 
 export const toSafeWallet = (
@@ -51,19 +55,21 @@ export const toSafeWallet = (
 ): Wallet => ({
   ref: w.ref,
   quorums: sortQuorums(
-    w.quorums.filter((q) => q.state !== 'remove').map((q) => q.approvers),
+    w.quorums
+      .filter((q) => q.state.status !== 'remove')
+      .map((q) => q.approvers),
   ),
 });
 
 export const toActiveWallet = (
   w: Pick<CombinedWallet, 'ref' | 'quorums' | 'state'>,
 ): Wallet => {
-  assert(w.state === 'active');
+  assert(w.state.status === 'active');
 
   return {
     ref: w.ref,
     quorums: sortQuorums(
-      w.quorums.filter((q) => q.state !== 'add').map((q) => q.approvers),
+      w.quorums.filter((q) => q.state.status !== 'add').map((q) => q.approvers),
     ),
   };
 };
