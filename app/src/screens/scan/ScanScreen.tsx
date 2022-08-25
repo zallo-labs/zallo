@@ -14,7 +14,7 @@ export type ScanScreenParams = {
 
 export type ScanScreenProps = RootNavigatorScreenProps<'Scan'>;
 
-export const ScanScreen = ({ route }: ScanScreenProps) => {
+export const ScanScreen = ({ route, navigation }: ScanScreenProps) => {
   const { onScan } = route.params;
 
   const [hasPermission, setHasPermission] = useState(false);
@@ -37,6 +37,7 @@ export const ScanScreen = ({ route }: ScanScreenProps) => {
       const addrLink = parseAddrLink(data);
       setScanned(true);
       onScan(addrLink);
+      navigation.goBack();
     } catch (e) {
       // The correct QR wasn't scanned, do nothing
     }
