@@ -14,7 +14,7 @@ export const Overlay = () => {
   return (
     <SafeAreaView style={styles.root}>
       <BarcodeMask
-        outerMaskOpacity={0.8}
+        outerMaskOpacity={0.4}
         edgeRadius={roundness}
         edgeColor={colors.onBackground}
         showAnimatedLine={false}
