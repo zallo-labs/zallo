@@ -12,7 +12,7 @@ import { useFaucet } from '~/mutations/useFacuet.api';
 import { useDevice } from '../../util/network/useDevice';
 import { showInfo, showSuccess } from '~/provider/ToastProvider';
 
-type Deploy = ((wallet: CombinedWallet) => void) | undefined;
+type Deploy = ((wallet: CombinedWallet) => Promise<void>) | undefined;
 
 export const useDeployAccount = (
   account: CombinedAccount,
