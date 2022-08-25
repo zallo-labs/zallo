@@ -1,13 +1,16 @@
 import { SendIcon } from '@theme/icons';
+import { makeStyles } from '@theme/makeStyles';
 import { createTransferTx } from '@token/token';
+import { useTokenBalance } from '@token/useTokenBalance';
 import { BigNumber } from 'ethers';
 import { Address, ZERO } from 'lib';
 import { useState } from 'react';
-import { Appbar } from 'react-native-paper';
+import { Appbar, Text } from 'react-native-paper';
 import { AddrCard } from '~/components/addr/AddrCard';
 import { AppbarBack } from '~/components/Appbar/AppbarBack';
 import { FAB } from '~/components/FAB';
 import { Box } from '~/components/layout/Box';
+import { Container } from '~/components/layout/Container';
 import { TokenBalanceCard } from '~/components/token/TokenBalanceCard';
 import {
   useSelectedToken,
@@ -27,9 +30,11 @@ export type SendScreenProps = RootNavigatorScreenProps<'Send'>;
 
 export const SendScreen = ({ route, navigation }: SendScreenProps) => {
   const { wallet, to } = route.params;
+  const styles = useStyles();
   const [propose, proposing] = useProposeTx(wallet);
   const token = useSelectedToken();
   const selectToken = useSelectToken();
+  const balance = useTokenBalance(token, wallet);
 
   const [amount, setAmount] = useState<BigNumber | undefined>();
 
@@ -40,21 +45,23 @@ export const SendScreen = ({ route, navigation }: SendScreenProps) => {
         <Appbar.Content title="Send" />
       </Appbar.Header>
 
-      <Box mx={3}>
+      <Container mx={3} separator={<Box my={2} />}>
         <AddrCard addr={to} />
 
-        <Box mt={3} mb={4}>
-          <TokenBalanceCard
-            token={token}
-            wallet={wallet}
-            onPress={() =>
-              navigation.navigate('Tokens', { onSelect: selectToken })
-            }
-          />
-        </Box>
+        <TokenBalanceCard
+          token={token}
+          wallet={wallet}
+          onPress={() =>
+            navigation.navigate('Tokens', { onSelect: selectToken })
+          }
+        />
+
+        <Text variant="headlineSmall" style={styles.warning}>
+          {amount && balance.lt(amount) && 'Current balance is insufficient'}
+        </Text>
 
         <AmountInput token={token} amount={amount} setAmount={setAmount} />
-      </Box>
+      </Container>
 
       <FAB
         icon={SendIcon}
@@ -70,3 +77,10 @@ export const SendScreen = ({ route, navigation }: SendScreenProps) => {
     </Box>
   );
 };
+
+const useStyles = makeStyles(({ colors }) => ({
+  warning: {
+    color: colors.warning,
+    textAlign: 'center',
+  },
+}));
