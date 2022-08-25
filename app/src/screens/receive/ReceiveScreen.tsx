@@ -53,39 +53,40 @@ export const ReceiveScreen = withSkeleton(
           </Box>
 
           <Container separator={<Box my={1} />} mb={3}>
-            <Box
-              display="flex"
-              flexDirection="row-reverse"
-              justifyContent="space-between"
-              alignItems="center"
-              mx={4}
-            >
-              {!amount && (
-                <Button
-                  icon="plus"
-                  onPress={() =>
-                    navigation.navigate('Amount', { onChange: setAmount })
-                  }
+            <Box mx={4}>
+              {amount ? (
+                <SelectableTokenAmount amount={amount} onChange={setAmount} />
+              ) : (
+                <Box
+                  display="flex"
+                  flexDirection="row-reverse"
+                  justifyContent="space-between"
+                  alignItems="center"
                 >
-                  Amount
-                </Button>
-              )}
+                  {!amount && (
+                    <Button
+                      icon="plus"
+                      onPress={() =>
+                        navigation.navigate('Amount', { onChange: setAmount })
+                      }
+                    >
+                      Amount
+                    </Button>
+                  )}
 
-              {faucet && (
-                <Button
-                  mode="outlined"
-                  icon={ReceiveIcon}
-                  style={styles.facuet}
-                  onPress={faucet}
-                >
-                  Testnet funds
-                </Button>
+                  {faucet && (
+                    <Button
+                      mode="outlined"
+                      icon={ReceiveIcon}
+                      style={styles.facuet}
+                      onPress={faucet}
+                    >
+                      Testnet funds
+                    </Button>
+                  )}
+                </Box>
               )}
             </Box>
-
-            {amount && (
-              <SelectableTokenAmount amount={amount} onChange={setAmount} />
-            )}
 
             <WalletSelector selected={wallet} onSelect={selectWallet} />
           </Container>
