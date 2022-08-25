@@ -7,11 +7,11 @@ import { PlusIcon } from '~/util/theme/icons';
 import { FlatList } from 'react-native';
 import { AppbarSearch } from '~/components/Appbar/AppbarSearch';
 import { FAB } from '~/components/FAB';
-import { TokenBalanceCard } from '~/components/token/TokenBalanceCard';
 import { RootNavigatorScreenProps } from '~/navigation/RootNavigator';
 import { Token } from '@token/token';
 import { useTokens } from '@token/useToken';
 import { useFuzzySearch } from '@hook/useFuzzySearch';
+import { TokenCard } from '~/components/token/TokenCard';
 
 export interface TokensScreenParams {
   onSelect?: (token: Token) => void;
@@ -41,7 +41,7 @@ export const TokensScreen = withSkeleton(
         <Box mx={3}>
           <FlatList
             renderItem={({ item }) => (
-              <TokenBalanceCard
+              <TokenCard
                 token={item}
                 {...(onSelect && {
                   onPress: () => {
