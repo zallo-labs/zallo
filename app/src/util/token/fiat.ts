@@ -15,15 +15,7 @@ export const bigNumberToFiat = (value: BigNumber) =>
   value.toNumber() / FIAT_DECIMALS;
 
 export const fiatToToken = (
-  fiatValue: BigNumber,
+  fiat: BigNumber,
   fiatPrice: BigNumber,
   token: Token,
-  ): BigNumber => {
-  const v = fiatValue.mul(fiatPrice);
-
-  // BigNumber doesn't allow negative powers, so we must div if we want to use a negative power
-  const netDecimals = token.decimals - 2 * FIAT_DECIMALS;
-  const n = TEN.pow(Math.abs(netDecimals));
-
-  return netDecimals >= 0 ? v.mul(n) : v.div(n);
-};
+): BigNumber => fiat.mul(TEN.pow(token.decimals)).div(fiatPrice);

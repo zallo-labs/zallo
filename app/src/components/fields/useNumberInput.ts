@@ -55,8 +55,9 @@ export const useNumberInput = ({
 
   // Update str if value changes externally; detect these changes by checking for equivalence
   useEffect(() => {
-    if (value && normalise(input) !== normalise(toStr(value)))
-      setInput(toStr(value));
+    const valueStr = toStr(value);
+    if (value !== undefined && normalise(input) !== normalise(valueStr))
+      setInput(valueStr);
   }, [input, value]);
 
   return useMemo(
