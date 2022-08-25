@@ -6,28 +6,38 @@ import { Text } from 'react-native-paper';
 import { CardItem, CardItemProps } from '../../components/card/CardItem';
 import { CardItemSkeleton } from '../../components/card/CardItemSkeleton';
 import { FiatBalance } from '../../components/fiat/FiatBalance';
+import { InactiveIndicator } from './InactiveIndicator';
+import { useTokenValues } from '@token/useTokenValues';
+import { FiatValue } from '~/components/fiat/FiatValue';
 
 export interface AccountCardProps extends CardItemProps {
   id: Address;
 }
 
 export const AccountCard = withSkeleton(
-  ({ id, ...cardProps }: AccountCardProps) => (
-    <CardItem
-      elevation={2}
-      Left={<Identicon seed={id} />}
-      Main={
-        <Text variant="titleMedium">
-          <Addr addr={id} />
-        </Text>
-      }
-      Right={
-        <Text variant="bodyLarge">
-          <FiatBalance addr={id} />
-        </Text>
-      }
-      {...cardProps}
-    />
-  ),
+  ({ id, ...cardProps }: AccountCardProps) => {
+    const { totalFiatValue } = useTokenValues(id);
+
+    return (
+      <CardItem
+        elevation={2}
+        Left={<Identicon seed={id} />}
+        Main={
+          <Text variant="titleMedium">
+            <Addr addr={id} />
+          </Text>
+        }
+        Right={[
+          <InactiveIndicator account={id} />,
+          totalFiatValue && (
+            <Text variant="bodyLarge">
+              <FiatValue value={totalFiatValue} />
+            </Text>
+          ),
+        ]}
+        {...cardProps}
+      />
+    );
+  },
   CardItemSkeleton,
 );
