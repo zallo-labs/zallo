@@ -8,6 +8,7 @@ import { useMemo } from 'react';
 import { Text } from 'react-native-paper';
 import { useContractMethod } from '~/queries/useContractMethod.api';
 import { MethodInputRow } from '../../../components/call/MethodInputRow';
+import { ethers } from 'ethers';
 
 export interface DetailedCallMethodProps {
   call: Call;
@@ -29,6 +30,8 @@ export const DetailedCallMethod = ({ call }: DetailedCallMethodProps) => {
         : [],
     [call.data, contractInterface, methodFragment],
   );
+
+  if (ethers.utils.hexDataLength(call.data) === 0) return null;
 
   if (!methodFragment)
     return (

@@ -61,9 +61,7 @@ export const TransactionDetails = ({ tx, wallet }: TransactionDetailsProps) => {
         </Box>
       )}
 
-      <Box mt={2}>
-        <DetailedCallMethod call={tx} />
-      </Box>
+      <DetailedCallMethod call={tx} />
     </Card>
   );
 };
