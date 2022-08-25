@@ -7,7 +7,7 @@ import { PlusIcon } from '~/util/theme/icons';
 import { makeStyles } from '~/util/theme/makeStyles';
 import { Address } from 'lib';
 import { FlatList } from 'react-native-gesture-handler';
-import { Button } from 'react-native-paper';
+import { Button, Text } from 'react-native-paper';
 import { useAppbarHeader } from '~/components/Appbar/useAppbarHeader';
 import { WalletCard } from '~/components/wallet/WalletCard';
 import { useSetAccountName } from '~/mutations/account/useSetAccountName.api';
@@ -50,7 +50,7 @@ export const AccountScreen = withSkeleton(
 
         <FlatList
           ListHeaderComponent={
-            <Box mb={3}>
+            <>
               <TextField
                 label="Name"
                 defaultValue={account.name}
@@ -62,7 +62,11 @@ export const AccountScreen = withSkeleton(
                 }
                 autoCorrect={false}
               />
-            </Box>
+
+              <Box my={3}>
+                <Text variant="titleSmall">Wallets</Text>
+              </Box>
+            </>
           }
           renderItem={({ item }) => (
             <WalletCard
