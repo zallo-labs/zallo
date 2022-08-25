@@ -11,6 +11,7 @@ import { useApiSetTxWallet } from '~/mutations/tx/useSetTxWallet.api';
 import { useRootNavigation } from '~/navigation/useRootNavigation';
 import { Tx } from '~/queries/tx';
 import { useWallet } from '~/queries/wallets/useWallet';
+import { assert } from 'console';
 
 export interface TransactionWalletSelectorProps {
   tx: Tx;
@@ -27,8 +28,11 @@ export const TransactionWalletSelector = ({
   const wallet = useWallet(tx.wallet);
   const setWallet = useApiSetTxWallet(tx);
 
+  const canSelect = tx.status === 'proposed';
   const selectWallet = useCallback(
-    (account: Address) =>
+    (account: Address) => {
+      assert(canSelect);
+
       navigation.navigate('Account', {
         id: account,
         onSelectWallet: (wallet) => {
@@ -37,21 +41,24 @@ export const TransactionWalletSelector = ({
         },
         showInactiveWallets: false,
         title: 'Select executing wallet',
-      }),
-    [navigation, setWallet],
+      });
+    },
+    [canSelect, navigation, setWallet],
   );
 
   // Select another wallet from the same account if it's inactive
   // A timeout is required as navigation fails if it occurs too quickly upon mount - https://github.com/react-navigation/react-navigation/issues/9182
   useFocusEffect(
     useCallback(() => {
-      const timer = setTimeout(() => {
-        if (wallet && wallet.state.status !== 'active')
-          selectWallet(wallet.accountAddr);
-      });
+      if (canSelect) {
+        const timer = setTimeout(() => {
+          if (wallet && wallet.state.status !== 'active')
+            selectWallet(wallet.accountAddr);
+        });
 
-      return () => clearTimeout(timer);
-    }, [selectWallet, wallet]),
+        return () => clearTimeout(timer);
+      }
+    }, [canSelect, selectWallet, wallet]),
   );
 
   if (!wallet) return <Suspend />;
@@ -73,11 +80,15 @@ export const TransactionWalletSelector = ({
         </Text>
       </Box>
 
-      <IconButton
-        icon={ChevronRight}
-        iconColor={iconColor}
-        onPress={() => selectWallet(wallet.accountAddr)}
-      />
+      <Box>
+        {canSelect && (
+          <IconButton
+            icon={ChevronRight}
+            iconColor={iconColor}
+            onPress={() => selectWallet(wallet.accountAddr)}
+          />
+        )}
+      </Box>
     </Box>
   );
 };
