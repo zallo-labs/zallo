@@ -23,11 +23,13 @@ export const TransactionAppbar = ({ tx, scrolled }: TransactionAppbarProps) => {
       </Appbar.Header>
 
       <Collapsible collapsed={!!scrolled}>
-        <TransactionWalletSelector
-          tx={tx}
-          textStyle={styles.text}
-          iconColor={styles.text.color}
-        />
+        <Box mt={-2} mb={1}>
+          <TransactionWalletSelector
+            tx={tx}
+            textStyle={styles.text}
+            iconColor={styles.text.color}
+          />
+        </Box>
       </Collapsible>
     </Box>
   );
