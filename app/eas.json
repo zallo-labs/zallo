@@ -16,7 +16,7 @@
     },
     "production": {
       "extends": "base",
-      "channel": "production",
+      "channel": "main",
       "android": {
         "autoIncrement": true
       },
@@ -42,9 +42,9 @@
   "submit": {
     "internal": {
       "android": {
-        "track": "internal",
         "serviceAccountKeyPath": "./play-service-account.secret.json",
-        "releaseStatus": "draft"
+        "track": "internal",
+        "releaseStatus": "completed"
       }
     }
   }

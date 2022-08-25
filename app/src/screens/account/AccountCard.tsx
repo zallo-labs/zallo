@@ -5,7 +5,6 @@ import { Address } from 'lib';
 import { Text } from 'react-native-paper';
 import { CardItem, CardItemProps } from '../../components/card/CardItem';
 import { CardItemSkeleton } from '../../components/card/CardItemSkeleton';
-import { FiatBalance } from '../../components/fiat/FiatBalance';
 import { InactiveIndicator } from './InactiveIndicator';
 import { useTokenValues } from '@token/useTokenValues';
 import { FiatValue } from '~/components/fiat/FiatValue';
