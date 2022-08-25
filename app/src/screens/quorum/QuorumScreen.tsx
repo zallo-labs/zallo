@@ -75,11 +75,13 @@ export const QuorumScreen = ({
   const replaceSelectedApprover = () => {
     navigation.navigate('Contacts', {
       title: 'Replace approver',
-      onSelect: (contact) =>
+      onSelect: (contact) => {
         setApprovers([
           ...approvers.filter((a) => a !== selected),
           contact.addr,
-        ]),
+        ]);
+        navigation.goBack();
+      },
       disabled: approvers,
     });
     select(undefined);

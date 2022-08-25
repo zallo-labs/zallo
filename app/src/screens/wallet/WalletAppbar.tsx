@@ -20,7 +20,7 @@ export const WalletAppbar = ({
   AppbarHeader,
   existing,
 }: WalletAppbarProps) => {
-  const deleteWallet = useDeleteWallet(wallet);
+  const [deleteWallet] = useDeleteWallet(wallet);
   const confirmDelete = useDeleteConfirmation();
 
   return (

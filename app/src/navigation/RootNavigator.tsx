@@ -50,7 +50,11 @@ import {
   DeleteModalScreen,
   DeleteModalScreenParams,
 } from '~/screens/alert/DeleteModalScreen';
-import { WalletScreen, WalletScreenParams } from '~/screens/wallet/WalletScreen';
+import {
+  WalletScreen,
+  WalletScreenParams,
+} from '~/screens/wallet/WalletScreen';
+import { SendScreen, SendScreenParams } from '~/screens/send/SendScreen';
 
 export type RootNavigatorParamList = {
   DrawerNavigator: undefined;
@@ -65,6 +69,7 @@ export type RootNavigatorParamList = {
   Scan: ScanScreenParams;
   Tokens: TokensScreenParams;
   Amount: AmountScreenParams;
+  Send: SendScreenParams;
   // Onboarding
   CreateAccount: CreateAccountScreenParams;
   // Modal
@@ -111,6 +116,7 @@ export const RootNavigator = () => {
       <Navigation.Screen name="Scan" component={ScanScreen} />
       <Navigation.Screen name="Tokens" component={TokensScreen} />
       <Navigation.Screen name="Amount" component={AmountScreen} />
+      <Navigation.Screen name="Send" component={SendScreen} />
 
       <Navigation.Group screenOptions={{ presentation: 'transparentModal' }}>
         <Navigation.Screen name="Alert" component={AlertModalScreen} />

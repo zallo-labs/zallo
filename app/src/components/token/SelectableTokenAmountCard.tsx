@@ -4,15 +4,15 @@ import { useRootNavigation } from '~/navigation/useRootNavigation';
 import { TokenAmountCard } from './TokenAmountCard';
 import { useSelectedToken } from './useSelectedToken';
 
-export interface SelectableTokenAmountProps {
+export interface SelectableTokenAmountCardProps {
   amount: BigNumber;
   onChange: (amount?: BigNumber) => void;
 }
 
-export const SelectableTokenAmount = ({
+export const SelectableTokenAmountCard = ({
   amount,
   onChange,
-}: SelectableTokenAmountProps) => {
+}: SelectableTokenAmountCardProps) => {
   const navigation = useRootNavigation();
   const token = useSelectedToken();
 

@@ -86,9 +86,7 @@ export const WalletScreen = withSkeleton(
       [account, existing],
     );
     const [wallet, setWallet] = useState(initialWallet);
-
-    const upsertWallet = useUpsertWallet(wallet);
-    const [applying, setApplying] = useState(false);
+    const [upsertWallet, applying] = useUpsertWallet(wallet);
 
     const isModified = useMemo(
       () => !_.isEqual(initialWallet.quorums, wallet.quorums),
@@ -247,11 +245,7 @@ export const WalletScreen = withSkeleton(
             label="Apply"
             loading={applying}
             onPress={async () => {
-              const apply = async () => {
-                setApplying(true);
-                await upsertWallet(wallet);
-                setApplying(false);
-              };
+              const apply = () => upsertWallet(wallet);
 
               const proposalExists = initialWallet.quorums.some(
                 (q) => q.state.status !== 'active',

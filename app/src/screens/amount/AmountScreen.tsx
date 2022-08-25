@@ -6,10 +6,13 @@ import { ZERO } from 'lib';
 import { useState } from 'react';
 import { Appbar } from 'react-native-paper';
 import { FAB } from '~/components/FAB';
-import { SelectedTokenCard } from '~/components/token/SelectedTokenCard';
-import { useSelectedToken } from '~/components/token/useSelectedToken';
+import {
+  useSelectedToken,
+  useSelectToken,
+} from '~/components/token/useSelectedToken';
 import { RootNavigatorScreenProps } from '~/navigation/RootNavigator';
 import { AmountInput } from './AmountInput';
+import { TokenCard } from '~/components/token/TokenCard';
 
 export interface AmountScreenParams {
   onChange: (amount?: BigNumber) => void;
@@ -20,6 +23,7 @@ export type AmountScreenProps = RootNavigatorScreenProps<'Amount'>;
 export const AmountScreen = ({ navigation, route }: AmountScreenProps) => {
   const { onChange } = route.params;
   const token = useSelectedToken();
+  const selectToken = useSelectToken();
 
   const [amount, setAmount] = useState<BigNumber | undefined>();
 
@@ -39,7 +43,12 @@ export const AmountScreen = ({ navigation, route }: AmountScreenProps) => {
 
       <Box mx={3}>
         <Box mt={5} mb={6}>
-          <SelectedTokenCard />
+          <TokenCard
+            token={token}
+            onPress={() => {
+              navigation.navigate('Tokens', { onSelect: selectToken });
+            }}
+          />
         </Box>
 
         <AmountInput token={token} amount={amount} setAmount={setAmount} />

@@ -7,7 +7,7 @@ import { ReceiveAppbar } from './ReceiveAppbar';
 import { buildAddrLink, buildTransferLink } from '~/util/addrLink';
 import { useMemo, useState } from 'react';
 import { BigNumber } from 'ethers';
-import { SelectableTokenAmount } from '~/components/token/SelectableTokenAmount';
+import { SelectableTokenAmountCard } from '~/components/token/SelectableTokenAmountCard';
 import { useSelectedToken } from '~/components/token/useSelectedToken';
 import { Button } from 'react-native-paper';
 import { withSkeleton } from '~/components/skeleton/withSkeleton';
@@ -55,7 +55,10 @@ export const ReceiveScreen = withSkeleton(
           <Container separator={<Box my={1} />} mb={3}>
             <Box mx={4}>
               {amount ? (
-                <SelectableTokenAmount amount={amount} onChange={setAmount} />
+                <SelectableTokenAmountCard
+                  amount={amount}
+                  onChange={setAmount}
+                />
               ) : (
                 <Box
                   display="flex"

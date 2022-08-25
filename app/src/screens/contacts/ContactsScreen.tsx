@@ -44,7 +44,6 @@ export const ContactsScreen = ({ route, navigation }: ContactsScreenProps) => {
             onPress={() => {
               if (onSelect) {
                 onSelect(item);
-                navigation.goBack();
               } else {
                 navigation.navigate('Contact', { addr: item.addr });
               }

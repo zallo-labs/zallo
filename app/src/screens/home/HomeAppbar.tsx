@@ -6,7 +6,7 @@ import { AppbarMenu } from '~/components/Appbar/AppbarMenu';
 import { AppbarHeaderProps } from '~/components/Appbar/useAppbarHeader';
 import { useRootNavigation } from '~/navigation/useRootNavigation';
 import { CombinedWallet } from '~/queries/wallets';
-import { useSendToContact } from './useSendToContact';
+import { useSendToContact } from '../send/useSendToContact';
 
 export interface HomeAppbarProps {
   AppbarHeader: FC<AppbarHeaderProps>;

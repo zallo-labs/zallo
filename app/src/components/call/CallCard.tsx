@@ -1,7 +1,6 @@
 import { withSkeleton } from '~/components/skeleton/withSkeleton';
 import { Suspend } from '~/components/Suspender';
 import { makeStyles } from '~/util/theme/makeStyles';
-import { assertUnreachable } from 'lib';
 import { Text } from 'react-native-paper';
 import { Tx, TxId } from '~/queries/tx';
 import { ETH } from '@token/tokens';

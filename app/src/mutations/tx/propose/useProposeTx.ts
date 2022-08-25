@@ -1,6 +1,6 @@
 import { CommonActions } from '@react-navigation/native';
 import { address, TxDef } from 'lib';
-import { useCallback } from 'react';
+import { useCallback, useState } from 'react';
 import {
   toNavigationStateRoutes,
   useRootNavigation,
@@ -9,17 +9,26 @@ import { TxId } from '~/queries/tx';
 import { WalletId } from '~/queries/wallets';
 import { useApiProposeTx } from './useProposeTx.api';
 
-export const useProposeTx = (wallet: WalletId) => {
-  const navigation = useRootNavigation();
-  const propose = useApiProposeTx();
+type Propose = (
+  txDef: TxDef,
+  onPropose?: (tx: TxId) => Promise<void> | void,
+) => Promise<void>;
 
-  return useCallback(
-    async (txDef: TxDef, onPropose?: (tx: TxId) => void) => {
+export const useProposeTx = (wallet: WalletId): [Propose, boolean] => {
+  const navigation = useRootNavigation();
+  const apiPropose = useApiProposeTx();
+
+  const [proposing, setProposing] = useState(false);
+
+  const propose: Propose = useCallback(
+    async (txDef, onPropose) => {
+      setProposing(true);
+
       // Transaction must be attached to an active wallet
-      const tx = (await propose(txDef, wallet)).data!.proposeTx;
+      const tx = (await apiPropose(txDef, wallet)).data!.proposeTx;
       const id: TxId = { account: address(tx.accountId), hash: tx.hash };
 
-      onPropose?.(id);
+      await onPropose?.(id);
 
       navigation.dispatch(
         CommonActions.reset({
@@ -36,7 +45,11 @@ export const useProposeTx = (wallet: WalletId) => {
           ),
         }),
       );
+
+      setProposing(false);
     },
-    [navigation, propose, wallet],
+    [navigation, apiPropose, wallet],
   );
+
+  return [propose, proposing];
 };
