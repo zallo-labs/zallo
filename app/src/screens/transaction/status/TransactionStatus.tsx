@@ -28,7 +28,7 @@ export const TransactionStatus = ({ tx, wallet }: TransactionStatusProps) => {
       </Box>
 
       <Box mt={2} mr={1}>
-        <TransactionEvents tx={tx} />
+        <TransactionEvents tx={tx} wallet={wallet} />
       </Box>
     </Card>
   );

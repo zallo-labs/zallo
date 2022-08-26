@@ -4,6 +4,9 @@ import { ApprovalRow } from './ApprovalRow';
 import { SubmissionRow } from './SubmissionRow';
 import { Box } from '~/components/layout/Box';
 import { Container } from '~/components/layout/Container';
+import { ApprovalsRequiredRow } from './ApprovalsRequiredRow';
+import { useTransactionIsApproved } from '../useTransactionIsApproved';
+import { CombinedWallet } from '~/queries/wallets';
 
 enum EventType {
   Approval,
@@ -26,9 +29,12 @@ const EventComponent = ({ event }: { event: Event }): JSX.Element => {
 
 export interface TransactionEventsProps {
   tx: Tx;
+  wallet: CombinedWallet;
 }
 
-export const TransactionEvents = ({ tx }: TransactionEventsProps) => {
+export const TransactionEvents = ({ tx, wallet }: TransactionEventsProps) => {
+  const isApproved = useTransactionIsApproved(tx, wallet);
+
   const events = useMemo(
     (): Event[] =>
       [
@@ -49,6 +55,7 @@ export const TransactionEvents = ({ tx }: TransactionEventsProps) => {
       {events.map((event, i) => (
         <EventComponent key={i} event={event} />
       ))}
+      {!isApproved && <ApprovalsRequiredRow tx={tx} wallet={wallet} />}
     </Container>
   );
 };

@@ -1,20 +1,20 @@
 import { Box } from '~/components/layout/Box';
-import { IconColor } from '~/util/theme/icons';
-import { useTheme } from '@theme/paper';
 import { DateTime } from 'luxon';
 import { FC, ReactNode } from 'react';
 import { Text } from 'react-native-paper';
 import { Timestamp } from '~/components/format/Timestamp';
 import { Container } from '~/components/layout/Container';
+import { StyleProp, TextStyle } from 'react-native';
+import { makeStyles } from '@theme/makeStyles';
 
 export interface EventRowProps {
-  Icon: FC<{ color: IconColor }>;
+  Icon: FC<{ style: StyleProp<TextStyle> }>;
   content: ReactNode;
   timestamp: DateTime;
 }
 
 export const EventRow = ({ Icon, content, timestamp }: EventRowProps) => {
-  const { colors } = useTheme();
+  const styles = useStyles();
 
   return (
     <Box horizontal justifyContent="space-between" alignItems="center">
@@ -25,9 +25,11 @@ export const EventRow = ({ Icon, content, timestamp }: EventRowProps) => {
         separator={<Box mx={1} />}
         mr={4}
       >
-        <Icon color={colors.onSurface} />
+        <Icon style={styles.content} />
 
-        <Text variant="bodyMedium">{content}</Text>
+        <Text variant="bodyMedium" style={styles.content}>
+          {content}
+        </Text>
       </Container>
 
       <Text variant="bodyMedium">
@@ -36,3 +38,9 @@ export const EventRow = ({ Icon, content, timestamp }: EventRowProps) => {
     </Box>
   );
 };
+
+const useStyles = makeStyles(({ colors }) => ({
+  content: {
+    color: colors.onSurface,
+  },
+}));
