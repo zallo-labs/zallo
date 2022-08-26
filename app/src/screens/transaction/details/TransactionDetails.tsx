@@ -1,7 +1,7 @@
 import { Addr } from '~/components/addr/Addr';
 import { Box } from '~/components/layout/Box';
 import { Text } from 'react-native-paper';
-import { DetailedCallMethod } from './DetailedCallMethod';
+import { DetailedCallMethod } from './method/DetailedCallMethod';
 import { useCallValues } from '~/components/call/useCallValues';
 import { Card } from '~/components/card/Card';
 import { FiatValue } from '~/components/fiat/FiatValue';

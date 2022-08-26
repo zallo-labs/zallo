@@ -1,7 +1,7 @@
 import { Accordion } from '~/components/Accordion';
 import { Box } from '~/components/layout/Box';
 import { ExpandableText } from '~/components/ExpandableText';
-import { getMethodInputs } from '~/screens/transaction/details/getMethodInputs';
+import { getMethodInputs } from './getMethodInputs';
 import { hexDataLength, hexlify } from 'ethers/lib/utils';
 import { Call } from 'lib';
 import { Text } from 'react-native-paper';

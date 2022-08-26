@@ -1,6 +1,6 @@
 import { Box } from '~/components/layout/Box';
 import { ExpandOnLongPress } from '~/components/ExpandOnLongPress';
-import { MethodInput } from '~/screens/transaction/details/getMethodInputs';
+import { MethodInput } from './getMethodInputs';
 import { makeStyles } from '~/util/theme/makeStyles';
 import { useMemo } from 'react';
 import { Text } from 'react-native-paper';
