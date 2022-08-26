@@ -1,15 +1,16 @@
 import { gql } from '@apollo/client';
 import { showInfo } from '~/provider/ToastProvider';
-import { useRequestFundsMutation } from '~/gql/generated.api';
+import {
+  CanRequestFundsDocument,
+  CanRequestFundsQuery,
+  CanRequestFundsQueryVariables,
+  useRequestFundsMutation,
+} from '~/gql/generated.api';
 import { useApiClient } from '~/gql/GqlProvider';
-import { parseEther } from 'ethers/lib/utils';
 import { Address } from 'lib';
 import { useCallback } from 'react';
 import { CHAIN } from '~/util/network/provider';
-import { ETH } from '@token/tokens';
-import { useTokenBalance, useUpdateTokenBalance } from '@token/useTokenBalance';
-
-const FUND_BELOW_BALANCE = parseEther('0.01');
+import { useCanRequestFunds } from '~/queries/useCanRequestFunds.api';
 
 gql`
   mutation RequestFunds($recipient: Address!) {
@@ -21,24 +22,31 @@ export const useFaucet = (recipient?: Address, displayMessage?: boolean) => {
   const [mutation] = useRequestFundsMutation({
     client: useApiClient(),
     variables: { recipient: recipient ?? '' },
+    update: (cache, { data }) => {
+      if (!data) return;
+
+      cache.writeQuery<CanRequestFundsQuery, CanRequestFundsQueryVariables>({
+        query: CanRequestFundsDocument,
+        variables: { recipient },
+        data: {
+          canRequestFunds: !data.requestFunds,
+        },
+      });
+    },
   });
-  const balance = useTokenBalance(ETH, recipient);
-  const updateBalance = useUpdateTokenBalance(ETH, recipient);
+  const canRequestFunds = useCanRequestFunds(recipient);
 
   const receive = useCallback(async () => {
     if (displayMessage)
       showInfo({
-        text1: 'Requesting funds from faucet...',
+        text1: 'Requesting testnet funds...',
         autoHide: false,
       });
 
     await mutation();
-    await updateBalance();
 
     if (displayMessage) showInfo('Funds received');
-  }, [displayMessage, mutation, updateBalance]);
+  }, [displayMessage, mutation]);
 
-  return CHAIN.isTestnet && recipient && balance?.lt?.(FUND_BELOW_BALANCE)
-    ? receive
-    : undefined;
+  return CHAIN.isTestnet && canRequestFunds ? receive : undefined;
 };

@@ -1777,6 +1777,7 @@ export type Query = {
   account?: Maybe<Account>;
   accounts: Array<Account>;
   addrName?: Maybe<Scalars['String']>;
+  canRequestFunds: Scalars['Boolean'];
   comments: Array<Comment>;
   contact?: Maybe<Contact>;
   contacts: Array<Contact>;
@@ -1809,6 +1810,11 @@ export type QueryAccountsArgs = {
 
 export type QueryAddrNameArgs = {
   addr: Scalars['String'];
+};
+
+
+export type QueryCanRequestFundsArgs = {
+  recipient: Scalars['Address'];
 };
 
 
@@ -4193,6 +4199,13 @@ export type TxQueryVariables = Exact<{
 
 export type TxQuery = { __typename?: 'Query', tx?: { __typename?: 'Tx', id: string, accountId: string, hash: string, to: string, value: string, data: string, salt: string, walletRef: string, createdAt: any, approvals?: Array<{ __typename?: 'Approval', userId: string, signature: string, createdAt: any }> | null, submissions?: Array<{ __typename?: 'Submission', id: string, hash: string, nonce: number, gasLimit: any, gasPrice?: any | null, finalized: boolean, createdAt: any }> | null } | null };
 
+export type CanRequestFundsQueryVariables = Exact<{
+  recipient: Scalars['Address'];
+}>;
+
+
+export type CanRequestFundsQuery = { __typename?: 'Query', canRequestFunds: boolean };
+
 export type ReactionFieldsFragment = { __typename?: 'Reaction', id: string, accountId: string, key: string, nonce: number, userId: string, emojis?: Array<string> | null };
 
 export type CommentFieldsFragment = { __typename?: 'Comment', id: string, accountId: string, key: string, nonce: number, authorId: string, content: string, createdAt: any, updatedAt: any, reactions?: Array<{ __typename?: 'Reaction', id: string, accountId: string, key: string, nonce: number, userId: string, emojis?: Array<string> | null }> | null };
@@ -5075,6 +5088,39 @@ export function useTxLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<TxQuery
 export type TxQueryHookResult = ReturnType<typeof useTxQuery>;
 export type TxLazyQueryHookResult = ReturnType<typeof useTxLazyQuery>;
 export type TxQueryResult = Apollo.QueryResult<TxQuery, TxQueryVariables>;
+export const CanRequestFundsDocument = gql`
+    query CanRequestFunds($recipient: Address!) {
+  canRequestFunds(recipient: $recipient)
+}
+    `;
+
+/**
+ * __useCanRequestFundsQuery__
+ *
+ * To run a query within a React component, call `useCanRequestFundsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useCanRequestFundsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useCanRequestFundsQuery({
+ *   variables: {
+ *      recipient: // value for 'recipient'
+ *   },
+ * });
+ */
+export function useCanRequestFundsQuery(baseOptions: Apollo.QueryHookOptions<CanRequestFundsQuery, CanRequestFundsQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<CanRequestFundsQuery, CanRequestFundsQueryVariables>(CanRequestFundsDocument, options);
+      }
+export function useCanRequestFundsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<CanRequestFundsQuery, CanRequestFundsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<CanRequestFundsQuery, CanRequestFundsQueryVariables>(CanRequestFundsDocument, options);
+        }
+export type CanRequestFundsQueryHookResult = ReturnType<typeof useCanRequestFundsQuery>;
+export type CanRequestFundsLazyQueryHookResult = ReturnType<typeof useCanRequestFundsLazyQuery>;
+export type CanRequestFundsQueryResult = Apollo.QueryResult<CanRequestFundsQuery, CanRequestFundsQueryVariables>;
 export const CommentsDocument = gql`
     query Comments($account: Address!, $key: Id!) {
   comments(account: $account, key: $key) {
