@@ -14,7 +14,7 @@ import { NewWalletPaymentCard } from '~/screens/home/WalletSelector/WalletPaymen
 import { useCreateWallet } from '~/mutations/wallet/useCreateWallet';
 import { Suspend } from '~/components/Suspender';
 import { CombinedWallet, WalletId } from '~/queries/wallets';
-import { WALLET_PAYMENT_CARD_HEIGHT } from './WalletPaymentCard/WalletPaymentCardSkeleton';
+import { WALLET_PAYMENT_CARD_STYLE } from './WalletPaymentCard/WalletPaymentCardSkeleton';
 
 export interface WalletSelectorProps {
   selected: CombinedWallet;
@@ -54,12 +54,12 @@ export const WalletSelector = ({
         onPageSelected={handlePageSelected}
       >
         {walletIds.map((id, i) => (
-          <Box key={i + 1} mx={4}>
+          <Box key={i + 1} horizontal justifyContent="center">
             <WalletPaymentCard id={id} {...cardProps} />
           </Box>
         ))}
 
-        <Box key={walletIds.length + 1} mx={4}>
+        <Box key={walletIds.length + 1} horizontal justifyContent="center">
           <NewWalletPaymentCard onPress={createWallet} />
         </Box>
       </PagerView>
@@ -73,6 +73,6 @@ export const WalletSelector = ({
 
 const useStyles = makeStyles({
   viewPager: {
-    height: WALLET_PAYMENT_CARD_HEIGHT,
+    height: WALLET_PAYMENT_CARD_STYLE.height,
   },
 });

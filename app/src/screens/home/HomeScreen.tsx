@@ -45,15 +45,13 @@ export const HomeScreen = withSkeleton(() => {
       <FlatList
         ListHeaderComponent={
           <>
-            <Box my={3}>
-              <WalletSelector
-                selected={wallet}
-                onSelect={selectWallet}
-                cardProps={{ available: true }}
-              />
-            </Box>
+            <WalletSelector
+              selected={wallet}
+              onSelect={selectWallet}
+              cardProps={{ available: true }}
+            />
 
-            <Box horizontal justifyContent="flex-end" mb={2} mx={4}>
+            <Box horizontal justifyContent="flex-end" mt={3} mb={2} mx={4}>
               <Text variant="titleLarge">
                 <FiatBalance addr={wallet.accountAddr} showZero />
               </Text>
