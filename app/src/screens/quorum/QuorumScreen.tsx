@@ -58,15 +58,16 @@ export const QuorumScreen = ({
     [approvers, initialApprovers],
   );
 
-  const addApprover = useCallback(
-    () =>
-      navigation.navigate('Contacts', {
-        title: 'Add approver',
-        onSelect: (contact) => setApprovers([...approvers, contact.addr]),
-        disabled: approvers,
-      }),
-    [approvers, navigation],
-  );
+  const addApprover = useCallback(() => {
+    navigation.navigate('Contacts', {
+      title: 'Add approver',
+      onSelect: (contact) => {
+        setApprovers([...approvers, contact.addr]);
+        navigation.goBack();
+      },
+      disabled: approvers,
+    });
+  }, [approvers, navigation]);
 
   useEffect(() => {
     if (approvers.length === 0) addApprover();
