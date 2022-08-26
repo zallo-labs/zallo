@@ -11,7 +11,7 @@ import { PriceChange } from '../format/PriceDelta';
 import { Box } from '../layout/Box';
 import { Container } from '../layout/Container';
 import { TokenIcon } from './TokenIcon/TokenIcon';
-import { TokenValue } from './TokenValue';
+import { TokenAmount } from './TokenAmount';
 
 export interface TokenHoldingCardProps extends CardItemProps {
   token: Token;
@@ -50,7 +50,7 @@ export const TokenHoldingCard = ({
           <FiatValue value={fiatValue} />
         </Text>,
         <Text variant="bodyMedium">
-          <TokenValue token={t} value={available} symbol={false} />
+          <TokenAmount token={t} amount={available} symbol={false} />
         </Text>,
       ]}
       {...props}

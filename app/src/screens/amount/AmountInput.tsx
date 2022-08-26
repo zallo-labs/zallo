@@ -2,7 +2,6 @@ import { Box } from '~/components/layout/Box';
 import { FiatValue } from '~/components/fiat/FiatValue';
 import { BasicTextField } from '~/components/fields/BasicTextField';
 import { useBigNumberInput } from '~/components/fields/useBigNumberInput';
-import { TokenValue } from '~/components/token/TokenValue';
 import { SwapIcon } from '~/util/theme/icons';
 import { useTheme } from '@theme/paper';
 import { BigNumber } from 'ethers';
@@ -15,6 +14,7 @@ import { useTokenValue } from '@token/useTokenValue';
 import { convertTokenAmount, Token } from '@token/token';
 import { makeStyles } from '@theme/makeStyles';
 import { usePrevious } from '@hook/usePrevious';
+import { TokenAmount } from '~/components/token/TokenAmount';
 
 export interface AmountInputProps {
   token: Token;
@@ -81,7 +81,7 @@ export const AmountInput = ({ token, amount, setAmount }: AmountInputProps) => {
           {type === 'token' ? (
             <FiatValue value={fiatValue} symbol={false} />
           ) : (
-            <TokenValue token={token} value={amount ?? ZERO} symbol={false} />
+            <TokenAmount token={token} amount={amount} symbol={false} />
           )}
         </Text>
 

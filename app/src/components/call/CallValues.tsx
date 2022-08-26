@@ -1,5 +1,4 @@
 import { FiatValue } from '~/components/fiat/FiatValue';
-import { TokenValue } from '~/components/token/TokenValue';
 import { Call, ZERO } from 'lib';
 import { StyleProp, TextStyle } from 'react-native';
 import { Text } from 'react-native-paper';
@@ -8,6 +7,7 @@ import { ETH } from '@token/tokens';
 import { useCallValues } from './useCallValues';
 import { Box } from '~/components/layout/Box';
 import { useDecodedTransfer } from './useDecodedTransfer';
+import { TokenAmount } from '../token/TokenAmount';
 
 export interface CallValuesProps {
   call: Call;
@@ -29,13 +29,13 @@ export const CallValues = ({ call, token, textStyle }: CallValuesProps) => {
 
       {!call.value.isZero() && (
         <Text variant="bodyMedium" style={textStyle}>
-          <TokenValue token={ETH} value={call.value} />
+          <TokenAmount token={ETH} amount={call.value} />
         </Text>
       )}
 
       {!transferAmount.isZero() && (
         <Text variant="bodyMedium" style={textStyle}>
-          <TokenValue token={token} value={transferAmount} />
+          <TokenAmount token={token} amount={transferAmount} />
         </Text>
       )}
     </Box>
