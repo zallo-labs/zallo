@@ -6,7 +6,7 @@ import { hexDataLength, hexlify } from 'ethers/lib/utils';
 import { Call } from 'lib';
 import { Text } from 'react-native-paper';
 import { useContractMethod } from '~/queries/useContractMethod.api';
-import { MethodInputRow } from '../../../components/call/MethodInputRow';
+import { MethodInputRow } from './MethodInputRow';
 import { memo } from 'react';
 
 export interface DetailedCallMethodProps {
@@ -38,7 +38,7 @@ export const DetailedCallMethod = memo(({ call }: DetailedCallMethodProps) => {
     <Accordion title={<Text variant="titleMedium">{method.name}</Text>}>
       <Box mt={1}>
         {getMethodInputs(method, call.data).map((input) => (
-          <Box key={input.param.format()} ml={2}>
+          <Box key={input.param.format()} ml={2} mb={1}>
             <MethodInputRow key={input.param.format()} {...input} />
           </Box>
         ))}

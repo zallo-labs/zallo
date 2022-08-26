@@ -5,7 +5,7 @@ export interface StyledComponentsTheme {
 }
 
 const spaceDef = [0, 4, 8, 16, 32, 48, 64] as const;
-type Space = 0 | 1 | 2 | 3 | 4 | 5 | 6;
+export type Space = 0 | 1 | 2 | 3 | 4 | 5 | 6;
 
 const mutableSpace = spaceDef as unknown as number[];
 export const STYLED_COMPONENTS_THEME: StyledComponentsTheme = {

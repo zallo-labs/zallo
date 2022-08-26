@@ -1,5 +1,11 @@
+import { BigNumber } from 'ethers';
 import { BytesLike, ParamType } from 'ethers/lib/utils';
 import { ContractMethod } from '~/queries/useContractMethod.api';
+
+const tryTransformData = (data: unknown) => {
+  if (BigNumber.isBigNumber(data)) return data.toString();
+  return data;
+};
 
 export interface MethodInput {
   param: ParamType;
@@ -14,6 +20,6 @@ export const getMethodInputs = (
 
   return method.fragment.inputs.map((param, i) => ({
     param,
-    data: decodedData[i],
+    data: tryTransformData(decodedData[i]),
   }));
 };

@@ -1,6 +1,6 @@
 import { Space } from '@theme/styledComponents';
 import { ComponentPropsWithoutRef, ReactNode } from 'react';
-import { ViewProps } from 'react-native';
+import { StyleProp, ViewProps, ViewStyle } from 'react-native';
 import { Surface as Base, TouchableRipple } from 'react-native-paper';
 import styled from 'styled-components/native';
 import {
@@ -73,7 +73,7 @@ type TouchableRippleProps = ComponentPropsWithoutRef<typeof TouchableRipple>;
 export type CardProps = Omit<StyledBaseProps, 'children' | 'theme'> &
   Pick<TouchableRippleProps, 'onPress' | 'onLongPress' | 'disabled'> & {
     children?: ReactNode;
-    p?: Space;
+    touchableStyle?: StyleProp<ViewStyle>;
   };
 
 export const CARD_BORDER_RADIUS = 12;
@@ -83,10 +83,10 @@ export const Card = ({
   onPress,
   onLongPress,
   disabled,
-  p,
+  touchableStyle,
   ...props
 }: CardProps) => {
-  const styles = useStyles({ disabled, padding: p });
+  const styles = useStyles({ disabled });
 
   return (
     <StyledBase {...props} style={[styles.card, props.style]}>
@@ -94,7 +94,7 @@ export const Card = ({
         onPress={onPress}
         onLongPress={onLongPress}
         disabled={disabled}
-        style={[styles.touchable]}
+        style={[styles.touchable, touchableStyle]}
       >
         <>{children}</>
       </TouchableRipple>
@@ -107,17 +107,15 @@ interface StyleOptions {
   padding?: Space;
 }
 
-const useStyles = makeStyles(
-  ({ space }, { disabled, padding }: StyleOptions) => ({
-    card: {
-      borderRadius: CARD_BORDER_RADIUS,
-      // TouchableOpacity doesn't respect borderRadius, so hide the touchable ripple effect outside of the view;
-      overflow: 'hidden',
-      ...(disabled && { opacity: 0.38 }),
-    },
-    touchable: {
-      flexGrow: 1,
-      padding: padding !== undefined ? space(padding) : space(3),
-    },
-  }),
-);
+const useStyles = makeStyles(({ space }, { disabled }: StyleOptions) => ({
+  card: {
+    borderRadius: CARD_BORDER_RADIUS,
+    // TouchableOpacity doesn't respect borderRadius, so hide the touchable ripple effect outside of the view;
+    overflow: 'hidden',
+    ...(disabled && { opacity: 0.38 }),
+  },
+  touchable: {
+    flexGrow: 1,
+    padding: space(3),
+  },
+}));
