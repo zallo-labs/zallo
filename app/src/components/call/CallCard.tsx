@@ -7,12 +7,12 @@ import { ETH } from '@token/tokens';
 import { useMaybeToken } from '@token/useToken';
 import { Card, CardProps } from '../card/Card';
 import { CardItemSkeleton } from '../card/CardItemSkeleton';
-import { CallMethod } from './CallMethod';
 import { CallValues } from './CallValues';
 import { Box } from '~/components/layout/Box';
 import { TokenIcon } from '~/components/token/TokenIcon/TokenIcon';
 import { Addr } from '../addr/Addr';
 import { useTx } from '~/queries/tx/tx/useTx';
+import { useContractMethod } from '~/queries/useContractMethod.api';
 
 export interface CallCardProps extends CardProps {
   id: TxId;
@@ -22,6 +22,7 @@ export const CallCard = withSkeleton(({ id, ...cardProps }: CallCardProps) => {
   const { tx } = useTx(id);
   const token = useMaybeToken(tx?.to) ?? ETH;
   const styles = useStyles(tx);
+  const method = useContractMethod(tx);
 
   if (!tx) return <Suspend />;
 
@@ -36,9 +37,11 @@ export const CallCard = withSkeleton(({ id, ...cardProps }: CallCardProps) => {
               <Addr addr={tx.to} />
             </Text>
 
-            <Text variant="bodyMedium" style={styles.text}>
-              <CallMethod call={tx} />
-            </Text>
+            {method && (
+              <Text variant="bodyMedium" style={styles.text}>
+                {method.name}
+              </Text>
+            )}
           </Box>
         </Box>
 
