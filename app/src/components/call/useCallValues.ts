@@ -6,7 +6,7 @@ import { useTokenValue } from '@token/useTokenValue';
 import { useDecodedTransfer } from './useDecodedTransfer';
 
 export const useCallValues = (call: Call, token: Token) => {
-  const transferAmount = useDecodedTransfer(call.to, call.data)?.value ?? ZERO;
+  const transferAmount = useDecodedTransfer(call)?.value ?? ZERO;
   const ethValue = useTokenValue(ETH, call.value);
   const transferValue = useTokenValue(token, transferAmount);
 

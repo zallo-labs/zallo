@@ -1,46 +1,28 @@
 import { ERC20_INTERFACE } from '@token/token';
-import { BigNumber, BytesLike } from 'ethers';
-import { FunctionFragment, Interface } from 'ethers/lib/utils';
-import { address, Address } from 'lib';
-import {
-  getDataSighash,
-  useContractMethod,
-} from '~/queries/useContractMethod.api';
+import { BigNumber } from 'ethers';
+import { address, Address, Call } from 'lib';
+import { useContractMethod } from '~/queries/useContractMethod.api';
 
 const ERC20_TRANSFER_SIGHASH = ERC20_INTERFACE.getSighash(
   ERC20_INTERFACE.functions['transfer(address,uint256)'],
 );
-
-export const isTransferMethod = (data: BytesLike) =>
-  getDataSighash(data) === ERC20_TRANSFER_SIGHASH;
 
 export interface DecodedTransfer {
   to: Address;
   value: BigNumber;
 }
 
-export const tryDecodeTransfer = (
-  data: BytesLike,
-  methodFragment?: FunctionFragment,
-  methodInterface?: Interface,
+export const useDecodedTransfer = (
+  call?: Call,
 ): DecodedTransfer | undefined => {
-  if (!isTransferMethod(data) || !methodFragment || !methodInterface)
-    return undefined;
+  const method = useContractMethod(call);
 
-  const [dest, value] = methodInterface.decodeFunctionData(
-    methodFragment,
-    data,
+  if (!call || method?.sighash !== ERC20_TRANSFER_SIGHASH) return undefined;
+
+  const [dest, value] = method.contract.decodeFunctionData(
+    method.fragment,
+    call.data,
   );
 
   return { to: address(dest), value };
-};
-
-export const useDecodedTransfer = (
-  to: Address,
-  data: BytesLike,
-): DecodedTransfer | undefined => {
-  const { methodFragment, contractInterface: methodInterface } =
-    useContractMethod(to, data);
-
-  return tryDecodeTransfer(data, methodFragment, methodInterface);
 };

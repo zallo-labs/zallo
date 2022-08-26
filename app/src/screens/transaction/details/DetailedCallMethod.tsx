@@ -2,38 +2,23 @@ import { Accordion } from '~/components/Accordion';
 import { Box } from '~/components/layout/Box';
 import { ExpandableText } from '~/components/ExpandableText';
 import { getMethodInputs } from '~/screens/transaction/details/getMethodInputs';
-import { hexlify } from 'ethers/lib/utils';
+import { hexDataLength, hexlify } from 'ethers/lib/utils';
 import { Call } from 'lib';
-import { useMemo } from 'react';
 import { Text } from 'react-native-paper';
 import { useContractMethod } from '~/queries/useContractMethod.api';
 import { MethodInputRow } from '../../../components/call/MethodInputRow';
-import { ethers } from 'ethers';
+import { memo } from 'react';
 
 export interface DetailedCallMethodProps {
   call: Call;
 }
 
-export const DetailedCallMethod = ({ call }: DetailedCallMethodProps) => {
-  const { methodFragment, contractInterface } = useContractMethod(
-    call.to,
-    call.data,
-  );
-  const inputs = useMemo(
-    () =>
-      methodFragment && contractInterface
-        ? getMethodInputs({
-            contractInterface,
-            fragment: methodFragment,
-            data: call.data,
-          })
-        : [],
-    [call.data, contractInterface, methodFragment],
-  );
+export const DetailedCallMethod = memo(({ call }: DetailedCallMethodProps) => {
+  const method = useContractMethod(call);
 
-  if (ethers.utils.hexDataLength(call.data) === 0) return null;
+  if (hexDataLength(call.data) === 0) return null;
 
-  if (!methodFragment)
+  if (!method)
     return (
       <Box>
         <Box horizontal justifyContent="space-between" alignItems="baseline">
@@ -50,9 +35,9 @@ export const DetailedCallMethod = ({ call }: DetailedCallMethodProps) => {
     );
 
   return (
-    <Accordion title={<Text variant="titleMedium">{methodFragment.name}</Text>}>
+    <Accordion title={<Text variant="titleMedium">{method.name}</Text>}>
       <Box mt={1}>
-        {inputs.map((input) => (
+        {getMethodInputs(method, call.data).map((input) => (
           <Box key={input.param.format()} ml={2}>
             <MethodInputRow key={input.param.format()} {...input} />
           </Box>
@@ -60,4 +45,4 @@ export const DetailedCallMethod = ({ call }: DetailedCallMethodProps) => {
       </Box>
     </Accordion>
   );
-};
+});

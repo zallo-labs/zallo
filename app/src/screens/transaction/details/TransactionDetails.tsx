@@ -22,7 +22,7 @@ export interface TransactionDetailsProps {
 export const TransactionDetails = ({ tx, wallet }: TransactionDetailsProps) => {
   const token = useMaybeToken(tx.to) ?? ETH;
   const { totalFiat } = useCallValues(tx, token);
-  const tokenAmount = useDecodedTransfer(tx.to, tx.data)?.value ?? ZERO;
+  const tokenAmount = useDecodedTransfer(tx)?.value ?? ZERO;
 
   return (
     <Card>

@@ -16,7 +16,7 @@ export interface CallValuesProps {
 }
 
 export const CallValues = ({ call, token, textStyle }: CallValuesProps) => {
-  const transferAmount = useDecodedTransfer(call.to, call.data)?.value ?? ZERO;
+  const transferAmount = useDecodedTransfer(call)?.value ?? ZERO;
   const { totalFiat } = useCallValues(call, token);
 
   return (
