@@ -5,9 +5,13 @@ import { getMethodInputs } from './getMethodInputs';
 import { hexDataLength, hexlify } from 'ethers/lib/utils';
 import { Call } from 'lib';
 import { Text } from 'react-native-paper';
-import { useContractMethod } from '~/queries/useContractMethod.api';
+import {
+  UPSERT_WALLET_SIGHSAH,
+  useContractMethod,
+} from '~/queries/useContractMethod.api';
 import { MethodInputRow } from './MethodInputRow';
 import { memo } from 'react';
+import { UpsertWalletMethod } from './wallet/UpsertWalletMethod';
 
 export interface DetailedCallMethodProps {
   call: Call;
@@ -33,6 +37,9 @@ export const DetailedCallMethod = memo(({ call }: DetailedCallMethodProps) => {
         </ExpandableText>
       </Box>
     );
+
+  if (method.sighash === UPSERT_WALLET_SIGHSAH)
+    return <UpsertWalletMethod call={call} />;
 
   return (
     <Accordion title={<Text variant="titleMedium">{method.name}</Text>}>

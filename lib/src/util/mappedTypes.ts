@@ -31,6 +31,15 @@ export type TupleSlice<
   E extends number,
 > = SkipFirst<TakeFirst<T, E>, S>;
 
+export type OnlyRequiredItems<
+  T extends any[],
+  U extends any[] = [],
+> = Partial<T> extends T
+  ? U
+  : T extends [infer F, ...infer R]
+  ? OnlyRequiredItems<R, [...U, Awaited<F>]>
+  : U;
+
 const x = typeof '';
 type Checker = typeof x | ((e: unknown) => boolean);
 

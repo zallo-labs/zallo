@@ -13,7 +13,19 @@ import { Account__factory, Call } from 'lib';
 import { useMemo } from 'react';
 import { ERC20_INTERFACE } from '@token/token';
 
-const ACCOUNT_INTERFACE = Account__factory.createInterface();
+export const ACCOUNT_INTERFACE = Account__factory.createInterface();
+
+export const UPSERT_ACCOUNT_FUNCTION =
+  ACCOUNT_INTERFACE.functions['upsertWallet(bytes4,address[][])'];
+export const UPSERT_WALLET_SIGHSAH = ACCOUNT_INTERFACE.getSighash(
+  UPSERT_ACCOUNT_FUNCTION,
+);
+
+export const REMOVE_WALLET_FUNCTION =
+  ACCOUNT_INTERFACE.functions['removeWallet(bytes4)'];
+export const REMOVE_WALLET_SIGHASH = ACCOUNT_INTERFACE.getSighash(
+  REMOVE_WALLET_FUNCTION,
+);
 
 gql`
   query ContractMethod($contract: Address!, $sighash: Bytes!) {
