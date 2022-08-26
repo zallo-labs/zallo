@@ -12,16 +12,19 @@ import { Token } from '@token/token';
 import { useTokens } from '@token/useToken';
 import { useFuzzySearch } from '@hook/useFuzzySearch';
 import { TokenCard } from '~/components/token/TokenCard';
+import { WalletId } from '~/queries/wallets';
+import { TokenBalanceCard } from '~/components/token/TokenBalanceCard';
 
 export interface TokensScreenParams {
   onSelect?: (token: Token) => void;
+  wallet?: WalletId;
 }
 
 export type TokensScreenProps = RootNavigatorScreenProps<'Tokens'>;
 
 export const TokensScreen = withSkeleton(
   ({ navigation, route }: TokensScreenProps) => {
-    const { onSelect } = route.params;
+    const { onSelect, wallet } = route.params;
     const { AppbarHeader, handleScroll } = useAppbarHeader();
     const [tokens, searchProps] = useFuzzySearch(useTokens(), [
       'name',
@@ -40,17 +43,24 @@ export const TokensScreen = withSkeleton(
 
         <Box mx={3}>
           <FlatList
-            renderItem={({ item }) => (
-              <TokenCard
-                token={item}
-                {...(onSelect && {
-                  onPress: () => {
+            renderItem={({ item }) => {
+              const onPress = onSelect
+                ? () => {
                     onSelect(item);
                     navigation.goBack();
-                  },
-                })}
-              />
-            )}
+                  }
+                : undefined;
+
+              return wallet ? (
+                <TokenBalanceCard
+                  token={item}
+                  wallet={wallet}
+                  onPress={onPress}
+                />
+              ) : (
+                <TokenCard token={item} onPress={onPress} />
+              );
+            }}
             ItemSeparatorComponent={() => <Box my={2} />}
             keyExtractor={(item) => item.addr}
             data={tokens}

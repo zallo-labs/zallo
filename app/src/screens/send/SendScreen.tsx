@@ -52,7 +52,7 @@ export const SendScreen = ({ route, navigation }: SendScreenProps) => {
           token={token}
           wallet={wallet}
           onPress={() =>
-            navigation.navigate('Tokens', { onSelect: selectToken })
+            navigation.navigate('Tokens', { onSelect: selectToken, wallet })
           }
         />
 
