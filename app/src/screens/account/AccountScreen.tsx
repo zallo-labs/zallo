@@ -16,6 +16,8 @@ import { useAccount } from '~/queries/account/useAccount';
 import { WalletId } from '~/queries/wallets';
 import { AccountAppbar } from './AccountAppbar';
 import { DeployAccountFAB } from './DeployAccountFAB';
+import { NativeSyntheticEvent, TextInputFocusEventData } from 'react-native';
+import { useState } from 'react';
 
 export interface AccountScreenParams {
   id: Address;
@@ -38,6 +40,8 @@ export const AccountScreen = withSkeleton(
     const { AppbarHeader, handleScroll } = useAppbarHeader();
     const setAccountName = useSetAccountName();
 
+    const [nameInput, setNameInput] = useState(account?.name ?? '');
+
     if (!account) return <Suspend />;
 
     return (
@@ -53,14 +57,20 @@ export const AccountScreen = withSkeleton(
             <>
               <TextField
                 label="Name"
-                defaultValue={account.name}
-                onSubmitEditing={(event) =>
+                value={nameInput}
+                onChangeText={setNameInput}
+                onSubmitEditing={() =>
                   setAccountName({
                     ...account,
-                    name: event.nativeEvent.text,
+                    name: nameInput,
                   })
                 }
-                autoCorrect={false}
+                onBlur={() =>
+                  setAccountName({
+                    ...account,
+                    name: nameInput,
+                  })
+                }
               />
 
               <Box my={3}>

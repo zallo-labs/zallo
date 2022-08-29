@@ -181,12 +181,9 @@ export const WalletScreen = withSkeleton(
               <TextField
                 label="Name"
                 defaultValue={wallet.name}
-                onChangeText={(name) =>
-                  setWallet((wallet) => ({ ...wallet, name }))
-                }
-                onSubmitEditing={(event) =>
-                  setWalletName({ ...wallet, name: event.nativeEvent.text })
-                }
+                onChangeText={(name) => setWallet((w) => ({ ...w, name }))}
+                onSubmitEditing={() => setWalletName(wallet)}
+                onBlur={() => setWalletName(wallet)}
                 autoFocus={!wallet.name}
                 disabled={applying}
               />
