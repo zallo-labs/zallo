@@ -1,36 +1,32 @@
-import { hexlify } from 'ethers/lib/utils';
-import {
-  Account,
-  Call,
-  getWalletId,
-  hashQuorum,
-  OnlyRequiredItems,
-  toWalletRef,
-} from 'lib';
-import { memo } from 'react';
+import { Call, getWalletId, hashQuorum, tryDecodeUpsertWalletData } from 'lib';
+import { memo, useMemo } from 'react';
 import { Text } from 'react-native-paper';
 import { Accordion } from '~/components/Accordion';
 import { Box } from '~/components/layout/Box';
 import { Container } from '~/components/layout/Container';
 import { Suspend } from '~/components/Suspender';
-import {
-  ACCOUNT_INTERFACE,
-  UPSERT_ACCOUNT_FUNCTION,
-} from '~/queries/useContractMethod.api';
+import { CombinedWallet, WalletId } from '~/queries/wallets';
 import { useWallet } from '~/queries/wallets/useWallet';
 import { AddedOrRemovedQuorumRow } from './AddedQuorumRow';
 
-type UpsertWalletParams = OnlyRequiredItems<
-  Parameters<Account['upsertWallet']>
->;
+export const useDecodedUpsertWallet = (call?: Call) =>
+  useWallet(
+    useMemo((): WalletId | undefined => {
+      const ref = tryDecodeUpsertWalletData(call?.data)?.ref;
 
-const decodeUpsertWalletRef = (call: Call) => {
-  const [ref] = ACCOUNT_INTERFACE.decodeFunctionData(
-    UPSERT_ACCOUNT_FUNCTION,
-    call.data,
-  ) as UpsertWalletParams;
+      return ref && call
+        ? {
+            ref,
+            accountAddr: call.to,
+            id: getWalletId(call.to, ref),
+          }
+        : undefined;
+    }, [call]),
+  );
 
-  return toWalletRef(hexlify(ref));
+export const getUpsertWalletMethodName = (wallet: CombinedWallet) => {
+  const prefix = wallet.state.status === 'add' ? 'Create' : 'Modify';
+  return `${prefix} wallet: ${wallet.name}`;
 };
 
 export interface UpsertWalletMethodProps {
@@ -38,12 +34,7 @@ export interface UpsertWalletMethodProps {
 }
 
 export const UpsertWalletMethod = memo(({ call }: UpsertWalletMethodProps) => {
-  const ref = decodeUpsertWalletRef(call);
-  const wallet = useWallet({
-    accountAddr: call.to,
-    ref,
-    id: getWalletId(call.to, ref),
-  });
+  const wallet = useDecodedUpsertWallet(call);
 
   if (!wallet) return <Suspend />;
 
@@ -54,9 +45,7 @@ export const UpsertWalletMethod = memo(({ call }: UpsertWalletMethodProps) => {
   return (
     <Accordion
       title={
-        <Text variant="titleMedium">{`${
-          wallet.state.status === 'add' ? 'Create' : 'Modify'
-        } wallet: ${wallet.name}`}</Text>
+        <Text variant="titleMedium">{getUpsertWalletMethodName(wallet)}</Text>
       }
     >
       <Container mx={3} separator={<Box mb={1} />}>

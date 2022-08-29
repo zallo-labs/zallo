@@ -24,6 +24,7 @@ export * from './boolArray';
 export * from './bytes';
 export * from './call';
 export * from './chain';
+export * from './decode';
 export * from './deploy';
 export * from './device';
 export * from './events';

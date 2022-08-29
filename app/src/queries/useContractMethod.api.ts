@@ -2,14 +2,8 @@ import { gql } from '@apollo/client';
 import { useContractMethodQuery } from '~/gql/generated.api';
 import { useApiClient } from '~/gql/GqlProvider';
 import { Contract } from 'ethers';
-import { BytesLike } from 'ethers';
-import {
-  FunctionFragment,
-  hexDataLength,
-  hexDataSlice,
-  Interface,
-} from 'ethers/lib/utils';
-import { Account__factory, Call } from 'lib';
+import { FunctionFragment, Interface } from 'ethers/lib/utils';
+import { Account__factory, Call, getDataSighash } from 'lib';
 import { useMemo } from 'react';
 import { ERC20_INTERFACE } from '@token/token';
 
@@ -35,9 +29,6 @@ gql`
     }
   }
 `;
-
-const getDataSighash = (data?: BytesLike) =>
-  data && hexDataLength(data) >= 4 ? hexDataSlice(data, 0, 4) : undefined;
 
 const getFunctions = (interf: Interface): Record<string, FunctionFragment> =>
   Object.fromEntries(
@@ -67,7 +58,6 @@ const deserializeFragment = (
 export interface ContractMethod {
   fragment: FunctionFragment;
   contract: Interface;
-  name: string;
   sighash: string;
 }
 
@@ -89,7 +79,6 @@ export const useContractMethod = (call?: Call): ContractMethod | undefined => {
       ? {
           fragment,
           contract: Contract.getInterface([fragment]),
-          name: fragment.name || sighash!,
           sighash: sighash!,
         }
       : undefined;

@@ -118,8 +118,8 @@ export const useAuthFlowLink = () => {
               extra: { operation },
             });
           }
-        } else {
-          console.warn({ networkError });
+        } else if (networkError) {
+          console.warn({ networkError: JSON.stringify(networkError, null, 2) });
         }
       }),
     [reset],
