@@ -14,7 +14,7 @@ import produce from 'immer';
 import { useCallback } from 'react';
 import { API_ACCOUNT_QUERY } from '~/queries/account/useAccount.api';
 import { CombinedWallet } from '~/queries/wallets';
-import { API_QUERY_WALLET } from '~/queries/wallets/useWallet.api';
+import { API_QUERY_WALLET } from '~/queries/wallet/useWallet.api';
 import { API_QUERY_USER_WALLETS } from '~/queries/wallets/useWalletIds.api';
 
 gql`

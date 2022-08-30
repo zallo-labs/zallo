@@ -29,7 +29,7 @@ import { API_ACCOUNT_QUERY } from '~/queries/account/useAccount.api';
 import produce from 'immer';
 import { ACCOUNT_IMPL } from '~/util/network/provider';
 import { useDevice } from '@network/useDevice';
-import { API_QUERY_WALLET } from '~/queries/wallets/useWallet.api';
+import { API_QUERY_WALLET } from '~/queries/wallet/useWallet.api';
 import { API_QUERY_USER_WALLETS } from '~/queries/wallets/useWalletIds.api';
 import { useAccountProxyFactory } from '@network/useAccountProxyFactory';
 

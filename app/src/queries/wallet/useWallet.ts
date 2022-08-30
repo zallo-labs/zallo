@@ -1,7 +1,7 @@
 import { combine } from '~/gql/combine';
 import { hashQuorum, toQuorum } from 'lib';
 import { useMemo } from 'react';
-import { CombinedWallet, WalletId } from '.';
+import { CombinedWallet, WalletId } from '../wallets';
 import { useApiWallet } from './useWallet.api';
 import { useSubWallet } from './useWallet.sub';
 

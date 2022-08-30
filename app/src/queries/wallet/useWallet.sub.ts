@@ -6,10 +6,10 @@ import {
   CombinedQuorum,
   QUERY_WALLETS_POLL_INTERVAL,
   WalletId,
-} from '.';
+} from '../wallets';
 import { useMemo } from 'react';
 import { useWalletQuery } from '~/gql/generated.sub';
-import { SUB_WALLET_ID_FIELDS } from './useWalletIds.sub';
+import { SUB_WALLET_ID_FIELDS } from '../wallets/useWalletIds.sub';
 import { elipseTruncate } from '~/util/format';
 
 gql`

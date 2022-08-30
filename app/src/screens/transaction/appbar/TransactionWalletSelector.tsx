@@ -10,7 +10,7 @@ import { IconButton, Text } from 'react-native-paper';
 import { useApiSetTxWallet } from '~/mutations/tx/useSetTxWallet.api';
 import { useRootNavigation } from '~/navigation/useRootNavigation';
 import { Tx } from '~/queries/tx';
-import { useWallet } from '~/queries/wallets/useWallet';
+import { useWallet } from '~/queries/wallet/useWallet';
 import { assert } from 'console';
 
 export interface TransactionWalletSelectorProps {

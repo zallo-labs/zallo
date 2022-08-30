@@ -8,7 +8,7 @@ import {
   CombinedWallet,
   QUERY_WALLETS_POLL_INTERVAL,
   WalletId,
-} from '.';
+} from '../wallets';
 
 export const API_WALLET_FIELDS = gql`
   fragment WalletFields on Wallet {

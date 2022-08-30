@@ -16,7 +16,7 @@ import {
 import {
   API_QUERY_WALLET,
   API_WALLET_FIELDS,
-} from '~/queries/wallets/useWallet.api';
+} from '~/queries/wallet/useWallet.api';
 import { QueryOpts } from '~/gql/update';
 import produce from 'immer';
 import { useAccountIds } from '~/queries/account/useAccountIds';

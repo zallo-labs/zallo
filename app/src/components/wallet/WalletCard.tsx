@@ -1,7 +1,7 @@
 import { withSkeleton } from '~/components/skeleton/withSkeleton';
 import { Text } from 'react-native-paper';
 import { WalletId } from '~/queries/wallets';
-import { useWallet } from '~/queries/wallets/useWallet';
+import { useWallet } from '~/queries/wallet/useWallet';
 import { Addr } from '~/components/addr/Addr';
 import { CardItem, CardItemProps } from '../card/CardItem';
 import { CardItemSkeleton } from '../card/CardItemSkeleton';

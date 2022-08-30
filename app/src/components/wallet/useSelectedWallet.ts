@@ -3,7 +3,7 @@ import { WalletRef, Address, getWalletId } from 'lib';
 import { useCallback } from 'react';
 import { atom, useRecoilValue, useSetRecoilState } from 'recoil';
 import { WalletId } from '~/queries/wallets';
-import { useWallet } from '~/queries/wallets/useWallet';
+import { useWallet } from '~/queries/wallet/useWallet';
 import { useWalletIds } from '~/queries/wallets/useWalletIds';
 
 type WalletKey = [Address, WalletRef];

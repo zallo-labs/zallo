@@ -3,7 +3,7 @@ import { useIsDeployed } from '@network/useIsDeployed';
 import { DeployIcon } from '~/util/theme/icons';
 import { FAB } from '~/components/FAB';
 import { CombinedAccount } from '~/queries/account';
-import { useWallet } from '~/queries/wallets/useWallet';
+import { useWallet } from '~/queries/wallet/useWallet';
 
 export interface DeployAccountFABProps {
   account: CombinedAccount;

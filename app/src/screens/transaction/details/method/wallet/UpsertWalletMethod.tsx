@@ -6,7 +6,7 @@ import { Box } from '~/components/layout/Box';
 import { Container } from '~/components/layout/Container';
 import { Suspend } from '~/components/Suspender';
 import { CombinedWallet, WalletId } from '~/queries/wallets';
-import { useWallet } from '~/queries/wallets/useWallet';
+import { useWallet } from '~/queries/wallet/useWallet';
 import { AddedOrRemovedQuorumRow } from './AddedQuorumRow';
 
 export const useDecodedUpsertWallet = (call?: Call) =>

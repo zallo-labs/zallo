@@ -7,7 +7,7 @@ import { TxId } from '~/queries/tx';
 import { Comments } from './comments/Comments';
 import { TransactionStatus } from './status/TransactionStatus';
 import { TransactionAppbar } from './appbar/TransactionAppbar';
-import { useWallet } from '~/queries/wallets/useWallet';
+import { useWallet } from '~/queries/wallet/useWallet';
 import { TransactionDetails } from './details/TransactionDetails';
 import { useScrolled } from '@hook/useScrolled';
 import { Container } from '~/components/layout/Container';

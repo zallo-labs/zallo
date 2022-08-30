@@ -9,7 +9,7 @@ import { QueryOpts } from '~/gql/update';
 import produce from 'immer';
 import { useCallback } from 'react';
 import { CombinedWallet } from '~/queries/wallets';
-import { API_QUERY_WALLET } from '~/queries/wallets/useWallet.api';
+import { API_QUERY_WALLET } from '~/queries/wallet/useWallet.api';
 
 gql`
   mutation SetWalletName($id: WalletId!, $name: String!) {

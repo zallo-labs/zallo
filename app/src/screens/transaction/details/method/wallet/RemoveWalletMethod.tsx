@@ -3,7 +3,7 @@ import { memo, useMemo } from 'react';
 import { Text } from 'react-native-paper';
 import { Suspend } from '~/components/Suspender';
 import { CombinedWallet, WalletId } from '~/queries/wallets';
-import { useWallet } from '~/queries/wallets/useWallet';
+import { useWallet } from '~/queries/wallet/useWallet';
 
 export const useDecodedRemoveWallet = (call?: Call) =>
   useWallet(

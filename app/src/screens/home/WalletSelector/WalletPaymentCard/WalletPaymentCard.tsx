@@ -5,7 +5,7 @@ import { PayIcon } from '~/util/theme/icons';
 import { Text } from 'react-native-paper';
 import { Card, CardProps } from '~/components/card/Card';
 import { WalletId } from '~/queries/wallets';
-import { useWallet } from '~/queries/wallets/useWallet';
+import { useWallet } from '~/queries/wallet/useWallet';
 import {
   WalletPaymentCardSkeleton,
   WALLET_PAYMENT_CARD_STYLE,

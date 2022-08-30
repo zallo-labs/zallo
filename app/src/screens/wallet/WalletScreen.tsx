@@ -27,7 +27,7 @@ import {
   CombinedWallet,
   sortCombinedQuorums,
 } from '~/queries/wallets';
-import { useWallet } from '~/queries/wallets/useWallet';
+import { useWallet } from '~/queries/wallet/useWallet';
 import {
   AlertModalScreenParams,
   useAlertConfirmation,
