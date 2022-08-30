@@ -9,6 +9,7 @@ import {
   subWalletFieldsToId,
   SUB_WALLET_ID_FIELDS,
 } from '../wallets/useWalletIds.sub';
+import { usePollWhenFocussed } from '~/gql/usePollWhenFocussed';
 
 gql`
   ${SUB_WALLET_ID_FIELDS}
@@ -31,10 +32,10 @@ export const useSubAccount = (addr?: Address) => {
 
   const { data, ...rest } = useAccountQuery({
     client: useSubgraphClient(),
-    pollInterval: QUERY_ACCOUNT_POLL_INTERVAL,
     variables: { account: addr ? toId(addr) : '' },
     skip: !addr,
   });
+  usePollWhenFocussed(rest, QUERY_ACCOUNT_POLL_INTERVAL);
 
   const subAccount = useMemo((): CombinedAccount | undefined => {
     const acc = data?.account;

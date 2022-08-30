@@ -8,6 +8,7 @@ import {
   useUserWalletIdsQuery,
   SubWalletIdFieldsFragment,
 } from '~/gql/generated.sub';
+import { usePollWhenFocussed } from '~/gql/usePollWhenFocussed';
 
 export const SUB_WALLET_ID_FIELDS = gql`
   fragment SubWalletIdFields on Wallet {
@@ -49,8 +50,8 @@ export const useSubUserWalletIds = () => {
   const { data, ...rest } = useUserWalletIdsQuery({
     client: useSubgraphClient(),
     variables: { user: toId(device.address) },
-    pollInterval: QUERY_WALLETS_POLL_INTERVAL,
   });
+  usePollWhenFocussed(rest, QUERY_WALLETS_POLL_INTERVAL);
 
   const wallets = useMemo(
     (): WalletId[] =>

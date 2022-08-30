@@ -5,6 +5,7 @@ import { useUniswapClient } from '~/gql/GqlProvider';
 import { Token } from '@token/token';
 import { bigNumberToFiat, fiatToBigNumber } from '~/util/token/fiat';
 import { ETH } from '@token/tokens';
+import { usePollWhenFocussed } from '~/gql/usePollWhenFocussed';
 
 const QUERY = gql`
   query TokenPrice($token: String!, $token2: ID!) {
@@ -51,9 +52,9 @@ export const useTokenPrice = (token: Token) => {
         token: tokenAddr,
         token2: tokenAddr,
       },
-      pollInterval: 15 * 1000,
     },
   );
+  usePollWhenFocussed(rest, 15 * 1000);
 
   const hourly = (data?.tokenHourDatas ?? []).map(
     (data): TokenHourlyPrice => ({

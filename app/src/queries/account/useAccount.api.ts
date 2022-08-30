@@ -10,6 +10,7 @@ import {
   apiWalletFieldsToId,
   API_WALLET_ID_FIELDS,
 } from '../wallets/useWalletIds.api';
+import { usePollWhenFocussed } from '~/gql/usePollWhenFocussed';
 
 export const API_ACCOUNT_FIELDS = gql`
   ${API_WALLET_ID_FIELDS}
@@ -40,10 +41,10 @@ export const useApiAccount = (addr?: Address) => {
 
   const { data, ...rest } = useAccountQuery({
     client: useApiClient(),
-    pollInterval: QUERY_ACCOUNT_POLL_INTERVAL,
     variables: { account: addr },
     skip: !addr,
   });
+  usePollWhenFocussed(rest, QUERY_ACCOUNT_POLL_INTERVAL);
 
   const apiAccount = useMemo((): CombinedAccount | undefined => {
     const acc = data?.account;

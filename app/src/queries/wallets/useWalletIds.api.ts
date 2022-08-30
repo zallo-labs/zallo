@@ -7,6 +7,7 @@ import { useApiClient } from '~/gql/GqlProvider';
 import { toId, address, toWalletRef } from 'lib';
 import { useMemo } from 'react';
 import { QUERY_WALLETS_POLL_INTERVAL, WalletId } from '.';
+import { usePollWhenFocussed } from '~/gql/usePollWhenFocussed';
 
 export const API_WALLET_ID_FIELDS = gql`
   fragment WalletIdFields on Wallet {
@@ -35,8 +36,8 @@ export const apiWalletFieldsToId = (w: WalletIdFieldsFragment): WalletId => ({
 export const useApiUserWalletIds = () => {
   const { data, ...rest } = useUserWalletIdsQuery({
     client: useApiClient(),
-    pollInterval: QUERY_WALLETS_POLL_INTERVAL,
   });
+  usePollWhenFocussed(rest, QUERY_WALLETS_POLL_INTERVAL);
 
   const walletIds = useMemo(
     (): WalletId[] => data?.userWallets.map(apiWalletFieldsToId) ?? [],

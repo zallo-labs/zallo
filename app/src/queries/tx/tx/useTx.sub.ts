@@ -5,6 +5,7 @@ import { address, toId, ZERO, ZERO_ADDR, ZERO_TX_SALT } from 'lib';
 import { DateTime } from 'luxon';
 import { useMemo } from 'react';
 import { ExecutedTx, QUERY_TX_POLL_INTERVAL, TxId } from '../.';
+import { usePollWhenFocussed } from '~/gql/usePollWhenFocussed';
 
 gql`
   query TxSubmissions($account: String!, $hash: Bytes!) {
@@ -42,8 +43,8 @@ export const useSubTx = (id: TxId) => {
       account: toId(id.account),
       hash: toId(id.hash),
     },
-    pollInterval: QUERY_TX_POLL_INTERVAL,
   });
+  usePollWhenFocussed(rest, QUERY_TX_POLL_INTERVAL);
 
   const tx = useMemo((): ExecutedTx | undefined => {
     const t = data?.txes[0];

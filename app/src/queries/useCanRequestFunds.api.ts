@@ -2,6 +2,7 @@ import { gql } from '@apollo/client';
 import { Address } from 'lib';
 import { useCanRequestFundsQuery } from '~/gql/generated.api';
 import { useApiClient } from '~/gql/GqlProvider';
+import { usePollWhenFocussed } from '~/gql/usePollWhenFocussed';
 
 gql`
   query CanRequestFunds($recipient: Address!) {
@@ -10,12 +11,12 @@ gql`
 `;
 
 export const useCanRequestFunds = (recipient?: Address) => {
-  const { data } = useCanRequestFundsQuery({
+  const { data, ...rest } = useCanRequestFundsQuery({
     client: useApiClient(),
     variables: { recipient },
     skip: !recipient,
-    pollInterval: 5 * 60 * 1000,
   });
+  usePollWhenFocussed(rest, 5 * 60 * 1000);
 
   return !!data?.canRequestFunds;
 };

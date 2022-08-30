@@ -9,6 +9,7 @@ import {
   QUERY_WALLETS_POLL_INTERVAL,
   WalletId,
 } from '../wallets';
+import { usePollWhenFocussed } from '~/gql/usePollWhenFocussed';
 
 export const API_WALLET_FIELDS = gql`
   fragment WalletFields on Wallet {
@@ -46,12 +47,12 @@ export const API_QUERY_WALLET = gql`
 export const useApiWallet = (id?: WalletId) => {
   const { data, ...rest } = useWalletQuery({
     client: useApiClient(),
-    pollInterval: QUERY_WALLETS_POLL_INTERVAL,
     variables: {
       wallet: { accountId: id?.accountAddr ?? '', ref: id?.ref ?? '' },
     },
     skip: !id,
   });
+  usePollWhenFocussed(rest, QUERY_WALLETS_POLL_INTERVAL);
 
   const apiWallet = useMemo((): CombinedWallet | undefined => {
     const w = data?.wallet;
@@ -96,6 +97,10 @@ export const useApiWallet = (id?: WalletId) => {
         proposedModification,
       },
       quorums,
+      limits: {
+        allowSpendingUnlisted: true,
+        tokens: {},
+      },
     };
   }, [data?.wallet, id]);
 

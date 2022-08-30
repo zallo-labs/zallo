@@ -6,6 +6,7 @@ import { DateTime } from 'luxon';
 import { useMemo } from 'react';
 import { QUERY_TXS_METADATA_POLL_INTERVAL, TxMetadata } from '..';
 import { useAccountIds } from '~/queries/account/useAccountIds';
+import { usePollWhenFocussed } from '~/gql/usePollWhenFocussed';
 
 gql`
   query TxsMetadata($accounts: [String!]!) {
@@ -23,8 +24,8 @@ export const useSubTxsMetadata = () => {
   const { data, ...rest } = useTxsMetadataQuery({
     client: useSubgraphClient(),
     variables: { accounts },
-    pollInterval: QUERY_TXS_METADATA_POLL_INTERVAL,
   });
+  usePollWhenFocussed(rest, QUERY_TXS_METADATA_POLL_INTERVAL);
 
   const txs = useMemo(
     (): TxMetadata[] =>

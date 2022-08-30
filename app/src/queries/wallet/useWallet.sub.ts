@@ -11,6 +11,7 @@ import { useMemo } from 'react';
 import { useWalletQuery } from '~/gql/generated.sub';
 import { SUB_WALLET_ID_FIELDS } from '../wallets/useWalletIds.sub';
 import { elipseTruncate } from '~/util/format';
+import { usePollWhenFocussed } from '~/gql/usePollWhenFocussed';
 
 gql`
   ${SUB_WALLET_ID_FIELDS}
@@ -36,10 +37,10 @@ gql`
 export const useSubWallet = (id?: WalletId) => {
   const { data, ...rest } = useWalletQuery({
     client: useSubgraphClient(),
-    pollInterval: QUERY_WALLETS_POLL_INTERVAL,
     variables: { wallet: id?.id ?? '' },
     skip: !id,
   });
+  usePollWhenFocussed(rest, QUERY_WALLETS_POLL_INTERVAL);
 
   const subWallet = useMemo((): CombinedWallet | undefined => {
     if (!data?.wallet) return undefined;

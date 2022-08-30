@@ -5,6 +5,7 @@ import { address, Address, Id, toId } from 'lib';
 import { DateTime } from 'luxon';
 import { useMemo } from 'react';
 import { Tx } from './tx';
+import { usePollWhenFocussed } from '~/gql/usePollWhenFocussed';
 
 export const REACTION_FIELDS = gql`
   fragment ReactionFields on Reaction {
@@ -76,9 +77,9 @@ export const useComments = (commentable: Commentable) => {
         account: commentable.account,
         key,
       },
-      pollInterval: 3 * 1000,
     },
   );
+  usePollWhenFocussed(rest, 3 * 1000);
 
   const comments: Comment[] = useMemo(
     () =>

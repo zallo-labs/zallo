@@ -13,6 +13,7 @@ import {
   Submission,
   TxId,
 } from '../.';
+import { usePollWhenFocussed } from '~/gql/usePollWhenFocussed';
 
 export const API_TX_FIELDS = gql`
   fragment TxFields on Tx {
@@ -61,8 +62,8 @@ export const useApiTx = (id: TxId) => {
       account: id.account,
       hash: id.hash,
     },
-    pollInterval: QUERY_TX_POLL_INTERVAL,
   });
+  usePollWhenFocussed(rest, QUERY_TX_POLL_INTERVAL);
 
   const tx = useMemo((): ProposedTx | undefined => {
     const tx = data?.tx;

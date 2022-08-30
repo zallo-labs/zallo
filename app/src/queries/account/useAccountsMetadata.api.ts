@@ -4,6 +4,7 @@ import { useApiClient } from '~/gql/GqlProvider';
 import { address, toId } from 'lib';
 import { useMemo } from 'react';
 import { AccountMetadata, QUERY_ACCOUNT_POLL_INTERVAL } from '.';
+import { usePollWhenFocussed } from '~/gql/usePollWhenFocussed';
 
 export const API_USER_ACCOUNTS_METADATA_QUERY = gql`
   query UserAccountsMetadata {
@@ -17,8 +18,8 @@ export const API_USER_ACCOUNTS_METADATA_QUERY = gql`
 export const useApiUserAccountsMetadata = () => {
   const { data, ...rest } = useUserAccountsMetadataQuery({
     client: useApiClient(),
-    pollInterval: QUERY_ACCOUNT_POLL_INTERVAL,
   });
+  usePollWhenFocussed(rest, QUERY_ACCOUNT_POLL_INTERVAL);
 
   const apiAccountsMetadata = useMemo(
     (): AccountMetadata[] =>
