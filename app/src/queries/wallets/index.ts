@@ -1,4 +1,5 @@
 import assert from 'assert';
+import { BigNumber } from 'ethers';
 import {
   WalletRef,
   Address,
@@ -8,7 +9,11 @@ import {
   Wallet,
   sortQuorums,
   quorumToLeaf,
+  address,
 } from 'lib';
+import { LimitPeriod } from '~/gql/generated.api';
+import { Proposable } from '~/gql/proposable';
+import { RequireAtLeastOne } from '~/util/typing';
 import { TxId } from '../tx';
 
 export const QUERY_WALLETS_POLL_INTERVAL = 30 * 1000;
@@ -48,6 +53,17 @@ export interface CombinedWallet extends WalletId {
   name: string;
   quorums: CombinedQuorum[];
   state: ProposableState;
+  limits: Limits;
+}
+
+export interface TokenLimit {
+  amount: BigNumber;
+  period: LimitPeriod;
+}
+
+export interface Limits {
+  tokens: Record<Address, Proposable<TokenLimit>>;
+  allowlisted: Proposable<boolean>;
 }
 
 export const toSafeWallet = (

@@ -59,6 +59,8 @@ export const useSetWalletName = () => {
                   id,
                   name,
                   quorums: [],
+                  spendingAllowlisted: false,
+                  limits: [],
                 };
               }
             }),

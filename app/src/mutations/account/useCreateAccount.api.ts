@@ -193,6 +193,8 @@ export const useCreateApiAccount = () => {
                     proposedModificationHash: null,
                   },
                 })),
+                spendingAllowlisted: false,
+                limits: [],
               },
             },
           });

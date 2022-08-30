@@ -58,7 +58,7 @@ export const combine = <Sub, Api, K, C>(
     .filter(isPresent);
 };
 
-type QueryRest<Data = unknown, Vars = unknown> = Omit<
+type QueryRest<Data = any, Vars = any> = Omit<
   QueryResult<Data, Vars>,
   'data'
 >;

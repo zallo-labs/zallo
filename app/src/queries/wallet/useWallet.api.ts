@@ -1,15 +1,18 @@
 import { gql } from '@apollo/client';
 import { useWalletQuery } from '~/gql/generated.api';
 import { useApiClient } from '~/gql/GqlProvider';
-import { toId, address, toQuorum } from 'lib';
+import { toId, address, toQuorum, Address } from 'lib';
 import { useMemo } from 'react';
 import {
   CombinedQuorum,
   CombinedWallet,
   QUERY_WALLETS_POLL_INTERVAL,
+  TokenLimit,
   WalletId,
 } from '../wallets';
 import { usePollWhenFocussed } from '~/gql/usePollWhenFocussed';
+import { BigNumber } from 'ethers';
+import { Proposable } from '~/gql/proposable';
 
 export const API_WALLET_FIELDS = gql`
   fragment WalletFields on Wallet {
@@ -30,6 +33,12 @@ export const API_WALLET_FIELDS = gql`
         status
         proposedModificationHash
       }
+    }
+    spendingAllowlisted
+    limits {
+      token
+      amount
+      period
     }
   }
 `;
@@ -98,8 +107,18 @@ export const useApiWallet = (id?: WalletId) => {
       },
       quorums,
       limits: {
-        allowSpendingUnlisted: true,
-        tokens: {},
+        allowlisted: { proposed: w.spendingAllowlisted },
+        tokens: Object.fromEntries(
+          w.limits?.map((t): [Address, Proposable<TokenLimit>] => [
+            address(t.token),
+            {
+              proposed: {
+                amount: BigNumber.from(t.amount),
+                period: t.period,
+              },
+            },
+          ]) ?? [],
+        ),
       },
     };
   }, [data?.wallet, id]);

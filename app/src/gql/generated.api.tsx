@@ -1515,6 +1515,17 @@ export type DeleteContactResp = {
   id: Scalars['String'];
 };
 
+export type EnumLimitPeriodFieldUpdateOperationsInput = {
+  set?: InputMaybe<LimitPeriod>;
+};
+
+export type EnumLimitPeriodFilter = {
+  equals?: InputMaybe<LimitPeriod>;
+  in?: InputMaybe<Array<LimitPeriod>>;
+  not?: InputMaybe<NestedEnumLimitPeriodFilter>;
+  notIn?: InputMaybe<Array<LimitPeriod>>;
+};
+
 export type IntFieldUpdateOperationsInput = {
   decrement?: InputMaybe<Scalars['Int']>;
   divide?: InputMaybe<Scalars['Int']>;
@@ -1533,6 +1544,18 @@ export type IntFilter = {
   not?: InputMaybe<NestedIntFilter>;
   notIn?: InputMaybe<Array<Scalars['Int']>>;
 };
+
+export type Limit = {
+  amount: Scalars['Uint256'];
+  period: LimitPeriod;
+  token: Scalars['Address'];
+};
+
+export enum LimitPeriod {
+  Day = 'Day',
+  Month = 'Month',
+  Week = 'Week'
+}
 
 export type Mutation = {
   __typename?: 'Mutation';
@@ -1666,9 +1689,11 @@ export type MutationUpsertUserArgs = {
 
 export type MutationUpsertWalletArgs = {
   id: WalletId;
+  limits?: InputMaybe<Array<Limit>>;
   name?: InputMaybe<Scalars['String']>;
   proposalHash: Scalars['Bytes32'];
   quorums: Array<Scalars['QuorumScalar']>;
+  spendingAllowlisted?: InputMaybe<Scalars['Boolean']>;
 };
 
 export type NestedBoolFilter = {
@@ -1707,6 +1732,13 @@ export type NestedDecimalNullableFilter = {
   lte?: InputMaybe<Scalars['Decimal']>;
   not?: InputMaybe<NestedDecimalNullableFilter>;
   notIn?: InputMaybe<Array<Scalars['Decimal']>>;
+};
+
+export type NestedEnumLimitPeriodFilter = {
+  equals?: InputMaybe<LimitPeriod>;
+  in?: InputMaybe<Array<LimitPeriod>>;
+  not?: InputMaybe<NestedEnumLimitPeriodFilter>;
+  notIn?: InputMaybe<Array<LimitPeriod>>;
 };
 
 export type NestedIntFilter = {
@@ -2771,6 +2803,130 @@ export type SubmissionWhereUniqueInput = {
   hash?: InputMaybe<Scalars['String']>;
 };
 
+export type TokenLimit = {
+  __typename?: 'TokenLimit';
+  accountId: Scalars['String'];
+  amount: Scalars['String'];
+  period: LimitPeriod;
+  token: Scalars['String'];
+  wallet: Wallet;
+  walletRef: Scalars['String'];
+};
+
+export type TokenLimitAccountIdWalletRefTokenCompoundUniqueInput = {
+  accountId: Scalars['String'];
+  token: Scalars['String'];
+  walletRef: Scalars['String'];
+};
+
+export type TokenLimitCreateManyWalletInput = {
+  amount: Scalars['String'];
+  period: LimitPeriod;
+  token: Scalars['String'];
+};
+
+export type TokenLimitCreateManyWalletInputEnvelope = {
+  data: Array<TokenLimitCreateManyWalletInput>;
+  skipDuplicates?: InputMaybe<Scalars['Boolean']>;
+};
+
+export type TokenLimitCreateNestedManyWithoutWalletInput = {
+  connect?: InputMaybe<Array<TokenLimitWhereUniqueInput>>;
+  connectOrCreate?: InputMaybe<Array<TokenLimitCreateOrConnectWithoutWalletInput>>;
+  create?: InputMaybe<Array<TokenLimitCreateWithoutWalletInput>>;
+  createMany?: InputMaybe<TokenLimitCreateManyWalletInputEnvelope>;
+};
+
+export type TokenLimitCreateOrConnectWithoutWalletInput = {
+  create: TokenLimitCreateWithoutWalletInput;
+  where: TokenLimitWhereUniqueInput;
+};
+
+export type TokenLimitCreateWithoutWalletInput = {
+  amount: Scalars['String'];
+  period: LimitPeriod;
+  token: Scalars['String'];
+};
+
+export type TokenLimitListRelationFilter = {
+  every?: InputMaybe<TokenLimitWhereInput>;
+  none?: InputMaybe<TokenLimitWhereInput>;
+  some?: InputMaybe<TokenLimitWhereInput>;
+};
+
+export type TokenLimitOrderByRelationAggregateInput = {
+  _count?: InputMaybe<SortOrder>;
+};
+
+export type TokenLimitScalarWhereInput = {
+  AND?: InputMaybe<Array<TokenLimitScalarWhereInput>>;
+  NOT?: InputMaybe<Array<TokenLimitScalarWhereInput>>;
+  OR?: InputMaybe<Array<TokenLimitScalarWhereInput>>;
+  accountId?: InputMaybe<StringFilter>;
+  amount?: InputMaybe<StringFilter>;
+  period?: InputMaybe<EnumLimitPeriodFilter>;
+  token?: InputMaybe<StringFilter>;
+  walletRef?: InputMaybe<StringFilter>;
+};
+
+export type TokenLimitUpdateManyMutationInput = {
+  amount?: InputMaybe<StringFieldUpdateOperationsInput>;
+  period?: InputMaybe<EnumLimitPeriodFieldUpdateOperationsInput>;
+  token?: InputMaybe<StringFieldUpdateOperationsInput>;
+};
+
+export type TokenLimitUpdateManyWithWhereWithoutWalletInput = {
+  data: TokenLimitUpdateManyMutationInput;
+  where: TokenLimitScalarWhereInput;
+};
+
+export type TokenLimitUpdateManyWithoutWalletNestedInput = {
+  connect?: InputMaybe<Array<TokenLimitWhereUniqueInput>>;
+  connectOrCreate?: InputMaybe<Array<TokenLimitCreateOrConnectWithoutWalletInput>>;
+  create?: InputMaybe<Array<TokenLimitCreateWithoutWalletInput>>;
+  createMany?: InputMaybe<TokenLimitCreateManyWalletInputEnvelope>;
+  delete?: InputMaybe<Array<TokenLimitWhereUniqueInput>>;
+  deleteMany?: InputMaybe<Array<TokenLimitScalarWhereInput>>;
+  disconnect?: InputMaybe<Array<TokenLimitWhereUniqueInput>>;
+  set?: InputMaybe<Array<TokenLimitWhereUniqueInput>>;
+  update?: InputMaybe<Array<TokenLimitUpdateWithWhereUniqueWithoutWalletInput>>;
+  updateMany?: InputMaybe<Array<TokenLimitUpdateManyWithWhereWithoutWalletInput>>;
+  upsert?: InputMaybe<Array<TokenLimitUpsertWithWhereUniqueWithoutWalletInput>>;
+};
+
+export type TokenLimitUpdateWithWhereUniqueWithoutWalletInput = {
+  data: TokenLimitUpdateWithoutWalletInput;
+  where: TokenLimitWhereUniqueInput;
+};
+
+export type TokenLimitUpdateWithoutWalletInput = {
+  amount?: InputMaybe<StringFieldUpdateOperationsInput>;
+  period?: InputMaybe<EnumLimitPeriodFieldUpdateOperationsInput>;
+  token?: InputMaybe<StringFieldUpdateOperationsInput>;
+};
+
+export type TokenLimitUpsertWithWhereUniqueWithoutWalletInput = {
+  create: TokenLimitCreateWithoutWalletInput;
+  update: TokenLimitUpdateWithoutWalletInput;
+  where: TokenLimitWhereUniqueInput;
+};
+
+export type TokenLimitWhereInput = {
+  AND?: InputMaybe<Array<TokenLimitWhereInput>>;
+  NOT?: InputMaybe<Array<TokenLimitWhereInput>>;
+  OR?: InputMaybe<Array<TokenLimitWhereInput>>;
+  accountId?: InputMaybe<StringFilter>;
+  amount?: InputMaybe<StringFilter>;
+  period?: InputMaybe<EnumLimitPeriodFilter>;
+  token?: InputMaybe<StringFilter>;
+  wallet?: InputMaybe<WalletRelationFilter>;
+  walletRef?: InputMaybe<StringFilter>;
+};
+
+export type TokenLimitWhereUniqueInput = {
+  accountId_walletRef_token?: InputMaybe<TokenLimitAccountIdWalletRefTokenCompoundUniqueInput>;
+};
+
 export type Tx = {
   __typename?: 'Tx';
   _count: TxCount;
@@ -3599,12 +3755,14 @@ export type Wallet = {
   createProposal?: Maybe<Tx>;
   createProposalHash?: Maybe<Scalars['String']>;
   id: Scalars['String'];
+  limits?: Maybe<Array<TokenLimit>>;
   name: Scalars['String'];
   quorums?: Maybe<Array<Quorum>>;
   ref: Scalars['String'];
   removeProposal?: Maybe<Tx>;
   removeProposalAccountId?: Maybe<Scalars['String']>;
   removeProposalHash?: Maybe<Scalars['String']>;
+  spendingAllowlisted: Scalars['Boolean'];
   state?: Maybe<ProposableState>;
   txs?: Maybe<Array<Tx>>;
 };
@@ -3622,6 +3780,7 @@ export type WalletAccountIdRefCompoundUniqueInput = {
 export type WalletCount = {
   __typename?: 'WalletCount';
   approvers: Scalars['Int'];
+  limits: Scalars['Int'];
   quorums: Scalars['Int'];
   txs: Scalars['Int'];
 };
@@ -3632,6 +3791,7 @@ export type WalletCreateManyAccountInput = {
   ref: Scalars['String'];
   removeProposalAccountId?: InputMaybe<Scalars['String']>;
   removeProposalHash?: InputMaybe<Scalars['String']>;
+  spendingAllowlisted?: InputMaybe<Scalars['Boolean']>;
 };
 
 export type WalletCreateManyAccountInputEnvelope = {
@@ -3709,30 +3869,36 @@ export type WalletCreateOrConnectWithoutTxsInput = {
 export type WalletCreateWithoutAccountInput = {
   approvers?: InputMaybe<ApproverCreateNestedManyWithoutWalletInput>;
   createProposal?: InputMaybe<TxCreateNestedOneWithoutProposedCreateWalletInput>;
+  limits?: InputMaybe<TokenLimitCreateNestedManyWithoutWalletInput>;
   name?: InputMaybe<Scalars['String']>;
   quorums?: InputMaybe<QuorumCreateNestedManyWithoutWalletInput>;
   ref: Scalars['String'];
   removeProposal?: InputMaybe<TxCreateNestedOneWithoutProposedRemoveWalletInput>;
+  spendingAllowlisted?: InputMaybe<Scalars['Boolean']>;
   txs?: InputMaybe<TxCreateNestedManyWithoutWalletInput>;
 };
 
 export type WalletCreateWithoutApproversInput = {
   account: AccountCreateNestedOneWithoutWalletsInput;
   createProposal?: InputMaybe<TxCreateNestedOneWithoutProposedCreateWalletInput>;
+  limits?: InputMaybe<TokenLimitCreateNestedManyWithoutWalletInput>;
   name?: InputMaybe<Scalars['String']>;
   quorums?: InputMaybe<QuorumCreateNestedManyWithoutWalletInput>;
   ref: Scalars['String'];
   removeProposal?: InputMaybe<TxCreateNestedOneWithoutProposedRemoveWalletInput>;
+  spendingAllowlisted?: InputMaybe<Scalars['Boolean']>;
   txs?: InputMaybe<TxCreateNestedManyWithoutWalletInput>;
 };
 
 export type WalletCreateWithoutCreateProposalInput = {
   account: AccountCreateNestedOneWithoutWalletsInput;
   approvers?: InputMaybe<ApproverCreateNestedManyWithoutWalletInput>;
+  limits?: InputMaybe<TokenLimitCreateNestedManyWithoutWalletInput>;
   name?: InputMaybe<Scalars['String']>;
   quorums?: InputMaybe<QuorumCreateNestedManyWithoutWalletInput>;
   ref: Scalars['String'];
   removeProposal?: InputMaybe<TxCreateNestedOneWithoutProposedRemoveWalletInput>;
+  spendingAllowlisted?: InputMaybe<Scalars['Boolean']>;
   txs?: InputMaybe<TxCreateNestedManyWithoutWalletInput>;
 };
 
@@ -3740,9 +3906,11 @@ export type WalletCreateWithoutQuorumsInput = {
   account: AccountCreateNestedOneWithoutWalletsInput;
   approvers?: InputMaybe<ApproverCreateNestedManyWithoutWalletInput>;
   createProposal?: InputMaybe<TxCreateNestedOneWithoutProposedCreateWalletInput>;
+  limits?: InputMaybe<TokenLimitCreateNestedManyWithoutWalletInput>;
   name?: InputMaybe<Scalars['String']>;
   ref: Scalars['String'];
   removeProposal?: InputMaybe<TxCreateNestedOneWithoutProposedRemoveWalletInput>;
+  spendingAllowlisted?: InputMaybe<Scalars['Boolean']>;
   txs?: InputMaybe<TxCreateNestedManyWithoutWalletInput>;
 };
 
@@ -3750,9 +3918,11 @@ export type WalletCreateWithoutRemoveProposalInput = {
   account: AccountCreateNestedOneWithoutWalletsInput;
   approvers?: InputMaybe<ApproverCreateNestedManyWithoutWalletInput>;
   createProposal?: InputMaybe<TxCreateNestedOneWithoutProposedCreateWalletInput>;
+  limits?: InputMaybe<TokenLimitCreateNestedManyWithoutWalletInput>;
   name?: InputMaybe<Scalars['String']>;
   quorums?: InputMaybe<QuorumCreateNestedManyWithoutWalletInput>;
   ref: Scalars['String'];
+  spendingAllowlisted?: InputMaybe<Scalars['Boolean']>;
   txs?: InputMaybe<TxCreateNestedManyWithoutWalletInput>;
 };
 
@@ -3760,10 +3930,12 @@ export type WalletCreateWithoutTxsInput = {
   account: AccountCreateNestedOneWithoutWalletsInput;
   approvers?: InputMaybe<ApproverCreateNestedManyWithoutWalletInput>;
   createProposal?: InputMaybe<TxCreateNestedOneWithoutProposedCreateWalletInput>;
+  limits?: InputMaybe<TokenLimitCreateNestedManyWithoutWalletInput>;
   name?: InputMaybe<Scalars['String']>;
   quorums?: InputMaybe<QuorumCreateNestedManyWithoutWalletInput>;
   ref: Scalars['String'];
   removeProposal?: InputMaybe<TxCreateNestedOneWithoutProposedRemoveWalletInput>;
+  spendingAllowlisted?: InputMaybe<Scalars['Boolean']>;
 };
 
 export type WalletId = {
@@ -3787,12 +3959,14 @@ export type WalletOrderByWithRelationInput = {
   approvers?: InputMaybe<ApproverOrderByRelationAggregateInput>;
   createProposal?: InputMaybe<TxOrderByWithRelationInput>;
   createProposalHash?: InputMaybe<SortOrder>;
+  limits?: InputMaybe<TokenLimitOrderByRelationAggregateInput>;
   name?: InputMaybe<SortOrder>;
   quorums?: InputMaybe<QuorumOrderByRelationAggregateInput>;
   ref?: InputMaybe<SortOrder>;
   removeProposal?: InputMaybe<TxOrderByWithRelationInput>;
   removeProposalAccountId?: InputMaybe<SortOrder>;
   removeProposalHash?: InputMaybe<SortOrder>;
+  spendingAllowlisted?: InputMaybe<SortOrder>;
   txs?: InputMaybe<TxOrderByRelationAggregateInput>;
 };
 
@@ -3812,7 +3986,8 @@ export enum WalletScalarFieldEnum {
   Name = 'name',
   Ref = 'ref',
   RemoveProposalAccountId = 'removeProposalAccountId',
-  RemoveProposalHash = 'removeProposalHash'
+  RemoveProposalHash = 'removeProposalHash',
+  SpendingAllowlisted = 'spendingAllowlisted'
 }
 
 export type WalletScalarWhereInput = {
@@ -3825,11 +4000,13 @@ export type WalletScalarWhereInput = {
   ref?: InputMaybe<StringFilter>;
   removeProposalAccountId?: InputMaybe<StringNullableFilter>;
   removeProposalHash?: InputMaybe<StringNullableFilter>;
+  spendingAllowlisted?: InputMaybe<BoolFilter>;
 };
 
 export type WalletUpdateManyMutationInput = {
   name?: InputMaybe<StringFieldUpdateOperationsInput>;
   ref?: InputMaybe<StringFieldUpdateOperationsInput>;
+  spendingAllowlisted?: InputMaybe<BoolFieldUpdateOperationsInput>;
 };
 
 export type WalletUpdateManyWithWhereWithoutAccountInput = {
@@ -3903,30 +4080,36 @@ export type WalletUpdateWithWhereUniqueWithoutAccountInput = {
 export type WalletUpdateWithoutAccountInput = {
   approvers?: InputMaybe<ApproverUpdateManyWithoutWalletNestedInput>;
   createProposal?: InputMaybe<TxUpdateOneWithoutProposedCreateWalletNestedInput>;
+  limits?: InputMaybe<TokenLimitUpdateManyWithoutWalletNestedInput>;
   name?: InputMaybe<StringFieldUpdateOperationsInput>;
   quorums?: InputMaybe<QuorumUpdateManyWithoutWalletNestedInput>;
   ref?: InputMaybe<StringFieldUpdateOperationsInput>;
   removeProposal?: InputMaybe<TxUpdateOneWithoutProposedRemoveWalletNestedInput>;
+  spendingAllowlisted?: InputMaybe<BoolFieldUpdateOperationsInput>;
   txs?: InputMaybe<TxUpdateManyWithoutWalletNestedInput>;
 };
 
 export type WalletUpdateWithoutApproversInput = {
   account?: InputMaybe<AccountUpdateOneRequiredWithoutWalletsNestedInput>;
   createProposal?: InputMaybe<TxUpdateOneWithoutProposedCreateWalletNestedInput>;
+  limits?: InputMaybe<TokenLimitUpdateManyWithoutWalletNestedInput>;
   name?: InputMaybe<StringFieldUpdateOperationsInput>;
   quorums?: InputMaybe<QuorumUpdateManyWithoutWalletNestedInput>;
   ref?: InputMaybe<StringFieldUpdateOperationsInput>;
   removeProposal?: InputMaybe<TxUpdateOneWithoutProposedRemoveWalletNestedInput>;
+  spendingAllowlisted?: InputMaybe<BoolFieldUpdateOperationsInput>;
   txs?: InputMaybe<TxUpdateManyWithoutWalletNestedInput>;
 };
 
 export type WalletUpdateWithoutCreateProposalInput = {
   account?: InputMaybe<AccountUpdateOneRequiredWithoutWalletsNestedInput>;
   approvers?: InputMaybe<ApproverUpdateManyWithoutWalletNestedInput>;
+  limits?: InputMaybe<TokenLimitUpdateManyWithoutWalletNestedInput>;
   name?: InputMaybe<StringFieldUpdateOperationsInput>;
   quorums?: InputMaybe<QuorumUpdateManyWithoutWalletNestedInput>;
   ref?: InputMaybe<StringFieldUpdateOperationsInput>;
   removeProposal?: InputMaybe<TxUpdateOneWithoutProposedRemoveWalletNestedInput>;
+  spendingAllowlisted?: InputMaybe<BoolFieldUpdateOperationsInput>;
   txs?: InputMaybe<TxUpdateManyWithoutWalletNestedInput>;
 };
 
@@ -3934,9 +4117,11 @@ export type WalletUpdateWithoutQuorumsInput = {
   account?: InputMaybe<AccountUpdateOneRequiredWithoutWalletsNestedInput>;
   approvers?: InputMaybe<ApproverUpdateManyWithoutWalletNestedInput>;
   createProposal?: InputMaybe<TxUpdateOneWithoutProposedCreateWalletNestedInput>;
+  limits?: InputMaybe<TokenLimitUpdateManyWithoutWalletNestedInput>;
   name?: InputMaybe<StringFieldUpdateOperationsInput>;
   ref?: InputMaybe<StringFieldUpdateOperationsInput>;
   removeProposal?: InputMaybe<TxUpdateOneWithoutProposedRemoveWalletNestedInput>;
+  spendingAllowlisted?: InputMaybe<BoolFieldUpdateOperationsInput>;
   txs?: InputMaybe<TxUpdateManyWithoutWalletNestedInput>;
 };
 
@@ -3944,9 +4129,11 @@ export type WalletUpdateWithoutRemoveProposalInput = {
   account?: InputMaybe<AccountUpdateOneRequiredWithoutWalletsNestedInput>;
   approvers?: InputMaybe<ApproverUpdateManyWithoutWalletNestedInput>;
   createProposal?: InputMaybe<TxUpdateOneWithoutProposedCreateWalletNestedInput>;
+  limits?: InputMaybe<TokenLimitUpdateManyWithoutWalletNestedInput>;
   name?: InputMaybe<StringFieldUpdateOperationsInput>;
   quorums?: InputMaybe<QuorumUpdateManyWithoutWalletNestedInput>;
   ref?: InputMaybe<StringFieldUpdateOperationsInput>;
+  spendingAllowlisted?: InputMaybe<BoolFieldUpdateOperationsInput>;
   txs?: InputMaybe<TxUpdateManyWithoutWalletNestedInput>;
 };
 
@@ -3954,10 +4141,12 @@ export type WalletUpdateWithoutTxsInput = {
   account?: InputMaybe<AccountUpdateOneRequiredWithoutWalletsNestedInput>;
   approvers?: InputMaybe<ApproverUpdateManyWithoutWalletNestedInput>;
   createProposal?: InputMaybe<TxUpdateOneWithoutProposedCreateWalletNestedInput>;
+  limits?: InputMaybe<TokenLimitUpdateManyWithoutWalletNestedInput>;
   name?: InputMaybe<StringFieldUpdateOperationsInput>;
   quorums?: InputMaybe<QuorumUpdateManyWithoutWalletNestedInput>;
   ref?: InputMaybe<StringFieldUpdateOperationsInput>;
   removeProposal?: InputMaybe<TxUpdateOneWithoutProposedRemoveWalletNestedInput>;
+  spendingAllowlisted?: InputMaybe<BoolFieldUpdateOperationsInput>;
 };
 
 export type WalletUpsertWithWhereUniqueWithoutAccountInput = {
@@ -4000,12 +4189,14 @@ export type WalletWhereInput = {
   approvers?: InputMaybe<ApproverListRelationFilter>;
   createProposal?: InputMaybe<TxRelationFilter>;
   createProposalHash?: InputMaybe<StringNullableFilter>;
+  limits?: InputMaybe<TokenLimitListRelationFilter>;
   name?: InputMaybe<StringFilter>;
   quorums?: InputMaybe<QuorumListRelationFilter>;
   ref?: InputMaybe<StringFilter>;
   removeProposal?: InputMaybe<TxRelationFilter>;
   removeProposalAccountId?: InputMaybe<StringNullableFilter>;
   removeProposalHash?: InputMaybe<StringNullableFilter>;
+  spendingAllowlisted?: InputMaybe<BoolFilter>;
   txs?: InputMaybe<TxListRelationFilter>;
 };
 
@@ -4145,13 +4336,15 @@ export type DeleteWalletMutation = { __typename?: 'Mutation', deleteWallet: bool
 
 export type UpsertWalletMutationVariables = Exact<{
   wallet: WalletId;
+  txHash: Scalars['Bytes32'];
   name?: InputMaybe<Scalars['String']>;
   quorums: Array<Scalars['QuorumScalar']> | Scalars['QuorumScalar'];
-  txHash: Scalars['Bytes32'];
+  spendingAllowlisted?: InputMaybe<Scalars['Boolean']>;
+  limits?: InputMaybe<Array<Limit> | Limit>;
 }>;
 
 
-export type UpsertWalletMutation = { __typename?: 'Mutation', upsertWallet?: { __typename?: 'Wallet', id: string, name: string, state?: { __typename?: 'ProposableState', status: ProposableStatus, proposedModificationHash?: string | null } | null, quorums?: Array<{ __typename?: 'Quorum', accountId: string, walletRef: string, hash: string, approvers?: Array<{ __typename?: 'Approver', userId: string }> | null, state?: { __typename?: 'ProposableState', status: ProposableStatus, proposedModificationHash?: string | null } | null }> | null } | null };
+export type UpsertWalletMutation = { __typename?: 'Mutation', upsertWallet?: { __typename?: 'Wallet', id: string, name: string, spendingAllowlisted: boolean, state?: { __typename?: 'ProposableState', status: ProposableStatus, proposedModificationHash?: string | null } | null, quorums?: Array<{ __typename?: 'Quorum', accountId: string, walletRef: string, hash: string, approvers?: Array<{ __typename?: 'Approver', userId: string }> | null, state?: { __typename?: 'ProposableState', status: ProposableStatus, proposedModificationHash?: string | null } | null }> | null, limits?: Array<{ __typename?: 'TokenLimit', token: string, amount: string, period: LimitPeriod }> | null } | null };
 
 export type SetWalletNameMutationVariables = Exact<{
   id: WalletId;
@@ -4226,14 +4419,14 @@ export type ContractMethodQueryVariables = Exact<{
 
 export type ContractMethodQuery = { __typename?: 'Query', contractMethod?: { __typename?: 'ContractMethod', id: string, fragment: any } | null };
 
-export type WalletFieldsFragment = { __typename?: 'Wallet', id: string, name: string, state?: { __typename?: 'ProposableState', status: ProposableStatus, proposedModificationHash?: string | null } | null, quorums?: Array<{ __typename?: 'Quorum', accountId: string, walletRef: string, hash: string, approvers?: Array<{ __typename?: 'Approver', userId: string }> | null, state?: { __typename?: 'ProposableState', status: ProposableStatus, proposedModificationHash?: string | null } | null }> | null };
+export type WalletFieldsFragment = { __typename?: 'Wallet', id: string, name: string, spendingAllowlisted: boolean, state?: { __typename?: 'ProposableState', status: ProposableStatus, proposedModificationHash?: string | null } | null, quorums?: Array<{ __typename?: 'Quorum', accountId: string, walletRef: string, hash: string, approvers?: Array<{ __typename?: 'Approver', userId: string }> | null, state?: { __typename?: 'ProposableState', status: ProposableStatus, proposedModificationHash?: string | null } | null }> | null, limits?: Array<{ __typename?: 'TokenLimit', token: string, amount: string, period: LimitPeriod }> | null };
 
 export type WalletQueryVariables = Exact<{
   wallet: WalletId;
 }>;
 
 
-export type WalletQuery = { __typename?: 'Query', wallet?: { __typename?: 'Wallet', id: string, name: string, state?: { __typename?: 'ProposableState', status: ProposableStatus, proposedModificationHash?: string | null } | null, quorums?: Array<{ __typename?: 'Quorum', accountId: string, walletRef: string, hash: string, approvers?: Array<{ __typename?: 'Approver', userId: string }> | null, state?: { __typename?: 'ProposableState', status: ProposableStatus, proposedModificationHash?: string | null } | null }> | null } | null };
+export type WalletQuery = { __typename?: 'Query', wallet?: { __typename?: 'Wallet', id: string, name: string, spendingAllowlisted: boolean, state?: { __typename?: 'ProposableState', status: ProposableStatus, proposedModificationHash?: string | null } | null, quorums?: Array<{ __typename?: 'Quorum', accountId: string, walletRef: string, hash: string, approvers?: Array<{ __typename?: 'Approver', userId: string }> | null, state?: { __typename?: 'ProposableState', status: ProposableStatus, proposedModificationHash?: string | null } | null }> | null, limits?: Array<{ __typename?: 'TokenLimit', token: string, amount: string, period: LimitPeriod }> | null } | null };
 
 export type WalletIdFieldsFragment = { __typename?: 'Wallet', id: string, accountId: string, ref: string };
 
@@ -4338,6 +4531,12 @@ export const WalletFieldsFragmentDoc = gql`
       status
       proposedModificationHash
     }
+  }
+  spendingAllowlisted
+  limits {
+    token
+    amount
+    period
   }
 }
     `;
@@ -4841,8 +5040,15 @@ export type DeleteWalletMutationHookResult = ReturnType<typeof useDeleteWalletMu
 export type DeleteWalletMutationResult = Apollo.MutationResult<DeleteWalletMutation>;
 export type DeleteWalletMutationOptions = Apollo.BaseMutationOptions<DeleteWalletMutation, DeleteWalletMutationVariables>;
 export const UpsertWalletDocument = gql`
-    mutation UpsertWallet($wallet: WalletId!, $name: String, $quorums: [QuorumScalar!]!, $txHash: Bytes32!) {
-  upsertWallet(id: $wallet, name: $name, quorums: $quorums, proposalHash: $txHash) {
+    mutation UpsertWallet($wallet: WalletId!, $txHash: Bytes32!, $name: String, $quorums: [QuorumScalar!]!, $spendingAllowlisted: Boolean, $limits: [Limit!]) {
+  upsertWallet(
+    id: $wallet
+    proposalHash: $txHash
+    name: $name
+    quorums: $quorums
+    spendingAllowlisted: $spendingAllowlisted
+    limits: $limits
+  ) {
     ...WalletFields
   }
 }
@@ -4863,9 +5069,11 @@ export type UpsertWalletMutationFn = Apollo.MutationFunction<UpsertWalletMutatio
  * const [upsertWalletMutation, { data, loading, error }] = useUpsertWalletMutation({
  *   variables: {
  *      wallet: // value for 'wallet'
+ *      txHash: // value for 'txHash'
  *      name: // value for 'name'
  *      quorums: // value for 'quorums'
- *      txHash: // value for 'txHash'
+ *      spendingAllowlisted: // value for 'spendingAllowlisted'
+ *      limits: // value for 'limits'
  *   },
  * });
  */

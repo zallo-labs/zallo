@@ -178,7 +178,15 @@ export class WalletsResolver {
 
   @Mutation(() => Wallet, { nullable: true })
   async upsertWallet(
-    @Args() { id, name, quorums, proposalHash }: UpsertWalletArgs,
+    @Args()
+    {
+      id,
+      proposalHash,
+      name,
+      quorums,
+      spendingAllowlisted,
+      limits,
+    }: UpsertWalletArgs,
     @Info() info: GraphQLResolveInfo,
   ): Promise<Wallet> {
     // Only a single proposal can be active at a time for any given wallet
@@ -212,6 +220,16 @@ export class WalletsResolver {
           create: quorums.map((quorum) =>
             this.createQuorum(id, proposalHash, quorum),
           ),
+        },
+        spendingAllowlisted,
+        limits: {
+          createMany: {
+            data: limits?.map((l) => ({
+              token: l.token,
+              amount: l.amount.toString(),
+              period: l.period,
+            })),
+          },
         },
       },
       update: {
@@ -248,6 +266,27 @@ export class WalletsResolver {
             },
           },
         } as Prisma.QuorumUpdateManyWithoutWalletNestedInput,
+        ...(spendingAllowlisted !== undefined && {
+          spendingAllowlisted: { set: spendingAllowlisted },
+        }),
+        ...(limits && {
+          limits: {
+            connectOrCreate: limits.map((l) => ({
+              where: {
+                accountId_walletRef_token: {
+                  accountId: id.accountId,
+                  walletRef: id.ref,
+                  token: l.token,
+                },
+              },
+              create: {
+                token: l.token,
+                amount: l.amount.toString(),
+                period: l.period,
+              },
+            })),
+          },
+        }),
       },
       ...getSelect(info),
     });

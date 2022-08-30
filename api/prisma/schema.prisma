@@ -43,6 +43,9 @@ model Wallet {
   ref       String  @db.Char(10) // bytes4
   name      String  @default("")
 
+  spendingAllowlisted Boolean      @default(false)
+  limits              TokenLimit[]
+
   createProposal          Tx?     @relation(name: "createWallet", fields: [accountId, createProposalHash], references: [accountId, hash], onDelete: Cascade)
   createProposalHash      String? @db.Char(66) // bytes32
   removeProposal          Tx?     @relation(name: "removeWallet", fields: [removeProposalAccountId, removeProposalHash], references: [accountId, hash], onDelete: SetNull)
@@ -188,4 +191,22 @@ model Reaction {
   updatedAt DateTime @updatedAt()
 
   @@id([accountId, key, nonce, userId])
+}
+
+enum LimitPeriod {
+  Day
+  Week
+  Month
+}
+
+model TokenLimit {
+  wallet    Wallet @relation(fields: [accountId, walletRef], references: [accountId, ref], onDelete: Cascade)
+  accountId String @db.Char(42) // address
+  walletRef String @db.Char(10) // bytes4
+  token     String @db.Char(42) // address
+
+  amount String //@db.Decimal(79, 0) // uint256
+  period LimitPeriod
+
+  @@id([accountId, walletRef, token])
 }

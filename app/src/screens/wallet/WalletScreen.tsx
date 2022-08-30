@@ -62,6 +62,10 @@ const newWallet = (account: Address): CombinedWallet => {
     name: '',
     quorums: [],
     state: { status: 'add' },
+    limits: {
+      allowlisted: { proposed: false },
+      tokens: {},
+    },
   };
 };
 

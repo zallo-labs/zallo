@@ -62,6 +62,10 @@ export const useSubWallet = (id?: WalletId) => {
           state: { status: 'active' },
         }),
       ),
+      limits: {
+        allowlisted: { active: false },
+        tokens: {},
+      },
     };
   }, [data?.wallet]);
 

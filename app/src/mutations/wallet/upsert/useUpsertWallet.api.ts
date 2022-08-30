@@ -1,6 +1,6 @@
 import { gql } from '@apollo/client';
 import { useApiClient } from '~/gql/GqlProvider';
-import { CombinedWallet } from '~/queries/wallets';
+import { CombinedWallet, TokenLimit } from '~/queries/wallets';
 import {
   ProposableStatus,
   TxDocument,
@@ -20,22 +20,27 @@ import {
 import { QueryOpts } from '~/gql/update';
 import produce from 'immer';
 import { useAccountIds } from '~/queries/account/useAccountIds';
-import { hashQuorum } from 'lib';
+import { hashQuorum, isPresent } from 'lib';
+import { latest } from '~/gql/proposable';
 
 gql`
   ${API_WALLET_FIELDS}
 
   mutation UpsertWallet(
     $wallet: WalletId!
+    $txHash: Bytes32!
     $name: String
     $quorums: [QuorumScalar!]!
-    $txHash: Bytes32!
+    $spendingAllowlisted: Boolean
+    $limits: [Limit!]
   ) {
     upsertWallet(
       id: $wallet
+      proposalHash: $txHash
       name: $name
       quorums: $quorums
-      proposalHash: $txHash
+      spendingAllowlisted: $spendingAllowlisted
+      limits: $limits
     ) {
       ...WalletFields
     }
@@ -55,9 +60,9 @@ export const useApiUpsertWallet = () => {
           accountId: w.accountAddr,
           ref: w.ref,
         },
+        txHash,
         name: w.name,
         quorums: quorums.map((quorum) => quorum.approvers),
-        txHash,
       },
       optimisticResponse: {
         upsertWallet: {
@@ -84,6 +89,22 @@ export const useApiUpsertWallet = () => {
                 q.state.proposedModification?.hash ?? null,
             },
           })),
+          spendingAllowlisted: w.limits
+            ? !!latest(w.limits.allowlisted)
+            : false,
+          limits: Object.entries(w.limits?.tokens ?? {})
+            .map(([token, limit]): [string, TokenLimit] | undefined => {
+              const l = latest(limit);
+              if (!l) return undefined;
+              return [token, l];
+            })
+            .filter(isPresent)
+            .map(([token, limit]) => ({
+              __typename: 'TokenLimit',
+              token,
+              amount: limit.amount.toString(),
+              period: limit.period,
+            })),
         },
       },
       update: (cache, res) => {

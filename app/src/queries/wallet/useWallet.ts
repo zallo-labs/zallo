@@ -20,6 +20,24 @@ export const useWallet = (id?: WalletId) => {
         ...a.state,
         status: a.state.status === 'remove' ? a.state.status : s.state.status,
       },
+      // TODO: enable once spending limits module is implemented
+      // limits: {
+      //   allowlisted: mergeProposals(a.limits.allowlisted, s.limits.allowlisted),
+      //   tokens: Object.fromEntries(
+      //     new Set(
+      //       [
+      //         ...Object.keys(a.limits.tokens ?? {}),
+      //         ...Object.keys(s.limits.tokens ?? {}),
+      //       ].map((token): [Address, Proposable<TokenLimit>] => [
+      //         token as Address,
+      //         mergeProposals(
+      //           a.limits?.tokens?.[token as Address],
+      //           s.limits?.tokens?.[token as Address],
+      //         ),
+      //       ]),
+      //     ),
+      //   ),
+      // },
       quorums: combine(
         s.quorums,
         a.quorums,
