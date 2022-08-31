@@ -8,10 +8,10 @@
     "generate": "yarn generate:abi && graph codegen",
     "build": "graph build",
     "clean": "npx rimraf build data generated subgraph.yaml",
-    "deploy:hosted": "graph deploy --product hosted-service hbriese/metasafe2"
+    "deploy:hosted": "graph deploy --product hosted-service hbriese/allopay"
   },
   "dependencies": {
-    "@graphprotocol/graph-cli": "0.33.0",
+    "@graphprotocol/graph-cli": "0.33.1",
     "@graphprotocol/graph-ts": "0.27.0"
   },
   "devDependencies": {

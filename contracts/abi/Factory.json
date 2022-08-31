@@ -40,8 +40,13 @@
     "outputs": [
       {
         "internalType": "address",
-        "name": "",
+        "name": "newAddress",
         "type": "address"
+      },
+      {
+        "internalType": "bytes",
+        "name": "constructorRevertData",
+        "type": "bytes"
       }
     ],
     "stateMutability": "nonpayable",

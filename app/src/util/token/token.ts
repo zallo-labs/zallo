@@ -63,7 +63,7 @@ export const createToken = (def: TokenDef): Token => {
 export const ERC20_INTERFACE = Erc20__factory.createInterface();
 
 export const getTokenContract = (token: Token): Erc20 =>
-  Erc20__factory.connect(token.addr, PROVIDER);
+  Erc20__factory.connect(token.addr, PROVIDER as any);
 
 export const createTransferTx = (
   token: Token,

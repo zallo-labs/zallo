@@ -40,6 +40,5 @@ export const execute = async (
     tx,
     wallet,
     signers,
-    // { customData: { feeToken: USDC } }
   );
 };

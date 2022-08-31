@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 pragma solidity ^0.8.0;
 
-import '@matterlabs/zksync-contracts/l2/system-contracts/interfaces/IAccountAbstraction.sol';
+import { Transaction } from '@matterlabs/zksync-contracts/l2/system-contracts/interfaces/IAccount.sol';
 import '@openzeppelin/contracts/interfaces/IERC1271.sol';
 
 /*//////////////////////////////////////////////////////////////
@@ -18,7 +18,8 @@ bytes4 constant EIP1271_SUCCESS = bytes4(
 
 type Ref is bytes4;
 
-interface IAccount is IERC1271, IAccountAbstraction {
+// BaseIAccount is currently incorrect, as it doesn't mark
+interface IAccount is IERC1271 {
   /*//////////////////////////////////////////////////////////////
                                  EVENTS
   //////////////////////////////////////////////////////////////*/
@@ -56,8 +57,7 @@ interface IAccount is IERC1271, IAccountAbstraction {
   /// @param transaction Transaction to be validated
   function validateTransaction(Transaction calldata transaction)
     external
-    payable
-    override;
+    payable;
 
   /// @notice AA: execution of the transaction
   /// @dev Only callable by the bootloader
@@ -65,15 +65,13 @@ interface IAccount is IERC1271, IAccountAbstraction {
   /// @param transaction Transaction to be executed
   function executeTransaction(Transaction calldata transaction)
     external
-    payable
-    override;
+    payable;
 
   /// @notice AA: execution of a transaction from an address other than the bootloader
   /// @param transaction Transaction to be validated and executed
   function executeTransactionFromOutside(Transaction calldata transaction)
     external
-    payable
-    override;
+    payable;
 
   /// @notice Upsert (create or update) an wallet
   /// @dev Only callable by the account

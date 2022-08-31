@@ -27,7 +27,7 @@ const config: HardhatUserConfig = {
     version: '0.8.15',
   },
   zksolc: {
-    // version: '0.1.0',
+    version: 'latest',
     compilerSource: 'binary',
     settings: {
       compilerPath: join(__dirname, 'zksolc'), // only used when compilerSource=binary
@@ -66,7 +66,15 @@ const config: HardhatUserConfig = {
     runOnCompile: true,
     path: './abi',
     flat: true,
-    only: ['Account$', 'ERC1967Proxy$', 'Tester$', 'Multicall$', 'Factory$'],
+    clear: true,
+    only: [
+      ':Account$',
+      ':TestAccount$',
+      ':ERC1967Proxy$',
+      ':Tester$',
+      ':Multicall$',
+      ':Factory$',
+    ],
   },
 };
 

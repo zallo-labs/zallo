@@ -15,6 +15,7 @@ import {
   randomBytes,
 } from 'ethers/lib/utils';
 import * as zk from 'zksync-web3';
+import { Device } from './device';
 
 export type DeploySalt = string & { isDeploySalt: true };
 const DEPLOY_SALT_BYTES = 32;
@@ -30,8 +31,8 @@ export const randomDeploySalt = () =>
   hexlify(randomBytes(DEPLOY_SALT_BYTES)) as DeploySalt;
 
 const createConnect =
-  <T>(f: (addr: string, signer: Signer | ethers.providers.Provider) => T) =>
-  (addr: Addresslike, signer: Signer | ethers.providers.Provider): T =>
+  <T>(f: (addr: string, signer: Signer | ethers.providers.Provider | Device) => T) =>
+  (addr: Addresslike, signer: Signer | ethers.providers.Provider | Device): T =>
     f(address(addr), signer);
 
 export const connectFactory = createConnect(Factory__factory.connect);

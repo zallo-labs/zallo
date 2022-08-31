@@ -43,10 +43,13 @@ export const toTransactionStruct = (
     txType: r.type!,
     from: r.from!,
     to: r.to!,
-    feeToken: 0,
     ergsLimit: r.gasLimit!,
-    ergsPerPubdataByteLimit: 5,
-    ergsPrice: r.gasPrice!,
+    ergsPerPubdataByteLimit: r.gasPrice ?? 1,
+    maxFeePerErg: r.maxFeePerGas ?? 1,
+    maxPriorityFeePerErg: r.maxPriorityFeePerGas ?? 1,
+    paymaster: 0,
+    factoryDeps: [],
+    paymasterInput: '0x',
     reserved: [r.nonce!, r.value!, 0, 0, 0, 0],
     data: r.data!,
     signature: r.customData!.aaParams!.signature!,
@@ -74,7 +77,7 @@ export const toTransactionRequest = async (
     type: EIP712_TX_TYPE,
     nonce: await provider.getTransactionCount(account.address),
     chainId: (await provider.getNetwork()).chainId,
-    gasPrice: await provider.getGasPrice(opts.customData?.feeToken),
+    gasPrice: await provider.getGasPrice(),
     gasLimit: await estimateTxGas(basicReq, provider, signers.length),
     customData: {
       feeToken: zk.utils.ETH_ADDRESS,
@@ -88,12 +91,8 @@ export const toTransactionRequest = async (
 };
 
 export const executeTx = async (
-  ...args: Parameters<typeof toTransactionRequest>
+  ...[account, ...args]: Parameters<typeof toTransactionRequest>
 ) => {
-  const req = await toTransactionRequest(...args);
-
-  // TODO: re-enable AA executions once AA verification can call other contracts; required due to use of a proxy; https://v2-docs.zksync.io/dev/zksync-v2/aa.html#building-custom-accounts
-  // return provider.sendTransaction(zk.utils.serialize(req));
-
-  return args[0].executeTransactionFromOutside(toTransactionStruct(req));
+  const req = await toTransactionRequest(account, ...args);
+  return account.provider.sendTransaction(zk.utils.serialize(req));
 };

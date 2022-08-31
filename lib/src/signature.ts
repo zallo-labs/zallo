@@ -5,6 +5,7 @@ import { Address, compareAddresses } from './addr';
 import { getMultiProof } from './merkle';
 import { Quorum } from './quorum';
 import { TxReq, getDomain, TX_EIP712_TYPE } from './tx';
+import { Device } from './device';
 
 export type SignatureLike = Parameters<typeof ethers.utils.splitSignature>[0];
 
@@ -45,7 +46,7 @@ export const createTxSignature = (
 };
 
 export const signTx = async (
-  device: ethers.Wallet,
+  device: Device,
   account: Address,
   tx: TxReq,
 ) => {

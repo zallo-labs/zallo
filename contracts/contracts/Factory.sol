@@ -12,10 +12,10 @@ contract Factory {
 
   function deploy(bytes32 salt, bytes calldata constructorArgsData)
     external
-    returns (address)
+    returns (address newAddress, bytes memory constructorRevertData)
   {
     return
-      DEPLOYER_SYSTEM_CONTRACT.create2AA(
+      DEPLOYER_SYSTEM_CONTRACT.create2Account(
         salt,
         _BYTECODE_HASH,
         0,

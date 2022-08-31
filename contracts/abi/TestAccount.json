@@ -250,9 +250,9 @@
       {
         "components": [
           {
-            "internalType": "uint8",
+            "internalType": "uint256",
             "name": "txType",
-            "type": "uint8"
+            "type": "uint256"
           },
           {
             "internalType": "uint256",
@@ -262,11 +262,6 @@
           {
             "internalType": "uint256",
             "name": "to",
-            "type": "uint256"
-          },
-          {
-            "internalType": "uint256",
-            "name": "feeToken",
             "type": "uint256"
           },
           {
@@ -281,7 +276,17 @@
           },
           {
             "internalType": "uint256",
-            "name": "ergsPrice",
+            "name": "maxFeePerErg",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "maxPriorityFeePerErg",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "paymaster",
             "type": "uint256"
           },
           {
@@ -297,6 +302,16 @@
           {
             "internalType": "bytes",
             "name": "signature",
+            "type": "bytes"
+          },
+          {
+            "internalType": "bytes32[]",
+            "name": "factoryDeps",
+            "type": "bytes32[]"
+          },
+          {
+            "internalType": "bytes",
+            "name": "paymasterInput",
             "type": "bytes"
           },
           {
@@ -320,9 +335,9 @@
       {
         "components": [
           {
-            "internalType": "uint8",
+            "internalType": "uint256",
             "name": "txType",
-            "type": "uint8"
+            "type": "uint256"
           },
           {
             "internalType": "uint256",
@@ -332,11 +347,6 @@
           {
             "internalType": "uint256",
             "name": "to",
-            "type": "uint256"
-          },
-          {
-            "internalType": "uint256",
-            "name": "feeToken",
             "type": "uint256"
           },
           {
@@ -351,7 +361,17 @@
           },
           {
             "internalType": "uint256",
-            "name": "ergsPrice",
+            "name": "maxFeePerErg",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "maxPriorityFeePerErg",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "paymaster",
             "type": "uint256"
           },
           {
@@ -367,6 +387,16 @@
           {
             "internalType": "bytes",
             "name": "signature",
+            "type": "bytes"
+          },
+          {
+            "internalType": "bytes32[]",
+            "name": "factoryDeps",
+            "type": "bytes32[]"
+          },
+          {
+            "internalType": "bytes",
+            "name": "paymasterInput",
             "type": "bytes"
           },
           {
@@ -428,9 +458,9 @@
       {
         "components": [
           {
-            "internalType": "uint8",
+            "internalType": "uint256",
             "name": "txType",
-            "type": "uint8"
+            "type": "uint256"
           },
           {
             "internalType": "uint256",
@@ -440,11 +470,6 @@
           {
             "internalType": "uint256",
             "name": "to",
-            "type": "uint256"
-          },
-          {
-            "internalType": "uint256",
-            "name": "feeToken",
             "type": "uint256"
           },
           {
@@ -459,7 +484,17 @@
           },
           {
             "internalType": "uint256",
-            "name": "ergsPrice",
+            "name": "maxFeePerErg",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "maxPriorityFeePerErg",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "paymaster",
             "type": "uint256"
           },
           {
@@ -475,6 +510,16 @@
           {
             "internalType": "bytes",
             "name": "signature",
+            "type": "bytes"
+          },
+          {
+            "internalType": "bytes32[]",
+            "name": "factoryDeps",
+            "type": "bytes32[]"
+          },
+          {
+            "internalType": "bytes",
+            "name": "paymasterInput",
             "type": "bytes"
           },
           {
@@ -625,9 +670,9 @@
       {
         "components": [
           {
-            "internalType": "uint8",
+            "internalType": "uint256",
             "name": "txType",
-            "type": "uint8"
+            "type": "uint256"
           },
           {
             "internalType": "uint256",
@@ -637,11 +682,6 @@
           {
             "internalType": "uint256",
             "name": "to",
-            "type": "uint256"
-          },
-          {
-            "internalType": "uint256",
-            "name": "feeToken",
             "type": "uint256"
           },
           {
@@ -656,7 +696,17 @@
           },
           {
             "internalType": "uint256",
-            "name": "ergsPrice",
+            "name": "maxFeePerErg",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "maxPriorityFeePerErg",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "paymaster",
             "type": "uint256"
           },
           {
@@ -672,6 +722,16 @@
           {
             "internalType": "bytes",
             "name": "signature",
+            "type": "bytes"
+          },
+          {
+            "internalType": "bytes32[]",
+            "name": "factoryDeps",
+            "type": "bytes32[]"
+          },
+          {
+            "internalType": "bytes",
+            "name": "paymasterInput",
             "type": "bytes"
           },
           {
@@ -744,9 +804,9 @@
       {
         "components": [
           {
-            "internalType": "uint8",
+            "internalType": "uint256",
             "name": "txType",
-            "type": "uint8"
+            "type": "uint256"
           },
           {
             "internalType": "uint256",
@@ -756,11 +816,6 @@
           {
             "internalType": "uint256",
             "name": "to",
-            "type": "uint256"
-          },
-          {
-            "internalType": "uint256",
-            "name": "feeToken",
             "type": "uint256"
           },
           {
@@ -775,7 +830,17 @@
           },
           {
             "internalType": "uint256",
-            "name": "ergsPrice",
+            "name": "maxFeePerErg",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "maxPriorityFeePerErg",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "paymaster",
             "type": "uint256"
           },
           {
@@ -791,6 +856,16 @@
           {
             "internalType": "bytes",
             "name": "signature",
+            "type": "bytes"
+          },
+          {
+            "internalType": "bytes32[]",
+            "name": "factoryDeps",
+            "type": "bytes32[]"
+          },
+          {
+            "internalType": "bytes",
+            "name": "paymasterInput",
             "type": "bytes"
           },
           {

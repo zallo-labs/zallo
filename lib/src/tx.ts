@@ -39,7 +39,7 @@ export const TX_EIP712_TYPE: Record<string, TypedDataField[]> = {
 };
 
 export const getDomain = async (
-  verifyingContract: Address | Contract,
+  verifyingContract: Address | { address: string },
 ): Promise<TypedDataDomain> => ({
   // chainId: (await contract.provider.getNetwork()).chainId,
   chainId: 0, // ZKSYNC: block.chainid always returns 0 - https://v2-docs.zksync.io/dev/zksync-v2/temp-limits.html#unsupported-opcodes

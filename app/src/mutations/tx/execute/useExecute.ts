@@ -6,8 +6,6 @@ import { ProposedTx } from '~/queries/tx';
 import { useApiSubmitExecution } from './useSubmitExecution.api';
 import { CombinedAccount } from '~/queries/account';
 import { useFaucet } from '~/mutations/useFacuet.api';
-import { useDevice } from '~/util/network/useDevice';
-import { useFeeToken } from '~/components/token/useFeeToken';
 
 export const useExecute = (
   account: CombinedAccount,
@@ -16,9 +14,7 @@ export const useExecute = (
 ) => {
   const submitExecution = useApiSubmitExecution();
   const [deploy] = useDeployAccount(account);
-  const feeToken = useFeeToken();
-  const device = useDevice();
-  const faucet = useFaucet(device.address);
+  const faucet = useFaucet(account.addr);
 
   const execute = useCallback(async () => {
     // The device currently needs funds as the tx is executes the transaction
@@ -38,23 +34,10 @@ export const useExecute = (
       tx,
       toActiveWallet(wallet),
       signers,
-      {
-        customData: {
-          feeToken: feeToken.addr,
-        },
-      },
     );
 
     await submitExecution(tx, resp);
-  }, [
-    faucet,
-    deploy,
-    wallet,
-    tx,
-    account.contract,
-    feeToken.addr,
-    submitExecution,
-  ]);
+  }, [faucet, deploy, wallet, tx, account.contract, submitExecution]);
 
   return execute;
 };
