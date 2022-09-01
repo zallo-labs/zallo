@@ -8,7 +8,9 @@
     "generate": "yarn generate:abi && graph codegen",
     "build": "graph build",
     "clean": "npx rimraf build data generated subgraph.yaml",
-    "deploy:hosted": "graph deploy --product hosted-service hbriese/allopay"
+    "deploy:hosted": "graph deploy --product hosted-service hbriese/allopay",
+    "create:allo": "graph create --node http://graph.allopay.io:8020 allopay",
+    "deploy:allo": "graph deploy --node http://graph.allopay.io:8020 --ipfs http://graph.allopay.io:5001 -l 0.1 allopay"
   },
   "dependencies": {
     "@graphprotocol/graph-cli": "0.33.1",

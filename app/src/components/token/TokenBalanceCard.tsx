@@ -1,26 +1,42 @@
-import { ZERO } from 'lib';
+import { Address } from 'lib';
 import { Token } from '@token/token';
-import { ETH } from '@token/tokens';
-import { CardItemProps } from '../card/CardItem';
+import { CardItem, CardItemProps } from '../card/CardItem';
 import { CardItemSkeleton } from '../card/CardItemSkeleton';
-import { TokenAmountCard } from './TokenAmountCard';
 import { withSkeleton } from '../skeleton/withSkeleton';
 import { useTokenBalance } from '@token/useTokenBalance';
-import { WalletId } from '~/queries/wallets';
+import { useTokenFiatValue } from '@token/useTokenValue';
+import { TokenIcon } from './TokenIcon/TokenIcon';
+import { Text } from 'react-native-paper';
+import { TokenAmount } from './TokenAmount';
+import { FiatValue } from '../fiat/FiatValue';
 
 export interface TokenBalanceCardProps extends CardItemProps {
   token: Token;
-  wallet: WalletId;
-  showZero?: boolean;
+  account: Address;
 }
 
 export const TokenBalanceCard = withSkeleton(
-  ({ token, wallet, showZero = true, ...itemProps }: TokenBalanceCardProps) => {
-    const balance = useTokenBalance(token, wallet);
+  ({ token, account, ...itemProps }: TokenBalanceCardProps) => {
+    const balance = useTokenBalance(token, account);
 
-    if (!showZero && balance.eq(ZERO) && token !== ETH) return null;
-
-    return <TokenAmountCard token={token} amount={balance} {...itemProps} />;
+    return (
+      <CardItem
+        Left={<TokenIcon token={token} />}
+        Main={[
+          <Text variant="titleMedium">{token.name}</Text>,
+          <Text variant="bodyMedium">Balance</Text>,
+        ]}
+        Right={[
+          <Text variant="titleSmall">
+            <FiatValue value={useTokenFiatValue(token, balance)} />
+          </Text>,
+          <Text variant="bodyMedium">
+            <TokenAmount token={token} amount={balance} />
+          </Text>,
+        ]}
+        {...itemProps}
+      />
+    );
   },
   CardItemSkeleton,
 );

@@ -6,14 +6,7 @@ import {
   toQuorum,
   sortQuorums,
 } from 'lib';
-import {
-  deploy,
-  expect,
-  execute,
-  deployTestAccount,
-  allSigners,
-  device,
-} from './util';
+import { deploy, expect, execute, deployTestAccount, allSigners } from './util';
 
 const newWallet = (wallet: Wallet): Wallet => ({
   ...wallet,
@@ -58,11 +51,13 @@ describe('UpsertWallet', () => {
   it('should revert if called from an address other than the account', async () => {
     const { account, wallet } = await deploy();
 
-    const tx = await account
-      .connect(device)
-      .upsertWallet(wallet.ref, newWallet(wallet).quorums, {
+    const tx = await account.upsertWallet(
+      wallet.ref,
+      newWallet(wallet).quorums,
+      {
         gasLimit: 100_000,
-      });
+      },
+    );
 
     await expect(tx.wait()).to.be.reverted; // AccountError.OnlyCallableByAccount
   });

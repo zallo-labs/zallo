@@ -14,48 +14,58 @@ import { memo } from 'react';
 import { UpsertWalletMethod } from './wallet/UpsertWalletMethod';
 import { useCallName } from '~/components/call/useCallName';
 import { RemoveWalletMethod } from './wallet/RemoveWalletMethod';
+import { StyleProp, ViewStyle } from 'react-native';
 
 export interface DetailedCallMethodProps {
   call: Call;
+  style?: StyleProp<ViewStyle>;
 }
 
-export const DetailedCallMethod = memo(({ call }: DetailedCallMethodProps) => {
-  const method = useContractMethod(call);
-  const name = useCallName(call);
+export const DetailedCallMethod = memo(
+  ({ call, style }: DetailedCallMethodProps) => {
+    const method = useContractMethod(call);
+    const name = useCallName(call);
 
-  if (hexDataLength(call.data) === 0) return null;
+    if (hexDataLength(call.data) === 0) return null;
 
-  if (!method)
-    return (
-      <Box>
-        <Box horizontal justifyContent="space-between" alignItems="baseline">
-          <Text variant="titleMedium">Data</Text>
-          <Box ml={2}>
-            <Text variant="bodyMedium">Failed to decode</Text>
+    if (!method)
+      return (
+        <Box style={style}>
+          <Box horizontal justifyContent="space-between" alignItems="baseline">
+            <Text variant="titleMedium">Data</Text>
+            <Box ml={2}>
+              <Text variant="bodyMedium">Failed to decode</Text>
+            </Box>
           </Box>
+
+          <ExpandableText value={hexlify(call.data)} beginLen={18}>
+            {({ value }) => <Text variant="bodySmall">{value}</Text>}
+          </ExpandableText>
         </Box>
+      );
 
-        <ExpandableText value={hexlify(call.data)} beginLen={18}>
-          {({ value }) => <Text variant="bodySmall">{value}</Text>}
-        </ExpandableText>
-      </Box>
+    if (method.sighash === UPSERT_WALLET_SIGHSAH)
+      return <UpsertWalletMethod call={call} style={style} />;
+
+    if (method.sighash === REMOVE_WALLET_SIGHASH)
+      return <RemoveWalletMethod call={call} style={style} />;
+
+    return (
+      <Accordion
+        title={
+          <Text variant="titleMedium" style={style}>
+            {name}
+          </Text>
+        }
+      >
+        <Box mt={1}>
+          {getMethodInputs(method, call.data).map((input) => (
+            <Box key={input.param.format()} ml={2} mb={1}>
+              <MethodInputRow key={input.param.format()} {...input} />
+            </Box>
+          ))}
+        </Box>
+      </Accordion>
     );
-
-  if (method.sighash === UPSERT_WALLET_SIGHSAH)
-    return <UpsertWalletMethod call={call} />;
-
-  if (method.sighash === REMOVE_WALLET_SIGHASH)
-    return <RemoveWalletMethod call={call} />;
-
-  return (
-    <Accordion title={<Text variant="titleMedium">{name}</Text>}>
-      <Box mt={1}>
-        {getMethodInputs(method, call.data).map((input) => (
-          <Box key={input.param.format()} ml={2} mb={1}>
-            <MethodInputRow key={input.param.format()} {...input} />
-          </Box>
-        ))}
-      </Box>
-    </Accordion>
-  );
-});
+  },
+);

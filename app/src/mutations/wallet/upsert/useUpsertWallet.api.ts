@@ -85,7 +85,7 @@ export const useApiUpsertWallet = () => {
             })),
             state: {
               status: q.state.status as ProposableStatus,
-              modificationProposalHash:
+              proposedModificationHash:
                 q.state.proposedModification?.hash ?? null,
             },
           })),

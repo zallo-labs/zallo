@@ -1,4 +1,4 @@
-import { useDeployAccount } from '~/mutations/account/useDeployAccount';
+import { useActivateAccount } from '~/mutations/account/useActivateAccount';
 import { executeTx, Signerish } from 'lib';
 import { useCallback } from 'react';
 import { CombinedWallet, toActiveWallet } from '~/queries/wallets';
@@ -13,7 +13,7 @@ export const useExecute = (
   tx: ProposedTx,
 ) => {
   const submitExecution = useApiSubmitExecution();
-  const [deploy] = useDeployAccount(account);
+  const [deploy] = useActivateAccount(account);
   const faucet = useFaucet(account.addr);
 
   const execute = useCallback(async () => {
@@ -22,7 +22,7 @@ export const useExecute = (
     await faucet?.();
 
     // Deploy if not already deployed
-    await deploy?.(wallet);
+    await deploy?.();
 
     const signers: Signerish[] = tx.approvals.map((approval) => ({
       approver: approval.addr,

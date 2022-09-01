@@ -1,7 +1,7 @@
 version: '3'
 services:
   graph-node:
-    image: graphprotocol/graph-node:e64083a
+    image: graphprotocol/graph-node:v0.27.0
     ports:
       - '80:8000'
       - '8001:8001'
@@ -23,7 +23,7 @@ services:
       GRAPH_LOG: info
       GRAPH_ETHEREUM_MAX_BLOCK_RANGE_SIZE: 100
   ipfs:
-    image: ipfs/go-ipfs:v0.12.2
+    image: ipfs/kubo:v0.15.0
     ports:
       - '5001:5001'
     volumes:

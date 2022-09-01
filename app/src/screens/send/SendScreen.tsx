@@ -11,7 +11,7 @@ import { AppbarBack } from '~/components/Appbar/AppbarBack';
 import { FAB } from '~/components/FAB';
 import { Box } from '~/components/layout/Box';
 import { Container } from '~/components/layout/Container';
-import { TokenBalanceCard } from '~/components/token/TokenBalanceCard';
+import { TokenAvailableCard } from '~/components/token/TokenAvailableCard';
 import {
   useSelectedToken,
   useSelectToken,
@@ -31,7 +31,7 @@ export type SendScreenProps = RootNavigatorScreenProps<'Send'>;
 export const SendScreen = ({ route, navigation }: SendScreenProps) => {
   const { wallet, to } = route.params;
   const styles = useStyles();
-  const [propose, proposing] = useProposeTx(wallet);
+  const [propose, proposing] = useProposeTx();
   const token = useSelectedToken();
   const selectToken = useSelectToken();
   const balance = useTokenBalance(token, wallet);
@@ -48,11 +48,17 @@ export const SendScreen = ({ route, navigation }: SendScreenProps) => {
       <Container mx={3} separator={<Box my={2} />}>
         <AddrCard addr={to} />
 
-        <TokenBalanceCard
+        <TokenAvailableCard
           token={token}
           wallet={wallet}
           onPress={() =>
-            navigation.navigate('Tokens', { onSelect: selectToken, wallet })
+            navigation.navigate('Tokens', {
+              onSelect: (token) => {
+                selectToken(token);
+                navigation.goBack();
+              },
+              wallet,
+            })
           }
         />
 
@@ -70,7 +76,7 @@ export const SendScreen = ({ route, navigation }: SendScreenProps) => {
         disabled={!amount || amount.eq(ZERO)}
         {...(amount && {
           onPress: () => {
-            propose(createTransferTx(token, to, amount));
+            propose(wallet, createTransferTx(token, to, amount));
           },
         })}
       />

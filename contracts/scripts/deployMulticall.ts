@@ -1,9 +1,8 @@
-import { USDC } from '../test/util/wallet';
 import { deployMulticall } from '../test/util/deploy';
 import { displayTx } from './display';
 
 const main = async () => {
-  const { multicall, deployTx } = await deployMulticall(USDC);
+  const { multicall, deployTx } = await deployMulticall();
 
   await displayTx(multicall.address, deployTx);
 };

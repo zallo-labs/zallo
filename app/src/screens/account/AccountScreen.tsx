@@ -15,14 +15,14 @@ import { RootNavigatorScreenProps } from '~/navigation/RootNavigator';
 import { useAccount } from '~/queries/account/useAccount';
 import { WalletId } from '~/queries/wallets';
 import { AccountAppbar } from './AccountAppbar';
-import { DeployAccountFAB } from './DeployAccountFAB';
-import { NativeSyntheticEvent, TextInputFocusEventData } from 'react-native';
 import { useState } from 'react';
+import { ActivateAccountButton } from '~/components/account/ActivateAccountButton';
+import { FAB } from '~/components/FAB';
 
 export interface AccountScreenParams {
   id: Address;
   onSelectWallet?: (wallet: WalletId) => void;
-  showInactiveWallets?: boolean;
+  inactiveOpacity?: boolean;
   title?: string;
 }
 
@@ -32,13 +32,13 @@ export const AccountScreen = withSkeleton(
   ({
     navigation: { navigate },
     route: {
-      params: { id, onSelectWallet, showInactiveWallets = true, title },
+      params: { id, onSelectWallet, inactiveOpacity, title },
     },
   }: AccountScreenProps) => {
     const { account } = useAccount(id);
     const styles = useStyles();
     const { AppbarHeader, handleScroll } = useAppbarHeader();
-    const setAccountName = useSetAccountName();
+    const setAccountName = useSetAccountName(account);
 
     const [nameInput, setNameInput] = useState(account?.name ?? '');
 
@@ -59,18 +59,8 @@ export const AccountScreen = withSkeleton(
                 label="Name"
                 value={nameInput}
                 onChangeText={setNameInput}
-                onSubmitEditing={() =>
-                  setAccountName({
-                    ...account,
-                    name: nameInput,
-                  })
-                }
-                onBlur={() =>
-                  setAccountName({
-                    ...account,
-                    name: nameInput,
-                  })
-                }
+                onSubmitEditing={() => setAccountName(nameInput)}
+                onBlur={() => setAccountName(nameInput)}
               />
 
               <Box my={3}>
@@ -82,7 +72,7 @@ export const AccountScreen = withSkeleton(
             <WalletCard
               id={item}
               showAccount={false}
-              showInactive={showInactiveWallets}
+              inactiveOpacity={inactiveOpacity}
               onPress={() => {
                 if (onSelectWallet) {
                   onSelectWallet(item);
@@ -107,12 +97,12 @@ export const AccountScreen = withSkeleton(
           }
           style={styles.list}
           data={account.walletIds}
-          extraData={[showInactiveWallets, onSelectWallet, navigate]}
+          extraData={[inactiveOpacity, onSelectWallet, navigate]}
           onScroll={handleScroll}
           showsVerticalScrollIndicator={false}
         />
 
-        <DeployAccountFAB account={account} />
+        <ActivateAccountButton account={account}>{FAB}</ActivateAccountButton>
       </Box>
     );
   },

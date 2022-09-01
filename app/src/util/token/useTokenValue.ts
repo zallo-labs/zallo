@@ -40,3 +40,6 @@ export const useTokenValue = (token: Token, amount: BigNumberish) => {
     [token, amount, price],
   );
 };
+
+export const useTokenFiatValue = (token: Token, amount: BigNumberish) =>
+  useTokenValue(token, amount).fiatValue;

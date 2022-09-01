@@ -1,4 +1,4 @@
-import { createUpsertWalletTx } from 'lib';
+import { Address, createUpsertWalletTx } from 'lib';
 import { useMemo, useState } from 'react';
 import { useProposeTx } from '~/mutations/tx/propose/useProposeTx';
 import { useAccount } from '~/queries/account/useAccount';
@@ -7,9 +7,9 @@ import { useApiUpsertWallet } from './useUpsertWallet.api';
 
 type Upsert = ((cur: CombinedWallet) => Promise<void>) | undefined;
 
-export const useUpsertWallet = (wallet: CombinedWallet): [Upsert, boolean] => {
-  const account = useAccount(wallet.accountAddr)?.account;
-  const [propose] = useProposeTx(wallet);
+export const useUpsertWallet = (accountAddr: Address): [Upsert, boolean] => {
+  const account = useAccount(accountAddr)?.account;
+  const [propose] = useProposeTx();
   const apiUpsert = useApiUpsertWallet();
 
   const [upserting, setUpserting] = useState(false);
@@ -17,13 +17,14 @@ export const useUpsertWallet = (wallet: CombinedWallet): [Upsert, boolean] => {
   const upsert = useMemo(
     () =>
       account?.contract &&
-      (async (cur: CombinedWallet) => {
+      (async (wallet: CombinedWallet) => {
         setUpserting(true);
 
         await propose(
-          createUpsertWalletTx(account.contract, toSafeWallet(cur)),
+          wallet,
+          createUpsertWalletTx(account.contract, toSafeWallet(wallet)),
           (tx) => {
-            apiUpsert(cur, tx.hash);
+            apiUpsert(wallet, tx.hash);
           },
         );
 

@@ -1,6 +1,10 @@
 import { gql, useQuery } from '@apollo/client';
 import { BigNumber, ethers } from 'ethers';
-import { TokenPriceQuery, TokenPriceQueryVariables } from '~/gql/generated.uni';
+import {
+  TokenPriceQuery,
+  TokenPriceQueryVariables,
+  useTokenPriceQuery,
+} from '~/gql/generated.uni';
 import { useUniswapClient } from '~/gql/GqlProvider';
 import { Token } from '@token/token';
 import { bigNumberToFiat, fiatToBigNumber } from '~/util/token/fiat';
@@ -43,17 +47,15 @@ export interface TokenPrice {
 }
 
 export const useTokenPrice = (token: Token) => {
-  const tokenAddr = token.addresses.mainnet?.toLowerCase() ?? '';
-  const { data, ...rest } = useQuery<TokenPriceQuery, TokenPriceQueryVariables>(
-    QUERY,
-    {
-      client: useUniswapClient(),
-      variables: {
-        token: tokenAddr,
-        token2: tokenAddr,
-      },
+  const tokenAddr = token.addresses.mainnet?.toLowerCase();
+  const { data, ...rest } = useTokenPriceQuery({
+    client: useUniswapClient(),
+    variables: {
+      token: tokenAddr!,
+      token2: tokenAddr!,
     },
-  );
+    skip: !tokenAddr,
+  });
   usePollWhenFocussed(rest, 15 * 1000);
 
   const hourly = (data?.tokenHourDatas ?? []).map(

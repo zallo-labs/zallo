@@ -13,22 +13,15 @@ import { ProposableStatusIcon } from '../ProposableStatus/ProposableStatusIcon';
 export interface WalletCardProps extends CardItemProps {
   id: WalletId;
   showAccount?: boolean;
-  showInactive?: boolean;
+  inactiveOpacity?: boolean;
 }
 
 export const WalletCard = withSkeleton(
-  ({
-    id,
-    showAccount = true,
-    showInactive = true,
-    ...props
-  }: WalletCardProps) => {
+  ({ id, showAccount = true, inactiveOpacity, ...props }: WalletCardProps) => {
     const wallet = useWallet(id);
     const { totalFiatValue } = useTokenValues(wallet?.accountAddr);
 
     if (!wallet) return <Suspend />;
-
-    if (!showInactive && wallet.state.status === 'add') return null;
 
     return (
       <CardItem
@@ -48,6 +41,7 @@ export const WalletCard = withSkeleton(
             </Text>
           ),
         ]}
+        opaque={inactiveOpacity && wallet.state.status === 'add'}
         {...props}
       />
     );

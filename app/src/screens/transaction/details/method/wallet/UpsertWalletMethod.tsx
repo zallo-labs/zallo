@@ -1,7 +1,7 @@
 import { Call, getWalletId, hashQuorum, tryDecodeUpsertWalletData } from 'lib';
 import { memo, useMemo } from 'react';
 import { Text } from 'react-native-paper';
-import { Accordion } from '~/components/Accordion';
+import { Accordion, AccordionProps } from '~/components/Accordion';
 import { Box } from '~/components/layout/Box';
 import { Container } from '~/components/layout/Container';
 import { Suspend } from '~/components/Suspender';
@@ -29,32 +29,35 @@ export const getUpsertWalletMethodName = (wallet: CombinedWallet) => {
   return `${prefix} wallet: ${wallet.name}`;
 };
 
-export interface UpsertWalletMethodProps {
+export interface UpsertWalletMethodProps extends Partial<AccordionProps> {
   call: Call;
 }
 
-export const UpsertWalletMethod = memo(({ call }: UpsertWalletMethodProps) => {
-  const wallet = useDecodedUpsertWallet(call);
+export const UpsertWalletMethod = memo(
+  ({ call, ...accordionProps }: UpsertWalletMethodProps) => {
+    const wallet = useDecodedUpsertWallet(call);
 
-  if (!wallet) return <Suspend />;
+    if (!wallet) return <Suspend />;
 
-  const modifiedQuorums = wallet.quorums.filter(
-    (q) => q.state.status !== 'active',
-  );
+    const modifiedQuorums = wallet.quorums.filter(
+      (q) => q.state.status !== 'active',
+    );
 
-  return (
-    <Accordion
-      title={
-        <Text variant="titleMedium">{getUpsertWalletMethodName(wallet)}</Text>
-      }
-    >
-      <Container mx={3} separator={<Box mb={1} />}>
-        <Text variant="titleSmall">Quorums</Text>
+    return (
+      <Accordion
+        title={
+          <Text variant="titleMedium">{getUpsertWalletMethodName(wallet)}</Text>
+        }
+        {...accordionProps}
+      >
+        <Container mx={3} separator={<Box mb={1} />}>
+          <Text variant="titleSmall">Quorums</Text>
 
-        {modifiedQuorums.map((q) => (
-          <AddedOrRemovedQuorumRow key={hashQuorum(q.approvers)} quorum={q} />
-        ))}
-      </Container>
-    </Accordion>
-  );
-});
+          {modifiedQuorums.map((q) => (
+            <AddedOrRemovedQuorumRow key={hashQuorum(q.approvers)} quorum={q} />
+          ))}
+        </Container>
+      </Accordion>
+    );
+  },
+);

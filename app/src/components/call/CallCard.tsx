@@ -7,7 +7,7 @@ import { ETH } from '@token/tokens';
 import { useMaybeToken } from '@token/useToken';
 import { Card, CardProps } from '../card/Card';
 import { CardItemSkeleton } from '../card/CardItemSkeleton';
-import { CallValues } from './CallValues';
+import { CallTokens } from './CallTokens';
 import { Box } from '~/components/layout/Box';
 import { TokenIcon } from '~/components/token/TokenIcon/TokenIcon';
 import { Addr } from '../addr/Addr';
@@ -45,7 +45,7 @@ export const CallCard = withSkeleton(({ id, ...cardProps }: CallCardProps) => {
           </Box>
         </Box>
 
-        <CallValues call={tx} token={token} textStyle={styles.text} />
+        <CallTokens call={tx} textStyle={styles.text} />
       </Box>
     </Card>
   );

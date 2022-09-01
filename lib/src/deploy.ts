@@ -6,6 +6,8 @@ import {
   Factory__factory,
   Account__factory,
   ERC1967Proxy__factory,
+  TestAccount__factory,
+  Multicall__factory,
 } from './contracts';
 import { Wallet } from './wallet';
 import {
@@ -37,7 +39,9 @@ const createConnect =
 
 export const connectFactory = createConnect(Factory__factory.connect);
 export const connectAccount = createConnect(Account__factory.connect);
+export const connectTestAccount = createConnect(TestAccount__factory.connect);
 export const connectProxy = createConnect(ERC1967Proxy__factory.connect);
+export const connectMulticall = createConnect(Multicall__factory.connect);
 
 export interface AccountConstructorArgs {
   wallet: Wallet;

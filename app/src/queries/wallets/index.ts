@@ -9,11 +9,9 @@ import {
   Wallet,
   sortQuorums,
   quorumToLeaf,
-  address,
 } from 'lib';
 import { LimitPeriod } from '~/gql/generated.api';
 import { Proposable } from '~/gql/proposable';
-import { RequireAtLeastOne } from '~/util/typing';
 import { TxId } from '../tx';
 
 export const QUERY_WALLETS_POLL_INTERVAL = 30 * 1000;

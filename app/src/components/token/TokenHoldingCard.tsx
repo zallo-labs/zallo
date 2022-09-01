@@ -4,7 +4,7 @@ import { Token } from '@token/token';
 import { CardItem, CardItemProps } from '../card/CardItem';
 import { WalletId } from '~/queries/wallets';
 import { makeStyles } from '@theme/makeStyles';
-import { useTokenAvailable } from '@token/useTokenBalance';
+import { useTokenAvailable } from '@token/useTokenAvailable';
 import { useTokenValue } from '@token/useTokenValue';
 import { FiatValue } from '../fiat/FiatValue';
 import { PriceChange } from '../format/PriceDelta';

@@ -24,6 +24,7 @@ import {
   toQuorum,
   getWalletId,
   hashQuorum,
+  address,
 } from 'lib';
 import { API_ACCOUNT_QUERY } from '~/queries/account/useAccount.api';
 import produce from 'immer';
@@ -79,14 +80,16 @@ export const useCreateApiAccount = () => {
 
     const deploySalt = randomDeploySalt();
 
-    const accountAddr = await calculateProxyAddress(
-      {
-        impl,
-        wallet: toSafeWallet(wallet),
-      },
-      factory,
-      deploySalt,
-    );
+    // TODO: uncomment once new contract is deployed
+    // const accountAddr = await calculateProxyAddress(
+    //   {
+    //     impl,
+    //     wallet: toSafeWallet(wallet),
+    //   },
+    //   factory,
+    //   deploySalt,
+    // );
+    const accountAddr = address("0xDdf71B8145DC7dD939578f5A0EE7C265722e78FD");
 
     return await mutation({
       variables: {
@@ -174,7 +177,6 @@ export const useCreateApiAccount = () => {
                 id: getWalletId(accountAddr, w.ref),
                 name: w.name,
                 state: {
-                  __typename: 'ProposableState',
                   status: ProposableStatus.Add,
                   proposedModificationHash: null,
                 },
@@ -188,7 +190,6 @@ export const useCreateApiAccount = () => {
                     userId: approver,
                   })),
                   state: {
-                    __typename: 'ProposableState',
                     status: ProposableStatus.Add,
                     proposedModificationHash: null,
                   },

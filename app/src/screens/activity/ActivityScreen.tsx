@@ -51,7 +51,7 @@ export const ActivityScreen = withSkeleton(() => {
   if (txs.length === 0 && loading) return <Suspend />;
 
   return (
-    <Box>
+    <Box flex={1}>
       <AppbarHeader mode="center-aligned">
         <AppbarMenu />
         <Appbar.Content title="Activity" />

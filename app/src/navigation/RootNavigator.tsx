@@ -55,6 +55,10 @@ import {
   WalletScreenParams,
 } from '~/screens/wallet/WalletScreen';
 import { SendScreen, SendScreenParams } from '~/screens/send/SendScreen';
+import {
+  LimitScreen,
+  LimitScreenParams,
+} from '~/screens/limit/LimitScreen';
 
 export type RootNavigatorParamList = {
   DrawerNavigator: undefined;
@@ -64,6 +68,7 @@ export type RootNavigatorParamList = {
   Wallets: undefined;
   Wallet: WalletScreenParams;
   Quorum: QuorumScreenParams;
+  Limit: LimitScreenParams;
   Contacts: ContactsScreenParams;
   Contact: ContactScreenParams;
   Scan: ScanScreenParams;
@@ -111,6 +116,7 @@ export const RootNavigator = () => {
       <Navigation.Screen name="Wallets" component={WalletsScreen} />
       <Navigation.Screen name="Wallet" component={WalletScreen} />
       <Navigation.Screen name="Quorum" component={QuorumScreen} />
+      <Navigation.Screen name="Limit" component={LimitScreen} />
       <Navigation.Screen name="Contacts" component={ContactsScreen} />
       <Navigation.Screen name="Contact" component={ContactScreen} />
       <Navigation.Screen name="Scan" component={ScanScreen} />

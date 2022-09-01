@@ -46,7 +46,12 @@ export const AmountScreen = ({ navigation, route }: AmountScreenProps) => {
           <TokenCard
             token={token}
             onPress={() => {
-              navigation.navigate('Tokens', { onSelect: selectToken });
+              navigation.navigate('Tokens', {
+                onSelect: (token) => {
+                  selectToken(token);
+                  navigation.goBack();
+                },
+              });
             }}
           />
         </Box>

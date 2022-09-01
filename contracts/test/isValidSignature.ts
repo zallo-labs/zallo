@@ -12,9 +12,7 @@ describe('isValidSignature', () => {
     const signers = await getSigners(account, quorum, tx);
     const txSignature = createTxSignature(wallet, signers);
 
-    const isValid = await account
-      .connect(device)
-      .isValidSignature(txHash, txSignature);
+    const isValid = await account.isValidSignature(txHash, txSignature);
 
     expect(isValid).to.eq('0x1626ba7e');
   });
@@ -29,9 +27,7 @@ describe('isValidSignature', () => {
     const otherTx = createTx({ value: BigNumber.from(1) });
     const otherTxHash = await hashTx(account.address, otherTx);
 
-    const validTxCheck = account
-      .connect(device)
-      .isValidSignature(otherTxHash, txSignature);
+    const validTxCheck = account.isValidSignature(otherTxHash, txSignature);
 
     await expect(validTxCheck).to.be.reverted;
   });

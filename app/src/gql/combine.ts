@@ -58,16 +58,10 @@ export const combine = <Sub, Api, K, C>(
     .filter(isPresent);
 };
 
-type QueryRest<Data = any, Vars = any> = Omit<
-  QueryResult<Data, Vars>,
-  'data'
->;
+type QueryRest<Data = any, Vars = any> = Omit<QueryResult<Data, Vars>, 'data'>;
 
 export const combineRest = (sub: QueryRest, api: QueryRest) => ({
   loading: sub.loading || api.loading,
   error: sub.error ?? api.error,
-  refetch: () => {
-    sub.refetch();
-    api.refetch();
-  },
+  refetch: () => Promise.all([sub.refetch(), api.refetch()]),
 });

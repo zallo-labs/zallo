@@ -10,23 +10,26 @@ import { IconButton, Text } from 'react-native-paper';
 import { useApiSetTxWallet } from '~/mutations/tx/useSetTxWallet.api';
 import { useRootNavigation } from '~/navigation/useRootNavigation';
 import { Tx } from '~/queries/tx';
-import { useWallet } from '~/queries/wallet/useWallet';
 import { assert } from 'console';
+import { useIsDeployed } from '@network/useIsDeployed';
+import { CombinedWallet } from '~/queries/wallets';
 
 export interface TransactionWalletSelectorProps {
   tx: Tx;
+  executingWallet: CombinedWallet;
   textStyle?: StyleProp<TextStyle>;
   iconColor?: string;
 }
 
 export const TransactionWalletSelector = ({
   tx,
+  executingWallet,
   textStyle,
   iconColor,
 }: TransactionWalletSelectorProps) => {
   const navigation = useRootNavigation();
-  const wallet = useWallet(tx.wallet);
   const setWallet = useApiSetTxWallet(tx);
+  const accountIsDeployed = useIsDeployed(tx.account);
 
   const canSelect = tx.status === 'proposed';
   const selectWallet = useCallback(
@@ -35,12 +38,12 @@ export const TransactionWalletSelector = ({
 
       navigation.navigate('Account', {
         id: account,
+        title: 'Select executing wallet',
+        inactiveOpacity: true,
         onSelectWallet: (wallet) => {
           setWallet(wallet);
           navigation.goBack();
         },
-        showInactiveWallets: false,
-        title: 'Select executing wallet',
       });
     },
     [canSelect, navigation, setWallet],
@@ -48,20 +51,18 @@ export const TransactionWalletSelector = ({
 
   // Select another wallet from the same account if it's inactive
   // A timeout is required as navigation fails if it occurs too quickly upon mount - https://github.com/react-navigation/react-navigation/issues/9182
-  useFocusEffect(
-    useCallback(() => {
-      if (canSelect) {
-        const timer = setTimeout(() => {
-          if (wallet && wallet.state.status !== 'active')
-            selectWallet(wallet.accountAddr);
-        });
+  // useFocusEffect(
+  //   useCallback(() => {
+  //     if (canSelect) {
+  //       const timer = setTimeout(() => {
+  //         if (wallet && wallet.state.status !== 'active' && accountIsDeployed)
+  //           selectWallet(wallet.accountAddr);
+  //       });
 
-        return () => clearTimeout(timer);
-      }
-    }, [canSelect, selectWallet, wallet]),
-  );
-
-  if (!wallet) return <Suspend />;
+  //       return () => clearTimeout(timer);
+  //     }
+  //   }, [accountIsDeployed, canSelect, selectWallet, wallet]),
+  // );
 
   return (
     <Box
@@ -73,10 +74,10 @@ export const TransactionWalletSelector = ({
     >
       <Box vertical justifyContent="space-around">
         <Text variant="titleMedium" style={textStyle}>
-          {wallet.name}
+          {executingWallet.name}
         </Text>
         <Text variant="bodySmall" style={textStyle}>
-          <Addr addr={wallet.accountAddr} />
+          <Addr addr={executingWallet.accountAddr} />
         </Text>
       </Box>
 
@@ -85,7 +86,7 @@ export const TransactionWalletSelector = ({
           <IconButton
             icon={ChevronRight}
             iconColor={iconColor}
-            onPress={() => selectWallet(wallet.accountAddr)}
+            onPress={() => selectWallet(executingWallet.accountAddr)}
           />
         )}
       </Box>

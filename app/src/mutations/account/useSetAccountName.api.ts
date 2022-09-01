@@ -20,17 +20,19 @@ gql`
   }
 `;
 
-export const useSetAccountName = () => {
+export const useSetAccountName = (account?: CombinedAccount) => {
   const [mutate] = useSetAccountNameMutation({ client: useApiClient() });
 
   return useCallback(
-    ({ id, addr, name }: CombinedAccount) =>
+    (name: string) =>
+      account &&
+      name !== account.name &&
       mutate({
-        variables: { account: id, name },
+        variables: { account: account.id, name },
         optimisticResponse: {
           setAccountName: {
             __typename: 'Account',
-            id,
+            id: account.id,
           },
         },
         update: (cache, res) => {
@@ -39,7 +41,7 @@ export const useSetAccountName = () => {
           // Account
           const opts: QueryOpts<AccountQueryVariables> = {
             query: API_ACCOUNT_QUERY,
-            variables: { account: addr },
+            variables: { account: account.addr },
           };
 
           const data = cache.readQuery<AccountQuery>(opts);
@@ -55,6 +57,6 @@ export const useSetAccountName = () => {
           });
         },
       }),
-    [mutate],
+    [account, mutate],
   );
 };

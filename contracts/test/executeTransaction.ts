@@ -5,21 +5,13 @@ import {
   toTransactionRequest,
   toTransactionStruct,
 } from 'lib';
-import {
-  expect,
-  execute,
-  deploy,
-  deployer,
-  provider as provider,
-  device,
-  getSigners,
-} from './util';
+import { expect, execute, deploy, deployer, device, getSigners } from './util';
 
 describe('executeTransaction', () => {
   let tester: Tester;
   before(async () => {
     const artifact = await deployer.loadArtifact('Tester');
-    tester = (await deployer.deploy(artifact, [], {})) as Tester;
+    tester = (await deployer.deploy(artifact, [], {})) as any as Tester;
     await tester.deployed();
   });
 

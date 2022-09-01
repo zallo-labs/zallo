@@ -10,21 +10,21 @@ import { WalletId } from '~/queries/wallets';
 import { useApiProposeTx } from './useProposeTx.api';
 
 type Propose = (
+  wallet: WalletId,
   txDef: TxDef,
   onPropose?: (tx: TxId) => Promise<void> | void,
 ) => Promise<void>;
 
-export const useProposeTx = (wallet: WalletId): [Propose, boolean] => {
+export const useProposeTx = (): [Propose, boolean] => {
   const navigation = useRootNavigation();
   const apiPropose = useApiProposeTx();
 
   const [proposing, setProposing] = useState(false);
 
   const propose: Propose = useCallback(
-    async (txDef, onPropose) => {
+    async (wallet, txDef, onPropose) => {
       setProposing(true);
 
-      // Transaction must be attached to an active wallet
       const tx = (await apiPropose(txDef, wallet)).data!.proposeTx;
       const id: TxId = { account: address(tx.accountId), hash: tx.hash };
 
@@ -48,7 +48,7 @@ export const useProposeTx = (wallet: WalletId): [Propose, boolean] => {
 
       setProposing(false);
     },
-    [navigation, apiPropose, wallet],
+    [navigation, apiPropose],
   );
 
   return [propose, proposing];

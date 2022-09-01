@@ -21,7 +21,7 @@
   },
   "dependencies": {
     "@apollo/client": "3.6.9",
-    "@ethersproject/shims": "5.6.0",
+    "@ethersproject/shims": "5.7.0",
     "@expo/config": "^7.0.0",
     "@expo/vector-icons": "^13.0.0",
     "@gorhom/bottom-sheet": "^4.4.3",
@@ -40,7 +40,7 @@
     "config": "workspace:*",
     "eas-cli": "^0.60.0",
     "eth-url-parser": "^1.0.4",
-    "ethers": "5.6.9",
+    "ethers": "5.7.0",
     "expo": "^46.0.8",
     "expo-application": "~4.2.2",
     "expo-asset": "~8.6.1",

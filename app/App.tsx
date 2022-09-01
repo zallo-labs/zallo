@@ -8,7 +8,7 @@ import { Background } from '~/components/layout/Background';
 import { LocalizatonProvider } from '~/provider/LocalizationProvider';
 import { GqlProvider } from '~/gql/GqlProvider';
 import { ToastProvider } from '~/provider/ToastProvider';
-import { GestureHandlerRootView } from 'react-native-gesture-handler';
+// import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { ErrorBoundary } from '~/util/sentry/ErrorBoundary';
 import { Splash } from '~/components/Splash';
 import { StatusBar } from 'expo-status-bar';
@@ -24,23 +24,25 @@ export default withSentry(() => (
     <ThemeProvider>
       <Background>
         <StatusBar style="light" backgroundColor="transparent" />
-        <GestureHandlerRootView style={{ flex: 1 }}>
-          <ErrorBoundary>
-            <Suspense fallback={<Splash />}>
-              <RecoilRoot>
-                <AuthGate>
-                  <SentryUser />
-                  <GqlProvider>
-                    <NavigationProvider>
+        {/* <GestureHandlerRootView style={{ flex: 1 }}> */}
+        <ErrorBoundary>
+          <Suspense fallback={<Splash />}>
+            <RecoilRoot>
+              <AuthGate>
+                <SentryUser />
+                <GqlProvider>
+                  <NavigationProvider>
+                    <Suspense fallback={<Splash />}>
                       <RootNavigator />
-                    </NavigationProvider>
-                  </GqlProvider>
-                </AuthGate>
-                <ToastProvider />
-              </RecoilRoot>
-            </Suspense>
-          </ErrorBoundary>
-        </GestureHandlerRootView>
+                    </Suspense>
+                  </NavigationProvider>
+                </GqlProvider>
+              </AuthGate>
+              <ToastProvider />
+            </RecoilRoot>
+          </Suspense>
+        </ErrorBoundary>
+        {/* </GestureHandlerRootView> */}
       </Background>
     </ThemeProvider>
   </LocalizatonProvider>

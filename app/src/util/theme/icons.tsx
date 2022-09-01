@@ -70,3 +70,4 @@ export const ChevronRight = materialIcon('chevron-right');
 export const QuorumIcon = materialIcon('group');
 export const DeployIcon = materialCommunityIcon('rocket-launch');
 export const UndoIcon = materialIcon('undo');
+export const CalendarIcon = materialIcon('calendar-today');

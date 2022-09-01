@@ -2,27 +2,23 @@ import { Addr } from '~/components/addr/Addr';
 import { Box } from '~/components/layout/Box';
 import { Text } from 'react-native-paper';
 import { DetailedCallMethod } from './method/DetailedCallMethod';
-import { useCallValues } from '~/components/call/useCallValues';
 import { Card } from '~/components/card/Card';
 import { FiatValue } from '~/components/fiat/FiatValue';
-import { Tx } from '~/queries/tx';
-import { CombinedWallet } from '~/queries/wallets';
 import { ETH } from '@token/tokens';
 import { useMaybeToken } from '@token/useToken';
-import { ZERO } from 'lib';
-import { TokenAmountRow } from './TokenAmountRow';
-import { useDecodedTransfer } from '~/components/call/useDecodedTransfer';
 import { TokenIcon } from '~/components/token/TokenIcon/TokenIcon';
+import { useTxContext } from '../TransactionProvider';
+import { makeStyles } from '@theme/makeStyles';
+import { TxTokens } from './TxTokens';
+import { useTxTokens } from './useTxTokens';
 
-export interface TransactionDetailsProps {
-  tx: Tx;
-  wallet: CombinedWallet;
-}
-
-export const TransactionDetails = ({ tx, wallet }: TransactionDetailsProps) => {
+export const TransactionDetails = () => {
+  const styles = useStyles();
+  const { tx } = useTxContext();
   const token = useMaybeToken(tx.to) ?? ETH;
-  const { totalFiat } = useCallValues(tx, token);
-  const tokenAmount = useDecodedTransfer(tx)?.value ?? ZERO;
+
+  const tokens = useTxTokens(tx);
+  const totalFiat = tokens.reduce((acc, t) => acc + t.fiatAmount, 0);
 
   return (
     <Card>
@@ -42,26 +38,15 @@ export const TransactionDetails = ({ tx, wallet }: TransactionDetailsProps) => {
         )}
       </Box>
 
-      {(!tx.value.isZero() || !tokenAmount.isZero) && (
-        <Box mt={2}>
-          {!tx.value.isZero() && (
-            <TokenAmountRow
-              token={ETH}
-              amount={tx.value}
-              account={wallet.accountAddr}
-            />
-          )}
-          {!tokenAmount.isZero() && (
-            <TokenAmountRow
-              token={token}
-              amount={tokenAmount}
-              account={wallet.accountAddr}
-            />
-          )}
-        </Box>
-      )}
+      <TxTokens tokens={tokens} style={styles.section} />
 
-      <DetailedCallMethod call={tx} />
+      <DetailedCallMethod call={tx} style={styles.section} />
     </Card>
   );
 };
+
+const useStyles = makeStyles(({ space }) => ({
+  section: {
+    marginTop: space(2),
+  },
+}));

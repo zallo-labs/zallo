@@ -71,9 +71,6 @@ export const useUpdateTokenBalance = (
   );
 };
 
-export const useTokenAvailable = (token: Token, wallet: WalletId) =>
-  useTokenBalance(token, wallet);
-
 export interface TokenWithBalance {
   token: Token;
   balance: BigNumber;

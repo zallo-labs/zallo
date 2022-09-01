@@ -58,7 +58,7 @@ export const toTransactionStruct = (
 };
 
 export interface ExecuteTxOptions {
-  customData?: Overrides & Omit<Eip712Meta, 'aaParams'>;
+  customData?: Overrides & Eip712Meta;
 }
 
 export const toTransactionRequest = async (
@@ -80,12 +80,8 @@ export const toTransactionRequest = async (
     gasPrice: await provider.getGasPrice(),
     gasLimit: await estimateTxGas(basicReq, provider, signers.length),
     customData: {
-      feeToken: zk.utils.ETH_ADDRESS,
       ...opts.customData,
-      aaParams: {
-        from: account.address,
-        signature: createTxSignature(wallet, signers),
-      },
+      customSignature: createTxSignature(wallet, signers),
     },
   };
 };

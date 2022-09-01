@@ -1,17 +1,17 @@
-import { useIsDeployed } from '@network/useIsDeployed';
 import { makeStyles } from '@theme/makeStyles';
 import { Address } from 'lib';
 import { Text } from 'react-native-paper';
+import { useAccount } from '~/queries/account/useAccount';
 
 export interface InactiveIndicatorProps {
-  account: Address;
+  accountAddr: Address;
 }
 
-export const InactiveIndicator = ({ account }: InactiveIndicatorProps) => {
+export const InactiveIndicator = ({ accountAddr }: InactiveIndicatorProps) => {
   const styles = useStyles();
-  const isDeployed = useIsDeployed(account);
+  const { account } = useAccount(accountAddr);
 
-  if (isDeployed) return null;
+  if (!account || account.active) return null;
 
   return (
     <Text variant="titleMedium" style={styles.inactive}>

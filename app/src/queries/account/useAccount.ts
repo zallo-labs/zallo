@@ -1,6 +1,6 @@
-import { Address, filterFirst } from 'lib';
+import { Address } from 'lib';
 import { useMemo } from 'react';
-import { combineRest } from '~/gql/combine';
+import { combine, combineRest, simpleKeyExtractor } from '~/gql/combine';
 import { CombinedAccount } from '.';
 import { useApiAccount } from './useAccount.api';
 import { useSubAccount } from './useAccount.sub';
@@ -19,11 +19,18 @@ export const useAccount = (addr?: Address) => {
     return {
       ...a,
       ...s,
-      name: a?.name ?? '',
-      walletIds: filterFirst(
-        [...(s?.walletIds ?? []), ...(a?.walletIds ?? [])],
-        (w) => w.id,
-      ),
+      active: true,
+      name: a.name,
+      walletIds: combine(s.walletIds, a.walletIds, simpleKeyExtractor('ref'), {
+        either: ({ sub, api }) => {
+          if (!sub) return api!;
+
+          sub.active = true;
+          if (!api) return sub;
+
+          return { ...api, ...sub };
+        },
+      }),
     };
   }, [a, s]);
 

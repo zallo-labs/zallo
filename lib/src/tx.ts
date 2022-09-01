@@ -49,7 +49,10 @@ export const getDomain = async (
       : verifyingContract.address,
 });
 
-export const hashTx = async (account: Address | Contract, tx: TxReq) =>
+export const hashTx = async (
+  account: Address | { address: string },
+  tx: TxReq,
+) =>
   ethers.utils._TypedDataEncoder.hash(
     await getDomain(account),
     TX_EIP712_TYPE,

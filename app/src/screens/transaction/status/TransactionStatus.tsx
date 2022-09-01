@@ -1,10 +1,10 @@
 import { Box } from '~/components/layout/Box';
 import { Text } from 'react-native-paper';
 import { Card } from '~/components/card/Card';
-import { Tx, TxStatus } from '~/queries/tx';
+import { TxStatus } from '~/queries/tx';
 import { TransactionActions } from './TransactionActions';
 import { TransactionEvents } from './events/TransactionEvents';
-import { CombinedWallet } from '~/queries/wallets';
+import { useTxContext } from '../TransactionProvider';
 
 const STATUS_LABEL: Record<TxStatus, string> = {
   proposed: 'Proposed',
@@ -13,12 +13,9 @@ const STATUS_LABEL: Record<TxStatus, string> = {
   executed: 'Executed',
 };
 
-export interface TransactionStatusProps {
-  tx: Tx;
-  wallet: CombinedWallet;
-}
+export const TransactionStatus = () => {
+  const { tx, wallet } = useTxContext();
 
-export const TransactionStatus = ({ tx, wallet }: TransactionStatusProps) => {
   return (
     <Card vertical>
       <Box horizontal justifyContent="space-between" flexWrap="wrap">

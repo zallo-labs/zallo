@@ -10,7 +10,7 @@ type Delete = () => void;
 
 export const useDeleteWallet = (wallet: CombinedWallet): [Delete, boolean] => {
   const account = useAccount(wallet.accountAddr).account;
-  const [propose] = useProposeTx(wallet);
+  const [propose] = useProposeTx();
   const apiDelete = useApiDeleteWallet();
 
   const [deleting, setDeleting] = useState(false);
@@ -21,6 +21,7 @@ export const useDeleteWallet = (wallet: CombinedWallet): [Delete, boolean] => {
 
     if (wallet.state.status === 'active') {
       await propose(
+        wallet,
         createRemoveGroupTx(account.contract, toSafeWallet(wallet)),
       );
     } else {

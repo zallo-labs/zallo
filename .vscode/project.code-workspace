@@ -27,6 +27,9 @@
     {
       "name": "subgraph",
       "path": "../subgraph"
+    },
+    {
+      "path": "../../graph-node"
     }
   ],
   "settings": {

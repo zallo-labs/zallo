@@ -4,16 +4,15 @@ import { makeStyles } from '~/util/theme/makeStyles';
 import { useCallback, useMemo, useState } from 'react';
 import { FlatList, FlatListProps } from 'react-native';
 import { useCreateComment } from '~/mutations/comment/useCreateComment.api';
-import { Tx } from '~/queries/tx';
 import { Comment, useComments } from '~/queries/useComments.api';
 import { CommentCard } from './CommentCard';
+import { useTxContext } from '../TransactionProvider';
 
-export interface CommentsProps extends Partial<FlatListProps<Comment>> {
-  tx: Tx;
-}
+export interface CommentsProps extends Partial<FlatListProps<Comment>> {}
 
-export const Comments = ({ tx, ...listProps }: CommentsProps) => {
+export const Comments = (listProps: CommentsProps) => {
   const styles = useStyles();
+  const { tx } = useTxContext();
   const { comments: unsortedComments } = useComments(tx);
   const createComment = useCreateComment(tx, tx.account);
 

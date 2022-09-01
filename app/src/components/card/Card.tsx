@@ -74,6 +74,7 @@ export type CardProps = Omit<StyledBaseProps, 'children' | 'theme'> &
   Pick<TouchableRippleProps, 'onPress' | 'onLongPress' | 'disabled'> & {
     children?: ReactNode;
     touchableStyle?: StyleProp<ViewStyle>;
+    opaque?: boolean;
   };
 
 export const CARD_BORDER_RADIUS = 12;
@@ -84,9 +85,10 @@ export const Card = ({
   onLongPress,
   disabled,
   touchableStyle,
+  opaque,
   ...props
 }: CardProps) => {
-  const styles = useStyles({ disabled });
+  const styles = useStyles(opaque || disabled);
 
   return (
     <StyledBase {...props} style={[styles.card, props.style]}>
@@ -102,17 +104,12 @@ export const Card = ({
   );
 };
 
-interface StyleOptions {
-  disabled?: boolean;
-  padding?: Space;
-}
-
-const useStyles = makeStyles(({ space }, { disabled }: StyleOptions) => ({
+const useStyles = makeStyles(({ space }, opaque: boolean) => ({
   card: {
     borderRadius: CARD_BORDER_RADIUS,
     // TouchableOpacity doesn't respect borderRadius, so hide the touchable ripple effect outside of the view;
     overflow: 'hidden',
-    ...(disabled && { opacity: 0.38 }),
+    ...(opaque && { opacity: 0.38 }),
   },
   touchable: {
     flexGrow: 1,

@@ -27,7 +27,7 @@ export const AccountCard = withSkeleton(
           </Text>
         }
         Right={[
-          <InactiveIndicator account={id} />,
+          <InactiveIndicator accountAddr={id} />,
           totalFiatValue && (
             <Text variant="bodyLarge">
               <FiatValue value={totalFiatValue} />

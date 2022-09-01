@@ -13,69 +13,58 @@ import { useTokens } from '@token/useToken';
 import { useFuzzySearch } from '@hook/useFuzzySearch';
 import { TokenCard } from '~/components/token/TokenCard';
 import { WalletId } from '~/queries/wallets';
-import { TokenBalanceCard } from '~/components/token/TokenBalanceCard';
+import { TokenAvailableCard } from '~/components/token/TokenAvailableCard';
+import { Address } from 'lib';
 
 export interface TokensScreenParams {
   onSelect?: (token: Token) => void;
   wallet?: WalletId;
+  disabled?: Address[];
 }
 
 export type TokensScreenProps = RootNavigatorScreenProps<'Tokens'>;
 
-export const TokensScreen = withSkeleton(
-  ({ navigation, route }: TokensScreenProps) => {
-    const { onSelect, wallet } = route.params;
-    const { AppbarHeader, handleScroll } = useAppbarHeader();
-    const [tokens, searchProps] = useFuzzySearch(useTokens(), [
-      'name',
-      'symbol',
-    ]);
+export const TokensScreen = withSkeleton(({ route }: TokensScreenProps) => {
+  const { onSelect, wallet, disabled = [] } = route.params;
+  const { AppbarHeader, handleScroll } = useAppbarHeader();
+  const [tokens, searchProps] = useFuzzySearch(useTokens(), ['name', 'symbol']);
 
-    return (
-      <Box flex={1}>
-        <AppbarHeader>
-          <AppbarBack />
-          <AppbarSearch
-            title={onSelect ? 'Select Token' : 'Tokens'}
-            {...searchProps}
-          />
-        </AppbarHeader>
+  return (
+    <Box flex={1}>
+      <AppbarHeader>
+        <AppbarBack />
+        <AppbarSearch
+          title={onSelect ? 'Select Token' : 'Tokens'}
+          {...searchProps}
+        />
+      </AppbarHeader>
 
-        <Box mx={3}>
-          <FlatList
-            renderItem={({ item }) => {
-              const onPress = onSelect
-                ? () => {
-                    onSelect(item);
-                    navigation.goBack();
-                  }
-                : undefined;
+      <Box mx={3}>
+        <FlatList
+          renderItem={({ item }) => {
+            const onPress = onSelect ? () => onSelect(item) : undefined;
+            const isDisabled = !!disabled.find((t) => t === item.addr);
 
-              return wallet ? (
-                <TokenBalanceCard
-                  token={item}
-                  wallet={wallet}
-                  onPress={onPress}
-                />
-              ) : (
-                <TokenCard token={item} onPress={onPress} />
-              );
-            }}
-            ItemSeparatorComponent={() => <Box my={2} />}
-            keyExtractor={(item) => item.addr}
-            data={tokens}
-            showsVerticalScrollIndicator={false}
-            onScroll={handleScroll}
-          />
-        </Box>
-
-        <FAB
-          icon={PlusIcon}
-          label="Add"
-          onPress={() => alert('Unimplemented')}
+            return wallet ? (
+              <TokenAvailableCard
+                token={item}
+                wallet={wallet}
+                onPress={onPress}
+                disabled={isDisabled}
+              />
+            ) : (
+              <TokenCard token={item} onPress={onPress} disabled={isDisabled} />
+            );
+          }}
+          ItemSeparatorComponent={() => <Box my={2} />}
+          keyExtractor={(item) => item.addr}
+          data={tokens}
+          showsVerticalScrollIndicator={false}
+          onScroll={handleScroll}
         />
       </Box>
-    );
-  },
-  ListScreenSkeleton,
-);
+
+      <FAB icon={PlusIcon} label="Add" onPress={() => alert('Unimplemented')} />
+    </Box>
+  );
+}, ListScreenSkeleton);

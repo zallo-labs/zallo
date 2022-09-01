@@ -4,6 +4,7 @@ import { Text } from 'react-native-paper';
 import { Suspend } from '~/components/Suspender';
 import { CombinedWallet, WalletId } from '~/queries/wallets';
 import { useWallet } from '~/queries/wallet/useWallet';
+import { AccordionProps } from '~/components/Accordion';
 
 export const useDecodedRemoveWallet = (call?: Call) =>
   useWallet(
@@ -23,14 +24,18 @@ export const useDecodedRemoveWallet = (call?: Call) =>
 export const getRemoveWalletMethodName = (wallet: CombinedWallet) =>
   `Remove wallet: ${wallet.name}`;
 
-export interface RemoveWalletMethodProps {
+export interface RemoveWalletMethodProps extends Partial<AccordionProps> {
   call: Call;
 }
 
-export const RemoveWalletMethod = memo(({ call }: RemoveWalletMethodProps) => {
-  const wallet = useDecodedRemoveWallet(call);
+export const RemoveWalletMethod = memo(
+  ({ call, ...accordionProps }: RemoveWalletMethodProps) => {
+    const wallet = useDecodedRemoveWallet(call);
 
-  if (!wallet) return <Suspend />;
+    if (!wallet) return <Suspend />;
 
-  return <Text variant="titleMedium">{getRemoveWalletMethodName(wallet)}</Text>;
-});
+    return (
+      <Text variant="titleMedium" {...accordionProps}>{getRemoveWalletMethodName(wallet)}</Text>
+    );
+  },
+);
