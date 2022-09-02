@@ -222,15 +222,17 @@ export class WalletsResolver {
           ),
         },
         spendingAllowlisted,
-        limits: {
-          createMany: {
-            data: limits?.map((l) => ({
-              token: l.token,
-              amount: l.amount.toString(),
-              period: l.period,
-            })),
+        ...(limits && {
+          limits: {
+            createMany: {
+              data: limits?.map((l) => ({
+                token: l.token,
+                amount: l.amount.toString(),
+                period: l.period,
+              })),
+            },
           },
-        },
+        }),
       },
       update: {
         ...(name && {
