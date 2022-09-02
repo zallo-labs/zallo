@@ -12,11 +12,11 @@ export interface TxTokensProps {
 export const TxTokens = ({ tokens, style }: TxTokensProps) => {
   const insufficient = tokens.some((t) => t.amount.gt(t.available));
 
-  if (!tokens.length) return null;
+  if (!tokens.some((t) => !t.amount.isZero())) return null;
 
   return (
     <Box style={style}>
-      <Box vertical alignItems="center">
+      <Box vertical>
         {insufficient && <Text variant="titleSmall">Insufficient balance</Text>}
 
         <Box horizontal justifyContent="space-between" alignItems="center">
