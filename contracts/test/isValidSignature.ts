@@ -7,7 +7,7 @@ describe('isValidSignature', () => {
     const { account, wallet, quorum } = await deploy();
 
     const tx = createTx({ to: device.address });
-    const txHash = await hashTx(account.address, tx);
+    const txHash = await hashTx(account, tx);
 
     const signers = await getSigners(account, quorum, tx);
     const txSignature = createTxSignature(wallet, signers);
@@ -25,7 +25,7 @@ describe('isValidSignature', () => {
     const txSignature = createTxSignature(wallet, signers);
 
     const otherTx = createTx({ value: BigNumber.from(1) });
-    const otherTxHash = await hashTx(account.address, otherTx);
+    const otherTxHash = await hashTx(account, otherTx);
 
     const validTxCheck = account.isValidSignature(otherTxHash, txSignature);
 

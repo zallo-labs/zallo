@@ -37,11 +37,13 @@ import {
 import { Submission } from '@gen/submission/submission.model';
 import { SubmissionsService } from '../submissions/submissions.service';
 import { UserInputError } from 'apollo-server-core';
+import { ProviderService } from '~/provider/provider.service';
 
 @Resolver(() => Tx)
 export class TxsResolver {
   constructor(
     private prisma: PrismaService,
+    private provider: ProviderService,
     private submissionsService: SubmissionsService,
   ) {}
 
@@ -91,7 +93,10 @@ export class TxsResolver {
     @Info() info: GraphQLResolveInfo,
     @UserAddr() user: Address,
   ): Promise<Tx> {
-    const txHash = await hashTx(account, tx);
+    const txHash = await hashTx(
+      { address: account, provider: this.provider },
+      tx,
+    );
     await this.validateSignatureOrThrow(user, txHash, signature);
 
     return this.prisma.tx.upsert({

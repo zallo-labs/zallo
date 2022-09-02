@@ -38,23 +38,22 @@ export const TX_EIP712_TYPE: Record<string, TypedDataField[]> = {
   ],
 };
 
-export const getDomain = async (
-  verifyingContract: Address | { address: string },
-): Promise<TypedDataDomain> => ({
-  // chainId: (await contract.provider.getNetwork()).chainId,
-  chainId: 0, // ZKSYNC: block.chainid always returns 0 - https://v2-docs.zksync.io/dev/zksync-v2/temp-limits.html#unsupported-opcodes
-  verifyingContract:
-    typeof verifyingContract === 'string'
-      ? verifyingContract
-      : verifyingContract.address,
+type DomainParams = {
+  address: string;
+  provider: ethers.providers.Provider;
+};
+
+export const getDomain = async ({
+  address,
+  provider,
+}: DomainParams): Promise<TypedDataDomain> => ({
+  chainId: (await provider.getNetwork()).chainId,
+  verifyingContract: address,
 });
 
-export const hashTx = async (
-  account: Address | { address: string },
-  tx: TxReq,
-) =>
+export const hashTx = async (domainParams: DomainParams, tx: TxReq) =>
   ethers.utils._TypedDataEncoder.hash(
-    await getDomain(account),
+    await getDomain(domainParams),
     TX_EIP712_TYPE,
     tx,
   );

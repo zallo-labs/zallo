@@ -17,7 +17,7 @@ import { ContractTransaction } from 'ethers';
 import * as zk from 'zksync-web3';
 import { parseEther } from 'ethers/lib/utils';
 
-const ACCOUNT_START_BALANCE = parseEther('0.00001');
+const ACCOUNT_START_BALANCE = parseEther('0.0001');
 
 export const deployer = new Deployer(hre, device);
 

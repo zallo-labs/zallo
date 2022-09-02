@@ -1,7 +1,7 @@
 import { ByteArray, Bytes, crypto, ethereum } from '@graphprotocol/graph-ts';
 // import { ExecutionTxStruct, Account } from '../generated/Account/Account';
 
-const CHAIN_ID = 0; // zkSync FIXME: chain id is always 0
+const CHAIN_ID = 280; // TODO: get dynamically
 
 const DOMAIN_TYPE_HASH: ByteArray = crypto.keccak256(
   ByteArray.fromUTF8('EIP712Domain(uint256 chainId,address verifyingContract)'),

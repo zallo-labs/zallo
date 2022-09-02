@@ -52,7 +52,7 @@ export const toTransactionStruct = (
     paymasterInput: '0x',
     reserved: [r.nonce!, r.value!, 0, 0, 0, 0],
     data: r.data!,
-    signature: r.customData!.aaParams!.signature!,
+    signature: r.customData!.customSignature!,
     reservedDynamic: '0x',
   };
 };

@@ -80,16 +80,14 @@ export const useCreateApiAccount = () => {
 
     const deploySalt = randomDeploySalt();
 
-    // TODO: uncomment once new contract is deployed
-    // const accountAddr = await calculateProxyAddress(
-    //   {
-    //     impl,
-    //     wallet: toSafeWallet(wallet),
-    //   },
-    //   factory,
-    //   deploySalt,
-    // );
-    const accountAddr = address("0xDdf71B8145DC7dD939578f5A0EE7C265722e78FD");
+    const accountAddr = await calculateProxyAddress(
+      {
+        impl,
+        wallet: toSafeWallet(wallet),
+      },
+      factory,
+      deploySalt,
+    );
 
     return await mutation({
       variables: {

@@ -40,7 +40,10 @@ export const useApiProposeTx = () => {
   const propose = useCallback(
     async (txDef: TxDef, wallet: WalletId) => {
       const tx = createTx(txDef);
-      const hash = await hashTx(wallet.accountAddr, tx);
+      const hash = await hashTx(
+        { address: wallet.accountAddr, provider: device.provider },
+        tx,
+      );
       const signature = await signTx(device, wallet.accountAddr, tx);
       const createdAt = DateTime.now().toISO();
 

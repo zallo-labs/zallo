@@ -45,14 +45,10 @@ export const createTxSignature = (
   );
 };
 
-export const signTx = async (
-  device: Device,
-  account: Address,
-  tx: TxReq,
-) => {
+export const signTx = async (device: Device, account: Address, tx: TxReq) => {
   // _signTypedData returns a 65 byte signature
   const longSig = await device._signTypedData(
-    await getDomain(account),
+    await getDomain({ address: account, provider: device.provider }),
     TX_EIP712_TYPE,
     tx,
   );

@@ -33,7 +33,9 @@ export const randomDeploySalt = () =>
   hexlify(randomBytes(DEPLOY_SALT_BYTES)) as DeploySalt;
 
 const createConnect =
-  <T>(f: (addr: string, signer: Signer | ethers.providers.Provider | Device) => T) =>
+  <T>(
+    f: (addr: string, signer: Signer | ethers.providers.Provider | Device) => T,
+  ) =>
   (addr: Addresslike, signer: Signer | ethers.providers.Provider | Device): T =>
     f(address(addr), signer);
 
@@ -75,7 +77,7 @@ export const calculateProxyAddress = async (
 ) => {
   const addr = zk.utils.create2Address(
     factory.address,
-    await factory._BYTECODE_HASH(),
+    await factory._bytecodeHash(),
     salt,
     encodeProxyConstructorArgs(args),
   );
