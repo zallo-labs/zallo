@@ -12,7 +12,7 @@
   },
   {
     "inputs": [],
-    "name": "_BYTECODE_HASH",
+    "name": "_bytecodeHash",
     "outputs": [
       {
         "internalType": "bytes32",

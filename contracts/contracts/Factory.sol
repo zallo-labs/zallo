@@ -4,10 +4,10 @@ pragma solidity ^0.8.0;
 import '@matterlabs/zksync-contracts/l2/system-contracts/Constants.sol';
 
 contract Factory {
-  bytes32 public immutable _BYTECODE_HASH;
+  bytes32 public _bytecodeHash;
 
   constructor(bytes32 bytecodeHash) {
-    _BYTECODE_HASH = bytecodeHash;
+    _bytecodeHash = bytecodeHash;
   }
 
   function deploy(bytes32 salt, bytes calldata constructorArgsData)
@@ -17,7 +17,7 @@ contract Factory {
     return
       DEPLOYER_SYSTEM_CONTRACT.create2Account(
         salt,
-        _BYTECODE_HASH,
+        _bytecodeHash,
         0,
         constructorArgsData
       );

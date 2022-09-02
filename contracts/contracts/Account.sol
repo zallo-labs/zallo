@@ -5,6 +5,7 @@ import {
   SignatureChecker
 } from '@matterlabs/signature-checker/contracts/SignatureChecker.sol';
 import '@matterlabs/zksync-contracts/l2/system-contracts/Constants.sol';
+import '@matterlabs/zksync-contracts/l2/system-contracts/TransactionHelper.sol';
 
 import './IAccount.sol';
 import './SelfOwned.sol';
@@ -56,7 +57,7 @@ contract Account is
                           TRANSACTION HANDLING
   //////////////////////////////////////////////////////////////*/
 
-  /// @inheritdoc IAccount
+  /// @inheritdoc BaseIAccount
   function validateTransaction(Transaction calldata transaction)
     external
     payable
@@ -65,7 +66,7 @@ contract Account is
     _validateTransaction(_hashTx(transaction), transaction);
   }
 
-  /// @inheritdoc IAccount
+  /// @inheritdoc BaseIAccount
   function executeTransaction(Transaction calldata transaction)
     external
     payable
@@ -75,7 +76,7 @@ contract Account is
     _executeTransaction(_hashTx(transaction), transaction);
   }
 
-  /// @inheritdoc IAccount
+  /// @inheritdoc BaseIAccount
   function executeTransactionFromOutside(Transaction calldata transaction)
     external
     payable
@@ -97,6 +98,29 @@ contract Account is
     if (hasBeenExecuted(txHash)) revert TxAlreadyExecuted();
 
     _validateSignature(txHash, transaction.signature);
+  }
+
+  /*//////////////////////////////////////////////////////////////
+                                PAYMASTER
+  //////////////////////////////////////////////////////////////*/
+
+  function payForTransaction(Transaction calldata transaction)
+    external
+    payable
+    override
+    onlyBootloader
+  {
+    bool success = TransactionHelper.payToTheBootloader(transaction);
+    require(success, 'Failed to pay the fee to the operator');
+  }
+
+  function prePaymaster(Transaction calldata transaction)
+    external
+    payable
+    override
+    onlyBootloader
+  {
+    TransactionHelper.processPaymasterInput(transaction);
   }
 
   /*//////////////////////////////////////////////////////////////
@@ -136,7 +160,7 @@ contract Account is
                           SIGNATURE VALIDATION
   //////////////////////////////////////////////////////////////*/
 
-  /// @inheritdoc IAccount
+  /// @inheritdoc IERC1271
   function isValidSignature(bytes32 txHash, bytes memory txSignature)
     external
     view
