@@ -5412,16 +5412,16 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@liaoliaots/nestjs-redis@npm:^9.0.1":
-  version: 9.0.1
-  resolution: "@liaoliaots/nestjs-redis@npm:9.0.1"
+"@liaoliaots/nestjs-redis@npm:^9.0.2":
+  version: 9.0.2
+  resolution: "@liaoliaots/nestjs-redis@npm:9.0.2"
   dependencies:
     tslib: 2.4.0
   peerDependencies:
     "@nestjs/common": ^9.0.0
     "@nestjs/core": ^9.0.0
     ioredis: ^5.0.0
-  checksum: 105da25bd0ae154acf53ac6ebceb23c37c2e56115cacadaca7da661b8fdf604a58ebe378c8a844f3740f604abefc1f4b9e5b9cabf42fdf113ebb91c4a64337e0
+  checksum: fc950f287b297fed142a4d2c7ee01c661b1a544003d260f6686cfdabeafa6e5dc8e72c3950de9c4d81c0159df615e25e142a0606b00d0fc640dc085a041d822f
   languageName: node
   linkType: hard
 
@@ -6297,9 +6297,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@prisma/client@npm:^4.3.0":
-  version: 4.3.0
-  resolution: "@prisma/client@npm:4.3.0"
+"@prisma/client@npm:^4.3.1":
+  version: 4.3.1
+  resolution: "@prisma/client@npm:4.3.1"
   dependencies:
     "@prisma/engines-version": 4.3.0-32.c875e43600dfe042452e0b868f7a48b817b9640b
   peerDependencies:
@@ -6307,18 +6307,18 @@ __metadata:
   peerDependenciesMeta:
     prisma:
       optional: true
-  checksum: bf468a8673788a28523228aa5fc34e9f4607b47d75f8adadd6bae812ba299c3c0848d60a9a8751f79389bb32f5248087829bca1d4aca75b7cb8fdca4b35bf92b
+  checksum: 2e3e6319bb0974f9ab67ab4620b775f82c54e00c4690db59bbd4736967c1afae7b4487ac54a78d221b7f898287b387422c7e8de026dfd66e97c1ca1e79eb06f7
   languageName: node
   linkType: hard
 
-"@prisma/debug@npm:4.1.1":
-  version: 4.1.1
-  resolution: "@prisma/debug@npm:4.1.1"
+"@prisma/debug@npm:4.3.1":
+  version: 4.3.1
+  resolution: "@prisma/debug@npm:4.3.1"
   dependencies:
     "@types/debug": 4.1.7
     debug: 4.3.4
     strip-ansi: 6.0.1
-  checksum: c4a8a76d9630cc11c65355d9705aa0f05605a7bf7c2eb5568e58eac73320b7e038ab0e394cec8a94eaeedddc96dfd5f8b4d9c8f55bdf8f5b0e258cbb6f44baa1
+  checksum: 8900a37628a0a23e67cb92a71a0fbad39370c45d60719c6f4cd670ce167c88a919c53ebdb5890df710c6bfbc6a7142d4349dd41ab7e5a0a964d5b2ba1a43a18d
   languageName: node
   linkType: hard
 
@@ -6329,22 +6329,22 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@prisma/engines@npm:4.3.0":
-  version: 4.3.0
-  resolution: "@prisma/engines@npm:4.3.0"
-  checksum: 2ec623073aa6d1532d5cbe475d8e2238b5084dad15159b97f789cac5ae0d0fe017a683a61863bd2b5d02f64fee400c3c43e08f78035bb09d6882d739c881d5b1
+"@prisma/engines@npm:4.3.1":
+  version: 4.3.1
+  resolution: "@prisma/engines@npm:4.3.1"
+  checksum: a407ecb8e15373890d82fc01682ddb1c473c7a5e81e07b603bdf3064bad936ee7cfa9d3ac68d5c4b845f476df53b92b705e7ec6a24a7364354ac78eb9084cbcc
   languageName: node
   linkType: hard
 
-"@prisma/generator-helper@npm:^4.0.0":
-  version: 4.1.1
-  resolution: "@prisma/generator-helper@npm:4.1.1"
+"@prisma/generator-helper@npm:^4.1.0":
+  version: 4.3.1
+  resolution: "@prisma/generator-helper@npm:4.3.1"
   dependencies:
-    "@prisma/debug": 4.1.1
+    "@prisma/debug": 4.3.1
     "@types/cross-spawn": 6.0.2
     chalk: 4.1.2
     cross-spawn: 7.0.3
-  checksum: 038cbaa5e4d2cd06e017f56726f4d6b8e0865ca86ac0de27b0532481b4779fbac81222017b86a919379774290d8abb66020ca7df4b616117f01c9dfd245cd920
+  checksum: f1da0e76b847a8bfa526952cd0c5e981f2a0598e48e4a81a346c405d5c0f4ac8516f4872d14351e97437437f1baf37e86f09d77fde1eb2d2f81030d8523bab3c
   languageName: node
   linkType: hard
 
@@ -9758,7 +9758,7 @@ __metadata:
     "@graphql-tools/stitch": ^8.7.1
     "@graphql-tools/utils": ^8.9.0
     "@graphql-tools/wrap": ^8.5.1
-    "@liaoliaots/nestjs-redis": ^9.0.1
+    "@liaoliaots/nestjs-redis": ^9.0.2
     "@nestjs/apollo": ^10.0.19
     "@nestjs/axios": ^0.1.0
     "@nestjs/cli": ^8.2.8
@@ -9771,7 +9771,7 @@ __metadata:
     "@nestjs/terminus": ^8.1.1
     "@nestjs/testing": ^8.4.7
     "@paljs/plugins": ^4.1.0
-    "@prisma/client": ^4.3.0
+    "@prisma/client": ^4.3.1
     "@types/connect-redis": ^0.0.18
     "@types/express": ^4.17.13
     "@types/express-session": ^1.17.5
@@ -9789,7 +9789,7 @@ __metadata:
     config: "workspace:*"
     connect-redis: ^6.1.3
     cross-fetch: ^3.1.5
-    dotenv: ^16.0.1
+    dotenv: ^16.0.2
     dotenv-cli: ^6.0.0
     eslint: ^8.21.0
     eslint-config-prettier: ^8.5.0
@@ -9805,12 +9805,12 @@ __metadata:
     isomorphic-fetch: ^3.0.0
     jest: ^28.1.3
     lib: "workspace:*"
-    luxon: ^3.0.1
+    luxon: ^3.0.3
     nestjs-prisma: ^0.17.0
     prettier: ^2.7.1
-    prisma: ^4.3.0
+    prisma: ^4.3.1
     prisma-graphql-type-decimal: ^2.0.4
-    prisma-nestjs-graphql: ^17.0.0
+    prisma-nestjs-graphql: ^17.0.1
     reflect-metadata: ^0.1.13
     rxjs: ^7.5.6
     siwe: ^1.1.6
@@ -9822,7 +9822,7 @@ __metadata:
     tsconfig-paths: ^3.14.1
     type-graphql: ^1.1.1
     typescript: ~4.7.4
-    zksync-web3: ^0.8.0
+    zksync-web3: ^0.8.1
   languageName: unknown
   linkType: soft
 
@@ -10278,7 +10278,7 @@ __metadata:
     expo-barcode-scanner: ~11.4.0
     expo-brightness: ~10.3.0
     expo-camera: ~12.3.0
-    expo-community-flipper: ^46.0.0
+    expo-community-flipper: ^46.0.1
     expo-constants: ~13.2.3
     expo-dev-client: ~1.1.1
     expo-device: ~4.3.0
@@ -10298,7 +10298,7 @@ __metadata:
     jest: ^28.1.3
     jest-expo: ^46.0.0
     lib: "workspace:*"
-    luxon: ^3.0.1
+    luxon: ^3.0.3
     node-libs-react-native: ^1.2.1
     react: 18.0.0
     react-content-loader: ^6.2.0
@@ -10337,9 +10337,9 @@ __metadata:
     ts-node: ^10.9.1
     typescript: ^4.8.2
     use-async-effect: ^2.2.6
-    use-debounce: ^8.0.3
+    use-debounce: ^8.0.4
     yup: ^0.32.11
-    zksync-web3: ^0.8.0
+    zksync-web3: ^0.8.1
   languageName: unknown
   linkType: soft
 
@@ -13782,7 +13782,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "config@workspace:config"
   dependencies:
-    dotenv: ^16.0.1
+    dotenv: ^16.0.2
     typescript: ^4.8.2
   languageName: unknown
   linkType: soft
@@ -13903,7 +13903,7 @@ __metadata:
     chai: ^4.3.6
     chai-as-promised: ^7.1.1
     config: "workspace:*"
-    dotenv: ^16.0.1
+    dotenv: ^16.0.2
     eslint: ^8.21.0
     eslint-config-prettier: ^8.5.0
     eslint-config-standard: ^17.0.0
@@ -13921,14 +13921,14 @@ __metadata:
     lib: "workspace:*"
     merkletreejs: ^0.2.32
     prettier: ^2.7.1
-    prettier-plugin-solidity: ^1.0.0-dev.23
+    prettier-plugin-solidity: ^1.0.0-beta.24
     solc: 0.8.16
     solhint: ^3.3.7
     solidity-coverage: ^0.7.21
     ts-node: ^10.9.1
     typechain: ^8.1.0
     typescript: ^4.8.2
-    zksync-web3: ^0.8.0
+    zksync-web3: ^0.8.1
   languageName: unknown
   linkType: soft
 
@@ -15396,10 +15396,17 @@ __metadata:
   languageName: node
   linkType: hard
 
-"dotenv@npm:16.0.1, dotenv@npm:^16.0.0, dotenv@npm:^16.0.1":
+"dotenv@npm:16.0.1, dotenv@npm:^16.0.0":
   version: 16.0.1
   resolution: "dotenv@npm:16.0.1"
   checksum: f459ffce07b977b7f15d8cc4ee69cdff77d4dd8c5dc8c85d2d485ee84655352c2415f9dd09d42b5b5985ced3be186130871b34e2f3e2569ebc72fbc2e8096792
+  languageName: node
+  linkType: hard
+
+"dotenv@npm:^16.0.2":
+  version: 16.0.2
+  resolution: "dotenv@npm:16.0.2"
+  checksum: ca8f9ca2d67929c7771069f4c31b4e46b9932621009e658e5afd655dde2d69b77642bf36dbc9e72bc170523dfd908a9ee41c26f034c1fdc605ace3b1b4b10faf
   languageName: node
   linkType: hard
 
@@ -17335,14 +17342,13 @@ __metadata:
   languageName: node
   linkType: hard
 
-"expo-community-flipper@npm:^46.0.0":
-  version: 46.0.0
-  resolution: "expo-community-flipper@npm:46.0.0"
+"expo-community-flipper@npm:^46.0.1":
+  version: 46.0.1
+  resolution: "expo-community-flipper@npm:46.0.1"
   dependencies:
     "@expo/config-plugins": ^5.0.0
-    resolve-from: ^5.0.0
     semver: ^7.3.7
-  checksum: 533a1a4c5534305329c3fb2cd4c4b21609326e40a6cdf71c40ce3231df6cd464851c58d239557e93b663e395380079cb54658e60614de6d018110d1219e67181
+  checksum: 3eec54d17fd9e0cecebd351285c308a340a2d93b405f3cc261bef852504611bb780aee727143dc7f7f1edf218684055456ceec0cca45ba472d225574299f85a5
   languageName: node
   linkType: hard
 
@@ -23696,7 +23702,7 @@ __metadata:
     ts-jest: ^28.0.7
     typechain: ^8.1.0
     typescript: ~4.7.4
-    zksync-web3: ^0.8.0
+    zksync-web3: ^0.8.1
   languageName: unknown
   linkType: soft
 
@@ -24451,10 +24457,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"luxon@npm:^3.0.1":
-  version: 3.0.1
-  resolution: "luxon@npm:3.0.1"
-  checksum: aa966eb919bf95b1bd819cda784d1f6f66e3fb65bd9ec7bf68b6a978eeb4e3e14f7e2275021b473f93b15b6b7ba2e5a30471e53add3929a7e695fcfd6dd40ec8
+"luxon@npm:^3.0.3":
+  version: 3.0.3
+  resolution: "luxon@npm:3.0.3"
+  checksum: 67d143f102f520761c4202086579a5cf30b230ea299da27cacb31e9f9d372cadef90f14cbe7e2621b70825b267fe00128b8176ed8b7172b48f77a403a662d5aa
   languageName: node
   linkType: hard
 
@@ -28191,7 +28197,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"prettier-plugin-solidity@npm:^1.0.0-dev.23":
+"prettier-plugin-solidity@npm:^1.0.0-beta.24":
   version: 1.0.0-dev.23
   resolution: "prettier-plugin-solidity@npm:1.0.0-dev.23"
   dependencies:
@@ -28305,11 +28311,11 @@ __metadata:
   languageName: node
   linkType: hard
 
-"prisma-nestjs-graphql@npm:^17.0.0":
-  version: 17.0.0
-  resolution: "prisma-nestjs-graphql@npm:17.0.0"
+"prisma-nestjs-graphql@npm:^17.0.1":
+  version: 17.0.1
+  resolution: "prisma-nestjs-graphql@npm:17.0.1"
   dependencies:
-    "@prisma/generator-helper": ^4.0.0
+    "@prisma/generator-helper": ^4.1.0
     await-event-emitter: ^2.0.2
     filenamify: 4.X
     flat: ^5.0.2
@@ -28322,19 +28328,19 @@ __metadata:
     ts-morph: ">=11"
   bin:
     prisma-nestjs-graphql: bin.js
-  checksum: 0a967f33530a54a3d35dc11bcaa8356ab47c4406b8a811006f9c3a247d3a28cffc63d9121ce88622cfac14bc6bccfeb5c4624aecf8015ef7cc682a2fee3b4434
+  checksum: 8c976778aeeb3a8a4d82912313d22c32be3fb828f3653c27442f48ce475836cac0ffa4c9a1168b243e06e23472c9a97074a908a99d480d2040ec3af5dec9ff94
   languageName: node
   linkType: hard
 
-"prisma@npm:^4.3.0":
-  version: 4.3.0
-  resolution: "prisma@npm:4.3.0"
+"prisma@npm:^4.3.1":
+  version: 4.3.1
+  resolution: "prisma@npm:4.3.1"
   dependencies:
-    "@prisma/engines": 4.3.0
+    "@prisma/engines": 4.3.1
   bin:
     prisma: build/index.js
     prisma2: build/index.js
-  checksum: 36295fc3d13ca6260e4da81c7c2fd1d800efb01119f89c6308becf86d132a048dbd8ff0047efc7b4899a3035d9763cd9da3d364d87e5d0f48c81a46544c23ef3
+  checksum: f97133c11ecbb09a40c0ec006af50e8789f3b76376e29d5eb041b1592d2c289af22bcb9b5c49789ffb8bbe0b24f470c1ec668a94194c5859e18b601398cf80c8
   languageName: node
   linkType: hard
 
@@ -34347,12 +34353,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"use-debounce@npm:^8.0.3":
-  version: 8.0.3
-  resolution: "use-debounce@npm:8.0.3"
+"use-debounce@npm:^8.0.4":
+  version: 8.0.4
+  resolution: "use-debounce@npm:8.0.4"
   peerDependencies:
     react: ">=16.8.0"
-  checksum: 1790e540b53298e9abcf34d4a9bd4fc89a747644dcb65b42b02568a7c28cfa57d7756fae87c0b37b73261d2935b0c46ea5b53dfcbaf22e30f20728e36c703f9c
+  checksum: 0f8b9e571f68a4694033ec00690bf73d781ac890140ae9ed4b330f71f7adb3f7d7df5cdaa32923c4d03fdc9de8a11be0f84301175ae4f66208af52ad03c55504
   languageName: node
   linkType: hard
 
@@ -36461,11 +36467,11 @@ __metadata:
   languageName: node
   linkType: hard
 
-"zksync-web3@npm:^0.8.0":
-  version: 0.8.0
-  resolution: "zksync-web3@npm:0.8.0"
+"zksync-web3@npm:^0.8.1":
+  version: 0.8.1
+  resolution: "zksync-web3@npm:0.8.1"
   peerDependencies:
-    ethers: ~5.5.0
-  checksum: 8ca88210d25fcedeb6bf532e1c5281262a9127ea5982c31267eaa481a219ddcd9e35ff4f90257f33932657db658225ca216b4141817f30ad8d4b8ab3c6d99276
+    ethers: ~5.7.0
+  checksum: 613ebe822df1bef0af4d62386f3aaf65917d45dd80932b0ddf5b81eba6b0a46376f3e74263d153915dcfb8be954f730ded2e34d7806b6b199bbc74e0f124a0fb
   languageName: node
   linkType: hard
