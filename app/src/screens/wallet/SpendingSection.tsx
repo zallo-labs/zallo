@@ -16,7 +16,7 @@ import { TokenLimitCard } from './TokenLimitCard';
 export interface SpendingSectionProps {
   wallet: CombinedWallet;
   limits: Limits;
-  setLimits: (limits: Limits) => void;
+  setLimits: (f: (limits: Limits) => Limits) => void;
   style?: StyleProp<ViewStyle>;
 }
 
@@ -38,17 +38,17 @@ export const SpendingSection = ({
     >
       <Container separator={<Box mt={2} />}>
         <Box horizontal justifyContent="space-between" alignItems="center">
-          <Text variant="bodyMedium">Allow spending tokens not listed</Text>
+          <Text variant="bodyMedium">Restrict spending to tokens listed</Text>
           <Switch
             value={latest(limits.allowlisted) ?? false}
             onValueChange={(proposed) =>
-              setLimits({
+              setLimits((limits) => ({
                 ...limits,
                 allowlisted: {
                   ...limits.allowlisted,
                   proposed,
                 },
-              })
+              }))
             }
           />
         </Box>
@@ -65,7 +65,7 @@ export const SpendingSection = ({
                 token: address(token),
                 limit,
                 onChange: (newLimit) => {
-                  setLimits(
+                  setLimits((limits) =>
                     produce(limits, (limits) => {
                       limits.tokens[address(token)].proposed = newLimit;
                     }),
@@ -83,7 +83,7 @@ export const SpendingSection = ({
             createLimit({
               wallet,
               onChange: (newLimit, token) =>
-                setLimits(
+                setLimits((limits) =>
                   produce(limits, (limits) => {
                     if (newLimit !== null) {
                       limits.tokens[token] = {

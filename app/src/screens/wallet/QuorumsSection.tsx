@@ -16,7 +16,7 @@ import { QuorumCard } from './QuorumCard';
 export interface QuorumsSectionProps {
   initialQuorums: CombinedQuorum[];
   quorums: CombinedQuorum[];
-  setQuorums: (quorums: CombinedQuorum[]) => void;
+  setQuorums: (f: (quorums: CombinedQuorum[]) => CombinedQuorum[]) => void;
   style?: StyleProp<ViewStyle>;
 }
 
@@ -34,7 +34,7 @@ export const QuorumsSection = ({
       if (quorum.state.status === 'remove') return undefined;
 
       return () =>
-        setQuorums(
+        setQuorums((quorums) =>
           produce(quorums, (quorums) => {
             const i = quorums.findIndex(
               (q) => hashQuorum(q.approvers) === hashQuorum(quorum.approvers),
@@ -49,18 +49,18 @@ export const QuorumsSection = ({
           }),
         );
     },
-    [quorums, setQuorums],
+    [setQuorums],
   );
 
   const addQuorum = useCallback(
     (approvers: Address[]) => {
-      setQuorums(
+      setQuorums((quorums) =>
         produce(quorums, (quorums) => {
           const quorum = toQuorum(approvers);
           const hash = hashQuorum(quorum);
 
           if (!quorums.find((q) => hash === hashQuorum(q.approvers))) {
-            quorums = sortCombinedQuorums([
+            return sortCombinedQuorums([
               ...quorums,
               {
                 approvers: toQuorum(approvers),
@@ -71,7 +71,7 @@ export const QuorumsSection = ({
         }),
       );
     },
-    [quorums, setQuorums],
+    [setQuorums],
   );
 
   const makeSetQuorumApprovers = useCallback(
@@ -99,7 +99,7 @@ export const QuorumsSection = ({
         );
         assert(i >= 0);
 
-        setQuorums(
+        setQuorums((quorums) =>
           produce(quorums, (quorums) => {
             quorums[i] = initial;
           }),

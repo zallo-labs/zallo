@@ -22,7 +22,6 @@ import { WalletAppbar } from './WalletAppbar';
 import { useUpsertWallet } from '~/mutations/wallet/upsert/useUpsertWallet';
 import { QuorumsSection } from './QuorumsSection';
 import { SpendingSection } from './SpendingSection';
-import { useAccount } from '~/queries/account/useAccount';
 
 /*
  *          Actions
@@ -84,6 +83,8 @@ export const WalletScreen = withSkeleton(({ route }: WalletScreenProps) => {
   const [wallet, setWallet] = useState(initialWallet);
   const [upsertWallet, applying] = useUpsertWallet(wallet.accountAddr);
 
+  console.log(JSON.stringify(wallet, null, 2));
+
   return (
     <Box flex={1}>
       <WalletAppbar
@@ -106,14 +107,16 @@ export const WalletScreen = withSkeleton(({ route }: WalletScreenProps) => {
         <SpendingSection
           wallet={wallet}
           limits={wallet.limits}
-          setLimits={(limits) => setWallet((w) => ({ ...w, limits }))}
+          setLimits={(f) => setWallet((w) => ({ ...w, limits: f(w.limits) }))}
           style={styles.section}
         />
 
         <QuorumsSection
           initialQuorums={initialWallet.quorums}
           quorums={wallet.quorums}
-          setQuorums={(quorums) => setWallet((w) => ({ ...w, quorums }))}
+          setQuorums={(f) =>
+            setWallet((w) => ({ ...w, quorums: f(w.quorums) }))
+          }
           style={styles.section}
         />
       </ScrollView>
