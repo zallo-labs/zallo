@@ -21,7 +21,7 @@ import {
 import { WalletAppbar } from './WalletAppbar';
 import { useUpsertWallet } from '~/mutations/wallet/upsert/useUpsertWallet';
 import { QuorumsSection } from './QuorumsSection';
-import { SpendingSection } from './SpendingSection';
+import { SpendingSection } from './spending/SpendingSection';
 
 /*
  *          Actions
@@ -82,8 +82,6 @@ export const WalletScreen = withSkeleton(({ route }: WalletScreenProps) => {
   );
   const [wallet, setWallet] = useState(initialWallet);
   const [upsertWallet, applying] = useUpsertWallet(wallet.accountAddr);
-
-  console.log(JSON.stringify(wallet, null, 2));
 
   return (
     <Box flex={1}>

@@ -21,7 +21,7 @@ import { QueryOpts } from '~/gql/update';
 import produce from 'immer';
 import { useAccountIds } from '~/queries/account/useAccountIds';
 import { hashQuorum, isPresent } from 'lib';
-import { latest } from '~/gql/proposable';
+import { isProposed, latest } from '~/gql/proposable';
 
 gql`
   ${API_WALLET_FIELDS}
@@ -63,6 +63,18 @@ export const useApiUpsertWallet = () => {
         txHash,
         name: w.name,
         quorums: quorums.map((quorum) => quorum.approvers),
+        ...(isProposed(w.limits.allowlisted) && {
+          spendingAllowlisted: w.limits.allowlisted.proposed,
+        }),
+        limits: Object.entries(w.limits.tokens).map(([token, proposable]) => {
+          const limit = latest(proposable);
+
+          return {
+            token,
+            amount: limit.amount.toString(),
+            period: limit.period,
+          };
+        }),
       },
       optimisticResponse: {
         upsertWallet: {

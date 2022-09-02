@@ -1,13 +1,13 @@
-import { Call, getWalletId, hashQuorum, tryDecodeUpsertWalletData } from 'lib';
+import { Call, getWalletId, tryDecodeUpsertWalletData } from 'lib';
 import { memo, useMemo } from 'react';
 import { Text } from 'react-native-paper';
 import { Accordion, AccordionProps } from '~/components/Accordion';
 import { Box } from '~/components/layout/Box';
-import { Container } from '~/components/layout/Container';
 import { Suspend } from '~/components/Suspender';
 import { CombinedWallet, WalletId } from '~/queries/wallets';
 import { useWallet } from '~/queries/wallet/useWallet';
-import { AddedOrRemovedQuorumRow } from './AddedQuorumRow';
+import { ModifiedSpending } from './ModifiedSpending';
+import { ModifiedQuorums } from './ModifiedQuorums';
 
 export const useDecodedUpsertWallet = (call?: Call) =>
   useWallet(
@@ -39,10 +39,6 @@ export const UpsertWalletMethod = memo(
 
     if (!wallet) return <Suspend />;
 
-    const modifiedQuorums = wallet.quorums.filter(
-      (q) => q.state.status !== 'active',
-    );
-
     return (
       <Accordion
         title={
@@ -50,13 +46,10 @@ export const UpsertWalletMethod = memo(
         }
         {...accordionProps}
       >
-        <Container mx={3} separator={<Box mb={1} />}>
-          <Text variant="titleSmall">Quorums</Text>
-
-          {modifiedQuorums.map((q) => (
-            <AddedOrRemovedQuorumRow key={hashQuorum(q.approvers)} quorum={q} />
-          ))}
-        </Container>
+        <Box mx={3}>
+          <ModifiedQuorums quorums={wallet.quorums} />
+          <ModifiedSpending limits={wallet.limits} />
+        </Box>
       </Accordion>
     );
   },

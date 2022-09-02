@@ -16,7 +16,7 @@ import { TxId } from '../tx';
 
 export const QUERY_WALLETS_POLL_INTERVAL = 30 * 1000;
 
-export type ProposableStatus = 'active' | 'add' | 'remove';
+export type ProposableStatus = 'active' | 'modify' | 'add' | 'remove';
 
 export interface ProposableState {
   status: ProposableStatus;
@@ -58,6 +58,12 @@ export interface TokenLimit {
   amount: BigNumber;
   period: LimitPeriod;
 }
+
+export const LIMIT_PERIOD_LABEL: Record<LimitPeriod, string> = {
+  Day: 'Daily',
+  Week: 'Weekly',
+  Month: 'Monthly',
+};
 
 export interface Limits {
   tokens: Record<Address, Proposable<TokenLimit>>;

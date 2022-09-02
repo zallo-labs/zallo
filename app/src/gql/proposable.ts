@@ -1,4 +1,5 @@
 import assert from 'assert';
+import _ from 'lodash';
 import { TxId } from '~/queries/tx';
 import { ProposableStatus } from '~/queries/wallets';
 
@@ -33,8 +34,30 @@ export const mergeProposals = <T extends NonNullable<V>, V>(
   if (!sub) return api!;
   if (!api) return sub!;
 
-  return { ...api, ...sub };
+  const merged: Proposable<T> = { ...api, ...sub };
+  if (_.isEqual(merged.proposed, merged.active)) {
+    merged.proposed = undefined;
+    merged.proposal = undefined;
+  }
+
+  return merged;
 };
 
-export const getProposableStatus = (p: Proposable<unknown>): ProposableStatus =>
-  !isActive(p) ? 'add' : p.proposed === null ? 'remove' : 'active';
+export const getProposableStatus = (
+  p: Proposable<unknown>,
+): ProposableStatus => {
+  if (!isActive(p)) return 'add';
+  if (!isProposed(p)) return 'active';
+
+  return p.proposed === null ? 'remove' : 'modify';
+};
+
+export const setProposed = <T>(
+  p: Proposable<NonNullable<T>>,
+  value: NonNullable<T> | null,
+) => {
+  if (isActive(p)) p.proposed = value;
+  if (_.isEqual(p.active, p.proposed)) p.proposed = undefined;
+
+  return p;
+};

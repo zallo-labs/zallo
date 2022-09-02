@@ -53,15 +53,16 @@ export const API_QUERY_TX = gql`
   }
 `;
 
-export const useApiTx = (id: TxId) => {
+export const useApiTx = (id?: TxId) => {
   const device = useDevice();
 
   const { data, ...rest } = useTxQuery({
     client: useApiClient(),
     variables: {
-      account: id.account,
-      hash: id.hash,
+      account: id?.account,
+      hash: id?.hash,
     },
+    skip: !id,
   });
   usePollWhenFocussed(rest, QUERY_TX_POLL_INTERVAL);
 

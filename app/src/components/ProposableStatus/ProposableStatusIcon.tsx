@@ -3,7 +3,7 @@ import { useTheme } from '@theme/paper';
 import { ProposableState } from '~/queries/wallets';
 
 const ICON = {
-  active: materialCommunityIcon('clock-outline'),
+  modify: materialCommunityIcon('clock-outline'),
   add: materialCommunityIcon('clock-plus-outline'),
   remove: materialCommunityIcon('clock-remove-outline'),
 } as const;
@@ -18,7 +18,7 @@ export const ProposableStatusIcon = ({
 }: ProposableStatusIconProps) => {
   const { colors, iconSize } = useTheme();
 
-  if (state.status === 'active' && !state.proposedModification) return null;
+  if (state.status === 'active') return null;
 
   const Icon = ICON[state.status];
   return <Icon color={colors.onSurface} size={iconSize.small} {...iconProps} />;

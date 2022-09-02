@@ -4,7 +4,7 @@ import { ProposableState } from '~/queries/wallets';
 import { ProposableStatusIcon } from './ProposableStatusIcon';
 
 const LABEL = {
-  active: 'Modification proposed',
+  modify: 'Modification proposed',
   add: 'Addition proposed',
   remove: 'Removal proposed',
 } as const;
@@ -18,7 +18,7 @@ export const ProposableStatusButton = ({
 }: ProposableStatusButtonProps) => {
   const { navigate } = useRootNavigation();
 
-  if (state.status === 'active' && !state.proposedModification) return null;
+  if (state.status === 'active') return null;
 
   const proposedModification = state.proposedModification;
   return (

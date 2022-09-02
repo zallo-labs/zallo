@@ -1,11 +1,16 @@
-import { IconPropsWithoutName, materialCommunityIcon } from '@theme/icons';
+import {
+  IconPropsWithoutName,
+  ProposedAdd,
+  ProposedModify,
+  ProposedRemove,
+} from '@theme/icons';
 import { useTheme } from '@theme/paper';
 import { getProposableStatus, Proposable } from '~/gql/proposable';
 
 const ICON = {
-  active: materialCommunityIcon('clock-outline'),
-  add: materialCommunityIcon('clock-plus-outline'),
-  remove: materialCommunityIcon('clock-remove-outline'),
+  modify: ProposedModify,
+  add: ProposedAdd,
+  remove: ProposedRemove,
 } as const;
 
 interface ProposableIconProps extends IconPropsWithoutName {
@@ -19,7 +24,7 @@ export const ProposableIcon = ({
   const { colors, iconSize } = useTheme();
 
   const status = getProposableStatus(p);
-  if (status === 'active' && !p.proposal) return null;
+  if (status === 'active') return null;
 
   const Icon = ICON[status];
   return <Icon color={colors.onSurface} size={iconSize.small} {...iconProps} />;

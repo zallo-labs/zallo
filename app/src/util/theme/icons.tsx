@@ -71,3 +71,7 @@ export const QuorumIcon = materialIcon('group');
 export const DeployIcon = materialCommunityIcon('rocket-launch');
 export const UndoIcon = materialIcon('undo');
 export const CalendarIcon = materialIcon('calendar-today');
+export const ReplaceIcon = materialCommunityIcon('arrow-u-right-bottom');
+export const ProposedAdd = materialCommunityIcon('clock-plus-outline');
+export const ProposedRemove = materialCommunityIcon('clock-remove-outline');
+export const ProposedModify = materialCommunityIcon('clock-outline');

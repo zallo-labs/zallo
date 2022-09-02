@@ -4,7 +4,7 @@ import { Tx, TxId } from '../.';
 import { useApiTx } from './useTx.api';
 import { useSubTx } from './useTx.sub';
 
-export const useTx = (id: TxId) => {
+export const useTx = (id?: TxId) => {
   const { tx: apiTx, ...apiRest } = useApiTx(id);
   const { tx: subTx, ...subRest } = useSubTx(id);
 

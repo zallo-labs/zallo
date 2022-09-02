@@ -4,7 +4,7 @@ import { useRootNavigation } from '~/navigation/useRootNavigation';
 import { ProposableIcon } from './ProposableIcon';
 
 const LABEL = {
-  active: 'Modification proposed',
+  modify: 'Modification proposed',
   add: 'Addition proposed',
   remove: 'Removal proposed',
 } as const;
@@ -17,7 +17,7 @@ export const ProposableButton = ({ proposable: p }: ProposableButtonProps) => {
   const { navigate } = useRootNavigation();
 
   const status = getProposableStatus(p);
-  if (status === 'active' && !p.proposal) return null;
+  if (status === 'active') return null;
 
   const proposal = p.proposal;
   return (

@@ -36,19 +36,20 @@ gql`
   }
 `;
 
-export const useSubTx = (id: TxId) => {
+export const useSubTx = (id?: TxId) => {
   const { data, ...rest } = useTxSubmissionsQuery({
     client: useSubgraphClient(),
     variables: {
-      account: toId(id.account),
-      hash: toId(id.hash),
+      account: id ? toId(id.account) : '',
+      hash: id ? toId(id.hash) : '',
     },
+    skip: !id,
   });
   usePollWhenFocussed(rest, QUERY_TX_POLL_INTERVAL);
 
   const tx = useMemo((): ExecutedTx | undefined => {
     const t = data?.txes[0];
-    if (!t) return undefined;
+    if (!t || !id) return undefined;
 
     const timestamp = DateTime.fromSeconds(parseInt(t.timestamp));
 
@@ -90,7 +91,7 @@ export const useSubTx = (id: TxId) => {
       ],
       status: t.success ? 'executed' : 'failed',
     };
-  }, [data?.txes, id.account, id.hash]);
+  }, [data?.txes, id]);
 
   return { tx, ...rest };
 };

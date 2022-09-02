@@ -8,7 +8,11 @@ import { withSkeleton } from '~/components/skeleton/withSkeleton';
 import { TokenBalanceCard } from '~/components/token/TokenBalanceCard';
 import { latest, Proposable } from '~/gql/proposable';
 import { RootNavigatorScreenProps } from '~/navigation/RootNavigator';
-import { CombinedWallet, TokenLimit } from '~/queries/wallets';
+import {
+  CombinedWallet,
+  LIMIT_PERIOD_LABEL,
+  TokenLimit,
+} from '~/queries/wallets';
 import { LimitAppbar } from './LimitAppbar';
 import { useState } from 'react';
 import _ from 'lodash';
@@ -20,11 +24,9 @@ import { SelectField } from '~/components/fields/SelectField';
 import { useTheme } from '@theme/paper';
 import { LimitPeriod } from '~/gql/generated.api';
 
-const PERIOD_ENTIRES: [string, LimitPeriod][] = [
-  ['Daily', LimitPeriod.Day],
-  ['Weekly', LimitPeriod.Week],
-  ['Monthly', LimitPeriod.Month],
-]
+const PERIOD_ENTIRES = Object.entries(LIMIT_PERIOD_LABEL).map(
+  ([period, label]): [string, LimitPeriod] => [label, period as LimitPeriod],
+);
 
 export interface LimitScreenParams {
   wallet: CombinedWallet;

@@ -1,19 +1,29 @@
 import { combine } from '~/gql/combine';
-import { hashQuorum, toQuorum } from 'lib';
+import { hashQuorum, isPresent, toQuorum } from 'lib';
 import { useMemo } from 'react';
 import { CombinedWallet, WalletId } from '../wallets';
 import { useApiWallet } from './useWallet.api';
 import { useSubWallet } from './useWallet.sub';
 import _ from 'lodash';
+import { useTx } from '../tx/tx/useTx';
+import { mergeProposals } from '~/gql/proposable';
 
 export const useWallet = (id?: WalletId) => {
   const { subWallet: s } = useSubWallet(id);
   const { apiWallet: a } = useApiWallet(id);
 
+  const { tx: limitTx } = useTx(
+    [a?.limits.allowlisted, ...Object.values(a?.limits.tokens ?? {})].find(
+      (p) => p?.proposal,
+    )?.proposal,
+  );
+
   return useMemo((): CombinedWallet | undefined => {
     if (!s && !a) return undefined;
     if (!s) return a;
     if (!a) return s;
+
+    const limitActive = limitTx?.status === 'executed';
 
     return {
       ...a,
@@ -40,16 +50,22 @@ export const useWallet = (id?: WalletId) => {
       //   ),
       // },
       limits: {
-        allowlisted: {
-          ...a.limits.allowlisted,
-          ...(typeof a.limits.allowlisted.proposed === 'boolean' && {
-            active: a.limits.allowlisted.proposed,
-          }),
-        },
-        tokens: _.mapValues(a.limits.tokens, (v) => ({
-          ...v,
-          ...(typeof v.proposed === 'boolean' && { active: v.proposed }),
-        })),
+        allowlisted:
+          limitActive && isPresent(a.limits.allowlisted.proposed)
+            ? {
+                active: a.limits.allowlisted.proposed,
+              }
+            : mergeProposals(a.limits.allowlisted, s.limits.allowlisted),
+        tokens: Object.fromEntries(
+          Object.entries(a.limits.tokens).map(([token, v]) => [
+            token,
+            limitActive && isPresent(v.proposed)
+              ? {
+                  active: v.proposed,
+                }
+              : v,
+          ]),
+        ),
       },
       quorums: combine(
         s.quorums,
