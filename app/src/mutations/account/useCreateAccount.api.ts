@@ -24,7 +24,6 @@ import {
   toQuorum,
   getWalletId,
   hashQuorum,
-  address,
 } from 'lib';
 import { API_ACCOUNT_QUERY } from '~/queries/account/useAccount.api';
 import produce from 'immer';

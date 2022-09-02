@@ -21,13 +21,6 @@ export const useActivateAccount = (
   const { refetch } = useAccount(account.addr);
   const wallet = useWallet(account.walletIds[0]);
 
-  if (wallet) {
-    assert(
-      !wallet.state.proposedModification,
-      'Account activation wallet is initial',
-    );
-  }
-
   const [deploying, setDeploying] = useState(false);
 
   const deploy = useMemo(

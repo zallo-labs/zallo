@@ -4,6 +4,7 @@ import { useMemo } from 'react';
 import { CombinedWallet, WalletId } from '../wallets';
 import { useApiWallet } from './useWallet.api';
 import { useSubWallet } from './useWallet.sub';
+import _ from 'lodash';
 
 export const useWallet = (id?: WalletId) => {
   const { subWallet: s } = useSubWallet(id);
@@ -38,6 +39,18 @@ export const useWallet = (id?: WalletId) => {
       //     ),
       //   ),
       // },
+      limits: {
+        allowlisted: {
+          ...a.limits.allowlisted,
+          ...(typeof a.limits.allowlisted.proposed === 'boolean' && {
+            active: a.limits.allowlisted.proposed,
+          }),
+        },
+        tokens: _.mapValues(a.limits.tokens, (v) => ({
+          ...v,
+          ...(typeof v.proposed === 'boolean' && { active: v.proposed }),
+        })),
+      },
       quorums: combine(
         s.quorums,
         a.quorums,
