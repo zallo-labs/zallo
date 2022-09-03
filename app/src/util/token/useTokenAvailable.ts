@@ -11,7 +11,7 @@ export const useTokenAvailable = (token: Token, walletId?: WalletId) => {
   const limit = wallet?.limits.tokens[token.addr]?.active;
   if (limit?.amount) return limit.amount;
 
-  if (wallet?.limits.allowlisted) return ZERO;
+  if (wallet?.limits.allowlisted.active) return ZERO;
 
   return balance;
 };
