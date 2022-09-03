@@ -16,19 +16,17 @@ import { useKeepAwakeWhenFocussed } from '~/util/hook/useKeepAwakeWhenFocussed';
 import { ZERO_ADDR } from 'lib';
 import { Suspend } from '~/components/Suspender';
 import { WalletSelector } from '../home/WalletSelector/WalletSelector';
-import { ReceiveIcon } from '~/util/theme/icons';
 import { StyleSheet } from 'react-native';
-import { useFaucet } from '~/mutations/useFacuet.api';
 import { useRootNavigation } from '~/navigation/useRootNavigation';
 import { Container } from '~/components/layout/Container';
 import { QrCode } from './QrCode';
+import { FaucetButton } from './FaucetButton';
 
 export const ReceiveScreen = withSkeleton(
   () => {
     const navigation = useRootNavigation();
     const wallet = useSelectedWallet();
     const selectWallet = useSelectWallet();
-    const faucet = useFaucet(wallet?.accountAddr, true);
     useKeepAwakeWhenFocussed();
 
     const token = useSelectedToken();
@@ -77,16 +75,7 @@ export const ReceiveScreen = withSkeleton(
                     </Button>
                   )}
 
-                  {faucet && (
-                    <Button
-                      mode="outlined"
-                      icon={ReceiveIcon}
-                      style={styles.facuet}
-                      onPress={faucet}
-                    >
-                      Testnet funds
-                    </Button>
-                  )}
+                  <FaucetButton account={wallet.accountAddr} />
                 </Box>
               )}
             </Box>
