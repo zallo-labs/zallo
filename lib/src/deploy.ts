@@ -77,7 +77,7 @@ export const calculateProxyAddress = async (
 ) => {
   const addr = zk.utils.create2Address(
     factory.address,
-    await factory._bytecodeHash(),
+    await factory._BYTECODE_HASH(),
     salt,
     encodeProxyConstructorArgs(args),
   );
