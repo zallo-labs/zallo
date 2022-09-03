@@ -9784,6 +9784,7 @@ __metadata:
     apollo: 2.34.0
     apollo-server-core: ^3.10.0
     apollo-server-express: ^3.10.0
+    async-mutex: ^0.4.0
     class-transformer: ^0.5.1
     class-validator: ^0.13.2
     config: "workspace:*"
@@ -10703,6 +10704,15 @@ __metadata:
   dependencies:
     tslib: ^2.3.1
   checksum: 620b771dfdea1cad0a6b712915c31a1e3ca880a8cf1eae92b4590f435995e0260929c6ebaae0b9126b1456790ea498064b5bb9a506948cda760f48d3d0dcc4c8
+  languageName: node
+  linkType: hard
+
+"async-mutex@npm:^0.4.0":
+  version: 0.4.0
+  resolution: "async-mutex@npm:0.4.0"
+  dependencies:
+    tslib: ^2.4.0
+  checksum: 813a71728b35a4fbfd64dba719f04726d9133c67b577fcd951b7028c4a675a13ee34e69beb82d621f87bf81f5d4f135c4c44be0448550c7db728547244ef71fc
   languageName: node
   linkType: hard
 

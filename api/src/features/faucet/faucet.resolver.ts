@@ -4,8 +4,10 @@ import { parseEther, parseUnits } from 'ethers/lib/utils';
 import { RequestFundsArgs } from './faucet.args';
 import { BigNumber } from 'ethers';
 import { address, Address, filterAsync } from 'lib';
-import assert from 'assert';
 import * as zk from 'zksync-web3';
+import { Mutex } from 'async-mutex';
+
+const TRANSFER_MUTEX = new Mutex();
 
 interface TokenFaucet {
   addr: Address;
@@ -39,6 +41,7 @@ export class FaucetResolver {
     @Args() { recipient }: RequestFundsArgs,
   ): Promise<boolean> {
     const tokensToSend = await this.getTokensToSend(recipient);
+    console.log(tokensToSend);
     return tokensToSend.length > 0;
   }
 
@@ -71,25 +74,17 @@ export class FaucetResolver {
   }
 
   private async transfer(recipient: Address, token: TokenFaucet) {
-    assert(this.provider.chain.isTestnet);
-
-    const recipientBalance = await this.provider.getBalance(
-      recipient,
-      undefined,
-      token.addr,
-    );
-    if (recipientBalance.gte(token.amount)) return false;
-
-    const walletBalance = await this.provider.wallet.getBalance(token.addr);
-    if (walletBalance.lt(token.amount)) return false;
-
-    const txResp = await this.provider.wallet.transfer({
-      to: recipient,
-      token: token.addr,
-      amount: token.amount,
-    });
-    await txResp.wait();
-
-    return true;
+    try {
+      await TRANSFER_MUTEX.runExclusive(() =>
+        this.provider.wallet.transfer({
+          to: recipient,
+          token: token.addr,
+          amount: token.amount,
+        }),
+      );
+      return true;
+    } catch {
+      return false;
+    }
   }
 }
