@@ -3139,12 +3139,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@expo/apple-utils@npm:0.0.0-alpha.33":
-  version: 0.0.0-alpha.33
-  resolution: "@expo/apple-utils@npm:0.0.0-alpha.33"
+"@expo/apple-utils@npm:0.0.0-alpha.34":
+  version: 0.0.0-alpha.34
+  resolution: "@expo/apple-utils@npm:0.0.0-alpha.34"
   bin:
     apple-utils: bin.js
-  checksum: 9118c8b9737597ef5990dacde7e32c82cd2d53b8ccb89649e6eed4052238f4cde92cabe320ebee55509e2f6f70e529f3f1ba03c8152fb990daab6239e69855e0
+  checksum: 65ac39a8f52fbab24c3ee5322208bb45cd31d370f0d6a205a32faec8809c91e3ed3cdcb505c8107779f6449aff1395caf2cc0de91a4dc7ba53061d51cada649a
   languageName: node
   linkType: hard
 
@@ -3462,9 +3462,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@expo/eas-json@npm:0.60.0":
-  version: 0.60.0
-  resolution: "@expo/eas-json@npm:0.60.0"
+"@expo/eas-json@npm:2.0.0":
+  version: 2.0.0
+  resolution: "@expo/eas-json@npm:2.0.0"
   dependencies:
     "@expo/eas-build-job": 0.2.85
     "@expo/json-file": 8.2.36
@@ -3475,7 +3475,7 @@ __metadata:
     log-symbols: 4.1.0
     semver: 7.3.7
     tslib: 2.4.0
-  checksum: f25d159ca7ff21bde995bbfb636c2878c6ad75072522a9c4e02e1f5c06ae4fc986d5307128a27ed8ba1a8fc05e8af2955597766ab2e160c34f59a1f08f32d382
+  checksum: 66b17b84a58a5375305cc43d802d3ec77118fd8caf9eb39854dfb4e819f2fe21afc056701e62a8559aa8a552ff5b88f0c2e0f3398923ac76b273632ee93507c8
   languageName: node
   linkType: hard
 
@@ -3565,7 +3565,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@expo/package-manager@npm:~0.0.53":
+"@expo/package-manager@npm:0.0.56, @expo/package-manager@npm:~0.0.53":
   version: 0.0.56
   resolution: "@expo/package-manager@npm:0.0.56"
   dependencies:
@@ -10268,7 +10268,7 @@ __metadata:
     concurrently: ^7.3.0
     config: "workspace:*"
     dotenv-cli: ^6.0.0
-    eas-cli: ^0.60.0
+    eas-cli: ^2.0.0
     eslint-plugin-formatjs: ^3.1.5
     eth-url-parser: ^1.0.4
     ethers: 5.7.0
@@ -15465,19 +15465,20 @@ __metadata:
   languageName: node
   linkType: hard
 
-"eas-cli@npm:^0.60.0":
-  version: 0.60.0
-  resolution: "eas-cli@npm:0.60.0"
+"eas-cli@npm:^2.0.0":
+  version: 2.0.0
+  resolution: "eas-cli@npm:2.0.0"
   dependencies:
-    "@expo/apple-utils": 0.0.0-alpha.33
+    "@expo/apple-utils": 0.0.0-alpha.34
     "@expo/code-signing-certificates": 0.0.2
     "@expo/config": 7.0.1
     "@expo/config-plugins": 5.0.1
     "@expo/config-types": 46.0.2
     "@expo/eas-build-job": 0.2.85
-    "@expo/eas-json": 0.60.0
+    "@expo/eas-json": 2.0.0
     "@expo/json-file": 8.2.36
     "@expo/multipart-body-parser": 1.1.0
+    "@expo/package-manager": 0.0.56
     "@expo/pkcs12": 0.0.8
     "@expo/plist": 0.0.18
     "@expo/plugin-autocomplete": 1.4.0
@@ -15523,12 +15524,12 @@ __metadata:
     ora: 5.1.0
     pkg-dir: 4.2.0
     promise-limit: 2.7.0
+    promise-retry: 2.0.1
     prompts: 2.4.2
     qrcode-terminal: 0.12.0
     resolve-from: 5.0.0
     semver: 7.3.7
     slash: 3.0.0
-    strip-ansi: 6.0.0
     tar: 6.1.11
     terminal-link: 2.1.1
     tslib: 2.4.0
@@ -15538,7 +15539,7 @@ __metadata:
     wrap-ansi: 7.0.0
   bin:
     eas: bin/run
-  checksum: d8817ab635de802e1de60a45c95bdb8cc21272b7f5eb4717dfb96e66359243efb56e7fedd29a37cfec1db712b8a3f45c6bca5bc892123cdf9169fe40fb875c79
+  checksum: ba491b240b67e6057a5c2486a717e542de2b18513c223e812b5a907d4371896273c31d1278e3925e87e6109c097323fa79c6f5a800b11412c48c8a83bebd4d15
   languageName: node
   linkType: hard
 
@@ -28393,7 +28394,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"promise-retry@npm:^2.0.1":
+"promise-retry@npm:2.0.1, promise-retry@npm:^2.0.1":
   version: 2.0.1
   resolution: "promise-retry@npm:2.0.1"
   dependencies:

@@ -28,7 +28,12 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
   runtimeVersion: {
     policy: 'sdkVersion',
   },
-  extra: CONFIG,
+  extra: {
+    ...CONFIG,
+    eas: {
+      projectId: 'f8f4def1-b838-4dec-8b50-6c07995c4ff5',
+    },
+  },
   plugins: ['sentry-expo', 'expo-community-flipper'],
   hooks: {
     postPublish: [
