@@ -30,9 +30,11 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
   },
   extra: {
     ...CONFIG,
-    eas: {
-      projectId: 'f8f4def1-b838-4dec-8b50-6c07995c4ff5',
-    },
+    ...(CONFIG.env === 'production' && {
+      eas: {
+        projectId: 'f8f4def1-b838-4dec-8b50-6c07995c4ff5',
+      },
+    }),
   },
   plugins: ['sentry-expo', 'expo-community-flipper'],
   hooks: {
