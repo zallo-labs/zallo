@@ -3,7 +3,6 @@ import { useTokenPrice } from '~/queries/useTokenPrice.uni';
 import { Token } from '@token/token';
 import { CardItem, CardItemProps } from '../card/CardItem';
 import { WalletId } from '~/queries/wallets';
-import { makeStyles } from '@theme/makeStyles';
 import { useTokenAvailable } from '@token/useTokenAvailable';
 import { useTokenValue } from '@token/useTokenValue';
 import { FiatValue } from '../fiat/FiatValue';
@@ -25,7 +24,6 @@ export const TokenHoldingCard = ({
   selected,
   ...props
 }: TokenHoldingCardProps) => {
-  const styles = useStyles();
   const { price } = useTokenPrice(t);
   const available = useTokenAvailable(t, wallet);
   const { fiatValue } = useTokenValue(t, available);
@@ -54,16 +52,7 @@ export const TokenHoldingCard = ({
         </Text>,
       ]}
       {...props}
-      {...(selected && { style: [props.style, styles.selected] })}
+      elevation={selected ? 2 : 1}
     />
   );
 };
-
-const useStyles = makeStyles(({ colors }) => ({
-  selected: {
-    backgroundColor: colors.surfaceVariant,
-  },
-  opaqueText: {
-    color: colors.onSurfaceOpaque,
-  },
-}));
