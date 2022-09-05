@@ -9,16 +9,16 @@ import { useMaybeToken } from '@token/useToken';
 import { TokenIcon } from '~/components/token/TokenIcon/TokenIcon';
 import { useTxContext } from '../TransactionProvider';
 import { makeStyles } from '@theme/makeStyles';
-import { TxTokens } from './TxTokens';
-import { useTxTokens } from './useTxTokens';
+import { TxTransfers } from './TxTransfers';
+import { useTxTransfers } from './useTxTransfers';
 
 export const TransactionDetails = () => {
   const styles = useStyles();
   const { tx } = useTxContext();
   const token = useMaybeToken(tx.to) ?? ETH;
 
-  const tokens = useTxTokens(tx);
-  const totalFiat = tokens.reduce((acc, t) => acc + t.fiatAmount, 0);
+  const transfers = useTxTransfers(tx);
+  const totalFiat = transfers.reduce((acc, t) => acc + t.fiatAmount, 0);
 
   return (
     <Card>
@@ -38,7 +38,7 @@ export const TransactionDetails = () => {
         )}
       </Box>
 
-      <TxTokens tokens={tokens} style={styles.section} />
+      <TxTransfers transfers={transfers} style={styles.section} />
 
       <DetailedCallMethod call={tx} style={styles.section} />
     </Card>

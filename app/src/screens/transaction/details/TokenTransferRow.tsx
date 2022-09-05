@@ -1,18 +1,18 @@
 import { Box } from '~/components/layout/Box';
-import { BigNumber } from 'ethers';
 import { Text } from 'react-native-paper';
 import { TokenAmount } from '~/components/token/TokenAmount';
-import { Token } from '@token/token';
 import { useTxContext } from '../TransactionProvider';
 import { makeStyles } from '@theme/makeStyles';
 import { useTokenAvailable } from '@token/useTokenAvailable';
+import { TxTransfer } from './useTxTransfers';
 
-export interface TokenAmountRowProps {
-  token: Token;
-  amount: BigNumber;
+export interface TokenTransferRowProps {
+  transfer: TxTransfer;
 }
 
-export const TokenAmountRow = ({ token, amount }: TokenAmountRowProps) => {
+export const TokenTransferRow = ({
+  transfer: { token, amount },
+}: TokenTransferRowProps) => {
   const { wallet } = useTxContext();
 
   return (
@@ -23,7 +23,7 @@ export const TokenAmountRow = ({ token, amount }: TokenAmountRowProps) => {
 
       <Text variant="bodySmall">
         <TokenAmount token={token} amount={useTokenAvailable(token, wallet)} />
-        available
+        {' available'}
       </Text>
     </Box>
   );

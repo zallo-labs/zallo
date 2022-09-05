@@ -8,20 +8,20 @@ import { ZERO } from 'lib';
 import { useDecodedTransfer } from '~/components/call/useDecodedTransfer';
 import { Tx } from '~/queries/tx';
 
-export interface TxToken {
+export interface TxTransfer {
   token: Token;
   amount: BigNumber;
   fiatAmount: number;
   available: BigNumber;
 }
 
-export const useTxTokens = (tx: Tx): TxToken[] => {
+export const useTxTransfers = (tx: Tx): TxTransfer[] => {
   const transferToken = useMaybeToken(tx.to) ?? ETH;
   const transferAmount = useDecodedTransfer(tx)?.value ?? ZERO;
   const transferFiat = useTokenFiatValue(transferToken, transferAmount);
   const transferAvailable = useTokenAvailable(transferToken, tx.wallet);
 
-  const txEth: TxToken = {
+  const txEth: TxTransfer = {
     token: ETH,
     amount: tx.value,
     fiatAmount: useTokenFiatValue(ETH, tx.value),

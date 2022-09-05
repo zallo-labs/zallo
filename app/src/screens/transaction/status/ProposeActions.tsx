@@ -16,7 +16,7 @@ import { CombinedWallet } from '~/queries/wallets';
 import { Actions } from './Actions';
 import { useTransactionIsApproved } from './useTransactionIsApproved';
 import { useRevokeApproval } from '~/mutations/tx/approve/useRevokeApproval.api';
-import { useTxTokens } from '../details/useTxTokens';
+import { useTxTransfers } from '../details/useTxTransfers';
 
 export interface ProposeActionsProps {
   tx: Tx;
@@ -37,11 +37,11 @@ export const ProposeActions = ({
 
   const [submitting, setSubmitting] = useState(false);
 
-  const tokens = useTxTokens(tx);
+  const transfers = useTxTransfers(tx);
   const canSubmit =
     isApproved &&
     wallet.state.status !== 'add' &&
-    tokens.every((t) => t.amount.lte(t.available));
+    transfers.every((t) => t.amount.lte(t.available));
 
   return (
     <Actions>

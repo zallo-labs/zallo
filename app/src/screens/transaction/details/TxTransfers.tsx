@@ -1,18 +1,18 @@
 import { StyleProp, ViewStyle } from 'react-native';
 import { Text } from 'react-native-paper';
 import { Box } from '~/components/layout/Box';
-import { TokenAmountRow } from './TokenAmountRow';
-import { TxToken } from './useTxTokens';
+import { TokenTransferRow } from './TokenTransferRow';
+import { TxTransfer } from './useTxTransfers';
 
-export interface TxTokensProps {
-  tokens: TxToken[];
+export interface TxTransfersProps {
+  transfers: TxTransfer[];
   style?: StyleProp<ViewStyle>;
 }
 
-export const TxTokens = ({ tokens, style }: TxTokensProps) => {
-  const insufficient = tokens.some((t) => t.amount.gt(t.available));
+export const TxTransfers = ({ transfers, style }: TxTransfersProps) => {
+  const insufficient = transfers.some((t) => t.amount.gt(t.available));
 
-  if (!tokens.some((t) => !t.amount.isZero())) return null;
+  if (!transfers.some((t) => !t.amount.isZero())) return null;
 
   return (
     <Box style={style}>
@@ -25,14 +25,10 @@ export const TxTokens = ({ tokens, style }: TxTokensProps) => {
         </Box>
       </Box>
 
-      {tokens.map(
+      {transfers.map(
         (t) =>
           !t.amount.isZero() && (
-            <TokenAmountRow
-              key={t.token.addr}
-              token={t.token}
-              amount={t.amount}
-            />
+            <TokenTransferRow key={t.token.addr} transfer={t} />
           ),
       )}
     </Box>
