@@ -59,6 +59,7 @@ export const PayCircleIcon = materialCommunityIcon(
 export const PayCircleOutlineIcon = materialCommunityIcon(
   'contactless-payment-circle-outline',
 );
+export const DeviceIcon = materialIcon('account-circle');
 export const AccountIcon = materialCommunityIcon('bank');
 export const WalletIcon = ionIcon('md-wallet');
 export const BackIcon = materialIcon('arrow-back');

@@ -16,6 +16,7 @@ import { Linking } from 'react-native';
 import { Drawer } from 'react-native-paper';
 import * as WebBrowser from 'expo-web-browser';
 import { Navigate } from '../useRootNavigation';
+import { DeviceItem } from './DeviceItem';
 
 enum Link {
   Issues = 'https://github.com/AlloPay/AlloPay/issues',
@@ -35,6 +36,10 @@ export const DrawerContent = ({ navigation }: DrawerContentProps) => {
 
   return (
     <DrawerContentScrollView>
+      <Drawer.Section>
+        <DeviceItem />
+      </Drawer.Section>
+
       <Drawer.Section title="Actions">
         <Drawer.Item
           label="Contacts"
