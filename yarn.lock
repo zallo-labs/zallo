@@ -10303,6 +10303,7 @@ __metadata:
     expo-constants: ~13.2.3
     expo-dev-client: ~1.1.1
     expo-device: ~4.3.0
+    expo-haptics: ~11.3.0
     expo-keep-awake: ~10.2.0
     expo-local-authentication: ~12.3.0
     expo-localization: ~13.1.0
@@ -17494,6 +17495,15 @@ __metadata:
   peerDependencies:
     expo: "*"
   checksum: bffd3b4c2ae235eb5edd51dc3f27ca41056fc6ad9055d0473961f3b7097ad47b5f1622a51c8d62e6193bad8e195e2e9907ad776daefb1a183f9e9ddfa436c31a
+  languageName: node
+  linkType: hard
+
+"expo-haptics@npm:~11.3.0":
+  version: 11.3.0
+  resolution: "expo-haptics@npm:11.3.0"
+  peerDependencies:
+    expo: "*"
+  checksum: b70692deeb1d36f4d4f9ddfc78dcc6f66fcfe0bf4be7994921eec811b9c6d7a0621959e68e03a73beac998986f8fd2e8988bd9f9827f08e86231adf3ce30deeb
   languageName: node
   linkType: hard
 

@@ -52,6 +52,7 @@
     "expo-constants": "~13.2.3",
     "expo-dev-client": "~1.1.1",
     "expo-device": "~4.3.0",
+    "expo-haptics": "~11.3.0",
     "expo-keep-awake": "~10.2.0",
     "expo-local-authentication": "~12.3.0",
     "expo-localization": "~13.1.0",

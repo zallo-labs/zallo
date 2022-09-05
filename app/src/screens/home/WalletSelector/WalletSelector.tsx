@@ -12,6 +12,7 @@ import { CombinedWallet, WalletId } from '~/queries/wallets';
 import { WALLET_PAYMENT_CARD_STYLE } from './WalletPaymentCard/WalletPaymentCardSkeleton';
 import Carousel from 'react-native-snap-carousel';
 import { useWindowDimensions } from 'react-native';
+import * as Haptics from 'expo-haptics';
 
 export interface WalletSelectorProps {
   selected: CombinedWallet;
@@ -50,7 +51,11 @@ export const WalletSelector = ({
         vertical={false}
         onScrollIndexChanged={(index) => {
           setPosition(index);
-          if (index < walletIds.length) onSelect(walletIds[index]);
+          const item = walletIds[index];
+          if (selected !== item) {
+            onSelect(item);
+            Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+          }
         }}
       />
 
