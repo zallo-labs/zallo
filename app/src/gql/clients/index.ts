@@ -73,7 +73,7 @@ export const createUniswapClient: ClientCreator = async () =>
     link: ApolloLink.from([
       new RetryLink(),
       new HttpLink({
-        uri: 'https://api.thegraph.com/subgraphs/name/ianlapham/uniswap-v3-subgraph',
+        uri: 'https://api.thegraph.com/subgraphs/name/uniswap/uniswap-v3',
       }),
     ]),
     defaultOptions,
