@@ -31,8 +31,6 @@ export const SpendingSection = ({
   const { navigate } = useRootNavigation();
   const createLimit = useCreateLimit(wallet);
 
-  console.log(JSON.stringify(limits, null, 2));
-
   return (
     <Accordion
       title={<Text variant="titleMedium">Spending</Text>}

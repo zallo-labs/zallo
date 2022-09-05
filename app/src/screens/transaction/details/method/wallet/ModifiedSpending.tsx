@@ -36,8 +36,6 @@ export const ModifiedSpending = ({ limits }: ModifiedSpendingProps) => {
   if (!isProposed(limits.allowlisted) && modifiedTokens.length === 0)
     return null;
 
-  console.log(limits.allowlisted);
-
   return (
     <Container separator={<Box my={1} />}>
       <Text variant="titleSmall">Spending</Text>
