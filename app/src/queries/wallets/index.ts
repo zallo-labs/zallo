@@ -9,6 +9,7 @@ import {
   Wallet,
   sortQuorums,
   quorumToLeaf,
+  toQuorum,
 } from 'lib';
 import { LimitPeriod } from '~/gql/generated.api';
 import { Proposable } from '~/gql/proposable';
@@ -89,7 +90,9 @@ export const toActiveWallet = (
   return {
     ref: w.ref,
     quorums: sortQuorums(
-      w.quorums.filter((q) => q.state.status !== 'add').map((q) => q.approvers),
+      w.quorums
+        .filter((q) => q.state.status !== 'add')
+        .map((q) => toQuorum(q.approvers)),
     ),
   };
 };
