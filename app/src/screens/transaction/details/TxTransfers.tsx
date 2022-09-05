@@ -20,8 +20,8 @@ export const TxTransfers = ({ transfers, style }: TxTransfersProps) => {
         {insufficient && <Text variant="titleSmall">Insufficient balance</Text>}
 
         <Box horizontal justifyContent="space-between" alignItems="center">
-          <Text variant="titleSmall">Available</Text>
           <Text variant="titleSmall">Amount</Text>
+          <Text variant="titleSmall">Available</Text>
         </Box>
       </Box>
 

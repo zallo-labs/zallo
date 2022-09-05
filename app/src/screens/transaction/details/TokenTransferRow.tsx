@@ -24,9 +24,8 @@ export const TokenTransferRow = ({
         <TokenAmount token={token} amount={amount} />
       </Text>
 
-      <Text variant="bodySmall" style={insufficient && styles.insufficient}>
+      <Text variant="bodyMedium" style={insufficient && styles.insufficient}>
         <TokenAmount token={token} amount={useTokenAvailable(token, wallet)} />
-        {' available'}
       </Text>
     </Box>
   );
