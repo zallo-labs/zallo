@@ -27,7 +27,7 @@ export const CallTokens = ({ call, textStyle }: CallTokensProps) => {
       {tokens.map(
         (t) =>
           !t.amount.isZero() && (
-            <Text variant="bodyMedium" style={textStyle}>
+            <Text key={t.token.addr} variant="bodyMedium" style={textStyle}>
               <TokenAmount token={t.token} amount={t.amount} />
             </Text>
           ),
