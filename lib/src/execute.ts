@@ -16,8 +16,8 @@ const toPartialTransactionRequest = (tx: TxReq): TransactionRequest => ({
   data: defaultAbiCoder.encode(['bytes8', 'bytes'], [tx.salt, tx.data]),
 });
 
-const FALLBACK_BASE_GAS = BigNumber.from(30_000);
-const GAS_PER_SIGNER = 15_000;
+const FALLBACK_BASE_GAS = BigNumber.from(300_000);
+const GAS_PER_SIGNER = 50_000;
 
 export const estimateTxGas = async (
   tx: TxReq | TransactionRequest,
@@ -30,31 +30,10 @@ export const estimateTxGas = async (
   try {
     baseGas = await provider.estimateGas(req);
   } catch (e) {
-    console.warn('Failed to estimate base gas', e);
+    console.warn('Failed to estimate base gas');
   }
 
   return baseGas.add(nSigners * GAS_PER_SIGNER);
-};
-
-export const toTransactionStruct = (
-  r: TransactionRequest,
-): TransactionStruct => {
-  return {
-    txType: r.type!,
-    from: r.from!,
-    to: r.to!,
-    ergsLimit: r.gasLimit!,
-    ergsPerPubdataByteLimit: r.gasPrice ?? 1,
-    maxFeePerErg: r.maxFeePerGas ?? 1,
-    maxPriorityFeePerErg: r.maxPriorityFeePerGas ?? 1,
-    paymaster: 0,
-    factoryDeps: [],
-    paymasterInput: '0x',
-    reserved: [r.nonce!, r.value!, 0, 0, 0, 0],
-    data: r.data!,
-    signature: r.customData!.customSignature!,
-    reservedDynamic: '0x',
-  };
 };
 
 export interface ExecuteTxOptions {
@@ -80,6 +59,7 @@ export const toTransactionRequest = async (
     gasPrice: await provider.getGasPrice(),
     gasLimit: await estimateTxGas(basicReq, provider, signers.length),
     customData: {
+      ergsPerPubdata: zk.utils.DEFAULT_ERGS_PER_PUBDATA_LIMIT,
       ...opts.customData,
       customSignature: createTxSignature(wallet, signers),
     },
@@ -91,4 +71,26 @@ export const executeTx = async (
 ) => {
   const req = await toTransactionRequest(account, ...args);
   return account.provider.sendTransaction(zk.utils.serialize(req));
+};
+
+// For external transactions
+export const toTransactionStruct = (
+  r: TransactionRequest,
+): TransactionStruct => {
+  return {
+    txType: r.type!,
+    from: r.from!,
+    to: r.to!,
+    ergsLimit: r.gasLimit!,
+    ergsPerPubdataByteLimit: r.gasPrice ?? 1,
+    maxFeePerErg: r.maxFeePerGas ?? 1,
+    maxPriorityFeePerErg: r.maxPriorityFeePerGas ?? 1,
+    paymaster: 0,
+    factoryDeps: [],
+    paymasterInput: '0x',
+    reserved: [r.nonce!, r.value!, 0, 0, 0, 0],
+    data: r.data!,
+    signature: r.customData!.customSignature!,
+    reservedDynamic: '0x',
+  };
 };
