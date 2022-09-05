@@ -4,7 +4,7 @@ import { WalletPaymentCardSkeleton } from './WalletPaymentCard/WalletPaymentCard
 
 export const WalletSelectorSkeleton = () => (
   <Box mx={4}>
-    <Box my={3}>
+    <Box horizontal justifyContent="center" my={3}>
       <WalletPaymentCardSkeleton />
     </Box>
 
