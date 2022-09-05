@@ -1,11 +1,10 @@
-import { Suspend } from '~/components/Suspender';
 import {
   SendIcon,
   CancelIcon,
   CheckIcon,
   QuorumIcon,
 } from '~/util/theme/icons';
-import { useState } from 'react';
+import { memo, useState } from 'react';
 import { Button } from 'react-native-paper';
 import { useGoBack } from '~/components/Appbar/useGoBack';
 import { useExecute } from '~/mutations/tx/execute/useExecute';
@@ -24,7 +23,7 @@ export interface ProposeActionsProps {
   wallet: CombinedWallet;
 }
 
-export const ProposeActions = ({
+export const ProposeActions = memo(({
   tx,
   wallet,
   account,
@@ -32,7 +31,7 @@ export const ProposeActions = ({
   const isApproved = useTransactionIsApproved(tx, wallet);
   const approve = useApproveTx();
   const revoke = useRevokeApproval();
-  const executeMutation = useExecute(account, wallet, tx);
+  const execute = useExecute(account, wallet, tx);
   const goBack = useGoBack();
 
   const [submitting, setSubmitting] = useState(false);
@@ -70,7 +69,7 @@ export const ProposeActions = ({
           loading={submitting}
           onPress={() => {
             setSubmitting(true);
-            executeMutation();
+            execute();
             // Execute will cause a re-render once complete
           }}
         >
@@ -94,4 +93,4 @@ export const ProposeActions = ({
       )}
     </Actions>
   );
-};
+});
