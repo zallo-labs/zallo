@@ -1,9 +1,5 @@
 import { Box } from '~/components/layout/Box';
-import { makeStyles } from '~/util/theme/makeStyles';
-import { useCallback, useState } from 'react';
-import PagerView, {
-  PagerViewOnPageSelectedEvent,
-} from 'react-native-pager-view';
+import { useState } from 'react';
 import { Indicator } from '~/screens/home/WalletSelector/Indicator/Indicator';
 import {
   WalletPaymentCard,
@@ -12,9 +8,10 @@ import {
 import { useWalletIds } from '~/queries/wallets/useWalletIds';
 import { NewWalletPaymentCard } from '~/screens/home/WalletSelector/WalletPaymentCard/NewWalletPaymentCard';
 import { useCreateWallet } from '~/mutations/wallet/useCreateWallet';
-import { Suspend } from '~/components/Suspender';
 import { CombinedWallet, WalletId } from '~/queries/wallets';
 import { WALLET_PAYMENT_CARD_STYLE } from './WalletPaymentCard/WalletPaymentCardSkeleton';
+import Carousel from 'react-native-snap-carousel';
+import { useWindowDimensions } from 'react-native';
 
 export interface WalletSelectorProps {
   selected: CombinedWallet;
@@ -28,41 +25,34 @@ export const WalletSelector = ({
   cardProps,
 }: WalletSelectorProps) => {
   const { walletIds } = useWalletIds();
-  const styles = useStyles();
   const createWallet = useCreateWallet();
+  const window = useWindowDimensions();
 
   const [position, setPosition] = useState(() => {
     const i = walletIds.findIndex((w) => w.id === selected.id);
     return i >= 0 ? i : 0;
   });
 
-  const handlePageSelected = useCallback(
-    ({ nativeEvent: { position: newPos } }: PagerViewOnPageSelectedEvent) => {
-      setPosition(newPos);
-      if (newPos < walletIds.length) onSelect(walletIds[newPos]);
-    },
-    [onSelect, walletIds],
-  );
-
-  if (!selected) return <Suspend />;
-
   return (
     <Box>
-      <PagerView
-        style={styles.viewPager}
-        initialPage={position}
-        onPageSelected={handlePageSelected}
-      >
-        {walletIds.map((id, i) => (
-          <Box key={i + 1} horizontal justifyContent="center">
-            <WalletPaymentCard id={id} {...cardProps} />
-          </Box>
-        ))}
-
-        <Box key={walletIds.length + 1} horizontal justifyContent="center">
-          <NewWalletPaymentCard onPress={createWallet} />
-        </Box>
-      </PagerView>
+      <Carousel
+        layout="default"
+        data={[...walletIds, null]}
+        renderItem={({ item }) =>
+          item !== null ? (
+            <WalletPaymentCard id={item} {...cardProps} />
+          ) : (
+            <NewWalletPaymentCard onPress={createWallet} />
+          )
+        }
+        itemWidth={WALLET_PAYMENT_CARD_STYLE.width}
+        sliderWidth={window.width}
+        vertical={false}
+        onScrollIndexChanged={(index) => {
+          setPosition(index);
+          if (index < walletIds.length) onSelect(walletIds[index]);
+        }}
+      />
 
       <Box horizontal justifyContent="center" mt={3}>
         <Indicator n={walletIds.length + 1} position={position} />
@@ -70,9 +60,3 @@ export const WalletSelector = ({
     </Box>
   );
 };
-
-const useStyles = makeStyles({
-  viewPager: {
-    height: WALLET_PAYMENT_CARD_STYLE.height,
-  },
-});

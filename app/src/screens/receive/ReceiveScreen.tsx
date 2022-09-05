@@ -16,7 +16,6 @@ import { useKeepAwakeWhenFocussed } from '~/util/hook/useKeepAwakeWhenFocussed';
 import { ZERO_ADDR } from 'lib';
 import { Suspend } from '~/components/Suspender';
 import { WalletSelector } from '../home/WalletSelector/WalletSelector';
-import { StyleSheet } from 'react-native';
 import { useRootNavigation } from '~/navigation/useRootNavigation';
 import { Container } from '~/components/layout/Container';
 import { QrCode } from './QrCode';
@@ -88,9 +87,3 @@ export const ReceiveScreen = withSkeleton(
   },
   () => <ScreenSkeleton menu mode="center-aligned" />,
 );
-
-const styles = StyleSheet.create({
-  facuet: {
-    flexShrink: 1,
-  },
-});

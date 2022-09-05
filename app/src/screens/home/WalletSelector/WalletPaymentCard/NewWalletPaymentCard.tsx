@@ -1,29 +1,38 @@
 import { Box } from '~/components/layout/Box';
-import { PlusCircleIcon } from '~/util/theme/icons';
-import { useTheme } from '@theme/paper';
-import { Card, CardProps } from '~/components/card/Card';
+import { PlusIcon } from '~/util/theme/icons';
 import { WALLET_PAYMENT_CARD_STYLE } from './WalletPaymentCardSkeleton';
 import { makeStyles } from '@theme/makeStyles';
+import { IconButton } from 'react-native-paper';
 
-export interface NewWalletPaymentCardProps extends CardProps {}
+export interface NewWalletPaymentCardProps {
+  onPress: () => void;
+}
 
-export const NewWalletPaymentCard = (props: NewWalletPaymentCardProps) => {
+export const NewWalletPaymentCard = ({
+  onPress,
+}: NewWalletPaymentCardProps) => {
   const styles = useStyles();
-  const { colors, iconSize } = useTheme();
 
   return (
-    <Card style={styles.card} {...props}>
-      <Box flex={1} vertical center>
-        <PlusCircleIcon color={colors.tertiary} size={iconSize.medium} />
-      </Box>
-    </Card>
+    <Box style={styles.card}>
+      <IconButton
+        icon={(props) => <PlusIcon style={styles.icon} {...props} />}
+        onPress={onPress}
+      />
+    </Box>
   );
 };
 
-const useStyles = makeStyles(({ colors, space }) => ({
+const useStyles = makeStyles(({ colors, iconSize }) => ({
+  icon: {
+    color: colors.primary,
+    fontSize: iconSize.medium,
+  },
   card: {
     ...WALLET_PAYMENT_CARD_STYLE,
-    borderColor: colors.tertiary,
-    borderWidth: space(1),
+    display: 'flex',
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
   },
 }));

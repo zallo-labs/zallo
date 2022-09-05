@@ -32,29 +32,25 @@ export const WalletPaymentCard = withSkeleton(
     if (!wallet) return <Suspend />;
 
     return (
-      <Card style={styles.card} {...cardProps}>
+      <Card elevation={2} style={styles.card} {...cardProps}>
         <Box flex={1} vertical justifyContent="space-between">
           <Box horizontal justifyContent="space-between" alignItems="center">
             <Box vertical justifyContent="space-around">
-              <Text variant="titleLarge" style={styles.onBackground}>
-                {wallet.name}
-              </Text>
+              <Text variant="titleLarge">{wallet.name}</Text>
 
-              <Text variant="bodyMedium" style={styles.onBackground}>
+              <Text variant="bodyMedium">
                 <Addr addr={wallet.accountAddr} />
               </Text>
             </Box>
 
-            <PayIcon size={32} color={styles.onBackground.color} />
+            <PayIcon size={32} color={styles.icon.color} />
           </Box>
 
           {available && (
             <Box horizontal justifyContent="space-between">
-              <Text variant="bodyLarge" style={styles.onBackground}>
-                {token.symbol}
-              </Text>
+              <Text variant="bodyLarge">{token.symbol}</Text>
 
-              <Text variant="bodyLarge" style={styles.onBackground}>
+              <Text variant="bodyLarge">
                 <FiatValue value={fiatValue} /> available
               </Text>
             </Box>
@@ -66,16 +62,11 @@ export const WalletPaymentCard = withSkeleton(
   WalletPaymentCardSkeleton,
 );
 
-const useStyles = makeStyles(({ colors, onBackground }) => {
-  const backgroundColor = colors.tertiaryContainer;
-
+const useStyles = makeStyles(({ colors }) => {
   return {
-    card: {
-      ...WALLET_PAYMENT_CARD_STYLE,
-      backgroundColor,
-    },
-    onBackground: {
-      color: onBackground(backgroundColor),
+    card: WALLET_PAYMENT_CARD_STYLE,
+    icon: {
+      color: colors.onSurface,
     },
   };
 });

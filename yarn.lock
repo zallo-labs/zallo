@@ -8250,6 +8250,25 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@types/react-addons-shallow-compare@npm:^0.14.22":
+  version: 0.14.22
+  resolution: "@types/react-addons-shallow-compare@npm:0.14.22"
+  dependencies:
+    "@types/react": "*"
+  checksum: 5e24d24622f34f8dfebc246e217a6491af04078f9c18c04f66b062532d12d89c13296e176f710b76d9340c35e9bbf1f673264238545394a33658a4785959efbf
+  languageName: node
+  linkType: hard
+
+"@types/react-native-snap-carousel@npm:^3.8.5":
+  version: 3.8.5
+  resolution: "@types/react-native-snap-carousel@npm:3.8.5"
+  dependencies:
+    "@types/react": "*"
+    "@types/react-native": "*"
+  checksum: 8f512436017d0efe95c4cedc2ca5a2ebb27ee4056b04555e0e3889ab170abcddb232ef4ce18ef01ddc2c2710a27db2aaf4a6a7375607bfd61bfd00d7d42fbeef
+  languageName: node
+  linkType: hard
+
 "@types/react-native-vector-icons@npm:^6.4.10":
   version: 6.4.11
   resolution: "@types/react-native-vector-icons@npm:6.4.11"
@@ -10256,6 +10275,7 @@ __metadata:
     "@types/luxon": ^2.4.0
     "@types/react": ~18.0.0
     "@types/react-native": ~0.69.1
+    "@types/react-native-snap-carousel": ^3.8.5
     "@types/react-native-vector-icons": ^6.4.10
     "@types/react-test-renderer": ^17.0.1
     "@types/styled-components-react-native": ^5.1.3
@@ -10314,13 +10334,13 @@ __metadata:
     react-native-get-random-values: ~1.8.0
     react-native-jazzicon: "patch:react-native-jazzicon@npm:^0.1.2#../.yarn/patches/react-native-jazzicon-npm-0.1.2-c1633b051f.patch"
     react-native-keyboard-aware-scroll-view: ^0.9.5
-    react-native-pager-view: ^5.4.24
-    react-native-paper: ^5.0.0-rc.4
+    react-native-paper: ^5.0.0-rc.5
     react-native-popover-view: ^5.0.2
     react-native-qrcode-svg: ^6.1.2
     react-native-reanimated: ~2.9.1
     react-native-safe-area-context: 4.3.1
     react-native-screens: ~3.15.0
+    react-native-snap-carousel: ^4.0.0-beta.6
     react-native-svg: 12.3.0
     react-native-tab-view: ^3.1.1
     react-native-toast-message: ^2.1.5
@@ -17995,7 +18015,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"fbjs@npm:^0.8.9":
+"fbjs@npm:^0.8.4, fbjs@npm:^0.8.9":
   version: 0.8.18
   resolution: "fbjs@npm:0.8.18"
   dependencies:
@@ -29017,6 +29037,16 @@ __metadata:
   languageName: node
   linkType: hard
 
+"react-addons-shallow-compare@npm:15.6.2":
+  version: 15.6.2
+  resolution: "react-addons-shallow-compare@npm:15.6.2"
+  dependencies:
+    fbjs: ^0.8.4
+    object-assign: ^4.1.0
+  checksum: cfe94358c6103f8434b91969a2a1876d3e76df227f0be9bf58c11a1bdec01500475eb09ca7ddd9d98519a14c18f91fbd11127adfdd092c4f3c5b234b638c4802
+  languageName: node
+  linkType: hard
+
 "react-content-loader@npm:^6.2.0":
   version: 6.2.0
   resolution: "react-content-loader@npm:6.2.0"
@@ -29299,19 +29329,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"react-native-pager-view@npm:^5.4.24":
-  version: 5.4.25
-  resolution: "react-native-pager-view@npm:5.4.25"
-  peerDependencies:
-    react: "*"
-    react-native: "*"
-  checksum: 2b5c8667b40897001d30ff2b19545cac34637c9dfa1ff54cad8e8ddedc3b3437a45af951b19f8e3c6a114cb6fdcff68f4ce18cf46752ed5fefde42d4e0461578
-  languageName: node
-  linkType: hard
-
-"react-native-paper@npm:^5.0.0-rc.4":
-  version: 5.0.0-rc.4
-  resolution: "react-native-paper@npm:5.0.0-rc.4"
+"react-native-paper@npm:^5.0.0-rc.5":
+  version: 5.0.0-rc.5
+  resolution: "react-native-paper@npm:5.0.0-rc.5"
   dependencies:
     "@callstack/react-theme-provider": ^3.0.7
     color: ^3.1.2
@@ -29320,7 +29340,7 @@ __metadata:
     react: "*"
     react-native: "*"
     react-native-vector-icons: "*"
-  checksum: d634d3ee37007e593d2d7c75918e4d80fe877c5671c4302778412092e2051b7f0505c0251a5cc7cc910fe6c3462853b285a46c4e3e08ca1bad5030d255668d03
+  checksum: 809ff12e623eb9ab5c09831d63cca2d7dc0b9cf3aaeb966351b1fc839117db6738ef16d7c691d990d34b1634dd8aa62aaf717eaa8b63102e65ebd79d5d0aafcb
   languageName: node
   linkType: hard
 
@@ -29414,6 +29434,19 @@ __metadata:
     react: "*"
     react-native: "*"
   checksum: ebc3cded19d594aafa748d5ab6e237533f68dc33e28a584c99b8a6cac993585919f01413b94e9801f01af4a138810575f55ee25f90d7a77cb13c49d3252edb2a
+  languageName: node
+  linkType: hard
+
+"react-native-snap-carousel@npm:^4.0.0-beta.6":
+  version: 4.0.0-beta.6
+  resolution: "react-native-snap-carousel@npm:4.0.0-beta.6"
+  dependencies:
+    "@types/react-addons-shallow-compare": ^0.14.22
+    react-addons-shallow-compare: 15.6.2
+  peerDependencies:
+    react: ">=16.0.0"
+    react-native: ">=0.58.0"
+  checksum: 32ab752009b16e8d18bd7dc7defb7e454881d2ed979dd9a00cbfb92a03317752067bab7dccc6cb7b42e3a61657f29e3e12ea1e12ac7661e5539c7be037a7cfe7
   languageName: node
   linkType: hard
 
