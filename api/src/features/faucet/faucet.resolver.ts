@@ -41,7 +41,6 @@ export class FaucetResolver {
     @Args() { recipient }: RequestFundsArgs,
   ): Promise<boolean> {
     const tokensToSend = await this.getTokensToSend(recipient);
-    console.log(tokensToSend);
     return tokensToSend.length > 0;
   }
 
@@ -75,16 +74,19 @@ export class FaucetResolver {
 
   private async transfer(recipient: Address, token: TokenFaucet) {
     try {
-      await TRANSFER_MUTEX.runExclusive(() =>
+      const tx = await TRANSFER_MUTEX.runExclusive(() =>
         this.provider.wallet.transfer({
           to: recipient,
           token: token.addr,
           amount: token.amount,
         }),
       );
-      return true;
+
+      await tx.wait();
+
+      return tx;
     } catch {
-      return false;
+      return undefined;
     }
   }
 }
