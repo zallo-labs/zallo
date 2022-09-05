@@ -27,7 +27,7 @@ export const ReceiveScreen = withSkeleton(
     const navigation = useRootNavigation();
     const wallet = useSelectedWallet();
     const selectWallet = useSelectWallet();
-    useKeepAwakeWhenFocussed();
+    // useKeepAwakeWhenFocussed();  // TODO: re-activate once material bottom tabs navigation integration is fixed
 
     const token = useSelectedToken();
     const [amount, setAmount] = useState<BigNumber | undefined>();
