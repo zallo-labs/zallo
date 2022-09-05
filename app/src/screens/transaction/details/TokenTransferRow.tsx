@@ -11,17 +11,20 @@ export interface TokenTransferRowProps {
 }
 
 export const TokenTransferRow = ({
-  transfer: { token, amount },
+  transfer: { token, amount, available },
 }: TokenTransferRowProps) => {
+  const styles = useStyles();
   const { wallet } = useTxContext();
+
+  const insufficient = amount.gt(available);
 
   return (
     <Box horizontal justifyContent="space-between" alignItems="center">
-      <Text variant="bodyMedium">
+      <Text variant="bodyMedium" style={insufficient && styles.insufficient}>
         <TokenAmount token={token} amount={amount} />
       </Text>
 
-      <Text variant="bodySmall">
+      <Text variant="bodySmall" style={insufficient && styles.insufficient}>
         <TokenAmount token={token} amount={useTokenAvailable(token, wallet)} />
         {' available'}
       </Text>
