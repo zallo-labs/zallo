@@ -7,7 +7,7 @@ import { makeStyles } from '~/util/theme/makeStyles';
 import { FlatList } from 'react-native';
 import { Appbar, Button } from 'react-native-paper';
 import { useAppbarHeader } from '~/components/Appbar/useAppbarHeader';
-import { WalletCard } from '~/components/wallet/WalletCard';
+import { WalletItemCard } from '~/components/wallet/WalletItemCard';
 import { useCreateWallet } from '~/mutations/wallet/useCreateWallet';
 import { useWalletIds } from '~/queries/wallets/useWalletIds';
 import { RootNavigatorScreenProps } from '~/navigation/RootNavigator';
@@ -30,7 +30,7 @@ export const WalletsScreen = withSkeleton(
 
         <FlatList
           renderItem={({ item }) => (
-            <WalletCard
+            <WalletItemCard
               id={item}
               onPress={() =>
                 navigate('Wallet', { id: item, account: item.accountAddr })

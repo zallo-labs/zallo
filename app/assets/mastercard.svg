@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   width="1.6179441in"
+   height="0.99999815in"
+   viewBox="0 0 116.49219 71.999867"
+   version="1.1"
+   id="svg16"
+   sodipodi:docname="mastercard.svg"
+   inkscape:version="1.1.2 (0a00cf5339, 2022-02-04)"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <defs
+     id="defs20" />
+  <sodipodi:namedview
+     id="namedview18"
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1.0"
+     inkscape:pageshadow="2"
+     inkscape:pageopacity="0.0"
+     inkscape:pagecheckerboard="true"
+     inkscape:document-units="in"
+     showgrid="false"
+     fit-margin-top="0"
+     fit-margin-left="0"
+     fit-margin-right="0"
+     fit-margin-bottom="0"
+     inkscape:zoom="5.4305556"
+     inkscape:cx="77.616368"
+     inkscape:cy="48.061381"
+     inkscape:window-width="2560"
+     inkscape:window-height="1403"
+     inkscape:window-x="0"
+     inkscape:window-y="0"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="g14" />
+  <g
+     id="g14"
+     transform="translate(-17.914803,-18.000101)">
+    <rect
+       width="152.407"
+       height="108"
+       style="fill:none"
+       id="rect2"
+       x="0"
+       y="0" />
+    <g
+       id="g12">
+      <rect
+         x="60.411701"
+         y="25.6968"
+         width="31.5"
+         height="56.6064"
+         style="fill:#ff5f00"
+         id="rect4" />
+      <path
+         d="m 382.20839,306 a 35.9375,35.9375 0 0 1 13.7499,-28.3032 36,36 0 1 0 0,56.6064 A 35.938,35.938 0 0 1 382.20839,306 Z"
+         transform="translate(-319.79649,-252)"
+         style="fill:#eb001b"
+         id="path6" />
+      <path
+         d="m 454.20349,306 a 35.99867,35.99867 0 0 1 -58.2452,28.3032 36.00518,36.00518 0 0 0 0,-56.6064 35.99867,35.99867 0 0 1 58.2452,28.3032 z"
+         transform="translate(-319.79649,-252)"
+         style="fill:#f79e1b"
+         id="path8" />
+      <path
+         d="m 450.76889,328.3077 v -1.1589 h 0.4673 v -0.2361 h -1.1901 v 0.2361 h 0.4675 v 1.1589 z m 2.3105,0 v -1.3973 h -0.3648 l -0.41959,0.9611 -0.41971,-0.9611 h -0.365 v 1.3973 h 0.2576 v -1.054 l 0.3935,0.9087 h 0.2671 l 0.39351,-0.911 v 1.0563 z"
+         transform="translate(-319.79649,-252)"
+         style="fill:#f79e1b"
+         id="path10" />
+    </g>
+  </g>
+</svg>

@@ -9,7 +9,7 @@ import { Address } from 'lib';
 import { FlatList } from 'react-native-gesture-handler';
 import { Button, Text } from 'react-native-paper';
 import { useAppbarHeader } from '~/components/Appbar/useAppbarHeader';
-import { WalletCard } from '~/components/wallet/WalletCard';
+import { WalletItemCard } from '~/components/wallet/WalletItemCard';
 import { useSetAccountName } from '~/mutations/account/useSetAccountName.api';
 import { RootNavigatorScreenProps } from '~/navigation/RootNavigator';
 import { useAccount } from '~/queries/account/useAccount';
@@ -69,7 +69,7 @@ export const AccountScreen = withSkeleton(
             </>
           }
           renderItem={({ item }) => (
-            <WalletCard
+            <WalletItemCard
               id={item}
               showAccount={false}
               inactiveOpacity={inactiveOpacity}

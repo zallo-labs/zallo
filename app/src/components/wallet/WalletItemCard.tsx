@@ -10,14 +10,14 @@ import { useTokenValues } from '@token/useTokenValues';
 import { FiatValue } from '../fiat/FiatValue';
 import { ProposableStatusIcon } from '../ProposableStatus/ProposableStatusIcon';
 
-export interface WalletCardProps extends CardItemProps {
+export interface WalletItemCardProps extends CardItemProps {
   id: WalletId;
   showAccount?: boolean;
   inactiveOpacity?: boolean;
 }
 
-export const WalletCard = withSkeleton(
-  ({ id, showAccount = true, inactiveOpacity, ...props }: WalletCardProps) => {
+export const WalletItemCard = withSkeleton(
+  ({ id, showAccount = true, inactiveOpacity, ...props }: WalletItemCardProps) => {
     const wallet = useWallet(id);
     const { totalFiatValue } = useTokenValues(wallet?.accountAddr);
 

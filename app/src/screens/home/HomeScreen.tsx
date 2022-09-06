@@ -13,12 +13,12 @@ import {
 } from '~/components/token/useSelectedToken';
 import { useTokens } from '@token/useToken';
 import { HomeAppbar } from './HomeAppbar';
-import { WalletSelector } from './WalletSelector/WalletSelector';
 import { withSkeleton } from '~/components/skeleton/withSkeleton';
 import { HomeScreenSkeleton } from './HomeScreenSkeleton';
 import { FiatBalance } from '~/components/fiat/FiatBalance';
 import { Suspend } from '~/components/Suspender';
 import { TokenHoldingCard } from '~/components/token/TokenHoldingCard';
+import { WalletPaymentSelector } from './WalletPaymentSelector';
 
 export const HomeScreen = withSkeleton(() => {
   const { AppbarHeader, handleScroll } = useAppbarHeader();
@@ -45,7 +45,7 @@ export const HomeScreen = withSkeleton(() => {
       <FlatList
         ListHeaderComponent={
           <>
-            <WalletSelector
+            <WalletPaymentSelector
               selected={wallet}
               onSelect={selectWallet}
               cardProps={{ available: true }}

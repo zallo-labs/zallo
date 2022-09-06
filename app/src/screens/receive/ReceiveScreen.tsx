@@ -15,7 +15,7 @@ import { ScreenSkeleton } from '~/components/skeleton/ScreenSkeleton';
 import { useKeepAwakeWhenFocussed } from '~/util/hook/useKeepAwakeWhenFocussed';
 import { ZERO_ADDR } from 'lib';
 import { Suspend } from '~/components/Suspender';
-import { WalletSelector } from '../home/WalletSelector/WalletSelector';
+import { WalletSelector } from '../../components/wallet/WalletSelector/WalletSelector';
 import { useRootNavigation } from '~/navigation/useRootNavigation';
 import { Container } from '~/components/layout/Container';
 import { QrCode } from './QrCode';

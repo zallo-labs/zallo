@@ -1,16 +1,14 @@
 import { Box } from '~/components/layout/Box';
 import { PlusIcon } from '~/util/theme/icons';
-import { WALLET_PAYMENT_CARD_STYLE } from './WalletPaymentCardSkeleton';
+import { WALLET_CARD_STYLE } from './WalletPaymentCardSkeleton';
 import { makeStyles } from '@theme/makeStyles';
 import { IconButton } from 'react-native-paper';
 
-export interface NewWalletPaymentCardProps {
+export interface NewWalletCardProps {
   onPress: () => void;
 }
 
-export const NewWalletPaymentCard = ({
-  onPress,
-}: NewWalletPaymentCardProps) => {
+export const NewWalletCard = ({ onPress }: NewWalletCardProps) => {
   const styles = useStyles();
 
   return (
@@ -29,7 +27,7 @@ const useStyles = makeStyles(({ colors, iconSize }) => ({
     fontSize: iconSize.medium,
   },
   card: {
-    ...WALLET_PAYMENT_CARD_STYLE,
+    ...WALLET_CARD_STYLE,
     display: 'flex',
     flexDirection: 'row',
     justifyContent: 'center',

@@ -1,15 +1,15 @@
 import { Box } from '~/components/layout/Box';
 import { useState } from 'react';
-import { Indicator } from '~/screens/home/WalletSelector/Indicator/Indicator';
+import { Indicator } from '~/components/wallet/WalletSelector/Indicator/Indicator';
 import {
-  WalletPaymentCard,
-  WalletPaymentCardProps,
-} from '~/screens/home/WalletSelector/WalletPaymentCard/WalletPaymentCard';
+  WalletCard,
+  WalletCardProps,
+} from '~/components/wallet/WalletSelector/WalletCard/WalletCard';
 import { useWalletIds } from '~/queries/wallets/useWalletIds';
-import { NewWalletPaymentCard } from '~/screens/home/WalletSelector/WalletPaymentCard/NewWalletPaymentCard';
+import { NewWalletCard } from '~/components/wallet/WalletSelector/WalletCard/NewWalletCard';
 import { useCreateWallet } from '~/mutations/wallet/useCreateWallet';
 import { CombinedWallet, WalletId } from '~/queries/wallets';
-import { WALLET_PAYMENT_CARD_STYLE } from './WalletPaymentCard/WalletPaymentCardSkeleton';
+import { WALLET_CARD_STYLE } from './WalletCard/WalletPaymentCardSkeleton';
 import Carousel from 'react-native-snap-carousel';
 import { useWindowDimensions } from 'react-native';
 import * as Haptics from 'expo-haptics';
@@ -17,7 +17,7 @@ import * as Haptics from 'expo-haptics';
 export interface WalletSelectorProps {
   selected: CombinedWallet;
   onSelect: (wallet: WalletId) => void;
-  cardProps?: Partial<WalletPaymentCardProps>;
+  cardProps?: Partial<WalletCardProps>;
 }
 
 export const WalletSelector = ({
@@ -41,12 +41,12 @@ export const WalletSelector = ({
         data={[...walletIds, null]}
         renderItem={({ item }) =>
           item !== null ? (
-            <WalletPaymentCard id={item} {...cardProps} />
+            <WalletCard id={item} {...cardProps} />
           ) : (
-            <NewWalletPaymentCard onPress={createWallet} />
+            <NewWalletCard onPress={createWallet} />
           )
         }
-        itemWidth={WALLET_PAYMENT_CARD_STYLE.width}
+        itemWidth={WALLET_CARD_STYLE.width}
         sliderWidth={window.width}
         vertical={false}
         onScrollIndexChanged={(index) => {

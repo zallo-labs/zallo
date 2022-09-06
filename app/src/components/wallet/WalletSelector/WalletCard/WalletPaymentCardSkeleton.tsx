@@ -3,7 +3,7 @@ import { CardItemProps } from '~/components/card/CardItem';
 import { CardItemSkeleton } from '~/components/card/CardItemSkeleton';
 
 const WIDTH = 260;
-export const WALLET_PAYMENT_CARD_STYLE = StyleSheet.create({
+export const WALLET_CARD_STYLE = StyleSheet.create({
   card: {
     width: WIDTH,
     // https://en.wikipedia.org/wiki/Business_card#Dimensions
@@ -11,15 +11,13 @@ export const WALLET_PAYMENT_CARD_STYLE = StyleSheet.create({
   },
 }).card;
 
-export interface WalletPaymentCardSkeletonProps extends CardItemProps {}
+export interface WalletCardSkeletonProps extends CardItemProps {}
 
-export const WalletPaymentCardSkeleton = (
-  props: WalletPaymentCardSkeletonProps,
-) => (
+export const WalletCardSkeleton = (props: WalletCardSkeletonProps) => (
   <CardItemSkeleton
     icon={false}
     right={false}
-    style={WALLET_PAYMENT_CARD_STYLE}
+    style={WALLET_CARD_STYLE}
     {...props}
   />
 );

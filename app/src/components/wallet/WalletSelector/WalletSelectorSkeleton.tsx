@@ -1,11 +1,11 @@
 import { Box } from '~/components/layout/Box';
-import { Indicator } from '~/screens/home/WalletSelector/Indicator/Indicator';
-import { WalletPaymentCardSkeleton } from './WalletPaymentCard/WalletPaymentCardSkeleton';
+import { Indicator } from '~/components/wallet/WalletSelector/Indicator/Indicator';
+import { WalletCardSkeleton } from './WalletCard/WalletPaymentCardSkeleton';
 
 export const WalletSelectorSkeleton = () => (
   <Box mx={4}>
     <Box horizontal justifyContent="center" my={3}>
-      <WalletPaymentCardSkeleton />
+      <WalletCardSkeleton />
     </Box>
 
     <Box horizontal justifyContent="center" mt={3}>
