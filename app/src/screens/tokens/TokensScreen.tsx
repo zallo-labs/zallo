@@ -3,10 +3,8 @@ import { Box } from '~/components/layout/Box';
 import { ListScreenSkeleton } from '~/components/skeleton/ListScreenSkeleton';
 import { withSkeleton } from '~/components/skeleton/withSkeleton';
 import { useAppbarHeader } from '~/components/Appbar/useAppbarHeader';
-import { PlusIcon } from '~/util/theme/icons';
 import { FlatList } from 'react-native';
 import { AppbarSearch } from '~/components/Appbar/AppbarSearch';
-import { FAB } from '~/components/FAB';
 import { RootNavigatorScreenProps } from '~/navigation/RootNavigator';
 import { Token } from '@token/token';
 import { useTokens } from '@token/useToken';
@@ -38,7 +36,6 @@ export const TokensScreen = withSkeleton(({ route }: TokensScreenProps) => {
           {...searchProps}
         />
       </AppbarHeader>
-
       <Box mx={3}>
         <FlatList
           renderItem={({ item }) => {
@@ -64,7 +61,8 @@ export const TokensScreen = withSkeleton(({ route }: TokensScreenProps) => {
         />
       </Box>
 
-      <FAB icon={PlusIcon} label="Add" onPress={() => alert('Unimplemented')} />
+      {/* TODO: implement user adding tokens */}
+      {/* <FAB icon={PlusIcon} label="Add" onPress={() => {}} /> */}
     </Box>
   );
 }, ListScreenSkeleton);
