@@ -99,8 +99,10 @@ export const ContactScreen = ({ route, navigation }: ContactScreenProps) => {
                 style={styles.scan}
                 onPress={() =>
                   navigation.navigate('Scan', {
-                    onScan: (link) =>
-                      setFieldValue('addr', link.target_address),
+                    onScan: (link) => {
+                      setFieldValue('addr', link.target_address);
+                      navigation.goBack();
+                    },
                   })
                 }
               >
