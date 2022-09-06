@@ -51,8 +51,8 @@ export const WalletSelector = ({
         vertical={false}
         onScrollIndexChanged={(index) => {
           setPosition(index);
-          const item = walletIds[index];
-          if (selected !== item) {
+          const item: WalletId | undefined = walletIds[index];
+          if (item && item !== selected) {
             onSelect(item);
             Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
           }
