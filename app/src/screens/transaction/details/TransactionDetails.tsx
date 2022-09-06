@@ -38,7 +38,7 @@ export const TransactionDetails = () => {
         )}
       </Box>
 
-      <TxTransfers transfers={transfers} style={styles.section} />
+      <TxTransfers tx={tx} transfers={transfers} style={styles.section} />
 
       <DetailedCallMethod call={tx} style={styles.section} />
     </Card>

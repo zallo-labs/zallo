@@ -5,18 +5,21 @@ import { useTxContext } from '../TransactionProvider';
 import { makeStyles } from '@theme/makeStyles';
 import { useTokenAvailable } from '@token/useTokenAvailable';
 import { TxTransfer } from './useTxTransfers';
+import { Tx } from '~/queries/tx';
 
 export interface TokenTransferRowProps {
+  tx: Tx;
   transfer: TxTransfer;
 }
 
 export const TokenTransferRow = ({
+  tx,
   transfer: { token, amount, available },
 }: TokenTransferRowProps) => {
   const styles = useStyles();
   const { wallet } = useTxContext();
 
-  const insufficient = amount.gt(available);
+  const insufficient = tx.status !== 'executed' && amount.gt(available);
 
   return (
     <Box horizontal justifyContent="space-between" alignItems="center">

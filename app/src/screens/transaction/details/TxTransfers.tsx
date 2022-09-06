@@ -1,16 +1,19 @@
 import { StyleProp, ViewStyle } from 'react-native';
 import { Text } from 'react-native-paper';
 import { Box } from '~/components/layout/Box';
+import { Tx } from '~/queries/tx';
 import { TokenTransferRow } from './TokenTransferRow';
 import { TxTransfer } from './useTxTransfers';
 
 export interface TxTransfersProps {
+  tx: Tx;
   transfers: TxTransfer[];
   style?: StyleProp<ViewStyle>;
 }
 
-export const TxTransfers = ({ transfers, style }: TxTransfersProps) => {
-  const insufficient = transfers.some((t) => t.amount.gt(t.available));
+export const TxTransfers = ({ tx, transfers, style }: TxTransfersProps) => {
+  const insufficient =
+    tx.status !== 'executed' && transfers.some((t) => t.amount.gt(t.available));
 
   if (!transfers.some((t) => !t.amount.isZero())) return null;
 
@@ -28,7 +31,7 @@ export const TxTransfers = ({ transfers, style }: TxTransfersProps) => {
       {transfers.map(
         (t) =>
           !t.amount.isZero() && (
-            <TokenTransferRow key={t.token.addr} transfer={t} />
+            <TokenTransferRow key={t.token.addr} tx={tx} transfer={t} />
           ),
       )}
     </Box>
