@@ -1,16 +1,16 @@
 import {
   IconPropsWithoutName,
-  ProposedAdd,
-  ProposedModify,
-  ProposedRemove,
+  ProposedAddIcon,
+  ProposedModifyIcon,
+  ProposedRemoveIcon,
 } from '@theme/icons';
 import { useTheme } from '@theme/paper';
 import { getProposableStatus, Proposable } from '~/gql/proposable';
 
 const ICON = {
-  modify: ProposedModify,
-  add: ProposedAdd,
-  remove: ProposedRemove,
+  modify: ProposedModifyIcon,
+  add: ProposedAddIcon,
+  remove: ProposedRemoveIcon,
 } as const;
 
 interface ProposableIconProps extends IconPropsWithoutName {
