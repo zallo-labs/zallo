@@ -76,3 +76,4 @@ export const ReplaceIcon = materialCommunityIcon('arrow-u-right-bottom');
 export const ProposedAdd = materialCommunityIcon('clock-plus-outline');
 export const ProposedRemove = materialCommunityIcon('clock-remove-outline');
 export const ProposedModify = materialCommunityIcon('clock-outline');
+export const RefreshIcon = materialIcon('refresh');

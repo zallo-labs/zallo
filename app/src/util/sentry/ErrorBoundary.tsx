@@ -1,16 +1,18 @@
 import { MaterialCommunityIcons } from '@expo/vector-icons';
-import { Subheading, Title } from 'react-native-paper';
+import { Text } from 'react-native-paper';
 import { ReactNode, useEffect } from 'react';
 import { Native as Sentry } from 'sentry-expo';
-import { useTheme } from '@theme/paper';
 import { Box } from '~/components/layout/Box';
+import { makeStyles } from '@theme/makeStyles';
+import { FAB } from '~/components/FAB';
+import { RefreshIcon } from '@theme/icons';
 
 interface FallbackProps {
-  resetError: () => void;
+  resetError(): void;
 }
 
 const Fallback = ({ resetError }: FallbackProps) => {
-  const { colors } = useTheme();
+  const styles = useStyles();
 
   useEffect(() => {
     const timeout = setTimeout(() => resetError(), 10000);
@@ -19,15 +21,24 @@ const Fallback = ({ resetError }: FallbackProps) => {
   }, [resetError]);
 
   return (
-    <Box flex={1} vertical center px={2} backgroundColor={colors.error}>
+    <Box flex={1} vertical center style={styles.root}>
       <MaterialCommunityIcons
         name="robot-confused"
         size={60}
-        color={colors.onSurface}
+        style={styles.onRoot}
       />
 
-      <Title>You have encountered an error</Title>
-      <Subheading>We have been notified of this issue</Subheading>
+      <Text
+        variant="displaySmall"
+        style={[styles.onRoot, styles.text, styles.title]}
+      >
+        Encountered error
+      </Text>
+      <Text variant="titleLarge" style={[styles.onRoot, styles.text]}>
+        We have been notified of this issue
+      </Text>
+
+      <FAB icon={RefreshIcon} label="Refresh" onPress={resetError} />
     </Box>
   );
 };
@@ -38,7 +49,7 @@ export interface ErrorBoundaryProps {
 
 export const ErrorBoundary = ({ children }: ErrorBoundaryProps) => (
   <Sentry.ErrorBoundary
-    fallback={({ resetError }) => <Fallback resetError={resetError} />}
+    fallback={Fallback}
     onError={(error) => {
       console.error('ErrorBoundary:', error);
     }}
@@ -46,3 +57,19 @@ export const ErrorBoundary = ({ children }: ErrorBoundaryProps) => (
     {children}
   </Sentry.ErrorBoundary>
 );
+
+const useStyles = makeStyles(({ colors, space }) => ({
+  root: {
+    paddingHorizontal: space(2),
+    backgroundColor: colors.errorContainer,
+  },
+  onRoot: {
+    color: colors.onErrorContainer,
+  },
+  text: {
+    textAlign: 'center',
+  },
+  title: {
+    marginVertical: space(1),
+  },
+}));
