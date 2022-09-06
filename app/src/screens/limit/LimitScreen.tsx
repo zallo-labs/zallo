@@ -19,14 +19,9 @@ import _ from 'lodash';
 import { FAB } from '~/components/FAB';
 import { useBigNumberInput } from '~/components/fields/useBigNumberInput';
 import { TextField } from '~/components/fields/TextField';
-import { Provider, TextInput } from 'react-native-paper';
-import { SelectField } from '~/components/fields/SelectField';
+import { Provider, SegmentedButtons, TextInput } from 'react-native-paper';
 import { useTheme } from '@theme/paper';
 import { LimitPeriod } from '~/gql/generated.api';
-
-const PERIOD_ENTIRES = Object.entries(LIMIT_PERIOD_LABEL).map(
-  ([period, label]): [string, LimitPeriod] => [label, period as LimitPeriod],
-);
 
 export interface LimitScreenParams {
   wallet: CombinedWallet;
@@ -76,14 +71,18 @@ export const LimitScreen = withSkeleton(
               right={<TextInput.Affix text={token.symbol} />}
             />
 
-            <Box horizontal justifyContent="flex-end">
-              <SelectField
+            <Box horizontal justifyContent="center">
+              <SegmentedButtons
                 value={limit.period}
-                onChange={(period) => setLimit({ ...limit, period })}
-                entries={PERIOD_ENTIRES}
-                chipProps={{
-                  icon: CalendarIcon,
-                }}
+                onValueChange={(period) =>
+                  setLimit({ ...limit, period: period as LimitPeriod })
+                }
+                buttons={Object.entries(LIMIT_PERIOD_LABEL).map(
+                  ([period, label]) => ({
+                    value: period as LimitPeriod,
+                    label,
+                  }),
+                )}
               />
             </Box>
           </Container>
