@@ -1,25 +1,36 @@
 import { Box } from '~/components/layout/Box';
-import { Text } from 'react-native-paper';
+import { ActivityIndicator, Text } from 'react-native-paper';
 import { Card } from '~/components/card/Card';
 import { TxStatus } from '~/queries/tx';
 import { TransactionActions } from './TransactionActions';
 import { TransactionEvents } from './events/TransactionEvents';
 import { useTxContext } from '../TransactionProvider';
+import { FC } from 'react';
 
-const STATUS_LABEL: Record<TxStatus, string> = {
-  proposed: 'Proposed',
-  submitted: 'Executing...',
-  failed: 'Failed',
-  executed: 'Executed',
+const STATUS_LABEL: Record<TxStatus, [FC | null, string]> = {
+  proposed: [null, 'Proposed'],
+  submitted: [() => <ActivityIndicator />, 'Executing...'],
+  failed: [null, 'Failed'],
+  executed: [null, 'Executed'],
 };
 
 export const TransactionStatus = () => {
   const { tx, wallet } = useTxContext();
 
+  const [Icon, label] = STATUS_LABEL[tx.status];
+
   return (
     <Card vertical>
       <Box horizontal justifyContent="space-between" flexWrap="wrap">
-        <Text variant="headlineLarge">{STATUS_LABEL[tx.status]}</Text>
+        <Box horizontal alignItems="center">
+          {Icon && (
+            <Box mr={2}>
+              <Icon />
+            </Box>
+          )}
+
+          <Text variant="headlineLarge">{label}</Text>
+        </Box>
 
         <TransactionActions tx={tx} wallet={wallet} />
       </Box>
