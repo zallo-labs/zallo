@@ -1,8 +1,8 @@
-import { Box } from '~/components/layout/Box';
 import { PlusIcon } from '~/util/theme/icons';
 import { WALLET_CARD_STYLE } from './WalletPaymentCardSkeleton';
 import { makeStyles } from '@theme/makeStyles';
 import { IconButton } from 'react-native-paper';
+import { Pressable } from 'react-native';
 
 export interface NewWalletCardProps {
   onPress: () => void;
@@ -11,13 +11,14 @@ export interface NewWalletCardProps {
 export const NewWalletCard = ({ onPress }: NewWalletCardProps) => {
   const styles = useStyles();
 
+  // Pressable improves swiping by preventing vertical scrolling when touched
   return (
-    <Box style={styles.card}>
+    <Pressable style={styles.card}>
       <IconButton
         icon={(props) => <PlusIcon style={styles.icon} {...props} />}
         onPress={onPress}
       />
-    </Box>
+    </Pressable>
   );
 };
 
