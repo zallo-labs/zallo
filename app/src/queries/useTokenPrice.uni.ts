@@ -48,8 +48,6 @@ export interface TokenPrice {
 const fetch = async (token: Address): Promise<TokenPrice> => {
   const client = await UNISWAP_CLIENT;
 
-  console.log("Fetching");
-
   const { data } = await client.query<
     TokenPriceDataQuery,
     TokenPriceDataQueryVariables
