@@ -33,7 +33,7 @@ export const ModifiedQuorums = ({ quorums }: ModifiedQuorumsProps) => {
   if (modified.length === 0) return null;
 
   return (
-    <Container separator={<Box my={1} />}>
+    <Container separator={<Box mt={1} />}>
       <Text variant="titleSmall">Quorums</Text>
 
       {modified.map((q, i) => (

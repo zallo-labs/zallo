@@ -37,7 +37,7 @@ export const ModifiedSpending = ({ limits }: ModifiedSpendingProps) => {
     return null;
 
   return (
-    <Container separator={<Box my={1} />}>
+    <Container separator={<Box mt={1} />} mt={2}>
       <Text variant="titleSmall">Spending</Text>
 
       <ModifiedProposableRow proposable={limits.allowlisted}>
