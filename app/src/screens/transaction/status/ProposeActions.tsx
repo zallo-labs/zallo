@@ -15,7 +15,7 @@ import { CombinedWallet } from '~/queries/wallets';
 import { Actions } from './Actions';
 import { useTransactionIsApproved } from './useTransactionIsApproved';
 import { useRevokeApproval } from '~/mutations/tx/approve/useRevokeApproval.api';
-import { useTxTransfers } from '../details/useTxTransfers';
+import { useExecutionProhibited } from './useExecutionProhibited';
 
 export interface ProposeActionsProps {
   tx: Tx;
@@ -23,74 +23,68 @@ export interface ProposeActionsProps {
   wallet: CombinedWallet;
 }
 
-export const ProposeActions = memo(({
-  tx,
-  wallet,
-  account,
-}: ProposeActionsProps) => {
-  const isApproved = useTransactionIsApproved(tx, wallet);
-  const approve = useApproveTx();
-  const revoke = useRevokeApproval();
-  const execute = useExecute(account, wallet, tx);
-  const goBack = useGoBack();
+export const ProposeActions = memo(
+  ({ tx, wallet, account }: ProposeActionsProps) => {
+    const isApproved = useTransactionIsApproved(tx, wallet);
+    const approve = useApproveTx();
+    const revoke = useRevokeApproval();
+    const execute = useExecute(account, wallet, tx);
+    const goBack = useGoBack();
+    const executionProhibited = useExecutionProhibited();
 
-  const [submitting, setSubmitting] = useState(false);
+    const [submitting, setSubmitting] = useState(false);
 
-  const transfers = useTxTransfers(tx);
-  const canSubmit =
-    isApproved &&
-    wallet.state.status !== 'add' &&
-    transfers.every((t) => t.amount.lte(t.available));
+    return (
+      <Actions>
+        {!tx.userHasApproved && !isApproved && (
+          <Button mode="contained" icon={CheckIcon} onPress={() => approve(tx)}>
+            Approve
+          </Button>
+        )}
 
-  return (
-    <Actions>
-      {!tx.userHasApproved && !isApproved && (
-        <Button mode="contained" icon={CheckIcon} onPress={() => approve(tx)}>
-          Approve
-        </Button>
-      )}
+        {tx.userHasApproved && !isApproved && (
+          <Button
+            mode="contained"
+            icon={QuorumIcon}
+            onPress={() => {
+              // TODO: select quorum (part of the wallet) to notify
+            }}
+          >
+            Request
+          </Button>
+        )}
 
-      {tx.userHasApproved && !isApproved && (
-        <Button
-          mode="contained"
-          icon={QuorumIcon}
-          onPress={() => {
-            // TODO: select quorum (part of the wallet) to notify
-          }}
-        >
-          Request
-        </Button>
-      )}
+        {isApproved && (
+          <Button
+            mode="contained"
+            icon={SendIcon}
+            loading={submitting}
+            disabled={!!executionProhibited}
+            onPress={() => {
+              setSubmitting(true);
+              execute();
+              setSubmitting(false);
+            }}
+          >
+            Execute
+          </Button>
+        )}
 
-      {canSubmit && (
-        <Button
-          mode="contained"
-          icon={SendIcon}
-          loading={submitting}
-          onPress={() => {
-            setSubmitting(true);
-            execute();
-            // Execute will cause a re-render once complete
-          }}
-        >
-          Execute
-        </Button>
-      )}
-
-      {tx.userHasApproved && (
-        <Button
-          mode="contained-tonal"
-          icon={CancelIcon}
-          disabled={submitting}
-          onPress={async () => {
-            const txWillBeDeleted = tx.approvals.length === 1;
-            revoke(tx);
-            if (txWillBeDeleted) goBack();
-          }}
-        >
-          Revoke
-        </Button>
-      )}
-    </Actions>
-  );
-});
+        {tx.userHasApproved && (
+          <Button
+            mode="contained-tonal"
+            icon={CancelIcon}
+            disabled={submitting}
+            onPress={async () => {
+              const txWillBeDeleted = tx.approvals.length === 1;
+              revoke(tx);
+              if (txWillBeDeleted) goBack();
+            }}
+          >
+            Revoke
+          </Button>
+        )}
+      </Actions>
+    );
+  },
+);

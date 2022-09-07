@@ -1,14 +1,22 @@
 import { makeStyles } from '@theme/makeStyles';
+import { assert } from 'console';
 import { Button, Text } from 'react-native-paper';
 import { ActivateAccountButton } from '~/components/account/ActivateAccountButton';
 import { Box } from '~/components/layout/Box';
 import { useTxContext } from '../TransactionProvider';
+import {
+  ExecutionProhibition,
+  useExecutionProhibited,
+} from './useExecutionProhibited';
 
 export const PotentialDisabledExecutionWarning = () => {
   const styles = useStyles();
-  const { wallet, account } = useTxContext();
+  const { account } = useTxContext();
+  const prohibition = useExecutionProhibited();
 
-  if (!account.active)
+  if (!prohibition) return null;
+
+  if (prohibition === ExecutionProhibition.InactiveAccount)
     return (
       <Box horizontal justifyContent="space-between" alignItems="center">
         <Text variant="titleLarge" style={styles.error}>
@@ -27,17 +35,23 @@ export const PotentialDisabledExecutionWarning = () => {
       </Box>
     );
 
-  if (wallet.state.status !== 'add') return null;
+  if (prohibition === ExecutionProhibition.InactiveWallet)
+    return (
+      <Box vertical alignItems="center">
+        <Text variant="titleLarge" style={styles.error}>
+          Selected wallet is inactive
+        </Text>
+        <Text variant="titleMedium" style={styles.error}>
+          Active or select another to allow execution
+        </Text>
+      </Box>
+    );
 
+  assert(prohibition === ExecutionProhibition.InsufficientBalance);
   return (
-    <Box vertical alignItems="center">
-      <Text variant="titleLarge" style={styles.error}>
-        Selected wallet is inactive
-      </Text>
-      <Text variant="titleMedium" style={styles.error}>
-        Active or select another to allow execution
-      </Text>
-    </Box>
+    <Text variant="titleLarge" style={styles.error}>
+      Insufficient available balance
+    </Text>
   );
 };
 
