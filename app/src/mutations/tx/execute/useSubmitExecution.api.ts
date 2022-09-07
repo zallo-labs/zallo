@@ -87,7 +87,7 @@ export const useApiSubmitExecution = () => {
             hash: txResp.hash,
             nonce: txResp.nonce,
             gasLimit: txResp.gasLimit.toString(),
-            gasPrice: txResp.gasPrice?.toString(),
+            gasPrice: txResp.gasPrice?.toString() ?? null,
             finalized: txResp.confirmations > 0,
             createdAt: DateTime.now().toISO(),
           },
