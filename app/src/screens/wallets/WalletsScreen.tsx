@@ -45,7 +45,7 @@ export const WalletsScreen = withSkeleton(
               style={styles.create}
               onPress={createWallet}
             >
-              Account
+              Wallet
             </Button>
           }
           style={styles.list}
