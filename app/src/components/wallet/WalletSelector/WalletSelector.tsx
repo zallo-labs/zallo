@@ -49,6 +49,7 @@ export const WalletSelector = ({
         itemWidth={WALLET_CARD_STYLE.width}
         sliderWidth={window.width}
         vertical={false}
+        firstItem={position}
         onScrollIndexChanged={(index) => {
           setPosition(index);
           const item: WalletId | undefined = walletIds[index];
