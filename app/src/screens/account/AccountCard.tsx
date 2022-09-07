@@ -6,8 +6,8 @@ import { Text } from 'react-native-paper';
 import { CardItem, CardItemProps } from '../../components/card/CardItem';
 import { CardItemSkeleton } from '../../components/card/CardItemSkeleton';
 import { InactiveIndicator } from './InactiveIndicator';
-import { useTokenValues } from '@token/useTokenValues';
 import { FiatValue } from '~/components/fiat/FiatValue';
+import { useTotalFiatValue } from '@token/useTotalFiatValue';
 
 export interface AccountCardProps extends CardItemProps {
   id: Address;
@@ -15,7 +15,7 @@ export interface AccountCardProps extends CardItemProps {
 
 export const AccountCard = withSkeleton(
   ({ id, ...cardProps }: AccountCardProps) => {
-    const { totalFiatValue } = useTokenValues(id);
+    const totalFiatValue = useTotalFiatValue(id);
 
     return (
       <CardItem

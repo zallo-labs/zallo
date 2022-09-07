@@ -8,13 +8,13 @@ import { BigNumber } from 'ethers';
 import { ZERO } from 'lib';
 import { useEffect, useState } from 'react';
 import { IconButton, Text } from 'react-native-paper';
-import { useTokenPrice } from '~/queries/useTokenPrice.uni';
 import { fiatToToken, FIAT_DECIMALS } from '~/util/token/fiat';
 import { useTokenValue } from '@token/useTokenValue';
 import { convertTokenAmount, Token } from '@token/token';
 import { makeStyles } from '@theme/makeStyles';
 import { usePrevious } from '@hook/usePrevious';
 import { TokenAmount } from '~/components/token/TokenAmount';
+import { useTokenPrice } from '~/queries/useTokenPrice.uni';
 
 export interface AmountInputProps {
   token: Token;
@@ -26,9 +26,7 @@ export const AmountInput = ({ token, amount, setAmount }: AmountInputProps) => {
   const styles = useStyles();
   const { colors } = useTheme();
   const { fiatValue } = useTokenValue(token, amount ?? ZERO);
-  const {
-    price: { current: fiatPrice },
-  } = useTokenPrice(token);
+  const price = useTokenPrice(token);
 
   const [type, setType] = useState<'token' | 'fiat'>('token');
   const [input, setInput] = useState(amount);
@@ -43,11 +41,11 @@ export const AmountInput = ({ token, amount, setAmount }: AmountInputProps) => {
     // Set amount in a useEffect, rather than onChange in case the token changes
     if (input) {
       const newAmount =
-        type === 'token' ? input : fiatToToken(input, fiatPrice, token);
+        type === 'token' ? input : fiatToToken(input, price.current, token);
 
       if (!amount || !newAmount.eq(amount)) setAmount(newAmount);
     }
-  }, [amount, fiatPrice, input, setAmount, token, type]);
+  }, [amount, input, price, setAmount, token, type]);
 
   // Convert from token -> token if selected token has been changed
   const previousToken = usePrevious(token);

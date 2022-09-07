@@ -76,7 +76,7 @@ export interface TokenWithBalance {
   balance: BigNumber;
 }
 
-const tokenBalancesSelector = selectorFamily<
+export const tokenBalancesSelector = selectorFamily<
   TokenWithBalance[],
   Address | null
 >({

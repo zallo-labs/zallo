@@ -4640,7 +4640,20 @@ export type TokenPriceQueryVariables = Exact<{
 
 export type TokenPriceQuery = { __typename?: 'Query', tokenHourDatas: Array<{ __typename?: 'TokenHourData', periodStartUnix: number, priceUSD: any, open: any, close: any }>, token?: { __typename?: 'Token', derivedETH: any } | null };
 
+export type TokenHourFieldsFragment = { __typename?: 'TokenHourData', priceUSD: any };
 
+export type TokenPriceDataQueryVariables = Exact<{
+  token: Scalars['String'];
+}>;
+
+
+export type TokenPriceDataQuery = { __typename?: 'Query', now: Array<{ __typename?: 'TokenHourData', priceUSD: any }>, yesterday: Array<{ __typename?: 'TokenHourData', priceUSD: any }> };
+
+export const TokenHourFieldsFragmentDoc = gql`
+    fragment TokenHourFields on TokenHourData {
+  priceUSD
+}
+    `;
 export const TokenPriceDocument = gql`
     query TokenPrice($token: String!, $token2: ID!) {
   tokenHourDatas(
@@ -4688,3 +4701,52 @@ export function useTokenPriceLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions
 export type TokenPriceQueryHookResult = ReturnType<typeof useTokenPriceQuery>;
 export type TokenPriceLazyQueryHookResult = ReturnType<typeof useTokenPriceLazyQuery>;
 export type TokenPriceQueryResult = Apollo.QueryResult<TokenPriceQuery, TokenPriceQueryVariables>;
+export const TokenPriceDataDocument = gql`
+    query TokenPriceData($token: String!) {
+  now: tokenHourDatas(
+    where: {token: $token}
+    first: 1
+    orderBy: periodStartUnix
+    orderDirection: desc
+  ) {
+    ...TokenHourFields
+  }
+  yesterday: tokenHourDatas(
+    where: {token: $token}
+    first: 1
+    skip: 24
+    orderBy: periodStartUnix
+    orderDirection: desc
+  ) {
+    ...TokenHourFields
+  }
+}
+    ${TokenHourFieldsFragmentDoc}`;
+
+/**
+ * __useTokenPriceDataQuery__
+ *
+ * To run a query within a React component, call `useTokenPriceDataQuery` and pass it any options that fit your needs.
+ * When your component renders, `useTokenPriceDataQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useTokenPriceDataQuery({
+ *   variables: {
+ *      token: // value for 'token'
+ *   },
+ * });
+ */
+export function useTokenPriceDataQuery(baseOptions: Apollo.QueryHookOptions<TokenPriceDataQuery, TokenPriceDataQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<TokenPriceDataQuery, TokenPriceDataQueryVariables>(TokenPriceDataDocument, options);
+      }
+export function useTokenPriceDataLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<TokenPriceDataQuery, TokenPriceDataQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<TokenPriceDataQuery, TokenPriceDataQueryVariables>(TokenPriceDataDocument, options);
+        }
+export type TokenPriceDataQueryHookResult = ReturnType<typeof useTokenPriceDataQuery>;
+export type TokenPriceDataLazyQueryHookResult = ReturnType<typeof useTokenPriceDataLazyQuery>;
+export type TokenPriceDataQueryResult = Apollo.QueryResult<TokenPriceDataQuery, TokenPriceDataQueryVariables>;

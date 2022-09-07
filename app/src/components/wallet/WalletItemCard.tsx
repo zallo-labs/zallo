@@ -6,7 +6,7 @@ import { Addr } from '~/components/addr/Addr';
 import { CardItem, CardItemProps } from '../card/CardItem';
 import { CardItemSkeleton } from '../card/CardItemSkeleton';
 import { Suspend } from '~/components/Suspender';
-import { useTokenValues } from '@token/useTokenValues';
+import { useTotalFiatValue } from '@token/useTotalFiatValue';
 import { FiatValue } from '../fiat/FiatValue';
 import { ProposableStatusIcon } from '../ProposableStatus/ProposableStatusIcon';
 
@@ -17,9 +17,14 @@ export interface WalletItemCardProps extends CardItemProps {
 }
 
 export const WalletItemCard = withSkeleton(
-  ({ id, showAccount = true, inactiveOpacity, ...props }: WalletItemCardProps) => {
+  ({
+    id,
+    showAccount = true,
+    inactiveOpacity,
+    ...props
+  }: WalletItemCardProps) => {
     const wallet = useWallet(id);
-    const { totalFiatValue } = useTokenValues(wallet?.accountAddr);
+    const totalFiatValue = useTotalFiatValue(wallet?.accountAddr);
 
     if (!wallet) return <Suspend />;
 

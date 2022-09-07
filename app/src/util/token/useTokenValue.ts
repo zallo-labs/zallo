@@ -3,40 +3,31 @@ import { useMemo } from 'react';
 import { TokenPrice, useTokenPrice } from '~/queries/useTokenPrice.uni';
 import { FIAT_DECIMALS } from './fiat';
 import { Token } from './token';
-import { ETH } from './tokens';
 
 export interface TokenValue {
   fiatValue: number;
-  ethValue: number;
 }
 
-export const getTokenValue = (
+export const toTokenValue = (
   token: Token,
-  amount: BigNumber,
+  amount: BigNumberish,
   price: TokenPrice,
 ): TokenValue => {
   const fiatValue = parseFloat(
     ethers.utils.formatUnits(
-      amount.mul(price.current),
+      BigNumber.from(amount).mul(price.current),
       token.decimals + FIAT_DECIMALS,
     ),
   );
 
-  const ethValue = parseFloat(
-    ethers.utils.formatUnits(
-      amount.mul(price.currentEth),
-      token.decimals + ETH.decimals,
-    ),
-  );
-
-  return { fiatValue, ethValue };
+  return { fiatValue };
 };
 
 export const useTokenValue = (token: Token, amount: BigNumberish) => {
-  const { price } = useTokenPrice(token);
+  const price = useTokenPrice(token);
 
   return useMemo(
-    () => getTokenValue(token, BigNumber.from(amount), price),
+    () => toTokenValue(token, amount, price),
     [token, amount, price],
   );
 };

@@ -1,90 +1,83 @@
-import { gql, useQuery } from '@apollo/client';
-import { BigNumber, ethers } from 'ethers';
+import { gql } from '@apollo/client';
+import { BigNumber } from 'ethers';
 import {
-  TokenPriceQuery,
-  TokenPriceQueryVariables,
-  useTokenPriceQuery,
+  TokenPriceDataDocument,
+  TokenPriceDataQuery,
+  TokenPriceDataQueryVariables,
 } from '~/gql/generated.uni';
-import { useUniswapClient } from '~/gql/GqlProvider';
 import { Token } from '@token/token';
-import { bigNumberToFiat, fiatToBigNumber } from '~/util/token/fiat';
-import { ETH } from '@token/tokens';
-import { usePollWhenFocussed } from '~/gql/usePollWhenFocussed';
+import { atomFamily, useRecoilValue } from 'recoil';
+import { Address } from 'lib';
+import { refreshAtom } from '~/util/effect/refreshAtom';
+import { UNISWAP_CLIENT } from '~/gql/clients/uniswap';
+import { fiatToBigNumber } from '@token/fiat';
 
-const QUERY = gql`
-  query TokenPrice($token: String!, $token2: ID!) {
-    tokenHourDatas(
-      first: 25
+gql`
+  fragment TokenHourFields on TokenHourData {
+    priceUSD
+  }
+
+  query TokenPriceData($token: String!) {
+    now: tokenHourDatas(
+      where: { token: $token }
+      first: 1
       orderBy: periodStartUnix
       orderDirection: desc
-      where: { token: $token }
     ) {
-      periodStartUnix
-      priceUSD
-      open
-      close
+      ...TokenHourFields
     }
 
-    token(id: $token2) {
-      derivedETH
+    yesterday: tokenHourDatas(
+      where: { token: $token }
+      first: 1
+      skip: 24
+      orderBy: periodStartUnix
+      orderDirection: desc
+    ) {
+      ...TokenHourFields
     }
   }
 `;
 
-export interface TokenHourlyPrice {
-  timestamp: Date;
-  price: BigNumber;
-  open: BigNumber;
-  close: BigNumber;
-}
-
 export interface TokenPrice {
-  hourly: TokenHourlyPrice[];
   current: BigNumber;
   yesterday: BigNumber;
   change: number;
-  currentEth: BigNumber;
 }
 
-export const useTokenPrice = (token: Token) => {
-  const tokenAddr = token.addresses.mainnet?.toLowerCase();
-  const { data, ...rest } = useTokenPriceQuery({
-    client: useUniswapClient(),
-    variables: {
-      token: tokenAddr!,
-      token2: tokenAddr!,
-    },
-    skip: !tokenAddr,
+const fetch = async (token: Address): Promise<TokenPrice> => {
+  const client = await UNISWAP_CLIENT;
+
+  console.log("Fetching");
+
+  const { data } = await client.query<
+    TokenPriceDataQuery,
+    TokenPriceDataQueryVariables
+  >({
+    query: TokenPriceDataDocument,
+    variables: { token: token.toLocaleLowerCase() },
   });
-  usePollWhenFocussed(rest, 15 * 1000);
 
-  const hourly = (data?.tokenHourDatas ?? []).map(
-    (data): TokenHourlyPrice => ({
-      timestamp: new Date(data.periodStartUnix * 1000),
-      price: fiatToBigNumber(data.close),
-      open: fiatToBigNumber(data.open),
-      close: fiatToBigNumber(data.close),
-    }),
-  );
+  const cur: number = data?.now[0]?.priceUSD ?? 0;
+  const yd: number = data?.yesterday[0]?.priceUSD ?? 0;
 
-  const current = hourly[0]?.price ?? BigNumber.from(0);
-  const yesterday = hourly[24]?.price ?? BigNumber.from(0);
-
-  const cur = bigNumberToFiat(current);
-  const yd = bigNumberToFiat(yesterday);
-
-  const price: TokenPrice = {
-    hourly,
-    current: current,
-    yesterday: yesterday,
-    change: yd > 0 ? ((cur - yd) / yd) * 100 : 100,
-    // parseEther() throws if the eth has > 18 decimals
-    currentEth: data?.token?.derivedETH
-      ? ethers.utils.parseEther(
-          parseFloat(data.token.derivedETH).toFixed(ETH.decimals),
-        )
-      : BigNumber.from(0),
+  return {
+    current: fiatToBigNumber(cur),
+    yesterday: fiatToBigNumber(yd),
+    change: yd > 0 ? ((cur - yd) / yd) * 100 : Number.POSITIVE_INFINITY,
   };
-
-  return { price, ...rest };
 };
+
+export const TOKEN_PRICE_ATOM = atomFamily<TokenPrice, Address>({
+  key: 'tokenPrice',
+  default: fetch,
+  effects: (token) => [
+    refreshAtom({
+      fetch: () => fetch(token),
+      interval: 15 * 1000,
+    }),
+  ],
+});
+
+export const useTokenPrice = (token: Token) =>
+  useRecoilValue(TOKEN_PRICE_ATOM(token.addresses.mainnet!));

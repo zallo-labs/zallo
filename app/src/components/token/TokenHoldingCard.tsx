@@ -1,5 +1,4 @@
 import { Text } from 'react-native-paper';
-import { useTokenPrice } from '~/queries/useTokenPrice.uni';
 import { Token } from '@token/token';
 import { CardItem, CardItemProps } from '../card/CardItem';
 import { WalletId } from '~/queries/wallets';
@@ -11,6 +10,7 @@ import { Box } from '../layout/Box';
 import { Container } from '../layout/Container';
 import { TokenIcon } from './TokenIcon/TokenIcon';
 import { TokenAmount } from './TokenAmount';
+import { useTokenPrice } from '~/queries/useTokenPrice.uni';
 
 export interface TokenHoldingCardProps extends CardItemProps {
   token: Token;
@@ -24,7 +24,7 @@ export const TokenHoldingCard = ({
   selected,
   ...props
 }: TokenHoldingCardProps) => {
-  const { price } = useTokenPrice(t);
+  const price = useTokenPrice(t);
   const available = useTokenAvailable(t, wallet);
   const { fiatValue } = useTokenValue(t, available);
 

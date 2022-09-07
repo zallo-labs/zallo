@@ -1,21 +1,13 @@
-import {
-  createContext,
-  ReactNode,
-  useContext,
-  useEffect,
-  useState,
-} from 'react';
+import { createContext, ReactNode, useContext, useState } from 'react';
 import { ApolloClient, NormalizedCacheObject } from '@apollo/client';
+import { UNISWAP_CLIENT, UNISWAP_CLIENT_NAME } from './clients/uniswap';
+import { Suspend } from '~/components/Suspender';
+import useAsyncEffect from 'use-async-effect';
 import {
   API_CLIENT_NAME,
-  ClientCreator,
-  createSubgraphClient,
-  createUniswapClient,
-  SUBGRAPH_CLIENT_NAME,
-  UNISWAP_CLIENT_NAME,
-  useCreateApiClient,
-} from './clients';
-import { Suspend } from '~/components/Suspender';
+  usePromisedApiClient,
+} from './clients/usePromisedApiClient';
+import { SUBGRAPH_CLIENT_NAME, SUBGRAPH_CLIENT } from './clients/subgraph';
 
 const clientNames = [
   API_CLIENT_NAME,
@@ -45,20 +37,32 @@ export interface GqlProviderProps {
 export const GqlProvider = ({ children }: GqlProviderProps) => {
   const [clients, setClients] = useState<GqlClients | Partial<GqlClients>>({});
 
-  const create = async (name: Name, creator: ClientCreator) => {
-    const client = await creator();
-    setClients((clients) => ({ ...clients, [name]: client }));
-  };
+  useAsyncEffect(async (isMounted) => {
+    const subgraph = await SUBGRAPH_CLIENT;
+    const uniswap = await UNISWAP_CLIENT;
 
-  useEffect(() => {
-    create(SUBGRAPH_CLIENT_NAME, createSubgraphClient);
-    create(UNISWAP_CLIENT_NAME, createUniswapClient);
+    if (isMounted()) {
+      setClients((clients) => ({
+        ...clients,
+        subgraph,
+        uniswap,
+      }));
+    }
   }, []);
 
-  const createApiClient = useCreateApiClient();
-  useEffect(() => {
-    create(API_CLIENT_NAME, createApiClient);
-  }, [createApiClient]);
+  const promisedApi = usePromisedApiClient();
+  useAsyncEffect(
+    async (isMounted) => {
+      const api = await promisedApi;
+      if (isMounted()) {
+        setClients((clients) => ({
+          ...clients,
+          api,
+        }));
+      }
+    },
+    [promisedApi],
+  );
 
   if (!isGqlClients(clients)) return <Suspend />;
 
