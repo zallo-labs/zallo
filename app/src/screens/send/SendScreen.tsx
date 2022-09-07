@@ -1,6 +1,7 @@
 import { SendIcon } from '@theme/icons';
 import { makeStyles } from '@theme/makeStyles';
 import { createTransferTx } from '@token/token';
+import { useTokenAvailable } from '@token/useTokenAvailable';
 import { useTokenBalance } from '@token/useTokenBalance';
 import { BigNumber } from 'ethers';
 import { Address, ZERO } from 'lib';
@@ -34,7 +35,7 @@ export const SendScreen = ({ route, navigation }: SendScreenProps) => {
   const [propose, proposing] = useProposeTx();
   const token = useSelectedToken();
   const selectToken = useSelectToken();
-  const balance = useTokenBalance(token, wallet);
+  const available = useTokenAvailable(token, wallet);
 
   const [amount, setAmount] = useState<BigNumber | undefined>();
 
@@ -63,7 +64,7 @@ export const SendScreen = ({ route, navigation }: SendScreenProps) => {
         />
 
         <Text variant="headlineSmall" style={styles.warning}>
-          {amount && balance.lt(amount) && 'Current balance is insufficient'}
+          {amount && available.lt(amount) && 'Insufficient available balance'}
         </Text>
 
         <AmountInput token={token} amount={amount} setAmount={setAmount} />
