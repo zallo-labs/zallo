@@ -15,6 +15,7 @@ import { UpsertWalletMethod } from './wallet/UpsertWalletMethod';
 import { useCallName } from '~/components/call/useCallName';
 import { RemoveWalletMethod } from './wallet/RemoveWalletMethod';
 import { StyleProp, ViewStyle } from 'react-native';
+import { ERC20_TRANSFER_SIGHASH } from '~/components/call/useDecodedTransfer';
 
 export interface DetailedCallMethodProps {
   call: Call;
@@ -43,6 +44,9 @@ export const DetailedCallMethod = memo(
           </ExpandableText>
         </Box>
       );
+
+    // Transfer details are shown for every transaction; no need to duplicate them
+    if (method.sighash === ERC20_TRANSFER_SIGHASH) return null;
 
     if (method.sighash === UPSERT_WALLET_SIGHSAH)
       return <UpsertWalletMethod call={call} style={style} />;

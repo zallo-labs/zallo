@@ -3,7 +3,7 @@ import { BigNumber } from 'ethers';
 import { address, Address, Call } from 'lib';
 import { useContractMethod } from '~/queries/useContractMethod.api';
 
-const ERC20_TRANSFER_SIGHASH = ERC20_INTERFACE.getSighash(
+export const ERC20_TRANSFER_SIGHASH = ERC20_INTERFACE.getSighash(
   ERC20_INTERFACE.functions['transfer(address,uint256)'],
 );
 
