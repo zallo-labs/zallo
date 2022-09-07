@@ -14,20 +14,20 @@ const selectedWallet = atom<WalletKey | null>({
   effects: [persistAtom()],
 });
 
-export const useSelectedWallet = () => {
+export const useSelectedWalletId = (): WalletId => {
   const { walletIds } = useWalletIds();
-  const walletId = useRecoilValue(selectedWallet);
+  const selected = useRecoilValue(selectedWallet);
 
-  const id = walletId
+  return selected
     ? {
-        id: getWalletId(walletId[0], walletId[1]),
-        accountAddr: walletId[0],
-        ref: walletId[1],
+        id: getWalletId(selected[0], selected[1]),
+        accountAddr: selected[0],
+        ref: selected[1],
       }
     : walletIds[0];
-
-  return useWallet(id);
 };
+
+export const useSelectedWallet = () => useWallet(useSelectedWalletId());
 
 export const useSelectWallet = () => {
   const select = useSetRecoilState(selectedWallet);

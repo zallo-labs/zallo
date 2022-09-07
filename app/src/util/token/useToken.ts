@@ -7,74 +7,63 @@ import {
   selectorFamily,
   DefaultValue,
   useRecoilValue,
-  selector,
 } from 'recoil';
 import { Token } from './token';
 import { HARDCODED_TOKENS } from './tokens';
 
-const tokenAddressesState = atom<Address[]>({
+export const TOKEN_ADDRESSES = atom<Address[]>({
   key: 'tokenAddresses',
   default: HARDCODED_TOKENS.map((t) => t.addr),
   effects: [persistAtom()],
 });
 
-const tokenValueState = atomFamily<Token, Address>({
-  key: 'token',
+const TOKEN_STATE = atomFamily<Token, Address>({
+  key: 'tokenState',
   default: (addr: Address) => {
     const token = HARDCODED_TOKENS.find((t) => t.addr === addr);
-    if (token) return token;
+    if (!token) {
+      // TODO: implement dynamic tokens
+      throw new Unimplemented(`dynamic tokens; ${addr}`);
+    }
 
-    // TODO: implement dynamic tokens
-    throw new Unimplemented(`dynamic tokens; ${addr}`);
+    return token;
   },
   effects: [persistAtom()],
 });
 
-export const tokenSelector = selectorFamily<Token, Address>({
-  key: 'token-access',
+export const TOKEN = selectorFamily<Token, Address>({
+  key: 'token',
   get:
     (addr) =>
     ({ get }) =>
-      get(tokenValueState(addr)),
+      get(TOKEN_STATE(addr)),
   set:
     (addr) =>
     ({ set, reset }, token) => {
       if (token instanceof DefaultValue) {
-        reset(tokenAddressesState);
-        reset(tokenValueState(addr));
+        reset(TOKEN_ADDRESSES);
+        reset(TOKEN_STATE(addr));
       } else {
-        set(tokenAddressesState, (prev) =>
+        set(TOKEN_ADDRESSES, (prev) =>
           prev.includes(addr) ? prev : [...prev, addr],
         );
-        set(tokenValueState(addr), token);
+        set(TOKEN_STATE(addr), token);
       }
     },
 });
 
-export const useToken = (addr: Address) => useRecoilValue(tokenSelector(addr));
+export const useToken = (addr: Address) => useRecoilValue(TOKEN(addr));
 
-export const allTokensSelector = selector({
-  key: 'allTokens',
-  get: ({ get }) => {
-    const addresses = get(tokenAddressesState);
-    return addresses.map((addr) => get(tokenSelector(addr)));
-  },
-});
-
-export const useTokens = () => useRecoilValue(allTokensSelector);
-
-const maybeTokenSelector = selectorFamily<Token | null, Address | undefined>({
+const MAYBE_TOKEN = selectorFamily<Token | null, Address | undefined>({
   key: 'maybeToken',
   get:
     (addr) =>
     ({ get }) => {
       if (!addr) return null;
 
-      return get(tokenAddressesState).includes(addr)
-        ? get(tokenSelector(addr))
-        : null;
+      return get(TOKEN_ADDRESSES).includes(addr) ? get(TOKEN(addr)) : null;
     },
 });
 
 export const useMaybeToken = (addr?: Address) =>
-  useRecoilValue(maybeTokenSelector(addr));
+  useRecoilValue(MAYBE_TOKEN(addr));

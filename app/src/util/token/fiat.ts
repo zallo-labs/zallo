@@ -1,9 +1,9 @@
 import { BigNumber } from 'ethers';
+import { TEN } from 'lib';
 import { Token } from './token';
 
 export const FIAT_DECIMALS = 8;
 const multiplier = 10 ** FIAT_DECIMALS;
-const TEN = BigNumber.from(10);
 
 export const fiatToBigNumber = (value: string | number): BigNumber => {
   if (typeof value === 'string') value = parseFloat(value);

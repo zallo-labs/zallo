@@ -7,12 +7,12 @@ import { FlatList } from 'react-native';
 import { AppbarSearch } from '~/components/Appbar/AppbarSearch';
 import { RootNavigatorScreenProps } from '~/navigation/RootNavigator';
 import { Token } from '@token/token';
-import { useTokens } from '@token/useToken';
 import { useFuzzySearch } from '@hook/useFuzzySearch';
 import { TokenCard } from '~/components/token/TokenCard';
 import { WalletId } from '~/queries/wallets';
 import { TokenAvailableCard } from '~/components/token/TokenAvailableCard';
 import { Address } from 'lib';
+import { useTokens } from '@token/useTokens';
 
 export interface TokensScreenParams {
   onSelect?: (token: Token) => void;

@@ -11,7 +11,6 @@ import {
   useSelectedToken,
   useSelectToken,
 } from '~/components/token/useSelectedToken';
-import { useTokens } from '@token/useToken';
 import { HomeAppbar } from './HomeAppbar';
 import { withSkeleton } from '~/components/skeleton/withSkeleton';
 import { HomeScreenSkeleton } from './HomeScreenSkeleton';
@@ -19,14 +18,15 @@ import { FiatBalance } from '~/components/fiat/FiatBalance';
 import { Suspend } from '~/components/Suspender';
 import { TokenHoldingCard } from '~/components/token/TokenHoldingCard';
 import { WalletPaymentSelector } from './WalletPaymentSelector';
+import { useTokensByValue } from '@token/useTokensByValue';
 
 export const HomeScreen = withSkeleton(() => {
   const { AppbarHeader, handleScroll } = useAppbarHeader();
-  const allTokens = useTokens();
   const wallet = useSelectedWallet();
   const selectWallet = useSelectWallet();
   const selectedToken = useSelectedToken();
   const selectToken = useSelectToken();
+  const allTokens = useTokensByValue(wallet?.accountAddr);
 
   const tokens = useMemo(
     () => [

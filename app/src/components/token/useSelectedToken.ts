@@ -9,7 +9,7 @@ import {
 } from 'recoil';
 import { Token } from '@token/token';
 import { USDC } from '@token/tokens';
-import { tokenSelector } from '@token/useToken';
+import { TOKEN } from '@token/useToken';
 
 const selectedTokenAddress = atom<Address>({
   key: 'lastTokenAddress',
@@ -21,7 +21,7 @@ const selectedToken = selector<Token>({
   key: 'lastToken',
   get: ({ get }) => {
     const addr = get(selectedTokenAddress);
-    return get(tokenSelector(addr));
+    return get(TOKEN(addr));
   },
   set: ({ set }, token) => {
     set(

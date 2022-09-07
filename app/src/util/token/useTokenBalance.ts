@@ -7,21 +7,20 @@ import {
   useRecoilValue,
   useSetRecoilState,
 } from 'recoil';
-import { Address, isPresent, ZERO } from 'lib';
+import { Address, ZERO } from 'lib';
 import { captureException } from '~/util/sentry/sentry';
-import { allTokensSelector } from './useToken';
 import { refreshAtom } from '~/util/effect/refreshAtom';
 import { persistAtom } from '~/util/effect/persistAtom';
 import { WalletId } from '~/queries/wallets';
 import { useCallback } from 'react';
+import { TOKENS } from './useTokens';
 
 // [addr, token]
 type BalanceKey = [Address | null, Address];
 
 const fetch = async ([addr, token]: BalanceKey) => {
+  if (!addr) return ZERO;
   try {
-    if (!addr) return ZERO;
-
     return PROVIDER.getBalance(addr, undefined, token);
   } catch (e) {
     captureException(e, {
@@ -32,7 +31,7 @@ const fetch = async ([addr, token]: BalanceKey) => {
   }
 };
 
-export const tokenBalanceState = atomFamily<BigNumber, BalanceKey>({
+export const TOKEN_BALANCE = atomFamily<BigNumber, BalanceKey>({
   key: 'tokenBalance',
   default: (key) => fetch(key),
   effects: (key) => [
@@ -54,15 +53,14 @@ const targetAddress = (target?: Target): BalanceKey[0] =>
   typeof target === 'object' ? target.accountAddr : target || null;
 
 export const useTokenBalance = (token: Token, account?: Address | WalletId) =>
-  useRecoilValue(tokenBalanceState([targetAddress(account), token.addr])) ??
-  ZERO;
+  useRecoilValue(TOKEN_BALANCE([targetAddress(account), token.addr]));
 
 export const useUpdateTokenBalance = (
   token: Token,
   account?: Address | WalletId,
 ) => {
   const update = useSetRecoilState(
-    tokenBalanceState([targetAddress(account), token.addr]),
+    TOKEN_BALANCE([targetAddress(account), token.addr]),
   );
 
   return useCallback(
@@ -76,24 +74,19 @@ export interface TokenWithBalance {
   balance: BigNumber;
 }
 
-export const tokenBalancesSelector = selectorFamily<
+export const TOKEN_BALANCES = selectorFamily<
   TokenWithBalance[],
   Address | null
 >({
   key: 'tokenBalances',
   get:
     (addr) =>
-    ({ get }) => {
-      if (!addr) return [];
-
-      return get(allTokensSelector)
-        .filter(isPresent)
-        .map((token) => ({
-          token,
-          balance: get(tokenBalanceState([addr, token.addr])),
-        }));
-    },
+    ({ get }) =>
+      get(TOKENS).map((token) => ({
+        token,
+        balance: get(TOKEN_BALANCE([addr, token.addr])),
+      })),
 });
 
 export const useTokenBalances = (addr?: Address) =>
-  useRecoilValue(tokenBalancesSelector(addr ?? null));
+  useRecoilValue(TOKEN_BALANCES(addr ?? null));
