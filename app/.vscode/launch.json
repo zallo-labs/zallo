@@ -5,18 +5,9 @@
   "version": "0.2.0",
   "configurations": [
     {
-      "name": "Debug in Exponent",
-      "request": "launch",
-      "type": "reactnative",
-      "cwd": "${workspaceFolder}",
-      "platform": "exponent",
-      "expoHostType": "local"
-    },
-    {
-      "name": "Attach to Hermes application - Experimental",
+      "name": "Debug: attach",
       "request": "attach",
-      "type": "reactnativedirect",
-      "cwd": "${workspaceFolder}"
+      "type": "reactnativedirect"
     }
   ]
 }
