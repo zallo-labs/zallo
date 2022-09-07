@@ -4,26 +4,16 @@ import { useMemo } from 'react';
 import { CombinedWallet, WalletId } from '../wallets';
 import { useApiWallet } from './useWallet.api';
 import { useSubWallet } from './useWallet.sub';
-import _ from 'lodash';
-import { useTx } from '../tx/tx/useTx';
 import { mergeProposals } from '~/gql/proposable';
 
 export const useWallet = (id?: WalletId) => {
   const { subWallet: s } = useSubWallet(id);
   const { apiWallet: a } = useApiWallet(id);
 
-  const { tx: limitTx } = useTx(
-    [a?.limits.allowlisted, ...Object.values(a?.limits.tokens ?? {})].find(
-      (p) => p?.proposal,
-    )?.proposal,
-  );
-
   return useMemo((): CombinedWallet | undefined => {
     if (!s && !a) return undefined;
     if (!s) return a;
     if (!a) return s;
-
-    const limitActive = limitTx?.status === 'executed';
 
     return {
       ...a,
@@ -50,16 +40,15 @@ export const useWallet = (id?: WalletId) => {
       //   ),
       // },
       limits: {
-        allowlisted:
-          limitActive && isPresent(a.limits.allowlisted.proposed)
-            ? {
-                active: a.limits.allowlisted.proposed,
-              }
-            : mergeProposals(a.limits.allowlisted, s.limits.allowlisted),
+        allowlisted: isPresent(a.limits.allowlisted.proposed)
+          ? {
+              active: a.limits.allowlisted.proposed,
+            }
+          : mergeProposals(a.limits.allowlisted, s.limits.allowlisted),
         tokens: Object.fromEntries(
           Object.entries(a.limits.tokens).map(([token, v]) => [
             token,
-            limitActive && isPresent(v.proposed)
+            isPresent(v.proposed)
               ? {
                   active: v.proposed,
                 }
