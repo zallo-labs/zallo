@@ -56,7 +56,7 @@ services:
       - key: SUBGRAPH_GQL_URL
         sync: false
     region: oregon
-    plan: free
+    plan: starter
 
   # Redis: production
   - type: redis
