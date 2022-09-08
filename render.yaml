@@ -9,7 +9,6 @@ services:
     startCommand: yarn api prisma migrate deploy && yarn api start:prod
     healthCheckPath: /health
     envVars:
-      - fromGroup: api-vars
       - fromGroup: api-testnet-vars
       - key: DATABASE_URL
         fromDatabase:
@@ -20,6 +19,8 @@ services:
           type: redis
           name: api-redis-prod
           property: connectionString
+      - key: SESSION_SECRET
+        generateValue: true
       - key: SUBGRAPH_GQL_URL
         sync: false
     region: oregon
@@ -42,7 +43,6 @@ services:
     startCommand: yarn api prisma migrate deploy && yarn api start:prod
     healthCheckPath: /health
     envVars:
-      - fromGroup: api-vars
       - fromGroup: api-testnet-vars
       - key: DATABASE_URL
         fromDatabase:
@@ -53,6 +53,8 @@ services:
           type: redis
           name: api-redis-dev
           property: connectionString
+      - key: SESSION_SECRET
+        generateValue: true
       - key: SUBGRAPH_GQL_URL
         sync: false
     region: oregon
@@ -96,11 +98,6 @@ databases:
         description: everywhere
 
 envVarGroups:
-  - name: api-vars
-    envVars:
-      - key: SESSION_SECRET
-        generateValue: true
-
   - name: api-testnet-vars
     envVars:
       - key: CHAIN
