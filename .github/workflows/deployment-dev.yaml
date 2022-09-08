@@ -1,6 +1,8 @@
 name: Deployment - Development
 
 on:
+  push:
+    branches: [dev]
   workflow_run:
     branches: [dev]
     workflows: ['Integration']
