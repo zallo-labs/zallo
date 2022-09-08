@@ -11,26 +11,26 @@ import { Token } from '@token/token';
 import { USDC } from '@token/tokens';
 import { TOKEN } from '@token/useToken';
 
-const selectedTokenAddress = atom<Address>({
-  key: 'lastTokenAddress',
+const SELECTED_TOKEN_ADDRESS = atom<Address>({
+  key: 'selectedTokenAddress',
   default: USDC.addr,
   effects: [persistAtom()],
 });
 
-const selectedToken = selector<Token>({
-  key: 'lastToken',
+const SELECTED_TOKEN = selector<Token>({
+  key: 'selectedToken',
   get: ({ get }) => {
-    const addr = get(selectedTokenAddress);
+    const addr = get(SELECTED_TOKEN_ADDRESS);
     return get(TOKEN(addr));
   },
   set: ({ set }, token) => {
     set(
-      selectedTokenAddress,
+      SELECTED_TOKEN_ADDRESS,
       token instanceof DefaultValue ? token : token.addr,
     );
   },
 });
 
-export const useSelectedToken = () => useRecoilValue(selectedToken);
+export const useSelectedToken = () => useRecoilValue(SELECTED_TOKEN);
 
-export const useSelectToken = () => useSetRecoilState(selectedToken);
+export const useSelectToken = () => useSetRecoilState(SELECTED_TOKEN);

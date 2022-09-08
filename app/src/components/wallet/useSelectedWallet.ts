@@ -3,7 +3,6 @@ import { WalletRef, Address, getWalletId } from 'lib';
 import { useCallback } from 'react';
 import { atom, useRecoilValue, useSetRecoilState } from 'recoil';
 import { WalletId } from '~/queries/wallets';
-import { useWallet } from '~/queries/wallet/useWallet';
 import { useWalletIds } from '~/queries/wallets/useWalletIds';
 
 type WalletKey = [Address, WalletRef];
@@ -27,13 +26,8 @@ export const useSelectedWalletId = (): WalletId => {
     : walletIds[0];
 };
 
-export const useSelectedWallet = () => useWallet(useSelectedWalletId());
-
 export const useSelectWallet = () => {
   const select = useSetRecoilState(selectedWallet);
 
-  return useCallback(
-    (acc: WalletId) => select([acc.accountAddr, acc.ref]),
-    [select],
-  );
+  return useCallback((w: WalletId) => select([w.accountAddr, w.ref]), [select]);
 };

@@ -22,8 +22,7 @@ export type AmountScreenProps = RootNavigatorScreenProps<'Amount'>;
 
 export const AmountScreen = ({ navigation, route }: AmountScreenProps) => {
   const { onChange } = route.params;
-  const token = useSelectedToken();
-  const selectToken = useSelectToken();
+  const [token, selectToken] = [useSelectedToken(), useSelectToken()];
 
   const [amount, setAmount] = useState<BigNumber | undefined>();
 

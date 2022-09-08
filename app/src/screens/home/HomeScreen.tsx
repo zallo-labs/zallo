@@ -3,7 +3,7 @@ import { useMemo } from 'react';
 import { FlatList } from 'react-native';
 import { Text } from 'react-native-paper';
 import {
-  useSelectedWallet,
+  useSelectedWalletId,
   useSelectWallet,
 } from '~/components/wallet/useSelectedWallet';
 import { useAppbarHeader } from '~/components/Appbar/useAppbarHeader';
@@ -19,13 +19,15 @@ import { Suspend } from '~/components/Suspender';
 import { TokenHoldingCard } from '~/components/token/TokenHoldingCard';
 import { WalletPaymentSelector } from './WalletPaymentSelector';
 import { useTokensByValue } from '@token/useTokensByValue';
+import { useWallet } from '~/queries/wallet/useWallet';
 
 export const HomeScreen = withSkeleton(() => {
   const { AppbarHeader, handleScroll } = useAppbarHeader();
-  const wallet = useSelectedWallet();
-  const selectWallet = useSelectWallet();
-  const selectedToken = useSelectedToken();
-  const selectToken = useSelectToken();
+  const [selectedToken, selectToken] = [useSelectedToken(), useSelectToken()];
+  const [wallet, selectWallet] = [
+    useWallet(useSelectedWalletId()),
+    useSelectWallet(),
+  ];
   const allTokens = useTokensByValue(wallet?.accountAddr);
 
   const tokens = useMemo(

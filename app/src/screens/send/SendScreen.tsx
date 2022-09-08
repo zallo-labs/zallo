@@ -2,7 +2,6 @@ import { SendIcon } from '@theme/icons';
 import { makeStyles } from '@theme/makeStyles';
 import { createTransferTx } from '@token/token';
 import { useTokenAvailable } from '@token/useTokenAvailable';
-import { useTokenBalance } from '@token/useTokenBalance';
 import { BigNumber } from 'ethers';
 import { Address, ZERO } from 'lib';
 import { useState } from 'react';
@@ -13,10 +12,7 @@ import { FAB } from '~/components/FAB';
 import { Box } from '~/components/layout/Box';
 import { Container } from '~/components/layout/Container';
 import { TokenAvailableCard } from '~/components/token/TokenAvailableCard';
-import {
-  useSelectedToken,
-  useSelectToken,
-} from '~/components/token/useSelectedToken';
+import { useSelectedToken, useSelectToken } from '~/components/token/useSelectedToken';
 import { useProposeTx } from '~/mutations/tx/propose/useProposeTx';
 import { RootNavigatorScreenProps } from '~/navigation/RootNavigator';
 import { WalletId } from '~/queries/wallets';
@@ -33,8 +29,7 @@ export const SendScreen = ({ route, navigation }: SendScreenProps) => {
   const { wallet, to } = route.params;
   const styles = useStyles();
   const [propose, proposing] = useProposeTx();
-  const token = useSelectedToken();
-  const selectToken = useSelectToken();
+  const [token, selectToken] = [useSelectedToken(), useSelectToken()];
   const available = useTokenAvailable(token, wallet);
 
   const [amount, setAmount] = useState<BigNumber | undefined>();
