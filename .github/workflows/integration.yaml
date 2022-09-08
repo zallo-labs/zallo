@@ -1,8 +1,11 @@
 name: Integration
 
 on:
-  - push
-  - pull_request
+  pull_request:
+  push:
+    branches-ignore:
+      - main
+      - dev
 
 jobs:
   lib:

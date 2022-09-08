@@ -3,13 +3,13 @@ name: Deployment - Development
 on:
   push:
     branches: [dev]
-  workflow_run:
-    branches: [dev]
-    workflows: ['Integration']
-    type: [completed]
+  # workflow_run:
+  #   branches: [dev]
+  #   workflows: ['Integration']
+  #   type: [completed]
 
 concurrency:
-  group: deployment-dev-${{ github.ref }}
+  group: deployment-${{ github.ref }}
   cancel-in-progress: true
 
 env:
@@ -17,7 +17,7 @@ env:
 
 jobs:
   api:
-    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    # if: ${{ github.event.workflow_run.conclusion == 'success' }}
     runs-on: ubuntu-latest
     environment: 'main - api-dev'
     steps:
@@ -28,7 +28,7 @@ jobs:
           method: POST
 
   app:
-    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    # if: ${{ github.event.workflow_run.conclusion == 'success' }}
     runs-on: ubuntu-latest
     strategy:
       matrix:
