@@ -15,7 +15,7 @@ env:
 
 jobs:
   api:
-    # if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
     runs-on: ubuntu-latest
     environment: 'main - api-dev'
     steps:
@@ -26,7 +26,7 @@ jobs:
           method: POST
 
   app:
-    # if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
     runs-on: ubuntu-latest
     strategy:
       matrix:
