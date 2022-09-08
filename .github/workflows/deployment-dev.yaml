@@ -7,7 +7,7 @@ on:
     type: [completed]
 
 concurrency:
-  group: deployment-${{ github.ref }}
+  group: deployment-dev-${{ github.ref }}
   cancel-in-progress: true
 
 env:
