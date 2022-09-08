@@ -49,7 +49,14 @@
     }
   },
   "submit": {
-    "internal": {
+    "production:alpha": {
+      "android": {
+        "serviceAccountKeyPath": "./play-service-account.secret.json",
+        "track": "alpha",
+        "releaseStatus": "completed"
+      }
+    },
+    "development": {
       "android": {
         "serviceAccountKeyPath": "./play-service-account.secret.json",
         "track": "internal",

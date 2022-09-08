@@ -1,10 +1,12 @@
 name: Deployment - Development
 
 on:
-  workflow_run:
+  push:
     branches: [dev]
-    workflows: ['Integration']
-    type: [completed]
+  # workflow_run:
+  #   workflows: ['Integration']
+  #   type: [completed]
+  #   branches: ['dev']
 
 concurrency:
   group: deployment-${{ github.ref }}
@@ -15,9 +17,9 @@ env:
 
 jobs:
   api:
-    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    # if: ${{ github.event.workflow_run.conclusion == 'success' }}
     runs-on: ubuntu-latest
-    environment: main - api-dev
+    environment: 'main - api-dev'
     steps:
       - name: 🚀 Deploy
         uses: fjogeleit/http-request-action@v1
@@ -26,12 +28,12 @@ jobs:
           method: POST
 
   app:
-    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    # if: ${{ github.event.workflow_run.conclusion == 'success' }}
     runs-on: ubuntu-latest
     strategy:
       matrix:
         node-version: [16.x]
-    environment: app-dev
+    environment: 'app-dev'
     env:
       # Environment
       API_URL: ${{ secrets.API_URL }}
