@@ -1,5 +1,3 @@
 ## Shared
 **/node_modules
-
-## Subgraph
-subgraph/generated
+**/generated
