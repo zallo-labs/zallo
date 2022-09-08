@@ -18,8 +18,6 @@ export const CONFIG = {
     E.RELEASE_ENV?.toLowerCase() === 'development' ? 'development' : 'production',
   chain,
   providers: {
-    infura: E.INFURA_ID,
-    alchemy: E.ALCHEMY_API_KEY,
     etherscan: E.ETHERSCAN_API_KEY,
   },
   coinmarketcapApiKey: E.COINMARKETCAP_API_KEY,
