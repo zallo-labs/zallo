@@ -1,6 +1,6 @@
 import { Box } from '~/components/layout/Box';
 import { useState } from 'react';
-import { Indicator } from '~/components/wallet/WalletSelector/Indicator/Indicator';
+import { Pagination } from '~/components/wallet/WalletSelector/Pagination/Pagination';
 import {
   WalletCard,
   WalletCardProps,
@@ -61,7 +61,7 @@ export const WalletSelector = ({
       />
 
       <Box horizontal justifyContent="center" mt={3}>
-        <Indicator n={walletIds.length + 1} position={position} />
+        <Pagination n={walletIds.length + 1} position={position} />
       </Box>
     </Box>
   );

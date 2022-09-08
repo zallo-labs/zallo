@@ -1,5 +1,5 @@
 import { Box } from '~/components/layout/Box';
-import { Indicator } from '~/components/wallet/WalletSelector/Indicator/Indicator';
+import { Pagination } from '~/components/wallet/WalletSelector/Pagination/Pagination';
 import { WalletCardSkeleton } from './WalletCard/WalletPaymentCardSkeleton';
 
 export const WalletSelectorSkeleton = () => (
@@ -9,7 +9,7 @@ export const WalletSelectorSkeleton = () => (
     </Box>
 
     <Box horizontal justifyContent="center" mt={3}>
-      <Indicator n={3} position={0} />
+      <Pagination n={3} position={0} />
     </Box>
   </Box>
 );
