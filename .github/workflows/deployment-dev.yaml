@@ -5,7 +5,7 @@ on:
     branches: [dev]
   # workflow_run:
   #   branches: [dev]
-  #   workflows: ['Integration']
+  #   workflows: ['Tests']
   #   type: [completed]
 
 concurrency:
