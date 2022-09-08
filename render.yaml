@@ -80,7 +80,7 @@ databases:
   # API DB: production
   - name: api-db-prod
     region: oregon
-    plan: free
+    plan: starter
     ipAllowList:
       - source: 0.0.0.0/0
         description: everywhere
