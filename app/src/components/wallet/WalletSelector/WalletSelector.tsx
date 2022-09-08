@@ -50,12 +50,12 @@ export const WalletSelector = ({
         sliderWidth={window.width}
         vertical={false}
         firstItem={position}
-        onScrollIndexChanged={(index) => {
+        onSnapToItem={(index) => {
           setPosition(index);
-          const item: WalletId | undefined = walletIds[index];
-          if (item && item !== selected) {
-            onSelect(item);
+          const newSelection: WalletId | undefined = walletIds[index];
+          if (newSelection && newSelection.id !== selected.id) {
             Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+            onSelect(newSelection);
           }
         }}
       />
