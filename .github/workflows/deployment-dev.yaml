@@ -1,12 +1,10 @@
 name: Deployment - Development
 
 on:
-  push:
+  workflow_run:
     branches: [dev]
-  # workflow_run:
-  #   workflows: ['Integration']
-  #   type: [completed]
-  #   branches: ['dev']
+    workflows: ['Integration']
+    type: [completed]
 
 concurrency:
   group: deployment-${{ github.ref }}
