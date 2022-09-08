@@ -3,7 +3,7 @@ name: Deployment - Development
 on:
   workflow_run:
     branches: [dev]
-    workflows: ["Integration"]
+    workflows: ['Integration']
     type: [completed]
 
 concurrency:
