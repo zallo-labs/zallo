@@ -40,7 +40,8 @@ services:
     env: node
     autoDeploy: false
     buildCommand: yarn && yarn api build
-    startCommand: yarn api prisma migrate deploy && yarn api start:prod
+    startCommand: yarn api start:prod
+    # initialDeployHook: yarn api prisma migrate deploy
     healthCheckPath: /health
     envVars:
       - fromGroup: api-testnet-vars
