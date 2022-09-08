@@ -15,7 +15,7 @@ const chain = getChain(E.CHAIN?.toLowerCase() ?? defaultChain);
 
 export const CONFIG = {
   env:
-    E.NODE_ENV?.toLowerCase() === 'development' ? 'development' : 'production',
+    E.RELEASE_ENV?.toLowerCase() === 'development' ? 'development' : 'production',
   chain,
   providers: {
     infura: E.INFURA_ID,

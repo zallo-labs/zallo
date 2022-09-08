@@ -1,0 +1,109 @@
+name: Deployment - Production
+
+on:
+  workflow_run:
+    branches: [main]
+    workflows: ['Integration - Development']
+    type: [completed]
+
+concurrency:
+  group: deployment-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  RELEASE_ENV: production
+  SUBGRAPH_GQL_URL: ${{ secrets.SUBGRAPH_GQL_URL_PROD }}
+
+jobs:
+  api:
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    runs-on: ubuntu-latest
+    environment: main - api
+    steps:
+      - name: 🚀 Deploy
+        uses: fjogeleit/http-request-action@v1
+        with:
+          url: ${{ secrets.API_DEPLOY_HOOK }}
+          method: POST
+
+  app:
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version: [16.x]
+    environment: app-prod
+    env:
+      # Environment
+      API_URL: ${{ secrets.API_URL }}
+      # Repository
+      SENTRY_DSN: ${{ secrets.SENTRY_DSN }}
+      SENTRY_ORG: ${{ secrets.SENTRY_ORG }}
+      SENTRY_PROJECT: ${{ secrets.SENTRY_PROJECT }}
+      SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
+    steps:
+      - name: 🚧 Checkout
+        uses: actions/checkout@v2
+
+      - name: 🚧 Use Node ${{ matrix.node-version }}
+        uses: actions/setup-node@v2
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: 'yarn'
+
+      - name: 🚧 Setup Expo
+        uses: expo/expo-github-action@v7
+        with:
+          token: ${{ secrets.EXPO_TOKEN }}
+          expo-version: latest
+          eas-version: latest
+
+      - name: 📦 Install
+        run: yarn install
+
+      - name: 🏗️ Prebuild
+        run: yarn app prebuild
+
+      - name: 🚀 Publish update
+        run: yarn app eas update --auto --non-interactive
+
+      # - name: 🏗️ Build
+      #   run: yarn eas build -p android --profile production
+
+      # - name: 🚀 Publish
+      #   run: yarn eas submit -p android --profile production --latest
+
+  # subgraph:
+  #   if: ${{ github.event.workflow_run.conclusion == 'success' }}
+  #   runs-on: ubuntu-latest
+  #   environment: subgraph-prod
+  #   strategy:
+  #     matrix:
+  #       node-version: [16.x]
+  #   steps:
+  #     - name: 🚧 Checkout
+  #       uses: actions/checkout@v2
+
+  #     - name: 🚧 Use Node ${{ matrix.node-version }}
+  #       uses: actions/setup-node@v2
+  #       with:
+  #         node-version: ${{ matrix.node-version }}
+  #         cache: 'yarn'
+
+  #     - name: 📦 Install
+  #       run: yarn install
+
+  #     - name: 🚧 Configure
+  #       run: yarn subgraph configure:testnet
+
+  #     # - name: 🚧 Auth
+  #     #   run: yarn subgraph auth ${{ secrets.THEGRAPH_ACCESS_TOKEN }}
+
+  #     - name: 🏗️ Generate
+  #       run: yarn subgraph generate
+
+  #     - name: 🏗️ Build
+  #       run: yarn subgraph build
+
+  #     - name: 🚀 Deploy
+  #       run: yarn subgraph prod:deploy

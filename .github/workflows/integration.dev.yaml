@@ -1,10 +1,11 @@
 # Perform tests when pushing or creating a PR to any branch
-name: CI
+name: Integration - Development
 
 on: [push]
 
 env:
-  SUBGRAPH_GQL_URL: ${{ secrets.SUBGRAPH_GQL_URL }}
+  RELEASE_ENV: development
+  SUBGRAPH_GQL_URL: ${{ secrets.SUBGRAPH_GQL_URL_DEV }}
 
 jobs:
   lib:

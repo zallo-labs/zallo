@@ -7,16 +7,8 @@
     "base": {
       "node": "16.14.2",
       "env": {
-        "ENTRY_FILE": "./__generated__/AppEntry.js",
-        "CHAIN": "testnet",
-        "ACCOUNT_IMPL_TESTNET": "0x0DE63Ab281e4241D38e2C0CB2a55661912F6422d",
-        "PROXY_FACTORY_TESTNET": "0x3FE53d6dCC73bAadEE100ECAe4dB04066C03dD34",
-        "MULTI_CALL_TESTNET": "0xBF6f1B40Bf1CcA67724A9d4992495eE81E91ABE5"
-      }
-    },
-    "production": {
-      "extends": "base",
-      "channel": "main",
+        "ENTRY_FILE": "./__generated__/AppEntry.js"
+      },
       "android": {
         "autoIncrement": true
       },
@@ -24,19 +16,36 @@
         "autoIncrement": true
       }
     },
-    "preview": {
+    "production": {
       "extends": "base",
       "channel": "main",
-      "distribution": "internal"
+      "env": {
+        "RELEASE_ENV": "production",
+        "CHAIN": "testnet",
+        "API_URL": "https://api.allopay.io",
+        "SUBGRAPH_GQL_URL": "http://graph.allopay.io/subgraphs/name/allopay",
+        "ACCOUNT_IMPL_TESTNET": "0x0DE63Ab281e4241D38e2C0CB2a55661912F6422d",
+        "PROXY_FACTORY_TESTNET": "0x3FE53d6dCC73bAadEE100ECAe4dB04066C03dD34",
+        "MULTI_CALL_TESTNET": "0xBF6f1B40Bf1CcA67724A9d4992495eE81E91ABE5"
+      }
     },
     "development": {
       "extends": "base",
-      "channel": "main",
-      "distribution": "internal",
-      "developmentClient": true,
+      "channel": "dev",
       "env": {
-        "NODE_ENV": "development"
+        "RELEASE_ENV": "development",
+        "CHAIN": "testnet",
+        "API_URL": "https://api-dev.allopay.io",
+        "SUBGRAPH_GQL_URL": "http://graph.allopay.io/subgraphs/name/allopay-dev",
+        "ACCOUNT_IMPL_TESTNET": "0x0DE63Ab281e4241D38e2C0CB2a55661912F6422d",
+        "PROXY_FACTORY_TESTNET": "0x3FE53d6dCC73bAadEE100ECAe4dB04066C03dD34",
+        "MULTI_CALL_TESTNET": "0xBF6f1B40Bf1CcA67724A9d4992495eE81E91ABE5"
       }
+    },
+    "development-client": {
+      "extends": "base",
+      "distribution": "internal",
+      "developmentClient": true
     }
   },
   "submit": {
