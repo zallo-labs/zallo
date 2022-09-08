@@ -11,7 +11,7 @@ concurrency:
   cancel-in-progress: true
 
 env:
-  SUBGRAPH_GQL_URL: ${{ secrets.SUBGRAPH_GQL_URL_PROD }}
+  SUBGRAPH_GQL_URL: 'http://graph.allopay.io/subgraphs/name/allopay'
 
 jobs:
   api:
@@ -34,7 +34,7 @@ jobs:
     environment: app-prod
     env:
       # Environment
-      API_URL: ${{ secrets.API_URL }}
+      API_URL: 'https://api.allopay.io'
       # Repository
       SENTRY_DSN: ${{ secrets.SENTRY_DSN }}
       SENTRY_ORG: ${{ secrets.SENTRY_ORG }}
