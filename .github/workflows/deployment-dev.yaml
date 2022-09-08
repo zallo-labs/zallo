@@ -42,7 +42,7 @@ jobs:
       SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
     steps:
       - name: 🚧 Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
       - name: 🚧 Use Node ${{ matrix.node-version }}
         uses: actions/setup-node@v2
@@ -81,7 +81,7 @@ jobs:
   #       node-version: [16.x]
   #   steps:
   #     - name: 🚧 Checkout
-  #       uses: actions/checkout@v2
+  #       uses: actions/checkout@v3
 
   #     - name: 🚧 Use Node ${{ matrix.node-version }}
   #       uses: actions/setup-node@v2
