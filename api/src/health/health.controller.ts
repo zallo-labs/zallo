@@ -22,9 +22,9 @@ export class HealthController {
   @HealthCheck()
   check() {
     return this.health.check([
-      // () => this.http.pingCheck('google', 'https://google.com'),
-      // () => this.prismaHealth.isHealthy('prisma'),
-      // () => this.redisHealth.isHealthy('redis'),
+      () => this.http.pingCheck('google', 'https://google.com'),
+      () => this.prismaHealth.isHealthy('prisma'),
+      () => this.redisHealth.isHealthy('redis'),
     ]);
   }
 }
