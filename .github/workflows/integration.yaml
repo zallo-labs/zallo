@@ -1,17 +1,8 @@
-# Perform tests when pushing or creating a PR to any branch
-name: Integration - Development
+name: Integration
 
 on:
-  push:
-    branches-ignore:
-      - main
-  pull_request:
-    branches:
-      - dev
-
-env:
-  RELEASE_ENV: development
-  SUBGRAPH_GQL_URL: ${{ secrets.SUBGRAPH_GQL_URL_DEV }}
+  - push
+  - pull_request
 
 jobs:
   lib:
