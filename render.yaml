@@ -57,6 +57,8 @@ services:
         sync: false
     region: oregon
     plan: starter
+    domains:
+      - api-dev.allopay.io
 
   # Redis: production
   - type: redis
