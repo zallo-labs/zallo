@@ -3,7 +3,8 @@ name: Integration - Development
 
 on:
   push:
-    branches: ['!main']
+    branches-ignore:
+      - main
 
 env:
   RELEASE_ENV: development
