@@ -3,7 +3,7 @@
 **/bin
 **/cache
 **/dist
-**/generated
+**/generated/*
 **/node_modules
 **/__generated__
 **/*.secret.*
@@ -25,13 +25,14 @@
 
 
 ## Api
+!api/generated/generated.subgraph.ts
 api/schema.gql
 
 
 ## App
 app/.expo
-app/web-build
 app/.vscode/.react
+app/web-build
 
 
 ## Contracts
