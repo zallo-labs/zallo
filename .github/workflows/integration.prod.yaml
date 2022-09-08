@@ -3,7 +3,11 @@ name: Integration - Production
 
 on:
   push:
-    branches: [main]
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
 
 env:
   RELEASE_ENV: production
