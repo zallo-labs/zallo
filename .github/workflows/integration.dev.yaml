@@ -1,7 +1,9 @@
 # Perform tests when pushing or creating a PR to any branch
 name: Integration - Development
 
-on: [push]
+on:
+  push:
+    branches: ['!main']
 
 env:
   RELEASE_ENV: development
