@@ -1,30 +1,26 @@
 services:
+  # API: production
   - type: web
-    name: api
-    env: node
+    name: api-prod
     branch: main
-    autoDeploy: false # Deployed via cd.yml (Github Actions)
+    env: node
+    autoDeploy: false
     buildCommand: yarn && yarn api build
     startCommand: yarn api prisma migrate deploy && yarn api start:prod
     healthCheckPath: /health
     envVars:
       - fromGroup: api-vars
+      - fromGroup: api-testnet-vars
       - key: DATABASE_URL
         fromDatabase:
-          name: api-db
+          name: api-db-prod
           property: connectionString
       - key: REDIS_URL
         fromService:
           type: redis
-          name: api-redis
+          name: api-redis-prod
           property: connectionString
       - key: SUBGRAPH_GQL_URL
-        sync: false
-      - key: CHAIN
-        value: testnet
-      - key: WALLET_ADDRESS
-        sync: false
-      - key: WALLET_PRIVATE_KEY
         sync: false
     region: oregon
     plan: starter
@@ -35,8 +31,45 @@ services:
       targetMemoryPercent: 80
     domains:
       - api.allopay.io
+
+  # API: development
+  - type: web
+    name: api-dev
+    branch: dev
+    env: node
+    autoDeploy: false
+    buildCommand: yarn && yarn api build
+    startCommand: yarn api prisma migrate deploy && yarn api start:prod
+    healthCheckPath: /health
+    envVars:
+      - fromGroup: api-vars
+      - fromGroup: api-testnet-vars
+      - key: DATABASE_URL
+        fromDatabase:
+          name: api-db-dev
+          property: connectionString
+      - key: REDIS_URL
+        fromService:
+          type: redis
+          name: api-redis-dev
+          property: connectionString
+      - key: SUBGRAPH_GQL_URL
+        sync: false
+    region: oregon
+    plan: free
+
+  # Redis: production
   - type: redis
-    name: api-redis
+    name: api-redis-prod
+    region: oregon
+    plan: free
+    ipAllowList:
+      - source: 0.0.0.0/0
+        description: everywhere
+
+  # Redis: development
+  - type: redis
+    name: api-redis-dev
     region: oregon
     plan: free
     ipAllowList:
@@ -44,7 +77,16 @@ services:
         description: everywhere
 
 databases:
-  - name: api-db
+  # API DB: production
+  - name: api-db-prod
+    region: oregon
+    plan: free
+    ipAllowList:
+      - source: 0.0.0.0/0
+        description: everywhere
+
+  # API DB: development
+  - name: api-db-dev
     region: oregon
     plan: free
     ipAllowList:
@@ -56,3 +98,12 @@ envVarGroups:
     envVars:
       - key: SESSION_SECRET
         generateValue: true
+
+  - name: api-testnet-vars
+    envVars:
+      - key: CHAIN
+        value: testnet
+      - key: WALLET_ADDRESS
+        sync: false
+      - key: WALLET_PRIVATE_KEY
+        sync: false
