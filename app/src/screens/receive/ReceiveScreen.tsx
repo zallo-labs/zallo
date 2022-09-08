@@ -1,8 +1,5 @@
 import { Box } from '~/components/layout/Box';
-import {
-  useSelectedWallet,
-  useSelectWallet,
-} from '~/components/wallet/useSelectedWallet';
+import { useSelectedWalletId } from '~/components/wallet/useSelectedWallet';
 import { ReceiveAppbar } from './ReceiveAppbar';
 import { buildAddrLink, buildTransferLink } from '~/util/addrLink';
 import { useMemo, useState } from 'react';
@@ -20,13 +17,15 @@ import { useRootNavigation } from '~/navigation/useRootNavigation';
 import { Container } from '~/components/layout/Container';
 import { QrCode } from './QrCode';
 import { FaucetButton } from './FaucetButton';
+import { useWallet } from '~/queries/wallet/useWallet';
 
 export const ReceiveScreen = withSkeleton(
   () => {
     const navigation = useRootNavigation();
-    const wallet = useSelectedWallet();
-    const selectWallet = useSelectWallet();
     // useKeepAwakeWhenFocussed();  // TODO: re-activate once material bottom tabs navigation integration is fixed
+
+    const [walletId, setWalletId] = useState(useSelectedWalletId());
+    const wallet = useWallet(walletId);
 
     const token = useSelectedToken();
     const [amount, setAmount] = useState<BigNumber | undefined>();
@@ -79,7 +78,7 @@ export const ReceiveScreen = withSkeleton(
               )}
             </Box>
 
-            <WalletSelector selected={wallet} onSelect={selectWallet} />
+            <WalletSelector selected={wallet} onSelect={setWalletId} />
           </Container>
         </Box>
       </Box>
