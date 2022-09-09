@@ -1,6 +1,6 @@
 import { ETH } from '@token/tokens';
 import { useMaybeToken } from '@token/useToken';
-import assert from 'assert';
+import { isTruthy } from 'lib';
 import { useDecodedTransfer } from '~/components/call/useDecodedTransfer';
 import { TransferType } from '~/gql/generated.sub';
 import { Transfer } from '~/queries/transfer/useTransfer.sub';
@@ -12,26 +12,21 @@ export const useTxTransfers = (tx?: Tx): Transfer[] => {
 
   if (!tx) return [];
 
-  const ethTransfer: Transfer = {
-    direction: TransferType.In,
-    token: ETH,
-    from: tx.account,
-    to: tx.to,
-    amount: tx.value,
-  };
-
-  if (!transfer) return [ethTransfer];
-
-  assert(transferToken, 'transfer token not found');
-
   return [
-    ethTransfer,
-    {
-      direction: TransferType.In,
-      token: transferToken,
+    tx.value.gt(0) && {
+      token: ETH,
       from: tx.account,
       to: tx.to,
-      amount: transfer.value,
+      amount: tx.value,
+      direction: TransferType.Out,
     },
-  ];
+    transfer &&
+      transferToken && {
+        token: transferToken,
+        from: tx.account,
+        to: tx.to,
+        amount: transfer.value,
+        direction: TransferType.Out,
+      },
+  ].filter(isTruthy);
 };
