@@ -11,6 +11,8 @@ export const useExecutionProhibited = () => {
   const { wallet, account, tx } = useTxContext();
   const transfers = useTxTransfers(tx);
 
+  if (tx.status === 'executed') return false;
+
   if (!account.active) return ExecutionProhibition.InactiveAccount;
 
   if (wallet.state.status === 'add')
