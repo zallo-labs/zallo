@@ -35,7 +35,7 @@ export const ActivityTransfers = memo(
 
     return (
       <Box vertical justifyContent="space-around" alignItems="flex-end">
-        {transfers.length && (
+        {transfers.length > 0 && (
           <Text
             variant="titleMedium"
             style={[textStyle, totalValue > 0 && styles.positive]}
