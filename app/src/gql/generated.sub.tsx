@@ -1124,6 +1124,21 @@ export type AccountQueryVariables = Exact<{
 
 export type AccountQuery = { __typename?: 'Query', account?: { __typename?: 'Account', id: any, impl: { __typename?: 'AccountImpl', id: any }, wallets: Array<{ __typename?: 'Wallet', id: string, ref: any, account: { __typename?: 'Account', id: any } }> } | null };
 
+export type TransferQueryVariables = Exact<{
+  id: Scalars['ID'];
+}>;
+
+
+export type TransferQuery = { __typename?: 'Query', transfer?: { __typename?: 'Transfer', id: string, type: TransferType, token: any, from: any, to: any, value: any } | null };
+
+export type TransfersMetadataQueryVariables = Exact<{
+  accounts: Array<Scalars['String']> | Scalars['String'];
+  types: Array<TransferType> | TransferType;
+}>;
+
+
+export type TransfersMetadataQuery = { __typename?: 'Query', transfers: Array<{ __typename?: 'Transfer', id: string, timestamp: any }> };
+
 export type TxsMetadataQueryVariables = Exact<{
   accounts: Array<Scalars['String']> | Scalars['String'];
 }>;
@@ -1205,6 +1220,83 @@ export function useAccountLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<Ac
 export type AccountQueryHookResult = ReturnType<typeof useAccountQuery>;
 export type AccountLazyQueryHookResult = ReturnType<typeof useAccountLazyQuery>;
 export type AccountQueryResult = Apollo.QueryResult<AccountQuery, AccountQueryVariables>;
+export const TransferDocument = gql`
+    query Transfer($id: ID!) {
+  transfer(id: $id) {
+    id
+    type
+    token
+    from
+    to
+    value
+  }
+}
+    `;
+
+/**
+ * __useTransferQuery__
+ *
+ * To run a query within a React component, call `useTransferQuery` and pass it any options that fit your needs.
+ * When your component renders, `useTransferQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useTransferQuery({
+ *   variables: {
+ *      id: // value for 'id'
+ *   },
+ * });
+ */
+export function useTransferQuery(baseOptions: Apollo.QueryHookOptions<TransferQuery, TransferQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<TransferQuery, TransferQueryVariables>(TransferDocument, options);
+      }
+export function useTransferLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<TransferQuery, TransferQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<TransferQuery, TransferQueryVariables>(TransferDocument, options);
+        }
+export type TransferQueryHookResult = ReturnType<typeof useTransferQuery>;
+export type TransferLazyQueryHookResult = ReturnType<typeof useTransferLazyQuery>;
+export type TransferQueryResult = Apollo.QueryResult<TransferQuery, TransferQueryVariables>;
+export const TransfersMetadataDocument = gql`
+    query TransfersMetadata($accounts: [String!]!, $types: [TransferType!]!) {
+  transfers(where: {account_in: $accounts, type_in: $types}) {
+    id
+    timestamp
+  }
+}
+    `;
+
+/**
+ * __useTransfersMetadataQuery__
+ *
+ * To run a query within a React component, call `useTransfersMetadataQuery` and pass it any options that fit your needs.
+ * When your component renders, `useTransfersMetadataQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useTransfersMetadataQuery({
+ *   variables: {
+ *      accounts: // value for 'accounts'
+ *      types: // value for 'types'
+ *   },
+ * });
+ */
+export function useTransfersMetadataQuery(baseOptions: Apollo.QueryHookOptions<TransfersMetadataQuery, TransfersMetadataQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<TransfersMetadataQuery, TransfersMetadataQueryVariables>(TransfersMetadataDocument, options);
+      }
+export function useTransfersMetadataLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<TransfersMetadataQuery, TransfersMetadataQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<TransfersMetadataQuery, TransfersMetadataQueryVariables>(TransfersMetadataDocument, options);
+        }
+export type TransfersMetadataQueryHookResult = ReturnType<typeof useTransfersMetadataQuery>;
+export type TransfersMetadataLazyQueryHookResult = ReturnType<typeof useTransfersMetadataLazyQuery>;
+export type TransfersMetadataQueryResult = Apollo.QueryResult<TransfersMetadataQuery, TransfersMetadataQueryVariables>;
 export const TxsMetadataDocument = gql`
     query TxsMetadata($accounts: [String!]!) {
   txes(where: {account_in: $accounts}) {

@@ -1,36 +1,45 @@
-import { BigNumber, BigNumberish, ethers } from 'ethers';
-import { useMemo } from 'react';
-import { TokenPrice, useTokenPrice } from '~/queries/useTokenPrice.uni';
+import { BigNumber, BigNumberish } from 'ethers';
+import { formatUnits } from 'ethers/lib/utils';
+import { Address } from 'lib';
+import { selectorFamily, useRecoilValue } from 'recoil';
+import { TOKEN_PRICE } from '~/queries/useTokenPrice.uni';
 import { FIAT_DECIMALS } from './fiat';
 import { Token } from './token';
+import { TOKEN } from './useToken';
 
 export interface TokenValue {
   fiatValue: number;
 }
 
-export const toTokenValue = (
-  token: Token,
-  amount: BigNumberish,
-  price: TokenPrice,
-): TokenValue => {
-  const fiatValue = parseFloat(
-    ethers.utils.formatUnits(
-      BigNumber.from(amount).mul(price.current),
-      token.decimals + FIAT_DECIMALS,
-    ),
-  );
+type TokenValueParam = [Address, BigNumber];
 
-  return { fiatValue };
-};
+export const TOKEN_VALUE = selectorFamily<number, TokenValueParam>({
+  key: 'tokenValue',
+  get:
+    ([tokenAddr, amount]) =>
+    ({ get }) => {
+      const token = get(TOKEN(tokenAddr));
+      const price = get(TOKEN_PRICE(tokenAddr));
 
-export const useTokenValue = (token: Token, amount: BigNumberish) => {
-  const price = useTokenPrice(token);
+      return parseFloat(
+        formatUnits(
+          BigNumber.from(amount).mul(price.current),
+          token.decimals + FIAT_DECIMALS,
+        ),
+      );
+    },
+});
 
-  return useMemo(
-    () => toTokenValue(token, amount, price),
-    [token, amount, price],
-  );
-};
+export const useTokenValue = (token: Token, amount: BigNumberish) =>
+  useRecoilValue(TOKEN_VALUE([token.addr, BigNumber.from(amount)]));
 
-export const useTokenFiatValue = (token: Token, amount: BigNumberish) =>
-  useTokenValue(token, amount).fiatValue;
+const TOKEN_VALUES = selectorFamily<number[], TokenValueParam[]>({
+  key: 'tokenValues',
+  get:
+    (tokens) =>
+    ({ get }) =>
+      tokens.map((param) => get(TOKEN_VALUE(param))),
+});
+
+export const useTokenValues = (...params: TokenValueParam[]) =>
+  useRecoilValue(TOKEN_VALUES(params));

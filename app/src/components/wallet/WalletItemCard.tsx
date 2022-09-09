@@ -6,9 +6,9 @@ import { Addr } from '~/components/addr/Addr';
 import { CardItem, CardItemProps } from '../card/CardItem';
 import { CardItemSkeleton } from '../card/CardItemSkeleton';
 import { Suspend } from '~/components/Suspender';
-import { useTotalFiatValue } from '@token/useTotalFiatValue';
 import { FiatValue } from '../fiat/FiatValue';
 import { ProposableStatusIcon } from '../ProposableStatus/ProposableStatusIcon';
+import { useTotalBalanceValue } from '@token/useTotalBalanceValue';
 
 export interface WalletItemCardProps extends CardItemProps {
   id: WalletId;
@@ -24,7 +24,7 @@ export const WalletItemCard = withSkeleton(
     ...props
   }: WalletItemCardProps) => {
     const wallet = useWallet(id);
-    const totalFiatValue = useTotalFiatValue(wallet?.accountAddr);
+    const totalFiatValue = useTotalBalanceValue(wallet?.accountAddr);
 
     if (!wallet) return <Suspend />;
 

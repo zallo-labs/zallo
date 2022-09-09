@@ -1,5 +1,5 @@
+import { useTotalBalanceValue } from '@token/useTotalBalanceValue';
 import { Address } from 'lib';
-import { useTotalFiatValue } from '@token/useTotalFiatValue';
 import { FiatValue } from './FiatValue';
 
 export interface FiatBalanceProps {
@@ -13,7 +13,7 @@ export const FiatBalance = ({
   showZero,
   rightAffix,
 }: FiatBalanceProps) => {
-  const totalFiatValue = useTotalFiatValue(addr);
+  const totalFiatValue = useTotalBalanceValue(addr);
 
   if (!showZero && !totalFiatValue) return null;
 

@@ -17,7 +17,7 @@ export const TokenAmountCard = ({
   amount,
   ...itemProps
 }: TokenAmountCardProps) => {
-  const { fiatValue } = useTokenValue(t, amount);
+  const fiatValue = useTokenValue(t, amount);
 
   return (
     <CardItem

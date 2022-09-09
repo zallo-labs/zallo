@@ -1,6 +1,6 @@
 import { useToken } from '@token/useToken';
 import { useTokenAvailable } from '@token/useTokenAvailable';
-import { useTokenFiatValue } from '@token/useTokenValue';
+import { useTokenValue } from '@token/useTokenValue';
 import { Address } from 'lib';
 import { memo } from 'react';
 import { Text } from 'react-native-paper';
@@ -46,7 +46,7 @@ export const TokenLimitCard = memo(
           <Text variant="bodySmall">Available</Text>,
 
           <Text variant="titleSmall">
-            <FiatValue value={useTokenFiatValue(token, available)} />
+            <FiatValue value={useTokenValue(token, available)} />
           </Text>,
 
           <Text variant="bodyMedium">

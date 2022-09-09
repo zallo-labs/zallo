@@ -1,18 +1,15 @@
 import { withSkeleton } from '~/components/skeleton/withSkeleton';
 import { Suspend } from '~/components/Suspender';
 import { makeStyles } from '~/util/theme/makeStyles';
-import { Text } from 'react-native-paper';
 import { Tx, TxId } from '~/queries/tx';
 import { ETH } from '@token/tokens';
 import { useMaybeToken } from '@token/useToken';
-import { Card, CardProps } from '../card/Card';
-import { CardItemSkeleton } from '../card/CardItemSkeleton';
-import { CallTokens } from './CallTokens';
-import { Box } from '~/components/layout/Box';
-import { TokenIcon } from '~/components/token/TokenIcon/TokenIcon';
-import { Addr } from '../addr/Addr';
+import { CardProps } from '../../components/card/Card';
+import { CardItemSkeleton } from '../../components/card/CardItemSkeleton';
 import { useTx } from '~/queries/tx/tx/useTx';
-import { useCallName } from './useCallName';
+import { useCallName } from '../../components/call/useCallName';
+import { ActivityCard } from './ActivityCard';
+import { useTxTransfers } from '~/components/call/useTxTransfers';
 
 export interface CallCardProps extends CardProps {
   id: TxId;
@@ -20,38 +17,26 @@ export interface CallCardProps extends CardProps {
 
 export const CallCard = withSkeleton(({ id, ...cardProps }: CallCardProps) => {
   const { tx } = useTx(id);
-  const token = useMaybeToken(tx?.to) ?? ETH;
   const styles = useStyles(tx);
+  const token = useMaybeToken(tx?.to) ?? ETH;
   const name = useCallName(tx);
+  const transfers = useTxTransfers(tx);
 
   if (!tx) return <Suspend />;
 
   return (
-    <Card {...cardProps} style={[styles.card, cardProps.style]}>
-      <Box horizontal>
-        <Box flex={1} horizontal alignItems="center">
-          <TokenIcon token={token} />
-
-          <Box flex={1} vertical ml={3}>
-            <Text variant="titleMedium" style={styles.text}>
-              <Addr addr={tx.to} />
-            </Text>
-
-            {name && (
-              <Text variant="bodyMedium" style={styles.text}>
-                {name}
-              </Text>
-            )}
-          </Box>
-        </Box>
-
-        <CallTokens call={tx} textStyle={styles.text} />
-      </Box>
-    </Card>
+    <ActivityCard
+      token={token}
+      addr={tx.to}
+      label={name}
+      transfers={transfers}
+      backgroundColor={styles.card.backgroundColor}
+      {...cardProps}
+    />
   );
 }, CardItemSkeleton);
 
-const useStyles = makeStyles(({ colors, onBackground }, tx: Tx) => {
+const useStyles = makeStyles(({ colors }, tx: Tx) => {
   const backgroundColor = ((): string | undefined => {
     switch (tx?.status) {
       case 'proposed':
@@ -73,9 +58,6 @@ const useStyles = makeStyles(({ colors, onBackground }, tx: Tx) => {
   return {
     card: {
       ...(backgroundColor && { backgroundColor }),
-    },
-    text: {
-      color: onBackground(backgroundColor),
     },
   };
 });

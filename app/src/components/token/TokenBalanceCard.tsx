@@ -4,7 +4,7 @@ import { CardItem, CardItemProps } from '../card/CardItem';
 import { CardItemSkeleton } from '../card/CardItemSkeleton';
 import { withSkeleton } from '../skeleton/withSkeleton';
 import { useTokenBalance } from '@token/useTokenBalance';
-import { useTokenFiatValue } from '@token/useTokenValue';
+import { useTokenValue } from '@token/useTokenValue';
 import { TokenIcon } from './TokenIcon/TokenIcon';
 import { Text } from 'react-native-paper';
 import { TokenAmount } from './TokenAmount';
@@ -28,7 +28,7 @@ export const TokenBalanceCard = withSkeleton(
         ]}
         Right={[
           <Text variant="titleSmall">
-            <FiatValue value={useTokenFiatValue(token, balance)} />
+            <FiatValue value={useTokenValue(token, balance)} />
           </Text>,
           <Text variant="bodyMedium">
             <TokenAmount token={token} amount={balance} />

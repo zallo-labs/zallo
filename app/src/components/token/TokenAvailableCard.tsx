@@ -5,7 +5,7 @@ import { withSkeleton } from '../skeleton/withSkeleton';
 import { useTokenAvailable } from '@token/useTokenAvailable';
 import { WalletId } from '~/queries/wallets';
 import { Text } from 'react-native-paper';
-import { useTokenFiatValue } from '@token/useTokenValue';
+import { useTokenValue } from '@token/useTokenValue';
 import { FiatValue } from '../fiat/FiatValue';
 import { TokenAmount } from './TokenAmount';
 import { TokenIcon } from './TokenIcon/TokenIcon';
@@ -29,7 +29,7 @@ export const TokenAvailableCard = withSkeleton(
         ]}
         Right={[
           <Text variant="titleSmall">
-            <FiatValue value={useTokenFiatValue(token, available)} />
+            <FiatValue value={useTokenValue(token, available)} />
           </Text>,
           <Text variant="bodyMedium">
             <TokenAmount token={token} amount={available} />

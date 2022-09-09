@@ -26,7 +26,7 @@ export const TokenHoldingCard = ({
 }: TokenHoldingCardProps) => {
   const price = useTokenPrice(t);
   const available = useTokenAvailable(t, wallet);
-  const { fiatValue } = useTokenValue(t, available);
+  const fiatValue = useTokenValue(t, available);
 
   return (
     <CardItem

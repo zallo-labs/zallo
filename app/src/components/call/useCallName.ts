@@ -16,7 +16,7 @@ export const useCallName = (call?: Call) => {
   const upsertWallet = useDecodedUpsertWallet(call);
   const removeWallet = useDecodedRemoveWallet(call);
 
-  if (!method) return !call?.value.isZero() ? 'Transfer' : null;
+  if (!method) return !call?.value.isZero() ? 'Transfer' : undefined;
 
   if (upsertWallet) return getUpsertWalletMethodName(upsertWallet);
   if (removeWallet) return getRemoveWalletMethodName(removeWallet);

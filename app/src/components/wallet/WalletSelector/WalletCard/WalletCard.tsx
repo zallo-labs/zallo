@@ -27,7 +27,7 @@ export const WalletCard = withSkeleton(
     const styles = useStyles();
     const wallet = useWallet(id);
     const token = useSelectedToken();
-    const { fiatValue } = useTokenValue(token, useTokenBalance(token, wallet));
+    const fiatValue = useTokenValue(token, useTokenBalance(token, wallet));
 
     if (!wallet) return <Suspend />;
 

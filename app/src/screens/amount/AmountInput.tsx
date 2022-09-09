@@ -25,7 +25,7 @@ export interface AmountInputProps {
 export const AmountInput = ({ token, amount, setAmount }: AmountInputProps) => {
   const styles = useStyles();
   const { colors } = useTheme();
-  const { fiatValue } = useTokenValue(token, amount ?? ZERO);
+  const fiatValue = useTokenValue(token, amount ?? ZERO);
   const price = useTokenPrice(token);
 
   const [type, setType] = useState<'token' | 'fiat'>('token');
