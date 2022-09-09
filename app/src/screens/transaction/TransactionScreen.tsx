@@ -30,7 +30,7 @@ export const TransactionScreen = withSkeleton(
           <Box flex={1} mx={2}>
             <Comments
               ListHeaderComponent={
-                <Container my={3} separator={<Box mt={2} />}>
+                <Container my={1} separator={<Box mt={2} />}>
                   <PotentialDisabledExecutionWarning />
                   <TransactionDetails />
                   <TransactionStatus />
