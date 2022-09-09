@@ -59,7 +59,7 @@ services:
       - key: SUBGRAPH_GQL_URL
         sync: false
     region: oregon
-    plan: starter
+    plan: free
     domains:
       - api-dev.allopay.io
 
