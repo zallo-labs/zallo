@@ -1,5 +1,7 @@
 import { ExpoConfig, ConfigContext } from '@expo/config';
 
+const projectId = 'f8f4def1-b838-4dec-8b50-6c07995c4ff5';
+
 const E = process.env;
 
 const chain = E?.CHAIN?.toUpperCase();
@@ -30,11 +32,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
   },
   extra: {
     ...CONFIG,
-    ...(CONFIG.env === 'production' && {
-      eas: {
-        projectId: 'f8f4def1-b838-4dec-8b50-6c07995c4ff5',
-      },
-    }),
+    ...(CONFIG.env === 'production' && { eas: { projectId } }),
   },
   plugins: ['sentry-expo', 'expo-community-flipper'],
   hooks: {
@@ -42,7 +40,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
       {
         file: 'sentry-expo/upload-sourcemaps',
         config: {
-          // https://github.com/expo/sentry-expo/blob/master/src/hooks/upload-sourcemaps.ts
+          // https://docs.expo.dev/guides/using-sentry/#31-configure-a--postpublish--hook
           organization: E.SENTRY_ORG,
           project: E.SENTRY_PROJECT,
           authToken: E.SENTRY_AUTH_TOKEN,
@@ -81,6 +79,6 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     favicon: './assets/favicon.png',
   },
   updates: {
-    url: 'https://u.expo.dev/f8f4def1-b838-4dec-8b50-6c07995c4ff5',
+    url: `https://u.expo.dev/${projectId}`,
   },
 });
