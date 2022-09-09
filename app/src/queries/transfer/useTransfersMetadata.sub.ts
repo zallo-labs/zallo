@@ -1,11 +1,16 @@
 import { gql } from '@apollo/client';
-import { toId } from 'lib';
+import { Id, toId } from 'lib';
 import { DateTime } from 'luxon';
 import { useMemo } from 'react';
 import { TransferType, useTransfersMetadataQuery } from '~/gql/generated.sub';
 import { useSubgraphClient } from '~/gql/GqlProvider';
-import { TransferMetadata } from '.';
+import { usePollWhenFocussed } from '~/gql/usePollWhenFocussed';
 import { useAccountIds } from '../account/useAccountIds';
+
+export interface TransferMetadata {
+  id: Id;
+  timestamp: DateTime;
+}
 
 gql`
   query TransfersMetadata($accounts: [String!]!, $types: [TransferType!]!) {
@@ -26,6 +31,7 @@ export const useTransfersMetadata = (...types: TransferType[]) => {
       types,
     },
   });
+  usePollWhenFocussed(rest, 15 * 1000);
 
   const transfers = useMemo(
     (): TransferMetadata[] =>

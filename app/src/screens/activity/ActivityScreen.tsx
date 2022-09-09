@@ -18,7 +18,7 @@ import { Timestamp } from '~/components/format/Timestamp';
 import { useTxsMetadata } from '~/queries/tx/metadata/useTxsMetadata';
 import { useTransfersMetadata } from '~/queries/transfer/useTransfersMetadata.sub';
 import { TransferType } from '~/gql/generated.sub';
-import { TransferMetadata } from '~/queries/transfer';
+import { TransferMetadata } from '~/queries/transfer/useTransfersMetadata.sub';
 import { InTransferCard } from './InTransferCard';
 
 type Item =
