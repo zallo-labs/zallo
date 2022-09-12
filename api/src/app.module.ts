@@ -3,7 +3,7 @@ import { APP_GUARD } from '@nestjs/core';
 import { PrismaModule } from 'nestjs-prisma';
 import { loggingMiddleware } from './prisma/prisma.logging';
 import { HealthModule } from './health/health.module';
-import { UsersModule } from './features/users/users.module';
+import { DevicesModule } from './features/devices/devices.module';
 import { AccountsModule } from './features/accounts/accounts.module';
 import { AuthModule } from './auth/auth.module';
 import { AuthGuard } from './auth/auth.guard';
@@ -42,13 +42,13 @@ import { QuorumsModule } from './features/quorums/quorums.module';
     CommentsModule,
     ContactsModule,
     ContractMethodsModule,
+    DevicesModule,
     FaucetModule,
     QuorumsModule,
     ReactionsModule,
     SubgraphModule,
     SubmissionsModule,
     TxsModule,
-    UsersModule,
     WalletsModule,
   ],
   providers: [

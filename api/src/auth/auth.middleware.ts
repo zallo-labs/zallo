@@ -48,9 +48,9 @@ export class AuthMiddleware implements NestMiddleware {
       if (message.expirationTime)
         req.session.cookie.expires = new Date(message.expirationTime);
 
-      req.userMessage = message;
+      req.deviceMessage = message;
     } else if (IS_DEV && isLocalPlayground(req) && !isIntrospection(req)) {
-      req.userMessage = new SiweMessage({
+      req.deviceMessage = new SiweMessage({
         address: CONFIG.wallet.address,
       });
     }

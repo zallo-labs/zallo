@@ -10,10 +10,10 @@ import {
   UpsertAccountArgs as CreateAccountArgs,
 } from './accounts.args';
 import { getSelect } from '~/util/select';
-import { connectOrCreateUser } from '~/util/connect-or-create';
+import { connectOrCreateDevice } from '~/util/connect-or-create';
 import { Address, hashQuorum } from 'lib';
 import { Prisma } from '@prisma/client';
-import { UserAddr } from '~/decorators/user.decorator';
+import { DeviceAddr } from '~/decorators/device.decorator';
 import { SubgraphService } from '../subgraph/subgraph.service';
 
 @Resolver(() => Account)
@@ -47,10 +47,10 @@ export class AccountsResolver {
 
   @Query(() => [Account])
   async userAccounts(
-    @UserAddr() user: Address,
+    @DeviceAddr() device: Address,
     @Info() info: GraphQLResolveInfo,
   ): Promise<Account[]> {
-    const subAccounts = await this.subgraph.userAccounts(user);
+    const subAccounts = await this.subgraph.deviceAccounts(device);
 
     return this.prisma.account.findMany({
       where: {
@@ -59,7 +59,7 @@ export class AccountsResolver {
           {
             approvers: {
               some: {
-                userId: user,
+                deviceId: device,
               },
             },
           },
@@ -101,7 +101,7 @@ export class AccountsResolver {
                             },
                           },
                         },
-                        user: connectOrCreateUser(approver),
+                        user: connectOrCreateDevice(approver),
                       })),
                     },
                   })),

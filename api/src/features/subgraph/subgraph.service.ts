@@ -45,7 +45,7 @@ export class SubgraphService {
     });
   }
 
-  public async userWallets(user: Address): Promise<AccountWallet[]> {
+  public async deviceWallets(device: Address): Promise<AccountWallet[]> {
     const { data } = await this.client.query<
       UserWalletsQuery,
       UserWalletsQueryVariables
@@ -67,7 +67,7 @@ export class SubgraphService {
           }
         }
       `,
-      variables: { user: toId(user) },
+      variables: { user: toId(device) },
     });
 
     return (
@@ -78,8 +78,8 @@ export class SubgraphService {
     );
   }
 
-  public async userAccounts(user: Address): Promise<Address[]> {
-    const accounts = (await this.userWallets(user)).map(
+  public async deviceAccounts(device: Address): Promise<Address[]> {
+    const accounts = (await this.deviceWallets(device)).map(
       ({ account }) => account,
     );
     return filterFirst(accounts, (account) => account);

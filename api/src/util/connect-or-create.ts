@@ -10,12 +10,12 @@ export const connectOrCreateAccount = (
   },
 });
 
-export const connectOrCreateUser = (
-  addr: Address,
-): Prisma.UserCreateNestedOneWithoutApprovalsInput => ({
+export const connectOrCreateDevice = (
+  device: Address,
+): Prisma.DeviceCreateNestedOneWithoutApprovalsInput => ({
   connectOrCreate: {
-    where: { id: addr },
-    create: { id: addr },
+    where: { id: device },
+    create: { id: device },
   },
 });
 

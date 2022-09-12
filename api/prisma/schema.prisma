@@ -12,7 +12,7 @@ generator nestgraphql {
   output   = "../generated"
 }
 
-model User {
+model Device {
   id String @id @db.Char(42) // address
 
   contacts  Contact[]
@@ -86,20 +86,20 @@ model Approver {
   walletRef  String  @db.Char(10) // bytes4
   quorum     Quorum  @relation(fields: [accountId, walletRef, quorumHash], references: [accountId, walletRef, hash], onDelete: Cascade)
   quorumHash String  @db.Char(66) // bytes32
-  user       User    @relation(fields: [userId], references: [id], onDelete: Cascade)
-  userId     String  @db.Char(42) // address
+  device     Device  @relation(fields: [deviceId], references: [id], onDelete: Cascade)
+  deviceId   String  @db.Char(42) // address
 
-  @@id([accountId, walletRef, quorumHash, userId])
+  @@id([accountId, walletRef, quorumHash, deviceId])
 }
 
 model Contact {
-  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
-  userId String @db.Char(42) // address
-  addr   String @db.Char(42) // address
-  name   String
+  device   Device @relation(fields: [deviceId], references: [id], onDelete: Cascade)
+  deviceId String @db.Char(42) // address
+  addr     String @db.Char(42) // address
+  name     String
 
-  @@id([userId, addr])
-  @@unique([userId, name], name: "name_identifier")
+  @@id([deviceId, addr])
+  @@unique([deviceId, name], name: "name_identifier")
 }
 
 model ContractMethod {
@@ -147,8 +147,8 @@ model Submission {
 }
 
 model Approval {
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  userId    String   @db.Char(42) // address
+  device    Device   @relation(fields: [deviceId], references: [id], onDelete: Cascade)
+  deviceId  String   @db.Char(42) // address
   account   Account  @relation(fields: [accountId], references: [id], onDelete: Cascade)
   accountId String   @db.Char(42) // address
   tx        Tx       @relation(fields: [accountId, txHash], references: [accountId, hash], onDelete: Cascade)
@@ -156,7 +156,7 @@ model Approval {
   signature String // bytes
   createdAt DateTime @default(now())
 
-  @@id([accountId, txHash, userId])
+  @@id([accountId, txHash, deviceId])
 }
 
 model Comment {
@@ -165,7 +165,7 @@ model Comment {
   key       String
   nonce     Int     @default(autoincrement())
 
-  author    User     @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  author    Device   @relation(fields: [authorId], references: [id], onDelete: Cascade)
   authorId  String   @db.Char(42) // address
   content   String
   createdAt DateTime @default(now())
@@ -184,13 +184,13 @@ model Reaction {
   nonce     Int
 
   comment   Comment  @relation(fields: [accountId, key, nonce], references: [accountId, key, nonce], onDelete: Cascade)
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  userId    String   @db.Char(42) // address
+  device    Device   @relation(fields: [deviceId], references: [id], onDelete: Cascade)
+  deviceId  String   @db.Char(42) // address
   emojis    String[]
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt()
 
-  @@id([accountId, key, nonce, userId])
+  @@id([accountId, key, nonce, deviceId])
 }
 
 enum LimitPeriod {

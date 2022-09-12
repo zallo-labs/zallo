@@ -11,9 +11,9 @@ import {
 import { GraphQLResolveInfo } from 'graphql';
 import { Address, Id, toId } from 'lib';
 import { PrismaService } from 'nestjs-prisma';
-import { UserAddr } from '~/decorators/user.decorator';
+import { DeviceAddr } from '~/decorators/device.decorator';
 import {
-  connectOrCreateUser,
+  connectOrCreateDevice,
   connectOrCreateAccount,
 } from '~/util/connect-or-create';
 import { getSelect } from '~/util/select';
@@ -25,14 +25,14 @@ export class ReactionsResolver {
 
   @ResolveField(() => String)
   async id(@Parent() r: Reaction): Promise<Id> {
-    return toId(`${r.accountId}-${r.key}-${r.nonce}-${r.userId}`);
+    return toId(`${r.accountId}-${r.key}-${r.nonce}-${r.deviceId}`);
   }
 
   @Mutation(() => Reaction, { nullable: true })
   async reactToComment(
     @Args() { account, key, nonce, emojis }: ReactToCommentArgs,
     @Info() info: GraphQLResolveInfo,
-    @UserAddr() user: Address,
+    @DeviceAddr() device: Address,
   ): Promise<Reaction | null> {
     const commentId = { accountId: account, key, nonce };
 
@@ -41,13 +41,13 @@ export class ReactionsResolver {
       where: {
         accountId_key_nonce_approverId: {
           ...commentId,
-          approverId: user,
+          approverId: device,
         },
       },
       create: {
         account: connectOrCreateAccount(account),
         comment: { connect: { accountId_key_nonce: commentId } },
-        user: connectOrCreateUser(user),
+        user: connectOrCreateDevice(device),
         emojis,
       },
       update: {

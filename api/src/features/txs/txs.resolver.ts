@@ -19,9 +19,9 @@ import {
   validateSignature,
 } from 'lib';
 import { PrismaService } from 'nestjs-prisma';
-import { UserAddr } from '~/decorators/user.decorator';
+import { DeviceAddr } from '~/decorators/device.decorator';
 import {
-  connectOrCreateUser,
+  connectOrCreateDevice,
   connectOrCreateAccount,
   connectOrCreateWallet,
 } from '~/util/connect-or-create';
@@ -91,13 +91,13 @@ export class TxsResolver {
   async proposeTx(
     @Args() { account, walletRef, tx, signature }: ProposeTxArgs,
     @Info() info: GraphQLResolveInfo,
-    @UserAddr() user: Address,
+    @DeviceAddr() device: Address,
   ): Promise<Tx> {
     const txHash = await hashTx(
       { address: account, provider: this.provider },
       tx,
     );
-    await this.validateSignatureOrThrow(user, txHash, signature);
+    await this.validateSignatureOrThrow(device, txHash, signature);
 
     return this.prisma.tx.upsert({
       where: { accountId_hash: { hash: txHash, accountId: account } },
@@ -111,7 +111,7 @@ export class TxsResolver {
         wallet: connectOrCreateWallet(account, walletRef),
         approvals: {
           create: {
-            user: connectOrCreateUser(user),
+            user: connectOrCreateDevice(device),
             account: connectOrCreateAccount(account),
             signature,
           },
@@ -120,7 +120,7 @@ export class TxsResolver {
       update: {
         approvals: {
           create: {
-            user: connectOrCreateUser(user),
+            user: connectOrCreateDevice(device),
             account: connectOrCreateAccount(account),
             signature,
           },
@@ -134,9 +134,9 @@ export class TxsResolver {
   async approve(
     @Args() { account, hash, signature }: ApproveArgs,
     @Info() info: GraphQLResolveInfo,
-    @UserAddr() user: Address,
+    @DeviceAddr() device: Address,
   ): Promise<Tx | null> {
-    await this.validateSignatureOrThrow(user, hash, signature);
+    await this.validateSignatureOrThrow(device, hash, signature);
 
     return this.prisma.tx.update({
       where: { accountId_hash: { accountId: account, hash } },
@@ -144,7 +144,7 @@ export class TxsResolver {
         approvals: {
           create: {
             account: connectOrCreateAccount(account),
-            user: connectOrCreateUser(user),
+            user: connectOrCreateDevice(device),
             signature: ethers.utils.hexlify(signature),
           },
         },
@@ -156,17 +156,17 @@ export class TxsResolver {
   @Mutation(() => RevokeApprovalResp)
   async revokeApproval(
     @Args() { account, hash }: UniqueTxArgs,
-    @UserAddr() user: Address,
+    @DeviceAddr() device: Address,
   ): Promise<RevokeApprovalResp> {
     await this.prisma.tx.update({
       where: { accountId_hash: { accountId: account, hash } },
       data: {
         approvals: {
           delete: {
-            accountId_txHash_userId: {
+            accountId_txHash_deviceId: {
               accountId: account,
               txHash: hash,
-              userId: user,
+              deviceId: device,
             },
           },
         },
@@ -206,11 +206,11 @@ export class TxsResolver {
   }
 
   private async validateSignatureOrThrow(
-    user: Address,
+    device: Address,
     txHash: BytesLike,
     signature: SignatureLike,
   ) {
-    const isValid = validateSignature(user, txHash, signature);
+    const isValid = validateSignature(device, txHash, signature);
     if (!isValid) throw new UserInputError('Invalid signature');
   }
 }

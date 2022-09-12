@@ -3,18 +3,18 @@ import { GqlExecutionContext } from '@nestjs/graphql';
 import { address } from 'lib';
 import { Ctx } from '~/request/ctx';
 
-export const UserMsg = createParamDecorator(
+export const DeviceMsg = createParamDecorator(
   (_data, context: ExecutionContext) => {
     const ctx = GqlExecutionContext.create(context).getContext<Ctx>();
-    return ctx.req.userMessage;
+    return ctx.req.deviceMessage;
   },
 );
 
-export const UserAddr = createParamDecorator(
+export const DeviceAddr = createParamDecorator(
   (_data, context: ExecutionContext) => {
     const ctx = GqlExecutionContext.create(context).getContext<Ctx>();
-    if (!ctx.req.userMessage) throw new Error('User message not provided');
+    if (!ctx.req.deviceMessage) throw new Error('Device message not provided');
 
-    return address(ctx.req.userMessage.address);
+    return address(ctx.req.deviceMessage.address);
   },
 );

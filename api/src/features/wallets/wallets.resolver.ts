@@ -19,13 +19,13 @@ import {
 } from './wallets.args';
 import {
   connectOrCreateAccount,
-  connectOrCreateUser,
+  connectOrCreateDevice,
 } from '~/util/connect-or-create';
 import { Wallet } from '@gen/wallet/wallet.model';
 import { FindManyWalletArgs } from '@gen/wallet/find-many-wallet.args';
-import { Address, getWalletId, hashQuorum, Quorum, toWalletRef } from 'lib';
+import { Address, getUserId, hashQuorum, Quorum, toWalletRef } from 'lib';
 import { Prisma } from '@prisma/client';
-import { UserAddr } from '~/decorators/user.decorator';
+import { DeviceAddr } from '~/decorators/device.decorator';
 import { SubgraphService } from '../subgraph/subgraph.service';
 import { UserInputError } from 'apollo-server-core';
 import { ProposableState, ProposableStatus } from './proposable.args';
@@ -70,10 +70,10 @@ export class WalletsResolver {
 
   @Query(() => [Wallet])
   async userWallets(
-    @UserAddr() user: Address,
+    @DeviceAddr() device: Address,
     @Info() info: GraphQLResolveInfo,
   ): Promise<Wallet[]> {
-    const subWallets = await this.subgraph.userWallets(user);
+    const subWallets = await this.subgraph.deviceWallets(device);
 
     return this.prisma.wallet.findMany({
       where: {
@@ -81,7 +81,7 @@ export class WalletsResolver {
           {
             approvers: {
               some: {
-                userId: { equals: user },
+                deviceId: { equals: device },
               },
             },
           },
@@ -99,7 +99,7 @@ export class WalletsResolver {
 
   @ResolveField(() => String)
   id(@Parent() w: Wallet): string {
-    return getWalletId(w.accountId, toWalletRef(w.ref));
+    return getUserId(w.accountId, toWalletRef(w.ref));
   }
 
   @ResolveField(() => ProposableState, { nullable: true })
@@ -358,7 +358,7 @@ export class WalletsResolver {
         create: quorum.map((approver) => ({
           account: { connect: { id: id.accountId } },
           wallet: { connect: { accountId_ref: id } },
-          user: connectOrCreateUser(approver),
+          user: connectOrCreateDevice(approver),
         })),
       },
     };

@@ -11,9 +11,9 @@ import {
 import { GraphQLResolveInfo } from 'graphql';
 import { Address, Id, toId } from 'lib';
 import { PrismaService } from 'nestjs-prisma';
-import { UserAddr } from '~/decorators/user.decorator';
+import { DeviceAddr } from '~/decorators/device.decorator';
 import {
-  connectOrCreateUser,
+  connectOrCreateDevice,
   connectOrCreateAccount,
 } from '~/util/connect-or-create';
 import { getSelect } from '~/util/select';
@@ -51,14 +51,14 @@ export class CommentsResolver {
   @Mutation(() => Comment)
   async createComment(
     @Args() { account, key, content }: CreateCommentArgs,
-    @UserAddr() user: Address,
+    @DeviceAddr() device: Address,
     @Info() info: GraphQLResolveInfo,
   ): Promise<Comment> {
     return this.prisma.comment.create({
       data: {
         account: connectOrCreateAccount(account),
         key,
-        author: connectOrCreateUser(user),
+        author: connectOrCreateDevice(device),
         content,
       },
       ...getSelect(info),

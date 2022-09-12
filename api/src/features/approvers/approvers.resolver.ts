@@ -6,6 +6,6 @@ import { getApproverId, toWalletRef } from 'lib';
 export class ApproversResolver {
   @ResolveField(() => String)
   id(@Parent() a: Approver): string {
-    return getApproverId(a.accountId, toWalletRef(a.walletRef), a.userId);
+    return getApproverId(a.accountId, toWalletRef(a.walletRef), a.deviceId);
   }
 }
