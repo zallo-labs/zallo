@@ -4,6 +4,11 @@
     "dist": true,
     "node_modules": true
   },
+  "search.exclude": {
+    "dist": true,
+    "src/contracts": true,
+    "src/typechain": true
+  },
   "jest.jestCommandLine": "yarn test",
   "jest.autoRun": "off"
 }

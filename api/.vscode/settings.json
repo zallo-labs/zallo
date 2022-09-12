@@ -5,6 +5,9 @@
     "generated": true,
     "node_modules": true
   },
+  "search.exclude": {
+    "prisma/migrations": true
+  },
   "jest.jestCommandLine": "yarn test",
   "jest.autoRun": "off"
 }
