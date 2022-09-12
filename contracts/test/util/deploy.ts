@@ -5,12 +5,11 @@ import {
   address,
   Multicall,
   deployAccountProxy,
-  randomWalletRef,
-  Wallet,
-  toQuorum,
-  sortQuorums,
+  User,
   connectTestAccount,
   connectMulticall,
+  UserConfig,
+  compareAddresses,
 } from 'lib';
 import { allSigners, device } from './wallet';
 import { ContractTransaction } from 'ethers';
@@ -53,26 +52,27 @@ export const deployAccountImpl = async ({
 };
 
 export const deploy = async (
-  quorumSize = 3,
+  nSigners = 3,
   contractName: 'Account' | 'TestAccount' = 'Account',
 ) => {
-  const approvers = allSigners
-    .slice(0, quorumSize)
-    .map((approver) => approver.address);
-  const others = allSigners
-    .slice(quorumSize)
+  const signers = allSigners
+    .slice(0, nSigners)
     .map((approver) => approver.address);
 
-  const quorum = toQuorum(approvers);
+  const approvers = signers.slice(1).sort(compareAddresses);
 
-  const wallet: Wallet = {
-    ref: randomWalletRef(),
-    quorums: sortQuorums([quorum]),
+  const others = allSigners.slice(nSigners).map((approver) => approver.address);
+
+  const config: UserConfig = { approvers };
+
+  const user: User = {
+    addr: signers[0],
+    configs: [config],
   };
 
   const { impl } = await deployAccountImpl({ contractName });
   const { factory } = await deployFactory('ERC1967Proxy');
-  const deployData = await deployAccountProxy({ wallet, impl }, factory);
+  const deployData = await deployAccountProxy({ user, impl }, factory);
 
   const txResp = await device.sendTransaction({
     to: deployData.account.address,
@@ -84,14 +84,16 @@ export const deploy = async (
     ...deployData,
     impl,
     factory,
-    wallet,
-    quorum,
+    user,
+    config,
+    signers,
+    approvers,
     others,
   };
 };
 
-export const deployTestAccount = async (quorumSize?: number) => {
-  const { account, ...rest } = await deploy(quorumSize, 'TestAccount');
+export const deployTestAccount = async (nSigners?: number) => {
+  const { account, ...rest } = await deploy(nSigners, 'TestAccount');
 
   return {
     account: connectTestAccount(account.address, device),

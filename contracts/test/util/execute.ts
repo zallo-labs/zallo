@@ -5,19 +5,20 @@ import {
   TxReq,
   Account,
   signTx,
-  Signerish,
+  Signer,
   TxDef,
-  Quorum,
-  Wallet,
+  User,
+  UserConfig,
 } from 'lib';
 import { allSigners } from './wallet';
 
 export const getSigners = async (
   account: Account,
-  quorum: Quorum,
+  user: User,
+  config: UserConfig,
   tx: TxReq,
-): Promise<Signerish[]> =>
-  mapAsync(quorum, async (approver) => ({
+): Promise<Signer[]> =>
+  mapAsync([user.addr, ...config.approvers], async (approver) => ({
     approver,
     signature: await signTx(
       allSigners.find((w) => w.address === approver)!,
@@ -28,17 +29,12 @@ export const getSigners = async (
 
 export const execute = async (
   account: Account,
-  wallet: Wallet,
-  quorum: Quorum,
+  user: User,
+  config: UserConfig,
   txDef: TxDef,
 ) => {
   const tx = createTx(txDef);
-  const signers = await getSigners(account, quorum, tx);
+  const signers = await getSigners(account, user, config, tx);
 
-  return await executeTx(
-    account,
-    tx,
-    wallet,
-    signers,
-  );
+  return await executeTx(account, tx, user, signers);
 };

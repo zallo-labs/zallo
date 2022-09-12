@@ -40,6 +40,9 @@ export const compareAddresses = (a: Address, b: Address) => {
   return 0;
 };
 
+export const sortAddresses = (addresses: Address[]) =>
+  addresses.sort(compareAddresses);
+
 /* Module augmentation; including in a .ts file to compile into lib's typings */
 declare module './contracts/index' {
   export interface Account {

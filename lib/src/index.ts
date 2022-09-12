@@ -18,7 +18,6 @@ export * from './util/assert';
 export * from './util/mappedTypes';
 
 export * from './addr';
-export * from './quorum';
 export * from './bignum';
 export * from './boolArray';
 export * from './bytes';
@@ -34,4 +33,5 @@ export * from './merkle';
 export * from './signature';
 export * from './tx';
 export * from './upgrade';
-export * from './wallet';
+export * from './user';
+export * from './userConfig';

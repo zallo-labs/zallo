@@ -1,12 +1,23 @@
 import keccak256 from 'keccak256';
 import MerkleTree from 'merkletreejs';
-import { Wallet } from './wallet';
+import { getUserMerkleRoot, User } from './user';
 import { BoolArray, toBoolArray } from './boolArray';
-import { Quorum, quorumToLeaf, sortQuorums } from './quorum';
+import { UserConfig, userConfigToLeaf } from './userConfig';
 
-export const getMerkleTree = (wallet: Wallet): MerkleTree => {
-  const leaves = sortQuorums(wallet.quorums).map(quorumToLeaf);
+export const getMerkleTree = (user: User): MerkleTree => {
+  const leaves = getUserMerkleRoot(user);
+
   return new MerkleTree(leaves, keccak256, { sort: true });
+};
+
+export const getUserConfigProof = (
+  user: User,
+  config: UserConfig,
+): Buffer[] => {
+  const tree = getMerkleTree(user);
+  const leaf = userConfigToLeaf(config);
+
+  return tree.getProof(leaf);
 };
 
 export interface MultiProof {
@@ -18,10 +29,10 @@ export interface MultiProof {
   proofLeaves: Buffer[];
 }
 
-export const getMultiProof = (wallet: Wallet, quorum: Quorum): MultiProof => {
-  const tree = getMerkleTree(wallet);
+export const getMultiProof = (user: User, config: UserConfig): MultiProof => {
+  const tree = getMerkleTree(user);
 
-  const proofLeaves = [quorumToLeaf(quorum)];
+  const proofLeaves = [userConfigToLeaf(config)];
   const proof = tree.getMultiProof(proofLeaves);
 
   const rawProofFlags = tree.getProofFlags(proofLeaves, proof);

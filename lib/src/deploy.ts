@@ -9,7 +9,7 @@ import {
   TestAccount__factory,
   Multicall__factory,
 } from './contracts';
-import { Wallet } from './wallet';
+import { toUserStruct, User } from './user';
 import {
   defaultAbiCoder,
   hexDataLength,
@@ -18,6 +18,7 @@ import {
 } from 'ethers/lib/utils';
 import * as zk from 'zksync-web3';
 import { Device } from './device';
+import { Proxy__factory } from './contracts/factories/@openzeppelin/contracts/proxy';
 
 export type DeploySalt = string & { isDeploySalt: true };
 const DEPLOY_SALT_BYTES = 32;
@@ -46,7 +47,7 @@ export const connectProxy = createConnect(ERC1967Proxy__factory.connect);
 export const connectMulticall = createConnect(Multicall__factory.connect);
 
 export interface AccountConstructorArgs {
-  wallet: Wallet;
+  user: User;
 }
 
 export interface ProxyConstructorArgs extends AccountConstructorArgs {
@@ -54,13 +55,13 @@ export interface ProxyConstructorArgs extends AccountConstructorArgs {
 }
 
 export const encodeProxyConstructorArgs = ({
-  wallet,
+  user,
   impl,
 }: ProxyConstructorArgs) => {
   const accountInterface = Account__factory.createInterface();
   const encodedInitializeCall = accountInterface.encodeFunctionData(
     'initialize',
-    [wallet.ref, wallet.quorums],
+    [toUserStruct(user)],
   );
 
   return defaultAbiCoder.encode(
