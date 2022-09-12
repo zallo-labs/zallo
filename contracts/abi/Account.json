@@ -11,22 +11,7 @@
   },
   {
     "inputs": [],
-    "name": "EmptyQuorum",
-    "type": "error"
-  },
-  {
-    "inputs": [],
-    "name": "EmptyQuorums",
-    "type": "error"
-  },
-  {
-    "inputs": [],
     "name": "ExecutionReverted",
-    "type": "error"
-  },
-  {
-    "inputs": [],
-    "name": "InvalidMultiProof",
     "type": "error"
   },
   {
@@ -52,6 +37,11 @@
   },
   {
     "inputs": [],
+    "name": "NoUserConfigs",
+    "type": "error"
+  },
+  {
+    "inputs": [],
     "name": "OnlyCallableByBootloader",
     "type": "error"
   },
@@ -62,17 +52,12 @@
   },
   {
     "inputs": [],
-    "name": "QuorumHashesNotUniqueAndAscending",
-    "type": "error"
-  },
-  {
-    "inputs": [],
-    "name": "QuorumNotAscending",
-    "type": "error"
-  },
-  {
-    "inputs": [],
     "name": "TxAlreadyExecuted",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "UserConfigHashesNotAscending",
     "type": "error"
   },
   {
@@ -163,31 +148,44 @@
     "inputs": [
       {
         "indexed": false,
-        "internalType": "Ref",
-        "name": "walletRef",
-        "type": "bytes4"
+        "internalType": "address",
+        "name": "user",
+        "type": "address"
       }
     ],
-    "name": "WalletRemoved",
+    "name": "UserRemoved",
     "type": "event"
   },
   {
     "anonymous": false,
     "inputs": [
       {
+        "components": [
+          {
+            "internalType": "address",
+            "name": "addr",
+            "type": "address"
+          },
+          {
+            "components": [
+              {
+                "internalType": "address[]",
+                "name": "approvers",
+                "type": "address[]"
+              }
+            ],
+            "internalType": "struct UserConfig[]",
+            "name": "configs",
+            "type": "tuple[]"
+          }
+        ],
         "indexed": false,
-        "internalType": "Ref",
-        "name": "walletRef",
-        "type": "bytes4"
-      },
-      {
-        "indexed": false,
-        "internalType": "bytes[]",
-        "name": "quorums",
-        "type": "bytes[]"
+        "internalType": "struct User",
+        "name": "user",
+        "type": "tuple"
       }
     ],
-    "name": "WalletUpserted",
+    "name": "UserUpserted",
     "type": "event"
   },
   {
@@ -386,14 +384,28 @@
   {
     "inputs": [
       {
-        "internalType": "Ref",
-        "name": "walletRef",
-        "type": "bytes4"
-      },
-      {
-        "internalType": "address[][]",
-        "name": "quorums",
-        "type": "address[][]"
+        "components": [
+          {
+            "internalType": "address",
+            "name": "addr",
+            "type": "address"
+          },
+          {
+            "components": [
+              {
+                "internalType": "address[]",
+                "name": "approvers",
+                "type": "address[]"
+              }
+            ],
+            "internalType": "struct UserConfig[]",
+            "name": "configs",
+            "type": "tuple[]"
+          }
+        ],
+        "internalType": "struct User",
+        "name": "user",
+        "type": "tuple"
       }
     ],
     "name": "initialize",
@@ -645,12 +657,12 @@
   {
     "inputs": [
       {
-        "internalType": "Ref",
-        "name": "walletRef",
-        "type": "bytes4"
+        "internalType": "address",
+        "name": "user",
+        "type": "address"
       }
     ],
-    "name": "removeWallet",
+    "name": "removeUser",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
@@ -708,17 +720,31 @@
   {
     "inputs": [
       {
-        "internalType": "Ref",
-        "name": "walletRef",
-        "type": "bytes4"
-      },
-      {
-        "internalType": "address[][]",
-        "name": "quorums",
-        "type": "address[][]"
+        "components": [
+          {
+            "internalType": "address",
+            "name": "addr",
+            "type": "address"
+          },
+          {
+            "components": [
+              {
+                "internalType": "address[]",
+                "name": "approvers",
+                "type": "address[]"
+              }
+            ],
+            "internalType": "struct UserConfig[]",
+            "name": "configs",
+            "type": "tuple[]"
+          }
+        ],
+        "internalType": "struct User",
+        "name": "user",
+        "type": "tuple"
       }
     ],
-    "name": "upsertWallet",
+    "name": "upsertUser",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"

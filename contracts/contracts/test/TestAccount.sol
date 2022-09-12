@@ -5,21 +5,22 @@ import '../Account.sol';
 import {BoolArray} from '../utils/BoolArray.sol';
 
 contract TestAccount is Account {
+  using UserConfigHelper for UserConfig;
+
   function testExecuteTransaction(Transaction calldata transaction) external {
     _executeTransaction(_hashTx(transaction), transaction);
   }
 
-  function verifyMultiProof(
-    bytes32 root,
+  function isValidProof(
+    UserConfig calldata config,
     bytes32[] calldata proof,
-    uint256[] calldata proofFlags,
-    address[] calldata quorum
-  ) external pure {
-    return _verifyMultiProof(root, proof, proofFlags, quorum);
+    bytes32 root
+  ) external pure returns (bool) {
+    return config.isValidProof(proof, root);
   }
 
-  function getWalletMerkleRoot(Ref walletRef) external view returns (bytes32) {
-    return _walletMerkleRoots()[walletRef];
+  function getUserMerkleRoot(address user) external view returns (bytes32) {
+    return _userMerkleRoots()[user];
   }
 
   function hashTx(Transaction calldata transaction)
