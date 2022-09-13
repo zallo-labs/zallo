@@ -14,6 +14,7 @@ import { Address } from 'lib';
 import { DeviceAddr } from '~/decorators/device.decorator';
 import { UsersService } from '../users/users.service';
 import { AccountsService } from './accounts.service';
+import { Prisma } from '@prisma/client';
 
 @Resolver(() => Account)
 export class AccountsResolver {
@@ -58,10 +59,13 @@ export class AccountsResolver {
         impl,
         name,
         users: {
-          create: users.map((user) => ({
-            device: connectOrCreateDevice(user.device),
-            states: this.usersService.getCreateUserState(user.configs),
-          })),
+          create: users.map(
+            (user): Prisma.UserCreateWithoutAccountInput => ({
+              device: connectOrCreateDevice(user.device),
+              name: user.name,
+              states: this.usersService.getCreateUserState(user.configs),
+            }),
+          ),
         },
       },
       ...getSelect(info),

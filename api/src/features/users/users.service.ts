@@ -42,10 +42,10 @@ export class UsersService {
   public getCreateUserState(
     configs: UserConfigInput[],
     proposalHash?: string,
-  ): Prisma.UserStateCreateNestedManyWithoutUserInput {
+  ): Prisma.UserStateUncheckedCreateNestedManyWithoutUserInput {
     return {
       create: {
-        ...(proposalHash && { proposalHash }),
+        proposalHash,
         configs: {
           create: configs.map(
             (config): Prisma.UserConfigCreateWithoutStateInput => ({

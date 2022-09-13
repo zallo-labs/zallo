@@ -50,7 +50,7 @@ model User {
 }
 
 model UserState {
-  id Int @id @default(dbgenerated())
+  id Int @id @default(autoincrement())
 
   user         User      @relation(fields: [accountId, deviceId], references: [accountId, deviceId], onDelete: Cascade)
   accountId    String    @db.Char(42) // address
@@ -64,7 +64,7 @@ model UserState {
 }
 
 model UserConfig {
-  id Int @id @default(dbgenerated())
+  id Int @id @default(autoincrement())
 
   state               UserState @relation(fields: [stateId], references: [id], onDelete: Cascade)
   stateId             Int
@@ -132,7 +132,7 @@ model Proposal {
 
   approvals   Approval[]
   submissions Submission[]
-  userState   UserState[]
+  userStates  UserState[]
 }
 
 model Submission {
@@ -162,7 +162,7 @@ model Approval {
 }
 
 model Comment {
-  id Int @id @default(dbgenerated())
+  id Int @id @default(autoincrement())
 
   account   Account  @relation(fields: [accountId], references: [id], onDelete: Cascade)
   accountId String   @db.Char(42) // address
@@ -187,7 +187,7 @@ model Reaction {
   emojis    String[]
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt()
-  Account   Account? @relation(fields: [accountId], references: [id])
+  account   Account? @relation(fields: [accountId], references: [id])
   accountId String?  @db.Char(42)
 
   @@id([commentId, deviceId])

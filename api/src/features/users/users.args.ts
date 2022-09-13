@@ -28,6 +28,7 @@ export class UserConfigInput {
   limits: TokenLimitInput[];
 }
 
+@InputType()
 export class UserIdInput {
   @AddressField()
   account: Address;
