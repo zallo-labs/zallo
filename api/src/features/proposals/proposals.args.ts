@@ -1,15 +1,14 @@
 import { ArgsType, Field, InputType, ObjectType } from '@nestjs/graphql';
 import { BigNumber, BytesLike } from 'ethers';
-import { Address, Id, TxSalt, WalletRef } from 'lib';
+import { Address, Id, TxSalt } from 'lib';
 import { AddressField, GqlAddress } from '~/apollo/scalars/Address.scalar';
 import { BytesField } from '~/apollo/scalars/Bytes.scalar';
 import { Bytes32Field } from '~/apollo/scalars/Bytes32.scalar';
-import { Bytes4Field } from '~/apollo/scalars/Bytes4.scalar';
 import { Bytes8Field } from '~/apollo/scalars/Bytes8.scalar';
 import { Uint256BnField } from '~/apollo/scalars/Uint256Bn.scalar';
 
 @ArgsType()
-export class UniqueTxArgs {
+export class UniqueProposalArgs {
   @AddressField()
   account: Address;
 
@@ -18,13 +17,13 @@ export class UniqueTxArgs {
 }
 
 @ArgsType()
-export class TxsArgs {
+export class ProposalsArgs {
   @Field(() => [GqlAddress])
   accounts: Address[];
 }
 
 @InputType()
-export class TxInput {
+export class ProposalInput {
   @AddressField()
   to: Address;
 
@@ -39,14 +38,11 @@ export class TxInput {
 }
 
 @ArgsType()
-export class ProposeTxArgs {
+export class ProposeArgs {
   @AddressField()
   account: Address;
 
-  @Bytes4Field()
-  walletRef: WalletRef;
-
-  tx: TxInput;
+  proposal: ProposalInput;
 
   @BytesField()
   signature: string;
@@ -59,13 +55,13 @@ export class RevokeApprovalResp {
 }
 
 @ArgsType()
-export class ApproveArgs extends UniqueTxArgs {
+export class ApproveArgs extends UniqueProposalArgs {
   @BytesField()
   signature: BytesLike;
 }
 
 @ArgsType()
-export class ChangeTxWalletArgs extends UniqueTxArgs {
-  @Bytes4Field()
-  walletRef: WalletRef;
+export class ChangeProposalUserArgs extends UniqueProposalArgs {
+  @AddressField()
+  user: Address;
 }

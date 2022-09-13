@@ -1,4 +1,3 @@
-import { hexDataLength, hexlify, randomBytes } from 'ethers/lib/utils';
 import { Address } from './addr';
 import { Account } from './contracts';
 import { UserStruct } from './contracts/Account';
@@ -6,19 +5,18 @@ import { Id, toId } from './id';
 import { createTx, TxReq } from './tx';
 import { UserConfig, userConfigToLeaf } from './userConfig';
 
+export interface UserId {
+  account: Address;
+  addr: Address;
+}
+
 export interface User {
   addr: Address;
   configs: UserConfig[];
 }
 
-export const getUserId = (account: string, user: Address): Id =>
+export const getUserIdStr = (account: string, user: Address): Id =>
   toId(`${account}-${user}`);
-
-export const getApproverId = (
-  account: string,
-  user: Address,
-  approver: Address,
-) => toId(`${getUserId(account, user)}-${approver}`);
 
 export const sortUserConfigs = (configs: UserConfig[]) =>
   configs

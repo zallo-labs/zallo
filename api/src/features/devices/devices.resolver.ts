@@ -14,16 +14,44 @@ import { getSelect } from '~/util/select';
 import { GetAddrNameArgs } from './devices.input';
 import { DeviceAddr } from '~/decorators/device.decorator';
 import { Device } from '@gen/device/device.model';
-import { UpsertOneDeviceArgs } from '@gen/device/upsert-one-device.args';
 import { Address } from 'lib';
-import { SubgraphService } from '../subgraph/subgraph.service';
+import { FindAccountsArgs } from '../accounts/accounts.args';
+import { User } from '@gen/user/user.model';
+import { FindUsersArgs } from '../users/users.args';
 
 @Resolver(() => Device)
 export class DevicesResolver {
-  constructor(
-    private prisma: PrismaService,
-    private subgraph: SubgraphService,
-  ) {}
+  constructor(private prisma: PrismaService) {}
+
+  @ResolveField(() => [Account])
+  async accounts(
+    @Args() args: FindAccountsArgs,
+    @DeviceAddr() device: Address,
+    @Info() info: GraphQLResolveInfo,
+  ): Promise<Account[]> {
+    return this.prisma.account.findMany({
+      ...args,
+      where: {
+        users: {
+          some: { deviceId: device },
+        },
+      },
+      ...getSelect(info),
+    });
+  }
+
+  @ResolveField(() => [User])
+  async users(
+    @Args() args: FindUsersArgs,
+    @DeviceAddr() device: Address,
+    @Info() info: GraphQLResolveInfo,
+  ): Promise<User[]> {
+    return this.prisma.user.findMany({
+      ...args,
+      where: { deviceId: device },
+      ...getSelect(info),
+    });
+  }
 
   @Query(() => Device, { nullable: true })
   async device(
@@ -32,35 +60,6 @@ export class DevicesResolver {
   ): Promise<Device | null> {
     return this.prisma.device.findUnique({
       where: { id: device },
-      ...getSelect(info),
-    });
-  }
-
-  @ResolveField(() => [Account])
-  async accounts(
-    @DeviceAddr() device: Address,
-    @Info() info: GraphQLResolveInfo,
-  ): Promise<Account[]> {
-    return this.prisma.account.findMany({
-      where: {
-        OR: [
-          // Deployed account - approvers aren't stored
-          // { id: { in: await this.subgraph.deviceAccounts(device) } },
-          // Counterfactual accounts
-          {
-            wallets: {
-              some: {
-                approvers: {
-                  some: {
-                    deviceId: { equals: device },
-                  },
-                },
-              },
-            },
-          },
-        ],
-      },
-      distinct: 'id',
       ...getSelect(info),
     });
   }
@@ -88,16 +87,5 @@ export class DevicesResolver {
     });
 
     return account?.name || null;
-  }
-
-  @Mutation(() => Device)
-  async upsertDevice(
-    @Args() args: UpsertOneDeviceArgs,
-    @Info() info: GraphQLResolveInfo,
-  ): Promise<Device> {
-    return this.prisma.device.upsert({
-      ...args,
-      ...getSelect(info),
-    });
   }
 }

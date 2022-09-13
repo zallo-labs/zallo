@@ -82,8 +82,7 @@ export const createTx = (tx: TxDef): TxReq => ({
   salt: tx.salt || randomTxSalt(),
 });
 
-export const getTxId = (account: string, txHash: string): Id =>
-  toId(`${account}-${txHash}`);
+export const getTxId = (txHash: string): Id => toId(txHash);
 
 export const getTxIdParts = (id: Id) => {
   const [account, hash] = id.split('-');

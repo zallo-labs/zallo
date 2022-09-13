@@ -1,4 +1,3 @@
-import { Comment } from '@gen/comment/comment.model';
 import { Reaction } from '@gen/reaction/reaction.model';
 import {
   Args,
@@ -12,10 +11,7 @@ import { GraphQLResolveInfo } from 'graphql';
 import { Address, Id, toId } from 'lib';
 import { PrismaService } from 'nestjs-prisma';
 import { DeviceAddr } from '~/decorators/device.decorator';
-import {
-  connectOrCreateDevice,
-  connectOrCreateAccount,
-} from '~/util/connect-or-create';
+import { connectOrCreateDevice } from '~/util/connect-or-create';
 import { getSelect } from '~/util/select';
 import { ReactToCommentArgs } from './reactions.args';
 
@@ -24,30 +20,26 @@ export class ReactionsResolver {
   constructor(private prisma: PrismaService) {}
 
   @ResolveField(() => String)
-  async id(@Parent() r: Reaction): Promise<Id> {
-    return toId(`${r.accountId}-${r.key}-${r.nonce}-${r.deviceId}`);
+  id(@Parent() r: Reaction): Id {
+    return toId(`${r.commentId}-${r.deviceId}`);
   }
 
   @Mutation(() => Reaction, { nullable: true })
   async reactToComment(
-    @Args() { account, key, nonce, emojis }: ReactToCommentArgs,
-    @Info() info: GraphQLResolveInfo,
+    @Args() { id, emojis }: ReactToCommentArgs,
     @DeviceAddr() device: Address,
+    @Info() info: GraphQLResolveInfo,
   ): Promise<Reaction | null> {
-    const commentId = { accountId: account, key, nonce };
-
-    // if (emojis.length) {
     return this.prisma.reaction.upsert({
       where: {
-        accountId_key_nonce_approverId: {
-          ...commentId,
-          approverId: device,
+        commentId_deviceId: {
+          commentId: id,
+          deviceId: device,
         },
       },
       create: {
-        account: connectOrCreateAccount(account),
-        comment: { connect: { accountId_key_nonce: commentId } },
-        user: connectOrCreateDevice(device),
+        commentId: id,
+        device: connectOrCreateDevice(device),
         emojis,
       },
       update: {
@@ -56,18 +48,5 @@ export class ReactionsResolver {
       },
       ...getSelect(info),
     });
-    // } else {
-    //   return this.prisma.reaction.delete({
-    //     where: {
-    //       accountId_key_nonce_approverId: {
-    //         accountId: account,
-    //         key,
-    //         nonce,
-    //         approverId: user,
-    //       },
-    //     },
-    //     ...getSelect(info),
-    //   });
-    // }
   }
 }

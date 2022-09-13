@@ -1,26 +1,15 @@
 import { Comment } from '@gen/comment/comment.model';
-import {
-  Args,
-  Info,
-  Mutation,
-  Parent,
-  Query,
-  ResolveField,
-  Resolver,
-} from '@nestjs/graphql';
+import { Args, Info, Mutation, Query, Resolver } from '@nestjs/graphql';
 import { GraphQLResolveInfo } from 'graphql';
-import { Address, Id, toId } from 'lib';
+import { Address } from 'lib';
 import { PrismaService } from 'nestjs-prisma';
 import { DeviceAddr } from '~/decorators/device.decorator';
-import {
-  connectOrCreateDevice,
-  connectOrCreateAccount,
-} from '~/util/connect-or-create';
+import { connectOrCreateDevice } from '~/util/connect-or-create';
 import { getSelect } from '~/util/select';
 import {
   CreateCommentArgs,
   UniqueCommentArgs,
-  ManyCommentsArgs,
+  FindCommentsArgs,
 } from './comments.args';
 
 @Resolver(() => Comment)
@@ -29,23 +18,16 @@ export class CommentsResolver {
 
   @Query(() => [Comment])
   async comments(
-    @Args() { account, key }: ManyCommentsArgs,
+    @Args() { account, key }: FindCommentsArgs,
     @Info() info: GraphQLResolveInfo,
   ): Promise<Comment[]> {
-    const r = await this.prisma.comment.findMany({
+    return this.prisma.comment.findMany({
       where: {
         accountId: account,
         key,
       },
       ...getSelect(info),
     });
-
-    return r ?? [];
-  }
-
-  @ResolveField(() => String)
-  async id(@Parent() c: Comment): Promise<Id> {
-    return toId(`${c.accountId}-${c.key}-${c.nonce}`);
   }
 
   @Mutation(() => Comment)
@@ -56,7 +38,7 @@ export class CommentsResolver {
   ): Promise<Comment> {
     return this.prisma.comment.create({
       data: {
-        account: connectOrCreateAccount(account),
+        accountId: account,
         key,
         author: connectOrCreateDevice(device),
         content,
@@ -65,18 +47,14 @@ export class CommentsResolver {
     });
   }
 
-  @Mutation(() => Comment, { nullable: true })
+  @Mutation(() => Comment)
   async deleteComment(
-    @Args() { account, key, nonce }: UniqueCommentArgs,
-  ): Promise<Comment | null> {
+    @Args() { id }: UniqueCommentArgs,
+    @Info() info: GraphQLResolveInfo,
+  ): Promise<Comment> {
     return this.prisma.comment.delete({
-      where: {
-        accountId_key_nonce: {
-          accountId: account,
-          key,
-          nonce,
-        },
-      },
+      where: { id },
+      ...getSelect(info),
     });
   }
 }

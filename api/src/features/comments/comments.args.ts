@@ -1,10 +1,10 @@
-import { ArgsType, Field, Int } from '@nestjs/graphql';
+import { ArgsType } from '@nestjs/graphql';
 import { Address, Id } from 'lib';
 import { AddressField } from '~/apollo/scalars/Address.scalar';
 import { IdField } from '~/apollo/scalars/Id.scalar';
 
 @ArgsType()
-export class ManyCommentsArgs {
+export class FindCommentsArgs {
   @AddressField()
   account: Address;
 
@@ -13,12 +13,11 @@ export class ManyCommentsArgs {
 }
 
 @ArgsType()
-export class CreateCommentArgs extends ManyCommentsArgs {
+export class CreateCommentArgs extends FindCommentsArgs {
   content: string;
 }
 
 @ArgsType()
-export class UniqueCommentArgs extends ManyCommentsArgs {
-  @Field(() => Int)
-  nonce: number;
+export class UniqueCommentArgs {
+  id: number;
 }

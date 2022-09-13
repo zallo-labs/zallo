@@ -1,26 +1,26 @@
 import { Args, Info, Mutation, Query, Resolver } from '@nestjs/graphql';
 import { PrismaService } from 'nestjs-prisma';
 import { GraphQLResolveInfo } from 'graphql';
-
 import { Account } from '@gen/account/account.model';
-import { FindManyAccountArgs } from '@gen/account/find-many-account.args';
 import {
   AccountArgs,
   SetAccountNameArgs,
-  UpsertAccountArgs as CreateAccountArgs,
+  CreateAccountArgs,
+  FindAccountsArgs,
 } from './accounts.args';
 import { getSelect } from '~/util/select';
 import { connectOrCreateDevice } from '~/util/connect-or-create';
-import { Address, hashQuorum } from 'lib';
-import { Prisma } from '@prisma/client';
+import { Address } from 'lib';
 import { DeviceAddr } from '~/decorators/device.decorator';
-import { SubgraphService } from '../subgraph/subgraph.service';
+import { UsersService } from '../users/users.service';
+import { AccountsService } from './accounts.service';
 
 @Resolver(() => Account)
 export class AccountsResolver {
   constructor(
+    private service: AccountsService,
     private prisma: PrismaService,
-    private subgraph: SubgraphService,
+    private usersService: UsersService,
   ) {}
 
   @Query(() => Account, { nullable: true })
@@ -36,43 +36,19 @@ export class AccountsResolver {
 
   @Query(() => [Account])
   async accounts(
-    @Args() args: FindManyAccountArgs,
-    @Info() info: GraphQLResolveInfo,
-  ): Promise<Account[]> {
-    return this.prisma.account.findMany({
-      ...args,
-      ...getSelect(info),
-    });
-  }
-
-  @Query(() => [Account])
-  async userAccounts(
+    @Args() args: FindAccountsArgs,
     @DeviceAddr() device: Address,
     @Info() info: GraphQLResolveInfo,
   ): Promise<Account[]> {
-    const subAccounts = await this.subgraph.deviceAccounts(device);
-
-    return this.prisma.account.findMany({
-      where: {
-        OR: [
-          { id: { in: subAccounts } },
-          {
-            approvers: {
-              some: {
-                deviceId: device,
-              },
-            },
-          },
-        ],
-      },
-      distinct: 'id',
+    return this.service.accounts(device, {
+      ...args,
       ...getSelect(info),
     });
   }
 
   @Mutation(() => Account)
   async createAccount(
-    @Args() { account, deploySalt, impl, name, wallets }: CreateAccountArgs,
+    @Args() { account, deploySalt, impl, name, users }: CreateAccountArgs,
     @Info() info: GraphQLResolveInfo,
   ): Promise<Account> {
     return this.prisma.account.create({
@@ -81,35 +57,12 @@ export class AccountsResolver {
         deploySalt,
         impl,
         name,
-        ...(wallets && {
-          wallets: {
-            create: wallets.map(
-              (a): Prisma.WalletUncheckedCreateWithoutAccountInput => ({
-                ref: a.ref,
-                name: a.name,
-                quorums: {
-                  create: a.quorums.map((quorum) => ({
-                    hash: hashQuorum(quorum),
-                    approvers: {
-                      create: quorum.map((approver) => ({
-                        account: { connect: { id: account } },
-                        wallet: {
-                          connect: {
-                            accountId_ref: {
-                              accountId: account,
-                              ref: a.ref,
-                            },
-                          },
-                        },
-                        user: connectOrCreateDevice(approver),
-                      })),
-                    },
-                  })),
-                },
-              }),
-            ),
-          },
-        }),
+        users: {
+          create: users.map((user) => ({
+            device: connectOrCreateDevice(user.device),
+            states: this.usersService.getCreateUserState(user.configs),
+          })),
+        },
       },
       ...getSelect(info),
     });

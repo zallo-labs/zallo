@@ -1,9 +1,9 @@
 import { Module } from '@nestjs/common';
 import { SubmissionsModule } from '../submissions/submissions.module';
-import { TxsResolver } from './txs.resolver';
+import { ProposalsResolver } from './proposals.resolver';
 
 @Module({
   imports: [SubmissionsModule],
-  providers: [TxsResolver],
+  providers: [ProposalsResolver],
 })
-export class TxsModule {}
+export class ProposalsModule {}

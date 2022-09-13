@@ -10,7 +10,7 @@ import {
 } from '@nestjs/graphql';
 import { UserInputError } from 'apollo-server-core';
 import { GraphQLResolveInfo } from 'graphql';
-import { Address, Id, toId } from 'lib';
+import { Id, toId } from 'lib';
 import { PrismaService } from 'nestjs-prisma';
 import { ProviderService } from '~/provider/provider.service';
 import { getSelect } from '~/util/select';
@@ -25,14 +25,26 @@ export class SubmissionsResolver {
     private provider: ProviderService,
   ) {}
 
+  @ResolveField(() => String)
+  id(@Parent() submission: Submission): Id {
+    return toId(submission.hash);
+  }
+
+  @ResolveField(() => Boolean)
+  async finalized(@Parent() submission: Submission): Promise<boolean> {
+    if (submission.finalized) return true;
+
+    return (await this.service.updateUnfinalized([submission]))[0].finalized;
+  }
+
   @Query(() => [Submission])
   async submissions(
-    @Args() { account, txHash }: SubmissionsArgs,
+    @Args() { proposalHash }: SubmissionsArgs,
     @Info() info: GraphQLResolveInfo,
   ): Promise<Submission[]> {
-    const submissions = await this.prisma.tx
+    const submissions = await this.prisma.proposal
       .findUnique({
-        where: { accountId_hash: { accountId: account, hash: txHash } },
+        where: { hash: proposalHash },
       })
       .submissions({
         ...getSelect(info),
@@ -41,17 +53,13 @@ export class SubmissionsResolver {
     return await this.service.updateUnfinalized(submissions);
   }
 
-  @ResolveField(() => String)
-  id(@Parent() submission: Submission): Id {
-    return toId(submission.hash);
-  }
-
   @Mutation(() => Submission)
   async submitTxExecution(
-    @Args() { account, txHash, submission }: SubmitTxExecutionArgs,
+    @Args()
+    { proposalHash, submission }: SubmitTxExecutionArgs,
     @Info() info: GraphQLResolveInfo,
   ): Promise<Submission> {
-    if (!(await this.isValid(account, txHash, submission.hash)))
+    if (!(await this.isValid(proposalHash, submission.hash)))
       throw new UserInputError("Submission doesn't match transaction");
 
     const transaction = await this.provider.getTransaction(submission.hash);
@@ -59,8 +67,8 @@ export class SubmissionsResolver {
 
     return await this.prisma.submission.create({
       data: {
-        tx: {
-          connect: { accountId_hash: { accountId: account, hash: txHash } },
+        proposal: {
+          connect: { hash: proposalHash },
         },
         hash: submission.hash,
         nonce: transaction.nonce,
@@ -72,11 +80,7 @@ export class SubmissionsResolver {
     });
   }
 
-  private async isValid(
-    account: Address,
-    txHash: string,
-    submissionHash: string,
-  ) {
+  private async isValid(proposalHash: string, submissionHash: string) {
     // TODO: verify submission is valid
     return true;
   }

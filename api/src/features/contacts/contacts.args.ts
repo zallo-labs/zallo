@@ -1,7 +1,13 @@
 import { FindManyContactArgs } from '@gen/contact/find-many-contact.args';
-import { ArgsType, Field, ObjectType, OmitType } from '@nestjs/graphql';
-import { Address, Id } from 'lib';
+import { ArgsType, ObjectType, OmitType } from '@nestjs/graphql';
+import { Address } from 'lib';
 import { AddressField } from '~/apollo/scalars/Address.scalar';
+
+@ObjectType()
+export class ContactObject {
+  addr: string;
+  name: string;
+}
 
 @ArgsType()
 export class ContactsArgs extends OmitType(FindManyContactArgs, ['where']) {}
@@ -10,12 +16,6 @@ export class ContactsArgs extends OmitType(FindManyContactArgs, ['where']) {}
 export class DeleteContactArgs {
   @AddressField()
   addr: Address;
-}
-
-@ObjectType()
-export class DeleteContactResp {
-  @Field(() => String)
-  id: Id;
 }
 
 @ArgsType()

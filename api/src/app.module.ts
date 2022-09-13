@@ -9,19 +9,17 @@ import { AuthModule } from './auth/auth.module';
 import { AuthGuard } from './auth/auth.guard';
 import { ApolloModule } from './apollo/apollo.module';
 import { ProviderModule } from './provider/provider.module';
-import { WalletsModule } from './features/wallets/wallets.module';
 import { ContactsModule } from './features/contacts/contacts.module';
 import { ApproversModule } from './features/approvers/approvers.module';
 import { ContractMethodsModule } from './features/contract-methods/contract-methods.module';
-import { TxsModule } from './features/txs/txs.module';
+import { ProposalsModule } from './features/proposals/proposals.module';
 import { SubmissionsModule } from './features/submissions/submissions.module';
 import { CommentsModule } from './features/comments/comments.module';
 import { ReactionsModule } from './features/reactions/reactions.module';
-import { SubgraphModule } from './features/subgraph/subgraph.module';
 import { FaucetModule } from './features/faucet/faucet.module';
 import { RedisModule } from '@liaoliaots/nestjs-redis';
 import CONFIG from 'config';
-import { QuorumsModule } from './features/quorums/quorums.module';
+import { UsersModule } from './features/users/users.module';
 
 @Module({
   imports: [
@@ -44,12 +42,10 @@ import { QuorumsModule } from './features/quorums/quorums.module';
     ContractMethodsModule,
     DevicesModule,
     FaucetModule,
-    QuorumsModule,
+    ProposalsModule,
     ReactionsModule,
-    SubgraphModule,
     SubmissionsModule,
-    TxsModule,
-    WalletsModule,
+    UsersModule,
   ],
   providers: [
     {

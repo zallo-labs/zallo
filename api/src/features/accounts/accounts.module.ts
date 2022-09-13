@@ -1,9 +1,11 @@
 import { Module } from '@nestjs/common';
-import { SubgraphModule } from '../subgraph/subgraph.module';
+import { UsersModule } from '../users/users.module';
 import { AccountsResolver } from './accounts.resolver';
+import { AccountsService } from './accounts.service';
 
 @Module({
-  imports: [SubgraphModule],
-  providers: [AccountsResolver],
+  imports: [UsersModule],
+  exports: [AccountsService],
+  providers: [AccountsResolver, AccountsService],
 })
 export class AccountsModule {}

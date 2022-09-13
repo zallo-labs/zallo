@@ -1,9 +1,9 @@
-import { ArgsType, InputType } from '@nestjs/graphql';
-import { WalletRef, Address, Quorum } from 'lib';
+import { FindManyAccountArgs } from '@gen/account/find-many-account.args';
+import { ArgsType, InputType, OmitType } from '@nestjs/graphql';
+import { Address } from 'lib';
 import { AddressField } from '~/apollo/scalars/Address.scalar';
 import { Bytes32Field } from '~/apollo/scalars/Bytes32.scalar';
-import { Bytes4Field } from '~/apollo/scalars/Bytes4.scalar';
-import { QuorumsField } from '~/apollo/scalars/Quorum.scalar';
+import { UserInput } from '../users/users.args';
 
 @ArgsType()
 export class AccountArgs {
@@ -12,18 +12,17 @@ export class AccountArgs {
 }
 
 @InputType()
-export class WalletWithoutAccountInput {
-  @Bytes4Field()
-  ref: WalletRef;
-
-  @QuorumsField()
-  quorums: Quorum[];
-
-  name: string;
-}
+export class UserWithoutAccountInput extends OmitType(UserInput, [
+  'account',
+] as const) {}
 
 @ArgsType()
-export class UpsertAccountArgs {
+export class FindAccountsArgs extends OmitType(FindManyAccountArgs, [
+  'where',
+] as const) {}
+
+@ArgsType()
+export class CreateAccountArgs {
   @AddressField()
   account: Address;
 
@@ -35,7 +34,7 @@ export class UpsertAccountArgs {
 
   name: string;
 
-  wallets?: WalletWithoutAccountInput[];
+  users: UserWithoutAccountInput[];
 }
 
 @ArgsType()

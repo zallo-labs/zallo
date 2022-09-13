@@ -1,4 +1,3 @@
-import { Tx } from '@gen/tx/tx.model';
 import {
   Args,
   Info,
@@ -23,36 +22,47 @@ import { DeviceAddr } from '~/decorators/device.decorator';
 import {
   connectOrCreateDevice,
   connectOrCreateAccount,
-  connectOrCreateWallet,
 } from '~/util/connect-or-create';
 import { getSelect } from '~/util/select';
 import {
-  ProposeTxArgs,
+  ProposeArgs,
   ApproveArgs,
   RevokeApprovalResp,
-  UniqueTxArgs,
-  TxsArgs,
-  ChangeTxWalletArgs,
-} from './txs.args';
+  UniqueProposalArgs,
+  ProposalsArgs,
+} from './proposals.args';
 import { Submission } from '@gen/submission/submission.model';
 import { SubmissionsService } from '../submissions/submissions.service';
 import { UserInputError } from 'apollo-server-core';
 import { ProviderService } from '~/provider/provider.service';
+import { Proposal } from '@gen/proposal/proposal.model';
 
-@Resolver(() => Tx)
-export class TxsResolver {
+@Resolver(() => Proposal)
+export class ProposalsResolver {
   constructor(
     private prisma: PrismaService,
     private provider: ProviderService,
     private submissionsService: SubmissionsService,
   ) {}
 
-  @Query(() => Tx, { nullable: true })
-  async tx(
-    @Args() { account, hash }: UniqueTxArgs,
+  @ResolveField(() => String)
+  id(@Parent() proposal: Proposal): Id {
+    return getTxId(proposal.hash);
+  }
+
+  @ResolveField(() => [Submission])
+  async submissions(@Parent() proposal: Proposal): Promise<Submission[]> {
+    return await this.submissionsService.updateUnfinalized(
+      proposal.submissions ?? [],
+    );
+  }
+
+  @Query(() => Proposal, { nullable: true })
+  async proposal(
+    @Args() { account, hash }: UniqueProposalArgs,
     @Info() info: GraphQLResolveInfo,
-  ): Promise<Tx | null> {
-    return this.prisma.tx.findUnique({
+  ): Promise<Proposal | null> {
+    return this.prisma.proposal.findUnique({
       where: {
         accountId_hash: { accountId: account, hash },
       },
@@ -60,13 +70,13 @@ export class TxsResolver {
     });
   }
 
-  @Query(() => [Tx])
-  async txs(
-    @Args() { accounts }: TxsArgs,
+  @Query(() => [Proposal])
+  async proposals(
+    @Args() { accounts }: ProposalsArgs,
     @Info() info: GraphQLResolveInfo,
-  ): Promise<Tx[]> {
+  ): Promise<Proposal[]> {
     return (
-      (await this.prisma.tx.findMany({
+      (await this.prisma.proposal.findMany({
         where: {
           accountId: { in: accounts },
         },
@@ -75,40 +85,27 @@ export class TxsResolver {
     );
   }
 
-  @ResolveField(() => String)
-  id(@Parent() tx: Tx): Id {
-    return getTxId(tx.accountId, tx.hash);
-  }
-
-  @ResolveField(() => [Submission])
-  async submissions(@Parent() tx: Tx): Promise<Submission[]> {
-    return await this.submissionsService.updateUnfinalized(
-      tx.submissions ?? [],
-    );
-  }
-
-  @Mutation(() => Tx)
-  async proposeTx(
-    @Args() { account, walletRef, tx, signature }: ProposeTxArgs,
+  @Mutation(() => Proposal)
+  async propose(
+    @Args() { account, proposal, signature }: ProposeArgs,
     @Info() info: GraphQLResolveInfo,
     @DeviceAddr() device: Address,
-  ): Promise<Tx> {
-    const txHash = await hashTx(
+  ): Promise<Proposal> {
+    const proposalHash = await hashTx(
       { address: account, provider: this.provider },
-      tx,
+      proposal,
     );
-    await this.validateSignatureOrThrow(device, txHash, signature);
+    await this.validateSignatureOrThrow(device, proposalHash, signature);
 
-    return this.prisma.tx.upsert({
-      where: { accountId_hash: { hash: txHash, accountId: account } },
+    return this.prisma.proposal.upsert({
+      where: { accountId_hash: { hash: proposalHash, accountId: account } },
       create: {
         account: connectOrCreateAccount(account),
-        hash: txHash,
-        to: tx.to,
-        value: tx.value.toString(),
-        data: tx.data,
-        salt: tx.salt,
-        wallet: connectOrCreateWallet(account, walletRef),
+        hash: proposalHash,
+        to: proposal.to,
+        value: proposal.value.toString(),
+        data: proposal.data,
+        salt: proposal.salt,
         approvals: {
           create: {
             user: connectOrCreateDevice(device),
@@ -130,15 +127,15 @@ export class TxsResolver {
     });
   }
 
-  @Mutation(() => Tx, { nullable: true })
+  @Mutation(() => Proposal, { nullable: true })
   async approve(
     @Args() { account, hash, signature }: ApproveArgs,
     @Info() info: GraphQLResolveInfo,
     @DeviceAddr() device: Address,
-  ): Promise<Tx | null> {
+  ): Promise<Proposal | null> {
     await this.validateSignatureOrThrow(device, hash, signature);
 
-    return this.prisma.tx.update({
+    return this.prisma.proposal.update({
       where: { accountId_hash: { accountId: account, hash } },
       data: {
         approvals: {
@@ -155,17 +152,17 @@ export class TxsResolver {
 
   @Mutation(() => RevokeApprovalResp)
   async revokeApproval(
-    @Args() { account, hash }: UniqueTxArgs,
+    @Args() { account, hash }: UniqueProposalArgs,
     @DeviceAddr() device: Address,
   ): Promise<RevokeApprovalResp> {
-    await this.prisma.tx.update({
-      where: { accountId_hash: { accountId: account, hash } },
+    await this.prisma.proposal.update({
+      where: { hash },
       data: {
         approvals: {
           delete: {
-            accountId_txHash_deviceId: {
+            accountId_proposalHash_deviceId: {
               accountId: account,
-              txHash: hash,
+              proposalHash: hash,
               deviceId: device,
             },
           },
@@ -173,44 +170,25 @@ export class TxsResolver {
       },
     });
 
-    // Delete tx if no approvals are left
+    // Delete proposal if no approvals are left
     const approvalsLeft = await this.prisma.approval.count({
-      where: { accountId: account, txHash: hash },
+      where: { accountId: account, proposalHash: hash },
     });
 
     if (!approvalsLeft)
-      await this.prisma.tx.delete({
-        where: { accountId_hash: { accountId: account, hash } },
+      await this.prisma.proposal.delete({
+        where: { hash },
       });
 
-    return { id: getTxId(account, hash) };
-  }
-
-  @Mutation(() => Tx, { nullable: true })
-  async setTxWallet(
-    @Args() { account, hash, walletRef }: ChangeTxWalletArgs,
-    @Info() info: GraphQLResolveInfo,
-  ): Promise<Tx | null> {
-    return this.prisma.tx.update({
-      where: {
-        accountId_hash: {
-          accountId: account,
-          hash,
-        },
-      },
-      data: {
-        wallet: connectOrCreateWallet(account, walletRef),
-      },
-      ...getSelect(info),
-    });
+    return { id: getTxId(hash) };
   }
 
   private async validateSignatureOrThrow(
     device: Address,
-    txHash: BytesLike,
+    proposalHash: BytesLike,
     signature: SignatureLike,
   ) {
-    const isValid = validateSignature(device, txHash, signature);
+    const isValid = validateSignature(device, proposalHash, signature);
     if (!isValid) throw new UserInputError('Invalid signature');
   }
 }
