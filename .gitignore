@@ -3,7 +3,7 @@
 **/bin
 **/cache
 **/dist
-**/generated/*
+**/generated
 **/node_modules
 **/__generated__
 **/*.secret.*
@@ -25,7 +25,6 @@
 
 
 ## Api
-!api/generated/generated.subgraph.ts
 api/schema.gql
 
 
