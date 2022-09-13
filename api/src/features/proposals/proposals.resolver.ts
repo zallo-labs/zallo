@@ -19,10 +19,7 @@ import {
 } from 'lib';
 import { PrismaService } from 'nestjs-prisma';
 import { DeviceAddr } from '~/decorators/device.decorator';
-import {
-  connectOrCreateDevice,
-  connectOrCreateAccount,
-} from '~/util/connect-or-create';
+import { connectOrCreateDevice } from '~/util/connect-or-create';
 import { getSelect } from '~/util/select';
 import {
   ProposeArgs,
@@ -100,7 +97,7 @@ export class ProposalsResolver {
     return this.prisma.proposal.upsert({
       where: { accountId_hash: { hash: proposalHash, accountId: account } },
       create: {
-        account: connectOrCreateAccount(account),
+        accountId: account,
         hash: proposalHash,
         to: proposal.to,
         value: proposal.value.toString(),
@@ -109,7 +106,7 @@ export class ProposalsResolver {
         approvals: {
           create: {
             user: connectOrCreateDevice(device),
-            account: connectOrCreateAccount(account),
+            accountId: account,
             signature,
           },
         },
@@ -118,7 +115,7 @@ export class ProposalsResolver {
         approvals: {
           create: {
             user: connectOrCreateDevice(device),
-            account: connectOrCreateAccount(account),
+            accountId: account,
             signature,
           },
         },
@@ -140,7 +137,7 @@ export class ProposalsResolver {
       data: {
         approvals: {
           create: {
-            account: connectOrCreateAccount(account),
+            accountId: account,
             user: connectOrCreateDevice(device),
             signature: ethers.utils.hexlify(signature),
           },

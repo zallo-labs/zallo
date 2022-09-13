@@ -1,15 +1,6 @@
 import { Prisma } from '@prisma/client';
 import { Address } from 'lib';
 
-export const connectOrCreateAccount = (
-  account: Address,
-): Prisma.AccountCreateNestedOneWithoutUsersInput => ({
-  connectOrCreate: {
-    where: { id: account },
-    create: { id: account },
-  },
-});
-
 export const connectOrCreateDevice = (
   device: Address,
 ): Prisma.DeviceCreateNestedOneWithoutApprovalsInput => ({
@@ -32,7 +23,7 @@ export const connectOrCreateUser = (
       },
     },
     create: {
-      account: connectOrCreateAccount(account),
+      account: { connect: { id: account } },
       device: connectOrCreateDevice(device),
       name,
     },

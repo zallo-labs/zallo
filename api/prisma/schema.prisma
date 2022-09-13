@@ -24,16 +24,19 @@ model Device {
 }
 
 model Account {
-  id         String  @id @db.Char(42) // address
-  name       String  @default("")
+  id String @id @db.Char(42) // address
+
   deploySalt String? @db.Char(66) // bytes32
   impl       String? @db.Char(42) // address
+  name       String
+  isDeployed Boolean @default(false)
 
-  users     User[]
-  proposals Proposal[]
-  approvals Approval[]
-  comments  Comment[]
-  reactions Reaction[]
+  users      User[]
+  proposals  Proposal[]
+  approvals  Approval[]
+  comments   Comment[]
+  reactions  Reaction[]
+  userStates UserState[]
 }
 
 model User {
@@ -53,6 +56,7 @@ model UserState {
   id Int @id @default(autoincrement())
 
   user         User      @relation(fields: [accountId, deviceId], references: [accountId, deviceId], onDelete: Cascade)
+  account      Account   @relation(fields: [accountId], references: [id], onDelete: Cascade)
   accountId    String    @db.Char(42) // address
   deviceId     String    @db.Char(42) // address
   proposal     Proposal? @relation(fields: [proposalHash], references: [hash], onDelete: Cascade)

@@ -11,7 +11,7 @@ export class UsersService {
 
   public async latestState(
     user: User,
-    finalized: boolean,
+    args: Prisma.UserStateFindManyArgs,
   ): Promise<UserState | null> {
     const states = await this.prisma.user
       .findUniqueOrThrow({
@@ -23,17 +23,11 @@ export class UsersService {
         },
       })
       .states({
-        where: {
-          proposal: {
-            submissions: {
-              some: { finalized },
-            },
-          },
-        },
         orderBy: {
           createdAt: 'desc',
         },
         take: 1,
+        ...args,
       } as Prisma.UserStateFindManyArgs);
 
     return states[0] ?? null;

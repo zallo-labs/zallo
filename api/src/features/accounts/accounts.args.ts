@@ -13,8 +13,11 @@ export class AccountArgs {
 
 @InputType()
 export class UserWithoutAccountInput extends OmitType(UserInput, [
-  'account',
-] as const) {}
+  'id',
+] as const) {
+  @AddressField()
+  device: Address;
+}
 
 @ArgsType()
 export class FindAccountsArgs extends OmitType(FindManyAccountArgs, [

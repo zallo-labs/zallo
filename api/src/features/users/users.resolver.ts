@@ -9,15 +9,13 @@ import {
   ResolveField,
   Resolver,
 } from '@nestjs/graphql';
+import { Prisma } from '@prisma/client';
 import { GraphQLResolveInfo } from 'graphql';
 import { address, Address, getUserIdStr, Id } from 'lib';
 import { PrismaService } from 'nestjs-prisma';
 import { DeviceAddr } from '~/decorators/device.decorator';
-import {
-  connectOrCreateAccount,
-  connectOrCreateDevice,
-} from '~/util/connect-or-create';
-import { getSelect } from '~/util/select';
+import { connectOrCreateDevice } from '~/util/connect-or-create';
+import { makeGetSelect } from '~/util/select';
 import {
   FindUsersArgs,
   FindUniqueUserArgs,
@@ -26,6 +24,15 @@ import {
   SetUserNameArgs,
 } from './users.args';
 import { UsersService } from './users.service';
+
+const getSelect = makeGetSelect<{
+  User: Prisma.UserSelect;
+}>({
+  User: {
+    accountId: true,
+    deviceId: true,
+  },
+});
 
 @Resolver(() => User)
 export class UsersResolver {
@@ -36,26 +43,55 @@ export class UsersResolver {
     return getUserIdStr(user.accountId, address(user.deviceId));
   }
 
-  @ResolveField(() => UserState)
-  async activeState(@Parent() user: User) {
-    return this.service.latestState(user, true);
+  @ResolveField(() => UserState, { nullable: true })
+  async activeState(
+    @Parent() user: User,
+    @Info() info: GraphQLResolveInfo,
+  ): Promise<UserState | null> {
+    return this.service.latestState(user, {
+      where: {
+        proposal: {
+          submissions: { every: { finalized: true } },
+        },
+      },
+      ...getSelect(info),
+    });
   }
 
-  @ResolveField(() => UserState)
-  async proposedState(@Parent() user: User) {
-    return this.service.latestState(user, false);
+  @ResolveField(() => UserState, { nullable: true })
+  async proposedState(
+    @Parent() user: User,
+    @Info() info: GraphQLResolveInfo,
+  ): Promise<UserState | null> {
+    return this.service.latestState(user, {
+      where: {
+        OR: [
+          {
+            proposal: {
+              submissions: { every: { finalized: false } },
+            },
+          },
+          {
+            // Account not yet deployed
+            proposalHash: null,
+            account: { isDeployed: false },
+          },
+        ],
+      },
+      ...getSelect(info),
+    });
   }
 
   @Query(() => User)
   async user(
-    @Args() { account, device }: FindUniqueUserArgs,
+    @Args() { id }: FindUniqueUserArgs,
     @Info() info: GraphQLResolveInfo,
   ): Promise<User> {
     return this.prisma.user.findUniqueOrThrow({
       where: {
         accountId_deviceId: {
-          accountId: account,
-          deviceId: device,
+          accountId: id.account,
+          deviceId: id.device,
         },
       },
       ...getSelect(info),
@@ -83,13 +119,13 @@ export class UsersResolver {
     return this.prisma.user.upsert({
       where: {
         accountId_deviceId: {
-          accountId: user.account,
-          deviceId: user.device,
+          accountId: user.id.account,
+          deviceId: user.id.device,
         },
       },
       create: {
-        account: connectOrCreateAccount(user.account),
-        device: connectOrCreateDevice(user.device),
+        account: { connect: { id: user.id.account } },
+        device: connectOrCreateDevice(user.id.device),
         states: this.service.getCreateUserState(user.configs, proposalHash),
         name: user.name,
       },
@@ -103,14 +139,14 @@ export class UsersResolver {
 
   @Mutation(() => User)
   async removeUser(
-    @Args() { account, device, proposalHash }: RemoveUserArgs,
+    @Args() { id, proposalHash }: RemoveUserArgs,
     @Info() info: GraphQLResolveInfo,
   ): Promise<User> {
     return this.prisma.user.update({
       where: {
         accountId_deviceId: {
-          accountId: account,
-          deviceId: device,
+          accountId: id.account,
+          deviceId: id.device,
         },
       },
       data: {
@@ -127,14 +163,14 @@ export class UsersResolver {
 
   @Mutation(() => User)
   async setUserName(
-    @Args() { account, device, name }: SetUserNameArgs,
+    @Args() { id, name }: SetUserNameArgs,
     @Info() info: GraphQLResolveInfo,
   ): Promise<User> {
     return this.prisma.user.update({
       where: {
         accountId_deviceId: {
-          accountId: account,
-          deviceId: device,
+          accountId: id.account,
+          deviceId: id.device,
         },
       },
       data: {

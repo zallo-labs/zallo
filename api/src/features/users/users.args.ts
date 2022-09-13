@@ -38,14 +38,16 @@ export class UserIdInput {
 }
 
 @InputType()
-export class UserInput extends UserIdInput {
+export class UserInput {
+  id: UserIdInput;
   name: string;
-
   configs: UserConfigInput[];
 }
 
 @ArgsType()
-export class FindUniqueUserArgs extends UserIdInput {}
+export class FindUniqueUserArgs {
+  id: UserIdInput;
+}
 
 @ArgsType()
 export class FindUsersArgs extends OmitType(FindManyUserArgs, [
@@ -61,12 +63,15 @@ export class UpsertUserArgs {
 }
 
 @ArgsType()
-export class RemoveUserArgs extends UserIdInput {
+export class RemoveUserArgs {
+  id: UserIdInput;
+
   @Bytes32Field()
   proposalHash: string;
 }
 
 @ArgsType()
-export class SetUserNameArgs extends UserIdInput {
+export class SetUserNameArgs {
+  id: UserIdInput;
   name: string;
 }
