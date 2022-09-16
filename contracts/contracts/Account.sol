@@ -1,9 +1,6 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 pragma solidity ^0.8.0;
 
-import {
-  SignatureChecker
-} from '@matterlabs/signature-checker/contracts/SignatureChecker.sol';
 import '@matterlabs/zksync-contracts/l2/system-contracts/Constants.sol';
 import '@matterlabs/zksync-contracts/l2/system-contracts/TransactionHelper.sol';
 
@@ -16,6 +13,7 @@ import './ERC165.sol';
 import './ERC721Receiver.sol';
 import {MerkleProof} from './utils/MerkleProof.sol';
 import {BoolArray} from './utils/BoolArray.sol';
+import {SignatureChecker} from './utils/SignatureChecker.sol';
 
 contract Account is
   IAccount,
