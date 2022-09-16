@@ -66,8 +66,8 @@ export class UpsertUserArgs {
 export class RemoveUserArgs {
   id: UserIdInput;
 
-  @Bytes32Field()
-  proposalHash: string;
+  @Bytes32Field({ nullable: true })
+  proposalHash?: string;
 }
 
 @ArgsType()

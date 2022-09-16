@@ -3,11 +3,11 @@ import { makeStyles } from '@theme/makeStyles';
 import { Text } from 'react-native-paper';
 import { Box } from '~/components/layout/Box';
 import { Container } from '~/components/layout/Container';
-import { Tx } from '~/queries/tx';
+import { Proposal } from '~/queries/proposal';
 import { CombinedWallet } from '~/queries/wallets';
 
 export interface ApprovalsRequiredRowProps {
-  tx: Tx;
+  tx: Proposal;
   wallet: CombinedWallet;
 }
 

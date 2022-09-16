@@ -1,20 +1,23 @@
 import { gql, useMutation } from '@apollo/client';
 import { useDevice } from '@network/useDevice';
 import {
+  CommentsDocument,
   CommentsQuery,
   CommentsQueryVariables,
+  DeleteCommentDocument,
   DeleteCommentMutation,
   DeleteCommentMutationVariables,
 } from '~/gql/generated.api';
 import { useApiClient } from '~/gql/GqlProvider';
 import { QueryOpts } from '~/gql/update';
 import { useCallback } from 'react';
-import { Comment, COMMENTS_QUERY } from '~/queries/useComments.api';
+import { Comment } from '~/queries/useComments.api';
 import { Address } from 'lib';
+import { assert } from 'console';
 
-const MUTATION = gql`
-  mutation DeleteComment($account: Address!, $key: Id!, $nonce: Int!) {
-    deleteComment(account: $account, key: $key, nonce: $nonce) {
+gql`
+  mutation DeleteComment($id: Float!) {
+    deleteComment(id: $id) {
       id
     }
   }
@@ -26,30 +29,29 @@ export const useDeleteComment = (account: Address) => {
   const [mutate] = useMutation<
     DeleteCommentMutation,
     DeleteCommentMutationVariables
-  >(MUTATION, { client: useApiClient() });
+  >(DeleteCommentDocument, {
+    client: useApiClient(),
+  });
 
-  const del = useCallback(
+  return useCallback(
     (c: Comment) => {
-      if (c.author !== device.address)
-        throw new Error("Can't delete comment that you didn't write");
+      assert(c.author === device.address);
 
       return mutate({
         variables: {
-          account,
-          key: c.key,
-          nonce: c.nonce,
+          id: c.id,
         },
         update: (cache, res) => {
           const id = res?.data?.deleteComment?.id;
           if (!id) return;
 
+          // Comments: remove comment
           const opts: QueryOpts<CommentsQueryVariables> = {
-            query: COMMENTS_QUERY,
+            query: CommentsDocument,
             variables: { account, key: c.key },
           };
-          const data = cache.readQuery<CommentsQuery, CommentsQueryVariables>(
-            opts,
-          );
+
+          const data = cache.readQuery<CommentsQuery>(opts);
 
           cache.writeQuery<CommentsQuery, CommentsQueryVariables>({
             ...opts,
@@ -62,13 +64,11 @@ export const useDeleteComment = (account: Address) => {
         optimisticResponse: {
           deleteComment: {
             __typename: 'Comment',
-            id: c.id,
+            id: c.id.toString(),
           },
         },
       });
     },
     [mutate, account, device.address],
   );
-
-  return del;
 };

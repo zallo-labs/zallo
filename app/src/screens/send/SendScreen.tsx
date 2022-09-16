@@ -12,8 +12,11 @@ import { FAB } from '~/components/FAB';
 import { Box } from '~/components/layout/Box';
 import { Container } from '~/components/layout/Container';
 import { TokenAvailableCard } from '~/components/token/TokenAvailableCard';
-import { useSelectedToken, useSelectToken } from '~/components/token/useSelectedToken';
-import { useProposeTx } from '~/mutations/tx/propose/useProposeTx';
+import {
+  useSelectedToken,
+  useSelectToken,
+} from '~/components/token/useSelectedToken';
+import { usePropose } from '~/mutations/proposal/propose/usePropose';
 import { RootNavigatorScreenProps } from '~/navigation/RootNavigator';
 import { WalletId } from '~/queries/wallets';
 import { AmountInput } from '../amount/AmountInput';
@@ -28,7 +31,7 @@ export type SendScreenProps = RootNavigatorScreenProps<'Send'>;
 export const SendScreen = ({ route, navigation }: SendScreenProps) => {
   const { wallet, to } = route.params;
   const styles = useStyles();
-  const [propose, proposing] = useProposeTx();
+  const [propose, proposing] = usePropose();
   const [token, selectToken] = [useSelectedToken(), useSelectToken()];
   const available = useTokenAvailable(token, wallet);
 

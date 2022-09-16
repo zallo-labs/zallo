@@ -14,6 +14,6 @@ export class SubmissionInput {
 }
 
 @ArgsType()
-export class SubmitTxExecutionArgs extends SubmissionsArgs {
+export class SubmitExecutionArgs extends SubmissionsArgs {
   submission: SubmissionInput;
 }

@@ -6,7 +6,7 @@ import { hexDataLength, hexlify } from 'ethers/lib/utils';
 import { Call, REMOVE_WALLET_SIGHASH } from 'lib';
 import { Text } from 'react-native-paper';
 import {
-  UPSERT_WALLET_SIGHSAH,
+  UPSERT_USER_SIGHSAH,
   useContractMethod,
 } from '~/queries/useContractMethod.api';
 import { MethodInputRow } from './MethodInputRow';
@@ -48,7 +48,7 @@ export const DetailedCallMethod = memo(
     // Transfer details are shown for every transaction; no need to duplicate them
     if (method.sighash === ERC20_TRANSFER_SIGHASH) return null;
 
-    if (method.sighash === UPSERT_WALLET_SIGHSAH)
+    if (method.sighash === UPSERT_USER_SIGHSAH)
       return <UpsertWalletMethod call={call} style={style} />;
 
     if (method.sighash === REMOVE_WALLET_SIGHASH)

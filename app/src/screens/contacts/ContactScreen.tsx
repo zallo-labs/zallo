@@ -49,7 +49,7 @@ export interface ContactScreenParams {
 export type ContactScreenProps = RootNavigatorScreenProps<'Contact'>;
 
 export const ContactScreen = ({ route, navigation }: ContactScreenProps) => {
-  const { contacts } = useContacts();
+  const [contacts] = useContacts();
   const existing = useContact(route.params.addr);
   const upsert = useUpsertContact();
 

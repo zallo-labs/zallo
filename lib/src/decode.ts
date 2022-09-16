@@ -43,6 +43,8 @@ export const tryDecodeUpsertUserData = async (
             approvers: await Promise.all(
               c.approvers.map(async (a) => address(await a)),
             ),
+            spendingAllowlisted: false,
+            limits: {},
           }),
         ),
       ),

@@ -33,17 +33,15 @@ export class ContactsResolver {
     return toId(`${device}-${contact.addr}`);
   }
 
-  @Query(() => ContactObject, { nullable: true })
-  @Query(() => String, { nullable: true })
+  @Query(() => [ContactObject])
   async contacts(
     @Args() args: ContactsArgs,
     @DeviceAddr() device: Address,
-    @Info() info: GraphQLResolveInfo,
   ): Promise<ContactObject[]> {
     const contacts = await this.prisma.contact.findMany({
       ...args,
       where: { deviceId: device },
-      ...getSelect(info),
+      select: { addr: true, name: true },
     });
 
     const accounts = await this.accountsService.accounts(device, {

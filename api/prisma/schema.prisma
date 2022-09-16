@@ -26,14 +26,13 @@ model Device {
 model Account {
   id String @id @db.Char(42) // address
 
-  deploySalt String? @db.Char(66) // bytes32
-  impl       String? @db.Char(42) // address
+  impl       String  @db.Char(42) // address
+  deploySalt String  @db.Char(66) // bytes32
   name       String
   isDeployed Boolean @default(false)
 
   users      User[]
   proposals  Proposal[]
-  approvals  Approval[]
   comments   Comment[]
   reactions  Reaction[]
   userStates UserState[]
@@ -142,18 +141,25 @@ model Proposal {
 model Submission {
   hash String @id @db.Char(66) // bytes32
 
-  proposal     Proposal @relation(fields: [proposalHash], references: [hash], onDelete: Cascade)
-  proposalHash String   @db.Char(66) // bytes32
+  proposal     Proposal            @relation(fields: [proposalHash], references: [hash], onDelete: Cascade)
+  proposalHash String              @db.Char(66) // bytes32
+  response     SubmissionResponse?
   nonce        Int
-  gasLimit     Decimal  @db.Decimal(19, 0)
-  gasPrice     Decimal? @db.Decimal(19, 0)
-  finalized    Boolean
-  createdAt    DateTime @default(now())
+  gasLimit     Decimal             @db.Decimal(19, 0)
+  gasPrice     Decimal?            @db.Decimal(19, 0)
+  createdAt    DateTime            @default(now())
+}
+
+model SubmissionResponse {
+  submission Submission @relation(fields: [hash], references: [hash], onDelete: Cascade)
+  hash       String     @id @db.Char(66) // bytes32
+
+  response  String   @db.Char(66) // bytes32
+  reverted  Boolean  @default(false)
+  timestamp DateTime @default(now())
 }
 
 model Approval {
-  account      Account  @relation(fields: [accountId], references: [id], onDelete: Cascade)
-  accountId    String   @db.Char(42) // address
   proposal     Proposal @relation(fields: [proposalHash], references: [hash], onDelete: Cascade)
   proposalHash String   @db.Char(66) // bytes32
   device       Device   @relation(fields: [deviceId], references: [id], onDelete: Cascade)
@@ -162,7 +168,7 @@ model Approval {
   signature String // bytes
   createdAt DateTime @default(now())
 
-  @@id([accountId, proposalHash, deviceId])
+  @@id([proposalHash, deviceId])
 }
 
 model Comment {

@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import { Approval, Submission, Tx } from '~/queries/tx';
+import { Approval, Submission, Proposal } from '~/queries/proposal';
 import { ApprovalRow } from './ApprovalRow';
 import { SubmissionRow } from './SubmissionRow';
 import { Box } from '~/components/layout/Box';
@@ -28,7 +28,7 @@ const EventComponent = ({ event }: { event: Event }): JSX.Element => {
 };
 
 export interface TransactionEventsProps {
-  tx: Tx;
+  tx: Proposal;
   wallet: CombinedWallet;
 }
 

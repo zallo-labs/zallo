@@ -3,8 +3,9 @@ import { defaultAbiCoder } from 'ethers/lib/utils';
 import keccak256 from 'keccak256';
 import { Address, sortAddresses } from './addr';
 import { UserConfigStruct } from './contracts/Account';
+import { LimitsConfig } from './limits';
 
-export interface UserConfig {
+export interface UserConfig extends LimitsConfig {
   approvers: Address[];
 }
 

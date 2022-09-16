@@ -1,7 +1,8 @@
 import { Transfer as TransferEvent } from '../generated/ERC20/ERC20';
-import { getAccountId, getTransferId, getTxId } from './id';
 import { Account, Transfer } from '../generated/schema';
-import { Address } from '@graphprotocol/graph-ts';
+import { Address, ethereum } from '@graphprotocol/graph-ts';
+import { getTxId } from './tx';
+import { getAccountId } from './account';
 
 const ETH_ADDR: Address = Address.fromString(
   '0x000000000000000000000000000000000000800a',
@@ -23,7 +24,7 @@ export function handleTransfer(e: TransferEvent): void {
   const transfer = new Transfer(getTransferId(e));
 
   transfer.account = account.id;
-  transfer.tx = getTxId(account.id, e.transaction);
+  transfer.tx = getTxId(e.transaction);
   transfer.transactionHash = e.transaction.hash;
   transfer.token = transformEthAddress(e.address);
   transfer.type = account.id == e.params.from ? 'OUT' : 'IN';
@@ -34,6 +35,11 @@ export function handleTransfer(e: TransferEvent): void {
   transfer.timestamp = e.block.timestamp;
 
   transfer.save();
+}
+
+function getTransferId(e: ethereum.Event): string {
+  // {tx.hash}-{tx.log.index}
+  return `${e.transaction.hash.toHex()}-${e.transactionLogIndex}`;
 }
 
 // Breaks handleTransfer somehow...?

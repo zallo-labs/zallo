@@ -1,12 +1,12 @@
 import { StyleProp, ViewStyle } from 'react-native';
 import { Text } from 'react-native-paper';
 import { Box } from '~/components/layout/Box';
-import { Tx } from '~/queries/tx';
+import { Proposal } from '~/queries/proposal';
 import { TokenTransferRow } from './TokenTransferRow';
 import { TxTransfer } from './useTxTransfers';
 
 export interface TxTransfersProps {
-  tx: Tx;
+  tx: Proposal;
   transfers: TxTransfer[];
   style?: StyleProp<ViewStyle>;
 }

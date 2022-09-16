@@ -1,8 +1,11 @@
 import { useMemo } from 'react';
-import { Tx } from '~/queries/tx';
+import { Proposal } from '~/queries/proposal';
 import { CombinedWallet } from '~/queries/wallets';
 
-export const useTransactionIsApproved = (tx: Tx, wallet: CombinedWallet) => {
+export const useTransactionIsApproved = (
+  tx: Proposal,
+  wallet: CombinedWallet,
+) => {
   const approvers = useMemo(
     () => new Set(tx.approvals.map((a) => a.addr)),
     [tx],

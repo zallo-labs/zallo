@@ -3,19 +3,18 @@ import {
   DeleteContactMutation,
   DeleteContactMutationVariables,
   ContactsQuery,
+  DeleteContactDocument,
+  ContactsQueryVariables,
+  ContactsDocument,
 } from '~/gql/generated.api';
 import { useApiClient } from '~/gql/GqlProvider';
 import { useCallback } from 'react';
-import {
-  Contact,
-  API_CONTACTS_QUERY,
-} from '~/queries/contacts/useContacts.api';
+import { Contact } from '~/queries/contacts/useContacts.api';
+import { QueryOpts } from '~/gql/update';
 
-const API_MUTATION = gql`
+gql`
   mutation DeleteContact($addr: Address!) {
-    deleteContact(addr: $addr) {
-      id
-    }
+    deleteContact(addr: $addr)
   }
 `;
 
@@ -23,39 +22,40 @@ export const useDeleteContact = () => {
   const [mutation] = useMutation<
     DeleteContactMutation,
     DeleteContactMutationVariables
-  >(API_MUTATION, { client: useApiClient() });
+  >(DeleteContactDocument, {
+    client: useApiClient(),
+  });
 
-  const del = useCallback(
+  return useCallback(
     (contact: Contact) =>
       mutation({
         variables: {
           addr: contact.addr,
         },
         optimisticResponse: {
-          deleteContact: {
-            __typename: 'DeleteContactResp',
-            id: contact.id,
-          },
+          deleteContact: true,
         },
-        update: (cache) => {
-          // Remove from query list
-          const data = cache.readQuery<ContactsQuery>({
-            query: API_CONTACTS_QUERY,
-          });
+        update: (cache, res) => {
+          if (!res.data?.deleteContact) return;
+
+          // Contacts: remove contact
+          const opts: QueryOpts<ContactsQueryVariables> = {
+            query: ContactsDocument,
+            variables: {},
+          };
+
+          const data = cache.readQuery<ContactsQuery>(opts);
+          if (!data) return;
 
           cache.writeQuery<ContactsQuery>({
-            query: API_CONTACTS_QUERY,
+            ...opts,
             overwrite: true,
             data: {
-              contacts: (data?.contacts ?? []).filter(
-                (c) => c.id !== contact.id,
-              ),
+              contacts: data.contacts.filter((c) => c.addr !== contact.addr),
             },
           });
         },
       }),
     [mutation],
   );
-
-  return del;
 };

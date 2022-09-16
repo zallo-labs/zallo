@@ -1,10 +1,10 @@
+import { SubmissionResponse } from '@gen/submission-response/submission-response.model';
 import { Submission } from '@gen/submission/submission.model';
 import {
   Args,
   Info,
   Mutation,
   Parent,
-  Query,
   ResolveField,
   Resolver,
 } from '@nestjs/graphql';
@@ -14,15 +14,15 @@ import { Id, toId } from 'lib';
 import { PrismaService } from 'nestjs-prisma';
 import { ProviderService } from '~/provider/provider.service';
 import { getSelect } from '~/util/select';
-import { SubmissionsArgs, SubmitTxExecutionArgs } from './submissions.args';
-import { SubmissionsService } from './submissions.service';
+import { SubgraphService } from '../subgraph/subgraph.service';
+import { SubmitExecutionArgs } from './submissions.args';
 
 @Resolver(() => Submission)
 export class SubmissionsResolver {
   constructor(
-    private service: SubmissionsService,
     private prisma: PrismaService,
     private provider: ProviderService,
+    private subgraph: SubgraphService,
   ) {}
 
   @ResolveField(() => String)
@@ -30,38 +30,29 @@ export class SubmissionsResolver {
     return toId(submission.hash);
   }
 
-  @ResolveField(() => Boolean)
-  async finalized(@Parent() submission: Submission): Promise<boolean> {
-    if (submission.finalized) return true;
-
-    return (await this.service.updateUnfinalized([submission]))[0].finalized;
-  }
-
-  @Query(() => [Submission])
-  async submissions(
-    @Args() { proposalHash }: SubmissionsArgs,
+  @ResolveField(() => SubmissionResponse, { nullable: true })
+  async response(
+    @Parent() submission: Submission,
     @Info() info: GraphQLResolveInfo,
-  ): Promise<Submission[]> {
-    const submissions = await this.prisma.proposal
-      .findUnique({
-        where: { hash: proposalHash },
-      })
-      .submissions({
-        ...getSelect(info),
-      });
+  ): Promise<SubmissionResponse | null> {
+    // Get transaction response from subgraph if not already in db
+    if (submission.response) return submission.response;
 
-    return await this.service.updateUnfinalized(submissions);
+    const response = await this.subgraph.txResponse(submission.hash);
+    if (!response) return null;
+
+    return this.prisma.submissionResponse.create({
+      data: response,
+      ...getSelect(info),
+    });
   }
 
   @Mutation(() => Submission)
-  async submitTxExecution(
+  async submitExecution(
     @Args()
-    { proposalHash, submission }: SubmitTxExecutionArgs,
+    { proposalHash, submission }: SubmitExecutionArgs,
     @Info() info: GraphQLResolveInfo,
   ): Promise<Submission> {
-    if (!(await this.isValid(proposalHash, submission.hash)))
-      throw new UserInputError("Submission doesn't match transaction");
-
     const transaction = await this.provider.getTransaction(submission.hash);
     if (!transaction) throw new UserInputError('Transaction not found');
 
@@ -74,14 +65,9 @@ export class SubmissionsResolver {
         nonce: transaction.nonce,
         gasLimit: transaction.gasLimit.toString(),
         gasPrice: transaction.gasPrice?.toString(),
-        finalized: this.service.isFinalised(transaction),
+        response: await this.subgraph.txResponse(proposalHash),
       },
       ...getSelect(info),
     });
-  }
-
-  private async isValid(proposalHash: string, submissionHash: string) {
-    // TODO: verify submission is valid
-    return true;
   }
 }

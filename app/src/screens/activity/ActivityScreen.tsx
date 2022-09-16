@@ -12,7 +12,7 @@ import { Appbar, Text } from 'react-native-paper';
 import { AppbarMenu } from '~/components/Appbar/AppbarMenu';
 import { useAppbarHeader } from '~/components/Appbar/useAppbarHeader';
 import { CallCard } from '~/screens/activity/CallCard';
-import { TxMetadata } from '~/queries/tx';
+import { ProposalMetadata } from '~/queries/proposal';
 import { useRootNavigation } from '~/navigation/useRootNavigation';
 import { Timestamp } from '~/components/format/Timestamp';
 import { useTxsMetadata } from '~/queries/tx/metadata/useTxsMetadata';
@@ -23,7 +23,7 @@ import { InTransferCard } from './InTransferCard';
 
 type Item =
   | {
-      activity: TxMetadata;
+      activity: ProposalMetadata;
       type: 'tx';
     }
   | {

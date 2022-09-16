@@ -9,13 +9,13 @@ import { StyleProp, TextStyle } from 'react-native';
 import { IconButton, Text } from 'react-native-paper';
 import { useApiSetTxWallet } from '~/mutations/tx/useSetTxWallet.api';
 import { useRootNavigation } from '~/navigation/useRootNavigation';
-import { Tx } from '~/queries/tx';
+import { Proposal } from '~/queries/proposal';
 import { assert } from 'console';
 import { useIsDeployed } from '@network/useIsDeployed';
 import { CombinedWallet } from '~/queries/wallets';
 
 export interface TransactionWalletSelectorProps {
-  tx: Tx;
+  tx: Proposal;
   executingWallet: CombinedWallet;
   textStyle?: StyleProp<TextStyle>;
   iconColor?: string;

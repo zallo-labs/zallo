@@ -10,6 +10,7 @@ import {
   Resolver,
 } from '@nestjs/graphql';
 import { Prisma } from '@prisma/client';
+import { UserInputError } from 'apollo-server-core';
 import { GraphQLResolveInfo } from 'graphql';
 import { address, Address, getUserIdStr, Id } from 'lib';
 import { PrismaService } from 'nestjs-prisma';
@@ -48,14 +49,7 @@ export class UsersResolver {
     @Parent() user: User,
     @Info() info: GraphQLResolveInfo,
   ): Promise<UserState | null> {
-    return this.service.latestState(user, {
-      where: {
-        proposal: {
-          submissions: { every: { finalized: true } },
-        },
-      },
-      ...getSelect(info),
-    });
+    return this.service.latestState(user, true, getSelect(info));
   }
 
   @ResolveField(() => UserState, { nullable: true })
@@ -63,23 +57,7 @@ export class UsersResolver {
     @Parent() user: User,
     @Info() info: GraphQLResolveInfo,
   ): Promise<UserState | null> {
-    return this.service.latestState(user, {
-      where: {
-        OR: [
-          {
-            proposal: {
-              submissions: { every: { finalized: false } },
-            },
-          },
-          {
-            // Account not yet deployed
-            proposalHash: null,
-            account: { isDeployed: false },
-          },
-        ],
-      },
-      ...getSelect(info),
-    });
+    return this.service.latestState(user, false, getSelect(info));
   }
 
   @Query(() => User)
@@ -142,23 +120,42 @@ export class UsersResolver {
     @Args() { id, proposalHash }: RemoveUserArgs,
     @Info() info: GraphQLResolveInfo,
   ): Promise<User> {
-    return this.prisma.user.update({
-      where: {
-        accountId_deviceId: {
-          accountId: id.account,
-          deviceId: id.device,
-        },
-      },
-      data: {
-        states: {
-          create: {
-            proposalHash,
-            isDeleted: true,
+    const isActive = await this.service.isActive(id);
+
+    if (isActive) {
+      if (!proposalHash)
+        throw new UserInputError(
+          'Proposal is required to remove an active user',
+        );
+
+      return this.prisma.user.update({
+        where: {
+          accountId_deviceId: {
+            accountId: id.account,
+            deviceId: id.device,
           },
         },
-      },
-      ...getSelect(info),
-    });
+        data: {
+          states: {
+            create: {
+              proposalHash,
+              isDeleted: true,
+            },
+          },
+        },
+        ...getSelect(info),
+      });
+    } else {
+      return this.prisma.user.delete({
+        where: {
+          accountId_deviceId: {
+            accountId: id.account,
+            deviceId: id.device,
+          },
+        },
+        ...getSelect(info),
+      });
+    }
   }
 
   @Mutation(() => User)

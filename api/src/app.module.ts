@@ -20,6 +20,7 @@ import { FaucetModule } from './features/faucet/faucet.module';
 import { RedisModule } from '@liaoliaots/nestjs-redis';
 import CONFIG from 'config';
 import { UsersModule } from './features/users/users.module';
+import { SubgraphModule } from './features/subgraph/subgraph.module';
 
 @Module({
   imports: [
@@ -44,6 +45,7 @@ import { UsersModule } from './features/users/users.module';
     FaucetModule,
     ProposalsModule,
     ReactionsModule,
+    SubgraphModule,
     SubmissionsModule,
     UsersModule,
   ],

@@ -3,13 +3,13 @@ import { createContext, ReactNode, useContext } from 'react';
 import { Suspend } from '~/components/Suspender';
 import { CombinedAccount } from '~/queries/account';
 import { useAccount } from '~/queries/account/useAccount';
-import { Tx, TxId } from '~/queries/tx';
+import { Proposal, ProposalId } from '~/queries/proposal';
 import { useTx } from '~/queries/tx/tx/useTx';
 import { useWallet } from '~/queries/wallet/useWallet';
 import { CombinedWallet } from '~/queries/wallets';
 
 interface TransactionContext {
-  tx: Tx;
+  tx: Proposal;
   account: CombinedAccount;
   wallet: CombinedWallet;
 }
@@ -24,7 +24,7 @@ export const useTxContext = () => {
 
 export interface TransactionContextProps {
   children: ReactNode;
-  id: TxId;
+  id: ProposalId;
 }
 
 export const TransactionProvider = ({

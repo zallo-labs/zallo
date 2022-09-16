@@ -4,9 +4,9 @@ import { isTruthy } from 'lib';
 import { useDecodedTransfer } from '~/components/call/useDecodedTransfer';
 import { TransferType } from '~/gql/generated.sub';
 import { Transfer } from '~/queries/transfer/useTransfer.sub';
-import { Tx } from '~/queries/tx';
+import { Proposal } from '~/queries/proposal';
 
-export const useTxTransfers = (tx?: Tx): Transfer[] => {
+export const useTxTransfers = (tx?: Proposal): Transfer[] => {
   const transferToken = useMaybeToken(tx?.to);
   const transfer = useDecodedTransfer(tx);
 

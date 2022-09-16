@@ -18,10 +18,10 @@ gql`
   }
 `;
 
-export const useFaucet = (recipient?: Address, displayMessage?: boolean) => {
+export const useFaucet = (recipient: Address, displayMessage?: boolean) => {
   const [mutation] = useRequestFundsMutation({
     client: useApiClient(),
-    variables: { recipient: recipient ?? '' },
+    variables: { recipient },
     update: (cache, { data }) => {
       if (!data) return;
 
@@ -34,7 +34,7 @@ export const useFaucet = (recipient?: Address, displayMessage?: boolean) => {
       });
     },
   });
-  const canRequestFunds = useCanRequestFunds(recipient);
+  const [canRequestFunds] = useCanRequestFunds(recipient);
 
   const receive = useCallback(async () => {
     if (displayMessage)

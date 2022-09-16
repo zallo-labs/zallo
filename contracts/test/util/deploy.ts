@@ -63,7 +63,11 @@ export const deploy = async (
 
   const others = allSigners.slice(nSigners).map((approver) => approver.address);
 
-  const config: UserConfig = { approvers };
+  const config: UserConfig = {
+    approvers,
+    spendingAllowlisted: false,
+    limits: {},
+  };
 
   const user: User = {
     addr: signers[0],

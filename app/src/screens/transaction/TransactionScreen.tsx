@@ -2,7 +2,7 @@ import { Box } from '~/components/layout/Box';
 import { ScreenSkeleton } from '~/components/skeleton/ScreenSkeleton';
 import { withSkeleton } from '~/components/skeleton/withSkeleton';
 import { RootNavigatorScreenProps } from '~/navigation/RootNavigator';
-import { TxId } from '~/queries/tx';
+import { ProposalId } from '~/queries/proposal';
 import { Comments } from './comments/Comments';
 import { TransactionStatus } from './status/TransactionStatus';
 import { TransactionAppbar } from './appbar/TransactionAppbar';
@@ -13,7 +13,7 @@ import { PotentialDisabledExecutionWarning } from './status/PotentialDisabledExe
 import { TransactionProvider } from './TransactionProvider';
 
 export interface TransactionScreenParams {
-  id: TxId;
+  id: ProposalId;
 }
 
 export type TransactionScreenProps = RootNavigatorScreenProps<'Transaction'>;

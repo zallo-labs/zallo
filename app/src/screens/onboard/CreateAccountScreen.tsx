@@ -7,7 +7,7 @@ import { useCallback } from 'react';
 import { FormikTextField } from '~/components/fields/FormikTextField';
 import { FormikSubmitFab } from '~/components/fields/FormikSubmitFab';
 import { CheckIcon } from '~/util/theme/icons';
-import { useCreateApiAccount } from '~/mutations/account/useCreateAccount.api';
+import { useCreateAccount } from '~/mutations/account/useCreateAccount.api';
 import { AppbarBack } from '~/components/Appbar/AppbarBack';
 import { makeStyles } from '~/util/theme/makeStyles';
 import { Navigate } from '~/navigation/useRootNavigation';
@@ -33,7 +33,7 @@ export const CreateAccountScreen = ({
   route,
 }: CreateAccountScreenProps) => {
   const styles = useStyles();
-  const createAccount = useCreateApiAccount();
+  const createAccount = useCreateAccount();
 
   const handleSubmit = useCallback(
     async ({ name }: Values) => {

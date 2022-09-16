@@ -29,6 +29,7 @@ export * from './device';
 export * from './events';
 export * from './execute';
 export * from './id';
+export * from './limits';
 export * from './merkle';
 export * from './signature';
 export * from './tx';

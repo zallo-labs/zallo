@@ -1,13 +1,13 @@
 import { Box } from '~/components/layout/Box';
 import { ActivityIndicator, Text } from 'react-native-paper';
 import { Card } from '~/components/card/Card';
-import { TxStatus } from '~/queries/tx';
+import { ProposalStatus } from '~/queries/proposal';
 import { TransactionActions } from './TransactionActions';
 import { TransactionEvents } from './events/TransactionEvents';
 import { useTxContext } from '../TransactionProvider';
 import { FC } from 'react';
 
-const STATUS_LABEL: Record<TxStatus, [FC | null, string]> = {
+const STATUS_LABEL: Record<ProposalStatus, [FC | null, string]> = {
   proposed: [null, 'Proposed'],
   submitted: [() => <ActivityIndicator />, 'Executing...'],
   failed: [null, 'Failed'],

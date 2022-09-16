@@ -28,8 +28,6 @@ import {
   UniqueProposalArgs,
   ProposalsArgs,
 } from './proposals.args';
-import { Submission } from '@gen/submission/submission.model';
-import { SubmissionsService } from '../submissions/submissions.service';
 import { UserInputError } from 'apollo-server-core';
 import { ProviderService } from '~/provider/provider.service';
 import { Proposal } from '@gen/proposal/proposal.model';
@@ -39,7 +37,6 @@ export class ProposalsResolver {
   constructor(
     private prisma: PrismaService,
     private provider: ProviderService,
-    private submissionsService: SubmissionsService,
   ) {}
 
   @ResolveField(() => String)
@@ -47,39 +44,29 @@ export class ProposalsResolver {
     return getTxId(proposal.hash);
   }
 
-  @ResolveField(() => [Submission])
-  async submissions(@Parent() proposal: Proposal): Promise<Submission[]> {
-    return await this.submissionsService.updateUnfinalized(
-      proposal.submissions ?? [],
-    );
-  }
-
-  @Query(() => Proposal, { nullable: true })
+  @Query(() => Proposal)
   async proposal(
-    @Args() { account, hash }: UniqueProposalArgs,
+    @Args() { hash }: UniqueProposalArgs,
     @Info() info: GraphQLResolveInfo,
-  ): Promise<Proposal | null> {
-    return this.prisma.proposal.findUnique({
-      where: {
-        accountId_hash: { accountId: account, hash },
-      },
+  ): Promise<Proposal> {
+    return this.prisma.proposal.findUniqueOrThrow({
+      where: { hash },
       ...getSelect(info),
     });
   }
 
   @Query(() => [Proposal])
   async proposals(
-    @Args() { accounts }: ProposalsArgs,
+    @Args() { accounts, ...args }: ProposalsArgs,
     @Info() info: GraphQLResolveInfo,
   ): Promise<Proposal[]> {
-    return (
-      (await this.prisma.proposal.findMany({
-        where: {
-          accountId: { in: accounts },
-        },
-        ...getSelect(info),
-      })) ?? []
-    );
+    return this.prisma.proposal.findMany({
+      ...args,
+      where: {
+        ...(accounts && { accountId: { in: accounts } }),
+      },
+      ...getSelect(info),
+    });
   }
 
   @Mutation(() => Proposal)
@@ -124,20 +111,19 @@ export class ProposalsResolver {
     });
   }
 
-  @Mutation(() => Proposal, { nullable: true })
+  @Mutation(() => Proposal)
   async approve(
-    @Args() { account, hash, signature }: ApproveArgs,
+    @Args() { hash, signature }: ApproveArgs,
     @Info() info: GraphQLResolveInfo,
     @DeviceAddr() device: Address,
-  ): Promise<Proposal | null> {
+  ): Promise<Proposal> {
     await this.validateSignatureOrThrow(device, hash, signature);
 
     return this.prisma.proposal.update({
-      where: { accountId_hash: { accountId: account, hash } },
+      where: { hash },
       data: {
         approvals: {
           create: {
-            accountId: account,
             user: connectOrCreateDevice(device),
             signature: ethers.utils.hexlify(signature),
           },
@@ -149,7 +135,7 @@ export class ProposalsResolver {
 
   @Mutation(() => RevokeApprovalResp)
   async revokeApproval(
-    @Args() { account, hash }: UniqueProposalArgs,
+    @Args() { hash }: UniqueProposalArgs,
     @DeviceAddr() device: Address,
   ): Promise<RevokeApprovalResp> {
     await this.prisma.proposal.update({
@@ -157,8 +143,7 @@ export class ProposalsResolver {
       data: {
         approvals: {
           delete: {
-            accountId_proposalHash_deviceId: {
-              accountId: account,
+            proposalHash_deviceId: {
               proposalHash: hash,
               deviceId: device,
             },
@@ -169,7 +154,7 @@ export class ProposalsResolver {
 
     // Delete proposal if no approvals are left
     const approvalsLeft = await this.prisma.approval.count({
-      where: { accountId: account, proposalHash: hash },
+      where: { proposalHash: hash },
     });
 
     if (!approvalsLeft)

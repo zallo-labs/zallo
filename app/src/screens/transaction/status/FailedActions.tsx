@@ -1,14 +1,14 @@
 import { RetryIcon } from '~/util/theme/icons';
 import { useState } from 'react';
 import { Button } from 'react-native-paper';
-import { useExecute } from '~/mutations/tx/execute/useExecute';
+import { useExecute } from '~/mutations/proposal/execute/useExecute';
 import { CombinedAccount } from '~/queries/account';
-import { Tx } from '~/queries/tx';
+import { Proposal } from '~/queries/proposal';
 import { CombinedWallet } from '~/queries/wallets';
 import { Actions } from './Actions';
 
 export interface FailedActionsProps {
-  tx: Tx;
+  tx: Proposal;
   account: CombinedAccount;
   wallet: CombinedWallet;
 }

@@ -1,7 +1,7 @@
 import { withSkeleton } from '~/components/skeleton/withSkeleton';
 import { Suspend } from '~/components/Suspender';
 import { makeStyles } from '~/util/theme/makeStyles';
-import { Tx, TxId } from '~/queries/tx';
+import { Proposal, ProposalId } from '~/queries/proposal';
 import { ETH } from '@token/tokens';
 import { useMaybeToken } from '@token/useToken';
 import { CardProps } from '../../components/card/Card';
@@ -12,7 +12,7 @@ import { ActivityCard } from './ActivityCard';
 import { useTxTransfers } from '~/components/call/useTxTransfers';
 
 export interface CallCardProps extends CardProps {
-  id: TxId;
+  id: ProposalId;
 }
 
 export const CallCard = withSkeleton(({ id, ...cardProps }: CallCardProps) => {
@@ -36,7 +36,7 @@ export const CallCard = withSkeleton(({ id, ...cardProps }: CallCardProps) => {
   );
 }, CardItemSkeleton);
 
-const useStyles = makeStyles(({ colors }, tx: Tx) => {
+const useStyles = makeStyles(({ colors }, tx: Proposal) => {
   const backgroundColor = ((): string | undefined => {
     switch (tx?.status) {
       case 'proposed':

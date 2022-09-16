@@ -1,4 +1,12 @@
-import { Args, Info, Mutation, Query, Resolver } from '@nestjs/graphql';
+import {
+  Args,
+  Info,
+  Mutation,
+  Parent,
+  Query,
+  ResolveField,
+  Resolver,
+} from '@nestjs/graphql';
 import { PrismaService } from 'nestjs-prisma';
 import { GraphQLResolveInfo } from 'graphql';
 import { Account } from '@gen/account/account.model';
@@ -15,6 +23,8 @@ import { DeviceAddr } from '~/decorators/device.decorator';
 import { UsersService } from '../users/users.service';
 import { AccountsService } from './accounts.service';
 import { Prisma } from '@prisma/client';
+import { GqlAddress } from '~/apollo/scalars/Address.scalar';
+import { User } from '@gen/user/user.model';
 
 @Resolver(() => Account)
 export class AccountsResolver {
@@ -24,12 +34,26 @@ export class AccountsResolver {
     private usersService: UsersService,
   ) {}
 
-  @Query(() => Account, { nullable: true })
+  @ResolveField(() => User)
+  async deployUser(
+    @Parent() account: Account,
+    @Info() info: GraphQLResolveInfo,
+  ): Promise<User> {
+    return this.prisma.user.findFirstOrThrow({
+      where: {
+        accountId: account.id,
+        states: { some: { proposal: null } },
+      },
+      ...getSelect(info),
+    });
+  }
+
+  @Query(() => Account)
   async account(
     @Args() { id }: AccountArgs,
     @Info() info: GraphQLResolveInfo,
-  ): Promise<Account | null> {
-    return this.prisma.account.findUnique({
+  ): Promise<Account> {
+    return this.prisma.account.findUniqueOrThrow({
       where: { id },
       ...getSelect(info),
     });

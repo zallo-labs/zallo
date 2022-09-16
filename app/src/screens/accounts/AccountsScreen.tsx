@@ -10,7 +10,7 @@ import { Appbar, Button } from 'react-native-paper';
 import { useAppbarHeader } from '~/components/Appbar/useAppbarHeader';
 import { useGoBack } from '~/components/Appbar/useGoBack';
 import { RootNavigatorScreenProps } from '~/navigation/RootNavigator';
-import { useAccountIds } from '~/queries/account/useAccountIds';
+import { useAccountIds } from '~/queries/account/useAccountIds.api';
 import { AccountCard } from '../account/AccountCard';
 
 export interface AccountsScreenParams {

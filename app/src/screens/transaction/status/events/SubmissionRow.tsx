@@ -1,7 +1,7 @@
 import { ErrorIcon, FinalizedIcon, SendIcon } from '~/util/theme/icons';
 import { useTheme } from '@theme/paper';
 import { memo } from 'react';
-import { Submission } from '~/queries/tx';
+import { Submission } from '~/queries/proposal';
 import { EventRow, EventRowProps } from './EventRow';
 
 export interface SubmissionRowProps {

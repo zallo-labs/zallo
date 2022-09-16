@@ -7,18 +7,18 @@ import {
 import { memo, useState } from 'react';
 import { Button } from 'react-native-paper';
 import { useGoBack } from '~/components/Appbar/useGoBack';
-import { useExecute } from '~/mutations/tx/execute/useExecute';
-import { useApproveTx } from '~/mutations/tx/approve/useApproveTx.api';
+import { useExecute } from '~/mutations/proposal/execute/useExecute';
+import { useApprove } from '~/mutations/proposal/approve/useApprove.api';
 import { CombinedAccount } from '~/queries/account';
-import { Tx } from '~/queries/tx';
+import { Proposal } from '~/queries/proposal';
 import { CombinedWallet } from '~/queries/wallets';
 import { Actions } from './Actions';
 import { useTransactionIsApproved } from './useTransactionIsApproved';
-import { useRevokeApproval } from '~/mutations/tx/approve/useRevokeApproval.api';
+import { useRevokeApproval } from '~/mutations/proposal/approve/useRevokeApproval.api';
 import { useExecutionProhibited } from './useExecutionProhibited';
 
 export interface ProposeActionsProps {
-  tx: Tx;
+  tx: Proposal;
   account: CombinedAccount;
   wallet: CombinedWallet;
 }
@@ -26,7 +26,7 @@ export interface ProposeActionsProps {
 export const ProposeActions = memo(
   ({ tx, wallet, account }: ProposeActionsProps) => {
     const isApproved = useTransactionIsApproved(tx, wallet);
-    const approve = useApproveTx();
+    const approve = useApprove();
     const revoke = useRevokeApproval();
     const execute = useExecute(account, wallet, tx);
     const goBack = useGoBack();

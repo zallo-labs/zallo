@@ -5,12 +5,9 @@ import { Address, compareAddresses } from './addr';
 import { getUserConfigProof } from './merkle';
 import { TxReq, getDomain, TX_EIP712_TYPE } from './tx';
 import { Device } from './device';
-import {
-  toUserConfigStruct,
-  UserConfig,
-  USER_CONFIG_TUPLE,
-} from './userConfig';
+import { toUserConfigStruct, USER_CONFIG_TUPLE } from './userConfig';
 import assert from 'assert';
+import _ from 'lodash';
 
 export type SignatureLike = Parameters<typeof ethers.utils.splitSignature>[0];
 
@@ -23,8 +20,8 @@ const toConfigAndSignatures = (user: Address, signers: Signer[]) => {
   const userSig = signers.find((s) => s.approver === user)?.signature;
   assert(userSig);
 
-  const initial: { config: UserConfig; signatures: BytesLike[] } = {
-    config: { approvers: [] },
+  const initial: { approvers: Address[]; signatures: BytesLike[] } = {
+    approvers: [],
     signatures: [userSig],
   };
 
@@ -32,14 +29,17 @@ const toConfigAndSignatures = (user: Address, signers: Signer[]) => {
     .filter((s) => s.approver !== user)
     .sort((a, b) => compareAddresses(a.approver, b.approver))
     .reduce((acc, { approver, signature }) => {
-      acc.config.approvers.push(approver);
+      acc.approvers.push(approver);
       acc.signatures.push(signature);
       return acc;
     }, initial);
 };
 
 export const createTxSignature = (user: User, signers: Signer[]): BytesLike => {
-  const { config, signatures } = toConfigAndSignatures(user.addr, signers);
+  const { approvers, signatures } = toConfigAndSignatures(user.addr, signers);
+  const config = user.configs.find((c) => _.isEqual(c.approvers, approvers));
+  assert(config);
+
   const proof = getUserConfigProof(user, config);
 
   return defaultAbiCoder.encode(

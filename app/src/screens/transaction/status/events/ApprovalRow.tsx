@@ -1,6 +1,6 @@
 import { Addr } from '~/components/addr/Addr';
 import { CheckIcon } from '~/util/theme/icons';
-import { Approval } from '~/queries/tx';
+import { Approval } from '~/queries/proposal';
 import { EventRow } from './EventRow';
 
 export interface ApprovalRowProps {

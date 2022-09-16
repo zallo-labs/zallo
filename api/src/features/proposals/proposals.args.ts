@@ -1,4 +1,11 @@
-import { ArgsType, Field, InputType, ObjectType } from '@nestjs/graphql';
+import { FindManyProposalArgs } from '@gen/proposal/find-many-proposal.args';
+import {
+  ArgsType,
+  Field,
+  InputType,
+  ObjectType,
+  OmitType,
+} from '@nestjs/graphql';
 import { BigNumber, BytesLike } from 'ethers';
 import { Address, Id, TxSalt } from 'lib';
 import { AddressField, GqlAddress } from '~/apollo/scalars/Address.scalar';
@@ -9,17 +16,16 @@ import { Uint256BnField } from '~/apollo/scalars/Uint256Bn.scalar';
 
 @ArgsType()
 export class UniqueProposalArgs {
-  @AddressField()
-  account: Address;
-
   @Bytes32Field()
   hash: string;
 }
 
 @ArgsType()
-export class ProposalsArgs {
-  @Field(() => [GqlAddress])
-  accounts: Address[];
+export class ProposalsArgs extends OmitType(FindManyProposalArgs, [
+  'where' as const,
+]) {
+  @Field(() => [GqlAddress], { nullable: true })
+  accounts?: Address[];
 }
 
 @InputType()
@@ -58,10 +64,4 @@ export class RevokeApprovalResp {
 export class ApproveArgs extends UniqueProposalArgs {
   @BytesField()
   signature: BytesLike;
-}
-
-@ArgsType()
-export class ChangeProposalUserArgs extends UniqueProposalArgs {
-  @AddressField()
-  user: Address;
 }

@@ -20,18 +20,17 @@ dataSources:
         - Account
         - AccountImpl
         - Tx
-        - Approver
-        - Group
-        - GroupApprover
+        - User
+        - UserConfig
       eventHandlers:
         - event: TxExecuted(bytes32,bytes)
           handler: handleTxExecuted
         - event: TxReverted(bytes32,bytes)
           handler: handleTxReverted
-        - event: WalletUpserted(bytes4,bytes[])
-          handler: handleWalletUpserted
-        - event: WalletRemoved(bytes4)
-          handler: handleWalletRemoved
+        - event: UserUpserted((address,(address[])[]))
+          handler: handleUserUpserted
+        - event: UserRemoved(address)
+          handler: handleUserRemoved
   - name: ERC1967Proxy
     kind: ethereum/contract
     network: {{network}}

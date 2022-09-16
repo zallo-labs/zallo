@@ -1,6 +1,6 @@
 import { FindManyAccountArgs } from '@gen/account/find-many-account.args';
 import { ArgsType, InputType, OmitType } from '@nestjs/graphql';
-import { Address } from 'lib';
+import { Address, DeploySalt } from 'lib';
 import { AddressField } from '~/apollo/scalars/Address.scalar';
 import { Bytes32Field } from '~/apollo/scalars/Bytes32.scalar';
 import { UserInput } from '../users/users.args';
@@ -29,11 +29,11 @@ export class CreateAccountArgs {
   @AddressField()
   account: Address;
 
-  @Bytes32Field({ nullable: true })
-  deploySalt?: string;
-
   @AddressField()
   impl: Address;
+
+  @Bytes32Field()
+  deploySalt: DeploySalt;
 
   name: string;
 

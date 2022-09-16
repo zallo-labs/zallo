@@ -6,7 +6,7 @@ import { useTokenValue } from '@token/useTokenValue';
 import { BigNumber } from 'ethers';
 import { ZERO } from 'lib';
 import { useDecodedTransfer } from '~/components/call/useDecodedTransfer';
-import { Tx } from '~/queries/tx';
+import { Proposal } from '~/queries/proposal';
 
 export interface TxTransfer {
   token: Token;
@@ -15,7 +15,7 @@ export interface TxTransfer {
   available: BigNumber;
 }
 
-export const useTxTransfers = (tx: Tx): TxTransfer[] => {
+export const useTxTransfers = (tx: Proposal): TxTransfer[] => {
   const transferToken = useMaybeToken(tx.to) ?? ETH;
   const transferAmount = useDecodedTransfer(tx)?.value ?? ZERO;
   const transferFiat = useTokenValue(transferToken, transferAmount);

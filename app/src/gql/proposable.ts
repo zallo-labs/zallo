@@ -1,32 +1,36 @@
 import assert from 'assert';
 import _ from 'lodash';
-import { TxId } from '~/queries/tx';
-import { ProposableStatus } from '~/queries/wallets';
+import { ProposalId } from '~/queries/proposal';
 
-export interface Active<T> {
+// eslint-disable-next-line @typescript-eslint/ban-types
+type Obj = {};
+
+export type ProposableStatus = 'active' | 'modify' | 'add' | 'remove';
+
+export interface Active<T extends Obj> {
   active: T;
   proposed?: T | null;
-  proposal?: TxId;
+  proposal?: ProposalId;
 }
 
-export interface Proposed<T> {
+export interface Proposed<T extends Obj> {
   active?: T;
   proposed: T;
-  proposal?: TxId;
+  proposal?: ProposalId;
 }
 
-export type Proposable<T> = Active<T> | Proposed<T>;
+export type Proposable<T extends Obj = Obj> = Active<T> | Proposed<T>;
 
-export const isActive = <T>(p: Proposable<T>): p is Active<T> =>
+export const isActive = <T extends Obj>(p: Proposable<T>): p is Active<T> =>
   p.active !== undefined;
 
-export const isProposed = <T>(p: Proposable<T>): p is Proposed<T> =>
-  p.proposed !== undefined;
+export const isProposed = <T extends Obj>(p: Proposable<T>): p is Proposed<T> =>
+  p.proposed !== undefined && p.proposed !== null;
 
-export const latest = <T>(proposable: Proposable<T>) =>
+export const latest = <T extends Obj>(proposable: Proposable<T>) =>
   isProposed(proposable) ? proposable.proposed : proposable.active;
 
-export const mergeProposals = <T extends NonNullable<V>, V>(
+export const mergeProposals = <T extends Obj>(
   sub: Proposable<T> | undefined,
   api: Proposable<T> | undefined,
 ): Proposable<T> => {
@@ -43,18 +47,16 @@ export const mergeProposals = <T extends NonNullable<V>, V>(
   return merged;
 };
 
-export const getProposableStatus = (
-  p: Proposable<unknown>,
-): ProposableStatus => {
+export const getProposableStatus = (p: Proposable): ProposableStatus => {
   if (!isActive(p)) return 'add';
   if (!isProposed(p)) return 'active';
 
   return p.proposed === null ? 'remove' : 'modify';
 };
 
-export const setProposed = <T>(
-  p: Proposable<NonNullable<T>>,
-  value: NonNullable<T> | null,
+export const setProposed = <T extends Obj>(
+  p: Proposable<T>,
+  value: T | null,
 ) => {
   if (isActive(p)) p.proposed = value;
   if (_.isEqual(p.active, p.proposed)) p.proposed = undefined;

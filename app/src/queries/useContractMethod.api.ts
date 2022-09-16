@@ -1,25 +1,28 @@
 import { gql } from '@apollo/client';
-import { useContractMethodQuery } from '~/gql/generated.api';
+import {
+  ContractMethodDocument,
+  ContractMethodQuery,
+  ContractMethodQueryVariables,
+} from '~/gql/generated.api';
 import { useApiClient } from '~/gql/GqlProvider';
 import { Contract } from 'ethers';
 import { FunctionFragment, Interface } from 'ethers/lib/utils';
 import { Account__factory, Call, getDataSighash } from 'lib';
 import { useMemo } from 'react';
 import { ERC20_INTERFACE } from '@token/token';
+import { useSuspenseQuery } from '~/gql/useSuspenseQuery';
 
 export const ACCOUNT_INTERFACE = Account__factory.createInterface();
 
-export const UPSERT_ACCOUNT_FUNCTION =
-  ACCOUNT_INTERFACE.functions['upsertWallet(bytes4,address[][])'];
-export const UPSERT_WALLET_SIGHSAH = ACCOUNT_INTERFACE.getSighash(
-  UPSERT_ACCOUNT_FUNCTION,
-);
+export const UPSERT_USER_FUNCTION =
+  ACCOUNT_INTERFACE.functions['upsertUser((address,(address[])[]))'];
+export const UPSERT_USER_SIGHSAH =
+  ACCOUNT_INTERFACE.getSighash(UPSERT_USER_FUNCTION);
 
-export const REMOVE_WALLET_FUNCTION =
-  ACCOUNT_INTERFACE.functions['removeWallet(bytes4)'];
-export const REMOVE_WALLET_SIGHASH = ACCOUNT_INTERFACE.getSighash(
-  REMOVE_WALLET_FUNCTION,
-);
+export const REMOVE_USER_FUNCTION =
+  ACCOUNT_INTERFACE.functions['removeUser(address)'];
+export const REMOVE_USER_SIGHASH =
+  ACCOUNT_INTERFACE.getSighash(REMOVE_USER_FUNCTION);
 
 gql`
   query ContractMethod($contract: Address!, $sighash: Bytes!) {
@@ -61,17 +64,20 @@ export interface ContractMethod {
   sighash: string;
 }
 
-export const useContractMethod = (call?: Call): ContractMethod | undefined => {
+export const useContractMethod = (call?: Call) => {
   const sighash = getDataSighash(call?.data);
   const preferredFragment = sighash ? FRAGMENTS[sighash] : undefined;
 
-  const { data } = useContractMethodQuery({
+  const { data, ...rest } = useSuspenseQuery<
+    ContractMethodQuery,
+    ContractMethodQueryVariables
+  >(ContractMethodDocument, {
     client: useApiClient(),
     variables: { contract: call?.to, sighash },
     skip: !call || !sighash || !!preferredFragment,
   });
 
-  return useMemo(() => {
+  const method = useMemo((): ContractMethod | undefined => {
     const fragment =
       preferredFragment ?? deserializeFragment(data?.contractMethod?.fragment);
 
@@ -83,4 +89,6 @@ export const useContractMethod = (call?: Call): ContractMethod | undefined => {
         }
       : undefined;
   }, [data?.contractMethod?.fragment, preferredFragment, sighash]);
+
+  return [method, rest] as const;
 };
