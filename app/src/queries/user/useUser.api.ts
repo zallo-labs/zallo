@@ -78,7 +78,7 @@ const convertState = (
         return [token, limit];
       }) ?? [],
     ),
-  })) ?? [];
+  }));
 
 export const useUser = (idInput: UserId | Address) => {
   const device = useDevice();

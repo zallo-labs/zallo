@@ -13,7 +13,7 @@ export const ListScreenSkeleton = ({
   ...screenProps
 }: ListScreenSkeletonProps) => (
   <ScreenSkeleton {...screenProps}>
-    <Container mx={3} separator={<Box my={2} />}>
+    <Container mx={2} separator={<Box mt={1} />}>
       {Header}
 
       <CardItemSkeleton />

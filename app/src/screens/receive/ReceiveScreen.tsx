@@ -19,19 +19,20 @@ import { FaucetButton } from './FaucetButton';
 export const ReceiveScreen = withSkeleton(
   () => {
     const navigation = useRootNavigation();
-    // useKeepAwakeWhenFocussed();  // TODO: re-activate once material bottom tabs navigation integration is fixed
+    useKeepAwakeWhenFocussed();
 
     const [account, setAccount] = useState(useSelectedAccount());
 
     const token = useSelectedToken();
     const [amount, setAmount] = useState<BigNumber | undefined>();
 
-    const url = useMemo(() => {
-      const target_address = account;
-      if (!amount) return buildAddrLink({ target_address });
-
-      return buildTransferLink({ target_address }, token, amount);
-    }, [account, amount, token]);
+    const url = useMemo(
+      () =>
+        amount
+          ? buildTransferLink({ target_address: account }, token, amount)
+          : buildAddrLink({ target_address: account }),
+      [account, amount, token],
+    );
 
     return (
       <Box flex={1}>

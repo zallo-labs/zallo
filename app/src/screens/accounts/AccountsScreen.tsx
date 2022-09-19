@@ -11,7 +11,8 @@ import { useAppbarHeader } from '~/components/Appbar/useAppbarHeader';
 import { useGoBack } from '~/components/Appbar/useGoBack';
 import { RootNavigatorScreenProps } from '~/navigation/RootNavigator';
 import { useAccountIds } from '~/queries/account/useAccountIds.api';
-import { AccountItem } from './AccountItem';
+import { useDevice } from '@network/useDevice';
+import AccountItem from './AccountItem';
 
 export interface AccountsScreenParams {
   onSelect?: (account: Address) => void;
@@ -25,21 +26,27 @@ export const AccountsScreen = withSkeleton(
     const styles = useStyles();
     const { AppbarHeader, handleScroll } = useAppbarHeader();
     const [accounts] = useAccountIds();
+    const device = useDevice();
 
     const select = useCallback(
       (account: Address) => {
         if (onSelect) {
           onSelect(account);
         } else {
-          navigate('Account', { id: account });
+          navigate('User', {
+            user: {
+              account,
+              addr: device.address,
+            },
+          });
         }
       },
-      [navigate, onSelect],
+      [navigate, onSelect, device.address],
     );
 
     return (
       <Box>
-        <AppbarHeader mode="medium">
+        <AppbarHeader mode="large">
           <Appbar.BackAction onPress={useGoBack()} />
           <Appbar.Content title={onSelect ? 'Select Account' : 'Accounts'} />
         </AppbarHeader>
@@ -48,7 +55,7 @@ export const AccountsScreen = withSkeleton(
           renderItem={({ item }) => (
             <AccountItem id={item} onPress={() => select(item)} />
           )}
-          ItemSeparatorComponent={() => <Box my={2} />}
+          ItemSeparatorComponent={() => <Box mt={2} />}
           ListFooterComponent={
             <Button
               icon={PlusIcon}

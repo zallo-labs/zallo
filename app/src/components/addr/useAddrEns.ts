@@ -5,8 +5,6 @@ import { Address } from 'lib';
 import { Duration } from 'luxon';
 import { atomFamily, useRecoilValue } from 'recoil';
 
-type EnsRes = string | null;
-
 const fetch = async (addr: Address) => {
   try {
     return await PROVIDER.lookupAddress(addr);
@@ -16,7 +14,7 @@ const fetch = async (addr: Address) => {
   }
 };
 
-const addrEnsState = atomFamily<EnsRes, Address>({
+const addrEnsState = atomFamily<string | null, Address>({
   key: 'addrEns',
   default: fetch,
   effects: (addr) => [

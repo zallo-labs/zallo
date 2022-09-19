@@ -1,4 +1,3 @@
-import { Addr } from '~/components/addr/Addr';
 import { Box } from '~/components/layout/Box';
 import { withSkeleton } from '~/components/skeleton/withSkeleton';
 import { Text } from 'react-native-paper';
@@ -29,15 +28,9 @@ export const AccountCard = withSkeleton(
       <Card elevation={2} style={styles.card} {...cardProps}>
         <Box flex={1} vertical justifyContent="space-between">
           <Box horizontal justifyContent="space-between" alignItems="center">
-            <Box vertical justifyContent="space-around">
-              <Text variant="titleLarge">{account.name}</Text>
+            <Text variant="titleLarge">{account.name}</Text>
 
-              <Text variant="bodyMedium">
-                <Addr addr={account.addr} />
-              </Text>
-            </Box>
-
-            <MastercardLogo width={48} height={48} />
+            <MastercardLogo width={48} height={30} />
           </Box>
 
           {available && (

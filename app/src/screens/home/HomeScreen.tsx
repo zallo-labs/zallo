@@ -48,7 +48,7 @@ export const HomeScreen = withSkeleton(() => {
               cardProps={{ available: true }}
             />
 
-            <Box horizontal justifyContent="flex-end" mt={3} mb={2} mx={4}>
+            <Box horizontal justifyContent="flex-end" mt={2} mb={1} mx={3}>
               <Text variant="titleLarge">
                 <FiatBalance addr={account} showZero />
               </Text>
@@ -56,7 +56,7 @@ export const HomeScreen = withSkeleton(() => {
           </>
         }
         renderItem={({ item, index }) => (
-          <Box mx={3}>
+          <Box mx={2}>
             <TokenHoldingCard
               token={item}
               user={user}
@@ -69,7 +69,7 @@ export const HomeScreen = withSkeleton(() => {
             />
           </Box>
         )}
-        ItemSeparatorComponent={() => <Box my={2} />}
+        ItemSeparatorComponent={() => <Box mt={1} />}
         data={tokens}
         onScroll={handleScroll}
         showsVerticalScrollIndicator={false}

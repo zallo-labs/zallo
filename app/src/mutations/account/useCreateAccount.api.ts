@@ -79,12 +79,13 @@ export const useCreateAccount = () => {
           },
         ],
       },
-      optimisticResponse: {
-        createAccount: {
-          __typename: 'Account',
-          id: toId(accountAddr),
-        },
-      },
+      // Don't update optimistically, as the data won't be available on the api yet otherwise
+      // optimisticResponse: {
+      //   createAccount: {
+      //     __typename: 'Account',
+      //     id: toId(accountAddr),
+      //   },
+      // },
       update: (cache, res) => {
         const id = res.data?.createAccount.id;
         if (!id) return;
