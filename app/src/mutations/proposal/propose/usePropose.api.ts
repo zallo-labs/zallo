@@ -75,6 +75,7 @@ export const useApiPropose = () => {
                 proposal: {
                   id,
                   accountId: account,
+                  proposerId: device.address,
                   hash,
                   to: tx.to,
                   value: tx.value.toString(),

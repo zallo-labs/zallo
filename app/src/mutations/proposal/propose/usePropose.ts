@@ -23,7 +23,7 @@ export const usePropose = () => {
       setProposing(true);
 
       const proposal = await apiPropose(txDef, account);
-      const id: ProposalId = { account, hash: proposal.hash };
+      const id: ProposalId = { hash: proposal.hash };
 
       await onPropose?.(id);
 

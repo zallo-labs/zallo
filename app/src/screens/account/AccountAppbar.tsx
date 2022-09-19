@@ -25,7 +25,7 @@ export const AccountAppbar = ({
       <Appbar.BackAction onPress={useGoBack()} />
 
       <AppbarExtraContent>
-        <InactiveIndicator accountAddr={account} />
+        <InactiveIndicator id={account} />
       </AppbarExtraContent>
 
       <Appbar.Content title={title || 'Account'} />

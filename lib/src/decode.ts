@@ -2,6 +2,7 @@ import { BytesLike } from 'ethers';
 import { hexDataLength, hexDataSlice } from 'ethers/lib/utils';
 import { address } from './addr';
 import { Account, Account__factory } from './contracts';
+import { UserStructOutput } from './contracts/Account';
 import { User } from './user';
 import { UserConfig } from './userConfig';
 import { OnlyRequiredItems } from './util/mappedTypes';
@@ -18,35 +19,27 @@ export const UPSERT_WALLET_SIGHSAH =
 
 export const REMOVE_USER_FUNCTION =
   ACCOUNT_INTERFACE.functions['removeUser(address)'];
-export const REMOVE_WALLET_SIGHASH =
+export const REMOVE_USER_SIGHASH =
   ACCOUNT_INTERFACE.getSighash(REMOVE_USER_FUNCTION);
 
-type UpsertWalletParams = OnlyRequiredItems<Parameters<Account['upsertUser']>>;
-
-export const tryDecodeUpsertUserData = async (
-  data?: BytesLike,
-): Promise<User | undefined> => {
+export const tryDecodeUpsertUserData = (data?: BytesLike): User | undefined => {
   const sighash = getDataSighash(data);
   if (!data || sighash !== UPSERT_WALLET_SIGHSAH) return undefined;
 
   try {
-    const [u] = ACCOUNT_INTERFACE.decodeFunctionData(
+    const { addr, configs } = ACCOUNT_INTERFACE.decodeFunctionData(
       UPSERT_USER_FUNCTION,
       data,
-    ) as UpsertWalletParams;
+    ) as UserStructOutput;
 
     return {
-      addr: address(await u.addr),
-      configs: await Promise.all(
-        u.configs.map(
-          async (c): Promise<UserConfig> => ({
-            approvers: await Promise.all(
-              c.approvers.map(async (a) => address(await a)),
-            ),
-            spendingAllowlisted: false,
-            limits: {},
-          }),
-        ),
+      addr: address(addr),
+      configs: configs.map(
+        (c): UserConfig => ({
+          approvers: c.approvers.map(address),
+          spendingAllowlisted: false,
+          limits: {},
+        }),
       ),
     };
   } catch {
@@ -58,7 +51,7 @@ type RemoveWalletParams = OnlyRequiredItems<Parameters<Account['removeUser']>>;
 
 export const tryDecodeRemoveWalletData = (data?: BytesLike) => {
   const sighash = getDataSighash(data);
-  if (!data || sighash !== REMOVE_WALLET_SIGHASH) return undefined;
+  if (!data || sighash !== REMOVE_USER_SIGHASH) return undefined;
 
   try {
     const [user] = ACCOUNT_INTERFACE.decodeFunctionData(

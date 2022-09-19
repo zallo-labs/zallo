@@ -17,7 +17,7 @@ export const TokenTransferRow = ({
   transfer: { token, amount, available },
 }: TokenTransferRowProps) => {
   const styles = useStyles();
-  const { wallet } = useTxContext();
+  const { proposer: wallet } = useTxContext();
 
   const insufficient = tx.status !== 'executed' && amount.gt(available);
 

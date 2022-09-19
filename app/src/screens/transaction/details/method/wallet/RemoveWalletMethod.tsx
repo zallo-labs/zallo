@@ -1,28 +1,18 @@
-import { Call, getWalletId, tryDecodeRemoveWalletData } from 'lib';
-import { memo, useMemo } from 'react';
+import assert from 'assert';
+import { Call, tryDecodeRemoveWalletData } from 'lib';
+import { memo } from 'react';
 import { Text } from 'react-native-paper';
-import { Suspend } from '~/components/Suspender';
-import { CombinedWallet, WalletId } from '~/queries/wallets';
-import { useWallet } from '~/queries/wallet/useWallet';
 import { AccordionProps } from '~/components/Accordion';
+import { Proposal } from '~/queries/proposal';
+import { CombinedUser, useUser } from '~/queries/user/useUser.api';
+import { useTxContext } from '~/screens/transaction/TransactionProvider';
 
-export const useDecodedRemoveWallet = (call?: Call) =>
-  useWallet(
-    useMemo((): WalletId | undefined => {
-      const ref = tryDecodeRemoveWalletData(call?.data)?.ref;
+export const useDecodedRemoveUserMethod = (proposal: Proposal) => {
+  const removeUser = tryDecodeRemoveWalletData(proposal.data);
+}
 
-      return ref && call
-        ? {
-            ref,
-            accountAddr: call.to,
-            id: getWalletId(call.to, ref),
-          }
-        : undefined;
-    }, [call]),
-  );
-
-export const getRemoveWalletMethodName = (wallet: CombinedWallet) =>
-  `Remove wallet: ${wallet.name}`;
+export const getRemoveWalletMethodName = (user: CombinedUser) =>
+  `Remove user: ${user.name}`;
 
 export interface RemoveWalletMethodProps extends Partial<AccordionProps> {
   call: Call;
@@ -30,12 +20,19 @@ export interface RemoveWalletMethodProps extends Partial<AccordionProps> {
 
 export const RemoveWalletMethod = memo(
   ({ call, ...accordionProps }: RemoveWalletMethodProps) => {
-    const wallet = useDecodedRemoveWallet(call);
+    const { account } = useTxContext();
 
-    if (!wallet) return <Suspend />;
+    const removedUser = tryDecodeRemoveWalletData(call.data);
+    assert(removedUser);
+    const [user] = useUser({
+      account: account.addr,
+      addr: removedUser.addr,
+    });
 
     return (
-      <Text variant="titleMedium" {...accordionProps}>{getRemoveWalletMethodName(wallet)}</Text>
+      <Text variant="titleMedium" {...accordionProps}>
+        {getRemoveWalletMethodName(user)}
+      </Text>
     );
   },
 );

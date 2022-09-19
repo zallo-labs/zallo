@@ -2,19 +2,12 @@ import { RetryIcon } from '~/util/theme/icons';
 import { useState } from 'react';
 import { Button } from 'react-native-paper';
 import { useExecute } from '~/mutations/proposal/execute/useExecute';
-import { CombinedAccount } from '~/queries/account';
-import { Proposal } from '~/queries/proposal';
-import { CombinedWallet } from '~/queries/wallets';
 import { Actions } from './Actions';
+import { useTxContext } from '../TransactionProvider';
 
-export interface FailedActionsProps {
-  tx: Proposal;
-  account: CombinedAccount;
-  wallet: CombinedWallet;
-}
-
-export const FailedActions = ({ tx, account, wallet }: FailedActionsProps) => {
-  const executeMutation = useExecute(account, wallet, tx);
+export const FailedActions = () => {
+  const { proposal, proposer } = useTxContext();
+  const execute = useExecute(proposer, proposal);
 
   const [submitting, setSubmitting] = useState(false);
 
@@ -26,7 +19,7 @@ export const FailedActions = ({ tx, account, wallet }: FailedActionsProps) => {
         loading={submitting}
         onPress={() => {
           setSubmitting(true);
-          executeMutation();
+          execute();
           // Execute will cause a re-render once complete
         }}
       >

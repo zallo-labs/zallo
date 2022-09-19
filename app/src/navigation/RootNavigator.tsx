@@ -11,10 +11,6 @@ import {
   TokensScreenParams,
 } from '~/screens/tokens/TokensScreen';
 import {
-  QuorumScreen,
-  QuorumScreenParams,
-} from '~/screens/quorum/QuorumScreen';
-import {
   ContactsScreen,
   ContactsScreenParams,
 } from '~/screens/contacts/ContactsScreen';
@@ -29,7 +25,6 @@ import {
   ContactScreen,
   ContactScreenParams,
 } from '~/screens/contacts/ContactScreen';
-import { WalletsScreen } from '~/screens/wallets/WalletsScreen';
 import {
   AccountsScreen,
   AccountsScreenParams,
@@ -50,24 +45,21 @@ import {
   DeleteModalScreen,
   DeleteModalScreenParams,
 } from '~/screens/alert/DeleteModalScreen';
-import {
-  WalletScreen,
-  WalletScreenParams,
-} from '~/screens/wallet/WalletScreen';
 import { SendScreen, SendScreenParams } from '~/screens/send/SendScreen';
+import { LimitScreen, LimitScreenParams } from '~/screens/limit/LimitScreen';
+import { UserScreen, UserScreenParams } from '~/screens/user/UserScreen';
 import {
-  LimitScreen,
-  LimitScreenParams,
-} from '~/screens/limit/LimitScreen';
+  UserConfigScreen,
+  UserConfigScreenParams,
+} from '~/screens/user-config/UserConfigScreen';
 
 export type RootNavigatorParamList = {
   DrawerNavigator: undefined;
   Transaction: TransactionScreenParams;
   Accounts: AccountsScreenParams;
   Account: AccountScreenParams;
-  Wallets: undefined;
-  Wallet: WalletScreenParams;
-  Quorum: QuorumScreenParams;
+  User: UserScreenParams;
+  UserConfig: UserConfigScreenParams;
   Limit: LimitScreenParams;
   Contacts: ContactsScreenParams;
   Contact: ContactScreenParams;
@@ -97,7 +89,7 @@ export const RootNavigator = () => {
             name="CreateAccount"
             component={CreateAccountScreen}
             initialParams={{
-              navigate: (_account, navigate) => navigate('DrawerNavigator'),
+              onCreate: (_account, navigate) => navigate('DrawerNavigator'),
             }}
           />
         </Navigation.Group>
@@ -113,9 +105,8 @@ export const RootNavigator = () => {
           component={CreateAccountScreen}
         />
       )}
-      <Navigation.Screen name="Wallets" component={WalletsScreen} />
-      <Navigation.Screen name="Wallet" component={WalletScreen} />
-      <Navigation.Screen name="Quorum" component={QuorumScreen} />
+      <Navigation.Screen name="User" component={UserScreen} />
+      <Navigation.Screen name="UserConfig" component={UserConfigScreen} />
       <Navigation.Screen name="Limit" component={LimitScreen} />
       <Navigation.Screen name="Contacts" component={ContactsScreen} />
       <Navigation.Screen name="Contact" component={ContactScreen} />

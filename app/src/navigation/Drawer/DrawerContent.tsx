@@ -9,7 +9,6 @@ import {
   IssueIcon,
   SettingsIcon,
   TokenCurrencyIcon,
-  WalletIcon,
 } from '~/util/theme/icons';
 import { useCallback } from 'react';
 import { Linking } from 'react-native';
@@ -58,11 +57,6 @@ export const DrawerContent = ({ navigation }: DrawerContentProps) => {
           label="Accounts"
           icon={AccountIcon}
           onPress={() => navigate('Accounts', {})}
-        />
-        <Drawer.Item
-          label="Wallets"
-          icon={WalletIcon}
-          onPress={() => navigate('Wallets')}
         />
         <Drawer.Item label="Settings" icon={SettingsIcon} />
       </Drawer.Section>

@@ -1,17 +1,17 @@
 import { makeStyles } from '@theme/makeStyles';
 import { Address } from 'lib';
 import { Text } from 'react-native-paper';
-import { useAccount } from '~/queries/account/useAccount';
+import { useAccount } from '~/queries/account/useAccount.api';
 
 export interface InactiveIndicatorProps {
-  accountAddr: Address;
+  id: Address;
 }
 
-export const InactiveIndicator = ({ accountAddr }: InactiveIndicatorProps) => {
+export const InactiveIndicator = ({ id }: InactiveIndicatorProps) => {
   const styles = useStyles();
-  const { account } = useAccount(accountAddr);
+  const [account] = useAccount(id);
 
-  if (!account || account.active) return null;
+  if (!account.active) return null;
 
   return (
     <Text variant="titleMedium" style={styles.inactive}>

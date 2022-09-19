@@ -12,13 +12,14 @@ import {
 import { useApiClient } from '~/gql/GqlProvider';
 import { usePollWhenFocussed } from '~/gql/usePollWhenFocussed';
 import { useSuspenseQuery } from '~/gql/useSuspenseQuery';
-import { Approval, Proposal, Submission, ProposalStatus } from '.';
+import { Approval, Proposal, Submission, ProposalStatus, ProposalId } from '.';
 
 gql`
   query Proposal($hash: Bytes32!) {
     proposal(hash: $hash) {
       id
       accountId
+      proposerId
       hash
       to
       value
@@ -54,7 +55,7 @@ const getStatus = (submissions: Submission[]): ProposalStatus => {
   return 'submitted';
 };
 
-export const useProposal = (hash: string, focussed = false) => {
+export const useProposal = ({ hash }: ProposalId, focussed = false) => {
   const device = useDevice();
 
   const { data, ...rest } = useSuspenseQuery<
@@ -98,8 +99,14 @@ export const useProposal = (hash: string, focussed = false) => {
         }),
       ) ?? [];
 
+    const account = address(p.accountId);
+
     return {
-      account: address(p.accountId),
+      account,
+      proposer: {
+        account,
+        addr: address(p.proposerId),
+      },
       hash,
       id: toId(p.id),
       timestamp: DateTime.fromISO(p.createdAt),

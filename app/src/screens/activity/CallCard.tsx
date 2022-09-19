@@ -1,33 +1,30 @@
 import { withSkeleton } from '~/components/skeleton/withSkeleton';
-import { Suspend } from '~/components/Suspender';
 import { makeStyles } from '~/util/theme/makeStyles';
 import { Proposal, ProposalId } from '~/queries/proposal';
 import { ETH } from '@token/tokens';
 import { useMaybeToken } from '@token/useToken';
 import { CardProps } from '../../components/card/Card';
 import { CardItemSkeleton } from '../../components/card/CardItemSkeleton';
-import { useTx } from '~/queries/tx/tx/useTx';
-import { useCallName } from '../../components/call/useCallName';
+import { useCallLabel } from '../../components/call/useCallLabel';
 import { ActivityCard } from './ActivityCard';
-import { useTxTransfers } from '~/components/call/useTxTransfers';
+import { useProposalTransfers } from '~/components/call/useProposalTransfers';
+import { useProposal } from '~/queries/proposal/useProposal.api';
 
 export interface CallCardProps extends CardProps {
   id: ProposalId;
 }
 
 export const CallCard = withSkeleton(({ id, ...cardProps }: CallCardProps) => {
-  const { tx } = useTx(id);
-  const styles = useStyles(tx);
-  const token = useMaybeToken(tx?.to) ?? ETH;
-  const name = useCallName(tx);
-  const transfers = useTxTransfers(tx);
-
-  if (!tx) return <Suspend />;
+  const [p] = useProposal(id);
+  const styles = useStyles(p);
+  const token = useMaybeToken(p?.to) ?? ETH;
+  const name = useCallLabel(p);
+  const transfers = useProposalTransfers(p);
 
   return (
     <ActivityCard
       token={token}
-      addr={tx.to}
+      addr={p.to}
       label={name}
       transfers={transfers}
       backgroundColor={styles.card.backgroundColor}

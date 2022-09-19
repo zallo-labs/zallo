@@ -359,9 +359,13 @@ export type Proposal = {
   data: Scalars['String'];
   hash: Scalars['ID'];
   id: Scalars['String'];
+  proposer: User;
+  proposerId: Scalars['String'];
   salt: Scalars['String'];
   submissions?: Maybe<Array<Submission>>;
   to: Scalars['String'];
+  userAccountId: Scalars['String'];
+  userDeviceId: Scalars['String'];
   userStates?: Maybe<Array<UserState>>;
   value: Scalars['String'];
 };
@@ -391,9 +395,13 @@ export type ProposalOrderByWithRelationInput = {
   createdAt?: InputMaybe<SortOrder>;
   data?: InputMaybe<SortOrder>;
   hash?: InputMaybe<SortOrder>;
+  proposer?: InputMaybe<UserOrderByWithRelationInput>;
+  proposerId?: InputMaybe<SortOrder>;
   salt?: InputMaybe<SortOrder>;
   submissions?: InputMaybe<SubmissionOrderByRelationAggregateInput>;
   to?: InputMaybe<SortOrder>;
+  userAccountId?: InputMaybe<SortOrder>;
+  userDeviceId?: InputMaybe<SortOrder>;
   userStates?: InputMaybe<UserStateOrderByRelationAggregateInput>;
   value?: InputMaybe<SortOrder>;
 };
@@ -403,8 +411,11 @@ export enum ProposalScalarFieldEnum {
   CreatedAt = 'createdAt',
   Data = 'data',
   Hash = 'hash',
+  ProposerId = 'proposerId',
   Salt = 'salt',
   To = 'to',
+  UserAccountId = 'userAccountId',
+  UserDeviceId = 'userDeviceId',
   Value = 'value'
 }
 
@@ -585,6 +596,7 @@ export type User = {
   deviceId: Scalars['String'];
   id: Scalars['String'];
   name: Scalars['String'];
+  proposals?: Maybe<Array<Proposal>>;
   proposedState?: Maybe<UserState>;
   states?: Maybe<Array<UserState>>;
 };
@@ -619,6 +631,7 @@ export type UserConfigInput = {
 
 export type UserCount = {
   __typename?: 'UserCount';
+  proposals: Scalars['Int'];
   states: Scalars['Int'];
 };
 
@@ -643,6 +656,7 @@ export type UserOrderByWithRelationInput = {
   device?: InputMaybe<DeviceOrderByWithRelationInput>;
   deviceId?: InputMaybe<SortOrder>;
   name?: InputMaybe<SortOrder>;
+  proposals?: InputMaybe<ProposalOrderByRelationAggregateInput>;
   states?: InputMaybe<UserStateOrderByRelationAggregateInput>;
 };
 
@@ -830,7 +844,7 @@ export type ProposalQueryVariables = Exact<{
 }>;
 
 
-export type ProposalQuery = { __typename?: 'Query', proposal: { __typename?: 'Proposal', id: string, accountId: string, hash: string, to: string, value: string, data: string, salt: string, createdAt: any, approvals?: Array<{ __typename?: 'Approval', deviceId: string, signature: string, createdAt: any }> | null, submissions?: Array<{ __typename?: 'Submission', id: string, hash: string, nonce: number, gasLimit: any, gasPrice?: any | null, createdAt: any, response?: { __typename?: 'SubmissionResponse', response: string, reverted: boolean, timestamp: any } | null }> | null } };
+export type ProposalQuery = { __typename?: 'Query', proposal: { __typename?: 'Proposal', id: string, accountId: string, proposerId: string, hash: string, to: string, value: string, data: string, salt: string, createdAt: any, approvals?: Array<{ __typename?: 'Approval', deviceId: string, signature: string, createdAt: any }> | null, submissions?: Array<{ __typename?: 'Submission', id: string, hash: string, nonce: number, gasLimit: any, gasPrice?: any | null, createdAt: any, response?: { __typename?: 'SubmissionResponse', response: string, reverted: boolean, timestamp: any } | null }> | null } };
 
 export type ProposalsMetadataQueryVariables = Exact<{
   accounts?: InputMaybe<Array<Scalars['Address']> | Scalars['Address']>;
@@ -1526,6 +1540,7 @@ export const ProposalDocument = gql`
   proposal(hash: $hash) {
     id
     accountId
+    proposerId
     hash
     to
     value

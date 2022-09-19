@@ -15,9 +15,9 @@ const STATUS_LABEL: Record<ProposalStatus, [FC | null, string]> = {
 };
 
 export const TransactionStatus = () => {
-  const { tx, wallet } = useTxContext();
+  const { proposal } = useTxContext();
 
-  const [Icon, label] = STATUS_LABEL[tx.status];
+  const [Icon, label] = STATUS_LABEL[proposal.status];
 
   return (
     <Card vertical>
@@ -32,11 +32,11 @@ export const TransactionStatus = () => {
           <Text variant="headlineLarge">{label}</Text>
         </Box>
 
-        <TransactionActions tx={tx} wallet={wallet} />
+        <TransactionActions proposal={proposal} />
       </Box>
 
       <Box mt={2} mr={1}>
-        <TransactionEvents tx={tx} wallet={wallet} />
+        <TransactionEvents />
       </Box>
     </Card>
   );

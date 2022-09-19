@@ -1,17 +1,14 @@
 import assert from 'assert';
-import { createContext, ReactNode, useContext } from 'react';
-import { Suspend } from '~/components/Suspender';
-import { CombinedAccount } from '~/queries/account';
-import { useAccount } from '~/queries/account/useAccount';
+import { createContext, ReactNode, useContext, useMemo } from 'react';
+import { CombinedAccount, useAccount } from '~/queries/account/useAccount.api';
 import { Proposal, ProposalId } from '~/queries/proposal';
-import { useTx } from '~/queries/tx/tx/useTx';
-import { useWallet } from '~/queries/wallet/useWallet';
-import { CombinedWallet } from '~/queries/wallets';
+import { useProposal } from '~/queries/proposal/useProposal.api';
+import { CombinedUser, useUser } from '~/queries/user/useUser.api';
 
 interface TransactionContext {
-  tx: Proposal;
+  proposal: Proposal;
   account: CombinedAccount;
-  wallet: CombinedWallet;
+  proposer: CombinedUser;
 }
 
 const CONTEXT = createContext<TransactionContext | null>(null);
@@ -31,14 +28,17 @@ export const TransactionProvider = ({
   children,
   id,
 }: TransactionContextProps) => {
-  const { tx } = useTx(id);
-  const { account } = useAccount(tx?.account);
-  const wallet = useWallet(tx?.wallet);
-
-  if (!tx || !account || !wallet) return <Suspend />;
+  const [proposal] = useProposal(id);
+  const [account] = useAccount(proposal.account);
+  const [proposer] = useUser(proposal.proposer);
 
   return (
-    <CONTEXT.Provider value={{ tx, account, wallet }}>
+    <CONTEXT.Provider
+      value={useMemo(
+        () => ({ proposal, account, proposer }),
+        [account, proposal, proposer],
+      )}
+    >
       {children}
     </CONTEXT.Provider>
   );

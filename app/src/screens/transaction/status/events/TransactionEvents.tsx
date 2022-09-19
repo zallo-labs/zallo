@@ -1,12 +1,12 @@
 import { useMemo } from 'react';
-import { Approval, Submission, Proposal } from '~/queries/proposal';
+import { Approval, Submission } from '~/queries/proposal';
 import { ApprovalRow } from './ApprovalRow';
 import { SubmissionRow } from './SubmissionRow';
 import { Box } from '~/components/layout/Box';
 import { Container } from '~/components/layout/Container';
 import { ApprovalsRequiredRow } from './ApprovalsRequiredRow';
 import { useTransactionIsApproved } from '../useTransactionIsApproved';
-import { CombinedWallet } from '~/queries/wallets';
+import { useTxContext } from '../../TransactionProvider';
 
 enum EventType {
   Approval,
@@ -27,27 +27,23 @@ const EventComponent = ({ event }: { event: Event }): JSX.Element => {
   }
 };
 
-export interface TransactionEventsProps {
-  tx: Proposal;
-  wallet: CombinedWallet;
-}
-
-export const TransactionEvents = ({ tx, wallet }: TransactionEventsProps) => {
-  const isApproved = useTransactionIsApproved(tx, wallet);
+export const TransactionEvents = () => {
+  const { proposal, proposer } = useTxContext();
+  const isApproved = useTransactionIsApproved(proposal, proposer);
 
   const events = useMemo(
     (): Event[] =>
       [
-        ...tx.approvals.map((item) => ({
+        ...proposal.approvals.map((item) => ({
           item,
           _type: EventType.Approval,
         })),
-        ...tx.submissions.map((item) => ({
+        ...proposal.submissions.map((item) => ({
           item,
           _type: EventType.Submission,
         })),
       ].sort((a, b) => a.item.timestamp.diff(b.item.timestamp).milliseconds),
-    [tx],
+    [proposal],
   );
 
   return (
@@ -55,7 +51,9 @@ export const TransactionEvents = ({ tx, wallet }: TransactionEventsProps) => {
       {events.map((event, i) => (
         <EventComponent key={i} event={event} />
       ))}
-      {!isApproved && <ApprovalsRequiredRow tx={tx} wallet={wallet} />}
+      {!isApproved && (
+        <ApprovalsRequiredRow proposal={proposal} proposer={proposer} />
+      )}
     </Container>
   );
 };

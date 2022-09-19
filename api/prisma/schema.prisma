@@ -46,7 +46,8 @@ model User {
 
   name String
 
-  states UserState[]
+  states    UserState[]
+  proposals Proposal[]
 
   @@id([accountId, deviceId])
 }
@@ -125,17 +126,21 @@ model ContractMethod {
 model Proposal {
   hash String @id @db.Char(66) // bytes32
 
-  account   Account  @relation(fields: [accountId], references: [id], onDelete: Cascade)
-  accountId String   @db.Char(42) // address
-  to        String   @db.Char(42) // address
-  value     String //@db.Decimal(79, 0) // uint256
-  data      String // bytes
-  salt      String   @db.Char(18) // bytes8
-  createdAt DateTime @default(now())
+  account    Account  @relation(fields: [accountId], references: [id], onDelete: Cascade)
+  accountId  String   @db.Char(42) // address
+  proposer   User     @relation(fields: [userAccountId, userDeviceId], references: [accountId, deviceId])
+  proposerId String   @db.Char(42) // address
+  to         String   @db.Char(42) // address
+  value      String //@db.Decimal(79, 0) // uint256
+  data       String // bytes
+  salt       String   @db.Char(18) // bytes8
+  createdAt  DateTime @default(now())
 
-  approvals   Approval[]
-  submissions Submission[]
-  userStates  UserState[]
+  approvals     Approval[]
+  submissions   Submission[]
+  userStates    UserState[]
+  userAccountId String       @db.Char(42)
+  userDeviceId  String       @db.Char(42)
 }
 
 model Submission {

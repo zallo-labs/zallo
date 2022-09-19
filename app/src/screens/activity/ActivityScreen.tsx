@@ -2,7 +2,6 @@ import { Box } from '~/components/layout/Box';
 import { EmptyListFallback } from '~/components/EmptyListFallback';
 import { ListScreenSkeleton } from '~/components/skeleton/ListScreenSkeleton';
 import { withSkeleton } from '~/components/skeleton/withSkeleton';
-import { Suspend } from '~/components/Suspender';
 import { ActivityIcon } from '~/util/theme/icons';
 import { makeStyles } from '~/util/theme/makeStyles';
 import { groupBy } from 'lib';
@@ -15,16 +14,16 @@ import { CallCard } from '~/screens/activity/CallCard';
 import { ProposalMetadata } from '~/queries/proposal';
 import { useRootNavigation } from '~/navigation/useRootNavigation';
 import { Timestamp } from '~/components/format/Timestamp';
-import { useTxsMetadata } from '~/queries/tx/metadata/useTxsMetadata';
 import { useTransfersMetadata } from '~/queries/transfer/useTransfersMetadata.sub';
 import { TransferType } from '~/gql/generated.sub';
 import { TransferMetadata } from '~/queries/transfer/useTransfersMetadata.sub';
 import { InTransferCard } from './InTransferCard';
+import { useProposalsMetadata } from '~/queries/proposal/useProposalsMetadata.api';
 
 type Item =
   | {
       activity: ProposalMetadata;
-      type: 'tx';
+      type: 'proposal';
     }
   | {
       activity: TransferMetadata;
@@ -59,26 +58,17 @@ export const ActivityScreen = withSkeleton(() => {
   const styles = useStyles();
   const { AppbarHeader, handleScroll } = useAppbarHeader();
   const navigation = useRootNavigation();
-  const { txs, loading: txsLoading } = useTxsMetadata();
-  const { transfers, loading: transfersLoading } = useTransfersMetadata(
-    TransferType.In,
-  );
+  const [proposals] = useProposalsMetadata();
+  const [transfers] = useTransfersMetadata(TransferType.In);
 
   const sections = useMemo(
     () =>
       toSections([
-        ...txs.map((activity): Item => ({ activity, type: 'tx' })),
+        ...proposals.map((activity): Item => ({ activity, type: 'proposal' })),
         ...transfers.map((activity): Item => ({ activity, type: 'transfer' })),
       ]),
-    [transfers, txs],
+    [proposals, transfers],
   );
-
-  if (
-    txs.length === 0 &&
-    transfers.length === 0 &&
-    (txsLoading || transfersLoading)
-  )
-    return <Suspend />;
 
   return (
     <Box flex={1}>
@@ -95,7 +85,7 @@ export const ActivityScreen = withSkeleton(() => {
         )}
         SectionSeparatorComponent={() => <Box my={2} />}
         renderItem={({ item }) => {
-          if (item.type === 'tx')
+          if (item.type === 'proposal')
             return (
               <CallCard
                 id={item.activity}
@@ -126,6 +116,6 @@ export const ActivityScreen = withSkeleton(() => {
 
 const useStyles = makeStyles(({ space }) => ({
   list: {
-    marginHorizontal: space(3),
+    marginHorizontal: space(2),
   },
 }));

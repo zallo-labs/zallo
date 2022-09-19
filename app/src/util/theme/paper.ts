@@ -2,7 +2,7 @@ import {
   MD3DarkTheme as PaperDarkTheme,
   useTheme as baseUseTheme,
 } from 'react-native-paper';
-import { space } from './styledComponents';
+import { space, typoSpace } from './styledComponents';
 import color from 'color';
 
 const c = (c: string, f: (color: color<string>) => color<string>) =>
@@ -26,6 +26,7 @@ export const PAPER_THEME = {
   },
 
   space,
+  typoSpace,
   onBackground: (backgroundColor?: string): string | undefined => {
     if (backgroundColor) {
       const bgKey = Object.keys(overrided.colors).find(

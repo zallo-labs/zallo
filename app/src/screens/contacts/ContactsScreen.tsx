@@ -24,7 +24,7 @@ export const ContactsScreen = ({ route, navigation }: ContactsScreenProps) => {
   const { title, onSelect, disabled } = route.params;
   const styles = useStyles();
   const { AppbarHeader, handleScroll } = useAppbarHeader();
-  const { contacts: allContacts } = useContacts();
+  const [allContacts] = useContacts();
 
   const [contacts, searchProps] = useFuzzySearch(allContacts, ['name', 'addr']);
 
@@ -67,6 +67,6 @@ export const ContactsScreen = ({ route, navigation }: ContactsScreenProps) => {
 
 const useStyles = makeStyles(({ space }) => ({
   list: {
-    marginHorizontal: space(3),
+    marginHorizontal: space(2),
   },
 }));

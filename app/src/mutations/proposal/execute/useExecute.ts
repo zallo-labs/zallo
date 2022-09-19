@@ -6,24 +6,24 @@ import { Proposal } from '~/queries/proposal';
 import { CombinedUser, toActiveUser } from '~/queries/user/useUser.api';
 import { useApiSubmitExecution } from './useSubmitExecution.api';
 
-export const useExecute = (user: CombinedUser, p: Proposal) => {
-  const [account] = useAccount(user.account);
+export const useExecute = (proposer: CombinedUser, proposal: Proposal) => {
+  const [account] = useAccount(proposer.account);
   const submitExecution = useApiSubmitExecution();
 
   return useCallback(async () => {
-    const signers: Signer[] = p.approvals.map((approval) => ({
+    const signers: Signer[] = proposal.approvals.map((approval) => ({
       approver: approval.addr,
       signature: approval.signature,
     }));
 
-    assert(user.configs.active);
+    assert(proposer.configs.active);
     const resp = await executeTx(
       account.contract,
-      p,
-      toActiveUser(user),
+      proposal,
+      toActiveUser(proposer),
       signers,
     );
 
-    await submitExecution(p, resp);
-  }, [p, user, account.contract, submitExecution]);
+    await submitExecution(proposal, resp);
+  }, [proposal, proposer, account.contract, submitExecution]);
 };

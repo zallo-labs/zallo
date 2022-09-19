@@ -60,8 +60,8 @@ const useStyles = makeStyles(({ colors, space, onBackground, typescale }) => {
       borderColor: colors.outline,
     },
     touchableDataContainer: {
-      paddingVertical: space(2),
-      paddingHorizontal: space(3),
+      paddingVertical: space(1),
+      paddingHorizontal: space(2),
       display: undefined,
     },
     data: {

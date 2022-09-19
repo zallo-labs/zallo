@@ -1,18 +1,13 @@
-import { CalendarIcon, CheckIcon } from '@theme/icons';
+import { CalendarTodayIcon, CheckIcon } from '@theme/icons';
 import { useToken } from '@token/useToken';
-import { Address, ZERO } from 'lib';
+import { Address, Limit, ZERO } from 'lib';
 import { Box } from '~/components/layout/Box';
 import { Container } from '~/components/layout/Container';
 import { ScreenSkeleton } from '~/components/skeleton/ScreenSkeleton';
 import { withSkeleton } from '~/components/skeleton/withSkeleton';
 import { TokenBalanceCard } from '~/components/token/TokenBalanceCard';
-import { latest, Proposable } from '~/gql/proposable';
+import { Proposable } from '~/gql/proposable';
 import { RootNavigatorScreenProps } from '~/navigation/RootNavigator';
-import {
-  CombinedWallet,
-  LIMIT_PERIOD_LABEL,
-  TokenLimit,
-} from '~/queries/wallets';
 import { LimitAppbar } from './LimitAppbar';
 import { useState } from 'react';
 import _ from 'lodash';
@@ -22,15 +17,21 @@ import { TextField } from '~/components/fields/TextField';
 import { Provider, SegmentedButtons, TextInput } from 'react-native-paper';
 import { useTheme } from '@theme/paper';
 import { LimitPeriod } from '~/gql/generated.api';
+import { ETH } from '@token/tokens';
 
-export interface LimitScreenParams {
-  wallet: CombinedWallet;
-  token: Address;
-  limit?: Proposable<TokenLimit>;
-  onChange: (limit: TokenLimit | null, token: Address) => void;
-}
+export type LimitScreenParams = {
+  onChange: (limit: Limit | null) => void;
+} & (
+  | {
+      limit: Limit;
+    }
+  | {
+      token: Address;
+    }
+);
 
-const defaultLimit: TokenLimit = {
+const defaultLimit: Limit = {
+  token: ETH.addr,
   amount: ZERO,
   period: LimitPeriod.Month,
 };
@@ -39,67 +40,69 @@ export type LimitScreenProps = RootNavigatorScreenProps<'Limit'>;
 
 export const LimitScreen = withSkeleton(
   ({ route, navigation }: LimitScreenProps) => {
-    const { wallet, onChange } = route.params;
-    const token = useToken(route.params.token);
-    const initialLimit = route.params.limit
-      ? latest(route.params.limit)
-      : defaultLimit;
+    return null;
 
-    const [limit, setLimit] = useState(initialLimit ?? defaultLimit);
-    const isModified = !_.isEqual(limit, initialLimit);
+    // const { wallet, onChange } = route.params;
+    // const token = useToken(route.params.token);
+    // const initialLimit = route.params.limit
+    //   ? latest(route.params.limit)
+    //   : defaultLimit;
 
-    const amountProps = useBigNumberInput({
-      value: limit.amount,
-      onChange: (amount) => setLimit({ ...limit, amount }),
-      decimals: token.decimals,
-    });
+    // const [limit, setLimit] = useState(initialLimit ?? defaultLimit);
+    // const isModified = !_.isEqual(limit, initialLimit);
 
-    return (
-      <Box flex={1}>
-        <LimitAppbar
-          proposable={route.params.limit}
-          remove={() => onChange(null, token.addr)}
-        />
+    // const amountProps = useBigNumberInput({
+    //   value: limit.amount,
+    //   onChange: (amount) => setLimit({ ...limit, amount }),
+    //   decimals: token.decimals,
+    // });
 
-        <Provider theme={useTheme()}>
-          <Container mx={3} separator={<Box my={2} />}>
-            <TokenBalanceCard token={token} account={wallet.accountAddr} />
+    // return (
+    //   <Box flex={1}>
+    //     <LimitAppbar
+    //       limit={route.params.limit}
+    //       remove={() => onChange(null, token.addr)}
+    //     />
 
-            <TextField
-              label="Amount"
-              {...amountProps}
-              right={<TextInput.Affix text={token.symbol} />}
-            />
+    //     <Provider theme={useTheme()}>
+    //       <Container mx={3} separator={<Box my={2} />}>
+    //         <TokenBalanceCard token={token} account={wallet.accountAddr} />
 
-            <Box horizontal justifyContent="center">
-              <SegmentedButtons
-                value={limit.period}
-                onValueChange={(period) =>
-                  setLimit({ ...limit, period: period as LimitPeriod })
-                }
-                buttons={Object.entries(LIMIT_PERIOD_LABEL).map(
-                  ([period, label]) => ({
-                    value: period as LimitPeriod,
-                    label,
-                  }),
-                )}
-              />
-            </Box>
-          </Container>
-        </Provider>
+    //         <TextField
+    //           label="Amount"
+    //           {...amountProps}
+    //           right={<TextInput.Affix text={token.symbol} />}
+    //         />
 
-        {isModified && (
-          <FAB
-            icon={CheckIcon}
-            label="Apply"
-            onPress={() => {
-              onChange(limit, token.addr);
-              navigation.goBack();
-            }}
-          />
-        )}
-      </Box>
-    );
+    //         <Box horizontal justifyContent="center">
+    //           <SegmentedButtons
+    //             value={limit.period}
+    //             onValueChange={(period) =>
+    //               setLimit({ ...limit, period: period as LimitPeriod })
+    //             }
+    //             buttons={Object.entries(LIMIT_PERIOD_LABEL).map(
+    //               ([period, label]) => ({
+    //                 value: period as LimitPeriod,
+    //                 label,
+    //               }),
+    //             )}
+    //           />
+    //         </Box>
+    //       </Container>
+    //     </Provider>
+
+    //     {isModified && (
+    //       <FAB
+    //         icon={CheckIcon}
+    //         label="Apply"
+    //         onPress={() => {
+    //           onChange(limit, token.addr);
+    //           navigation.goBack();
+    //         }}
+    //       />
+    //     )}
+    //   </Box>
+    // );
   },
   ScreenSkeleton,
 );

@@ -113,6 +113,6 @@ const useStyles = makeStyles(({ space }, opaque: boolean) => ({
   },
   touchable: {
     flexGrow: 1,
-    padding: space(3),
+    padding: space(2),
   },
 }));

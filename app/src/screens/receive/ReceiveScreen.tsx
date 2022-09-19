@@ -1,5 +1,5 @@
 import { Box } from '~/components/layout/Box';
-import { useSelectedWalletId } from '~/components/wallet/useSelectedWallet';
+import { useSelectedAccount } from '~/screens/home/useSelectedAccount';
 import { ReceiveAppbar } from './ReceiveAppbar';
 import { buildAddrLink, buildTransferLink } from '~/util/addrLink';
 import { useMemo, useState } from 'react';
@@ -10,34 +10,28 @@ import { Button } from 'react-native-paper';
 import { withSkeleton } from '~/components/skeleton/withSkeleton';
 import { ScreenSkeleton } from '~/components/skeleton/ScreenSkeleton';
 import { useKeepAwakeWhenFocussed } from '~/util/hook/useKeepAwakeWhenFocussed';
-import { ZERO_ADDR } from 'lib';
-import { Suspend } from '~/components/Suspender';
-import { WalletSelector } from '../../components/wallet/WalletSelector/WalletSelector';
+import { AccountSelector } from '../../components/account/AccountSelector/AccountSelector';
 import { useRootNavigation } from '~/navigation/useRootNavigation';
 import { Container } from '~/components/layout/Container';
 import { QrCode } from './QrCode';
 import { FaucetButton } from './FaucetButton';
-import { useWallet } from '~/queries/wallet/useWallet';
 
 export const ReceiveScreen = withSkeleton(
   () => {
     const navigation = useRootNavigation();
     // useKeepAwakeWhenFocussed();  // TODO: re-activate once material bottom tabs navigation integration is fixed
 
-    const [walletId, setWalletId] = useState(useSelectedWalletId());
-    const wallet = useWallet(walletId);
+    const [account, setAccount] = useState(useSelectedAccount());
 
     const token = useSelectedToken();
     const [amount, setAmount] = useState<BigNumber | undefined>();
 
     const url = useMemo(() => {
-      const target_address = wallet?.accountAddr ?? ZERO_ADDR;
+      const target_address = account;
       if (!amount) return buildAddrLink({ target_address });
 
       return buildTransferLink({ target_address }, token, amount);
-    }, [wallet?.accountAddr, amount, token]);
-
-    if (!wallet) return <Suspend />;
+    }, [account, amount, token]);
 
     return (
       <Box flex={1}>
@@ -73,12 +67,12 @@ export const ReceiveScreen = withSkeleton(
                     </Button>
                   )}
 
-                  <FaucetButton account={wallet.accountAddr} />
+                  <FaucetButton account={account} />
                 </Box>
               )}
             </Box>
 
-            <WalletSelector selected={wallet} onSelect={setWalletId} />
+            <AccountSelector selected={account} onSelect={setAccount} />
           </Container>
         </Box>
       </Box>

@@ -4,25 +4,25 @@ import { Text } from 'react-native-paper';
 import { Box } from '~/components/layout/Box';
 import { Container } from '~/components/layout/Container';
 import { Proposal } from '~/queries/proposal';
-import { CombinedWallet } from '~/queries/wallets';
+import { CombinedUser } from '~/queries/user/useUser.api';
 
 export interface ApprovalsRequiredRowProps {
-  tx: Proposal;
-  wallet: CombinedWallet;
+  proposal: Proposal;
+  proposer: CombinedUser;
 }
 
 export const ApprovalsRequiredRow = ({
-  tx,
-  wallet,
+  proposal,
+  proposer,
 }: ApprovalsRequiredRowProps) => {
   const styles = useStyles();
 
-  const quorum = wallet.quorums.sort(
+  const config = (proposer.configs.active ?? []).sort(
     (a, b) => a.approvers.length - b.approvers.length,
   )[0];
 
-  const remaining = quorum.approvers.filter((approver) =>
-    tx.approvals.every((approval) => approval.addr !== approver),
+  const remaining = config.approvers.filter((approver) =>
+    proposal.approvals.every((approval) => approval.addr !== approver),
   ).length;
 
   return (

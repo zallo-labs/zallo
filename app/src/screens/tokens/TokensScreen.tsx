@@ -9,21 +9,20 @@ import { RootNavigatorScreenProps } from '~/navigation/RootNavigator';
 import { Token } from '@token/token';
 import { useFuzzySearch } from '@hook/useFuzzySearch';
 import { TokenCard } from '~/components/token/TokenCard';
-import { WalletId } from '~/queries/wallets';
 import { TokenAvailableCard } from '~/components/token/TokenAvailableCard';
-import { Address } from 'lib';
+import { Address, UserId } from 'lib';
 import { useTokens } from '@token/useTokens';
 
 export interface TokensScreenParams {
   onSelect?: (token: Token) => void;
-  wallet?: WalletId;
+  user?: UserId;
   disabled?: Address[];
 }
 
 export type TokensScreenProps = RootNavigatorScreenProps<'Tokens'>;
 
 export const TokensScreen = withSkeleton(({ route }: TokensScreenProps) => {
-  const { onSelect, wallet, disabled = [] } = route.params;
+  const { onSelect, user, disabled = [] } = route.params;
   const { AppbarHeader, handleScroll } = useAppbarHeader();
   const [tokens, searchProps] = useFuzzySearch(useTokens(), ['name', 'symbol']);
 
@@ -42,10 +41,10 @@ export const TokensScreen = withSkeleton(({ route }: TokensScreenProps) => {
             const onPress = onSelect ? () => onSelect(item) : undefined;
             const isDisabled = !!disabled.find((t) => t === item.addr);
 
-            return wallet ? (
+            return user ? (
               <TokenAvailableCard
                 token={item}
-                wallet={wallet}
+                user={user}
                 onPress={onPress}
                 disabled={isDisabled}
               />

@@ -14,7 +14,7 @@ import { useTxTransfers } from './useTxTransfers';
 
 export const TransactionDetails = () => {
   const styles = useStyles();
-  const { tx } = useTxContext();
+  const { proposal: tx } = useTxContext();
   const token = useMaybeToken(tx.to) ?? ETH;
 
   const transfers = useTxTransfers(tx);
@@ -47,6 +47,6 @@ export const TransactionDetails = () => {
 
 const useStyles = makeStyles(({ space }) => ({
   section: {
-    marginTop: space(2),
+    marginTop: space(1),
   },
 }));

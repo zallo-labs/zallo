@@ -60,7 +60,7 @@ export const ErrorBoundary = ({ children }: ErrorBoundaryProps) => (
 
 const useStyles = makeStyles(({ colors, space }) => ({
   root: {
-    paddingHorizontal: space(2),
+    paddingHorizontal: space(1),
     backgroundColor: colors.errorContainer,
   },
   onRoot: {

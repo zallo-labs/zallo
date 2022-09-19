@@ -85,6 +85,7 @@ export class ProposalsResolver {
       where: { accountId_hash: { hash: proposalHash, accountId: account } },
       create: {
         accountId: account,
+        proposer: connectOrCreateDevice(device),
         hash: proposalHash,
         to: proposal.to,
         value: proposal.value.toString(),

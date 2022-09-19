@@ -15,17 +15,17 @@ export interface TxTransfer {
   available: BigNumber;
 }
 
-export const useTxTransfers = (tx: Proposal): TxTransfer[] => {
-  const transferToken = useMaybeToken(tx.to) ?? ETH;
-  const transferAmount = useDecodedTransfer(tx)?.value ?? ZERO;
+export const useTxTransfers = (p: Proposal): TxTransfer[] => {
+  const transferToken = useMaybeToken(p.to) ?? ETH;
+  const transferAmount = useDecodedTransfer(p)?.value ?? ZERO;
   const transferFiat = useTokenValue(transferToken, transferAmount);
-  const transferAvailable = useTokenAvailable(transferToken, tx.wallet);
+  const transferAvailable = useTokenAvailable(transferToken, p.proposer);
 
   const txEth: TxTransfer = {
     token: ETH,
-    amount: tx.value,
-    fiatAmount: useTokenValue(ETH, tx.value),
-    available: useTokenAvailable(ETH, tx.wallet),
+    amount: p.value,
+    fiatAmount: useTokenValue(ETH, p.value),
+    available: useTokenAvailable(ETH, p.proposer),
   };
 
   if (transferToken === ETH) {

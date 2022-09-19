@@ -3,7 +3,7 @@ import { makeStyles } from '@theme/makeStyles';
 import { createTransferTx } from '@token/token';
 import { useTokenAvailable } from '@token/useTokenAvailable';
 import { BigNumber } from 'ethers';
-import { Address, ZERO } from 'lib';
+import { Address, UserId, ZERO } from 'lib';
 import { useState } from 'react';
 import { Appbar, Text } from 'react-native-paper';
 import { AddrCard } from '~/components/addr/AddrCard';
@@ -18,22 +18,21 @@ import {
 } from '~/components/token/useSelectedToken';
 import { usePropose } from '~/mutations/proposal/propose/usePropose';
 import { RootNavigatorScreenProps } from '~/navigation/RootNavigator';
-import { WalletId } from '~/queries/wallets';
 import { AmountInput } from '../amount/AmountInput';
 
 export interface SendScreenParams {
-  wallet: WalletId;
+  user: UserId;
   to: Address;
 }
 
 export type SendScreenProps = RootNavigatorScreenProps<'Send'>;
 
 export const SendScreen = ({ route, navigation }: SendScreenProps) => {
-  const { wallet, to } = route.params;
+  const { user, to } = route.params;
   const styles = useStyles();
   const [propose, proposing] = usePropose();
   const [token, selectToken] = [useSelectedToken(), useSelectToken()];
-  const available = useTokenAvailable(token, wallet);
+  const available = useTokenAvailable(token, user);
 
   const [amount, setAmount] = useState<BigNumber | undefined>();
 
@@ -49,14 +48,14 @@ export const SendScreen = ({ route, navigation }: SendScreenProps) => {
 
         <TokenAvailableCard
           token={token}
-          wallet={wallet}
+          user={user}
           onPress={() =>
             navigation.navigate('Tokens', {
+              user,
               onSelect: (token) => {
                 selectToken(token);
                 navigation.goBack();
               },
-              wallet,
             })
           }
         />
@@ -75,7 +74,7 @@ export const SendScreen = ({ route, navigation }: SendScreenProps) => {
         disabled={!amount || amount.eq(ZERO)}
         {...(amount && {
           onPress: () => {
-            propose(wallet, createTransferTx(token, to, amount));
+            propose(user.account, createTransferTx(token, to, amount));
           },
         })}
       />

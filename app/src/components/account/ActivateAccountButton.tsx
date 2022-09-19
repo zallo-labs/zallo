@@ -1,7 +1,7 @@
 import { DeployIcon } from '@theme/icons';
 import { FC } from 'react';
 import { useActivateAccount } from '~/mutations/account/useActivateAccount';
-import { CombinedAccount } from '~/queries/account';
+import { CombinedAccount } from '~/queries/account/useAccount.api';
 import { FABProps } from '../FAB';
 
 type RequiredProps = Pick<FABProps, 'icon' | 'label' | 'loading' | 'onPress'>;

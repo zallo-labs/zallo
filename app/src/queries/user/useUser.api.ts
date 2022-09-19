@@ -1,7 +1,8 @@
 import { gql } from '@apollo/client';
+import { useDevice } from '@network/useDevice';
 import assert from 'assert';
 import { BigNumber } from 'ethers';
-import { address, Limit, User, UserConfig, UserId } from 'lib';
+import { Address, address, Limit, User, UserConfig, UserId } from 'lib';
 import { useMemo } from 'react';
 import {
   UserDocument,
@@ -9,14 +10,14 @@ import {
   UserQueryVariables,
 } from '~/gql/generated.api';
 import { useApiClient } from '~/gql/GqlProvider';
-import { Proposable2 } from '~/gql/proposable2';
+import { Proposable } from '~/gql/proposable';
 import { usePollWhenFocussed } from '~/gql/usePollWhenFocussed';
 import { useSuspenseQuery } from '~/gql/useSuspenseQuery';
 
 export interface CombinedUser extends UserId {
   name: string;
   isActive: boolean;
-  configs: Proposable2<UserConfig[]>;
+  configs: Proposable<UserConfig[]>;
 }
 
 export const toActiveUser = (user: CombinedUser): User => {
@@ -79,7 +80,19 @@ const convertState = (
     ),
   })) ?? [];
 
-export const useUser = (id: UserId) => {
+export const useUser = (idInput: UserId | Address) => {
+  const device = useDevice();
+  const id: UserId = useMemo(
+    () =>
+      typeof idInput === 'object'
+        ? idInput
+        : {
+            account: idInput,
+            addr: device.address,
+          },
+    [device.address, idInput],
+  );
+
   const { data, ...rest } = useSuspenseQuery<UserQuery, UserQueryVariables>(
     UserDocument,
     {
@@ -100,7 +113,7 @@ export const useUser = (id: UserId) => {
       ...id,
       name: u.name,
       isActive: u.activeState !== null,
-      configs: new Proposable2({
+      configs: new Proposable({
         active: convertState(u.activeState),
         proposed: convertState(u.proposedState)!,
         proposal: u.proposedState?.proposalHash

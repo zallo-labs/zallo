@@ -11,7 +11,7 @@ import { useAppbarHeader } from '~/components/Appbar/useAppbarHeader';
 import { useGoBack } from '~/components/Appbar/useGoBack';
 import { RootNavigatorScreenProps } from '~/navigation/RootNavigator';
 import { useAccountIds } from '~/queries/account/useAccountIds.api';
-import { AccountCard } from '../account/AccountCard';
+import { AccountItem } from './AccountItem';
 
 export interface AccountsScreenParams {
   onSelect?: (account: Address) => void;
@@ -24,7 +24,7 @@ export const AccountsScreen = withSkeleton(
     const { onSelect } = route.params;
     const styles = useStyles();
     const { AppbarHeader, handleScroll } = useAppbarHeader();
-    const accounts = useAccountIds();
+    const [accounts] = useAccountIds();
 
     const select = useCallback(
       (account: Address) => {
@@ -46,7 +46,7 @@ export const AccountsScreen = withSkeleton(
 
         <FlatList
           renderItem={({ item }) => (
-            <AccountCard id={item} onPress={() => select(item)} />
+            <AccountItem id={item} onPress={() => select(item)} />
           )}
           ItemSeparatorComponent={() => <Box my={2} />}
           ListFooterComponent={
@@ -56,7 +56,7 @@ export const AccountsScreen = withSkeleton(
               style={styles.create}
               onPress={() =>
                 navigate('CreateAccount', {
-                  navigate: (accountId) => select(accountId),
+                  onCreate: (accountId) => select(accountId),
                 })
               }
             >
@@ -76,10 +76,10 @@ export const AccountsScreen = withSkeleton(
 
 const useStyles = makeStyles(({ space }) => ({
   list: {
-    marginHorizontal: space(3),
+    marginHorizontal: space(2),
   },
   create: {
     alignSelf: 'flex-end',
-    marginTop: space(2),
+    marginTop: space(1),
   },
 }));

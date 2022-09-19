@@ -3,7 +3,7 @@ import { Box } from '~/components/layout/Box';
 import { ExpandableText } from '~/components/ExpandableText';
 import { getMethodInputs } from './getMethodInputs';
 import { hexDataLength, hexlify } from 'ethers/lib/utils';
-import { Call, REMOVE_WALLET_SIGHASH } from 'lib';
+import { Call, REMOVE_USER_SIGHASH } from 'lib';
 import { Text } from 'react-native-paper';
 import {
   UPSERT_USER_SIGHSAH,
@@ -11,11 +11,11 @@ import {
 } from '~/queries/useContractMethod.api';
 import { MethodInputRow } from './MethodInputRow';
 import { memo } from 'react';
-import { UpsertWalletMethod } from './wallet/UpsertWalletMethod';
-import { useCallName } from '~/components/call/useCallName';
+import { UpsertUserMethod } from './wallet/UpsertUserMethod';
 import { RemoveWalletMethod } from './wallet/RemoveWalletMethod';
 import { StyleProp, ViewStyle } from 'react-native';
 import { ERC20_TRANSFER_SIGHASH } from '~/components/call/useDecodedTransfer';
+import { useCallLabel } from '~/components/call/useCallLabel';
 
 export interface DetailedCallMethodProps {
   call: Call;
@@ -24,8 +24,8 @@ export interface DetailedCallMethodProps {
 
 export const DetailedCallMethod = memo(
   ({ call, style }: DetailedCallMethodProps) => {
-    const method = useContractMethod(call);
-    const name = useCallName(call);
+    const [method] = useContractMethod(call);
+    const label = useCallLabel(call);
 
     if (hexDataLength(call.data) === 0) return null;
 
@@ -49,16 +49,16 @@ export const DetailedCallMethod = memo(
     if (method.sighash === ERC20_TRANSFER_SIGHASH) return null;
 
     if (method.sighash === UPSERT_USER_SIGHSAH)
-      return <UpsertWalletMethod call={call} style={style} />;
+      return <UpsertUserMethod call={call} style={style} />;
 
-    if (method.sighash === REMOVE_WALLET_SIGHASH)
+    if (method.sighash === REMOVE_USER_SIGHASH)
       return <RemoveWalletMethod call={call} style={style} />;
 
     return (
       <Accordion
         title={
           <Text variant="titleMedium" style={style}>
-            {name}
+            {label}
           </Text>
         }
       >

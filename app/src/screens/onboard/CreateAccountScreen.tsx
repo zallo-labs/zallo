@@ -22,7 +22,7 @@ const schema: Yup.SchemaOf<Values> = Yup.object({
 });
 
 export interface CreateAccountScreenParams {
-  navigate: (account: Address, navigate: Navigate) => void;
+  onCreate: (account: Address, navigate: Navigate) => void;
 }
 
 export type CreateAccountScreenProps =
@@ -40,7 +40,7 @@ export const CreateAccountScreen = ({
       const res = await createAccount(name, 'Spending');
       const account = address(res.data!.createAccount.id);
 
-      route.params.navigate(account, navigation.navigate);
+      route.params.onCreate(account, navigation.navigate);
     },
     [createAccount, navigation.navigate, route.params],
   );
@@ -76,7 +76,7 @@ const useStyles = makeStyles(({ space, typescale }) => ({
   input: {
     ...typescale.headlineLarge,
     textAlign: 'center',
-    marginTop: space(5),
-    marginBottom: space(4),
+    marginTop: space(6),
+    marginBottom: space(3),
   },
 }));
