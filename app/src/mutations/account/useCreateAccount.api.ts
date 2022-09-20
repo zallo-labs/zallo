@@ -10,7 +10,14 @@ import {
   AccountQueryVariables,
   useCreateAccountMutation,
 } from '~/gql/generated.api';
-import { calculateProxyAddress, randomDeploySalt, toId, User } from 'lib';
+import {
+  Address,
+  calculateProxyAddress,
+  randomDeploySalt,
+  toId,
+  User,
+  UserId,
+} from 'lib';
 import produce from 'immer';
 import { ACCOUNT_IMPL } from '~/util/network/provider';
 import { useDevice } from '@network/useDevice';
@@ -36,12 +43,20 @@ gql`
   }
 `;
 
+export interface CreateAccountResult {
+  account: Address;
+  user: UserId;
+}
+
 export const useCreateAccount = () => {
   const device = useDevice();
   const factory = useAccountProxyFactory();
   const [mutation] = useCreateAccountMutation({ client: useApiClient() });
 
-  return async (name: string, userName: string) => {
+  return async (
+    name: string,
+    userName: string,
+  ): Promise<CreateAccountResult> => {
     const user: User = {
       addr: device.address,
       configs: [
@@ -55,15 +70,15 @@ export const useCreateAccount = () => {
     const impl = ACCOUNT_IMPL;
     const deploySalt = randomDeploySalt();
 
-    const accountAddr = await calculateProxyAddress(
+    const account = await calculateProxyAddress(
       { impl, user },
       factory,
       deploySalt,
     );
 
-    return await mutation({
+    await mutation({
       variables: {
-        account: accountAddr,
+        account,
         impl,
         deploySalt,
         name,
@@ -94,7 +109,7 @@ export const useCreateAccount = () => {
           // Account: add
           cache.writeQuery<AccountQuery, AccountQueryVariables>({
             query: AccountDocument,
-            variables: { account: accountAddr },
+            variables: { account },
             data: {
               account: {
                 id,
@@ -130,5 +145,13 @@ export const useCreateAccount = () => {
         }
       },
     });
+
+    return {
+      account,
+      user: {
+        account,
+        addr: device.address,
+      },
+    };
   };
 };

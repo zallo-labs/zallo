@@ -22,19 +22,21 @@ export const DeleteModalScreen = ({ route }: DeleteModalScreenProps) => {
   );
 };
 
-export const useDeleteConfirmation = () => {
+export const useDeleteConfirmation = (
+  defaultParams?: Partial<DeleteModalScreenParams>,
+) => {
   const { navigate } = useRootNavigation();
 
   return useCallback(
     (params: DeleteModalScreenParams | DeleteModalScreenParams['onConfirm']) =>
-      navigate(
-        'Delete',
-        typeof params === 'object'
+      navigate('Delete', {
+        ...defaultParams,
+        ...(typeof params === 'object'
           ? params
           : {
               onConfirm: params,
-            },
-      ),
-    [navigate],
+            }),
+      }),
+    [defaultParams, navigate],
   );
 };

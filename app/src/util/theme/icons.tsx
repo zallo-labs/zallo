@@ -33,7 +33,9 @@ export const ReceiveIcon = materialCommunityIcon('arrow-bottom-left');
 export const ContactsIcon = materialIcon('people');
 export const AddIcon = materialCommunityIcon('plus');
 export const DeleteIcon = materialCommunityIcon('delete');
+export const DeleteOutlineIcon = materialCommunityIcon('delete-outline');
 export const EditIcon = materialCommunityIcon('pencil');
+export const EditOutlineIcon = materialCommunityIcon('pencil-outline');
 export const ScanIcon = materialCommunityIcon('line-scan');
 export const MenuIcon = materialCommunityIcon('menu');
 export const ShareIcon = materialCommunityIcon('share-variant');
@@ -47,6 +49,7 @@ export const SwapIcon = materialCommunityIcon('swap-vertical');
 export const SearchIcon = materialIcon('search');
 export const PlusIcon = materialCommunityIcon('plus');
 export const SettingsIcon = materialCommunityIcon('cog');
+export const SettingsOutlineIcon = materialCommunityIcon('cog-outline');
 export const PayIcon = materialCommunityIcon('contactless-payment');
 export const PayCircleIcon = materialCommunityIcon(
   'contactless-payment-circle',

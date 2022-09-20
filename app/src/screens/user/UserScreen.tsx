@@ -1,97 +1,74 @@
+import { PlusIcon } from '@theme/icons';
 import { makeStyles } from '@theme/makeStyles';
+import { UserId } from 'lib';
+import { FlatList } from 'react-native';
+import { Button, Divider } from 'react-native-paper';
+import { Box } from '~/components/layout/Box';
 import { ScreenSkeleton } from '~/components/skeleton/ScreenSkeleton';
 import { withSkeleton } from '~/components/skeleton/withSkeleton';
 import { RootNavigatorScreenProps } from '~/navigation/RootNavigator';
+import { useUser } from '~/queries/user/useUser.api';
+import { UserAppbar } from './UserAppbar';
+import { UserConfigItem } from './UserConfigItem';
 
-export interface UserScreenParams {}
+export interface UserScreenParams {
+  user: UserId;
+}
 
 export type UserScreenProps = RootNavigatorScreenProps<'User'>;
 
-export const UserScreen = withSkeleton(({ route }: UserScreenProps) => {
-  // const { account, id } = route.params;
-  // const styles = useStyles();
-  // const existing = useWallet(id);
-  // const { AppbarHeader, handleScroll } = useAppbarHeader();
-  // const setWalletName = useSetWalletName();
-  // const confirm = useAlertConfirmation();
+const UserScreen = ({ navigation, route }: UserScreenProps) => {
+  const styles = useStyles();
+  const [user] = useUser(route.params.user);
 
-  // const initialWallet = useMemo(
-  //   () => existing ?? newWallet(account),
-  //   [account, existing],
-  // );
-  // const [wallet, setWallet] = useState(initialWallet);
-  // const [upsertWallet, applying] = useUpsertWallet(wallet.accountAddr);
+  // console.log(JSON.stringify(user.configs, null, 2));
 
-  return null;
+  return (
+    <Box flex={1}>
+      <UserAppbar user={user} />
 
-  // return (
-  //   <Box flex={1}>
-  //     <WalletAppbar
-  //       wallet={wallet}
-  //       AppbarHeader={AppbarHeader}
-  //       existing={!!existing}
-  //     />
-
-  //     <ScrollView style={styles.sections} onScroll={handleScroll}>
-  //       <TextField
-  //         label="Name"
-  //         defaultValue={wallet.name}
-  //         onChangeText={(name) => setWallet((w) => ({ ...w, name }))}
-  //         onSubmitEditing={() => setWalletName(wallet)}
-  //         onBlur={() => setWalletName(wallet)}
-  //         autoFocus={!wallet.name}
-  //         disabled={applying}
-  //       />
-
-  //       <SpendingSection
-  //         wallet={wallet}
-  //         limits={wallet.limits}
-  //         setLimits={(f) => setWallet((w) => ({ ...w, limits: f(w.limits) }))}
-  //         style={styles.section}
-  //       />
-
-  //       <QuorumsSection
-  //         initialQuorums={initialWallet.quorums}
-  //         quorums={wallet.quorums}
-  //         setQuorums={(f) =>
-  //           setWallet((w) => ({ ...w, quorums: f(w.quorums) }))
-  //         }
-  //         style={styles.section}
-  //       />
-  //     </ScrollView>
-
-  //     {upsertWallet && !isUserEqual(initialWallet, wallet) && (
-  //       <FAB
-  //         icon={CheckIcon}
-  //         label="Apply"
-  //         loading={applying}
-  //         onPress={async () => {
-  //           const apply = () => upsertWallet(wallet);
-
-  //           if (initialWallet.state.proposedModification) {
-  //             confirm({
-  //               onConfirm: apply,
-  //               ...APPLY_CONFIRMATION,
-  //             });
-  //           } else {
-  //             apply();
-  //           }
-  //         }}
-  //       />
-  //     )}
-  //   </Box>
-  // );
-}, ScreenSkeleton);
+      <FlatList
+        renderItem={({ item }) => (
+          <Box>
+            <UserConfigItem
+              user={user}
+              config={item}
+              style={styles.item}
+              onPress={() => {
+                // TODO: navigate to UserConfig
+                // navigation.navigate('UserConfig', {})
+              }}
+            />
+            <Divider />
+          </Box>
+        )}
+        ListFooterComponent={
+          <Button
+            icon={PlusIcon}
+            mode="text"
+            style={styles.create}
+            onPress={() => {
+              // TODO: create new config
+            }}
+          >
+            Config
+          </Button>
+        }
+        data={user.configs.value}
+      />
+    </Box>
+  );
+};
 
 const useStyles = makeStyles(({ space }) => ({
-  sections: {
-    marginHorizontal: space(2),
+  item: {
+    padding: space(2),
   },
-  section: {
-    marginTop: space(2),
-  },
-  endButton: {
+  create: {
     alignSelf: 'flex-end',
     marginTop: space(1),
+    marginHorizontal: space(2),
   },
 }));
+
+export default withSkeleton(UserScreen, ScreenSkeleton);

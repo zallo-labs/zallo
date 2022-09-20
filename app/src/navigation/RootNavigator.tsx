@@ -47,7 +47,7 @@ import {
 } from '~/screens/alert/DeleteModalScreen';
 import { SendScreen, SendScreenParams } from '~/screens/send/SendScreen';
 import { LimitScreen, LimitScreenParams } from '~/screens/limit/LimitScreen';
-import { UserScreen, UserScreenParams } from '~/screens/user/UserScreen';
+import UserScreen, { UserScreenParams } from '~/screens/user/UserScreen';
 import {
   UserConfigScreen,
   UserConfigScreenParams,

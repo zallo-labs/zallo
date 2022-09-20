@@ -1,6 +1,6 @@
 import { makeStyles } from '@theme/makeStyles';
 import { useTotalBalanceValue } from '@token/useTotalBalanceValue';
-import { Address } from 'lib';
+import { Address, UserId } from 'lib';
 import { Text } from 'react-native-paper';
 import { Addr } from '~/components/addr/Addr';
 import { Card, CardProps } from '~/components/card/Card';
@@ -10,23 +10,23 @@ import { Identicon } from '~/components/Identicon/Identicon';
 import { Box } from '~/components/layout/Box';
 import { withSkeleton } from '~/components/skeleton/withSkeleton';
 import { useAccount } from '~/queries/account/useAccount.api';
+import { useUser } from '~/queries/user/useUser.api';
 
-export interface AccountItemProps extends CardProps {
-  id: Address;
+export interface AccountCardProps extends CardProps {
+  id: UserId;
 }
 
-const AccountItem = ({ id, ...cardProps }: AccountItemProps) => {
+const AccountCard = ({ id, ...cardProps }: AccountCardProps) => {
   const styles = useStyles();
-  const [account] = useAccount(id);
+  const [user] = useUser(id);
+  const [account] = useAccount(id.account);
 
   return (
     <Card {...cardProps}>
       <Box horizontal justifyContent="space-between" alignItems="center" mb={1}>
         <Box>
           <Text variant="titleLarge">{account.name}</Text>
-          <Text variant="bodySmall">
-            <Addr addr={account.addr} mode="ens-or-short-addr" />
-          </Text>
+          <Text variant="bodySmall">{user.name}</Text>
         </Box>
 
         <Identicon seed={account.addr} />
@@ -61,4 +61,4 @@ const useStyles = makeStyles(({ space }) => ({
   },
 }));
 
-export default withSkeleton(AccountItem, CardItemSkeleton);
+export default withSkeleton(AccountCard, CardItemSkeleton);

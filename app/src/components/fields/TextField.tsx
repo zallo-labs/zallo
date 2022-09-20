@@ -1,56 +1,42 @@
-import { ComponentPropsWithoutRef } from 'react';
+import { ComponentPropsWithoutRef, useMemo } from 'react';
+import Collapsible from 'react-native-collapsible';
 import { HelperText, TextInput } from 'react-native-paper';
 import { Box } from '~/components/layout/Box';
 
 type TextInputProps = ComponentPropsWithoutRef<typeof TextInput>;
 
 export type TextFieldProps = Omit<TextInputProps, 'error'> & {
-  error?: string | false;
+  error?: string | false | ((value: TextInputProps['value']) => string | false);
   wrap?: boolean;
-  noOutline?: boolean;
-  noBackground?: boolean;
 };
 
 export const TextField = ({
-  error,
+  error: errorProp,
   wrap,
-  noOutline,
-  noBackground,
   ...props
 }: TextFieldProps) => {
-  const outlineColor = noOutline ? 'transparent' : undefined;
+  const error = useMemo(
+    () =>
+      typeof errorProp === 'function' ? errorProp(props.value) : errorProp,
+    [errorProp, props.value],
+  );
 
   return (
     <Box>
-      <Box>
-        <TextInput
-          mode="outlined"
-          // Control
-          error={!!error}
-          multiline={props.multiline ?? wrap}
-          blurOnSubmit={props.blurOnSubmit ?? wrap}
-          // Outline
-          outlineColor={outlineColor}
-          underlineColor={outlineColor}
-          // Other
-          autoCorrect={false}
-          {...props}
-          style={[
-            {
-              ...(noBackground && { backgroundColor: 'transparent' }),
-            },
-            props.style,
-          ]}
-        />
-      </Box>
+      <TextInput
+        mode="outlined"
+        // Control
+        error={!!error}
+        multiline={props.multiline ?? wrap}
+        blurOnSubmit={props.blurOnSubmit ?? wrap}
+        // Other
+        autoCorrect={false}
+        {...props}
+      />
 
-      {error && (
-        <Box>
-          <HelperText type="error" visible={!!error}>
-            {error}
-          </HelperText>
-        </Box>
-      )}
+      <Collapsible collapsed={!error}>
+        <HelperText type="error">{error}</HelperText>
+      </Collapsible>
     </Box>
   );
 };

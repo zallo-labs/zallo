@@ -1,39 +1,52 @@
-import { DeleteIcon } from '~/util/theme/icons';
-import { FC } from 'react';
+import { DeleteOutlineIcon, SettingsOutlineIcon } from '~/util/theme/icons';
 import { Appbar } from 'react-native-paper';
-import { AppbarHeaderProps } from '~/components/Appbar/useAppbarHeader';
 import { useGoBack } from '~/components/Appbar/useGoBack';
 import { useDeleteConfirmation } from '../alert/DeleteModalScreen';
 import { AppbarExtraContent } from '~/components/Appbar/AppbarExtraContent';
 import { CombinedUser } from '~/queries/user/useUser.api';
 import { useRemoveUser } from '~/mutations/user/remove/useRemoveUser';
 import { ProposableButton } from '~/components/proposable/ProposableButton';
+import { makeStyles } from '@theme/makeStyles';
+import { Box } from '~/components/layout/Box';
+import { UserNameContent } from './UserNameContent';
 
 export interface UserAppbarProps {
   user: CombinedUser;
-  AppbarHeader: FC<AppbarHeaderProps>;
-  existing: boolean;
 }
 
-export const UserAppbar = ({
-  user,
-  AppbarHeader,
-  existing,
-}: UserAppbarProps) => {
+export const UserAppbar = ({ user }: UserAppbarProps) => {
+  const styles = useStyles();
   const [remove] = useRemoveUser(user);
-  const confirmDelete = useDeleteConfirmation();
+  const confirmDelete = useDeleteConfirmation({
+    message: 'Are you sure you want to remove this user?',
+  });
 
   return (
-    <AppbarHeader mode="medium">
-      <Appbar.BackAction onPress={useGoBack()} />
+    <Box>
+      <Appbar.Header style={styles.background}>
+        <Appbar.BackAction onPress={useGoBack()} />
 
-      <AppbarExtraContent>
-        <ProposableButton proposable={user.configs} />
-      </AppbarExtraContent>
+        <AppbarExtraContent>
+          <ProposableButton proposable={user.configs} />
+        </AppbarExtraContent>
 
-      <Appbar.Content title={existing ? 'Wallet' : 'Create Wallet'} />
+        <Appbar.Action
+          icon={DeleteOutlineIcon}
+          onPress={() => confirmDelete(remove)}
+        />
+        <Appbar.Action icon={SettingsOutlineIcon} />
+      </Appbar.Header>
 
-      <Appbar.Action icon={DeleteIcon} onPress={() => confirmDelete(remove)} />
-    </AppbarHeader>
+      <UserNameContent user={user} />
+    </Box>
   );
 };
+
+const useStyles = makeStyles(({ colors }) => ({
+  background: {
+    backgroundColor: colors.surfaceVariant,
+  },
+  onBackground: {
+    color: colors.onSurfaceVariant,
+  },
+}));

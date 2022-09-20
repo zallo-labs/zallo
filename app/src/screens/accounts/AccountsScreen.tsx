@@ -3,19 +3,18 @@ import { ListScreenSkeleton } from '~/components/skeleton/ListScreenSkeleton';
 import { withSkeleton } from '~/components/skeleton/withSkeleton';
 import { PlusIcon } from '~/util/theme/icons';
 import { makeStyles } from '~/util/theme/makeStyles';
-import { Address } from 'lib';
+import { UserId } from 'lib';
 import { useCallback } from 'react';
 import { FlatList } from 'react-native';
 import { Appbar, Button } from 'react-native-paper';
 import { useAppbarHeader } from '~/components/Appbar/useAppbarHeader';
 import { useGoBack } from '~/components/Appbar/useGoBack';
 import { RootNavigatorScreenProps } from '~/navigation/RootNavigator';
-import { useAccountIds } from '~/queries/account/useAccountIds.api';
-import { useDevice } from '@network/useDevice';
-import AccountItem from './AccountItem';
+import AccountCard from './AccountCard';
+import { useUserIds } from '~/queries/user/useUserIds.api';
 
 export interface AccountsScreenParams {
-  onSelect?: (account: Address) => void;
+  onSelect?: (user: UserId) => void;
 }
 
 export type AccountsScreenProps = RootNavigatorScreenProps<'Accounts'>;
@@ -25,24 +24,7 @@ export const AccountsScreen = withSkeleton(
     const { onSelect } = route.params;
     const styles = useStyles();
     const { AppbarHeader, handleScroll } = useAppbarHeader();
-    const [accounts] = useAccountIds();
-    const device = useDevice();
-
-    const select = useCallback(
-      (account: Address) => {
-        if (onSelect) {
-          onSelect(account);
-        } else {
-          navigate('User', {
-            user: {
-              account,
-              addr: device.address,
-            },
-          });
-        }
-      },
-      [navigate, onSelect, device.address],
-    );
+    const [users] = useUserIds();
 
     return (
       <Box>
@@ -53,7 +35,16 @@ export const AccountsScreen = withSkeleton(
 
         <FlatList
           renderItem={({ item }) => (
-            <AccountItem id={item} onPress={() => select(item)} />
+            <AccountCard
+              id={item}
+              onPress={() => {
+                if (onSelect) {
+                  onSelect(item);
+                } else {
+                  navigate('User', { user: item });
+                }
+              }}
+            />
           )}
           ItemSeparatorComponent={() => <Box mt={2} />}
           ListFooterComponent={
@@ -63,15 +54,16 @@ export const AccountsScreen = withSkeleton(
               style={styles.create}
               onPress={() =>
                 navigate('CreateAccount', {
-                  onCreate: (accountId) => select(accountId),
+                  onCreate: ({ account }) =>
+                    navigate('Account', { id: account }),
                 })
               }
             >
               Account
             </Button>
           }
+          data={users}
           style={styles.list}
-          data={accounts}
           onScroll={handleScroll}
           showsVerticalScrollIndicator={false}
         />
