@@ -48,8 +48,9 @@ gql`
   }
 `;
 
-export const useAccount = (addr: Address) => {
+export const useAccount = (id: Address | UserId) => {
   const device = useDevice();
+  const addr = typeof id === 'string' ? id : id.account;
 
   const { data, ...rest } = useSuspenseQuery<
     AccountQuery,

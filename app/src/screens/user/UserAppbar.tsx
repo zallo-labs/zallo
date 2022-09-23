@@ -1,52 +1,41 @@
-import { DeleteOutlineIcon, SettingsOutlineIcon } from '~/util/theme/icons';
+import { DeleteOutlineIcon, SearchIcon } from '~/util/theme/icons';
 import { Appbar } from 'react-native-paper';
-import { useGoBack } from '~/components/Appbar/useGoBack';
 import { useDeleteConfirmation } from '../alert/DeleteModalScreen';
-import { AppbarExtraContent } from '~/components/Appbar/AppbarExtraContent';
 import { CombinedUser } from '~/queries/user/useUser.api';
 import { useRemoveUser } from '~/mutations/user/remove/useRemoveUser';
-import { ProposableButton } from '~/components/proposable/ProposableButton';
-import { makeStyles } from '@theme/makeStyles';
-import { Box } from '~/components/layout/Box';
-import { UserNameContent } from './UserNameContent';
+import { FC } from 'react';
+import { AppbarHeaderProps } from '~/components/Appbar/useAppbarHeader';
+import { AppbarBack } from '~/components/Appbar/AppbarBack';
+import { useAccount } from '~/queries/account/useAccount.api';
+import { useRootNavigation } from '~/navigation/useRootNavigation';
 
 export interface UserAppbarProps {
   user: CombinedUser;
+  AppbarHeader: FC<AppbarHeaderProps>;
 }
 
-export const UserAppbar = ({ user }: UserAppbarProps) => {
-  const styles = useStyles();
+export const UserAppbar = ({ user, AppbarHeader }: UserAppbarProps) => {
+  const { navigate } = useRootNavigation();
+  const [account] = useAccount(user);
   const [remove] = useRemoveUser(user);
   const confirmDelete = useDeleteConfirmation({
     message: 'Are you sure you want to remove this user?',
   });
 
   return (
-    <Box>
-      <Appbar.Header style={styles.background}>
-        <Appbar.BackAction onPress={useGoBack()} />
+    <AppbarHeader>
+      <AppbarBack />
 
-        <AppbarExtraContent>
-          <ProposableButton proposable={user.configs} />
-        </AppbarExtraContent>
+      <Appbar.Content title={account.name} />
 
-        <Appbar.Action
-          icon={DeleteOutlineIcon}
-          onPress={() => confirmDelete(remove)}
-        />
-        <Appbar.Action icon={SettingsOutlineIcon} />
-      </Appbar.Header>
-
-      <UserNameContent user={user} />
-    </Box>
+      <Appbar.Action
+        icon={SearchIcon}
+        onPress={() => navigate('Account', { id: user.account })}
+      />
+      <Appbar.Action
+        icon={DeleteOutlineIcon}
+        onPress={() => confirmDelete(remove)}
+      />
+    </AppbarHeader>
   );
 };
-
-const useStyles = makeStyles(({ colors }) => ({
-  background: {
-    backgroundColor: colors.surfaceVariant,
-  },
-  onBackground: {
-    color: colors.onSurfaceVariant,
-  },
-}));

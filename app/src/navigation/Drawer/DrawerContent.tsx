@@ -4,7 +4,7 @@ import {
 } from '@react-navigation/drawer';
 import {
   AccountIcon,
-  ContactsIcon,
+  PeopleIcon,
   FeedbackIcon,
   IssueIcon,
   SettingsIcon,
@@ -42,7 +42,7 @@ export const DrawerContent = ({ navigation }: DrawerContentProps) => {
       <Drawer.Section title="Actions">
         <Drawer.Item
           label="Contacts"
-          icon={ContactsIcon}
+          icon={PeopleIcon}
           onPress={() => navigate('Contacts', {})}
         />
         <Drawer.Item

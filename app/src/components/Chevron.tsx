@@ -1,4 +1,5 @@
 import { MaterialCommunityIcons } from '@expo/vector-icons';
+import { makeStyles } from '@theme/makeStyles';
 import { ComponentPropsWithoutRef, useEffect } from 'react';
 import Animated, {
   useAnimatedStyle,
@@ -21,10 +22,11 @@ export interface ChevronProps
   expanded?: boolean;
 }
 
-export const Chevron = ({ expanded, ...iconProps }: ChevronProps) => {
-  const rotation = useSharedValue(getRotation(expanded));
+export const Chevron = ({ expanded, style, ...iconProps }: ChevronProps) => {
+  const styles = useStyles();
 
-  const style = useAnimatedStyle(() => ({
+  const rotation = useSharedValue(getRotation(expanded));
+  const transformStyle = useAnimatedStyle(() => ({
     transform: [{ rotateX: `${rotation.value}deg` }],
   }));
 
@@ -36,7 +38,14 @@ export const Chevron = ({ expanded, ...iconProps }: ChevronProps) => {
     <AnimatedMaterialCommunityIcons
       name="chevron-down"
       {...iconProps}
-      style={[iconProps.style, style]}
+      style={[styles.icon, transformStyle, style]}
     />
   );
 };
+
+const useStyles = makeStyles(({ colors, iconSize }) => ({
+  icon: {
+    fontSize: iconSize.small,
+    color: colors.onSurface,
+  },
+}));

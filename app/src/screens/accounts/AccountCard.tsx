@@ -1,8 +1,8 @@
 import { makeStyles } from '@theme/makeStyles';
+import { useTotalAvailableValue } from '@token/useTotalAvailableValue';
 import { useTotalBalanceValue } from '@token/useTotalBalanceValue';
-import { Address, UserId } from 'lib';
+import { UserId } from 'lib';
 import { Text } from 'react-native-paper';
-import { Addr } from '~/components/addr/Addr';
 import { Card, CardProps } from '~/components/card/Card';
 import { CardItemSkeleton } from '~/components/card/CardItemSkeleton';
 import { FiatValue } from '~/components/fiat/FiatValue';
@@ -35,8 +35,7 @@ const AccountCard = ({ id, ...cardProps }: AccountCardProps) => {
       <Box style={styles.row}>
         <Text variant="bodyLarge">Available</Text>
         <Text variant="titleMedium">
-          {/* TODO: replace with useTotalAvailable */}
-          <FiatValue value={useTotalBalanceValue(account.addr)} />
+          <FiatValue value={useTotalAvailableValue(user)} />
         </Text>
       </Box>
 
@@ -50,10 +49,7 @@ const AccountCard = ({ id, ...cardProps }: AccountCardProps) => {
   );
 };
 
-const useStyles = makeStyles(({ space }) => ({
-  icon: {
-    marginRight: space(2),
-  },
+const useStyles = makeStyles((theme) => ({
   row: {
     flexDirection: 'row',
     justifyContent: 'space-between',

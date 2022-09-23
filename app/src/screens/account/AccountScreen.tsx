@@ -67,18 +67,15 @@ export const AccountScreen = withSkeleton(
               </Box>
             </>
           }
-          renderItem={({ item }) => (
+          renderItem={({ item: user }) => (
             <UserItemCard
-              id={item}
+              id={user}
               showAccount={false}
               onPress={() => {
                 if (onSelectWallet) {
-                  onSelectWallet(item);
+                  onSelectWallet(user);
                 } else {
-                  navigate('User', {
-                    account: account.addr,
-                    id: item,
-                  });
+                  navigate('User', { user });
                 }
               }}
             />
@@ -88,9 +85,12 @@ export const AccountScreen = withSkeleton(
             <Button
               style={styles.create}
               icon={PlusIcon}
-              onPress={() => navigate('User', { account: account.addr })}
+              onPress={() => {
+                // TODO: implement create new user
+                // navigate('User', { account: account.addr })
+              }}
             >
-              Wallet
+              Account
             </Button>
           }
           style={styles.list}

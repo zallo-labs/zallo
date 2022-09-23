@@ -87,5 +87,9 @@ export const TOKEN_BALANCES = selectorFamily<
       })),
 });
 
-export const useTokenBalances = (addr?: Address) =>
-  useRecoilValue(TOKEN_BALANCES(addr ?? null));
+export const useTokenBalances = (account: Address | UserId | undefined) =>
+  useRecoilValue(
+    TOKEN_BALANCES(
+      typeof account === 'object' ? account.account : account ?? null,
+    ),
+  );

@@ -49,3 +49,16 @@ export const filterAsync = async <T>(
   const filterMap = await mapAsync(array, callbackfn);
   return array.filter((_, index) => filterMap[index]);
 };
+
+export const upsertItem = <T>(
+  array: T[] | undefined,
+  item: T,
+  comparator: (a: T, b: T) => boolean,
+): T[] => {
+  if (!array) array = [];
+
+  const index = array.findIndex((e) => comparator(e, item));
+  if (index === -1) return [...array, item];
+
+  return [...array.slice(0, index), item, ...array.slice(index + 1)];
+};

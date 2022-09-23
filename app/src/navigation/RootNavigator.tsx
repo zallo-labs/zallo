@@ -46,12 +46,8 @@ import {
   DeleteModalScreenParams,
 } from '~/screens/alert/DeleteModalScreen';
 import { SendScreen, SendScreenParams } from '~/screens/send/SendScreen';
-import { LimitScreen, LimitScreenParams } from '~/screens/limit/LimitScreen';
+import LimitScreen, { LimitScreenParams } from '~/screens/limit/LimitScreen';
 import UserScreen, { UserScreenParams } from '~/screens/user/UserScreen';
-import {
-  UserConfigScreen,
-  UserConfigScreenParams,
-} from '~/screens/user-config/UserConfigScreen';
 
 export type RootNavigatorParamList = {
   DrawerNavigator: undefined;
@@ -59,7 +55,6 @@ export type RootNavigatorParamList = {
   Accounts: AccountsScreenParams;
   Account: AccountScreenParams;
   User: UserScreenParams;
-  UserConfig: UserConfigScreenParams;
   Limit: LimitScreenParams;
   Contacts: ContactsScreenParams;
   Contact: ContactScreenParams;
@@ -89,7 +84,7 @@ export const RootNavigator = () => {
             name="CreateAccount"
             component={CreateAccountScreen}
             initialParams={{
-              onCreate: (_account, navigate) => navigate('DrawerNavigator'),
+              onCreate: (_, { navigate }) => navigate('DrawerNavigator'),
             }}
           />
         </Navigation.Group>
@@ -106,7 +101,6 @@ export const RootNavigator = () => {
         />
       )}
       <Navigation.Screen name="User" component={UserScreen} />
-      <Navigation.Screen name="UserConfig" component={UserConfigScreen} />
       <Navigation.Screen name="Limit" component={LimitScreen} />
       <Navigation.Screen name="Contacts" component={ContactsScreen} />
       <Navigation.Screen name="Contact" component={ContactScreen} />

@@ -3,9 +3,9 @@ import { formatUnits, parseUnits } from 'ethers/lib/utils';
 import { useNumberInput } from './useNumberInput';
 
 export interface UseBigNumberInputOptions {
-  value?: BigNumber;
+  value: BigNumber | undefined;
   onChange: (value: BigNumber) => void;
-  decimals?: number;
+  decimals: number | undefined;
 }
 
 export const useBigNumberInput = ({

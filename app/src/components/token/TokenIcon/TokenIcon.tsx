@@ -1,43 +1,59 @@
-import { useTheme } from '@theme/paper';
+import { makeStyles } from '@theme/makeStyles';
 import { Token } from '@token/token';
-import { useMemo, useState } from 'react';
-import { Image } from 'react-native';
+import { useState } from 'react';
+import { Image, ImageStyle, StyleProp } from 'react-native';
 import { LabelIcon } from '~/components/Identicon/LabelIcon';
+import { CircleSkeleton } from '~/components/skeleton/CircleSkeleton';
+import { withSkeleton } from '~/components/skeleton/withSkeleton';
 import { SvgUri } from './SvgUri';
 
 export interface TokenIconProps {
   token: Token;
   size?: number;
+  style?: StyleProp<ImageStyle>;
 }
 
-export const TokenIcon = ({
+const TokenIcon = ({
   token: { iconUri, symbol },
   size,
+  style,
 }: TokenIconProps) => {
-  const { iconSize } = useTheme();
+  const styles = useStyles(size);
 
   const [fallback, setFallback] = useState(false);
   const handleError = () => setFallback(true);
 
-  const dimensions = useMemo(
-    () => ({
-      width: size ?? iconSize.medium,
-      height: size ?? iconSize.medium,
-    }),
-    [iconSize.medium, size],
-  );
+  if (fallback)
+    return <LabelIcon label={symbol} style={[style, styles.icon]} />;
 
-  if (fallback) return <LabelIcon label={symbol} />;
-
-  if (iconUri.toLowerCase().endsWith('.svg'))
-    return <SvgUri uri={iconUri} {...dimensions} onError={handleError} />;
+  if (iconUri.slice(-4).toLowerCase() === '.svg')
+    return (
+      <SvgUri
+        uri={iconUri}
+        onError={handleError}
+        style={style}
+        width={styles.icon.width}
+        height={styles.icon.height}
+      />
+    );
 
   return (
     <Image
       source={{ uri: iconUri }}
-      style={dimensions}
-      resizeMode="contain"
       onError={handleError}
+      resizeMode="contain"
+      style={[style, styles.icon]}
     />
   );
 };
+
+const useStyles = makeStyles(({ iconSize }, size?: number) => ({
+  icon: {
+    width: size ?? iconSize.medium,
+    height: size ?? iconSize.medium,
+  },
+}));
+
+export default withSkeleton(TokenIcon, ({ size }) => (
+  <CircleSkeleton radius={size} />
+));

@@ -35,6 +35,7 @@ export const TokensScreen = withSkeleton(({ route }: TokensScreenProps) => {
           {...searchProps}
         />
       </AppbarHeader>
+
       <Box mx={3}>
         <FlatList
           renderItem={({ item }) => {
@@ -52,7 +53,7 @@ export const TokensScreen = withSkeleton(({ route }: TokensScreenProps) => {
               <TokenCard token={item} onPress={onPress} disabled={isDisabled} />
             );
           }}
-          ItemSeparatorComponent={() => <Box my={2} />}
+          ItemSeparatorComponent={() => <Box mt={2} />}
           keyExtractor={(item) => item.addr}
           data={tokens}
           showsVerticalScrollIndicator={false}

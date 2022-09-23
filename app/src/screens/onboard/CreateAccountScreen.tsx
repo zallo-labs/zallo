@@ -13,6 +13,10 @@ import {
 } from '~/mutations/account/useCreateAccount.api';
 import { AppbarBack } from '~/components/Appbar/AppbarBack';
 import { makeStyles } from '~/util/theme/makeStyles';
+import {
+  RootNavigation,
+  useRootNavigation,
+} from '~/navigation/useRootNavigation';
 
 interface Values {
   name: string;
@@ -23,7 +27,7 @@ const schema: Yup.SchemaOf<Values> = Yup.object({
 });
 
 export interface CreateAccountScreenParams {
-  onCreate: (res: CreateAccountResult) => void;
+  onCreate: (res: CreateAccountResult, navigation: RootNavigation) => void;
 }
 
 export type CreateAccountScreenProps =
@@ -32,13 +36,14 @@ export type CreateAccountScreenProps =
 export const CreateAccountScreen = ({ route }: CreateAccountScreenProps) => {
   const styles = useStyles();
   const createAccount = useCreateAccount();
+  const navigation = useRootNavigation();
 
   const handleSubmit = useCallback(
     async ({ name }: Values) => {
       const r = await createAccount(name, 'Spending');
-      route.params.onCreate(r);
+      route.params.onCreate(r, navigation);
     },
-    [createAccount, route.params],
+    [createAccount, navigation, route.params],
   );
 
   return (

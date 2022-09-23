@@ -1,19 +1,17 @@
 import { DeleteIcon } from '@theme/icons';
 import { Appbar } from 'react-native-paper';
-import { useGoBack } from '~/components/Appbar/useGoBack';
+import { AppbarBack } from '~/components/Appbar/AppbarBack';
 
 export interface LimitAppbarProps {
-  remove: () => void;
+  onDelete?: () => void;
 }
 
-export const LimitAppbar = ({ remove }: LimitAppbarProps) => {
+export const LimitAppbar = ({ onDelete }: LimitAppbarProps) => {
   return (
-    <Appbar.Header mode="large">
-      <Appbar.BackAction onPress={useGoBack()} />
-
-      <Appbar.Content title="Spending limit" />
-
-      <Appbar.Action icon={DeleteIcon} onPress={remove} />
+    <Appbar.Header>
+      <AppbarBack />
+      <Appbar.Content title="limit" />
+      {onDelete && <Appbar.Action icon={DeleteIcon} onPress={onDelete} />}
     </Appbar.Header>
   );
 };

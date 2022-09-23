@@ -20,7 +20,7 @@
     "//": "https://www.npmjs.com/package/expo-yarn-workspaces"
   },
   "dependencies": {
-    "@apollo/client": "3.6.9",
+    "@apollo/client": "^3.6.9",
     "@ethersproject/shims": "5.7.0",
     "@expo/config": "^7.0.1",
     "@expo/vector-icons": "^13.0.0",
@@ -99,6 +99,7 @@
     "siwe": "^1.1.6",
     "styled-components": "^5.3.5",
     "styled-system": "^5.1.5",
+    "ts-pattern": "^4.0.5",
     "use-async-effect": "^2.2.7",
     "use-debounce": "^8.0.4",
     "yup": "^0.32.11",

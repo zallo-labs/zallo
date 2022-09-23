@@ -7,7 +7,7 @@ import { FiatValue } from '../fiat/FiatValue';
 import { PriceChange } from '../format/PriceDelta';
 import { Box } from '../layout/Box';
 import { Container } from '../layout/Container';
-import { TokenIcon } from './TokenIcon/TokenIcon';
+import TokenIcon from './TokenIcon/TokenIcon';
 import { TokenAmount } from './TokenAmount';
 import { useTokenPrice } from '~/queries/useTokenPrice.uni';
 import { CombinedUser } from '~/queries/user/useUser.api';

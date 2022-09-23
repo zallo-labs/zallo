@@ -1,4 +1,4 @@
-import { ContactsIcon, ScanIcon } from '~/util/theme/icons';
+import { PeopleIcon, ScanIcon } from '~/util/theme/icons';
 import { FC } from 'react';
 import { Appbar } from 'react-native-paper';
 import { AppbarMenu } from '~/components/Appbar/AppbarMenu';
@@ -23,7 +23,7 @@ export const HomeAppbar = ({ AppbarHeader, account }: HomeAppbarProps) => {
       <AppbarMenu />
       <Appbar.Content title="" />
 
-      <Appbar.Action icon={ContactsIcon} onPress={sendToContact} />
+      <Appbar.Action icon={PeopleIcon} onPress={sendToContact} />
       <Appbar.Action icon={ScanIcon} onPress={sendToScanned} />
     </AppbarHeader>
   );

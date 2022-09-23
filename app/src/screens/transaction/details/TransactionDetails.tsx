@@ -6,7 +6,7 @@ import { Card } from '~/components/card/Card';
 import { FiatValue } from '~/components/fiat/FiatValue';
 import { ETH } from '@token/tokens';
 import { useMaybeToken } from '@token/useToken';
-import { TokenIcon } from '~/components/token/TokenIcon/TokenIcon';
+import TokenIcon from '~/components/token/TokenIcon/TokenIcon';
 import { useTxContext } from '../TransactionProvider';
 import { makeStyles } from '@theme/makeStyles';
 import { TxTransfers } from './TxTransfers';

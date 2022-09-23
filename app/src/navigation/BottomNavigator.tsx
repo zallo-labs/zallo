@@ -35,7 +35,7 @@ export const BottomNavigator = () => {
   const { iconSize } = useTheme();
 
   return (
-    <Navigation.Navigator>
+    <Navigation.Navigator initialRouteName="Home">
       <Navigation.Screen
         name="Receive"
         component={ReceiveScreen}

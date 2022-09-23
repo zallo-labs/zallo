@@ -1,7 +1,5 @@
 import { ExpoConfig, ConfigContext } from '@expo/config';
 
-const projectId = 'f8f4def1-b838-4dec-8b50-6c07995c4ff5';
-
 const E = process.env;
 
 const chain = E?.CHAIN?.toUpperCase();
@@ -17,6 +15,9 @@ export const CONFIG = {
 } as const;
 
 export type Config = typeof CONFIG;
+
+const projectId = 'f8f4def1-b838-4dec-8b50-6c07995c4ff5';
+const packageId = `io.allopay${E.IS_DEV_CLIENT ? '-dev' : ''}`;
 
 // https://docs.expo.dev/versions/latest/config/app/
 export default ({ config }: ConfigContext): ExpoConfig => ({
@@ -59,14 +60,14 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
   },
   assetBundlePatterns: ['**/*'],
   android: {
-    package: 'io.allopay',
+    package: packageId,
     adaptiveIcon: {
       foregroundImage: './assets/adaptive-icon.png',
       backgroundColor: '#151A30',
     },
   },
   ios: {
-    bundleIdentifier: 'io.allopay',
+    bundleIdentifier: packageId,
     supportsTablet: true,
     infoPlist: {
       NSCameraUsageDescription:

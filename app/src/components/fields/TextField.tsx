@@ -1,18 +1,23 @@
 import { ComponentPropsWithoutRef, useMemo } from 'react';
+import { StyleProp, TextStyle, ViewStyle } from 'react-native';
 import Collapsible from 'react-native-collapsible';
 import { HelperText, TextInput } from 'react-native-paper';
 import { Box } from '~/components/layout/Box';
 
 type TextInputProps = ComponentPropsWithoutRef<typeof TextInput>;
 
-export type TextFieldProps = Omit<TextInputProps, 'error'> & {
+export type TextFieldProps = Omit<TextInputProps, 'error' | 'style'> & {
   error?: string | false | ((value: TextInputProps['value']) => string | false);
   wrap?: boolean;
+  containerStyle?: StyleProp<ViewStyle>;
+  textStyle?: StyleProp<TextStyle>;
 };
 
 export const TextField = ({
   error: errorProp,
   wrap,
+  containerStyle,
+  textStyle,
   ...props
 }: TextFieldProps) => {
   const error = useMemo(
@@ -22,7 +27,7 @@ export const TextField = ({
   );
 
   return (
-    <Box>
+    <Box style={containerStyle}>
       <TextInput
         mode="outlined"
         // Control
@@ -31,6 +36,7 @@ export const TextField = ({
         blurOnSubmit={props.blurOnSubmit ?? wrap}
         // Other
         autoCorrect={false}
+        style={textStyle}
         {...props}
       />
 

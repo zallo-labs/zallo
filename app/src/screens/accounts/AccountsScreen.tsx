@@ -4,7 +4,6 @@ import { withSkeleton } from '~/components/skeleton/withSkeleton';
 import { PlusIcon } from '~/util/theme/icons';
 import { makeStyles } from '~/util/theme/makeStyles';
 import { UserId } from 'lib';
-import { useCallback } from 'react';
 import { FlatList } from 'react-native';
 import { Appbar, Button } from 'react-native-paper';
 import { useAppbarHeader } from '~/components/Appbar/useAppbarHeader';

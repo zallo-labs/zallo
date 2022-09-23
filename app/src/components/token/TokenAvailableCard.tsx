@@ -7,7 +7,7 @@ import { Text } from 'react-native-paper';
 import { useTokenValue } from '@token/useTokenValue';
 import { FiatValue } from '../fiat/FiatValue';
 import { TokenAmount } from './TokenAmount';
-import { TokenIcon } from './TokenIcon/TokenIcon';
+import TokenIcon from './TokenIcon/TokenIcon';
 import { UserId } from 'lib';
 
 export interface TokenAvailableCardProps extends CardItemProps {
@@ -23,10 +23,7 @@ export const TokenAvailableCard = withSkeleton(
     return (
       <CardItem
         Left={<TokenIcon token={token} />}
-        Main={[
-          <Text variant="titleMedium">{token.name}</Text>,
-          <Text variant="bodyMedium">Available</Text>,
-        ]}
+        Main={<Text variant="titleMedium">{token.name}</Text>}
         Right={[
           <Text variant="titleSmall">
             <FiatValue value={useTokenValue(token, available)} />

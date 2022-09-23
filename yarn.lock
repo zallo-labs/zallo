@@ -125,7 +125,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@apollo/client@npm:3.6.9, @apollo/client@npm:^3.6.9":
+"@apollo/client@npm:^3.6.9":
   version: 3.6.9
   resolution: "@apollo/client@npm:3.6.9"
   dependencies:
@@ -5713,7 +5713,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@matterlabs/signature-checker@npm:1.1.1":
+"@matterlabs/signature-checker@npm:^1.1.1":
   version: 1.1.1
   resolution: "@matterlabs/signature-checker@npm:1.1.1"
   dependencies:
@@ -11017,7 +11017,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "app@workspace:app"
   dependencies:
-    "@apollo/client": 3.6.9
+    "@apollo/client": ^3.6.9
     "@babel/core": ^7.18.6
     "@ethersproject/shims": 5.7.0
     "@expo/config": ^7.0.1
@@ -11127,6 +11127,7 @@ __metadata:
     styled-system: ^5.1.5
     ts-jest: ^28.0.8
     ts-node: ^10.9.1
+    ts-pattern: ^4.0.5
     typescript: ^4.8.3
     use-async-effect: ^2.2.7
     use-debounce: ^8.0.4
@@ -14798,7 +14799,7 @@ __metadata:
   dependencies:
     "@matterlabs/hardhat-zksync-deploy": ^0.4.0
     "@matterlabs/hardhat-zksync-solc": ^0.3.9
-    "@matterlabs/signature-checker": 1.1.1
+    "@matterlabs/signature-checker": ^1.1.1
     "@matterlabs/zksync-contracts": ^0.3.1
     "@nomiclabs/hardhat-ethers": ^2.1.1
     "@nomiclabs/hardhat-etherscan": ^3.1.0
@@ -34953,6 +34954,13 @@ __metadata:
   version: 0.0.5
   resolution: "ts-object-utils@npm:0.0.5"
   checksum: 83c48fbdaba392fb2c01cea53b267ed5538d2bb44fc6c3eecc10bcfabc1780bfa6ec8569b52bbf0140d9b521d9049d5f15884e12286918244d463d854dbc73cb
+  languageName: node
+  linkType: hard
+
+"ts-pattern@npm:^4.0.5":
+  version: 4.0.5
+  resolution: "ts-pattern@npm:4.0.5"
+  checksum: b1ecf36afb567ee6adbaee6e885e51775b1a390ed528589ae3bcb1e376412ed0774b54495ffca7be2a324e75268f894d34379b84388930485cf1359b30d5bc8b
   languageName: node
   linkType: hard
 

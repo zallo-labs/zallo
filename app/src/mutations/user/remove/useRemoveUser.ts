@@ -6,7 +6,7 @@ import { CombinedUser, toActiveUser } from '~/queries/user/useUser.api';
 import { useApiRemoveUser } from './useRemoveUser.api';
 
 export const useRemoveUser = (user: CombinedUser) => {
-  const [account] = useAccount(user.account);
+  const [account] = useAccount(user);
   const apiRemove = useApiRemoveUser();
   const [propose] = usePropose();
 

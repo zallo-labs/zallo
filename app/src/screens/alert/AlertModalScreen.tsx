@@ -11,11 +11,17 @@ export const AlertModalScreen = ({ route }: AlertModalScreenProps) => (
   <AlertModal {...route.params} />
 );
 
-export const useAlertConfirmation = () => {
+export const useAlertConfirmation = (
+  defaultParams?: Partial<AlertModalScreenParams>,
+) => {
   const { navigate } = useRootNavigation();
 
   return useCallback(
-    (params: AlertModalScreenParams) => navigate('Alert', params),
-    [navigate],
+    (params: AlertModalScreenParams) =>
+      navigate('Alert', {
+        ...defaultParams,
+        ...params,
+      }),
+    [defaultParams, navigate],
   );
 };

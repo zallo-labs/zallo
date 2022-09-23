@@ -1,15 +1,23 @@
-import { PlusIcon } from '@theme/icons';
+import { CheckIcon } from '@theme/icons';
 import { makeStyles } from '@theme/makeStyles';
-import { UserId } from 'lib';
-import { FlatList } from 'react-native';
-import { Button, Divider } from 'react-native-paper';
+import produce from 'immer';
+import { upsertItem, UserId } from 'lib';
+import _ from 'lodash';
+import { useState } from 'react';
+import { useAppbarHeader } from '~/components/Appbar/useAppbarHeader';
+import { FAB } from '~/components/FAB';
 import { Box } from '~/components/layout/Box';
+import { ProposableButton } from '~/components/proposable/ProposableButton';
 import { ScreenSkeleton } from '~/components/skeleton/ScreenSkeleton';
 import { withSkeleton } from '~/components/skeleton/withSkeleton';
+import { useUpsertUser } from '~/mutations/user/upsert/useUpsertUser';
 import { RootNavigatorScreenProps } from '~/navigation/RootNavigator';
 import { useUser } from '~/queries/user/useUser.api';
 import { UserAppbar } from './UserAppbar';
-import { UserConfigItem } from './UserConfigItem';
+import { EditableUserName } from './EditableUserName';
+import { ScrollView } from 'react-native';
+import { ConfigSelectorChip } from './ConfigSelectorChip';
+import { SpendingCard } from './SpendingCard/SpendingCard';
 
 export interface UserScreenParams {
   user: UserId;
@@ -19,55 +27,65 @@ export type UserScreenProps = RootNavigatorScreenProps<'User'>;
 
 const UserScreen = ({ navigation, route }: UserScreenProps) => {
   const styles = useStyles();
+  const { AppbarHeader, handleScroll } = useAppbarHeader();
   const [user] = useUser(route.params.user);
+  const [upsert, upserting] = useUpsertUser(user.account);
 
-  // console.log(JSON.stringify(user.configs, null, 2));
+  const selectedConfig = user.configs.value[0];
+  const [config, setConfig] = useState(selectedConfig);
+  const isModified = !_.isEqual(selectedConfig, config);
 
   return (
     <Box flex={1}>
-      <UserAppbar user={user} />
+      <UserAppbar user={user} AppbarHeader={AppbarHeader} />
 
-      <FlatList
-        renderItem={({ item }) => (
-          <Box>
-            <UserConfigItem
-              user={user}
-              config={item}
-              style={styles.item}
-              onPress={() => {
-                // TODO: navigate to UserConfig
-                // navigation.navigate('UserConfig', {})
-              }}
-            />
-            <Divider />
-          </Box>
-        )}
-        ListFooterComponent={
-          <Button
-            icon={PlusIcon}
-            mode="text"
-            style={styles.create}
-            onPress={() => {
-              // TODO: create new config
-            }}
-          >
-            Config
-          </Button>
-        }
-        data={user.configs.value}
-      />
+      <ScrollView onScroll={handleScroll} style={styles.container}>
+        <EditableUserName user={user} style={styles.name} />
+
+        <Box horizontal justifyContent="space-between">
+          <ConfigSelectorChip />
+          <ProposableButton proposable={user.configs} />
+        </Box>
+
+        <SpendingCard
+          user={user}
+          config={config}
+          setConfig={setConfig}
+          style={styles.card}
+        />
+      </ScrollView>
+
+      {isModified && (
+        <FAB
+          icon={CheckIcon}
+          label="Apply"
+          loading={upserting}
+          onPress={() => {
+            upsert(
+              produce(user, (user) => {
+                user.configs.proposed = upsertItem(
+                  user.configs.proposed ?? undefined,
+                  config,
+                  (c) => _.isEqual(c.approvers, config.approvers),
+                );
+              }),
+            );
+          }}
+        />
+      )}
     </Box>
   );
 };
 
 const useStyles = makeStyles(({ space }) => ({
-  item: {
-    padding: space(2),
-  },
-  create: {
-    alignSelf: 'flex-end',
-    marginTop: space(1),
+  container: {
     marginHorizontal: space(2),
+  },
+  name: {
+    marginVertical: space(2),
+  },
+  card: {
+    marginTop: space(2),
   },
 }));
 

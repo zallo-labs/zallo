@@ -3,9 +3,9 @@ import { makeStyles } from '@theme/makeStyles';
 import { ReactNode, useState } from 'react';
 import { StyleProp, ViewStyle } from 'react-native';
 import { IconButton } from 'react-native-paper';
-import { Box } from '../layout/Box';
+import { Box } from './layout/Box';
 
-export interface AppbarEditableContentProps {
+export interface EditableContentProps {
   content: ReactNode;
   editContent: ReactNode;
   onSubmit: (() => void) | undefined;
@@ -13,13 +13,13 @@ export interface AppbarEditableContentProps {
   containerStyle?: StyleProp<ViewStyle>;
 }
 
-export const AppbarEditableContent = ({
+export const EditableContent = ({
   content: Content,
   editContent: EditContent,
   onSubmit,
   onCancel,
   containerStyle,
-}: AppbarEditableContentProps) => {
+}: EditableContentProps) => {
   const styles = useStyles();
 
   const [editing, setEditing] = useState(false);
