@@ -52,7 +52,7 @@ export const Comments = (listProps: CommentsProps) => {
         label="Comment"
         value={comment}
         onChangeText={setComment}
-        style={styles.input}
+        textStyle={styles.input}
         onSubmitEditing={handleComment}
         autoCorrect
       />

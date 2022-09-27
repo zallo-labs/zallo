@@ -1,7 +1,7 @@
 import { BytesLike, ethers } from 'ethers';
 import { defaultAbiCoder } from 'ethers/lib/utils';
 import { User } from './user';
-import { Address, compareAddresses } from './addr';
+import { Address, compareAddress } from './addr';
 import { getUserConfigProof } from './merkle';
 import { TxReq, getDomain, TX_EIP712_TYPE } from './tx';
 import { Device } from './device';
@@ -27,7 +27,7 @@ const toConfigAndSignatures = (user: Address, signers: Signer[]) => {
 
   return signers
     .filter((s) => s.approver !== user)
-    .sort((a, b) => compareAddresses(a.approver, b.approver))
+    .sort((a, b) => compareAddress(a.approver, b.approver))
     .reduce((acc, { approver, signature }) => {
       acc.approvers.push(approver);
       acc.signatures.push(signature);

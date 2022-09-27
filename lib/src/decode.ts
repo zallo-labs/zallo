@@ -14,7 +14,7 @@ export const ACCOUNT_INTERFACE = Account__factory.createInterface();
 
 export const UPSERT_USER_FUNCTION =
   ACCOUNT_INTERFACE.functions['upsertUser((address,(address[])[]))'];
-export const UPSERT_WALLET_SIGHSAH =
+export const UPSERT_USER_SIGHSAH =
   ACCOUNT_INTERFACE.getSighash(UPSERT_USER_FUNCTION);
 
 export const REMOVE_USER_FUNCTION =
@@ -24,19 +24,19 @@ export const REMOVE_USER_SIGHASH =
 
 export const tryDecodeUpsertUserData = (data?: BytesLike): User | undefined => {
   const sighash = getDataSighash(data);
-  if (!data || sighash !== UPSERT_WALLET_SIGHSAH) return undefined;
+  if (!data || sighash !== UPSERT_USER_SIGHSAH) return undefined;
 
   try {
-    const { addr, configs } = ACCOUNT_INTERFACE.decodeFunctionData(
+    const [addr, configs] = ACCOUNT_INTERFACE.decodeFunctionData(
       UPSERT_USER_FUNCTION,
       data,
-    ) as UserStructOutput;
+    )[0] as UserStructOutput;
 
     return {
       addr: address(addr),
       configs: configs.map(
-        (c): UserConfig => ({
-          approvers: c.approvers.map(address),
+        ([approvers]): UserConfig => ({
+          approvers: approvers.map(address),
           spendingAllowlisted: false,
           limits: {},
         }),
@@ -47,7 +47,7 @@ export const tryDecodeUpsertUserData = (data?: BytesLike): User | undefined => {
   }
 };
 
-type RemoveWalletParams = OnlyRequiredItems<Parameters<Account['removeUser']>>;
+type RemoveUserParams = OnlyRequiredItems<Parameters<Account['removeUser']>>;
 
 export const tryDecodeRemoveWalletData = (data?: BytesLike) => {
   const sighash = getDataSighash(data);
@@ -57,7 +57,7 @@ export const tryDecodeRemoveWalletData = (data?: BytesLike) => {
     const [user] = ACCOUNT_INTERFACE.decodeFunctionData(
       REMOVE_USER_FUNCTION,
       data,
-    ) as RemoveWalletParams;
+    )[0] as RemoveUserParams;
 
     return { addr: address(user) };
   } catch {

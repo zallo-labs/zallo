@@ -1,8 +1,12 @@
 import { Address, createUpsertUserTx } from 'lib';
 import { useCallback, useState } from 'react';
-import { usePropose } from '~/mutations/proposal/propose/usePropose';
+import {
+  OnPropose,
+  showProposalSnack,
+  usePropose,
+} from '~/mutations/proposal/propose/usePropose';
 import { useAccount } from '~/queries/account/useAccount.api';
-import { CombinedUser, toActiveUser } from '~/queries/user/useUser.api';
+import { CombinedUser, toProposedUser } from '~/queries/user/useUser.api';
 import {
   AlertModalScreenParams,
   useAlertConfirmation,
@@ -23,22 +27,28 @@ export const useUpsertUser = (accountAddr: Address) => {
 
   const [upserting, setUpserting] = useState(false);
   const upsert = useCallback(
-    async (user: CombinedUser) => {
+    async (user: CombinedUser, onPropose?: OnPropose) => {
       setUpserting(true);
 
-      confirm({
-        onConfirm: async () => {
-          await propose(
-            user.account,
-            createUpsertUserTx(account.contract, toActiveUser(user)),
-            (proposal) => {
-              apiUpsert(user, proposal.hash);
-            },
-          );
+      const p = async () => {
+        await propose(
+          user.account,
+          createUpsertUserTx(account.contract, toProposedUser(user)),
+          async (proposal, navigation) => {
+            await apiUpsert(user, proposal.hash);
+            showProposalSnack(proposal, navigation);
+            onPropose?.(proposal, navigation);
+          },
+        );
 
-          setUpserting(false);
-        },
-      });
+        setUpserting(false);
+      };
+
+      if (user.configs.proposal) {
+        confirm({ onConfirm: p });
+      } else {
+        await p();
+      }
     },
     [account.contract, apiUpsert, confirm, propose],
   );

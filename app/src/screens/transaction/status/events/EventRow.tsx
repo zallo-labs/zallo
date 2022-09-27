@@ -22,7 +22,7 @@ export const EventRow = ({ Icon, content, timestamp }: EventRowProps) => {
         flexShrink={1}
         horizontal
         alignItems="center"
-        separator={<Box mx={1} />}
+        separator={<Box ml={1} />}
         mr={4}
       >
         <Icon style={styles.content} />

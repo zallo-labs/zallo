@@ -9,17 +9,17 @@ import { useTxContext } from '~/screens/transaction/TransactionProvider';
 
 export const useDecodedRemoveUserMethod = (proposal: Proposal) => {
   const removeUser = tryDecodeRemoveWalletData(proposal.data);
-}
+};
 
-export const getRemoveWalletMethodName = (user: CombinedUser) =>
+export const getRemoveUserMethodName = (user: CombinedUser) =>
   `Remove user: ${user.name}`;
 
-export interface RemoveWalletMethodProps extends Partial<AccordionProps> {
+export interface RemoveUserMethodProps extends Partial<AccordionProps> {
   call: Call;
 }
 
-export const RemoveWalletMethod = memo(
-  ({ call, ...accordionProps }: RemoveWalletMethodProps) => {
+export const RemoveUserMethod = memo(
+  ({ call, ...accordionProps }: RemoveUserMethodProps) => {
     const { account } = useTxContext();
 
     const removedUser = tryDecodeRemoveWalletData(call.data);
@@ -31,7 +31,7 @@ export const RemoveWalletMethod = memo(
 
     return (
       <Text variant="titleMedium" {...accordionProps}>
-        {getRemoveWalletMethodName(user)}
+        {getRemoveUserMethodName(user)}
       </Text>
     );
   },

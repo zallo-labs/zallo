@@ -19,7 +19,10 @@ import {
 } from 'lib';
 import { PrismaService } from 'nestjs-prisma';
 import { DeviceAddr } from '~/decorators/device.decorator';
-import { connectOrCreateDevice } from '~/util/connect-or-create';
+import {
+  connectAccount,
+  connectOrCreateDevice,
+} from '~/util/connect-or-create';
 import { getSelect } from '~/util/select';
 import {
   ProposeArgs,
@@ -31,6 +34,7 @@ import {
 import { UserInputError } from 'apollo-server-core';
 import { ProviderService } from '~/provider/provider.service';
 import { Proposal } from '@gen/proposal/proposal.model';
+import { Prisma } from '@prisma/client';
 
 @Resolver(() => Proposal)
 export class ProposalsResolver {
@@ -82,34 +86,39 @@ export class ProposalsResolver {
     await this.validateSignatureOrThrow(device, proposalHash, signature);
 
     return this.prisma.proposal.upsert({
-      where: { accountId_hash: { hash: proposalHash, accountId: account } },
+      where: { hash: proposalHash },
       create: {
-        accountId: account,
-        proposer: connectOrCreateDevice(device),
         hash: proposalHash,
+        account: connectAccount(account),
+        proposer: {
+          connect: {
+            accountId_deviceId: {
+              accountId: account,
+              deviceId: device,
+            },
+          },
+        },
         to: proposal.to,
         value: proposal.value.toString(),
         data: proposal.data,
         salt: proposal.salt,
         approvals: {
           create: {
-            user: connectOrCreateDevice(device),
-            accountId: account,
+            device: connectOrCreateDevice(device),
             signature,
           },
         },
-      },
+      } as Prisma.ProposalCreateInput,
       update: {
         approvals: {
           create: {
-            user: connectOrCreateDevice(device),
-            accountId: account,
+            device: connectOrCreateDevice(device),
             signature,
           },
         },
-      },
+      } as Prisma.ProposalUpdateInput,
       ...getSelect(info),
-    });
+    } as const);
   }
 
   @Mutation(() => Proposal)

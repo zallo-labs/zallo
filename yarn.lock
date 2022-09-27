@@ -4103,30 +4103,30 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@gorhom/bottom-sheet@npm:^4.4.4":
-  version: 4.4.4
-  resolution: "@gorhom/bottom-sheet@npm:4.4.4"
+"@gorhom/bottom-sheet@npm:^4.4.5":
+  version: 4.4.5
+  resolution: "@gorhom/bottom-sheet@npm:4.4.5"
   dependencies:
-    "@gorhom/portal": 1.0.13
+    "@gorhom/portal": 1.0.14
     invariant: ^2.2.4
   peerDependencies:
     react: "*"
     react-native: "*"
     react-native-gesture-handler: ">=1.10.1"
     react-native-reanimated: ">=2.2.0"
-  checksum: 7424aa087dfcd1f1e15028989013260d0ab7451a94186dd9f6fc527bcf509d47b6cd627499ade990faaa375b9c21236e20651e0821b5b9a5e06291ead542b8bd
+  checksum: 19b3efeaacdd0eddb3f6c6e6c225dd20fcf21fae9d20f760c94e81b7ecba47a56737cb0e681225c368c93779beebe7a61102e064656a376eeb7761366b9874d6
   languageName: node
   linkType: hard
 
-"@gorhom/portal@npm:1.0.13":
-  version: 1.0.13
-  resolution: "@gorhom/portal@npm:1.0.13"
+"@gorhom/portal@npm:1.0.14":
+  version: 1.0.14
+  resolution: "@gorhom/portal@npm:1.0.14"
   dependencies:
     nanoid: ^3.3.1
   peerDependencies:
     react: "*"
     react-native: "*"
-  checksum: 4dd471feedc0dbcc06e9ba725695727448b79550fdc95e5888ea3c2aa9dd51ffffaa0ec2c3e762526c8eef4a36cebd625f73271a3bc31b80786af5a90ba2ea5b
+  checksum: 227bb96a2db854ab29bb9da8d4f3823c7f7448358de459709dd1b78522110da564c9a8734c6bc7d7153ed7c99320e0fb5d60b420c2ebb75ecaf2f0d757f410f9
   languageName: node
   linkType: hard
 
@@ -5723,13 +5723,13 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@matterlabs/zksync-contracts@npm:^0.3.1":
-  version: 0.3.1
-  resolution: "@matterlabs/zksync-contracts@npm:0.3.1"
+"@matterlabs/zksync-contracts@npm:^0.3.3":
+  version: 0.3.3
+  resolution: "@matterlabs/zksync-contracts@npm:0.3.3"
   peerDependencies:
     "@openzeppelin/contracts": 4.6.0
     "@openzeppelin/contracts-upgradeable": 4.6.0
-  checksum: da86c085ac1ed4cb4367ba0af4a20d1701e8470eba75b931da9ce532e059a5e221894910b7ac5d4b8a73a80e3962663ef59a14d6f3f57984af37f0bee2970b9c
+  checksum: d2b47a9deab6cd48f5a09a9c8189fce1c50f5cce934d248aae4efccec71ea784267563deebadbc142776acf6acd464cb406ac17d91235c43fede6c8f1a321e33
   languageName: node
   linkType: hard
 
@@ -11022,7 +11022,7 @@ __metadata:
     "@ethersproject/shims": 5.7.0
     "@expo/config": ^7.0.1
     "@expo/vector-icons": ^13.0.0
-    "@gorhom/bottom-sheet": ^4.4.4
+    "@gorhom/bottom-sheet": ^4.4.5
     "@graphql-codegen/cli": ^2.12.0
     "@graphql-codegen/introspection": ^2.2.1
     "@graphql-codegen/typescript": ^2.7.3
@@ -11111,6 +11111,7 @@ __metadata:
     react-native-safe-area-context: 4.3.1
     react-native-screens: ~3.15.0
     react-native-snap-carousel: ^4.0.0-beta.6
+    react-native-super-grid: ^4.6.1
     react-native-svg: 12.3.0
     react-native-svg-transformer: ^1.0.0
     react-native-tab-view: ^3.1.1
@@ -14800,7 +14801,7 @@ __metadata:
     "@matterlabs/hardhat-zksync-deploy": ^0.4.0
     "@matterlabs/hardhat-zksync-solc": ^0.3.9
     "@matterlabs/signature-checker": ^1.1.1
-    "@matterlabs/zksync-contracts": ^0.3.1
+    "@matterlabs/zksync-contracts": ^0.3.3
     "@nomiclabs/hardhat-ethers": ^2.1.1
     "@nomiclabs/hardhat-etherscan": ^3.1.0
     "@nomiclabs/hardhat-solhint": 2.0.1
@@ -29825,7 +29826,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"prop-types@npm:*, prop-types@npm:^15.6.2, prop-types@npm:^15.7.2, prop-types@npm:^15.8.1":
+"prop-types@npm:*, prop-types@npm:^15.6.0, prop-types@npm:^15.6.2, prop-types@npm:^15.7.2, prop-types@npm:^15.8.1":
   version: 15.8.1
   resolution: "prop-types@npm:15.8.1"
   dependencies:
@@ -30758,6 +30759,18 @@ __metadata:
     react: ">=16.0.0"
     react-native: ">=0.58.0"
   checksum: 32ab752009b16e8d18bd7dc7defb7e454881d2ed979dd9a00cbfb92a03317752067bab7dccc6cb7b42e3a61657f29e3e12ea1e12ac7661e5539c7be037a7cfe7
+  languageName: node
+  linkType: hard
+
+"react-native-super-grid@npm:^4.6.1":
+  version: 4.6.1
+  resolution: "react-native-super-grid@npm:4.6.1"
+  dependencies:
+    prop-types: ^15.6.0
+  peerDependencies:
+    react: ">=16.8.0"
+    react-native: ">=0.59.0"
+  checksum: fa7c1d3ad77fa269a5ccec4a4d9eb30ac0559e21ff98fa4622177bfa41a9ec7ec01bd3f60d6a37d2decffe216bb3be01f700bb17e4207e36d2e736ef6b944177
   languageName: node
   linkType: hard
 

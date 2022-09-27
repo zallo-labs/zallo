@@ -1,4 +1,3 @@
-import assert from 'assert';
 import { executeTx, Signer } from 'lib';
 import { useCallback } from 'react';
 import { useAccount } from '~/queries/account/useAccount.api';
@@ -16,7 +15,6 @@ export const useExecute = (proposer: CombinedUser, proposal: Proposal) => {
       signature: approval.signature,
     }));
 
-    assert(proposer.configs.active);
     const resp = await executeTx(
       account.contract,
       proposal,

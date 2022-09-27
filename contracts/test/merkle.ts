@@ -1,11 +1,11 @@
 import {
   User,
   getMerkleTree,
-  sortUserConfigs,
   sortAddresses,
   getUserConfigProof,
   userConfigToLeaf,
   UserConfig,
+  compareUserConfig,
 } from 'lib';
 import { allSigners, deployTestAccount, expect } from './util';
 
@@ -13,18 +13,22 @@ describe('Merkle proof', () => {
   it('lib should generate valid proof', async () => {
     const user: User = {
       addr: allSigners[0].address,
-      configs: sortUserConfigs([
+      configs: [
         {
           approvers: sortAddresses(
             allSigners.slice(1, 3).map((s) => s.address),
           ),
+          spendingAllowlisted: false,
+          limits: {},
         },
         {
           approvers: sortAddresses(
             allSigners.slice(4, 6).map((s) => s.address),
           ),
+          spendingAllowlisted: false,
+          limits: {},
         },
-      ]),
+      ].sort(compareUserConfig),
     };
     const config = user.configs[0];
 
@@ -75,6 +79,8 @@ describe('Merkle proof', () => {
 
     const invalidConfig: UserConfig = {
       approvers: sortAddresses(others.slice(0, 3)),
+      spendingAllowlisted: false,
+      limits: {},
     };
 
     const isValid = await account.isValidProof(

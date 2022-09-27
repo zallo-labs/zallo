@@ -76,101 +76,101 @@ export const useApiUpsertUser = () => {
             ),
           },
         },
-        optimisticResponse: {
-          upsertUser: {
-            id: idStr,
-          },
-        },
-        update: async (cache, res) => {
-          if (!res.data?.upsertUser.id) return;
+        // optimisticResponse: {
+        //   upsertUser: {
+        //     id: idStr,
+        //   },
+        // },
+        // update: async (cache, res) => {
+        //   if (!res.data?.upsertUser.id) return;
 
-          await upsertUser();
-          addToAccount();
-          addToUserIds();
+        //   await upsertUser();
+        //   addToAccount();
+        //   addToUserIds();
 
-          // User: upsert
-          async function upsertUser() {
-            cache.writeQuery<UserQuery, UserQueryVariables>({
-              query: UserDocument,
-              variables: {
-                id,
-              },
-              overwrite: true,
-              data: {
-                user: {
-                  id: idStr,
-                  accountId: user.account,
-                  deviceId: user.addr,
-                  name: user.name,
-                  activeState: user.configs.active
-                    ? {
-                        configs: userConfigsToInput(user.configs.active),
-                      }
-                    : null,
-                  proposedState: user.configs.proposed
-                    ? {
-                        proposalHash: user.configs.proposal?.hash ?? null,
-                        configs: userConfigsToInput(user.configs.proposed),
-                      }
-                    : null,
-                },
-              },
-            });
-          }
+        //   // User: upsert
+        //   async function upsertUser() {
+        //     cache.writeQuery<UserQuery, UserQueryVariables>({
+        //       query: UserDocument,
+        //       variables: {
+        //         id,
+        //       },
+        //       overwrite: true,
+        //       data: {
+        //         user: {
+        //           id: idStr,
+        //           accountId: user.account,
+        //           deviceId: user.addr,
+        //           name: user.name,
+        //           activeState: user.configs.active
+        //             ? {
+        //                 configs: userConfigsToInput(user.configs.active),
+        //               }
+        //             : null,
+        //           proposedState: user.configs.proposed
+        //             ? {
+        //                 proposalHash: user.configs.proposal?.hash ?? null,
+        //                 configs: userConfigsToInput(user.configs.proposed),
+        //               }
+        //             : null,
+        //         },
+        //       },
+        //     });
+        //   }
 
-          // Account: add to users if missing
-          async function addToAccount() {
-            const opts: QueryOpts<AccountQueryVariables> = {
-              query: AccountDocument,
-              variables: { account: user.account },
-            };
+        //   // Account: add to users if missing
+        //   async function addToAccount() {
+        //     const opts: QueryOpts<AccountQueryVariables> = {
+        //       query: AccountDocument,
+        //       variables: { account: user.account },
+        //     };
 
-            const data = cache.readQuery<AccountQuery>(opts);
-            if (data) {
-              cache.writeQuery<AccountQuery>({
-                ...opts,
-                overwrite: true,
-                data: produce(data, (data) => {
-                  if (
-                    !data.account.users?.find((u) => u.deviceId === user.addr)
-                  ) {
-                    data.account.users = [
-                      ...(data.account.users ?? []),
-                      {
-                        deviceId: user.addr,
-                      },
-                    ];
-                  }
-                }),
-              });
-            }
-          }
+        //     const data = cache.readQuery<AccountQuery>(opts);
+        //     if (data) {
+        //       cache.writeQuery<AccountQuery>({
+        //         ...opts,
+        //         overwrite: true,
+        //         data: produce(data, (data) => {
+        //           if (
+        //             !data.account.users?.find((u) => u.deviceId === user.addr)
+        //           ) {
+        //             data.account.users = [
+        //               ...(data.account.users ?? []),
+        //               {
+        //                 deviceId: user.addr,
+        //               },
+        //             ];
+        //           }
+        //         }),
+        //       });
+        //     }
+        //   }
 
-          // UserIds: add if own device & missing
-          async function addToUserIds() {
-            if (user.addr === device.address) {
-              const opts: QueryOpts<UserIdsQueryVariables> = {
-                query: UserIdsDocument,
-                variables: {},
-              };
+        //   // UserIds: add if own device & missing
+        //   async function addToUserIds() {
+        //     if (user.addr === device.address) {
+        //       const opts: QueryOpts<UserIdsQueryVariables> = {
+        //         query: UserIdsDocument,
+        //         variables: {},
+        //       };
 
-              const data = cache.readQuery<UserIdsQuery>(opts) ?? { users: [] };
+        //       const data = cache.readQuery<UserIdsQuery>(opts) ?? { users: [] };
 
-              cache.writeQuery<UserIdsQuery>({
-                ...opts,
-                overwrite: true,
-                data: produce(data, (data) => {
-                  if (!data.users.find((u) => u.id === idStr)) {
-                    data.users.push({
-                      id: idStr,
-                      accountId: user.account,
-                    });
-                  }
-                }),
-              });
-            }
-          }
-        },
+        //       cache.writeQuery<UserIdsQuery>({
+        //         ...opts,
+        //         overwrite: true,
+        //         data: produce(data, (data) => {
+        //           if (!data.users.find((u) => u.id === idStr)) {
+        //             data.users.push({
+        //               id: idStr,
+        //               accountId: user.account,
+        //             });
+        //           }
+        //         }),
+        //       });
+        //     }
+        //   }
+        // },
       });
     },
     [mutation, device.address],

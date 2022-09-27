@@ -8,15 +8,22 @@ import { FuzzySearchProps } from '../../util/hook/useFuzzySearch';
 
 export interface AppbarSearchProps extends FuzzySearchProps {
   title?: ReactNode;
+  actions?: ReactNode;
 }
 
-export const AppbarSearch = ({ title, input, setInput }: AppbarSearchProps) => {
+export const AppbarSearch = ({
+  title,
+  actions,
+  input,
+  setInput,
+}: AppbarSearchProps) => {
   const { typescale } = useTheme();
 
   if (input === undefined)
     return (
       <>
         <Appbar.Content title={title} />
+        {actions}
         <Appbar.Action icon={SearchIcon} onPress={() => setInput('')} />
       </>
     );

@@ -14,7 +14,7 @@ import {
   ProposalsMetadataQueryVariables,
   useProposeMutation,
 } from '~/gql/generated.api';
-import { QueryOpts } from '~/gql/update';
+import { QueryOpts, updateQuery } from '~/gql/update';
 import produce from 'immer';
 
 gql`
@@ -64,10 +64,10 @@ export const useApiPropose = () => {
         update: async (cache, res) => {
           if (!res?.data?.propose.id) return;
 
-          await createProposal();
-          addToProposalsMetadata();
+          await upsertProposal();
+          upsertProposalsMetadata();
 
-          async function createProposal() {
+          async function upsertProposal() {
             cache.writeQuery<ProposalQuery, ProposalQueryVariables>({
               query: ProposalDocument,
               variables: { hash },
@@ -95,27 +95,30 @@ export const useApiPropose = () => {
             });
           }
 
-          async function addToProposalsMetadata() {
-            const opts: QueryOpts<ProposalsMetadataQueryVariables> = {
+          async function upsertProposalsMetadata() {
+            updateQuery<
+              ProposalsMetadataQuery,
+              ProposalsMetadataQueryVariables
+            >({
+              cache,
               query: ProposalsMetadataDocument,
               variables: {},
-            };
-
-            const data = cache.readQuery<ProposalsMetadataQuery>(opts) ?? {
-              proposals: [],
-            };
-
-            cache.writeQuery<ProposalsMetadataQuery>({
-              ...opts,
-              overwrite: true,
-              data: produce(data, (data) => {
-                data.proposals.push({
+              defaultData: { proposals: [] },
+              updater: (data) => {
+                const proposal = {
                   id,
                   accountId: account,
                   hash,
                   createdAt,
-                });
-              }),
+                };
+
+                const i = data.proposals.findIndex((p) => p.id === id);
+                if (i >= 0) {
+                  data.proposals[i] = proposal;
+                } else {
+                  data.proposals.push(proposal);
+                }
+              },
             });
           }
         },

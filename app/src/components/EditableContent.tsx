@@ -11,6 +11,8 @@ export interface EditableContentProps {
   onSubmit: (() => void) | undefined;
   onCancel?: () => void;
   containerStyle?: StyleProp<ViewStyle>;
+  editing: boolean;
+  setEditing: (editing: boolean) => void;
 }
 
 export const EditableContent = ({
@@ -19,40 +21,31 @@ export const EditableContent = ({
   onSubmit,
   onCancel,
   containerStyle,
+  editing,
+  setEditing,
 }: EditableContentProps) => {
-  const styles = useStyles();
-
-  const [editing, setEditing] = useState(false);
-
   return (
     <Box horizontal alignItems="center" pb={2} style={containerStyle}>
       {!editing ? (
-        <>
-          <Box style={styles.iconButtonPlaceholder} />
-
-          <Box flex={1} mx={1}>
-            {Content}
-          </Box>
-
-          <IconButton icon={EditOutlineIcon} onPress={() => setEditing(true)} />
-        </>
+        Content
       ) : (
         <>
-          <IconButton
-            icon={CancelIcon}
-            onPress={() => {
-              onCancel?.();
-              setEditing(false);
-            }}
-          />
+          <Box flex={1}>{EditContent}</Box>
 
-          <Box flex={1} mx={1}>
-            {EditContent}
+          <Box ml={1}>
+            <IconButton
+              icon={CancelIcon}
+              onPress={() => {
+                onCancel?.();
+                setEditing(false);
+              }}
+            />
           </Box>
 
           <IconButton
             icon={CheckIcon}
             disabled={!onSubmit}
+            mode="contained"
             onPress={() => {
               onSubmit?.();
               setEditing(false);

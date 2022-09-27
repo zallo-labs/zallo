@@ -10,7 +10,7 @@ export const LimitAppbar = ({ onDelete }: LimitAppbarProps) => {
   return (
     <Appbar.Header>
       <AppbarBack />
-      <Appbar.Content title="limit" />
+      <Appbar.Content title="Limit" />
       {onDelete && <Appbar.Action icon={DeleteIcon} onPress={onDelete} />}
     </Appbar.Header>
   );

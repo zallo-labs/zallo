@@ -30,7 +30,7 @@ export class Proposable<
   T extends Obj,
   State extends ProposableState<T> = ProposableState<T>,
 > {
-  constructor(private state: State) {}
+  constructor(public state: State) {}
 
   isActive(): this is Proposable<T, ActiveState<T>> {
     return this.active !== undefined;
@@ -46,7 +46,7 @@ export class Proposable<
   }
 
   get value(): T {
-    return isProposed(this.state) ? this.state.proposed : this.state.active;
+    return this.state.proposed ?? this.state.active!;
   }
 
   set value(proposed: T | null) {
@@ -61,6 +61,10 @@ export class Proposable<
 
   get proposed(): State['proposed'] {
     return this.state.proposed;
+  }
+
+  set proposed(value: State['proposed']) {
+    this.state.proposed = value;
   }
 
   get proposal(): State['proposal'] {

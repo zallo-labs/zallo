@@ -18,7 +18,6 @@ import {
 } from 'ethers/lib/utils';
 import * as zk from 'zksync-web3';
 import { Device } from './device';
-import { Proxy__factory } from './contracts/factories/@openzeppelin/contracts/proxy';
 
 export type DeploySalt = string & { isDeploySalt: true };
 const DEPLOY_SALT_BYTES = 32;

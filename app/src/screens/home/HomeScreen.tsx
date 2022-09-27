@@ -1,7 +1,7 @@
 import { Box } from '~/components/layout/Box';
 import { useMemo } from 'react';
 import { FlatList } from 'react-native';
-import { Text } from 'react-native-paper';
+import { Button, Text } from 'react-native-paper';
 import {
   useSelectAccount,
   useSelectedAccount,

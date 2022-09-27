@@ -17,7 +17,7 @@ const toPartialTransactionRequest = (tx: TxReq): TransactionRequest => ({
 });
 
 const FALLBACK_BASE_GAS = BigNumber.from(300_000);
-const GAS_PER_SIGNER = 50_000;
+const GAS_PER_SIGNER = 100_000;
 
 export const estimateTxGas = async (
   tx: TxReq | TransactionRequest,

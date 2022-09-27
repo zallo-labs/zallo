@@ -1,6 +1,9 @@
 import { createRemoveUserTx } from 'lib';
 import { useCallback, useState } from 'react';
-import { usePropose } from '~/mutations/proposal/propose/usePropose';
+import {
+  showProposalSnack,
+  usePropose,
+} from '~/mutations/proposal/propose/usePropose';
 import { useAccount } from '~/queries/account/useAccount.api';
 import { CombinedUser, toActiveUser } from '~/queries/user/useUser.api';
 import { useApiRemoveUser } from './useRemoveUser.api';
@@ -18,8 +21,9 @@ export const useRemoveUser = (user: CombinedUser) => {
       await propose(
         user.account,
         createRemoveUserTx(account.contract, toActiveUser(user)),
-        (proposal) => {
-          apiRemove(user, proposal.hash);
+        async (proposal, navigation) => {
+          await apiRemove(user, proposal.hash);
+          showProposalSnack(proposal, navigation);
         },
       );
     } else {

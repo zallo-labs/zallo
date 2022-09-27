@@ -9,7 +9,7 @@ import {
   connectTestAccount,
   connectMulticall,
   UserConfig,
-  compareAddresses,
+  compareAddress,
 } from 'lib';
 import { allSigners, device } from './wallet';
 import { ContractTransaction } from 'ethers';
@@ -59,7 +59,7 @@ export const deploy = async (
     .slice(0, nSigners)
     .map((approver) => approver.address);
 
-  const approvers = signers.slice(1).sort(compareAddresses);
+  const approvers = signers.slice(1).sort(compareAddress);
 
   const others = allSigners.slice(nSigners).map((approver) => approver.address);
 

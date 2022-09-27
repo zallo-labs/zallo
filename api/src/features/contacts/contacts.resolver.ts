@@ -20,6 +20,7 @@ import {
 } from './contacts.args';
 import { connectOrCreateDevice } from '~/util/connect-or-create';
 import { AccountsService } from '../accounts/accounts.service';
+import { Prisma } from '@prisma/client';
 
 @Resolver(() => ContactObject)
 export class ContactsResolver {
@@ -68,15 +69,15 @@ export class ContactsResolver {
         },
       },
       create: {
-        user: connectOrCreateDevice(device),
+        device: connectOrCreateDevice(device),
         addr: newAddr,
         name,
-      },
+      } as Prisma.ContactCreateInput,
       update: {
         addr: { set: newAddr },
         name: { set: name },
-      },
-      ...getSelect(info),
+      } as Prisma.ContactUpdateInput,
+      // ...getSelect(info),
     });
   }
 

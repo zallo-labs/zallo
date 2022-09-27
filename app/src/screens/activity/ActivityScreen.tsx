@@ -83,7 +83,7 @@ export const ActivityScreen = withSkeleton(() => {
             <Timestamp weekday>{section.date}</Timestamp>
           </Text>
         )}
-        SectionSeparatorComponent={() => <Box my={2} />}
+        SectionSeparatorComponent={() => <Box mt={2} />}
         renderItem={({ item }) => {
           if (item.type === 'proposal')
             return (
@@ -97,7 +97,7 @@ export const ActivityScreen = withSkeleton(() => {
 
           return <InTransferCard id={item.activity.id} />;
         }}
-        ItemSeparatorComponent={() => <Box my={2} />}
+        ItemSeparatorComponent={() => <Box mt={1} />}
         ListEmptyComponent={
           <EmptyListFallback
             Icon={ActivityIcon}

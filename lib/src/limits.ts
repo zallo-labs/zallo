@@ -14,6 +14,6 @@ export interface Limit {
 
 export enum LimitPeriod {
   Day = 'Day',
-  Month = 'Month',
   Week = 'Week',
+  Month = 'Month',
 }

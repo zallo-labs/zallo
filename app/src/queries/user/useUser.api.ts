@@ -2,7 +2,15 @@ import { gql } from '@apollo/client';
 import { useDevice } from '@network/useDevice';
 import assert from 'assert';
 import { BigNumber } from 'ethers';
-import { Address, address, Limit, User, UserConfig, UserId } from 'lib';
+import {
+  Address,
+  address,
+  compareAddress,
+  Limit,
+  User,
+  UserConfig,
+  UserId,
+} from 'lib';
 import { useMemo } from 'react';
 import {
   UserDocument,
@@ -26,6 +34,15 @@ export const toActiveUser = (user: CombinedUser): User => {
   return {
     addr: user.addr,
     configs: user.configs.active,
+  };
+};
+
+export const toProposedUser = (user: CombinedUser): User => {
+  assert(user.configs.proposed);
+
+  return {
+    addr: user.addr,
+    configs: user.configs.proposed,
   };
 };
 
@@ -65,7 +82,8 @@ const convertState = (
   s: UserQuery['user']['activeState'],
 ): UserConfig[] | undefined =>
   s?.configs?.map((c) => ({
-    approvers: c.approvers?.map((a) => address(a.deviceId)) ?? [],
+    approvers:
+      c.approvers?.map((a) => address(a.deviceId)).sort(compareAddress) ?? [],
     spendingAllowlisted: c.spendingAllowlisted,
     limits: Object.fromEntries(
       c.limits?.map((l) => {
@@ -105,7 +123,7 @@ export const useUser = (idInput: UserId | Address) => {
       },
     },
   );
-  usePollWhenFocussed(rest, 30);
+  usePollWhenFocussed(rest, 5);
 
   const u = data.user;
   const user = useMemo(

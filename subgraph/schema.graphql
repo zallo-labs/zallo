@@ -2,6 +2,7 @@ type Account @entity {
   "{address}"
   id: Bytes!
   impl: AccountImpl!
+  users: [User!]! @derivedFrom(field: "account")
   txs: [Tx!]! @derivedFrom(field: "account")
   transfers: [Transfer!]! @derivedFrom(field: "account")
 }
@@ -35,7 +36,6 @@ type User @entity {
   account: Account!
   addr: Bytes!
   configs: [UserConfig!]!
-  allConfigs: [UserConfig!]! @derivedFrom(field: "user")
 }
 
 type UserConfig @entity {

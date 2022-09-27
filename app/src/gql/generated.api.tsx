@@ -240,6 +240,7 @@ export enum LimitPeriod {
 
 export type Mutation = {
   __typename?: 'Mutation';
+  activateAccount: Scalars['Boolean'];
   approve: Proposal;
   createAccount: Account;
   createComment: Comment;
@@ -255,6 +256,11 @@ export type Mutation = {
   submitExecution: Submission;
   upsertContact: ContactObject;
   upsertUser: User;
+};
+
+
+export type MutationActivateAccountArgs = {
+  id: Scalars['Address'];
 };
 
 
@@ -364,8 +370,6 @@ export type Proposal = {
   salt: Scalars['String'];
   submissions?: Maybe<Array<Submission>>;
   to: Scalars['String'];
-  userAccountId: Scalars['String'];
-  userDeviceId: Scalars['String'];
   userStates?: Maybe<Array<UserState>>;
   value: Scalars['String'];
 };
@@ -400,8 +404,6 @@ export type ProposalOrderByWithRelationInput = {
   salt?: InputMaybe<SortOrder>;
   submissions?: InputMaybe<SubmissionOrderByRelationAggregateInput>;
   to?: InputMaybe<SortOrder>;
-  userAccountId?: InputMaybe<SortOrder>;
-  userDeviceId?: InputMaybe<SortOrder>;
   userStates?: InputMaybe<UserStateOrderByRelationAggregateInput>;
   value?: InputMaybe<SortOrder>;
 };
@@ -414,8 +416,6 @@ export enum ProposalScalarFieldEnum {
   ProposerId = 'proposerId',
   Salt = 'salt',
   To = 'to',
-  UserAccountId = 'userAccountId',
-  UserDeviceId = 'userDeviceId',
   Value = 'value'
 }
 
@@ -700,6 +700,13 @@ export type UserWithoutAccountInput = {
   name: Scalars['String'];
 };
 
+export type ActivateAccountMutationVariables = Exact<{
+  account: Scalars['Address'];
+}>;
+
+
+export type ActivateAccountMutation = { __typename?: 'Mutation', activateAccount: boolean };
+
 export type CreateAccountMutationVariables = Exact<{
   account: Scalars['Address'];
   impl: Scalars['Address'];
@@ -906,6 +913,37 @@ export const UserStateFieldsFragmentDoc = gql`
   }
 }
     `;
+export const ActivateAccountDocument = gql`
+    mutation ActivateAccount($account: Address!) {
+  activateAccount(id: $account)
+}
+    `;
+export type ActivateAccountMutationFn = Apollo.MutationFunction<ActivateAccountMutation, ActivateAccountMutationVariables>;
+
+/**
+ * __useActivateAccountMutation__
+ *
+ * To run a mutation, you first call `useActivateAccountMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useActivateAccountMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [activateAccountMutation, { data, loading, error }] = useActivateAccountMutation({
+ *   variables: {
+ *      account: // value for 'account'
+ *   },
+ * });
+ */
+export function useActivateAccountMutation(baseOptions?: Apollo.MutationHookOptions<ActivateAccountMutation, ActivateAccountMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<ActivateAccountMutation, ActivateAccountMutationVariables>(ActivateAccountDocument, options);
+      }
+export type ActivateAccountMutationHookResult = ReturnType<typeof useActivateAccountMutation>;
+export type ActivateAccountMutationResult = Apollo.MutationResult<ActivateAccountMutation>;
+export type ActivateAccountMutationOptions = Apollo.BaseMutationOptions<ActivateAccountMutation, ActivateAccountMutationVariables>;
 export const CreateAccountDocument = gql`
     mutation CreateAccount($account: Address!, $impl: Address!, $deploySalt: Bytes32!, $name: String!, $users: [UserWithoutAccountInput!]!) {
   createAccount(

@@ -56,13 +56,7 @@ export const TransactionProposer = ({
   // );
 
   return (
-    <Box
-      horizontal
-      justifyContent="space-between"
-      alignItems="center"
-      mx={3}
-      mb={2}
-    >
+    <Box horizontal justifyContent="space-between" alignItems="center" ml={3}>
       <Box vertical justifyContent="space-around">
         <Text variant="titleMedium" style={textStyle}>
           {proposer.name}

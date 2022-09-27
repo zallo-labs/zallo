@@ -1,5 +1,5 @@
 import { gql } from '@apollo/client';
-import { showInfo } from '~/provider/ToastProvider';
+import { showSnack } from '~/provider/SnackbarProvider';
 import {
   CanRequestFundsDocument,
   CanRequestFundsQuery,
@@ -18,7 +18,7 @@ gql`
   }
 `;
 
-export const useFaucet = (recipient: Address, displayMessage?: boolean) => {
+export const useFaucet = (recipient: Address) => {
   const [mutation] = useRequestFundsMutation({
     client: useApiClient(),
     variables: { recipient },
@@ -37,16 +37,12 @@ export const useFaucet = (recipient: Address, displayMessage?: boolean) => {
   const [canRequestFunds] = useCanRequestFunds(recipient);
 
   const receive = useCallback(async () => {
-    if (displayMessage)
-      showInfo({
-        text1: 'Requesting testnet funds...',
-        autoHide: false,
-      });
+    showSnack({ message: 'Requesting testnet funds...', autoHide: false });
 
     await mutation();
 
-    if (displayMessage) showInfo('Funds received');
-  }, [displayMessage, mutation]);
+    showSnack({ message: 'Funds received' });
+  }, [mutation]);
 
   return CHAIN.isTestnet && canRequestFunds ? receive : undefined;
 };

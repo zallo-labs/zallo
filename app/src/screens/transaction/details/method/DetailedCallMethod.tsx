@@ -11,8 +11,8 @@ import {
 } from '~/queries/useContractMethod.api';
 import { MethodInputRow } from './MethodInputRow';
 import { memo } from 'react';
-import { UpsertUserMethod } from './wallet/UpsertUserMethod';
-import { RemoveWalletMethod } from './wallet/RemoveWalletMethod';
+import { UpsertUserMethod } from './user/UpsertUserMethod';
+import { RemoveUserMethod } from './user/RemoveUserMethod';
 import { StyleProp, ViewStyle } from 'react-native';
 import { ERC20_TRANSFER_SIGHASH } from '~/components/call/useDecodedTransfer';
 import { useCallLabel } from '~/components/call/useCallLabel';
@@ -52,7 +52,7 @@ export const DetailedCallMethod = memo(
       return <UpsertUserMethod call={call} style={style} />;
 
     if (method.sighash === REMOVE_USER_SIGHASH)
-      return <RemoveWalletMethod call={call} style={style} />;
+      return <RemoveUserMethod call={call} style={style} />;
 
     return (
       <Accordion
@@ -62,13 +62,11 @@ export const DetailedCallMethod = memo(
           </Text>
         }
       >
-        <Box mt={1}>
-          {getMethodInputs(method, call.data).map((input) => (
-            <Box key={input.param.format()} ml={2} mb={1}>
-              <MethodInputRow key={input.param.format()} {...input} />
-            </Box>
-          ))}
-        </Box>
+        {getMethodInputs(method, call.data).map((input) => (
+          <Box key={input.param.format()} ml={2} mb={1}>
+            <MethodInputRow key={input.param.format()} {...input} />
+          </Box>
+        ))}
       </Accordion>
     );
   },

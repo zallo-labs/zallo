@@ -32,8 +32,6 @@ export const useUpsertContact = () => {
 
   return useCallback(
     (cur: NewContact, prev?: Contact) => {
-      const curId = toId(`${device.address}-${cur.addr}`);
-
       return mutation({
         variables: {
           prevAddr: prev?.addr,
@@ -42,7 +40,7 @@ export const useUpsertContact = () => {
         },
         optimisticResponse: {
           upsertContact: {
-            id: curId,
+            id: toId(`${device.address}-${cur.addr}`),
           },
         },
         update: (cache, res) => {
@@ -70,7 +68,7 @@ export const useUpsertContact = () => {
 
               // Upsert current contact
               const contact = {
-                id: curId,
+                id,
                 addr: cur.addr,
                 name: cur.name,
               };

@@ -23,7 +23,6 @@ import { DeviceAddr } from '~/decorators/device.decorator';
 import { UsersService } from '../users/users.service';
 import { AccountsService } from './accounts.service';
 import { Prisma } from '@prisma/client';
-import { GqlAddress } from '~/apollo/scalars/Address.scalar';
 import { User } from '@gen/user/user.model';
 
 @Resolver(() => Account)
@@ -76,7 +75,7 @@ export class AccountsResolver {
     @Args() { account, deploySalt, impl, name, users }: CreateAccountArgs,
     @Info() info: GraphQLResolveInfo,
   ): Promise<Account> {
-    return this.prisma.account.create({
+    const r = await this.prisma.account.create({
       data: {
         id: account,
         deploySalt,
@@ -94,6 +93,16 @@ export class AccountsResolver {
       },
       ...getSelect(info),
     });
+
+    this.service.activateAccount(account);
+
+    return r;
+  }
+
+  @Mutation(() => Boolean)
+  async activateAccount(@Args() { id }: AccountArgs): Promise<true> {
+    await this.service.activateAccount(id);
+    return true;
   }
 
   @Mutation(() => Account)

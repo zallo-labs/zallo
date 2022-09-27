@@ -128,7 +128,7 @@ model Proposal {
 
   account    Account  @relation(fields: [accountId], references: [id], onDelete: Cascade)
   accountId  String   @db.Char(42) // address
-  proposer   User     @relation(fields: [userAccountId, userDeviceId], references: [accountId, deviceId])
+  proposer   User     @relation(fields: [accountId, proposerId], references: [accountId, deviceId])
   proposerId String   @db.Char(42) // address
   to         String   @db.Char(42) // address
   value      String //@db.Decimal(79, 0) // uint256
@@ -136,11 +136,9 @@ model Proposal {
   salt       String   @db.Char(18) // bytes8
   createdAt  DateTime @default(now())
 
-  approvals     Approval[]
-  submissions   Submission[]
-  userStates    UserState[]
-  userAccountId String       @db.Char(42)
-  userDeviceId  String       @db.Char(42)
+  approvals   Approval[]
+  submissions Submission[]
+  userStates  UserState[]
 }
 
 model Submission {

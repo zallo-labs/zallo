@@ -3,19 +3,21 @@ import {
   createUpsertUserTx,
   getMerkleTree,
   AccountEvent,
-  sortUserConfigs,
   sortAddresses,
+  compareUserConfig,
 } from 'lib';
 import { deploy, expect, execute, deployTestAccount, allSigners } from './util';
 
 const modifiedUser = (user: User): User => ({
   ...user,
-  configs: sortUserConfigs([
+  configs: [
     ...user.configs,
     {
       approvers: sortAddresses([allSigners[4].address, allSigners[5].address]),
+      spendingAllowlisted: false,
+      limits: {},
     },
-  ]),
+  ].sort(compareUserConfig),
 });
 
 describe('UpsertUser', () => {

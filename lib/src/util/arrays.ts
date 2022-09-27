@@ -53,11 +53,11 @@ export const filterAsync = async <T>(
 export const upsertItem = <T>(
   array: T[] | undefined,
   item: T,
-  comparator: (a: T, b: T) => boolean,
+  predicate: (value: T, index: number) => boolean,
 ): T[] => {
   if (!array) array = [];
 
-  const index = array.findIndex((e) => comparator(e, item));
+  const index = array.findIndex(predicate);
   if (index === -1) return [...array, item];
 
   return [...array.slice(0, index), item, ...array.slice(index + 1)];

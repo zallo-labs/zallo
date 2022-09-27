@@ -4,9 +4,9 @@ import { useRootNavigation } from '~/navigation/useRootNavigation';
 import { ProposableIcon } from './ProposableIcon';
 
 const LABEL = {
-  modify: 'Modification proposed',
-  add: 'Addition proposed',
-  remove: 'Removal proposed',
+  modify: 'View modification proposal',
+  add: 'View addition proposal',
+  remove: 'View removal proposal',
 } as const;
 
 export interface ProposableButtonProps {
@@ -21,7 +21,7 @@ export const ProposableButton = ({ proposable: p }: ProposableButtonProps) => {
   const proposal = p.proposal;
   return (
     <Chip
-      mode={proposal ? 'flat' : 'outlined'}
+      mode={proposal ? 'outlined' : 'outlined'}
       icon={(props) => <ProposableIcon proposable={p} {...props} />}
       onPress={() => navigate('Transaction', { id: proposal })}
     >

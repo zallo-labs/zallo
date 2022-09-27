@@ -4,7 +4,7 @@ import { useTokenBalances } from '@token/useTokenBalance';
 import { useTotalAvailableValue } from '@token/useTotalAvailableValue';
 import produce from 'immer';
 import { address, Address, Limit, UserConfig, ZERO } from 'lib';
-import { useMemo, useState } from 'react';
+import { Dispatch, SetStateAction, useMemo, useState } from 'react';
 import { StyleProp, ViewStyle } from 'react-native';
 import Collapsible from 'react-native-collapsible';
 import { Button, Switch, Text } from 'react-native-paper';
@@ -20,7 +20,7 @@ import { TokenLimitItem } from './TokenLimitItem';
 export interface SpendingCardProps {
   user: CombinedUser;
   config: UserConfig;
-  setConfig: (c: (config: UserConfig) => UserConfig) => void;
+  setConfig: Dispatch<SetStateAction<UserConfig>>;
   style?: StyleProp<ViewStyle>;
 }
 
@@ -49,7 +49,11 @@ export const SpendingCard = ({
   }, [balances, config.limits]);
 
   return (
-    <Card style={style} onPress={() => setExpanded((expanded) => !expanded)}>
+    <Card
+      style={style}
+      touchableStyle={styles.container}
+      onPress={() => setExpanded((expanded) => !expanded)}
+    >
       <Box style={styles.row}>
         <Text variant="titleLarge">Spending</Text>
         <Chevron expanded={expanded} />
@@ -80,42 +84,51 @@ export const SpendingCard = ({
           />
         </Box>
 
-        {Object.entries(tokens).map(([token, limit]) => (
-          <TokenLimitItem
-            key={token}
-            user={user}
-            token={address(token)}
-            limit={limit}
-            onPress={() =>
-              navigate(
-                'Limit',
-                limit
-                  ? {
-                      user,
-                      ...limit,
-                      onChange: (newLimit) => {
-                        setConfig((config) =>
-                          produce(config, (config) => {
-                            if (newLimit.token !== limit.token)
-                              delete config.limits[limit.token];
+        <Box style={styles.section}>
+          {Object.entries(tokens).map(([token, limit]) => (
+            <TokenLimitItem
+              key={token}
+              user={user}
+              token={address(token)}
+              limit={limit}
+              style={styles.item}
+              onPress={() =>
+                navigate(
+                  'Limit',
+                  limit
+                    ? {
+                        user,
+                        ...limit,
+                        onChange: (newLimit) => {
+                          setConfig((config) =>
+                            produce(config, (config) => {
+                              if (newLimit.token !== limit.token)
+                                delete config.limits[limit.token];
 
-                            config.limits[newLimit.token] = newLimit;
-                          }),
-                        );
+                              config.limits[newLimit.token] = newLimit;
+                            }),
+                          );
+                        },
+                        onDelete: () => {
+                          delete config.limits[limit.token];
+                        },
+                      }
+                    : {
+                        user,
+                        token: address(token),
+                        onChange: (newLimit) => {
+                          setConfig((config) =>
+                            produce(config, (config) => {
+                              config.limits[newLimit.token] = newLimit;
+                            }),
+                          );
+                        },
                       },
-                      onDelete: () => {
-                        delete config.limits[limit.token];
-                      },
-                    }
-                  : {
-                      user,
-                      token: address(token),
-                      onChange: (newLimit) => createLimit(() => newLimit),
-                    },
-              )
-            }
-          />
-        ))}
+                )
+              }
+            />
+          ))}
+        </Box>
 
         <Button
           icon={PlusIcon}
@@ -138,13 +151,20 @@ export const SpendingCard = ({
 };
 
 const useStyles = makeStyles(({ space }) => ({
+  container: {
+    paddingHorizontal: 0,
+  },
   row: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
+    paddingHorizontal: space(2),
   },
   section: {
     marginTop: space(1),
+  },
+  item: {
+    paddingHorizontal: space(2),
   },
   label: {
     flexShrink: 1,

@@ -32,9 +32,9 @@ export const CONFIG = {
   },
   sessionSecret: E.SESSION_SECRET,
   subgraphGqlUrl: E.SUBGRAPH_GQL_URL,
-  accountImplAddress: E[`ACCOUNT_IMPL_${chain.name}`],
-  proxyFactoryAddress: E[`PROXY_FACTORY_${chain.name}`],
-  multicallAddress: E[`MULTI_CALL_${chain.name}`],
+  accountImplAddress: E[`ACCOUNT_IMPL_${chain.name.toUpperCase()}`],
+  proxyFactoryAddress: E[`PROXY_FACTORY_${chain.name.toUpperCase()}`],
+  multicallAddress: E[`MULTI_CALL_${chain.name.toUpperCase()}`],
 } as const;
 
 export default CONFIG;

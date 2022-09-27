@@ -12,8 +12,10 @@ const createWhereStateIsActive = (
     {
       proposal: {
         submissions: {
-          some: {
-            response: isActive ? { isNot: null } : { is: null },
+          [isActive ? 'some' : 'none']: {
+            response: {
+              reverted: false,
+            },
           },
         },
       },

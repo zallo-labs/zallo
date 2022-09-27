@@ -35,7 +35,7 @@ export const TransactionStatus = () => {
         <TransactionActions proposal={proposal} />
       </Box>
 
-      <Box mt={2} mr={1}>
+      <Box mt={1}>
         <TransactionEvents />
       </Box>
     </Card>

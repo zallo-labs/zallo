@@ -5,15 +5,14 @@ export const withSkeleton = <Props extends {}>(
   Component: FC<Props>,
   Skeleton: FC<Props> | NonNullable<ReactNode>,
 ) => {
-  const MemoizedComponent = memo(Component);
-
-  return memo((props: Props) => (
+  return (props: Props) => (
     <Suspense
       fallback={
         isFunctionalComponent(Skeleton) ? <Skeleton {...props} /> : Skeleton
       }
     >
-      <MemoizedComponent {...props} />
+      {/* <MemoizedComponent {...props} /> */}
+      <Component {...props} />
     </Suspense>
-  ));
+  );
 };

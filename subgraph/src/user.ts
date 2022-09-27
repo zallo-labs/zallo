@@ -16,24 +16,22 @@ export function handleUserUpserted(e: UserUpserted): void {
     user.save();
   }
 
-  const configIds: string[] = [];
-  const configs = e.params.user.configs;
-  for (let i = 0; i < configs.length; ++i) {
-    const ce = configs[i];
+  const configs: string[] = [];
+  for (let i = 0; i < e.params.user.configs.length; ++i) {
+    const ce = e.params.user.configs[i];
 
     const configId = `${e.block.hash.toHex()}-${e.logIndex}`;
-    configIds.push(configId);
+    configs.push(configId);
 
     const config = new UserConfig(configId);
     config.user = user.id;
     config.approvers = [];
-
-    for (let ai = 0; ai < ce.approvers.length; ++ai) {
+    for (let ai = 0; ai < ce.approvers.length; ++ai)
       config.approvers.push(ce.approvers[ai]);
-    }
+    config.save();
   }
 
-  user.configs = configIds;
+  user.configs = configs;
   user.save();
 }
 

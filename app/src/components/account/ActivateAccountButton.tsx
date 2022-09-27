@@ -1,6 +1,6 @@
-import { DeployIcon } from '@theme/icons';
+import { ActivateIcon } from '@theme/icons';
 import { FC } from 'react';
-import { useActivateAccount } from '~/mutations/account/useActivateAccount';
+import { useActivateAccount } from '~/mutations/account/useActivateAccount.api';
 import { CombinedAccount } from '~/queries/account/useAccount.api';
 import { FABProps } from '../FAB';
 
@@ -15,16 +15,9 @@ export const ActivateAccountButton = ({
   children: Button,
   account,
 }: ActivateAccountButtonProps) => {
-  const [activate, activating] = useActivateAccount(account);
+  const activate = useActivateAccount(account);
 
   if (!activate) return null;
 
-  return (
-    <Button
-      icon={DeployIcon}
-      label="Activate"
-      loading={activating}
-      onPress={activate}
-    />
-  );
+  return <Button icon={ActivateIcon} label="Activate" onPress={activate} />;
 };

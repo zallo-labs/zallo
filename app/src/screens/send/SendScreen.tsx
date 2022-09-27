@@ -16,7 +16,10 @@ import {
   useSelectedToken,
   useSelectToken,
 } from '~/components/token/useSelectedToken';
-import { usePropose } from '~/mutations/proposal/propose/usePropose';
+import {
+  popToProposal,
+  usePropose,
+} from '~/mutations/proposal/propose/usePropose';
 import { RootNavigatorScreenProps } from '~/navigation/RootNavigator';
 import { AmountInput } from '../amount/AmountInput';
 
@@ -74,7 +77,11 @@ export const SendScreen = ({ route, navigation }: SendScreenProps) => {
         disabled={!amount || amount.eq(ZERO)}
         {...(amount && {
           onPress: () => {
-            propose(user.account, createTransferTx(token, to, amount));
+            propose(
+              user.account,
+              createTransferTx(token, to, amount),
+              popToProposal,
+            );
           },
         })}
       />
