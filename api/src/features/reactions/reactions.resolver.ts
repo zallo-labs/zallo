@@ -38,7 +38,7 @@ export class ReactionsResolver {
         },
       },
       create: {
-        commentId: id,
+        comment: { connect: { id } },
         device: connectOrCreateDevice(device),
         emojis,
       },

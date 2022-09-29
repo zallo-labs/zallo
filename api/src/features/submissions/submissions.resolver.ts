@@ -58,14 +58,12 @@ export class SubmissionsResolver {
 
     return await this.prisma.submission.create({
       data: {
-        proposal: {
-          connect: { hash: proposalHash },
-        },
+        proposal: { connect: { hash: proposalHash } },
         hash: submission.hash,
         nonce: transaction.nonce,
         gasLimit: transaction.gasLimit.toString(),
         gasPrice: transaction.gasPrice?.toString(),
-        response: await this.subgraph.txResponse(proposalHash),
+        response: { create: await this.subgraph.txResponse(proposalHash) },
       },
       ...getSelect(info),
     });

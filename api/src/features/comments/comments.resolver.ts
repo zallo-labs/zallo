@@ -4,7 +4,10 @@ import { GraphQLResolveInfo } from 'graphql';
 import { Address } from 'lib';
 import { PrismaService } from 'nestjs-prisma';
 import { DeviceAddr } from '~/decorators/device.decorator';
-import { connectOrCreateDevice } from '~/util/connect-or-create';
+import {
+  connectAccount,
+  connectOrCreateDevice,
+} from '~/util/connect-or-create';
 import { getSelect } from '~/util/select';
 import {
   CreateCommentArgs,
@@ -38,7 +41,7 @@ export class CommentsResolver {
   ): Promise<Comment> {
     return this.prisma.comment.create({
       data: {
-        accountId: account,
+        account: connectAccount(account),
         key,
         author: connectOrCreateDevice(device),
         content,

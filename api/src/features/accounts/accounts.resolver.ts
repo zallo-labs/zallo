@@ -110,15 +110,9 @@ export class AccountsResolver {
     @Args() { id, name }: SetAccountNameArgs,
     @Info() info: GraphQLResolveInfo,
   ): Promise<Account> {
-    return this.prisma.account.upsert({
+    return this.prisma.account.update({
       where: { id },
-      create: {
-        id,
-        name,
-      },
-      update: {
-        name: { set: name },
-      },
+      data: { name },
       ...getSelect(info),
     });
   }

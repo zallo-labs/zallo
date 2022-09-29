@@ -134,7 +134,7 @@ export class ProposalsResolver {
       data: {
         approvals: {
           create: {
-            user: connectOrCreateDevice(device),
+            device: connectOrCreateDevice(device),
             signature: ethers.utils.hexlify(signature),
           },
         },
