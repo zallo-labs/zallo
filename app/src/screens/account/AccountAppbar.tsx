@@ -1,18 +1,19 @@
 import { buildAddrLink } from '~/util/addrLink';
-import { ShareIcon } from '~/util/theme/icons';
-import { Address } from 'lib';
+import { AddIcon, SettingsOutlineIcon, ShareIcon } from '~/util/theme/icons';
 import { FC } from 'react';
 import { Share } from 'react-native';
 import { Appbar } from 'react-native-paper';
 import { AppbarHeaderProps } from '~/components/Appbar/useAppbarHeader';
 import { useGoBack } from '~/components/Appbar/useGoBack';
-import { AppbarExtraContent } from '~/components/Appbar/AppbarExtraContent';
-import { InactiveIndicator } from './InactiveIndicator';
+import { CombinedAccount } from '~/queries/account/useAccount.api';
+import { makeStyles } from '@theme/makeStyles';
+import { useCreateUser } from '../user/useCreateUser';
+import { useRootNavigation } from '~/navigation/useRootNavigation';
 
 export interface AccountAppbarProps {
   AppbarHeader: FC<AppbarHeaderProps>;
   title?: string;
-  account: Address;
+  account: CombinedAccount;
 }
 
 export const AccountAppbar = ({
@@ -20,23 +21,34 @@ export const AccountAppbar = ({
   title,
   account,
 }: AccountAppbarProps) => {
+  const styles = useStyles();
+  const { navigate } = useRootNavigation();
+  const createUser = useCreateUser(account.addr);
+
   return (
-    <AppbarHeader mode="medium">
+    <AppbarHeader mode="large" style={styles.appbar}>
       <Appbar.BackAction onPress={useGoBack()} />
 
-      <AppbarExtraContent>
-        <InactiveIndicator id={account} />
-      </AppbarExtraContent>
+      <Appbar.Content title={title || account.name} />
 
-      <Appbar.Content title={title || 'Account'} />
-
+      <Appbar.Action icon={AddIcon} onPress={createUser} />
       <Appbar.Action
         icon={ShareIcon}
         onPress={() => {
-          const url = buildAddrLink({ target_address: account });
+          const url = buildAddrLink({ target_address: account.addr });
           Share.share({ url, message: url });
         }}
+      />
+      <Appbar.Action
+        icon={SettingsOutlineIcon}
+        onPress={() => navigate('AccountSettings', { account: account.addr })}
       />
     </AppbarHeader>
   );
 };
+
+const useStyles = makeStyles(({ space }) => ({
+  appbar: {
+    // marginBottom: -space(2),
+  },
+}));

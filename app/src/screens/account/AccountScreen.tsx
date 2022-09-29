@@ -1,22 +1,20 @@
 import { Box } from '~/components/layout/Box';
-import { TextField } from '~/components/fields/TextField';
 import { ScreenSkeleton } from '~/components/skeleton/ScreenSkeleton';
 import { withSkeleton } from '~/components/skeleton/withSkeleton';
-import { Suspend } from '~/components/Suspender';
-import { PlusIcon } from '~/util/theme/icons';
 import { makeStyles } from '~/util/theme/makeStyles';
 import { Address, UserId } from 'lib';
 import { FlatList } from 'react-native-gesture-handler';
-import { Button, Text } from 'react-native-paper';
 import { useAppbarHeader } from '~/components/Appbar/useAppbarHeader';
-import { useSetAccountName } from '~/mutations/account/useSetAccountName.api';
 import { RootNavigatorScreenProps } from '~/navigation/RootNavigator';
 import { AccountAppbar } from './AccountAppbar';
-import { useState } from 'react';
 import { ActivateAccountButton } from '~/components/account/ActivateAccountButton';
 import { FAB } from '~/components/FAB';
 import { useAccount } from '~/queries/account/useAccount.api';
-import { UserItemCard } from './UserItemCard';
+import { UserItem } from './UserItemCard';
+import { useFuzzySearch } from '@hook/useFuzzySearch';
+import { TextField } from '~/components/fields/TextField';
+import { TextInput } from 'react-native-paper';
+import { SearchIcon } from '@theme/icons';
 
 export interface AccountScreenParams {
   id: Address;
@@ -31,71 +29,51 @@ export const AccountScreen = withSkeleton(
   ({
     navigation: { navigate },
     route: {
-      params: { id, onSelectUser: onSelectWallet, inactiveOpacity, title },
+      params: { id, onSelectUser, inactiveOpacity, title },
     },
   }: AccountScreenProps) => {
-    const [account] = useAccount(id);
     const styles = useStyles();
+    const [account] = useAccount(id);
     const { AppbarHeader, handleScroll } = useAppbarHeader();
-    const setAccountName = useSetAccountName(account);
 
-    const [nameInput, setNameInput] = useState(account?.name ?? '');
-
-    if (!account) return <Suspend />;
+    const [users, searchProps] = useFuzzySearch(account.users, [
+      'name',
+      'addr',
+    ]);
 
     return (
       <Box flex={1}>
         <AccountAppbar
           AppbarHeader={AppbarHeader}
           title={title}
-          account={account.addr}
+          account={account}
         />
 
         <FlatList
           ListHeaderComponent={
-            <>
-              <TextField
-                label="Name"
-                value={nameInput}
-                onChangeText={setNameInput}
-                onSubmitEditing={() => setAccountName(nameInput)}
-                onBlur={() => setAccountName(nameInput)}
-              />
-
-              <Box my={3}>
-                <Text variant="titleSmall">Wallets</Text>
-              </Box>
-            </>
+            <TextField
+              left={<TextInput.Icon icon={SearchIcon} />}
+              label="Search users"
+              value={searchProps.input}
+              onChangeText={searchProps.setInput}
+              containerStyle={styles.search}
+            />
           }
           renderItem={({ item: user }) => (
-            <UserItemCard
-              id={user}
-              showAccount={false}
+            <UserItem
+              user={user}
               onPress={() => {
-                if (onSelectWallet) {
-                  onSelectWallet(user);
+                if (onSelectUser) {
+                  onSelectUser(user);
                 } else {
                   navigate('User', { user });
                 }
               }}
             />
           )}
-          ItemSeparatorComponent={() => <Box my={2} />}
-          ListFooterComponent={
-            <Button
-              style={styles.create}
-              icon={PlusIcon}
-              onPress={() => {
-                // TODO: implement create new user
-                // navigate('User', { account: account.addr })
-              }}
-            >
-              Account
-            </Button>
-          }
-          style={styles.list}
-          data={account.userIds}
-          extraData={[inactiveOpacity, onSelectWallet, navigate]}
+          data={users}
+          extraData={[onSelectUser, navigate]}
+          stickyHeaderIndices={[0]}
           onScroll={handleScroll}
           showsVerticalScrollIndicator={false}
         />
@@ -108,12 +86,7 @@ export const AccountScreen = withSkeleton(
 );
 
 const useStyles = makeStyles(({ space }) => ({
-  list: {
+  search: {
     marginHorizontal: space(2),
-  },
-  create: {
-    flex: 1,
-    alignSelf: 'flex-end',
-    marginTop: space(1),
   },
 }));

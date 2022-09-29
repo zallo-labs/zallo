@@ -1,7 +1,7 @@
 import { Address } from 'lib';
 import { useMemo } from 'react';
 import { useMaybeToken } from '@token/useToken';
-import { truncatedAddr } from '~/util/format';
+import { truncateAddr } from '~/util/format';
 import { useAddrEns } from './useAddrEns';
 import { useContact } from '~/queries/contacts/useContact';
 
@@ -21,12 +21,12 @@ export const useAddrName = (addr: Address, mode?: AddrNameMode) => {
       case 'full-addr':
         return addr;
       case 'short-addr':
-        return truncatedAddr(addr);
+        return truncateAddr(addr);
       case 'ens-or-short-addr':
-        return ens || truncatedAddr(addr);
+        return ens || truncateAddr(addr);
       case 'default':
       default:
-        return contact?.name || token?.name || ens || truncatedAddr(addr);
+        return contact?.name || token?.name || ens || truncateAddr(addr);
     }
   }, [addr, contact?.name, ens, mode, token?.name]);
 };

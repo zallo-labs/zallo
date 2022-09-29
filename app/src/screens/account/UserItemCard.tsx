@@ -1,44 +1,49 @@
 import { withSkeleton } from '~/components/skeleton/withSkeleton';
-import { Text } from 'react-native-paper';
-import { Addr } from '~/components/addr/Addr';
-import { CardItem, CardItemProps } from '../../components/card/CardItem';
+import { Text, TouchableRipple } from 'react-native-paper';
 import { CardItemSkeleton } from '../../components/card/CardItemSkeleton';
-import { FiatValue } from '../../components/fiat/FiatValue';
-import { useTotalBalanceValue } from '@token/useTotalBalanceValue';
 import { UserId } from 'lib';
 import { useUser } from '~/queries/user/useUser.api';
+import { Box } from '~/components/layout/Box';
+import { LabelIcon } from '~/components/Identicon/LabelIcon';
+import { useContact } from '~/queries/contacts/useContact';
+import { makeStyles } from '@theme/makeStyles';
+import { memo } from 'react';
+import { truncateAddr } from '~/util/format';
 
-export interface UserItemCardProps extends CardItemProps {
-  id: UserId;
-  showAccount?: boolean;
+export interface UserItemProps {
+  user: UserId;
+  onPress?: () => void;
 }
 
-export const UserItemCard = withSkeleton(
-  ({ id, showAccount = true, ...props }: UserItemCardProps) => {
-    const [user] = useUser(id);
-    const totalFiatValue = useTotalBalanceValue(user.account);
+export const UserItem = memo(({ user: id, onPress }: UserItemProps) => {
+  const styles = useStyles();
+  const [user] = useUser(id);
+  const contact = useContact(user.addr);
 
-    return (
-      <CardItem
-        Main={[
-          <Text variant="titleMedium">{user.name}</Text>,
-          showAccount && (
-            <Text variant="bodySmall">
-              <Addr addr={user.account} />
-            </Text>
-          ),
-        ]}
-        Right={[
-          // <ProposableStatusIcon state={user.state} />,
-          totalFiatValue && (
-            <Text variant="bodyLarge">
-              <FiatValue value={totalFiatValue} /> available
-            </Text>
-          ),
-        ]}
-        {...props}
-      />
-    );
+  return (
+    <TouchableRipple onPress={onPress} style={styles.root}>
+      <Box horizontal alignItems="center">
+        <LabelIcon label={user.name} style={styles.icon} />
+
+        <Box flex={1} vertical justifyContent="center">
+          <Text variant="titleMedium">{user.name}</Text>
+
+          {contact && <Text variant="bodyMedium">{contact.name}</Text>}
+        </Box>
+
+        <Text variant="bodyMedium">{truncateAddr(user.addr)}</Text>
+      </Box>
+    </TouchableRipple>
+  );
+});
+
+const useStyles = makeStyles(({ space }) => ({
+  root: {
+    padding: space(2),
   },
-  CardItemSkeleton,
-);
+  icon: {
+    marginRight: space(2),
+  },
+}));
+
+export default withSkeleton(UserItem, CardItemSkeleton);

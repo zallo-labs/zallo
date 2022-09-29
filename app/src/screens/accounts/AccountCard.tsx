@@ -26,7 +26,7 @@ const AccountCard = ({ id, ...cardProps }: AccountCardProps) => {
       <Box horizontal justifyContent="space-between" alignItems="center" mb={1}>
         <Box>
           <Text variant="titleLarge">{account.name}</Text>
-          <Text variant="bodySmall">{user.name}</Text>
+          <Text variant="bodyMedium">{user.name}</Text>
         </Box>
 
         <Identicon seed={account.addr} />

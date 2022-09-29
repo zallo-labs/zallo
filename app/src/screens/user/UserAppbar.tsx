@@ -43,7 +43,7 @@ export const UserAppbar = ({
           <>
             <Menu.Item
               leadingIcon={PeopleIcon}
-              title="Account users"
+              title="Account"
               onPress={() => {
                 close();
                 navigate('Account', { id: user.account });
@@ -52,7 +52,7 @@ export const UserAppbar = ({
 
             <Menu.Item
               leadingIcon={EditIcon}
-              title="Edit user name"
+              title="Edit name"
               onPress={() => {
                 close();
                 editName();

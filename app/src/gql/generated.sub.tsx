@@ -25,6 +25,7 @@ export type Account = {
   impl: AccountImpl;
   transfers: Array<Transfer>;
   txs: Array<Tx>;
+  users: Array<User>;
 };
 
 
@@ -43,6 +44,15 @@ export type AccountTxsArgs = {
   orderDirection?: InputMaybe<OrderDirection>;
   skip?: InputMaybe<Scalars['Int']>;
   where?: InputMaybe<Tx_Filter>;
+};
+
+
+export type AccountUsersArgs = {
+  first?: InputMaybe<Scalars['Int']>;
+  orderBy?: InputMaybe<User_OrderBy>;
+  orderDirection?: InputMaybe<OrderDirection>;
+  skip?: InputMaybe<Scalars['Int']>;
+  where?: InputMaybe<User_Filter>;
 };
 
 export type AccountImpl = {
@@ -128,13 +138,15 @@ export type Account_Filter = {
   impl_starts_with_nocase?: InputMaybe<Scalars['String']>;
   transfers_?: InputMaybe<Transfer_Filter>;
   txs_?: InputMaybe<Tx_Filter>;
+  users_?: InputMaybe<User_Filter>;
 };
 
 export enum Account_OrderBy {
   Id = 'id',
   Impl = 'impl',
   Transfers = 'transfers',
-  Txs = 'txs'
+  Txs = 'txs',
+  Users = 'users'
 }
 
 export type BlockChangedFilter = {
@@ -683,19 +695,9 @@ export type User = {
   __typename?: 'User';
   account: Account;
   addr: Scalars['Bytes'];
-  allConfigs: Array<UserConfig>;
   configs: Array<UserConfig>;
   /** {account.id}-{addr} */
   id: Scalars['String'];
-};
-
-
-export type UserAllConfigsArgs = {
-  first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<UserConfig_OrderBy>;
-  orderDirection?: InputMaybe<OrderDirection>;
-  skip?: InputMaybe<Scalars['Int']>;
-  where?: InputMaybe<UserConfig_Filter>;
 };
 
 
@@ -803,7 +805,6 @@ export type User_Filter = {
   addr_not?: InputMaybe<Scalars['Bytes']>;
   addr_not_contains?: InputMaybe<Scalars['Bytes']>;
   addr_not_in?: InputMaybe<Array<Scalars['Bytes']>>;
-  allConfigs_?: InputMaybe<UserConfig_Filter>;
   configs?: InputMaybe<Array<Scalars['String']>>;
   configs_?: InputMaybe<UserConfig_Filter>;
   configs_contains?: InputMaybe<Array<Scalars['String']>>;
@@ -836,7 +837,6 @@ export type User_Filter = {
 export enum User_OrderBy {
   Account = 'account',
   Addr = 'addr',
-  AllConfigs = 'allConfigs',
   Configs = 'configs',
   Id = 'id'
 }
@@ -847,6 +847,8 @@ export type _Block_ = {
   hash?: Maybe<Scalars['Bytes']>;
   /** The block number */
   number: Scalars['Int'];
+  /** Integer representation of the timestamp stored in blocks for the chain */
+  timestamp?: Maybe<Scalars['Int']>;
 };
 
 /** The type for the top-level _meta field */

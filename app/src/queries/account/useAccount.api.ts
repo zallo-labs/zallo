@@ -6,28 +6,22 @@ import {
   AccountQueryVariables,
 } from '~/gql/generated.api';
 import { useApiClient } from '~/gql/GqlProvider';
-import {
-  Account,
-  Address,
-  address,
-  connectAccount,
-  DeploySalt,
-  toDeploySalt,
-  UserId,
-} from 'lib';
+import { Account, Address, address, connectAccount, UserId } from 'lib';
 import { useMemo } from 'react';
 import { usePollWhenFocussed } from '~/gql/usePollWhenFocussed';
 import { useSuspenseQuery } from '~/gql/useSuspenseQuery';
+
+export interface UserMetadata extends UserId {
+  name: string;
+}
 
 export interface CombinedAccount {
   addr: Address;
   contract: Account;
   impl: Address;
-  deploySalt?: DeploySalt;
   name: string;
   active?: boolean;
-  userIds: UserId[];
-  deployUser: UserId;
+  users: UserMetadata[];
 }
 
 gql`
@@ -40,6 +34,7 @@ gql`
       name
       users {
         deviceId
+        name
       }
       deployUser {
         deviceId
@@ -67,18 +62,14 @@ export const useAccount = (id: Address | UserId) => {
       addr,
       contract: connectAccount(addr, device),
       impl: address(a.impl),
-      deploySalt: toDeploySalt(a.deploySalt),
       active: a.isDeployed,
       name: a.name,
-      userIds:
+      users:
         a.users?.map((u) => ({
           account: addr,
           addr: address(u.deviceId),
+          name: u.name,
         })) ?? [],
-      deployUser: {
-        account: addr,
-        addr: address(a.deployUser.deviceId),
-      },
     }),
     [addr, device, a],
   );

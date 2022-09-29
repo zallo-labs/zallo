@@ -48,12 +48,17 @@ import {
 import { SendScreen, SendScreenParams } from '~/screens/send/SendScreen';
 import LimitScreen, { LimitScreenParams } from '~/screens/limit/LimitScreen';
 import UserScreen, { UserScreenParams } from '~/screens/user/UserScreen';
+import {
+  AccountSettingsScreen,
+  AccountSettingsScreenParams,
+} from '~/screens/account-settings/AccountSettingsScreen';
 
 export type RootNavigatorParamList = {
   DrawerNavigator: undefined;
   Transaction: TransactionScreenParams;
   Accounts: AccountsScreenParams;
   Account: AccountScreenParams;
+  AccountSettings: AccountSettingsScreenParams;
   User: UserScreenParams;
   Limit: LimitScreenParams;
   Contacts: ContactsScreenParams;
@@ -94,6 +99,10 @@ export const RootNavigator = () => {
       <Navigation.Screen name="Transaction" component={TransactionScreen} />
       <Navigation.Screen name="Accounts" component={AccountsScreen} />
       <Navigation.Screen name="Account" component={AccountScreen} />
+      <Navigation.Screen
+        name="AccountSettings"
+        component={AccountSettingsScreen}
+      />
       {!showOnboarding && (
         <Navigation.Screen
           name="CreateAccount"
