@@ -30,9 +30,9 @@
   },
   "devDependencies": {
     "@types/node": "^16.11.58",
-    "@typescript-eslint/eslint-plugin": "^5.32.0",
-    "@typescript-eslint/parser": "^5.32.0",
-    "eslint": "^8.23.1",
+    "@typescript-eslint/eslint-plugin": "^5.38.1",
+    "@typescript-eslint/parser": "^5.38.1",
+    "eslint": "^8.24.0",
     "eslint-plugin-react-hooks": "^4.6.0"
   },
   "resolutions": {
