@@ -34,9 +34,7 @@ const TokensScreen = ({ route }: TokensScreenProps) => {
     <Box>
       <AppbarHeader mode="medium">
         <Appbar.BackAction onPress={useGoBack()} />
-
         <Appbar.Content title={onSelect ? 'Select Token' : 'Tokens'} />
-
         {/* <Appbar.Action icon={AddIcon} onPress={() => {
           // TODO: implement add dynamic token
         }} /> */}
@@ -66,7 +64,7 @@ const TokensScreen = ({ route }: TokensScreenProps) => {
             <TokenItem token={token} onPress={onPress} disabled={isDisabled} />
           );
         }}
-        data={[...tokens, ...tokens]}
+        data={tokens}
         stickyHeaderIndices={[0]}
         showsVerticalScrollIndicator={false}
         onScroll={handleScroll}

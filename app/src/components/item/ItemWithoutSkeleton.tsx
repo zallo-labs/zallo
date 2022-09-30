@@ -3,16 +3,15 @@ import { Box } from '~/components/layout/Box';
 import { isFunctionalComponent } from '~/util/typing';
 import { withKeys } from '~/util/children';
 import { TouchableRipple, TouchableRippleProps } from 'react-native-paper';
-import { StyleProp, StyleSheet, ViewStyle } from 'react-native';
+import { StyleProp, ViewStyle } from 'react-native';
 import { makeStyles } from '@theme/makeStyles';
 
 type TouchableProps = Pick<TouchableRippleProps, 'onPress' | 'onLongPress'>;
 
-export interface ItemWithoutSkeletonProps extends TouchableProps {
+export interface ItemWithoutSkeletonProps extends TouchableProps, Style {
   Left?: ReactNode | FC;
   Main?: ReactNode | FC;
   Right?: ReactNode | FC;
-  disabled?: boolean;
   style?: StyleProp<ViewStyle>;
 }
 
@@ -20,11 +19,13 @@ export const ItemWithoutSkeleton = ({
   Left,
   Main,
   Right,
+  selected,
   disabled,
+  padding,
   style,
   ...touchableProps
 }: ItemWithoutSkeletonProps) => {
-  const styles = useStyles(disabled);
+  const styles = useStyles({ selected, disabled, padding });
 
   return (
     <TouchableRipple
@@ -64,10 +65,20 @@ export const ItemWithoutSkeleton = ({
   );
 };
 
-const useStyles = makeStyles(({ opacity }, disabled?: boolean) => ({
-  container: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    ...(disabled && { opacity: opacity.disabled }),
-  },
-}));
+interface Style {
+  selected?: boolean;
+  disabled?: boolean;
+  padding?: boolean;
+}
+
+const useStyles = makeStyles(
+  ({ colors, opacity, space }, { selected, disabled, padding }: Style) => ({
+    container: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      ...(selected && { backgroundColor: colors.surfaceVariant }),
+      ...(disabled && { opacity: opacity.disabled }),
+      ...(padding && { padding: space(2) }),
+    },
+  }),
+);

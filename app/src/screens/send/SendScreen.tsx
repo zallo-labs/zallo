@@ -46,7 +46,7 @@ export const SendScreen = ({ route, navigation }: SendScreenProps) => {
         <Appbar.Content title="Send" />
       </Appbar.Header>
 
-      <Container mx={3} separator={<Box my={2} />}>
+      <Container mx={3} separator={<Box mt={2} />}>
         <AddrCard addr={to} />
 
         <TokenAvailableCard

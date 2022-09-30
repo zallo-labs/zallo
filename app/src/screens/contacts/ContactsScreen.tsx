@@ -1,19 +1,19 @@
-import { AppbarBack } from '~/components/Appbar/AppbarBack';
 import { Box } from '~/components/layout/Box';
-import { CheckIcon, PlusIcon } from '~/util/theme/icons';
+import { CheckIcon, PlusIcon, SearchIcon } from '~/util/theme/icons';
 import { makeStyles } from '~/util/theme/makeStyles';
 import { Address } from 'lib';
 import { FlatList } from 'react-native';
-import { AppbarSearch } from '~/components/Appbar/AppbarSearch';
 import { useAppbarHeader } from '~/components/Appbar/useAppbarHeader';
 import { FAB } from '~/components/FAB';
 import { RootNavigatorScreenProps } from '~/navigation/RootNavigator';
 import { Contact, useContacts } from '~/queries/contacts/useContacts.api';
 import { useFuzzySearch } from '@hook/useFuzzySearch';
-import { AddrCard } from '~/components/addr/AddrCard';
 import { useState } from 'react';
-import { Appbar } from 'react-native-paper';
+import { Appbar, TextInput } from 'react-native-paper';
 import produce from 'immer';
+import { useGoBack } from '~/components/Appbar/useGoBack';
+import { TextField } from '~/components/fields/TextField';
+import { AddrItem } from '~/components/addr/AddrItem';
 
 export interface ContactsScreenParams {
   title?: string;
@@ -41,18 +41,22 @@ export const ContactsScreen = ({ route, navigation }: ContactsScreenProps) => {
 
   return (
     <Box flex={1}>
-      <AppbarHeader>
-        <AppbarBack />
-        <AppbarSearch
-          title={title || 'Contacts'}
-          actions={<Appbar.Action icon={PlusIcon} onPress={create} />}
-          {...searchProps}
-        />
+      <AppbarHeader mode="medium">
+        <Appbar.BackAction onPress={useGoBack()} />
+        <Appbar.Content title={title || 'Contacts'} />
+        <Appbar.Action icon={PlusIcon} onPress={create} />
       </AppbarHeader>
 
       <FlatList
+        ListHeaderComponent={
+          <TextField
+            left={<TextInput.Icon icon={SearchIcon} />}
+            label="Search"
+            {...searchProps}
+          />
+        }
         renderItem={({ item }) => (
-          <AddrCard
+          <AddrItem
             addr={item.addr}
             onPress={() => {
               if (onSelect) {
@@ -68,13 +72,12 @@ export const ContactsScreen = ({ route, navigation }: ContactsScreenProps) => {
                 navigation.navigate('Contact', { addr: item.addr });
               }
             }}
-            disabled={disabled?.includes(item.addr)}
             selected={selections.has(item.addr)}
+            disabled={disabled?.includes(item.addr)}
           />
         )}
-        ItemSeparatorComponent={() => <Box mt={1} />}
-        keyExtractor={(item) => item.addr}
         style={styles.list}
+        ListHeaderComponentStyle={styles.header}
         data={contacts}
         extraData={[navigation, onSelect, disabled]}
         onScroll={handleScroll}
@@ -94,6 +97,9 @@ export const ContactsScreen = ({ route, navigation }: ContactsScreenProps) => {
 
 const useStyles = makeStyles(({ space }) => ({
   list: {
+  },
+  header: {
     marginHorizontal: space(2),
+    marginBottom: space(1),
   },
 }));

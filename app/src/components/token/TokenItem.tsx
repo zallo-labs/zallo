@@ -1,4 +1,3 @@
-import { makeStyles } from '@theme/makeStyles';
 import { Token } from '@token/token';
 import { useTokenValue } from '@token/useTokenValue';
 import { BigNumber } from 'ethers';
@@ -16,12 +15,10 @@ export interface TokenItemProps extends ItemProps {
 }
 
 const TokenItem = ({ token, amount, ...itemProps }: TokenItemProps) => {
-  const styles = useStyles();
   const fiatValue = useTokenValue(token, amount);
 
   return (
     <Item
-      {...itemProps}
       Left={<TokenIcon token={token} />}
       Main={<Text variant="titleMedium">{token.name}</Text>}
       {...(amount && {
@@ -34,15 +31,10 @@ const TokenItem = ({ token, amount, ...itemProps }: TokenItemProps) => {
           </Text>,
         ],
       })}
-      style={[styles.root, itemProps.style]}
+      padding
+      {...itemProps}
     />
   );
 };
-
-const useStyles = makeStyles(({ space }) => ({
-  root: {
-    padding: space(2),
-  },
-}));
 
 export default withSkeleton(TokenItem, ItemSkeleton);
