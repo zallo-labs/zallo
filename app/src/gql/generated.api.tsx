@@ -834,7 +834,7 @@ export type AccountQueryVariables = Exact<{
 }>;
 
 
-export type AccountQuery = { __typename?: 'Query', account: { __typename?: 'Account', id: string, deploySalt: string, impl: string, isDeployed: boolean, name: string, users?: Array<{ __typename?: 'User', deviceId: string, name: string }> | null, deployUser: { __typename?: 'User', deviceId: string } } };
+export type AccountQuery = { __typename?: 'Query', account: { __typename?: 'Account', id: string, deploySalt: string, impl: string, isDeployed: boolean, name: string, users?: Array<{ __typename?: 'User', deviceId: string, name: string }> | null } };
 
 export type AccountIdsQueryVariables = Exact<{ [key: string]: never; }>;
 
@@ -1469,9 +1469,6 @@ export const AccountDocument = gql`
     users {
       deviceId
       name
-    }
-    deployUser {
-      deviceId
     }
   }
 }

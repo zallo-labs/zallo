@@ -1,13 +1,13 @@
 import { withSkeleton } from '~/components/skeleton/withSkeleton';
-import { CardItemSkeleton } from './CardItemSkeleton';
+import { ItemSkeleton } from './ItemSkeleton';
 import {
   ItemWithoutSkeleton,
   ItemWithoutSkeletonProps,
-} from './CardItemWithoutSkeleton';
+} from './ItemWithoutSkeleton';
 
 export type ItemProps = ItemWithoutSkeletonProps;
 
 export const Item = withSkeleton(
   (props: ItemProps) => <ItemWithoutSkeleton {...props} />,
-  CardItemSkeleton,
+  ItemSkeleton,
 );

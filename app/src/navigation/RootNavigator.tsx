@@ -6,8 +6,7 @@ import {
   AmountScreen,
   AmountScreenParams,
 } from '~/screens/amount/AmountScreen';
-import {
-  TokensScreen,
+import TokensScreen, {
   TokensScreenParams,
 } from '~/screens/tokens/TokensScreen';
 import {

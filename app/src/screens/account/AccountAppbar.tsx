@@ -6,7 +6,6 @@ import { Appbar } from 'react-native-paper';
 import { AppbarHeaderProps } from '~/components/Appbar/useAppbarHeader';
 import { useGoBack } from '~/components/Appbar/useGoBack';
 import { CombinedAccount } from '~/queries/account/useAccount.api';
-import { makeStyles } from '@theme/makeStyles';
 import { useCreateUser } from '../user/useCreateUser';
 import { useRootNavigation } from '~/navigation/useRootNavigation';
 
@@ -21,12 +20,11 @@ export const AccountAppbar = ({
   title,
   account,
 }: AccountAppbarProps) => {
-  const styles = useStyles();
   const { navigate } = useRootNavigation();
   const createUser = useCreateUser(account.addr);
 
   return (
-    <AppbarHeader mode="large" style={styles.appbar}>
+    <AppbarHeader mode="large">
       <Appbar.BackAction onPress={useGoBack()} />
 
       <Appbar.Content title={title || account.name} />
@@ -46,9 +44,3 @@ export const AccountAppbar = ({
     </AppbarHeader>
   );
 };
-
-const useStyles = makeStyles(({ space }) => ({
-  appbar: {
-    // marginBottom: -space(2),
-  },
-}));

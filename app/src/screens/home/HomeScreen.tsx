@@ -19,8 +19,10 @@ import { TokenHoldingCard } from '~/components/token/TokenHoldingCard';
 import { AccountPaymentSelector } from './AccountPaymentSelector';
 import { useTokensByValue } from '@token/useTokensByValue';
 import { useUser } from '~/queries/user/useUser.api';
+import { makeStyles } from '@theme/makeStyles';
 
 export const HomeScreen = withSkeleton(() => {
+  const styles = useStyles();
   const { AppbarHeader, handleScroll } = useAppbarHeader();
   const [selectedToken, selectToken] = [useSelectedToken(), useSelectToken()];
   const [account, selectAccount] = [useSelectedAccount(), useSelectAccount()];
@@ -56,24 +58,30 @@ export const HomeScreen = withSkeleton(() => {
           </>
         }
         renderItem={({ item, index }) => (
-          <Box mx={2}>
-            <TokenHoldingCard
-              token={item}
-              user={user}
-              selected={index === 0}
-              onLongPress={() => selectToken(item)}
-              onPress={() => {
-                // onPress is required to be set for onLongPress to work in RNP
-                // https://github.com/callstack/react-native-paper/issues/3303
-              }}
-            />
-          </Box>
+          <TokenHoldingCard
+            token={item}
+            user={user}
+            selected={index === 0}
+            onLongPress={() => selectToken(item)}
+            onPress={() => {
+              // onPress is required to be set for onLongPress to work in RNP
+              // https://github.com/callstack/react-native-paper/issues/3303
+            }}
+          />
         )}
         ItemSeparatorComponent={() => <Box mt={1} />}
         data={tokens}
+        style={styles.list}
         onScroll={handleScroll}
         showsVerticalScrollIndicator={false}
       />
     </Box>
   );
 }, HomeScreenSkeleton);
+
+const useStyles = makeStyles(({ space }) => ({
+  list: {
+    marginHorizontal: space(2),
+    marginBottom: space(1),
+  },
+}));

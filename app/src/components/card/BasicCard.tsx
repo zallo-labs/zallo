@@ -67,46 +67,59 @@ const StyledBase = styled(Base)<StyledProps>`
 `;
 
 type BaseProps = ComponentPropsWithoutRef<typeof Base>;
-type StyledBaseProps = BaseProps & StyledProps;
-type TouchableRippleProps = ComponentPropsWithoutRef<typeof TouchableRipple>;
+type StyledBaseProps = Omit<
+  BaseProps & StyledProps,
+  'children' | 'theme' | 'padding'
+>;
 
-export type Card2Props = Omit<StyledBaseProps, 'children' | 'theme'> &
-  Pick<TouchableRippleProps, 'onPress' | 'onLongPress' | 'disabled'> & {
+export type CardProps = StyledBaseProps &
+  Style & {
     children?: ReactNode;
-    opaque?: boolean;
+    padding?: StyledProps['padding'] | true;
   };
 
 export const CARD_BORDER_RADIUS = 12;
 
-export const Card2 = ({
+export const BasicCard = ({
   children,
-  onPress,
-  onLongPress,
-  disabled,
-  opaque,
+  padding,
+  selected,
+  selectedColor,
   ...props
-}: Card2Props) => {
-  const styles = useStyles(opaque || disabled);
+}: CardProps) => {
+  const styles = useStyles({
+    selected,
+    selectedColor,
+    padding: padding === true,
+  });
 
   return (
-    <TouchableRipple
-      onPress={onPress}
-      onLongPress={onLongPress}
-      disabled={disabled}
+    <StyledBase
+      {...props}
+      style={[styles.card, props.style]}
+      padding={padding !== true ? padding : undefined}
     >
-      <StyledBase {...props} style={[styles.card, props.style]}>
-        {children}
-      </StyledBase>
-    </TouchableRipple>
+      {children}
+    </StyledBase>
   );
 };
 
-const useStyles = makeStyles(({ space }, opaque: boolean) => ({
-  card: {
-    borderRadius: CARD_BORDER_RADIUS,
-    // TouchableOpacity doesn't respect borderRadius, so hide the touchable ripple effect outside of the view;
-    overflow: 'hidden',
-    ...(opaque && { opacity: 0.38 }),
-    padding: space(2),
-  },
-}));
+interface Style {
+  selected?: boolean;
+  selectedColor?: string;
+  padding?: boolean;
+}
+
+const useStyles = makeStyles(
+  ({ colors, space }, { selected, selectedColor, padding }: Style) => ({
+    card: {
+      borderRadius: CARD_BORDER_RADIUS,
+      // TouchableOpacity doesn't respect borderRadius, so hide the touchable ripple effect outside of the view;
+      overflow: 'hidden',
+      ...(selected && {
+        backgroundColor: selectedColor ?? colors.surfaceVariant,
+      }),
+      ...(padding && { padding: space(2) }),
+    },
+  }),
+);

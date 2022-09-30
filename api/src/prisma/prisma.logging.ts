@@ -6,7 +6,7 @@ export const loggingMiddleware = (): Prisma.Middleware => async (params, next) =
   const result = await next(params);
   const after = Date.now();
 
-  Logger.verbose(`Prisma Query ${params.model}.${params.action} took ${after - before}ms`);
+  Logger.verbose(`Prisma ${params.model}.${params.action} took ${after - before}ms`);
 
   return result;
 };

@@ -8,7 +8,7 @@ interface Select {
 
 export const getSelect = (...params: SelectParams): Select | undefined => {
   const v = new PrismaSelect(...params).value;
-  return v && Object.keys(v.select).length ? v.select : undefined;
+  return v && Object.keys(v.select).length ? v : undefined;
 };
 
 type DefaultFields = {

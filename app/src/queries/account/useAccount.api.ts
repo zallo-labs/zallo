@@ -36,9 +36,6 @@ gql`
         deviceId
         name
       }
-      deployUser {
-        deviceId
-      }
     }
   }
 `;

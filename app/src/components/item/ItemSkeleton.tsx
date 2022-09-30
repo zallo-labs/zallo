@@ -1,18 +1,18 @@
 import { CircleSkeleton } from '~/components/skeleton/CircleSkeleton';
 import { LineSkeleton } from '~/components/skeleton/LineSkeleton';
 import { ItemProps } from './Item';
-import { ItemWithoutSkeleton } from './CardItemWithoutSkeleton';
+import { ItemWithoutSkeleton } from './ItemWithoutSkeleton';
 
-export interface CardItemSkeletonProps extends ItemProps {
+export interface ItemSkeletonProps extends ItemProps {
   icon?: boolean;
   right?: boolean;
 }
 
-export const CardItemSkeleton = ({
+export const ItemSkeleton = ({
   icon = true,
   right = true,
   ...props
-}: CardItemSkeletonProps) => (
+}: ItemSkeletonProps) => (
   <ItemWithoutSkeleton
     {...(icon && {
       Left: <CircleSkeleton />,

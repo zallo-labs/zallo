@@ -14,7 +14,6 @@ import {
   Address,
   calculateProxyAddress,
   randomDeploySalt,
-  toId,
   User,
   UserId,
 } from 'lib';
@@ -117,8 +116,12 @@ export const useCreateAccount = () => {
                 impl,
                 isDeployed: false,
                 name,
-                users: [{ deviceId: user.addr }],
-                deployUser: { deviceId: user.addr },
+                users: [
+                  {
+                    deviceId: user.addr,
+                    name: '', // TODO: use device's name
+                  },
+                ],
               },
             },
           });

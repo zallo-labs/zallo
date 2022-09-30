@@ -54,9 +54,7 @@ export const AccountScreen = withSkeleton(
             <TextField
               left={<TextInput.Icon icon={SearchIcon} />}
               label="Search users"
-              value={searchProps.input}
-              onChangeText={searchProps.setInput}
-              containerStyle={styles.search}
+              {...searchProps}
             />
           }
           renderItem={({ item: user }) => (
@@ -72,6 +70,7 @@ export const AccountScreen = withSkeleton(
             />
           )}
           data={users}
+          ListHeaderComponentStyle={styles.header}
           extraData={[onSelectUser, navigate]}
           stickyHeaderIndices={[0]}
           onScroll={handleScroll}
@@ -86,7 +85,8 @@ export const AccountScreen = withSkeleton(
 );
 
 const useStyles = makeStyles(({ space }) => ({
-  search: {
+  header: {
     marginHorizontal: space(2),
+    marginBottom: space(1),
   },
 }));
