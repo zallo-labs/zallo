@@ -1,6 +1,5 @@
 import { gql } from '@apollo/client';
 import { useDevice } from '@network/useDevice';
-import produce from 'immer';
 import { getUserIdStr, UserConfig } from 'lib';
 import { useCallback } from 'react';
 import {
@@ -18,7 +17,7 @@ import {
   useUpsertUserMutation,
 } from '~/gql/generated.api';
 import { useApiClient } from '~/gql/GqlProvider';
-import { QueryOpts } from '~/gql/update';
+import { updateQuery } from '~/gql/update';
 import { CombinedUser } from '~/queries/user/useUser.api';
 
 gql`
@@ -76,101 +75,107 @@ export const useApiUpsertUser = () => {
             ),
           },
         },
-        // optimisticResponse: {
-        //   upsertUser: {
-        //     id: idStr,
-        //   },
-        // },
-        // update: async (cache, res) => {
-        //   if (!res.data?.upsertUser.id) return;
+        optimisticResponse: {
+          upsertUser: {
+            id: idStr,
+          },
+        },
+        update: async (cache, res) => {
+          if (!res.data?.upsertUser.id) return;
 
-        //   await upsertUser();
-        //   addToAccount();
-        //   addToUserIds();
+          await upsertUser();
+          addToAccount();
+          addToUserIds();
 
-        //   // User: upsert
-        //   async function upsertUser() {
-        //     cache.writeQuery<UserQuery, UserQueryVariables>({
-        //       query: UserDocument,
-        //       variables: {
-        //         id,
-        //       },
-        //       overwrite: true,
-        //       data: {
-        //         user: {
-        //           id: idStr,
-        //           accountId: user.account,
-        //           deviceId: user.addr,
-        //           name: user.name,
-        //           activeState: user.configs.active
-        //             ? {
-        //                 configs: userConfigsToInput(user.configs.active),
-        //               }
-        //             : null,
-        //           proposedState: user.configs.proposed
-        //             ? {
-        //                 proposalHash: user.configs.proposal?.hash ?? null,
-        //                 configs: userConfigsToInput(user.configs.proposed),
-        //               }
-        //             : null,
-        //         },
-        //       },
-        //     });
-        //   }
+          console.log(
+            'Upsert',
+            JSON.stringify(
+              {
+                active: user.configs.active
+                  ? userConfigsToInput(user.configs.active)
+                  : undefined,
+                proposed: user.configs.proposed
+                  ? userConfigsToInput(user.configs.proposed)
+                  : undefined,
+              },
+              null,
+              2,
+            ),
+          );
 
-        //   // Account: add to users if missing
-        //   async function addToAccount() {
-        //     const opts: QueryOpts<AccountQueryVariables> = {
-        //       query: AccountDocument,
-        //       variables: { account: user.account },
-        //     };
+          // User: upsert
+          async function upsertUser() {
+            cache.writeQuery<UserQuery, UserQueryVariables>({
+              query: UserDocument,
+              variables: {
+                id,
+              },
+              overwrite: true,
+              data: {
+                user: {
+                  id: idStr,
+                  accountId: user.account,
+                  deviceId: user.addr,
+                  name: user.name,
+                  activeState: user.configs.active
+                    ? {
+                        configs: userConfigsToInput(user.configs.active),
+                        proposalHash: null,
+                      }
+                    : null,
+                  proposedState: user.configs.proposed
+                    ? {
+                        configs: userConfigsToInput(user.configs.proposed),
+                        proposalHash,
+                      }
+                    : null,
+                },
+              },
+            });
+          }
 
-        //     const data = cache.readQuery<AccountQuery>(opts);
-        //     if (data) {
-        //       cache.writeQuery<AccountQuery>({
-        //         ...opts,
-        //         overwrite: true,
-        //         data: produce(data, (data) => {
-        //           if (
-        //             !data.account.users?.find((u) => u.deviceId === user.addr)
-        //           ) {
-        //             data.account.users = [
-        //               ...(data.account.users ?? []),
-        //               {
-        //                 deviceId: user.addr,
-        //               },
-        //             ];
-        //           }
-        //         }),
-        //       });
-        //     }
-        //   }
+          // Account: add to users if missing
+          async function addToAccount() {
+            updateQuery<AccountQuery, AccountQueryVariables>({
+              cache,
+              query: AccountDocument,
+              variables: { account: user.account },
+              updater: (data) => {
+                if (
+                  !data.account.users?.find((u) => u.deviceId === user.addr)
+                ) {
+                  data.account.users = [
+                    ...(data.account.users ?? []),
+                    {
+                      deviceId: user.addr,
+                      name: user.name,
+                    },
+                  ];
+                }
+              },
+            });
+          }
 
-        //   // UserIds: add if own device & missing
-        //   async function addToUserIds() {
-        //     if (user.addr === device.address) {
-        //       const opts: QueryOpts<UserIdsQueryVariables> = {
-        //         query: UserIdsDocument,
-        //         variables: {},
-        //       };
-
-        //       const data = cache.readQuery<UserIdsQuery>(opts) ?? { users: [] };
-
-        //       cache.writeQuery<UserIdsQuery>({
-        //         ...opts,
-        //         overwrite: true,
-        //         data: produce(data, (data) => {
-        //           if (!data.users.find((u) => u.id === idStr)) {
-        //             data.users.push({
-        //               id: idStr,
-        //               accountId: user.account,
-        //             });
-        //           }
-        //         }),
-        //       });
-        //     }
-        //   }
-        // },
+          // UserIds: add if own device & missing
+          async function addToUserIds() {
+            if (user.addr === device.address) {
+              updateQuery<UserIdsQuery, UserIdsQueryVariables>({
+                cache,
+                query: UserIdsDocument,
+                variables: {},
+                defaultData: { users: [] },
+                updater: (data) => {
+                  if (!data.users.find((u) => u.id === idStr)) {
+                    data.users.push({
+                      id: idStr,
+                      accountId: user.account,
+                    });
+                  }
+                },
+              });
+            }
+          }
+        },
       });
     },
     [mutation, device.address],

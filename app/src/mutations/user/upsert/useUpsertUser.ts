@@ -28,9 +28,9 @@ export const useUpsertUser = (accountAddr: Address) => {
   const [upserting, setUpserting] = useState(false);
   const upsert = useCallback(
     async (user: CombinedUser, onPropose?: OnPropose) => {
-      setUpserting(true);
-
       const p = async () => {
+        setUpserting(true);
+
         await propose(
           user.account,
           createUpsertUserTx(account.contract, toProposedUser(user)),

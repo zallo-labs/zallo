@@ -6,8 +6,6 @@ import { useMemo, useState } from 'react';
 import { useAppbarHeader } from '~/components/Appbar/useAppbarHeader';
 import { FAB } from '~/components/FAB';
 import { Box } from '~/components/layout/Box';
-import { ScreenSkeleton } from '~/components/skeleton/ScreenSkeleton';
-import { withSkeleton } from '~/components/skeleton/withSkeleton';
 import { CombinedUser } from '~/queries/user/useUser.api';
 import { UserAppbar } from './UserAppbar';
 import { EditableUserName } from './EditableUserName';
@@ -22,15 +20,16 @@ import { useAccount } from '~/queries/account/useAccount.api';
 import { ActivateAccountButton } from '~/components/account/ActivateAccountButton';
 import { ProposableLabel } from './ProposableLabel';
 import { ProposedConfigs } from './ConfigSelectorSheet/ConfigSelectorSheet';
+import { useUpsertUser } from '~/mutations/user/upsert/useUpsertUser';
+import produce from 'immer';
 
 export interface UserDetailsProps {
   user: CombinedUser;
   initialConfig: UserConfig;
   config: UserConfig;
   setConfig: (config: UserConfig) => void;
+  selectConfig: (config: UserConfig) => void;
   proposed?: ProposedConfigs;
-  submit: () => void;
-  isModified: boolean;
 }
 
 export const UserDetails = ({
@@ -38,20 +37,24 @@ export const UserDetails = ({
   initialConfig,
   config,
   setConfig,
+  selectConfig,
   proposed,
-  submit,
-  isModified,
 }: UserDetailsProps) => {
   const styles = useStyles();
   const { AppbarHeader, handleScroll } = useAppbarHeader();
   const [account] = useAccount(user);
   const canActivateAccount = !!useActivateAccount(account);
+  const [upsert, upserting] = useUpsertUser(user.account);
 
   const [editingName, setEditingName] = useState(false);
 
   const isProposed = useMemo(
     () => !!proposed?.configs.some((c) => _.isEqual(c, initialConfig)),
     [initialConfig, proposed?.configs],
+  );
+  const isModified = useMemo(
+    () => !_.isEqual(initialConfig, config),
+    [config, initialConfig],
   );
   const canApply = useMemo(() => {
     const isNew = () =>
@@ -62,6 +65,23 @@ export const UserDetails = ({
 
     return isModified || isNew();
   }, [initialConfig.approvers, isModified, isProposed, user.configs.active]);
+
+  const submit = () => {
+    const newUser = produce(user, (user) => {
+      const configs = user.configs.proposed ?? user.configs.active!;
+
+      const i = configs.findIndex((c) =>
+        _.isEqual(c.approvers, initialConfig.approvers),
+      );
+      configs[i >= 0 ? i : configs.length] = config;
+
+      user.configs.proposed = configs;
+    });
+
+    upsert(newUser, () => {
+      selectConfig(config);
+    });
+  };
 
   return (
     <Provider theme={useTheme()}>
@@ -114,7 +134,14 @@ export const UserDetails = ({
             {(props) => <FAB {...props} label="Activate account" />}
           </ActivateAccountButton>
         ) : (
-          canApply && <FAB icon={CheckIcon} label="Apply" onPress={submit} />
+          canApply && (
+            <FAB
+              icon={CheckIcon}
+              label="Apply"
+              loading={upserting}
+              onPress={submit}
+            />
+          )
         )}
       </Box>
     </Provider>

@@ -36,7 +36,7 @@ export const ConfigSelectorSheet = ({
   proposedConfigs,
 }: ConfigSelectorSheetProps) => {
   const styles = useStyles();
-  const { navigate } = useRootNavigation();
+  const navigation = useRootNavigation();
   const { sheetShown, setSheetShown } = useUserScreenContext();
 
   const ref = useRef<BottomSheet>(null);
@@ -104,7 +104,7 @@ export const ConfigSelectorSheet = ({
         icon={AddIcon}
         style={styles.create}
         onPress={() =>
-          navigate('Contacts', {
+          navigation.navigate('Contacts', {
             onMultiSelect: (approvers) => {
               setSheetShown(false);
               select({
@@ -112,6 +112,7 @@ export const ConfigSelectorSheet = ({
                 spendingAllowlisted: false,
                 limits: {},
               });
+              navigation.goBack();
             },
           })
         }

@@ -67,6 +67,6 @@ export const showProposalSnack = (
       label: 'View proposal',
       onPress: () => popToProposal(...params),
     },
-    visibilityTime: 6000,
+    visibilityTime: 8000,
   });
 };
