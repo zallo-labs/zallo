@@ -73,9 +73,9 @@ export const CreateAccountScreen = ({ route }: CreateAccountScreenProps) => {
   );
 };
 
-const useStyles = makeStyles(({ space, typescale }) => ({
+const useStyles = makeStyles(({ space, fonts }) => ({
   input: {
-    ...typescale.headlineLarge,
+    ...fonts.headlineLarge,
     textAlign: 'center',
     marginTop: space(6),
     marginBottom: space(3),

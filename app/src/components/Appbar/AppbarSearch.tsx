@@ -17,7 +17,7 @@ export const AppbarSearch = ({
   value,
   onChangeText,
 }: AppbarSearchProps) => {
-  const { typescale } = useTheme();
+  const { fonts } = useTheme();
 
   if (value === undefined)
     return (
@@ -35,7 +35,7 @@ export const AppbarSearch = ({
           value={value}
           onChangeText={onChangeText}
           placeholder="Search"
-          style={typescale.titleLarge}
+          style={fonts.titleLarge}
         />
       </Box>
 

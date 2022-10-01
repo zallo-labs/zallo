@@ -50,7 +50,7 @@ export const MethodInputRow = ({ param, data }: MethodRowProps) => {
   );
 };
 
-const useStyles = makeStyles(({ colors, space, onBackground, typescale }) => {
+const useStyles = makeStyles(({ colors, space, onBackground, fonts }) => {
   const backgroundColor = colors.surfaceVariant;
   return {
     dataContainer: {
@@ -65,7 +65,7 @@ const useStyles = makeStyles(({ colors, space, onBackground, typescale }) => {
       display: undefined,
     },
     data: {
-      ...typescale.bodySmall,
+      ...fonts.bodySmall,
       color: onBackground(backgroundColor),
     },
   };
