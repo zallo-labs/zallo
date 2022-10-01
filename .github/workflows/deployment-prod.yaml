@@ -97,7 +97,7 @@ jobs:
         run: yarn subgraph configure:testnet
 
       - name: 🚧 Auth
-        run: yarn subgraph auth ${{ secrets.THEGRAPH_ACCESS_TOKEN }}
+        run: yarn subgraph hosted:auth ${{ secrets.THEGRAPH_ACCESS_TOKEN }}
 
       - name: 🏗️ Generate
         run: yarn subgraph generate
