@@ -25,7 +25,7 @@ export const useDecodedUpsertUserMethod = (account: Address, call?: Call) => {
 
 export const getUpsertUserMethodName = (user: CombinedUser) => {
   // TODO: Use more specific add/update
-  return `Upsert user: ${user.name}`;
+  return `Modify user: ${user.name}`;
 };
 
 export interface UpsertUserMethodProps {
