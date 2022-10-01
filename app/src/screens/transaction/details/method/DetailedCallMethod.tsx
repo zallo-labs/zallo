@@ -15,19 +15,20 @@ import { UpsertUserMethod } from './user/UpsertUserMethod';
 import { RemoveUserMethod } from './user/RemoveUserMethod';
 import { StyleProp, ViewStyle } from 'react-native';
 import { ERC20_TRANSFER_SIGHASH } from '~/components/call/useDecodedTransfer';
-import { useCallLabel } from '~/components/call/useCallLabel';
+import { useProposalLabel } from '~/components/call/useProposalLabel';
+import { Proposal } from '~/queries/proposal';
 
 export interface DetailedCallMethodProps {
-  call: Call;
+  proposal: Proposal;
   style?: StyleProp<ViewStyle>;
 }
 
 export const DetailedCallMethod = memo(
-  ({ call, style }: DetailedCallMethodProps) => {
-    const [method] = useContractMethod(call);
-    const label = useCallLabel(call);
+  ({ proposal: p, style }: DetailedCallMethodProps) => {
+    const [method] = useContractMethod(p);
+    const label = useProposalLabel(p);
 
-    if (hexDataLength(call.data) === 0) return null;
+    if (hexDataLength(p.data) === 0) return null;
 
     if (!method)
       return (
@@ -39,7 +40,7 @@ export const DetailedCallMethod = memo(
             </Box>
           </Box>
 
-          <ExpandableText value={hexlify(call.data)} beginLen={18}>
+          <ExpandableText value={hexlify(p.data)} beginLen={18}>
             {({ value }) => <Text variant="bodySmall">{value}</Text>}
           </ExpandableText>
         </Box>
@@ -49,10 +50,10 @@ export const DetailedCallMethod = memo(
     if (method.sighash === ERC20_TRANSFER_SIGHASH) return null;
 
     if (method.sighash === UPSERT_USER_SIGHSAH)
-      return <UpsertUserMethod call={call} style={style} />;
+      return <UpsertUserMethod call={p} style={style} />;
 
     if (method.sighash === REMOVE_USER_SIGHASH)
-      return <RemoveUserMethod call={call} style={style} />;
+      return <RemoveUserMethod call={p} style={style} />;
 
     return (
       <Accordion
@@ -62,7 +63,7 @@ export const DetailedCallMethod = memo(
           </Text>
         }
       >
-        {getMethodInputs(method, call.data).map((input) => (
+        {getMethodInputs(method, p.data).map((input) => (
           <Box key={input.param.format()} ml={2} mb={1}>
             <MethodInputRow key={input.param.format()} {...input} />
           </Box>

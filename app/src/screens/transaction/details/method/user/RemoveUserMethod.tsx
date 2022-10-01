@@ -1,14 +1,24 @@
 import assert from 'assert';
-import { Call, tryDecodeRemoveWalletData } from 'lib';
+import { Address, Call, tryDecodeRemoveUserData } from 'lib';
 import { memo } from 'react';
 import { Text } from 'react-native-paper';
 import { AccordionProps } from '~/components/Accordion';
-import { Proposal } from '~/queries/proposal';
 import { CombinedUser, useUser } from '~/queries/user/useUser.api';
 import { useTxContext } from '~/screens/transaction/TransactionProvider';
 
-export const useDecodedRemoveUserMethod = (proposal: Proposal) => {
-  const removeUser = tryDecodeRemoveWalletData(proposal.data);
+export const useDecodedRemoveUserMethod = (account: Address, call?: Call) => {
+  const removedUser = tryDecodeRemoveUserData(call?.data);
+
+  const userData = useUser(
+    removedUser
+      ? {
+          account,
+          addr: removedUser.addr,
+        }
+      : undefined,
+  );
+
+  return [removedUser, userData] as const;
 };
 
 export const getRemoveUserMethodName = (user: CombinedUser) =>
@@ -22,12 +32,8 @@ export const RemoveUserMethod = memo(
   ({ call, ...accordionProps }: RemoveUserMethodProps) => {
     const { account } = useTxContext();
 
-    const removedUser = tryDecodeRemoveWalletData(call.data);
-    assert(removedUser);
-    const [user] = useUser({
-      account: account.addr,
-      addr: removedUser.addr,
-    });
+    const [, [user]] = useDecodedRemoveUserMethod(account.addr, call);
+    assert(user);
 
     return (
       <Text variant="titleMedium" {...accordionProps}>

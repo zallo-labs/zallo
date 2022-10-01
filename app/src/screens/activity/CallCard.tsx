@@ -5,7 +5,7 @@ import { ETH } from '@token/tokens';
 import { useMaybeToken } from '@token/useToken';
 import { CardProps } from '../../components/card/Card';
 import { CardItemSkeleton } from '../../components/card/CardItemSkeleton';
-import { useCallLabel } from '../../components/call/useCallLabel';
+import { useProposalLabel } from '../../components/call/useProposalLabel';
 import { ActivityCard } from './ActivityCard';
 import { useProposalTransfers } from '~/components/call/useProposalTransfers';
 import { useProposal } from '~/queries/proposal/useProposal.api';
@@ -18,7 +18,7 @@ export const CallCard = withSkeleton(({ id, ...cardProps }: CallCardProps) => {
   const [p] = useProposal(id);
   const styles = useStyles(p);
   const token = useMaybeToken(p?.to) ?? ETH;
-  const name = useCallLabel(p);
+  const name = useProposalLabel(p);
   const transfers = useProposalTransfers(p);
 
   return (

@@ -98,16 +98,24 @@ const convertState = (
     ),
   }));
 
-export const useUser = (idInput: UserId | Address) => {
+// export function useUser(idInput: UserId | Address): [CombinedUser, any];
+// export function useUser(idInput: undefined): [undefined, any];
+
+// export function useUser<Id extends UserId | Address | undefined>(idInput: Id) {
+export const useUser = <Id extends UserId | Address | undefined>(
+  idInput: Id,
+) => {
   const device = useDevice();
-  const id: UserId = useMemo(
-    () =>
-      typeof idInput === 'object'
-        ? idInput
-        : {
-            account: idInput,
-            addr: device.address,
-          },
+  const id = useMemo(
+    (): UserId | undefined =>
+      idInput
+        ? typeof idInput === 'object'
+          ? idInput
+          : {
+              account: idInput,
+              addr: device.address,
+            }
+        : undefined,
     [device.address, idInput],
   );
 
@@ -117,17 +125,20 @@ export const useUser = (idInput: UserId | Address) => {
       client: useApiClient(),
       variables: {
         id: {
-          account: id.account,
-          device: id.addr,
+          account: id?.account,
+          device: id?.addr,
         },
       },
+      skip: !id,
     },
   );
   usePollWhenFocussed(rest, 5);
 
   const u = data.user;
-  const user = useMemo(
-    (): CombinedUser => ({
+  const user = useMemo((): CombinedUser | undefined => {
+    if (!id) return undefined;
+
+    return {
       ...id,
       name: u.name,
       isActive: u.activeState !== null,
@@ -141,9 +152,11 @@ export const useUser = (idInput: UserId | Address) => {
             }
           : undefined,
       }),
-    }),
-    [id, u],
-  );
+    };
+  }, [id, u]);
 
-  return [user, rest] as const;
+  return [
+    user as CombinedUser | (Id extends undefined ? undefined : never),
+    rest,
+  ] as const;
 };

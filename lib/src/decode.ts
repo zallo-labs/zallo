@@ -49,7 +49,7 @@ export const tryDecodeUpsertUserData = (data?: BytesLike): User | undefined => {
 
 type RemoveUserParams = OnlyRequiredItems<Parameters<Account['removeUser']>>;
 
-export const tryDecodeRemoveWalletData = (data?: BytesLike) => {
+export const tryDecodeRemoveUserData = (data?: BytesLike) => {
   const sighash = getDataSighash(data);
   if (!data || sighash !== REMOVE_USER_SIGHASH) return undefined;
 

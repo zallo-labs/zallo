@@ -14,10 +14,10 @@ import { useTxTransfers } from './useTxTransfers';
 
 export const TransactionDetails = () => {
   const styles = useStyles();
-  const { proposal: tx } = useTxContext();
-  const token = useMaybeToken(tx.to) ?? ETH;
+  const { proposal: p } = useTxContext();
+  const token = useMaybeToken(p.to) ?? ETH;
 
-  const transfers = useTxTransfers(tx);
+  const transfers = useTxTransfers(p);
   const totalFiat = transfers.reduce((acc, t) => acc + t.fiatAmount, 0);
 
   return (
@@ -27,7 +27,7 @@ export const TransactionDetails = () => {
 
         <Box flex={1} ml={3}>
           <Text variant="titleMedium">
-            <Addr addr={tx.to} />
+            <Addr addr={p.to} />
           </Text>
         </Box>
 
@@ -38,9 +38,9 @@ export const TransactionDetails = () => {
         )}
       </Box>
 
-      <TxTransfers tx={tx} transfers={transfers} style={styles.section} />
+      <TxTransfers tx={p} transfers={transfers} style={styles.section} />
 
-      <DetailedCallMethod call={tx} style={styles.section} />
+      <DetailedCallMethod proposal={p} style={styles.section} />
     </Card>
   );
 };
