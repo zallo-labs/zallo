@@ -1,8 +1,8 @@
 import { useNavigation } from '@react-navigation/native';
-import { BottomNavigatorProps } from './BottomNavigator';
+import { BottomNavigatorScreenProps } from './BottomNavigator';
 import { RootNavigatorParamList } from './RootNavigator';
 
-export type RootNavigation = BottomNavigatorProps['navigation'];
+export type RootNavigation = BottomNavigatorScreenProps<'Home'>['navigation'];
 export type Navigate = RootNavigation['navigate'];
 
 export const useRootNavigation = () => useNavigation<RootNavigation>();

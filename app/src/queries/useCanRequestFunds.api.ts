@@ -1,8 +1,13 @@
 import { gql } from '@apollo/client';
 import { Address } from 'lib';
-import { useCanRequestFundsQuery } from '~/gql/generated.api';
+import {
+  CanRequestFundsDocument,
+  CanRequestFundsQuery,
+  CanRequestFundsQueryVariables,
+} from '~/gql/generated.api';
 import { useApiClient } from '~/gql/GqlProvider';
 import { usePollWhenFocussed } from '~/gql/usePollWhenFocussed';
+import { useSuspenseQuery } from '~/gql/useSuspenseQuery';
 
 gql`
   query CanRequestFunds($recipient: Address!) {
@@ -10,13 +15,15 @@ gql`
   }
 `;
 
-export const useCanRequestFunds = (recipient?: Address) => {
-  const { data, ...rest } = useCanRequestFundsQuery({
+export const useCanRequestFunds = (recipient: Address) => {
+  const { data, ...rest } = useSuspenseQuery<
+    CanRequestFundsQuery,
+    CanRequestFundsQueryVariables
+  >(CanRequestFundsDocument, {
     client: useApiClient(),
     variables: { recipient },
-    skip: !recipient,
   });
-  usePollWhenFocussed(rest, 5 * 60 * 1000);
+  usePollWhenFocussed(rest, 5 * 60);
 
-  return !!data?.canRequestFunds;
+  return [data.canRequestFunds, rest] as const;
 };

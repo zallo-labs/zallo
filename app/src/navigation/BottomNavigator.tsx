@@ -1,74 +1,74 @@
-import { PayCircleIcon, PayCircleOutlineIcon } from '~/util/theme/icons';
-import { ComponentPropsWithoutRef, useState } from 'react';
-import { BottomNavigation } from 'react-native-paper';
+import {
+  CalendarIcon,
+  CalendarOutlineIcon,
+  PayCircleIcon,
+  PayCircleOutlineIcon,
+  QrCodeIcon,
+} from '~/util/theme/icons';
 import { ActivityScreen } from '~/screens/activity/ActivityScreen';
 import { HomeScreen } from '~/screens/home/HomeScreen';
 import { ReceiveScreen } from '~/screens/receive/ReceiveScreen';
 import { DrawerNavigatorScreenProps } from './Drawer/DrawerNavigator';
+import {
+  createMaterialBottomTabNavigator,
+  MaterialBottomTabScreenProps,
+} from '@react-navigation/material-bottom-tabs';
+import { useTheme } from '@theme/paper';
+import { CompositeScreenProps } from '@react-navigation/native';
 
-// TODO: switch to Navigation when updated with RNP 6 support - https://github.com/react-navigation/react-navigation/blob/main/packages/material-bottom-tabs/package.json
-// import {
-//   createMaterialBottomTabNavigator,
-//   MaterialBottomTabScreenProps,
-// } from '@react-navigation/material-bottom-tabs';
+export type BottomNavigatorParamList = {
+  Receive: undefined;
+  Home: undefined;
+  Activity: undefined;
+};
 
-// export type BottomNavigatorParamList = {
-//   Receive: undefined;
-// };
+export type BottomNavigatorScreenProps<
+  K extends keyof BottomNavigatorParamList,
+> = CompositeScreenProps<
+  DrawerNavigatorScreenProps<'BottomNavigator'>,
+  MaterialBottomTabScreenProps<BottomNavigatorParamList, K>
+>;
 
-// export type RootNavigatorScreenProps<K extends keyof BottomNavigatorParamList> =
-//   MaterialBottomTabScreenProps<BottomNavigatorParamList, K>;
+const Navigation = createMaterialBottomTabNavigator<BottomNavigatorParamList>();
 
-// const Navigation = createMaterialBottomTabNavigator<BottomNavigatorParamList>();
-
-// export const BottomNavigator = () => (
-//   <Navigation.Navigator>
-//     <Navigation.Screen name="Receive" component={ReceiveScreen} />
-//   </Navigation.Navigator>
-// )
-
-type Routes = ComponentPropsWithoutRef<
-  typeof BottomNavigation
->['navigationState']['routes'];
-
-const routes: Routes = [
-  {
-    key: 'Receive',
-    title: 'Receive',
-    focusedIcon: 'qrcode',
-    unfocusedIcon: 'qrcode',
-  },
-  {
-    key: 'Home',
-    title: 'Home',
-    focusedIcon: PayCircleIcon,
-    unfocusedIcon: PayCircleOutlineIcon,
-  },
-  {
-    key: 'Activity',
-    title: 'Activity',
-    focusedIcon: 'calendar',
-    unfocusedIcon: 'calendar-outline',
-  },
-];
-
-const renderScene = BottomNavigation.SceneMap({
-  Receive: ReceiveScreen,
-  Home: HomeScreen,
-  Activity: ActivityScreen,
-});
-
-export type BottomNavigatorProps =
-  DrawerNavigatorScreenProps<'BottomNavigator'>;
-
-export const BottomNavigator = (_props: BottomNavigatorProps) => {
-  const [index, setIndex] = useState(1);
+export const BottomNavigator = () => {
+  const { iconSize } = useTheme();
 
   return (
-    <BottomNavigation
-      navigationState={{ index, routes }}
-      onIndexChange={setIndex}
-      renderScene={renderScene}
-    />
+    <Navigation.Navigator initialRouteName="Home">
+      <Navigation.Screen
+        name="Receive"
+        component={ReceiveScreen}
+        options={{
+          tabBarIcon: (props) => (
+            <QrCodeIcon size={iconSize.small} {...props} />
+          ),
+        }}
+      />
+      <Navigation.Screen
+        name="Home"
+        component={HomeScreen}
+        options={{
+          tabBarIcon: ({ focused, ...props }) =>
+            focused ? (
+              <PayCircleIcon size={iconSize.small} {...props} />
+            ) : (
+              <PayCircleOutlineIcon size={iconSize.small} {...props} />
+            ),
+        }}
+      />
+      <Navigation.Screen
+        name="Activity"
+        component={ActivityScreen}
+        options={{
+          tabBarIcon: ({ focused, ...props }) =>
+            focused ? (
+              <CalendarIcon size={iconSize.small} {...props} />
+            ) : (
+              <CalendarOutlineIcon size={iconSize.small} {...props} />
+            ),
+        }}
+      />
+    </Navigation.Navigator>
   );
 };

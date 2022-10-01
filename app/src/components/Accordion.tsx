@@ -1,4 +1,4 @@
-import { useTheme } from '@theme/paper';
+import { makeStyles } from '@theme/makeStyles';
 import { ReactNode, useCallback, useState } from 'react';
 import { StyleProp, TouchableOpacity, ViewStyle } from 'react-native';
 import Collapsible from 'react-native-collapsible';
@@ -18,28 +18,36 @@ export const Accordion = ({
   initiallyExpanded,
   style,
 }: AccordionProps) => {
-  const { colors, iconSize } = useTheme();
+  const styles = useStyles();
 
   const [expanded, setExpanded] = useState(!!initiallyExpanded);
   const toggle = useCallback(() => setExpanded((prev) => !prev), [setExpanded]);
 
   return (
     <Box style={style}>
-      <TouchableOpacity onPress={toggle}>
-        <Box horizontal justifyContent="space-between" alignItems="center">
-          <Box>{title}</Box>
+      <TouchableOpacity onPress={toggle} style={styles.header}>
+        <Box>{title}</Box>
 
-          <Chevron
-            expanded={expanded}
-            size={iconSize.small}
-            color={colors.onSurfaceOpaque}
-          />
-        </Box>
+        <Chevron
+          expanded={expanded}
+          size={styles.chevron.fontSize}
+          color={styles.chevron.color}
+        />
       </TouchableOpacity>
 
-      <Collapsible collapsed={!expanded}>
-        <Box my={2}>{children}</Box>
-      </Collapsible>
+      <Collapsible collapsed={!expanded}>{children}</Collapsible>
     </Box>
   );
 };
+
+const useStyles = makeStyles(({ colors, iconSize }) => ({
+  header: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  chevron: {
+    color: colors.onSurfaceOpaque,
+    fontSize: iconSize.small,
+  },
+}));

@@ -1,6 +1,14 @@
 import { ContractMethod } from '@gen/contract-method/contract-method.model';
-import { Args, Info, Query, ResolveField, Resolver } from '@nestjs/graphql';
+import {
+  Args,
+  Info,
+  Parent,
+  Query,
+  ResolveField,
+  Resolver,
+} from '@nestjs/graphql';
 import { GraphQLResolveInfo } from 'graphql';
+import { Id, toId } from 'lib';
 import { PrismaService } from 'nestjs-prisma';
 import { getSelect } from '~/util/select';
 import { ContractMethodArgs } from './contract-methods.args';
@@ -12,6 +20,11 @@ export class ContractMethodsResolver {
     private service: ContractMethodsService,
     private prisma: PrismaService,
   ) {}
+
+  @ResolveField(() => String)
+  id(@Parent() c: ContractMethod): Id {
+    return toId(`${c.contract}-${c.sighash}`);
+  }
 
   @Query(() => ContractMethod, { nullable: true })
   async contractMethod(
@@ -44,11 +57,5 @@ export class ContractMethodsResolver {
     if (sighashMatch) return sighashMatch;
 
     return undefined;
-  }
-
-  @ResolveField(() => String)
-  id(@Info() info: GraphQLResolveInfo): string {
-    const c = info.variableValues as ContractMethodArgs;
-    return `${c.contract}-${c.sighash}`;
   }
 }

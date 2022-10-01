@@ -1,17 +1,23 @@
 import { ComponentPropsWithoutRef } from 'react';
-import { StyleSheet } from 'react-native';
+import { Keyboard, StyleSheet } from 'react-native';
 import { FAB as Base } from 'react-native-paper';
 
 export type FABProps = ComponentPropsWithoutRef<typeof Base> & {
   appbar?: boolean;
 };
 
-export const FAB = ({ appbar, ...props }: FABProps) => (
+export const FAB = ({ appbar, onPress, ...props }: FABProps) => (
   <Base
     {...props}
     {...(appbar && {
       size: 'small',
       mode: 'flat',
+    })}
+    {...(onPress && {
+      onPress: () => {
+        Keyboard.dismiss();
+        onPress();
+      },
     })}
     style={[
       styles.bottom,

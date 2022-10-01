@@ -35,14 +35,14 @@ export const PotentialDisabledExecutionWarning = () => {
       </Box>
     );
 
-  if (prohibition === ExecutionProhibition.InactiveWallet)
+  if (prohibition === ExecutionProhibition.InactiveUser)
     return (
       <Box vertical alignItems="center">
         <Text variant="titleLarge" style={styles.error}>
-          Selected wallet is inactive
+          Proposing user is inactive
         </Text>
         <Text variant="titleMedium" style={styles.error}>
-          Active or select another to allow execution
+          Active user or change proposer to allow execution
         </Text>
       </Box>
     );

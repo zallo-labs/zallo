@@ -4,8 +4,7 @@ import { makeStyles } from '~/util/theme/makeStyles';
 import Collapsible from 'react-native-collapsible';
 import { Appbar } from 'react-native-paper';
 import { CARD_BORDER_RADIUS } from '~/components/card/Card';
-import { TransactionWalletSelector } from './TransactionWalletSelector';
-import { useTxContext } from '../TransactionProvider';
+import { TransactionProposer } from './TransactionProposer';
 
 export interface TransactionAppbarProps {
   scrolled?: boolean;
@@ -13,7 +12,6 @@ export interface TransactionAppbarProps {
 
 export const TransactionAppbar = ({ scrolled }: TransactionAppbarProps) => {
   const styles = useStyles();
-  const { tx, wallet } = useTxContext();
 
   return (
     <Box style={[styles.container, styles.background]}>
@@ -24,9 +22,7 @@ export const TransactionAppbar = ({ scrolled }: TransactionAppbarProps) => {
 
       <Collapsible collapsed={!!scrolled}>
         <Box mt={-2} mb={1}>
-          <TransactionWalletSelector
-            tx={tx}
-            executingWallet={wallet}
+          <TransactionProposer
             textStyle={styles.text}
             iconColor={styles.text.color}
           />

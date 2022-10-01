@@ -8,16 +8,23 @@ import { FuzzySearchProps } from '../../util/hook/useFuzzySearch';
 
 export interface AppbarSearchProps extends FuzzySearchProps {
   title?: ReactNode;
+  actions?: ReactNode;
 }
 
-export const AppbarSearch = ({ title, input, setInput }: AppbarSearchProps) => {
-  const { typescale } = useTheme();
+export const AppbarSearch = ({
+  title,
+  actions,
+  value,
+  onChangeText,
+}: AppbarSearchProps) => {
+  const { fonts } = useTheme();
 
-  if (input === undefined)
+  if (value === undefined)
     return (
       <>
         <Appbar.Content title={title} />
-        <Appbar.Action icon={SearchIcon} onPress={() => setInput('')} />
+        {actions}
+        <Appbar.Action icon={SearchIcon} onPress={() => onChangeText('')} />
       </>
     );
 
@@ -25,14 +32,17 @@ export const AppbarSearch = ({ title, input, setInput }: AppbarSearchProps) => {
     <>
       <Box flex={1}>
         <BasicTextField
-          value={input}
-          onChangeText={setInput}
+          value={value}
+          onChangeText={onChangeText}
           placeholder="Search"
-          style={typescale.titleLarge}
+          style={fonts.titleLarge}
         />
       </Box>
 
-      <Appbar.Action icon={CancelIcon} onPress={() => setInput(undefined)} />
+      <Appbar.Action
+        icon={CancelIcon}
+        onPress={() => onChangeText(undefined)}
+      />
     </>
   );
 };

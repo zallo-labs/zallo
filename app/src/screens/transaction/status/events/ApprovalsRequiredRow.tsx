@@ -1,40 +1,42 @@
 import { QuorumIcon } from '@theme/icons';
 import { makeStyles } from '@theme/makeStyles';
 import { Text } from 'react-native-paper';
+import { match } from 'ts-pattern';
 import { Box } from '~/components/layout/Box';
 import { Container } from '~/components/layout/Container';
-import { Tx } from '~/queries/tx';
-import { CombinedWallet } from '~/queries/wallets';
+import { Proposal } from '~/queries/proposal';
+import { CombinedUser } from '~/queries/user/useUser.api';
 
 export interface ApprovalsRequiredRowProps {
-  tx: Tx;
-  wallet: CombinedWallet;
+  proposal: Proposal;
+  proposer: CombinedUser;
 }
 
 export const ApprovalsRequiredRow = ({
-  tx,
-  wallet,
+  proposal,
+  proposer,
 }: ApprovalsRequiredRowProps) => {
   const styles = useStyles();
-
-  const quorum = wallet.quorums.sort(
+  const config = (proposer.configs.active ?? proposer.configs.proposed)!.sort(
     (a, b) => a.approvers.length - b.approvers.length,
   )[0];
 
-  const remaining = quorum.approvers.filter((approver) =>
-    tx.approvals.every((approval) => approval.addr !== approver),
+  const remaining = config.approvers.filter((approver) =>
+    proposal.approvals.every((approval) => approval.addr !== approver),
   ).length;
+
+  const label = match(remaining)
+    .with(0, () => 'No approvals required')
+    .with(1, () => '1 approval required')
+    .otherwise((remaining) => `${remaining} approvals required`);
 
   return (
     <Container horizontal alignItems="center" separator={<Box mx={1} />}>
       <QuorumIcon style={styles.content} />
 
-      <Text
-        variant="titleSmall"
-        style={styles.content}
-      >{`At least ${remaining} approval${
-        remaining > 1 ? 's' : ''
-      } remaining`}</Text>
+      <Text variant="titleSmall" style={styles.content}>
+        {label}
+      </Text>
     </Container>
   );
 };

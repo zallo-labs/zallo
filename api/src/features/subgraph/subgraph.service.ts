@@ -2,86 +2,56 @@ import { Injectable } from '@nestjs/common';
 import {
   ApolloClient,
   ApolloLink,
-  gql,
   HttpLink,
   InMemoryCache,
-  NormalizedCacheObject,
 } from '@apollo/client';
 import { RetryLink } from '@apollo/client/link/retry';
 import fetch from 'cross-fetch';
 import { CONFIG } from 'config';
 import {
-  WalletRef,
-  address,
-  Address,
-  filterFirst,
-  toWalletRef,
-  toId,
-} from 'lib';
-import {
-  UserWalletsQuery,
-  UserWalletsQueryVariables,
+  TxResponseQuery,
+  TxResponseQueryVariables,
 } from '@gen/generated.subgraph';
-
-export interface AccountWallet {
-  account: Address;
-  walletRef: WalletRef;
-}
+import { TX_RESPONSES_QUERY } from './subgraph.gql';
+import { Prisma } from '@prisma/client';
 
 @Injectable()
 export class SubgraphService {
-  public client: ApolloClient<NormalizedCacheObject>;
+  private client = new ApolloClient({
+    link: ApolloLink.from([
+      new RetryLink(),
+      new HttpLink({
+        uri: CONFIG.subgraphGqlUrl,
+        fetch,
+      }),
+    ]),
+    cache: new InMemoryCache(),
+    defaultOptions: {
+      query: { fetchPolicy: 'no-cache' },
+      watchQuery: { fetchPolicy: 'no-cache' },
+      mutate: { fetchPolicy: 'no-cache' },
+    },
+  });
 
-  constructor() {
-    this.client = new ApolloClient({
-      link: ApolloLink.from([
-        new RetryLink(),
-        new HttpLink({
-          uri: CONFIG.subgraphGqlUrl,
-          fetch,
-        }),
-      ]),
-      cache: new InMemoryCache(),
-    });
-  }
-
-  public async userWallets(user: Address): Promise<AccountWallet[]> {
+  async txResponse(
+    transactionHash: string,
+  ): Promise<Prisma.SubmissionResponseUncheckedCreateInput | undefined> {
     const { data } = await this.client.query<
-      UserWalletsQuery,
-      UserWalletsQueryVariables
+      TxResponseQuery,
+      TxResponseQueryVariables
     >({
-      query: gql`
-        query UserWallets($user: ID!) {
-          user(id: $user) {
-            quorums {
-              quorum {
-                wallet {
-                  id
-                  ref
-                  account {
-                    id
-                  }
-                }
-              }
-            }
-          }
-        }
-      `,
-      variables: { user: toId(user) },
+      query: TX_RESPONSES_QUERY,
+      variables: { transactionHash },
     });
 
-    return (
-      data.user?.quorums.map(({ quorum: { wallet } }) => ({
-        account: address(wallet.account.id),
-        walletRef: toWalletRef(wallet.ref),
-      })) ?? []
-    );
-  }
+    const t = data.tx;
+    if (!t) return undefined;
 
-  public async userAccounts(user: Address): Promise<Address[]> {
-    const accounts = (await this.userWallets(user)).map(
-      ({ account }) => account,
-    );
-    return filterFirst(accounts, (account) => account);
+    return {
+      hash: transactionHash,
+      response: t.response,
+      reverted: !t.success,
+      timestamp: new Date(parseFloat(t.timestamp) * 1000),
+    };
   }
 }

@@ -4,12 +4,11 @@ import {
 } from '@react-navigation/drawer';
 import {
   AccountIcon,
-  ContactsIcon,
+  PeopleIcon,
   FeedbackIcon,
   IssueIcon,
   SettingsIcon,
   TokenCurrencyIcon,
-  WalletIcon,
 } from '~/util/theme/icons';
 import { useCallback } from 'react';
 import { Linking } from 'react-native';
@@ -43,7 +42,7 @@ export const DrawerContent = ({ navigation }: DrawerContentProps) => {
       <Drawer.Section title="Actions">
         <Drawer.Item
           label="Contacts"
-          icon={ContactsIcon}
+          icon={PeopleIcon}
           onPress={() => navigate('Contacts', {})}
         />
         <Drawer.Item
@@ -58,11 +57,6 @@ export const DrawerContent = ({ navigation }: DrawerContentProps) => {
           label="Accounts"
           icon={AccountIcon}
           onPress={() => navigate('Accounts', {})}
-        />
-        <Drawer.Item
-          label="Wallets"
-          icon={WalletIcon}
-          onPress={() => navigate('Wallets')}
         />
         <Drawer.Item label="Settings" icon={SettingsIcon} />
       </Drawer.Section>

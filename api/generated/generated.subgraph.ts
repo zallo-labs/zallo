@@ -22,7 +22,7 @@ export type Account = {
   impl: AccountImpl;
   transfers: Array<Transfer>;
   txs: Array<Tx>;
-  wallets: Array<Wallet>;
+  users: Array<User>;
 };
 
 
@@ -44,12 +44,12 @@ export type AccountTxsArgs = {
 };
 
 
-export type AccountWalletsArgs = {
+export type AccountUsersArgs = {
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<Wallet_OrderBy>;
+  orderBy?: InputMaybe<User_OrderBy>;
   orderDirection?: InputMaybe<OrderDirection>;
   skip?: InputMaybe<Scalars['Int']>;
-  where?: InputMaybe<Wallet_Filter>;
+  where?: InputMaybe<User_Filter>;
 };
 
 export type AccountImpl = {
@@ -135,7 +135,7 @@ export type Account_Filter = {
   impl_starts_with_nocase?: InputMaybe<Scalars['String']>;
   transfers_?: InputMaybe<Transfer_Filter>;
   txs_?: InputMaybe<Tx_Filter>;
-  wallets_?: InputMaybe<Wallet_Filter>;
+  users_?: InputMaybe<User_Filter>;
 };
 
 export enum Account_OrderBy {
@@ -143,7 +143,7 @@ export enum Account_OrderBy {
   Impl = 'impl',
   Transfers = 'transfers',
   Txs = 'txs',
-  Wallets = 'wallets'
+  Users = 'users'
 }
 
 export type BlockChangedFilter = {
@@ -170,18 +170,14 @@ export type Query = {
   accountImpl?: Maybe<AccountImpl>;
   accountImpls: Array<AccountImpl>;
   accounts: Array<Account>;
-  quorum?: Maybe<Quorum>;
-  quorumApprover?: Maybe<QuorumApprover>;
-  quorumApprovers: Array<QuorumApprover>;
-  quorums: Array<Quorum>;
   transfer?: Maybe<Transfer>;
   transfers: Array<Transfer>;
   tx?: Maybe<Tx>;
   txes: Array<Tx>;
   user?: Maybe<User>;
+  userConfig?: Maybe<UserConfig>;
+  userConfigs: Array<UserConfig>;
   users: Array<User>;
-  wallet?: Maybe<Wallet>;
-  wallets: Array<Wallet>;
 };
 
 
@@ -223,42 +219,6 @@ export type QueryAccountsArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   subgraphError?: _SubgraphErrorPolicy_;
   where?: InputMaybe<Account_Filter>;
-};
-
-
-export type QueryQuorumArgs = {
-  block?: InputMaybe<Block_Height>;
-  id: Scalars['ID'];
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-
-export type QueryQuorumApproverArgs = {
-  block?: InputMaybe<Block_Height>;
-  id: Scalars['ID'];
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-
-export type QueryQuorumApproversArgs = {
-  block?: InputMaybe<Block_Height>;
-  first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<QuorumApprover_OrderBy>;
-  orderDirection?: InputMaybe<OrderDirection>;
-  skip?: InputMaybe<Scalars['Int']>;
-  subgraphError?: _SubgraphErrorPolicy_;
-  where?: InputMaybe<QuorumApprover_Filter>;
-};
-
-
-export type QueryQuorumsArgs = {
-  block?: InputMaybe<Block_Height>;
-  first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<Quorum_OrderBy>;
-  orderDirection?: InputMaybe<OrderDirection>;
-  skip?: InputMaybe<Scalars['Int']>;
-  subgraphError?: _SubgraphErrorPolicy_;
-  where?: InputMaybe<Quorum_Filter>;
 };
 
 
@@ -305,6 +265,24 @@ export type QueryUserArgs = {
 };
 
 
+export type QueryUserConfigArgs = {
+  block?: InputMaybe<Block_Height>;
+  id: Scalars['ID'];
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type QueryUserConfigsArgs = {
+  block?: InputMaybe<Block_Height>;
+  first?: InputMaybe<Scalars['Int']>;
+  orderBy?: InputMaybe<UserConfig_OrderBy>;
+  orderDirection?: InputMaybe<OrderDirection>;
+  skip?: InputMaybe<Scalars['Int']>;
+  subgraphError?: _SubgraphErrorPolicy_;
+  where?: InputMaybe<UserConfig_Filter>;
+};
+
+
 export type QueryUsersArgs = {
   block?: InputMaybe<Block_Height>;
   first?: InputMaybe<Scalars['Int']>;
@@ -315,201 +293,6 @@ export type QueryUsersArgs = {
   where?: InputMaybe<User_Filter>;
 };
 
-
-export type QueryWalletArgs = {
-  block?: InputMaybe<Block_Height>;
-  id: Scalars['ID'];
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-
-export type QueryWalletsArgs = {
-  block?: InputMaybe<Block_Height>;
-  first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<Wallet_OrderBy>;
-  orderDirection?: InputMaybe<OrderDirection>;
-  skip?: InputMaybe<Scalars['Int']>;
-  subgraphError?: _SubgraphErrorPolicy_;
-  where?: InputMaybe<Wallet_Filter>;
-};
-
-export type Quorum = {
-  __typename?: 'Quorum';
-  approvers: Array<QuorumApprover>;
-  blockHash: Scalars['Bytes'];
-  hash: Scalars['Bytes'];
-  /** {wallet.id}-{hash} */
-  id: Scalars['String'];
-  timestamp: Scalars['BigInt'];
-  wallet: Wallet;
-};
-
-
-export type QuorumApproversArgs = {
-  first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<QuorumApprover_OrderBy>;
-  orderDirection?: InputMaybe<OrderDirection>;
-  skip?: InputMaybe<Scalars['Int']>;
-  where?: InputMaybe<QuorumApprover_Filter>;
-};
-
-export type QuorumApprover = {
-  __typename?: 'QuorumApprover';
-  approver: User;
-  /** {quorum.id}-{approver.id} */
-  id: Scalars['String'];
-  quorum: Quorum;
-};
-
-export type QuorumApprover_Filter = {
-  /** Filter for the block changed event. */
-  _change_block?: InputMaybe<BlockChangedFilter>;
-  approver?: InputMaybe<Scalars['String']>;
-  approver_?: InputMaybe<User_Filter>;
-  approver_contains?: InputMaybe<Scalars['String']>;
-  approver_contains_nocase?: InputMaybe<Scalars['String']>;
-  approver_ends_with?: InputMaybe<Scalars['String']>;
-  approver_ends_with_nocase?: InputMaybe<Scalars['String']>;
-  approver_gt?: InputMaybe<Scalars['String']>;
-  approver_gte?: InputMaybe<Scalars['String']>;
-  approver_in?: InputMaybe<Array<Scalars['String']>>;
-  approver_lt?: InputMaybe<Scalars['String']>;
-  approver_lte?: InputMaybe<Scalars['String']>;
-  approver_not?: InputMaybe<Scalars['String']>;
-  approver_not_contains?: InputMaybe<Scalars['String']>;
-  approver_not_contains_nocase?: InputMaybe<Scalars['String']>;
-  approver_not_ends_with?: InputMaybe<Scalars['String']>;
-  approver_not_ends_with_nocase?: InputMaybe<Scalars['String']>;
-  approver_not_in?: InputMaybe<Array<Scalars['String']>>;
-  approver_not_starts_with?: InputMaybe<Scalars['String']>;
-  approver_not_starts_with_nocase?: InputMaybe<Scalars['String']>;
-  approver_starts_with?: InputMaybe<Scalars['String']>;
-  approver_starts_with_nocase?: InputMaybe<Scalars['String']>;
-  id?: InputMaybe<Scalars['String']>;
-  id_contains?: InputMaybe<Scalars['String']>;
-  id_contains_nocase?: InputMaybe<Scalars['String']>;
-  id_ends_with?: InputMaybe<Scalars['String']>;
-  id_ends_with_nocase?: InputMaybe<Scalars['String']>;
-  id_gt?: InputMaybe<Scalars['String']>;
-  id_gte?: InputMaybe<Scalars['String']>;
-  id_in?: InputMaybe<Array<Scalars['String']>>;
-  id_lt?: InputMaybe<Scalars['String']>;
-  id_lte?: InputMaybe<Scalars['String']>;
-  id_not?: InputMaybe<Scalars['String']>;
-  id_not_contains?: InputMaybe<Scalars['String']>;
-  id_not_contains_nocase?: InputMaybe<Scalars['String']>;
-  id_not_ends_with?: InputMaybe<Scalars['String']>;
-  id_not_ends_with_nocase?: InputMaybe<Scalars['String']>;
-  id_not_in?: InputMaybe<Array<Scalars['String']>>;
-  id_not_starts_with?: InputMaybe<Scalars['String']>;
-  id_not_starts_with_nocase?: InputMaybe<Scalars['String']>;
-  id_starts_with?: InputMaybe<Scalars['String']>;
-  id_starts_with_nocase?: InputMaybe<Scalars['String']>;
-  quorum?: InputMaybe<Scalars['String']>;
-  quorum_?: InputMaybe<Quorum_Filter>;
-  quorum_contains?: InputMaybe<Scalars['String']>;
-  quorum_contains_nocase?: InputMaybe<Scalars['String']>;
-  quorum_ends_with?: InputMaybe<Scalars['String']>;
-  quorum_ends_with_nocase?: InputMaybe<Scalars['String']>;
-  quorum_gt?: InputMaybe<Scalars['String']>;
-  quorum_gte?: InputMaybe<Scalars['String']>;
-  quorum_in?: InputMaybe<Array<Scalars['String']>>;
-  quorum_lt?: InputMaybe<Scalars['String']>;
-  quorum_lte?: InputMaybe<Scalars['String']>;
-  quorum_not?: InputMaybe<Scalars['String']>;
-  quorum_not_contains?: InputMaybe<Scalars['String']>;
-  quorum_not_contains_nocase?: InputMaybe<Scalars['String']>;
-  quorum_not_ends_with?: InputMaybe<Scalars['String']>;
-  quorum_not_ends_with_nocase?: InputMaybe<Scalars['String']>;
-  quorum_not_in?: InputMaybe<Array<Scalars['String']>>;
-  quorum_not_starts_with?: InputMaybe<Scalars['String']>;
-  quorum_not_starts_with_nocase?: InputMaybe<Scalars['String']>;
-  quorum_starts_with?: InputMaybe<Scalars['String']>;
-  quorum_starts_with_nocase?: InputMaybe<Scalars['String']>;
-};
-
-export enum QuorumApprover_OrderBy {
-  Approver = 'approver',
-  Id = 'id',
-  Quorum = 'quorum'
-}
-
-export type Quorum_Filter = {
-  /** Filter for the block changed event. */
-  _change_block?: InputMaybe<BlockChangedFilter>;
-  approvers_?: InputMaybe<QuorumApprover_Filter>;
-  blockHash?: InputMaybe<Scalars['Bytes']>;
-  blockHash_contains?: InputMaybe<Scalars['Bytes']>;
-  blockHash_in?: InputMaybe<Array<Scalars['Bytes']>>;
-  blockHash_not?: InputMaybe<Scalars['Bytes']>;
-  blockHash_not_contains?: InputMaybe<Scalars['Bytes']>;
-  blockHash_not_in?: InputMaybe<Array<Scalars['Bytes']>>;
-  hash?: InputMaybe<Scalars['Bytes']>;
-  hash_contains?: InputMaybe<Scalars['Bytes']>;
-  hash_in?: InputMaybe<Array<Scalars['Bytes']>>;
-  hash_not?: InputMaybe<Scalars['Bytes']>;
-  hash_not_contains?: InputMaybe<Scalars['Bytes']>;
-  hash_not_in?: InputMaybe<Array<Scalars['Bytes']>>;
-  id?: InputMaybe<Scalars['String']>;
-  id_contains?: InputMaybe<Scalars['String']>;
-  id_contains_nocase?: InputMaybe<Scalars['String']>;
-  id_ends_with?: InputMaybe<Scalars['String']>;
-  id_ends_with_nocase?: InputMaybe<Scalars['String']>;
-  id_gt?: InputMaybe<Scalars['String']>;
-  id_gte?: InputMaybe<Scalars['String']>;
-  id_in?: InputMaybe<Array<Scalars['String']>>;
-  id_lt?: InputMaybe<Scalars['String']>;
-  id_lte?: InputMaybe<Scalars['String']>;
-  id_not?: InputMaybe<Scalars['String']>;
-  id_not_contains?: InputMaybe<Scalars['String']>;
-  id_not_contains_nocase?: InputMaybe<Scalars['String']>;
-  id_not_ends_with?: InputMaybe<Scalars['String']>;
-  id_not_ends_with_nocase?: InputMaybe<Scalars['String']>;
-  id_not_in?: InputMaybe<Array<Scalars['String']>>;
-  id_not_starts_with?: InputMaybe<Scalars['String']>;
-  id_not_starts_with_nocase?: InputMaybe<Scalars['String']>;
-  id_starts_with?: InputMaybe<Scalars['String']>;
-  id_starts_with_nocase?: InputMaybe<Scalars['String']>;
-  timestamp?: InputMaybe<Scalars['BigInt']>;
-  timestamp_gt?: InputMaybe<Scalars['BigInt']>;
-  timestamp_gte?: InputMaybe<Scalars['BigInt']>;
-  timestamp_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  timestamp_lt?: InputMaybe<Scalars['BigInt']>;
-  timestamp_lte?: InputMaybe<Scalars['BigInt']>;
-  timestamp_not?: InputMaybe<Scalars['BigInt']>;
-  timestamp_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  wallet?: InputMaybe<Scalars['String']>;
-  wallet_?: InputMaybe<Wallet_Filter>;
-  wallet_contains?: InputMaybe<Scalars['String']>;
-  wallet_contains_nocase?: InputMaybe<Scalars['String']>;
-  wallet_ends_with?: InputMaybe<Scalars['String']>;
-  wallet_ends_with_nocase?: InputMaybe<Scalars['String']>;
-  wallet_gt?: InputMaybe<Scalars['String']>;
-  wallet_gte?: InputMaybe<Scalars['String']>;
-  wallet_in?: InputMaybe<Array<Scalars['String']>>;
-  wallet_lt?: InputMaybe<Scalars['String']>;
-  wallet_lte?: InputMaybe<Scalars['String']>;
-  wallet_not?: InputMaybe<Scalars['String']>;
-  wallet_not_contains?: InputMaybe<Scalars['String']>;
-  wallet_not_contains_nocase?: InputMaybe<Scalars['String']>;
-  wallet_not_ends_with?: InputMaybe<Scalars['String']>;
-  wallet_not_ends_with_nocase?: InputMaybe<Scalars['String']>;
-  wallet_not_in?: InputMaybe<Array<Scalars['String']>>;
-  wallet_not_starts_with?: InputMaybe<Scalars['String']>;
-  wallet_not_starts_with_nocase?: InputMaybe<Scalars['String']>;
-  wallet_starts_with?: InputMaybe<Scalars['String']>;
-  wallet_starts_with_nocase?: InputMaybe<Scalars['String']>;
-};
-
-export enum Quorum_OrderBy {
-  Approvers = 'approvers',
-  BlockHash = 'blockHash',
-  Hash = 'hash',
-  Id = 'id',
-  Timestamp = 'timestamp',
-  Wallet = 'wallet'
-}
-
 export type Subscription = {
   __typename?: 'Subscription';
   /** Access to subgraph metadata */
@@ -518,18 +301,14 @@ export type Subscription = {
   accountImpl?: Maybe<AccountImpl>;
   accountImpls: Array<AccountImpl>;
   accounts: Array<Account>;
-  quorum?: Maybe<Quorum>;
-  quorumApprover?: Maybe<QuorumApprover>;
-  quorumApprovers: Array<QuorumApprover>;
-  quorums: Array<Quorum>;
   transfer?: Maybe<Transfer>;
   transfers: Array<Transfer>;
   tx?: Maybe<Tx>;
   txes: Array<Tx>;
   user?: Maybe<User>;
+  userConfig?: Maybe<UserConfig>;
+  userConfigs: Array<UserConfig>;
   users: Array<User>;
-  wallet?: Maybe<Wallet>;
-  wallets: Array<Wallet>;
 };
 
 
@@ -571,42 +350,6 @@ export type SubscriptionAccountsArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   subgraphError?: _SubgraphErrorPolicy_;
   where?: InputMaybe<Account_Filter>;
-};
-
-
-export type SubscriptionQuorumArgs = {
-  block?: InputMaybe<Block_Height>;
-  id: Scalars['ID'];
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-
-export type SubscriptionQuorumApproverArgs = {
-  block?: InputMaybe<Block_Height>;
-  id: Scalars['ID'];
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-
-export type SubscriptionQuorumApproversArgs = {
-  block?: InputMaybe<Block_Height>;
-  first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<QuorumApprover_OrderBy>;
-  orderDirection?: InputMaybe<OrderDirection>;
-  skip?: InputMaybe<Scalars['Int']>;
-  subgraphError?: _SubgraphErrorPolicy_;
-  where?: InputMaybe<QuorumApprover_Filter>;
-};
-
-
-export type SubscriptionQuorumsArgs = {
-  block?: InputMaybe<Block_Height>;
-  first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<Quorum_OrderBy>;
-  orderDirection?: InputMaybe<OrderDirection>;
-  skip?: InputMaybe<Scalars['Int']>;
-  subgraphError?: _SubgraphErrorPolicy_;
-  where?: InputMaybe<Quorum_Filter>;
 };
 
 
@@ -653,6 +396,24 @@ export type SubscriptionUserArgs = {
 };
 
 
+export type SubscriptionUserConfigArgs = {
+  block?: InputMaybe<Block_Height>;
+  id: Scalars['ID'];
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type SubscriptionUserConfigsArgs = {
+  block?: InputMaybe<Block_Height>;
+  first?: InputMaybe<Scalars['Int']>;
+  orderBy?: InputMaybe<UserConfig_OrderBy>;
+  orderDirection?: InputMaybe<OrderDirection>;
+  skip?: InputMaybe<Scalars['Int']>;
+  subgraphError?: _SubgraphErrorPolicy_;
+  where?: InputMaybe<UserConfig_Filter>;
+};
+
+
 export type SubscriptionUsersArgs = {
   block?: InputMaybe<Block_Height>;
   first?: InputMaybe<Scalars['Int']>;
@@ -661,24 +422,6 @@ export type SubscriptionUsersArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   subgraphError?: _SubgraphErrorPolicy_;
   where?: InputMaybe<User_Filter>;
-};
-
-
-export type SubscriptionWalletArgs = {
-  block?: InputMaybe<Block_Height>;
-  id: Scalars['ID'];
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-
-export type SubscriptionWalletsArgs = {
-  block?: InputMaybe<Block_Height>;
-  first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<Wallet_OrderBy>;
-  orderDirection?: InputMaybe<OrderDirection>;
-  skip?: InputMaybe<Scalars['Int']>;
-  subgraphError?: _SubgraphErrorPolicy_;
-  where?: InputMaybe<Wallet_Filter>;
 };
 
 export type Transfer = {
@@ -839,8 +582,8 @@ export type Tx = {
   blockHash: Scalars['Bytes'];
   executor: Scalars['Bytes'];
   hash: Scalars['Bytes'];
-  /** {account.id}-{transaction.hash} */
-  id: Scalars['String'];
+  /** {transaction.hash} */
+  id: Scalars['Bytes'];
   response: Scalars['Bytes'];
   success: Scalars['Boolean'];
   timestamp: Scalars['BigInt'];
@@ -899,26 +642,12 @@ export type Tx_Filter = {
   hash_not?: InputMaybe<Scalars['Bytes']>;
   hash_not_contains?: InputMaybe<Scalars['Bytes']>;
   hash_not_in?: InputMaybe<Array<Scalars['Bytes']>>;
-  id?: InputMaybe<Scalars['String']>;
-  id_contains?: InputMaybe<Scalars['String']>;
-  id_contains_nocase?: InputMaybe<Scalars['String']>;
-  id_ends_with?: InputMaybe<Scalars['String']>;
-  id_ends_with_nocase?: InputMaybe<Scalars['String']>;
-  id_gt?: InputMaybe<Scalars['String']>;
-  id_gte?: InputMaybe<Scalars['String']>;
-  id_in?: InputMaybe<Array<Scalars['String']>>;
-  id_lt?: InputMaybe<Scalars['String']>;
-  id_lte?: InputMaybe<Scalars['String']>;
-  id_not?: InputMaybe<Scalars['String']>;
-  id_not_contains?: InputMaybe<Scalars['String']>;
-  id_not_contains_nocase?: InputMaybe<Scalars['String']>;
-  id_not_ends_with?: InputMaybe<Scalars['String']>;
-  id_not_ends_with_nocase?: InputMaybe<Scalars['String']>;
-  id_not_in?: InputMaybe<Array<Scalars['String']>>;
-  id_not_starts_with?: InputMaybe<Scalars['String']>;
-  id_not_starts_with_nocase?: InputMaybe<Scalars['String']>;
-  id_starts_with?: InputMaybe<Scalars['String']>;
-  id_starts_with_nocase?: InputMaybe<Scalars['String']>;
+  id?: InputMaybe<Scalars['Bytes']>;
+  id_contains?: InputMaybe<Scalars['Bytes']>;
+  id_in?: InputMaybe<Array<Scalars['Bytes']>>;
+  id_not?: InputMaybe<Scalars['Bytes']>;
+  id_not_contains?: InputMaybe<Scalars['Bytes']>;
+  id_not_in?: InputMaybe<Array<Scalars['Bytes']>>;
   response?: InputMaybe<Scalars['Bytes']>;
   response_contains?: InputMaybe<Scalars['Bytes']>;
   response_in?: InputMaybe<Array<Scalars['Bytes']>>;
@@ -961,57 +690,89 @@ export enum Tx_OrderBy {
 
 export type User = {
   __typename?: 'User';
-  /** {address} */
-  id: Scalars['Bytes'];
-  quorums: Array<QuorumApprover>;
+  account: Account;
+  addr: Scalars['Bytes'];
+  configs: Array<UserConfig>;
+  /** {account.id}-{addr} */
+  id: Scalars['String'];
 };
 
 
-export type UserQuorumsArgs = {
+export type UserConfigsArgs = {
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<QuorumApprover_OrderBy>;
+  orderBy?: InputMaybe<UserConfig_OrderBy>;
   orderDirection?: InputMaybe<OrderDirection>;
   skip?: InputMaybe<Scalars['Int']>;
-  where?: InputMaybe<QuorumApprover_Filter>;
+  where?: InputMaybe<UserConfig_Filter>;
 };
 
-export type User_Filter = {
+export type UserConfig = {
+  __typename?: 'UserConfig';
+  approvers: Array<Scalars['Bytes']>;
+  /** {blockHash}-{logIndex} */
+  id: Scalars['String'];
+  user: User;
+};
+
+export type UserConfig_Filter = {
   /** Filter for the block changed event. */
   _change_block?: InputMaybe<BlockChangedFilter>;
-  id?: InputMaybe<Scalars['Bytes']>;
-  id_contains?: InputMaybe<Scalars['Bytes']>;
-  id_in?: InputMaybe<Array<Scalars['Bytes']>>;
-  id_not?: InputMaybe<Scalars['Bytes']>;
-  id_not_contains?: InputMaybe<Scalars['Bytes']>;
-  id_not_in?: InputMaybe<Array<Scalars['Bytes']>>;
-  quorums_?: InputMaybe<QuorumApprover_Filter>;
+  approvers?: InputMaybe<Array<Scalars['Bytes']>>;
+  approvers_contains?: InputMaybe<Array<Scalars['Bytes']>>;
+  approvers_contains_nocase?: InputMaybe<Array<Scalars['Bytes']>>;
+  approvers_not?: InputMaybe<Array<Scalars['Bytes']>>;
+  approvers_not_contains?: InputMaybe<Array<Scalars['Bytes']>>;
+  approvers_not_contains_nocase?: InputMaybe<Array<Scalars['Bytes']>>;
+  id?: InputMaybe<Scalars['String']>;
+  id_contains?: InputMaybe<Scalars['String']>;
+  id_contains_nocase?: InputMaybe<Scalars['String']>;
+  id_ends_with?: InputMaybe<Scalars['String']>;
+  id_ends_with_nocase?: InputMaybe<Scalars['String']>;
+  id_gt?: InputMaybe<Scalars['String']>;
+  id_gte?: InputMaybe<Scalars['String']>;
+  id_in?: InputMaybe<Array<Scalars['String']>>;
+  id_lt?: InputMaybe<Scalars['String']>;
+  id_lte?: InputMaybe<Scalars['String']>;
+  id_not?: InputMaybe<Scalars['String']>;
+  id_not_contains?: InputMaybe<Scalars['String']>;
+  id_not_contains_nocase?: InputMaybe<Scalars['String']>;
+  id_not_ends_with?: InputMaybe<Scalars['String']>;
+  id_not_ends_with_nocase?: InputMaybe<Scalars['String']>;
+  id_not_in?: InputMaybe<Array<Scalars['String']>>;
+  id_not_starts_with?: InputMaybe<Scalars['String']>;
+  id_not_starts_with_nocase?: InputMaybe<Scalars['String']>;
+  id_starts_with?: InputMaybe<Scalars['String']>;
+  id_starts_with_nocase?: InputMaybe<Scalars['String']>;
+  user?: InputMaybe<Scalars['String']>;
+  user_?: InputMaybe<User_Filter>;
+  user_contains?: InputMaybe<Scalars['String']>;
+  user_contains_nocase?: InputMaybe<Scalars['String']>;
+  user_ends_with?: InputMaybe<Scalars['String']>;
+  user_ends_with_nocase?: InputMaybe<Scalars['String']>;
+  user_gt?: InputMaybe<Scalars['String']>;
+  user_gte?: InputMaybe<Scalars['String']>;
+  user_in?: InputMaybe<Array<Scalars['String']>>;
+  user_lt?: InputMaybe<Scalars['String']>;
+  user_lte?: InputMaybe<Scalars['String']>;
+  user_not?: InputMaybe<Scalars['String']>;
+  user_not_contains?: InputMaybe<Scalars['String']>;
+  user_not_contains_nocase?: InputMaybe<Scalars['String']>;
+  user_not_ends_with?: InputMaybe<Scalars['String']>;
+  user_not_ends_with_nocase?: InputMaybe<Scalars['String']>;
+  user_not_in?: InputMaybe<Array<Scalars['String']>>;
+  user_not_starts_with?: InputMaybe<Scalars['String']>;
+  user_not_starts_with_nocase?: InputMaybe<Scalars['String']>;
+  user_starts_with?: InputMaybe<Scalars['String']>;
+  user_starts_with_nocase?: InputMaybe<Scalars['String']>;
 };
 
-export enum User_OrderBy {
+export enum UserConfig_OrderBy {
+  Approvers = 'approvers',
   Id = 'id',
-  Quorums = 'quorums'
+  User = 'user'
 }
 
-export type Wallet = {
-  __typename?: 'Wallet';
-  account: Account;
-  active: Scalars['Boolean'];
-  /** {account.id}-{ref} */
-  id: Scalars['String'];
-  quorums: Array<Quorum>;
-  ref: Scalars['Bytes'];
-};
-
-
-export type WalletQuorumsArgs = {
-  first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<Quorum_OrderBy>;
-  orderDirection?: InputMaybe<OrderDirection>;
-  skip?: InputMaybe<Scalars['Int']>;
-  where?: InputMaybe<Quorum_Filter>;
-};
-
-export type Wallet_Filter = {
+export type User_Filter = {
   /** Filter for the block changed event. */
   _change_block?: InputMaybe<BlockChangedFilter>;
   account?: InputMaybe<Scalars['String']>;
@@ -1035,10 +796,19 @@ export type Wallet_Filter = {
   account_not_starts_with_nocase?: InputMaybe<Scalars['String']>;
   account_starts_with?: InputMaybe<Scalars['String']>;
   account_starts_with_nocase?: InputMaybe<Scalars['String']>;
-  active?: InputMaybe<Scalars['Boolean']>;
-  active_in?: InputMaybe<Array<Scalars['Boolean']>>;
-  active_not?: InputMaybe<Scalars['Boolean']>;
-  active_not_in?: InputMaybe<Array<Scalars['Boolean']>>;
+  addr?: InputMaybe<Scalars['Bytes']>;
+  addr_contains?: InputMaybe<Scalars['Bytes']>;
+  addr_in?: InputMaybe<Array<Scalars['Bytes']>>;
+  addr_not?: InputMaybe<Scalars['Bytes']>;
+  addr_not_contains?: InputMaybe<Scalars['Bytes']>;
+  addr_not_in?: InputMaybe<Array<Scalars['Bytes']>>;
+  configs?: InputMaybe<Array<Scalars['String']>>;
+  configs_?: InputMaybe<UserConfig_Filter>;
+  configs_contains?: InputMaybe<Array<Scalars['String']>>;
+  configs_contains_nocase?: InputMaybe<Array<Scalars['String']>>;
+  configs_not?: InputMaybe<Array<Scalars['String']>>;
+  configs_not_contains?: InputMaybe<Array<Scalars['String']>>;
+  configs_not_contains_nocase?: InputMaybe<Array<Scalars['String']>>;
   id?: InputMaybe<Scalars['String']>;
   id_contains?: InputMaybe<Scalars['String']>;
   id_contains_nocase?: InputMaybe<Scalars['String']>;
@@ -1059,27 +829,13 @@ export type Wallet_Filter = {
   id_not_starts_with_nocase?: InputMaybe<Scalars['String']>;
   id_starts_with?: InputMaybe<Scalars['String']>;
   id_starts_with_nocase?: InputMaybe<Scalars['String']>;
-  quorums?: InputMaybe<Array<Scalars['String']>>;
-  quorums_?: InputMaybe<Quorum_Filter>;
-  quorums_contains?: InputMaybe<Array<Scalars['String']>>;
-  quorums_contains_nocase?: InputMaybe<Array<Scalars['String']>>;
-  quorums_not?: InputMaybe<Array<Scalars['String']>>;
-  quorums_not_contains?: InputMaybe<Array<Scalars['String']>>;
-  quorums_not_contains_nocase?: InputMaybe<Array<Scalars['String']>>;
-  ref?: InputMaybe<Scalars['Bytes']>;
-  ref_contains?: InputMaybe<Scalars['Bytes']>;
-  ref_in?: InputMaybe<Array<Scalars['Bytes']>>;
-  ref_not?: InputMaybe<Scalars['Bytes']>;
-  ref_not_contains?: InputMaybe<Scalars['Bytes']>;
-  ref_not_in?: InputMaybe<Array<Scalars['Bytes']>>;
 };
 
-export enum Wallet_OrderBy {
+export enum User_OrderBy {
   Account = 'account',
-  Active = 'active',
-  Id = 'id',
-  Quorums = 'quorums',
-  Ref = 'ref'
+  Addr = 'addr',
+  Configs = 'configs',
+  Id = 'id'
 }
 
 export type _Block_ = {
@@ -1088,6 +844,8 @@ export type _Block_ = {
   hash?: Maybe<Scalars['Bytes']>;
   /** The block number */
   number: Scalars['Int'];
+  /** Integer representation of the timestamp stored in blocks for the chain */
+  timestamp?: Maybe<Scalars['Int']>;
 };
 
 /** The type for the top-level _meta field */
@@ -1114,9 +872,9 @@ export enum _SubgraphErrorPolicy_ {
   Deny = 'deny'
 }
 
-export type UserWalletsQueryVariables = Exact<{
-  user: Scalars['ID'];
+export type TxResponseQueryVariables = Exact<{
+  transactionHash: Scalars['ID'];
 }>;
 
 
-export type UserWalletsQuery = { __typename?: 'Query', user?: { __typename?: 'User', quorums: Array<{ __typename?: 'QuorumApprover', quorum: { __typename?: 'Quorum', wallet: { __typename?: 'Wallet', id: string, ref: any, account: { __typename?: 'Account', id: any } } } }> } | null };
+export type TxResponseQuery = { __typename?: 'Query', tx?: { __typename?: 'Tx', id: any, success: boolean, response: any, executor: any, blockHash: any, timestamp: any, transfers: Array<{ __typename?: 'Transfer', id: string, token: any, type: TransferType, from: any, to: any, value: any, blockHash: any, timestamp: any }> } | null };

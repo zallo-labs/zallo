@@ -1,105 +1,96 @@
-import { CalendarIcon, CheckIcon } from '@theme/icons';
-import { useToken } from '@token/useToken';
-import { Address, ZERO } from 'lib';
-import { Box } from '~/components/layout/Box';
-import { Container } from '~/components/layout/Container';
+import { Address, Limit, UserId, ZERO } from 'lib';
 import { ScreenSkeleton } from '~/components/skeleton/ScreenSkeleton';
 import { withSkeleton } from '~/components/skeleton/withSkeleton';
-import { TokenBalanceCard } from '~/components/token/TokenBalanceCard';
-import { latest, Proposable } from '~/gql/proposable';
 import { RootNavigatorScreenProps } from '~/navigation/RootNavigator';
-import {
-  CombinedWallet,
-  LIMIT_PERIOD_LABEL,
-  TokenLimit,
-} from '~/queries/wallets';
+import { LimitPeriod } from '~/gql/generated.api';
+import { BigNumber } from 'ethers';
+import { useMemo, useState } from 'react';
+import { Box } from '~/components/layout/Box';
 import { LimitAppbar } from './LimitAppbar';
-import { useState } from 'react';
+import { ScrollView } from 'react-native';
+import { makeStyles } from '@theme/makeStyles';
+import TokenIcon from '~/components/token/TokenIcon/TokenIcon';
+import { useToken } from '@token/useToken';
+import { Text } from 'react-native-paper';
+import { LimitFields } from './LimitFields';
+import { LimitAvailable } from './LimitAvailable';
 import _ from 'lodash';
 import { FAB } from '~/components/FAB';
-import { useBigNumberInput } from '~/components/fields/useBigNumberInput';
-import { TextField } from '~/components/fields/TextField';
-import { Provider, SegmentedButtons, TextInput } from 'react-native-paper';
-import { useTheme } from '@theme/paper';
-import { LimitPeriod } from '~/gql/generated.api';
+import { CheckIcon } from '@theme/icons';
 
 export interface LimitScreenParams {
-  wallet: CombinedWallet;
+  user: UserId;
   token: Address;
-  limit?: Proposable<TokenLimit>;
-  onChange: (limit: TokenLimit | null, token: Address) => void;
+  amount?: BigNumber;
+  period?: LimitPeriod;
+  onChange: (limit: Limit) => void;
+  onDelete?: () => void;
 }
-
-const defaultLimit: TokenLimit = {
-  amount: ZERO,
-  period: LimitPeriod.Month,
-};
 
 export type LimitScreenProps = RootNavigatorScreenProps<'Limit'>;
 
-export const LimitScreen = withSkeleton(
-  ({ route, navigation }: LimitScreenProps) => {
-    const { wallet, onChange } = route.params;
-    const token = useToken(route.params.token);
-    const initialLimit = route.params.limit
-      ? latest(route.params.limit)
-      : defaultLimit;
+const LimitScreen = ({ route, navigation }: LimitScreenProps) => {
+  const { user, onChange, onDelete } = route.params;
+  const styles = useStyles();
+  const token = useToken(route.params.token);
 
-    const [limit, setLimit] = useState(initialLimit ?? defaultLimit);
-    const isModified = !_.isEqual(limit, initialLimit);
+  const initial = useMemo(
+    () => ({
+      token: route.params.token,
+      amount: route.params.amount ?? ZERO,
+      period: route.params.period ?? LimitPeriod.Month,
+    }),
+    [route.params],
+  );
+  const [limit, setLimit] = useState<Limit>(initial);
+  const isModified = !_.isEqual(limit, initial);
 
-    const amountProps = useBigNumberInput({
-      value: limit.amount,
-      onChange: (amount) => setLimit({ ...limit, amount }),
-      decimals: token.decimals,
-    });
+  return (
+    <Box flex={1}>
+      <LimitAppbar onDelete={onDelete} />
 
-    return (
-      <Box flex={1}>
-        <LimitAppbar
-          proposable={route.params.limit}
-          remove={() => onChange(null, token.addr)}
+      <ScrollView contentContainerStyle={styles.container}>
+        <Box vertical alignItems="center">
+          <TokenIcon token={token} size={styles.tokenIcon.fontSize} />
+          <Text variant="headlineSmall">{token.name}</Text>
+        </Box>
+
+        <LimitAvailable
+          user={user}
+          token={token.addr}
+          style={[styles.section, styles.available]}
         />
 
-        <Provider theme={useTheme()}>
-          <Container mx={3} separator={<Box my={2} />}>
-            <TokenBalanceCard token={token} account={wallet.accountAddr} />
+        <LimitFields style={styles.section} limit={limit} setLimit={setLimit} />
+      </ScrollView>
 
-            <TextField
-              label="Amount"
-              {...amountProps}
-              right={<TextInput.Affix text={token.symbol} />}
-            />
+      {isModified && (
+        <FAB
+          icon={CheckIcon}
+          label="Accept"
+          onPress={() => {
+            onChange(limit);
+            navigation.goBack();
+          }}
+        />
+      )}
+    </Box>
+  );
+};
 
-            <Box horizontal justifyContent="center">
-              <SegmentedButtons
-                value={limit.period}
-                onValueChange={(period) =>
-                  setLimit({ ...limit, period: period as LimitPeriod })
-                }
-                buttons={Object.entries(LIMIT_PERIOD_LABEL).map(
-                  ([period, label]) => ({
-                    value: period as LimitPeriod,
-                    label,
-                  }),
-                )}
-              />
-            </Box>
-          </Container>
-        </Provider>
-
-        {isModified && (
-          <FAB
-            icon={CheckIcon}
-            label="Apply"
-            onPress={() => {
-              onChange(limit, token.addr);
-              navigation.goBack();
-            }}
-          />
-        )}
-      </Box>
-    );
+const useStyles = makeStyles(({ space, iconSize }) => ({
+  container: {
+    paddingHorizontal: space(2),
   },
-  ScreenSkeleton,
-);
+  section: {
+    marginTop: space(4),
+  },
+  tokenIcon: {
+    fontSize: iconSize.large,
+  },
+  available: {
+    marginHorizontal: space(2),
+  },
+}));
+
+export default withSkeleton(LimitScreen, ScreenSkeleton);

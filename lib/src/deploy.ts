@@ -9,7 +9,7 @@ import {
   TestAccount__factory,
   Multicall__factory,
 } from './contracts';
-import { Wallet } from './wallet';
+import { toUserStruct, User } from './user';
 import {
   defaultAbiCoder,
   hexDataLength,
@@ -46,7 +46,7 @@ export const connectProxy = createConnect(ERC1967Proxy__factory.connect);
 export const connectMulticall = createConnect(Multicall__factory.connect);
 
 export interface AccountConstructorArgs {
-  wallet: Wallet;
+  user: User;
 }
 
 export interface ProxyConstructorArgs extends AccountConstructorArgs {
@@ -54,13 +54,13 @@ export interface ProxyConstructorArgs extends AccountConstructorArgs {
 }
 
 export const encodeProxyConstructorArgs = ({
-  wallet,
+  user,
   impl,
 }: ProxyConstructorArgs) => {
   const accountInterface = Account__factory.createInterface();
   const encodedInitializeCall = accountInterface.encodeFunctionData(
     'initialize',
-    [wallet.ref, wallet.quorums],
+    [toUserStruct(user)],
   );
 
   return defaultAbiCoder.encode(
@@ -77,9 +77,7 @@ export const calculateProxyAddress = async (
 ) => {
   const addr = zk.utils.create2Address(
     factory.address,
-    await factory._BYTECODE_HASH({
-      gasLimit: 100_000,
-    }),
+    await factory._BYTECODE_HASH({ gasLimit: 100_000 }),
     salt,
     encodeProxyConstructorArgs(args),
   );

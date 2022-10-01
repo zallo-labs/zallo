@@ -1,17 +1,15 @@
-import React, { ReactNode, useMemo } from 'react';
-import { getNodeKey } from '~/util/children';
+import React, { Fragment, ReactNode, useMemo } from 'react';
 import { BoxProps, Box } from '~/components/layout/Box';
+import { getNodeKey } from '~/util/children';
 
 export interface ContainerProps extends BoxProps {
   children?: ReactNode;
-  separator?: ReactNode | BoxProps;
-  horizontal?: boolean;
+  separator?: ReactNode;
 }
 
 export const Container = ({
   children: childrenNode,
   separator,
-  horizontal,
   ...boxProps
 }: ContainerProps) => {
   const children = useMemo(
@@ -20,13 +18,13 @@ export const Container = ({
   );
 
   return (
-    <Box horizontal={horizontal} {...boxProps}>
+    <Box {...boxProps}>
       {children.map((child, i) => (
-        <Box key={getNodeKey(child, i)} horizontal={horizontal}>
+        <Fragment key={getNodeKey(child, i)}>
           {child}
 
           {separator && i < children.length - 1 ? separator : null}
-        </Box>
+        </Fragment>
       ))}
     </Box>
   );

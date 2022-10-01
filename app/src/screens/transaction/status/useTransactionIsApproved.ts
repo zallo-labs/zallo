@@ -1,18 +1,15 @@
 import { useMemo } from 'react';
-import { Tx } from '~/queries/tx';
-import { CombinedWallet } from '~/queries/wallets';
+import { Proposal } from '~/queries/proposal';
+import { CombinedUser } from '~/queries/user/useUser.api';
 
-export const useTransactionIsApproved = (tx: Tx, wallet: CombinedWallet) => {
-  const approvers = useMemo(
-    () => new Set(tx.approvals.map((a) => a.addr)),
-    [tx],
-  );
+export const useTransactionIsApproved = (
+  proposal: Proposal,
+  proposer: CombinedUser,
+) =>
+  useMemo(() => {
+    const approvers = new Set(proposal.approvals.map((a) => a.addr));
 
-  return useMemo(
-    () =>
-      wallet.quorums.some((quorum) =>
-        quorum.approvers.every((a) => approvers.has(a)),
-      ),
-    [approvers, wallet?.quorums],
-  );
-};
+    return (proposer.configs.active ?? []).some((config) =>
+      config.approvers.every((a) => approvers.has(a)),
+    );
+  }, [proposal.approvals, proposer.configs.active]);

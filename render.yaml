@@ -23,6 +23,8 @@ services:
         generateValue: true
       - key: SUBGRAPH_GQL_URL
         sync: false
+      - key: PROXY_FACTORY_TESTNET
+        sync: false
     region: oregon
     plan: starter
     scaling:
@@ -57,6 +59,8 @@ services:
       - key: SESSION_SECRET
         generateValue: true
       - key: SUBGRAPH_GQL_URL
+        sync: false
+      - key: PROXY_FACTORY_TESTNET
         sync: false
     region: oregon
     plan: free

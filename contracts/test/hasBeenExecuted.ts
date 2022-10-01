@@ -3,10 +3,10 @@ import { expect, execute, deploy, device } from './util';
 
 describe('hasBeenExecuted', () => {
   it('should show an executed tx hash as being executed', async () => {
-    const { account, wallet, quorum } = await deploy();
+    const { account, user, config } = await deploy();
 
     const tx = createTx({ to: device.address });
-    const txResp = await execute(account, wallet, quorum, tx);
+    const txResp = await execute(account, user, config, tx);
     await txResp.wait();
 
     const txHash = await hashTx(account, tx);

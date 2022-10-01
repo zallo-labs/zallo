@@ -1,68 +1,83 @@
-import { AppbarBack } from '~/components/Appbar/AppbarBack';
 import { Box } from '~/components/layout/Box';
 import { ListScreenSkeleton } from '~/components/skeleton/ListScreenSkeleton';
 import { withSkeleton } from '~/components/skeleton/withSkeleton';
 import { useAppbarHeader } from '~/components/Appbar/useAppbarHeader';
 import { FlatList } from 'react-native';
-import { AppbarSearch } from '~/components/Appbar/AppbarSearch';
 import { RootNavigatorScreenProps } from '~/navigation/RootNavigator';
 import { Token } from '@token/token';
 import { useFuzzySearch } from '@hook/useFuzzySearch';
-import { TokenCard } from '~/components/token/TokenCard';
-import { WalletId } from '~/queries/wallets';
-import { TokenAvailableCard } from '~/components/token/TokenAvailableCard';
-import { Address } from 'lib';
+import { Address, UserId } from 'lib';
 import { useTokens } from '@token/useTokens';
+import { Appbar, TextInput } from 'react-native-paper';
+import { useGoBack } from '~/components/Appbar/useGoBack';
+import { TextField } from '~/components/fields/TextField';
+import { SearchIcon } from '@theme/icons';
+import { makeStyles } from '@theme/makeStyles';
+import TokenItem from '~/components/token/TokenItem';
+import { TokenAvailableItem } from '~/components/token/TokenAvailableItem';
 
 export interface TokensScreenParams {
   onSelect?: (token: Token) => void;
-  wallet?: WalletId;
+  user?: UserId;
   disabled?: Address[];
 }
 
 export type TokensScreenProps = RootNavigatorScreenProps<'Tokens'>;
 
-export const TokensScreen = withSkeleton(({ route }: TokensScreenProps) => {
-  const { onSelect, wallet, disabled = [] } = route.params;
+const TokensScreen = ({ route }: TokensScreenProps) => {
+  const { onSelect, user, disabled } = route.params;
+  const styles = useStyles();
   const { AppbarHeader, handleScroll } = useAppbarHeader();
   const [tokens, searchProps] = useFuzzySearch(useTokens(), ['name', 'symbol']);
 
   return (
-    <Box flex={1}>
-      <AppbarHeader>
-        <AppbarBack />
-        <AppbarSearch
-          title={onSelect ? 'Select Token' : 'Tokens'}
-          {...searchProps}
-        />
+    <Box>
+      <AppbarHeader mode="medium">
+        <Appbar.BackAction onPress={useGoBack()} />
+        <Appbar.Content title={onSelect ? 'Select Token' : 'Tokens'} />
+        {/* <Appbar.Action icon={AddIcon} onPress={() => {
+          // TODO: implement add dynamic token
+        }} /> */}
       </AppbarHeader>
-      <Box mx={3}>
-        <FlatList
-          renderItem={({ item }) => {
-            const onPress = onSelect ? () => onSelect(item) : undefined;
-            const isDisabled = !!disabled.find((t) => t === item.addr);
 
-            return wallet ? (
-              <TokenAvailableCard
-                token={item}
-                wallet={wallet}
-                onPress={onPress}
-                disabled={isDisabled}
-              />
-            ) : (
-              <TokenCard token={item} onPress={onPress} disabled={isDisabled} />
-            );
-          }}
-          ItemSeparatorComponent={() => <Box my={2} />}
-          keyExtractor={(item) => item.addr}
-          data={tokens}
-          showsVerticalScrollIndicator={false}
-          onScroll={handleScroll}
-        />
-      </Box>
+      <FlatList
+        ListHeaderComponent={
+          <TextField
+            left={<TextInput.Icon icon={SearchIcon} />}
+            label="Search"
+            {...searchProps}
+          />
+        }
+        ListHeaderComponentStyle={styles.header}
+        renderItem={({ item: token }) => {
+          const onPress = onSelect ? () => onSelect(token) : undefined;
+          const isDisabled = !!disabled?.find((t) => t === token.addr);
 
-      {/* TODO: implement user adding tokens */}
-      {/* <FAB icon={PlusIcon} label="Add" onPress={() => {}} /> */}
+          return user ? (
+            <TokenAvailableItem
+              token={token}
+              onPress={onPress}
+              disabled={isDisabled}
+              user={user}
+            />
+          ) : (
+            <TokenItem token={token} onPress={onPress} disabled={isDisabled} />
+          );
+        }}
+        data={tokens}
+        stickyHeaderIndices={[0]}
+        showsVerticalScrollIndicator={false}
+        onScroll={handleScroll}
+      />
     </Box>
   );
-}, ListScreenSkeleton);
+};
+
+const useStyles = makeStyles(({ space }) => ({
+  header: {
+    marginHorizontal: space(2),
+    marginBottom: space(1),
+  },
+}));
+
+export default withSkeleton(TokensScreen, ListScreenSkeleton);

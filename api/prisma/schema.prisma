@@ -12,9 +12,10 @@ generator nestgraphql {
   output   = "../generated"
 }
 
-model User {
+model Device {
   id String @id @db.Char(42) // address
 
+  users     User[]
   contacts  Contact[]
   approvals Approval[]
   comments  Comment[]
@@ -23,83 +24,94 @@ model User {
 }
 
 model Account {
-  id         String  @id @db.Char(42) // address
-  name       String  @default("")
-  deploySalt String? @db.Char(66) // bytes32
-  impl       String? @db.Char(42) // address
+  id String @id @db.Char(42) // address
 
-  wallets   Wallet[]
-  quorums   Quorum[]
-  txs       Tx[]
-  approvals Approval[]
-  comments  Comment[]
-  reactions Reaction[]
-  approvers Approver[]
+  impl       String  @db.Char(42) // address
+  deploySalt String  @db.Char(66) // bytes32
+  name       String
+  isDeployed Boolean @default(false)
+
+  users      User[]
+  proposals  Proposal[]
+  comments   Comment[]
+  reactions  Reaction[]
+  userStates UserState[]
 }
 
-model Wallet {
+model User {
   account   Account @relation(fields: [accountId], references: [id], onDelete: Cascade)
   accountId String  @db.Char(42) // address
-  ref       String  @db.Char(10) // bytes4
-  name      String  @default("")
+  device    Device  @relation(fields: [deviceId], references: [id], onDelete: Cascade)
+  deviceId  String  @db.Char(42) // address
 
-  spendingAllowlisted Boolean      @default(false)
-  limits              TokenLimit[]
+  name String
 
-  createProposal          Tx?     @relation(name: "createWallet", fields: [accountId, createProposalHash], references: [accountId, hash], onDelete: Cascade)
-  createProposalHash      String? @db.Char(66) // bytes32
-  removeProposal          Tx?     @relation(name: "removeWallet", fields: [removeProposalAccountId, removeProposalHash], references: [accountId, hash], onDelete: SetNull)
-  removeProposalAccountId String? @db.Char(42) // address; required as deleting the tx will set accountId to null
-  removeProposalHash      String? @db.Char(66) // bytes32
+  states    UserState[]
+  proposals Proposal[]
 
-  quorums   Quorum[]
-  approvers Approver[]
-  txs       Tx[]       @relation(name: "txs")
-
-  @@id([accountId, ref])
-  @@unique([accountId, createProposalHash])
-  @@unique([removeProposalAccountId, removeProposalHash])
+  @@id([accountId, deviceId])
 }
 
-model Quorum {
-  account   Account @relation(fields: [accountId], references: [id], onDelete: Cascade)
-  accountId String  @db.Char(42) // address
-  wallet    Wallet  @relation(fields: [accountId, walletRef], references: [accountId, ref], onDelete: Cascade)
-  walletRef String  @db.Char(10) // bytes4
-  hash      String  @db.Char(66) // bytes32
+model UserState {
+  id Int @id @default(autoincrement())
 
-  createProposal          Tx?     @relation(name: "createQuorum", fields: [accountId, createProposalHash], references: [accountId, hash], onDelete: Cascade)
-  createProposalHash      String? @db.Char(66) // bytes32
-  removeProposal          Tx?     @relation(name: "removeQuorum", fields: [removeProposalAccountId, removeProposalHash], references: [accountId, hash], onDelete: SetNull)
-  removeProposalAccountId String? @db.Char(42) // address; required as deleting the tx will set accountId to null
-  removeProposalHash      String? @db.Char(66) // bytes32
+  user         User      @relation(fields: [accountId, deviceId], references: [accountId, deviceId], onDelete: Cascade)
+  account      Account   @relation(fields: [accountId], references: [id], onDelete: Cascade)
+  accountId    String    @db.Char(42) // address
+  deviceId     String    @db.Char(42) // address
+  proposal     Proposal? @relation(fields: [proposalHash], references: [hash], onDelete: Cascade)
+  proposalHash String?   @db.Char(66) // bytes32
+  createdAt    DateTime  @default(now())
+  isDeleted    Boolean   @default(false)
+
+  configs UserConfig[]
+}
+
+model UserConfig {
+  id Int @id @default(autoincrement())
+
+  state               UserState @relation(fields: [stateId], references: [id], onDelete: Cascade)
+  stateId             Int
+  spendingAllowlisted Boolean   @default(false)
 
   approvers Approver[]
-
-  @@id([accountId, walletRef, hash])
+  limits    TokenLimit[]
 }
 
 model Approver {
-  account    Account @relation(fields: [accountId], references: [id], onDelete: Cascade)
-  accountId  String  @db.Char(42) // address
-  wallet     Wallet  @relation(fields: [accountId, walletRef], references: [accountId, ref], onDelete: Cascade)
-  walletRef  String  @db.Char(10) // bytes4
-  quorum     Quorum  @relation(fields: [accountId, walletRef, quorumHash], references: [accountId, walletRef, hash], onDelete: Cascade)
-  quorumHash String  @db.Char(66) // bytes32
-  user       User    @relation(fields: [userId], references: [id], onDelete: Cascade)
-  userId     String  @db.Char(42) // address
+  config   UserConfig @relation(fields: [configId], references: [id], onDelete: Cascade)
+  configId Int
+  device   Device     @relation(fields: [deviceId], references: [id], onDelete: Cascade)
+  deviceId String     @db.Char(42) // address
 
-  @@id([accountId, walletRef, quorumHash, userId])
+  @@id([configId, deviceId])
+}
+
+enum LimitPeriod {
+  Day
+  Week
+  Month
+}
+
+model TokenLimit {
+  config   UserConfig @relation(fields: [configId], references: [id], onDelete: Cascade)
+  configId Int
+  token    String     @db.Char(42) // address
+
+  amount String //@db.Decimal(79, 0) // uint256
+  period LimitPeriod
+
+  @@id([configId, token])
 }
 
 model Contact {
-  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
-  userId String @db.Char(42) // address
-  addr   String @db.Char(42) // address
-  name   String
+  device   Device @relation(fields: [deviceId], references: [id], onDelete: Cascade)
+  deviceId String @db.Char(42) // address
+  addr     String @db.Char(42) // address
+  name     String
 
-  @@id([userId, addr])
-  @@unique([userId, name], name: "name_identifier")
+  @@id([deviceId, addr])
+  @@unique([deviceId, name], name: "name_identifier")
 }
 
 model ContractMethod {
@@ -111,61 +123,64 @@ model ContractMethod {
   @@index([sighash])
 }
 
-model Tx {
-  account   Account @relation(fields: [accountId], references: [id], onDelete: Cascade)
-  accountId String  @db.Char(42) // address
-  hash      String  @db.Char(66) // bytes32
-  to        String  @db.Char(42) // address
-  value     String //@db.Decimal(79, 0) // uint256
-  data      String // bytes
-  salt      String  @db.Char(18) // bytes8
-  wallet    Wallet  @relation(name: "txs", fields: [accountId, walletRef], references: [accountId, ref], onDelete: Cascade)
-  walletRef String  @db.Char(10) // bytes4
+model Proposal {
+  hash String @id @db.Char(66) // bytes32
+
+  account    Account  @relation(fields: [accountId], references: [id], onDelete: Cascade)
+  accountId  String   @db.Char(42) // address
+  proposer   User     @relation(fields: [accountId, proposerId], references: [accountId, deviceId])
+  proposerId String   @db.Char(42) // address
+  to         String   @db.Char(42) // address
+  value      String //@db.Decimal(79, 0) // uint256
+  data       String // bytes
+  salt       String   @db.Char(18) // bytes8
+  createdAt  DateTime @default(now())
 
   approvals   Approval[]
-  createdAt   DateTime     @default(now())
   submissions Submission[]
-
-  proposedCreateWallet  Wallet?  @relation(name: "createWallet")
-  proposedRemoveWallet  Wallet?  @relation(name: "removeWallet")
-  proposedCreateQuroums Quorum[] @relation(name: "createQuorum")
-  proposedRemoveQuroums Quorum[] @relation(name: "removeQuorum")
-
-  @@id([accountId, hash])
+  userStates  UserState[]
 }
 
 model Submission {
-  hash      String   @id @db.Char(66) // bytes32
-  tx        Tx       @relation(fields: [accountId, txHash], references: [accountId, hash], onDelete: Cascade)
-  accountId String   @db.Char(42) // address
-  txHash    String   @db.Char(66) // bytes32
-  createdAt DateTime @default(now())
-  nonce     Int
-  gasLimit  Decimal  @db.Decimal(19, 0)
-  gasPrice  Decimal? @db.Decimal(19, 0)
-  finalized Boolean
+  hash String @id @db.Char(66) // bytes32
+
+  proposal     Proposal            @relation(fields: [proposalHash], references: [hash], onDelete: Cascade)
+  proposalHash String              @db.Char(66) // bytes32
+  response     SubmissionResponse?
+  nonce        Int
+  gasLimit     Decimal             @db.Decimal(19, 0)
+  gasPrice     Decimal?            @db.Decimal(19, 0)
+  createdAt    DateTime            @default(now())
+}
+
+model SubmissionResponse {
+  submission Submission @relation(fields: [hash], references: [hash], onDelete: Cascade)
+  hash       String     @id @db.Char(66) // bytes32
+
+  response  String   @db.Char(66) // bytes32
+  reverted  Boolean  @default(false)
+  timestamp DateTime @default(now())
 }
 
 model Approval {
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  userId    String   @db.Char(42) // address
-  account   Account  @relation(fields: [accountId], references: [id], onDelete: Cascade)
-  accountId String   @db.Char(42) // address
-  tx        Tx       @relation(fields: [accountId, txHash], references: [accountId, hash], onDelete: Cascade)
-  txHash    String   @db.Char(66) // bytes32
+  proposal     Proposal @relation(fields: [proposalHash], references: [hash], onDelete: Cascade)
+  proposalHash String   @db.Char(66) // bytes32
+  device       Device   @relation(fields: [deviceId], references: [id], onDelete: Cascade)
+  deviceId     String   @db.Char(42) // address
+
   signature String // bytes
   createdAt DateTime @default(now())
 
-  @@id([accountId, txHash, userId])
+  @@id([proposalHash, deviceId])
 }
 
 model Comment {
-  account   Account @relation(fields: [accountId], references: [id], onDelete: Cascade)
-  accountId String  @db.Char(42) // address
-  key       String
-  nonce     Int     @default(autoincrement())
+  id Int @id @default(autoincrement())
 
-  author    User     @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  account   Account  @relation(fields: [accountId], references: [id], onDelete: Cascade)
+  accountId String   @db.Char(42) // address
+  key       String
+  author    Device   @relation(fields: [authorId], references: [id], onDelete: Cascade)
   authorId  String   @db.Char(42) // address
   content   String
   createdAt DateTime @default(now())
@@ -173,40 +188,20 @@ model Comment {
 
   reactions Reaction[]
 
-  @@id([accountId, key, nonce])
   @@index([accountId, key])
 }
 
 model Reaction {
-  account   Account @relation(fields: [accountId], references: [id], onDelete: Cascade)
-  accountId String  @db.Char(42) // address
-  key       String
-  nonce     Int
+  comment   Comment @relation(fields: [commentId], references: [id], onDelete: Cascade)
+  commentId Int
+  device    Device  @relation(fields: [deviceId], references: [id], onDelete: Cascade)
+  deviceId  String  @db.Char(42) // address
 
-  comment   Comment  @relation(fields: [accountId, key, nonce], references: [accountId, key, nonce], onDelete: Cascade)
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  userId    String   @db.Char(42) // address
   emojis    String[]
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt()
+  account   Account? @relation(fields: [accountId], references: [id])
+  accountId String?  @db.Char(42)
 
-  @@id([accountId, key, nonce, userId])
-}
-
-enum LimitPeriod {
-  Day
-  Week
-  Month
-}
-
-model TokenLimit {
-  wallet    Wallet @relation(fields: [accountId, walletRef], references: [accountId, ref], onDelete: Cascade)
-  accountId String @db.Char(42) // address
-  walletRef String @db.Char(10) // bytes4
-  token     String @db.Char(42) // address
-
-  amount String //@db.Decimal(79, 0) // uint256
-  period LimitPeriod
-
-  @@id([accountId, walletRef, token])
+  @@id([commentId, deviceId])
 }

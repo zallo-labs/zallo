@@ -12,8 +12,8 @@ export interface CommentsProps extends Partial<FlatListProps<Comment>> {}
 
 export const Comments = (listProps: CommentsProps) => {
   const styles = useStyles();
-  const { tx } = useTxContext();
-  const { comments: unsortedComments } = useComments(tx);
+  const { proposal: tx } = useTxContext();
+  const [unsortedComments] = useComments(tx);
   const createComment = useCreateComment(tx, tx.account);
 
   // Display comments newer -> older
@@ -43,7 +43,7 @@ export const Comments = (listProps: CommentsProps) => {
         )}
         ItemSeparatorComponent={() => <Box my={1} />}
         style={styles.list}
-        keyExtractor={(item) => item.id}
+        keyExtractor={(item) => item.id.toString()}
         showsVerticalScrollIndicator={false}
         {...listProps}
       />
@@ -52,7 +52,7 @@ export const Comments = (listProps: CommentsProps) => {
         label="Comment"
         value={comment}
         onChangeText={setComment}
-        style={styles.input}
+        textStyle={styles.input}
         onSubmitEditing={handleComment}
         autoCorrect
       />
@@ -65,7 +65,7 @@ const useStyles = makeStyles(({ space }) => ({
     flex: 1,
   },
   input: {
-    marginHorizontal: space(2),
-    marginBottom: space(2),
+    marginHorizontal: space(1),
+    marginBottom: space(1),
   },
 }));

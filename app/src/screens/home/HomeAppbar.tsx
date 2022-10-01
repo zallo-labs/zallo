@@ -1,28 +1,30 @@
-import { ContactsIcon, ScanIcon } from '~/util/theme/icons';
+import { PeopleIcon, ScanIcon } from '~/util/theme/icons';
 import { FC } from 'react';
 import { Appbar } from 'react-native-paper';
 import { AppbarMenu } from '~/components/Appbar/AppbarMenu';
 import { AppbarHeaderProps } from '~/components/Appbar/useAppbarHeader';
-import { CombinedWallet } from '~/queries/wallets';
 import { useSendToContact } from '../send/useSendToContact';
-import { useScanAndSend } from '../send/useScanAndSend';
+import { useSendToScanned } from '../send/useSendToScanned';
+import { Address } from 'lib';
+import { useUser } from '~/queries/user/useUser.api';
 
 export interface HomeAppbarProps {
   AppbarHeader: FC<AppbarHeaderProps>;
-  wallet: CombinedWallet;
+  account: Address;
 }
 
-export const HomeAppbar = ({ AppbarHeader, wallet }: HomeAppbarProps) => {
-  const scanAndSend = useScanAndSend(wallet);
-  const sendToContact = useSendToContact(wallet);
+export const HomeAppbar = ({ AppbarHeader, account }: HomeAppbarProps) => {
+  const [user] = useUser(account);
+  const sendToScanned = useSendToScanned(user);
+  const sendToContact = useSendToContact(user);
 
   return (
     <AppbarHeader>
       <AppbarMenu />
       <Appbar.Content title="" />
 
-      <Appbar.Action icon={ContactsIcon} onPress={sendToContact} />
-      <Appbar.Action icon={ScanIcon} onPress={scanAndSend} />
+      <Appbar.Action icon={PeopleIcon} onPress={sendToContact} />
+      <Appbar.Action icon={ScanIcon} onPress={sendToScanned} />
     </AppbarHeader>
   );
 };

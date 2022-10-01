@@ -1,9 +1,9 @@
-import { createMock } from '@golevelup/ts-jest';
 import { Test, TestingModule } from '@nestjs/testing';
 import { UsersResolver } from './users.resolver';
+import { createMock, DeepMocked } from '@golevelup/ts-jest';
 
-describe('UsersResolver', () => {
-  let resolver: UsersResolver;
+describe(UsersResolver.name, () => {
+  let resolver: DeepMocked<UsersResolver>;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -12,7 +12,7 @@ describe('UsersResolver', () => {
       .useMocker(createMock)
       .compile();
 
-    resolver = module.get<UsersResolver>(UsersResolver);
+    resolver = module.get(UsersResolver);
   });
 
   it('should be defined', () => {

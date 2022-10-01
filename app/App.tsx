@@ -7,7 +7,7 @@ import { RecoilRoot } from 'recoil';
 import { Background } from '~/components/layout/Background';
 import { LocalizatonProvider } from '~/provider/LocalizationProvider';
 import { GqlProvider } from '~/gql/GqlProvider';
-import { ToastProvider } from '~/provider/ToastProvider';
+import { SnackbarProvider } from '~/provider/SnackbarProvider';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { ErrorBoundary } from '~/util/sentry/ErrorBoundary';
 import { Splash } from '~/components/Splash';
@@ -38,7 +38,7 @@ export default withSentry(() => (
                     </NavigationProvider>
                   </GqlProvider>
                 </AuthGate>
-                <ToastProvider />
+                <SnackbarProvider />
               </RecoilRoot>
             </Suspense>
           </ErrorBoundary>

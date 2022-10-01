@@ -1,11 +1,11 @@
 import { Box } from '~/components/layout/Box';
 import { useMemo } from 'react';
 import { FlatList } from 'react-native';
-import { Text } from 'react-native-paper';
+import { Button, Text } from 'react-native-paper';
 import {
-  useSelectedWalletId,
-  useSelectWallet,
-} from '~/components/wallet/useSelectedWallet';
+  useSelectAccount,
+  useSelectedAccount,
+} from '~/screens/home/useSelectedAccount';
 import { useAppbarHeader } from '~/components/Appbar/useAppbarHeader';
 import {
   useSelectedToken,
@@ -15,20 +15,19 @@ import { HomeAppbar } from './HomeAppbar';
 import { withSkeleton } from '~/components/skeleton/withSkeleton';
 import { HomeScreenSkeleton } from './HomeScreenSkeleton';
 import { FiatBalance } from '~/components/fiat/FiatBalance';
-import { Suspend } from '~/components/Suspender';
 import { TokenHoldingCard } from '~/components/token/TokenHoldingCard';
-import { WalletPaymentSelector } from './WalletPaymentSelector';
+import { AccountPaymentSelector } from './AccountPaymentSelector';
 import { useTokensByValue } from '@token/useTokensByValue';
-import { useWallet } from '~/queries/wallet/useWallet';
+import { useUser } from '~/queries/user/useUser.api';
+import { makeStyles } from '@theme/makeStyles';
 
 export const HomeScreen = withSkeleton(() => {
+  const styles = useStyles();
   const { AppbarHeader, handleScroll } = useAppbarHeader();
   const [selectedToken, selectToken] = [useSelectedToken(), useSelectToken()];
-  const [wallet, selectWallet] = [
-    useWallet(useSelectedWalletId()),
-    useSelectWallet(),
-  ];
-  const allTokens = useTokensByValue(wallet?.accountAddr);
+  const [account, selectAccount] = [useSelectedAccount(), useSelectAccount()];
+  const [user] = useUser(account);
+  const allTokens = useTokensByValue(account);
 
   const tokens = useMemo(
     () => [
@@ -38,47 +37,51 @@ export const HomeScreen = withSkeleton(() => {
     [allTokens, selectedToken],
   );
 
-  if (!wallet) return <Suspend />;
-
   return (
     <Box>
-      <HomeAppbar AppbarHeader={AppbarHeader} wallet={wallet} />
+      <HomeAppbar AppbarHeader={AppbarHeader} account={account} />
 
       <FlatList
         ListHeaderComponent={
           <>
-            <WalletPaymentSelector
-              selected={wallet}
-              onSelect={selectWallet}
+            <AccountPaymentSelector
+              selected={account}
+              onSelect={selectAccount}
               cardProps={{ available: true }}
             />
 
-            <Box horizontal justifyContent="flex-end" mt={3} mb={2} mx={4}>
+            <Box horizontal justifyContent="flex-end" mt={2} mb={1} mx={3}>
               <Text variant="titleLarge">
-                <FiatBalance addr={wallet.accountAddr} showZero />
+                <FiatBalance addr={account} showZero />
               </Text>
             </Box>
           </>
         }
         renderItem={({ item, index }) => (
-          <Box mx={3}>
-            <TokenHoldingCard
-              token={item}
-              wallet={wallet}
-              selected={index === 0}
-              onLongPress={() => selectToken(item)}
-              onPress={() => {
-                // onPress is required to be set for onLongPress to work in RNP
-                // https://github.com/callstack/react-native-paper/issues/3303
-              }}
-            />
-          </Box>
+          <TokenHoldingCard
+            token={item}
+            user={user}
+            selected={index === 0}
+            onLongPress={() => selectToken(item)}
+            onPress={() => {
+              // onPress is required to be set for onLongPress to work in RNP
+              // https://github.com/callstack/react-native-paper/issues/3303
+            }}
+          />
         )}
-        ItemSeparatorComponent={() => <Box my={2} />}
+        ItemSeparatorComponent={() => <Box mt={1} />}
         data={tokens}
+        style={styles.list}
         onScroll={handleScroll}
         showsVerticalScrollIndicator={false}
       />
     </Box>
   );
 }, HomeScreenSkeleton);
+
+const useStyles = makeStyles(({ space }) => ({
+  list: {
+    marginHorizontal: space(2),
+    marginBottom: space(1),
+  },
+}));

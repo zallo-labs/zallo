@@ -38,6 +38,6 @@ const useStyles = makeStyles(({ space }, accountArea: EdgeInsets) => ({
     position: 'absolute',
     top: accountArea.top,
     left: accountArea.left,
-    margin: space(3),
+    margin: space(2),
   },
 }));

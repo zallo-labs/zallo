@@ -2,8 +2,8 @@ import FuzzySearch from 'fuzzy-search';
 import { useMemo, useState } from 'react';
 
 export interface FuzzySearchProps {
-  input: string | undefined;
-  setInput: (input?: string) => void;
+  value: string | undefined;
+  onChangeText: (input?: string) => void;
 }
 
 export const useFuzzySearch = <T extends object>(
@@ -13,7 +13,7 @@ export const useFuzzySearch = <T extends object>(
   const [input, setInput] = useState<string | undefined>();
 
   const searchProps: FuzzySearchProps = useMemo(
-    () => ({ input, setInput }),
+    () => ({ value: input, onChangeText: setInput }),
     [input],
   );
 

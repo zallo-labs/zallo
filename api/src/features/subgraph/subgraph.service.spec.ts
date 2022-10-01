@@ -1,7 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { SubgraphService } from './subgraph.service';
 
-describe('SubgraphService', () => {
+describe(SubgraphService.name, () => {
   let service: SubgraphService;
 
   beforeEach(async () => {

@@ -10,7 +10,7 @@ export interface InTransferCardProps {
 }
 
 export const InTransferCard = withSkeleton(({ id }: InTransferCardProps) => {
-  const { transfer } = useTransfer(id);
+  const [transfer] = useTransfer(id);
 
   if (!transfer) return <Suspend />;
 

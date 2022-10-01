@@ -22,7 +22,7 @@ export const CardItemWithoutSkeleton = ({
         (isFunctionalComponent(Left) ? (
           <Left />
         ) : (
-          <Box justifyContent="center" mr={3}>
+          <Box justifyContent="center" mr={2}>
             {withKeys(Left)}
           </Box>
         ))}

@@ -74,37 +74,36 @@ jobs:
       # - name: 🚀 Publish
       #   run: yarn eas submit -p android --profile production --latest
 
-  # subgraph:
-  #   if: ${{ github.event.workflow_run.conclusion == 'success' }}
-  #   runs-on: ubuntu-latest
-  #   environment: subgraph-prod
-  #   strategy:
-  #     matrix:
-  #       node-version: [16.x]
-  #   steps:
-  #     - name: 🚧 Checkout
-  #       uses: actions/checkout@v3
+  subgraph:
+    # if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version: [16.x]
+    steps:
+      - name: 🚧 Checkout
+        uses: actions/checkout@v3
 
-  #     - name: 🚧 Use Node ${{ matrix.node-version }}
-  #       uses: actions/setup-node@v2
-  #       with:
-  #         node-version: ${{ matrix.node-version }}
-  #         cache: 'yarn'
+      - name: 🚧 Use Node ${{ matrix.node-version }}
+        uses: actions/setup-node@v2
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: 'yarn'
 
-  #     - name: 📦 Install
-  #       run: yarn install
+      - name: 📦 Install
+        run: yarn install
 
-  #     - name: 🚧 Configure
-  #       run: yarn subgraph configure:testnet
+      - name: 🚧 Configure
+        run: yarn subgraph configure:testnet
 
-  #     # - name: 🚧 Auth
-  #     #   run: yarn subgraph auth ${{ secrets.THEGRAPH_ACCESS_TOKEN }}
+      - name: 🚧 Auth
+        run: yarn subgraph auth ${{ secrets.THEGRAPH_ACCESS_TOKEN }}
 
-  #     - name: 🏗️ Generate
-  #       run: yarn subgraph generate
+      - name: 🏗️ Generate
+        run: yarn subgraph generate
 
-  #     - name: 🏗️ Build
-  #       run: yarn subgraph build
+      - name: 🏗️ Build
+        run: yarn subgraph build
 
-  #     - name: 🚀 Deploy
-  #       run: yarn subgraph prod:deploy
+      - name: 🚀 Deploy
+        run: yarn subgraph prod:deploy-hosted

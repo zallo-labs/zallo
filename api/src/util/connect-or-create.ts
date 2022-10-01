@@ -1,38 +1,37 @@
 import { Prisma } from '@prisma/client';
-import { Address, WalletRef } from 'lib';
+import { Address } from 'lib';
 
-export const connectOrCreateAccount = (
+export const connectAccount = (
   account: Address,
-): Prisma.AccountCreateNestedOneWithoutWalletsInput => ({
+): Prisma.AccountCreateNestedOneWithoutProposalsInput => ({
+  connect: { id: account },
+});
+
+export const connectOrCreateDevice = (
+  device: Address,
+): Prisma.DeviceCreateNestedOneWithoutApprovalsInput => ({
   connectOrCreate: {
-    where: { id: account },
-    create: { id: account },
+    where: { id: device },
+    create: { id: device },
   },
 });
 
 export const connectOrCreateUser = (
-  addr: Address,
-): Prisma.UserCreateNestedOneWithoutApprovalsInput => ({
-  connectOrCreate: {
-    where: { id: addr },
-    create: { id: addr },
-  },
-});
-
-export const connectOrCreateWallet = (
   account: Address,
-  ref: WalletRef,
-): Prisma.WalletCreateNestedOneWithoutTxsInput => ({
+  device: Address,
+  name: string,
+): Prisma.UserCreateNestedOneWithoutStatesInput => ({
   connectOrCreate: {
     where: {
-      accountId_ref: {
+      accountId_deviceId: {
         accountId: account,
-        ref,
+        deviceId: device,
       },
     },
     create: {
-      account: connectOrCreateAccount(account),
-      ref,
+      account: { connect: { id: account } },
+      device: connectOrCreateDevice(device),
+      name,
     },
   },
 });

@@ -1,6 +1,6 @@
 import { BigNumber, BigNumberish } from 'ethers';
 import { formatUnits } from 'ethers/lib/utils';
-import { Address } from 'lib';
+import { Address, ZERO } from 'lib';
 import { selectorFamily, useRecoilValue } from 'recoil';
 import { TOKEN_PRICE } from '~/queries/useTokenPrice.uni';
 import { FIAT_DECIMALS } from './fiat';
@@ -30,8 +30,8 @@ export const TOKEN_VALUE = selectorFamily<number, TokenValueParam>({
     },
 });
 
-export const useTokenValue = (token: Token, amount: BigNumberish) =>
-  useRecoilValue(TOKEN_VALUE([token.addr, BigNumber.from(amount)]));
+export const useTokenValue = (token: Token, amount?: BigNumberish) =>
+  useRecoilValue(TOKEN_VALUE([token.addr, BigNumber.from(amount ?? ZERO)]));
 
 const TOKEN_VALUES = selectorFamily<number[], TokenValueParam[]>({
   key: 'tokenValues',

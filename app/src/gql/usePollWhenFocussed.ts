@@ -7,12 +7,12 @@ export const usePollWhenFocussed = (
     startPolling,
     stopPolling,
   }: Pick<QueryResult, 'startPolling' | 'stopPolling'>,
-  interval: number,
+  seconds: number,
 ) =>
   useFocusEffect(
     useCallback(() => {
-      startPolling(interval);
+      startPolling(seconds * 1000);
 
       return () => stopPolling();
-    }, [interval, startPolling, stopPolling]),
+    }, [seconds, startPolling, stopPolling]),
   );

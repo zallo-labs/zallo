@@ -4,13 +4,13 @@ import { expect, deploy, getSigners, device } from './util';
 
 describe('isValidSignature', () => {
   it('should return the magic value if the signature is valid', async () => {
-    const { account, wallet, quorum } = await deploy();
+    const { account, user, config } = await deploy();
 
     const tx = createTx({ to: device.address });
     const txHash = await hashTx(account, tx);
 
-    const signers = await getSigners(account, quorum, tx);
-    const txSignature = createTxSignature(wallet, signers);
+    const signers = await getSigners(account, user, config, tx);
+    const txSignature = createTxSignature(user, signers);
 
     const isValid = await account.isValidSignature(txHash, txSignature);
 
@@ -18,11 +18,11 @@ describe('isValidSignature', () => {
   });
 
   it("should be reverted if the hash doesn't match the signature", async () => {
-    const { account, wallet, quorum } = await deploy();
+    const { account, user, config } = await deploy();
 
     const tx = createTx({ to: device.address });
-    const signers = await getSigners(account, quorum, tx);
-    const txSignature = createTxSignature(wallet, signers);
+    const signers = await getSigners(account, user, config, tx);
+    const txSignature = createTxSignature(user, signers);
 
     const otherTx = createTx({ value: BigNumber.from(1) });
     const otherTxHash = await hashTx(account, otherTx);

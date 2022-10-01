@@ -25,7 +25,7 @@ export const isAddress = (v: unknown): v is Address =>
 export const isAddressLike = (v: unknown): v is Addresslike =>
   typeof v === 'string' && ethers.utils.isAddress(v);
 
-export const compareAddresses = (a: Address, b: Address) => {
+export const compareAddress = (a: Address, b: Address) => {
   const aArr = ethers.utils.arrayify(a);
   const bArr = ethers.utils.arrayify(b);
 
@@ -39,6 +39,9 @@ export const compareAddresses = (a: Address, b: Address) => {
 
   return 0;
 };
+
+export const sortAddresses = (addresses: Address[]) =>
+  addresses.sort(compareAddress);
 
 /* Module augmentation; including in a .ts file to compile into lib's typings */
 declare module './contracts/index' {

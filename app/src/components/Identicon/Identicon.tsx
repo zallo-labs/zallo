@@ -1,35 +1,36 @@
-import { BytesLike, ethers } from 'ethers';
-import { hexlify, isBytesLike } from 'ethers/lib/utils';
-import { useMemo } from 'react';
-import { LogBox, Platform } from 'react-native';
-import Jazzicon, { IJazziconProps } from 'react-native-jazzicon';
-import { useTheme } from 'react-native-paper';
+import { useTheme } from '@theme/paper';
+import { Address } from 'lib';
+import { LogBox, Platform, StyleProp, ViewStyle } from 'react-native';
+import Jazzicon from 'react-native-jazzicon';
+import { useContact } from '~/queries/contacts/useContact';
+import { LabelIcon } from './LabelIcon';
 
 // react-native-jazzicon causes a warning; see https://github.com/stanislaw-glogowski/react-native-jazzicon/pull/1
 if (Platform.OS !== 'web')
   LogBox.ignoreLogs(['componentWillReceiveProps has been renamed']);
 
-export type IdenticonProps = Omit<IJazziconProps, 'seed' | 'address'> & {
-  seed: number | string | BytesLike;
-};
+export interface IdenticonProps {
+  seed: Address;
+  size?: number;
+  style?: StyleProp<ViewStyle>;
+}
 
-export const Identicon = ({ seed: input, ...props }: IdenticonProps) => {
+export const Identicon = ({
+  seed: addr,
+  size: sizeProp,
+  style,
+  ...props
+}: IdenticonProps) => {
   const { iconSize } = useTheme();
+  const contact = useContact(addr);
+  const size = sizeProp ?? iconSize.medium;
 
-  const seed = useMemo(() => {
-    let value = input;
-    if (typeof value === 'number') return value;
+  // const seed = useMemo(() => {
+  //   return parseInt(addr.slice(2, 10), 16);
+  // }, [addr]);
 
-    if (isBytesLike(value)) value = hexlify(value);
+  if (contact)
+    return <LabelIcon label={contact.name} size={size} style={style} />;
 
-    if (!ethers.utils.isHexString(value)) {
-      throw new Error(
-        `Unimplemented - non-hex string seed for Identicon: ${value}`,
-      );
-    }
-
-    return parseInt(value.slice(2, 10), 16);
-  }, [input]);
-
-  return <Jazzicon size={iconSize.medium} {...props} seed={seed} />;
+  return <Jazzicon size={size} {...props} address={addr} />;
 };

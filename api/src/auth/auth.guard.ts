@@ -16,7 +16,7 @@ export class AuthGuard implements CanActivate {
   canActivate(context: ExecutionContext): boolean {
     const ctx = GqlExecutionContext.create(context).getContext<Ctx>();
 
-    if (!ctx.req.userMessage && !isPublic(this.reflector, context))
+    if (!ctx.req.deviceMessage && !isPublic(this.reflector, context))
       throw new UnauthorizedException();
 
     return true;

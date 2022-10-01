@@ -5,7 +5,7 @@ export const Actions = (props: ContainerProps) => (
   <Container
     vertical
     alignItems="flex-end"
-    separator={<Box my={1} />}
+    separator={<Box mt={1} />}
     {...props}
   />
 );

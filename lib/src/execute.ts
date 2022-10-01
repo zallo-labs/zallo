@@ -1,13 +1,13 @@
 import { BigNumber, ethers, Overrides } from 'ethers';
 import { Account } from './contracts';
 import { isTxReq, TxReq } from './tx';
-import { createTxSignature, Signerish } from './signature';
+import { createTxSignature, Signer } from './signature';
 import * as zk from 'zksync-web3';
 import { Eip712Meta, TransactionRequest } from 'zksync-web3/build/src/types';
 import { defaultAbiCoder } from 'ethers/lib/utils';
 import { EIP712_TX_TYPE } from 'zksync-web3/build/src/utils';
 import { TransactionStruct } from './contracts/Account';
-import { Wallet } from './wallet';
+import { User } from './user';
 
 const toPartialTransactionRequest = (tx: TxReq): TransactionRequest => ({
   // Don't spread to avoid adding extra fields
@@ -17,7 +17,7 @@ const toPartialTransactionRequest = (tx: TxReq): TransactionRequest => ({
 });
 
 const FALLBACK_BASE_GAS = BigNumber.from(300_000);
-const GAS_PER_SIGNER = 50_000;
+const GAS_PER_SIGNER = 100_000;
 
 export const estimateTxGas = async (
   tx: TxReq | TransactionRequest,
@@ -43,8 +43,8 @@ export interface ExecuteTxOptions {
 export const toTransactionRequest = async (
   account: Account,
   tx: TxReq,
-  wallet: Wallet,
-  signers: Signerish[],
+  user: User,
+  signers: Signer[],
   opts: ExecuteTxOptions = {},
 ): Promise<TransactionRequest> => {
   const provider = account.provider;
@@ -61,7 +61,7 @@ export const toTransactionRequest = async (
     customData: {
       ergsPerPubdata: zk.utils.DEFAULT_ERGS_PER_PUBDATA_LIMIT,
       ...opts.customData,
-      customSignature: createTxSignature(wallet, signers),
+      customSignature: createTxSignature(user, signers),
     },
   };
 };

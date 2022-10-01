@@ -7,11 +7,16 @@ import { useCallback } from 'react';
 import { FormikTextField } from '~/components/fields/FormikTextField';
 import { FormikSubmitFab } from '~/components/fields/FormikSubmitFab';
 import { CheckIcon } from '~/util/theme/icons';
-import { useCreateApiAccount } from '~/mutations/account/useCreateAccount.api';
+import {
+  CreateAccountResult,
+  useCreateAccount,
+} from '~/mutations/account/useCreateAccount.api';
 import { AppbarBack } from '~/components/Appbar/AppbarBack';
 import { makeStyles } from '~/util/theme/makeStyles';
-import { Navigate } from '~/navigation/useRootNavigation';
-import { address, Address } from 'lib';
+import {
+  RootNavigation,
+  useRootNavigation,
+} from '~/navigation/useRootNavigation';
 
 interface Values {
   name: string;
@@ -22,27 +27,23 @@ const schema: Yup.SchemaOf<Values> = Yup.object({
 });
 
 export interface CreateAccountScreenParams {
-  navigate: (account: Address, navigate: Navigate) => void;
+  onCreate: (res: CreateAccountResult, navigation: RootNavigation) => void;
 }
 
 export type CreateAccountScreenProps =
   RootNavigatorScreenProps<'CreateAccount'>;
 
-export const CreateAccountScreen = ({
-  navigation,
-  route,
-}: CreateAccountScreenProps) => {
+export const CreateAccountScreen = ({ route }: CreateAccountScreenProps) => {
   const styles = useStyles();
-  const createAccount = useCreateApiAccount();
+  const createAccount = useCreateAccount();
+  const navigation = useRootNavigation();
 
   const handleSubmit = useCallback(
     async ({ name }: Values) => {
-      const res = await createAccount(name, 'Spending');
-      const account = address(res.data!.createAccount.id);
-
-      route.params.navigate(account, navigation.navigate);
+      const r = await createAccount(name, 'Spending');
+      route.params.onCreate(r, navigation);
     },
-    [createAccount, navigation.navigate, route.params],
+    [createAccount, navigation, route.params],
   );
 
   return (
@@ -72,11 +73,11 @@ export const CreateAccountScreen = ({
   );
 };
 
-const useStyles = makeStyles(({ space, typescale }) => ({
+const useStyles = makeStyles(({ space, fonts }) => ({
   input: {
-    ...typescale.headlineLarge,
+    ...fonts.headlineLarge,
     textAlign: 'center',
-    marginTop: space(5),
-    marginBottom: space(4),
+    marginTop: space(6),
+    marginBottom: space(3),
   },
 }));

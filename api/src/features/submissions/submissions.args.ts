@@ -1,15 +1,10 @@
 import { ArgsType, InputType } from '@nestjs/graphql';
-import { Address } from 'lib';
-import { AddressField } from '~/apollo/scalars/Address.scalar';
 import { Bytes32Field } from '~/apollo/scalars/Bytes32.scalar';
 
 @ArgsType()
 export class SubmissionsArgs {
-  @AddressField()
-  account: Address;
-
   @Bytes32Field()
-  txHash: string;
+  proposalHash: string;
 }
 
 @InputType()
@@ -19,6 +14,6 @@ export class SubmissionInput {
 }
 
 @ArgsType()
-export class SubmitTxExecutionArgs extends SubmissionsArgs {
+export class SubmitExecutionArgs extends SubmissionsArgs {
   submission: SubmissionInput;
 }

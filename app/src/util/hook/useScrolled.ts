@@ -5,7 +5,7 @@ export type ScrollHandler = (
   event: NativeSyntheticEvent<NativeScrollEvent>,
 ) => void;
 
-export const useScrolled = (): [boolean, ScrollHandler] => {
+export const useScrolled = () => {
   const [scrolled, setScrolled] = useState(false);
 
   const handleScroll: ScrollHandler = useCallback(
@@ -16,5 +16,5 @@ export const useScrolled = (): [boolean, ScrollHandler] => {
     [scrolled],
   );
 
-  return [scrolled, handleScroll];
+  return [scrolled, handleScroll] as const;
 };

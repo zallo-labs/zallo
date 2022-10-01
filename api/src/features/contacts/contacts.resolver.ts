@@ -7,97 +7,96 @@ import {
   ResolveField,
   Resolver,
 } from '@nestjs/graphql';
-import { Contact } from '@gen/contact/contact.model';
 import { PrismaService } from 'nestjs-prisma';
-import { FindUniqueContactArgs } from '@gen/contact/find-unique-contact.args';
 import { GraphQLResolveInfo } from 'graphql';
 import { getSelect } from '~/util/select';
-import { UserAddr } from '~/decorators/user.decorator';
+import { DeviceAddr } from '~/decorators/device.decorator';
 import { Address, Id, toId } from 'lib';
 import {
   ContactsArgs,
   DeleteContactArgs,
-  DeleteContactResp,
+  ContactObject,
   UpsertContactArgs,
 } from './contacts.args';
-import { connectOrCreateUser } from '~/util/connect-or-create';
+import { connectOrCreateDevice } from '~/util/connect-or-create';
+import { AccountsService } from '../accounts/accounts.service';
+import { Prisma } from '@prisma/client';
 
-@Resolver(() => Contact)
+@Resolver(() => ContactObject)
 export class ContactsResolver {
-  constructor(private prisma: PrismaService) {}
-
-  @Query(() => Contact, { nullable: true })
-  async contact(
-    @Args() args: FindUniqueContactArgs,
-    @Info() info: GraphQLResolveInfo,
-  ): Promise<Contact | null> {
-    return this.prisma.contact.findUnique({
-      ...args,
-      ...getSelect(info),
-    });
-  }
-
-  @Query(() => [Contact])
-  async contacts(
-    @Args() args: ContactsArgs,
-    @Info() info: GraphQLResolveInfo,
-    @UserAddr() user: Address,
-  ): Promise<Contact[]> {
-    return this.prisma.contact.findMany({
-      ...args,
-      where: { userId: user },
-      ...getSelect(info),
-    });
-  }
+  constructor(
+    private prisma: PrismaService,
+    private accountsService: AccountsService,
+  ) {}
 
   @ResolveField(() => String)
-  id(@Parent() contact: Contact, @UserAddr() user: Address): Id {
-    return toId(`${contact.userId || user}-${contact.addr}`);
+  id(@Parent() contact: ContactObject, @DeviceAddr() device: Address): Id {
+    return toId(`${device}-${contact.addr}`);
   }
 
-  @Mutation(() => Contact, { nullable: true })
+  @Query(() => [ContactObject])
+  async contacts(
+    @Args() args: ContactsArgs,
+    @DeviceAddr() device: Address,
+  ): Promise<ContactObject[]> {
+    const contacts = await this.prisma.contact.findMany({
+      ...args,
+      where: { deviceId: device },
+      select: { addr: true, name: true },
+    });
+
+    const accounts = await this.accountsService.accounts(device, {
+      select: { id: true, name: true },
+    });
+
+    return [
+      ...contacts,
+      ...accounts.map((a) => ({ addr: a.id, name: a.name })),
+    ];
+  }
+
+  @Mutation(() => ContactObject)
   async upsertContact(
-    @Args() args: UpsertContactArgs,
+    @Args() { prevAddr, newAddr, name }: UpsertContactArgs,
+    @DeviceAddr() device: Address,
     @Info() info: GraphQLResolveInfo,
-    @UserAddr() user: Address,
-  ): Promise<Contact | null> {
-    const { prevAddr, newAddr, name } = args;
+  ): Promise<ContactObject> {
     return this.prisma.contact.upsert({
       where: {
-        userId_addr: {
-          userId: user,
+        deviceId_addr: {
+          deviceId: device,
           addr: prevAddr ?? newAddr,
         },
       },
       create: {
-        user: connectOrCreateUser(user),
+        device: connectOrCreateDevice(device),
         addr: newAddr,
         name,
-      },
+      } as Prisma.ContactCreateInput,
       update: {
         addr: { set: newAddr },
         name: { set: name },
-      },
-      ...getSelect(info),
+      } as Prisma.ContactUpdateInput,
+      // ...getSelect(info),
     });
   }
 
-  @Mutation(() => DeleteContactResp)
+  @Mutation(() => Boolean)
   async deleteContact(
     @Args() { addr }: DeleteContactArgs,
-    @UserAddr() user: Address,
-  ): Promise<DeleteContactResp> {
+    @DeviceAddr() device: Address,
+    @Info() info: GraphQLResolveInfo,
+  ): Promise<boolean> {
     await this.prisma.contact.delete({
       where: {
-        userId_addr: {
-          userId: user,
+        deviceId_addr: {
+          deviceId: device,
           addr,
         },
       },
+      ...getSelect(info),
     });
 
-    return {
-      id: toId(`${user}-${addr}`),
-    };
+    return true;
   }
 }

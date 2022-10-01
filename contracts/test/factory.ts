@@ -8,11 +8,11 @@ describe('Factory', () => {
 
   it('Calculated address matches deploy', async () => {
     const { account, deployTx } = await deploy();
-    await expect(deployTx).to.emit(account, AccountEvent.WalletUpserted);
+    await expect(deployTx).to.emit(account, AccountEvent.UserUpserted);
   });
 
   it('Deploys account', async () => {
     const { account, deployTx } = await deploy();
-    await expect(deployTx).to.emit(account, AccountEvent.WalletUpserted);
+    await expect(deployTx).to.emit(account, AccountEvent.UserUpserted);
   });
 });

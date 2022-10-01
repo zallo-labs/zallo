@@ -6,14 +6,9 @@ import {
   AmountScreen,
   AmountScreenParams,
 } from '~/screens/amount/AmountScreen';
-import {
-  TokensScreen,
+import TokensScreen, {
   TokensScreenParams,
 } from '~/screens/tokens/TokensScreen';
-import {
-  QuorumScreen,
-  QuorumScreenParams,
-} from '~/screens/quorum/QuorumScreen';
 import {
   ContactsScreen,
   ContactsScreenParams,
@@ -29,7 +24,6 @@ import {
   ContactScreen,
   ContactScreenParams,
 } from '~/screens/contacts/ContactScreen';
-import { WalletsScreen } from '~/screens/wallets/WalletsScreen';
 import {
   AccountsScreen,
   AccountsScreenParams,
@@ -50,24 +44,21 @@ import {
   DeleteModalScreen,
   DeleteModalScreenParams,
 } from '~/screens/alert/DeleteModalScreen';
-import {
-  WalletScreen,
-  WalletScreenParams,
-} from '~/screens/wallet/WalletScreen';
 import { SendScreen, SendScreenParams } from '~/screens/send/SendScreen';
+import LimitScreen, { LimitScreenParams } from '~/screens/limit/LimitScreen';
+import UserScreen, { UserScreenParams } from '~/screens/user/UserScreen';
 import {
-  LimitScreen,
-  LimitScreenParams,
-} from '~/screens/limit/LimitScreen';
+  AccountSettingsScreen,
+  AccountSettingsScreenParams,
+} from '~/screens/account-settings/AccountSettingsScreen';
 
 export type RootNavigatorParamList = {
   DrawerNavigator: undefined;
   Transaction: TransactionScreenParams;
   Accounts: AccountsScreenParams;
   Account: AccountScreenParams;
-  Wallets: undefined;
-  Wallet: WalletScreenParams;
-  Quorum: QuorumScreenParams;
+  AccountSettings: AccountSettingsScreenParams;
+  User: UserScreenParams;
   Limit: LimitScreenParams;
   Contacts: ContactsScreenParams;
   Contact: ContactScreenParams;
@@ -97,7 +88,7 @@ export const RootNavigator = () => {
             name="CreateAccount"
             component={CreateAccountScreen}
             initialParams={{
-              navigate: (_account, navigate) => navigate('DrawerNavigator'),
+              onCreate: (_, { navigate }) => navigate('DrawerNavigator'),
             }}
           />
         </Navigation.Group>
@@ -107,15 +98,17 @@ export const RootNavigator = () => {
       <Navigation.Screen name="Transaction" component={TransactionScreen} />
       <Navigation.Screen name="Accounts" component={AccountsScreen} />
       <Navigation.Screen name="Account" component={AccountScreen} />
+      <Navigation.Screen
+        name="AccountSettings"
+        component={AccountSettingsScreen}
+      />
       {!showOnboarding && (
         <Navigation.Screen
           name="CreateAccount"
           component={CreateAccountScreen}
         />
       )}
-      <Navigation.Screen name="Wallets" component={WalletsScreen} />
-      <Navigation.Screen name="Wallet" component={WalletScreen} />
-      <Navigation.Screen name="Quorum" component={QuorumScreen} />
+      <Navigation.Screen name="User" component={UserScreen} />
       <Navigation.Screen name="Limit" component={LimitScreen} />
       <Navigation.Screen name="Contacts" component={ContactsScreen} />
       <Navigation.Screen name="Contact" component={ContactScreen} />

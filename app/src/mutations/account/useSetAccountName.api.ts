@@ -1,5 +1,6 @@
 import { gql } from '@apollo/client';
 import {
+  AccountDocument,
   AccountQuery,
   AccountQueryVariables,
   useSetAccountNameMutation,
@@ -9,8 +10,8 @@ import { QueryOpts } from '~/gql/update';
 import assert from 'assert';
 import produce from 'immer';
 import { useCallback } from 'react';
-import { CombinedAccount } from '~/queries/account';
-import { API_ACCOUNT_QUERY } from '~/queries/account/useAccount.api';
+import { CombinedAccount } from '~/queries/account/useAccount.api';
+import { toId } from 'lib';
 
 gql`
   mutation SetAccountName($account: Address!, $name: String!) {
@@ -28,19 +29,19 @@ export const useSetAccountName = (account?: CombinedAccount) => {
       account &&
       name !== account.name &&
       mutate({
-        variables: { account: account.id, name },
+        variables: { account: account.addr, name },
         optimisticResponse: {
           setAccountName: {
             __typename: 'Account',
-            id: account.id,
+            id: toId(account.addr),
           },
         },
         update: (cache, res) => {
           if (!res.data?.setAccountName) return;
 
-          // Account
+          // Account: set name
           const opts: QueryOpts<AccountQueryVariables> = {
-            query: API_ACCOUNT_QUERY,
+            query: AccountDocument,
             variables: { account: account.addr },
           };
 
@@ -51,7 +52,6 @@ export const useSetAccountName = (account?: CombinedAccount) => {
             ...opts,
             overwrite: true,
             data: produce(data, (data) => {
-              assert(data?.account);
               data.account.name = name;
             }),
           });

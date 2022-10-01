@@ -5,10 +5,10 @@ import { useTxContext } from '../TransactionProvider';
 import { makeStyles } from '@theme/makeStyles';
 import { useTokenAvailable } from '@token/useTokenAvailable';
 import { TxTransfer } from './useTxTransfers';
-import { Tx } from '~/queries/tx';
+import { Proposal } from '~/queries/proposal';
 
 export interface TokenTransferRowProps {
-  tx: Tx;
+  tx: Proposal;
   transfer: TxTransfer;
 }
 
@@ -17,7 +17,7 @@ export const TokenTransferRow = ({
   transfer: { token, amount, available },
 }: TokenTransferRowProps) => {
   const styles = useStyles();
-  const { wallet } = useTxContext();
+  const { proposer: wallet } = useTxContext();
 
   const insufficient = tx.status !== 'executed' && amount.gt(available);
 

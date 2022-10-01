@@ -7,27 +7,20 @@ import {
   useUpsertContactMutation,
 } from '~/gql/generated.api';
 import { useApiClient } from '~/gql/GqlProvider';
-import {
-  API_CONTACTS_QUERY,
-  API_CONTACT_FIELDS,
-  Contact,
-  NewContact,
-} from '~/queries/contacts/useContacts.api';
+import { Contact, NewContact } from '~/queries/contacts/useContacts.api';
 import { useDevice } from '@network/useDevice';
 import { toId } from 'lib';
 import { QueryOpts } from '~/gql/update';
 import produce from 'immer';
 
 gql`
-  ${API_CONTACT_FIELDS}
-
   mutation UpsertContact(
-    $prevAddr: Address
-    $newAddr: Address!
     $name: String!
+    $newAddr: Address!
+    $prevAddr: Address
   ) {
-    upsertContact(prevAddr: $prevAddr, newAddr: $newAddr, name: $name) {
-      ...ContactFields
+    upsertContact(name: $name, prevAddr: $prevAddr, newAddr: $newAddr) {
+      id
     }
   }
 `;
@@ -37,10 +30,8 @@ export const useUpsertContact = () => {
 
   const [mutation] = useUpsertContactMutation({ client: useApiClient() });
 
-  const upsert = useCallback(
+  return useCallback(
     (cur: NewContact, prev?: Contact) => {
-      const curId = toId(`${device.address}-${cur.addr}`);
-
       return mutation({
         variables: {
           prevAddr: prev?.addr,
@@ -49,15 +40,14 @@ export const useUpsertContact = () => {
         },
         optimisticResponse: {
           upsertContact: {
-            __typename: 'Contact',
-            id: curId,
-            ...cur,
+            id: toId(`${device.address}-${cur.addr}`),
           },
         },
         update: (cache, res) => {
-          const contact = res?.data?.upsertContact;
-          if (!contact) return;
+          const id = res?.data?.upsertContact.id;
+          if (!id) return;
 
+          // Contacts: upsert contact and remove prior
           const opts: QueryOpts<ContactsQueryVariables> = {
             query: ContactsDocument,
             variables: {},
@@ -65,30 +55,34 @@ export const useUpsertContact = () => {
 
           const data = cache.readQuery<ContactsQuery>(opts) ?? { contacts: [] };
 
-          // Insert into query list
-          if (!data.contacts.find((c) => c.id === curId)) {
-            cache.writeQuery<ContactsQuery>({
-              query: API_CONTACTS_QUERY,
-              data: produce(data, (data) => {
-                data.contacts.push(contact);
-              }),
-            });
-          }
+          cache.writeQuery<ContactsQuery>({
+            ...opts,
+            overwrite: true,
+            data: produce(data, (data) => {
+              // Remove previous contact if the address has changed
+              if (prev && prev.addr !== cur.addr) {
+                data.contacts = data.contacts.filter(
+                  (c) => c.addr !== prev.addr,
+                );
+              }
 
-          // Evict previous contact if ID has changed
-          if (prev && prev.id !== contact.id) {
-            cache.evict({
-              id: cache.identify({
-                __typename: 'Contact',
-                ...prev,
-              }),
-            });
-          }
+              // Upsert current contact
+              const contact = {
+                id,
+                addr: cur.addr,
+                name: cur.name,
+              };
+              const i = data.contacts.findIndex((c) => c.id === id);
+              if (i >= 0) {
+                data.contacts[i] = contact;
+              } else {
+                data.contacts.push(contact);
+              }
+            }),
+          });
         },
       });
     },
     [mutation, device.address],
   );
-
-  return upsert;
 };

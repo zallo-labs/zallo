@@ -50,7 +50,7 @@ export const MethodInputRow = ({ param, data }: MethodRowProps) => {
   );
 };
 
-const useStyles = makeStyles(({ colors, space, onBackground, typescale }) => {
+const useStyles = makeStyles(({ colors, space, onBackground, fonts }) => {
   const backgroundColor = colors.surfaceVariant;
   return {
     dataContainer: {
@@ -60,12 +60,12 @@ const useStyles = makeStyles(({ colors, space, onBackground, typescale }) => {
       borderColor: colors.outline,
     },
     touchableDataContainer: {
-      paddingVertical: space(2),
-      paddingHorizontal: space(3),
+      paddingVertical: space(1),
+      paddingHorizontal: space(2),
       display: undefined,
     },
     data: {
-      ...typescale.bodySmall,
+      ...fonts.bodySmall,
       color: onBackground(backgroundColor),
     },
   };

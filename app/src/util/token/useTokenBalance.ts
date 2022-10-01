@@ -7,11 +7,10 @@ import {
   useRecoilValue,
   useSetRecoilState,
 } from 'recoil';
-import { Address, ZERO } from 'lib';
+import { Address, UserId, ZERO } from 'lib';
 import { captureException } from '~/util/sentry/sentry';
 import { refreshAtom } from '~/util/effect/refreshAtom';
 import { persistAtom } from '~/util/effect/persistAtom';
-import { WalletId } from '~/queries/wallets';
 import { useCallback } from 'react';
 import { TOKENS } from './useTokens';
 
@@ -47,17 +46,17 @@ export const TOKEN_BALANCE = atomFamily<BigNumber, BalanceKey>({
   ],
 });
 
-type Target = Address | WalletId;
+type Target = Address | UserId;
 
 const targetAddress = (target?: Target): BalanceKey[0] =>
-  typeof target === 'object' ? target.accountAddr : target || null;
+  typeof target === 'object' ? target.account : target || null;
 
-export const useTokenBalance = (token: Token, account?: Address | WalletId) =>
+export const useTokenBalance = (token: Token, account?: Address | UserId) =>
   useRecoilValue(TOKEN_BALANCE([targetAddress(account), token.addr]));
 
 export const useUpdateTokenBalance = (
   token: Token,
-  account?: Address | WalletId,
+  account?: Address | UserId,
 ) => {
   const update = useSetRecoilState(
     TOKEN_BALANCE([targetAddress(account), token.addr]),
@@ -88,5 +87,9 @@ export const TOKEN_BALANCES = selectorFamily<
       })),
 });
 
-export const useTokenBalances = (addr?: Address) =>
-  useRecoilValue(TOKEN_BALANCES(addr ?? null));
+export const useTokenBalances = (account: Address | UserId | undefined) =>
+  useRecoilValue(
+    TOKEN_BALANCES(
+      typeof account === 'object' ? account.account : account ?? null,
+    ),
+  );

@@ -16,8 +16,8 @@
     "prod:deploy-hosted": "graph deploy --product hosted-service hbriese/allopay"
   },
   "dependencies": {
-    "@graphprotocol/graph-cli": "0.33.1",
-    "@graphprotocol/graph-ts": "0.27.0"
+    "@graphprotocol/graph-cli": "0.34.0",
+    "@graphprotocol/graph-ts": "0.28.0"
   },
   "devDependencies": {
     "mustache": "^4.2.0"

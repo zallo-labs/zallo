@@ -1,24 +1,19 @@
-import { elipseTruncate } from '~/util/format';
-import { useMemo } from 'react';
+import { truncateAddr } from '~/util/format';
 import { Text } from 'react-native-paper';
-import { useContacts } from '~/queries/contacts/useContacts.api';
 import { CardItem, CardItemProps } from '../card/CardItem';
 import { Identicon } from '~/components/Identicon/Identicon';
 import { Address } from 'lib';
+import { useContact } from '~/queries/contacts/useContact';
+import { memo } from 'react';
 
 export interface AddrCardProps extends CardItemProps {
   addr: Address;
 }
 
-export const AddrCard = ({ addr, ...itemProps }: AddrCardProps) => {
-  const { contacts } = useContacts();
+export const AddrCard = memo(({ addr, ...itemProps }: AddrCardProps) => {
+  const contact = useContact(addr);
 
-  const contact = useMemo(
-    () => contacts.find((c) => c.addr === addr),
-    [addr, contacts],
-  );
-
-  const truncatedAddr = useMemo(() => elipseTruncate(addr, 6, 4), [addr]);
+  const truncatedAddr = truncateAddr(addr);
 
   return (
     <CardItem
@@ -30,4 +25,4 @@ export const AddrCard = ({ addr, ...itemProps }: AddrCardProps) => {
       {...itemProps}
     />
   );
-};
+});

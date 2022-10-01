@@ -9,4 +9,4 @@ export const elipseTruncate = (
     ? `${val.slice(0, beginLen)}...${val.slice(val.length - endLen)}`
     : val;
 
-export const truncatedAddr = (addr: Address) => elipseTruncate(addr, 6, 4);
+export const truncateAddr = (addr: Address) => elipseTruncate(addr, 6, 4);

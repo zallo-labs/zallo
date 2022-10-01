@@ -9,7 +9,7 @@ export interface FaucetButtonProps {
 }
 
 export const FaucetButton = ({ account }: FaucetButtonProps) => {
-  const faucet = useFaucet(account, true);
+  const faucet = useFaucet(account);
 
   if (!faucet) return null;
 

@@ -1,6 +1,6 @@
 export const AccountEvent = {
-  WalletUpserted: 'WalletUpserted',
-  WalletRemoved: 'WalletRemoved',
+  UserUpserted: 'UserUpserted',
+  UserRemoved: 'UserRemoved',
   // TransactionExecutor
   Transaction: 'Transaction',
   TransactionReverted: 'TransactionReverted',
@@ -11,13 +11,14 @@ export const AccountError = {
   TxAlreadyExecuted: 'TxAlreadyExecuted',
   InvalidSignature: 'InvalidSignature',
   InvalidProof: 'InvalidProof',
-  QuorumNotAscending: 'QuorumNotAscending',
-  QuorumHashesNotAscending: 'QuorumHashesNotAscending',
   OnlyCallableByBootloader: 'OnlyCallableByBootloader',
   // SelfOwned
   OnlyCallableBySelf: 'OnlyCallableBySelf',
   // TransactionExecutor
   ExecutionReverted: 'ExecutionReverted',
+  // UserHelper
+  NoUserConfigs: 'NoUserConfigs',
+  UserConfigHashesNotAscending: 'UserConfigHashesNotAscending',
   // Multicall
   CallReverted: 'CallReverted',
 };

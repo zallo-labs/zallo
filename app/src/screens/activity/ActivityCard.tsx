@@ -2,7 +2,7 @@ import { makeStyles } from '~/util/theme/makeStyles';
 import { Text } from 'react-native-paper';
 import { Card, CardProps } from '../../components/card/Card';
 import { Box } from '~/components/layout/Box';
-import { TokenIcon } from '~/components/token/TokenIcon/TokenIcon';
+import TokenIcon from '~/components/token/TokenIcon/TokenIcon';
 import { Addr } from '../../components/addr/Addr';
 import { Token } from '@token/token';
 import { Address } from 'lib';

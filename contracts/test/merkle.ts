@@ -1,71 +1,93 @@
 import {
-  Wallet,
+  User,
   getMerkleTree,
-  getMultiProof,
-  randomWalletRef,
-  toQuorum,
-  sortQuorums,
+  sortAddresses,
+  getUserConfigProof,
+  userConfigToLeaf,
+  UserConfig,
+  compareUserConfig,
 } from 'lib';
 import { allSigners, deployTestAccount, expect } from './util';
 
 describe('Merkle proof', () => {
-  it('lib should generate valid multi-proof', async () => {
-    const wallet: Wallet = {
-      ref: randomWalletRef(),
-      quorums: sortQuorums([
-        toQuorum([allSigners[0].address, allSigners[1].address]),
-        toQuorum([allSigners[2].address, allSigners[3].address]),
-      ]),
+  it('lib should generate valid proof', async () => {
+    const user: User = {
+      addr: allSigners[0].address,
+      configs: [
+        {
+          approvers: sortAddresses(
+            allSigners.slice(1, 3).map((s) => s.address),
+          ),
+          spendingAllowlisted: false,
+          limits: {},
+        },
+        {
+          approvers: sortAddresses(
+            allSigners.slice(4, 6).map((s) => s.address),
+          ),
+          spendingAllowlisted: false,
+          limits: {},
+        },
+      ].sort(compareUserConfig),
     };
-    const quorum = wallet.quorums[0];
+    const config = user.configs[0];
 
-    const { tree, root, proof, rawProofFlags, proofLeaves } = getMultiProof(
-      wallet,
-      quorum,
-    );
+    const tree = getMerkleTree(user);
+    const proof = getUserConfigProof(user, config);
 
-    const verified = tree.verifyMultiProofWithFlags(
-      root,
-      proofLeaves,
+    const verified = tree.verify(
       proof,
-      rawProofFlags,
+      userConfigToLeaf(config),
+      tree.getRoot(),
     );
+
     expect(verified).to.eq(true);
   });
 
   it('should generated valid merkle root', async () => {
-    const { account, wallet } = await deployTestAccount();
+    const { account, user } = await deployTestAccount();
 
-    const tree = getMerkleTree(wallet);
+    const tree = getMerkleTree(user);
 
-    expect(await account.getWalletMerkleRoot(wallet.ref)).to.eq(
-      tree.getHexRoot(),
-    );
+    expect(await account.getUserMerkleRoot(user.addr)).to.eq(tree.getHexRoot());
   });
 
   it('should verify valid multi-proof', async () => {
-    const { account, wallet, quorum } = await deployTestAccount();
+    const { account, user, config } = await deployTestAccount();
 
-    const { proof, proofFlags, root } = getMultiProof(wallet, quorum);
+    const tree = getMerkleTree(user);
+    const proof = getUserConfigProof(user, config);
 
-    const tx = account.verifyMultiProof(root, proof, proofFlags, quorum);
-
-    await expect(tx).to.eventually.not.be.rejected;
+    const isValid = await account.isValidProof(
+      config,
+      proof,
+      tree.getHexRoot(),
+    );
+    expect(isValid).to.be.true;
   });
 
   it('should reject an invalid multi-proof', async () => {
     const {
       account,
-      wallet,
-      quorum: validQuorum,
+      user,
+      config: validConfig,
       others,
     } = await deployTestAccount();
 
-    const { proof, proofFlags, root } = getMultiProof(wallet, validQuorum);
+    const tree = getMerkleTree(user);
+    const proof = getUserConfigProof(user, validConfig);
 
-    const invalidQuorum = toQuorum(others.slice(0, 3));
-    const tx = account.verifyMultiProof(root, proof, proofFlags, invalidQuorum);
+    const invalidConfig: UserConfig = {
+      approvers: sortAddresses(others.slice(0, 3)),
+      spendingAllowlisted: false,
+      limits: {},
+    };
 
-    await expect(tx).to.eventually.be.rejected;
+    const isValid = await account.isValidProof(
+      invalidConfig,
+      proof,
+      tree.getHexRoot(),
+    );
+    expect(isValid).to.be.false;
   });
 });

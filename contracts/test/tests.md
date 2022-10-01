@@ -35,14 +35,14 @@
 - should be callable from any address
 
 
-## upsertWallet
+## upsertUser
 - should successfully execute
 - should emit event
 - should generate the correct wallet merkle root
 - should revert if called from an address other than the account
 
 
-## removeWallet
+## removeUser
 - should successfully execute & emit event
 - should zero wallet's merkle root
 

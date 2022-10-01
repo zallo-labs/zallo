@@ -1,67 +1,46 @@
 import { gql, useMutation } from '@apollo/client';
-import { useDevice } from '@network/useDevice';
 import {
+  CommentsDocument,
   CommentsQuery,
   CommentsQueryVariables,
+  CreateCommentDocument,
   CreateCommentMutation,
   CreateCommentMutationVariables,
 } from '~/gql/generated.api';
 import { useApiClient } from '~/gql/GqlProvider';
 import { QueryOpts } from '~/gql/update';
-import { Address, Id, toId } from 'lib';
-import { DateTime } from 'luxon';
+import { Address } from 'lib';
 import { useCallback } from 'react';
-import {
-  COMMENT_FIELDS,
-  Commentable,
-  getCommentableKey,
-  COMMENTS_QUERY,
-} from '~/queries/useComments.api';
+import { Commentable, getCommentableKey } from '~/queries/useComments.api';
+import produce from 'immer';
+import { useDevice } from '@network/useDevice';
+import { DateTime } from 'luxon';
+import _ from 'lodash';
 
-const MUTATION = gql`
-  ${COMMENT_FIELDS}
-
+gql`
   mutation CreateComment($account: Address!, $key: Id!, $content: String!) {
     createComment(account: $account, key: $key, content: $content) {
-      ...CommentFields
+      id
     }
   }
 `;
 
-export const createCommentId = (account: Address, key: Id, nonce: number): Id =>
-  toId(`${account}-${key}-${nonce}`);
-
-export const useCreateComment = (c: Commentable, account: Address) => {
+export const useCreateComment = (
+  commentable: Commentable,
+  account: Address,
+) => {
   const device = useDevice();
-  const key = getCommentableKey(c);
 
   const [mutate] = useMutation<
     CreateCommentMutation,
     CreateCommentMutationVariables
-  >(MUTATION, {
+  >(CreateCommentDocument, {
     client: useApiClient(),
-    update: (cache, res) => {
-      const comment = res?.data?.createComment;
-      if (!comment) return;
-
-      const opts: QueryOpts<CommentsQueryVariables> = {
-        query: COMMENTS_QUERY,
-        variables: { account, key },
-      };
-      const data = cache.readQuery<CommentsQuery, CommentsQueryVariables>(opts);
-
-      cache.writeQuery<CommentsQuery, CommentsQueryVariables>({
-        ...opts,
-        data: {
-          comments: (data?.comments ?? []).concat(comment),
-        },
-      });
-    },
   });
 
-  const create = useCallback(
+  return useCallback(
     (content: string) => {
-      const now = DateTime.now().toISO();
+      const key = getCommentableKey(commentable);
 
       return mutate({
         variables: {
@@ -72,21 +51,37 @@ export const useCreateComment = (c: Commentable, account: Address) => {
         optimisticResponse: {
           createComment: {
             __typename: 'Comment',
-            id: createCommentId(account, key, 0),
-            accountId: account,
-            key,
-            nonce: 0,
-            authorId: device.address,
-            content,
-            createdAt: now,
-            updatedAt: now,
-            reactions: [],
+            id: _.random(10000, 20000).toString(), // random and unqiue id, large enough to not be used
           },
+        },
+        update: (cache, res) => {
+          const id = res?.data?.createComment.id;
+          if (!id) return;
+
+          // Comments: add
+          const opts: QueryOpts<CommentsQueryVariables> = {
+            query: CommentsDocument,
+            variables: { account, key },
+          };
+          const data = cache.readQuery<CommentsQuery, CommentsQueryVariables>(
+            opts,
+          ) ?? { comments: [] };
+
+          cache.writeQuery<CommentsQuery>({
+            ...opts,
+            data: produce(data, (data) => {
+              data.comments.push({
+                id,
+                authorId: device.address,
+                content,
+                updatedAt: DateTime.now().toISO(),
+                reactions: [],
+              });
+            }),
+          });
         },
       });
     },
-    [mutate, account, key, device.address],
+    [commentable, mutate, account, device.address],
   );
-
-  return create;
 };

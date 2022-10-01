@@ -105,11 +105,11 @@ export const AmountInput = ({ token, amount, setAmount }: AmountInputProps) => {
   );
 };
 
-const useStyles = makeStyles(({ typescale }) => ({
+const useStyles = makeStyles(({ fonts }) => ({
   input: {
-    ...typescale.displayLarge,
+    ...fonts.displayLarge,
   },
   side: {
-    width: typescale.headlineLarge.fontSize,
+    width: fonts.headlineLarge.fontSize,
   },
 }));

@@ -1,3 +1,4 @@
+import { Image } from 'react-native';
 import * as zk from 'zksync-web3';
 import { createToken, Token } from './token';
 
@@ -5,7 +6,10 @@ export const HARDCODED_TOKENS: Token[] = [];
 
 const token = (...args: Parameters<typeof createToken>) => {
   const token = createToken(...args);
+  Image.prefetch(token.iconUri);
+
   if (token.addr) HARDCODED_TOKENS.push(token);
+
   return token;
 };
 

@@ -1,9 +1,6 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 pragma solidity ^0.8.0;
 
-import {
-  SignatureChecker
-} from '@matterlabs/signature-checker/contracts/SignatureChecker.sol';
 import '@matterlabs/zksync-contracts/l2/system-contracts/Constants.sol';
 import '@matterlabs/zksync-contracts/l2/system-contracts/TransactionHelper.sol';
 
@@ -16,6 +13,7 @@ import './ERC165.sol';
 import './ERC721Receiver.sol';
 import {MerkleProof} from './utils/MerkleProof.sol';
 import {BoolArray} from './utils/BoolArray.sol';
+import {SignatureChecker} from './utils/SignatureChecker.sol';
 
 contract Account is
   IAccount,
@@ -28,21 +26,20 @@ contract Account is
 {
   using SignatureChecker for address;
   using MerkleProof for bytes32[];
+  using UserHelper for User;
+  using UserConfigHelper for UserConfig;
 
   /*//////////////////////////////////////////////////////////////
                              INITIALIZATION
   //////////////////////////////////////////////////////////////*/
 
   constructor() {
-    // Prevent the contract from being initialized, thereby only allowing use through a proxy
+    // Prevent direct use of the contract, only allowing use through a proxy and thereby preventing selfdestruct nonsense
     _preventInitialization();
   }
 
-  function initialize(Ref walletRef, address[][] memory quorums)
-    external
-    initializer
-  {
-    _upsertWallet(walletRef, quorums);
+  function initialize(User calldata user) external initializer {
+    _upsertUser(user);
   }
 
   /*//////////////////////////////////////////////////////////////
@@ -124,36 +121,23 @@ contract Account is
   }
 
   /*//////////////////////////////////////////////////////////////
-                            GROUP MANAGEMENT
+                             USER MANAGEMENT
   //////////////////////////////////////////////////////////////*/
 
   /// @inheritdoc IAccount
-  function upsertWallet(Ref walletRef, address[][] calldata quorums)
-    external
-    onlySelf
-  {
-    _upsertWallet(walletRef, quorums);
+  function upsertUser(User calldata user) external onlySelf {
+    _upsertUser(user);
   }
 
   /// @inheritdoc IAccount
-  function removeWallet(Ref walletRef) external onlySelf {
-    delete _walletMerkleRoots()[walletRef];
-    emit WalletRemoved(walletRef);
+  function removeUser(address user) external onlySelf {
+    delete _userMerkleRoots()[user];
+    emit UserRemoved(user);
   }
 
-  function _upsertWallet(Ref walletRef, address[][] memory quorums) internal {
-    bytes32[] memory leaves = _getQuorumsMerkleLeaves(quorums);
-    _walletMerkleRoots()[walletRef] = leaves.merkleRoot();
-
-    // TODO: change quorums back to address[][] once graph-cli can handle it - https://github.com/graphprotocol/graph-cli/issues/342
-    bytes[] memory bytesQuorums = new bytes[](quorums.length);
-    for (uint256 i = 0; i < quorums.length; ) {
-      bytesQuorums[i] = abi.encode(quorums[i]);
-      unchecked {
-        ++i;
-      }
-    }
-    emit WalletUpserted(walletRef, bytesQuorums);
+  function _upsertUser(User calldata user) internal {
+    _userMerkleRoots()[user.addr] = user.merkleRoot();
+    emit UserUpserted(user);
   }
 
   /*//////////////////////////////////////////////////////////////
@@ -176,35 +160,32 @@ contract Account is
     view
   {
     (
-      Ref walletRef,
-      address[] memory quorum,
-      bytes[] memory signatures,
+      address user,
+      UserConfig memory config,
       bytes32[] memory proof,
-      uint256[] memory proofFlags
-    ) = abi.decode(
-        txSignature,
-        (Ref, address[], bytes[], bytes32[], uint256[])
-      );
+      bytes[] memory signatures
+    ) = abi.decode(txSignature, (address, UserConfig, bytes32[], bytes[]));
 
-    _validateSigners(txHash, quorum, signatures);
-    _verifyMultiProof(
-      _walletMerkleRoots()[walletRef],
-      proof,
-      proofFlags,
-      quorum
-    );
+    _validateSignatures(txHash, user, config.approvers, signatures);
+    if (!config.isValidProof(proof, _userMerkleRoots()[user]))
+      revert InvalidProof();
   }
 
-  function _validateSigners(
+  function _validateSignatures(
     bytes32 txHash,
-    address[] memory quorum,
+    address user,
+    address[] memory approvers,
     bytes[] memory signatures
   ) internal view {
-    if (quorum.length != signatures.length) revert ApproverSignaturesMismatch();
+    if ((1 + approvers.length) != signatures.length)
+      revert ApproverSignaturesMismatch();
 
-    for (uint256 i = 0; i < quorum.length; ) {
-      if (!quorum[i].isValidSignatureNow(txHash, signatures[i]))
-        revert InvalidSignature(quorum[i]);
+    if (!user.isValidSignatureNow(txHash, signatures[0]))
+      revert InvalidSignature(user);
+
+    for (uint256 i = 0; i < approvers.length; ) {
+      if (!approvers[i].isValidSignatureNow(txHash, signatures[i + 1]))
+        revert InvalidSignature(approvers[i]);
 
       unchecked {
         ++i;
@@ -213,81 +194,30 @@ contract Account is
   }
 
   /*//////////////////////////////////////////////////////////////
-                           GROUP MERKLE ROOTS
-  //////////////////////////////////////////////////////////////*/
+                            USER MERKLE ROOTS
+    //////////////////////////////////////////////////////////////*/
 
-  // TODO: set mapping directly once "Invalid stack item name: slot" is fixed - https://github.com/ethereum/solidity/issues/13259
-  struct WalletMerkleRootsStruct {
-    mapping(Ref => bytes32) walletMerkleRoots;
+  // TODO: upgrade to solc 0.8.17 (once supported by zksolc) and set mapping slot directly
+  struct UserMerkleRootsStruct {
+    mapping(address => bytes32) userMerkleRoots;
   }
 
   /// @notice Merkle root of the state of each wallet
-  /// @dev walletRef => merkleRoot
-  /// @dev Leaves: [approver 1, ..., approver n]
-  function _walletMerkleRoots()
+  /// @dev user => merkleRoot
+  /// @dev Leaves: UserConfig[]
+  function _userMerkleRoots()
     internal
     view
-    returns (mapping(Ref => bytes32) storage)
+    returns (mapping(address => bytes32) storage)
   {
-    WalletMerkleRootsStruct storage s;
+    UserMerkleRootsStruct storage s;
+
     assembly {
-      // keccack256('Account.walletMerkleRoots')
-      s.slot := 0x68194be5fbb600b21578bdec966a3a87dce49be1664b9f5a7d3feeda162b6903
+      // keccack256('Account.userMerkleRoots')
+      s.slot := 0x78da1ddd953b1b2068017cdffdd8ba08689d560b1fa20cf0f77a87af370f3f89
     }
 
-    return s.walletMerkleRoots;
-  }
-
-  function _verifyMultiProof(
-    bytes32 root,
-    bytes32[] memory proof,
-    uint256[] memory proofFlags,
-    address[] memory quorum
-  ) internal pure {
-    bytes32[] memory leaves = new bytes32[](1);
-    leaves[0] = _getQuorumMerkleLeaf(quorum);
-    if (proof.processMultiProof(proofFlags, leaves) != root)
-      revert InvalidProof();
-  }
-
-  function _getQuorumMerkleLeaf(address[] memory quorum)
-    internal
-    pure
-    returns (bytes32)
-  {
-    if (quorum.length == 0) revert EmptyQuorum();
-
-    // Ensure quorum is sorted ascending
-    for (uint256 i = 1; i < quorum.length; ) {
-      if (quorum[i] < quorum[i - 1]) revert QuorumNotAscending();
-
-      unchecked {
-        ++i;
-      }
-    }
-
-    return keccak256(abi.encode(quorum));
-  }
-
-  function _getQuorumsMerkleLeaves(address[][] memory quorums)
-    internal
-    pure
-    returns (bytes32[] memory leaves)
-  {
-    if (quorums.length == 0) revert EmptyQuorums();
-
-    leaves = new bytes32[](quorums.length);
-    for (uint256 i = 0; i < quorums.length; ) {
-      leaves[i] = _getQuorumMerkleLeaf(quorums[i]);
-
-      // Leaves need to be sorted asc and unique
-      if (i > 0 && leaves[i] < leaves[i - 1])
-        revert QuorumHashesNotUniqueAndAscending();
-
-      unchecked {
-        ++i;
-      }
-    }
+    return s.userMerkleRoots;
   }
 
   /*//////////////////////////////////////////////////////////////

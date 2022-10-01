@@ -1,63 +1,73 @@
-import assert from 'assert';
-import _ from 'lodash';
-import { TxId } from '~/queries/tx';
-import { ProposableStatus } from '~/queries/wallets';
+import { ProposalId } from '~/queries/proposal';
 
-export interface Active<T> {
+// eslint-disable-next-line @typescript-eslint/ban-types
+type Obj = {} | unknown;
+
+export type ProposableStatus = 'active' | 'modify' | 'add' | 'remove';
+
+type ProposableState<T extends Obj = Obj> = ActiveState<T> | ProposedState<T>;
+
+interface ActiveState<T extends Obj> {
   active: T;
   proposed?: T | null;
-  proposal?: TxId;
+  proposal?: ProposalId;
 }
 
-export interface Proposed<T> {
+interface ProposedState<T extends Obj> {
   active?: T;
   proposed: T;
-  proposal?: TxId;
+  proposal?: ProposalId;
 }
 
-export type Proposable<T> = Active<T> | Proposed<T>;
-
-export const isActive = <T>(p: Proposable<T>): p is Active<T> =>
+const isActive = <T extends Obj>(p: ProposableState<T>): p is ActiveState<T> =>
   p.active !== undefined;
 
-export const isProposed = <T>(p: Proposable<T>): p is Proposed<T> =>
-  p.proposed !== undefined;
+const isProposed = <T extends Obj>(
+  p: ProposableState<T>,
+): p is ProposedState<T> => p.proposed !== undefined && p.proposed !== null;
 
-export const latest = <T>(proposable: Proposable<T>) =>
-  isProposed(proposable) ? proposable.proposed : proposable.active;
+export class Proposable<
+  T extends Obj,
+  State extends ProposableState<T> = ProposableState<T>,
+> {
+  constructor(public state: State) {}
 
-export const mergeProposals = <T extends NonNullable<V>, V>(
-  sub: Proposable<T> | undefined,
-  api: Proposable<T> | undefined,
-): Proposable<T> => {
-  assert(sub || api);
-  if (!sub) return api!;
-  if (!api) return sub!;
-
-  const merged: Proposable<T> = { ...api, ...sub };
-  if (_.isEqual(merged.proposed, merged.active)) {
-    merged.proposed = undefined;
-    merged.proposal = undefined;
+  isActive(): this is Proposable<T, ActiveState<T>> {
+    return this.active !== undefined;
+  }
+  isProposed(): this is Proposable<T, ProposedState<T>> {
+    return this.proposed !== undefined && this.proposed !== null;
   }
 
-  return merged;
-};
+  get status(): ProposableStatus {
+    if (this.proposed === null) return 'remove';
+    if (this.proposed === undefined) return 'active';
+    return this.active ? 'modify' : 'add';
+  }
 
-export const getProposableStatus = (
-  p: Proposable<unknown>,
-): ProposableStatus => {
-  if (!isActive(p)) return 'add';
-  if (!isProposed(p)) return 'active';
+  get value(): T {
+    return this.state.proposed ?? this.state.active!;
+  }
 
-  return p.proposed === null ? 'remove' : 'modify';
-};
+  set value(proposed: T | null) {
+    if (this.active !== proposed && (proposed !== null || this.isActive())) {
+      this.state.proposed = proposed;
+    }
+  }
 
-export const setProposed = <T>(
-  p: Proposable<NonNullable<T>>,
-  value: NonNullable<T> | null,
-) => {
-  if (isActive(p)) p.proposed = value;
-  if (_.isEqual(p.active, p.proposed)) p.proposed = undefined;
+  get active(): State['active'] {
+    return this.state.active;
+  }
 
-  return p;
-};
+  get proposed(): State['proposed'] {
+    return this.state.proposed;
+  }
+
+  set proposed(value: State['proposed']) {
+    this.state.proposed = value;
+  }
+
+  get proposal(): State['proposal'] {
+    return this.state.proposal;
+  }
+}

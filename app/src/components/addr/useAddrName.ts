@@ -1,22 +1,32 @@
 import { Address } from 'lib';
 import { useMemo } from 'react';
 import { useMaybeToken } from '@token/useToken';
-import { useContacts } from '~/queries/contacts/useContacts.api';
-import { truncatedAddr } from '~/util/format';
+import { truncateAddr } from '~/util/format';
 import { useAddrEns } from './useAddrEns';
+import { useContact } from '~/queries/contacts/useContact';
 
-export const useAddrName = (addr: Address) => {
-  const { contacts } = useContacts();
+export type AddrNameMode =
+  | 'default'
+  | 'full-addr'
+  | 'short-addr'
+  | 'ens-or-short-addr';
+
+export const useAddrName = (addr: Address, mode?: AddrNameMode) => {
+  const contact = useContact(addr);
   const token = useMaybeToken(addr);
   const ens = useAddrEns(addr);
 
-  const contact = useMemo(
-    () => contacts.find((c) => c.addr === addr),
-    [contacts, addr],
-  );
-
-  return useMemo(
-    () => contact?.name || token?.name || ens || truncatedAddr(addr),
-    [addr, contact?.name, ens, token?.name],
-  );
+  return useMemo(() => {
+    switch (mode) {
+      case 'full-addr':
+        return addr;
+      case 'short-addr':
+        return truncateAddr(addr);
+      case 'ens-or-short-addr':
+        return ens || truncateAddr(addr);
+      case 'default':
+      default:
+        return contact?.name || token?.name || ens || truncateAddr(addr);
+    }
+  }, [addr, contact?.name, ens, mode, token?.name]);
 };

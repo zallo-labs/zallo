@@ -1,6 +1,6 @@
 import { ListScreenSkeleton } from '~/components/skeleton/ListScreenSkeleton';
-import { WalletSelectorSkeleton } from '../../components/wallet/WalletSelector/WalletSelectorSkeleton';
+import { AccountSelectorSkeleton } from '../../components/account/AccountSelector/AccountSelectorSkeleton';
 
 export const HomeScreenSkeleton = () => (
-  <ListScreenSkeleton Header={<WalletSelectorSkeleton />} menu title={false} />
+  <ListScreenSkeleton Header={<AccountSelectorSkeleton />} menu title={false} />
 );

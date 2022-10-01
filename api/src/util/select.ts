@@ -2,7 +2,11 @@ import { PrismaSelect } from '@paljs/plugins';
 
 type SelectParams = ConstructorParameters<typeof PrismaSelect>;
 
-export const getSelect = (...params: SelectParams) => {
+interface Select {
+  select: Record<string, unknown>;
+}
+
+export const getSelect = (...params: SelectParams): Select | undefined => {
   const v = new PrismaSelect(...params).value;
   return v && Object.keys(v.select).length ? v : undefined;
 };

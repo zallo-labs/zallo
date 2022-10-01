@@ -2,7 +2,7 @@ import {
   MD3DarkTheme as PaperDarkTheme,
   useTheme as baseUseTheme,
 } from 'react-native-paper';
-import { space } from './styledComponents';
+import { space, typoSpace } from './styledComponents';
 import color from 'color';
 
 const c = (c: string, f: (color: color<string>) => color<string>) =>
@@ -12,20 +12,28 @@ const overrided: typeof PaperDarkTheme = {
   ...PaperDarkTheme,
 };
 
+const opacity = {
+  disabled: 0.6,
+} as const;
+
 // https://github.com/callstack/react-native-paper/blob/main/src/styles/themes/v3/DarkTheme.tsx
 export const PAPER_THEME = {
   ...overrided,
   colors: {
     ...overrided.colors,
 
-    onSurfaceOpaque: c(overrided.colors.onSurface, (c) => c.alpha(0.7)),
+    onSurfaceOpaque: c(overrided.colors.onSurface, (c) =>
+      c.alpha(opacity.disabled),
+    ),
 
     success: '#48C12A', // Green
     info: '#559EFC', // Blue
     warning: '#FFAF30', // Orange
   },
+  opacity,
 
   space,
+  typoSpace,
   onBackground: (backgroundColor?: string): string | undefined => {
     if (backgroundColor) {
       const bgKey = Object.keys(overrided.colors).find(
