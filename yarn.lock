@@ -11171,6 +11171,7 @@ __metadata:
     react: 18.0.0
     react-content-loader: ^6.2.0
     react-dom: 18.0.0
+    react-hook-form: ^7.36.1
     react-intl: ^6.1.2
     react-native: 0.69.6
     react-native-barcode-mask: ^1.2.4
@@ -30717,6 +30718,15 @@ __metadata:
   peerDependencies:
     react: ^17.0.0
   checksum: c746b9d369c77296c277626cf7dd5ff24d49657e2f16412d14f845d1b428588184c0009374119f7dec24be37ab8c134d15aa4ecd57360c874880af508dcc577b
+  languageName: node
+  linkType: hard
+
+"react-hook-form@npm:^7.36.1":
+  version: 7.36.1
+  resolution: "react-hook-form@npm:7.36.1"
+  peerDependencies:
+    react: ^16.8.0 || ^17 || ^18
+  checksum: d41951685fe7d345997c1ac489ccc1a44d11cfa6021b0a39a449029ba3cd8e5824afe5f6464e8ff6fb7c01d1915627b53ec1e1bfee63a6b722b6855794dc0df9
   languageName: node
   linkType: hard
 

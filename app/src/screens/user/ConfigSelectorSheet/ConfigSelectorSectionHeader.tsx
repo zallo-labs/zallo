@@ -6,13 +6,9 @@ import { Box } from '~/components/layout/Box';
 import { useRootNavigation } from '~/navigation/useRootNavigation';
 import { ProposalId } from '~/queries/proposal';
 
-export interface UserConfigWithStatus extends UserConfig {
-  isActive?: boolean;
-}
-
 export interface ConfigSelectorSection {
   title: string;
-  data: UserConfigWithStatus[];
+  data: UserConfig[];
   proposal?: ProposalId;
 }
 

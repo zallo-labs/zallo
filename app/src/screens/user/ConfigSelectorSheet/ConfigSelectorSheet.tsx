@@ -13,20 +13,27 @@ import _ from 'lodash';
 import {
   ConfigSelectorSection,
   ConfigSelectorSectionHeader,
-  UserConfigWithStatus,
 } from './ConfigSelectorSectionHeader';
 import { useUserScreenContext } from '../UserScreenContext';
+import { ProposalId } from '~/queries/proposal';
+
+export interface ProposedConfigs {
+  configs: UserConfig[];
+  proposal?: ProposalId;
+}
 
 export interface ConfigSelectorSheetProps {
   user: CombinedUser;
-  initialConfig: UserConfig;
-  setConfig: (config: UserConfig) => void;
+  selected: UserConfig;
+  select: (config: UserConfig) => void;
+  proposedConfigs?: ProposedConfigs;
 }
 
 export const ConfigSelectorSheet = ({
   user,
-  initialConfig,
-  setConfig,
+  selected,
+  select,
+  proposedConfigs,
 }: ConfigSelectorSheetProps) => {
   const styles = useStyles();
   const { navigate } = useRootNavigation();
@@ -35,29 +42,20 @@ export const ConfigSelectorSheet = ({
   const ref = useRef<BottomSheet>(null);
   const initialSnapPoints = useMemo(() => [CONTENT_HEIGHT_SNAP_POINT], []);
 
-  const configs = useMemo(
-    (): UserConfigWithStatus[] =>
-      [
-        ...(user.configs.proposed ?? []),
-        ...(user.configs.active ?? []).map((c) => ({ ...c, isActive: true })),
-      ].sort((a, b) => a.approvers.length - b.approvers.length),
-    [user.configs.active, user.configs.proposed],
-  );
-
   const sections: ConfigSelectorSection[] = useMemo(
     () =>
       [
         {
           title: 'Active',
-          data: configs.filter((c) => c.isActive),
+          data: user.configs.active ?? [],
         },
         {
           title: 'Proposed',
-          data: configs.filter((c) => !c.isActive),
-          proposal: user.configs.proposal,
+          data: proposedConfigs?.configs ?? [],
+          proposal: proposedConfigs?.proposal,
         },
       ].filter((section) => section.data.length > 0),
-    [configs, user.configs],
+    [user.configs, proposedConfigs],
   );
 
   useEffect(() => {
@@ -88,14 +86,14 @@ export const ConfigSelectorSheet = ({
             section={section as ConfigSelectorSection}
           />
         )}
-        renderItem={({ item: { isActive: _isActive, ...item } }) => (
+        renderItem={({ item }) => (
           <ConfigCard
             config={item}
-            selected={_.isEqual(initialConfig, item)}
+            selected={_.isEqual(selected, item)}
             style={styles.item}
             onPress={() => {
               setSheetShown(false);
-              setConfig(item);
+              select(item);
             }}
           />
         )}
@@ -109,7 +107,7 @@ export const ConfigSelectorSheet = ({
           navigate('Contacts', {
             onMultiSelect: (approvers) => {
               setSheetShown(false);
-              setConfig({
+              select({
                 approvers: [...approvers.keys()],
                 spendingAllowlisted: false,
                 limits: {},

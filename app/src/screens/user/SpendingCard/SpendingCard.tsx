@@ -4,7 +4,7 @@ import { useTokenBalances } from '@token/useTokenBalance';
 import { useTotalAvailableValue } from '@token/useTotalAvailableValue';
 import produce from 'immer';
 import { address, Address, Limit, UserConfig, ZERO } from 'lib';
-import { Dispatch, SetStateAction, useMemo, useState } from 'react';
+import { useMemo, useState } from 'react';
 import { StyleProp, ViewStyle } from 'react-native';
 import Collapsible from 'react-native-collapsible';
 import { Button, Switch, Text } from 'react-native-paper';
@@ -20,7 +20,7 @@ import { TokenLimitItem } from './TokenLimitItem';
 export interface SpendingCardProps {
   user: CombinedUser;
   config: UserConfig;
-  setConfig: Dispatch<SetStateAction<UserConfig>>;
+  setConfig: (config: UserConfig) => void;
   style?: StyleProp<ViewStyle>;
 }
 
@@ -75,7 +75,7 @@ export const SpendingCard = ({
           <Switch
             value={!config.spendingAllowlisted}
             onValueChange={(v) =>
-              setConfig((config) =>
+              setConfig(
                 produce(config, (config) => {
                   config.spendingAllowlisted = !v;
                 }),
@@ -100,7 +100,7 @@ export const SpendingCard = ({
                         user,
                         ...limit,
                         onChange: (newLimit) => {
-                          setConfig((config) =>
+                          setConfig(
                             produce(config, (config) => {
                               if (newLimit.token !== limit.token)
                                 delete config.limits[limit.token];
@@ -117,7 +117,7 @@ export const SpendingCard = ({
                         user,
                         token: address(token),
                         onChange: (newLimit) => {
-                          setConfig((config) =>
+                          setConfig(
                             produce(config, (config) => {
                               config.limits[newLimit.token] = newLimit;
                             }),
@@ -135,7 +135,7 @@ export const SpendingCard = ({
           style={styles.create}
           onPress={() =>
             createLimit((limit) => {
-              setConfig((config) =>
+              setConfig(
                 produce(config, (config) => {
                   config.limits[limit.token] = limit;
                 }),
