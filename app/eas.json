@@ -37,8 +37,8 @@
         "CHAIN": "testnet",
         "API_URL": "https://api-dev.allopay.io",
         "SUBGRAPH_GQL_URL": "http://graph.allopay.io/subgraphs/name/allopay-dev",
-        "ACCOUNT_IMPL_TESTNET": "0x0DE63Ab281e4241D38e2C0CB2a55661912F6422d",
-        "PROXY_FACTORY_TESTNET": "0x3FE53d6dCC73bAadEE100ECAe4dB04066C03dD34",
+        "ACCOUNT_IMPL_TESTNET": "0xF134103245bcF8AC1108849ff97c85f98264eb5A",
+        "PROXY_FACTORY_TESTNET": "0x9b5771F232ec8F9CF0345CEF70a6B88627e98C9d",
         "MULTI_CALL_TESTNET": "0xBF6f1B40Bf1CcA67724A9d4992495eE81E91ABE5"
       }
     },
