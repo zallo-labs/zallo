@@ -1,37 +1,10 @@
-import { gql } from '@apollo/client';
-import { address, Address } from 'lib';
 import { useMemo } from 'react';
-import {
-  AccountIdsDocument,
-  AccountIdsQuery,
-  AccountIdsQueryVariables,
-} from '~/gql/generated.api';
-import { useApiClient } from '~/gql/GqlProvider';
-import { usePollWhenFocussed } from '~/gql/usePollWhenFocussed';
-import { useSuspenseQuery } from '~/gql/useSuspenseQuery';
-
-gql`
-  query AccountIds {
-    accounts {
-      id
-    }
-  }
-`;
+import { useUserIds } from '../user/useUserIds.api';
 
 export const useAccountIds = () => {
-  const { data, ...rest } = useSuspenseQuery<
-    AccountIdsQuery,
-    AccountIdsQueryVariables
-  >(AccountIdsDocument, {
-    client: useApiClient(),
-    variables: {},
-  });
-  usePollWhenFocussed(rest, 30);
+  const [users, rest] = useUserIds();
 
-  const ids = useMemo(
-    (): Address[] => data.accounts.map((a) => address(a.id)),
-    [data.accounts],
-  );
+  const ids = useMemo(() => users.map((user) => user.account), [users]);
 
   return [ids, rest] as const;
 };

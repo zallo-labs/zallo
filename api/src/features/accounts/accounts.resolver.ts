@@ -14,23 +14,28 @@ import {
   AccountArgs,
   SetAccountNameArgs,
   CreateAccountArgs,
-  FindAccountsArgs,
 } from './accounts.args';
-import { getSelect } from '~/util/select';
+import { makeGetSelect } from '~/util/select';
 import { connectOrCreateDevice } from '~/util/connect-or-create';
-import { Address } from 'lib';
-import { DeviceAddr } from '~/decorators/device.decorator';
 import { UsersService } from '../users/users.service';
 import { AccountsService } from './accounts.service';
 import { Prisma } from '@prisma/client';
 import { User } from '@gen/user/user.model';
+
+const getSelect = makeGetSelect<{
+  Account: Prisma.AccountSelect;
+  User: Prisma.UserSelect;
+}>({
+  Account: {},
+  User: {},
+});
 
 @Resolver(() => Account)
 export class AccountsResolver {
   constructor(
     private service: AccountsService,
     private prisma: PrismaService,
-    private usersService: UsersService,
+    private users: UsersService,
   ) {}
 
   @ResolveField(() => User)
@@ -58,18 +63,6 @@ export class AccountsResolver {
     });
   }
 
-  @Query(() => [Account])
-  async accounts(
-    @Args() args: FindAccountsArgs,
-    @DeviceAddr() device: Address,
-    @Info() info: GraphQLResolveInfo,
-  ): Promise<Account[]> {
-    return this.service.accounts(device, {
-      ...args,
-      ...getSelect(info),
-    });
-  }
-
   @Mutation(() => Account)
   async createAccount(
     @Args() { account, deploySalt, impl, name, users }: CreateAccountArgs,
@@ -86,7 +79,12 @@ export class AccountsResolver {
             (user): Prisma.UserCreateWithoutAccountInput => ({
               device: connectOrCreateDevice(user.device),
               name: user.name,
-              states: this.usersService.getCreateUserState(user.configs),
+              states: {
+                create: {
+                  configs: this.users.createUserConfigs(user.configs),
+                  latestOfUserDeviceId: user.device,
+                },
+              },
             }),
           ),
         },

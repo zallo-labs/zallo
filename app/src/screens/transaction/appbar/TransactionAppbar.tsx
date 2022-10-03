@@ -17,7 +17,7 @@ export const TransactionAppbar = ({ scrolled }: TransactionAppbarProps) => {
     <Box style={[styles.container, styles.background]}>
       <Appbar.Header style={styles.background}>
         <AppbarBack iconColor={styles.text.color} />
-        <Appbar.Content title="Transaction" titleStyle={styles.text} />
+        <Appbar.Content title="Proposal" titleStyle={styles.text} />
       </Appbar.Header>
 
       <Collapsible collapsed={!!scrolled}>

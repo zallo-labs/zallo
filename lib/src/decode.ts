@@ -57,7 +57,7 @@ export const tryDecodeRemoveUserData = (data?: BytesLike) => {
     const [user] = ACCOUNT_INTERFACE.decodeFunctionData(
       REMOVE_USER_FUNCTION,
       data,
-    )[0] as RemoveUserParams;
+    ) as RemoveUserParams;
 
     return { addr: address(user) };
   } catch {

@@ -21,7 +21,7 @@ export class AccountsService {
     private provider: ProviderService,
   ) {}
 
-  async accounts(
+  async deviceAccounts(
     device: Address,
     args: Omit<Prisma.AccountFindManyArgs, 'where'> = {},
   ): Promise<Account[]> {
@@ -29,7 +29,12 @@ export class AccountsService {
       ...args,
       where: {
         users: {
-          some: { deviceId: device },
+          some: {
+            deviceId: device,
+            latestState: {
+              isDeleted: false,
+            },
+          },
         },
       },
     });
@@ -68,7 +73,7 @@ export class AccountsService {
       {
         impl: address(impl),
         user: {
-          addr: address(userState.deviceId),
+          addr: address(userState.deviceId!),
           configs: userState.configs.map((c) => ({
             approvers: c.approvers.map((a) => address(a.deviceId)),
             spendingAllowlisted: c.spendingAllowlisted,

@@ -1,23 +1,23 @@
 import { gql } from '@apollo/client';
 import { useApiClient } from '~/gql/GqlProvider';
-import { QueryOpts } from '~/gql/update';
+import { updateQuery } from '~/gql/update';
 import {
   AccountDocument,
-  AccountIdsDocument,
-  AccountIdsQuery,
-  AccountIdsQueryVariables,
   AccountQuery,
   AccountQueryVariables,
   useCreateAccountMutation,
+  UserIdsDocument,
+  UserIdsQuery,
+  UserIdsQueryVariables,
 } from '~/gql/generated.api';
 import {
   Address,
   calculateProxyAddress,
+  getUserIdStr,
   randomDeploySalt,
   User,
   UserId,
 } from 'lib';
-import produce from 'immer';
 import { ACCOUNT_IMPL } from '~/util/network/provider';
 import { useDevice } from '@network/useDevice';
 import { useAccountProxyFactory } from '@network/useAccountProxyFactory';
@@ -93,6 +93,7 @@ export const useCreateAccount = () => {
           },
         ],
       },
+      // TODO: reconsider, now that the userIds/accountIds issue is fixed
       // Don't update optimistically, as the data won't be available on the api yet otherwise
       // optimisticResponse: {
       //   createAccount: {
@@ -128,22 +129,19 @@ export const useCreateAccount = () => {
         }
 
         {
-          // AccountIds: add
-          const opts: QueryOpts<AccountIdsQueryVariables> = {
-            query: AccountIdsDocument,
+          // UserIds: add
+          updateQuery<UserIdsQuery, UserIdsQueryVariables>({
+            cache,
+            query: UserIdsDocument,
             variables: {},
-          };
-
-          const data = cache.readQuery<AccountIdsQuery>(opts) ?? {
-            accounts: [],
-          };
-
-          cache.writeQuery<AccountIdsQuery>({
-            ...opts,
-            overwrite: true,
-            data: produce(data, (data) => {
-              data.accounts.push({ id });
-            }),
+            defaultData: { users: [] },
+            updater: (data) => {
+              const i = data.users.findIndex((u) => u.id === id);
+              data.users[i >= 0 ? i : data.users.length] = {
+                id: getUserIdStr(account, device.address),
+                accountId: account,
+              };
+            },
           });
         }
       },
