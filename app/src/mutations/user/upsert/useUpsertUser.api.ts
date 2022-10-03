@@ -75,107 +75,91 @@ export const useApiUpsertUser = () => {
             ),
           },
         },
-        optimisticResponse: {
-          upsertUser: {
-            id: idStr,
-          },
-        },
-        update: async (cache, res) => {
-          if (!res.data?.upsertUser.id) return;
+        // optimisticResponse: {
+        //   upsertUser: {
+        //     id: idStr,
+        //   },
+        // },
+        // update: (cache, res) => {
+        //   if (!res.data?.upsertUser.id) return;
 
-          await upsertUser();
-          addToAccount();
-          addToUserIds();
+        //   upsertUser();
+        //   addToAccount();
+        //   addToUserIds();
 
-          console.log(
-            'Upsert',
-            JSON.stringify(
-              {
-                active: user.configs.active
-                  ? userConfigsToInput(user.configs.active)
-                  : undefined,
-                proposed: user.configs.proposed
-                  ? userConfigsToInput(user.configs.proposed)
-                  : undefined,
-              },
-              null,
-              2,
-            ),
-          );
+        //   // User: upsert
+        //   function upsertUser() {
+        //     cache.writeQuery<UserQuery, UserQueryVariables>({
+        //       query: UserDocument,
+        //       variables: {
+        //         id,
+        //       },
+        //       overwrite: true,
+        //       data: {
+        //         user: {
+        //           id: idStr,
+        //           accountId: user.account,
+        //           deviceId: user.addr,
+        //           name: user.name,
+        //           activeState: user.configs.active
+        //             ? {
+        //                 configs: userConfigsToInput(user.configs.active),
+        //                 proposalHash: null,
+        //               }
+        //             : null,
+        //           proposedState: user.configs.proposed
+        //             ? {
+        //                 configs: userConfigsToInput(user.configs.proposed),
+        //                 proposalHash,
+        //               }
+        //             : null,
+        //         },
+        //       },
+        //     });
+        //   }
 
-          // User: upsert
-          async function upsertUser() {
-            cache.writeQuery<UserQuery, UserQueryVariables>({
-              query: UserDocument,
-              variables: {
-                id,
-              },
-              overwrite: true,
-              data: {
-                user: {
-                  id: idStr,
-                  accountId: user.account,
-                  deviceId: user.addr,
-                  name: user.name,
-                  activeState: user.configs.active
-                    ? {
-                        configs: userConfigsToInput(user.configs.active),
-                        proposalHash: null,
-                      }
-                    : null,
-                  proposedState: user.configs.proposed
-                    ? {
-                        configs: userConfigsToInput(user.configs.proposed),
-                        proposalHash,
-                      }
-                    : null,
-                },
-              },
-            });
-          }
+        //   // Account: add to users if missing
+        //   async function addToAccount() {
+        //     updateQuery<AccountQuery, AccountQueryVariables>({
+        //       cache,
+        //       query: AccountDocument,
+        //       variables: { account: user.account },
+        //       updater: (data) => {
+        //         if (
+        //           !data.account.users?.find((u) => u.deviceId === user.addr)
+        //         ) {
+        //           data.account.users = [
+        //             ...(data.account.users ?? []),
+        //             {
+        //               deviceId: user.addr,
+        //               name: user.name,
+        //             },
+        //           ];
+        //         }
+        //       },
+        //     });
+        //   }
 
-          // Account: add to users if missing
-          async function addToAccount() {
-            updateQuery<AccountQuery, AccountQueryVariables>({
-              cache,
-              query: AccountDocument,
-              variables: { account: user.account },
-              updater: (data) => {
-                if (
-                  !data.account.users?.find((u) => u.deviceId === user.addr)
-                ) {
-                  data.account.users = [
-                    ...(data.account.users ?? []),
-                    {
-                      deviceId: user.addr,
-                      name: user.name,
-                    },
-                  ];
-                }
-              },
-            });
-          }
-
-          // UserIds: add if own device & missing
-          async function addToUserIds() {
-            if (user.addr === device.address) {
-              updateQuery<UserIdsQuery, UserIdsQueryVariables>({
-                cache,
-                query: UserIdsDocument,
-                variables: {},
-                defaultData: { users: [] },
-                updater: (data) => {
-                  if (!data.users.find((u) => u.id === idStr)) {
-                    data.users.push({
-                      id: idStr,
-                      accountId: user.account,
-                    });
-                  }
-                },
-              });
-            }
-          }
-        },
+        //   // UserIds: add if own device & missing
+        //   async function addToUserIds() {
+        //     if (user.addr === device.address) {
+        //       updateQuery<UserIdsQuery, UserIdsQueryVariables>({
+        //         cache,
+        //         query: UserIdsDocument,
+        //         variables: {},
+        //         defaultData: { users: [] },
+        //         updater: (data) => {
+        //           if (!data.users.find((u) => u.id === idStr)) {
+        //             data.users.push({
+        //               id: idStr,
+        //               accountId: user.account,
+        //             });
+        //           }
+        //         },
+        //       });
+        //     }
+        //   }
+        // },
       });
     },
     [mutation, device.address],

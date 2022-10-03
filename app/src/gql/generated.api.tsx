@@ -63,18 +63,6 @@ export type AccountOrderByWithRelationInput = {
   users?: InputMaybe<UserOrderByRelationAggregateInput>;
 };
 
-export enum AccountScalarFieldEnum {
-  DeploySalt = 'deploySalt',
-  Id = 'id',
-  Impl = 'impl',
-  IsDeployed = 'isDeployed',
-  Name = 'name'
-}
-
-export type AccountWhereUniqueInput = {
-  id?: InputMaybe<Scalars['String']>;
-};
-
 export type Approval = {
   __typename?: 'Approval';
   createdAt: Scalars['DateTime'];
@@ -184,7 +172,6 @@ export type ContractMethod = {
 export type Device = {
   __typename?: 'Device';
   _count: DeviceCount;
-  accounts: Array<Account>;
   approvals?: Maybe<Array<Approval>>;
   approvers?: Maybe<Array<Approver>>;
   comments?: Maybe<Array<Comment>>;
@@ -192,24 +179,6 @@ export type Device = {
   id: Scalars['ID'];
   reactions?: Maybe<Array<Reaction>>;
   users?: Maybe<Array<User>>;
-};
-
-
-export type DeviceAccountsArgs = {
-  cursor?: InputMaybe<AccountWhereUniqueInput>;
-  distinct?: InputMaybe<Array<AccountScalarFieldEnum>>;
-  orderBy?: InputMaybe<Array<AccountOrderByWithRelationInput>>;
-  skip?: InputMaybe<Scalars['Int']>;
-  take?: InputMaybe<Scalars['Int']>;
-};
-
-
-export type DeviceUsersArgs = {
-  cursor?: InputMaybe<UserWhereUniqueInput>;
-  distinct?: InputMaybe<Array<UserScalarFieldEnum>>;
-  orderBy?: InputMaybe<Array<UserOrderByWithRelationInput>>;
-  skip?: InputMaybe<Scalars['Int']>;
-  take?: InputMaybe<Scalars['Int']>;
 };
 
 export type DeviceCount = {
@@ -426,7 +395,6 @@ export type ProposalWhereUniqueInput = {
 export type Query = {
   __typename?: 'Query';
   account: Account;
-  accounts: Array<Account>;
   addrName?: Maybe<Scalars['String']>;
   canRequestFunds: Scalars['Boolean'];
   comments: Array<Comment>;
@@ -442,15 +410,6 @@ export type Query = {
 
 export type QueryAccountArgs = {
   id: Scalars['Address'];
-};
-
-
-export type QueryAccountsArgs = {
-  cursor?: InputMaybe<AccountWhereUniqueInput>;
-  distinct?: InputMaybe<Array<AccountScalarFieldEnum>>;
-  orderBy?: InputMaybe<Array<AccountOrderByWithRelationInput>>;
-  skip?: InputMaybe<Scalars['Int']>;
-  take?: InputMaybe<Scalars['Int']>;
 };
 
 
@@ -835,11 +794,6 @@ export type AccountQueryVariables = Exact<{
 
 
 export type AccountQuery = { __typename?: 'Query', account: { __typename?: 'Account', id: string, deploySalt: string, impl: string, isDeployed: boolean, name: string, users?: Array<{ __typename?: 'User', deviceId: string, name: string }> | null } };
-
-export type AccountIdsQueryVariables = Exact<{ [key: string]: never; }>;
-
-
-export type AccountIdsQuery = { __typename?: 'Query', accounts: Array<{ __typename?: 'Account', id: string }> };
 
 export type ContactsQueryVariables = Exact<{ [key: string]: never; }>;
 
@@ -1501,40 +1455,6 @@ export function useAccountLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<Ac
 export type AccountQueryHookResult = ReturnType<typeof useAccountQuery>;
 export type AccountLazyQueryHookResult = ReturnType<typeof useAccountLazyQuery>;
 export type AccountQueryResult = Apollo.QueryResult<AccountQuery, AccountQueryVariables>;
-export const AccountIdsDocument = gql`
-    query AccountIds {
-  accounts {
-    id
-  }
-}
-    `;
-
-/**
- * __useAccountIdsQuery__
- *
- * To run a query within a React component, call `useAccountIdsQuery` and pass it any options that fit your needs.
- * When your component renders, `useAccountIdsQuery` returns an object from Apollo Client that contains loading, error, and data properties
- * you can use to render your UI.
- *
- * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
- *
- * @example
- * const { data, loading, error } = useAccountIdsQuery({
- *   variables: {
- *   },
- * });
- */
-export function useAccountIdsQuery(baseOptions?: Apollo.QueryHookOptions<AccountIdsQuery, AccountIdsQueryVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useQuery<AccountIdsQuery, AccountIdsQueryVariables>(AccountIdsDocument, options);
-      }
-export function useAccountIdsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<AccountIdsQuery, AccountIdsQueryVariables>) {
-          const options = {...defaultOptions, ...baseOptions}
-          return Apollo.useLazyQuery<AccountIdsQuery, AccountIdsQueryVariables>(AccountIdsDocument, options);
-        }
-export type AccountIdsQueryHookResult = ReturnType<typeof useAccountIdsQuery>;
-export type AccountIdsLazyQueryHookResult = ReturnType<typeof useAccountIdsLazyQuery>;
-export type AccountIdsQueryResult = Apollo.QueryResult<AccountIdsQuery, AccountIdsQueryVariables>;
 export const ContactsDocument = gql`
     query Contacts {
   contacts {

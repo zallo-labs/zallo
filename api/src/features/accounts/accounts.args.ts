@@ -1,4 +1,3 @@
-import { FindManyAccountArgs } from '@gen/account/find-many-account.args';
 import { ArgsType, InputType, OmitType } from '@nestjs/graphql';
 import { Address, DeploySalt } from 'lib';
 import { AddressField } from '~/apollo/scalars/Address.scalar';
@@ -18,11 +17,6 @@ export class UserWithoutAccountInput extends OmitType(UserInput, [
   @AddressField()
   device: Address;
 }
-
-@ArgsType()
-export class FindAccountsArgs extends OmitType(FindManyAccountArgs, [
-  'where',
-] as const) {}
 
 @ArgsType()
 export class CreateAccountArgs {

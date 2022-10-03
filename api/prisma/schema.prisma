@@ -32,10 +32,10 @@ model Account {
   isDeployed Boolean @default(false)
 
   users      User[]
+  userStates UserState[]
   proposals  Proposal[]
   comments   Comment[]
   reactions  Reaction[]
-  userStates UserState[]
 }
 
 model User {
@@ -46,8 +46,9 @@ model User {
 
   name String
 
-  states    UserState[]
-  proposals Proposal[]
+  latestState UserState?  @relation(name: "latest")
+  states      UserState[]
+  proposals   Proposal[]
 
   @@id([accountId, deviceId])
 }
@@ -55,16 +56,20 @@ model User {
 model UserState {
   id Int @id @default(autoincrement())
 
-  user         User      @relation(fields: [accountId, deviceId], references: [accountId, deviceId], onDelete: Cascade)
   account      Account   @relation(fields: [accountId], references: [id], onDelete: Cascade)
   accountId    String    @db.Char(42) // address
+  user         User      @relation(fields: [accountId, deviceId], references: [accountId, deviceId], onDelete: Cascade)
   deviceId     String    @db.Char(42) // address
   proposal     Proposal? @relation(fields: [proposalHash], references: [hash], onDelete: Cascade)
   proposalHash String?   @db.Char(66) // bytes32
   createdAt    DateTime  @default(now())
   isDeleted    Boolean   @default(false)
 
-  configs UserConfig[]
+  latestOfUser         User?        @relation(name: "latest", fields: [accountId, latestOfUserDeviceId], references: [accountId, deviceId], onDelete: Cascade) // user | null
+  latestOfUserDeviceId String?      @db.Char(42)
+  configs              UserConfig[]
+
+  @@unique([accountId, latestOfUserDeviceId])
 }
 
 model UserConfig {

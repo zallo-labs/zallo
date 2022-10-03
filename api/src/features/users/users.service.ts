@@ -1,9 +1,9 @@
-import { User } from '@gen/user/user.model';
 import { Injectable } from '@nestjs/common';
 import { Prisma, UserState } from '@prisma/client';
+import { UserId } from 'lib';
 import { PrismaService } from 'nestjs-prisma';
 import { connectOrCreateDevice } from '~/util/connect-or-create';
-import { UserConfigInput, UserIdInput } from './users.args';
+import { UserConfigInput, UserInput } from './users.args';
 
 const createWhereStateIsActive = (
   isActive: boolean,
@@ -31,12 +31,27 @@ const createWhereStateIsActive = (
 const WHERE_STATE_IS_ACTIVE = createWhereStateIsActive(true);
 const WHERE_STATE_IS_INACTIVE = createWhereStateIsActive(false);
 
+export const WHERE_STATE_IS_DISABLED: Prisma.UserStateWhereInput = {
+  isDeleted: true,
+  proposal: {
+    submissions: {
+      some: {
+        response: { reverted: false },
+      },
+    },
+  },
+};
+
+export const WHERE_STATE_IS_ENABLED: Prisma.UserStateWhereInput = {
+  NOT: WHERE_STATE_IS_DISABLED,
+};
+
 @Injectable()
 export class UsersService {
   constructor(private prisma: PrismaService) {}
 
   async latestState(
-    user: User,
+    user: UserId,
     isActive: boolean,
     args: Omit<Prisma.UserStateFindManyArgs, 'where'> = {},
   ): Promise<UserState | null> {
@@ -44,40 +59,79 @@ export class UsersService {
       .findUniqueOrThrow({
         where: {
           accountId_deviceId: {
-            accountId: user.accountId,
-            deviceId: user.deviceId,
+            accountId: user.account,
+            deviceId: user.addr,
           },
         },
       })
       .states({
+        ...args,
         orderBy: { createdAt: 'desc' },
         take: 1,
-        ...args,
         where: isActive ? WHERE_STATE_IS_ACTIVE : WHERE_STATE_IS_INACTIVE,
       } as Prisma.UserStateFindManyArgs);
 
     return states[0] ?? null;
   }
 
-  async isActive(user: UserIdInput) {
-    return (
-      (await this.prisma.user.count({
-        where: {
-          accountId: user.account,
-          deviceId: user.device,
-          states: { some: WHERE_STATE_IS_ACTIVE },
-        },
-      })) > 0
-    );
+  async isActive(user: UserId) {
+    return !!(await this.latestState(user, true));
   }
 
-  getCreateUserState(
+  createUserConfigs(
     configs: UserConfigInput[],
-    proposalHash?: string,
-  ): Prisma.UserStateUncheckedCreateNestedManyWithoutUserInput {
+  ): Prisma.UserConfigCreateNestedManyWithoutStateInput {
+    return {
+      create: configs.map((config) => ({
+        approvers: {
+          create: config.approvers.map((approver) => ({
+            device: connectOrCreateDevice(approver),
+          })),
+        },
+        spendingAllowlisted: config.spendingAllowlisted,
+        limits: {
+          create: config.limits.map((limit) => ({
+            token: limit.token,
+            amount: limit.amount.toString(),
+            period: limit.period,
+          })),
+        },
+      })),
+    };
+  }
+
+  createUserState(
+    user: UserInput,
+    configs: UserConfigInput[],
+    proposalHash: string | undefined,
+  ): Prisma.UserStateCreateNestedOneWithoutLatestOfUserInput {
     return {
       create: {
-        proposalHash,
+        account: {
+          connect: { id: user.id.account },
+        },
+        user: {
+          connectOrCreate: {
+            where: {
+              accountId_deviceId: {
+                accountId: user.id.account,
+                deviceId: user.id.device,
+              },
+            },
+            create: {
+              accountId: user.id.account,
+              deviceId: user.id.device,
+              name: user.name,
+            },
+          },
+        },
+        proposal: {
+          connect: { hash: proposalHash },
+        },
+
+        // deviceId: user.addr,
+        // proposalHash,
+
         configs: {
           create: configs.map(
             (config): Prisma.UserConfigCreateWithoutStateInput => ({

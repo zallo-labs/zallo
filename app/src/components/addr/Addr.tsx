@@ -1,11 +1,10 @@
 import { Address } from 'lib';
-import { AddrNameMode, useAddrName } from './useAddrName';
+import { useAddrName, UseAddrNameOptions } from './useAddrName';
 
-export interface AddrProps {
+export interface AddrProps extends UseAddrNameOptions {
   addr: Address;
-  mode?: AddrNameMode;
 }
 
-export const Addr = ({ addr, mode }: AddrProps) => (
-  <>{useAddrName(addr, mode)}</>
+export const Addr = ({ addr, ...options }: AddrProps) => (
+  <>{useAddrName(addr, options)}</>
 );

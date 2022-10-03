@@ -98,10 +98,6 @@ const convertState = (
     ),
   }));
 
-// export function useUser(idInput: UserId | Address): [CombinedUser, any];
-// export function useUser(idInput: undefined): [undefined, any];
-
-// export function useUser<Id extends UserId | Address | undefined>(idInput: Id) {
 export const useUser = <Id extends UserId | Address | undefined>(
   idInput: Id,
 ) => {
@@ -132,7 +128,7 @@ export const useUser = <Id extends UserId | Address | undefined>(
       skip: !id,
     },
   );
-  usePollWhenFocussed(rest, 5);
+  usePollWhenFocussed(rest, 15);
 
   const u = data.user;
   const user = useMemo((): CombinedUser | undefined => {
