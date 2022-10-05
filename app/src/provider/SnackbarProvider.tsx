@@ -1,5 +1,6 @@
 import { makeStyles } from '@theme/makeStyles';
 import { useTheme } from '@theme/paper';
+import { useEffect } from 'react';
 import { StyleProp, TextStyle } from 'react-native';
 import { Snackbar, SnackbarProps, Text } from 'react-native-paper';
 import RnToast, {
@@ -8,6 +9,7 @@ import RnToast, {
   ToastOptions,
 } from 'react-native-toast-message';
 import { match } from 'ts-pattern';
+import { captureEvent } from '~/util/sentry/sentry';
 
 type SnackVariant = 'info' | 'error';
 
@@ -25,6 +27,14 @@ const Snack = ({
   props: { message, variant = 'info', messageStyle, action, style, ...props },
 }: SnackProps) => {
   const styles = useStyles(variant);
+
+  useEffect(() => {
+    if (variant === 'error')
+      captureEvent({
+        message: 'Error snack shown',
+        extra: { message },
+      });
+  }, [message, variant]);
 
   return (
     <Snackbar
