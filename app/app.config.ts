@@ -12,12 +12,13 @@ export const CONFIG = {
   proxyFactory: E[`PROXY_FACTORY_${chain}`]!,
   accountImpl: E[`ACCOUNT_IMPL_${chain}`]!,
   multiCall: E[`MULTI_CALL_${chain}`]!,
+  walletConnectProjectId: '599f2bebcaf0baedaaf87f899ad27991',
 } as const;
 
 export type Config = typeof CONFIG;
 
 const projectId = 'f8f4def1-b838-4dec-8b50-6c07995c4ff5';
-const packageId = `io.allopay${E.IS_DEV_CLIENT ? '-dev' : ''}`;
+const packageId = 'io.allopay';
 
 // https://docs.expo.dev/versions/latest/config/app/
 export default ({ config }: ConfigContext): ExpoConfig => ({
@@ -33,7 +34,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
   },
   extra: {
     ...CONFIG,
-    // ...(CONFIG.env === 'production' && { eas: { projectId } }),
+    ...(CONFIG.env === 'production' && { eas: { projectId } }),
   },
   plugins: ['sentry-expo', 'expo-community-flipper'],
   hooks: {
@@ -63,7 +64,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     package: packageId,
     adaptiveIcon: {
       foregroundImage: './assets/adaptive-icon.png',
-      backgroundColor: '#151A30',
+      // backgroundColor: '#151A30',
     },
   },
   ios: {

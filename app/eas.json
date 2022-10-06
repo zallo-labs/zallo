@@ -45,10 +45,7 @@
     "development-client": {
       "extends": "base",
       "distribution": "internal",
-      "developmentClient": true,
-      "env": {
-        "IS_DEV_CLIENT": "true"
-      }
+      "developmentClient": true
     }
   },
   "submit": {

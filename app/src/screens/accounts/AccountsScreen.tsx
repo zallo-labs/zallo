@@ -9,7 +9,7 @@ import { Appbar, Button } from 'react-native-paper';
 import { useAppbarHeader } from '~/components/Appbar/useAppbarHeader';
 import { useGoBack } from '~/components/Appbar/useGoBack';
 import { RootNavigatorScreenProps } from '~/navigation/RootNavigator';
-import AccountCard from './AccountCard';
+import AccountItemCard from '../../components/account/AccountItemCard';
 import { useUserIds } from '~/queries/user/useUserIds.api';
 
 export interface AccountsScreenParams {
@@ -34,8 +34,9 @@ export const AccountsScreen = withSkeleton(
 
         <FlatList
           renderItem={({ item }) => (
-            <AccountCard
+            <AccountItemCard
               id={item}
+              showAvailable
               onPress={() => {
                 if (onSelect) {
                   onSelect(item);

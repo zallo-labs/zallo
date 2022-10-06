@@ -1,7 +1,7 @@
-import { Box } from '~/components/layout/Box';
 import { useTheme } from '@theme/paper';
 import { Button, Dialog, Text } from 'react-native-paper';
 import { useRootNavigation } from '~/navigation/useRootNavigation';
+import { DialogRoot } from '~/components/DialogRoot';
 
 export interface AlertModalProps {
   title?: string;
@@ -22,32 +22,30 @@ export const AlertModal = ({
   const { goBack } = useRootNavigation();
 
   return (
-    <Box flex={1} vertical center>
-      <Dialog visible onDismiss={goBack}>
-        {title && <Dialog.Title>{title}</Dialog.Title>}
+    <DialogRoot>
+      {title && <Dialog.Title>{title}</Dialog.Title>}
 
-        {message && (
-          <Dialog.Content>
-            <Text variant="bodyMedium">{message}</Text>
-          </Dialog.Content>
-        )}
+      {message && (
+        <Dialog.Content>
+          <Text variant="bodyMedium">{message}</Text>
+        </Dialog.Content>
+      )}
 
-        <Dialog.Actions>
-          <Button textColor={colors.secondary} onPress={goBack}>
-            Cancel
-          </Button>
+      <Dialog.Actions>
+        <Button textColor={colors.secondary} onPress={goBack}>
+          Cancel
+        </Button>
 
-          <Button
-            textColor={confirmTextColor || colors.primary}
-            onPress={() => {
-              onConfirm();
-              goBack();
-            }}
-          >
-            {confirmLabel || 'Ok'}
-          </Button>
-        </Dialog.Actions>
-      </Dialog>
-    </Box>
+        <Button
+          textColor={confirmTextColor || colors.primary}
+          onPress={() => {
+            onConfirm();
+            goBack();
+          }}
+        >
+          {confirmLabel || 'Ok'}
+        </Button>
+      </Dialog.Actions>
+    </DialogRoot>
   );
 };

@@ -7,7 +7,7 @@ export const useSendToScanned = (user: UserId) => {
 
   return useCallback(() => {
     navigate('Scan', {
-      onScan: (link) =>
+      onScanAddr: (link) =>
         navigate('Send', {
           user,
           to: link.target_address,

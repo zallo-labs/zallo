@@ -5,6 +5,10 @@ import {
   MaterialIcons,
 } from '@expo/vector-icons';
 import { ComponentPropsWithoutRef, FC } from 'react';
+import { IconProps as BaseIconProps } from 'react-native-paper/lib/typescript/components/MaterialCommunityIcon';
+import { SvgProps } from 'react-native-svg';
+import MastercardSvg from '~/../assets/mastercard.svg';
+import WalletConnectSvg from '~/../assets/walletconnect.svg';
 
 export type IconPropsWithoutName<
   IconType extends ElementType = typeof MaterialIcons,
@@ -83,3 +87,15 @@ export const UpArrowIcon = materialIcon('arrow-drop-up');
 export const MoreVerticalIcon = materialIcon('more-vert');
 export const UserConfigsIcon = materialIcon('apps');
 export const ViewIcon = materialCommunityIcon('eye');
+export const PasteIcon = materialIcon('content-paste');
+export const ExternalLinkIcon = materialIcon('launch');
+
+export type IconProps = Pick<BaseIconProps, 'color' | 'size'>;
+
+export const svgIcon =
+  (Svg: FC<SvgProps>): FC<IconProps> =>
+  ({ color, size }) =>
+    <Svg color={color} width={size} height={size} />;
+
+export const MastercardIcon = svgIcon(MastercardSvg);
+export const WalletConnectIcon = svgIcon(WalletConnectSvg);

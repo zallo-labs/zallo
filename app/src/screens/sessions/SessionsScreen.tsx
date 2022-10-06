@@ -1,0 +1,54 @@
+import { ScanIcon, WalletConnectIcon } from '@theme/icons';
+import { makeStyles } from '@theme/makeStyles';
+import { FlatList } from 'react-native';
+import { Appbar } from 'react-native-paper';
+import { useAppbarHeader } from '~/components/Appbar/useAppbarHeader';
+import { useGoBack } from '~/components/Appbar/useGoBack';
+import { EmptyListFallback } from '~/components/EmptyListFallback';
+import { Box } from '~/components/layout/Box';
+import { RootNavigatorScreenProps } from '~/navigation/RootNavigator';
+import { useWalletConnect } from '~/util/walletconnect/WalletConnectProvider';
+import { SessionCard } from './SessionCard';
+
+export type SessionsScreenProps = RootNavigatorScreenProps<'Sessions'>;
+
+export const SessionsScreen = ({ navigation }: SessionsScreenProps) => {
+  const styles = useStyles();
+  const { client } = useWalletConnect();
+  const { AppbarHeader, handleScroll } = useAppbarHeader();
+
+  return (
+    <Box>
+      <AppbarHeader mode="large">
+        <Appbar.BackAction onPress={useGoBack()} />
+        <Appbar.Content title="Sessions" />
+        <Appbar.Action
+          icon={ScanIcon}
+          onPress={() => navigation.navigate('Scan', {})}
+        />
+      </AppbarHeader>
+
+      <FlatList
+        renderItem={({ item }) => <SessionCard session={item} />}
+        ItemSeparatorComponent={() => <Box mt={2} />}
+        ListEmptyComponent={
+          <EmptyListFallback
+            Icon={WalletConnectIcon}
+            title="No active sessions"
+            subtitle="Pair by scanning a WalletConnect QR code"
+          />
+        }
+        data={client.session.values}
+        style={styles.list}
+        onScroll={handleScroll}
+        showsVerticalScrollIndicator={false}
+      />
+    </Box>
+  );
+};
+
+const useStyles = makeStyles(({ space }) => ({
+  list: {
+    marginHorizontal: space(2),
+  },
+}));

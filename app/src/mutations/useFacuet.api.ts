@@ -1,5 +1,5 @@
 import { gql } from '@apollo/client';
-import { showSnack } from '~/provider/SnackbarProvider';
+import { showInfo } from '~/provider/SnackbarProvider';
 import {
   CanRequestFundsDocument,
   CanRequestFundsQuery,
@@ -37,11 +37,11 @@ export const useFaucet = (recipient: Address) => {
   const [canRequestFunds] = useCanRequestFunds(recipient);
 
   const receive = useCallback(async () => {
-    showSnack({ message: 'Requesting testnet funds...', autoHide: false });
+    showInfo('Requesting testnet funds...', { autoHide: false });
 
     await mutation();
 
-    showSnack({ message: 'Funds received' });
+    showInfo('Funds received');
   }, [mutation]);
 
   return CHAIN.isTestnet && canRequestFunds ? receive : undefined;

@@ -14,6 +14,8 @@ import produce from 'immer';
 import { useGoBack } from '~/components/Appbar/useGoBack';
 import { TextField } from '~/components/fields/TextField';
 import { AddrItem } from '~/components/addr/AddrItem';
+import { withSkeleton } from '~/components/skeleton/withSkeleton';
+import { ScreenSkeleton } from '~/components/skeleton/ScreenSkeleton';
 
 export interface ContactsScreenParams {
   title?: string;
@@ -25,7 +27,7 @@ export interface ContactsScreenParams {
 
 export type ContactsScreenProps = RootNavigatorScreenProps<'Contacts'>;
 
-export const ContactsScreen = ({ route, navigation }: ContactsScreenProps) => {
+const ContactsScreen = ({ route, navigation }: ContactsScreenProps) => {
   const { title, disabled, onSelect, onMultiSelect } = route.params;
   const styles = useStyles();
   const { AppbarHeader, handleScroll } = useAppbarHeader();
@@ -96,10 +98,11 @@ export const ContactsScreen = ({ route, navigation }: ContactsScreenProps) => {
 };
 
 const useStyles = makeStyles(({ space }) => ({
-  list: {
-  },
+  list: {},
   header: {
     marginHorizontal: space(2),
     marginBottom: space(1),
   },
 }));
+
+export default withSkeleton(ContactsScreen, ScreenSkeleton);

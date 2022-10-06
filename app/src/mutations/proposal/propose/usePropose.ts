@@ -6,7 +6,7 @@ import {
   toNavigationStateRoutes,
   useRootNavigation,
 } from '~/navigation/useRootNavigation';
-import { showSnack } from '~/provider/SnackbarProvider';
+import { showInfo } from '~/provider/SnackbarProvider';
 import { ProposalId } from '~/queries/proposal';
 import { useApiPropose } from './usePropose.api';
 
@@ -61,8 +61,7 @@ export const popToProposal = (
 export const showProposalSnack = (
   ...params: Parameters<typeof popToProposal>
 ) => {
-  showSnack({
-    message: 'Proposal created',
+  showInfo('Proposal created', {
     action: {
       label: 'View proposal',
       onPress: () => popToProposal(...params),

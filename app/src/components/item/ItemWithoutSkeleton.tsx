@@ -6,12 +6,13 @@ import { TouchableRipple, TouchableRippleProps } from 'react-native-paper';
 import { StyleProp, ViewStyle } from 'react-native';
 import { makeStyles } from '@theme/makeStyles';
 
-type TouchableProps = Pick<TouchableRippleProps, 'onPress' | 'onLongPress'>;
+type TouchableProps = Pick<TouchableRippleProps, 'onLongPress'>;
 
 export interface ItemWithoutSkeletonProps extends TouchableProps, Style {
   Left?: ReactNode | FC;
   Main?: ReactNode | FC;
   Right?: ReactNode | FC;
+  onPress?: () => void;
   style?: StyleProp<ViewStyle>;
 }
 
@@ -68,7 +69,7 @@ export const ItemWithoutSkeleton = ({
 interface Style {
   selected?: boolean;
   disabled?: boolean;
-  padding?: boolean;
+  padding?: true | 'vertical' | 'horizontal';
 }
 
 const useStyles = makeStyles(
@@ -78,7 +79,9 @@ const useStyles = makeStyles(
       justifyContent: 'space-between',
       ...(selected && { backgroundColor: colors.surfaceVariant }),
       ...(disabled && { opacity: opacity.disabled }),
-      ...(padding && { padding: space(2) }),
+      ...(padding === true && { padding: space(2) }),
+      ...(padding === 'vertical' && { paddingVertical: space(2) }),
+      ...(padding === 'horizontal' && { paddingHorizontal: space(2) }),
     },
   }),
 );

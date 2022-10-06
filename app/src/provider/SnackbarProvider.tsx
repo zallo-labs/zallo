@@ -76,27 +76,39 @@ const useStyles = makeStyles(
   },
 );
 
-export type ShowSnackParams = Pick<
+export type ShowSnackOptions = Pick<
   ToastOptions,
   'autoHide' | 'visibilityTime' | 'position' | 'onHide'
 > &
-  SnackParams;
+  Omit<SnackParams, 'message'>;
 
-export const showSnack = ({
-  autoHide,
-  visibilityTime,
-  position,
-  onHide,
-  ...props
-}: ShowSnackParams) =>
+export const showSnack = (
+  message: string,
+  {
+    autoHide,
+    visibilityTime,
+    position,
+    onHide,
+    ...props
+  }: ShowSnackOptions = {},
+) =>
   RnToast.show({
     type: Snack.name,
-    props,
+    props: {
+      ...props,
+      message,
+    },
     autoHide,
     visibilityTime,
     position,
     onHide,
   });
+
+export const showInfo = (message: string, options?: ShowSnackOptions) =>
+  showSnack(message, { ...options, variant: 'info' });
+
+export const showError = (message: string, options?: ShowSnackOptions) =>
+  showSnack(message, { ...options, variant: 'info' });
 
 const CONFIGS: ToastConfig = { [Snack.name]: Snack };
 
