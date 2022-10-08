@@ -145,17 +145,17 @@ contract Account is
   //////////////////////////////////////////////////////////////*/
 
   /// @inheritdoc IERC1271
-  function isValidSignature(bytes32 txHash, bytes memory txSignature)
+  function isValidSignature(bytes32 hash, bytes memory signature)
     external
     view
     override
     returns (bytes4)
   {
-    _validateSignature(txHash, txSignature);
+    _validateSignature(hash, signature);
     return EIP1271_SUCCESS;
   }
 
-  function _validateSignature(bytes32 txHash, bytes memory txSignature)
+  function _validateSignature(bytes32 hash, bytes memory signature)
     internal
     view
   {
@@ -164,15 +164,15 @@ contract Account is
       UserConfig memory config,
       bytes32[] memory proof,
       bytes[] memory signatures
-    ) = abi.decode(txSignature, (address, UserConfig, bytes32[], bytes[]));
+    ) = abi.decode(signature, (address, UserConfig, bytes32[], bytes[]));
 
-    _validateSignatures(txHash, user, config.approvers, signatures);
+    _validateSignatures(hash, user, config.approvers, signatures);
     if (!config.isValidProof(proof, _userMerkleRoots()[user]))
       revert InvalidProof();
   }
 
   function _validateSignatures(
-    bytes32 txHash,
+    bytes32 hash,
     address user,
     address[] memory approvers,
     bytes[] memory signatures
@@ -180,11 +180,11 @@ contract Account is
     if ((1 + approvers.length) != signatures.length)
       revert ApproverSignaturesMismatch();
 
-    if (!user.isValidSignatureNow(txHash, signatures[0]))
+    if (!user.isValidSignatureNow(hash, signatures[0]))
       revert InvalidSignature(user);
 
     for (uint256 i = 0; i < approvers.length; ) {
-      if (!approvers[i].isValidSignatureNow(txHash, signatures[i + 1]))
+      if (!approvers[i].isValidSignatureNow(hash, signatures[i + 1]))
         revert InvalidSignature(approvers[i]);
 
       unchecked {

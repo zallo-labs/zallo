@@ -20,6 +20,7 @@ export const SessionsScreen = ({ navigation }: SessionsScreenProps) => {
   return (
     <Box>
       <AppbarHeader mode="large">
+        {/* TODO: replace with AppbarMenu once issue is fixed: https://github.com/callstack/react-native-paper/issues/3287 */}
         <Appbar.BackAction onPress={useGoBack()} />
         <Appbar.Content title="Sessions" />
         <Appbar.Action

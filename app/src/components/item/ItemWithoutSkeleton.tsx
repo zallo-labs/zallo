@@ -48,7 +48,7 @@ export const ItemWithoutSkeleton = ({
           (isFunctionalComponent(Main) ? (
             <Main />
           ) : (
-            <Box flex={1} vertical justifyContent="space-around">
+            <Box flex={1} vertical justifyContent="center">
               {withKeys(Main)}
             </Box>
           ))}

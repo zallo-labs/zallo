@@ -16,7 +16,7 @@ export interface Signer {
   signature: BytesLike;
 }
 
-const toConfigAndSignatures = (user: Address, signers: Signer[]) => {
+const toUserConfigAndSignatures = (user: Address, signers: Signer[]) => {
   const userSig = signers.find((s) => s.approver === user)?.signature;
   assert(userSig);
 
@@ -30,13 +30,19 @@ const toConfigAndSignatures = (user: Address, signers: Signer[]) => {
     .sort((a, b) => compareAddress(a.approver, b.approver))
     .reduce((acc, { approver, signature }) => {
       acc.approvers.push(approver);
-      acc.signatures.push(signature);
+      acc.signatures.push(toCompactSignature(signature)); // Compact signature
       return acc;
     }, initial);
 };
 
-export const createTxSignature = (user: User, signers: Signer[]): BytesLike => {
-  const { approvers, signatures } = toConfigAndSignatures(user.addr, signers);
+export const createUserSignature = (
+  user: User,
+  signers: Signer[],
+): BytesLike => {
+  const { approvers, signatures } = toUserConfigAndSignatures(
+    user.addr,
+    signers,
+  );
   const config = user.configs.find((c) => _.isEqual(c.approvers, approvers));
   assert(config);
 
@@ -53,17 +59,16 @@ export const createTxSignature = (user: User, signers: Signer[]): BytesLike => {
   );
 };
 
-export const signTx = async (device: Device, account: Address, tx: TxReq) => {
-  // _signTypedData returns a 65 byte signature
-  const longSig = await device._signTypedData(
+export const signTx = async (device: Device, account: Address, tx: TxReq) =>
+  device._signTypedData(
     await getDomain({ address: account, provider: device.provider }),
     TX_EIP712_TYPE,
     tx,
   );
 
-  // Convert to a compact 64 byte (eip-2098) signature
-  return ethers.utils.splitSignature(longSig).compact;
-};
+// Convert to a compact 64 byte (eip-2098) signature
+export const toCompactSignature = (signature: SignatureLike) =>
+  ethers.utils.splitSignature(signature).compact;
 
 export const validateSignature = (
   signer: Address,

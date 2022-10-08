@@ -57,7 +57,7 @@ import {
 import {
   SessionSignScreen,
   SessionSignScreenParams,
-} from '~/screens/walletconnect/SessionSignScreen';
+} from '~/screens/walletconnect/Sign/SessionSignScreen';
 import {
   SessionSendTransactionScreen,
   SessionSendTransactionScreenParams,
@@ -143,7 +143,7 @@ export const RootNavigator = () => {
       <Navigation.Group key="WalletConnect">
         <Navigation.Screen name="Sessions" component={SessionsScreen} />
 
-        <Navigation.Group screenOptions={{ presentation: 'modal' }}>
+        <Navigation.Group screenOptions={{ presentation: 'transparentModal' }}>
           <Navigation.Screen
             name="SessionProposal"
             component={SessionProposalScreen}

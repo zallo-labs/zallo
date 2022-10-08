@@ -7,13 +7,14 @@ import {
   WcEventParams,
   WcSession,
   WcSessionRequesst,
-  WcSigningMethod,
   WcTransactionMethod,
-  WC_SIGNING_METHODS,
   WC_TRANSACTION_METHODS,
 } from './methods';
 import { Link } from '../links';
 import { showError } from '~/provider/SnackbarProvider';
+import { WC_SIGNING_METHODS, WcSigningMethod } from './signingMethods';
+
+export const WALLET_CONNECT_VERSION: SignClient['version'] = 2;
 
 export const WALLET_CONNECT_SIGN_CLIENT = SignClient.init({
   projectId: CONFIG.walletConnectProjectId,

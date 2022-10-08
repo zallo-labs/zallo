@@ -2,14 +2,14 @@ import {
   TypedDataDomain,
   TypedDataField,
 } from '@ethersproject/abstract-signer';
-import { BigNumber, Contract, ethers } from 'ethers';
+import { BigNumber, ethers } from 'ethers';
 import {
   hexDataLength,
   hexlify,
   isBytesLike,
   randomBytes,
 } from 'ethers/lib/utils';
-import { address, Address, isAddress } from './addr';
+import { address, isAddress } from './addr';
 import { zeroHexBytes } from './bytes';
 import { Call, CallDef, createCall } from './call';
 import { Id, toId } from './id';
@@ -29,7 +29,9 @@ const isTxReqExtras = createIsObj<TxReq>(['salt', isBytesLike]);
 export const isTxReq = (e: unknown): e is TxReq =>
   isCall(e) && isTxReqExtras(e);
 
-export const TX_EIP712_TYPE: Record<string, TypedDataField[]> = {
+export type TypedDataTypes = Record<string, TypedDataField[]>;
+
+export const TX_EIP712_TYPE: TypedDataTypes = {
   Tx: [
     { name: 'to', type: 'address' },
     { name: 'value', type: 'uint256' },

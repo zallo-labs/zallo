@@ -7,7 +7,7 @@ import { Button, Title } from 'react-native-paper';
 import { AddrLink, parseAddrLink } from '~/util/addrLink';
 import { RootNavigatorScreenProps } from '~/navigation/RootNavigator';
 import { Overlay } from './Overlay';
-import { useTryPairWalletConnect } from '~/util/walletconnect/useTryPairWalletConnect';
+import { usePairWalletConnect } from '~/util/walletconnect/usePairWalletConnect';
 
 export type ScanScreenParams = {
   onScanAddr?: (link: AddrLink) => void;
@@ -15,9 +15,9 @@ export type ScanScreenParams = {
 
 export type ScanScreenProps = RootNavigatorScreenProps<'Scan'>;
 
-export const ScanScreen = ({ route }: ScanScreenProps) => {
+export const ScanScreen = ({ route, navigation }: ScanScreenProps) => {
   const { onScanAddr } = route.params;
-  const tryPairWc = useTryPairWalletConnect();
+  const wcPair = usePairWalletConnect();
 
   const camera = useRef<Camera>(null);
   const [hasPermission, setHasPermission] = useState<boolean | null>(null);
@@ -48,7 +48,8 @@ export const ScanScreen = ({ route }: ScanScreenProps) => {
     const addrLink = parseAddrLink(data);
     if (addrLink) {
       onScanAddr?.(addrLink);
-    } else if (await tryPairWc(data)) {
+    } else if (await wcPair(data)) {
+      navigation.goBack();
       // Navigates away on pair
     } else {
       setScanning(false);

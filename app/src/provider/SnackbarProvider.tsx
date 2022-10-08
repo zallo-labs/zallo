@@ -108,7 +108,9 @@ export const showInfo = (message: string, options?: ShowSnackOptions) =>
   showSnack(message, { ...options, variant: 'info' });
 
 export const showError = (message: string, options?: ShowSnackOptions) =>
-  showSnack(message, { ...options, variant: 'info' });
+  showSnack(message, { ...options, variant: 'error' });
+
+export const showWarning = showError;
 
 const CONFIGS: ToastConfig = { [Snack.name]: Snack };
 

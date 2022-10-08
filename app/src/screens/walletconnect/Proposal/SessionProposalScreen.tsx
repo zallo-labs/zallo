@@ -52,7 +52,6 @@ export const SessionProposalScreen = ({
 
       <Dialog.Actions>
         <Button
-          mode="text"
           onPress={() => {
             withClient((client) => {
               client.reject({ id, reason: getSdkError('USER_REJECTED') });
@@ -64,7 +63,6 @@ export const SessionProposalScreen = ({
         </Button>
 
         <Button
-          mode="contained"
           onPress={async () => {
             try {
               withClient((client) =>
