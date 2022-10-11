@@ -14,8 +14,8 @@ import {
   ProposalsMetadataQueryVariables,
   useProposeMutation,
 } from '~/gql/generated.api';
-import { QueryOpts, updateQuery } from '~/gql/update';
-import produce from 'immer';
+import { updateQuery } from '~/gql/update';
+import { BigNumberish } from 'ethers';
 
 gql`
   mutation Propose(
@@ -29,12 +29,16 @@ gql`
   }
 `;
 
+export interface ProposalDef extends TxDef {
+  gasLimit?: BigNumberish;
+}
+
 export const useApiPropose = () => {
   const device = useDevice();
   const [mutation] = useProposeMutation({ client: useApiClient() });
 
   const propose = useCallback(
-    async (txDef: TxDef, account: Address) => {
+    async (txDef: ProposalDef, account: Address) => {
       const tx = createTx(txDef);
       const hash = await hashTx(
         { address: account, provider: device.provider },
@@ -53,6 +57,7 @@ export const useApiPropose = () => {
             value: tx.value.toString(),
             data: hexlify(tx.data),
             salt: hexlify(tx.salt),
+            gasLimit: txDef.gasLimit?.toString(),
           },
           signature,
         },

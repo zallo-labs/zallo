@@ -1,6 +1,6 @@
 import { Card } from 'react-native-paper';
 import { Box } from '~/components/layout/Box';
-import { TypedData } from '~/util/walletconnect/signingMethods';
+import { TypedData } from '~/util/walletconnect/methods/signing';
 import { ObjectChild } from './ObjectChild';
 import { ValueChild } from './ValueChild';
 

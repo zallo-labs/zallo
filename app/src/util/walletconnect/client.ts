@@ -2,17 +2,13 @@ import '@walletconnect/react-native-compat'; // CRITICAL to import first
 import SignClient from '@walletconnect/sign-client';
 import { useRootNavigation } from '~/navigation/useRootNavigation';
 import { CONFIG } from '../config';
-import { useEffect } from 'react';
-import {
-  WcEventParams,
-  WcSession,
-  WcSessionRequesst,
-  WcTransactionMethod,
-  WC_TRANSACTION_METHODS,
-} from './methods';
+import { useEffect, useState } from 'react';
+import { WcEventParams, WcSession, WcSessionRequesst } from './methods';
 import { Link } from '../links';
 import { showError } from '~/provider/SnackbarProvider';
-import { WC_SIGNING_METHODS, WcSigningMethod } from './signingMethods';
+import { WC_SIGNING_METHODS } from './methods/signing';
+import { useHandleWcSend } from './useHandleWcSend';
+import { WC_TRANSACTION_METHODS } from './methods/transaction';
 
 export const WALLET_CONNECT_VERSION: SignClient['version'] = 2;
 
@@ -26,8 +22,9 @@ export const WALLET_CONNECT_SIGN_CLIENT = SignClient.init({
   },
 });
 
-export const useHandleSignClientEvents = (c?: SignClient) => {
+export const useHandleWalletConnectEvents = (c?: SignClient) => {
   const { navigate } = useRootNavigation();
+  const handleSend = useHandleWcSend();
 
   useEffect(() => {
     if (!c) return;
@@ -44,10 +41,10 @@ export const useHandleSignClientEvents = (c?: SignClient) => {
         session,
       };
 
-      if (WC_SIGNING_METHODS.has(method as WcSigningMethod)) {
+      if (WC_SIGNING_METHODS.has(method)) {
         return navigate('SessionSign', params);
-      } else if (WC_TRANSACTION_METHODS.has(method as WcTransactionMethod)) {
-        return navigate('SessionSendTransaction', params);
+      } else if (WC_TRANSACTION_METHODS.has(method)) {
+        handleSend(c, request);
       } else {
         showError(`Unsupported WalletConnect request method: ${method}`);
       }

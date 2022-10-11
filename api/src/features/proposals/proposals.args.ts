@@ -41,6 +41,9 @@ export class ProposalInput {
 
   @Bytes8Field()
   salt: TxSalt;
+
+  @Uint256BnField({ nullable: true })
+  gasLimit?: BigNumber;
 }
 
 @ArgsType()

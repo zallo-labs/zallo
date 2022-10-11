@@ -8,8 +8,10 @@ export interface SessionSendTransactionScreenParams {
 export type SessionSendTransactionScreenProps =
   RootNavigatorScreenProps<'SessionSendTransaction'>;
 
-export const SessionSendTransactionScreen = (
-  props: SessionSendTransactionScreenProps,
-) => {
+export const SessionSendTransactionScreen = ({
+  route,
+}: SessionSendTransactionScreenProps) => {
+  const { method, params } = route.params.request.params.request;
+
   return null;
 };

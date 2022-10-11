@@ -16,7 +16,7 @@ import {
   SigningRequest,
   toTypedData,
   TypedData,
-} from '~/util/walletconnect/signingMethods';
+} from '~/util/walletconnect/methods/signing';
 import { DialogRoot } from '~/components/DialogRoot';
 import { ProposerDetails } from '../Proposal/ProposerDetails';
 import { CHAIN_ID } from '@network/provider';

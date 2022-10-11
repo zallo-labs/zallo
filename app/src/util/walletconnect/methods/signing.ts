@@ -8,13 +8,15 @@ export type SigningRequest =
 
 export type WcSigningMethod = SigningRequest['method'];
 
-export const WC_SIGNING_METHODS = new Set([
+const WC_SIGNING_METHODS_ARR = [
   'personal_sign',
   'eth_sign',
   'eth_signTypedData', // v1
   'eth_signTypedData_v3',
   'eth_signTypedData_v4',
-] as const);
+] as const;
+
+export const WC_SIGNING_METHODS = new Set<string>(WC_SIGNING_METHODS_ARR);
 
 // Assert that WC_SIGNING_METHODS contains all SigningRequest methods
 // eslint-disable-next-line @typescript-eslint/no-unused-vars

@@ -2,7 +2,7 @@ import {
   TypedDataDomain,
   TypedDataField,
 } from '@ethersproject/abstract-signer';
-import { BigNumber, ethers } from 'ethers';
+import { BigNumber, BigNumberish, ethers } from 'ethers';
 import {
   hexDataLength,
   hexlify,
@@ -17,6 +17,7 @@ import { createIsObj } from './util/mappedTypes';
 
 export interface TxReq extends Call {
   salt: TxSalt;
+  gasLimit?: BigNumberish;
 }
 
 export const isCall = createIsObj<Call>(
@@ -77,11 +78,13 @@ export const ZERO_TX_SALT = zeroHexBytes(TX_SALT_BYTES) as TxSalt;
 
 export interface TxDef extends CallDef {
   salt?: TxSalt;
+  gasLimit?: BigNumberish;
 }
 
 export const createTx = (tx: TxDef): TxReq => ({
   ...createCall(tx),
   salt: tx.salt || randomTxSalt(),
+  gasLimit: tx.gasLimit,
 });
 
 export const getTxId = (txHash: string): Id => toId(txHash);

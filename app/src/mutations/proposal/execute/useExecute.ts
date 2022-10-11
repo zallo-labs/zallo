@@ -23,5 +23,7 @@ export const useExecute = (proposer: CombinedUser, proposal: Proposal) => {
     );
 
     await submitExecution(proposal, resp);
+
+    return resp;
   }, [proposal, proposer, account.contract, submitExecution]);
 };

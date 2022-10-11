@@ -14,6 +14,7 @@ const toPartialTransactionRequest = (tx: TxReq): TransactionRequest => ({
   to: tx.to,
   value: tx.value,
   data: defaultAbiCoder.encode(['bytes8', 'bytes'], [tx.salt, tx.data]),
+  gasLimit: tx.gasLimit,
 });
 
 const FALLBACK_BASE_GAS = BigNumber.from(300_000);
@@ -26,12 +27,16 @@ export const estimateTxGas = async (
 ) => {
   const req = isTxReq(tx) ? toPartialTransactionRequest(tx) : tx;
 
-  let baseGas = FALLBACK_BASE_GAS;
-  try {
-    baseGas = await provider.estimateGas(req);
-  } catch (e) {
-    console.warn('Failed to estimate base gas');
-  }
+  const baseGas = await (() => {
+    if (tx.gasLimit) return BigNumber.from(tx.gasLimit);
+
+    try {
+      return provider.estimateGas(req);
+    } catch (e) {
+      console.warn('Failed to estimate base gas');
+      return FALLBACK_BASE_GAS;
+    }
+  })();
 
   return baseGas.add(nSigners * GAS_PER_SIGNER);
 };

@@ -5,9 +5,9 @@ import { createContext, ReactNode, useContext, useState } from 'react';
 import useAsyncEffect from 'use-async-effect';
 import { Suspend } from '~/components/Suspender';
 import {
-  useHandleSignClientEvents,
+  useHandleWalletConnectEvents,
   WALLET_CONNECT_SIGN_CLIENT,
-} from './signClient';
+} from './client';
 
 export interface WalletConnectContext {
   client: SignClient;
@@ -34,7 +34,7 @@ export const WalletConnectProvider = ({
 }: WalletConnectProviderProps) => {
   const [client, setClient] = useState<SignClient | undefined>(undefined);
   const [, setCounter] = useState(0);
-  useHandleSignClientEvents(client);
+  useHandleWalletConnectEvents(client);
 
   useAsyncEffect(async (isMounted) => {
     const signClient = await WALLET_CONNECT_SIGN_CLIENT;

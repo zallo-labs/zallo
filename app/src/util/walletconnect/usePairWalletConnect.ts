@@ -1,13 +1,14 @@
 import { useCallback } from 'react';
 import { captureException } from '../sentry/sentry';
-import { WALLET_CONNECT_VERSION } from './signClient';
+import { WALLET_CONNECT_VERSION } from './client';
 import { useWalletConnect } from './WalletConnectProvider';
 
 const URI_PATTERN = new RegExp(
   `^wc:[0-9a-fA-F]{64}@${WALLET_CONNECT_VERSION}\\?`,
 );
 
-export const isWalletConnectPairingUri = (uri: string) => !!URI_PATTERN.exec(uri);
+export const isWalletConnectPairingUri = (uri: string) =>
+  !!URI_PATTERN.exec(uri);
 
 export const usePairWalletConnect = () => {
   const { withClient } = useWalletConnect();

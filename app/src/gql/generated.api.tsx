@@ -332,6 +332,7 @@ export type Proposal = {
   approvals?: Maybe<Array<Approval>>;
   createdAt: Scalars['DateTime'];
   data: Scalars['String'];
+  gasLimit?: Maybe<Scalars['Decimal']>;
   hash: Scalars['ID'];
   id: Scalars['String'];
   proposer: User;
@@ -352,6 +353,7 @@ export type ProposalCount = {
 
 export type ProposalInput = {
   data: Scalars['Bytes'];
+  gasLimit?: InputMaybe<Scalars['Uint256']>;
   salt: Scalars['Bytes8'];
   to: Scalars['Address'];
   value: Scalars['Uint256'];
@@ -367,6 +369,7 @@ export type ProposalOrderByWithRelationInput = {
   approvals?: InputMaybe<ApprovalOrderByRelationAggregateInput>;
   createdAt?: InputMaybe<SortOrder>;
   data?: InputMaybe<SortOrder>;
+  gasLimit?: InputMaybe<SortOrder>;
   hash?: InputMaybe<SortOrder>;
   proposer?: InputMaybe<UserOrderByWithRelationInput>;
   proposerId?: InputMaybe<SortOrder>;
@@ -381,6 +384,7 @@ export enum ProposalScalarFieldEnum {
   AccountId = 'accountId',
   CreatedAt = 'createdAt',
   Data = 'data',
+  GasLimit = 'gasLimit',
   Hash = 'hash',
   ProposerId = 'proposerId',
   Salt = 'salt',
@@ -554,6 +558,7 @@ export type User = {
   device: Device;
   deviceId: Scalars['String'];
   id: Scalars['String'];
+  latestState?: Maybe<UserState>;
   name: Scalars['String'];
   proposals?: Maybe<Array<Proposal>>;
   proposedState?: Maybe<UserState>;
@@ -588,6 +593,10 @@ export type UserConfigInput = {
   spendingAllowlisted: Scalars['Boolean'];
 };
 
+export type UserConfigOrderByRelationAggregateInput = {
+  _count?: InputMaybe<SortOrder>;
+};
+
 export type UserCount = {
   __typename?: 'UserCount';
   proposals: Scalars['Int'];
@@ -614,6 +623,7 @@ export type UserOrderByWithRelationInput = {
   accountId?: InputMaybe<SortOrder>;
   device?: InputMaybe<DeviceOrderByWithRelationInput>;
   deviceId?: InputMaybe<SortOrder>;
+  latestState?: InputMaybe<UserStateOrderByWithRelationInput>;
   name?: InputMaybe<SortOrder>;
   proposals?: InputMaybe<ProposalOrderByRelationAggregateInput>;
   states?: InputMaybe<UserStateOrderByRelationAggregateInput>;
@@ -635,6 +645,8 @@ export type UserState = {
   deviceId: Scalars['String'];
   id: Scalars['ID'];
   isDeleted: Scalars['Boolean'];
+  latestOfUser?: Maybe<User>;
+  latestOfUserDeviceId?: Maybe<Scalars['String']>;
   proposal?: Maybe<Proposal>;
   proposalHash?: Maybe<Scalars['String']>;
   user: User;
@@ -647,6 +659,21 @@ export type UserStateCount = {
 
 export type UserStateOrderByRelationAggregateInput = {
   _count?: InputMaybe<SortOrder>;
+};
+
+export type UserStateOrderByWithRelationInput = {
+  account?: InputMaybe<AccountOrderByWithRelationInput>;
+  accountId?: InputMaybe<SortOrder>;
+  configs?: InputMaybe<UserConfigOrderByRelationAggregateInput>;
+  createdAt?: InputMaybe<SortOrder>;
+  deviceId?: InputMaybe<SortOrder>;
+  id?: InputMaybe<SortOrder>;
+  isDeleted?: InputMaybe<SortOrder>;
+  latestOfUser?: InputMaybe<UserOrderByWithRelationInput>;
+  latestOfUserDeviceId?: InputMaybe<SortOrder>;
+  proposal?: InputMaybe<ProposalOrderByWithRelationInput>;
+  proposalHash?: InputMaybe<SortOrder>;
+  user?: InputMaybe<UserOrderByWithRelationInput>;
 };
 
 export type UserWhereUniqueInput = {
