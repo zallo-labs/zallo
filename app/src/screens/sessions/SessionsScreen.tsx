@@ -7,15 +7,15 @@ import { useGoBack } from '~/components/Appbar/useGoBack';
 import { EmptyListFallback } from '~/components/EmptyListFallback';
 import { Box } from '~/components/layout/Box';
 import { RootNavigatorScreenProps } from '~/navigation/RootNavigator';
-import { useWalletConnect } from '~/util/walletconnect/WalletConnectProvider';
+import { useWalletConnectSessions } from '~/util/walletconnect/useWalletConnectSessions';
 import { SessionCard } from './SessionCard';
 
 export type SessionsScreenProps = RootNavigatorScreenProps<'Sessions'>;
 
 export const SessionsScreen = ({ navigation }: SessionsScreenProps) => {
   const styles = useStyles();
-  const { client } = useWalletConnect();
   const { AppbarHeader, handleScroll } = useAppbarHeader();
+  const sessions = [...useWalletConnectSessions().values()];
 
   return (
     <Box>
@@ -39,7 +39,7 @@ export const SessionsScreen = ({ navigation }: SessionsScreenProps) => {
             subtitle="Pair by scanning a WalletConnect QR code"
           />
         }
-        data={client.session.values}
+        data={sessions}
         style={styles.list}
         onScroll={handleScroll}
         showsVerticalScrollIndicator={false}

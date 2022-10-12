@@ -1,31 +1,22 @@
 import { useCallback } from 'react';
-import { captureException } from '../sentry/sentry';
-import { WALLET_CONNECT_VERSION } from './client';
-import { useWalletConnect } from './WalletConnectProvider';
+import { usePairWalletConnectV1 } from './usePairWalletConnectV1';
+import {
+  isWalletConnectV2PairingUri,
+  usePairWalletConnectV2,
+} from './usePairWalletConnectV2';
 
-const URI_PATTERN = new RegExp(
-  `^wc:[0-9a-fA-F]{64}@${WALLET_CONNECT_VERSION}\\?`,
-);
+const V1_OR_V2_URI_PATTERN = /^wc:[0-9a-fA-F]{64}@(?:1|2)\?/;
 
 export const isWalletConnectPairingUri = (uri: string) =>
-  !!URI_PATTERN.exec(uri);
+  !!V1_OR_V2_URI_PATTERN.exec(uri);
 
 export const usePairWalletConnect = () => {
-  const { withClient } = useWalletConnect();
+  const pairV1 = usePairWalletConnectV1();
+  const pairV2 = usePairWalletConnectV2();
 
   return useCallback(
-    async (uri: string) => {
-      if (!isWalletConnectPairingUri(uri)) return false;
-
-      try {
-        // Note. Pairing triggers a session_proposal
-        await withClient((client) => client.pair({ uri }));
-        return true;
-      } catch (e) {
-        captureException(e, { extra: { uri } });
-        return false;
-      }
-    },
-    [withClient],
+    async (uri: string) =>
+      isWalletConnectV2PairingUri(uri) ? pairV2(uri) : pairV1(uri),
+    [pairV1, pairV2],
   );
 };

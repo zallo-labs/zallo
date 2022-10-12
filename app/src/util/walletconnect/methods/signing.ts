@@ -6,9 +6,7 @@ export type SigningRequest =
   | PersonalSignRequest
   | SignTypedDataRequest;
 
-export type WcSigningMethod = SigningRequest['method'];
-
-const WC_SIGNING_METHODS_ARR = [
+const WC_SIGNING_METHODS_ARRAY = [
   'personal_sign',
   'eth_sign',
   'eth_signTypedData', // v1
@@ -16,11 +14,11 @@ const WC_SIGNING_METHODS_ARR = [
   'eth_signTypedData_v4',
 ] as const;
 
-export const WC_SIGNING_METHODS = new Set<string>(WC_SIGNING_METHODS_ARR);
+export const WC_SIGNING_METHODS = new Set<string>(WC_SIGNING_METHODS_ARRAY);
 
 // Assert that WC_SIGNING_METHODS contains all SigningRequest methods
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-const allMethodsHandled: SigningRequest['method'] extends WcSigningMethod
+const allMethodsHandled: typeof WC_SIGNING_METHODS_ARRAY[number] extends SigningRequest['method']
   ? true
   : false = true;
 

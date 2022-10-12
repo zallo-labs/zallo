@@ -1,18 +1,19 @@
 import { Button, Dialog } from 'react-native-paper';
 import { DialogRoot } from '~/components/DialogRoot';
 import { RootNavigatorScreenProps } from '~/navigation/RootNavigator';
-import { WcEventParams } from '~/util/walletconnect/methods';
-import { useNamespaces } from '~/screens/walletconnect/Proposal/useNamespaces';
-import { useWalletConnect } from '~/util/walletconnect/WalletConnectProvider';
+import { useWalletConnectClients } from '~/util/walletconnect/WalletConnectProvider';
 import { ProposerDetails } from './ProposerDetails';
 import { useEffect, useState } from 'react';
 import { SessionAccounts } from './SessionAccounts';
 import { useUserIds } from '~/queries/user/useUserIds.api';
 import { showError } from '~/provider/SnackbarProvider';
-import { getSdkError } from '@walletconnect/utils';
+import { useWalletConnect } from '~/util/walletconnect/useWalletConnect';
+import { WcProposer } from '~/util/walletconnect/useWalletConnectSessions';
 
 export interface SessionProposalScreenParams {
-  proposal: WcEventParams['session_proposal'];
+  uri?: string;
+  id: number;
+  proposer: WcProposer;
 }
 
 export type SessionProposalScreenProps =
@@ -22,40 +23,41 @@ export const SessionProposalScreen = ({
   route,
   navigation,
 }: SessionProposalScreenProps) => {
-  const { id, params } = route.params.proposal;
-  const { client, withClient } = useWalletConnect();
+  const { uri, id, proposer } = route.params;
+  const { client } = useWalletConnectClients();
+  const wc = useWalletConnect();
   const [allUsers] = useUserIds();
 
   const [users, setUsers] = useState(allUsers);
-  const namespaces = useNamespaces(users.map((user) => user.account));
 
+  // Handle session proposal expiry -- only for v2
   useEffect(() => {
-    const handleExpiry = () => {
-      showError('Session proposal expired');
-      navigation.goBack();
+    const handleExpiry = ({ id: expiredId }: { id: number }) => {
+      if (expiredId === id) {
+        showError('Session proposal expired');
+        navigation.goBack();
+      }
     };
     client.on('proposal_expire', handleExpiry);
 
     return () => {
       client.removeListener('proposal_expire', handleExpiry);
     };
-  }, [client, navigation]);
+  }, [client, id, navigation]);
 
   return (
     <DialogRoot>
       <Dialog.Title>Session proposal</Dialog.Title>
 
       <Dialog.Content>
-        <ProposerDetails proposer={params.proposer} padding="vertical" />
+        <ProposerDetails proposer={proposer} padding="vertical" />
         <SessionAccounts users={users} setUsers={setUsers} />
       </Dialog.Content>
 
       <Dialog.Actions>
         <Button
           onPress={() => {
-            withClient((client) => {
-              client.reject({ id, reason: getSdkError('USER_REJECTED') });
-            });
+            wc.session.reject(uri, id, 'USER_REJECTED');
             navigation.goBack();
           }}
         >
@@ -65,14 +67,13 @@ export const SessionProposalScreen = ({
         <Button
           onPress={async () => {
             try {
-              withClient((client) =>
-                client.approve({
-                  id,
-                  namespaces,
-                }),
+              wc.session.approve(
+                uri,
+                id,
+                users.map((user) => user.account),
               );
             } catch {
-              showError('Failed to establish session');
+              showError('Failed to establish wallet connect session');
             }
 
             navigation.goBack();

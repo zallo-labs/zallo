@@ -1,31 +1,31 @@
 import { ExternalLinkIcon } from '@theme/icons';
-import { ProposalTypes } from '@walletconnect/types';
 import { IconButton, Text } from 'react-native-paper';
 import { Item, ItemProps } from '~/components/item/Item';
 import * as WebBrowser from 'expo-web-browser';
 import UriImage from '~/components/UriImage';
+import { WcProposer } from '~/util/walletconnect/useWalletConnectSessions';
 
 export interface ProposerDetailsProps extends ItemProps {
-  proposer: ProposalTypes.Struct['proposer'];
+  proposer: WcProposer;
 }
 
 export const ProposerDetails = ({
-  proposer: { metadata: m },
+  proposer: p,
   ...itemProps
 }: ProposerDetailsProps) => (
   <Item
-    {...(m.icons.length && {
-      Left: <UriImage uri={m.icons} />,
+    {...(p.icons.length && {
+      Left: <UriImage uri={p.icons} />,
     })}
     Main={[
-      <Text variant="titleMedium">{m.name || m.url}</Text>,
-      m.description && <Text variant="bodyMedium">{m.description}</Text>,
+      <Text variant="titleMedium">{p.name || p.url}</Text>,
+      p.description && <Text variant="bodyMedium">{p.description}</Text>,
     ]}
-    {...(m.url && {
+    {...(p.url && {
       Right: (
         <IconButton
           icon={ExternalLinkIcon}
-          onPress={() => WebBrowser.openBrowserAsync(m.url)}
+          onPress={() => WebBrowser.openBrowserAsync(p.url)}
         />
       ),
     })}

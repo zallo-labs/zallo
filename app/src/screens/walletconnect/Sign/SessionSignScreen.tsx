@@ -2,13 +2,7 @@ import { useDevice } from '@network/useDevice';
 import { Address, createUserSignature } from 'lib';
 import { match } from 'ts-pattern';
 import { RootNavigatorScreenProps } from '~/navigation/RootNavigator';
-import { WcEventParams } from '~/util/walletconnect/methods';
-import { useWalletConnect } from '~/util/walletconnect/WalletConnectProvider';
-import {
-  WcErrorKey,
-  toWcError,
-  toWcResult,
-} from '~/util/walletconnect/jsonRcp';
+import { WcErrorKey } from '~/util/walletconnect/jsonRcp';
 import { hexlify } from 'ethers/lib/utils';
 import { toActiveUser, useUser } from '~/queries/user/useUser.api';
 import { Button, Dialog } from 'react-native-paper';
@@ -25,9 +19,13 @@ import { useCallback, useMemo } from 'react';
 import useAsyncEffect from 'use-async-effect';
 import { showWarning } from '~/provider/SnackbarProvider';
 import { SigningData } from './SigningData';
+import { useWalletConnect } from '~/util/walletconnect/useWalletConnect';
+import { useWalletConnectSessions } from '~/util/walletconnect/useWalletConnectSessions';
 
 export interface SessionSignScreenParams {
-  request: WcEventParams['session_request'];
+  topicOrUri: string;
+  id: number;
+  request: SigningRequest;
 }
 
 export type SessionSignScreenProps = RootNavigatorScreenProps<'SessionSign'>;
@@ -36,11 +34,10 @@ export const SessionSignScreen = ({
   navigation,
   route,
 }: SessionSignScreenProps) => {
-  const { id, topic, params } = route.params.request;
-  const request = params.request as SigningRequest;
+  const { topicOrUri, id, request } = route.params;
   const device = useDevice();
-  const { client, withClient } = useWalletConnect();
-  const proposer = client.session.get(topic).self;
+  const wc = useWalletConnect();
+  const proposer = useWalletConnectSessions().get(topicOrUri)!.proposer;
 
   const [account, data] = useMemo(
     () =>
@@ -106,15 +103,10 @@ export const SessionSignScreen = ({
 
   const reject = useCallback(
     (error: WcErrorKey) => {
-      withClient((client) =>
-        client.respond({
-          topic,
-          response: toWcError(id, error),
-        }),
-      );
+      wc.request.reject(topicOrUri, id, error);
       navigation.goBack();
     },
-    [id, navigation, topic, withClient],
+    [id, navigation, topicOrUri, wc.request],
   );
 
   const rejectAsInvalid = useCallback(() => {
@@ -134,16 +126,9 @@ export const SessionSignScreen = ({
     const userSignature = await promisedUserSignature;
     if (!userSignature) return rejectAsInvalid();
 
-    withClient((client) => {
-      client.respond({
-        topic,
-        response: toWcResult(id, hexlify(userSignature)),
-      });
-    });
+    wc.request.approve(topicOrUri, id, hexlify(userSignature));
     navigation.goBack();
   };
-
-  console.log(JSON.stringify(data, null, 2));
 
   return (
     <DialogRoot>
