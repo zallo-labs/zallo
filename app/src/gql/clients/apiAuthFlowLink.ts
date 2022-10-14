@@ -12,7 +12,6 @@ import { getSecureStore, persistAtom } from '~/util/effect/persistAtom';
 import { useCallback, useMemo, useRef } from 'react';
 import { captureException } from '~/util/sentry/sentry';
 import { useDevice } from '@network/useDevice';
-import { URL } from 'url';
 
 interface Token {
   message: SiweMessage;
@@ -23,6 +22,13 @@ const fetchMutex = new Mutex();
 
 export const isServerError = (e?: unknown): e is ServerError =>
   typeof e === 'object' && e !== null && (e as any)['name'] === 'ServerError';
+
+// https://test.com/abc/123 -> test.com; RN lacks URL support )':
+const getHost = (url: string) => {
+  const start = url.indexOf('//') + 2;
+  const end = url.indexOf('/', start);
+  return url.slice(start, end);
+};
 
 const fetchToken = async (wallet: zk.Wallet): Promise<Token> => {
   const nonceRes = await fetch(`${CONFIG.apiUrl}/auth/nonce`, {
@@ -37,7 +43,7 @@ const fetchToken = async (wallet: zk.Wallet): Promise<Token> => {
     chainId: PROVIDER.network.chainId,
     version: '1',
     uri: CONFIG.apiUrl,
-    domain: new URL(CONFIG.apiUrl).host,
+    domain: getHost(CONFIG.apiUrl),
   });
 
   return {
