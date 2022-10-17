@@ -1,9 +1,12 @@
 import { makeStyles } from '@theme/makeStyles';
-import { FC, useState } from 'react';
+import { FC, useMemo, useState } from 'react';
 import { Image as BaseImage, ImageStyle, StyleProp } from 'react-native';
 import { CircleSkeleton } from '~/components/skeleton/CircleSkeleton';
 import { withSkeleton } from '~/components/skeleton/withSkeleton';
 import { SvgUri } from './token/TokenIcon/SvgUri';
+
+// https://reactnative.dev/docs/image#source
+const SUPPORTED_FORMATS_PATTERN = /\.(svg|png|jpg|jpeg|bmp|gif|webp)$/i;
 
 interface Style {
   style?: StyleProp<ImageStyle>;
@@ -18,10 +21,16 @@ export interface UriImageProps extends Style {
 const UriImage = ({ uri: uriProp, size, Fallback, style }: UriImageProps) => {
   const styles = useStyles(size);
 
-  const uris = Array.isArray(uriProp) ? uriProp : [uriProp];
-
   const [error, setError] = useState(false);
   const handleError = () => setError(true);
+
+  const uris = useMemo(
+    () =>
+      (Array.isArray(uriProp) ? uriProp : [uriProp]).filter((uri) =>
+        SUPPORTED_FORMATS_PATTERN.exec(uri),
+      ),
+    [uriProp],
+  );
 
   if (error || uris.length === 0)
     return Fallback ? <Fallback style={[style, styles.icon]} /> : null;
