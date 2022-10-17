@@ -55,21 +55,20 @@ contract Account is
   //////////////////////////////////////////////////////////////*/
 
   /// @inheritdoc BaseIAccount
-  function validateTransaction(Transaction calldata transaction)
-    external
-    payable
-    override
-  {
+  function validateTransaction(
+    bytes32, /* _txHash */
+    bytes32, /* suggestedSignedHash */
+    Transaction calldata transaction
+  ) external payable override {
     _validateTransaction(_hashTx(transaction), transaction);
   }
 
   /// @inheritdoc BaseIAccount
-  function executeTransaction(Transaction calldata transaction)
-    external
-    payable
-    override
-    onlyBootloader
-  {
+  function executeTransaction(
+    bytes32, /* _txHash */
+    bytes32, /* suggestedSignedHash */
+    Transaction calldata transaction
+  ) external payable override onlyBootloader {
     _executeTransaction(_hashTx(transaction), transaction);
   }
 
@@ -88,7 +87,7 @@ contract Account is
     bytes32 txHash,
     Transaction calldata transaction
   ) internal {
-    NONCE_HOLDER_SYSTEM_CONTRACT.incrementNonceIfEquals(
+    NONCE_HOLDER_SYSTEM_CONTRACT.incrementMinNonceIfEquals(
       transaction.reserved[0] // nonce
     );
 
@@ -101,22 +100,20 @@ contract Account is
                                 PAYMASTER
   //////////////////////////////////////////////////////////////*/
 
-  function payForTransaction(Transaction calldata transaction)
-    external
-    payable
-    override
-    onlyBootloader
-  {
+  function payForTransaction(
+    bytes32, /* _txHash */
+    bytes32, /* suggestedSignedHash */
+    Transaction calldata transaction
+  ) external payable override onlyBootloader {
     bool success = TransactionHelper.payToTheBootloader(transaction);
     require(success, 'Failed to pay the fee to the operator');
   }
 
-  function prePaymaster(Transaction calldata transaction)
-    external
-    payable
-    override
-    onlyBootloader
-  {
+  function prePaymaster(
+    bytes32, /* _txHash */
+    bytes32, /* suggestedSignedHash */
+    Transaction calldata transaction
+  ) external payable override onlyBootloader {
     TransactionHelper.processPaymasterInput(transaction);
   }
 

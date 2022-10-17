@@ -18,7 +18,6 @@ contract Factory {
       DEPLOYER_SYSTEM_CONTRACT.create2Account(
         salt,
         _BYTECODE_HASH,
-        0,
         constructorArgsData
       );
   }

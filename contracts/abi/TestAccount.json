@@ -246,6 +246,16 @@
   {
     "inputs": [
       {
+        "internalType": "bytes32",
+        "name": "",
+        "type": "bytes32"
+      },
+      {
+        "internalType": "bytes32",
+        "name": "",
+        "type": "bytes32"
+      },
+      {
         "components": [
           {
             "internalType": "uint256",
@@ -614,12 +624,12 @@
     "inputs": [
       {
         "internalType": "bytes32",
-        "name": "txHash",
+        "name": "hash",
         "type": "bytes32"
       },
       {
         "internalType": "bytes",
-        "name": "txSignature",
+        "name": "signature",
         "type": "bytes"
       }
     ],
@@ -670,6 +680,16 @@
   },
   {
     "inputs": [
+      {
+        "internalType": "bytes32",
+        "name": "",
+        "type": "bytes32"
+      },
+      {
+        "internalType": "bytes32",
+        "name": "",
+        "type": "bytes32"
+      },
       {
         "components": [
           {
@@ -755,6 +775,16 @@
   },
   {
     "inputs": [
+      {
+        "internalType": "bytes32",
+        "name": "",
+        "type": "bytes32"
+      },
+      {
+        "internalType": "bytes32",
+        "name": "",
+        "type": "bytes32"
+      },
       {
         "components": [
           {
@@ -1033,6 +1063,16 @@
   },
   {
     "inputs": [
+      {
+        "internalType": "bytes32",
+        "name": "",
+        "type": "bytes32"
+      },
+      {
+        "internalType": "bytes32",
+        "name": "",
+        "type": "bytes32"
+      },
       {
         "components": [
           {

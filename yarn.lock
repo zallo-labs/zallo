@@ -12181,6 +12181,7 @@ __metadata:
     babel-plugin-formatjs: ^10.3.30
     babel-plugin-lodash: ^3.3.4
     babel-plugin-transform-remove-console: ^6.9.4
+    chardet: ^1.5.0
     color: ^4.2.3
     concurrently: ^7.4.0
     config: "workspace:*"
@@ -12260,6 +12261,7 @@ __metadata:
     ts-node: ^10.9.1
     ts-pattern: ^4.0.5
     typescript: ^4.8.4
+    url: ^0.11.0
     use-async-effect: ^2.2.7
     use-debounce: ^8.0.4
     use-immer: ^0.7.0
@@ -14316,6 +14318,13 @@ __metadata:
   version: 0.7.0
   resolution: "chardet@npm:0.7.0"
   checksum: 6fd5da1f5d18ff5712c1e0aed41da200d7c51c28f11b36ee3c7b483f3696dabc08927fc6b227735eb8f0e1215c9a8abd8154637f3eff8cada5959df7f58b024d
+  languageName: node
+  linkType: hard
+
+"chardet@npm:^1.5.0":
+  version: 1.5.0
+  resolution: "chardet@npm:1.5.0"
+  checksum: 4ca2d806b34f04fdac439dd14e7a671da241f59ca7cc9e95613a52208bd3e9bfccac9409a72187ccea337e87d39291d5ae66854a903fd250dc51491bf2514c7f
   languageName: node
   linkType: hard
 
