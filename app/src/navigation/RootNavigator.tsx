@@ -53,15 +53,8 @@ import {
 import {
   SessionProposalScreen,
   SessionProposalScreenParams,
-} from '~/screens/walletconnect/Proposal/SessionProposalScreen';
-import {
-  SessionSignScreen,
-  SessionSignScreenParams,
-} from '~/screens/walletconnect/Sign/SessionSignScreen';
-import {
-  SessionSendTransactionScreen,
-  SessionSendTransactionScreenParams,
-} from '~/screens/walletconnect/SessionSendTransactionScreen';
+} from '~/screens/session-proposal/SessionProposalScreen';
+import { SignScreen, SignScreenParams } from '~/screens/sign/SignScreen';
 import { SessionsScreen } from '~/screens/sessions/SessionsScreen';
 
 export type RootNavigatorParamList = {
@@ -85,10 +78,8 @@ export type RootNavigatorParamList = {
   Delete: DeleteModalScreenParams;
   /* WalletConnect */
   Sessions: undefined;
-  // Modals
   SessionProposal: SessionProposalScreenParams;
-  SessionSign: SessionSignScreenParams;
-  SessionSendTransaction: SessionSendTransactionScreenParams;
+  Sign: SignScreenParams;
 };
 
 export type RootNavigatorScreenProps<K extends keyof RootNavigatorParamList> =
@@ -142,18 +133,11 @@ export const RootNavigator = () => {
 
       <Navigation.Group key="WalletConnect">
         <Navigation.Screen name="Sessions" component={SessionsScreen} />
-
-        <Navigation.Group screenOptions={{ presentation: 'transparentModal' }}>
-          <Navigation.Screen
-            name="SessionProposal"
-            component={SessionProposalScreen}
-          />
-          <Navigation.Screen name="SessionSign" component={SessionSignScreen} />
-          <Navigation.Screen
-            name="SessionSendTransaction"
-            component={SessionSendTransactionScreen}
-          />
-        </Navigation.Group>
+        <Navigation.Screen
+          name="SessionProposal"
+          component={SessionProposalScreen}
+        />
+        <Navigation.Screen name="Sign" component={SignScreen} />
       </Navigation.Group>
     </Navigation.Navigator>
   );

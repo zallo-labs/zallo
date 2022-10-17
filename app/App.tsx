@@ -3,6 +3,7 @@ import '~/util/network/provider';
 import '~/util/immer';
 
 import { Suspense } from 'react';
+import { StyleSheet } from 'react-native';
 import { RecoilRoot } from 'recoil';
 import { Background } from '~/components/layout/Background';
 import { LocalizatonProvider } from '~/provider/LocalizationProvider';
@@ -25,7 +26,7 @@ export default withSentry(() => (
     <ThemeProvider>
       <Background>
         <StatusBar style="light" backgroundColor="transparent" />
-        <GestureHandlerRootView style={{ flex: 1 }}>
+        <GestureHandlerRootView style={styles.flexed}>
           <ErrorBoundary>
             <Suspense fallback={<Splash />}>
               <RecoilRoot>
@@ -50,3 +51,9 @@ export default withSentry(() => (
     </ThemeProvider>
   </LocalizatonProvider>
 ));
+
+const styles = StyleSheet.create({
+  flexed: {
+    flex: 1,
+  },
+});

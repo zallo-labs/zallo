@@ -14,6 +14,7 @@ import {
 } from './methods/transaction';
 import { atom, useRecoilState } from 'recoil';
 import { SignClientTypes } from '@walletconnect/types';
+import { TopicV2 } from './useTopic';
 
 export const WC_CLIENT_METADATA: SignClientTypes.Metadata = {
   name: 'AlloPay',
@@ -50,9 +51,9 @@ export const useWalletConnectV2 = () => {
         const method = params.request.method;
 
         if (WC_SIGNING_METHODS.has(method)) {
-          navigate('SessionSign', {
+          navigate('Sign', {
+            topic: topic as TopicV2,
             id,
-            topicOrUri: topic,
             request: params.request as SigningRequest,
           });
         } else if (WC_TRANSACTION_METHODS.has(method)) {

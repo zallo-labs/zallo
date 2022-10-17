@@ -8,7 +8,7 @@ import { AddrLink, parseAddrLink } from '~/util/addrLink';
 import { RootNavigatorScreenProps } from '~/navigation/RootNavigator';
 import { Overlay } from './Overlay';
 import {
-  isWalletConnectPairingUri,
+  isWalletConnectUri,
   usePairWalletConnect,
 } from '~/util/walletconnect/usePairWalletConnect';
 
@@ -51,7 +51,7 @@ export const ScanScreen = ({ route, navigation }: ScanScreenProps) => {
     const addrLink = parseAddrLink(data);
     if (addrLink) {
       onScanAddr?.(addrLink);
-    } else if (isWalletConnectPairingUri(data)) {
+    } else if (isWalletConnectUri(data)) {
       await pairWc(data);
       navigation.goBack();
       // Navigates away on pair

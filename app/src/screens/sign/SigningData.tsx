@@ -1,5 +1,6 @@
+import { makeStyles } from '@theme/makeStyles';
+import { ScrollView } from 'react-native';
 import { Card } from 'react-native-paper';
-import { Box } from '~/components/layout/Box';
 import { TypedData } from '~/util/walletconnect/methods/signing';
 import { ObjectChild } from './ObjectChild';
 import { ValueChild } from './ValueChild';
@@ -9,10 +10,10 @@ export interface SigningDataProps {
 }
 
 export const SigningData = ({ data }: SigningDataProps) => {
+  const styles = useStyles();
   return (
     <Card mode="contained">
-      {/* Children already have ml={1} */}
-      <Box ml={1} mr={2} my={1}>
+      <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
         {typeof data === 'string' ? (
           <ValueChild value={data} />
         ) : (
@@ -22,7 +23,14 @@ export const SigningData = ({ data }: SigningDataProps) => {
             types={data.types}
           />
         )}
-      </Box>
+      </ScrollView>
     </Card>
   );
 };
+
+const useStyles = makeStyles(({ space }) => ({
+  container: {
+    marginVertical: space(1),
+    marginHorizontal: space(2),
+  },
+}));

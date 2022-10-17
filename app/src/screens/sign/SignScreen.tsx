@@ -5,39 +5,39 @@ import { RootNavigatorScreenProps } from '~/navigation/RootNavigator';
 import { WcErrorKey } from '~/util/walletconnect/jsonRcp';
 import { hexlify } from 'ethers/lib/utils';
 import { toActiveUser, useUser } from '~/queries/user/useUser.api';
-import { Button, Dialog } from 'react-native-paper';
+import { Appbar, Button, Dialog, Text } from 'react-native-paper';
 import {
   SigningRequest,
   toTypedData,
   TypedData,
 } from '~/util/walletconnect/methods/signing';
 import { DialogRoot } from '~/components/DialogRoot';
-import { ProposerDetails } from '../Proposal/ProposerDetails';
+import { ProposerDetails } from '../session-proposal/ProposerDetails';
 import { CHAIN_ID } from '@network/provider';
 import { BigNumber } from 'ethers';
 import { useCallback, useMemo } from 'react';
 import useAsyncEffect from 'use-async-effect';
 import { showWarning } from '~/provider/SnackbarProvider';
 import { SigningData } from './SigningData';
-import { useWalletConnect } from '~/util/walletconnect/useWalletConnect';
-import { useWalletConnectSessions } from '~/util/walletconnect/useWalletConnectSessions';
+import { Topic, useSession } from '~/util/walletconnect/useTopic';
+import { Box } from '~/components/layout/Box';
+import { Actions } from '~/components/layout/Actions';
+import { Addr } from '~/components/addr/Addr';
+import { makeStyles } from '@theme/makeStyles';
 
-export interface SessionSignScreenParams {
-  topicOrUri: string;
+export interface SignScreenParams {
+  topic: Topic;
   id: number;
   request: SigningRequest;
 }
 
-export type SessionSignScreenProps = RootNavigatorScreenProps<'SessionSign'>;
+export type SignScreenProps = RootNavigatorScreenProps<'Sign'>;
 
-export const SessionSignScreen = ({
-  navigation,
-  route,
-}: SessionSignScreenProps) => {
-  const { topicOrUri, id, request } = route.params;
+export const SignScreen = ({ navigation, route }: SignScreenProps) => {
+  const { id, request } = route.params;
+  const styles = useStyles();
   const device = useDevice();
-  const wc = useWalletConnect();
-  const proposer = useWalletConnectSessions().get(topicOrUri)!.proposer;
+  const topic = useSession(route.params.topic);
 
   const [account, data] = useMemo(
     () =>
@@ -74,13 +74,12 @@ export const SessionSignScreen = ({
       .when(
         (data): data is TypedData => typeof data === 'object',
         (typedData) => {
-          // Reject domains from another chain
-          // TODO: walletconnect - re-enable chain id check
-          // if (
-          //   typedData.domain.chainId !== undefined &&
-          //   !BigNumber.from(typedData.domain.chainId).eq(CHAIN_ID())
-          // )
-          //   return null;
+          // Ensure signing domain chain matches
+          if (
+            typedData.domain.chainId !== undefined &&
+            !BigNumber.from(typedData.domain.chainId).eq(CHAIN_ID())
+          )
+            return null;
 
           return device._signTypedData(
             typedData.domain,
@@ -103,10 +102,10 @@ export const SessionSignScreen = ({
 
   const reject = useCallback(
     (error: WcErrorKey) => {
-      wc.request.reject(topicOrUri, id, error);
+      topic.reject(id, error);
       navigation.goBack();
     },
-    [id, navigation, topicOrUri, wc.request],
+    [id, navigation, topic],
   );
 
   const rejectAsInvalid = useCallback(() => {
@@ -126,23 +125,47 @@ export const SessionSignScreen = ({
     const userSignature = await promisedUserSignature;
     if (!userSignature) return rejectAsInvalid();
 
-    wc.request.approve(topicOrUri, id, hexlify(userSignature));
+    topic.respond(id, hexlify(userSignature));
     navigation.goBack();
   };
 
+  console.log(data);
+
   return (
-    <DialogRoot>
-      <Dialog.Title>Signing request</Dialog.Title>
+    <Box flex={1}>
+      <Appbar.Header>
+        <Appbar.Content title="Signing Request" />
+      </Appbar.Header>
 
-      <Dialog.Content>
-        <ProposerDetails proposer={proposer} padding="vertical" />
+      <Box flex={1} mx={2}>
+        <ProposerDetails proposer={topic.proposer} />
+
+        <Text variant="headlineSmall" style={styles.signTitle}>
+          {'Wants '}
+          <Text variant="headlineSmall" style={styles.accountName}>
+            <Addr addr={account} />
+          </Text>
+          {' to sign'}
+        </Text>
         <SigningData data={data} />
-      </Dialog.Content>
+      </Box>
 
-      <Dialog.Actions>
+      <Actions>
         <Button onPress={() => reject('USER_REJECTED')}>Reject</Button>
-        <Button onPress={sign}>Sign</Button>
-      </Dialog.Actions>
-    </DialogRoot>
+        <Button mode="contained" onPress={sign}>
+          Sign
+        </Button>
+      </Actions>
+    </Box>
   );
 };
+
+const useStyles = makeStyles(({ colors, space }) => ({
+  signTitle: {
+    marginTop: space(3),
+    marginBottom: space(2),
+  },
+  accountName: {
+    color: colors.primary,
+  },
+}));

@@ -1,4 +1,3 @@
-import { makeStyles } from '@theme/makeStyles';
 import assert from 'assert';
 import { TypedDataField } from 'ethers';
 import { Text } from 'react-native-paper';
@@ -13,7 +12,6 @@ export interface ObjectChildProps {
 }
 
 export const ObjectChild = ({ name, value, type, types }: ObjectChildProps) => {
-  const styles = useStyles();
   const childrenInfo = types[type];
 
   return (
@@ -54,9 +52,3 @@ export const ObjectChild = ({ name, value, type, types }: ObjectChildProps) => {
     </Box>
   );
 };
-
-const useStyles = makeStyles(({ typoSpace }) => ({
-  container: {
-    marginVertical: typoSpace(1),
-  },
-}));

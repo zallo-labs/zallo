@@ -103,6 +103,7 @@ export const ActivityScreen = withSkeleton(() => {
             Icon={ActivityIcon}
             title="No activites to show"
             subtitle="Check back later!"
+            isScreenRoot
           />
         }
         sections={sections}

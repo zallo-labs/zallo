@@ -5,14 +5,15 @@ import {
 } from '~/mutations/proposal/propose/usePropose';
 import { toWcResult } from './jsonRcp';
 import { WcSendTransactionData } from './methods/transaction';
-import { WcClient } from './util';
+import SignClient from '@walletconnect/sign-client';
+import Connector from '@walletconnect/client';
 
 export const useHandleWcSend = () => {
   const [propose] = usePropose();
 
   return useCallback(
     async (
-      client: WcClient,
+      client: SignClient | Connector,
       id: number,
       topic: string | undefined,
       tx: WcSendTransactionData,

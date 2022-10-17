@@ -2,33 +2,33 @@ import { Button, Text } from 'react-native-paper';
 import { Card } from '~/components/card/Card';
 import { Timestamp } from '~/components/format/Timestamp';
 import { Box } from '~/components/layout/Box';
-import { ProposerDetails } from '../walletconnect/Proposal/ProposerDetails';
+import { ProposerDetails } from '../session-proposal/ProposerDetails';
 import { CloseIcon } from '@theme/icons';
 import { useEffect } from 'react';
 import { tryOrIgnore } from 'lib';
-import { useWalletConnect } from '~/util/walletconnect/useWalletConnect';
-import { WcSession } from '~/util/walletconnect/useWalletConnectSessions';
+import { WcSessionData } from '~/util/walletconnect/useWalletConnectSessions';
+import { useSession } from '~/util/walletconnect/useTopic';
 
 export interface SessionCardProps {
-  session: WcSession;
+  sessionData: WcSessionData;
 }
 
-export const SessionCard = ({ session }: SessionCardProps) => {
-  const wc = useWalletConnect();
+export const SessionCard = ({ sessionData }: SessionCardProps) => {
+  const session = useSession(sessionData.topic);
 
   useEffect(() => {
-    wc.session.checkConnectedOrDisconnect(session.topicOrUri);
-  }, [session.topicOrUri, session.version, wc.session]);
+    session.checkConnectedOrDisconnect();
+  }, [session]);
 
   return (
     <Card>
-      <ProposerDetails proposer={session.proposer} />
+      <ProposerDetails proposer={sessionData.proposer} />
 
-      {session.expiry && (
+      {sessionData.expiry && (
         <Box horizontal mt={1}>
           <Text variant="titleSmall">Expires: </Text>
           <Text variant="bodyMedium">
-            <Timestamp time>{session.expiry}</Timestamp>
+            <Timestamp time>{sessionData.expiry}</Timestamp>
           </Text>
         </Box>
       )}
@@ -39,9 +39,7 @@ export const SessionCard = ({ session }: SessionCardProps) => {
           labelStyle={{ width: 72 }}
           icon={CloseIcon}
           onPress={() =>
-            tryOrIgnore(() =>
-              wc.session.disconnect(session.topicOrUri, 'USER_DISCONNECTED'),
-            )
+            tryOrIgnore(() => session.disconnect('USER_DISCONNECTED'))
           }
         >
           Disconnect

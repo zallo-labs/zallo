@@ -11,6 +11,10 @@ import {
   WcSendTransactionData,
   WC_TRANSACTION_METHODS,
 } from './methods/transaction';
+import { TopicV1 } from './useTopic';
+
+const URI_PATTERN = /^wc:[0-9a-f-]*@1\?/;
+export const isWalletConnectUriV1 = (uri: string) => !!URI_PATTERN.exec(uri);
 
 export const usePairWalletConnectV1 = () => {
   const { navigate } = useRootNavigation();
@@ -42,8 +46,8 @@ export const usePairWalletConnectV1 = () => {
           if (error) return showError('Failed handle WalletConnect request');
 
           if (WC_SIGNING_METHODS.has(method)) {
-            navigate('SessionSign', {
-              topicOrUri: uri,
+            navigate('Sign', {
+              topic: uri as TopicV1,
               id,
               request: { method, params } as SigningRequest,
             });

@@ -30,7 +30,7 @@ export const SessionsScreen = ({ navigation }: SessionsScreenProps) => {
       </AppbarHeader>
 
       <FlatList
-        renderItem={({ item }) => <SessionCard session={item} />}
+        renderItem={({ item }) => <SessionCard sessionData={item} />}
         ItemSeparatorComponent={() => <Box mt={2} />}
         ListEmptyComponent={
           <EmptyListFallback
