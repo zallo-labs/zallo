@@ -13,6 +13,8 @@ import {
 } from 'react-native';
 import { useTheme } from '@theme/paper';
 
+export const UNNAMED_DAPP_NAME = 'Unnamed DApp';
+
 export interface ProposerDetailsProps {
   proposer: WcProposer;
   style?: StyleProp<ViewStyle>;
@@ -24,7 +26,7 @@ export const ProposerDetails = ({
 }: ProposerDetailsProps) => {
   const { iconSize } = useTheme();
 
-  const name = p.name || 'Unnamed DApp';
+  const name = p.name || UNNAMED_DAPP_NAME;
 
   return (
     <TouchableOpacity

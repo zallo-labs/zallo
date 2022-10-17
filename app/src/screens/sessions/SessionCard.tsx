@@ -2,12 +2,12 @@ import { Button, Text } from 'react-native-paper';
 import { Card } from '~/components/card/Card';
 import { Timestamp } from '~/components/format/Timestamp';
 import { Box } from '~/components/layout/Box';
-import { ProposerDetails } from '../session-proposal/ProposerDetails';
 import { CloseIcon } from '@theme/icons';
 import { useEffect } from 'react';
 import { tryOrIgnore } from 'lib';
 import { WcSessionData } from '~/util/walletconnect/useWalletConnectSessions';
 import { useSession } from '~/util/walletconnect/useTopic';
+import { ProposerItem } from './ProposerItem';
 
 export interface SessionCardProps {
   sessionData: WcSessionData;
@@ -22,10 +22,10 @@ export const SessionCard = ({ sessionData }: SessionCardProps) => {
 
   return (
     <Card>
-      <ProposerDetails proposer={sessionData.proposer} />
+      <ProposerItem proposer={sessionData.proposer} />
 
       {sessionData.expiry && (
-        <Box horizontal mt={1}>
+        <Box horizontal mt={2}>
           <Text variant="titleSmall">Expires: </Text>
           <Text variant="bodyMedium">
             <Timestamp time>{sessionData.expiry}</Timestamp>
@@ -36,7 +36,10 @@ export const SessionCard = ({ sessionData }: SessionCardProps) => {
       <Box horizontal justifyContent="flex-end">
         <Button
           mode="text"
-          labelStyle={{ width: 72 }}
+          labelStyle={{
+            flexGrow: 1,
+            // width: 72
+          }}
           icon={CloseIcon}
           onPress={() =>
             tryOrIgnore(() => session.disconnect('USER_DISCONNECTED'))
