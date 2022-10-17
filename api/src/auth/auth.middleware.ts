@@ -15,25 +15,33 @@ interface Token {
   signature: string;
 }
 
-const parseToken = (token: string): Token => {
-  const { message, signature }: Token = JSON.parse(token);
-  return { message: new SiweMessage(message), signature };
+const tryParseToken = (token?: string): Token | undefined => {
+  try {
+    if (token) {
+      const { message, signature }: Token = JSON.parse(token);
+      return { message: new SiweMessage(message), signature };
+    }
+  } catch {
+    // return undefined
+  }
 };
 
-const isLocalPlayground = (req: Request) =>
-  req.headers.origin?.endsWith(`[::1]:${CONFIG.api.port}`) ||
-  req.headers.origin?.startsWith('https://studio.apollographql.com');
+const isLocalDevPlayground = (req: Request) => {
+  const isLocalPlayground =
+    req.headers.origin?.endsWith(`[::1]:${CONFIG.api.port}`) ||
+    req.headers.origin?.startsWith('https://studio.apollographql.com');
 
-const isIntrospection = (req: Request) =>
-  req.body?.operationName === 'IntrospectionQuery';
+  const isIntrospection = req.body?.operationName === 'IntrospectionQuery';
+
+  return IS_DEV && isLocalPlayground && !isIntrospection;
+};
 
 @Injectable()
 export class AuthMiddleware implements NestMiddleware {
   async use(req: Request, _res: Response, next: NextFunction) {
-    const token = req.headers.authorization;
-
+    const token = tryParseToken(req.headers.authorization);
     if (token) {
-      const { message, signature } = parseToken(token);
+      const { message, signature } = token;
 
       for (const [fallbackErr, isError] of Object.entries(VALIDATION_CHECKS)) {
         const r = await isError({ msg: message, sig: signature, req });
@@ -49,7 +57,7 @@ export class AuthMiddleware implements NestMiddleware {
         req.session.cookie.expires = new Date(message.expirationTime);
 
       req.deviceMessage = message;
-    } else if (IS_DEV && isLocalPlayground(req) && !isIntrospection(req)) {
+    } else if (isLocalDevPlayground(req)) {
       req.deviceMessage = new SiweMessage({
         address: CONFIG.wallet.address,
       });
