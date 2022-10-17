@@ -24,8 +24,8 @@
         "CHAIN": "testnet",
         "API_URL": "https://api.allopay.io",
         "SUBGRAPH_GQL_URL": "https://api.thegraph.com/subgraphs/name/hbriese/allopay",
-        "ACCOUNT_IMPL_TESTNET": "0x4f9a8a04F7480c1FDeA283Ce35A71D1790361363",
-        "PROXY_FACTORY_TESTNET": "0x2e5018e81E653d218396E7C151B5a84dEfaa9A67",
+        "ACCOUNT_IMPL_TESTNET": "0x7ffe4CfA9796182aF245DDDc6A1f4E82EBd3d2bA",
+        "PROXY_FACTORY_TESTNET": "0xA30a9F5856c6ACd091Ba0D12b3BbCA828a458D73",
         "MULTI_CALL_TESTNET": "0x51D4c48FFA8c224ca4ed1cf43E53Fc7b90777433"
       }
     },
@@ -37,8 +37,8 @@
         "CHAIN": "testnet",
         "API_URL": "https://api-dev.allopay.io",
         "SUBGRAPH_GQL_URL": "https://api.thegraph.com/subgraphs/name/hbriese/allopay-dev",
-        "ACCOUNT_IMPL_TESTNET": "0x4f9a8a04F7480c1FDeA283Ce35A71D1790361363",
-        "PROXY_FACTORY_TESTNET": "0x2e5018e81E653d218396E7C151B5a84dEfaa9A67",
+        "ACCOUNT_IMPL_TESTNET": "0x7ffe4CfA9796182aF245DDDc6A1f4E82EBd3d2bA",
+        "PROXY_FACTORY_TESTNET": "0xA30a9F5856c6ACd091Ba0D12b3BbCA828a458D73",
         "MULTI_CALL_TESTNET": "0x51D4c48FFA8c224ca4ed1cf43E53Fc7b90777433"
       }
     },

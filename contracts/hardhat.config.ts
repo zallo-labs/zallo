@@ -23,7 +23,7 @@ import './tasks/deposit';
 // https://hardhat.org/config/
 const config: HardhatUserConfig = {
   solidity: {
-    version: '0.8.16',
+    version: '0.8.17',
   },
   zksolc: {
     // https://github.com/matter-labs/zksolc-bin/tree/main/linux-amd64

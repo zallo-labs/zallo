@@ -194,27 +194,18 @@ contract Account is
                             USER MERKLE ROOTS
     //////////////////////////////////////////////////////////////*/
 
-  // TODO: upgrade to solc 0.8.17 (once supported by zksolc) and set mapping slot directly
-  struct UserMerkleRootsStruct {
-    mapping(address => bytes32) userMerkleRoots;
-  }
-
   /// @notice Merkle root of the state of each wallet
   /// @dev user => merkleRoot
   /// @dev Leaves: UserConfig[]
   function _userMerkleRoots()
     internal
-    view
-    returns (mapping(address => bytes32) storage)
+    pure
+    returns (mapping(address => bytes32) storage s)
   {
-    UserMerkleRootsStruct storage s;
-
     assembly {
       // keccack256('Account.userMerkleRoots')
       s.slot := 0x78da1ddd953b1b2068017cdffdd8ba08689d560b1fa20cf0f77a87af370f3f89
     }
-
-    return s.userMerkleRoots;
   }
 
   /*//////////////////////////////////////////////////////////////

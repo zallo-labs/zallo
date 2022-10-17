@@ -15309,7 +15309,7 @@ __metadata:
     merkletreejs: ^0.2.32
     prettier: ^2.7.1
     prettier-plugin-solidity: ^1.0.0-beta.24
-    solc: 0.8.16
+    solc: 0.8.17
     solhint: ^3.3.7
     solidity-coverage: ^0.8.2
     ts-node: ^10.9.1
@@ -32333,9 +32333,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"solc@npm:0.8.16":
-  version: 0.8.16
-  resolution: "solc@npm:0.8.16"
+"solc@npm:0.8.17":
+  version: 0.8.17
+  resolution: "solc@npm:0.8.17"
   dependencies:
     command-exists: ^1.2.8
     commander: ^8.1.0
@@ -32346,7 +32346,7 @@ __metadata:
     tmp: 0.0.33
   bin:
     solcjs: solc.js
-  checksum: 9c160f13fc1c83837c9fd70402db9373b678e9c2b05866f63528ce5adf2cbd961b4db4de70b8cdcd808671d551c5cf29ebd91c79bb98904db63e7d71ac8cb6f4
+  checksum: 99deb834d249cc65d8874026a876bbc1f0a09c74d94c17bdf5fa94952889cde9c11246eb70e4313daf39efb234523f2b705e821ae9f78586d51ff7be8d889fe6
   languageName: node
   linkType: hard
 

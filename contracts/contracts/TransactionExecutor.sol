@@ -72,22 +72,16 @@ abstract contract TransactionExecutor is EIP712 {
                                  STORAGE
   //////////////////////////////////////////////////////////////*/
 
-  struct ExecutedTxsStruct {
-    mapping(uint256 => uint256) executedTxs;
-  }
-
   /// @notice Bit map of executed txs
   function _executedTxs()
     private
-    view
-    returns (mapping(uint256 => uint256) storage executedTxs)
+    pure
+    returns (mapping(uint256 => uint256) storage s)
   {
-    ExecutedTxsStruct storage s;
     assembly {
       // keccack256('TransactionExecutor.executedTxs')
       s.slot := 0xbc27dde5fff032543400d18687eab3abfc68350f0bf6dbd89802dbc845940024
     }
-    return s.executedTxs;
   }
 
   /// @param txHash Hash of the transaction
