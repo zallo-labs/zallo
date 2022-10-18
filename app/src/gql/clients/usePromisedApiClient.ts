@@ -5,6 +5,8 @@ import { CONFIG } from '~/util/config';
 import { DEFAULT_GQL_CLIENT_OPTIONS } from './util';
 import { useAuthFlowLink } from './apiAuthFlowLink';
 import { getPersistedCache } from './util';
+import OfflineLink from 'apollo-link-offline';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export const API_CLIENT_NAME = 'api';
 const CACHE = getPersistedCache(API_CLIENT_NAME);
@@ -18,6 +20,7 @@ export const usePromisedApiClient = () => {
         name: API_CLIENT_NAME,
         cache: await CACHE,
         link: ApolloLink.from([
+          new OfflineLink({ storage: AsyncStorage }),
           new RetryLink(),
           authFlowLink,
           new HttpLink({

@@ -11920,6 +11920,16 @@ __metadata:
   languageName: node
   linkType: hard
 
+"apollo-link-offline@npm:^1.0.1":
+  version: 1.0.1
+  resolution: "apollo-link-offline@npm:1.0.1"
+  dependencies:
+    apollo-link: ^1.2.3
+    uuid: ^3.3.2
+  checksum: dd988fc1420edb591354b677985809f6cbf966ecf631fecdcf127351b3cf4213074bf202a9959a0f05118d952ed4d0bf7ff29f5b2d581a86a1375cf71c6a9b33
+  languageName: node
+  linkType: hard
+
 "apollo-link@npm:^1.2.14, apollo-link@npm:^1.2.3":
   version: 1.2.14
   resolution: "apollo-link@npm:1.2.14"
@@ -12176,6 +12186,7 @@ __metadata:
     "@walletconnect/types": 2.0.0-rc.4
     "@walletconnect/utils": 2.0.0-rc.4
     apollo: 2.34.0
+    apollo-link-offline: ^1.0.1
     apollo3-cache-persist: ^0.14.1
     async-mutex: ^0.4.0
     babel-plugin-formatjs: ^10.3.30
