@@ -2,6 +2,9 @@
 pragma solidity ^0.8.0;
 
 import '@matterlabs/zksync-contracts/l2/system-contracts/Constants.sol';
+import {
+  SystemContractsCaller
+} from '@matterlabs/zksync-contracts/l2/system-contracts/SystemContractsCaller.sol';
 
 contract Factory {
   bytes32 public immutable _BYTECODE_HASH;
@@ -14,11 +17,15 @@ contract Factory {
     external
     returns (address newAddress, bytes memory constructorRevertData)
   {
-    return
-      DEPLOYER_SYSTEM_CONTRACT.create2Account(
-        salt,
-        _BYTECODE_HASH,
-        constructorArgsData
-      );
+    bytes memory data = SystemContractsCaller.systemCall(
+      uint32(gasleft()),
+      address(DEPLOYER_SYSTEM_CONTRACT),
+      0,
+      abi.encodeCall(
+        IContractDeployer.create2Account,
+        (salt, _BYTECODE_HASH, constructorArgsData)
+      )
+    );
+    return abi.decode(data, (address, bytes));
   }
 }

@@ -3,6 +3,7 @@ pragma solidity ^0.8.0;
 
 /// @notice Track whether the contract has been initialized
 /// Heavily inspired by OZ's Initializable contract
+/// Modified to be more gas efficient for our simple use case
 abstract contract Initializable {
   /*//////////////////////////////////////////////////////////////
                              INITIALIZATION
@@ -24,7 +25,7 @@ abstract contract Initializable {
 
   /// @notice Prevent the contract from further initialization
   /// @dev To be used inside the constructor of an implementation contract
-  function _preventInitialization() internal {
+  function _disableInitializers() internal {
     _initialized().version = type(uint8).max;
   }
 

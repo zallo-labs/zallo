@@ -3,6 +3,9 @@ pragma solidity ^0.8.0;
 
 import '@matterlabs/zksync-contracts/l2/system-contracts/Constants.sol';
 import '@matterlabs/zksync-contracts/l2/system-contracts/TransactionHelper.sol';
+import {
+  SystemContractsCaller
+} from '@matterlabs/zksync-contracts/l2/system-contracts/SystemContractsCaller.sol';
 
 import './IAccount.sol';
 import './SelfOwned.sol';
@@ -34,8 +37,8 @@ contract Account is
   //////////////////////////////////////////////////////////////*/
 
   constructor() {
-    // Prevent direct use of the contract, only allowing use through a proxy and thereby preventing selfdestruct nonsense
-    _preventInitialization();
+    // Disable initializing the implementation contract; avoiding any potential nonsense (e.g. selfdestruct)
+    _disableInitializers();
   }
 
   function initialize(User calldata user) external initializer {
@@ -87,13 +90,19 @@ contract Account is
     bytes32 txHash,
     Transaction calldata transaction
   ) internal {
-    NONCE_HOLDER_SYSTEM_CONTRACT.incrementMinNonceIfEquals(
-      transaction.reserved[0] // nonce
-    );
-
+    _incrementNonceIfEquals(transaction.reserved[0]);
     if (hasBeenExecuted(txHash)) revert TxAlreadyExecuted();
 
     _validateSignature(txHash, transaction.signature);
+  }
+
+  function _incrementNonceIfEquals(uint256 expectedNonce) private {
+    SystemContractsCaller.systemCall(
+      uint32(gasleft()),
+      address(NONCE_HOLDER_SYSTEM_CONTRACT),
+      0,
+      abi.encodeCall(INonceHolder.incrementMinNonceIfEquals, (expectedNonce))
+    );
   }
 
   /*//////////////////////////////////////////////////////////////
@@ -101,8 +110,8 @@ contract Account is
   //////////////////////////////////////////////////////////////*/
 
   function payForTransaction(
-    bytes32, /* _txHash */
-    bytes32, /* suggestedSignedHash */
+    bytes32, // txHash
+    bytes32, // suggestedSignedHash
     Transaction calldata transaction
   ) external payable override onlyBootloader {
     bool success = TransactionHelper.payToTheBootloader(transaction);
@@ -110,8 +119,8 @@ contract Account is
   }
 
   function prePaymaster(
-    bytes32, /* _txHash */
-    bytes32, /* suggestedSignedHash */
+    bytes32, // txHash
+    bytes32, // suggestedSignedHash
     Transaction calldata transaction
   ) external payable override onlyBootloader {
     TransactionHelper.processPaymasterInput(transaction);
