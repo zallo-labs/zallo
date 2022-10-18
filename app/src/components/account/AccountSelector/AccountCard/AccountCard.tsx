@@ -7,10 +7,10 @@ import { useSelectedToken } from '~/components/token/useSelectedToken';
 import { useTokenValue } from '@token/useTokenValue';
 import { FiatValue } from '~/components/fiat/FiatValue';
 import { makeStyles } from '@theme/makeStyles';
-import MastercardLogo from '~/../assets/mastercard.svg';
 import { Address } from 'lib';
 import { useAccount } from '~/queries/account/useAccount.api';
 import { useTokenAvailable } from '@token/useTokenAvailable';
+import { MastercardIcon } from '@theme/icons';
 
 export interface AccountCardProps extends CardProps {
   addr: Address;
@@ -30,7 +30,7 @@ export const AccountCard = withSkeleton(
           <Box horizontal justifyContent="space-between" alignItems="center">
             <Text variant="titleLarge">{account.name}</Text>
 
-            <MastercardLogo width={48} height={30} />
+            <MastercardIcon size={48} />
           </Box>
 
           {available && (

@@ -1,4 +1,3 @@
-import { Space } from '@theme/styledComponents';
 import { ComponentPropsWithoutRef, ReactNode } from 'react';
 import { StyleProp, ViewProps, ViewStyle } from 'react-native';
 import { Surface as Base, TouchableRipple } from 'react-native-paper';

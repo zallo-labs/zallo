@@ -1,42 +1,59 @@
-import { ReactNode } from 'react';
+import { IconProps } from '@theme/icons';
+import { makeStyles } from '@theme/makeStyles';
+import { FC, ReactNode } from 'react';
 import { useWindowDimensions } from 'react-native';
-import { Headline, Title, useTheme } from 'react-native-paper';
+import { Text } from 'react-native-paper';
 import { Box } from '~/components/layout/Box';
 
 export interface EmptyListFallbackProps {
-  Icon?: ((props: { color: string; size: number }) => ReactNode) | ReactNode;
+  Icon?: FC<IconProps> | ReactNode;
   title: string;
   subtitle?: string;
+  isScreenRoot?: boolean;
 }
 
 export const EmptyListFallback = ({
   Icon,
   title,
   subtitle,
+  isScreenRoot = false,
 }: EmptyListFallbackProps) => {
+  const styles = useStyles();
   const { height } = useWindowDimensions();
-  const { colors, iconSize } = useTheme();
 
   return (
     // Set height manually since flex={1} doesn't work within FlexList on Android
-    <Box flex={1} height={height}>
-      <Box flex={1} />
+    <Box
+      flex={1}
+      height={height}
+      alignItems="center"
+      {...(isScreenRoot && { mt: 8 })}
+    >
+      {typeof Icon === 'function' ? (
+        <Icon color={styles.icon.color} size={styles.icon.fontSize} />
+      ) : (
+        Icon
+      )}
 
-      <Box flex={2} alignItems="center">
-        {typeof Icon === 'function' ? (
-          <Icon color={colors.onBackground} size={iconSize.medium} />
-        ) : (
-          Icon
-        )}
-
-        <Box my={10}>
-          <Headline style={{ textAlign: 'center' }}>{title}</Headline>
-        </Box>
-
-        <Title style={{ textAlign: 'center' }}>{subtitle}</Title>
-      </Box>
-
-      <Box flex={1} />
+      <Text variant="headlineMedium" style={[styles.text, styles.title]}>
+        {title}
+      </Text>
+      <Text variant="titleMedium" style={styles.text}>
+        {subtitle}
+      </Text>
     </Box>
   );
 };
+
+const useStyles = makeStyles(({ colors, iconSize, space }) => ({
+  icon: {
+    color: colors.onBackground,
+    fontSize: iconSize.medium,
+  },
+  title: {
+    marginVertical: space(2),
+  },
+  text: {
+    textAlign: 'center',
+  },
+}));

@@ -1,7 +1,6 @@
 import { BytesLike, ethers, Signer } from 'ethers';
 import { Address, address, Addresslike } from './addr';
 import {
-  Account,
   Factory,
   Factory__factory,
   Account__factory,
@@ -64,7 +63,7 @@ export const encodeProxyConstructorArgs = ({
   );
 
   return defaultAbiCoder.encode(
-    // constructor(address _logic, bytes memory _data)
+    // new ERC1967Proxy(address _logic, bytes memory _data)
     ['address', 'bytes'],
     [impl, encodedInitializeCall],
   );
@@ -77,7 +76,7 @@ export const calculateProxyAddress = async (
 ) => {
   const addr = zk.utils.create2Address(
     factory.address,
-    await factory._BYTECODE_HASH({ gasLimit: 100_000 }),
+    await factory._BYTECODE_HASH(),
     salt,
     encodeProxyConstructorArgs(args),
   );
@@ -103,6 +102,3 @@ export const deployAccountProxy = async (
     deployTx,
   };
 };
-
-export const isDeployed = async (account: Account) =>
-  (await account.provider.getCode(account.address)) !== '0x';

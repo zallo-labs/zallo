@@ -1,19 +1,23 @@
-import { ReactNode, useCallback, useState } from 'react';
-import { TouchableOpacity } from 'react-native';
+import { useToggle } from '@hook/useToggle';
+import { ReactNode } from 'react';
+import { TouchableOpacity, TouchableOpacityProps } from 'react-native';
 
-export interface ExpandOnLongPress {
+export interface ExpandOnLongPress
+  extends Pick<TouchableOpacityProps, 'onPress' | 'style'> {
   collapsed: ReactNode;
   expanded: ReactNode;
 }
 
-export const ExpandOnLongPress = (props: ExpandOnLongPress) => {
-  const [expanded, setExpanded] = useState(false);
-
-  const toggle = useCallback(() => setExpanded((prev) => !prev), [setExpanded]);
+export const ExpandOnLongPress = ({
+  expanded,
+  collapsed,
+  ...touchableProps
+}: ExpandOnLongPress) => {
+  const [isExpanded, toggleExpanded] = useToggle(false);
 
   return (
-    <TouchableOpacity onLongPress={toggle}>
-      {expanded ? props.expanded : props.collapsed}
+    <TouchableOpacity onLongPress={toggleExpanded} {...touchableProps}>
+      {isExpanded ? expanded : collapsed}
     </TouchableOpacity>
   );
 };

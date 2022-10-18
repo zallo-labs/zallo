@@ -102,6 +102,7 @@ export class ProposalsResolver {
         value: proposal.value.toString(),
         data: proposal.data,
         salt: proposal.salt,
+        gasLimit: proposal.gasLimit?.toString(),
         approvals: {
           create: {
             device: connectOrCreateDevice(device),

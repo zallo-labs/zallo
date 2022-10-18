@@ -16,7 +16,7 @@ import { useExecutionProhibited } from './useExecutionProhibited';
 import { useTxContext } from '../TransactionProvider';
 
 export const ProposeActions = memo(() => {
-  const { proposal, proposer } = useTxContext();
+  const { proposal, proposer, onExecute } = useTxContext();
 
   const isApproved = useTransactionIsApproved(proposal, proposer);
   const approve = useApprove();
@@ -57,9 +57,10 @@ export const ProposeActions = memo(() => {
           icon={SendIcon}
           loading={submitting}
           disabled={!!executionProhibited}
-          onPress={() => {
+          onPress={async () => {
             setSubmitting(true);
-            execute();
+            const resp = await execute();
+            await onExecute?.(resp);
             setSubmitting(false);
           }}
         >

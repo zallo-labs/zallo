@@ -1,5 +1,5 @@
 import { BigNumber } from 'ethers';
-import { createTx, createTxSignature, hashTx } from 'lib';
+import { createTx, createUserSignature, hashTx } from 'lib';
 import { expect, deploy, getSigners, device } from './util';
 
 describe('isValidSignature', () => {
@@ -10,7 +10,7 @@ describe('isValidSignature', () => {
     const txHash = await hashTx(account, tx);
 
     const signers = await getSigners(account, user, config, tx);
-    const txSignature = createTxSignature(user, signers);
+    const txSignature = createUserSignature(user, signers);
 
     const isValid = await account.isValidSignature(txHash, txSignature);
 
@@ -22,12 +22,12 @@ describe('isValidSignature', () => {
 
     const tx = createTx({ to: device.address });
     const signers = await getSigners(account, user, config, tx);
-    const txSignature = createTxSignature(user, signers);
+    const userSignature = createUserSignature(user, signers);
 
     const otherTx = createTx({ value: BigNumber.from(1) });
     const otherTxHash = await hashTx(account, otherTx);
 
-    const validTxCheck = account.isValidSignature(otherTxHash, txSignature);
+    const validTxCheck = account.isValidSignature(otherTxHash, userSignature);
 
     await expect(validTxCheck).to.be.reverted;
   });

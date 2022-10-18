@@ -43,7 +43,7 @@ export const deployAccountImpl = async ({
 } = {}) => {
   const artifact = await deployer.loadArtifact(contractName);
   const contract = await deployer.deploy(artifact);
-  // await contract.deployed();
+  await contract.deployed();
 
   return {
     impl: address(contract.address),

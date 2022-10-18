@@ -2,14 +2,14 @@ import {
   TypedDataDomain,
   TypedDataField,
 } from '@ethersproject/abstract-signer';
-import { BigNumber, Contract, ethers } from 'ethers';
+import { BigNumber, BigNumberish, ethers } from 'ethers';
 import {
   hexDataLength,
   hexlify,
   isBytesLike,
   randomBytes,
 } from 'ethers/lib/utils';
-import { address, Address, isAddress } from './addr';
+import { address, isAddress } from './addr';
 import { zeroHexBytes } from './bytes';
 import { Call, CallDef, createCall } from './call';
 import { Id, toId } from './id';
@@ -17,6 +17,7 @@ import { createIsObj } from './util/mappedTypes';
 
 export interface TxReq extends Call {
   salt: TxSalt;
+  gasLimit?: BigNumberish;
 }
 
 export const isCall = createIsObj<Call>(
@@ -29,7 +30,9 @@ const isTxReqExtras = createIsObj<TxReq>(['salt', isBytesLike]);
 export const isTxReq = (e: unknown): e is TxReq =>
   isCall(e) && isTxReqExtras(e);
 
-export const TX_EIP712_TYPE: Record<string, TypedDataField[]> = {
+export type TypedDataTypes = Record<string, TypedDataField[]>;
+
+export const TX_EIP712_TYPE: TypedDataTypes = {
   Tx: [
     { name: 'to', type: 'address' },
     { name: 'value', type: 'uint256' },
@@ -75,11 +78,13 @@ export const ZERO_TX_SALT = zeroHexBytes(TX_SALT_BYTES) as TxSalt;
 
 export interface TxDef extends CallDef {
   salt?: TxSalt;
+  gasLimit?: BigNumberish;
 }
 
 export const createTx = (tx: TxDef): TxReq => ({
   ...createCall(tx),
   salt: tx.salt || randomTxSalt(),
+  gasLimit: tx.gasLimit,
 });
 
 export const getTxId = (txHash: string): Id => toId(txHash);

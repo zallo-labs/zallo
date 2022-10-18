@@ -38,10 +38,16 @@ export const buildAddrLink = (options: BuildAddrLinkOptions): string =>
     ...options,
   });
 
-export const parseAddrLink = (link: string): AddrLink => ({
-  ...getDefaults(),
-  ...parse(link),
-});
+export const parseAddrLink = (link: string): AddrLink | undefined => {
+  try {
+    return {
+      ...getDefaults(),
+      ...parse(link),
+    };
+  } catch {
+    return undefined;
+  }
+};
 
 export const buildTransferLink = (
   options: BuildAddrLinkOptions,

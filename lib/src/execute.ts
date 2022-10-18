@@ -1,7 +1,7 @@
 import { BigNumber, ethers, Overrides } from 'ethers';
 import { Account } from './contracts';
 import { isTxReq, TxReq } from './tx';
-import { createTxSignature, Signer } from './signature';
+import { createUserSignature, Signer } from './signature';
 import * as zk from 'zksync-web3';
 import { Eip712Meta, TransactionRequest } from 'zksync-web3/build/src/types';
 import { defaultAbiCoder } from 'ethers/lib/utils';
@@ -14,6 +14,7 @@ const toPartialTransactionRequest = (tx: TxReq): TransactionRequest => ({
   to: tx.to,
   value: tx.value,
   data: defaultAbiCoder.encode(['bytes8', 'bytes'], [tx.salt, tx.data]),
+  gasLimit: tx.gasLimit,
 });
 
 const FALLBACK_BASE_GAS = BigNumber.from(300_000);
@@ -26,12 +27,16 @@ export const estimateTxGas = async (
 ) => {
   const req = isTxReq(tx) ? toPartialTransactionRequest(tx) : tx;
 
-  let baseGas = FALLBACK_BASE_GAS;
-  try {
-    baseGas = await provider.estimateGas(req);
-  } catch (e) {
-    console.warn('Failed to estimate base gas');
-  }
+  const baseGas = await (() => {
+    if (tx.gasLimit) return BigNumber.from(tx.gasLimit);
+
+    try {
+      return provider.estimateGas(req);
+    } catch (e) {
+      console.warn('Failed to estimate base gas');
+      return FALLBACK_BASE_GAS;
+    }
+  })();
 
   return baseGas.add(nSigners * GAS_PER_SIGNER);
 };
@@ -61,7 +66,7 @@ export const toTransactionRequest = async (
     customData: {
       ergsPerPubdata: zk.utils.DEFAULT_ERGS_PER_PUBDATA_LIMIT,
       ...opts.customData,
-      customSignature: createTxSignature(user, signers),
+      customSignature: createUserSignature(user, signers),
     },
   };
 };

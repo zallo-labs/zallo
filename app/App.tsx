@@ -3,6 +3,7 @@ import '~/util/network/provider';
 import '~/util/immer';
 
 import { Suspense } from 'react';
+import { StyleSheet } from 'react-native';
 import { RecoilRoot } from 'recoil';
 import { Background } from '~/components/layout/Background';
 import { LocalizatonProvider } from '~/provider/LocalizationProvider';
@@ -18,13 +19,14 @@ import { SentryUser } from '~/util/sentry/SentryUser';
 import { withSentry } from '~/util/sentry/sentry';
 import { RootNavigator } from '~/navigation/RootNavigator';
 import { NavigationProvider } from '~/navigation/NavigationProvider';
+import { WalletConnectProvider } from '~/util/walletconnect/WalletConnectProvider';
 
 export default withSentry(() => (
   <LocalizatonProvider>
     <ThemeProvider>
       <Background>
         <StatusBar style="light" backgroundColor="transparent" />
-        <GestureHandlerRootView style={{ flex: 1 }}>
+        <GestureHandlerRootView style={styles.flexed}>
           <ErrorBoundary>
             <Suspense fallback={<Splash />}>
               <RecoilRoot>
@@ -32,9 +34,11 @@ export default withSentry(() => (
                   <SentryUser />
                   <GqlProvider>
                     <NavigationProvider>
-                      <Suspense fallback={<Splash />}>
-                        <RootNavigator />
-                      </Suspense>
+                      <WalletConnectProvider>
+                        <Suspense fallback={<Splash />}>
+                          <RootNavigator />
+                        </Suspense>
+                      </WalletConnectProvider>
                     </NavigationProvider>
                   </GqlProvider>
                 </AuthGate>
@@ -47,3 +51,9 @@ export default withSentry(() => (
     </ThemeProvider>
   </LocalizatonProvider>
 ));
+
+const styles = StyleSheet.create({
+  flexed: {
+    flex: 1,
+  },
+});

@@ -16,11 +16,8 @@ import { Drawer } from 'react-native-paper';
 import * as WebBrowser from 'expo-web-browser';
 import { Navigate } from '../useRootNavigation';
 import { DeviceItem } from './DeviceItem';
-
-enum Link {
-  Issues = 'https://github.com/AlloPay/AlloPay/issues',
-  Feedback = 'mailto:feedback@allopay.io',
-}
+import WalletConnectIcon from '~/../assets/walletconnect.svg';
+import { Link } from '~/util/links';
 
 export interface DrawerContentProps extends DrawerContentComponentProps {}
 
@@ -40,6 +37,18 @@ export const DrawerContent = ({ navigation }: DrawerContentProps) => {
       </Drawer.Section>
 
       <Drawer.Section title="Actions">
+        <Drawer.Item
+          label="Sessions"
+          icon={(props) => (
+            <WalletConnectIcon
+              color={props.color}
+              width={props.size}
+              height={props.size}
+            />
+          )}
+          onPress={() => navigate('Sessions')}
+        />
+
         <Drawer.Item
           label="Contacts"
           icon={PeopleIcon}

@@ -2,7 +2,6 @@ import { Box } from '~/components/layout/Box';
 import { ScreenSkeleton } from '~/components/skeleton/ScreenSkeleton';
 import { withSkeleton } from '~/components/skeleton/withSkeleton';
 import { RootNavigatorScreenProps } from '~/navigation/RootNavigator';
-import { ProposalId } from '~/queries/proposal';
 import { Comments } from './comments/Comments';
 import { TransactionStatus } from './status/TransactionStatus';
 import { TransactionAppbar } from './appbar/TransactionAppbar';
@@ -10,11 +9,13 @@ import { TransactionDetails } from './details/TransactionDetails';
 import { useScrolled } from '@hook/useScrolled';
 import { Container } from '~/components/layout/Container';
 import { PotentialDisabledExecutionWarning } from './status/PotentialDisabledExecutionWarning';
-import { TransactionProvider } from './TransactionProvider';
+import {
+  TransactionContextProps,
+  TransactionProvider,
+} from './TransactionProvider';
 
-export interface TransactionScreenParams {
-  id: ProposalId;
-}
+export interface TransactionScreenParams
+  extends Omit<TransactionContextProps, 'children'> {}
 
 export type TransactionScreenProps = RootNavigatorScreenProps<'Transaction'>;
 
@@ -23,7 +24,7 @@ export const TransactionScreen = withSkeleton(
     const [scrolled, handleScroll] = useScrolled();
 
     return (
-      <TransactionProvider id={route.params.id}>
+      <TransactionProvider {...route.params}>
         <Box flex={1}>
           <TransactionAppbar scrolled={scrolled} />
 

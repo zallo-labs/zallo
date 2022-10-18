@@ -1,5 +1,6 @@
 import { makeStyles } from '@theme/makeStyles';
 import { useTheme } from '@theme/paper';
+import { useEffect } from 'react';
 import { StyleProp, TextStyle } from 'react-native';
 import { Snackbar, SnackbarProps, Text } from 'react-native-paper';
 import RnToast, {
@@ -8,6 +9,7 @@ import RnToast, {
   ToastOptions,
 } from 'react-native-toast-message';
 import { match } from 'ts-pattern';
+import { captureEvent } from '~/util/sentry/sentry';
 
 type SnackVariant = 'info' | 'error';
 
@@ -25,6 +27,14 @@ const Snack = ({
   props: { message, variant = 'info', messageStyle, action, style, ...props },
 }: SnackProps) => {
   const styles = useStyles(variant);
+
+  useEffect(() => {
+    if (variant === 'error')
+      captureEvent({
+        message: 'Error snack shown',
+        extra: { message },
+      });
+  }, [message, variant]);
 
   return (
     <Snackbar
@@ -66,27 +76,41 @@ const useStyles = makeStyles(
   },
 );
 
-export type ShowSnackParams = Pick<
+export type ShowSnackOptions = Pick<
   ToastOptions,
   'autoHide' | 'visibilityTime' | 'position' | 'onHide'
 > &
-  SnackParams;
+  Omit<SnackParams, 'message'>;
 
-export const showSnack = ({
-  autoHide,
-  visibilityTime,
-  position,
-  onHide,
-  ...props
-}: ShowSnackParams) =>
+export const showSnack = (
+  message: string,
+  {
+    autoHide,
+    visibilityTime,
+    position,
+    onHide,
+    ...props
+  }: ShowSnackOptions = {},
+) =>
   RnToast.show({
     type: Snack.name,
-    props,
+    props: {
+      ...props,
+      message,
+    },
     autoHide,
     visibilityTime,
     position,
     onHide,
   });
+
+export const showInfo = (message: string, options?: ShowSnackOptions) =>
+  showSnack(message, { ...options, variant: 'info' });
+
+export const showError = (message: string, options?: ShowSnackOptions) =>
+  showSnack(message, { ...options, variant: 'error' });
+
+export const showWarning = showError;
 
 const CONFIGS: ToastConfig = { [Snack.name]: Snack };
 

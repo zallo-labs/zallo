@@ -139,6 +139,7 @@ model Proposal {
   value      String //@db.Decimal(79, 0) // uint256
   data       String // bytes
   salt       String   @db.Char(18) // bytes8
+  gasLimit   Decimal? @db.Decimal(19, 0)
   createdAt  DateTime @default(now())
 
   approvals   Approval[]

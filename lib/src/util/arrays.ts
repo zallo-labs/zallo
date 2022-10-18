@@ -2,6 +2,10 @@ export type ArrVal<T> = NonNullable<T extends (infer A)[] ? A : undefined>;
 
 export type NonBoolean<T> = T extends boolean ? never : T;
 
+export type SetKeys<S extends Set<unknown>> = S extends Set<infer T>
+  ? T
+  : never;
+
 // Required as filter((t?: T) => !!t) => (T | undefined); see https://github.com/microsoft/TypeScript/issues/20812
 export const isPresent = <T>(t: T | null | undefined): t is T =>
   t !== undefined && t !== null;

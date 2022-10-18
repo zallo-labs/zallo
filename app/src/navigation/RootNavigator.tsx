@@ -9,8 +9,7 @@ import {
 import TokensScreen, {
   TokensScreenParams,
 } from '~/screens/tokens/TokensScreen';
-import {
-  ContactsScreen,
+import ContactsScreen, {
   ContactsScreenParams,
 } from '~/screens/contacts/ContactsScreen';
 import { ScanScreen, ScanScreenParams } from '~/screens/scan/ScanScreen';
@@ -51,6 +50,12 @@ import {
   AccountSettingsScreen,
   AccountSettingsScreenParams,
 } from '~/screens/account-settings/AccountSettingsScreen';
+import {
+  SessionProposalScreen,
+  SessionProposalScreenParams,
+} from '~/screens/session-proposal/SessionProposalScreen';
+import { SignScreen, SignScreenParams } from '~/screens/sign/SignScreen';
+import { SessionsScreen } from '~/screens/sessions/SessionsScreen';
 
 export type RootNavigatorParamList = {
   DrawerNavigator: undefined;
@@ -71,6 +76,10 @@ export type RootNavigatorParamList = {
   // Modal
   Alert: AlertModalScreenParams;
   Delete: DeleteModalScreenParams;
+  /* WalletConnect */
+  Sessions: undefined;
+  SessionProposal: SessionProposalScreenParams;
+  Sign: SignScreenParams;
 };
 
 export type RootNavigatorScreenProps<K extends keyof RootNavigatorParamList> =
@@ -120,6 +129,15 @@ export const RootNavigator = () => {
       <Navigation.Group screenOptions={{ presentation: 'transparentModal' }}>
         <Navigation.Screen name="Alert" component={AlertModalScreen} />
         <Navigation.Screen name="Delete" component={DeleteModalScreen} />
+      </Navigation.Group>
+
+      <Navigation.Group key="WalletConnect">
+        <Navigation.Screen name="Sessions" component={SessionsScreen} />
+        <Navigation.Screen
+          name="SessionProposal"
+          component={SessionProposalScreen}
+        />
+        <Navigation.Screen name="Sign" component={SignScreen} />
       </Navigation.Group>
     </Navigation.Navigator>
   );

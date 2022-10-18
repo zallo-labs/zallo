@@ -1,23 +1,29 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { StyleSheet } from 'react-native';
-import { BarCodeScanningResult, Camera } from 'expo-camera';
+import { Camera } from 'expo-camera';
 import { BarCodeScanner } from 'expo-barcode-scanner';
 import { Box } from '~/components/layout/Box';
 import { Button, Title } from 'react-native-paper';
 import { AddrLink, parseAddrLink } from '~/util/addrLink';
 import { RootNavigatorScreenProps } from '~/navigation/RootNavigator';
 import { Overlay } from './Overlay';
+import {
+  isWalletConnectUri,
+  usePairWalletConnect,
+} from '~/util/walletconnect/usePairWalletConnect';
 
 export type ScanScreenParams = {
-  onScan: (link: AddrLink) => void;
+  onScanAddr?: (link: AddrLink) => void;
 };
 
 export type ScanScreenProps = RootNavigatorScreenProps<'Scan'>;
 
-export const ScanScreen = ({ route }: ScanScreenProps) => {
-  const { onScan } = route.params;
+export const ScanScreen = ({ route, navigation }: ScanScreenProps) => {
+  const { onScanAddr } = route.params;
+  const pairWc = usePairWalletConnect();
 
-  const [hasPermission, setHasPermission] = useState(false);
+  const camera = useRef<Camera>(null);
+  const [hasPermission, setHasPermission] = useState<boolean | null>(null);
   const [canAskAgain, setCanAskAgain] = useState(false);
   const requestPermissions = useCallback(async () => {
     const { granted, canAskAgain } =
@@ -27,22 +33,39 @@ export const ScanScreen = ({ route }: ScanScreenProps) => {
     setCanAskAgain(canAskAgain);
   }, []);
 
+  const [ratio, setRatio] = useState<string | undefined>();
+  const detectRatio = useCallback(async () => {
+    const ratios = await camera.current?.getSupportedRatiosAsync();
+    setRatio(ratios?.[0]);
+  }, []);
+
   useEffect(() => {
     requestPermissions();
-  }, [requestPermissions]);
+    detectRatio();
+  }, [detectRatio, requestPermissions]);
 
-  const [scanned, setScanned] = useState(false);
-  const handleScanned = ({ data }: BarCodeScanningResult) => {
-    try {
-      const addrLink = parseAddrLink(data);
-      setScanned(true);
-      onScan(addrLink);
-    } catch (e) {
-      // The correct QR wasn't scanned, do nothing
+  const [scanning, setScanning] = useState(false);
+  const handleScanned = async (data: string) => {
+    setScanning(true);
+
+    const addrLink = parseAddrLink(data);
+    if (addrLink) {
+      onScanAddr?.(addrLink);
+    } else if (isWalletConnectUri(data)) {
+      await pairWc(data);
+      navigation.goBack();
+      // Navigates away on pair
+    } else {
+      setScanning(false);
     }
   };
 
   if (!hasPermission) {
+    if (hasPermission === null) {
+      // User being prompted for permission
+      return null;
+    }
+
     return (
       <Box flex={1} vertical center m={3}>
         <Title style={{ textAlign: 'center' }}>
@@ -55,14 +78,17 @@ export const ScanScreen = ({ route }: ScanScreenProps) => {
 
   return (
     <Camera
-      onBarCodeScanned={!scanned ? handleScanned : undefined}
+      ref={camera}
+      onBarCodeScanned={
+        !scanning ? ({ data }) => handleScanned(data) : undefined
+      }
       barCodeScannerSettings={{
         barCodeTypes: [BarCodeScanner.Constants.BarCodeType.qr],
       }}
       style={StyleSheet.absoluteFill}
-      ratio="16:9"
+      ratio={ratio}
     >
-      <Overlay />
+      <Overlay handleScanned={handleScanned} />
     </Camera>
   );
 };
