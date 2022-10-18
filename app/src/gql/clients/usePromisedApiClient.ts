@@ -1,5 +1,6 @@
 import { ApolloClient, ApolloLink, HttpLink } from '@apollo/client';
 import { RetryLink } from '@apollo/client/link/retry';
+import { createPersistedQueryLink } from '@apollo/client/link/persisted-queries';
 import { useMemo } from 'react';
 import { CONFIG } from '~/util/config';
 import { DEFAULT_GQL_CLIENT_OPTIONS } from './util';
@@ -7,6 +8,7 @@ import { useAuthFlowLink } from './apiAuthFlowLink';
 import { getPersistedCache } from './util';
 import OfflineLink from 'apollo-link-offline';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { createHash } from 'crypto';
 
 export const API_CLIENT_NAME = 'api';
 const CACHE = getPersistedCache(API_CLIENT_NAME);
@@ -23,6 +25,11 @@ export const usePromisedApiClient = () => {
           new OfflineLink({ storage: AsyncStorage }),
           new RetryLink(),
           authFlowLink,
+          createPersistedQueryLink({
+            sha256: (...args: unknown[]) =>
+              createHash('sha256').update(args.join('')).digest('hex'),
+            useGETForHashedQueries: true,
+          }),
           new HttpLink({
             uri: `${CONFIG.apiUrl}/graphql`,
             credentials: 'include',
