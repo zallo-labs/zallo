@@ -36,14 +36,14 @@
      inkscape:snap-text-baseline="true"
      inkscape:snap-bbox="true"
      inkscape:zoom="1.1103093"
-     inkscape:cx="440.86816"
-     inkscape:cy="524.17828"
-     inkscape:window-width="2560"
-     inkscape:window-height="1403"
+     inkscape:cx="305.77065"
+     inkscape:cy="428.70937"
+     inkscape:window-width="3072"
+     inkscape:window-height="1691"
      inkscape:window-x="0"
      inkscape:window-y="0"
      inkscape:window-maximized="1"
-     inkscape:current-layer="layer3"
+     inkscape:current-layer="layer1"
      fit-margin-top="0"
      fit-margin-left="0"
      fit-margin-right="0"
@@ -62,7 +62,8 @@
      inkscape:groupmode="layer"
      id="layer3"
      inkscape:label="Background"
-     style="display:inline">
+     style="display:inline"
+     sodipodi:insensitive="true">
     <rect
        style="fill:#151a30;fill-opacity:1;stroke:none;stroke-width:8.44405;stroke-opacity:1"
        id="rect1018"
@@ -77,7 +78,7 @@
      id="layer1">
     <g
        id="g4282"
-       transform="matrix(8.1822644,0,0,8.1822644,12.88186,16.963693)"
+       transform="matrix(7.4384222,0,0,7.4384222,58.256236,37.966989)"
        style="stroke:#f3c00b;stroke-opacity:1">
       <g
          id="g6699"
@@ -106,11 +107,11 @@
            id="path3087-6"
            sodipodi:nodetypes="cc" />
         <circle
-           style="fill:none;stroke:#f3c00b;stroke-width:1.66667;stroke-linecap:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;paint-order:normal"
+           style="fill:none;stroke:#f3c00b;stroke-width:1.6672;stroke-linecap:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;paint-order:normal"
            id="path251-3-0"
-           cx="-3.9186532"
-           cy="71.7827"
-           r="7.5"
+           cx="-3.8931112"
+           cy="71.83226"
+           r="7.5023952"
            transform="rotate(-60)" />
         <path
            style="fill:none;stroke:#f3c00b;stroke-width:1.67;stroke-linecap:round;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"

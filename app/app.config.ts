@@ -64,7 +64,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     package: packageId,
     adaptiveIcon: {
       foregroundImage: './assets/adaptive-icon.png',
-      // backgroundColor: '#151A30',
+      backgroundColor: '#151A30',
     },
   },
   ios: {
