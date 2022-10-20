@@ -1,7 +1,7 @@
 import { Box } from '~/components/layout/Box';
 import { useMemo } from 'react';
 import { FlatList } from 'react-native';
-import { Button, Text } from 'react-native-paper';
+import { Text } from 'react-native-paper';
 import {
   useSelectAccount,
   useSelectedAccount,
@@ -38,7 +38,7 @@ export const HomeScreen = withSkeleton(() => {
   );
 
   return (
-    <Box>
+    <Box flex={1}>
       <HomeAppbar AppbarHeader={AppbarHeader} account={account} />
 
       <FlatList
@@ -59,6 +59,7 @@ export const HomeScreen = withSkeleton(() => {
         }
         renderItem={({ item, index }) => (
           <TokenHoldingCard
+            style={styles.token}
             token={item}
             user={user}
             selected={index === 0}
@@ -71,7 +72,6 @@ export const HomeScreen = withSkeleton(() => {
         )}
         ItemSeparatorComponent={() => <Box mt={1} />}
         data={tokens}
-        style={styles.list}
         onScroll={handleScroll}
         showsVerticalScrollIndicator={false}
       />
@@ -80,8 +80,7 @@ export const HomeScreen = withSkeleton(() => {
 }, HomeScreenSkeleton);
 
 const useStyles = makeStyles(({ space }) => ({
-  list: {
+  token: {
     marginHorizontal: space(2),
-    marginBottom: space(1),
   },
 }));
