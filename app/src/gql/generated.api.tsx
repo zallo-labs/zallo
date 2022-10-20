@@ -23,6 +23,7 @@ export type Scalars = {
   Id: any;
   JSON: any;
   Uint256: any;
+  Void: any;
 };
 
 export type Account = {
@@ -177,6 +178,7 @@ export type Device = {
   comments?: Maybe<Array<Comment>>;
   contacts?: Maybe<Array<Contact>>;
   id: Scalars['ID'];
+  pushToken?: Maybe<Scalars['String']>;
   reactions?: Maybe<Array<Reaction>>;
   users?: Maybe<Array<User>>;
 };
@@ -197,6 +199,7 @@ export type DeviceOrderByWithRelationInput = {
   comments?: InputMaybe<CommentOrderByRelationAggregateInput>;
   contacts?: InputMaybe<ContactOrderByRelationAggregateInput>;
   id?: InputMaybe<SortOrder>;
+  pushToken?: InputMaybe<SortOrder>;
   reactions?: InputMaybe<ReactionOrderByRelationAggregateInput>;
   users?: InputMaybe<UserOrderByRelationAggregateInput>;
 };
@@ -217,6 +220,7 @@ export type Mutation = {
   deleteContact: Scalars['Boolean'];
   propose: Proposal;
   reactToComment?: Maybe<Reaction>;
+  registerPushToken: Scalars['Void'];
   removeUser: User;
   requestFunds: Scalars['Boolean'];
   revokeApproval: RevokeApprovalResp;
@@ -275,6 +279,11 @@ export type MutationProposeArgs = {
 export type MutationReactToCommentArgs = {
   emojis: Array<Scalars['String']>;
   id: Scalars['Float'];
+};
+
+
+export type MutationRegisterPushTokenArgs = {
+  token: Scalars['String'];
 };
 
 
@@ -790,6 +799,13 @@ export type RequestFundsMutationVariables = Exact<{
 
 
 export type RequestFundsMutation = { __typename?: 'Mutation', requestFunds: boolean };
+
+export type RegisterPushTokenMutationVariables = Exact<{
+  token: Scalars['String'];
+}>;
+
+
+export type RegisterPushTokenMutation = { __typename?: 'Mutation', registerPushToken: any };
 
 export type RemoveUserMutationVariables = Exact<{
   id: UserIdInput;
@@ -1337,6 +1353,37 @@ export function useRequestFundsMutation(baseOptions?: Apollo.MutationHookOptions
 export type RequestFundsMutationHookResult = ReturnType<typeof useRequestFundsMutation>;
 export type RequestFundsMutationResult = Apollo.MutationResult<RequestFundsMutation>;
 export type RequestFundsMutationOptions = Apollo.BaseMutationOptions<RequestFundsMutation, RequestFundsMutationVariables>;
+export const RegisterPushTokenDocument = gql`
+    mutation RegisterPushToken($token: String!) {
+  registerPushToken(token: $token)
+}
+    `;
+export type RegisterPushTokenMutationFn = Apollo.MutationFunction<RegisterPushTokenMutation, RegisterPushTokenMutationVariables>;
+
+/**
+ * __useRegisterPushTokenMutation__
+ *
+ * To run a mutation, you first call `useRegisterPushTokenMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useRegisterPushTokenMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [registerPushTokenMutation, { data, loading, error }] = useRegisterPushTokenMutation({
+ *   variables: {
+ *      token: // value for 'token'
+ *   },
+ * });
+ */
+export function useRegisterPushTokenMutation(baseOptions?: Apollo.MutationHookOptions<RegisterPushTokenMutation, RegisterPushTokenMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<RegisterPushTokenMutation, RegisterPushTokenMutationVariables>(RegisterPushTokenDocument, options);
+      }
+export type RegisterPushTokenMutationHookResult = ReturnType<typeof useRegisterPushTokenMutation>;
+export type RegisterPushTokenMutationResult = Apollo.MutationResult<RegisterPushTokenMutation>;
+export type RegisterPushTokenMutationOptions = Apollo.BaseMutationOptions<RegisterPushTokenMutation, RegisterPushTokenMutationVariables>;
 export const RemoveUserDocument = gql`
     mutation RemoveUser($id: UserIdInput!, $proposalHash: Bytes32!) {
   removeUser(id: $id, proposalHash: $proposalHash) {
