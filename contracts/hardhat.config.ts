@@ -1,5 +1,5 @@
 import type { HardhatUserConfig } from 'hardhat/config';
-import { CONFIG } from 'config';
+import { CONFIG } from './config';
 
 import '@matterlabs/hardhat-zksync-deploy';
 import '@matterlabs/hardhat-zksync-solc';
@@ -31,8 +31,8 @@ const config: HardhatUserConfig = {
     compilerSource: 'binary',
   },
   zkSyncDeploy: {
-    zkSyncNetwork: CONFIG.chain?.zksyncUrl ?? '',
-    ethNetwork: CONFIG.chain?.ethUrl ?? '',
+    zkSyncNetwork: CONFIG.chain.zksyncUrl,
+    ethNetwork: CONFIG.chain.ethUrl,
   },
   defaultNetwork: 'hardhat',
   networks: {
@@ -54,7 +54,7 @@ const config: HardhatUserConfig = {
     coinmarketcap: CONFIG.coinmarketcapApiKey,
   },
   etherscan: {
-    apiKey: CONFIG.providers?.etherscan,
+    apiKey: CONFIG.etherscanApiKey,
   },
   abiExporter: {
     runOnCompile: true,

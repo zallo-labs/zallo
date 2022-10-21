@@ -3,7 +3,8 @@
   "private": true,
   "scripts": {
     "compile": "hardhat compile",
-    "build": "yarn build:libs && yarn compile",
+    "prebuild": "(cd .. && yarn lib build)",
+    "build": "yarn prebuild && yarn compile",
     "typechain": "hardhat typechain",
     "analyze": "myth analyze src/*",
     "test": "CHAIN=local hardhat test",
