@@ -13,10 +13,6 @@
       "path": "../app"
     },
     {
-      "name": "config",
-      "path": "../config"
-    },
-    {
       "name": "contracts",
       "path": "../contracts"
     },

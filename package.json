@@ -7,7 +7,6 @@
   "workspaces": [
     "api",
     "app",
-    "config",
     "contracts",
     "lib",
     "subgraph"
@@ -15,14 +14,12 @@
   "scripts": {
     "api": "yarn workspace api",
     "app": "yarn workspace app",
-    "config-ws": "yarn workspace config",
     "contracts": "yarn workspace contracts",
     "lib": "yarn workspace lib",
     "subgraph": "yarn workspace subgraph",
     "lint": "eslint \"**/*.{j,t}s\"",
     "lint:fix": "yarn lint --fix",
-    "clean": "yarn workspaces foreach run clean",
-    "build:libs": "yarn config-ws build && yarn lib build"
+    "clean": "yarn workspaces foreach run clean"
   },
   "engines": {
     "node": "16.x",
