@@ -11,6 +11,7 @@ import { ReactNode, useCallback, useRef } from 'react';
 import { LogBox } from 'react-native';
 import * as NotificationsLinking from '~/util/notifications/notificationLinking';
 import * as Linking from 'expo-linking';
+import { ROUTES } from './routes';
 
 LogBox.ignoreLogs([
   'Non-serializable values were found in the navigation state',
@@ -59,6 +60,7 @@ export const NavigationProvider = ({ children }: NavigationProviderProps) => {
       onStateChange={handleStateChange}
       linking={{
         prefixes: [prefix],
+        config: ROUTES as any,
         getInitialURL: async () =>
           (await Linking.getInitialURL()) ??
           NotificationsLinking.getInitialURL(),

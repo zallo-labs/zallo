@@ -47,8 +47,6 @@ export const NotificationsRegistrar = () => {
         })
       ).data;
 
-      console.log({ token });
-
       await register(token);
     },
     [register],
