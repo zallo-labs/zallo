@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import CONFIG from 'config';
+import { CONFIG } from '~/config';
 import { Contract } from 'ethers';
 import { FunctionFragment, Interface } from 'ethers/lib/utils';
 import { Address } from 'lib';
@@ -11,7 +11,7 @@ const ETHERSCAN_API_URL = `https://api${
 }.etherscan.io/api`;
 
 const getEtherscanUrl = (args: string) =>
-  `${ETHERSCAN_API_URL}?apikey=${CONFIG.providers.etherscan}&${args}`;
+  `${ETHERSCAN_API_URL}?apikey=${CONFIG.etherscanApiKey}&${args}`;
 
 interface Resp {
   message: 'OK' | 'NOTOK';

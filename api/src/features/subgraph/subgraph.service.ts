@@ -7,7 +7,7 @@ import {
 } from '@apollo/client';
 import { RetryLink } from '@apollo/client/link/retry';
 import fetch from 'cross-fetch';
-import { CONFIG } from 'config';
+import { CONFIG } from '~/config';
 import {
   TxResponseQuery,
   TxResponseQueryVariables,

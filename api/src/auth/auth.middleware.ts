@@ -7,7 +7,8 @@ import {
 import { Request, Response, NextFunction } from 'express';
 import { SiweMessage } from 'siwe';
 
-import CONFIG, { IS_DEV } from 'config';
+import { CONFIG, IS_DEV } from '~/config';
+import { ProviderService } from '~/provider/provider.service';
 import { VALIDATION_CHECKS } from './message.validation';
 
 interface Token {
@@ -28,7 +29,7 @@ const tryParseToken = (token?: string): Token | undefined => {
 
 const isLocalDevPlayground = (req: Request) => {
   const isLocalPlayground =
-    req.headers.origin?.endsWith(`[::1]:${CONFIG.api.port}`) ||
+    req.headers.origin?.endsWith(`[::1]:${CONFIG.apiPort}`) ||
     req.headers.origin?.startsWith('https://studio.apollographql.com');
 
   const isIntrospection = req.body?.operationName === 'IntrospectionQuery';
@@ -38,6 +39,8 @@ const isLocalDevPlayground = (req: Request) => {
 
 @Injectable()
 export class AuthMiddleware implements NestMiddleware {
+  constructor(private provider: ProviderService) {}
+
   async use(req: Request, _res: Response, next: NextFunction) {
     const token = tryParseToken(req.headers.authorization);
     if (token) {
@@ -59,7 +62,7 @@ export class AuthMiddleware implements NestMiddleware {
       req.deviceMessage = message;
     } else if (isLocalDevPlayground(req)) {
       req.deviceMessage = new SiweMessage({
-        address: CONFIG.wallet.address,
+        address: this.provider.wallet.address,
       });
     }
 

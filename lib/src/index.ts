@@ -15,6 +15,7 @@ export { Erc20, Erc20__factory } from './typechain';
 
 export * from './util/arrays';
 export * from './util/assert';
+export * from './util/env';
 export * from './util/mappedTypes';
 export * from './util/try';
 

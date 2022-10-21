@@ -8,7 +8,7 @@ try {
 
 const E = process?.env ?? {};
 
-const apiPort = E.PORT || 3000;
+const apiPort = E.API_PORT || 3000;
 
 const defaultChain: ChainName = 'testnet';
 const chain = getChain(E.CHAIN?.toLowerCase() ?? defaultChain);

@@ -6,7 +6,7 @@ import {
   ApolloServerPluginLandingPageLocalDefault,
   ApolloServerPluginInlineTrace,
 } from 'apollo-server-core';
-import { IS_DEV } from 'config';
+import { IS_DEV } from '~/config';
 import { AddressMiddleware } from './address.middleware';
 import { IdMiddleware } from './id.middleware';
 
