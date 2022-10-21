@@ -18,9 +18,11 @@ import { CommentsModule } from './features/comments/comments.module';
 import { ReactionsModule } from './features/reactions/reactions.module';
 import { FaucetModule } from './features/faucet/faucet.module';
 import { RedisModule } from '@liaoliaots/nestjs-redis';
-import CONFIG from 'config';
+import { CONFIG } from './config';
 import { UsersModule } from './features/users/users.module';
 import { SubgraphModule } from './features/subgraph/subgraph.module';
+import { ExpoService } from './expo/expo.service';
+import { ExpoModule } from './expo/expo.module';
 
 @Module({
   imports: [
@@ -48,12 +50,14 @@ import { SubgraphModule } from './features/subgraph/subgraph.module';
     SubgraphModule,
     SubmissionsModule,
     UsersModule,
+    ExpoModule,
   ],
   providers: [
     {
       provide: APP_GUARD,
       useClass: AuthGuard,
     },
+    ExpoService,
   ],
 })
 export class AppModule {}

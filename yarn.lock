@@ -11698,6 +11698,7 @@ __metadata:
     eslint-config-prettier: ^8.5.0
     eslint-plugin-prettier: ^4.2.1
     ethers: ^5.7.1
+    expo-server-sdk: ^3.7.0
     express-session: ^1.17.3
     fetch-retry: ^5.0.3
     graphql: ^16.6.0
@@ -18746,6 +18747,17 @@ __metadata:
   peerDependencies:
     expo: "*"
   checksum: ac3973ff3f9aa18e7c55a73ee50abe15c76aa8d1c7ca882058161c170b08e9d184ead1b73341f01af8a5fcdbf96becc9f237e0bc26c9b6c4452aab4be8ed078a
+  languageName: node
+  linkType: hard
+
+"expo-server-sdk@npm:^3.7.0":
+  version: 3.7.0
+  resolution: "expo-server-sdk@npm:3.7.0"
+  dependencies:
+    node-fetch: ^2.6.0
+    promise-limit: ^2.7.0
+    promise-retry: ^2.0.1
+  checksum: 6350edca193b7c64169594a99710deefced854d560d3e810bac3633e443c3e0e923b35842c5445af3d61dc6cd707b3dc8ecbe0fa984cb40a0d4c15c7f36767a4
   languageName: node
   linkType: hard
 
@@ -29577,7 +29589,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"promise-limit@npm:2.7.0":
+"promise-limit@npm:2.7.0, promise-limit@npm:^2.7.0":
   version: 2.7.0
   resolution: "promise-limit@npm:2.7.0"
   checksum: 3e20a46d752ab41c921feceb668b3a6d000438573e71342d42bf63373fdbafbf4b6a3f88ef5ff902a2a37be28152dc74e618e863134fd4c08c196448f4a6d28f

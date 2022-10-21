@@ -8,7 +8,11 @@ import {
 } from '@nestjs/graphql';
 import { BigNumber, BytesLike } from 'ethers';
 import { Address, Id, TxSalt } from 'lib';
-import { AddressField, GqlAddress } from '~/apollo/scalars/Address.scalar';
+import { AddressField } from '~/apollo/scalars/Address.scalar';
+import {
+  AddressSetField,
+  NonEmptyAddressSetField,
+} from '~/apollo/scalars/AddressSet.scalar';
 import { BytesField } from '~/apollo/scalars/Bytes.scalar';
 import { Bytes32Field } from '~/apollo/scalars/Bytes32.scalar';
 import { Bytes8Field } from '~/apollo/scalars/Bytes8.scalar';
@@ -24,8 +28,8 @@ export class UniqueProposalArgs {
 export class ProposalsArgs extends OmitType(FindManyProposalArgs, [
   'where' as const,
 ]) {
-  @Field(() => [GqlAddress], { nullable: true })
-  accounts?: Address[];
+  @AddressSetField({ nullable: true })
+  accounts?: Set<Address>;
 }
 
 @InputType()
@@ -67,4 +71,10 @@ export class RevokeApprovalResp {
 export class ApproveArgs extends UniqueProposalArgs {
   @BytesField()
   signature: BytesLike;
+}
+
+@ArgsType()
+export class ApprovalRequest extends UniqueProposalArgs {
+  @NonEmptyAddressSetField()
+  approvers: Set<Address>;
 }

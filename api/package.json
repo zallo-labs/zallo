@@ -47,6 +47,7 @@
     "dotenv": "^16.0.3",
     "dotenv-cli": "^6.0.0",
     "ethers": "^5.7.1",
+    "expo-server-sdk": "^3.7.0",
     "express-session": "^1.17.3",
     "fetch-retry": "^5.0.3",
     "graphql": "^16.6.0",
