@@ -2,7 +2,6 @@ import { ApolloDriverConfig, ApolloDriver } from '@nestjs/apollo';
 import { Module } from '@nestjs/common';
 import { GraphQLModule } from '@nestjs/graphql';
 import {
-  ApolloServerPluginLandingPageGraphQLPlaygroundOptions,
   ApolloServerPluginLandingPageLocalDefault,
   ApolloServerPluginInlineTrace,
 } from 'apollo-server-core';
@@ -36,9 +35,6 @@ export const GQL_ENDPOINT = '/graphql';
           ? [
               ApolloServerPluginLandingPageLocalDefault({
                 includeCookies: true,
-                variables: {
-                  'request.credentials': 'include',
-                } as ApolloServerPluginLandingPageGraphQLPlaygroundOptions['settings'],
               }),
               ApolloServerPluginInlineTrace(),
             ]
