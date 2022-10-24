@@ -10,3 +10,8 @@ export const requiredEnv = (...params: Parameters<typeof getKey>) => {
   if (!value) throw new Error(`Missing environmental variable: ${key}`);
   return value!;
 };
+
+export const makeRequiredEnv = (skip: boolean) =>
+  skip
+    ? (..._params: Parameters<typeof requiredEnv>) => undefined as any
+    : requiredEnv;

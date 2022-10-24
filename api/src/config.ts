@@ -1,17 +1,12 @@
-import {
-  getChain,
-  requiredEnv as required,
-  optionalEnv as optional,
-} from 'lib';
+import { getChain, makeRequiredEnv, optionalEnv as optional } from 'lib';
 require('dotenv').config({ path: '../.env' });
+
+const required = makeRequiredEnv(process.env.RELEASE_ENV === 'test');
 
 const chain = getChain(optional`CHAIN`);
 
 export const CONFIG = {
-  env:
-    required`RELEASE_ENV`.toLowerCase() === 'development'
-      ? 'development'
-      : 'production',
+  env: required`RELEASE_ENV` === 'development' ? 'development' : 'production',
   apiPort: optional`API_PORT` || 3000,
   expoToken: required`EXPO_TOKEN`,
   redisUrl: required`REDIS_URL`,

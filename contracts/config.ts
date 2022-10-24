@@ -5,12 +5,10 @@ import {
 } from 'lib';
 import localWallets from './local-wallets.json';
 
-const chain = getChain(optional`CHAIN`);
+const chain = getChain(optional`CHAIN` ?? 'local');
+
 export const CONFIG = {
-  env:
-    optional`RELEASE_ENV`?.toLowerCase() === 'development'
-      ? 'development'
-      : 'production',
+  env: optional`RELEASE_ENV` === 'development' ? 'development' : 'production',
   chain: getChain(optional`CHAIN`),
   walletPrivateKey:
     chain.name === 'local'
