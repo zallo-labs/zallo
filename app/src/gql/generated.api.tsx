@@ -14,6 +14,7 @@ export type Scalars = {
   Int: number;
   Float: number;
   Address: any;
+  AddressSet: any;
   BigNumber: any;
   Bytes: any;
   Bytes8: any;
@@ -22,8 +23,8 @@ export type Scalars = {
   Decimal: any;
   Id: any;
   JSON: any;
+  NonEmptyAddressSet: any;
   Uint256: any;
-  Void: any;
 };
 
 export type Account = {
@@ -220,8 +221,9 @@ export type Mutation = {
   deleteContact: Scalars['Boolean'];
   propose: Proposal;
   reactToComment?: Maybe<Reaction>;
-  registerPushToken: Scalars['Void'];
+  registerPushToken: Scalars['Boolean'];
   removeUser: User;
+  requestApproval: Scalars['Boolean'];
   requestFunds: Scalars['Boolean'];
   revokeApproval: RevokeApprovalResp;
   setAccountName: Account;
@@ -290,6 +292,12 @@ export type MutationRegisterPushTokenArgs = {
 export type MutationRemoveUserArgs = {
   id: UserIdInput;
   proposalHash?: InputMaybe<Scalars['Bytes32']>;
+};
+
+
+export type MutationRequestApprovalArgs = {
+  approvers: Scalars['NonEmptyAddressSet'];
+  hash: Scalars['Bytes32'];
 };
 
 
@@ -463,7 +471,7 @@ export type QueryProposalArgs = {
 
 
 export type QueryProposalsArgs = {
-  accounts?: InputMaybe<Array<Scalars['Address']>>;
+  accounts?: InputMaybe<Scalars['AddressSet']>;
   cursor?: InputMaybe<ProposalWhereUniqueInput>;
   distinct?: InputMaybe<Array<ProposalScalarFieldEnum>>;
   orderBy?: InputMaybe<Array<ProposalOrderByWithRelationInput>>;
@@ -793,6 +801,14 @@ export type ProposeMutationVariables = Exact<{
 
 export type ProposeMutation = { __typename?: 'Mutation', propose: { __typename?: 'Proposal', id: string } };
 
+export type RequestApprovalMutationVariables = Exact<{
+  approvers: Scalars['NonEmptyAddressSet'];
+  hash: Scalars['Bytes32'];
+}>;
+
+
+export type RequestApprovalMutation = { __typename?: 'Mutation', requestApproval: boolean };
+
 export type RequestFundsMutationVariables = Exact<{
   recipient: Scalars['Address'];
 }>;
@@ -805,7 +821,7 @@ export type RegisterPushTokenMutationVariables = Exact<{
 }>;
 
 
-export type RegisterPushTokenMutation = { __typename?: 'Mutation', registerPushToken: any };
+export type RegisterPushTokenMutation = { __typename?: 'Mutation', registerPushToken: boolean };
 
 export type RemoveUserMutationVariables = Exact<{
   id: UserIdInput;
@@ -851,7 +867,7 @@ export type ProposalQueryVariables = Exact<{
 export type ProposalQuery = { __typename?: 'Query', proposal: { __typename?: 'Proposal', id: string, accountId: string, proposerId: string, hash: string, to: string, value: string, data: string, salt: string, createdAt: any, approvals?: Array<{ __typename?: 'Approval', deviceId: string, signature: string, createdAt: any }> | null, submissions?: Array<{ __typename?: 'Submission', id: string, hash: string, nonce: number, gasLimit: any, gasPrice?: any | null, createdAt: any, response?: { __typename?: 'SubmissionResponse', response: string, reverted: boolean, timestamp: any } | null }> | null } };
 
 export type ProposalsMetadataQueryVariables = Exact<{
-  accounts?: InputMaybe<Array<Scalars['Address']> | Scalars['Address']>;
+  accounts?: InputMaybe<Scalars['AddressSet']>;
 }>;
 
 
@@ -1322,6 +1338,38 @@ export function useProposeMutation(baseOptions?: Apollo.MutationHookOptions<Prop
 export type ProposeMutationHookResult = ReturnType<typeof useProposeMutation>;
 export type ProposeMutationResult = Apollo.MutationResult<ProposeMutation>;
 export type ProposeMutationOptions = Apollo.BaseMutationOptions<ProposeMutation, ProposeMutationVariables>;
+export const RequestApprovalDocument = gql`
+    mutation RequestApproval($approvers: NonEmptyAddressSet!, $hash: Bytes32!) {
+  requestApproval(approvers: $approvers, hash: $hash)
+}
+    `;
+export type RequestApprovalMutationFn = Apollo.MutationFunction<RequestApprovalMutation, RequestApprovalMutationVariables>;
+
+/**
+ * __useRequestApprovalMutation__
+ *
+ * To run a mutation, you first call `useRequestApprovalMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useRequestApprovalMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [requestApprovalMutation, { data, loading, error }] = useRequestApprovalMutation({
+ *   variables: {
+ *      approvers: // value for 'approvers'
+ *      hash: // value for 'hash'
+ *   },
+ * });
+ */
+export function useRequestApprovalMutation(baseOptions?: Apollo.MutationHookOptions<RequestApprovalMutation, RequestApprovalMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<RequestApprovalMutation, RequestApprovalMutationVariables>(RequestApprovalDocument, options);
+      }
+export type RequestApprovalMutationHookResult = ReturnType<typeof useRequestApprovalMutation>;
+export type RequestApprovalMutationResult = Apollo.MutationResult<RequestApprovalMutation>;
+export type RequestApprovalMutationOptions = Apollo.BaseMutationOptions<RequestApprovalMutation, RequestApprovalMutationVariables>;
 export const RequestFundsDocument = gql`
     mutation RequestFunds($recipient: Address!) {
   requestFunds(recipient: $recipient)
@@ -1627,7 +1675,7 @@ export type ProposalQueryHookResult = ReturnType<typeof useProposalQuery>;
 export type ProposalLazyQueryHookResult = ReturnType<typeof useProposalLazyQuery>;
 export type ProposalQueryResult = Apollo.QueryResult<ProposalQuery, ProposalQueryVariables>;
 export const ProposalsMetadataDocument = gql`
-    query ProposalsMetadata($accounts: [Address!]) {
+    query ProposalsMetadata($accounts: AddressSet) {
   proposals(accounts: $accounts) {
     id
     accountId

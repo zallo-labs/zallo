@@ -5,9 +5,9 @@ import { SubmissionRow } from './SubmissionRow';
 import { Box } from '~/components/layout/Box';
 import { Container } from '~/components/layout/Container';
 import { ApprovalsRequiredRow } from './ApprovalsRequiredRow';
-import { useTransactionIsApproved } from '../useTransactionIsApproved';
 import { useTxContext } from '../../TransactionProvider';
 import { ProposalRow } from './ProposalRow';
+import { useTransactionIsApproved } from '../useTransactionApprovers';
 
 enum EventType {
   Proposal,
@@ -38,7 +38,7 @@ const EventComponent = ({ event }: { event: Event }): JSX.Element => {
 
 export const TransactionEvents = () => {
   const { proposal, proposer } = useTxContext();
-  const isApproved = useTransactionIsApproved(proposal, proposer);
+  const isApproved = useTransactionIsApproved();
 
   const events = useMemo(
     (): Event[] =>
