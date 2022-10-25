@@ -28,7 +28,7 @@ export const SessionCard = ({ sessionData }: SessionCardProps) => {
         <Box horizontal mt={2}>
           <Text variant="titleSmall">Expires: </Text>
           <Text variant="bodyMedium">
-            <Timestamp time>{sessionData.expiry}</Timestamp>
+            <Timestamp timestamp={sessionData.expiry} />
           </Text>
         </Box>
       )}

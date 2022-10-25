@@ -31,9 +31,7 @@ const Status = ({ p }: { p: Proposal }) => {
     ))
     .with({ status: 'executed' }, () => (
       <Text variant="bodyMedium">
-        <Timestamp weekday time>
-          {p.timestamp}
-        </Timestamp>
+        <Timestamp timestamp={p.timestamp} weekday />
       </Text>
     ))
     .with({ status: 'failed' }, { status: 'submitted' }, ({ status }) => (

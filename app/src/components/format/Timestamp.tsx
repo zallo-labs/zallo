@@ -2,32 +2,29 @@ import { DateTime } from 'luxon';
 import { useMemo } from 'react';
 
 export interface TimestampProps {
-  children: DateTime | number;
+  timestamp: DateTime;
   weekday?: boolean;
   time?: boolean;
 }
 
-export const Timestamp = ({ children, weekday, time }: TimestampProps) => {
-  const dt = useMemo(
-    () =>
-      typeof children === 'number' ? DateTime.fromSeconds(children) : children,
-    [children],
-  );
-
+export const Timestamp = ({
+  timestamp: timestamp,
+  weekday,
+  time = true,
+}: TimestampProps) => {
   const formatted = useMemo(
     () =>
-      // dt.toFormat(`ccc d LLL${dt.year !== DateTime.now().year ? ' yy' : ''}`),
-      dt.toLocaleString({
-        ...(weekday && { weekday: 'short' }),
+      timestamp.toLocaleString({
+        year: timestamp.year !== DateTime.now().year ? '2-digit' : undefined,
         month: 'short',
         day: 'numeric',
-        year: dt.year !== DateTime.now().year ? '2-digit' : undefined,
+        ...(weekday && { weekday: 'short' }),
         ...(time && {
           hour: '2-digit',
           minute: '2-digit',
         }),
       }),
-    [dt, weekday, time],
+    [timestamp, weekday, time],
   );
 
   return <>{formatted}</>;
