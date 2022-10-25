@@ -4,6 +4,7 @@ import {
   getChain,
 } from 'lib';
 import localWallets from './local-wallets.json';
+require('dotenv').config({ path: '../.env' });
 
 const chain = getChain(optional`CHAIN` ?? 'local');
 
