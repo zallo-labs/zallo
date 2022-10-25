@@ -880,7 +880,7 @@ export type TransferQueryVariables = Exact<{
 }>;
 
 
-export type TransferQuery = { __typename?: 'Query', transfer?: { __typename?: 'Transfer', id: string, type: TransferType, token: any, from: any, to: any, value: any } | null };
+export type TransferQuery = { __typename?: 'Query', transfer?: { __typename?: 'Transfer', id: string, type: TransferType, token: any, from: any, to: any, value: any, timestamp: any } | null };
 
 export type TransfersMetadataQueryVariables = Exact<{
   accounts: Array<Scalars['String']> | Scalars['String'];
@@ -900,6 +900,7 @@ export const TransferDocument = gql`
     from
     to
     value
+    timestamp
   }
 }
     `;
