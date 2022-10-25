@@ -38,7 +38,7 @@ const EventComponent = ({ event }: { event: Event }): JSX.Element => {
 
 export const TransactionEvents = () => {
   const { proposal, proposer } = useTxContext();
-  const isApproved = useTransactionIsApproved();
+  const isApproved = useTransactionIsApproved(proposal);
 
   const events = useMemo(
     (): Event[] =>
