@@ -20,15 +20,15 @@ const ETH: TokenFaucet = {
 };
 
 const DAI: TokenFaucet = {
-  addr: address('0x9561634BD45CE00af2cddA94a2E21781d1DdbAdA'),
+  addr: address('0x537200b9Dd13Adc66749d5D8f1De2556F7f428eC'),
   amount: parseUnits('1', 18),
 };
 const USDC: TokenFaucet = {
-  addr: address('0x72c4F199CB8784425542583D345E7c00D642E345'),
+  addr: address('0xf9A9aFd74Dc8A5BD3745d6613b0E169B3eac4fcF'),
   amount: parseUnits('1', 6),
 };
 const LINK: TokenFaucet = {
-  addr: address('0x7EA4a22D3fc35C61b31cF1998608bDB1dF3638E9'),
+  addr: address('0x440b4f63674b5Cc4B1FE3021ecA276C49518db27'),
   amount: parseUnits('1', 18),
 };
 
