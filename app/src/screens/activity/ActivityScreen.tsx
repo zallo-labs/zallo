@@ -10,7 +10,7 @@ import { SectionList } from 'react-native';
 import { Appbar, Text } from 'react-native-paper';
 import { AppbarMenu } from '~/components/Appbar/AppbarMenu';
 import { useAppbarHeader } from '~/components/Appbar/useAppbarHeader';
-import { CallCard } from '~/screens/activity/CallCard';
+import { ProposalItem } from '~/screens/activity/ProposalItemProps';
 import { ProposalMetadata } from '~/queries/proposal';
 import { useRootNavigation } from '~/navigation/useRootNavigation';
 import { Timestamp } from '~/components/format/Timestamp';
@@ -87,7 +87,7 @@ export const ActivityScreen = withSkeleton(() => {
         renderItem={({ item }) => {
           if (item.type === 'proposal')
             return (
-              <CallCard
+              <ProposalItem
                 id={item.activity}
                 onPress={() =>
                   navigation.navigate('Transaction', { id: item.activity })

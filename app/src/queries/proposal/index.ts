@@ -1,5 +1,5 @@
 import { BytesLike, BigNumber } from 'ethers';
-import { Address, TxReq, Id, UserId } from 'lib';
+import { Address, TxReq, Id, UserId, UserConfig } from 'lib';
 import { DateTime } from 'luxon';
 
 export type ProposalStatus = 'proposed' | 'submitted' | 'failed' | 'executed';
@@ -16,6 +16,7 @@ export interface ProposalMetadata extends ProposalId {
 export interface Proposal extends ProposalMetadata, TxReq {
   account: Address;
   proposer: UserId;
+  config: UserConfig;
   approvals: Approval[];
   userHasApproved: boolean;
   submissions: Submission[];

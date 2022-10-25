@@ -13,6 +13,7 @@ import { useApiClient } from '~/gql/GqlProvider';
 import { usePollWhenFocussed } from '~/gql/usePollWhenFocussed';
 import { useSuspenseQuery } from '~/gql/useSuspenseQuery';
 import { Approval, Proposal, Submission, ProposalStatus, ProposalId } from '.';
+import { useUser } from '../user/useUser.api';
 
 gql`
   query Proposal($hash: Bytes32!) {
@@ -68,6 +69,13 @@ export const useProposal = ({ hash }: ProposalId, focussed = false) => {
   usePollWhenFocussed(rest, focussed ? 3 : 15);
 
   const p = data.proposal;
+
+  const account = address(p.accountId);
+  const [proposer] = useUser({
+    account,
+    addr: address(p.proposerId),
+  });
+
   const proposal = useMemo((): Proposal => {
     const approvals: Approval[] =
       p.approvals?.map((a) => ({
@@ -99,14 +107,11 @@ export const useProposal = ({ hash }: ProposalId, focussed = false) => {
         }),
       ) ?? [];
 
-    const account = address(p.accountId);
-
     return {
       account,
-      proposer: {
-        account,
-        addr: address(p.proposerId),
-      },
+      proposer,
+      // TODO: allow user to select config
+      config: (proposer.configs.active ?? proposer.configs.proposed!)[0],
       hash,
       id: toId(p.id),
       timestamp: DateTime.fromISO(p.createdAt),
@@ -122,7 +127,7 @@ export const useProposal = ({ hash }: ProposalId, focussed = false) => {
       proposedAt: DateTime.fromISO(p.createdAt),
       status: getStatus(submissions),
     };
-  }, [p, hash, device.address]);
+  }, [p, account, proposer, hash, device.address]);
 
   return [proposal, rest] as const;
 };
