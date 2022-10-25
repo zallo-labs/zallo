@@ -23,8 +23,8 @@ import {
 export const ProposeActions = memo(() => {
   const { proposal, proposer, onExecute } = useTxContext();
 
-  const isApproved = useTransactionIsApproved();
-  const approvers = useTransactionApprovers();
+  const isApproved = useTransactionIsApproved(proposal);
+  const approvers = useTransactionApprovers(proposal);
   const approve = useApprove();
   const revoke = useRevokeApproval();
   const execute = useExecute(proposer, proposal);
