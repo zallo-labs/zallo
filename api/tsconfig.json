@@ -15,7 +15,7 @@
     "noImplicitAny": false,
     "noUnusedLocals": false
   },
-  "references": [{ "path": "../config" }, { "path": "../lib" }],
+  "references": [{ "path": "../lib" }],
   "include": ["src/**/*", "generated/**/*"],
   "exclude": ["**/*.spec.ts"]
 }

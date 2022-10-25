@@ -12,7 +12,7 @@ const parse = (value: unknown): Address => {
   return address(value);
 };
 
-export const GqlAddress = new GraphQLScalarType({
+export const AddressScalar = new GraphQLScalarType({
   name: 'Address',
   description,
   serialize: (value: Address) => value,
@@ -26,11 +26,11 @@ export const GqlAddress = new GraphQLScalarType({
 export const AddressField =
   (options?: FieldOptions): PropertyDecorator =>
   (target, propertyKey) => {
-    Field(() => GqlAddress, options)(target, propertyKey);
+    Field(() => AddressScalar, options)(target, propertyKey);
   };
 
 export const AddressesField =
   (options?: FieldOptions): PropertyDecorator =>
   (target, propertyKey) => {
-    Field(() => [GqlAddress], options)(target, propertyKey);
+    Field(() => [AddressScalar], options)(target, propertyKey);
   };

@@ -17,7 +17,7 @@ export const CONFIG = {
 
 export type Config = typeof CONFIG;
 
-const projectId = 'f8f4def1-b838-4dec-8b50-6c07995c4ff5';
+export const PROJECT_ID = 'f8f4def1-b838-4dec-8b50-6c07995c4ff5';
 const packageId = 'io.allopay';
 
 // https://docs.expo.dev/versions/latest/config/app/
@@ -34,9 +34,13 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
   },
   extra: {
     ...CONFIG,
-    ...(CONFIG.env === 'production' && { eas: { projectId } }),
+    ...(CONFIG.env === 'production' && { eas: { projectId: PROJECT_ID } }),
   },
-  plugins: ['sentry-expo', 'expo-community-flipper'],
+  plugins: [
+    'sentry-expo',
+    'expo-community-flipper',
+    'expo-notifications', // https://docs.expo.dev/versions/latest/sdk/notifications/#configuration-in-appjson--appconfigjs
+  ],
   hooks: {
     postPublish: [
       {
@@ -60,12 +64,14 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     backgroundColor: '#151A30',
   },
   assetBundlePatterns: ['**/*'],
+  scheme: 'allopay',
   android: {
     package: packageId,
     adaptiveIcon: {
       foregroundImage: './assets/adaptive-icon.png',
       backgroundColor: '#151A30',
     },
+    googleServicesFile: './firebase-google-services.secret.json',
   },
   ios: {
     bundleIdentifier: packageId,
@@ -81,6 +87,6 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     favicon: './assets/favicon.png',
   },
   updates: {
-    url: `https://u.expo.dev/${projectId}`,
+    url: `https://u.expo.dev/${PROJECT_ID}`,
   },
 });

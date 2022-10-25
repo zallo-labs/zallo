@@ -2,7 +2,7 @@ import { Box } from '~/components/layout/Box';
 import { ActivityIndicator, Text } from 'react-native-paper';
 import { Card } from '~/components/card/Card';
 import { ProposalStatus } from '~/queries/proposal';
-import { TransactionActions } from './TransactionActions';
+import { TransactionActions } from './actions/TransactionActions';
 import { TransactionEvents } from './events/TransactionEvents';
 import { useTxContext } from '../TransactionProvider';
 import { FC } from 'react';

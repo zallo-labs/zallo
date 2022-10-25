@@ -16,6 +16,6 @@
     "./typechain",
     "./local-wallets.json"
   ],
-  "files": ["./hardhat.config.ts"],
-  "references": [{ "path": "../config" }, { "path": "../lib" }]
+  "files": ["./hardhat.config.ts", "./config.ts"],
+  "references": [{ "path": "../lib" }]
 }

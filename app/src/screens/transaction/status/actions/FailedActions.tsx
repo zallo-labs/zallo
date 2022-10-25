@@ -3,7 +3,7 @@ import { useState } from 'react';
 import { Button } from 'react-native-paper';
 import { useExecute } from '~/mutations/proposal/execute/useExecute';
 import { Actions } from './Actions';
-import { useTxContext } from '../TransactionProvider';
+import { useTxContext } from '../../TransactionProvider';
 
 export const FailedActions = () => {
   const { proposal, proposer } = useTxContext();

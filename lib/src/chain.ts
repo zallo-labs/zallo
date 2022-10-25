@@ -24,7 +24,7 @@ export const CHAINS: Chains = {
   },
 };
 
-export const getChain = (name: string) => {
+export const getChain = (name: ChainName | string = 'testnet') => {
   name = name.toLowerCase();
   const chain = Object.values(CHAINS).find(
     (c) => c.name.toLowerCase() === name,

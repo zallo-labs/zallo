@@ -20,6 +20,7 @@ import { withSentry } from '~/util/sentry/sentry';
 import { RootNavigator } from '~/navigation/RootNavigator';
 import { NavigationProvider } from '~/navigation/NavigationProvider';
 import { WalletConnectProvider } from '~/util/walletconnect/WalletConnectProvider';
+import { NotificationsRegistrar } from '~/util/NotificationsRegistrar';
 
 export default withSentry(() => (
   <LocalizatonProvider>
@@ -34,6 +35,7 @@ export default withSentry(() => (
                   <SentryUser />
                   <GqlProvider>
                     <NavigationProvider>
+                      <NotificationsRegistrar />
                       <WalletConnectProvider>
                         <Suspense fallback={<Splash />}>
                           <RootNavigator />

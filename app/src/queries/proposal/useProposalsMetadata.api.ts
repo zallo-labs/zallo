@@ -19,7 +19,7 @@ export interface ProposalMetadata {
 }
 
 gql`
-  query ProposalsMetadata($accounts: [Address!]) {
+  query ProposalsMetadata($accounts: AddressSet) {
     proposals(accounts: $accounts) {
       id
       accountId

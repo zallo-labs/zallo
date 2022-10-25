@@ -5,3 +5,8 @@ export class GetAddrNameArgs {
   @Field(() => String, { nullable: false })
   addr!: string;
 }
+
+@ArgsType()
+export class RegisterPushTokenArgs {
+  token: string;
+}

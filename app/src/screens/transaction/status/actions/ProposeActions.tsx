@@ -10,19 +10,26 @@ import { useGoBack } from '~/components/Appbar/useGoBack';
 import { useExecute } from '~/mutations/proposal/execute/useExecute';
 import { useApprove } from '~/mutations/proposal/approve/useApprove.api';
 import { Actions } from './Actions';
-import { useTransactionIsApproved } from './useTransactionIsApproved';
 import { useRevokeApproval } from '~/mutations/proposal/approve/useRevokeApproval.api';
-import { useExecutionProhibited } from './useExecutionProhibited';
-import { useTxContext } from '../TransactionProvider';
+import { useExecutionProhibited } from '../useExecutionProhibited';
+import { useTxContext } from '../../TransactionProvider';
+
+import { useRequestApproval } from '~/mutations/proposal/useRequestApproval.api';
+import {
+  useTransactionApprovers,
+  useTransactionIsApproved,
+} from '../useTransactionApprovers';
 
 export const ProposeActions = memo(() => {
   const { proposal, proposer, onExecute } = useTxContext();
 
-  const isApproved = useTransactionIsApproved(proposal, proposer);
+  const isApproved = useTransactionIsApproved();
+  const approvers = useTransactionApprovers();
   const approve = useApprove();
   const revoke = useRevokeApproval();
   const execute = useExecute(proposer, proposal);
   const goBack = useGoBack();
+  const requestApproval = useRequestApproval();
   const executionProhibited = useExecutionProhibited();
 
   const [submitting, setSubmitting] = useState(false);
@@ -43,9 +50,7 @@ export const ProposeActions = memo(() => {
         <Button
           mode="contained"
           icon={QuorumIcon}
-          onPress={() => {
-            // TODO: select quorum (part of the wallet) to notify
-          }}
+          onPress={() => requestApproval(proposal, approvers.notApproved)}
         >
           Request
         </Button>
