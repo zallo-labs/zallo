@@ -10,8 +10,7 @@ import { useApiClient } from '~/gql/GqlProvider';
 import { Contact, NewContact } from '~/queries/contacts/useContacts.api';
 import { useDevice } from '@network/useDevice';
 import { toId } from 'lib';
-import { QueryOpts } from '~/gql/update';
-import produce from 'immer';
+import { updateQuery } from '~/gql/update';
 
 gql`
   mutation UpsertContact(
@@ -48,17 +47,11 @@ export const useUpsertContact = () => {
           if (!id) return;
 
           // Contacts: upsert contact and remove prior
-          const opts: QueryOpts<ContactsQueryVariables> = {
+          updateQuery<ContactsQuery, ContactsQueryVariables>({
+            cache,
             query: ContactsDocument,
-            variables: {},
-          };
-
-          const data = cache.readQuery<ContactsQuery>(opts) ?? { contacts: [] };
-
-          cache.writeQuery<ContactsQuery>({
-            ...opts,
-            overwrite: true,
-            data: produce(data, (data) => {
+            defaultData: { contacts: [] },
+            updater: (data) => {
               // Remove previous contact if the address has changed
               if (prev && prev.addr !== cur.addr) {
                 data.contacts = data.contacts.filter(
@@ -67,22 +60,17 @@ export const useUpsertContact = () => {
               }
 
               // Upsert current contact
-              const contact = {
+              const i = data.contacts.findIndex((c) => c.id === id);
+              data.contacts[i >= 0 ? i : data.contacts.length] = {
                 id,
                 addr: cur.addr,
                 name: cur.name,
               };
-              const i = data.contacts.findIndex((c) => c.id === id);
-              if (i >= 0) {
-                data.contacts[i] = contact;
-              } else {
-                data.contacts.push(contact);
-              }
-            }),
+            },
           });
         },
       });
     },
-    [mutation, device.address],
+    [device.address, mutation],
   );
 };

@@ -27,18 +27,22 @@ export const ADDR_YUP_SCHEMA = Yup.string().required('Required').test({
   test: isAddress,
 });
 
-const getSchema = (contacts: Contact[]): Yup.SchemaOf<Values> =>
+const getSchema = (
+  contacts: Contact[],
+  existing?: Contact,
+): Yup.SchemaOf<Values> =>
   Yup.object({
     name: Yup.string()
       .required('Required')
       .test({
         message: 'Contact already exists with this name',
-        test: (input) => !contacts.find((c) => c.name === input),
+        test: (name) =>
+          existing?.name === name || !contacts.find((c) => c.name === name),
       }),
     addr: ADDR_YUP_SCHEMA.test({
       message: 'Contact already exists for this address',
-      test: (input) =>
-        !isAddress(input) || !contacts.find((c) => c.addr === input),
+      test: (addr) =>
+        existing?.addr === addr || !contacts.find((c) => c.addr === addr),
     }),
   });
 
@@ -52,8 +56,6 @@ export const ContactScreen = ({ route, navigation }: ContactScreenProps) => {
   const [contacts] = useContacts();
   const existing = useContact(route.params.addr);
   const upsert = useUpsertContact();
-
-  const schema = useMemo(() => getSchema(contacts), [contacts]);
 
   const handleSubmit = useCallback(
     async (values: Values) => {
@@ -77,7 +79,10 @@ export const ContactScreen = ({ route, navigation }: ContactScreenProps) => {
       <Formik
         initialValues={existing ?? defaultValues}
         onSubmit={handleSubmit}
-        validationSchema={schema}
+        validationSchema={useMemo(
+          () => getSchema(contacts, existing),
+          [contacts, existing],
+        )}
       >
         {({ setFieldValue }) => (
           <>
