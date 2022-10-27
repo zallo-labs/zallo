@@ -96,7 +96,7 @@ const convertState = (
         return [token, limit];
       }) ?? [],
     ),
-  }));
+  }))?.sort((a, b) => b.approvers.length - a.approvers.length);
 
 export const useUser = <Id extends UserId | Address | undefined>(
   idInput: Id,
