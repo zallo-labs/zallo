@@ -14,7 +14,7 @@ export const useCreateUser = (accountAddr: Address) => {
   return useCallback(() => {
     navigation.navigate('Contacts', {
       title: `Create ${account.name} User`,
-      disabled: account.users.map((user) => user.addr),
+      disabled: [accountAddr, ...account.users.map((user) => user.addr)],
       onSelect: (contact) => {
         const user: CombinedUser = {
           account: accountAddr,

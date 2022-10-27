@@ -22,7 +22,7 @@ export const usePromisedApiClient = () => {
         name: API_CLIENT_NAME,
         cache: await CACHE,
         link: ApolloLink.from([
-          new OfflineLink({ storage: AsyncStorage }),
+          // new OfflineLink({ storage: AsyncStorage }),  // Breaks optimistic updates
           new RetryLink(),
           authFlowLink,
           createPersistedQueryLink({
