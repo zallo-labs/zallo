@@ -117,33 +117,58 @@ export class UsersResolver {
   ): Promise<User> {
     const userId = getUserWhere(user.id);
 
-    const r = await this.prisma.user.upsert({
-      where: userId,
-      create: {
-        account: { connect: { id: user.id.account } },
-        device: connectOrCreateDevice(user.id.device),
-        name: user.name,
-      },
-      update: { name: user.name },
-      ...getSelect(info),
-    });
-
-    await this.prisma.userState.create({
-      data: {
-        account: { connect: { id: user.id.account } },
-        proposal: { connect: { hash: proposalHash } },
-        configs: this.service.createUserConfigs(user.configs),
-        user: { connect: userId },
-        latestOfUser: { connect: userId },
-      },
-      select: {
-        user: {
-          ...getSelect(info),
+    return this.prisma.$transaction(async (tx) => {
+      await tx.user.upsert({
+        where: userId,
+        create: {
+          account: { connect: { id: user.id.account } },
+          device: connectOrCreateDevice(user.id.device),
+          name: user.name,
         },
-      },
-    });
+        update: {
+          name: user.name,
+        },
+        ...getSelect(info),
+      });
 
-    return r;
+      // Remove latest state; connect tries to nullify accountId as well so this must be done manually
+      await tx.userState.update({
+        where: {
+          accountId_latestOfUserDeviceId: {
+            accountId: user.id.account,
+            latestOfUserDeviceId: user.id.device,
+          },
+        },
+        data: {
+          latestOfUserDeviceId: null,
+        },
+      });
+
+      // The account or user can't be their own approver
+      const configs = user.configs.map((config) => ({
+        ...config,
+        approvers: config.approvers.filter(
+          (a) => a !== user.id.account && a !== user.id.device,
+        ),
+      }));
+
+      const r = await tx.userState.create({
+        data: {
+          account: { connect: { id: user.id.account } },
+          user: { connect: userId },
+          proposal: { connect: { hash: proposalHash } },
+          latestOfUser: { connect: userId },
+          configs: this.service.createUserConfigs(configs),
+        },
+        select: {
+          user: {
+            ...getSelect(info),
+          },
+        },
+      });
+
+      return r.user as User;
+    });
   }
 
   @Mutation(() => User)
