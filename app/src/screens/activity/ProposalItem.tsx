@@ -54,18 +54,20 @@ export const ProposalItem = withSkeleton(
 
     return (
       <TouchableRipple onPress={onPress}>
-        <Box horizontal>
-          <TokenIcon token={token} />
+        <>
+          <Box horizontal>
+            <TokenIcon token={token} />
 
-          <Box flex={1}>
-            <Text variant="titleMedium" style={styles.title}>
-              {`${label} to `} <Addr addr={p.to} />
-            </Text>
-            <Status p={p} />
+            <Box flex={1}>
+              <Text variant="titleMedium" style={styles.title}>
+                {`${label} to `} <Addr addr={p.to} />
+              </Text>
+              <Status p={p} />
+            </Box>
           </Box>
-        </Box>
 
-        <ActivityTransfers transfers={useProposalTransfers(p)} />
+          <ActivityTransfers transfers={useProposalTransfers(p)} />
+        </>
       </TouchableRipple>
     );
   },

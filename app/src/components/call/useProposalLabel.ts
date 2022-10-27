@@ -11,6 +11,8 @@ import {
 } from '~/screens/transaction/details/method/user/UpsertUserMethod';
 import { uppercaseFirst } from '~/util/string';
 
+export const TRANSFER_LABEL = 'Transfer';
+
 export const useProposalLabel = (p?: Proposal) => {
   const [method] = useContractMethod(p);
   const account = p?.account ?? ZERO_ADDR;
@@ -18,7 +20,7 @@ export const useProposalLabel = (p?: Proposal) => {
   const [, [upsertedUser]] = useDecodedUpsertUserMethod(account, p);
   const [, [removedUser]] = useDecodedRemoveUserMethod(account, p);
 
-  if (!method) return !p?.value.isZero() ? 'Transfer' : undefined;
+  if (!method) return !p?.value.isZero() ? TRANSFER_LABEL : undefined;
 
   if (upsertedUser) return getUpsertUserMethodName(upsertedUser);
   if (removedUser) return getRemoveUserMethodName(removedUser);

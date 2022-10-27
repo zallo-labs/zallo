@@ -32,6 +32,7 @@ import {
   UniqueProposalArgs,
   ProposalsArgs,
   ApprovalRequest,
+  ProposalStatus,
 } from './proposals.args';
 import { UserInputError } from 'apollo-server-core';
 import { ProviderService } from '~/provider/provider.service';
@@ -65,13 +66,17 @@ export class ProposalsResolver {
 
   @Query(() => [Proposal])
   async proposals(
-    @Args() { accounts, ...args }: ProposalsArgs,
+    @Args() { accounts, status, ...args }: ProposalsArgs,
     @Info() info: GraphQLResolveInfo,
   ): Promise<Proposal[]> {
     return this.prisma.proposal.findMany({
       ...args,
       where: {
         ...(accounts && { accountId: { in: [...accounts] } }),
+        ...(status && {
+          submissions:
+            status === ProposalStatus.Proposed ? { none: {} } : { some: {} },
+        }),
       },
       ...getSelect(info),
     });

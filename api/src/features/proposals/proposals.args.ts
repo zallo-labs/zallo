@@ -5,6 +5,7 @@ import {
   InputType,
   ObjectType,
   OmitType,
+  registerEnumType,
 } from '@nestjs/graphql';
 import { BigNumber, BytesLike } from 'ethers';
 import { Address, Id, TxSalt } from 'lib';
@@ -24,12 +25,20 @@ export class UniqueProposalArgs {
   hash: string;
 }
 
+export enum ProposalStatus {
+  Proposed = 'proposed',
+  Executed = 'executed',
+}
+registerEnumType(ProposalStatus, { name: 'ProposalStatus' });
+
 @ArgsType()
 export class ProposalsArgs extends OmitType(FindManyProposalArgs, [
   'where' as const,
 ]) {
   @AddressSetField({ nullable: true })
   accounts?: Set<Address>;
+
+  status?: ProposalStatus;
 }
 
 @InputType()

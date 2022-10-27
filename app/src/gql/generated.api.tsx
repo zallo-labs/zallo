@@ -409,6 +409,11 @@ export enum ProposalScalarFieldEnum {
   Value = 'value'
 }
 
+export enum ProposalStatus {
+  Executed = 'Executed',
+  Proposed = 'Proposed'
+}
+
 export type ProposalWhereUniqueInput = {
   hash?: InputMaybe<Scalars['String']>;
 };
@@ -476,6 +481,7 @@ export type QueryProposalsArgs = {
   distinct?: InputMaybe<Array<ProposalScalarFieldEnum>>;
   orderBy?: InputMaybe<Array<ProposalOrderByWithRelationInput>>;
   skip?: InputMaybe<Scalars['Int']>;
+  status?: InputMaybe<ProposalStatus>;
   take?: InputMaybe<Scalars['Int']>;
 };
 
@@ -868,6 +874,7 @@ export type ProposalQuery = { __typename?: 'Query', proposal: { __typename?: 'Pr
 
 export type ProposalsMetadataQueryVariables = Exact<{
   accounts?: InputMaybe<Scalars['AddressSet']>;
+  status?: InputMaybe<ProposalStatus>;
 }>;
 
 
@@ -1675,8 +1682,8 @@ export type ProposalQueryHookResult = ReturnType<typeof useProposalQuery>;
 export type ProposalLazyQueryHookResult = ReturnType<typeof useProposalLazyQuery>;
 export type ProposalQueryResult = Apollo.QueryResult<ProposalQuery, ProposalQueryVariables>;
 export const ProposalsMetadataDocument = gql`
-    query ProposalsMetadata($accounts: AddressSet) {
-  proposals(accounts: $accounts) {
+    query ProposalsMetadata($accounts: AddressSet, $status: ProposalStatus) {
+  proposals(accounts: $accounts, status: $status) {
     id
     accountId
     hash
@@ -1698,6 +1705,7 @@ export const ProposalsMetadataDocument = gql`
  * const { data, loading, error } = useProposalsMetadataQuery({
  *   variables: {
  *      accounts: // value for 'accounts'
+ *      status: // value for 'status'
  *   },
  * });
  */

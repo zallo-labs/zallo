@@ -4,21 +4,21 @@ import { ListScreenSkeleton } from '~/components/skeleton/ListScreenSkeleton';
 import { withSkeleton } from '~/components/skeleton/withSkeleton';
 import { ActivityIcon } from '~/util/theme/icons';
 import { makeStyles } from '~/util/theme/makeStyles';
-import { groupBy } from 'lib';
 import { useMemo } from 'react';
 import { SectionList } from 'react-native';
 import { Appbar, Text } from 'react-native-paper';
 import { AppbarMenu } from '~/components/Appbar/AppbarMenu';
 import { useAppbarHeader } from '~/components/Appbar/useAppbarHeader';
-import { ProposalItem } from '~/screens/activity/ProposalItemProps';
+import { ProposalItem } from '~/screens/activity/ProposalItem';
 import { ProposalMetadata } from '~/queries/proposal';
 import { useRootNavigation } from '~/navigation/useRootNavigation';
-import { Timestamp } from '~/components/format/Timestamp';
 import { useTransfersMetadata } from '~/queries/transfer/useTransfersMetadata.sub';
 import { TransferType } from '~/gql/generated.sub';
 import { TransferMetadata } from '~/queries/transfer/useTransfersMetadata.sub';
-import { InTransferCard } from './InTransferCard';
+import { IncomingTransferItem } from './IncomingTransferItem';
 import { useProposalsMetadata } from '~/queries/proposal/useProposalsMetadata.api';
+import { ProposalStatus } from '~/gql/generated.api';
+import { match } from 'ts-pattern';
 
 type Item =
   | {
@@ -30,44 +30,41 @@ type Item =
       type: 'transfer';
     };
 
-interface Section {
-  date: number;
-  data: Item[];
-}
-
-const toSections = (items: Item[]): Section[] =>
-  [
-    ...groupBy(items, (m) =>
-      m.activity.timestamp
-        .set({ hour: 0, minute: 0, second: 0, millisecond: 0 })
-        .toSeconds(),
-    ).entries(),
-  ]
-    .map(
-      ([timestamp, transfers]): Section => ({
-        date: timestamp,
-        data: transfers.sort(
-          (a, b) =>
-            b.activity.timestamp.toMillis() - a.activity.timestamp.toMillis(),
-        ),
-      }),
-    )
-    .sort((a, b) => b.date - a.date);
-
 export const ActivityScreen = withSkeleton(() => {
   const styles = useStyles();
   const { AppbarHeader, handleScroll } = useAppbarHeader();
   const navigation = useRootNavigation();
-  const [proposals] = useProposalsMetadata();
-  const [transfers] = useTransfersMetadata(TransferType.In);
+  const [proposals] = useProposalsMetadata({ status: ProposalStatus.Proposed });
+  const [executions] = useProposalsMetadata({
+    status: ProposalStatus.Executed,
+  });
+  const [incomingTransfers] = useTransfersMetadata(TransferType.In);
 
   const sections = useMemo(
     () =>
-      toSections([
-        ...proposals.map((activity): Item => ({ activity, type: 'proposal' })),
-        ...transfers.map((activity): Item => ({ activity, type: 'transfer' })),
-      ]),
-    [proposals, transfers],
+      [
+        {
+          title: 'Awaiting approval',
+          data: proposals.map(
+            (activity): Item => ({ activity, type: 'proposal' }),
+          ),
+        },
+        {
+          title: 'Executed',
+          data: [
+            ...executions.map(
+              (activity): Item => ({ activity, type: 'proposal' }),
+            ),
+            ...incomingTransfers.map(
+              (activity): Item => ({ activity, type: 'transfer' }),
+            ),
+          ].sort(
+            (a, b) =>
+              b.activity.timestamp.toMillis() - a.activity.timestamp.toMillis(),
+          ),
+        },
+      ].filter((section) => section.data.length > 0),
+    [executions, proposals, incomingTransfers],
   );
 
   return (
@@ -79,29 +76,29 @@ export const ActivityScreen = withSkeleton(() => {
 
       <SectionList
         renderSectionHeader={({ section }) => (
-          <Text variant="titleMedium">
-            <Timestamp weekday>{section.date}</Timestamp>
-          </Text>
+          <Text variant="titleMedium">{section.title}</Text>
         )}
         SectionSeparatorComponent={() => <Box mt={2} />}
-        renderItem={({ item }) => {
-          if (item.type === 'proposal')
-            return (
+        renderItem={({ item }) =>
+          match(item)
+            .with({ type: 'proposal' }, ({ activity }) => (
               <ProposalItem
-                id={item.activity}
+                id={activity}
                 onPress={() =>
-                  navigation.navigate('Transaction', { id: item.activity })
+                  navigation.navigate('Transaction', { id: activity })
                 }
               />
-            );
-
-          return <InTransferCard id={item.activity.id} />;
-        }}
+            ))
+            .with({ type: 'transfer' }, ({ activity }) => (
+              <IncomingTransferItem id={activity.id} />
+            ))
+            .exhaustive()
+        }
         ItemSeparatorComponent={() => <Box mt={1} />}
         ListEmptyComponent={
           <EmptyListFallback
             Icon={ActivityIcon}
-            title="No activites to show"
+            title="No activity to show"
             subtitle="Check back later!"
             isScreenRoot
           />
