@@ -34,10 +34,9 @@ export const ActivityScreen = withSkeleton(() => {
   const styles = useStyles();
   const { AppbarHeader, handleScroll } = useAppbarHeader();
   const navigation = useRootNavigation();
-  const [proposals] = useProposalsMetadata({ status: ProposalStatus.Proposed });
-  const [executions] = useProposalsMetadata({
-    status: ProposalStatus.Executed,
-  });
+  const [proposalsAwaitingUser] = useProposalsMetadata({ status: ProposalStatus.AwaitingUser });
+  const [proposalsAwaitingOthers] = useProposalsMetadata({ status: ProposalStatus.AwaitingOther });
+  const [proposalsExecuted] = useProposalsMetadata({ status: ProposalStatus.Executed });
   const [incomingTransfers] = useTransfersMetadata(TransferType.In);
 
   const sections = useMemo(
@@ -45,26 +44,19 @@ export const ActivityScreen = withSkeleton(() => {
       [
         {
           title: 'Awaiting approval',
-          data: proposals.map(
+          data: [...proposalsAwaitingUser, ...proposalsAwaitingOthers].map(
             (activity): Item => ({ activity, type: 'proposal' }),
           ),
         },
         {
           title: 'Executed',
           data: [
-            ...executions.map(
-              (activity): Item => ({ activity, type: 'proposal' }),
-            ),
-            ...incomingTransfers.map(
-              (activity): Item => ({ activity, type: 'transfer' }),
-            ),
-          ].sort(
-            (a, b) =>
-              b.activity.timestamp.toMillis() - a.activity.timestamp.toMillis(),
-          ),
+            ...proposalsExecuted.map((activity): Item => ({ activity, type: 'proposal' })),
+            ...incomingTransfers.map((activity): Item => ({ activity, type: 'transfer' })),
+          ].sort((a, b) => b.activity.timestamp.toMillis() - a.activity.timestamp.toMillis()),
         },
       ].filter((section) => section.data.length > 0),
-    [executions, proposals, incomingTransfers],
+    [proposalsAwaitingUser, proposalsAwaitingOthers, proposalsExecuted, incomingTransfers],
   );
 
   return (
@@ -75,23 +67,17 @@ export const ActivityScreen = withSkeleton(() => {
       </AppbarHeader>
 
       <SectionList
-        renderSectionHeader={({ section }) => (
-          <Text variant="titleMedium">{section.title}</Text>
-        )}
+        renderSectionHeader={({ section }) => <Text variant="titleMedium">{section.title}</Text>}
         SectionSeparatorComponent={() => <Box mt={2} />}
         renderItem={({ item }) =>
           match(item)
             .with({ type: 'proposal' }, ({ activity }) => (
               <ProposalItem
                 id={activity}
-                onPress={() =>
-                  navigation.navigate('Transaction', { id: activity })
-                }
+                onPress={() => navigation.navigate('Transaction', { id: activity })}
               />
             ))
-            .with({ type: 'transfer' }, ({ activity }) => (
-              <IncomingTransferItem id={activity.id} />
-            ))
+            .with({ type: 'transfer' }, ({ activity }) => <IncomingTransferItem id={activity.id} />)
             .exhaustive()
         }
         ItemSeparatorComponent={() => <Box mt={1} />}

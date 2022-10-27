@@ -26,7 +26,8 @@ export class UniqueProposalArgs {
 }
 
 export enum ProposalStatus {
-  Proposed = 'proposed',
+  AwaitingUser = 'awaiting-user',
+  AwaitingOther = 'awaiting-other',
   Executed = 'executed',
 }
 registerEnumType(ProposalStatus, { name: 'ProposalStatus' });

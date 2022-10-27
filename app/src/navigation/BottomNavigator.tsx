@@ -15,6 +15,8 @@ import {
 } from '@react-navigation/material-bottom-tabs';
 import { useTheme } from '@theme/paper';
 import { CompositeScreenProps } from '@react-navigation/native';
+import { useProposalsMetadata } from '~/queries/proposal/useProposalsMetadata.api';
+import { ProposalStatus } from '~/gql/generated.api';
 
 export type BottomNavigatorParamList = {
   Receive: undefined;
@@ -22,17 +24,17 @@ export type BottomNavigatorParamList = {
   Activity: undefined;
 };
 
-export type BottomNavigatorScreenProps<
-  K extends keyof BottomNavigatorParamList,
-> = CompositeScreenProps<
-  DrawerNavigatorScreenProps<'BottomNavigator'>,
-  MaterialBottomTabScreenProps<BottomNavigatorParamList, K>
->;
+export type BottomNavigatorScreenProps<K extends keyof BottomNavigatorParamList> =
+  CompositeScreenProps<
+    DrawerNavigatorScreenProps<'BottomNavigator'>,
+    MaterialBottomTabScreenProps<BottomNavigatorParamList, K>
+  >;
 
 const Navigation = createMaterialBottomTabNavigator<BottomNavigatorParamList>();
 
 export const BottomNavigator = () => {
   const { iconSize } = useTheme();
+  const [proposalsAwaitingUser] = useProposalsMetadata({ status: ProposalStatus.AwaitingUser });
 
   return (
     <Navigation.Navigator initialRouteName="Home">
@@ -40,9 +42,7 @@ export const BottomNavigator = () => {
         name="Receive"
         component={ReceiveScreen}
         options={{
-          tabBarIcon: (props) => (
-            <QrCodeIcon size={iconSize.small} {...props} />
-          ),
+          tabBarIcon: (props) => <QrCodeIcon size={iconSize.small} {...props} />,
         }}
       />
       <Navigation.Screen
@@ -61,6 +61,7 @@ export const BottomNavigator = () => {
         name="Activity"
         component={ActivityScreen}
         options={{
+          tabBarBadge: proposalsAwaitingUser.length > 0 ? proposalsAwaitingUser.length : false,
           tabBarIcon: ({ focused, ...props }) =>
             focused ? (
               <CalendarIcon size={iconSize.small} {...props} />

@@ -1,29 +1,10 @@
-import {
-  Args,
-  Info,
-  Mutation,
-  Parent,
-  Query,
-  ResolveField,
-  Resolver,
-} from '@nestjs/graphql';
+import { Args, Info, Mutation, Parent, Query, ResolveField, Resolver } from '@nestjs/graphql';
 import { BytesLike, ethers } from 'ethers';
 import { GraphQLResolveInfo } from 'graphql';
-import {
-  Address,
-  getTxId,
-  hashTx,
-  Id,
-  isPresent,
-  SignatureLike,
-  validateSignature,
-} from 'lib';
+import { Address, getTxId, hashTx, Id, isPresent, SignatureLike, validateSignature } from 'lib';
 import { PrismaService } from 'nestjs-prisma';
 import { DeviceAddr } from '~/decorators/device.decorator';
-import {
-  connectAccount,
-  connectOrCreateDevice,
-} from '~/util/connect-or-create';
+import { connectAccount, connectOrCreateDevice } from '~/util/connect-or-create';
 import { getSelect } from '~/util/select';
 import {
   ProposeArgs,
@@ -39,6 +20,8 @@ import { ProviderService } from '~/provider/provider.service';
 import { Proposal } from '@gen/proposal/proposal.model';
 import { Prisma } from '@prisma/client';
 import { ExpoService } from '~/expo/expo.service';
+import { match } from 'ts-pattern';
+import { ProposalWhereInput } from '@gen/proposal/proposal-where.input';
 
 @Resolver(() => Proposal)
 export class ProposalsResolver {
@@ -68,15 +51,36 @@ export class ProposalsResolver {
   async proposals(
     @Args() { accounts, status, ...args }: ProposalsArgs,
     @Info() info: GraphQLResolveInfo,
+    @DeviceAddr() device: Address,
   ): Promise<Proposal[]> {
     return this.prisma.proposal.findMany({
       ...args,
       where: {
         ...(accounts && { accountId: { in: [...accounts] } }),
-        ...(status && {
-          submissions:
-            status === ProposalStatus.Proposed ? { none: {} } : { some: {} },
-        }),
+        ...(status &&
+          match<ProposalStatus, ProposalWhereInput>(status)
+            .with(ProposalStatus.Executed, () => ({
+              submissions: {
+                some: { response: { is: { reverted: { equals: false } } } },
+              },
+            }))
+            .with(ProposalStatus.AwaitingUser, () => ({
+              submissions: {
+                none: { response: { is: { reverted: { equals: false } } } },
+              },
+              approvals: {
+                none: { deviceId: { equals: device } },
+              },
+            }))
+            .with(ProposalStatus.AwaitingOther, () => ({
+              submissions: {
+                none: { response: { is: { reverted: { equals: false } } } },
+              },
+              approvals: {
+                some: { deviceId: { equals: device } },
+              },
+            }))
+            .exhaustive()),
       },
       ...getSelect(info),
     });
@@ -88,10 +92,7 @@ export class ProposalsResolver {
     @Info() info: GraphQLResolveInfo,
     @DeviceAddr() device: Address,
   ): Promise<Proposal> {
-    const proposalHash = await hashTx(
-      { address: account, provider: this.provider },
-      proposal,
-    );
+    const proposalHash = await hashTx({ address: account, provider: this.provider }, proposal);
     await this.validateSignatureOrThrow(device, proposalHash, signature);
 
     return this.prisma.proposal.upsert({
@@ -191,18 +192,17 @@ export class ProposalsResolver {
     @DeviceAddr() device: Address,
   ): Promise<true> {
     // Ensure all approvers are valid for the given proposal
-    const { accountId, approvals } =
-      await this.prisma.proposal.findUniqueOrThrow({
-        where: { hash },
-        select: {
-          accountId: true,
-          approvals: {
-            select: {
-              deviceId: true,
-            },
+    const { accountId, approvals } = await this.prisma.proposal.findUniqueOrThrow({
+      where: { hash },
+      select: {
+        accountId: true,
+        approvals: {
+          select: {
+            deviceId: true,
           },
         },
-      });
+      },
+    });
 
     const approversInAccount = await this.prisma.user.findMany({
       where: {
@@ -238,9 +238,7 @@ export class ProposalsResolver {
     this.expo.chunkPushNotifications([
       {
         to: approversInAccount
-          .filter(
-            (user) => !approvals.find((a) => a.deviceId === user.device.id),
-          )
+          .filter((user) => !approvals.find((a) => a.deviceId === user.device.id))
           .map((user) => user.device.pushToken)
           .filter(isPresent),
         title: 'Approval Request',

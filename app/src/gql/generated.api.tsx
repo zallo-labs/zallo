@@ -410,8 +410,9 @@ export enum ProposalScalarFieldEnum {
 }
 
 export enum ProposalStatus {
-  Executed = 'Executed',
-  Proposed = 'Proposed'
+  AwaitingOther = 'AwaitingOther',
+  AwaitingUser = 'AwaitingUser',
+  Executed = 'Executed'
 }
 
 export type ProposalWhereUniqueInput = {
