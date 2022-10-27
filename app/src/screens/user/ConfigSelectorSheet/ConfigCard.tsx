@@ -4,8 +4,6 @@ import { StyleProp, ViewStyle } from 'react-native';
 import { Text } from 'react-native-paper';
 import { Addr } from '~/components/addr/Addr';
 import { Card } from '~/components/card/Card';
-import { Box } from '~/components/layout/Box';
-import { Container } from '~/components/layout/Container';
 
 export interface ConfigCardProps {
   config: UserConfig;
@@ -25,7 +23,7 @@ export const ConfigCard = ({
   return (
     <Card onPress={onPress} style={[styles.card, style]} elevation={3}>
       {config.approvers.length > 0 ? (
-        <Container separator={<Box mt={1} />}>
+        <>
           {config.approvers.map((approver) => (
             <Text
               key={approver}
@@ -35,7 +33,7 @@ export const ConfigCard = ({
               <Addr addr={approver} />
             </Text>
           ))}
-        </Container>
+        </>
       ) : (
         <Text variant="bodyMedium">Without approval</Text>
       )}
