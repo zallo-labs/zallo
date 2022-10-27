@@ -45,38 +45,45 @@ export interface ProposalItemProps {
   onPress?: () => void;
 }
 
-export const ProposalItem = withSkeleton(
-  ({ id, onPress }: ProposalItemProps) => {
-    const styles = useStyles();
-    const [p] = useProposal(id);
-    const token = useMaybeToken(p.to) ?? ETH;
-    const label = useProposalLabel(p);
+export const ProposalItem = withSkeleton(({ id, onPress }: ProposalItemProps) => {
+  const styles = useStyles();
+  const [p] = useProposal(id);
+  const token = useMaybeToken(p.to) ?? ETH;
+  const label = useProposalLabel(p);
 
-    return (
-      <TouchableRipple onPress={onPress}>
-        <>
-          <Box horizontal>
-            <TokenIcon token={token} />
+  return (
+    <TouchableRipple onPress={onPress} style={styles.container}>
+      <>
+        <TokenIcon token={token} style={styles.icon} />
 
-            <Box flex={1}>
-              <Text variant="titleMedium" style={styles.title}>
-                {`${label} to `} <Addr addr={p.to} />
-              </Text>
-              <Status p={p} />
-            </Box>
-          </Box>
+        <Box flex={1}>
+          <Text variant="titleMedium" numberOfLines={2} style={styles.title}>
+            {`${label} to `}
+            <Addr addr={p.to} />
+          </Text>
+          <Status p={p} />
+        </Box>
 
+        <Box alignItems="flex-end">
           <ActivityTransfers transfers={useProposalTransfers(p)} />
-        </>
-      </TouchableRipple>
-    );
-  },
-  ItemSkeleton,
-);
+        </Box>
+      </>
+    </TouchableRipple>
+  );
+}, ItemSkeleton);
 
-const useStyles = makeStyles(({ colors, typoSpace }) => ({
+const useStyles = makeStyles(({ colors, space, typoSpace }) => ({
+  container: {
+    display: 'flex',
+    flexDirection: 'row',
+    paddingVertical: space(2),
+    paddingHorizontal: space(2),
+  },
+  icon: {
+    marginRight: space(2),
+  },
   title: {
-    marginBottom: typoSpace(1),
+    marginRight: typoSpace(1),
   },
   primaryColor: {
     color: colors.primary,

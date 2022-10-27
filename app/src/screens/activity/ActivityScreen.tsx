@@ -67,8 +67,11 @@ export const ActivityScreen = withSkeleton(() => {
       </AppbarHeader>
 
       <SectionList
-        renderSectionHeader={({ section }) => <Text variant="titleMedium">{section.title}</Text>}
-        SectionSeparatorComponent={() => <Box mt={2} />}
+        renderSectionHeader={({ section }) => (
+          <Text variant="bodyLarge" style={styles.title}>
+            {section.title}
+          </Text>
+        )}
         renderItem={({ item }) =>
           match(item)
             .with({ type: 'proposal' }, ({ activity }) => (
@@ -80,7 +83,6 @@ export const ActivityScreen = withSkeleton(() => {
             .with({ type: 'transfer' }, ({ activity }) => <IncomingTransferItem id={activity.id} />)
             .exhaustive()
         }
-        ItemSeparatorComponent={() => <Box mt={1} />}
         ListEmptyComponent={
           <EmptyListFallback
             Icon={ActivityIcon}
@@ -90,7 +92,6 @@ export const ActivityScreen = withSkeleton(() => {
           />
         }
         sections={sections}
-        style={styles.list}
         onScroll={handleScroll}
         showsVerticalScrollIndicator={false}
       />
@@ -99,7 +100,7 @@ export const ActivityScreen = withSkeleton(() => {
 }, ListScreenSkeleton);
 
 const useStyles = makeStyles(({ space }) => ({
-  list: {
+  title: {
     marginHorizontal: space(2),
   },
 }));
