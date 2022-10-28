@@ -1,5 +1,4 @@
-import { Appbar, Button, Dialog } from 'react-native-paper';
-import { DialogRoot } from '~/components/DialogRoot';
+import { Appbar, Button } from 'react-native-paper';
 import { RootNavigatorScreenProps } from '~/navigation/RootNavigator';
 import { useWalletConnectClients } from '~/util/walletconnect/WalletConnectProvider';
 import { ProposerDetails } from './ProposerDetails';
@@ -12,8 +11,6 @@ import { toNamespaces } from '~/util/walletconnect/namespaces';
 import { CHAIN_ID } from '@network/provider';
 import { getSdkError } from '@walletconnect/utils';
 import { Box } from '~/components/layout/Box';
-import { AppbarMore } from '~/components/Appbar/AppbarMore';
-import { ExternalLinkIcon } from '@theme/icons';
 import { makeStyles } from '@theme/makeStyles';
 import { Actions } from '~/components/layout/Actions';
 
@@ -23,13 +20,9 @@ export interface SessionProposalScreenParams {
   proposer: WcProposer;
 }
 
-export type SessionProposalScreenProps =
-  RootNavigatorScreenProps<'SessionProposal'>;
+export type SessionProposalScreenProps = RootNavigatorScreenProps<'SessionProposal'>;
 
-export const SessionProposalScreen = ({
-  route,
-  navigation,
-}: SessionProposalScreenProps) => {
+export const SessionProposalScreen = ({ route, navigation }: SessionProposalScreenProps) => {
   const { uri, id, proposer } = route.params;
   const styles = useStyles();
   const [allUsers] = useUserIds();
@@ -106,11 +99,7 @@ export const SessionProposalScreen = ({
       <Box flex={1} mx={2}>
         <ProposerDetails proposer={proposer} />
 
-        <SessionAccounts
-          users={users}
-          setUsers={setUsers}
-          style={styles.accounts}
-        />
+        <SessionAccounts users={users} setUsers={setUsers} style={styles.accounts} />
       </Box>
 
       <Actions>
