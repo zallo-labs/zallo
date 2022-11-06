@@ -16,9 +16,7 @@ export interface ConfigSelectorSectionHeaderProps {
   section: ConfigSelectorSection;
 }
 
-export const ConfigSelectorSectionHeader = ({
-  section,
-}: ConfigSelectorSectionHeaderProps) => {
+export const ConfigSelectorSectionHeader = ({ section }: ConfigSelectorSectionHeaderProps) => {
   const styles = useStyles();
   const { navigate } = useRootNavigation();
 
@@ -29,10 +27,7 @@ export const ConfigSelectorSectionHeader = ({
       </Text>
 
       {section.proposal && (
-        <Button
-          icon={ViewIcon}
-          onPress={() => navigate('Transaction', { id: section.proposal! })}
-        >
+        <Button icon={ViewIcon} onPress={() => navigate('Proposal', { id: section.proposal! })}>
           Proposal
         </Button>
       )}

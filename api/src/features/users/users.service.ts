@@ -3,11 +3,9 @@ import { Prisma, UserState } from '@prisma/client';
 import { UserId } from 'lib';
 import { PrismaService } from 'nestjs-prisma';
 import { connectOrCreateDevice } from '~/util/connect-or-create';
-import { UserConfigInput, UserInput } from './users.args';
+import { UserConfigInput } from './users.args';
 
-const createWhereStateIsActive = (
-  isActive: boolean,
-): Prisma.UserStateWhereInput => ({
+const createWhereStateIsActive = (isActive: boolean): Prisma.UserStateWhereInput => ({
   OR: [
     {
       proposal: {
@@ -49,6 +47,17 @@ export const WHERE_STATE_IS_ENABLED: Prisma.UserStateWhereInput = {
 @Injectable()
 export class UsersService {
   constructor(private prisma: PrismaService) {}
+
+  latestStateArgs(user: UserId, isActive: boolean) {
+    return {
+      where: {
+        accountId: user.account,
+        deviceId: user.addr,
+        ...(isActive ? WHERE_STATE_IS_ACTIVE : WHERE_STATE_IS_INACTIVE),
+      },
+      orderBy: { createdAt: 'desc' },
+    } as const;
+  }
 
   async latestState(
     user: UserId,

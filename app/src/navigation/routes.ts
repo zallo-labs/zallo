@@ -6,8 +6,8 @@ type Routes = NonNullable<LinkingOptions<RootNavigatorParamList>['config']>;
 export const ROUTES: Routes = {
   initialRouteName: 'DrawerNavigator',
   screens: {
-    Transaction: {
-      path: 'transaction/:id',
+    Proposal: {
+      path: 'proposal/:id',
       parse: {
         id: (id) => ({ hash: id }),
       },

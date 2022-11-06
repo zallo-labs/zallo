@@ -1,24 +1,16 @@
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { makeStyles } from '@theme/makeStyles';
 import { ComponentPropsWithoutRef, useEffect } from 'react';
-import Animated, {
-  useAnimatedStyle,
-  useSharedValue,
-  withTiming,
-} from 'react-native-reanimated';
+import Animated, { useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
 
 const getRotation = (expanded?: boolean) => (expanded ? -180 : 0);
 
-export type MaterialCommunityIconsProps = ComponentPropsWithoutRef<
-  typeof MaterialCommunityIcons
->;
+export type MaterialCommunityIconsProps = ComponentPropsWithoutRef<typeof MaterialCommunityIcons>;
 
-export const AnimatedMaterialCommunityIcons = Animated.createAnimatedComponent(
-  MaterialCommunityIcons,
-);
+export const AnimatedMaterialCommunityIcons =
+  Animated.createAnimatedComponent(MaterialCommunityIcons);
 
-export interface ChevronProps
-  extends Omit<MaterialCommunityIconsProps, 'name'> {
+export interface ChevronProps extends Omit<MaterialCommunityIconsProps, 'name'> {
   expanded?: boolean;
 }
 

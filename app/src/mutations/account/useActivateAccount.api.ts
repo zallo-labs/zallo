@@ -31,9 +31,7 @@ export const useActivateAccount = (account: CombinedAccount) => {
         cache,
         query: AccountDocument,
         variables: { account: account.addr },
-        updater: (draft) => {
-          draft.account.isDeployed = true;
-        },
+        updater: (draft) => void (draft.account.isDeployed = true),
       });
     },
   });

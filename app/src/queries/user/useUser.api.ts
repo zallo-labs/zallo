@@ -2,21 +2,9 @@ import { gql } from '@apollo/client';
 import { useDevice } from '@network/useDevice';
 import assert from 'assert';
 import { BigNumber } from 'ethers';
-import {
-  Address,
-  address,
-  compareAddress,
-  Limit,
-  User,
-  UserConfig,
-  UserId,
-} from 'lib';
+import { Address, address, compareAddress, Limit, User, UserConfig, UserId } from 'lib';
 import { useMemo } from 'react';
-import {
-  UserDocument,
-  UserQuery,
-  UserQueryVariables,
-} from '~/gql/generated.api';
+import { UserDocument, UserQuery, UserQueryVariables } from '~/gql/generated.api';
 import { useApiClient } from '~/gql/GqlProvider';
 import { Proposable } from '~/gql/proposable';
 import { usePollWhenFocussed } from '~/gql/usePollWhenFocussed';
@@ -65,6 +53,7 @@ gql`
   fragment UserStateFields on UserState {
     proposalHash
     configs {
+      id
       approvers {
         deviceId
       }
@@ -78,29 +67,26 @@ gql`
   }
 `;
 
-const convertState = (
-  s: UserQuery['user']['activeState'],
-): UserConfig[] | undefined =>
-  s?.configs?.map((c) => ({
-    approvers:
-      c.approvers?.map((a) => address(a.deviceId)).sort(compareAddress) ?? [],
-    spendingAllowlisted: c.spendingAllowlisted,
-    limits: Object.fromEntries(
-      c.limits?.map((l) => {
-        const token = address(l.token);
-        const limit: Limit = {
-          token,
-          amount: BigNumber.from(l.amount),
-          period: l.period,
-        };
-        return [token, limit];
-      }) ?? [],
-    ),
-  }))?.sort((a, b) => b.approvers.length - a.approvers.length);
+const convertState = (s: UserQuery['user']['activeState']): UserConfig[] | undefined =>
+  s?.configs
+    ?.map((c) => ({
+      approvers: c.approvers?.map((a) => address(a.deviceId)).sort(compareAddress) ?? [],
+      spendingAllowlisted: c.spendingAllowlisted,
+      limits: Object.fromEntries(
+        c.limits?.map((l) => {
+          const token = address(l.token);
+          const limit: Limit = {
+            token,
+            amount: BigNumber.from(l.amount),
+            period: l.period,
+          };
+          return [token, limit];
+        }) ?? [],
+      ),
+    }))
+    ?.sort((a, b) => b.approvers.length - a.approvers.length);
 
-export const useUser = <Id extends UserId | Address | undefined>(
-  idInput: Id,
-) => {
+export const useUser = <Id extends UserId | Address | undefined>(idInput: Id) => {
   const device = useDevice();
   const id = useMemo(
     (): UserId | undefined =>
@@ -115,19 +101,16 @@ export const useUser = <Id extends UserId | Address | undefined>(
     [device.address, idInput],
   );
 
-  const { data, ...rest } = useSuspenseQuery<UserQuery, UserQueryVariables>(
-    UserDocument,
-    {
-      client: useApiClient(),
-      variables: {
-        id: {
-          account: id?.account,
-          device: id?.addr,
-        },
+  const { data, ...rest } = useSuspenseQuery<UserQuery, UserQueryVariables>(UserDocument, {
+    client: useApiClient(),
+    variables: {
+      id: {
+        account: id?.account,
+        device: id?.addr,
       },
-      skip: !id,
     },
-  );
+    skip: !id,
+  });
   usePollWhenFocussed(rest, 15);
 
   const u = data.user;
@@ -151,8 +134,5 @@ export const useUser = <Id extends UserId | Address | undefined>(
     };
   }, [id, u]);
 
-  return [
-    user as CombinedUser | (Id extends undefined ? undefined : never),
-    rest,
-  ] as const;
+  return [user as CombinedUser | (Id extends undefined ? undefined : never), rest] as const;
 };

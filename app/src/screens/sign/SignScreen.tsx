@@ -5,20 +5,19 @@ import { RootNavigatorScreenProps } from '~/navigation/RootNavigator';
 import { WcErrorKey } from '~/util/walletconnect/jsonRcp';
 import { hexlify } from 'ethers/lib/utils';
 import { toActiveUser, useUser } from '~/queries/user/useUser.api';
-import { Appbar, Button, Dialog, Text } from 'react-native-paper';
+import { Appbar, Button, Text } from 'react-native-paper';
 import {
-  SigningRequest,
   toTypedData,
-  TypedData,
+  Eip712TypedDomainData,
+  SigningRequest,
 } from '~/util/walletconnect/methods/signing';
-import { DialogRoot } from '~/components/DialogRoot';
 import { ProposerDetails } from '../session-proposal/ProposerDetails';
 import { CHAIN_ID } from '@network/provider';
 import { BigNumber } from 'ethers';
 import { useCallback, useMemo } from 'react';
 import useAsyncEffect from 'use-async-effect';
 import { showWarning } from '~/provider/SnackbarProvider';
-import { SigningData } from './SigningData';
+import { Eip712TypedData } from './Eip712TypedData';
 import { Topic, useSession } from '~/util/walletconnect/useTopic';
 import { Box } from '~/components/layout/Box';
 import { Actions } from '~/components/layout/Actions';
@@ -41,20 +40,14 @@ export const SignScreen = ({ navigation, route }: SignScreenProps) => {
 
   const [account, data] = useMemo(
     () =>
-      match<SigningRequest, [Address, string | TypedData]>(request)
-        .with({ method: 'personal_sign' }, ({ params: [message, account] }) => [
-          account,
-          message,
-        ])
+      match<SigningRequest, [Address, string | Eip712TypedDomainData]>(request)
+        .with({ method: 'personal_sign' }, ({ params: [message, account] }) => [account, message])
         .with({ method: 'eth_sign' }, ({ params }) => params)
         .with(
           { method: 'eth_signTypedData' },
           { method: 'eth_signTypedData_v3' },
           { method: 'eth_signTypedData_v4' },
-          ({ params: [account, typedDataJson] }) => [
-            account,
-            toTypedData(typedDataJson),
-          ],
+          ({ params: [account, typedDataJson] }) => [account, toTypedData(typedDataJson)],
         )
         .exhaustive(),
     [request],
@@ -72,7 +65,7 @@ export const SignScreen = ({ navigation, route }: SignScreenProps) => {
         (message) => device.signMessage(message),
       )
       .when(
-        (data): data is TypedData => typeof data === 'object',
+        (data): data is Eip712TypedDomainData => typeof data === 'object',
         (typedData) => {
           // Ensure signing domain chain matches
           if (
@@ -81,11 +74,7 @@ export const SignScreen = ({ navigation, route }: SignScreenProps) => {
           )
             return null;
 
-          return device._signTypedData(
-            typedData.domain,
-            typedData.types,
-            typedData.message,
-          );
+          return device._signTypedData(typedData.domain, typedData.types, typedData.message);
         },
       )
       .exhaustive();
@@ -129,8 +118,6 @@ export const SignScreen = ({ navigation, route }: SignScreenProps) => {
     navigation.goBack();
   };
 
-  console.log(data);
-
   return (
     <Box flex={1}>
       <Appbar.Header>
@@ -147,15 +134,17 @@ export const SignScreen = ({ navigation, route }: SignScreenProps) => {
           </Text>
           {' to sign'}
         </Text>
-        <SigningData data={data} />
+        <Eip712TypedData data={data} />
       </Box>
 
-      <Actions>
-        <Button onPress={() => reject('USER_REJECTED')}>Reject</Button>
-        <Button mode="contained" onPress={sign}>
-          Sign
-        </Button>
-      </Actions>
+      <Actions
+        primary={
+          <Button mode="contained" onPress={sign}>
+            Sign
+          </Button>
+        }
+        secondary={<Button onPress={() => reject('USER_REJECTED')}>Reject</Button>}
+      />
     </Box>
   );
 };

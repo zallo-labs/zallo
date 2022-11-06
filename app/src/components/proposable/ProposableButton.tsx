@@ -23,7 +23,7 @@ export const ProposableButton = ({ proposable: p }: ProposableButtonProps) => {
     <Chip
       mode={proposal ? 'outlined' : 'outlined'}
       icon={(props) => <ProposableIcon proposable={p} {...props} />}
-      onPress={() => navigate('Transaction', { id: proposal })}
+      onPress={() => navigate('Proposal', { id: proposal })}
     >
       {LABEL[p.status]}
     </Chip>

@@ -8,12 +8,9 @@ import {
   registerEnumType,
 } from '@nestjs/graphql';
 import { BigNumber, BytesLike } from 'ethers';
-import { Address, Id, TxSalt } from 'lib';
+import { Address, TxSalt } from 'lib';
 import { AddressField } from '~/apollo/scalars/Address.scalar';
-import {
-  AddressSetField,
-  NonEmptyAddressSetField,
-} from '~/apollo/scalars/AddressSet.scalar';
+import { AddressSetField, NonEmptyAddressSetField } from '~/apollo/scalars/AddressSet.scalar';
 import { BytesField } from '~/apollo/scalars/Bytes.scalar';
 import { Bytes32Field } from '~/apollo/scalars/Bytes32.scalar';
 import { Bytes8Field } from '~/apollo/scalars/Bytes8.scalar';
@@ -33,9 +30,7 @@ export enum ProposalStatus {
 registerEnumType(ProposalStatus, { name: 'ProposalStatus' });
 
 @ArgsType()
-export class ProposalsArgs extends OmitType(FindManyProposalArgs, [
-  'where' as const,
-]) {
+export class ProposalsArgs extends OmitType(FindManyProposalArgs, ['where' as const]) {
   @AddressSetField({ nullable: true })
   accounts?: Set<Address>;
 
@@ -65,22 +60,30 @@ export class ProposeArgs {
   @AddressField()
   account: Address;
 
+  configId?: number;
+
   proposal: ProposalInput;
 
-  @BytesField()
-  signature: string;
-}
+  @BytesField({ nullable: true })
+  signature?: string;
 
-@ObjectType()
-export class RevokeApprovalResp {
-  @Field(() => String, { nullable: true })
-  id?: Id;
+  @Field(() => Boolean, { defaultValue: true })
+  executeWhenApproved: boolean;
 }
 
 @ArgsType()
 export class ApproveArgs extends UniqueProposalArgs {
   @BytesField()
-  signature: BytesLike;
+  signature: string;
+
+  @Field(() => Boolean, { defaultValue: true })
+  executeWhenApproved: boolean;
+}
+
+@ObjectType()
+export class ApprovalResponse {
+  @BytesField({ nullable: true })
+  transactionHash?: BytesLike;
 }
 
 @ArgsType()

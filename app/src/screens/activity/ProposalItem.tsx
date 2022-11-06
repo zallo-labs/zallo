@@ -34,7 +34,7 @@ const Status = ({ p }: { p: Proposal }) => {
         <Timestamp timestamp={p.timestamp} weekday />
       </Text>
     ))
-    .with({ status: 'failed' }, { status: 'submitted' }, ({ status }) => (
+    .with({ status: 'failed' }, { status: 'pending' }, ({ status }) => (
       <Text variant="labelLarge">{status}</Text>
     ))
     .exhaustive();
@@ -76,7 +76,7 @@ const useStyles = makeStyles(({ colors, space, typoSpace }) => ({
   container: {
     display: 'flex',
     flexDirection: 'row',
-    paddingVertical: space(2),
+    paddingVertical: space(1),
     paddingHorizontal: space(2),
   },
   icon: {

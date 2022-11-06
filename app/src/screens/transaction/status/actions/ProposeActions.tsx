@@ -1,24 +1,16 @@
-import {
-  SendIcon,
-  CancelIcon,
-  CheckIcon,
-  QuorumIcon,
-} from '~/util/theme/icons';
+import { SendIcon, CancelIcon, CheckIcon, QuorumIcon } from '~/util/theme/icons';
 import { memo, useState } from 'react';
 import { Button } from 'react-native-paper';
 import { useGoBack } from '~/components/Appbar/useGoBack';
 import { useExecute } from '~/mutations/proposal/execute/useExecute';
 import { useApprove } from '~/mutations/proposal/approve/useApprove.api';
 import { Actions } from './Actions';
-import { useRevokeApproval } from '~/mutations/proposal/approve/useRevokeApproval.api';
 import { useExecutionProhibited } from '../useExecutionProhibited';
 import { useTxContext } from '../../TransactionProvider';
 
 import { useRequestApproval } from '~/mutations/proposal/useRequestApproval.api';
-import {
-  useTransactionApprovers,
-  useTransactionIsApproved,
-} from '../useTransactionApprovers';
+import { useTransactionApprovers, useTransactionIsApproved } from '../useTransactionApprovers';
+import { useReject } from '~/mutations/proposal/approve/useReject.api';
 
 export const ProposeActions = memo(() => {
   const { proposal, proposer, onExecute } = useTxContext();
@@ -26,7 +18,7 @@ export const ProposeActions = memo(() => {
   const isApproved = useTransactionIsApproved(proposal);
   const approvers = useTransactionApprovers(proposal);
   const approve = useApprove();
-  const revoke = useRevokeApproval();
+  const reject = useReject();
   const execute = useExecute(proposer, proposal);
   const goBack = useGoBack();
   const requestApproval = useRequestApproval();
@@ -37,11 +29,7 @@ export const ProposeActions = memo(() => {
   return (
     <Actions>
       {!proposal.userHasApproved && !isApproved && (
-        <Button
-          mode="contained"
-          icon={CheckIcon}
-          onPress={() => approve(proposal)}
-        >
+        <Button mode="contained" icon={CheckIcon} onPress={() => approve(proposal)}>
           Approve
         </Button>
       )}
@@ -79,9 +67,8 @@ export const ProposeActions = memo(() => {
           icon={CancelIcon}
           disabled={submitting}
           onPress={async () => {
-            const willBeDeleted = proposal.approvals.length === 1;
-            revoke(proposal);
-            if (willBeDeleted) goBack();
+            const { removed } = await reject(proposal);
+            if (removed) goBack();
           }}
         >
           Revoke

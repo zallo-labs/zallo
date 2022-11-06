@@ -28,20 +28,20 @@ gql`
   }
 `;
 
-const userConfigsToInput = (
-  configs: UserConfig[],
-): NonNullable<UserQuery['user']['proposedState']>['configs'] =>
-  configs.map((c) => ({
-    approvers: c.approvers.map((a) => ({
-      deviceId: a,
-    })),
-    spendingAllowlisted: c.spendingAllowlisted,
-    limits: Object.values(c.limits).map((l) => ({
-      token: l.token,
-      amount: l.amount.toString(),
-      period: l.period,
-    })),
-  }));
+// const userConfigsToInput = (
+//   configs: UserConfig[],
+// ): NonNullable<UserQuery['user']['proposedState']>['configs'] =>
+//   configs.map((c) => ({
+//     approvers: c.approvers.map((a) => ({
+//       deviceId: a,
+//     })),
+//     spendingAllowlisted: c.spendingAllowlisted,
+//     limits: Object.values(c.limits).map((l) => ({
+//       token: l.token,
+//       amount: l.amount.toString(),
+//       period: l.period,
+//     })),
+//   }));
 
 export const useApiUpsertUser = () => {
   const device = useDevice();

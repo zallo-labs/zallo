@@ -1,14 +1,6 @@
 import { UserState } from '@gen/user-state/user-state.model';
 import { User } from '@gen/user/user.model';
-import {
-  Args,
-  Info,
-  Mutation,
-  Parent,
-  Query,
-  ResolveField,
-  Resolver,
-} from '@nestjs/graphql';
+import { Args, Info, Mutation, Parent, Query, ResolveField, Resolver } from '@nestjs/graphql';
 import { Prisma } from '@prisma/client';
 import { UserInputError } from 'apollo-server-core';
 import { GraphQLResolveInfo } from 'graphql';
@@ -77,10 +69,7 @@ export class UsersResolver {
   }
 
   @Query(() => User)
-  async user(
-    @Args() { id }: FindUniqueUserArgs,
-    @Info() info: GraphQLResolveInfo,
-  ): Promise<User> {
+  async user(@Args() { id }: FindUniqueUserArgs, @Info() info: GraphQLResolveInfo): Promise<User> {
     return this.prisma.user.findUniqueOrThrow({
       where: {
         accountId_deviceId: {
@@ -118,7 +107,7 @@ export class UsersResolver {
     const userId = getUserWhere(user.id);
 
     return this.prisma.$transaction(async (tx) => {
-      await tx.user.upsert({
+      const { latestState } = await tx.user.upsert({
         where: userId,
         create: {
           account: { connect: { id: user.id.account } },
@@ -128,28 +117,34 @@ export class UsersResolver {
         update: {
           name: user.name,
         },
-        ...getSelect(info),
+        select: {
+          latestState: {
+            select: {
+              id: true,
+            },
+          },
+        },
       });
 
       // Remove latest state; connect tries to nullify accountId as well so this must be done manually
-      await tx.userState.update({
-        where: {
-          accountId_latestOfUserDeviceId: {
-            accountId: user.id.account,
-            latestOfUserDeviceId: user.id.device,
+      if (latestState) {
+        await tx.userState.update({
+          where: {
+            accountId_latestOfUserDeviceId: {
+              accountId: user.id.account,
+              latestOfUserDeviceId: user.id.device,
+            },
           },
-        },
-        data: {
-          latestOfUserDeviceId: null,
-        },
-      });
+          data: {
+            latestOfUserDeviceId: null,
+          },
+        });
+      }
 
       // The account or user can't be their own approver
       const configs = user.configs.map((config) => ({
         ...config,
-        approvers: config.approvers.filter(
-          (a) => a !== user.id.account && a !== user.id.device,
-        ),
+        approvers: config.approvers.filter((a) => a !== user.id.account && a !== user.id.device),
       }));
 
       const r = await tx.userState.create({
@@ -184,10 +179,7 @@ export class UsersResolver {
     const userWhere = getUserWhere(id);
 
     if (isActive) {
-      if (!proposalHash)
-        throw new UserInputError(
-          'Proposal is required to remove an active user',
-        );
+      if (!proposalHash) throw new UserInputError('Proposal is required to remove an active user');
 
       return this.prisma.user.update({
         where: userWhere,

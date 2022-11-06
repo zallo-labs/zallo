@@ -1,33 +1,17 @@
-import {
-  Args,
-  Info,
-  Mutation,
-  Parent,
-  Query,
-  ResolveField,
-  Resolver,
-} from '@nestjs/graphql';
+import { Args, Info, Mutation, Parent, Query, ResolveField, Resolver } from '@nestjs/graphql';
 import { PrismaService } from 'nestjs-prisma';
 import { GraphQLResolveInfo } from 'graphql';
 import { getSelect } from '~/util/select';
 import { DeviceAddr } from '~/decorators/device.decorator';
-import { Address, Id, toId } from 'lib';
-import {
-  ContactsArgs,
-  DeleteContactArgs,
-  ContactObject,
-  UpsertContactArgs,
-} from './contacts.args';
+import { Address, filterFirst, Id, toId } from 'lib';
+import { ContactsArgs, DeleteContactArgs, ContactObject, UpsertContactArgs } from './contacts.args';
 import { connectOrCreateDevice } from '~/util/connect-or-create';
 import { AccountsService } from '../accounts/accounts.service';
 import { Prisma } from '@prisma/client';
 
 @Resolver(() => ContactObject)
 export class ContactsResolver {
-  constructor(
-    private prisma: PrismaService,
-    private accountsService: AccountsService,
-  ) {}
+  constructor(private prisma: PrismaService, private accountsService: AccountsService) {}
 
   @ResolveField(() => String)
   id(@Parent() contact: ContactObject, @DeviceAddr() device: Address): Id {
@@ -49,10 +33,17 @@ export class ContactsResolver {
       select: { id: true, name: true },
     });
 
-    return [
-      ...contacts,
-      ...accounts.map((a) => ({ addr: a.id, name: a.name })),
-    ];
+    return filterFirst(
+      [
+        ...contacts,
+        ...accounts.map((a) => ({ addr: a.id, name: a.name })),
+        {
+          addr: device,
+          name: 'This Device',
+        },
+      ],
+      (contact) => contact.addr,
+    );
   }
 
   @Mutation(() => ContactObject)

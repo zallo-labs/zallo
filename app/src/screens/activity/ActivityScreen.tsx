@@ -37,7 +37,7 @@ export const ActivityScreen = withSkeleton(() => {
   const [proposalsAwaitingUser] = useProposalsMetadata({ status: ProposalStatus.AwaitingUser });
   const [proposalsAwaitingOthers] = useProposalsMetadata({ status: ProposalStatus.AwaitingOther });
   const [proposalsExecuted] = useProposalsMetadata({ status: ProposalStatus.Executed });
-  const [incomingTransfers] = useTransfersMetadata(TransferType.In);
+  // const [incomingTransfers] = useTransfersMetadata(TransferType.In);
 
   const sections = useMemo(
     () =>
@@ -52,11 +52,11 @@ export const ActivityScreen = withSkeleton(() => {
           title: 'Executed',
           data: [
             ...proposalsExecuted.map((activity): Item => ({ activity, type: 'proposal' })),
-            ...incomingTransfers.map((activity): Item => ({ activity, type: 'transfer' })),
+            // ...incomingTransfers.map((activity): Item => ({ activity, type: 'transfer' })),
           ].sort((a, b) => b.activity.timestamp.toMillis() - a.activity.timestamp.toMillis()),
         },
       ].filter((section) => section.data.length > 0),
-    [proposalsAwaitingUser, proposalsAwaitingOthers, proposalsExecuted, incomingTransfers],
+    [proposalsAwaitingUser, proposalsAwaitingOthers, proposalsExecuted],
   );
 
   return (
@@ -77,7 +77,7 @@ export const ActivityScreen = withSkeleton(() => {
             .with({ type: 'proposal' }, ({ activity }) => (
               <ProposalItem
                 id={activity}
-                onPress={() => navigation.navigate('Transaction', { id: activity })}
+                onPress={() => navigation.navigate('Proposal', { id: activity })}
               />
             ))
             .with({ type: 'transfer' }, ({ activity }) => <IncomingTransferItem id={activity.id} />)
@@ -102,5 +102,6 @@ export const ActivityScreen = withSkeleton(() => {
 const useStyles = makeStyles(({ space }) => ({
   title: {
     marginHorizontal: space(2),
+    marginBottom: space(1),
   },
 }));

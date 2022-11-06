@@ -16,7 +16,8 @@ const token = (...args: Parameters<typeof createToken>) => {
 export const ETH = token({
   type: 'ETH',
   name: 'Ether',
-  symbol: 'Ξ',
+  // symbol: 'Ξ',
+  symbol: "ETH",
   decimals: 18,
   addresses: {
     mainnet: '0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2', // wETH

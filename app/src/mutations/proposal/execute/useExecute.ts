@@ -1,11 +1,12 @@
-import { executeTx, Signer } from 'lib';
+import { executeTx, Signer, UserId } from 'lib';
 import { useCallback } from 'react';
 import { useAccount } from '~/queries/account/useAccount.api';
 import { Proposal } from '~/queries/proposal';
-import { CombinedUser, toActiveUser } from '~/queries/user/useUser.api';
+import { toActiveUser, useUser } from '~/queries/user/useUser.api';
 import { useApiSubmitExecution } from './useSubmitExecution.api';
 
-export const useExecute = (proposer: CombinedUser, proposal: Proposal) => {
+export const useExecute = (proposerId: UserId, proposal: Proposal) => {
+  const [proposer] = useUser(proposerId);
   const [account] = useAccount(proposer.account);
   const submitExecution = useApiSubmitExecution();
 

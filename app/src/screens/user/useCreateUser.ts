@@ -24,6 +24,7 @@ export const useCreateUser = (accountAddr: Address) => {
           configs: new Proposable({
             proposed: [
               {
+                id: NaN,
                 approvers: [],
                 spendingAllowlisted: false,
                 limits: {},

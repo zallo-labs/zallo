@@ -10,21 +10,23 @@ import { useToggle } from '@hook/useToggle';
 import { isHexString } from 'ethers/lib/utils';
 import { tryDecodeHexString } from '~/util/decodeHex';
 
-export interface ValueChildProps {
+export interface TypedValue {
   name?: string;
+  type?: string;
   value: unknown;
 }
 
-export const ValueChild = ({ name, value }: ValueChildProps) => {
+export const TypedDataValue = ({ name, value }: TypedValue) => {
   const styles = useStyles();
   const [contacts] = useContacts();
 
   const [isExpanded, toggleExpanded] = useToggle(false);
 
+  console.log(JSON.stringify({name, value}, null, 2));
+
   const formatted = useMemo(() => {
     if (typeof value === 'string') {
-      const contact =
-        isAddress(value) && contacts.find((c) => c.addr === value);
+      const contact = isAddress(value) && contacts.find((c) => c.addr === value);
       if (contact) return contact.name;
 
       if (isHexString(value)) {

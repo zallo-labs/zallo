@@ -1,14 +1,11 @@
 import { useMemo, useState } from 'react';
-import { UserId, UserConfig } from 'lib';
+import { UserConfig, UserId } from 'lib';
 import { ScreenSkeleton } from '~/components/skeleton/ScreenSkeleton';
 import { withSkeleton } from '~/components/skeleton/withSkeleton';
 import { RootNavigatorScreenProps } from '~/navigation/RootNavigator';
 import { UserDetails } from './UserDetails';
 import { useUser } from '~/queries/user/useUser.api';
-import {
-  ConfigSelectorSheet,
-  ProposedConfigs,
-} from './ConfigSelectorSheet/ConfigSelectorSheet';
+import { ConfigSelectorSheet, ProposedConfigs } from './ConfigSelectorSheet/ConfigSelectorSheet';
 import { UserScreenContextProvider } from './UserScreenContext';
 
 export interface UserScreenParams {

@@ -102,12 +102,14 @@ export const SessionProposalScreen = ({ route, navigation }: SessionProposalScre
         <SessionAccounts users={users} setUsers={setUsers} style={styles.accounts} />
       </Box>
 
-      <Actions>
-        <Button onPress={reject}>Reject</Button>
-        <Button mode="contained" onPress={approve} disabled={!users.length}>
-          Connect
-        </Button>
-      </Actions>
+      <Actions
+        primary={
+          <Button mode="contained" onPress={approve} disabled={!users.length}>
+            Connect
+          </Button>
+        }
+        secondary={<Button onPress={reject}>Reject</Button>}
+      />
     </Box>
   );
 };
