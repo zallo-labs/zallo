@@ -6372,16 +6372,16 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@matterlabs/hardhat-zksync-deploy@npm:^0.5.1":
-  version: 0.5.1
-  resolution: "@matterlabs/hardhat-zksync-deploy@npm:0.5.1"
+"@matterlabs/hardhat-zksync-deploy@npm:^0.5.2":
+  version: 0.5.2
+  resolution: "@matterlabs/hardhat-zksync-deploy@npm:0.5.2"
   dependencies:
     glob: ^8.0.1
   peerDependencies:
     ethers: ~5.7.0
     hardhat: ^2.11.1
-    zksync-web3: ^0.11.0
-  checksum: 326017c9d6122b6c0a893dfbaaf27e6f98d2febda8ac3bef6401708f56eb543d264012b90c9496c713b8247d71674ac775dad510f9609b6f722d447b516dccff
+    zksync-web3: ^0.11.1
+  checksum: 6eabed2585463058c2e8c888d531151253cd302347c459562e0349ae866229ab74e721330f429b15bc6c432f30746867caaefbd1c29406addd92a6ce445f233e
   languageName: node
   linkType: hard
 
@@ -6397,15 +6397,15 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@matterlabs/hardhat-zksync-solc@npm:^0.3.9":
-  version: 0.3.9
-  resolution: "@matterlabs/hardhat-zksync-solc@npm:0.3.9"
+"@matterlabs/hardhat-zksync-solc@npm:^0.3.10":
+  version: 0.3.10
+  resolution: "@matterlabs/hardhat-zksync-solc@npm:0.3.10"
   dependencies:
     "@nomiclabs/hardhat-docker": ^2.0.0
     dockerode: ^3.3.4
   peerDependencies:
     hardhat: ^2.11.1
-  checksum: 7e0e2a6edd313c561b3b4e1ca3b11d11412f91a552254a017312b235353dbe32da66f1c5e7295169ad188493ac94d9bc68224fcbafb465dd7f2c81bac19c358a
+  checksum: 02f2fa2bcda95aec5f6bed1ffa47e2fa3afed9a7e6b41f00924fd9953a801f9895f6877e610607e205feed2c3107247f98e87eb8a6ab1d0942f46d58ff963c79
   languageName: node
   linkType: hard
 
@@ -11725,7 +11725,7 @@ __metadata:
     tsconfig-paths: ^4.1.0
     type-graphql: ^1.1.1
     typescript: ^4.8.4
-    zksync-web3: ^0.11.0
+    zksync-web3: ^0.11.1
   languageName: unknown
   linkType: soft
 
@@ -12282,7 +12282,7 @@ __metadata:
     use-debounce: ^8.0.4
     use-immer: ^0.7.0
     yup: ^0.32.11
-    zksync-web3: ^0.11.0
+    zksync-web3: ^0.11.1
   languageName: unknown
   linkType: soft
 
@@ -15293,8 +15293,8 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "contracts@workspace:contracts"
   dependencies:
-    "@matterlabs/hardhat-zksync-deploy": ^0.5.1
-    "@matterlabs/hardhat-zksync-solc": ^0.3.9
+    "@matterlabs/hardhat-zksync-deploy": ^0.5.2
+    "@matterlabs/hardhat-zksync-solc": ^0.3.10
     "@matterlabs/signature-checker": ^1.1.1
     "@matterlabs/zksync-contracts": ^0.4.2
     "@nomiclabs/hardhat-ethers": ^2.2.0
@@ -15337,7 +15337,7 @@ __metadata:
     ts-node: ^10.9.1
     typechain: ^8.1.0
     typescript: ^4.8.4
-    zksync-web3: ^0.11.0
+    zksync-web3: ^0.11.1
   languageName: unknown
   linkType: soft
 
@@ -25008,7 +25008,7 @@ __metadata:
   resolution: "lib@workspace:lib"
   dependencies:
     "@ethersproject/bignumber": ^5.7.0
-    "@matterlabs/hardhat-zksync-deploy": ^0.5.1
+    "@matterlabs/hardhat-zksync-deploy": ^0.5.2
     "@typechain/ethers-v5": ^10.1.0
     "@types/jest": ^29.0.3
     ethers: ^5.7.1
@@ -25019,7 +25019,7 @@ __metadata:
     ts-jest: ^29.0.3
     typechain: ^8.1.0
     typescript: ^4.8.4
-    zksync-web3: ^0.11.0
+    zksync-web3: ^0.11.1
   languageName: unknown
   linkType: soft
 
@@ -36594,11 +36594,11 @@ __metadata:
   languageName: node
   linkType: hard
 
-"zksync-web3@npm:^0.11.0":
-  version: 0.11.0
-  resolution: "zksync-web3@npm:0.11.0"
+"zksync-web3@npm:^0.11.1":
+  version: 0.11.1
+  resolution: "zksync-web3@npm:0.11.1"
   peerDependencies:
     ethers: ~5.7.0
-  checksum: 758e39897e273462cdcdc039bcf1b837fbc13107eb3f1eb157640d4830ada5b3a4d36166d4f5ed1e7aa82a7859ec0c8f40a450eb0ced31c3a9c67708841b0d04
+  checksum: dcdf31fc8b98f24f557d7f2aa0ea4058e0fa670e968698d188240e391d3d3d01f83d8809ba75019b0ebf4431ec760c8773e7fcba1e51326a6059e2000547c833
   languageName: node
   linkType: hard

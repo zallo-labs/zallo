@@ -10,10 +10,10 @@
     "hosted:auth": "graph auth --product hosted-service",
     "dev:create": "graph create --node http://graph.allopay.io:8020 allopay-dev",
     "dev:deploy": "graph deploy --node http://graph.allopay.io:8020 --ipfs http://graph.allopay.io:5001 -l 0.1 allopay-dev",
-    "dev:deploy-hosted": "graph deploy --product hosted-service hbriese/allopay-dev2",
+    "dev:deploy-hosted": "graph deploy --product hosted-service hbriese/allopay-dev3",
     "prod:create": "graph create --node http://graph.allopay.io:8020 allopay",
     "prod:deploy": "graph deploy --node http://graph.allopay.io:8020 --ipfs http://graph.allopay.io:5001 -l 0.1 allopay",
-    "prod:deploy-hosted": "graph deploy --product hosted-service hbriese/allopay"
+    "prod:deploy-hosted": "graph deploy --product hosted-service hbriese/allopay3"
   },
   "dependencies": {
     "@graphprotocol/graph-cli": "0.35.0",
