@@ -3,13 +3,9 @@ import { useTheme } from '@theme/paper';
 import { useEffect } from 'react';
 import { StyleProp, TextStyle } from 'react-native';
 import { Snackbar, SnackbarProps, Text } from 'react-native-paper';
-import RnToast, {
-  ToastConfig,
-  ToastConfigParams,
-  ToastOptions,
-} from 'react-native-toast-message';
+import RnToast, { ToastConfig, ToastConfigParams, ToastOptions } from 'react-native-toast-message';
 import { match } from 'ts-pattern';
-import { captureEvent } from '~/util/sentry/sentry';
+import { captureEvent, SentryEvent } from '~/util/sentry/sentry';
 
 type SnackVariant = 'info' | 'error';
 
@@ -17,6 +13,7 @@ type SnackParams = Pick<SnackbarProps, 'action' | 'style' | 'elevation'> & {
   message: string;
   variant?: SnackVariant;
   messageStyle?: StyleProp<TextStyle>;
+  event?: Partial<SentryEvent> | false;
 };
 
 export type SnackProps = ToastConfigParams<SnackParams>;
@@ -24,17 +21,21 @@ export type SnackProps = ToastConfigParams<SnackParams>;
 const Snack = ({
   isVisible,
   hide,
-  props: { message, variant = 'info', messageStyle, action, style, ...props },
+  props: { message, variant = 'info', messageStyle, event, action, style, ...props },
 }: SnackProps) => {
   const styles = useStyles(variant);
 
   useEffect(() => {
-    if (variant === 'error')
+    if (variant === 'error' && event !== false)
       captureEvent({
-        message: 'Error snack shown',
-        extra: { message },
+        message,
+        ...event,
+        tags: {
+          from: 'snack',
+          ...event?.tags,
+        },
       });
-  }, [message, variant]);
+  }, [message, variant, event]);
 
   return (
     <Snackbar
@@ -55,26 +56,24 @@ const Snack = ({
   );
 };
 
-const useStyles = makeStyles(
-  ({ colors, onBackground }, variant: SnackVariant) => {
-    const backgroundColor = match(variant)
-      .with('info', () => colors.surfaceVariant)
-      .with('error', () => colors.errorContainer)
-      .exhaustive();
+const useStyles = makeStyles(({ colors, onBackground }, variant: SnackVariant) => {
+  const backgroundColor = match(variant)
+    .with('info', () => colors.surfaceVariant)
+    .with('error', () => colors.errorContainer)
+    .exhaustive();
 
-    return {
-      snackbar: {
-        backgroundColor,
-      },
-      message: {
-        color: onBackground(backgroundColor),
-      },
-      actionLabel: {
-        color: colors.primary,
-      },
-    };
-  },
-);
+  return {
+    snackbar: {
+      backgroundColor,
+    },
+    message: {
+      color: onBackground(backgroundColor),
+    },
+    actionLabel: {
+      color: colors.primary,
+    },
+  };
+});
 
 export type ShowSnackOptions = Pick<
   ToastOptions,
@@ -84,13 +83,7 @@ export type ShowSnackOptions = Pick<
 
 export const showSnack = (
   message: string,
-  {
-    autoHide,
-    visibilityTime,
-    position,
-    onHide,
-    ...props
-  }: ShowSnackOptions = {},
+  { autoHide, visibilityTime, position, onHide, ...props }: ShowSnackOptions = {},
 ) =>
   RnToast.show({
     type: Snack.name,

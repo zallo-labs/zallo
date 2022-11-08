@@ -24,12 +24,7 @@ export interface SpendingCardProps {
   style?: StyleProp<ViewStyle>;
 }
 
-export const SpendingCard = ({
-  user,
-  config,
-  setConfig,
-  style,
-}: SpendingCardProps) => {
+export const SpendingCard = ({ user, config, setConfig, style }: SpendingCardProps) => {
   const styles = useStyles();
   const { navigate } = useRootNavigation();
   const createLimit = useCreateLimit(user, config);
@@ -102,8 +97,7 @@ export const SpendingCard = ({
                         onChange: (newLimit) => {
                           setConfig(
                             produce(config, (config) => {
-                              if (newLimit.token !== limit.token)
-                                delete config.limits[limit.token];
+                              if (newLimit.token !== limit.token) delete config.limits[limit.token];
 
                               config.limits[newLimit.token] = newLimit;
                             }),

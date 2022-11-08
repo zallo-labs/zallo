@@ -52,16 +52,11 @@ export const UserDetails = ({
     () => !!proposed?.configs.some((c) => _.isEqual(c, initialConfig)),
     [initialConfig, proposed?.configs],
   );
-  const isModified = useMemo(
-    () => !_.isEqual(initialConfig, config),
-    [config, initialConfig],
-  );
+  const isModified = useMemo(() => !_.isEqual(initialConfig, config), [config, initialConfig]);
   const canApply = useMemo(() => {
     const isNew = () =>
       !isProposed &&
-      !user.configs.active?.some((c) =>
-        _.isEqual(c.approvers, initialConfig.approvers),
-      );
+      !user.configs.active?.some((c) => _.isEqual(c.approvers, initialConfig.approvers));
 
     return isModified || isNew();
   }, [initialConfig.approvers, isModified, isProposed, user.configs.active]);
@@ -70,9 +65,7 @@ export const UserDetails = ({
     const newUser = produce(user, (user) => {
       const configs = user.configs.proposed ?? user.configs.active!;
 
-      const i = configs.findIndex((c) =>
-        _.isEqual(c.approvers, initialConfig.approvers),
-      );
+      const i = configs.findIndex((c) => _.isEqual(c.approvers, initialConfig.approvers));
       configs[i >= 0 ? i : configs.length] = config;
 
       user.configs.proposed = configs;
@@ -105,19 +98,9 @@ export const UserDetails = ({
             style={styles.name}
           />
 
-          {isProposed && (
-            <ProposableLabel
-              proposal={user.configs.proposal}
-              variant="titleLarge"
-            />
-          )}
+          {isProposed && <ProposableLabel proposal={user.configs.proposal} variant="titleLarge" />}
 
-          <SpendingCard
-            user={user}
-            config={config}
-            setConfig={setConfig}
-            style={styles.card}
-          />
+          <SpendingCard user={user} config={config} setConfig={setConfig} style={styles.card} />
 
           <ApproversCard
             user={user}
@@ -134,14 +117,7 @@ export const UserDetails = ({
             {(props) => <FAB {...props} label="Activate account" />}
           </ActivateAccountButton>
         ) : (
-          canApply && (
-            <FAB
-              icon={CheckIcon}
-              label="Apply"
-              loading={upserting}
-              onPress={submit}
-            />
-          )
+          canApply && <FAB icon={CheckIcon} label="Apply" loading={upserting} onPress={submit} />
         )}
       </Box>
     </Provider>

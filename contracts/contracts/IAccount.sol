@@ -13,9 +13,7 @@ import './UserHelper.sol';
                                 CONSTANTS
   //////////////////////////////////////////////////////////////*/
 
-bytes4 constant EIP1271_SUCCESS = bytes4(
-  keccak256('isValidSignature(bytes32,bytes)')
-);
+bytes4 constant EIP1271_SUCCESS = bytes4(keccak256('isValidSignature(bytes32,bytes)'));
 
 interface IAccount is BaseIAccount, IERC1271 {
   /*//////////////////////////////////////////////////////////////

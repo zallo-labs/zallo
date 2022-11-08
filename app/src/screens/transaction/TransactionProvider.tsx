@@ -1,5 +1,5 @@
 import assert from 'assert';
-import { MaybePromise, UserConfig } from 'lib';
+import { MaybePromise } from 'lib';
 import { createContext, memo, ReactNode, useContext } from 'react';
 import { TransactionResponse } from 'zksync-web3/build/src/types';
 import { CombinedAccount, useAccount } from '~/queries/account/useAccount.api';
@@ -12,7 +12,6 @@ interface TransactionContext {
   account: CombinedAccount;
   proposer: CombinedUser;
   onExecute?: OnExecute;
-  config: UserConfig;
 }
 
 const CONTEXT = createContext<TransactionContext | null>(null);
@@ -37,13 +36,8 @@ export const TransactionProvider = memo(
     const [account] = useAccount(proposal.account);
     const [proposer] = useUser(proposal.proposer);
 
-    // TODO: allow user to select config
-    const config = (proposer.configs.active ?? proposer.configs.proposed!)[0];
-
     return (
-      <CONTEXT.Provider
-        value={{ proposal, account, proposer, onExecute, config }}
-      >
+      <CONTEXT.Provider value={{ proposal, account, proposer, onExecute }}>
         {children}
       </CONTEXT.Provider>
     );

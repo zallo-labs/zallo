@@ -1,10 +1,7 @@
 import { Address } from 'lib';
 import { ethers } from 'ethers';
 
-export type SigningRequest =
-  | EthSignRequest
-  | PersonalSignRequest
-  | SignTypedDataRequest;
+export type SigningRequest = EthSignRequest | PersonalSignRequest | SignTypedDataRequest;
 
 const WC_SIGNING_METHODS_ARRAY = [
   'personal_sign',
@@ -39,18 +36,15 @@ export interface SignTypedDataRequest {
   params: [account: Address, typedDataJson: string];
 }
 
-export interface TypedData<
-  M = Record<string, unknown>,
-  Type extends string = string,
-> {
+export interface Eip712TypedDomainData<M = Record<string, unknown>, Type extends string = string> {
   domain: ethers.TypedDataDomain;
   types: Record<Type, ethers.TypedDataField[]>;
   primaryType: Type;
   message: M;
 }
 
-export const toTypedData = (typedDataJson: string): TypedData => {
-  const typedData = JSON.parse(typedDataJson) as TypedData;
+export const toTypedData = (typedDataJson: string): Eip712TypedDomainData => {
+  const typedData = JSON.parse(typedDataJson) as Eip712TypedDomainData;
 
   // EIP712Domain is sent according to the RPC spec, but must not be passed into ethers
   // https://github.com/ethers-io/ethers.js/issues/687#issuecomment-714069471

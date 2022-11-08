@@ -48,7 +48,7 @@ export const EmptyListFallback = ({
 const useStyles = makeStyles(({ colors, iconSize, space }) => ({
   icon: {
     color: colors.onBackground,
-    fontSize: iconSize.medium,
+    fontSize: iconSize.large,
   },
   title: {
     marginVertical: space(2),

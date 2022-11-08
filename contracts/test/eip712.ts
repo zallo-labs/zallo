@@ -1,20 +1,12 @@
 import { ethers } from 'ethers';
-import {
-  createTx,
-  getDomain,
-  hashTx,
-  toTransactionRequest,
-  toTransactionStruct,
-} from 'lib';
+import { createTx, getDomain, hashTx, toTransactionRequest, toTransactionStruct } from 'lib';
 import { deployTestAccount, expect, getSigners, device } from './util';
 
 describe('EIP712', () => {
   it('Domain separator', async () => {
     const { account } = await deployTestAccount();
 
-    const expected = ethers.utils._TypedDataEncoder.hashDomain(
-      await getDomain(account),
-    );
+    const expected = ethers.utils._TypedDataEncoder.hashDomain(await getDomain(account));
     const actual = await account.domainSeparator();
 
     expect(actual).to.eq(expected);

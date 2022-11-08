@@ -32,5 +32,5 @@ export const Identicon = ({
   if (contact)
     return <LabelIcon label={contact.name} size={size} style={style} />;
 
-  return <Jazzicon size={size} {...props} address={addr} />;
+  return <Jazzicon size={size} {...props} address={addr} containerStyle={style} />;
 };

@@ -11,28 +11,16 @@ export interface ProposableLabelProps {
   style?: StyleProp<ViewStyle>;
 }
 
-export const ProposableLabel = ({
-  proposal,
-  variant,
-  style,
-}: ProposableLabelProps) => {
+export const ProposableLabel = ({ proposal, variant, style }: ProposableLabelProps) => {
   const { navigate } = useRootNavigation();
 
   if (!proposal) return null;
 
   return (
-    <Box
-      horizontal
-      justifyContent="space-between"
-      alignItems="center"
-      style={style}
-    >
+    <Box horizontal justifyContent="space-between" alignItems="center" style={style}>
       <Text variant={variant}>Proposed</Text>
 
-      <Button
-        icon={ViewIcon}
-        onPress={() => navigate('Transaction', { id: proposal })}
-      >
+      <Button icon={ViewIcon} onPress={() => navigate('Proposal', { id: proposal })}>
         Proposal
       </Button>
     </Box>

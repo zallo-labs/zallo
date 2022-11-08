@@ -10,10 +10,7 @@ import { AddIcon } from '@theme/icons';
 import { useRootNavigation } from '~/navigation/useRootNavigation';
 import { CombinedUser } from '~/queries/user/useUser.api';
 import _ from 'lodash';
-import {
-  ConfigSelectorSection,
-  ConfigSelectorSectionHeader,
-} from './ConfigSelectorSectionHeader';
+import { ConfigSelectorSection, ConfigSelectorSectionHeader } from './ConfigSelectorSectionHeader';
 import { useUserScreenContext } from '../UserScreenContext';
 import { ProposalId } from '~/queries/proposal';
 
@@ -82,9 +79,7 @@ export const ConfigSelectorSheet = ({
       <SectionGrid
         sections={sections}
         renderSectionHeader={({ section }) => (
-          <ConfigSelectorSectionHeader
-            section={section as ConfigSelectorSection}
-          />
+          <ConfigSelectorSectionHeader section={section as ConfigSelectorSection} />
         )}
         renderItem={({ item }) => (
           <ConfigCard

@@ -1,7 +1,7 @@
 import { BytesLike, ethers } from 'ethers';
 import { defaultAbiCoder } from 'ethers/lib/utils';
 import { User } from './user';
-import { Address, compareAddress } from './addr';
+import { Address, compareAddress, sortAddresses } from './addr';
 import { getUserConfigProof } from './merkle';
 import { TxReq, getDomain, TX_EIP712_TYPE } from './tx';
 import { Device } from './device';
@@ -35,26 +35,24 @@ const toUserConfigAndSignatures = (user: Address, signers: Signer[]) => {
     }, initial);
 };
 
-export const createUserSignature = (
-  user: User,
-  signers: Signer[],
-): BytesLike => {
-  const { approvers, signatures } = toUserConfigAndSignatures(
-    user.addr,
-    signers,
-  );
-  const config = user.configs.find((c) => _.isEqual(c.approvers, approvers));
+export const createUserSignature = (user: User, signers: Signer[]): BytesLike => {
+  const { approvers, signatures } = toUserConfigAndSignatures(user.addr, signers);
+
+  const sortedApprovers = approvers.sort(compareAddress);
+  const config = user.configs.find((c) => _.isEqual(c.approvers.sort(compareAddress), sortedApprovers));
   assert(config);
+
+  // console.log(JSON.stringify(user, null, 2));
+  // console.log({
+  //   signers,
+  //   config,
+  //   approvers,
+  // });
 
   const proof = getUserConfigProof(user, config);
 
   return defaultAbiCoder.encode(
-    [
-      'address user',
-      USER_CONFIG_TUPLE,
-      'bytes32[] proof',
-      'bytes[] signatures',
-    ],
+    ['address user', USER_CONFIG_TUPLE, 'bytes32[] proof', 'bytes[] signatures'],
     [user.addr, toUserConfigStruct(config), proof, signatures],
   );
 };
@@ -70,11 +68,7 @@ export const signTx = async (device: Device, account: Address, tx: TxReq) =>
 export const toCompactSignature = (signature: SignatureLike) =>
   ethers.utils.splitSignature(signature).compact;
 
-export const validateSignature = (
-  signer: Address,
-  digest: BytesLike,
-  signature: SignatureLike,
-) => {
+export const validateSignature = (signer: Address, digest: BytesLike, signature: SignatureLike) => {
   try {
     const recovered = ethers.utils.recoverAddress(digest, signature);
     return recovered === signer;

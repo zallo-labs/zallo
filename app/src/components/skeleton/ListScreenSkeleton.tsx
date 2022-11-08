@@ -8,10 +8,7 @@ export interface ListScreenSkeletonProps extends ScreenSkeletonProps {
   Header?: ReactNode;
 }
 
-export const ListScreenSkeleton = ({
-  Header,
-  ...screenProps
-}: ListScreenSkeletonProps) => (
+export const ListScreenSkeleton = ({ Header, ...screenProps }: ListScreenSkeletonProps) => (
   <ScreenSkeleton {...screenProps}>
     <Container mx={2} separator={<Box mt={1} />}>
       {Header}

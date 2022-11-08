@@ -16,7 +16,8 @@ const token = (...args: Parameters<typeof createToken>) => {
 export const ETH = token({
   type: 'ETH',
   name: 'Ether',
-  symbol: 'Ξ',
+  // symbol: 'Ξ',
+  symbol: "ETH",
   decimals: 18,
   addresses: {
     mainnet: '0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2', // wETH
@@ -33,7 +34,7 @@ export const DAI = token({
   decimals: 18,
   addresses: {
     mainnet: '0x6B175474E89094C44Da98b954EedeAC495271d0F',
-    testnet: '0x9561634BD45CE00af2cddA94a2E21781d1DdbAdA',
+    testnet: '0x537200b9Dd13Adc66749d5D8f1De2556F7f428eC',
   },
   iconUri:
     'https://raw.githubusercontent.com/compound-finance/token-list/master/assets/asset_DAI.svg',
@@ -45,7 +46,7 @@ export const USDC = token({
   decimals: 6,
   addresses: {
     mainnet: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
-    testnet: '0x72c4F199CB8784425542583D345E7c00D642E345',
+    testnet: '0xf9A9aFd74Dc8A5BD3745d6613b0E169B3eac4fcF',
   },
   iconUri:
     'https://raw.githubusercontent.com/compound-finance/token-list/master/assets/asset_USDC.svg',
@@ -57,7 +58,7 @@ export const WBTC = token({
   decimals: 8,
   addresses: {
     mainnet: '0x2260FAC5E5542a773Aa44fBCfeDf7C193bc2C599',
-    testnet: '0xe252aD90E4e19a6fb27e7443FfeDD18fc6F9Ba5c',
+    testnet: '0x862c83a0845d8f866f4d8E61558FDd77A3585b23',
   },
 });
 
@@ -67,7 +68,7 @@ export const LINK = token({
   decimals: 18,
   addresses: {
     mainnet: '0x514910771af9ca656af840dff83e8264ecf986ca',
-    testnet: '0x7EA4a22D3fc35C61b31cF1998608bDB1dF3638E9',
+    testnet: '0x440b4f63674b5Cc4B1FE3021ecA276C49518db27',
   },
   iconUri: 'https://s2.coinmarketcap.com/static/img/coins/64x64/1975.png',
 });
@@ -78,7 +79,7 @@ export const USDT = token({
   decimals: 6,
   addresses: {
     mainnet: '0xdac17f958d2ee523a2206206994597c13d831ec7',
-    testnet: '0x509Ee0d083DdF8AC028f2a56731412edD63223B9',
+    testnet: '0x22dc5D99a186b2b4092e917CB75C157A95bFfFf7',
   },
   iconUri:
     'https://raw.githubusercontent.com/compound-finance/token-list/master/assets/asset_USDT.svg',

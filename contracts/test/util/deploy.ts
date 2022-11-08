@@ -9,18 +9,20 @@ import {
   connectTestAccount,
   connectMulticall,
   UserConfig,
-  compareAddress,
 } from 'lib';
 import { allSigners, device } from './wallet';
 import { ContractTransaction } from 'ethers';
 import * as zk from 'zksync-web3';
 import { parseEther } from 'ethers/lib/utils';
 
-const ACCOUNT_START_BALANCE = parseEther('0.0001');
+type AccountArtifact = 'Account' | 'TestAccount';
+type Artifact = AccountArtifact | 'ERC1967Proxy';
+
+const ACCOUNT_START_BALANCE = parseEther('0.001');
 
 export const deployer = new Deployer(hre, device);
 
-export const deployFactory = async (contractName: 'ERC1967Proxy') => {
+export const deployFactory = async (contractName: Artifact) => {
   const contractArtifact = await deployer.loadArtifact(contractName);
   const contractBytecodeHash = zk.utils.hashBytecode(contractArtifact.bytecode);
 
@@ -39,7 +41,7 @@ export const deployFactory = async (contractName: 'ERC1967Proxy') => {
 export const deployAccountImpl = async ({
   contractName = 'Account',
 }: {
-  contractName?: 'Account' | 'TestAccount';
+  contractName?: AccountArtifact;
 } = {}) => {
   const artifact = await deployer.loadArtifact(contractName);
   const contract = await deployer.deploy(artifact);
@@ -51,15 +53,9 @@ export const deployAccountImpl = async ({
   };
 };
 
-export const deploy = async (
-  nSigners = 3,
-  contractName: 'Account' | 'TestAccount' = 'Account',
-) => {
-  const signers = allSigners
-    .slice(0, nSigners)
-    .map((approver) => approver.address);
-
-  const approvers = signers.slice(1).sort(compareAddress);
+export const deploy = async (nSigners = 3, contractName: AccountArtifact = 'Account') => {
+  const signers = allSigners.slice(0, nSigners).map((approver) => approver.address);
+  const [userAddr, ...approvers] = signers;
 
   const others = allSigners.slice(nSigners).map((approver) => approver.address);
 
@@ -70,12 +66,13 @@ export const deploy = async (
   };
 
   const user: User = {
-    addr: signers[0],
+    addr: userAddr,
     configs: [config],
   };
 
-  const { impl } = await deployAccountImpl({ contractName });
   const { factory } = await deployFactory('ERC1967Proxy');
+  const { impl } = await deployAccountImpl({ contractName });
+
   const deployData = await deployAccountProxy({ user, impl }, factory);
 
   const txResp = await device.sendTransaction({
@@ -100,8 +97,8 @@ export const deployTestAccount = async (nSigners?: number) => {
   const { account, ...rest } = await deploy(nSigners, 'TestAccount');
 
   return {
-    account: connectTestAccount(account.address, device),
     ...rest,
+    account: connectTestAccount(account.address, device),
   };
 };
 

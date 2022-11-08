@@ -46,7 +46,7 @@
     "crypto-hash": "^2.0.1",
     "eas-cli": "^2.4.1",
     "eth-url-parser": "^1.0.4",
-    "ethers": "5.7.1",
+    "ethers": "^5.7.2",
     "expo": "^46.0.16",
     "expo-application": "~4.2.2",
     "expo-asset": "~8.6.1",
@@ -118,7 +118,7 @@
     "use-debounce": "^8.0.4",
     "use-immer": "^0.7.0",
     "yup": "^0.32.11",
-    "zksync-web3": "^0.11.0"
+    "zksync-web3": "^0.11.1"
   },
   "devDependencies": {
     "@babel/core": "^7.19.3",

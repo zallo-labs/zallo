@@ -26,9 +26,7 @@ abstract contract TransactionExecutor is EIP712 {
                                 EXECUTION
   //////////////////////////////////////////////////////////////*/
 
-  function _executeTransaction(bytes32 txHash, Transaction calldata t)
-    internal
-  {
+  function _executeTransaction(bytes32 txHash, Transaction calldata t) internal {
     _setExecuted(txHash);
 
     address to = address(uint160(t.to));

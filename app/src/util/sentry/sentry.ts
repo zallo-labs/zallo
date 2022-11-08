@@ -30,6 +30,8 @@ export const captureException = (
   return Sentry.captureException(...params);
 };
 
+export type SentryEvent = Parameters<typeof Sentry.captureEvent>[0];
+
 export const captureEvent = (
   ...params: Parameters<typeof Sentry.captureEvent>
 ) => {

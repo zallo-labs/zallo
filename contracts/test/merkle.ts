@@ -52,20 +52,6 @@ describe('Merkle proof', () => {
     expect(await account.getUserMerkleRoot(user.addr)).to.eq(tree.getHexRoot());
   });
 
-  it('should verify valid multi-proof', async () => {
-    const { account, user, config } = await deployTestAccount();
-
-    const tree = getMerkleTree(user);
-    const proof = getUserConfigProof(user, config);
-
-    const isValid = await account.isValidProof(
-      config,
-      proof,
-      tree.getHexRoot(),
-    );
-    expect(isValid).to.be.true;
-  });
-
   it('should reject an invalid multi-proof', async () => {
     const {
       account,

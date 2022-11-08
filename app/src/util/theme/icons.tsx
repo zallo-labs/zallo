@@ -1,18 +1,16 @@
 import { ElementType } from 'react';
-import {
-  Ionicons,
-  MaterialCommunityIcons,
-  MaterialIcons,
-} from '@expo/vector-icons';
+import { Ionicons, MaterialCommunityIcons, MaterialIcons } from '@expo/vector-icons';
 import { ComponentPropsWithoutRef, FC } from 'react';
 import { IconProps as BaseIconProps } from 'react-native-paper/lib/typescript/components/MaterialCommunityIcon';
 import { SvgProps } from 'react-native-svg';
 import MastercardSvg from '~/../assets/mastercard.svg';
 import WalletConnectSvg from '~/../assets/walletconnect.svg';
+import { MaterialCommunityIconsProps } from '~/components/Chevron';
 
-export type IconPropsWithoutName<
-  IconType extends ElementType = typeof MaterialIcons,
-> = Omit<ComponentPropsWithoutRef<IconType>, 'name'>;
+export type IconPropsWithoutName<IconType extends ElementType = typeof MaterialIcons> = Omit<
+  ComponentPropsWithoutRef<IconType>,
+  'name'
+>;
 
 type NameProp<Props> = Props extends { name: infer Name } ? Name : never;
 type Curried<C extends ElementType, Props = ComponentPropsWithoutRef<C>> = (
@@ -24,9 +22,8 @@ export type IconColor = ComponentPropsWithoutRef<typeof MaterialIcons>['color'];
 export const materialIcon: Curried<typeof MaterialIcons> = (name) => (props) =>
   <MaterialIcons name={name} {...props} />;
 
-export const materialCommunityIcon: Curried<typeof MaterialCommunityIcons> =
-  (name) => (props) =>
-    <MaterialCommunityIcons name={name} {...props} />;
+export const materialCommunityIcon: Curried<typeof MaterialCommunityIcons> = (name) => (props) =>
+  <MaterialCommunityIcons name={name} {...props} />;
 
 export const ionIcon: Curried<typeof Ionicons> = (name) => (props) =>
   <Ionicons name={name} {...props} />;
@@ -56,12 +53,8 @@ export const PlusIcon = materialCommunityIcon('plus');
 export const SettingsIcon = materialCommunityIcon('cog');
 export const SettingsOutlineIcon = materialCommunityIcon('cog-outline');
 export const PayIcon = materialCommunityIcon('contactless-payment');
-export const PayCircleIcon = materialCommunityIcon(
-  'contactless-payment-circle',
-);
-export const PayCircleOutlineIcon = materialCommunityIcon(
-  'contactless-payment-circle-outline',
-);
+export const PayCircleIcon = materialCommunityIcon('contactless-payment-circle');
+export const PayCircleOutlineIcon = materialCommunityIcon('contactless-payment-circle-outline');
 export const DeviceIcon = materialIcon('account-circle');
 export const AccountIcon = materialCommunityIcon('bank');
 export const WalletIcon = ionIcon('md-wallet');
@@ -89,8 +82,13 @@ export const UserConfigsIcon = materialIcon('apps');
 export const ViewIcon = materialCommunityIcon('eye');
 export const PasteIcon = materialIcon('content-paste');
 export const ExternalLinkIcon = materialIcon('launch');
+export const CircleOutlineIcon = materialCommunityIcon('circle-outline');
+export const CheckCircleIcon = materialCommunityIcon('check-circle');
+export const RejectedCircleIcon = materialCommunityIcon('close-circle');
+export const CheckmarkDoneCircleIcon = materialIcon('done-all');
+export const DescriptionIcon = materialIcon('description');
 
-export type IconProps = Pick<BaseIconProps, 'color' | 'size'>;
+export type IconProps = Pick<ComponentPropsWithoutRef<typeof MaterialIcons>, 'color' | 'size'>;
 
 export const svgIcon =
   (Svg: FC<SvgProps>): FC<IconProps> =>

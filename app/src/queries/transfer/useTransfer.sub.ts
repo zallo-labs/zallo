@@ -4,6 +4,7 @@ import { useMaybeToken } from '@token/useToken';
 import assert from 'assert';
 import { BigNumber } from 'ethers';
 import { Address, address, Id } from 'lib';
+import { DateTime } from 'luxon';
 import { useMemo } from 'react';
 import {
   TransferDocument,
@@ -12,6 +13,7 @@ import {
   TransferType,
 } from '~/gql/generated.sub';
 import { useSubgraphClient } from '~/gql/GqlProvider';
+import { dateTimeFromSubgraph } from '~/gql/subgraphUtil';
 import { useSuspenseQuery } from '~/gql/useSuspenseQuery';
 
 export interface Transfer {
@@ -20,6 +22,7 @@ export interface Transfer {
   to: Address;
   amount: BigNumber;
   direction: TransferType;
+  timestamp: DateTime;
 }
 
 gql`
@@ -31,6 +34,7 @@ gql`
       from
       to
       value
+      timestamp
     }
   }
 `;
@@ -56,6 +60,7 @@ export const useTransfer = (id: Id) => {
       to: address(t.to),
       amount: BigNumber.from(t.value),
       direction: t.type,
+      timestamp: dateTimeFromSubgraph(t.timestamp),
     }),
     [t, token],
   );

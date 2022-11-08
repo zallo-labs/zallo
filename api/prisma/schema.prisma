@@ -4,7 +4,8 @@ datasource db {
 }
 
 generator client {
-  provider = "prisma-client-js"
+  provider        = "prisma-client-js"
+  previewFeatures = ["interactiveTransactions"]
 }
 
 generator nestgraphql {
@@ -83,6 +84,7 @@ model UserConfig {
 
   approvers Approver[]
   limits    TokenLimit[]
+  proposals Proposal[]
 }
 
 model Approver {
@@ -133,16 +135,18 @@ model ContractMethod {
 model Proposal {
   hash String @id @db.Char(66) // bytes32
 
-  account    Account  @relation(fields: [accountId], references: [id], onDelete: Cascade)
-  accountId  String   @db.Char(42) // address
-  proposer   User     @relation(fields: [accountId, proposerId], references: [accountId, deviceId])
-  proposerId String   @db.Char(42) // address
-  to         String   @db.Char(42) // address
+  account    Account    @relation(fields: [accountId], references: [id], onDelete: Cascade)
+  accountId  String     @db.Char(42) // address
+  proposer   User       @relation(fields: [accountId, proposerId], references: [accountId, deviceId])
+  proposerId String     @db.Char(42) // address
+  config     UserConfig @relation(fields: [configId], references: [id])
+  configId   Int
+  to         String     @db.Char(42) // address
   value      String //@db.Decimal(79, 0) // uint256
   data       String // bytes
-  salt       String   @db.Char(18) // bytes8
-  gasLimit   Decimal? @db.Decimal(19, 0)
-  createdAt  DateTime @default(now())
+  salt       String     @db.Char(18) // bytes8
+  gasLimit   Decimal?   @db.Decimal(19, 0)
+  createdAt  DateTime   @default(now())
 
   approvals   Approval[]
   submissions Submission[]
@@ -176,7 +180,7 @@ model Approval {
   device       Device   @relation(fields: [deviceId], references: [id], onDelete: Cascade)
   deviceId     String   @db.Char(42) // address
 
-  signature String // bytes
+  signature String? // bytes; rejected if undefined
   createdAt DateTime @default(now())
 
   @@id([proposalHash, deviceId])

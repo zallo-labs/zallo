@@ -33,7 +33,7 @@ export const EventRow = ({ Icon, content, timestamp }: EventRowProps) => {
       </Container>
 
       <Text variant="bodyMedium">
-        <Timestamp time>{timestamp}</Timestamp>
+        <Timestamp timestamp={timestamp} />
       </Text>
     </Box>
   );

@@ -1,17 +1,7 @@
-import {
-  createNativeStackNavigator,
-  NativeStackScreenProps,
-} from '@react-navigation/native-stack';
-import {
-  AmountScreen,
-  AmountScreenParams,
-} from '~/screens/amount/AmountScreen';
-import TokensScreen, {
-  TokensScreenParams,
-} from '~/screens/tokens/TokensScreen';
-import ContactsScreen, {
-  ContactsScreenParams,
-} from '~/screens/contacts/ContactsScreen';
+import { createNativeStackNavigator, NativeStackScreenProps } from '@react-navigation/native-stack';
+import { AmountScreen, AmountScreenParams } from '~/screens/amount/AmountScreen';
+import TokensScreen, { TokensScreenParams } from '~/screens/tokens/TokensScreen';
+import ContactsScreen, { ContactsScreenParams } from '~/screens/contacts/ContactsScreen';
 import { ScanScreen, ScanScreenParams } from '~/screens/scan/ScanScreen';
 import {
   CreateAccountScreen,
@@ -19,30 +9,11 @@ import {
 } from '~/screens/onboard/CreateAccountScreen';
 import { useShowOnboarding } from '~/screens/onboard/useShowOnboarding';
 import { DrawerNavigator } from './Drawer/DrawerNavigator';
-import {
-  ContactScreen,
-  ContactScreenParams,
-} from '~/screens/contacts/ContactScreen';
-import {
-  AccountsScreen,
-  AccountsScreenParams,
-} from '~/screens/accounts/AccountsScreen';
-import {
-  AccountScreen,
-  AccountScreenParams,
-} from '~/screens/account/AccountScreen';
-import {
-  TransactionScreen,
-  TransactionScreenParams,
-} from '~/screens/transaction/TransactionScreen';
-import {
-  AlertModalScreen,
-  AlertModalScreenParams,
-} from '~/screens/alert/AlertModalScreen';
-import {
-  DeleteModalScreen,
-  DeleteModalScreenParams,
-} from '~/screens/alert/DeleteModalScreen';
+import { ContactScreen, ContactScreenParams } from '~/screens/contacts/ContactScreen';
+import { AccountsScreen, AccountsScreenParams } from '~/screens/accounts/AccountsScreen';
+import { AccountScreen, AccountScreenParams } from '~/screens/account/AccountScreen';
+import { AlertModalScreen, AlertModalScreenParams } from '~/screens/alert/AlertModalScreen';
+import { DeleteModalScreen, DeleteModalScreenParams } from '~/screens/alert/DeleteModalScreen';
 import { SendScreen, SendScreenParams } from '~/screens/send/SendScreen';
 import LimitScreen, { LimitScreenParams } from '~/screens/limit/LimitScreen';
 import UserScreen, { UserScreenParams } from '~/screens/user/UserScreen';
@@ -56,10 +27,11 @@ import {
 } from '~/screens/session-proposal/SessionProposalScreen';
 import { SignScreen, SignScreenParams } from '~/screens/sign/SignScreen';
 import { SessionsScreen } from '~/screens/sessions/SessionsScreen';
+import ProposalScreen, { ProposalScreenParams } from '~/screens/proposal/ProposalScreen';
 
 export type RootNavigatorParamList = {
   DrawerNavigator: undefined;
-  Transaction: TransactionScreenParams;
+  Proposal: ProposalScreenParams;
   Accounts: AccountsScreenParams;
   Account: AccountScreenParams;
   AccountSettings: AccountSettingsScreenParams;
@@ -104,18 +76,12 @@ export const RootNavigator = () => {
       )}
 
       <Navigation.Screen name="DrawerNavigator" component={DrawerNavigator} />
-      <Navigation.Screen name="Transaction" component={TransactionScreen} />
+      <Navigation.Screen name="Proposal" component={ProposalScreen} />
       <Navigation.Screen name="Accounts" component={AccountsScreen} />
       <Navigation.Screen name="Account" component={AccountScreen} />
-      <Navigation.Screen
-        name="AccountSettings"
-        component={AccountSettingsScreen}
-      />
+      <Navigation.Screen name="AccountSettings" component={AccountSettingsScreen} />
       {!showOnboarding && (
-        <Navigation.Screen
-          name="CreateAccount"
-          component={CreateAccountScreen}
-        />
+        <Navigation.Screen name="CreateAccount" component={CreateAccountScreen} />
       )}
       <Navigation.Screen name="User" component={UserScreen} />
       <Navigation.Screen name="Limit" component={LimitScreen} />
@@ -133,10 +99,7 @@ export const RootNavigator = () => {
 
       <Navigation.Group key="WalletConnect">
         <Navigation.Screen name="Sessions" component={SessionsScreen} />
-        <Navigation.Screen
-          name="SessionProposal"
-          component={SessionProposalScreen}
-        />
+        <Navigation.Screen name="SessionProposal" component={SessionProposalScreen} />
         <Navigation.Screen name="Sign" component={SignScreen} />
       </Navigation.Group>
     </Navigation.Navigator>

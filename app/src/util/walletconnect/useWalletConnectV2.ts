@@ -3,18 +3,16 @@ import SignClient from '@walletconnect/sign-client';
 import { useRootNavigation } from '~/navigation/useRootNavigation';
 import { CONFIG } from '../config';
 import { useEffect } from 'react';
-import { WcEventParams } from './methods';
+import { WcEventParams, WC_METHODS } from './methods';
 import { Link } from '../links';
-import { showError } from '~/provider/SnackbarProvider';
+import { showError, showInfo } from '~/provider/SnackbarProvider';
 import { SigningRequest, WC_SIGNING_METHODS } from './methods/signing';
 import { useHandleWcSend } from './useHandleWcSend';
-import {
-  WcTransactionRequest,
-  WC_TRANSACTION_METHODS,
-} from './methods/transaction';
+import { WcTransactionRequest, WC_TRANSACTION_METHODS } from './methods/transaction';
 import { atom, useRecoilState } from 'recoil';
 import { SignClientTypes } from '@walletconnect/types';
 import { TopicV2 } from './useTopic';
+import { useHandleSessionProposal } from '~/screens/session-proposal/useHandleSessionProposal';
 
 export const WC_CLIENT_METADATA: SignClientTypes.Metadata = {
   name: 'AlloPay',
@@ -34,40 +32,28 @@ const SIGN_CLIENT = atom<SignClient>({
 
 export const useWalletConnectV2 = () => {
   const { navigate } = useRootNavigation();
+  const handleSessionProposal = useHandleSessionProposal();
   const handleSend = useHandleWcSend();
 
   const [c, setClient] = useRecoilState(SIGN_CLIENT);
 
   useEffect(() => {
-    c.on('session_proposal', (proposal) =>
-      navigate('SessionProposal', {
-        id: proposal.id,
-        proposer: proposal.params.proposer.metadata,
-      }),
-    );
-    c.on(
-      'session_request',
-      ({ id, topic, params }: WcEventParams['session_request']) => {
-        const method = params.request.method;
+    c.on('session_proposal', (proposal) => handleSessionProposal(c, proposal));
+    c.on('session_request', ({ id, topic, params }: WcEventParams['session_request']) => {
+      const method = params.request.method;
 
-        if (WC_SIGNING_METHODS.has(method)) {
-          navigate('Sign', {
-            topic: topic as TopicV2,
-            id,
-            request: params.request as SigningRequest,
-          });
-        } else if (WC_TRANSACTION_METHODS.has(method)) {
-          handleSend(
-            c,
-            id,
-            topic,
-            (params.request as WcTransactionRequest).params[0],
-          );
-        } else {
-          showError(`Unsupported WalletConnect request method: ${method}`);
-        }
-      },
-    );
+      if (WC_SIGNING_METHODS.has(method)) {
+        navigate('Sign', {
+          topic: topic as TopicV2,
+          id,
+          request: params.request as SigningRequest,
+        });
+      } else if (WC_TRANSACTION_METHODS.has(method)) {
+        handleSend(c, id, topic, (params.request as WcTransactionRequest).params[0]);
+      } else {
+        showError(`Unsupported WalletConnect request method: ${method}`);
+      }
+    });
     c.on('session_ping', (p) => console.log('session_ping', p));
     c.on('session_update', (p) => console.log('session_update', p));
     c.on('session_delete', (p) => console.log('session_delete', p));
@@ -81,7 +67,7 @@ export const useWalletConnectV2 = () => {
     return () => {
       c.events.removeAllListeners();
     };
-  }, [c, handleSend, navigate]);
+  }, [c, handleSend, handleSessionProposal, navigate]);
 
   return [c, setClient] as const;
 };

@@ -1,13 +1,8 @@
 import { Address } from 'lib';
 import { useMemo } from 'react';
-import { useTxContext } from '../TransactionProvider';
+import { Proposal } from '~/queries/proposal';
 
-export const useTransactionApprovers = () => {
-  const {
-    config,
-    proposal: { approvals },
-  } = useTxContext();
-
+export const useTransactionApprovers = ({ approvals, config }: Proposal) => {
   return useMemo(
     () =>
       config.approvers.reduce(
@@ -26,5 +21,5 @@ export const useTransactionApprovers = () => {
   );
 };
 
-export const useTransactionIsApproved = () =>
-  useTransactionApprovers().notApproved.size === 0;
+export const useTransactionIsApproved = (proposal: Proposal) =>
+  useTransactionApprovers(proposal).notApproved.size === 0;

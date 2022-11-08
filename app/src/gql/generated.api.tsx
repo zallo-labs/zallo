@@ -72,7 +72,7 @@ export type Approval = {
   deviceId: Scalars['String'];
   proposal: Proposal;
   proposalHash: Scalars['String'];
-  signature: Scalars['String'];
+  signature?: Maybe<Scalars['String']>;
 };
 
 export type ApprovalOrderByRelationAggregateInput = {
@@ -222,10 +222,10 @@ export type Mutation = {
   propose: Proposal;
   reactToComment?: Maybe<Reaction>;
   registerPushToken: Scalars['Boolean'];
+  reject?: Maybe<Proposal>;
   removeUser: User;
   requestApproval: Scalars['Boolean'];
   requestFunds: Scalars['Boolean'];
-  revokeApproval: RevokeApprovalResp;
   setAccountName: Account;
   setUserName: User;
   submitExecution: Submission;
@@ -240,6 +240,7 @@ export type MutationActivateAccountArgs = {
 
 
 export type MutationApproveArgs = {
+  executeWhenApproved?: InputMaybe<Scalars['Boolean']>;
   hash: Scalars['Bytes32'];
   signature: Scalars['Bytes'];
 };
@@ -273,8 +274,10 @@ export type MutationDeleteContactArgs = {
 
 export type MutationProposeArgs = {
   account: Scalars['Address'];
+  configId?: InputMaybe<Scalars['Float']>;
+  executeWhenApproved?: InputMaybe<Scalars['Boolean']>;
   proposal: ProposalInput;
-  signature: Scalars['Bytes'];
+  signature?: InputMaybe<Scalars['Bytes']>;
 };
 
 
@@ -286,6 +289,11 @@ export type MutationReactToCommentArgs = {
 
 export type MutationRegisterPushTokenArgs = {
   token: Scalars['String'];
+};
+
+
+export type MutationRejectArgs = {
+  hash: Scalars['Bytes32'];
 };
 
 
@@ -303,11 +311,6 @@ export type MutationRequestApprovalArgs = {
 
 export type MutationRequestFundsArgs = {
   recipient: Scalars['Address'];
-};
-
-
-export type MutationRevokeApprovalArgs = {
-  hash: Scalars['Bytes32'];
 };
 
 
@@ -347,6 +350,8 @@ export type Proposal = {
   account: Account;
   accountId: Scalars['String'];
   approvals?: Maybe<Array<Approval>>;
+  config: UserConfig;
+  configId: Scalars['Int'];
   createdAt: Scalars['DateTime'];
   data: Scalars['String'];
   gasLimit?: Maybe<Scalars['Decimal']>;
@@ -384,6 +389,8 @@ export type ProposalOrderByWithRelationInput = {
   account?: InputMaybe<AccountOrderByWithRelationInput>;
   accountId?: InputMaybe<SortOrder>;
   approvals?: InputMaybe<ApprovalOrderByRelationAggregateInput>;
+  config?: InputMaybe<UserConfigOrderByWithRelationInput>;
+  configId?: InputMaybe<SortOrder>;
   createdAt?: InputMaybe<SortOrder>;
   data?: InputMaybe<SortOrder>;
   gasLimit?: InputMaybe<SortOrder>;
@@ -399,6 +406,7 @@ export type ProposalOrderByWithRelationInput = {
 
 export enum ProposalScalarFieldEnum {
   AccountId = 'accountId',
+  ConfigId = 'configId',
   CreatedAt = 'createdAt',
   Data = 'data',
   GasLimit = 'gasLimit',
@@ -407,6 +415,12 @@ export enum ProposalScalarFieldEnum {
   Salt = 'salt',
   To = 'to',
   Value = 'value'
+}
+
+export enum ProposalStatus {
+  AwaitingOther = 'AwaitingOther',
+  AwaitingUser = 'AwaitingUser',
+  Executed = 'Executed'
 }
 
 export type ProposalWhereUniqueInput = {
@@ -476,6 +490,7 @@ export type QueryProposalsArgs = {
   distinct?: InputMaybe<Array<ProposalScalarFieldEnum>>;
   orderBy?: InputMaybe<Array<ProposalOrderByWithRelationInput>>;
   skip?: InputMaybe<Scalars['Int']>;
+  status?: InputMaybe<ProposalStatus>;
   take?: InputMaybe<Scalars['Int']>;
 };
 
@@ -509,11 +524,6 @@ export type Reaction = {
 
 export type ReactionOrderByRelationAggregateInput = {
   _count?: InputMaybe<SortOrder>;
-};
-
-export type RevokeApprovalResp = {
-  __typename?: 'RevokeApprovalResp';
-  id?: Maybe<Scalars['String']>;
 };
 
 export enum SortOrder {
@@ -566,6 +576,10 @@ export type TokenLimitInput = {
   token: Scalars['Address'];
 };
 
+export type TokenLimitOrderByRelationAggregateInput = {
+  _count?: InputMaybe<SortOrder>;
+};
+
 export type User = {
   __typename?: 'User';
   _count: UserCount;
@@ -593,6 +607,7 @@ export type UserConfig = {
   approvers?: Maybe<Array<Approver>>;
   id: Scalars['ID'];
   limits?: Maybe<Array<TokenLimit>>;
+  proposals?: Maybe<Array<Proposal>>;
   spendingAllowlisted: Scalars['Boolean'];
   state: UserState;
   stateId: Scalars['Int'];
@@ -602,6 +617,7 @@ export type UserConfigCount = {
   __typename?: 'UserConfigCount';
   approvers: Scalars['Int'];
   limits: Scalars['Int'];
+  proposals: Scalars['Int'];
 };
 
 export type UserConfigInput = {
@@ -612,6 +628,16 @@ export type UserConfigInput = {
 
 export type UserConfigOrderByRelationAggregateInput = {
   _count?: InputMaybe<SortOrder>;
+};
+
+export type UserConfigOrderByWithRelationInput = {
+  approvers?: InputMaybe<ApproverOrderByRelationAggregateInput>;
+  id?: InputMaybe<SortOrder>;
+  limits?: InputMaybe<TokenLimitOrderByRelationAggregateInput>;
+  proposals?: InputMaybe<ProposalOrderByRelationAggregateInput>;
+  spendingAllowlisted?: InputMaybe<SortOrder>;
+  state?: InputMaybe<UserStateOrderByWithRelationInput>;
+  stateId?: InputMaybe<SortOrder>;
 };
 
 export type UserCount = {
@@ -775,14 +801,14 @@ export type ApproveMutationVariables = Exact<{
 }>;
 
 
-export type ApproveMutation = { __typename?: 'Mutation', approve: { __typename?: 'Proposal', id: string } };
+export type ApproveMutation = { __typename?: 'Mutation', approve: { __typename?: 'Proposal', id: string, submissions?: Array<{ __typename?: 'Submission', id: string, hash: string, nonce: number, gasLimit: any, gasPrice?: any | null, createdAt: any, response?: { __typename?: 'SubmissionResponse', response: string, reverted: boolean, timestamp: any } | null }> | null } };
 
-export type RevokeApprovalMutationVariables = Exact<{
+export type RejectMutationVariables = Exact<{
   hash: Scalars['Bytes32'];
 }>;
 
 
-export type RevokeApprovalMutation = { __typename?: 'Mutation', revokeApproval: { __typename?: 'RevokeApprovalResp', id?: string | null } };
+export type RejectMutation = { __typename?: 'Mutation', reject?: { __typename?: 'Proposal', id: string } | null };
 
 export type SubmitExecutionMutationVariables = Exact<{
   proposalHash: Scalars['Bytes32'];
@@ -794,12 +820,13 @@ export type SubmitExecutionMutation = { __typename?: 'Mutation', submitExecution
 
 export type ProposeMutationVariables = Exact<{
   account: Scalars['Address'];
+  configId?: InputMaybe<Scalars['Float']>;
   proposal: ProposalInput;
-  signature: Scalars['Bytes'];
+  signature?: InputMaybe<Scalars['Bytes']>;
 }>;
 
 
-export type ProposeMutation = { __typename?: 'Mutation', propose: { __typename?: 'Proposal', id: string } };
+export type ProposeMutation = { __typename?: 'Mutation', propose: { __typename?: 'Proposal', id: string, submissions?: Array<{ __typename?: 'Submission', id: string, hash: string, nonce: number, gasLimit: any, gasPrice?: any | null, createdAt: any, response?: { __typename?: 'SubmissionResponse', response: string, reverted: boolean, timestamp: any } | null }> | null } };
 
 export type RequestApprovalMutationVariables = Exact<{
   approvers: Scalars['NonEmptyAddressSet'];
@@ -859,15 +886,18 @@ export type ContactsQueryVariables = Exact<{ [key: string]: never; }>;
 
 export type ContactsQuery = { __typename?: 'Query', contacts: Array<{ __typename?: 'ContactObject', id: string, addr: string, name: string }> };
 
+export type SubmissionFieldsFragment = { __typename?: 'Submission', id: string, hash: string, nonce: number, gasLimit: any, gasPrice?: any | null, createdAt: any, response?: { __typename?: 'SubmissionResponse', response: string, reverted: boolean, timestamp: any } | null };
+
 export type ProposalQueryVariables = Exact<{
   hash: Scalars['Bytes32'];
 }>;
 
 
-export type ProposalQuery = { __typename?: 'Query', proposal: { __typename?: 'Proposal', id: string, accountId: string, proposerId: string, hash: string, to: string, value: string, data: string, salt: string, createdAt: any, approvals?: Array<{ __typename?: 'Approval', deviceId: string, signature: string, createdAt: any }> | null, submissions?: Array<{ __typename?: 'Submission', id: string, hash: string, nonce: number, gasLimit: any, gasPrice?: any | null, createdAt: any, response?: { __typename?: 'SubmissionResponse', response: string, reverted: boolean, timestamp: any } | null }> | null } };
+export type ProposalQuery = { __typename?: 'Query', proposal: { __typename?: 'Proposal', id: string, accountId: string, proposerId: string, hash: string, to: string, value: string, data: string, salt: string, createdAt: any, approvals?: Array<{ __typename?: 'Approval', deviceId: string, signature?: string | null, createdAt: any }> | null, submissions?: Array<{ __typename?: 'Submission', id: string, hash: string, nonce: number, gasLimit: any, gasPrice?: any | null, createdAt: any, response?: { __typename?: 'SubmissionResponse', response: string, reverted: boolean, timestamp: any } | null }> | null } };
 
 export type ProposalsMetadataQueryVariables = Exact<{
   accounts?: InputMaybe<Scalars['AddressSet']>;
+  status?: InputMaybe<ProposalStatus>;
 }>;
 
 
@@ -901,19 +931,35 @@ export type UserQueryVariables = Exact<{
 }>;
 
 
-export type UserQuery = { __typename?: 'Query', user: { __typename?: 'User', id: string, accountId: string, deviceId: string, name: string, activeState?: { __typename?: 'UserState', proposalHash?: string | null, configs?: Array<{ __typename?: 'UserConfig', spendingAllowlisted: boolean, approvers?: Array<{ __typename?: 'Approver', deviceId: string }> | null, limits?: Array<{ __typename?: 'TokenLimit', token: string, amount: string, period: LimitPeriod }> | null }> | null } | null, proposedState?: { __typename?: 'UserState', proposalHash?: string | null, configs?: Array<{ __typename?: 'UserConfig', spendingAllowlisted: boolean, approvers?: Array<{ __typename?: 'Approver', deviceId: string }> | null, limits?: Array<{ __typename?: 'TokenLimit', token: string, amount: string, period: LimitPeriod }> | null }> | null } | null } };
+export type UserQuery = { __typename?: 'Query', user: { __typename?: 'User', id: string, accountId: string, deviceId: string, name: string, activeState?: { __typename?: 'UserState', proposalHash?: string | null, configs?: Array<{ __typename?: 'UserConfig', id: string, spendingAllowlisted: boolean, approvers?: Array<{ __typename?: 'Approver', deviceId: string }> | null, limits?: Array<{ __typename?: 'TokenLimit', token: string, amount: string, period: LimitPeriod }> | null }> | null } | null, proposedState?: { __typename?: 'UserState', proposalHash?: string | null, configs?: Array<{ __typename?: 'UserConfig', id: string, spendingAllowlisted: boolean, approvers?: Array<{ __typename?: 'Approver', deviceId: string }> | null, limits?: Array<{ __typename?: 'TokenLimit', token: string, amount: string, period: LimitPeriod }> | null }> | null } | null } };
 
-export type UserStateFieldsFragment = { __typename?: 'UserState', proposalHash?: string | null, configs?: Array<{ __typename?: 'UserConfig', spendingAllowlisted: boolean, approvers?: Array<{ __typename?: 'Approver', deviceId: string }> | null, limits?: Array<{ __typename?: 'TokenLimit', token: string, amount: string, period: LimitPeriod }> | null }> | null };
+export type UserStateFieldsFragment = { __typename?: 'UserState', proposalHash?: string | null, configs?: Array<{ __typename?: 'UserConfig', id: string, spendingAllowlisted: boolean, approvers?: Array<{ __typename?: 'Approver', deviceId: string }> | null, limits?: Array<{ __typename?: 'TokenLimit', token: string, amount: string, period: LimitPeriod }> | null }> | null };
 
 export type UserIdsQueryVariables = Exact<{ [key: string]: never; }>;
 
 
 export type UserIdsQuery = { __typename?: 'Query', users: Array<{ __typename?: 'User', id: string, accountId: string }> };
 
+export const SubmissionFieldsFragmentDoc = gql`
+    fragment SubmissionFields on Submission {
+  id
+  hash
+  nonce
+  gasLimit
+  gasPrice
+  createdAt
+  response {
+    response
+    reverted
+    timestamp
+  }
+}
+    `;
 export const UserStateFieldsFragmentDoc = gql`
     fragment UserStateFields on UserState {
   proposalHash
   configs {
+    id
     approvers {
       deviceId
     }
@@ -1206,9 +1252,12 @@ export const ApproveDocument = gql`
     mutation Approve($hash: Bytes32!, $signature: Bytes!) {
   approve(hash: $hash, signature: $signature) {
     id
+    submissions {
+      ...SubmissionFields
+    }
   }
 }
-    `;
+    ${SubmissionFieldsFragmentDoc}`;
 export type ApproveMutationFn = Apollo.MutationFunction<ApproveMutation, ApproveMutationVariables>;
 
 /**
@@ -1236,39 +1285,39 @@ export function useApproveMutation(baseOptions?: Apollo.MutationHookOptions<Appr
 export type ApproveMutationHookResult = ReturnType<typeof useApproveMutation>;
 export type ApproveMutationResult = Apollo.MutationResult<ApproveMutation>;
 export type ApproveMutationOptions = Apollo.BaseMutationOptions<ApproveMutation, ApproveMutationVariables>;
-export const RevokeApprovalDocument = gql`
-    mutation RevokeApproval($hash: Bytes32!) {
-  revokeApproval(hash: $hash) {
+export const RejectDocument = gql`
+    mutation Reject($hash: Bytes32!) {
+  reject(hash: $hash) {
     id
   }
 }
     `;
-export type RevokeApprovalMutationFn = Apollo.MutationFunction<RevokeApprovalMutation, RevokeApprovalMutationVariables>;
+export type RejectMutationFn = Apollo.MutationFunction<RejectMutation, RejectMutationVariables>;
 
 /**
- * __useRevokeApprovalMutation__
+ * __useRejectMutation__
  *
- * To run a mutation, you first call `useRevokeApprovalMutation` within a React component and pass it any options that fit your needs.
- * When your component renders, `useRevokeApprovalMutation` returns a tuple that includes:
+ * To run a mutation, you first call `useRejectMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useRejectMutation` returns a tuple that includes:
  * - A mutate function that you can call at any time to execute the mutation
  * - An object with fields that represent the current status of the mutation's execution
  *
  * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
  *
  * @example
- * const [revokeApprovalMutation, { data, loading, error }] = useRevokeApprovalMutation({
+ * const [rejectMutation, { data, loading, error }] = useRejectMutation({
  *   variables: {
  *      hash: // value for 'hash'
  *   },
  * });
  */
-export function useRevokeApprovalMutation(baseOptions?: Apollo.MutationHookOptions<RevokeApprovalMutation, RevokeApprovalMutationVariables>) {
+export function useRejectMutation(baseOptions?: Apollo.MutationHookOptions<RejectMutation, RejectMutationVariables>) {
         const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useMutation<RevokeApprovalMutation, RevokeApprovalMutationVariables>(RevokeApprovalDocument, options);
+        return Apollo.useMutation<RejectMutation, RejectMutationVariables>(RejectDocument, options);
       }
-export type RevokeApprovalMutationHookResult = ReturnType<typeof useRevokeApprovalMutation>;
-export type RevokeApprovalMutationResult = Apollo.MutationResult<RevokeApprovalMutation>;
-export type RevokeApprovalMutationOptions = Apollo.BaseMutationOptions<RevokeApprovalMutation, RevokeApprovalMutationVariables>;
+export type RejectMutationHookResult = ReturnType<typeof useRejectMutation>;
+export type RejectMutationResult = Apollo.MutationResult<RejectMutation>;
+export type RejectMutationOptions = Apollo.BaseMutationOptions<RejectMutation, RejectMutationVariables>;
 export const SubmitExecutionDocument = gql`
     mutation SubmitExecution($proposalHash: Bytes32!, $submission: SubmissionInput!) {
   submitExecution(proposalHash: $proposalHash, submission: $submission) {
@@ -1304,12 +1353,20 @@ export type SubmitExecutionMutationHookResult = ReturnType<typeof useSubmitExecu
 export type SubmitExecutionMutationResult = Apollo.MutationResult<SubmitExecutionMutation>;
 export type SubmitExecutionMutationOptions = Apollo.BaseMutationOptions<SubmitExecutionMutation, SubmitExecutionMutationVariables>;
 export const ProposeDocument = gql`
-    mutation Propose($account: Address!, $proposal: ProposalInput!, $signature: Bytes!) {
-  propose(account: $account, proposal: $proposal, signature: $signature) {
+    mutation Propose($account: Address!, $configId: Float, $proposal: ProposalInput!, $signature: Bytes) {
+  propose(
+    account: $account
+    configId: $configId
+    proposal: $proposal
+    signature: $signature
+  ) {
     id
+    submissions {
+      ...SubmissionFields
+    }
   }
 }
-    `;
+    ${SubmissionFieldsFragmentDoc}`;
 export type ProposeMutationFn = Apollo.MutationFunction<ProposeMutation, ProposeMutationVariables>;
 
 /**
@@ -1326,6 +1383,7 @@ export type ProposeMutationFn = Apollo.MutationFunction<ProposeMutation, Propose
  * const [proposeMutation, { data, loading, error }] = useProposeMutation({
  *   variables: {
  *      account: // value for 'account'
+ *      configId: // value for 'configId'
  *      proposal: // value for 'proposal'
  *      signature: // value for 'signature'
  *   },
@@ -1631,21 +1689,11 @@ export const ProposalDocument = gql`
       createdAt
     }
     submissions {
-      id
-      hash
-      nonce
-      gasLimit
-      gasPrice
-      createdAt
-      response {
-        response
-        reverted
-        timestamp
-      }
+      ...SubmissionFields
     }
   }
 }
-    `;
+    ${SubmissionFieldsFragmentDoc}`;
 
 /**
  * __useProposalQuery__
@@ -1675,8 +1723,8 @@ export type ProposalQueryHookResult = ReturnType<typeof useProposalQuery>;
 export type ProposalLazyQueryHookResult = ReturnType<typeof useProposalLazyQuery>;
 export type ProposalQueryResult = Apollo.QueryResult<ProposalQuery, ProposalQueryVariables>;
 export const ProposalsMetadataDocument = gql`
-    query ProposalsMetadata($accounts: AddressSet) {
-  proposals(accounts: $accounts) {
+    query ProposalsMetadata($accounts: AddressSet, $status: ProposalStatus) {
+  proposals(accounts: $accounts, status: $status) {
     id
     accountId
     hash
@@ -1698,6 +1746,7 @@ export const ProposalsMetadataDocument = gql`
  * const { data, loading, error } = useProposalsMetadataQuery({
  *   variables: {
  *      accounts: // value for 'accounts'
+ *      status: // value for 'status'
  *   },
  * });
  */

@@ -9,7 +9,7 @@ import { FC } from 'react';
 
 const STATUS_LABEL: Record<ProposalStatus, [FC | null, string]> = {
   proposed: [null, 'Proposed'],
-  submitted: [() => <ActivityIndicator />, 'Executing...'],
+  pending: [() => <ActivityIndicator />, 'Executing...'],
   failed: [null, 'Failed'],
   executed: [null, 'Executed'],
 };

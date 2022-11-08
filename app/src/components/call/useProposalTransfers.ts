@@ -17,6 +17,7 @@ export const useProposalTransfers = (p: Proposal): Transfer[] => {
       to: p.to,
       amount: p.value,
       direction: TransferType.Out,
+      timestamp: p.timestamp,
     },
     transfer &&
       transferToken && {
@@ -25,6 +26,7 @@ export const useProposalTransfers = (p: Proposal): Transfer[] => {
         to: p.to,
         amount: transfer.value,
         direction: TransferType.Out,
+        timestamp: p.timestamp,
       },
   ].filter(isTruthy);
 };

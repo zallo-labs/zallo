@@ -17,7 +17,7 @@ import {
 export interface TransactionScreenParams
   extends Omit<TransactionContextProps, 'children'> {}
 
-export type TransactionScreenProps = RootNavigatorScreenProps<'Transaction'>;
+export type TransactionScreenProps = RootNavigatorScreenProps<'Proposal'>;
 
 export const TransactionScreen = withSkeleton(
   ({ route }: TransactionScreenProps) => {

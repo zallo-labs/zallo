@@ -24,12 +24,7 @@ describe('UpsertUser', () => {
   it('should successfully execute', async () => {
     const { account, user, config } = await deploy();
 
-    await execute(
-      account,
-      user,
-      config,
-      createUpsertUserTx(account, modifiedUser(user)),
-    );
+    await execute(account, user, config, createUpsertUserTx(account, modifiedUser(user)));
   });
 
   it('should emit event', async () => {
@@ -58,9 +53,15 @@ describe('UpsertUser', () => {
     const { account, user } = await deploy();
 
     const tx = await account.upsertUser(modifiedUser(user), {
-      gasLimit: 100_000,
+      gasLimit: 500_000,
     });
 
-    await expect(tx.wait()).to.be.reverted; // AccountError.OnlyCallableByAccount
+    let reverted = false;
+    try {
+      await tx.wait(); // AccountError.OnlyCallableByAccount
+    } catch (_) {
+      reverted = true;
+    }
+    expect(reverted).to.be.true;
   });
 });

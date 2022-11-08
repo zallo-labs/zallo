@@ -1,5 +1,5 @@
 import { CommonActions } from '@react-navigation/native';
-import { Address, TxDef } from 'lib';
+import { Address } from 'lib';
 import { useCallback, useState } from 'react';
 import {
   RootNavigation,
@@ -9,10 +9,10 @@ import {
 import { showInfo } from '~/provider/SnackbarProvider';
 import { ProposalId } from '~/queries/proposal';
 import { OnExecute } from '~/screens/transaction/TransactionProvider';
-import { ProposalDef, useApiPropose } from './usePropose.api';
+import { ProposalDef, ProposeResponse, useApiPropose } from './usePropose.api';
 
 export type OnPropose = (
-  proposal: ProposalId,
+  proposal: ProposeResponse,
   navigation: RootNavigation,
 ) => Promise<void> | void;
 
@@ -27,12 +27,11 @@ export const usePropose = () => {
       setProposing(true);
 
       const proposal = await apiPropose(tx, account);
-      const id: ProposalId = { hash: proposal.hash };
 
-      await onPropose?.(id, navigation);
+      await onPropose?.(proposal, navigation);
       setProposing(false);
 
-      return id;
+      return proposal;
     },
     [navigation, apiPropose],
   );
@@ -54,7 +53,7 @@ export const popToProposal = (
           params: undefined,
         },
         {
-          name: 'Transaction',
+          name: 'Proposal',
           params: {
             id: proposal,
             onExecute,
@@ -64,9 +63,7 @@ export const popToProposal = (
     }),
   );
 
-export const showProposalSnack = (
-  ...params: Parameters<typeof popToProposal>
-) => {
+export const showProposalSnack = (...params: Parameters<typeof popToProposal>) => {
   showInfo('Proposal created', {
     action: {
       label: 'View proposal',

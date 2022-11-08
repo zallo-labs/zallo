@@ -13,18 +13,15 @@ contract Factory {
     _BYTECODE_HASH = bytecodeHash;
   }
 
-  function deploy(bytes32 salt, bytes calldata constructorArgsData)
+  function deploy(bytes calldata constructorArgsData, bytes32 salt)
     external
-    returns (address newAddress, bytes memory constructorRevertData)
+    returns (address account, bytes memory constructorRevertData)
   {
     bytes memory data = SystemContractsCaller.systemCall(
       uint32(gasleft()),
       address(DEPLOYER_SYSTEM_CONTRACT),
       0,
-      abi.encodeCall(
-        IContractDeployer.create2Account,
-        (salt, _BYTECODE_HASH, constructorArgsData)
-      )
+      abi.encodeCall(IContractDeployer.create2Account, (salt, _BYTECODE_HASH, constructorArgsData))
     );
     return abi.decode(data, (address, bytes));
   }
