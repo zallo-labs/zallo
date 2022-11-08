@@ -17,8 +17,8 @@ const toPartialTransactionRequest = (tx: TxReq): TransactionRequest => ({
   gasLimit: tx.gasLimit,
 });
 
-const FALLBACK_BASE_GAS = BigNumber.from(300_000);
-const GAS_PER_SIGNER = 100_000;
+const FALLBACK_BASE_GAS = BigNumber.from(500_000);
+const GAS_PER_SIGNER = 200_000;
 
 export const estimateTxGas = async (
   tx: TxReq | TransactionRequest,
@@ -27,11 +27,11 @@ export const estimateTxGas = async (
 ) => {
   const req = isTxReq(tx) ? toPartialTransactionRequest(tx) : tx;
 
-  const baseGas = await (() => {
+  const baseGas = await (async () => {
     if (tx.gasLimit) return BigNumber.from(tx.gasLimit);
 
     try {
-      return provider.estimateGas(req);
+      return await provider.estimateGas(req);
     } catch (e) {
       console.warn('Failed to estimate base gas');
       return FALLBACK_BASE_GAS;
@@ -71,17 +71,13 @@ export const toTransactionRequest = async (
   };
 };
 
-export const executeTx = async (
-  ...[account, ...args]: Parameters<typeof toTransactionRequest>
-) => {
+export const executeTx = async (...[account, ...args]: Parameters<typeof toTransactionRequest>) => {
   const req = await toTransactionRequest(account, ...args);
   return account.provider.sendTransaction(zk.utils.serialize(req));
 };
 
 // For external transactions
-export const toTransactionStruct = (
-  r: TransactionRequest,
-): TransactionStruct => {
+export const toTransactionStruct = (r: TransactionRequest): TransactionStruct => {
   return {
     txType: r.type!,
     from: r.from!,
