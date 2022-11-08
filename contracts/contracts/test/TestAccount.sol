@@ -23,11 +23,7 @@ contract TestAccount is Account {
     return _userMerkleRoots()[user];
   }
 
-  function hashTx(Transaction calldata transaction)
-    external
-    view
-    returns (bytes32)
-  {
+  function hashTx(Transaction calldata transaction) external view returns (bytes32) {
     return _hashTx(transaction);
   }
 
@@ -35,19 +31,11 @@ contract TestAccount is Account {
     return _domainSeparator();
   }
 
-  function boolArrayLength(uint256[] calldata bools)
-    external
-    pure
-    returns (uint256)
-  {
+  function boolArrayLength(uint256[] calldata bools) external pure returns (uint256) {
     return BoolArray.length(bools);
   }
 
-  function boolArrayAtIndex(uint256[] calldata bools, uint256 index)
-    external
-    pure
-    returns (bool)
-  {
+  function boolArrayAtIndex(uint256[] calldata bools, uint256 index) external pure returns (bool) {
     return BoolArray.atIndex(bools, index);
   }
 }

@@ -39,7 +39,7 @@ const config: HardhatUserConfig = {
     // https://hardhat.org/hardhat-network/reference/
     hardhat: {
       zksync: true,
-      loggingEnabled: true,
+      // loggingEnabled: true,
     },
   },
   // Plugins
@@ -61,14 +61,7 @@ const config: HardhatUserConfig = {
     path: './abi',
     flat: true,
     clear: true,
-    only: [
-      ':Account$',
-      ':TestAccount$',
-      ':ERC1967Proxy$',
-      ':Tester$',
-      ':Multicall$',
-      ':Factory$',
-    ],
+    only: [':Account$', ':TestAccount$', ':ERC1967Proxy$', ':Tester$', ':Multicall$', ':Factory$'],
   },
 };
 

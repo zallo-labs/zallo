@@ -24,8 +24,7 @@ library UserHelper {
       leaves[i] = user.configs[i].hashCalldata();
 
       // Leaves need to be sorted asc and unique
-      if (i > 0 && leaves[i] < leaves[i - 1])
-        revert UserConfigHashesNotAscending();
+      if (i > 0 && leaves[i] < leaves[i - 1]) revert UserConfigHashesNotAscending();
 
       unchecked {
         ++i;

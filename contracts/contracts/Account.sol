@@ -62,7 +62,7 @@ contract Account is
     bytes32, /* _txHash */
     bytes32, /* suggestedSignedHash */
     Transaction calldata transaction
-  ) external payable override {
+  ) external payable override onlyBootloader {
     _validateTransaction(_hashTx(transaction), transaction);
   }
 
@@ -86,23 +86,17 @@ contract Account is
     _executeTransaction(txHash, transaction);
   }
 
-  function _validateTransaction(
-    bytes32 txHash,
-    Transaction calldata transaction
-  ) internal {
-    _incrementNonceIfEquals(transaction.reserved[0]);
-    if (hasBeenExecuted(txHash)) revert TxAlreadyExecuted();
-
-    _validateSignature(txHash, transaction.signature);
-  }
-
-  function _incrementNonceIfEquals(uint256 expectedNonce) private {
+  function _validateTransaction(bytes32 txHash, Transaction calldata transaction) internal {
     SystemContractsCaller.systemCall(
       uint32(gasleft()),
       address(NONCE_HOLDER_SYSTEM_CONTRACT),
       0,
-      abi.encodeCall(INonceHolder.incrementMinNonceIfEquals, (expectedNonce))
+      abi.encodeCall(INonceHolder.incrementMinNonceIfEquals, (transaction.reserved[0]))
     );
+
+    if (hasBeenExecuted(txHash)) revert TxAlreadyExecuted();
+
+    _validateSignature(txHash, transaction.signature);
   }
 
   /*//////////////////////////////////////////////////////////////
@@ -161,10 +155,7 @@ contract Account is
     return EIP1271_SUCCESS;
   }
 
-  function _validateSignature(bytes32 hash, bytes memory signature)
-    internal
-    view
-  {
+  function _validateSignature(bytes32 hash, bytes memory signature) internal view {
     (
       address user,
       UserConfig memory config,
@@ -173,8 +164,8 @@ contract Account is
     ) = abi.decode(signature, (address, UserConfig, bytes32[], bytes[]));
 
     _validateSignatures(hash, user, config.approvers, signatures);
-    if (!config.isValidProof(proof, _userMerkleRoots()[user]))
-      revert InvalidProof();
+
+    if (!config.isValidProof(proof, _userMerkleRoots()[user])) revert InvalidProof();
   }
 
   function _validateSignatures(
@@ -183,11 +174,9 @@ contract Account is
     address[] memory approvers,
     bytes[] memory signatures
   ) internal view {
-    if ((1 + approvers.length) != signatures.length)
-      revert ApproverSignaturesMismatch();
+    if ((1 + approvers.length) != signatures.length) revert ApproverSignaturesMismatch();
 
-    if (!user.isValidSignatureNow(hash, signatures[0]))
-      revert InvalidSignature(user);
+    if (!user.isValidSignatureNow(hash, signatures[0])) revert InvalidSignature(user);
 
     for (uint256 i = 0; i < approvers.length; ) {
       if (!approvers[i].isValidSignatureNow(hash, signatures[i + 1]))
@@ -206,11 +195,7 @@ contract Account is
   /// @notice Merkle root of the state of each wallet
   /// @dev user => merkleRoot
   /// @dev Leaves: UserConfig[]
-  function _userMerkleRoots()
-    internal
-    pure
-    returns (mapping(address => bytes32) storage s)
-  {
+  function _userMerkleRoots() internal pure returns (mapping(address => bytes32) storage s) {
     assembly {
       // keccack256('Account.userMerkleRoots')
       s.slot := 0x78da1ddd953b1b2068017cdffdd8ba08689d560b1fa20cf0f77a87af370f3f89
@@ -222,8 +207,7 @@ contract Account is
   //////////////////////////////////////////////////////////////*/
 
   modifier onlyBootloader() {
-    if (msg.sender != BOOTLOADER_FORMAL_ADDRESS)
-      revert OnlyCallableByBootloader();
+    if (msg.sender != BOOTLOADER_FORMAL_ADDRESS) revert OnlyCallableByBootloader();
     _;
   }
 }

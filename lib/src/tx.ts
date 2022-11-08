@@ -1,14 +1,6 @@
-import {
-  TypedDataDomain,
-  TypedDataField,
-} from '@ethersproject/abstract-signer';
+import { TypedDataDomain, TypedDataField } from '@ethersproject/abstract-signer';
 import { BigNumber, BigNumberish, ethers } from 'ethers';
-import {
-  hexDataLength,
-  hexlify,
-  isBytesLike,
-  randomBytes,
-} from 'ethers/lib/utils';
+import { hexDataLength, hexlify, isBytesLike, randomBytes } from 'ethers/lib/utils';
 import { address, isAddress } from './addr';
 import { zeroHexBytes } from './bytes';
 import { Call, CallDef, createCall } from './call';
@@ -26,9 +18,11 @@ export const isCall = createIsObj<Call>(
   ['data', isBytesLike],
 );
 
-const isTxReqExtras = createIsObj<TxReq>(['salt', isBytesLike]);
-export const isTxReq = (e: unknown): e is TxReq =>
-  isCall(e) && isTxReqExtras(e);
+const isTxReqExtras = createIsObj<TxReq>(
+  ['salt', isBytesLike],
+  ['gasLimit', (v) => v === undefined || BigNumber.isBigNumber(v)],
+);
+export const isTxReq = (e: unknown): e is TxReq => isCall(e) && isTxReqExtras(e);
 
 export type TypedDataTypes = Record<string, TypedDataField[]>;
 
@@ -46,30 +40,21 @@ type DomainParams = {
   provider: ethers.providers.Provider;
 };
 
-export const getDomain = async ({
-  address,
-  provider,
-}: DomainParams): Promise<TypedDataDomain> => ({
+export const getDomain = async ({ address, provider }: DomainParams): Promise<TypedDataDomain> => ({
   chainId: (await provider.getNetwork()).chainId,
   verifyingContract: address,
 });
 
 export const hashTx = async (domainParams: DomainParams, tx: TxReq) =>
-  ethers.utils._TypedDataEncoder.hash(
-    await getDomain(domainParams),
-    TX_EIP712_TYPE,
-    tx,
-  );
+  ethers.utils._TypedDataEncoder.hash(await getDomain(domainParams), TX_EIP712_TYPE, tx);
 
 export type TxSalt = string & { isTxSalt: true };
 const TX_SALT_BYTES = 8;
 
-export const randomTxSalt = (): TxSalt =>
-  hexlify(randomBytes(TX_SALT_BYTES)) as TxSalt;
+export const randomTxSalt = (): TxSalt => hexlify(randomBytes(TX_SALT_BYTES)) as TxSalt;
 
 export const toTxSalt = (v: string): TxSalt => {
-  if (hexDataLength(v) !== TX_SALT_BYTES)
-    throw new Error('Invalid tx salt: ' + v);
+  if (hexDataLength(v) !== TX_SALT_BYTES) throw new Error('Invalid tx salt: ' + v);
 
   return v as TxSalt;
 };

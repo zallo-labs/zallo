@@ -9,32 +9,24 @@ import {
   Multicall__factory,
 } from './contracts';
 import { toUserStruct, User } from './user';
-import {
-  defaultAbiCoder,
-  hexDataLength,
-  hexlify,
-  randomBytes,
-} from 'ethers/lib/utils';
+import { defaultAbiCoder, hexDataLength, hexlify, randomBytes } from 'ethers/lib/utils';
 import * as zk from 'zksync-web3';
 import { Device } from './device';
+import { ACCOUNT_INTERFACE } from './decode';
 
 export type DeploySalt = string & { isDeploySalt: true };
 const DEPLOY_SALT_BYTES = 32;
 
 export const toDeploySalt = (v: string): DeploySalt => {
-  if (hexDataLength(v) !== DEPLOY_SALT_BYTES)
-    throw new Error('Invalid deploy salt: ' + v);
+  if (hexDataLength(v) !== DEPLOY_SALT_BYTES) throw new Error('Invalid deploy salt: ' + v);
 
   return v as DeploySalt;
 };
 
-export const randomDeploySalt = () =>
-  hexlify(randomBytes(DEPLOY_SALT_BYTES)) as DeploySalt;
+export const randomDeploySalt = () => hexlify(randomBytes(DEPLOY_SALT_BYTES)) as DeploySalt;
 
 const createConnect =
-  <T>(
-    f: (addr: string, signer: Signer | ethers.providers.Provider | Device) => T,
-  ) =>
+  <T>(f: (addr: string, signer: Signer | ethers.providers.Provider | Device) => T) =>
   (addr: Addresslike, signer: Signer | ethers.providers.Provider | Device): T =>
     f(address(addr), signer);
 
@@ -52,15 +44,10 @@ export interface ProxyConstructorArgs extends AccountConstructorArgs {
   impl: Address;
 }
 
-export const encodeProxyConstructorArgs = ({
-  user,
-  impl,
-}: ProxyConstructorArgs) => {
-  const accountInterface = Account__factory.createInterface();
-  const encodedInitializeCall = accountInterface.encodeFunctionData(
-    'initialize',
-    [toUserStruct(user)],
-  );
+export const encodeProxyConstructorArgs = ({ user, impl }: ProxyConstructorArgs) => {
+  const encodedInitializeCall = ACCOUNT_INTERFACE.encodeFunctionData('initialize', [
+    toUserStruct(user),
+  ]);
 
   return defaultAbiCoder.encode(
     // new ERC1967Proxy(address _logic, bytes memory _data)
@@ -92,7 +79,7 @@ export const deployAccountProxy = async (
   const addr = await calculateProxyAddress(args, factory, salt);
 
   const encodedConstructorData = encodeProxyConstructorArgs(args);
-  const deployTx = await factory.deploy(salt, encodedConstructorData);
+  const deployTx = await factory.deploy(encodedConstructorData, salt);
   await deployTx.wait();
 
   return {
