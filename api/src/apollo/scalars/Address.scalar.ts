@@ -12,10 +12,10 @@ const parse = (value: unknown): Address => {
   return address(value);
 };
 
-export const AddressScalar = new GraphQLScalarType({
+export const AddressScalar = new GraphQLScalarType<Address, string>({
   name: 'Address',
   description,
-  serialize: (value: Address) => value,
+  serialize: (value) => value as Address,
   parseValue: (value: unknown) => parse(value),
   parseLiteral: (ast) => {
     if (ast.kind === Kind.STRING) return parse(ast.value);

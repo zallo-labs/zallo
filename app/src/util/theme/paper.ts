@@ -1,12 +1,8 @@
-import {
-  MD3DarkTheme as PaperDarkTheme,
-  useTheme as baseUseTheme,
-} from 'react-native-paper';
+import { MD3DarkTheme as PaperDarkTheme, useTheme as baseUseTheme } from 'react-native-paper';
 import { space, typoSpace } from './styledComponents';
 import color from 'color';
 
-const c = (c: string, f: (color: color<string>) => color<string>) =>
-  f(color(c)).rgb().string();
+const c = (c: string, f: (color: color<string>) => color<string>) => f(color(c)).rgb().string();
 
 const overrided: typeof PaperDarkTheme = {
   ...PaperDarkTheme,
@@ -22,9 +18,7 @@ export const PAPER_THEME = {
   colors: {
     ...overrided.colors,
 
-    onSurfaceOpaque: c(overrided.colors.onSurface, (c) =>
-      c.alpha(opacity.disabled),
-    ),
+    onSurfaceOpaque: c(overrided.colors.onSurface, (c) => c.alpha(opacity.disabled)),
 
     success: '#48C12A', // Green
     info: '#559EFC', // Blue
@@ -41,9 +35,7 @@ export const PAPER_THEME = {
       );
 
       if (bgKey) {
-        const onColor = (overrided.colors as any)[
-          `on${bgKey[0].toUpperCase()}${bgKey.slice(1)}`
-        ];
+        const onColor = (overrided.colors as any)[`on${bgKey[0].toUpperCase()}${bgKey.slice(1)}`];
 
         if (onColor) return onColor;
       }
@@ -74,4 +66,4 @@ declare global {
 }
 
 export const useTheme = (overrides?: Partial<ThemeOverride>): ThemeOverride =>
-  baseUseTheme(overrides);
+  baseUseTheme<ThemeOverride>(overrides);

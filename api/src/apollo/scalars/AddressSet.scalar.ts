@@ -7,25 +7,24 @@ const description = 'Ethereum address set';
 
 const error = new UserInputError(`Value is not a ${description}`);
 
-const parse = (values: readonly unknown[], min?: number): Set<Address> => {
-  if (!Array.isArray(values) && !values.every(isAddressLike)) throw error;
+const parse = (values: unknown, min?: number): Set<Address> => {
+  if (!Array.isArray(values) || !values.every(isAddressLike)) throw error;
 
   if (min !== undefined && values.length < min)
     throw new UserInputError(`Must have at least ${min} item(s)`);
 
   const set = new Set(values.map(address));
-  if (set.size !== values.length)
-    throw new UserInputError('Values must be unique');
+  if (set.size !== values.length) throw new UserInputError('Values must be unique');
 
   return set;
 };
 
 const create = (name: string, min?: number) =>
-  new GraphQLScalarType({
+  new GraphQLScalarType<Set<Address>, Address[]>({
     name,
     description,
-    serialize: (values: Set<Address>) => [...values],
-    parseValue: (values: readonly unknown[]) => parse(values, min),
+    serialize: (values) => [...(values as Set<Address>)],
+    parseValue: (values) => parse(values, min),
     parseLiteral: (ast) => {
       if (ast.kind === Kind.LIST) return parse(ast.values, min);
       throw error;
