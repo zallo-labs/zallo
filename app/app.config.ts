@@ -57,19 +57,19 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     ],
   },
   orientation: 'portrait',
-  icon: './assets/icon.png',
+  icon: './assets/icon@1024.png',
   splash: {
-    image: './assets/splash.png',
+    image: './assets/icon-contained@1290x2796.png',
     resizeMode: 'contain',
-    backgroundColor: '#151A30',
+    backgroundColor: '#E8DEF8',
   },
   assetBundlePatterns: ['**/*'],
   scheme: 'allopay',
   android: {
     package: packageId,
     adaptiveIcon: {
-      foregroundImage: './assets/adaptive-icon.png',
-      backgroundColor: '#151A30',
+      foregroundImage: './assets/icon-contained@1024.png',
+      backgroundColor: '#E8DEF8',
     },
     googleServicesFile: './firebase-google-services.secret.json',
   },
@@ -84,7 +84,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     },
   },
   web: {
-    favicon: './assets/favicon.png',
+    favicon: './assets/icon@64.png',
   },
   updates: {
     url: `https://u.expo.dev/${PROJECT_ID}`,
