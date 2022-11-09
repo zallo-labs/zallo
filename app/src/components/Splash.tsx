@@ -3,7 +3,7 @@ import * as SplashScreen from 'expo-splash-screen';
 import { Box } from '~/components/layout/Box';
 import { Image, ImageRequireSource } from 'react-native';
 import { SPLASH } from '~/util/config';
-const splash: ImageRequireSource = require('../../assets/splash.png');
+const splash: ImageRequireSource = require('../../assets/splash@1290x2796.png');
 
 export const Splash = () => {
   useEffect(() => {

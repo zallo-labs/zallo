@@ -54,15 +54,6 @@ export const useWalletConnectV2 = () => {
         showError(`Unsupported WalletConnect request method: ${method}`);
       }
     });
-    c.on('session_ping', (p) => console.log('session_ping', p));
-    c.on('session_update', (p) => console.log('session_update', p));
-    c.on('session_delete', (p) => console.log('session_delete', p));
-    c.on('session_expire', (p) => console.log('session_expire', p));
-    c.on('session_event', (p) => console.log('session_event', p));
-    c.on('pairing_ping', (p) => console.log('pairing_ping', p));
-    c.on('pairing_delete', (p) => console.log('pairing_delete', p));
-    c.on('pairing_expire', (p) => console.log('pairing_expire', p));
-    c.on('proposal_expire', (p) => console.log('proposal_expire', p));
 
     return () => {
       c.events.removeAllListeners();

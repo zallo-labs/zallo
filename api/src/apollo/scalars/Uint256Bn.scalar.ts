@@ -20,14 +20,13 @@ const parse = (value: unknown): BigNumber => {
   throw error;
 };
 
-export const GqlUint256Bn = new GraphQLScalarType({
+export const GqlUint256Bn = new GraphQLScalarType<BigNumber, string>({
   name: 'Uint256',
   description,
-  serialize: (value: BigNumber) => value.toString(),
-  parseValue: (value: unknown) => parse(value),
+  serialize: (value) => (value as BigNumber).toString(),
+  parseValue: (value) => parse(value),
   parseLiteral: (ast) => {
-    if (ast.kind === Kind.STRING || ast.kind === Kind.INT)
-      return parse(ast.value);
+    if (ast.kind === Kind.STRING || ast.kind === Kind.INT) return parse(ast.value);
     throw error;
   },
 });

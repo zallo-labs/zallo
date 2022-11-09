@@ -57,9 +57,9 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     ],
   },
   orientation: 'portrait',
-  icon: './assets/icon@1024.png',
+  icon: './assets/icon-rounded@1024.png',
   splash: {
-    image: './assets/icon-contained@1290x2796.png',
+    image: './assets/splash@1290x2796.png',
     resizeMode: 'contain',
     backgroundColor: '#E8DEF8',
   },
@@ -68,7 +68,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
   android: {
     package: packageId,
     adaptiveIcon: {
-      foregroundImage: './assets/icon-contained@1024.png',
+      foregroundImage: './assets/icon-adaptive@1024.png',
       backgroundColor: '#E8DEF8',
     },
     googleServicesFile: './firebase-google-services.secret.json',
@@ -78,13 +78,12 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     supportsTablet: true,
     infoPlist: {
       NSCameraUsageDescription:
-        'This app uses the camera to scan QR codes of addresses.',
-      NSFaceIDUsageDescription:
-        'This app uses Face ID to authenticate the user.',
+        'This app uses the camera to scan QR codes of addresses and to connect to DApps.',
+      NSFaceIDUsageDescription: 'This app uses Face ID to authenticate the user.',
     },
   },
   web: {
-    favicon: './assets/icon@64.png',
+    favicon: './assets/icon-rounded@64.png',
   },
   updates: {
     url: `https://u.expo.dev/${PROJECT_ID}`,

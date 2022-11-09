@@ -14,11 +14,11 @@ const parse = (value: unknown): BytesLike => {
   return value;
 };
 
-export const GqlBytes8 = new GraphQLScalarType({
+export const GqlBytes8 = new GraphQLScalarType<BytesLike, string>({
   name: 'Bytes8',
   description,
-  serialize: (value: BytesLike) => ethers.utils.hexlify(value),
-  parseValue: (value: unknown) => parse(value),
+  serialize: (value) => ethers.utils.hexlify(value as BytesLike),
+  parseValue: (value) => parse(value),
   parseLiteral: (ast) => {
     if (ast.kind === Kind.STRING) return parse(ast.value);
     throw error;

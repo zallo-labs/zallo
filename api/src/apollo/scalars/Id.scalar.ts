@@ -8,15 +8,14 @@ const description = 'Identifier';
 const error = new UserInputError(`Provided value is not a ${description}`);
 
 const parse = (value: unknown): Id => {
-  if (typeof value !== 'string' || typeof value['toString'] !== 'function')
-    throw error;
+  if (typeof value !== 'string' || typeof value['toString'] !== 'function') throw error;
   return toId(`${value}`);
 };
 
-export const GqlId = new GraphQLScalarType({
+export const GqlId = new GraphQLScalarType<Id, string>({
   name: 'Id',
   description,
-  serialize: (value: Id) => value,
+  serialize: (value) => value as Id,
   parseValue: (value: unknown) => parse(value),
   parseLiteral: (ast) => {
     if ('value' in ast) return parse(ast.value);

@@ -5,8 +5,7 @@ import { GraphQLScalarType, Kind } from 'graphql';
 
 const description = '32-byte string';
 
-const isBytes32 = (v: unknown): v is BytesLike =>
-  ethers.utils.isHexString(v, 32);
+const isBytes32 = (v: unknown): v is BytesLike => ethers.utils.isHexString(v, 32);
 
 const error = new UserInputError(`Provided value is not a ${description}`);
 
@@ -15,11 +14,11 @@ const parse = (value: unknown): BytesLike => {
   return value;
 };
 
-export const GqlBytes32 = new GraphQLScalarType({
+export const GqlBytes32 = new GraphQLScalarType<BytesLike, string>({
   name: 'Bytes32',
   description,
-  serialize: (value: BytesLike) => ethers.utils.hexlify(value),
-  parseValue: (value: unknown) => parse(value),
+  serialize: (value) => ethers.utils.hexlify(value as BytesLike),
+  parseValue: (value) => parse(value),
   parseLiteral: (ast) => {
     if (ast.kind === Kind.STRING) return parse(ast.value);
     throw error;

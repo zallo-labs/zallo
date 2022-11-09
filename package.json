@@ -27,13 +27,13 @@
   },
   "devDependencies": {
     "@types/node": "^16.11.62",
-    "@typescript-eslint/eslint-plugin": "^5.40.0",
-    "@typescript-eslint/parser": "^5.40.0",
-    "eslint": "^8.25.0",
+    "@typescript-eslint/eslint-plugin": "^5.42.1",
+    "@typescript-eslint/parser": "^5.42.1",
+    "eslint": "^8.27.0",
     "eslint-plugin-react-hooks": "^4.6.0"
   },
   "resolutions": {
-    "graphql": "^15.8.0",
+    "graphql": "^16.6.0",
     "react-native-jazzicon@0.1.2": "patch:react-native-jazzicon@npm:0.1.2#.yarn/patches/react-native-jazzicon-npm-0.1.2-c1633b051f.patch",
     "@ethersproject/abstract-provider": "5.7.0",
     "@types/react": "17.x"

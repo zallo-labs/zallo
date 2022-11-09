@@ -17,14 +17,13 @@ const parse = (value: unknown): BigNumber => {
   throw error;
 };
 
-export const GqlBigNumber = new GraphQLScalarType({
+export const GqlBigNumber = new GraphQLScalarType<BigNumber, string>({
   name: 'BigNumber',
   description,
-  serialize: (value: BigNumber) => value.toString(),
+  serialize: (value) => (value as BigNumber).toString(),
   parseValue: (value: unknown) => parse(value),
   parseLiteral: (ast) => {
-    if (ast.kind === Kind.STRING || ast.kind === Kind.INT)
-      return parse(ast.value);
+    if (ast.kind === Kind.STRING || ast.kind === Kind.INT) return parse(ast.value);
     throw error;
   },
 });
