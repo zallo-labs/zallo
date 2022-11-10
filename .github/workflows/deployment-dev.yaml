@@ -13,7 +13,7 @@ concurrency:
   cancel-in-progress: true
 
 env:
-  SUBGRAPH_GQL_URL: 'http://graph.allopay.io/subgraphs/name/allopay-dev'
+  SUBGRAPH_GQL_URL: 'http://graph.allopay.io/subgraphs/name/zallo-dev'
 
 jobs:
   api:
