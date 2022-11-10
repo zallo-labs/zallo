@@ -57,7 +57,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     ],
   },
   orientation: 'portrait',
-  icon: './assets/icon-rounded@1024.png',
+  icon: './assets/icon@1024.png',
   splash: {
     image: './assets/splash@1290x2796.png',
     resizeMode: 'contain',
