@@ -1,11 +1,8 @@
-# AlloPay
-
-## Configuration
-
-- See .env.template
-- app/play-service-account.secret.json
+# Zallo
 
 ## Setup
+
+- See `.env.template` for required configuration
 
 ```bash
 yarn

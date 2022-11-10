@@ -8,16 +8,16 @@
     "build": "graph build",
     "clean": "npx rimraf build data generated subgraph.yaml",
     "hosted:auth": "graph auth --product hosted-service",
-    "dev:create": "graph create --node http://graph.allopay.io:8020 allopay-dev",
-    "dev:deploy": "graph deploy --node http://graph.allopay.io:8020 --ipfs http://graph.allopay.io:5001 -l 0.1 allopay-dev",
-    "dev:deploy-hosted": "graph deploy --product hosted-service hbriese/allopay-dev3",
-    "prod:create": "graph create --node http://graph.allopay.io:8020 allopay",
-    "prod:deploy": "graph deploy --node http://graph.allopay.io:8020 --ipfs http://graph.allopay.io:5001 -l 0.1 allopay",
-    "prod:deploy-hosted": "graph deploy --product hosted-service hbriese/allopay3"
+    "dev:create": "graph create --node http://graph.allopay.io:8020 zallo-dev",
+    "dev:deploy": "graph deploy --node http://graph.allopay.io:8020 --ipfs http://graph.allopay.io:5001 -l 0.1 zallo-dev",
+    "dev:deploy-hosted": "graph deploy --product hosted-service hbriese/zallo-dev",
+    "prod:create": "graph create --node http://graph.allopay.io:8020 zallo",
+    "prod:deploy": "graph deploy --node http://graph.allopay.io:8020 --ipfs http://graph.allopay.io:5001 -l 0.1 zallo",
+    "prod:deploy-hosted": "graph deploy --product hosted-service hbriese/zallo"
   },
   "dependencies": {
     "@graphprotocol/graph-cli": "0.35.0",
-    "@graphprotocol/graph-ts": "0.28.1"
+    "@graphprotocol/graph-ts": "0.29.0"
   },
   "devDependencies": {
     "mustache": "^4.2.0"

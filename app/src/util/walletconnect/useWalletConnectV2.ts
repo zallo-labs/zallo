@@ -3,9 +3,9 @@ import SignClient from '@walletconnect/sign-client';
 import { useRootNavigation } from '~/navigation/useRootNavigation';
 import { CONFIG } from '../config';
 import { useEffect } from 'react';
-import { WcEventParams, WC_METHODS } from './methods';
+import { WcEventParams } from './methods';
 import { Link } from '../links';
-import { showError, showInfo } from '~/provider/SnackbarProvider';
+import { showError } from '~/provider/SnackbarProvider';
 import { SigningRequest, WC_SIGNING_METHODS } from './methods/signing';
 import { useHandleWcSend } from './useHandleWcSend';
 import { WcTransactionRequest, WC_TRANSACTION_METHODS } from './methods/transaction';
@@ -15,7 +15,7 @@ import { TopicV2 } from './useTopic';
 import { useHandleSessionProposal } from '~/screens/session-proposal/useHandleSessionProposal';
 
 export const WC_CLIENT_METADATA: SignClientTypes.Metadata = {
-  name: 'AlloPay',
+  name: 'Zallo',
   description: 'Smart wallet',
   url: Link.Site,
   icons: [Link.Icon],

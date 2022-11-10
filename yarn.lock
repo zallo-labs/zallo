@@ -11889,19 +11889,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"allopay@workspace:.":
-  version: 0.0.0-use.local
-  resolution: "allopay@workspace:."
-  dependencies:
-    "@types/node": ^16.11.62
-    "@typescript-eslint/eslint-plugin": ^5.42.1
-    "@typescript-eslint/parser": ^5.42.1
-    eslint: ^8.27.0
-    eslint-plugin-react-hooks: ^4.6.0
-    node-gyp: ^9.3.0
-  languageName: unknown
-  linkType: soft
-
 "alphanum-sort@npm:^1.0.0":
   version: 1.0.2
   resolution: "alphanum-sort@npm:1.0.2"
@@ -38141,6 +38128,19 @@ __metadata:
   checksum: 43a16786b47cc910fed4891cebdd89df6d6e31702e9462e8f969c73eac88551ce750732608012201ea6b93802c8847cb0aa27b5d57370640f4ecf30f9f97d4b0
   languageName: node
   linkType: hard
+
+"zallo@workspace:.":
+  version: 0.0.0-use.local
+  resolution: "zallo@workspace:."
+  dependencies:
+    "@types/node": ^16.11.62
+    "@typescript-eslint/eslint-plugin": ^5.42.1
+    "@typescript-eslint/parser": ^5.42.1
+    eslint: ^8.27.0
+    eslint-plugin-react-hooks: ^4.6.0
+    node-gyp: ^9.3.0
+  languageName: unknown
+  linkType: soft
 
 "zen-observable-ts@npm:^0.8.21":
   version: 0.8.21

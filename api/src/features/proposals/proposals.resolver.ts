@@ -280,7 +280,7 @@ export class ProposalsResolver {
         title: 'Approval Request',
         body: `${user.name} has requested your approval`,
         data: {
-          url: `allopay://proposal/?id=${hash}`,
+          url: `zallo://proposal/?id=${hash}`,
         },
       },
     ]);

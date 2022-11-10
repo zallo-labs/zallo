@@ -18,15 +18,15 @@ export const CONFIG = {
 export type Config = typeof CONFIG;
 
 export const PROJECT_ID = 'f8f4def1-b838-4dec-8b50-6c07995c4ff5';
-const packageId = 'io.allopay';
+const packageId = 'io.zallo';
 
 // https://docs.expo.dev/versions/latest/config/app/
 export default ({ config }: ConfigContext): ExpoConfig => ({
   ...config,
-  name: 'AlloPay',
+  name: 'Zallo',
   slug: 'app',
-  owner: 'allopay',
-  githubUrl: 'https://github.com/allopay/allopay',
+  owner: 'zallo',
+  githubUrl: 'https://github.com/zallo-labs/zallo',
   jsEngine: 'hermes',
   version: '0.1.0',
   runtimeVersion: {
@@ -64,7 +64,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     backgroundColor: '#E8DEF8',
   },
   assetBundlePatterns: ['**/*'],
-  scheme: 'allopay',
+  scheme: 'zallo',
   android: {
     package: packageId,
     adaptiveIcon: {
