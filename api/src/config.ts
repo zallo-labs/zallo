@@ -6,7 +6,7 @@ const required = makeRequiredEnv(process.env.RELEASE_ENV === 'test');
 const chain = getChain(optional`CHAIN`);
 
 export const CONFIG = {
-  env: required`RELEASE_ENV` === 'development' ? 'development' : 'production',
+  env: optional`RELEASE_ENV` === 'development' ? 'development' : 'production',
   apiPort: optional`API_PORT` || 3000,
   expoToken: required`EXPO_TOKEN`,
   redisUrl: required`REDIS_URL`,

@@ -5,7 +5,7 @@
   },
   "build": {
     "base": {
-      "node": "16.14.2",
+      "node": "18.12.1",
       "env": {
         "ENTRY_FILE": "./__generated__/AppEntry.js"
       },

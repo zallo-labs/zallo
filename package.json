@@ -1,6 +1,6 @@
 {
   "name": "allopay",
-  "packageManager": "yarn@3.2.2",
+  "packageManager": "yarn@3.2.4",
   "private": true,
   "version": "0.1.0",
   "author": "Hayden Briese <haydenbriese@gmail.com>",
@@ -22,7 +22,7 @@
     "clean": "yarn workspaces foreach run clean"
   },
   "engines": {
-    "node": "16.x",
+    "node": "18.12.1",
     "yarn": "3.x"
   },
   "devDependencies": {

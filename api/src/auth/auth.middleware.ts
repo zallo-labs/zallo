@@ -1,13 +1,8 @@
-import {
-  Injectable,
-  Logger,
-  NestMiddleware,
-  UnauthorizedException,
-} from '@nestjs/common';
+import { Injectable, Logger, NestMiddleware, UnauthorizedException } from '@nestjs/common';
 import { Request, Response, NextFunction } from 'express';
 import { SiweMessage } from 'siwe';
 
-import { CONFIG, IS_DEV } from '~/config';
+import { IS_DEV } from '~/config';
 import { ProviderService } from '~/provider/provider.service';
 import { VALIDATION_CHECKS } from './message.validation';
 
@@ -27,10 +22,11 @@ const tryParseToken = (token?: string): Token | undefined => {
   }
 };
 
+const PLAYGROUND_HOSTS = new Set(['studio.apollographql.com', '[::1]']);
+
 const isLocalDevPlayground = (req: Request) => {
   const isLocalPlayground =
-    req.headers.origin?.endsWith(`[::1]:${CONFIG.apiPort}`) ||
-    req.headers.origin?.startsWith('https://studio.apollographql.com');
+    req.headers.origin && PLAYGROUND_HOSTS.has(new URL(req.headers.origin).hostname);
 
   const isIntrospection = req.body?.operationName === 'IntrospectionQuery';
 
@@ -56,8 +52,7 @@ export class AuthMiddleware implements NestMiddleware {
       }
 
       // Use the session expiry time if provided
-      if (message.expirationTime)
-        req.session.cookie.expires = new Date(message.expirationTime);
+      if (message.expirationTime) req.session.cookie.expires = new Date(message.expirationTime);
 
       req.deviceMessage = message;
     } else if (isLocalDevPlayground(req)) {

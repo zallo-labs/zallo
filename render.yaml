@@ -9,6 +9,7 @@ services:
     startCommand: yarn api prisma migrate deploy && yarn api start:prod
     healthCheckPath: /health
     envVars:
+      - fromGroup: api-vars
       - fromGroup: api-testnet-vars
       - key: DATABASE_URL
         fromDatabase:
@@ -46,6 +47,7 @@ services:
     initialDeployHook: yarn api prisma migrate deploy
     healthCheckPath: /health
     envVars:
+      - fromGroup: api-vars
       - fromGroup: api-testnet-vars
       - key: DATABASE_URL
         fromDatabase:
@@ -103,6 +105,12 @@ databases:
         description: everywhere
 
 envVarGroups:
+  - name: api-vars
+    envVars:
+      - key: EXPO_TOKEN
+        sync: false
+      - key: ETHERSCAN_API_KEY
+        sync: false
   - name: api-testnet-vars
     envVars:
       - key: CHAIN
@@ -110,4 +118,6 @@ envVarGroups:
       - key: WALLET_ADDRESS
         sync: false
       - key: WALLET_PRIVATE_KEY
+        sync: false
+      - key: EXPO_TOKEN
         sync: false
