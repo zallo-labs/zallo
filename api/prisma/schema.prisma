@@ -16,6 +16,7 @@ generator nestgraphql {
 model Device {
   id String @id @db.Char(42) // address
 
+  name      String?
   pushToken String?
 
   users     User[]
