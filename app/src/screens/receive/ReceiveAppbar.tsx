@@ -1,15 +1,17 @@
 import { ShareIcon } from '~/util/theme/icons';
-import { useCallback } from 'react';
 import { Share } from 'react-native';
 import { Appbar } from 'react-native-paper';
 import { AppbarMenu } from '~/components/Appbar/AppbarMenu';
+import { Address } from 'lib';
+import { useAccount } from '~/queries/account/useAccount.api';
 
 export interface ReceiveAppbarProps {
+  account: Address;
   url: string;
 }
 
-export const ReceiveAppbar = ({ url }: ReceiveAppbarProps) => {
-  const share = useCallback(() => Share.share({ url, message: url }), [url]);
+export const ReceiveAppbar = ({ account: accountAddr, url }: ReceiveAppbarProps) => {
+  const [account] = useAccount(accountAddr);
 
   return (
     <Appbar.Header mode="center-aligned">
@@ -17,7 +19,10 @@ export const ReceiveAppbar = ({ url }: ReceiveAppbarProps) => {
 
       <Appbar.Content title="Receive" />
 
-      <Appbar.Action icon={ShareIcon} onPress={share} />
+      <Appbar.Action
+        icon={ShareIcon}
+        onPress={() => Share.share({ title: 'Account', url, message: `${account.name}\n${url}` })}
+      />
     </Appbar.Header>
   );
 };

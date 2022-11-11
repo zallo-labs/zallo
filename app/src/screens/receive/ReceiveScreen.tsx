@@ -36,7 +36,7 @@ export const ReceiveScreen = withSkeleton(
 
     return (
       <Box flex={1}>
-        <ReceiveAppbar url={url} />
+        <ReceiveAppbar account={account} url={url} />
 
         <Box flex={1} justifyContent="space-around">
           <Box horizontal justifyContent="center">
@@ -46,10 +46,7 @@ export const ReceiveScreen = withSkeleton(
           <Container separator={<Box my={1} />} mb={3}>
             <Box mx={4}>
               {amount ? (
-                <SelectableTokenAmountCard
-                  amount={amount}
-                  onChange={setAmount}
-                />
+                <SelectableTokenAmountCard amount={amount} onChange={setAmount} />
               ) : (
                 <Box
                   display="flex"
@@ -60,9 +57,7 @@ export const ReceiveScreen = withSkeleton(
                   {!amount && (
                     <Button
                       icon="plus"
-                      onPress={() =>
-                        navigation.navigate('Amount', { onChange: setAmount })
-                      }
+                      onPress={() => navigation.navigate('Amount', { onChange: setAmount })}
                     >
                       Amount
                     </Button>
