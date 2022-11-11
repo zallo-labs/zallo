@@ -62,6 +62,7 @@ export const ProposalStatusCard = ({ proposal, style }: ProposalStatusCardProps)
           Icon={({ color }) => <ActivityIndicator color={color as string} size="small" />}
           title="Pending"
           timestamp={proposal.submissions[proposal.submissions.length - 1]?.timestamp}
+          selected
         />
       )}
 
@@ -69,6 +70,7 @@ export const ProposalStatusCard = ({ proposal, style }: ProposalStatusCardProps)
         Icon={CheckmarkDoneCircleIcon}
         title="Finalized"
         timestamp={proposal.submissions[proposal.submissions.length - 1]?.timestamp}
+        selected={status === 'executed'}
       />
     </Card>
   );

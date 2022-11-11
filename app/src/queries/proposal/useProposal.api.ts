@@ -51,8 +51,8 @@ gql`
 
 const getStatus = (submissions: Submission[]): ProposalStatus => {
   if (!submissions.length) return 'proposed';
-  if (submissions.some((s) => s.status === 'pending')) return 'pending';
   if (submissions.some((s) => s.status === 'success')) return 'executed';
+  if (submissions.some((s) => s.status === 'pending')) return 'pending';
   if (submissions.some((s) => s.status === 'failure')) return 'failed';
   return 'pending';
 };
