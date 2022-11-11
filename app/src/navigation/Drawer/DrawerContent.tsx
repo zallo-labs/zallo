@@ -1,7 +1,4 @@
-import {
-  DrawerContentComponentProps,
-  DrawerContentScrollView,
-} from '@react-navigation/drawer';
+import { DrawerContentComponentProps, DrawerContentScrollView } from '@react-navigation/drawer';
 import {
   AccountIcon,
   PeopleIcon,
@@ -9,6 +6,7 @@ import {
   IssueIcon,
   SettingsIcon,
   TokenCurrencyIcon,
+  DeviceIcon,
 } from '~/util/theme/icons';
 import { useCallback } from 'react';
 import { Linking } from 'react-native';
@@ -32,28 +30,20 @@ export const DrawerContent = ({ navigation }: DrawerContentProps) => {
 
   return (
     <DrawerContentScrollView>
-      <Drawer.Section>
+      {/* <Drawer.Section>
         <DeviceItem />
-      </Drawer.Section>
+      </Drawer.Section> */}
 
       <Drawer.Section title="Actions">
         <Drawer.Item
           label="Sessions"
           icon={(props) => (
-            <WalletConnectIcon
-              color={props.color}
-              width={props.size}
-              height={props.size}
-            />
+            <WalletConnectIcon color={props.color} width={props.size} height={props.size} />
           )}
           onPress={() => navigate('Sessions')}
         />
 
-        <Drawer.Item
-          label="Contacts"
-          icon={PeopleIcon}
-          onPress={() => navigate('Contacts', {})}
-        />
+        <Drawer.Item label="Contacts" icon={PeopleIcon} onPress={() => navigate('Contacts', {})} />
         <Drawer.Item
           label="Tokens"
           icon={TokenCurrencyIcon}
@@ -62,11 +52,8 @@ export const DrawerContent = ({ navigation }: DrawerContentProps) => {
       </Drawer.Section>
 
       <Drawer.Section title="Configuration">
-        <Drawer.Item
-          label="Accounts"
-          icon={AccountIcon}
-          onPress={() => navigate('Accounts', {})}
-        />
+        <Drawer.Item label="Accounts" icon={AccountIcon} onPress={() => navigate('Accounts', {})} />
+        <Drawer.Item label="Device" icon={DeviceIcon} onPress={() => navigate('Device')} />
         <Drawer.Item label="Settings" icon={SettingsIcon} />
       </Drawer.Section>
 

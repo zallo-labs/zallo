@@ -28,6 +28,7 @@ import {
 import { SignScreen, SignScreenParams } from '~/screens/sign/SignScreen';
 import { SessionsScreen } from '~/screens/sessions/SessionsScreen';
 import ProposalScreen, { ProposalScreenParams } from '~/screens/proposal/ProposalScreen';
+import { DeviceScreen } from '~/screens/device/DeviceScreen';
 
 export type RootNavigatorParamList = {
   DrawerNavigator: undefined;
@@ -43,6 +44,7 @@ export type RootNavigatorParamList = {
   Tokens: TokensScreenParams;
   Amount: AmountScreenParams;
   Send: SendScreenParams;
+  Device: undefined;
   // Onboarding
   CreateAccount: CreateAccountScreenParams;
   // Modal
@@ -91,6 +93,7 @@ export const RootNavigator = () => {
       <Navigation.Screen name="Tokens" component={TokensScreen} />
       <Navigation.Screen name="Amount" component={AmountScreen} />
       <Navigation.Screen name="Send" component={SendScreen} />
+      <Navigation.Screen name="Device" component={DeviceScreen} />
 
       <Navigation.Group screenOptions={{ presentation: 'transparentModal' }}>
         <Navigation.Screen name="Alert" component={AlertModalScreen} />
