@@ -56,10 +56,10 @@ const Snack = ({
   );
 };
 
-const useStyles = makeStyles(({ colors, onBackground }, variant: SnackVariant) => {
-  const backgroundColor = match(variant)
-    .with('info', () => colors.surfaceVariant)
-    .with('error', () => colors.errorContainer)
+const useStyles = makeStyles(({ colors }, variant: SnackVariant) => {
+  const [backgroundColor, color] = match(variant)
+    .with('info', () => [colors.inverseSurface, colors.inverseOnSurface])
+    .with('error', () => [colors.errorContainer, colors.onErrorContainer])
     .exhaustive();
 
   return {
@@ -67,7 +67,7 @@ const useStyles = makeStyles(({ colors, onBackground }, variant: SnackVariant) =
       backgroundColor,
     },
     message: {
-      color: onBackground(backgroundColor),
+      color,
     },
     actionLabel: {
       color: colors.primary,
