@@ -179,6 +179,7 @@ export type Device = {
   comments?: Maybe<Array<Comment>>;
   contacts?: Maybe<Array<Contact>>;
   id: Scalars['ID'];
+  name?: Maybe<Scalars['String']>;
   pushToken?: Maybe<Scalars['String']>;
   reactions?: Maybe<Array<Reaction>>;
   users?: Maybe<Array<User>>;
@@ -200,6 +201,7 @@ export type DeviceOrderByWithRelationInput = {
   comments?: InputMaybe<CommentOrderByRelationAggregateInput>;
   contacts?: InputMaybe<ContactOrderByRelationAggregateInput>;
   id?: InputMaybe<SortOrder>;
+  name?: InputMaybe<SortOrder>;
   pushToken?: InputMaybe<SortOrder>;
   reactions?: InputMaybe<ReactionOrderByRelationAggregateInput>;
   users?: InputMaybe<UserOrderByRelationAggregateInput>;
@@ -227,6 +229,7 @@ export type Mutation = {
   requestApproval: Scalars['Boolean'];
   requestFunds: Scalars['Boolean'];
   setAccountName: Account;
+  setDeviceName: Device;
   setUserName: User;
   submitExecution: Submission;
   upsertContact: ContactObject;
@@ -317,6 +320,11 @@ export type MutationRequestFundsArgs = {
 export type MutationSetAccountNameArgs = {
   id: Scalars['Address'];
   name: Scalars['String'];
+};
+
+
+export type MutationSetDeviceNameArgs = {
+  name?: InputMaybe<Scalars['String']>;
 };
 
 
@@ -850,6 +858,13 @@ export type RegisterPushTokenMutationVariables = Exact<{
 
 export type RegisterPushTokenMutation = { __typename?: 'Mutation', registerPushToken: boolean };
 
+export type SetDeviceNameMutationVariables = Exact<{
+  name?: InputMaybe<Scalars['String']>;
+}>;
+
+
+export type SetDeviceNameMutation = { __typename?: 'Mutation', setDeviceName: { __typename?: 'Device', id: string } };
+
 export type RemoveUserMutationVariables = Exact<{
   id: UserIdInput;
   proposalHash: Scalars['Bytes32'];
@@ -925,6 +940,11 @@ export type ContractMethodQueryVariables = Exact<{
 
 
 export type ContractMethodQuery = { __typename?: 'Query', contractMethod?: { __typename?: 'ContractMethod', id: string, fragment: any } | null };
+
+export type DeviceMetaQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type DeviceMetaQuery = { __typename?: 'Query', device?: { __typename?: 'Device', id: string, name?: string | null } | null };
 
 export type UserQueryVariables = Exact<{
   id: UserIdInput;
@@ -1490,6 +1510,39 @@ export function useRegisterPushTokenMutation(baseOptions?: Apollo.MutationHookOp
 export type RegisterPushTokenMutationHookResult = ReturnType<typeof useRegisterPushTokenMutation>;
 export type RegisterPushTokenMutationResult = Apollo.MutationResult<RegisterPushTokenMutation>;
 export type RegisterPushTokenMutationOptions = Apollo.BaseMutationOptions<RegisterPushTokenMutation, RegisterPushTokenMutationVariables>;
+export const SetDeviceNameDocument = gql`
+    mutation SetDeviceName($name: String) {
+  setDeviceName(name: $name) {
+    id
+  }
+}
+    `;
+export type SetDeviceNameMutationFn = Apollo.MutationFunction<SetDeviceNameMutation, SetDeviceNameMutationVariables>;
+
+/**
+ * __useSetDeviceNameMutation__
+ *
+ * To run a mutation, you first call `useSetDeviceNameMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useSetDeviceNameMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [setDeviceNameMutation, { data, loading, error }] = useSetDeviceNameMutation({
+ *   variables: {
+ *      name: // value for 'name'
+ *   },
+ * });
+ */
+export function useSetDeviceNameMutation(baseOptions?: Apollo.MutationHookOptions<SetDeviceNameMutation, SetDeviceNameMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<SetDeviceNameMutation, SetDeviceNameMutationVariables>(SetDeviceNameDocument, options);
+      }
+export type SetDeviceNameMutationHookResult = ReturnType<typeof useSetDeviceNameMutation>;
+export type SetDeviceNameMutationResult = Apollo.MutationResult<SetDeviceNameMutation>;
+export type SetDeviceNameMutationOptions = Apollo.BaseMutationOptions<SetDeviceNameMutation, SetDeviceNameMutationVariables>;
 export const RemoveUserDocument = gql`
     mutation RemoveUser($id: UserIdInput!, $proposalHash: Bytes32!) {
   removeUser(id: $id, proposalHash: $proposalHash) {
@@ -1874,6 +1927,41 @@ export function useContractMethodLazyQuery(baseOptions?: Apollo.LazyQueryHookOpt
 export type ContractMethodQueryHookResult = ReturnType<typeof useContractMethodQuery>;
 export type ContractMethodLazyQueryHookResult = ReturnType<typeof useContractMethodLazyQuery>;
 export type ContractMethodQueryResult = Apollo.QueryResult<ContractMethodQuery, ContractMethodQueryVariables>;
+export const DeviceMetaDocument = gql`
+    query DeviceMeta {
+  device {
+    id
+    name
+  }
+}
+    `;
+
+/**
+ * __useDeviceMetaQuery__
+ *
+ * To run a query within a React component, call `useDeviceMetaQuery` and pass it any options that fit your needs.
+ * When your component renders, `useDeviceMetaQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useDeviceMetaQuery({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useDeviceMetaQuery(baseOptions?: Apollo.QueryHookOptions<DeviceMetaQuery, DeviceMetaQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<DeviceMetaQuery, DeviceMetaQueryVariables>(DeviceMetaDocument, options);
+      }
+export function useDeviceMetaLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<DeviceMetaQuery, DeviceMetaQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<DeviceMetaQuery, DeviceMetaQueryVariables>(DeviceMetaDocument, options);
+        }
+export type DeviceMetaQueryHookResult = ReturnType<typeof useDeviceMetaQuery>;
+export type DeviceMetaLazyQueryHookResult = ReturnType<typeof useDeviceMetaLazyQuery>;
+export type DeviceMetaQueryResult = Apollo.QueryResult<DeviceMetaQuery, DeviceMetaQueryVariables>;
 export const UserDocument = gql`
     query User($id: UserIdInput!) {
   user(id: $id) {

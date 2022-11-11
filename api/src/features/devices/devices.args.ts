@@ -7,6 +7,11 @@ export class GetAddrNameArgs {
 }
 
 @ArgsType()
+export class SetDeviceNameArgs {
+  name: string | null;
+}
+
+@ArgsType()
 export class RegisterPushTokenArgs {
   token: string;
 }

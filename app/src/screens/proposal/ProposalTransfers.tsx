@@ -64,7 +64,7 @@ export const ProposalTransfers = ({ proposal, style }: ProposalTransfersProps) =
   return (
     <Box style={style}>
       {transfers.map((transfer) => (
-        <ProposalTransfer proposal={proposal} transfer={transfer} />
+        <ProposalTransfer key={transfer.token.addr} proposal={proposal} transfer={transfer} />
       ))}
     </Box>
   );

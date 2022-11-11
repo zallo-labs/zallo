@@ -2,7 +2,7 @@ import { Args, Info, Mutation, Query, Resolver } from '@nestjs/graphql';
 import { PrismaService } from 'nestjs-prisma';
 import { GraphQLResolveInfo } from 'graphql';
 import { getSelect } from '~/util/select';
-import { GetAddrNameArgs, RegisterPushTokenArgs } from './devices.args';
+import { GetAddrNameArgs, RegisterPushTokenArgs, SetDeviceNameArgs } from './devices.args';
 import { DeviceAddr } from '~/decorators/device.decorator';
 import { Device } from '@gen/device/device.model';
 import { Address } from 'lib';
@@ -45,6 +45,25 @@ export class DevicesResolver {
     });
 
     return account?.name || null;
+  }
+
+  @Mutation(() => Device)
+  async setDeviceName(
+    @Args() { name }: SetDeviceNameArgs,
+    @DeviceAddr() device: Address,
+    @Info() info: GraphQLResolveInfo,
+  ): Promise<Device> {
+    return this.prisma.device.upsert({
+      where: { id: device },
+      create: {
+        id: device,
+        name,
+      },
+      update: {
+        name,
+      },
+      ...getSelect(info),
+    });
   }
 
   @Mutation(() => Boolean)

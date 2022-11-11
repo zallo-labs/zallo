@@ -12,7 +12,7 @@ export type ExpandableTextProps = {
 export const ExpandableText = ({
   children: Component,
   value,
-  beginLen = 3,
+  beginLen = 4,
   endLen = beginLen,
 }: ExpandableTextProps) => {
   const truncated = useMemo(

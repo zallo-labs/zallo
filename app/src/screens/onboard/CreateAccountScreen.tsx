@@ -7,16 +7,10 @@ import { useCallback } from 'react';
 import { FormikTextField } from '~/components/fields/FormikTextField';
 import { FormikSubmitFab } from '~/components/fields/FormikSubmitFab';
 import { CheckIcon } from '~/util/theme/icons';
-import {
-  CreateAccountResult,
-  useCreateAccount,
-} from '~/mutations/account/useCreateAccount.api';
+import { CreateAccountResult, useCreateAccount } from '~/mutations/account/useCreateAccount.api';
 import { AppbarBack } from '~/components/Appbar/AppbarBack';
 import { makeStyles } from '~/util/theme/makeStyles';
-import {
-  RootNavigation,
-  useRootNavigation,
-} from '~/navigation/useRootNavigation';
+import { RootNavigation, useRootNavigation } from '~/navigation/useRootNavigation';
 
 interface Values {
   name: string;
@@ -30,8 +24,7 @@ export interface CreateAccountScreenParams {
   onCreate: (res: CreateAccountResult, navigation: RootNavigation) => void;
 }
 
-export type CreateAccountScreenProps =
-  RootNavigatorScreenProps<'CreateAccount'>;
+export type CreateAccountScreenProps = RootNavigatorScreenProps<'CreateAccount'>;
 
 export const CreateAccountScreen = ({ route }: CreateAccountScreenProps) => {
   const styles = useStyles();
@@ -52,16 +45,10 @@ export const CreateAccountScreen = ({ route }: CreateAccountScreenProps) => {
         <AppbarBack />
       </Appbar.Header>
 
-      <Formik
-        initialValues={{ name: '' }}
-        onSubmit={handleSubmit}
-        validationSchema={schema}
-      >
+      <Formik initialValues={{ name: '' }} onSubmit={handleSubmit} validationSchema={schema}>
         <>
           <Box mx={4}>
-            <Text style={styles.input}>
-              What should we call your organization?
-            </Text>
+            <Text style={styles.input}>What should we call your account?</Text>
 
             <FormikTextField name="name" label="Name" />
           </Box>
