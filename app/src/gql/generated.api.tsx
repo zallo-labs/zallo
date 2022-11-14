@@ -136,7 +136,7 @@ export type ContactName_IdentifierCompoundUniqueInput = {
 
 export type ContactObject = {
   __typename?: 'ContactObject';
-  addr: Scalars['String'];
+  addr: Scalars['Address'];
   id: Scalars['String'];
   name: Scalars['String'];
 };
@@ -438,9 +438,9 @@ export type ProposalWhereUniqueInput = {
 export type Query = {
   __typename?: 'Query';
   account: Account;
-  addrName?: Maybe<Scalars['String']>;
   canRequestFunds: Scalars['Boolean'];
   comments: Array<Comment>;
+  contact?: Maybe<ContactObject>;
   contacts: Array<ContactObject>;
   contractMethod?: Maybe<ContractMethod>;
   device?: Maybe<Device>;
@@ -456,11 +456,6 @@ export type QueryAccountArgs = {
 };
 
 
-export type QueryAddrNameArgs = {
-  addr: Scalars['String'];
-};
-
-
 export type QueryCanRequestFundsArgs = {
   recipient: Scalars['Address'];
 };
@@ -469,6 +464,11 @@ export type QueryCanRequestFundsArgs = {
 export type QueryCommentsArgs = {
   account: Scalars['Address'];
   key: Scalars['Id'];
+};
+
+
+export type QueryContactArgs = {
+  addr: Scalars['Address'];
 };
 
 
@@ -484,6 +484,11 @@ export type QueryContactsArgs = {
 export type QueryContractMethodArgs = {
   contract: Scalars['Address'];
   sighash: Scalars['Bytes'];
+};
+
+
+export type QueryDeviceArgs = {
+  addr?: InputMaybe<Scalars['Address']>;
 };
 
 
@@ -896,10 +901,12 @@ export type AccountQueryVariables = Exact<{
 
 export type AccountQuery = { __typename?: 'Query', account: { __typename?: 'Account', id: string, deploySalt: string, impl: string, isDeployed: boolean, name: string, users?: Array<{ __typename?: 'User', deviceId: string, name: string }> | null } };
 
+export type ContactFieldsFragment = { __typename?: 'ContactObject', id: string, addr: any, name: string };
+
 export type ContactsQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type ContactsQuery = { __typename?: 'Query', contacts: Array<{ __typename?: 'ContactObject', id: string, addr: string, name: string }> };
+export type ContactsQuery = { __typename?: 'Query', contacts: Array<{ __typename?: 'ContactObject', id: string, addr: any, name: string }> };
 
 export type SubmissionFieldsFragment = { __typename?: 'Submission', id: string, hash: string, nonce: number, gasLimit: any, gasPrice?: any | null, createdAt: any, response?: { __typename?: 'SubmissionResponse', response: string, reverted: boolean, timestamp: any } | null };
 
@@ -941,7 +948,9 @@ export type ContractMethodQueryVariables = Exact<{
 
 export type ContractMethodQuery = { __typename?: 'Query', contractMethod?: { __typename?: 'ContractMethod', id: string, fragment: any } | null };
 
-export type DeviceMetaQueryVariables = Exact<{ [key: string]: never; }>;
+export type DeviceMetaQueryVariables = Exact<{
+  addr?: InputMaybe<Scalars['Address']>;
+}>;
 
 
 export type DeviceMetaQuery = { __typename?: 'Query', device?: { __typename?: 'Device', id: string, name?: string | null } | null };
@@ -960,6 +969,13 @@ export type UserIdsQueryVariables = Exact<{ [key: string]: never; }>;
 
 export type UserIdsQuery = { __typename?: 'Query', users: Array<{ __typename?: 'User', id: string, accountId: string }> };
 
+export const ContactFieldsFragmentDoc = gql`
+    fragment ContactFields on ContactObject {
+  id
+  addr
+  name
+}
+    `;
 export const SubmissionFieldsFragmentDoc = gql`
     fragment SubmissionFields on Submission {
   id
@@ -1691,12 +1707,10 @@ export type AccountQueryResult = Apollo.QueryResult<AccountQuery, AccountQueryVa
 export const ContactsDocument = gql`
     query Contacts {
   contacts {
-    id
-    addr
-    name
+    ...ContactFields
   }
 }
-    `;
+    ${ContactFieldsFragmentDoc}`;
 
 /**
  * __useContactsQuery__
@@ -1928,8 +1942,8 @@ export type ContractMethodQueryHookResult = ReturnType<typeof useContractMethodQ
 export type ContractMethodLazyQueryHookResult = ReturnType<typeof useContractMethodLazyQuery>;
 export type ContractMethodQueryResult = Apollo.QueryResult<ContractMethodQuery, ContractMethodQueryVariables>;
 export const DeviceMetaDocument = gql`
-    query DeviceMeta {
-  device {
+    query DeviceMeta($addr: Address) {
+  device(addr: $addr) {
     id
     name
   }
@@ -1948,6 +1962,7 @@ export const DeviceMetaDocument = gql`
  * @example
  * const { data, loading, error } = useDeviceMetaQuery({
  *   variables: {
+ *      addr: // value for 'addr'
  *   },
  * });
  */

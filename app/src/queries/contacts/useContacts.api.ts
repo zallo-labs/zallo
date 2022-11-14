@@ -1,9 +1,5 @@
 import { gql } from '@apollo/client';
-import {
-  ContactsDocument,
-  ContactsQuery,
-  ContactsQueryVariables,
-} from '~/gql/generated.api';
+import { ContactsDocument, ContactsQuery, ContactsQueryVariables } from '~/gql/generated.api';
 import { useApiClient } from '~/gql/GqlProvider';
 import { address, Address, Id, toId } from 'lib';
 import { useMemo } from 'react';
@@ -20,23 +16,27 @@ export interface Contact extends NewContact {
 }
 
 gql`
+  fragment ContactFields on ContactObject {
+    id
+    addr
+    name
+  }
+
   query Contacts {
     contacts {
-      id
-      addr
-      name
+      ...ContactFields
     }
   }
 `;
 
 export const useContacts = () => {
-  const { data, ...rest } = useSuspenseQuery<
-    ContactsQuery,
-    ContactsQueryVariables
-  >(ContactsDocument, {
-    client: useApiClient(),
-    variables: {},
-  });
+  const { data, ...rest } = useSuspenseQuery<ContactsQuery, ContactsQueryVariables>(
+    ContactsDocument,
+    {
+      client: useApiClient(),
+      variables: {},
+    },
+  );
   usePollWhenFocussed(rest, 120);
 
   const contacts = useMemo(
