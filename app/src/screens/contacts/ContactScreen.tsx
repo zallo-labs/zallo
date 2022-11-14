@@ -27,22 +27,17 @@ export const ADDR_YUP_SCHEMA = Yup.string().required('Required').test({
   test: isAddress,
 });
 
-const getSchema = (
-  contacts: Contact[],
-  existing?: Contact,
-): Yup.SchemaOf<Values> =>
+const getSchema = (contacts: Contact[], existing?: Contact): Yup.SchemaOf<Values> =>
   Yup.object({
     name: Yup.string()
       .required('Required')
       .test({
         message: 'Contact already exists with this name',
-        test: (name) =>
-          existing?.name === name || !contacts.find((c) => c.name === name),
+        test: (name) => existing?.name === name || !contacts.find((c) => c.name === name),
       }),
     addr: ADDR_YUP_SCHEMA.test({
       message: 'Contact already exists for this address',
-      test: (addr) =>
-        existing?.addr === addr || !contacts.find((c) => c.addr === addr),
+      test: (addr) => existing?.addr === addr || !contacts.find((c) => c.addr === addr),
     }),
   });
 
@@ -79,10 +74,7 @@ export const ContactScreen = ({ route, navigation }: ContactScreenProps) => {
       <Formik
         initialValues={existing ?? defaultValues}
         onSubmit={handleSubmit}
-        validationSchema={useMemo(
-          () => getSchema(contacts, existing),
-          [contacts, existing],
-        )}
+        validationSchema={useMemo(() => getSchema(contacts, existing), [contacts, existing])}
       >
         {({ setFieldValue }) => (
           <>
@@ -90,12 +82,7 @@ export const ContactScreen = ({ route, navigation }: ContactScreenProps) => {
               <FormikTextField name="name" label="Name" />
 
               <Box mt={3} mb={2}>
-                <FormikTextField
-                  name="addr"
-                  label="Address"
-                  multiline
-                  blurOnSubmit
-                />
+                <FormikTextField name="addr" label="Address" multiline blurOnSubmit />
               </Box>
 
               <Button

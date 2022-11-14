@@ -5,18 +5,20 @@ import { AddressField } from '~/apollo/scalars/Address.scalar';
 
 @ObjectType()
 export class ContactObject {
+  @AddressField()
   addr: string;
+
   name: string;
 }
 
 @ArgsType()
-export class ContactsArgs extends OmitType(FindManyContactArgs, ['where']) {}
-
-@ArgsType()
-export class DeleteContactArgs {
+export class ContactArgs {
   @AddressField()
   addr: Address;
 }
+
+@ArgsType()
+export class ContactsArgs extends OmitType(FindManyContactArgs, ['where']) {}
 
 @ArgsType()
 export class UpsertContactArgs {

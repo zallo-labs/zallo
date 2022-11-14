@@ -13,20 +13,20 @@ export interface DeviceMeta {
 }
 
 gql`
-  query DeviceMeta {
-    device {
+  query DeviceMeta($addr: Address) {
+    device(addr: $addr) {
       id
       name
     }
   }
 `;
 
-export const useDeviceMeta = () => {
+export const useDeviceMeta = (addr?: Address) => {
   const device = useDevice();
 
   const { data } = useDeviceMetaQuery({
     client: useApiClient(),
-    variables: {},
+    variables: { addr },
   });
 
   return useMemo(

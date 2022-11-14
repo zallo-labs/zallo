@@ -4,7 +4,7 @@ import { GraphQLResolveInfo } from 'graphql';
 import { getSelect } from '~/util/select';
 import { DeviceAddr } from '~/decorators/device.decorator';
 import { Address, filterFirst, Id, toId } from 'lib';
-import { ContactsArgs, DeleteContactArgs, ContactObject, UpsertContactArgs } from './contacts.args';
+import { ContactsArgs, ContactArgs, ContactObject, UpsertContactArgs } from './contacts.args';
 import { connectOrCreateDevice } from '~/util/connect-or-create';
 import { AccountsService } from '../accounts/accounts.service';
 import { Prisma } from '@prisma/client';
@@ -16,6 +16,20 @@ export class ContactsResolver {
   @ResolveField(() => String)
   id(@Parent() contact: ContactObject, @DeviceAddr() device: Address): Id {
     return toId(`${device}-${contact.addr}`);
+  }
+
+  @Query(() => ContactObject, { nullable: true })
+  async contact(
+    @Args() { addr }: ContactArgs,
+    @DeviceAddr() device: Address,
+    @Info() info: GraphQLResolveInfo,
+  ): Promise<ContactObject | null> {
+    return this.prisma.contact.findUnique({
+      where: {
+        deviceId_addr: { addr, deviceId: device },
+      },
+      ...getSelect(info),
+    });
   }
 
   @Query(() => [ContactObject])
@@ -68,13 +82,13 @@ export class ContactsResolver {
         addr: { set: newAddr },
         name: { set: name },
       } as Prisma.ContactUpdateInput,
-      // ...getSelect(info),
+      ...getSelect(info),
     });
   }
 
   @Mutation(() => Boolean)
   async deleteContact(
-    @Args() { addr }: DeleteContactArgs,
+    @Args() { addr }: ContactArgs,
     @DeviceAddr() device: Address,
     @Info() info: GraphQLResolveInfo,
   ): Promise<boolean> {

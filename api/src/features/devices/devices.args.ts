@@ -1,9 +1,11 @@
-import { ArgsType, Field } from '@nestjs/graphql';
+import { ArgsType } from '@nestjs/graphql';
+import { Address } from 'lib';
+import { AddressField } from '~/apollo/scalars/Address.scalar';
 
 @ArgsType()
-export class GetAddrNameArgs {
-  @Field(() => String, { nullable: false })
-  addr!: string;
+export class DeviceArgs {
+  @AddressField({ nullable: true })
+  addr?: Address;
 }
 
 @ArgsType()

@@ -5,10 +5,10 @@ import { UserId } from 'lib';
 import { useUser } from '~/queries/user/useUser.api';
 import { Box } from '~/components/layout/Box';
 import { LabelIcon } from '~/components/Identicon/LabelIcon';
-import { useContact } from '~/queries/contacts/useContact';
 import { makeStyles } from '@theme/makeStyles';
 import { memo } from 'react';
 import { truncateAddr } from '~/util/format';
+import { useAddrName } from '~/components/addr/useAddrName';
 
 export interface UserItemProps {
   user: UserId;
@@ -18,7 +18,7 @@ export interface UserItemProps {
 export const UserItem = memo(({ user: id, onPress }: UserItemProps) => {
   const styles = useStyles();
   const [user] = useUser(id);
-  const contact = useContact(user.addr);
+  const name = useAddrName(user.addr);
 
   return (
     <TouchableRipple onPress={onPress} style={styles.root}>
@@ -28,7 +28,7 @@ export const UserItem = memo(({ user: id, onPress }: UserItemProps) => {
         <Box flex={1} vertical justifyContent="center">
           <Text variant="titleMedium">{user.name}</Text>
 
-          {contact && <Text variant="bodyMedium">{contact.name}</Text>}
+          {name && name !== user.name && <Text variant="bodyMedium">{name}</Text>}
         </Box>
 
         <Text variant="bodyMedium">{truncateAddr(user.addr)}</Text>

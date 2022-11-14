@@ -1,8 +1,8 @@
-import { Args, Info, Mutation, Query, Resolver } from '@nestjs/graphql';
+import { Args, Info, Mutation, Parent, Query, ResolveField, Resolver } from '@nestjs/graphql';
 import { PrismaService } from 'nestjs-prisma';
 import { GraphQLResolveInfo } from 'graphql';
 import { getSelect } from '~/util/select';
-import { GetAddrNameArgs, RegisterPushTokenArgs, SetDeviceNameArgs } from './devices.args';
+import { DeviceArgs, RegisterPushTokenArgs, SetDeviceNameArgs } from './devices.args';
 import { DeviceAddr } from '~/decorators/device.decorator';
 import { Device } from '@gen/device/device.model';
 import { Address } from 'lib';
@@ -13,38 +13,41 @@ export class DevicesResolver {
 
   @Query(() => Device, { nullable: true })
   async device(
+    @Args() { addr }: DeviceArgs,
     @DeviceAddr() device: Address,
     @Info() info: GraphQLResolveInfo,
   ): Promise<Device | null> {
     return this.prisma.device.findUnique({
-      where: { id: device },
+      where: { id: addr || device },
       ...getSelect(info),
     });
   }
 
-  @Query(() => String, { nullable: true })
-  async addrName(
-    @Args() { addr }: GetAddrNameArgs,
-    @DeviceAddr() device: Address,
-  ): Promise<string | null> {
-    const contact = await this.prisma.contact.findUnique({
+  @ResolveField(() => String, { nullable: true })
+  async name(@Parent() device: Device, @DeviceAddr() userDevice: Address): Promise<string | null> {
+    const contact = this.prisma.contact.findUnique({
+      where: { deviceId_addr: { deviceId: userDevice, addr: device.id } },
+      select: { name: true },
+    });
+
+    const account = this.prisma.account.findUnique({
+      where: { id: device.id },
+      select: { name: true },
+    });
+
+    const user = this.prisma.user.findFirst({
       where: {
-        deviceId_addr: {
-          deviceId: device,
-          addr,
+        deviceId: device.id,
+        account: {
+          users: { some: { deviceId: userDevice } },
         },
       },
       select: { name: true },
     });
 
-    if (contact) return contact.name;
-
-    const account = await this.prisma.account.findUnique({
-      where: { id: addr },
-      select: { name: true },
-    });
-
-    return account?.name || null;
+    return (
+      (await contact)?.name || (await account)?.name || device.name || (await user)?.name || null
+    );
   }
 
   @Mutation(() => Device)
