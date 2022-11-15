@@ -82,7 +82,7 @@ export class ContactsResolver {
         addr: { set: newAddr },
         name: { set: name },
       } as Prisma.ContactUpdateInput,
-      ...getSelect(info),
+      // ...getSelect(info),  // Causes can't find 'id' field error; note. 'id' is a @ResolveField
     });
   }
 
