@@ -4,13 +4,11 @@ import { Address } from 'lib';
 import { useMemo } from 'react';
 import { DeviceMetaDocument, DeviceMetaQuery, DeviceMetaQueryVariables } from '~/gql/generated.api';
 import { useApiClient } from '~/gql/GqlProvider';
-import * as Device from 'expo-device';
-import { truncateAddr } from '~/util/format';
 import { useSuspenseQuery } from '~/gql/useSuspenseQuery';
 
 export interface DeviceMeta {
   address: Address;
-  name: string;
+  name?: string;
 }
 
 gql`
@@ -33,7 +31,7 @@ export const useDeviceMeta = (addr?: Address) => {
   return useMemo(
     (): DeviceMeta => ({
       address: device.address,
-      name: data.device?.name || Device.deviceName || truncateAddr(device.address),
+      name: data.device?.name || undefined,
     }),
     [data.device?.name, device.address],
   );

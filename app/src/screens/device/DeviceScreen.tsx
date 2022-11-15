@@ -24,7 +24,7 @@ export const DeviceScreen = (_props: DeviceScreenProps) => {
   const setDeviceName = useSetDeviceName();
 
   const [editingName, setEditingName] = useState(false);
-  const [nameValue, setNameValue] = useState(name);
+  const [nameValue, setNameValue] = useState(name || '');
 
   const save = () => {
     setEditingName(false);

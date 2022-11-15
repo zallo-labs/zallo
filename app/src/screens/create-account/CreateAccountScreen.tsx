@@ -35,7 +35,7 @@ export const CreateAccountScreen = ({ route }: CreateAccountScreenProps) => {
 
   const handleSubmit = useCallback(
     async ({ name }: Values) => {
-      const r = await createAccount(name, deviceMeta.name);
+      const r = await createAccount(name, deviceMeta.name || 'Admin');
       route.params.onCreate(r, navigation);
     },
     [createAccount, deviceMeta.name, navigation, route.params],

@@ -48,14 +48,7 @@ export class ContactsResolver {
     });
 
     return filterFirst(
-      [
-        ...contacts,
-        ...accounts.map((a) => ({ addr: a.id, name: a.name })),
-        {
-          addr: device,
-          name: 'This Device',
-        },
-      ],
+      [...contacts, ...accounts.map((a) => ({ addr: a.id, name: a.name }))],
       (contact) => contact.addr,
     );
   }
