@@ -42,6 +42,7 @@ const Snack = ({
       {...props}
       visible={isVisible}
       onDismiss={hide}
+      duration={Infinity} // Duration is handled by RnToast, mutating isVisible on hide
       theme={useTheme()}
       style={[styles.snackbar, style]}
       {...(action && {
@@ -83,7 +84,7 @@ export type ShowSnackOptions = Pick<
 
 export const showSnack = (
   message: string,
-  { autoHide, visibilityTime, position, onHide, ...props }: ShowSnackOptions = {},
+  { autoHide = true, visibilityTime = 7000, position, onHide, ...props }: ShowSnackOptions = {},
 ) =>
   RnToast.show({
     type: Snack.name,
@@ -104,6 +105,8 @@ export const showError = (message: string, options?: ShowSnackOptions) =>
   showSnack(message, { ...options, variant: 'error' });
 
 export const showWarning = showError;
+
+export const hideSnackbar = RnToast.hide;
 
 const CONFIGS: ToastConfig = { [Snack.name]: Snack };
 

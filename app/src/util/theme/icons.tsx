@@ -1,11 +1,10 @@
 import { ElementType } from 'react';
 import { Ionicons, MaterialCommunityIcons, MaterialIcons } from '@expo/vector-icons';
 import { ComponentPropsWithoutRef, FC } from 'react';
-import { IconProps as BaseIconProps } from 'react-native-paper/lib/typescript/components/MaterialCommunityIcon';
 import { SvgProps } from 'react-native-svg';
+import LogoSvg from '~/../assets/logo.svg';
 import MastercardSvg from '~/../assets/mastercard.svg';
 import WalletConnectSvg from '~/../assets/walletconnect.svg';
-import { MaterialCommunityIconsProps } from '~/components/Chevron';
 
 export type IconPropsWithoutName<IconType extends ElementType = typeof MaterialIcons> = Omit<
   ComponentPropsWithoutRef<IconType>,
@@ -95,5 +94,6 @@ export const svgIcon =
   ({ color, size }) =>
     <Svg color={color} width={size} height={size} />;
 
+export const LogoIcon = LogoSvg;
 export const MastercardIcon = svgIcon(MastercardSvg);
 export const WalletConnectIcon = svgIcon(WalletConnectSvg);

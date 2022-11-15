@@ -1,5 +1,7 @@
 # Zallo
 
+Self-custodial smart wallet
+
 ## Setup
 
 - See `.env.template` for required configuration

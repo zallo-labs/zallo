@@ -1,7 +1,7 @@
 import { EditIcon, ShareIcon } from '@theme/icons';
 import { makeStyles } from '@theme/makeStyles';
 import { useTheme } from '@theme/paper';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Share } from 'react-native';
 import { Appbar, Menu, Provider, Text } from 'react-native-paper';
 import { AppbarBack } from '~/components/Appbar/AppbarBack';
@@ -11,12 +11,13 @@ import { TextField } from '~/components/fields/TextField';
 import { Box } from '~/components/layout/Box';
 import { useSetDeviceName } from '~/mutations/useSetDeviceName.api';
 import { RootNavigatorScreenProps } from '~/navigation/RootNavigator';
+import { hideSnackbar, showInfo } from '~/provider/SnackbarProvider';
 import { useDeviceMeta } from '~/queries/useDeviceMeta.api';
 import { QrCode } from '../receive/QrCode';
 
 export type DeviceScreenProps = RootNavigatorScreenProps<'Device'>;
 
-export const DeviceScreen = (props: DeviceScreenProps) => {
+export const DeviceScreen = (_props: DeviceScreenProps) => {
   const styles = useStyles();
   const { address, name } = useDeviceMeta();
   const setDeviceName = useSetDeviceName();
@@ -28,6 +29,11 @@ export const DeviceScreen = (props: DeviceScreenProps) => {
     setEditingName(false);
     setDeviceName(nameValue);
   };
+
+  useEffect(() => {
+    showInfo('Scan from an authorized device to gain account access', { autoHide: false });
+    return () => hideSnackbar();
+  }, []);
 
   return (
     <Provider theme={useTheme()}>
@@ -50,7 +56,7 @@ export const DeviceScreen = (props: DeviceScreenProps) => {
             {({ close }) => (
               <Menu.Item
                 leadingIcon={EditIcon}
-                title="Edit name"
+                title="Rename device"
                 onPress={() => {
                   close();
                   setEditingName(true);
