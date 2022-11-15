@@ -45,8 +45,8 @@ export const NameDeviceScreen = ({ route }: NameDeviceScreenProps) => {
         primary={
           <Button
             mode="contained"
-            onPress={() => {
-              setName(value);
+            onPress={async () => {
+              await setName(value);
               onContinue();
             }}
           >
