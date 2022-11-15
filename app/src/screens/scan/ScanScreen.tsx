@@ -26,18 +26,17 @@ export const ScanScreen = ({ route, navigation }: ScanScreenProps) => {
   const [hasPermission, setHasPermission] = useState<boolean | null>(null);
   const [canAskAgain, setCanAskAgain] = useState(false);
   const requestPermissions = useCallback(async () => {
-    const { granted, canAskAgain } =
-      await Camera.requestCameraPermissionsAsync();
+    const { granted, canAskAgain } = await Camera.requestCameraPermissionsAsync();
 
     setHasPermission(granted);
     setCanAskAgain(canAskAgain);
   }, []);
 
-  const [ratio, setRatio] = useState<string | undefined>();
+  const [ratio, setRatio] = useState<string | undefined>('16:9');
   const detectRatio = useCallback(async () => {
     const ratios = await camera.current?.getSupportedRatiosAsync();
-    setRatio(ratios?.[0]);
-  }, []);
+    if (ratios?.length) setRatio(ratios[ratios.length - 1]);
+  }, [camera]);
 
   useEffect(() => {
     requestPermissions();
@@ -79,9 +78,7 @@ export const ScanScreen = ({ route, navigation }: ScanScreenProps) => {
   return (
     <Camera
       ref={camera}
-      onBarCodeScanned={
-        !scanning ? ({ data }) => handleScanned(data) : undefined
-      }
+      onBarCodeScanned={!scanning ? ({ data }) => handleScanned(data) : undefined}
       barCodeScannerSettings={{
         barCodeTypes: [BarCodeScanner.Constants.BarCodeType.qr],
       }}
