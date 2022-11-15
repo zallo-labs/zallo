@@ -11,6 +11,7 @@ import { CreateAccountResult, useCreateAccount } from '~/mutations/account/useCr
 import { AppbarBack } from '~/components/Appbar/AppbarBack';
 import { makeStyles } from '~/util/theme/makeStyles';
 import { RootNavigation, useRootNavigation } from '~/navigation/useRootNavigation';
+import { useDeviceMeta } from '~/queries/useDeviceMeta.api';
 
 interface Values {
   name: string;
@@ -30,13 +31,14 @@ export const CreateAccountScreen = ({ route }: CreateAccountScreenProps) => {
   const styles = useStyles();
   const createAccount = useCreateAccount();
   const navigation = useRootNavigation();
+  const deviceMeta = useDeviceMeta();
 
   const handleSubmit = useCallback(
     async ({ name }: Values) => {
-      const r = await createAccount(name, 'Spending');
+      const r = await createAccount(name, deviceMeta.name);
       route.params.onCreate(r, navigation);
     },
-    [createAccount, navigation, route.params],
+    [createAccount, deviceMeta.name, navigation, route.params],
   );
 
   return (
