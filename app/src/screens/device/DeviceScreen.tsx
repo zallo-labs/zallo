@@ -1,7 +1,7 @@
 import { EditIcon, ShareIcon } from '@theme/icons';
 import { makeStyles } from '@theme/makeStyles';
 import { useTheme } from '@theme/paper';
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { Share } from 'react-native';
 import { Appbar, Menu, Provider, Text } from 'react-native-paper';
 import { AppbarBack } from '~/components/Appbar/AppbarBack';
@@ -13,6 +13,7 @@ import { useSetDeviceName } from '~/mutations/useSetDeviceName.api';
 import { RootNavigatorScreenProps } from '~/navigation/RootNavigator';
 import { hideSnackbar, showInfo } from '~/provider/SnackbarProvider';
 import { useDeviceMeta } from '~/queries/useDeviceMeta.api';
+import { buildAddrLink } from '~/util/addrLink';
 import { QrCode } from '../receive/QrCode';
 
 export type DeviceScreenProps = RootNavigatorScreenProps<'Device'>;
@@ -35,6 +36,8 @@ export const DeviceScreen = (_props: DeviceScreenProps) => {
     return () => hideSnackbar();
   }, []);
 
+  const url = useMemo(() => buildAddrLink({ target_address: address }), [address]);
+
   return (
     <Provider theme={useTheme()}>
       <Box flex={1}>
@@ -47,7 +50,8 @@ export const DeviceScreen = (_props: DeviceScreenProps) => {
             onPress={() =>
               Share.share({
                 title: 'Device',
-                message: `${name}\n${address}`,
+                message: `${name}\n${url}`,
+                url,
               })
             }
           />
@@ -84,7 +88,7 @@ export const DeviceScreen = (_props: DeviceScreenProps) => {
             </Text>
           )}
 
-          <QrCode value={address} />
+          <QrCode value={url} />
 
           <ExpandableText beginLen={6} endLen={4} value={address}>
             {({ value }) => (
