@@ -1,11 +1,9 @@
 import { SubmissionResponse } from '@gen/submission-response/submission-response.model';
 import { Submission } from '@gen/submission/submission.model';
 import { Args, Info, Mutation, Parent, ResolveField, Resolver } from '@nestjs/graphql';
-import { UserInputError } from 'apollo-server-core';
 import { GraphQLResolveInfo } from 'graphql';
 import { Id, toId } from 'lib';
 import { PrismaService } from 'nestjs-prisma';
-import { ProviderService } from '~/provider/provider.service';
 import { getSelect } from '~/util/select';
 import { SubgraphService } from '../subgraph/subgraph.service';
 import { SubmitExecutionArgs } from './submissions.args';
@@ -16,7 +14,6 @@ export class SubmissionsResolver {
   constructor(
     private service: SubmissionsService,
     private prisma: PrismaService,
-    private provider: ProviderService,
     private subgraph: SubgraphService,
   ) {}
 
