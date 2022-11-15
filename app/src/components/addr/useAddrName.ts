@@ -20,18 +20,6 @@ export const useAddrName = (addr: Address, { mode, account }: UseAddrNameOptions
 
   const user = useMemo(() => account?.users.find((u) => u.addr === addr), [account?.users, addr]);
 
-  console.log(
-    JSON.stringify(
-      {
-        addr,
-        device,
-        user,
-      },
-      null,
-      2,
-    ),
-  );
-
   return useMemo(() => {
     switch (mode) {
       case 'full-addr':

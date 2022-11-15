@@ -22,8 +22,6 @@ export const TypedDataValue = ({ name, value }: TypedValue) => {
 
   const [isExpanded, toggleExpanded] = useToggle(false);
 
-  console.log(JSON.stringify({name, value}, null, 2));
-
   const formatted = useMemo(() => {
     if (typeof value === 'string') {
       const contact = isAddress(value) && contacts.find((c) => c.addr === value);
