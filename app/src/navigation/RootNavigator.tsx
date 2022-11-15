@@ -6,7 +6,7 @@ import { ScanScreen, ScanScreenParams } from '~/screens/scan/ScanScreen';
 import {
   CreateAccountScreen,
   CreateAccountScreenParams,
-} from '~/screens/onboard/CreateAccountScreen';
+} from '~/screens/create-account/CreateAccountScreen';
 import { useShowOnboarding } from '~/screens/onboard/useShowOnboarding';
 import { DrawerNavigator } from './Drawer/DrawerNavigator';
 import { ContactScreen, ContactScreenParams } from '~/screens/contacts/ContactScreen';
@@ -29,6 +29,11 @@ import { SignScreen, SignScreenParams } from '~/screens/sign/SignScreen';
 import { SessionsScreen } from '~/screens/sessions/SessionsScreen';
 import ProposalScreen, { ProposalScreenParams } from '~/screens/proposal/ProposalScreen';
 import { DeviceScreen } from '~/screens/device/DeviceScreen';
+import { OnboardScreen } from '~/screens/onboard/OnboardScreen';
+import {
+  NameDeviceScreen,
+  NameDeviceScreenParams,
+} from '~/screens/create-account/NameDeviceScreen';
 
 export type RootNavigatorParamList = {
   DrawerNavigator: undefined;
@@ -45,8 +50,9 @@ export type RootNavigatorParamList = {
   Amount: AmountScreenParams;
   Send: SendScreenParams;
   Device: undefined;
-  // Onboarding
+  Onboard: undefined;
   CreateAccount: CreateAccountScreenParams;
+  NameDevice: NameDeviceScreenParams;
   // Modal
   Alert: AlertModalScreenParams;
   Delete: DeleteModalScreenParams;
@@ -65,26 +71,13 @@ export const RootNavigator = () => {
   const showOnboarding = useShowOnboarding();
   return (
     <Navigation.Navigator screenOptions={{ headerShown: false }}>
-      {showOnboarding && (
-        <Navigation.Group key="Onboarding">
-          <Navigation.Screen
-            name="CreateAccount"
-            component={CreateAccountScreen}
-            initialParams={{
-              onCreate: (_, { navigate }) => navigate('DrawerNavigator'),
-            }}
-          />
-        </Navigation.Group>
-      )}
+      {showOnboarding && <Navigation.Screen name="Onboard" component={OnboardScreen} />}
 
       <Navigation.Screen name="DrawerNavigator" component={DrawerNavigator} />
       <Navigation.Screen name="Proposal" component={ProposalScreen} />
       <Navigation.Screen name="Accounts" component={AccountsScreen} />
       <Navigation.Screen name="Account" component={AccountScreen} />
       <Navigation.Screen name="AccountSettings" component={AccountSettingsScreen} />
-      {!showOnboarding && (
-        <Navigation.Screen name="CreateAccount" component={CreateAccountScreen} />
-      )}
       <Navigation.Screen name="User" component={UserScreen} />
       <Navigation.Screen name="Limit" component={LimitScreen} />
       <Navigation.Screen name="Contacts" component={ContactsScreen} />
@@ -94,6 +87,8 @@ export const RootNavigator = () => {
       <Navigation.Screen name="Amount" component={AmountScreen} />
       <Navigation.Screen name="Send" component={SendScreen} />
       <Navigation.Screen name="Device" component={DeviceScreen} />
+      <Navigation.Screen name="CreateAccount" component={CreateAccountScreen} />
+      <Navigation.Screen name="NameDevice" component={NameDeviceScreen} />
 
       <Navigation.Group screenOptions={{ presentation: 'transparentModal' }}>
         <Navigation.Screen name="Alert" component={AlertModalScreen} />

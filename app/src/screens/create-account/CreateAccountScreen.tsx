@@ -50,7 +50,7 @@ export const CreateAccountScreen = ({ route }: CreateAccountScreenProps) => {
           <Box mx={4}>
             <Text style={styles.input}>What should we call your account?</Text>
 
-            <FormikTextField name="name" label="Name" />
+            <FormikTextField name="name" label="Account name" />
           </Box>
 
           <FormikSubmitFab icon={CheckIcon} label="Create" />
@@ -64,7 +64,6 @@ const useStyles = makeStyles(({ space, fonts }) => ({
   input: {
     ...fonts.headlineLarge,
     textAlign: 'center',
-    marginTop: space(6),
-    marginBottom: space(3),
+    marginVertical: space(4),
   },
 }));
