@@ -57,7 +57,7 @@ const config = {
         title: 'Zallo',
         logo: {
           alt: 'Zallo Logo',
-          src: 'img/logo.svg',
+          src: 'img/icon-rounded.svg',
         },
         items: [
           {
