@@ -8,6 +8,7 @@ import { AppbarBack } from '~/components/Appbar/AppbarBack';
 import { TextField } from '~/components/fields/TextField';
 import { Actions } from '~/components/layout/Actions';
 import { useDeviceMeta } from '~/queries/useDeviceMeta.api';
+import * as Device from 'expo-device';
 
 export interface NameDeviceScreenParams {
   onContinue: () => void;
@@ -20,7 +21,7 @@ export const NameDeviceScreen = ({ route }: NameDeviceScreenProps) => {
   const styles = useStyles();
   const setName = useSetDeviceName();
 
-  const [value, setValue] = useState(useDeviceMeta().name);
+  const [value, setValue] = useState(useDeviceMeta().name || Device.deviceName || '');
 
   return (
     <View style={styles.root}>
@@ -45,8 +46,8 @@ export const NameDeviceScreen = ({ route }: NameDeviceScreenProps) => {
         primary={
           <Button
             mode="contained"
-            onPress={() => {
-              setName(value);
+            onPress={async () => {
+              await setName(value);
               onContinue();
             }}
           >

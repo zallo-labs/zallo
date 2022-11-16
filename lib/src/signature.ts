@@ -39,15 +39,10 @@ export const createUserSignature = (user: User, signers: Signer[]): BytesLike =>
   const { approvers, signatures } = toUserConfigAndSignatures(user.addr, signers);
 
   const sortedApprovers = approvers.sort(compareAddress);
-  const config = user.configs.find((c) => _.isEqual(c.approvers.sort(compareAddress), sortedApprovers));
+  const config = user.configs.find((c) =>
+    _.isEqual(c.approvers.sort(compareAddress), sortedApprovers),
+  );
   assert(config);
-
-  // console.log(JSON.stringify(user, null, 2));
-  // console.log({
-  //   signers,
-  //   config,
-  //   approvers,
-  // });
 
   const proof = getUserConfigProof(user, config);
 

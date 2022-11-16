@@ -4,7 +4,7 @@
 // @ts-ignore
 import { parse, build } from 'eth-url-parser';
 import { BigNumberish } from 'ethers';
-import { Address } from 'lib';
+import { Address, isAddress } from 'lib';
 import { CHAIN_ID } from '~/util/network/provider';
 import { Token } from '@token/token';
 import { ETH } from '@token/tokens';
@@ -29,8 +29,7 @@ const getDefaults = () => ({
   parameters: {},
 });
 
-export type BuildAddrLinkOptions = Pick<AddrLink, 'target_address'> &
-  Partial<AddrLink>;
+export type BuildAddrLinkOptions = Pick<AddrLink, 'target_address'> & Partial<AddrLink>;
 
 export const buildAddrLink = (options: BuildAddrLinkOptions): string =>
   build({
@@ -42,7 +41,7 @@ export const parseAddrLink = (link: string): AddrLink | undefined => {
   try {
     return {
       ...getDefaults(),
-      ...parse(link),
+      ...(isAddress(link) ? { target_address: link } : parse(link)),
     };
   } catch {
     return undefined;

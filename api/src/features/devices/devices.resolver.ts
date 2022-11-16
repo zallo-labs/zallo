@@ -17,25 +17,28 @@ export class DevicesResolver {
     @DeviceAddr() device: Address,
     @Info() info: GraphQLResolveInfo,
   ): Promise<Device | null> {
-    return this.prisma.device.findUnique({
-      where: { id: addr || device },
-      ...getSelect(info),
-    });
+    const id = addr || device;
+    return (
+      (await this.prisma.device.findUnique({
+        where: { id },
+        ...getSelect(info),
+      })) ?? { id, name: null, pushToken: null }
+    );
   }
 
   @ResolveField(() => String, { nullable: true })
   async name(@Parent() device: Device, @DeviceAddr() userDevice: Address): Promise<string | null> {
-    const contact = this.prisma.contact.findUnique({
+    const contact = await this.prisma.contact.findUnique({
       where: { deviceId_addr: { deviceId: userDevice, addr: device.id } },
       select: { name: true },
     });
 
-    const account = this.prisma.account.findUnique({
+    const account = await this.prisma.account.findUnique({
       where: { id: device.id },
       select: { name: true },
     });
 
-    const user = this.prisma.user.findFirst({
+    const user = await this.prisma.user.findFirst({
       where: {
         deviceId: device.id,
         account: {

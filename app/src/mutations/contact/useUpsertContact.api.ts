@@ -13,11 +13,7 @@ import { toId } from 'lib';
 import { updateQuery } from '~/gql/update';
 
 gql`
-  mutation UpsertContact(
-    $name: String!
-    $newAddr: Address!
-    $prevAddr: Address
-  ) {
+  mutation UpsertContact($name: String!, $newAddr: Address!, $prevAddr: Address) {
     upsertContact(name: $name, prevAddr: $prevAddr, newAddr: $newAddr) {
       id
     }
@@ -50,13 +46,12 @@ export const useUpsertContact = () => {
           updateQuery<ContactsQuery, ContactsQueryVariables>({
             cache,
             query: ContactsDocument,
+            variables: {},
             defaultData: { contacts: [] },
             updater: (data) => {
               // Remove previous contact if the address has changed
               if (prev && prev.addr !== cur.addr) {
-                data.contacts = data.contacts.filter(
-                  (c) => c.addr !== prev.addr,
-                );
+                data.contacts = data.contacts.filter((c) => c.addr !== prev.addr);
               }
 
               // Upsert current contact

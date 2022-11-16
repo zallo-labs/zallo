@@ -13,9 +13,9 @@ import { Appbar, TextInput } from 'react-native-paper';
 import produce from 'immer';
 import { useGoBack } from '~/components/Appbar/useGoBack';
 import { TextField } from '~/components/fields/TextField';
-import { AddrItem } from '~/components/addr/AddrItem';
 import { withSkeleton } from '~/components/skeleton/withSkeleton';
 import { ScreenSkeleton } from '~/components/skeleton/ScreenSkeleton';
+import { ContactItem } from './ContactItem';
 
 export interface ContactsScreenParams {
   title?: string;
@@ -51,23 +51,18 @@ const ContactsScreen = ({ route, navigation }: ContactsScreenProps) => {
 
       <FlatList
         ListHeaderComponent={
-          <TextField
-            left={<TextInput.Icon icon={SearchIcon} />}
-            label="Search"
-            {...searchProps}
-          />
+          <TextField left={<TextInput.Icon icon={SearchIcon} />} label="Search" {...searchProps} />
         }
         renderItem={({ item }) => (
-          <AddrItem
-            addr={item.addr}
+          <ContactItem
+            contact={item}
             onPress={() => {
               if (onSelect) {
                 onSelect(item);
               } else if (onMultiSelect) {
                 setSelections(
                   produce((selections) => {
-                    if (!selections.delete(item.addr))
-                      selections.add(item.addr);
+                    if (!selections.delete(item.addr)) selections.add(item.addr);
                   }),
                 );
               } else {
@@ -87,11 +82,7 @@ const ContactsScreen = ({ route, navigation }: ContactsScreenProps) => {
       />
 
       {onMultiSelect && selections.size > 0 && (
-        <FAB
-          icon={CheckIcon}
-          label="Select"
-          onPress={() => onMultiSelect(selections)}
-        />
+        <FAB icon={CheckIcon} label="Select" onPress={() => onMultiSelect(selections)} />
       )}
     </Box>
   );

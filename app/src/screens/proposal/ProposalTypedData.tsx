@@ -36,17 +36,6 @@ export const ProposalTypedData = ({ proposal }: ProposalTypedDataProps) => {
     const decoded = method?.contract.decodeFunctionData(method.fragment, proposal.data);
     if (!method || !decoded) return { value: proposal.data };
 
-    console.log(
-      JSON.stringify(
-        {
-          json: JSON.parse(method.fragment.format('json')),
-          decoded,
-        },
-        null,
-        2,
-      ),
-    );
-
     return {
       name: method.fragment.name,
       type: method.fragment.type,

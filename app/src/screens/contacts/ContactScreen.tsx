@@ -55,7 +55,7 @@ export const ContactScreen = ({ route, navigation }: ContactScreenProps) => {
   const handleSubmit = useCallback(
     async (values: Values) => {
       assert(isAddress(values.addr)); // Enforced by schema
-      upsert(
+      await upsert(
         {
           name: values.name,
           addr: values.addr,

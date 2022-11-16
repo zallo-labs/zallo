@@ -48,14 +48,7 @@ export class ContactsResolver {
     });
 
     return filterFirst(
-      [
-        ...contacts,
-        ...accounts.map((a) => ({ addr: a.id, name: a.name })),
-        {
-          addr: device,
-          name: 'This Device',
-        },
-      ],
+      [...contacts, ...accounts.map((a) => ({ addr: a.id, name: a.name }))],
       (contact) => contact.addr,
     );
   }
@@ -82,7 +75,7 @@ export class ContactsResolver {
         addr: { set: newAddr },
         name: { set: name },
       } as Prisma.ContactUpdateInput,
-      ...getSelect(info),
+      // ...getSelect(info),  // Causes can't find 'id' field error; note. 'id' is a @ResolveField
     });
   }
 
