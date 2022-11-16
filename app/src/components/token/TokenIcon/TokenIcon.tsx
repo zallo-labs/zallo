@@ -6,10 +6,7 @@ export interface TokenIconProps extends Omit<UriImageProps, 'uri'> {
   token: Token;
 }
 
-const TokenIcon = ({
-  token: { iconUri, symbol },
-  ...imageProps
-}: TokenIconProps) => (
+const TokenIcon = ({ token: { iconUri, symbol }, ...imageProps }: TokenIconProps) => (
   <UriImage
     uri={iconUri}
     Fallback={(props) => <LabelIcon {...props} label={symbol} />}

@@ -9,17 +9,13 @@ type ValidRecipeReturnType<State> =
   | void
   | undefined
   | (State extends undefined ? Nothing : never);
-type UpdaterReturn<State> =
-  | ValidRecipeReturnType<State>
-  | Promise<ValidRecipeReturnType<State>>;
+type UpdaterReturn<State> = ValidRecipeReturnType<State> | Promise<ValidRecipeReturnType<State>>;
 
 type Query<Data, Variables> = Omit<DataProxy.Query<Variables, Data>, 'id'>;
 
 interface UpdateQueryOptions<Data, Variables> extends Query<Data, Variables> {
   cache: ApolloCache<unknown>;
-  updater: (
-    draft: Draft<NonNullable<Data>>,
-  ) => UpdaterReturn<Draft<NonNullable<Data>>>;
+  updater: (draft: Draft<NonNullable<Data>>) => UpdaterReturn<Draft<NonNullable<Data>>>;
   defaultData?: Data;
 }
 

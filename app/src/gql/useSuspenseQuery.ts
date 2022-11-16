@@ -20,10 +20,7 @@ export const useSuspenseQuery = <TData, TVariables extends OperationVariables>(
 ): Omit<QueryResult<TData, TVariables>, 'data'> & {
   data: NonNullable<QueryResult<TData, TVariables>['data']>;
 } => {
-  const { data, loading, error, observable, ...rest } = useQuery(
-    query,
-    options,
-  );
+  const { data, loading, error, observable, ...rest } = useQuery(query, options);
 
   const errorPolicy = options.errorPolicy || 'none';
 

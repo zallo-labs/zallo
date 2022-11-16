@@ -8,9 +8,7 @@ export const getNodeKey = (node: ReactNode, index: number): string =>
 export const withKeys = (children: Parameters<typeof React.Children.toArray>[0]) =>
   React.Children.toArray(children)
     .filter(Boolean)
-    .map((child, i) => (
-      <React.Fragment key={getNodeKey(child, i)}>{child}</React.Fragment>
-    ));
+    .map((child, i) => <React.Fragment key={getNodeKey(child, i)}>{child}</React.Fragment>);
 
 export const useWithKeys = (params: Parameters<typeof withKeys>) =>
   useMemo(() => withKeys(...params), [params]);

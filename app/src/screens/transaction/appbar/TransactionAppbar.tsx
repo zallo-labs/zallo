@@ -22,10 +22,7 @@ export const TransactionAppbar = ({ scrolled }: TransactionAppbarProps) => {
 
       <Collapsible collapsed={!!scrolled}>
         <Box mt={-2} mb={1}>
-          <TransactionProposer
-            textStyle={styles.text}
-            iconColor={styles.text.color}
-          />
+          <TransactionProposer textStyle={styles.text} iconColor={styles.text.color} />
         </Box>
       </Collapsible>
     </Box>

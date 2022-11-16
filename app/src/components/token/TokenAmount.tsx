@@ -9,11 +9,7 @@ export interface TokenAmountProps {
   symbol?: boolean;
 }
 
-export const TokenAmount = ({
-  token,
-  amount = ZERO,
-  symbol = true,
-}: TokenAmountProps) => (
+export const TokenAmount = ({ token, amount = ZERO, symbol = true }: TokenAmountProps) => (
   <FormattedNumber
     value={amount}
     unitDecimals={token.decimals}

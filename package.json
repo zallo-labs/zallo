@@ -21,6 +21,7 @@
     "subgraph": "yarn workspace subgraph",
     "lint": "eslint \"**/*.{j,t}s\"",
     "lint:fix": "yarn lint --fix",
+    "prettier": "npx prettier -w --ignore .gitignore --ignore .prettierignore .",
     "clean": "yarn workspaces foreach run clean"
   },
   "engines": {

@@ -25,18 +25,15 @@ gql`
   }
 `;
 
-export const useCreateComment = (
-  commentable: Commentable,
-  account: Address,
-) => {
+export const useCreateComment = (commentable: Commentable, account: Address) => {
   const device = useDevice();
 
-  const [mutate] = useMutation<
-    CreateCommentMutation,
-    CreateCommentMutationVariables
-  >(CreateCommentDocument, {
-    client: useApiClient(),
-  });
+  const [mutate] = useMutation<CreateCommentMutation, CreateCommentMutationVariables>(
+    CreateCommentDocument,
+    {
+      client: useApiClient(),
+    },
+  );
 
   return useCallback(
     (content: string) => {
@@ -63,9 +60,9 @@ export const useCreateComment = (
             query: CommentsDocument,
             variables: { account, key },
           };
-          const data = cache.readQuery<CommentsQuery, CommentsQueryVariables>(
-            opts,
-          ) ?? { comments: [] };
+          const data = cache.readQuery<CommentsQuery, CommentsQueryVariables>(opts) ?? {
+            comments: [],
+          };
 
           cache.writeQuery<CommentsQuery>({
             ...opts,

@@ -11,12 +11,7 @@ export interface AppbarSearchProps extends FuzzySearchProps {
   actions?: ReactNode;
 }
 
-export const AppbarSearch = ({
-  title,
-  actions,
-  value,
-  onChangeText,
-}: AppbarSearchProps) => {
+export const AppbarSearch = ({ title, actions, value, onChangeText }: AppbarSearchProps) => {
   const { fonts } = useTheme();
 
   if (value === undefined)
@@ -39,10 +34,7 @@ export const AppbarSearch = ({
         />
       </Box>
 
-      <Appbar.Action
-        icon={CancelIcon}
-        onPress={() => onChangeText(undefined)}
-      />
+      <Appbar.Action icon={CancelIcon} onPress={() => onChangeText(undefined)} />
     </>
   );
 };

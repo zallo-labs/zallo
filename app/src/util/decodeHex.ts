@@ -14,8 +14,7 @@ export const tryDecodeHexString = (hex: string): string | undefined => {
 
   const matches = chardet.analyse(bytes);
   const guess = matches.find(
-    (guess) =>
-      guess.confidence >= MIN_CONFIDENCE && Buffer.isEncoding(guess.name),
+    (guess) => guess.confidence >= MIN_CONFIDENCE && Buffer.isEncoding(guess.name),
   );
   if (guess) return Buffer.from(bytes).toString(guess.name as BufferEncoding);
 };

@@ -1,12 +1,7 @@
 import { BigNumber } from 'ethers';
 import { Token } from './token';
 import { PROVIDER } from '~/util/network/provider';
-import {
-  atomFamily,
-  selectorFamily,
-  useRecoilValue,
-  useSetRecoilState,
-} from 'recoil';
+import { atomFamily, selectorFamily, useRecoilValue, useSetRecoilState } from 'recoil';
 import { Address, UserId, ZERO } from 'lib';
 import { captureException } from '~/util/sentry/sentry';
 import { refreshAtom } from '~/util/effect/refreshAtom';
@@ -54,13 +49,8 @@ const targetAddress = (target?: Target): BalanceKey[0] =>
 export const useTokenBalance = (token: Token, account?: Address | UserId) =>
   useRecoilValue(TOKEN_BALANCE([targetAddress(account), token.addr]));
 
-export const useUpdateTokenBalance = (
-  token: Token,
-  account?: Address | UserId,
-) => {
-  const update = useSetRecoilState(
-    TOKEN_BALANCE([targetAddress(account), token.addr]),
-  );
+export const useUpdateTokenBalance = (token: Token, account?: Address | UserId) => {
+  const update = useSetRecoilState(TOKEN_BALANCE([targetAddress(account), token.addr]));
 
   return useCallback(
     async () => update(await fetch([targetAddress(account), token.addr])),
@@ -73,10 +63,7 @@ export interface TokenWithBalance {
   balance: BigNumber;
 }
 
-export const TOKEN_BALANCES = selectorFamily<
-  TokenWithBalance[],
-  Address | null
->({
+export const TOKEN_BALANCES = selectorFamily<TokenWithBalance[], Address | null>({
   key: 'tokenBalances',
   get:
     (addr) =>
@@ -88,8 +75,4 @@ export const TOKEN_BALANCES = selectorFamily<
 });
 
 export const useTokenBalances = (account: Address | UserId | undefined) =>
-  useRecoilValue(
-    TOKEN_BALANCES(
-      typeof account === 'object' ? account.account : account ?? null,
-    ),
-  );
+  useRecoilValue(TOKEN_BALANCES(typeof account === 'object' ? account.account : account ?? null));

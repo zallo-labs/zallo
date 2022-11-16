@@ -17,12 +17,7 @@ export interface UserAppbarProps {
   undo?: () => void;
 }
 
-export const UserAppbar = ({
-  user,
-  AppbarHeader,
-  editName,
-  undo,
-}: UserAppbarProps) => {
+export const UserAppbar = ({ user, AppbarHeader, editName, undo }: UserAppbarProps) => {
   const { navigate } = useRootNavigation();
   const [account] = useAccount(user);
   const [remove] = useRemoveUser(user);

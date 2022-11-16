@@ -7,11 +7,7 @@ export interface ContainerProps extends BoxProps {
   separator?: ReactNode;
 }
 
-export const Container = ({
-  children: childrenNode,
-  separator,
-  ...boxProps
-}: ContainerProps) => {
+export const Container = ({ children: childrenNode, separator, ...boxProps }: ContainerProps) => {
   const children = useMemo(
     () => React.Children.toArray(childrenNode).filter(Boolean),
     [childrenNode],

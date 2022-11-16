@@ -18,9 +18,7 @@ interface Wrapped {
   version: number;
 }
 
-export const getSecureStore = (
-  options?: SecureStore.SecureStoreOptions,
-): Storage => ({
+export const getSecureStore = (options?: SecureStore.SecureStoreOptions): Storage => ({
   getItem: (key) => SecureStore.getItemAsync(key, options),
   setItem: (key, value) => SecureStore.setItemAsync(key, value, options),
   removeItem: (key) => SecureStore.deleteItemAsync(key, options),
@@ -52,9 +50,7 @@ export const persistAtom =
 
         const { data, version: dataVersion }: Wrapped = JSON.parse(wrapped);
         if (dataVersion !== version)
-          return migrate
-            ? migrate(load(data), dataVersion)
-            : new DefaultValue();
+          return migrate ? migrate(load(data), dataVersion) : new DefaultValue();
 
         return load(data ?? null);
       }),

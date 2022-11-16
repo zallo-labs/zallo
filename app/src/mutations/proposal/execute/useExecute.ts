@@ -16,12 +16,7 @@ export const useExecute = (proposerId: UserId, proposal: Proposal) => {
       signature: approval.signature,
     }));
 
-    const resp = await executeTx(
-      account.contract,
-      proposal,
-      toActiveUser(proposer),
-      signers,
-    );
+    const resp = await executeTx(account.contract, proposal, toActiveUser(proposer), signers);
 
     await submitExecution(proposal, resp);
 

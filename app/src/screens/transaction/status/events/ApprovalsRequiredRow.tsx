@@ -12,10 +12,7 @@ export interface ApprovalsRequiredRowProps {
   proposer: CombinedUser;
 }
 
-export const ApprovalsRequiredRow = ({
-  proposal,
-  proposer,
-}: ApprovalsRequiredRowProps) => {
+export const ApprovalsRequiredRow = ({ proposal, proposer }: ApprovalsRequiredRowProps) => {
   const styles = useStyles();
   const config = (proposer.configs.active ?? proposer.configs.proposed)!.sort(
     (a, b) => a.approvers.length - b.approvers.length,

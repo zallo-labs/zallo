@@ -67,9 +67,7 @@ export const useApiRemoveUser = () => {
               ...opts,
               overwrite: true,
               data: produce(data, (data) => {
-                data.account.users = data.account.users?.filter(
-                  (u) => u.deviceId !== user.addr,
-                );
+                data.account.users = data.account.users?.filter((u) => u.deviceId !== user.addr);
               }),
             });
           }
@@ -90,9 +88,7 @@ export const useApiRemoveUser = () => {
               ...opts,
               overwrite: true,
               data: produce(data, (data) => {
-                data.users = data.users?.filter(
-                  (u) => u.accountId !== user.account,
-                );
+                data.users = data.users?.filter((u) => u.accountId !== user.account);
               }),
             });
           }

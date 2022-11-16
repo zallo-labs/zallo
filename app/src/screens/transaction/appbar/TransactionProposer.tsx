@@ -14,10 +14,7 @@ export interface TransactionProposerProps {
   iconColor?: string;
 }
 
-export const TransactionProposer = ({
-  textStyle,
-  iconColor,
-}: TransactionProposerProps) => {
+export const TransactionProposer = ({ textStyle, iconColor }: TransactionProposerProps) => {
   const navigation = useRootNavigation();
   const { proposal, proposer } = useTxContext();
 
@@ -68,11 +65,7 @@ export const TransactionProposer = ({
 
       <Box>
         {canSelect && (
-          <IconButton
-            icon={ChevronRight}
-            iconColor={iconColor}
-            onPress={selectNewProposer}
-          />
+          <IconButton icon={ChevronRight} iconColor={iconColor} onPress={selectNewProposer} />
         )}
       </Box>
     </Box>

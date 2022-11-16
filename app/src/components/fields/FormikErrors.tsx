@@ -19,9 +19,5 @@ export const FormikErrors = () => {
   const formatted = stringify(errors);
   if (!formatted) return null;
 
-  return (
-    <Title style={{ color: colors.error, textAlign: 'center' }}>
-      {formatted}
-    </Title>
-  );
+  return <Title style={{ color: colors.error, textAlign: 'center' }}>{formatted}</Title>;
 };

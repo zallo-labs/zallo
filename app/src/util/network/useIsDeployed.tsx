@@ -21,8 +21,6 @@ const isDeployedState = atomFamily<boolean, Address>({
   ],
 });
 
-export const useIsDeployed = (addr?: Address) =>
-  useRecoilValue(isDeployedState(addr ?? ZERO_ADDR));
+export const useIsDeployed = (addr?: Address) => useRecoilValue(isDeployedState(addr ?? ZERO_ADDR));
 
-export const useSetDeployed = (addr: Address) =>
-  useSetRecoilState(isDeployedState(addr));
+export const useSetDeployed = (addr: Address) => useSetRecoilState(isDeployedState(addr));

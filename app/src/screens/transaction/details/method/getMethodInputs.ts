@@ -12,10 +12,7 @@ export interface MethodInput {
   data: unknown;
 }
 
-export const getMethodInputs = (
-  method: ContractMethod,
-  data: BytesLike,
-): MethodInput[] => {
+export const getMethodInputs = (method: ContractMethod, data: BytesLike): MethodInput[] => {
   const decodedData = method.contract.decodeFunctionData(method.fragment, data);
 
   return method.fragment.inputs.map((param, i) => ({

@@ -9,11 +9,7 @@ library MerkleProof {
   error LeavesRequired();
   error InvalidMultiProof();
 
-  function merkleRoot(bytes32[] memory leaves)
-    internal
-    pure
-    returns (bytes32 root)
-  {
+  function merkleRoot(bytes32[] memory leaves) internal pure returns (bytes32 root) {
     // This function rebuild the root hash by traversing the tree up from the leaves. The root is rebuilt by
     // consuming and producing values on a queue. The queue starts with the `leaves` array, then goes onto the
     // `hashes` array. At the end of the process, the last hash in the `hashes` array should contain the root of
@@ -52,11 +48,7 @@ library MerkleProof {
     }
   }
 
-  function processProof(bytes32[] memory proof, bytes32 leaf)
-    internal
-    pure
-    returns (bytes32)
-  {
+  function processProof(bytes32[] memory proof, bytes32 leaf) internal pure returns (bytes32) {
     bytes32 computedHash = leaf;
     for (uint256 i = 0; i < proof.length; i++) {
       computedHash = _hashPair(computedHash, proof[i]);
@@ -117,11 +109,7 @@ library MerkleProof {
     return a < b ? _efficientHash(a, b) : _efficientHash(b, a);
   }
 
-  function _efficientHash(bytes32 a, bytes32 b)
-    private
-    pure
-    returns (bytes32 value)
-  {
+  function _efficientHash(bytes32 a, bytes32 b) private pure returns (bytes32 value) {
     /// @solidity memory-safe-assembly
     assembly {
       mstore(0x00, a)

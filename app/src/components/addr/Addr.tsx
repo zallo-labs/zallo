@@ -5,6 +5,4 @@ export interface AddrProps extends UseAddrNameOptions {
   addr: Address;
 }
 
-export const Addr = ({ addr, ...options }: AddrProps) => (
-  <>{useAddrName(addr, options)}</>
-);
+export const Addr = ({ addr, ...options }: AddrProps) => <>{useAddrName(addr, options)}</>;

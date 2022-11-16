@@ -46,10 +46,7 @@ export const TransactionEvents = () => {
         ...proposal.approvals.map(
           (item): Event => ({
             item,
-            _type:
-              item.addr === proposer.addr
-                ? EventType.Proposal
-                : EventType.Approval,
+            _type: item.addr === proposer.addr ? EventType.Proposal : EventType.Approval,
           }),
         ),
         ...proposal.submissions.map(
@@ -68,9 +65,7 @@ export const TransactionEvents = () => {
         <EventComponent key={i} event={event} />
       ))}
 
-      {!isApproved && (
-        <ApprovalsRequiredRow proposal={proposal} proposer={proposer} />
-      )}
+      {!isApproved && <ApprovalsRequiredRow proposal={proposal} proposer={proposer} />}
     </Container>
   );
 };

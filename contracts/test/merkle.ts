@@ -15,16 +15,12 @@ describe('Merkle proof', () => {
       addr: allSigners[0].address,
       configs: [
         {
-          approvers: sortAddresses(
-            allSigners.slice(1, 3).map((s) => s.address),
-          ),
+          approvers: sortAddresses(allSigners.slice(1, 3).map((s) => s.address)),
           spendingAllowlisted: false,
           limits: {},
         },
         {
-          approvers: sortAddresses(
-            allSigners.slice(4, 6).map((s) => s.address),
-          ),
+          approvers: sortAddresses(allSigners.slice(4, 6).map((s) => s.address)),
           spendingAllowlisted: false,
           limits: {},
         },
@@ -35,11 +31,7 @@ describe('Merkle proof', () => {
     const tree = getMerkleTree(user);
     const proof = getUserConfigProof(user, config);
 
-    const verified = tree.verify(
-      proof,
-      userConfigToLeaf(config),
-      tree.getRoot(),
-    );
+    const verified = tree.verify(proof, userConfigToLeaf(config), tree.getRoot());
 
     expect(verified).to.eq(true);
   });
@@ -53,12 +45,7 @@ describe('Merkle proof', () => {
   });
 
   it('should reject an invalid multi-proof', async () => {
-    const {
-      account,
-      user,
-      config: validConfig,
-      others,
-    } = await deployTestAccount();
+    const { account, user, config: validConfig, others } = await deployTestAccount();
 
     const tree = getMerkleTree(user);
     const proof = getUserConfigProof(user, validConfig);
@@ -69,11 +56,7 @@ describe('Merkle proof', () => {
       limits: {},
     };
 
-    const isValid = await account.isValidProof(
-      invalidConfig,
-      proof,
-      tree.getHexRoot(),
-    );
+    const isValid = await account.isValidProof(invalidConfig, proof, tree.getHexRoot());
     expect(isValid).to.be.false;
   });
 });

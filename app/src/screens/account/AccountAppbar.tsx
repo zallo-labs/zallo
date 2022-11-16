@@ -15,11 +15,7 @@ export interface AccountAppbarProps {
   account: CombinedAccount;
 }
 
-export const AccountAppbar = ({
-  AppbarHeader,
-  title,
-  account,
-}: AccountAppbarProps) => {
+export const AccountAppbar = ({ AppbarHeader, title, account }: AccountAppbarProps) => {
   const { navigate } = useRootNavigation();
   const createUser = useCreateUser(account.addr);
 

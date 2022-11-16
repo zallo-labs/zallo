@@ -9,8 +9,7 @@ import { makeStyles } from '@theme/makeStyles';
 export const CONTENT_HEIGHT_SNAP_POINT = 'CONTENT_HEIGHT';
 const DEFAULT_SNAP_POINTS = [CONTENT_HEIGHT_SNAP_POINT];
 
-export interface SheetProps
-  extends Omit<BottomSheetProps, 'ref' | 'snapPoints'> {
+export interface SheetProps extends Omit<BottomSheetProps, 'ref' | 'snapPoints'> {
   initialSnapPoints: (string | number)[];
 }
 
@@ -28,12 +27,8 @@ export const Sheet = forwardRef<BottomSheet, SheetProps>(
   ) => {
     const styles = useStyles();
 
-    const {
-      animatedHandleHeight,
-      animatedSnapPoints,
-      animatedContentHeight,
-      handleContentLayout,
-    } = useBottomSheetDynamicSnapPoints(initialSnapPoints);
+    const { animatedHandleHeight, animatedSnapPoints, animatedContentHeight, handleContentLayout } =
+      useBottomSheetDynamicSnapPoints(initialSnapPoints);
 
     return (
       <BottomSheet
@@ -46,9 +41,7 @@ export const Sheet = forwardRef<BottomSheet, SheetProps>(
         handleIndicatorStyle={[styles.handleIndicator, handleIndicatorStyle]}
         {...props}
       >
-        <BottomSheetView onLayout={handleContentLayout}>
-          {children}
-        </BottomSheetView>
+        <BottomSheetView onLayout={handleContentLayout}>{children}</BottomSheetView>
       </BottomSheet>
     );
   },

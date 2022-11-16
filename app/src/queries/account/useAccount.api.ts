@@ -1,10 +1,6 @@
 import { gql } from '@apollo/client';
 import { useDevice } from '@network/useDevice';
-import {
-  AccountDocument,
-  AccountQuery,
-  AccountQueryVariables,
-} from '~/gql/generated.api';
+import { AccountDocument, AccountQuery, AccountQueryVariables } from '~/gql/generated.api';
 import { useApiClient } from '~/gql/GqlProvider';
 import { Account, Address, address, connectAccount, UserId } from 'lib';
 import { useMemo } from 'react';
@@ -44,10 +40,7 @@ export const useAccount = (id: Address | UserId) => {
   const device = useDevice();
   const addr = typeof id === 'string' ? id : id.account;
 
-  const { data, ...rest } = useSuspenseQuery<
-    AccountQuery,
-    AccountQueryVariables
-  >(AccountDocument, {
+  const { data, ...rest } = useSuspenseQuery<AccountQuery, AccountQueryVariables>(AccountDocument, {
     client: useApiClient(),
     variables: { account: addr },
   });

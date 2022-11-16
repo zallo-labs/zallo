@@ -41,9 +41,7 @@ export const SessionCard = ({ sessionData }: SessionCardProps) => {
             // width: 72
           }}
           icon={CloseIcon}
-          onPress={() =>
-            tryOrIgnore(() => session.disconnect('USER_DISCONNECTED'))
-          }
+          onPress={() => tryOrIgnore(() => session.disconnect('USER_DISCONNECTED'))}
         >
           Disconnect
         </Button>

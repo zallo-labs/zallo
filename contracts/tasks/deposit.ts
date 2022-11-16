@@ -19,8 +19,8 @@ task('deposit', 'Deposit funds to an address')
     });
 
     console.log(
-      `${ethers.utils.formatEther(value)} deposited to ${
-        taskArgs.account
-      } in transaction ${tx.hash}`,
+      `${ethers.utils.formatEther(value)} deposited to ${taskArgs.account} in transaction ${
+        tx.hash
+      }`,
     );
   });

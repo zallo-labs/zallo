@@ -17,12 +17,7 @@ export interface EditableUserNameProps {
   style?: StyleProp<ViewStyle>;
 }
 
-export const EditableUserName = ({
-  user,
-  editing,
-  setEditing,
-  style,
-}: EditableUserNameProps) => {
+export const EditableUserName = ({ user, editing, setEditing, style }: EditableUserNameProps) => {
   const styles = useStyles();
   const setUserName = useSetUserName(user);
   const { sheetShown, setSheetShown } = useUserScreenContext();
@@ -32,12 +27,7 @@ export const EditableUserName = ({
   return (
     <EditableContent
       content={
-        <Box
-          flex={1}
-          horizontal
-          justifyContent="space-between"
-          alignItems="center"
-        >
+        <Box flex={1} horizontal justifyContent="space-between" alignItems="center">
           <Box style={styles.iconButtonPlaceholder} />
 
           <Text variant="headlineSmall" numberOfLines={1}>

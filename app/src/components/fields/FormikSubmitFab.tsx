@@ -12,28 +12,15 @@ export type FormikSubmitFabProps = FABProps & {
   hideWhenClean?: boolean;
 };
 
-export const FormikSubmitFab = ({
-  hideWhenClean,
-  ...props
-}: FormikSubmitFabProps) => {
-  const { submitForm, isSubmitting, dirty, errors, touched, initialValues } =
-    useFormikContext();
+export const FormikSubmitFab = ({ hideWhenClean, ...props }: FormikSubmitFabProps) => {
+  const { submitForm, isSubmitting, dirty, errors, touched, initialValues } = useFormikContext();
 
   const disabled = useMemo(
-    () =>
-      isSubmitting ||
-      (allTouched(initialValues, touched) && containsErrors(errors)),
+    () => isSubmitting || (allTouched(initialValues, touched) && containsErrors(errors)),
     [isSubmitting, initialValues, touched, errors],
   );
 
   if (hideWhenClean && !dirty) return null;
 
-  return (
-    <FAB
-      onPress={submitForm}
-      disabled={disabled}
-      loading={isSubmitting}
-      {...props}
-    />
-  );
+  return <FAB onPress={submitForm} disabled={disabled} loading={isSubmitting} {...props} />;
 };

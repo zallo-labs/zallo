@@ -23,10 +23,7 @@ export class ContractMethodsService {
   constructor(private prisma: PrismaService) {}
 
   async tryFetchAbi(addr: Address): Promise<Interface | undefined> {
-    return (
-      (await this.tryFetchEtherscanAbi(addr)) ??
-      (await this.tryFetchDecompiledAbi(addr))
-    );
+    return (await this.tryFetchEtherscanAbi(addr)) ?? (await this.tryFetchDecompiledAbi(addr));
   }
 
   async populateDbWithAbi(contract: Address, contractInterface: Interface) {
@@ -46,18 +43,14 @@ export class ContractMethodsService {
       getEtherscanUrl(`module=contract&action=getabi&address=${addr}`),
     );
 
-    return resp?.message === 'OK'
-      ? Contract.getInterface(JSON.parse(resp.result))
-      : undefined;
+    return resp?.message === 'OK' ? Contract.getInterface(JSON.parse(resp.result)) : undefined;
   }
 
   private async tryFetchDecompiledAbi(addr: Address) {
     const resp = await fetchJson(`https://eveem.org/code/${addr}.json`);
 
     return resp?.functions?.length
-      ? Contract.getInterface(
-          resp.functions.map((frag) => FunctionFragment.from(frag.name)),
-        )
+      ? Contract.getInterface(resp.functions.map((frag) => FunctionFragment.from(frag.name)))
       : undefined;
   }
 }

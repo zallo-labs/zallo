@@ -11,11 +11,7 @@ export const fiatToBigNumber = (value: string | number): BigNumber => {
   return BigNumber.from((value * multiplier).toFixed(0));
 };
 
-export const bigNumberToFiat = (value: BigNumber) =>
-  value.toNumber() / FIAT_DECIMALS;
+export const bigNumberToFiat = (value: BigNumber) => value.toNumber() / FIAT_DECIMALS;
 
-export const fiatToToken = (
-  fiat: BigNumber,
-  fiatPrice: BigNumber,
-  token: Token,
-): BigNumber => fiat.mul(TEN.pow(token.decimals)).div(fiatPrice);
+export const fiatToToken = (fiat: BigNumber, fiatPrice: BigNumber, token: Token): BigNumber =>
+  fiat.mul(TEN.pow(token.decimals)).div(fiatPrice);

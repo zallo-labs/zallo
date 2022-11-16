@@ -4,16 +4,9 @@ import { GraphQLResolveInfo } from 'graphql';
 import { Address } from 'lib';
 import { PrismaService } from 'nestjs-prisma';
 import { DeviceAddr } from '~/decorators/device.decorator';
-import {
-  connectAccount,
-  connectOrCreateDevice,
-} from '~/util/connect-or-create';
+import { connectAccount, connectOrCreateDevice } from '~/util/connect-or-create';
 import { getSelect } from '~/util/select';
-import {
-  CreateCommentArgs,
-  UniqueCommentArgs,
-  FindCommentsArgs,
-} from './comments.args';
+import { CreateCommentArgs, UniqueCommentArgs, FindCommentsArgs } from './comments.args';
 
 @Resolver(() => Comment)
 export class CommentsResolver {

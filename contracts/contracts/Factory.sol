@@ -13,10 +13,10 @@ contract Factory {
     _BYTECODE_HASH = bytecodeHash;
   }
 
-  function deploy(bytes calldata constructorArgsData, bytes32 salt)
-    external
-    returns (address account, bytes memory constructorRevertData)
-  {
+  function deploy(
+    bytes calldata constructorArgsData,
+    bytes32 salt
+  ) external returns (address account, bytes memory constructorRevertData) {
     bytes memory data = SystemContractsCaller.systemCall(
       uint32(gasleft()),
       address(DEPLOYER_SYSTEM_CONTRACT),

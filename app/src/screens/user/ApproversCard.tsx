@@ -20,12 +20,7 @@ export interface ApproversCardProps {
   style?: StyleProp<ViewStyle>;
 }
 
-export const ApproversCard = ({
-  user,
-  approvers,
-  onChange,
-  style,
-}: ApproversCardProps) => {
+export const ApproversCard = ({ user, approvers, onChange, style }: ApproversCardProps) => {
   const styles = useStyles();
   const navigation = useRootNavigation();
 

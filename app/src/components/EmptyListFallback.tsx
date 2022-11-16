@@ -23,12 +23,7 @@ export const EmptyListFallback = ({
 
   return (
     // Set height manually since flex={1} doesn't work within FlexList on Android
-    <Box
-      flex={1}
-      height={height}
-      alignItems="center"
-      {...(isScreenRoot && { mt: 8 })}
-    >
+    <Box flex={1} height={height} alignItems="center" {...(isScreenRoot && { mt: 8 })}>
       {typeof Icon === 'function' ? (
         <Icon color={styles.icon.color} size={styles.icon.fontSize} />
       ) : (

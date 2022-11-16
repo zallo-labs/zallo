@@ -54,8 +54,7 @@ export const AccountsScreen = withSkeleton(
               style={styles.create}
               onPress={() =>
                 navigate('CreateAccount', {
-                  onCreate: ({ account }) =>
-                    navigate('Account', { id: account }),
+                  onCreate: ({ account }) => navigate('Account', { id: account }),
                 })
               }
             >

@@ -9,10 +9,7 @@ export interface SelectableTokenAmountCardProps {
   onChange: (amount?: BigNumber) => void;
 }
 
-export const SelectableTokenAmountCard = ({
-  amount,
-  onChange,
-}: SelectableTokenAmountCardProps) => {
+export const SelectableTokenAmountCard = ({ amount, onChange }: SelectableTokenAmountCardProps) => {
   const navigation = useRootNavigation();
   const token = useSelectedToken();
 
@@ -24,7 +21,5 @@ export const SelectableTokenAmountCard = ({
     [navigation, onChange],
   );
 
-  return (
-    <TokenAmountCard token={token} amount={amount} onPress={handlePress} />
-  );
+  return <TokenAmountCard token={token} amount={amount} onPress={handlePress} />;
 };

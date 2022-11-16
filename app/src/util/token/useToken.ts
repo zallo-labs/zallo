@@ -1,13 +1,7 @@
 import { persistAtom } from '~/util/effect/persistAtom';
 import { Unimplemented } from '~/util/error/unimplemented';
 import { Address } from 'lib';
-import {
-  atom,
-  atomFamily,
-  selectorFamily,
-  DefaultValue,
-  useRecoilValue,
-} from 'recoil';
+import { atom, atomFamily, selectorFamily, DefaultValue, useRecoilValue } from 'recoil';
 import { Token } from './token';
 import { HARDCODED_TOKENS } from './tokens';
 
@@ -44,9 +38,7 @@ export const TOKEN = selectorFamily<Token, Address>({
         reset(TOKEN_ADDRESSES);
         reset(TOKEN_STATE(addr));
       } else {
-        set(TOKEN_ADDRESSES, (prev) =>
-          prev.includes(addr) ? prev : [...prev, addr],
-        );
+        set(TOKEN_ADDRESSES, (prev) => (prev.includes(addr) ? prev : [...prev, addr]));
         set(TOKEN_STATE(addr), token);
       }
     },
@@ -65,5 +57,4 @@ const MAYBE_TOKEN = selectorFamily<Token | null, Address | undefined>({
     },
 });
 
-export const useMaybeToken = (addr?: Address) =>
-  useRecoilValue(MAYBE_TOKEN(addr));
+export const useMaybeToken = (addr?: Address) => useRecoilValue(MAYBE_TOKEN(addr));

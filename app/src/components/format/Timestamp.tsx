@@ -7,11 +7,7 @@ export interface TimestampProps {
   time?: boolean;
 }
 
-export const Timestamp = ({
-  timestamp: timestamp,
-  weekday,
-  time = true,
-}: TimestampProps) => {
+export const Timestamp = ({ timestamp: timestamp, weekday, time = true }: TimestampProps) => {
   const formatted = useMemo(
     () =>
       timestamp.toLocaleString({

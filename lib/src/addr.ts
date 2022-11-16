@@ -8,8 +8,7 @@ export type Addresslike = Address | string;
 export const ZERO_ADDR = ethers.constants.AddressZero as Address;
 
 // Ensures address has checksum
-export const address = (addr: Addresslike): Address =>
-  ethers.utils.getAddress(addr) as Address;
+export const address = (addr: Addresslike): Address => ethers.utils.getAddress(addr) as Address;
 
 export const tryAddress = (addr: Addresslike): Address | null => {
   try {
@@ -19,8 +18,7 @@ export const tryAddress = (addr: Addresslike): Address | null => {
   }
 };
 
-export const isAddress = (v: unknown): v is Address =>
-  typeof v === 'string' && tryAddress(v) === v;
+export const isAddress = (v: unknown): v is Address => typeof v === 'string' && tryAddress(v) === v;
 
 export const isAddressLike = (v: unknown): v is Addresslike =>
   typeof v === 'string' && ethers.utils.isAddress(v);
@@ -40,8 +38,7 @@ export const compareAddress = (a: Address, b: Address) => {
   return 0;
 };
 
-export const sortAddresses = (addresses: Address[]) =>
-  addresses.sort(compareAddress);
+export const sortAddresses = (addresses: Address[]) => addresses.sort(compareAddress);
 
 /* Module augmentation; including in a .ts file to compile into lib's typings */
 declare module './contracts/index' {

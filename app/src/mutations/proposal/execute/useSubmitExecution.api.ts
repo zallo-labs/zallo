@@ -15,10 +15,7 @@ import produce from 'immer';
 import { QueryOpts } from '~/gql/update';
 
 gql`
-  mutation SubmitExecution(
-    $proposalHash: Bytes32!
-    $submission: SubmissionInput!
-  ) {
+  mutation SubmitExecution($proposalHash: Bytes32!, $submission: SubmissionInput!) {
     submitExecution(proposalHash: $proposalHash, submission: $submission) {
       id
     }

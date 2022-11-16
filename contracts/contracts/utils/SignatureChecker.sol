@@ -23,14 +23,9 @@ library SignatureChecker {
         vs := mload(add(signature, 0x40))
       }
 
-      (address recovered, ECDSA.RecoverError error) = ECDSA.tryRecover(
-        hash,
-        r,
-        vs
-      );
+      (address recovered, ECDSA.RecoverError error) = ECDSA.tryRecover(hash, r, vs);
 
-      if (error == ECDSA.RecoverError.NoError && recovered == signer)
-        return true;
+      if (error == ECDSA.RecoverError.NoError && recovered == signer) return true;
     }
 
     return BaseSignatureChecker.isValidSignatureNow(signer, hash, signature);

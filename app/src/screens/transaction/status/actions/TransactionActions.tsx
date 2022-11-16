@@ -7,8 +7,7 @@ export interface TransactionActionsProps {
 }
 
 export const TransactionActions = ({ proposal }: TransactionActionsProps) => {
-  if (proposal.status === 'proposed')
-    return <ProposeActions />;
+  if (proposal.status === 'proposed') return <ProposeActions />;
 
   if (proposal.status === 'failed') return <FailedActions />;
 

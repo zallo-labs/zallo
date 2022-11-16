@@ -14,9 +14,7 @@ export const ProposerItem = ({ proposer: p }: ProposerItemProps) => {
 
   return (
     <Item
-      Left={
-        p.icons.length ? <UriImage uri={p.icons} /> : <LabelIcon label={name} />
-      }
+      Left={p.icons.length ? <UriImage uri={p.icons} /> : <LabelIcon label={name} />}
       Main={<Text variant="titleMedium">{name}</Text>}
     />
   );

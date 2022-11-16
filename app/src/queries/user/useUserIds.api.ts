@@ -2,11 +2,7 @@ import { gql } from '@apollo/client';
 import { useDevice } from '@network/useDevice';
 import { address, UserId } from 'lib';
 import { useMemo } from 'react';
-import {
-  UserIdsDocument,
-  UserIdsQuery,
-  UserIdsQueryVariables,
-} from '~/gql/generated.api';
+import { UserIdsDocument, UserIdsQuery, UserIdsQueryVariables } from '~/gql/generated.api';
 import { useApiClient } from '~/gql/GqlProvider';
 import { usePollWhenFocussed } from '~/gql/usePollWhenFocussed';
 import { useSuspenseQuery } from '~/gql/useSuspenseQuery';
@@ -23,10 +19,7 @@ gql`
 export const useUserIds = () => {
   const device = useDevice();
 
-  const { data, ...rest } = useSuspenseQuery<
-    UserIdsQuery,
-    UserIdsQueryVariables
-  >(UserIdsDocument, {
+  const { data, ...rest } = useSuspenseQuery<UserIdsQuery, UserIdsQueryVariables>(UserIdsDocument, {
     client: useApiClient(),
   });
   usePollWhenFocussed(rest, 30);

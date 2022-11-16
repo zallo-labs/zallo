@@ -29,7 +29,7 @@ const config = {
   },
 
   presets: [
-    [                                                                                                                         
+    [
       'classic',
       /** @type {import('@docusaurus/preset-classic').Options} */
       ({
@@ -66,7 +66,7 @@ const config = {
             position: 'left',
             label: 'Tutorial',
           },
-          {to: '/blog', label: 'Blog', position: 'left'},
+          { to: '/blog', label: 'Blog', position: 'left' },
           {
             href: repo,
             label: 'GitHub',

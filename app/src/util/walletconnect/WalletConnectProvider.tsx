@@ -12,9 +12,7 @@ type ConnectionsV1 = Map<string, Connector>;
 export interface WalletConnectContext {
   client: SignClient;
   // Required due to many function mutating the class internally - which doesn't cause a re-render
-  withClient: (
-    f: (client: SignClient) => MaybePromise<unknown>,
-  ) => Promise<void>;
+  withClient: (f: (client: SignClient) => MaybePromise<unknown>) => Promise<void>;
   connectionsV1: ConnectionsV1;
   updateConnectionsV1: Updater<ConnectionsV1>;
   withConnectionV1: (
@@ -35,13 +33,9 @@ export interface WalletConnectProviderProps {
   children?: ReactNode;
 }
 
-export const WalletConnectProvider = ({
-  children,
-}: WalletConnectProviderProps) => {
+export const WalletConnectProvider = ({ children }: WalletConnectProviderProps) => {
   const [clientV2, setClientV2] = useWalletConnectV2();
-  const [connectionsV1, updateConnectionsV1] = useImmer<ConnectionsV1>(
-    () => new Map(),
-  );
+  const [connectionsV1, updateConnectionsV1] = useImmer<ConnectionsV1>(() => new Map());
 
   return (
     <CONTEXT.Provider
@@ -57,9 +51,7 @@ export const WalletConnectProvider = ({
           const connection = connectionsV1.get(uri);
           assert(connection);
           await f(connection);
-          updateConnectionsV1((connections) =>
-            connections.set(uri, connection),
-          );
+          updateConnectionsV1((connections) => connections.set(uri, connection));
         },
       }}
     >

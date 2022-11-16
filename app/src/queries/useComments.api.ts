@@ -1,9 +1,5 @@
 import { gql } from '@apollo/client';
-import {
-  CommentsDocument,
-  CommentsQuery,
-  CommentsQueryVariables,
-} from '~/gql/generated.api';
+import { CommentsDocument, CommentsQuery, CommentsQueryVariables } from '~/gql/generated.api';
 import { useApiClient } from '~/gql/GqlProvider';
 import { address, Address, Id, toId } from 'lib';
 import { DateTime } from 'luxon';
@@ -50,16 +46,16 @@ export const getCommentableKey = (c: Commentable): Id => toId(`tx:${c.id}`);
 export const useComments = (commentable: Commentable) => {
   const key = getCommentableKey(commentable);
 
-  const { data, ...rest } = useSuspenseQuery<
-    CommentsQuery,
-    CommentsQueryVariables
-  >(CommentsDocument, {
-    client: useApiClient(),
-    variables: {
-      account: commentable.account,
-      key,
+  const { data, ...rest } = useSuspenseQuery<CommentsQuery, CommentsQueryVariables>(
+    CommentsDocument,
+    {
+      client: useApiClient(),
+      variables: {
+        account: commentable.account,
+        key,
+      },
     },
-  });
+  );
   usePollWhenFocussed(rest, 3);
 
   const comments = useMemo(
@@ -72,8 +68,7 @@ export const useComments = (commentable: Commentable) => {
           content: c.content,
           reactions: Object.fromEntries(
             (c.reactions ?? []).map(
-              (r) =>
-                [address(r.deviceId), new Set(r.emojis as Emoji[])] as const,
+              (r) => [address(r.deviceId), new Set(r.emojis as Emoji[])] as const,
             ),
           ),
           updatedAt: DateTime.fromISO(c.updatedAt),

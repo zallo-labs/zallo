@@ -19,12 +19,12 @@ gql`
 `;
 
 export const useDeleteContact = () => {
-  const [mutation] = useMutation<
-    DeleteContactMutation,
-    DeleteContactMutationVariables
-  >(DeleteContactDocument, {
-    client: useApiClient(),
-  });
+  const [mutation] = useMutation<DeleteContactMutation, DeleteContactMutationVariables>(
+    DeleteContactDocument,
+    {
+      client: useApiClient(),
+    },
+  );
 
   return useCallback(
     (contact: Contact) =>

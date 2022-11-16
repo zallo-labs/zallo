@@ -2,8 +2,9 @@ import SignClient from '@walletconnect/sign-client';
 import Connector from '@walletconnect/client';
 
 export interface WcSessionV1 {
-  client: Connector; uri: string
-} 
+  client: Connector;
+  uri: string;
+}
 
 export interface WcSessionV2 {
   client: SignClient;

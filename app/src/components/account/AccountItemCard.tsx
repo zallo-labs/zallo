@@ -18,11 +18,7 @@ export interface AccountItemCardProps extends CardProps {
   showAvailable?: boolean;
 }
 
-const AccountItemCard = ({
-  id,
-  showAvailable,
-  ...cardProps
-}: AccountItemCardProps) => {
+const AccountItemCard = ({ id, showAvailable, ...cardProps }: AccountItemCardProps) => {
   const styles = useStyles();
   const [user] = useUser(id);
   const [account] = useAccount(id.account);

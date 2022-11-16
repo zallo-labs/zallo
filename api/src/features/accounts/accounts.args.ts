@@ -11,9 +11,7 @@ export class AccountArgs {
 }
 
 @InputType()
-export class UserWithoutAccountInput extends OmitType(UserInput, [
-  'id',
-] as const) {
+export class UserWithoutAccountInput extends OmitType(UserInput, ['id'] as const) {
   @AddressField()
   device: Address;
 }

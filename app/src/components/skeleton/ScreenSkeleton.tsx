@@ -13,12 +13,7 @@ export interface ScreenSkeletonProps {
   title?: boolean;
 }
 
-export const ScreenSkeleton = ({
-  children,
-  mode,
-  menu,
-  title = true,
-}: ScreenSkeletonProps) => (
+export const ScreenSkeleton = ({ children, mode, menu, title = true }: ScreenSkeletonProps) => (
   <Box>
     <Appbar.Header mode={mode}>
       {menu ? <Appbar.Action icon={MenuIcon} /> : <AppbarBack />}

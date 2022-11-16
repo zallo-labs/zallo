@@ -30,16 +30,14 @@ export interface TransactionContextProps {
   onExecute?: OnExecute;
 }
 
-export const TransactionProvider = memo(
-  ({ children, id, onExecute }: TransactionContextProps) => {
-    const [proposal] = useProposal(id);
-    const [account] = useAccount(proposal.account);
-    const [proposer] = useUser(proposal.proposer);
+export const TransactionProvider = memo(({ children, id, onExecute }: TransactionContextProps) => {
+  const [proposal] = useProposal(id);
+  const [account] = useAccount(proposal.account);
+  const [proposer] = useUser(proposal.proposer);
 
-    return (
-      <CONTEXT.Provider value={{ proposal, account, proposer, onExecute }}>
-        {children}
-      </CONTEXT.Provider>
-    );
-  },
-);
+  return (
+    <CONTEXT.Provider value={{ proposal, account, proposer, onExecute }}>
+      {children}
+    </CONTEXT.Provider>
+  );
+});

@@ -1,12 +1,5 @@
 import assert from 'assert';
-import {
-  createContext,
-  Dispatch,
-  ReactNode,
-  SetStateAction,
-  useContext,
-  useState,
-} from 'react';
+import { createContext, Dispatch, ReactNode, SetStateAction, useContext, useState } from 'react';
 
 export interface UserScreenContext {
   sheetShown: boolean;
@@ -25,9 +18,7 @@ export interface UserScreenContextProviderProps {
   children: ReactNode;
 }
 
-export const UserScreenContextProvider = ({
-  children,
-}: UserScreenContextProviderProps) => {
+export const UserScreenContextProvider = ({ children }: UserScreenContextProviderProps) => {
   const [sheetShown, setSheetShown] = useState(false);
 
   return (

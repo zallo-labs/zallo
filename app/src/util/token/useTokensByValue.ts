@@ -15,14 +15,11 @@ const TOKENS_BY_VALUE = selectorFamily<Token[], Address | null>({
       return get(TOKEN_BALANCES(addr))
         .map(({ token, balance }) => ({
           token,
-          fiatValue: balance
-            .mul(get(TOKEN_PRICE(token.addr)).current)
-            .div(TEN.pow(token.decimals)),
+          fiatValue: balance.mul(get(TOKEN_PRICE(token.addr)).current).div(TEN.pow(token.decimals)),
         }))
         .sort((a, b) => compareBn(b.fiatValue, a.fiatValue))
         .map(({ token }) => token);
     },
 });
 
-export const useTokensByValue = (addr?: Address) =>
-  useRecoilValue(TOKENS_BY_VALUE(addr ?? null));
+export const useTokensByValue = (addr?: Address) => useRecoilValue(TOKENS_BY_VALUE(addr ?? null));

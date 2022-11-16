@@ -1,10 +1,4 @@
-import {
-  createTx,
-  hashTx,
-  Tester,
-  toTransactionRequest,
-  toTransactionStruct,
-} from 'lib';
+import { createTx, hashTx, Tester, toTransactionRequest, toTransactionStruct } from 'lib';
 import { expect, execute, deploy, deployer, device, getSigners } from './util';
 
 describe('executeTransaction', () => {

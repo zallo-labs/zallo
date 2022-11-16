@@ -4,8 +4,7 @@ import { FormattedNumber } from '../format/FormattedNumber';
 
 const currency = 'USD';
 
-const withoutSymbol = (value: string, currency: string) =>
-  value.replace(currency, '').trim();
+const withoutSymbol = (value: string, currency: string) => value.replace(currency, '').trim();
 
 export interface FormattedFiatProps {
   value: BigNumberish;

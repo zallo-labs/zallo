@@ -1,11 +1,5 @@
 import { BigNumber } from 'ethers';
-import {
-  BoolArray,
-  boolArrayLength,
-  boolAtIndex,
-  TestAccount,
-  toBoolArray,
-} from 'lib';
+import { BoolArray, boolArrayLength, boolAtIndex, TestAccount, toBoolArray } from 'lib';
 import { deployTestAccount, expect } from './util';
 
 describe('BoolArray', () => {
@@ -18,9 +12,7 @@ describe('BoolArray', () => {
   });
 
   it('should successfully create a bool array', async () => {
-    const expected = BigNumber.from(
-      '0x09d3800000000000000000000000000000000000000000000000000000',
-    );
+    const expected = BigNumber.from('0x09d3800000000000000000000000000000000000000000000000000000');
     expect(bools[0]).to.eq(expected);
   });
 

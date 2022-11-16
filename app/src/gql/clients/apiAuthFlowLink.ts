@@ -119,10 +119,7 @@ export const useAuthFlowLink = () => {
             });
           }
         } else if (networkError) {
-          console.warn(
-            'API network error',
-            JSON.stringify(networkError.message, null, 2),
-          );
+          console.warn('API network error', JSON.stringify(networkError.message, null, 2));
         }
       }),
     [reset],

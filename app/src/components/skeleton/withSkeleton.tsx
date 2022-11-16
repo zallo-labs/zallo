@@ -6,11 +6,7 @@ export const withSkeleton = <Props extends {}>(
   Skeleton: FC<Props> | NonNullable<ReactNode>,
 ) => {
   return (props: Props) => (
-    <Suspense
-      fallback={
-        isFunctionalComponent(Skeleton) ? <Skeleton {...props} /> : Skeleton
-      }
-    >
+    <Suspense fallback={isFunctionalComponent(Skeleton) ? <Skeleton {...props} /> : Skeleton}>
       {/* <MemoizedComponent {...props} /> */}
       <Component {...props} />
     </Suspense>

@@ -1,12 +1,6 @@
 import { persistAtom } from '~/util/effect/persistAtom';
 import { Address } from 'lib';
-import {
-  atom,
-  DefaultValue,
-  selector,
-  useRecoilValue,
-  useSetRecoilState,
-} from 'recoil';
+import { atom, DefaultValue, selector, useRecoilValue, useSetRecoilState } from 'recoil';
 import { Token } from '@token/token';
 import { USDC } from '@token/tokens';
 import { TOKEN } from '@token/useToken';
@@ -24,10 +18,7 @@ const SELECTED_TOKEN = selector<Token>({
     return get(TOKEN(addr));
   },
   set: ({ set }, token) => {
-    set(
-      SELECTED_TOKEN_ADDRESS,
-      token instanceof DefaultValue ? token : token.addr,
-    );
+    set(SELECTED_TOKEN_ADDRESS, token instanceof DefaultValue ? token : token.addr);
   },
 });
 

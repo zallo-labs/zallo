@@ -1,22 +1,14 @@
 import { Address, createUpsertUserTx } from 'lib';
 import { useCallback, useState } from 'react';
-import {
-  OnPropose,
-  showProposalSnack,
-  usePropose,
-} from '~/mutations/proposal/propose/usePropose';
+import { OnPropose, showProposalSnack, usePropose } from '~/mutations/proposal/propose/usePropose';
 import { useAccount } from '~/queries/account/useAccount.api';
 import { CombinedUser, toProposedUser } from '~/queries/user/useUser.api';
-import {
-  AlertModalScreenParams,
-  useAlertConfirmation,
-} from '~/screens/alert/AlertModalScreen';
+import { AlertModalScreenParams, useAlertConfirmation } from '~/screens/alert/AlertModalScreen';
 import { useApiUpsertUser } from './useUpsertUser.api';
 
 const ALERT: Partial<AlertModalScreenParams> = {
   title: 'Overwrite existing proposal?',
-  message:
-    'Are you sure you want to overwrite the existing modification proposal for this user?',
+  message: 'Are you sure you want to overwrite the existing modification proposal for this user?',
 };
 
 export const useUpsertUser = (accountAddr: Address) => {

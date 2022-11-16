@@ -29,11 +29,7 @@ export const ItemWithoutSkeleton = ({
   const styles = useStyles({ selected, disabled, padding });
 
   return (
-    <TouchableRipple
-      {...touchableProps}
-      disabled={disabled}
-      style={[styles.container, style]}
-    >
+    <TouchableRipple {...touchableProps} disabled={disabled} style={[styles.container, style]}>
       <>
         {Left &&
           (isFunctionalComponent(Left) ? (

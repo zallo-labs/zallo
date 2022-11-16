@@ -19,10 +19,7 @@ contract Multicall {
   /// @dev Upon reverting the reason is propagated if one is provided, otherwise CallReverted is used
   /// @param calls Array of calls to execute
   /// @return responses Array of responses to the calls
-  function multicall(Call[] calldata calls)
-    external
-    returns (bytes[] memory responses)
-  {
+  function multicall(Call[] calldata calls) external returns (bytes[] memory responses) {
     responses = new bytes[](calls.length);
     for (uint i = 0; i < calls.length; ) {
       responses[i] = _call(calls[i]);
@@ -34,9 +31,7 @@ contract Multicall {
   }
 
   function _call(Call calldata call) internal returns (bytes memory) {
-    (bool success, bytes memory response) = call.to.call{value: call.value}(
-      call.data
-    );
+    (bool success, bytes memory response) = call.to.call{value: call.value}(call.data);
 
     if (!success) {
       if (response.length > 0) {

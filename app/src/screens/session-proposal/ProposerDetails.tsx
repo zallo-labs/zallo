@@ -5,12 +5,7 @@ import { WcProposer } from '~/util/walletconnect/useWalletConnectSessions';
 import { Box } from '~/components/layout/Box';
 import { LabelIcon } from '~/components/Identicon/LabelIcon';
 import { Container } from '~/components/layout/Container';
-import {
-  StyleProp,
-  StyleSheet,
-  TouchableOpacity,
-  ViewStyle,
-} from 'react-native';
+import { StyleProp, StyleSheet, TouchableOpacity, ViewStyle } from 'react-native';
 import { useTheme } from '@theme/paper';
 
 export const UNNAMED_DAPP_NAME = 'Unnamed DApp';
@@ -20,24 +15,14 @@ export interface ProposerDetailsProps {
   style?: StyleProp<ViewStyle>;
 }
 
-export const ProposerDetails = ({
-  proposer: p,
-  style,
-}: ProposerDetailsProps) => {
+export const ProposerDetails = ({ proposer: p, style }: ProposerDetailsProps) => {
   const { iconSize } = useTheme();
 
   const name = p.name || UNNAMED_DAPP_NAME;
 
   return (
-    <TouchableOpacity
-      onPress={p.url ? () => WebBrowser.openBrowserAsync(p.url) : undefined}
-    >
-      <Container
-        vertical
-        alignItems="center"
-        separator={<Box mt={2} />}
-        style={style}
-      >
+    <TouchableOpacity onPress={p.url ? () => WebBrowser.openBrowserAsync(p.url) : undefined}>
+      <Container vertical alignItems="center" separator={<Box mt={2} />} style={style}>
         {p.icons.length ? (
           <UriImage uri={p.icons} size={iconSize.large} />
         ) : (

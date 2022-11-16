@@ -6,7 +6,6 @@ const Test = () => <Text>Test</Text>;
 describe('Test', () => {
   it('renders correctly', async () => {
     // const tree = render(<Test />);
-
     // expect(tree.toJSON()).toMatchSnapshot();
   });
 });

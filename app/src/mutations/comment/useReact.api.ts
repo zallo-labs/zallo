@@ -24,16 +24,14 @@ gql`
   }
 `;
 
-export const getReactionId = (c: Comment, user: Address): Id =>
-  toId(`${c.id}-${user}`);
+export const getReactionId = (c: Comment, user: Address): Id => toId(`${c.id}-${user}`);
 
 export const useReact = (account: Address) => {
   const device = useDevice();
 
-  const [mutate] = useMutation<ReactMutation, ReactMutationVariables>(
-    ReactDocument,
-    { client: useApiClient() },
-  );
+  const [mutate] = useMutation<ReactMutation, ReactMutationVariables>(ReactDocument, {
+    client: useApiClient(),
+  });
 
   return useCallback(
     (c: Comment, emoji: Emoji) => {
@@ -65,9 +63,7 @@ export const useReact = (account: Address) => {
             query: CommentsDocument,
             variables: { account, key: c.key },
           };
-          const data = cache.readQuery<CommentsQuery, CommentsQueryVariables>(
-            opts,
-          );
+          const data = cache.readQuery<CommentsQuery, CommentsQueryVariables>(opts);
           assert(data);
 
           cache.writeQuery<CommentsQuery, CommentsQueryVariables>({
@@ -78,9 +74,7 @@ export const useReact = (account: Address) => {
               assert(comment);
 
               comment.reactions = [
-                ...(comment.reactions ?? []).filter(
-                  (r) => r.deviceId !== device.address,
-                ),
+                ...(comment.reactions ?? []).filter((r) => r.deviceId !== device.address),
                 {
                   deviceId: device.address,
                   emojis,

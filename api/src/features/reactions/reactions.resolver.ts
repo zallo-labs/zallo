@@ -1,12 +1,5 @@
 import { Reaction } from '@gen/reaction/reaction.model';
-import {
-  Args,
-  Info,
-  Mutation,
-  Parent,
-  ResolveField,
-  Resolver,
-} from '@nestjs/graphql';
+import { Args, Info, Mutation, Parent, ResolveField, Resolver } from '@nestjs/graphql';
 import { GraphQLResolveInfo } from 'graphql';
 import { Address, Id, toId } from 'lib';
 import { PrismaService } from 'nestjs-prisma';

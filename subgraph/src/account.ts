@@ -3,10 +3,7 @@ import { Account, AccountImpl } from '../generated/schema';
 
 export const ZERO_ADDR: Address = Address.zero();
 
-export function getOrCreateImpl(
-  addr: Address,
-  block: ethereum.Block,
-): AccountImpl {
+export function getOrCreateImpl(addr: Address, block: ethereum.Block): AccountImpl {
   const id = getAccountImplId(addr);
   let impl = AccountImpl.load(id);
   if (!impl) {
@@ -31,10 +28,7 @@ export function getOrCreateAccount(addr: Address, implId: Bytes): Account {
   return account;
 }
 
-export function getOrCreateAccountWithoutImpl(
-  addr: Address,
-  block: ethereum.Block,
-): Account {
+export function getOrCreateAccountWithoutImpl(addr: Address, block: ethereum.Block): Account {
   const impl = getOrCreateImpl(ZERO_ADDR, block);
   return getOrCreateAccount(addr, impl.id);
 }

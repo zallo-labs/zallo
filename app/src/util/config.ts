@@ -8,10 +8,7 @@ const updateManifest = constants.manifest2?.extra?.expoClient;
 
 // Merge extras, preferring update extras
 const extraEntries = filterFirst(
-  [
-    ...Object.entries(updateManifest?.extra ?? {}),
-    ...Object.entries(buildManifest?.extra ?? {}),
-  ],
+  [...Object.entries(updateManifest?.extra ?? {}), ...Object.entries(buildManifest?.extra ?? {})],
   ([key]) => key,
 );
 

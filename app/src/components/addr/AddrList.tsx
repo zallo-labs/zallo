@@ -9,13 +9,7 @@ export interface AddrListProps {
 }
 
 export const AddrList = ({ addresses }: AddrListProps) => (
-  <Container
-    flex={1}
-    horizontal
-    alignItems="center"
-    flexWrap="wrap"
-    separator={<Box ml={2} />}
-  >
+  <Container flex={1} horizontal alignItems="center" flexWrap="wrap" separator={<Box ml={2} />}>
     {addresses.map((addr) => (
       <Text key={addr} variant="bodyMedium">
         <Addr addr={addr} />

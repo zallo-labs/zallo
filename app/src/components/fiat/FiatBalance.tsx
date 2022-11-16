@@ -8,11 +8,7 @@ export interface FiatBalanceProps {
   rightAffix?: React.ReactNode;
 }
 
-export const FiatBalance = ({
-  addr,
-  showZero,
-  rightAffix,
-}: FiatBalanceProps) => {
+export const FiatBalance = ({ addr, showZero, rightAffix }: FiatBalanceProps) => {
   const totalFiatValue = useTotalBalanceValue(addr);
 
   if (!showZero && !totalFiatValue) return null;

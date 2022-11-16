@@ -42,11 +42,7 @@ const TokensScreen = ({ route }: TokensScreenProps) => {
 
       <FlatList
         ListHeaderComponent={
-          <TextField
-            left={<TextInput.Icon icon={SearchIcon} />}
-            label="Search"
-            {...searchProps}
-          />
+          <TextField left={<TextInput.Icon icon={SearchIcon} />} label="Search" {...searchProps} />
         }
         ListHeaderComponentStyle={styles.header}
         renderItem={({ item: token }) => {
@@ -54,12 +50,7 @@ const TokensScreen = ({ route }: TokensScreenProps) => {
           const isDisabled = !!disabled?.find((t) => t === token.addr);
 
           return user ? (
-            <TokenAvailableItem
-              token={token}
-              onPress={onPress}
-              disabled={isDisabled}
-              user={user}
-            />
+            <TokenAvailableItem token={token} onPress={onPress} disabled={isDisabled} user={user} />
           ) : (
             <TokenItem token={token} onPress={onPress} disabled={isDisabled} />
           );

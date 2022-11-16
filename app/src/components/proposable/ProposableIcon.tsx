@@ -17,10 +17,7 @@ interface ProposableIconProps extends IconPropsWithoutName {
   proposable: Proposable<unknown>;
 }
 
-export const ProposableIcon = ({
-  proposable: p,
-  ...iconProps
-}: ProposableIconProps) => {
+export const ProposableIcon = ({ proposable: p, ...iconProps }: ProposableIconProps) => {
   const { colors, iconSize } = useTheme();
 
   if (p.status === 'active') return null;

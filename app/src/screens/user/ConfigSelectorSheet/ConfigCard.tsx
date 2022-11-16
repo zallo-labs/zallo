@@ -12,12 +12,7 @@ export interface ConfigCardProps {
   style?: StyleProp<ViewStyle>;
 }
 
-export const ConfigCard = ({
-  config,
-  selected,
-  onPress,
-  style,
-}: ConfigCardProps) => {
+export const ConfigCard = ({ config, selected, onPress, style }: ConfigCardProps) => {
   const styles = useStyles(selected);
 
   return (
@@ -25,11 +20,7 @@ export const ConfigCard = ({
       {config.approvers.length > 0 ? (
         <>
           {config.approvers.map((approver) => (
-            <Text
-              key={approver}
-              variant="bodyMedium"
-              style={styles.onBackground}
-            >
+            <Text key={approver} variant="bodyMedium" style={styles.onBackground}>
               <Addr addr={approver} />
             </Text>
           ))}

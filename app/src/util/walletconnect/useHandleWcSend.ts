@@ -1,8 +1,5 @@
 import { useCallback } from 'react';
-import {
-  popToProposal,
-  usePropose,
-} from '~/mutations/proposal/propose/usePropose';
+import { popToProposal, usePropose } from '~/mutations/proposal/propose/usePropose';
 import { toWcResult } from './jsonRcp';
 import { WcSendTransactionData } from './methods/transaction';
 import SignClient from '@walletconnect/sign-client';

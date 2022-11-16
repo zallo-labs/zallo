@@ -12,12 +12,7 @@ export interface AccordionProps {
   style?: StyleProp<ViewStyle>;
 }
 
-export const Accordion = ({
-  children,
-  title,
-  initiallyExpanded,
-  style,
-}: AccordionProps) => {
+export const Accordion = ({ children, title, initiallyExpanded, style }: AccordionProps) => {
   const styles = useStyles();
 
   const [expanded, setExpanded] = useState(!!initiallyExpanded);
@@ -28,11 +23,7 @@ export const Accordion = ({
       <TouchableOpacity onPress={toggle} style={styles.header}>
         <Box>{title}</Box>
 
-        <Chevron
-          expanded={expanded}
-          size={styles.chevron.fontSize}
-          color={styles.chevron.color}
-        />
+        <Chevron expanded={expanded} size={styles.chevron.fontSize} color={styles.chevron.color} />
       </TouchableOpacity>
 
       <Collapsible collapsed={!expanded}>{children}</Collapsible>

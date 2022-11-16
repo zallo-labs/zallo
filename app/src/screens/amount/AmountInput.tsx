@@ -40,8 +40,7 @@ export const AmountInput = ({ token, amount, setAmount }: AmountInputProps) => {
   useEffect(() => {
     // Set amount in a useEffect, rather than onChange in case the token changes
     if (input) {
-      const newAmount =
-        type === 'token' ? input : fiatToToken(input, price.current, token);
+      const newAmount = type === 'token' ? input : fiatToToken(input, price.current, token);
 
       if (!amount || !newAmount.eq(amount)) setAmount(newAmount);
     }

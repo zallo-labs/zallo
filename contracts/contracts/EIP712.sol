@@ -15,7 +15,6 @@ abstract contract EIP712 {
 
   function _domainSeparator() internal view returns (bytes32) {
     // We're unable to cache the domain separator in an immutable variable as address(this) which changes when called by the proxy
-    return
-      keccak256(abi.encode(_DOMAIN_TYPE_HASH, block.chainid, address(this)));
+    return keccak256(abi.encode(_DOMAIN_TYPE_HASH, block.chainid, address(this)));
   }
 }

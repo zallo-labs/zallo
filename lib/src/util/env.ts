@@ -1,8 +1,7 @@
 const getKey = (strings: TemplateStringsArray, ...expr: string[]) =>
   strings.reduce((acc, str, i) => acc + str + (expr[i] || ''), '');
 
-export const optionalEnv = (...params: Parameters<typeof getKey>) =>
-  process.env[getKey(...params)];
+export const optionalEnv = (...params: Parameters<typeof getKey>) => process.env[getKey(...params)];
 
 export const requiredEnv = (...params: Parameters<typeof getKey>) => {
   const key = getKey(...params);
@@ -12,6 +11,4 @@ export const requiredEnv = (...params: Parameters<typeof getKey>) => {
 };
 
 export const makeRequiredEnv = (skip: boolean) =>
-  skip
-    ? (..._params: Parameters<typeof requiredEnv>) => undefined as any
-    : requiredEnv;
+  skip ? (..._params: Parameters<typeof requiredEnv>) => undefined as any : requiredEnv;

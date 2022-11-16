@@ -26,9 +26,7 @@ export const CHAINS: Chains = {
 
 export const getChain = (name: ChainName | string = 'testnet') => {
   name = name.toLowerCase();
-  const chain = Object.values(CHAINS).find(
-    (c) => c.name.toLowerCase() === name,
-  );
+  const chain = Object.values(CHAINS).find((c) => c.name.toLowerCase() === name);
   if (!chain) throw new Error(`Chain not supported: ${name}`);
 
   return chain;
