@@ -1,6 +1,7 @@
 ## Shared
 .env
 **/bin
+**/build
 **/cache
 **/dist
 **/generated/*
@@ -19,6 +20,9 @@
 !**/.yarn/cache
 # Non-zero install ignores
 #**/.pnp.*
+# Other
+yarn-debug.log*
+yarn-error.log*
 
 # MacOS
 **/.DS_Store
@@ -41,6 +45,11 @@ contracts/artifacts-zk
 contracts/cache-zk
 contracts/coverage*
 contracts/zk
+
+
+## Docs
+docs/.docusaurus
+docs/.cache-loader
 
 
 ## Lib

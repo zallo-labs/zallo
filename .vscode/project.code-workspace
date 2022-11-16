@@ -5,23 +5,27 @@
       "path": "../"
     },
     {
-      "name": "api",
+      "name": "API",
       "path": "../api"
     },
     {
-      "name": "app",
+      "name": "App",
       "path": "../app"
     },
     {
-      "name": "contracts",
+      "name": "Contracts",
       "path": "../contracts"
     },
     {
-      "name": "lib",
+      "name": "Docs",
+      "path": "../docs"
+    },
+    {
+      "name": "Lib",
       "path": "../lib"
     },
     {
-      "name": "subgraph",
+      "name": "Subgraph",
       "path": "../subgraph"
     }
   ],

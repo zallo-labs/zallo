@@ -8,6 +8,7 @@
     "api",
     "app",
     "contracts",
+    "docs",
     "lib",
     "subgraph"
   ],
@@ -15,6 +16,7 @@
     "api": "yarn workspace api",
     "app": "yarn workspace app",
     "contracts": "yarn workspace contracts",
+    "docs": "yarn workspace docs",
     "lib": "yarn workspace lib",
     "subgraph": "yarn workspace subgraph",
     "lint": "eslint \"**/*.{j,t}s\"",
