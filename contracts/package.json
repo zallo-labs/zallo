@@ -51,7 +51,6 @@
     "keccak256": "^1.0.6",
     "lib": "workspace:*",
     "merkletreejs": "^0.2.32",
-    "prettier": "^2.7.1",
     "prettier-plugin-solidity": "^1.0.0-rc.1",
     "solhint": "^3.3.7",
     "solidity-coverage": "^0.8.2",

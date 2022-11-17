@@ -19,9 +19,10 @@
     "docs": "yarn workspace docs",
     "lib": "yarn workspace lib",
     "subgraph": "yarn workspace subgraph",
-    "lint": "eslint \"**/*.{j,t}s\"",
+    "postinstall": "husky install .config/husky",
+    "lint": "eslint \"**/*.{js,ts,jsx,tsx}\"",
     "lint:fix": "yarn lint --fix",
-    "prettier": "npx prettier -w --ignore .gitignore --ignore .prettierignore .",
+    "prettier": "prettier --config .config/.prettierrc --ignore-path .config/.prettierignore --ignore-unknown",
     "clean": "yarn workspaces foreach run clean"
   },
   "engines": {
@@ -33,7 +34,10 @@
     "@typescript-eslint/eslint-plugin": "^5.42.1",
     "@typescript-eslint/parser": "^5.42.1",
     "eslint": "^8.27.0",
-    "eslint-plugin-react-hooks": "^4.6.0"
+    "eslint-plugin-react-hooks": "^4.6.0",
+    "husky": "^8.0.2",
+    "lint-staged": "^13.0.3",
+    "prettier": "^2.7.1"
   },
   "resolutions": {
     "graphql": "^16.6.0",
