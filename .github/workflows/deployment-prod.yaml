@@ -13,7 +13,7 @@ concurrency:
   cancel-in-progress: true
 
 env:
-  SUBGRAPH_GQL_URL: 'http://graph.allopay.io/subgraphs/name/zallo'
+  SUBGRAPH_GQL_URL: 'https://api.thegraph.com/subgraphs/name/hbriese/zallo'
 
 jobs:
   api:
@@ -36,7 +36,7 @@ jobs:
     environment: app-prod
     env:
       # Environment
-      API_URL: 'https://api.allopay.io'
+      API_URL: 'https://api.zallo.io'
       # Repository
       SENTRY_DSN: ${{ secrets.SENTRY_DSN }}
       SENTRY_ORG: ${{ secrets.SENTRY_ORG }}

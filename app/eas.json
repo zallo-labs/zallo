@@ -22,7 +22,7 @@
       "env": {
         "RELEASE_ENV": "production",
         "CHAIN": "testnet",
-        "API_URL": "https://api.allopay.io",
+        "API_URL": "https://api.zallo.io",
         "SUBGRAPH_GQL_URL": "https://api.thegraph.com/subgraphs/name/hbriese/zallo",
         "ACCOUNT_IMPL_TESTNET": "0x98df98fA082f05796349C17DF75447998F651266",
         "PROXY_FACTORY_TESTNET": "0xf74f2b05c68c3605606816b557565514E546934f",
@@ -35,7 +35,7 @@
       "env": {
         "RELEASE_ENV": "development",
         "CHAIN": "testnet",
-        "API_URL": "https://api-dev.allopay.io",
+        "API_URL": "https://dev.api.zallo.io",
         "SUBGRAPH_GQL_URL": "https://api.thegraph.com/subgraphs/name/hbriese/zallo-dev",
         "ACCOUNT_IMPL_TESTNET": "0x98df98fA082f05796349C17DF75447998F651266",
         "PROXY_FACTORY_TESTNET": "0xf74f2b05c68c3605606816b557565514E546934f",

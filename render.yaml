@@ -34,7 +34,7 @@ services:
       targetCPUPercent: 70
       targetMemoryPercent: 80
     domains:
-      - api.allopay.io
+      - api.zallo.io
 
   # API: development
   - type: web
@@ -67,7 +67,7 @@ services:
     region: oregon
     plan: free
     domains:
-      - api-dev.allopay.io
+      - dev.api.zallo.io
 
   # Redis: production
   - type: redis
@@ -118,6 +118,4 @@ envVarGroups:
       - key: WALLET_ADDRESS
         sync: false
       - key: WALLET_PRIVATE_KEY
-        sync: false
-      - key: EXPO_TOKEN
         sync: false
