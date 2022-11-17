@@ -3,10 +3,7 @@ import { useFocusEffect } from '@react-navigation/native';
 import { useCallback } from 'react';
 
 export const usePollWhenFocussed = (
-  {
-    startPolling,
-    stopPolling,
-  }: Pick<QueryResult, 'startPolling' | 'stopPolling'>,
+  { startPolling, stopPolling }: Pick<QueryResult, 'startPolling' | 'stopPolling'>,
   seconds: number,
 ) =>
   useFocusEffect(

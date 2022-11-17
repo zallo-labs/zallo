@@ -21,9 +21,7 @@ const WC_TRANSACTION_METHODS_ARRAY = [
   'eth_sendTransaction',
 ] as const;
 
-export const WC_TRANSACTION_METHODS = new Set<string>(
-  WC_TRANSACTION_METHODS_ARRAY,
-);
+export const WC_TRANSACTION_METHODS = new Set<string>(WC_TRANSACTION_METHODS_ARRAY);
 
 // Assert that WC_TRANSACTION_METHODS_ARRAY contains all WcTransactionRequest methods
 // eslint-disable-next-line @typescript-eslint/no-unused-vars

@@ -16,13 +16,13 @@ gql`
 `;
 
 export const useCanRequestFunds = (recipient: Address) => {
-  const { data, ...rest } = useSuspenseQuery<
-    CanRequestFundsQuery,
-    CanRequestFundsQueryVariables
-  >(CanRequestFundsDocument, {
-    client: useApiClient(),
-    variables: { recipient },
-  });
+  const { data, ...rest } = useSuspenseQuery<CanRequestFundsQuery, CanRequestFundsQueryVariables>(
+    CanRequestFundsDocument,
+    {
+      client: useApiClient(),
+      variables: { recipient },
+    },
+  );
   usePollWhenFocussed(rest, 5 * 60);
 
   return [data.canRequestFunds, rest] as const;

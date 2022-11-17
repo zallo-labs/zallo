@@ -7,22 +7,12 @@ export interface LineSkeletonProps {
   height?: number;
 }
 
-export const LineSkeleton = ({
-  width = 100,
-  height = 10,
-}: LineSkeletonProps) => {
+export const LineSkeleton = ({ width = 100, height = 10 }: LineSkeletonProps) => {
   const { roundness } = useTheme();
 
   return (
     <Skeleton width={width} height={height}>
-      <Rect
-        x="0"
-        y="0"
-        rx={roundness}
-        ry={roundness}
-        width={width}
-        height={height}
-      />
+      <Rect x="0" y="0" rx={roundness} ry={roundness} width={width} height={height} />
     </Skeleton>
   );
 };

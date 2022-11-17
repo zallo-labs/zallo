@@ -22,16 +22,9 @@ const Fallback = ({ resetError }: FallbackProps) => {
 
   return (
     <Box flex={1} vertical center style={styles.root}>
-      <MaterialCommunityIcons
-        name="robot-confused"
-        size={60}
-        style={styles.onRoot}
-      />
+      <MaterialCommunityIcons name="robot-confused" size={60} style={styles.onRoot} />
 
-      <Text
-        variant="displaySmall"
-        style={[styles.onRoot, styles.text, styles.title]}
-      >
+      <Text variant="displaySmall" style={[styles.onRoot, styles.text, styles.title]}>
         Encountered error
       </Text>
       <Text variant="titleLarge" style={[styles.onRoot, styles.text]}>

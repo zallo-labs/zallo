@@ -18,12 +18,7 @@ export interface TokenHoldingCardProps extends CardItemProps {
   selected?: boolean;
 }
 
-export const TokenHoldingCard = ({
-  token: t,
-  user,
-  selected,
-  ...props
-}: TokenHoldingCardProps) => {
+export const TokenHoldingCard = ({ token: t, user, selected, ...props }: TokenHoldingCardProps) => {
   const price = useTokenPrice(t);
   const available = useTokenAvailable(t, user);
   const fiatValue = useTokenValue(t, available);

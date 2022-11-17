@@ -17,11 +17,7 @@ library BoolArray {
     return bools[0] >> HEADER_OFFSET;
   }
 
-  function atIndex(uint256[] memory bools, uint256 index)
-    internal
-    pure
-    returns (bool)
-  {
+  function atIndex(uint256[] memory bools, uint256 index) internal pure returns (bool) {
     uint256 i = index + HEADER;
     uint256 shift = SLOT - (i % SLOT) - 1;
 

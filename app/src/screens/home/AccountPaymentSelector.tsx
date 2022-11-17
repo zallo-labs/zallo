@@ -13,9 +13,7 @@ import { Text } from 'react-native-paper';
 
 export interface AccountPaymentSelectorProps extends AccountSelectorProps {}
 
-export const AccountPaymentSelector = (
-  selectorProps: AccountPaymentSelectorProps,
-) => {
+export const AccountPaymentSelector = (selectorProps: AccountPaymentSelectorProps) => {
   const styles = useStyles();
 
   const [active, setActive] = useState(false);
@@ -35,8 +33,7 @@ export const AccountPaymentSelector = (
           ...selectorProps.cardProps,
           onPress: (event) => {
             setActive((active) => {
-              if (!active)
-                Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+              if (!active) Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
 
               return !active;
             });

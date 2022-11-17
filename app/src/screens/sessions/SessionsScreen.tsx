@@ -23,10 +23,7 @@ export const SessionsScreen = ({ navigation }: SessionsScreenProps) => {
         {/* TODO: replace with AppbarMenu once issue is fixed: https://github.com/callstack/react-native-paper/issues/3287 */}
         <Appbar.BackAction onPress={useGoBack()} />
         <Appbar.Content title="Sessions" />
-        <Appbar.Action
-          icon={ScanIcon}
-          onPress={() => navigation.navigate('Scan', {})}
-        />
+        <Appbar.Action icon={ScanIcon} onPress={() => navigation.navigate('Scan', {})} />
       </AppbarHeader>
 
       <FlatList

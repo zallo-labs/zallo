@@ -12,8 +12,6 @@ type StateRoute<Route extends keyof RootNavigatorParamList> = {
   params: RootNavigatorParamList[Route];
 };
 
-export const toNavigationStateRoutes = <
-  Route extends keyof RootNavigatorParamList,
->(
+export const toNavigationStateRoutes = <Route extends keyof RootNavigatorParamList>(
   ...routes: StateRoute<Route>[]
 ) => routes;

@@ -59,8 +59,8 @@ contract Account is
 
   /// @inheritdoc BaseIAccount
   function validateTransaction(
-    bytes32, /* _txHash */
-    bytes32, /* suggestedSignedHash */
+    bytes32 /* _txHash */,
+    bytes32 /* suggestedSignedHash */,
     Transaction calldata transaction
   ) external payable override onlyBootloader {
     _validateTransaction(_hashTx(transaction), transaction);
@@ -68,19 +68,17 @@ contract Account is
 
   /// @inheritdoc BaseIAccount
   function executeTransaction(
-    bytes32, /* _txHash */
-    bytes32, /* suggestedSignedHash */
+    bytes32 /* _txHash */,
+    bytes32 /* suggestedSignedHash */,
     Transaction calldata transaction
   ) external payable override onlyBootloader {
     _executeTransaction(_hashTx(transaction), transaction);
   }
 
   /// @inheritdoc BaseIAccount
-  function executeTransactionFromOutside(Transaction calldata transaction)
-    external
-    payable
-    override
-  {
+  function executeTransactionFromOutside(
+    Transaction calldata transaction
+  ) external payable override {
     bytes32 txHash = _hashTx(transaction);
     _validateTransaction(txHash, transaction);
     _executeTransaction(txHash, transaction);
@@ -145,12 +143,10 @@ contract Account is
   //////////////////////////////////////////////////////////////*/
 
   /// @inheritdoc IERC1271
-  function isValidSignature(bytes32 hash, bytes memory signature)
-    external
-    view
-    override
-    returns (bytes4)
-  {
+  function isValidSignature(
+    bytes32 hash,
+    bytes memory signature
+  ) external view override returns (bytes4) {
     _validateSignature(hash, signature);
     return EIP1271_SUCCESS;
   }

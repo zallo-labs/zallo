@@ -10,14 +10,7 @@ import {
   UserIdsQuery,
   UserIdsQueryVariables,
 } from '~/gql/generated.api';
-import {
-  Address,
-  calculateProxyAddress,
-  getUserIdStr,
-  randomDeploySalt,
-  User,
-  UserId,
-} from 'lib';
+import { Address, calculateProxyAddress, getUserIdStr, randomDeploySalt, User, UserId } from 'lib';
 import { ACCOUNT_IMPL } from '~/util/network/provider';
 import { useDevice } from '@network/useDevice';
 import { useAccountProxyFactory } from '@network/useAccountProxyFactory';
@@ -52,10 +45,7 @@ export const useCreateAccount = () => {
   const factory = useAccountProxyFactory();
   const [mutation] = useCreateAccountMutation({ client: useApiClient() });
 
-  return async (
-    name: string,
-    userName: string,
-  ): Promise<CreateAccountResult> => {
+  return async (name: string, userName: string): Promise<CreateAccountResult> => {
     const user: User = {
       addr: device.address,
       configs: [
@@ -69,11 +59,7 @@ export const useCreateAccount = () => {
     const impl = ACCOUNT_IMPL;
     const deploySalt = randomDeploySalt();
 
-    const account = await calculateProxyAddress(
-      { impl, user },
-      factory,
-      deploySalt,
-    );
+    const account = await calculateProxyAddress({ impl, user }, factory, deploySalt);
 
     await mutation({
       variables: {

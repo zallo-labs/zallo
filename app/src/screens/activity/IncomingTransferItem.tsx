@@ -16,30 +16,27 @@ export interface IncomingTransferItemProps {
   id: Id;
 }
 
-export const IncomingTransferItem = withSkeleton(
-  ({ id }: IncomingTransferItemProps) => {
-    const [transfer] = useTransfer(id);
-    assert(transfer.direction === TransferType.In);
+export const IncomingTransferItem = withSkeleton(({ id }: IncomingTransferItemProps) => {
+  const [transfer] = useTransfer(id);
+  assert(transfer.direction === TransferType.In);
 
-    return (
-      <Box>
-        <Box horizontal>
-          <TokenIcon token={transfer.token} />
+  return (
+    <Box>
+      <Box horizontal>
+        <TokenIcon token={transfer.token} />
 
-          <Box flex={1}>
-            <Text variant="titleMedium">
-              {`${TRANSFER_LABEL} from `} <Addr addr={transfer.from} />
-            </Text>
+        <Box flex={1}>
+          <Text variant="titleMedium">
+            {`${TRANSFER_LABEL} from `} <Addr addr={transfer.from} />
+          </Text>
 
-            <Text variant="bodyMedium">
-              <Timestamp timestamp={transfer.timestamp} weekday />
-            </Text>
-          </Box>
+          <Text variant="bodyMedium">
+            <Timestamp timestamp={transfer.timestamp} weekday />
+          </Text>
         </Box>
-
-        <ActivityTransfers transfers={[transfer]} />
       </Box>
-    );
-  },
-  ItemSkeleton,
-);
+
+      <ActivityTransfers transfers={[transfer]} />
+    </Box>
+  );
+}, ItemSkeleton);

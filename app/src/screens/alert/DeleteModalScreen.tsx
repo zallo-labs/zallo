@@ -22,9 +22,7 @@ export const DeleteModalScreen = ({ route }: DeleteModalScreenProps) => {
   );
 };
 
-export const useDeleteConfirmation = (
-  defaultParams?: Partial<DeleteModalScreenParams>,
-) => {
+export const useDeleteConfirmation = (defaultParams?: Partial<DeleteModalScreenParams>) => {
   const { navigate } = useRootNavigation();
 
   return useCallback(

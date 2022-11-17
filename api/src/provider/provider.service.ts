@@ -1,14 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import * as zk from 'zksync-web3';
 import { CONFIG } from '~/config';
-import {
-  Address,
-  Account,
-  connectAccount,
-  Factory,
-  Factory__factory,
-  Chain,
-} from 'lib';
+import { Address, Account, connectAccount, Factory, Factory__factory, Chain } from 'lib';
 
 @Injectable()
 export class ProviderService extends zk.Provider {
@@ -26,10 +19,7 @@ export class ProviderService extends zk.Provider {
         : zk.Wallet.createRandom()
     ).connect(this);
 
-    this.proxyFactory = Factory__factory.connect(
-      CONFIG.proxyFactoryAddress!,
-      this.wallet,
-    );
+    this.proxyFactory = Factory__factory.connect(CONFIG.proxyFactoryAddress!, this.wallet);
   }
 
   public connectAccount(account: Address): Account {

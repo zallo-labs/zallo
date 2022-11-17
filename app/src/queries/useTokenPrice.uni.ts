@@ -48,16 +48,10 @@ export interface TokenPrice {
 }
 
 const fetch = async (tokenMainnetAddr?: Address): Promise<TokenPrice> => {
-  assert(
-    tokenMainnetAddr,
-    "Fetching price for token that doesn't have a mainnet address",
-  );
+  assert(tokenMainnetAddr, "Fetching price for token that doesn't have a mainnet address");
   const client = await UNISWAP_CLIENT;
 
-  const { data } = await client.query<
-    TokenPriceDataQuery,
-    TokenPriceDataQueryVariables
-  >({
+  const { data } = await client.query<TokenPriceDataQuery, TokenPriceDataQueryVariables>({
     query: TokenPriceDataDocument,
     variables: { token: tokenMainnetAddr.toLocaleLowerCase() },
   });

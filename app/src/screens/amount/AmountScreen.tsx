@@ -6,10 +6,7 @@ import { ZERO } from 'lib';
 import { useState } from 'react';
 import { Appbar } from 'react-native-paper';
 import { FAB } from '~/components/FAB';
-import {
-  useSelectedToken,
-  useSelectToken,
-} from '~/components/token/useSelectedToken';
+import { useSelectedToken, useSelectToken } from '~/components/token/useSelectedToken';
 import { RootNavigatorScreenProps } from '~/navigation/RootNavigator';
 import { AmountInput } from './AmountInput';
 import { TokenCard } from '~/components/token/TokenCard';

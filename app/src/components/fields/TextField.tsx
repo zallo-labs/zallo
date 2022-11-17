@@ -21,8 +21,7 @@ export const TextField = ({
   ...props
 }: TextFieldProps) => {
   const error = useMemo(
-    () =>
-      typeof errorProp === 'function' ? errorProp(props.value) : errorProp,
+    () => (typeof errorProp === 'function' ? errorProp(props.value) : errorProp),
     [errorProp, props.value],
   );
 

@@ -14,10 +14,5 @@ export const ACCOUNT_CARD_STYLE = StyleSheet.create({
 export interface AccountCardSkeletonProps extends CardItemProps {}
 
 export const AccountCardSkeleton = (props: AccountCardSkeletonProps) => (
-  <CardItemSkeleton
-    icon={false}
-    right={false}
-    style={ACCOUNT_CARD_STYLE}
-    {...props}
-  />
+  <CardItemSkeleton icon={false} right={false} style={ACCOUNT_CARD_STYLE} {...props} />
 );

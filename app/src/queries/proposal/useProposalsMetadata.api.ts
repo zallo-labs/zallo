@@ -35,10 +35,7 @@ export interface ProposalsMetadataOptions {
   status?: ProposalStatus;
 }
 
-export const useProposalsMetadata = ({
-  accounts,
-  status,
-}: ProposalsMetadataOptions = {}) => {
+export const useProposalsMetadata = ({ accounts, status }: ProposalsMetadataOptions = {}) => {
   const { data, ...rest } = useSuspenseQuery<
     ProposalsMetadataQuery,
     ProposalsMetadataQueryVariables

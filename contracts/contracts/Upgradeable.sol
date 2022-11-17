@@ -6,10 +6,5 @@ import '@openzeppelin/contracts/proxy/utils/UUPSUpgradeable.sol';
 import './SelfOwned.sol';
 
 abstract contract Upgradeable is UUPSUpgradeable, SelfOwned {
-  function _authorizeUpgrade(address newImplementation)
-    internal
-    virtual
-    override
-    onlySelf
-  {}
+  function _authorizeUpgrade(address newImplementation) internal virtual override onlySelf {}
 }

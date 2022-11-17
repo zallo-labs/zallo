@@ -64,6 +64,4 @@ const useStyles = makeStyles(({ iconSize }, size?: number) => ({
   },
 }));
 
-export default withSkeleton(UriImage, ({ size }) => (
-  <CircleSkeleton radius={size} />
-));
+export default withSkeleton(UriImage, ({ size }) => <CircleSkeleton radius={size} />);

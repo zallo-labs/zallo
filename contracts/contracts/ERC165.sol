@@ -9,12 +9,7 @@ import './ERC721Receiver.sol';
 
 abstract contract ERC165 is IERC165 {
   /// @inheritdoc IERC165
-  function supportsInterface(bytes4 interfaceId)
-    external
-    pure
-    virtual
-    returns (bool)
-  {
+  function supportsInterface(bytes4 interfaceId) external pure virtual returns (bool) {
     return
       interfaceId == type(IERC165).interfaceId ||
       interfaceId == type(IERC721Receiver).interfaceId ||

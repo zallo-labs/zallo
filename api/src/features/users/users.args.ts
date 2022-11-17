@@ -50,9 +50,7 @@ export class FindUniqueUserArgs {
 }
 
 @ArgsType()
-export class FindUsersArgs extends OmitType(FindManyUserArgs, [
-  'where',
-] as const) {}
+export class FindUsersArgs extends OmitType(FindManyUserArgs, ['where'] as const) {}
 
 @ArgsType()
 export class UpsertUserArgs {

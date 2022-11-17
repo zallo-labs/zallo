@@ -12,14 +12,8 @@ import { FAB } from '~/components/FAB';
 import { Box } from '~/components/layout/Box';
 import { Container } from '~/components/layout/Container';
 import { TokenAvailableCard } from '~/components/token/TokenAvailableCard';
-import {
-  useSelectedToken,
-  useSelectToken,
-} from '~/components/token/useSelectedToken';
-import {
-  popToProposal,
-  usePropose,
-} from '~/mutations/proposal/propose/usePropose';
+import { useSelectedToken, useSelectToken } from '~/components/token/useSelectedToken';
+import { popToProposal, usePropose } from '~/mutations/proposal/propose/usePropose';
 import { RootNavigatorScreenProps } from '~/navigation/RootNavigator';
 import { AmountInput } from '../amount/AmountInput';
 
@@ -77,11 +71,7 @@ export const SendScreen = ({ route, navigation }: SendScreenProps) => {
         disabled={!amount || amount.eq(ZERO)}
         {...(amount && {
           onPress: () => {
-            propose(
-              user.account,
-              createTransferTx(token, to, amount),
-              popToProposal,
-            );
+            propose(user.account, createTransferTx(token, to, amount), popToProposal);
           },
         })}
       />

@@ -1,3 +1,4 @@
-import { DateTime } from "luxon";
+import { DateTime } from 'luxon';
 
-export const dateTimeFromSubgraph = (timestamp: string) => DateTime.fromSeconds(parseInt(timestamp));
+export const dateTimeFromSubgraph = (timestamp: string) =>
+  DateTime.fromSeconds(parseInt(timestamp));

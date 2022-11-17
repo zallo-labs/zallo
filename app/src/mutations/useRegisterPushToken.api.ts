@@ -14,8 +14,5 @@ export const useRegisterPushToken = () => {
     client: useApiClient(),
   });
 
-  return useCallback(
-    (token: string) => register({ variables: { token } }),
-    [register],
-  );
+  return useCallback((token: string) => register({ variables: { token } }), [register]);
 };

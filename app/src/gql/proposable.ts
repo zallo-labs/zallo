@@ -22,14 +22,10 @@ interface ProposedState<T extends Obj> {
 const isActive = <T extends Obj>(p: ProposableState<T>): p is ActiveState<T> =>
   p.active !== undefined;
 
-const isProposed = <T extends Obj>(
-  p: ProposableState<T>,
-): p is ProposedState<T> => p.proposed !== undefined && p.proposed !== null;
+const isProposed = <T extends Obj>(p: ProposableState<T>): p is ProposedState<T> =>
+  p.proposed !== undefined && p.proposed !== null;
 
-export class Proposable<
-  T extends Obj,
-  State extends ProposableState<T> = ProposableState<T>,
-> {
+export class Proposable<T extends Obj, State extends ProposableState<T> = ProposableState<T>> {
   constructor(public state: State) {}
 
   isActive(): this is Proposable<T, ActiveState<T>> {

@@ -22,11 +22,7 @@ library UserConfigHelper {
     return keccak256(abi.encode(config));
   }
 
-  function hashCalldata(UserConfig calldata config)
-    internal
-    pure
-    returns (bytes32)
-  {
+  function hashCalldata(UserConfig calldata config) internal pure returns (bytes32) {
     return keccak256(abi.encode(config));
   }
 }

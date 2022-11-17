@@ -6,8 +6,6 @@ import { Device } from 'lib';
 
 export const provider = new zk.Provider(hre.config.zkSyncDeploy.zkSyncNetwork);
 
-export const allSigners = localWallets.map(
-  (w) => new Device(w.privateKey, provider),
-);
+export const allSigners = localWallets.map((w) => new Device(w.privateKey, provider));
 
 export const device = new Device(CONFIG.walletPrivateKey, provider);

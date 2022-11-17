@@ -22,10 +22,7 @@ export const TOKEN_VALUE = selectorFamily<number, TokenValueParam>({
       const price = get(TOKEN_PRICE(tokenAddr));
 
       return parseFloat(
-        formatUnits(
-          BigNumber.from(amount).mul(price.current),
-          token.decimals + FIAT_DECIMALS,
-        ),
+        formatUnits(BigNumber.from(amount).mul(price.current), token.decimals + FIAT_DECIMALS),
       );
     },
 });

@@ -66,6 +66,30 @@ jobs:
       - name: 🧪 Test
         run: yarn contracts test
 
+  docs:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version: [18.x]
+    steps:
+      - name: 🚧 Checkout
+        uses: actions/checkout@v3
+
+      - name: 🚧 Use Node ${{ matrix.node-version }}
+        uses: actions/setup-node@v2
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: 'yarn'
+
+      - name: 📦 Install
+        run: yarn install
+
+      - name: 🧪 Typecheck
+        run: yarn docs typecheck
+
+      - name: 🏗️ Build
+        run: yarn docs build
+
   subgraph:
     runs-on: ubuntu-latest
     strategy:

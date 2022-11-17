@@ -29,10 +29,7 @@ export const MethodInputRow = ({ param, data }: MethodRowProps) => {
         <Text variant="bodyMedium">{param.type}</Text>
       </Box>
 
-      <Card
-        style={styles.dataContainer}
-        touchableStyle={styles.touchableDataContainer}
-      >
+      <Card style={styles.dataContainer} touchableStyle={styles.touchableDataContainer}>
         <ExpandOnLongPress
           collapsed={
             <Text numberOfLines={1} variant="bodySmall" style={styles.data}>

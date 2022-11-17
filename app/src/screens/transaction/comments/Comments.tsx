@@ -17,10 +17,7 @@ export const Comments = (listProps: CommentsProps) => {
   const createComment = useCreateComment(tx, tx.account);
 
   // Display comments newer -> older
-  const comments = useMemo(
-    () => [...unsortedComments].reverse(),
-    [unsortedComments],
-  );
+  const comments = useMemo(() => [...unsortedComments].reverse(), [unsortedComments]);
 
   const [comment, setComment] = useState('');
   const handleComment = useCallback(() => {

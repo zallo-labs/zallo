@@ -36,18 +36,11 @@ export const AccountScreen = withSkeleton(
     const [account] = useAccount(id);
     const { AppbarHeader, handleScroll } = useAppbarHeader();
 
-    const [users, searchProps] = useFuzzySearch(account.users, [
-      'name',
-      'addr',
-    ]);
+    const [users, searchProps] = useFuzzySearch(account.users, ['name', 'addr']);
 
     return (
       <Box flex={1}>
-        <AccountAppbar
-          AppbarHeader={AppbarHeader}
-          title={title}
-          account={account}
-        />
+        <AccountAppbar AppbarHeader={AppbarHeader} title={title} account={account} />
 
         <FlatList
           ListHeaderComponent={

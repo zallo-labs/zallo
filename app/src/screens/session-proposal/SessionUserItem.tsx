@@ -27,12 +27,7 @@ const SessionUserItem = ({
         <Text variant="titleLarge">{account.name}</Text>,
         <Text variant="bodyMedium">{user.name}</Text>,
       ]}
-      Right={
-        <Checkbox
-          status={selected ? 'checked' : 'unchecked'}
-          onPress={onPress}
-        />
-      }
+      Right={<Checkbox status={selected ? 'checked' : 'unchecked'} onPress={onPress} />}
       padding="vertical"
       {...itemProps}
     />

@@ -14,13 +14,10 @@ export const ACCOUNT_INTERFACE = Account__factory.createInterface();
 
 export const UPSERT_USER_FUNCTION =
   ACCOUNT_INTERFACE.functions['upsertUser((address,(address[])[]))'];
-export const UPSERT_USER_SIGHSAH =
-  ACCOUNT_INTERFACE.getSighash(UPSERT_USER_FUNCTION);
+export const UPSERT_USER_SIGHSAH = ACCOUNT_INTERFACE.getSighash(UPSERT_USER_FUNCTION);
 
-export const REMOVE_USER_FUNCTION =
-  ACCOUNT_INTERFACE.functions['removeUser(address)'];
-export const REMOVE_USER_SIGHASH =
-  ACCOUNT_INTERFACE.getSighash(REMOVE_USER_FUNCTION);
+export const REMOVE_USER_FUNCTION = ACCOUNT_INTERFACE.functions['removeUser(address)'];
+export const REMOVE_USER_SIGHASH = ACCOUNT_INTERFACE.getSighash(REMOVE_USER_FUNCTION);
 
 export const tryDecodeUpsertUserData = (data?: BytesLike): User | undefined => {
   const sighash = getDataSighash(data);

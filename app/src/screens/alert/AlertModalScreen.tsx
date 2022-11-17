@@ -11,9 +11,7 @@ export const AlertModalScreen = ({ route }: AlertModalScreenProps) => (
   <AlertModal {...route.params} />
 );
 
-export const useAlertConfirmation = (
-  defaultParams?: Partial<AlertModalScreenParams>,
-) => {
+export const useAlertConfirmation = (defaultParams?: Partial<AlertModalScreenParams>) => {
   const { navigate } = useRootNavigation();
 
   return useCallback(

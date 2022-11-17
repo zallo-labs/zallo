@@ -26,8 +26,7 @@ export function handleUserUpserted(e: UserUpserted): void {
     const config = new UserConfig(configId);
     config.user = user.id;
     config.approvers = [];
-    for (let ai = 0; ai < ce.approvers.length; ++ai)
-      config.approvers.push(ce.approvers[ai]);
+    for (let ai = 0; ai < ce.approvers.length; ++ai) config.approvers.push(ce.approvers[ai]);
     config.save();
   }
 

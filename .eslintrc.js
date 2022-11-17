@@ -29,8 +29,7 @@ module.exports = {
     'react-hooks/exhaustive-deps': [
       'warn',
       {
-        additionalHooks:
-          '(useRecoilCallback|useRecoilTransaction_UNSTABLE)',
+        additionalHooks: '(useRecoilCallback|useRecoilTransaction_UNSTABLE)',
       },
     ],
     '@typescript-eslint/no-empty-interface': 'off',

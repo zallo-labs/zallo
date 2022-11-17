@@ -22,10 +22,7 @@ export const TxTransfers = ({ tx, transfers, style }: TxTransfersProps) => {
       </Box>
 
       {transfers.map(
-        (t) =>
-          !t.amount.isZero() && (
-            <TokenTransferRow key={t.token.addr} tx={tx} transfer={t} />
-          ),
+        (t) => !t.amount.isZero() && <TokenTransferRow key={t.token.addr} tx={tx} transfer={t} />,
       )}
     </Box>
   );

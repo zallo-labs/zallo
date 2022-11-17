@@ -33,20 +33,18 @@ export const CommentCard = ({ comment, name = true }: CommentCardProps) => {
   );
 };
 
-const useStyles = makeStyles(
-  ({ space, colors, onBackground }, isAuthor: boolean) => {
-    const backgroundColor = isAuthor ? colors.secondaryContainer : undefined;
+const useStyles = makeStyles(({ space, colors, onBackground }, isAuthor: boolean) => {
+  const backgroundColor = isAuthor ? colors.secondaryContainer : undefined;
 
-    return {
-      card: {
-        ...(backgroundColor && { backgroundColor }),
-      },
-      text: {
-        color: onBackground(backgroundColor),
-      },
-      author: {
-        marginBottom: space(1),
-      },
-    };
-  },
-);
+  return {
+    card: {
+      ...(backgroundColor && { backgroundColor }),
+    },
+    text: {
+      color: onBackground(backgroundColor),
+    },
+    author: {
+      marginBottom: space(1),
+    },
+  };
+});

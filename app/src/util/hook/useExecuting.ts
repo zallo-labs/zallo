@@ -1,12 +1,6 @@
 import { useCallback, useState } from 'react';
 
-export const useExecuting = <
-  Func extends (params: Params) => R,
-  Params,
-  R,
->(
-  f: Func,
-) => {
+export const useExecuting = <Func extends (params: Params) => R, Params, R>(f: Func) => {
   const [executing, setExecuting] = useState(false);
 
   const execute = useCallback(

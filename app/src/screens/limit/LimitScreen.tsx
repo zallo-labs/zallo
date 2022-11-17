@@ -55,11 +55,7 @@ const LimitScreen = ({ route, navigation }: LimitScreenProps) => {
           <Text variant="headlineSmall">{token.name}</Text>
         </Box>
 
-        <LimitAvailable
-          user={user}
-          token={token.addr}
-          style={[styles.section, styles.available]}
-        />
+        <LimitAvailable user={user} token={token.addr} style={[styles.section, styles.available]} />
 
         <LimitFields style={styles.section} limit={limit} setLimit={setLimit} />
       </ScrollView>

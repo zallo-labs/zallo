@@ -2,15 +2,9 @@ import { Box } from '~/components/layout/Box';
 import { useMemo } from 'react';
 import { FlatList } from 'react-native';
 import { Text } from 'react-native-paper';
-import {
-  useSelectAccount,
-  useSelectedAccount,
-} from '~/screens/home/useSelectedAccount';
+import { useSelectAccount, useSelectedAccount } from '~/screens/home/useSelectedAccount';
 import { useAppbarHeader } from '~/components/Appbar/useAppbarHeader';
-import {
-  useSelectedToken,
-  useSelectToken,
-} from '~/components/token/useSelectedToken';
+import { useSelectedToken, useSelectToken } from '~/components/token/useSelectedToken';
 import { HomeAppbar } from './HomeAppbar';
 import { withSkeleton } from '~/components/skeleton/withSkeleton';
 import { HomeScreenSkeleton } from './HomeScreenSkeleton';
@@ -30,10 +24,7 @@ export const HomeScreen = withSkeleton(() => {
   const allTokens = useTokensByValue(account);
 
   const tokens = useMemo(
-    () => [
-      selectedToken,
-      ...allTokens.filter((t) => t.addr !== selectedToken.addr),
-    ],
+    () => [selectedToken, ...allTokens.filter((t) => t.addr !== selectedToken.addr)],
     [allTokens, selectedToken],
   );
 

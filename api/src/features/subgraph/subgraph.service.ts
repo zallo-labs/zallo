@@ -1,17 +1,9 @@
 import { Injectable } from '@nestjs/common';
-import {
-  ApolloClient,
-  ApolloLink,
-  HttpLink,
-  InMemoryCache,
-} from '@apollo/client';
+import { ApolloClient, ApolloLink, HttpLink, InMemoryCache } from '@apollo/client';
 import { RetryLink } from '@apollo/client/link/retry';
 import fetch from 'cross-fetch';
 import { CONFIG } from '~/config';
-import {
-  TxResponseQuery,
-  TxResponseQueryVariables,
-} from '@gen/generated.subgraph';
+import { TxResponseQuery, TxResponseQueryVariables } from '@gen/generated.subgraph';
 import { TX_RESPONSES_QUERY } from './subgraph.gql';
 import { Prisma } from '@prisma/client';
 
@@ -36,10 +28,7 @@ export class SubgraphService {
   async txResponse(
     transactionHash: string,
   ): Promise<Prisma.SubmissionResponseUncheckedCreateInput | undefined> {
-    const { data } = await this.client.query<
-      TxResponseQuery,
-      TxResponseQueryVariables
-    >({
+    const { data } = await this.client.query<TxResponseQuery, TxResponseQueryVariables>({
       query: TX_RESPONSES_QUERY,
       variables: { transactionHash },
     });

@@ -4,7 +4,4 @@ import { WC_TRANSACTION_METHODS } from './transaction';
 
 export type WcEventParams = SignClientTypes.EventArguments;
 
-export const WC_METHODS = new Set([
-  ...WC_SIGNING_METHODS,
-  ...WC_TRANSACTION_METHODS,
-]);
+export const WC_METHODS = new Set([...WC_SIGNING_METHODS, ...WC_TRANSACTION_METHODS]);

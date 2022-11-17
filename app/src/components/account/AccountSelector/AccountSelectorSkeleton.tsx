@@ -3,10 +3,7 @@ import { useWindowDimensions } from 'react-native';
 import { Carousel } from 'react-native-snap-carousel';
 import { Box } from '~/components/layout/Box';
 import { Pagination } from '~/components/account/AccountSelector/Pagination/Pagination';
-import {
-  AccountCardSkeleton,
-  ACCOUNT_CARD_STYLE,
-} from './AccountCard/AccountCardSkeleton';
+import { AccountCardSkeleton, ACCOUNT_CARD_STYLE } from './AccountCard/AccountCardSkeleton';
 
 const ITEMS = 2;
 

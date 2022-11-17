@@ -14,9 +14,7 @@ export interface UserConfig extends LimitsConfig {
 
 type UserConfigish = UserConfig | UserConfigStruct;
 
-export const toUserConfigStruct = (
-  config: UserConfigish,
-): UserConfigStruct => ({
+export const toUserConfigStruct = (config: UserConfigish): UserConfigStruct => ({
   approvers: [...config.approvers].sort(compareAddress),
 });
 
@@ -28,8 +26,7 @@ export const USER_CONFIG_TUPLE = '(address[] approvers)';
 export const encodeUserConfig = (config: UserConfigish) =>
   defaultAbiCoder.encode([USER_CONFIG_TUPLE], [toUserConfigStruct(config)]);
 
-export const userConfigToLeaf = (config: UserConfigish) =>
-  keccak256(encodeUserConfig(config));
+export const userConfigToLeaf = (config: UserConfigish) => keccak256(encodeUserConfig(config));
 
 export const hashUserConfig = (config: UserConfigish) =>
   ethers.utils.keccak256(encodeUserConfig(config));

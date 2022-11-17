@@ -6,8 +6,8 @@ module.exports = {
   ...conf,
   resolver: {
     ...conf.resolver,
-    assetExts: conf.resolver.assetExts.filter(ext => ext !== "svg"),
-    sourceExts: [...conf.resolver.sourceExts, "svg"],
+    assetExts: conf.resolver.assetExts.filter((ext) => ext !== 'svg'),
+    sourceExts: [...conf.resolver.sourceExts, 'svg'],
     extraNodeModules: {
       ...conf.resolver.extraNodeModules,
       // https://www.npmjs.com/package/node-libs-react-native
@@ -16,6 +16,6 @@ module.exports = {
   },
   transformer: {
     ...conf.transformer,
-    babelTransformerPath: require.resolve("react-native-svg-transformer")
+    babelTransformerPath: require.resolve('react-native-svg-transformer'),
   },
 };

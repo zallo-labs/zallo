@@ -16,13 +16,10 @@ export const ACCOUNT_INTERFACE = Account__factory.createInterface();
 
 export const UPSERT_USER_FUNCTION =
   ACCOUNT_INTERFACE.functions['upsertUser((address,(address[])[]))'];
-export const UPSERT_USER_SIGHSAH =
-  ACCOUNT_INTERFACE.getSighash(UPSERT_USER_FUNCTION);
+export const UPSERT_USER_SIGHSAH = ACCOUNT_INTERFACE.getSighash(UPSERT_USER_FUNCTION);
 
-export const REMOVE_USER_FUNCTION =
-  ACCOUNT_INTERFACE.functions['removeUser(address)'];
-export const REMOVE_USER_SIGHASH =
-  ACCOUNT_INTERFACE.getSighash(REMOVE_USER_FUNCTION);
+export const REMOVE_USER_FUNCTION = ACCOUNT_INTERFACE.functions['removeUser(address)'];
+export const REMOVE_USER_SIGHASH = ACCOUNT_INTERFACE.getSighash(REMOVE_USER_FUNCTION);
 
 gql`
   query ContractMethod($contract: Address!, $sighash: Bytes!) {
@@ -35,10 +32,7 @@ gql`
 
 const getFunctions = (interf: Interface): Record<string, FunctionFragment> =>
   Object.fromEntries(
-    Object.values(interf.functions).map((f) => [
-      ACCOUNT_INTERFACE.getSighash(f),
-      f,
-    ]),
+    Object.values(interf.functions).map((f) => [ACCOUNT_INTERFACE.getSighash(f), f]),
   );
 
 const FRAGMENTS = {
@@ -46,9 +40,7 @@ const FRAGMENTS = {
   ...getFunctions(ERC20_INTERFACE),
 };
 
-const deserializeFragment = (
-  fragment?: string,
-): FunctionFragment | undefined => {
+const deserializeFragment = (fragment?: string): FunctionFragment | undefined => {
   try {
     if (fragment) return FunctionFragment.from(JSON.parse(fragment));
   } catch {
@@ -68,18 +60,17 @@ export const useContractMethod = (call?: Call) => {
   const sighash = getDataSighash(call?.data);
   const preferredFragment = sighash ? FRAGMENTS[sighash] : undefined;
 
-  const { data, ...rest } = useSuspenseQuery<
-    ContractMethodQuery,
-    ContractMethodQueryVariables
-  >(ContractMethodDocument, {
-    client: useApiClient(),
-    variables: { contract: call?.to, sighash },
-    skip: !call || !sighash || !!preferredFragment,
-  });
+  const { data, ...rest } = useSuspenseQuery<ContractMethodQuery, ContractMethodQueryVariables>(
+    ContractMethodDocument,
+    {
+      client: useApiClient(),
+      variables: { contract: call?.to, sighash },
+      skip: !call || !sighash || !!preferredFragment,
+    },
+  );
 
   const method = useMemo((): ContractMethod | undefined => {
-    const fragment =
-      preferredFragment ?? deserializeFragment(data?.contractMethod?.fragment);
+    const fragment = preferredFragment ?? deserializeFragment(data?.contractMethod?.fragment);
 
     return fragment
       ? {

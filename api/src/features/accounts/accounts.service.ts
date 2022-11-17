@@ -1,14 +1,7 @@
 import { Account } from '@gen/account/account.model';
 import { Injectable } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
-import {
-  address,
-  Address,
-  deployAccountProxy,
-  Limit,
-  LimitPeriod,
-  toDeploySalt,
-} from 'lib';
+import { address, Address, deployAccountProxy, Limit, LimitPeriod, toDeploySalt } from 'lib';
 import { PrismaService } from 'nestjs-prisma';
 import { ProviderService } from '~/provider/provider.service';
 import assert from 'assert';
@@ -16,10 +9,7 @@ import { BigNumber } from 'ethers';
 
 @Injectable()
 export class AccountsService {
-  constructor(
-    private prisma: PrismaService,
-    private provider: ProviderService,
-  ) {}
+  constructor(private prisma: PrismaService, private provider: ProviderService) {}
 
   async deviceAccounts(
     device: Address,

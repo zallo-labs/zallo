@@ -1,8 +1,5 @@
 import { getSdkError } from '@walletconnect/utils';
-import {
-  formatJsonRpcResult,
-  formatJsonRpcError,
-} from '@walletconnect/jsonrpc-utils';
+import { formatJsonRpcResult, formatJsonRpcError } from '@walletconnect/jsonrpc-utils';
 
 export const toWcResult = formatJsonRpcResult;
 

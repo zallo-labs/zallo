@@ -4,6 +4,6 @@ import { FaucetResolver } from './faucet.resolver';
 
 @Module({
   imports: [ProviderModule],
-  providers: [FaucetResolver]
+  providers: [FaucetResolver],
 })
 export class FaucetModule {}

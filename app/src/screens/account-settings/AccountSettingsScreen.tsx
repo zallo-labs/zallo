@@ -10,12 +10,9 @@ export interface AccountSettingsScreenParams {
   account: Address;
 }
 
-export type AccountSettingsScreenProps =
-  RootNavigatorScreenProps<'AccountSettings'>;
+export type AccountSettingsScreenProps = RootNavigatorScreenProps<'AccountSettings'>;
 
-export const AccountSettingsScreen = ({
-  route,
-}: AccountSettingsScreenProps) => {
+export const AccountSettingsScreen = ({ route }: AccountSettingsScreenProps) => {
   const [account] = useAccount(route.params.account);
 
   return (

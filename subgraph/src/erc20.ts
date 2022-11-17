@@ -4,12 +4,8 @@ import { Address, ethereum } from '@graphprotocol/graph-ts';
 import { getTxId } from './tx';
 import { getAccountId } from './account';
 
-const ETH_ADDR: Address = Address.fromString(
-  '0x000000000000000000000000000000000000800a',
-);
-const ETH_SUB_ADDR: Address = Address.fromString(
-  '0x0000000000000000000000000000000000000000',
-);
+const ETH_ADDR: Address = Address.fromString('0x000000000000000000000000000000000000800a');
+const ETH_SUB_ADDR: Address = Address.fromString('0x0000000000000000000000000000000000000000');
 
 function transformEthAddress(address: Address): Address {
   return address == ETH_ADDR ? ETH_SUB_ADDR : address;

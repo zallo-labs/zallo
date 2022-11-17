@@ -10,8 +10,6 @@ export interface ThemeProviderProps {
 
 export const ThemeProvider = ({ children }: ThemeProviderProps) => (
   <PaperProvider theme={PAPER_THEME}>
-    <StyledComponentsProvider theme={STYLED_COMPONENTS_THEME}>
-      {children}
-    </StyledComponentsProvider>
+    <StyledComponentsProvider theme={STYLED_COMPONENTS_THEME}>{children}</StyledComponentsProvider>
   </PaperProvider>
 );

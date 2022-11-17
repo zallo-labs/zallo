@@ -1,9 +1,6 @@
 import { withSkeleton } from '~/components/skeleton/withSkeleton';
 import { ItemSkeleton } from './ItemSkeleton';
-import {
-  ItemWithoutSkeleton,
-  ItemWithoutSkeletonProps,
-} from './ItemWithoutSkeleton';
+import { ItemWithoutSkeleton, ItemWithoutSkeletonProps } from './ItemWithoutSkeleton';
 
 export type ItemProps = ItemWithoutSkeletonProps;
 

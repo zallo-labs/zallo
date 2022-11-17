@@ -8,11 +8,7 @@ export interface ItemSkeletonProps extends ItemProps {
   right?: boolean;
 }
 
-export const ItemSkeleton = ({
-  icon = true,
-  right = true,
-  ...props
-}: ItemSkeletonProps) => (
+export const ItemSkeleton = ({ icon = true, right = true, ...props }: ItemSkeletonProps) => (
   <ItemWithoutSkeleton
     {...(icon && {
       Left: <CircleSkeleton />,

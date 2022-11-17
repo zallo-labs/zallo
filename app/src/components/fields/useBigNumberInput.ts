@@ -8,11 +8,7 @@ export interface UseBigNumberInputOptions {
   decimals: number | undefined;
 }
 
-export const useBigNumberInput = ({
-  value,
-  onChange,
-  decimals,
-}: UseBigNumberInputOptions) =>
+export const useBigNumberInput = ({ value, onChange, decimals }: UseBigNumberInputOptions) =>
   useNumberInput({
     value: value && parseFloat(formatUnits(value, decimals ?? 0)),
     onChange: (value) => onChange(parseUnits(value.toString(), decimals ?? 0)),

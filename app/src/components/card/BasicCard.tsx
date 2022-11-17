@@ -67,10 +67,7 @@ const StyledBase = styled(Base)<StyledProps>`
 `;
 
 type BaseProps = ComponentPropsWithoutRef<typeof Base>;
-type StyledBaseProps = Omit<
-  BaseProps & StyledProps,
-  'children' | 'theme' | 'padding'
->;
+type StyledBaseProps = Omit<BaseProps & StyledProps, 'children' | 'theme' | 'padding'>;
 
 export type CardProps = StyledBaseProps &
   Style & {
@@ -80,13 +77,7 @@ export type CardProps = StyledBaseProps &
 
 export const CARD_BORDER_RADIUS = 12;
 
-export const BasicCard = ({
-  children,
-  padding,
-  selected,
-  selectedColor,
-  ...props
-}: CardProps) => {
+export const BasicCard = ({ children, padding, selected, selectedColor, ...props }: CardProps) => {
   const styles = useStyles({
     selected,
     selectedColor,
@@ -110,16 +101,14 @@ interface Style {
   padding?: boolean;
 }
 
-const useStyles = makeStyles(
-  ({ colors, space }, { selected, selectedColor, padding }: Style) => ({
-    card: {
-      borderRadius: CARD_BORDER_RADIUS,
-      // TouchableOpacity doesn't respect borderRadius, so hide the touchable ripple effect outside of the view;
-      overflow: 'hidden',
-      ...(selected && {
-        backgroundColor: selectedColor ?? colors.surfaceVariant,
-      }),
-      ...(padding && { padding: space(2) }),
-    },
-  }),
-);
+const useStyles = makeStyles(({ colors, space }, { selected, selectedColor, padding }: Style) => ({
+  card: {
+    borderRadius: CARD_BORDER_RADIUS,
+    // TouchableOpacity doesn't respect borderRadius, so hide the touchable ripple effect outside of the view;
+    overflow: 'hidden',
+    ...(selected && {
+      backgroundColor: selectedColor ?? colors.surfaceVariant,
+    }),
+    ...(padding && { padding: space(2) }),
+  },
+}));

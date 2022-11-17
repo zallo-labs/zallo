@@ -40,13 +40,13 @@ gql`
 `;
 
 export const useTransfer = (id: Id) => {
-  const { data, ...rest } = useSuspenseQuery<
-    TransferQuery,
-    TransferQueryVariables
-  >(TransferDocument, {
-    client: useSubgraphClient(),
-    variables: { id },
-  });
+  const { data, ...rest } = useSuspenseQuery<TransferQuery, TransferQueryVariables>(
+    TransferDocument,
+    {
+      client: useSubgraphClient(),
+      variables: { id },
+    },
+  );
 
   const t = data.transfer!;
 

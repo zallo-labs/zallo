@@ -34,8 +34,7 @@ export const FormattedNumber = ({
     if (isLt) v = extendedMin;
 
     let formatted = intl.formatNumber(v, {
-      maximumFractionDigits:
-        v < maxMin ? extendedFracDigits : maximumFractionDigits,
+      maximumFractionDigits: v < maxMin ? extendedFracDigits : maximumFractionDigits,
       ...formatOpts,
     });
 

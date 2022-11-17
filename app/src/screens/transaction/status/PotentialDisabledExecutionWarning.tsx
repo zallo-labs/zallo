@@ -4,10 +4,7 @@ import { Button, Text } from 'react-native-paper';
 import { ActivateAccountButton } from '~/components/account/ActivateAccountButton';
 import { Box } from '~/components/layout/Box';
 import { useTxContext } from '../TransactionProvider';
-import {
-  ExecutionProhibition,
-  useExecutionProhibited,
-} from './useExecutionProhibited';
+import { ExecutionProhibition, useExecutionProhibited } from './useExecutionProhibited';
 
 export const PotentialDisabledExecutionWarning = () => {
   const styles = useStyles();

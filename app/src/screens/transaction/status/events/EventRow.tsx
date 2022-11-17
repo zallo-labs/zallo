@@ -18,13 +18,7 @@ export const EventRow = ({ Icon, content, timestamp }: EventRowProps) => {
 
   return (
     <Box horizontal justifyContent="space-between" alignItems="center">
-      <Container
-        flexShrink={1}
-        horizontal
-        alignItems="center"
-        separator={<Box ml={1} />}
-        mr={4}
-      >
+      <Container flexShrink={1} horizontal alignItems="center" separator={<Box ml={1} />} mr={4}>
         <Icon style={styles.content} />
 
         <Text variant="bodyMedium" style={styles.content}>

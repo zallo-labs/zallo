@@ -12,11 +12,7 @@ export interface SessionAccountsProps {
   style?: StyleProp<ViewStyle>;
 }
 
-export const SessionAccounts = ({
-  users,
-  setUsers,
-  style,
-}: SessionAccountsProps) => {
+export const SessionAccounts = ({ users, setUsers, style }: SessionAccountsProps) => {
   const [allUsers] = useUserIds();
 
   return (
@@ -31,9 +27,7 @@ export const SessionAccounts = ({
             selected={selected}
             onPress={() => {
               setUsers((users) =>
-                selected
-                  ? users.filter((u) => !_.isEqual(u, user))
-                  : [...users, user],
+                selected ? users.filter((u) => !_.isEqual(u, user)) : [...users, user],
               );
             }}
           />

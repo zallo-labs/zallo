@@ -16,22 +16,13 @@ export interface LimitAvailableProps {
   style?: StyleProp<ViewStyle>;
 }
 
-export const LimitAvailable = ({
-  user,
-  token: tokenAddr,
-  style,
-}: LimitAvailableProps) => {
+export const LimitAvailable = ({ user, token: tokenAddr, style }: LimitAvailableProps) => {
   const token = useToken(tokenAddr);
   const available = useTokenAvailable(token, user);
   const balance = useTokenBalance(token, user);
 
   return (
-    <Container
-      vertical
-      alignItems="center"
-      separator={<Box mt={1} />}
-      style={style}
-    >
+    <Container vertical alignItems="center" separator={<Box mt={1} />} style={style}>
       <Text variant="titleSmall">Available</Text>
 
       <Box horizontal alignItems="baseline">

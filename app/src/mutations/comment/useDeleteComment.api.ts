@@ -26,12 +26,12 @@ gql`
 export const useDeleteComment = (account: Address) => {
   const device = useDevice();
 
-  const [mutate] = useMutation<
-    DeleteCommentMutation,
-    DeleteCommentMutationVariables
-  >(DeleteCommentDocument, {
-    client: useApiClient(),
-  });
+  const [mutate] = useMutation<DeleteCommentMutation, DeleteCommentMutationVariables>(
+    DeleteCommentDocument,
+    {
+      client: useApiClient(),
+    },
+  );
 
   return useCallback(
     (c: Comment) => {

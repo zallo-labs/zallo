@@ -37,17 +37,13 @@ export class FaucetResolver {
   constructor(private provider: ProviderService) {}
 
   @Query(() => Boolean)
-  async canRequestFunds(
-    @Args() { recipient }: RequestFundsArgs,
-  ): Promise<boolean> {
+  async canRequestFunds(@Args() { recipient }: RequestFundsArgs): Promise<boolean> {
     const tokensToSend = await this.getTokensToSend(recipient);
     return tokensToSend.length > 0;
   }
 
   @Mutation(() => Boolean)
-  async requestFunds(
-    @Args() { recipient }: RequestFundsArgs,
-  ): Promise<boolean> {
+  async requestFunds(@Args() { recipient }: RequestFundsArgs): Promise<boolean> {
     const tokensToSend = await this.getTokensToSend(recipient);
 
     const successes = await Promise.all(
@@ -58,11 +54,7 @@ export class FaucetResolver {
 
   private async getTokensToSend(recipient: Address) {
     return filterAsync([ETH, DAI, USDC, LINK], async (token) => {
-      const recipientBalance = await this.provider.getBalance(
-        recipient,
-        undefined,
-        token.addr,
-      );
+      const recipientBalance = await this.provider.getBalance(recipient, undefined, token.addr);
       if (recipientBalance.gte(token.amount)) return false;
 
       const walletBalance = await this.provider.wallet.getBalance(token.addr);

@@ -1,8 +1,7 @@
 import { Native as Sentry, init } from 'sentry-expo';
 import { CONFIG } from '~/util/config';
 
-export const SENTRY_ROUTING_INSTRUMENTATION =
-  new Sentry.ReactNavigationInstrumentation();
+export const SENTRY_ROUTING_INSTRUMENTATION = new Sentry.ReactNavigationInstrumentation();
 
 export const withSentry = <P>(RootComponent: React.ComponentType<P>) => {
   init({
@@ -23,25 +22,19 @@ export const withSentry = <P>(RootComponent: React.ComponentType<P>) => {
   return Sentry.wrap(RootComponent);
 };
 
-export const captureException = (
-  ...params: Parameters<typeof Sentry.captureException>
-) => {
+export const captureException = (...params: Parameters<typeof Sentry.captureException>) => {
   console.warn('Sentry.captureException', ...params);
   return Sentry.captureException(...params);
 };
 
 export type SentryEvent = Parameters<typeof Sentry.captureEvent>[0];
 
-export const captureEvent = (
-  ...params: Parameters<typeof Sentry.captureEvent>
-) => {
+export const captureEvent = (...params: Parameters<typeof Sentry.captureEvent>) => {
   console.log('Sentry.captureEvent', ...params);
   return Sentry.captureEvent(...params);
 };
 
-export const captureMessage = (
-  ...params: Parameters<typeof Sentry.captureMessage>
-) => {
+export const captureMessage = (...params: Parameters<typeof Sentry.captureMessage>) => {
   console.log('Sentry.captureMessage', ...params);
   return Sentry.captureMessage(...params);
 };

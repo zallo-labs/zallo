@@ -8,9 +8,7 @@ export const useAppbarHeader = () => {
   const [scrolled, handleScroll] = useScrolled();
 
   const AppbarHeader = useCallback(
-    (props: AppbarHeaderProps) => (
-      <Appbar.Header elevated={scrolled} {...props} />
-    ),
+    (props: AppbarHeaderProps) => <Appbar.Header elevated={scrolled} {...props} />,
     [scrolled],
   );
 

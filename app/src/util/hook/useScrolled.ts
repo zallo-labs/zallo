@@ -1,9 +1,7 @@
 import { useCallback, useState } from 'react';
 import { NativeScrollEvent, NativeSyntheticEvent } from 'react-native';
 
-export type ScrollHandler = (
-  event: NativeSyntheticEvent<NativeScrollEvent>,
-) => void;
+export type ScrollHandler = (event: NativeSyntheticEvent<NativeScrollEvent>) => void;
 
 export const useScrolled = () => {
   const [scrolled, setScrolled] = useState(false);

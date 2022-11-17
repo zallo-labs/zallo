@@ -1,9 +1,6 @@
 import { createRemoveUserTx } from 'lib';
 import { useCallback, useState } from 'react';
-import {
-  showProposalSnack,
-  usePropose,
-} from '~/mutations/proposal/propose/usePropose';
+import { showProposalSnack, usePropose } from '~/mutations/proposal/propose/usePropose';
 import { useAccount } from '~/queries/account/useAccount.api';
 import { CombinedUser, toActiveUser } from '~/queries/user/useUser.api';
 import { useApiRemoveUser } from './useRemoveUser.api';

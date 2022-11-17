@@ -3,24 +3,15 @@ import { ApolloClient, NormalizedCacheObject } from '@apollo/client';
 import { UNISWAP_CLIENT, UNISWAP_CLIENT_NAME } from './clients/uniswap';
 import { Suspend } from '~/components/Suspender';
 import useAsyncEffect from 'use-async-effect';
-import {
-  API_CLIENT_NAME,
-  usePromisedApiClient,
-} from './clients/usePromisedApiClient';
+import { API_CLIENT_NAME, usePromisedApiClient } from './clients/usePromisedApiClient';
 import { SUBGRAPH_CLIENT_NAME, SUBGRAPH_CLIENT } from './clients/subgraph';
 
-const clientNames = [
-  API_CLIENT_NAME,
-  SUBGRAPH_CLIENT_NAME,
-  UNISWAP_CLIENT_NAME,
-] as const;
+const clientNames = [API_CLIENT_NAME, SUBGRAPH_CLIENT_NAME, UNISWAP_CLIENT_NAME] as const;
 type Name = typeof clientNames[number];
 
 type GqlClients = Record<Name, ApolloClient<NormalizedCacheObject>>;
 
-export const isGqlClients = (
-  clients: GqlClients | Partial<GqlClients>,
-): clients is GqlClients =>
+export const isGqlClients = (clients: GqlClients | Partial<GqlClients>): clients is GqlClients =>
   clientNames.every((name) => clients[name] !== undefined);
 
 const context = createContext<GqlClients | undefined>(undefined);

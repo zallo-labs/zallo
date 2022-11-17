@@ -24,9 +24,7 @@ export const VALIDATION_CHECKS: Record<string, IsErrorCheck> = {
       return validateErrors[e as ErrorTypes] ?? true;
     }
   },
-  "Message nonce doesn't match session nonce": ({ msg, req }) =>
-    msg.nonce !== req.session.nonce,
+  "Message nonce doesn't match session nonce": ({ msg, req }) => msg.nonce !== req.session.nonce,
   'Message not yet valid': ({ msg }) =>
-    msg.notBefore !== undefined &&
-    DateTime.fromISO(msg.notBefore) > DateTime.now(),
+    msg.notBefore !== undefined && DateTime.fromISO(msg.notBefore) > DateTime.now(),
 };

@@ -91,14 +91,6 @@ export const useSession = (topic: Topic) => {
       },
       proposer: sessions.get(topic)!.proposer,
     }),
-    [
-      clientV2,
-      connectionsV1,
-      sessions,
-      topic,
-      updateConnectionsV1,
-      withClientV2,
-      withConnectionV1,
-    ],
+    [clientV2, connectionsV1, sessions, topic, updateConnectionsV1, withClientV2, withConnectionV1],
   );
 };

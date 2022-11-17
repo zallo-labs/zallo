@@ -6,12 +6,7 @@ describe('RemoveUser', () => {
   it('should successfully execute & emit event', async () => {
     const { account, user, config } = await deploy();
 
-    const txResp = await execute(
-      account,
-      user,
-      config,
-      createRemoveUserTx(account, user),
-    );
+    const txResp = await execute(account, user, config, createRemoveUserTx(account, user));
 
     await expect(txResp).to.emit(account, AccountEvent.UserRemoved);
   });
@@ -19,16 +14,9 @@ describe('RemoveUser', () => {
   it("should zero user's merkle root", async () => {
     const { account, user, config } = await deployTestAccount();
 
-    const txResp = await execute(
-      account,
-      user,
-      config,
-      createRemoveUserTx(account, user),
-    );
+    const txResp = await execute(account, user, config, createRemoveUserTx(account, user));
     await txResp.wait();
 
-    expect(await account.getUserMerkleRoot(user.addr)).to.eq(
-      ethers.utils.formatBytes32String(''),
-    );
+    expect(await account.getUserMerkleRoot(user.addr)).to.eq(ethers.utils.formatBytes32String(''));
   });
 });

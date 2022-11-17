@@ -23,15 +23,11 @@ export const toBoolArray = (bools: boolean[]) => {
   for (let index = 0; index < bools.length; index++) {
     const { arrIndex, shift } = getIndexes(index);
 
-    if (bools[index])
-      data[arrIndex] = data[arrIndex].or(BigNumber.from(1).shl(shift));
+    if (bools[index]) data[arrIndex] = data[arrIndex].or(BigNumber.from(1).shl(shift));
   }
 
   const boolsLen = BigNumber.from(bools.length);
-  const firstElement = ethers.utils.solidityPack(
-    ['uint32', 'uint224'],
-    [boolsLen, data[0]],
-  );
+  const firstElement = ethers.utils.solidityPack(['uint32', 'uint224'], [boolsLen, data[0]]);
 
   return [BigNumber.from(firstElement), ...data.slice(1)];
 };

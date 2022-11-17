@@ -14,12 +14,7 @@ export const FaucetButton = ({ account }: FaucetButtonProps) => {
   if (!faucet) return null;
 
   return (
-    <Button
-      mode="outlined"
-      icon={ReceiveIcon}
-      style={styles.button}
-      onPress={faucet}
-    >
+    <Button mode="outlined" icon={ReceiveIcon} style={styles.button} onPress={faucet}>
       Testnet funds
     </Button>
   );

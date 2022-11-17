@@ -10,10 +10,7 @@ export const getMerkleTree = (user: User): MerkleTree => {
   return new MerkleTree(leaves, keccak256, { sort: true });
 };
 
-export const getUserConfigProof = (
-  user: User,
-  config: UserConfig,
-): Buffer[] => {
+export const getUserConfigProof = (user: User, config: UserConfig): Buffer[] => {
   const tree = getMerkleTree(user);
   const leaf = userConfigToLeaf(config);
 

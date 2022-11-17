@@ -20,19 +20,10 @@ export const getSigners = async (
 ): Promise<Signer[]> =>
   mapAsync([user.addr, ...config.approvers], async (approver) => ({
     approver,
-    signature: await signTx(
-      allSigners.find((w) => w.address === approver)!,
-      account.address,
-      tx,
-    ),
+    signature: await signTx(allSigners.find((w) => w.address === approver)!, account.address, tx),
   }));
 
-export const execute = async (
-  account: Account,
-  user: User,
-  config: UserConfig,
-  txDef: TxDef,
-) => {
+export const execute = async (account: Account, user: User, config: UserConfig, txDef: TxDef) => {
   const tx = createTx(txDef);
   const signers = await getSigners(account, user, config, tx);
 

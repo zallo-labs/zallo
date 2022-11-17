@@ -19,11 +19,7 @@ export const FAB = ({ appbar, onPress, ...props }: FABProps) => (
         onPress();
       },
     })}
-    style={[
-      styles.bottom,
-      appbar ? styles.appbarMargin : styles.regularMargin,
-      props.style,
-    ]}
+    style={[styles.bottom, appbar ? styles.appbarMargin : styles.regularMargin, props.style]}
   />
 );
 

@@ -1,12 +1,5 @@
 import { ContractMethod } from '@gen/contract-method/contract-method.model';
-import {
-  Args,
-  Info,
-  Parent,
-  Query,
-  ResolveField,
-  Resolver,
-} from '@nestjs/graphql';
+import { Args, Info, Parent, Query, ResolveField, Resolver } from '@nestjs/graphql';
 import { GraphQLResolveInfo } from 'graphql';
 import { Id, toId } from 'lib';
 import { PrismaService } from 'nestjs-prisma';
@@ -16,10 +9,7 @@ import { ContractMethodsService } from './contract-methods.service';
 
 @Resolver(() => ContractMethod)
 export class ContractMethodsResolver {
-  constructor(
-    private service: ContractMethodsService,
-    private prisma: PrismaService,
-  ) {}
+  constructor(private service: ContractMethodsService, private prisma: PrismaService) {}
 
   @ResolveField(() => String)
   id(@Parent() c: ContractMethod): Id {

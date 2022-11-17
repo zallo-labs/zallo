@@ -7,10 +7,7 @@ import { SessionProposalV1, SessionRequestV1 } from './methods/typesV1';
 import { useRootNavigation } from '~/navigation/useRootNavigation';
 import { SigningRequest, WC_SIGNING_METHODS } from './methods/signing';
 import { useHandleWcSend } from './useHandleWcSend';
-import {
-  WcSendTransactionData,
-  WC_TRANSACTION_METHODS,
-} from './methods/transaction';
+import { WcSendTransactionData, WC_TRANSACTION_METHODS } from './methods/transaction';
 import { TopicV1 } from './useTopic';
 
 const URI_PATTERN = /^wc:[0-9a-f-]*@1\?/;
@@ -40,24 +37,21 @@ export const usePairWalletConnectV1 = () => {
         });
       });
 
-      c.on(
-        'call_request',
-        (error, { id, method, params }: SessionRequestV1) => {
-          if (error) return showError('Failed handle WalletConnect request');
+      c.on('call_request', (error, { id, method, params }: SessionRequestV1) => {
+        if (error) return showError('Failed handle WalletConnect request');
 
-          if (WC_SIGNING_METHODS.has(method)) {
-            navigate('Sign', {
-              topic: uri as TopicV1,
-              id,
-              request: { method, params } as SigningRequest,
-            });
-          } else if (WC_TRANSACTION_METHODS.has(method)) {
-            handleSend(c, id, undefined, params[0] as WcSendTransactionData);
-          } else {
-            showError(`Unsupported WalletConnect request method: ${method}`);
-          }
-        },
-      );
+        if (WC_SIGNING_METHODS.has(method)) {
+          navigate('Sign', {
+            topic: uri as TopicV1,
+            id,
+            request: { method, params } as SigningRequest,
+          });
+        } else if (WC_TRANSACTION_METHODS.has(method)) {
+          handleSend(c, id, undefined, params[0] as WcSendTransactionData);
+        } else {
+          showError(`Unsupported WalletConnect request method: ${method}`);
+        }
+      });
 
       c.on('disconnect', () => {
         updateConnectionsV1((connections) => {

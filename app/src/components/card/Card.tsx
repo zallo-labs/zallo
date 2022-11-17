@@ -115,20 +115,18 @@ interface Style {
   selectedColor?: string;
 }
 
-const useStyles = makeStyles(
-  ({ colors, space }, { opaque, selected, selectedColor }: Style) => ({
-    card: {
-      borderRadius: CARD_BORDER_RADIUS,
-      // TouchableOpacity doesn't respect borderRadius, so hide the touchable ripple effect outside of the view;
-      overflow: 'hidden',
-      ...(opaque && { opacity: 0.38 }),
-      ...(selected && {
-        backgroundColor: selectedColor ?? colors.surfaceVariant,
-      }),
-    },
-    touchable: {
-      flexGrow: 1,
-      padding: space(2),
-    },
-  }),
-);
+const useStyles = makeStyles(({ colors, space }, { opaque, selected, selectedColor }: Style) => ({
+  card: {
+    borderRadius: CARD_BORDER_RADIUS,
+    // TouchableOpacity doesn't respect borderRadius, so hide the touchable ripple effect outside of the view;
+    overflow: 'hidden',
+    ...(opaque && { opacity: 0.38 }),
+    ...(selected && {
+      backgroundColor: selectedColor ?? colors.surfaceVariant,
+    }),
+  },
+  touchable: {
+    flexGrow: 1,
+    padding: space(2),
+  },
+}));

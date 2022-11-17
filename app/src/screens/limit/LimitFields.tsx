@@ -48,9 +48,7 @@ export const LimitFields = ({ limit, setLimit, style }: LimitFieldsProps) => {
           },
         ]}
         value={limit.period}
-        onValueChange={(period) =>
-          setLimit({ ...limit, period: period as LimitPeriod })
-        }
+        onValueChange={(period) => setLimit({ ...limit, period: period as LimitPeriod })}
         style={styles.period}
       />
     </Container>

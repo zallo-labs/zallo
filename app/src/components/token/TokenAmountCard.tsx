@@ -12,11 +12,7 @@ export interface TokenAmountCardProps extends CardItemProps {
   amount: BigNumberish;
 }
 
-export const TokenAmountCard = ({
-  token: t,
-  amount,
-  ...itemProps
-}: TokenAmountCardProps) => {
+export const TokenAmountCard = ({ token: t, amount, ...itemProps }: TokenAmountCardProps) => {
   const fiatValue = useTokenValue(t, amount);
 
   return (

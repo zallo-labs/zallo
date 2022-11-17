@@ -65,20 +65,13 @@ export const ERC20_INTERFACE = Erc20__factory.createInterface();
 export const getTokenContract = (token: Token): Erc20 =>
   Erc20__factory.connect(token.addr, PROVIDER as any);
 
-export const createTransferTx = (
-  token: Token,
-  to: Address,
-  amount: BigNumber,
-): TxReq =>
+export const createTransferTx = (token: Token, to: Address, amount: BigNumber): TxReq =>
   createTx(
     token.type === 'ERC20'
       ? {
           // ERC20
           to: token.addr,
-          data: getTokenContract(token).interface.encodeFunctionData(
-            'transfer',
-            [to, amount],
-          ),
+          data: getTokenContract(token).interface.encodeFunctionData('transfer', [to, amount]),
         }
       : {
           // ETH
