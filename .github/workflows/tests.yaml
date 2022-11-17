@@ -84,8 +84,11 @@ jobs:
       - name: 📦 Install
         run: yarn install
 
-      - name: 🧪 Test
+      - name: 🧪 Typecheck
         run: yarn docs typecheck
+
+      - name: 🏗️ Build
+        run: yarn docs build
 
   subgraph:
     runs-on: ubuntu-latest
