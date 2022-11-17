@@ -4,6 +4,7 @@
     "**/.git/**": true,
     "**/.pnp.*": true,
     "**/.yarn/**": true,
+    "**/build/**": true,
     "**/dist/**": true,
     "**/node_modules/**": true,
     "subgraph/data/**": true,

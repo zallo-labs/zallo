@@ -28,11 +28,11 @@ const config = {
       ({
         docs: {
           sidebarPath: require.resolve('./sidebars.js'),
-          editUrl: `${repo}/tree/dev/docs`,
+          editUrl: `${repo}/tree/main/docs`,
         },
         blog: {
           showReadingTime: true,
-          editUrl: `${repo}/tree/dev/docs`,
+          editUrl: `${repo}/tree/main/docs`,
         },
         theme: {
           customCss: require.resolve('./src/css/custom.css'),
@@ -81,8 +81,8 @@ const config = {
             title: 'Docs',
             items: [
               {
-                label: 'Tutorial',
-                to: '/docs/intro',
+                label: 'Getting started',
+                to: '/docs/getting-started',
               },
             ],
           },
