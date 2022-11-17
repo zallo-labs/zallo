@@ -13,7 +13,7 @@ concurrency:
   cancel-in-progress: true
 
 env:
-  SUBGRAPH_GQL_URL: 'http://graph.allopay.io/subgraphs/name/zallo-dev'
+  SUBGRAPH_GQL_URL: 'https://api.thegraph.com/subgraphs/name/hbriese/zallo-dev'
 
 jobs:
   api:
@@ -36,7 +36,7 @@ jobs:
     environment: 'app-dev'
     env:
       # Environment
-      API_URL: 'https://api-dev.allopay.io'
+      API_URL: 'https://dev.api.zallo.io'
       # Repository
       SENTRY_DSN: ${{ secrets.SENTRY_DSN }}
       SENTRY_ORG: ${{ secrets.SENTRY_ORG }}
@@ -52,15 +52,15 @@ jobs:
           node-version: ${{ matrix.node-version }}
           cache: 'yarn'
 
+      - name: 📦 Install
+        run: yarn install
+
       - name: 🚧 Setup Expo
         uses: expo/expo-github-action@v7
         with:
           token: ${{ secrets.EXPO_TOKEN }}
           expo-version: latest
           eas-version: latest
-
-      - name: 📦 Install
-        run: yarn install
 
       - name: 🏗️ Prebuild
         run: yarn app prebuild
