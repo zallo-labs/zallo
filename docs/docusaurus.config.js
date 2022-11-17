@@ -9,20 +9,12 @@ const repo = 'https://github.com/zallo-labs/zallo';
 const config = {
   title: 'Zallo',
   tagline: 'A self-custodial smart wallet',
-  url: 'https://docs.zallo.io',
+  url: 'https://zallo.netlify.app/',
   baseUrl: '/',
+  favicon: 'img/icon-rounded@64.png',
   onBrokenLinks: 'throw',
   onBrokenMarkdownLinks: 'warn',
-  favicon: 'img/icon-rounded@64.png',
 
-  // GitHub pages deployment config.
-  // If you aren't using GitHub pages, you don't need these.
-  organizationName: 'zallo-labs', // Usually your GitHub org/user name.
-  projectName: 'zallo', // Usually your repo name.
-
-  // Even if you don't use internalization, you can use this field to set useful
-  // metadata like html lang. For example, if your site is Chinese, you may want
-  // to replace "en" with "zh-Hans".
   i18n: {
     defaultLocale: 'en',
     locales: ['en'],
