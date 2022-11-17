@@ -28,8 +28,5 @@
       "name": "Subgraph",
       "path": "../subgraph"
     }
-  ],
-  "settings": {
-    "editor.tabSize": 2
-  }
+  ]
 }

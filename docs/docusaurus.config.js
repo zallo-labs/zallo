@@ -4,6 +4,7 @@ const lightCodeTheme = require('prism-react-renderer/themes/github');
 const darkCodeTheme = require('prism-react-renderer/themes/dracula');
 
 const repo = 'https://github.com/zallo-labs/zallo';
+const twitter = 'https://twitter.com/zallo-labs';
 
 /** @type {import('@docusaurus/types').Config} */
 const config = {
@@ -27,13 +28,11 @@ const config = {
       ({
         docs: {
           sidebarPath: require.resolve('./sidebars.js'),
-          editUrl:
-            'https://github.com/facebook/docusaurus/tree/main/packages/create-docusaurus/templates/shared/',
+          editUrl: `${repo}/tree/dev/docs`,
         },
         blog: {
           showReadingTime: true,
-          editUrl:
-            'https://github.com/facebook/docusaurus/tree/main/packages/create-docusaurus/templates/shared/',
+          editUrl: `${repo}/tree/dev/docs`,
         },
         theme: {
           customCss: require.resolve('./src/css/custom.css'),
@@ -53,15 +52,24 @@ const config = {
         },
         items: [
           {
+            label: 'Docs',
             type: 'doc',
-            docId: 'intro',
+            docId: 'getting-started',
             position: 'left',
-            label: 'Tutorial',
           },
-          { to: '/blog', label: 'Blog', position: 'left' },
           {
-            href: repo,
+            label: 'Blog',
+            to: '/blog',
+            position: 'left',
+          },
+          {
+            label: 'Twitter',
+            href: twitter,
+            position: 'right',
+          },
+          {
             label: 'GitHub',
+            href: repo,
             position: 'right',
           },
         ],
@@ -83,16 +91,12 @@ const config = {
             items: [
               {
                 label: 'Twitter',
-                href: 'https://twitter.com/zallo-labs',
+                href: twitter,
               },
-              // {
-              //   label: 'Stack Overflow',
-              //   href: 'https://stackoverflow.com/questions/tagged/docusaurus',
-              // },
-              // {
-              //   label: 'Discord',
-              //   href: 'https://discordapp.com/invite/docusaurus',
-              // },
+              {
+                label: 'GitHub',
+                href: repo,
+              },
             ],
           },
           {
@@ -103,8 +107,8 @@ const config = {
                 to: '/blog',
               },
               {
-                label: 'GitHub',
-                href: 'https://github.com/zallo-labs/zallo',
+                label: 'Landing page',
+                href: 'https://allopay.io',
               },
             ],
           },
