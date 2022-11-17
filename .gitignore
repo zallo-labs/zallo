@@ -50,6 +50,8 @@ contracts/zk
 ## Docs
 docs/.docusaurus
 docs/.cache-loader
+# Generated from api schema
+docs/docs/api
 
 
 ## Lib

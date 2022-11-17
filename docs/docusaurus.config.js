@@ -41,6 +41,20 @@ const config = {
     ],
   ],
 
+  plugins: [
+    [
+      // https://www.npmjs.com/package/docusaurus-graphql-plugin
+      'docusaurus-graphql-plugin',
+      {
+        schema: '../api/schema.gql',
+        sidebar: {
+          label: 'Reference',
+          position: 6,
+        },
+      },
+    ],
+  ],
+
   themeConfig:
     /** @type {import('@docusaurus/preset-classic').ThemeConfig} */
     ({

@@ -6,8 +6,8 @@
     "seed": "ts-node prisma/seed.ts"
   },
   "scripts": {
-    "prebuild": "(cd .. && yarn lib build)",
-    "build": "yarn prebuild && yarn prisma generate && nest build",
+    "prebuild": "(cd .. && yarn lib build) && yarn prisma generate",
+    "build": "yarn prebuild && nest build",
     "clean": "npx rimraf dist generated node_modules",
     "format": "prettier --config ../.prettierrc --write \"src/**/*.ts\"",
     "start": "nest start --debug --watch",
@@ -20,7 +20,8 @@
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register ../node_modules/.bin/jest --runInBand",
     "with-env": "dotenv -e ../.env",
     "prisma": "yarn with-env -- prisma",
-    "generate:gql": "DOTENV_CONFIG_PATH=\"../.env\" graphql-codegen --require dotenv/config --config codegen.yml"
+    "generate:gql": "DOTENV_CONFIG_PATH=\"../.env\" graphql-codegen --require dotenv/config --config codegen.yml",
+    "generate:schema": "yarn prebuild && npx node -r tsconfig-paths/register -r ts-node/register ./src/generate-schema.ts"
   },
   "dependencies": {
     "@apollo/client": "^3.7.1",
