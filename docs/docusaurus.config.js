@@ -2,6 +2,7 @@
 
 const lightCodeTheme = require('prism-react-renderer/themes/github');
 const darkCodeTheme = require('prism-react-renderer/themes/dracula');
+require('dotenv').config({ path: '../.env' });
 
 const repo = 'https://github.com/zallo-labs/zallo';
 const twitter = 'https://twitter.com/zallo-labs';
@@ -77,6 +78,11 @@ const config = {
             position: 'left',
           },
           {
+            label: 'Playground',
+            to: '/playground',
+            position: 'left',
+          },
+          {
             label: 'Twitter',
             href: twitter,
             position: 'right',
@@ -134,6 +140,12 @@ const config = {
         darkTheme: darkCodeTheme,
       },
     }),
+
+  customFields: {
+    apolloGraphRef: process.env.APOLLO_GRAPH_REF,
+    feedbackEmail: 'feedback@zallo.io',
+    supportEmail: 'support@zall.io',
+  },
 };
 
 module.exports = config;

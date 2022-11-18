@@ -7,7 +7,7 @@ import HomepageFeatures from '@site/src/components/HomepageFeatures';
 
 import styles from './index.module.css';
 
-function HomepageHeader() {
+const HomepageHeader = () => {
   const { siteConfig } = useDocusaurusContext();
 
   return (
@@ -23,19 +23,14 @@ function HomepageHeader() {
       </div>
     </header>
   );
-}
+};
 
-export default function Home(): JSX.Element {
-  const { siteConfig } = useDocusaurusContext();
-  return (
-    <Layout
-      title={`Hello from ${siteConfig.title}`}
-      description="Description will go into a meta tag in <head />"
-    >
-      <HomepageHeader />
-      <main>
-        <HomepageFeatures />
-      </main>
-    </Layout>
-  );
-}
+export default () => (
+  <Layout description="Home">
+    <HomepageHeader />
+
+    <main>
+      <HomepageFeatures />
+    </main>
+  </Layout>
+);

@@ -5,28 +5,31 @@
       "path": "../"
     },
     {
-      "name": "API",
+      "name": "api",
       "path": "../api"
     },
     {
-      "name": "App",
+      "name": "app",
       "path": "../app"
     },
     {
-      "name": "Contracts",
+      "name": "contracts",
       "path": "../contracts"
     },
     {
-      "name": "Docs",
+      "name": "docs",
       "path": "../docs"
     },
     {
-      "name": "Lib",
+      "name": "lib",
       "path": "../lib"
     },
     {
-      "name": "Subgraph",
+      "name": "subgraph",
       "path": "../subgraph"
     }
-  ]
+  ],
+  "settings": {
+    "dotenv.enableAutocloaking": false
+  }
 }
