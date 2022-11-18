@@ -1,5 +1,6 @@
 ## Shared
-.env
+.env*
+!.env.vault
 **/bin
 **/build
 **/cache
@@ -64,3 +65,6 @@ subgraph/build
 subgraph/data
 subgraph/generated
 subgraph/subgraph.yaml
+
+.flaskenv*
+!.env.project

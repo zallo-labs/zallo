@@ -1,17 +1,17 @@
 import { ExpoConfig, ConfigContext } from '@expo/config';
 
-const E = process.env;
+const ENV = process.env;
 
-const chain = E?.CHAIN?.toUpperCase();
+const chain = ENV?.CHAIN?.toUpperCase();
 export const CONFIG = {
-  env: E.RELEASE_ENV === 'development' ? 'development' : 'production',
+  env: ENV.RELEASE_ENV === 'development' ? 'development' : 'production',
   chainName: chain!,
-  sentryDsn: E.SENTRY_DSN!,
-  apiUrl: E.API_URL!,
-  subgraphGqlUrl: E.SUBGRAPH_GQL_URL!,
-  proxyFactory: E[`PROXY_FACTORY_${chain}`]!,
-  accountImpl: E[`ACCOUNT_IMPL_${chain}`]!,
-  multiCall: E[`MULTI_CALL_${chain}`]!,
+  sentryDsn: ENV.SENTRY_DSN!,
+  apiUrl: ENV.API_URL!,
+  subgraphGqlUrl: ENV.SUBGRAPH_GQL_URL!,
+  proxyFactory: ENV[`PROXY_FACTORY_${chain}`]!,
+  accountImpl: ENV[`ACCOUNT_IMPL_${chain}`]!,
+  multiCall: ENV[`MULTI_CALL_${chain}`]!,
   walletConnectProjectId: '599f2bebcaf0baedaaf87f899ad27991',
 } as const;
 
@@ -35,6 +35,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
   extra: {
     ...CONFIG,
     ...(CONFIG.env === 'production' && { eas: { projectId: PROJECT_ID } }),
+    eas: { projectId: PROJECT_ID },
   },
   plugins: [
     'sentry-expo',
@@ -47,10 +48,10 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
         file: 'sentry-expo/upload-sourcemaps',
         config: {
           // https://docs.expo.dev/guides/using-sentry/#31-configure-a--postpublish--hook
-          organization: E.SENTRY_ORG,
-          project: E.SENTRY_PROJECT,
-          authToken: E.SENTRY_AUTH_TOKEN,
-          deployEnv: E.env,
+          organization: ENV.SENTRY_ORG,
+          project: ENV.SENTRY_PROJECT,
+          authToken: ENV.SENTRY_AUTH_TOKEN,
+          deployEnv: ENV.env,
           setCommits: true,
         },
       },
