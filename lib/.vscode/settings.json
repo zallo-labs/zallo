@@ -1,14 +1,7 @@
 {
   "files.exclude": {
-    ".vscode": true,
-    "dist": true,
-    "node_modules": true
+    "contracts": true,
+    "typechain": true
   },
-  "search.exclude": {
-    "dist": true,
-    "src/contracts": true,
-    "src/typechain": true
-  },
-  "jest.jestCommandLine": "yarn test",
-  "jest.autoRun": "off"
+  "jest.jestCommandLine": "yarn test"
 }

@@ -1,53 +1,14 @@
 {
-  "search.exclude": {
-    "**/.expo/**": true,
-    "**/.git/**": true,
-    "**/.pnp.*": true,
-    "**/.yarn/**": true,
-    "**/build/**": true,
-    "**/dist/**": true,
-    "**/node_modules/**": true,
-    "subgraph/data/**": true,
-    "yarn.lock": true,
-    "**/*generated*": true
-  },
-  "files.watcherExclude": {
-    "**/.git/**": true,
-    "**/.expo/**": true,
-    "**/.yarn/**": true,
-    "**/.pnp.*": true,
-    "**/node_modules/**": true,
-    "subgraph/data/**": true
-  },
-  "mochaExplorer.cwd": "contracts",
-  "mochaExplorer.files": "contracts/test/**/*.{t,j}s",
-  // "solidity.defaultCompiler": "localFile",
-  // "solidity.packageDefaultDependenciesDirectory": "node_modules/",
-  // "solidity.packageDefaultDependenciesContractsDirectory": "contracts",
-  // "solidity.compileUsingLocalVersion": "node_modules/solc/soljson.js",
-  // "solidity.remappings": ["@openzeppelin/=node_modules/@openzeppelin"]
-  "[typescriptreact]": {
-    "editor.defaultFormatter": "esbenp.prettier-vscode"
-  },
-  "[typescript]": {
-    "editor.defaultFormatter": "esbenp.prettier-vscode"
-  },
-  "[solidity]": {
-    "editor.defaultFormatter": "esbenp.prettier-vscode"
-  },
-  "[javascript]": {
-    "editor.defaultFormatter": "esbenp.prettier-vscode"
-  },
-  "[json]": {
-    "editor.defaultFormatter": "esbenp.prettier-vscode"
-  },
-  "[jsonc]": {
-    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  "files.exclude": {
+    // Folders excluded by all but root
+    "**/.vscode": false,
+    "**/dist": false,
+    "**/node_modules": false,
+    "**/generated": false,
+    "**/__generated__": false
   },
   "prettier.configPath": ".config/.prettierrc",
-  "prettier.ignorePath": ".config/.prettierignore",
-  "react-native.packager.port": 19000,
-  "jest.autoRun": "off",
+  "prettier.ignorePath": ".prettierignore",
   "jest.testExplorer": {
     "enabled": false
   }

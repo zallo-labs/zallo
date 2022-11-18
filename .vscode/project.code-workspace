@@ -30,6 +30,52 @@
     }
   ],
   "settings": {
-    "dotenv.enableAutocloaking": false
+    "search.exclude": {
+      "**/.expo*/**": true,
+      "**/.git/**": true,
+      "**/.pnp.*": true,
+      "**/.yarn/**": true,
+      "**/build/**": true,
+      "**/dist/**": true,
+      "**/node_modules/**": true,
+      "yarn.lock": true,
+      "**/*generated*": true
+    },
+    "files.watcherExclude": {
+      "**/.git/**": true,
+      "**/.expo*/**": true,
+      "**/.yarn/**": true,
+      "**/.pnp.*": true,
+      "**/node_modules/**": true
+    },
+    "files.exclude": {
+      "**/.git": true,
+      "**/.DS_Store": true,
+      "**/Thumbs.db": true,
+      // Folders excluded by all but root
+      "**/.vscode": true,
+      "**/node_modules": true,
+      "**/dist": true,
+      "**/generated": true,
+      "**/__generated__": true
+    },
+    "[typescriptreact]": {
+      "editor.defaultFormatter": "esbenp.prettier-vscode"
+    },
+    "[typescript]": {
+      "editor.defaultFormatter": "esbenp.prettier-vscode"
+    },
+    "[solidity]": {
+      "editor.defaultFormatter": "esbenp.prettier-vscode"
+    },
+    "[javascript]": {
+      "editor.defaultFormatter": "esbenp.prettier-vscode"
+    },
+    "[json]": {
+      "editor.defaultFormatter": "esbenp.prettier-vscode"
+    },
+    "[jsonc]": {
+      "editor.defaultFormatter": "esbenp.prettier-vscode"
+    }
   }
 }
