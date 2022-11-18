@@ -46,27 +46,28 @@ jobs:
       - name: 🚧 Checkout
         uses: actions/checkout@v3
 
-      - name: 🚧 Use Node ${{ matrix.node-version }}
-        uses: actions/setup-node@v2
-        with:
-          node-version: ${{ matrix.node-version }}
-          cache: 'yarn'
+      # Disabled until expo-cli node 18 support is sanctioned - https://github.com/expo/expo-cli/issues/4478
+      # - name: 🚧 Use Node ${{ matrix.node-version }}
+      #   uses: actions/setup-node@v2
+      #   with:
+      #     node-version: ${{ matrix.node-version }}
+      #     cache: 'yarn'
 
-      - name: 📦 Install
-        run: yarn install
+      # - name: 📦 Install
+      #   run: yarn install
 
-      - name: 🚧 Setup Expo
-        uses: expo/expo-github-action@v7
-        with:
-          token: ${{ secrets.EXPO_TOKEN }}
-          expo-version: latest
-          eas-version: latest
+      # - name: 🚧 Setup Expo
+      #   uses: expo/expo-github-action@v7
+      #   with:
+      #     token: ${{ secrets.EXPO_TOKEN }}
+      #     expo-version: latest
+      #     eas-version: latest
 
-      - name: 🏗️ Prebuild
-        run: yarn app prebuild
+      # - name: 🏗️ Prebuild
+      #   run: yarn app prebuild
 
-      - name: 🚀 Publish update
-        run: yarn app eas update --auto --non-interactive
+      # - name: 🚀 Publish update
+      #   run: yarn app eas update --auto --non-interactive
 
       # - name: 🏗️ Build
       #   run: yarn eas build -p android --profile development
