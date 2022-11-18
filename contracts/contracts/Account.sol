@@ -3,9 +3,7 @@ pragma solidity ^0.8.0;
 
 import '@matterlabs/zksync-contracts/l2/system-contracts/Constants.sol';
 import '@matterlabs/zksync-contracts/l2/system-contracts/TransactionHelper.sol';
-import {
-  SystemContractsCaller
-} from '@matterlabs/zksync-contracts/l2/system-contracts/SystemContractsCaller.sol';
+import {SystemContractsCaller} from '@matterlabs/zksync-contracts/l2/system-contracts/SystemContractsCaller.sol';
 
 import './IAccount.sol';
 import './SelfOwned.sol';

@@ -3,14 +3,5 @@
   "printWidth": 100,
   "singleQuote": true,
   "arrowParens": "always",
-  "trailingComma": "all",
-  "overrides": [
-    {
-      "files": "*.sol",
-      "options": {
-        "compiler": "0.8.13",
-        "explicitTypes": "preserve"
-      }
-    }
-  ]
+  "trailingComma": "all"
 }
