@@ -35,7 +35,6 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
   extra: {
     ...CONFIG,
     ...(CONFIG.env === 'production' && { eas: { projectId: PROJECT_ID } }),
-    eas: { projectId: PROJECT_ID },
   },
   plugins: [
     'sentry-expo',
