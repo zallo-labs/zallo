@@ -1,9 +1,8 @@
 import { Injectable, NestMiddleware, UnauthorizedException } from '@nestjs/common';
+import { Wallet } from 'ethers';
 import { Request, Response, NextFunction } from 'express';
-import { AuthToken } from 'lib';
+import { address, AuthToken } from 'lib';
 import { SiweMessage } from 'siwe';
-
-import { IS_DEV } from '~/config';
 import { ProviderService } from '~/provider/provider.service';
 import { VALIDATION_CHECKS } from './message.validation';
 
@@ -18,15 +17,19 @@ const tryParseToken = (token?: string): AuthToken | undefined => {
   }
 };
 
-const PLAYGROUND_HOSTS = new Set(['studio.apollographql.com', '[::1]']);
+const PLAYGROUND_HOSTS = new Set([
+  'localhost',
+  '127.0.0.1',
+  '[::1]',
+  'studio.apollographql.com',
+  'zallo.io',
+]);
 
-const isLocalDevPlayground = (req: Request) => {
-  const isLocalPlayground =
-    req.headers.origin && PLAYGROUND_HOSTS.has(new URL(req.headers.origin).hostname);
+const isPlayground = (req: Request) => {
+  if (!req.headers.origin) return false;
+  const hostname = new URL(req.headers.origin).hostname;
 
-  const isIntrospection = req.body?.operationName === 'IntrospectionQuery';
-
-  return IS_DEV && isLocalPlayground && !isIntrospection;
+  return PLAYGROUND_HOSTS.has(hostname) || hostname.endsWith('.zallo.io');
 };
 
 @Injectable()
@@ -46,11 +49,11 @@ export class AuthMiddleware implements NestMiddleware {
       // Use the session expiry time if provided
       if (message.expirationTime) req.session.cookie.expires = new Date(message.expirationTime);
 
-      req.deviceMessage = message;
-    } else if (isLocalDevPlayground(req)) {
-      req.deviceMessage = new SiweMessage({
-        address: this.provider.wallet.address,
-      });
+      req.device = address(message.address);
+    } else if (isPlayground(req)) {
+      req.device =
+        req.session.playgroundWallet ||
+        (req.session.playgroundWallet = address(Wallet.createRandom().address));
     }
 
     next();

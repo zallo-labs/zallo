@@ -1,10 +1,10 @@
-import { SiweMessage } from 'siwe';
 import 'express-session';
+import { Address } from 'lib';
 
 declare global {
   namespace Express {
     interface Request {
-      deviceMessage?: SiweMessage;
+      device?: Address;
     }
   }
 }
@@ -12,5 +12,12 @@ declare global {
 declare module 'express-session' {
   interface SessionData {
     nonce: string;
+    playgroundWallet?: Address;
+  }
+}
+
+declare module 'http' {
+  interface IncomingHttpHeaders {
+    playground?: string;
   }
 }
