@@ -6,6 +6,8 @@
     "cache-zk": true,
     "node_modules": true
   },
+  "mochaExplorer.cwd": ".",
+  "mochaExplorer.files": "test/**/*.{t,j}s",
   "jest.autoRun": "off",
   "jest.testExplorer": {
     "enabled": false

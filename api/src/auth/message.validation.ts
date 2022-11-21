@@ -1,30 +1,29 @@
 import { Request } from 'express';
-import { SiweMessage, ErrorTypes } from 'siwe';
+import { SiweMessage } from 'siwe';
 import { DateTime } from 'luxon';
 import { MaybePromise } from 'lib';
-
-const validateErrors: Record<ErrorTypes, string> = {
-  [ErrorTypes.INVALID_SIGNATURE]: 'Message has invalid signature',
-  [ErrorTypes.EXPIRED_MESSAGE]: 'Message has expired',
-  [ErrorTypes.MALFORMED_SESSION]: 'Message is missing required fields',
-};
+import { ethers } from 'ethers';
 
 type IsErrorCheck = (params: {
   msg: SiweMessage;
   sig: string;
   req: Request;
+  provider: ethers.providers.Provider;
 }) => MaybePromise<boolean | string>;
 
 export const VALIDATION_CHECKS: Record<string, IsErrorCheck> = {
   'Session lacking nonce': ({ req }) => req.session.nonce === undefined,
-  'Message failed to validate': async ({ msg, sig }) => {
-    try {
-      return !(await msg.validate(sig));
-    } catch (e) {
-      return validateErrors[e as ErrorTypes] ?? true;
-    }
+  'Message verification failed': async ({ msg, sig, provider, req }) => {
+    const r = await msg.verify(
+      {
+        signature: sig,
+        domain: new URL(req.hostname).host,
+        nonce: req.session.nonce,
+        time: DateTime.now().toISO(),
+      },
+      { provider },
+    );
+
+    return r.error?.type || false;
   },
-  "Message nonce doesn't match session nonce": ({ msg, req }) => msg.nonce !== req.session.nonce,
-  'Message not yet valid': ({ msg }) =>
-    msg.notBefore !== undefined && DateTime.fromISO(msg.notBefore) > DateTime.now(),
 };

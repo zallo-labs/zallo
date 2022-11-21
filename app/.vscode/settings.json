@@ -1,13 +1,9 @@
 {
   "files.exclude": {
-    "__generated__": true,
     ".expo": true,
     ".expo-shared": true,
     ".vscode": true,
-    "*.secret.*": true,
-    "dist": true,
-    "node_modules": true
+    "*.secret.*": true
   },
-  "jest.jestCommandLine": "yarn test",
-  "jest.autoRun": "off"
+  "jest.jestCommandLine": "yarn test"
 }

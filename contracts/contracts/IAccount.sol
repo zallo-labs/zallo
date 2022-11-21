@@ -1,10 +1,7 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 pragma solidity ^0.8.0;
 
-import {
-  Transaction,
-  IAccount as BaseIAccount
-} from '@matterlabs/zksync-contracts/l2/system-contracts/interfaces/IAccount.sol';
+import {Transaction, IAccount as BaseIAccount} from '@matterlabs/zksync-contracts/l2/system-contracts/interfaces/IAccount.sol';
 import '@openzeppelin/contracts/interfaces/IERC1271.sol';
 
 import './UserHelper.sol';

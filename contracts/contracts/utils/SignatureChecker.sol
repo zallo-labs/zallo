@@ -1,9 +1,7 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 pragma solidity ^0.8.0;
 
-import {
-  SignatureChecker as BaseSignatureChecker
-} from '@matterlabs/signature-checker/contracts/SignatureChecker.sol';
+import {SignatureChecker as BaseSignatureChecker} from '@matterlabs/signature-checker/contracts/SignatureChecker.sol';
 import '@openzeppelin/contracts/utils/cryptography/ECDSA.sol';
 
 library SignatureChecker {

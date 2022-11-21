@@ -1,5 +1,5 @@
 # Inspect included files using:
-# yarn eas build:inspect --stage archive --output ~/tmp/inspect --profile production
+# yarn eas build:inspect --stage archive --output ~/tmp/inspect --profile production --platform android
 
 # Required for notifications
 !app/firebase-google-services.secret.json

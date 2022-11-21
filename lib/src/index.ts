@@ -20,6 +20,7 @@ export * from './util/mappedTypes';
 export * from './util/try';
 
 export * from './addr';
+export * from './auth';
 export * from './bignum';
 export * from './boolArray';
 export * from './bytes';

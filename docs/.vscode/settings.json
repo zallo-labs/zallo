@@ -1,0 +1,6 @@
+{
+  "files.exclude": {
+    ".docusaurus": true,
+    ".frontmatter": true
+  }
+}

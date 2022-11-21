@@ -26,6 +26,10 @@ services:
         sync: false
       - key: PROXY_FACTORY_TESTNET
         sync: false
+      - key: APOLLO_GRAPH_REF
+        value: zallo-api-prod@current
+      - key: APOLLO_KEY
+        sync: false
     region: oregon
     plan: starter
     scaling:
@@ -63,6 +67,10 @@ services:
       - key: SUBGRAPH_GQL_URL
         sync: false
       - key: PROXY_FACTORY_TESTNET
+        sync: false
+      - key: APOLLO_GRAPH_REF
+        value: zallo-api-dev@current
+      - key: APOLLO_KEY
         sync: false
     region: oregon
     plan: free
@@ -111,11 +119,11 @@ envVarGroups:
         sync: false
       - key: ETHERSCAN_API_KEY
         sync: false
+      - key: APOLLO_SCHEMA_REPORTING
+        value: true
   - name: api-testnet-vars
     envVars:
       - key: CHAIN
         value: testnet
-      - key: WALLET_ADDRESS
-        sync: false
       - key: WALLET_PRIVATE_KEY
         sync: false

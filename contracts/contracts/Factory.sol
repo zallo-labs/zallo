@@ -2,9 +2,7 @@
 pragma solidity ^0.8.0;
 
 import '@matterlabs/zksync-contracts/l2/system-contracts/Constants.sol';
-import {
-  SystemContractsCaller
-} from '@matterlabs/zksync-contracts/l2/system-contracts/SystemContractsCaller.sol';
+import {SystemContractsCaller} from '@matterlabs/zksync-contracts/l2/system-contracts/SystemContractsCaller.sol';
 
 contract Factory {
   bytes32 public immutable _BYTECODE_HASH;

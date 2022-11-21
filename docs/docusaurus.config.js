@@ -2,6 +2,7 @@
 
 const lightCodeTheme = require('prism-react-renderer/themes/github');
 const darkCodeTheme = require('prism-react-renderer/themes/dracula');
+require('dotenv').config({ path: '../.env' });
 
 const repo = 'https://github.com/zallo-labs/zallo';
 const twitter = 'https://twitter.com/zallo-labs';
@@ -10,7 +11,7 @@ const twitter = 'https://twitter.com/zallo-labs';
 const config = {
   title: 'Zallo',
   tagline: 'A self-custodial smart wallet',
-  url: 'https://zallo.netlify.app/',
+  url: 'https://docs.zallo.io/',
   baseUrl: '/',
   favicon: 'img/icon-rounded@64.png',
   onBrokenLinks: 'throw',
@@ -77,6 +78,11 @@ const config = {
             position: 'left',
           },
           {
+            label: 'Playground',
+            to: '/playground',
+            position: 'left',
+          },
+          {
             label: 'Twitter',
             href: twitter,
             position: 'right',
@@ -122,7 +128,7 @@ const config = {
               },
               {
                 label: 'Landing page',
-                href: 'https://allopay.io',
+                href: 'https://zallo.io',
               },
             ],
           },
@@ -134,6 +140,12 @@ const config = {
         darkTheme: darkCodeTheme,
       },
     }),
+
+  customFields: {
+    apolloGraphRef: process.env.APOLLO_GRAPH_REF,
+    feedbackEmail: 'feedback@zallo.io',
+    supportEmail: 'support@zall.io',
+  },
 };
 
 module.exports = config;
