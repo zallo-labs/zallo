@@ -1,21 +1,17 @@
-import { Injectable, Logger, NestMiddleware, UnauthorizedException } from '@nestjs/common';
+import { Injectable, NestMiddleware, UnauthorizedException } from '@nestjs/common';
 import { Request, Response, NextFunction } from 'express';
+import { AuthToken } from 'lib';
 import { SiweMessage } from 'siwe';
 
 import { IS_DEV } from '~/config';
 import { ProviderService } from '~/provider/provider.service';
 import { VALIDATION_CHECKS } from './message.validation';
 
-interface Token {
-  message: SiweMessage;
-  signature: string;
-}
-
-const tryParseToken = (token?: string): Token | undefined => {
+const tryParseToken = (token?: string): AuthToken | undefined => {
   try {
     if (token) {
-      const { message, signature }: Token = JSON.parse(token);
-      return { message: new SiweMessage(message), signature };
+      const { message, ...rest }: AuthToken = JSON.parse(token);
+      return { message: new SiweMessage(message), ...rest };
     }
   } catch {
     // return undefined
@@ -43,12 +39,8 @@ export class AuthMiddleware implements NestMiddleware {
       const { message, signature } = token;
 
       for (const [fallbackErr, isError] of Object.entries(VALIDATION_CHECKS)) {
-        const r = await isError({ msg: message, sig: signature, req });
-        if (r) {
-          const err = typeof r === 'string' ? r : fallbackErr;
-          Logger.debug(`Message rejected with: ${err}`);
-          throw new UnauthorizedException(err);
-        }
+        const r = await isError({ msg: message, sig: signature, req, provider: this.provider });
+        if (r) throw new UnauthorizedException(typeof r === 'string' ? r : fallbackErr);
       }
 
       // Use the session expiry time if provided
