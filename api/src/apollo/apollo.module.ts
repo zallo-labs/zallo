@@ -21,11 +21,7 @@ export const GQL_ENDPOINT = '/graphql';
       introspection: true,
       path: GQL_ENDPOINT,
       cache: 'bounded',
-      // plugins: [new LoggingPlugin()],
-      cors: {
-        origin: 'https://studio.apollographql.com',
-        credentials: true,
-      },
+      cors: false, // Configured in main.ts; omitting reconfigures CORS
       buildSchemaOptions: {
         fieldMiddleware: [IdMiddleware, AddressMiddleware],
       },
