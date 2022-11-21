@@ -51,9 +51,13 @@ export class AuthMiddleware implements NestMiddleware {
 
       req.device = address(message.address);
     } else if (isPlayground(req)) {
-      req.device =
-        req.session.playgroundWallet ||
-        (req.session.playgroundWallet = address(Wallet.createRandom().address));
+      if (!req.session.playgroundWallet) {
+        req.session.playgroundWallet = address(Wallet.createRandom().address);
+
+        // TODO: associate device with example data
+      }
+
+      req.device = req.session.playgroundWallet;
     }
 
     next();

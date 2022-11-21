@@ -11,7 +11,7 @@ const twitter = 'https://twitter.com/zallo-labs';
 const config = {
   title: 'Zallo',
   tagline: 'A self-custodial smart wallet',
-  url: 'https://zallo.netlify.app/',
+  url: 'https://docs.zallo.io/',
   baseUrl: '/',
   favicon: 'img/icon-rounded@64.png',
   onBrokenLinks: 'throw',
@@ -128,7 +128,7 @@ const config = {
               },
               {
                 label: 'Landing page',
-                href: 'https://allopay.io',
+                href: 'https://zallo.io',
               },
             ],
           },
