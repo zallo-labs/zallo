@@ -10,11 +10,11 @@ export const getMerkleTree = (user: User): MerkleTree => {
   return new MerkleTree(leaves, keccak256, { sort: true });
 };
 
-export const getUserConfigProof = (user: User, config: UserConfig): Buffer[] => {
+export const getUserConfigProof = (user: User, config: UserConfig) => {
   const tree = getMerkleTree(user);
   const leaf = userConfigToLeaf(config);
 
-  return tree.getProof(leaf);
+  return tree.getProof(leaf).map(({ data }) => data);
 };
 
 export interface MultiProof {

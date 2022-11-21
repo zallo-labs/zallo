@@ -44,7 +44,7 @@ export const createUserSignature = (user: User, signers: Signer[]): BytesLike =>
   );
   assert(config);
 
-  const proof = getUserConfigProof(user, config);
+  const proof: Buffer[] = getUserConfigProof(user, config);
 
   return defaultAbiCoder.encode(
     ['address user', USER_CONFIG_TUPLE, 'bytes32[] proof', 'bytes[] signatures'],
