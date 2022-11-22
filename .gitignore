@@ -5,7 +5,7 @@
 **/build
 **/cache
 **/dist
-**/generated/*
+**/*generated*
 **/node_modules
 **/__generated__
 **/*.secret.*
