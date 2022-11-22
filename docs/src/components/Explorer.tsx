@@ -6,26 +6,49 @@ import { useColorMode } from '@docusaurus/theme-common';
 import { BaseEmbeddableExplorerOptions as BaseProps } from '@apollo/explorer/src/EmbeddedExplorer';
 import { Interpolation, Theme } from '@emotion/react';
 import { useCustomFields } from '@site/src/hooks/useCustomFields';
+import gql from 'graphql-tag';
+import { print } from 'graphql';
+import { useAuthorization, useDevice } from '../hooks/useDevice';
+import { RecoilRoot } from 'recoil';
 
 export interface ExplorerProps {
+  document: ReturnType<typeof gql>;
+  variables?: NonNullable<BaseProps['initialState']>['variables'];
   initialState?: Partial<BaseProps['initialState']>;
   persistExplorerState?: BaseProps['persistExplorerState'];
   css?: Interpolation<Theme>;
 }
 
-export const Explorer = ({ initialState, persistExplorerState = false, css }: ExplorerProps) => {
+const Explorer = ({
+  document: documentProp,
+  variables,
+  initialState,
+  persistExplorerState = false,
+  css,
+}: ExplorerProps) => {
   const { colorMode } = useColorMode();
   const { apolloGraphRef } = useCustomFields();
 
-  const docLines = initialState?.document?.split('\n').length || 5;
+  const document = print(documentProp);
+  const docLines = document.split('\n').length || 5;
+
+  const variableLines = JSON.stringify(variables, null, 2)?.split('\n').length ?? 0;
 
   return (
     <ApolloExplorer
-      css={css || { height: `${(docLines + 20) * 1.5}rem` }}
+      css={css || { height: `${(docLines + variableLines + 10) * 1.5}rem` }}
       graphRef={apolloGraphRef}
+      includeCookies
       persistExplorerState={persistExplorerState}
       initialState={{
         ...initialState,
+        document,
+        variables,
+        headers: {
+          authorization: useAuthorization(),
+          device: useDevice().address,
+          ...initialState?.headers,
+        },
         displayOptions: {
           docsPanelState: 'closed',
           showHeadersAndEnvVars: true,
@@ -36,3 +59,9 @@ export const Explorer = ({ initialState, persistExplorerState = false, css }: Ex
     />
   );
 };
+
+export default (props: ExplorerProps) => (
+  <RecoilRoot>
+    <Explorer {...props} />
+  </RecoilRoot>
+);
