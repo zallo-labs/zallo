@@ -23,8 +23,10 @@ export class UserConfigInput {
   @Field(() => [AddressScalar])
   approvers: Address[];
 
+  @Field(() => Boolean, { nullable: true, defaultValue: false })
   spendingAllowlisted: boolean;
 
+  @Field(() => [TokenLimitInput], { nullable: true, defaultValue: [] })
   limits: TokenLimitInput[];
 }
 

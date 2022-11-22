@@ -9,6 +9,9 @@ import { UsersService } from '../users/users.service';
 import { AccountsService } from './accounts.service';
 import { Prisma } from '@prisma/client';
 import { User } from '@gen/user/user.model';
+import { ProviderService } from '~/provider/provider.service';
+import { calculateProxyAddress, randomDeploySalt } from 'lib';
+import { CONFIG } from '~/config';
 
 const getSelect = makeGetSelect<{
   Account: Prisma.AccountSelect;
@@ -24,21 +27,14 @@ export class AccountsResolver {
     private service: AccountsService,
     private prisma: PrismaService,
     private users: UsersService,
+    private provider: ProviderService,
   ) {}
 
-  @ResolveField(() => User)
-  async deployUser(@Parent() account: Account, @Info() info: GraphQLResolveInfo): Promise<User> {
-    return this.prisma.user.findFirstOrThrow({
-      where: {
-        accountId: account.id,
-        states: { some: { proposal: null } },
-      },
-      ...getSelect(info),
-    });
-  }
-
   @Query(() => Account)
-  async account(@Args() { id }: AccountArgs, @Info() info: GraphQLResolveInfo): Promise<Account> {
+  async account(
+    @Args() { id: id }: AccountArgs,
+    @Info() info: GraphQLResolveInfo,
+  ): Promise<Account> {
     return this.prisma.account.findUniqueOrThrow({
       where: { id },
       ...getSelect(info),
@@ -47,12 +43,34 @@ export class AccountsResolver {
 
   @Mutation(() => Account)
   async createAccount(
-    @Args() { account, deploySalt, impl, name, users }: CreateAccountArgs,
+    @Args() { name, users }: CreateAccountArgs,
     @Info() info: GraphQLResolveInfo,
   ): Promise<Account> {
+    const impl = CONFIG.accountImplAddress;
+    const deploySalt = randomDeploySalt();
+
+    // TODO: accept multiple users on create
+    const user = users[0];
+
+    const addr = await calculateProxyAddress(
+      {
+        impl,
+        user: {
+          addr: user.device,
+          configs: user.configs.map((c) => ({
+            approvers: c.approvers,
+            limits: Object.fromEntries(c.limits.map((l) => [l.token, l] as const)),
+            spendingAllowlisted: c.spendingAllowlisted,
+          })),
+        },
+      },
+      this.provider.proxyFactory,
+      deploySalt,
+    );
+
     const r = await this.prisma.account.create({
       data: {
-        id: account,
+        id: addr,
         deploySalt,
         impl,
         name,
@@ -74,20 +92,20 @@ export class AccountsResolver {
       ...getSelect(info),
     });
 
-    this.service.activateAccount(account);
+    this.service.activateAccount(addr);
 
     return r;
   }
 
   @Mutation(() => Boolean)
-  async activateAccount(@Args() { id }: AccountArgs): Promise<true> {
+  async activateAccount(@Args() { id: id }: AccountArgs): Promise<true> {
     await this.service.activateAccount(id);
     return true;
   }
 
   @Mutation(() => Account)
   async setAccountName(
-    @Args() { id, name }: SetAccountNameArgs,
+    @Args() { id: id, name }: SetAccountNameArgs,
     @Info() info: GraphQLResolveInfo,
   ): Promise<Account> {
     return this.prisma.account.update({

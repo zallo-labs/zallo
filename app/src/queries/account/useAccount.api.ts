@@ -14,7 +14,6 @@ export interface UserMetadata extends UserId {
 export interface CombinedAccount {
   addr: Address;
   contract: Account;
-  impl: Address;
   name: string;
   active?: boolean;
   users: UserMetadata[];
@@ -24,8 +23,6 @@ gql`
   query Account($account: Address!) {
     account(id: $account) {
       id
-      deploySalt
-      impl
       isDeployed
       name
       users {
@@ -51,7 +48,6 @@ export const useAccount = (id: Address | UserId) => {
     (): CombinedAccount => ({
       addr,
       contract: connectAccount(addr, device),
-      impl: address(a.impl),
       active: a.isDeployed,
       name: a.name,
       users:
