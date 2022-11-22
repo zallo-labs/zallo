@@ -2,7 +2,10 @@
 
 const lightCodeTheme = require('prism-react-renderer/themes/github');
 const darkCodeTheme = require('prism-react-renderer/themes/dracula');
-require('dotenv').config({ path: '../.env' });
+
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-ignore
+require('dotenv-vault-core').config({ path: '../.env' });
 
 const repo = 'https://github.com/zallo-labs/zallo';
 const twitter = 'https://twitter.com/zallo-labs';
@@ -30,6 +33,7 @@ const config = {
         docs: {
           sidebarPath: require.resolve('./sidebars.js'),
           editUrl: `${repo}/tree/main/docs`,
+          routeBasePath: '/',
         },
         blog: {
           showReadingTime: true,
@@ -44,13 +48,17 @@ const config = {
 
   plugins: [
     [
-      // https://www.npmjs.com/package/docusaurus-graphql-plugin
-      'docusaurus-graphql-plugin',
+      '@graphql-markdown/docusaurus',
       {
+        baseURL: 'reference',
         schema: '../api/schema.gql',
-        sidebar: {
-          label: 'Reference',
-          position: 6,
+        docOptions: {
+          index: true,
+          pagination: false,
+          toc: false,
+        },
+        loaders: {
+          GraphQLFileLoader: '@graphql-tools/graphql-file-loader',
         },
       },
     ],
