@@ -19,7 +19,7 @@ export class ProviderService extends zk.Provider {
         : zk.Wallet.createRandom()
     ).connect(this);
 
-    this.proxyFactory = Factory__factory.connect(CONFIG.proxyFactoryAddress!, this.wallet);
+    this.proxyFactory = Factory__factory.connect(CONFIG.proxyFactoryAddress, this.wallet);
   }
 
   public connectAccount(account: Address): Account {

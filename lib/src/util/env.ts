@@ -17,4 +17,6 @@ export const requiredEnv = (...params: Parameters<typeof getKey>) => {
 };
 
 export const makeRequiredEnv = (skip: boolean) =>
-  skip ? (..._params: Parameters<typeof requiredEnv>) => undefined as any : requiredEnv;
+  skip
+    ? (..._params: Parameters<typeof requiredEnv>) => undefined as unknown as string
+    : requiredEnv;

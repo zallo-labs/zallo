@@ -20,7 +20,7 @@
     "with-env": "dotenv -e ../.env",
     "prisma": "yarn with-env -- prisma",
     "generate:gql": "DOTENV_CONFIG_PATH=\"../.env\" graphql-codegen --require dotenv/config --config codegen.yml",
-    "generate:schema": "yarn prebuild && ONLY_GENERATE_SCHEMA=true yarn nest start"
+    "generate:schema": "yarn prebuild && SKIP_ENV_CHECK=true nest start --entryFile generate-schema"
   },
   "dependencies": {
     "@apollo/client": "^3.7.1",

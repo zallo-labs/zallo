@@ -9,7 +9,7 @@ import { UsersService } from '../users/users.service';
 import { AccountsService } from './accounts.service';
 import { Prisma } from '@prisma/client';
 import { ProviderService } from '~/provider/provider.service';
-import { Address, calculateProxyAddress, randomDeploySalt } from 'lib';
+import { address, Address, calculateProxyAddress, randomDeploySalt } from 'lib';
 import { CONFIG } from '~/config';
 import { DeviceAddr } from '~/decorators/device.decorator';
 
@@ -65,7 +65,7 @@ export class AccountsResolver {
     @Args() { name, users }: CreateAccountArgs,
     @Info() info: GraphQLResolveInfo,
   ): Promise<Account> {
-    const impl = CONFIG.accountImplAddress;
+    const impl = address(CONFIG.accountImplAddress);
     const deploySalt = randomDeploySalt();
 
     // TODO: accept multiple users on create

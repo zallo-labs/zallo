@@ -7,8 +7,7 @@ export type Addresslike = Address | string;
 
 export const ZERO_ADDR = ethers.constants.AddressZero as Address;
 
-// Ensures address has checksum
-export const address = (addr: Addresslike): Address => ethers.utils.getAddress(addr) as Address;
+export const address = (addr: Addresslike) => ethers.utils.getAddress(addr) as Address;
 
 export const tryAddress = (addr: Addresslike): Address | null => {
   try {
