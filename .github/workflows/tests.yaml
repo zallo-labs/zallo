@@ -87,11 +87,11 @@ jobs:
       - name: 🏗️ Generate
         run: yarn docs generate
 
-      - name: 🧪 Typecheck
-        run: yarn docs typecheck
-
       - name: 🏗️ Build
         run: yarn docs build
+
+      - name: 🧪 Typecheck
+        run: yarn docs typecheck
 
   subgraph:
     runs-on: ubuntu-latest
