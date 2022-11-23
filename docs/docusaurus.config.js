@@ -31,13 +31,18 @@ const config = {
       /** @type {import('@docusaurus/preset-classic').Options} */
       ({
         docs: {
-          sidebarPath: require.resolve('./sidebars.js'),
-          editUrl: `${repo}/tree/main/docs`,
           routeBasePath: '/',
+          sidebarPath: require.resolve('./sidebars.js'),
+          remarkPlugins: [[require('@docusaurus/remark-plugin-npm2yarn'), { sync: true }]],
+          // editUrl: `${repo}/tree/main/docs`,     // Adds edit button
         },
         blog: {
           showReadingTime: true,
-          editUrl: `${repo}/tree/main/docs`,
+          remarkPlugins: [require('@docusaurus/remark-plugin-npm2yarn')],
+          // editUrl: `${repo}/tree/main/docs`,     // Adds edit button
+        },
+        pages: {
+          remarkPlugins: [require('@docusaurus/remark-plugin-npm2yarn')],
         },
         theme: {
           customCss: require.resolve('./src/css/custom.css'),
@@ -50,7 +55,7 @@ const config = {
     [
       '@graphql-markdown/docusaurus',
       {
-        baseURL: 'reference',
+        baseURL: 'reference/generated',
         schema: '../api/schema.graphql',
         docOptions: {
           index: true,

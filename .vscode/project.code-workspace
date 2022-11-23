@@ -38,8 +38,7 @@
       "**/build/**": true,
       "**/dist/**": true,
       "**/node_modules/**": true,
-      "yarn.lock": true,
-      "**/*generated*": true
+      "yarn.lock": true
     },
     "files.watcherExclude": {
       "**/.git/**": true,
@@ -55,9 +54,7 @@
       // Folders excluded by all but root
       "**/.vscode": true,
       "**/node_modules": true,
-      "**/dist": true,
-      "**/generated": true,
-      "**/__generated__": true
+      "**/dist": true
     },
     "[typescriptreact]": {
       "editor.defaultFormatter": "esbenp.prettier-vscode"

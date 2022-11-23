@@ -3508,6 +3508,17 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@docusaurus/remark-plugin-npm2yarn@npm:^2.2.0":
+  version: 2.2.0
+  resolution: "@docusaurus/remark-plugin-npm2yarn@npm:2.2.0"
+  dependencies:
+    npm-to-yarn: ^1.0.1
+    tslib: ^2.4.0
+    unist-util-visit: ^2.0.3
+  checksum: 653b496d5a06e48977c9b9bcdbd01fdd89bfe627c878ea2471f0ec05e4ffbab9738795ff239f310b8ac132062db3e041858ee118556965ec0de872ee43b31b1d
+  languageName: node
+  linkType: hard
+
 "@docusaurus/theme-classic@npm:2.2.0":
   version: 2.2.0
   resolution: "@docusaurus/theme-classic@npm:2.2.0"
@@ -19829,6 +19840,7 @@ __metadata:
     "@docusaurus/core": 2.2.0
     "@docusaurus/module-type-aliases": ^2.2.0
     "@docusaurus/preset-classic": 2.2.0
+    "@docusaurus/remark-plugin-npm2yarn": ^2.2.0
     "@emotion/react": ^11.10.5
     "@graphql-codegen/cli": 2.13.12
     "@graphql-codegen/introspection": ^2.2.1
@@ -31951,6 +31963,13 @@ __metadata:
   dependencies:
     path-key: ^4.0.0
   checksum: dc184eb5ec239d6a2b990b43236845332ef12f4e0beaa9701de724aa797fe40b6bbd0157fb7639d24d3ab13f5d5cf22d223a19c6300846b8126f335f788bee66
+  languageName: node
+  linkType: hard
+
+"npm-to-yarn@npm:^1.0.1":
+  version: 1.0.1
+  resolution: "npm-to-yarn@npm:1.0.1"
+  checksum: b34958ddfc7a5e4ce3012f1bdf60d448c2a5027e10b733aad0462fbd0de0354b8cd27abde8b36691f9fc970660f48bbec86516ec4e07c36be63375ee9e1d37d9
   languageName: node
   linkType: hard
 

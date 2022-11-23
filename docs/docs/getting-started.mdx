@@ -1,0 +1,94 @@
+---
+sidebar_position: 1
+slug: /
+---
+
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+import { useCustomFields } from '@site/src/hooks/useCustomFields.ts';
+
+# Getting started
+
+**Get started in less than 5 minutes with our tutorial on [executing a transaction](/tutorials/transaction)**.
+
+Then reading about **[Accounts](/concepts/account)**.
+
+Once you're familiar with the basics, follow our [setup guide](#setup).
+
+## ⚡ Setup {#setup}
+
+### What you'll need
+
+- A GraphQL client. We recommend [Apollo](https://www.apollographql.com/docs/react/get-started).
+
+<Tabs>
+  <TabItem value="NodeJS">
+
+```bash npm2yarn
+npm install @apollo/client graphql
+```
+
+Initialize the Zallo client
+
+```typescript
+import { ApolloClient, InMemoryCache } from '@apollo/client';
+
+const zallo = new ApolloClient({
+  uri: 'https://api.zallo.io/graphql',
+  cache: new InMemoryCache(),
+  credentials: 'include', // Include cookies
+});
+```
+
+  </TabItem>
+  <TabItem value="Other">
+
+Initialize the Zallo client
+
+```http title="Our GraphQL endpoint"
+https://api.zallo.io/graphql
+```
+
+  </TabItem>
+</Tabs>
+
+### 🔒 Authenticating your requests
+
+Obtain your auth token
+
+```typescript
+// TODO: obtain token
+```
+
+Add the token to your request headers
+
+```typescript
+const zallo = new ApolloClient({
+  uri: 'https://api.zallo.io/graphql',
+  cache: new InMemoryCache(),
+  credentials: 'include', // Include cookies
+  // highlight-start
+  headers: {
+    Authorization: `Bearer ${token}`,
+  },
+  // highlight-end
+});
+```
+
+### 🎉 That's it! You're ready to go.
+
+Test that your client is configured correctly by running the following query
+
+```typescript
+const { data } = await zallo.query({
+  query: gql`
+    query DeviceId {
+      device {
+        id
+      }
+    }
+  `,
+});
+```
+
+Visit the [playground](/playground) to try things out

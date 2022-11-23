@@ -51,7 +51,7 @@ contracts/zk
 ## Docs
 docs/.docusaurus
 docs/.cache-loader
-docs/docs/reference
+docs/docs/reference/generated
 
 
 ## Lib
