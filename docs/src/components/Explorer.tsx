@@ -10,13 +10,14 @@ import gql from 'graphql-tag';
 import { print } from 'graphql';
 import { useAuthorization, useDevice } from '../hooks/useDevice';
 import { RecoilRoot } from 'recoil';
+import { Suspense } from 'react';
 
 export interface ExplorerProps {
   document: ReturnType<typeof gql>;
   variables?: NonNullable<BaseProps['initialState']>['variables'];
   initialState?: Partial<BaseProps['initialState']>;
   persistExplorerState?: BaseProps['persistExplorerState'];
-  css?: Interpolation<Theme>;
+  style?: Interpolation<Theme>;
 }
 
 const Explorer = ({
@@ -24,7 +25,7 @@ const Explorer = ({
   variables,
   initialState,
   persistExplorerState = false,
-  css,
+  style,
 }: ExplorerProps) => {
   const { colorMode } = useColorMode();
   const { apolloGraphRef } = useCustomFields();
@@ -36,7 +37,7 @@ const Explorer = ({
 
   return (
     <ApolloExplorer
-      css={css || { height: `${(docLines + variableLines + 10) * 1.5}rem` }}
+      css={style || { height: `${(docLines + variableLines + 10) * 1.5}rem` }}
       graphRef={apolloGraphRef}
       includeCookies
       persistExplorerState={persistExplorerState}
@@ -61,7 +62,9 @@ const Explorer = ({
 };
 
 export default (props: ExplorerProps) => (
-  <RecoilRoot>
-    <Explorer {...props} />
-  </RecoilRoot>
+  <Suspense fallback={null}>
+    <RecoilRoot>
+      <Explorer {...props} />
+    </RecoilRoot>
+  </Suspense>
 );

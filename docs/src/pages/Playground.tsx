@@ -7,7 +7,7 @@ export default () => (
   <Layout title="Playground">
     <main>
       <Explorer
-        css={{ height: '84vh' }}
+        style={{ height: '84vh' }}
         persistExplorerState
         initialState={{
           displayOptions: {
