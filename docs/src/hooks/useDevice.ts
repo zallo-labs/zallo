@@ -1,10 +1,13 @@
 import { atom, selectorFamily, useRecoilValue } from 'recoil';
-import { Wallet } from 'ethers';
 import { useCustomFields } from './useCustomFields';
+import ExecutionEnvironment from '@docusaurus/ExecutionEnvironment';
+import { Wallet as WalletType } from 'ethers';
 
-const DEVICE = atom({
+const { Wallet } = ExecutionEnvironment.canUseDOM ? require('ethers') : ({} as any);
+
+const DEVICE = atom<WalletType>({
   key: 'device',
-  default: Wallet.createRandom(),
+  default: ExecutionEnvironment.canUseDOM ? Wallet.createRandom() : undefined,
 });
 
 export const useDevice = () => useRecoilValue(DEVICE);

@@ -31,7 +31,6 @@ const config = {
       /** @type {import('@docusaurus/preset-classic').Options} */
       ({
         docs: {
-          routeBasePath: '/',
           sidebarPath: require.resolve('./sidebars.js'),
           remarkPlugins: [[require('@docusaurus/remark-plugin-npm2yarn'), { sync: true }]],
           // editUrl: `${repo}/tree/main/docs`,     // Adds edit button
@@ -56,6 +55,7 @@ const config = {
       '@graphql-markdown/docusaurus',
       {
         baseURL: 'reference/schema',
+        linkRoot: '/docs',
         schema: '../api/schema.graphql',
         docOptions: {
           index: true,

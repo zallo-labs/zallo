@@ -11,6 +11,7 @@ import { print } from 'graphql';
 import { useAuthorization, useDevice } from '../hooks/useDevice';
 import { RecoilRoot } from 'recoil';
 import { FC, Suspense } from 'react';
+import BrowserOnly from '@docusaurus/BrowserOnly';
 
 export const withRecoil =
   // prettier-ignore
@@ -18,11 +19,15 @@ export const withRecoil =
   <Props extends {}>(Component: FC<Props>) =>
   (props: Props) =>
     (
+      <BrowserOnly>
+      {() => (
       <Suspense fallback={null}>
         <RecoilRoot>
           <Component {...props} />
         </RecoilRoot>
       </Suspense>
+      )}
+      </BrowserOnly>
     );
 
 export interface ExplorerProps {
