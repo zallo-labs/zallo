@@ -1,6 +1,6 @@
 import React from 'react';
 import Layout from '@theme/Layout';
-import Explorer from '@site/src/components/Explorer';
+import { Explorer } from '@site/src/components/Explorer';
 import gql from 'graphql-tag';
 
 export default () => (

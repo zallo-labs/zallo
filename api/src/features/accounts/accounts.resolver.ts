@@ -2,15 +2,16 @@ import { Args, Info, Mutation, Query, Resolver } from '@nestjs/graphql';
 import { PrismaService } from 'nestjs-prisma';
 import { GraphQLResolveInfo } from 'graphql';
 import { Account } from '@gen/account/account.model';
-import { AccountArgs, SetAccountNameArgs, CreateAccountArgs } from './accounts.args';
+import { AccountArgs, SetAccountNameArgs, CreateAccountArgs, AccountsArgs } from './accounts.args';
 import { makeGetSelect } from '~/util/select';
 import { connectOrCreateDevice } from '~/util/connect-or-create';
 import { UsersService } from '../users/users.service';
 import { AccountsService } from './accounts.service';
 import { Prisma } from '@prisma/client';
 import { ProviderService } from '~/provider/provider.service';
-import { calculateProxyAddress, randomDeploySalt } from 'lib';
+import { Address, calculateProxyAddress, randomDeploySalt } from 'lib';
 import { CONFIG } from '~/config';
+import { DeviceAddr } from '~/decorators/device.decorator';
 
 const getSelect = makeGetSelect<{
   Account: Prisma.AccountSelect;
@@ -29,13 +30,32 @@ export class AccountsResolver {
     private provider: ProviderService,
   ) {}
 
-  @Query(() => Account)
+  @Query(() => Account, { nullable: true })
   async account(
     @Args() { id: id }: AccountArgs,
     @Info() info: GraphQLResolveInfo,
-  ): Promise<Account> {
-    return this.prisma.account.findUniqueOrThrow({
+  ): Promise<Account | null> {
+    return this.prisma.account.findUnique({
       where: { id },
+      ...getSelect(info),
+    });
+  }
+
+  @Query(() => [Account])
+  async accounts(
+    @Args() args: AccountsArgs,
+    @Info() info: GraphQLResolveInfo,
+    @DeviceAddr() device: Address,
+  ): Promise<Account[]> {
+    return this.prisma.account.findMany({
+      ...args,
+      where: {
+        AND: [
+          // Only allow querying for accounts that the user is a member of
+          { users: { some: { deviceId: device } } },
+          args.where ?? {},
+        ],
+      },
       ...getSelect(info),
     });
   }

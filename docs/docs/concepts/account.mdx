@@ -13,3 +13,17 @@ A smart-contract wallet on the [zkSync 2.0 network](https://zksync.io/)
 An account is comprised of one or more quorums - a select group that is required to approve a proposal.
 
 - Each quorum is authorized to perform a set of operations, prescribed by its configuration.
+
+## Activating
+
+As all accounts are smart-contracts, they require to be activated (deployed) before they can be used.  
+**Accounts will be actived when they reach a minimum balance of $5** of one of the following tokens: ETH, USDC, or DAI.
+
+:::info TESTNET
+Accounts are activated on creation
+:::
+
+## Deleting
+
+Smart-contracts on zkSync are immutable, so it is not possible to delete an account.  
+However, it is possible to withdraw all funds from an account and remove all quorums to make it unusable.

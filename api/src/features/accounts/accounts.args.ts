@@ -1,3 +1,4 @@
+import { FindManyAccountArgs } from '@gen/account/find-many-account.args';
 import { ArgsType, InputType, OmitType } from '@nestjs/graphql';
 import { Address } from 'lib';
 import { AddressField } from '~/apollo/scalars/Address.scalar';
@@ -8,6 +9,9 @@ export class AccountArgs {
   @AddressField()
   id: Address;
 }
+
+@ArgsType()
+export class AccountsArgs extends FindManyAccountArgs {}
 
 @ArgsType()
 export class CreateAccountArgs {

@@ -55,7 +55,7 @@ const config = {
     [
       '@graphql-markdown/docusaurus',
       {
-        baseURL: 'reference/generated',
+        baseURL: 'reference/schema',
         schema: '../api/schema.graphql',
         docOptions: {
           index: true,

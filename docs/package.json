@@ -11,8 +11,8 @@
     "write-translations": "docusaurus write-translations",
     "write-heading-ids": "docusaurus write-heading-ids",
     "typecheck": "tsc",
-    "generate": "(cd .. && yarn api generate:schema) && yarn generate:reference && generate:gql",
-    "generate:reference": "yarn docusaurus graphql-to-doc",
+    "generate": "(cd .. && yarn api generate:schema) && yarn generate:docs && generate:gql",
+    "generate:docs": "yarn docusaurus graphql-to-doc",
     "generate:gql": "graphql-codegen --config codegen.ts"
   },
   "dependencies": {
