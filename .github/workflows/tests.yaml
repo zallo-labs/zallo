@@ -84,6 +84,9 @@ jobs:
       - name: 📦 Install
         run: yarn install
 
+      - name: 🏗️ Generate
+        run: yarn docs generate
+
       - name: 🧪 Typecheck
         run: yarn docs typecheck
 
