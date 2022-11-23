@@ -14,7 +14,7 @@ const parse = (value: unknown): BytesLike => {
   return value;
 };
 
-export const GqlBytes = new GraphQLScalarType<BytesLike, string>({
+export const BytesScalar = new GraphQLScalarType<BytesLike, string>({
   name: 'Bytes',
   description,
   serialize: (value) => ethers.utils.hexlify(value as BytesLike),
@@ -28,5 +28,5 @@ export const GqlBytes = new GraphQLScalarType<BytesLike, string>({
 export const BytesField =
   (options?: FieldOptions): PropertyDecorator =>
   (target, propertyKey) => {
-    Field(() => GqlBytes, options)(target, propertyKey);
+    Field(() => BytesScalar, options)(target, propertyKey);
   };

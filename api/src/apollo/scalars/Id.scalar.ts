@@ -12,7 +12,7 @@ const parse = (value: unknown): Id => {
   return toId(`${value}`);
 };
 
-export const GqlId = new GraphQLScalarType<Id, string>({
+export const IdScalar = new GraphQLScalarType<Id, string>({
   name: 'Id',
   description,
   serialize: (value) => value as Id,
@@ -26,5 +26,5 @@ export const GqlId = new GraphQLScalarType<Id, string>({
 export const IdField =
   (options?: FieldOptions): PropertyDecorator =>
   (target, propertyKey) => {
-    Field(() => GqlId, options)(target, propertyKey);
+    Field(() => IdScalar, options)(target, propertyKey);
   };

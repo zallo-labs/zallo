@@ -24,7 +24,7 @@ const parse = (value: unknown): Decimal => {
   throw error;
 };
 
-export const GqlUint256Decimal = new GraphQLScalarType<Decimal, Decimal.Value>({
+export const Uint256DecimalScalar = new GraphQLScalarType<Decimal, Decimal.Value>({
   name: 'Uint256',
   description,
   serialize: (value) => (value as Decimal).toString(),
@@ -39,5 +39,5 @@ export const GqlUint256Decimal = new GraphQLScalarType<Decimal, Decimal.Value>({
 export const Uint256DecimalField =
   (options?: FieldOptions): PropertyDecorator =>
   (target, propertyKey) => {
-    Field(() => GqlUint256Decimal, options)(target, propertyKey);
+    Field(() => Uint256DecimalScalar, options)(target, propertyKey);
   };

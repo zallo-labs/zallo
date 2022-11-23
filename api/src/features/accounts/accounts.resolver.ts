@@ -1,4 +1,4 @@
-import { Args, Info, Mutation, Parent, Query, ResolveField, Resolver } from '@nestjs/graphql';
+import { Args, Info, Mutation, Query, Resolver } from '@nestjs/graphql';
 import { PrismaService } from 'nestjs-prisma';
 import { GraphQLResolveInfo } from 'graphql';
 import { Account } from '@gen/account/account.model';
@@ -8,7 +8,6 @@ import { connectOrCreateDevice } from '~/util/connect-or-create';
 import { UsersService } from '../users/users.service';
 import { AccountsService } from './accounts.service';
 import { Prisma } from '@prisma/client';
-import { User } from '@gen/user/user.model';
 import { ProviderService } from '~/provider/provider.service';
 import { calculateProxyAddress, randomDeploySalt } from 'lib';
 import { CONFIG } from '~/config';
