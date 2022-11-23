@@ -20,7 +20,7 @@ const parse = (value: unknown): BigNumber => {
   throw error;
 };
 
-export const GqlUint256Bn = new GraphQLScalarType<BigNumber, string>({
+export const Uint256BnScalar = new GraphQLScalarType<BigNumber, string>({
   name: 'Uint256',
   description,
   serialize: (value) => (value as BigNumber).toString(),
@@ -34,5 +34,5 @@ export const GqlUint256Bn = new GraphQLScalarType<BigNumber, string>({
 export const Uint256BnField =
   (options?: FieldOptions): PropertyDecorator =>
   (target, propertyKey) => {
-    Field(() => GqlUint256Bn, options)(target, propertyKey);
+    Field(() => Uint256BnScalar, options)(target, propertyKey);
   };

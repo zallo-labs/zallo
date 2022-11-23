@@ -35,7 +35,7 @@ const main = async () => {
   const gqlSchemaFactory = app.get(GraphQLSchemaFactory);
   const schema = await gqlSchemaFactory.create(resolvers);
 
-  writeFileSync(join(process.cwd(), '/schema.gql'), printSchema(schema));
+  writeFileSync(join(process.cwd(), '/schema.graphql'), printSchema(schema));
 };
 
 main().catch((error) => {

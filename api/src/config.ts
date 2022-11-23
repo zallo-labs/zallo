@@ -11,10 +11,12 @@ export const CONFIG = {
   expoToken: required`EXPO_TOKEN`,
   redisUrl: required`REDIS_URL`,
   sessionSecret: required`SESSION_SECRET`,
+  graphRef: optional`APOLLO_GRAPH_REF`,
   chain,
   etherscanApiKey: required`ETHERSCAN_API_KEY`,
   subgraphGqlUrl: required`SUBGRAPH_GQL_URL`,
   walletPrivateKey: required`WALLET_PRIVATE_KEY`,
+  accountImplAddress: required`ACCOUNT_IMPL_${chain.name.toUpperCase()}`,
   proxyFactoryAddress: required`PROXY_FACTORY_${chain.name.toUpperCase()}`,
 };
 

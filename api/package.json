@@ -13,15 +13,14 @@
     "start": "nest start --debug --watch",
     "start:prod": "node dist/src/main.js",
     "start:local-services": "docker compose -f ./services.yml up",
-    "lint": "eslint \"src/**/*.ts\" -c ../.eslintrc.js --fix",
-    "test": "RELEASE_ENV=\"test\" jest",
+    "test": "RELEASE_ENV=test jest",
     "test:watch": "yarn test --watch",
     "test:cov": "yarn test --coverage",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register ../node_modules/.bin/jest --runInBand",
     "with-env": "dotenv -e ../.env",
     "prisma": "yarn with-env -- prisma",
     "generate:gql": "DOTENV_CONFIG_PATH=\"../.env\" graphql-codegen --require dotenv/config --config codegen.yml",
-    "generate:schema": "yarn prebuild && SKIP_ENV_CHECK=true npx node -r tsconfig-paths/register -r ts-node/register ./src/generate-schema.ts"
+    "generate:schema": "yarn prebuild && SKIP_ENV_CHECK=true nest start --entryFile generate-schema"
   },
   "dependencies": {
     "@apollo/client": "^3.7.1",

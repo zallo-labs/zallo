@@ -10,26 +10,12 @@ import {
   UserIdsQuery,
   UserIdsQueryVariables,
 } from '~/gql/generated.api';
-import { Address, calculateProxyAddress, getUserIdStr, randomDeploySalt, User, UserId } from 'lib';
-import { ACCOUNT_IMPL } from '~/util/network/provider';
+import { address, Address, getUserIdStr, User, UserId } from 'lib';
 import { useDevice } from '@network/useDevice';
-import { useAccountProxyFactory } from '@network/useAccountProxyFactory';
 
 gql`
-  mutation CreateAccount(
-    $account: Address!
-    $impl: Address!
-    $deploySalt: Bytes32!
-    $name: String!
-    $users: [UserWithoutAccountInput!]!
-  ) {
-    createAccount(
-      account: $account
-      impl: $impl
-      deploySalt: $deploySalt
-      name: $name
-      users: $users
-    ) {
+  mutation CreateAccount($name: String!, $users: [UserWithoutAccountInput!]!) {
+    createAccount(name: $name, users: $users) {
       id
     }
   }
@@ -42,7 +28,6 @@ export interface CreateAccountResult {
 
 export const useCreateAccount = () => {
   const device = useDevice();
-  const factory = useAccountProxyFactory();
   const [mutation] = useCreateAccountMutation({ client: useApiClient() });
 
   return async (name: string, userName: string): Promise<CreateAccountResult> => {
@@ -56,16 +41,9 @@ export const useCreateAccount = () => {
         },
       ],
     };
-    const impl = ACCOUNT_IMPL;
-    const deploySalt = randomDeploySalt();
 
-    const account = await calculateProxyAddress({ impl, user }, factory, deploySalt);
-
-    await mutation({
+    const r = await mutation({
       variables: {
-        account,
-        impl,
-        deploySalt,
         name,
         users: [
           {
@@ -79,14 +57,6 @@ export const useCreateAccount = () => {
           },
         ],
       },
-      // TODO: reconsider, now that the userIds/accountIds issue is fixed
-      // Don't update optimistically, as the data won't be available on the api yet otherwise
-      // optimisticResponse: {
-      //   createAccount: {
-      //     __typename: 'Account',
-      //     id: toId(accountAddr),
-      //   },
-      // },
       update: (cache, res) => {
         const id = res.data?.createAccount.id;
         if (!id) return;
@@ -95,18 +65,16 @@ export const useCreateAccount = () => {
           // Account: add
           cache.writeQuery<AccountQuery, AccountQueryVariables>({
             query: AccountDocument,
-            variables: { account },
+            variables: { account: id },
             data: {
               account: {
                 id,
-                deploySalt,
-                impl,
                 isDeployed: false,
                 name,
                 users: [
                   {
                     deviceId: user.addr,
-                    name: '', // TODO: use device's name
+                    name: userName,
                   },
                 ],
               },
@@ -132,6 +100,8 @@ export const useCreateAccount = () => {
         }
       },
     });
+
+    const account = address(r.data!.createAccount.id);
 
     return {
       account,

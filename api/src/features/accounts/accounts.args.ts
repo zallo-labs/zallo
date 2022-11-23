@@ -1,7 +1,7 @@
+import { FindManyAccountArgs } from '@gen/account/find-many-account.args';
 import { ArgsType, InputType, OmitType } from '@nestjs/graphql';
-import { Address, DeploySalt } from 'lib';
+import { Address } from 'lib';
 import { AddressField } from '~/apollo/scalars/Address.scalar';
-import { Bytes32Field } from '~/apollo/scalars/Bytes32.scalar';
 import { UserInput } from '../users/users.args';
 
 @ArgsType()
@@ -10,32 +10,24 @@ export class AccountArgs {
   id: Address;
 }
 
-@InputType()
-export class UserWithoutAccountInput extends OmitType(UserInput, ['id'] as const) {
-  @AddressField()
-  device: Address;
-}
+@ArgsType()
+export class AccountsArgs extends FindManyAccountArgs {}
 
 @ArgsType()
 export class CreateAccountArgs {
-  @AddressField()
-  account: Address;
-
-  @AddressField()
-  impl: Address;
-
-  @Bytes32Field()
-  deploySalt: DeploySalt;
-
   name: string;
 
+  // TODO: require at least one
   users: UserWithoutAccountInput[];
 }
 
 @ArgsType()
-export class SetAccountNameArgs {
-  @AddressField()
-  id: Address;
-
+export class SetAccountNameArgs extends AccountArgs {
   name: string;
+}
+
+@InputType()
+export class UserWithoutAccountInput extends OmitType(UserInput, ['id'] as const) {
+  @AddressField()
+  device: Address;
 }

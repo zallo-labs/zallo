@@ -17,7 +17,7 @@ const parse = (value: unknown): BigNumber => {
   throw error;
 };
 
-export const GqlBigNumber = new GraphQLScalarType<BigNumber, string>({
+export const BigNumberScalar = new GraphQLScalarType<BigNumber, string>({
   name: 'BigNumber',
   description,
   serialize: (value) => (value as BigNumber).toString(),
@@ -31,5 +31,5 @@ export const GqlBigNumber = new GraphQLScalarType<BigNumber, string>({
 export const BigNumberField =
   (options?: FieldOptions): PropertyDecorator =>
   (target, propertyKey) => {
-    Field(() => GqlBigNumber, options)(target, propertyKey);
+    Field(() => BigNumberScalar, options)(target, propertyKey);
   };

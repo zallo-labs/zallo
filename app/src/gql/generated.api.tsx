@@ -32,7 +32,6 @@ export type Account = {
   _count: AccountCount;
   comments?: Maybe<Array<Comment>>;
   deploySalt: Scalars['String'];
-  deployUser: User;
   id: Scalars['ID'];
   impl: Scalars['String'];
   isDeployed: Scalars['Boolean'];
@@ -250,9 +249,6 @@ export type MutationApproveArgs = {
 
 
 export type MutationCreateAccountArgs = {
-  account: Scalars['Address'];
-  deploySalt: Scalars['Bytes32'];
-  impl: Scalars['Address'];
   name: Scalars['String'];
   users: Array<UserWithoutAccountInput>;
 };
@@ -750,9 +746,6 @@ export type ActivateAccountMutationVariables = Exact<{
 export type ActivateAccountMutation = { __typename?: 'Mutation', activateAccount: boolean };
 
 export type CreateAccountMutationVariables = Exact<{
-  account: Scalars['Address'];
-  impl: Scalars['Address'];
-  deploySalt: Scalars['Bytes32'];
   name: Scalars['String'];
   users: Array<UserWithoutAccountInput> | UserWithoutAccountInput;
 }>;
@@ -899,7 +892,7 @@ export type AccountQueryVariables = Exact<{
 }>;
 
 
-export type AccountQuery = { __typename?: 'Query', account: { __typename?: 'Account', id: string, deploySalt: string, impl: string, isDeployed: boolean, name: string, users?: Array<{ __typename?: 'User', deviceId: string, name: string }> | null } };
+export type AccountQuery = { __typename?: 'Query', account: { __typename?: 'Account', id: string, isDeployed: boolean, name: string, users?: Array<{ __typename?: 'User', deviceId: string, name: string }> | null } };
 
 export type ContactFieldsFragment = { __typename?: 'ContactObject', id: string, addr: any, name: string };
 
@@ -1040,14 +1033,8 @@ export type ActivateAccountMutationHookResult = ReturnType<typeof useActivateAcc
 export type ActivateAccountMutationResult = Apollo.MutationResult<ActivateAccountMutation>;
 export type ActivateAccountMutationOptions = Apollo.BaseMutationOptions<ActivateAccountMutation, ActivateAccountMutationVariables>;
 export const CreateAccountDocument = gql`
-    mutation CreateAccount($account: Address!, $impl: Address!, $deploySalt: Bytes32!, $name: String!, $users: [UserWithoutAccountInput!]!) {
-  createAccount(
-    account: $account
-    impl: $impl
-    deploySalt: $deploySalt
-    name: $name
-    users: $users
-  ) {
+    mutation CreateAccount($name: String!, $users: [UserWithoutAccountInput!]!) {
+  createAccount(name: $name, users: $users) {
     id
   }
 }
@@ -1067,9 +1054,6 @@ export type CreateAccountMutationFn = Apollo.MutationFunction<CreateAccountMutat
  * @example
  * const [createAccountMutation, { data, loading, error }] = useCreateAccountMutation({
  *   variables: {
- *      account: // value for 'account'
- *      impl: // value for 'impl'
- *      deploySalt: // value for 'deploySalt'
  *      name: // value for 'name'
  *      users: // value for 'users'
  *   },
@@ -1665,8 +1649,6 @@ export const AccountDocument = gql`
     query Account($account: Address!) {
   account(id: $account) {
     id
-    deploySalt
-    impl
     isDeployed
     name
     users {

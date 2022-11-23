@@ -108,3 +108,5 @@ jobs:
 
       - name: 🚀 Deploy
         run: yarn subgraph prod:deploy-hosted
+
+  # Docs deployment is handled by Netlify

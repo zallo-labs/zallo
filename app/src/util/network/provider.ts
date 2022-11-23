@@ -45,9 +45,6 @@ const ogLog = logger._log;
 logger._log = (logLevel: LogLevel, args: unknown[]) => {
   if (logLevel !== LogLevel.OFF)
     captureEvent({
-      // level accepts Severity but it's deprecated, SeverityLevel is the replacement
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      // @ts-ignore
       level: ethersLevelToSentrySeverity(logLevel),
       message: args.join(' '),
     });

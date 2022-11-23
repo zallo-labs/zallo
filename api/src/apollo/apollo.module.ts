@@ -15,17 +15,13 @@ export const GQL_ENDPOINT = '/graphql';
   imports: [
     GraphQLModule.forRoot<ApolloDriverConfig>({
       driver: ApolloDriver,
-      autoSchemaFile: 'schema.gql',
+      autoSchemaFile: 'schema.graphql',
       sortSchema: true,
       debug: IS_DEV,
       introspection: true,
       path: GQL_ENDPOINT,
       cache: 'bounded',
-      // plugins: [new LoggingPlugin()],
-      cors: {
-        origin: 'https://studio.apollographql.com',
-        credentials: true,
-      },
+      cors: false, // Configured in main.ts; omitting reconfigures CORS
       buildSchemaOptions: {
         fieldMiddleware: [IdMiddleware, AddressMiddleware],
       },

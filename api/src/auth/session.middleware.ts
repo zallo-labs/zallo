@@ -2,7 +2,7 @@ import { Injectable, NestMiddleware } from '@nestjs/common';
 import { NextFunction, Request, RequestHandler, Response } from 'express';
 import session from 'express-session';
 import createStore from 'connect-redis';
-import { CONFIG, IS_DEV } from '~/config';
+import { CONFIG } from '~/config';
 import { Duration } from 'luxon';
 import { InjectRedis } from '@liaoliaots/nestjs-redis';
 import Redis from 'ioredis';
@@ -20,11 +20,8 @@ export class SessionMiddleware implements NestMiddleware {
       saveUninitialized: false,
       cookie: {
         maxAge: Duration.fromObject({ days: 7 }).toMillis(),
-        httpOnly: false,
-        ...(IS_DEV && {
-          secure: true,
-          sameSite: 'none',
-        }),
+        secure: 'auto',
+        sameSite: 'none', // Required by apollo studio when includeCookies=true
       },
       store: new RedisStore({ client: redis }),
     });

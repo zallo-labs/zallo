@@ -10,7 +10,7 @@
     "start": "yarn load-env && expo start --dev-client",
     "test": "yarn typecheck && jest --forceExit",
     "typecheck": "tsc --noEmit",
-    "generate": "yarn load-env && graphql-codegen --config codegen.yml",
+    "generate": "graphql-codegen --config codegen.ts",
     "load-env": "ts-node ./env.ts",
     "clean": "rimraf web-build"
   },
