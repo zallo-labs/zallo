@@ -15,7 +15,7 @@ export const GQL_ENDPOINT = '/graphql';
   imports: [
     GraphQLModule.forRoot<ApolloDriverConfig>({
       driver: ApolloDriver,
-      autoSchemaFile: 'schema.gql',
+      autoSchemaFile: 'schema.graphql',
       sortSchema: true,
       debug: IS_DEV,
       introspection: true,
