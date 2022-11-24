@@ -18,32 +18,43 @@ const sidebars = {
     {
       type: 'category',
       label: 'Tutorials',
-      items: ['tutorials/transaction'],
-    },
-    {
-      type: 'category',
-      label: 'Concepts',
-      items: ['concepts/account'],
+      link: {
+        type: 'generated-index',
+        slug: 'tutorials',
+      },
+      items: ['tutorials/transaction', 'tutorials/quorums'],
     },
     {
       type: 'category',
       label: 'Guides',
-      items: ['guides/placeholder'],
+      link: {
+        type: 'generated-index',
+        slug: 'guides',
+      },
+      items: ['guides/setup-nodejs', 'guides/setup-other'],
     },
     {
       type: 'category',
       label: 'Reference',
+      link: {
+        type: 'generated-index',
+        slug: 'reference',
+      },
       items: [
-        'reference/authentication',
         {
           type: 'category',
           label: 'Account',
+          link: {
+            type: 'doc',
+            id: 'reference/account/index',
+          },
           items: [
             'reference/account/create',
-            'reference/account/account',
-            'reference/account/accounts',
+            'reference/account/query-account',
+            'reference/account/query-accounts',
           ],
         },
+        'reference/authentication',
         {
           type: 'category',
           label: 'Schema',
@@ -55,6 +66,15 @@ const sidebars = {
           ],
         },
       ],
+    },
+    {
+      type: 'category',
+      label: 'Explanation',
+      link: {
+        type: 'generated-index',
+        slug: 'explanation',
+      },
+      items: ['explanation/smart-contract'],
     },
   ],
 };

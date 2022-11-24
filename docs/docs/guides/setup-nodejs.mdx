@@ -1,0 +1,64 @@
+# 🏗️ Setup (NodeJS)
+
+<!--
+**What you'll need**
+
+- A GraphQL client. We recommend [Apollo](https://www.apollographql.com/docs/react/get-started).
+-->
+
+```bash npm2yarn
+npm install @apollo/client graphql
+```
+
+Initialize the Zallo client
+
+```typescript
+import { ApolloClient, InMemoryCache } from '@apollo/client';
+
+const zallo = new ApolloClient({
+  uri: 'https://api.zallo.io/graphql',
+  cache: new InMemoryCache(),
+  credentials: 'include', // Include cookies
+});
+```
+
+### 🔒 Authenticating your requests
+
+Obtain your auth token
+
+```typescript
+// TODO: obtain token
+```
+
+Add the token to your request headers
+
+```typescript
+const zallo = new ApolloClient({
+  uri: 'https://api.zallo.io/graphql',
+  cache: new InMemoryCache(),
+  credentials: 'include', // Include cookies
+  // highlight-start
+  headers: {
+    Authorization: `Bearer ${token}`,
+  },
+  // highlight-end
+});
+```
+
+### 🎉 That's it! You're ready to go
+
+Test that your client is configured correctly by running the following query
+
+```typescript
+const { data } = await zallo.query({
+  query: gql`
+    query DeviceId {
+      device {
+        id
+      }
+    }
+  `,
+});
+```
+
+Visit the [playground](/playground) to try things out
