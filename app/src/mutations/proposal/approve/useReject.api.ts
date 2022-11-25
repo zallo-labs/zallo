@@ -15,8 +15,8 @@ import { Proposal } from '~/queries/proposal';
 import { updateQuery } from '~/gql/update';
 
 gql`
-  mutation Reject($hash: Bytes32!) {
-    reject(hash: $hash) {
+  mutation Reject($id: Bytes32!) {
+    reject(id: $id) {
       id
     }
   }
@@ -31,7 +31,7 @@ export const useReject = () => {
     async ({ id, hash, approvals, userHasApproved }: Proposal) => {
       const r = await mutation({
         variables: {
-          hash,
+          id: hash,
         },
         optimisticResponse: {
           reject: userHasApproved && approvals.length <= 1 ? null : { id },
@@ -50,9 +50,9 @@ export const useReject = () => {
             updateQuery<ProposalQuery, ProposalQueryVariables>({
               cache,
               query: ProposalDocument,
-              variables: { hash },
+              variables: { id: hash },
               updater: (data) => {
-                data.proposal.approvals = data.proposal.approvals?.filter(
+                data.proposal!.approvals = data.proposal!.approvals?.filter(
                   (a) => a.deviceId !== device.address,
                 );
               },
@@ -74,7 +74,7 @@ export const useReject = () => {
               query: ProposalsMetadataDocument,
               variables: {},
               updater: (data) => {
-                data.proposals = data.proposals?.filter((p) => p.hash !== hash);
+                data.proposals = data.proposals?.filter((p) => p.id !== hash);
               },
             });
           }

@@ -33,7 +33,7 @@ model Account {
   impl       String  @db.Char(42) // address
   deploySalt String  @db.Char(66) // bytes32
   name       String
-  isDeployed Boolean @default(false)
+  isActive   Boolean @default(false)
 
   users      User[]
   userStates UserState[]
@@ -60,14 +60,14 @@ model User {
 model UserState {
   id Int @id @default(autoincrement())
 
-  account      Account   @relation(fields: [accountId], references: [id], onDelete: Cascade)
-  accountId    String    @db.Char(42) // address
-  user         User      @relation(fields: [accountId, deviceId], references: [accountId, deviceId], onDelete: Cascade)
-  deviceId     String    @db.Char(42) // address
-  proposal     Proposal? @relation(fields: [proposalHash], references: [hash], onDelete: Cascade)
-  proposalHash String?   @db.Char(66) // bytes32
-  createdAt    DateTime  @default(now())
-  isDeleted    Boolean   @default(false)
+  account    Account   @relation(fields: [accountId], references: [id], onDelete: Cascade)
+  accountId  String    @db.Char(42) // address
+  user       User      @relation(fields: [accountId, deviceId], references: [accountId, deviceId], onDelete: Cascade)
+  deviceId   String    @db.Char(42) // address
+  proposal   Proposal? @relation(fields: [proposalId], references: [id], onDelete: Cascade)
+  proposalId String?   @db.Char(66) // bytes32
+  createdAt  DateTime  @default(now())
+  isDeleted  Boolean   @default(false)
 
   latestOfUser         User?        @relation(name: "latest", fields: [accountId, latestOfUserDeviceId], references: [accountId, deviceId], onDelete: Cascade) // user | null
   latestOfUserDeviceId String?      @db.Char(42)
@@ -134,7 +134,7 @@ model ContractMethod {
 }
 
 model Proposal {
-  hash String @id @db.Char(66) // bytes32
+  id String @id @db.Char(66) // hash: bytes32
 
   account    Account    @relation(fields: [accountId], references: [id], onDelete: Cascade)
   accountId  String     @db.Char(42) // address
@@ -149,42 +149,42 @@ model Proposal {
   gasLimit   Decimal?   @db.Decimal(19, 0)
   createdAt  DateTime   @default(now())
 
-  approvals   Approval[]
-  submissions Submission[]
-  userStates  UserState[]
+  approvals    Approval[]
+  transactions Transaction[]
+  userStates   UserState[]
 }
 
-model Submission {
+model Transaction {
   hash String @id @db.Char(66) // bytes32
 
-  proposal     Proposal            @relation(fields: [proposalHash], references: [hash], onDelete: Cascade)
-  proposalHash String              @db.Char(66) // bytes32
-  response     SubmissionResponse?
-  nonce        Int
-  gasLimit     Decimal             @db.Decimal(19, 0)
-  gasPrice     Decimal?            @db.Decimal(19, 0)
-  createdAt    DateTime            @default(now())
+  proposal   Proposal             @relation(fields: [proposalId], references: [id], onDelete: Cascade)
+  proposalId String               @db.Char(66) // bytes32
+  nonce      Int
+  gasLimit   Decimal              @db.Decimal(19, 0)
+  gasPrice   Decimal?             @db.Decimal(19, 0)
+  createdAt  DateTime             @default(now())
+  response   TransactionResponse?
 }
 
-model SubmissionResponse {
-  submission Submission @relation(fields: [hash], references: [hash], onDelete: Cascade)
-  hash       String     @id @db.Char(66) // bytes32
+model TransactionResponse {
+  transaction     Transaction @relation(fields: [transactionHash], references: [hash], onDelete: Cascade)
+  transactionHash String      @id @db.Char(66) // bytes32
 
+  success   Boolean
   response  String   @db.Char(66) // bytes32
-  reverted  Boolean  @default(false)
   timestamp DateTime @default(now())
 }
 
 model Approval {
-  proposal     Proposal @relation(fields: [proposalHash], references: [hash], onDelete: Cascade)
-  proposalHash String   @db.Char(66) // bytes32
-  device       Device   @relation(fields: [deviceId], references: [id], onDelete: Cascade)
-  deviceId     String   @db.Char(42) // address
+  proposal   Proposal @relation(fields: [proposalId], references: [id], onDelete: Cascade)
+  proposalId String   @db.Char(66) // bytes32
+  device     Device   @relation(fields: [deviceId], references: [id], onDelete: Cascade)
+  deviceId   String   @db.Char(42) // address
 
   signature String? // bytes; rejected if undefined
   createdAt DateTime @default(now())
 
-  @@id([proposalHash, deviceId])
+  @@id([proposalId, deviceId])
 }
 
 model Comment {

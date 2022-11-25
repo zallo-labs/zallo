@@ -101,7 +101,7 @@ export class UsersResolver {
 
   @Mutation(() => User)
   async upsertUser(
-    @Args() { user, proposalHash }: UpsertUserArgs,
+    @Args() { user, proposalId }: UpsertUserArgs,
     @Info() info: GraphQLResolveInfo,
   ): Promise<User> {
     const userId = getUserWhere(user.id);
@@ -151,7 +151,7 @@ export class UsersResolver {
         data: {
           account: { connect: { id: user.id.account } },
           user: { connect: userId },
-          proposal: { connect: { hash: proposalHash } },
+          proposal: { connect: { id: proposalId } },
           latestOfUser: { connect: userId },
           configs: this.service.createUserConfigs(configs),
         },
@@ -168,7 +168,7 @@ export class UsersResolver {
 
   @Mutation(() => User)
   async removeUser(
-    @Args() { id, proposalHash }: RemoveUserArgs,
+    @Args() { id, proposalId }: RemoveUserArgs,
     @Info() info: GraphQLResolveInfo,
   ): Promise<User> {
     const isActive = await this.service.isActive({
@@ -179,7 +179,7 @@ export class UsersResolver {
     const userWhere = getUserWhere(id);
 
     if (isActive) {
-      if (!proposalHash) throw new UserInputError('Proposal is required to remove an active user');
+      if (!proposalId) throw new UserInputError('Proposal is required to remove an active user');
 
       return this.prisma.user.update({
         where: userWhere,
@@ -188,7 +188,7 @@ export class UsersResolver {
             create: {
               isDeleted: true,
               account: { connect: { id: id.account } },
-              proposal: { connect: { hash: proposalHash } },
+              proposal: { connect: { id: proposalId } },
               latestOfUser: { connect: userWhere },
             },
           },

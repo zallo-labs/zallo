@@ -67,6 +67,7 @@ const config = {
         },
       },
     ],
+    'plugin-image-zoom',
   ],
 
   themeConfig:
@@ -151,6 +152,13 @@ const config = {
       prism: {
         theme: lightCodeTheme,
         darkTheme: darkCodeTheme,
+      },
+      imageZoom: {
+        // https://github.com/flexanalytics/plugin-image-zoom
+        options: {
+          // https://www.npmjs.com/package/medium-zoom#options
+          margin: 48,
+        },
       },
     }),
 

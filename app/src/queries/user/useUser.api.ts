@@ -51,7 +51,7 @@ gql`
   }
 
   fragment UserStateFields on UserState {
-    proposalHash
+    proposalId
     configs {
       id
       approvers {
@@ -124,10 +124,10 @@ export const useUser = <Id extends UserId | Address | undefined>(idInput: Id) =>
       configs: new Proposable({
         active: convertState(u.activeState),
         proposed: convertState(u.proposedState)!,
-        proposal: u.proposedState?.proposalHash
+        proposal: u.proposedState?.proposalId
           ? {
               account: id.account,
-              hash: u.proposedState.proposalHash,
+              hash: u.proposedState.proposalId,
             }
           : undefined,
       }),

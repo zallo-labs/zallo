@@ -1,6 +1,6 @@
 import { Args, Info, Mutation, Parent, Query, ResolveField, Resolver } from '@nestjs/graphql';
 import { GraphQLResolveInfo } from 'graphql';
-import { Address, getTxId, hashTx, Id, isPresent } from 'lib';
+import { Address, hashTx, isPresent, randomTxSalt } from 'lib';
 import { PrismaService } from 'nestjs-prisma';
 import { DeviceAddr } from '~/decorators/device.decorator';
 import { connectAccount, connectOrCreateDevice } from '~/util/connect-or-create';
@@ -20,9 +20,8 @@ import { ExpoService } from '~/expo/expo.service';
 import { match } from 'ts-pattern';
 import { ProposalWhereInput } from '@gen/proposal/proposal-where.input';
 import { UsersService } from '../users/users.service';
-import assert from 'assert';
-import { hexlify } from 'ethers/lib/utils';
 import { ProposalsService } from './proposals.service';
+import { Transaction } from '@gen/transaction/transaction.model';
 
 @Resolver(() => Proposal)
 export class ProposalsResolver {
@@ -34,18 +33,13 @@ export class ProposalsResolver {
     private users: UsersService,
   ) {}
 
-  @ResolveField(() => String)
-  id(@Parent() proposal: Proposal): Id {
-    return getTxId(proposal.hash);
-  }
-
-  @Query(() => Proposal)
+  @Query(() => Proposal, { nullable: true })
   async proposal(
-    @Args() { hash }: UniqueProposalArgs,
+    @Args() { id }: UniqueProposalArgs,
     @Info() info: GraphQLResolveInfo,
-  ): Promise<Proposal> {
-    return this.prisma.proposal.findUniqueOrThrow({
-      where: { hash },
+  ): Promise<Proposal | null> {
+    return this.prisma.proposal.findUnique({
+      where: { id },
       ...getSelect(info),
     });
   }
@@ -59,84 +53,80 @@ export class ProposalsResolver {
     return this.prisma.proposal.findMany({
       ...args,
       where: {
-        ...(accounts && { accountId: { in: [...accounts] } }),
-        ...(status &&
-          match<ProposalStatus, ProposalWhereInput>(status)
-            .with(ProposalStatus.Executed, () => ({
-              submissions: {
-                some: { response: { is: { reverted: { equals: false } } } },
-              },
-            }))
-            .with(ProposalStatus.AwaitingUser, () => ({
-              submissions: {
-                none: { response: { is: { reverted: { equals: false } } } },
-              },
-              approvals: {
-                none: { deviceId: { equals: device } },
-              },
-            }))
-            .with(ProposalStatus.AwaitingOther, () => ({
-              submissions: {
-                none: { response: { is: { reverted: { equals: false } } } },
-              },
-              approvals: {
-                some: { deviceId: { equals: device } },
-              },
-            }))
-            .exhaustive()),
+        AND: [
+          {
+            ...(accounts && { accountId: { in: [...accounts] } }),
+            ...(status &&
+              match<ProposalStatus, ProposalWhereInput>(status)
+                .with(ProposalStatus.Executed, () => ({
+                  transactions: {
+                    some: { response: { is: { success: { equals: true } } } },
+                  },
+                }))
+                .with(ProposalStatus.AwaitingUser, () => ({
+                  transactions: {
+                    none: { response: { is: { success: { equals: true } } } },
+                  },
+                  approvals: {
+                    none: { deviceId: { equals: device } },
+                  },
+                }))
+                .with(ProposalStatus.AwaitingOther, () => ({
+                  transactions: {
+                    none: { response: { is: { success: { equals: true } } } },
+                  },
+                  approvals: {
+                    some: { deviceId: { equals: device } },
+                  },
+                }))
+                .exhaustive()),
+          },
+          args.where ?? {},
+        ],
       },
       ...getSelect(info),
     });
   }
 
+  @ResolveField(() => Transaction, { nullable: true })
+  async transaction(@Parent() proposal: Proposal): Promise<Transaction | null> {
+    return proposal.transactions ? proposal.transactions[proposal.transactions.length - 1] : null;
+  }
+
   @Mutation(() => Proposal)
   async propose(
-    @Args() { account, configId, proposal, signature, executeWhenApproved }: ProposeArgs,
+    @Args()
+    { account, config, to, value, data, salt = randomTxSalt(), gasLimit }: ProposeArgs,
     @Info() info: GraphQLResolveInfo,
     @DeviceAddr() device: Address,
   ): Promise<Proposal> {
-    const hash = await hashTx({ address: account, provider: this.provider }, proposal);
+    const id = await hashTx({
+      address: account,
+      provider: this.provider,
+      tx: { to, value, data, salt },
+    });
 
-    if (configId !== undefined) {
-      const config = await this.prisma.userConfig.findUniqueOrThrow({
-        where: { id: configId },
-        select: {
-          state: {
-            select: {
-              accountId: true,
-              deviceId: true,
-            },
+    // Default behaviour is specified on ProposeArgs
+    const state = await this.prisma.userState.findFirst({
+      ...this.users.latestStateArgs({ account, addr: device }, true),
+      select: {
+        configs: {
+          select: {
+            id: true,
+          },
+          orderBy: {
+            approvers: { _count: 'asc' },
+            id: 'asc',
           },
         },
-      });
-      if (config.state.deviceId !== device)
-        throw new UserInputError("Config doesn't belong to device");
-      if (config.state.accountId !== account)
-        throw new UserInputError("Config doesn't belong to account");
-    } else {
-      const state = await this.prisma.userState.findFirst({
-        ...this.users.latestStateArgs({ account, addr: device }, true),
-        select: {
-          configs: {
-            select: {
-              id: true,
-            },
-            orderBy: {
-              approvers: {
-                _count: 'asc',
-              },
-            },
-          },
-        },
-      });
-      assert(state);
+      },
+    });
+    if (!state) throw new UserInputError(`Device doesn't belong to any configs`);
+    config = state.configs[0].id;
 
-      configId = state.configs[0].id;
-    }
-
-    const r = await this.prisma.proposal.create({
+    return this.prisma.proposal.create({
       data: {
-        hash,
+        id,
         account: connectAccount(account),
         proposer: {
           connect: {
@@ -146,25 +136,15 @@ export class ProposalsResolver {
             },
           },
         },
-        config: { connect: { id: configId } },
-        to: proposal.to,
-        value: proposal.value.toString(),
-        data: hexlify(proposal.data),
-        salt: proposal.salt,
-        gasLimit: proposal.gasLimit?.toString(),
+        config: { connect: { id: config } },
+        to,
+        value: value.toString(),
+        data,
+        salt,
+        gasLimit: gasLimit?.toString(),
       },
-      ...(signature && { select: null }),
+      ...getSelect(info),
     });
-
-    return signature
-      ? this.service.approve({
-          hash,
-          signature,
-          executeWhenApproved,
-          device,
-          args: getSelect(info),
-        })
-      : r;
   }
 
   @Mutation(() => Proposal)
@@ -182,18 +162,18 @@ export class ProposalsResolver {
 
   @Mutation(() => Proposal, { nullable: true })
   async reject(
-    @Args() { hash }: UniqueProposalArgs,
+    @Args() { id }: UniqueProposalArgs,
     @DeviceAddr() device: Address,
     @Info() info: GraphQLResolveInfo,
   ): Promise<Proposal | null> {
     const proposal = await this.prisma.proposal.update({
-      where: { hash },
+      where: { id },
       data: {
         approvals: {
           upsert: {
             where: {
-              proposalHash_deviceId: {
-                proposalHash: hash,
+              proposalId_deviceId: {
+                proposalId: id,
                 deviceId: device,
               },
             },
@@ -211,11 +191,9 @@ export class ProposalsResolver {
     });
 
     // Delete proposal if no approvals are left
-    const approvalsLeft = await this.prisma.approval.count({ where: { proposalHash: hash } });
+    const approvalsLeft = await this.prisma.approval.count({ where: { proposalId: id } });
     if (!approvalsLeft) {
-      await this.prisma.proposal.delete({
-        where: { hash },
-      });
+      await this.prisma.proposal.delete({ where: { id } });
       return null;
     }
 
@@ -224,12 +202,12 @@ export class ProposalsResolver {
 
   @Mutation(() => Boolean)
   async requestApproval(
-    @Args() { hash, approvers }: ApprovalRequest,
+    @Args() { id, approvers }: ApprovalRequest,
     @DeviceAddr() device: Address,
   ): Promise<true> {
     // Ensure all approvers are valid for the given proposal
     const { accountId, approvals } = await this.prisma.proposal.findUniqueOrThrow({
-      where: { hash },
+      where: { id },
       select: {
         accountId: true,
         approvals: {
@@ -280,7 +258,7 @@ export class ProposalsResolver {
         title: 'Approval Request',
         body: `${user.name} has requested your approval`,
         data: {
-          url: `zallo://proposal/?id=${hash}`,
+          url: `zallo://proposal/?id=${id}`,
         },
       },
     ]);

@@ -1,14 +1,3 @@
-/**
- * Creating a sidebar enables you to:
- - create an ordered group of docs
- - render a sidebar for each doc of that group
- - provide next/previous navigation
-
- The sidebars can be generated from the filesystem, or explicitly defined here.
-
- Create as many sidebars as you want.
- */
-
 // @ts-check
 
 /** @type {import('@docusaurus/plugin-content-docs').SidebarsConfig} */
@@ -50,8 +39,23 @@ const sidebars = {
           },
           items: [
             'reference/account/create',
-            'reference/account/query-account',
-            'reference/account/query-accounts',
+            'reference/account/query',
+            'reference/account/query-multiple',
+          ],
+        },
+        {
+          type: 'category',
+          label: 'Proposal',
+          link: {
+            type: 'doc',
+            id: 'reference/proposal/index',
+          },
+          items: [
+            'reference/proposal/create',
+            'reference/proposal/approve',
+            'reference/proposal/subscribe',
+            'reference/proposal/query',
+            'reference/proposal/query-multiple',
           ],
         },
         'reference/authentication',

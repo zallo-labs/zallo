@@ -12,7 +12,7 @@ import {
   ProposalsMetadataDocument,
   ProposalsMetadataQuery,
   ProposalsMetadataQueryVariables,
-  SubmissionFieldsFragmentDoc,
+  TransactionFieldsFragmentDoc,
   useProposeMutation,
 } from '~/gql/generated.api';
 import { updateQuery } from '~/gql/update';
@@ -20,18 +20,29 @@ import { BigNumberish } from 'ethers';
 import { ProposalId } from '~/queries/proposal';
 
 gql`
-  ${SubmissionFieldsFragmentDoc}
+  ${TransactionFieldsFragmentDoc}
 
   mutation Propose(
     $account: Address!
-    $configId: Float
-    $proposal: ProposalInput!
-    $signature: Bytes
+    $config: Float
+    $to: Address!
+    $value: Uint256
+    $data: Bytes
+    $salt: Bytes8
+    $gasLimit: Uint256
   ) {
-    propose(account: $account, configId: $configId, proposal: $proposal, signature: $signature) {
+    propose(
+      account: $account
+      config: $config
+      to: $to
+      value: $value
+      data: $data
+      salt: $salt
+      gasLimit: $gasLimit
+    ) {
       id
-      submissions {
-        ...SubmissionFields
+      transactions {
+        ...TransactionFields
       }
     }
   }
@@ -52,7 +63,7 @@ export const useApiPropose = () => {
   const propose = useCallback(
     async (txDef: ProposalDef, account: Address): Promise<ProposeResponse> => {
       const tx = createTx(txDef);
-      const hash = await hashTx({ address: account, provider: device.provider }, tx);
+      const hash = await hashTx({ address: account, provider: device.provider, tx });
 
       const id = getTxId(hash);
       const createdAt = DateTime.now().toISO();
@@ -61,24 +72,21 @@ export const useApiPropose = () => {
       const res = await mutation({
         variables: {
           account,
-          proposal: {
-            to: tx.to,
-            value: tx.value.toString(),
-            data: hexlify(tx.data),
-            salt: hexlify(tx.salt),
-            gasLimit: txDef.gasLimit?.toString(),
-          },
-          // signature,
+          to: tx.to,
+          value: tx.value.toString(),
+          data: hexlify(tx.data),
+          salt: hexlify(tx.salt),
+          gasLimit: txDef.gasLimit?.toString(),
         },
         optimisticResponse: {
           propose: {
             id,
-            submissions: null,
+            transactions: null,
           },
         },
         update: async (cache, res) => {
           if (!res?.data?.propose.id) return;
-          const submissions = res.data.propose.submissions;
+          const transactions = res.data.propose.transactions;
 
           await upsertProposal();
           upsertProposalsMetadata();
@@ -86,27 +94,19 @@ export const useApiPropose = () => {
           async function upsertProposal() {
             cache.writeQuery<ProposalQuery, ProposalQueryVariables>({
               query: ProposalDocument,
-              variables: { hash },
+              variables: { id: hash },
               data: {
                 proposal: {
                   id,
                   accountId: account,
                   proposerId: device.address,
-                  hash,
                   to: tx.to,
                   value: tx.value.toString(),
                   data: hexlify(tx.data),
                   salt: hexlify(tx.salt),
                   createdAt,
                   approvals: [],
-                  // approvals: [
-                  //   {
-                  //     deviceId: device.address,
-                  //     signature,
-                  //     createdAt,
-                  //   },
-                  // ],
-                  submissions,
+                  transactions,
                 },
               },
             });
@@ -138,8 +138,8 @@ export const useApiPropose = () => {
         },
       });
 
-      const submissionHash = res.data?.propose?.submissions
-        ? res.data.propose.submissions[res.data.propose.submissions.length - 1].hash
+      const submissionHash = res.data?.propose?.transactions
+        ? res.data.propose.transactions[res.data.propose.transactions.length - 1].hash
         : undefined;
 
       return { hash, submissionHash };

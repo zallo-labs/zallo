@@ -24,7 +24,6 @@ gql`
     proposals(accounts: $accounts, status: $status) {
       id
       accountId
-      hash
       createdAt
     }
   }
@@ -49,9 +48,9 @@ export const useProposalsMetadata = ({ accounts, status }: ProposalsMetadataOpti
     () =>
       data.proposals.map(
         (p): ProposalMetadata => ({
-          id: toId(p.hash),
+          id: toId(p.id),
           account: address(p.accountId),
-          hash: p.hash,
+          hash: p.id,
           timestamp: DateTime.fromISO(p.createdAt),
         }),
       ),

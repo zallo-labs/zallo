@@ -16,9 +16,9 @@ export class SubmissionsService {
     private subgraph: SubgraphService,
   ) {}
 
-  async tryExecute(proposalHash: string) {
+  async tryExecute(id: string) {
     const proposal = await this.prisma.proposal.findUniqueOrThrow({
-      where: { hash: proposalHash },
+      where: { id },
       include: {
         approvals: true,
         config: {
@@ -82,27 +82,27 @@ export class SubmissionsService {
     const account = this.provider.connectAccount(address(proposal.accountId));
 
     const resp = await executeTx(account, txReq, user, signers);
-    return this.submitExecution(proposalHash, resp);
+    return this.submitExecution(id, resp);
   }
 
   async submitExecution(
-    proposalHash: string,
+    proposalId: string,
     submission: TransactionResponse | string,
-    args: Omit<Prisma.SubmissionCreateArgs, 'data'> = {},
+    args: Omit<Prisma.TransactionCreateArgs, 'data'> = {},
   ) {
     const transaction =
       typeof submission === 'object' ? submission : await this.provider.getTransaction(submission);
     if (!transaction) throw new UserInputError('Transaction not found');
 
-    return await this.prisma.submission.create({
+    return await this.prisma.transaction.create({
       ...args,
       data: {
-        proposal: { connect: { hash: proposalHash } },
+        proposal: { connect: { id: proposalId } },
         hash: transaction.hash,
         nonce: transaction.nonce,
         gasLimit: transaction.gasLimit.toString(),
         gasPrice: transaction.gasPrice?.toString(),
-        response: { create: await this.subgraph.txResponse(proposalHash) },
+        response: { create: await this.subgraph.txResponse(proposalId) },
       },
     });
   }

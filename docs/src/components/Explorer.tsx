@@ -50,13 +50,13 @@ export const Explorer = withRecoil(
     const { apolloGraphRef } = useCustomFields();
 
     const document = print(documentProp);
-    const docLines = document.split('\n').length || 5;
+    const docLines = document.split('\n').length + 5;
 
-    const variableLines = JSON.stringify(variables, null, 2)?.split('\n').length ?? 0;
+    const variableLines = (JSON.stringify(variables, null, 2)?.split('\n').length ?? 0) + 5;
 
     return (
       <ApolloExplorer
-        css={style || { height: `${(docLines + variableLines + 10) * 1.5}rem` }}
+        css={style || { height: `${(docLines + variableLines) * 1.75}rem` }}
         graphRef={apolloGraphRef}
         includeCookies
         persistExplorerState={persistExplorerState}

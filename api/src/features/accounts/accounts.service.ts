@@ -31,29 +31,28 @@ export class AccountsService {
   }
 
   async activateAccount(accountAddr: Address) {
-    const { isDeployed, impl, deploySalt, userStates } =
-      await this.prisma.account.findUniqueOrThrow({
-        where: { id: accountAddr },
-        select: {
-          isDeployed: true,
-          impl: true,
-          deploySalt: true,
-          userStates: {
-            where: { proposal: null },
-            select: {
-              deviceId: true,
-              configs: {
-                select: {
-                  approvers: true,
-                  spendingAllowlisted: true,
-                  limits: true,
-                },
+    const { isActive, impl, deploySalt, userStates } = await this.prisma.account.findUniqueOrThrow({
+      where: { id: accountAddr },
+      select: {
+        isActive: true,
+        impl: true,
+        deploySalt: true,
+        userStates: {
+          where: { proposal: null },
+          select: {
+            deviceId: true,
+            configs: {
+              select: {
+                approvers: true,
+                spendingAllowlisted: true,
+                limits: true,
               },
             },
           },
         },
-      });
-    if (isDeployed) return;
+      },
+    });
+    if (isActive) return;
 
     assert(userStates.length === 1);
     const userState = userStates[0];
@@ -89,7 +88,7 @@ export class AccountsService {
 
     await this.prisma.account.update({
       where: { id: accountAddr },
-      data: { isDeployed: true },
+      data: { isActive: true },
     });
   }
 }

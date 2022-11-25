@@ -52,7 +52,7 @@ export const useSetAccountName = (account?: CombinedAccount) => {
             ...opts,
             overwrite: true,
             data: produce(data, (data) => {
-              data.account.name = name;
+              data.account!.name = name;
             }),
           });
         },

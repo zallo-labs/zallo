@@ -21,8 +21,8 @@ import { updateQuery } from '~/gql/update';
 import { CombinedUser } from '~/queries/user/useUser.api';
 
 gql`
-  mutation UpsertUser($user: UserInput!, $proposalHash: Bytes32!) {
-    upsertUser(user: $user, proposalHash: $proposalHash) {
+  mutation UpsertUser($user: UserInput!, $proposalId: Bytes32!) {
+    upsertUser(user: $user, proposalId: $proposalId) {
       id
     }
   }
@@ -49,7 +49,7 @@ export const useApiUpsertUser = () => {
   const [mutation] = useUpsertUserMutation({ client: useApiClient() });
 
   return useCallback(
-    (user: CombinedUser, proposalHash: string) => {
+    (user: CombinedUser, proposalId: string) => {
       const idStr = getUserIdStr(user.account, user.addr);
       const id: UserIdInput = {
         account: user.account,
@@ -58,7 +58,7 @@ export const useApiUpsertUser = () => {
 
       return mutation({
         variables: {
-          proposalHash,
+          proposalId,
           user: {
             id,
             name: user.name,

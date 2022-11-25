@@ -29,8 +29,7 @@ describe('example', () => {
 //   it('signature should successfully validate', async () => {
 //     const signature = await signTx(device, account, tx);
 //     const txHash = await hashTx(
-//       { address: account, provider: device.provider },
-//       tx,
+//       { address: account, provider: device.provider, tx },
 //     );
 //     expect(validateSignature(device.address, txHash, signature)).toBeTruthy;
 //   });

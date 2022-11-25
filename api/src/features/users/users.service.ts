@@ -9,10 +9,10 @@ const createWhereStateIsActive = (isActive: boolean): Prisma.UserStateWhereInput
   OR: [
     {
       proposal: {
-        submissions: {
+        transactions: {
           [isActive ? 'some' : 'none']: {
             response: {
-              reverted: false,
+              success: true,
             },
           },
         },
@@ -20,8 +20,8 @@ const createWhereStateIsActive = (isActive: boolean): Prisma.UserStateWhereInput
     },
     {
       // Deploy user
-      proposalHash: null,
-      account: { isDeployed: isActive },
+      proposalId: null,
+      account: { isActive },
     },
   ],
 });
@@ -32,9 +32,9 @@ const WHERE_STATE_IS_INACTIVE = createWhereStateIsActive(false);
 export const WHERE_STATE_IS_DISABLED: Prisma.UserStateWhereInput = {
   isDeleted: true,
   proposal: {
-    submissions: {
+    transactions: {
       some: {
-        response: { reverted: false },
+        response: { success: true },
       },
     },
   },

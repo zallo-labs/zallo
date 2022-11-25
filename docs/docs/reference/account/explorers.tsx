@@ -44,7 +44,7 @@ export const AccountExplorer = () => (
         account(id: $id) {
           id
           name
-          isDeployed
+          isActive
           users {
             deviceId
           }
@@ -66,7 +66,7 @@ export const AccountsExplorer = () => (
         accounts {
           id
           name
-          isDeployed
+          isActive
           users {
             deviceId
           }

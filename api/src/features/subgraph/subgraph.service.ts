@@ -27,7 +27,7 @@ export class SubgraphService {
 
   async txResponse(
     transactionHash: string,
-  ): Promise<Prisma.SubmissionResponseUncheckedCreateInput | undefined> {
+  ): Promise<Prisma.TransactionResponseUncheckedCreateInput | undefined> {
     const { data } = await this.client.query<TxResponseQuery, TxResponseQueryVariables>({
       query: TX_RESPONSES_QUERY,
       variables: { transactionHash },
@@ -37,9 +37,9 @@ export class SubgraphService {
     if (!t) return undefined;
 
     return {
-      hash: transactionHash,
+      transactionHash,
       response: t.response,
-      reverted: !t.success,
+      success: t.success,
       timestamp: new Date(parseFloat(t.timestamp) * 1000),
     };
   }

@@ -13,17 +13,29 @@ export type Scalars = {
   Boolean: boolean;
   Int: number;
   Float: number;
+  /** Ethereum address */
   Address: any;
+  /** Ethereum address set */
   AddressSet: any;
+  /** whole number */
   BigNumber: any;
+  /** hex string string */
   Bytes: any;
+  /** 8-byte string */
   Bytes8: any;
+  /** 32-byte string */
   Bytes32: any;
+  /** A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date-time format. */
   DateTime: any;
+  /** An arbitrary-precision Decimal type */
   Decimal: any;
+  /** Identifier */
   Id: any;
+  /** The `JSON` scalar type represents JSON values as specified by [ECMA-404](http://www.ecma-international.org/publications/files/ECMA-ST/ECMA-404.pdf). */
   JSON: any;
+  /** Ethereum address set */
   NonEmptyAddressSet: any;
+  /** 256-bit unsigned integer */
   Uint256: any;
 };
 
@@ -34,7 +46,7 @@ export type Account = {
   deploySalt: Scalars['String'];
   id: Scalars['ID'];
   impl: Scalars['String'];
-  isDeployed: Scalars['Boolean'];
+  isActive: Scalars['Boolean'];
   name: Scalars['String'];
   proposals?: Maybe<Array<Proposal>>;
   reactions?: Maybe<Array<Reaction>>;
@@ -56,12 +68,45 @@ export type AccountOrderByWithRelationInput = {
   deploySalt?: InputMaybe<SortOrder>;
   id?: InputMaybe<SortOrder>;
   impl?: InputMaybe<SortOrder>;
-  isDeployed?: InputMaybe<SortOrder>;
+  isActive?: InputMaybe<SortOrder>;
   name?: InputMaybe<SortOrder>;
   proposals?: InputMaybe<ProposalOrderByRelationAggregateInput>;
   reactions?: InputMaybe<ReactionOrderByRelationAggregateInput>;
   userStates?: InputMaybe<UserStateOrderByRelationAggregateInput>;
   users?: InputMaybe<UserOrderByRelationAggregateInput>;
+};
+
+export type AccountRelationFilter = {
+  is?: InputMaybe<AccountWhereInput>;
+  isNot?: InputMaybe<AccountWhereInput>;
+};
+
+export enum AccountScalarFieldEnum {
+  DeploySalt = 'deploySalt',
+  Id = 'id',
+  Impl = 'impl',
+  IsActive = 'isActive',
+  Name = 'name'
+}
+
+export type AccountWhereInput = {
+  AND?: InputMaybe<Array<AccountWhereInput>>;
+  NOT?: InputMaybe<Array<AccountWhereInput>>;
+  OR?: InputMaybe<Array<AccountWhereInput>>;
+  comments?: InputMaybe<CommentListRelationFilter>;
+  deploySalt?: InputMaybe<StringFilter>;
+  id?: InputMaybe<StringFilter>;
+  impl?: InputMaybe<StringFilter>;
+  isActive?: InputMaybe<BoolFilter>;
+  name?: InputMaybe<StringFilter>;
+  proposals?: InputMaybe<ProposalListRelationFilter>;
+  reactions?: InputMaybe<ReactionListRelationFilter>;
+  userStates?: InputMaybe<UserStateListRelationFilter>;
+  users?: InputMaybe<UserListRelationFilter>;
+};
+
+export type AccountWhereUniqueInput = {
+  id?: InputMaybe<Scalars['String']>;
 };
 
 export type Approval = {
@@ -70,12 +115,30 @@ export type Approval = {
   device: Device;
   deviceId: Scalars['String'];
   proposal: Proposal;
-  proposalHash: Scalars['String'];
+  proposalId: Scalars['String'];
   signature?: Maybe<Scalars['String']>;
+};
+
+export type ApprovalListRelationFilter = {
+  every?: InputMaybe<ApprovalWhereInput>;
+  none?: InputMaybe<ApprovalWhereInput>;
+  some?: InputMaybe<ApprovalWhereInput>;
 };
 
 export type ApprovalOrderByRelationAggregateInput = {
   _count?: InputMaybe<SortOrder>;
+};
+
+export type ApprovalWhereInput = {
+  AND?: InputMaybe<Array<ApprovalWhereInput>>;
+  NOT?: InputMaybe<Array<ApprovalWhereInput>>;
+  OR?: InputMaybe<Array<ApprovalWhereInput>>;
+  createdAt?: InputMaybe<DateTimeFilter>;
+  device?: InputMaybe<DeviceRelationFilter>;
+  deviceId?: InputMaybe<StringFilter>;
+  proposal?: InputMaybe<ProposalRelationFilter>;
+  proposalId?: InputMaybe<StringFilter>;
+  signature?: InputMaybe<StringNullableFilter>;
 };
 
 export type Approver = {
@@ -87,8 +150,29 @@ export type Approver = {
   id: Scalars['String'];
 };
 
+export type ApproverListRelationFilter = {
+  every?: InputMaybe<ApproverWhereInput>;
+  none?: InputMaybe<ApproverWhereInput>;
+  some?: InputMaybe<ApproverWhereInput>;
+};
+
 export type ApproverOrderByRelationAggregateInput = {
   _count?: InputMaybe<SortOrder>;
+};
+
+export type ApproverWhereInput = {
+  AND?: InputMaybe<Array<ApproverWhereInput>>;
+  NOT?: InputMaybe<Array<ApproverWhereInput>>;
+  OR?: InputMaybe<Array<ApproverWhereInput>>;
+  config?: InputMaybe<UserConfigRelationFilter>;
+  configId?: InputMaybe<IntFilter>;
+  device?: InputMaybe<DeviceRelationFilter>;
+  deviceId?: InputMaybe<StringFilter>;
+};
+
+export type BoolFilter = {
+  equals?: InputMaybe<Scalars['Boolean']>;
+  not?: InputMaybe<NestedBoolFilter>;
 };
 
 export type Comment = {
@@ -111,8 +195,35 @@ export type CommentCount = {
   reactions: Scalars['Int'];
 };
 
+export type CommentListRelationFilter = {
+  every?: InputMaybe<CommentWhereInput>;
+  none?: InputMaybe<CommentWhereInput>;
+  some?: InputMaybe<CommentWhereInput>;
+};
+
 export type CommentOrderByRelationAggregateInput = {
   _count?: InputMaybe<SortOrder>;
+};
+
+export type CommentRelationFilter = {
+  is?: InputMaybe<CommentWhereInput>;
+  isNot?: InputMaybe<CommentWhereInput>;
+};
+
+export type CommentWhereInput = {
+  AND?: InputMaybe<Array<CommentWhereInput>>;
+  NOT?: InputMaybe<Array<CommentWhereInput>>;
+  OR?: InputMaybe<Array<CommentWhereInput>>;
+  account?: InputMaybe<AccountRelationFilter>;
+  accountId?: InputMaybe<StringFilter>;
+  author?: InputMaybe<DeviceRelationFilter>;
+  authorId?: InputMaybe<StringFilter>;
+  content?: InputMaybe<StringFilter>;
+  createdAt?: InputMaybe<DateTimeFilter>;
+  id?: InputMaybe<IntFilter>;
+  key?: InputMaybe<StringFilter>;
+  reactions?: InputMaybe<ReactionListRelationFilter>;
+  updatedAt?: InputMaybe<DateTimeFilter>;
 };
 
 export type Contact = {
@@ -126,6 +237,12 @@ export type Contact = {
 export type ContactDeviceIdAddrCompoundUniqueInput = {
   addr: Scalars['String'];
   deviceId: Scalars['String'];
+};
+
+export type ContactListRelationFilter = {
+  every?: InputMaybe<ContactWhereInput>;
+  none?: InputMaybe<ContactWhereInput>;
+  some?: InputMaybe<ContactWhereInput>;
 };
 
 export type ContactName_IdentifierCompoundUniqueInput = {
@@ -157,6 +274,16 @@ export enum ContactScalarFieldEnum {
   Name = 'name'
 }
 
+export type ContactWhereInput = {
+  AND?: InputMaybe<Array<ContactWhereInput>>;
+  NOT?: InputMaybe<Array<ContactWhereInput>>;
+  OR?: InputMaybe<Array<ContactWhereInput>>;
+  addr?: InputMaybe<StringFilter>;
+  device?: InputMaybe<DeviceRelationFilter>;
+  deviceId?: InputMaybe<StringFilter>;
+  name?: InputMaybe<StringFilter>;
+};
+
 export type ContactWhereUniqueInput = {
   deviceId_addr?: InputMaybe<ContactDeviceIdAddrCompoundUniqueInput>;
   name_identifier?: InputMaybe<ContactName_IdentifierCompoundUniqueInput>;
@@ -168,6 +295,39 @@ export type ContractMethod = {
   fragment: Scalars['JSON'];
   id: Scalars['String'];
   sighash: Scalars['String'];
+};
+
+export type DateTimeFilter = {
+  equals?: InputMaybe<Scalars['DateTime']>;
+  gt?: InputMaybe<Scalars['DateTime']>;
+  gte?: InputMaybe<Scalars['DateTime']>;
+  in?: InputMaybe<Array<Scalars['DateTime']>>;
+  lt?: InputMaybe<Scalars['DateTime']>;
+  lte?: InputMaybe<Scalars['DateTime']>;
+  not?: InputMaybe<NestedDateTimeFilter>;
+  notIn?: InputMaybe<Array<Scalars['DateTime']>>;
+};
+
+export type DecimalFilter = {
+  equals?: InputMaybe<Scalars['Decimal']>;
+  gt?: InputMaybe<Scalars['Decimal']>;
+  gte?: InputMaybe<Scalars['Decimal']>;
+  in?: InputMaybe<Array<Scalars['Decimal']>>;
+  lt?: InputMaybe<Scalars['Decimal']>;
+  lte?: InputMaybe<Scalars['Decimal']>;
+  not?: InputMaybe<NestedDecimalFilter>;
+  notIn?: InputMaybe<Array<Scalars['Decimal']>>;
+};
+
+export type DecimalNullableFilter = {
+  equals?: InputMaybe<Scalars['Decimal']>;
+  gt?: InputMaybe<Scalars['Decimal']>;
+  gte?: InputMaybe<Scalars['Decimal']>;
+  in?: InputMaybe<Array<Scalars['Decimal']>>;
+  lt?: InputMaybe<Scalars['Decimal']>;
+  lte?: InputMaybe<Scalars['Decimal']>;
+  not?: InputMaybe<NestedDecimalNullableFilter>;
+  notIn?: InputMaybe<Array<Scalars['Decimal']>>;
 };
 
 export type Device = {
@@ -206,6 +366,44 @@ export type DeviceOrderByWithRelationInput = {
   users?: InputMaybe<UserOrderByRelationAggregateInput>;
 };
 
+export type DeviceRelationFilter = {
+  is?: InputMaybe<DeviceWhereInput>;
+  isNot?: InputMaybe<DeviceWhereInput>;
+};
+
+export type DeviceWhereInput = {
+  AND?: InputMaybe<Array<DeviceWhereInput>>;
+  NOT?: InputMaybe<Array<DeviceWhereInput>>;
+  OR?: InputMaybe<Array<DeviceWhereInput>>;
+  approvals?: InputMaybe<ApprovalListRelationFilter>;
+  approvers?: InputMaybe<ApproverListRelationFilter>;
+  comments?: InputMaybe<CommentListRelationFilter>;
+  contacts?: InputMaybe<ContactListRelationFilter>;
+  id?: InputMaybe<StringFilter>;
+  name?: InputMaybe<StringNullableFilter>;
+  pushToken?: InputMaybe<StringNullableFilter>;
+  reactions?: InputMaybe<ReactionListRelationFilter>;
+  users?: InputMaybe<UserListRelationFilter>;
+};
+
+export type EnumLimitPeriodFilter = {
+  equals?: InputMaybe<LimitPeriod>;
+  in?: InputMaybe<Array<LimitPeriod>>;
+  not?: InputMaybe<NestedEnumLimitPeriodFilter>;
+  notIn?: InputMaybe<Array<LimitPeriod>>;
+};
+
+export type IntFilter = {
+  equals?: InputMaybe<Scalars['Int']>;
+  gt?: InputMaybe<Scalars['Int']>;
+  gte?: InputMaybe<Scalars['Int']>;
+  in?: InputMaybe<Array<Scalars['Int']>>;
+  lt?: InputMaybe<Scalars['Int']>;
+  lte?: InputMaybe<Scalars['Int']>;
+  not?: InputMaybe<NestedIntFilter>;
+  notIn?: InputMaybe<Array<Scalars['Int']>>;
+};
+
 export enum LimitPeriod {
   Day = 'Day',
   Month = 'Month',
@@ -230,7 +428,7 @@ export type Mutation = {
   setAccountName: Account;
   setDeviceName: Device;
   setUserName: User;
-  submitExecution: Submission;
+  submitExecution: Transaction;
   upsertContact: ContactObject;
   upsertUser: User;
 };
@@ -242,8 +440,7 @@ export type MutationActivateAccountArgs = {
 
 
 export type MutationApproveArgs = {
-  executeWhenApproved?: InputMaybe<Scalars['Boolean']>;
-  hash: Scalars['Bytes32'];
+  id: Scalars['Bytes32'];
   signature: Scalars['Bytes'];
 };
 
@@ -273,10 +470,12 @@ export type MutationDeleteContactArgs = {
 
 export type MutationProposeArgs = {
   account: Scalars['Address'];
-  configId?: InputMaybe<Scalars['Float']>;
-  executeWhenApproved?: InputMaybe<Scalars['Boolean']>;
-  proposal: ProposalInput;
-  signature?: InputMaybe<Scalars['Bytes']>;
+  config?: InputMaybe<Scalars['Float']>;
+  data?: InputMaybe<Scalars['Bytes']>;
+  gasLimit?: InputMaybe<Scalars['Uint256']>;
+  salt?: InputMaybe<Scalars['Bytes8']>;
+  to: Scalars['Address'];
+  value?: InputMaybe<Scalars['Uint256']>;
 };
 
 
@@ -292,19 +491,19 @@ export type MutationRegisterPushTokenArgs = {
 
 
 export type MutationRejectArgs = {
-  hash: Scalars['Bytes32'];
+  id: Scalars['Bytes32'];
 };
 
 
 export type MutationRemoveUserArgs = {
   id: UserIdInput;
-  proposalHash?: InputMaybe<Scalars['Bytes32']>;
+  proposalId?: InputMaybe<Scalars['Bytes32']>;
 };
 
 
 export type MutationRequestApprovalArgs = {
   approvers: Scalars['NonEmptyAddressSet'];
-  hash: Scalars['Bytes32'];
+  id: Scalars['Bytes32'];
 };
 
 
@@ -344,8 +543,92 @@ export type MutationUpsertContactArgs = {
 
 
 export type MutationUpsertUserArgs = {
-  proposalHash: Scalars['Bytes32'];
+  proposalId: Scalars['Bytes32'];
   user: UserInput;
+};
+
+export type NestedBoolFilter = {
+  equals?: InputMaybe<Scalars['Boolean']>;
+  not?: InputMaybe<NestedBoolFilter>;
+};
+
+export type NestedDateTimeFilter = {
+  equals?: InputMaybe<Scalars['DateTime']>;
+  gt?: InputMaybe<Scalars['DateTime']>;
+  gte?: InputMaybe<Scalars['DateTime']>;
+  in?: InputMaybe<Array<Scalars['DateTime']>>;
+  lt?: InputMaybe<Scalars['DateTime']>;
+  lte?: InputMaybe<Scalars['DateTime']>;
+  not?: InputMaybe<NestedDateTimeFilter>;
+  notIn?: InputMaybe<Array<Scalars['DateTime']>>;
+};
+
+export type NestedDecimalFilter = {
+  equals?: InputMaybe<Scalars['Decimal']>;
+  gt?: InputMaybe<Scalars['Decimal']>;
+  gte?: InputMaybe<Scalars['Decimal']>;
+  in?: InputMaybe<Array<Scalars['Decimal']>>;
+  lt?: InputMaybe<Scalars['Decimal']>;
+  lte?: InputMaybe<Scalars['Decimal']>;
+  not?: InputMaybe<NestedDecimalFilter>;
+  notIn?: InputMaybe<Array<Scalars['Decimal']>>;
+};
+
+export type NestedDecimalNullableFilter = {
+  equals?: InputMaybe<Scalars['Decimal']>;
+  gt?: InputMaybe<Scalars['Decimal']>;
+  gte?: InputMaybe<Scalars['Decimal']>;
+  in?: InputMaybe<Array<Scalars['Decimal']>>;
+  lt?: InputMaybe<Scalars['Decimal']>;
+  lte?: InputMaybe<Scalars['Decimal']>;
+  not?: InputMaybe<NestedDecimalNullableFilter>;
+  notIn?: InputMaybe<Array<Scalars['Decimal']>>;
+};
+
+export type NestedEnumLimitPeriodFilter = {
+  equals?: InputMaybe<LimitPeriod>;
+  in?: InputMaybe<Array<LimitPeriod>>;
+  not?: InputMaybe<NestedEnumLimitPeriodFilter>;
+  notIn?: InputMaybe<Array<LimitPeriod>>;
+};
+
+export type NestedIntFilter = {
+  equals?: InputMaybe<Scalars['Int']>;
+  gt?: InputMaybe<Scalars['Int']>;
+  gte?: InputMaybe<Scalars['Int']>;
+  in?: InputMaybe<Array<Scalars['Int']>>;
+  lt?: InputMaybe<Scalars['Int']>;
+  lte?: InputMaybe<Scalars['Int']>;
+  not?: InputMaybe<NestedIntFilter>;
+  notIn?: InputMaybe<Array<Scalars['Int']>>;
+};
+
+export type NestedStringFilter = {
+  contains?: InputMaybe<Scalars['String']>;
+  endsWith?: InputMaybe<Scalars['String']>;
+  equals?: InputMaybe<Scalars['String']>;
+  gt?: InputMaybe<Scalars['String']>;
+  gte?: InputMaybe<Scalars['String']>;
+  in?: InputMaybe<Array<Scalars['String']>>;
+  lt?: InputMaybe<Scalars['String']>;
+  lte?: InputMaybe<Scalars['String']>;
+  not?: InputMaybe<NestedStringFilter>;
+  notIn?: InputMaybe<Array<Scalars['String']>>;
+  startsWith?: InputMaybe<Scalars['String']>;
+};
+
+export type NestedStringNullableFilter = {
+  contains?: InputMaybe<Scalars['String']>;
+  endsWith?: InputMaybe<Scalars['String']>;
+  equals?: InputMaybe<Scalars['String']>;
+  gt?: InputMaybe<Scalars['String']>;
+  gte?: InputMaybe<Scalars['String']>;
+  in?: InputMaybe<Array<Scalars['String']>>;
+  lt?: InputMaybe<Scalars['String']>;
+  lte?: InputMaybe<Scalars['String']>;
+  not?: InputMaybe<NestedStringNullableFilter>;
+  notIn?: InputMaybe<Array<Scalars['String']>>;
+  startsWith?: InputMaybe<Scalars['String']>;
 };
 
 export type Proposal = {
@@ -359,13 +642,13 @@ export type Proposal = {
   createdAt: Scalars['DateTime'];
   data: Scalars['String'];
   gasLimit?: Maybe<Scalars['Decimal']>;
-  hash: Scalars['ID'];
-  id: Scalars['String'];
+  id: Scalars['ID'];
   proposer: User;
   proposerId: Scalars['String'];
   salt: Scalars['String'];
-  submissions?: Maybe<Array<Submission>>;
   to: Scalars['String'];
+  transaction?: Maybe<Transaction>;
+  transactions?: Maybe<Array<Transaction>>;
   userStates?: Maybe<Array<UserState>>;
   value: Scalars['String'];
 };
@@ -373,16 +656,14 @@ export type Proposal = {
 export type ProposalCount = {
   __typename?: 'ProposalCount';
   approvals: Scalars['Int'];
-  submissions: Scalars['Int'];
+  transactions: Scalars['Int'];
   userStates: Scalars['Int'];
 };
 
-export type ProposalInput = {
-  data: Scalars['Bytes'];
-  gasLimit?: InputMaybe<Scalars['Uint256']>;
-  salt: Scalars['Bytes8'];
-  to: Scalars['Address'];
-  value: Scalars['Uint256'];
+export type ProposalListRelationFilter = {
+  every?: InputMaybe<ProposalWhereInput>;
+  none?: InputMaybe<ProposalWhereInput>;
+  some?: InputMaybe<ProposalWhereInput>;
 };
 
 export type ProposalOrderByRelationAggregateInput = {
@@ -398,14 +679,19 @@ export type ProposalOrderByWithRelationInput = {
   createdAt?: InputMaybe<SortOrder>;
   data?: InputMaybe<SortOrder>;
   gasLimit?: InputMaybe<SortOrder>;
-  hash?: InputMaybe<SortOrder>;
+  id?: InputMaybe<SortOrder>;
   proposer?: InputMaybe<UserOrderByWithRelationInput>;
   proposerId?: InputMaybe<SortOrder>;
   salt?: InputMaybe<SortOrder>;
-  submissions?: InputMaybe<SubmissionOrderByRelationAggregateInput>;
   to?: InputMaybe<SortOrder>;
+  transactions?: InputMaybe<TransactionOrderByRelationAggregateInput>;
   userStates?: InputMaybe<UserStateOrderByRelationAggregateInput>;
   value?: InputMaybe<SortOrder>;
+};
+
+export type ProposalRelationFilter = {
+  is?: InputMaybe<ProposalWhereInput>;
+  isNot?: InputMaybe<ProposalWhereInput>;
 };
 
 export enum ProposalScalarFieldEnum {
@@ -414,7 +700,7 @@ export enum ProposalScalarFieldEnum {
   CreatedAt = 'createdAt',
   Data = 'data',
   GasLimit = 'gasLimit',
-  Hash = 'hash',
+  Id = 'id',
   ProposerId = 'proposerId',
   Salt = 'salt',
   To = 'to',
@@ -427,20 +713,43 @@ export enum ProposalStatus {
   Executed = 'Executed'
 }
 
+export type ProposalWhereInput = {
+  AND?: InputMaybe<Array<ProposalWhereInput>>;
+  NOT?: InputMaybe<Array<ProposalWhereInput>>;
+  OR?: InputMaybe<Array<ProposalWhereInput>>;
+  account?: InputMaybe<AccountRelationFilter>;
+  accountId?: InputMaybe<StringFilter>;
+  approvals?: InputMaybe<ApprovalListRelationFilter>;
+  config?: InputMaybe<UserConfigRelationFilter>;
+  configId?: InputMaybe<IntFilter>;
+  createdAt?: InputMaybe<DateTimeFilter>;
+  data?: InputMaybe<StringFilter>;
+  gasLimit?: InputMaybe<DecimalNullableFilter>;
+  id?: InputMaybe<StringFilter>;
+  proposer?: InputMaybe<UserRelationFilter>;
+  proposerId?: InputMaybe<StringFilter>;
+  salt?: InputMaybe<StringFilter>;
+  to?: InputMaybe<StringFilter>;
+  transactions?: InputMaybe<TransactionListRelationFilter>;
+  userStates?: InputMaybe<UserStateListRelationFilter>;
+  value?: InputMaybe<StringFilter>;
+};
+
 export type ProposalWhereUniqueInput = {
-  hash?: InputMaybe<Scalars['String']>;
+  id?: InputMaybe<Scalars['String']>;
 };
 
 export type Query = {
   __typename?: 'Query';
-  account: Account;
+  account?: Maybe<Account>;
+  accounts: Array<Account>;
   canRequestFunds: Scalars['Boolean'];
   comments: Array<Comment>;
   contact?: Maybe<ContactObject>;
   contacts: Array<ContactObject>;
   contractMethod?: Maybe<ContractMethod>;
   device?: Maybe<Device>;
-  proposal: Proposal;
+  proposal?: Maybe<Proposal>;
   proposals: Array<Proposal>;
   user: User;
   users: Array<User>;
@@ -449,6 +758,16 @@ export type Query = {
 
 export type QueryAccountArgs = {
   id: Scalars['Address'];
+};
+
+
+export type QueryAccountsArgs = {
+  cursor?: InputMaybe<AccountWhereUniqueInput>;
+  distinct?: InputMaybe<Array<AccountScalarFieldEnum>>;
+  orderBy?: InputMaybe<Array<AccountOrderByWithRelationInput>>;
+  skip?: InputMaybe<Scalars['Int']>;
+  take?: InputMaybe<Scalars['Int']>;
+  where?: InputMaybe<AccountWhereInput>;
 };
 
 
@@ -489,7 +808,7 @@ export type QueryDeviceArgs = {
 
 
 export type QueryProposalArgs = {
-  hash: Scalars['Bytes32'];
+  id: Scalars['Bytes32'];
 };
 
 
@@ -517,6 +836,11 @@ export type QueryUsersArgs = {
   take?: InputMaybe<Scalars['Int']>;
 };
 
+export enum QueryMode {
+  Default = 'default',
+  Insensitive = 'insensitive'
+}
+
 export type Reaction = {
   __typename?: 'Reaction';
   account?: Maybe<Account>;
@@ -531,8 +855,29 @@ export type Reaction = {
   updatedAt: Scalars['DateTime'];
 };
 
+export type ReactionListRelationFilter = {
+  every?: InputMaybe<ReactionWhereInput>;
+  none?: InputMaybe<ReactionWhereInput>;
+  some?: InputMaybe<ReactionWhereInput>;
+};
+
 export type ReactionOrderByRelationAggregateInput = {
   _count?: InputMaybe<SortOrder>;
+};
+
+export type ReactionWhereInput = {
+  AND?: InputMaybe<Array<ReactionWhereInput>>;
+  NOT?: InputMaybe<Array<ReactionWhereInput>>;
+  OR?: InputMaybe<Array<ReactionWhereInput>>;
+  account?: InputMaybe<AccountRelationFilter>;
+  accountId?: InputMaybe<StringNullableFilter>;
+  comment?: InputMaybe<CommentRelationFilter>;
+  commentId?: InputMaybe<IntFilter>;
+  createdAt?: InputMaybe<DateTimeFilter>;
+  device?: InputMaybe<DeviceRelationFilter>;
+  deviceId?: InputMaybe<StringFilter>;
+  emojis?: InputMaybe<StringNullableListFilter>;
+  updatedAt?: InputMaybe<DateTimeFilter>;
 };
 
 export enum SortOrder {
@@ -540,34 +885,46 @@ export enum SortOrder {
   Desc = 'desc'
 }
 
-export type Submission = {
-  __typename?: 'Submission';
-  createdAt: Scalars['DateTime'];
-  gasLimit: Scalars['Decimal'];
-  gasPrice?: Maybe<Scalars['Decimal']>;
-  hash: Scalars['ID'];
-  id: Scalars['String'];
-  nonce: Scalars['Int'];
-  proposal: Proposal;
-  proposalHash: Scalars['String'];
-  response?: Maybe<SubmissionResponse>;
+export type StringFilter = {
+  contains?: InputMaybe<Scalars['String']>;
+  endsWith?: InputMaybe<Scalars['String']>;
+  equals?: InputMaybe<Scalars['String']>;
+  gt?: InputMaybe<Scalars['String']>;
+  gte?: InputMaybe<Scalars['String']>;
+  in?: InputMaybe<Array<Scalars['String']>>;
+  lt?: InputMaybe<Scalars['String']>;
+  lte?: InputMaybe<Scalars['String']>;
+  mode?: InputMaybe<QueryMode>;
+  not?: InputMaybe<NestedStringFilter>;
+  notIn?: InputMaybe<Array<Scalars['String']>>;
+  startsWith?: InputMaybe<Scalars['String']>;
+};
+
+export type StringNullableFilter = {
+  contains?: InputMaybe<Scalars['String']>;
+  endsWith?: InputMaybe<Scalars['String']>;
+  equals?: InputMaybe<Scalars['String']>;
+  gt?: InputMaybe<Scalars['String']>;
+  gte?: InputMaybe<Scalars['String']>;
+  in?: InputMaybe<Array<Scalars['String']>>;
+  lt?: InputMaybe<Scalars['String']>;
+  lte?: InputMaybe<Scalars['String']>;
+  mode?: InputMaybe<QueryMode>;
+  not?: InputMaybe<NestedStringNullableFilter>;
+  notIn?: InputMaybe<Array<Scalars['String']>>;
+  startsWith?: InputMaybe<Scalars['String']>;
+};
+
+export type StringNullableListFilter = {
+  equals?: InputMaybe<Array<Scalars['String']>>;
+  has?: InputMaybe<Scalars['String']>;
+  hasEvery?: InputMaybe<Array<Scalars['String']>>;
+  hasSome?: InputMaybe<Array<Scalars['String']>>;
+  isEmpty?: InputMaybe<Scalars['Boolean']>;
 };
 
 export type SubmissionInput = {
   hash: Scalars['Bytes32'];
-};
-
-export type SubmissionOrderByRelationAggregateInput = {
-  _count?: InputMaybe<SortOrder>;
-};
-
-export type SubmissionResponse = {
-  __typename?: 'SubmissionResponse';
-  hash: Scalars['ID'];
-  response: Scalars['String'];
-  reverted: Scalars['Boolean'];
-  submission: Submission;
-  timestamp: Scalars['DateTime'];
 };
 
 export type TokenLimit = {
@@ -585,8 +942,92 @@ export type TokenLimitInput = {
   token: Scalars['Address'];
 };
 
+export type TokenLimitListRelationFilter = {
+  every?: InputMaybe<TokenLimitWhereInput>;
+  none?: InputMaybe<TokenLimitWhereInput>;
+  some?: InputMaybe<TokenLimitWhereInput>;
+};
+
 export type TokenLimitOrderByRelationAggregateInput = {
   _count?: InputMaybe<SortOrder>;
+};
+
+export type TokenLimitWhereInput = {
+  AND?: InputMaybe<Array<TokenLimitWhereInput>>;
+  NOT?: InputMaybe<Array<TokenLimitWhereInput>>;
+  OR?: InputMaybe<Array<TokenLimitWhereInput>>;
+  amount?: InputMaybe<StringFilter>;
+  config?: InputMaybe<UserConfigRelationFilter>;
+  configId?: InputMaybe<IntFilter>;
+  period?: InputMaybe<EnumLimitPeriodFilter>;
+  token?: InputMaybe<StringFilter>;
+};
+
+export type Transaction = {
+  __typename?: 'Transaction';
+  createdAt: Scalars['DateTime'];
+  gasLimit: Scalars['Decimal'];
+  gasPrice?: Maybe<Scalars['Decimal']>;
+  hash: Scalars['ID'];
+  id: Scalars['String'];
+  nonce: Scalars['Int'];
+  proposal: Proposal;
+  proposalId: Scalars['String'];
+  response?: Maybe<TransactionResponse>;
+};
+
+export type TransactionListRelationFilter = {
+  every?: InputMaybe<TransactionWhereInput>;
+  none?: InputMaybe<TransactionWhereInput>;
+  some?: InputMaybe<TransactionWhereInput>;
+};
+
+export type TransactionOrderByRelationAggregateInput = {
+  _count?: InputMaybe<SortOrder>;
+};
+
+export type TransactionRelationFilter = {
+  is?: InputMaybe<TransactionWhereInput>;
+  isNot?: InputMaybe<TransactionWhereInput>;
+};
+
+export type TransactionResponse = {
+  __typename?: 'TransactionResponse';
+  response: Scalars['String'];
+  success: Scalars['Boolean'];
+  timestamp: Scalars['DateTime'];
+  transaction: Transaction;
+  transactionHash: Scalars['ID'];
+};
+
+export type TransactionResponseRelationFilter = {
+  is?: InputMaybe<TransactionResponseWhereInput>;
+  isNot?: InputMaybe<TransactionResponseWhereInput>;
+};
+
+export type TransactionResponseWhereInput = {
+  AND?: InputMaybe<Array<TransactionResponseWhereInput>>;
+  NOT?: InputMaybe<Array<TransactionResponseWhereInput>>;
+  OR?: InputMaybe<Array<TransactionResponseWhereInput>>;
+  response?: InputMaybe<StringFilter>;
+  success?: InputMaybe<BoolFilter>;
+  timestamp?: InputMaybe<DateTimeFilter>;
+  transaction?: InputMaybe<TransactionRelationFilter>;
+  transactionHash?: InputMaybe<StringFilter>;
+};
+
+export type TransactionWhereInput = {
+  AND?: InputMaybe<Array<TransactionWhereInput>>;
+  NOT?: InputMaybe<Array<TransactionWhereInput>>;
+  OR?: InputMaybe<Array<TransactionWhereInput>>;
+  createdAt?: InputMaybe<DateTimeFilter>;
+  gasLimit?: InputMaybe<DecimalFilter>;
+  gasPrice?: InputMaybe<DecimalNullableFilter>;
+  hash?: InputMaybe<StringFilter>;
+  nonce?: InputMaybe<IntFilter>;
+  proposal?: InputMaybe<ProposalRelationFilter>;
+  proposalId?: InputMaybe<StringFilter>;
+  response?: InputMaybe<TransactionResponseRelationFilter>;
 };
 
 export type User = {
@@ -631,8 +1072,14 @@ export type UserConfigCount = {
 
 export type UserConfigInput = {
   approvers: Array<Scalars['Address']>;
-  limits: Array<TokenLimitInput>;
-  spendingAllowlisted: Scalars['Boolean'];
+  limits?: InputMaybe<Array<TokenLimitInput>>;
+  spendingAllowlisted?: InputMaybe<Scalars['Boolean']>;
+};
+
+export type UserConfigListRelationFilter = {
+  every?: InputMaybe<UserConfigWhereInput>;
+  none?: InputMaybe<UserConfigWhereInput>;
+  some?: InputMaybe<UserConfigWhereInput>;
 };
 
 export type UserConfigOrderByRelationAggregateInput = {
@@ -647,6 +1094,24 @@ export type UserConfigOrderByWithRelationInput = {
   spendingAllowlisted?: InputMaybe<SortOrder>;
   state?: InputMaybe<UserStateOrderByWithRelationInput>;
   stateId?: InputMaybe<SortOrder>;
+};
+
+export type UserConfigRelationFilter = {
+  is?: InputMaybe<UserConfigWhereInput>;
+  isNot?: InputMaybe<UserConfigWhereInput>;
+};
+
+export type UserConfigWhereInput = {
+  AND?: InputMaybe<Array<UserConfigWhereInput>>;
+  NOT?: InputMaybe<Array<UserConfigWhereInput>>;
+  OR?: InputMaybe<Array<UserConfigWhereInput>>;
+  approvers?: InputMaybe<ApproverListRelationFilter>;
+  id?: InputMaybe<IntFilter>;
+  limits?: InputMaybe<TokenLimitListRelationFilter>;
+  proposals?: InputMaybe<ProposalListRelationFilter>;
+  spendingAllowlisted?: InputMaybe<BoolFilter>;
+  state?: InputMaybe<UserStateRelationFilter>;
+  stateId?: InputMaybe<IntFilter>;
 };
 
 export type UserCount = {
@@ -666,6 +1131,12 @@ export type UserInput = {
   name: Scalars['String'];
 };
 
+export type UserListRelationFilter = {
+  every?: InputMaybe<UserWhereInput>;
+  none?: InputMaybe<UserWhereInput>;
+  some?: InputMaybe<UserWhereInput>;
+};
+
 export type UserOrderByRelationAggregateInput = {
   _count?: InputMaybe<SortOrder>;
 };
@@ -679,6 +1150,11 @@ export type UserOrderByWithRelationInput = {
   name?: InputMaybe<SortOrder>;
   proposals?: InputMaybe<ProposalOrderByRelationAggregateInput>;
   states?: InputMaybe<UserStateOrderByRelationAggregateInput>;
+};
+
+export type UserRelationFilter = {
+  is?: InputMaybe<UserWhereInput>;
+  isNot?: InputMaybe<UserWhereInput>;
 };
 
 export enum UserScalarFieldEnum {
@@ -700,13 +1176,19 @@ export type UserState = {
   latestOfUser?: Maybe<User>;
   latestOfUserDeviceId?: Maybe<Scalars['String']>;
   proposal?: Maybe<Proposal>;
-  proposalHash?: Maybe<Scalars['String']>;
+  proposalId?: Maybe<Scalars['String']>;
   user: User;
 };
 
 export type UserStateCount = {
   __typename?: 'UserStateCount';
   configs: Scalars['Int'];
+};
+
+export type UserStateListRelationFilter = {
+  every?: InputMaybe<UserStateWhereInput>;
+  none?: InputMaybe<UserStateWhereInput>;
+  some?: InputMaybe<UserStateWhereInput>;
 };
 
 export type UserStateOrderByRelationAggregateInput = {
@@ -724,8 +1206,45 @@ export type UserStateOrderByWithRelationInput = {
   latestOfUser?: InputMaybe<UserOrderByWithRelationInput>;
   latestOfUserDeviceId?: InputMaybe<SortOrder>;
   proposal?: InputMaybe<ProposalOrderByWithRelationInput>;
-  proposalHash?: InputMaybe<SortOrder>;
+  proposalId?: InputMaybe<SortOrder>;
   user?: InputMaybe<UserOrderByWithRelationInput>;
+};
+
+export type UserStateRelationFilter = {
+  is?: InputMaybe<UserStateWhereInput>;
+  isNot?: InputMaybe<UserStateWhereInput>;
+};
+
+export type UserStateWhereInput = {
+  AND?: InputMaybe<Array<UserStateWhereInput>>;
+  NOT?: InputMaybe<Array<UserStateWhereInput>>;
+  OR?: InputMaybe<Array<UserStateWhereInput>>;
+  account?: InputMaybe<AccountRelationFilter>;
+  accountId?: InputMaybe<StringFilter>;
+  configs?: InputMaybe<UserConfigListRelationFilter>;
+  createdAt?: InputMaybe<DateTimeFilter>;
+  deviceId?: InputMaybe<StringFilter>;
+  id?: InputMaybe<IntFilter>;
+  isDeleted?: InputMaybe<BoolFilter>;
+  latestOfUser?: InputMaybe<UserRelationFilter>;
+  latestOfUserDeviceId?: InputMaybe<StringNullableFilter>;
+  proposal?: InputMaybe<ProposalRelationFilter>;
+  proposalId?: InputMaybe<StringNullableFilter>;
+  user?: InputMaybe<UserRelationFilter>;
+};
+
+export type UserWhereInput = {
+  AND?: InputMaybe<Array<UserWhereInput>>;
+  NOT?: InputMaybe<Array<UserWhereInput>>;
+  OR?: InputMaybe<Array<UserWhereInput>>;
+  account?: InputMaybe<AccountRelationFilter>;
+  accountId?: InputMaybe<StringFilter>;
+  device?: InputMaybe<DeviceRelationFilter>;
+  deviceId?: InputMaybe<StringFilter>;
+  latestState?: InputMaybe<UserStateRelationFilter>;
+  name?: InputMaybe<StringFilter>;
+  proposals?: InputMaybe<ProposalListRelationFilter>;
+  states?: InputMaybe<UserStateListRelationFilter>;
 };
 
 export type UserWhereUniqueInput = {
@@ -802,15 +1321,15 @@ export type UpsertContactMutationVariables = Exact<{
 export type UpsertContactMutation = { __typename?: 'Mutation', upsertContact: { __typename?: 'ContactObject', id: string } };
 
 export type ApproveMutationVariables = Exact<{
-  hash: Scalars['Bytes32'];
+  id: Scalars['Bytes32'];
   signature: Scalars['Bytes'];
 }>;
 
 
-export type ApproveMutation = { __typename?: 'Mutation', approve: { __typename?: 'Proposal', id: string, submissions?: Array<{ __typename?: 'Submission', id: string, hash: string, nonce: number, gasLimit: any, gasPrice?: any | null, createdAt: any, response?: { __typename?: 'SubmissionResponse', response: string, reverted: boolean, timestamp: any } | null }> | null } };
+export type ApproveMutation = { __typename?: 'Mutation', approve: { __typename?: 'Proposal', id: string, transactions?: Array<{ __typename?: 'Transaction', id: string, hash: string, nonce: number, gasLimit: any, gasPrice?: any | null, createdAt: any, response?: { __typename?: 'TransactionResponse', success: boolean, response: string, timestamp: any } | null }> | null } };
 
 export type RejectMutationVariables = Exact<{
-  hash: Scalars['Bytes32'];
+  id: Scalars['Bytes32'];
 }>;
 
 
@@ -822,21 +1341,24 @@ export type SubmitExecutionMutationVariables = Exact<{
 }>;
 
 
-export type SubmitExecutionMutation = { __typename?: 'Mutation', submitExecution: { __typename?: 'Submission', id: string } };
+export type SubmitExecutionMutation = { __typename?: 'Mutation', submitExecution: { __typename?: 'Transaction', id: string } };
 
 export type ProposeMutationVariables = Exact<{
   account: Scalars['Address'];
-  configId?: InputMaybe<Scalars['Float']>;
-  proposal: ProposalInput;
-  signature?: InputMaybe<Scalars['Bytes']>;
+  config?: InputMaybe<Scalars['Float']>;
+  to: Scalars['Address'];
+  value?: InputMaybe<Scalars['Uint256']>;
+  data?: InputMaybe<Scalars['Bytes']>;
+  salt?: InputMaybe<Scalars['Bytes8']>;
+  gasLimit?: InputMaybe<Scalars['Uint256']>;
 }>;
 
 
-export type ProposeMutation = { __typename?: 'Mutation', propose: { __typename?: 'Proposal', id: string, submissions?: Array<{ __typename?: 'Submission', id: string, hash: string, nonce: number, gasLimit: any, gasPrice?: any | null, createdAt: any, response?: { __typename?: 'SubmissionResponse', response: string, reverted: boolean, timestamp: any } | null }> | null } };
+export type ProposeMutation = { __typename?: 'Mutation', propose: { __typename?: 'Proposal', id: string, transactions?: Array<{ __typename?: 'Transaction', id: string, hash: string, nonce: number, gasLimit: any, gasPrice?: any | null, createdAt: any, response?: { __typename?: 'TransactionResponse', success: boolean, response: string, timestamp: any } | null }> | null } };
 
 export type RequestApprovalMutationVariables = Exact<{
+  id: Scalars['Bytes32'];
   approvers: Scalars['NonEmptyAddressSet'];
-  hash: Scalars['Bytes32'];
 }>;
 
 
@@ -865,7 +1387,7 @@ export type SetDeviceNameMutation = { __typename?: 'Mutation', setDeviceName: { 
 
 export type RemoveUserMutationVariables = Exact<{
   id: UserIdInput;
-  proposalHash: Scalars['Bytes32'];
+  proposalId: Scalars['Bytes32'];
 }>;
 
 
@@ -873,7 +1395,7 @@ export type RemoveUserMutation = { __typename?: 'Mutation', removeUser: { __type
 
 export type UpsertUserMutationVariables = Exact<{
   user: UserInput;
-  proposalHash: Scalars['Bytes32'];
+  proposalId: Scalars['Bytes32'];
 }>;
 
 
@@ -892,7 +1414,7 @@ export type AccountQueryVariables = Exact<{
 }>;
 
 
-export type AccountQuery = { __typename?: 'Query', account: { __typename?: 'Account', id: string, isDeployed: boolean, name: string, users?: Array<{ __typename?: 'User', deviceId: string, name: string }> | null } };
+export type AccountQuery = { __typename?: 'Query', account?: { __typename?: 'Account', id: string, isActive: boolean, name: string, users?: Array<{ __typename?: 'User', deviceId: string, name: string }> | null } | null };
 
 export type ContactFieldsFragment = { __typename?: 'ContactObject', id: string, addr: any, name: string };
 
@@ -901,14 +1423,14 @@ export type ContactsQueryVariables = Exact<{ [key: string]: never; }>;
 
 export type ContactsQuery = { __typename?: 'Query', contacts: Array<{ __typename?: 'ContactObject', id: string, addr: any, name: string }> };
 
-export type SubmissionFieldsFragment = { __typename?: 'Submission', id: string, hash: string, nonce: number, gasLimit: any, gasPrice?: any | null, createdAt: any, response?: { __typename?: 'SubmissionResponse', response: string, reverted: boolean, timestamp: any } | null };
+export type TransactionFieldsFragment = { __typename?: 'Transaction', id: string, hash: string, nonce: number, gasLimit: any, gasPrice?: any | null, createdAt: any, response?: { __typename?: 'TransactionResponse', success: boolean, response: string, timestamp: any } | null };
 
 export type ProposalQueryVariables = Exact<{
-  hash: Scalars['Bytes32'];
+  id: Scalars['Bytes32'];
 }>;
 
 
-export type ProposalQuery = { __typename?: 'Query', proposal: { __typename?: 'Proposal', id: string, accountId: string, proposerId: string, hash: string, to: string, value: string, data: string, salt: string, createdAt: any, approvals?: Array<{ __typename?: 'Approval', deviceId: string, signature?: string | null, createdAt: any }> | null, submissions?: Array<{ __typename?: 'Submission', id: string, hash: string, nonce: number, gasLimit: any, gasPrice?: any | null, createdAt: any, response?: { __typename?: 'SubmissionResponse', response: string, reverted: boolean, timestamp: any } | null }> | null } };
+export type ProposalQuery = { __typename?: 'Query', proposal?: { __typename?: 'Proposal', id: string, accountId: string, proposerId: string, to: string, value: string, data: string, salt: string, createdAt: any, approvals?: Array<{ __typename?: 'Approval', deviceId: string, signature?: string | null, createdAt: any }> | null, transactions?: Array<{ __typename?: 'Transaction', id: string, hash: string, nonce: number, gasLimit: any, gasPrice?: any | null, createdAt: any, response?: { __typename?: 'TransactionResponse', success: boolean, response: string, timestamp: any } | null }> | null } | null };
 
 export type ProposalsMetadataQueryVariables = Exact<{
   accounts?: InputMaybe<Scalars['AddressSet']>;
@@ -916,7 +1438,7 @@ export type ProposalsMetadataQueryVariables = Exact<{
 }>;
 
 
-export type ProposalsMetadataQuery = { __typename?: 'Query', proposals: Array<{ __typename?: 'Proposal', id: string, accountId: string, hash: string, createdAt: any }> };
+export type ProposalsMetadataQuery = { __typename?: 'Query', proposals: Array<{ __typename?: 'Proposal', id: string, accountId: string, createdAt: any }> };
 
 export type CanRequestFundsQueryVariables = Exact<{
   recipient: Scalars['Address'];
@@ -953,9 +1475,9 @@ export type UserQueryVariables = Exact<{
 }>;
 
 
-export type UserQuery = { __typename?: 'Query', user: { __typename?: 'User', id: string, accountId: string, deviceId: string, name: string, activeState?: { __typename?: 'UserState', proposalHash?: string | null, configs?: Array<{ __typename?: 'UserConfig', id: string, spendingAllowlisted: boolean, approvers?: Array<{ __typename?: 'Approver', deviceId: string }> | null, limits?: Array<{ __typename?: 'TokenLimit', token: string, amount: string, period: LimitPeriod }> | null }> | null } | null, proposedState?: { __typename?: 'UserState', proposalHash?: string | null, configs?: Array<{ __typename?: 'UserConfig', id: string, spendingAllowlisted: boolean, approvers?: Array<{ __typename?: 'Approver', deviceId: string }> | null, limits?: Array<{ __typename?: 'TokenLimit', token: string, amount: string, period: LimitPeriod }> | null }> | null } | null } };
+export type UserQuery = { __typename?: 'Query', user: { __typename?: 'User', id: string, accountId: string, deviceId: string, name: string, activeState?: { __typename?: 'UserState', proposalId?: string | null, configs?: Array<{ __typename?: 'UserConfig', id: string, spendingAllowlisted: boolean, approvers?: Array<{ __typename?: 'Approver', deviceId: string }> | null, limits?: Array<{ __typename?: 'TokenLimit', token: string, amount: string, period: LimitPeriod }> | null }> | null } | null, proposedState?: { __typename?: 'UserState', proposalId?: string | null, configs?: Array<{ __typename?: 'UserConfig', id: string, spendingAllowlisted: boolean, approvers?: Array<{ __typename?: 'Approver', deviceId: string }> | null, limits?: Array<{ __typename?: 'TokenLimit', token: string, amount: string, period: LimitPeriod }> | null }> | null } | null } };
 
-export type UserStateFieldsFragment = { __typename?: 'UserState', proposalHash?: string | null, configs?: Array<{ __typename?: 'UserConfig', id: string, spendingAllowlisted: boolean, approvers?: Array<{ __typename?: 'Approver', deviceId: string }> | null, limits?: Array<{ __typename?: 'TokenLimit', token: string, amount: string, period: LimitPeriod }> | null }> | null };
+export type UserStateFieldsFragment = { __typename?: 'UserState', proposalId?: string | null, configs?: Array<{ __typename?: 'UserConfig', id: string, spendingAllowlisted: boolean, approvers?: Array<{ __typename?: 'Approver', deviceId: string }> | null, limits?: Array<{ __typename?: 'TokenLimit', token: string, amount: string, period: LimitPeriod }> | null }> | null };
 
 export type UserIdsQueryVariables = Exact<{ [key: string]: never; }>;
 
@@ -969,8 +1491,8 @@ export const ContactFieldsFragmentDoc = gql`
   name
 }
     `;
-export const SubmissionFieldsFragmentDoc = gql`
-    fragment SubmissionFields on Submission {
+export const TransactionFieldsFragmentDoc = gql`
+    fragment TransactionFields on Transaction {
   id
   hash
   nonce
@@ -978,15 +1500,15 @@ export const SubmissionFieldsFragmentDoc = gql`
   gasPrice
   createdAt
   response {
+    success
     response
-    reverted
     timestamp
   }
 }
     `;
 export const UserStateFieldsFragmentDoc = gql`
     fragment UserStateFields on UserState {
-  proposalHash
+  proposalId
   configs {
     id
     approvers {
@@ -1269,15 +1791,15 @@ export type UpsertContactMutationHookResult = ReturnType<typeof useUpsertContact
 export type UpsertContactMutationResult = Apollo.MutationResult<UpsertContactMutation>;
 export type UpsertContactMutationOptions = Apollo.BaseMutationOptions<UpsertContactMutation, UpsertContactMutationVariables>;
 export const ApproveDocument = gql`
-    mutation Approve($hash: Bytes32!, $signature: Bytes!) {
-  approve(hash: $hash, signature: $signature) {
+    mutation Approve($id: Bytes32!, $signature: Bytes!) {
+  approve(id: $id, signature: $signature) {
     id
-    submissions {
-      ...SubmissionFields
+    transactions {
+      ...TransactionFields
     }
   }
 }
-    ${SubmissionFieldsFragmentDoc}`;
+    ${TransactionFieldsFragmentDoc}`;
 export type ApproveMutationFn = Apollo.MutationFunction<ApproveMutation, ApproveMutationVariables>;
 
 /**
@@ -1293,7 +1815,7 @@ export type ApproveMutationFn = Apollo.MutationFunction<ApproveMutation, Approve
  * @example
  * const [approveMutation, { data, loading, error }] = useApproveMutation({
  *   variables: {
- *      hash: // value for 'hash'
+ *      id: // value for 'id'
  *      signature: // value for 'signature'
  *   },
  * });
@@ -1306,8 +1828,8 @@ export type ApproveMutationHookResult = ReturnType<typeof useApproveMutation>;
 export type ApproveMutationResult = Apollo.MutationResult<ApproveMutation>;
 export type ApproveMutationOptions = Apollo.BaseMutationOptions<ApproveMutation, ApproveMutationVariables>;
 export const RejectDocument = gql`
-    mutation Reject($hash: Bytes32!) {
-  reject(hash: $hash) {
+    mutation Reject($id: Bytes32!) {
+  reject(id: $id) {
     id
   }
 }
@@ -1327,7 +1849,7 @@ export type RejectMutationFn = Apollo.MutationFunction<RejectMutation, RejectMut
  * @example
  * const [rejectMutation, { data, loading, error }] = useRejectMutation({
  *   variables: {
- *      hash: // value for 'hash'
+ *      id: // value for 'id'
  *   },
  * });
  */
@@ -1373,20 +1895,23 @@ export type SubmitExecutionMutationHookResult = ReturnType<typeof useSubmitExecu
 export type SubmitExecutionMutationResult = Apollo.MutationResult<SubmitExecutionMutation>;
 export type SubmitExecutionMutationOptions = Apollo.BaseMutationOptions<SubmitExecutionMutation, SubmitExecutionMutationVariables>;
 export const ProposeDocument = gql`
-    mutation Propose($account: Address!, $configId: Float, $proposal: ProposalInput!, $signature: Bytes) {
+    mutation Propose($account: Address!, $config: Float, $to: Address!, $value: Uint256, $data: Bytes, $salt: Bytes8, $gasLimit: Uint256) {
   propose(
     account: $account
-    configId: $configId
-    proposal: $proposal
-    signature: $signature
+    config: $config
+    to: $to
+    value: $value
+    data: $data
+    salt: $salt
+    gasLimit: $gasLimit
   ) {
     id
-    submissions {
-      ...SubmissionFields
+    transactions {
+      ...TransactionFields
     }
   }
 }
-    ${SubmissionFieldsFragmentDoc}`;
+    ${TransactionFieldsFragmentDoc}`;
 export type ProposeMutationFn = Apollo.MutationFunction<ProposeMutation, ProposeMutationVariables>;
 
 /**
@@ -1403,9 +1928,12 @@ export type ProposeMutationFn = Apollo.MutationFunction<ProposeMutation, Propose
  * const [proposeMutation, { data, loading, error }] = useProposeMutation({
  *   variables: {
  *      account: // value for 'account'
- *      configId: // value for 'configId'
- *      proposal: // value for 'proposal'
- *      signature: // value for 'signature'
+ *      config: // value for 'config'
+ *      to: // value for 'to'
+ *      value: // value for 'value'
+ *      data: // value for 'data'
+ *      salt: // value for 'salt'
+ *      gasLimit: // value for 'gasLimit'
  *   },
  * });
  */
@@ -1417,8 +1945,8 @@ export type ProposeMutationHookResult = ReturnType<typeof useProposeMutation>;
 export type ProposeMutationResult = Apollo.MutationResult<ProposeMutation>;
 export type ProposeMutationOptions = Apollo.BaseMutationOptions<ProposeMutation, ProposeMutationVariables>;
 export const RequestApprovalDocument = gql`
-    mutation RequestApproval($approvers: NonEmptyAddressSet!, $hash: Bytes32!) {
-  requestApproval(approvers: $approvers, hash: $hash)
+    mutation RequestApproval($id: Bytes32!, $approvers: NonEmptyAddressSet!) {
+  requestApproval(id: $id, approvers: $approvers)
 }
     `;
 export type RequestApprovalMutationFn = Apollo.MutationFunction<RequestApprovalMutation, RequestApprovalMutationVariables>;
@@ -1436,8 +1964,8 @@ export type RequestApprovalMutationFn = Apollo.MutationFunction<RequestApprovalM
  * @example
  * const [requestApprovalMutation, { data, loading, error }] = useRequestApprovalMutation({
  *   variables: {
+ *      id: // value for 'id'
  *      approvers: // value for 'approvers'
- *      hash: // value for 'hash'
  *   },
  * });
  */
@@ -1544,8 +2072,8 @@ export type SetDeviceNameMutationHookResult = ReturnType<typeof useSetDeviceName
 export type SetDeviceNameMutationResult = Apollo.MutationResult<SetDeviceNameMutation>;
 export type SetDeviceNameMutationOptions = Apollo.BaseMutationOptions<SetDeviceNameMutation, SetDeviceNameMutationVariables>;
 export const RemoveUserDocument = gql`
-    mutation RemoveUser($id: UserIdInput!, $proposalHash: Bytes32!) {
-  removeUser(id: $id, proposalHash: $proposalHash) {
+    mutation RemoveUser($id: UserIdInput!, $proposalId: Bytes32!) {
+  removeUser(id: $id, proposalId: $proposalId) {
     id
   }
 }
@@ -1566,7 +2094,7 @@ export type RemoveUserMutationFn = Apollo.MutationFunction<RemoveUserMutation, R
  * const [removeUserMutation, { data, loading, error }] = useRemoveUserMutation({
  *   variables: {
  *      id: // value for 'id'
- *      proposalHash: // value for 'proposalHash'
+ *      proposalId: // value for 'proposalId'
  *   },
  * });
  */
@@ -1578,8 +2106,8 @@ export type RemoveUserMutationHookResult = ReturnType<typeof useRemoveUserMutati
 export type RemoveUserMutationResult = Apollo.MutationResult<RemoveUserMutation>;
 export type RemoveUserMutationOptions = Apollo.BaseMutationOptions<RemoveUserMutation, RemoveUserMutationVariables>;
 export const UpsertUserDocument = gql`
-    mutation UpsertUser($user: UserInput!, $proposalHash: Bytes32!) {
-  upsertUser(user: $user, proposalHash: $proposalHash) {
+    mutation UpsertUser($user: UserInput!, $proposalId: Bytes32!) {
+  upsertUser(user: $user, proposalId: $proposalId) {
     id
   }
 }
@@ -1600,7 +2128,7 @@ export type UpsertUserMutationFn = Apollo.MutationFunction<UpsertUserMutation, U
  * const [upsertUserMutation, { data, loading, error }] = useUpsertUserMutation({
  *   variables: {
  *      user: // value for 'user'
- *      proposalHash: // value for 'proposalHash'
+ *      proposalId: // value for 'proposalId'
  *   },
  * });
  */
@@ -1649,7 +2177,7 @@ export const AccountDocument = gql`
     query Account($account: Address!) {
   account(id: $account) {
     id
-    isDeployed
+    isActive
     name
     users {
       deviceId
@@ -1721,12 +2249,11 @@ export type ContactsQueryHookResult = ReturnType<typeof useContactsQuery>;
 export type ContactsLazyQueryHookResult = ReturnType<typeof useContactsLazyQuery>;
 export type ContactsQueryResult = Apollo.QueryResult<ContactsQuery, ContactsQueryVariables>;
 export const ProposalDocument = gql`
-    query Proposal($hash: Bytes32!) {
-  proposal(hash: $hash) {
+    query Proposal($id: Bytes32!) {
+  proposal(id: $id) {
     id
     accountId
     proposerId
-    hash
     to
     value
     data
@@ -1737,12 +2264,12 @@ export const ProposalDocument = gql`
       signature
       createdAt
     }
-    submissions {
-      ...SubmissionFields
+    transactions {
+      ...TransactionFields
     }
   }
 }
-    ${SubmissionFieldsFragmentDoc}`;
+    ${TransactionFieldsFragmentDoc}`;
 
 /**
  * __useProposalQuery__
@@ -1756,7 +2283,7 @@ export const ProposalDocument = gql`
  * @example
  * const { data, loading, error } = useProposalQuery({
  *   variables: {
- *      hash: // value for 'hash'
+ *      id: // value for 'id'
  *   },
  * });
  */
@@ -1776,7 +2303,6 @@ export const ProposalsMetadataDocument = gql`
   proposals(accounts: $accounts, status: $status) {
     id
     accountId
-    hash
     createdAt
   }
 }
