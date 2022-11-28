@@ -65,7 +65,7 @@ export const Explorer = withRecoil(
           document,
           variables,
           headers: {
-            authorization: useAuthorization(),
+            Authorization: useAuthorization(),
             device: useDevice().address,
             ...initialState?.headers,
           },
