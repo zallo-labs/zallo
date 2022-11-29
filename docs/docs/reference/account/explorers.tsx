@@ -1,14 +1,15 @@
 import React from 'react';
 import gql from 'graphql-tag';
-import { Explorer, withRecoil } from '@site/src/components/Explorer';
+import Explorer from '@site/src/components/Explorer';
 import {
   CreateAccountMutationVariables,
   AccountQueryVariables,
   AccountsQueryVariables,
 } from '@site/src/api.generated';
 import { useDevice } from '@site/src/hooks/useDevice';
+import BrowserOnly from '@docusaurus/BrowserOnly';
 
-export const CreateAccountExplorer = withRecoil(() => (
+const CreateAccountExplorerInner = () => (
   <Explorer
     document={gql`
       mutation CreateAccount($name: String!, $users: [UserWithoutAccountInput!]!) {
@@ -35,7 +36,11 @@ export const CreateAccountExplorer = withRecoil(() => (
       } as CreateAccountMutationVariables
     }
   />
-));
+);
+
+export const CreateAccountExplorer = () => (
+  <BrowserOnly>{() => <CreateAccountExplorerInner />}</BrowserOnly>
+);
 
 export const AccountExplorer = () => (
   <Explorer

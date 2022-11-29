@@ -1,6 +1,6 @@
 import React from 'react';
 import gql from 'graphql-tag';
-import { Explorer } from '@site/src/components/Explorer';
+import Explorer from '@site/src/components/Explorer';
 import { ProposeMutationVariables, ApproveMutationVariables } from '@site/src/api.generated';
 
 export const ProposeExample = () => (

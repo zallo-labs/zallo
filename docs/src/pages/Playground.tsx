@@ -1,7 +1,7 @@
 import React from 'react';
 import Layout from '@theme/Layout';
 import gql from 'graphql-tag';
-import { Explorer } from '../components/Explorer';
+import Explorer from '../components/Explorer';
 
 const FOOTER_HEIGHT = '12.25vh';
 
