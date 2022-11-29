@@ -6,6 +6,7 @@ import {
   ApproveMutationVariables,
   ProposalQueryVariables,
   ProposalsQueryVariables,
+  ProposalChangesSubscriptionVariables,
 } from '@site/src/api.generated';
 import { useAccount } from '@site/src/api/useAccount';
 import { useDevice } from '@site/src/hooks/useDevice';
@@ -69,6 +70,38 @@ export const ApproveExample = () => {
       variables={
         { id: proposal, signature: signProposal(proposal, device) } as ApproveMutationVariables
       }
+    />
+  );
+};
+
+export const SubscribeExample = () => {
+  const proposal = useProposal();
+  if (!proposal) return <Suspend />;
+
+  return (
+    <Explorer
+      document={gql`
+        subscription ProposalChanges {
+          proposal {
+            id
+            to
+            value
+            data
+            transaction {
+              hash
+              gasLimit
+              gasPrice
+              createdAt
+              response {
+                success
+                response
+                timestamp
+              }
+            }
+          }
+        }
+      `}
+      variables={{} as ProposalChangesSubscriptionVariables}
     />
   );
 };
