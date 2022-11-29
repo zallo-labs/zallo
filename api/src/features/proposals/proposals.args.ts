@@ -25,12 +25,22 @@ export enum ProposalStatus {
 }
 registerEnumType(ProposalStatus, { name: 'ProposalStatus' });
 
+export enum ProposalState {
+  Pending = 'pending',
+  Executing = 'executing',
+  Executed = 'executed',
+}
+registerEnumType(ProposalState, { name: 'ProposalState' });
+
 @ArgsType()
 export class ProposalsArgs extends FindManyProposalArgs {
   @AddressSetField({ nullable: true })
   accounts?: Set<Address>;
 
+  @Field(() => ProposalStatus, { nullable: true, deprecationReason: 'Superseded by state' })
   status?: ProposalStatus;
+
+  state?: ProposalState;
 }
 
 @ArgsType()

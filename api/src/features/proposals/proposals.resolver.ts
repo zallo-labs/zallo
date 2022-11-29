@@ -22,6 +22,7 @@ import {
   ApprovalRequest,
   ProposalStatus,
   ProposalModifiedArgs,
+  ProposalState,
 } from './proposals.args';
 import { UserInputError } from 'apollo-server-core';
 import { ProviderService } from '~/provider/provider.service';
@@ -60,7 +61,7 @@ export class ProposalsResolver {
 
   @Query(() => [Proposal])
   async proposals(
-    @Args() { accounts, status, ...args }: ProposalsArgs,
+    @Args() { accounts, status, state, ...args }: ProposalsArgs,
     @Info() info: GraphQLResolveInfo,
     @DeviceAddr() device: Address,
   ): Promise<Proposal[]> {
@@ -91,6 +92,22 @@ export class ProposalsResolver {
                   },
                   approvals: {
                     some: { deviceId: { equals: device } },
+                  },
+                }))
+                .exhaustive()),
+            ...(state &&
+              match<ProposalState, ProposalWhereInput>(state)
+                .with(ProposalState.Pending, () => ({
+                  transactions: { none: {} },
+                }))
+                .with(ProposalState.Executing, () => ({
+                  transactions: {
+                    some: { response: { isNot: {} } },
+                  },
+                }))
+                .with(ProposalState.Executed, () => ({
+                  transactions: {
+                    some: { response: { is: { success: { equals: true } } } },
                   },
                 }))
                 .exhaustive()),
@@ -143,16 +160,13 @@ export class ProposalsResolver {
 
     // Default behaviour is specified on ProposeArgs
     const state = await this.prisma.userState.findFirst({
-      ...this.users.latestStateArgs({ account, addr: device }, true),
+      ...this.users.latestStateArgs({ account, addr: device }, null),
       select: {
         configs: {
           select: {
             id: true,
           },
-          orderBy: {
-            approvers: { _count: 'asc' },
-            id: 'asc',
-          },
+          orderBy: [{ approvers: { _count: 'asc' } }, { id: 'asc' }],
         },
       },
     });
