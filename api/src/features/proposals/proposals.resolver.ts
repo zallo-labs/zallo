@@ -9,7 +9,7 @@ import {
   Subscription,
 } from '@nestjs/graphql';
 import { GraphQLResolveInfo } from 'graphql';
-import { Address, hashTx, isPresent, randomTxSalt } from 'lib';
+import { address, Address, hashTx, isPresent, randomTxSalt } from 'lib';
 import { PrismaService } from 'nestjs-prisma';
 import { DeviceAddr } from '~/decorators/device.decorator';
 import { connectAccount, connectOrCreateDevice } from '~/util/connect-or-create';
@@ -33,6 +33,8 @@ import { UsersService } from '../users/users.service';
 import { ProposalsService } from './proposals.service';
 import { Transaction } from '@gen/transaction/transaction.model';
 import { PubsubService } from '~/pubsub/pubsub.service';
+
+const PROPOSAL_SUB = 'proposal';
 
 @Resolver(() => Proposal)
 export class ProposalsResolver {
@@ -105,17 +107,25 @@ export class ProposalsResolver {
     return proposal.transactions ? proposal.transactions[proposal.transactions.length - 1] : null;
   }
 
-  @Subscription(() => Proposal)
-  async proposalAdded() {
-    return this.pubsub.asyncIterator(this.proposalAdded.name);
-  }
-
   @Subscription(() => Proposal, {
-    filter: (payload: { proposalModified: Proposal }, variables: ProposalModifiedArgs) =>
-      !variables.ids || variables.ids.has(payload.proposalModified.id),
+    name: PROPOSAL_SUB,
+    filter: (
+      { proposalModified }: { proposalModified: Proposal },
+      { accounts, ids, created }: ProposalModifiedArgs,
+    ) => {
+      const mAccounts = !accounts || accounts.has(address(proposalModified.accountId));
+      const mIds = !ids || ids.has(proposalModified.id);
+      const mCreated = created && (proposalModified.approvals?.length ?? 0) === 0;
+
+      return mAccounts && (mIds || mCreated);
+    },
   })
   async proposalModified(@Args() _args: ProposalModifiedArgs) {
-    return this.pubsub.asyncIterator(this.proposalModified.name);
+    return this.pubsub.asyncIterator(PROPOSAL_SUB);
+  }
+
+  private publishProposal(proposal: Proposal) {
+    this.pubsub.publish(PROPOSAL_SUB, { [PROPOSAL_SUB]: proposal });
   }
 
   @Mutation(() => Proposal)
@@ -170,7 +180,7 @@ export class ProposalsResolver {
       },
       ...getSelect(info),
     });
-    this.pubsub.publish(this.proposalAdded.name, { [this.proposalAdded.name]: proposal });
+    this.publishProposal(proposal);
 
     return proposal;
   }
@@ -186,18 +196,18 @@ export class ProposalsResolver {
       device,
       args: getSelect(info),
     });
-    this.pubsub.publish(this.proposalModified.name, { [this.proposalModified.name]: proposal });
+    this.publishProposal(proposal);
 
     return proposal;
   }
 
-  @Mutation(() => Proposal, { nullable: true })
+  @Mutation(() => Proposal)
   async reject(
     @Args() { id }: UniqueProposalArgs,
     @DeviceAddr() device: Address,
     @Info() info: GraphQLResolveInfo,
-  ): Promise<Proposal | null> {
-    let proposal: Proposal | null = await this.prisma.proposal.update({
+  ): Promise<Proposal> {
+    const proposal = await this.prisma.proposal.update({
       where: { id },
       data: {
         approvals: {
@@ -220,15 +230,7 @@ export class ProposalsResolver {
       },
       ...getSelect(info),
     });
-
-    // Delete proposal if no approvals are left
-    const approvalsLeft = await this.prisma.approval.count({ where: { proposalId: id } });
-    if (!approvalsLeft) {
-      await this.prisma.proposal.delete({ where: { id } });
-      proposal = null;
-    }
-
-    this.pubsub.publish(this.proposalModified.name, { [this.proposalModified.name]: proposal });
+    this.publishProposal(proposal);
 
     return proposal;
   }

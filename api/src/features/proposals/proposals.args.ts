@@ -1,5 +1,5 @@
 import { FindManyProposalArgs } from '@gen/proposal/find-many-proposal.args';
-import { ArgsType, ObjectType, registerEnumType } from '@nestjs/graphql';
+import { ArgsType, Field, ObjectType, registerEnumType } from '@nestjs/graphql';
 import { BigNumber, BytesLike } from 'ethers';
 import { Address, TxSalt, ZERO } from 'lib';
 import {
@@ -35,8 +35,14 @@ export class ProposalsArgs extends FindManyProposalArgs {
 
 @ArgsType()
 export class ProposalModifiedArgs {
+  @AddressSetField({ nullable: true })
+  accounts?: Set<Address>;
+
   @Bytes32SetField({ nullable: true })
   ids?: Set<string>;
+
+  @Field(() => Boolean, { nullable: true, defaultValue: true })
+  created: boolean;
 }
 
 @ArgsType()
