@@ -42,7 +42,7 @@ export class AuthService {
   constructor(private provider: ProviderService) {}
 
   async tryAuth(req: Request): Promise<UserContext | undefined> {
-    const auth = tryParseAuth(req.headers.Authorization);
+    const auth = tryParseAuth(req.headers.authorization);
 
     if (typeof auth === 'object') {
       const { message, signature } = auth;
@@ -80,13 +80,11 @@ export class AuthService {
         );
       }
     } else if (isPlayground(req)) {
-      if (!req.session.playgroundWallet) {
-        req.session.playgroundWallet = address(Wallet.createRandom().address);
-
-        // TODO: associate device with example data
-      }
-
-      return { id: req.session.playgroundWallet };
+      return {
+        id:
+          req.session.playgroundWallet ||
+          (req.session.playgroundWallet = address(Wallet.createRandom().address)),
+      };
     }
   }
 }

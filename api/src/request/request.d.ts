@@ -19,7 +19,7 @@ declare module 'express-session' {
 
 declare module 'http' {
   interface IncomingHttpHeaders {
-    Authorization?: string;
+    authorization?: string;
     playground?: string;
   }
 }
