@@ -164,6 +164,7 @@ const config = {
 
   customFields: {
     apolloGraphRef: process.env.APOLLO_GRAPH_REF,
+    apiUrl: process.env.API_URL,
     feedbackEmail: 'feedback@zallo.io',
     supportEmail: 'support@zall.io',
   },

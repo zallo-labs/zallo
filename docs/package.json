@@ -16,6 +16,7 @@
     "generate:gql": "graphql-codegen --config codegen.ts"
   },
   "dependencies": {
+    "@apollo/client": "^3.7.1",
     "@apollo/explorer": "^2.0.1",
     "@docusaurus/core": "2.2.0",
     "@docusaurus/preset-classic": "2.2.0",

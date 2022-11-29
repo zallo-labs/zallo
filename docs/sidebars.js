@@ -40,7 +40,7 @@ const sidebars = {
           items: [
             'reference/account/create',
             'reference/account/query',
-            'reference/account/query-multiple',
+            'reference/account/query-many',
           ],
         },
         {
@@ -55,7 +55,7 @@ const sidebars = {
             'reference/proposal/approve',
             'reference/proposal/subscribe',
             'reference/proposal/query',
-            'reference/proposal/query-multiple',
+            'reference/proposal/query-many',
           ],
         },
         'reference/authentication',

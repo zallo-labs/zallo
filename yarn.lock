@@ -19840,6 +19840,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "docs@workspace:docs"
   dependencies:
+    "@apollo/client": ^3.7.1
     "@apollo/explorer": ^2.0.1
     "@docusaurus/core": 2.2.0
     "@docusaurus/module-type-aliases": ^2.2.0
