@@ -1,36 +1,42 @@
-import { Field, FieldOptions } from '@nestjs/graphql';
 import { UserInputError } from 'apollo-server-core';
-import { GraphQLScalarType, Kind } from 'graphql';
+import { Kind } from 'graphql';
 import { address, Address, isAddressLike } from 'lib';
+import { createParseSetValue, parseSetLiteral } from './set.util';
+import { createScalar } from './util';
 
 const description = 'Ethereum address';
 
-const error = new UserInputError(`Provided value is not a ${description}`);
-
-const parse = (value: unknown): Address => {
-  if (!isAddressLike(value)) throw error;
+const parseValue = (value: unknown): Address => {
+  if (!isAddressLike(value)) throw new UserInputError(`Provided value is not a ${description}`);
   return address(value);
 };
 
-export const AddressScalar = new GraphQLScalarType<Address, string>({
+export const [AddressScalar, AddressField] = createScalar<Address, string>({
   name: 'Address',
   description,
   serialize: (value) => value as Address,
-  parseValue: (value: unknown) => parse(value),
+  parseValue,
   parseLiteral: (ast) => {
-    if (ast.kind === Kind.STRING) return parse(ast.value);
-    throw error;
+    if (ast.kind === Kind.STRING) return parseValue(ast.value);
+    throw new UserInputError('Must be a string');
   },
 });
 
-export const AddressField =
-  (options?: FieldOptions): PropertyDecorator =>
-  (target, propertyKey) => {
-    Field(() => AddressScalar, options)(target, propertyKey);
-  };
+export const [AddressSetScalar, AddressSetField] = createScalar<Set<Address>, Address[]>({
+  name: 'AddressSet',
+  description: `Set of ${description}s`,
+  serialize: (values) => [...(values as Set<Address>)],
+  parseValue: createParseSetValue(parseValue, 1),
+  parseLiteral: parseSetLiteral(parseValue, 1),
+});
 
-export const AddressesField =
-  (options?: FieldOptions): PropertyDecorator =>
-  (target, propertyKey) => {
-    Field(() => [AddressScalar], options)(target, propertyKey);
-  };
+export const [NonEmptyAddressSetScalar, NonEmptyAddressSetField] = createScalar<
+  Set<Address>,
+  Address[]
+>({
+  name: 'NonEmptyAddressSet',
+  description: `Non-empty set of ${description}s`,
+  serialize: (values) => [...(values as Set<Address>)],
+  parseValue: createParseSetValue(parseValue, 1),
+  parseLiteral: parseSetLiteral(parseValue, 1),
+});

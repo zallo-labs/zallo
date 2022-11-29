@@ -77,7 +77,7 @@ export class AccountsResolver {
         user: {
           addr: user.device,
           configs: user.configs.map((c) => ({
-            approvers: c.approvers,
+            approvers: [...c.approvers],
             limits: Object.fromEntries(c.limits.map((l) => [l.token, l] as const)),
             spendingAllowlisted: c.spendingAllowlisted,
           })),

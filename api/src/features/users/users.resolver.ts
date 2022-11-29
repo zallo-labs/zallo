@@ -142,10 +142,10 @@ export class UsersResolver {
       }
 
       // The account or user can't be their own approver
-      const configs = user.configs.map((config) => ({
-        ...config,
-        approvers: config.approvers.filter((a) => a !== user.id.account && a !== user.id.device),
-      }));
+      const configs = user.configs.map((config) => {
+        config.approvers.delete(user.id.account);
+        return config;
+      });
 
       const r = await tx.userState.create({
         data: {

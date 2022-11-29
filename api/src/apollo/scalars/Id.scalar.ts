@@ -1,7 +1,6 @@
-import { Field, FieldOptions } from '@nestjs/graphql';
 import { UserInputError } from 'apollo-server-core';
-import { GraphQLScalarType } from 'graphql';
 import { Id, toId } from 'lib';
+import { createScalar } from './util';
 
 const description = 'Identifier';
 
@@ -12,7 +11,7 @@ const parse = (value: unknown): Id => {
   return toId(`${value}`);
 };
 
-export const IdScalar = new GraphQLScalarType<Id, string>({
+export const [IdScalar, IdField] = createScalar<Id, string>({
   name: 'Id',
   description,
   serialize: (value) => value as Id,
@@ -22,9 +21,3 @@ export const IdScalar = new GraphQLScalarType<Id, string>({
     throw error;
   },
 });
-
-export const IdField =
-  (options?: FieldOptions): PropertyDecorator =>
-  (target, propertyKey) => {
-    Field(() => IdScalar, options)(target, propertyKey);
-  };

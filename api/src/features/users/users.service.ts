@@ -93,7 +93,7 @@ export class UsersService {
     return {
       create: configs.map((config) => ({
         approvers: {
-          create: config.approvers.map((approver) => ({
+          create: [...config.approvers].map((approver) => ({
             device: connectOrCreateDevice(approver),
           })),
         },
