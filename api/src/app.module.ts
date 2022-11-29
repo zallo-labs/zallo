@@ -21,8 +21,8 @@ import { RedisModule } from '@liaoliaots/nestjs-redis';
 import { CONFIG } from './config';
 import { UsersModule } from './features/users/users.module';
 import { SubgraphModule } from './features/subgraph/subgraph.module';
-import { ExpoService } from './expo/expo.service';
 import { ExpoModule } from './expo/expo.module';
+import { PubsubModule } from './pubsub/pubsub.module';
 
 @Module({
   imports: [
@@ -35,6 +35,7 @@ import { ExpoModule } from './expo/expo.module';
     RedisModule.forRoot({ config: { url: CONFIG.redisUrl } }),
     AuthModule,
     ApolloModule,
+    PubsubModule,
     ProviderModule,
     HealthModule,
     // Features
@@ -57,7 +58,6 @@ import { ExpoModule } from './expo/expo.module';
       provide: APP_GUARD,
       useClass: AuthGuard,
     },
-    ExpoService,
   ],
 })
 export class AppModule {}

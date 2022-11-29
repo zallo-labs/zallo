@@ -1,4 +1,13 @@
-import { Args, Info, Mutation, Parent, Query, ResolveField, Resolver } from '@nestjs/graphql';
+import {
+  Args,
+  Info,
+  Mutation,
+  Parent,
+  Query,
+  ResolveField,
+  Resolver,
+  Subscription,
+} from '@nestjs/graphql';
 import { GraphQLResolveInfo } from 'graphql';
 import { Address, hashTx, isPresent, randomTxSalt } from 'lib';
 import { PrismaService } from 'nestjs-prisma';
@@ -12,6 +21,7 @@ import {
   ProposalsArgs,
   ApprovalRequest,
   ProposalStatus,
+  ProposalModifiedArgs,
 } from './proposals.args';
 import { UserInputError } from 'apollo-server-core';
 import { ProviderService } from '~/provider/provider.service';
@@ -22,6 +32,7 @@ import { ProposalWhereInput } from '@gen/proposal/proposal-where.input';
 import { UsersService } from '../users/users.service';
 import { ProposalsService } from './proposals.service';
 import { Transaction } from '@gen/transaction/transaction.model';
+import { PubsubService } from '~/pubsub/pubsub.service';
 
 @Resolver(() => Proposal)
 export class ProposalsResolver {
@@ -31,6 +42,7 @@ export class ProposalsResolver {
     private provider: ProviderService,
     private expo: ExpoService,
     private users: UsersService,
+    private pubsub: PubsubService,
   ) {}
 
   @Query(() => Proposal, { nullable: true })
@@ -93,6 +105,19 @@ export class ProposalsResolver {
     return proposal.transactions ? proposal.transactions[proposal.transactions.length - 1] : null;
   }
 
+  @Subscription(() => Proposal)
+  async proposalAdded() {
+    return this.pubsub.asyncIterator(this.proposalAdded.name);
+  }
+
+  @Subscription(() => Proposal, {
+    filter: (payload: { proposalModified: Proposal }, variables: ProposalModifiedArgs) =>
+      !variables.ids || variables.ids.has(payload.proposalModified.id),
+  })
+  async proposalModified(@Args() _args: ProposalModifiedArgs) {
+    return this.pubsub.asyncIterator(this.proposalModified.name);
+  }
+
   @Mutation(() => Proposal)
   async propose(
     @Args()
@@ -124,7 +149,7 @@ export class ProposalsResolver {
     if (!state) throw new UserInputError(`Device doesn't belong to any configs`);
     config = state.configs[0].id;
 
-    return this.prisma.proposal.create({
+    const proposal = await this.prisma.proposal.create({
       data: {
         id,
         account: connectAccount(account),
@@ -145,6 +170,9 @@ export class ProposalsResolver {
       },
       ...getSelect(info),
     });
+    this.pubsub.publish(this.proposalAdded.name, { [this.proposalAdded.name]: proposal });
+
+    return proposal;
   }
 
   @Mutation(() => Proposal)
@@ -153,11 +181,14 @@ export class ProposalsResolver {
     @DeviceAddr() device: Address,
     @Info() info: GraphQLResolveInfo,
   ): Promise<Proposal> {
-    return this.service.approve({
+    const proposal = await this.service.approve({
       ...args,
       device,
       args: getSelect(info),
     });
+    this.pubsub.publish(this.proposalModified.name, { [this.proposalModified.name]: proposal });
+
+    return proposal;
   }
 
   @Mutation(() => Proposal, { nullable: true })
@@ -166,7 +197,7 @@ export class ProposalsResolver {
     @DeviceAddr() device: Address,
     @Info() info: GraphQLResolveInfo,
   ): Promise<Proposal | null> {
-    const proposal = await this.prisma.proposal.update({
+    let proposal: Proposal | null = await this.prisma.proposal.update({
       where: { id },
       data: {
         approvals: {
@@ -194,8 +225,10 @@ export class ProposalsResolver {
     const approvalsLeft = await this.prisma.approval.count({ where: { proposalId: id } });
     if (!approvalsLeft) {
       await this.prisma.proposal.delete({ where: { id } });
-      return null;
+      proposal = null;
     }
+
+    this.pubsub.publish(this.proposalModified.name, { [this.proposalModified.name]: proposal });
 
     return proposal;
   }

@@ -21,53 +21,51 @@ export const GQL_ENDPOINT = '/graphql';
     GraphQLModule.forRootAsync<ApolloDriverConfig>({
       driver: ApolloDriver,
       inject: [AuthService, SessionService],
-      useFactory: (auth: AuthService, session: SessionService) => {
-        return {
-          autoSchemaFile: 'schema.graphql',
-          sortSchema: true,
-          debug: IS_DEV,
-          introspection: true,
-          path: GQL_ENDPOINT,
-          cache: 'bounded',
-          cors: false, // Configured in main.ts; omitting reconfigures CORS
-          buildSchemaOptions: {
-            fieldMiddleware: [IdMiddleware, AddressMiddleware],
-          },
-          subscriptions: {
-            'graphql-ws': {
-              onSubscribe: (ctx) => {
-                const extra = ctx.extra as IncomingWsContext['extra'];
-                const req = extra.request;
+      useFactory: (auth: AuthService, session: SessionService) => ({
+        autoSchemaFile: 'schema.graphql',
+        sortSchema: true,
+        debug: IS_DEV,
+        introspection: true,
+        path: GQL_ENDPOINT,
+        cache: 'bounded',
+        cors: false, // Configured in main.ts; omitting reconfigures CORS
+        buildSchemaOptions: {
+          fieldMiddleware: [IdMiddleware, AddressMiddleware],
+        },
+        subscriptions: {
+          'graphql-ws': {
+            onSubscribe: (ctx) => {
+              const extra = ctx.extra as IncomingWsContext['extra'];
+              const req = extra.request;
 
-                session.handler(req, {} as any, async () => {
-                  // Copy connection parameters into headers
-                  req.headers = {
-                    ...req.headers,
-                    ...(ctx.connectionParams as Partial<typeof req.headers>),
-                  };
+              session.handler(req, {} as any, async () => {
+                // Copy connection parameters into headers
+                req.headers = {
+                  ...req.headers,
+                  ...(ctx.connectionParams as Partial<typeof req.headers>),
+                };
 
-                  extra.user = await auth.tryAuth(req);
-                });
-              },
+                extra.user = await auth.tryAuth(req);
+              });
             },
           },
-          context: (ctx: IncomingContext): Context =>
-            'req' in ctx
-              ? { req: ctx.req, user: ctx.req.user }
-              : { req: ctx.extra.request, user: ctx.extra.user },
-          playground: false,
-          plugins: [
-            ...(IS_DEV
-              ? [
-                  ApolloServerPluginLandingPageLocalDefault({
-                    includeCookies: true,
-                  }),
-                  ApolloServerPluginInlineTrace(),
-                ]
-              : []),
-          ],
-        };
-      },
+        },
+        context: (ctx: IncomingContext): Context =>
+          'req' in ctx
+            ? { req: ctx.req, user: ctx.req.user }
+            : { req: ctx.extra.request, user: ctx.extra.user },
+        playground: false,
+        plugins: [
+          ...(IS_DEV
+            ? [
+                ApolloServerPluginLandingPageLocalDefault({
+                  includeCookies: true,
+                }),
+                ApolloServerPluginInlineTrace(),
+              ]
+            : []),
+        ],
+      }),
     }),
   ],
 })
