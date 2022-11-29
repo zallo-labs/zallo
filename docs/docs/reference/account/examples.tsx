@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { Suspense } from 'react';
 import gql from 'graphql-tag';
 import Explorer from '@site/src/components/Explorer';
 import {
@@ -9,6 +9,7 @@ import {
 import { useDevice } from '@site/src/hooks/useDevice';
 import BrowserOnly from '@docusaurus/BrowserOnly';
 import { useAccount } from '@site/src/api/useAccount';
+import { Suspend } from '@site/src/components/Suspender';
 
 const CreateAccountExampleInner = () => (
   <Explorer
@@ -45,7 +46,7 @@ export const CreateAccountExample = () => (
 
 export const AccountExample = () => {
   const account = useAccount();
-  if (!account) return null;
+  if (!account) return <Suspend />;
 
   return (
     <Explorer
@@ -68,7 +69,7 @@ export const AccountExample = () => {
 
 export const AccountsExample = () => {
   const account = useAccount();
-  if (!account) return null;
+  if (!account) return <Suspend />;
 
   return (
     <Explorer

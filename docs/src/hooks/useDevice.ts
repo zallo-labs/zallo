@@ -1,8 +1,8 @@
 import { atom, DefaultValue, selectorFamily, useRecoilValue } from 'recoil';
 import { useCustomFields } from './useCustomFields';
 import ExecutionEnvironment from '@docusaurus/ExecutionEnvironment';
-import { Wallet as WalletType } from 'ethers';
-const { Wallet } = ExecutionEnvironment.canUseDOM ? require('ethers') : ({} as any);
+import { Wallet as WalletType } from 'zksync-web3';
+const { Wallet } = ExecutionEnvironment.canUseDOM ? require('zksync-web3') : ({} as any);
 
 const DEVICE = atom<WalletType>({
   key: 'device',

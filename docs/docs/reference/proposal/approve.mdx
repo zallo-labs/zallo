@@ -7,10 +7,10 @@ Only members of the proposal quorum can approve it.
 
 ## Signing
 
-Obtain your `signature` by signing the [Proposal](../schema/objects/proposal)'s `hash` ([EIP-712](https://eips.ethereum.org/EIPS/eip-712)).
+Obtain your `signature` by signing the [Proposal](../schema/objects/proposal)'s `id` ([EIP-712](https://eips.ethereum.org/EIPS/eip-712) typed-data hash).
 
 ```typescript title="Ethers"
-const signature = ethers.utils.joinSignature(wallet._signingKey().signDigest(proposal.hash));
+const signature = ethers.utils.joinSignature(wallet._signingKey().signDigest(proposal.id));
 ```
 
 ## Execution

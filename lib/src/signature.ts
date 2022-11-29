@@ -52,12 +52,11 @@ export const createUserSignature = (user: User, signers: Signer[]): BytesLike =>
   );
 };
 
+export const signProposal = (id: string, device: Device) =>
+  ethers.utils.joinSignature(device._signingKey().signDigest(id));
+
 export const signTx = async (device: Device, account: Address, tx: TxReq) =>
-  ethers.utils.joinSignature(
-    device
-      ._signingKey()
-      .signDigest(await hashTx({ address: account, provider: device.provider, tx })),
-  );
+  signProposal(await hashTx({ address: account, provider: device.provider, tx }), device);
 
 // Convert to a compact 64 byte (eip-2098) signature
 export const toCompactSignature = (signature: SignatureLike) =>

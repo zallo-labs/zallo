@@ -10,10 +10,8 @@ import { useMutation } from '@apollo/client';
 import { useDevice } from '../hooks/useDevice';
 import { useEffect, useState } from 'react';
 
-const useFirstAccount = () => {
-  const {
-    data: { accounts },
-  } = useSuspenseQuery<FirstAccountQuery, FirstAccountQueryVariables>(
+const useFirstAccount = (): string | undefined =>
+  useSuspenseQuery<FirstAccountQuery, FirstAccountQueryVariables>(
     gql`
       query FirstAccount {
         accounts(take: 1) {
@@ -24,10 +22,7 @@ const useFirstAccount = () => {
     {
       variables: {},
     },
-  );
-
-  return accounts[accounts.length - 1]?.id;
-};
+  ).data.accounts[0]?.id;
 
 const useCreateAccount = () =>
   useMutation<CreateTestAccountMutation, CreateTestAccountMutationVariables>(
@@ -50,14 +45,12 @@ const useCreateAccount = () =>
         ],
       },
     },
-  )[0];
+  );
 
 export const useAccount = () => {
   // Query for an account
   const firstAccount = useFirstAccount();
-  const createAccount = useCreateAccount();
-
-  console.log({ device: useDevice().address });
+  const [createAccount] = useCreateAccount();
 
   // Create an account if one doesn't exist
   const [account, setAccount] = useState<string | undefined>(firstAccount);
