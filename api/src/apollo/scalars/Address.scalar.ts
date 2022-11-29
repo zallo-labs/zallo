@@ -26,8 +26,8 @@ export const [AddressSetScalar, AddressSetField] = createScalar<Set<Address>, Ad
   name: 'AddressSet',
   description: `Set of ${description}s`,
   serialize: (values) => [...(values as Set<Address>)],
-  parseValue: createParseSetValue(parseValue, 1),
-  parseLiteral: parseSetLiteral(parseValue, 1),
+  parseValue: createParseSetValue(parseValue, 0),
+  parseLiteral: parseSetLiteral(parseValue, 0),
 });
 
 export const [NonEmptyAddressSetScalar, NonEmptyAddressSetField] = createScalar<
