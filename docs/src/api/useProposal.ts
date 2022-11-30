@@ -14,14 +14,14 @@ import { useSuspenseQuery } from './useSuspenseQuery';
 const useFirstPendingProposal = (account: string): string | undefined =>
   useSuspenseQuery<FirstPendingProposalQuery, FirstPendingProposalQueryVariables>(
     gql`
-      query FirstPendingProposal($accounts: AddressSet!) {
-        proposals(accounts: $accounts, status: AwaitingUser, take: 1) {
+      query FirstPendingProposal($account: Address!) {
+        proposals(accounts: [$account], status: AwaitingUser, take: 1) {
           id
         }
       }
     `,
     {
-      variables: { accounts: [account] },
+      variables: { account },
     },
   ).data.proposals[0]?.id;
 
