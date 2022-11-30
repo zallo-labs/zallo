@@ -71,20 +71,22 @@ export class AccountsResolver {
     // TODO: accept multiple users on create
     const user = users[0];
 
-    const addr = await calculateProxyAddress(
-      {
-        impl,
-        user: {
-          addr: user.device,
-          configs: user.configs.map((c) => ({
-            approvers: [...c.approvers],
-            limits: Object.fromEntries(c.limits.map((l) => [l.token, l] as const)),
-            spendingAllowlisted: c.spendingAllowlisted,
-          })),
+    const addr = await this.provider.useProxyFactory((factory) =>
+      calculateProxyAddress(
+        {
+          impl,
+          user: {
+            addr: user.device,
+            configs: user.configs.map((c) => ({
+              approvers: [...c.approvers],
+              limits: Object.fromEntries(c.limits.map((l) => [l.token, l] as const)),
+              spendingAllowlisted: c.spendingAllowlisted,
+            })),
+          },
         },
-      },
-      this.provider.proxyFactory,
-      deploySalt,
+        factory,
+        deploySalt,
+      ),
     );
 
     const r = await this.prisma.account.create({

@@ -5,9 +5,6 @@ import { RequestFundsArgs } from './faucet.args';
 import { BigNumber } from 'ethers';
 import { address, Address, filterAsync } from 'lib';
 import * as zk from 'zksync-web3';
-import { Mutex } from 'async-mutex';
-
-const TRANSFER_MUTEX = new Mutex();
 
 interface TokenFaucet {
   addr: Address;
@@ -57,7 +54,11 @@ export class FaucetResolver {
       const recipientBalance = await this.provider.getBalance(recipient, undefined, token.addr);
       if (recipientBalance.gte(token.amount)) return false;
 
-      const walletBalance = await this.provider.wallet.getBalance(token.addr);
+      const walletBalance = await this.provider.getBalance(
+        this.provider.walletAddress,
+        undefined,
+        token.addr,
+      );
       if (walletBalance.lt(token.amount)) return false;
 
       return true;
@@ -65,20 +66,14 @@ export class FaucetResolver {
   }
 
   private async transfer(recipient: Address, token: TokenFaucet) {
-    try {
-      const tx = await TRANSFER_MUTEX.runExclusive(() =>
-        this.provider.wallet.transfer({
-          to: recipient,
-          token: token.addr,
-          amount: token.amount,
-        }),
-      );
+    return this.provider.useWallet(async (wallet) => {
+      const tx = await wallet.transfer({
+        to: recipient,
+        token: token.addr,
+        amount: token.amount,
+      });
 
-      await tx.wait();
-
-      return tx;
-    } catch {
-      return undefined;
-    }
+      return tx.wait();
+    });
   }
 }
