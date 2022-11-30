@@ -1,5 +1,5 @@
-import { SubmissionResponse } from '@gen/submission-response/submission-response.model';
-import { Submission } from '@gen/submission/submission.model';
+import { TransactionResponse } from '@gen/transaction-response/transaction-response.model';
+import { Transaction } from '@gen/transaction/transaction.model';
 import { Args, Info, Mutation, Parent, ResolveField, Resolver } from '@nestjs/graphql';
 import { GraphQLResolveInfo } from 'graphql';
 import { Id, toId } from 'lib';
@@ -9,7 +9,7 @@ import { SubgraphService } from '../subgraph/subgraph.service';
 import { SubmitExecutionArgs } from './submissions.args';
 import { SubmissionsService } from './submissions.service';
 
-@Resolver(() => Submission)
+@Resolver(() => Transaction)
 export class SubmissionsResolver {
   constructor(
     private service: SubmissionsService,
@@ -18,33 +18,33 @@ export class SubmissionsResolver {
   ) {}
 
   @ResolveField(() => String)
-  id(@Parent() submission: Submission): Id {
+  id(@Parent() submission: Transaction): Id {
     return toId(submission.hash);
   }
 
-  @ResolveField(() => SubmissionResponse, { nullable: true })
+  @ResolveField(() => TransactionResponse, { nullable: true })
   async response(
-    @Parent() submission: Submission,
+    @Parent() submission: Transaction,
     @Info() info: GraphQLResolveInfo,
-  ): Promise<SubmissionResponse | null> {
+  ): Promise<TransactionResponse | null> {
     // Get transaction response from subgraph if not already in db
     if (submission.response) return submission.response;
 
     const response = await this.subgraph.txResponse(submission.hash);
     if (!response) return null;
 
-    return this.prisma.submissionResponse.create({
+    return this.prisma.transactionResponse.create({
       data: response,
       ...getSelect(info),
     });
   }
 
-  @Mutation(() => Submission)
+  @Mutation(() => Transaction)
   async submitExecution(
     @Args()
     { proposalHash, submission }: SubmitExecutionArgs,
     @Info() info: GraphQLResolveInfo,
-  ): Promise<Submission> {
+  ): Promise<Transaction> {
     return this.service.submitExecution(proposalHash, submission.hash, getSelect(info));
   }
 }

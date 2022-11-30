@@ -1,10 +1,11 @@
 import 'express-session';
 import { Address } from 'lib';
+import { UserContext } from './ctx';
 
 declare global {
   namespace Express {
     interface Request {
-      device?: Address;
+      user?: UserContext;
     }
   }
 }
@@ -18,6 +19,7 @@ declare module 'express-session' {
 
 declare module 'http' {
   interface IncomingHttpHeaders {
+    authorization?: string;
     playground?: string;
   }
 }

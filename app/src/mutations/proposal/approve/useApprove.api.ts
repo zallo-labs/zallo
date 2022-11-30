@@ -13,17 +13,17 @@ import {
   ProposalQuery,
   ProposalQueryVariables,
   useApproveMutation,
-  SubmissionFieldsFragmentDoc,
+  TransactionFieldsFragmentDoc,
 } from '~/gql/generated.api';
 
 gql`
-  ${SubmissionFieldsFragmentDoc}
+  ${TransactionFieldsFragmentDoc}
 
-  mutation Approve($hash: Bytes32!, $signature: Bytes!) {
-    approve(hash: $hash, signature: $signature) {
+  mutation Approve($id: Bytes32!, $signature: Bytes!) {
+    approve(id: $id, signature: $signature) {
       id
-      submissions {
-        ...SubmissionFields
+      transactions {
+        ...TransactionFields
       }
     }
   }
@@ -40,23 +40,23 @@ export const useApprove = () => {
 
       const res = await mutate({
         variables: {
-          hash: p.hash,
+          id: p.hash,
           signature,
         },
         optimisticResponse: {
           approve: {
             id: getTxId(p.hash),
-            submissions: null,
+            transactions: null,
           },
         },
         update: (cache, res) => {
           if (!res?.data?.approve.id) return;
-          const submissions = res.data.approve.submissions;
+          const transactions = res.data.approve.transactions;
 
           // Proposal: add approval and update submissions
           const opts: QueryOpts<ProposalQueryVariables> = {
             query: ProposalDocument,
-            variables: { hash: p.hash },
+            variables: { id: p.hash },
           };
 
           const data = cache.readQuery<ProposalQuery>(opts);
@@ -66,22 +66,22 @@ export const useApprove = () => {
             ...opts,
             overwrite: true,
             data: produce(data, (data) => {
-              data.proposal.approvals = [
-                ...(data.proposal.approvals ?? []),
+              data.proposal!.approvals = [
+                ...(data.proposal!.approvals ?? []),
                 {
                   deviceId: device.address,
                   signature,
                   createdAt: DateTime.now().toISO(),
                 },
               ];
-              data.proposal.submissions = submissions;
+              data.proposal!.transactions = transactions;
             }),
           });
         },
       });
 
-      const submissionHash = res.data?.approve.submissions
-        ? res.data.approve.submissions[res.data.approve.submissions.length - 1].hash
+      const submissionHash = res.data?.approve.transactions
+        ? res.data.approve.transactions[res.data.approve.transactions.length - 1].hash
         : undefined;
 
       return { submissionHash };

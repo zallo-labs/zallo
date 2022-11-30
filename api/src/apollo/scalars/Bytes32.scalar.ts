@@ -1,32 +1,24 @@
-import { Field, FieldOptions } from '@nestjs/graphql';
 import { UserInputError } from 'apollo-server-core';
-import { BytesLike, ethers } from 'ethers';
-import { GraphQLScalarType, Kind } from 'graphql';
+import { ethers } from 'ethers';
+import { Kind } from 'graphql';
+import { createScalar } from './util';
 
 const description = '32-byte string';
 
-const isBytes32 = (v: unknown): v is BytesLike => ethers.utils.isHexString(v, 32);
+const isBytes32 = (v: unknown): v is string => ethers.utils.isHexString(v, 32);
 
-const error = new UserInputError(`Provided value is not a ${description}`);
-
-const parse = (value: unknown): BytesLike => {
-  if (!isBytes32(value)) throw error;
+const parseValue = (value: unknown): string => {
+  if (!isBytes32(value)) throw new UserInputError(`Provided value is not a ${description}`);
   return value;
 };
 
-export const Bytes32Sclar = new GraphQLScalarType<BytesLike, string>({
+export const [Bytes32Scalar, Bytes32Field] = createScalar<string, string>({
   name: 'Bytes32',
   description,
-  serialize: (value) => ethers.utils.hexlify(value as BytesLike),
-  parseValue: (value) => parse(value),
+  serialize: (value) => value as string,
+  parseValue,
   parseLiteral: (ast) => {
-    if (ast.kind === Kind.STRING) return parse(ast.value);
-    throw error;
+    if (ast.kind === Kind.STRING) return parseValue(ast.value);
+    throw new UserInputError('Must be a string');
   },
 });
-
-export const Bytes32Field =
-  (options?: FieldOptions): PropertyDecorator =>
-  (target, propertyKey) => {
-    Field(() => Bytes32Sclar, options)(target, propertyKey);
-  };

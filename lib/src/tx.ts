@@ -1,7 +1,7 @@
 import { TypedDataDomain, TypedDataField } from '@ethersproject/abstract-signer';
 import { BigNumber, BigNumberish, ethers } from 'ethers';
 import { hexDataLength, hexlify, isBytesLike, randomBytes } from 'ethers/lib/utils';
-import { address, isAddress } from './addr';
+import { address, Addresslike, isAddress } from './addr';
 import { zeroHexBytes } from './bytes';
 import { Call, CallDef, createCall } from './call';
 import { Id, toId } from './id';
@@ -35,17 +35,20 @@ export const TX_EIP712_TYPE: TypedDataTypes = {
   ],
 };
 
-type DomainParams = {
-  address: string;
+export interface GetDomainParams {
+  address: Addresslike;
   provider: ethers.providers.Provider;
-};
+}
 
-export const getDomain = async ({ address, provider }: DomainParams): Promise<TypedDataDomain> => ({
+export const getDomain = async ({
+  address,
+  provider,
+}: GetDomainParams): Promise<TypedDataDomain> => ({
   chainId: (await provider.getNetwork()).chainId,
   verifyingContract: address,
 });
 
-export const hashTx = async (domainParams: DomainParams, tx: TxReq) =>
+export const hashTx = async (tx: TxReq, domainParams: GetDomainParams) =>
   ethers.utils._TypedDataEncoder.hash(await getDomain(domainParams), TX_EIP712_TYPE, tx);
 
 export type TxSalt = string & { isTxSalt: true };

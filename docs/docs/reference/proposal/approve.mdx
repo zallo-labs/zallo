@@ -1,0 +1,30 @@
+import { ApproveExample } from './examples.tsx';
+import Schema from '../schema/mutations/propose.mdx';
+
+# Approving a Proposal
+
+Only members of the proposal quorum can approve it.
+
+## Signing
+
+Obtain your `signature` by signing the [Proposal](../schema/objects/proposal)'s `id` ([EIP-712](https://eips.ethereum.org/EIPS/eip-712) typed-data hash).
+
+```typescript title="Ethers"
+const signature = ethers.utils.joinSignature(wallet._signingKey().signDigest(proposal.id));
+```
+
+## Execution
+
+Once all members of the quorum have approved the proposal it will be executed.
+
+It is recommended that you [subscribe to the proposal](./subscribe) if you need the execution response.
+
+## Example
+
+<ApproveExample />
+
+---
+
+## Schema
+
+<Schema />

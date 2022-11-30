@@ -69,7 +69,7 @@ export const useCreateAccount = () => {
             data: {
               account: {
                 id,
-                isDeployed: false,
+                isActive: false,
                 name,
                 users: [
                   {

@@ -2,12 +2,15 @@ import { Injectable } from '@nestjs/common';
 import * as zk from 'zksync-web3';
 import { CONFIG } from '~/config';
 import { Address, Account, connectAccount, Factory, Factory__factory, Chain } from 'lib';
+import { Mutex } from 'async-mutex';
 
 @Injectable()
 export class ProviderService extends zk.Provider {
   public chain: Chain;
-  public wallet: zk.Wallet;
-  public proxyFactory: Factory;
+
+  private walletMutex = new Mutex();
+  private wallet: zk.Wallet;
+  private proxyFactory: Factory;
 
   constructor() {
     super(CONFIG.chain.zksyncUrl);
@@ -22,7 +25,20 @@ export class ProviderService extends zk.Provider {
     this.proxyFactory = Factory__factory.connect(CONFIG.proxyFactoryAddress, this.wallet);
   }
 
-  public connectAccount(account: Address): Account {
+  connectAccount(account: Address): Account {
     return connectAccount(account, this);
+  }
+
+  useWallet<R>(f: (wallet: zk.Wallet) => R): Promise<R> {
+    return this.walletMutex.runExclusive(() => f(this.wallet));
+  }
+
+  get walletAddress(): Address {
+    return this.wallet.address;
+  }
+
+  useProxyFactory<R>(f: (factory: Factory) => R): Promise<R> {
+    // Proxy factory is connect to the wallet
+    return this.walletMutex.runExclusive(() => f(this.proxyFactory));
   }
 }

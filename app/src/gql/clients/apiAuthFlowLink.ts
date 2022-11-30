@@ -85,7 +85,7 @@ export const useAuthFlowLink = () => {
           ...prevContext,
           headers: {
             ...prevContext.headers,
-            authorization: tokenRef.current,
+            Authorization: tokenRef.current,
           },
         };
       }),

@@ -17,8 +17,8 @@ import { QueryOpts } from '~/gql/update';
 import { CombinedUser } from '~/queries/user/useUser.api';
 
 gql`
-  mutation RemoveUser($id: UserIdInput!, $proposalHash: Bytes32!) {
-    removeUser(id: $id, proposalHash: $proposalHash) {
+  mutation RemoveUser($id: UserIdInput!, $proposalId: Bytes32!) {
+    removeUser(id: $id, proposalId: $proposalId) {
       id
     }
   }
@@ -32,10 +32,10 @@ export const useApiRemoveUser = () => {
   });
 
   return useCallback(
-    (user: CombinedUser, proposalHash: string | undefined) =>
+    (user: CombinedUser, proposalId: string | undefined) =>
       mutation({
         variables: {
-          proposalHash,
+          proposalId,
           id: {
             account: user.account,
             device: user.addr,
@@ -61,13 +61,13 @@ export const useApiRemoveUser = () => {
             };
 
             const data = cache.readQuery<AccountQuery>(opts);
-            if (!data?.account.users) return;
+            if (!data?.account!.users) return;
 
             cache.writeQuery<AccountQuery>({
               ...opts,
               overwrite: true,
               data: produce(data, (data) => {
-                data.account.users = data.account.users?.filter((u) => u.deviceId !== user.addr);
+                data.account!.users = data.account!.users?.filter((u) => u.deviceId !== user.addr);
               }),
             });
           }

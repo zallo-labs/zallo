@@ -6,6 +6,7 @@ import { Address } from 'lib';
 import { AddressField, AddressScalar } from '~/apollo/scalars/Address.scalar';
 import { BigNumberField } from '~/apollo/scalars/BigNumber.scalar';
 import { Bytes32Field } from '~/apollo/scalars/Bytes32.scalar';
+import { SetField } from '~/apollo/scalars/SetField';
 
 @InputType()
 export class TokenLimitInput {
@@ -20,8 +21,8 @@ export class TokenLimitInput {
 
 @InputType()
 export class UserConfigInput {
-  @Field(() => [AddressScalar])
-  approvers: Address[];
+  @SetField(() => AddressScalar)
+  approvers: Set<Address>;
 
   @Field(() => Boolean, { nullable: true, defaultValue: false })
   spendingAllowlisted: boolean;
@@ -59,7 +60,7 @@ export class UpsertUserArgs {
   user: UserInput;
 
   @Bytes32Field()
-  proposalHash: string;
+  proposalId: string;
 }
 
 @ArgsType()
@@ -67,7 +68,7 @@ export class RemoveUserArgs {
   id: UserIdInput;
 
   @Bytes32Field({ nullable: true })
-  proposalHash?: string;
+  proposalId?: string;
 }
 
 @ArgsType()

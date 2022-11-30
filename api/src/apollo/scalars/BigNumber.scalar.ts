@@ -1,12 +1,10 @@
 import { isBigNumberish } from '@ethersproject/bignumber/lib/bignumber';
-import { Field, FieldOptions } from '@nestjs/graphql';
 import { UserInputError } from 'apollo-server-core';
 import { BigNumber } from 'ethers';
-import { GraphQLScalarType, Kind } from 'graphql';
+import { Kind } from 'graphql';
+import { createScalar } from './util';
 
 const description = 'whole number';
-
-const error = new UserInputError(`Provided value is not a ${description}`);
 
 const parse = (value: unknown): BigNumber => {
   try {
@@ -14,22 +12,16 @@ const parse = (value: unknown): BigNumber => {
   } catch (_) {
     //
   }
-  throw error;
+  throw new UserInputError(`Provided value is not a ${description}`);
 };
 
-export const BigNumberScalar = new GraphQLScalarType<BigNumber, string>({
+export const [BigNumberScalar, BigNumberField] = createScalar<BigNumber, string>({
   name: 'BigNumber',
   description,
   serialize: (value) => (value as BigNumber).toString(),
   parseValue: (value: unknown) => parse(value),
   parseLiteral: (ast) => {
     if (ast.kind === Kind.STRING || ast.kind === Kind.INT) return parse(ast.value);
-    throw error;
+    throw new UserInputError('Must be a string or integer');
   },
 });
-
-export const BigNumberField =
-  (options?: FieldOptions): PropertyDecorator =>
-  (target, propertyKey) => {
-    Field(() => BigNumberScalar, options)(target, propertyKey);
-  };

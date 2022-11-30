@@ -1,25 +1,18 @@
 import { FindManyProposalArgs } from '@gen/proposal/find-many-proposal.args';
-import {
-  ArgsType,
-  Field,
-  InputType,
-  ObjectType,
-  OmitType,
-  registerEnumType,
-} from '@nestjs/graphql';
+import { ArgsType, Field, ObjectType, registerEnumType } from '@nestjs/graphql';
 import { BigNumber, BytesLike } from 'ethers';
-import { Address, TxSalt } from 'lib';
-import { AddressField } from '~/apollo/scalars/Address.scalar';
-import { AddressSetField, NonEmptyAddressSetField } from '~/apollo/scalars/AddressSet.scalar';
+import { Address, TxSalt, ZERO } from 'lib';
+import { AddressField, AddressScalar } from '~/apollo/scalars/Address.scalar';
 import { BytesField } from '~/apollo/scalars/Bytes.scalar';
-import { Bytes32Field } from '~/apollo/scalars/Bytes32.scalar';
+import { Bytes32Field, Bytes32Scalar } from '~/apollo/scalars/Bytes32.scalar';
 import { Bytes8Field } from '~/apollo/scalars/Bytes8.scalar';
+import { SetField } from '~/apollo/scalars/SetField';
 import { Uint256BnField } from '~/apollo/scalars/Uint256Bn.scalar';
 
 @ArgsType()
 export class UniqueProposalArgs {
   @Bytes32Field()
-  hash: string;
+  id: string;
 }
 
 export enum ProposalStatus {
@@ -29,30 +22,34 @@ export enum ProposalStatus {
 }
 registerEnumType(ProposalStatus, { name: 'ProposalStatus' });
 
+export enum ProposalState {
+  Pending = 'pending',
+  Executing = 'executing',
+  Executed = 'executed',
+}
+registerEnumType(ProposalState, { name: 'ProposalState' });
+
 @ArgsType()
-export class ProposalsArgs extends OmitType(FindManyProposalArgs, ['where' as const]) {
-  @AddressSetField({ nullable: true })
+export class ProposalsArgs extends FindManyProposalArgs {
+  @SetField(() => AddressScalar, { nullable: true })
   accounts?: Set<Address>;
 
+  @Field(() => ProposalStatus, { nullable: true, deprecationReason: 'Superseded by state' })
   status?: ProposalStatus;
+
+  state?: ProposalState;
 }
 
-@InputType()
-export class ProposalInput {
-  @AddressField()
-  to: Address;
+@ArgsType()
+export class ProposalModifiedArgs {
+  @SetField(() => AddressScalar, { nullable: true })
+  accounts?: Set<Address>;
 
-  @Uint256BnField()
-  value: BigNumber;
+  @SetField(() => Bytes32Scalar, { nullable: true })
+  ids?: Set<string>;
 
-  @BytesField()
-  data: BytesLike;
-
-  @Bytes8Field()
-  salt: TxSalt;
-
-  @Uint256BnField({ nullable: true })
-  gasLimit?: BigNumber;
+  @Field(() => Boolean, { nullable: true, defaultValue: true })
+  created: boolean;
 }
 
 @ArgsType()
@@ -60,24 +57,30 @@ export class ProposeArgs {
   @AddressField()
   account: Address;
 
-  configId?: number;
+  // Defaults to the config with the least amount of approvers, followed by the lowest id (by lexical comparison)
+  config?: number;
 
-  proposal: ProposalInput;
+  @AddressField()
+  to: Address;
 
-  @BytesField({ nullable: true })
-  signature?: string;
+  // Wei
+  @Uint256BnField({ nullable: true, defaultValue: ZERO })
+  value: BigNumber;
 
-  @Field(() => Boolean, { defaultValue: true })
-  executeWhenApproved: boolean;
+  @BytesField({ nullable: true, defaultValue: '0x' })
+  data: string;
+
+  @Bytes8Field({ nullable: true })
+  salt?: TxSalt;
+
+  @Uint256BnField({ nullable: true })
+  gasLimit?: BigNumber;
 }
 
 @ArgsType()
 export class ApproveArgs extends UniqueProposalArgs {
   @BytesField()
   signature: string;
-
-  @Field(() => Boolean, { defaultValue: true })
-  executeWhenApproved: boolean;
 }
 
 @ObjectType()
@@ -88,6 +91,6 @@ export class ApprovalResponse {
 
 @ArgsType()
 export class ApprovalRequest extends UniqueProposalArgs {
-  @NonEmptyAddressSetField()
+  @SetField(() => AddressScalar, { min: 1 })
   approvers: Set<Address>;
 }

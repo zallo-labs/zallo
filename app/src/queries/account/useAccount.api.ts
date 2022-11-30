@@ -23,7 +23,7 @@ gql`
   query Account($account: Address!) {
     account(id: $account) {
       id
-      isDeployed
+      isActive
       name
       users {
         deviceId
@@ -43,12 +43,12 @@ export const useAccount = (id: Address | UserId) => {
   });
   usePollWhenFocussed(rest, 30);
 
-  const a = data.account;
+  const a = data.account!;
   const account = useMemo(
     (): CombinedAccount => ({
       addr,
       contract: connectAccount(addr, device),
-      active: a.isDeployed,
+      active: a.isActive,
       name: a.name,
       users:
         a.users?.map((u) => ({

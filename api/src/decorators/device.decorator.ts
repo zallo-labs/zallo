@@ -1,11 +1,10 @@
 import { createParamDecorator, ExecutionContext } from '@nestjs/common';
 import { GqlExecutionContext } from '@nestjs/graphql';
-import { address } from 'lib';
-import { Ctx } from '~/request/ctx';
+import { Context } from '~/request/ctx';
 
 export const DeviceAddr = createParamDecorator((_data, context: ExecutionContext) => {
-  const ctx = GqlExecutionContext.create(context).getContext<Ctx>();
-  if (!ctx.req.device) throw new Error('Device not authenticated');
+  const ctx = GqlExecutionContext.create(context).getContext<Context>();
+  if (!ctx.user) throw new Error('Device not authenticated');
 
-  return address(ctx.req.device);
+  return ctx.user.id;
 });

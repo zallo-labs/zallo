@@ -16,11 +16,11 @@ interface ApproveParams extends ApproveArgs {
 export class ProposalsService {
   constructor(private prisma: PrismaService, private submissions: SubmissionsService) {}
 
-  async approve({ hash, signature, executeWhenApproved, device, args }: ApproveParams) {
-    await this.validateSignatureOrThrow(device, hash, signature);
+  async approve({ id, signature, device, args }: ApproveParams) {
+    await this.validateSignatureOrThrow(device, id, signature);
 
     await this.prisma.proposal.update({
-      where: { hash },
+      where: { id },
       data: {
         approvals: {
           create: {
@@ -32,12 +32,11 @@ export class ProposalsService {
       select: null,
     });
 
-    // Try execute if approved
-    if (executeWhenApproved) await this.submissions.tryExecute(hash);
+    await this.submissions.tryExecute(id);
 
     return this.prisma.proposal.findUniqueOrThrow({
       ...args,
-      where: { hash },
+      where: { id },
     });
   }
 

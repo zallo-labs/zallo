@@ -46,7 +46,7 @@ export const useApiSubmitExecution = () => {
           // Proposal: upsert submission
           const opts: QueryOpts<ProposalQueryVariables> = {
             query: ProposalDocument,
-            variables: { hash: p.hash },
+            variables: { id: p.hash },
           };
 
           const data = cache.readQuery<ProposalQuery>(opts);
@@ -56,8 +56,8 @@ export const useApiSubmitExecution = () => {
             ...opts,
             overwrite: true,
             data: produce(data, (data) => {
-              data.proposal.submissions = [
-                ...(data.proposal.submissions ?? []).filter((s) => s.id !== id),
+              data.proposal!.transactions = [
+                ...(data.proposal?.transactions ?? []).filter((s) => s.id !== id),
                 {
                   id,
                   hash: txResp.hash,

@@ -6,8 +6,8 @@ import { useApiClient } from '~/gql/GqlProvider';
 import { ProposalId } from '~/queries/proposal';
 
 gql`
-  mutation RequestApproval($approvers: NonEmptyAddressSet!, $hash: Bytes32!) {
-    requestApproval(approvers: $approvers, hash: $hash)
+  mutation RequestApproval($id: Bytes32!, $approvers: NonEmptyAddressSet!) {
+    requestApproval(id: $id, approvers: $approvers)
   }
 `;
 
@@ -20,7 +20,7 @@ export const useRequestApproval = () => {
     (proposal: ProposalId, approvers: Set<Address>) =>
       mutate({
         variables: {
-          hash: proposal.hash,
+          id: proposal.hash,
           approvers: [...approvers],
         },
       }),

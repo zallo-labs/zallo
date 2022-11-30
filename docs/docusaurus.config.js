@@ -67,6 +67,7 @@ const config = {
         },
       },
     ],
+    'plugin-image-zoom',
   ],
 
   themeConfig:
@@ -152,10 +153,18 @@ const config = {
         theme: lightCodeTheme,
         darkTheme: darkCodeTheme,
       },
+      imageZoom: {
+        // https://github.com/flexanalytics/plugin-image-zoom
+        options: {
+          // https://www.npmjs.com/package/medium-zoom#options
+          margin: 48,
+        },
+      },
     }),
 
   customFields: {
     apolloGraphRef: process.env.APOLLO_GRAPH_REF,
+    apiUrl: process.env.API_URL,
     feedbackEmail: 'feedback@zallo.io',
     supportEmail: 'support@zall.io',
   },

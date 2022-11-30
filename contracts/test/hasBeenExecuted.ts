@@ -9,14 +9,14 @@ describe('hasBeenExecuted', () => {
     const txResp = await execute(account, user, config, tx);
     await txResp.wait();
 
-    const txHash = await hashTx(account, tx);
+    const txHash = await hashTx(tx, account);
     expect(await account.hasBeenExecuted(txHash)).to.be.true;
   });
 
   it('should not show an unexecuted tx as being executed', async () => {
     const { account } = await deploy();
 
-    const txHash = await hashTx(account, createTx({}));
+    const txHash = await hashTx(createTx({}), account);
     expect(await account.hasBeenExecuted(txHash)).to.be.false;
   });
 });

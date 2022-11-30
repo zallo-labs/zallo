@@ -9,10 +9,10 @@ const createWhereStateIsActive = (isActive: boolean): Prisma.UserStateWhereInput
   OR: [
     {
       proposal: {
-        submissions: {
+        transactions: {
           [isActive ? 'some' : 'none']: {
             response: {
-              reverted: false,
+              success: true,
             },
           },
         },
@@ -20,8 +20,8 @@ const createWhereStateIsActive = (isActive: boolean): Prisma.UserStateWhereInput
     },
     {
       // Deploy user
-      proposalHash: null,
-      account: { isDeployed: isActive },
+      proposalId: null,
+      account: { isActive },
     },
   ],
 });
@@ -32,9 +32,9 @@ const WHERE_STATE_IS_INACTIVE = createWhereStateIsActive(false);
 export const WHERE_STATE_IS_DISABLED: Prisma.UserStateWhereInput = {
   isDeleted: true,
   proposal: {
-    submissions: {
+    transactions: {
       some: {
-        response: { reverted: false },
+        response: { success: true },
       },
     },
   },
@@ -48,12 +48,12 @@ export const WHERE_STATE_IS_ENABLED: Prisma.UserStateWhereInput = {
 export class UsersService {
   constructor(private prisma: PrismaService) {}
 
-  latestStateArgs(user: UserId, isActive: boolean) {
+  latestStateArgs(user: UserId, isActive: boolean | null) {
     return {
       where: {
         accountId: user.account,
         deviceId: user.addr,
-        ...(isActive ? WHERE_STATE_IS_ACTIVE : WHERE_STATE_IS_INACTIVE),
+        ...(isActive !== null && isActive ? WHERE_STATE_IS_ACTIVE : WHERE_STATE_IS_INACTIVE),
       },
       orderBy: { createdAt: 'desc' },
     } as const;
@@ -93,7 +93,7 @@ export class UsersService {
     return {
       create: configs.map((config) => ({
         approvers: {
-          create: config.approvers.map((approver) => ({
+          create: [...config.approvers].map((approver) => ({
             device: connectOrCreateDevice(approver),
           })),
         },

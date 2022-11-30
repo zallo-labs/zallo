@@ -2,6 +2,7 @@ import useDocusaurusContext from '@docusaurus/useDocusaurusContext';
 
 export interface CustomFields {
   apolloGraphRef: string;
+  apiUrl: string;
   feedbackEmail: string;
   supportEmail: string;
 }

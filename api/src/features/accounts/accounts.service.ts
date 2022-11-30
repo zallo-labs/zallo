@@ -31,65 +31,66 @@ export class AccountsService {
   }
 
   async activateAccount(accountAddr: Address) {
-    const { isDeployed, impl, deploySalt, userStates } =
-      await this.prisma.account.findUniqueOrThrow({
-        where: { id: accountAddr },
-        select: {
-          isDeployed: true,
-          impl: true,
-          deploySalt: true,
-          userStates: {
-            where: { proposal: null },
-            select: {
-              deviceId: true,
-              configs: {
-                select: {
-                  approvers: true,
-                  spendingAllowlisted: true,
-                  limits: true,
-                },
+    const { isActive, impl, deploySalt, userStates } = await this.prisma.account.findUniqueOrThrow({
+      where: { id: accountAddr },
+      select: {
+        isActive: true,
+        impl: true,
+        deploySalt: true,
+        userStates: {
+          where: { proposal: null },
+          select: {
+            deviceId: true,
+            configs: {
+              select: {
+                approvers: true,
+                spendingAllowlisted: true,
+                limits: true,
               },
             },
           },
         },
-      });
-    if (isDeployed) return;
+      },
+    });
+    if (isActive) return;
 
     assert(userStates.length === 1);
     const userState = userStates[0];
 
     // Activate
-    const r = await deployAccountProxy(
-      {
-        impl: address(impl),
-        user: {
-          addr: address(userState.deviceId!),
-          configs: userState.configs.map((c) => ({
-            approvers: c.approvers.map((a) => address(a.deviceId)),
-            spendingAllowlisted: c.spendingAllowlisted,
-            limits: Object.fromEntries(
-              c.limits.map((l) => {
-                const token = address(l.token);
-                const limit: Limit = {
-                  token,
-                  amount: BigNumber.from(l.amount),
-                  period: l.period as LimitPeriod,
-                };
+    const r = await this.provider.useProxyFactory((factory) =>
+      deployAccountProxy(
+        {
+          impl: address(impl),
+          user: {
+            addr: address(userState.deviceId!),
+            configs: userState.configs.map((c) => ({
+              approvers: c.approvers.map((a) => address(a.deviceId)),
+              spendingAllowlisted: c.spendingAllowlisted,
+              limits: Object.fromEntries(
+                c.limits.map((l) => {
+                  const token = address(l.token);
+                  const limit: Limit = {
+                    token,
+                    amount: BigNumber.from(l.amount),
+                    period: l.period as LimitPeriod,
+                  };
 
-                return [token, limit] as const;
-              }),
-            ),
-          })),
+                  return [token, limit] as const;
+                }),
+              ),
+            })),
+          },
         },
-      },
-      this.provider.proxyFactory,
-      toDeploySalt(deploySalt),
+        factory,
+        toDeploySalt(deploySalt),
+      ),
     );
     await r.account.deployed();
 
     await this.prisma.account.update({
       where: { id: accountAddr },
-      data: { isDeployed: true },
+      data: { isActive: true },
     });
   }
 }

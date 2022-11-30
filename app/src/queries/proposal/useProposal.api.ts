@@ -1,5 +1,6 @@
 import { gql } from '@apollo/client';
 import { useDevice } from '@network/useDevice';
+import { assert } from 'console';
 import { BigNumber } from 'ethers';
 import { Address, address, toId, toTxSalt } from 'lib';
 import { DateTime } from 'luxon';
@@ -12,7 +13,7 @@ import { Approval, Proposal, Submission, ProposalStatus, ProposalId, Rejection }
 import { useUser } from '../user/useUser.api';
 
 gql`
-  fragment SubmissionFields on Submission {
+  fragment TransactionFields on Transaction {
     id
     hash
     nonce
@@ -20,18 +21,17 @@ gql`
     gasPrice
     createdAt
     response {
+      success
       response
-      reverted
       timestamp
     }
   }
 
-  query Proposal($hash: Bytes32!) {
-    proposal(hash: $hash) {
+  query Proposal($id: Bytes32!) {
+    proposal(id: $id) {
       id
       accountId
       proposerId
-      hash
       to
       value
       data
@@ -42,8 +42,8 @@ gql`
         signature
         createdAt
       }
-      submissions {
-        ...SubmissionFields
+      transactions {
+        ...TransactionFields
       }
     }
   }
@@ -64,12 +64,12 @@ export const useProposal = ({ hash }: ProposalId, focussed = false) => {
     ProposalDocument,
     {
       client: useApiClient(),
-      variables: { hash },
+      variables: { id: hash },
     },
   );
   usePollWhenFocussed(rest, focussed ? 3 : 15);
 
-  const p = data.proposal;
+  const p = data.proposal!;
 
   const account = address(p.accountId);
   const [proposer] = useUser({
@@ -87,19 +87,19 @@ export const useProposal = ({ hash }: ProposalId, focussed = false) => {
           timestamp: DateTime.fromISO(a.createdAt),
         })) ?? [];
 
-    const submissions =
-      p.submissions?.map(
+    const transactions =
+      p?.transactions?.map(
         (s): Submission => ({
           hash: s.hash,
           nonce: s.nonce,
-          status: !s.response ? 'pending' : s.response.reverted ? 'failure' : 'success',
+          status: !s.response ? 'pending' : s.response.success ? 'success' : 'failure',
           timestamp: DateTime.fromISO(s.createdAt),
           gasLimit: BigNumber.from(s.gasLimit),
           gasPrice: s.gasPrice ? BigNumber.from(s.gasPrice) : undefined,
           response: s.response
             ? {
                 response: s.response.response,
-                reverted: s.response.reverted,
+                reverted: !s.response.success,
                 timestamp: DateTime.fromISO(s.response.timestamp),
               }
             : undefined,
@@ -131,9 +131,9 @@ export const useProposal = ({ hash }: ProposalId, focussed = false) => {
           ]),
       ),
       userHasApproved: approvals.some((a) => a.addr === device.address),
-      submissions,
+      submissions: transactions,
       proposedAt: DateTime.fromISO(p.createdAt),
-      status: getStatus(submissions),
+      status: getStatus(transactions),
     };
   }, [p, account, proposer, hash, device.address]);
 

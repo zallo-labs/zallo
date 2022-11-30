@@ -1,9 +1,9 @@
 import { BytesLike, ethers } from 'ethers';
 import { defaultAbiCoder } from 'ethers/lib/utils';
 import { User } from './user';
-import { Address, compareAddress, sortAddresses } from './addr';
+import { Address, compareAddress } from './addr';
 import { getUserConfigProof } from './merkle';
-import { TxReq, getDomain, TX_EIP712_TYPE } from './tx';
+import { TxReq, getDomain, TX_EIP712_TYPE, hashTx } from './tx';
 import { Device } from './device';
 import { toUserConfigStruct, USER_CONFIG_TUPLE } from './userConfig';
 import assert from 'assert';
@@ -52,12 +52,11 @@ export const createUserSignature = (user: User, signers: Signer[]): BytesLike =>
   );
 };
 
+export const signProposal = (id: string, device: Device) =>
+  ethers.utils.joinSignature(device._signingKey().signDigest(id));
+
 export const signTx = async (device: Device, account: Address, tx: TxReq) =>
-  device._signTypedData(
-    await getDomain({ address: account, provider: device.provider }),
-    TX_EIP712_TYPE,
-    tx,
-  );
+  signProposal(await hashTx(tx, { address: account, provider: device.provider }), device);
 
 // Convert to a compact 64 byte (eip-2098) signature
 export const toCompactSignature = (signature: SignatureLike) =>

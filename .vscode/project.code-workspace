@@ -76,6 +76,7 @@
     },
     "dotenv.enableAutocloaking": false,
     "prettier.configPath": "../.config/.prettierrc",
-    "prettier.ignorePath": "../.prettierignore"
+    "prettier.ignorePath": "../.prettierignore",
+    "editor.tabSize": 2
   }
 }
