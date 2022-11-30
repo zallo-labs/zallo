@@ -13,8 +13,9 @@ import { useDevice } from '@site/src/hooks/useDevice';
 import { useProposal } from '@site/src/api/useProposal';
 import { signProposal } from 'lib';
 import { Suspend } from '@site/src/components/Suspender';
+import { withBrowser } from '@site/src/components/withBrowser';
 
-export const ProposeExample = () => {
+export const ProposeExample = withBrowser(() => {
   const device = useDevice().address;
   const account = useAccount();
 
@@ -48,9 +49,9 @@ export const ProposeExample = () => {
       }
     />
   );
-};
+});
 
-export const ApproveExample = () => {
+export const ApproveExample = withBrowser(() => {
   const proposal = useProposal();
   const device = useDevice();
   if (!proposal) return <Suspend />;
@@ -72,9 +73,9 @@ export const ApproveExample = () => {
       }
     />
   );
-};
+});
 
-export const SubscribeExample = () => {
+export const SubscribeExample = withBrowser(() => {
   const proposal = useProposal();
   if (!proposal) return <Suspend />;
 
@@ -104,9 +105,9 @@ export const SubscribeExample = () => {
       variables={{} as ProposalChangesSubscriptionVariables}
     />
   );
-};
+});
 
-export const ProposalExample = () => {
+export const ProposalExample = withBrowser(() => {
   const proposal = useProposal();
   if (!proposal) return <Suspend />;
 
@@ -136,9 +137,9 @@ export const ProposalExample = () => {
       variables={{ id: proposal } as ProposalQueryVariables}
     />
   );
-};
+});
 
-export const ProposalsExample = () => {
+export const ProposalsExample = withBrowser(() => {
   if (!useProposal()) return <Suspend />;
 
   return (
@@ -167,4 +168,4 @@ export const ProposalsExample = () => {
       variables={{} as ProposalsQueryVariables}
     />
   );
-};
+});

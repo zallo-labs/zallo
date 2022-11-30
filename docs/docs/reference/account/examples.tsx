@@ -1,4 +1,4 @@
-import React, { Suspense } from 'react';
+import React from 'react';
 import gql from 'graphql-tag';
 import Explorer from '@site/src/components/Explorer';
 import {
@@ -7,11 +7,11 @@ import {
   AccountsQueryVariables,
 } from '@site/src/api.generated';
 import { useDevice } from '@site/src/hooks/useDevice';
-import BrowserOnly from '@docusaurus/BrowserOnly';
 import { useAccount } from '@site/src/api/useAccount';
 import { Suspend } from '@site/src/components/Suspender';
+import { withBrowser } from '@site/src/components/withBrowser';
 
-const CreateAccountExampleInner = () => (
+export const CreateAccountExample = withBrowser(() => (
   <Explorer
     document={gql`
       mutation CreateAccount($name: String!, $users: [UserWithoutAccountInput!]!) {
@@ -38,13 +38,9 @@ const CreateAccountExampleInner = () => (
       } as CreateAccountMutationVariables
     }
   />
-);
+));
 
-export const CreateAccountExample = () => (
-  <BrowserOnly>{() => <CreateAccountExampleInner />}</BrowserOnly>
-);
-
-export const AccountExample = () => {
+export const AccountExample = withBrowser(() => {
   const account = useAccount();
   if (!account) return <Suspend />;
 
@@ -65,9 +61,9 @@ export const AccountExample = () => {
       variables={{ id: account } as AccountQueryVariables}
     />
   );
-};
+});
 
-export const AccountsExample = () => {
+export const AccountsExample = withBrowser(() => {
   const account = useAccount();
   if (!account) return <Suspend />;
 
@@ -88,4 +84,4 @@ export const AccountsExample = () => {
       variables={{} as AccountsQueryVariables}
     />
   );
-};
+});
