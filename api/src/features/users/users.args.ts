@@ -3,9 +3,10 @@ import { FindManyUserArgs } from '@gen/user/find-many-user.args';
 import { InputType, Field, ArgsType, OmitType } from '@nestjs/graphql';
 import { BigNumber } from 'ethers';
 import { Address } from 'lib';
-import { AddressField, AddressSetField } from '~/apollo/scalars/Address.scalar';
+import { AddressField, AddressScalar } from '~/apollo/scalars/Address.scalar';
 import { BigNumberField } from '~/apollo/scalars/BigNumber.scalar';
 import { Bytes32Field } from '~/apollo/scalars/Bytes32.scalar';
+import { SetField } from '~/apollo/scalars/SetField';
 
 @InputType()
 export class TokenLimitInput {
@@ -20,7 +21,7 @@ export class TokenLimitInput {
 
 @InputType()
 export class UserConfigInput {
-  @AddressSetField()
+  @SetField(() => AddressScalar)
   approvers: Set<Address>;
 
   @Field(() => Boolean, { nullable: true, defaultValue: false })

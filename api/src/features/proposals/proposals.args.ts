@@ -2,14 +2,11 @@ import { FindManyProposalArgs } from '@gen/proposal/find-many-proposal.args';
 import { ArgsType, Field, ObjectType, registerEnumType } from '@nestjs/graphql';
 import { BigNumber, BytesLike } from 'ethers';
 import { Address, TxSalt, ZERO } from 'lib';
-import {
-  AddressField,
-  AddressSetField,
-  NonEmptyAddressSetField,
-} from '~/apollo/scalars/Address.scalar';
+import { AddressField, AddressScalar } from '~/apollo/scalars/Address.scalar';
 import { BytesField } from '~/apollo/scalars/Bytes.scalar';
-import { Bytes32Field, Bytes32SetField } from '~/apollo/scalars/Bytes32.scalar';
+import { Bytes32Field, Bytes32Scalar } from '~/apollo/scalars/Bytes32.scalar';
 import { Bytes8Field } from '~/apollo/scalars/Bytes8.scalar';
+import { SetField } from '~/apollo/scalars/SetField';
 import { Uint256BnField } from '~/apollo/scalars/Uint256Bn.scalar';
 
 @ArgsType()
@@ -34,7 +31,7 @@ registerEnumType(ProposalState, { name: 'ProposalState' });
 
 @ArgsType()
 export class ProposalsArgs extends FindManyProposalArgs {
-  @AddressSetField({ nullable: true })
+  @SetField(() => AddressScalar, { nullable: true })
   accounts?: Set<Address>;
 
   @Field(() => ProposalStatus, { nullable: true, deprecationReason: 'Superseded by state' })
@@ -45,10 +42,10 @@ export class ProposalsArgs extends FindManyProposalArgs {
 
 @ArgsType()
 export class ProposalModifiedArgs {
-  @AddressSetField({ nullable: true })
+  @SetField(() => AddressScalar, { nullable: true })
   accounts?: Set<Address>;
 
-  @Bytes32SetField({ nullable: true })
+  @SetField(() => Bytes32Scalar, { nullable: true })
   ids?: Set<string>;
 
   @Field(() => Boolean, { nullable: true, defaultValue: true })
@@ -94,6 +91,6 @@ export class ApprovalResponse {
 
 @ArgsType()
 export class ApprovalRequest extends UniqueProposalArgs {
-  @NonEmptyAddressSetField()
+  @SetField(() => AddressScalar, { min: 1 })
   approvers: Set<Address>;
 }
