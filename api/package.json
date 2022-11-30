@@ -69,7 +69,7 @@
     "siwe": "^2.1.3",
     "ts-pattern": "^4.0.6",
     "type-graphql": "^1.1.1",
-    "zksync-web3": "^0.11.1"
+    "zksync-web3": "^0.12.0"
   },
   "devDependencies": {
     "@graphql-codegen/cli": "^2.13.11",
