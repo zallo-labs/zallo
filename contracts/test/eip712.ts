@@ -23,7 +23,7 @@ describe('EIP712', () => {
       await getSigners(account, user, config, tx),
     );
 
-    const expected = await hashTx(account, tx);
+    const expected = await hashTx(tx, account);
     const actual = await account.hashTx(toTransactionStruct(txReq));
 
     expect(actual).to.eq(expected);

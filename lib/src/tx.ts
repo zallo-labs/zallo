@@ -48,11 +48,7 @@ export const getDomain = async ({
   verifyingContract: address,
 });
 
-export interface HashTxParams extends GetDomainParams {
-  tx: TxReq;
-}
-
-export const hashTx = async ({ tx, ...domainParams }: HashTxParams) =>
+export const hashTx = async (tx: TxReq, domainParams: GetDomainParams) =>
   ethers.utils._TypedDataEncoder.hash(await getDomain(domainParams), TX_EIP712_TYPE, tx);
 
 export type TxSalt = string & { isTxSalt: true };

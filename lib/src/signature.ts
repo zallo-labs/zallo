@@ -56,7 +56,7 @@ export const signProposal = (id: string, device: Device) =>
   ethers.utils.joinSignature(device._signingKey().signDigest(id));
 
 export const signTx = async (device: Device, account: Address, tx: TxReq) =>
-  signProposal(await hashTx({ address: account, provider: device.provider, tx }), device);
+  signProposal(await hashTx(tx, { address: account, provider: device.provider }), device);
 
 // Convert to a compact 64 byte (eip-2098) signature
 export const toCompactSignature = (signature: SignatureLike) =>

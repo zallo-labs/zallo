@@ -15,8 +15,9 @@ describe('executeTransaction', () => {
     const tx = createTx({ to: device.address });
     const signers = await getSigners(account, user, config, tx);
     const txReq = await toTransactionRequest(account, tx, user, signers);
+    const hash = hashTx(tx, account);
 
-    const txResp = account.executeTransaction(toTransactionStruct(txReq));
+    const txResp = account.executeTransaction(hash, hash, toTransactionStruct(txReq));
 
     await expect(txResp).to.be.reverted;
   });
@@ -46,6 +47,6 @@ describe('executeTransaction', () => {
     const txResp = await execute(account, user, config, tx);
     await txResp.wait();
 
-    expect(await account.hasBeenExecuted(await hashTx(account, tx))).to.be.true;
+    expect(await account.hasBeenExecuted(await hashTx(tx, account))).to.be.true;
   });
 });

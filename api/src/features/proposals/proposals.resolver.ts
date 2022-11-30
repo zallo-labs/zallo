@@ -152,11 +152,10 @@ export class ProposalsResolver {
     @Info() info: GraphQLResolveInfo,
     @DeviceAddr() device: Address,
   ): Promise<Proposal> {
-    const id = await hashTx({
-      address: account,
-      provider: this.provider,
-      tx: { to, value, data, salt },
-    });
+    const id = await hashTx(
+      { to, value, data, salt },
+      { address: account, provider: this.provider },
+    );
 
     // Default behaviour is specified on ProposeArgs
     const state = await this.prisma.userState.findFirst({

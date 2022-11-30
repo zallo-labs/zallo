@@ -63,11 +63,10 @@ export const useApiPropose = () => {
   const propose = useCallback(
     async (txDef: ProposalDef, account: Address): Promise<ProposeResponse> => {
       const tx = createTx(txDef);
-      const hash = await hashTx({ address: account, provider: device.provider, tx });
+      const hash = await hashTx(tx, { address: account, provider: device.provider });
 
       const id = getTxId(hash);
       const createdAt = DateTime.now().toISO();
-      // const signature = await signTx(device, account, tx);
 
       const res = await mutation({
         variables: {
