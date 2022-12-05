@@ -8,19 +8,20 @@ import {
   TestAccount__factory,
   Multicall__factory,
 } from './contracts';
-import { toUserStruct, User } from './user';
-import { defaultAbiCoder, hexDataLength, hexlify, randomBytes } from 'ethers/lib/utils';
+import { defaultAbiCoder, hexlify, isHexString, randomBytes } from 'ethers/lib/utils';
 import * as zk from 'zksync-web3';
 import { Device } from './device';
 import { ACCOUNT_INTERFACE } from './decode';
+import { Quorum, toQuorumDefStruct } from './quorum';
 
 export type DeploySalt = string & { isDeploySalt: true };
 const DEPLOY_SALT_BYTES = 32;
 
-export const toDeploySalt = (v: string): DeploySalt => {
-  if (hexDataLength(v) !== DEPLOY_SALT_BYTES) throw new Error('Invalid deploy salt: ' + v);
+export const isDeploySalt = (v: unknown): v is DeploySalt => isHexString(v, DEPLOY_SALT_BYTES);
 
-  return v as DeploySalt;
+export const toDeploySalt = (v: string): DeploySalt => {
+  if (!isDeploySalt(v)) throw new Error(`Invalid deploy salt: ${v}`);
+  return v;
 };
 
 export const randomDeploySalt = () => hexlify(randomBytes(DEPLOY_SALT_BYTES)) as DeploySalt;
@@ -37,16 +38,16 @@ export const connectProxy = createConnect(ERC1967Proxy__factory.connect);
 export const connectMulticall = createConnect(Multicall__factory.connect);
 
 export interface AccountConstructorArgs {
-  user: User;
+  quorums: Quorum[];
 }
 
 export interface ProxyConstructorArgs extends AccountConstructorArgs {
   impl: Address;
 }
 
-export const encodeProxyConstructorArgs = ({ user, impl }: ProxyConstructorArgs) => {
+export const encodeProxyConstructorArgs = ({ quorums, impl }: ProxyConstructorArgs) => {
   const encodedInitializeCall = ACCOUNT_INTERFACE.encodeFunctionData('initialize', [
-    toUserStruct(user),
+    quorums.map(toQuorumDefStruct),
   ]);
 
   return defaultAbiCoder.encode(

@@ -5,6 +5,7 @@ import {Transaction, IAccount as BaseIAccount} from '@matterlabs/zksync-contract
 import '@openzeppelin/contracts/interfaces/IERC1271.sol';
 
 import './UserHelper.sol';
+import './Quorum.sol';
 
 /*//////////////////////////////////////////////////////////////
                                 CONSTANTS
@@ -17,8 +18,8 @@ interface IAccount is BaseIAccount, IERC1271 {
                                  EVENTS
   //////////////////////////////////////////////////////////////*/
 
-  event UserUpserted(User user);
-  event UserRemoved(address user);
+  event QuorumUpserted(QuorumId indexed id, Quorum quorum);
+  event QuorumRemoved(QuorumId indexed id);
 
   /*//////////////////////////////////////////////////////////////
                                  ERRORS
@@ -30,13 +31,13 @@ interface IAccount is BaseIAccount, IERC1271 {
   error InvalidProof();
   error OnlyCallableByBootloader();
 
-  /// @notice Upsert (create or update) a user
+  /// @notice Upsert (create or update) a quorum
   /// @dev Only callable by the account
-  /// @param user User to be upserted
-  function upsertUser(User calldata user) external;
+  /// @param quorum Quorum to be upserted
+  function upsertQuorum(QuorumId id, Quorum calldata quorum) external;
 
-  /// @notice Remove a user
+  /// @notice Remove a quorum
   /// @dev Only callable by the account
-  /// @param user User to be removed
-  function removeUser(address user) external;
+  /// @param id Quorum to be removed
+  function removeQuorum(QuorumId id) external;
 }

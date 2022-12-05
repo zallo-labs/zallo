@@ -19,8 +19,8 @@ contract TestAccount is Account {
     return config.isValidProof(proof, root);
   }
 
-  function getUserMerkleRoot(address user) external view returns (bytes32) {
-    return _userMerkleRoots()[user];
+  function getQuorum(QuorumId id) external view returns (Quorum memory) {
+    return _quorums()[id];
   }
 
   function hashTx(Transaction calldata transaction) external view returns (bytes32) {

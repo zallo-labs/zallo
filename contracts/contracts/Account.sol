@@ -39,8 +39,15 @@ contract Account is
     _disableInitializers();
   }
 
-  function initialize(User calldata user) external initializer {
-    _upsertUser(user);
+  function initialize(QuorumDef[] calldata quorums) external initializer {
+    uint256 quorumsLen = quorums.length;
+    for (uint256 i = 0; i < quorumsLen; ) {
+      _upsertQuorum(quorums[i].id, quorums[i].quorum);
+
+      unchecked {
+        ++i;
+      }
+    }
   }
 
   /*//////////////////////////////////////////////////////////////
@@ -121,19 +128,19 @@ contract Account is
   //////////////////////////////////////////////////////////////*/
 
   /// @inheritdoc IAccount
-  function upsertUser(User calldata user) external onlySelf {
-    _upsertUser(user);
+  function upsertQuorum(QuorumId id, Quorum calldata quorum) external onlySelf {
+    _upsertQuorum(id, quorum);
   }
 
   /// @inheritdoc IAccount
-  function removeUser(address user) external onlySelf {
-    delete _userMerkleRoots()[user];
-    emit UserRemoved(user);
+  function removeQuorum(QuorumId id) external onlySelf {
+    delete _quorums()[id];
+    emit QuorumRemoved(id);
   }
 
-  function _upsertUser(User calldata user) internal {
-    _userMerkleRoots()[user.addr] = user.merkleRoot();
-    emit UserUpserted(user);
+  function _upsertQuorum(QuorumId id, Quorum calldata quorum) internal {
+    _quorums()[id] = quorum;
+    emit QuorumUpserted(id, quorum);
   }
 
   /*//////////////////////////////////////////////////////////////
@@ -150,30 +157,20 @@ contract Account is
   }
 
   function _validateSignature(bytes32 hash, bytes memory signature) internal view {
-    (
-      address user,
-      UserConfig memory config,
-      bytes32[] memory proof,
-      bytes[] memory signatures
-    ) = abi.decode(signature, (address, UserConfig, bytes32[], bytes[]));
+    (QuorumId quorumId, bytes[] memory signatures) = abi.decode(signature, (QuorumId, bytes[]));
 
-    _validateSignatures(hash, user, config.approvers, signatures);
-
-    if (!config.isValidProof(proof, _userMerkleRoots()[user])) revert InvalidProof();
+    _validateSignatures(hash, _quorums()[quorumId].approvers, signatures);
   }
 
   function _validateSignatures(
     bytes32 hash,
-    address user,
     address[] memory approvers,
     bytes[] memory signatures
   ) internal view {
-    if ((1 + approvers.length) != signatures.length) revert ApproverSignaturesMismatch();
-
-    if (!user.isValidSignatureNow(hash, signatures[0])) revert InvalidSignature(user);
+    if ((approvers.length) != signatures.length) revert ApproverSignaturesMismatch();
 
     for (uint256 i = 0; i < approvers.length; ) {
-      if (!approvers[i].isValidSignatureNow(hash, signatures[i + 1]))
+      if (!approvers[i].isValidSignatureNow(hash, signatures[i]))
         revert InvalidSignature(approvers[i]);
 
       unchecked {
@@ -186,13 +183,10 @@ contract Account is
                             USER MERKLE ROOTS
     //////////////////////////////////////////////////////////////*/
 
-  /// @notice Merkle root of the state of each wallet
-  /// @dev user => merkleRoot
-  /// @dev Leaves: UserConfig[]
-  function _userMerkleRoots() internal pure returns (mapping(address => bytes32) storage s) {
+  function _quorums() internal pure returns (mapping(QuorumId => Quorum) storage s) {
     assembly {
-      // keccack256('Account.userMerkleRoots')
-      s.slot := 0x78da1ddd953b1b2068017cdffdd8ba08689d560b1fa20cf0f77a87af370f3f89
+      // keccack256('Account.quorums')
+      s.slot := 0x37960d0a655d0d781716b0e17600d3e44caa3d99659d8fb953b4c370d154d1a4
     }
   }
 

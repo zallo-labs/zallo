@@ -27,16 +27,6 @@
   },
   {
     "inputs": [],
-    "name": "LeavesRequired",
-    "type": "error"
-  },
-  {
-    "inputs": [],
-    "name": "NoUserConfigs",
-    "type": "error"
-  },
-  {
-    "inputs": [],
     "name": "OnlyCallableByBootloader",
     "type": "error"
   },
@@ -48,11 +38,6 @@
   {
     "inputs": [],
     "name": "TxAlreadyExecuted",
-    "type": "error"
-  },
-  {
-    "inputs": [],
-    "name": "UserConfigHashesNotAscending",
     "type": "error"
   },
   {
@@ -85,6 +70,45 @@
       }
     ],
     "name": "BeaconUpgraded",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "QuorumId",
+        "name": "id",
+        "type": "uint32"
+      }
+    ],
+    "name": "QuorumRemoved",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "QuorumId",
+        "name": "id",
+        "type": "uint32"
+      },
+      {
+        "components": [
+          {
+            "internalType": "address[]",
+            "name": "approvers",
+            "type": "address[]"
+          }
+        ],
+        "indexed": false,
+        "internalType": "struct Quorum",
+        "name": "quorum",
+        "type": "tuple"
+      }
+    ],
+    "name": "QuorumUpserted",
     "type": "event"
   },
   {
@@ -136,51 +160,6 @@
       }
     ],
     "name": "Upgraded",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": false,
-        "internalType": "address",
-        "name": "user",
-        "type": "address"
-      }
-    ],
-    "name": "UserRemoved",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
-        "components": [
-          {
-            "internalType": "address",
-            "name": "addr",
-            "type": "address"
-          },
-          {
-            "components": [
-              {
-                "internalType": "address[]",
-                "name": "approvers",
-                "type": "address[]"
-              }
-            ],
-            "internalType": "struct UserConfig[]",
-            "name": "configs",
-            "type": "tuple[]"
-          }
-        ],
-        "indexed": false,
-        "internalType": "struct User",
-        "name": "user",
-        "type": "tuple"
-      }
-    ],
-    "name": "UserUpserted",
     "type": "event"
   },
   {
@@ -426,17 +405,24 @@
   {
     "inputs": [
       {
-        "internalType": "address",
-        "name": "user",
-        "type": "address"
+        "internalType": "QuorumId",
+        "name": "id",
+        "type": "uint32"
       }
     ],
-    "name": "getUserMerkleRoot",
+    "name": "getQuorum",
     "outputs": [
       {
-        "internalType": "bytes32",
+        "components": [
+          {
+            "internalType": "address[]",
+            "name": "approvers",
+            "type": "address[]"
+          }
+        ],
+        "internalType": "struct Quorum",
         "name": "",
-        "type": "bytes32"
+        "type": "tuple"
       }
     ],
     "stateMutability": "view",
@@ -557,11 +543,6 @@
       {
         "components": [
           {
-            "internalType": "address",
-            "name": "addr",
-            "type": "address"
-          },
-          {
             "components": [
               {
                 "internalType": "address[]",
@@ -569,14 +550,19 @@
                 "type": "address[]"
               }
             ],
-            "internalType": "struct UserConfig[]",
-            "name": "configs",
-            "type": "tuple[]"
+            "internalType": "struct Quorum",
+            "name": "quorum",
+            "type": "tuple"
+          },
+          {
+            "internalType": "QuorumId",
+            "name": "id",
+            "type": "uint32"
           }
         ],
-        "internalType": "struct User",
-        "name": "user",
-        "type": "tuple"
+        "internalType": "struct QuorumDef[]",
+        "name": "quorums",
+        "type": "tuple[]"
       }
     ],
     "name": "initialize",
@@ -884,12 +870,12 @@
   {
     "inputs": [
       {
-        "internalType": "address",
-        "name": "user",
-        "type": "address"
+        "internalType": "QuorumId",
+        "name": "id",
+        "type": "uint32"
       }
     ],
-    "name": "removeUser",
+    "name": "removeQuorum",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
@@ -1032,31 +1018,24 @@
   {
     "inputs": [
       {
+        "internalType": "QuorumId",
+        "name": "id",
+        "type": "uint32"
+      },
+      {
         "components": [
           {
-            "internalType": "address",
-            "name": "addr",
-            "type": "address"
-          },
-          {
-            "components": [
-              {
-                "internalType": "address[]",
-                "name": "approvers",
-                "type": "address[]"
-              }
-            ],
-            "internalType": "struct UserConfig[]",
-            "name": "configs",
-            "type": "tuple[]"
+            "internalType": "address[]",
+            "name": "approvers",
+            "type": "address[]"
           }
         ],
-        "internalType": "struct User",
-        "name": "user",
+        "internalType": "struct Quorum",
+        "name": "quorum",
         "type": "tuple"
       }
     ],
-    "name": "upsertUser",
+    "name": "upsertQuorum",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
