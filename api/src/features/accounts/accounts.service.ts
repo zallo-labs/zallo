@@ -66,7 +66,7 @@ export class AccountsService {
             key: toQuorumKey(q.quorumKey),
             approvers: new Set(q.approvers.map((a) => address(a.deviceId))),
             spending: {
-              allowlisted: q.spendingAllowlisted,
+              fallback: q.spendingFallback,
               limits: Object.fromEntries(
                 q.limits.map((l): [Address, TokenLimit] => [
                   address(l.token),

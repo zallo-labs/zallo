@@ -2,7 +2,7 @@ import { BigNumberish, BytesLike } from 'ethers';
 import { hexDataLength, hexDataSlice } from 'ethers/lib/utils';
 import { address } from './addr';
 import { Account, Account__factory } from './contracts';
-import { QuorumDefStructOutput, QuorumStructOutput } from './contracts/Account';
+import { QuorumStructOutput } from './contracts/Account';
 import { Quorum, QuorumKey, toQuorumKey } from './quorum';
 import { OnlyRequiredItems } from './util/mappedTypes';
 
@@ -32,7 +32,6 @@ export const tryDecodeUpsertUserQuorum = (data?: BytesLike): Quorum | undefined 
     return {
       key: toQuorumKey(key),
       approvers: new Set(q.approvers.map(address)),
-      spending: {},
     };
   } catch {
     return undefined;

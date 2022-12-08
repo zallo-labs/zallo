@@ -15,6 +15,7 @@ import {
   RemoveQuorumArgs,
   UniqueQuorumArgs,
   UpdateQuorumArgs,
+  UpdateQuorumMetadataArgs,
 } from './quorums.args';
 import { QuorumsService } from './quorums.service';
 
@@ -88,7 +89,7 @@ export class QuorumsResolver {
   }
 
   @Mutation(() => Quorum)
-  async create(
+  async createQuorum(
     @Args() args: CreateQuorumArgs,
     @DeviceAddr() device: Address,
     @Info() info: GraphQLResolveInfo,
@@ -117,7 +118,7 @@ export class QuorumsResolver {
   }
 
   @Mutation(() => Quorum)
-  async update(
+  async updateQuorum(
     @Args() args: UpdateQuorumArgs,
     @DeviceAddr() device: Address,
     @Info() info: GraphQLResolveInfo,
@@ -134,7 +135,7 @@ export class QuorumsResolver {
   }
 
   @Mutation(() => Quorum)
-  async remove(
+  async removeQuorum(
     @Args() { account, key, proposingQuorumKey = key }: RemoveQuorumArgs,
     @DeviceAddr() device: Address,
     @Info() info: GraphQLResolveInfo,
@@ -147,7 +148,7 @@ export class QuorumsResolver {
             to: account,
             data: ACCOUNT_INTERFACE.encodeFunctionData('upsertQuorum', [
               key,
-              toQuorumStruct({ key, approvers: new Set(), spending: {} }),
+              toQuorumStruct({ key, approvers: new Set() }),
             ]),
             proposer: { connect: { id: device } },
             quorum: connectQuorum(account, proposingQuorumKey),
@@ -174,7 +175,12 @@ export class QuorumsResolver {
   }
 
   @Mutation(() => Quorum)
-  async setQuorumName() {
-    // TODO: implement
+  async updateQuorumMetadata(
+    @Args() { account, key, name }: UpdateQuorumMetadataArgs,
+  ): Promise<Quorum> {
+    return this.prisma.quorum.update({
+      where: { accountId_key: { accountId: account, key } },
+      data: { name },
+    });
   }
 }

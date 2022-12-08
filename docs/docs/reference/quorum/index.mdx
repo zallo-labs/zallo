@@ -1,0 +1,26 @@
+import Schema from '../schema/objects/quorum.mdx';
+
+# Quorum
+
+A set of apporvers that are required to approve a proposal.
+
+Quorums are identified by their `key`.
+
+## States
+
+Quorums must be activated before they can be used (see [creating a quorum](./create)).
+
+### `activeState`
+
+The active state of the quorum is the most recently activated state.  
+Proposals will be executed according to this state.
+
+### `pendingStates`
+
+[Executing](../proposal#lifecycle) a pending state create/update proposal will active the state - replacing the prior active state.
+
+---
+
+## Schema
+
+<Schema />

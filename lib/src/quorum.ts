@@ -1,6 +1,6 @@
 import { defaultAbiCoder } from 'ethers/lib/utils';
 import { address, Address } from './addr';
-import { SpendingConfig } from './limits';
+import { Spending } from './spending';
 import { QuorumStruct, QuorumDefStruct } from './contracts/Account';
 
 export const QUORUM_KEY_BITS = 32;
@@ -40,7 +40,7 @@ export const quorumGuidFromString = (guid: string): QuorumGuid => {
 export interface Quorum {
   key: QuorumKey;
   approvers: Set<Address>;
-  spending: SpendingConfig;
+  spending?: Spending;
 }
 
 export const toQuorumStruct = ({ approvers }: Quorum): QuorumStruct => ({

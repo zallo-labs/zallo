@@ -1,3 +1,4 @@
+import { SpendingFallback } from '@gen/prisma/spending-fallback.enum';
 import { FindManyQuorumArgs } from '@gen/quorum/find-many-quorum.args';
 import { ArgsType, Field, InputType, registerEnumType } from '@nestjs/graphql';
 import { BigNumber } from 'ethers';
@@ -36,12 +37,12 @@ export class TokenLimitInput {
 }
 
 @InputType()
-export class SpendingConfigInput {
-  @Field(() => Boolean, { nullable: true, defaultValue: false })
-  allowlisted: boolean;
-
+export class SpendingInput {
   @Field(() => [TokenLimitInput], { nullable: true, defaultValue: [] })
   limits: TokenLimitInput[];
+
+  @Field(() => Boolean, { nullable: true, defaultValue: false })
+  fallback: SpendingFallback;
 }
 
 @ArgsType()
@@ -57,7 +58,7 @@ export class CreateQuorumArgs {
 
   name: string;
 
-  spending?: SpendingConfigInput;
+  spending?: SpendingInput;
 }
 
 @ArgsType()
@@ -69,7 +70,7 @@ export class UpdateQuorumArgs extends QuorumGuidInput {
   @SetField(() => AddressScalar, { min: 1 })
   approvers: Set<Address>;
 
-  spending?: SpendingConfigInput;
+  spending?: SpendingInput;
 }
 
 @ArgsType()
@@ -86,22 +87,29 @@ export class QuorumInput {
   @SetField(() => AddressScalar, { min: 1 })
   approvers: Set<Address>;
 
-  spending?: SpendingConfigInput;
+  spending?: SpendingInput;
 
   static toQuorum(q: QuorumInput, key: QuorumKey): Quorum {
     return {
       key,
       approvers: q.approvers,
-      spending: {
-        allowlisted: q.spending?.allowlisted ?? false,
-        limits: Object.fromEntries(
-          (q.spending?.limits ?? []).map((limit) => [limit.token, limit] as const),
-        ),
-      },
+      spending: q.spending
+        ? {
+            fallback: q.spending.fallback,
+            limit: Object.fromEntries(
+              (q.spending.limits ?? []).map((limit) => [limit.token, limit] as const),
+            ),
+          }
+        : undefined,
     };
   }
 
   toQuorum(key: QuorumKey) {
     return QuorumInput.toQuorum(this, key);
   }
+}
+
+@ArgsType()
+export class UpdateQuorumMetadataArgs extends QuorumGuidInput {
+  name: string;
 }

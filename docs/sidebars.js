@@ -45,6 +45,15 @@ const sidebars = {
         },
         {
           type: 'category',
+          label: 'Quorum',
+          link: {
+            type: 'doc',
+            id: 'reference/quorum/index',
+          },
+          items: ['reference/quorum/create', 'reference/quorum/spending'],
+        },
+        {
+          type: 'category',
           label: 'Proposal',
           link: {
             type: 'doc',

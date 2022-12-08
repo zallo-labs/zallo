@@ -1,10 +1,12 @@
 import { BigNumber } from 'ethers';
 import { Address } from './addr';
 
-export interface SpendingConfig {
-  allowlisted?: boolean;
-  limits?: Record<Address, TokenLimit>;
+export interface Spending {
+  limit?: Record<Address, TokenLimit>;
+  fallback: SpendingFallback;
 }
+
+export type SpendingFallback = 'allow' | 'deny';
 
 export interface TokenLimit {
   token: Address;

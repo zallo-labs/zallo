@@ -81,9 +81,9 @@ export class AccountsResolver {
                 states: {
                   create: {
                     approvers: { create: [...q.approvers].map((a) => ({ deviceId: a })) },
-                    spendingAllowlisted: q.spending.allowlisted,
-                    limits: q.spending.limits
-                      ? { createMany: { data: Object.values(q.spending.limits) } }
+                    spendingFallback: q.spending?.fallback,
+                    limits: q.spending?.limit
+                      ? { createMany: { data: Object.values(q.spending.limit) } }
                       : undefined,
                   },
                 },

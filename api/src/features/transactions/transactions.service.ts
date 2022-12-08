@@ -78,8 +78,8 @@ export class TransactionsService {
         key: toQuorumKey(quorum.quorumKey),
         approvers: new Set(quorum.approvers.map((a) => address(a.deviceId))),
         spending: {
-          allowlisted: quorum.spendingAllowlisted,
-          limits: Object.fromEntries(
+          fallback: quorum.spendingFallback,
+          limit: Object.fromEntries(
             quorum.limits
               .map(
                 (l): TokenLimit => ({

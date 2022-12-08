@@ -4,7 +4,7 @@ import { ACCOUNT_INTERFACE, Address, Quorum, QuorumGuid, QuorumKey, toQuorumStru
 import { PrismaService } from 'nestjs-prisma';
 import { connectAccount, connectQuorum } from '~/util/connect-or-create';
 import { ProposalsService } from '../proposals/proposals.service';
-import { SpendingConfigInput } from './quorums.args';
+import { SpendingInput } from './quorums.args';
 
 interface CreateStateParams {
   proposer: Address;
@@ -12,7 +12,7 @@ interface CreateStateParams {
   key: QuorumKey;
   proposingQuorumKey: QuorumKey;
   approvers: Set<Address>;
-  spending?: SpendingConfigInput;
+  spending?: SpendingInput;
   tx: Prisma.TransactionClient;
   createArgs?: Omit<Prisma.QuorumStateCreateArgs, 'data'>;
 }
@@ -37,12 +37,14 @@ export class QuorumsService {
     const quorum: Quorum = {
       key,
       approvers,
-      spending: {
-        allowlisted: spending?.allowlisted ?? false,
-        limits: Object.fromEntries(
-          (spending?.limits ?? []).map((limit) => [limit.token, limit] as const),
-        ),
-      },
+      spending: spending
+        ? {
+            fallback: spending.fallback,
+            limit: Object.fromEntries(
+              (spending.limits ?? []).map((limit) => [limit.token, limit] as const),
+            ),
+          }
+        : undefined,
     };
 
     const { id: proposalId } = await this.proposals.create(
@@ -74,7 +76,7 @@ export class QuorumsService {
             })),
           },
         },
-        spendingAllowlisted: spending?.allowlisted,
+        spendingFallback: spending?.fallback,
         limits: spending?.limits
           ? {
               createMany: {
