@@ -1,11 +1,11 @@
 import { Approver } from '@gen/approver/approver.model';
-import { Parent, ResolveField, Resolver } from '@nestjs/graphql';
+import { ID, Parent, ResolveField, Resolver } from '@nestjs/graphql';
 import { Id, toId } from 'lib';
 
 @Resolver(() => Approver)
 export class ApproversResolver {
-  @ResolveField(() => String)
+  @ResolveField(() => ID)
   id(@Parent() a: Approver): Id {
-    return toId(`${a.configId}-${a.deviceId}`);
+    return toId(`${a.quorumStateId}-${a.deviceId}`);
   }
 }

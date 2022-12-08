@@ -13,16 +13,16 @@ import { ContactsModule } from './features/contacts/contacts.module';
 import { ApproversModule } from './features/approvers/approvers.module';
 import { ContractMethodsModule } from './features/contract-methods/contract-methods.module';
 import { ProposalsModule } from './features/proposals/proposals.module';
-import { SubmissionsModule } from './features/submissions/submissions.module';
+import { TransactionsModule } from './features/transactions/transactions.module';
 import { CommentsModule } from './features/comments/comments.module';
 import { ReactionsModule } from './features/reactions/reactions.module';
 import { FaucetModule } from './features/faucet/faucet.module';
 import { RedisModule } from '@liaoliaots/nestjs-redis';
 import { CONFIG } from './config';
-import { UsersModule } from './features/users/users.module';
 import { SubgraphModule } from './features/subgraph/subgraph.module';
 import { ExpoModule } from './expo/expo.module';
 import { PubsubModule } from './pubsub/pubsub.module';
+import { QuorumsModule } from './features/quorums/quorums.module';
 
 @Module({
   imports: [
@@ -47,10 +47,10 @@ import { PubsubModule } from './pubsub/pubsub.module';
     DevicesModule,
     FaucetModule,
     ProposalsModule,
+    QuorumsModule,
     ReactionsModule,
     SubgraphModule,
-    SubmissionsModule,
-    UsersModule,
+    TransactionsModule,
     ExpoModule,
   ],
   providers: [

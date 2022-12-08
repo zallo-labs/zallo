@@ -82,8 +82,8 @@
     "inputs": [
       {
         "indexed": true,
-        "internalType": "QuorumId",
-        "name": "id",
+        "internalType": "QuorumKey",
+        "name": "key",
         "type": "uint32"
       }
     ],
@@ -95,8 +95,8 @@
     "inputs": [
       {
         "indexed": true,
-        "internalType": "QuorumId",
-        "name": "id",
+        "internalType": "QuorumKey",
+        "name": "key",
         "type": "uint32"
       },
       {
@@ -387,8 +387,8 @@
             "type": "tuple"
           },
           {
-            "internalType": "QuorumId",
-            "name": "id",
+            "internalType": "QuorumKey",
+            "name": "key",
             "type": "uint32"
           }
         ],
@@ -666,8 +666,8 @@
   {
     "inputs": [
       {
-        "internalType": "QuorumId",
-        "name": "id",
+        "internalType": "QuorumKey",
+        "name": "key",
         "type": "uint32"
       }
     ],
@@ -729,8 +729,8 @@
   {
     "inputs": [
       {
-        "internalType": "QuorumId",
-        "name": "id",
+        "internalType": "QuorumKey",
+        "name": "key",
         "type": "uint32"
       },
       {

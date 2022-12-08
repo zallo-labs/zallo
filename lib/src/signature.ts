@@ -3,7 +3,7 @@ import { defaultAbiCoder } from 'ethers/lib/utils';
 import { Address, compareAddress } from './addr';
 import { TxReq, hashTx } from './tx';
 import { Device } from './device';
-import { Quorum, QUORUM_ID_ABI } from './quorum';
+import { Quorum, QUORUM_KEY_ABI } from './quorum';
 
 export type SignatureLike = Parameters<typeof ethers.utils.splitSignature>[0];
 
@@ -22,8 +22,8 @@ export const createTxSignature = (quorum: Quorum, signers: Signer[]): BytesLike 
     .map((s) => toCompactSignature(s.signature));
 
   return defaultAbiCoder.encode(
-    [`${QUORUM_ID_ABI} id`, 'bytes[] signatures'],
-    [quorum.id, signatures],
+    [`${QUORUM_KEY_ABI} id`, 'bytes[] signatures'],
+    [quorum.key, signatures],
   );
 };
 

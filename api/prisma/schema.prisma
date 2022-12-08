@@ -4,8 +4,7 @@ datasource db {
 }
 
 generator client {
-  provider        = "prisma-client-js"
-  previewFeatures = ["interactiveTransactions"]
+  provider = "prisma-client-js"
 }
 
 generator nestgraphql {
@@ -14,87 +13,69 @@ generator nestgraphql {
 }
 
 model Device {
-  id String @id @db.Char(42) // address
-
+  id        String  @id @db.Char(42) // address
   name      String?
   pushToken String?
 
-  users     User[]
   contacts  Contact[]
   approvals Approval[]
   comments  Comment[]
   reactions Reaction[]
   approvers Approver[]
+  proposals Proposal[]
 }
 
 model Account {
-  id String @id @db.Char(42) // address
-
+  id         String  @id @db.Char(42) // address
   impl       String  @db.Char(42) // address
   deploySalt String  @db.Char(66) // bytes32
   name       String
   isActive   Boolean @default(false)
 
-  users      User[]
-  userStates UserState[]
-  proposals  Proposal[]
-  comments   Comment[]
-  reactions  Reaction[]
+  quorums      Quorum[]
+  quorumStates QuorumState[]
+  proposals    Proposal[]
+  comments     Comment[]
+  reactions    Reaction[]
 }
 
-model User {
+model Quorum {
   account   Account @relation(fields: [accountId], references: [id], onDelete: Cascade)
   accountId String  @db.Char(42) // address
-  device    Device  @relation(fields: [deviceId], references: [id], onDelete: Cascade)
-  deviceId  String  @db.Char(42) // address
+  key       Int
+  name      String?
 
-  name String
+  states    QuorumState[]
+  proposals Proposal[]
 
-  latestState UserState?  @relation(name: "latest")
-  states      UserState[]
-  proposals   Proposal[]
-
-  @@id([accountId, deviceId])
+  @@id([accountId, key])
 }
 
-model UserState {
-  id Int @id @default(autoincrement())
-
-  account    Account   @relation(fields: [accountId], references: [id], onDelete: Cascade)
-  accountId  String    @db.Char(42) // address
-  user       User      @relation(fields: [accountId, deviceId], references: [accountId, deviceId], onDelete: Cascade)
-  deviceId   String    @db.Char(42) // address
-  proposal   Proposal? @relation(fields: [proposalId], references: [id], onDelete: Cascade)
-  proposalId String?   @db.Char(66) // bytes32
-  createdAt  DateTime  @default(now())
-  isDeleted  Boolean   @default(false)
-
-  latestOfUser         User?        @relation(name: "latest", fields: [accountId, latestOfUserDeviceId], references: [accountId, deviceId], onDelete: Cascade) // user | null
-  latestOfUserDeviceId String?      @db.Char(42)
-  configs              UserConfig[]
-
-  @@unique([accountId, latestOfUserDeviceId])
-}
-
-model UserConfig {
-  id Int @id @default(autoincrement())
-
-  state               UserState @relation(fields: [stateId], references: [id], onDelete: Cascade)
-  stateId             Int
+model QuorumState {
+  id                  Int       @id @default(autoincrement())
+  account             Account   @relation(fields: [accountId], references: [id], onDelete: Cascade)
+  accountId           String    @db.Char(42) // address
+  quorum              Quorum    @relation(fields: [accountId, quorumKey], references: [accountId, key], onDelete: Cascade)
+  quorumKey           Int
+  proposal            Proposal? @relation(fields: [proposalId], references: [id], onDelete: Cascade)
+  proposalId          String?   @db.Char(66) // bytes32
+  createdAt           DateTime  @default(now())
+  isRemoved           Boolean   @default(false)
   spendingAllowlisted Boolean   @default(false)
 
   approvers Approver[]
   limits    TokenLimit[]
-  proposals Proposal[]
+
+  @@index([accountId, quorumKey, createdAt(sort: Desc)], name: "quorum_createdAt")
 }
 
 model Approver {
-  config   UserConfig @relation(fields: [configId], references: [id], onDelete: Cascade)
-  configId Int
-  device   Device     @relation(fields: [deviceId], references: [id], onDelete: Cascade)
-  deviceId String     @db.Char(42) // address
+  quorumState   QuorumState @relation(fields: [quorumStateId], references: [id], onDelete: Cascade)
+  quorumStateId Int
+  device        Device      @relation(fields: [deviceId], references: [id], onDelete: Cascade)
+  deviceId      String      @db.Char(42) // address
 
-  @@id([configId, deviceId])
+  @@id([quorumStateId, deviceId])
 }
 
 enum LimitPeriod {
@@ -104,14 +85,14 @@ enum LimitPeriod {
 }
 
 model TokenLimit {
-  config   UserConfig @relation(fields: [configId], references: [id], onDelete: Cascade)
-  configId Int
-  token    String     @db.Char(42) // address
+  quorumState   QuorumState @relation(fields: [quorumStateId], references: [id], onDelete: Cascade)
+  quorumStateId Int
+  token         String      @db.Char(42) // address
 
   amount String //@db.Decimal(79, 0) // uint256
   period LimitPeriod
 
-  @@id([configId, token])
+  @@id([quorumStateId, token])
 }
 
 model Contact {
@@ -136,22 +117,22 @@ model ContractMethod {
 model Proposal {
   id String @id @db.Char(66) // hash: bytes32
 
-  account    Account    @relation(fields: [accountId], references: [id], onDelete: Cascade)
-  accountId  String     @db.Char(42) // address
-  proposer   User       @relation(fields: [accountId, proposerId], references: [accountId, deviceId])
-  proposerId String     @db.Char(42) // address
-  config     UserConfig @relation(fields: [configId], references: [id])
-  configId   Int
-  to         String     @db.Char(42) // address
-  value      String //@db.Decimal(79, 0) // uint256
-  data       String // bytes
-  salt       String     @db.Char(18) // bytes8
-  gasLimit   Decimal?   @db.Decimal(19, 0)
-  createdAt  DateTime   @default(now())
+  account    Account  @relation(fields: [accountId], references: [id], onDelete: Cascade)
+  accountId  String   @db.Char(42) // address
+  proposer   Device   @relation(fields: [proposerId], references: [id])
+  proposerId String   @db.Char(42) // address
+  quorum     Quorum   @relation(fields: [accountId, quorumKey], references: [accountId, key])
+  quorumKey  Int
+  to         String   @db.Char(42) // address
+  value      String? //@db.Decimal(79, 0) // uint256
+  data       String? // bytes
+  salt       String   @db.Char(18) // bytes8
+  gasLimit   Decimal? @db.Decimal(19, 0)
+  createdAt  DateTime @default(now())
 
   approvals    Approval[]
   transactions Transaction[]
-  userStates   UserState[]
+  quorumStates QuorumState[]
 }
 
 model Transaction {

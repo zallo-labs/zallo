@@ -1,13 +1,16 @@
 import { FindManyProposalArgs } from '@gen/proposal/find-many-proposal.args';
 import { ArgsType, Field, ObjectType, registerEnumType } from '@nestjs/graphql';
 import { BigNumber, BytesLike } from 'ethers';
-import { Address, TxSalt, ZERO } from 'lib';
+import { Address, QuorumKey, TxSalt, ZERO } from 'lib';
 import { AddressField, AddressScalar } from '~/apollo/scalars/Address.scalar';
-import { BytesField } from '~/apollo/scalars/Bytes.scalar';
-import { Bytes32Field, Bytes32Scalar } from '~/apollo/scalars/Bytes32.scalar';
-import { Bytes8Field } from '~/apollo/scalars/Bytes8.scalar';
+import { QuorumKeyField, Uint256BnField } from '~/apollo/scalars/BigNumber.scalar';
+import {
+  Bytes32Field,
+  Bytes32Scalar,
+  Bytes8Field,
+  BytesField,
+} from '~/apollo/scalars/Bytes.scalar';
 import { SetField } from '~/apollo/scalars/SetField';
-import { Uint256BnField } from '~/apollo/scalars/Uint256Bn.scalar';
 
 @ArgsType()
 export class UniqueProposalArgs {
@@ -31,13 +34,13 @@ registerEnumType(ProposalState, { name: 'ProposalState' });
 
 @ArgsType()
 export class ProposalsArgs extends FindManyProposalArgs {
+  // Only show the specified accounts
   @SetField(() => AddressScalar, { nullable: true })
   accounts?: Set<Address>;
 
-  @Field(() => ProposalStatus, { nullable: true, deprecationReason: 'Superseded by state' })
-  status?: ProposalStatus;
-
   state?: ProposalState;
+
+  userHasApproved?: boolean;
 }
 
 @ArgsType()
@@ -57,8 +60,9 @@ export class ProposeArgs {
   @AddressField()
   account: Address;
 
-  // Defaults to the config with the least amount of approvers, followed by the lowest id (by lexical comparison)
-  config?: number;
+  // Defaults to quorum with the least amount of approvers, followed by the lowest id (by lexical comparison)
+  @QuorumKeyField({ nullable: true })
+  quorumKey?: QuorumKey;
 
   @AddressField()
   to: Address;

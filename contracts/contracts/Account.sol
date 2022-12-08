@@ -42,7 +42,7 @@ contract Account is
   function initialize(QuorumDef[] calldata quorums) external initializer {
     uint256 quorumsLen = quorums.length;
     for (uint256 i = 0; i < quorumsLen; ) {
-      _upsertQuorum(quorums[i].id, quorums[i].quorum);
+      _upsertQuorum(quorums[i].key, quorums[i].quorum);
 
       unchecked {
         ++i;
@@ -128,19 +128,19 @@ contract Account is
   //////////////////////////////////////////////////////////////*/
 
   /// @inheritdoc IAccount
-  function upsertQuorum(QuorumId id, Quorum calldata quorum) external onlySelf {
-    _upsertQuorum(id, quorum);
+  function upsertQuorum(QuorumKey key, Quorum calldata quorum) external onlySelf {
+    _upsertQuorum(key, quorum);
   }
 
   /// @inheritdoc IAccount
-  function removeQuorum(QuorumId id) external onlySelf {
-    delete _quorums()[id];
-    emit QuorumRemoved(id);
+  function removeQuorum(QuorumKey key) external onlySelf {
+    delete _quorums()[key];
+    emit QuorumRemoved(key);
   }
 
-  function _upsertQuorum(QuorumId id, Quorum calldata quorum) internal {
-    _quorums()[id] = quorum;
-    emit QuorumUpserted(id, quorum);
+  function _upsertQuorum(QuorumKey key, Quorum calldata quorum) internal {
+    _quorums()[key] = quorum;
+    emit QuorumUpserted(key, quorum);
   }
 
   /*//////////////////////////////////////////////////////////////
@@ -157,7 +157,7 @@ contract Account is
   }
 
   function _validateSignature(bytes32 hash, bytes memory signature) internal view {
-    (QuorumId quorumId, bytes[] memory signatures) = abi.decode(signature, (QuorumId, bytes[]));
+    (QuorumKey quorumId, bytes[] memory signatures) = abi.decode(signature, (QuorumKey, bytes[]));
 
     _validateSignatures(hash, _quorums()[quorumId].approvers, signatures);
   }
@@ -183,7 +183,7 @@ contract Account is
                             USER MERKLE ROOTS
     //////////////////////////////////////////////////////////////*/
 
-  function _quorums() internal pure returns (mapping(QuorumId => Quorum) storage s) {
+  function _quorums() internal pure returns (mapping(QuorumKey => Quorum) storage s) {
     assembly {
       // keccack256('Account.quorums')
       s.slot := 0x37960d0a655d0d781716b0e17600d3e44caa3d99659d8fb953b4c370d154d1a4

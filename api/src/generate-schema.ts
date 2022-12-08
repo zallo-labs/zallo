@@ -13,7 +13,8 @@ import { DevicesResolver } from './features/devices/devices.resolver';
 import { FaucetResolver } from './features/faucet/faucet.resolver';
 import { ProposalsResolver } from './features/proposals/proposals.resolver';
 import { ReactionsResolver } from './features/reactions/reactions.resolver';
-import { UsersResolver } from './features/users/users.resolver';
+import { QuorumsResolver } from './features/quorums/quorums.resolver';
+import { TransactionsResolver } from './features/transactions/transactions.resolver';
 
 const resolvers = [
   AccountsResolver,
@@ -24,8 +25,9 @@ const resolvers = [
   DevicesResolver,
   FaucetResolver,
   ProposalsResolver,
+  QuorumsResolver,
   ReactionsResolver,
-  UsersResolver,
+  TransactionsResolver,
 ];
 
 const main = async () => {

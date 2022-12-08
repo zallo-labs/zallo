@@ -3,7 +3,7 @@ import { hexDataLength, hexDataSlice } from 'ethers/lib/utils';
 import { address } from './addr';
 import { Account, Account__factory } from './contracts';
 import { QuorumDefStructOutput, QuorumStructOutput } from './contracts/Account';
-import { Quorum, QuorumId, toQuorumId } from './quorum';
+import { Quorum, QuorumKey, toQuorumKey } from './quorum';
 import { OnlyRequiredItems } from './util/mappedTypes';
 
 export const getDataSighash = (data?: BytesLike) =>
@@ -24,32 +24,31 @@ export const tryDecodeUpsertUserQuorum = (data?: BytesLike): Quorum | undefined 
   if (!data || getDataSighash(data) !== UPSERT_QUORUM_SIGHSAH) return undefined;
 
   try {
-    const [id, q] = ACCOUNT_INTERFACE.decodeFunctionData(
+    const [key, q] = ACCOUNT_INTERFACE.decodeFunctionData(
       UPSERT_QUORUM_FUNCTION,
       data,
     ) as UpsertQuorumParams;
 
     return {
-      id: toQuorumId(id),
-      approvers: q.approvers.map(address),
-      limits: {},
-      spendingAllowlisted: false,
+      key: toQuorumKey(key),
+      approvers: new Set(q.approvers.map(address)),
+      spending: {},
     };
   } catch {
     return undefined;
   }
 };
 
-export const tryDecodeRemoveUserData = (data?: BytesLike): QuorumId | undefined => {
+export const tryDecodeRemoveUserData = (data?: BytesLike): QuorumKey | undefined => {
   if (!data || getDataSighash(data) !== REMOVE_QUORUM_SIGHASH) return undefined;
 
   try {
-    const [id] = ACCOUNT_INTERFACE.decodeFunctionData(
+    const [key] = ACCOUNT_INTERFACE.decodeFunctionData(
       REMOVE_QUORUM_FUNCTION,
       data,
     ) as OnlyRequiredItems<Parameters<Account['removeQuorum']>>;
 
-    return toQuorumId(id);
+    return toQuorumKey(key);
   } catch {
     return undefined;
   }

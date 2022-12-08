@@ -45,13 +45,21 @@ export interface ExecuteTxOptions {
   customData?: Overrides & Eip712Meta;
 }
 
-export const toTransactionRequest = async (
-  account: Account,
-  tx: TxReq,
-  quorum: Quorum,
-  signers: Signer[],
-  opts: ExecuteTxOptions = {},
-): Promise<TransactionRequest> => {
+export interface TransactionRequestOptions {
+  account: Account;
+  tx: TxReq;
+  quorum: Quorum;
+  signers: Signer[];
+  opts?: ExecuteTxOptions;
+}
+
+export const toTransactionRequest = async ({
+  account,
+  tx,
+  quorum,
+  signers,
+  opts = {},
+}: TransactionRequestOptions): Promise<TransactionRequest> => {
   const provider = account.provider;
   const basicReq = toPartialTransactionRequest(tx);
 
@@ -71,9 +79,9 @@ export const toTransactionRequest = async (
   };
 };
 
-export const executeTx = async (...[account, ...args]: Parameters<typeof toTransactionRequest>) => {
-  const req = await toTransactionRequest(account, ...args);
-  return account.provider.sendTransaction(zk.utils.serialize(req));
+export const executeTx = async (opts: TransactionRequestOptions) => {
+  const req = await toTransactionRequest(opts);
+  return opts.account.provider.sendTransaction(zk.utils.serialize(req));
 };
 
 // For external transactions

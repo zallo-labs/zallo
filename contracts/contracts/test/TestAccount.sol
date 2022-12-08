@@ -19,8 +19,8 @@ contract TestAccount is Account {
     return config.isValidProof(proof, root);
   }
 
-  function getQuorum(QuorumId id) external view returns (Quorum memory) {
-    return _quorums()[id];
+  function getQuorum(QuorumKey key) external view returns (Quorum memory) {
+    return _quorums()[key];
   }
 
   function hashTx(Transaction calldata transaction) external view returns (bytes32) {

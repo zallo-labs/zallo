@@ -1,18 +1,18 @@
 import { BigNumber } from 'ethers';
 import { Address } from './addr';
 
-export interface LimitsConfig {
-  spendingAllowlisted: boolean;
-  limits: Record<Address, Limit>;
+export interface SpendingConfig {
+  allowlisted?: boolean;
+  limits?: Record<Address, TokenLimit>;
 }
 
-export interface Limit {
+export interface TokenLimit {
   token: Address;
   amount: BigNumber;
-  period: LimitPeriod;
+  period: TokenLimitPeriod;
 }
 
-export enum LimitPeriod {
+export enum TokenLimitPeriod {
   Day = 'Day',
   Week = 'Week',
   Month = 'Month',

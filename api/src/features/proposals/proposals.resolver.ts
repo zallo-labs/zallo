@@ -9,10 +9,10 @@ import {
   Subscription,
 } from '@nestjs/graphql';
 import { GraphQLResolveInfo } from 'graphql';
-import { address, Address, hashTx, isPresent, randomTxSalt } from 'lib';
+import { address, Address, isPresent, randomTxSalt, toQuorumKey } from 'lib';
 import { PrismaService } from 'nestjs-prisma';
 import { DeviceAddr } from '~/decorators/device.decorator';
-import { connectAccount, connectOrCreateDevice } from '~/util/connect-or-create';
+import { connectOrCreateDevice, connectQuorum } from '~/util/connect-or-create';
 import { getSelect } from '~/util/select';
 import {
   ProposeArgs,
@@ -20,7 +20,6 @@ import {
   UniqueProposalArgs,
   ProposalsArgs,
   ApprovalRequest,
-  ProposalStatus,
   ProposalModifiedArgs,
   ProposalState,
 } from './proposals.args';
@@ -30,21 +29,16 @@ import { Proposal } from '@gen/proposal/proposal.model';
 import { ExpoService } from '~/expo/expo.service';
 import { match } from 'ts-pattern';
 import { ProposalWhereInput } from '@gen/proposal/proposal-where.input';
-import { UsersService } from '../users/users.service';
-import { ProposalsService } from './proposals.service';
+import { ProposalsService, PROPOSAL_SUB } from './proposals.service';
 import { Transaction } from '@gen/transaction/transaction.model';
 import { PubsubService } from '~/pubsub/pubsub.service';
-
-const PROPOSAL_SUB = 'proposal';
 
 @Resolver(() => Proposal)
 export class ProposalsResolver {
   constructor(
     private service: ProposalsService,
     private prisma: PrismaService,
-    private provider: ProviderService,
     private expo: ExpoService,
-    private users: UsersService,
     private pubsub: PubsubService,
   ) {}
 
@@ -61,7 +55,7 @@ export class ProposalsResolver {
 
   @Query(() => [Proposal])
   async proposals(
-    @Args() { accounts, status, state, ...args }: ProposalsArgs,
+    @Args() { accounts, state, userHasApproved, ...args }: ProposalsArgs,
     @Info() info: GraphQLResolveInfo,
     @DeviceAddr() device: Address,
   ): Promise<Proposal[]> {
@@ -71,46 +65,19 @@ export class ProposalsResolver {
         AND: [
           {
             ...(accounts && { accountId: { in: [...accounts] } }),
-            ...(status &&
-              match<ProposalStatus, ProposalWhereInput>(status)
-                .with(ProposalStatus.Executed, () => ({
-                  transactions: {
-                    some: { response: { is: { success: { equals: true } } } },
-                  },
-                }))
-                .with(ProposalStatus.AwaitingUser, () => ({
-                  transactions: {
-                    none: { response: { is: { success: { equals: true } } } },
-                  },
-                  approvals: {
-                    none: { deviceId: { equals: device } },
-                  },
-                }))
-                .with(ProposalStatus.AwaitingOther, () => ({
-                  transactions: {
-                    none: { response: { is: { success: { equals: true } } } },
-                  },
-                  approvals: {
-                    some: { deviceId: { equals: device } },
-                  },
-                }))
-                .exhaustive()),
             ...(state &&
               match<ProposalState, ProposalWhereInput>(state)
                 .with(ProposalState.Pending, () => ({
                   transactions: { none: {} },
                 }))
                 .with(ProposalState.Executing, () => ({
-                  transactions: {
-                    some: { response: { isNot: {} } },
-                  },
+                  transactions: { none: { response: {} } },
                 }))
                 .with(ProposalState.Executed, () => ({
-                  transactions: {
-                    some: { response: { is: { success: { equals: true } } } },
-                  },
+                  transactions: { some: { response: { is: { success: { equals: true } } } } },
                 }))
                 .exhaustive()),
+            ...(userHasApproved && { approvals: { some: { deviceId: { equals: device } } } }),
           },
           args.where ?? {},
         ],
@@ -141,50 +108,33 @@ export class ProposalsResolver {
     return this.pubsub.asyncIterator(PROPOSAL_SUB);
   }
 
-  private publishProposal(proposal: Proposal) {
-    this.pubsub.publish(PROPOSAL_SUB, { [PROPOSAL_SUB]: proposal });
-  }
-
   @Mutation(() => Proposal)
   async propose(
     @Args()
-    { account, config, to, value, data, salt = randomTxSalt(), gasLimit }: ProposeArgs,
+    { account, quorumKey, to, value, data, salt = randomTxSalt(), gasLimit }: ProposeArgs,
     @Info() info: GraphQLResolveInfo,
     @DeviceAddr() device: Address,
   ): Promise<Proposal> {
-    const id = await hashTx(
-      { to, value, data, salt },
-      { address: account, provider: this.provider },
-    );
-
     // Default behaviour is specified on ProposeArgs
-    const state = await this.prisma.userState.findFirst({
-      ...this.users.latestStateArgs({ account, addr: device }, null),
-      select: {
-        configs: {
-          select: {
-            id: true,
-          },
-          orderBy: [{ approvers: { _count: 'asc' } }, { id: 'asc' }],
+    if (!quorumKey) {
+      const quorum = await this.prisma.quorumState.findFirst({
+        where: {
+          accountId: account,
+          approvers: { some: { deviceId: device } },
         },
-      },
-    });
-    if (!state) throw new UserInputError(`Device doesn't belong to any configs`);
-    config = state.configs[0].id;
+        orderBy: [{ approvers: { _count: 'asc' } }, { id: 'asc' }],
+        select: { quorumKey: true },
+      });
 
-    const proposal = await this.prisma.proposal.create({
+      if (!quorum) throw new UserInputError(`Device doesn't belong to any quorums`);
+      quorumKey = toQuorumKey(quorum.quorumKey);
+    }
+
+    return this.service.create({
+      account,
       data: {
-        id,
-        account: connectAccount(account),
-        proposer: {
-          connect: {
-            accountId_deviceId: {
-              accountId: account,
-              deviceId: device,
-            },
-          },
-        },
-        config: { connect: { id: config } },
+        proposer: { connect: { id: device } },
+        quorum: connectQuorum(account, quorumKey),
         to,
         value: value.toString(),
         data,
@@ -193,9 +143,6 @@ export class ProposalsResolver {
       },
       ...getSelect(info),
     });
-    this.publishProposal(proposal);
-
-    return proposal;
   }
 
   @Mutation(() => Proposal)
@@ -204,14 +151,11 @@ export class ProposalsResolver {
     @DeviceAddr() device: Address,
     @Info() info: GraphQLResolveInfo,
   ): Promise<Proposal> {
-    const proposal = await this.service.approve({
+    return this.service.approve({
       ...args,
       device,
-      args: getSelect(info),
+      ...getSelect(info),
     });
-    this.publishProposal(proposal);
-
-    return proposal;
   }
 
   @Mutation(() => Proposal)
@@ -243,7 +187,7 @@ export class ProposalsResolver {
       },
       ...getSelect(info),
     });
-    this.publishProposal(proposal);
+    this.service.publishProposal(proposal);
 
     return proposal;
   }
@@ -253,61 +197,48 @@ export class ProposalsResolver {
     @Args() { id, approvers }: ApprovalRequest,
     @DeviceAddr() device: Address,
   ): Promise<true> {
-    // Ensure all approvers are valid for the given proposal
-    const { accountId, approvals } = await this.prisma.proposal.findUniqueOrThrow({
+    const { accountId, quorumKey } = await this.prisma.proposal.findUniqueOrThrow({
       where: { id },
-      select: {
-        accountId: true,
-        approvals: {
-          select: {
-            deviceId: true,
-          },
-        },
-      },
+      select: { accountId: true, quorumKey: true },
     });
 
-    const approversInAccount = await this.prisma.user.findMany({
+    // All approvers should exist for any state of the proposal's quorum
+    const quorumState = await this.prisma.quorumState.findFirst({
       where: {
         accountId,
-        deviceId: { in: [...approvers] },
+        quorumKey,
+        approvers: { some: { deviceId: { in: [...approvers] } } },
       },
       select: {
-        device: {
+        approvers: {
           select: {
-            id: true,
-            pushToken: true,
+            device: {
+              select: {
+                id: true,
+                pushToken: true,
+              },
+            },
           },
         },
       },
     });
 
-    if (approversInAccount.length !== approvers.size)
-      throw new UserInputError("Some approvers aren't users of the account");
+    const approverPushTokens = (quorumState?.approvers ?? [])
+      .filter((a) => approvers.has(address(a.device.id)))
+      .map((a) => a.device.pushToken);
 
-    const user = await this.prisma.user.findUniqueOrThrow({
-      where: {
-        accountId_deviceId: {
-          accountId,
-          deviceId: device,
-        },
-      },
-      select: {
-        name: true,
-      },
-    });
+    if (approverPushTokens.length !== approvers.size)
+      throw new UserInputError('All approvers must be part of a state of the quorum');
+
+    const { name } = await this.prisma.device.findUniqueOrThrow({ where: { id: device } });
 
     // Send a notification to specified users that haven't approved yet
     this.expo.chunkPushNotifications([
       {
-        to: approversInAccount
-          .filter((user) => !approvals.find((a) => a.deviceId === user.device.id))
-          .map((user) => user.device.pushToken)
-          .filter(isPresent),
+        to: approverPushTokens.filter(isPresent),
         title: 'Approval Request',
-        body: `${user.name} has requested your approval`,
-        data: {
-          url: `zallo://proposal/?id=${id}`,
-        },
+        body: `${name} has requested your approval`,
+        data: { url: `zallo://proposal/?id=${id}` },
       },
     ]);
 

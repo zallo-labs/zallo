@@ -18,8 +18,8 @@ interface IAccount is BaseIAccount, IERC1271 {
                                  EVENTS
   //////////////////////////////////////////////////////////////*/
 
-  event QuorumUpserted(QuorumId indexed id, Quorum quorum);
-  event QuorumRemoved(QuorumId indexed id);
+  event QuorumUpserted(QuorumKey indexed key, Quorum quorum);
+  event QuorumRemoved(QuorumKey indexed key);
 
   /*//////////////////////////////////////////////////////////////
                                  ERRORS
@@ -34,10 +34,10 @@ interface IAccount is BaseIAccount, IERC1271 {
   /// @notice Upsert (create or update) a quorum
   /// @dev Only callable by the account
   /// @param quorum Quorum to be upserted
-  function upsertQuorum(QuorumId id, Quorum calldata quorum) external;
+  function upsertQuorum(QuorumKey key, Quorum calldata quorum) external;
 
   /// @notice Remove a quorum
   /// @dev Only callable by the account
-  /// @param id Quorum to be removed
-  function removeQuorum(QuorumId id) external;
+  /// @param key Quorum to be removed
+  function removeQuorum(QuorumKey key) external;
 }

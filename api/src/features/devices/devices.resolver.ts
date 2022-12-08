@@ -28,29 +28,17 @@ export class DevicesResolver {
 
   @ResolveField(() => String, { nullable: true })
   async name(@Parent() device: Device, @DeviceAddr() userDevice: Address): Promise<string | null> {
-    const contact = await this.prisma.contact.findUnique({
+    const contact = this.prisma.contact.findUnique({
       where: { deviceId_addr: { deviceId: userDevice, addr: device.id } },
       select: { name: true },
     });
 
-    const account = await this.prisma.account.findUnique({
+    const account = this.prisma.account.findUnique({
       where: { id: device.id },
       select: { name: true },
     });
 
-    const user = await this.prisma.user.findFirst({
-      where: {
-        deviceId: device.id,
-        account: {
-          users: { some: { deviceId: userDevice } },
-        },
-      },
-      select: { name: true },
-    });
-
-    return (
-      (await contact)?.name || (await account)?.name || device.name || (await user)?.name || null
-    );
+    return (await contact)?.name || (await account)?.name || device.name || null;
   }
 
   @Mutation(() => Device)

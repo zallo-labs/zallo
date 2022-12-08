@@ -43,7 +43,7 @@ export class ContactsResolver {
       select: { addr: true, name: true },
     });
 
-    const accounts = await this.accountsService.deviceAccounts(device, {
+    const accounts = await this.accountsService.accounts(device, {
       select: { id: true, name: true },
     });
 

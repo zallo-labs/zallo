@@ -34,6 +34,7 @@ export * from './execute';
 export * from './quorum';
 export * from './id';
 export * from './limits';
+export * from './quorum';
 export * from './signature';
 export * from './tx';
 export * from './upgrade';
