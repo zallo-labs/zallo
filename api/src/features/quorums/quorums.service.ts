@@ -72,7 +72,7 @@ export class QuorumsService {
         approvers: {
           createMany: {
             data: [...approvers].map((approver) => ({
-              deviceId: approver,
+              userId: approver,
             })),
           },
         },

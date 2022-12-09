@@ -18,7 +18,7 @@ import { BigNumber } from 'ethers';
 export class AccountsService {
   constructor(private prisma: PrismaService, private provider: ProviderService) {}
 
-  async accounts(device: Address, args: Prisma.AccountFindManyArgs = {}): Promise<Account[]> {
+  async accounts(user: Address, args: Prisma.AccountFindManyArgs = {}): Promise<Account[]> {
     return this.prisma.account.findMany({
       ...args,
       where: {
@@ -26,7 +26,7 @@ export class AccountsService {
           {
             quorumStates: {
               some: {
-                approvers: { some: { deviceId: device } },
+                approvers: { some: { userId: user } },
                 isRemoved: false,
               },
             },
@@ -64,7 +64,7 @@ export class AccountsService {
           impl: address(impl),
           quorums: quorumStates.map((q) => ({
             key: toQuorumKey(q.quorumKey),
-            approvers: new Set(q.approvers.map((a) => address(a.deviceId))),
+            approvers: new Set(q.approvers.map((a) => address(a.userId))),
             spending: {
               fallback: q.spendingFallback,
               limits: Object.fromEntries(

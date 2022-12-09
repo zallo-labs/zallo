@@ -9,7 +9,7 @@ import { ApproversResolver } from './features/approvers/approvers.resolver';
 import { CommentsResolver } from './features/comments/comments.resolver';
 import { ContactsResolver } from './features/contacts/contacts.resolver';
 import { ContractMethodsResolver } from './features/contract-methods/contract-methods.resolver';
-import { DevicesResolver } from './features/devices/devices.resolver';
+import { UsersResolver } from './features/users/users.resolver';
 import { FaucetResolver } from './features/faucet/faucet.resolver';
 import { ProposalsResolver } from './features/proposals/proposals.resolver';
 import { ReactionsResolver } from './features/reactions/reactions.resolver';
@@ -22,12 +22,12 @@ const resolvers = [
   CommentsResolver,
   ContactsResolver,
   ContractMethodsResolver,
-  DevicesResolver,
   FaucetResolver,
   ProposalsResolver,
   QuorumsResolver,
   ReactionsResolver,
   TransactionsResolver,
+  UsersResolver,
 ];
 
 const main = async () => {

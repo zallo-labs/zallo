@@ -12,7 +12,7 @@ generator nestgraphql {
   output   = "../generated"
 }
 
-model Device {
+model User {
   id        String  @id @db.Char(42) // address
   name      String?
   pushToken String?
@@ -72,10 +72,10 @@ model QuorumState {
 model Approver {
   quorumState   QuorumState @relation(fields: [quorumStateId], references: [id], onDelete: Cascade)
   quorumStateId Int
-  device        Device      @relation(fields: [deviceId], references: [id], onDelete: Cascade)
-  deviceId      String      @db.Char(42) // address
+  user          User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId        String      @db.Char(42) // address
 
-  @@id([quorumStateId, deviceId])
+  @@id([quorumStateId, userId])
 }
 
 enum SpendingFallback {
@@ -100,31 +100,12 @@ enum LimitPeriod {
   Month
 }
 
-model Contact {
-  device   Device @relation(fields: [deviceId], references: [id], onDelete: Cascade)
-  deviceId String @db.Char(42) // address
-  addr     String @db.Char(42) // address
-  name     String
-
-  @@id([deviceId, addr])
-  @@unique([deviceId, name], name: "name_identifier")
-}
-
-model ContractMethod {
-  contract String @db.Char(42) // address
-  sighash  String @db.Char(10) // bytes4
-  fragment Json
-
-  @@id([contract, sighash])
-  @@index([sighash])
-}
-
 model Proposal {
   id String @id @db.Char(66) // hash: bytes32
 
   account    Account  @relation(fields: [accountId], references: [id], onDelete: Cascade)
   accountId  String   @db.Char(42) // address
-  proposer   Device   @relation(fields: [proposerId], references: [id])
+  proposer   User     @relation(fields: [proposerId], references: [id])
   proposerId String   @db.Char(42) // address
   quorum     Quorum   @relation(fields: [accountId, quorumKey], references: [accountId, key])
   quorumKey  Int
@@ -164,13 +145,32 @@ model TransactionResponse {
 model Approval {
   proposal   Proposal @relation(fields: [proposalId], references: [id], onDelete: Cascade)
   proposalId String   @db.Char(66) // bytes32
-  device     Device   @relation(fields: [deviceId], references: [id], onDelete: Cascade)
-  deviceId   String   @db.Char(42) // address
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId     String   @db.Char(42) // address
 
   signature String? // bytes; rejected if undefined
   createdAt DateTime @default(now())
 
-  @@id([proposalId, deviceId])
+  @@id([proposalId, userId])
+}
+
+model Contact {
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId String @db.Char(42) // address
+  addr   String @db.Char(42) // address
+  name   String
+
+  @@id([userId, addr])
+  @@unique([userId, name], name: "name_identifier")
+}
+
+model ContractMethod {
+  contract String @db.Char(42) // address
+  sighash  String @db.Char(10) // bytes4
+  fragment Json
+
+  @@id([contract, sighash])
+  @@index([sighash])
 }
 
 model Comment {
@@ -179,7 +179,7 @@ model Comment {
   account   Account  @relation(fields: [accountId], references: [id], onDelete: Cascade)
   accountId String   @db.Char(42) // address
   key       String
-  author    Device   @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  author    User     @relation(fields: [authorId], references: [id], onDelete: Cascade)
   authorId  String   @db.Char(42) // address
   content   String
   createdAt DateTime @default(now())
@@ -193,8 +193,8 @@ model Comment {
 model Reaction {
   comment   Comment @relation(fields: [commentId], references: [id], onDelete: Cascade)
   commentId Int
-  device    Device  @relation(fields: [deviceId], references: [id], onDelete: Cascade)
-  deviceId  String  @db.Char(42) // address
+  user      User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId    String  @db.Char(42) // address
 
   emojis    String[]
   createdAt DateTime @default(now())
@@ -202,5 +202,5 @@ model Reaction {
   account   Account? @relation(fields: [accountId], references: [id])
   accountId String?  @db.Char(42)
 
-  @@id([commentId, deviceId])
+  @@id([commentId, userId])
 }

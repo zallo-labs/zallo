@@ -50,7 +50,13 @@ const sidebars = {
             type: 'doc',
             id: 'reference/quorum/index',
           },
-          items: ['reference/quorum/create', 'reference/quorum/spending'],
+          items: [
+            'reference/quorum/create',
+            'reference/quorum/spending',
+            'reference/quorum/query',
+            'reference/quorum/query-many',
+            'reference/quorum/remove',
+          ],
         },
         {
           type: 'category',

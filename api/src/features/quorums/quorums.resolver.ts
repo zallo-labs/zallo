@@ -5,7 +5,7 @@ import { Args, ID, Info, Mutation, Parent, Query, ResolveField, Resolver } from 
 import { GraphQLResolveInfo } from 'graphql';
 import { ACCOUNT_INTERFACE, Address, QuorumKey, randomQuorumKey, toQuorumStruct } from 'lib';
 import { PrismaService } from 'nestjs-prisma';
-import { DeviceAddr } from '~/decorators/device.decorator';
+import { UserId } from '~/decorators/user.decorator';
 import { connectAccount, connectQuorum } from '~/util/connect-or-create';
 import { getSelect } from '~/util/select';
 import { ProposalsService } from '../proposals/proposals.service';
@@ -41,7 +41,7 @@ export class QuorumsResolver {
   }
 
   @Query(() => [Quorum])
-  async quorums(@Args() args: QuorumsArgs, @DeviceAddr() device: Address): Promise<Quorum[]> {
+  async quorums(@Args() args: QuorumsArgs, @UserId() user: Address): Promise<Quorum[]> {
     return this.prisma.quorum.findMany({
       ...args,
       where: {
@@ -50,7 +50,7 @@ export class QuorumsResolver {
             states: {
               some: {
                 approvers: {
-                  some: { deviceId: device },
+                  some: { userId: user },
                 },
               },
             },
@@ -91,7 +91,7 @@ export class QuorumsResolver {
   @Mutation(() => Quorum)
   async createQuorum(
     @Args() args: CreateQuorumArgs,
-    @DeviceAddr() device: Address,
+    @UserId() user: Address,
     @Info() info: GraphQLResolveInfo,
   ) {
     return this.prisma.$transaction(async (tx) => {
@@ -109,7 +109,7 @@ export class QuorumsResolver {
       // Create quorum state
       return this.service.createUpsertState({
         ...args,
-        proposer: device,
+        proposer: user,
         key: randomQuorumKey(),
         tx,
         createArgs: getSelect(info),
@@ -120,13 +120,13 @@ export class QuorumsResolver {
   @Mutation(() => Quorum)
   async updateQuorum(
     @Args() args: UpdateQuorumArgs,
-    @DeviceAddr() device: Address,
+    @UserId() user: Address,
     @Info() info: GraphQLResolveInfo,
   ) {
     return this.prisma.$transaction(async (tx) =>
       this.service.createUpsertState({
         ...args,
-        proposer: device,
+        proposer: user,
         proposingQuorumKey: args.proposingQuorumKey ?? args.key,
         tx,
         createArgs: getSelect(info),
@@ -137,7 +137,7 @@ export class QuorumsResolver {
   @Mutation(() => Quorum)
   async removeQuorum(
     @Args() { account, key, proposingQuorumKey = key }: RemoveQuorumArgs,
-    @DeviceAddr() device: Address,
+    @UserId() user: Address,
     @Info() info: GraphQLResolveInfo,
   ) {
     return this.prisma.$transaction(async (tx) => {
@@ -150,7 +150,7 @@ export class QuorumsResolver {
               key,
               toQuorumStruct({ key, approvers: new Set() }),
             ]),
-            proposer: { connect: { id: device } },
+            proposer: { connect: { id: user } },
             quorum: connectQuorum(account, proposingQuorumKey),
           },
           select: {

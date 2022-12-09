@@ -16,7 +16,7 @@ import {
   toQuorumKey,
 } from 'lib';
 import { CONFIG } from '~/config';
-import { DeviceAddr } from '~/decorators/device.decorator';
+import { UserId } from '~/decorators/user.decorator';
 
 const getSelect = makeGetSelect<{
   Account: Prisma.AccountSelect;
@@ -47,9 +47,9 @@ export class AccountsResolver {
   async accounts(
     @Args() args: AccountsArgs,
     @Info() info: GraphQLResolveInfo,
-    @DeviceAddr() device: Address,
+    @UserId() user: Address,
   ): Promise<Account[]> {
-    return this.service.accounts(device, { ...args, ...getSelect(info) });
+    return this.service.accounts(user, { ...args, ...getSelect(info) });
   }
 
   @Mutation(() => Account)
@@ -80,7 +80,7 @@ export class AccountsResolver {
                 key: q.key,
                 states: {
                   create: {
-                    approvers: { create: [...q.approvers].map((a) => ({ deviceId: a })) },
+                    approvers: { create: [...q.approvers].map((a) => ({ userId: a })) },
                     spendingFallback: q.spending?.fallback,
                     limits: q.spending?.limit
                       ? { createMany: { data: Object.values(q.spending.limit) } }

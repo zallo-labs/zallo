@@ -6,6 +6,6 @@ import { Id, toId } from 'lib';
 export class ApproversResolver {
   @ResolveField(() => ID)
   id(@Parent() a: Approver): Id {
-    return toId(`${a.quorumStateId}-${a.deviceId}`);
+    return toId(`${a.quorumStateId}-${a.userId}`);
   }
 }

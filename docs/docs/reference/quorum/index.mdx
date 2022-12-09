@@ -8,16 +8,18 @@ Quorums are identified by their `key`.
 
 ## States
 
-Quorums must be activated before they can be used (see [creating a quorum](./create)).
+Upon creation the quorums state will be pending (inactive; see [creating a quorum](./create)).  
+Activating a state will supercede any previously active state.
 
 ### `activeState`
 
-The active state of the quorum is the most recently activated state.  
-Proposals will be executed according to this state.
+The most recently activated state.  
+**Proposals will be executed according to this state.** A quorum without an active state can't execute proposals.
 
 ### `pendingStates`
 
-[Executing](../proposal#lifecycle) a pending state create/update proposal will active the state - replacing the prior active state.
+Inactive states with pending proposals.  
+**A pending state is activated by [executing the proposal](../proposal#lifecycle)**
 
 ---
 

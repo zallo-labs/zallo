@@ -34,7 +34,7 @@ export class TransactionsService {
       include: {
         approvals: {
           select: {
-            deviceId: true,
+            userId: true,
             signature: true,
           },
         },
@@ -48,7 +48,7 @@ export class TransactionsService {
       },
       {
         include: {
-          approvers: { select: { deviceId: true } },
+          approvers: { select: { userId: true } },
           limits: true,
         },
       },
@@ -59,7 +59,7 @@ export class TransactionsService {
     const signers: Signer[] = proposal.approvals
       .filter((approval) => approval.signature)
       .map((approval) => ({
-        approver: address(approval.deviceId),
+        approver: address(approval.userId),
         signature: approval.signature!, // Rejections are filtered out
       }));
 
@@ -76,7 +76,7 @@ export class TransactionsService {
       }),
       quorum: {
         key: toQuorumKey(quorum.quorumKey),
-        approvers: new Set(quorum.approvers.map((a) => address(a.deviceId))),
+        approvers: new Set(quorum.approvers.map((a) => address(a.userId))),
         spending: {
           fallback: quorum.spendingFallback,
           limit: Object.fromEntries(

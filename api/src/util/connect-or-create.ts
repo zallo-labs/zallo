@@ -2,17 +2,17 @@ import { Prisma } from '@prisma/client';
 import { Address, QuorumGuid, QuorumKey } from 'lib';
 
 export const connectAccount = (
-  account: Address,
+  id: Address,
 ): Prisma.AccountCreateNestedOneWithoutProposalsInput => ({
-  connect: { id: account },
+  connect: { id },
 });
 
-export const connectOrCreateDevice = (
-  device: Address,
-): Prisma.DeviceCreateNestedOneWithoutApprovalsInput => ({
+export const connectOrCreateUser = (
+  id: Address,
+): Prisma.UserCreateNestedOneWithoutApprovalsInput => ({
   connectOrCreate: {
-    where: { id: device },
-    create: { id: device },
+    where: { id },
+    create: { id },
   },
 });
 

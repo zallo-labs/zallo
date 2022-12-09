@@ -2,7 +2,7 @@ import { BytesLike, ethers } from 'ethers';
 import { defaultAbiCoder } from 'ethers/lib/utils';
 import { Address, compareAddress } from './addr';
 import { TxReq, hashTx } from './tx';
-import { Device } from './device';
+import { UserWallet } from './user';
 import { Quorum, QUORUM_KEY_ABI } from './quorum';
 
 export type SignatureLike = Parameters<typeof ethers.utils.splitSignature>[0];
@@ -27,10 +27,10 @@ export const createTxSignature = (quorum: Quorum, signers: Signer[]): BytesLike 
   );
 };
 
-export const signProposal = (id: string, device: Device) =>
+export const signProposal = (id: string, device: UserWallet) =>
   ethers.utils.joinSignature(device._signingKey().signDigest(id));
 
-export const signTx = async (device: Device, account: Address, tx: TxReq) =>
+export const signTx = async (device: UserWallet, account: Address, tx: TxReq) =>
   signProposal(await hashTx(tx, { address: account, provider: device.provider }), device);
 
 export const validateSignature = (signer: Address, digest: BytesLike, signature: SignatureLike) => {

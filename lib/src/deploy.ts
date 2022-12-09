@@ -10,7 +10,7 @@ import {
 } from './contracts';
 import { defaultAbiCoder, hexlify, isHexString, randomBytes } from 'ethers/lib/utils';
 import * as zk from 'zksync-web3';
-import { Device } from './device';
+import { UserWallet } from './user';
 import { ACCOUNT_INTERFACE } from './decode';
 import { Quorum, toQuorumDefStruct } from './quorum';
 
@@ -27,8 +27,8 @@ export const toDeploySalt = (v: string): DeploySalt => {
 export const randomDeploySalt = () => hexlify(randomBytes(DEPLOY_SALT_BYTES)) as DeploySalt;
 
 const createConnect =
-  <T>(f: (addr: string, signer: Signer | ethers.providers.Provider | Device) => T) =>
-  (addr: Addresslike, signer: Signer | ethers.providers.Provider | Device): T =>
+  <T>(f: (addr: string, signer: Signer | ethers.providers.Provider | UserWallet) => T) =>
+  (addr: Addresslike, signer: Signer | ethers.providers.Provider | UserWallet): T =>
     f(address(addr), signer);
 
 export const connectFactory = createConnect(Factory__factory.connect);

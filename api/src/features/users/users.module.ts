@@ -1,9 +1,9 @@
 import { Module } from '@nestjs/common';
 import { ContactsModule } from '../contacts/contacts.module';
-import { DevicesResolver } from './devices.resolver';
+import { UsersResolver } from './users.resolver';
 
 @Module({
   imports: [ContactsModule],
-  providers: [DevicesResolver],
+  providers: [UsersResolver],
 })
-export class DevicesModule {}
+export class UsersModule {}

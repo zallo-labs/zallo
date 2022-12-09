@@ -6,7 +6,7 @@ import { Address, createTx, hashTx, randomTxSalt, TxDef, validateSignature } fro
 import { PrismaService } from 'nestjs-prisma';
 import { ProviderService } from '~/provider/provider.service';
 import { PubsubService } from '~/pubsub/pubsub.service';
-import { connectAccount, connectOrCreateDevice } from '~/util/connect-or-create';
+import { connectAccount, connectOrCreateUser } from '~/util/connect-or-create';
 import { TransactionsService } from '../transactions/transactions.service';
 import { ApproveArgs } from './proposals.args';
 
@@ -15,7 +15,7 @@ type CreateParams<T extends Prisma.ProposalCreateArgs> = {
   data: TxDef & Omit<Prisma.ProposalCreateInput, keyof TxDef | 'account' | 'id'>;
 } & Omit<Prisma.SelectSubset<T, Prisma.ProposalCreateArgs>, 'data'>;
 
-type ApproveParams = { device: Address } & ApproveArgs &
+type ApproveParams = { user: Address } & ApproveArgs &
   Omit<Prisma.ProposalFindUniqueOrThrowArgs, 'where'>;
 
 export const PROPOSAL_SUB = 'proposal';
@@ -56,15 +56,15 @@ export class ProposalsService {
     return proposal;
   }
 
-  async approve({ id, signature, device, ...args }: ApproveParams) {
-    await this.validateSignatureOrThrow(device, id, signature);
+  async approve({ id, signature, user, ...args }: ApproveParams) {
+    await this.validateSignatureOrThrow(user, id, signature);
 
     await this.prisma.proposal.update({
       where: { id },
       data: {
         approvals: {
           create: {
-            device: connectOrCreateDevice(device),
+            user: connectOrCreateUser(user),
             signature,
           },
         },
@@ -87,8 +87,8 @@ export class ProposalsService {
     this.pubsub.publish(PROPOSAL_SUB, { [PROPOSAL_SUB]: proposal });
   }
 
-  async validateSignatureOrThrow(device: Address, proposalHash: string, signature: string) {
-    const isValid = validateSignature(device, proposalHash, signature);
+  async validateSignatureOrThrow(user: Address, proposalHash: string, signature: string) {
+    const isValid = validateSignature(user, proposalHash, signature);
     if (!isValid) throw new UserInputError('Invalid signature');
   }
 }

@@ -11,8 +11,8 @@ import {
 import { GraphQLResolveInfo } from 'graphql';
 import { address, Address, isPresent, randomTxSalt, toQuorumKey } from 'lib';
 import { PrismaService } from 'nestjs-prisma';
-import { DeviceAddr } from '~/decorators/device.decorator';
-import { connectOrCreateDevice, connectQuorum } from '~/util/connect-or-create';
+import { UserId } from '~/decorators/user.decorator';
+import { connectOrCreateUser, connectQuorum } from '~/util/connect-or-create';
 import { getSelect } from '~/util/select';
 import {
   ProposeArgs,
@@ -57,7 +57,7 @@ export class ProposalsResolver {
   async proposals(
     @Args() { accounts, state, userHasApproved, ...args }: ProposalsArgs,
     @Info() info: GraphQLResolveInfo,
-    @DeviceAddr() device: Address,
+    @UserId() user: Address,
   ): Promise<Proposal[]> {
     return this.prisma.proposal.findMany({
       ...args,
@@ -77,7 +77,7 @@ export class ProposalsResolver {
                   transactions: { some: { response: { is: { success: { equals: true } } } } },
                 }))
                 .exhaustive()),
-            ...(userHasApproved && { approvals: { some: { deviceId: { equals: device } } } }),
+            ...(userHasApproved && { approvals: { some: { userId: { equals: user } } } }),
           },
           args.where ?? {},
         ],
@@ -113,14 +113,14 @@ export class ProposalsResolver {
     @Args()
     { account, quorumKey, to, value, data, salt = randomTxSalt(), gasLimit }: ProposeArgs,
     @Info() info: GraphQLResolveInfo,
-    @DeviceAddr() device: Address,
+    @UserId() user: Address,
   ): Promise<Proposal> {
     // Default behaviour is specified on ProposeArgs
     if (!quorumKey) {
       const quorum = await this.prisma.quorumState.findFirst({
         where: {
           accountId: account,
-          approvers: { some: { deviceId: device } },
+          approvers: { some: { userId: user } },
         },
         orderBy: [{ approvers: { _count: 'asc' } }, { id: 'asc' }],
         select: { quorumKey: true },
@@ -133,7 +133,7 @@ export class ProposalsResolver {
     return this.service.create({
       account,
       data: {
-        proposer: { connect: { id: device } },
+        proposer: { connect: { id: user } },
         quorum: connectQuorum(account, quorumKey),
         to,
         value: value.toString(),
@@ -148,12 +148,12 @@ export class ProposalsResolver {
   @Mutation(() => Proposal)
   async approve(
     @Args() args: ApproveArgs,
-    @DeviceAddr() device: Address,
+    @UserId() user: Address,
     @Info() info: GraphQLResolveInfo,
   ): Promise<Proposal> {
     return this.service.approve({
       ...args,
-      device,
+      user,
       ...getSelect(info),
     });
   }
@@ -161,7 +161,7 @@ export class ProposalsResolver {
   @Mutation(() => Proposal)
   async reject(
     @Args() { id }: UniqueProposalArgs,
-    @DeviceAddr() device: Address,
+    @UserId() user: Address,
     @Info() info: GraphQLResolveInfo,
   ): Promise<Proposal> {
     const proposal = await this.prisma.proposal.update({
@@ -170,13 +170,13 @@ export class ProposalsResolver {
         approvals: {
           upsert: {
             where: {
-              proposalId_deviceId: {
+              proposalId_userId: {
                 proposalId: id,
-                deviceId: device,
+                userId: user,
               },
             },
             create: {
-              device: connectOrCreateDevice(device),
+              user: connectOrCreateUser(user),
             },
             update: {
               signature: null,
@@ -195,7 +195,7 @@ export class ProposalsResolver {
   @Mutation(() => Boolean)
   async requestApproval(
     @Args() { id, approvers }: ApprovalRequest,
-    @DeviceAddr() device: Address,
+    @UserId() user: Address,
   ): Promise<true> {
     const { accountId, quorumKey } = await this.prisma.proposal.findUniqueOrThrow({
       where: { id },
@@ -207,12 +207,12 @@ export class ProposalsResolver {
       where: {
         accountId,
         quorumKey,
-        approvers: { some: { deviceId: { in: [...approvers] } } },
+        approvers: { some: { userId: { in: [...approvers] } } },
       },
       select: {
         approvers: {
           select: {
-            device: {
+            user: {
               select: {
                 id: true,
                 pushToken: true,
@@ -224,13 +224,13 @@ export class ProposalsResolver {
     });
 
     const approverPushTokens = (quorumState?.approvers ?? [])
-      .filter((a) => approvers.has(address(a.device.id)))
-      .map((a) => a.device.pushToken);
+      .filter((a) => approvers.has(address(a.user.id)))
+      .map((a) => a.user.pushToken);
 
     if (approverPushTokens.length !== approvers.size)
       throw new UserInputError('All approvers must be part of a state of the quorum');
 
-    const { name } = await this.prisma.device.findUniqueOrThrow({ where: { id: device } });
+    const { name } = await this.prisma.user.findUniqueOrThrow({ where: { id: user } });
 
     // Send a notification to specified users that haven't approved yet
     this.expo.chunkPushNotifications([

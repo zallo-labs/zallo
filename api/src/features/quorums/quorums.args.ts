@@ -7,17 +7,14 @@ import { AddressField, AddressScalar } from '~/apollo/scalars/Address.scalar';
 import { BigNumberField, QuorumKeyField } from '~/apollo/scalars/BigNumber.scalar';
 import { SetField } from '~/apollo/scalars/SetField';
 
-@InputType()
-export class QuorumGuidInput {
+@ArgsType()
+export class UniqueQuorumArgs {
   @AddressField()
   account: Address;
 
   @QuorumKeyField()
   key: QuorumKey;
 }
-
-@ArgsType()
-export class UniqueQuorumArgs extends QuorumGuidInput {}
 
 @ArgsType()
 export class QuorumsArgs extends FindManyQuorumArgs {}
@@ -62,9 +59,8 @@ export class CreateQuorumArgs {
 }
 
 @ArgsType()
-export class UpdateQuorumArgs extends QuorumGuidInput {
-  // Defaults to the `key`
-  @QuorumKeyField({ nullable: true })
+export class UpdateQuorumArgs extends UniqueQuorumArgs {
+  @QuorumKeyField({ nullable: true, description: 'Defaults to the `key`' })
   proposingQuorumKey?: QuorumKey;
 
   @SetField(() => AddressScalar, { min: 1 })
@@ -74,9 +70,8 @@ export class UpdateQuorumArgs extends QuorumGuidInput {
 }
 
 @ArgsType()
-export class RemoveQuorumArgs extends QuorumGuidInput {
-  // Defaults to the `key`
-  @QuorumKeyField({ nullable: true })
+export class RemoveQuorumArgs extends UniqueQuorumArgs {
+  @QuorumKeyField({ nullable: true, description: 'Defaults to the `key`' })
   proposingQuorumKey?: QuorumKey;
 }
 
@@ -110,6 +105,6 @@ export class QuorumInput {
 }
 
 @ArgsType()
-export class UpdateQuorumMetadataArgs extends QuorumGuidInput {
+export class UpdateQuorumMetadataArgs extends UniqueQuorumArgs {
   name: string;
 }
