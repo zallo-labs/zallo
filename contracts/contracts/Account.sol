@@ -93,7 +93,7 @@ contract Account is
       abi.encodeCall(INonceHolder.incrementMinNonceIfEquals, (transaction.reserved[0]))
     );
 
-    if (hasBeenExecuted(txHash)) revert TxAlreadyExecuted();
+    if (hasBeenExecuted(txHash)) revert TransactionAlreadyExecuted();
 
     _validateSignature(txHash, transaction.signature);
   }

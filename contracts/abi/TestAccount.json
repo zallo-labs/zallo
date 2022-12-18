@@ -43,7 +43,7 @@
   },
   {
     "inputs": [],
-    "name": "TxAlreadyExecuted",
+    "name": "TransactionAlreadyExecuted",
     "type": "error"
   },
   {
@@ -126,7 +126,7 @@
         "type": "bytes"
       }
     ],
-    "name": "TxExecuted",
+    "name": "TransactionExecuted",
     "type": "event"
   },
   {
@@ -145,7 +145,7 @@
         "type": "bytes"
       }
     ],
-    "name": "TxReverted",
+    "name": "TransactionReverted",
     "type": "event"
   },
   {

@@ -17,8 +17,8 @@ abstract contract TransactionExecutor is EIP712 {
                              EVENTS / ERRORS
   //////////////////////////////////////////////////////////////*/
 
-  event TxExecuted(bytes32 txHash, bytes response);
-  event TxReverted(bytes32 txHash, bytes response);
+  event TransactionExecuted(bytes32 txHash, bytes response);
+  event TransactionReverted(bytes32 txHash, bytes response);
 
   /*//////////////////////////////////////////////////////////////
                                 EXECUTION
@@ -33,7 +33,7 @@ abstract contract TransactionExecutor is EIP712 {
     (bool success, bytes memory response) = to.call{value: t.reserved[1]}(data);
 
     if (!success) {
-      emit TxReverted(txHash, response);
+      emit TransactionReverted(txHash, response);
 
       if (response.length > 0) {
         assembly {
@@ -45,7 +45,7 @@ abstract contract TransactionExecutor is EIP712 {
       }
     }
 
-    emit TxExecuted(txHash, response);
+    emit TransactionExecuted(txHash, response);
   }
 
   function _hashTx(Transaction calldata t) internal view returns (bytes32) {
@@ -68,11 +68,11 @@ abstract contract TransactionExecutor is EIP712 {
                                  STORAGE
   //////////////////////////////////////////////////////////////*/
 
-  /// @notice Bit map of executed txs
-  function _executedTxs() private pure returns (mapping(uint256 => uint256) storage s) {
+  /// @notice Bit map of executed transactions
+  function _executedTransactions() private pure returns (mapping(uint256 => uint256) storage s) {
     assembly {
-      // keccack256('TransactionExecutor.executedTxs')
-      s.slot := 0xbc27dde5fff032543400d18687eab3abfc68350f0bf6dbd89802dbc845940024
+      // keccack256('TransactionExecutor.executedTransactions')
+      s.slot := 0x77c97ba7d07ebfdb3a82cae8ce0df1482e4d6cab84766034bf6e587234058182
     }
   }
 
@@ -83,7 +83,7 @@ abstract contract TransactionExecutor is EIP712 {
     uint256 wordIndex = index / 256;
     uint256 bitIndex = index % 256;
     uint256 mask = (1 << bitIndex);
-    return _executedTxs()[wordIndex] & mask == mask;
+    return _executedTransactions()[wordIndex] & mask == mask;
   }
 
   function _setExecuted(bytes32 txHash) internal {
@@ -91,7 +91,7 @@ abstract contract TransactionExecutor is EIP712 {
     uint256 wordIndex = index / 256;
     uint256 bitIndex = index % 256;
 
-    mapping(uint256 => uint256) storage executedTxs = _executedTxs();
+    mapping(uint256 => uint256) storage executedTxs = _executedTransactions();
     executedTxs[wordIndex] = executedTxs[wordIndex] | (1 << bitIndex);
   }
 }

@@ -1,8 +1,8 @@
 import { gql } from '@apollo/client';
 
-export const TX_RESPONSES_QUERY = gql`
-  query TxResponse($transactionHash: ID!) {
-    tx(id: $transactionHash) {
+export const TRANSACTION_RESPONSES_QUERY = gql`
+  query TransactionResponse($transactionHash: ID!) {
+    transaction(id: $transactionHash) {
       id
       success
       response

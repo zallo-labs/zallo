@@ -2,8 +2,8 @@ type Account @entity {
   "{address}"
   id: Bytes!
   impl: AccountImpl!
-  users: [User!]! @derivedFrom(field: "account")
-  txs: [Tx!]! @derivedFrom(field: "account")
+  quorums: [Quorum!]! @derivedFrom(field: "account")
+  transactions: [Transaction!]! @derivedFrom(field: "account")
   transfers: [Transfer!]! @derivedFrom(field: "account")
 }
 
@@ -15,7 +15,7 @@ type AccountImpl @entity {
   proxies: [Account!]! @derivedFrom(field: "impl")
 }
 
-type Tx @entity {
+type Transaction @entity {
   "{transaction.hash}"
   id: Bytes!
   account: Account!
@@ -27,29 +27,22 @@ type Tx @entity {
   executor: Bytes!
   blockHash: Bytes!
   timestamp: BigInt!
-  transfers: [Transfer!]! @derivedFrom(field: "tx")
+  transfers: [Transfer!]! @derivedFrom(field: "transaction")
 }
 
-type User @entity {
-  "{account.id}-{addr}"
+type Quorum @entity {
+  "{account.id}-{key}"
   id: String!
   account: Account!
-  addr: Bytes!
-  configs: [UserConfig!]!
-}
-
-type UserConfig @entity {
-  "{blockHash}-{logIndex}"
-  id: String!
-  user: User!
-  approvers: [Bytes!]!
+  key: BigInt!
+  hash: Bytes!
 }
 
 type Transfer @entity {
-  "{tx.id}-{tx.log.index}"
+  "{transaction.id}-{transaction.log.index}"
   id: String!
   account: Account!
-  tx: Tx
+  transaction: Transaction
   transactionHash: Bytes!
   token: Bytes!
   type: TransferType!
@@ -67,7 +60,7 @@ enum TransferType {
 }
 
 # type TokenTransferApproval @entity {
-#   "{tx.hash}-{tx.log.index}"
+#   "{transaction.hash}-{transaction.log.index}"
 #   id: ID!
 #   # token: Token!
 #   token: Bytes!

@@ -1,6 +1,6 @@
 export const AccountError = {
   ApproverSignaturesMismatch: 'ApproverSignaturesMismatch',
-  TxAlreadyExecuted: 'TxAlreadyExecuted',
+  TransactionAlreadyExecuted: 'TransactionAlreadyExecuted',
   InvalidSignature: 'InvalidSignature',
   OnlyCallableByBootloader: 'OnlyCallableByBootloader',
   // SelfOwned

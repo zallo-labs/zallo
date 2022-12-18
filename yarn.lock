@@ -5414,18 +5414,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@float-capital/float-subgraph-uncrashable@npm:^0.0.0-alpha.4":
-  version: 0.0.0-dev
-  resolution: "@float-capital/float-subgraph-uncrashable@npm:0.0.0-dev"
-  dependencies:
-    graphql: ^16.6.0
-    graphql-import-node: ^0.0.5
-    js-yaml: ^4.1.0
-    rescript: ^9.1.4
-  checksum: 4f68b2d41b2c9dd18a174588e9d1db5862b680c423144d697351527658e8dd49477b42aa061ecc2adba28107e4ed53b97afaf10a75288186aca4070835b94b56
-  languageName: node
-  linkType: hard
-
 "@formatjs/ecma402-abstract@npm:1.13.0":
   version: 1.13.0
   resolution: "@formatjs/ecma402-abstract@npm:1.13.0"
@@ -5618,11 +5606,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@graphprotocol/graph-cli@npm:0.37.0":
-  version: 0.37.0
-  resolution: "@graphprotocol/graph-cli@npm:0.37.0"
+"@graphprotocol/graph-cli@npm:0.35.0":
+  version: 0.35.0
+  resolution: "@graphprotocol/graph-cli@npm:0.35.0"
   dependencies:
-    "@float-capital/float-subgraph-uncrashable": ^0.0.0-alpha.4
     assemblyscript: 0.19.10
     binary-install-raw: 0.0.13
     chalk: 3.0.0
@@ -5650,7 +5637,7 @@ __metadata:
     yaml: 1.9.2
   bin:
     graph: bin/graph
-  checksum: 9c68baeeacd0e59eb6cd03e04969bfcd9528a9e050e414748c0c3e21a398620e6cdd099f8c0576d5aa1b07bd1d660e57a3164d20dda1d071f01822fd1035454a
+  checksum: c50ac69ca84fe855b5ab24175cca605d71ba8ad91d8f8fe8c18e6a96e027a13aace3d3b2686162c8f1e89fbfe3796cdc62a18b6fc57e8adff9008f5a244d03f3
   languageName: node
   linkType: hard
 
@@ -23444,15 +23431,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"graphql-import-node@npm:^0.0.5":
-  version: 0.0.5
-  resolution: "graphql-import-node@npm:0.0.5"
-  peerDependencies:
-    graphql: "*"
-  checksum: a9af565f3422e9e732dcf97077deff3f94b9af0d7e8001bb65a3cac607a462664f902b3603ead1626b294928c4b6302cb6aa2d49254444d465ce87c629fb842d
-  languageName: node
-  linkType: hard
-
 "graphql-parse-resolve-info@npm:^4.12.3":
   version: 4.12.3
   resolution: "graphql-parse-resolve-info@npm:4.12.3"
@@ -35593,18 +35571,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"rescript@npm:^9.1.4":
-  version: 9.1.4
-  resolution: "rescript@npm:9.1.4"
-  bin:
-    bsc: bsc
-    bsrefmt: bsrefmt
-    bstracing: lib/bstracing
-    rescript: rescript
-  checksum: 3c503580f968b4d4409830093c57f85b5590f7372250345427b3a7c1f5ccb08009e1edd89b4a3dcbb3ee95ee4dcad9c337ece4d1f8fdaa10e22ed04b8a7495c0
-  languageName: node
-  linkType: hard
-
 "reselect@npm:^4.0.0":
   version: 4.1.6
   resolution: "reselect@npm:4.1.6"
@@ -38026,7 +37992,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "subgraph@workspace:subgraph"
   dependencies:
-    "@graphprotocol/graph-cli": 0.37.0
+    "@graphprotocol/graph-cli": 0.35.0
     "@graphprotocol/graph-ts": 0.29.0
     mustache: ^4.2.0
   languageName: unknown

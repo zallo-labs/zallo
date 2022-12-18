@@ -23,7 +23,7 @@ export class TransactionsResolver {
     // Get transaction response from subgraph if not already in db
     if (submission.response) return submission.response;
 
-    const response = await this.subgraph.txResponse(submission.hash);
+    const response = await this.subgraph.transactionResponse(submission.hash);
     if (!response) return null;
 
     return this.prisma.transactionResponse.create({

@@ -19,18 +19,17 @@ dataSources:
       entities:
         - Account
         - AccountImpl
-        - Tx
-        - User
-        - UserConfig
+        - Transaction
+        - Quorum
       eventHandlers:
-        - event: TxExecuted(bytes32,bytes)
-          handler: handleTxExecuted
-        - event: TxReverted(bytes32,bytes)
-          handler: handleTxReverted
-        - event: UserUpserted((address,(address[])[]))
-          handler: handleUserUpserted
-        - event: UserRemoved(address)
-          handler: handleUserRemoved
+        - event: TransactionExecuted(bytes32,bytes)
+          handler: handleTransactionExecuted
+        - event: TransactionReverted(bytes32,bytes)
+          handler: handleTransactionReverted
+        - event: QuorumUpserted(indexed uint32,bytes32)
+          handler: handleQuorumUpserted
+        - event: QuorumRemoved(indexed uint32)
+          handler: handleQuorumRemoved
   - name: ERC1967Proxy
     kind: ethereum/contract
     network: {{network}}
@@ -67,7 +66,7 @@ dataSources:
         - name: ERC20
           file: ../lib/abi/erc20.json
       entities:
-        - Tx
+        - Transaction
         - Transfer
         # - TokenTransferApproval
       eventHandlers:

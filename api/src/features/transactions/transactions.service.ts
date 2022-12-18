@@ -115,7 +115,7 @@ export class TransactionsService {
         nonce: transaction.nonce,
         gasLimit: transaction.gasLimit.toString(),
         gasPrice: transaction.gasPrice?.toString(),
-        response: { create: await this.subgraph.txResponse(proposalId) },
+        response: { create: await this.subgraph.transactionResponse(proposalId) },
       },
     });
   }

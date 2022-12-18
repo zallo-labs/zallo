@@ -26,7 +26,7 @@ interface IAccount is BaseIAccount, IERC1271 {
 
   error QuorumHashMismatch(bytes32 expected);
   error ApproverSignaturesMismatch();
-  error TxAlreadyExecuted();
+  error TransactionAlreadyExecuted();
   error InvalidSignature(address approver);
   error InvalidProof();
   error OnlyCallableByBootloader();
