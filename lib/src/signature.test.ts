@@ -1,4 +1,4 @@
-import { createTx, hashTx } from './tx';
+import { toTx, hashTx } from './tx';
 import * as zk from 'zksync-web3';
 import { ZERO_ADDR } from './addr';
 import { hexDataLength } from 'ethers/lib/utils';
@@ -7,7 +7,7 @@ import { signTx, validateSignature } from './signature';
 const device = zk.Wallet.createRandom();
 const account = ZERO_ADDR;
 
-const tx = createTx({
+const tx = toTx({
   to: device.address,
   data: '0x12',
   value: 231,

@@ -12,8 +12,6 @@ import './Upgradeable.sol';
 import './TransactionExecutor.sol';
 import './ERC165.sol';
 import './ERC721Receiver.sol';
-import {MerkleProof} from './utils/MerkleProof.sol';
-import {BoolArray} from './utils/BoolArray.sol';
 import {SignatureChecker} from './utils/SignatureChecker.sol';
 
 contract Account is
@@ -26,9 +24,7 @@ contract Account is
   ERC721Receiver
 {
   using SignatureChecker for address;
-  using MerkleProof for bytes32[];
-  using UserHelper for User;
-  using UserConfigHelper for UserConfig;
+  using QuorumHelper for Quorum;
 
   /*//////////////////////////////////////////////////////////////
                              INITIALIZATION
@@ -39,10 +35,10 @@ contract Account is
     _disableInitializers();
   }
 
-  function initialize(QuorumDef[] calldata quorums) external initializer {
+  function initialize(QuorumDefinition[] calldata quorums) external initializer {
     uint256 quorumsLen = quorums.length;
     for (uint256 i = 0; i < quorumsLen; ) {
-      _upsertQuorum(quorums[i].key, quorums[i].quorum);
+      _upsertQuorum(quorums[i].key, quorums[i].hash);
 
       unchecked {
         ++i;
@@ -124,12 +120,12 @@ contract Account is
   }
 
   /*//////////////////////////////////////////////////////////////
-                             USER MANAGEMENT
+                            QUORUM MANAGEMENT
   //////////////////////////////////////////////////////////////*/
 
   /// @inheritdoc IAccount
-  function upsertQuorum(QuorumKey key, Quorum calldata quorum) external onlySelf {
-    _upsertQuorum(key, quorum);
+  function upsertQuorum(QuorumKey key, bytes32 hash) external onlySelf {
+    _upsertQuorum(key, hash);
   }
 
   /// @inheritdoc IAccount
@@ -138,9 +134,9 @@ contract Account is
     emit QuorumRemoved(key);
   }
 
-  function _upsertQuorum(QuorumKey key, Quorum calldata quorum) internal {
-    _quorums()[key] = quorum;
-    emit QuorumUpserted(key, quorum);
+  function _upsertQuorum(QuorumKey key, bytes32 hash) internal {
+    _quorums()[key] = hash;
+    emit QuorumUpserted(key, hash);
   }
 
   /*//////////////////////////////////////////////////////////////
@@ -157,9 +153,15 @@ contract Account is
   }
 
   function _validateSignature(bytes32 hash, bytes memory signature) internal view {
-    (QuorumKey quorumId, bytes[] memory signatures) = abi.decode(signature, (QuorumKey, bytes[]));
+    (QuorumKey key, Quorum memory quorum, bytes[] memory signatures) = abi.decode(
+      signature,
+      (QuorumKey, Quorum, bytes[])
+    );
 
-    _validateSignatures(hash, _quorums()[quorumId].approvers, signatures);
+    bytes32 expectedQuorumHash = _quorums()[key];
+    if (quorum.hash() != expectedQuorumHash) revert QuorumHashMismatch(expectedQuorumHash);
+
+    _validateSignatures(hash, quorum.approvers, signatures);
   }
 
   function _validateSignatures(
@@ -180,10 +182,10 @@ contract Account is
   }
 
   /*//////////////////////////////////////////////////////////////
-                            USER MERKLE ROOTS
+                          QUORUM MERKLE ROOTS
     //////////////////////////////////////////////////////////////*/
 
-  function _quorums() internal pure returns (mapping(QuorumKey => Quorum) storage s) {
+  function _quorums() internal pure returns (mapping(QuorumKey => bytes32) storage s) {
     assembly {
       // keccack256('Account.quorums')
       s.slot := 0x37960d0a655d0d781716b0e17600d3e44caa3d99659d8fb953b4c370d154d1a4

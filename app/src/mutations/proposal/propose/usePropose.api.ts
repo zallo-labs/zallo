@@ -2,7 +2,7 @@ import { gql } from '@apollo/client';
 import { useDevice } from '@network/useDevice';
 import { useApiClient } from '~/gql/GqlProvider';
 import { hexlify } from 'ethers/lib/utils';
-import { Address, createTx, getTxId, hashTx, TxDef } from 'lib';
+import { Address, toTx, getTxId, hashTx, TxDef } from 'lib';
 import { DateTime } from 'luxon';
 import { useCallback } from 'react';
 import {
@@ -62,7 +62,7 @@ export const useApiPropose = () => {
 
   const propose = useCallback(
     async (txDef: ProposalDef, account: Address): Promise<ProposeResponse> => {
-      const tx = createTx(txDef);
+      const tx = toTx(txDef);
       const hash = await hashTx(tx, { address: account, provider: device.provider });
 
       const id = getTxId(hash);

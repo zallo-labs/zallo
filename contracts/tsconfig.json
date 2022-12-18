@@ -4,10 +4,7 @@
     "sourceRoot": "src",
     "outDir": "dist",
 
-    "resolveJsonModule": true,
-
-    "baseUrl": "./",
-    "paths": { "~/*": ["src/*"] }
+    "resolveJsonModule": true
   },
   "include": ["./scripts", "./tasks", "./test", "./typechain", "./local-wallets.json"],
   "files": ["./hardhat.config.ts", "./config.ts"],

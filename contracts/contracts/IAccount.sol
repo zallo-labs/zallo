@@ -4,7 +4,6 @@ pragma solidity ^0.8.0;
 import {Transaction, IAccount as BaseIAccount} from '@matterlabs/zksync-contracts/l2/system-contracts/interfaces/IAccount.sol';
 import '@openzeppelin/contracts/interfaces/IERC1271.sol';
 
-import './UserHelper.sol';
 import './Quorum.sol';
 
 /*//////////////////////////////////////////////////////////////
@@ -18,13 +17,14 @@ interface IAccount is BaseIAccount, IERC1271 {
                                  EVENTS
   //////////////////////////////////////////////////////////////*/
 
-  event QuorumUpserted(QuorumKey indexed key, Quorum quorum);
+  event QuorumUpserted(QuorumKey indexed key, bytes32 quorumHash);
   event QuorumRemoved(QuorumKey indexed key);
 
   /*//////////////////////////////////////////////////////////////
                                  ERRORS
   //////////////////////////////////////////////////////////////*/
 
+  error QuorumHashMismatch(bytes32 expected);
   error ApproverSignaturesMismatch();
   error TxAlreadyExecuted();
   error InvalidSignature(address approver);
@@ -33,8 +33,8 @@ interface IAccount is BaseIAccount, IERC1271 {
 
   /// @notice Upsert (create or update) a quorum
   /// @dev Only callable by the account
-  /// @param quorum Quorum to be upserted
-  function upsertQuorum(QuorumKey key, Quorum calldata quorum) external;
+  /// @param quorumHash Hash of quorum to be upserted
+  function upsertQuorum(QuorumKey key, bytes32 quorumHash) external;
 
   /// @notice Remove a quorum
   /// @dev Only callable by the account

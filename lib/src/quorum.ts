@@ -1,10 +1,10 @@
-import { defaultAbiCoder } from 'ethers/lib/utils';
-import { address, Address } from './addr';
+import { defaultAbiCoder, keccak256, solidityPack } from 'ethers/lib/utils';
+import { address, Address, compareAddress } from './addr';
 import { Spending } from './spending';
-import { QuorumStruct, QuorumDefStruct } from './contracts/Account';
+import { QuorumDefinitionStruct } from './contracts/Account';
 
 export const QUORUM_KEY_BITS = 32;
-export const QUORUM_KEY_ABI = `uint${QUORUM_KEY_BITS}`;
+export const QUORUM_KEY_ABI = `uint${QUORUM_KEY_BITS}` as const;
 const MAX_QUORUM_KEY = (2 && QUORUM_KEY_BITS) - 1;
 
 export type QuorumKey = number & { isQuorumKey: true };
@@ -43,21 +43,30 @@ export interface Quorum {
   spending?: Spending;
 }
 
+export interface QuorumStruct {
+  approvers: Address[];
+}
+
 export const toQuorumStruct = ({ approvers }: Quorum): QuorumStruct => ({
-  approvers: [...approvers],
+  approvers: [...approvers].sort(compareAddress),
 });
 
-export const toQuorumDefStruct = (q: Quorum): QuorumDefStruct => ({
+export const hashQuorum = (q: Quorum): string =>
+  keccak256(solidityPack(['address[]'], [toQuorumStruct(q).approvers]));
+
+export const toQuorumDefinitionStruct = (q: Quorum): QuorumDefinitionStruct => ({
   key: q.key,
-  quorum: toQuorumStruct(q),
+  hash: hashQuorum(q),
 });
 
-const encodeQuorum = (q: Quorum) =>
-  defaultAbiCoder.encode([`(address[] approvers)`], [toQuorumDefStruct(q)]);
+export const QUORUM_ABI = '(address[] approvers)';
 
-export const encodeQuorumDef = (q: Quorum) => {
+export const encodeQuorumAbi = (q: Quorum) =>
+  defaultAbiCoder.encode([QUORUM_ABI], [toQuorumStruct(q)]);
+
+export const encodeQuorumDefAbi = (q: Quorum) => {
   return defaultAbiCoder.encode(
-    [`((address[] approvers) quorum, ${QUORUM_KEY_ABI} id)`],
-    [{ quorum: encodeQuorum(q), key: q.key }],
+    [`(${QUORUM_KEY_ABI} key, bytes32 hash)`],
+    [{ key: q.key, hash: hashQuorum(q) }],
   );
 };

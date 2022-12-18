@@ -2,24 +2,13 @@
 pragma solidity ^0.8.0;
 
 import '../Account.sol';
-import {BoolArray} from '../utils/BoolArray.sol';
 
 contract TestAccount is Account {
-  using UserConfigHelper for UserConfig;
-
   function testExecuteTransaction(Transaction calldata transaction) external {
     _executeTransaction(_hashTx(transaction), transaction);
   }
 
-  function isValidProof(
-    UserConfig calldata config,
-    bytes32[] calldata proof,
-    bytes32 root
-  ) external pure returns (bool) {
-    return config.isValidProof(proof, root);
-  }
-
-  function getQuorum(QuorumKey key) external view returns (Quorum memory) {
+  function getQuorumHash(QuorumKey key) external view returns (bytes32) {
     return _quorums()[key];
   }
 
@@ -29,13 +18,5 @@ contract TestAccount is Account {
 
   function domainSeparator() external view returns (bytes32) {
     return _domainSeparator();
-  }
-
-  function boolArrayLength(uint256[] calldata bools) external pure returns (uint256) {
-    return BoolArray.length(bools);
-  }
-
-  function boolArrayAtIndex(uint256[] calldata bools, uint256 index) external pure returns (bool) {
-    return BoolArray.atIndex(bools, index);
   }
 }

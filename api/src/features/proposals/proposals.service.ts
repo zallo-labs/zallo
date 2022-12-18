@@ -2,7 +2,7 @@ import { forwardRef, Inject, Injectable } from '@nestjs/common';
 import { Prisma, Proposal } from '@prisma/client';
 import { UserInputError } from 'apollo-server-core';
 import { hexlify } from 'ethers/lib/utils';
-import { Address, createTx, hashTx, randomTxSalt, TxDef, validateSignature } from 'lib';
+import { Address, toTx, hashTx, randomTxSalt, TxDef, validateSignature } from 'lib';
 import { PrismaService } from 'nestjs-prisma';
 import { ProviderService } from '~/provider/provider.service';
 import { PubsubService } from '~/pubsub/pubsub.service';
@@ -34,7 +34,7 @@ export class ProposalsService {
     { account, data, ...args }: CreateParams<T>,
     client: Prisma.TransactionClient = this.prisma,
   ): Promise<Prisma.ProposalGetPayload<T>> {
-    const tx = createTx(data);
+    const tx = toTx(data);
     const id = await hashTx(tx, { address: account, provider: this.provider });
 
     const proposal = (await client.proposal.create({

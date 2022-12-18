@@ -20,8 +20,6 @@ abstract contract TransactionExecutor is EIP712 {
   event TxExecuted(bytes32 txHash, bytes response);
   event TxReverted(bytes32 txHash, bytes response);
 
-  error ExecutionReverted();
-
   /*//////////////////////////////////////////////////////////////
                                 EXECUTION
   //////////////////////////////////////////////////////////////*/
@@ -43,7 +41,7 @@ abstract contract TransactionExecutor is EIP712 {
           revert(add(32, response), returndata_size)
         }
       } else {
-        revert ExecutionReverted();
+        revert();
       }
     }
 

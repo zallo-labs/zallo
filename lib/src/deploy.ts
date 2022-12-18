@@ -12,7 +12,7 @@ import { defaultAbiCoder, hexlify, isHexString, randomBytes } from 'ethers/lib/u
 import * as zk from 'zksync-web3';
 import { UserWallet } from './user';
 import { ACCOUNT_INTERFACE } from './decode';
-import { Quorum, toQuorumDefStruct } from './quorum';
+import { Quorum, toQuorumDefinitionStruct } from './quorum';
 
 export type DeploySalt = string & { isDeploySalt: true };
 const DEPLOY_SALT_BYTES = 32;
@@ -47,7 +47,7 @@ export interface ProxyConstructorArgs extends AccountConstructorArgs {
 
 export const encodeProxyConstructorArgs = ({ quorums, impl }: ProxyConstructorArgs) => {
   const encodedInitializeCall = ACCOUNT_INTERFACE.encodeFunctionData('initialize', [
-    quorums.map(toQuorumDefStruct),
+    quorums.map(toQuorumDefinitionStruct),
   ]);
 
   return defaultAbiCoder.encode(

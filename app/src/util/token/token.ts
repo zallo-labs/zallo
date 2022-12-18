@@ -4,7 +4,7 @@ import {
   Address,
   Addresslike,
   createIsObj,
-  createTx,
+  toTx,
   Erc20,
   Erc20__factory,
   isAddress,
@@ -66,7 +66,7 @@ export const getTokenContract = (token: Token): Erc20 =>
   Erc20__factory.connect(token.addr, PROVIDER as any);
 
 export const createTransferTx = (token: Token, to: Address, amount: BigNumber): TxReq =>
-  createTx(
+  toTx(
     token.type === 'ERC20'
       ? {
           // ERC20

@@ -11,11 +11,6 @@
   },
   {
     "inputs": [],
-    "name": "ExecutionReverted",
-    "type": "error"
-  },
-  {
-    "inputs": [],
     "name": "InvalidProof",
     "type": "error"
   },
@@ -38,6 +33,17 @@
   {
     "inputs": [],
     "name": "OnlyCallableBySelf",
+    "type": "error"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "bytes32",
+        "name": "expected",
+        "type": "bytes32"
+      }
+    ],
+    "name": "QuorumHashMismatch",
     "type": "error"
   },
   {
@@ -100,17 +106,10 @@
         "type": "uint32"
       },
       {
-        "components": [
-          {
-            "internalType": "address[]",
-            "name": "approvers",
-            "type": "address[]"
-          }
-        ],
         "indexed": false,
-        "internalType": "struct Quorum",
-        "name": "quorum",
-        "type": "tuple"
+        "internalType": "bytes32",
+        "name": "quorumHash",
+        "type": "bytes32"
       }
     ],
     "name": "QuorumUpserted",
@@ -375,24 +374,17 @@
       {
         "components": [
           {
-            "components": [
-              {
-                "internalType": "address[]",
-                "name": "approvers",
-                "type": "address[]"
-              }
-            ],
-            "internalType": "struct Quorum",
-            "name": "quorum",
-            "type": "tuple"
-          },
-          {
             "internalType": "QuorumKey",
             "name": "key",
             "type": "uint32"
+          },
+          {
+            "internalType": "bytes32",
+            "name": "hash",
+            "type": "bytes32"
           }
         ],
-        "internalType": "struct QuorumDef[]",
+        "internalType": "struct QuorumDefinition[]",
         "name": "quorums",
         "type": "tuple[]"
       }
@@ -734,16 +726,9 @@
         "type": "uint32"
       },
       {
-        "components": [
-          {
-            "internalType": "address[]",
-            "name": "approvers",
-            "type": "address[]"
-          }
-        ],
-        "internalType": "struct Quorum",
-        "name": "quorum",
-        "type": "tuple"
+        "internalType": "bytes32",
+        "name": "hash",
+        "type": "bytes32"
       }
     ],
     "name": "upsertQuorum",

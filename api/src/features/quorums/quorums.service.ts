@@ -1,6 +1,6 @@
 import { forwardRef, Inject, Injectable } from '@nestjs/common';
 import { Prisma, PrismaPromise } from '@prisma/client';
-import { ACCOUNT_INTERFACE, Address, Quorum, QuorumGuid, QuorumKey, toQuorumStruct } from 'lib';
+import { ACCOUNT_INTERFACE, Address, hashQuorum, Quorum, QuorumGuid, QuorumKey } from 'lib';
 import { PrismaService } from 'nestjs-prisma';
 import { connectAccount, connectQuorum } from '~/util/connect-or-create';
 import { ProposalsService } from '../proposals/proposals.service';
@@ -52,7 +52,7 @@ export class QuorumsService {
         account,
         data: {
           to: account,
-          data: ACCOUNT_INTERFACE.encodeFunctionData('upsertQuorum', [key, toQuorumStruct(quorum)]),
+          data: ACCOUNT_INTERFACE.encodeFunctionData('upsertQuorum', [key, hashQuorum(quorum)]),
           proposer: { connect: { id: proposer } },
           quorum: connectQuorum(account, proposingQuorumKey),
         },

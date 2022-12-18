@@ -7,7 +7,13 @@ struct Quorum {
   address[] approvers;
 }
 
-struct QuorumDef {
-  Quorum quorum;
+struct QuorumDefinition {
   QuorumKey key;
+  bytes32 hash;
+}
+
+library QuorumHelper {
+  function hash(Quorum memory quorum) internal pure returns (bytes32) {
+    return keccak256(abi.encodePacked(quorum.approvers));
+  }
 }

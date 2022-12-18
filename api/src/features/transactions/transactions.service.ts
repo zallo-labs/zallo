@@ -9,7 +9,7 @@ import {
   Signer,
   toTxSalt,
   toQuorumKey,
-  createTx,
+  toTx,
   TokenLimit,
 } from 'lib';
 import { PrismaService } from 'nestjs-prisma';
@@ -67,7 +67,7 @@ export class TransactionsService {
 
     const resp = await executeTx({
       account: this.provider.connectAccount(address(proposal.accountId)),
-      tx: createTx({
+      tx: toTx({
         to: address(proposal.to),
         value: proposal.value ? BigNumber.from(proposal.value) : undefined,
         data: proposal.data ?? undefined,

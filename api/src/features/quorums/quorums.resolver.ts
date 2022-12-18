@@ -3,7 +3,7 @@ import { Quorum } from '@gen/quorum/quorum.model';
 import { forwardRef, Inject } from '@nestjs/common';
 import { Args, ID, Info, Mutation, Parent, Query, ResolveField, Resolver } from '@nestjs/graphql';
 import { GraphQLResolveInfo } from 'graphql';
-import { ACCOUNT_INTERFACE, Address, QuorumKey, randomQuorumKey, toQuorumStruct } from 'lib';
+import { ACCOUNT_INTERFACE, Address, QuorumKey, randomQuorumKey } from 'lib';
 import { PrismaService } from 'nestjs-prisma';
 import { UserId } from '~/decorators/user.decorator';
 import { connectAccount, connectQuorum } from '~/util/connect-or-create';
@@ -146,10 +146,7 @@ export class QuorumsResolver {
           account,
           data: {
             to: account,
-            data: ACCOUNT_INTERFACE.encodeFunctionData('upsertQuorum', [
-              key,
-              toQuorumStruct({ key, approvers: new Set() }),
-            ]),
+            data: ACCOUNT_INTERFACE.encodeFunctionData('removeQuorum', [key]),
             proposer: { connect: { id: user } },
             quorum: connectQuorum(account, proposingQuorumKey),
           },

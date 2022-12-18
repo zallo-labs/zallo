@@ -3,7 +3,7 @@ import { defaultAbiCoder } from 'ethers/lib/utils';
 import { Address, compareAddress } from './addr';
 import { TxReq, hashTx } from './tx';
 import { UserWallet } from './user';
-import { Quorum, QUORUM_KEY_ABI } from './quorum';
+import { encodeQuorumAbi, Quorum, QUORUM_ABI, QUORUM_KEY_ABI, toQuorumStruct } from './quorum';
 
 export type SignatureLike = Parameters<typeof ethers.utils.splitSignature>[0];
 
@@ -16,22 +16,22 @@ export interface Signer {
   signature: BytesLike;
 }
 
-export const createTxSignature = (quorum: Quorum, signers: Signer[]): BytesLike => {
+export const toTxSignature = (quorum: Quorum, signers: Signer[]): BytesLike => {
   const signatures = signers
     .sort((a, b) => compareAddress(a.approver, b.approver))
     .map((s) => toCompactSignature(s.signature));
 
   return defaultAbiCoder.encode(
-    [`${QUORUM_KEY_ABI} id`, 'bytes[] signatures'],
-    [quorum.key, signatures],
+    [QUORUM_KEY_ABI, QUORUM_ABI, 'bytes[] signatures'],
+    [quorum.key, toQuorumStruct(quorum), signatures],
   );
 };
 
 export const signProposal = (id: string, device: UserWallet) =>
   ethers.utils.joinSignature(device._signingKey().signDigest(id));
 
-export const signTx = async (device: UserWallet, account: Address, tx: TxReq) =>
-  signProposal(await hashTx(tx, { address: account, provider: device.provider }), device);
+export const signTx = async (wallet: UserWallet, account: Address, tx: TxReq) =>
+  signProposal(await hashTx(tx, { address: account, provider: wallet.provider }), wallet);
 
 export const validateSignature = (signer: Address, digest: BytesLike, signature: SignatureLike) => {
   try {

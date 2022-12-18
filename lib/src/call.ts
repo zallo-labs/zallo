@@ -15,7 +15,7 @@ export interface CallDef {
   data?: BytesLike;
 }
 
-export const createCall = (c: CallDef): Call => ({
+export const toCall = (c: CallDef): Call => ({
   to: (c.to && address(c.to)) || ZERO_ADDR,
   value: c.value !== undefined ? BigNumber.from(c.value) : ZERO,
   data: c.data ? hexlify(c.data) : '0x',

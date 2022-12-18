@@ -1,7 +1,7 @@
 import { BigNumber, ethers, Overrides } from 'ethers';
 import { Account } from './contracts';
 import { isTxReq, TxReq } from './tx';
-import { createTxSignature, Signer } from './signature';
+import { toTxSignature, Signer } from './signature';
 import * as zk from 'zksync-web3';
 import { Eip712Meta, TransactionRequest } from 'zksync-web3/build/src/types';
 import { defaultAbiCoder } from 'ethers/lib/utils';
@@ -74,7 +74,7 @@ export const toTransactionRequest = async ({
     customData: {
       ergsPerPubdata: zk.utils.DEFAULT_ERGS_PER_PUBDATA_LIMIT,
       ...opts.customData,
-      customSignature: createTxSignature(quorum, signers),
+      customSignature: toTxSignature(quorum, signers),
     },
   };
 };

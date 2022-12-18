@@ -3,7 +3,7 @@ import { BigNumber, BigNumberish, ethers } from 'ethers';
 import { hexDataLength, hexlify, isBytesLike, randomBytes } from 'ethers/lib/utils';
 import { address, Addresslike, isAddress } from './addr';
 import { zeroHexBytes } from './bytes';
-import { Call, CallDef, createCall } from './call';
+import { Call, CallDef, toCall } from './call';
 import { Id, toId } from './id';
 import { createIsObj } from './util/mappedTypes';
 
@@ -69,8 +69,8 @@ export interface TxDef extends CallDef {
   gasLimit?: BigNumberish;
 }
 
-export const createTx = (tx: TxDef): TxReq => ({
-  ...createCall(tx),
+export const toTx = (tx: TxDef): TxReq => ({
+  ...toCall(tx),
   salt: tx.salt || randomTxSalt(),
   gasLimit: tx.gasLimit,
 });

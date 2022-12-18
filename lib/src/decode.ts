@@ -1,9 +1,7 @@
-import { BigNumberish, BytesLike } from 'ethers';
-import { hexDataLength, hexDataSlice } from 'ethers/lib/utils';
-import { address } from './addr';
+import { BytesLike } from 'ethers';
+import { hexDataLength, hexDataSlice, hexlify } from 'ethers/lib/utils';
 import { Account, Account__factory } from './contracts';
-import { QuorumStructOutput } from './contracts/Account';
-import { Quorum, QuorumKey, toQuorumKey } from './quorum';
+import { QuorumKey, toQuorumKey } from './quorum';
 import { OnlyRequiredItems } from './util/mappedTypes';
 
 export const getDataSighash = (data?: BytesLike) =>
@@ -11,27 +9,26 @@ export const getDataSighash = (data?: BytesLike) =>
 
 export const ACCOUNT_INTERFACE = Account__factory.createInterface();
 
-export const UPSERT_QUORUM_FUNCTION =
-  ACCOUNT_INTERFACE.functions['upsertQuorum(uint32,(address[]))'];
+export const UPSERT_QUORUM_FUNCTION = ACCOUNT_INTERFACE.functions['upsertQuorum(uint32,bytes32)'];
 export const UPSERT_QUORUM_SIGHSAH = ACCOUNT_INTERFACE.getSighash(UPSERT_QUORUM_FUNCTION);
 
 export const REMOVE_QUORUM_FUNCTION = ACCOUNT_INTERFACE.functions['removeQuorum(uint32)'];
 export const REMOVE_QUORUM_SIGHASH = ACCOUNT_INTERFACE.getSighash(REMOVE_QUORUM_FUNCTION);
 
-type UpsertQuorumParams = [BigNumberish, QuorumStructOutput]; // OnlyRequiredItems<Parameters<Account['upsertQuorum']>>;
+type UpsertQuorumParams = OnlyRequiredItems<Parameters<Account['upsertQuorum']>>;
 
-export const tryDecodeUpsertUserQuorum = (data?: BytesLike): Quorum | undefined => {
+export const tryDecodeUpsertUserQuorum = (data?: BytesLike) => {
   if (!data || getDataSighash(data) !== UPSERT_QUORUM_SIGHSAH) return undefined;
 
   try {
-    const [key, q] = ACCOUNT_INTERFACE.decodeFunctionData(
+    const [key, hash] = ACCOUNT_INTERFACE.decodeFunctionData(
       UPSERT_QUORUM_FUNCTION,
       data,
     ) as UpsertQuorumParams;
 
     return {
       key: toQuorumKey(key),
-      approvers: new Set(q.approvers.map(address)),
+      hash: hexlify(hash),
     };
   } catch {
     return undefined;

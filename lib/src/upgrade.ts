@@ -1,9 +1,9 @@
 import { Address } from './addr';
 import { Account } from './contracts';
-import { createTx } from './tx';
+import { toTx } from './tx';
 
 export const createUpgradeToTx = (account: Account, newImpl: Address) =>
-  createTx({
+  toTx({
     to: account.address,
     data: account.interface.encodeFunctionData('upgradeTo', [newImpl]),
   });

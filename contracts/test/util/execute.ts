@@ -1,31 +1,19 @@
-import {
-  createTx,
-  executeTx,
-  mapAsync,
-  TxReq,
-  Account,
-  signTx,
-  Signer,
-  TxDef,
-  User,
-  UserConfig,
-} from 'lib';
-import { allSigners } from './wallet';
+import { toTx, executeTx, mapAsync, TxReq, Account, signTx, Signer, TxDef, Quorum } from 'lib';
+import { SIGNERS } from './wallet';
 
-export const getSigners = async (
-  account: Account,
-  user: User,
-  config: UserConfig,
-  tx: TxReq,
-): Promise<Signer[]> =>
-  mapAsync([user.addr, ...config.approvers], async (approver) => ({
+export const getSigners = async (account: Account, quorum: Quorum, tx: TxReq): Promise<Signer[]> =>
+  mapAsync([...quorum.approvers], async (approver) => ({
     approver,
-    signature: await signTx(allSigners.find((w) => w.address === approver)!, account.address, tx),
+    signature: await signTx(SIGNERS.find((w) => w.address === approver)!, account.address, tx),
   }));
 
-export const execute = async (account: Account, user: User, config: UserConfig, txDef: TxDef) => {
-  const tx = createTx(txDef);
-  const signers = await getSigners(account, user, config, tx);
+export const execute = async (account: Account, quorum: Quorum, txDef: TxDef) => {
+  const tx = toTx(txDef);
 
-  return await executeTx(account, tx, user, signers);
+  return await executeTx({
+    account,
+    quorum,
+    signers: await getSigners(account, quorum, tx),
+    tx,
+  });
 };
