@@ -38,7 +38,7 @@ describe('Execution', () => {
     });
 
     await expect(execute(txReq))
-      .to.emit(account, account.interface.events['TxExecuted(bytes32,bytes)'].name)
+      .to.emit(account, account.interface.events['TransactionExecuted(bytes32,bytes)'].name)
       .withArgs(
         await hashTx(txReq, account),
         '0x00000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000000000000000000000000000000000003abc1230000000000000000000000000000000000000000000000000000000000',
@@ -77,7 +77,10 @@ describe('Execution', () => {
         })
       ).wait();
 
-      expect(true).to.emit(account, account.interface.events['TxReverted(bytes32,bytes)'].name);
+      expect(true).to.emit(
+        account,
+        account.interface.events['TransactionReverted(bytes32,bytes)'].name,
+      );
     } catch (e) {
       reverted = true;
     }
@@ -98,7 +101,10 @@ describe('Execution', () => {
         })
       ).wait();
 
-      expect(true).to.emit(account, account.interface.events['TxReverted(bytes32,bytes)'].name);
+      expect(true).to.emit(
+        account,
+        account.interface.events['TransactionReverted(bytes32,bytes)'].name,
+      );
     } catch (e) {
       reverted = true;
     }
