@@ -24,7 +24,6 @@ import {
   ProposalState,
 } from './proposals.args';
 import { UserInputError } from 'apollo-server-core';
-import { ProviderService } from '~/provider/provider.service';
 import { Proposal } from '@gen/proposal/proposal.model';
 import { ExpoService } from '~/expo/expo.service';
 import { match } from 'ts-pattern';

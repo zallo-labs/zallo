@@ -54,7 +54,7 @@ export class AccountsResolver {
 
   @Mutation(() => Account)
   async createAccount(
-    @Args() { name, qurorums: quorumsArg }: CreateAccountArgs,
+    @Args() { name, quorums: quorumsArg }: CreateAccountArgs,
     @Info() info: GraphQLResolveInfo,
   ): Promise<Account> {
     const impl = address(CONFIG.accountImplAddress);

@@ -26,12 +26,12 @@ export const ProposeExample = withBrowser(() => {
       document={gql`
         mutation Propose(
           $account: Address!
-          $config: Float
+          $quorumKey: QuorumKey
           $to: Address!
           $value: Uint256
           $data: Bytes
         ) {
-          propose(account: $account, config: $config, to: $to, value: $value, data: $data) {
+          propose(account: $account, quorumKey: $quorumKey, to: $to, value: $value, data: $data) {
             id
             to
             value

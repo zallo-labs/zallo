@@ -19,7 +19,7 @@ export class CreateAccountArgs {
   name: string;
 
   @Field(() => [QuorumInput], { middleware: [minLengthMiddleware(1)] })
-  qurorums: QuorumInput[];
+  quorums: QuorumInput[];
 }
 
 @ArgsType()

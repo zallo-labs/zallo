@@ -18,13 +18,6 @@ export class UniqueProposalArgs {
   id: string;
 }
 
-export enum ProposalStatus {
-  AwaitingUser = 'awaiting-user',
-  AwaitingOther = 'awaiting-other',
-  Executed = 'executed',
-}
-registerEnumType(ProposalStatus, { name: 'ProposalStatus' });
-
 export enum ProposalState {
   Pending = 'pending',
   Executing = 'executing',
@@ -60,8 +53,11 @@ export class ProposeArgs {
   @AddressField()
   account: Address;
 
-  // Defaults to quorum with the least amount of approvers, followed by the lowest id (by lexical comparison)
-  @QuorumKeyField({ nullable: true })
+  @QuorumKeyField({
+    nullable: true,
+    description:
+      'Defaults to quorum with the least amount of approvers, followed by the lowest id (by lexical comparison)',
+  })
   quorumKey?: QuorumKey;
 
   @AddressField()
