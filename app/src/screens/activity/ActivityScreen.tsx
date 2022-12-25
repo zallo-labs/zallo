@@ -12,12 +12,9 @@ import { useAppbarHeader } from '~/components/Appbar/useAppbarHeader';
 import { ProposalItem } from '~/screens/activity/ProposalItem';
 import { ProposalMetadata } from '~/queries/proposal';
 import { useRootNavigation } from '~/navigation/useRootNavigation';
-import { useTransfersMetadata } from '~/queries/transfer/useTransfersMetadata.sub';
-import { TransferType } from '~/gql/generated.sub';
 import { TransferMetadata } from '~/queries/transfer/useTransfersMetadata.sub';
 import { IncomingTransferItem } from './IncomingTransferItem';
 import { useProposalsMetadata } from '~/queries/proposal/useProposalsMetadata.api';
-import { ProposalStatus } from '~/gql/generated.api';
 import { match } from 'ts-pattern';
 
 type Item =
@@ -34,29 +31,31 @@ export const ActivityScreen = withSkeleton(() => {
   const styles = useStyles();
   const { AppbarHeader, handleScroll } = useAppbarHeader();
   const navigation = useRootNavigation();
-  const [proposalsAwaitingUser] = useProposalsMetadata({ status: ProposalStatus.AwaitingUser });
-  const [proposalsAwaitingOthers] = useProposalsMetadata({ status: ProposalStatus.AwaitingOther });
-  const [proposalsExecuted] = useProposalsMetadata({ status: ProposalStatus.Executed });
-  // const [incomingTransfers] = useTransfersMetadata(TransferType.In);
+  const [pendingProposals] = useProposalsMetadata({ state: 'Pending' });
+  const [executingProposals] = useProposalsMetadata({ state: 'Executing' });
+  const [executedProposals] = useProposalsMetadata({ state: 'Executed' });
+  // const [incomingTransfers] = useTransfersMetadata('IN');
 
   const sections = useMemo(
     () =>
       [
         {
-          title: 'Awaiting approval',
-          data: [...proposalsAwaitingUser, ...proposalsAwaitingOthers].map(
-            (activity): Item => ({ activity, type: 'proposal' }),
-          ),
+          title: 'Pending',
+          data: pendingProposals.map((activity): Item => ({ activity, type: 'proposal' })),
+        },
+        {
+          title: 'Executing',
+          data: executingProposals.map((activity): Item => ({ activity, type: 'proposal' })),
         },
         {
           title: 'Executed',
           data: [
-            ...proposalsExecuted.map((activity): Item => ({ activity, type: 'proposal' })),
+            ...executedProposals.map((activity): Item => ({ activity, type: 'proposal' })),
             // ...incomingTransfers.map((activity): Item => ({ activity, type: 'transfer' })),
           ].sort((a, b) => b.activity.timestamp.toMillis() - a.activity.timestamp.toMillis()),
         },
       ].filter((section) => section.data.length > 0),
-    [proposalsAwaitingUser, proposalsAwaitingOthers, proposalsExecuted],
+    [pendingProposals, executingProposals, executedProposals],
   );
 
   return (

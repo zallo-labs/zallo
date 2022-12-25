@@ -9,7 +9,7 @@ export interface InactiveIndicatorProps {
 
 export const InactiveIndicator = ({ id }: InactiveIndicatorProps) => {
   const styles = useStyles();
-  const [account] = useAccount(id);
+  const account = useAccount(id);
 
   if (!account.active) return null;
 

@@ -13,9 +13,9 @@ export interface DecodedTransfer {
 }
 
 export const useDecodedTransfer = (call?: Call): DecodedTransfer | undefined => {
-  const [method] = useContractMethod(call);
+  const method = useContractMethod(call);
 
-  if (!call || method?.sighash !== ERC20_TRANSFER_SIGHASH) return undefined;
+  if (!call?.data || method?.sighash !== ERC20_TRANSFER_SIGHASH) return undefined;
 
   const [dest, value] = method.contract.decodeFunctionData(method.fragment, call.data);
 

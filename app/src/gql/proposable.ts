@@ -7,13 +7,13 @@ export type ProposableStatus = 'active' | 'modify' | 'add' | 'remove';
 
 type ProposableState<T extends Obj = Obj> = ActiveState<T> | ProposedState<T>;
 
-interface ActiveState<T extends Obj> {
+export interface ActiveState<T extends Obj> {
   active: T;
   proposed?: T | null;
   proposal?: ProposalId;
 }
 
-interface ProposedState<T extends Obj> {
+export interface ProposedState<T extends Obj> {
   active?: T;
   proposed: T;
   proposal?: ProposalId;

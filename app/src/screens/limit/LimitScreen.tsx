@@ -1,8 +1,7 @@
-import { Address, Limit, UserId, ZERO } from 'lib';
+import { Address, QuorumGuid, TokenLimit, TokenLimitPeriod, ZERO } from 'lib';
 import { ScreenSkeleton } from '~/components/skeleton/ScreenSkeleton';
 import { withSkeleton } from '~/components/skeleton/withSkeleton';
 import { RootNavigatorScreenProps } from '~/navigation/RootNavigator';
-import { LimitPeriod } from '~/gql/generated.api';
 import { BigNumber } from 'ethers';
 import { useMemo, useState } from 'react';
 import { Box } from '~/components/layout/Box';
@@ -19,18 +18,18 @@ import { FAB } from '~/components/FAB';
 import { CheckIcon } from '@theme/icons';
 
 export interface LimitScreenParams {
-  user: UserId;
+  quorum: QuorumGuid;
   token: Address;
   amount?: BigNumber;
-  period?: LimitPeriod;
-  onChange: (limit: Limit) => void;
+  period?: TokenLimitPeriod;
+  onChange: (limit: TokenLimit) => void;
   onDelete?: () => void;
 }
 
 export type LimitScreenProps = RootNavigatorScreenProps<'Limit'>;
 
 const LimitScreen = ({ route, navigation }: LimitScreenProps) => {
-  const { user, onChange, onDelete } = route.params;
+  const { quorum: user, onChange, onDelete } = route.params;
   const styles = useStyles();
   const token = useToken(route.params.token);
 
@@ -38,11 +37,11 @@ const LimitScreen = ({ route, navigation }: LimitScreenProps) => {
     () => ({
       token: route.params.token,
       amount: route.params.amount ?? ZERO,
-      period: route.params.period ?? LimitPeriod.Month,
+      period: route.params.period ?? TokenLimitPeriod.Month,
     }),
     [route.params],
   );
-  const [limit, setLimit] = useState<Limit>(initial);
+  const [limit, setLimit] = useState<TokenLimit>(initial);
   const isModified = !_.isEqual(limit, initial);
 
   return (
@@ -55,7 +54,11 @@ const LimitScreen = ({ route, navigation }: LimitScreenProps) => {
           <Text variant="headlineSmall">{token.name}</Text>
         </Box>
 
-        <LimitAvailable user={user} token={token.addr} style={[styles.section, styles.available]} />
+        <LimitAvailable
+          quorum={user}
+          token={token.addr}
+          style={[styles.section, styles.available]}
+        />
 
         <LimitFields style={styles.section} limit={limit} setLimit={setLimit} />
       </ScrollView>

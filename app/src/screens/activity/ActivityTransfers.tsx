@@ -9,7 +9,6 @@ import { Address } from 'lib';
 import { BigNumber } from 'ethers';
 import _ from 'lodash';
 import { Transfer } from '~/queries/transfer/useTransfer.sub';
-import { TransferType } from '~/gql/generated.sub';
 import { makeStyles } from '@theme/makeStyles';
 
 export interface CallTokensProps {
@@ -27,7 +26,7 @@ export const ActivityTransfers = memo(({ transfers, textStyle }: CallTokensProps
   const totalValue = values.reduce((sum, [transfer, value]) => {
     if (!transfer || !value) return sum;
 
-    return sum + value * (transfer.direction === TransferType.In ? 1 : -1);
+    return sum + value * (transfer.direction === 'IN' ? 1 : -1);
   }, 0);
 
   return (
@@ -44,7 +43,7 @@ export const ActivityTransfers = memo(({ transfers, textStyle }: CallTokensProps
             <Text
               key={t.token.addr}
               variant="bodyMedium"
-              style={[textStyle, t.direction === TransferType.In && styles.positive]}
+              style={[textStyle, t.direction === 'IN' && styles.positive]}
             >
               <TokenAmount token={t.token} amount={t.amount} />
             </Text>

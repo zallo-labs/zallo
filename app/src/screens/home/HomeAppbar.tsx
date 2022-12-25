@@ -6,7 +6,7 @@ import { AppbarHeaderProps } from '~/components/Appbar/useAppbarHeader';
 import { useSendToContact } from '../send/useSendToContact';
 import { useSendToScanned } from '../send/useSendToScanned';
 import { Address } from 'lib';
-import { useUser } from '~/queries/user/useUser.api';
+import { useSelectQuorum } from '../account/useSelectQuorum';
 
 export interface HomeAppbarProps {
   AppbarHeader: FC<AppbarHeaderProps>;
@@ -14,17 +14,17 @@ export interface HomeAppbarProps {
 }
 
 export const HomeAppbar = ({ AppbarHeader, account }: HomeAppbarProps) => {
-  const [user] = useUser(account);
-  const sendToScanned = useSendToScanned(user);
-  const sendToContact = useSendToContact(user);
+  const selectQuorum = useSelectQuorum(account);
+  const sendToScanned = useSendToScanned();
+  const sendToContact = useSendToContact();
 
   return (
     <AppbarHeader>
       <AppbarMenu />
       <Appbar.Content title="" />
 
-      <Appbar.Action icon={PeopleIcon} onPress={sendToContact} />
-      <Appbar.Action icon={ScanIcon} onPress={sendToScanned} />
+      <Appbar.Action icon={PeopleIcon} onPress={() => selectQuorum(sendToContact)} />
+      <Appbar.Action icon={ScanIcon} onPress={() => selectQuorum(sendToScanned)} />
     </AppbarHeader>
   );
 };

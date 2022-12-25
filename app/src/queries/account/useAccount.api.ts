@@ -1,44 +1,54 @@
 import { gql } from '@apollo/client';
-import { useDevice } from '@network/useDevice';
-import { AccountDocument, AccountQuery, AccountQueryVariables } from '~/gql/generated.api';
-import { useApiClient } from '~/gql/GqlProvider';
-import { Account, Address, address, connectAccount, UserId } from 'lib';
+import {
+  AccountDocument,
+  AccountQuery,
+  AccountQueryVariables,
+  QuorumFieldsFragmentDoc,
+} from '~/gql/generated.api';
+import { Account, Address, connectAccount, QuorumGuid } from 'lib';
 import { useMemo } from 'react';
 import { usePollWhenFocussed } from '~/gql/usePollWhenFocussed';
 import { useSuspenseQuery } from '~/gql/useSuspenseQuery';
+import { useCredentials } from '@network/useCredentials';
+import { CombinedQuorum, toCombinedQuorum } from '../useQuorum.api';
 
-export interface UserMetadata extends UserId {
-  name: string;
-}
+// export interface QuorumMetadata extends QuorumGuid {
+//   name?: string;
+// }
 
 export interface CombinedAccount {
   addr: Address;
   contract: Account;
   name: string;
   active?: boolean;
-  users: UserMetadata[];
+  quorums: CombinedQuorum[];
 }
 
 gql`
+  ${QuorumFieldsFragmentDoc}
+
   query Account($account: Address!) {
     account(id: $account) {
       id
       isActive
       name
-      users {
-        deviceId
-        name
+      quorums {
+        ...QuorumFields
       }
     }
   }
 `;
 
-export const useAccount = (id: Address | UserId) => {
-  const device = useDevice();
+export type Accountlike = Address | QuorumGuid;
+
+export const getAccountlikeAddr = (account?: Accountlike) =>
+  typeof account === 'object' ? account.account : account || null;
+
+export const useAccount = (id: Accountlike) => {
+  const credentials = useCredentials();
   const addr = typeof id === 'string' ? id : id.account;
 
   const { data, ...rest } = useSuspenseQuery<AccountQuery, AccountQueryVariables>(AccountDocument, {
-    client: useApiClient(),
     variables: { account: addr },
   });
   usePollWhenFocussed(rest, 30);
@@ -47,18 +57,13 @@ export const useAccount = (id: Address | UserId) => {
   const account = useMemo(
     (): CombinedAccount => ({
       addr,
-      contract: connectAccount(addr, device),
+      contract: connectAccount(addr, credentials),
       active: a.isActive,
       name: a.name,
-      users:
-        a.users?.map((u) => ({
-          account: addr,
-          addr: address(u.deviceId),
-          name: u.name,
-        })) ?? [],
+      quorums: (a.quorums ?? []).map(toCombinedQuorum),
     }),
-    [addr, device, a],
+    [addr, credentials, a.isActive, a.name, a.quorums],
   );
 
-  return [account, rest] as const;
+  return account;
 };

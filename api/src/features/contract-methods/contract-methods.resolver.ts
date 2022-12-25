@@ -1,7 +1,6 @@
 import { ContractMethod } from '@gen/contract-method/contract-method.model';
 import { Args, Info, Parent, Query, ResolveField, Resolver } from '@nestjs/graphql';
 import { GraphQLResolveInfo } from 'graphql';
-import { Id, toId } from 'lib';
 import { PrismaService } from 'nestjs-prisma';
 import { getSelect } from '~/util/select';
 import { ContractMethodArgs } from './contract-methods.args';
@@ -12,15 +11,15 @@ export class ContractMethodsResolver {
   constructor(private service: ContractMethodsService, private prisma: PrismaService) {}
 
   @ResolveField(() => String)
-  id(@Parent() c: ContractMethod): Id {
-    return toId(`${c.contract}-${c.sighash}`);
+  id(@Parent() c: ContractMethod): string {
+    return `${c.contract}-${c.sighash}`;
   }
 
   @Query(() => ContractMethod, { nullable: true })
   async contractMethod(
     @Args() { contract, sighash }: ContractMethodArgs,
     @Info() info: GraphQLResolveInfo,
-  ): Promise<ContractMethod | undefined> {
+  ): Promise<ContractMethod | null> {
     const selectArgs = getSelect(info);
 
     // Try get selector for contract
@@ -30,6 +29,7 @@ export class ContractMethodsResolver {
     });
     if (exactMatch) return exactMatch;
 
+    // Otherwise try fetch the abi for the contract
     const fetchedInterface = await this.service.tryFetchAbi(contract);
 
     if (fetchedInterface) {
@@ -39,13 +39,10 @@ export class ContractMethodsResolver {
       return { contract, sighash, fragment };
     }
 
-    // Otherwise try find the sighash in the db from any contract
-    const sighashMatch = await this.prisma.contractMethod.findFirst({
+    // Fallback to finding the sighash from any contract
+    return this.prisma.contractMethod.findFirst({
       where: { sighash },
       ...selectArgs,
     });
-    if (sighashMatch) return sighashMatch;
-
-    return undefined;
   }
 }

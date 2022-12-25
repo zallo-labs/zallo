@@ -1,10 +1,9 @@
-import { UserConfig } from 'lib';
-import { CombinedUser } from '~/queries/user/useUser.api';
+import { CombinedQuorum } from '~/queries/useQuorum.api';
 import { useTotalBalanceValue } from './useTotalBalanceValue';
 
-export const useTotalAvailableValue = (user: CombinedUser, config?: UserConfig) => {
+export const useTotalAvailableValue = (quorum: CombinedQuorum) => {
   // TODO: implement
 
   // Placeholder value until implemented
-  return useTotalBalanceValue(user.account);
+  return useTotalBalanceValue(quorum.account);
 };

@@ -54,7 +54,7 @@ export class ProposalsResolver {
 
   @Query(() => [Proposal])
   async proposals(
-    @Args() { accounts, state, userHasApproved, ...args }: ProposalsArgs,
+    @Args() { accounts, state: states, userHasApproved, ...args }: ProposalsArgs,
     @Info() info: GraphQLResolveInfo,
     @UserId() user: Address,
   ): Promise<Proposal[]> {
@@ -62,23 +62,26 @@ export class ProposalsResolver {
       ...args,
       where: {
         AND: [
+          args.where ?? {},
           {
             ...(accounts && { accountId: { in: [...accounts] } }),
-            ...(state &&
-              match<ProposalState, ProposalWhereInput>(state)
-                .with(ProposalState.Pending, () => ({
-                  transactions: { none: {} },
-                }))
-                .with(ProposalState.Executing, () => ({
-                  transactions: { none: { response: {} } },
-                }))
-                .with(ProposalState.Executed, () => ({
-                  transactions: { some: { response: { is: { success: { equals: true } } } } },
-                }))
-                .exhaustive()),
             ...(userHasApproved && { approvals: { some: { userId: { equals: user } } } }),
+            ...(states && {
+              OR: states.map((state) =>
+                match<ProposalState, ProposalWhereInput>(state)
+                  .with(ProposalState.Pending, () => ({
+                    transactions: { none: {} },
+                  }))
+                  .with(ProposalState.Executing, () => ({
+                    transactions: { none: { response: {} } },
+                  }))
+                  .with(ProposalState.Executed, () => ({
+                    transactions: { some: { response: { is: { success: { equals: true } } } } },
+                  }))
+                  .exhaustive(),
+              ),
+            }),
           },
-          args.where ?? {},
         ],
       },
       ...getSelect(info),
@@ -135,10 +138,10 @@ export class ProposalsResolver {
         proposer: { connect: { id: user } },
         quorum: connectQuorum(account, quorumKey),
         to,
-        value: value.toString(),
+        value,
         data,
         salt,
-        gasLimit: gasLimit?.toString(),
+        gasLimit,
       },
       ...getSelect(info),
     });

@@ -11,7 +11,7 @@ import { ProposalId } from '~/queries/proposal';
 import { useProposal } from '~/queries/proposal/useProposal.api';
 import { OnExecute, ProposalActions } from './ProposalActions';
 import { ProposalHeader } from './ProposalHeader';
-import { ProposalStatusCard } from './ProposalStatusCard';
+import { ProposalStateCard } from './ProposalStateCard';
 import { ProposalTransfers } from './ProposalTransfers';
 
 export interface ProposalScreenParams {
@@ -36,7 +36,7 @@ const ProposalScreen = ({ route }: ProposalScreenProps) => {
         <Container flex={1} separator={<Box mt={4} />}>
           <ProposalHeader proposal={proposal} />
           <ProposalTransfers proposal={proposal} style={styles.mx} />
-          <ProposalStatusCard proposal={proposal} style={styles.mx} />
+          <ProposalStateCard proposal={proposal} style={styles.mx} />
           <ProposalActions proposal={proposal} onExecute={onExecute} />
         </Container>
       </Box>

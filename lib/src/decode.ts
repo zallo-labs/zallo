@@ -17,7 +17,7 @@ export const REMOVE_QUORUM_SIGHASH = ACCOUNT_INTERFACE.getSighash(REMOVE_QUORUM_
 
 type UpsertQuorumParams = OnlyRequiredItems<Parameters<Account['upsertQuorum']>>;
 
-export const tryDecodeUpsertUserQuorum = (data?: BytesLike) => {
+export const tryDecodeUpsertQuorumData = (data?: BytesLike) => {
   if (!data || getDataSighash(data) !== UPSERT_QUORUM_SIGHSAH) return undefined;
 
   try {
@@ -35,7 +35,7 @@ export const tryDecodeUpsertUserQuorum = (data?: BytesLike) => {
   }
 };
 
-export const tryDecodeRemoveUserData = (data?: BytesLike): QuorumKey | undefined => {
+export const tryDecodeRemoveQuorumData = (data?: BytesLike): QuorumKey | undefined => {
   if (!data || getDataSighash(data) !== REMOVE_QUORUM_SIGHASH) return undefined;
 
   try {

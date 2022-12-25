@@ -1,28 +1,28 @@
 import { BytesLike, BigNumber } from 'ethers';
-import { Address, TxReq, Id, UserId, UserConfig } from 'lib';
+import { Address, Tx } from 'lib';
 import { DateTime } from 'luxon';
+import { CombinedQuorum } from '../useQuorum.api';
 
-export type ProposalStatus = 'proposed' | 'pending' | 'failed' | 'executed';
+export type ProposalState = 'pending' | 'executing' | 'executed' | 'failed';
 
 export interface ProposalId {
-  hash: string;
+  id: string;
 }
 
 export interface ProposalMetadata extends ProposalId {
-  id: Id;
   timestamp: DateTime;
 }
 
-export interface Proposal extends ProposalMetadata, TxReq {
+export interface Proposal extends ProposalMetadata, Tx {
   account: Address;
-  proposer: UserId;
-  config: UserConfig;
-  approvals: Approval[];
+  state: ProposalState;
+  quorum: CombinedQuorum;
+  isApproved: boolean;
+  approvals: Map<Address, Approval>;
   rejected: Map<Address, Rejection>;
-  userHasApproved: boolean;
+  awaitingApproval: Set<Address>;
   submissions: Submission[];
   proposedAt: DateTime;
-  status: ProposalStatus;
 }
 
 export interface Approval {

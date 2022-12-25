@@ -3,7 +3,7 @@ import { makeStyles } from '@theme/makeStyles';
 import { createTransferTx } from '@token/token';
 import { useTokenAvailable } from '@token/useTokenAvailable';
 import { BigNumber } from 'ethers';
-import { Address, UserId, ZERO } from 'lib';
+import { Address, QuorumGuid, ZERO } from 'lib';
 import { useState } from 'react';
 import { Appbar, Text } from 'react-native-paper';
 import { AddrCard } from '~/components/addr/AddrCard';
@@ -18,18 +18,18 @@ import { RootNavigatorScreenProps } from '~/navigation/RootNavigator';
 import { AmountInput } from '../amount/AmountInput';
 
 export interface SendScreenParams {
-  user: UserId;
+  quorum: QuorumGuid;
   to: Address;
 }
 
 export type SendScreenProps = RootNavigatorScreenProps<'Send'>;
 
 export const SendScreen = ({ route, navigation }: SendScreenProps) => {
-  const { user, to } = route.params;
+  const { quorum, to } = route.params;
   const styles = useStyles();
   const [propose, proposing] = usePropose();
   const [token, selectToken] = [useSelectedToken(), useSelectToken()];
-  const available = useTokenAvailable(token, user);
+  const available = useTokenAvailable(token, quorum);
 
   const [amount, setAmount] = useState<BigNumber | undefined>();
 
@@ -45,10 +45,10 @@ export const SendScreen = ({ route, navigation }: SendScreenProps) => {
 
         <TokenAvailableCard
           token={token}
-          user={user}
+          account={quorum}
           onPress={() =>
             navigation.navigate('Tokens', {
-              user,
+              quorum: quorum,
               onSelect: (token) => {
                 selectToken(token);
                 navigation.goBack();
@@ -71,7 +71,7 @@ export const SendScreen = ({ route, navigation }: SendScreenProps) => {
         disabled={!amount || amount.eq(ZERO)}
         {...(amount && {
           onPress: () => {
-            propose(user.account, createTransferTx(token, to, amount), popToProposal);
+            propose(quorum, createTransferTx(token, to, amount), popToProposal);
           },
         })}
       />

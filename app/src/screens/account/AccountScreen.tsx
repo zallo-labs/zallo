@@ -2,7 +2,7 @@ import { Box } from '~/components/layout/Box';
 import { ScreenSkeleton } from '~/components/skeleton/ScreenSkeleton';
 import { withSkeleton } from '~/components/skeleton/withSkeleton';
 import { makeStyles } from '~/util/theme/makeStyles';
-import { Address, UserId } from 'lib';
+import { Address, QuorumGuid } from 'lib';
 import { FlatList } from 'react-native-gesture-handler';
 import { useAppbarHeader } from '~/components/Appbar/useAppbarHeader';
 import { RootNavigatorScreenProps } from '~/navigation/RootNavigator';
@@ -10,17 +10,19 @@ import { AccountAppbar } from './AccountAppbar';
 import { ActivateAccountButton } from '~/components/account/ActivateAccountButton';
 import { FAB } from '~/components/FAB';
 import { useAccount } from '~/queries/account/useAccount.api';
-import { UserItem } from './UserItemCard';
+import { QuorumItem } from './QuorumItemCard';
 import { useFuzzySearch } from '@hook/useFuzzySearch';
 import { TextField } from '~/components/fields/TextField';
 import { TextInput } from 'react-native-paper';
 import { SearchIcon } from '@theme/icons';
 
+export type OnSelectQuorum = (quorum: QuorumGuid) => void;
+
 export interface AccountScreenParams {
-  id: Address;
-  onSelectUser?: (user: UserId) => void;
-  inactiveOpacity?: boolean;
+  account: Address;
+  onSelectQuorum?: OnSelectQuorum;
   title?: string;
+  onlyActive?: boolean;
 }
 
 export type AccountScreenProps = RootNavigatorScreenProps<'Account'>;
@@ -29,14 +31,15 @@ export const AccountScreen = withSkeleton(
   ({
     navigation: { navigate },
     route: {
-      params: { id, onSelectUser, inactiveOpacity, title },
+      params: { account: accountAddr, onSelectQuorum, title, onlyActive },
     },
   }: AccountScreenProps) => {
     const styles = useStyles();
-    const [account] = useAccount(id);
+    const account = useAccount(accountAddr);
     const { AppbarHeader, handleScroll } = useAppbarHeader();
 
-    const [users, searchProps] = useFuzzySearch(account.users, ['name', 'addr']);
+    const quorums = onlyActive ? account.quorums.filter((q) => q.active) : account.quorums;
+    const [filteredQuorums, searchProps] = useFuzzySearch(quorums, ['name', 'key']);
 
     return (
       <Box flex={1}>
@@ -50,21 +53,21 @@ export const AccountScreen = withSkeleton(
               {...searchProps}
             />
           }
-          renderItem={({ item: user }) => (
-            <UserItem
-              user={user}
+          renderItem={({ item: quorum }) => (
+            <QuorumItem
+              quorum={quorum}
               onPress={() => {
-                if (onSelectUser) {
-                  onSelectUser(user);
+                if (onSelectQuorum) {
+                  onSelectQuorum(quorum);
                 } else {
-                  navigate('User', { user });
+                  navigate('Quorum', { quorum });
                 }
               }}
             />
           )}
-          data={users}
+          data={filteredQuorums}
           ListHeaderComponentStyle={styles.header}
-          extraData={[onSelectUser, navigate]}
+          extraData={[onSelectQuorum, navigate]}
           stickyHeaderIndices={[0]}
           onScroll={handleScroll}
           showsVerticalScrollIndicator={false}

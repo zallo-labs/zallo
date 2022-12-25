@@ -19,8 +19,8 @@ interface ProposalTransferProps {
 }
 
 export const ProposalTransfer = memo(({ proposal, transfer }: ProposalTransferProps) => {
-  const balance = useTokenAvailable(transfer.token, proposal.proposer, proposal.config);
-  const insufficient = balance.lt(transfer.amount) && proposal.status !== 'executed';
+  const balance = useTokenAvailable(transfer.token, proposal.quorum);
+  const insufficient = balance.lt(transfer.amount) && proposal.state !== 'executed';
   const styles = useStyles(insufficient);
 
   return (

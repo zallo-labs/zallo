@@ -2,7 +2,7 @@ import { useToken } from '@token/useToken';
 import { useTokenAvailable } from '@token/useTokenAvailable';
 import { useTokenBalance } from '@token/useTokenBalance';
 import { useTokenValue } from '@token/useTokenValue';
-import { Address, UserId } from 'lib';
+import { Address, QuorumGuid } from 'lib';
 import { StyleProp, ViewStyle } from 'react-native';
 import { Text } from 'react-native-paper';
 import { FiatValue } from '~/components/fiat/FiatValue';
@@ -11,15 +11,15 @@ import { Container } from '~/components/layout/Container';
 import { TokenAmount } from '~/components/token/TokenAmount';
 
 export interface LimitAvailableProps {
-  user: UserId;
+  quorum: QuorumGuid;
   token: Address;
   style?: StyleProp<ViewStyle>;
 }
 
-export const LimitAvailable = ({ user, token: tokenAddr, style }: LimitAvailableProps) => {
+export const LimitAvailable = ({ quorum, token: tokenAddr, style }: LimitAvailableProps) => {
   const token = useToken(tokenAddr);
-  const available = useTokenAvailable(token, user);
-  const balance = useTokenBalance(token, user);
+  const available = useTokenAvailable(token, quorum);
+  const balance = useTokenBalance(token, quorum);
 
   return (
     <Container vertical alignItems="center" separator={<Box mt={1} />} style={style}>

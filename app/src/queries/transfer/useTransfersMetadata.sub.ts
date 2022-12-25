@@ -28,7 +28,7 @@ gql`
 `;
 
 export const useTransfersMetadata = (...types: TransferType[]) => {
-  const [accounts] = useAccountIds();
+  const accounts = useAccountIds();
 
   const { data, ...rest } = useSuspenseQuery<
     TransfersMetadataQuery,

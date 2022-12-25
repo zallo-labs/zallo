@@ -6,7 +6,7 @@ import { FlatList } from 'react-native';
 import { RootNavigatorScreenProps } from '~/navigation/RootNavigator';
 import { Token } from '@token/token';
 import { useFuzzySearch } from '@hook/useFuzzySearch';
-import { Address, UserId } from 'lib';
+import { Address, QuorumGuid } from 'lib';
 import { useTokens } from '@token/useTokens';
 import { Appbar, TextInput } from 'react-native-paper';
 import { useGoBack } from '~/components/Appbar/useGoBack';
@@ -18,14 +18,14 @@ import { TokenAvailableItem } from '~/components/token/TokenAvailableItem';
 
 export interface TokensScreenParams {
   onSelect?: (token: Token) => void;
-  user?: UserId;
+  quorum?: QuorumGuid;
   disabled?: Address[];
 }
 
 export type TokensScreenProps = RootNavigatorScreenProps<'Tokens'>;
 
 const TokensScreen = ({ route }: TokensScreenProps) => {
-  const { onSelect, user, disabled } = route.params;
+  const { onSelect, quorum, disabled } = route.params;
   const styles = useStyles();
   const { AppbarHeader, handleScroll } = useAppbarHeader();
   const [tokens, searchProps] = useFuzzySearch(useTokens(), ['name', 'symbol']);
@@ -49,8 +49,13 @@ const TokensScreen = ({ route }: TokensScreenProps) => {
           const onPress = onSelect ? () => onSelect(token) : undefined;
           const isDisabled = !!disabled?.find((t) => t === token.addr);
 
-          return user ? (
-            <TokenAvailableItem token={token} onPress={onPress} disabled={isDisabled} user={user} />
+          return quorum ? (
+            <TokenAvailableItem
+              token={token}
+              onPress={onPress}
+              disabled={isDisabled}
+              quorum={quorum}
+            />
           ) : (
             <TokenItem token={token} onPress={onPress} disabled={isDisabled} />
           );

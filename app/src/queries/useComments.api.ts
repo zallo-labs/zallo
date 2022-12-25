@@ -16,7 +16,7 @@ gql`
       content
       updatedAt
       reactions {
-        deviceId
+        userId
         emojis
       }
     }
@@ -41,19 +41,19 @@ export interface Comment {
 
 export type Commentable = Proposal; // | Transfer;
 
-export const getCommentableKey = (c: Commentable): Id => toId(`tx:${c.id}`);
+export const getCommentableId = (c: Commentable) => ({
+  account: c.account,
+  key: toId(`tx:${c.id}`),
+});
 
 export const useComments = (commentable: Commentable) => {
-  const key = getCommentableKey(commentable);
+  const id = getCommentableId(commentable);
 
   const { data, ...rest } = useSuspenseQuery<CommentsQuery, CommentsQueryVariables>(
     CommentsDocument,
     {
       client: useApiClient(),
-      variables: {
-        account: commentable.account,
-        key,
-      },
+      variables: id,
     },
   );
   usePollWhenFocussed(rest, 3);
@@ -63,18 +63,18 @@ export const useComments = (commentable: Commentable) => {
       data.comments.map(
         (c): Comment => ({
           id: parseFloat(c.id),
-          key,
+          key: id.key,
           author: address(c.authorId),
           content: c.content,
           reactions: Object.fromEntries(
             (c.reactions ?? []).map(
-              (r) => [address(r.deviceId), new Set(r.emojis as Emoji[])] as const,
+              (r) => [address(r.userId), new Set(r.emojis as Emoji[])] as const,
             ),
           ),
           updatedAt: DateTime.fromISO(c.updatedAt),
         }),
       ),
-    [data.comments, key],
+    [data.comments, id],
   );
 
   return [comments, rest] as const;

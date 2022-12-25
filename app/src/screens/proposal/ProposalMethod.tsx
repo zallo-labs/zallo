@@ -1,7 +1,6 @@
 import { useToggle } from '@hook/useToggle';
 import { DescriptionIcon, ViewIcon } from '@theme/icons';
 import { makeStyles } from '@theme/makeStyles';
-import { hexDataLength } from 'ethers/lib/utils';
 import { ReactNode } from 'react';
 import { View } from 'react-native';
 import Collapsible from 'react-native-collapsible';
@@ -10,9 +9,8 @@ import { Chevron } from '~/components/Chevron';
 import { Box } from '~/components/layout/Box';
 import { useRootNavigation } from '~/navigation/useRootNavigation';
 import { Proposal } from '~/queries/proposal';
-import { useDecodedRemoveUserMethod } from '../transaction/details/method/user/RemoveUserMethod';
-import { useDecodedUpsertUserMethod } from '../transaction/details/method/user/UpsertUserMethod';
 import { ProposalTypedData } from './ProposalTypedData';
+import { useDecodeQuorumMethodsData } from './useDecodeQuorumMethodsData';
 
 const WithIcon = ({ content, right }: { content: ReactNode; right: ReactNode }) => {
   const styles = useStyles();
@@ -36,37 +34,18 @@ export interface ProposalMethodProps {
 export const ProposalMethod = ({ children, proposal: p }: ProposalMethodProps) => {
   const styles = useStyles();
   const { navigate } = useRootNavigation();
-  const upsertedUser = useDecodedUpsertUserMethod(p.account, p);
-  const [removedUser] = useDecodedRemoveUserMethod(p.account, p);
+  const quorum = useDecodeQuorumMethodsData(p.account, p.data);
 
   const [expanded, toggleExpanded] = useToggle(false);
 
-  if (hexDataLength(p.data) === 0) return <View style={styles.contentContainer}>{children}</View>;
+  if (!p.data) return <View style={styles.contentContainer}>{children}</View>;
 
-  if (upsertedUser)
+  if (quorum)
     return (
       <WithIcon
         content={children}
         right={
-          <IconButton
-            icon={ViewIcon}
-            onPress={() =>
-              navigate('User', {
-                user: upsertedUser.user,
-                proposed: { configs: upsertedUser.configs, proposal: p },
-              })
-            }
-          />
-        }
-      />
-    );
-
-  if (removedUser)
-    return (
-      <WithIcon
-        content={children}
-        right={
-          <IconButton icon={ViewIcon} onPress={() => navigate('User', { user: removedUser })} />
+          <IconButton icon={ViewIcon} onPress={() => navigate('Quorum', { quorum: quorum })} />
         }
       />
     );

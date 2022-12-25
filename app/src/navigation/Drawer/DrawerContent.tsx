@@ -13,7 +13,6 @@ import { Linking } from 'react-native';
 import { Drawer } from 'react-native-paper';
 import * as WebBrowser from 'expo-web-browser';
 import { Navigate } from '../useRootNavigation';
-import { DeviceItem } from './DeviceItem';
 import WalletConnectIcon from '~/../assets/walletconnect.svg';
 import { Link } from '~/util/links';
 

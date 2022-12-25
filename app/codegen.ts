@@ -22,6 +22,11 @@ const config: CodegenConfig = {
       plugins,
     },
   },
+  config: {
+    // https://the-guild.dev/graphql/codegen/plugins/typescript/typescript
+    // defaultScalarType: 'unknown',
+    enumsAsTypes: true,
+  },
 };
 
 export default config;

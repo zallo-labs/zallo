@@ -7,19 +7,15 @@ import {
 import { useApiClient } from '~/gql/GqlProvider';
 import { Contract } from 'ethers';
 import { FunctionFragment, Interface } from 'ethers/lib/utils';
-import { Account__factory, Call, getDataSighash } from 'lib';
+import { Call, getDataSighash, tryOrDefault } from 'lib';
 import { useMemo } from 'react';
-import { ERC20_INTERFACE } from '@token/token';
 import { useSuspenseQuery } from '~/gql/useSuspenseQuery';
 
-export const ACCOUNT_INTERFACE = Account__factory.createInterface();
-
-export const UPSERT_USER_FUNCTION =
-  ACCOUNT_INTERFACE.functions['upsertUser((address,(address[])[]))'];
-export const UPSERT_USER_SIGHSAH = ACCOUNT_INTERFACE.getSighash(UPSERT_USER_FUNCTION);
-
-export const REMOVE_USER_FUNCTION = ACCOUNT_INTERFACE.functions['removeUser(address)'];
-export const REMOVE_USER_SIGHASH = ACCOUNT_INTERFACE.getSighash(REMOVE_USER_FUNCTION);
+export interface ContractMethod {
+  sighash: string;
+  fragment: FunctionFragment;
+  contract: Interface;
+}
 
 gql`
   query ContractMethod($contract: Address!, $sighash: Bytes!) {
@@ -30,56 +26,31 @@ gql`
   }
 `;
 
-const getFunctions = (interf: Interface): Record<string, FunctionFragment> =>
-  Object.fromEntries(
-    Object.values(interf.functions).map((f) => [ACCOUNT_INTERFACE.getSighash(f), f]),
-  );
-
-const FRAGMENTS = {
-  ...getFunctions(ACCOUNT_INTERFACE),
-  ...getFunctions(ERC20_INTERFACE),
-};
-
-const deserializeFragment = (fragment?: string): FunctionFragment | undefined => {
-  try {
-    if (fragment) return FunctionFragment.from(JSON.parse(fragment));
-  } catch {
-    // return undefined
-  }
-
-  return undefined;
-};
-
-export interface ContractMethod {
-  fragment: FunctionFragment;
-  contract: Interface;
-  sighash: string;
-}
-
 export const useContractMethod = (call?: Call) => {
   const sighash = getDataSighash(call?.data);
-  const preferredFragment = sighash ? FRAGMENTS[sighash] : undefined;
 
-  const { data, ...rest } = useSuspenseQuery<ContractMethodQuery, ContractMethodQueryVariables>(
+  const { data } = useSuspenseQuery<ContractMethodQuery, ContractMethodQueryVariables>(
     ContractMethodDocument,
     {
       client: useApiClient(),
       variables: { contract: call?.to, sighash },
-      skip: !call || !sighash || !!preferredFragment,
+      skip: !call || !sighash,
     },
   );
 
   const method = useMemo((): ContractMethod | undefined => {
-    const fragment = preferredFragment ?? deserializeFragment(data?.contractMethod?.fragment);
+    const fragment = tryOrDefault(
+      () => FunctionFragment.from(JSON.parse(data?.contractMethod?.fragment)),
+      undefined,
+    );
+    if (!fragment || !sighash) return undefined;
 
-    return fragment
-      ? {
-          fragment,
-          contract: Contract.getInterface([fragment]),
-          sighash: sighash!,
-        }
-      : undefined;
-  }, [data?.contractMethod?.fragment, preferredFragment, sighash]);
+    return {
+      sighash,
+      fragment,
+      contract: Contract.getInterface([fragment]),
+    };
+  }, [data?.contractMethod?.fragment, sighash]);
 
-  return [method, rest] as const;
+  return method;
 };

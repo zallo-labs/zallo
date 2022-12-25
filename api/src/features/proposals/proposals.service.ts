@@ -2,7 +2,7 @@ import { forwardRef, Inject, Injectable } from '@nestjs/common';
 import { Prisma, Proposal } from '@prisma/client';
 import { UserInputError } from 'apollo-server-core';
 import { hexlify } from 'ethers/lib/utils';
-import { Address, toTx, hashTx, randomTxSalt, TxDef, validateSignature } from 'lib';
+import { Address, toTx, hashTx, randomTxSalt, validateSignature, TxOptions } from 'lib';
 import { PrismaService } from 'nestjs-prisma';
 import { ProviderService } from '~/provider/provider.service';
 import { PubsubService } from '~/pubsub/pubsub.service';
@@ -12,7 +12,7 @@ import { ApproveArgs } from './proposals.args';
 
 type CreateParams<T extends Prisma.ProposalCreateArgs> = {
   account: Address;
-  data: TxDef & Omit<Prisma.ProposalCreateInput, keyof TxDef | 'account' | 'id'>;
+  data: TxOptions & Omit<Prisma.ProposalCreateInput, keyof TxOptions | 'account' | 'id'>;
 } & Omit<Prisma.SelectSubset<T, Prisma.ProposalCreateArgs>, 'data'>;
 
 type ApproveParams = { user: Address } & ApproveArgs &

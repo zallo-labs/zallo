@@ -14,9 +14,9 @@ export const FAB = ({ appbar, onPress, ...props }: FABProps) => (
       mode: 'flat',
     })}
     {...(onPress && {
-      onPress: () => {
+      onPress: (e) => {
         Keyboard.dismiss();
-        onPress();
+        onPress(e);
       },
     })}
     style={[styles.bottom, appbar ? styles.appbarMargin : styles.regularMargin, props.style]}

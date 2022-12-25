@@ -2,13 +2,12 @@ import { useMemo } from 'react';
 import { useWalletConnectClients } from './WalletConnectProvider';
 import { getSdkError } from '@walletconnect/utils';
 import { toWcError, toWcResult } from './jsonRcp';
-import { tryOr } from 'lib';
+import { tryOrAsync } from 'lib';
 import { useWalletConnectSessions } from './useWalletConnectSessions';
 
+export type Topic = TopicV1 | TopicV2;
 export type TopicV1 = string & { version: 1 };
 export type TopicV2 = string & { version: 2 };
-
-export type Topic = TopicV1 | TopicV2;
 
 export const isTopicV1 = (t: Topic): t is TopicV1 => t.startsWith('wc:');
 
@@ -49,7 +48,7 @@ export const useSession = (topic: Topic) => {
             });
           }
         } else {
-          tryOr(
+          tryOrAsync(
             () => clientV2.ping({ topic }),
             () =>
               withClientV2((client) =>

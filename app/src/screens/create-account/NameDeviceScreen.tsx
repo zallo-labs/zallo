@@ -1,14 +1,14 @@
 import { useState } from 'react';
 import { RootNavigatorScreenProps } from '~/navigation/RootNavigator';
-import { useSetDeviceName } from '~/mutations/useSetDeviceName.api';
 import { View } from 'react-native';
 import { makeStyles } from '@theme/makeStyles';
 import { Appbar, Button, Text } from 'react-native-paper';
 import { AppbarBack } from '~/components/Appbar/AppbarBack';
 import { TextField } from '~/components/fields/TextField';
 import { Actions } from '~/components/layout/Actions';
-import { useDeviceMeta } from '~/queries/useDeviceMeta.api';
 import * as Device from 'expo-device';
+import { useUpdateUser } from '~/mutations/user/useUpdateUser.api';
+import { useUser } from '~/queries/useUser.api';
 
 export interface NameDeviceScreenParams {
   onContinue: () => void;
@@ -19,9 +19,9 @@ export type NameDeviceScreenProps = RootNavigatorScreenProps<'NameDevice'>;
 export const NameDeviceScreen = ({ route }: NameDeviceScreenProps) => {
   const { onContinue } = route.params;
   const styles = useStyles();
-  const setName = useSetDeviceName();
+  const updateUser = useUpdateUser();
 
-  const [value, setValue] = useState(useDeviceMeta().name || Device.deviceName || '');
+  const [value, setValue] = useState(useUser().name || Device.deviceName || '');
 
   return (
     <View style={styles.root}>
@@ -47,7 +47,7 @@ export const NameDeviceScreen = ({ route }: NameDeviceScreenProps) => {
           <Button
             mode="contained"
             onPress={async () => {
-              await setName(value);
+              await updateUser({ name: value });
               onContinue();
             }}
           >

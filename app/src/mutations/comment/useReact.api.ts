@@ -1,5 +1,4 @@
 import { gql, useMutation } from '@apollo/client';
-import { useDevice } from '@network/useDevice';
 import {
   CommentsDocument,
   CommentsQuery,
@@ -15,6 +14,7 @@ import { useCallback } from 'react';
 import { Comment, Emoji } from '~/queries/useComments.api';
 import produce from 'immer';
 import assert from 'assert';
+import { useUser } from '~/queries/useUser.api';
 
 gql`
   mutation React($comment: Float!, $emojis: [String!]!) {
@@ -27,7 +27,7 @@ gql`
 export const getReactionId = (c: Comment, user: Address): Id => toId(`${c.id}-${user}`);
 
 export const useReact = (account: Address) => {
-  const device = useDevice();
+  const user = useUser();
 
   const [mutate] = useMutation<ReactMutation, ReactMutationVariables>(ReactDocument, {
     client: useApiClient(),
@@ -35,7 +35,7 @@ export const useReact = (account: Address) => {
 
   return useCallback(
     (c: Comment, emoji: Emoji) => {
-      const emojisSet = c.reactions[device.address] ?? new Set();
+      const emojisSet = c.reactions[user.id] ?? new Set();
       if (emojisSet.has(emoji)) {
         emojisSet.delete(emoji);
       } else {
@@ -51,7 +51,7 @@ export const useReact = (account: Address) => {
         optimisticResponse: {
           reactToComment: {
             __typename: 'Reaction',
-            id: getReactionId(c, device.address),
+            id: getReactionId(c, user.id),
           },
         },
         update: (cache, res) => {
@@ -74,9 +74,9 @@ export const useReact = (account: Address) => {
               assert(comment);
 
               comment.reactions = [
-                ...(comment.reactions ?? []).filter((r) => r.deviceId !== device.address),
+                ...(comment.reactions ?? []).filter((r) => r.userId !== user.id),
                 {
-                  deviceId: device.address,
+                  userId: user.id,
                   emojis,
                 },
               ];
@@ -85,6 +85,6 @@ export const useReact = (account: Address) => {
         },
       });
     },
-    [mutate, account, device.address],
+    [user.id, mutate, account],
   );
 };

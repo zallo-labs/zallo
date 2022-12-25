@@ -1,8 +1,7 @@
 import { gql } from '@apollo/client';
-import { useDevice } from '@network/useDevice';
 import { useApiClient } from '~/gql/GqlProvider';
 import { hexlify } from 'ethers/lib/utils';
-import { Address, toTx, getTxId, hashTx, TxDef } from 'lib';
+import { hashTx, QuorumGuid, toTx, TxOptions } from 'lib';
 import { DateTime } from 'luxon';
 import { useCallback } from 'react';
 import {
@@ -16,15 +15,15 @@ import {
   useProposeMutation,
 } from '~/gql/generated.api';
 import { updateQuery } from '~/gql/update';
-import { BigNumberish } from 'ethers';
 import { ProposalId } from '~/queries/proposal';
+import { useCredentials } from '@network/useCredentials';
 
 gql`
   ${TransactionFieldsFragmentDoc}
 
   mutation Propose(
     $account: Address!
-    $config: Float
+    $quorumKey: QuorumKey
     $to: Address!
     $value: Uint256
     $data: Bytes
@@ -33,7 +32,7 @@ gql`
   ) {
     propose(
       account: $account
-      config: $config
+      quorumKey: $quorumKey
       to: $to
       value: $value
       data: $data
@@ -52,30 +51,26 @@ export interface ProposeResponse extends ProposalId {
   submissionHash?: string;
 }
 
-export interface ProposalDef extends TxDef {
-  gasLimit?: BigNumberish;
-}
-
 export const useApiPropose = () => {
-  const device = useDevice();
+  const credentials = useCredentials();
   const [mutation] = useProposeMutation({ client: useApiClient() });
 
   const propose = useCallback(
-    async (txDef: ProposalDef, account: Address): Promise<ProposeResponse> => {
-      const tx = toTx(txDef);
-      const hash = await hashTx(tx, { address: account, provider: device.provider });
+    async (txOpts: TxOptions, quorum: QuorumGuid): Promise<ProposeResponse> => {
+      const tx = toTx(txOpts);
+      const id = await hashTx(tx, { address: quorum.account, provider: credentials.provider });
 
-      const id = getTxId(hash);
       const createdAt = DateTime.now().toISO();
 
       const res = await mutation({
         variables: {
-          account,
+          account: quorum.account,
+          quorumKey: quorum.key,
           to: tx.to,
-          value: tx.value.toString(),
-          data: hexlify(tx.data),
-          salt: hexlify(tx.salt),
-          gasLimit: txDef.gasLimit?.toString(),
+          value: tx.value?.toString(),
+          data: tx.data ? hexlify(tx.data) : undefined,
+          salt: tx.salt,
+          gasLimit: txOpts.gasLimit?.toString(),
         },
         optimisticResponse: {
           propose: {
@@ -93,15 +88,16 @@ export const useApiPropose = () => {
           async function upsertProposal() {
             cache.writeQuery<ProposalQuery, ProposalQueryVariables>({
               query: ProposalDocument,
-              variables: { id: hash },
+              variables: { id },
               data: {
                 proposal: {
                   id,
-                  accountId: account,
-                  proposerId: device.address,
+                  accountId: quorum.account,
+                  quorumKey: quorum.key,
+                  proposerId: credentials.address,
                   to: tx.to,
-                  value: tx.value.toString(),
-                  data: hexlify(tx.data),
+                  value: tx.value?.toString(),
+                  data: tx.data ? hexlify(tx.data) : undefined,
                   salt: hexlify(tx.salt),
                   createdAt,
                   approvals: [],
@@ -118,19 +114,12 @@ export const useApiPropose = () => {
               variables: {},
               defaultData: { proposals: [] },
               updater: (data) => {
-                const proposal = {
+                const i = data.proposals.findIndex((p) => p.id === id);
+                data.proposals[i >= 0 ? i : data.proposals.length] = {
                   id,
-                  accountId: account,
-                  hash,
+                  accountId: quorum.account,
                   createdAt,
                 };
-
-                const i = data.proposals.findIndex((p) => p.id === id);
-                if (i >= 0) {
-                  data.proposals[i] = proposal;
-                } else {
-                  data.proposals.push(proposal);
-                }
               },
             });
           }
@@ -141,9 +130,9 @@ export const useApiPropose = () => {
         ? res.data.propose.transactions[res.data.propose.transactions.length - 1].hash
         : undefined;
 
-      return { hash, submissionHash };
+      return { id, submissionHash };
     },
-    [device, mutation],
+    [credentials.provider, credentials.address, mutation],
   );
 
   return propose;

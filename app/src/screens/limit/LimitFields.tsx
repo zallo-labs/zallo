@@ -1,6 +1,6 @@
 import { makeStyles } from '@theme/makeStyles';
 import { useToken } from '@token/useToken';
-import { Limit, LimitPeriod } from 'lib';
+import { TokenLimit, TokenLimitPeriod } from 'lib';
 import { StyleProp, ViewStyle } from 'react-native';
 import { SegmentedButtons, TextInput } from 'react-native-paper';
 import { TextField } from '~/components/fields/TextField';
@@ -9,8 +9,8 @@ import { Box } from '~/components/layout/Box';
 import { Container } from '~/components/layout/Container';
 
 export interface LimitFieldsProps {
-  limit: Limit;
-  setLimit: (limit: Limit) => void;
+  limit: TokenLimit;
+  setLimit: (limit: TokenLimit) => void;
   style?: StyleProp<ViewStyle>;
 }
 
@@ -35,20 +35,20 @@ export const LimitFields = ({ limit, setLimit, style }: LimitFieldsProps) => {
 
       <SegmentedButtons
         buttons={[
-          { label: 'Daily', value: LimitPeriod.Day, showSelectedCheck: true },
+          { label: 'Daily', value: TokenLimitPeriod.Day, showSelectedCheck: true },
           {
             label: 'Weekly',
-            value: LimitPeriod.Week,
+            value: TokenLimitPeriod.Week,
             showSelectedCheck: true,
           },
           {
             label: 'Monthly',
-            value: LimitPeriod.Month,
+            value: TokenLimitPeriod.Month,
             showSelectedCheck: true,
           },
         ]}
         value={limit.period}
-        onValueChange={(period) => setLimit({ ...limit, period: period as LimitPeriod })}
+        onValueChange={(period) => setLimit({ ...limit, period: period as TokenLimitPeriod })}
         style={styles.period}
       />
     </Container>

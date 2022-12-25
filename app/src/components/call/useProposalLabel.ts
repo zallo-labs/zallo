@@ -1,23 +1,19 @@
 import { ZERO_ADDR } from 'lib';
 import { Proposal } from '~/queries/proposal';
 import { useContractMethod } from '~/queries/useContractMethod.api';
-import { useDecodedRemoveUserMethod } from '~/screens/transaction/details/method/user/RemoveUserMethod';
-import { useDecodedUpsertUserMethod } from '~/screens/transaction/details/method/user/UpsertUserMethod';
+import { useDecodeQuorumMethodsData } from '~/screens/proposal/useDecodeQuorumMethodsData';
 import { uppercaseFirst } from '~/util/string';
 
 export const TRANSFER_LABEL = 'Transfer';
 
 export const useProposalLabel = (p?: Proposal) => {
-  const [method] = useContractMethod(p);
-  const account = p?.account ?? ZERO_ADDR;
+  const method = useContractMethod(p);
+  const quorum = useDecodeQuorumMethodsData(p?.account ?? ZERO_ADDR, p?.data);
 
-  const upsertedUser = useDecodedUpsertUserMethod(account, p);
-  const [removedUser] = useDecodedRemoveUserMethod(account, p);
+  if (!method) return !p?.value ? TRANSFER_LABEL : undefined;
 
-  if (!method) return !p?.value.isZero() ? TRANSFER_LABEL : undefined;
-
-  if (upsertedUser) return `Modify ${upsertedUser.user.name}`;
-  if (removedUser) return `Remove ${removedUser.name}`;
+  if (quorum?.method === 'upsert') return `Modify ${quorum.name}`;
+  if (quorum?.method === 'remove') return `Remove ${quorum.name}`;
 
   return uppercaseFirst(method.fragment.name) || method.sighash;
 };

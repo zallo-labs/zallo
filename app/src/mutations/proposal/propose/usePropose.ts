@@ -1,5 +1,5 @@
 import { CommonActions } from '@react-navigation/native';
-import { Address } from 'lib';
+import { QuorumGuid, TxOptions } from 'lib';
 import { useCallback, useState } from 'react';
 import {
   RootNavigation,
@@ -8,8 +8,8 @@ import {
 } from '~/navigation/useRootNavigation';
 import { showInfo } from '~/provider/SnackbarProvider';
 import { ProposalId } from '~/queries/proposal';
-import { OnExecute } from '~/screens/transaction/TransactionProvider';
-import { ProposalDef, ProposeResponse, useApiPropose } from './usePropose.api';
+import { OnExecute } from '~/screens/proposal/ProposalActions';
+import { ProposeResponse, useApiPropose } from './usePropose.api';
 
 export type OnPropose = (
   proposal: ProposeResponse,
@@ -23,10 +23,10 @@ export const usePropose = () => {
   const [proposing, setProposing] = useState(false);
 
   const propose = useCallback(
-    async (account: Address, tx: ProposalDef, onPropose?: OnPropose) => {
+    async (quorum: QuorumGuid, txOpts: TxOptions, onPropose?: OnPropose) => {
       setProposing(true);
 
-      const proposal = await apiPropose(tx, account);
+      const proposal = await apiPropose(txOpts, quorum);
 
       await onPropose?.(proposal, navigation);
       setProposing(false);

@@ -36,5 +36,4 @@ export * from './quorum';
 export * from './signature';
 export * from './spending';
 export * from './tx';
-export * from './upgrade';
 export * from './user';

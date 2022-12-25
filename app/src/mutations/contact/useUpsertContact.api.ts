@@ -8,9 +8,9 @@ import {
 } from '~/gql/generated.api';
 import { useApiClient } from '~/gql/GqlProvider';
 import { Contact, NewContact } from '~/queries/contacts/useContacts.api';
-import { useDevice } from '@network/useDevice';
 import { toId } from 'lib';
 import { updateQuery } from '~/gql/update';
+import { useUser } from '~/queries/useUser.api';
 
 gql`
   mutation UpsertContact($name: String!, $newAddr: Address!, $prevAddr: Address) {
@@ -21,7 +21,7 @@ gql`
 `;
 
 export const useUpsertContact = () => {
-  const device = useDevice();
+  const user = useUser();
 
   const [mutation] = useUpsertContactMutation({ client: useApiClient() });
 
@@ -35,7 +35,7 @@ export const useUpsertContact = () => {
         },
         optimisticResponse: {
           upsertContact: {
-            id: toId(`${device.address}-${cur.addr}`),
+            id: toId(`${user.id}-${cur.addr}`),
           },
         },
         update: (cache, res) => {
@@ -66,6 +66,6 @@ export const useUpsertContact = () => {
         },
       });
     },
-    [device.address, mutation],
+    [user.id, mutation],
   );
 };

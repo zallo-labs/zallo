@@ -1,20 +1,20 @@
-import { useDevice } from '@network/useDevice';
 import { DeviceIcon } from '@theme/icons';
 import { Share } from 'react-native';
 import { Drawer } from 'react-native-paper';
+import { useUser } from '~/queries/useUser.api';
 import { truncateAddr } from '~/util/format';
 
 export const DeviceItem = () => {
-  const device = useDevice();
+  const user = useUser();
 
   return (
     <Drawer.Item
-      label={`Device: ${truncateAddr(device.address)}`}
+      label={`Device: ${truncateAddr(user.id)}`}
       icon={DeviceIcon}
       onPress={() =>
         Share.share({
           title: 'Device ID',
-          message: device.address,
+          message: user.id,
         })
       }
     />

@@ -1,11 +1,15 @@
 import { useTokenAvailable } from '@token/useTokenAvailable';
-import { UserId } from 'lib';
+import { QuorumGuid } from 'lib';
 import TokenItem, { TokenItemProps } from './TokenItem';
 
 export interface TokenAvailableItemProps extends Omit<TokenItemProps, 'amount'> {
-  user: UserId;
+  quorum: QuorumGuid;
 }
 
-export const TokenAvailableItem = ({ token, user, ...itemProps }: TokenAvailableItemProps) => {
+export const TokenAvailableItem = ({
+  token,
+  quorum: user,
+  ...itemProps
+}: TokenAvailableItemProps) => {
   return <TokenItem {...itemProps} token={token} amount={useTokenAvailable(token, user)} />;
 };

@@ -6,9 +6,8 @@ import {
   ProposalsMetadataDocument,
   ProposalsMetadataQuery,
   ProposalsMetadataQueryVariables,
-  ProposalStatus,
+  ProposalState,
 } from '~/gql/generated.api';
-import { useApiClient } from '~/gql/GqlProvider';
 import { usePollWhenFocussed } from '~/gql/usePollWhenFocussed';
 import { useSuspenseQuery } from '~/gql/useSuspenseQuery';
 
@@ -20,8 +19,12 @@ export interface ProposalMetadata {
 }
 
 gql`
-  query ProposalsMetadata($accounts: AddressSet, $status: ProposalStatus) {
-    proposals(accounts: $accounts, status: $status) {
+  query ProposalsMetadata(
+    $accounts: [Address!]
+    $state: [ProposalState!]
+    $userHasApproved: Boolean
+  ) {
+    proposals(accounts: $accounts, state: $state, userHasApproved: $userHasApproved) {
       id
       accountId
       createdAt
@@ -31,16 +34,20 @@ gql`
 
 export interface ProposalsMetadataOptions {
   accounts?: Address[];
-  status?: ProposalStatus;
+  state?: ProposalState | ProposalState[];
+  userHasApproved?: boolean;
 }
 
-export const useProposalsMetadata = ({ accounts, status }: ProposalsMetadataOptions = {}) => {
+export const useProposalsMetadata = ({
+  accounts,
+  state,
+  userHasApproved,
+}: ProposalsMetadataOptions = {}) => {
   const { data, ...rest } = useSuspenseQuery<
     ProposalsMetadataQuery,
     ProposalsMetadataQueryVariables
   >(ProposalsMetadataDocument, {
-    client: useApiClient(),
-    variables: { accounts, status },
+    variables: { accounts, state, userHasApproved },
   });
   usePollWhenFocussed(rest, 10);
 

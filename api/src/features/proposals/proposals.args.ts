@@ -31,7 +31,7 @@ export class ProposalsArgs extends FindManyProposalArgs {
   @SetField(() => AddressScalar, { nullable: true })
   accounts?: Set<Address>;
 
-  state?: ProposalState;
+  state?: ProposalState[];
 
   userHasApproved?: boolean;
 }
@@ -64,11 +64,11 @@ export class ProposeArgs {
   to: Address;
 
   // Wei
-  @Uint256BnField({ nullable: true, defaultValue: ZERO })
-  value: BigNumber;
+  @Uint256BnField({ nullable: true })
+  value?: BigNumber;
 
-  @BytesField({ nullable: true, defaultValue: '0x' })
-  data: string;
+  @BytesField({ nullable: true })
+  data?: string;
 
   @Bytes8Field({ nullable: true })
   salt?: TxSalt;

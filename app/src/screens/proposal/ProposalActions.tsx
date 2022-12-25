@@ -1,5 +1,4 @@
 import { PROVIDER } from '@network/provider';
-import { useDevice } from '@network/useDevice';
 import { MaybePromise } from 'lib';
 import { Button } from 'react-native-paper';
 import { TransactionResponse } from 'zksync-web3/build/src/types';
@@ -9,7 +8,8 @@ import { useReject } from '~/mutations/proposal/approve/useReject.api';
 import { useRequestApproval } from '~/mutations/proposal/useRequestApproval.api';
 import { useRootNavigation } from '~/navigation/useRootNavigation';
 import { Proposal } from '~/queries/proposal';
-import { useProposalApprovers } from './useProposalApprovers';
+import { useQuorum } from '~/queries/useQuorum.api';
+import { useUser } from '~/queries/useUser.api';
 
 export type OnExecute = (response: TransactionResponse) => MaybePromise<void>;
 
@@ -20,21 +20,26 @@ export interface ProposalActionsProps {
 
 export const ProposalActions = ({ proposal: p, onExecute }: ProposalActionsProps) => {
   const { goBack } = useRootNavigation();
-  const device = useDevice();
+  const user = useUser();
   const approve = useApprove();
   const reject = useReject();
   const requestApproval = useRequestApproval();
-  const approvers = useProposalApprovers(p);
+  const quorum = useQuorum(p.quorum);
 
-  const isApprover =
-    p.proposer.addr === device.address || p.config.approvers.some((a) => a === device.address);
+  const userHasApproved = p.approvals.has(user.id);
+  const isApprover = quorum.activeOrLatest?.approvers.has(user.id);
+  const awaitingApprovalFrom = new Set(
+    [...(quorum.activeOrLatest?.approvers.values() ?? [])].filter(
+      (a) => !p.approvals.has(a) && !p.rejected.has(a),
+    ),
+  );
 
-  if (p.status === 'proposed' && isApprover)
+  if (p.state === 'pending' && isApprover)
     return (
       <Actions
         primary={
-          p.userHasApproved ? (
-            <Button mode="contained" onPress={() => requestApproval(p, approvers.notApproved)}>
+          userHasApproved ? (
+            <Button mode="contained" onPress={() => requestApproval(p, awaitingApprovalFrom)}>
               Request approval
             </Button>
           ) : (

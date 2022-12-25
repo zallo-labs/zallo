@@ -1,35 +1,36 @@
-import { getUserIdStr, UserId } from 'lib';
-import _ from 'lodash';
-import { Dispatch, SetStateAction } from 'react';
 import { StyleProp, ViewStyle } from 'react-native';
+import { Updater } from 'use-immer';
 import { Box } from '~/components/layout/Box';
-import { useUserIds } from '~/queries/user/useUserIds.api';
-import SessionUserItem from './SessionUserItem';
+import { useAccountIds } from '~/queries/account/useAccountIds.api';
+import SessionAccountItem from './SessionAccountItem';
+import { SessionAccountQuorum } from './useSessionAccountQuorum';
 
 export interface SessionAccountsProps {
-  users: UserId[];
-  setUsers: Dispatch<SetStateAction<UserId[]>>;
+  selected: SessionAccountQuorum;
+  setSelected: Updater<SessionAccountQuorum>;
   style?: StyleProp<ViewStyle>;
 }
 
-export const SessionAccounts = ({ users, setUsers, style }: SessionAccountsProps) => {
-  const [allUsers] = useUserIds();
+export const SessionAccounts = ({ selected, setSelected, style }: SessionAccountsProps) => {
+  const accountIds = useAccountIds();
 
   return (
     <Box style={style}>
-      {allUsers.map((user) => {
-        const selected = !!users.find((u) => _.isEqual(u, user));
-
+      {accountIds.map((account) => {
         return (
-          <SessionUserItem
-            key={getUserIdStr(user.account, user.addr)}
-            user={user}
-            selected={selected}
-            onPress={() => {
-              setUsers((users) =>
-                selected ? users.filter((u) => !_.isEqual(u, user)) : [...users, user],
-              );
-            }}
+          <SessionAccountItem
+            key={account}
+            account={account}
+            selected={selected[account]}
+            onSelect={(q) =>
+              setSelected((selected) => {
+                if (!q || selected[account] === q) {
+                  delete selected[account];
+                } else {
+                  selected[account] = q;
+                }
+              })
+            }
           />
         );
       })}

@@ -19,23 +19,23 @@ const Status = ({ p }: { p: Proposal }) => {
   const styles = useStyles();
 
   return match(p)
-    .with({ status: 'proposed', userHasApproved: false }, () => (
+    .with({ state: 'pending', userHasApproved: false }, () => (
       <Text variant="labelLarge" style={styles.primaryColor}>
         Awaiting approval
       </Text>
     ))
-    .with({ status: 'proposed', userHasApproved: true }, () => (
+    .with({ state: 'pending' }, () => (
       <Text variant="labelLarge" style={styles.secondaryColor}>
         Awaiting approval from others
       </Text>
     ))
-    .with({ status: 'executed' }, () => (
+    .with({ state: 'executed' }, () => (
       <Text variant="bodyMedium">
         <Timestamp timestamp={p.timestamp} weekday />
       </Text>
     ))
-    .with({ status: 'failed' }, { status: 'pending' }, ({ status }) => (
-      <Text variant="labelLarge">{status}</Text>
+    .with({ state: 'failed' }, { state: 'executing' }, ({ state }) => (
+      <Text variant="labelLarge">{state}</Text>
     ))
     .exhaustive();
 };

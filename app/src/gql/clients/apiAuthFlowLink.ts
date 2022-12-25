@@ -10,8 +10,8 @@ import { atom, useRecoilState } from 'recoil';
 import { getSecureStore, persistAtom } from '~/util/effect/persistAtom';
 import { useCallback, useMemo, useRef } from 'react';
 import { captureException } from '~/util/sentry/sentry';
-import { useDevice } from '@network/useDevice';
 import { AuthToken } from 'lib';
+import { useCredentials } from '@network/useCredentials';
 
 const fetchMutex = new Mutex();
 
@@ -25,7 +25,7 @@ const getHostname = (url: string) => {
   return url.slice(start, end);
 };
 
-const fetchToken = async (wallet: zk.Wallet): Promise<string> => {
+const fetchToken = async (credentials: zk.Wallet): Promise<string> => {
   const nonceRes = await fetch(`${CONFIG.apiUrl}/auth/nonce`, {
     credentials: 'include',
   });
@@ -33,12 +33,12 @@ const fetchToken = async (wallet: zk.Wallet): Promise<string> => {
 
   const message = new SiweMessage({
     domain: getHostname(CONFIG.apiUrl),
-    address: wallet.address,
+    address: credentials.address,
     nonce,
   });
   const token: AuthToken = {
     message,
-    signature: await wallet.signMessage(message.prepareMessage()),
+    signature: await credentials.signMessage(message.prepareMessage()),
   };
 
   return JSON.stringify(token);
@@ -55,7 +55,7 @@ const apiTokenState = atom<string | null>({
 });
 
 export const useAuthFlowLink = () => {
-  const device = useDevice();
+  const credentials = useCredentials();
   const [token, setToken] = useRecoilState(apiTokenState);
 
   const tokenRef = useRef<string | null>(token);
@@ -64,7 +64,7 @@ export const useAuthFlowLink = () => {
     // Ensure token is reset exactly once at any given time
     try {
       await tryAcquire(fetchMutex).runExclusive(async () => {
-        tokenRef.current = await fetchToken(device);
+        tokenRef.current = await fetchToken(credentials);
         setToken(tokenRef.current);
       });
     } catch (e) {
@@ -74,7 +74,7 @@ export const useAuthFlowLink = () => {
         throw e;
       }
     }
-  }, [device, setToken]);
+  }, [credentials, setToken]);
 
   const authLink: ApolloLink = useMemo(
     () =>

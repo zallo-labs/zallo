@@ -16,7 +16,7 @@ import {
 import { useTheme } from '@theme/paper';
 import { CompositeScreenProps } from '@react-navigation/native';
 import { useProposalsMetadata } from '~/queries/proposal/useProposalsMetadata.api';
-import { ProposalStatus } from '~/gql/generated.api';
+import { useNotificationsCount } from '~/util/NotificationsRegistrar';
 
 export type BottomNavigatorParamList = {
   Receive: undefined;
@@ -34,7 +34,6 @@ const Navigation = createMaterialBottomTabNavigator<BottomNavigatorParamList>();
 
 export const BottomNavigator = () => {
   const { iconSize } = useTheme();
-  const [proposalsAwaitingUser] = useProposalsMetadata({ status: ProposalStatus.AwaitingUser });
 
   return (
     <Navigation.Navigator initialRouteName="Home">
@@ -61,7 +60,7 @@ export const BottomNavigator = () => {
         name="Activity"
         component={ActivityScreen}
         options={{
-          tabBarBadge: proposalsAwaitingUser.length > 0 ? proposalsAwaitingUser.length : false,
+          tabBarBadge: useNotificationsCount() || false,
           tabBarIcon: ({ focused, ...props }) =>
             focused ? (
               <CalendarIcon size={iconSize.small} {...props} />

@@ -11,7 +11,7 @@ export interface ReceiveAppbarProps {
 }
 
 export const ReceiveAppbar = ({ account: accountAddr, url }: ReceiveAppbarProps) => {
-  const [account] = useAccount(accountAddr);
+  const account = useAccount(accountAddr);
 
   return (
     <Appbar.Header mode="center-aligned">

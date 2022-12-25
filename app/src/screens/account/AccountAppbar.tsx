@@ -6,7 +6,6 @@ import { Appbar } from 'react-native-paper';
 import { AppbarHeaderProps } from '~/components/Appbar/useAppbarHeader';
 import { useGoBack } from '~/components/Appbar/useGoBack';
 import { CombinedAccount } from '~/queries/account/useAccount.api';
-import { useCreateUser } from '../user/useCreateUser';
 import { useRootNavigation } from '~/navigation/useRootNavigation';
 
 export interface AccountAppbarProps {
@@ -17,7 +16,6 @@ export interface AccountAppbarProps {
 
 export const AccountAppbar = ({ AppbarHeader, title, account }: AccountAppbarProps) => {
   const { navigate } = useRootNavigation();
-  const createUser = useCreateUser(account.addr);
 
   return (
     <AppbarHeader mode="large">
@@ -25,7 +23,10 @@ export const AccountAppbar = ({ AppbarHeader, title, account }: AccountAppbarPro
 
       <Appbar.Content title={title || account.name} />
 
-      <Appbar.Action icon={AddIcon} onPress={createUser} />
+      <Appbar.Action
+        icon={AddIcon}
+        onPress={() => navigate('CreateQuorum', { account: account.addr })}
+      />
       <Appbar.Action
         icon={ShareIcon}
         onPress={() => {

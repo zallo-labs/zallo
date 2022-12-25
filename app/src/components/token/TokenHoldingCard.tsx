@@ -10,17 +10,22 @@ import { Container } from '../layout/Container';
 import TokenIcon from './TokenIcon/TokenIcon';
 import { TokenAmount } from './TokenAmount';
 import { useTokenPrice } from '~/queries/useTokenPrice.uni';
-import { CombinedUser } from '~/queries/user/useUser.api';
+import { Accountlike } from '~/queries/account/useAccount.api';
 
 export interface TokenHoldingCardProps extends CardItemProps {
   token: Token;
-  user: CombinedUser;
+  account: Accountlike;
   selected?: boolean;
 }
 
-export const TokenHoldingCard = ({ token: t, user, selected, ...props }: TokenHoldingCardProps) => {
+export const TokenHoldingCard = ({
+  token: t,
+  account,
+  selected,
+  ...props
+}: TokenHoldingCardProps) => {
   const price = useTokenPrice(t);
-  const available = useTokenAvailable(t, user);
+  const available = useTokenAvailable(t, account);
   const fiatValue = useTokenValue(t, available);
 
   return (

@@ -15,15 +15,13 @@ export type Scalars = {
   Float: number;
   /** Ethereum address */
   Address: any;
-  /** Ethereum address set */
-  AddressSet: any;
-  /** whole number */
+  /** integer */
   BigNumber: any;
-  /** hex string string */
+  /** bytes hex string */
   Bytes: any;
-  /** 8-byte string */
+  /** 8-byte hex string */
   Bytes8: any;
-  /** 32-byte string */
+  /** 32-byte hex string */
   Bytes32: any;
   /** A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date-time format. */
   DateTime: any;
@@ -33,8 +31,8 @@ export type Scalars = {
   Id: any;
   /** The `JSON` scalar type represents JSON values as specified by [ECMA-404](http://www.ecma-international.org/publications/files/ECMA-ST/ECMA-404.pdf). */
   JSON: any;
-  /** Ethereum address set */
-  NonEmptyAddressSet: any;
+  /** Quorum key: a 32-bit unsigned integer */
+  QuorumKey: any;
   /** 256-bit unsigned integer */
   Uint256: any;
 };
@@ -49,18 +47,18 @@ export type Account = {
   isActive: Scalars['Boolean'];
   name: Scalars['String'];
   proposals?: Maybe<Array<Proposal>>;
+  quorumStates?: Maybe<Array<QuorumState>>;
+  quorums?: Maybe<Array<Quorum>>;
   reactions?: Maybe<Array<Reaction>>;
-  userStates?: Maybe<Array<UserState>>;
-  users?: Maybe<Array<User>>;
 };
 
 export type AccountCount = {
   __typename?: 'AccountCount';
   comments: Scalars['Int'];
   proposals: Scalars['Int'];
+  quorumStates: Scalars['Int'];
+  quorums: Scalars['Int'];
   reactions: Scalars['Int'];
-  userStates: Scalars['Int'];
-  users: Scalars['Int'];
 };
 
 export type AccountOrderByWithRelationInput = {
@@ -71,9 +69,9 @@ export type AccountOrderByWithRelationInput = {
   isActive?: InputMaybe<SortOrder>;
   name?: InputMaybe<SortOrder>;
   proposals?: InputMaybe<ProposalOrderByRelationAggregateInput>;
+  quorumStates?: InputMaybe<QuorumStateOrderByRelationAggregateInput>;
+  quorums?: InputMaybe<QuorumOrderByRelationAggregateInput>;
   reactions?: InputMaybe<ReactionOrderByRelationAggregateInput>;
-  userStates?: InputMaybe<UserStateOrderByRelationAggregateInput>;
-  users?: InputMaybe<UserOrderByRelationAggregateInput>;
 };
 
 export type AccountRelationFilter = {
@@ -81,13 +79,12 @@ export type AccountRelationFilter = {
   isNot?: InputMaybe<AccountWhereInput>;
 };
 
-export enum AccountScalarFieldEnum {
-  DeploySalt = 'deploySalt',
-  Id = 'id',
-  Impl = 'impl',
-  IsActive = 'isActive',
-  Name = 'name'
-}
+export type AccountScalarFieldEnum =
+  | 'deploySalt'
+  | 'id'
+  | 'impl'
+  | 'isActive'
+  | 'name';
 
 export type AccountWhereInput = {
   AND?: InputMaybe<Array<AccountWhereInput>>;
@@ -100,9 +97,9 @@ export type AccountWhereInput = {
   isActive?: InputMaybe<BoolFilter>;
   name?: InputMaybe<StringFilter>;
   proposals?: InputMaybe<ProposalListRelationFilter>;
+  quorumStates?: InputMaybe<QuorumStateListRelationFilter>;
+  quorums?: InputMaybe<QuorumListRelationFilter>;
   reactions?: InputMaybe<ReactionListRelationFilter>;
-  userStates?: InputMaybe<UserStateListRelationFilter>;
-  users?: InputMaybe<UserListRelationFilter>;
 };
 
 export type AccountWhereUniqueInput = {
@@ -112,11 +109,11 @@ export type AccountWhereUniqueInput = {
 export type Approval = {
   __typename?: 'Approval';
   createdAt: Scalars['DateTime'];
-  device: Device;
-  deviceId: Scalars['String'];
   proposal: Proposal;
   proposalId: Scalars['String'];
   signature?: Maybe<Scalars['String']>;
+  user: User;
+  userId: Scalars['String'];
 };
 
 export type ApprovalListRelationFilter = {
@@ -134,20 +131,20 @@ export type ApprovalWhereInput = {
   NOT?: InputMaybe<Array<ApprovalWhereInput>>;
   OR?: InputMaybe<Array<ApprovalWhereInput>>;
   createdAt?: InputMaybe<DateTimeFilter>;
-  device?: InputMaybe<DeviceRelationFilter>;
-  deviceId?: InputMaybe<StringFilter>;
   proposal?: InputMaybe<ProposalRelationFilter>;
   proposalId?: InputMaybe<StringFilter>;
   signature?: InputMaybe<StringNullableFilter>;
+  user?: InputMaybe<UserRelationFilter>;
+  userId?: InputMaybe<StringFilter>;
 };
 
 export type Approver = {
   __typename?: 'Approver';
-  config: UserConfig;
-  configId: Scalars['Int'];
-  device: Device;
-  deviceId: Scalars['String'];
-  id: Scalars['String'];
+  id: Scalars['ID'];
+  quorumState: QuorumState;
+  quorumStateId: Scalars['Int'];
+  user: User;
+  userId: Scalars['String'];
 };
 
 export type ApproverListRelationFilter = {
@@ -164,10 +161,10 @@ export type ApproverWhereInput = {
   AND?: InputMaybe<Array<ApproverWhereInput>>;
   NOT?: InputMaybe<Array<ApproverWhereInput>>;
   OR?: InputMaybe<Array<ApproverWhereInput>>;
-  config?: InputMaybe<UserConfigRelationFilter>;
-  configId?: InputMaybe<IntFilter>;
-  device?: InputMaybe<DeviceRelationFilter>;
-  deviceId?: InputMaybe<StringFilter>;
+  quorumState?: InputMaybe<QuorumStateRelationFilter>;
+  quorumStateId?: InputMaybe<IntFilter>;
+  user?: InputMaybe<UserRelationFilter>;
+  userId?: InputMaybe<StringFilter>;
 };
 
 export type BoolFilter = {
@@ -180,7 +177,7 @@ export type Comment = {
   _count: CommentCount;
   account: Account;
   accountId: Scalars['String'];
-  author: Device;
+  author: User;
   authorId: Scalars['String'];
   content: Scalars['String'];
   createdAt: Scalars['DateTime'];
@@ -216,7 +213,7 @@ export type CommentWhereInput = {
   OR?: InputMaybe<Array<CommentWhereInput>>;
   account?: InputMaybe<AccountRelationFilter>;
   accountId?: InputMaybe<StringFilter>;
-  author?: InputMaybe<DeviceRelationFilter>;
+  author?: InputMaybe<UserRelationFilter>;
   authorId?: InputMaybe<StringFilter>;
   content?: InputMaybe<StringFilter>;
   createdAt?: InputMaybe<DateTimeFilter>;
@@ -229,14 +226,9 @@ export type CommentWhereInput = {
 export type Contact = {
   __typename?: 'Contact';
   addr: Scalars['String'];
-  device: Device;
-  deviceId: Scalars['String'];
   name: Scalars['String'];
-};
-
-export type ContactDeviceIdAddrCompoundUniqueInput = {
-  addr: Scalars['String'];
-  deviceId: Scalars['String'];
+  user: User;
+  userId: Scalars['String'];
 };
 
 export type ContactListRelationFilter = {
@@ -246,8 +238,8 @@ export type ContactListRelationFilter = {
 };
 
 export type ContactName_IdentifierCompoundUniqueInput = {
-  deviceId: Scalars['String'];
   name: Scalars['String'];
+  userId: Scalars['String'];
 };
 
 export type ContactObject = {
@@ -263,30 +255,34 @@ export type ContactOrderByRelationAggregateInput = {
 
 export type ContactOrderByWithRelationInput = {
   addr?: InputMaybe<SortOrder>;
-  device?: InputMaybe<DeviceOrderByWithRelationInput>;
-  deviceId?: InputMaybe<SortOrder>;
   name?: InputMaybe<SortOrder>;
+  user?: InputMaybe<UserOrderByWithRelationInput>;
+  userId?: InputMaybe<SortOrder>;
 };
 
-export enum ContactScalarFieldEnum {
-  Addr = 'addr',
-  DeviceId = 'deviceId',
-  Name = 'name'
-}
+export type ContactScalarFieldEnum =
+  | 'addr'
+  | 'name'
+  | 'userId';
+
+export type ContactUserIdAddrCompoundUniqueInput = {
+  addr: Scalars['String'];
+  userId: Scalars['String'];
+};
 
 export type ContactWhereInput = {
   AND?: InputMaybe<Array<ContactWhereInput>>;
   NOT?: InputMaybe<Array<ContactWhereInput>>;
   OR?: InputMaybe<Array<ContactWhereInput>>;
   addr?: InputMaybe<StringFilter>;
-  device?: InputMaybe<DeviceRelationFilter>;
-  deviceId?: InputMaybe<StringFilter>;
   name?: InputMaybe<StringFilter>;
+  user?: InputMaybe<UserRelationFilter>;
+  userId?: InputMaybe<StringFilter>;
 };
 
 export type ContactWhereUniqueInput = {
-  deviceId_addr?: InputMaybe<ContactDeviceIdAddrCompoundUniqueInput>;
   name_identifier?: InputMaybe<ContactName_IdentifierCompoundUniqueInput>;
+  userId_addr?: InputMaybe<ContactUserIdAddrCompoundUniqueInput>;
 };
 
 export type ContractMethod = {
@@ -330,67 +326,18 @@ export type DecimalNullableFilter = {
   notIn?: InputMaybe<Array<Scalars['Decimal']>>;
 };
 
-export type Device = {
-  __typename?: 'Device';
-  _count: DeviceCount;
-  approvals?: Maybe<Array<Approval>>;
-  approvers?: Maybe<Array<Approver>>;
-  comments?: Maybe<Array<Comment>>;
-  contacts?: Maybe<Array<Contact>>;
-  id: Scalars['ID'];
-  name?: Maybe<Scalars['String']>;
-  pushToken?: Maybe<Scalars['String']>;
-  reactions?: Maybe<Array<Reaction>>;
-  users?: Maybe<Array<User>>;
-};
-
-export type DeviceCount = {
-  __typename?: 'DeviceCount';
-  approvals: Scalars['Int'];
-  approvers: Scalars['Int'];
-  comments: Scalars['Int'];
-  contacts: Scalars['Int'];
-  reactions: Scalars['Int'];
-  users: Scalars['Int'];
-};
-
-export type DeviceOrderByWithRelationInput = {
-  approvals?: InputMaybe<ApprovalOrderByRelationAggregateInput>;
-  approvers?: InputMaybe<ApproverOrderByRelationAggregateInput>;
-  comments?: InputMaybe<CommentOrderByRelationAggregateInput>;
-  contacts?: InputMaybe<ContactOrderByRelationAggregateInput>;
-  id?: InputMaybe<SortOrder>;
-  name?: InputMaybe<SortOrder>;
-  pushToken?: InputMaybe<SortOrder>;
-  reactions?: InputMaybe<ReactionOrderByRelationAggregateInput>;
-  users?: InputMaybe<UserOrderByRelationAggregateInput>;
-};
-
-export type DeviceRelationFilter = {
-  is?: InputMaybe<DeviceWhereInput>;
-  isNot?: InputMaybe<DeviceWhereInput>;
-};
-
-export type DeviceWhereInput = {
-  AND?: InputMaybe<Array<DeviceWhereInput>>;
-  NOT?: InputMaybe<Array<DeviceWhereInput>>;
-  OR?: InputMaybe<Array<DeviceWhereInput>>;
-  approvals?: InputMaybe<ApprovalListRelationFilter>;
-  approvers?: InputMaybe<ApproverListRelationFilter>;
-  comments?: InputMaybe<CommentListRelationFilter>;
-  contacts?: InputMaybe<ContactListRelationFilter>;
-  id?: InputMaybe<StringFilter>;
-  name?: InputMaybe<StringNullableFilter>;
-  pushToken?: InputMaybe<StringNullableFilter>;
-  reactions?: InputMaybe<ReactionListRelationFilter>;
-  users?: InputMaybe<UserListRelationFilter>;
-};
-
 export type EnumLimitPeriodFilter = {
   equals?: InputMaybe<LimitPeriod>;
   in?: InputMaybe<Array<LimitPeriod>>;
   not?: InputMaybe<NestedEnumLimitPeriodFilter>;
   notIn?: InputMaybe<Array<LimitPeriod>>;
+};
+
+export type EnumSpendingFallbackFilter = {
+  equals?: InputMaybe<SpendingFallback>;
+  in?: InputMaybe<Array<SpendingFallback>>;
+  not?: InputMaybe<NestedEnumSpendingFallbackFilter>;
+  notIn?: InputMaybe<Array<SpendingFallback>>;
 };
 
 export type IntFilter = {
@@ -404,11 +351,10 @@ export type IntFilter = {
   notIn?: InputMaybe<Array<Scalars['Int']>>;
 };
 
-export enum LimitPeriod {
-  Day = 'Day',
-  Month = 'Month',
-  Week = 'Week'
-}
+export type LimitPeriod =
+  | 'Day'
+  | 'Month'
+  | 'Week';
 
 export type Mutation = {
   __typename?: 'Mutation';
@@ -416,21 +362,20 @@ export type Mutation = {
   approve: Proposal;
   createAccount: Account;
   createComment: Comment;
+  createQuorum: Quorum;
   deleteComment: Comment;
   deleteContact: Scalars['Boolean'];
   propose: Proposal;
   reactToComment?: Maybe<Reaction>;
-  registerPushToken: Scalars['Boolean'];
-  reject?: Maybe<Proposal>;
-  removeUser: User;
+  reject: Proposal;
+  removeQuorum: Quorum;
   requestApproval: Scalars['Boolean'];
   requestFunds: Scalars['Boolean'];
   setAccountName: Account;
-  setDeviceName: Device;
-  setUserName: User;
-  submitExecution: Transaction;
+  updateQuorum: Quorum;
+  updateQuorumMetadata: Quorum;
+  updateUser: User;
   upsertContact: ContactObject;
-  upsertUser: User;
 };
 
 
@@ -447,7 +392,7 @@ export type MutationApproveArgs = {
 
 export type MutationCreateAccountArgs = {
   name: Scalars['String'];
-  users: Array<UserWithoutAccountInput>;
+  quorums: Array<QuorumInput>;
 };
 
 
@@ -455,6 +400,15 @@ export type MutationCreateCommentArgs = {
   account: Scalars['Address'];
   content: Scalars['String'];
   key: Scalars['Id'];
+};
+
+
+export type MutationCreateQuorumArgs = {
+  account: Scalars['Address'];
+  approvers: Array<Scalars['Address']>;
+  name: Scalars['String'];
+  proposingQuorumKey: Scalars['QuorumKey'];
+  spending?: InputMaybe<SpendingInput>;
 };
 
 
@@ -470,9 +424,9 @@ export type MutationDeleteContactArgs = {
 
 export type MutationProposeArgs = {
   account: Scalars['Address'];
-  config?: InputMaybe<Scalars['Float']>;
   data?: InputMaybe<Scalars['Bytes']>;
   gasLimit?: InputMaybe<Scalars['Uint256']>;
+  quorumKey?: InputMaybe<Scalars['QuorumKey']>;
   salt?: InputMaybe<Scalars['Bytes8']>;
   to: Scalars['Address'];
   value?: InputMaybe<Scalars['Uint256']>;
@@ -485,24 +439,20 @@ export type MutationReactToCommentArgs = {
 };
 
 
-export type MutationRegisterPushTokenArgs = {
-  token: Scalars['String'];
-};
-
-
 export type MutationRejectArgs = {
   id: Scalars['Bytes32'];
 };
 
 
-export type MutationRemoveUserArgs = {
-  id: UserIdInput;
-  proposalId?: InputMaybe<Scalars['Bytes32']>;
+export type MutationRemoveQuorumArgs = {
+  account: Scalars['Address'];
+  key: Scalars['QuorumKey'];
+  proposingQuorumKey?: InputMaybe<Scalars['QuorumKey']>;
 };
 
 
 export type MutationRequestApprovalArgs = {
-  approvers: Scalars['NonEmptyAddressSet'];
+  approvers: Array<Scalars['Address']>;
   id: Scalars['Bytes32'];
 };
 
@@ -518,20 +468,25 @@ export type MutationSetAccountNameArgs = {
 };
 
 
-export type MutationSetDeviceNameArgs = {
-  name?: InputMaybe<Scalars['String']>;
+export type MutationUpdateQuorumArgs = {
+  account: Scalars['Address'];
+  approvers: Array<Scalars['Address']>;
+  key: Scalars['QuorumKey'];
+  proposingQuorumKey?: InputMaybe<Scalars['QuorumKey']>;
+  spending?: InputMaybe<SpendingInput>;
 };
 
 
-export type MutationSetUserNameArgs = {
-  id: UserIdInput;
+export type MutationUpdateQuorumMetadataArgs = {
+  account: Scalars['Address'];
+  key: Scalars['QuorumKey'];
   name: Scalars['String'];
 };
 
 
-export type MutationSubmitExecutionArgs = {
-  proposalHash: Scalars['Bytes32'];
-  submission: SubmissionInput;
+export type MutationUpdateUserArgs = {
+  name?: InputMaybe<Scalars['String']>;
+  pushToken?: InputMaybe<Scalars['String']>;
 };
 
 
@@ -539,12 +494,6 @@ export type MutationUpsertContactArgs = {
   name: Scalars['String'];
   newAddr: Scalars['Address'];
   prevAddr?: InputMaybe<Scalars['Address']>;
-};
-
-
-export type MutationUpsertUserArgs = {
-  proposalId: Scalars['Bytes32'];
-  user: UserInput;
 };
 
 export type NestedBoolFilter = {
@@ -592,6 +541,13 @@ export type NestedEnumLimitPeriodFilter = {
   notIn?: InputMaybe<Array<LimitPeriod>>;
 };
 
+export type NestedEnumSpendingFallbackFilter = {
+  equals?: InputMaybe<SpendingFallback>;
+  in?: InputMaybe<Array<SpendingFallback>>;
+  not?: InputMaybe<NestedEnumSpendingFallbackFilter>;
+  notIn?: InputMaybe<Array<SpendingFallback>>;
+};
+
 export type NestedIntFilter = {
   equals?: InputMaybe<Scalars['Int']>;
   gt?: InputMaybe<Scalars['Int']>;
@@ -637,27 +593,27 @@ export type Proposal = {
   account: Account;
   accountId: Scalars['String'];
   approvals?: Maybe<Array<Approval>>;
-  config: UserConfig;
-  configId: Scalars['Int'];
   createdAt: Scalars['DateTime'];
-  data: Scalars['String'];
+  data?: Maybe<Scalars['String']>;
   gasLimit?: Maybe<Scalars['Decimal']>;
   id: Scalars['ID'];
   proposer: User;
   proposerId: Scalars['String'];
+  quorum: Quorum;
+  quorumKey: Scalars['Int'];
+  quorumStates?: Maybe<Array<QuorumState>>;
   salt: Scalars['String'];
   to: Scalars['String'];
   transaction?: Maybe<Transaction>;
   transactions?: Maybe<Array<Transaction>>;
-  userStates?: Maybe<Array<UserState>>;
-  value: Scalars['String'];
+  value?: Maybe<Scalars['String']>;
 };
 
 export type ProposalCount = {
   __typename?: 'ProposalCount';
   approvals: Scalars['Int'];
+  quorumStates: Scalars['Int'];
   transactions: Scalars['Int'];
-  userStates: Scalars['Int'];
 };
 
 export type ProposalListRelationFilter = {
@@ -674,18 +630,18 @@ export type ProposalOrderByWithRelationInput = {
   account?: InputMaybe<AccountOrderByWithRelationInput>;
   accountId?: InputMaybe<SortOrder>;
   approvals?: InputMaybe<ApprovalOrderByRelationAggregateInput>;
-  config?: InputMaybe<UserConfigOrderByWithRelationInput>;
-  configId?: InputMaybe<SortOrder>;
   createdAt?: InputMaybe<SortOrder>;
   data?: InputMaybe<SortOrder>;
   gasLimit?: InputMaybe<SortOrder>;
   id?: InputMaybe<SortOrder>;
   proposer?: InputMaybe<UserOrderByWithRelationInput>;
   proposerId?: InputMaybe<SortOrder>;
+  quorum?: InputMaybe<QuorumOrderByWithRelationInput>;
+  quorumKey?: InputMaybe<SortOrder>;
+  quorumStates?: InputMaybe<QuorumStateOrderByRelationAggregateInput>;
   salt?: InputMaybe<SortOrder>;
   to?: InputMaybe<SortOrder>;
   transactions?: InputMaybe<TransactionOrderByRelationAggregateInput>;
-  userStates?: InputMaybe<UserStateOrderByRelationAggregateInput>;
   value?: InputMaybe<SortOrder>;
 };
 
@@ -694,24 +650,22 @@ export type ProposalRelationFilter = {
   isNot?: InputMaybe<ProposalWhereInput>;
 };
 
-export enum ProposalScalarFieldEnum {
-  AccountId = 'accountId',
-  ConfigId = 'configId',
-  CreatedAt = 'createdAt',
-  Data = 'data',
-  GasLimit = 'gasLimit',
-  Id = 'id',
-  ProposerId = 'proposerId',
-  Salt = 'salt',
-  To = 'to',
-  Value = 'value'
-}
+export type ProposalScalarFieldEnum =
+  | 'accountId'
+  | 'createdAt'
+  | 'data'
+  | 'gasLimit'
+  | 'id'
+  | 'proposerId'
+  | 'quorumKey'
+  | 'salt'
+  | 'to'
+  | 'value';
 
-export enum ProposalStatus {
-  AwaitingOther = 'AwaitingOther',
-  AwaitingUser = 'AwaitingUser',
-  Executed = 'Executed'
-}
+export type ProposalState =
+  | 'Executed'
+  | 'Executing'
+  | 'Pending';
 
 export type ProposalWhereInput = {
   AND?: InputMaybe<Array<ProposalWhereInput>>;
@@ -720,19 +674,19 @@ export type ProposalWhereInput = {
   account?: InputMaybe<AccountRelationFilter>;
   accountId?: InputMaybe<StringFilter>;
   approvals?: InputMaybe<ApprovalListRelationFilter>;
-  config?: InputMaybe<UserConfigRelationFilter>;
-  configId?: InputMaybe<IntFilter>;
   createdAt?: InputMaybe<DateTimeFilter>;
-  data?: InputMaybe<StringFilter>;
+  data?: InputMaybe<StringNullableFilter>;
   gasLimit?: InputMaybe<DecimalNullableFilter>;
   id?: InputMaybe<StringFilter>;
   proposer?: InputMaybe<UserRelationFilter>;
   proposerId?: InputMaybe<StringFilter>;
+  quorum?: InputMaybe<QuorumRelationFilter>;
+  quorumKey?: InputMaybe<IntFilter>;
+  quorumStates?: InputMaybe<QuorumStateListRelationFilter>;
   salt?: InputMaybe<StringFilter>;
   to?: InputMaybe<StringFilter>;
   transactions?: InputMaybe<TransactionListRelationFilter>;
-  userStates?: InputMaybe<UserStateListRelationFilter>;
-  value?: InputMaybe<StringFilter>;
+  value?: InputMaybe<StringNullableFilter>;
 };
 
 export type ProposalWhereUniqueInput = {
@@ -748,11 +702,11 @@ export type Query = {
   contact?: Maybe<ContactObject>;
   contacts: Array<ContactObject>;
   contractMethod?: Maybe<ContractMethod>;
-  device?: Maybe<Device>;
   proposal?: Maybe<Proposal>;
   proposals: Array<Proposal>;
-  user: User;
-  users: Array<User>;
+  quorum?: Maybe<Quorum>;
+  quorums: Array<Quorum>;
+  user?: Maybe<User>;
 };
 
 
@@ -802,44 +756,179 @@ export type QueryContractMethodArgs = {
 };
 
 
-export type QueryDeviceArgs = {
-  addr?: InputMaybe<Scalars['Address']>;
-};
-
-
 export type QueryProposalArgs = {
   id: Scalars['Bytes32'];
 };
 
 
 export type QueryProposalsArgs = {
-  accounts?: InputMaybe<Scalars['AddressSet']>;
+  accounts?: InputMaybe<Array<Scalars['Address']>>;
   cursor?: InputMaybe<ProposalWhereUniqueInput>;
   distinct?: InputMaybe<Array<ProposalScalarFieldEnum>>;
   orderBy?: InputMaybe<Array<ProposalOrderByWithRelationInput>>;
   skip?: InputMaybe<Scalars['Int']>;
-  status?: InputMaybe<ProposalStatus>;
+  state?: InputMaybe<Array<ProposalState>>;
   take?: InputMaybe<Scalars['Int']>;
+  userHasApproved?: InputMaybe<Scalars['Boolean']>;
+  where?: InputMaybe<ProposalWhereInput>;
+};
+
+
+export type QueryQuorumArgs = {
+  account: Scalars['Address'];
+  key: Scalars['QuorumKey'];
+};
+
+
+export type QueryQuorumsArgs = {
+  cursor?: InputMaybe<QuorumWhereUniqueInput>;
+  distinct?: InputMaybe<Array<QuorumScalarFieldEnum>>;
+  orderBy?: InputMaybe<Array<QuorumOrderByWithRelationInput>>;
+  skip?: InputMaybe<Scalars['Int']>;
+  take?: InputMaybe<Scalars['Int']>;
+  where?: InputMaybe<QuorumWhereInput>;
 };
 
 
 export type QueryUserArgs = {
-  id: UserIdInput;
+  id?: InputMaybe<Scalars['Address']>;
 };
 
+export type QueryMode =
+  | 'default'
+  | 'insensitive';
 
-export type QueryUsersArgs = {
-  cursor?: InputMaybe<UserWhereUniqueInput>;
-  distinct?: InputMaybe<Array<UserScalarFieldEnum>>;
-  orderBy?: InputMaybe<Array<UserOrderByWithRelationInput>>;
-  skip?: InputMaybe<Scalars['Int']>;
-  take?: InputMaybe<Scalars['Int']>;
+export type Quorum = {
+  __typename?: 'Quorum';
+  _count: QuorumCount;
+  account: Account;
+  accountId: Scalars['String'];
+  activeState?: Maybe<QuorumState>;
+  id: Scalars['ID'];
+  key: Scalars['Int'];
+  name?: Maybe<Scalars['String']>;
+  proposals?: Maybe<Array<Proposal>>;
+  proposedStates: Array<QuorumState>;
+  states?: Maybe<Array<QuorumState>>;
 };
 
-export enum QueryMode {
-  Default = 'default',
-  Insensitive = 'insensitive'
-}
+export type QuorumAccountIdKeyCompoundUniqueInput = {
+  accountId: Scalars['String'];
+  key: Scalars['Int'];
+};
+
+export type QuorumCount = {
+  __typename?: 'QuorumCount';
+  proposals: Scalars['Int'];
+  states: Scalars['Int'];
+};
+
+export type QuorumInput = {
+  approvers: Array<Scalars['Address']>;
+  name: Scalars['String'];
+  spending?: InputMaybe<SpendingInput>;
+};
+
+export type QuorumListRelationFilter = {
+  every?: InputMaybe<QuorumWhereInput>;
+  none?: InputMaybe<QuorumWhereInput>;
+  some?: InputMaybe<QuorumWhereInput>;
+};
+
+export type QuorumOrderByRelationAggregateInput = {
+  _count?: InputMaybe<SortOrder>;
+};
+
+export type QuorumOrderByWithRelationInput = {
+  account?: InputMaybe<AccountOrderByWithRelationInput>;
+  accountId?: InputMaybe<SortOrder>;
+  key?: InputMaybe<SortOrder>;
+  name?: InputMaybe<SortOrder>;
+  proposals?: InputMaybe<ProposalOrderByRelationAggregateInput>;
+  states?: InputMaybe<QuorumStateOrderByRelationAggregateInput>;
+};
+
+export type QuorumRelationFilter = {
+  is?: InputMaybe<QuorumWhereInput>;
+  isNot?: InputMaybe<QuorumWhereInput>;
+};
+
+export type QuorumScalarFieldEnum =
+  | 'accountId'
+  | 'key'
+  | 'name';
+
+export type QuorumState = {
+  __typename?: 'QuorumState';
+  _count: QuorumStateCount;
+  account: Account;
+  accountId: Scalars['String'];
+  approvers?: Maybe<Array<Approver>>;
+  createdAt: Scalars['DateTime'];
+  id: Scalars['ID'];
+  isRemoved: Scalars['Boolean'];
+  limits?: Maybe<Array<TokenLimit>>;
+  proposal?: Maybe<Proposal>;
+  proposalId?: Maybe<Scalars['String']>;
+  quorum: Quorum;
+  quorumKey: Scalars['Int'];
+  spendingFallback: SpendingFallback;
+};
+
+export type QuorumStateCount = {
+  __typename?: 'QuorumStateCount';
+  approvers: Scalars['Int'];
+  limits: Scalars['Int'];
+};
+
+export type QuorumStateListRelationFilter = {
+  every?: InputMaybe<QuorumStateWhereInput>;
+  none?: InputMaybe<QuorumStateWhereInput>;
+  some?: InputMaybe<QuorumStateWhereInput>;
+};
+
+export type QuorumStateOrderByRelationAggregateInput = {
+  _count?: InputMaybe<SortOrder>;
+};
+
+export type QuorumStateRelationFilter = {
+  is?: InputMaybe<QuorumStateWhereInput>;
+  isNot?: InputMaybe<QuorumStateWhereInput>;
+};
+
+export type QuorumStateWhereInput = {
+  AND?: InputMaybe<Array<QuorumStateWhereInput>>;
+  NOT?: InputMaybe<Array<QuorumStateWhereInput>>;
+  OR?: InputMaybe<Array<QuorumStateWhereInput>>;
+  account?: InputMaybe<AccountRelationFilter>;
+  accountId?: InputMaybe<StringFilter>;
+  approvers?: InputMaybe<ApproverListRelationFilter>;
+  createdAt?: InputMaybe<DateTimeFilter>;
+  id?: InputMaybe<IntFilter>;
+  isRemoved?: InputMaybe<BoolFilter>;
+  limits?: InputMaybe<TokenLimitListRelationFilter>;
+  proposal?: InputMaybe<ProposalRelationFilter>;
+  proposalId?: InputMaybe<StringNullableFilter>;
+  quorum?: InputMaybe<QuorumRelationFilter>;
+  quorumKey?: InputMaybe<IntFilter>;
+  spendingFallback?: InputMaybe<EnumSpendingFallbackFilter>;
+};
+
+export type QuorumWhereInput = {
+  AND?: InputMaybe<Array<QuorumWhereInput>>;
+  NOT?: InputMaybe<Array<QuorumWhereInput>>;
+  OR?: InputMaybe<Array<QuorumWhereInput>>;
+  account?: InputMaybe<AccountRelationFilter>;
+  accountId?: InputMaybe<StringFilter>;
+  key?: InputMaybe<IntFilter>;
+  name?: InputMaybe<StringNullableFilter>;
+  proposals?: InputMaybe<ProposalListRelationFilter>;
+  states?: InputMaybe<QuorumStateListRelationFilter>;
+};
+
+export type QuorumWhereUniqueInput = {
+  accountId_key?: InputMaybe<QuorumAccountIdKeyCompoundUniqueInput>;
+};
 
 export type Reaction = {
   __typename?: 'Reaction';
@@ -848,11 +937,11 @@ export type Reaction = {
   comment: Comment;
   commentId: Scalars['Int'];
   createdAt: Scalars['DateTime'];
-  device: Device;
-  deviceId: Scalars['String'];
   emojis?: Maybe<Array<Scalars['String']>>;
   id: Scalars['String'];
   updatedAt: Scalars['DateTime'];
+  user: User;
+  userId: Scalars['String'];
 };
 
 export type ReactionListRelationFilter = {
@@ -874,16 +963,24 @@ export type ReactionWhereInput = {
   comment?: InputMaybe<CommentRelationFilter>;
   commentId?: InputMaybe<IntFilter>;
   createdAt?: InputMaybe<DateTimeFilter>;
-  device?: InputMaybe<DeviceRelationFilter>;
-  deviceId?: InputMaybe<StringFilter>;
   emojis?: InputMaybe<StringNullableListFilter>;
   updatedAt?: InputMaybe<DateTimeFilter>;
+  user?: InputMaybe<UserRelationFilter>;
+  userId?: InputMaybe<StringFilter>;
 };
 
-export enum SortOrder {
-  Asc = 'asc',
-  Desc = 'desc'
-}
+export type SortOrder =
+  | 'asc'
+  | 'desc';
+
+export type SpendingFallback =
+  | 'allow'
+  | 'deny';
+
+export type SpendingInput = {
+  fallback?: InputMaybe<Scalars['Boolean']>;
+  limits?: InputMaybe<Array<TokenLimitInput>>;
+};
 
 export type StringFilter = {
   contains?: InputMaybe<Scalars['String']>;
@@ -923,22 +1020,30 @@ export type StringNullableListFilter = {
   isEmpty?: InputMaybe<Scalars['Boolean']>;
 };
 
-export type SubmissionInput = {
-  hash: Scalars['Bytes32'];
+export type Subscription = {
+  __typename?: 'Subscription';
+  proposal: Proposal;
+};
+
+
+export type SubscriptionProposalArgs = {
+  accounts?: InputMaybe<Array<Scalars['Address']>>;
+  created?: InputMaybe<Scalars['Boolean']>;
+  ids?: InputMaybe<Array<Scalars['Bytes32']>>;
 };
 
 export type TokenLimit = {
   __typename?: 'TokenLimit';
   amount: Scalars['String'];
-  config: UserConfig;
-  configId: Scalars['Int'];
   period: LimitPeriod;
+  quorumState: QuorumState;
+  quorumStateId: Scalars['Int'];
   token: Scalars['String'];
 };
 
 export type TokenLimitInput = {
   amount: Scalars['BigNumber'];
-  period: LimitPeriod;
+  period: TokenLimitPeriod;
   token: Scalars['Address'];
 };
 
@@ -948,18 +1053,19 @@ export type TokenLimitListRelationFilter = {
   some?: InputMaybe<TokenLimitWhereInput>;
 };
 
-export type TokenLimitOrderByRelationAggregateInput = {
-  _count?: InputMaybe<SortOrder>;
-};
+export type TokenLimitPeriod =
+  | 'Day'
+  | 'Month'
+  | 'Week';
 
 export type TokenLimitWhereInput = {
   AND?: InputMaybe<Array<TokenLimitWhereInput>>;
   NOT?: InputMaybe<Array<TokenLimitWhereInput>>;
   OR?: InputMaybe<Array<TokenLimitWhereInput>>;
   amount?: InputMaybe<StringFilter>;
-  config?: InputMaybe<UserConfigRelationFilter>;
-  configId?: InputMaybe<IntFilter>;
   period?: InputMaybe<EnumLimitPeriodFilter>;
+  quorumState?: InputMaybe<QuorumStateRelationFilter>;
+  quorumStateId?: InputMaybe<IntFilter>;
   token?: InputMaybe<StringFilter>;
 };
 
@@ -969,7 +1075,7 @@ export type Transaction = {
   gasLimit: Scalars['Decimal'];
   gasPrice?: Maybe<Scalars['Decimal']>;
   hash: Scalars['ID'];
-  id: Scalars['String'];
+  id: Scalars['ID'];
   nonce: Scalars['Int'];
   proposal: Proposal;
   proposalId: Scalars['String'];
@@ -1033,123 +1139,37 @@ export type TransactionWhereInput = {
 export type User = {
   __typename?: 'User';
   _count: UserCount;
-  account: Account;
-  accountId: Scalars['String'];
-  activeState?: Maybe<UserState>;
-  device: Device;
-  deviceId: Scalars['String'];
-  id: Scalars['String'];
-  latestState?: Maybe<UserState>;
-  name: Scalars['String'];
-  proposals?: Maybe<Array<Proposal>>;
-  proposedState?: Maybe<UserState>;
-  states?: Maybe<Array<UserState>>;
-};
-
-export type UserAccountIdDeviceIdCompoundUniqueInput = {
-  accountId: Scalars['String'];
-  deviceId: Scalars['String'];
-};
-
-export type UserConfig = {
-  __typename?: 'UserConfig';
-  _count: UserConfigCount;
+  approvals?: Maybe<Array<Approval>>;
   approvers?: Maybe<Array<Approver>>;
+  comments?: Maybe<Array<Comment>>;
+  contacts?: Maybe<Array<Contact>>;
   id: Scalars['ID'];
-  limits?: Maybe<Array<TokenLimit>>;
+  name?: Maybe<Scalars['String']>;
   proposals?: Maybe<Array<Proposal>>;
-  spendingAllowlisted: Scalars['Boolean'];
-  state: UserState;
-  stateId: Scalars['Int'];
-};
-
-export type UserConfigCount = {
-  __typename?: 'UserConfigCount';
-  approvers: Scalars['Int'];
-  limits: Scalars['Int'];
-  proposals: Scalars['Int'];
-};
-
-export type UserConfigInput = {
-  approvers: Array<Scalars['Address']>;
-  limits?: InputMaybe<Array<TokenLimitInput>>;
-  spendingAllowlisted?: InputMaybe<Scalars['Boolean']>;
-};
-
-export type UserConfigListRelationFilter = {
-  every?: InputMaybe<UserConfigWhereInput>;
-  none?: InputMaybe<UserConfigWhereInput>;
-  some?: InputMaybe<UserConfigWhereInput>;
-};
-
-export type UserConfigOrderByRelationAggregateInput = {
-  _count?: InputMaybe<SortOrder>;
-};
-
-export type UserConfigOrderByWithRelationInput = {
-  approvers?: InputMaybe<ApproverOrderByRelationAggregateInput>;
-  id?: InputMaybe<SortOrder>;
-  limits?: InputMaybe<TokenLimitOrderByRelationAggregateInput>;
-  proposals?: InputMaybe<ProposalOrderByRelationAggregateInput>;
-  spendingAllowlisted?: InputMaybe<SortOrder>;
-  state?: InputMaybe<UserStateOrderByWithRelationInput>;
-  stateId?: InputMaybe<SortOrder>;
-};
-
-export type UserConfigRelationFilter = {
-  is?: InputMaybe<UserConfigWhereInput>;
-  isNot?: InputMaybe<UserConfigWhereInput>;
-};
-
-export type UserConfigWhereInput = {
-  AND?: InputMaybe<Array<UserConfigWhereInput>>;
-  NOT?: InputMaybe<Array<UserConfigWhereInput>>;
-  OR?: InputMaybe<Array<UserConfigWhereInput>>;
-  approvers?: InputMaybe<ApproverListRelationFilter>;
-  id?: InputMaybe<IntFilter>;
-  limits?: InputMaybe<TokenLimitListRelationFilter>;
-  proposals?: InputMaybe<ProposalListRelationFilter>;
-  spendingAllowlisted?: InputMaybe<BoolFilter>;
-  state?: InputMaybe<UserStateRelationFilter>;
-  stateId?: InputMaybe<IntFilter>;
+  pushToken?: Maybe<Scalars['String']>;
+  reactions?: Maybe<Array<Reaction>>;
 };
 
 export type UserCount = {
   __typename?: 'UserCount';
+  approvals: Scalars['Int'];
+  approvers: Scalars['Int'];
+  comments: Scalars['Int'];
+  contacts: Scalars['Int'];
   proposals: Scalars['Int'];
-  states: Scalars['Int'];
-};
-
-export type UserIdInput = {
-  account: Scalars['Address'];
-  device: Scalars['Address'];
-};
-
-export type UserInput = {
-  configs: Array<UserConfigInput>;
-  id: UserIdInput;
-  name: Scalars['String'];
-};
-
-export type UserListRelationFilter = {
-  every?: InputMaybe<UserWhereInput>;
-  none?: InputMaybe<UserWhereInput>;
-  some?: InputMaybe<UserWhereInput>;
-};
-
-export type UserOrderByRelationAggregateInput = {
-  _count?: InputMaybe<SortOrder>;
+  reactions: Scalars['Int'];
 };
 
 export type UserOrderByWithRelationInput = {
-  account?: InputMaybe<AccountOrderByWithRelationInput>;
-  accountId?: InputMaybe<SortOrder>;
-  device?: InputMaybe<DeviceOrderByWithRelationInput>;
-  deviceId?: InputMaybe<SortOrder>;
-  latestState?: InputMaybe<UserStateOrderByWithRelationInput>;
+  approvals?: InputMaybe<ApprovalOrderByRelationAggregateInput>;
+  approvers?: InputMaybe<ApproverOrderByRelationAggregateInput>;
+  comments?: InputMaybe<CommentOrderByRelationAggregateInput>;
+  contacts?: InputMaybe<ContactOrderByRelationAggregateInput>;
+  id?: InputMaybe<SortOrder>;
   name?: InputMaybe<SortOrder>;
   proposals?: InputMaybe<ProposalOrderByRelationAggregateInput>;
-  states?: InputMaybe<UserStateOrderByRelationAggregateInput>;
+  pushToken?: InputMaybe<SortOrder>;
+  reactions?: InputMaybe<ReactionOrderByRelationAggregateInput>;
 };
 
 export type UserRelationFilter = {
@@ -1157,104 +1177,19 @@ export type UserRelationFilter = {
   isNot?: InputMaybe<UserWhereInput>;
 };
 
-export enum UserScalarFieldEnum {
-  AccountId = 'accountId',
-  DeviceId = 'deviceId',
-  Name = 'name'
-}
-
-export type UserState = {
-  __typename?: 'UserState';
-  _count: UserStateCount;
-  account: Account;
-  accountId: Scalars['String'];
-  configs?: Maybe<Array<UserConfig>>;
-  createdAt: Scalars['DateTime'];
-  deviceId: Scalars['String'];
-  id: Scalars['ID'];
-  isDeleted: Scalars['Boolean'];
-  latestOfUser?: Maybe<User>;
-  latestOfUserDeviceId?: Maybe<Scalars['String']>;
-  proposal?: Maybe<Proposal>;
-  proposalId?: Maybe<Scalars['String']>;
-  user: User;
-};
-
-export type UserStateCount = {
-  __typename?: 'UserStateCount';
-  configs: Scalars['Int'];
-};
-
-export type UserStateListRelationFilter = {
-  every?: InputMaybe<UserStateWhereInput>;
-  none?: InputMaybe<UserStateWhereInput>;
-  some?: InputMaybe<UserStateWhereInput>;
-};
-
-export type UserStateOrderByRelationAggregateInput = {
-  _count?: InputMaybe<SortOrder>;
-};
-
-export type UserStateOrderByWithRelationInput = {
-  account?: InputMaybe<AccountOrderByWithRelationInput>;
-  accountId?: InputMaybe<SortOrder>;
-  configs?: InputMaybe<UserConfigOrderByRelationAggregateInput>;
-  createdAt?: InputMaybe<SortOrder>;
-  deviceId?: InputMaybe<SortOrder>;
-  id?: InputMaybe<SortOrder>;
-  isDeleted?: InputMaybe<SortOrder>;
-  latestOfUser?: InputMaybe<UserOrderByWithRelationInput>;
-  latestOfUserDeviceId?: InputMaybe<SortOrder>;
-  proposal?: InputMaybe<ProposalOrderByWithRelationInput>;
-  proposalId?: InputMaybe<SortOrder>;
-  user?: InputMaybe<UserOrderByWithRelationInput>;
-};
-
-export type UserStateRelationFilter = {
-  is?: InputMaybe<UserStateWhereInput>;
-  isNot?: InputMaybe<UserStateWhereInput>;
-};
-
-export type UserStateWhereInput = {
-  AND?: InputMaybe<Array<UserStateWhereInput>>;
-  NOT?: InputMaybe<Array<UserStateWhereInput>>;
-  OR?: InputMaybe<Array<UserStateWhereInput>>;
-  account?: InputMaybe<AccountRelationFilter>;
-  accountId?: InputMaybe<StringFilter>;
-  configs?: InputMaybe<UserConfigListRelationFilter>;
-  createdAt?: InputMaybe<DateTimeFilter>;
-  deviceId?: InputMaybe<StringFilter>;
-  id?: InputMaybe<IntFilter>;
-  isDeleted?: InputMaybe<BoolFilter>;
-  latestOfUser?: InputMaybe<UserRelationFilter>;
-  latestOfUserDeviceId?: InputMaybe<StringNullableFilter>;
-  proposal?: InputMaybe<ProposalRelationFilter>;
-  proposalId?: InputMaybe<StringNullableFilter>;
-  user?: InputMaybe<UserRelationFilter>;
-};
-
 export type UserWhereInput = {
   AND?: InputMaybe<Array<UserWhereInput>>;
   NOT?: InputMaybe<Array<UserWhereInput>>;
   OR?: InputMaybe<Array<UserWhereInput>>;
-  account?: InputMaybe<AccountRelationFilter>;
-  accountId?: InputMaybe<StringFilter>;
-  device?: InputMaybe<DeviceRelationFilter>;
-  deviceId?: InputMaybe<StringFilter>;
-  latestState?: InputMaybe<UserStateRelationFilter>;
-  name?: InputMaybe<StringFilter>;
+  approvals?: InputMaybe<ApprovalListRelationFilter>;
+  approvers?: InputMaybe<ApproverListRelationFilter>;
+  comments?: InputMaybe<CommentListRelationFilter>;
+  contacts?: InputMaybe<ContactListRelationFilter>;
+  id?: InputMaybe<StringFilter>;
+  name?: InputMaybe<StringNullableFilter>;
   proposals?: InputMaybe<ProposalListRelationFilter>;
-  states?: InputMaybe<UserStateListRelationFilter>;
-};
-
-export type UserWhereUniqueInput = {
-  accountId_deviceId?: InputMaybe<UserAccountIdDeviceIdCompoundUniqueInput>;
-};
-
-export type UserWithoutAccountInput = {
-  configs: Array<UserConfigInput>;
-  device: Scalars['Address'];
-  name: Scalars['String'];
+  pushToken?: InputMaybe<StringNullableFilter>;
+  reactions?: InputMaybe<ReactionListRelationFilter>;
 };
 
 export type ActivateAccountMutationVariables = Exact<{
@@ -1266,11 +1201,11 @@ export type ActivateAccountMutation = { __typename?: 'Mutation', activateAccount
 
 export type CreateAccountMutationVariables = Exact<{
   name: Scalars['String'];
-  users: Array<UserWithoutAccountInput> | UserWithoutAccountInput;
+  quorums: Array<QuorumInput> | QuorumInput;
 }>;
 
 
-export type CreateAccountMutation = { __typename?: 'Mutation', createAccount: { __typename?: 'Account', id: string } };
+export type CreateAccountMutation = { __typename?: 'Mutation', createAccount: { __typename?: 'Account', id: string, isActive: boolean } };
 
 export type SetAccountNameMutationVariables = Exact<{
   account: Scalars['Address'];
@@ -1333,19 +1268,11 @@ export type RejectMutationVariables = Exact<{
 }>;
 
 
-export type RejectMutation = { __typename?: 'Mutation', reject?: { __typename?: 'Proposal', id: string } | null };
-
-export type SubmitExecutionMutationVariables = Exact<{
-  proposalHash: Scalars['Bytes32'];
-  submission: SubmissionInput;
-}>;
-
-
-export type SubmitExecutionMutation = { __typename?: 'Mutation', submitExecution: { __typename?: 'Transaction', id: string } };
+export type RejectMutation = { __typename?: 'Mutation', reject: { __typename?: 'Proposal', id: string } };
 
 export type ProposeMutationVariables = Exact<{
   account: Scalars['Address'];
-  config?: InputMaybe<Scalars['Float']>;
+  quorumKey?: InputMaybe<Scalars['QuorumKey']>;
   to: Scalars['Address'];
   value?: InputMaybe<Scalars['Uint256']>;
   data?: InputMaybe<Scalars['Bytes']>;
@@ -1358,11 +1285,21 @@ export type ProposeMutation = { __typename?: 'Mutation', propose: { __typename?:
 
 export type RequestApprovalMutationVariables = Exact<{
   id: Scalars['Bytes32'];
-  approvers: Scalars['NonEmptyAddressSet'];
+  approvers: Array<Scalars['Address']> | Scalars['Address'];
 }>;
 
 
 export type RequestApprovalMutation = { __typename?: 'Mutation', requestApproval: boolean };
+
+export type CreateQuorumMutationVariables = Exact<{
+  account: Scalars['Address'];
+  approvers: Array<Scalars['Address']> | Scalars['Address'];
+  name: Scalars['String'];
+  proposingQuorumKey: Scalars['QuorumKey'];
+}>;
+
+
+export type CreateQuorumMutation = { __typename?: 'Mutation', createQuorum: { __typename?: 'Quorum', id: string, key: number } };
 
 export type RequestFundsMutationVariables = Exact<{
   recipient: Scalars['Address'];
@@ -1371,50 +1308,25 @@ export type RequestFundsMutationVariables = Exact<{
 
 export type RequestFundsMutation = { __typename?: 'Mutation', requestFunds: boolean };
 
-export type RegisterPushTokenMutationVariables = Exact<{
-  token: Scalars['String'];
-}>;
-
-
-export type RegisterPushTokenMutation = { __typename?: 'Mutation', registerPushToken: boolean };
-
-export type SetDeviceNameMutationVariables = Exact<{
+export type UpdateUserMutationVariables = Exact<{
   name?: InputMaybe<Scalars['String']>;
+  pushToken?: InputMaybe<Scalars['String']>;
 }>;
 
 
-export type SetDeviceNameMutation = { __typename?: 'Mutation', setDeviceName: { __typename?: 'Device', id: string } };
-
-export type RemoveUserMutationVariables = Exact<{
-  id: UserIdInput;
-  proposalId: Scalars['Bytes32'];
-}>;
-
-
-export type RemoveUserMutation = { __typename?: 'Mutation', removeUser: { __typename?: 'User', id: string } };
-
-export type UpsertUserMutationVariables = Exact<{
-  user: UserInput;
-  proposalId: Scalars['Bytes32'];
-}>;
-
-
-export type UpsertUserMutation = { __typename?: 'Mutation', upsertUser: { __typename?: 'User', id: string } };
-
-export type SetUserNameMutationVariables = Exact<{
-  user: UserIdInput;
-  name: Scalars['String'];
-}>;
-
-
-export type SetUserNameMutation = { __typename?: 'Mutation', setUserName: { __typename?: 'User', id: string } };
+export type UpdateUserMutation = { __typename?: 'Mutation', updateUser: { __typename?: 'User', id: string, name?: string | null, pushToken?: string | null } };
 
 export type AccountQueryVariables = Exact<{
   account: Scalars['Address'];
 }>;
 
 
-export type AccountQuery = { __typename?: 'Query', account?: { __typename?: 'Account', id: string, isActive: boolean, name: string, users?: Array<{ __typename?: 'User', deviceId: string, name: string }> | null } | null };
+export type AccountQuery = { __typename?: 'Query', account?: { __typename?: 'Account', id: string, isActive: boolean, name: string, quorums?: Array<{ __typename?: 'Quorum', id: string, accountId: string, key: number, name?: string | null, activeState?: { __typename?: 'QuorumState', isRemoved: boolean, createdAt: any, spendingFallback: SpendingFallback, approvers?: Array<{ __typename?: 'Approver', userId: string }> | null, limits?: Array<{ __typename?: 'TokenLimit', token: string, amount: string, period: LimitPeriod }> | null } | null, proposedStates: Array<{ __typename?: 'QuorumState', isRemoved: boolean, createdAt: any, spendingFallback: SpendingFallback, approvers?: Array<{ __typename?: 'Approver', userId: string }> | null, limits?: Array<{ __typename?: 'TokenLimit', token: string, amount: string, period: LimitPeriod }> | null }> }> | null } | null };
+
+export type AccountIdsQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type AccountIdsQuery = { __typename?: 'Query', accounts: Array<{ __typename?: 'Account', id: string }> };
 
 export type ContactFieldsFragment = { __typename?: 'ContactObject', id: string, addr: any, name: string };
 
@@ -1430,11 +1342,12 @@ export type ProposalQueryVariables = Exact<{
 }>;
 
 
-export type ProposalQuery = { __typename?: 'Query', proposal?: { __typename?: 'Proposal', id: string, accountId: string, proposerId: string, to: string, value: string, data: string, salt: string, createdAt: any, approvals?: Array<{ __typename?: 'Approval', deviceId: string, signature?: string | null, createdAt: any }> | null, transactions?: Array<{ __typename?: 'Transaction', id: string, hash: string, nonce: number, gasLimit: any, gasPrice?: any | null, createdAt: any, response?: { __typename?: 'TransactionResponse', success: boolean, response: string, timestamp: any } | null }> | null } | null };
+export type ProposalQuery = { __typename?: 'Query', proposal?: { __typename?: 'Proposal', id: string, accountId: string, quorumKey: number, proposerId: string, to: string, value?: string | null, data?: string | null, salt: string, createdAt: any, approvals?: Array<{ __typename?: 'Approval', userId: string, signature?: string | null, createdAt: any }> | null, transactions?: Array<{ __typename?: 'Transaction', id: string, hash: string, nonce: number, gasLimit: any, gasPrice?: any | null, createdAt: any, response?: { __typename?: 'TransactionResponse', success: boolean, response: string, timestamp: any } | null }> | null } | null };
 
 export type ProposalsMetadataQueryVariables = Exact<{
-  accounts?: InputMaybe<Scalars['AddressSet']>;
-  status?: InputMaybe<ProposalStatus>;
+  accounts?: InputMaybe<Array<Scalars['Address']> | Scalars['Address']>;
+  state?: InputMaybe<Array<ProposalState> | ProposalState>;
+  userHasApproved?: InputMaybe<Scalars['Boolean']>;
 }>;
 
 
@@ -1453,7 +1366,7 @@ export type CommentsQueryVariables = Exact<{
 }>;
 
 
-export type CommentsQuery = { __typename?: 'Query', comments: Array<{ __typename?: 'Comment', id: string, authorId: string, content: string, updatedAt: any, reactions?: Array<{ __typename?: 'Reaction', deviceId: string, emojis?: Array<string> | null }> | null }> };
+export type CommentsQuery = { __typename?: 'Query', comments: Array<{ __typename?: 'Comment', id: string, authorId: string, content: string, updatedAt: any, reactions?: Array<{ __typename?: 'Reaction', userId: string, emojis?: Array<string> | null }> | null }> };
 
 export type ContractMethodQueryVariables = Exact<{
   contract: Scalars['Address'];
@@ -1463,26 +1376,24 @@ export type ContractMethodQueryVariables = Exact<{
 
 export type ContractMethodQuery = { __typename?: 'Query', contractMethod?: { __typename?: 'ContractMethod', id: string, fragment: any } | null };
 
-export type DeviceMetaQueryVariables = Exact<{
-  addr?: InputMaybe<Scalars['Address']>;
+export type QuorumStateFieldsFragment = { __typename?: 'QuorumState', isRemoved: boolean, createdAt: any, spendingFallback: SpendingFallback, approvers?: Array<{ __typename?: 'Approver', userId: string }> | null, limits?: Array<{ __typename?: 'TokenLimit', token: string, amount: string, period: LimitPeriod }> | null };
+
+export type QuorumFieldsFragment = { __typename?: 'Quorum', id: string, accountId: string, key: number, name?: string | null, activeState?: { __typename?: 'QuorumState', isRemoved: boolean, createdAt: any, spendingFallback: SpendingFallback, approvers?: Array<{ __typename?: 'Approver', userId: string }> | null, limits?: Array<{ __typename?: 'TokenLimit', token: string, amount: string, period: LimitPeriod }> | null } | null, proposedStates: Array<{ __typename?: 'QuorumState', isRemoved: boolean, createdAt: any, spendingFallback: SpendingFallback, approvers?: Array<{ __typename?: 'Approver', userId: string }> | null, limits?: Array<{ __typename?: 'TokenLimit', token: string, amount: string, period: LimitPeriod }> | null }> };
+
+export type QuorumQueryVariables = Exact<{
+  account: Scalars['Address'];
+  key: Scalars['QuorumKey'];
 }>;
 
 
-export type DeviceMetaQuery = { __typename?: 'Query', device?: { __typename?: 'Device', id: string, name?: string | null } | null };
+export type QuorumQuery = { __typename?: 'Query', quorum?: { __typename?: 'Quorum', id: string, accountId: string, key: number, name?: string | null, activeState?: { __typename?: 'QuorumState', isRemoved: boolean, createdAt: any, spendingFallback: SpendingFallback, approvers?: Array<{ __typename?: 'Approver', userId: string }> | null, limits?: Array<{ __typename?: 'TokenLimit', token: string, amount: string, period: LimitPeriod }> | null } | null, proposedStates: Array<{ __typename?: 'QuorumState', isRemoved: boolean, createdAt: any, spendingFallback: SpendingFallback, approvers?: Array<{ __typename?: 'Approver', userId: string }> | null, limits?: Array<{ __typename?: 'TokenLimit', token: string, amount: string, period: LimitPeriod }> | null }> } | null };
 
 export type UserQueryVariables = Exact<{
-  id: UserIdInput;
+  id?: InputMaybe<Scalars['Address']>;
 }>;
 
 
-export type UserQuery = { __typename?: 'Query', user: { __typename?: 'User', id: string, accountId: string, deviceId: string, name: string, activeState?: { __typename?: 'UserState', proposalId?: string | null, configs?: Array<{ __typename?: 'UserConfig', id: string, spendingAllowlisted: boolean, approvers?: Array<{ __typename?: 'Approver', deviceId: string }> | null, limits?: Array<{ __typename?: 'TokenLimit', token: string, amount: string, period: LimitPeriod }> | null }> | null } | null, proposedState?: { __typename?: 'UserState', proposalId?: string | null, configs?: Array<{ __typename?: 'UserConfig', id: string, spendingAllowlisted: boolean, approvers?: Array<{ __typename?: 'Approver', deviceId: string }> | null, limits?: Array<{ __typename?: 'TokenLimit', token: string, amount: string, period: LimitPeriod }> | null }> | null } | null } };
-
-export type UserStateFieldsFragment = { __typename?: 'UserState', proposalId?: string | null, configs?: Array<{ __typename?: 'UserConfig', id: string, spendingAllowlisted: boolean, approvers?: Array<{ __typename?: 'Approver', deviceId: string }> | null, limits?: Array<{ __typename?: 'TokenLimit', token: string, amount: string, period: LimitPeriod }> | null }> | null };
-
-export type UserIdsQueryVariables = Exact<{ [key: string]: never; }>;
-
-
-export type UserIdsQuery = { __typename?: 'Query', users: Array<{ __typename?: 'User', id: string, accountId: string }> };
+export type UserQuery = { __typename?: 'Query', user?: { __typename?: 'User', id: string, name?: string | null, pushToken?: string | null } | null };
 
 export const ContactFieldsFragmentDoc = gql`
     fragment ContactFields on ContactObject {
@@ -1506,23 +1417,35 @@ export const TransactionFieldsFragmentDoc = gql`
   }
 }
     `;
-export const UserStateFieldsFragmentDoc = gql`
-    fragment UserStateFields on UserState {
-  proposalId
-  configs {
-    id
-    approvers {
-      deviceId
-    }
-    spendingAllowlisted
-    limits {
-      token
-      amount
-      period
-    }
+export const QuorumStateFieldsFragmentDoc = gql`
+    fragment QuorumStateFields on QuorumState {
+  isRemoved
+  createdAt
+  approvers {
+    userId
+  }
+  spendingFallback
+  limits {
+    token
+    amount
+    period
   }
 }
     `;
+export const QuorumFieldsFragmentDoc = gql`
+    fragment QuorumFields on Quorum {
+  id
+  accountId
+  key
+  name
+  activeState {
+    ...QuorumStateFields
+  }
+  proposedStates {
+    ...QuorumStateFields
+  }
+}
+    ${QuorumStateFieldsFragmentDoc}`;
 export const ActivateAccountDocument = gql`
     mutation ActivateAccount($account: Address!) {
   activateAccount(id: $account)
@@ -1555,9 +1478,10 @@ export type ActivateAccountMutationHookResult = ReturnType<typeof useActivateAcc
 export type ActivateAccountMutationResult = Apollo.MutationResult<ActivateAccountMutation>;
 export type ActivateAccountMutationOptions = Apollo.BaseMutationOptions<ActivateAccountMutation, ActivateAccountMutationVariables>;
 export const CreateAccountDocument = gql`
-    mutation CreateAccount($name: String!, $users: [UserWithoutAccountInput!]!) {
-  createAccount(name: $name, users: $users) {
+    mutation CreateAccount($name: String!, $quorums: [QuorumInput!]!) {
+  createAccount(name: $name, quorums: $quorums) {
     id
+    isActive
   }
 }
     `;
@@ -1577,7 +1501,7 @@ export type CreateAccountMutationFn = Apollo.MutationFunction<CreateAccountMutat
  * const [createAccountMutation, { data, loading, error }] = useCreateAccountMutation({
  *   variables: {
  *      name: // value for 'name'
- *      users: // value for 'users'
+ *      quorums: // value for 'quorums'
  *   },
  * });
  */
@@ -1860,45 +1784,11 @@ export function useRejectMutation(baseOptions?: Apollo.MutationHookOptions<Rejec
 export type RejectMutationHookResult = ReturnType<typeof useRejectMutation>;
 export type RejectMutationResult = Apollo.MutationResult<RejectMutation>;
 export type RejectMutationOptions = Apollo.BaseMutationOptions<RejectMutation, RejectMutationVariables>;
-export const SubmitExecutionDocument = gql`
-    mutation SubmitExecution($proposalHash: Bytes32!, $submission: SubmissionInput!) {
-  submitExecution(proposalHash: $proposalHash, submission: $submission) {
-    id
-  }
-}
-    `;
-export type SubmitExecutionMutationFn = Apollo.MutationFunction<SubmitExecutionMutation, SubmitExecutionMutationVariables>;
-
-/**
- * __useSubmitExecutionMutation__
- *
- * To run a mutation, you first call `useSubmitExecutionMutation` within a React component and pass it any options that fit your needs.
- * When your component renders, `useSubmitExecutionMutation` returns a tuple that includes:
- * - A mutate function that you can call at any time to execute the mutation
- * - An object with fields that represent the current status of the mutation's execution
- *
- * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
- *
- * @example
- * const [submitExecutionMutation, { data, loading, error }] = useSubmitExecutionMutation({
- *   variables: {
- *      proposalHash: // value for 'proposalHash'
- *      submission: // value for 'submission'
- *   },
- * });
- */
-export function useSubmitExecutionMutation(baseOptions?: Apollo.MutationHookOptions<SubmitExecutionMutation, SubmitExecutionMutationVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useMutation<SubmitExecutionMutation, SubmitExecutionMutationVariables>(SubmitExecutionDocument, options);
-      }
-export type SubmitExecutionMutationHookResult = ReturnType<typeof useSubmitExecutionMutation>;
-export type SubmitExecutionMutationResult = Apollo.MutationResult<SubmitExecutionMutation>;
-export type SubmitExecutionMutationOptions = Apollo.BaseMutationOptions<SubmitExecutionMutation, SubmitExecutionMutationVariables>;
 export const ProposeDocument = gql`
-    mutation Propose($account: Address!, $config: Float, $to: Address!, $value: Uint256, $data: Bytes, $salt: Bytes8, $gasLimit: Uint256) {
+    mutation Propose($account: Address!, $quorumKey: QuorumKey, $to: Address!, $value: Uint256, $data: Bytes, $salt: Bytes8, $gasLimit: Uint256) {
   propose(
     account: $account
-    config: $config
+    quorumKey: $quorumKey
     to: $to
     value: $value
     data: $data
@@ -1928,7 +1818,7 @@ export type ProposeMutationFn = Apollo.MutationFunction<ProposeMutation, Propose
  * const [proposeMutation, { data, loading, error }] = useProposeMutation({
  *   variables: {
  *      account: // value for 'account'
- *      config: // value for 'config'
+ *      quorumKey: // value for 'quorumKey'
  *      to: // value for 'to'
  *      value: // value for 'value'
  *      data: // value for 'data'
@@ -1945,7 +1835,7 @@ export type ProposeMutationHookResult = ReturnType<typeof useProposeMutation>;
 export type ProposeMutationResult = Apollo.MutationResult<ProposeMutation>;
 export type ProposeMutationOptions = Apollo.BaseMutationOptions<ProposeMutation, ProposeMutationVariables>;
 export const RequestApprovalDocument = gql`
-    mutation RequestApproval($id: Bytes32!, $approvers: NonEmptyAddressSet!) {
+    mutation RequestApproval($id: Bytes32!, $approvers: [Address!]!) {
   requestApproval(id: $id, approvers: $approvers)
 }
     `;
@@ -1976,6 +1866,48 @@ export function useRequestApprovalMutation(baseOptions?: Apollo.MutationHookOpti
 export type RequestApprovalMutationHookResult = ReturnType<typeof useRequestApprovalMutation>;
 export type RequestApprovalMutationResult = Apollo.MutationResult<RequestApprovalMutation>;
 export type RequestApprovalMutationOptions = Apollo.BaseMutationOptions<RequestApprovalMutation, RequestApprovalMutationVariables>;
+export const CreateQuorumDocument = gql`
+    mutation CreateQuorum($account: Address!, $approvers: [Address!]!, $name: String!, $proposingQuorumKey: QuorumKey!) {
+  createQuorum(
+    account: $account
+    approvers: $approvers
+    name: $name
+    proposingQuorumKey: $proposingQuorumKey
+  ) {
+    id
+    key
+  }
+}
+    `;
+export type CreateQuorumMutationFn = Apollo.MutationFunction<CreateQuorumMutation, CreateQuorumMutationVariables>;
+
+/**
+ * __useCreateQuorumMutation__
+ *
+ * To run a mutation, you first call `useCreateQuorumMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useCreateQuorumMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [createQuorumMutation, { data, loading, error }] = useCreateQuorumMutation({
+ *   variables: {
+ *      account: // value for 'account'
+ *      approvers: // value for 'approvers'
+ *      name: // value for 'name'
+ *      proposingQuorumKey: // value for 'proposingQuorumKey'
+ *   },
+ * });
+ */
+export function useCreateQuorumMutation(baseOptions?: Apollo.MutationHookOptions<CreateQuorumMutation, CreateQuorumMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<CreateQuorumMutation, CreateQuorumMutationVariables>(CreateQuorumDocument, options);
+      }
+export type CreateQuorumMutationHookResult = ReturnType<typeof useCreateQuorumMutation>;
+export type CreateQuorumMutationResult = Apollo.MutationResult<CreateQuorumMutation>;
+export type CreateQuorumMutationOptions = Apollo.BaseMutationOptions<CreateQuorumMutation, CreateQuorumMutationVariables>;
 export const RequestFundsDocument = gql`
     mutation RequestFunds($recipient: Address!) {
   requestFunds(recipient: $recipient)
@@ -2007,185 +1939,54 @@ export function useRequestFundsMutation(baseOptions?: Apollo.MutationHookOptions
 export type RequestFundsMutationHookResult = ReturnType<typeof useRequestFundsMutation>;
 export type RequestFundsMutationResult = Apollo.MutationResult<RequestFundsMutation>;
 export type RequestFundsMutationOptions = Apollo.BaseMutationOptions<RequestFundsMutation, RequestFundsMutationVariables>;
-export const RegisterPushTokenDocument = gql`
-    mutation RegisterPushToken($token: String!) {
-  registerPushToken(token: $token)
-}
-    `;
-export type RegisterPushTokenMutationFn = Apollo.MutationFunction<RegisterPushTokenMutation, RegisterPushTokenMutationVariables>;
-
-/**
- * __useRegisterPushTokenMutation__
- *
- * To run a mutation, you first call `useRegisterPushTokenMutation` within a React component and pass it any options that fit your needs.
- * When your component renders, `useRegisterPushTokenMutation` returns a tuple that includes:
- * - A mutate function that you can call at any time to execute the mutation
- * - An object with fields that represent the current status of the mutation's execution
- *
- * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
- *
- * @example
- * const [registerPushTokenMutation, { data, loading, error }] = useRegisterPushTokenMutation({
- *   variables: {
- *      token: // value for 'token'
- *   },
- * });
- */
-export function useRegisterPushTokenMutation(baseOptions?: Apollo.MutationHookOptions<RegisterPushTokenMutation, RegisterPushTokenMutationVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useMutation<RegisterPushTokenMutation, RegisterPushTokenMutationVariables>(RegisterPushTokenDocument, options);
-      }
-export type RegisterPushTokenMutationHookResult = ReturnType<typeof useRegisterPushTokenMutation>;
-export type RegisterPushTokenMutationResult = Apollo.MutationResult<RegisterPushTokenMutation>;
-export type RegisterPushTokenMutationOptions = Apollo.BaseMutationOptions<RegisterPushTokenMutation, RegisterPushTokenMutationVariables>;
-export const SetDeviceNameDocument = gql`
-    mutation SetDeviceName($name: String) {
-  setDeviceName(name: $name) {
+export const UpdateUserDocument = gql`
+    mutation UpdateUser($name: String, $pushToken: String) {
+  updateUser(name: $name, pushToken: $pushToken) {
     id
+    name
+    pushToken
   }
 }
     `;
-export type SetDeviceNameMutationFn = Apollo.MutationFunction<SetDeviceNameMutation, SetDeviceNameMutationVariables>;
+export type UpdateUserMutationFn = Apollo.MutationFunction<UpdateUserMutation, UpdateUserMutationVariables>;
 
 /**
- * __useSetDeviceNameMutation__
+ * __useUpdateUserMutation__
  *
- * To run a mutation, you first call `useSetDeviceNameMutation` within a React component and pass it any options that fit your needs.
- * When your component renders, `useSetDeviceNameMutation` returns a tuple that includes:
+ * To run a mutation, you first call `useUpdateUserMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUpdateUserMutation` returns a tuple that includes:
  * - A mutate function that you can call at any time to execute the mutation
  * - An object with fields that represent the current status of the mutation's execution
  *
  * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
  *
  * @example
- * const [setDeviceNameMutation, { data, loading, error }] = useSetDeviceNameMutation({
+ * const [updateUserMutation, { data, loading, error }] = useUpdateUserMutation({
  *   variables: {
  *      name: // value for 'name'
+ *      pushToken: // value for 'pushToken'
  *   },
  * });
  */
-export function useSetDeviceNameMutation(baseOptions?: Apollo.MutationHookOptions<SetDeviceNameMutation, SetDeviceNameMutationVariables>) {
+export function useUpdateUserMutation(baseOptions?: Apollo.MutationHookOptions<UpdateUserMutation, UpdateUserMutationVariables>) {
         const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useMutation<SetDeviceNameMutation, SetDeviceNameMutationVariables>(SetDeviceNameDocument, options);
+        return Apollo.useMutation<UpdateUserMutation, UpdateUserMutationVariables>(UpdateUserDocument, options);
       }
-export type SetDeviceNameMutationHookResult = ReturnType<typeof useSetDeviceNameMutation>;
-export type SetDeviceNameMutationResult = Apollo.MutationResult<SetDeviceNameMutation>;
-export type SetDeviceNameMutationOptions = Apollo.BaseMutationOptions<SetDeviceNameMutation, SetDeviceNameMutationVariables>;
-export const RemoveUserDocument = gql`
-    mutation RemoveUser($id: UserIdInput!, $proposalId: Bytes32!) {
-  removeUser(id: $id, proposalId: $proposalId) {
-    id
-  }
-}
-    `;
-export type RemoveUserMutationFn = Apollo.MutationFunction<RemoveUserMutation, RemoveUserMutationVariables>;
-
-/**
- * __useRemoveUserMutation__
- *
- * To run a mutation, you first call `useRemoveUserMutation` within a React component and pass it any options that fit your needs.
- * When your component renders, `useRemoveUserMutation` returns a tuple that includes:
- * - A mutate function that you can call at any time to execute the mutation
- * - An object with fields that represent the current status of the mutation's execution
- *
- * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
- *
- * @example
- * const [removeUserMutation, { data, loading, error }] = useRemoveUserMutation({
- *   variables: {
- *      id: // value for 'id'
- *      proposalId: // value for 'proposalId'
- *   },
- * });
- */
-export function useRemoveUserMutation(baseOptions?: Apollo.MutationHookOptions<RemoveUserMutation, RemoveUserMutationVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useMutation<RemoveUserMutation, RemoveUserMutationVariables>(RemoveUserDocument, options);
-      }
-export type RemoveUserMutationHookResult = ReturnType<typeof useRemoveUserMutation>;
-export type RemoveUserMutationResult = Apollo.MutationResult<RemoveUserMutation>;
-export type RemoveUserMutationOptions = Apollo.BaseMutationOptions<RemoveUserMutation, RemoveUserMutationVariables>;
-export const UpsertUserDocument = gql`
-    mutation UpsertUser($user: UserInput!, $proposalId: Bytes32!) {
-  upsertUser(user: $user, proposalId: $proposalId) {
-    id
-  }
-}
-    `;
-export type UpsertUserMutationFn = Apollo.MutationFunction<UpsertUserMutation, UpsertUserMutationVariables>;
-
-/**
- * __useUpsertUserMutation__
- *
- * To run a mutation, you first call `useUpsertUserMutation` within a React component and pass it any options that fit your needs.
- * When your component renders, `useUpsertUserMutation` returns a tuple that includes:
- * - A mutate function that you can call at any time to execute the mutation
- * - An object with fields that represent the current status of the mutation's execution
- *
- * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
- *
- * @example
- * const [upsertUserMutation, { data, loading, error }] = useUpsertUserMutation({
- *   variables: {
- *      user: // value for 'user'
- *      proposalId: // value for 'proposalId'
- *   },
- * });
- */
-export function useUpsertUserMutation(baseOptions?: Apollo.MutationHookOptions<UpsertUserMutation, UpsertUserMutationVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useMutation<UpsertUserMutation, UpsertUserMutationVariables>(UpsertUserDocument, options);
-      }
-export type UpsertUserMutationHookResult = ReturnType<typeof useUpsertUserMutation>;
-export type UpsertUserMutationResult = Apollo.MutationResult<UpsertUserMutation>;
-export type UpsertUserMutationOptions = Apollo.BaseMutationOptions<UpsertUserMutation, UpsertUserMutationVariables>;
-export const SetUserNameDocument = gql`
-    mutation SetUserName($user: UserIdInput!, $name: String!) {
-  setUserName(id: $user, name: $name) {
-    id
-  }
-}
-    `;
-export type SetUserNameMutationFn = Apollo.MutationFunction<SetUserNameMutation, SetUserNameMutationVariables>;
-
-/**
- * __useSetUserNameMutation__
- *
- * To run a mutation, you first call `useSetUserNameMutation` within a React component and pass it any options that fit your needs.
- * When your component renders, `useSetUserNameMutation` returns a tuple that includes:
- * - A mutate function that you can call at any time to execute the mutation
- * - An object with fields that represent the current status of the mutation's execution
- *
- * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
- *
- * @example
- * const [setUserNameMutation, { data, loading, error }] = useSetUserNameMutation({
- *   variables: {
- *      user: // value for 'user'
- *      name: // value for 'name'
- *   },
- * });
- */
-export function useSetUserNameMutation(baseOptions?: Apollo.MutationHookOptions<SetUserNameMutation, SetUserNameMutationVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useMutation<SetUserNameMutation, SetUserNameMutationVariables>(SetUserNameDocument, options);
-      }
-export type SetUserNameMutationHookResult = ReturnType<typeof useSetUserNameMutation>;
-export type SetUserNameMutationResult = Apollo.MutationResult<SetUserNameMutation>;
-export type SetUserNameMutationOptions = Apollo.BaseMutationOptions<SetUserNameMutation, SetUserNameMutationVariables>;
+export type UpdateUserMutationHookResult = ReturnType<typeof useUpdateUserMutation>;
+export type UpdateUserMutationResult = Apollo.MutationResult<UpdateUserMutation>;
+export type UpdateUserMutationOptions = Apollo.BaseMutationOptions<UpdateUserMutation, UpdateUserMutationVariables>;
 export const AccountDocument = gql`
     query Account($account: Address!) {
   account(id: $account) {
     id
     isActive
     name
-    users {
-      deviceId
-      name
+    quorums {
+      ...QuorumFields
     }
   }
 }
-    `;
+    ${QuorumFieldsFragmentDoc}`;
 
 /**
  * __useAccountQuery__
@@ -2214,6 +2015,40 @@ export function useAccountLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<Ac
 export type AccountQueryHookResult = ReturnType<typeof useAccountQuery>;
 export type AccountLazyQueryHookResult = ReturnType<typeof useAccountLazyQuery>;
 export type AccountQueryResult = Apollo.QueryResult<AccountQuery, AccountQueryVariables>;
+export const AccountIdsDocument = gql`
+    query AccountIds {
+  accounts {
+    id
+  }
+}
+    `;
+
+/**
+ * __useAccountIdsQuery__
+ *
+ * To run a query within a React component, call `useAccountIdsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useAccountIdsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useAccountIdsQuery({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useAccountIdsQuery(baseOptions?: Apollo.QueryHookOptions<AccountIdsQuery, AccountIdsQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<AccountIdsQuery, AccountIdsQueryVariables>(AccountIdsDocument, options);
+      }
+export function useAccountIdsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<AccountIdsQuery, AccountIdsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<AccountIdsQuery, AccountIdsQueryVariables>(AccountIdsDocument, options);
+        }
+export type AccountIdsQueryHookResult = ReturnType<typeof useAccountIdsQuery>;
+export type AccountIdsLazyQueryHookResult = ReturnType<typeof useAccountIdsLazyQuery>;
+export type AccountIdsQueryResult = Apollo.QueryResult<AccountIdsQuery, AccountIdsQueryVariables>;
 export const ContactsDocument = gql`
     query Contacts {
   contacts {
@@ -2253,6 +2088,7 @@ export const ProposalDocument = gql`
   proposal(id: $id) {
     id
     accountId
+    quorumKey
     proposerId
     to
     value
@@ -2260,7 +2096,7 @@ export const ProposalDocument = gql`
     salt
     createdAt
     approvals {
-      deviceId
+      userId
       signature
       createdAt
     }
@@ -2299,8 +2135,8 @@ export type ProposalQueryHookResult = ReturnType<typeof useProposalQuery>;
 export type ProposalLazyQueryHookResult = ReturnType<typeof useProposalLazyQuery>;
 export type ProposalQueryResult = Apollo.QueryResult<ProposalQuery, ProposalQueryVariables>;
 export const ProposalsMetadataDocument = gql`
-    query ProposalsMetadata($accounts: AddressSet, $status: ProposalStatus) {
-  proposals(accounts: $accounts, status: $status) {
+    query ProposalsMetadata($accounts: [Address!], $state: [ProposalState!], $userHasApproved: Boolean) {
+  proposals(accounts: $accounts, state: $state, userHasApproved: $userHasApproved) {
     id
     accountId
     createdAt
@@ -2321,7 +2157,8 @@ export const ProposalsMetadataDocument = gql`
  * const { data, loading, error } = useProposalsMetadataQuery({
  *   variables: {
  *      accounts: // value for 'accounts'
- *      status: // value for 'status'
+ *      state: // value for 'state'
+ *      userHasApproved: // value for 'userHasApproved'
  *   },
  * });
  */
@@ -2377,7 +2214,7 @@ export const CommentsDocument = gql`
     content
     updatedAt
     reactions {
-      deviceId
+      userId
       emojis
     }
   }
@@ -2449,58 +2286,51 @@ export function useContractMethodLazyQuery(baseOptions?: Apollo.LazyQueryHookOpt
 export type ContractMethodQueryHookResult = ReturnType<typeof useContractMethodQuery>;
 export type ContractMethodLazyQueryHookResult = ReturnType<typeof useContractMethodLazyQuery>;
 export type ContractMethodQueryResult = Apollo.QueryResult<ContractMethodQuery, ContractMethodQueryVariables>;
-export const DeviceMetaDocument = gql`
-    query DeviceMeta($addr: Address) {
-  device(addr: $addr) {
-    id
-    name
+export const QuorumDocument = gql`
+    query Quorum($account: Address!, $key: QuorumKey!) {
+  quorum(account: $account, key: $key) {
+    ...QuorumFields
   }
 }
-    `;
+    ${QuorumFieldsFragmentDoc}`;
 
 /**
- * __useDeviceMetaQuery__
+ * __useQuorumQuery__
  *
- * To run a query within a React component, call `useDeviceMetaQuery` and pass it any options that fit your needs.
- * When your component renders, `useDeviceMetaQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * To run a query within a React component, call `useQuorumQuery` and pass it any options that fit your needs.
+ * When your component renders, `useQuorumQuery` returns an object from Apollo Client that contains loading, error, and data properties
  * you can use to render your UI.
  *
  * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
  *
  * @example
- * const { data, loading, error } = useDeviceMetaQuery({
+ * const { data, loading, error } = useQuorumQuery({
  *   variables: {
- *      addr: // value for 'addr'
+ *      account: // value for 'account'
+ *      key: // value for 'key'
  *   },
  * });
  */
-export function useDeviceMetaQuery(baseOptions?: Apollo.QueryHookOptions<DeviceMetaQuery, DeviceMetaQueryVariables>) {
+export function useQuorumQuery(baseOptions: Apollo.QueryHookOptions<QuorumQuery, QuorumQueryVariables>) {
         const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useQuery<DeviceMetaQuery, DeviceMetaQueryVariables>(DeviceMetaDocument, options);
+        return Apollo.useQuery<QuorumQuery, QuorumQueryVariables>(QuorumDocument, options);
       }
-export function useDeviceMetaLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<DeviceMetaQuery, DeviceMetaQueryVariables>) {
+export function useQuorumLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<QuorumQuery, QuorumQueryVariables>) {
           const options = {...defaultOptions, ...baseOptions}
-          return Apollo.useLazyQuery<DeviceMetaQuery, DeviceMetaQueryVariables>(DeviceMetaDocument, options);
+          return Apollo.useLazyQuery<QuorumQuery, QuorumQueryVariables>(QuorumDocument, options);
         }
-export type DeviceMetaQueryHookResult = ReturnType<typeof useDeviceMetaQuery>;
-export type DeviceMetaLazyQueryHookResult = ReturnType<typeof useDeviceMetaLazyQuery>;
-export type DeviceMetaQueryResult = Apollo.QueryResult<DeviceMetaQuery, DeviceMetaQueryVariables>;
+export type QuorumQueryHookResult = ReturnType<typeof useQuorumQuery>;
+export type QuorumLazyQueryHookResult = ReturnType<typeof useQuorumLazyQuery>;
+export type QuorumQueryResult = Apollo.QueryResult<QuorumQuery, QuorumQueryVariables>;
 export const UserDocument = gql`
-    query User($id: UserIdInput!) {
+    query User($id: Address) {
   user(id: $id) {
     id
-    accountId
-    deviceId
     name
-    activeState {
-      ...UserStateFields
-    }
-    proposedState {
-      ...UserStateFields
-    }
+    pushToken
   }
 }
-    ${UserStateFieldsFragmentDoc}`;
+    `;
 
 /**
  * __useUserQuery__
@@ -2518,7 +2348,7 @@ export const UserDocument = gql`
  *   },
  * });
  */
-export function useUserQuery(baseOptions: Apollo.QueryHookOptions<UserQuery, UserQueryVariables>) {
+export function useUserQuery(baseOptions?: Apollo.QueryHookOptions<UserQuery, UserQueryVariables>) {
         const options = {...defaultOptions, ...baseOptions}
         return Apollo.useQuery<UserQuery, UserQueryVariables>(UserDocument, options);
       }
@@ -2529,38 +2359,3 @@ export function useUserLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<UserQ
 export type UserQueryHookResult = ReturnType<typeof useUserQuery>;
 export type UserLazyQueryHookResult = ReturnType<typeof useUserLazyQuery>;
 export type UserQueryResult = Apollo.QueryResult<UserQuery, UserQueryVariables>;
-export const UserIdsDocument = gql`
-    query UserIds {
-  users {
-    id
-    accountId
-  }
-}
-    `;
-
-/**
- * __useUserIdsQuery__
- *
- * To run a query within a React component, call `useUserIdsQuery` and pass it any options that fit your needs.
- * When your component renders, `useUserIdsQuery` returns an object from Apollo Client that contains loading, error, and data properties
- * you can use to render your UI.
- *
- * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
- *
- * @example
- * const { data, loading, error } = useUserIdsQuery({
- *   variables: {
- *   },
- * });
- */
-export function useUserIdsQuery(baseOptions?: Apollo.QueryHookOptions<UserIdsQuery, UserIdsQueryVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useQuery<UserIdsQuery, UserIdsQueryVariables>(UserIdsDocument, options);
-      }
-export function useUserIdsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<UserIdsQuery, UserIdsQueryVariables>) {
-          const options = {...defaultOptions, ...baseOptions}
-          return Apollo.useLazyQuery<UserIdsQuery, UserIdsQueryVariables>(UserIdsDocument, options);
-        }
-export type UserIdsQueryHookResult = ReturnType<typeof useUserIdsQuery>;
-export type UserIdsLazyQueryHookResult = ReturnType<typeof useUserIdsLazyQuery>;
-export type UserIdsQueryResult = Apollo.QueryResult<UserIdsQuery, UserIdsQueryVariables>;

@@ -1,17 +1,31 @@
-import { Address, UserConfig, UserId, ZERO } from 'lib';
-import { useUser } from '~/queries/user/useUser.api';
+import { sumBn, ZERO } from 'lib';
+import { CombinedQuorum, useQuorum } from '~/queries/useQuorum.api';
 import { Token } from './token';
 import { useTokenBalance } from './useTokenBalance';
+import { Accountlike, useAccount } from '~/queries/account/useAccount.api';
+import { useUser } from '~/queries/useUser.api';
 
-export const useTokenAvailable = (token: Token, userId: UserId | Address, config?: UserConfig) => {
-  const [user] = useUser(userId);
-  const balance = useTokenBalance(token, user.account);
+export const useTokenAvailable = (token: Token, accountlike: Accountlike) => {
+  const balance = useTokenBalance(token, accountlike);
+  const user = useUser();
+  const account = useAccount(accountlike);
+  const quorum = useQuorum(typeof accountlike === 'object' ? accountlike : undefined);
 
-  if (!config) config = user.configs.active?.[0];
-  const limit = config?.limits[token.addr];
-  if (limit?.amount) return limit.amount;
+  const available = (quorum: CombinedQuorum) => {
+    const active = quorum.active?.value;
+    if (!active) return ZERO;
 
-  if (config?.spendingAllowlisted) return ZERO;
+    const limit = active.spending?.limit?.[token.addr];
+    if (limit) return limit.amount;
 
-  return balance;
+    if (active.spending?.fallback === 'deny') return ZERO;
+
+    return balance;
+  };
+
+  if (quorum) return available(quorum);
+
+  const userQuorums = account.quorums.filter((q) => q.active?.value?.approvers.has(user.id));
+
+  return sumBn(userQuorums.map(available));
 };

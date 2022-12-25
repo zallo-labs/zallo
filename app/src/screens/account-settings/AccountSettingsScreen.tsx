@@ -13,7 +13,7 @@ export interface AccountSettingsScreenParams {
 export type AccountSettingsScreenProps = RootNavigatorScreenProps<'AccountSettings'>;
 
 export const AccountSettingsScreen = ({ route }: AccountSettingsScreenProps) => {
-  const [account] = useAccount(route.params.account);
+  const account = useAccount(route.params.account);
 
   return (
     <Box>

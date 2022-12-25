@@ -10,13 +10,11 @@ import {
 import { useShowOnboarding } from '~/screens/onboard/useShowOnboarding';
 import { DrawerNavigator } from './Drawer/DrawerNavigator';
 import { ContactScreen, ContactScreenParams } from '~/screens/contacts/ContactScreen';
-import { AccountsScreen, AccountsScreenParams } from '~/screens/accounts/AccountsScreen';
 import { AccountScreen, AccountScreenParams } from '~/screens/account/AccountScreen';
 import { AlertModalScreen, AlertModalScreenParams } from '~/screens/alert/AlertModalScreen';
 import { DeleteModalScreen, DeleteModalScreenParams } from '~/screens/alert/DeleteModalScreen';
 import { SendScreen, SendScreenParams } from '~/screens/send/SendScreen';
 import LimitScreen, { LimitScreenParams } from '~/screens/limit/LimitScreen';
-import UserScreen, { UserScreenParams } from '~/screens/user/UserScreen';
 import {
   AccountSettingsScreen,
   AccountSettingsScreenParams,
@@ -34,6 +32,12 @@ import {
   NameDeviceScreen,
   NameDeviceScreenParams,
 } from '~/screens/create-account/NameDeviceScreen';
+import { QuorumScreen, QuorumScreenParams } from '~/screens/quorum/QuorumScreen';
+import { AccountsScreen, AccountsScreenParams } from '~/screens/accounts/AccountsScreen';
+import {
+  CreateQuorumScreen,
+  CreateQuorumScreenParams,
+} from '~/screens/create-quorum/CreateQuorumScreen';
 
 export type RootNavigatorParamList = {
   DrawerNavigator: undefined;
@@ -41,7 +45,8 @@ export type RootNavigatorParamList = {
   Accounts: AccountsScreenParams;
   Account: AccountScreenParams;
   AccountSettings: AccountSettingsScreenParams;
-  User: UserScreenParams;
+  Quorum: QuorumScreenParams;
+  CreateQuorum: CreateQuorumScreenParams;
   Limit: LimitScreenParams;
   Contacts: ContactsScreenParams;
   Contact: ContactScreenParams;
@@ -78,7 +83,8 @@ export const RootNavigator = () => {
       <Navigation.Screen name="Accounts" component={AccountsScreen} />
       <Navigation.Screen name="Account" component={AccountScreen} />
       <Navigation.Screen name="AccountSettings" component={AccountSettingsScreen} />
-      <Navigation.Screen name="User" component={UserScreen} />
+      <Navigation.Screen name="Quorum" component={QuorumScreen} />
+      <Navigation.Screen name="CreateQuorum" component={CreateQuorumScreen} />
       <Navigation.Screen name="Limit" component={LimitScreen} />
       <Navigation.Screen name="Contacts" component={ContactsScreen} />
       <Navigation.Screen name="Contact" component={ContactScreen} />
