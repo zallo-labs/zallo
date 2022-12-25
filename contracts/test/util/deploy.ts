@@ -10,7 +10,7 @@ import {
   Quorum,
   randomQuorumKey,
   connectAccount,
-  TxDef,
+  TxOptions,
 } from 'lib';
 import { SIGNERS, WALLET } from './wallet';
 import { ContractTransaction } from 'ethers';
@@ -96,7 +96,7 @@ export const deployProxy = async ({
   });
   await txResp.wait();
 
-  return { account, quorum, execute: (txDef: TxDef) => execute(account, quorum, txDef) };
+  return { account, quorum, execute: (txOpts: TxOptions) => execute(account, quorum, txOpts) };
 };
 
 export type DeployProxyData = Awaited<ReturnType<typeof deployProxy>>;
