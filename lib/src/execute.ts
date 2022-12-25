@@ -8,14 +8,7 @@ import { EIP712_TX_TYPE } from 'zksync-web3/build/src/utils';
 import { TransactionStruct } from './contracts/Account';
 import { Quorum } from './quorum';
 import { Tx } from './tx';
-
-const toPartialTransactionRequest = (tx: Tx): TransactionRequest => ({
-  // Don't spread to avoid adding extra fields
-  to: tx.to,
-  value: tx.value,
-  data: defaultAbiCoder.encode(['bytes8', 'bytes'], [tx.salt, tx.data]),
-  gasLimit: tx.gasLimit,
-});
+import { EMPTY_BYTES } from './bytes';
 
 const FALLBACK_BASE_GAS = BigNumber.from(500_000);
 const GAS_PER_SIGNER = 200_000;
@@ -59,16 +52,20 @@ export const toTransactionRequest = async ({
   opts = {},
 }: TransactionRequestOptions): Promise<TransactionRequest> => {
   const provider = account.provider;
-  const basicReq = toPartialTransactionRequest(tx);
+  const minimalTx: TransactionRequest = {
+    to: tx.to,
+    value: tx.value,
+    data: defaultAbiCoder.encode(['bytes8', 'bytes'], [tx.salt, tx.data ?? EMPTY_BYTES]),
+  };
 
   return {
-    ...basicReq,
+    ...minimalTx,
     from: account.address,
     type: EIP712_TX_TYPE,
     nonce: await provider.getTransactionCount(account.address),
     chainId: (await provider.getNetwork()).chainId,
     gasPrice: await provider.getGasPrice(),
-    gasLimit: await estimateTxGas(basicReq, provider, signers.length),
+    gasLimit: await estimateTxGas(minimalTx, provider, signers.length),
     customData: {
       ergsPerPubdata: zk.utils.DEFAULT_ERGS_PER_PUBDATA_LIMIT,
       ...opts.customData,

@@ -1,6 +1,8 @@
 import { Bytes, BytesLike } from 'ethers';
 import { arrayify } from 'ethers/lib/utils';
 
+export const EMPTY_BYTES = '0x';
+
 export type Bytes8 = BytesLike;
 
 export const byteslikeToBuffer = (b: BytesLike): Buffer => Buffer.from(arrayify(b));

@@ -2,7 +2,8 @@ import { TypedDataDomain, TypedDataField } from '@ethersproject/abstract-signer'
 import { BigNumber, ethers } from 'ethers';
 import { hexDataLength, hexlify, randomBytes } from 'ethers/lib/utils';
 import { Addresslike } from './addr';
-import { zeroHexBytes } from './bytes';
+import { ZERO } from './bignum';
+import { EMPTY_BYTES, zeroHexBytes } from './bytes';
 import { Call } from './call';
 
 export type TxSalt = string & { isTxSalt: true };
@@ -55,4 +56,9 @@ export const getDomain = async ({
 });
 
 export const hashTx = async (tx: Tx, domainParams: GetDomainParams) =>
-  ethers.utils._TypedDataEncoder.hash(await getDomain(domainParams), TX_EIP712_TYPE, tx);
+  ethers.utils._TypedDataEncoder.hash(await getDomain(domainParams), TX_EIP712_TYPE, {
+    to: tx.to,
+    value: tx.value ?? ZERO,
+    data: tx.data ?? EMPTY_BYTES,
+    salt: tx.salt,
+  } satisfies Tx);
