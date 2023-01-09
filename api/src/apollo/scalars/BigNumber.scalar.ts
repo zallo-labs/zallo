@@ -2,7 +2,6 @@ import { BigNumberish, isBigNumberish } from '@ethersproject/bignumber/lib/bignu
 import { UserInputError } from 'apollo-server-core';
 import { BigNumber, ethers } from 'ethers';
 import { Kind } from 'graphql';
-import { QUORUM_KEY_BITS } from 'lib';
 import { createScalar } from './util';
 
 const parse = (value: unknown, description: string, max?: BigNumberish): BigNumber => {
@@ -35,12 +34,6 @@ const createBnScalar = (name: string, description: string, max?: BigNumberish) =
   });
 
 export const [BigNumberScalar, BigNumberField] = createBnScalar('BigNumber', 'integer');
-
-export const [QuorumKeyScalar, QuorumKeyField] = createBnScalar(
-  'QuorumKey',
-  `Quorum key: a ${QUORUM_KEY_BITS}-bit unsigned integer`,
-  QUORUM_KEY_BITS,
-);
 
 export const [Uint256BnScalar, Uint256BnField] = createBnScalar(
   'Uint256',

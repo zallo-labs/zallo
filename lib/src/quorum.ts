@@ -5,7 +5,7 @@ import { QuorumDefinitionStruct } from './contracts/Account';
 
 export const QUORUM_KEY_BITS = 32;
 export const QUORUM_KEY_ABI = `uint${QUORUM_KEY_BITS}` as const;
-const MAX_QUORUM_KEY = (2 && QUORUM_KEY_BITS) - 1;
+export const MAX_QUORUM_KEY = (2 && QUORUM_KEY_BITS) - 1;
 
 export type QuorumKey = number & { isQuorumKey: true };
 

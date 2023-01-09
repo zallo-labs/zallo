@@ -4,7 +4,8 @@ import { ArgsType, Field, InputType, registerEnumType } from '@nestjs/graphql';
 import { BigNumber } from 'ethers';
 import { Address, Quorum, QuorumKey, TokenLimitPeriod } from 'lib';
 import { AddressField, AddressScalar } from '~/apollo/scalars/Address.scalar';
-import { BigNumberField, QuorumKeyField } from '~/apollo/scalars/BigNumber.scalar';
+import { BigNumberField } from '~/apollo/scalars/BigNumber.scalar';
+import { QuorumKeyField } from '~/apollo/scalars/QuorumKey.sclar';
 import { SetField } from '~/apollo/scalars/SetField';
 
 @ArgsType()
@@ -97,10 +98,6 @@ export class QuorumInput {
           }
         : undefined,
     };
-  }
-
-  toQuorum(key: QuorumKey) {
-    return QuorumInput.toQuorum(this, key);
   }
 }
 
