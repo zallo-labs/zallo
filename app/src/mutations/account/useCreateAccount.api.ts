@@ -1,5 +1,4 @@
 import { gql } from '@apollo/client';
-import { useApiClient } from '~/gql/GqlProvider';
 import {
   AccountDocument,
   AccountQuery,
@@ -26,13 +25,13 @@ export interface CreateAccountResult {
 
 export const useCreateAccount = () => {
   const user = useUser();
-  const [mutation] = useCreateAccountMutation({ client: useApiClient() });
+  const [mutation] = useCreateAccountMutation();
 
   return async (name: string): Promise<CreateAccountResult> => {
     const quorums = [
       {
         name: 'Owner',
-        key: toQuorumKey(0),
+        key: toQuorumKey(1),
         approvers: new Set([user.id]),
       },
     ];
@@ -42,7 +41,6 @@ export const useCreateAccount = () => {
         name,
         quorums: quorums.map((q) => ({
           name: q.name,
-          key: q.key,
           approvers: [...q.approvers.values()],
         })),
       },

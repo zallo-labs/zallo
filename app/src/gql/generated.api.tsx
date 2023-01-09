@@ -370,7 +370,7 @@ export type Mutation = {
   reject: Proposal;
   removeQuorum: Quorum;
   requestApproval: Scalars['Boolean'];
-  requestFunds: Scalars['Boolean'];
+  requestTokens: Array<Scalars['Address']>;
   setAccountName: Account;
   updateQuorum: Quorum;
   updateQuorumMetadata: Quorum;
@@ -457,7 +457,7 @@ export type MutationRequestApprovalArgs = {
 };
 
 
-export type MutationRequestFundsArgs = {
+export type MutationRequestTokensArgs = {
   recipient: Scalars['Address'];
 };
 
@@ -697,7 +697,6 @@ export type Query = {
   __typename?: 'Query';
   account?: Maybe<Account>;
   accounts: Array<Account>;
-  canRequestFunds: Scalars['Boolean'];
   comments: Array<Comment>;
   contact?: Maybe<ContactObject>;
   contacts: Array<ContactObject>;
@@ -706,6 +705,7 @@ export type Query = {
   proposals: Array<Proposal>;
   quorum?: Maybe<Quorum>;
   quorums: Array<Quorum>;
+  requestableTokens: Array<Scalars['Address']>;
   user?: Maybe<User>;
 };
 
@@ -722,11 +722,6 @@ export type QueryAccountsArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   take?: InputMaybe<Scalars['Int']>;
   where?: InputMaybe<AccountWhereInput>;
-};
-
-
-export type QueryCanRequestFundsArgs = {
-  recipient: Scalars['Address'];
 };
 
 
@@ -787,6 +782,11 @@ export type QueryQuorumsArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   take?: InputMaybe<Scalars['Int']>;
   where?: InputMaybe<QuorumWhereInput>;
+};
+
+
+export type QueryRequestableTokensArgs = {
+  recipient: Scalars['Address'];
 };
 
 
@@ -1301,12 +1301,12 @@ export type CreateQuorumMutationVariables = Exact<{
 
 export type CreateQuorumMutation = { __typename?: 'Mutation', createQuorum: { __typename?: 'Quorum', id: string, key: number } };
 
-export type RequestFundsMutationVariables = Exact<{
+export type RequestTokensMutationVariables = Exact<{
   recipient: Scalars['Address'];
 }>;
 
 
-export type RequestFundsMutation = { __typename?: 'Mutation', requestFunds: boolean };
+export type RequestTokensMutation = { __typename?: 'Mutation', requestTokens: Array<any> };
 
 export type UpdateUserMutationVariables = Exact<{
   name?: InputMaybe<Scalars['String']>;
@@ -1353,12 +1353,12 @@ export type ProposalsMetadataQueryVariables = Exact<{
 
 export type ProposalsMetadataQuery = { __typename?: 'Query', proposals: Array<{ __typename?: 'Proposal', id: string, accountId: string, createdAt: any }> };
 
-export type CanRequestFundsQueryVariables = Exact<{
+export type RequestableTokensQueryVariables = Exact<{
   recipient: Scalars['Address'];
 }>;
 
 
-export type CanRequestFundsQuery = { __typename?: 'Query', canRequestFunds: boolean };
+export type RequestableTokensQuery = { __typename?: 'Query', requestableTokens: Array<any> };
 
 export type CommentsQueryVariables = Exact<{
   account: Scalars['Address'];
@@ -1908,37 +1908,37 @@ export function useCreateQuorumMutation(baseOptions?: Apollo.MutationHookOptions
 export type CreateQuorumMutationHookResult = ReturnType<typeof useCreateQuorumMutation>;
 export type CreateQuorumMutationResult = Apollo.MutationResult<CreateQuorumMutation>;
 export type CreateQuorumMutationOptions = Apollo.BaseMutationOptions<CreateQuorumMutation, CreateQuorumMutationVariables>;
-export const RequestFundsDocument = gql`
-    mutation RequestFunds($recipient: Address!) {
-  requestFunds(recipient: $recipient)
+export const RequestTokensDocument = gql`
+    mutation RequestTokens($recipient: Address!) {
+  requestTokens(recipient: $recipient)
 }
     `;
-export type RequestFundsMutationFn = Apollo.MutationFunction<RequestFundsMutation, RequestFundsMutationVariables>;
+export type RequestTokensMutationFn = Apollo.MutationFunction<RequestTokensMutation, RequestTokensMutationVariables>;
 
 /**
- * __useRequestFundsMutation__
+ * __useRequestTokensMutation__
  *
- * To run a mutation, you first call `useRequestFundsMutation` within a React component and pass it any options that fit your needs.
- * When your component renders, `useRequestFundsMutation` returns a tuple that includes:
+ * To run a mutation, you first call `useRequestTokensMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useRequestTokensMutation` returns a tuple that includes:
  * - A mutate function that you can call at any time to execute the mutation
  * - An object with fields that represent the current status of the mutation's execution
  *
  * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
  *
  * @example
- * const [requestFundsMutation, { data, loading, error }] = useRequestFundsMutation({
+ * const [requestTokensMutation, { data, loading, error }] = useRequestTokensMutation({
  *   variables: {
  *      recipient: // value for 'recipient'
  *   },
  * });
  */
-export function useRequestFundsMutation(baseOptions?: Apollo.MutationHookOptions<RequestFundsMutation, RequestFundsMutationVariables>) {
+export function useRequestTokensMutation(baseOptions?: Apollo.MutationHookOptions<RequestTokensMutation, RequestTokensMutationVariables>) {
         const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useMutation<RequestFundsMutation, RequestFundsMutationVariables>(RequestFundsDocument, options);
+        return Apollo.useMutation<RequestTokensMutation, RequestTokensMutationVariables>(RequestTokensDocument, options);
       }
-export type RequestFundsMutationHookResult = ReturnType<typeof useRequestFundsMutation>;
-export type RequestFundsMutationResult = Apollo.MutationResult<RequestFundsMutation>;
-export type RequestFundsMutationOptions = Apollo.BaseMutationOptions<RequestFundsMutation, RequestFundsMutationVariables>;
+export type RequestTokensMutationHookResult = ReturnType<typeof useRequestTokensMutation>;
+export type RequestTokensMutationResult = Apollo.MutationResult<RequestTokensMutation>;
+export type RequestTokensMutationOptions = Apollo.BaseMutationOptions<RequestTokensMutation, RequestTokensMutationVariables>;
 export const UpdateUserDocument = gql`
     mutation UpdateUser($name: String, $pushToken: String) {
   updateUser(name: $name, pushToken: $pushToken) {
@@ -2173,39 +2173,39 @@ export function useProposalsMetadataLazyQuery(baseOptions?: Apollo.LazyQueryHook
 export type ProposalsMetadataQueryHookResult = ReturnType<typeof useProposalsMetadataQuery>;
 export type ProposalsMetadataLazyQueryHookResult = ReturnType<typeof useProposalsMetadataLazyQuery>;
 export type ProposalsMetadataQueryResult = Apollo.QueryResult<ProposalsMetadataQuery, ProposalsMetadataQueryVariables>;
-export const CanRequestFundsDocument = gql`
-    query CanRequestFunds($recipient: Address!) {
-  canRequestFunds(recipient: $recipient)
+export const RequestableTokensDocument = gql`
+    query RequestableTokens($recipient: Address!) {
+  requestableTokens(recipient: $recipient)
 }
     `;
 
 /**
- * __useCanRequestFundsQuery__
+ * __useRequestableTokensQuery__
  *
- * To run a query within a React component, call `useCanRequestFundsQuery` and pass it any options that fit your needs.
- * When your component renders, `useCanRequestFundsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * To run a query within a React component, call `useRequestableTokensQuery` and pass it any options that fit your needs.
+ * When your component renders, `useRequestableTokensQuery` returns an object from Apollo Client that contains loading, error, and data properties
  * you can use to render your UI.
  *
  * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
  *
  * @example
- * const { data, loading, error } = useCanRequestFundsQuery({
+ * const { data, loading, error } = useRequestableTokensQuery({
  *   variables: {
  *      recipient: // value for 'recipient'
  *   },
  * });
  */
-export function useCanRequestFundsQuery(baseOptions: Apollo.QueryHookOptions<CanRequestFundsQuery, CanRequestFundsQueryVariables>) {
+export function useRequestableTokensQuery(baseOptions: Apollo.QueryHookOptions<RequestableTokensQuery, RequestableTokensQueryVariables>) {
         const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useQuery<CanRequestFundsQuery, CanRequestFundsQueryVariables>(CanRequestFundsDocument, options);
+        return Apollo.useQuery<RequestableTokensQuery, RequestableTokensQueryVariables>(RequestableTokensDocument, options);
       }
-export function useCanRequestFundsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<CanRequestFundsQuery, CanRequestFundsQueryVariables>) {
+export function useRequestableTokensLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<RequestableTokensQuery, RequestableTokensQueryVariables>) {
           const options = {...defaultOptions, ...baseOptions}
-          return Apollo.useLazyQuery<CanRequestFundsQuery, CanRequestFundsQueryVariables>(CanRequestFundsDocument, options);
+          return Apollo.useLazyQuery<RequestableTokensQuery, RequestableTokensQueryVariables>(RequestableTokensDocument, options);
         }
-export type CanRequestFundsQueryHookResult = ReturnType<typeof useCanRequestFundsQuery>;
-export type CanRequestFundsLazyQueryHookResult = ReturnType<typeof useCanRequestFundsLazyQuery>;
-export type CanRequestFundsQueryResult = Apollo.QueryResult<CanRequestFundsQuery, CanRequestFundsQueryVariables>;
+export type RequestableTokensQueryHookResult = ReturnType<typeof useRequestableTokensQuery>;
+export type RequestableTokensLazyQueryHookResult = ReturnType<typeof useRequestableTokensLazyQuery>;
+export type RequestableTokensQueryResult = Apollo.QueryResult<RequestableTokensQuery, RequestableTokensQueryVariables>;
 export const CommentsDocument = gql`
     query Comments($account: Address!, $key: Id!) {
   comments(account: $account, key: $key) {

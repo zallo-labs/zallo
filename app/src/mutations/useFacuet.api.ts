@@ -1,48 +1,46 @@
 import { gql } from '@apollo/client';
 import { showInfo } from '~/provider/SnackbarProvider';
 import {
-  CanRequestFundsDocument,
-  CanRequestFundsQuery,
-  CanRequestFundsQueryVariables,
-  useRequestFundsMutation,
+  RequestableTokensDocument,
+  RequestableTokensQuery,
+  RequestableTokensQueryVariables,
+  useRequestTokensMutation,
 } from '~/gql/generated.api';
-import { useApiClient } from '~/gql/GqlProvider';
 import { Address } from 'lib';
 import { useCallback } from 'react';
 import { CHAIN } from '~/util/network/provider';
-import { useCanRequestFunds } from '~/queries/useCanRequestFunds.api';
+import { useCanRequestTokens } from '~/queries/useCanRequestTokens.api';
 
 gql`
-  mutation RequestFunds($recipient: Address!) {
-    requestFunds(recipient: $recipient)
+  mutation RequestTokens($recipient: Address!) {
+    requestTokens(recipient: $recipient)
   }
 `;
 
 export const useFaucet = (recipient: Address) => {
-  const [mutation] = useRequestFundsMutation({
-    client: useApiClient(),
+  const [mutation] = useRequestTokensMutation({
     variables: { recipient },
     update: (cache, { data }) => {
       if (!data) return;
 
-      cache.writeQuery<CanRequestFundsQuery, CanRequestFundsQueryVariables>({
-        query: CanRequestFundsDocument,
+      cache.writeQuery<RequestableTokensQuery, RequestableTokensQueryVariables>({
+        query: RequestableTokensDocument,
         variables: { recipient },
         data: {
-          canRequestFunds: !data.requestFunds,
+          requestableTokens: [],
         },
       });
     },
   });
-  const [canRequestFunds] = useCanRequestFunds(recipient);
+  const canRequest = useCanRequestTokens(recipient);
 
   const receive = useCallback(async () => {
-    showInfo('Requesting testnet funds...', { autoHide: false });
+    showInfo('Requesting testnet tokens...', { autoHide: false });
 
     await mutation();
 
-    showInfo('Funds received');
+    showInfo('Tesetnet tokens received');
   }, [mutation]);
 
-  return CHAIN.isTestnet && canRequestFunds ? receive : undefined;
+  return CHAIN.isTestnet && canRequest ? receive : undefined;
 };

@@ -11,10 +11,7 @@ import { usePollWhenFocussed } from '~/gql/usePollWhenFocussed';
 import { useSuspenseQuery } from '~/gql/useSuspenseQuery';
 import { useCredentials } from '@network/useCredentials';
 import { CombinedQuorum, toCombinedQuorum } from '../useQuorum.api';
-
-// export interface QuorumMetadata extends QuorumGuid {
-//   name?: string;
-// }
+import assert from 'assert';
 
 export interface CombinedAccount {
   addr: Address;
@@ -53,7 +50,9 @@ export const useAccount = (id: Accountlike) => {
   });
   usePollWhenFocussed(rest, 30);
 
-  const a = data.account!;
+  const a = data.account;
+  assert(a);
+
   const account = useMemo(
     (): CombinedAccount => ({
       addr,

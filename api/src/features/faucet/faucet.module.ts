@@ -1,9 +1,11 @@
 import { Module } from '@nestjs/common';
 import { ProviderModule } from '~/provider/provider.module';
 import { FaucetResolver } from './faucet.resolver';
+import { FaucetService } from './faucet.service';
 
 @Module({
   imports: [ProviderModule],
-  providers: [FaucetResolver],
+  exports: [FaucetService],
+  providers: [FaucetResolver, FaucetService],
 })
 export class FaucetModule {}

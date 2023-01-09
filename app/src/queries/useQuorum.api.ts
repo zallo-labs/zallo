@@ -107,7 +107,7 @@ export const toCombinedQuorum = (q: QuorumFieldsFragment): CombinedQuorum => {
 export const useQuorum = <Id extends QuorumGuid | undefined>(id: Id) => {
   const { data, ...rest } = useSuspenseQuery<QuorumQuery, QuorumQueryVariables>(QuorumDocument, {
     variables: { account: id?.account, key: id?.key },
-    skip: !id,
+    skip: id === undefined,
   });
   usePollWhenFocussed(rest, 30);
 

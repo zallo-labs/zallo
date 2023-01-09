@@ -40,7 +40,7 @@ export const useUpdateUser = () => {
           updateUser: {
             id: user.id,
             name: name !== undefined ? name : user.name,
-            pushToken: pushToken !== undefined ? pushToken : user.pushToken,
+            pushToken: pushToken !== undefined ? pushToken : user.pushToken || null,
           },
         },
         update: (cache, res) => {

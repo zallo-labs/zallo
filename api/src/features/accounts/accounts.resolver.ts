@@ -17,6 +17,8 @@ import {
 } from 'lib';
 import { CONFIG } from '~/config';
 import { UserId } from '~/decorators/user.decorator';
+import { QuorumInput } from '../quorums/quorums.args';
+import { FaucetService } from '../faucet/faucet.service';
 
 const getSelect = makeGetSelect<{
   Account: Prisma.AccountSelect;
@@ -30,6 +32,7 @@ export class AccountsResolver {
     private service: AccountsService,
     private prisma: PrismaService,
     private provider: ProviderService,
+    private faucet: FaucetService,
   ) {}
 
   @Query(() => Account, { nullable: true })
@@ -60,7 +63,8 @@ export class AccountsResolver {
     const impl = address(CONFIG.accountImplAddress);
     const deploySalt = randomDeploySalt();
 
-    const quorums: Quorum[] = quorumsArg.map((q, i) => q.toQuorum(toQuorumKey(i)));
+    // Start key from 1 as apollo interprets key=0 as key=NaN for some reason?
+    const quorums: Quorum[] = quorumsArg.map((q, i) => QuorumInput.toQuorum(q, toQuorumKey(i + 1)));
 
     const addr = await this.provider.useProxyFactory((factory) =>
       calculateProxyAddress({ impl, quorums }, factory, deploySalt),
@@ -95,6 +99,7 @@ export class AccountsResolver {
     });
 
     this.service.activateAccount(addr);
+    this.faucet.requestTokens(addr);
 
     return r;
   }

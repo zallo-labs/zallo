@@ -3,7 +3,7 @@ import { Address } from 'lib';
 import { AddressField } from '~/apollo/scalars/Address.scalar';
 
 @ArgsType()
-export class RequestFundsArgs {
+export class RequestTokensArgs {
   @AddressField()
   recipient: Address;
 }
