@@ -1,11 +1,11 @@
 import { useCallback } from 'react';
-import { RootNavigatorScreenProps } from '~/navigation/RootNavigator';
+import { StackNavigatorScreenProps } from '~/navigation/StackNavigator';
 import { useRootNavigation } from '~/navigation/useRootNavigation';
 import { AlertModal, AlertModalProps } from './AlertModal';
 
 export interface AlertModalScreenParams extends AlertModalProps {}
 
-export type AlertModalScreenProps = RootNavigatorScreenProps<'Alert'>;
+export type AlertModalScreenProps = StackNavigatorScreenProps<'Alert'>;
 
 export const AlertModalScreen = ({ route }: AlertModalScreenProps) => (
   <AlertModal {...route.params} />

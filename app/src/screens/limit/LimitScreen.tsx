@@ -1,7 +1,7 @@
 import { Address, QuorumGuid, TokenLimit, TokenLimitPeriod, ZERO } from 'lib';
 import { ScreenSkeleton } from '~/components/skeleton/ScreenSkeleton';
 import { withSkeleton } from '~/components/skeleton/withSkeleton';
-import { RootNavigatorScreenProps } from '~/navigation/RootNavigator';
+import { StackNavigatorScreenProps } from '~/navigation/StackNavigator';
 import { BigNumber } from 'ethers';
 import { useMemo, useState } from 'react';
 import { Box } from '~/components/layout/Box';
@@ -26,7 +26,7 @@ export interface LimitScreenParams {
   onDelete?: () => void;
 }
 
-export type LimitScreenProps = RootNavigatorScreenProps<'Limit'>;
+export type LimitScreenProps = StackNavigatorScreenProps<'Limit'>;
 
 const LimitScreen = ({ route, navigation }: LimitScreenProps) => {
   const { quorum: user, onChange, onDelete } = route.params;

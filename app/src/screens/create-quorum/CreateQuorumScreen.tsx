@@ -1,12 +1,12 @@
 import { Address } from 'lib';
 import { useCreateQuorum } from '~/mutations/quorum/useCreateQuorum.api';
-import { RootNavigatorScreenProps } from '~/navigation/RootNavigator';
+import { StackNavigatorScreenProps } from '~/navigation/StackNavigator';
 
 export interface CreateQuorumScreenParams {
   account: Address;
 }
 
-export type CreateQuorumScreenProps = RootNavigatorScreenProps<'CreateQuorum'>;
+export type CreateQuorumScreenProps = StackNavigatorScreenProps<'CreateQuorum'>;
 
 export const CreateQuorumScreen = ({ route }: CreateQuorumScreenProps) => {
   const { account } = route.params;

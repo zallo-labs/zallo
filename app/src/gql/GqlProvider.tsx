@@ -1,5 +1,5 @@
 import { createContext, ReactNode, useContext, useState } from 'react';
-import { ApolloClient, NormalizedCacheObject } from '@apollo/client';
+import { ApolloClient, ApolloProvider, NormalizedCacheObject } from '@apollo/client';
 import { UNISWAP_CLIENT, UNISWAP_CLIENT_NAME } from './clients/uniswap';
 import { Suspend } from '~/components/Suspender';
 import useAsyncEffect from 'use-async-effect';
@@ -57,5 +57,9 @@ export const GqlProvider = ({ children }: GqlProviderProps) => {
 
   if (!isGqlClients(clients)) return <Suspend />;
 
-  return <context.Provider value={clients}>{children}</context.Provider>;
+  return (
+    <ApolloProvider client={clients.api}>
+      <context.Provider value={clients}>{children}</context.Provider>
+    </ApolloProvider>
+  );
 };

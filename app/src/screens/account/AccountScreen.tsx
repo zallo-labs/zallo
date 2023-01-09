@@ -5,12 +5,12 @@ import { makeStyles } from '~/util/theme/makeStyles';
 import { Address, QuorumGuid } from 'lib';
 import { FlatList } from 'react-native-gesture-handler';
 import { useAppbarHeader } from '~/components/Appbar/useAppbarHeader';
-import { RootNavigatorScreenProps } from '~/navigation/RootNavigator';
+import { StackNavigatorScreenProps } from '~/navigation/StackNavigator';
 import { AccountAppbar } from './AccountAppbar';
 import { ActivateAccountButton } from '~/components/account/ActivateAccountButton';
 import { FAB } from '~/components/FAB';
 import { useAccount } from '~/queries/account/useAccount.api';
-import { QuorumItem } from './QuorumItemCard';
+import { QuorumItem } from './QuorumItem';
 import { useFuzzySearch } from '@hook/useFuzzySearch';
 import { TextField } from '~/components/fields/TextField';
 import { TextInput } from 'react-native-paper';
@@ -25,7 +25,7 @@ export interface AccountScreenParams {
   onlyActive?: boolean;
 }
 
-export type AccountScreenProps = RootNavigatorScreenProps<'Account'>;
+export type AccountScreenProps = StackNavigatorScreenProps<'Account'>;
 
 export const AccountScreen = withSkeleton(
   ({

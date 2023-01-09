@@ -5,7 +5,7 @@ import { BarCodeScanner } from 'expo-barcode-scanner';
 import { Box } from '~/components/layout/Box';
 import { Button, Title } from 'react-native-paper';
 import { AddrLink, parseAddrLink } from '~/util/addrLink';
-import { RootNavigatorScreenProps } from '~/navigation/RootNavigator';
+import { StackNavigatorScreenProps } from '~/navigation/StackNavigator';
 import { Overlay } from './Overlay';
 import {
   isWalletConnectUri,
@@ -16,7 +16,7 @@ export type ScanScreenParams = {
   onScanAddr?: (link: AddrLink) => void;
 };
 
-export type ScanScreenProps = RootNavigatorScreenProps<'Scan'>;
+export type ScanScreenProps = StackNavigatorScreenProps<'Scan'>;
 
 export const ScanScreen = ({ route, navigation }: ScanScreenProps) => {
   const { onScanAddr } = route.params;

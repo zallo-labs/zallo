@@ -2,7 +2,7 @@ import { Address } from 'lib';
 import { Appbar } from 'react-native-paper';
 import { useGoBack } from '~/components/Appbar/useGoBack';
 import { Box } from '~/components/layout/Box';
-import { RootNavigatorScreenProps } from '~/navigation/RootNavigator';
+import { StackNavigatorScreenProps } from '~/navigation/StackNavigator';
 import { useAccount } from '~/queries/account/useAccount.api';
 import { NameField } from './NameField';
 
@@ -10,7 +10,7 @@ export interface AccountSettingsScreenParams {
   account: Address;
 }
 
-export type AccountSettingsScreenProps = RootNavigatorScreenProps<'AccountSettings'>;
+export type AccountSettingsScreenProps = StackNavigatorScreenProps<'AccountSettings'>;
 
 export const AccountSettingsScreen = ({ route }: AccountSettingsScreenProps) => {
   const account = useAccount(route.params.account);

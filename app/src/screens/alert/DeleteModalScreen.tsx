@@ -1,12 +1,12 @@
 import { useTheme } from '@theme/paper';
 import { useCallback } from 'react';
-import { RootNavigatorScreenProps } from '~/navigation/RootNavigator';
+import { StackNavigatorScreenProps } from '~/navigation/StackNavigator';
 import { useRootNavigation } from '~/navigation/useRootNavigation';
 import { AlertModal, AlertModalProps } from './AlertModal';
 
 export interface DeleteModalScreenParams extends AlertModalProps {}
 
-export type DeleteModalScreenProps = RootNavigatorScreenProps<'Delete'>;
+export type DeleteModalScreenProps = StackNavigatorScreenProps<'Delete'>;
 
 export const DeleteModalScreen = ({ route }: DeleteModalScreenProps) => {
   const { colors } = useTheme();

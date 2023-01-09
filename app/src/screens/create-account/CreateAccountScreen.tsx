@@ -1,7 +1,7 @@
 import { Box } from '~/components/layout/Box';
 import { Formik } from 'formik';
 import { Appbar, Text } from 'react-native-paper';
-import { RootNavigatorScreenProps } from '~/navigation/RootNavigator';
+import { StackNavigatorScreenProps } from '~/navigation/StackNavigator';
 import * as Yup from 'yup';
 import { useCallback } from 'react';
 import { FormikTextField } from '~/components/fields/FormikTextField';
@@ -21,10 +21,10 @@ const schema: Yup.SchemaOf<Values> = Yup.object({
 });
 
 export interface CreateAccountScreenParams {
-  onCreate: (res: CreateAccountResult, navigation: RootNavigation) => void;
+  onCreate?: (res: CreateAccountResult, navigation: RootNavigation) => void;
 }
 
-export type CreateAccountScreenProps = RootNavigatorScreenProps<'CreateAccount'>;
+export type CreateAccountScreenProps = StackNavigatorScreenProps<'CreateAccount'>;
 
 export const CreateAccountScreen = ({ route }: CreateAccountScreenProps) => {
   const styles = useStyles();
@@ -34,7 +34,11 @@ export const CreateAccountScreen = ({ route }: CreateAccountScreenProps) => {
   const handleSubmit = useCallback(
     async ({ name }: Values) => {
       const r = await createAccount(name);
-      route.params.onCreate(r, navigation);
+      if (route.params.onCreate) {
+        route.params.onCreate(r, navigation);
+      } else {
+        navigation.navigate('Account', { account: r.account });
+      }
     },
     [createAccount, navigation, route.params],
   );

@@ -2,13 +2,12 @@ import { LogoIcon } from '@theme/icons';
 import { makeStyles } from '@theme/makeStyles';
 import { View } from 'react-native';
 import { Button } from 'react-native-paper';
-import { RootNavigatorScreenProps } from '~/navigation/RootNavigator';
+import { useRootNavigation } from '~/navigation/useRootNavigation';
 import { OnboardCarousel } from './OnboardCarousel';
 
-export type OnboardScreenProps = RootNavigatorScreenProps<'Onboard'>;
-
-export const OnboardScreen = ({ navigation: { navigate } }: OnboardScreenProps) => {
+export const OnboardScreen = () => {
   const styles = useStyles();
+  const { navigate } = useRootNavigation();
 
   return (
     <View style={styles.root}>
@@ -34,8 +33,7 @@ export const OnboardScreen = ({ navigation: { navigate } }: OnboardScreenProps) 
           contentStyle={styles.action}
           onPress={() =>
             navigate('NameDevice', {
-              onContinue: () =>
-                navigate('CreateAccount', { onCreate: () => navigate('DrawerNavigator') }),
+              onContinue: () => navigate('CreateAccount', { onCreate: () => navigate('Home') }),
             })
           }
         >

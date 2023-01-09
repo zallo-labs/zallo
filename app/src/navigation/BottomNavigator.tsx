@@ -8,15 +8,14 @@ import {
 import { ActivityScreen } from '~/screens/activity/ActivityScreen';
 import { HomeScreen } from '~/screens/home/HomeScreen';
 import { ReceiveScreen } from '~/screens/receive/ReceiveScreen';
-import { DrawerNavigatorScreenProps } from './Drawer/DrawerNavigator';
 import {
   createMaterialBottomTabNavigator,
   MaterialBottomTabScreenProps,
 } from '@react-navigation/material-bottom-tabs';
 import { useTheme } from '@theme/paper';
 import { CompositeScreenProps } from '@react-navigation/native';
-import { useProposalsMetadata } from '~/queries/proposal/useProposalsMetadata.api';
 import { useNotificationsCount } from '~/util/NotificationsRegistrar';
+import { StackNavigatorScreenProps } from './StackNavigator';
 
 export type BottomNavigatorParamList = {
   Receive: undefined;
@@ -26,7 +25,7 @@ export type BottomNavigatorParamList = {
 
 export type BottomNavigatorScreenProps<K extends keyof BottomNavigatorParamList> =
   CompositeScreenProps<
-    DrawerNavigatorScreenProps<'BottomNavigator'>,
+    StackNavigatorScreenProps<'BottomNavigator'>,
     MaterialBottomTabScreenProps<BottomNavigatorParamList, K>
   >;
 

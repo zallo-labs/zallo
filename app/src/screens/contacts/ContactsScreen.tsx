@@ -5,49 +5,54 @@ import { Address } from 'lib';
 import { FlatList } from 'react-native';
 import { useAppbarHeader } from '~/components/Appbar/useAppbarHeader';
 import { FAB } from '~/components/FAB';
-import { RootNavigatorScreenProps } from '~/navigation/RootNavigator';
+import { StackNavigatorScreenProps } from '~/navigation/StackNavigator';
 import { Contact, useContacts } from '~/queries/contacts/useContacts.api';
 import { useFuzzySearch } from '@hook/useFuzzySearch';
 import { useState } from 'react';
-import { Appbar, TextInput } from 'react-native-paper';
+import { Appbar, Text, TextInput } from 'react-native-paper';
 import produce from 'immer';
 import { useGoBack } from '~/components/Appbar/useGoBack';
 import { TextField } from '~/components/fields/TextField';
 import { withSkeleton } from '~/components/skeleton/withSkeleton';
 import { ScreenSkeleton } from '~/components/skeleton/ScreenSkeleton';
 import { ContactItem } from './ContactItem';
+import { AppbarMenu } from '~/components/Appbar/AppbarMenu';
+import { AppbarBack } from '~/components/Appbar/AppbarBack';
 
 export interface ContactsScreenParams {
   title?: string;
   disabled?: Address[];
   onSelect?: (contact: Contact) => void;
-  selectedSet?: Set<Address>;
+  selected?: Set<Address>;
   onMultiSelect?: (contacts: Set<Address>) => void;
 }
 
-export type ContactsScreenProps = RootNavigatorScreenProps<'Contacts'>;
+export type ContactsScreenProps = StackNavigatorScreenProps<'Contacts'>;
 
-const ContactsScreen = ({ route, navigation }: ContactsScreenProps) => {
+const ContactsScreen = ({ route, navigation: { navigate } }: ContactsScreenProps) => {
   const { title, disabled, onSelect, onMultiSelect } = route.params;
   const styles = useStyles();
   const { AppbarHeader, handleScroll } = useAppbarHeader();
   const [allContacts] = useContacts();
-
   const [contacts, searchProps] = useFuzzySearch(allContacts, ['name', 'addr']);
 
   const [selections, setSelections] = useState<Set<Address>>(
-    () => route.params.selectedSet ?? new Set(),
+    () => route.params.selected ?? new Set(),
   );
 
-  const create = () => navigation.navigate('Contact', {});
+  const create = () => navigate('Contact', {});
 
   return (
     <Box flex={1}>
-      <AppbarHeader mode="medium">
-        <Appbar.BackAction onPress={useGoBack()} />
-        <Appbar.Content title={title || 'Contacts'} />
+      <AppbarHeader>
+        {onSelect || onMultiSelect ? <AppbarBack /> : <AppbarMenu />}
+        <Appbar.Content title="" />
         <Appbar.Action icon={PlusIcon} onPress={create} />
       </AppbarHeader>
+
+      <Text variant="headlineSmall" style={{ marginLeft: 16, marginBottom: 16 }}>
+        {title || 'Contacts'}
+      </Text>
 
       <FlatList
         ListHeaderComponent={
@@ -66,7 +71,7 @@ const ContactsScreen = ({ route, navigation }: ContactsScreenProps) => {
                   }),
                 );
               } else {
-                navigation.navigate('Contact', { addr: item.addr });
+                navigate('Contact', { addr: item.addr });
               }
             }}
             selected={selections.has(item.addr)}
@@ -76,7 +81,7 @@ const ContactsScreen = ({ route, navigation }: ContactsScreenProps) => {
         style={styles.list}
         ListHeaderComponentStyle={styles.header}
         data={contacts}
-        extraData={[navigation, onSelect, disabled]}
+        extraData={[navigate, onSelect, disabled]}
         onScroll={handleScroll}
         showsVerticalScrollIndicator={false}
       />

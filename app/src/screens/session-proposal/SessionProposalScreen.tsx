@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 import { Appbar, Button } from 'react-native-paper';
-import { RootNavigatorScreenProps } from '~/navigation/RootNavigator';
+import { StackNavigatorScreenProps } from '~/navigation/StackNavigator';
 import { useWalletConnectClients } from '~/util/walletconnect/WalletConnectProvider';
 import { ProposerDetails } from './ProposerDetails';
 import { SessionAccounts } from './SessionAccounts';
@@ -22,7 +22,7 @@ export interface SessionProposalScreenParams {
   proposer: WcProposer;
 }
 
-export type SessionProposalScreenProps = RootNavigatorScreenProps<'SessionProposal'>;
+export type SessionProposalScreenProps = StackNavigatorScreenProps<'SessionProposal'>;
 
 export const SessionProposalScreen = ({ route, navigation }: SessionProposalScreenProps) => {
   const { uri, id, proposer } = route.params;

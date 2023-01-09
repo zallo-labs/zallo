@@ -1,7 +1,7 @@
 import { useCredentials } from '@network/useCredentials';
 import { Address, toAccountSignature } from 'lib';
 import { match } from 'ts-pattern';
-import { RootNavigatorScreenProps } from '~/navigation/RootNavigator';
+import { StackNavigatorScreenProps } from '~/navigation/StackNavigator';
 import { WcErrorKey } from '~/util/walletconnect/jsonRcp';
 import { BytesLike, hexlify } from 'ethers/lib/utils';
 import { Appbar, Button, Text } from 'react-native-paper';
@@ -37,7 +37,7 @@ export interface SignScreenParams {
   request: SigningRequest;
 }
 
-export type SignScreenProps = RootNavigatorScreenProps<'Sign'>;
+export type SignScreenProps = StackNavigatorScreenProps<'Sign'>;
 
 export const SignScreen = ({ navigation, route }: SignScreenProps) => {
   const { id, request } = route.params;

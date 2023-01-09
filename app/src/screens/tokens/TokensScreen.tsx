@@ -3,7 +3,7 @@ import { ListScreenSkeleton } from '~/components/skeleton/ListScreenSkeleton';
 import { withSkeleton } from '~/components/skeleton/withSkeleton';
 import { useAppbarHeader } from '~/components/Appbar/useAppbarHeader';
 import { FlatList } from 'react-native';
-import { RootNavigatorScreenProps } from '~/navigation/RootNavigator';
+import { StackNavigatorScreenProps } from '~/navigation/StackNavigator';
 import { Token } from '@token/token';
 import { useFuzzySearch } from '@hook/useFuzzySearch';
 import { Address, QuorumGuid } from 'lib';
@@ -22,7 +22,7 @@ export interface TokensScreenParams {
   disabled?: Address[];
 }
 
-export type TokensScreenProps = RootNavigatorScreenProps<'Tokens'>;
+export type TokensScreenProps = StackNavigatorScreenProps<'Tokens'>;
 
 const TokensScreen = ({ route }: TokensScreenProps) => {
   const { onSelect, quorum, disabled } = route.params;

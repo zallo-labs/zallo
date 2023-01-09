@@ -2,7 +2,7 @@ import { Box } from '~/components/layout/Box';
 import { Formik } from 'formik';
 import { Address, isAddress } from 'lib';
 import { Button } from 'react-native-paper';
-import { RootNavigatorScreenProps } from '~/navigation/RootNavigator';
+import { StackNavigatorScreenProps } from '~/navigation/StackNavigator';
 import { useContact } from '~/queries/contacts/useContact';
 import * as Yup from 'yup';
 import { FormikTextField } from '~/components/fields/FormikTextField';
@@ -45,7 +45,7 @@ export interface ContactScreenParams {
   addr?: Address;
 }
 
-export type ContactScreenProps = RootNavigatorScreenProps<'Contact'>;
+export type ContactScreenProps = StackNavigatorScreenProps<'Contact'>;
 
 export const ContactScreen = ({ route, navigation }: ContactScreenProps) => {
   const [contacts] = useContacts();

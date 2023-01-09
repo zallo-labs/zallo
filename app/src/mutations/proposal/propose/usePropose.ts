@@ -49,7 +49,7 @@ export const popToProposal = (
       index: 1,
       routes: toNavigationStateRoutes(
         {
-          name: 'DrawerNavigator',
+          name: 'Activity',
           params: undefined,
         },
         {

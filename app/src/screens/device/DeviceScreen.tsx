@@ -10,13 +10,13 @@ import { ExpandableText } from '~/components/ExpandableText';
 import { TextField } from '~/components/fields/TextField';
 import { Box } from '~/components/layout/Box';
 import { useUpdateUser } from '~/mutations/user/useUpdateUser.api';
-import { RootNavigatorScreenProps } from '~/navigation/RootNavigator';
+import { StackNavigatorScreenProps } from '~/navigation/StackNavigator';
 import { hideSnackbar, showInfo } from '~/provider/SnackbarProvider';
 import { useUser } from '~/queries/useUser.api';
 import { buildAddrLink } from '~/util/addrLink';
 import { QrCode } from '../receive/QrCode';
 
-export type DeviceScreenProps = RootNavigatorScreenProps<'Device'>;
+export type DeviceScreenProps = StackNavigatorScreenProps<'Device'>;
 
 export const DeviceScreen = (_props: DeviceScreenProps) => {
   const styles = useStyles();

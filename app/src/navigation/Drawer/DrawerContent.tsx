@@ -1,24 +1,27 @@
 import { DrawerContentComponentProps, DrawerContentScrollView } from '@react-navigation/drawer';
-import {
-  AccountIcon,
-  PeopleIcon,
-  FeedbackIcon,
-  IssueIcon,
-  SettingsIcon,
-  TokenCurrencyIcon,
-  DeviceIcon,
-} from '~/util/theme/icons';
-import { useCallback } from 'react';
-import { Linking } from 'react-native';
+import { PeopleIcon, SettingsIcon, HomeIcon, PlusIcon } from '~/util/theme/icons';
+import { Suspense, useCallback } from 'react';
 import { Drawer } from 'react-native-paper';
-import * as WebBrowser from 'expo-web-browser';
 import { Navigate } from '../useRootNavigation';
-import WalletConnectIcon from '~/../assets/walletconnect.svg';
-import { Link } from '~/util/links';
+import { useAccountIds } from '~/queries/account/useAccountIds.api';
+import { AccountDrawerItem } from './AccountDrawerItem';
+import { LineSkeleton } from '~/components/skeleton/LineSkeleton';
+import { NavigationState } from '@react-navigation/native';
+
+const getRouteName = (state: NavigationState): string => {
+  const route = state.routes[state.index];
+  return route.state ? getRouteName(route.state as NavigationState) : route.name;
+};
+
+const HOME_ROUTES = new Set(['RootNavigator', 'Receive', 'Home', 'Activity']);
 
 export interface DrawerContentProps extends DrawerContentComponentProps {}
 
-export const DrawerContent = ({ navigation }: DrawerContentProps) => {
+export const DrawerContent = (props: DrawerContentProps) => {
+  const { navigation } = props;
+  const accountIds = useAccountIds();
+  const route = getRouteName(props.state);
+
   const navigate: Navigate = useCallback(
     (...params: Parameters<Navigate>) => {
       navigation.navigate(...params);
@@ -28,44 +31,50 @@ export const DrawerContent = ({ navigation }: DrawerContentProps) => {
   );
 
   return (
-    <DrawerContentScrollView>
-      {/* <Drawer.Section>
-        <DeviceItem />
+    <DrawerContentScrollView {...props}>
+      <Drawer.Section title="Zallo" showDivider={false}>
+        {null}
+      </Drawer.Section>
+
+      <Drawer.Section title="General">
+        <Drawer.Item
+          label="Home"
+          icon={HomeIcon}
+          onPress={() => navigate('Home')}
+          active={HOME_ROUTES.has(route)}
+        />
+
+        <Drawer.Item
+          label="Contacts"
+          icon={PeopleIcon}
+          onPress={() => navigate('Contacts', {})}
+          active={route === 'Contacts'}
+        />
+        <Drawer.Item
+          label="Settings"
+          icon={SettingsIcon}
+          onPress={() => navigate('Settings')}
+          active={route === 'Settings'}
+        />
+      </Drawer.Section>
+
+      {/* <Drawer.Section title="Actions">
+        <Drawer.Item label="Swap" />
+
+        <Drawer.Item label="Deposit fiat" />
       </Drawer.Section> */}
 
-      <Drawer.Section title="Actions">
-        <Drawer.Item
-          label="Sessions"
-          icon={(props) => (
-            <WalletConnectIcon color={props.color} width={props.size} height={props.size} />
-          )}
-          onPress={() => navigate('Sessions')}
-        />
+      <Drawer.Section title="Accounts" showDivider={false}>
+        <Suspense fallback={<LineSkeleton />}>
+          {accountIds.map((account) => (
+            <AccountDrawerItem key={account} account={account} />
+          ))}
+        </Suspense>
 
-        <Drawer.Item label="Contacts" icon={PeopleIcon} onPress={() => navigate('Contacts', {})} />
         <Drawer.Item
-          label="Tokens"
-          icon={TokenCurrencyIcon}
-          onPress={() => navigate('Tokens', {})}
-        />
-      </Drawer.Section>
-
-      <Drawer.Section title="Configuration">
-        <Drawer.Item label="Accounts" icon={AccountIcon} onPress={() => navigate('Accounts', {})} />
-        <Drawer.Item label="Device" icon={DeviceIcon} onPress={() => navigate('Device')} />
-        <Drawer.Item label="Settings" icon={SettingsIcon} />
-      </Drawer.Section>
-
-      <Drawer.Section title="Support">
-        <Drawer.Item
-          label="Report an issue"
-          icon={IssueIcon}
-          onPress={() => WebBrowser.openBrowserAsync(Link.Issues)}
-        />
-        <Drawer.Item
-          label="Provide feedback"
-          icon={FeedbackIcon}
-          onPress={() => Linking.openURL(Link.Feedback)}
+          label="Create account"
+          icon={PlusIcon}
+          onPress={() => navigate('CreateAccount', {})}
         />
       </Drawer.Section>
     </DrawerContentScrollView>

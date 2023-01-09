@@ -27,6 +27,7 @@ export const materialCommunityIcon: Curried<typeof MaterialCommunityIcons> = (na
 export const ionIcon: Curried<typeof Ionicons> = (name) => (props) =>
   <Ionicons name={name} {...props} />;
 
+export const HomeIcon = materialIcon('home');
 export const ActivityIcon = materialCommunityIcon('chart-timeline-variant');
 export const SendIcon = materialCommunityIcon('send');
 export const ReceiveIcon = materialCommunityIcon('arrow-bottom-left');

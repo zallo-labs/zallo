@@ -7,7 +7,7 @@ import { useState } from 'react';
 import { Appbar } from 'react-native-paper';
 import { FAB } from '~/components/FAB';
 import { useSelectedToken, useSelectToken } from '~/components/token/useSelectedToken';
-import { RootNavigatorScreenProps } from '~/navigation/RootNavigator';
+import { StackNavigatorScreenProps } from '~/navigation/StackNavigator';
 import { AmountInput } from './AmountInput';
 import { TokenCard } from '~/components/token/TokenCard';
 
@@ -15,7 +15,7 @@ export interface AmountScreenParams {
   onChange: (amount?: BigNumber) => void;
 }
 
-export type AmountScreenProps = RootNavigatorScreenProps<'Amount'>;
+export type AmountScreenProps = StackNavigatorScreenProps<'Amount'>;
 
 export const AmountScreen = ({ navigation, route }: AmountScreenProps) => {
   const { onChange } = route.params;

@@ -25,7 +25,6 @@ export const HomeScreen = withSkeleton(() => {
     () => [selectedToken, ...allTokens.filter((t) => t.addr !== selectedToken.addr)],
     [allTokens, selectedToken],
   );
-
   return (
     <Box flex={1}>
       <HomeAppbar AppbarHeader={AppbarHeader} account={account} />

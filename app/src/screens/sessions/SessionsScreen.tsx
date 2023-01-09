@@ -6,11 +6,11 @@ import { useAppbarHeader } from '~/components/Appbar/useAppbarHeader';
 import { useGoBack } from '~/components/Appbar/useGoBack';
 import { EmptyListFallback } from '~/components/EmptyListFallback';
 import { Box } from '~/components/layout/Box';
-import { RootNavigatorScreenProps } from '~/navigation/RootNavigator';
+import { StackNavigatorScreenProps } from '~/navigation/StackNavigator';
 import { useWalletConnectSessions } from '~/util/walletconnect/useWalletConnectSessions';
 import { SessionCard } from './SessionCard';
 
-export type SessionsScreenProps = RootNavigatorScreenProps<'Sessions'>;
+export type SessionsScreenProps = StackNavigatorScreenProps<'Sessions'>;
 
 export const SessionsScreen = ({ navigation }: SessionsScreenProps) => {
   const styles = useStyles();

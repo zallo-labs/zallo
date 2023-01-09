@@ -17,40 +17,43 @@ import { AuthGate } from '~/provider/AuthGate';
 import { ThemeProvider } from '~/util/theme/ThemeProvider';
 import { SentryUser } from '~/util/sentry/SentryUser';
 import { withSentry } from '~/util/sentry/sentry';
-import { RootNavigator } from '~/navigation/RootNavigator';
 import { NavigationProvider } from '~/navigation/NavigationProvider';
 import { WalletConnectProvider } from '~/util/walletconnect/WalletConnectProvider';
 import { NotificationsRegistrar } from '~/util/NotificationsRegistrar';
+import { SafeAreaProvider } from 'react-native-safe-area-context';
+import { DrawerNavigator } from '~/navigation/Drawer/DrawerNavigator';
 
 export default withSentry(() => (
   <LocalizatonProvider>
-    <ThemeProvider>
-      <Background>
-        <StatusBar style="light" backgroundColor="transparent" />
-        <GestureHandlerRootView style={styles.flexed}>
-          <ErrorBoundary>
-            <Suspense fallback={<Splash />}>
-              <RecoilRoot>
-                <AuthGate>
-                  <SentryUser />
-                  <GqlProvider>
-                    <NavigationProvider>
-                      <NotificationsRegistrar />
-                      <WalletConnectProvider>
-                        <Suspense fallback={<Splash />}>
-                          <RootNavigator />
-                        </Suspense>
-                      </WalletConnectProvider>
-                    </NavigationProvider>
-                  </GqlProvider>
-                </AuthGate>
-                <SnackbarProvider />
-              </RecoilRoot>
-            </Suspense>
-          </ErrorBoundary>
-        </GestureHandlerRootView>
-      </Background>
-    </ThemeProvider>
+    <SafeAreaProvider>
+      <ThemeProvider>
+        <Background>
+          <StatusBar style="light" backgroundColor="transparent" />
+          <GestureHandlerRootView style={styles.flexed}>
+            <ErrorBoundary>
+              <Suspense fallback={<Splash />}>
+                <RecoilRoot>
+                  <AuthGate>
+                    <SentryUser />
+                    <GqlProvider>
+                      <NavigationProvider>
+                        <NotificationsRegistrar />
+                        <WalletConnectProvider>
+                          <Suspense fallback={<Splash />}>
+                            <DrawerNavigator />
+                          </Suspense>
+                        </WalletConnectProvider>
+                      </NavigationProvider>
+                    </GqlProvider>
+                  </AuthGate>
+                  <SnackbarProvider />
+                </RecoilRoot>
+              </Suspense>
+            </ErrorBoundary>
+          </GestureHandlerRootView>
+        </Background>
+      </ThemeProvider>
+    </SafeAreaProvider>
   </LocalizatonProvider>
 ));
 

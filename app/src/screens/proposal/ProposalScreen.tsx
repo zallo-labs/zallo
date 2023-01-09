@@ -6,7 +6,7 @@ import { Box } from '~/components/layout/Box';
 import { Container } from '~/components/layout/Container';
 import { ScreenSkeleton } from '~/components/skeleton/ScreenSkeleton';
 import { withSkeleton } from '~/components/skeleton/withSkeleton';
-import { RootNavigatorScreenProps } from '~/navigation/RootNavigator';
+import { StackNavigatorScreenProps } from '~/navigation/StackNavigator';
 import { ProposalId } from '~/queries/proposal';
 import { useProposal } from '~/queries/proposal/useProposal.api';
 import { OnExecute, ProposalActions } from './ProposalActions';
@@ -19,7 +19,7 @@ export interface ProposalScreenParams {
   onExecute?: OnExecute;
 }
 
-export type ProposalScreenProps = RootNavigatorScreenProps<'Proposal'>;
+export type ProposalScreenProps = StackNavigatorScreenProps<'Proposal'>;
 
 const ProposalScreen = ({ route }: ProposalScreenProps) => {
   const { id, onExecute } = route.params;

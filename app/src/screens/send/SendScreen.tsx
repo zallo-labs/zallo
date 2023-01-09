@@ -14,7 +14,7 @@ import { Container } from '~/components/layout/Container';
 import { TokenAvailableCard } from '~/components/token/TokenAvailableCard';
 import { useSelectedToken, useSelectToken } from '~/components/token/useSelectedToken';
 import { popToProposal, usePropose } from '~/mutations/proposal/propose/usePropose';
-import { RootNavigatorScreenProps } from '~/navigation/RootNavigator';
+import { StackNavigatorScreenProps } from '~/navigation/StackNavigator';
 import { AmountInput } from '../amount/AmountInput';
 
 export interface SendScreenParams {
@@ -22,7 +22,7 @@ export interface SendScreenParams {
   to: Address;
 }
 
-export type SendScreenProps = RootNavigatorScreenProps<'Send'>;
+export type SendScreenProps = StackNavigatorScreenProps<'Send'>;
 
 export const SendScreen = ({ route, navigation }: SendScreenProps) => {
   const { quorum, to } = route.params;

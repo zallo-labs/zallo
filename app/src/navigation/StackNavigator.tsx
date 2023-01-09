@@ -8,7 +8,6 @@ import {
   CreateAccountScreenParams,
 } from '~/screens/create-account/CreateAccountScreen';
 import { useShowOnboarding } from '~/screens/onboard/useShowOnboarding';
-import { DrawerNavigator } from './Drawer/DrawerNavigator';
 import { ContactScreen, ContactScreenParams } from '~/screens/contacts/ContactScreen';
 import { AccountScreen, AccountScreenParams } from '~/screens/account/AccountScreen';
 import { AlertModalScreen, AlertModalScreenParams } from '~/screens/alert/AlertModalScreen';
@@ -38,9 +37,11 @@ import {
   CreateQuorumScreen,
   CreateQuorumScreenParams,
 } from '~/screens/create-quorum/CreateQuorumScreen';
+import { BottomNavigator } from './BottomNavigator';
+import { SettingsScreen } from '~/screens/settings/SettingsScreen';
 
-export type RootNavigatorParamList = {
-  DrawerNavigator: undefined;
+export type StackNavigatorParamList = {
+  BottomNavigator: undefined;
   Proposal: ProposalScreenParams;
   Accounts: AccountsScreenParams;
   Account: AccountScreenParams;
@@ -58,6 +59,7 @@ export type RootNavigatorParamList = {
   Onboard: undefined;
   CreateAccount: CreateAccountScreenParams;
   NameDevice: NameDeviceScreenParams;
+  Settings: undefined;
   // Modal
   Alert: AlertModalScreenParams;
   Delete: DeleteModalScreenParams;
@@ -67,18 +69,18 @@ export type RootNavigatorParamList = {
   Sign: SignScreenParams;
 };
 
-export type RootNavigatorScreenProps<K extends keyof RootNavigatorParamList> =
-  NativeStackScreenProps<RootNavigatorParamList, K>;
+export type StackNavigatorScreenProps<K extends keyof StackNavigatorParamList> =
+  NativeStackScreenProps<StackNavigatorParamList, K>;
 
-const Navigation = createNativeStackNavigator<RootNavigatorParamList>();
+const Navigation = createNativeStackNavigator<StackNavigatorParamList>();
 
-export const RootNavigator = () => {
+export const StackNavigator = () => {
   const showOnboarding = useShowOnboarding();
   return (
     <Navigation.Navigator screenOptions={{ headerShown: false }}>
       {showOnboarding && <Navigation.Screen name="Onboard" component={OnboardScreen} />}
 
-      <Navigation.Screen name="DrawerNavigator" component={DrawerNavigator} />
+      <Navigation.Screen name="BottomNavigator" component={BottomNavigator} />
       <Navigation.Screen name="Proposal" component={ProposalScreen} />
       <Navigation.Screen name="Accounts" component={AccountsScreen} />
       <Navigation.Screen name="Account" component={AccountScreen} />
@@ -95,6 +97,7 @@ export const RootNavigator = () => {
       <Navigation.Screen name="Device" component={DeviceScreen} />
       <Navigation.Screen name="CreateAccount" component={CreateAccountScreen} />
       <Navigation.Screen name="NameDevice" component={NameDeviceScreen} />
+      <Navigation.Screen name="Settings" component={SettingsScreen} />
 
       <Navigation.Group screenOptions={{ presentation: 'transparentModal' }}>
         <Navigation.Screen name="Alert" component={AlertModalScreen} />

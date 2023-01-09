@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { RootNavigatorScreenProps } from '~/navigation/RootNavigator';
+import { StackNavigatorScreenProps } from '~/navigation/StackNavigator';
 import { View } from 'react-native';
 import { makeStyles } from '@theme/makeStyles';
 import { Appbar, Button, Text } from 'react-native-paper';
@@ -14,14 +14,14 @@ export interface NameDeviceScreenParams {
   onContinue: () => void;
 }
 
-export type NameDeviceScreenProps = RootNavigatorScreenProps<'NameDevice'>;
+export type NameDeviceScreenProps = StackNavigatorScreenProps<'NameDevice'>;
 
 export const NameDeviceScreen = ({ route }: NameDeviceScreenProps) => {
   const { onContinue } = route.params;
   const styles = useStyles();
   const updateUser = useUpdateUser();
 
-  const [value, setValue] = useState(useUser().name || Device.deviceName || '');
+  const [name, setName] = useState(useUser().name || Device.deviceName || '');
 
   return (
     <View style={styles.root}>
@@ -36,9 +36,9 @@ export const NameDeviceScreen = ({ route }: NameDeviceScreenProps) => {
 
         <TextField
           label="Device name"
-          value={value}
-          onChangeText={setValue}
-          error={!value && 'Required'}
+          value={name}
+          onChangeText={setName}
+          error={!name && 'Required'}
         />
       </View>
 
@@ -47,7 +47,7 @@ export const NameDeviceScreen = ({ route }: NameDeviceScreenProps) => {
           <Button
             mode="contained"
             onPress={async () => {
-              await updateUser({ name: value });
+              await updateUser({ name });
               onContinue();
             }}
           >
