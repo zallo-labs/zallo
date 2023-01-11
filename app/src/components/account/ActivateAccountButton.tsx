@@ -2,9 +2,9 @@ import { ActivateIcon } from '@theme/icons';
 import { FC } from 'react';
 import { useActivateAccount } from '~/mutations/account/useActivateAccount.api';
 import { CombinedAccount } from '~/queries/account/useAccount.api';
-import { FABProps } from '../FAB';
+import { FabProps } from '../Fab/Fab';
 
-type RequiredProps = Pick<FABProps, 'icon' | 'label' | 'loading' | 'onPress'>;
+type RequiredProps = Pick<FabProps, 'icon' | 'label' | 'loading' | 'onPress'>;
 
 export interface ActivateAccountButtonProps {
   children: FC<RequiredProps>;

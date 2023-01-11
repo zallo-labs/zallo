@@ -41,13 +41,13 @@ const Status = ({ p }: { p: Proposal }) => {
 };
 
 export interface ProposalItemProps {
-  id: ProposalId;
+  proposal: ProposalId;
   onPress?: () => void;
 }
 
-export const ProposalItem = withSkeleton(({ id, onPress }: ProposalItemProps) => {
+export const ProposalItem = withSkeleton(({ proposal: id, onPress }: ProposalItemProps) => {
   const styles = useStyles();
-  const [p] = useProposal(id);
+  const p = useProposal(id);
   const token = useMaybeToken(p.to) ?? ETH;
   const label = useProposalLabel(p);
 

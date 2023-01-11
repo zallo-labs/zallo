@@ -1,4 +1,4 @@
-import { CombinedQuorum } from '~/queries/useQuorum.api';
+import { CombinedQuorum } from '~/queries/quroum';
 import { useTotalBalanceValue } from './useTotalBalanceValue';
 
 export const useTotalAvailableValue = (quorum: CombinedQuorum) => {

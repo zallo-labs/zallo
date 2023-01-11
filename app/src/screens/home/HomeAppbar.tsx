@@ -6,7 +6,7 @@ import { AppbarHeaderProps } from '~/components/Appbar/useAppbarHeader';
 import { useSendToContact } from '../send/useSendToContact';
 import { useSendToScanned } from '../send/useSendToScanned';
 import { Address } from 'lib';
-import { useSelectQuorum } from '../account/useSelectQuorum';
+import { useSelectQuorum } from '../account/quorums/useSelectQuorum';
 
 export interface HomeAppbarProps {
   AppbarHeader: FC<AppbarHeaderProps>;

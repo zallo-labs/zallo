@@ -1,13 +1,10 @@
-import { gql, useMutation } from '@apollo/client';
+import { gql } from '@apollo/client';
 import {
   CommentsDocument,
   CommentsQuery,
   CommentsQueryVariables,
-  DeleteCommentDocument,
-  DeleteCommentMutation,
-  DeleteCommentMutationVariables,
+  useDeleteCommentMutation,
 } from '~/gql/generated.api';
-import { useApiClient } from '~/gql/GqlProvider';
 import { QueryOpts } from '~/gql/update';
 import { useCallback } from 'react';
 import { Comment } from '~/queries/useComments.api';
@@ -25,13 +22,7 @@ gql`
 
 export const useDeleteComment = (account: Address) => {
   const user = useUser();
-
-  const [mutate] = useMutation<DeleteCommentMutation, DeleteCommentMutationVariables>(
-    DeleteCommentDocument,
-    {
-      client: useApiClient(),
-    },
-  );
+  const [mutate] = useDeleteCommentMutation();
 
   return useCallback(
     (c: Comment) => {

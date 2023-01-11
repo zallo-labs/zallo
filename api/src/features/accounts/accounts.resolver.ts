@@ -2,7 +2,12 @@ import { Args, Info, Mutation, Query, Resolver } from '@nestjs/graphql';
 import { PrismaService } from 'nestjs-prisma';
 import { GraphQLResolveInfo } from 'graphql';
 import { Account } from '@gen/account/account.model';
-import { AccountArgs, SetAccountNameArgs, CreateAccountArgs, AccountsArgs } from './accounts.args';
+import {
+  AccountArgs,
+  UpdateAccountMetadataArgs,
+  CreateAccountArgs,
+  AccountsArgs,
+} from './accounts.args';
 import { makeGetSelect } from '~/util/select';
 import { AccountsService } from './accounts.service';
 import { Prisma } from '@prisma/client';
@@ -111,8 +116,8 @@ export class AccountsResolver {
   }
 
   @Mutation(() => Account)
-  async setAccountName(
-    @Args() { id: id, name }: SetAccountNameArgs,
+  async updateAccountMetadata(
+    @Args() { id, name }: UpdateAccountMetadataArgs,
     @Info() info: GraphQLResolveInfo,
   ): Promise<Account> {
     return this.prisma.account.update({

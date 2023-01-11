@@ -39,7 +39,7 @@ export class SpendingInput {
   @Field(() => [TokenLimitInput], { nullable: true, defaultValue: [] })
   limits: TokenLimitInput[];
 
-  @Field(() => Boolean, { nullable: true, defaultValue: false })
+  @Field(() => SpendingFallback, { nullable: true, defaultValue: SpendingFallback.allow })
   fallback: SpendingFallback;
 }
 
@@ -54,7 +54,7 @@ export class CreateQuorumArgs {
   @SetField(() => AddressScalar, { min: 1 })
   approvers: Set<Address>;
 
-  name: string;
+  name?: string;
 
   spending?: SpendingInput;
 }

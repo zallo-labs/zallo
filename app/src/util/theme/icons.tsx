@@ -10,6 +10,7 @@ export type IconPropsWithoutName<IconType extends ElementType = typeof MaterialI
   ComponentPropsWithoutRef<IconType>,
   'name'
 >;
+export type IconProps = Pick<ComponentPropsWithoutRef<typeof MaterialIcons>, 'color' | 'size'>;
 
 type NameProp<Props> = Props extends { name: infer Name } ? Name : never;
 type Curried<C extends ElementType, Props = ComponentPropsWithoutRef<C>> = (
@@ -45,6 +46,7 @@ export const CheckIcon = materialCommunityIcon('check');
 export const FinalizedIcon = materialCommunityIcon('send-check');
 export const CloseIcon = materialCommunityIcon('close');
 export const CancelIcon = CloseIcon;
+export const RemoveIcon = CloseIcon;
 export const ErrorIcon = materialIcon('error');
 export const RetryIcon = materialIcon('redo');
 export const SwapIcon = materialCommunityIcon('swap-vertical');
@@ -62,12 +64,15 @@ export const BackIcon = materialIcon('arrow-back');
 export const IssueIcon = materialCommunityIcon('github');
 export const FeedbackIcon = materialCommunityIcon('chat');
 export const TokenCurrencyIcon = materialCommunityIcon('currency-eth');
+export const SpendingIcon = materialCommunityIcon('currency-usd');
 export const ChevronRight = materialIcon('chevron-right');
 export const QuorumIcon = materialIcon('group');
+export const QuorumsIcon = materialIcon('groups');
 export const ActivateIcon = materialCommunityIcon('rocket-launch');
 export const UndoIcon = materialIcon('undo');
 export const CalendarTodayIcon = materialIcon('calendar-today');
 export const ReplaceIcon = materialCommunityIcon('arrow-u-right-bottom');
+export const ProposeIcon = materialCommunityIcon('send');
 export const ProposedAddIcon = materialCommunityIcon('clock-plus-outline');
 export const ProposedRemoveIcon = materialCommunityIcon('clock-remove-outline');
 export const ProposedModifyIcon = materialCommunityIcon('clock-outline');
@@ -87,8 +92,7 @@ export const CheckCircleIcon = materialCommunityIcon('check-circle');
 export const RejectedCircleIcon = materialCommunityIcon('close-circle');
 export const CheckmarkDoneCircleIcon = materialIcon('done-all');
 export const DescriptionIcon = materialIcon('description');
-
-export type IconProps = Pick<ComponentPropsWithoutRef<typeof MaterialIcons>, 'color' | 'size'>;
+export const NameIcon = materialIcon('text-fields');
 
 export const svgIcon =
   (Svg: FC<SvgProps>): FC<IconProps> =>

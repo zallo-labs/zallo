@@ -1,9 +1,10 @@
 import { Address } from 'lib';
 import { useCallback } from 'react';
 import { useRootNavigation } from '~/navigation/useRootNavigation';
+import { showInfo } from '~/provider/SnackbarProvider';
 import { useAccount } from '~/queries/account/useAccount.api';
 import { useUser } from '~/queries/useUser.api';
-import { OnSelectQuorum } from './AccountScreen';
+import { OnSelectQuorum } from './AccountQuorumsScreen';
 
 export const useSelectQuorum = (accountAddr: Address) => {
   const { navigate } = useRootNavigation();
@@ -11,15 +12,15 @@ export const useSelectQuorum = (accountAddr: Address) => {
   const user = useUser();
 
   return useCallback(
-    (onSelectQuorum: OnSelectQuorum) => {
-      const userQuorums = account.quorums.filter((q) => q.active?.value?.approvers.has(user.id));
+    (onSelect: OnSelectQuorum) => {
+      const userQuorums = account.quorums.filter((q) => q.active?.approvers.has(user.id));
       if (userQuorums.length === 1) {
-        onSelectQuorum(userQuorums[0]);
+        onSelect(userQuorums[0]);
       } else {
-        navigate('Account', {
-          title: 'Select quorum',
+        showInfo('Select quorum');
+        navigate('AccountQuorums', {
           account: accountAddr,
-          onSelectQuorum,
+          onSelect,
         });
       }
     },

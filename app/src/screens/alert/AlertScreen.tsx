@@ -2,22 +2,20 @@ import { useTheme } from '@theme/paper';
 import { Button, Dialog, Text } from 'react-native-paper';
 import { useRootNavigation } from '~/navigation/useRootNavigation';
 import { DialogRoot } from '~/components/DialogRoot';
+import { StackNavigatorScreenProps } from '~/navigation/StackNavigator';
 
-export interface AlertModalProps {
+export interface AlertScreenParams {
   title?: string;
   message?: string;
-  onConfirm: () => void;
+  onConfirm: () => unknown;
   confirmLabel?: string;
   confirmTextColor?: string;
 }
 
-export const AlertModal = ({
-  title,
-  message,
-  onConfirm,
-  confirmLabel,
-  confirmTextColor,
-}: AlertModalProps) => {
+export type AlertScreenProps = StackNavigatorScreenProps<'Alert'>;
+
+export const AlertScreen = ({ route: { params } }: AlertScreenProps) => {
+  const { title, message, onConfirm, confirmLabel, confirmTextColor } = params;
   const { colors } = useTheme();
   const { goBack } = useRootNavigation();
 
@@ -32,14 +30,14 @@ export const AlertModal = ({
       )}
 
       <Dialog.Actions>
-        <Button textColor={colors.secondary} onPress={goBack}>
+        <Button textColor={colors.onSurfaceVariant} onPress={goBack}>
           Cancel
         </Button>
 
         <Button
           textColor={confirmTextColor || colors.primary}
-          onPress={() => {
-            onConfirm();
+          onPress={async () => {
+            await onConfirm();
             goBack();
           }}
         >

@@ -2,9 +2,10 @@ import { forwardRef, Inject, Injectable } from '@nestjs/common';
 import { Prisma, PrismaPromise } from '@prisma/client';
 import { ACCOUNT_INTERFACE, Address, hashQuorum, Quorum, QuorumGuid, QuorumKey } from 'lib';
 import { PrismaService } from 'nestjs-prisma';
-import { connectAccount, connectQuorum } from '~/util/connect-or-create';
+import { connectAccount, connectOrCreateUser, connectQuorum } from '~/util/connect-or-create';
 import { ProposalsService } from '../proposals/proposals.service';
 import { SpendingInput } from './quorums.args';
+import { Quorum as QuorumModel } from '@gen/quorum/quorum.model';
 
 interface CreateStateParams {
   proposer: Address;
@@ -14,7 +15,7 @@ interface CreateStateParams {
   approvers: Set<Address>;
   spending?: SpendingInput;
   tx: Prisma.TransactionClient;
-  createArgs?: Omit<Prisma.QuorumStateCreateArgs, 'data'>;
+  quorumArgs?: Prisma.QuorumArgs;
 }
 
 @Injectable()
@@ -32,8 +33,8 @@ export class QuorumsService {
     approvers,
     spending,
     tx,
-    createArgs = {},
-  }: CreateStateParams) {
+    quorumArgs,
+  }: CreateStateParams): Promise<QuorumModel> {
     const quorum: Quorum = {
       key,
       approvers,
@@ -63,18 +64,15 @@ export class QuorumsService {
       tx,
     );
 
-    return tx.quorumState.create({
-      ...createArgs,
+    const r = await tx.quorumState.create({
       data: {
         proposal: { connect: { id: proposalId } },
         account: connectAccount(account),
         quorum: connectQuorum(account, key),
         approvers: {
-          createMany: {
-            data: [...approvers].map((approver) => ({
-              userId: approver,
-            })),
-          },
+          create: [...approvers].map((approver) => ({
+            user: connectOrCreateUser(approver),
+          })),
         },
         spendingFallback: spending?.fallback,
         limits: spending?.limits
@@ -89,7 +87,12 @@ export class QuorumsService {
             }
           : undefined,
       },
+      select: {
+        quorum: quorumArgs,
+      },
     });
+
+    return r.quorum;
   }
 
   activeStateQuery({ account, key }: QuorumGuid) {

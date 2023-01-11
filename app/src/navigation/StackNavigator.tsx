@@ -10,14 +10,8 @@ import {
 import { useShowOnboarding } from '~/screens/onboard/useShowOnboarding';
 import { ContactScreen, ContactScreenParams } from '~/screens/contacts/ContactScreen';
 import { AccountScreen, AccountScreenParams } from '~/screens/account/AccountScreen';
-import { AlertModalScreen, AlertModalScreenParams } from '~/screens/alert/AlertModalScreen';
-import { DeleteModalScreen, DeleteModalScreenParams } from '~/screens/alert/DeleteModalScreen';
 import { SendScreen, SendScreenParams } from '~/screens/send/SendScreen';
 import LimitScreen, { LimitScreenParams } from '~/screens/limit/LimitScreen';
-import {
-  AccountSettingsScreen,
-  AccountSettingsScreenParams,
-} from '~/screens/account-settings/AccountSettingsScreen';
 import {
   SessionProposalScreen,
   SessionProposalScreenParams,
@@ -39,14 +33,29 @@ import {
 } from '~/screens/create-quorum/CreateQuorumScreen';
 import { BottomNavigator } from './BottomNavigator';
 import { SettingsScreen } from '~/screens/settings/SettingsScreen';
+import {
+  AccountQuorumsScreen,
+  AccountQuorumsScreenParams,
+} from '~/screens/account/quorums/AccountQuorumsScreen';
+import {
+  RenameAccountScreen,
+  RenameAccountScreenParams,
+} from '~/screens/account/rename/RenameAccountScreen';
+import {
+  RenameQuorumScreen,
+  RenameQuorumScreenParams,
+} from '~/screens/quorum/rename/RenameQuorumScreen';
+import { AlertScreen, AlertScreenParams } from '~/screens/alert/AlertScreen';
 
 export type StackNavigatorParamList = {
   BottomNavigator: undefined;
   Proposal: ProposalScreenParams;
   Accounts: AccountsScreenParams;
   Account: AccountScreenParams;
-  AccountSettings: AccountSettingsScreenParams;
+  RenameAccount: RenameAccountScreenParams;
+  AccountQuorums: AccountQuorumsScreenParams;
   Quorum: QuorumScreenParams;
+  RenameQuorum: RenameQuorumScreenParams;
   CreateQuorum: CreateQuorumScreenParams;
   Limit: LimitScreenParams;
   Contacts: ContactsScreenParams;
@@ -61,8 +70,7 @@ export type StackNavigatorParamList = {
   NameDevice: NameDeviceScreenParams;
   Settings: undefined;
   // Modal
-  Alert: AlertModalScreenParams;
-  Delete: DeleteModalScreenParams;
+  Alert: AlertScreenParams;
   /* WalletConnect */
   Sessions: undefined;
   SessionProposal: SessionProposalScreenParams;
@@ -84,8 +92,10 @@ export const StackNavigator = () => {
       <Navigation.Screen name="Proposal" component={ProposalScreen} />
       <Navigation.Screen name="Accounts" component={AccountsScreen} />
       <Navigation.Screen name="Account" component={AccountScreen} />
-      <Navigation.Screen name="AccountSettings" component={AccountSettingsScreen} />
+      <Navigation.Screen name="RenameAccount" component={RenameAccountScreen} />
+      <Navigation.Screen name="AccountQuorums" component={AccountQuorumsScreen} />
       <Navigation.Screen name="Quorum" component={QuorumScreen} />
+      <Navigation.Screen name="RenameQuorum" component={RenameQuorumScreen} />
       <Navigation.Screen name="CreateQuorum" component={CreateQuorumScreen} />
       <Navigation.Screen name="Limit" component={LimitScreen} />
       <Navigation.Screen name="Contacts" component={ContactsScreen} />
@@ -100,8 +110,7 @@ export const StackNavigator = () => {
       <Navigation.Screen name="Settings" component={SettingsScreen} />
 
       <Navigation.Group screenOptions={{ presentation: 'transparentModal' }}>
-        <Navigation.Screen name="Alert" component={AlertModalScreen} />
-        <Navigation.Screen name="Delete" component={DeleteModalScreen} />
+        <Navigation.Screen name="Alert" component={AlertScreen} />
       </Navigation.Group>
 
       <Navigation.Group key="WalletConnect">

@@ -55,7 +55,7 @@ export const popToProposal = (
         {
           name: 'Proposal',
           params: {
-            id: proposal,
+            proposal: proposal,
             onExecute,
           },
         },

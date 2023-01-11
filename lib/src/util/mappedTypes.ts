@@ -1,10 +1,5 @@
 export type MaybePromise<T> = T | Promise<T>;
 
-export type MaybeArray<T> = T | T[];
-
-export const maybeToArray = <T>(maybe: MaybeArray<T>): T[] =>
-  Array.isArray(maybe) ? maybe : [maybe];
-
 type TupleSplit<T, N extends number, O extends readonly any[] = readonly []> = O['length'] extends N
   ? [O, T]
   : T extends readonly [infer F, ...infer R]
@@ -26,6 +21,12 @@ export type OnlyRequiredItems<T extends any[], U extends any[] = []> = Partial<T
   : T extends [infer F, ...infer R]
   ? OnlyRequiredItems<R, [...U, Awaited<F>]>
   : U;
+
+export type PositiveInteger<T extends number> = number extends T
+  ? never
+  : `${T}` extends `-${string}` | `${string}.${string}`
+  ? never
+  : T;
 
 const x = typeof '';
 type Checker = typeof x | ((e: unknown) => boolean);

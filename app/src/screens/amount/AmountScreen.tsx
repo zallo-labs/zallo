@@ -5,7 +5,7 @@ import { BigNumber } from 'ethers';
 import { ZERO } from 'lib';
 import { useState } from 'react';
 import { Appbar } from 'react-native-paper';
-import { FAB } from '~/components/FAB';
+import { Fab } from '~/components/Fab/Fab';
 import { useSelectedToken, useSelectToken } from '~/components/token/useSelectedToken';
 import { StackNavigatorScreenProps } from '~/navigation/StackNavigator';
 import { AmountInput } from './AmountInput';
@@ -55,7 +55,7 @@ export const AmountScreen = ({ navigation, route }: AmountScreenProps) => {
         <AmountInput token={token} amount={amount} setAmount={setAmount} />
       </Box>
 
-      <FAB
+      <Fab
         icon={CheckIcon}
         label="Accept"
         disabled={!amount || amount.eq(ZERO)}

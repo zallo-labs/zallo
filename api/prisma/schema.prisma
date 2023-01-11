@@ -43,7 +43,7 @@ model Quorum {
   account   Account @relation(fields: [accountId], references: [id], onDelete: Cascade)
   accountId String  @db.Char(42) // address
   key       Int
-  name      String?
+  name      String
 
   states    QuorumState[]
   proposals Proposal[]

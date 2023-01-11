@@ -4,14 +4,13 @@ import { makeStyles } from '~/util/theme/makeStyles';
 import { Address } from 'lib';
 import { FlatList } from 'react-native';
 import { useAppbarHeader } from '~/components/Appbar/useAppbarHeader';
-import { FAB } from '~/components/FAB';
+import { Fab } from '~/components/Fab/Fab';
 import { StackNavigatorScreenProps } from '~/navigation/StackNavigator';
 import { Contact, useContacts } from '~/queries/contacts/useContacts.api';
-import { useFuzzySearch } from '@hook/useFuzzySearch';
+import { useSearch } from '@hook/useSearch';
 import { useState } from 'react';
 import { Appbar, Text, TextInput } from 'react-native-paper';
 import produce from 'immer';
-import { useGoBack } from '~/components/Appbar/useGoBack';
 import { TextField } from '~/components/fields/TextField';
 import { withSkeleton } from '~/components/skeleton/withSkeleton';
 import { ScreenSkeleton } from '~/components/skeleton/ScreenSkeleton';
@@ -21,7 +20,7 @@ import { AppbarBack } from '~/components/Appbar/AppbarBack';
 
 export interface ContactsScreenParams {
   title?: string;
-  disabled?: Address[];
+  disabled?: Set<Address>;
   onSelect?: (contact: Contact) => void;
   selected?: Set<Address>;
   onMultiSelect?: (contacts: Set<Address>) => void;
@@ -34,7 +33,7 @@ const ContactsScreen = ({ route, navigation: { navigate } }: ContactsScreenProps
   const styles = useStyles();
   const { AppbarHeader, handleScroll } = useAppbarHeader();
   const [allContacts] = useContacts();
-  const [contacts, searchProps] = useFuzzySearch(allContacts, ['name', 'addr']);
+  const [contacts, searchProps] = useSearch(allContacts, ['name', 'addr']);
 
   const [selections, setSelections] = useState<Set<Address>>(
     () => route.params.selected ?? new Set(),
@@ -75,7 +74,7 @@ const ContactsScreen = ({ route, navigation: { navigate } }: ContactsScreenProps
               }
             }}
             selected={selections.has(item.addr)}
-            disabled={disabled?.includes(item.addr)}
+            disabled={disabled?.has(item.addr)}
           />
         )}
         style={styles.list}
@@ -87,17 +86,17 @@ const ContactsScreen = ({ route, navigation: { navigate } }: ContactsScreenProps
       />
 
       {onMultiSelect && selections.size > 0 && (
-        <FAB icon={CheckIcon} label="Select" onPress={() => onMultiSelect(selections)} />
+        <Fab icon={CheckIcon} label="Select" onPress={() => onMultiSelect(selections)} />
       )}
     </Box>
   );
 };
 
-const useStyles = makeStyles(({ space }) => ({
+const useStyles = makeStyles(({ s }) => ({
   list: {},
   header: {
-    marginHorizontal: space(2),
-    marginBottom: space(1),
+    marginHorizontal: s(16),
+    marginBottom: s(8),
   },
 }));
 

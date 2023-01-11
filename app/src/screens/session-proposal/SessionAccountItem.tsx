@@ -5,8 +5,8 @@ import { Item, ItemProps } from '~/components/item/Item';
 import { ItemSkeleton } from '~/components/item/ItemSkeleton';
 import { withSkeleton } from '~/components/skeleton/withSkeleton';
 import { useAccount } from '~/queries/account/useAccount.api';
-import { useQuorum } from '~/queries/useQuorum.api';
-import { useSelectQuorum } from '../account/useSelectQuorum';
+import { useQuorum } from '~/queries/quroum/useQuorum.api';
+import { useSelectQuorum } from '../account/quorums/useSelectQuorum';
 
 export interface SessionAccountItemProps extends Omit<ItemProps, 'selected'> {
   account: Address;

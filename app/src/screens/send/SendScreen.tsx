@@ -8,7 +8,7 @@ import { useState } from 'react';
 import { Appbar, Text } from 'react-native-paper';
 import { AddrCard } from '~/components/addr/AddrCard';
 import { AppbarBack } from '~/components/Appbar/AppbarBack';
-import { FAB } from '~/components/FAB';
+import { Fab } from '~/components/Fab/Fab';
 import { Box } from '~/components/layout/Box';
 import { Container } from '~/components/layout/Container';
 import { TokenAvailableCard } from '~/components/token/TokenAvailableCard';
@@ -64,7 +64,7 @@ export const SendScreen = ({ route, navigation }: SendScreenProps) => {
         <AmountInput token={token} amount={amount} setAmount={setAmount} />
       </Container>
 
-      <FAB
+      <Fab
         icon={SendIcon}
         label="Send"
         loading={proposing}

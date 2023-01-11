@@ -1,9 +1,10 @@
 import { sumBn, ZERO } from 'lib';
-import { CombinedQuorum, useQuorum } from '~/queries/useQuorum.api';
+import { useQuorum } from '~/queries/quroum/useQuorum.api';
 import { Token } from './token';
 import { useTokenBalance } from './useTokenBalance';
 import { Accountlike, useAccount } from '~/queries/account/useAccount.api';
 import { useUser } from '~/queries/useUser.api';
+import { CombinedQuorum } from '~/queries/quroum';
 
 export const useTokenAvailable = (token: Token, accountlike: Accountlike) => {
   const balance = useTokenBalance(token, accountlike);
@@ -12,7 +13,7 @@ export const useTokenAvailable = (token: Token, accountlike: Accountlike) => {
   const quorum = useQuorum(typeof accountlike === 'object' ? accountlike : undefined);
 
   const available = (quorum: CombinedQuorum) => {
-    const active = quorum.active?.value;
+    const active = quorum.active;
     if (!active) return ZERO;
 
     const limit = active.spending?.limit?.[token.addr];
@@ -25,7 +26,7 @@ export const useTokenAvailable = (token: Token, accountlike: Accountlike) => {
 
   if (quorum) return available(quorum);
 
-  const userQuorums = account.quorums.filter((q) => q.active?.value?.approvers.has(user.id));
+  const userQuorums = account.quorums.filter((q) => q.active?.approvers.has(user.id));
 
   return sumBn(userQuorums.map(available));
 };

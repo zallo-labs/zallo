@@ -7,7 +7,7 @@ import {
   useRecoilState,
   useRecoilValue,
 } from 'recoil';
-import { useQuorum } from '~/queries/useQuorum.api';
+import { useQuorum } from '~/queries/quroum/useQuorum.api';
 import { persistAtom } from '~/util/effect/persistAtom';
 
 /*

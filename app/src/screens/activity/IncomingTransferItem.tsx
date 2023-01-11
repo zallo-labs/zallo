@@ -12,10 +12,10 @@ import { useTransfer } from '~/queries/transfer/useTransfer.sub';
 import { ActivityTransfers } from './ActivityTransfers';
 
 export interface IncomingTransferItemProps {
-  id: Id;
+  transfer: Id;
 }
 
-export const IncomingTransferItem = withSkeleton(({ id }: IncomingTransferItemProps) => {
+export const IncomingTransferItem = withSkeleton(({ transfer: id }: IncomingTransferItemProps) => {
   const [transfer] = useTransfer(id);
   assert(transfer.direction === 'IN');
 

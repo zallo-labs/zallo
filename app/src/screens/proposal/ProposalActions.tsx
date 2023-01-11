@@ -8,7 +8,7 @@ import { useReject } from '~/mutations/proposal/approve/useReject.api';
 import { useRequestApproval } from '~/mutations/proposal/useRequestApproval.api';
 import { useRootNavigation } from '~/navigation/useRootNavigation';
 import { Proposal } from '~/queries/proposal';
-import { useQuorum } from '~/queries/useQuorum.api';
+import { useQuorum } from '~/queries/quroum/useQuorum.api';
 import { useUser } from '~/queries/useUser.api';
 
 export type OnExecute = (response: TransactionResponse) => MaybePromise<void>;

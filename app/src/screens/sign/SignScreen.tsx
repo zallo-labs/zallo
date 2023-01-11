@@ -68,7 +68,7 @@ export const SignScreen = ({ navigation, route }: SignScreenProps) => {
     [id, navigation, topic],
   );
 
-  const quorum = useSessonAccountQuorum(id, account)?.active?.value;
+  const quorum = useSessonAccountQuorum(id, account)?.active;
 
   const promisedAccountSignature = useMemo(async (): Promise<BytesLike | { error: WcErrorKey }> => {
     // const toAccSig = (signature: BytesLike) => toAccountSignature(quorum, [{ approver: credentials.address, signature }]);

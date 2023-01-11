@@ -14,7 +14,7 @@ import { Text } from 'react-native-paper';
 import { LimitFields } from './LimitFields';
 import { LimitAvailable } from './LimitAvailable';
 import _ from 'lodash';
-import { FAB } from '~/components/FAB';
+import { Fab } from '~/components/Fab/Fab';
 import { CheckIcon } from '@theme/icons';
 
 export interface LimitScreenParams {
@@ -64,7 +64,7 @@ const LimitScreen = ({ route, navigation }: LimitScreenProps) => {
       </ScrollView>
 
       {isModified && (
-        <FAB
+        <Fab
           icon={CheckIcon}
           label="Accept"
           onPress={() => {

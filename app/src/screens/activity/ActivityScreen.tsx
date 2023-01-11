@@ -75,11 +75,13 @@ export const ActivityScreen = withSkeleton(() => {
           match(item)
             .with({ type: 'proposal' }, ({ activity }) => (
               <ProposalItem
-                id={activity}
-                onPress={() => navigation.navigate('Proposal', { id: activity })}
+                proposal={activity}
+                onPress={() => navigation.navigate('Proposal', { proposal: activity })}
               />
             ))
-            .with({ type: 'transfer' }, ({ activity }) => <IncomingTransferItem id={activity.id} />)
+            .with({ type: 'transfer' }, ({ activity }) => (
+              <IncomingTransferItem transfer={activity.id} />
+            ))
             .exhaustive()
         }
         ListEmptyComponent={

@@ -5,11 +5,10 @@ import { Address, address, toQuorumKey, toTxSalt } from 'lib';
 import { DateTime } from 'luxon';
 import { useMemo } from 'react';
 import { ProposalDocument, ProposalQuery, ProposalQueryVariables } from '~/gql/generated.api';
-import { useApiClient } from '~/gql/GqlProvider';
 import { usePollWhenFocussed } from '~/gql/usePollWhenFocussed';
 import { useSuspenseQuery } from '~/gql/useSuspenseQuery';
 import { Approval, Proposal, Submission, ProposalState, ProposalId, Rejection } from '.';
-import { useQuorum } from '../useQuorum.api';
+import { useQuorum } from '../quroum/useQuorum.api';
 
 gql`
   fragment TransactionFields on Transaction {
@@ -57,23 +56,23 @@ const getStatus = (submissions: Submission[]): ProposalState => {
   return 'pending'; // Unreachable
 };
 
-export const useProposal = ({ id }: ProposalId, focussed = false) => {
+export const useProposal = <Id extends ProposalId | undefined>(id: Id, focussed = false) => {
   const { data, ...rest } = useSuspenseQuery<ProposalQuery, ProposalQueryVariables>(
     ProposalDocument,
-    {
-      client: useApiClient(),
-      variables: { id },
-    },
+    { variables: id, skip: !id },
   );
   usePollWhenFocussed(rest, focussed ? 3 : 15);
 
   const p = data.proposal;
-  assert(p);
+  if (id) assert(p);
 
-  const account = address(p.accountId);
-  const quorum = useQuorum({ account, key: toQuorumKey(p.quorumKey) });
+  const quorum = useQuorum(
+    p ? { account: address(p.accountId), key: toQuorumKey(p.quorumKey) } : undefined,
+  );
 
-  const proposal = useMemo((): Proposal => {
+  const proposal = useMemo((): Proposal | undefined => {
+    if (!id || !p || !quorum) return undefined;
+
     const approvals = new Map<Address, Approval>(
       p.approvals
         ?.filter((a) => a.signature)
@@ -123,12 +122,12 @@ export const useProposal = ({ id }: ProposalId, focussed = false) => {
     );
 
     return {
-      id,
-      account,
+      id: id.id,
+      account: address(p.accountId),
       quorum,
       timestamp: DateTime.fromISO(p.createdAt),
       to: address(p.to),
-      value: BigNumber.from(p.value),
+      value: p.value ? BigNumber.from(p.value) : undefined,
       data: p.data || undefined,
       salt: toTxSalt(p.salt),
       approvals,
@@ -137,9 +136,10 @@ export const useProposal = ({ id }: ProposalId, focussed = false) => {
       isApproved: awaitingApprovalFrom.size === 0,
       submissions: transactions,
       proposedAt: DateTime.fromISO(p.createdAt),
+      proposer: address(p.proposerId),
       state: getStatus(transactions),
     };
-  }, [p, quorum, id, account]);
+  }, [p, quorum, id]);
 
-  return [proposal, rest] as const;
+  return proposal as Id extends undefined ? Proposal | undefined : Proposal;
 };

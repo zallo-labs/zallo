@@ -29,7 +29,10 @@ export class QuorumsResolver {
   ) {}
 
   @Query(() => Quorum, { nullable: true })
-  async quorum(@Args() { account, key }: UniqueQuorumArgs): Promise<Quorum | null> {
+  async quorum(
+    @Args() { account, key }: UniqueQuorumArgs,
+    @Info() info: GraphQLResolveInfo,
+  ): Promise<Quorum | null> {
     return this.prisma.quorum.findUnique({
       where: {
         accountId_key: {
@@ -37,11 +40,16 @@ export class QuorumsResolver {
           key,
         },
       },
+      ...getSelect(info),
     });
   }
 
   @Query(() => [Quorum])
-  async quorums(@Args() args: QuorumsArgs, @UserId() user: Address): Promise<Quorum[]> {
+  async quorums(
+    @Args() args: QuorumsArgs,
+    @UserId() user: Address,
+    @Info() info: GraphQLResolveInfo,
+  ): Promise<Quorum[]> {
     return this.prisma.quorum.findMany({
       ...args,
       where: {
@@ -58,6 +66,7 @@ export class QuorumsResolver {
           args.where ?? {},
         ],
       },
+      ...getSelect(info),
     });
   }
 
@@ -93,15 +102,16 @@ export class QuorumsResolver {
     @Args() args: CreateQuorumArgs,
     @UserId() user: Address,
     @Info() info: GraphQLResolveInfo,
-  ) {
+  ): Promise<Quorum> {
     return this.prisma.$transaction(async (tx) => {
       // Create quorum
       const key = randomQuorumKey();
+
       await tx.quorum.create({
         data: {
           accountId: args.account,
           key,
-          name: args.name,
+          name: args.name || `Quorum ${key}`,
         },
         select: null,
       });
@@ -112,7 +122,7 @@ export class QuorumsResolver {
         proposer: user,
         key: randomQuorumKey(),
         tx,
-        createArgs: getSelect(info),
+        quorumArgs: getSelect(info),
       });
     });
   }
@@ -122,16 +132,26 @@ export class QuorumsResolver {
     @Args() args: UpdateQuorumArgs,
     @UserId() user: Address,
     @Info() info: GraphQLResolveInfo,
-  ) {
+  ): Promise<Quorum> {
     return this.prisma.$transaction(async (tx) =>
       this.service.createUpsertState({
         ...args,
         proposer: user,
         proposingQuorumKey: args.proposingQuorumKey ?? args.key,
         tx,
-        createArgs: getSelect(info),
+        quorumArgs: getSelect(info),
       }),
     );
+  }
+
+  @Mutation(() => Quorum)
+  async updateQuorumMetadata(
+    @Args() { account, key, name }: UpdateQuorumMetadataArgs,
+  ): Promise<Quorum> {
+    return this.prisma.quorum.update({
+      where: { accountId_key: { accountId: account, key } },
+      data: { name },
+    });
   }
 
   @Mutation(() => Quorum)
@@ -139,7 +159,7 @@ export class QuorumsResolver {
     @Args() { account, key, proposingQuorumKey = key }: RemoveQuorumArgs,
     @UserId() user: Address,
     @Info() info: GraphQLResolveInfo,
-  ) {
+  ): Promise<Quorum> {
     return this.prisma.$transaction(async (tx) => {
       const { id: proposalId } = await this.proposals.create(
         {
@@ -157,7 +177,7 @@ export class QuorumsResolver {
         tx,
       );
 
-      tx.quorumState.create({
+      const r = await tx.quorumState.create({
         data: {
           proposal: { connect: { id: proposalId } },
           account: connectAccount(account),
@@ -165,19 +185,10 @@ export class QuorumsResolver {
           isRemoved: true,
         },
         select: {
-          quorum: getSelect(info),
+          quorum: { ...getSelect(info) },
         },
       });
-    });
-  }
-
-  @Mutation(() => Quorum)
-  async updateQuorumMetadata(
-    @Args() { account, key, name }: UpdateQuorumMetadataArgs,
-  ): Promise<Quorum> {
-    return this.prisma.quorum.update({
-      where: { accountId_key: { accountId: account, key } },
-      data: { name },
+      return r.quorum;
     });
   }
 }

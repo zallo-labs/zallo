@@ -1,7 +1,7 @@
 import { BytesLike, BigNumber } from 'ethers';
 import { Address, Tx } from 'lib';
 import { DateTime } from 'luxon';
-import { CombinedQuorum } from '../useQuorum.api';
+import { CombinedQuorum } from '../quroum';
 
 export type ProposalState = 'pending' | 'executing' | 'executed' | 'failed';
 
@@ -23,6 +23,7 @@ export interface Proposal extends ProposalMetadata, Tx {
   awaitingApproval: Set<Address>;
   submissions: Submission[];
   proposedAt: DateTime;
+  proposer: Address;
 }
 
 export interface Approval {

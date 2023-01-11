@@ -15,16 +15,16 @@ import { ProposalStateCard } from './ProposalStateCard';
 import { ProposalTransfers } from './ProposalTransfers';
 
 export interface ProposalScreenParams {
-  id: ProposalId;
+  proposal: ProposalId;
   onExecute?: OnExecute;
 }
 
 export type ProposalScreenProps = StackNavigatorScreenProps<'Proposal'>;
 
-const ProposalScreen = ({ route }: ProposalScreenProps) => {
-  const { id, onExecute } = route.params;
+const ProposalScreen = ({ route: { params } }: ProposalScreenProps) => {
+  const { onExecute } = params;
   const styles = useStyles();
-  const [proposal] = useProposal(id);
+  const proposal = useProposal(params.proposal);
 
   return (
     <ErrorContextProvider>

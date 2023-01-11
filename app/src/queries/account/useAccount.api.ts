@@ -10,8 +10,8 @@ import { useMemo } from 'react';
 import { usePollWhenFocussed } from '~/gql/usePollWhenFocussed';
 import { useSuspenseQuery } from '~/gql/useSuspenseQuery';
 import { useCredentials } from '@network/useCredentials';
-import { CombinedQuorum, toCombinedQuorum } from '../useQuorum.api';
 import assert from 'assert';
+import { CombinedQuorum } from '../quroum';
 
 export interface CombinedAccount {
   addr: Address;
@@ -59,7 +59,7 @@ export const useAccount = (id: Accountlike) => {
       contract: connectAccount(addr, credentials),
       active: a.isActive,
       name: a.name,
-      quorums: (a.quorums ?? []).map(toCombinedQuorum),
+      quorums: (a.quorums ?? []).map(CombinedQuorum.fromFragment),
     }),
     [addr, credentials, a.isActive, a.name, a.quorums],
   );

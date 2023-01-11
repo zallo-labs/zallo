@@ -23,6 +23,6 @@ export class CreateAccountArgs {
 }
 
 @ArgsType()
-export class SetAccountNameArgs extends AccountArgs {
+export class UpdateAccountMetadataArgs extends AccountArgs {
   name: string;
 }

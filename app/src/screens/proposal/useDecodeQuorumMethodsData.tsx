@@ -1,6 +1,6 @@
 import { BytesLike } from 'ethers';
 import { Address, tryDecodeRemoveQuorumData, tryDecodeUpsertQuorumData } from 'lib';
-import { useQuorum } from '~/queries/useQuorum.api';
+import { useQuorum } from '~/queries/quroum/useQuorum.api';
 
 export const useDecodeQuorumMethodsData = (account: Address, data?: BytesLike) => {
   const upsert = tryDecodeUpsertQuorumData(data);

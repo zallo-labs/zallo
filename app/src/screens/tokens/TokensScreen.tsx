@@ -5,7 +5,7 @@ import { useAppbarHeader } from '~/components/Appbar/useAppbarHeader';
 import { FlatList } from 'react-native';
 import { StackNavigatorScreenProps } from '~/navigation/StackNavigator';
 import { Token } from '@token/token';
-import { useFuzzySearch } from '@hook/useFuzzySearch';
+import { useSearch } from '@hook/useSearch';
 import { Address, QuorumGuid } from 'lib';
 import { useTokens } from '@token/useTokens';
 import { Appbar, TextInput } from 'react-native-paper';
@@ -28,7 +28,7 @@ const TokensScreen = ({ route }: TokensScreenProps) => {
   const { onSelect, quorum, disabled } = route.params;
   const styles = useStyles();
   const { AppbarHeader, handleScroll } = useAppbarHeader();
-  const [tokens, searchProps] = useFuzzySearch(useTokens(), ['name', 'symbol']);
+  const [tokens, searchProps] = useSearch(useTokens(), ['name', 'symbol']);
 
   return (
     <Box>
