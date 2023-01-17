@@ -53,7 +53,7 @@ export const useUpdateQuorum = (quorumGuid: QuorumGuid) => {
           spending: spending
             ? {
                 fallback: spending.fallback,
-                limits: Object.values(spending.limit ?? {}).map(({ token, amount, period }) => ({
+                limits: Object.values(spending.limits ?? {}).map(({ token, amount, period }) => ({
                   token,
                   amount: amount.toString(),
                   period,

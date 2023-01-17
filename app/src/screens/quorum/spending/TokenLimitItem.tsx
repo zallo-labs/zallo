@@ -1,20 +1,20 @@
 import { useToken } from '@token/useToken';
 import { ListItem } from '~/components/ListItem/ListItem';
 import { TokenAmount } from '~/components/token/TokenAmount';
-import TokenIcon from '~/components/token/TokenIcon/TokenIcon';
 import { useRootNavigation } from '~/navigation/useRootNavigation';
+import { useQuorumDraft } from '../QuorumDraftProvider';
 import { TokenLimitScreenParams } from './limit/TokenLimitScreen';
 
-export interface LimitItemProps extends TokenLimitScreenParams {}
+export interface TokenLimitItemProps extends TokenLimitScreenParams {}
 
-export const LimitItem = (props: LimitItemProps) => {
+export const TokenLimitItem = (props: TokenLimitItemProps) => {
   const { navigate } = useRootNavigation();
-  const { limit } = props;
-  const token = useToken(limit.token);
+  const token = useToken(props.token);
+  const limit = useQuorumDraft().state.spending!.limits[token.addr];
 
   return (
     <ListItem
-      leading={limit.token}
+      leading={token.addr}
       headline={token.name}
       supporting={token.symbol}
       trailing={

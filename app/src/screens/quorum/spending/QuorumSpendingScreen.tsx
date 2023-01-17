@@ -1,19 +1,8 @@
 import { AddIcon, SpendingIcon } from '@theme/icons';
 import { makeStyles } from '@theme/makeStyles';
-import { produce } from 'immer';
-import {
-  Address,
-  DEFAULT_SPENDING,
-  Quorum,
-  Spending,
-  TokenLimit,
-  TokenLimitPeriod,
-  ZERO,
-} from 'lib';
-import { useCallback } from 'react';
+import { Address, DEFAULT_SPENDING } from 'lib';
 import { FlatList } from 'react-native';
 import { Divider, Switch } from 'react-native-paper';
-import { Updater } from 'use-immer';
 import { AppbarLarge } from '~/components/Appbar/AppbarLarge';
 import { Fab } from '~/components/Fab/Fab';
 import { Box } from '~/components/layout/Box';
@@ -21,7 +10,7 @@ import { ListItem } from '~/components/ListItem/ListItem';
 import { StackNavigatorScreenProps } from '~/navigation/StackNavigator';
 import { useSelectToken } from '~/screens/tokens/useSelectToken';
 import { useQuorumDraft } from '../QuorumDraftProvider';
-import { LimitItem } from './LimitItem';
+import { TokenLimitItem } from './TokenLimitItem';
 
 export interface QuorumSpendingScreenParams {}
 
@@ -33,26 +22,7 @@ export const QuorumSpendingScreen = ({ navigation }: QuorumSpendingScreenProps) 
   const { quorum, state, updateState } = useQuorumDraft();
   const spending = state.spending ?? DEFAULT_SPENDING;
 
-  const limits = Object.values(spending.limit);
-
-  const updateSpending: Updater<Spending> = useCallback(
-    (valOrUpdater) =>
-      updateState((state) => {
-        typeof valOrUpdater === 'function'
-          ? valOrUpdater(state.spending ?? DEFAULT_SPENDING)
-          : (state.spending = valOrUpdater);
-      }),
-    [updateState],
-  );
-
-  const getUpdateLimit =
-    (token: Address): Updater<TokenLimit> =>
-    (limit) =>
-      updateSpending((spending) => {
-        typeof limit === 'function'
-          ? limit(spending.limit[token])
-          : (spending.limit[token] = limit);
-      });
+  const limits = Object.values(spending.limits);
 
   return (
     <Box flex={1}>
@@ -70,8 +40,11 @@ export const QuorumSpendingScreen = ({ navigation }: QuorumSpendingScreenProps) 
                 <Switch
                   value={spending.fallback === 'allow'}
                   onValueChange={(v) => {
-                    updateSpending((spending) => {
-                      spending.fallback = v ? 'allow' : 'deny';
+                    updateState((state) => {
+                      state.spending = {
+                        ...DEFAULT_SPENDING,
+                        fallback: v ? 'allow' : 'deny',
+                      };
                     });
                   }}
                   disabled={disabled}
@@ -82,17 +55,7 @@ export const QuorumSpendingScreen = ({ navigation }: QuorumSpendingScreenProps) 
             {limits.length > 0 && <Divider />}
           </>
         }
-        renderItem={({ item }) => (
-          <LimitItem
-            limit={item}
-            updateLimit={getUpdateLimit(item.token)}
-            removeLimit={() =>
-              updateSpending((spending) => {
-                delete spending.limit[item.token];
-              })
-            }
-          />
-        )}
+        renderItem={({ item }) => <TokenLimitItem token={item.token} />}
         ListHeaderComponentStyle={styles.header}
       />
 
@@ -102,16 +65,8 @@ export const QuorumSpendingScreen = ({ navigation }: QuorumSpendingScreenProps) 
         onPress={() =>
           selectToken({
             quorum,
-            disabled: new Set(Object.keys(spending.limit) as Address[]),
-            onSelect: (token) =>
-              navigation.replace('TokenLimit', {
-                limit: {
-                  token: token.addr,
-                  amount: ZERO,
-                  period: TokenLimitPeriod.Month,
-                },
-                updateLimit: getUpdateLimit(token.addr),
-              }),
+            disabled: new Set(Object.keys(spending.limits) as Address[]),
+            onSelect: (token) => navigation.replace('TokenLimit', { token: token.addr }),
           })
         }
       />

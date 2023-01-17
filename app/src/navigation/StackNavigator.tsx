@@ -16,7 +16,6 @@ import { useShowOnboarding } from '~/screens/onboard/useShowOnboarding';
 import { ContactScreen, ContactScreenParams } from '~/screens/contacts/ContactScreen';
 import { AccountScreen, AccountScreenParams } from '~/screens/account/AccountScreen';
 import { SendScreen, SendScreenParams } from '~/screens/send/SendScreen';
-import LimitScreen, { LimitScreenParams } from '~/screens/limit/LimitScreen';
 import {
   SessionProposalScreen,
   SessionProposalScreenParams,
@@ -72,7 +71,6 @@ export type StackNavigatorParamList = {
   CreateQuorum: CreateQuorumScreenParams;
   QuorumSpending: QuorumSpendingScreenParams;
   TokenLimit: TokenLimitScreenParams;
-  Limit: LimitScreenParams;
   Contacts: ContactsScreenParams;
   Contact: ContactScreenParams;
   Scan: ScanScreenParams;
@@ -126,7 +124,6 @@ export const StackNavigator = () => {
       <Navigation.Screen name="CreateQuorum" component={CreateQuorumScreen} />
       <Navigation.Screen name="QuorumSpending" component={QuorumSpendingScreen} />
       <Navigation.Screen name="TokenLimit" component={TokenLimitScreen} />
-      <Navigation.Screen name="Limit" component={LimitScreen} />
       <Navigation.Screen name="Contacts" component={ContactsScreen} />
       <Navigation.Screen name="Contact" component={ContactScreen} />
       <Navigation.Screen name="Scan" component={ScanScreen} />

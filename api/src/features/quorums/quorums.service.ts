@@ -41,7 +41,7 @@ export class QuorumsService {
       spending: spending
         ? {
             fallback: spending.fallback,
-            limit: Object.fromEntries(
+            limits: Object.fromEntries(
               (spending.limits ?? []).map((limit) => [limit.token, limit] as const),
             ),
           }

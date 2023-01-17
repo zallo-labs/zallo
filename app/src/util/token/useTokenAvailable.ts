@@ -16,7 +16,7 @@ export const useTokenAvailable = (token: Token, accountlike: Accountlike) => {
     const active = quorum.active;
     if (!active) return ZERO;
 
-    const limit = active.spending?.limit?.[token.addr];
+    const limit = active.spending?.limits?.[token.addr];
     if (limit) return limit.amount;
 
     if (active.spending?.fallback === 'deny') return ZERO;

@@ -92,7 +92,7 @@ export class QuorumInput {
       spending: q.spending
         ? {
             fallback: q.spending.fallback,
-            limit: Object.fromEntries(
+            limits: Object.fromEntries(
               (q.spending.limits ?? []).map((limit) => [limit.token, limit] as const),
             ),
           }

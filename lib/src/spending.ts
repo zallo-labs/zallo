@@ -2,12 +2,12 @@ import { BigNumber } from 'ethers';
 import { Address } from './addr';
 
 export interface Spending {
-  limit: Record<Address, TokenLimit>;
+  limits: Record<Address, TokenLimit>;
   fallback: SpendingFallback;
 }
 
 export const DEFAULT_SPENDING: Spending = {
-  limit: {},
+  limits: {},
   fallback: 'allow',
 };
 

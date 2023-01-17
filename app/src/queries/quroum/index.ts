@@ -33,7 +33,7 @@ const stateFromFragment = (
   approvers: new Set(state.approvers?.map((a) => address(a.userId))),
   spending: {
     fallback: state.spendingFallback,
-    limit: Object.fromEntries(
+    limits: Object.fromEntries(
       state.limits?.map((l): [Address, TokenLimit] => [
         address(l.token),
         {
