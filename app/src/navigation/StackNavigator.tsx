@@ -6,7 +6,7 @@ import {
 } from '@react-navigation/stack';
 import { AmountScreen, AmountScreenParams } from '~/screens/amount/AmountScreen';
 import TokensScreen, { TokensScreenParams } from '~/screens/tokens/TokensScreen';
-import ContactsScreen, { ContactsScreenParams } from '~/screens/contacts/ContactsScreen';
+import { ContactsScreen, ContactsScreenParams } from '~/screens/contacts/ContactsScreen';
 import { ScanScreen, ScanScreenParams } from '~/screens/scan/ScanScreen';
 import {
   CreateAccountScreen,
@@ -72,6 +72,7 @@ export type StackNavigatorParamList = {
   QuorumSpending: QuorumSpendingScreenParams;
   TokenLimit: TokenLimitScreenParams;
   Contacts: ContactsScreenParams;
+  ContactsModal: ContactsScreenParams;
   Contact: ContactScreenParams;
   Scan: ScanScreenParams;
   Tokens: TokensScreenParams;
@@ -147,6 +148,7 @@ export const StackNavigator = () => {
         }}
       >
         <Navigation.Screen name="TokensModal" component={TokensScreen} />
+        <Navigation.Screen name="ContactsModal" component={ContactsScreen} />
       </Navigation.Group>
 
       <Navigation.Group key="WalletConnect">

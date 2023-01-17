@@ -12,10 +12,14 @@ import { Fab } from '~/components/Fab/Fab';
 import { Box } from '~/components/layout/Box';
 import { Container } from '~/components/layout/Container';
 import { TokenAvailableCard } from '~/components/token/TokenAvailableCard';
-import { useSelectedToken, useSelectToken } from '~/components/token/useSelectedToken';
+import {
+  useSelectedToken,
+  useSelectToken as useSetSelectedToken,
+} from '~/components/token/useSelectedToken';
 import { popToProposal, usePropose } from '~/mutations/proposal/propose/usePropose';
 import { StackNavigatorScreenProps } from '~/navigation/StackNavigator';
 import { AmountInput } from '../amount/AmountInput';
+import { useSelectToken } from '../tokens/useSelectToken';
 
 export interface SendScreenParams {
   quorum: QuorumGuid;
@@ -27,8 +31,9 @@ export type SendScreenProps = StackNavigatorScreenProps<'Send'>;
 export const SendScreen = ({ route, navigation }: SendScreenProps) => {
   const { quorum, to } = route.params;
   const styles = useStyles();
+  const selectToken = useSelectToken();
   const [propose, proposing] = usePropose();
-  const [token, selectToken] = [useSelectedToken(), useSelectToken()];
+  const [token, setSelectToken] = [useSelectedToken(), useSetSelectedToken()];
   const available = useTokenAvailable(token, quorum);
 
   const [amount, setAmount] = useState<BigNumber | undefined>();
@@ -46,15 +51,10 @@ export const SendScreen = ({ route, navigation }: SendScreenProps) => {
         <TokenAvailableCard
           token={token}
           account={quorum}
-          onPress={() =>
-            navigation.navigate('Tokens', {
-              quorum: quorum,
-              onSelect: (token) => {
-                selectToken(token);
-                navigation.goBack();
-              },
-            })
-          }
+          onPress={async () => {
+            setSelectToken(await selectToken());
+            navigation.goBack();
+          }}
         />
 
         <Text variant="headlineSmall" style={styles.warning}>

@@ -62,13 +62,13 @@ export const QuorumSpendingScreen = ({ navigation }: QuorumSpendingScreenProps) 
       <Fab
         icon={AddIcon}
         label="Add token limit"
-        onPress={() =>
-          selectToken({
+        onPress={async () => {
+          const token = await selectToken({
             quorum,
             disabled: new Set(Object.keys(spending.limits) as Address[]),
-            onSelect: (token) => navigation.replace('TokenLimit', { token: token.addr }),
-          })
-        }
+          });
+          navigation.replace('TokenLimit', { token: token.addr });
+        }}
       />
     </Box>
   );
