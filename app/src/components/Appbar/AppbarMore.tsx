@@ -32,3 +32,19 @@ export const AppbarMore = ({ children: Child, iconProps }: AppbarMoreProps) => {
     </Menu>
   );
 };
+
+export const AppbarMore2 = ({ children: Child, iconProps }: AppbarMoreProps) => {
+  const [visible, setVisible] = useState(false);
+  const openMenu = useCallback(() => setVisible(true), []);
+  const closeMenu = useCallback(() => setVisible(false), []);
+
+  return (
+    <Menu
+      anchor={<MoreVerticalIcon {...iconProps} onPress={openMenu} />}
+      visible={visible}
+      onDismiss={closeMenu}
+    >
+      <Child close={closeMenu} />
+    </Menu>
+  );
+};

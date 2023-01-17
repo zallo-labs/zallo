@@ -1,4 +1,9 @@
-import { createNativeStackNavigator, NativeStackScreenProps } from '@react-navigation/native-stack';
+import {
+  createStackNavigator,
+  StackNavigationProp,
+  StackScreenProps,
+  TransitionPresets,
+} from '@react-navigation/stack';
 import { AmountScreen, AmountScreenParams } from '~/screens/amount/AmountScreen';
 import TokensScreen, { TokensScreenParams } from '~/screens/tokens/TokensScreen';
 import ContactsScreen, { ContactsScreenParams } from '~/screens/contacts/ContactsScreen';
@@ -31,7 +36,6 @@ import {
   CreateQuorumScreen,
   CreateQuorumScreenParams,
 } from '~/screens/create-quorum/CreateQuorumScreen';
-import { BottomNavigator } from './BottomNavigator';
 import { SettingsScreen } from '~/screens/settings/SettingsScreen';
 import {
   AccountQuorumsScreen,
@@ -46,6 +50,15 @@ import {
   RenameQuorumScreenParams,
 } from '~/screens/quorum/rename/RenameQuorumScreen';
 import { AlertScreen, AlertScreenParams } from '~/screens/alert/AlertScreen';
+import {
+  QuorumSpendingScreen,
+  QuorumSpendingScreenParams,
+} from '~/screens/quorum/spending/QuorumSpendingScreen';
+import {
+  TokenLimitScreen,
+  TokenLimitScreenParams,
+} from '~/screens/quorum/spending/limit/TokenLimitScreen';
+import { BottomNavigator } from './BottomNavigator';
 
 export type StackNavigatorParamList = {
   BottomNavigator: undefined;
@@ -57,11 +70,14 @@ export type StackNavigatorParamList = {
   Quorum: QuorumScreenParams;
   RenameQuorum: RenameQuorumScreenParams;
   CreateQuorum: CreateQuorumScreenParams;
+  QuorumSpending: QuorumSpendingScreenParams;
+  TokenLimit: TokenLimitScreenParams;
   Limit: LimitScreenParams;
   Contacts: ContactsScreenParams;
   Contact: ContactScreenParams;
   Scan: ScanScreenParams;
   Tokens: TokensScreenParams;
+  TokensModal: TokensScreenParams;
   Amount: AmountScreenParams;
   Send: SendScreenParams;
   Device: undefined;
@@ -71,16 +87,26 @@ export type StackNavigatorParamList = {
   Settings: undefined;
   // Modal
   Alert: AlertScreenParams;
-  /* WalletConnect */
+  // WalletConnect
   Sessions: undefined;
   SessionProposal: SessionProposalScreenParams;
   Sign: SignScreenParams;
 };
 
-export type StackNavigatorScreenProps<K extends keyof StackNavigatorParamList> =
-  NativeStackScreenProps<StackNavigatorParamList, K>;
+export type StackNavigatorNavigationProp = StackNavigationProp<StackNavigatorParamList>;
 
-const Navigation = createNativeStackNavigator<StackNavigatorParamList>();
+// export type StackNavigatorScreenProps<K extends keyof StackNavigatorParamList> =
+//   CompositeScreenProps<
+//     DrawerNavigatorScreenProps<'StackNavigator'>,
+//     StackScreenProps<StackNavigatorParamList, K>
+//   >;
+
+export type StackNavigatorScreenProps<K extends keyof StackNavigatorParamList> = StackScreenProps<
+  StackNavigatorParamList,
+  K
+>;
+
+const Navigation = createStackNavigator<StackNavigatorParamList>();
 
 export const StackNavigator = () => {
   const showOnboarding = useShowOnboarding();
@@ -89,6 +115,7 @@ export const StackNavigator = () => {
       {showOnboarding && <Navigation.Screen name="Onboard" component={OnboardScreen} />}
 
       <Navigation.Screen name="BottomNavigator" component={BottomNavigator} />
+
       <Navigation.Screen name="Proposal" component={ProposalScreen} />
       <Navigation.Screen name="Accounts" component={AccountsScreen} />
       <Navigation.Screen name="Account" component={AccountScreen} />
@@ -97,6 +124,8 @@ export const StackNavigator = () => {
       <Navigation.Screen name="Quorum" component={QuorumScreen} />
       <Navigation.Screen name="RenameQuorum" component={RenameQuorumScreen} />
       <Navigation.Screen name="CreateQuorum" component={CreateQuorumScreen} />
+      <Navigation.Screen name="QuorumSpending" component={QuorumSpendingScreen} />
+      <Navigation.Screen name="TokenLimit" component={TokenLimitScreen} />
       <Navigation.Screen name="Limit" component={LimitScreen} />
       <Navigation.Screen name="Contacts" component={ContactsScreen} />
       <Navigation.Screen name="Contact" component={ContactScreen} />
@@ -111,6 +140,16 @@ export const StackNavigator = () => {
 
       <Navigation.Group screenOptions={{ presentation: 'transparentModal' }}>
         <Navigation.Screen name="Alert" component={AlertScreen} />
+      </Navigation.Group>
+
+      <Navigation.Group
+        screenOptions={{
+          gestureEnabled: true,
+          cardOverlayEnabled: true,
+          ...TransitionPresets.ModalPresentationIOS,
+        }}
+      >
+        <Navigation.Screen name="TokensModal" component={TokensScreen} />
       </Navigation.Group>
 
       <Navigation.Group key="WalletConnect">

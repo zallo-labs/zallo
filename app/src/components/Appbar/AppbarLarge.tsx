@@ -38,7 +38,10 @@ export const AppbarLarge = ({
         </Box>
 
         {trailing && (
-          <Container separator={<Box style={styles.trailingIconSeparator} />}>
+          <Container
+            style={styles.trailingContainer}
+            separator={<Box style={styles.trailingIconSeparator} />}
+          >
             {toArray(trailing).map((Trailing, index) => (
               <Trailing
                 key={index}
@@ -90,12 +93,16 @@ const useStyles = makeStyles(({ s, colors }, { center, insets }: StyleOptions) =
     color: colors.onSurface,
     fontSize: s(24),
   },
-  trailingIcon: {
-    color: colors.onSurfaceVariant,
-    fontSize: s(24),
+  trailingContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
   },
   trailingIconSeparator: {
     marginLeft: s(24),
+  },
+  trailingIcon: {
+    color: colors.onSurfaceVariant,
+    fontSize: s(24),
   },
   textContainer: {
     alignItems: center ? 'center' : 'flex-start',

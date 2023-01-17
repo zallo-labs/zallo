@@ -3,8 +3,8 @@ import { IconProps } from '@theme/icons';
 import { makeStyles } from '@theme/makeStyles';
 import { Text, TouchableRipple, TouchableRippleProps } from 'react-native-paper';
 import { match } from 'ts-pattern';
-import { LabelIcon } from '../Identicon/LabelIcon';
 import { Box } from '../layout/Box';
+import { AddrOrLabelIcon } from '../Identicon/AddrOrLabelIcon';
 
 /*
  * https://m3.material.io/components/lists/specs
@@ -24,7 +24,7 @@ export interface ListItemProps extends Pick<TouchableRippleProps, 'onPress' | 'd
   leading?: FC<ListIconElementProps> | string;
   headline: ReactNode | FC<ListItemTextProps>;
   supporting?: ReactNode | FC<ListItemTextProps>;
-  trailing?: FC<ListIconElementProps & ListItemTextProps> | string | number;
+  trailing?: FC<ListIconElementProps & ListItemTextProps> | ReactNode | number;
   maxTrailing?: number;
   lines?: Lines;
   selected?: boolean;
@@ -36,7 +36,7 @@ export const ListItem = ({
   supporting: Supporting,
   trailing: Trailing,
   maxTrailing = 100,
-  lines = 1,
+  lines = Supporting ? 2 : 1,
   selected,
   disabled,
   ...touchableProps
@@ -67,7 +67,7 @@ export const ListItem = ({
         {Leading && (
           <Box style={styles.leadingContainer}>
             {typeof Leading === 'string' ? (
-              <LabelIcon
+              <AddrOrLabelIcon
                 label={Leading}
                 size={styles.leadingAvatarContainer.fontSize}
                 style={styles.leadingAvatarContainer}
@@ -123,7 +123,7 @@ interface StyleProps {
   disabled?: boolean;
 }
 
-const useStyles = makeStyles(({ colors, s }, { lines, selected, disabled }: StyleProps) => {
+const useStyles = makeStyles(({ colors, s, corner }, { lines, selected, disabled }: StyleProps) => {
   const justifyContent = lines === 3 ? 'flex-start' : 'center';
 
   return {
@@ -142,6 +142,7 @@ const useStyles = makeStyles(({ colors, s }, { lines, selected, disabled }: Styl
     leadingAvatarContainer: {
       fontSize: 40,
       backgroundColor: colors.primaryContainer,
+      borderRadius: corner.full,
     },
     leadingAvatarLabel: {
       color: colors.onPrimaryContainer,

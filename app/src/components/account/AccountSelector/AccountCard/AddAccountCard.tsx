@@ -16,7 +16,7 @@ export const AddAccountCard = () => {
         icon={(props) => <PlusIcon style={styles.icon} {...props} />}
         onPress={() =>
           navigate('CreateAccount', {
-            onCreate: () => navigate('BottomNavigator'),
+            onCreate: () => navigate('Home'),
           })
         }
       />

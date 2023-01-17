@@ -5,19 +5,17 @@ import { SvgProps } from 'react-native-svg';
 import LogoSvg from '~/../assets/logo.svg';
 import MastercardSvg from '~/../assets/mastercard.svg';
 import WalletConnectSvg from '~/../assets/walletconnect.svg';
+import { ColorValue } from 'react-native';
 
-export type IconPropsWithoutName<IconType extends ElementType = typeof MaterialIcons> = Omit<
-  ComponentPropsWithoutRef<IconType>,
-  'name'
->;
-export type IconProps = Pick<ComponentPropsWithoutRef<typeof MaterialIcons>, 'color' | 'size'>;
+export interface IconProps {
+  size?: number;
+  color?: ColorValue;
+}
 
 type NameProp<Props> = Props extends { name: infer Name } ? Name : never;
 type Curried<C extends ElementType, Props = ComponentPropsWithoutRef<C>> = (
   name: NameProp<Props>,
 ) => FC<Omit<Props, 'name'>>;
-
-export type IconColor = ComponentPropsWithoutRef<typeof MaterialIcons>['color'];
 
 export const materialIcon: Curried<typeof MaterialIcons> = (name) => (props) =>
   <MaterialIcons name={name} {...props} />;
@@ -65,7 +63,8 @@ export const IssueIcon = materialCommunityIcon('github');
 export const FeedbackIcon = materialCommunityIcon('chat');
 export const TokenCurrencyIcon = materialCommunityIcon('currency-eth');
 export const SpendingIcon = materialCommunityIcon('currency-usd');
-export const ChevronRight = materialIcon('chevron-right');
+export const ChevronRightIcon = materialIcon('chevron-right');
+export const NavigateNextIcon = materialIcon('navigate-next');
 export const QuorumIcon = materialIcon('group');
 export const QuorumsIcon = materialIcon('groups');
 export const ActivateIcon = materialCommunityIcon('rocket-launch');

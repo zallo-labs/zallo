@@ -11,7 +11,7 @@ import { StackNavigatorScreenProps } from '~/navigation/StackNavigator';
 import { useAccount } from '~/queries/account/useAccount.api';
 import { QuorumItem } from './QuorumItem';
 
-export type OnSelectQuorum = (quorum: QuorumGuid) => void;
+export type OnSelectQuorum<R = void> = (quorum: QuorumGuid) => R;
 
 export interface AccountQuorumsScreenParams {
   account: Address;

@@ -1,7 +1,7 @@
 import { LinkingOptions } from '@react-navigation/native';
-import { RootParamList } from './useRootNavigation';
+import { RootStackParamList } from './useRootNavigation';
 
-type Routes = NonNullable<LinkingOptions<RootParamList>['config']>;
+type Routes = NonNullable<LinkingOptions<RootStackParamList>['config']>;
 
 export const ROUTES: Routes = {
   initialRouteName: 'Home',

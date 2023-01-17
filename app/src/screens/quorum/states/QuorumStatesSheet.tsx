@@ -1,30 +1,25 @@
 import BottomSheet from '@gorhom/bottom-sheet';
+import { useNavigation } from '@react-navigation/native';
 import { makeStyles } from '@theme/makeStyles';
-import { isPresent, isTruthy, Quorum } from 'lib';
+import { isPresent } from 'lib';
 import _ from 'lodash';
 import { useRef, useEffect, useMemo } from 'react';
-import { FlatList, SectionList } from 'react-native';
+import { FlatList } from 'react-native';
 import { Text } from 'react-native-paper';
 import { Sheet } from '~/components/sheet/Sheet';
-import { CombinedQuorum, isRemoval, Proposable } from '~/queries/quroum';
+import { isRemoval } from '~/queries/quroum';
+import { useQuorumDraft } from '../QuorumDraftProvider';
 import { StateItem } from './StateItem';
 
 export interface QuorumStatesSheetProps {
-  quorum: CombinedQuorum;
-  proposedState: Proposable<Quorum>;
-  setState: (state: Proposable<Quorum>) => void;
   sheetShown: boolean;
   setSheetShown: (shown: boolean) => void;
 }
 
-export const QuorumStatesSheet = ({
-  quorum,
-  proposedState,
-  setState,
-  sheetShown,
-  setSheetShown,
-}: QuorumStatesSheetProps) => {
+export const QuorumStatesSheet = ({ sheetShown, setSheetShown }: QuorumStatesSheetProps) => {
   const styles = useStyles();
+  const { navigate } = useNavigation();
+  const { quorum, initState: proposedState } = useQuorumDraft();
 
   const ref = useRef<BottomSheet>(null);
 
@@ -54,28 +49,27 @@ export const QuorumStatesSheet = ({
         renderItem={({ item }) => (
           <StateItem
             state={item}
-            selected={_.isEqual(item, proposedState)}
+            selected={_.isEqual(item.proposal, proposedState.proposal)}
             select={
               isRemoval(item)
                 ? undefined
                 : () => {
-                    setState(item);
+                    navigate('Quorum', {
+                      quorum,
+                      initState: item,
+                    });
                     setSheetShown(false);
                   }
             }
             isActiveState={_.isEqual(item, quorum.active)}
           />
         )}
-        contentContainerStyle={styles.container}
       />
     </Sheet>
   );
 };
 
 const useStyles = makeStyles(({ colors, s }) => ({
-  container: {
-    // marginBottom: s(8),
-  },
   sectionHeader: {
     color: colors.onSurfaceVariant,
     marginBottom: s(8),

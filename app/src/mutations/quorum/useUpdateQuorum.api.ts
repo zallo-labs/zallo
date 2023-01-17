@@ -2,6 +2,7 @@ import { gql } from '@apollo/client';
 import { Address, Quorum, QuorumGuid, QuorumKey } from 'lib';
 import { useCallback } from 'react';
 import { QuorumFieldsFragmentDoc, useUpdateQuorumMutation } from '~/gql/generated.api';
+import { ProposalId } from '~/queries/proposal';
 import { useQuorum } from '~/queries/quroum/useQuorum.api';
 import { useSelectQuorum } from '~/screens/account/quorums/useSelectQuorum';
 
@@ -38,28 +39,37 @@ export const useUpdateQuorum = (quorumGuid: QuorumGuid) => {
 
   // TODO: optimistic update
   return useCallback(
-    ({ proposingQuorumKey: proposingQuorumKeyArg, approvers, spending }: UpdateQuorumOptions) => {
-      const update = (proposingQuorumKey: QuorumKey) =>
-        mutate({
-          variables: {
-            ...quorumGuid,
-            proposingQuorumKey,
-            approvers: [...approvers],
-            spending: spending
-              ? {
-                  fallback: spending.fallback,
-                  limits: Object.values(spending.limit ?? {}).map(({ token, amount, period }) => ({
-                    token,
-                    amount: amount.toString(),
-                    period,
-                  })),
-                }
-              : undefined,
-          },
-        });
+    async ({
+      proposingQuorumKey: proposingQuorumKeyArg,
+      approvers,
+      spending,
+    }: UpdateQuorumOptions) => {
+      const r = await mutate({
+        variables: {
+          ...quorumGuid,
+          proposingQuorumKey:
+            proposingQuorumKeyArg || quorum.active?.key || (await selectQuorum()).key,
+          approvers: [...approvers],
+          spending: spending
+            ? {
+                fallback: spending.fallback,
+                limits: Object.values(spending.limit ?? {}).map(({ token, amount, period }) => ({
+                  token,
+                  amount: amount.toString(),
+                  period,
+                })),
+              }
+            : undefined,
+        },
+      });
 
-      const proposer = proposingQuorumKeyArg || quorum.active?.key;
-      return proposer ? update(proposer) : selectQuorum((proposer) => update(proposer.key));
+      const id = r.data?.updateQuorum.proposedStates[0].proposalId;
+      const updateProposal: ProposalId | undefined = id ? { id } : undefined;
+
+      return {
+        ...r,
+        updateProposal,
+      };
     },
     [mutate, quorum.active?.key, quorumGuid, selectQuorum],
   );

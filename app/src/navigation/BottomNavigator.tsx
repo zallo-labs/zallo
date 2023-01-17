@@ -10,6 +10,7 @@ import { HomeScreen } from '~/screens/home/HomeScreen';
 import { ReceiveScreen } from '~/screens/receive/ReceiveScreen';
 import {
   createMaterialBottomTabNavigator,
+  MaterialBottomTabNavigationProp,
   MaterialBottomTabScreenProps,
 } from '@react-navigation/material-bottom-tabs';
 import { useTheme } from '@theme/paper';
@@ -22,6 +23,9 @@ export type BottomNavigatorParamList = {
   Home: undefined;
   Activity: undefined;
 };
+
+export type BottomNavigatorNavigatonProp =
+  MaterialBottomTabNavigationProp<BottomNavigatorParamList>;
 
 export type BottomNavigatorScreenProps<K extends keyof BottomNavigatorParamList> =
   CompositeScreenProps<

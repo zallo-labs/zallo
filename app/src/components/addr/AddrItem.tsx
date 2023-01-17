@@ -2,7 +2,7 @@ import { Address } from 'lib';
 import { memo, ReactNode } from 'react';
 import { Text } from 'react-native-paper';
 import { truncateAddr } from '~/util/format';
-import { Identicon } from '../Identicon/Identicon';
+import { AddrIcon } from '../Identicon/AddrIcon';
 import { Item, ItemProps } from '../item/Item';
 import { useAddrName } from './useAddrName';
 
@@ -17,7 +17,7 @@ export const AddrItem = memo(({ addr, secondary, ...itemProps }: AddrItemProps) 
 
   return (
     <Item
-      Left={<Identicon seed={addr} />}
+      Left={<AddrIcon addr={addr} />}
       Main={[<Text variant="titleMedium">{name ?? truncatedAddr}</Text>, secondary]}
       Right={name && <Text variant="bodyMedium">{truncatedAddr}</Text>}
       padding

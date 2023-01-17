@@ -23,8 +23,8 @@ export const HomeAppbar = ({ AppbarHeader, account }: HomeAppbarProps) => {
       <AppbarMenu />
       <Appbar.Content title="" />
 
-      <Appbar.Action icon={PeopleIcon} onPress={() => selectQuorum(sendToContact)} />
-      <Appbar.Action icon={ScanIcon} onPress={() => selectQuorum(sendToScanned)} />
+      <Appbar.Action icon={PeopleIcon} onPress={async () => sendToContact(await selectQuorum())} />
+      <Appbar.Action icon={ScanIcon} onPress={async () => sendToScanned(await selectQuorum())} />
     </AppbarHeader>
   );
 };

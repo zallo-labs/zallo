@@ -67,7 +67,7 @@ export class AccountsService {
             approvers: new Set(q.approvers.map((a) => address(a.userId))),
             spending: {
               fallback: q.spendingFallback,
-              limits: Object.fromEntries(
+              limit: Object.fromEntries(
                 q.limits.map((l): [Address, TokenLimit] => [
                   address(l.token),
                   {

@@ -35,6 +35,15 @@ export const useConfirmDelete = <Defaults extends Partial<ConfirmOptions>>(defau
     ...defaults,
   }) as ConfirmFunction<Defaults>;
 
+export const useConfirmRemoval = <Defaults extends Partial<ConfirmOptions>>(defaults?: Defaults) =>
+  useConfirm({
+    title: 'Remove?',
+    message: 'Are you sure you want to remove?',
+    confirmLabel: 'Remove',
+    confirmTextColor: useTheme().colors.error,
+    ...defaults,
+  }) as ConfirmFunction<Defaults>;
+
 export const useConfirmDiscard = <Defaults extends Partial<ConfirmOptions>>(defaults?: Defaults) =>
   useConfirm({
     title: 'Discard changes?',

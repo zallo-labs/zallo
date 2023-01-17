@@ -1,6 +1,7 @@
 import { makeStyles } from '@theme/makeStyles';
-import { FC, useMemo, useState } from 'react';
-import { Image as BaseImage, ImageStyle, StyleProp } from 'react-native';
+import { MaybeArray, toArray } from 'lib';
+import { FC, useState } from 'react';
+import { Image as BaseImage, ImageStyle, StyleProp, View } from 'react-native';
 import { CircleSkeleton } from '~/components/skeleton/CircleSkeleton';
 import { withSkeleton } from '~/components/skeleton/withSkeleton';
 import { SvgUri } from './token/TokenIcon/SvgUri';
@@ -13,7 +14,7 @@ interface Style {
 }
 
 export interface UriImageProps extends Style {
-  uri: string | string[];
+  uri: MaybeArray<string>;
   size?: number;
   Fallback?: FC<Style>;
 }
@@ -21,38 +22,33 @@ export interface UriImageProps extends Style {
 const UriImage = ({ uri: uriProp, size, Fallback, style }: UriImageProps) => {
   const styles = useStyles(size);
 
+  const uris = toArray(uriProp).filter((uri) => SUPPORTED_FORMATS_PATTERN.test(uri));
+  const [selectedUri, selectUri] = useState(0);
+
   const [error, setError] = useState(false);
-  const handleError = () => setError(true);
+  if (error) return Fallback ? <Fallback style={[styles.icon, style]} /> : null;
 
-  const uris = useMemo(
-    () =>
-      (Array.isArray(uriProp) ? uriProp : [uriProp]).filter((uri) =>
-        SUPPORTED_FORMATS_PATTERN.exec(uri),
-      ),
-    [uriProp],
-  );
-
-  if (error || uris.length === 0)
-    return Fallback ? <Fallback style={[style, styles.icon]} /> : null;
-
-  const uri = uris[0];
+  const uri = uris[selectedUri];
   if (uri.slice(-4).toLowerCase() === '.svg')
     return (
-      <SvgUri
-        uri={uri}
-        onError={handleError}
-        style={style}
-        width={styles.icon.width}
-        height={styles.icon.height}
-      />
+      <View style={style}>
+        <SvgUri
+          uri={uri}
+          onError={() =>
+            selectedUri < uris.length ? selectUri((selected) => selected + 1) : setError(true)
+          }
+          width={styles.icon.width}
+          height={styles.icon.height}
+        />
+      </View>
     );
 
   return (
     <BaseImage
       source={uris.map((uri) => ({ uri }))}
-      onError={handleError}
+      onError={() => setError(true)}
       resizeMode="contain"
-      style={[style, styles.icon]}
+      style={[styles.icon, style]}
     />
   );
 };

@@ -3,7 +3,6 @@ import { ListScreenSkeleton } from '~/components/skeleton/ListScreenSkeleton';
 import { withSkeleton } from '~/components/skeleton/withSkeleton';
 import { useAppbarHeader } from '~/components/Appbar/useAppbarHeader';
 import { FlatList } from 'react-native';
-import { StackNavigatorScreenProps } from '~/navigation/StackNavigator';
 import { Token } from '@token/token';
 import { useSearch } from '@hook/useSearch';
 import { Address, QuorumGuid } from 'lib';
@@ -15,14 +14,17 @@ import { SearchIcon } from '@theme/icons';
 import { makeStyles } from '@theme/makeStyles';
 import TokenItem from '~/components/token/TokenItem';
 import { TokenAvailableItem } from '~/components/token/TokenAvailableItem';
+import { StackNavigatorScreenProps } from '~/navigation/StackNavigator';
 
 export interface TokensScreenParams {
   onSelect?: (token: Token) => void;
   quorum?: QuorumGuid;
-  disabled?: Address[];
+  disabled?: Set<Address>;
 }
 
-export type TokensScreenProps = StackNavigatorScreenProps<'Tokens'>;
+export type TokensScreenProps =
+  | StackNavigatorScreenProps<'Tokens'>
+  | StackNavigatorScreenProps<'TokensModal'>;
 
 const TokensScreen = ({ route }: TokensScreenProps) => {
   const { onSelect, quorum, disabled } = route.params;
@@ -34,7 +36,7 @@ const TokensScreen = ({ route }: TokensScreenProps) => {
     <Box>
       <AppbarHeader mode="medium">
         <Appbar.BackAction onPress={useGoBack()} />
-        <Appbar.Content title={onSelect ? 'Select Token' : 'Tokens'} />
+        <Appbar.Content title={onSelect ? 'Select token' : 'Tokens'} />
         {/* <Appbar.Action icon={AddIcon} onPress={() => {
           // TODO: implement add dynamic token
         }} /> */}
@@ -47,7 +49,7 @@ const TokensScreen = ({ route }: TokensScreenProps) => {
         ListHeaderComponentStyle={styles.header}
         renderItem={({ item: token }) => {
           const onPress = onSelect ? () => onSelect(token) : undefined;
-          const isDisabled = !!disabled?.find((t) => t === token.addr);
+          const isDisabled = disabled?.has(token.addr);
 
           return quorum ? (
             <TokenAvailableItem

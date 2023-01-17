@@ -1,6 +1,6 @@
 import { Address, QuorumKey } from 'lib';
 import { Checkbox, Text } from 'react-native-paper';
-import { Identicon } from '~/components/Identicon/Identicon';
+import { AddrIcon } from '~/components/Identicon/AddrIcon';
 import { Item, ItemProps } from '~/components/item/Item';
 import { ItemSkeleton } from '~/components/item/ItemSkeleton';
 import { withSkeleton } from '~/components/skeleton/withSkeleton';
@@ -26,7 +26,7 @@ const SessionAccountItem = ({
 
   return (
     <Item
-      Left={<Identicon seed={accountAddr} />}
+      Left={<AddrIcon addr={accountAddr} />}
       Main={[
         <Text variant="titleLarge">{account.name}</Text>,
         selectedQuorum && <Text variant="bodyMedium">{selectedQuorum.name}</Text>,
@@ -36,7 +36,7 @@ const SessionAccountItem = ({
         <Checkbox status={selected ? 'checked' : 'unchecked'} onPress={() => onSelect(undefined)} />
       }
       padding="vertical"
-      onPress={() => selectQuorum((q) => onSelect(q.key))}
+      onPress={async () => onSelect((await selectQuorum()).key)}
       {...itemProps}
     />
   );
