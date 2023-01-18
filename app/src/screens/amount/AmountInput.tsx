@@ -80,7 +80,7 @@ export const AmountInput = ({ token, amount, setAmount, style }: AmountInputProp
           {type === 'token' ? (
             <FiatValue value={fiatValue} symbol={false} />
           ) : (
-            <TokenAmount token={token} amount={amount} symbol={false} />
+            <TokenAmount token={token} amount={amount} trailing={false} />
           )}
         </Text>
 

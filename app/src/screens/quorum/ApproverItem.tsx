@@ -1,7 +1,7 @@
 import { RemoveIcon } from '@theme/icons';
 import { Address } from 'lib';
 import { useAddrName } from '~/components/addr/useAddrName';
-import { ListItem } from '~/components/ListItem/ListItem';
+import { ListItem } from '~/components/list/ListItem';
 
 export interface ApproverItemProps {
   approver: Address;

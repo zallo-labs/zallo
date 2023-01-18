@@ -16,10 +16,10 @@ export const ContactAppbar = ({ existing }: ContactAppbarProps) => {
   const remove = useDeleteContact();
 
   return (
-    <Appbar.Header mode="medium">
+    <Appbar.Header mode="large">
       <Appbar.BackAction onPress={useGoBack()} />
 
-      <Appbar.Content title={`${existing ? 'Edit' : 'Create'} Contact`} />
+      <Appbar.Content title="Contact" />
 
       {existing && (
         <Appbar.Action

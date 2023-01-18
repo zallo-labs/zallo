@@ -48,7 +48,7 @@ export const TokenHoldingCard = ({
           <FiatValue value={fiatValue} />
         </Text>,
         <Text variant="bodyMedium">
-          <TokenAmount token={t} amount={available} symbol={false} />
+          <TokenAmount token={t} amount={available} trailing={false} />
         </Text>,
       ]}
       {...props}

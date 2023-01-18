@@ -14,6 +14,7 @@ import { StyleSheet } from 'react-native';
 import { Contact, useContacts } from '~/queries/contacts/useContacts.api';
 import { useCallback, useMemo } from 'react';
 import { ContactAppbar } from './ContactAppbar';
+import { useScanAddr } from '../scan/useScanAddr';
 
 const defaultValues = {
   name: '',
@@ -51,6 +52,7 @@ export const ContactScreen = ({ route, navigation }: ContactScreenProps) => {
   const [contacts] = useContacts();
   const existing = useContact(route.params.addr);
   const upsert = useUpsertContact();
+  const scanAddr = useScanAddr();
 
   const handleSubmit = useCallback(
     async (values: Values) => {
@@ -78,7 +80,7 @@ export const ContactScreen = ({ route, navigation }: ContactScreenProps) => {
       >
         {({ setFieldValue }) => (
           <>
-            <Box m={4}>
+            <Box mx={2}>
               <FormikTextField name="name" label="Name" />
 
               <Box mt={3} mb={2}>
@@ -89,14 +91,10 @@ export const ContactScreen = ({ route, navigation }: ContactScreenProps) => {
                 icon={ScanIcon}
                 mode="contained-tonal"
                 style={styles.scan}
-                onPress={() =>
-                  navigation.navigate('Scan', {
-                    onScanAddr: (link) => {
-                      setFieldValue('addr', link.target_address);
-                      navigation.goBack();
-                    },
-                  })
-                }
+                onPress={async () => {
+                  setFieldValue('addr', (await scanAddr()).target_address);
+                  navigation.goBack();
+                }}
               >
                 Scan
               </Button>

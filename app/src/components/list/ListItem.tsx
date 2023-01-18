@@ -1,7 +1,7 @@
 import { FC, ReactNode } from 'react';
 import { IconProps } from '@theme/icons';
 import { makeStyles } from '@theme/makeStyles';
-import { Text, TouchableRipple, TouchableRippleProps } from 'react-native-paper';
+import { Text, TextProps, TouchableRipple, TouchableRippleProps } from 'react-native-paper';
 import { match } from 'ts-pattern';
 import { Box } from '../layout/Box';
 import { AddrOrLabelIcon } from '../Identicon/AddrOrLabelIcon';
@@ -17,7 +17,7 @@ interface ListIconElementProps extends IconProps {
 }
 
 export interface ListItemTextProps {
-  Text: FC<{ children: ReactNode }>;
+  Text: FC<TextProps>;
 }
 
 export interface ListItemProps extends Pick<TouchableRippleProps, 'onPress' | 'disabled'> {
@@ -45,20 +45,19 @@ export const ListItem = ({
 
   if (typeof Trailing === 'number' && Trailing > maxTrailing) Trailing = `${maxTrailing}+`;
 
-  const HeadlineText = ({ children }: { children: ReactNode }) => (
-    <Text variant="bodyLarge" style={styles.headline}>
-      {children}
-    </Text>
+  const HeadlineText = ({ style, ...props }: TextProps) => (
+    <Text variant="bodyLarge" {...props} style={[styles.headline, style]} />
   );
-  const SupportingText = ({ children }: { children: ReactNode }) => (
-    <Text variant="bodyMedium" style={styles.supporting} numberOfLines={lines}>
-      {children}
-    </Text>
+  const SupportingText = ({ style, ...props }: TextProps) => (
+    <Text
+      variant="bodyMedium"
+      {...props}
+      style={[styles.supporting, style]}
+      numberOfLines={lines}
+    />
   );
-  const TrailingText = ({ children }: { children: ReactNode }) => (
-    <Text variant="labelSmall" style={styles.trailingText}>
-      {children}
-    </Text>
+  const TrailingText = ({ style, ...props }: TextProps) => (
+    <Text variant="labelSmall" {...props} style={[styles.trailingText, style]} />
   );
 
   return (
@@ -163,10 +162,12 @@ const useStyles = makeStyles(({ colors, s, corner }, { lines, selected, disabled
     },
     trailingContainer: {
       justifyContent,
+      alignItems: 'flex-end',
       marginLeft: s(16),
     },
     trailingText: {
       color: !disabled ? colors.onSurfaceVariant : colors.onSurfaceDisabled,
+      textAlign: 'right',
     },
     trailingIcon: {
       fontSize: s(24),

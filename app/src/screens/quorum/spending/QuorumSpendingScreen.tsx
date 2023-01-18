@@ -6,7 +6,7 @@ import { Divider, Switch } from 'react-native-paper';
 import { AppbarLarge } from '~/components/Appbar/AppbarLarge';
 import { Fab } from '~/components/Fab/Fab';
 import { Box } from '~/components/layout/Box';
-import { ListItem } from '~/components/ListItem/ListItem';
+import { ListItem } from '~/components/list/ListItem';
 import { StackNavigatorScreenProps } from '~/navigation/StackNavigator';
 import { useSelectToken } from '~/screens/tokens/useSelectToken';
 import { useQuorumDraft } from '../QuorumDraftProvider';
@@ -61,10 +61,10 @@ export const QuorumSpendingScreen = ({ navigation }: QuorumSpendingScreenProps) 
 
       <Fab
         icon={AddIcon}
-        label="Add token limit"
+        label="Token limit"
         onPress={async () => {
           const token = await selectToken({
-            quorum,
+            account: quorum,
             disabled: new Set(Object.keys(spending.limits) as Address[]),
           });
           navigation.replace('TokenLimit', { token: token.addr });

@@ -1,12 +1,12 @@
 import { useSearch } from '@hook/useSearch';
-import { BackIcon, SearchIcon } from '@theme/icons';
+import { SearchIcon } from '@theme/icons';
 import { makeStyles } from '@theme/makeStyles';
 import { Address, QuorumGuid } from 'lib';
 import { FlatList } from 'react-native';
-import { Text } from 'react-native-paper';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useGoBack } from '~/components/Appbar/useGoBack';
+import { AppbarBack2 } from '~/components/Appbar/AppbarBack';
 import { Searchbar } from '~/components/fields/Searchbar';
+import { ListHeader } from '~/components/list/ListHeader';
 import { StackNavigatorScreenProps } from '~/navigation/StackNavigator';
 import { useAccount } from '~/queries/account/useAccount.api';
 import { QuorumItem } from './QuorumItem';
@@ -25,7 +25,6 @@ export const AccountQuorumsScreen = ({ route, navigation }: AccountQuorumsScreen
   const { onSelect, onlyActive } = route.params;
   const styles = useStyles();
   const account = useAccount(route.params.account);
-  const goBack = useGoBack();
 
   const [quorums, searchProps] = useSearch(
     onlyActive ? account.quorums.filter((q) => q.active) : account.quorums,
@@ -35,7 +34,7 @@ export const AccountQuorumsScreen = ({ route, navigation }: AccountQuorumsScreen
   return (
     <SafeAreaView style={styles.root}>
       <Searchbar
-        leading={(props) => <BackIcon {...props} onPress={goBack} />}
+        leading={AppbarBack2}
         placeholder="Search quorums"
         trailing={SearchIcon}
         onFocus={() => console.log('Focused')}
@@ -44,20 +43,12 @@ export const AccountQuorumsScreen = ({ route, navigation }: AccountQuorumsScreen
 
       <FlatList
         data={quorums}
-        ListHeaderComponent={
-          <Text variant="bodyLarge" style={styles.header}>
-            Quorums
-          </Text>
-        }
+        ListHeaderComponent={<ListHeader>Quorums</ListHeader>}
         renderItem={({ item: quorum }) => (
           <QuorumItem
             quorum={quorum}
             onPress={() => {
-              if (onSelect) {
-                onSelect(quorum);
-              } else {
-                navigation.navigate('Quorum', { quorum });
-              }
+              onSelect ? onSelect(quorum) : navigation.navigate('Quorum', { quorum });
             }}
           />
         )}
@@ -71,15 +62,9 @@ export const AccountQuorumsScreen = ({ route, navigation }: AccountQuorumsScreen
 
 const useStyles = makeStyles(({ s, colors }) => ({
   root: {
-    marginVertical: s(16),
+    marginTop: s(16),
   },
   container: {
-    paddingTop: s(16),
-    paddingBottom: s(8),
-  },
-  header: {
-    color: colors.onSurfaceVariant,
-    marginHorizontal: s(16),
-    marginBottom: s(8),
+    paddingVertical: s(8),
   },
 }));

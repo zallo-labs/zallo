@@ -30,7 +30,7 @@ export const useCreateAccount = () => {
   return async (name: string): Promise<CreateAccountResult> => {
     const quorums = [
       {
-        name: 'Owner',
+        name: 'Admin',
         key: toQuorumKey(1),
         approvers: new Set([user.id]),
       },

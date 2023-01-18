@@ -11,7 +11,7 @@ import { Appbar } from 'react-native-paper';
 import { NameIcon, QuorumsIcon, ShareIcon } from '@theme/icons';
 import { buildAddrLink } from '~/util/addrLink';
 import { Share } from 'react-native';
-import { ListItem } from '~/components/ListItem/ListItem';
+import { ListItem } from '~/components/list/ListItem';
 import { useGoBack } from '~/components/Appbar/useGoBack';
 
 export interface AccountScreenParams {

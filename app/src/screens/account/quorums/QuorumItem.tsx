@@ -1,6 +1,6 @@
 import { QuorumGuid } from 'lib';
 import { useQuorum } from '~/queries/quroum/useQuorum.api';
-import { ListItem } from '~/components/ListItem/ListItem';
+import { ListItem } from '~/components/list/ListItem';
 import { Addr } from '~/components/addr/Addr';
 import { Container } from '~/components/layout/Container';
 

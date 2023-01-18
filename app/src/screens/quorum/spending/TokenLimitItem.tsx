@@ -1,5 +1,5 @@
 import { useToken } from '@token/useToken';
-import { ListItem } from '~/components/ListItem/ListItem';
+import { ListItem } from '~/components/list/ListItem';
 import { TokenAmount } from '~/components/token/TokenAmount';
 import { useRootNavigation } from '~/navigation/useRootNavigation';
 import { useQuorumDraft } from '../QuorumDraftProvider';
@@ -19,7 +19,7 @@ export const TokenLimitItem = (props: TokenLimitItemProps) => {
       supporting={token.symbol}
       trailing={
         <>
-          <TokenAmount token={token} amount={limit.amount} symbol={false} />
+          <TokenAmount token={token} amount={limit.amount} trailing={false} />
           {` /${limit.period.toLowerCase()}`}
         </>
       }

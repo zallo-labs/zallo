@@ -5,7 +5,7 @@ import {
   TransitionPresets,
 } from '@react-navigation/stack';
 import { AmountScreen, AmountScreenParams } from '~/screens/amount/AmountScreen';
-import TokensScreen, { TokensScreenParams } from '~/screens/tokens/TokensScreen';
+import { TokensScreen, TokensScreenParams } from '~/screens/tokens/TokensScreen';
 import { ContactsScreen, ContactsScreenParams } from '~/screens/contacts/ContactsScreen';
 import { ScanScreen, ScanScreenParams } from '~/screens/scan/ScanScreen';
 import {

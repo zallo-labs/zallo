@@ -2,7 +2,7 @@ import { Quorum } from 'lib';
 import { RadioButton } from 'react-native-paper';
 import { Addr } from '~/components/addr/Addr';
 import { Timestamp } from '~/components/format/Timestamp';
-import { ListItem } from '~/components/ListItem/ListItem';
+import { ListItem } from '~/components/list/ListItem';
 import { useProposal } from '~/queries/proposal/useProposal.api';
 import { isRemoval, Proposable, Removal } from '~/queries/quroum';
 

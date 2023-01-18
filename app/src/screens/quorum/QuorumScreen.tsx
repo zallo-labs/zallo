@@ -12,13 +12,13 @@ import { Quorum, QuorumGuid } from 'lib';
 import _ from 'lodash';
 import { useState } from 'react';
 import { FlatList } from 'react-native';
-import { Button, Menu, Provider, Text, useTheme } from 'react-native-paper';
+import { Button, Menu, Provider, useTheme } from 'react-native-paper';
 import { AppbarBack2 } from '~/components/Appbar/AppbarBack';
 import { AppbarLarge } from '~/components/Appbar/AppbarLarge';
 import { AppbarMore2 } from '~/components/Appbar/AppbarMore';
 import { Fab } from '~/components/Fab/Fab';
 import { Box } from '~/components/layout/Box';
-import { ListItem } from '~/components/ListItem/ListItem';
+import { ListItem } from '~/components/list/ListItem';
 import { useRemoveQuorum } from '~/mutations/quorum/useRemoveQuorum.api';
 import { useUpdateQuorum } from '~/mutations/quorum/useUpdateQuorum.api';
 import { StackNavigatorScreenProps } from '~/navigation/StackNavigator';
@@ -30,6 +30,8 @@ import { useNavigation } from '@react-navigation/native';
 import { withSkeleton } from '~/components/skeleton/withSkeleton';
 import { ScreenSkeleton } from '~/components/skeleton/ScreenSkeleton';
 import { QuorumDraftProvider, useQuorumDraft } from './QuorumDraftProvider';
+import { useSelectContact } from '../contacts/useSelectContact';
+import { ListHeader } from '~/components/list/ListHeader';
 
 export interface QuorumScreenParams {
   quorum: QuorumGuid;
@@ -52,6 +54,7 @@ function Screen() {
   const { navigate, goBack } = useNavigation();
   const { quorum, initState, state, updateState } = useQuorumDraft();
   const updateQuorum = useUpdateQuorum(quorum);
+  const selectContact = useSelectContact();
   const confirmDiscard = useConfirmDiscard();
   const confirmRemove = useConfirmRemoval({
     message: 'Are you sure you want to propose to remove this quorum?',
@@ -63,17 +66,13 @@ function Screen() {
 
   const [sheetShown, setSheetShown] = useState(false);
 
-  const addApprover = () =>
-    navigate('Contacts', {
-      title: 'Add approver',
-      disabled: state.approvers,
-      onSelect: (contact) => {
-        updateState((s) => {
-          s.approvers.add(contact.addr);
-        });
-        goBack();
-      },
+  const addApprover = async () => {
+    const contact = await selectContact({ disabled: state.approvers });
+    updateState((s) => {
+      s.approvers.add(contact.addr);
     });
+    goBack();
+  };
 
   return (
     <Provider theme={useTheme()}>
@@ -145,9 +144,7 @@ function Screen() {
                 onPress={() => navigate('RenameQuorum', { quorum })}
               />
 
-              <Text variant="bodyLarge" style={styles.approversHeader}>
-                Approvers
-              </Text>
+              <ListHeader>Approvers</ListHeader>
             </>
           }
           renderItem={({ item }) => (
@@ -164,7 +161,7 @@ function Screen() {
       </Box>
 
       {!isModified ? (
-        <Fab icon={AddIcon} label="Add approver" onPress={addApprover} />
+        <Fab icon={AddIcon} label="Approver" onPress={addApprover} />
       ) : (
         <>
           <Fab
@@ -193,20 +190,10 @@ function Screen() {
   );
 }
 
-const useStyles = makeStyles(({ s, colors }) => ({
+const useStyles = makeStyles(({ s }) => ({
   proposalButton: {
     alignSelf: 'center',
     marginBottom: s(24),
-  },
-  approversHeader: {
-    color: colors.onSurfaceVariant,
-    marginHorizontal: s(16),
-    marginTop: s(24),
-    marginBottom: s(8),
-  },
-  addApproverButton: {
-    alignSelf: 'flex-end',
-    marginHorizontal: s(16),
   },
   secondaryFab: {
     marginBottom: 88,

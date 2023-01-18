@@ -13,7 +13,7 @@ export const PriceChange = ({ change }: PriceDeltaProps) => {
 
   return (
     <Paragraph style={change > 0 ? styles.positive : styles.negative}>
-      <Percent sign>{change}</Percent>
+      <Percent value={change} />
     </Paragraph>
   );
 };
