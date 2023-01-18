@@ -1,3 +1,4 @@
+import { useNavigation } from '@react-navigation/native';
 import { Quorum } from 'lib';
 import { RadioButton } from 'react-native-paper';
 import { Addr } from '~/components/addr/Addr';
@@ -14,6 +15,7 @@ export interface StateItemProps {
 }
 
 export const StateItem = ({ state, selected, select, isActiveState }: StateItemProps) => {
+  const { navigate } = useNavigation();
   const proposal = useProposal(state.proposal);
 
   const lines = proposal && isRemoval(state) ? 2 : proposal || isRemoval(state) ? 1 : undefined;
@@ -48,8 +50,9 @@ export const StateItem = ({ state, selected, select, isActiveState }: StateItemP
       }
       lines={lines}
       selected={selected}
-      onPress={select}
-      disabled={!select}
+      onPress={
+        select || (state.proposal && (() => navigate('Proposal', { proposal: state.proposal! })))
+      }
     />
   );
 };

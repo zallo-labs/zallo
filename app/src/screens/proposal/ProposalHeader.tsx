@@ -27,7 +27,7 @@ export const ProposalHeader = ({ proposal: p, style }: ProposalHeaderProps) => {
             <Addr addr={p.to} />
           </Text>
           <Text variant="headlineSmall" style={styles.label}>
-            {`${label}`}
+            {label}
           </Text>
         </Box>
       </ProposalMethod>

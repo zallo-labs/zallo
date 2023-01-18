@@ -2,7 +2,7 @@ import {
   AddIcon,
   CheckIcon,
   NameIcon,
-  ProposedModifyIcon,
+  ViewProposalIcon,
   RemoveIcon,
   SpendingIcon,
   UndoIcon,
@@ -121,7 +121,7 @@ function Screen() {
               {!isActive && initState.proposal && (
                 <Button
                   mode="contained"
-                  icon={ProposedModifyIcon}
+                  icon={ViewProposalIcon}
                   style={styles.proposalButton}
                   onPress={() => navigate('Proposal', { proposal: initState.proposal! })}
                 >
@@ -131,7 +131,7 @@ function Screen() {
 
               {(isModified || quorum.proposals.length + Number(quorum.account) > 1) && (
                 <ListItem
-                  leading={ProposedModifyIcon}
+                  leading={ViewProposalIcon}
                   headline="Change proposals"
                   supporting="Select quorum change proposal"
                   onPress={() => setSheetShown((v) => !v)}
