@@ -867,6 +867,7 @@ export type QuorumState = {
   approvers?: Maybe<Array<Approver>>;
   createdAt: Scalars['DateTime'];
   id: Scalars['ID'];
+  isActiveWithoutProposal: Scalars['Boolean'];
   isRemoved: Scalars['Boolean'];
   limits?: Maybe<Array<TokenLimit>>;
   proposal?: Maybe<Proposal>;
@@ -906,6 +907,7 @@ export type QuorumStateWhereInput = {
   approvers?: InputMaybe<ApproverListRelationFilter>;
   createdAt?: InputMaybe<DateTimeFilter>;
   id?: InputMaybe<IntFilter>;
+  isActiveWithoutProposal?: InputMaybe<BoolFilter>;
   isRemoved?: InputMaybe<BoolFilter>;
   limits?: InputMaybe<TokenLimitListRelationFilter>;
   proposal?: InputMaybe<ProposalRelationFilter>;
@@ -1308,7 +1310,7 @@ export type RemoveQuorumMutationVariables = Exact<{
 }>;
 
 
-export type RemoveQuorumMutation = { __typename?: 'Mutation', removeQuorum: { __typename?: 'Quorum', id: string } };
+export type RemoveQuorumMutation = { __typename?: 'Mutation', removeQuorum: { __typename?: 'Quorum', id: string, accountId: string, key: number, name: string, activeState?: { __typename?: 'QuorumState', proposalId?: string | null, isRemoved: boolean, createdAt: any, spendingFallback: SpendingFallback, approvers?: Array<{ __typename?: 'Approver', userId: string }> | null, limits?: Array<{ __typename?: 'TokenLimit', token: string, amount: string, period: LimitPeriod }> | null } | null, proposedStates: Array<{ __typename?: 'QuorumState', proposalId?: string | null, isRemoved: boolean, createdAt: any, spendingFallback: SpendingFallback, approvers?: Array<{ __typename?: 'Approver', userId: string }> | null, limits?: Array<{ __typename?: 'TokenLimit', token: string, amount: string, period: LimitPeriod }> | null }> } };
 
 export type UpdateQuorumMutationVariables = Exact<{
   account: Scalars['Address'];
@@ -1942,10 +1944,10 @@ export type CreateQuorumMutationOptions = Apollo.BaseMutationOptions<CreateQuoru
 export const RemoveQuorumDocument = gql`
     mutation RemoveQuorum($account: Address!, $key: QuorumKey!) {
   removeQuorum(account: $account, key: $key) {
-    id
+    ...QuorumFields
   }
 }
-    `;
+    ${QuorumFieldsFragmentDoc}`;
 export type RemoveQuorumMutationFn = Apollo.MutationFunction<RemoveQuorumMutation, RemoveQuorumMutationVariables>;
 
 /**

@@ -3,7 +3,7 @@ import { Quorum } from '@gen/quorum/quorum.model';
 import { forwardRef, Inject } from '@nestjs/common';
 import { Args, ID, Info, Mutation, Parent, Query, ResolveField, Resolver } from '@nestjs/graphql';
 import { GraphQLResolveInfo } from 'graphql';
-import { ACCOUNT_INTERFACE, Address, QuorumKey, randomQuorumKey } from 'lib';
+import { ACCOUNT_INTERFACE, Address, QuorumKey, toQuorumKey } from 'lib';
 import { PrismaService } from 'nestjs-prisma';
 import { UserId } from '~/decorators/user.decorator';
 import { connectAccount, connectQuorum } from '~/util/connect-or-create';
@@ -104,8 +104,8 @@ export class QuorumsResolver {
     @Info() info: GraphQLResolveInfo,
   ): Promise<Quorum> {
     return this.prisma.$transaction(async (tx) => {
-      // Create quorum
-      const key = randomQuorumKey();
+      const existingQuorums = await tx.quorum.count({ where: { accountId: args.account } });
+      const key = toQuorumKey(existingQuorums + 1);
 
       await tx.quorum.create({
         data: {
@@ -116,11 +116,10 @@ export class QuorumsResolver {
         select: null,
       });
 
-      // Create quorum state
       return this.service.createUpsertState({
         ...args,
         proposer: user,
-        key: randomQuorumKey(),
+        key,
         tx,
         quorumArgs: getSelect(info),
       });
@@ -160,29 +159,36 @@ export class QuorumsResolver {
     @UserId() user: Address,
     @Info() info: GraphQLResolveInfo,
   ): Promise<Quorum> {
+    const isActive = !!(await this.service.activeState({ account, key }, { select: { id: true } }));
+
     return this.prisma.$transaction(async (tx) => {
-      const { id: proposalId } = await this.proposals.create(
-        {
-          account,
-          data: {
-            to: account,
-            data: ACCOUNT_INTERFACE.encodeFunctionData('removeQuorum', [key]),
-            proposer: { connect: { id: user } },
-            quorum: connectQuorum(account, proposingQuorumKey),
+      // No proposal is required if the quorum isn't active
+      const proposal =
+        isActive &&
+        (await this.proposals.create(
+          {
+            account,
+            data: {
+              to: account,
+              data: ACCOUNT_INTERFACE.encodeFunctionData('removeQuorum', [key]),
+              proposer: { connect: { id: user } },
+              quorum: connectQuorum(account, proposingQuorumKey),
+            },
+            select: {
+              id: true,
+            },
           },
-          select: {
-            id: true,
-          },
-        },
-        tx,
-      );
+          tx,
+        ));
 
       const r = await tx.quorumState.create({
         data: {
-          proposal: { connect: { id: proposalId } },
           account: connectAccount(account),
           quorum: connectQuorum(account, key),
           isRemoved: true,
+          ...(proposal
+            ? { proposal: { connect: { id: proposal.id } } }
+            : { isActiveWithoutProposal: true }),
         },
         select: {
           quorum: { ...getSelect(info) },

@@ -2,7 +2,7 @@ import { ActivateIcon } from '@theme/icons';
 import { FC } from 'react';
 import { useActivateAccount } from '~/mutations/account/useActivateAccount.api';
 import { CombinedAccount } from '~/queries/account/useAccount.api';
-import { FabProps } from '../Fab/Fab';
+import { FabProps } from '../buttons/Fab';
 
 type RequiredProps = Pick<FabProps, 'icon' | 'label' | 'loading' | 'onPress'>;
 

@@ -90,7 +90,7 @@ export class ProposalsResolver {
 
   @ResolveField(() => Transaction, { nullable: true })
   async transaction(@Parent() proposal: Proposal): Promise<Transaction | null> {
-    return proposal.transactions ? proposal.transactions[proposal.transactions.length - 1] : null;
+    return proposal.transactions ? proposal.transactions[0] : null;
   }
 
   @Subscription(() => Proposal, {

@@ -16,7 +16,7 @@ import { Button, Menu, Provider, useTheme } from 'react-native-paper';
 import { AppbarBack2 } from '~/components/Appbar/AppbarBack';
 import { AppbarLarge } from '~/components/Appbar/AppbarLarge';
 import { AppbarMore2 } from '~/components/Appbar/AppbarMore';
-import { Fab } from '~/components/Fab/Fab';
+import { Fab } from '~/components/buttons/Fab';
 import { Box } from '~/components/layout/Box';
 import { ListItem } from '~/components/list/ListItem';
 import { useRemoveQuorum } from '~/mutations/quorum/useRemoveQuorum.api';
@@ -54,11 +54,11 @@ function Screen() {
   const { navigate, goBack } = useNavigation();
   const { quorum, initState, state, updateState } = useQuorumDraft();
   const updateQuorum = useUpdateQuorum(quorum);
+  const removeQuorum = useRemoveQuorum(quorum);
   const selectContact = useSelectContact();
   const confirmDiscard = useConfirmDiscard();
   const confirmRemove = useConfirmRemoval({
     message: 'Are you sure you want to propose to remove this quorum?',
-    onConfirm: useRemoveQuorum(quorum),
   });
 
   const isActive = _.isEqual(state, quorum.active);
@@ -94,7 +94,15 @@ function Screen() {
                     leadingIcon={(props) => <RemoveIcon {...props} {...iconProps} />}
                     title="Remove quorum"
                     onPress={() => {
-                      confirmRemove({});
+                      confirmRemove({
+                        onConfirm: async () => {
+                          // No proposal is provided if the state isn't active
+                          const { removeProposal } = await removeQuorum();
+                          removeProposal
+                            ? navigate('Proposal', { proposal: removeProposal })
+                            : goBack();
+                        },
+                      });
                       close();
                     }}
                   />

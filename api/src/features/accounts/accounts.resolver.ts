@@ -91,8 +91,8 @@ export class AccountsResolver {
                   create: {
                     approvers: { create: [...q.approvers].map((a) => ({ userId: a })) },
                     spendingFallback: q.spending?.fallback,
-                    limits: q.spending?.limit
-                      ? { createMany: { data: Object.values(q.spending.limit) } }
+                    limits: q.spending?.limits
+                      ? { createMany: { data: Object.values(q.spending.limits) } }
                       : undefined,
                   },
                 },

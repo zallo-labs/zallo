@@ -37,6 +37,7 @@ export const Sheet = forwardRef<BottomSheet, SheetProps>(
         contentHeight={animatedContentHeight}
         backgroundComponent={Background}
         // backdropComponent={SheetBackdrop}
+        enablePanDownToClose
         {...props}
         {...(!handle && { handleComponent: null })}
         // containerStyle={[styles.container, props.containerStyle]}

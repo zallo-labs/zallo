@@ -2,7 +2,7 @@ import { AddIcon, SearchIcon } from '~/util/theme/icons';
 import { makeStyles } from '~/util/theme/makeStyles';
 import { Address } from 'lib';
 import { FlatList } from 'react-native';
-import { Fab } from '~/components/Fab/Fab';
+import { Fab } from '~/components/buttons/Fab';
 import { StackNavigatorScreenProps } from '~/navigation/StackNavigator';
 import { Contact, useContacts } from '~/queries/contacts/useContacts.api';
 import { useSearch } from '@hook/useSearch';

@@ -1,10 +1,11 @@
 import { useSearch } from '@hook/useSearch';
-import { SearchIcon } from '@theme/icons';
+import { AddIcon, SearchIcon } from '@theme/icons';
 import { makeStyles } from '@theme/makeStyles';
 import { Address, QuorumGuid } from 'lib';
 import { FlatList } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { AppbarBack2 } from '~/components/Appbar/AppbarBack';
+import { Fab } from '~/components/buttons/Fab';
 import { Searchbar } from '~/components/fields/Searchbar';
 import { ListHeader } from '~/components/list/ListHeader';
 import { StackNavigatorScreenProps } from '~/navigation/StackNavigator';
@@ -21,7 +22,10 @@ export interface AccountQuorumsScreenParams {
 
 export type AccountQuorumsScreenProps = StackNavigatorScreenProps<'AccountQuorums'>;
 
-export const AccountQuorumsScreen = ({ route, navigation }: AccountQuorumsScreenProps) => {
+export const AccountQuorumsScreen = ({
+  route,
+  navigation: { navigate },
+}: AccountQuorumsScreenProps) => {
   const { onSelect, onlyActive } = route.params;
   const styles = useStyles();
   const account = useAccount(route.params.account);
@@ -48,20 +52,27 @@ export const AccountQuorumsScreen = ({ route, navigation }: AccountQuorumsScreen
           <QuorumItem
             quorum={quorum}
             onPress={() => {
-              onSelect ? onSelect(quorum) : navigation.navigate('Quorum', { quorum });
+              onSelect ? onSelect(quorum) : navigate('Quorum', { quorum });
             }}
           />
         )}
         style={styles.container}
         showsVerticalScrollIndicator={false}
-        extraData={[onSelect, navigation.navigate]}
+        extraData={[onSelect, navigate]}
+      />
+
+      <Fab
+        icon={AddIcon}
+        label="Quorum"
+        onPress={() => navigate('CreateQuorum', { account: account.addr })}
       />
     </SafeAreaView>
   );
 };
 
-const useStyles = makeStyles(({ s, colors }) => ({
+const useStyles = makeStyles(({ s }) => ({
   root: {
+    flex: 1,
     marginTop: s(16),
   },
   container: {

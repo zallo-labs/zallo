@@ -26,7 +26,7 @@ export const QuorumItem = ({ quorum: id, onPress }: QuorumItemProps) => {
           ))}
         </Container>
       )}
-      trailing={state.approvers.size}
+      trailing={`${state.approvers.size} approver${state.approvers.size === 1 ? '' : 's'}`}
       onPress={onPress}
       lines={2}
     />

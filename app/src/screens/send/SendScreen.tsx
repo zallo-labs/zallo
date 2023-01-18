@@ -8,7 +8,7 @@ import { useState } from 'react';
 import { Appbar, Text } from 'react-native-paper';
 import { AddrCard } from '~/components/addr/AddrCard';
 import { AppbarBack } from '~/components/Appbar/AppbarBack';
-import { Fab } from '~/components/Fab/Fab';
+import { Fab } from '~/components/buttons/Fab';
 import { Box } from '~/components/layout/Box';
 import { Container } from '~/components/layout/Container';
 import { TokenAvailableCard } from '~/components/token/TokenAvailableCard';

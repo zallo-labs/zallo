@@ -4,7 +4,7 @@ import { Address, DEFAULT_SPENDING } from 'lib';
 import { FlatList } from 'react-native';
 import { Divider, Switch } from 'react-native-paper';
 import { AppbarLarge } from '~/components/Appbar/AppbarLarge';
-import { Fab } from '~/components/Fab/Fab';
+import { Fab } from '~/components/buttons/Fab';
 import { Box } from '~/components/layout/Box';
 import { ListItem } from '~/components/list/ListItem';
 import { StackNavigatorScreenProps } from '~/navigation/StackNavigator';

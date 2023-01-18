@@ -4,7 +4,7 @@ import { ReactNode, useEffect } from 'react';
 import { Native as Sentry } from 'sentry-expo';
 import { Box } from '~/components/layout/Box';
 import { makeStyles } from '@theme/makeStyles';
-import { Fab } from '~/components/Fab/Fab';
+import { Fab } from '~/components/buttons/Fab';
 import { RefreshIcon } from '@theme/icons';
 
 interface FallbackProps {

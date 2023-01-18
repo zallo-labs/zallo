@@ -1,8 +1,11 @@
 import { gql } from '@apollo/client';
-import { Address, QuorumKey, toQuorumKey } from 'lib';
+import assert from 'assert';
+import { Address, QuorumGuid, QuorumKey, toQuorumKey } from 'lib';
 import { useCallback } from 'react';
 import { useCreateQuorumMutation } from '~/gql/generated.api';
 import { useAccount } from '~/queries/account/useAccount.api';
+import { useUser } from '~/queries/useUser.api';
+import { useSelectQuorum } from '~/screens/account/quorums/useSelectQuorum';
 
 gql`
   mutation CreateQuorum(
@@ -24,25 +27,27 @@ gql`
 `;
 
 export interface CreateQuorumOptions {
-  approvers: Set<Address>;
   name: string;
-  proposingQuorumKey: QuorumKey;
+  approvers?: Set<Address>;
+  proposingQuorumKey?: QuorumKey;
 }
 
 export const useCreateQuorum = (accountAddr: Address) => {
   const [createQuorum] = useCreateQuorumMutation();
   const account = useAccount(accountAddr);
+  const user = useUser();
+  const selectQuorum = useSelectQuorum(accountAddr);
 
   return useCallback(
-    ({ approvers, name, proposingQuorumKey }: CreateQuorumOptions) => {
+    async ({ name, approvers, proposingQuorumKey }: CreateQuorumOptions) => {
       const key = toQuorumKey(account.quorums[account.quorums.length - 1].key + 1);
 
-      return createQuorum({
+      const r = await createQuorum({
         variables: {
           account: accountAddr,
-          approvers: Array.from(approvers),
+          approvers: Array.from(approvers ?? new Set([user.id])),
           name,
-          proposingQuorumKey,
+          proposingQuorumKey: proposingQuorumKey ?? (await selectQuorum()).key,
         },
         optimisticResponse: {
           createQuorum: {
@@ -52,7 +57,15 @@ export const useCreateQuorum = (accountAddr: Address) => {
         },
         // TODO: cache update account.quorums
       });
+
+      assert(r.data);
+      const quorum: QuorumGuid = {
+        account: accountAddr,
+        key: toQuorumKey(r.data.createQuorum.key),
+      };
+
+      return { ...r, quorum };
     },
-    [account.quorums, accountAddr, createQuorum],
+    [account.quorums, accountAddr, createQuorum, selectQuorum, user.id],
   );
 };

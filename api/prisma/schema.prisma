@@ -45,6 +45,10 @@ model Quorum {
   key       Int
   name      String
 
+  // active   QuorumState? @relation(name: "active_state", fields: [activeId], references: [id], onDelete: Cascade)
+  // activeId Int?
+  // @@unique([activeId])
+
   states    QuorumState[]
   proposals Proposal[]
 
@@ -52,19 +56,21 @@ model Quorum {
 }
 
 model QuorumState {
-  id               Int              @id @default(autoincrement())
-  account          Account          @relation(fields: [accountId], references: [id], onDelete: Cascade)
-  accountId        String           @db.Char(42) // address
-  quorum           Quorum           @relation(fields: [accountId, quorumKey], references: [accountId, key], onDelete: Cascade)
-  quorumKey        Int
-  proposal         Proposal?        @relation(fields: [proposalId], references: [id], onDelete: Cascade)
-  proposalId       String?          @db.Char(66) // bytes32
-  createdAt        DateTime         @default(now())
-  isRemoved        Boolean          @default(false)
-  spendingFallback SpendingFallback @default(allow)
+  id                      Int              @id @default(autoincrement())
+  account                 Account          @relation(fields: [accountId], references: [id], onDelete: Cascade)
+  accountId               String           @db.Char(42) // address
+  quorum                  Quorum           @relation(fields: [accountId, quorumKey], references: [accountId, key], onDelete: Cascade)
+  quorumKey               Int
+  proposal                Proposal?        @relation(fields: [proposalId], references: [id], onDelete: Cascade)
+  proposalId              String?          @db.Char(66) // bytes32
+  isActiveWithoutProposal Boolean          @default(false)
+  createdAt               DateTime         @default(now())
+  isRemoved               Boolean          @default(false)
+  spendingFallback        SpendingFallback @default(allow)
 
   approvers Approver[]
   limits    TokenLimit[]
+  // activeStateOfQuorum Quorum? @relation(name: "active_state")
 
   @@index([accountId, quorumKey, createdAt(sort: Desc)], name: "quorum_createdAt")
 }

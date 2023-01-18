@@ -28,8 +28,8 @@ const stateFromFragment = (
   id: QuorumGuid,
   state: QuorumStateFieldsFragment,
 ): Proposable<Quorum> => ({
-  proposal: state.proposalId ? { id: state.proposalId } : undefined,
   key: id.key,
+  proposal: state.proposalId ? { id: state.proposalId } : undefined,
   approvers: new Set(state.approvers?.map((a) => address(a.userId))),
   spending: {
     fallback: state.spendingFallback,

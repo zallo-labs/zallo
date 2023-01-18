@@ -1,5 +1,5 @@
 import { gql } from '@apollo/client';
-import { Address, Quorum, QuorumGuid, QuorumKey } from 'lib';
+import { Quorum, QuorumGuid, QuorumKey } from 'lib';
 import { useCallback } from 'react';
 import { QuorumFieldsFragmentDoc, useUpdateQuorumMutation } from '~/gql/generated.api';
 import { ProposalId } from '~/queries/proposal';
@@ -39,16 +39,12 @@ export const useUpdateQuorum = (quorumGuid: QuorumGuid) => {
 
   // TODO: optimistic update
   return useCallback(
-    async ({
-      proposingQuorumKey: proposingQuorumKeyArg,
-      approvers,
-      spending,
-    }: UpdateQuorumOptions) => {
+    async ({ proposingQuorumKey, approvers, spending }: UpdateQuorumOptions) => {
       const r = await mutate({
         variables: {
           ...quorumGuid,
           proposingQuorumKey:
-            proposingQuorumKeyArg || quorum.active?.key || (await selectQuorum()).key,
+            proposingQuorumKey ?? quorum.active?.key ?? (await selectQuorum()).key,
           approvers: [...approvers],
           spending: spending
             ? {

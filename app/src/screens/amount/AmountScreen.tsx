@@ -5,7 +5,7 @@ import { BigNumber } from 'ethers';
 import { ZERO } from 'lib';
 import { useState } from 'react';
 import { Appbar } from 'react-native-paper';
-import { Fab } from '~/components/Fab/Fab';
+import { Fab } from '~/components/buttons/Fab';
 import {
   useSelectedToken,
   useSelectToken as useSetSelectedToken,
