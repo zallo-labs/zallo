@@ -5,11 +5,12 @@ import { useProposalLabel } from '../../components/call/useProposalLabel';
 import { useProposalTransfers } from '~/components/call/useProposalTransfers';
 import { useProposal } from '~/queries/proposal/useProposal.api';
 import { ActivityTransfers } from './ActivityTransfers';
-import { match } from 'ts-pattern';
 import { Timestamp } from '~/components/format/Timestamp';
 import { ListItem } from '~/components/list/ListItem';
 import { withSkeleton } from '~/components/skeleton/withSkeleton';
 import { ListItemSkeleton } from '~/components/list/ListItemSkeleton';
+import { useAccount } from '~/queries/account/useAccount.api';
+import { useAccountIds } from '~/queries/account/useAccountIds.api';
 
 export interface ProposalItemProps {
   proposal: ProposalId;
@@ -17,7 +18,9 @@ export interface ProposalItemProps {
 }
 
 export const ProposalItem = withSkeleton(({ proposal: id, onPress }: ProposalItemProps) => {
+  const accounts = useAccountIds();
   const p = useProposal(id);
+  const account = useAccount(p.account);
   const token = useMaybeToken(p.to) ?? ETH;
   const label = useProposalLabel(p);
   const transfers = useProposalTransfers(p);
@@ -25,13 +28,9 @@ export const ProposalItem = withSkeleton(({ proposal: id, onPress }: ProposalIte
   return (
     <ListItem
       leading={token.addr}
+      overline={accounts.length > 1 ? account.name : undefined}
       headline={label}
-      supporting={match(p)
-        .with({ state: 'pending', userHasApproved: false }, () => 'Awaiting approval')
-        .with({ state: 'pending' }, () => 'Awaiting approval from others')
-        .with({ state: 'executed' }, () => <Timestamp timestamp={p.timestamp} weekday />)
-        .with({ state: 'failed' }, { state: 'executing' }, ({ state }) => state)
-        .exhaustive()}
+      supporting={<Timestamp timestamp={p.timestamp} weekday />}
       trailing={<ActivityTransfers transfers={transfers} />}
       onPress={onPress}
     />

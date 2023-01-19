@@ -53,8 +53,7 @@ const getStatus = (submissions: Submission[]): ProposalState => {
   if (submissions.some((s) => s.status === 'success')) return 'executed';
   if (submissions.some((s) => s.status === 'pending')) return 'executing';
   if (submissions.some((s) => s.status === 'failure')) return 'failed';
-  // assert(false); // Unreachable
-  return 'pending'; // Unreachable
+  assert(false); // Unreachable
 };
 
 export const useProposal = <Id extends ProposalId | undefined>(id: Id, focussed = false) => {
@@ -117,9 +116,7 @@ export const useProposal = <Id extends ProposalId | undefined>(id: Id, focussed 
     );
 
     const awaitingApprovalFrom = new Set(
-      [...(quorum.activeOrLatest?.approvers ?? []).values()].filter(
-        (a) => !approvals.has(a) && !rejected.has(a),
-      ),
+      [...quorum.activeOrLatest.approvers].filter((a) => !approvals.has(a) && !rejected.has(a)),
     );
 
     return {
@@ -134,7 +131,7 @@ export const useProposal = <Id extends ProposalId | undefined>(id: Id, focussed 
       approvals,
       rejected,
       awaitingApproval: awaitingApprovalFrom,
-      isApproved: awaitingApprovalFrom.size === 0,
+      isApproved: approvals.size === quorum.activeOrLatest.approvers.size,
       submissions: transactions,
       proposedAt: DateTime.fromISO(p.createdAt),
       proposer: address(p.proposerId),

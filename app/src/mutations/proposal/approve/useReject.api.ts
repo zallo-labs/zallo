@@ -23,8 +23,8 @@ export const useReject = () => {
   const [mutation] = useRejectMutation();
 
   const reject = useCallback(
-    async ({ id }: Proposal) => {
-      const r = await mutation({
+    async ({ id }: Proposal) =>
+      mutation({
         variables: { id },
         optimisticResponse: {
           reject: { id },
@@ -44,10 +44,7 @@ export const useReject = () => {
             },
           });
         },
-      });
-
-      return { removed: !r.data?.reject?.id };
-    },
+      }),
     [mutation, user.id],
   );
 

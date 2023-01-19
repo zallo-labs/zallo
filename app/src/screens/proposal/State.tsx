@@ -54,7 +54,7 @@ export const State = ({ Icon, title, timestamp, events, selected, style }: State
             </Text>
 
             {event.timestamp && (
-              <Text variant="bodyMedium">
+              <Text variant="bodyMedium" style={styles.timestamp}>
                 <Timestamp timestamp={event.timestamp} />
               </Text>
             )}
@@ -72,7 +72,7 @@ const useStyles = makeStyles(
         ? colors.primaryContainer
         : colors.errorContainer
       : undefined;
-    const onBg = onBackground(backgroundColor);
+    const color = onBackground(backgroundColor);
 
     return {
       container: {
@@ -82,18 +82,22 @@ const useStyles = makeStyles(
       },
       icon: {
         fontSize: iconSize.small,
-        color: onBg,
+        color,
       },
       iconContainer: {
         width: iconSize.small,
         marginRight: space(2),
       },
       title: {
-        color: onBg,
         flex: 1,
+        color,
       },
       addr: {
         flex: 1,
+        color,
+      },
+      timestamp: {
+        color,
       },
     };
   },

@@ -15,8 +15,8 @@ export const useProposalLabel = (p?: Proposal) => {
   if (!method) return !p?.value ? `${TRANSFER_LABEL} to ${to}` : `Call ${to}`;
 
   if (quorum) {
-    if (quorum.method === 'upsert') return `Modify ${to} "${quorum.name}"`;
-    if (quorum.method === 'remove') return `Remove "${quorum.name}" from ${to}`;
+    if (quorum.method === 'upsert') return `Modify "${quorum.name}" quorum`;
+    if (quorum.method === 'remove') return `Remove "${quorum.name}" quorum`;
   }
 
   const methodName = uppercaseFirst(method.fragment.name) || method.sighash;
