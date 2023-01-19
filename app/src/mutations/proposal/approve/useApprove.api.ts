@@ -1,5 +1,4 @@
 import { gql } from '@apollo/client';
-import { useApiClient } from '~/gql/GqlProvider';
 import { QueryOpts } from '~/gql/update';
 import assert from 'assert';
 import produce from 'immer';
@@ -31,7 +30,7 @@ gql`
 
 export const useApprove = () => {
   const credentials = useCredentials();
-  const [mutate] = useApproveMutation({ client: useApiClient() });
+  const [mutate] = useApproveMutation();
 
   const approve = useCallback(
     async (p: Proposal) => {

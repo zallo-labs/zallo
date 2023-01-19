@@ -3,19 +3,19 @@ import { EmptyListFallback } from '~/components/EmptyListFallback';
 import { ListScreenSkeleton } from '~/components/skeleton/ListScreenSkeleton';
 import { withSkeleton } from '~/components/skeleton/withSkeleton';
 import { ActivityIcon } from '~/util/theme/icons';
-import { makeStyles } from '~/util/theme/makeStyles';
 import { useMemo } from 'react';
 import { SectionList } from 'react-native';
-import { Appbar, Text } from 'react-native-paper';
+import { Appbar } from 'react-native-paper';
 import { AppbarMenu } from '~/components/Appbar/AppbarMenu';
 import { useAppbarHeader } from '~/components/Appbar/useAppbarHeader';
 import { ProposalItem } from '~/screens/activity/ProposalItem';
 import { ProposalMetadata } from '~/queries/proposal';
-import { useRootNavigation } from '~/navigation/useRootNavigation';
 import { TransferMetadata } from '~/queries/transfer/useTransfersMetadata.sub';
 import { IncomingTransferItem } from './IncomingTransferItem';
 import { useProposalsMetadata } from '~/queries/proposal/useProposalsMetadata.api';
 import { match } from 'ts-pattern';
+import { useNavigation } from '@react-navigation/native';
+import { ListHeader } from '~/components/list/ListHeader';
 
 type Item =
   | {
@@ -28,9 +28,8 @@ type Item =
     };
 
 export const ActivityScreen = withSkeleton(() => {
-  const styles = useStyles();
   const { AppbarHeader, handleScroll } = useAppbarHeader();
-  const navigation = useRootNavigation();
+  const { navigate } = useNavigation();
   const [pendingProposals] = useProposalsMetadata({ state: 'Pending' });
   const [executingProposals] = useProposalsMetadata({ state: 'Executing' });
   const [executedProposals] = useProposalsMetadata({ state: 'Executed' });
@@ -66,21 +65,17 @@ export const ActivityScreen = withSkeleton(() => {
       </AppbarHeader>
 
       <SectionList
-        renderSectionHeader={({ section }) => (
-          <Text variant="bodyLarge" style={styles.title}>
-            {section.title}
-          </Text>
-        )}
+        renderSectionHeader={({ section }) => <ListHeader>{section.title}</ListHeader>}
         renderItem={({ item }) =>
           match(item)
-            .with({ type: 'proposal' }, ({ activity }) => (
+            .with({ type: 'proposal' }, ({ activity: proposal }) => (
               <ProposalItem
-                proposal={activity}
-                onPress={() => navigation.navigate('Proposal', { proposal: activity })}
+                proposal={proposal}
+                onPress={() => navigate('Proposal', { proposal })}
               />
             ))
-            .with({ type: 'transfer' }, ({ activity }) => (
-              <IncomingTransferItem transfer={activity.id} />
+            .with({ type: 'transfer' }, ({ activity: transfer }) => (
+              <IncomingTransferItem transfer={transfer.id} />
             ))
             .exhaustive()
         }
@@ -99,10 +94,3 @@ export const ActivityScreen = withSkeleton(() => {
     </Box>
   );
 }, ListScreenSkeleton);
-
-const useStyles = makeStyles(({ space }) => ({
-  title: {
-    marginHorizontal: space(2),
-    marginBottom: space(1),
-  },
-}));

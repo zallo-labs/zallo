@@ -7,7 +7,7 @@ export interface LineSkeletonProps {
   height?: number;
 }
 
-export const LineSkeleton = ({ width = 100, height = 10 }: LineSkeletonProps) => {
+export const LineSkeleton = ({ width = 100, height = 8 }: LineSkeletonProps) => {
   const { roundness } = useTheme();
 
   return (

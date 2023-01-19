@@ -1,6 +1,5 @@
 import { gql } from '@apollo/client';
 import { CommentsDocument, CommentsQuery, CommentsQueryVariables } from '~/gql/generated.api';
-import { useApiClient } from '~/gql/GqlProvider';
 import { address, Address, Id, toId } from 'lib';
 import { DateTime } from 'luxon';
 import { useMemo } from 'react';
@@ -51,10 +50,7 @@ export const useComments = (commentable: Commentable) => {
 
   const { data, ...rest } = useSuspenseQuery<CommentsQuery, CommentsQueryVariables>(
     CommentsDocument,
-    {
-      client: useApiClient(),
-      variables: id,
-    },
+    { variables: id },
   );
   usePollWhenFocussed(rest, 3);
 

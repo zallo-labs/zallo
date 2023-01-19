@@ -53,6 +53,7 @@ const getStatus = (submissions: Submission[]): ProposalState => {
   if (submissions.some((s) => s.status === 'success')) return 'executed';
   if (submissions.some((s) => s.status === 'pending')) return 'executing';
   if (submissions.some((s) => s.status === 'failure')) return 'failed';
+  // assert(false); // Unreachable
   return 'pending'; // Unreachable
 };
 

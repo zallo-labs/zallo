@@ -5,7 +5,6 @@ import {
   ProposalQueryVariables,
   useRejectMutation,
 } from '~/gql/generated.api';
-import { useApiClient } from '~/gql/GqlProvider';
 import { useCallback } from 'react';
 import { Proposal } from '~/queries/proposal';
 import { updateQuery } from '~/gql/update';
@@ -21,8 +20,7 @@ gql`
 
 export const useReject = () => {
   const user = useUser();
-
-  const [mutation] = useRejectMutation({ client: useApiClient() });
+  const [mutation] = useRejectMutation();
 
   const reject = useCallback(
     async ({ id }: Proposal) => {

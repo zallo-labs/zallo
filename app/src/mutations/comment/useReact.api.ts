@@ -7,7 +7,6 @@ import {
   ReactMutation,
   ReactMutationVariables,
 } from '~/gql/generated.api';
-import { useApiClient } from '~/gql/GqlProvider';
 import { QueryOpts } from '~/gql/update';
 import { Address, Id, toId } from 'lib';
 import { useCallback } from 'react';
@@ -29,9 +28,7 @@ export const getReactionId = (c: Comment, user: Address): Id => toId(`${c.id}-${
 export const useReact = (account: Address) => {
   const user = useUser();
 
-  const [mutate] = useMutation<ReactMutation, ReactMutationVariables>(ReactDocument, {
-    client: useApiClient(),
-  });
+  const [mutate] = useMutation<ReactMutation, ReactMutationVariables>(ReactDocument);
 
   return useCallback(
     (c: Comment, emoji: Emoji) => {

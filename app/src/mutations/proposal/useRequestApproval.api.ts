@@ -2,7 +2,6 @@ import { gql } from '@apollo/client';
 import { Address } from 'lib';
 import { useCallback } from 'react';
 import { useRequestApprovalMutation } from '~/gql/generated.api';
-import { useApiClient } from '~/gql/GqlProvider';
 import { ProposalId } from '~/queries/proposal';
 
 gql`
@@ -12,9 +11,7 @@ gql`
 `;
 
 export const useRequestApproval = () => {
-  const [mutate] = useRequestApprovalMutation({
-    client: useApiClient(),
-  });
+  const [mutate] = useRequestApprovalMutation();
 
   return useCallback(
     (proposal: ProposalId, approvers: Set<Address>) =>

@@ -6,7 +6,6 @@ import {
   ContactsQueryVariables,
   useUpsertContactMutation,
 } from '~/gql/generated.api';
-import { useApiClient } from '~/gql/GqlProvider';
 import { Contact, NewContact } from '~/queries/contacts/useContacts.api';
 import { toId } from 'lib';
 import { updateQuery } from '~/gql/update';
@@ -22,8 +21,7 @@ gql`
 
 export const useUpsertContact = () => {
   const user = useUser();
-
-  const [mutation] = useUpsertContactMutation({ client: useApiClient() });
+  const [mutation] = useUpsertContactMutation();
 
   return useCallback(
     (cur: NewContact, prev?: Contact) => {

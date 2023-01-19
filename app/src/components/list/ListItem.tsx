@@ -46,7 +46,7 @@ export const ListItem = ({
   if (typeof Trailing === 'number' && Trailing > maxTrailing) Trailing = `${maxTrailing}+`;
 
   const HeadlineText = ({ style, ...props }: TextProps) => (
-    <Text variant="bodyLarge" {...props} style={[styles.headline, style]} />
+    <Text variant="bodyLarge" numberOfLines={2} {...props} style={[styles.headline, style]} />
   );
   const SupportingText = ({ style, ...props }: TextProps) => (
     <Text

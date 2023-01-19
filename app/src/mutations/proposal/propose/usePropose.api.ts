@@ -1,5 +1,4 @@
 import { gql } from '@apollo/client';
-import { useApiClient } from '~/gql/GqlProvider';
 import { hexlify } from 'ethers/lib/utils';
 import { hashTx, QuorumGuid, toTx, TxOptions } from 'lib';
 import { DateTime } from 'luxon';
@@ -53,7 +52,7 @@ export interface ProposeResponse extends ProposalId {
 
 export const useApiPropose = () => {
   const credentials = useCredentials();
-  const [mutation] = useProposeMutation({ client: useApiClient() });
+  const [mutation] = useProposeMutation();
 
   const propose = useCallback(
     async (txOpts: TxOptions, quorum: QuorumGuid): Promise<ProposeResponse> => {

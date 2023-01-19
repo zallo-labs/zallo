@@ -41,9 +41,9 @@ export type Accountlike = Address | QuorumGuid;
 export const getAccountlikeAddr = (account?: Accountlike) =>
   typeof account === 'object' ? account.account : account || null;
 
-export const useAccount = (id: Accountlike) => {
+export const useAccount = <Id extends Accountlike | undefined>(id: Id) => {
   const credentials = useCredentials();
-  const addr = typeof id === 'string' ? id : id.account;
+  const addr = getAccountlikeAddr(id);
 
   const { data, ...rest } = useSuspenseQuery<AccountQuery, AccountQueryVariables>(AccountDocument, {
     variables: { account: addr },
@@ -51,18 +51,19 @@ export const useAccount = (id: Accountlike) => {
   usePollWhenFocussed(rest, 30);
 
   const a = data.account;
-  assert(a);
+  if (id) assert(a);
 
-  const account = useMemo(
-    (): CombinedAccount => ({
+  const account = useMemo((): CombinedAccount | undefined => {
+    if (!addr || !a) return undefined;
+
+    return {
       addr,
       contract: connectAccount(addr, credentials),
       active: a.isActive,
       name: a.name,
       quorums: (a.quorums ?? []).map(CombinedQuorum.fromFragment),
-    }),
-    [addr, credentials, a.isActive, a.name, a.quorums],
-  );
+    };
+  }, [addr, a, credentials]);
 
-  return account;
+  return account as Id extends undefined ? CombinedAccount | undefined : CombinedAccount;
 };

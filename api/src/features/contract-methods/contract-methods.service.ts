@@ -4,7 +4,7 @@ import { Contract } from 'ethers';
 import { FunctionFragment, Interface } from 'ethers/lib/utils';
 import { Address } from 'lib';
 import { PrismaService } from 'nestjs-prisma';
-import { fetch, fetchJson } from '~/util/fetch';
+import { fetchJson } from '~/util/fetch';
 
 const ETHERSCAN_API_URL = `https://api${
   CONFIG.chain.name === 'testnet' ? '-goerli' : ''
@@ -13,7 +13,7 @@ const ETHERSCAN_API_URL = `https://api${
 const getEtherscanUrl = (args: string) =>
   `${ETHERSCAN_API_URL}?apikey=${CONFIG.etherscanApiKey}&${args}`;
 
-interface Resp {
+interface EtherscanResp {
   message: 'OK' | 'NOTOK';
   result: string;
 }
@@ -23,7 +23,8 @@ export class ContractMethodsService {
   constructor(private prisma: PrismaService) {}
 
   async tryFetchAbi(addr: Address): Promise<Interface | undefined> {
-    return (await this.tryFetchEtherscanAbi(addr)) ?? (await this.tryFetchDecompiledAbi(addr));
+    // return (await this.tryFetchEtherscanAbi(addr)) ?? (await this.tryFetchDecompiledAbi(addr));
+    return undefined;
   }
 
   async populateDbWithAbi(contract: Address, contractInterface: Interface) {
@@ -39,7 +40,7 @@ export class ContractMethodsService {
   }
 
   private async tryFetchEtherscanAbi(addr: Address) {
-    const resp: Resp | undefined = await fetchJson(
+    const resp: EtherscanResp | undefined = await fetchJson(
       getEtherscanUrl(`module=contract&action=getabi&address=${addr}`),
     );
 
@@ -50,7 +51,9 @@ export class ContractMethodsService {
     const resp = await fetchJson(`https://eveem.org/code/${addr}.json`);
 
     return resp?.functions?.length
-      ? Contract.getInterface(resp.functions.map((frag) => FunctionFragment.from(frag.name)))
+      ? Contract.getInterface(
+          resp.functions.map((frag: { name: string }) => FunctionFragment.from(frag.name)),
+        )
       : undefined;
   }
 }

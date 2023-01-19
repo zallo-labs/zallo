@@ -73,7 +73,10 @@ export class ProposalsResolver {
                     transactions: { none: {} },
                   }))
                   .with(ProposalState.Executing, () => ({
-                    transactions: { none: { response: {} } },
+                    transactions: {
+                      some: {},
+                      none: { response: {} },
+                    },
                   }))
                   .with(ProposalState.Executed, () => ({
                     transactions: { some: { response: { is: { success: { equals: true } } } } },

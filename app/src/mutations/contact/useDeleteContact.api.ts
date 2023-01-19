@@ -7,7 +7,6 @@ import {
   ContactsQueryVariables,
   ContactsDocument,
 } from '~/gql/generated.api';
-import { useApiClient } from '~/gql/GqlProvider';
 import { useCallback } from 'react';
 import { Contact } from '~/queries/contacts/useContacts.api';
 import { QueryOpts } from '~/gql/update';
@@ -21,9 +20,6 @@ gql`
 export const useDeleteContact = () => {
   const [mutation] = useMutation<DeleteContactMutation, DeleteContactMutationVariables>(
     DeleteContactDocument,
-    {
-      client: useApiClient(),
-    },
   );
 
   return useCallback(

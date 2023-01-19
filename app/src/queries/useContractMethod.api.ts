@@ -4,7 +4,6 @@ import {
   ContractMethodQuery,
   ContractMethodQueryVariables,
 } from '~/gql/generated.api';
-import { useApiClient } from '~/gql/GqlProvider';
 import { Contract } from 'ethers';
 import { FunctionFragment, Interface } from 'ethers/lib/utils';
 import { Call, getDataSighash, tryOrDefault } from 'lib';
@@ -32,7 +31,6 @@ export const useContractMethod = (call?: Call) => {
   const { data } = useSuspenseQuery<ContractMethodQuery, ContractMethodQueryVariables>(
     ContractMethodDocument,
     {
-      client: useApiClient(),
       variables: { contract: call?.to, sighash },
       skip: !call || !sighash,
     },
