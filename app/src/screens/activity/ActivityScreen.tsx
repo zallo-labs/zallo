@@ -27,34 +27,50 @@ type Item =
       type: 'transfer';
     };
 
+const proposalToActivity = (proposal: ProposalMetadata): Item => ({
+  activity: proposal,
+  type: 'proposal',
+});
+
 export const ActivityScreen = withSkeleton(() => {
   const { AppbarHeader, handleScroll } = useAppbarHeader();
   const { navigate } = useNavigation();
-  const [pendingProposals] = useProposalsMetadata({ state: 'Pending' });
-  const [executingProposals] = useProposalsMetadata({ state: 'Executing' });
-  const [executedProposals] = useProposalsMetadata({ state: 'Executed' });
+  const [proposalsRequiringAction] = useProposalsMetadata({
+    state: 'Pending',
+    userHasApproved: false,
+  });
+  const [proposalsAwaitingApproval] = useProposalsMetadata({
+    state: 'Pending',
+    userHasApproved: true,
+  });
+  const [proposalsExecuting] = useProposalsMetadata({ state: 'Executing' });
+  const [proposalsExecuted] = useProposalsMetadata({ state: 'Executed' });
   // const [incomingTransfers] = useTransfersMetadata('IN');
 
   const sections = useMemo(
     () =>
       [
         {
-          title: 'Pending',
-          data: pendingProposals.map((activity): Item => ({ activity, type: 'proposal' })),
+          title: 'Action required',
+          data: proposalsRequiringAction.map(proposalToActivity),
+        },
+        {
+          title: 'Awaiting approval',
+          data: proposalsAwaitingApproval.map(proposalToActivity),
         },
         {
           title: 'Executing',
-          data: executingProposals.map((activity): Item => ({ activity, type: 'proposal' })),
+          data: proposalsExecuting.map(proposalToActivity),
         },
         {
           title: 'Executed',
           data: [
-            ...executedProposals.map((activity): Item => ({ activity, type: 'proposal' })),
+            ...proposalsExecuted.map(proposalToActivity),
             // ...incomingTransfers.map((activity): Item => ({ activity, type: 'transfer' })),
           ].sort((a, b) => b.activity.timestamp.toMillis() - a.activity.timestamp.toMillis()),
         },
       ].filter((section) => section.data.length > 0),
-    [pendingProposals, executingProposals, executedProposals],
+    [proposalsRequiringAction, proposalsAwaitingApproval, proposalsExecuting, proposalsExecuted],
   );
 
   return (

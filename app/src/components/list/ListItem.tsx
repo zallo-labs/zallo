@@ -22,6 +22,7 @@ export interface ListItemTextProps {
 
 export interface ListItemProps extends Pick<TouchableRippleProps, 'onPress' | 'disabled'> {
   leading?: FC<ListIconElementProps> | string;
+  overline?: ReactNode | FC<ListItemTextProps>;
   headline: ReactNode | FC<ListItemTextProps>;
   supporting?: ReactNode | FC<ListItemTextProps>;
   trailing?: FC<ListIconElementProps & ListItemTextProps> | ReactNode | number;
@@ -32,11 +33,12 @@ export interface ListItemProps extends Pick<TouchableRippleProps, 'onPress' | 'd
 
 export const ListItem = ({
   leading: Leading,
+  overline: Overline,
   headline: Headline,
   supporting: Supporting,
   trailing: Trailing,
   maxTrailing = 100,
-  lines = Supporting ? 2 : 1,
+  lines = (1 + Number(!!Overline) + Number(!!Supporting)) as Lines,
   selected,
   disabled,
   ...touchableProps
@@ -45,6 +47,9 @@ export const ListItem = ({
 
   if (typeof Trailing === 'number' && Trailing > maxTrailing) Trailing = `${maxTrailing}+`;
 
+  const OverlineText = ({ style, ...props }: TextProps) => (
+    <Text variant="labelSmall" numberOfLines={1} {...props} style={[styles.overline, style]} />
+  );
   const HeadlineText = ({ style, ...props }: TextProps) => (
     <Text variant="bodyLarge" numberOfLines={2} {...props} style={[styles.headline, style]} />
   );
@@ -53,7 +58,7 @@ export const ListItem = ({
       variant="bodyMedium"
       {...props}
       style={[styles.supporting, style]}
-      numberOfLines={lines}
+      numberOfLines={Math.max(lines - 1, 1)}
     />
   );
   const TrailingText = ({ style, ...props }: TextProps) => (
@@ -83,6 +88,13 @@ export const ListItem = ({
         )}
 
         <Box style={styles.mainContainer}>
+          {Overline &&
+            (typeof Overline === 'function' ? (
+              <Overline Text={OverlineText} />
+            ) : (
+              <OverlineText>{Overline}</OverlineText>
+            ))}
+
           {typeof Headline === 'function' ? (
             <Headline Text={HeadlineText} />
           ) : (
@@ -153,6 +165,9 @@ const useStyles = makeStyles(({ colors, s, corner }, { lines, selected, disabled
     mainContainer: {
       flex: 1,
       justifyContent,
+    },
+    overline: {
+      color: !disabled ? colors.onSurfaceVariant : colors.onSurfaceDisabled,
     },
     headline: {
       color: !disabled ? colors.onSurface : colors.onSurfaceDisabled,
