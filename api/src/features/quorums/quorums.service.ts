@@ -1,6 +1,6 @@
 import { forwardRef, Inject, Injectable } from '@nestjs/common';
-import { Prisma, PrismaPromise } from '@prisma/client';
-import { ACCOUNT_INTERFACE, Address, hashQuorum, Quorum, QuorumGuid, QuorumKey } from 'lib';
+import { Prisma } from '@prisma/client';
+import { ACCOUNT_INTERFACE, Address, hashQuorum, Quorum, QuorumKey } from 'lib';
 import { PrismaService } from 'nestjs-prisma';
 import { connectAccount, connectOrCreateUser, connectQuorum } from '~/util/connect-or-create';
 import { ProposalsService } from '../proposals/proposals.service';
@@ -14,29 +14,9 @@ interface CreateStateParams {
   proposingQuorumKey: QuorumKey;
   approvers: Set<Address>;
   spending?: SpendingInput;
-  tx: Prisma.TransactionClient;
+  tx?: Prisma.TransactionClient;
   quorumArgs?: Prisma.QuorumArgs;
 }
-
-const WHERE_QUROUM_IS_ACTIVE = {
-  OR: [
-    {
-      // When the account is active
-      proposal: {
-        transactions: { some: { response: { success: true } } },
-      },
-    },
-    {
-      // Initialization quorum
-      proposalId: null,
-      account: { isActive: true },
-    },
-    {
-      // When the quorum is not active, thus a proposal to remove is not required
-      isActiveWithoutProposal: true,
-    },
-  ],
-} satisfies Partial<Prisma.QuorumStateWhereInput>;
 
 @Injectable()
 export class QuorumsService {
@@ -52,7 +32,7 @@ export class QuorumsService {
     proposingQuorumKey,
     approvers,
     spending,
-    tx,
+    tx = this.prisma,
     quorumArgs,
   }: CreateStateParams): Promise<QuorumModel> {
     const quorum: Quorum = {
@@ -113,43 +93,5 @@ export class QuorumsService {
     });
 
     return r.quorum;
-  }
-
-  async activeState<T extends Prisma.QuorumStateFindFirstArgs>(
-    { account, key }: QuorumGuid,
-    args?: Prisma.SelectSubset<T, Prisma.QuorumStateFindFirstArgs>,
-  ) {
-    const r = await this.prisma.quorumState.findFirst({
-      ...args!,
-      where: {
-        accountId: account,
-        quorumKey: key,
-        ...WHERE_QUROUM_IS_ACTIVE,
-      },
-      orderBy: { createdAt: 'desc' },
-    });
-
-    return !r?.isRemoved ? r : null;
-  }
-
-  proposedStatesQuery({ account, key }: QuorumGuid) {
-    return {
-      where: {
-        accountId: account,
-        quorumKey: key,
-        NOT: WHERE_QUROUM_IS_ACTIVE,
-      },
-      orderBy: { createdAt: 'desc' },
-    } satisfies Prisma.QuorumStateFindManyArgs;
-  }
-
-  async proposedStates<T extends Prisma.QuorumStateFindManyArgs>(
-    quorum: QuorumGuid,
-    args?: Omit<Prisma.SelectSubset<T, Prisma.QuorumStateFindManyArgs>, 'where' | 'orderBy'>,
-  ) {
-    return this.prisma.quorumState.findMany({
-      ...args,
-      ...this.proposedStatesQuery(quorum),
-    }) as PrismaPromise<Array<Prisma.QuorumStateGetPayload<T>>>;
   }
 }

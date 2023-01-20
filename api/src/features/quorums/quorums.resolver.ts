@@ -75,26 +75,19 @@ export class QuorumsResolver {
     return `${quorum.accountId}-${quorum.key}`;
   }
 
-  @ResolveField(() => QuorumState, { nullable: true })
-  async activeState(
-    @Parent() quorum: Quorum,
-    @Info() info: GraphQLResolveInfo,
-  ): Promise<QuorumState | null> {
-    return this.service.activeState(
-      { account: quorum.accountId as Address, key: quorum.key as QuorumKey },
-      { ...getSelect(info) },
-    );
-  }
-
   @ResolveField(() => [QuorumState])
   async proposedStates(
     @Parent() quorum: Quorum,
     @Info() info: GraphQLResolveInfo,
   ): Promise<QuorumState[]> {
-    return this.service.proposedStates(
-      { account: quorum.accountId as Address, key: quorum.key as QuorumKey },
-      { ...getSelect(info) },
-    );
+    return this.prisma.quorum
+      .findUniqueOrThrow({
+        where: { accountId_key: quorum },
+      })
+      .states({
+        where: { activeStateOfQuorum: null },
+        ...getSelect(info),
+      });
   }
 
   @Mutation(() => Quorum)
@@ -159,9 +152,14 @@ export class QuorumsResolver {
     @UserId() user: Address,
     @Info() info: GraphQLResolveInfo,
   ): Promise<Quorum> {
-    const isActive = !!(await this.service.activeState({ account, key }, { select: { id: true } }));
-
     return this.prisma.$transaction(async (tx) => {
+      const isActive = !!(
+        await tx.quorum.findUniqueOrThrow({
+          where: { accountId_key: { accountId: account, key } },
+          select: { activeStateId: true },
+        })
+      ).activeStateId;
+
       // No proposal is required if the quorum isn't active
       const proposal =
         isActive &&
@@ -188,7 +186,7 @@ export class QuorumsResolver {
           isRemoved: true,
           ...(proposal
             ? { proposal: { connect: { id: proposal.id } } }
-            : { isActiveWithoutProposal: true }),
+            : { activeStateOfQuorum: connectQuorum(account, key) }),
         },
         select: {
           quorum: { ...getSelect(info) },

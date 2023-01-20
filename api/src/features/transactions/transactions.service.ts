@@ -51,22 +51,20 @@ export class TransactionsService {
             signature: true,
           },
         },
+        quorum: {
+          select: {
+            activeState: {
+              include: {
+                approvers: { select: { userId: true } },
+                limits: true,
+              },
+            },
+          },
+        },
       },
     });
 
-    const quorum = await this.quorums.activeState(
-      {
-        account: address(proposal.accountId),
-        key: toQuorumKey(proposal.quorumKey),
-      },
-      {
-        include: {
-          approvers: { select: { userId: true } },
-          limits: true,
-        },
-      },
-    );
-
+    const quorum = proposal.quorum.activeState;
     if (!quorum) return undefined;
 
     const signers: Signer[] = proposal.approvals

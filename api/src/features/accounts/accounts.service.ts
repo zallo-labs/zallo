@@ -88,7 +88,22 @@ export class AccountsService {
 
     await this.prisma.account.update({
       where: { id: accountAddr },
-      data: { isActive: true },
+      data: {
+        isActive: true,
+        quorums: {
+          update: quorumStates.map((state) => ({
+            where: {
+              accountId_key: {
+                accountId: state.accountId,
+                key: state.quorumKey,
+              },
+            },
+            data: {
+              activeStateId: state.id,
+            },
+          })),
+        },
+      },
     });
   }
 }

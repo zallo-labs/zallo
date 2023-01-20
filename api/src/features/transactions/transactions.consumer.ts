@@ -18,9 +18,7 @@ export class TransactionsConsumer {
     const response = await this.subgraph.transactionResponse(job.data.transactionHash);
     if (!response) return job.moveToFailed({ message: 'Transaction response not found' });
 
-    const {
-      transaction: { proposal },
-    } = await this.prisma.transactionResponse.create({
+    const { transaction } = await this.prisma.transactionResponse.create({
       data: response,
       select: {
         transaction: {
@@ -30,6 +28,8 @@ export class TransactionsConsumer {
         },
       },
     });
-    this.proposals.publishProposal(proposal);
+    this.proposals.publishProposal(transaction.proposal);
+
+    // If the proposal is related to a quorumState then update the quorum's active state
   }
 }
