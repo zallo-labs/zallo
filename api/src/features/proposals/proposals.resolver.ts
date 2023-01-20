@@ -28,7 +28,11 @@ import { Proposal } from '@gen/proposal/proposal.model';
 import { ExpoService } from '~/expo/expo.service';
 import { match } from 'ts-pattern';
 import { ProposalWhereInput } from '@gen/proposal/proposal-where.input';
-import { ProposalsService, PROPOSAL_SUB } from './proposals.service';
+import {
+  ProposalsService,
+  ProposalSubscriptionPayload,
+  PROPOSAL_SUBSCRIPTION,
+} from './proposals.service';
 import { Transaction } from '@gen/transaction/transaction.model';
 import { PubsubService } from '~/pubsub/pubsub.service';
 
@@ -97,20 +101,20 @@ export class ProposalsResolver {
   }
 
   @Subscription(() => Proposal, {
-    name: PROPOSAL_SUB,
+    name: PROPOSAL_SUBSCRIPTION,
     filter: (
-      { proposalModified }: { proposalModified: Proposal },
+      { proposal }: ProposalSubscriptionPayload,
       { accounts, ids, created }: ProposalModifiedArgs,
     ) => {
-      const mAccounts = !accounts || accounts.has(address(proposalModified.accountId));
-      const mIds = !ids || ids.has(proposalModified.id);
-      const mCreated = created && (proposalModified.approvals?.length ?? 0) === 0;
+      const mAccounts = !accounts || accounts.has(address(proposal.accountId));
+      const mIds = !ids || ids.has(proposal.id);
+      const mCreated = created && (proposal.approvals?.length ?? 0) === 0;
 
       return mAccounts && (mIds || mCreated);
     },
   })
   async proposalModified(@Args() _args: ProposalModifiedArgs) {
-    return this.pubsub.asyncIterator(PROPOSAL_SUB);
+    return this.pubsub.asyncIterator(PROPOSAL_SUBSCRIPTION);
   }
 
   @Mutation(() => Proposal)

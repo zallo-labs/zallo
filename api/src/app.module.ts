@@ -23,6 +23,7 @@ import { SubgraphModule } from './features/subgraph/subgraph.module';
 import { ExpoModule } from './expo/expo.module';
 import { PubsubModule } from './pubsub/pubsub.module';
 import { QuorumsModule } from './features/quorums/quorums.module';
+import { BullModule } from '@nestjs/bull';
 
 @Module({
   imports: [
@@ -32,7 +33,17 @@ import { QuorumsModule } from './features/quorums/quorums.module';
         middlewares: [loggingMiddleware()],
       },
     }),
-    RedisModule.forRoot({ config: { url: CONFIG.redisUrl } }),
+    RedisModule.forRoot({
+      // Publisher client
+      config: { url: CONFIG.redisUrl },
+    }),
+    BullModule.forRoot({
+      url: CONFIG.redisUrl, // Requires a subscriber client, so the default RedisService can't be used
+      defaultJobOptions: {
+        removeOnComplete: true,
+        removeOnFail: true,
+      },
+    }),
     AuthModule,
     ApolloModule,
     PubsubModule,

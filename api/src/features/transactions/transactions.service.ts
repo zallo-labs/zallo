@@ -1,6 +1,6 @@
+import { BullModuleOptions, InjectQueue } from '@nestjs/bull';
 import { forwardRef, Inject, Injectable } from '@nestjs/common';
-import { Prisma } from '@prisma/client';
-import { UserInputError } from 'apollo-server-core';
+import { Queue } from 'bull';
 import { BigNumber } from 'ethers';
 import {
   address,
@@ -13,24 +13,37 @@ import {
   TokenLimit,
 } from 'lib';
 import { PrismaService } from 'nestjs-prisma';
-import { TransactionResponse } from 'zksync-web3/build/src/types';
 import { ProviderService } from '~/provider/provider.service';
 import { QuorumsService } from '../quorums/quorums.service';
-import { SubgraphService } from '../subgraph/subgraph.service';
+
+export interface TransactionResponseJob {
+  transactionHash: string;
+}
 
 @Injectable()
 export class TransactionsService {
+  static readonly QUEUE_NAME = 'Transactions';
+  static readonly QUEUE_OPTIONS: BullModuleOptions = {
+    name: 'Transactions',
+    defaultJobOptions: {
+      attempts: 20,
+    },
+  };
+
   constructor(
     private prisma: PrismaService,
     private provider: ProviderService,
-    private subgraph: SubgraphService,
     @Inject(forwardRef(() => QuorumsService))
     private quorums: QuorumsService,
-  ) {}
+    @InjectQueue(TransactionsService.QUEUE_OPTIONS.name)
+    private responseQueue: Queue<TransactionResponseJob>,
+  ) {
+    this.addMissingResponseJobs();
+  }
 
-  async tryExecute(id: string) {
+  async tryExecute(proposalId: string) {
     const proposal = await this.prisma.proposal.findUniqueOrThrow({
-      where: { id },
+      where: { id: proposalId },
       include: {
         approvals: {
           select: {
@@ -65,7 +78,7 @@ export class TransactionsService {
 
     if (quorum.approvers.length < signers.length) return undefined;
 
-    const resp = await executeTx({
+    const transaction = await executeTx({
       account: this.provider.connectAccount(address(proposal.accountId)),
       tx: toTx({
         to: address(proposal.to),
@@ -95,28 +108,37 @@ export class TransactionsService {
       signers,
     });
 
-    return this.submitExecution(id, resp);
-  }
-
-  async submitExecution(
-    proposalId: string,
-    submission: TransactionResponse | string,
-    args: Omit<Prisma.TransactionCreateArgs, 'data'> = {},
-  ) {
-    const transaction =
-      typeof submission === 'object' ? submission : await this.provider.getTransaction(submission);
-    if (!transaction) throw new UserInputError('Transaction not found');
-
-    return await this.prisma.transaction.create({
-      ...args,
+    await this.prisma.transaction.create({
       data: {
         proposal: { connect: { id: proposalId } },
         hash: transaction.hash,
         nonce: transaction.nonce,
         gasLimit: transaction.gasLimit.toString(),
         gasPrice: transaction.gasPrice?.toString(),
-        response: { create: await this.subgraph.transactionResponse(proposalId) },
+      },
+      select: {},
+    });
+
+    this.responseQueue.add({ transactionHash: transaction.hash }, { delay: 1000 /* 1s */ });
+  }
+
+  private async addMissingResponseJobs() {
+    const jobs = (await this.responseQueue.getJobs(['waiting', 'active', 'delayed', 'paused'])).map(
+      (job) => job.data,
+    );
+
+    const missingResponses = await this.prisma.transaction.findMany({
+      where: {
+        response: null,
+        hash: { notIn: jobs.map((job) => job.transactionHash) },
+      },
+      select: {
+        hash: true,
       },
     });
+
+    return this.responseQueue.addBulk(
+      missingResponses.map((r) => ({ data: { transactionHash: r.hash } })),
+    );
   }
 }

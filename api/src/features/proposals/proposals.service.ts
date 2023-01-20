@@ -1,5 +1,6 @@
+import { Proposal } from '@gen/proposal/proposal.model';
 import { forwardRef, Inject, Injectable } from '@nestjs/common';
-import { Prisma, Proposal } from '@prisma/client';
+import { Prisma } from '@prisma/client';
 import { UserInputError } from 'apollo-server-core';
 import { hexlify } from 'ethers/lib/utils';
 import { Address, toTx, hashTx, randomTxSalt, validateSignature, TxOptions } from 'lib';
@@ -18,7 +19,11 @@ type CreateParams<T extends Prisma.ProposalCreateArgs> = {
 type ApproveParams = { user: Address } & ApproveArgs &
   Omit<Prisma.ProposalFindUniqueOrThrowArgs, 'where'>;
 
-export const PROPOSAL_SUB = 'proposal';
+export const PROPOSAL_SUBSCRIPTION = 'proposal';
+
+export interface ProposalSubscriptionPayload {
+  [PROPOSAL_SUBSCRIPTION]: Proposal;
+}
 
 @Injectable()
 export class ProposalsService {
@@ -84,7 +89,7 @@ export class ProposalsService {
   }
 
   public publishProposal(proposal: Proposal) {
-    this.pubsub.publish(PROPOSAL_SUB, { [PROPOSAL_SUB]: proposal });
+    this.pubsub.publish<ProposalSubscriptionPayload>(PROPOSAL_SUBSCRIPTION, { proposal });
   }
 
   async validateSignatureOrThrow(user: Address, proposalHash: string, signature: string) {

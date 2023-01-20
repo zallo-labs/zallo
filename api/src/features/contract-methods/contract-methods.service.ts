@@ -4,7 +4,7 @@ import { Contract } from 'ethers';
 import { FunctionFragment, Interface } from 'ethers/lib/utils';
 import { Address } from 'lib';
 import { PrismaService } from 'nestjs-prisma';
-import { fetchJson } from '~/util/fetch';
+import { fetchJsonWithRetry } from '~/util/fetch';
 
 const ETHERSCAN_API_URL = `https://api${
   CONFIG.chain.name === 'testnet' ? '-goerli' : ''
@@ -40,7 +40,7 @@ export class ContractMethodsService {
   }
 
   private async tryFetchEtherscanAbi(addr: Address) {
-    const resp: EtherscanResp | undefined = await fetchJson(
+    const resp: EtherscanResp | undefined = await fetchJsonWithRetry(
       getEtherscanUrl(`module=contract&action=getabi&address=${addr}`),
     );
 
@@ -48,7 +48,7 @@ export class ContractMethodsService {
   }
 
   private async tryFetchDecompiledAbi(addr: Address) {
-    const resp = await fetchJson(`https://eveem.org/code/${addr}.json`);
+    const resp = await fetchJsonWithRetry(`https://eveem.org/code/${addr}.json`);
 
     return resp?.functions?.length
       ? Contract.getInterface(
