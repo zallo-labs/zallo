@@ -24,8 +24,8 @@
         "CHAIN": "testnet",
         "API_URL": "https://api.zallo.io",
         "SUBGRAPH_GQL_URL": "https://api.thegraph.com/subgraphs/name/hbriese/zallo",
-        "ACCOUNT_IMPL_TESTNET": "0x53b0AC596b0c2ED4dD8442F7196e1Db4e28a2816",
-        "PROXY_FACTORY_TESTNET": "0x5687f4FFa1104a1F0d13Ef969598709254A72f6f",
+        "ACCOUNT_IMPL_TESTNET": "0x7F19BE7A3948078c3413C557CE850903d5dFEd67",
+        "PROXY_FACTORY_TESTNET": "0xAB1BBa8527B119EE0fEd4Af61f81B954Fd438A1e",
         "MULTI_CALL_TESTNET": "0x164921b76384661089a6295b57F7873784BaB626"
       }
     },
@@ -37,8 +37,8 @@
         "CHAIN": "testnet",
         "API_URL": "https://dev.api.zallo.io",
         "SUBGRAPH_GQL_URL": "https://api.thegraph.com/subgraphs/name/hbriese/zallo-dev",
-        "ACCOUNT_IMPL_TESTNET": "0x53b0AC596b0c2ED4dD8442F7196e1Db4e28a2816",
-        "PROXY_FACTORY_TESTNET": "0x5687f4FFa1104a1F0d13Ef969598709254A72f6f",
+        "ACCOUNT_IMPL_TESTNET": "0x7F19BE7A3948078c3413C557CE850903d5dFEd67",
+        "PROXY_FACTORY_TESTNET": "0xAB1BBa8527B119EE0fEd4Af61f81B954Fd438A1e",
         "MULTI_CALL_TESTNET": "0x164921b76384661089a6295b57F7873784BaB626"
       }
     },
