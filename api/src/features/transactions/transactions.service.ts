@@ -1,5 +1,5 @@
 import { BullModuleOptions, InjectQueue } from '@nestjs/bull';
-import { forwardRef, Inject, Injectable } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { Queue } from 'bull';
 import { BigNumber } from 'ethers';
 import {
@@ -14,7 +14,6 @@ import {
 } from 'lib';
 import { PrismaService } from 'nestjs-prisma';
 import { ProviderService } from '~/provider/provider.service';
-import { QuorumsService } from '../quorums/quorums.service';
 
 export interface TransactionResponseJob {
   transactionHash: string;
@@ -22,19 +21,14 @@ export interface TransactionResponseJob {
 
 @Injectable()
 export class TransactionsService {
-  static readonly QUEUE_NAME = 'Transactions';
-  static readonly QUEUE_OPTIONS: BullModuleOptions = {
+  static readonly QUEUE_OPTIONS = {
     name: 'Transactions',
-    defaultJobOptions: {
-      attempts: 20,
-    },
-  };
+    defaultJobOptions: { attempts: 20 },
+  } satisfies BullModuleOptions;
 
   constructor(
     private prisma: PrismaService,
     private provider: ProviderService,
-    @Inject(forwardRef(() => QuorumsService))
-    private quorums: QuorumsService,
     @InjectQueue(TransactionsService.QUEUE_OPTIONS.name)
     private responseQueue: Queue<TransactionResponseJob>,
   ) {

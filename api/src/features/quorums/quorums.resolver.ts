@@ -1,9 +1,8 @@
 import { QuorumState } from '@gen/quorum-state/quorum-state.model';
 import { Quorum } from '@gen/quorum/quorum.model';
-import { forwardRef, Inject } from '@nestjs/common';
 import { Args, ID, Info, Mutation, Parent, Query, ResolveField, Resolver } from '@nestjs/graphql';
 import { GraphQLResolveInfo } from 'graphql';
-import { ACCOUNT_INTERFACE, Address, QuorumKey, toQuorumKey } from 'lib';
+import { ACCOUNT_INTERFACE, Address, toQuorumKey } from 'lib';
 import { PrismaService } from 'nestjs-prisma';
 import { UserId } from '~/decorators/user.decorator';
 import { connectAccount, connectQuorum } from '~/util/connect-or-create';
@@ -24,7 +23,6 @@ export class QuorumsResolver {
   constructor(
     private service: QuorumsService,
     private prisma: PrismaService,
-    @Inject(forwardRef(() => ProposalsService))
     private proposals: ProposalsService,
   ) {}
 

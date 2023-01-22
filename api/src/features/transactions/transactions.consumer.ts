@@ -1,15 +1,17 @@
 import { Process, Processor } from '@nestjs/bull';
+import { forwardRef, Inject } from '@nestjs/common';
 import { Job } from 'bull';
 import { PrismaService } from 'nestjs-prisma';
 import { ProposalsService } from '../proposals/proposals.service';
 import { SubgraphService } from '../subgraph/subgraph.service';
 import { TransactionResponseJob, TransactionsService } from './transactions.service';
 
-@Processor(TransactionsService.QUEUE_NAME)
+@Processor(TransactionsService.QUEUE_OPTIONS.name)
 export class TransactionsConsumer {
   constructor(
     private prisma: PrismaService,
     private subgraph: SubgraphService,
+    @Inject(forwardRef(() => ProposalsService))
     private proposals: ProposalsService,
   ) {}
 

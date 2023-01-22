@@ -1,4 +1,4 @@
-import { forwardRef, Inject, Injectable } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
 import { ACCOUNT_INTERFACE, Address, hashQuorum, Quorum, QuorumKey } from 'lib';
 import { PrismaService } from 'nestjs-prisma';
@@ -20,10 +20,7 @@ interface CreateStateParams {
 
 @Injectable()
 export class QuorumsService {
-  constructor(
-    private prisma: PrismaService,
-    @Inject(forwardRef(() => ProposalsService)) private proposals: ProposalsService,
-  ) {}
+  constructor(private prisma: PrismaService, private proposals: ProposalsService) {}
 
   async createUpsertState({
     proposer,
