@@ -42,32 +42,33 @@ export const NameDeviceScreen = ({ route }: NameDeviceScreenProps) => {
         />
       </View>
 
-      <Actions
-        primary={
-          <Button
-            mode="contained"
-            onPress={async () => {
-              await updateUser({ name });
-              onContinue();
-            }}
-          >
-            Continue
-          </Button>
-        }
-      />
+      <Button
+        mode="contained"
+        style={styles.actionButton}
+        onPress={async () => {
+          await updateUser({ name });
+          onContinue();
+        }}
+      >
+        Continue
+      </Button>
     </View>
   );
 };
 
-const useStyles = makeStyles(({ space }) => ({
+const useStyles = makeStyles(({ space, s }) => ({
   root: {
     flex: 1,
   },
   container: {
+    flex: 1,
     marginHorizontal: space(2),
   },
   text: {
     textAlign: 'center',
     marginVertical: space(4),
+  },
+  actionButton: {
+    margin: s(16),
   },
 }));

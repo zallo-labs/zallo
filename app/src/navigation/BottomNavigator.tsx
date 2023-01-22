@@ -14,7 +14,7 @@ import {
   MaterialBottomTabScreenProps,
 } from '@react-navigation/material-bottom-tabs';
 import { useTheme } from '@theme/paper';
-import { CompositeScreenProps } from '@react-navigation/native';
+import { CompositeScreenProps, NavigatorScreenParams } from '@react-navigation/native';
 import { useNotificationsCount } from '~/util/NotificationsRegistrar';
 import { StackNavigatorScreenProps } from './StackNavigator';
 
@@ -23,6 +23,8 @@ export type BottomNavigatorParamList = {
   Home: undefined;
   Activity: undefined;
 };
+
+export type BottomNavigatorParams = NavigatorScreenParams<BottomNavigatorParamList> | undefined;
 
 export type BottomNavigatorNavigatonProp =
   MaterialBottomTabNavigationProp<BottomNavigatorParamList>;

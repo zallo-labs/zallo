@@ -1,6 +1,6 @@
 import { Box } from '~/components/layout/Box';
 import { Formik } from 'formik';
-import { Appbar, Text } from 'react-native-paper';
+import { Appbar, Button, Text } from 'react-native-paper';
 import { StackNavigatorScreenProps } from '~/navigation/StackNavigator';
 import * as Yup from 'yup';
 import { useCallback } from 'react';
@@ -10,7 +10,6 @@ import { CheckIcon } from '~/util/theme/icons';
 import { CreateAccountResult, useCreateAccount } from '~/mutations/account/useCreateAccount.api';
 import { AppbarBack } from '~/components/Appbar/AppbarBack';
 import { makeStyles } from '~/util/theme/makeStyles';
-import { RootNavigation, useRootNavigation } from '~/navigation/useRootNavigation';
 
 interface Values {
   name: string;
@@ -21,26 +20,25 @@ const schema: Yup.SchemaOf<Values> = Yup.object({
 });
 
 export interface CreateAccountScreenParams {
-  onCreate?: (res: CreateAccountResult, navigation: RootNavigation) => void;
+  onCreate?: (res: CreateAccountResult) => void;
 }
 
 export type CreateAccountScreenProps = StackNavigatorScreenProps<'CreateAccount'>;
 
-export const CreateAccountScreen = ({ route }: CreateAccountScreenProps) => {
+export const CreateAccountScreen = ({
+  route,
+  navigation: { navigate },
+}: CreateAccountScreenProps) => {
+  const { onCreate } = route.params;
   const styles = useStyles();
   const createAccount = useCreateAccount();
-  const navigation = useRootNavigation();
 
   const handleSubmit = useCallback(
     async ({ name }: Values) => {
       const r = await createAccount(name);
-      if (route.params.onCreate) {
-        route.params.onCreate(r, navigation);
-      } else {
-        navigation.navigate('Account', { account: r.account });
-      }
+      onCreate ? onCreate(r) : navigate('Account', { account: r.account });
     },
-    [createAccount, navigation, route.params],
+    [createAccount, navigate, onCreate],
   );
 
   return (
@@ -50,24 +48,38 @@ export const CreateAccountScreen = ({ route }: CreateAccountScreenProps) => {
       </Appbar.Header>
 
       <Formik initialValues={{ name: '' }} onSubmit={handleSubmit} validationSchema={schema}>
-        <>
-          <Box mx={4}>
-            <Text style={styles.input}>What should we call your account?</Text>
+        {({ submitForm }) => (
+          <Box style={styles.container}>
+            <Text variant="headlineLarge" style={styles.input}>
+              What should we call your account?
+            </Text>
 
-            <FormikTextField name="name" label="Account name" />
+            <FormikTextField name="name" label="Account name" autoFocus />
+
+            <Box style={styles.actionContainer}>
+              <Button mode="contained" onPress={submitForm}>
+                Create
+              </Button>
+            </Box>
           </Box>
-
-          <FormikSubmitFab icon={CheckIcon} label="Create" />
-        </>
+        )}
       </Formik>
     </Box>
   );
 };
 
-const useStyles = makeStyles(({ space, fonts }) => ({
+const useStyles = makeStyles(({ space, s }) => ({
+  container: {
+    flex: 1,
+    marginHorizontal: s(16),
+  },
   input: {
-    ...fonts.headlineLarge,
     textAlign: 'center',
     marginVertical: space(4),
+  },
+  actionContainer: {
+    flex: 1,
+    justifyContent: 'flex-end',
+    marginBottom: s(16),
   },
 }));

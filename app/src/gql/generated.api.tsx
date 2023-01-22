@@ -352,6 +352,17 @@ export type IntFilter = {
   notIn?: InputMaybe<Array<Scalars['Int']>>;
 };
 
+export type IntNullableFilter = {
+  equals?: InputMaybe<Scalars['Int']>;
+  gt?: InputMaybe<Scalars['Int']>;
+  gte?: InputMaybe<Scalars['Int']>;
+  in?: InputMaybe<Array<Scalars['Int']>>;
+  lt?: InputMaybe<Scalars['Int']>;
+  lte?: InputMaybe<Scalars['Int']>;
+  not?: InputMaybe<NestedIntNullableFilter>;
+  notIn?: InputMaybe<Array<Scalars['Int']>>;
+};
+
 export type LimitPeriod =
   | 'Day'
   | 'Month'
@@ -557,6 +568,17 @@ export type NestedIntFilter = {
   lt?: InputMaybe<Scalars['Int']>;
   lte?: InputMaybe<Scalars['Int']>;
   not?: InputMaybe<NestedIntFilter>;
+  notIn?: InputMaybe<Array<Scalars['Int']>>;
+};
+
+export type NestedIntNullableFilter = {
+  equals?: InputMaybe<Scalars['Int']>;
+  gt?: InputMaybe<Scalars['Int']>;
+  gte?: InputMaybe<Scalars['Int']>;
+  in?: InputMaybe<Array<Scalars['Int']>>;
+  lt?: InputMaybe<Scalars['Int']>;
+  lte?: InputMaybe<Scalars['Int']>;
+  not?: InputMaybe<NestedIntNullableFilter>;
   notIn?: InputMaybe<Array<Scalars['Int']>>;
 };
 
@@ -805,6 +827,7 @@ export type Quorum = {
   account: Account;
   accountId: Scalars['String'];
   activeState?: Maybe<QuorumState>;
+  activeStateId?: Maybe<Scalars['Int']>;
   id: Scalars['ID'];
   key: Scalars['Int'];
   name: Scalars['String'];
@@ -843,6 +866,8 @@ export type QuorumOrderByRelationAggregateInput = {
 export type QuorumOrderByWithRelationInput = {
   account?: InputMaybe<AccountOrderByWithRelationInput>;
   accountId?: InputMaybe<SortOrder>;
+  activeState?: InputMaybe<QuorumStateOrderByWithRelationInput>;
+  activeStateId?: InputMaybe<SortOrder>;
   key?: InputMaybe<SortOrder>;
   name?: InputMaybe<SortOrder>;
   proposals?: InputMaybe<ProposalOrderByRelationAggregateInput>;
@@ -856,6 +881,7 @@ export type QuorumRelationFilter = {
 
 export type QuorumScalarFieldEnum =
   | 'accountId'
+  | 'activeStateId'
   | 'key'
   | 'name';
 
@@ -864,10 +890,10 @@ export type QuorumState = {
   _count: QuorumStateCount;
   account: Account;
   accountId: Scalars['String'];
+  activeStateOfQuorum?: Maybe<Quorum>;
   approvers?: Maybe<Array<Approver>>;
   createdAt: Scalars['DateTime'];
   id: Scalars['ID'];
-  isActiveWithoutProposal: Scalars['Boolean'];
   isRemoved: Scalars['Boolean'];
   limits?: Maybe<Array<TokenLimit>>;
   proposal?: Maybe<Proposal>;
@@ -893,6 +919,22 @@ export type QuorumStateOrderByRelationAggregateInput = {
   _count?: InputMaybe<SortOrder>;
 };
 
+export type QuorumStateOrderByWithRelationInput = {
+  account?: InputMaybe<AccountOrderByWithRelationInput>;
+  accountId?: InputMaybe<SortOrder>;
+  activeStateOfQuorum?: InputMaybe<QuorumOrderByWithRelationInput>;
+  approvers?: InputMaybe<ApproverOrderByRelationAggregateInput>;
+  createdAt?: InputMaybe<SortOrder>;
+  id?: InputMaybe<SortOrder>;
+  isRemoved?: InputMaybe<SortOrder>;
+  limits?: InputMaybe<TokenLimitOrderByRelationAggregateInput>;
+  proposal?: InputMaybe<ProposalOrderByWithRelationInput>;
+  proposalId?: InputMaybe<SortOrder>;
+  quorum?: InputMaybe<QuorumOrderByWithRelationInput>;
+  quorumKey?: InputMaybe<SortOrder>;
+  spendingFallback?: InputMaybe<SortOrder>;
+};
+
 export type QuorumStateRelationFilter = {
   is?: InputMaybe<QuorumStateWhereInput>;
   isNot?: InputMaybe<QuorumStateWhereInput>;
@@ -904,10 +946,10 @@ export type QuorumStateWhereInput = {
   OR?: InputMaybe<Array<QuorumStateWhereInput>>;
   account?: InputMaybe<AccountRelationFilter>;
   accountId?: InputMaybe<StringFilter>;
+  activeStateOfQuorum?: InputMaybe<QuorumRelationFilter>;
   approvers?: InputMaybe<ApproverListRelationFilter>;
   createdAt?: InputMaybe<DateTimeFilter>;
   id?: InputMaybe<IntFilter>;
-  isActiveWithoutProposal?: InputMaybe<BoolFilter>;
   isRemoved?: InputMaybe<BoolFilter>;
   limits?: InputMaybe<TokenLimitListRelationFilter>;
   proposal?: InputMaybe<ProposalRelationFilter>;
@@ -923,6 +965,8 @@ export type QuorumWhereInput = {
   OR?: InputMaybe<Array<QuorumWhereInput>>;
   account?: InputMaybe<AccountRelationFilter>;
   accountId?: InputMaybe<StringFilter>;
+  activeState?: InputMaybe<QuorumStateRelationFilter>;
+  activeStateId?: InputMaybe<IntNullableFilter>;
   key?: InputMaybe<IntFilter>;
   name?: InputMaybe<StringFilter>;
   proposals?: InputMaybe<ProposalListRelationFilter>;
@@ -931,6 +975,7 @@ export type QuorumWhereInput = {
 
 export type QuorumWhereUniqueInput = {
   accountId_key?: InputMaybe<QuorumAccountIdKeyCompoundUniqueInput>;
+  activeStateId?: InputMaybe<Scalars['Int']>;
 };
 
 export type Reaction = {
@@ -1056,6 +1101,10 @@ export type TokenLimitListRelationFilter = {
   some?: InputMaybe<TokenLimitWhereInput>;
 };
 
+export type TokenLimitOrderByRelationAggregateInput = {
+  _count?: InputMaybe<SortOrder>;
+};
+
 export type TokenLimitPeriod =
   | 'Day'
   | 'Month'
@@ -1078,6 +1127,7 @@ export type Transaction = {
   gasLimit: Scalars['Decimal'];
   gasPrice?: Maybe<Scalars['Decimal']>;
   hash: Scalars['ID'];
+  /** hash */
   id: Scalars['ID'];
   nonce: Scalars['Int'];
   proposal: Proposal;

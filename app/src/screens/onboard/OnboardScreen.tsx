@@ -2,23 +2,24 @@ import { LogoIcon } from '@theme/icons';
 import { makeStyles } from '@theme/makeStyles';
 import { View } from 'react-native';
 import { Button } from 'react-native-paper';
-import { useRootNavigation } from '~/navigation/useRootNavigation';
+import { StackNavigatorScreenProps } from '~/navigation/StackNavigator';
 import { OnboardCarousel } from './OnboardCarousel';
 
-export const OnboardScreen = () => {
+export type OnboardScreenProps = StackNavigatorScreenProps<'Onboard'>;
+
+export const OnboardScreen = ({ navigation: { navigate } }: OnboardScreenProps) => {
   const styles = useStyles();
-  const { navigate } = useRootNavigation();
 
   return (
     <View style={styles.root}>
-      <LogoIcon width={250} />
-      <OnboardCarousel style={styles.margin} />
+      <LogoIcon width={styles.logo.width} style={styles.logo} />
 
-      <View style={[styles.actions, styles.margin]}>
+      <OnboardCarousel style={styles.carousel} />
+
+      <View style={styles.actions}>
         <Button
           mode="text"
-          contentStyle={styles.action}
-          style={styles.actionGap}
+          style={styles.secondaryAction}
           onPress={() =>
             navigate('NameDevice', {
               onContinue: () => navigate('Device'),
@@ -30,10 +31,12 @@ export const OnboardScreen = () => {
 
         <Button
           mode="contained"
-          contentStyle={styles.action}
           onPress={() =>
             navigate('NameDevice', {
-              onContinue: () => navigate('CreateAccount', { onCreate: () => navigate('Home') }),
+              onContinue: () =>
+                navigate('CreateAccount', {
+                  onCreate: () => navigate('BottomNavigator', { screen: 'Home' }),
+                }),
             })
           }
         >
@@ -44,25 +47,25 @@ export const OnboardScreen = () => {
   );
 };
 
-const useStyles = makeStyles(({ space, window }) => ({
+const useStyles = makeStyles(({ space, s }) => ({
   root: {
     flex: 1,
-    alignItems: 'center',
     marginTop: space(6),
     marginBottom: space(2),
   },
-  margin: {
-    marginHorizontal: space(2),
+  logo: {
+    alignSelf: 'center',
+    width: 250,
+  },
+  carousel: {
+    marginHorizontal: s(16),
   },
   actions: {
     flex: 1,
-    flexDirection: 'column',
     justifyContent: 'flex-end',
+    marginHorizontal: s(16),
   },
-  action: {
-    width: window.width - space(2),
-  },
-  actionGap: {
-    marginBottom: space(1),
+  secondaryAction: {
+    marginBottom: s(8),
   },
 }));

@@ -57,10 +57,10 @@ import {
   TokenLimitScreen,
   TokenLimitScreenParams,
 } from '~/screens/quorum/spending/limit/TokenLimitScreen';
-import { BottomNavigator } from './BottomNavigator';
+import { BottomNavigator, BottomNavigatorParams } from './BottomNavigator';
 
 export type StackNavigatorParamList = {
-  BottomNavigator: undefined;
+  BottomNavigator: BottomNavigatorParams;
   Proposal: ProposalScreenParams;
   Accounts: AccountsScreenParams;
   Account: AccountScreenParams;
