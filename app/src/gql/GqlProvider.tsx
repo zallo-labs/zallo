@@ -7,7 +7,7 @@ import { API_CLIENT_NAME, usePromisedApiClient } from './clients/usePromisedApiC
 import { SUBGRAPH_CLIENT_NAME, SUBGRAPH_CLIENT } from './clients/subgraph';
 
 const clientNames = [API_CLIENT_NAME, SUBGRAPH_CLIENT_NAME, UNISWAP_CLIENT_NAME] as const;
-type Name = typeof clientNames[number];
+type Name = (typeof clientNames)[number];
 
 type GqlClients = Record<Name, ApolloClient<NormalizedCacheObject>>;
 
