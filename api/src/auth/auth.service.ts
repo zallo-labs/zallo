@@ -1,12 +1,17 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { ethers, Wallet } from 'ethers';
 import { Request } from 'express';
-import { AuthToken, address } from 'lib';
+import { address } from 'lib';
 import { DateTime } from 'luxon';
 import { SiweMessage } from 'siwe';
 import { CONFIG } from '~/config';
 import { ProviderService } from '~/provider/provider.service';
 import { UserContext } from '~/request/ctx';
+
+interface AuthToken {
+  message: SiweMessage;
+  signature: string;
+}
 
 const AUTH_MESSAGE = CONFIG.graphRef && `AUTH ${CONFIG.graphRef}`;
 const SIGNATURE_PATTERN = /^0x[0-9a-f]{130}$/i;
@@ -47,25 +52,25 @@ export class AuthService {
     if (typeof auth === 'object') {
       const { message, signature } = auth;
 
-      for (const [fallbackErr, isError] of Object.entries({
-        'Session lacking nonce': () => req.session.nonce === undefined,
-        'Message verification failed': async () => {
-          const r = await message.verify(
-            {
-              signature,
-              domain: new URL(req.hostname).host,
-              nonce: req.session.nonce,
-              time: DateTime.now().toISO(),
-            },
-            { provider: this.provider },
-          );
+      const validationError = await (async () => {
+        if (req.session.nonce === undefined) return 'Session lacking nonce';
 
-          return r.error?.type || false;
-        },
-      })) {
-        const r = await isError();
-        if (r) throw new UnauthorizedException(typeof r === 'string' ? r : fallbackErr);
-      }
+        try {
+          const r = await message.validate(signature, this.provider);
+
+          if (r.domain !== req.get('host')) return 'Invalid domain (host)';
+          if (r.nonce !== req.session.nonce) return 'Invalid nonce';
+          if (r.expirationTime && DateTime.fromISO(r.expirationTime) < DateTime.now())
+            return 'Expired';
+          if (r.notBefore && DateTime.fromISO(r.notBefore) > DateTime.now()) return 'Not yet valid';
+
+          return false;
+        } catch (e) {
+          return (e as Error).message;
+        }
+      })();
+
+      if (validationError) throw new UnauthorizedException(validationError);
 
       // Use the session expiry time if provided
       if (message.expirationTime) req.session.cookie.expires = new Date(message.expirationTime);
