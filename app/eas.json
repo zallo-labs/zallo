@@ -20,8 +20,6 @@
       "extends": "base",
       "channel": "main",
       "env": {
-        "RELEASE_ENV": "production",
-        "CHAIN": "testnet",
         "API_URL": "https://api.zallo.io",
         "SUBGRAPH_GQL_URL": "https://api.thegraph.com/subgraphs/name/hbriese/zallo",
         "ACCOUNT_IMPL_TESTNET": "0x7F19BE7A3948078c3413C557CE850903d5dFEd67",
@@ -33,8 +31,6 @@
       "extends": "base",
       "channel": "dev",
       "env": {
-        "RELEASE_ENV": "development",
-        "CHAIN": "testnet",
         "API_URL": "https://dev.api.zallo.io",
         "SUBGRAPH_GQL_URL": "https://api.thegraph.com/subgraphs/name/hbriese/zallo-dev",
         "ACCOUNT_IMPL_TESTNET": "0x7F19BE7A3948078c3413C557CE850903d5dFEd67",
@@ -45,7 +41,10 @@
     "dev-client": {
       "extends": "base",
       "distribution": "internal",
-      "developmentClient": true
+      "developmentClient": true,
+      "env": {
+        "RELEASE_ENV": "production"
+      }
     }
   },
   "submit": {
