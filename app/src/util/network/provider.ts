@@ -13,14 +13,14 @@ import { Logger } from 'ethers/lib/utils';
 import { captureEvent } from '~/util/sentry/sentry';
 import { LogLevel } from '@ethersproject/logger';
 import { SeverityLevel } from '@sentry/browser';
-import { address, getChain } from 'lib';
+import { address, CHAINS, getChain } from 'lib';
 
 // Ethers uses long timers; these tasks WON'T be executed when the app is in the background but will resume once re-opened
 if (Platform.OS !== 'web') LogBox.ignoreLogs(['Setting a timer']);
 
 export const CHAIN = getChain(CONFIG.chainName);
-export const PROVIDER = new zk.Provider(CHAIN.zksyncUrl);
-export const CHAIN_ID = () => PROVIDER?.network?.chainId ?? 280;
+export const PROVIDER = new zk.Provider(CHAIN.l2Rpc);
+export const CHAIN_ID = () => PROVIDER?.network?.chainId ?? CHAINS.testnet.id;
 
 export const ACCOUNT_IMPL = address(CONFIG.accountImpl);
 export const PROXY_FACTORY_ADDR = address(CONFIG.proxyFactory);

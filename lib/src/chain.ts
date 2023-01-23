@@ -1,33 +1,44 @@
-export type ChainName = 'testnet' | 'local';
+export type ChainName = 'local' | 'testnet' | 'mainnet';
 
 export interface Chain {
   name: ChainName;
-  zksyncUrl: string;
-  ethUrl: string;
+  id: number;
+  l2Rpc: string;
+  l1Rpc: string;
   isTestnet: boolean;
 }
 
-export type Chains = Record<ChainName, Chain>;
-
-export const CHAINS: Chains = {
-  testnet: {
-    name: 'testnet',
-    zksyncUrl: 'https://zksync2-testnet.zksync.dev',
-    ethUrl: 'goerli',
-    isTestnet: true,
-  },
+// https://v2-docs.zksync.io/dev/troubleshooting/important-links.html
+export const CHAINS = {
   local: {
     name: 'local',
-    zksyncUrl: 'http://localhost:3050',
-    ethUrl: 'http://localhost:8545',
+    id: 0,
+    l2Rpc: 'http://localhost:3050',
+    l1Rpc: 'http://localhost:8545',
     isTestnet: true,
+  } as const,
+  testnet: {
+    name: 'testnet',
+    id: 280,
+    l2Rpc: 'https://zksync2-testnet.zksync.dev',
+    l1Rpc: 'goerli',
+    isTestnet: true,
+  } as const,
+  mainnet: {
+    name: 'mainnet',
+    id: 324,
+    l2Rpc: 'https://zksync2-mainnet.zksync.io',
+    l1Rpc: 'mainnet',
+    isTestnet: false,
   },
-};
+} satisfies Record<ChainName, Chain>;
+
+export type Chains = typeof CHAINS;
 
 export const getChain = (name: ChainName | string = 'testnet') => {
-  name = name.toLowerCase();
-  const chain = Object.values(CHAINS).find((c) => c.name.toLowerCase() === name);
-  if (!chain) throw new Error(`Chain not supported: ${name}`);
+  const chain = CHAINS[name.toLowerCase() as ChainName];
+  if (!chain)
+    throw new Error(`Unknown chain: ${name}\nSupported chains: ${Object.keys(CHAINS).join(', ')}`);
 
   return chain;
 };
