@@ -5,7 +5,7 @@ import { address } from 'lib';
 import { DateTime } from 'luxon';
 import { SiweMessage } from 'siwe';
 import { CONFIG } from '~/config';
-import { ProviderService } from '~/provider/provider.service';
+import { ProviderService } from '~/features/util/provider/provider.service';
 import { UserContext } from '~/request/ctx';
 
 interface AuthToken {

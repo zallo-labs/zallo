@@ -11,7 +11,7 @@ import {
 import { makeGetSelect } from '~/util/select';
 import { AccountsService } from './accounts.service';
 import { Prisma } from '@prisma/client';
-import { ProviderService } from '~/provider/provider.service';
+import { ProviderService } from '~/features/util/provider/provider.service';
 import {
   address,
   Address,

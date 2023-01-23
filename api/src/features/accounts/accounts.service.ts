@@ -11,7 +11,7 @@ import {
   toQuorumKey,
 } from 'lib';
 import { PrismaService } from 'nestjs-prisma';
-import { ProviderService } from '~/provider/provider.service';
+import { ProviderService } from '~/features/util/provider/provider.service';
 import { BigNumber } from 'ethers';
 
 @Injectable()

@@ -9,9 +9,9 @@ import { IS_DEV } from '~/config';
 import { IncomingContext, Context, IncomingWsContext } from '~/request/ctx';
 import { AddressMiddleware } from './address.middleware';
 import { IdMiddleware } from './id.middleware';
-import { AuthModule } from '~/auth/auth.module';
-import { AuthService } from '~/auth/auth.service';
-import { SessionService } from '~/auth/session.service';
+import { AuthModule } from '~/features/auth/auth.module';
+import { AuthService } from '~/features/auth/auth.service';
+import { SessionService } from '~/features/auth/session.service';
 
 export const GQL_ENDPOINT = '/graphql';
 

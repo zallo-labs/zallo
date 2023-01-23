@@ -25,7 +25,7 @@ import {
 } from './proposals.args';
 import { UserInputError } from 'apollo-server-core';
 import { Proposal } from '@gen/proposal/proposal.model';
-import { ExpoService } from '~/expo/expo.service';
+import { ExpoService } from '~/features/util/expo/expo.service';
 import { match } from 'ts-pattern';
 import { ProposalWhereInput } from '@gen/proposal/proposal-where.input';
 import {
@@ -34,7 +34,8 @@ import {
   PROPOSAL_SUBSCRIPTION,
 } from './proposals.service';
 import { Transaction } from '@gen/transaction/transaction.model';
-import { PubsubService } from '~/pubsub/pubsub.service';
+import { PubsubService } from '~/features/util/pubsub/pubsub.service';
+import { Context } from '~/request/ctx';
 
 @Resolver(() => Proposal)
 export class ProposalsResolver {
@@ -105,10 +106,13 @@ export class ProposalsResolver {
     filter: (
       { proposal }: ProposalSubscriptionPayload,
       { accounts, ids, created }: ProposalModifiedArgs,
+      ctx: Context,
     ) => {
       const mAccounts = !accounts || accounts.has(address(proposal.accountId));
       const mIds = !ids || ids.has(proposal.id);
       const mCreated = created && (proposal.approvals?.length ?? 0) === 0;
+
+      console.log(ctx);
 
       return mAccounts && (mIds || mCreated);
     },

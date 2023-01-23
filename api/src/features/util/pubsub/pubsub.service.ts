@@ -1,14 +1,14 @@
-import { InjectRedis } from '@liaoliaots/nestjs-redis';
 import { Injectable } from '@nestjs/common';
 import { RedisPubSub } from 'graphql-redis-subscriptions';
 import Redis from 'ioredis';
+import { InjectRedisPub, InjectRedisSub } from '~/decorators/redis.decorator';
 
 @Injectable()
 export class PubsubService extends RedisPubSub {
-  constructor(@InjectRedis() redis: Redis) {
+  constructor(@InjectRedisPub() redisPub: Redis, @InjectRedisSub() redisSub: Redis) {
     super({
-      publisher: redis,
-      subscriber: redis,
+      publisher: redisPub,
+      subscriber: redisSub,
     });
   }
 }

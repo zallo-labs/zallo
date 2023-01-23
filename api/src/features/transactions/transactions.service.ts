@@ -13,7 +13,7 @@ import {
   TokenLimit,
 } from 'lib';
 import { PrismaService } from 'nestjs-prisma';
-import { ProviderService } from '~/provider/provider.service';
+import { ProviderService } from '~/features/util/provider/provider.service';
 
 export interface TransactionResponseJob {
   transactionHash: string;
