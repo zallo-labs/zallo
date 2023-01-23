@@ -28,10 +28,9 @@ export const ContactsScreen = withSkeleton(
   ({ route, navigation: { navigate } }: ContactsScreenProps) => {
     const { onSelect, disabled } = route.params;
     const styles = useStyles();
-    const [allContacts] = useContacts();
     const isScreen = route.name === 'Contacts';
 
-    const [contacts, searchProps] = useSearch(allContacts, ['name', 'addr']);
+    const [contacts, searchProps] = useSearch(useContacts(), ['name', 'addr']);
 
     return (
       <SafeAreaView enabled={isScreen} style={styles.root}>
@@ -58,7 +57,7 @@ export const ContactsScreen = withSkeleton(
           showsVerticalScrollIndicator={false}
         />
 
-        <Fab icon={AddIcon} label="Create" onPress={() => navigate('Contact', {})} />
+        <Fab icon={AddIcon} label="Add" onPress={() => navigate('Contact', {})} />
       </SafeAreaView>
     );
   },

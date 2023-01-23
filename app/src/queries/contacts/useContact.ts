@@ -3,7 +3,7 @@ import { useMemo } from 'react';
 import { useContacts } from './useContacts.api';
 
 export const useContact = (addr?: Address) => {
-  const [contacts] = useContacts();
+  const contacts = useContacts();
 
   return useMemo(
     () => (addr ? contacts.find((c) => c.addr === addr) : undefined),

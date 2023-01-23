@@ -47,14 +47,12 @@ export const useUpsertContact = () => {
             variables: {},
             defaultData: { contacts: [] },
             updater: (data) => {
-              // Remove previous contact if the address has changed
-              if (prev && prev.addr !== cur.addr) {
-                data.contacts = data.contacts.filter((c) => c.addr !== prev.addr);
-              }
-
-              // Upsert current contact
-              const i = data.contacts.findIndex((c) => c.id === id);
+              // Upsert current contact, or replace prev if the id has changed
+              const i = data.contacts.findIndex(
+                prev && prev.addr !== cur.addr ? (c) => c.id === prev.id : (c) => c.id === id,
+              );
               data.contacts[i >= 0 ? i : data.contacts.length] = {
+                __typename: 'ContactObject',
                 id,
                 addr: cur.addr,
                 name: cur.name,

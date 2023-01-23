@@ -35,7 +35,7 @@ export const useContacts = () => {
   );
   usePollWhenFocussed(rest, 120);
 
-  const contacts = useMemo(
+  return useMemo(
     (): Contact[] =>
       data.contacts.map((c) => ({
         id: toId(c.id),
@@ -44,6 +44,4 @@ export const useContacts = () => {
       })),
     [data.contacts],
   );
-
-  return [contacts, rest] as const;
 };

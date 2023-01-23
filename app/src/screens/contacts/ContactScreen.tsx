@@ -1,5 +1,5 @@
 import { Box } from '~/components/layout/Box';
-import { Formik } from 'formik';
+import { Formik, FormikHelpers } from 'formik';
 import { Address, isAddress } from 'lib';
 import { Button } from 'react-native-paper';
 import { StackNavigatorScreenProps } from '~/navigation/StackNavigator';
@@ -55,7 +55,7 @@ export const ContactScreen = ({ route, navigation: { goBack } }: ContactScreenPr
   const upsert = useUpsertContact();
   const scanAddr = useScanAddr();
 
-  const handleSubmit = async (values: Values) => {
+  const handleSubmit = async (values: Values, helpers: FormikHelpers<Values>) => {
     assert(isAddress(values.addr)); // Enforced by schema
     await upsert(
       {
@@ -64,7 +64,7 @@ export const ContactScreen = ({ route, navigation: { goBack } }: ContactScreenPr
       },
       existing,
     );
-    goBack();
+    helpers.setSubmitting(false);
   };
 
   return (
@@ -75,8 +75,9 @@ export const ContactScreen = ({ route, navigation: { goBack } }: ContactScreenPr
         initialValues={existing ?? defaultValues}
         onSubmit={handleSubmit}
         validationSchema={useMemo(() => getSchema(contacts, existing), [contacts, existing])}
+        enableReinitialize
       >
-        {({ setFieldValue }) => (
+        {({ setFieldValue, isSubmitting }) => (
           <>
             <Box style={styles.fieldsContainer}>
               <FormikTextField name="name" label="Name" />
@@ -93,6 +94,7 @@ export const ContactScreen = ({ route, navigation: { goBack } }: ContactScreenPr
                 icon={ScanIcon}
                 mode="contained-tonal"
                 style={styles.scanButton}
+                disabled={isSubmitting}
                 onPress={async () => {
                   setFieldValue('addr', (await scanAddr()).target_address);
                   goBack();
