@@ -129,7 +129,7 @@ function Screen() {
                 </Button>
               )}
 
-              {(isModified || quorum.proposals.length + Number(quorum.account) > 1) && (
+              {(isModified || quorum.proposals.length + Number(!!quorum.active) > 1) && (
                 <ListItem
                   leading={ViewProposalIcon}
                   headline="Change proposals"
