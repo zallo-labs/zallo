@@ -37,7 +37,7 @@ export const RenameQuorumScreen = ({ route: { params } }: RenameQuorumScreenProp
             }}
           />
         )}
-        headline="Rename quorum"
+        headline="Rename Quorum"
       />
 
       <Box style={styles.fieldsContainer}>

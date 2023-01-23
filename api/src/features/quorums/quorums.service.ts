@@ -1,6 +1,6 @@
-import { Injectable } from '@nestjs/common';
+import { forwardRef, Inject, Injectable } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
-import { ACCOUNT_INTERFACE, Address, hashQuorum, Quorum, QuorumKey } from 'lib';
+import { ACCOUNT_INTERFACE, Address, hashQuorum, mapAsync, Quorum, QuorumKey } from 'lib';
 import { PrismaService } from 'nestjs-prisma';
 import { connectAccount, connectOrCreateUser, connectQuorum } from '~/util/connect-or-create';
 import { ProposalsService } from '../proposals/proposals.service';
@@ -20,7 +20,11 @@ interface CreateStateParams {
 
 @Injectable()
 export class QuorumsService {
-  constructor(private prisma: PrismaService, private proposals: ProposalsService) {}
+  constructor(
+    private prisma: PrismaService,
+    @Inject(forwardRef(() => ProposalsService))
+    private proposals: ProposalsService,
+  ) {}
 
   async createUpsertState({
     proposer,
@@ -90,5 +94,42 @@ export class QuorumsService {
     });
 
     return r.quorum;
+  }
+
+  async handleSuccessfulTransaction(transactionHash: string) {
+    const { proposal } = await this.prisma.transaction.findUniqueOrThrow({
+      where: { hash: transactionHash },
+      select: {
+        proposal: {
+          select: {
+            quorumStates: {
+              select: {
+                id: true,
+                quorum: {
+                  select: {
+                    accountId: true,
+                    key: true,
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    });
+
+    return mapAsync(proposal.quorumStates, (state) =>
+      this.prisma.quorum.update({
+        where: {
+          accountId_key: {
+            accountId: state.quorum.accountId,
+            key: state.quorum.key,
+          },
+        },
+        data: {
+          activeStateId: state.id,
+        },
+      }),
+    );
   }
 }

@@ -37,7 +37,7 @@ export const RenameAccountScreen = ({ route: { params } }: RenameAccountScreenPr
             }}
           />
         )}
-        headline="Rename quorum"
+        headline="Rename Account"
       />
 
       <Box style={styles.fieldsContainer}>

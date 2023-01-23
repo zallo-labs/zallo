@@ -80,7 +80,12 @@ export class QuorumsResolver {
   ): Promise<QuorumState[]> {
     return this.prisma.quorum
       .findUniqueOrThrow({
-        where: { accountId_key: quorum },
+        where: {
+          accountId_key: {
+            accountId: quorum.accountId,
+            key: quorum.key,
+          },
+        },
       })
       .states({
         where: { activeStateOfQuorum: null },
