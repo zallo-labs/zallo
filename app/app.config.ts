@@ -9,9 +9,6 @@ export const CONFIG = {
   sentryDsn: ENV.SENTRY_DSN!,
   apiUrl: ENV.API_URL!,
   subgraphGqlUrl: ENV.SUBGRAPH_GQL_URL!,
-  proxyFactory: ENV[`PROXY_FACTORY_${chain}`]!,
-  accountImpl: ENV[`ACCOUNT_IMPL_${chain}`]!,
-  multiCall: ENV[`MULTI_CALL_${chain}`]!,
   walletConnectProjectId: '599f2bebcaf0baedaaf87f899ad27991',
 } as const;
 
