@@ -1,19 +1,16 @@
-import { gql, useMutation } from '@apollo/client';
-import { useDevice } from '@network/useDevice';
+import { gql } from '@apollo/client';
 import {
   CommentsDocument,
   CommentsQuery,
   CommentsQueryVariables,
-  DeleteCommentDocument,
-  DeleteCommentMutation,
-  DeleteCommentMutationVariables,
+  useDeleteCommentMutation,
 } from '~/gql/generated.api';
-import { useApiClient } from '~/gql/GqlProvider';
 import { QueryOpts } from '~/gql/update';
 import { useCallback } from 'react';
 import { Comment } from '~/queries/useComments.api';
 import { Address } from 'lib';
 import { assert } from 'console';
+import { useUser } from '~/queries/useUser.api';
 
 gql`
   mutation DeleteComment($id: Float!) {
@@ -24,18 +21,12 @@ gql`
 `;
 
 export const useDeleteComment = (account: Address) => {
-  const device = useDevice();
-
-  const [mutate] = useMutation<DeleteCommentMutation, DeleteCommentMutationVariables>(
-    DeleteCommentDocument,
-    {
-      client: useApiClient(),
-    },
-  );
+  const user = useUser();
+  const [mutate] = useDeleteCommentMutation();
 
   return useCallback(
     (c: Comment) => {
-      assert(c.author === device.address);
+      assert(c.author === user.id);
 
       return mutate({
         variables: {
@@ -69,6 +60,6 @@ export const useDeleteComment = (account: Address) => {
         },
       });
     },
-    [mutate, account, device.address],
+    [user.id, mutate, account],
   );
 };

@@ -1,10 +1,10 @@
 import { LinkingOptions } from '@react-navigation/native';
-import { RootNavigatorParamList } from './RootNavigator';
+import { RootStackParamList } from './useRootNavigation';
 
-type Routes = NonNullable<LinkingOptions<RootNavigatorParamList>['config']>;
+type Routes = NonNullable<LinkingOptions<RootStackParamList>['config']>;
 
 export const ROUTES: Routes = {
-  initialRouteName: 'DrawerNavigator',
+  initialRouteName: 'Home',
   screens: {
     Proposal: {
       path: 'proposal/:id',
@@ -12,14 +12,6 @@ export const ROUTES: Routes = {
         id: (id) => ({ hash: id }),
       },
     },
-    DrawerNavigator: {
-      screens: {
-        BottomNavigator: {
-          screens: {
-            Home: '*',
-          },
-        },
-      },
-    },
+    Home: '*',
   },
 };

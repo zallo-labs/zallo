@@ -4,7 +4,7 @@ import { Timestamp } from '~/components/format/Timestamp';
 import { Box } from '~/components/layout/Box';
 import { CloseIcon } from '@theme/icons';
 import { useEffect } from 'react';
-import { tryOrIgnore } from 'lib';
+import { tryOrIgnoreAsync } from 'lib';
 import { WcSessionData } from '~/util/walletconnect/useWalletConnectSessions';
 import { useSession } from '~/util/walletconnect/useTopic';
 import { ProposerItem } from './ProposerItem';
@@ -41,7 +41,7 @@ export const SessionCard = ({ sessionData }: SessionCardProps) => {
             // width: 72
           }}
           icon={CloseIcon}
-          onPress={() => tryOrIgnore(() => session.disconnect('USER_DISCONNECTED'))}
+          onPress={() => tryOrIgnoreAsync(() => session.disconnect('USER_DISCONNECTED'))}
         >
           Disconnect
         </Button>

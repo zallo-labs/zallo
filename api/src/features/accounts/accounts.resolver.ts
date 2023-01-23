@@ -2,23 +2,33 @@ import { Args, Info, Mutation, Query, Resolver } from '@nestjs/graphql';
 import { PrismaService } from 'nestjs-prisma';
 import { GraphQLResolveInfo } from 'graphql';
 import { Account } from '@gen/account/account.model';
-import { AccountArgs, SetAccountNameArgs, CreateAccountArgs, AccountsArgs } from './accounts.args';
+import {
+  AccountArgs,
+  UpdateAccountMetadataArgs,
+  CreateAccountArgs,
+  AccountsArgs,
+} from './accounts.args';
 import { makeGetSelect } from '~/util/select';
-import { connectOrCreateDevice } from '~/util/connect-or-create';
-import { UsersService } from '../users/users.service';
 import { AccountsService } from './accounts.service';
 import { Prisma } from '@prisma/client';
 import { ProviderService } from '~/provider/provider.service';
-import { address, Address, calculateProxyAddress, randomDeploySalt } from 'lib';
+import {
+  address,
+  Address,
+  calculateProxyAddress,
+  Quorum,
+  randomDeploySalt,
+  toQuorumKey,
+} from 'lib';
 import { CONFIG } from '~/config';
-import { DeviceAddr } from '~/decorators/device.decorator';
+import { UserId } from '~/decorators/user.decorator';
+import { QuorumInput } from '../quorums/quorums.args';
+import { FaucetService } from '../faucet/faucet.service';
 
 const getSelect = makeGetSelect<{
   Account: Prisma.AccountSelect;
-  User: Prisma.UserSelect;
 }>({
   Account: {},
-  User: {},
 });
 
 @Resolver(() => Account)
@@ -26,13 +36,13 @@ export class AccountsResolver {
   constructor(
     private service: AccountsService,
     private prisma: PrismaService,
-    private users: UsersService,
     private provider: ProviderService,
+    private faucet: FaucetService,
   ) {}
 
   @Query(() => Account, { nullable: true })
   async account(
-    @Args() { id: id }: AccountArgs,
+    @Args() { id }: AccountArgs,
     @Info() info: GraphQLResolveInfo,
   ): Promise<Account | null> {
     return this.prisma.account.findUnique({
@@ -45,48 +55,24 @@ export class AccountsResolver {
   async accounts(
     @Args() args: AccountsArgs,
     @Info() info: GraphQLResolveInfo,
-    @DeviceAddr() device: Address,
+    @UserId() user: Address,
   ): Promise<Account[]> {
-    return this.prisma.account.findMany({
-      ...args,
-      where: {
-        AND: [
-          // Only allow querying for accounts that the user is a member of
-          { users: { some: { deviceId: device } } },
-          args.where ?? {},
-        ],
-      },
-      ...getSelect(info),
-    });
+    return this.service.accounts(user, { ...args, ...getSelect(info) });
   }
 
   @Mutation(() => Account)
   async createAccount(
-    @Args() { name, users }: CreateAccountArgs,
+    @Args() { name, quorums: quorumsArg }: CreateAccountArgs,
     @Info() info: GraphQLResolveInfo,
   ): Promise<Account> {
     const impl = address(CONFIG.accountImplAddress);
     const deploySalt = randomDeploySalt();
 
-    // TODO: accept multiple users on create
-    const user = users[0];
+    // Start key from 1 as apollo interprets key=0 as key=NaN for some reason?
+    const quorums: Quorum[] = quorumsArg.map((q, i) => QuorumInput.toQuorum(q, toQuorumKey(i + 1)));
 
     const addr = await this.provider.useProxyFactory((factory) =>
-      calculateProxyAddress(
-        {
-          impl,
-          user: {
-            addr: user.device,
-            configs: user.configs.map((c) => ({
-              approvers: [...c.approvers],
-              limits: Object.fromEntries(c.limits.map((l) => [l.token, l] as const)),
-              spendingAllowlisted: c.spendingAllowlisted,
-            })),
-          },
-        },
-        factory,
-        deploySalt,
-      ),
+      calculateProxyAddress({ impl, quorums }, factory, deploySalt),
     );
 
     const r = await this.prisma.account.create({
@@ -95,18 +81,22 @@ export class AccountsResolver {
         deploySalt,
         impl,
         name,
-        users: {
-          create: users.map(
-            (user): Prisma.UserCreateWithoutAccountInput => ({
-              device: connectOrCreateDevice(user.device),
-              name: user.name,
-              states: {
-                create: {
-                  configs: this.users.createUserConfigs(user.configs),
-                  latestOfUserDeviceId: user.device,
+        quorums: {
+          create: quorums.map(
+            (q, i) =>
+              ({
+                name: quorumsArg[i].name,
+                key: q.key,
+                states: {
+                  create: {
+                    approvers: { create: [...q.approvers].map((a) => ({ userId: a })) },
+                    spendingFallback: q.spending?.fallback,
+                    limits: q.spending?.limits
+                      ? { createMany: { data: Object.values(q.spending.limits) } }
+                      : undefined,
+                  },
                 },
-              },
-            }),
+              } as Prisma.QuorumCreateWithoutAccountInput),
           ),
         },
       },
@@ -114,6 +104,7 @@ export class AccountsResolver {
     });
 
     this.service.activateAccount(addr);
+    this.faucet.requestTokens(addr);
 
     return r;
   }
@@ -125,8 +116,8 @@ export class AccountsResolver {
   }
 
   @Mutation(() => Account)
-  async setAccountName(
-    @Args() { id: id, name }: SetAccountNameArgs,
+  async updateAccountMetadata(
+    @Args() { id, name }: UpdateAccountMetadataArgs,
     @Info() info: GraphQLResolveInfo,
   ): Promise<Account> {
     return this.prisma.account.update({

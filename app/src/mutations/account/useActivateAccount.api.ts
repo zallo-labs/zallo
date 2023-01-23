@@ -6,7 +6,6 @@ import {
   AccountQueryVariables,
   useActivateAccountMutation,
 } from '~/gql/generated.api';
-import { useApiClient } from '~/gql/GqlProvider';
 import { updateQuery } from '~/gql/update';
 import { CombinedAccount } from '~/queries/account/useAccount.api';
 
@@ -18,7 +17,6 @@ gql`
 
 export const useActivateAccount = (account: CombinedAccount) => {
   const [mutation] = useActivateAccountMutation({
-    client: useApiClient(),
     variables: { account: account.addr },
     optimisticResponse: {
       activateAccount: true,

@@ -8,17 +8,17 @@ import { useTokenValue } from '@token/useTokenValue';
 import { FiatValue } from '../fiat/FiatValue';
 import { TokenAmount } from './TokenAmount';
 import TokenIcon from './TokenIcon/TokenIcon';
-import { UserId } from 'lib';
+import { Accountlike } from '~/queries/account/useAccount.api';
 
 export interface TokenAvailableCardProps extends CardItemProps {
   token: Token;
-  user: UserId;
+  account: Accountlike;
   showZero?: boolean;
 }
 
 export const TokenAvailableCard = withSkeleton(
-  ({ token, user, ...itemProps }: TokenAvailableCardProps) => {
-    const available = useTokenAvailable(token, user);
+  ({ token, account, ...itemProps }: TokenAvailableCardProps) => {
+    const available = useTokenAvailable(token, account);
 
     return (
       <CardItem

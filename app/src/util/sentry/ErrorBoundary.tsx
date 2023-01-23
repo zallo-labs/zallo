@@ -4,7 +4,7 @@ import { ReactNode, useEffect } from 'react';
 import { Native as Sentry } from 'sentry-expo';
 import { Box } from '~/components/layout/Box';
 import { makeStyles } from '@theme/makeStyles';
-import { FAB } from '~/components/FAB';
+import { Fab } from '~/components/buttons/Fab';
 import { RefreshIcon } from '@theme/icons';
 
 interface FallbackProps {
@@ -31,7 +31,7 @@ const Fallback = ({ resetError }: FallbackProps) => {
         We have been notified of this issue
       </Text>
 
-      <FAB icon={RefreshIcon} label="Refresh" onPress={resetError} />
+      <Fab icon={RefreshIcon} label="Refresh" onPress={resetError} />
     </Box>
   );
 };

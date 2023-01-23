@@ -3,22 +3,19 @@ import { EmptyListFallback } from '~/components/EmptyListFallback';
 import { ListScreenSkeleton } from '~/components/skeleton/ListScreenSkeleton';
 import { withSkeleton } from '~/components/skeleton/withSkeleton';
 import { ActivityIcon } from '~/util/theme/icons';
-import { makeStyles } from '~/util/theme/makeStyles';
 import { useMemo } from 'react';
 import { SectionList } from 'react-native';
-import { Appbar, Text } from 'react-native-paper';
+import { Appbar } from 'react-native-paper';
 import { AppbarMenu } from '~/components/Appbar/AppbarMenu';
 import { useAppbarHeader } from '~/components/Appbar/useAppbarHeader';
 import { ProposalItem } from '~/screens/activity/ProposalItem';
 import { ProposalMetadata } from '~/queries/proposal';
-import { useRootNavigation } from '~/navigation/useRootNavigation';
-import { useTransfersMetadata } from '~/queries/transfer/useTransfersMetadata.sub';
-import { TransferType } from '~/gql/generated.sub';
 import { TransferMetadata } from '~/queries/transfer/useTransfersMetadata.sub';
 import { IncomingTransferItem } from './IncomingTransferItem';
 import { useProposalsMetadata } from '~/queries/proposal/useProposalsMetadata.api';
-import { ProposalStatus } from '~/gql/generated.api';
 import { match } from 'ts-pattern';
+import { useNavigation } from '@react-navigation/native';
+import { ListHeader } from '~/components/list/ListHeader';
 
 type Item =
   | {
@@ -30,33 +27,50 @@ type Item =
       type: 'transfer';
     };
 
+const proposalToActivity = (proposal: ProposalMetadata): Item => ({
+  activity: proposal,
+  type: 'proposal',
+});
+
 export const ActivityScreen = withSkeleton(() => {
-  const styles = useStyles();
   const { AppbarHeader, handleScroll } = useAppbarHeader();
-  const navigation = useRootNavigation();
-  const [proposalsAwaitingUser] = useProposalsMetadata({ status: ProposalStatus.AwaitingUser });
-  const [proposalsAwaitingOthers] = useProposalsMetadata({ status: ProposalStatus.AwaitingOther });
-  const [proposalsExecuted] = useProposalsMetadata({ status: ProposalStatus.Executed });
-  // const [incomingTransfers] = useTransfersMetadata(TransferType.In);
+  const { navigate } = useNavigation();
+  const [proposalsRequiringAction] = useProposalsMetadata({
+    state: 'Pending',
+    userHasApproved: false,
+  });
+  const [proposalsAwaitingApproval] = useProposalsMetadata({
+    state: 'Pending',
+    userHasApproved: true,
+  });
+  const [proposalsExecuting] = useProposalsMetadata({ state: 'Executing' });
+  const [proposalsExecuted] = useProposalsMetadata({ state: 'Executed' });
+  // const [incomingTransfers] = useTransfersMetadata('IN');
 
   const sections = useMemo(
     () =>
       [
         {
+          title: 'Action required',
+          data: proposalsRequiringAction.map(proposalToActivity),
+        },
+        {
           title: 'Awaiting approval',
-          data: [...proposalsAwaitingUser, ...proposalsAwaitingOthers].map(
-            (activity): Item => ({ activity, type: 'proposal' }),
-          ),
+          data: proposalsAwaitingApproval.map(proposalToActivity),
+        },
+        {
+          title: 'Executing',
+          data: proposalsExecuting.map(proposalToActivity),
         },
         {
           title: 'Executed',
           data: [
-            ...proposalsExecuted.map((activity): Item => ({ activity, type: 'proposal' })),
+            ...proposalsExecuted.map(proposalToActivity),
             // ...incomingTransfers.map((activity): Item => ({ activity, type: 'transfer' })),
           ].sort((a, b) => b.activity.timestamp.toMillis() - a.activity.timestamp.toMillis()),
         },
       ].filter((section) => section.data.length > 0),
-    [proposalsAwaitingUser, proposalsAwaitingOthers, proposalsExecuted],
+    [proposalsRequiringAction, proposalsAwaitingApproval, proposalsExecuting, proposalsExecuted],
   );
 
   return (
@@ -67,20 +81,18 @@ export const ActivityScreen = withSkeleton(() => {
       </AppbarHeader>
 
       <SectionList
-        renderSectionHeader={({ section }) => (
-          <Text variant="bodyLarge" style={styles.title}>
-            {section.title}
-          </Text>
-        )}
+        renderSectionHeader={({ section }) => <ListHeader>{section.title}</ListHeader>}
         renderItem={({ item }) =>
           match(item)
-            .with({ type: 'proposal' }, ({ activity }) => (
+            .with({ type: 'proposal' }, ({ activity: proposal }) => (
               <ProposalItem
-                id={activity}
-                onPress={() => navigation.navigate('Proposal', { id: activity })}
+                proposal={proposal}
+                onPress={() => navigate('Proposal', { proposal })}
               />
             ))
-            .with({ type: 'transfer' }, ({ activity }) => <IncomingTransferItem id={activity.id} />)
+            .with({ type: 'transfer' }, ({ activity: transfer }) => (
+              <IncomingTransferItem transfer={transfer.id} />
+            ))
             .exhaustive()
         }
         ListEmptyComponent={
@@ -98,10 +110,3 @@ export const ActivityScreen = withSkeleton(() => {
     </Box>
   );
 }, ListScreenSkeleton);
-
-const useStyles = makeStyles(({ space }) => ({
-  title: {
-    marginHorizontal: space(2),
-    marginBottom: space(1),
-  },
-}));

@@ -1,3 +1,5 @@
+import Schema from '../schema/objects/account.mdx';
+
 # Account
 
 A smart-contract wallet on the [zkSync 2.0 network](https://zksync.io/)
@@ -10,9 +12,9 @@ A smart-contract wallet on the [zkSync 2.0 network](https://zksync.io/)
 
 ## Quorums
 
-An account is comprised of one or more quorums - a select group that is required to approve a proposal.
+An account is comprised of one or more [quorums](../quorum) - a select group that is required to approve a proposal.
 
-- Each quorum is authorized to perform a set of operations, prescribed by its configuration.
+Each quorum is authorized to perform a set of operations.
 
 ## Activating
 
@@ -27,3 +29,9 @@ Accounts are activated on creation
 
 Smart-contracts on zkSync are immutable, so it is not possible to delete an account.  
 However, it is possible to withdraw all funds from an account and remove all quorums to make it unusable.
+
+---
+
+## Schema
+
+<Schema />

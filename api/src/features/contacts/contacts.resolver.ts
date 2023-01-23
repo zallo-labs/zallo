@@ -2,10 +2,10 @@ import { Args, Info, Mutation, Parent, Query, ResolveField, Resolver } from '@ne
 import { PrismaService } from 'nestjs-prisma';
 import { GraphQLResolveInfo } from 'graphql';
 import { getSelect } from '~/util/select';
-import { DeviceAddr } from '~/decorators/device.decorator';
+import { UserId } from '~/decorators/user.decorator';
 import { Address, filterFirst, Id, toId } from 'lib';
 import { ContactsArgs, ContactArgs, ContactObject, UpsertContactArgs } from './contacts.args';
-import { connectOrCreateDevice } from '~/util/connect-or-create';
+import { connectOrCreateUser } from '~/util/connect-or-create';
 import { AccountsService } from '../accounts/accounts.service';
 import { Prisma } from '@prisma/client';
 
@@ -14,36 +14,33 @@ export class ContactsResolver {
   constructor(private prisma: PrismaService, private accountsService: AccountsService) {}
 
   @ResolveField(() => String)
-  id(@Parent() contact: ContactObject, @DeviceAddr() device: Address): Id {
-    return toId(`${device}-${contact.addr}`);
+  id(@Parent() contact: ContactObject, @UserId() user: Address): Id {
+    return toId(`${user}-${contact.addr}`);
   }
 
   @Query(() => ContactObject, { nullable: true })
   async contact(
     @Args() { addr }: ContactArgs,
-    @DeviceAddr() device: Address,
+    @UserId() user: Address,
     @Info() info: GraphQLResolveInfo,
   ): Promise<ContactObject | null> {
     return this.prisma.contact.findUnique({
       where: {
-        deviceId_addr: { addr, deviceId: device },
+        userId_addr: { addr, userId: user },
       },
       ...getSelect(info),
     });
   }
 
   @Query(() => [ContactObject])
-  async contacts(
-    @Args() args: ContactsArgs,
-    @DeviceAddr() device: Address,
-  ): Promise<ContactObject[]> {
+  async contacts(@Args() args: ContactsArgs, @UserId() user: Address): Promise<ContactObject[]> {
     const contacts = await this.prisma.contact.findMany({
       ...args,
-      where: { deviceId: device },
+      where: { userId: user },
       select: { addr: true, name: true },
     });
 
-    const accounts = await this.accountsService.deviceAccounts(device, {
+    const accounts = await this.accountsService.accounts(user, {
       select: { id: true, name: true },
     });
 
@@ -56,18 +53,18 @@ export class ContactsResolver {
   @Mutation(() => ContactObject)
   async upsertContact(
     @Args() { prevAddr, newAddr, name }: UpsertContactArgs,
-    @DeviceAddr() device: Address,
+    @UserId() user: Address,
     @Info() info: GraphQLResolveInfo,
   ): Promise<ContactObject> {
     return this.prisma.contact.upsert({
       where: {
-        deviceId_addr: {
-          deviceId: device,
+        userId_addr: {
+          userId: user,
           addr: prevAddr ?? newAddr,
         },
       },
       create: {
-        device: connectOrCreateDevice(device),
+        user: connectOrCreateUser(user),
         addr: newAddr,
         name,
       } as Prisma.ContactCreateInput,
@@ -82,13 +79,13 @@ export class ContactsResolver {
   @Mutation(() => Boolean)
   async deleteContact(
     @Args() { addr }: ContactArgs,
-    @DeviceAddr() device: Address,
+    @UserId() user: Address,
     @Info() info: GraphQLResolveInfo,
   ): Promise<boolean> {
     await this.prisma.contact.delete({
       where: {
-        deviceId_addr: {
-          deviceId: device,
+        userId_addr: {
+          userId: user,
           addr,
         },
       },

@@ -4,8 +4,7 @@ import * as Notifications from 'expo-notifications';
 import { DevicePushToken } from 'expo-notifications';
 import { useCallback, useEffect } from 'react';
 import { Platform } from 'react-native';
-import { ProposalStatus } from '~/gql/generated.api';
-import { useRegisterPushToken } from '~/mutations/useRegisterPushToken.api';
+import { useUpdateUser } from '~/mutations/user/useUpdateUser.api';
 import { useProposalsMetadata } from '~/queries/proposal/useProposalsMetadata.api';
 
 Notifications.setNotificationHandler({
@@ -16,14 +15,23 @@ Notifications.setNotificationHandler({
   }),
 });
 
+export const useNotificationsCount = () => {
+  const [proposalsAwaitingUser] = useProposalsMetadata({
+    state: 'Pending',
+    userHasApproved: false,
+  });
+
+  return proposalsAwaitingUser.length;
+};
+
 export const NotificationsRegistrar = () => {
-  const register = useRegisterPushToken();
-  const [proposalsAwaitingUser] = useProposalsMetadata({ status: ProposalStatus.AwaitingUser });
+  const count = useNotificationsCount();
+  const updateUser = useUpdateUser();
 
   // Set badge count
   useEffect(() => {
-    Notifications.setBadgeCountAsync(proposalsAwaitingUser.length);
-  }, [proposalsAwaitingUser.length]);
+    Notifications.setBadgeCountAsync(count);
+  }, [count]);
 
   const tryRegister = useCallback(
     async (devicePushToken?: DevicePushToken) => {
@@ -53,9 +61,9 @@ export const NotificationsRegistrar = () => {
         })
       ).data;
 
-      await register(token);
+      await updateUser({ pushToken: token });
     },
-    [register],
+    [updateUser],
   );
 
   useEffect(() => {

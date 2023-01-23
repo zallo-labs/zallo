@@ -1,99 +1,72 @@
-import { Box } from '~/components/layout/Box';
-import { CheckIcon, PlusIcon, SearchIcon } from '~/util/theme/icons';
+import { AddIcon, SearchIcon } from '~/util/theme/icons';
 import { makeStyles } from '~/util/theme/makeStyles';
 import { Address } from 'lib';
 import { FlatList } from 'react-native';
-import { useAppbarHeader } from '~/components/Appbar/useAppbarHeader';
-import { FAB } from '~/components/FAB';
-import { RootNavigatorScreenProps } from '~/navigation/RootNavigator';
+import { Fab } from '~/components/buttons/Fab';
+import { StackNavigatorScreenProps } from '~/navigation/StackNavigator';
 import { Contact, useContacts } from '~/queries/contacts/useContacts.api';
-import { useFuzzySearch } from '@hook/useFuzzySearch';
-import { useState } from 'react';
-import { Appbar, TextInput } from 'react-native-paper';
-import produce from 'immer';
-import { useGoBack } from '~/components/Appbar/useGoBack';
-import { TextField } from '~/components/fields/TextField';
+import { useSearch } from '@hook/useSearch';
 import { withSkeleton } from '~/components/skeleton/withSkeleton';
 import { ScreenSkeleton } from '~/components/skeleton/ScreenSkeleton';
+import { AppbarMenu2 } from '~/components/Appbar/AppbarMenu';
+import { AppbarBack2 } from '~/components/Appbar/AppbarBack';
+import { SafeAreaView } from '~/components/SafeAreaView';
+import { Searchbar } from '~/components/fields/Searchbar';
+import { ListHeader } from '~/components/list/ListHeader';
 import { ContactItem } from './ContactItem';
 
 export interface ContactsScreenParams {
-  title?: string;
-  disabled?: Address[];
   onSelect?: (contact: Contact) => void;
-  selectedSet?: Set<Address>;
-  onMultiSelect?: (contacts: Set<Address>) => void;
+  disabled?: Set<Address>;
 }
 
-export type ContactsScreenProps = RootNavigatorScreenProps<'Contacts'>;
+export type ContactsScreenProps =
+  | StackNavigatorScreenProps<'Contacts'>
+  | StackNavigatorScreenProps<'ContactsModal'>;
 
-const ContactsScreen = ({ route, navigation }: ContactsScreenProps) => {
-  const { title, disabled, onSelect, onMultiSelect } = route.params;
-  const styles = useStyles();
-  const { AppbarHeader, handleScroll } = useAppbarHeader();
-  const [allContacts] = useContacts();
+export const ContactsScreen = withSkeleton(
+  ({ route, navigation: { navigate } }: ContactsScreenProps) => {
+    const { onSelect, disabled } = route.params;
+    const styles = useStyles();
+    const isScreen = route.name === 'Contacts';
 
-  const [contacts, searchProps] = useFuzzySearch(allContacts, ['name', 'addr']);
+    const [contacts, searchProps] = useSearch(useContacts(), ['name', 'addr']);
 
-  const [selections, setSelections] = useState<Set<Address>>(
-    () => route.params.selectedSet ?? new Set(),
-  );
+    return (
+      <SafeAreaView enabled={isScreen} style={styles.root}>
+        <Searchbar
+          leading={onSelect ? AppbarBack2 : AppbarMenu2}
+          placeholder="Search contacts"
+          trailing={SearchIcon}
+          {...searchProps}
+        />
 
-  const create = () => navigation.navigate('Contact', {});
+        <FlatList
+          data={contacts}
+          ListHeaderComponent={<ListHeader>Contacts</ListHeader>}
+          renderItem={({ item: contact }) => (
+            <ContactItem
+              contact={contact}
+              disabled={disabled?.has(contact.addr)}
+              onPress={() => {
+                onSelect ? onSelect(contact) : navigate('Contact', { addr: contact.addr });
+              }}
+            />
+          )}
+          extraData={[navigate, onSelect, disabled]}
+          showsVerticalScrollIndicator={false}
+        />
 
-  return (
-    <Box flex={1}>
-      <AppbarHeader mode="medium">
-        <Appbar.BackAction onPress={useGoBack()} />
-        <Appbar.Content title={title || 'Contacts'} />
-        <Appbar.Action icon={PlusIcon} onPress={create} />
-      </AppbarHeader>
+        <Fab icon={AddIcon} label="Add" onPress={() => navigate('Contact', {})} />
+      </SafeAreaView>
+    );
+  },
+  ScreenSkeleton,
+);
 
-      <FlatList
-        ListHeaderComponent={
-          <TextField left={<TextInput.Icon icon={SearchIcon} />} label="Search" {...searchProps} />
-        }
-        renderItem={({ item }) => (
-          <ContactItem
-            contact={item}
-            onPress={() => {
-              if (onSelect) {
-                onSelect(item);
-              } else if (onMultiSelect) {
-                setSelections(
-                  produce((selections) => {
-                    if (!selections.delete(item.addr)) selections.add(item.addr);
-                  }),
-                );
-              } else {
-                navigation.navigate('Contact', { addr: item.addr });
-              }
-            }}
-            selected={selections.has(item.addr)}
-            disabled={disabled?.includes(item.addr)}
-          />
-        )}
-        style={styles.list}
-        ListHeaderComponentStyle={styles.header}
-        data={contacts}
-        extraData={[navigation, onSelect, disabled]}
-        onScroll={handleScroll}
-        showsVerticalScrollIndicator={false}
-      />
-
-      {onMultiSelect && selections.size > 0 && (
-        <FAB icon={CheckIcon} label="Select" onPress={() => onMultiSelect(selections)} />
-      )}
-    </Box>
-  );
-};
-
-const useStyles = makeStyles(({ space }) => ({
-  list: {},
-  header: {
-    marginHorizontal: space(2),
-    marginBottom: space(1),
+const useStyles = makeStyles(({ s }) => ({
+  root: {
+    flex: 1,
+    marginTop: s(16),
   },
 }));
-
-export default withSkeleton(ContactsScreen, ScreenSkeleton);

@@ -2,5 +2,9 @@
   "files.exclude": {
     ".docusaurus": true,
     ".frontmatter": true
+  },
+  "jest.autoRun": "off",
+  "jest.testExplorer": {
+    "enabled": false
   }
 }

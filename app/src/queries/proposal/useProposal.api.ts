@@ -1,16 +1,14 @@
 import { gql } from '@apollo/client';
-import { useDevice } from '@network/useDevice';
-import { assert } from 'console';
+import assert from 'assert';
 import { BigNumber } from 'ethers';
-import { Address, address, toId, toTxSalt } from 'lib';
+import { Address, address, toQuorumKey, toTxSalt } from 'lib';
 import { DateTime } from 'luxon';
 import { useMemo } from 'react';
 import { ProposalDocument, ProposalQuery, ProposalQueryVariables } from '~/gql/generated.api';
-import { useApiClient } from '~/gql/GqlProvider';
 import { usePollWhenFocussed } from '~/gql/usePollWhenFocussed';
 import { useSuspenseQuery } from '~/gql/useSuspenseQuery';
-import { Approval, Proposal, Submission, ProposalStatus, ProposalId, Rejection } from '.';
-import { useUser } from '../user/useUser.api';
+import { Approval, Proposal, Submission, ProposalState, ProposalId, Rejection } from '.';
+import { useQuorum } from '../quroum/useQuorum.api';
 
 gql`
   fragment TransactionFields on Transaction {
@@ -31,6 +29,7 @@ gql`
     proposal(id: $id) {
       id
       accountId
+      quorumKey
       proposerId
       to
       value
@@ -38,7 +37,7 @@ gql`
       salt
       createdAt
       approvals {
-        deviceId
+        userId
         signature
         createdAt
       }
@@ -49,43 +48,41 @@ gql`
   }
 `;
 
-const getStatus = (submissions: Submission[]): ProposalStatus => {
-  if (!submissions.length) return 'proposed';
+const getStatus = (submissions: Submission[]): ProposalState => {
+  if (!submissions.length) return 'pending';
   if (submissions.some((s) => s.status === 'success')) return 'executed';
-  if (submissions.some((s) => s.status === 'pending')) return 'pending';
+  if (submissions.some((s) => s.status === 'pending')) return 'executing';
   if (submissions.some((s) => s.status === 'failure')) return 'failed';
-  return 'pending';
+  assert(false); // Unreachable
 };
 
-export const useProposal = ({ hash }: ProposalId, focussed = false) => {
-  const device = useDevice();
-
+export const useProposal = <Id extends ProposalId | undefined>(id: Id, focussed = false) => {
   const { data, ...rest } = useSuspenseQuery<ProposalQuery, ProposalQueryVariables>(
     ProposalDocument,
-    {
-      client: useApiClient(),
-      variables: { id: hash },
-    },
+    { variables: id, skip: !id },
   );
   usePollWhenFocussed(rest, focussed ? 3 : 15);
 
-  const p = data.proposal!;
+  const p = data.proposal;
+  if (id) assert(p);
 
-  const account = address(p.accountId);
-  const [proposer] = useUser({
-    account,
-    addr: address(p.proposerId),
-  });
+  const quorum = useQuorum(
+    p ? { account: address(p.accountId), key: toQuorumKey(p.quorumKey) } : undefined,
+  );
 
-  const proposal = useMemo((): Proposal => {
-    const approvals: Approval[] =
+  const proposal = useMemo((): Proposal | undefined => {
+    if (!id || !p || !quorum) return undefined;
+
+    const approvals = new Map<Address, Approval>(
       p.approvals
         ?.filter((a) => a.signature)
         .map((a) => ({
-          addr: address(a.deviceId),
+          addr: address(a.userId),
           signature: a.signature!,
           timestamp: DateTime.fromISO(a.createdAt),
-        })) ?? [];
+        }))
+        .map((a) => [a.addr, a] as const),
+    );
 
     const transactions =
       p?.transactions?.map(
@@ -106,36 +103,41 @@ export const useProposal = ({ hash }: ProposalId, focussed = false) => {
         }),
       ) ?? [];
 
+    const rejected = new Map(
+      p.approvals
+        ?.filter((a) => !a.signature)
+        .map((a): [Address, Rejection] => [
+          address(a.userId),
+          {
+            addr: address(a.userId),
+            timestamp: DateTime.fromISO(a.createdAt),
+          },
+        ]),
+    );
+
+    const awaitingApprovalFrom = new Set(
+      [...quorum.activeOrLatest.approvers].filter((a) => !approvals.has(a) && !rejected.has(a)),
+    );
+
     return {
-      account,
-      proposer,
-      // TODO: allow user to select config
-      config: (proposer.configs.active ?? proposer.configs.proposed!)[0],
-      hash,
-      id: toId(p.id),
+      id: id.id,
+      account: address(p.accountId),
+      quorum,
       timestamp: DateTime.fromISO(p.createdAt),
       to: address(p.to),
-      value: BigNumber.from(p.value),
-      data: p.data,
+      value: p.value ? BigNumber.from(p.value) : undefined,
+      data: p.data || undefined,
       salt: toTxSalt(p.salt),
       approvals,
-      rejected: new Map(
-        p.approvals
-          ?.filter((a) => !a.signature)
-          .map((a): [Address, Rejection] => [
-            address(a.deviceId),
-            {
-              addr: address(a.deviceId),
-              timestamp: DateTime.fromISO(a.createdAt),
-            },
-          ]),
-      ),
-      userHasApproved: approvals.some((a) => a.addr === device.address),
+      rejected,
+      awaitingApproval: awaitingApprovalFrom,
+      isApproved: approvals.size === quorum.activeOrLatest.approvers.size,
       submissions: transactions,
       proposedAt: DateTime.fromISO(p.createdAt),
-      status: getStatus(transactions),
+      proposer: address(p.proposerId),
+      state: getStatus(transactions),
     };
-  }, [p, account, proposer, hash, device.address]);
+  }, [p, quorum, id]);
 
-  return [proposal, rest] as const;
+  return proposal as Id extends undefined ? Proposal | undefined : Proposal;
 };

@@ -3,7 +3,7 @@ import { StyleProp, ViewStyle } from 'react-native';
 import { Text } from 'react-native-paper';
 import { Addr } from '~/components/addr/Addr';
 import { useProposalLabel } from '~/components/call/useProposalLabel';
-import { Identicon } from '~/components/Identicon/Identicon';
+import { AddrIcon } from '~/components/Identicon/AddrIcon';
 import { Box } from '~/components/layout/Box';
 import { Proposal } from '~/queries/proposal';
 import { ProposalMethod } from './ProposalMethod';
@@ -19,7 +19,7 @@ export const ProposalHeader = ({ proposal: p, style }: ProposalHeaderProps) => {
 
   return (
     <Box alignItems="center" style={style}>
-      <Identicon seed={p.to} size={styles.iconSize.fontSize} style={styles.icon} />
+      <AddrIcon addr={p.to} size={styles.iconSize.fontSize} style={styles.icon} />
 
       <ProposalMethod proposal={p}>
         <Box alignItems="center">
@@ -27,7 +27,7 @@ export const ProposalHeader = ({ proposal: p, style }: ProposalHeaderProps) => {
             <Addr addr={p.to} />
           </Text>
           <Text variant="headlineSmall" style={styles.label}>
-            {`${label}`}
+            {label}
           </Text>
         </Box>
       </ProposalMethod>

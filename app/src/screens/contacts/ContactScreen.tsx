@@ -1,19 +1,20 @@
 import { Box } from '~/components/layout/Box';
-import { Formik } from 'formik';
+import { Formik, FormikHelpers } from 'formik';
 import { Address, isAddress } from 'lib';
 import { Button } from 'react-native-paper';
-import { RootNavigatorScreenProps } from '~/navigation/RootNavigator';
+import { StackNavigatorScreenProps } from '~/navigation/StackNavigator';
 import { useContact } from '~/queries/contacts/useContact';
 import * as Yup from 'yup';
 import { FormikTextField } from '~/components/fields/FormikTextField';
-import { CheckIcon, ScanIcon } from '~/util/theme/icons';
+import { ScanIcon } from '~/util/theme/icons';
 import { useUpsertContact } from '~/mutations/contact/useUpsertContact.api';
 import assert from 'assert';
-import { FormikSubmitFab } from '~/components/fields/FormikSubmitFab';
-import { StyleSheet } from 'react-native';
 import { Contact, useContacts } from '~/queries/contacts/useContacts.api';
-import { useCallback, useMemo } from 'react';
+import { useMemo } from 'react';
 import { ContactAppbar } from './ContactAppbar';
+import { useScanAddr } from '../scan/useScanAddr';
+import { makeStyles } from '@theme/makeStyles';
+import { FormikSubmitActionButton } from '~/components/fields/FormikSubmitActionButton';
 
 const defaultValues = {
   name: '',
@@ -45,27 +46,26 @@ export interface ContactScreenParams {
   addr?: Address;
 }
 
-export type ContactScreenProps = RootNavigatorScreenProps<'Contact'>;
+export type ContactScreenProps = StackNavigatorScreenProps<'Contact'>;
 
-export const ContactScreen = ({ route, navigation }: ContactScreenProps) => {
-  const [contacts] = useContacts();
+export const ContactScreen = ({ route, navigation: { goBack } }: ContactScreenProps) => {
+  const styles = useStyles();
+  const contacts = useContacts();
   const existing = useContact(route.params.addr);
   const upsert = useUpsertContact();
+  const scanAddr = useScanAddr();
 
-  const handleSubmit = useCallback(
-    async (values: Values) => {
-      assert(isAddress(values.addr)); // Enforced by schema
-      await upsert(
-        {
-          name: values.name,
-          addr: values.addr,
-        },
-        existing,
-      );
-      navigation.goBack();
-    },
-    [existing, navigation, upsert],
-  );
+  const handleSubmit = async (values: Values, helpers: FormikHelpers<Values>) => {
+    assert(isAddress(values.addr)); // Enforced by schema
+    await upsert(
+      {
+        name: values.name,
+        addr: values.addr,
+      },
+      existing,
+    );
+    helpers.setSubmitting(false);
+  };
 
   return (
     <Box flex={1}>
@@ -75,38 +75,38 @@ export const ContactScreen = ({ route, navigation }: ContactScreenProps) => {
         initialValues={existing ?? defaultValues}
         onSubmit={handleSubmit}
         validationSchema={useMemo(() => getSchema(contacts, existing), [contacts, existing])}
+        enableReinitialize
       >
-        {({ setFieldValue }) => (
+        {({ setFieldValue, isSubmitting }) => (
           <>
-            <Box m={4}>
+            <Box style={styles.fieldsContainer}>
               <FormikTextField name="name" label="Name" />
 
-              <Box mt={3} mb={2}>
-                <FormikTextField name="addr" label="Address" multiline blurOnSubmit />
-              </Box>
+              <FormikTextField
+                name="addr"
+                label="Address"
+                multiline
+                blurOnSubmit
+                containerStyle={styles.addressField}
+              />
 
               <Button
                 icon={ScanIcon}
                 mode="contained-tonal"
-                style={styles.scan}
-                onPress={() =>
-                  navigation.navigate('Scan', {
-                    onScanAddr: (link) => {
-                      setFieldValue('addr', link.target_address);
-                      navigation.goBack();
-                    },
-                  })
-                }
+                style={styles.scanButton}
+                disabled={isSubmitting}
+                onPress={async () => {
+                  setFieldValue('addr', (await scanAddr()).target_address);
+                  goBack();
+                }}
               >
                 Scan
               </Button>
             </Box>
 
-            <FormikSubmitFab
-              icon={CheckIcon}
-              label={existing ? 'Save' : 'Create'}
-              hideWhenClean={!!existing}
-            />
+            <FormikSubmitActionButton disableWhenClean={!!existing}>
+              {existing ? 'Save' : 'Create'}
+            </FormikSubmitActionButton>
           </>
         )}
       </Formik>
@@ -114,8 +114,18 @@ export const ContactScreen = ({ route, navigation }: ContactScreenProps) => {
   );
 };
 
-const styles = StyleSheet.create({
-  scan: {
+const useStyles = makeStyles(({ s }) => ({
+  fieldsContainer: {
+    marginHorizontal: s(16),
+  },
+  addressField: {
+    marginTop: s(16),
+    marginBottom: s(8),
+  },
+  scanButton: {
     alignSelf: 'flex-end',
   },
-});
+  actionButton: {
+    margin: s(16),
+  },
+}));

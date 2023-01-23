@@ -3,33 +3,38 @@ import { makeStyles } from '@theme/makeStyles';
 import { createTransferTx } from '@token/token';
 import { useTokenAvailable } from '@token/useTokenAvailable';
 import { BigNumber } from 'ethers';
-import { Address, UserId, ZERO } from 'lib';
+import { Address, QuorumGuid, ZERO } from 'lib';
 import { useState } from 'react';
 import { Appbar, Text } from 'react-native-paper';
 import { AddrCard } from '~/components/addr/AddrCard';
 import { AppbarBack } from '~/components/Appbar/AppbarBack';
-import { FAB } from '~/components/FAB';
+import { Fab } from '~/components/buttons/Fab';
 import { Box } from '~/components/layout/Box';
 import { Container } from '~/components/layout/Container';
 import { TokenAvailableCard } from '~/components/token/TokenAvailableCard';
-import { useSelectedToken, useSelectToken } from '~/components/token/useSelectedToken';
+import {
+  useSelectedToken,
+  useSelectToken as useSetSelectedToken,
+} from '~/components/token/useSelectedToken';
 import { popToProposal, usePropose } from '~/mutations/proposal/propose/usePropose';
-import { RootNavigatorScreenProps } from '~/navigation/RootNavigator';
+import { StackNavigatorScreenProps } from '~/navigation/StackNavigator';
 import { AmountInput } from '../amount/AmountInput';
+import { useSelectToken } from '../tokens/useSelectToken';
 
 export interface SendScreenParams {
-  user: UserId;
+  quorum: QuorumGuid;
   to: Address;
 }
 
-export type SendScreenProps = RootNavigatorScreenProps<'Send'>;
+export type SendScreenProps = StackNavigatorScreenProps<'Send'>;
 
 export const SendScreen = ({ route, navigation }: SendScreenProps) => {
-  const { user, to } = route.params;
+  const { quorum, to } = route.params;
   const styles = useStyles();
+  const selectToken = useSelectToken();
   const [propose, proposing] = usePropose();
-  const [token, selectToken] = [useSelectedToken(), useSelectToken()];
-  const available = useTokenAvailable(token, user);
+  const [token, setSelectToken] = [useSelectedToken(), useSetSelectedToken()];
+  const available = useTokenAvailable(token, quorum);
 
   const [amount, setAmount] = useState<BigNumber | undefined>();
 
@@ -45,16 +50,11 @@ export const SendScreen = ({ route, navigation }: SendScreenProps) => {
 
         <TokenAvailableCard
           token={token}
-          user={user}
-          onPress={() =>
-            navigation.navigate('Tokens', {
-              user,
-              onSelect: (token) => {
-                selectToken(token);
-                navigation.goBack();
-              },
-            })
-          }
+          account={quorum}
+          onPress={async () => {
+            setSelectToken(await selectToken());
+            navigation.goBack();
+          }}
         />
 
         <Text variant="headlineSmall" style={styles.warning}>
@@ -64,14 +64,14 @@ export const SendScreen = ({ route, navigation }: SendScreenProps) => {
         <AmountInput token={token} amount={amount} setAmount={setAmount} />
       </Container>
 
-      <FAB
+      <Fab
         icon={SendIcon}
         label="Send"
         loading={proposing}
         disabled={!amount || amount.eq(ZERO)}
         {...(amount && {
           onPress: () => {
-            propose(user.account, createTransferTx(token, to, amount), popToProposal);
+            propose(quorum, createTransferTx(token, to, amount), popToProposal);
           },
         })}
       />

@@ -1,8 +1,9 @@
 import { FindManyAccountArgs } from '@gen/account/find-many-account.args';
-import { ArgsType, InputType, OmitType } from '@nestjs/graphql';
+import { ArgsType, Field } from '@nestjs/graphql';
 import { Address } from 'lib';
 import { AddressField } from '~/apollo/scalars/Address.scalar';
-import { UserInput } from '../users/users.args';
+import { minLengthMiddleware } from '~/apollo/scalars/util';
+import { QuorumInput } from '../quorums/quorums.args';
 
 @ArgsType()
 export class AccountArgs {
@@ -17,17 +18,11 @@ export class AccountsArgs extends FindManyAccountArgs {}
 export class CreateAccountArgs {
   name: string;
 
-  // TODO: require at least one
-  users: UserWithoutAccountInput[];
+  @Field(() => [QuorumInput], { middleware: [minLengthMiddleware(1)] })
+  quorums: QuorumInput[];
 }
 
 @ArgsType()
-export class SetAccountNameArgs extends AccountArgs {
+export class UpdateAccountMetadataArgs extends AccountArgs {
   name: string;
-}
-
-@InputType()
-export class UserWithoutAccountInput extends OmitType(UserInput, ['id'] as const) {
-  @AddressField()
-  device: Address;
 }

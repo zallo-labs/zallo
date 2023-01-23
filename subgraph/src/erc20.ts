@@ -1,7 +1,7 @@
 import { Transfer as TransferEvent } from '../generated/ERC20/ERC20';
 import { Account, Transfer } from '../generated/schema';
 import { Address, ethereum } from '@graphprotocol/graph-ts';
-import { getTxId } from './tx';
+import { getTransactionId } from './transaction';
 import { getAccountId } from './account';
 
 const ETH_ADDR: Address = Address.fromString('0x000000000000000000000000000000000000800a');
@@ -20,7 +20,7 @@ export function handleTransfer(e: TransferEvent): void {
   const transfer = new Transfer(getTransferId(e));
 
   transfer.account = account.id;
-  transfer.tx = getTxId(e.transaction);
+  transfer.transaction = getTransactionId(e.transaction);
   transfer.transactionHash = e.transaction.hash;
   transfer.token = transformEthAddress(e.address);
   transfer.type = account.id == e.params.from ? 'OUT' : 'IN';

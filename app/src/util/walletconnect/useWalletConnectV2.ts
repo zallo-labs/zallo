@@ -38,25 +38,35 @@ export const useWalletConnectV2 = () => {
   const [c, setClient] = useRecoilState(SIGN_CLIENT);
 
   useEffect(() => {
-    c.on('session_proposal', (proposal) => handleSessionProposal(c, proposal));
-    c.on('session_request', ({ id, topic, params }: WcEventParams['session_request']) => {
-      const method = params.request.method;
+    const x = [
+      ['session_proposal', (p: WcEventParams['session_proposal']) => handleSessionProposal(c, p)],
+      [
+        'session_request',
+        ({ id, topic, params }: WcEventParams['session_request']) => {
+          const method = params.request.method;
 
-      if (WC_SIGNING_METHODS.has(method)) {
-        navigate('Sign', {
-          topic: topic as TopicV2,
-          id,
-          request: params.request as SigningRequest,
-        });
-      } else if (WC_TRANSACTION_METHODS.has(method)) {
-        handleSend(c, id, topic, (params.request as WcTransactionRequest).params[0]);
-      } else {
-        showError(`Unsupported WalletConnect request method: ${method}`);
-      }
-    });
+          if (WC_SIGNING_METHODS.has(method)) {
+            navigate('Sign', {
+              topic: topic as TopicV2,
+              id,
+              request: params.request as SigningRequest,
+            });
+          } else if (WC_TRANSACTION_METHODS.has(method)) {
+            handleSend(c, id, topic, (params.request as WcTransactionRequest).params[0]);
+          } else {
+            showError(`Unsupported WalletConnect request method: ${method}`);
+          }
+        },
+      ],
+    ] as const;
+
+    c.on(...x[0]);
+    c.on(...x[1]);
+    // x.forEach((z) => c.on(...z));  // type error 🤷
 
     return () => {
-      c.events.removeAllListeners();
+      c.events.removeListener(...x[0]);
+      c.events.removeListener(...x[1]);
     };
   }, [c, handleSend, handleSessionProposal, navigate]);
 

@@ -7,8 +7,21 @@ export type SetKeys<S extends Set<unknown>> = S extends Set<infer T> ? T : never
 // Required as filter((t?: T) => !!t) => (T | undefined); see https://github.com/microsoft/TypeScript/issues/20812
 export const isPresent = <T>(t: T | null | undefined): t is T => t !== undefined && t !== null;
 
+export const keysArePresent = <T extends Record<string, unknown>, K extends keyof T>(
+  t: T | null | undefined,
+  keys: K[],
+): t is Exclude<T, K> & NonNullable<Pick<T, K>> => keys.every((k) => isPresent(t?.[k]));
+
+export const keysArePresent2 =
+  <T extends Record<string, unknown>, K extends keyof T>(keys: K[]) =>
+  (t: T | null | undefined): t is Exclude<T, K> & NonNullable<Pick<T, K>> =>
+    keysArePresent(t, keys);
+
 export const isTruthy = <T>(t: NonBoolean<T> | boolean | null | undefined): t is NonBoolean<T> =>
   !!t;
+
+export type MaybeArray<T> = T | T[];
+export const toArray = <V>(values: V | V[]): V[] => (Array.isArray(values) ? values : [values]);
 
 // Lodash-like groupBy, but using Map to allow for arbitrary keys
 export const groupBy = <K, V>(items: V[], key: (item: V) => K): Map<K, V[]> => {

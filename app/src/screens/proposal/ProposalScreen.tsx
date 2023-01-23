@@ -6,25 +6,25 @@ import { Box } from '~/components/layout/Box';
 import { Container } from '~/components/layout/Container';
 import { ScreenSkeleton } from '~/components/skeleton/ScreenSkeleton';
 import { withSkeleton } from '~/components/skeleton/withSkeleton';
-import { RootNavigatorScreenProps } from '~/navigation/RootNavigator';
+import { StackNavigatorScreenProps } from '~/navigation/StackNavigator';
 import { ProposalId } from '~/queries/proposal';
 import { useProposal } from '~/queries/proposal/useProposal.api';
 import { OnExecute, ProposalActions } from './ProposalActions';
 import { ProposalHeader } from './ProposalHeader';
-import { ProposalStatusCard } from './ProposalStatusCard';
+import { ProposalStateCard } from './ProposalStateCard';
 import { ProposalTransfers } from './ProposalTransfers';
 
 export interface ProposalScreenParams {
-  id: ProposalId;
+  proposal: ProposalId;
   onExecute?: OnExecute;
 }
 
-export type ProposalScreenProps = RootNavigatorScreenProps<'Proposal'>;
+export type ProposalScreenProps = StackNavigatorScreenProps<'Proposal'>;
 
-const ProposalScreen = ({ route }: ProposalScreenProps) => {
-  const { id, onExecute } = route.params;
+const ProposalScreen = ({ route: { params } }: ProposalScreenProps) => {
+  const { onExecute } = params;
   const styles = useStyles();
-  const [proposal] = useProposal(id);
+  const proposal = useProposal(params.proposal);
 
   return (
     <ErrorContextProvider>
@@ -36,7 +36,7 @@ const ProposalScreen = ({ route }: ProposalScreenProps) => {
         <Container flex={1} separator={<Box mt={4} />}>
           <ProposalHeader proposal={proposal} />
           <ProposalTransfers proposal={proposal} style={styles.mx} />
-          <ProposalStatusCard proposal={proposal} style={styles.mx} />
+          <ProposalStateCard proposal={proposal} style={styles.mx} />
           <ProposalActions proposal={proposal} onExecute={onExecute} />
         </Container>
       </Box>

@@ -1,114 +1,92 @@
 import { gql } from '@apollo/client';
-import { useApiClient } from '~/gql/GqlProvider';
-import { updateQuery } from '~/gql/update';
 import {
   AccountDocument,
   AccountQuery,
   AccountQueryVariables,
+  QuorumStateFieldsFragment,
   useCreateAccountMutation,
-  UserIdsDocument,
-  UserIdsQuery,
-  UserIdsQueryVariables,
 } from '~/gql/generated.api';
-import { address, Address, getUserIdStr, User, UserId } from 'lib';
-import { useDevice } from '@network/useDevice';
+import { address, Address, Quorum, toQuorumKey } from 'lib';
+import { useUser } from '~/queries/useUser.api';
 
 gql`
-  mutation CreateAccount($name: String!, $users: [UserWithoutAccountInput!]!) {
-    createAccount(name: $name, users: $users) {
+  mutation CreateAccount($name: String!, $quorums: [QuorumInput!]!) {
+    createAccount(name: $name, quorums: $quorums) {
       id
+      isActive
     }
   }
 `;
 
 export interface CreateAccountResult {
   account: Address;
-  user: UserId;
+  quorums: Quorum[];
 }
 
 export const useCreateAccount = () => {
-  const device = useDevice();
-  const [mutation] = useCreateAccountMutation({ client: useApiClient() });
+  const user = useUser();
+  const [mutation] = useCreateAccountMutation();
 
-  return async (name: string, userName: string): Promise<CreateAccountResult> => {
-    const user: User = {
-      addr: device.address,
-      configs: [
-        {
-          approvers: [],
-          spendingAllowlisted: false,
-          limits: {},
-        },
-      ],
-    };
+  return async (name: string): Promise<CreateAccountResult> => {
+    const quorums = [
+      {
+        name: 'Admin',
+        key: toQuorumKey(1),
+        approvers: new Set([user.id]),
+      },
+    ];
 
     const r = await mutation({
       variables: {
         name,
-        users: [
-          {
-            name: userName,
-            device: user.addr,
-            configs: user.configs.map((c) => ({
-              approvers: c.approvers,
-              spendingAllowlisted: c.spendingAllowlisted,
-              limits: Object.values(c.limits),
-            })),
-          },
-        ],
+        quorums: quorums.map((q) => ({
+          name: q.name,
+          approvers: [...q.approvers.values()],
+        })),
       },
       update: (cache, res) => {
-        const id = res.data?.createAccount.id;
-        if (!id) return;
+        const acc = res.data?.createAccount;
+        if (!acc) return;
 
         {
           // Account: add
           cache.writeQuery<AccountQuery, AccountQueryVariables>({
             query: AccountDocument,
-            variables: { account: id },
+            variables: { account: acc.id },
             data: {
               account: {
-                id,
-                isActive: false,
                 name,
-                users: [
-                  {
-                    deviceId: user.addr,
-                    name: userName,
-                  },
-                ],
-              },
-            },
-          });
-        }
+                quorums: quorums.map((q) => {
+                  const state: QuorumStateFieldsFragment = {
+                    isRemoved: false,
+                    createdAt: Date.now(),
+                    spendingFallback: 'allow',
+                    approvers: [...q.approvers.values()].map((a) => ({ userId: a })),
+                  };
 
-        {
-          // UserIds: add
-          updateQuery<UserIdsQuery, UserIdsQueryVariables>({
-            cache,
-            query: UserIdsDocument,
-            variables: {},
-            defaultData: { users: [] },
-            updater: (data) => {
-              const i = data.users.findIndex((u) => u.id === id);
-              data.users[i >= 0 ? i : data.users.length] = {
-                id: getUserIdStr(account, device.address),
-                accountId: account,
-              };
+                  return {
+                    id: `${acc.id}-${q.key}`,
+                    accountId: acc.id,
+                    key: q.key,
+                    name: q.name,
+                    ...(acc.isActive
+                      ? {
+                          activeState: state,
+                          proposedStates: [],
+                        }
+                      : {
+                          proposedStates: [state],
+                        }),
+                  };
+                }),
+                ...acc,
+              },
             },
           });
         }
       },
     });
 
-    const account = address(r.data!.createAccount.id);
-
-    return {
-      account,
-      user: {
-        account,
-        addr: device.address,
-      },
-    };
+    return { account: address(r.data!.createAccount.id), quorums };
   };
 };

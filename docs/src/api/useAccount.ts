@@ -27,8 +27,8 @@ const useFirstAccount = (): string | undefined =>
 const useCreateAccount = () =>
   useMutation<CreateTestAccountMutation, CreateTestAccountMutationVariables>(
     gql`
-      mutation CreateTestAccount($name: String!, $users: [UserWithoutAccountInput!]!) {
-        createAccount(name: $name, users: $users) {
+      mutation CreateTestAccount($name: String!, $quorums: [QuorumInput!]!) {
+        createAccount(name: $name, quorums: $quorums) {
           id
         }
       }
@@ -36,13 +36,7 @@ const useCreateAccount = () =>
     {
       variables: {
         name: 'Test account',
-        users: [
-          {
-            name: 'Test user',
-            device: useDevice().address,
-            configs: [{ approvers: [] }],
-          },
-        ],
+        quorums: [{ name: 'Test quorum', approvers: [useDevice().address] }],
       },
     },
   );
@@ -57,9 +51,7 @@ export const useAccount = () => {
   useEffect(() => {
     (async () => {
       if (!account) {
-        console.log('No account found, creating one');
         const { data } = await createAccount();
-        console.log('Account created', data);
         if (data) setAccount(data.createAccount.id);
       }
     })();

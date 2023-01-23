@@ -1,17 +1,17 @@
-import isoFetch from 'isomorphic-fetch';
+import fetch from 'cross-fetch';
 import getFetch, { RequestInitWithRetry } from 'fetch-retry';
 
 const defaults: RequestInitWithRetry = {
-  retries: 5,
+  retries: 3,
   // Exponential backoff, e.g. 100ms, 200ms, 400ms, ...
   retryDelay: (attempt) => Math.pow(2, attempt) * 100,
 };
 
-export const fetch = getFetch(isoFetch, defaults);
+export const fetchWithRetry = getFetch(fetch, defaults);
 
-export const fetchJson = async (...params: Parameters<typeof fetch>) => {
+export const fetchJsonWithRetry = async (...params: Parameters<typeof fetchWithRetry>) => {
   try {
-    const resp = await fetch(...params);
+    const resp = await fetchWithRetry(...params);
     return await resp.json();
   } catch (_) {
     return undefined;

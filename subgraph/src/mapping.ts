@@ -1,2 +1,2 @@
-export { handleTxExecuted, handleTxReverted } from './tx';
-export { handleUserUpserted, handleUserRemoved } from './user';
+export { handleTransactionExecuted, handleTransactionReverted } from './transaction';
+export { handleQuorumUpserted, handleQuorumRemoved } from './quorum';

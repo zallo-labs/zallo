@@ -20,7 +20,7 @@ export interface AccountSelectorProps {
 }
 
 export const AccountSelector = ({ selected, onSelect, cardProps }: AccountSelectorProps) => {
-  const [accountIds] = useAccountIds();
+  const accountIds = useAccountIds();
   const window = useWindowDimensions();
 
   const [position, setPosition] = useState(() => {
@@ -34,7 +34,7 @@ export const AccountSelector = ({ selected, onSelect, cardProps }: AccountSelect
         layout="default"
         data={[...accountIds, null]}
         renderItem={({ item }) =>
-          item !== null ? <AccountCard addr={item} {...cardProps} /> : <AddAccountCard />
+          item !== null ? <AccountCard account={item} {...cardProps} /> : <AddAccountCard />
         }
         itemWidth={ACCOUNT_CARD_STYLE.width}
         sliderWidth={window.width}

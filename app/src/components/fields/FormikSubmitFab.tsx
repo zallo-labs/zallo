@@ -1,14 +1,14 @@
 import { useMemo } from 'react';
 import { useFormikContext } from 'formik';
 import { containsErrors } from './FormikErrors';
-import { FAB, FABProps } from '~/components/FAB';
+import { Fab, FabProps } from '~/components/buttons/Fab';
 
 const allTouched = (values: unknown, touched: Record<string, boolean>) =>
   typeof values === 'object' &&
   values !== null &&
   Object.keys(values).every((field) => touched[field]);
 
-export type FormikSubmitFabProps = FABProps & {
+export type FormikSubmitFabProps = FabProps & {
   hideWhenClean?: boolean;
 };
 
@@ -22,5 +22,5 @@ export const FormikSubmitFab = ({ hideWhenClean, ...props }: FormikSubmitFabProp
 
   if (hideWhenClean && !dirty) return null;
 
-  return <FAB onPress={submitForm} disabled={disabled} loading={isSubmitting} {...props} />;
+  return <Fab onPress={submitForm} disabled={disabled} loading={isSubmitting} {...props} />;
 };

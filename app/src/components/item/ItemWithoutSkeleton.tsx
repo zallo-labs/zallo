@@ -74,7 +74,7 @@ const useStyles = makeStyles(
       flexDirection: 'row',
       justifyContent: 'space-between',
       ...(selected && { backgroundColor: colors.surfaceVariant }),
-      ...(disabled && { opacity: opacity.disabled }),
+      ...(disabled && { opacity: opacity.opaque }),
       ...(padding === true && { padding: space(2) }),
       ...(padding === 'vertical' && { paddingVertical: space(2) }),
       ...(padding === 'horizontal' && { paddingHorizontal: space(2) }),

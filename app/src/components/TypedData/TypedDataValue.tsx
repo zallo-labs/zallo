@@ -18,7 +18,7 @@ export interface TypedValue {
 
 export const TypedDataValue = ({ name, value }: TypedValue) => {
   const styles = useStyles();
-  const [contacts] = useContacts();
+  const contacts = useContacts();
 
   const [isExpanded, toggleExpanded] = useToggle(false);
 

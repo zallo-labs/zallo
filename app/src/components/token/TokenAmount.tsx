@@ -1,20 +1,27 @@
 import { Token } from '@token/token';
 import { BigNumberish } from 'ethers';
 import { ZERO } from 'lib';
-import { FormattedNumber } from '../format/FormattedNumber';
+import { useFormattedNumber } from '../format/FormattedNumber';
 
-export interface TokenAmountProps {
+export interface FormattedTokenAmountOptions {
   token: Token;
   amount?: BigNumberish;
-  symbol?: boolean;
+  trailing?: 'name' | 'symbol' | false;
 }
 
-export const TokenAmount = ({ token, amount = ZERO, symbol = true }: TokenAmountProps) => (
-  <FormattedNumber
-    value={amount}
-    unitDecimals={token.decimals}
-    maximumFractionDigits={3}
-    extendedFractionDigits={4}
-    postFormat={symbol ? (v) => `${v} ${token.symbol}` : undefined}
-  />
-);
+export const useFormattedTokenAmount = ({
+  token,
+  amount = ZERO,
+  trailing = 'symbol',
+}: FormattedTokenAmountOptions) =>
+  useFormattedNumber({
+    value: amount,
+    unitDecimals: token.decimals,
+    maximumFractionDigits: 3,
+    extendedFractionDigits: 4,
+    postFormat: trailing ? (v) => `${v} ${token[trailing]}` : undefined,
+  });
+
+export interface TokenAmountProps extends FormattedTokenAmountOptions {}
+
+export const TokenAmount = (props: TokenAmountProps) => <>{useFormattedTokenAmount(props)}</>;

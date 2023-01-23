@@ -1,94 +1,38 @@
-import { withSkeleton } from '~/components/skeleton/withSkeleton';
-import { makeStyles } from '~/util/theme/makeStyles';
-import { Proposal, ProposalId } from '~/queries/proposal';
+import { ProposalId } from '~/queries/proposal';
 import { ETH } from '@token/tokens';
 import { useMaybeToken } from '@token/useToken';
 import { useProposalLabel } from '../../components/call/useProposalLabel';
 import { useProposalTransfers } from '~/components/call/useProposalTransfers';
 import { useProposal } from '~/queries/proposal/useProposal.api';
-import { ItemSkeleton } from '~/components/item/ItemSkeleton';
-import TokenIcon from '~/components/token/TokenIcon/TokenIcon';
-import { Box } from '~/components/layout/Box';
-import { Text, TouchableRipple } from 'react-native-paper';
-import { Addr } from '~/components/addr/Addr';
 import { ActivityTransfers } from './ActivityTransfers';
-import { match } from 'ts-pattern';
 import { Timestamp } from '~/components/format/Timestamp';
-
-const Status = ({ p }: { p: Proposal }) => {
-  const styles = useStyles();
-
-  return match(p)
-    .with({ status: 'proposed', userHasApproved: false }, () => (
-      <Text variant="labelLarge" style={styles.primaryColor}>
-        Awaiting approval
-      </Text>
-    ))
-    .with({ status: 'proposed', userHasApproved: true }, () => (
-      <Text variant="labelLarge" style={styles.secondaryColor}>
-        Awaiting approval from others
-      </Text>
-    ))
-    .with({ status: 'executed' }, () => (
-      <Text variant="bodyMedium">
-        <Timestamp timestamp={p.timestamp} weekday />
-      </Text>
-    ))
-    .with({ status: 'failed' }, { status: 'pending' }, ({ status }) => (
-      <Text variant="labelLarge">{status}</Text>
-    ))
-    .exhaustive();
-};
+import { ListItem } from '~/components/list/ListItem';
+import { withSkeleton } from '~/components/skeleton/withSkeleton';
+import { ListItemSkeleton } from '~/components/list/ListItemSkeleton';
+import { useAccount } from '~/queries/account/useAccount.api';
+import { useAccountIds } from '~/queries/account/useAccountIds.api';
 
 export interface ProposalItemProps {
-  id: ProposalId;
+  proposal: ProposalId;
   onPress?: () => void;
 }
 
-export const ProposalItem = withSkeleton(({ id, onPress }: ProposalItemProps) => {
-  const styles = useStyles();
-  const [p] = useProposal(id);
+export const ProposalItem = withSkeleton(({ proposal: id, onPress }: ProposalItemProps) => {
+  const accounts = useAccountIds();
+  const p = useProposal(id);
+  const account = useAccount(p.account);
   const token = useMaybeToken(p.to) ?? ETH;
   const label = useProposalLabel(p);
+  const transfers = useProposalTransfers(p);
 
   return (
-    <TouchableRipple onPress={onPress} style={styles.container}>
-      <>
-        <TokenIcon token={token} style={styles.icon} />
-
-        <Box flex={1}>
-          <Text variant="titleMedium" numberOfLines={2} style={styles.title}>
-            {`${label} to `}
-            <Addr addr={p.to} />
-          </Text>
-          <Status p={p} />
-        </Box>
-
-        <Box alignItems="flex-end">
-          <ActivityTransfers transfers={useProposalTransfers(p)} />
-        </Box>
-      </>
-    </TouchableRipple>
+    <ListItem
+      leading={token.addr}
+      overline={accounts.length > 1 ? account.name : undefined}
+      headline={label}
+      supporting={<Timestamp timestamp={p.timestamp} weekday />}
+      trailing={<ActivityTransfers transfers={transfers} />}
+      onPress={onPress}
+    />
   );
-}, ItemSkeleton);
-
-const useStyles = makeStyles(({ colors, space, typoSpace }) => ({
-  container: {
-    display: 'flex',
-    flexDirection: 'row',
-    paddingVertical: space(1),
-    paddingHorizontal: space(2),
-  },
-  icon: {
-    marginRight: space(2),
-  },
-  title: {
-    marginRight: typoSpace(1),
-  },
-  primaryColor: {
-    color: colors.primary,
-  },
-  secondaryColor: {
-    color: colors.secondary,
-  },
-}));
+}, <ListItemSkeleton leading supporting />);

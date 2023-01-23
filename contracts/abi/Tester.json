@@ -1,31 +1,50 @@
 [
   {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "internalType": "bytes",
+        "name": "data",
+        "type": "bytes"
+      }
+    ],
+    "name": "Echo",
+    "type": "event"
+  },
+  {
     "stateMutability": "payable",
     "type": "fallback"
   },
   {
-    "inputs": [],
-    "name": "helloWorld",
-    "outputs": [
+    "inputs": [
       {
-        "internalType": "string",
-        "name": "",
-        "type": "string"
+        "internalType": "bytes",
+        "name": "data",
+        "type": "bytes"
       }
     ],
-    "stateMutability": "pure",
+    "name": "echo",
+    "outputs": [
+      {
+        "internalType": "bytes",
+        "name": "",
+        "type": "bytes"
+      }
+    ],
+    "stateMutability": "nonpayable",
     "type": "function"
   },
   {
     "inputs": [],
-    "name": "revertWithMessage",
+    "name": "revertWithReason",
     "outputs": [],
     "stateMutability": "pure",
     "type": "function"
   },
   {
     "inputs": [],
-    "name": "revertWithoutMessage",
+    "name": "revertWithoutReason",
     "outputs": [],
     "stateMutability": "pure",
     "type": "function"

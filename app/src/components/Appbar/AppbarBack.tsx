@@ -1,3 +1,4 @@
+import { BackIcon, IconProps } from '@theme/icons';
 import { ComponentPropsWithoutRef } from 'react';
 import { Appbar } from 'react-native-paper';
 import { useRootNavigation } from '~/navigation/useRootNavigation';
@@ -10,4 +11,14 @@ export const AppbarBack = (props: Partial<BackActionProps>) => {
   return (
     <Appbar.BackAction disabled={!navigation.canGoBack()} onPress={navigation.goBack} {...props} />
   );
+};
+
+export interface AppbarBack2Props extends IconProps {
+  onPress?: (goBack: () => void) => void;
+}
+
+export const AppbarBack2 = ({ onPress, ...props }: AppbarBack2Props) => {
+  const goBack = useRootNavigation().goBack;
+
+  return <BackIcon {...props} onPress={onPress ? () => onPress(goBack) : goBack} />;
 };

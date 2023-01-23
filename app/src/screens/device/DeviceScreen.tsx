@@ -9,26 +9,26 @@ import { AppbarMore } from '~/components/Appbar/AppbarMore';
 import { ExpandableText } from '~/components/ExpandableText';
 import { TextField } from '~/components/fields/TextField';
 import { Box } from '~/components/layout/Box';
-import { useSetDeviceName } from '~/mutations/useSetDeviceName.api';
-import { RootNavigatorScreenProps } from '~/navigation/RootNavigator';
+import { useUpdateUser } from '~/mutations/user/useUpdateUser.api';
+import { StackNavigatorScreenProps } from '~/navigation/StackNavigator';
 import { hideSnackbar, showInfo } from '~/provider/SnackbarProvider';
-import { useDeviceMeta } from '~/queries/useDeviceMeta.api';
+import { useUser } from '~/queries/useUser.api';
 import { buildAddrLink } from '~/util/addrLink';
 import { QrCode } from '../receive/QrCode';
 
-export type DeviceScreenProps = RootNavigatorScreenProps<'Device'>;
+export type DeviceScreenProps = StackNavigatorScreenProps<'Device'>;
 
 export const DeviceScreen = (_props: DeviceScreenProps) => {
   const styles = useStyles();
-  const { address, name } = useDeviceMeta();
-  const setDeviceName = useSetDeviceName();
+  const { id, name } = useUser();
+  const updateUser = useUpdateUser();
 
   const [editingName, setEditingName] = useState(false);
   const [nameValue, setNameValue] = useState(name || '');
 
   const save = () => {
     setEditingName(false);
-    setDeviceName(nameValue);
+    updateUser({ name: nameValue });
   };
 
   useEffect(() => {
@@ -36,7 +36,7 @@ export const DeviceScreen = (_props: DeviceScreenProps) => {
     return () => hideSnackbar();
   }, []);
 
-  const url = useMemo(() => buildAddrLink({ target_address: address }), [address]);
+  const url = useMemo(() => buildAddrLink({ target_address: id }), [id]);
 
   return (
     <Provider theme={useTheme()}>
@@ -90,7 +90,7 @@ export const DeviceScreen = (_props: DeviceScreenProps) => {
 
           <QrCode value={url} />
 
-          <ExpandableText beginLen={6} endLen={4} value={address}>
+          <ExpandableText beginLen={6} endLen={4} value={id}>
             {({ value }) => (
               <Text variant="titleLarge" style={[styles.text, styles.address]}>
                 {value}

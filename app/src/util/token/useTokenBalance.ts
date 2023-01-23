@@ -2,15 +2,15 @@ import { BigNumber } from 'ethers';
 import { Token } from './token';
 import { PROVIDER } from '~/util/network/provider';
 import { atomFamily, selectorFamily, useRecoilValue, useSetRecoilState } from 'recoil';
-import { Address, UserId, ZERO } from 'lib';
+import { Address, ZERO } from 'lib';
 import { captureException } from '~/util/sentry/sentry';
 import { refreshAtom } from '~/util/effect/refreshAtom';
 import { persistAtom } from '~/util/effect/persistAtom';
 import { useCallback } from 'react';
 import { TOKENS } from './useTokens';
+import { Accountlike, getAccountlikeAddr } from '~/queries/account/useAccount.api';
 
-// [addr, token]
-type BalanceKey = [Address | null, Address];
+type BalanceKey = [addr: Address | null, token: Address];
 
 const fetch = async ([addr, token]: BalanceKey) => {
   if (!addr) return ZERO;
@@ -41,19 +41,14 @@ export const TOKEN_BALANCE = atomFamily<BigNumber, BalanceKey>({
   ],
 });
 
-type Target = Address | UserId;
+export const useTokenBalance = (token: Token, account?: Accountlike) =>
+  useRecoilValue(TOKEN_BALANCE([getAccountlikeAddr(account), token.addr]));
 
-const targetAddress = (target?: Target): BalanceKey[0] =>
-  typeof target === 'object' ? target.account : target || null;
-
-export const useTokenBalance = (token: Token, account?: Address | UserId) =>
-  useRecoilValue(TOKEN_BALANCE([targetAddress(account), token.addr]));
-
-export const useUpdateTokenBalance = (token: Token, account?: Address | UserId) => {
-  const update = useSetRecoilState(TOKEN_BALANCE([targetAddress(account), token.addr]));
+export const useUpdateTokenBalance = (token: Token, account?: Accountlike) => {
+  const update = useSetRecoilState(TOKEN_BALANCE([getAccountlikeAddr(account), token.addr]));
 
   return useCallback(
-    async () => update(await fetch([targetAddress(account), token.addr])),
+    async () => update(await fetch([getAccountlikeAddr(account), token.addr])),
     [account, token.addr, update],
   );
 };
@@ -74,5 +69,5 @@ export const TOKEN_BALANCES = selectorFamily<TokenWithBalance[], Address | null>
       })),
 });
 
-export const useTokenBalances = (account: Address | UserId | undefined) =>
-  useRecoilValue(TOKEN_BALANCES(typeof account === 'object' ? account.account : account ?? null));
+export const useTokenBalances = (account: Accountlike | undefined) =>
+  useRecoilValue(TOKEN_BALANCES(getAccountlikeAddr(account)));

@@ -1,8 +1,8 @@
 import { requiredEnv as required, optionalEnv as optional, getChain } from 'lib';
 import localWallets from './local-wallets.json';
-require('dotenv').config({ path: '../.env' });
+require('dotenv-vault').config({ path: '../.env' });
 
-const chain = getChain(optional`CHAIN` ?? 'local');
+const chain = getChain(optional`CHAIN` || 'local');
 
 export const CONFIG = {
   env: optional`RELEASE_ENV` === 'development' ? 'development' : 'production',

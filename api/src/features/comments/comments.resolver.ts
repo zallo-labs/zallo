@@ -3,8 +3,8 @@ import { Args, Info, Mutation, Query, Resolver } from '@nestjs/graphql';
 import { GraphQLResolveInfo } from 'graphql';
 import { Address } from 'lib';
 import { PrismaService } from 'nestjs-prisma';
-import { DeviceAddr } from '~/decorators/device.decorator';
-import { connectAccount, connectOrCreateDevice } from '~/util/connect-or-create';
+import { UserId } from '~/decorators/user.decorator';
+import { connectAccount, connectOrCreateUser } from '~/util/connect-or-create';
 import { getSelect } from '~/util/select';
 import { CreateCommentArgs, UniqueCommentArgs, FindCommentsArgs } from './comments.args';
 
@@ -29,14 +29,14 @@ export class CommentsResolver {
   @Mutation(() => Comment)
   async createComment(
     @Args() { account, key, content }: CreateCommentArgs,
-    @DeviceAddr() device: Address,
+    @UserId() device: Address,
     @Info() info: GraphQLResolveInfo,
   ): Promise<Comment> {
     return this.prisma.comment.create({
       data: {
         account: connectAccount(account),
         key,
-        author: connectOrCreateDevice(device),
+        author: connectOrCreateUser(device),
         content,
       },
       ...getSelect(info),

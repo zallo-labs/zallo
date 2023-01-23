@@ -18,10 +18,9 @@ export default () => (
         }}
         document={gql`
           query Users {
-            device {
-              users {
-                id
-              }
+            accounts {
+              id
+              name
             }
           }
         `}

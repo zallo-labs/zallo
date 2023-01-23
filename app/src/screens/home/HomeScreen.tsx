@@ -12,7 +12,6 @@ import { FiatBalance } from '~/components/fiat/FiatBalance';
 import { TokenHoldingCard } from '~/components/token/TokenHoldingCard';
 import { AccountPaymentSelector } from './AccountPaymentSelector';
 import { useTokensByValue } from '@token/useTokensByValue';
-import { useUser } from '~/queries/user/useUser.api';
 import { makeStyles } from '@theme/makeStyles';
 
 export const HomeScreen = withSkeleton(() => {
@@ -20,14 +19,12 @@ export const HomeScreen = withSkeleton(() => {
   const { AppbarHeader, handleScroll } = useAppbarHeader();
   const [selectedToken, selectToken] = [useSelectedToken(), useSelectToken()];
   const [account, selectAccount] = [useSelectedAccount(), useSelectAccount()];
-  const [user] = useUser(account);
   const allTokens = useTokensByValue(account);
 
   const tokens = useMemo(
     () => [selectedToken, ...allTokens.filter((t) => t.addr !== selectedToken.addr)],
     [allTokens, selectedToken],
   );
-
   return (
     <Box flex={1}>
       <HomeAppbar AppbarHeader={AppbarHeader} account={account} />
@@ -52,7 +49,7 @@ export const HomeScreen = withSkeleton(() => {
           <TokenHoldingCard
             style={styles.token}
             token={item}
-            user={user}
+            account={account}
             selected={index === 0}
             onLongPress={() => selectToken(item)}
             onPress={() => {

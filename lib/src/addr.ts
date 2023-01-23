@@ -62,6 +62,10 @@ declare module './contracts/index' {
   export interface Multicall {
     address: Address;
   }
+
+  export interface Tester {
+    address: Address;
+  }
 }
 
 declare module './typechain' {

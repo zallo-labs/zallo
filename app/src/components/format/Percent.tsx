@@ -1,18 +1,25 @@
 import { BigNumberish } from 'ethers';
-import { FormattedNumber } from './FormattedNumber';
+import { useFormattedNumber } from './FormattedNumber';
 
-const appendSign = (v: string) => `${v}%`;
-
-export interface PercentProps {
-  children: BigNumberish;
+export interface FormattedPercentOptions {
+  value: BigNumberish;
+  leading?: 'sign';
   sign?: boolean;
 }
 
-export const Percent = ({ children, sign }: PercentProps) => (
-  <FormattedNumber
-    value={children}
-    minimumFractionDigits={0}
-    maximumFractionDigits={2}
-    postFormat={sign ? appendSign : undefined}
-  />
-);
+export const useFormattedPercent = ({ value, leading, sign = true }: FormattedPercentOptions) =>
+  useFormattedNumber({
+    value,
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 1,
+    // extendedFractionDigits: 2,
+    // postFormat: (v) => `${v}%`,
+    postFormat:
+      leading || sign
+        ? (v) => `${leading === 'sign' && !v.startsWith('-') ? '+' : ''}${v}${sign ? '%' : ''}`
+        : undefined,
+  });
+
+export interface PercentProps extends FormattedPercentOptions {}
+
+export const Percent = (props: PercentProps) => <>{useFormattedPercent(props)}</>;

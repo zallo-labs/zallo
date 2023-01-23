@@ -30,9 +30,11 @@ export interface ProposalTypedDataProps {
 }
 
 export const ProposalTypedData = ({ proposal }: ProposalTypedDataProps) => {
-  const [method] = useContractMethod(proposal);
+  const method = useContractMethod(proposal);
 
   const data = useMemo((): TypedDataComponent => {
+    if (!proposal.data) return { value: undefined };
+
     const decoded = method?.contract.decodeFunctionData(method.fragment, proposal.data);
     if (!method || !decoded) return { value: proposal.data };
 

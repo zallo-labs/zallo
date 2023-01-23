@@ -1,10 +1,10 @@
 import { truncateAddr } from '~/util/format';
 import { Text } from 'react-native-paper';
 import { CardItem, CardItemProps } from '../card/CardItem';
-import { Identicon } from '~/components/Identicon/Identicon';
 import { Address } from 'lib';
 import { memo } from 'react';
 import { useAddrName } from './useAddrName';
+import { AddrIcon } from '../Identicon/AddrIcon';
 
 export interface AddrCardProps extends CardItemProps {
   addr: Address;
@@ -16,7 +16,7 @@ export const AddrCard = memo(({ addr, ...itemProps }: AddrCardProps) => {
 
   return (
     <CardItem
-      Left={<Identicon seed={addr} />}
+      Left={<AddrIcon addr={addr} />}
       Main={<Text variant="titleMedium">{name ?? truncatedAddr}</Text>}
       {...(name && {
         Right: <Text variant="bodyMedium">{truncatedAddr}</Text>,

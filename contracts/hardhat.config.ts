@@ -1,14 +1,13 @@
 import type { HardhatUserConfig } from 'hardhat/config';
 import { CONFIG } from './config';
 
+import '@nomiclabs/hardhat-ethers';
+// import '@nomiclabs/hardhat-waffle';
+import '@nomiclabs/hardhat-etherscan';
+import '@nomiclabs/hardhat-solhint'; // https://github.com/protofire/solhint/blob/master/docs/rules.md
 import '@matterlabs/hardhat-zksync-deploy';
 import '@matterlabs/hardhat-zksync-solc';
-
-import '@nomiclabs/hardhat-ethers';
-import '@nomiclabs/hardhat-waffle';
-import '@nomiclabs/hardhat-etherscan';
-// https://github.com/protofire/solhint/blob/master/docs/rules.md
-import '@nomiclabs/hardhat-solhint';
+import '@matterlabs/hardhat-zksync-chai-matchers';
 import '@typechain/hardhat';
 import 'hardhat-gas-reporter';
 import 'hardhat-abi-exporter';
@@ -27,19 +26,20 @@ const config: HardhatUserConfig = {
   },
   zksolc: {
     // https://github.com/matter-labs/zksolc-bin/tree/main/linux-amd64
-    version: '1.2.0',
+    version: '1.2.1',
     compilerSource: 'binary',
   },
-  zkSyncDeploy: {
-    zkSyncNetwork: CONFIG.chain.zksyncUrl,
-    ethNetwork: CONFIG.chain.ethUrl,
-  },
-  defaultNetwork: 'hardhat',
+  defaultNetwork: 'zkSyncTestnet',
   networks: {
     // https://hardhat.org/hardhat-network/reference/
     hardhat: {
       zksync: true,
       // loggingEnabled: true,
+    },
+    zkSyncTestnet: {
+      url: CONFIG.chain.zksyncUrl,
+      ethNetwork: CONFIG.chain.ethUrl,
+      zksync: true,
     },
   },
   // Plugins

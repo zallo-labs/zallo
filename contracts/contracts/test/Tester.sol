@@ -2,19 +2,22 @@
 pragma solidity ^0.8.0;
 
 contract Tester {
+  event Echo(bytes data);
+
   fallback() external payable {}
 
   receive() external payable {}
 
-  function helloWorld() external pure returns (string memory) {
-    return 'Hello World';
+  function echo(bytes calldata data) external returns (bytes calldata) {
+    emit Echo(data);
+    return data;
   }
 
-  function revertWithMessage() external pure {
-    revert('revert message');
-  }
-
-  function revertWithoutMessage() external pure {
+  function revertWithoutReason() external pure {
     revert();
+  }
+
+  function revertWithReason() external pure {
+    revert('reason');
   }
 }

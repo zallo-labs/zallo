@@ -8,6 +8,7 @@ export class FindCommentsArgs {
   @AddressField()
   account: Address;
 
+  // TODO: replace with @Lowercase() directive
   @IdField()
   key: Id;
 }

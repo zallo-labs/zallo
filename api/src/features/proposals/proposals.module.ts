@@ -1,13 +1,13 @@
-import { Module } from '@nestjs/common';
+import { forwardRef, Module } from '@nestjs/common';
 import { ExpoModule } from '~/expo/expo.module';
 import { PubsubModule } from '~/pubsub/pubsub.module';
-import { SubmissionsModule } from '../submissions/submissions.module';
-import { UsersModule } from '../users/users.module';
+import { TransactionsModule } from '../transactions/transactions.module';
 import { ProposalsResolver } from './proposals.resolver';
 import { ProposalsService } from './proposals.service';
 
 @Module({
-  imports: [ExpoModule, SubmissionsModule, UsersModule, PubsubModule],
+  imports: [ExpoModule, forwardRef(() => TransactionsModule), PubsubModule],
+  exports: [ProposalsService],
   providers: [ProposalsResolver, ProposalsService],
 })
 export class ProposalsModule {}

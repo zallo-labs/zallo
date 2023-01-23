@@ -1,5 +1,5 @@
 import { PROVIDER } from '@network/provider';
-import { useDevice } from '@network/useDevice';
+import { makeStyles } from '@theme/makeStyles';
 import { MaybePromise } from 'lib';
 import { Button } from 'react-native-paper';
 import { TransactionResponse } from 'zksync-web3/build/src/types';
@@ -7,9 +7,9 @@ import { Actions } from '~/components/layout/Actions';
 import { useApprove } from '~/mutations/proposal/approve/useApprove.api';
 import { useReject } from '~/mutations/proposal/approve/useReject.api';
 import { useRequestApproval } from '~/mutations/proposal/useRequestApproval.api';
-import { useRootNavigation } from '~/navigation/useRootNavigation';
 import { Proposal } from '~/queries/proposal';
-import { useProposalApprovers } from './useProposalApprovers';
+import { useQuorum } from '~/queries/quroum/useQuorum.api';
+import { useUser } from '~/queries/useUser.api';
 
 export type OnExecute = (response: TransactionResponse) => MaybePromise<void>;
 
@@ -19,22 +19,26 @@ export interface ProposalActionsProps {
 }
 
 export const ProposalActions = ({ proposal: p, onExecute }: ProposalActionsProps) => {
-  const { goBack } = useRootNavigation();
-  const device = useDevice();
+  const styles = useStyles();
+  const user = useUser();
   const approve = useApprove();
   const reject = useReject();
   const requestApproval = useRequestApproval();
-  const approvers = useProposalApprovers(p);
+  const quorum = useQuorum(p.quorum);
 
-  const isApprover =
-    p.proposer.addr === device.address || p.config.approvers.some((a) => a === device.address);
+  const isApprover = quorum.activeOrLatest.approvers.has(user.id);
+  const awaitingApprovalFrom = new Set(
+    [...(quorum.activeOrLatest?.approvers.values() ?? [])].filter(
+      (a) => !p.approvals.has(a) && !p.rejected.has(a),
+    ),
+  );
 
-  if (p.status === 'proposed' && isApprover)
+  if (p.state === 'pending' && isApprover)
     return (
       <Actions
         primary={
-          p.userHasApproved ? (
-            <Button mode="contained" onPress={() => requestApproval(p, approvers.notApproved)}>
+          p.approvals.has(user.id) ? (
+            <Button mode="contained" onPress={() => requestApproval(p, awaitingApprovalFrom)}>
               Request approval
             </Button>
           ) : (
@@ -51,17 +55,20 @@ export const ProposalActions = ({ proposal: p, onExecute }: ProposalActionsProps
           )
         }
         secondary={
-          <Button
-            onPress={async () => {
-              const { removed } = await reject(p);
-              if (removed) goBack();
-            }}
-          >
-            Reject
-          </Button>
+          !p.rejected.has(user.id) && (
+            <Button mode="text" labelStyle={styles.rejectButtonLabel} onPress={() => reject(p)}>
+              Reject
+            </Button>
+          )
         }
       />
     );
 
   return null;
 };
+
+const useStyles = makeStyles(({ colors }) => ({
+  rejectButtonLabel: {
+    color: colors.secondary,
+  },
+}));

@@ -6,11 +6,10 @@ import {
   ContactsQueryVariables,
   useUpsertContactMutation,
 } from '~/gql/generated.api';
-import { useApiClient } from '~/gql/GqlProvider';
 import { Contact, NewContact } from '~/queries/contacts/useContacts.api';
-import { useDevice } from '@network/useDevice';
 import { toId } from 'lib';
 import { updateQuery } from '~/gql/update';
+import { useUser } from '~/queries/useUser.api';
 
 gql`
   mutation UpsertContact($name: String!, $newAddr: Address!, $prevAddr: Address) {
@@ -21,9 +20,8 @@ gql`
 `;
 
 export const useUpsertContact = () => {
-  const device = useDevice();
-
-  const [mutation] = useUpsertContactMutation({ client: useApiClient() });
+  const user = useUser();
+  const [mutation] = useUpsertContactMutation();
 
   return useCallback(
     (cur: NewContact, prev?: Contact) => {
@@ -35,7 +33,7 @@ export const useUpsertContact = () => {
         },
         optimisticResponse: {
           upsertContact: {
-            id: toId(`${device.address}-${cur.addr}`),
+            id: toId(`${user.id}-${cur.addr}`),
           },
         },
         update: (cache, res) => {
@@ -49,14 +47,12 @@ export const useUpsertContact = () => {
             variables: {},
             defaultData: { contacts: [] },
             updater: (data) => {
-              // Remove previous contact if the address has changed
-              if (prev && prev.addr !== cur.addr) {
-                data.contacts = data.contacts.filter((c) => c.addr !== prev.addr);
-              }
-
-              // Upsert current contact
-              const i = data.contacts.findIndex((c) => c.id === id);
+              // Upsert current contact, or replace prev if the id has changed
+              const i = data.contacts.findIndex(
+                prev && prev.addr !== cur.addr ? (c) => c.id === prev.id : (c) => c.id === id,
+              );
               data.contacts[i >= 0 ? i : data.contacts.length] = {
+                __typename: 'ContactObject',
                 id,
                 addr: cur.addr,
                 name: cur.name,
@@ -66,6 +62,6 @@ export const useUpsertContact = () => {
         },
       });
     },
-    [device.address, mutation],
+    [user.id, mutation],
   );
 };

@@ -1,6 +1,6 @@
 {
   "cli": {
-    "version": ">= 2.0.0",
+    "version": ">= 3.3.0",
     "appVersionSource": "remote"
   },
   "build": {
@@ -24,8 +24,8 @@
         "CHAIN": "testnet",
         "API_URL": "https://api.zallo.io",
         "SUBGRAPH_GQL_URL": "https://api.thegraph.com/subgraphs/name/hbriese/zallo",
-        "ACCOUNT_IMPL_TESTNET": "0x98df98fA082f05796349C17DF75447998F651266",
-        "PROXY_FACTORY_TESTNET": "0xf74f2b05c68c3605606816b557565514E546934f",
+        "ACCOUNT_IMPL_TESTNET": "0x7F19BE7A3948078c3413C557CE850903d5dFEd67",
+        "PROXY_FACTORY_TESTNET": "0xAB1BBa8527B119EE0fEd4Af61f81B954Fd438A1e",
         "MULTI_CALL_TESTNET": "0x164921b76384661089a6295b57F7873784BaB626"
       }
     },
@@ -37,8 +37,8 @@
         "CHAIN": "testnet",
         "API_URL": "https://dev.api.zallo.io",
         "SUBGRAPH_GQL_URL": "https://api.thegraph.com/subgraphs/name/hbriese/zallo-dev",
-        "ACCOUNT_IMPL_TESTNET": "0x98df98fA082f05796349C17DF75447998F651266",
-        "PROXY_FACTORY_TESTNET": "0xf74f2b05c68c3605606816b557565514E546934f",
+        "ACCOUNT_IMPL_TESTNET": "0x7F19BE7A3948078c3413C557CE850903d5dFEd67",
+        "PROXY_FACTORY_TESTNET": "0xAB1BBa8527B119EE0fEd4Af61f81B954Fd438A1e",
         "MULTI_CALL_TESTNET": "0x164921b76384661089a6295b57F7873784BaB626"
       }
     },

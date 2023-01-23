@@ -2,21 +2,21 @@ import { useMemo } from 'react';
 import { BigNumber, BigNumberish, ethers } from 'ethers';
 import { FormatNumberOptions, useIntl } from 'react-intl';
 
-export interface FormattedValueProps extends FormatNumberOptions {
+export interface FormattedNumberOptions extends FormatNumberOptions {
   value: BigNumberish;
   unitDecimals?: number;
   extendedFractionDigits?: number;
   postFormat?: (value: string) => string;
 }
 
-export const FormattedNumber = ({
+export const useFormattedNumber = ({
   value,
   unitDecimals,
   maximumFractionDigits = 2,
   extendedFractionDigits,
   postFormat,
   ...formatOpts
-}: FormattedValueProps) => {
+}: FormattedNumberOptions) => {
   const intl = useIntl();
 
   const extendedFracDigits = extendedFractionDigits ?? maximumFractionDigits;
@@ -53,5 +53,9 @@ export const FormattedNumber = ({
     postFormat,
   ]);
 
-  return <>{formatted}</>;
+  return formatted;
 };
+
+export interface FormattedNumberProps extends FormattedNumberOptions {}
+
+export const FormattedNumber = (props: FormattedNumberProps) => <>{useFormattedNumber(props)}</>;

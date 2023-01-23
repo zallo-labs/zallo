@@ -7,15 +7,13 @@ import {
   CreateCommentMutation,
   CreateCommentMutationVariables,
 } from '~/gql/generated.api';
-import { useApiClient } from '~/gql/GqlProvider';
 import { QueryOpts } from '~/gql/update';
-import { Address } from 'lib';
 import { useCallback } from 'react';
-import { Commentable, getCommentableKey } from '~/queries/useComments.api';
+import { Commentable, getCommentableId } from '~/queries/useComments.api';
 import produce from 'immer';
-import { useDevice } from '@network/useDevice';
 import { DateTime } from 'luxon';
 import _ from 'lodash';
+import { useUser } from '~/queries/useUser.api';
 
 gql`
   mutation CreateComment($account: Address!, $key: Id!, $content: String!) {
@@ -25,24 +23,20 @@ gql`
   }
 `;
 
-export const useCreateComment = (commentable: Commentable, account: Address) => {
-  const device = useDevice();
+export const useCreateComment = () => {
+  const user = useUser();
 
   const [mutate] = useMutation<CreateCommentMutation, CreateCommentMutationVariables>(
     CreateCommentDocument,
-    {
-      client: useApiClient(),
-    },
   );
 
   return useCallback(
-    (content: string) => {
-      const key = getCommentableKey(commentable);
+    (commentable: Commentable, content: string) => {
+      const id = getCommentableId(commentable);
 
       return mutate({
         variables: {
-          account,
-          key,
+          ...id,
           content,
         },
         optimisticResponse: {
@@ -52,13 +46,13 @@ export const useCreateComment = (commentable: Commentable, account: Address) => 
           },
         },
         update: (cache, res) => {
-          const id = res?.data?.createComment.id;
-          if (!id) return;
+          const idStr = res?.data?.createComment.id;
+          if (!idStr) return;
 
           // Comments: add
           const opts: QueryOpts<CommentsQueryVariables> = {
             query: CommentsDocument,
-            variables: { account, key },
+            variables: id,
           };
           const data = cache.readQuery<CommentsQuery, CommentsQueryVariables>(opts) ?? {
             comments: [],
@@ -68,8 +62,8 @@ export const useCreateComment = (commentable: Commentable, account: Address) => 
             ...opts,
             data: produce(data, (data) => {
               data.comments.push({
-                id,
-                authorId: device.address,
+                id: idStr,
+                authorId: user.id,
                 content,
                 updatedAt: DateTime.now().toISO(),
                 reactions: [],
@@ -79,6 +73,6 @@ export const useCreateComment = (commentable: Commentable, account: Address) => 
         },
       });
     },
-    [commentable, mutate, account, device.address],
+    [mutate, user.id],
   );
 };

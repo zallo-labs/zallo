@@ -15,7 +15,7 @@ const useFirstPendingProposal = (account: string): string | undefined =>
   useSuspenseQuery<FirstPendingProposalQuery, FirstPendingProposalQueryVariables>(
     gql`
       query FirstPendingProposal($account: Address!) {
-        proposals(accounts: [$account], status: AwaitingUser, take: 1) {
+        proposals(accounts: [$account], state: Pending, take: 1) {
           id
         }
       }

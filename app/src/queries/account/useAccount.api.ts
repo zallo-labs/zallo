@@ -1,64 +1,69 @@
 import { gql } from '@apollo/client';
-import { useDevice } from '@network/useDevice';
-import { AccountDocument, AccountQuery, AccountQueryVariables } from '~/gql/generated.api';
-import { useApiClient } from '~/gql/GqlProvider';
-import { Account, Address, address, connectAccount, UserId } from 'lib';
+import {
+  AccountDocument,
+  AccountQuery,
+  AccountQueryVariables,
+  QuorumFieldsFragmentDoc,
+} from '~/gql/generated.api';
+import { Account, Address, connectAccount, QuorumGuid } from 'lib';
 import { useMemo } from 'react';
 import { usePollWhenFocussed } from '~/gql/usePollWhenFocussed';
 import { useSuspenseQuery } from '~/gql/useSuspenseQuery';
-
-export interface UserMetadata extends UserId {
-  name: string;
-}
+import { useCredentials } from '@network/useCredentials';
+import assert from 'assert';
+import { CombinedQuorum } from '../quroum';
 
 export interface CombinedAccount {
   addr: Address;
   contract: Account;
   name: string;
   active?: boolean;
-  users: UserMetadata[];
+  quorums: CombinedQuorum[];
 }
 
 gql`
+  ${QuorumFieldsFragmentDoc}
+
   query Account($account: Address!) {
     account(id: $account) {
       id
       isActive
       name
-      users {
-        deviceId
-        name
+      quorums {
+        ...QuorumFields
       }
     }
   }
 `;
 
-export const useAccount = (id: Address | UserId) => {
-  const device = useDevice();
-  const addr = typeof id === 'string' ? id : id.account;
+export type Accountlike = Address | QuorumGuid;
+
+export const getAccountlikeAddr = (account?: Accountlike) =>
+  typeof account === 'object' ? account.account : account || null;
+
+export const useAccount = <Id extends Accountlike | undefined>(id: Id) => {
+  const credentials = useCredentials();
+  const addr = getAccountlikeAddr(id);
 
   const { data, ...rest } = useSuspenseQuery<AccountQuery, AccountQueryVariables>(AccountDocument, {
-    client: useApiClient(),
     variables: { account: addr },
   });
   usePollWhenFocussed(rest, 30);
 
-  const a = data.account!;
-  const account = useMemo(
-    (): CombinedAccount => ({
+  const a = data.account;
+  if (id) assert(a);
+
+  const account = useMemo((): CombinedAccount | undefined => {
+    if (!addr || !a) return undefined;
+
+    return {
       addr,
-      contract: connectAccount(addr, device),
+      contract: connectAccount(addr, credentials),
       active: a.isActive,
       name: a.name,
-      users:
-        a.users?.map((u) => ({
-          account: addr,
-          addr: address(u.deviceId),
-          name: u.name,
-        })) ?? [],
-    }),
-    [addr, device, a],
-  );
+      quorums: (a.quorums ?? []).map(CombinedQuorum.fromFragment),
+    };
+  }, [addr, a, credentials]);
 
-  return [account, rest] as const;
+  return account as Id extends undefined ? CombinedAccount | undefined : CombinedAccount;
 };

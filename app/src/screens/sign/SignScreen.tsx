@@ -1,10 +1,9 @@
-import { useDevice } from '@network/useDevice';
-import { Address, createUserSignature } from 'lib';
+import { useCredentials } from '@network/useCredentials';
+import { Address, toAccountSignature } from 'lib';
 import { match } from 'ts-pattern';
-import { RootNavigatorScreenProps } from '~/navigation/RootNavigator';
+import { StackNavigatorScreenProps } from '~/navigation/StackNavigator';
 import { WcErrorKey } from '~/util/walletconnect/jsonRcp';
-import { hexlify } from 'ethers/lib/utils';
-import { toActiveUser, useUser } from '~/queries/user/useUser.api';
+import { BytesLike, hexlify } from 'ethers/lib/utils';
 import { Appbar, Button, Text } from 'react-native-paper';
 import {
   toTypedData,
@@ -23,6 +22,14 @@ import { Box } from '~/components/layout/Box';
 import { Actions } from '~/components/layout/Actions';
 import { Addr } from '~/components/addr/Addr';
 import { makeStyles } from '@theme/makeStyles';
+import { useSessonAccountQuorum } from '../session-proposal/useSessionAccountQuorum';
+
+interface SigningError {
+  error: WcErrorKey;
+}
+
+const isSigningError = (v: unknown): v is SigningError =>
+  typeof v === 'object' && v !== null && 'error' in v;
 
 export interface SignScreenParams {
   topic: Topic;
@@ -30,12 +37,12 @@ export interface SignScreenParams {
   request: SigningRequest;
 }
 
-export type SignScreenProps = RootNavigatorScreenProps<'Sign'>;
+export type SignScreenProps = StackNavigatorScreenProps<'Sign'>;
 
 export const SignScreen = ({ navigation, route }: SignScreenProps) => {
   const { id, request } = route.params;
   const styles = useStyles();
-  const device = useDevice();
+  const credentials = useCredentials();
   const topic = useSession(route.params.topic);
 
   const [account, data] = useMemo(
@@ -53,16 +60,23 @@ export const SignScreen = ({ navigation, route }: SignScreenProps) => {
     [request],
   );
 
-  const [user] = useUser({
-    account,
-    addr: device.address,
-  });
+  const reject = useCallback(
+    (error: WcErrorKey) => {
+      topic.reject(id, error);
+      navigation.goBack();
+    },
+    [id, navigation, topic],
+  );
 
-  const promisedUserSignature = useMemo(async () => {
-    const deviceSignature = await match(data)
+  const quorum = useSessonAccountQuorum(id, account)?.active;
+
+  const promisedAccountSignature = useMemo(async (): Promise<BytesLike | { error: WcErrorKey }> => {
+    // const toAccSig = (signature: BytesLike) => toAccountSignature(quorum, [{ approver: credentials.address, signature }]);
+
+    const ownSignature = await match(data)
       .when(
         (data): data is string => typeof data === 'string',
-        (message) => device.signMessage(message),
+        (message) => credentials.signMessage(message),
       )
       .when(
         (data): data is Eip712TypedDomainData => typeof data === 'object',
@@ -72,50 +86,46 @@ export const SignScreen = ({ navigation, route }: SignScreenProps) => {
             typedData.domain.chainId !== undefined &&
             !BigNumber.from(typedData.domain.chainId).eq(CHAIN_ID())
           )
-            return null;
+            return { error: 'UNSUPPORTED_CHAINS' } as const;
 
-          return device._signTypedData(typedData.domain, typedData.types, typedData.message);
+          return credentials._signTypedData(typedData.domain, typedData.types, typedData.message);
         },
       )
       .exhaustive();
 
-    if (!deviceSignature) return null;
+    if (!quorum) return { error: 'UNSUPPORTED_ACCOUNTS' };
 
-    return createUserSignature(toActiveUser(user), [
-      {
-        approver: device.address,
-        signature: deviceSignature,
-      },
-    ]);
-  }, [data, device, user]);
+    return isSigningError(ownSignature)
+      ? ownSignature
+      : toAccountSignature(quorum, [{ approver: credentials.address, signature: ownSignature }]);
+  }, [data, quorum, credentials]);
 
-  const reject = useCallback(
-    (error: WcErrorKey) => {
-      topic.reject(id, error);
-      navigation.goBack();
+  const validateSignature = useCallback(
+    (signature: BytesLike | SigningError): signature is BytesLike => {
+      if (isSigningError(signature)) {
+        showWarning('Invalid signing request was rejected');
+        reject(signature.error);
+        return false;
+      }
+      return true;
     },
-    [id, navigation, topic],
+    [reject],
   );
-
-  const rejectAsInvalid = useCallback(() => {
-    showWarning('Invalid signing request was rejected');
-    reject('UNSUPPORTED_CHAINS');
-  }, [reject]);
 
   useAsyncEffect(
     async (isMounted) => {
-      const userSignature = await promisedUserSignature;
-      if (isMounted() && !userSignature) rejectAsInvalid();
+      const signature = await promisedAccountSignature;
+      if (isMounted()) validateSignature(signature);
     },
-    [promisedUserSignature, rejectAsInvalid],
+    [promisedAccountSignature],
   );
 
   const sign = async () => {
-    const userSignature = await promisedUserSignature;
-    if (!userSignature) return rejectAsInvalid();
-
-    topic.respond(id, hexlify(userSignature));
-    navigation.goBack();
+    const signature = await promisedAccountSignature;
+    if (validateSignature(signature)) {
+      topic.respond(id, hexlify(signature));
+      navigation.goBack();
+    }
   };
 
   return (

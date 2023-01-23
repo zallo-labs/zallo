@@ -14,8 +14,8 @@ import { withBrowser } from '@site/src/components/withBrowser';
 export const CreateAccountExample = withBrowser(() => (
   <Explorer
     document={gql`
-      mutation CreateAccount($name: String!, $users: [UserWithoutAccountInput!]!) {
-        createAccount(name: $name, users: $users) {
+      mutation CreateAccount($name: String!, $quorums: [QuorumInput!]!) {
+        createAccount(name: $name, quorums: $quorums) {
           id
         }
       }
@@ -23,18 +23,7 @@ export const CreateAccountExample = withBrowser(() => (
     variables={
       {
         name: 'Test account',
-        users: [
-          {
-            name: 'Test user',
-            device: useDevice().address,
-            configs: [
-              {
-                approvers: [],
-                limits: [],
-              },
-            ],
-          },
-        ],
+        quorums: [{ name: 'Test quorum', approvers: [useDevice().address] }],
       } as CreateAccountMutationVariables
     }
   />
@@ -52,8 +41,8 @@ export const AccountExample = withBrowser(() => {
             id
             name
             isActive
-            users {
-              deviceId
+            quorums {
+              key
             }
           }
         }
@@ -75,8 +64,8 @@ export const AccountsExample = withBrowser(() => {
             id
             name
             isActive
-            users {
-              deviceId
+            quorums {
+              key
             }
           }
         }

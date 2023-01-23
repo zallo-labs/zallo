@@ -4,9 +4,9 @@ import { CancelIcon, SearchIcon } from '~/util/theme/icons';
 import { useTheme } from '@theme/paper';
 import { ReactNode } from 'react';
 import { Appbar } from 'react-native-paper';
-import { FuzzySearchProps } from '../../util/hook/useFuzzySearch';
+import { SearchInputProps } from '../../util/hook/useSearch';
 
-export interface AppbarSearchProps extends FuzzySearchProps {
+export interface AppbarSearchProps extends SearchInputProps {
   title?: ReactNode;
   actions?: ReactNode;
 }

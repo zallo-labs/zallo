@@ -11,6 +11,22 @@
     "type": "constructor"
   },
   {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "account",
+        "type": "address"
+      },
+      {
+        "internalType": "bytes",
+        "name": "revertData",
+        "type": "bytes"
+      }
+    ],
+    "name": "DeployFailed",
+    "type": "error"
+  },
+  {
     "inputs": [],
     "name": "_BYTECODE_HASH",
     "outputs": [
@@ -42,11 +58,6 @@
         "internalType": "address",
         "name": "account",
         "type": "address"
-      },
-      {
-        "internalType": "bytes",
-        "name": "constructorRevertData",
-        "type": "bytes"
       }
     ],
     "stateMutability": "nonpayable",

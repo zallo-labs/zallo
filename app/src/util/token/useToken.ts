@@ -44,7 +44,10 @@ export const TOKEN = selectorFamily<Token, Address>({
     },
 });
 
-export const useToken = (addr: Address) => useRecoilValue(TOKEN(addr));
+export type Tokenlike = Address | Token;
+
+export const useToken = (token: Tokenlike) =>
+  useRecoilValue(TOKEN(typeof token === 'string' ? token : token.addr));
 
 const MAYBE_TOKEN = selectorFamily<Token | null, Address | undefined>({
   key: 'maybeToken',

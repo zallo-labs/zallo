@@ -3,8 +3,11 @@ import { ApolloClient, ApolloLink, HttpLink, InMemoryCache } from '@apollo/clien
 import { RetryLink } from '@apollo/client/link/retry';
 import fetch from 'cross-fetch';
 import { CONFIG } from '~/config';
-import { TxResponseQuery, TxResponseQueryVariables } from '@gen/generated.subgraph';
-import { TX_RESPONSES_QUERY } from './subgraph.gql';
+import {
+  TransactionResponseQuery,
+  TransactionResponseQueryVariables,
+} from '@gen/generated.subgraph';
+import { TRANSACTION_RESPONSES_QUERY } from './subgraph.gql';
 import { Prisma } from '@prisma/client';
 
 @Injectable()
@@ -25,15 +28,18 @@ export class SubgraphService {
     },
   });
 
-  async txResponse(
+  async transactionResponse(
     transactionHash: string,
   ): Promise<Prisma.TransactionResponseUncheckedCreateInput | undefined> {
-    const { data } = await this.client.query<TxResponseQuery, TxResponseQueryVariables>({
-      query: TX_RESPONSES_QUERY,
+    const { data } = await this.client.query<
+      TransactionResponseQuery,
+      TransactionResponseQueryVariables
+    >({
+      query: TRANSACTION_RESPONSES_QUERY,
       variables: { transactionHash },
     });
 
-    const t = data.tx;
+    const t = data.transaction;
     if (!t) return undefined;
 
     return {

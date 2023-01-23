@@ -5,18 +5,17 @@ import { SvgProps } from 'react-native-svg';
 import LogoSvg from '~/../assets/logo.svg';
 import MastercardSvg from '~/../assets/mastercard.svg';
 import WalletConnectSvg from '~/../assets/walletconnect.svg';
+import { ColorValue } from 'react-native';
 
-export type IconPropsWithoutName<IconType extends ElementType = typeof MaterialIcons> = Omit<
-  ComponentPropsWithoutRef<IconType>,
-  'name'
->;
+export interface IconProps {
+  size?: number;
+  color?: ColorValue;
+}
 
 type NameProp<Props> = Props extends { name: infer Name } ? Name : never;
 type Curried<C extends ElementType, Props = ComponentPropsWithoutRef<C>> = (
   name: NameProp<Props>,
 ) => FC<Omit<Props, 'name'>>;
-
-export type IconColor = ComponentPropsWithoutRef<typeof MaterialIcons>['color'];
 
 export const materialIcon: Curried<typeof MaterialIcons> = (name) => (props) =>
   <MaterialIcons name={name} {...props} />;
@@ -27,6 +26,7 @@ export const materialCommunityIcon: Curried<typeof MaterialCommunityIcons> = (na
 export const ionIcon: Curried<typeof Ionicons> = (name) => (props) =>
   <Ionicons name={name} {...props} />;
 
+export const HomeIcon = materialIcon('home');
 export const ActivityIcon = materialCommunityIcon('chart-timeline-variant');
 export const SendIcon = materialCommunityIcon('send');
 export const ReceiveIcon = materialCommunityIcon('arrow-bottom-left');
@@ -44,6 +44,7 @@ export const CheckIcon = materialCommunityIcon('check');
 export const FinalizedIcon = materialCommunityIcon('send-check');
 export const CloseIcon = materialCommunityIcon('close');
 export const CancelIcon = CloseIcon;
+export const RemoveIcon = CloseIcon;
 export const ErrorIcon = materialIcon('error');
 export const RetryIcon = materialIcon('redo');
 export const SwapIcon = materialCommunityIcon('swap-vertical');
@@ -61,15 +62,17 @@ export const BackIcon = materialIcon('arrow-back');
 export const IssueIcon = materialCommunityIcon('github');
 export const FeedbackIcon = materialCommunityIcon('chat');
 export const TokenCurrencyIcon = materialCommunityIcon('currency-eth');
-export const ChevronRight = materialIcon('chevron-right');
+export const SpendingIcon = materialCommunityIcon('currency-usd');
+export const ChevronRightIcon = materialIcon('chevron-right');
+export const NavigateNextIcon = materialIcon('navigate-next');
 export const QuorumIcon = materialIcon('group');
+export const QuorumsIcon = materialIcon('groups');
 export const ActivateIcon = materialCommunityIcon('rocket-launch');
 export const UndoIcon = materialIcon('undo');
 export const CalendarTodayIcon = materialIcon('calendar-today');
 export const ReplaceIcon = materialCommunityIcon('arrow-u-right-bottom');
-export const ProposedAddIcon = materialCommunityIcon('clock-plus-outline');
-export const ProposedRemoveIcon = materialCommunityIcon('clock-remove-outline');
-export const ProposedModifyIcon = materialCommunityIcon('clock-outline');
+export const ProposeIcon = materialCommunityIcon('send');
+export const ViewProposalIcon = materialCommunityIcon('clock-outline');
 export const RefreshIcon = materialIcon('refresh');
 export const QrCodeIcon = materialCommunityIcon('qrcode');
 export const CalendarIcon = materialCommunityIcon('calendar');
@@ -86,8 +89,7 @@ export const CheckCircleIcon = materialCommunityIcon('check-circle');
 export const RejectedCircleIcon = materialCommunityIcon('close-circle');
 export const CheckmarkDoneCircleIcon = materialIcon('done-all');
 export const DescriptionIcon = materialIcon('description');
-
-export type IconProps = Pick<ComponentPropsWithoutRef<typeof MaterialIcons>, 'color' | 'size'>;
+export const NameIcon = materialIcon('text-fields');
 
 export const svgIcon =
   (Svg: FC<SvgProps>): FC<IconProps> =>

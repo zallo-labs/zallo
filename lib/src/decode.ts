@@ -1,10 +1,7 @@
 import { BytesLike } from 'ethers';
-import { hexDataLength, hexDataSlice } from 'ethers/lib/utils';
-import { address } from './addr';
+import { hexDataLength, hexDataSlice, hexlify } from 'ethers/lib/utils';
 import { Account, Account__factory } from './contracts';
-import { UserStructOutput } from './contracts/Account';
-import { User } from './user';
-import { UserConfig } from './userConfig';
+import { QuorumKey, toQuorumKey } from './quorum';
 import { OnlyRequiredItems } from './util/mappedTypes';
 
 export const getDataSighash = (data?: BytesLike) =>
@@ -12,51 +9,42 @@ export const getDataSighash = (data?: BytesLike) =>
 
 export const ACCOUNT_INTERFACE = Account__factory.createInterface();
 
-export const UPSERT_USER_FUNCTION =
-  ACCOUNT_INTERFACE.functions['upsertUser((address,(address[])[]))'];
-export const UPSERT_USER_SIGHSAH = ACCOUNT_INTERFACE.getSighash(UPSERT_USER_FUNCTION);
+export const UPSERT_QUORUM_FUNCTION = ACCOUNT_INTERFACE.functions['upsertQuorum(uint32,bytes32)'];
+export const UPSERT_QUORUM_SIGHSAH = ACCOUNT_INTERFACE.getSighash(UPSERT_QUORUM_FUNCTION);
 
-export const REMOVE_USER_FUNCTION = ACCOUNT_INTERFACE.functions['removeUser(address)'];
-export const REMOVE_USER_SIGHASH = ACCOUNT_INTERFACE.getSighash(REMOVE_USER_FUNCTION);
+export const REMOVE_QUORUM_FUNCTION = ACCOUNT_INTERFACE.functions['removeQuorum(uint32)'];
+export const REMOVE_QUORUM_SIGHASH = ACCOUNT_INTERFACE.getSighash(REMOVE_QUORUM_FUNCTION);
 
-export const tryDecodeUpsertUserData = (data?: BytesLike): User | undefined => {
-  const sighash = getDataSighash(data);
-  if (!data || sighash !== UPSERT_USER_SIGHSAH) return undefined;
+type UpsertQuorumParams = OnlyRequiredItems<Parameters<Account['upsertQuorum']>>;
+
+export const tryDecodeUpsertQuorumData = (data?: BytesLike) => {
+  if (!data || getDataSighash(data) !== UPSERT_QUORUM_SIGHSAH) return undefined;
 
   try {
-    const [addr, configs] = ACCOUNT_INTERFACE.decodeFunctionData(
-      UPSERT_USER_FUNCTION,
+    const [key, hash] = ACCOUNT_INTERFACE.decodeFunctionData(
+      UPSERT_QUORUM_FUNCTION,
       data,
-    )[0] as UserStructOutput;
+    ) as UpsertQuorumParams;
 
     return {
-      addr: address(addr),
-      configs: configs.map(
-        ([approvers]): UserConfig => ({
-          approvers: approvers.map(address),
-          spendingAllowlisted: false,
-          limits: {},
-        }),
-      ),
+      key: toQuorumKey(key),
+      hash: hexlify(hash),
     };
   } catch {
     return undefined;
   }
 };
 
-type RemoveUserParams = OnlyRequiredItems<Parameters<Account['removeUser']>>;
-
-export const tryDecodeRemoveUserData = (data?: BytesLike) => {
-  const sighash = getDataSighash(data);
-  if (!data || sighash !== REMOVE_USER_SIGHASH) return undefined;
+export const tryDecodeRemoveQuorumData = (data?: BytesLike): QuorumKey | undefined => {
+  if (!data || getDataSighash(data) !== REMOVE_QUORUM_SIGHASH) return undefined;
 
   try {
-    const [user] = ACCOUNT_INTERFACE.decodeFunctionData(
-      REMOVE_USER_FUNCTION,
+    const [key] = ACCOUNT_INTERFACE.decodeFunctionData(
+      REMOVE_QUORUM_FUNCTION,
       data,
-    ) as RemoveUserParams;
+    ) as OnlyRequiredItems<Parameters<Account['removeQuorum']>>;
 
-    return { addr: address(user) };
+    return toQuorumKey(key);
   } catch {
     return undefined;
   }

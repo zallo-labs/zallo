@@ -7,6 +7,8 @@ import {SystemContractsCaller} from '@matterlabs/zksync-contracts/l2/system-cont
 contract Factory {
   bytes32 public immutable _BYTECODE_HASH;
 
+  error DeployFailed(address account, bytes revertData);
+
   constructor(bytes32 bytecodeHash) {
     _BYTECODE_HASH = bytecodeHash;
   }
@@ -14,13 +16,20 @@ contract Factory {
   function deploy(
     bytes calldata constructorArgsData,
     bytes32 salt
-  ) external returns (address account, bytes memory constructorRevertData) {
-    bytes memory data = SystemContractsCaller.systemCall(
+  ) external returns (address account) {
+    (bool success, bytes memory data) = SystemContractsCaller.systemCallWithReturndata(
       uint32(gasleft()),
       address(DEPLOYER_SYSTEM_CONTRACT),
       0,
       abi.encodeCall(IContractDeployer.create2Account, (salt, _BYTECODE_HASH, constructorArgsData))
     );
-    return abi.decode(data, (address, bytes));
+
+    if (!success) {
+      bytes memory revertData;
+      (account, revertData) = abi.decode(data, (address, bytes));
+      revert DeployFailed(account, revertData);
+    }
+
+    (account, ) = abi.decode(data, (address, bytes));
   }
 }

@@ -15,14 +15,16 @@ import { makeStyles } from '@theme/makeStyles';
 import { usePrevious } from '@hook/usePrevious';
 import { TokenAmount } from '~/components/token/TokenAmount';
 import { useTokenPrice } from '~/queries/useTokenPrice.uni';
+import { StyleProp, ViewStyle } from 'react-native';
 
 export interface AmountInputProps {
   token: Token;
   amount?: BigNumber;
   setAmount: (amount?: BigNumber) => void;
+  style?: StyleProp<ViewStyle>;
 }
 
-export const AmountInput = ({ token, amount, setAmount }: AmountInputProps) => {
+export const AmountInput = ({ token, amount, setAmount, style }: AmountInputProps) => {
   const styles = useStyles();
   const { colors } = useTheme();
   const fiatValue = useTokenValue(token, amount ?? ZERO);
@@ -58,7 +60,7 @@ export const AmountInput = ({ token, amount, setAmount }: AmountInputProps) => {
   }, [amount, previousToken, setAmount, token, type]);
 
   return (
-    <Box horizontal justifyContent="space-between">
+    <Box horizontal justifyContent="space-between" style={style}>
       <Box vertical justifyContent="space-between" style={styles.side}>
         {type === 'token' ? (
           <>
@@ -78,7 +80,7 @@ export const AmountInput = ({ token, amount, setAmount }: AmountInputProps) => {
           {type === 'token' ? (
             <FiatValue value={fiatValue} symbol={false} />
           ) : (
-            <TokenAmount token={token} amount={amount} symbol={false} />
+            <TokenAmount token={token} amount={amount} trailing={false} />
           )}
         </Text>
 

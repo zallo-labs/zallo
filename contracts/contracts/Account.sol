@@ -12,8 +12,6 @@ import './Upgradeable.sol';
 import './TransactionExecutor.sol';
 import './ERC165.sol';
 import './ERC721Receiver.sol';
-import {MerkleProof} from './utils/MerkleProof.sol';
-import {BoolArray} from './utils/BoolArray.sol';
 import {SignatureChecker} from './utils/SignatureChecker.sol';
 
 contract Account is
@@ -26,9 +24,7 @@ contract Account is
   ERC721Receiver
 {
   using SignatureChecker for address;
-  using MerkleProof for bytes32[];
-  using UserHelper for User;
-  using UserConfigHelper for UserConfig;
+  using QuorumHelper for Quorum;
 
   /*//////////////////////////////////////////////////////////////
                              INITIALIZATION
@@ -39,8 +35,15 @@ contract Account is
     _disableInitializers();
   }
 
-  function initialize(User calldata user) external initializer {
-    _upsertUser(user);
+  function initialize(QuorumDefinition[] calldata quorums) external initializer {
+    uint256 quorumsLen = quorums.length;
+    for (uint256 i = 0; i < quorumsLen; ) {
+      _upsertQuorum(quorums[i].key, quorums[i].hash);
+
+      unchecked {
+        ++i;
+      }
+    }
   }
 
   /*//////////////////////////////////////////////////////////////
@@ -90,7 +93,7 @@ contract Account is
       abi.encodeCall(INonceHolder.incrementMinNonceIfEquals, (transaction.reserved[0]))
     );
 
-    if (hasBeenExecuted(txHash)) revert TxAlreadyExecuted();
+    if (hasBeenExecuted(txHash)) revert TransactionAlreadyExecuted();
 
     _validateSignature(txHash, transaction.signature);
   }
@@ -117,23 +120,23 @@ contract Account is
   }
 
   /*//////////////////////////////////////////////////////////////
-                             USER MANAGEMENT
+                            QUORUM MANAGEMENT
   //////////////////////////////////////////////////////////////*/
 
   /// @inheritdoc IAccount
-  function upsertUser(User calldata user) external onlySelf {
-    _upsertUser(user);
+  function upsertQuorum(QuorumKey key, bytes32 hash) external onlySelf {
+    _upsertQuorum(key, hash);
   }
 
   /// @inheritdoc IAccount
-  function removeUser(address user) external onlySelf {
-    delete _userMerkleRoots()[user];
-    emit UserRemoved(user);
+  function removeQuorum(QuorumKey key) external onlySelf {
+    delete _quorums()[key];
+    emit QuorumRemoved(key);
   }
 
-  function _upsertUser(User calldata user) internal {
-    _userMerkleRoots()[user.addr] = user.merkleRoot();
-    emit UserUpserted(user);
+  function _upsertQuorum(QuorumKey key, bytes32 hash) internal {
+    _quorums()[key] = hash;
+    emit QuorumUpserted(key, hash);
   }
 
   /*//////////////////////////////////////////////////////////////
@@ -150,30 +153,26 @@ contract Account is
   }
 
   function _validateSignature(bytes32 hash, bytes memory signature) internal view {
-    (
-      address user,
-      UserConfig memory config,
-      bytes32[] memory proof,
-      bytes[] memory signatures
-    ) = abi.decode(signature, (address, UserConfig, bytes32[], bytes[]));
+    (QuorumKey key, Quorum memory quorum, bytes[] memory signatures) = abi.decode(
+      signature,
+      (QuorumKey, Quorum, bytes[])
+    );
 
-    _validateSignatures(hash, user, config.approvers, signatures);
+    bytes32 expectedQuorumHash = _quorums()[key];
+    if (quorum.hash() != expectedQuorumHash) revert QuorumHashMismatch(expectedQuorumHash);
 
-    if (!config.isValidProof(proof, _userMerkleRoots()[user])) revert InvalidProof();
+    _validateSignatures(hash, quorum.approvers, signatures);
   }
 
   function _validateSignatures(
     bytes32 hash,
-    address user,
     address[] memory approvers,
     bytes[] memory signatures
   ) internal view {
-    if ((1 + approvers.length) != signatures.length) revert ApproverSignaturesMismatch();
-
-    if (!user.isValidSignatureNow(hash, signatures[0])) revert InvalidSignature(user);
+    if ((approvers.length) != signatures.length) revert ApproverSignaturesMismatch();
 
     for (uint256 i = 0; i < approvers.length; ) {
-      if (!approvers[i].isValidSignatureNow(hash, signatures[i + 1]))
+      if (!approvers[i].isValidSignatureNow(hash, signatures[i]))
         revert InvalidSignature(approvers[i]);
 
       unchecked {
@@ -183,16 +182,13 @@ contract Account is
   }
 
   /*//////////////////////////////////////////////////////////////
-                            USER MERKLE ROOTS
+                          QUORUM MERKLE ROOTS
     //////////////////////////////////////////////////////////////*/
 
-  /// @notice Merkle root of the state of each wallet
-  /// @dev user => merkleRoot
-  /// @dev Leaves: UserConfig[]
-  function _userMerkleRoots() internal pure returns (mapping(address => bytes32) storage s) {
+  function _quorums() internal pure returns (mapping(QuorumKey => bytes32) storage s) {
     assembly {
-      // keccack256('Account.userMerkleRoots')
-      s.slot := 0x78da1ddd953b1b2068017cdffdd8ba08689d560b1fa20cf0f77a87af370f3f89
+      // keccack256('Account.quorums')
+      s.slot := 0x37960d0a655d0d781716b0e17600d3e44caa3d99659d8fb953b4c370d154d1a4
     }
   }
 

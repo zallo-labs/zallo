@@ -48,7 +48,7 @@ jobs:
 
       # Disabled until expo-cli node 18 support is sanctioned - https://github.com/expo/expo-cli/issues/4478
       # - name: 🚧 Use Node ${{ matrix.node-version }}
-      #   uses: actions/setup-node@v2
+      #   uses: actions/setup-node@v3
       #   with:
       #     node-version: ${{ matrix.node-version }}
       #     cache: 'yarn'
@@ -86,7 +86,7 @@ jobs:
         uses: actions/checkout@v3
 
       - name: 🚧 Use Node ${{ matrix.node-version }}
-        uses: actions/setup-node@v2
+        uses: actions/setup-node@v3
         with:
           node-version: ${{ matrix.node-version }}
           cache: 'yarn'
