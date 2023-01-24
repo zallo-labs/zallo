@@ -13,7 +13,7 @@ export class ProviderService extends zk.Provider {
   private proxyFactory: Factory;
 
   constructor() {
-    super(CONFIG.chain.l2Rpc);
+    super(CONFIG.chain.rpc);
     this.chain = CONFIG.chain;
 
     this.wallet = (

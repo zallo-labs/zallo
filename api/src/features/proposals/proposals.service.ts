@@ -1,4 +1,3 @@
-import { Proposal } from '@gen/proposal/proposal.model';
 import { forwardRef, Inject, Injectable } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
 import { UserInputError } from 'apollo-server-core';
@@ -9,7 +8,13 @@ import { ProviderService } from '~/features/util/provider/provider.service';
 import { PubsubService } from '~/features/util/pubsub/pubsub.service';
 import { connectAccount, connectOrCreateUser } from '~/util/connect-or-create';
 import { TransactionsService } from '../transactions/transactions.service';
-import { ApproveArgs } from './proposals.args';
+import {
+  ACCOUNT_PROPOSAL_SUB_TRIGGER,
+  ApproveArgs,
+  ProposalEvent,
+  ProposalSubscriptionPayload,
+  PROPOSAL_SUBSCRIPTION,
+} from './proposals.args';
 
 type CreateParams<T extends Prisma.ProposalCreateArgs> = {
   account: Address;
@@ -18,12 +23,6 @@ type CreateParams<T extends Prisma.ProposalCreateArgs> = {
 
 type ApproveParams = { user: Address } & ApproveArgs &
   Omit<Prisma.ProposalFindUniqueOrThrowArgs, 'where'>;
-
-export const PROPOSAL_SUBSCRIPTION = 'proposal';
-
-export interface ProposalSubscriptionPayload {
-  [PROPOSAL_SUBSCRIPTION]: Proposal;
-}
 
 @Injectable()
 export class ProposalsService {
@@ -56,7 +55,7 @@ export class ProposalsService {
       },
     })) as Prisma.ProposalGetPayload<T>;
 
-    this.publishProposal(proposal);
+    this.publishProposal({ proposal, event: ProposalEvent.create });
 
     return proposal;
   }
@@ -84,12 +83,20 @@ export class ProposalsService {
       where: { id },
     });
 
-    this.publishProposal(proposal);
+    this.publishProposal({ proposal, event: ProposalEvent.update });
+
     return proposal;
   }
 
-  public publishProposal(proposal: Proposal) {
-    this.pubsub.publish<ProposalSubscriptionPayload>(PROPOSAL_SUBSCRIPTION, { proposal });
+  async publishProposal(payload: ProposalSubscriptionPayload) {
+    await this.pubsub.publish<ProposalSubscriptionPayload>(
+      `${PROPOSAL_SUBSCRIPTION}.${payload[PROPOSAL_SUBSCRIPTION].id}`,
+      payload,
+    );
+    await this.pubsub.publish<ProposalSubscriptionPayload>(
+      `${ACCOUNT_PROPOSAL_SUB_TRIGGER}.${payload[PROPOSAL_SUBSCRIPTION].accountId}`,
+      payload,
+    );
   }
 
   async validateSignatureOrThrow(user: Address, proposalHash: string, signature: string) {

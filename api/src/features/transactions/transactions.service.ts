@@ -1,5 +1,5 @@
 import { BullModuleOptions, InjectQueue } from '@nestjs/bull';
-import { Injectable } from '@nestjs/common';
+import { forwardRef, Inject, Injectable } from '@nestjs/common';
 import { Queue } from 'bull';
 import { BigNumber } from 'ethers';
 import {
@@ -14,6 +14,8 @@ import {
 } from 'lib';
 import { PrismaService } from 'nestjs-prisma';
 import { ProviderService } from '~/features/util/provider/provider.service';
+import { ProposalEvent } from '../proposals/proposals.args';
+import { ProposalsService } from '../proposals/proposals.service';
 
 export interface TransactionResponseJob {
   transactionHash: string;
@@ -31,6 +33,8 @@ export class TransactionsService {
     private provider: ProviderService,
     @InjectQueue(TransactionsService.QUEUE_OPTIONS.name)
     private responseQueue: Queue<TransactionResponseJob>,
+    @Inject(forwardRef(() => ProposalsService))
+    private proposals: ProposalsService,
   ) {
     this.addMissingResponseJobs();
   }
@@ -100,7 +104,7 @@ export class TransactionsService {
       signers,
     });
 
-    await this.prisma.transaction.create({
+    const { proposal: updatedProposal } = await this.prisma.transaction.create({
       data: {
         proposal: { connect: { id: proposalId } },
         hash: transaction.hash,
@@ -108,8 +112,11 @@ export class TransactionsService {
         gasLimit: transaction.gasLimit.toString(),
         gasPrice: transaction.gasPrice?.toString(),
       },
-      select: {},
+      select: {
+        proposal: true,
+      },
     });
+    this.proposals.publishProposal({ proposal: updatedProposal, event: ProposalEvent.update });
 
     this.responseQueue.add({ transactionHash: transaction.hash }, { delay: 1000 /* 1s */ });
   }

@@ -12,6 +12,7 @@ import {
   BytesField,
 } from '~/apollo/scalars/Bytes.scalar';
 import { SetField } from '~/apollo/scalars/SetField';
+import { Proposal } from '@gen/proposal/proposal.model';
 
 @ArgsType()
 export class UniqueProposalArgs {
@@ -37,16 +38,35 @@ export class ProposalsArgs extends FindManyProposalArgs {
   userHasApproved?: boolean;
 }
 
+export const PROPOSAL_SUBSCRIPTION = 'proposal';
+export const ACCOUNT_PROPOSAL_SUB_TRIGGER = `${PROPOSAL_SUBSCRIPTION}.Account`;
+
+export enum ProposalEvent {
+  create,
+  update,
+  delete,
+  response,
+}
+registerEnumType(ProposalEvent, { name: 'ProposalEvent' });
+
+export interface ProposalSubscriptionPayload {
+  [PROPOSAL_SUBSCRIPTION]: Proposal;
+  event: ProposalEvent;
+}
+
 @ArgsType()
-export class ProposalModifiedArgs {
-  @SetField(() => AddressScalar, { nullable: true })
+export class ProposalSubscriptionFiltersArgs {
+  @SetField(() => AddressScalar, {
+    nullable: true,
+    description: 'Defaults to user accounts if no proposals are provided',
+  })
   accounts?: Set<Address>;
 
   @SetField(() => Bytes32Scalar, { nullable: true })
-  ids?: Set<string>;
+  proposals?: Set<string>;
 
-  @Field(() => Boolean, { nullable: true, defaultValue: true })
-  created: boolean;
+  @SetField(() => ProposalEvent, { nullable: true, description: 'Defaults to all events' })
+  events?: Set<ProposalEvent>;
 }
 
 @ArgsType()

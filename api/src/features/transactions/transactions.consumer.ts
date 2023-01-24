@@ -2,6 +2,7 @@ import { Process, Processor } from '@nestjs/bull';
 import { forwardRef, Inject } from '@nestjs/common';
 import { Job } from 'bull';
 import { PrismaService } from 'nestjs-prisma';
+import { ProposalEvent } from '../proposals/proposals.args';
 import { ProposalsService } from '../proposals/proposals.service';
 import { QuorumsService } from '../quorums/quorums.service';
 import { SubgraphService } from '../subgraph/subgraph.service';
@@ -36,6 +37,9 @@ export class TransactionsConsumer {
       },
     });
 
-    this.proposals.publishProposal(transaction.proposal);
+    this.proposals.publishProposal({
+      proposal: transaction.proposal,
+      event: ProposalEvent.response,
+    });
   }
 }

@@ -11,7 +11,7 @@ import {
 import { GraphQLResolveInfo } from 'graphql';
 import { address, Address, isPresent, randomTxSalt, toQuorumKey } from 'lib';
 import { PrismaService } from 'nestjs-prisma';
-import { UserId } from '~/decorators/user.decorator';
+import { UserCtx, UserId } from '~/decorators/user.decorator';
 import { connectOrCreateUser, connectQuorum } from '~/util/connect-or-create';
 import { getSelect } from '~/util/select';
 import {
@@ -20,22 +20,22 @@ import {
   UniqueProposalArgs,
   ProposalsArgs,
   ApprovalRequest,
-  ProposalModifiedArgs,
+  ProposalSubscriptionFiltersArgs,
   ProposalState,
+  ProposalEvent,
+  ProposalSubscriptionPayload,
+  PROPOSAL_SUBSCRIPTION,
+  ACCOUNT_PROPOSAL_SUB_TRIGGER,
 } from './proposals.args';
 import { UserInputError } from 'apollo-server-core';
 import { Proposal } from '@gen/proposal/proposal.model';
 import { ExpoService } from '~/features/util/expo/expo.service';
 import { match } from 'ts-pattern';
 import { ProposalWhereInput } from '@gen/proposal/proposal-where.input';
-import {
-  ProposalsService,
-  ProposalSubscriptionPayload,
-  PROPOSAL_SUBSCRIPTION,
-} from './proposals.service';
+import { ProposalsService } from './proposals.service';
 import { Transaction } from '@gen/transaction/transaction.model';
 import { PubsubService } from '~/features/util/pubsub/pubsub.service';
-import { Context } from '~/request/ctx';
+import { UserContext } from '~/request/ctx';
 
 @Resolver(() => Proposal)
 export class ProposalsResolver {
@@ -103,22 +103,19 @@ export class ProposalsResolver {
 
   @Subscription(() => Proposal, {
     name: PROPOSAL_SUBSCRIPTION,
-    filter: (
-      { proposal }: ProposalSubscriptionPayload,
-      { accounts, ids, created }: ProposalModifiedArgs,
-      ctx: Context,
-    ) => {
-      const mAccounts = !accounts || accounts.has(address(proposal.accountId));
-      const mIds = !ids || ids.has(proposal.id);
-      const mCreated = created && (proposal.approvals?.length ?? 0) === 0;
-
-      console.log(ctx);
-
-      return mAccounts && (mIds || mCreated);
-    },
+    filter: ({ event }: ProposalSubscriptionPayload, { events }: ProposalSubscriptionFiltersArgs) =>
+      !events || events.has(event),
   })
-  async proposalModified(@Args() _args: ProposalModifiedArgs) {
-    return this.pubsub.asyncIterator(PROPOSAL_SUBSCRIPTION);
+  async proposalSubscription(
+    @Args() { accounts, proposals }: ProposalSubscriptionFiltersArgs,
+    @UserCtx() user: UserContext,
+  ) {
+    if (!accounts && !proposals) accounts = user.accounts;
+
+    return this.pubsub.asyncIterator([
+      ...[...(accounts ?? [])].map((account) => `${ACCOUNT_PROPOSAL_SUB_TRIGGER}.${account}`),
+      ...[...(proposals ?? [])].map((proposal) => `${PROPOSAL_SUBSCRIPTION}.${proposal}`),
+    ]);
   }
 
   @Mutation(() => Proposal)
@@ -200,7 +197,7 @@ export class ProposalsResolver {
       },
       ...getSelect(info),
     });
-    this.service.publishProposal(proposal);
+    this.service.publishProposal({ proposal, event: ProposalEvent.update });
 
     return proposal;
   }
