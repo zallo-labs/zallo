@@ -13,10 +13,17 @@ import {
 import { PrismaService } from 'nestjs-prisma';
 import { ProviderService } from '~/features/util/provider/provider.service';
 import { BigNumber } from 'ethers';
+import { PubsubService } from '../util/pubsub/pubsub.service';
+import assert from 'assert';
+import { AccountSubscriptionPayload, ACCOUNT_SUBSCRIPTION } from './accounts.args';
 
 @Injectable()
 export class AccountsService {
-  constructor(private prisma: PrismaService, private provider: ProviderService) {}
+  constructor(
+    private prisma: PrismaService,
+    private provider: ProviderService,
+    private pubsub: PubsubService,
+  ) {}
 
   async accounts(user: Address, args: Prisma.AccountFindManyArgs = {}): Promise<Account[]> {
     return this.prisma.account.findMany({
@@ -37,7 +44,10 @@ export class AccountsService {
     });
   }
 
-  async activateAccount(accountAddr: Address) {
+  async activateAccount<T extends Pick<Prisma.AccountUpdateArgs, 'select'>>(
+    accountAddr: Address,
+    updateArgs?: T,
+  ) {
     const { impl, deploySalt, isActive, quorumStates } =
       await this.prisma.account.findUniqueOrThrow({
         where: { id: accountAddr },
@@ -55,7 +65,7 @@ export class AccountsService {
           },
         },
       });
-    if (isActive) return;
+    assert(!isActive);
 
     // Activate
     const r = await this.provider.useProxyFactory((factory) =>
@@ -86,7 +96,7 @@ export class AccountsService {
     );
     await r.account.deployed();
 
-    await this.prisma.account.update({
+    return this.prisma.account.update({
       where: { id: accountAddr },
       data: {
         isActive: true,
@@ -104,6 +114,11 @@ export class AccountsService {
           })),
         },
       },
-    });
+      ...updateArgs,
+    }) as Prisma.Prisma__AccountClient<Prisma.AccountGetPayload<T>>;
+  }
+
+  publishAccount(payload: AccountSubscriptionPayload) {
+    return this.pubsub.publish<AccountSubscriptionPayload>(ACCOUNT_SUBSCRIPTION, payload);
   }
 }
