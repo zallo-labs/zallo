@@ -19,7 +19,7 @@ import { CHAINS, getChain } from 'lib';
 if (Platform.OS !== 'web') LogBox.ignoreLogs(['Setting a timer']);
 
 export const CHAIN = getChain(CONFIG.chainName);
-export const PROVIDER = new zk.Provider(CHAIN.l2Rpc);
+export const PROVIDER = new zk.Provider(CHAIN.rpc);
 export const CHAIN_ID = () => PROVIDER?.network?.chainId ?? CHAINS.testnet.id;
 
 const ethersLevelToSentrySeverity = (level: LogLevel): SeverityLevel => {

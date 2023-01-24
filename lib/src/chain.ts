@@ -3,7 +3,8 @@ export type ChainName = 'local' | 'testnet' | 'mainnet';
 export interface Chain {
   name: ChainName;
   id: number;
-  l2Rpc: string;
+  rpc: string;
+  ws: string | undefined;
   l1Rpc: string;
   isTestnet: boolean;
 }
@@ -12,22 +13,25 @@ export interface Chain {
 export const CHAINS = {
   local: {
     name: 'local',
-    id: 0,
-    l2Rpc: 'http://localhost:3050',
+    id: 270,
+    rpc: 'http://localhost:3050',
+    ws: 'ws://localhost:3051',
     l1Rpc: 'http://localhost:8545',
     isTestnet: true,
   } as const,
   testnet: {
     name: 'testnet',
     id: 280,
-    l2Rpc: 'https://zksync2-testnet.zksync.dev',
+    rpc: 'https://zksync2-testnet.zksync.dev',
+    ws: 'wss://zksync2-testnet.zksync.dev/ws',
     l1Rpc: 'goerli',
     isTestnet: true,
   } as const,
   mainnet: {
     name: 'mainnet',
     id: 324,
-    l2Rpc: 'https://zksync2-mainnet.zksync.io',
+    rpc: 'https://zksync2-mainnet.zksync.io',
+    ws: 'wss://zksync2-mainnet.zksync.io/ws',
     l1Rpc: 'mainnet',
     isTestnet: false,
   },
