@@ -104,6 +104,9 @@ export class ProposalsResolver {
           ] as const
         ).filter(isTruthy),
       },
+      orderBy: {
+        createdAt: 'desc',
+      },
       ...getSelect(info),
     });
   }
