@@ -13,11 +13,6 @@ import { usePollWhenFocussed } from '~/gql/usePollWhenFocussed';
 import { useSuspenseQuery } from '~/gql/useSuspenseQuery';
 import { useAccountIds } from '../account/useAccounts.api';
 
-export interface TransferMetadata {
-  id: Id;
-  timestamp: DateTime;
-}
-
 gql`
   query TransfersMetadata($accounts: [String!]!, $types: [TransferType!]!) {
     transfers(where: { account_in: $accounts, type_in: $types }) {
@@ -26,6 +21,11 @@ gql`
     }
   }
 `;
+
+export interface TransferMetadata {
+  id: Id;
+  timestamp: DateTime;
+}
 
 export const useTransfersMetadata = (...types: TransferType[]) => {
   const accounts = useAccountIds();
@@ -40,9 +40,9 @@ export const useTransfersMetadata = (...types: TransferType[]) => {
       types,
     },
   });
-  usePollWhenFocussed(rest, 15);
+  usePollWhenFocussed(rest, 10);
 
-  const transfers = useMemo(
+  return useMemo(
     (): TransferMetadata[] =>
       data.transfers.map(
         (t): TransferMetadata => ({
@@ -52,6 +52,4 @@ export const useTransfersMetadata = (...types: TransferType[]) => {
       ),
     [data.transfers],
   );
-
-  return [transfers, rest] as const;
 };

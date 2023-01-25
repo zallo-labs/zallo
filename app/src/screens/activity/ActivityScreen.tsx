@@ -10,7 +10,10 @@ import { AppbarMenu } from '~/components/Appbar/AppbarMenu';
 import { useAppbarHeader } from '~/components/Appbar/useAppbarHeader';
 import { ProposalItem } from '~/screens/activity/ProposalItem';
 import { ProposalMetadata } from '~/queries/proposal';
-import { TransferMetadata } from '~/queries/transfer/useTransfersMetadata.sub';
+import {
+  TransferMetadata,
+  useTransfersMetadata,
+} from '~/queries/transfer/useTransfersMetadata.sub';
 import { IncomingTransferItem } from './IncomingTransferItem';
 import { useProposalsMetadata } from '~/queries/proposal/useProposalsMetadata.api';
 import { match } from 'ts-pattern';
@@ -42,7 +45,7 @@ export const ActivityScreen = withSkeleton(() => {
   });
   const proposalsExecuting = useProposalsMetadata({ states: 'Executing' });
   const proposalsExecuted = useProposalsMetadata({ states: 'Executed' });
-  // const [incomingTransfers] = useTransfersMetadata('IN');
+  const incomingTransfers = useTransfersMetadata('IN');
 
   const sections = useMemo(
     () =>
@@ -63,11 +66,17 @@ export const ActivityScreen = withSkeleton(() => {
           title: 'Executed',
           data: [
             ...proposalsExecuted.map(proposalToActivity),
-            // ...incomingTransfers.map((activity): Item => ({ activity, type: 'transfer' })),
+            ...incomingTransfers.map((activity): Item => ({ activity, type: 'transfer' })),
           ].sort((a, b) => b.activity.timestamp.toMillis() - a.activity.timestamp.toMillis()),
         },
       ].filter((section) => section.data.length > 0),
-    [proposalsRequiringAction, proposalsAwaitingApproval, proposalsExecuting, proposalsExecuted],
+    [
+      proposalsRequiringAction,
+      proposalsAwaitingApproval,
+      proposalsExecuting,
+      proposalsExecuted,
+      incomingTransfers,
+    ],
   );
 
   return (

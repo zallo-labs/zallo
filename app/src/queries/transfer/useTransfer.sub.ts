@@ -40,20 +40,17 @@ gql`
 `;
 
 export const useTransfer = (id: Id) => {
-  const { data, ...rest } = useSuspenseQuery<TransferQuery, TransferQueryVariables>(
-    TransferDocument,
-    {
-      client: useSubgraphClient(),
-      variables: { id },
-    },
-  );
+  const { data } = useSuspenseQuery<TransferQuery, TransferQueryVariables>(TransferDocument, {
+    client: useSubgraphClient(),
+    variables: { id },
+  });
 
   const t = data.transfer!;
 
   const token = useMaybeToken(address(t.token));
   assert(token, 'token not found for transfer');
 
-  const transfer = useMemo(
+  return useMemo(
     (): Transfer => ({
       token,
       from: address(t.from),
@@ -64,6 +61,4 @@ export const useTransfer = (id: Id) => {
     }),
     [t, token],
   );
-
-  return [transfer, rest] as const;
 };
