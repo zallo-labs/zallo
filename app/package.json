@@ -72,6 +72,7 @@
     "expo-yarn-workspaces": "^2.0.4",
     "formik": "^2.2.9",
     "fuzzy-search": "^3.2.1",
+    "graphql-ws": "^5.11.2",
     "immer": "^9.0.18",
     "intl": "^1.2.5",
     "lib": "workspace:*",

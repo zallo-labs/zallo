@@ -17,11 +17,11 @@ export const keysArePresent2 =
   (t: T | null | undefined): t is Exclude<T, K> & NonNullable<Pick<T, K>> =>
     keysArePresent(t, keys);
 
-export const isTruthy = <T>(t: NonBoolean<T> | boolean | null | undefined): t is NonBoolean<T> =>
-  !!t;
+export const isTruthy = <T>(t: T | boolean | null | undefined): t is T => !!t;
 
 export type MaybeArray<T> = T | T[];
-export const toArray = <V>(values: V | V[]): V[] => (Array.isArray(values) ? values : [values]);
+export const toArray = <V>(values: NonNullable<V> | NonNullable<V>[]): NonNullable<V>[] =>
+  Array.isArray(values) ? values : [values];
 
 // Lodash-like groupBy, but using Map to allow for arbitrary keys
 export const groupBy = <K, V>(items: V[], key: (item: V) => K): Map<K, V[]> => {

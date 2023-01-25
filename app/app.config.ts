@@ -8,6 +8,7 @@ export const CONFIG = {
   chainName: chain!,
   sentryDsn: ENV.SENTRY_DSN!,
   apiUrl: ENV.API_URL!,
+  apiGqlWs: ENV.API_GQL_WS!,
   subgraphGqlUrl: ENV.SUBGRAPH_GQL_URL!,
   walletConnectProjectId: '599f2bebcaf0baedaaf87f899ad27991',
 } as const;
