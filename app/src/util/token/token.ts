@@ -1,14 +1,5 @@
 import { BigNumber } from 'ethers';
-import {
-  address,
-  Address,
-  Addresslike,
-  Call,
-  createIsObj,
-  Erc20,
-  Erc20__factory,
-  isAddress,
-} from 'lib';
+import { address, Address, Addresslike, createIsObj, Erc20, Erc20__factory, isAddress } from 'lib';
 import _ from 'lodash';
 import { CHAIN, PROVIDER } from '~/util/network/provider';
 
@@ -62,20 +53,7 @@ export const createToken = (def: TokenDef): Token => {
 export const ERC20_INTERFACE = Erc20__factory.createInterface();
 
 export const getTokenContract = (token: Token): Erc20 =>
-  Erc20__factory.connect(token.addr, PROVIDER as any);
-
-export const createTransferTx = (token: Token, to: Address, amount: BigNumber): Call =>
-  token.type === 'ERC20'
-    ? {
-        // ERC20
-        to: token.addr,
-        data: getTokenContract(token).interface.encodeFunctionData('transfer', [to, amount]),
-      }
-    : {
-        // ETH
-        to,
-        value: amount,
-      };
+  Erc20__factory.connect(token.addr, PROVIDER);
 
 export const convertTokenAmount = (
   amount: BigNumber,
