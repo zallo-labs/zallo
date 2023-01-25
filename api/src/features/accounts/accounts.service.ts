@@ -15,7 +15,11 @@ import { ProviderService } from '~/features/util/provider/provider.service';
 import { BigNumber } from 'ethers';
 import { PubsubService } from '../util/pubsub/pubsub.service';
 import assert from 'assert';
-import { AccountSubscriptionPayload, ACCOUNT_SUBSCRIPTION } from './accounts.args';
+import {
+  AccountSubscriptionPayload,
+  ACCOUNT_SUBSCRIPTION,
+  USER_ACCOUNT_SUBSCRIPTION,
+} from './accounts.args';
 
 @Injectable()
 export class AccountsService {
@@ -118,7 +122,30 @@ export class AccountsService {
     }) as Prisma.Prisma__AccountClient<Prisma.AccountGetPayload<T>>;
   }
 
-  publishAccount(payload: AccountSubscriptionPayload) {
-    return this.pubsub.publish<AccountSubscriptionPayload>(ACCOUNT_SUBSCRIPTION, payload);
+  async publishAccount(payload: AccountSubscriptionPayload) {
+    const id = payload[ACCOUNT_SUBSCRIPTION].id;
+    await this.pubsub.publish<AccountSubscriptionPayload>(`${ACCOUNT_SUBSCRIPTION}.${id}`, payload);
+
+    // Publish account for each approver
+    const { quorumStates } = await this.prisma.account.findUniqueOrThrow({
+      where: { id },
+      select: {
+        quorumStates: {
+          select: {
+            approvers: { select: { userId: true } },
+          },
+        },
+      },
+    });
+    const approvers = quorumStates.flatMap((state) => state.approvers.map((a) => a.userId));
+
+    await Promise.all(
+      approvers.map((user) =>
+        this.pubsub.publish<AccountSubscriptionPayload>(
+          `${USER_ACCOUNT_SUBSCRIPTION}.${user}`,
+          payload,
+        ),
+      ),
+    );
   }
 }

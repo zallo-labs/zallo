@@ -7,10 +7,11 @@ import {
   UpdateAccountMetadataArgs,
   CreateAccountArgs,
   AccountsArgs,
-  AccountSubscriptionFiltersArgs,
+  AccountSubscriptionFilters,
   AccountSubscriptionPayload,
   ACCOUNT_SUBSCRIPTION,
   AccountEvent,
+  USER_ACCOUNT_SUBSCRIPTION,
 } from './accounts.args';
 import { makeGetSelect } from '~/util/select';
 import { AccountsService } from './accounts.service';
@@ -69,14 +70,18 @@ export class AccountsResolver {
 
   @Subscription(() => Account, {
     name: ACCOUNT_SUBSCRIPTION,
-    filter: ({ event }: AccountSubscriptionPayload, { events }: AccountSubscriptionFiltersArgs) =>
+    filter: ({ event }: AccountSubscriptionPayload, { events }: AccountSubscriptionFilters) =>
       !events || events.has(event),
   })
   async accountSubscription(
     @UserCtx() user: UserContext,
-    @Args() { accounts = user.accounts }: AccountSubscriptionFiltersArgs,
+    @Args() { accounts }: AccountSubscriptionFilters,
   ) {
-    return this.pubsub.asyncIterator([...accounts].map((id) => `${ACCOUNT_SUBSCRIPTION}.${id}`));
+    return this.pubsub.asyncIterator(
+      accounts
+        ? [...accounts].map((id) => `${ACCOUNT_SUBSCRIPTION}.${id}`)
+        : `${USER_ACCOUNT_SUBSCRIPTION}.${user.id}`,
+    );
   }
 
   @Mutation(() => Account)

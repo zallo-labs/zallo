@@ -17,6 +17,7 @@ export class AccountArgs {
 export class AccountsArgs extends FindManyAccountArgs {}
 
 export const ACCOUNT_SUBSCRIPTION = 'account';
+export const USER_ACCOUNT_SUBSCRIPTION = `${ACCOUNT_SUBSCRIPTION}.user`;
 
 export enum AccountEvent {
   create,
@@ -30,7 +31,7 @@ export interface AccountSubscriptionPayload {
 }
 
 @ArgsType()
-export class AccountSubscriptionFiltersArgs {
+export class AccountSubscriptionFilters {
   @SetField(() => AddressScalar, { nullable: true, description: 'Defaults to user accounts' })
   accounts?: Set<Address>;
 
