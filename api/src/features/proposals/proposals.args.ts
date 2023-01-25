@@ -33,9 +33,10 @@ export class ProposalsArgs extends FindManyProposalArgs {
   @SetField(() => AddressScalar, { nullable: true })
   accounts?: Set<Address>;
 
-  state?: ProposalState[];
+  states?: ProposalState[];
 
-  userHasApproved?: boolean;
+  @Field(() => Boolean, { nullable: true, description: 'User is required to take action' })
+  actionRequired?: boolean;
 }
 
 export const PROPOSAL_SUBSCRIPTION = 'proposal';
@@ -55,7 +56,7 @@ export interface ProposalSubscriptionPayload {
 }
 
 @ArgsType()
-export class ProposalSubscriptionFiltersArgs {
+export class ProposalSubscriptionFilters {
   @SetField(() => AddressScalar, {
     nullable: true,
     description: 'Defaults to user accounts if no proposals are provided',

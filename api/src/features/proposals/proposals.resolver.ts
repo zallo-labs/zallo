@@ -9,7 +9,7 @@ import {
   Subscription,
 } from '@nestjs/graphql';
 import { GraphQLResolveInfo } from 'graphql';
-import { address, Address, isPresent, randomTxSalt, toQuorumKey } from 'lib';
+import { address, Address, isPresent, isTruthy, randomTxSalt, toQuorumKey } from 'lib';
 import { PrismaService } from 'nestjs-prisma';
 import { UserCtx, UserId } from '~/decorators/user.decorator';
 import { connectOrCreateUser, connectQuorum } from '~/util/connect-or-create';
@@ -20,7 +20,7 @@ import {
   UniqueProposalArgs,
   ProposalsArgs,
   ApprovalRequest,
-  ProposalSubscriptionFiltersArgs,
+  ProposalSubscriptionFilters,
   ProposalState,
   ProposalEvent,
   ProposalSubscriptionPayload,
@@ -59,19 +59,18 @@ export class ProposalsResolver {
 
   @Query(() => [Proposal])
   async proposals(
-    @Args() { accounts, state: states, userHasApproved, ...args }: ProposalsArgs,
+    @Args() { accounts, states, actionRequired, ...args }: ProposalsArgs,
     @Info() info: GraphQLResolveInfo,
     @UserId() user: Address,
   ): Promise<Proposal[]> {
     return this.prisma.proposal.findMany({
       ...args,
       where: {
-        AND: [
-          args.where ?? {},
-          {
-            ...(accounts && { accountId: { in: [...accounts] } }),
-            ...(userHasApproved && { approvals: { some: { userId: { equals: user } } } }),
-            ...(states && {
+        AND: (
+          [
+            args.where,
+            accounts && { accountId: { in: [...accounts] } },
+            states && {
               OR: states.map((state) =>
                 match<ProposalState, ProposalWhereInput>(state)
                   .with(ProposalState.Pending, () => ({
@@ -88,9 +87,22 @@ export class ProposalsResolver {
                   }))
                   .exhaustive(),
               ),
-            }),
-          },
-        ],
+            },
+            actionRequired !== undefined &&
+              (actionRequired
+                ? {
+                    transactions: { none: {} },
+                    quorum: { activeState: { approvers: { some: { userId: user } } } },
+                    approvals: { none: { userId: user } },
+                  }
+                : {
+                    NOT: {
+                      quorum: { activeState: { approvers: { some: { userId: user } } } },
+                      approvals: { none: { userId: user } },
+                    },
+                  }),
+          ] as const
+        ).filter(isTruthy),
       },
       ...getSelect(info),
     });
@@ -103,11 +115,11 @@ export class ProposalsResolver {
 
   @Subscription(() => Proposal, {
     name: PROPOSAL_SUBSCRIPTION,
-    filter: ({ event }: ProposalSubscriptionPayload, { events }: ProposalSubscriptionFiltersArgs) =>
+    filter: ({ event }: ProposalSubscriptionPayload, { events }: ProposalSubscriptionFilters) =>
       !events || events.has(event),
   })
   async proposalSubscription(
-    @Args() { accounts, proposals }: ProposalSubscriptionFiltersArgs,
+    @Args() { accounts, proposals }: ProposalSubscriptionFilters,
     @UserCtx() user: UserContext,
   ) {
     if (!accounts && !proposals) accounts = user.accounts;
