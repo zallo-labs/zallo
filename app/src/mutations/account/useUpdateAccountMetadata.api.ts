@@ -1,13 +1,14 @@
 import { gql } from '@apollo/client';
 import {
-  AccountDocument,
-  AccountQuery,
-  AccountQueryVariables,
+  AccountsDocument,
+  AccountsQuery,
+  AccountsQueryVariables,
   useUpdateAccountMetadataMutation,
 } from '~/gql/generated.api';
 import { updateQuery } from '~/gql/update';
 import { useCallback } from 'react';
-import { CombinedAccount } from '~/queries/account/useAccount.api';
+import { CombinedAccount } from '~/queries/account';
+import assert from 'assert';
 
 gql`
   mutation UpdateAccountMetadata($account: Address!, $name: String!) {
@@ -41,12 +42,14 @@ export const useUpdateAccountMetadata = (account?: CombinedAccount) => {
           const r = res.data?.updateAccountMetadata;
           if (!r) return;
 
-          updateQuery<AccountQuery, AccountQueryVariables>({
+          updateQuery<AccountsQuery, AccountsQueryVariables>({
             cache,
-            query: AccountDocument,
-            variables: { account: account.addr },
+            query: AccountsDocument,
+            variables: {},
             updater: (data) => {
-              if (data.account) data.account.name = r.name;
+              const i = data.accounts.findIndex((a) => a.id === account.addr);
+              assert(i >= 0);
+              data.accounts[i].name = r.name;
             },
           });
         },

@@ -1262,7 +1262,7 @@ export type CreateAccountMutationVariables = Exact<{
 }>;
 
 
-export type CreateAccountMutation = { __typename?: 'Mutation', createAccount: { __typename?: 'Account', id: string, isActive: boolean } };
+export type CreateAccountMutation = { __typename?: 'Mutation', createAccount: { __typename?: 'Account', id: string, isActive: boolean, name: string, quorums?: Array<{ __typename?: 'Quorum', id: string, accountId: string, key: number, name: string, activeState?: { __typename?: 'QuorumState', proposalId?: string | null, isRemoved: boolean, createdAt: any, spendingFallback: SpendingFallback, approvers?: Array<{ __typename?: 'Approver', userId: string }> | null, limits?: Array<{ __typename?: 'TokenLimit', token: string, amount: string, period: LimitPeriod }> | null } | null, proposedStates: Array<{ __typename?: 'QuorumState', proposalId?: string | null, isRemoved: boolean, createdAt: any, spendingFallback: SpendingFallback, approvers?: Array<{ __typename?: 'Approver', userId: string }> | null, limits?: Array<{ __typename?: 'TokenLimit', token: string, amount: string, period: LimitPeriod }> | null }> }> | null } };
 
 export type UpdateAccountMetadataMutationVariables = Exact<{
   account: Scalars['Address'];
@@ -1401,17 +1401,17 @@ export type UpdateUserMutationVariables = Exact<{
 
 export type UpdateUserMutation = { __typename?: 'Mutation', updateUser: { __typename?: 'User', id: string, name?: string | null, pushToken?: string | null } };
 
-export type AccountQueryVariables = Exact<{
-  account: Scalars['Address'];
-}>;
+export type AccountFieldsFragment = { __typename?: 'Account', id: string, isActive: boolean, name: string, quorums?: Array<{ __typename?: 'Quorum', id: string, accountId: string, key: number, name: string, activeState?: { __typename?: 'QuorumState', proposalId?: string | null, isRemoved: boolean, createdAt: any, spendingFallback: SpendingFallback, approvers?: Array<{ __typename?: 'Approver', userId: string }> | null, limits?: Array<{ __typename?: 'TokenLimit', token: string, amount: string, period: LimitPeriod }> | null } | null, proposedStates: Array<{ __typename?: 'QuorumState', proposalId?: string | null, isRemoved: boolean, createdAt: any, spendingFallback: SpendingFallback, approvers?: Array<{ __typename?: 'Approver', userId: string }> | null, limits?: Array<{ __typename?: 'TokenLimit', token: string, amount: string, period: LimitPeriod }> | null }> }> | null };
+
+export type AccountsQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type AccountQuery = { __typename?: 'Query', account?: { __typename?: 'Account', id: string, isActive: boolean, name: string, quorums?: Array<{ __typename?: 'Quorum', id: string, accountId: string, key: number, name: string, activeState?: { __typename?: 'QuorumState', proposalId?: string | null, isRemoved: boolean, createdAt: any, spendingFallback: SpendingFallback, approvers?: Array<{ __typename?: 'Approver', userId: string }> | null, limits?: Array<{ __typename?: 'TokenLimit', token: string, amount: string, period: LimitPeriod }> | null } | null, proposedStates: Array<{ __typename?: 'QuorumState', proposalId?: string | null, isRemoved: boolean, createdAt: any, spendingFallback: SpendingFallback, approvers?: Array<{ __typename?: 'Approver', userId: string }> | null, limits?: Array<{ __typename?: 'TokenLimit', token: string, amount: string, period: LimitPeriod }> | null }> }> | null } | null };
+export type AccountsQuery = { __typename?: 'Query', accounts: Array<{ __typename?: 'Account', id: string, isActive: boolean, name: string, quorums?: Array<{ __typename?: 'Quorum', id: string, accountId: string, key: number, name: string, activeState?: { __typename?: 'QuorumState', proposalId?: string | null, isRemoved: boolean, createdAt: any, spendingFallback: SpendingFallback, approvers?: Array<{ __typename?: 'Approver', userId: string }> | null, limits?: Array<{ __typename?: 'TokenLimit', token: string, amount: string, period: LimitPeriod }> | null } | null, proposedStates: Array<{ __typename?: 'QuorumState', proposalId?: string | null, isRemoved: boolean, createdAt: any, spendingFallback: SpendingFallback, approvers?: Array<{ __typename?: 'Approver', userId: string }> | null, limits?: Array<{ __typename?: 'TokenLimit', token: string, amount: string, period: LimitPeriod }> | null }> }> | null }> };
 
-export type AccountIdsQueryVariables = Exact<{ [key: string]: never; }>;
+export type AccountSubscriptionSubscriptionVariables = Exact<{ [key: string]: never; }>;
 
 
-export type AccountIdsQuery = { __typename?: 'Query', accounts: Array<{ __typename?: 'Account', id: string }> };
+export type AccountSubscriptionSubscription = { __typename?: 'Subscription', account: { __typename?: 'Account', id: string, isActive: boolean, name: string, quorums?: Array<{ __typename?: 'Quorum', id: string, accountId: string, key: number, name: string, activeState?: { __typename?: 'QuorumState', proposalId?: string | null, isRemoved: boolean, createdAt: any, spendingFallback: SpendingFallback, approvers?: Array<{ __typename?: 'Approver', userId: string }> | null, limits?: Array<{ __typename?: 'TokenLimit', token: string, amount: string, period: LimitPeriod }> | null } | null, proposedStates: Array<{ __typename?: 'QuorumState', proposalId?: string | null, isRemoved: boolean, createdAt: any, spendingFallback: SpendingFallback, approvers?: Array<{ __typename?: 'Approver', userId: string }> | null, limits?: Array<{ __typename?: 'TokenLimit', token: string, amount: string, period: LimitPeriod }> | null }> }> | null } };
 
 export type ContactFieldsFragment = { __typename?: 'ContactObject', id: string, addr: any, name: string };
 
@@ -1464,14 +1464,6 @@ export type QuorumStateFieldsFragment = { __typename?: 'QuorumState', proposalId
 
 export type QuorumFieldsFragment = { __typename?: 'Quorum', id: string, accountId: string, key: number, name: string, activeState?: { __typename?: 'QuorumState', proposalId?: string | null, isRemoved: boolean, createdAt: any, spendingFallback: SpendingFallback, approvers?: Array<{ __typename?: 'Approver', userId: string }> | null, limits?: Array<{ __typename?: 'TokenLimit', token: string, amount: string, period: LimitPeriod }> | null } | null, proposedStates: Array<{ __typename?: 'QuorumState', proposalId?: string | null, isRemoved: boolean, createdAt: any, spendingFallback: SpendingFallback, approvers?: Array<{ __typename?: 'Approver', userId: string }> | null, limits?: Array<{ __typename?: 'TokenLimit', token: string, amount: string, period: LimitPeriod }> | null }> };
 
-export type QuorumQueryVariables = Exact<{
-  account: Scalars['Address'];
-  key: Scalars['QuorumKey'];
-}>;
-
-
-export type QuorumQuery = { __typename?: 'Query', quorum?: { __typename?: 'Quorum', id: string, accountId: string, key: number, name: string, activeState?: { __typename?: 'QuorumState', proposalId?: string | null, isRemoved: boolean, createdAt: any, spendingFallback: SpendingFallback, approvers?: Array<{ __typename?: 'Approver', userId: string }> | null, limits?: Array<{ __typename?: 'TokenLimit', token: string, amount: string, period: LimitPeriod }> | null } | null, proposedStates: Array<{ __typename?: 'QuorumState', proposalId?: string | null, isRemoved: boolean, createdAt: any, spendingFallback: SpendingFallback, approvers?: Array<{ __typename?: 'Approver', userId: string }> | null, limits?: Array<{ __typename?: 'TokenLimit', token: string, amount: string, period: LimitPeriod }> | null }> } | null };
-
 export type RequestableTokensQueryVariables = Exact<{
   recipient: Scalars['Address'];
 }>;
@@ -1502,6 +1494,46 @@ export type UserQueryVariables = Exact<{
 
 export type UserQuery = { __typename?: 'Query', user?: { __typename?: 'User', id: string, name?: string | null, pushToken?: string | null } | null };
 
+export const QuorumStateFieldsFragmentDoc = gql`
+    fragment QuorumStateFields on QuorumState {
+  proposalId
+  isRemoved
+  createdAt
+  approvers {
+    userId
+  }
+  spendingFallback
+  limits {
+    token
+    amount
+    period
+  }
+}
+    `;
+export const QuorumFieldsFragmentDoc = gql`
+    fragment QuorumFields on Quorum {
+  id
+  accountId
+  key
+  name
+  activeState {
+    ...QuorumStateFields
+  }
+  proposedStates {
+    ...QuorumStateFields
+  }
+}
+    ${QuorumStateFieldsFragmentDoc}`;
+export const AccountFieldsFragmentDoc = gql`
+    fragment AccountFields on Account {
+  id
+  isActive
+  name
+  quorums {
+    ...QuorumFields
+  }
+}
+    ${QuorumFieldsFragmentDoc}`;
 export const ContactFieldsFragmentDoc = gql`
     fragment ContactFields on ContactObject {
   id
@@ -1552,44 +1584,13 @@ export const ProposalMetadataFieldsFragmentDoc = gql`
   createdAt
 }
     `;
-export const QuorumStateFieldsFragmentDoc = gql`
-    fragment QuorumStateFields on QuorumState {
-  proposalId
-  isRemoved
-  createdAt
-  approvers {
-    userId
-  }
-  spendingFallback
-  limits {
-    token
-    amount
-    period
-  }
-}
-    `;
-export const QuorumFieldsFragmentDoc = gql`
-    fragment QuorumFields on Quorum {
-  id
-  accountId
-  key
-  name
-  activeState {
-    ...QuorumStateFields
-  }
-  proposedStates {
-    ...QuorumStateFields
-  }
-}
-    ${QuorumStateFieldsFragmentDoc}`;
 export const CreateAccountDocument = gql`
     mutation CreateAccount($name: String!, $quorums: [QuorumInput!]!) {
   createAccount(name: $name, quorums: $quorums) {
-    id
-    isActive
+    ...AccountFields
   }
 }
-    `;
+    ${AccountFieldsFragmentDoc}`;
 export type CreateAccountMutationFn = Apollo.MutationFunction<CreateAccountMutation, CreateAccountMutationVariables>;
 
 /**
@@ -2194,80 +2195,69 @@ export function useUpdateUserMutation(baseOptions?: Apollo.MutationHookOptions<U
 export type UpdateUserMutationHookResult = ReturnType<typeof useUpdateUserMutation>;
 export type UpdateUserMutationResult = Apollo.MutationResult<UpdateUserMutation>;
 export type UpdateUserMutationOptions = Apollo.BaseMutationOptions<UpdateUserMutation, UpdateUserMutationVariables>;
-export const AccountDocument = gql`
-    query Account($account: Address!) {
-  account(id: $account) {
-    id
-    isActive
-    name
-    quorums {
-      ...QuorumFields
-    }
-  }
-}
-    ${QuorumFieldsFragmentDoc}`;
-
-/**
- * __useAccountQuery__
- *
- * To run a query within a React component, call `useAccountQuery` and pass it any options that fit your needs.
- * When your component renders, `useAccountQuery` returns an object from Apollo Client that contains loading, error, and data properties
- * you can use to render your UI.
- *
- * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
- *
- * @example
- * const { data, loading, error } = useAccountQuery({
- *   variables: {
- *      account: // value for 'account'
- *   },
- * });
- */
-export function useAccountQuery(baseOptions: Apollo.QueryHookOptions<AccountQuery, AccountQueryVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useQuery<AccountQuery, AccountQueryVariables>(AccountDocument, options);
-      }
-export function useAccountLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<AccountQuery, AccountQueryVariables>) {
-          const options = {...defaultOptions, ...baseOptions}
-          return Apollo.useLazyQuery<AccountQuery, AccountQueryVariables>(AccountDocument, options);
-        }
-export type AccountQueryHookResult = ReturnType<typeof useAccountQuery>;
-export type AccountLazyQueryHookResult = ReturnType<typeof useAccountLazyQuery>;
-export type AccountQueryResult = Apollo.QueryResult<AccountQuery, AccountQueryVariables>;
-export const AccountIdsDocument = gql`
-    query AccountIds {
+export const AccountsDocument = gql`
+    query Accounts {
   accounts {
-    id
+    ...AccountFields
   }
 }
-    `;
+    ${AccountFieldsFragmentDoc}`;
 
 /**
- * __useAccountIdsQuery__
+ * __useAccountsQuery__
  *
- * To run a query within a React component, call `useAccountIdsQuery` and pass it any options that fit your needs.
- * When your component renders, `useAccountIdsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * To run a query within a React component, call `useAccountsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useAccountsQuery` returns an object from Apollo Client that contains loading, error, and data properties
  * you can use to render your UI.
  *
  * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
  *
  * @example
- * const { data, loading, error } = useAccountIdsQuery({
+ * const { data, loading, error } = useAccountsQuery({
  *   variables: {
  *   },
  * });
  */
-export function useAccountIdsQuery(baseOptions?: Apollo.QueryHookOptions<AccountIdsQuery, AccountIdsQueryVariables>) {
+export function useAccountsQuery(baseOptions?: Apollo.QueryHookOptions<AccountsQuery, AccountsQueryVariables>) {
         const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useQuery<AccountIdsQuery, AccountIdsQueryVariables>(AccountIdsDocument, options);
+        return Apollo.useQuery<AccountsQuery, AccountsQueryVariables>(AccountsDocument, options);
       }
-export function useAccountIdsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<AccountIdsQuery, AccountIdsQueryVariables>) {
+export function useAccountsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<AccountsQuery, AccountsQueryVariables>) {
           const options = {...defaultOptions, ...baseOptions}
-          return Apollo.useLazyQuery<AccountIdsQuery, AccountIdsQueryVariables>(AccountIdsDocument, options);
+          return Apollo.useLazyQuery<AccountsQuery, AccountsQueryVariables>(AccountsDocument, options);
         }
-export type AccountIdsQueryHookResult = ReturnType<typeof useAccountIdsQuery>;
-export type AccountIdsLazyQueryHookResult = ReturnType<typeof useAccountIdsLazyQuery>;
-export type AccountIdsQueryResult = Apollo.QueryResult<AccountIdsQuery, AccountIdsQueryVariables>;
+export type AccountsQueryHookResult = ReturnType<typeof useAccountsQuery>;
+export type AccountsLazyQueryHookResult = ReturnType<typeof useAccountsLazyQuery>;
+export type AccountsQueryResult = Apollo.QueryResult<AccountsQuery, AccountsQueryVariables>;
+export const AccountSubscriptionDocument = gql`
+    subscription AccountSubscription {
+  account {
+    ...AccountFields
+  }
+}
+    ${AccountFieldsFragmentDoc}`;
+
+/**
+ * __useAccountSubscriptionSubscription__
+ *
+ * To run a query within a React component, call `useAccountSubscriptionSubscription` and pass it any options that fit your needs.
+ * When your component renders, `useAccountSubscriptionSubscription` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the subscription, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useAccountSubscriptionSubscription({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useAccountSubscriptionSubscription(baseOptions?: Apollo.SubscriptionHookOptions<AccountSubscriptionSubscription, AccountSubscriptionSubscriptionVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useSubscription<AccountSubscriptionSubscription, AccountSubscriptionSubscriptionVariables>(AccountSubscriptionDocument, options);
+      }
+export type AccountSubscriptionSubscriptionHookResult = ReturnType<typeof useAccountSubscriptionSubscription>;
+export type AccountSubscriptionSubscriptionResult = Apollo.SubscriptionResult<AccountSubscriptionSubscription>;
 export const ContactsDocument = gql`
     query Contacts {
   contacts {
@@ -2438,42 +2428,6 @@ export function useProposalsMetadataLazyQuery(baseOptions?: Apollo.LazyQueryHook
 export type ProposalsMetadataQueryHookResult = ReturnType<typeof useProposalsMetadataQuery>;
 export type ProposalsMetadataLazyQueryHookResult = ReturnType<typeof useProposalsMetadataLazyQuery>;
 export type ProposalsMetadataQueryResult = Apollo.QueryResult<ProposalsMetadataQuery, ProposalsMetadataQueryVariables>;
-export const QuorumDocument = gql`
-    query Quorum($account: Address!, $key: QuorumKey!) {
-  quorum(account: $account, key: $key) {
-    ...QuorumFields
-  }
-}
-    ${QuorumFieldsFragmentDoc}`;
-
-/**
- * __useQuorumQuery__
- *
- * To run a query within a React component, call `useQuorumQuery` and pass it any options that fit your needs.
- * When your component renders, `useQuorumQuery` returns an object from Apollo Client that contains loading, error, and data properties
- * you can use to render your UI.
- *
- * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
- *
- * @example
- * const { data, loading, error } = useQuorumQuery({
- *   variables: {
- *      account: // value for 'account'
- *      key: // value for 'key'
- *   },
- * });
- */
-export function useQuorumQuery(baseOptions: Apollo.QueryHookOptions<QuorumQuery, QuorumQueryVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useQuery<QuorumQuery, QuorumQueryVariables>(QuorumDocument, options);
-      }
-export function useQuorumLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<QuorumQuery, QuorumQueryVariables>) {
-          const options = {...defaultOptions, ...baseOptions}
-          return Apollo.useLazyQuery<QuorumQuery, QuorumQueryVariables>(QuorumDocument, options);
-        }
-export type QuorumQueryHookResult = ReturnType<typeof useQuorumQuery>;
-export type QuorumLazyQueryHookResult = ReturnType<typeof useQuorumLazyQuery>;
-export type QuorumQueryResult = Apollo.QueryResult<QuorumQuery, QuorumQueryVariables>;
 export const RequestableTokensDocument = gql`
     query RequestableTokens($recipient: Address!) {
   requestableTokens(recipient: $recipient)

@@ -1,10 +1,11 @@
 import { gql } from '@apollo/client';
+import assert from 'assert';
 import { QuorumGuid } from 'lib';
 import { useCallback } from 'react';
 import {
-  QuorumDocument,
-  QuorumQuery,
-  QuorumQueryVariables,
+  AccountsDocument,
+  AccountsQuery,
+  AccountsQueryVariables,
   useUpdateQuorumMetadataMutation,
 } from '~/gql/generated.api';
 import { updateQuery } from '~/gql/update';
@@ -42,11 +43,18 @@ export const useUpdateQuorumMetadata = (quorum: QuorumGuid) => {
           const q = res.data?.updateQuorumMetadata;
           if (!q) return;
 
-          updateQuery<QuorumQuery, QuorumQueryVariables>({
+          updateQuery<AccountsQuery, AccountsQueryVariables>({
+            query: AccountsDocument,
             cache,
-            query: QuorumDocument,
+            variables: {},
             updater: (data) => {
-              if (data.quorum) data.quorum.name = name;
+              const account = data.accounts.find((a) => a.id === quorum.account);
+              assert(account);
+
+              const q = account.quorums?.find((q) => q.key === quorum.key);
+              assert(q);
+
+              q.name = name;
             },
           });
         },

@@ -11,7 +11,7 @@ import Carousel from 'react-native-snap-carousel';
 import { useWindowDimensions } from 'react-native';
 import * as Haptics from 'expo-haptics';
 import { Address } from 'lib';
-import { useAccountIds } from '~/queries/account/useAccountIds.api';
+import { useAccountIds } from '~/queries/account/useAccounts.api';
 
 export interface AccountSelectorProps {
   selected: Address;

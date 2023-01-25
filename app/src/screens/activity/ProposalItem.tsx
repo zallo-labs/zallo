@@ -10,7 +10,7 @@ import { ListItem } from '~/components/list/ListItem';
 import { withSkeleton } from '~/components/skeleton/withSkeleton';
 import { ListItemSkeleton } from '~/components/list/ListItemSkeleton';
 import { useAccount } from '~/queries/account/useAccount.api';
-import { useAccountIds } from '~/queries/account/useAccountIds.api';
+import { useAccountIds } from '~/queries/account/useAccounts.api';
 
 export interface ProposalItemProps {
   proposal: ProposalId;

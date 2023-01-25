@@ -35,7 +35,7 @@ export const IncomingTransferItem = withSkeleton(({ transfer: id }: IncomingTran
         </Box>
       </Box>
 
-      <ActivityTransfers transfers={[transfer]} />
+      {/* <ActivityTransfers transfers={[transfer]} /> */}
     </Box>
   );
 }, ItemSkeleton);

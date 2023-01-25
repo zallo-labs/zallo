@@ -2,7 +2,7 @@ import { persistAtom } from '~/util/effect/persistAtom';
 import { Address } from 'lib';
 import { useCallback, useEffect } from 'react';
 import { atom, useRecoilState, useSetRecoilState } from 'recoil';
-import { useAccountIds } from '~/queries/account/useAccountIds.api';
+import { useAccountIds } from '~/queries/account/useAccounts.api';
 
 const SELECTED_ACCOUNT = atom<Address | null>({
   key: 'selectedAccount',

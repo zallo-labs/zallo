@@ -1,7 +1,7 @@
 import { StyleProp, ViewStyle } from 'react-native';
 import { Updater } from 'use-immer';
 import { Box } from '~/components/layout/Box';
-import { useAccountIds } from '~/queries/account/useAccountIds.api';
+import { useAccountIds } from '~/queries/account/useAccounts.api';
 import SessionAccountItem from './SessionAccountItem';
 import { SessionAccountQuorum } from './useSessionAccountQuorum';
 

@@ -3,7 +3,7 @@ import { PeopleIcon, SettingsIcon, HomeIcon, PlusIcon } from '~/util/theme/icons
 import { Suspense, useCallback } from 'react';
 import { Drawer } from 'react-native-paper';
 import { Navigate } from '../useRootNavigation';
-import { useAccountIds } from '~/queries/account/useAccountIds.api';
+import { useAccountIds } from '~/queries/account/useAccounts.api';
 import { AccountDrawerItem } from './AccountDrawerItem';
 import { LineSkeleton } from '~/components/skeleton/LineSkeleton';
 import { NavigationState } from '@react-navigation/native';
