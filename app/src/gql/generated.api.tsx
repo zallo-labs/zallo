@@ -61,6 +61,10 @@ export type AccountCount = {
   reactions: Scalars['Int'];
 };
 
+export type AccountEvent =
+  | 'create'
+  | 'update';
+
 export type AccountOrderByWithRelationInput = {
   comments?: InputMaybe<CommentOrderByRelationAggregateInput>;
   deploySalt?: InputMaybe<SortOrder>;
@@ -370,7 +374,6 @@ export type LimitPeriod =
 
 export type Mutation = {
   __typename?: 'Mutation';
-  activateAccount: Scalars['Boolean'];
   approve: Proposal;
   createAccount: Account;
   createComment: Comment;
@@ -388,11 +391,6 @@ export type Mutation = {
   updateQuorumMetadata: Quorum;
   updateUser: User;
   upsertContact: ContactObject;
-};
-
-
-export type MutationActivateAccountArgs = {
-  id: Scalars['Address'];
 };
 
 
@@ -639,6 +637,12 @@ export type ProposalCount = {
   transactions: Scalars['Int'];
 };
 
+export type ProposalEvent =
+  | 'create'
+  | 'delete'
+  | 'response'
+  | 'update';
+
 export type ProposalListRelationFilter = {
   every?: InputMaybe<ProposalWhereInput>;
   none?: InputMaybe<ProposalWhereInput>;
@@ -781,13 +785,13 @@ export type QueryProposalArgs = {
 
 export type QueryProposalsArgs = {
   accounts?: InputMaybe<Array<Scalars['Address']>>;
+  actionRequired?: InputMaybe<Scalars['Boolean']>;
   cursor?: InputMaybe<ProposalWhereUniqueInput>;
   distinct?: InputMaybe<Array<ProposalScalarFieldEnum>>;
   orderBy?: InputMaybe<Array<ProposalOrderByWithRelationInput>>;
   skip?: InputMaybe<Scalars['Int']>;
-  state?: InputMaybe<Array<ProposalState>>;
+  states?: InputMaybe<Array<ProposalState>>;
   take?: InputMaybe<Scalars['Int']>;
-  userHasApproved?: InputMaybe<Scalars['Boolean']>;
   where?: InputMaybe<ProposalWhereInput>;
 };
 
@@ -1070,14 +1074,21 @@ export type StringNullableListFilter = {
 
 export type Subscription = {
   __typename?: 'Subscription';
+  account: Account;
   proposal: Proposal;
+};
+
+
+export type SubscriptionAccountArgs = {
+  accounts?: InputMaybe<Array<Scalars['Address']>>;
+  events?: InputMaybe<Array<AccountEvent>>;
 };
 
 
 export type SubscriptionProposalArgs = {
   accounts?: InputMaybe<Array<Scalars['Address']>>;
-  created?: InputMaybe<Scalars['Boolean']>;
-  ids?: InputMaybe<Array<Scalars['Bytes32']>>;
+  events?: InputMaybe<Array<ProposalEvent>>;
+  proposals?: InputMaybe<Array<Scalars['Bytes32']>>;
 };
 
 export type TokenLimit = {
@@ -1245,13 +1256,6 @@ export type UserWhereInput = {
   reactions?: InputMaybe<ReactionListRelationFilter>;
 };
 
-export type ActivateAccountMutationVariables = Exact<{
-  account: Scalars['Address'];
-}>;
-
-
-export type ActivateAccountMutation = { __typename?: 'Mutation', activateAccount: boolean };
-
 export type CreateAccountMutationVariables = Exact<{
   name: Scalars['String'];
   quorums: Array<QuorumInput> | QuorumInput;
@@ -1418,6 +1422,8 @@ export type ContactsQuery = { __typename?: 'Query', contacts: Array<{ __typename
 
 export type TransactionFieldsFragment = { __typename?: 'Transaction', id: string, hash: string, nonce: number, gasLimit: any, gasPrice?: any | null, createdAt: any, response?: { __typename?: 'TransactionResponse', success: boolean, response: string, timestamp: any } | null };
 
+export type ProposalFieldsFragment = { __typename?: 'Proposal', id: string, accountId: string, quorumKey: number, proposerId: string, to: string, value?: string | null, data?: string | null, salt: string, createdAt: any, approvals?: Array<{ __typename?: 'Approval', userId: string, signature?: string | null, createdAt: any }> | null, transactions?: Array<{ __typename?: 'Transaction', id: string, hash: string, nonce: number, gasLimit: any, gasPrice?: any | null, createdAt: any, response?: { __typename?: 'TransactionResponse', success: boolean, response: string, timestamp: any } | null }> | null };
+
 export type ProposalQueryVariables = Exact<{
   id: Scalars['Bytes32'];
 }>;
@@ -1425,10 +1431,30 @@ export type ProposalQueryVariables = Exact<{
 
 export type ProposalQuery = { __typename?: 'Query', proposal?: { __typename?: 'Proposal', id: string, accountId: string, quorumKey: number, proposerId: string, to: string, value?: string | null, data?: string | null, salt: string, createdAt: any, approvals?: Array<{ __typename?: 'Approval', userId: string, signature?: string | null, createdAt: any }> | null, transactions?: Array<{ __typename?: 'Transaction', id: string, hash: string, nonce: number, gasLimit: any, gasPrice?: any | null, createdAt: any, response?: { __typename?: 'TransactionResponse', success: boolean, response: string, timestamp: any } | null }> | null } | null };
 
+export type ProposalMetadataSubscriptionSubscriptionVariables = Exact<{
+  accounts?: InputMaybe<Array<Scalars['Address']> | Scalars['Address']>;
+  proposals?: InputMaybe<Array<Scalars['Bytes32']> | Scalars['Bytes32']>;
+  events?: InputMaybe<Array<ProposalEvent> | ProposalEvent>;
+}>;
+
+
+export type ProposalMetadataSubscriptionSubscription = { __typename?: 'Subscription', proposal: { __typename?: 'Proposal', id: string, accountId: string, createdAt: any } };
+
+export type ProposalSubscriptionSubscriptionVariables = Exact<{
+  accounts?: InputMaybe<Array<Scalars['Address']> | Scalars['Address']>;
+  proposals?: InputMaybe<Array<Scalars['Bytes32']> | Scalars['Bytes32']>;
+  events?: InputMaybe<Array<ProposalEvent> | ProposalEvent>;
+}>;
+
+
+export type ProposalSubscriptionSubscription = { __typename?: 'Subscription', proposal: { __typename?: 'Proposal', id: string, accountId: string, quorumKey: number, proposerId: string, to: string, value?: string | null, data?: string | null, salt: string, createdAt: any, approvals?: Array<{ __typename?: 'Approval', userId: string, signature?: string | null, createdAt: any }> | null, transactions?: Array<{ __typename?: 'Transaction', id: string, hash: string, nonce: number, gasLimit: any, gasPrice?: any | null, createdAt: any, response?: { __typename?: 'TransactionResponse', success: boolean, response: string, timestamp: any } | null }> | null } };
+
+export type ProposalMetadataFieldsFragment = { __typename?: 'Proposal', id: string, accountId: string, createdAt: any };
+
 export type ProposalsMetadataQueryVariables = Exact<{
   accounts?: InputMaybe<Array<Scalars['Address']> | Scalars['Address']>;
-  state?: InputMaybe<Array<ProposalState> | ProposalState>;
-  userHasApproved?: InputMaybe<Scalars['Boolean']>;
+  states?: InputMaybe<Array<ProposalState> | ProposalState>;
+  actionRequired?: InputMaybe<Scalars['Boolean']>;
 }>;
 
 
@@ -1498,6 +1524,34 @@ export const TransactionFieldsFragmentDoc = gql`
   }
 }
     `;
+export const ProposalFieldsFragmentDoc = gql`
+    fragment ProposalFields on Proposal {
+  id
+  accountId
+  quorumKey
+  proposerId
+  to
+  value
+  data
+  salt
+  createdAt
+  approvals {
+    userId
+    signature
+    createdAt
+  }
+  transactions {
+    ...TransactionFields
+  }
+}
+    ${TransactionFieldsFragmentDoc}`;
+export const ProposalMetadataFieldsFragmentDoc = gql`
+    fragment ProposalMetadataFields on Proposal {
+  id
+  accountId
+  createdAt
+}
+    `;
 export const QuorumStateFieldsFragmentDoc = gql`
     fragment QuorumStateFields on QuorumState {
   proposalId
@@ -1528,37 +1582,6 @@ export const QuorumFieldsFragmentDoc = gql`
   }
 }
     ${QuorumStateFieldsFragmentDoc}`;
-export const ActivateAccountDocument = gql`
-    mutation ActivateAccount($account: Address!) {
-  activateAccount(id: $account)
-}
-    `;
-export type ActivateAccountMutationFn = Apollo.MutationFunction<ActivateAccountMutation, ActivateAccountMutationVariables>;
-
-/**
- * __useActivateAccountMutation__
- *
- * To run a mutation, you first call `useActivateAccountMutation` within a React component and pass it any options that fit your needs.
- * When your component renders, `useActivateAccountMutation` returns a tuple that includes:
- * - A mutate function that you can call at any time to execute the mutation
- * - An object with fields that represent the current status of the mutation's execution
- *
- * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
- *
- * @example
- * const [activateAccountMutation, { data, loading, error }] = useActivateAccountMutation({
- *   variables: {
- *      account: // value for 'account'
- *   },
- * });
- */
-export function useActivateAccountMutation(baseOptions?: Apollo.MutationHookOptions<ActivateAccountMutation, ActivateAccountMutationVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useMutation<ActivateAccountMutation, ActivateAccountMutationVariables>(ActivateAccountDocument, options);
-      }
-export type ActivateAccountMutationHookResult = ReturnType<typeof useActivateAccountMutation>;
-export type ActivateAccountMutationResult = Apollo.MutationResult<ActivateAccountMutation>;
-export type ActivateAccountMutationOptions = Apollo.BaseMutationOptions<ActivateAccountMutation, ActivateAccountMutationVariables>;
 export const CreateAccountDocument = gql`
     mutation CreateAccount($name: String!, $quorums: [QuorumInput!]!) {
   createAccount(name: $name, quorums: $quorums) {
@@ -2282,26 +2305,10 @@ export type ContactsQueryResult = Apollo.QueryResult<ContactsQuery, ContactsQuer
 export const ProposalDocument = gql`
     query Proposal($id: Bytes32!) {
   proposal(id: $id) {
-    id
-    accountId
-    quorumKey
-    proposerId
-    to
-    value
-    data
-    salt
-    createdAt
-    approvals {
-      userId
-      signature
-      createdAt
-    }
-    transactions {
-      ...TransactionFields
-    }
+    ...ProposalFields
   }
 }
-    ${TransactionFieldsFragmentDoc}`;
+    ${ProposalFieldsFragmentDoc}`;
 
 /**
  * __useProposalQuery__
@@ -2330,15 +2337,77 @@ export function useProposalLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<P
 export type ProposalQueryHookResult = ReturnType<typeof useProposalQuery>;
 export type ProposalLazyQueryHookResult = ReturnType<typeof useProposalLazyQuery>;
 export type ProposalQueryResult = Apollo.QueryResult<ProposalQuery, ProposalQueryVariables>;
-export const ProposalsMetadataDocument = gql`
-    query ProposalsMetadata($accounts: [Address!], $state: [ProposalState!], $userHasApproved: Boolean) {
-  proposals(accounts: $accounts, state: $state, userHasApproved: $userHasApproved) {
-    id
-    accountId
-    createdAt
+export const ProposalMetadataSubscriptionDocument = gql`
+    subscription ProposalMetadataSubscription($accounts: [Address!], $proposals: [Bytes32!], $events: [ProposalEvent!]) {
+  proposal(accounts: $accounts, proposals: $proposals, events: $events) {
+    ...ProposalMetadataFields
   }
 }
-    `;
+    ${ProposalMetadataFieldsFragmentDoc}`;
+
+/**
+ * __useProposalMetadataSubscriptionSubscription__
+ *
+ * To run a query within a React component, call `useProposalMetadataSubscriptionSubscription` and pass it any options that fit your needs.
+ * When your component renders, `useProposalMetadataSubscriptionSubscription` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the subscription, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useProposalMetadataSubscriptionSubscription({
+ *   variables: {
+ *      accounts: // value for 'accounts'
+ *      proposals: // value for 'proposals'
+ *      events: // value for 'events'
+ *   },
+ * });
+ */
+export function useProposalMetadataSubscriptionSubscription(baseOptions?: Apollo.SubscriptionHookOptions<ProposalMetadataSubscriptionSubscription, ProposalMetadataSubscriptionSubscriptionVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useSubscription<ProposalMetadataSubscriptionSubscription, ProposalMetadataSubscriptionSubscriptionVariables>(ProposalMetadataSubscriptionDocument, options);
+      }
+export type ProposalMetadataSubscriptionSubscriptionHookResult = ReturnType<typeof useProposalMetadataSubscriptionSubscription>;
+export type ProposalMetadataSubscriptionSubscriptionResult = Apollo.SubscriptionResult<ProposalMetadataSubscriptionSubscription>;
+export const ProposalSubscriptionDocument = gql`
+    subscription ProposalSubscription($accounts: [Address!], $proposals: [Bytes32!], $events: [ProposalEvent!]) {
+  proposal(accounts: $accounts, proposals: $proposals, events: $events) {
+    ...ProposalFields
+  }
+}
+    ${ProposalFieldsFragmentDoc}`;
+
+/**
+ * __useProposalSubscriptionSubscription__
+ *
+ * To run a query within a React component, call `useProposalSubscriptionSubscription` and pass it any options that fit your needs.
+ * When your component renders, `useProposalSubscriptionSubscription` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the subscription, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useProposalSubscriptionSubscription({
+ *   variables: {
+ *      accounts: // value for 'accounts'
+ *      proposals: // value for 'proposals'
+ *      events: // value for 'events'
+ *   },
+ * });
+ */
+export function useProposalSubscriptionSubscription(baseOptions?: Apollo.SubscriptionHookOptions<ProposalSubscriptionSubscription, ProposalSubscriptionSubscriptionVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useSubscription<ProposalSubscriptionSubscription, ProposalSubscriptionSubscriptionVariables>(ProposalSubscriptionDocument, options);
+      }
+export type ProposalSubscriptionSubscriptionHookResult = ReturnType<typeof useProposalSubscriptionSubscription>;
+export type ProposalSubscriptionSubscriptionResult = Apollo.SubscriptionResult<ProposalSubscriptionSubscription>;
+export const ProposalsMetadataDocument = gql`
+    query ProposalsMetadata($accounts: [Address!], $states: [ProposalState!], $actionRequired: Boolean) {
+  proposals(accounts: $accounts, states: $states, actionRequired: $actionRequired) {
+    ...ProposalMetadataFields
+  }
+}
+    ${ProposalMetadataFieldsFragmentDoc}`;
 
 /**
  * __useProposalsMetadataQuery__
@@ -2353,8 +2422,8 @@ export const ProposalsMetadataDocument = gql`
  * const { data, loading, error } = useProposalsMetadataQuery({
  *   variables: {
  *      accounts: // value for 'accounts'
- *      state: // value for 'state'
- *      userHasApproved: // value for 'userHasApproved'
+ *      states: // value for 'states'
+ *      actionRequired: // value for 'actionRequired'
  *   },
  * });
  */
