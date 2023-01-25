@@ -1,6 +1,4 @@
-import 'intl';
 import { locale } from 'expo-localization';
-import 'intl/locale-data/jsonp/en';
 import { IntlProvider } from 'react-intl';
 import { ReactNode } from 'react';
 

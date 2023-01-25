@@ -4,8 +4,6 @@ import { withSkeleton } from '~/components/skeleton/withSkeleton';
 import { makeStyles } from '~/util/theme/makeStyles';
 import { Address } from 'lib';
 import { StackNavigatorScreenProps } from '~/navigation/StackNavigator';
-import { ActivateAccountButton } from '~/components/account/ActivateAccountButton';
-import { Fab } from '~/components/buttons/Fab';
 import { useAccount } from '~/queries/account/useAccount.api';
 import { Appbar } from 'react-native-paper';
 import { NameIcon, QuorumsIcon, ShareIcon } from '@theme/icons';
@@ -57,8 +55,6 @@ export const AccountScreen = withSkeleton(
             onPress={() => navigate('AccountQuorums', { account: account.addr })}
           />
         </Box>
-
-        <ActivateAccountButton account={account}>{Fab}</ActivateAccountButton>
       </Box>
     );
   },

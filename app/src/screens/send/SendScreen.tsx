@@ -1,14 +1,13 @@
-import { SendIcon } from '@theme/icons';
 import { makeStyles } from '@theme/makeStyles';
-import { createTransferTx } from '@token/token';
+import { getTokenContract, Token } from '@token/token';
 import { useTokenAvailable } from '@token/useTokenAvailable';
 import { BigNumber } from 'ethers';
-import { Address, QuorumGuid, ZERO } from 'lib';
+import { Address, Call, QuorumGuid, ZERO } from 'lib';
 import { useState } from 'react';
 import { Appbar, Text } from 'react-native-paper';
 import { AddrCard } from '~/components/addr/AddrCard';
 import { AppbarBack } from '~/components/Appbar/AppbarBack';
-import { Fab } from '~/components/buttons/Fab';
+import { ActionButton } from '~/components/buttons/ActionButton';
 import { Box } from '~/components/layout/Box';
 import { Container } from '~/components/layout/Container';
 import { TokenAvailableCard } from '~/components/token/TokenAvailableCard';
@@ -21,6 +20,14 @@ import { StackNavigatorScreenProps } from '~/navigation/StackNavigator';
 import { AmountInput } from '../amount/AmountInput';
 import { useSelectToken } from '../tokens/useSelectToken';
 
+const createTransferTx = (token: Token, to: Address, amount: BigNumber): Call =>
+  token.type === 'ERC20'
+    ? {
+        to: token.addr,
+        data: getTokenContract(token).interface.encodeFunctionData('transfer', [to, amount]),
+      }
+    : { to, value: amount };
+
 export interface SendScreenParams {
   quorum: QuorumGuid;
   to: Address;
@@ -31,7 +38,7 @@ export type SendScreenProps = StackNavigatorScreenProps<'Send'>;
 export const SendScreen = ({ route, navigation }: SendScreenProps) => {
   const { quorum, to } = route.params;
   const styles = useStyles();
-  const selectToken = useSelectToken();
+  const selectToken = useSelectToken({ account: quorum });
   const [propose, proposing] = usePropose();
   const [token, setSelectToken] = [useSelectedToken(), useSetSelectedToken()];
   const available = useTokenAvailable(token, quorum);
@@ -64,9 +71,7 @@ export const SendScreen = ({ route, navigation }: SendScreenProps) => {
         <AmountInput token={token} amount={amount} setAmount={setAmount} />
       </Container>
 
-      <Fab
-        icon={SendIcon}
-        label="Send"
+      <ActionButton
         loading={proposing}
         disabled={!amount || amount.eq(ZERO)}
         {...(amount && {
@@ -74,7 +79,9 @@ export const SendScreen = ({ route, navigation }: SendScreenProps) => {
             propose(quorum, createTransferTx(token, to, amount), popToProposal);
           },
         })}
-      />
+      >
+        Send
+      </ActionButton>
     </Box>
   );
 };

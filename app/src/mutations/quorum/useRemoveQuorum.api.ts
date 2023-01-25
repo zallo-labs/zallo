@@ -2,13 +2,7 @@ import { gql } from '@apollo/client';
 import { assert } from 'console';
 import { QuorumGuid } from 'lib';
 import { useCallback } from 'react';
-import {
-  QuorumDocument,
-  QuorumFieldsFragmentDoc,
-  QuorumQuery,
-  QuorumQueryVariables,
-  useRemoveQuorumMutation,
-} from '~/gql/generated.api';
+import { QuorumFieldsFragmentDoc, useRemoveQuorumMutation } from '~/gql/generated.api';
 import { updateQuery } from '~/gql/update';
 import { ProposalId } from '~/queries/proposal';
 
@@ -47,6 +41,7 @@ export const useRemoveQuorum = (quorum: QuorumGuid) => {
       //     }
       //   })
       // },
+      // TODO: optimistic response and cache update
     });
 
     const p = r.data?.removeQuorum?.proposedStates[0].proposalId;

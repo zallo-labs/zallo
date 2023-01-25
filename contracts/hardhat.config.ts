@@ -37,8 +37,8 @@ const config: HardhatUserConfig = {
       // loggingEnabled: true,
     },
     zkSyncTestnet: {
-      url: CONFIG.chain.zksyncUrl,
-      ethNetwork: CONFIG.chain.ethUrl,
+      url: CONFIG.chain.rpc,
+      ethNetwork: CONFIG.chain.l1Rpc,
       zksync: true,
     },
   },

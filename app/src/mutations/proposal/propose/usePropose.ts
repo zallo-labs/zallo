@@ -1,11 +1,6 @@
-import { CommonActions } from '@react-navigation/native';
 import { QuorumGuid, TxOptions } from 'lib';
 import { useCallback, useState } from 'react';
-import {
-  RootNavigation,
-  toNavigationStateRoutes,
-  useRootNavigation,
-} from '~/navigation/useRootNavigation';
+import { RootNavigation, useRootNavigation } from '~/navigation/useRootNavigation';
 import { showInfo } from '~/provider/SnackbarProvider';
 import { ProposalId } from '~/queries/proposal';
 import { OnExecute } from '~/screens/proposal/ProposalActions';
@@ -18,50 +13,32 @@ export type OnPropose = (
 
 export const usePropose = () => {
   const navigation = useRootNavigation();
-  const apiPropose = useApiPropose();
+  const propose = useApiPropose();
 
   const [proposing, setProposing] = useState(false);
 
-  const propose = useCallback(
+  const p = useCallback(
     async (quorum: QuorumGuid, txOpts: TxOptions, onPropose?: OnPropose) => {
       setProposing(true);
 
-      const proposal = await apiPropose(txOpts, quorum);
+      const proposal = await propose(txOpts, quorum);
 
       await onPropose?.(proposal, navigation);
       setProposing(false);
 
       return proposal;
     },
-    [navigation, apiPropose],
+    [navigation, propose],
   );
 
-  return [propose, proposing] as const;
+  return [p, proposing] as const;
 };
 
 export const popToProposal = (
   proposal: ProposalId,
   navigation: RootNavigation,
   onExecute?: OnExecute,
-) =>
-  navigation.dispatch(
-    CommonActions.reset({
-      index: 1,
-      routes: toNavigationStateRoutes(
-        {
-          name: 'Activity',
-          params: undefined,
-        },
-        {
-          name: 'Proposal',
-          params: {
-            proposal: proposal,
-            onExecute,
-          },
-        },
-      ),
-    }),
-  );
+) => navigation.replace('Proposal', { proposal, onExecute });
 
 export const showProposalSnack = (...params: Parameters<typeof popToProposal>) => {
   showInfo('Proposal created', {

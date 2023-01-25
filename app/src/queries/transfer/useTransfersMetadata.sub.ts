@@ -11,7 +11,7 @@ import {
 import { useSubgraphClient } from '~/gql/GqlProvider';
 import { usePollWhenFocussed } from '~/gql/usePollWhenFocussed';
 import { useSuspenseQuery } from '~/gql/useSuspenseQuery';
-import { useAccountIds } from '../account/useAccountIds.api';
+import { useAccountIds } from '../account/useAccounts.api';
 
 export interface TransferMetadata {
   id: Id;

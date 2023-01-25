@@ -3,7 +3,7 @@ import { BigNumber } from 'ethers';
 import { parseEther, parseUnits } from 'ethers/lib/utils';
 import { address, Address, filterAsync } from 'lib';
 import * as zk from 'zksync-web3';
-import { ProviderService } from '~/provider/provider.service';
+import { ProviderService } from '~/features/util/provider/provider.service';
 
 interface TokenFaucet {
   addr: Address;

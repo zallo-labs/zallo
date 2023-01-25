@@ -9,6 +9,7 @@ import { usePollWhenFocussed } from '~/gql/usePollWhenFocussed';
 import { useSuspenseQuery } from '~/gql/useSuspenseQuery';
 import { Approval, Proposal, Submission, ProposalState, ProposalId, Rejection } from '.';
 import { useQuorum } from '../quroum/useQuorum.api';
+import { useProposalSubscription } from './useProposalSubscription.api';
 
 gql`
   fragment TransactionFields on Transaction {
@@ -25,25 +26,29 @@ gql`
     }
   }
 
+  fragment ProposalFields on Proposal {
+    id
+    accountId
+    quorumKey
+    proposerId
+    to
+    value
+    data
+    salt
+    createdAt
+    approvals {
+      userId
+      signature
+      createdAt
+    }
+    transactions {
+      ...TransactionFields
+    }
+  }
+
   query Proposal($id: Bytes32!) {
     proposal(id: $id) {
-      id
-      accountId
-      quorumKey
-      proposerId
-      to
-      value
-      data
-      salt
-      createdAt
-      approvals {
-        userId
-        signature
-        createdAt
-      }
-      transactions {
-        ...TransactionFields
-      }
+      ...ProposalFields
     }
   }
 `;
@@ -56,12 +61,13 @@ const getStatus = (submissions: Submission[]): ProposalState => {
   assert(false); // Unreachable
 };
 
-export const useProposal = <Id extends ProposalId | undefined>(id: Id, focussed = false) => {
-  const { data, ...rest } = useSuspenseQuery<ProposalQuery, ProposalQueryVariables>(
-    ProposalDocument,
-    { variables: id, skip: !id },
-  );
-  usePollWhenFocussed(rest, focussed ? 3 : 15);
+export const useProposal = <Id extends ProposalId | undefined>(id: Id) => {
+  const skip = !id;
+  const { data } = useSuspenseQuery<ProposalQuery, ProposalQueryVariables>(ProposalDocument, {
+    variables: id,
+    skip,
+  });
+  useProposalSubscription({ proposals: id, skip });
 
   const p = data.proposal;
   if (id) assert(p);

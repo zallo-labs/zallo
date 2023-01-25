@@ -28,8 +28,6 @@ export const ProposalStateCard = ({ proposal: p, style }: ProposalStateCardProps
     })
     .otherwise((status) => status);
 
-  console.log({ p, status });
-
   return (
     <Card style={[style]} touchableStyle={styles.card}>
       {status === 'pending' && (

@@ -35,16 +35,13 @@ const proposalToActivity = (proposal: ProposalMetadata): Item => ({
 export const ActivityScreen = withSkeleton(() => {
   const { AppbarHeader, handleScroll } = useAppbarHeader();
   const { navigate } = useNavigation();
-  const [proposalsRequiringAction] = useProposalsMetadata({
-    state: 'Pending',
-    userHasApproved: false,
+  const proposalsRequiringAction = useProposalsMetadata({ actionRequired: true });
+  const proposalsAwaitingApproval = useProposalsMetadata({
+    states: 'Pending',
+    actionRequired: false,
   });
-  const [proposalsAwaitingApproval] = useProposalsMetadata({
-    state: 'Pending',
-    userHasApproved: true,
-  });
-  const [proposalsExecuting] = useProposalsMetadata({ state: 'Executing' });
-  const [proposalsExecuted] = useProposalsMetadata({ state: 'Executed' });
+  const proposalsExecuting = useProposalsMetadata({ states: 'Executing' });
+  const proposalsExecuted = useProposalsMetadata({ states: 'Executed' });
   // const [incomingTransfers] = useTransfersMetadata('IN');
 
   const sections = useMemo(

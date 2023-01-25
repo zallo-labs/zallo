@@ -1,5 +1,5 @@
 import type { CodegenConfig } from '@graphql-codegen/cli';
-require('dotenv').config({ path: '../.env' });
+require('dotenv-vault-core').config({ path: '../.env' });
 
 const plugins = ['typescript', 'typescript-operations', 'typescript-react-apollo'];
 

@@ -1,4 +1,4 @@
-import { Args, Info, Mutation, Query, Resolver } from '@nestjs/graphql';
+import { Args, Info, Mutation, Query, Resolver, Subscription } from '@nestjs/graphql';
 import { PrismaService } from 'nestjs-prisma';
 import { GraphQLResolveInfo } from 'graphql';
 import { Account } from '@gen/account/account.model';
@@ -7,11 +7,16 @@ import {
   UpdateAccountMetadataArgs,
   CreateAccountArgs,
   AccountsArgs,
+  AccountSubscriptionFilters,
+  AccountSubscriptionPayload,
+  ACCOUNT_SUBSCRIPTION,
+  AccountEvent,
+  USER_ACCOUNT_SUBSCRIPTION,
 } from './accounts.args';
 import { makeGetSelect } from '~/util/select';
 import { AccountsService } from './accounts.service';
 import { Prisma } from '@prisma/client';
-import { ProviderService } from '~/provider/provider.service';
+import { ProviderService } from '~/features/util/provider/provider.service';
 import {
   address,
   Address,
@@ -21,9 +26,11 @@ import {
   toQuorumKey,
 } from 'lib';
 import { CONFIG } from '~/config';
-import { UserId } from '~/decorators/user.decorator';
+import { UserCtx, UserId } from '~/decorators/user.decorator';
 import { QuorumInput } from '../quorums/quorums.args';
 import { FaucetService } from '../faucet/faucet.service';
+import { PubsubService } from '../util/pubsub/pubsub.service';
+import { UserContext } from '~/request/ctx';
 
 const getSelect = makeGetSelect<{
   Account: Prisma.AccountSelect;
@@ -38,6 +45,7 @@ export class AccountsResolver {
     private prisma: PrismaService,
     private provider: ProviderService,
     private faucet: FaucetService,
+    private pubsub: PubsubService,
   ) {}
 
   @Query(() => Account, { nullable: true })
@@ -60,6 +68,22 @@ export class AccountsResolver {
     return this.service.accounts(user, { ...args, ...getSelect(info) });
   }
 
+  @Subscription(() => Account, {
+    name: ACCOUNT_SUBSCRIPTION,
+    filter: ({ event }: AccountSubscriptionPayload, { events }: AccountSubscriptionFilters) =>
+      !events || events.has(event),
+  })
+  async accountSubscription(
+    @UserCtx() user: UserContext,
+    @Args() { accounts }: AccountSubscriptionFilters,
+  ) {
+    return this.pubsub.asyncIterator(
+      accounts
+        ? [...accounts].map((id) => `${ACCOUNT_SUBSCRIPTION}.${id}`)
+        : `${USER_ACCOUNT_SUBSCRIPTION}.${user.id}`,
+    );
+  }
+
   @Mutation(() => Account)
   async createAccount(
     @Args() { name, quorums: quorumsArg }: CreateAccountArgs,
@@ -75,7 +99,7 @@ export class AccountsResolver {
       calculateProxyAddress({ impl, quorums }, factory, deploySalt),
     );
 
-    const r = await this.prisma.account.create({
+    await this.prisma.account.create({
       data: {
         id: addr,
         deploySalt,
@@ -100,19 +124,15 @@ export class AccountsResolver {
           ),
         },
       },
-      ...getSelect(info),
+      select: null,
     });
 
-    this.service.activateAccount(addr);
+    const r = await this.service.activateAccount(addr, { ...getSelect(info) });
+
+    this.service.publishAccount({ account: r, event: AccountEvent.create });
     this.faucet.requestTokens(addr);
 
     return r;
-  }
-
-  @Mutation(() => Boolean)
-  async activateAccount(@Args() { id: id }: AccountArgs): Promise<true> {
-    await this.service.activateAccount(id);
-    return true;
   }
 
   @Mutation(() => Account)

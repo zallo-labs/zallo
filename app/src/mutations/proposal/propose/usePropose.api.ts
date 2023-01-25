@@ -73,34 +73,34 @@ export const useApiPropose = () => {
         },
         optimisticResponse: {
           propose: {
+            __typename: 'Proposal',
             id,
             transactions: null,
           },
         },
         update: async (cache, res) => {
-          if (!res?.data?.propose.id) return;
-          const transactions = res.data.propose.transactions;
+          const proposal = res.data?.propose;
+          if (!proposal) return;
 
-          await upsertProposal();
-          upsertProposalsMetadata();
+          await createProposal();
+          await upsertProposalsMetadata();
 
-          async function upsertProposal() {
+          async function createProposal() {
             cache.writeQuery<ProposalQuery, ProposalQueryVariables>({
               query: ProposalDocument,
               variables: { id },
               data: {
                 proposal: {
-                  id,
+                  ...proposal!,
                   accountId: quorum.account,
                   quorumKey: quorum.key,
                   proposerId: credentials.address,
                   to: tx.to,
                   value: tx.value?.toString(),
-                  data: tx.data ? hexlify(tx.data) : undefined,
+                  data: tx.data ? hexlify(tx.data) : null,
                   salt: hexlify(tx.salt),
                   createdAt,
                   approvals: [],
-                  transactions,
                 },
               },
             });
@@ -115,6 +115,7 @@ export const useApiPropose = () => {
               updater: (data) => {
                 const i = data.proposals.findIndex((p) => p.id === id);
                 data.proposals[i >= 0 ? i : data.proposals.length] = {
+                  __typename: 'Proposal',
                   id,
                   accountId: quorum.account,
                   createdAt,
@@ -125,8 +126,8 @@ export const useApiPropose = () => {
         },
       });
 
-      const submissionHash = res.data?.propose?.transactions
-        ? res.data.propose.transactions[res.data.propose.transactions.length - 1].hash
+      const submissionHash = res.data?.propose?.transactions?.length
+        ? res.data.propose.transactions[0].hash
         : undefined;
 
       return { id, submissionHash };

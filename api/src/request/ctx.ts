@@ -18,6 +18,7 @@ export type IncomingContext = IncomingHttpContext | IncomingWsContext;
 
 export interface UserContext {
   id: Address;
+  accounts: Set<Address>;
 }
 
 export interface Context {

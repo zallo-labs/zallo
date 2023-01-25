@@ -52,7 +52,7 @@ const apiTokenState = atom<string | null>({
   ],
 });
 
-export const useAuthFlowLink = () => {
+export const useApiAuth = () => {
   const credentials = useCredentials();
   const [token, setToken] = useRecoilState(apiTokenState);
 
@@ -74,51 +74,46 @@ export const useAuthFlowLink = () => {
     }
   }, [credentials, setToken]);
 
-  const authLink: ApolloLink = useMemo(
-    () =>
-      setContext(async (_request, prevContext) => {
-        if (!tokenRef.current) await reset();
+  return useMemo(() => {
+    const getHeaders = () => ({ Authorization: tokenRef.current });
 
-        return {
-          ...prevContext,
-          headers: {
-            ...prevContext.headers,
-            Authorization: tokenRef.current,
-          },
-        };
-      }),
-    [reset],
-  );
+    const setHeadersLink = setContext(async (_request, prevContext) => {
+      if (!tokenRef.current) await reset();
 
-  const onUnauthorizedLink: ApolloLink = useMemo(
-    () =>
-      onError(({ networkError, forward, operation }) => {
-        if (isServerError(networkError)) {
-          if (networkError.statusCode === 401) {
-            fromPromise(reset()).flatMap(() => forward(operation));
-          } else {
-            console.error({
+      return {
+        ...prevContext,
+        headers: {
+          ...prevContext.headers,
+          ...getHeaders(),
+        },
+      };
+    });
+
+    const onUnauthorizedLink: ApolloLink = onError(({ networkError, forward, operation }) => {
+      if (isServerError(networkError)) {
+        if (networkError.statusCode === 401) {
+          fromPromise(reset()).flatMap(() => forward(operation));
+        } else {
+          console.error(
+            JSON.stringify({
               status: networkError.statusCode,
               name: networkError.name,
               message: networkError.message,
               result: JSON.stringify(networkError.result),
-            });
+            }),
+            null,
+            2,
+          );
 
-            captureException(networkError, {
-              extra: { operation },
-            });
-          }
-        } else if (networkError) {
-          console.warn('API network error', JSON.stringify(networkError, null, 2));
+          captureException(networkError, { extra: { operation } });
         }
-      }),
-    [reset],
-  );
+      } else if (networkError) {
+        console.warn('API network error', JSON.stringify(networkError, null, 2));
+      }
+    });
 
-  const link = useMemo(
-    () => ApolloLink.from([authLink, onUnauthorizedLink]),
-    [authLink, onUnauthorizedLink],
-  );
+    const link = ApolloLink.from([setHeadersLink, onUnauthorizedLink]);
 
-  return link;
+    return { link, getHeaders };
+  }, [reset]);
 };

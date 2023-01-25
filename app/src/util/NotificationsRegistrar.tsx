@@ -15,14 +15,7 @@ Notifications.setNotificationHandler({
   }),
 });
 
-export const useNotificationsCount = () => {
-  const [proposalsAwaitingUser] = useProposalsMetadata({
-    state: 'Pending',
-    userHasApproved: false,
-  });
-
-  return proposalsAwaitingUser.length;
-};
+export const useNotificationsCount = () => useProposalsMetadata({ actionRequired: true }).length;
 
 export const NotificationsRegistrar = () => {
   const count = useNotificationsCount();

@@ -1,19 +1,22 @@
 import { gql } from '@apollo/client';
 import {
-  AccountDocument,
-  AccountQuery,
-  AccountQueryVariables,
-  QuorumStateFieldsFragment,
+  AccountFieldsFragmentDoc,
+  AccountsDocument,
+  AccountsQuery,
+  AccountsQueryVariables,
   useCreateAccountMutation,
 } from '~/gql/generated.api';
-import { address, Address, Quorum, toQuorumKey } from 'lib';
+import { Address, Quorum, toQuorumKey, tryAddress } from 'lib';
 import { useUser } from '~/queries/useUser.api';
+import { updateQuery } from '~/gql/update';
+import assert from 'assert';
 
 gql`
+  ${AccountFieldsFragmentDoc}
+
   mutation CreateAccount($name: String!, $quorums: [QuorumInput!]!) {
     createAccount(name: $name, quorums: $quorums) {
-      id
-      isActive
+      ...AccountFields
     }
   }
 `;
@@ -45,48 +48,24 @@ export const useCreateAccount = () => {
         })),
       },
       update: (cache, res) => {
-        const acc = res.data?.createAccount;
-        if (!acc) return;
+        const account = res.data?.createAccount;
+        if (!account) return;
 
-        {
-          // Account: add
-          cache.writeQuery<AccountQuery, AccountQueryVariables>({
-            query: AccountDocument,
-            variables: { account: acc.id },
-            data: {
-              account: {
-                name,
-                quorums: quorums.map((q) => {
-                  const state: QuorumStateFieldsFragment = {
-                    isRemoved: false,
-                    createdAt: Date.now(),
-                    spendingFallback: 'allow',
-                    approvers: [...q.approvers.values()].map((a) => ({ userId: a })),
-                  };
-
-                  return {
-                    id: `${acc.id}-${q.key}`,
-                    accountId: acc.id,
-                    key: q.key,
-                    name: q.name,
-                    ...(acc.isActive
-                      ? {
-                          activeState: state,
-                          proposedStates: [],
-                        }
-                      : {
-                          proposedStates: [state],
-                        }),
-                  };
-                }),
-                ...acc,
-              },
-            },
-          });
-        }
+        updateQuery<AccountsQuery, AccountsQueryVariables>({
+          query: AccountsDocument,
+          cache,
+          variables: {},
+          defaultData: { accounts: [] },
+          updater: (data) => {
+            const i = data.accounts.findIndex((a) => a.id === account.id);
+            data.accounts[i >= 0 ? i : data.accounts.length] = account;
+          },
+        });
       },
     });
 
-    return { account: address(r.data!.createAccount.id), quorums };
+    const account = tryAddress(r.data?.createAccount.id);
+    assert(account);
+    return { account, quorums };
   };
 };

@@ -9,11 +9,13 @@ export const ZERO_ADDR = ethers.constants.AddressZero as Address;
 
 export const address = (addr: Addresslike) => ethers.utils.getAddress(addr) as Address;
 
-export const tryAddress = (addr: Addresslike): Address | null => {
+export const tryAddress = <A extends Addresslike | undefined>(addr: A) => {
   try {
-    return address(addr);
-  } catch (_) {
-    return null;
+    return (addr ? ethers.utils.getAddress(addr) : undefined) as A extends undefined
+      ? Address | undefined
+      : Address;
+  } catch {
+    return undefined;
   }
 };
 

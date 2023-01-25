@@ -12,7 +12,7 @@ import { Quorum, QuorumGuid } from 'lib';
 import _ from 'lodash';
 import { useState } from 'react';
 import { FlatList } from 'react-native';
-import { Button, Menu, Provider, useTheme } from 'react-native-paper';
+import { Button, Menu } from 'react-native-paper';
 import { AppbarBack2 } from '~/components/Appbar/AppbarBack';
 import { AppbarLarge } from '~/components/Appbar/AppbarLarge';
 import { AppbarMore2 } from '~/components/Appbar/AppbarMore';
@@ -75,7 +75,7 @@ function Screen() {
   };
 
   return (
-    <Provider theme={useTheme()}>
+    <>
       <Box flex={1}>
         <AppbarLarge
           leading={(props) => (
@@ -194,7 +194,7 @@ function Screen() {
       <QuorumStatesSheet
         {...{ quorum, proposedState: initState, setState: updateState, sheetShown, setSheetShown }}
       />
-    </Provider>
+    </>
   );
 }
 

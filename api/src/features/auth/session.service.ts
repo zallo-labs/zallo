@@ -4,8 +4,8 @@ import session from 'express-session';
 import createStore from 'connect-redis';
 import { CONFIG } from '~/config';
 import { Duration } from 'luxon';
-import { InjectRedis } from '@liaoliaots/nestjs-redis';
 import Redis from 'ioredis';
+import { InjectRedisPub } from '~/decorators/redis.decorator';
 
 const RedisStore = createStore(session);
 
@@ -13,7 +13,7 @@ const RedisStore = createStore(session);
 export class SessionService {
   public handler: RequestHandler;
 
-  constructor(@InjectRedis() redis: Redis) {
+  constructor(@InjectRedisPub() redis: Redis) {
     this.handler = session({
       secret: CONFIG.sessionSecret,
       resave: false,

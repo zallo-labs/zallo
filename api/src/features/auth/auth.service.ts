@@ -1,11 +1,12 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { ethers, Wallet } from 'ethers';
 import { Request } from 'express';
-import { address } from 'lib';
+import { Address, address } from 'lib';
 import { DateTime } from 'luxon';
+import { PrismaService } from 'nestjs-prisma';
 import { SiweMessage } from 'siwe';
 import { CONFIG } from '~/config';
-import { ProviderService } from '~/provider/provider.service';
+import { ProviderService } from '~/features/util/provider/provider.service';
 import { UserContext } from '~/request/ctx';
 
 interface AuthToken {
@@ -44,9 +45,18 @@ const isPlayground = (req: Request) => {
 
 @Injectable()
 export class AuthService {
-  constructor(private provider: ProviderService) {}
+  constructor(private provider: ProviderService, private prisma: PrismaService) {}
 
   async tryAuth(req: Request): Promise<UserContext | undefined> {
+    const id = await this.tryGetUserId(req);
+    if (!id) return undefined;
+
+    if (!req.session.accounts) req.session.accounts = await this.getAccounts(id);
+
+    return { id, accounts: req.session.accounts };
+  }
+
+  private async tryGetUserId(req: Request): Promise<Address | undefined> {
     const auth = tryParseAuth(req.headers.authorization);
 
     if (typeof auth === 'object') {
@@ -75,21 +85,41 @@ export class AuthService {
       // Use the session expiry time if provided
       if (message.expirationTime) req.session.cookie.expires = new Date(message.expirationTime);
 
-      return { id: address(message.address) };
+      return address(message.address);
     } else if (typeof auth === 'string' && AUTH_MESSAGE) {
       try {
-        return { id: address(ethers.utils.verifyMessage(AUTH_MESSAGE, auth)) };
+        return address(ethers.utils.verifyMessage(AUTH_MESSAGE, auth));
       } catch {
         throw new UnauthorizedException(
           `Invalid signature; required auth message: ${AUTH_MESSAGE}`,
         );
       }
     } else if (isPlayground(req)) {
-      return {
-        id:
-          req.session.playgroundWallet ||
-          (req.session.playgroundWallet = address(Wallet.createRandom().address)),
-      };
+      if (!req.session.playgroundWallet)
+        req.session.playgroundWallet = address(Wallet.createRandom().address);
+
+      return req.session.playgroundWallet;
     }
+  }
+
+  private async getAccounts(userId: Address) {
+    const accounts = await this.prisma.account.findMany({
+      where: {
+        quorumStates: {
+          some: {
+            approvers: {
+              some: {
+                userId,
+              },
+            },
+          },
+        },
+      },
+      select: {
+        id: true,
+      },
+    });
+
+    return new Set(accounts.map((acc) => address(acc.id)));
   }
 }
