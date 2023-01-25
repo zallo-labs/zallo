@@ -31,7 +31,7 @@ export const ProposalItem = withSkeleton(({ proposal: id, onPress }: ProposalIte
       overline={accounts.length > 1 ? account.name : undefined}
       headline={label}
       supporting={<Timestamp timestamp={p.timestamp} weekday />}
-      trailing={<ActivityTransfers transfers={transfers} />}
+      trailing={({ Text }) => <ActivityTransfers transfers={transfers} text={Text} />}
       onPress={onPress}
     />
   );

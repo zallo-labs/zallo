@@ -1,24 +1,19 @@
 import { FiatValue } from '~/components/fiat/FiatValue';
-import { StyleProp, TextStyle } from 'react-native';
-import { Text } from 'react-native-paper';
-import { Box } from '~/components/layout/Box';
+import { TextProps } from 'react-native-paper';
 import { TokenAmount } from '~/components/token/TokenAmount';
-import { memo } from 'react';
+import { FC, memo } from 'react';
 import { useTokenValues } from '@token/useTokenValue';
 import { Address } from 'lib';
 import { BigNumber } from 'ethers';
 import _ from 'lodash';
 import { Transfer } from '~/queries/transfer/useTransfer.sub';
-import { makeStyles } from '@theme/makeStyles';
 
-export interface CallTokensProps {
+export interface ActivityTransfersProps {
   transfers: Transfer[];
-  textStyle?: StyleProp<TextStyle>;
+  text: FC<TextProps>;
 }
 
-export const ActivityTransfers = memo(({ transfers, textStyle }: CallTokensProps) => {
-  const styles = useStyles();
-
+export const ActivityTransfers = memo(({ transfers, text: Text }: ActivityTransfersProps) => {
   const values = _.zip(
     transfers,
     useTokenValues(...transfers.map((t): [Address, BigNumber] => [t.token.addr, t.amount])),
@@ -30,9 +25,9 @@ export const ActivityTransfers = memo(({ transfers, textStyle }: CallTokensProps
   }, 0);
 
   return (
-    <Box vertical justifyContent="space-around" alignItems="flex-end">
+    <>
       {transfers.length > 0 && (
-        <Text variant="titleMedium" style={[textStyle, totalValue > 0 && styles.positive]}>
+        <Text>
           <FiatValue value={Math.abs(totalValue)} />
         </Text>
       )}
@@ -40,21 +35,11 @@ export const ActivityTransfers = memo(({ transfers, textStyle }: CallTokensProps
       {transfers.map(
         (t) =>
           !t.amount.isZero() && (
-            <Text
-              key={t.token.addr}
-              variant="bodyMedium"
-              style={[textStyle, t.direction === 'IN' && styles.positive]}
-            >
+            <Text key={t.token.addr}>
               <TokenAmount token={t.token} amount={t.amount} />
             </Text>
           ),
       )}
-    </Box>
+    </>
   );
 });
-
-const useStyles = makeStyles(({ colors }) => ({
-  positive: {
-    color: colors.success,
-  },
-}));
