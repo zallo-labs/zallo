@@ -48,7 +48,7 @@ export interface ContactScreenParams {
 
 export type ContactScreenProps = StackNavigatorScreenProps<'Contact'>;
 
-export const ContactScreen = ({ route, navigation: { goBack } }: ContactScreenProps) => {
+export const ContactScreen = ({ route, navigation: { goBack, setParams } }: ContactScreenProps) => {
   const styles = useStyles();
   const contacts = useContacts();
   const existing = useContact(route.params.addr);
@@ -64,7 +64,7 @@ export const ContactScreen = ({ route, navigation: { goBack } }: ContactScreenPr
       },
       existing,
     );
-    helpers.setSubmitting(false);
+    setParams({ addr: values.addr });
   };
 
   return (
