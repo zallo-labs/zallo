@@ -74,7 +74,6 @@
     "fuzzy-search": "^3.2.1",
     "graphql-ws": "^5.11.2",
     "immer": "^9.0.18",
-    "intl": "^1.2.5",
     "lib": "workspace:*",
     "luxon": "^3.2.1",
     "node-libs-react-native": "^1.2.1",

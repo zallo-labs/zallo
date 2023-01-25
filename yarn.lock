@@ -14213,7 +14213,6 @@ __metadata:
     fuzzy-search: ^3.2.1
     graphql-ws: ^5.11.2
     immer: ^9.0.18
-    intl: ^1.2.5
     jest: ^26.6.3
     jest-environment-node: 26.6.2
     jest-expo: ^47.0.1
@@ -25293,13 +25292,6 @@ __metadata:
     "@formatjs/icu-messageformat-parser": 2.1.14
     tslib: ^2.4.0
   checksum: 048d6e3e746bff5ea6d745c8cbc2d0049aadb42caf2bad0d47e0bcf9bede285ef48a1fbd3a87711b99587d270d2ab8d9488e51577b24a2227856cdf373dd25df
-  languageName: node
-  linkType: hard
-
-"intl@npm:^1.2.5":
-  version: 1.2.5
-  resolution: "intl@npm:1.2.5"
-  checksum: 54c2444ec334b4e7f501c1b988ccfdae96d62a6275a915b9c75a38fc42d611bfc7dd33447e94079b7a8fdb3fbf36b95afd13132af4bfd70e2ec4bf9c9e0935f9
   languageName: node
   linkType: hard
 
