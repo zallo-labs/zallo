@@ -19,6 +19,7 @@ import { useProposalsMetadata } from '~/queries/proposal/useProposalsMetadata.ap
 import { match } from 'ts-pattern';
 import { useNavigation } from '@react-navigation/native';
 import { ListHeader } from '~/components/list/ListHeader';
+import { makeStyles } from '@theme/makeStyles';
 
 type Item =
   | {
@@ -36,6 +37,7 @@ const proposalToActivity = (proposal: ProposalMetadata): Item => ({
 });
 
 export const ActivityScreen = withSkeleton(() => {
+  const styles = useStyles();
   const { AppbarHeader, handleScroll } = useAppbarHeader();
   const { navigate } = useNavigation();
   const proposalsRequiringAction = useProposalsMetadata({ actionRequired: true });
@@ -87,6 +89,7 @@ export const ActivityScreen = withSkeleton(() => {
       </AppbarHeader>
 
       <SectionList
+        sections={sections}
         renderSectionHeader={({ section }) => <ListHeader>{section.title}</ListHeader>}
         renderItem={({ item }) =>
           match(item)
@@ -109,10 +112,16 @@ export const ActivityScreen = withSkeleton(() => {
             isScreenRoot
           />
         }
-        sections={sections}
+        contentContainerStyle={styles.listContainer}
         onScroll={handleScroll}
         showsVerticalScrollIndicator={false}
       />
     </Box>
   );
 }, ListScreenSkeleton);
+
+const useStyles = makeStyles(({ s }) => ({
+  listContainer: {
+    paddingBottom: s(8),
+  },
+}));
