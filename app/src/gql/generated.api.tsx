@@ -383,6 +383,7 @@ export type Mutation = {
   propose: Proposal;
   reactToComment?: Maybe<Reaction>;
   reject: Proposal;
+  removeProposal: Proposal;
   removeQuorum: Quorum;
   requestApproval: Scalars['Boolean'];
   requestTokens: Array<Scalars['Address']>;
@@ -450,6 +451,11 @@ export type MutationReactToCommentArgs = {
 
 
 export type MutationRejectArgs = {
+  id: Scalars['Bytes32'];
+};
+
+
+export type MutationRemoveProposalArgs = {
   id: Scalars['Bytes32'];
 };
 
@@ -1340,6 +1346,13 @@ export type ProposeMutationVariables = Exact<{
 
 export type ProposeMutation = { __typename?: 'Mutation', propose: { __typename?: 'Proposal', id: string, transactions?: Array<{ __typename?: 'Transaction', id: string, hash: string, nonce: number, gasLimit: any, gasPrice?: any | null, createdAt: any, response?: { __typename?: 'TransactionResponse', success: boolean, response: string, timestamp: any } | null }> | null } };
 
+export type RemoveProposalMutationVariables = Exact<{
+  id: Scalars['Bytes32'];
+}>;
+
+
+export type RemoveProposalMutation = { __typename?: 'Mutation', removeProposal: { __typename?: 'Proposal', id: string } };
+
 export type RequestApprovalMutationVariables = Exact<{
   id: Scalars['Bytes32'];
   approvers: Array<Scalars['Address']> | Scalars['Address'];
@@ -1941,6 +1954,39 @@ export function useProposeMutation(baseOptions?: Apollo.MutationHookOptions<Prop
 export type ProposeMutationHookResult = ReturnType<typeof useProposeMutation>;
 export type ProposeMutationResult = Apollo.MutationResult<ProposeMutation>;
 export type ProposeMutationOptions = Apollo.BaseMutationOptions<ProposeMutation, ProposeMutationVariables>;
+export const RemoveProposalDocument = gql`
+    mutation RemoveProposal($id: Bytes32!) {
+  removeProposal(id: $id) {
+    id
+  }
+}
+    `;
+export type RemoveProposalMutationFn = Apollo.MutationFunction<RemoveProposalMutation, RemoveProposalMutationVariables>;
+
+/**
+ * __useRemoveProposalMutation__
+ *
+ * To run a mutation, you first call `useRemoveProposalMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useRemoveProposalMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [removeProposalMutation, { data, loading, error }] = useRemoveProposalMutation({
+ *   variables: {
+ *      id: // value for 'id'
+ *   },
+ * });
+ */
+export function useRemoveProposalMutation(baseOptions?: Apollo.MutationHookOptions<RemoveProposalMutation, RemoveProposalMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<RemoveProposalMutation, RemoveProposalMutationVariables>(RemoveProposalDocument, options);
+      }
+export type RemoveProposalMutationHookResult = ReturnType<typeof useRemoveProposalMutation>;
+export type RemoveProposalMutationResult = Apollo.MutationResult<RemoveProposalMutation>;
+export type RemoveProposalMutationOptions = Apollo.BaseMutationOptions<RemoveProposalMutation, RemoveProposalMutationVariables>;
 export const RequestApprovalDocument = gql`
     mutation RequestApproval($id: Bytes32!, $approvers: [Address!]!) {
   requestApproval(id: $id, approvers: $approvers)

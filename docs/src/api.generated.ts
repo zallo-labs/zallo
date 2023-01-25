@@ -384,6 +384,7 @@ export type Mutation = {
   propose: Proposal;
   reactToComment?: Maybe<Reaction>;
   reject: Proposal;
+  removeProposal: Proposal;
   removeQuorum: Quorum;
   requestApproval: Scalars['Boolean'];
   requestTokens: Array<Scalars['Address']>;
@@ -451,6 +452,11 @@ export type MutationReactToCommentArgs = {
 
 
 export type MutationRejectArgs = {
+  id: Scalars['Bytes32'];
+};
+
+
+export type MutationRemoveProposalArgs = {
   id: Scalars['Bytes32'];
 };
 

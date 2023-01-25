@@ -217,6 +217,17 @@ export class ProposalsResolver {
     return proposal;
   }
 
+  @Mutation(() => Proposal)
+  async removeProposal(
+    @Args() { id }: UniqueProposalArgs,
+    @Info() info: GraphQLResolveInfo,
+  ): Promise<Proposal> {
+    return this.prisma.proposal.delete({
+      where: { id },
+      ...getSelect(info),
+    });
+  }
+
   @Mutation(() => Boolean)
   async requestApproval(
     @Args() { id, approvers }: ApprovalRequest,
