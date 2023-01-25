@@ -1,4 +1,6 @@
-import { useNavigation, CompositeNavigationProp } from '@react-navigation/native';
+import { DrawerNavigationProp } from '@react-navigation/drawer';
+import { useNavigation, CompositeNavigationProp, NavigationProp } from '@react-navigation/native';
+import { StackNavigationProp } from '@react-navigation/stack';
 import { BottomNavigatorNavigatonProp, BottomNavigatorParamList } from './BottomNavigator';
 import { DrawerNavigationNavigateProp, DrawerNavigatorParamList } from './Drawer/DrawerNavigator';
 import { StackNavigatorNavigationProp, StackNavigatorParamList } from './StackNavigator';
@@ -17,10 +19,12 @@ export type RootStackParamList = DrawerNavigatorParamList &
 
 // export type RootNavigation = BottomNavigatorScreenProps<'Home'>['navigation'];
 
-export type RootNavigation = CompositeNavigationProp<
-  DrawerNavigationNavigateProp,
-  CompositeNavigationProp<StackNavigatorNavigationProp, BottomNavigatorNavigatonProp>
->;
+export type RootNavigation = StackNavigationProp<ReactNavigation.RootParamList>;
+
+// export type RootNavigation = CompositeNavigationProp<
+//   DrawerNavigationNavigateProp,
+//   CompositeNavigationProp<StackNavigatorNavigationProp, BottomNavigatorNavigatonProp>
+// >;
 
 export type Navigate = RootNavigation['navigate'];
 
