@@ -789,13 +789,13 @@ export type QueryProposalArgs = {
 
 export type QueryProposalsArgs = {
   accounts?: InputMaybe<Array<Scalars['Address']>>;
+  actionRequired?: InputMaybe<Scalars['Boolean']>;
   cursor?: InputMaybe<ProposalWhereUniqueInput>;
   distinct?: InputMaybe<Array<ProposalScalarFieldEnum>>;
   orderBy?: InputMaybe<Array<ProposalOrderByWithRelationInput>>;
   skip?: InputMaybe<Scalars['Int']>;
-  state?: InputMaybe<Array<ProposalState>>;
+  states?: InputMaybe<Array<ProposalState>>;
   take?: InputMaybe<Scalars['Int']>;
-  userHasApproved?: InputMaybe<Scalars['Boolean']>;
   where?: InputMaybe<ProposalWhereInput>;
 };
 
