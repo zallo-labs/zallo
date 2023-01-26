@@ -4,7 +4,6 @@ import { ListScreenSkeleton } from '~/components/skeleton/ListScreenSkeleton';
 import { withSkeleton } from '~/components/skeleton/withSkeleton';
 import { ActivityIcon } from '~/util/theme/icons';
 import { useMemo } from 'react';
-import { SectionList } from 'react-native';
 import { Appbar } from 'react-native-paper';
 import { AppbarMenu } from '~/components/Appbar/AppbarMenu';
 import { useAppbarHeader } from '~/components/Appbar/useAppbarHeader';
@@ -16,10 +15,12 @@ import {
 } from '~/queries/transfer/useTransfersMetadata.sub';
 import { IncomingTransferItem } from './IncomingTransferItem';
 import { useProposalsMetadata } from '~/queries/proposal/useProposalsMetadata.api';
-import { match } from 'ts-pattern';
-import { useNavigation } from '@react-navigation/native';
+import { match, P } from 'ts-pattern';
 import { ListHeader } from '~/components/list/ListHeader';
 import { makeStyles } from '@theme/makeStyles';
+import { FlashList } from '@shopify/flash-list';
+import { BottomNavigatorScreenProps } from '~/navigation/BottomNavigator';
+import { ListItemHeight } from '~/components/list/ListItem';
 
 type Item =
   | {
@@ -36,50 +37,32 @@ const proposalToActivity = (proposal: ProposalMetadata): Item => ({
   type: 'proposal',
 });
 
-export const ActivityScreen = withSkeleton(() => {
+export type ActivityScreenProps = BottomNavigatorScreenProps<'Activity'>;
+
+export const ActivityScreen = withSkeleton(({ navigation: { navigate } }: ActivityScreenProps) => {
   const styles = useStyles();
   const { AppbarHeader, handleScroll } = useAppbarHeader();
-  const { navigate } = useNavigation();
-  const proposalsRequiringAction = useProposalsMetadata({ actionRequired: true });
-  const proposalsAwaitingApproval = useProposalsMetadata({
-    states: 'Pending',
-    actionRequired: false,
-  });
-  const proposalsExecuting = useProposalsMetadata({ states: 'Executing' });
-  const proposalsExecuted = useProposalsMetadata({ states: 'Executed' });
+  const pRequiringAction = useProposalsMetadata({ actionRequired: true });
+  const pAwaitingApproval = useProposalsMetadata({ states: 'Pending', actionRequired: false });
+  const pExecuting = useProposalsMetadata({ states: 'Executing' });
+  const pExecuted = useProposalsMetadata({ states: 'Executed' });
   const incomingTransfers = useTransfersMetadata('IN');
 
-  const sections = useMemo(
-    () =>
-      [
-        {
-          title: 'Action required',
-          data: proposalsRequiringAction.map(proposalToActivity),
-        },
-        {
-          title: 'Awaiting approval',
-          data: proposalsAwaitingApproval.map(proposalToActivity),
-        },
-        {
-          title: 'Executing',
-          data: proposalsExecuting.map(proposalToActivity),
-        },
-        {
-          title: 'Executed',
-          data: [
-            ...proposalsExecuted.map(proposalToActivity),
-            ...incomingTransfers.map((activity): Item => ({ activity, type: 'transfer' })),
-          ].sort((a, b) => b.activity.timestamp.toMillis() - a.activity.timestamp.toMillis()),
-        },
-      ].filter((section) => section.data.length > 0),
-    [
-      proposalsRequiringAction,
-      proposalsAwaitingApproval,
-      proposalsExecuting,
-      proposalsExecuted,
-      incomingTransfers,
-    ],
-  );
+  const data = useMemo(() => {
+    const executed = [
+      ...pExecuted.map(proposalToActivity),
+      ...incomingTransfers.map((activity): Item => ({ activity, type: 'transfer' })),
+    ].sort((a, b) => b.activity.timestamp.toMillis() - a.activity.timestamp.toMillis());
+
+    return [
+      ['Action required', pRequiringAction.map(proposalToActivity)] as const,
+      ['Awaiting approval', pAwaitingApproval.map(proposalToActivity)] as const,
+      ['Executing', pExecuting.map(proposalToActivity)] as const,
+      ['Executed', executed] as const,
+    ]
+      .filter(([_, data]) => data.length)
+      .flatMap(([title, data]) => [title, ...data]);
+  }, [pRequiringAction, pAwaitingApproval, pExecuting, pExecuted, incomingTransfers]);
 
   return (
     <Box flex={1}>
@@ -88,11 +71,11 @@ export const ActivityScreen = withSkeleton(() => {
         <Appbar.Content title="Activity" />
       </AppbarHeader>
 
-      <SectionList
-        sections={sections}
-        renderSectionHeader={({ section }) => <ListHeader>{section.title}</ListHeader>}
+      <FlashList
+        data={data}
         renderItem={({ item }) =>
           match(item)
+            .with(P.string, (title) => <ListHeader>{title}</ListHeader>)
             .with({ type: 'proposal' }, ({ activity: proposal }) => (
               <ProposalItem
                 proposal={proposal}
@@ -113,6 +96,7 @@ export const ActivityScreen = withSkeleton(() => {
           />
         }
         contentContainerStyle={styles.listContainer}
+        estimatedItemSize={ListItemHeight.DOUBLE_LINE}
         onScroll={handleScroll}
         showsVerticalScrollIndicator={false}
       />

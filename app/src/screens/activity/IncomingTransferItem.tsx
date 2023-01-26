@@ -3,8 +3,8 @@ import { Id } from 'lib';
 import { useAddrName } from '~/components/addr/useAddrName';
 import { TRANSFER_LABEL } from '~/components/call/useProposalLabel';
 import { Timestamp } from '~/components/format/Timestamp';
-import { ItemSkeleton } from '~/components/item/ItemSkeleton';
 import { ListItem } from '~/components/list/ListItem';
+import { ListItemSkeleton } from '~/components/list/ListItemSkeleton';
 import { withSkeleton } from '~/components/skeleton/withSkeleton';
 import { useAccount } from '~/queries/account/useAccount.api';
 import { useAccountIds } from '~/queries/account/useAccounts.api';
@@ -30,4 +30,4 @@ export const IncomingTransferItem = withSkeleton(({ transfer: id }: IncomingTran
       trailing={({ Text }) => <ActivityTransfers transfers={[transfer]} text={Text} />}
     />
   );
-}, ItemSkeleton);
+}, ListItemSkeleton);
