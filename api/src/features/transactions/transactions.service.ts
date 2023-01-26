@@ -12,7 +12,7 @@ import {
   toTx,
   TokenLimit,
 } from 'lib';
-import { PrismaService } from 'nestjs-prisma';
+import { PrismaService } from '../util/prisma/prisma.service';
 import { ProviderService } from '~/features/util/provider/provider.service';
 import { ProposalEvent } from '../proposals/proposals.args';
 import { ProposalsService } from '../proposals/proposals.service';

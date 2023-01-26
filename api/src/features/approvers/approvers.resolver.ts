@@ -1,7 +1,7 @@
 import { Approver } from '@gen/approver/approver.model';
 import { ID, Parent, ResolveField, Resolver } from '@nestjs/graphql';
 import { Id, toId } from 'lib';
-import { PrismaService } from 'nestjs-prisma';
+import { PrismaService } from '../util/prisma/prisma.service';
 import { ProviderService } from '~/features/util/provider/provider.service';
 
 @Resolver(() => Approver)

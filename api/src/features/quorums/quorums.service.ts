@@ -1,7 +1,7 @@
 import { forwardRef, Inject, Injectable } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
 import { ACCOUNT_INTERFACE, Address, hashQuorum, mapAsync, Quorum, QuorumKey } from 'lib';
-import { PrismaService } from 'nestjs-prisma';
+import { PrismaService } from '../util/prisma/prisma.service';
 import { connectAccount, connectOrCreateUser, connectQuorum } from '~/util/connect-or-create';
 import { ProposalsService } from '../proposals/proposals.service';
 import { SpendingInput } from './quorums.args';

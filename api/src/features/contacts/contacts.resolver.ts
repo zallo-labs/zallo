@@ -1,5 +1,5 @@
 import { Args, Info, Mutation, Parent, Query, ResolveField, Resolver } from '@nestjs/graphql';
-import { PrismaService } from 'nestjs-prisma';
+import { PrismaService } from '../util/prisma/prisma.service';
 import { GraphQLResolveInfo } from 'graphql';
 import { getSelect } from '~/util/select';
 import { UserId } from '~/decorators/user.decorator';

@@ -1,5 +1,5 @@
 import { Args, Info, Mutation, Query, Resolver, Subscription } from '@nestjs/graphql';
-import { PrismaService } from 'nestjs-prisma';
+import { PrismaService } from '../util/prisma/prisma.service';
 import { GraphQLResolveInfo } from 'graphql';
 import { Account } from '@gen/account/account.model';
 import {

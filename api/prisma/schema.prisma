@@ -4,7 +4,8 @@ datasource db {
 }
 
 generator client {
-  provider = "prisma-client-js"
+  provider        = "prisma-client-js"
+  previewFeatures = ["clientExtensions"]
 }
 
 generator nestgraphql {
@@ -55,16 +56,16 @@ model Quorum {
 }
 
 model QuorumState {
-  id                      Int              @id @default(autoincrement())
-  account                 Account          @relation(fields: [accountId], references: [id], onDelete: Cascade)
-  accountId               String           @db.Char(42) // address
-  quorum                  Quorum           @relation(fields: [accountId, quorumKey], references: [accountId, key], onDelete: Cascade)
-  quorumKey               Int
-  proposal                Proposal?        @relation(fields: [proposalId], references: [id], onDelete: Cascade)
-  proposalId              String?          @db.Char(66) // bytes32
-  createdAt               DateTime         @default(now())
-  isRemoved               Boolean          @default(false)
-  spendingFallback        SpendingFallback @default(allow)
+  id               Int              @id @default(autoincrement())
+  account          Account          @relation(fields: [accountId], references: [id], onDelete: Cascade)
+  accountId        String           @db.Char(42) // address
+  quorum           Quorum           @relation(fields: [accountId, quorumKey], references: [accountId, key], onDelete: Cascade)
+  quorumKey        Int
+  proposal         Proposal?        @relation(fields: [proposalId], references: [id], onDelete: Cascade)
+  proposalId       String?          @db.Char(66) // bytes32
+  createdAt        DateTime         @default(now())
+  isRemoved        Boolean          @default(false)
+  spendingFallback SpendingFallback @default(allow)
 
   approvers           Approver[]
   limits              TokenLimit[]

@@ -3,7 +3,7 @@ import { Prisma } from '@prisma/client';
 import { UserInputError } from 'apollo-server-core';
 import { hexlify } from 'ethers/lib/utils';
 import { Address, toTx, hashTx, randomTxSalt, validateSignature, TxOptions } from 'lib';
-import { PrismaService } from 'nestjs-prisma';
+import { PrismaService } from '../util/prisma/prisma.service';
 import { ProviderService } from '~/features/util/provider/provider.service';
 import { PubsubService } from '~/features/util/pubsub/pubsub.service';
 import { connectAccount, connectOrCreateUser } from '~/util/connect-or-create';

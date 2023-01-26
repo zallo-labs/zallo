@@ -3,7 +3,7 @@ import { ethers, Wallet } from 'ethers';
 import { Request } from 'express';
 import { Address, address } from 'lib';
 import { DateTime } from 'luxon';
-import { PrismaService } from 'nestjs-prisma';
+import { PrismaService } from '../util/prisma/prisma.service';
 import { SiweMessage } from 'siwe';
 import { CONFIG } from '~/config';
 import { ProviderService } from '~/features/util/provider/provider.service';

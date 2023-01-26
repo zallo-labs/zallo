@@ -3,7 +3,7 @@ import { Quorum } from '@gen/quorum/quorum.model';
 import { Args, ID, Info, Mutation, Parent, Query, ResolveField, Resolver } from '@nestjs/graphql';
 import { GraphQLResolveInfo } from 'graphql';
 import { ACCOUNT_INTERFACE, Address, toQuorumKey } from 'lib';
-import { PrismaService } from 'nestjs-prisma';
+import { PrismaService } from '../util/prisma/prisma.service';
 import { UserId } from '~/decorators/user.decorator';
 import { connectAccount, connectQuorum } from '~/util/connect-or-create';
 import { getSelect } from '~/util/select';

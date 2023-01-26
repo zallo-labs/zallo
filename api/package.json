@@ -61,7 +61,6 @@
     "ioredis": "^5.2.5",
     "lib": "workspace:*",
     "luxon": "^3.2.1",
-    "nestjs-prisma": "^0.20.0",
     "prisma": "^4.9.0",
     "prisma-graphql-type-decimal": "^2.0.6",
     "prisma-nestjs-graphql": "^17.1.0",

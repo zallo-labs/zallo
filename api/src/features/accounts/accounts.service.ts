@@ -10,7 +10,7 @@ import {
   toDeploySalt,
   toQuorumKey,
 } from 'lib';
-import { PrismaService } from 'nestjs-prisma';
+import { PrismaService } from '../util/prisma/prisma.service';
 import { ProviderService } from '~/features/util/provider/provider.service';
 import { BigNumber } from 'ethers';
 import { PubsubService } from '../util/pubsub/pubsub.service';

@@ -182,25 +182,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@angular-devkit/core@npm:13.3.9, @angular-devkit/core@npm:^13.3.0":
-  version: 13.3.9
-  resolution: "@angular-devkit/core@npm:13.3.9"
-  dependencies:
-    ajv: 8.9.0
-    ajv-formats: 2.1.1
-    fast-json-stable-stringify: 2.1.0
-    magic-string: 0.25.7
-    rxjs: 6.6.7
-    source-map: 0.7.3
-  peerDependencies:
-    chokidar: ^3.5.2
-  peerDependenciesMeta:
-    chokidar:
-      optional: true
-  checksum: 0e9e208e043ec635474bab94312f464686e46fe94dc44ce6a88adaa32c0b523da29f7726aa968e772c5f68e33ec8660df1c65487181b7de6934f47d1ae838dd4
-  languageName: node
-  linkType: hard
-
 "@angular-devkit/core@npm:14.2.1":
   version: 14.2.1
   resolution: "@angular-devkit/core@npm:14.2.1"
@@ -250,19 +231,6 @@ __metadata:
   bin:
     schematics: bin/schematics.js
   checksum: f4e956795454d0ec54375a4d7b24b95d68f73cbb2be64883efb239e03d282276d9e8b9121d54c1f3fe559372d1d8405b07fdc62a9f7e593126396edbcc2a23aa
-  languageName: node
-  linkType: hard
-
-"@angular-devkit/schematics@npm:13.3.9, @angular-devkit/schematics@npm:^13.3.0":
-  version: 13.3.9
-  resolution: "@angular-devkit/schematics@npm:13.3.9"
-  dependencies:
-    "@angular-devkit/core": 13.3.9
-    jsonc-parser: 3.0.0
-    magic-string: 0.25.7
-    ora: 5.4.1
-    rxjs: 6.6.7
-  checksum: 838c792b878a8436b9a672eeca0e8e68bc5856eb743f2a3b2a9adfe224b299f2abeda1b3794ac5f0a60b0a499de71c93d162970b607b305e900f81762e1025a4
   languageName: node
   linkType: hard
 
@@ -9597,17 +9565,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@schematics/angular@npm:~13.3.0":
-  version: 13.3.9
-  resolution: "@schematics/angular@npm:13.3.9"
-  dependencies:
-    "@angular-devkit/core": 13.3.9
-    "@angular-devkit/schematics": 13.3.9
-    jsonc-parser: 3.0.0
-  checksum: f11eac9c3d82d98b53de0d0e66dc7ba557b8d5c8419f3e8ef756c88d45bb5afbf7ee4f61d699801a968787f16ce3a415c192c95e8e25458f0db6d63859cc9d1d
-  languageName: node
-  linkType: hard
-
 "@scure/base@npm:~1.1.0":
   version: 1.1.1
   resolution: "@scure/base@npm:1.1.1"
@@ -13316,18 +13273,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"ajv@npm:8.9.0":
-  version: 8.9.0
-  resolution: "ajv@npm:8.9.0"
-  dependencies:
-    fast-deep-equal: ^3.1.1
-    json-schema-traverse: ^1.0.0
-    require-from-string: ^2.0.2
-    uri-js: ^4.2.2
-  checksum: 756c048bfa917b43bb84c8a0a53e6a489123203bc4bdec8cbeb8ec2d715674f5e61d49560a1a6ec83268af4f33bed324f5cb6d9c76d96849fd58ed7089b8e7f3
-  languageName: node
-  linkType: hard
-
 "ajv@npm:^6.1.0, ajv@npm:^6.10.0, ajv@npm:^6.10.2, ajv@npm:^6.12.2, ajv@npm:^6.12.3, ajv@npm:^6.12.4, ajv@npm:^6.12.5, ajv@npm:^6.6.1, ajv@npm:^6.9.1":
   version: 6.12.6
   resolution: "ajv@npm:6.12.6"
@@ -13689,7 +13634,6 @@ __metadata:
     jest: ^29.3.1
     lib: "workspace:*"
     luxon: ^3.2.1
-    nestjs-prisma: ^0.20.0
     prisma: ^4.9.0
     prisma-graphql-type-decimal: ^2.0.6
     prisma-nestjs-graphql: ^17.1.0
@@ -21931,7 +21875,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"fast-json-stable-stringify@npm:2.1.0, fast-json-stable-stringify@npm:2.x, fast-json-stable-stringify@npm:^2.0.0, fast-json-stable-stringify@npm:^2.1.0":
+"fast-json-stable-stringify@npm:2.x, fast-json-stable-stringify@npm:^2.0.0, fast-json-stable-stringify@npm:^2.1.0":
   version: 2.1.0
   resolution: "fast-json-stable-stringify@npm:2.1.0"
   checksum: b191531e36c607977e5b1c47811158733c34ccb3bfde92c44798929e9b4154884378536d26ad90dfecd32e1ffc09c545d23535ad91b3161a27ddbb8ebe0cbecb
@@ -28056,13 +28000,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"jsonc-parser@npm:3.0.0":
-  version: 3.0.0
-  resolution: "jsonc-parser@npm:3.0.0"
-  checksum: 1df2326f1f9688de30c70ff19c5b2a83ba3b89a1036160da79821d1361090775e9db502dc57a67c11b56e1186fc1ed70b887f25c5febf9a3ec4f91435836c99d
-  languageName: node
-  linkType: hard
-
 "jsonc-parser@npm:3.1.0":
   version: 3.1.0
   resolution: "jsonc-parser@npm:3.1.0"
@@ -29209,15 +29146,6 @@ __metadata:
   dependencies:
     multiaddr: ^7.3.0
   checksum: 5d891f2007e99e6bee0b741b07f65ab81c4bce4a0baab08d97f2b34a72a0b7647e3b6a36a3377162adf56faed18be9a62bc772ef64a4f15e65ea4d034be705f0
-  languageName: node
-  linkType: hard
-
-"magic-string@npm:0.25.7":
-  version: 0.25.7
-  resolution: "magic-string@npm:0.25.7"
-  dependencies:
-    sourcemap-codec: ^1.4.4
-  checksum: 727a1fb70f9610304fe384f1df0251eb7d1d9dd779c07ef1225690361b71b216f26f5d934bfb11c919b5b0e7ba50f6240c823a6f2e44cfd33d4a07d7747ca829
   languageName: node
   linkType: hard
 
@@ -30953,21 +30881,6 @@ __metadata:
   version: 2.0.1
   resolution: "nested-error-stacks@npm:2.0.1"
   checksum: 8430d7d80ad69b1add2992ee2992a363db6c1a26a54740963bc99a004c5acb1d2a67049397062eab2caa3a312b4da89a0b85de3bdf82d7d472a6baa166311fe6
-  languageName: node
-  linkType: hard
-
-"nestjs-prisma@npm:^0.20.0":
-  version: 0.20.0
-  resolution: "nestjs-prisma@npm:0.20.0"
-  dependencies:
-    "@angular-devkit/core": ^13.3.0
-    "@angular-devkit/schematics": ^13.3.0
-    "@schematics/angular": ~13.3.0
-  peerDependencies:
-    "@nestjs/common": ^7.0.0 || ^8.0.0 || ^9.0.0
-    "@prisma/client": ^2.0.0 || ^3.0.0 || ^4.0.0
-    prisma: ^2.0.0 || ^3.0.0 || ^4.0.0
-  checksum: dcf84f8d8391d9d26bc8e7148a886cb638340e87218d43d2ae99b0fa0f081068120dfbcc761d74bf069d8e453ac53825c6ab72669e4a42bc7487406edf5a51cb
   languageName: node
   linkType: hard
 
@@ -37593,13 +37506,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"source-map@npm:0.7.3":
-  version: 0.7.3
-  resolution: "source-map@npm:0.7.3"
-  checksum: cd24efb3b8fa69b64bf28e3c1b1a500de77e84260c5b7f2b873f88284df17974157cc88d386ee9b6d081f08fdd8242f3fc05c953685a6ad81aad94c7393dedea
-  languageName: node
-  linkType: hard
-
 "source-map@npm:0.7.4, source-map@npm:^0.7.3":
   version: 0.7.4
   resolution: "source-map@npm:0.7.4"
@@ -37630,7 +37536,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"sourcemap-codec@npm:^1.4.4, sourcemap-codec@npm:^1.4.8":
+"sourcemap-codec@npm:^1.4.8":
   version: 1.4.8
   resolution: "sourcemap-codec@npm:1.4.8"
   checksum: b57981c05611afef31605732b598ccf65124a9fcb03b833532659ac4d29ac0f7bfacbc0d6c5a28a03e84c7510e7e556d758d0bb57786e214660016fb94279316

@@ -10,7 +10,7 @@ import {
 } from '@nestjs/graphql';
 import { GraphQLResolveInfo } from 'graphql';
 import { address, Address, isPresent, isTruthy, randomTxSalt, toQuorumKey } from 'lib';
-import { PrismaService } from 'nestjs-prisma';
+import { PrismaService } from '../util/prisma/prisma.service';
 import { UserCtx, UserId } from '~/decorators/user.decorator';
 import { connectOrCreateUser, connectQuorum } from '~/util/connect-or-create';
 import { getSelect } from '~/util/select';
