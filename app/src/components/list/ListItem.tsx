@@ -134,6 +134,12 @@ interface StyleProps {
   disabled?: boolean;
 }
 
+export enum ListItemHeight {
+  SINGLE_LINE = 56,
+  DOUBLE_LINE = 72,
+  TRIPLE_LINE = 88,
+}
+
 const useStyles = makeStyles(({ colors, s, corner }, { lines, selected, disabled }: StyleProps) => {
   const justifyContent = lines === 3 ? 'flex-start' : 'center';
 
@@ -141,7 +147,11 @@ const useStyles = makeStyles(({ colors, s, corner }, { lines, selected, disabled
     container: {
       flexDirection: 'row',
       // backgroundColor: !disabled ? undefined : colors.surfaceDisabled,
-      height: [s(56), s(72), s(88)][lines - 1],
+      height: [
+        s(ListItemHeight.SINGLE_LINE),
+        s(ListItemHeight.DOUBLE_LINE),
+        s(ListItemHeight.TRIPLE_LINE),
+      ][lines - 1],
       paddingLeft: s(16),
       paddingRight: s(24),
       paddingVertical: lines === 3 ? s(12) : s(8),

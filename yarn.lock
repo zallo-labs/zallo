@@ -14229,6 +14229,7 @@ __metadata:
     react-native-collapsible: ^1.6.0
     react-native-crypto: ^2.2.0
     react-native-dashed-line: ^1.1.0
+    react-native-fast-image: ^8.6.3
     react-native-flipper: ^0.177.0
     react-native-gesture-handler: ~2.9.0
     react-native-get-random-values: ~1.8.0
@@ -34816,6 +34817,16 @@ __metadata:
   version: 1.1.0
   resolution: "react-native-dashed-line@npm:1.1.0"
   checksum: 8be97e53929b9ec16c98037e8c59429e7784d1d93c60750e3a572185518fd4ff8b8cbe947707d991b6c0ea040ce71630517a2737b09b1b11f4814fbadb5d2c81
+  languageName: node
+  linkType: hard
+
+"react-native-fast-image@npm:^8.6.3":
+  version: 8.6.3
+  resolution: "react-native-fast-image@npm:8.6.3"
+  peerDependencies:
+    react: ^17 || ^18
+    react-native: ">=0.60.0"
+  checksum: 29289cb6b2eae0983c8922b22e2d9de3be07322bb7991c5def19f95eadefaedb0e308ff0b38cc1d0444e8bd4fe94a7621a99a2d3d9298100bcb60b3144677234
   languageName: node
   linkType: hard
 

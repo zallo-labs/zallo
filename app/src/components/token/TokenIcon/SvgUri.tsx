@@ -16,17 +16,17 @@ const URI_XML = atomFamily<string | null, string>({
 });
 
 export interface SvgUriProps extends SvgProps {
-  uri: string;
+  source: string;
   onError?: () => void;
 }
 
-export const SvgUri = ({ uri, onError, ...svgProps }: SvgUriProps) => {
-  const xml = useRecoilValue(URI_XML(uri));
+export const SvgUri = ({ source, onError, ...svgProps }: SvgUriProps) => {
+  const xml = useRecoilValue(URI_XML(source));
 
   if (!xml) {
     onError?.();
     return null;
   }
 
-  return <SvgXml xml={xml} override={svgProps} />;
+  return <SvgXml xml={xml} override={svgProps} onError={onError} />;
 };

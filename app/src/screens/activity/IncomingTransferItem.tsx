@@ -1,13 +1,13 @@
 import { assert } from 'console';
 import { Id } from 'lib';
-import { Text } from 'react-native-paper';
-import { Addr } from '~/components/addr/Addr';
+import { useAddrName } from '~/components/addr/useAddrName';
 import { TRANSFER_LABEL } from '~/components/call/useProposalLabel';
 import { Timestamp } from '~/components/format/Timestamp';
-import { ItemSkeleton } from '~/components/item/ItemSkeleton';
-import { Box } from '~/components/layout/Box';
+import { ListItem } from '~/components/list/ListItem';
+import { ListItemSkeleton } from '~/components/list/ListItemSkeleton';
 import { withSkeleton } from '~/components/skeleton/withSkeleton';
-import TokenIcon from '~/components/token/TokenIcon/TokenIcon';
+import { useAccount } from '~/queries/account/useAccount.api';
+import { useAccountIds } from '~/queries/account/useAccounts.api';
 import { useTransfer } from '~/queries/transfer/useTransfer.sub';
 import { ActivityTransfers } from './ActivityTransfers';
 
@@ -16,26 +16,18 @@ export interface IncomingTransferItemProps {
 }
 
 export const IncomingTransferItem = withSkeleton(({ transfer: id }: IncomingTransferItemProps) => {
-  const [transfer] = useTransfer(id);
+  const transfer = useTransfer(id);
   assert(transfer.direction === 'IN');
+  const account = useAccount(transfer.to);
+  const accounts = useAccountIds();
 
   return (
-    <Box>
-      <Box horizontal>
-        <TokenIcon token={transfer.token} />
-
-        <Box flex={1}>
-          <Text variant="titleMedium">
-            {`${TRANSFER_LABEL} from `} <Addr addr={transfer.from} />
-          </Text>
-
-          <Text variant="bodyMedium">
-            <Timestamp timestamp={transfer.timestamp} weekday />
-          </Text>
-        </Box>
-      </Box>
-
-      {/* <ActivityTransfers transfers={[transfer]} /> */}
-    </Box>
+    <ListItem
+      leading={transfer.token.addr}
+      overline={accounts.length > 1 ? account.name : undefined}
+      headline={`${TRANSFER_LABEL} from ${useAddrName(transfer.from)}`}
+      supporting={<Timestamp timestamp={transfer.timestamp} weekday />}
+      trailing={({ Text }) => <ActivityTransfers transfers={[transfer]} text={Text} />}
+    />
   );
-}, ItemSkeleton);
+}, <ListItemSkeleton leading supporting />);

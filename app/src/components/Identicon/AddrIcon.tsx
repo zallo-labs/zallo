@@ -1,9 +1,10 @@
 import { useTheme } from '@theme/paper';
 import { useMaybeToken } from '@token/useToken';
 import { Address } from 'lib';
-import { ImageStyle, LogBox, Platform, StyleProp, TextStyle } from 'react-native';
+import { LogBox, Platform, StyleProp, TextStyle } from 'react-native';
 import Jazzicon from 'react-native-jazzicon';
 import { useAddrName } from '../addr/useAddrName';
+import { ImageStyle } from '../Image';
 import TokenIcon from '../token/TokenIcon/TokenIcon';
 import { LabelIcon } from './LabelIcon';
 
