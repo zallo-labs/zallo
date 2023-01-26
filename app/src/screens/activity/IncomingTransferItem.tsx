@@ -30,4 +30,4 @@ export const IncomingTransferItem = withSkeleton(({ transfer: id }: IncomingTran
       trailing={({ Text }) => <ActivityTransfers transfers={[transfer]} text={Text} />}
     />
   );
-}, ListItemSkeleton);
+}, <ListItemSkeleton leading supporting />);
