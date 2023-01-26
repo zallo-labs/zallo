@@ -14182,7 +14182,7 @@ __metadata:
     crypto-hash: ^2.0.1
     dotenv-cli: ^7.0.0
     dotenv-vault-core: ^0.6.1
-    eas-cli: ^3.3.2
+    eas-cli: ^3.4.1
     eslint-plugin-formatjs: ^4.3.9
     eth-url-parser: ^1.0.4
     ethers: ^5.7.2
@@ -14193,7 +14193,7 @@ __metadata:
     expo-brightness: ~11.0.1
     expo-camera: ~13.1.0
     expo-clipboard: ~4.0.2
-    expo-community-flipper: ^47.0.0
+    expo-community-flipper: ^47.0.2
     expo-constants: ~14.0.2
     expo-dev-client: ~2.0.1
     expo-device: ~5.0.0
@@ -14230,7 +14230,6 @@ __metadata:
     react-native-crypto: ^2.2.0
     react-native-dashed-line: ^1.1.0
     react-native-fast-image: ^8.6.3
-    react-native-flipper: ^0.177.0
     react-native-gesture-handler: ~2.9.0
     react-native-get-random-values: ~1.8.0
     react-native-jazzicon: "patch:react-native-jazzicon@npm:^0.1.2#../.yarn/patches/react-native-jazzicon-npm-0.1.2-c1633b051f.patch"
@@ -19646,9 +19645,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"eas-cli@npm:^3.3.2":
-  version: 3.3.2
-  resolution: "eas-cli@npm:3.3.2"
+"eas-cli@npm:^3.4.1":
+  version: 3.4.1
+  resolution: "eas-cli@npm:3.4.1"
   dependencies:
     "@expo/apple-utils": 0.0.0-alpha.34
     "@expo/code-signing-certificates": 0.0.5
@@ -19725,7 +19724,7 @@ __metadata:
     wrap-ansi: 7.0.0
   bin:
     eas: bin/run
-  checksum: 6391619f52468c41a787032c6f80c46ad0b1b6c5e850336f2a1e9c5455e66772b14e2391503b79bebde732a977cf1dec4f8ad32cfad83b70db1c95d05bb465a7
+  checksum: 9fcc26cf93c7adf6e8a3dca0c98a95a8d673a4516bd749621c9272bc176eaa36be352c6f1a9b5fa09c4961eecb5450c15f312e912c5f855698d3497260d40a15
   languageName: node
   linkType: hard
 
@@ -21294,15 +21293,15 @@ __metadata:
   languageName: node
   linkType: hard
 
-"expo-community-flipper@npm:^47.0.0":
-  version: 47.0.0
-  resolution: "expo-community-flipper@npm:47.0.0"
+"expo-community-flipper@npm:^47.0.2":
+  version: 47.0.2
+  resolution: "expo-community-flipper@npm:47.0.2"
   dependencies:
     semver: ^7.3.8
     ts-dedent: ^2.2.0
   peerDependencies:
     expo: ">=47.0.0-beta.0 <48"
-  checksum: de892c520bc45eeb1ec19764e5ee51fe533a35107d13b37ed9c0aa72a05733feced4b7ee52479d7b38d73a6015c14246fd28f2512875b2ac22fb18f9e66f4bc3
+  checksum: 1bdbe07d3d8b928097a8d26a34eb5d9b0a5c72476d58a59b832fafb90960e043d94af6899995efdeec09bc2506b84332ddfb1ea28287438ff30db7f52cfe7401
   languageName: node
   linkType: hard
 
@@ -34827,16 +34826,6 @@ __metadata:
     react: ^17 || ^18
     react-native: ">=0.60.0"
   checksum: 29289cb6b2eae0983c8922b22e2d9de3be07322bb7991c5def19f95eadefaedb0e308ff0b38cc1d0444e8bd4fe94a7621a99a2d3d9298100bcb60b3144677234
-  languageName: node
-  linkType: hard
-
-"react-native-flipper@npm:^0.177.0":
-  version: 0.177.0
-  resolution: "react-native-flipper@npm:0.177.0"
-  peerDependencies:
-    react: ^16.8.0 || ^17.0.0 || ^18.0.0
-    react-native: ">0.62.0"
-  checksum: 581f5d2c9a06b3df4a2e51a7838882c4255c37eb46e9b08b0e553d325ef1ec6febcfd4494a41d9393874e6133c74f9fba4d25c15ce14b9cc8e636fe997637061
   languageName: node
   linkType: hard
 

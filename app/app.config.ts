@@ -36,7 +36,16 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
   },
   plugins: [
     'sentry-expo',
-    'expo-community-flipper',
+    [
+      'expo-community-flipper',
+      {
+        // https://github.com/jakobo/expo-community-flipper#configuration
+        ios: {
+          enabled: false, // Disable on ios due to issue https://github.com/jakobo/expo-community-flipper/issues/27
+          // stripUseFrameworks: true,  // Alternative to disabling on ios, but enabling may break other packages
+        },
+      },
+    ],
     'expo-notifications', // https://docs.expo.dev/versions/latest/sdk/notifications/#configuration-in-appjson--appconfigjs
   ],
   hooks: {
