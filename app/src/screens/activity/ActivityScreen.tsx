@@ -19,8 +19,8 @@ import { match, P } from 'ts-pattern';
 import { ListHeader } from '~/components/list/ListHeader';
 import { makeStyles } from '@theme/makeStyles';
 import { FlashList } from '@shopify/flash-list';
-import { BottomNavigatorScreenProps } from '~/navigation/BottomNavigator';
 import { ListItemHeight } from '~/components/list/ListItem';
+import { useNavigation } from '@react-navigation/native';
 
 type Item =
   | {
@@ -37,11 +37,10 @@ const proposalToActivity = (proposal: ProposalMetadata): Item => ({
   type: 'proposal',
 });
 
-export type ActivityScreenProps = BottomNavigatorScreenProps<'Activity'>;
-
-export const ActivityScreen = withSkeleton(({ navigation: { navigate } }: ActivityScreenProps) => {
+export const ActivityScreen = withSkeleton(() => {
   const styles = useStyles();
   const { AppbarHeader, handleScroll } = useAppbarHeader();
+  const { navigate } = useNavigation();
   const pRequiringAction = useProposalsMetadata({ actionRequired: true });
   const pAwaitingApproval = useProposalsMetadata({ states: 'Pending', actionRequired: false });
   const pExecuting = useProposalsMetadata({ states: 'Executing' });
