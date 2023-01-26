@@ -1,6 +1,6 @@
 import { Text } from 'react-native-paper';
 import * as WebBrowser from 'expo-web-browser';
-import UriImage from '~/components/UriImage';
+import { Image } from '~/components/Image';
 import { WcProposer } from '~/util/walletconnect/useWalletConnectSessions';
 import { Box } from '~/components/layout/Box';
 import { LabelIcon } from '~/components/Identicon/LabelIcon';
@@ -24,7 +24,7 @@ export const ProposerDetails = ({ proposer: p, style }: ProposerDetailsProps) =>
     <TouchableOpacity onPress={p.url ? () => WebBrowser.openBrowserAsync(p.url) : undefined}>
       <Container vertical alignItems="center" separator={<Box mt={2} />} style={style}>
         {p.icons.length ? (
-          <UriImage uri={p.icons} size={iconSize.large} />
+          <Image source={p.icons} size={iconSize.large} />
         ) : (
           <LabelIcon label={name} size={iconSize.large} />
         )}
