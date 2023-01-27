@@ -78,10 +78,12 @@ export class AccountsService {
           impl: address(impl),
           quorums: quorumStates.map((q) => ({
             key: toQuorumKey(q.quorumKey),
+            // @ts-expect-error https://github.com/prisma/prisma/issues/17349
             approvers: new Set(q.approvers.map((a) => address(a.userId))),
             spending: {
               fallback: q.spendingFallback,
               limits: Object.fromEntries(
+                // @ts-expect-error https://github.com/prisma/prisma/issues/17349
                 q.limits.map((l): [Address, TokenLimit] => [
                   address(l.token),
                   {
