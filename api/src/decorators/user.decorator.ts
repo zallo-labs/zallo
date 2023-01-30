@@ -4,9 +4,9 @@ import { Context } from '~/request/ctx';
 
 const getUserCtx = (context: ExecutionContext) => {
   const ctx = GqlExecutionContext.create(context).getContext<Context>();
-  if (!ctx.user) throw new Error('User not authenticated');
+  if (!ctx.req.user) throw new Error('User not authenticated');
 
-  return ctx.user;
+  return ctx.req.user;
 };
 
 export const UserCtx = createParamDecorator((_data, context: ExecutionContext) =>

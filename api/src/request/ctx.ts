@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
 import { Context as BaseWsContext } from 'graphql-ws';
 import { Address } from 'lib';
+import { RequestContext } from 'nestjs-request-context';
 
 export interface IncomingHttpContext {
   req: Request;
@@ -23,5 +24,6 @@ export interface UserContext {
 
 export interface Context {
   req: Request;
-  user?: UserContext;
 }
+
+export const getRequestContext = (): Request => RequestContext.currentContext?.req;

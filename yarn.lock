@@ -13634,6 +13634,7 @@ __metadata:
     jest: ^29.3.1
     lib: "workspace:*"
     luxon: ^3.2.1
+    nestjs-request-context: ^2.1.0
     prisma: ^4.9.0
     prisma-graphql-type-decimal: ^2.0.6
     prisma-nestjs-graphql: ^17.1.0
@@ -30881,6 +30882,15 @@ __metadata:
   version: 2.0.1
   resolution: "nested-error-stacks@npm:2.0.1"
   checksum: 8430d7d80ad69b1add2992ee2992a363db6c1a26a54740963bc99a004c5acb1d2a67049397062eab2caa3a312b4da89a0b85de3bdf82d7d472a6baa166311fe6
+  languageName: node
+  linkType: hard
+
+"nestjs-request-context@npm:^2.1.0":
+  version: 2.1.0
+  resolution: "nestjs-request-context@npm:2.1.0"
+  peerDependencies:
+    "@nestjs/common": ^9.0.5
+  checksum: cc7554bcf198b5e4a2d7b55a45abd3ea198fe4627e237f24e9f3f07d8b311985558a5f10e5ad1d090207bde68837224e6b91ce33f60f72028091d9fd46d1b79b
   languageName: node
   linkType: hard
 

@@ -126,7 +126,7 @@ export class TransactionsService {
       (job) => job.data,
     );
 
-    const missingResponses = await this.prisma.transaction.findMany({
+    const missingResponses = await this.prisma.asSuperuser.transaction.findMany({
       where: {
         response: null,
         hash: { notIn: jobs.map((job) => job.transactionHash) },
