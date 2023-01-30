@@ -153,7 +153,7 @@ model Approval {
   user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId     String   @db.Char(42) // address
 
-  signature String? // bytes; rejected if undefined
+  signature String? // bytes; rejected if null
   createdAt DateTime @default(now())
 
   @@id([proposalId, userId])
