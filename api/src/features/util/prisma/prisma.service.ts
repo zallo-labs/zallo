@@ -1,4 +1,10 @@
-import { INestApplication, INestMicroservice, Injectable, OnModuleInit } from '@nestjs/common';
+import {
+  INestApplication,
+  INestMicroservice,
+  Injectable,
+  OnModuleInit,
+  Optional,
+} from '@nestjs/common';
 import { PrismaClient } from '@prisma/client';
 import { getRequestContext, UserContext } from '~/request/ctx';
 import { loggingMiddleware } from './prisma.logging';
@@ -61,10 +67,10 @@ export class PrismaService extends UserPrismaClient implements OnModuleInit {
   private baseClient: PrismaClient;
   private superuserClient: ReturnType<typeof getSuperuserClient>;
 
-  constructor() {
-    super();
+  constructor(@Optional() ...params: ConstructorParameters<typeof PrismaClient>) {
+    super(...params);
     PrismaService.configure(this);
-    this.baseClient = PrismaService.configure(new PrismaClient());
+    this.baseClient = PrismaService.configure(new PrismaClient(...params));
     this.superuserClient = getSuperuserClient(this.baseClient);
   }
 

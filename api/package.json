@@ -13,7 +13,7 @@
     "start": "nest start --debug --watch",
     "start:prod": "node dist/src/main.js",
     "start:services": "docker compose -f ./services.yml up",
-    "test": "RELEASE_ENV=test jest",
+    "test": "yarn with-env -- jest",
     "test:watch": "yarn test --watch",
     "test:cov": "yarn test --coverage",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register ../node_modules/.bin/jest --runInBand",

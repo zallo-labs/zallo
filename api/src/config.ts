@@ -1,7 +1,7 @@
 import { getChain, makeRequiredEnv, optionalEnv as optional } from 'lib';
 require('dotenv-vault-core').config({ path: '../.env' });
 
-const required = makeRequiredEnv(process.env.RELEASE_ENV === 'test');
+const required = makeRequiredEnv(!!process.env.JEST_WORKER_ID);
 
 const chain = getChain(optional`CHAIN`);
 
@@ -9,6 +9,7 @@ export const CONFIG = {
   env: optional`RELEASE_ENV` === 'development' ? 'development' : 'production',
   apiPort: optional`API_PORT` || 3000,
   expoToken: required`EXPO_TOKEN`,
+  databaseUrl: required`DATABASE_URL`,
   redisUrl: required`REDIS_URL`,
   sessionSecret: required`SESSION_SECRET`,
   graphRef: optional`APOLLO_GRAPH_REF`,
