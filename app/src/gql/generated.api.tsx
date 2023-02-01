@@ -145,7 +145,6 @@ export type ApprovalWhereInput = {
 export type Approver = {
   __typename?: 'Approver';
   id: Scalars['ID'];
-  name: Scalars['String'];
   quorumState: QuorumState;
   quorumStateId: Scalars['Int'];
   user: User;
@@ -439,6 +438,7 @@ export type MutationProposeArgs = {
   gasLimit?: InputMaybe<Scalars['Uint256']>;
   quorumKey?: InputMaybe<Scalars['QuorumKey']>;
   salt?: InputMaybe<Scalars['Bytes8']>;
+  signature?: InputMaybe<Scalars['Bytes']>;
   to: Scalars['Address'];
   value?: InputMaybe<Scalars['Uint256']>;
 };

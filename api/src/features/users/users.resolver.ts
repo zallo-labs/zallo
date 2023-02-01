@@ -6,10 +6,11 @@ import { UpdateUserArgs, UserArgs } from './users.args';
 import { UserId } from '~/decorators/user.decorator';
 import { User } from '@gen/user/user.model';
 import { Address } from 'lib';
+import { ProviderService } from '../util/provider/provider.service';
 
 @Resolver(() => User)
 export class UsersResolver {
-  constructor(private prisma: PrismaService) {}
+  constructor(private prisma: PrismaService, private provider: ProviderService) {}
 
   @Query(() => User, { nullable: true })
   async user(
@@ -37,7 +38,12 @@ export class UsersResolver {
       select: { name: true },
     });
 
-    return (await contact)?.name || (await account)?.name || user.name || null;
+    return (
+      (await contact)?.name ||
+      (await account)?.name ||
+      user.name ||
+      (await this.provider.lookupAddress(user.id))
+    );
   }
 
   @Mutation(() => User)
