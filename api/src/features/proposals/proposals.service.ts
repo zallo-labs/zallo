@@ -2,7 +2,7 @@ import { forwardRef, Inject, Injectable } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
 import { UserInputError } from 'apollo-server-core';
 import { hexlify } from 'ethers/lib/utils';
-import { Address, toTx, hashTx, randomTxSalt, validateSignature, TxOptions } from 'lib';
+import { Address, toTx, hashTx, randomTxSalt, isValidSignature, TxOptions } from 'lib';
 import { PrismaService } from '../util/prisma/prisma.service';
 import { ProviderService } from '~/features/util/provider/provider.service';
 import { PubsubService } from '~/features/util/pubsub/pubsub.service';
@@ -61,7 +61,7 @@ export class ProposalsService {
   }
 
   async approve({ id, signature, user, ...args }: ApproveParams) {
-    await this.validateSignatureOrThrow(user, id, signature);
+    if (!isValidSignature(user, id, signature)) throw new UserInputError('Invalid signature');
 
     await this.prisma.proposal.update({
       where: { id },
@@ -97,10 +97,5 @@ export class ProposalsService {
       `${ACCOUNT_PROPOSAL_SUB_TRIGGER}.${payload[PROPOSAL_SUBSCRIPTION].accountId}`,
       payload,
     );
-  }
-
-  async validateSignatureOrThrow(user: Address, proposalHash: string, signature: string) {
-    const isValid = validateSignature(user, proposalHash, signature);
-    if (!isValid) throw new UserInputError('Invalid signature');
   }
 }

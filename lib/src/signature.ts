@@ -33,7 +33,7 @@ export const signProposal = (id: string, device: UserWallet) =>
 export const signTx = async (wallet: UserWallet, account: Address, tx: Tx) =>
   signProposal(await hashTx(tx, { address: account, provider: wallet.provider }), wallet);
 
-export const validateSignature = (signer: Address, digest: BytesLike, signature: SignatureLike) => {
+export const isValidSignature = (signer: Address, digest: BytesLike, signature: SignatureLike) => {
   try {
     const recovered = ethers.utils.recoverAddress(digest, signature);
     return recovered === signer;

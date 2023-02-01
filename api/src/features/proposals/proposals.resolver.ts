@@ -35,7 +35,7 @@ import { ProposalWhereInput } from '@gen/proposal/proposal-where.input';
 import { ProposalsService } from './proposals.service';
 import { Transaction } from '@gen/transaction/transaction.model';
 import { PubsubService } from '~/features/util/pubsub/pubsub.service';
-import { UserContext } from '~/request/ctx';
+import { getUserContext, UserContext } from '~/request/ctx';
 
 @Resolver(() => Proposal)
 export class ProposalsResolver {
@@ -136,10 +136,20 @@ export class ProposalsResolver {
   @Mutation(() => Proposal)
   async propose(
     @Args()
-    { account, quorumKey, to, value, data, salt = randomTxSalt(), gasLimit }: ProposeArgs,
+    {
+      account,
+      quorumKey,
+      to,
+      value,
+      data,
+      salt = randomTxSalt(),
+      gasLimit,
+      signature,
+    }: ProposeArgs,
     @Info() info: GraphQLResolveInfo,
-    @UserId() user: Address,
   ): Promise<Proposal> {
+    const user = getUserContext().id;
+
     // Default behaviour is specified on ProposeArgs
     if (!quorumKey) {
       const quorum = await this.prisma.quorumState.findFirst({
@@ -155,7 +165,7 @@ export class ProposalsResolver {
       quorumKey = toQuorumKey(quorum.quorumKey);
     }
 
-    return this.service.create({
+    const proposal = await this.service.create({
       account,
       data: {
         proposer: { connect: { id: user } },
@@ -166,8 +176,12 @@ export class ProposalsResolver {
         salt,
         gasLimit,
       },
-      ...getSelect(info),
+      ...(signature ? { select: { id: true } } : getSelect(info)),
     });
+
+    return signature
+      ? this.service.approve({ id: proposal.id, user, signature, ...getSelect(info) })
+      : proposal;
   }
 
   @Mutation(() => Proposal)

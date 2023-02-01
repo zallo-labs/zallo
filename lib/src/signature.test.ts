@@ -2,7 +2,7 @@ import { Tx, hashTx, toTx } from './tx';
 import * as zk from 'zksync-web3';
 import { ZERO_ADDR } from './addr';
 import { hexDataLength } from 'ethers/lib/utils';
-import { signTx, validateSignature } from './signature';
+import { signTx, isValidSignature } from './signature';
 import { BigNumber } from 'ethers';
 
 const device = zk.Wallet.createRandom();
