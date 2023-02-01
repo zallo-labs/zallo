@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Provider } from '@nestjs/common';
 import { execSync } from 'child_process';
 import { CONFIG } from '~/config';
 import { PrismaService } from './prisma.service';
@@ -51,8 +51,13 @@ export class PrismaMockService extends PrismaService {
   }
 }
 
-export const MOCK_PRISMA_SERVICE = new PrismaMockService();
+const MOCK_PRISMA_SERVICE = new PrismaMockService();
 
 beforeEach(() => MOCK_PRISMA_SERVICE.setup(), 30000);
 afterEach(() => MOCK_PRISMA_SERVICE.truncate());
 afterAll(() => MOCK_PRISMA_SERVICE.drop());
+
+export const PRISMA_MOCK_PROVIDER: Provider = {
+  provide: PrismaService,
+  useValue: MOCK_PRISMA_SERVICE,
+};

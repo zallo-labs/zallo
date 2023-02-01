@@ -1,17 +1,14 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { PrismaService } from './prisma.service';
-import { MOCK_PRISMA_SERVICE } from './prisma.service.mock';
+import { PRISMA_MOCK_PROVIDER } from './prisma.service.mock';
 
 describe(PrismaService.name, () => {
   let service: PrismaService;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      providers: [PrismaService],
-    })
-      .overrideProvider(PrismaService)
-      .useValue(MOCK_PRISMA_SERVICE)
-      .compile();
+      providers: [PRISMA_MOCK_PROVIDER],
+    }).compile();
 
     service = module.get<PrismaService>(PrismaService);
   });

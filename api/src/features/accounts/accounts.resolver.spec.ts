@@ -1,8 +1,8 @@
 import { createMock, DeepMocked } from '@golevelup/ts-jest';
-import { Test, TestingModule } from '@nestjs/testing';
+import { Test } from '@nestjs/testing';
 import * as lib from 'lib';
 import { PrismaService } from '../util/prisma/prisma.service';
-import { MOCK_PRISMA_SERVICE } from '../util/prisma/prisma.service.mock';
+import { PRISMA_MOCK_PROVIDER } from '../util/prisma/prisma.service.mock';
 import { AccountsResolver } from './accounts.resolver';
 import { ProviderService } from '../util/provider/provider.service';
 import { CONFIG } from '~/config';
@@ -20,20 +20,17 @@ jest.mock('lib', () => ({
 }));
 const mockedCalculateProxyAddress = jest.mocked(lib.calculateProxyAddress);
 
-describe('AccountsResolver', () => {
+describe(AccountsResolver.name, () => {
   let resolver: AccountsResolver;
   let service: DeepMocked<AccountsService>;
   let prisma: PrismaService;
   let provider: DeepMocked<ProviderService>;
 
   beforeEach(async () => {
-    const module: TestingModule = await Test.createTestingModule({
-      providers: [AccountsResolver],
+    const module = await Test.createTestingModule({
+      providers: [AccountsResolver, PRISMA_MOCK_PROVIDER],
     })
-      .useMocker((token) => {
-        if (token === PrismaService) return MOCK_PRISMA_SERVICE;
-        return createMock(token);
-      })
+      .useMocker(createMock)
       .compile();
     resolver = module.get(AccountsResolver);
     service = module.get(AccountsService);
