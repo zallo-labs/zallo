@@ -1,66 +1,58 @@
 import { Injectable } from '@nestjs/common';
 import { execSync } from 'child_process';
-import { URL } from 'url';
 import { CONFIG } from '~/config';
 import { PrismaService } from './prisma.service';
+import { PrismaClient } from '@prisma/client';
+import uuid from 'uuid';
 
 @Injectable()
 export class PrismaMockService extends PrismaService {
   private url: string;
-  private schemaId: string;
-  private isSetup = false;
+  private database: string;
 
   constructor() {
-    const schemaId = 'tests';
-    const url = PrismaMockService.generateDatabaseURL(schemaId);
+    const database = `test-${uuid()}`;
+    const url = `${CONFIG.databaseUrl}/${database}`;
     super({ datasources: { db: { url } } });
-    this.schemaId = schemaId;
+
+    this.database = database;
     this.url = url;
-
-    console.log(CONFIG.env);
   }
 
-  setup() {
-    if (!this.isSetup) {
-      execSync(`DATABASE_URL="${this.url}" npx prisma db push`, {
-        env: {
-          ...process.env,
-          DATABASE_URL: this.url,
-        },
-      });
-      this.$connect();
-    }
-    this.isSetup = true;
+  async setup() {
+    execSync(`npx prisma migrate deploy`, {
+      env: {
+        ...process.env,
+        DATABASE_URL: this.url,
+      },
+    });
+
+    await this.onModuleInit(); // Lifecycle events are not called in tests
   }
 
-  async teardown() {
-    await this.truncate();
-  }
+  async truncate() {
+    const tablenames = await this.$queryRaw<
+      Array<{ tablename: string }>
+    >`SELECT tablename FROM pg_tables WHERE schemaname='public'`;
 
-  private async truncate() {
-    const tablenames = (
-      await this.$queryRaw<
-        Array<{ tablename: string }>
-      >`SELECT tablename FROM pg_tables WHERE schemaname='${this.schemaId}'`
-    )
-      .map(({ tablename }) => tablename)
-      .filter((tablename) => !tablename.startsWith('_'));
-
-    await this.$executeRawUnsafe(
+    await this.asSuperuser.$transaction(
       tablenames
-        .map((tablename) => `TRUNCATE TABLE "${this.schemaId}"."${tablename}" CASCADE;`)
-        .join(' '),
+        .filter(({ tablename }) => !tablename.startsWith('_'))
+        .map(({ tablename }) =>
+          this.asSuperuser.$executeRawUnsafe(`TRUNCATE TABLE "public"."${tablename}" CASCADE;`),
+        ),
     );
   }
 
-  private static generateDatabaseURL(schemaId: string) {
-    const url = new URL(CONFIG.databaseUrl);
-    url.searchParams.append('schema', schemaId);
-    return url.toString();
+  async drop() {
+    await this.$disconnect();
+    const client = new PrismaClient({ datasources: { db: { url: CONFIG.databaseUrl } } });
+    await client.$executeRawUnsafe(`DROP DATABASE "${this.database}" WITH (FORCE)`);
   }
 }
 
 export const MOCK_PRISMA_SERVICE = new PrismaMockService();
 
-beforeEach(async () => MOCK_PRISMA_SERVICE.setup());
-afterEach(async () => MOCK_PRISMA_SERVICE.teardown());
+beforeEach(() => MOCK_PRISMA_SERVICE.setup(), 30000);
+afterEach(() => MOCK_PRISMA_SERVICE.truncate());
+afterAll(() => MOCK_PRISMA_SERVICE.drop());

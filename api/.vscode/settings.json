@@ -2,8 +2,5 @@
   "files.exclude": {
     ".vscode": true
   },
-  "search.exclude": {
-    "prisma/migrations": true
-  },
   "jest.jestCommandLine": "yarn test"
 }

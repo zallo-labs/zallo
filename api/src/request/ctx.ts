@@ -27,3 +27,9 @@ export interface Context {
 }
 
 export const getRequestContext = (): Request => RequestContext.currentContext?.req;
+
+export const asUser = <R, TArgs extends unknown[]>(
+  user: UserContext,
+  callback: (...args: TArgs) => R,
+  ...args: TArgs
+): R => RequestContext.cls.run(new RequestContext({ user }, {}), callback, ...args);

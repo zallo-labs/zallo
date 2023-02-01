@@ -15,23 +15,19 @@ const getUserClient = (prisma: PrismaClient, userParam?: UserContext) =>
     query: {
       $allModels: {
         async $allOperations({ args, query }) {
-          const user = userParam ?? getRequestContext().user;
+          const user = userParam ?? getRequestContext()?.user;
           if (!user) throw new Error("User must be specified when there's no request context");
+          const accounts = [...user.accounts].map((a) => `'${a}'`).join(',');
 
-          const [, result] = await prisma.$transaction([
-            // Set the user context as local (transaction scoped) settings
-            prisma.$executeRaw`
-              SELECT (
-                set_config('user.id', '${user.id}', true),
-                set_config('user.accounts', ARRAY[
-                  ${[...user.accounts].map((a) => `'${a}'`).join(',')}
-                  ]::text, true)
-              );
-            `,
+          const [x1, x2, response] = await prisma.$transaction([
+            prisma.$queryRaw`SELECT set_config('user.id', ${user.id}, true)`,
+            prisma.$queryRawUnsafe(
+              `SELECT set_config('user.accounts', ARRAY[${accounts}]::text[]::text, true)`,
+            ),
             query(args),
           ]);
 
-          return result;
+          return response;
         },
       },
     },
@@ -43,12 +39,12 @@ const getSuperuserClient = (prisma: PrismaClient) =>
     query: {
       $allModels: {
         async $allOperations({ args, query }) {
-          const [, result] = await prisma.$transaction([
-            prisma.$executeRaw`SET LOCAL role postgres;`,
+          const [_, resp] = await prisma.$transaction([
+            prisma.$queryRaw`SET LOCAL ROLE postgres`,
             query(args),
           ]);
 
-          return result;
+          return resp;
         },
       },
     },
@@ -65,24 +61,32 @@ class UserPrismaClient extends PrismaClient {
 @Injectable()
 export class PrismaService extends UserPrismaClient implements OnModuleInit {
   private baseClient: PrismaClient;
+  private userClient: ReturnType<typeof getUserClient>;
   private superuserClient: ReturnType<typeof getSuperuserClient>;
 
   constructor(@Optional() ...params: ConstructorParameters<typeof PrismaClient>) {
     super(...params);
     PrismaService.configure(this);
     this.baseClient = PrismaService.configure(new PrismaClient(...params));
-    this.superuserClient = getSuperuserClient(this.baseClient);
+    this.userClient = getUserClient(this.baseClient);
+
+    this.superuserClient = getSuperuserClient(PrismaService.configure(new PrismaClient(...params)));
   }
 
   async onModuleInit() {
-    await this.$executeRaw`SET role "user"`;
+    await this.$executeRaw`SET ROLE "user"`;
+    await this.baseClient.$executeRaw`SET ROLE "user"`;
   }
 
   enableShutdownHooks(app: INestApplication | INestMicroservice) {
     return this.$on('beforeExit', () => app.close());
   }
 
-  as(user?: UserContext) {
+  get asUser() {
+    return this.userClient;
+  }
+
+  as(user: UserContext) {
     return getUserClient(this.baseClient, user);
   }
 
