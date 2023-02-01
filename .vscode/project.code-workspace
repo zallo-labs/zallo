@@ -74,9 +74,9 @@
     "[jsonc]": {
       "editor.defaultFormatter": "esbenp.prettier-vscode"
     },
-    "dotenv.enableAutocloaking": false,
     "prettier.configPath": "../.config/.prettierrc",
     "prettier.ignorePath": "../.prettierignore",
-    "editor.tabSize": 2
+    "editor.tabSize": 2,
+    "jest.disabledWorkspaceFolders": ["/", "contracts", "docs", "subgraph"]
   }
 }
