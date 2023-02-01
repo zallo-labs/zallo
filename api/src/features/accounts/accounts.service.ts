@@ -1,4 +1,3 @@
-import { Account } from '@gen/account/account.model';
 import { Injectable } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
 import {
@@ -28,25 +27,6 @@ export class AccountsService {
     private provider: ProviderService,
     private pubsub: PubsubService,
   ) {}
-
-  async accounts(user: Address, args: Prisma.AccountFindManyArgs = {}): Promise<Account[]> {
-    return this.prisma.account.findMany({
-      ...args,
-      where: {
-        AND: [
-          {
-            quorumStates: {
-              some: {
-                approvers: { some: { userId: user } },
-                isRemoved: false,
-              },
-            },
-          },
-          args.where ?? {},
-        ],
-      },
-    });
-  }
 
   async activateAccount<T extends Pick<Prisma.AccountUpdateArgs, 'select'>>(
     accountAddr: Address,

@@ -40,7 +40,7 @@ export class ContactsResolver {
       select: { addr: true, name: true },
     });
 
-    const accounts = await this.accountsService.accounts(user, {
+    const accounts = await this.prisma.account.findMany({
       select: { id: true, name: true },
     });
 

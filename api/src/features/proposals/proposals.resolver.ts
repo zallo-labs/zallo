@@ -251,7 +251,7 @@ export class ProposalsResolver {
             user: {
               select: {
                 id: true,
-                pushToken: true,
+                pushToken: true, // TODO: fetch as system to bypass RLS
               },
             },
           },
