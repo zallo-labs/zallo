@@ -44,31 +44,24 @@ class UserPrismaClient extends PrismaClient {
 
 @Injectable()
 export class PrismaService extends UserPrismaClient implements OnModuleInit {
-  private superuserClient: PrismaClient;
-  private userClient: ReturnType<typeof getUserClient>;
+  readonly asSuperuser: PrismaClient;
+  readonly asUser: ReturnType<typeof getUserClient>;
 
   constructor(@Optional() ...params: ConstructorParameters<typeof PrismaClient>) {
     super(...params);
     PrismaService.configure(this);
 
-    this.superuserClient = PrismaService.configure(new PrismaClient(...params));
-    this.userClient = getUserClient(this.superuserClient);
+    this.asSuperuser = PrismaService.configure(new PrismaClient(...params));
+    this.asUser = getUserClient(this.asSuperuser);
   }
 
   async onModuleInit() {
+    // TODO: remove
     await this.$executeRaw`SET ROLE "user"`;
   }
 
   enableShutdownHooks(app: INestApplication | INestMicroservice) {
-    return this.$on('beforeExit', () => app.close());
-  }
-
-  get asUser() {
-    return this.userClient;
-  }
-
-  get asSuperuser() {
-    return this.superuserClient;
+    return this.asSuperuser.$on('beforeExit', () => app.close());
   }
 
   private static configure(client: PrismaClient) {
