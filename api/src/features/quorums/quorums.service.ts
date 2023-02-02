@@ -31,7 +31,7 @@ export class QuorumsService {
     proposingQuorumKey,
     approvers,
     spending,
-    tx = this.prisma,
+    tx = this.prisma.asUser,
     quorumArgs,
   }: CreateStateParams): Promise<QuorumModel> {
     const quorum: Quorum = {
@@ -93,7 +93,7 @@ export class QuorumsService {
   }
 
   async handleSuccessfulTransaction(transactionHash: string) {
-    const { proposal } = await this.prisma.transaction.findUniqueOrThrow({
+    const { proposal } = await this.prisma.asUser.transaction.findUniqueOrThrow({
       where: { hash: transactionHash },
       select: {
         proposal: {
@@ -115,7 +115,7 @@ export class QuorumsService {
     });
 
     return mapAsync(proposal.quorumStates, (state) =>
-      this.prisma.quorum.update({
+      this.prisma.asUser.quorum.update({
         where: {
           accountId_key: {
             accountId: state.quorum.accountId,

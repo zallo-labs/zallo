@@ -23,7 +23,7 @@ export class ContractMethodsResolver {
     const selectArgs = getSelect(info);
 
     // Try get selector for contract
-    const exactMatch = await this.prisma.contractMethod.findUnique({
+    const exactMatch = await this.prisma.asUser.contractMethod.findUnique({
       where: { contract_sighash: { contract, sighash } },
       ...selectArgs,
     });
@@ -40,7 +40,7 @@ export class ContractMethodsResolver {
     }
 
     // Fallback to finding the sighash from any contract
-    return this.prisma.contractMethod.findFirst({
+    return this.prisma.asUser.contractMethod.findFirst({
       where: { sighash },
       ...selectArgs,
     });

@@ -26,7 +26,7 @@ export class TransactionsConsumer {
 
     if (response.success) this.quorums.handleSuccessfulTransaction(response.transactionHash);
 
-    const { transaction } = await this.prisma.transactionResponse.create({
+    const { transaction } = await this.prisma.asSuperuser.transactionResponse.create({
       data: response,
       select: {
         transaction: {

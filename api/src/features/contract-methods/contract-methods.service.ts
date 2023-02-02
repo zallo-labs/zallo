@@ -30,7 +30,7 @@ export class ContractMethodsService {
   async populateDbWithAbi(contract: Address, contractInterface: Interface) {
     const fragments = Object.values(contractInterface.functions);
 
-    await this.prisma.contractMethod.createMany({
+    await this.prisma.asUser.contractMethod.createMany({
       data: fragments.map((frag) => ({
         contract,
         sighash: contractInterface.getSighash(frag),

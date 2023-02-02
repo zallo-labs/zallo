@@ -40,7 +40,7 @@ export class TransactionsService {
   }
 
   async tryExecute(proposalId: string) {
-    const proposal = await this.prisma.proposal.findUniqueOrThrow({
+    const proposal = await this.prisma.asUser.proposal.findUniqueOrThrow({
       where: { id: proposalId },
       include: {
         approvals: {
@@ -104,7 +104,7 @@ export class TransactionsService {
       signers,
     });
 
-    const { proposal: updatedProposal } = await this.prisma.transaction.create({
+    const { proposal: updatedProposal } = await this.prisma.asUser.transaction.create({
       data: {
         proposal: { connect: { id: proposalId } },
         hash: transaction.hash,

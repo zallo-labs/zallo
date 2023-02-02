@@ -19,7 +19,7 @@ export class UsersResolver {
     @Info() info: GraphQLResolveInfo,
   ): Promise<User | null> {
     return (
-      (await this.prisma.user.findUnique({
+      (await this.prisma.asUser.user.findUnique({
         where: { id },
         ...getSelect(info),
       })) ?? { id, name: null, pushToken: null }
@@ -28,12 +28,12 @@ export class UsersResolver {
 
   @ResolveField(() => String, { nullable: true })
   async name(@Parent() user: User, @UserId() userUser: Address): Promise<string | null> {
-    const contact = this.prisma.contact.findUnique({
+    const contact = this.prisma.asUser.contact.findUnique({
       where: { userId_addr: { userId: userUser, addr: user.id } },
       select: { name: true },
     });
 
-    const account = this.prisma.account.findUnique({
+    const account = this.prisma.asUser.account.findUnique({
       where: { id: user.id },
       select: { name: true },
     });
@@ -52,7 +52,7 @@ export class UsersResolver {
     @UserId() user: Address,
     @Info() info: GraphQLResolveInfo,
   ): Promise<User> {
-    return this.prisma.user.upsert({
+    return this.prisma.asUser.user.upsert({
       where: { id: user },
       create: {
         id: user,

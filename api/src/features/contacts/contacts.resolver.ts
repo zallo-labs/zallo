@@ -6,7 +6,7 @@ import { UserId } from '~/decorators/user.decorator';
 import { Address, filterFirst, Id, toId } from 'lib';
 import { ContactsArgs, ContactArgs, ContactObject, UpsertContactArgs } from './contacts.args';
 import { connectOrCreateUser } from '~/util/connect-or-create';
-import { getUser } from '~/request/ctx';
+import { getUser, getUserId } from '~/request/ctx';
 import { AccountsService } from '../accounts/accounts.service';
 import { Contact } from '@gen/contact/contact.model';
 
@@ -50,11 +50,12 @@ export class ContactsResolver {
   @Mutation(() => ContactObject)
   async upsertContact(
     @Args() { prevAddr, newAddr, name }: UpsertContactArgs,
-    @UserId() user: Address,
     @Info() info?: GraphQLResolveInfo,
   ): Promise<ContactObject> {
     // Ignore leading and trailing whitespace
     name = name.trim();
+
+    const user = getUserId();
 
     return this.prisma.asUser.contact.upsert({
       where: {

@@ -31,7 +31,7 @@ export class QuorumsResolver {
     @Args() { account, key }: UniqueQuorumArgs,
     @Info() info: GraphQLResolveInfo,
   ): Promise<Quorum | null> {
-    return this.prisma.quorum.findUnique({
+    return this.prisma.asUser.quorum.findUnique({
       where: {
         accountId_key: {
           accountId: account,
@@ -48,7 +48,7 @@ export class QuorumsResolver {
     @UserId() user: Address,
     @Info() info: GraphQLResolveInfo,
   ): Promise<Quorum[]> {
-    return this.prisma.quorum.findMany({
+    return this.prisma.asUser.quorum.findMany({
       ...args,
       where: {
         AND: [
@@ -78,7 +78,7 @@ export class QuorumsResolver {
     @Parent() quorum: Quorum,
     @Info() info: GraphQLResolveInfo,
   ): Promise<QuorumState[]> {
-    return this.prisma.quorum
+    return this.prisma.asUser.quorum
       .findUniqueOrThrow({
         where: {
           accountId_key: {
@@ -98,7 +98,7 @@ export class QuorumsResolver {
     @Args() args: CreateQuorumArgs,
     @Info() info: GraphQLResolveInfo,
   ): Promise<Quorum> {
-    return this.prisma.$transaction(async (tx) => {
+    return this.prisma.asUser.$transaction(async (tx) => {
       const existingQuorums = await tx.quorum.count({ where: { accountId: args.account } });
       const key = toQuorumKey(existingQuorums + 1);
 
@@ -125,7 +125,7 @@ export class QuorumsResolver {
     @Args() args: UpdateQuorumArgs,
     @Info() info: GraphQLResolveInfo,
   ): Promise<Quorum> {
-    return this.prisma.$transaction(async (tx) =>
+    return this.prisma.asUser.$transaction(async (tx) =>
       this.service.createUpsertState({
         ...args,
         proposingQuorumKey: args.proposingQuorumKey ?? args.key,
@@ -139,7 +139,7 @@ export class QuorumsResolver {
   async updateQuorumMetadata(
     @Args() { account, key, name }: UpdateQuorumMetadataArgs,
   ): Promise<Quorum> {
-    return this.prisma.quorum.update({
+    return this.prisma.asUser.quorum.update({
       where: { accountId_key: { accountId: account, key } },
       data: { name },
     });
@@ -150,7 +150,7 @@ export class QuorumsResolver {
     @Args() { account, key, proposingQuorumKey = key }: RemoveQuorumArgs,
     @Info() info: GraphQLResolveInfo,
   ): Promise<Quorum> {
-    return this.prisma.$transaction(async (tx) => {
+    return this.prisma.asUser.$transaction(async (tx) => {
       const isActive = !!(
         await tx.quorum.findUniqueOrThrow({
           where: { accountId_key: { accountId: account, key } },

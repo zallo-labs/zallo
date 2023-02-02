@@ -17,7 +17,7 @@ export class CommentsResolver {
     @Args() { account, key }: FindCommentsArgs,
     @Info() info: GraphQLResolveInfo,
   ): Promise<Comment[]> {
-    return this.prisma.comment.findMany({
+    return this.prisma.asUser.comment.findMany({
       where: {
         accountId: account,
         key,
@@ -32,7 +32,7 @@ export class CommentsResolver {
     @UserId() device: Address,
     @Info() info: GraphQLResolveInfo,
   ): Promise<Comment> {
-    return this.prisma.comment.create({
+    return this.prisma.asUser.comment.create({
       data: {
         account: connectAccount(account),
         key,
@@ -48,7 +48,7 @@ export class CommentsResolver {
     @Args() { id }: UniqueCommentArgs,
     @Info() info: GraphQLResolveInfo,
   ): Promise<Comment> {
-    return this.prisma.comment.delete({
+    return this.prisma.asUser.comment.delete({
       where: { id },
       ...getSelect(info),
     });

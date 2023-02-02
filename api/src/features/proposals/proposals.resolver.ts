@@ -35,7 +35,7 @@ import { ProposalWhereInput } from '@gen/proposal/proposal-where.input';
 import { ProposalsService } from './proposals.service';
 import { Transaction } from '@gen/transaction/transaction.model';
 import { PubsubService } from '~/features/util/pubsub/pubsub.service';
-import { getUserContext } from '~/request/ctx';
+import { getUser } from '~/request/ctx';
 
 @Resolver(() => Proposal)
 export class ProposalsResolver {
@@ -49,9 +49,9 @@ export class ProposalsResolver {
   @Query(() => Proposal, { nullable: true })
   async proposal(
     @Args() { id }: UniqueProposalArgs,
-    @Info() info: GraphQLResolveInfo,
+    @Info() info?: GraphQLResolveInfo,
   ): Promise<Proposal | null> {
-    return this.prisma.proposal.findUnique({
+    return this.prisma.asUser.proposal.findUnique({
       where: { id },
       ...getSelect(info),
     });
@@ -60,10 +60,10 @@ export class ProposalsResolver {
   @Query(() => [Proposal])
   async proposals(
     @Args() { accounts, states, actionRequired, ...args }: ProposalsArgs,
-    @Info() info: GraphQLResolveInfo,
     @UserId() user: Address,
+    @Info() info?: GraphQLResolveInfo,
   ): Promise<Proposal[]> {
-    return this.prisma.proposal.findMany({
+    return this.prisma.asUser.proposal.findMany({
       ...args,
       where: {
         AND: (
@@ -122,7 +122,7 @@ export class ProposalsResolver {
       !events || events.has(event),
   })
   async proposalSubscription(@Args() { accounts, proposals }: ProposalSubscriptionFilters) {
-    if (!accounts && !proposals) accounts = getUserContext().accounts;
+    if (!accounts && !proposals) accounts = getUser().accounts;
 
     return this.pubsub.asyncIterator([
       ...[...(accounts ?? [])].map((account) => `${ACCOUNT_PROPOSAL_SUB_TRIGGER}.${account}`),
@@ -133,14 +133,14 @@ export class ProposalsResolver {
   @Mutation(() => Proposal)
   async propose(
     @Args()
-    { account, quorumKey, to, value, data, salt, gasLimit, signature }: ProposeArgs,
-    @Info() info: GraphQLResolveInfo,
+    { account, quorumKey, signature, ...options }: ProposeArgs,
+    @Info() info?: GraphQLResolveInfo,
   ): Promise<Proposal> {
-    const user = getUserContext().id;
+    const user = getUser().id;
 
     // Default behaviour is specified on ProposeArgs
     if (!quorumKey) {
-      const quorum = await this.prisma.quorumState.findFirst({
+      const quorum = await this.prisma.asUser.quorumState.findFirst({
         where: {
           accountId: account,
           approvers: { some: { userId: user } },
@@ -156,13 +156,7 @@ export class ProposalsResolver {
 
     const proposal = await this.service.create({
       quorum: { account, key: quorumKey },
-      options: {
-        to,
-        value,
-        data,
-        salt,
-        gasLimit,
-      },
+      options,
       ...(signature ? { select: { id: true } } : getSelect(info)),
     });
 
@@ -172,7 +166,7 @@ export class ProposalsResolver {
   }
 
   @Mutation(() => Proposal)
-  async approve(@Args() args: ApproveArgs, @Info() info: GraphQLResolveInfo): Promise<Proposal> {
+  async approve(@Args() args: ApproveArgs, @Info() info?: GraphQLResolveInfo): Promise<Proposal> {
     return this.service.approve({
       ...args,
       ...getSelect(info),
@@ -183,9 +177,9 @@ export class ProposalsResolver {
   async reject(
     @Args() { id }: UniqueProposalArgs,
     @UserId() user: Address,
-    @Info() info: GraphQLResolveInfo,
+    @Info() info?: GraphQLResolveInfo,
   ): Promise<Proposal> {
-    const proposal = await this.prisma.proposal.update({
+    const proposal = await this.prisma.asUser.proposal.update({
       where: { id },
       data: {
         approvals: {
@@ -216,9 +210,9 @@ export class ProposalsResolver {
   @Mutation(() => Proposal)
   async removeProposal(
     @Args() { id }: UniqueProposalArgs,
-    @Info() info: GraphQLResolveInfo,
+    @Info() info?: GraphQLResolveInfo,
   ): Promise<Proposal> {
-    return this.prisma.proposal.delete({
+    return this.prisma.asUser.proposal.delete({
       where: { id },
       ...getSelect(info),
     });
@@ -229,13 +223,13 @@ export class ProposalsResolver {
     @Args() { id, approvers }: ApprovalRequest,
     @UserId() user: Address,
   ): Promise<true> {
-    const { accountId, quorumKey } = await this.prisma.proposal.findUniqueOrThrow({
+    const { accountId, quorumKey } = await this.prisma.asUser.proposal.findUniqueOrThrow({
       where: { id },
       select: { accountId: true, quorumKey: true },
     });
 
     // All approvers should exist for any state of the proposal's quorum
-    const quorumState = await this.prisma.quorumState.findFirst({
+    const quorumState = await this.prisma.asUser.quorumState.findFirst({
       where: {
         accountId,
         quorumKey,
@@ -262,7 +256,7 @@ export class ProposalsResolver {
     if (approverPushTokens.length !== approvers.size)
       throw new UserInputError('All approvers must be part of a state of the quorum');
 
-    const { name } = await this.prisma.user.findUniqueOrThrow({ where: { id: user } });
+    const { name } = await this.prisma.asUser.user.findUniqueOrThrow({ where: { id: user } });
 
     // Send a notification to specified users that haven't approved yet
     this.expo.chunkPushNotifications([

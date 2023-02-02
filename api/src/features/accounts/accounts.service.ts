@@ -35,7 +35,7 @@ export class AccountsService {
     updateArgs?: T,
   ) {
     const { impl, deploySalt, isActive, quorumStates } =
-      await this.prisma.account.findUniqueOrThrow({
+      await this.prisma.asUser.account.findUniqueOrThrow({
         where: { id: accountAddr },
         select: {
           impl: true,
@@ -84,7 +84,7 @@ export class AccountsService {
     );
     await r.account.deployed();
 
-    return this.prisma.account.update({
+    return this.prisma.asUser.account.update({
       where: { id: accountAddr },
       data: {
         isActive: true,
@@ -111,7 +111,7 @@ export class AccountsService {
     await this.pubsub.publish<AccountSubscriptionPayload>(`${ACCOUNT_SUBSCRIPTION}.${id}`, payload);
 
     // Publish account for each approver
-    const { quorumStates } = await this.prisma.account.findUniqueOrThrow({
+    const { quorumStates } = await this.prisma.asUser.account.findUniqueOrThrow({
       where: { id },
       select: {
         quorumStates: {

@@ -23,7 +23,7 @@ export class ReactionsResolver {
     @UserId() user: Address,
     @Info() info: GraphQLResolveInfo,
   ): Promise<Reaction | null> {
-    return this.prisma.reaction.upsert({
+    return this.prisma.asUser.reaction.upsert({
       where: {
         commentId_userId: {
           commentId: id,
