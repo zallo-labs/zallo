@@ -20,7 +20,7 @@ import {
   ProposalSubscriptionPayload,
   PROPOSAL_SUBSCRIPTION,
 } from './proposals.args';
-import { getUserContext } from '~/request/ctx';
+import { getUser } from '~/request/ctx';
 
 type CreateParams<T extends Prisma.ProposalCreateArgs> = {
   quorum: QuorumGuid;
@@ -51,7 +51,7 @@ export class ProposalsService {
         id: await hashTx(tx, this.provider.connectAccount(quorum.account)),
         account: connectAccount(quorum.account),
         quorum: connectQuorum(quorum),
-        proposer: connectUser(getUserContext().id),
+        proposer: connectUser(getUser().id),
         to: tx.to,
         value: tx.value?.toString(),
         data: tx.data ? hexlify(tx.data) : undefined,
@@ -69,7 +69,7 @@ export class ProposalsService {
     { id, signature, ...args }: ApproveParams,
     client: Prisma.TransactionClient = this.prisma.asUser,
   ) {
-    const user = getUserContext().id;
+    const user = getUser().id;
     if (!isValidSignature(user, id, signature)) throw new UserInputError('Invalid signature');
 
     await client.proposal.update({

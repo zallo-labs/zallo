@@ -28,11 +28,13 @@ export interface Context {
 
 export const getRequestContext = (): Request => RequestContext.currentContext?.req;
 
-export const getUserContext = () => {
+export const getUser = () => {
   const user = getRequestContext()?.user;
   if (!user) throw new Error('User context is undefined');
   return user;
 };
+
+export const getUserId = () => getUser().id;
 
 export const asUser = <R, TArgs extends unknown[]>(
   user: UserContext,

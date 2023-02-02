@@ -6,7 +6,7 @@ import { UserId } from '~/decorators/user.decorator';
 import { Address, filterFirst, Id, toId } from 'lib';
 import { ContactsArgs, ContactArgs, ContactObject, UpsertContactArgs } from './contacts.args';
 import { connectOrCreateUser } from '~/util/connect-or-create';
-import { getUserContext } from '~/request/ctx';
+import { getUser } from '~/request/ctx';
 import { AccountsService } from '../accounts/accounts.service';
 import { Contact } from '@gen/contact/contact.model';
 
@@ -25,7 +25,7 @@ export class ContactsResolver {
     @Info() info?: GraphQLResolveInfo,
   ): Promise<ContactObject | null> {
     return this.prisma.asUser.contact.findUnique({
-      where: { userId_addr: { addr, userId: getUserContext().id } },
+      where: { userId_addr: { addr, userId: getUser().id } },
       ...getSelect(info),
     });
   }
@@ -50,10 +50,9 @@ export class ContactsResolver {
   @Mutation(() => ContactObject)
   async upsertContact(
     @Args() { prevAddr, newAddr, name }: UpsertContactArgs,
+    @UserId() user: Address,
     @Info() info?: GraphQLResolveInfo,
   ): Promise<ContactObject> {
-    const user = getUserContext().id;
-
     // Ignore leading and trailing whitespace
     name = name.trim();
 
@@ -85,7 +84,7 @@ export class ContactsResolver {
     return this.prisma.asUser.contact.delete({
       where: {
         userId_addr: {
-          userId: getUserContext().id,
+          userId: getUser().id,
           addr,
         },
       },
