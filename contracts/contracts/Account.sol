@@ -37,7 +37,7 @@ contract Account is
 
   function initialize(QuorumDefinition[] calldata quorums) external initializer {
     uint256 quorumsLen = quorums.length;
-    for (uint256 i = 0; i < quorumsLen; ) {
+    for (uint256 i; i < quorumsLen; ) {
       _upsertQuorum(quorums[i].key, quorums[i].hash);
 
       unchecked {
@@ -124,12 +124,12 @@ contract Account is
   //////////////////////////////////////////////////////////////*/
 
   /// @inheritdoc IAccount
-  function upsertQuorum(QuorumKey key, bytes32 hash) external onlySelf {
+  function upsertQuorum(QuorumKey key, bytes32 hash) external payable onlySelf {
     _upsertQuorum(key, hash);
   }
 
   /// @inheritdoc IAccount
-  function removeQuorum(QuorumKey key) external onlySelf {
+  function removeQuorum(QuorumKey key) external payable onlySelf {
     delete _quorums()[key];
     emit QuorumRemoved(key);
   }
@@ -169,9 +169,10 @@ contract Account is
     address[] memory approvers,
     bytes[] memory signatures
   ) internal view {
-    if ((approvers.length) != signatures.length) revert ApproverSignaturesMismatch();
+    uint256 approversLength = approvers.length;
+    if (approversLength != signatures.length) revert ApproverSignaturesMismatch();
 
-    for (uint256 i = 0; i < approvers.length; ) {
+    for (uint256 i; i < approversLength; ) {
       if (!approvers[i].isValidSignatureNow(hash, signatures[i]))
         revert InvalidSignature(approvers[i]);
 
