@@ -9,6 +9,7 @@
     "prebuild": "(cd .. && yarn lib build) && yarn prisma generate",
     "build": "yarn prebuild && nest build",
     "clean": "npx rimraf dist generated node_modules",
+    "clean:services": "docker compose -f ./services.yml down -v",
     "format": "prettier --config ../.prettierrc --write \"src/**/*.ts\"",
     "start": "nest start --debug --watch",
     "start:prod": "node dist/src/main.js",
