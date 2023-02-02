@@ -1,18 +1,6 @@
-import { createParamDecorator, ExecutionContext } from '@nestjs/common';
-import { GqlExecutionContext } from '@nestjs/graphql';
-import { Context } from '~/request/ctx';
+import { createParamDecorator } from '@nestjs/common';
+import { getUser } from '~/request/ctx';
 
-const getUserCtx = (context: ExecutionContext) => {
-  const ctx = GqlExecutionContext.create(context).getContext<Context>();
-  if (!ctx.req.user) throw new Error('User not authenticated');
+export const UserCtx = createParamDecorator(() => getUser());
 
-  return ctx.req.user;
-};
-
-export const UserCtx = createParamDecorator((_data, context: ExecutionContext) =>
-  getUserCtx(context),
-);
-
-export const UserId = createParamDecorator(
-  (_data, context: ExecutionContext) => getUserCtx(context).id,
-);
+export const UserId = createParamDecorator(() => getUser().id);
