@@ -23,8 +23,7 @@ import { UserCtx } from '~/decorators/user.decorator';
 import { QuorumInput } from '../quorums/quorums.args';
 import { FaucetService } from '../faucet/faucet.service';
 import { PubsubService } from '../util/pubsub/pubsub.service';
-import { UserContext, Context, getRequestContext } from '~/request/ctx';
-import { RequestContext } from 'nestjs-request-context';
+import { UserContext, getRequestContext, getUserContext } from '~/request/ctx';
 import { connectOrCreateUser } from '~/util/connect-or-create';
 
 const getSelect = makeGetSelect<{
@@ -99,8 +98,8 @@ export class AccountsResolver {
     );
 
     // Add account to user context
-    const req = getRequestContext();
-    req?.user?.accounts.add(addr);
+    getUserContext().accounts.add(addr);
+    getRequestContext()?.session?.accounts?.push(addr);
 
     await this.prisma.asUser.account.create({
       data: {
@@ -136,8 +135,6 @@ export class AccountsResolver {
       },
       select: null,
     });
-
-    req.session?.accounts?.add(addr);
 
     const r = await this.service.activateAccount(addr, { ...getSelect(info) });
 

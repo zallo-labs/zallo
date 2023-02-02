@@ -11,7 +11,7 @@ import {
 import { GraphQLResolveInfo } from 'graphql';
 import { address, Address, isPresent, isTruthy, randomTxSalt, toQuorumKey } from 'lib';
 import { PrismaService } from '../util/prisma/prisma.service';
-import { UserCtx, UserId } from '~/decorators/user.decorator';
+import { UserId } from '~/decorators/user.decorator';
 import { connectOrCreateUser, connectQuorum } from '~/util/connect-or-create';
 import { getSelect } from '~/util/select';
 import {
@@ -35,7 +35,7 @@ import { ProposalWhereInput } from '@gen/proposal/proposal-where.input';
 import { ProposalsService } from './proposals.service';
 import { Transaction } from '@gen/transaction/transaction.model';
 import { PubsubService } from '~/features/util/pubsub/pubsub.service';
-import { getUserContext, UserContext } from '~/request/ctx';
+import { getUserContext } from '~/request/ctx';
 
 @Resolver(() => Proposal)
 export class ProposalsResolver {
@@ -121,11 +121,8 @@ export class ProposalsResolver {
     filter: ({ event }: ProposalSubscriptionPayload, { events }: ProposalSubscriptionFilters) =>
       !events || events.has(event),
   })
-  async proposalSubscription(
-    @Args() { accounts, proposals }: ProposalSubscriptionFilters,
-    @UserCtx() user: UserContext,
-  ) {
-    if (!accounts && !proposals) accounts = user.accounts;
+  async proposalSubscription(@Args() { accounts, proposals }: ProposalSubscriptionFilters) {
+    if (!accounts && !proposals) accounts = getUserContext().accounts;
 
     return this.pubsub.asyncIterator([
       ...[...(accounts ?? [])].map((account) => `${ACCOUNT_PROPOSAL_SUB_TRIGGER}.${account}`),

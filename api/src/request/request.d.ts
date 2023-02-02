@@ -14,7 +14,7 @@ declare module 'express-session' {
   interface SessionData {
     nonce: string;
     playgroundWallet?: Address;
-    accounts: Set<Address>;
+    accounts: Address[];
   }
 }
 

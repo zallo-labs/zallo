@@ -58,7 +58,7 @@ export class AuthMiddleware implements NestMiddleware {
 
     if (!req.session.accounts) req.session.accounts = await this.getAccounts(id);
 
-    return { id, accounts: req.session.accounts };
+    return { id, accounts: new Set(req.session.accounts) };
   }
 
   private async tryGetUserId(req: Request): Promise<Address | undefined> {
@@ -108,7 +108,7 @@ export class AuthMiddleware implements NestMiddleware {
   }
 
   private async getAccounts(userId: Address) {
-    const accounts = await this.prisma.account.findMany({
+    const accounts = await this.prisma.asSuperuser.account.findMany({
       where: {
         quorumStates: {
           some: {
@@ -125,6 +125,6 @@ export class AuthMiddleware implements NestMiddleware {
       },
     });
 
-    return new Set(accounts.map((acc) => address(acc.id)));
+    return [...new Set(accounts.map((acc) => address(acc.id)))];
   }
 }
