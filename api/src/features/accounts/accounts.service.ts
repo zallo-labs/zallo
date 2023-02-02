@@ -28,6 +28,8 @@ export class AccountsService {
     private pubsub: PubsubService,
   ) {}
 
+  findMany = this.prisma.asUser.account.findMany;
+
   async activateAccount<T extends Pick<Prisma.AccountUpdateArgs, 'select'>>(
     accountAddr: Address,
     updateArgs?: T,
