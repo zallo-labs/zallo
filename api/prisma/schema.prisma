@@ -106,14 +106,13 @@ enum LimitPeriod {
 }
 
 model Proposal {
-  id String @id @db.Char(66) // hash: bytes32
-
+  id         String   @id @db.Char(66) // hash: bytes32
   account    Account  @relation(fields: [accountId], references: [id], onDelete: Cascade)
   accountId  String   @db.Char(42) // address
-  proposer   User     @relation(fields: [proposerId], references: [id])
-  proposerId String   @db.Char(42) // address
   quorum     Quorum   @relation(fields: [accountId, quorumKey], references: [accountId, key])
   quorumKey  Int
+  proposer   User     @relation(fields: [proposerId], references: [id])
+  proposerId String   @db.Char(42) // address
   to         String   @db.Char(42) // address
   value      String? //@db.Decimal(79, 0) // uint256
   data       String? // bytes
