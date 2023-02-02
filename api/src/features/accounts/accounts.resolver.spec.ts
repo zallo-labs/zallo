@@ -114,24 +114,16 @@ describe(AccountsResolver.name, () => {
   describe('accounts', () => {
     it('returns user accounts', () =>
       asUser(user1, async () => {
-        const accounts = new Set((await resolver.accounts({})).map((acc) => address(acc.id)));
-
-        return (
-          user1.accounts.size === accounts.size &&
-          [...accounts].every((acc) => user1.accounts.has(acc))
-        );
+        const accounts = (await resolver.accounts({})).map((acc) => address(acc.id));
+        expect(new Set(accounts)).toEqual(user1.accounts);
       }));
 
     it("doesn't return accounts the user isn't a member of", async () => {
       await asUser(user2, async () => {
         await createAccount(user2, user2Account);
+        const accounts = (await resolver.accounts({})).map((acc) => address(acc.id));
 
-        const accounts = new Set((await resolver.accounts({})).map((acc) => address(acc.id)));
-
-        return (
-          user2.accounts.size === accounts.size &&
-          [...accounts].every((acc) => user2.accounts.has(acc))
-        );
+        expect(new Set(accounts)).toEqual(user2.accounts);
       });
     });
   });
