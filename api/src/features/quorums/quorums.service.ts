@@ -8,7 +8,6 @@ import { SpendingInput } from './quorums.args';
 import { Quorum as QuorumModel } from '@gen/quorum/quorum.model';
 
 interface CreateStateParams {
-  proposer: Address;
   account: Address;
   key: QuorumKey;
   proposingQuorumKey: QuorumKey;
@@ -27,7 +26,6 @@ export class QuorumsService {
   ) {}
 
   async createUpsertState({
-    proposer,
     account,
     key,
     proposingQuorumKey,
@@ -51,12 +49,10 @@ export class QuorumsService {
 
     const { id: proposalId } = await this.proposals.create(
       {
-        account,
-        data: {
+        quorum: { account, key: proposingQuorumKey },
+        options: {
           to: account,
           data: ACCOUNT_INTERFACE.encodeFunctionData('upsertQuorum', [key, hashQuorum(quorum)]),
-          proposer: { connect: { id: proposer } },
-          quorum: connectQuorum(account, proposingQuorumKey),
         },
         select: {
           id: true,

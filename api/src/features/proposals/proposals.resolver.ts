@@ -9,10 +9,10 @@ import {
   Subscription,
 } from '@nestjs/graphql';
 import { GraphQLResolveInfo } from 'graphql';
-import { address, Address, isPresent, isTruthy, randomTxSalt, toQuorumKey } from 'lib';
+import { address, Address, isPresent, isTruthy, toQuorumKey } from 'lib';
 import { PrismaService } from '../util/prisma/prisma.service';
 import { UserId } from '~/decorators/user.decorator';
-import { connectOrCreateUser, connectQuorum } from '~/util/connect-or-create';
+import { connectOrCreateUser } from '~/util/connect-or-create';
 import { getSelect } from '~/util/select';
 import {
   ProposeArgs,
@@ -133,16 +133,7 @@ export class ProposalsResolver {
   @Mutation(() => Proposal)
   async propose(
     @Args()
-    {
-      account,
-      quorumKey,
-      to,
-      value,
-      data,
-      salt = randomTxSalt(),
-      gasLimit,
-      signature,
-    }: ProposeArgs,
+    { account, quorumKey, to, value, data, salt, gasLimit, signature }: ProposeArgs,
     @Info() info: GraphQLResolveInfo,
   ): Promise<Proposal> {
     const user = getUserContext().id;
@@ -153,20 +144,19 @@ export class ProposalsResolver {
         where: {
           accountId: account,
           approvers: { some: { userId: user } },
+          isRemoved: false,
         },
         orderBy: [{ approvers: { _count: 'asc' } }, { id: 'asc' }],
         select: { quorumKey: true },
       });
 
-      if (!quorum) throw new UserInputError(`Device doesn't belong to any quorums`);
+      if (!quorum) throw new UserInputError('No quorum could be found for this account');
       quorumKey = toQuorumKey(quorum.quorumKey);
     }
 
     const proposal = await this.service.create({
-      account,
-      data: {
-        proposer: { connect: { id: user } },
-        quorum: connectQuorum(account, quorumKey),
+      quorum: { account, key: quorumKey },
+      options: {
         to,
         value,
         data,
@@ -177,19 +167,14 @@ export class ProposalsResolver {
     });
 
     return signature
-      ? this.service.approve({ id: proposal.id, user, signature, ...getSelect(info) })
+      ? this.service.approve({ id: proposal.id, signature, ...getSelect(info) })
       : proposal;
   }
 
   @Mutation(() => Proposal)
-  async approve(
-    @Args() args: ApproveArgs,
-    @UserId() user: Address,
-    @Info() info: GraphQLResolveInfo,
-  ): Promise<Proposal> {
+  async approve(@Args() args: ApproveArgs, @Info() info: GraphQLResolveInfo): Promise<Proposal> {
     return this.service.approve({
       ...args,
-      user,
       ...getSelect(info),
     });
   }

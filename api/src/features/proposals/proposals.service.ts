@@ -2,11 +2,16 @@ import { forwardRef, Inject, Injectable } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
 import { UserInputError } from 'apollo-server-core';
 import { hexlify } from 'ethers/lib/utils';
-import { Address, toTx, hashTx, randomTxSalt, isValidSignature, TxOptions } from 'lib';
+import { toTx, hashTx, isValidSignature, TxOptions, QuorumGuid } from 'lib';
 import { PrismaService } from '../util/prisma/prisma.service';
 import { ProviderService } from '~/features/util/provider/provider.service';
 import { PubsubService } from '~/features/util/pubsub/pubsub.service';
-import { connectAccount, connectOrCreateUser } from '~/util/connect-or-create';
+import {
+  connectAccount,
+  connectOrCreateUser,
+  connectQuorum,
+  connectUser,
+} from '~/util/connect-or-create';
 import { TransactionsService } from '../transactions/transactions.service';
 import {
   ACCOUNT_PROPOSAL_SUB_TRIGGER,
@@ -15,14 +20,14 @@ import {
   ProposalSubscriptionPayload,
   PROPOSAL_SUBSCRIPTION,
 } from './proposals.args';
+import { getUserContext } from '~/request/ctx';
 
 type CreateParams<T extends Prisma.ProposalCreateArgs> = {
-  account: Address;
-  data: TxOptions & Omit<Prisma.ProposalCreateInput, keyof TxOptions | 'account' | 'id'>;
+  quorum: QuorumGuid;
+  options: TxOptions;
 } & Omit<Prisma.SelectSubset<T, Prisma.ProposalCreateArgs>, 'data'>;
 
-type ApproveParams = { user: Address } & ApproveArgs &
-  Omit<Prisma.ProposalFindUniqueOrThrowArgs, 'where'>;
+type ApproveParams = ApproveArgs & Omit<Prisma.ProposalFindUniqueOrThrowArgs, 'where'>;
 
 @Injectable()
 export class ProposalsService {
@@ -35,23 +40,23 @@ export class ProposalsService {
   ) {}
 
   async create<T extends Prisma.ProposalCreateArgs>(
-    { account, data, ...args }: CreateParams<T>,
-    client: Prisma.TransactionClient = this.prisma,
+    { quorum, options, ...args }: CreateParams<T>,
+    client: Prisma.TransactionClient = this.prisma.asUser,
   ): Promise<Prisma.ProposalGetPayload<T>> {
-    const tx = toTx(data);
-    const id = await hashTx(tx, { address: account, provider: this.provider });
+    const tx = toTx(options);
 
     const proposal = (await client.proposal.create({
       ...args,
       data: {
-        ...data,
-        account: connectAccount(account),
-        id,
+        id: await hashTx(tx, this.provider.connectAccount(quorum.account)),
+        account: connectAccount(quorum.account),
+        quorum: connectQuorum(quorum),
+        proposer: connectUser(getUserContext().id),
         to: tx.to,
-        value: data.value?.toString(),
-        data: data.data ? hexlify(data.data) : undefined,
-        salt: data.salt ?? randomTxSalt(),
-        gasLimit: data.gasLimit?.toString(),
+        value: tx.value?.toString(),
+        data: tx.data ? hexlify(tx.data) : undefined,
+        salt: tx.salt,
+        gasLimit: tx.gasLimit?.toString(),
       },
     })) as Prisma.ProposalGetPayload<T>;
 
@@ -60,10 +65,14 @@ export class ProposalsService {
     return proposal;
   }
 
-  async approve({ id, signature, user, ...args }: ApproveParams) {
+  async approve(
+    { id, signature, ...args }: ApproveParams,
+    client: Prisma.TransactionClient = this.prisma.asUser,
+  ) {
+    const user = getUserContext().id;
     if (!isValidSignature(user, id, signature)) throw new UserInputError('Invalid signature');
 
-    await this.prisma.proposal.update({
+    await client.proposal.update({
       where: { id },
       data: {
         approvals: {
@@ -78,7 +87,7 @@ export class ProposalsService {
 
     await this.transactions.tryExecute(id);
 
-    const proposal = await this.prisma.proposal.findUniqueOrThrow({
+    const proposal = await client.proposal.findUniqueOrThrow({
       ...args,
       where: { id },
     });

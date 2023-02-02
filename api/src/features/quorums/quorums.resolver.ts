@@ -96,7 +96,6 @@ export class QuorumsResolver {
   @Mutation(() => Quorum)
   async createQuorum(
     @Args() args: CreateQuorumArgs,
-    @UserId() user: Address,
     @Info() info: GraphQLResolveInfo,
   ): Promise<Quorum> {
     return this.prisma.$transaction(async (tx) => {
@@ -114,7 +113,6 @@ export class QuorumsResolver {
 
       return this.service.createUpsertState({
         ...args,
-        proposer: user,
         key,
         tx,
         quorumArgs: getSelect(info),
@@ -125,13 +123,11 @@ export class QuorumsResolver {
   @Mutation(() => Quorum)
   async updateQuorum(
     @Args() args: UpdateQuorumArgs,
-    @UserId() user: Address,
     @Info() info: GraphQLResolveInfo,
   ): Promise<Quorum> {
     return this.prisma.$transaction(async (tx) =>
       this.service.createUpsertState({
         ...args,
-        proposer: user,
         proposingQuorumKey: args.proposingQuorumKey ?? args.key,
         tx,
         quorumArgs: getSelect(info),
@@ -152,7 +148,6 @@ export class QuorumsResolver {
   @Mutation(() => Quorum)
   async removeQuorum(
     @Args() { account, key, proposingQuorumKey = key }: RemoveQuorumArgs,
-    @UserId() user: Address,
     @Info() info: GraphQLResolveInfo,
   ): Promise<Quorum> {
     return this.prisma.$transaction(async (tx) => {
@@ -168,12 +163,10 @@ export class QuorumsResolver {
         isActive &&
         (await this.proposals.create(
           {
-            account,
-            data: {
+            quorum: { account, key: proposingQuorumKey },
+            options: {
               to: account,
               data: ACCOUNT_INTERFACE.encodeFunctionData('removeQuorum', [key]),
-              proposer: { connect: { id: user } },
-              quorum: connectQuorum(account, proposingQuorumKey),
             },
             select: {
               id: true,

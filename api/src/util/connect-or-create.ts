@@ -7,6 +7,13 @@ export const connectAccount = (
   connect: { id },
 });
 
+export const connectUser = (id: Address): Prisma.UserCreateNestedOneWithoutApprovalsInput => ({
+  connectOrCreate: {
+    where: { id },
+    create: { id },
+  },
+});
+
 export const connectOrCreateUser = (
   id: Address,
 ): Prisma.UserCreateNestedOneWithoutApprovalsInput => ({
