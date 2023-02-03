@@ -26,12 +26,10 @@ export class PrismaMockService extends PrismaService {
         DATABASE_URL: this.url,
       },
     });
-
-    await this.onModuleInit(); // Lifecycle events are not called in tests
   }
 
   async truncate() {
-    const tablenames = await this.$queryRaw<
+    const tablenames = await this.asSuperuser.$queryRaw<
       Array<{ tablename: string }>
     >`SELECT tablename FROM pg_tables WHERE schemaname='public'`;
 
@@ -45,7 +43,7 @@ export class PrismaMockService extends PrismaService {
   }
 
   async drop() {
-    await this.$disconnect();
+    await this.asSuperuser.$disconnect();
     const client = new PrismaClient({ datasources: { db: { url: CONFIG.databaseUrl } } });
     await client.$executeRawUnsafe(`DROP DATABASE "${this.database}" WITH (FORCE)`);
   }

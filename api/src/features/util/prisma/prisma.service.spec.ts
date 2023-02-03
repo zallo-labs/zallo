@@ -18,6 +18,6 @@ describe(PrismaService.name, () => {
   });
 
   it('Should be connected', async () => {
-    expect(await service.$executeRaw`SELECT 1;`).toEqual(1);
+    expect(await service.asSuperuser.$executeRaw`SELECT 1;`).toEqual(1);
   });
 });
