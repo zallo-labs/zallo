@@ -2,7 +2,7 @@ import { createMock, DeepMocked } from '@golevelup/ts-jest';
 import { Test, TestingModule } from '@nestjs/testing';
 import { Prisma } from '@prisma/client';
 import { hexlify, randomBytes } from 'ethers/lib/utils';
-import { Address, randomDeploySalt, randomQuorumKey, randomTxSalt } from 'lib';
+import { Address, randomDeploySalt, randomTxSalt, toQuorumKey } from 'lib';
 import { asUser, getUserId, UserContext } from '~/request/ctx';
 import { connectOrCreateUser } from '~/util/connect-or-create';
 import { randomAddress } from '~/util/test';
@@ -37,7 +37,7 @@ describe(ProposalsResolver.name, () => {
   const propose = (
     {
       account = user1Account1,
-      quorumKey = randomQuorumKey(),
+      quorumKey = toQuorumKey(1),
       to = account,
       salt = randomTxSalt(),
       ...args
@@ -61,7 +61,12 @@ describe(ProposalsResolver.name, () => {
         data: {
           id,
           account: acc,
-          quorum: { create: { account: acc, key: quorumKey, name: '' } },
+          quorum: {
+            connectOrCreate: {
+              where: { accountId_key: { accountId: account, key: quorumKey } },
+              create: { account: acc, key: quorumKey, name: '' },
+            },
+          },
           proposer: connectOrCreateUser(),
           to,
           salt,
@@ -155,10 +160,8 @@ describe(ProposalsResolver.name, () => {
 
     it('only returns proposals from accounts (if explicity provided)', () =>
       asUser(user1, async () => {
-        await Promise.all([
-          propose({ account: user1Account1 }),
-          propose({ account: user1Account2 }),
-        ]);
+        await propose({ account: user1Account1 });
+        await propose({ account: user1Account2 });
 
         const proposals = await resolver.proposals({ accounts: new Set([user1Account1]) });
         expect(new Set(proposals.map((p) => p.accountId))).toEqual(new Set([user1Account1]));

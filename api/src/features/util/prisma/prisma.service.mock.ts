@@ -45,7 +45,8 @@ export class PrismaMockService extends PrismaService {
   async drop() {
     await this.asSuperuser.$disconnect();
     const client = new PrismaClient({ datasources: { db: { url: CONFIG.databaseUrl } } });
-    await client.$executeRawUnsafe(`DROP DATABASE "${this.database}" WITH (FORCE)`);
+    // Database will be setup if no tests are run in a file (e.g. all todos)
+    await client.$executeRawUnsafe(`DROP DATABASE IF EXISTS "${this.database}" WITH (FORCE)`);
   }
 }
 
