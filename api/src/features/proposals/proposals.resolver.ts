@@ -35,7 +35,7 @@ import { ProposalWhereInput } from '@gen/proposal/proposal-where.input';
 import { ProposalsService } from './proposals.service';
 import { Transaction } from '@gen/transaction/transaction.model';
 import { PubsubService } from '~/features/util/pubsub/pubsub.service';
-import { getUser } from '~/request/ctx';
+import { getUser, getUserId } from '~/request/ctx';
 
 @Resolver(() => Proposal)
 export class ProposalsResolver {
@@ -60,9 +60,10 @@ export class ProposalsResolver {
   @Query(() => [Proposal])
   async proposals(
     @Args() { accounts, states, actionRequired, ...args }: ProposalsArgs,
-    @UserId() user: Address,
     @Info() info?: GraphQLResolveInfo,
   ): Promise<Proposal[]> {
+    const user = getUserId();
+
     return this.prisma.asUser.proposal.findMany({
       ...args,
       where: {
@@ -154,7 +155,7 @@ export class ProposalsResolver {
       quorumKey = toQuorumKey(quorum.quorumKey);
     }
 
-    const proposal = await this.service.create({
+    const proposal = await this.service.propose({
       quorum: { account, key: quorumKey },
       options,
       ...(signature ? { select: { id: true } } : getSelect(info)),
@@ -175,36 +176,10 @@ export class ProposalsResolver {
 
   @Mutation(() => Proposal)
   async reject(
-    @Args() { id }: UniqueProposalArgs,
-    @UserId() user: Address,
+    @Args() args: UniqueProposalArgs,
     @Info() info?: GraphQLResolveInfo,
   ): Promise<Proposal> {
-    const proposal = await this.prisma.asUser.proposal.update({
-      where: { id },
-      data: {
-        approvals: {
-          upsert: {
-            where: {
-              proposalId_userId: {
-                proposalId: id,
-                userId: user,
-              },
-            },
-            create: {
-              user: connectOrCreateUser(user),
-            },
-            update: {
-              signature: null,
-              createdAt: new Date(),
-            },
-          },
-        },
-      },
-      ...getSelect(info),
-    });
-    this.service.publishProposal({ proposal, event: ProposalEvent.update });
-
-    return proposal;
+    return this.service.reject(args, { ...getSelect(info) });
   }
 
   @Mutation(() => Proposal)
@@ -218,6 +193,7 @@ export class ProposalsResolver {
     });
   }
 
+  // TODO: remove mutation; send notifications on the 1st approval of a proposal
   @Mutation(() => Boolean)
   async requestApproval(
     @Args() { id, approvers }: ApprovalRequest,

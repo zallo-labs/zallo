@@ -47,7 +47,7 @@ export class QuorumsService {
         : undefined,
     };
 
-    const { id: proposalId } = await this.proposals.create(
+    const { id: proposalId } = await this.proposals.propose(
       {
         quorum: { account, key: proposingQuorumKey },
         options: {

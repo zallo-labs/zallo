@@ -161,7 +161,7 @@ export class QuorumsResolver {
       // No proposal is required if the quorum isn't active
       const proposal =
         isActive &&
-        (await this.proposals.create(
+        (await this.proposals.propose(
           {
             quorum: { account, key: proposingQuorumKey },
             options: {

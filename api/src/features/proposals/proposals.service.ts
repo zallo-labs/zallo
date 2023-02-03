@@ -1,5 +1,5 @@
 import { forwardRef, Inject, Injectable } from '@nestjs/common';
-import { Prisma } from '@prisma/client';
+import { Prisma, Proposal } from '@prisma/client';
 import { UserInputError } from 'apollo-server-core';
 import { hexlify } from 'ethers/lib/utils';
 import { toTx, hashTx, isValidSignature, TxOptions, QuorumGuid } from 'lib';
@@ -19,8 +19,9 @@ import {
   ProposalEvent,
   ProposalSubscriptionPayload,
   PROPOSAL_SUBSCRIPTION,
+  UniqueProposalArgs,
 } from './proposals.args';
-import { getUser } from '~/request/ctx';
+import { getUser, getUserId } from '~/request/ctx';
 
 type CreateParams<T extends Prisma.ProposalCreateArgs> = {
   quorum: QuorumGuid;
@@ -39,10 +40,10 @@ export class ProposalsService {
     private transactions: TransactionsService,
   ) {}
 
-  async create<T extends Prisma.ProposalCreateArgs>(
+  async propose<T extends Prisma.ProposalCreateArgs>(
     { quorum, options, ...args }: CreateParams<T>,
     client: Prisma.TransactionClient = this.prisma.asUser,
-  ): Promise<Prisma.ProposalGetPayload<T>> {
+  ) {
     const tx = toTx(options);
 
     const proposal = (await client.proposal.create({
@@ -92,6 +93,38 @@ export class ProposalsService {
       ...args,
       where: { id },
     });
+
+    this.publishProposal({ proposal, event: ProposalEvent.update });
+
+    return proposal;
+  }
+
+  async reject<T extends Prisma.ProposalArgs>({ id }: UniqueProposalArgs, respArgs?: T) {
+    const user = getUserId();
+
+    const proposal = (await this.prisma.asUser.proposal.update({
+      where: { id },
+      data: {
+        approvals: {
+          upsert: {
+            where: {
+              proposalId_userId: {
+                proposalId: id,
+                userId: user,
+              },
+            },
+            create: {
+              user: connectOrCreateUser(user),
+            },
+            update: {
+              signature: null,
+              createdAt: new Date(),
+            },
+          },
+        },
+      },
+      ...respArgs,
+    })) as Prisma.ProposalGetPayload<T>;
 
     this.publishProposal({ proposal, event: ProposalEvent.update });
 

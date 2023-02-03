@@ -30,11 +30,13 @@ describe(ProposalsResolver.name, () => {
   });
 
   let user1: UserContext;
-  let user1Account: Address;
+  let user1Account1: Address;
+  let user1Account2: Address;
+  let user2: UserContext;
 
   const propose = (
     {
-      account = user1Account,
+      account = user1Account1,
       quorumKey = randomQuorumKey(),
       to = account,
       salt = randomTxSalt(),
@@ -42,7 +44,7 @@ describe(ProposalsResolver.name, () => {
     }: Partial<ProposeArgs> = {},
     id = hexlify(randomBytes(32)),
   ) => {
-    service.create.mockImplementationOnce(async () => {
+    service.propose.mockImplementationOnce(async () => {
       const acc: Prisma.AccountCreateNestedOneWithoutProposalsInput = {
         connectOrCreate: {
           where: { id: account },
@@ -89,18 +91,20 @@ describe(ProposalsResolver.name, () => {
   };
 
   beforeEach(async () => {
-    user1Account = randomAddress();
+    user1Account1 = randomAddress();
+    user1Account2 = randomAddress();
     user1 = {
       id: randomAddress(),
-      accounts: new Set([user1Account]),
+      accounts: new Set([user1Account1, user1Account2]),
     };
+    user2 = { id: randomAddress(), accounts: new Set() };
   });
 
   describe('propose', () => {
     it('creates a proposal', () =>
       asUser(user1, async () => {
         await propose();
-        expect(service.create).toBeCalled();
+        expect(service.propose).toBeCalled();
       }));
 
     it('approves proposal if signature was provided', () =>
@@ -111,56 +115,92 @@ describe(ProposalsResolver.name, () => {
   });
 
   describe('proposal', () => {
-    it.only('returns proposal', () =>
+    it('returns proposal', () =>
       asUser(user1, async () => {
         const { id } = await propose();
         expect(await resolver.proposal({ id })).toBeTruthy();
       }));
 
-    it.todo("returns null if the proposal doesn't exist");
+    it("returns null if the proposal doesn't exist", () =>
+      asUser(user1, async () => {
+        expect(await resolver.proposal({ id: hexlify(randomBytes(32)) })).toBeNull();
+      }));
 
-    it.todo("returns null if the proposal if from an account the user isn't a member of");
+    it("returns null if the proposal if from an account the user isn't a member of", async () => {
+      const { id } = await asUser(user1, () => propose());
+
+      await asUser(user2, async () => {
+        expect(await resolver.proposal({ id })).toBeNull();
+      });
+    });
   });
 
   describe('proposals', () => {
-    it.todo('returns proposals');
+    it('returns proposals', () =>
+      asUser(user1, async () => {
+        const { id: id1 } = await propose();
+        const { id: id2 } = await propose();
 
-    it.todo("doesn't return proposals from accounts the user's a member of");
+        const proposals = (await resolver.proposals({})).map((p) => p.id);
+        expect(new Set(proposals)).toEqual(new Set([id1, id2]));
+      }));
 
-    it.todo('only returns proposals from accounts if explicity provided');
+    it("doesn't return proposals from accounts the user's a member of", async () => {
+      await asUser(user1, () => propose());
+
+      await asUser(user2, async () => {
+        expect(await resolver.proposals({})).toHaveLength(0);
+      });
+    });
+
+    it('only returns proposals from accounts (if explicity provided)', () =>
+      asUser(user1, async () => {
+        await Promise.all([
+          propose({ account: user1Account1 }),
+          propose({ account: user1Account2 }),
+        ]);
+
+        const proposals = await resolver.proposals({ accounts: new Set([user1Account1]) });
+        expect(new Set(proposals.map((p) => p.accountId))).toEqual(new Set([user1Account1]));
+      }));
 
     it.todo('filters by states');
   });
 
   describe('approve', () => {
-    it.todo('adds approval to proposal');
-
-    it.todo("throws if proposal doesn't exist");
-
-    it.todo("throws if the user doesn't belong to the proposing quorum");
-
-    it.todo("throws if the signature isn't valid (from the user & for the proposal)");
+    it('approves proposal', () =>
+      asUser(user1, async () => {
+        const { id } = await propose();
+        await resolver.approve({ id, signature: '0xsignature' });
+        expect(service.approve).toBeCalled();
+      }));
   });
 
   describe('reject', () => {
-    it.todo('adds rejection to proposal');
-
-    it.todo('adds rejection to proposal when the user had previously approved');
-
-    it.todo("throws if the proposal doesn't exist");
-
-    it.todo("throws if the user doesn't belong to the proposing quorum");
+    it('rejects proposal', () =>
+      asUser(user1, async () => {
+        const { id } = await propose();
+        await resolver.reject({ id });
+        expect(service.reject).toBeCalled();
+      }));
   });
 
   describe('removeProposal', () => {
-    it.todo('deletes proposal');
+    it('deletes proposal', () =>
+      asUser(user1, async () => {
+        const { id } = await propose();
+        await resolver.removeProposal({ id });
+        expect(await prisma.asUser.proposal.findUnique({ where: { id } })).toBeNull();
+      }));
 
-    it.todo("throws if the proposal doesn't exist");
+    it("throws if the proposal doesn't exist", () =>
+      asUser(user1, async () => {
+        await expect(resolver.removeProposal({ id: "doesn't exist" })).rejects.toThrow();
+      }));
 
-    it.todo("throws if the user doesn't belong to the proposing quorum");
-  });
-
-  describe('requestApproval', () => {
-    // TODO: consider removing, and make notifications automatic on proposal?
+    it("throws if the user doesn't belong to the proposing quorum", async () => {
+      const { id } = await asUser(user1, () => propose());
+      await expect(resolver.removeProposal({ id })).rejects.toThrow();
+    });
   });
 });
