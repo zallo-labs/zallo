@@ -85,7 +85,8 @@ export class ProposalsService {
       select: null,
     });
 
-    await this.transactions.tryExecute(id);
+    const executedProposal = await this.transactions.tryExecute(id, args);
+    if (executedProposal) return executedProposal; // proposal update is published upon execution
 
     const proposal = await client.proposal.findUniqueOrThrow({
       ...args,

@@ -16,6 +16,7 @@ import { PrismaService } from '../util/prisma/prisma.service';
 import { ProviderService } from '~/features/util/provider/provider.service';
 import { ProposalEvent } from '../proposals/proposals.args';
 import { ProposalsService } from '../proposals/proposals.service';
+import { Prisma } from '@prisma/client';
 
 export interface TransactionResponseJob {
   transactionHash: string;
@@ -39,7 +40,10 @@ export class TransactionsService {
     this.addMissingResponseJobs();
   }
 
-  async tryExecute(proposalId: string) {
+  async tryExecute<T extends Prisma.ProposalArgs>(
+    proposalId: string,
+    respArgs?: T,
+  ): Promise<Prisma.ProposalGetPayload<T> | undefined> {
     const proposal = await this.prisma.asUser.proposal.findUniqueOrThrow({
       where: { id: proposalId },
       include: {
@@ -113,12 +117,14 @@ export class TransactionsService {
         gasPrice: transaction.gasPrice?.toString(),
       },
       select: {
-        proposal: true,
+        proposal: { ...respArgs } ?? { select: { id: true } },
       },
     });
     this.proposals.publishProposal({ proposal: updatedProposal, event: ProposalEvent.update });
 
     this.responseQueue.add({ transactionHash: transaction.hash }, { delay: 1000 /* 1s */ });
+
+    return updatedProposal as Prisma.ProposalGetPayload<T>;
   }
 
   private async addMissingResponseJobs() {
