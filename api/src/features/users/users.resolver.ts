@@ -2,34 +2,33 @@ import { Args, Info, Mutation, Parent, Query, ResolveField, Resolver } from '@ne
 import { PrismaService } from '../util/prisma/prisma.service';
 import { GraphQLResolveInfo } from 'graphql';
 import { getSelect } from '~/util/select';
-import { UpdateUserArgs, UserArgs } from './users.args';
-import { UserId } from '~/decorators/user.decorator';
-import { User } from '@gen/user/user.model';
-import { Address } from 'lib';
+import { UpdateUserArgs, User, UserArgs } from './users.args';
 import { ProviderService } from '../util/provider/provider.service';
+import { getUserId } from '~/request/ctx';
 
 @Resolver(() => User)
 export class UsersResolver {
   constructor(private prisma: PrismaService, private provider: ProviderService) {}
 
-  @Query(() => User, { nullable: true })
+  @Query(() => User)
   async user(
-    @UserId() user: Address,
-    @Args() { id = user }: UserArgs,
-    @Info() info: GraphQLResolveInfo,
-  ): Promise<User | null> {
+    @Args() { id = getUserId() }: UserArgs,
+    @Info() info?: GraphQLResolveInfo,
+  ): Promise<User> {
     return (
       (await this.prisma.asUser.user.findUnique({
         where: { id },
-        ...getSelect(info),
-      })) ?? { id, name: null, pushToken: null }
+        // Prevent pushToken from being included by default, as prevented by RLS
+        select: { id: true, name: true, pushToken: false },
+        ...(getSelect(info) as any),
+      })) ?? { id, name: null }
     );
   }
 
   @ResolveField(() => String, { nullable: true })
-  async name(@Parent() user: User, @UserId() userUser: Address): Promise<string | null> {
+  async name(@Parent() user: User): Promise<string | null> {
     const contact = this.prisma.asUser.contact.findUnique({
-      where: { userId_addr: { userId: userUser, addr: user.id } },
+      where: { userId_addr: { userId: getUserId(), addr: user.id } },
       select: { name: true },
     });
 
@@ -49,9 +48,10 @@ export class UsersResolver {
   @Mutation(() => User)
   async updateUser(
     @Args() { name, pushToken }: UpdateUserArgs,
-    @UserId() user: Address,
-    @Info() info: GraphQLResolveInfo,
+    @Info() info?: GraphQLResolveInfo,
   ): Promise<User> {
+    const user = getUserId();
+
     return this.prisma.asUser.user.upsert({
       where: { id: user },
       create: {
@@ -63,7 +63,8 @@ export class UsersResolver {
         name,
         pushToken,
       },
-      ...getSelect(info),
+      select: { id: true, name: true, pushToken: false },
+      ...(getSelect(info) as any),
     });
   }
 }
