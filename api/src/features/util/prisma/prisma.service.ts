@@ -28,19 +28,19 @@ const getUserClient = (prisma: PrismaClient) =>
   });
 
 @Injectable()
-export class PrismaService {
-  readonly asSuperuser: PrismaClient;
+export class PrismaService<T extends Prisma.PrismaClientOptions = Prisma.PrismaClientOptions> {
+  readonly asSuperuser: PrismaClient<T>;
   readonly asUser: ReturnType<typeof getUserClient>;
 
-  constructor(@Optional() ...params: ConstructorParameters<typeof PrismaClient>) {
-    this.asSuperuser = new PrismaClient(...params);
+  constructor(@Optional() options?: Prisma.Subset<T, Prisma.PrismaClientOptions>) {
+    this.asSuperuser = new PrismaClient(options);
     this.asSuperuser.$use(loggingMiddleware());
 
     this.asUser = getUserClient(this.asSuperuser);
   }
 
   enableShutdownHooks(app: INestApplication | INestMicroservice) {
-    return this.asSuperuser.$on('beforeExit', () => app.close());
+    this.asSuperuser.$on('beforeExit', () => app.close());
   }
 
   $transactionAsUser<R>(
