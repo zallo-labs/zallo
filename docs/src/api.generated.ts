@@ -379,7 +379,7 @@ export type Mutation = {
   createComment: Comment;
   createQuorum: Quorum;
   deleteComment: Comment;
-  deleteContact: Scalars['Boolean'];
+  deleteContact: Contact;
   propose: Proposal;
   reactToComment?: Maybe<Reaction>;
   reject: Proposal;
@@ -743,7 +743,7 @@ export type Query = {
   quorum?: Maybe<Quorum>;
   quorums: Array<Quorum>;
   requestableTokens: Array<Scalars['Address']>;
-  user?: Maybe<User>;
+  user: User;
 };
 
 
@@ -1225,7 +1225,6 @@ export type User = {
   id: Scalars['ID'];
   name?: Maybe<Scalars['String']>;
   proposals?: Maybe<Array<Proposal>>;
-  pushToken?: Maybe<Scalars['String']>;
   reactions?: Maybe<Array<Reaction>>;
 };
 

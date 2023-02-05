@@ -5,7 +5,7 @@ import { asUser, UserContext } from '~/request/ctx';
 import { asPrismaPromise, randomAddress } from '~/util/test';
 import { PrismaService } from '../util/prisma/prisma.service';
 import { PRISMA_MOCK_PROVIDER } from '../util/prisma/prisma.service.mock';
-import { User } from './users.args';
+import { User } from '@gen/user/user.model';
 import { UsersResolver } from './users.resolver';
 
 describe(UsersResolver.name, () => {
@@ -54,7 +54,9 @@ describe(UsersResolver.name, () => {
           .spyOn(prisma.asUser.contact, 'findUnique')
           .mockReturnValue(asPrismaPromise((async () => contact)()) as any);
 
-        expect(await resolver.name({ id: 'das', name: 'user name' })).toEqual(contact.name);
+        expect(await resolver.name({ id: 'das', name: 'user name', pushToken: null })).toEqual(
+          contact.name,
+        );
       }));
 
     it('returns account name if the address is an account and the caller is a member', () =>
@@ -64,7 +66,9 @@ describe(UsersResolver.name, () => {
           .spyOn(prisma.asUser.account, 'findUnique')
           .mockReturnValue(asPrismaPromise((async () => account)()) as any);
 
-        expect(await resolver.name({ id: 'das', name: 'user name' })).toEqual(account.name);
+        expect(await resolver.name({ id: 'das', name: 'user name', pushToken: null })).toEqual(
+          account.name,
+        );
       }));
   });
 });

@@ -2,7 +2,8 @@ import { Args, Info, Mutation, Parent, Query, ResolveField, Resolver } from '@ne
 import { PrismaService } from '../util/prisma/prisma.service';
 import { GraphQLResolveInfo } from 'graphql';
 import { getSelect } from '~/util/select';
-import { UpdateUserArgs, User, UserArgs } from './users.args';
+import { UpdateUserArgs, UserArgs } from './users.args';
+import { User } from '@gen/user/user.model';
 import { ProviderService } from '../util/provider/provider.service';
 import { getUserId } from '~/request/ctx';
 
@@ -21,7 +22,7 @@ export class UsersResolver {
         // Prevent pushToken from being included by default, as prevented by RLS
         select: { id: true, name: true, pushToken: false },
         ...(getSelect(info) as any),
-      })) ?? { id, name: null }
+      })) ?? { id, name: null, pushToken: null }
     );
   }
 
