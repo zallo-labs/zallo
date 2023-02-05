@@ -2,14 +2,14 @@ import { SpendingFallback } from '@gen/prisma/spending-fallback.enum';
 import { FindManyQuorumArgs } from '@gen/quorum/find-many-quorum.args';
 import { ArgsType, Field, InputType, registerEnumType } from '@nestjs/graphql';
 import { BigNumber } from 'ethers';
-import { Address, Quorum, QuorumKey, TokenLimitPeriod } from 'lib';
+import { Address, Quorum, QuorumGuid, QuorumKey, TokenLimitPeriod } from 'lib';
 import { AddressField, AddressScalar } from '~/apollo/scalars/Address.scalar';
 import { BigNumberField } from '~/apollo/scalars/BigNumber.scalar';
 import { QuorumKeyField } from '~/apollo/scalars/QuorumKey.sclar';
 import { SetField } from '~/apollo/scalars/SetField';
 
 @ArgsType()
-export class UniqueQuorumArgs {
+export class UniqueQuorumArgs implements QuorumGuid {
   @AddressField()
   account: Address;
 

@@ -1,5 +1,5 @@
 import { INestApplication, INestMicroservice, Injectable, Optional } from '@nestjs/common';
-import { PrismaClient } from '@prisma/client';
+import { Prisma, PrismaClient } from '@prisma/client';
 import { getUser } from '~/request/ctx';
 import { loggingMiddleware } from './prisma.logging';
 
@@ -41,5 +41,12 @@ export class PrismaService {
 
   enableShutdownHooks(app: INestApplication | INestMicroservice) {
     return this.asSuperuser.$on('beforeExit', () => app.close());
+  }
+
+  $transactionAsUser<R>(
+    tx: Prisma.TransactionClient | undefined,
+    f: (prisma: Prisma.TransactionClient) => Promise<R>,
+  ) {
+    return tx ? f(tx) : this.asUser.$transaction((tx) => f(tx));
   }
 }
