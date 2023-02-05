@@ -31,7 +31,7 @@ library MerkleProof {
     //   `proof` array.
     bytes32 a;
     bytes32 b;
-    for (uint256 i = 0; i < totalHashes; ) {
+    for (uint256 i; i < totalHashes; ) {
       a = leafPos < leavesLen ? leaves[leafPos++] : hashes[hashPos++];
       b = leafPos < leavesLen ? leaves[leafPos++] : hashes[hashPos++];
       hashes[i] = _hashPair(a, b);
@@ -50,9 +50,15 @@ library MerkleProof {
 
   function processProof(bytes32[] memory proof, bytes32 leaf) internal pure returns (bytes32) {
     bytes32 computedHash = leaf;
-    for (uint256 i = 0; i < proof.length; i++) {
+    uint256 proofLength = proof.length;
+    for (uint256 i; i < proofLength; ) {
       computedHash = _hashPair(computedHash, proof[i]);
+
+      unchecked {
+        ++i;
+      }
     }
+
     return computedHash;
   }
 
@@ -84,7 +90,7 @@ library MerkleProof {
     //   `proof` array.
     bytes32 a;
     bytes32 b;
-    for (uint256 i = 0; i < totalHashes; ) {
+    for (uint256 i; i < totalHashes; ) {
       a = leafPos < leavesLen ? leaves[leafPos++] : hashes[hashPos++];
       b = BoolArray.atIndex(proofFlags, i)
         ? leafPos < leavesLen ? leaves[leafPos++] : hashes[hashPos++]

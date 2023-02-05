@@ -4,6 +4,7 @@ services:
   pg:
     image: postgres:14-alpine
     restart: always
+    command: ['postgres', '-c', 'log_statement=all', '-c', 'log_line_prefix=%t ']
     environment:
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=postgres

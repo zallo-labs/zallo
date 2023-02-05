@@ -80,7 +80,7 @@ abstract contract TransactionExecutor is EIP712 {
   /// @return True if the transaction has been executed
   function hasBeenExecuted(bytes32 txHash) public view returns (bool) {
     uint256 index = uint256(txHash);
-    uint256 wordIndex = index / 256;
+    uint256 wordIndex = index >> 256;
     uint256 bitIndex = index % 256;
     uint256 mask = (1 << bitIndex);
     return _executedTransactions()[wordIndex] & mask == mask;
@@ -88,7 +88,7 @@ abstract contract TransactionExecutor is EIP712 {
 
   function _setExecuted(bytes32 txHash) internal {
     uint256 index = uint256(txHash);
-    uint256 wordIndex = index / 256;
+    uint256 wordIndex = index >> 256;
     uint256 bitIndex = index % 256;
 
     mapping(uint256 => uint256) storage executedTxs = _executedTransactions();

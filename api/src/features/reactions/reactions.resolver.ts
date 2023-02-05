@@ -2,7 +2,7 @@ import { Reaction } from '@gen/reaction/reaction.model';
 import { Args, Info, Mutation, Parent, ResolveField, Resolver } from '@nestjs/graphql';
 import { GraphQLResolveInfo } from 'graphql';
 import { Address, Id, toId } from 'lib';
-import { PrismaService } from 'nestjs-prisma';
+import { PrismaService } from '../util/prisma/prisma.service';
 import { UserId } from '~/decorators/user.decorator';
 import { connectOrCreateUser } from '~/util/connect-or-create';
 import { getSelect } from '~/util/select';
@@ -23,7 +23,7 @@ export class ReactionsResolver {
     @UserId() user: Address,
     @Info() info: GraphQLResolveInfo,
   ): Promise<Reaction | null> {
-    return this.prisma.reaction.upsert({
+    return this.prisma.asUser.reaction.upsert({
       where: {
         commentId_userId: {
           commentId: id,

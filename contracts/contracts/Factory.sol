@@ -16,7 +16,7 @@ contract Factory {
   function deploy(
     bytes calldata constructorArgsData,
     bytes32 salt
-  ) external returns (address account) {
+  ) external payable returns (address account) {
     (bool success, bytes memory data) = SystemContractsCaller.systemCallWithReturndata(
       uint32(gasleft()),
       address(DEPLOYER_SYSTEM_CONTRACT),

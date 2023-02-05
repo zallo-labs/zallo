@@ -1,8 +1,7 @@
-import { Config } from '@jest/types';
-import { pathsToModuleNameMapper } from 'ts-jest';
+import { JestConfigWithTsJest, pathsToModuleNameMapper } from 'ts-jest';
 const { compilerOptions } = require('./tsconfig.json');
 
-const config: Config.InitialOptions = {
+const config: JestConfigWithTsJest = {
   preset: 'ts-jest',
   testEnvironment: 'node',
   testRegex: '.*\\.spec\\.ts$',
@@ -11,6 +10,7 @@ const config: Config.InitialOptions = {
     uuid: require.resolve('uuid'), // https://github.com/uuidjs/uuid/issues/451#issuecomment-1112328417
     msgpackr: require.resolve('msgpackr'),
   },
+  testTimeout: 30_000,
 };
 
 export default config;

@@ -12,10 +12,11 @@ import {
   toTx,
   TokenLimit,
 } from 'lib';
-import { PrismaService } from 'nestjs-prisma';
+import { PrismaService } from '../util/prisma/prisma.service';
 import { ProviderService } from '~/features/util/provider/provider.service';
 import { ProposalEvent } from '../proposals/proposals.args';
 import { ProposalsService } from '../proposals/proposals.service';
+import { Prisma } from '@prisma/client';
 
 export interface TransactionResponseJob {
   transactionHash: string;
@@ -39,8 +40,11 @@ export class TransactionsService {
     this.addMissingResponseJobs();
   }
 
-  async tryExecute(proposalId: string) {
-    const proposal = await this.prisma.proposal.findUniqueOrThrow({
+  async tryExecute<T extends Prisma.ProposalArgs>(
+    proposalId: string,
+    respArgs?: T,
+  ): Promise<Prisma.ProposalGetPayload<T> | undefined> {
+    const proposal = await this.prisma.asUser.proposal.findUniqueOrThrow({
       where: { id: proposalId },
       include: {
         approvals: {
@@ -104,7 +108,7 @@ export class TransactionsService {
       signers,
     });
 
-    const { proposal: updatedProposal } = await this.prisma.transaction.create({
+    const { proposal: updatedProposal } = await this.prisma.asUser.transaction.create({
       data: {
         proposal: { connect: { id: proposalId } },
         hash: transaction.hash,
@@ -113,12 +117,14 @@ export class TransactionsService {
         gasPrice: transaction.gasPrice?.toString(),
       },
       select: {
-        proposal: true,
+        proposal: { ...respArgs } ?? { select: { id: true } },
       },
     });
     this.proposals.publishProposal({ proposal: updatedProposal, event: ProposalEvent.update });
 
     this.responseQueue.add({ transactionHash: transaction.hash }, { delay: 1000 /* 1s */ });
+
+    return updatedProposal as Prisma.ProposalGetPayload<T>;
   }
 
   private async addMissingResponseJobs() {
@@ -126,7 +132,7 @@ export class TransactionsService {
       (job) => job.data,
     );
 
-    const missingResponses = await this.prisma.transaction.findMany({
+    const missingResponses = await this.prisma.asSuperuser.transaction.findMany({
       where: {
         response: null,
         hash: { notIn: jobs.map((job) => job.transactionHash) },

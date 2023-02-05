@@ -8,17 +8,15 @@ on:
 jobs:
   lib:
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        node-version: [18.x]
+
     steps:
       - name: 🚧 Checkout
         uses: actions/checkout@v3
 
-      - name: 🚧 Use Node ${{ matrix.node-version }}
+      - name: 🚧 Setup Node
         uses: actions/setup-node@v3
         with:
-          node-version: ${{ matrix.node-version }}
+          node-version: 18
           cache: 'yarn'
 
       - name: 📦 Install
@@ -32,9 +30,7 @@ jobs:
 
   contracts:
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        node-version: [18.x]
+
     steps:
       - name: 🚧 Checkout
         uses: actions/checkout@v3
@@ -48,10 +44,10 @@ jobs:
       - name: 🚧 Start local zksync node
         run: (cd zksync-local && ./start.sh)
 
-      - name: 🚧 Use Node ${{ matrix.node-version }}
+      - name: 🚧 Setup Node
         uses: actions/setup-node@v3
         with:
-          node-version: ${{ matrix.node-version }}
+          node-version: 18
           cache: 'yarn'
 
       - name: 📦 Install
@@ -68,17 +64,15 @@ jobs:
 
   docs:
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        node-version: [18.x]
+
     steps:
       - name: 🚧 Checkout
         uses: actions/checkout@v3
 
-      - name: 🚧 Use Node ${{ matrix.node-version }}
+      - name: 🚧 Setup Node
         uses: actions/setup-node@v3
         with:
-          node-version: ${{ matrix.node-version }}
+          node-version: 18
           cache: 'yarn'
 
       - name: 📦 Install
@@ -95,17 +89,15 @@ jobs:
 
   subgraph:
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        node-version: [18.x]
+
     steps:
       - name: 🚧 Checkout
         uses: actions/checkout@v3
 
-      - name: 🚧 Use Node ${{ matrix.node-version }}
+      - name: 🚧 Setup Node
         uses: actions/setup-node@v3
         with:
-          node-version: ${{ matrix.node-version }}
+          node-version: 18
           cache: 'yarn'
 
       - name: 📦 Install
@@ -122,17 +114,33 @@ jobs:
 
   api:
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        node-version: [18.x]
+
+    services:
+      postgres:
+        image: postgres
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+        # Set health checks to wait until postgres has started
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
+
+    env:
+      DATABASE_URL: 'postgres://postgres:postgres@localhost:5432'
+
     steps:
       - name: 🚧 Checkout
         uses: actions/checkout@v3
 
-      - name: 🚧 Use Node ${{ matrix.node-version }}
+      - name: 🚧 Setup Node
         uses: actions/setup-node@v3
         with:
-          node-version: ${{ matrix.node-version }}
+          node-version: 18
           cache: 'yarn'
 
       - name: 📦 Install
@@ -146,17 +154,15 @@ jobs:
 
   app:
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        node-version: [18.x]
+
     steps:
       - name: 🚧 Checkout
         uses: actions/checkout@v3
 
-      - name: 🚧 Use Node ${{ matrix.node-version }}
+      - name: 🚧 Setup Node
         uses: actions/setup-node@v3
         with:
-          node-version: ${{ matrix.node-version }}
+          node-version: 18
           cache: 'yarn'
 
       - name: 📦 Install

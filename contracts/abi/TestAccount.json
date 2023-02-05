@@ -783,7 +783,7 @@
     ],
     "name": "removeQuorum",
     "outputs": [],
-    "stateMutability": "nonpayable",
+    "stateMutability": "payable",
     "type": "function"
   },
   {
@@ -936,7 +936,7 @@
     ],
     "name": "upsertQuorum",
     "outputs": [],
-    "stateMutability": "nonpayable",
+    "stateMutability": "payable",
     "type": "function"
   },
   {

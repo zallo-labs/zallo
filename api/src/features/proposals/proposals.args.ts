@@ -10,6 +10,7 @@ import {
   Bytes32Scalar,
   Bytes8Field,
   BytesField,
+  BytesScalar,
 } from '~/apollo/scalars/Bytes.scalar';
 import { SetField } from '~/apollo/scalars/SetField';
 import { Proposal } from '@gen/proposal/proposal.model';
@@ -97,6 +98,9 @@ export class ProposeArgs {
 
   @Uint256BnField({ nullable: true })
   gasLimit?: BigNumber;
+
+  @Field(() => BytesScalar, { nullable: true, description: 'Approve the proposal' })
+  signature?: string;
 }
 
 @ArgsType()

@@ -16,6 +16,5 @@
     "noUnusedLocals": false
   },
   "references": [{ "path": "../lib" }],
-  "include": ["src/**/*", "generated/**/*", "src/features/transactions/transactions.resolver.ts"],
-  "exclude": ["**/*.spec.ts"]
+  "include": ["src/**/*", "generated/**/*"]
 }

@@ -144,7 +144,6 @@ export type ApprovalWhereInput = {
 export type Approver = {
   __typename?: 'Approver';
   id: Scalars['ID'];
-  name: Scalars['String'];
   quorumState: QuorumState;
   quorumStateId: Scalars['Int'];
   user: User;
@@ -380,7 +379,7 @@ export type Mutation = {
   createComment: Comment;
   createQuorum: Quorum;
   deleteComment: Comment;
-  deleteContact: Scalars['Boolean'];
+  deleteContact: Contact;
   propose: Proposal;
   reactToComment?: Maybe<Reaction>;
   reject: Proposal;
@@ -440,6 +439,7 @@ export type MutationProposeArgs = {
   gasLimit?: InputMaybe<Scalars['Uint256']>;
   quorumKey?: InputMaybe<Scalars['QuorumKey']>;
   salt?: InputMaybe<Scalars['Bytes8']>;
+  signature?: InputMaybe<Scalars['Bytes']>;
   to: Scalars['Address'];
   value?: InputMaybe<Scalars['Uint256']>;
 };
@@ -743,7 +743,7 @@ export type Query = {
   quorum?: Maybe<Quorum>;
   quorums: Array<Quorum>;
   requestableTokens: Array<Scalars['Address']>;
-  user?: Maybe<User>;
+  user: User;
 };
 
 
@@ -1225,7 +1225,6 @@ export type User = {
   id: Scalars['ID'];
   name?: Maybe<Scalars['String']>;
   proposals?: Maybe<Array<Proposal>>;
-  pushToken?: Maybe<Scalars['String']>;
   reactions?: Maybe<Array<Reaction>>;
 };
 

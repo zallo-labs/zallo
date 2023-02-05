@@ -1,4 +1,5 @@
 import { PrismaSelect } from '@paljs/plugins';
+import { GraphQLResolveInfo } from 'graphql';
 
 type SelectParams = ConstructorParameters<typeof PrismaSelect>;
 
@@ -6,8 +7,13 @@ interface Select {
   select: Record<string, unknown>;
 }
 
-export const getSelect = (...params: SelectParams): Select | undefined => {
-  const v = new PrismaSelect(...params).value;
+export const getSelect = (
+  info: GraphQLResolveInfo | undefined,
+  options?: SelectParams[1],
+): Select | undefined => {
+  if (!info) return undefined;
+
+  const v = new PrismaSelect(info, options).value;
   return v && Object.keys(v.select).length ? v : undefined;
 };
 
@@ -23,5 +29,5 @@ type DefaultFields = {
 
 export const makeGetSelect =
   <F extends DefaultFields>(defaultFields: F) =>
-  (info: SelectParams[0]) =>
+  (info: GraphQLResolveInfo | undefined) =>
     getSelect(info, { defaultFields });

@@ -2,7 +2,7 @@ import { Comment } from '@gen/comment/comment.model';
 import { Args, Info, Mutation, Query, Resolver } from '@nestjs/graphql';
 import { GraphQLResolveInfo } from 'graphql';
 import { Address } from 'lib';
-import { PrismaService } from 'nestjs-prisma';
+import { PrismaService } from '../util/prisma/prisma.service';
 import { UserId } from '~/decorators/user.decorator';
 import { connectAccount, connectOrCreateUser } from '~/util/connect-or-create';
 import { getSelect } from '~/util/select';
@@ -17,7 +17,7 @@ export class CommentsResolver {
     @Args() { account, key }: FindCommentsArgs,
     @Info() info: GraphQLResolveInfo,
   ): Promise<Comment[]> {
-    return this.prisma.comment.findMany({
+    return this.prisma.asUser.comment.findMany({
       where: {
         accountId: account,
         key,
@@ -32,7 +32,7 @@ export class CommentsResolver {
     @UserId() device: Address,
     @Info() info: GraphQLResolveInfo,
   ): Promise<Comment> {
-    return this.prisma.comment.create({
+    return this.prisma.asUser.comment.create({
       data: {
         account: connectAccount(account),
         key,
@@ -48,7 +48,7 @@ export class CommentsResolver {
     @Args() { id }: UniqueCommentArgs,
     @Info() info: GraphQLResolveInfo,
   ): Promise<Comment> {
-    return this.prisma.comment.delete({
+    return this.prisma.asUser.comment.delete({
       where: { id },
       ...getSelect(info),
     });

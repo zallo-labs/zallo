@@ -34,10 +34,10 @@ interface IAccount is BaseIAccount, IERC1271 {
   /// @notice Upsert (create or update) a quorum
   /// @dev Only callable by the account
   /// @param quorumHash Hash of quorum to be upserted
-  function upsertQuorum(QuorumKey key, bytes32 quorumHash) external;
+  function upsertQuorum(QuorumKey key, bytes32 quorumHash) external payable;
 
   /// @notice Remove a quorum
   /// @dev Only callable by the account
   /// @param key Quorum to be removed
-  function removeQuorum(QuorumKey key) external;
+  function removeQuorum(QuorumKey key) external payable;
 }

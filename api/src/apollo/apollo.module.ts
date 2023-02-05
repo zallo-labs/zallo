@@ -1,5 +1,5 @@
 import { ApolloDriverConfig, ApolloDriver } from '@nestjs/apollo';
-import { Module } from '@nestjs/common';
+import { Module, NestMiddleware } from '@nestjs/common';
 import { GraphQLModule } from '@nestjs/graphql';
 import {
   ApolloServerPluginLandingPageLocalDefault,
@@ -10,18 +10,31 @@ import { IncomingContext, Context, IncomingWsContext } from '~/request/ctx';
 import { AddressMiddleware } from './address.middleware';
 import { IdMiddleware } from './id.middleware';
 import { AuthModule } from '~/features/auth/auth.module';
-import { AuthService } from '~/features/auth/auth.service';
-import { SessionService } from '~/features/auth/session.service';
+import { SessionMiddleware } from '~/features/auth/session.middleware';
+import { AuthMiddleware } from '~/features/auth/auth.middleware';
+import { Request, Response } from 'express';
+import { RequestContextMiddleware } from 'nestjs-request-context';
 
 export const GQL_ENDPOINT = '/graphql';
+
+const chain = (req: Request, resolve: () => void, middlewares: NestMiddleware[]) => {
+  if (!middlewares.length) return () => resolve();
+  const [middleware, ...rest] = middlewares;
+
+  return () => middleware.use(req, {} as Response, chain(req, resolve, rest));
+};
 
 @Module({
   imports: [
     AuthModule,
     GraphQLModule.forRootAsync<ApolloDriverConfig>({
       driver: ApolloDriver,
-      inject: [AuthService, SessionService],
-      useFactory: (auth: AuthService, session: SessionService) => ({
+      inject: [SessionMiddleware, AuthMiddleware, RequestContextMiddleware],
+      useFactory: (
+        sessionMiddleware: SessionMiddleware,
+        authMiddleware: AuthMiddleware,
+        requestContextMiddleware: RequestContextMiddleware,
+      ) => ({
         autoSchemaFile: 'schema.graphql',
         sortSchema: true,
         debug: IS_DEV,
@@ -34,26 +47,27 @@ export const GQL_ENDPOINT = '/graphql';
         },
         subscriptions: {
           'graphql-ws': {
-            onSubscribe: (ctx) => {
-              const extra = ctx.extra as IncomingWsContext['extra'];
-              const req = extra.request;
+            onSubscribe: async (ctx) => {
+              const req = (ctx as IncomingWsContext).extra.request;
 
-              session.handler(req, {} as any, async () => {
-                // Copy connection parameters into headers
-                req.headers = {
-                  ...req.headers,
-                  ...(ctx.connectionParams as Partial<typeof req.headers>),
-                };
+              // Copy connection parameters into headers
+              req.headers = {
+                ...req.headers,
+                ...(ctx.connectionParams as Partial<typeof req.headers>),
+              };
 
-                extra.user = await auth.tryAuth(req);
-              });
+              await new Promise<void>((resolve) =>
+                chain(req, resolve, [
+                  sessionMiddleware,
+                  authMiddleware,
+                  requestContextMiddleware, // Doesn't pass through to subscription handler, TODO: test if it works in the resolve or filter function
+                ])(),
+              );
             },
           },
         },
         context: (ctx: IncomingContext): Context =>
-          'req' in ctx
-            ? { req: ctx.req, user: ctx.req.user }
-            : { req: ctx.extra.request, user: ctx.extra.user },
+          'req' in ctx ? { req: ctx.req } : { req: ctx.extra.request },
         playground: false,
         plugins: [
           ...(IS_DEV

@@ -1,7 +1,7 @@
 import { ContractMethod } from '@gen/contract-method/contract-method.model';
 import { Args, Info, Parent, Query, ResolveField, Resolver } from '@nestjs/graphql';
 import { GraphQLResolveInfo } from 'graphql';
-import { PrismaService } from 'nestjs-prisma';
+import { PrismaService } from '../util/prisma/prisma.service';
 import { getSelect } from '~/util/select';
 import { ContractMethodArgs } from './contract-methods.args';
 import { ContractMethodsService } from './contract-methods.service';
@@ -23,7 +23,7 @@ export class ContractMethodsResolver {
     const selectArgs = getSelect(info);
 
     // Try get selector for contract
-    const exactMatch = await this.prisma.contractMethod.findUnique({
+    const exactMatch = await this.prisma.asUser.contractMethod.findUnique({
       where: { contract_sighash: { contract, sighash } },
       ...selectArgs,
     });
@@ -40,7 +40,7 @@ export class ContractMethodsResolver {
     }
 
     // Fallback to finding the sighash from any contract
-    return this.prisma.contractMethod.findFirst({
+    return this.prisma.asUser.contractMethod.findFirst({
       where: { sighash },
       ...selectArgs,
     });

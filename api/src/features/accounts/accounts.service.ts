@@ -1,4 +1,3 @@
-import { Account } from '@gen/account/account.model';
 import { Injectable } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
 import {
@@ -10,7 +9,7 @@ import {
   toDeploySalt,
   toQuorumKey,
 } from 'lib';
-import { PrismaService } from 'nestjs-prisma';
+import { PrismaService } from '../util/prisma/prisma.service';
 import { ProviderService } from '~/features/util/provider/provider.service';
 import { BigNumber } from 'ethers';
 import { PubsubService } from '../util/pubsub/pubsub.service';
@@ -29,31 +28,14 @@ export class AccountsService {
     private pubsub: PubsubService,
   ) {}
 
-  async accounts(user: Address, args: Prisma.AccountFindManyArgs = {}): Promise<Account[]> {
-    return this.prisma.account.findMany({
-      ...args,
-      where: {
-        AND: [
-          {
-            quorumStates: {
-              some: {
-                approvers: { some: { userId: user } },
-                isRemoved: false,
-              },
-            },
-          },
-          args.where ?? {},
-        ],
-      },
-    });
-  }
+  findMany = this.prisma.asUser.account.findMany;
 
   async activateAccount<T extends Pick<Prisma.AccountUpdateArgs, 'select'>>(
     accountAddr: Address,
     updateArgs?: T,
   ) {
     const { impl, deploySalt, isActive, quorumStates } =
-      await this.prisma.account.findUniqueOrThrow({
+      await this.prisma.asUser.account.findUniqueOrThrow({
         where: { id: accountAddr },
         select: {
           impl: true,
@@ -78,10 +60,12 @@ export class AccountsService {
           impl: address(impl),
           quorums: quorumStates.map((q) => ({
             key: toQuorumKey(q.quorumKey),
+            // @ts-expect-error https://github.com/prisma/prisma/issues/17349
             approvers: new Set(q.approvers.map((a) => address(a.userId))),
             spending: {
               fallback: q.spendingFallback,
               limits: Object.fromEntries(
+                // @ts-expect-error https://github.com/prisma/prisma/issues/17349
                 q.limits.map((l): [Address, TokenLimit] => [
                   address(l.token),
                   {
@@ -100,7 +84,7 @@ export class AccountsService {
     );
     await r.account.deployed();
 
-    return this.prisma.account.update({
+    return this.prisma.asUser.account.update({
       where: { id: accountAddr },
       data: {
         isActive: true,
@@ -127,7 +111,7 @@ export class AccountsService {
     await this.pubsub.publish<AccountSubscriptionPayload>(`${ACCOUNT_SUBSCRIPTION}.${id}`, payload);
 
     // Publish account for each approver
-    const { quorumStates } = await this.prisma.account.findUniqueOrThrow({
+    const { quorumStates } = await this.prisma.asUser.account.findUniqueOrThrow({
       where: { id },
       select: {
         quorumStates: {

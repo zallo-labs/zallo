@@ -3,7 +3,7 @@ import { CONFIG } from '~/config';
 import { Contract } from 'ethers';
 import { FunctionFragment, Interface } from 'ethers/lib/utils';
 import { Address } from 'lib';
-import { PrismaService } from 'nestjs-prisma';
+import { PrismaService } from '../util/prisma/prisma.service';
 import { fetchJsonWithRetry } from '~/util/fetch';
 
 const ETHERSCAN_API_URL = `https://api${
@@ -30,7 +30,7 @@ export class ContractMethodsService {
   async populateDbWithAbi(contract: Address, contractInterface: Interface) {
     const fragments = Object.values(contractInterface.functions);
 
-    await this.prisma.contractMethod.createMany({
+    await this.prisma.asUser.contractMethod.createMany({
       data: fragments.map((frag) => ({
         contract,
         sighash: contractInterface.getSighash(frag),

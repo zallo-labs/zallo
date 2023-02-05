@@ -1,7 +1,7 @@
 import { Process, Processor } from '@nestjs/bull';
 import { forwardRef, Inject } from '@nestjs/common';
 import { Job } from 'bull';
-import { PrismaService } from 'nestjs-prisma';
+import { PrismaService } from '../util/prisma/prisma.service';
 import { ProposalEvent } from '../proposals/proposals.args';
 import { ProposalsService } from '../proposals/proposals.service';
 import { QuorumsService } from '../quorums/quorums.service';
@@ -26,7 +26,7 @@ export class TransactionsConsumer {
 
     if (response.success) this.quorums.handleSuccessfulTransaction(response.transactionHash);
 
-    const { transaction } = await this.prisma.transactionResponse.create({
+    const { transaction } = await this.prisma.asSuperuser.transactionResponse.create({
       data: response,
       select: {
         transaction: {

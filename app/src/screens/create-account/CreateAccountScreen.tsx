@@ -5,8 +5,6 @@ import { StackNavigatorScreenProps } from '~/navigation/StackNavigator';
 import * as Yup from 'yup';
 import { useCallback } from 'react';
 import { FormikTextField } from '~/components/fields/FormikTextField';
-import { FormikSubmitFab } from '~/components/fields/FormikSubmitFab';
-import { CheckIcon } from '~/util/theme/icons';
 import { CreateAccountResult, useCreateAccount } from '~/mutations/account/useCreateAccount.api';
 import { AppbarBack } from '~/components/Appbar/AppbarBack';
 import { makeStyles } from '~/util/theme/makeStyles';
@@ -48,7 +46,7 @@ export const CreateAccountScreen = ({
       </Appbar.Header>
 
       <Formik initialValues={{ name: '' }} onSubmit={handleSubmit} validationSchema={schema}>
-        {({ submitForm }) => (
+        {({ submitForm, isSubmitting }) => (
           <Box style={styles.container}>
             <Text variant="headlineLarge" style={styles.input}>
               What should we call your account?
@@ -57,7 +55,7 @@ export const CreateAccountScreen = ({
             <FormikTextField name="name" label="Account name" autoFocus />
 
             <Box style={styles.actionContainer}>
-              <Button mode="contained" onPress={submitForm}>
+              <Button mode="contained" loading={isSubmitting} onPress={submitForm}>
                 Create
               </Button>
             </Box>

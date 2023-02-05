@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
 import { Context as BaseWsContext } from 'graphql-ws';
 import { Address } from 'lib';
+import { RequestContext } from 'nestjs-request-context';
 
 export interface IncomingHttpContext {
   req: Request;
@@ -23,5 +24,20 @@ export interface UserContext {
 
 export interface Context {
   req: Request;
-  user?: UserContext;
 }
+
+export const getRequestContext = (): Request => RequestContext.currentContext?.req;
+
+export const getUser = () => {
+  const user = getRequestContext()?.user;
+  if (!user) throw new Error('User context is undefined');
+  return user;
+};
+
+export const getUserId = () => getUser().id;
+
+export const asUser = <R, TArgs extends unknown[]>(
+  user: UserContext,
+  callback: (...args: TArgs) => R,
+  ...args: TArgs
+): R => RequestContext.cls.run(new RequestContext({ user }, {}), callback, ...args);
