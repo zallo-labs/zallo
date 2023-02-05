@@ -60,7 +60,7 @@ export class QuorumsService {
         select: null,
       });
 
-      return this.createUpsertState(
+      return this.proposeState(
         {
           account,
           key,
@@ -75,7 +75,7 @@ export class QuorumsService {
   }
 
   async update<A extends Prisma.QuorumArgs>(args: UpdateQuorumArgs, res?: ArgsParam<A>) {
-    return this.createUpsertState(
+    return this.proposeState(
       {
         ...args,
         proposingQuorumKey: args.proposingQuorumKey ?? args.key,
@@ -140,7 +140,7 @@ export class QuorumsService {
     });
   }
 
-  private async createUpsertState<A extends Prisma.QuorumArgs>(
+  private async proposeState<A extends Prisma.QuorumArgs>(
     { account, key, proposingQuorumKey, approvers, spending, tx }: CreateStateParams,
     res?: ArgsParam<A>,
   ) {
@@ -165,9 +165,7 @@ export class QuorumsService {
             to: account,
             data: ACCOUNT_INTERFACE.encodeFunctionData('upsertQuorum', [key, hashQuorum(quorum)]),
           },
-          select: {
-            id: true,
-          },
+          select: { id: true },
         },
         tx,
       );
