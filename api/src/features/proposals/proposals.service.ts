@@ -2,7 +2,16 @@ import { forwardRef, Inject, Injectable } from '@nestjs/common';
 import { Prisma, Proposal } from '@prisma/client';
 import { UserInputError } from 'apollo-server-core';
 import { hexlify } from 'ethers/lib/utils';
-import { toTx, hashTx, isValidSignature, TxOptions, isTruthy, Address, QuorumKey } from 'lib';
+import {
+  toTx,
+  hashTx,
+  isValidSignature,
+  TxOptions,
+  isTruthy,
+  Address,
+  QuorumKey,
+  isPresent,
+} from 'lib';
 import { PrismaService } from '../util/prisma/prisma.service';
 import { ProviderService } from '~/features/util/provider/provider.service';
 import { PubsubService } from '~/features/util/pubsub/pubsub.service';
@@ -26,6 +35,7 @@ import {
 import { getUser, getUserId } from '~/request/ctx';
 import { match } from 'ts-pattern';
 import { QuorumsService } from '../quorums/quorums.service';
+import { ExpoService } from '../util/expo/expo.service';
 
 interface ProposeParams extends TxOptions {
   account: Address;
@@ -38,6 +48,7 @@ export class ProposalsService {
   constructor(
     private prisma: PrismaService,
     private provider: ProviderService,
+    private expo: ExpoService,
     private pubsub: PubsubService,
     @Inject(forwardRef(() => TransactionsService))
     private transactions: TransactionsService,
@@ -46,6 +57,7 @@ export class ProposalsService {
   ) {}
 
   findUnique = this.prisma.asUser.proposal.findUnique;
+  delete = this.prisma.asUser.proposal.delete;
 
   async findMany<A extends Prisma.ProposalArgs>(
     { accounts, states, actionRequired, where, ...args }: ProposalsArgs,
@@ -121,7 +133,6 @@ export class ProposalsService {
           salt: tx.salt,
           gasLimit: tx.gasLimit?.toString(),
         },
-        // ...res,
         ...(signature ? { select: { id: true } } : res),
       });
 
@@ -131,7 +142,7 @@ export class ProposalsService {
     });
   }
 
-  async approve<T extends Prisma.ProposalArgs>(
+  async approve<T extends Omit<Prisma.ProposalArgs, 'include'>>(
     { id, signature }: ApproveArgs,
     res?: Prisma.SelectSubset<T, Prisma.ProposalArgs>,
     client: Prisma.TransactionClient = this.prisma.asUser,
@@ -157,8 +168,11 @@ export class ProposalsService {
 
     const proposal = await client.proposal.findUniqueOrThrow({
       where: { id },
+      include: { _count: { select: { approvals: true } } },
       ...res,
     });
+
+    if ((proposal as any)._count.approvals === 1) await this.notifyApprovers(id);
 
     this.publishProposal({ proposal, event: ProposalEvent.update });
 
@@ -206,5 +220,54 @@ export class ProposalsService {
       `${ACCOUNT_PROPOSAL_SUB_TRIGGER}.${payload[PROPOSAL_SUBSCRIPTION].accountId}`,
       payload,
     );
+  }
+
+  private async notifyApprovers(proposalId: string) {
+    // Data is fetched as superuser to user's RLS settings - in order to get the approvers' push tokens
+    const { approvals, quorum } = await this.prisma.asSuperuser.proposal.findUniqueOrThrow({
+      where: { id: proposalId },
+      select: {
+        approvals: { select: { userId: true } },
+        quorum: {
+          select: {
+            key: true,
+            activeState: {
+              select: {
+                approvers: {
+                  select: {
+                    user: {
+                      select: {
+                        id: true,
+                        pushToken: true,
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    });
+
+    const alreadyApproved = new Set(approvals.map((a) => a.userId));
+    const approverPushTokens = (quorum.activeState?.approvers ?? [])
+      .filter((a) => !alreadyApproved.has(a.user.id) && a.user.pushToken)
+      .map((a) => a.user.pushToken)
+      .filter(isPresent);
+
+    // Send a notification to specified users that haven't approved yet
+    this.expo.chunkPushNotifications([
+      {
+        to: approverPushTokens,
+        title: 'Approval Request',
+        body: 'Your approval has been required on a proposal',
+        data: { url: `zallo://proposal/?id=${proposalId}` },
+      },
+    ]);
+
+    // TODO: handle failed notifications, removing push tokens of users that have uninstalled or disabled notifications
+
+    return true;
   }
 }

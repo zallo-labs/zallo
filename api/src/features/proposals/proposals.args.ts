@@ -108,15 +108,3 @@ export class ApproveArgs extends UniqueProposalArgs {
   @BytesField()
   signature: string;
 }
-
-@ObjectType()
-export class ApprovalResponse {
-  @BytesField({ nullable: true })
-  transactionHash?: BytesLike;
-}
-
-@ArgsType()
-export class ApprovalRequest extends UniqueProposalArgs {
-  @SetField(() => AddressScalar, { min: 1 })
-  approvers: Set<Address>;
-}
