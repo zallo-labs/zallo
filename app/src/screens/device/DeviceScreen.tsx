@@ -47,7 +47,7 @@ export const DeviceScreen = (_props: DeviceScreenProps) => {
           icon={ShareIcon}
           onPress={() =>
             Share.share({
-              title: 'Device',
+              title: 'User',
               message: `${name}\n${url}`,
               url,
             })
