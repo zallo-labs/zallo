@@ -1,4 +1,4 @@
-import { PeopleIcon, ScanIcon } from '~/util/theme/icons';
+import { ContactsIcon, ScanIcon } from '~/util/theme/icons';
 import { FC } from 'react';
 import { Appbar } from 'react-native-paper';
 import { AppbarMenu } from '~/components/Appbar/AppbarMenu';
@@ -26,7 +26,7 @@ export const HomeAppbar = ({ AppbarHeader, account }: HomeAppbarProps) => {
       <Appbar.Content title="" />
 
       <Appbar.Action
-        icon={PeopleIcon}
+        icon={ContactsIcon}
         onPress={async () =>
           navigate('Send', {
             to: (await selectContact()).addr,
