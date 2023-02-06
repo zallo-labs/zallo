@@ -13,7 +13,9 @@ import { QueryOpts } from '~/gql/update';
 
 gql`
   mutation DeleteContact($addr: Address!) {
-    deleteContact(addr: $addr)
+    deleteContact(addr: $addr) {
+      addr
+    }
   }
 `;
 
@@ -29,7 +31,10 @@ export const useDeleteContact = () => {
           addr: contact.addr,
         },
         optimisticResponse: {
-          deleteContact: true,
+          deleteContact: {
+            __typename: 'Contact',
+            addr: contact.addr,
+          },
         },
         update: (cache, res) => {
           if (!res.data?.deleteContact) return;

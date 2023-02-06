@@ -8,7 +8,6 @@ import assert from 'assert';
 export interface User {
   id: Address;
   name?: string;
-  pushToken?: string;
 }
 
 gql`
@@ -16,7 +15,6 @@ gql`
     user(id: $id) {
       id
       name
-      pushToken
     }
   }
 `;
@@ -33,8 +31,7 @@ export const useUser = (id?: Address) => {
     (): User => ({
       id: address(u.id),
       name: u.name || undefined,
-      pushToken: u.pushToken || undefined,
     }),
-    [u.id, u.name, u.pushToken],
+    [u.id, u.name],
   );
 };
