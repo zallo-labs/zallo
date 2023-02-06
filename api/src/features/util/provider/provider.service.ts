@@ -41,4 +41,12 @@ export class ProviderService extends zk.Provider {
     // Proxy factory is connect to the wallet
     return this.walletMutex.runExclusive(() => f(this.proxyFactory));
   }
+
+  async lookupAddress(address: string | Promise<string>): Promise<string | null> {
+    try {
+      return await super.lookupAddress(address);
+    } catch {
+      return null;
+    }
+  }
 }
