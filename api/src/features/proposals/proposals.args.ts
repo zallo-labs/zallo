@@ -1,7 +1,7 @@
 import { FindManyProposalArgs } from '@gen/proposal/find-many-proposal.args';
 import { ArgsType, Field, ObjectType, registerEnumType } from '@nestjs/graphql';
 import { BigNumber, BytesLike } from 'ethers';
-import { Address, QuorumKey, TxSalt } from 'lib';
+import { Address, QuorumKey, TxOptions, TxSalt } from 'lib';
 import { AddressField, AddressScalar } from '~/apollo/scalars/Address.scalar';
 import { Uint256BnField } from '~/apollo/scalars/BigNumber.scalar';
 import { QuorumKeyField } from '~/apollo/scalars/QuorumKey.sclar';
@@ -72,7 +72,7 @@ export class ProposalSubscriptionFilters {
 }
 
 @ArgsType()
-export class ProposeArgs {
+export class ProposeArgs implements TxOptions {
   @AddressField()
   account: Address;
 

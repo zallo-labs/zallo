@@ -9,10 +9,9 @@ import {
   Subscription,
 } from '@nestjs/graphql';
 import { GraphQLResolveInfo } from 'graphql';
-import { address, Address, isPresent, isTruthy, toQuorumKey } from 'lib';
+import { address, Address, isPresent } from 'lib';
 import { PrismaService } from '../util/prisma/prisma.service';
 import { UserId } from '~/decorators/user.decorator';
-import { connectOrCreateUser } from '~/util/connect-or-create';
 import { getSelect } from '~/util/select';
 import {
   ProposeArgs,
@@ -21,8 +20,6 @@ import {
   ProposalsArgs,
   ApprovalRequest,
   ProposalSubscriptionFilters,
-  ProposalState,
-  ProposalEvent,
   ProposalSubscriptionPayload,
   PROPOSAL_SUBSCRIPTION,
   ACCOUNT_PROPOSAL_SUB_TRIGGER,
@@ -30,12 +27,10 @@ import {
 import { UserInputError } from 'apollo-server-core';
 import { Proposal } from '@gen/proposal/proposal.model';
 import { ExpoService } from '~/features/util/expo/expo.service';
-import { match } from 'ts-pattern';
-import { ProposalWhereInput } from '@gen/proposal/proposal-where.input';
 import { ProposalsService } from './proposals.service';
 import { Transaction } from '@gen/transaction/transaction.model';
 import { PubsubService } from '~/features/util/pubsub/pubsub.service';
-import { getUser, getUserId } from '~/request/ctx';
+import { getUser } from '~/request/ctx';
 
 @Resolver(() => Proposal)
 export class ProposalsResolver {
@@ -49,9 +44,9 @@ export class ProposalsResolver {
   @Query(() => Proposal, { nullable: true })
   async proposal(
     @Args() { id }: UniqueProposalArgs,
-    @Info() info?: GraphQLResolveInfo,
+    @Info() info: GraphQLResolveInfo,
   ): Promise<Proposal | null> {
-    return this.prisma.asUser.proposal.findUnique({
+    return this.service.findUnique({
       where: { id },
       ...getSelect(info),
     });
@@ -59,57 +54,10 @@ export class ProposalsResolver {
 
   @Query(() => [Proposal])
   async proposals(
-    @Args() { accounts, states, actionRequired, ...args }: ProposalsArgs,
-    @Info() info?: GraphQLResolveInfo,
+    @Args() args: ProposalsArgs,
+    @Info() info: GraphQLResolveInfo,
   ): Promise<Proposal[]> {
-    const user = getUserId();
-
-    return this.prisma.asUser.proposal.findMany({
-      ...args,
-      where: {
-        AND: (
-          [
-            args.where,
-            accounts && { accountId: { in: [...accounts] } },
-            states && {
-              OR: states.map((state) =>
-                match<ProposalState, ProposalWhereInput>(state)
-                  .with(ProposalState.Pending, () => ({
-                    transactions: { none: {} },
-                  }))
-                  .with(ProposalState.Executing, () => ({
-                    transactions: {
-                      some: {},
-                      none: { response: {} },
-                    },
-                  }))
-                  .with(ProposalState.Executed, () => ({
-                    transactions: { some: { response: { is: { success: { equals: true } } } } },
-                  }))
-                  .exhaustive(),
-              ),
-            },
-            actionRequired !== undefined &&
-              (actionRequired
-                ? {
-                    transactions: { none: {} },
-                    quorum: { activeState: { approvers: { some: { userId: user } } } },
-                    approvals: { none: { userId: user } },
-                  }
-                : {
-                    NOT: {
-                      quorum: { activeState: { approvers: { some: { userId: user } } } },
-                      approvals: { none: { userId: user } },
-                    },
-                  }),
-          ] as const
-        ).filter(isTruthy),
-      },
-      orderBy: {
-        createdAt: 'desc',
-      },
-      ...getSelect(info),
-    });
+    return this.service.findMany(args, getSelect(info));
   }
 
   @ResolveField(() => Transaction, { nullable: true })
@@ -134,44 +82,15 @@ export class ProposalsResolver {
   @Mutation(() => Proposal)
   async propose(
     @Args()
-    { account, quorumKey, signature, ...options }: ProposeArgs,
-    @Info() info?: GraphQLResolveInfo,
+    args: ProposeArgs,
+    @Info() info: GraphQLResolveInfo,
   ): Promise<Proposal> {
-    const user = getUser().id;
-
-    // Default behaviour is specified on ProposeArgs
-    if (!quorumKey) {
-      const quorum = await this.prisma.asUser.quorumState.findFirst({
-        where: {
-          accountId: account,
-          approvers: { some: { userId: user } },
-          isRemoved: false,
-        },
-        orderBy: [{ approvers: { _count: 'asc' } }, { id: 'asc' }],
-        select: { quorumKey: true },
-      });
-
-      if (!quorum) throw new UserInputError('No quorum could be found for this account');
-      quorumKey = toQuorumKey(quorum.quorumKey);
-    }
-
-    const proposal = await this.service.propose({
-      quorum: { account, key: quorumKey },
-      options,
-      ...(signature ? { select: { id: true } } : getSelect(info)),
-    });
-
-    return signature
-      ? this.service.approve({ id: proposal.id, signature, ...getSelect(info) })
-      : proposal;
+    return this.service.propose(args, getSelect(info));
   }
 
   @Mutation(() => Proposal)
-  async approve(@Args() args: ApproveArgs, @Info() info?: GraphQLResolveInfo): Promise<Proposal> {
-    return this.service.approve({
-      ...args,
-      ...getSelect(info),
-    });
+  async approve(@Args() args: ApproveArgs, @Info() info: GraphQLResolveInfo): Promise<Proposal> {
+    return this.service.approve(args, getSelect(info)!);
   }
 
   @Mutation(() => Proposal)

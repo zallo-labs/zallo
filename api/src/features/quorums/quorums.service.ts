@@ -6,6 +6,7 @@ import {
   hashQuorum,
   mapAsync,
   Quorum,
+  QuorumGuid,
   QuorumKey,
   toQuorumKey,
 } from 'lib';
@@ -19,6 +20,8 @@ import {
   UpdateQuorumArgs,
   UpdateQuorumMetadataArgs,
 } from './quorums.args';
+import { getUserId } from '~/request/ctx';
+import { UserInputError } from 'apollo-server-core';
 
 interface CreateStateParams {
   account: Address;
@@ -112,15 +115,12 @@ export class QuorumsService {
         isActive &&
         (await this.proposals.propose(
           {
-            quorum: { account, key: proposingQuorumKey },
-            options: {
-              to: account,
-              data: ACCOUNT_INTERFACE.encodeFunctionData('removeQuorum', [key]),
-            },
-            select: {
-              id: true,
-            },
+            account,
+            quorumKey: proposingQuorumKey,
+            to: account,
+            data: ACCOUNT_INTERFACE.encodeFunctionData('removeQuorum', [key]),
           },
+          { select: { id: true } },
           tx,
         ));
 
@@ -160,13 +160,12 @@ export class QuorumsService {
 
       const { id: proposalId } = await this.proposals.propose(
         {
-          quorum: { account, key: proposingQuorumKey },
-          options: {
-            to: account,
-            data: ACCOUNT_INTERFACE.encodeFunctionData('upsertQuorum', [key, hashQuorum(quorum)]),
-          },
-          select: { id: true },
+          account,
+          quorumKey: proposingQuorumKey,
+          to: account,
+          data: ACCOUNT_INTERFACE.encodeFunctionData('upsertQuorum', [key, hashQuorum(quorum)]),
         },
+        { select: { id: true } },
         tx,
       );
 
@@ -237,5 +236,22 @@ export class QuorumsService {
         },
       }),
     );
+  }
+
+  // TODO: write tests for
+  async getDefaultQuorum(account: Address): Promise<QuorumGuid> {
+    const quorum = await this.prisma.asUser.quorumState.findFirst({
+      where: {
+        accountId: account,
+        approvers: { some: { userId: getUserId() } },
+        isRemoved: false,
+      },
+      orderBy: [{ approvers: { _count: 'asc' } }, { id: 'asc' }],
+      select: { quorumKey: true },
+    });
+
+    if (!quorum) throw new UserInputError('No quorum could be found for this account');
+
+    return { account, key: toQuorumKey(quorum.quorumKey) };
   }
 }

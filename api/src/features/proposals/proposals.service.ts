@@ -2,7 +2,7 @@ import { forwardRef, Inject, Injectable } from '@nestjs/common';
 import { Prisma, Proposal } from '@prisma/client';
 import { UserInputError } from 'apollo-server-core';
 import { hexlify } from 'ethers/lib/utils';
-import { toTx, hashTx, isValidSignature, TxOptions, QuorumGuid } from 'lib';
+import { toTx, hashTx, isValidSignature, TxOptions, isTruthy, Address, QuorumKey } from 'lib';
 import { PrismaService } from '../util/prisma/prisma.service';
 import { ProviderService } from '~/features/util/provider/provider.service';
 import { PubsubService } from '~/features/util/pubsub/pubsub.service';
@@ -17,18 +17,21 @@ import {
   ACCOUNT_PROPOSAL_SUB_TRIGGER,
   ApproveArgs,
   ProposalEvent,
+  ProposalsArgs,
+  ProposalState,
   ProposalSubscriptionPayload,
   PROPOSAL_SUBSCRIPTION,
   UniqueProposalArgs,
 } from './proposals.args';
 import { getUser, getUserId } from '~/request/ctx';
+import { match } from 'ts-pattern';
+import { QuorumsService } from '../quorums/quorums.service';
 
-type CreateParams<T extends Prisma.ProposalCreateArgs> = {
-  quorum: QuorumGuid;
-  options: TxOptions;
-} & Omit<Prisma.SelectSubset<T, Prisma.ProposalCreateArgs>, 'data'>;
-
-type ApproveParams = ApproveArgs & Omit<Prisma.ProposalFindUniqueOrThrowArgs, 'where'>;
+interface ProposeParams extends TxOptions {
+  account: Address;
+  quorumKey?: QuorumKey;
+  signature?: string;
+}
 
 @Injectable()
 export class ProposalsService {
@@ -38,38 +41,101 @@ export class ProposalsService {
     private pubsub: PubsubService,
     @Inject(forwardRef(() => TransactionsService))
     private transactions: TransactionsService,
+    @Inject(forwardRef(() => QuorumsService))
+    private quorums: QuorumsService,
   ) {}
 
-  async propose<T extends Prisma.ProposalCreateArgs>(
-    { quorum, options, ...args }: CreateParams<T>,
-    client: Prisma.TransactionClient = this.prisma.asUser,
+  findUnique = this.prisma.asUser.proposal.findUnique;
+
+  async findMany<A extends Prisma.ProposalArgs>(
+    { accounts, states, actionRequired, where, ...args }: ProposalsArgs,
+    res?: Prisma.SelectSubset<A, Prisma.ProposalArgs>,
   ) {
-    const tx = toTx(options);
+    const user = getUserId();
 
-    const proposal = (await client.proposal.create({
+    return this.prisma.asUser.proposal.findMany({
       ...args,
-      data: {
-        id: await hashTx(tx, this.provider.connectAccount(quorum.account)),
-        account: connectAccount(quorum.account),
-        quorum: connectQuorum(quorum),
-        proposer: connectUser(getUser().id),
-        to: tx.to,
-        value: tx.value?.toString(),
-        data: tx.data ? hexlify(tx.data) : undefined,
-        salt: tx.salt,
-        gasLimit: tx.gasLimit?.toString(),
+      where: {
+        AND: (
+          [
+            where,
+            accounts && { accountId: { in: [...accounts] } },
+            states && {
+              OR: states.map((state) =>
+                match<ProposalState, Prisma.ProposalWhereInput>(state)
+                  .with(ProposalState.Pending, () => ({
+                    transactions: { none: {} },
+                  }))
+                  .with(ProposalState.Executing, () => ({
+                    transactions: {
+                      some: {},
+                      none: { response: {} },
+                    },
+                  }))
+                  .with(ProposalState.Executed, () => ({
+                    transactions: { some: { response: { is: { success: { equals: true } } } } },
+                  }))
+                  .exhaustive(),
+              ),
+            },
+            actionRequired !== undefined &&
+              (actionRequired
+                ? {
+                    transactions: { none: {} },
+                    quorum: { activeState: { approvers: { some: { userId: user } } } },
+                    approvals: { none: { userId: user } },
+                  }
+                : {
+                    NOT: {
+                      quorum: { activeState: { approvers: { some: { userId: user } } } },
+                      approvals: { none: { userId: user } },
+                    },
+                  }),
+          ] as const
+        ).filter(isTruthy),
       },
-    })) as Prisma.ProposalGetPayload<T>;
-
-    this.publishProposal({ proposal, event: ProposalEvent.create });
-
-    return proposal;
+      orderBy: { createdAt: 'desc' },
+      ...res,
+    });
   }
 
-  async approve(
-    { id, signature, ...args }: ApproveParams,
-    client: Prisma.TransactionClient = this.prisma.asUser,
+  async propose<T extends Prisma.ProposalArgs>(
+    { account, quorumKey, signature, ...options }: ProposeParams,
+    res: Prisma.SelectSubset<T, Prisma.ProposalArgs> | undefined,
+    client?: Prisma.TransactionClient,
   ) {
+    return this.prisma.$transactionAsUser(client, async (client) => {
+      const tx = toTx(options);
+
+      if (!quorumKey) quorumKey = (await this.quorums.getDefaultQuorum(account)).key;
+
+      const proposal = await client.proposal.create({
+        data: {
+          id: await hashTx(tx, this.provider.connectAccount(account)),
+          account: connectAccount(account),
+          quorum: connectQuorum(account, quorumKey),
+          proposer: connectUser(getUser().id),
+          to: tx.to,
+          value: tx.value?.toString(),
+          data: tx.data ? hexlify(tx.data) : undefined,
+          salt: tx.salt,
+          gasLimit: tx.gasLimit?.toString(),
+        },
+        // ...res,
+        ...(signature ? { select: { id: true } } : res),
+      });
+
+      if (!signature) this.publishProposal({ proposal, event: ProposalEvent.create });
+
+      return signature ? this.approve({ id: proposal.id, signature }, res) : proposal;
+    });
+  }
+
+  async approve<T extends Prisma.ProposalArgs>(
+    { id, signature }: ApproveArgs,
+    res?: Prisma.SelectSubset<T, Prisma.ProposalArgs>,
+    client: Prisma.TransactionClient = this.prisma.asUser,
+  ): Promise<Proposal> {
     const user = getUser().id;
     if (!isValidSignature(user, id, signature)) throw new UserInputError('Invalid signature');
 
@@ -86,12 +152,12 @@ export class ProposalsService {
       select: null,
     });
 
-    const executedProposal = await this.transactions.tryExecute(id, args);
+    const executedProposal = await this.transactions.tryExecute(id, res);
     if (executedProposal) return executedProposal; // proposal update is published upon execution
 
     const proposal = await client.proposal.findUniqueOrThrow({
-      ...args,
       where: { id },
+      ...res,
     });
 
     this.publishProposal({ proposal, event: ProposalEvent.update });
