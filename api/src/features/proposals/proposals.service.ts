@@ -1,26 +1,22 @@
 import { forwardRef, Inject, Injectable } from '@nestjs/common';
 import { Prisma, Proposal } from '@prisma/client';
 import { UserInputError } from 'apollo-server-core';
-import { hexlify } from 'ethers/lib/utils';
+import { BytesLike, hexlify, recoverAddress } from 'ethers/lib/utils';
 import {
   toTx,
   hashTx,
-  isValidSignature,
   TxOptions,
   isTruthy,
   Address,
   QuorumKey,
   isPresent,
+  SignatureLike,
+  tryOrDefault,
 } from 'lib';
 import { PrismaService } from '../util/prisma/prisma.service';
 import { ProviderService } from '~/features/util/provider/provider.service';
 import { PubsubService } from '~/features/util/pubsub/pubsub.service';
-import {
-  connectAccount,
-  connectOrCreateUser,
-  connectQuorum,
-  connectUser,
-} from '~/util/connect-or-create';
+import { connectAccount, connectQuorum, connectUser } from '~/util/connect-or-create';
 import { TransactionsService } from '../transactions/transactions.service';
 import {
   ACCOUNT_PROPOSAL_SUB_TRIGGER,
@@ -37,7 +33,7 @@ import { match } from 'ts-pattern';
 import { QuorumsService } from '../quorums/quorums.service';
 import { ExpoService } from '../util/expo/expo.service';
 
-interface ProposeParams extends TxOptions {
+export interface ProposeParams extends TxOptions {
   account: Address;
   quorumKey?: QuorumKey;
   signature?: string;
@@ -60,7 +56,7 @@ export class ProposalsService {
   delete = this.prisma.asUser.proposal.delete;
 
   async findMany<A extends Prisma.ProposalArgs>(
-    { accounts, states, actionRequired, where, ...args }: ProposalsArgs,
+    { accounts, states, actionRequired, where, ...args }: ProposalsArgs = {},
     res?: Prisma.SelectSubset<A, Prisma.ProposalArgs>,
   ) {
     const user = getUserId();
@@ -113,7 +109,7 @@ export class ProposalsService {
 
   async propose<T extends Prisma.ProposalArgs>(
     { account, quorumKey, signature, ...options }: ProposeParams,
-    res: Prisma.SelectSubset<T, Prisma.ProposalArgs> | undefined,
+    res?: Prisma.SelectSubset<T, Prisma.ProposalArgs>,
     client?: Prisma.TransactionClient,
   ) {
     return this.prisma.$transactionAsUser(client, async (client) => {
@@ -123,7 +119,7 @@ export class ProposalsService {
 
       const proposal = await client.proposal.create({
         data: {
-          id: await hashTx(tx, this.provider.connectAccount(account)),
+          id: await hashTx(tx, { address: account, provider: this.provider }),
           account: connectAccount(account),
           quorum: connectQuorum(account, quorumKey),
           proposer: connectUser(getUser().id),
@@ -148,17 +144,13 @@ export class ProposalsService {
     client: Prisma.TransactionClient = this.prisma.asUser,
   ): Promise<Proposal> {
     const user = getUser().id;
-    if (!isValidSignature(user, id, signature)) throw new UserInputError('Invalid signature');
+    if (!this.isValidSignature(user, id, signature)) throw new UserInputError('Invalid signature');
 
-    await client.proposal.update({
-      where: { id },
+    await client.approval.create({
       data: {
-        approvals: {
-          create: {
-            user: connectOrCreateUser(user),
-            signature,
-          },
-        },
+        proposalId: id,
+        userId: user,
+        signature,
       },
       select: null,
     });
@@ -179,32 +171,30 @@ export class ProposalsService {
     return proposal;
   }
 
-  async reject<T extends Prisma.ProposalArgs>({ id }: UniqueProposalArgs, respArgs?: T) {
+  async reject<T extends Prisma.ProposalArgs>(
+    { id }: UniqueProposalArgs,
+    res?: Prisma.SelectSubset<T, Prisma.ProposalArgs>,
+  ) {
     const user = getUserId();
 
-    const proposal = (await this.prisma.asUser.proposal.update({
-      where: { id },
-      data: {
-        approvals: {
-          upsert: {
-            where: {
-              proposalId_userId: {
-                proposalId: id,
-                userId: user,
-              },
-            },
-            create: {
-              user: connectOrCreateUser(user),
-            },
-            update: {
-              signature: null,
-              createdAt: new Date(),
-            },
-          },
+    const { proposal } = await this.prisma.asUser.approval.upsert({
+      where: {
+        proposalId_userId: {
+          proposalId: id,
+          userId: user,
         },
       },
-      ...respArgs,
-    })) as Prisma.ProposalGetPayload<T>;
+      create: {
+        proposalId: id,
+        userId: user,
+      },
+      update: {
+        signature: null,
+      },
+      select: {
+        proposal: { ...res },
+      },
+    });
 
     this.publishProposal({ proposal, event: ProposalEvent.update });
 
@@ -269,5 +259,10 @@ export class ProposalsService {
     // TODO: handle failed notifications, removing push tokens of users that have uninstalled or disabled notifications
 
     return true;
+  }
+
+  // TODO: ERC-1271 support
+  isValidSignature(signer: Address, digest: BytesLike, signature: SignatureLike) {
+    return tryOrDefault(() => recoverAddress(digest, signature) === signer, false);
   }
 }

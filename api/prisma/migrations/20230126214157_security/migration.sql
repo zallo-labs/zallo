@@ -145,6 +145,9 @@ CREATE POLICY account_member_view ON "Approval" FOR SELECT
         (SELECT "accountId" FROM "Proposal" WHERE "id" = "proposalId")
     ));
 
+CREATE POLICY user_insert ON "Approval" FOR INSERT
+    WITH CHECK (is_user("userId"));
+
 CREATE POLICY user_update ON "Approval" FOR UPDATE
     USING (is_user("userId"));
 

@@ -170,7 +170,6 @@ describe(QuorumsService.name, () => {
         const quorum = await create();
 
         // Mark quorum state as active
-        const { id } = await prisma.asUser.quorumState.findFirstOrThrow();
         await prisma.asUser.quorum.update({
           where: {
             accountId_key: {
@@ -178,7 +177,7 @@ describe(QuorumsService.name, () => {
               key: quorum.key,
             },
           },
-          data: { activeStateId: id },
+          data: { activeStateId: (await prisma.asUser.quorumState.findFirstOrThrow()).id },
         });
 
         expect(proposals.propose).toHaveBeenCalledTimes(1);
