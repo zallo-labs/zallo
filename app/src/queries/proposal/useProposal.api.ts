@@ -5,7 +5,6 @@ import { Address, address, toQuorumKey, toTxSalt } from 'lib';
 import { DateTime } from 'luxon';
 import { useMemo } from 'react';
 import { ProposalDocument, ProposalQuery, ProposalQueryVariables } from '~/gql/generated.api';
-import { usePollWhenFocussed } from '~/gql/usePollWhenFocussed';
 import { useSuspenseQuery } from '~/gql/useSuspenseQuery';
 import { Approval, Proposal, Submission, ProposalState, ProposalId, Rejection } from '.';
 import { useQuorum } from '../quroum/useQuorum.api';
