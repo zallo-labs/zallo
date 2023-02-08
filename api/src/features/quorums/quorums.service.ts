@@ -108,8 +108,9 @@ export class QuorumsService implements OnModuleInit {
   async remove<A extends Prisma.QuorumArgs>(
     { account, key, proposingQuorumKey = key }: RemoveQuorumArgs,
     res?: ArgsParam<A>,
+    tx?: Prisma.TransactionClient,
   ) {
-    return this.prisma.asUser.$transaction(async (tx) => {
+    return this.prisma.$transactionAsUser(tx, async (tx) => {
       const isActive = !!(
         await tx.quorum.findUniqueOrThrow({
           where: { accountId_key: { accountId: account, key } },

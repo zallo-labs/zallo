@@ -11,6 +11,7 @@ import {
   CHAINS,
   QuorumGuid,
   randomDeploySalt,
+  randomQuorumKey,
   signProposal,
   toQuorumKey,
   UserWallet,
@@ -280,12 +281,69 @@ describe(ProposalsService.name, () => {
   });
 
   describe('delete', () => {
-    // Prisma passthrough, no need for basic tests
+    it('deletes proposal', () =>
+      asUser(user1, async () => {
+        const { id } = await propose();
+        await service.delete({ id });
+
+        expect(await service.findUnique({ where: { id } })).toBeNull();
+      }));
+
+    it("throws if the quorum doesn't exist", () =>
+      asUser(user1, async () => {
+        await expect(service.delete({ id: hexlify(randomBytes(32)) })).rejects.toThrow();
+      }));
 
     it("throws if the user isn't a member of the proposing account", async () => {
       const { id } = await asUser(user1, () => propose());
 
-      await asUser(randomUser(), () => expect(service.delete({ where: { id } })).rejects.toThrow());
+      await asUser(randomUser(), () => expect(service.delete({ id })).rejects.toThrow());
     });
+
+    it('deletes quorums that the proposal was going to create', () =>
+      asUser(user1, async () => {
+        const { id, accountId } = await propose();
+
+        // Create quorum with 1 state - the state being proposed
+        await prisma.asUser.quorum.create({
+          data: {
+            account: connectAccount(address(accountId)),
+            key: randomQuorumKey(),
+            name: '',
+            states: {
+              create: {
+                proposalId: id,
+              },
+            },
+          },
+        });
+
+        await service.delete({ id });
+
+        // Expect all created quorums to be deleted
+        expect(quorums.remove).toHaveBeenCalledTimes(1);
+      }));
+
+    it("quorums being updated by proposal aren't deleted", () =>
+      asUser(user1, async () => {
+        const { id, accountId } = await propose();
+
+        // Create quorum with 2 states, only one of which is being proposed
+        await prisma.asUser.quorum.create({
+          data: {
+            account: connectAccount(address(accountId)),
+            key: randomQuorumKey(),
+            name: '',
+            states: {
+              create: [{}, { proposalId: id }],
+            },
+          },
+        });
+
+        await service.delete({ id });
+
+        // Expect all created quorums to be deleted
+        expect(quorums.remove).toHaveBeenCalledTimes(0);
+      }));
   });
 });

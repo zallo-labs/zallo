@@ -12,6 +12,9 @@ import {
   isPresent,
   SignatureLike,
   tryOrDefault,
+  QuorumGuid,
+  address,
+  toQuorumKey,
 } from 'lib';
 import { PrismaService } from '../util/prisma/prisma.service';
 import { ProviderService } from '~/features/util/provider/provider.service';
@@ -53,7 +56,6 @@ export class ProposalsService {
   ) {}
 
   findUnique = this.prisma.asUser.proposal.findUnique;
-  delete = this.prisma.asUser.proposal.delete;
 
   async findMany<A extends Prisma.ProposalArgs>(
     { accounts, states, actionRequired, where, ...args }: ProposalsArgs = {},
@@ -76,8 +78,9 @@ export class ProposalsService {
                   }))
                   .with(ProposalState.Executing, () => ({
                     transactions: {
-                      some: {},
-                      none: { response: {} },
+                      some: {
+                        AND: [{}, { NOT: { response: {} } }],
+                      },
                     },
                   }))
                   .with(ProposalState.Executed, () => ({
@@ -199,6 +202,50 @@ export class ProposalsService {
     this.publishProposal({ proposal, event: ProposalEvent.update });
 
     return proposal;
+  }
+
+  async delete<A extends Prisma.ProposalArgs>(
+    { id }: UniqueProposalArgs,
+    res?: Prisma.SelectSubset<A, Prisma.ProposalArgs>,
+  ) {
+    // Delete quorums for which this proposal contains their creation state
+    return this.prisma.asUser.$transaction(async (tx) => {
+      const { quorumStates, ...r } = await tx.proposal.delete({
+        where: { id },
+        select: {
+          ...(res?.select ?? {}),
+          quorumStates: {
+            select: {
+              quorum: {
+                select: {
+                  _count: { select: { states: true } },
+                  accountId: true,
+                  key: true,
+                },
+              },
+            },
+          },
+        },
+      });
+
+      const uniqueQuorumsToRemove = new Map(
+        quorumStates
+          .filter((s) => s.quorum._count.states === 1)
+          .map((s) => {
+            const quorum: QuorumGuid = {
+              account: address(s.quorum.accountId),
+              key: toQuorumKey(s.quorum.key),
+            };
+            return [quorum, quorum];
+          }),
+      ).values();
+
+      await Promise.all(
+        [...uniqueQuorumsToRemove].map((quorum) => this.quorums.remove(quorum, undefined, tx)),
+      );
+
+      return r as Partial<Proposal>;
+    });
   }
 
   async publishProposal(payload: ProposalSubscriptionPayload) {

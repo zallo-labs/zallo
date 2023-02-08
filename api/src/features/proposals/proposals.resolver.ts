@@ -79,7 +79,7 @@ export class ProposalsResolver {
 
   @Mutation(() => Proposal)
   async approve(@Args() args: ApproveArgs, @Info() info: GraphQLResolveInfo): Promise<Proposal> {
-    return this.service.approve(args, getSelect(info)!);
+    return this.service.approve(args, getSelect(info));
   }
 
   @Mutation(() => Proposal)
@@ -87,17 +87,14 @@ export class ProposalsResolver {
     @Args() args: UniqueProposalArgs,
     @Info() info: GraphQLResolveInfo,
   ): Promise<Proposal> {
-    return this.service.reject(args, { ...getSelect(info) });
+    return this.service.reject(args, getSelect(info));
   }
 
   @Mutation(() => Proposal)
   async removeProposal(
-    @Args() { id }: UniqueProposalArgs,
+    @Args() args: UniqueProposalArgs,
     @Info() info: GraphQLResolveInfo,
-  ): Promise<Proposal> {
-    return this.service.delete({
-      where: { id },
-      ...getSelect(info),
-    });
+  ): Promise<Partial<Proposal>> {
+    return this.service.delete(args, getSelect(info));
   }
 }
