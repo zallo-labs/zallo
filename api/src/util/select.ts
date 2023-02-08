@@ -9,8 +9,49 @@ type DefaultFields = Partial<{
   [K in Prisma.ModelName]: ModelSelect<K> | ((select: any) => ModelSelect<K>);
 }>;
 
-type Options = Omit<ConstructorParameters<typeof PrismaSelect>[1], 'defaultFields'> & {
-  defaultFields: DefaultFields;
+const DEFAULT_FIELDS: DefaultFields = {
+  Approver: (select) => ({
+    ...(select.id && {
+      quorumStateId: true,
+      userId: true,
+    }),
+  }),
+  Contact: (select) => ({
+    ...(select.id && {
+      addr: true,
+    }),
+  }),
+  ContractMethod: (select) => ({
+    ...(select.id && {
+      contract: true,
+      sighash: true,
+    }),
+  }),
+  Proposal: (select) => ({
+    ...(select.transaction && {
+      transactions: {
+        take: 1,
+        orderBy: { createdAt: 'desc' },
+      },
+    }),
+  }),
+  Quorum: (select) => ({
+    ...(select.id && {
+      accountId: true,
+      key: true,
+    }),
+  }),
+  Reaction: (select) => ({
+    ...(select.id && {
+      commentId: true,
+      userId: true,
+    }),
+  }),
+  Transaction: (select) => ({
+    ...(select.id && {
+      hash: true,
+    }),
+  }),
 };
 
 interface Select {
@@ -19,14 +60,14 @@ interface Select {
 
 export const getSelect = (
   info: GraphQLResolveInfo | undefined,
-  options?: Options,
+  options?: Omit<ConstructorParameters<typeof PrismaSelect>[1], 'defaultFields'>,
 ): Select | undefined => {
   if (!info) return undefined;
 
-  const v = new PrismaSelect(info, options as any).value;
+  const v = new PrismaSelect(info, {
+    ...options,
+    defaultFields: DEFAULT_FIELDS as any,
+  }).value;
+
   return v && Object.keys(v.select).length ? v : undefined;
 };
-
-export const makeGetSelect =
-  (defaultFields: DefaultFields) => (info: GraphQLResolveInfo | undefined) =>
-    getSelect(info, { defaultFields });
