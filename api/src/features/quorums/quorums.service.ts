@@ -202,7 +202,7 @@ export class QuorumsService {
   }
 
   async handleSuccessfulTransaction(transactionHash: string) {
-    const { proposal } = await this.prisma.asUser.transaction.findUniqueOrThrow({
+    const { proposal } = await this.prisma.asSuperuser.transaction.findUniqueOrThrow({
       where: { hash: transactionHash },
       select: {
         proposal: {
