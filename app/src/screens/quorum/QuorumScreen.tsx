@@ -67,7 +67,9 @@ function Screen() {
   const [sheetShown, setSheetShown] = useState(false);
 
   const addApprover = async () => {
-    const contact = await selectContact({ disabled: state.approvers });
+    const contact = await selectContact({
+      disabled: new Set([...state.approvers, quorum.account]),
+    });
     updateState((s) => {
       s.approvers.add(contact.addr);
     });
