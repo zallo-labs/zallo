@@ -162,11 +162,11 @@ const useStyles = makeStyles(({ colors, s, corner }, { lines, selected, disabled
     },
     leadingAvatarContainer: {
       fontSize: 40,
-      backgroundColor: colors.primaryContainer,
+      backgroundColor: !disabled ? colors.primaryContainer : colors.primaryContainerDisabled,
       borderRadius: corner.full,
     },
     leadingAvatarLabel: {
-      color: colors.onPrimaryContainer,
+      color: !disabled ? colors.onPrimaryContainer : colors.onPrimaryContainerDisabled,
     },
     leadingIcon: {
       fontSize: 18,
