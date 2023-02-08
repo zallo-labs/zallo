@@ -8,7 +8,7 @@ import {
   TransactionResponseQueryVariables,
 } from '@gen/generated.subgraph';
 import { TRANSACTION_RESPONSES_QUERY } from './subgraph.gql';
-import { Prisma } from '@prisma/client';
+import { TransactionResponse } from '@prisma/client';
 
 @Injectable()
 export class SubgraphService {
@@ -28,9 +28,7 @@ export class SubgraphService {
     },
   });
 
-  async transactionResponse(
-    transactionHash: string,
-  ): Promise<Prisma.TransactionResponseUncheckedCreateInput | undefined> {
+  async transactionResponse(transactionHash: string): Promise<TransactionResponse | undefined> {
     const { data } = await this.client.query<
       TransactionResponseQuery,
       TransactionResponseQueryVariables
