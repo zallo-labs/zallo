@@ -13,9 +13,8 @@ import {
   AccountEvent,
   USER_ACCOUNT_SUBSCRIPTION,
 } from './accounts.args';
-import { makeGetSelect } from '~/util/select';
+import { getSelect } from '~/util/select';
 import { AccountsService } from './accounts.service';
-import { Prisma } from '@prisma/client';
 import { ProviderService } from '~/features/util/provider/provider.service';
 import { address, calculateProxyAddress, Quorum, randomDeploySalt, toQuorumKey } from 'lib';
 import { CONFIG } from '~/config';
@@ -25,12 +24,6 @@ import { FaucetService } from '../faucet/faucet.service';
 import { PubsubService } from '../util/pubsub/pubsub.service';
 import { UserContext, getRequestContext, getUser } from '~/request/ctx';
 import { connectOrCreateUser } from '~/util/connect-or-create';
-
-const getSelect = makeGetSelect<{
-  Account: Prisma.AccountSelect;
-}>({
-  Account: {},
-});
 
 @Resolver(() => Account)
 export class AccountsResolver {
