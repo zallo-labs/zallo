@@ -30,7 +30,7 @@ describe(QuorumsService.name, () => {
   let user1Account: Address;
   let user1: UserContext;
 
-  const create = async () => {
+  const create = async ({ active }: { active?: boolean } = {}) => {
     const quorum: QuorumGuid = {
       account: user1Account,
       key: toQuorumKey(1),
@@ -66,6 +66,19 @@ describe(QuorumsService.name, () => {
       },
       { select: null },
     );
+
+    if (active) {
+      // Mark quorum state as active
+      await prisma.asUser.quorum.update({
+        where: {
+          accountId_key: {
+            accountId: quorum.account,
+            key: quorum.key,
+          },
+        },
+        data: { activeStateId: (await prisma.asUser.quorumState.findFirstOrThrow()).id },
+      });
+    }
 
     return quorum;
   };
@@ -167,18 +180,7 @@ describe(QuorumsService.name, () => {
 
     it('proposes a remove if the quorum is active', () =>
       asUser(user1, async () => {
-        const quorum = await create();
-
-        // Mark quorum state as active
-        await prisma.asUser.quorum.update({
-          where: {
-            accountId_key: {
-              accountId: quorum.account,
-              key: quorum.key,
-            },
-          },
-          data: { activeStateId: (await prisma.asUser.quorumState.findFirstOrThrow()).id },
-        });
+        const quorum = await create({ active: true });
 
         expect(proposals.propose).toHaveBeenCalledTimes(1);
         await service.remove(quorum);
@@ -199,5 +201,18 @@ describe(QuorumsService.name, () => {
 
       await asUser(randomUser(), () => expect(service.remove(quorum)).rejects.toThrow());
     });
+  });
+
+  describe('delete', () => {
+    it('should throw if quorum is active', () =>
+      asUser(user1, async () => {
+        const quorum = await create({ active: true });
+
+        await expect(
+          prisma.asUser.quorum.delete({
+            where: { accountId_key: { accountId: quorum.account, key: quorum.key } },
+          }),
+        ).rejects.toThrow();
+      }));
   });
 });
