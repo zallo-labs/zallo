@@ -2,9 +2,17 @@ import { ContractMethod } from '@gen/contract-method/contract-method.model';
 import { Args, Info, Parent, Query, ResolveField, Resolver } from '@nestjs/graphql';
 import { GraphQLResolveInfo } from 'graphql';
 import { PrismaService } from '../util/prisma/prisma.service';
-import { getSelect } from '~/util/select';
+import { makeGetSelect } from '~/util/select';
 import { ContractMethodArgs } from './contract-methods.args';
 import { ContractMethodsService } from './contract-methods.service';
+
+const getSelect = makeGetSelect({
+  ContractMethod: {
+    // id
+    contract: true,
+    sighash: true,
+  },
+});
 
 @Resolver(() => ContractMethod)
 export class ContractMethodsResolver {
