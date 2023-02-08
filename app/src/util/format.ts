@@ -6,3 +6,5 @@ export const elipseTruncate = (val: string, beginLen: number, endLen: number = b
     : val;
 
 export const truncateAddr = (addr: Address) => elipseTruncate(addr, 4, 4);
+
+export const clog = (value: unknown) => console.log(JSON.stringify(value, null, 2));
