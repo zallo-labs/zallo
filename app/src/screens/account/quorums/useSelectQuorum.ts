@@ -15,7 +15,7 @@ export const useSelectQuorum = (accountAddr: Address) => {
     return userQuorums.length === 1
       ? userQuorums[0]
       : new Promise<QuorumGuid>((resolve) => {
-          navigate('AccountQuorums', {
+          navigate('AccountQuorumsModal', {
             account: accountAddr,
             onSelect: resolve,
           });

@@ -66,6 +66,7 @@ export type StackNavigatorParamList = {
   Account: AccountScreenParams;
   RenameAccount: RenameAccountScreenParams;
   AccountQuorums: AccountQuorumsScreenParams;
+  AccountQuorumsModal: AccountQuorumsScreenParams;
   Quorum: QuorumScreenParams;
   RenameQuorum: RenameQuorumScreenParams;
   CreateQuorum: CreateQuorumScreenParams;
@@ -147,6 +148,7 @@ export const StackNavigator = () => {
           ...TransitionPresets.ModalPresentationIOS,
         }}
       >
+        <Navigation.Screen name="AccountQuorumsModal" component={AccountQuorumsScreen} />
         <Navigation.Screen name="TokensModal" component={TokensScreen} />
         <Navigation.Screen name="ContactsModal" component={ContactsScreen} />
       </Navigation.Group>
