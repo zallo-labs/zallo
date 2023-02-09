@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 pragma solidity ^0.8.0;
 
-import '@matterlabs/zksync-contracts/l2/system-contracts/TransactionHelper.sol';
+import '@matterlabs/zksync-contracts/l2/system-contracts/libraries/TransactionHelper.sol';
 
 import './EIP712.sol';
 

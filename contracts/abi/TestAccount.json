@@ -209,22 +209,22 @@
           },
           {
             "internalType": "uint256",
-            "name": "ergsLimit",
+            "name": "gasLimit",
             "type": "uint256"
           },
           {
             "internalType": "uint256",
-            "name": "ergsPerPubdataByteLimit",
+            "name": "gasPerPubdataByteLimit",
             "type": "uint256"
           },
           {
             "internalType": "uint256",
-            "name": "maxFeePerErg",
+            "name": "maxFeePerGas",
             "type": "uint256"
           },
           {
             "internalType": "uint256",
-            "name": "maxPriorityFeePerErg",
+            "name": "maxPriorityFeePerGas",
             "type": "uint256"
           },
           {
@@ -233,9 +233,19 @@
             "type": "uint256"
           },
           {
-            "internalType": "uint256[6]",
+            "internalType": "uint256",
+            "name": "nonce",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "value",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256[4]",
             "name": "reserved",
-            "type": "uint256[6]"
+            "type": "uint256[4]"
           },
           {
             "internalType": "bytes",
@@ -294,22 +304,22 @@
           },
           {
             "internalType": "uint256",
-            "name": "ergsLimit",
+            "name": "gasLimit",
             "type": "uint256"
           },
           {
             "internalType": "uint256",
-            "name": "ergsPerPubdataByteLimit",
+            "name": "gasPerPubdataByteLimit",
             "type": "uint256"
           },
           {
             "internalType": "uint256",
-            "name": "maxFeePerErg",
+            "name": "maxFeePerGas",
             "type": "uint256"
           },
           {
             "internalType": "uint256",
-            "name": "maxPriorityFeePerErg",
+            "name": "maxPriorityFeePerGas",
             "type": "uint256"
           },
           {
@@ -318,9 +328,19 @@
             "type": "uint256"
           },
           {
-            "internalType": "uint256[6]",
+            "internalType": "uint256",
+            "name": "nonce",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "value",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256[4]",
             "name": "reserved",
-            "type": "uint256[6]"
+            "type": "uint256[4]"
           },
           {
             "internalType": "bytes",
@@ -417,22 +437,22 @@
           },
           {
             "internalType": "uint256",
-            "name": "ergsLimit",
+            "name": "gasLimit",
             "type": "uint256"
           },
           {
             "internalType": "uint256",
-            "name": "ergsPerPubdataByteLimit",
+            "name": "gasPerPubdataByteLimit",
             "type": "uint256"
           },
           {
             "internalType": "uint256",
-            "name": "maxFeePerErg",
+            "name": "maxFeePerGas",
             "type": "uint256"
           },
           {
             "internalType": "uint256",
-            "name": "maxPriorityFeePerErg",
+            "name": "maxPriorityFeePerGas",
             "type": "uint256"
           },
           {
@@ -441,9 +461,19 @@
             "type": "uint256"
           },
           {
-            "internalType": "uint256[6]",
+            "internalType": "uint256",
+            "name": "nonce",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "value",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256[4]",
             "name": "reserved",
-            "type": "uint256[6]"
+            "type": "uint256[4]"
           },
           {
             "internalType": "bytes",
@@ -601,22 +631,22 @@
           },
           {
             "internalType": "uint256",
-            "name": "ergsLimit",
+            "name": "gasLimit",
             "type": "uint256"
           },
           {
             "internalType": "uint256",
-            "name": "ergsPerPubdataByteLimit",
+            "name": "gasPerPubdataByteLimit",
             "type": "uint256"
           },
           {
             "internalType": "uint256",
-            "name": "maxFeePerErg",
+            "name": "maxFeePerGas",
             "type": "uint256"
           },
           {
             "internalType": "uint256",
-            "name": "maxPriorityFeePerErg",
+            "name": "maxPriorityFeePerGas",
             "type": "uint256"
           },
           {
@@ -625,9 +655,19 @@
             "type": "uint256"
           },
           {
-            "internalType": "uint256[6]",
+            "internalType": "uint256",
+            "name": "nonce",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "value",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256[4]",
             "name": "reserved",
-            "type": "uint256[6]"
+            "type": "uint256[4]"
           },
           {
             "internalType": "bytes",
@@ -696,22 +736,22 @@
           },
           {
             "internalType": "uint256",
-            "name": "ergsLimit",
+            "name": "gasLimit",
             "type": "uint256"
           },
           {
             "internalType": "uint256",
-            "name": "ergsPerPubdataByteLimit",
+            "name": "gasPerPubdataByteLimit",
             "type": "uint256"
           },
           {
             "internalType": "uint256",
-            "name": "maxFeePerErg",
+            "name": "maxFeePerGas",
             "type": "uint256"
           },
           {
             "internalType": "uint256",
-            "name": "maxPriorityFeePerErg",
+            "name": "maxPriorityFeePerGas",
             "type": "uint256"
           },
           {
@@ -720,9 +760,19 @@
             "type": "uint256"
           },
           {
-            "internalType": "uint256[6]",
+            "internalType": "uint256",
+            "name": "nonce",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "value",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256[4]",
             "name": "reserved",
-            "type": "uint256[6]"
+            "type": "uint256[4]"
           },
           {
             "internalType": "bytes",
@@ -755,7 +805,7 @@
         "type": "tuple"
       }
     ],
-    "name": "prePaymaster",
+    "name": "prepareForPaymaster",
     "outputs": [],
     "stateMutability": "payable",
     "type": "function"
@@ -826,22 +876,22 @@
           },
           {
             "internalType": "uint256",
-            "name": "ergsLimit",
+            "name": "gasLimit",
             "type": "uint256"
           },
           {
             "internalType": "uint256",
-            "name": "ergsPerPubdataByteLimit",
+            "name": "gasPerPubdataByteLimit",
             "type": "uint256"
           },
           {
             "internalType": "uint256",
-            "name": "maxFeePerErg",
+            "name": "maxFeePerGas",
             "type": "uint256"
           },
           {
             "internalType": "uint256",
-            "name": "maxPriorityFeePerErg",
+            "name": "maxPriorityFeePerGas",
             "type": "uint256"
           },
           {
@@ -850,9 +900,19 @@
             "type": "uint256"
           },
           {
-            "internalType": "uint256[6]",
+            "internalType": "uint256",
+            "name": "nonce",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "value",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256[4]",
             "name": "reserved",
-            "type": "uint256[6]"
+            "type": "uint256[4]"
           },
           {
             "internalType": "bytes",
@@ -970,22 +1030,22 @@
           },
           {
             "internalType": "uint256",
-            "name": "ergsLimit",
+            "name": "gasLimit",
             "type": "uint256"
           },
           {
             "internalType": "uint256",
-            "name": "ergsPerPubdataByteLimit",
+            "name": "gasPerPubdataByteLimit",
             "type": "uint256"
           },
           {
             "internalType": "uint256",
-            "name": "maxFeePerErg",
+            "name": "maxFeePerGas",
             "type": "uint256"
           },
           {
             "internalType": "uint256",
-            "name": "maxPriorityFeePerErg",
+            "name": "maxPriorityFeePerGas",
             "type": "uint256"
           },
           {
@@ -994,9 +1054,19 @@
             "type": "uint256"
           },
           {
-            "internalType": "uint256[6]",
+            "internalType": "uint256",
+            "name": "nonce",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "value",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256[4]",
             "name": "reserved",
-            "type": "uint256[6]"
+            "type": "uint256[4]"
           },
           {
             "internalType": "bytes",
@@ -1030,7 +1100,13 @@
       }
     ],
     "name": "validateTransaction",
-    "outputs": [],
+    "outputs": [
+      {
+        "internalType": "bytes4",
+        "name": "magic",
+        "type": "bytes4"
+      }
+    ],
     "stateMutability": "payable",
     "type": "function"
   },

@@ -23,8 +23,8 @@
         "API_URL": "https://api.zallo.io",
         "API_GQL_WS": "wss://api.zallo.io/graphql",
         "SUBGRAPH_GQL_URL": "https://api.thegraph.com/subgraphs/name/hbriese/zallo",
-        "ACCOUNT_IMPL_TESTNET": "0x7F19BE7A3948078c3413C557CE850903d5dFEd67",
-        "PROXY_FACTORY_TESTNET": "0xAB1BBa8527B119EE0fEd4Af61f81B954Fd438A1e",
+        "ACCOUNT_IMPL_TESTNET": "0x164921b76384661089a6295b57F7873784BaB626",
+        "PROXY_FACTORY_TESTNET": "0xee98b0EC2279a37fd2142178b6aC6E4237F0e685",
         "MULTI_CALL_TESTNET": "0x164921b76384661089a6295b57F7873784BaB626"
       }
     },
@@ -35,8 +35,8 @@
         "API_URL": "https://dev.api.zallo.io",
         "API_GQL_WS": "wss://dev.api.zallo.io/graphql",
         "SUBGRAPH_GQL_URL": "https://api.thegraph.com/subgraphs/name/hbriese/zallo-dev",
-        "ACCOUNT_IMPL_TESTNET": "0x7F19BE7A3948078c3413C557CE850903d5dFEd67",
-        "PROXY_FACTORY_TESTNET": "0xAB1BBa8527B119EE0fEd4Af61f81B954Fd438A1e",
+        "ACCOUNT_IMPL_TESTNET": "0x164921b76384661089a6295b57F7873784BaB626",
+        "PROXY_FACTORY_TESTNET": "0xee98b0EC2279a37fd2142178b6aC6E4237F0e685",
         "MULTI_CALL_TESTNET": "0x164921b76384661089a6295b57F7873784BaB626"
       }
     },

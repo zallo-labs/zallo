@@ -19,11 +19,11 @@
     "@matterlabs/hardhat-zksync-deploy": "^0.6.1",
     "@matterlabs/hardhat-zksync-solc": "^0.3.13",
     "@matterlabs/signature-checker": "^1.1.1",
-    "@matterlabs/zksync-contracts": "^0.5.1",
+    "@matterlabs/zksync-contracts": "^0.5.2",
     "@nomicfoundation/hardhat-chai-matchers": "^1.0.5",
     "@nomiclabs/hardhat-ethers": "^2.2.2",
     "@nomiclabs/hardhat-etherscan": "^3.1.5",
-    "@nomiclabs/hardhat-solhint": "2.0.1",
+    "@nomiclabs/hardhat-solhint": "3.0.0",
     "@openzeppelin/contracts": "^4.8.1",
     "@openzeppelin/contracts-upgradeable": "^4.8.1",
     "@typechain/ethers-v5": "^10.2.0",
@@ -57,6 +57,6 @@
     "ts-node": "^10.9.1",
     "typechain": "^8.1.1",
     "typescript": "^4.9.4",
-    "zksync-web3": "^0.12.5"
+    "zksync-web3": "^0.13.0"
   }
 }

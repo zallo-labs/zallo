@@ -1,10 +1,14 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 pragma solidity ^0.8.0;
 
-import '@matterlabs/zksync-contracts/l2/system-contracts/Constants.sol';
-import {SystemContractsCaller} from '@matterlabs/zksync-contracts/l2/system-contracts/SystemContractsCaller.sol';
+import {DEPLOYER_SYSTEM_CONTRACT} from '@matterlabs/zksync-contracts/l2/system-contracts/Constants.sol';
+import {SystemContractsCaller} from '@matterlabs/zksync-contracts/l2/system-contracts/libraries/SystemContractsCaller.sol';
+import {IContractDeployer} from '@matterlabs/zksync-contracts/l2/system-contracts/interfaces/IContractDeployer.sol';
 
 contract Factory {
+  IContractDeployer.AccountAbstractionVersion private constant AA_VERSION =
+    IContractDeployer.AccountAbstractionVersion.Version1;
+
   bytes32 public immutable _BYTECODE_HASH;
 
   error DeployFailed(address account, bytes revertData);
@@ -21,7 +25,10 @@ contract Factory {
       uint32(gasleft()),
       address(DEPLOYER_SYSTEM_CONTRACT),
       0,
-      abi.encodeCall(IContractDeployer.create2Account, (salt, _BYTECODE_HASH, constructorArgsData))
+      abi.encodeCall(
+        IContractDeployer.create2Account,
+        (salt, _BYTECODE_HASH, constructorArgsData, AA_VERSION)
+      )
     );
 
     if (!success) {

@@ -308,7 +308,7 @@ export class ProposalsService {
     return true;
   }
 
-  // TODO: ERC-1271 support
+  // TODO: ERC-1271 support - https://v2-docs.zksync.io/dev/developer-guides/aa.html#verifying-aa-signatures-within-our-sdk
   isValidSignature(signer: Address, digest: BytesLike, signature: SignatureLike) {
     return tryOrDefault(() => recoverAddress(digest, signature) === signer, false);
   }

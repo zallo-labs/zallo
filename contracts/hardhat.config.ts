@@ -26,7 +26,7 @@ const config: HardhatUserConfig = {
   },
   zksolc: {
     // https://github.com/matter-labs/zksolc-bin/tree/main/linux-amd64
-    version: '1.2.1',
+    version: '1.3.1',
     compilerSource: 'binary',
   },
   defaultNetwork: 'zkSyncTestnet',

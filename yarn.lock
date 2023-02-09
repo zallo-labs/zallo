@@ -7690,13 +7690,13 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@matterlabs/zksync-contracts@npm:^0.5.1":
-  version: 0.5.1
-  resolution: "@matterlabs/zksync-contracts@npm:0.5.1"
+"@matterlabs/zksync-contracts@npm:^0.5.2":
+  version: 0.5.2
+  resolution: "@matterlabs/zksync-contracts@npm:0.5.2"
   peerDependencies:
     "@openzeppelin/contracts": 4.6.0
     "@openzeppelin/contracts-upgradeable": 4.6.0
-  checksum: 2bbc7305a09d3140ea966a89b4e9b919886235429f3f6797715fc0033bb4ec323069639d7c0a4d8c76caf1d6c883b684c5d8750efbd7fa8db487d18e4388ac43
+  checksum: 09cd1d9f851e5f77ef3a0d06e1b1c41faff5e3e06b52ea4bac119ccb7805411a0684c6d231bc1af7bd2f46c7c89dd51ceb56a056bd560ab54a9986e05bf57501
   languageName: node
   linkType: hard
 
@@ -8516,14 +8516,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@nomiclabs/hardhat-solhint@npm:2.0.1":
-  version: 2.0.1
-  resolution: "@nomiclabs/hardhat-solhint@npm:2.0.1"
+"@nomiclabs/hardhat-solhint@npm:3.0.0":
+  version: 3.0.0
+  resolution: "@nomiclabs/hardhat-solhint@npm:3.0.0"
   dependencies:
-    solhint: ^2.0.0
+    solhint: ^3.0.0
   peerDependencies:
     hardhat: ^2.0.0
-  checksum: b38db32444857875832275de5cbbc99fd72221aa97473e5cebe59f064c731a089fc9791c30fb05b615e9b9b907a0bd0a5da4f163ffaa1c1c6e7cc389e0578db1
+  checksum: cc7e953b96f482b7e8c2693c0f61c2cb8e0f833fc1a7c1c1307a3cf0f265d90fa2b65b984c69d222ffeb47047f63ab6b8d98e3555e1918b12267ac2d60571a6c
   languageName: node
   linkType: hard
 
@@ -13906,7 +13906,7 @@ __metadata:
     tsconfig-paths: ^4.1.2
     type-graphql: ^1.1.1
     typescript: ^4.9.4
-    zksync-web3: ^0.12.5
+    zksync-web3: ^0.13.0
   languageName: unknown
   linkType: soft
 
@@ -14465,7 +14465,7 @@ __metadata:
     use-debounce: ^9.0.3
     use-immer: ^0.8.1
     yup: ^0.32.11
-    zksync-web3: ^0.12.5
+    zksync-web3: ^0.13.0
   languageName: unknown
   linkType: soft
 
@@ -17902,11 +17902,11 @@ __metadata:
     "@matterlabs/hardhat-zksync-deploy": ^0.6.1
     "@matterlabs/hardhat-zksync-solc": ^0.3.13
     "@matterlabs/signature-checker": ^1.1.1
-    "@matterlabs/zksync-contracts": ^0.5.1
+    "@matterlabs/zksync-contracts": ^0.5.2
     "@nomicfoundation/hardhat-chai-matchers": ^1.0.5
     "@nomiclabs/hardhat-ethers": ^2.2.2
     "@nomiclabs/hardhat-etherscan": ^3.1.5
-    "@nomiclabs/hardhat-solhint": 2.0.1
+    "@nomiclabs/hardhat-solhint": 3.0.0
     "@openzeppelin/contracts": ^4.8.1
     "@openzeppelin/contracts-upgradeable": ^4.8.1
     "@typechain/ethers-v5": ^10.2.0
@@ -17940,7 +17940,7 @@ __metadata:
     ts-node: ^10.9.1
     typechain: ^8.1.1
     typescript: ^4.9.4
-    zksync-web3: ^0.12.5
+    zksync-web3: ^0.13.0
   languageName: unknown
   linkType: soft
 
@@ -19581,7 +19581,7 @@ __metadata:
     typescript: ^4.9.4
     use-deep-compare-effect: ^1.8.1
     utf-8-validate: ^5.0.10
-    zksync-web3: ^0.12.5
+    zksync-web3: ^0.13.0
   languageName: unknown
   linkType: soft
 
@@ -29084,7 +29084,7 @@ __metadata:
     ts-jest: ^29.0.5
     typechain: ^8.1.1
     typescript: ^4.9.4
-    zksync-web3: ^0.12.5
+    zksync-web3: ^0.13.0
   languageName: unknown
   linkType: soft
 
@@ -38079,33 +38079,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"solhint@npm:^2.0.0":
-  version: 2.3.1
-  resolution: "solhint@npm:2.3.1"
-  dependencies:
-    ajv: ^6.6.1
-    antlr4: 4.7.1
-    chalk: ^2.4.2
-    commander: 2.18.0
-    cosmiconfig: ^5.0.7
-    eslint: ^5.6.0
-    fast-diff: ^1.1.2
-    glob: ^7.1.3
-    ignore: ^4.0.6
-    js-yaml: ^3.12.0
-    lodash: ^4.17.11
-    prettier: ^1.14.3
-    semver: ^6.3.0
-  dependenciesMeta:
-    prettier:
-      optional: true
-  bin:
-    solhint: solhint.js
-  checksum: d8a8fe8ab903dbebadda043b21ee87425f371c2c88bc01a201926f04dd38b8d5439d7831287db5892d75ca2ecfdba6c2b782d1367cc7ba1fbe115f3b22143a44
-  languageName: node
-  linkType: hard
-
-"solhint@npm:^3.3.8":
+"solhint@npm:^3.0.0, solhint@npm:^3.3.8":
   version: 3.3.8
   resolution: "solhint@npm:3.3.8"
   dependencies:
@@ -43101,12 +43075,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"zksync-web3@npm:^0.12.5":
-  version: 0.12.5
-  resolution: "zksync-web3@npm:0.12.5"
+"zksync-web3@npm:^0.13.0":
+  version: 0.13.0
+  resolution: "zksync-web3@npm:0.13.0"
   peerDependencies:
     ethers: ^5.7.0
-  checksum: e08c8f47c84aa5559412b796f4b52f8e1ca90ea3c28a3d745bf29de575ccb104ab8e1f83dc301b13183214bb7d4cad2ccb13381e70ce856711d7cbed3991e54e
+  checksum: 74830d88401f198530f3170c151d7982f2544734c94b468eba01055f3fb2a6c9ecc284e530020be1960a3a0308c015fca7e5dfdaf4694f34acabf5f01181b60d
   languageName: node
   linkType: hard
 
