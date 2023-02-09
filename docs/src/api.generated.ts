@@ -385,7 +385,6 @@ export type Mutation = {
   reject: Proposal;
   removeProposal: Proposal;
   removeQuorum: Quorum;
-  requestApproval: Scalars['Boolean'];
   requestTokens: Array<Scalars['Address']>;
   updateAccountMetadata: Account;
   updateQuorum: Quorum;
@@ -465,12 +464,6 @@ export type MutationRemoveQuorumArgs = {
   account: Scalars['Address'];
   key: Scalars['QuorumKey'];
   proposingQuorumKey?: InputMaybe<Scalars['QuorumKey']>;
-};
-
-
-export type MutationRequestApprovalArgs = {
-  approvers: Array<Scalars['Address']>;
-  id: Scalars['Bytes32'];
 };
 
 
