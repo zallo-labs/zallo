@@ -12,9 +12,7 @@ import {
   QuorumGuid,
   randomDeploySalt,
   randomQuorumKey,
-  signProposal,
   toQuorumKey,
-  UserWallet,
 } from 'lib';
 import { QuorumsService } from '../quorums/quorums.service';
 import { hexlify, randomBytes } from 'ethers/lib/utils';
@@ -48,15 +46,13 @@ describe(ProposalsService.name, () => {
 
   let user1Account1: Address;
   let user1Account2: Address;
-  let user1Credentials: UserWallet;
   let user1: UserContext;
 
   beforeEach(async () => {
     user1Account1 = randomAddress();
     user1Account2 = randomAddress();
-    user1Credentials = UserWallet.createRandom();
     user1 = {
-      id: address(user1Credentials.address),
+      id: randomAddress(),
       accounts: new Set([user1Account1, user1Account2]),
     };
 
@@ -172,8 +168,10 @@ describe(ProposalsService.name, () => {
   });
 
   describe('approve', () => {
-    const approve = (id: string) =>
-      service.approve({ id, signature: signProposal(id, user1Credentials) });
+    const approve = (id: string) => {
+      provider.isValidSignature.mockImplementationOnce(async () => true);
+      return service.approve({ id, signature: hexlify(randomBytes(32)) });
+    };
 
     it('creates approval', () =>
       asUser(user1, async () => {
@@ -197,6 +195,7 @@ describe(ProposalsService.name, () => {
       asUser(user1, async () => {
         const { id } = await propose();
 
+        provider.isValidSignature.mockImplementationOnce(async () => false);
         await expect(
           service.approve({ id, signature: hexlify(randomBytes(32)) }),
         ).rejects.toThrow();
@@ -256,7 +255,7 @@ describe(ProposalsService.name, () => {
       asUser(user1, async () => {
         const { id } = await propose();
 
-        jest.spyOn(service, 'isValidSignature').mockReturnValueOnce(true);
+        provider.isValidSignature.mockImplementationOnce(async () => true);
         await service.approve({ id, signature: hexlify(randomBytes(32)) });
 
         await service.reject({ id });
@@ -272,7 +271,7 @@ describe(ProposalsService.name, () => {
 
     it("throws if the proposal doesn't exist", () =>
       asUser(user1, async () => {
-        jest.spyOn(service, 'isValidSignature').mockReturnValueOnce(true);
+        provider.isValidSignature.mockImplementationOnce(async () => true);
 
         await expect(
           service.approve({ id: "doesn't exist", signature: hexlify(randomBytes(32)) }),

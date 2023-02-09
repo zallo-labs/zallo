@@ -1,8 +1,17 @@
 import { Injectable } from '@nestjs/common';
 import * as zk from 'zksync-web3';
 import { CONFIG } from '~/config';
-import { Address, Account, connectAccount, Factory, Factory__factory, Chain } from 'lib';
+import {
+  Address,
+  Account,
+  connectAccount,
+  Factory,
+  Factory__factory,
+  Chain,
+  SignatureLike,
+} from 'lib';
 import { Mutex } from 'async-mutex';
+import { BytesLike } from 'ethers';
 
 @Injectable()
 export class ProviderService extends zk.Provider {
@@ -48,5 +57,9 @@ export class ProviderService extends zk.Provider {
     } catch {
       return null;
     }
+  }
+
+  isValidSignature(addr: Address, message: BytesLike, signature: SignatureLike) {
+    return zk.utils.isMessageSignatureCorrect(this, addr, message, signature);
   }
 }

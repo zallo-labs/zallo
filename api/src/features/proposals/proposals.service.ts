@@ -1,7 +1,7 @@
 import { forwardRef, Inject, Injectable } from '@nestjs/common';
 import { Prisma, Proposal } from '@prisma/client';
 import { UserInputError } from 'apollo-server-core';
-import { BytesLike, hexlify, recoverAddress } from 'ethers/lib/utils';
+import { hexlify } from 'ethers/lib/utils';
 import {
   toTx,
   hashTx,
@@ -10,8 +10,6 @@ import {
   Address,
   QuorumKey,
   isPresent,
-  SignatureLike,
-  tryOrDefault,
   QuorumGuid,
   address,
   toQuorumKey,
@@ -147,7 +145,8 @@ export class ProposalsService {
     client: Prisma.TransactionClient = this.prisma.asUser,
   ): Promise<Proposal> {
     const user = getUser().id;
-    if (!this.isValidSignature(user, id, signature)) throw new UserInputError('Invalid signature');
+    if (!(await this.provider.isValidSignature(user, id, signature)))
+      throw new UserInputError('Invalid signature');
 
     await client.approval.create({
       data: {
@@ -306,10 +305,5 @@ export class ProposalsService {
     // TODO: handle failed notifications, removing push tokens of users that have uninstalled or disabled notifications
 
     return true;
-  }
-
-  // TODO: ERC-1271 support - https://v2-docs.zksync.io/dev/developer-guides/aa.html#verifying-aa-signatures-within-our-sdk
-  isValidSignature(signer: Address, digest: BytesLike, signature: SignatureLike) {
-    return tryOrDefault(() => recoverAddress(digest, signature) === signer, false);
   }
 }
