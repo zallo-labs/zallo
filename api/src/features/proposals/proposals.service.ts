@@ -34,6 +34,11 @@ import { match } from 'ts-pattern';
 import { QuorumsService } from '../quorums/quorums.service';
 import { ExpoService } from '../util/expo/expo.service';
 
+const TX_IS_EXECUTING: Prisma.TransactionWhereInput = { response: { isNot: {} } };
+const TX_IS_EXECUTED: Prisma.TransactionWhereInput = {
+  response: { is: { success: { equals: true } } },
+};
+
 export interface ProposeParams extends TxOptions {
   account: Address;
   quorumKey?: QuorumKey;
@@ -72,17 +77,13 @@ export class ProposalsService {
               OR: states.map((state) =>
                 match<ProposalState, Prisma.ProposalWhereInput>(state)
                   .with(ProposalState.Pending, () => ({
-                    transactions: { none: {} },
+                    transactions: { none: { OR: [TX_IS_EXECUTING, TX_IS_EXECUTED] } },
                   }))
                   .with(ProposalState.Executing, () => ({
-                    transactions: {
-                      some: {
-                        AND: [{}, { NOT: { response: {} } }],
-                      },
-                    },
+                    transactions: { some: TX_IS_EXECUTING },
                   }))
                   .with(ProposalState.Executed, () => ({
-                    transactions: { some: { response: { is: { success: { equals: true } } } } },
+                    transactions: { some: TX_IS_EXECUTED },
                   }))
                   .exhaustive(),
               ),
@@ -94,12 +95,7 @@ export class ProposalsService {
                     quorum: { activeState: { approvers: { some: { userId: user } } } },
                     approvals: { none: { userId: user } },
                   }
-                : {
-                    NOT: {
-                      quorum: { activeState: { approvers: { some: { userId: user } } } },
-                      approvals: { none: { userId: user } },
-                    },
-                  }),
+                : { approvals: { none: { userId: user } } }),
           ] as const
         ).filter(isTruthy),
       },

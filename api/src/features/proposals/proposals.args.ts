@@ -1,6 +1,6 @@
 import { FindManyProposalArgs } from '@gen/proposal/find-many-proposal.args';
-import { ArgsType, Field, ObjectType, registerEnumType } from '@nestjs/graphql';
-import { BigNumber, BytesLike } from 'ethers';
+import { ArgsType, Field, registerEnumType } from '@nestjs/graphql';
+import { BigNumber } from 'ethers';
 import { Address, QuorumKey, TxOptions, TxSalt } from 'lib';
 import { AddressField, AddressScalar } from '~/apollo/scalars/Address.scalar';
 import { Uint256BnField } from '~/apollo/scalars/BigNumber.scalar';

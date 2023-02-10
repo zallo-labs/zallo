@@ -20,6 +20,9 @@ import { ProviderService } from '../util/provider/provider.service';
 import { connectAccount, connectOrCreateUser, connectQuorum } from '~/util/connect-or-create';
 import { ExpoService } from '../util/expo/expo.service';
 import { TransactionsService } from '../transactions/transactions.service';
+import { Proposal } from '@prisma/client';
+import { ProposalState } from './proposals.args';
+import { isTypeExtensionNode } from 'graphql';
 
 describe(ProposalsService.name, () => {
   let service: ProposalsService;
@@ -70,6 +73,8 @@ describe(ProposalsService.name, () => {
     to = account,
     ...params
   }: Partial<ProposeParams> = {}) => {
+    const userId = getUserId();
+
     // Account & quorum
     await prisma.asUser.account.upsert({
       where: { id: account },
@@ -88,16 +93,25 @@ describe(ProposalsService.name, () => {
       update: {},
     });
 
-    // User
-    const userId = getUserId();
-    await prisma.asUser.user.upsert({
-      where: { id: userId },
-      create: { id: userId },
-      update: {},
-      select: { id: true },
+    await prisma.asUser.quorum.update({
+      where: { accountId_key: { accountId: account, key: quorumKey } },
+      data: {
+        activeState: {
+          create: {
+            account: connectAccount(account),
+            quorum: { connect: { accountId_key: { accountId: account, key: quorumKey } } },
+            approvers: { create: { user: connectOrCreateUser(userId) } },
+          },
+        },
+      },
     });
 
     return service.propose({ account, quorumKey, to, ...params });
+  };
+
+  const approve = (id: string) => {
+    provider.isValidSignature.mockImplementationOnce(async () => true);
+    return service.approve({ id, signature: hexlify(randomBytes(32)) });
   };
 
   describe('propose', () => {
@@ -164,15 +178,107 @@ describe(ProposalsService.name, () => {
         expect(new Set(proposals.map((p) => p.accountId))).toEqual(new Set([user1Account1]));
       }));
 
-    it.todo('filters by states');
+    describe('states filters when', () => {
+      let pending: Proposal;
+      let pendingWithFailed: Proposal;
+      let executing: Proposal;
+      let executed: Proposal;
+
+      beforeEach(() =>
+        asUser(user1, async () => {
+          pending = await propose();
+          pendingWithFailed = await propose();
+          executing = await propose();
+          executed = await propose();
+
+          await prisma.asSuperuser.transaction.create({
+            data: {
+              hash: hexlify(randomBytes(32)),
+              proposal: { connect: { id: pendingWithFailed.id } },
+              gasLimit: 0,
+              nonce: 0,
+              response: {
+                create: {
+                  success: false,
+                  response: hexlify(randomBytes(32)),
+                },
+              },
+            },
+          });
+
+          await prisma.asSuperuser.transaction.create({
+            data: {
+              hash: hexlify(randomBytes(32)),
+              proposal: { connect: { id: executing.id } },
+              gasLimit: 0,
+              nonce: 0,
+            },
+          });
+
+          await prisma.asSuperuser.transaction.create({
+            data: {
+              hash: hexlify(randomBytes(32)),
+              proposal: { connect: { id: executed.id } },
+              gasLimit: 0,
+              nonce: 0,
+              response: {
+                create: {
+                  success: true,
+                  response: hexlify(randomBytes(32)),
+                },
+              },
+            },
+          });
+        }),
+      );
+
+      it('pending only shows pending proposals', () =>
+        asUser(user1, async () => {
+          const proposals = await service.findMany({ states: [ProposalState.Pending] });
+
+          expect(new Set(proposals.map((p) => p.id))).toEqual(
+            new Set([pending, pendingWithFailed].map((p) => p.id)),
+          );
+        }));
+
+      it('executing only shows executing proposals', () =>
+        asUser(user1, async () => {
+          expect(await service.findMany({ states: [ProposalState.Executing] })).toEqual([
+            executing,
+          ]);
+        }));
+
+      it('executed only shows executed proposals', () =>
+        asUser(user1, async () => {
+          expect(await service.findMany({ states: [ProposalState.Executed] })).toEqual([executed]);
+        }));
+
+      it('shows all when all filters are applied', () =>
+        asUser(user1, async () => {
+          expect(await service.findMany({ states: Object.values(ProposalState) })).toHaveLength(4);
+        }));
+    });
+
+    describe('actionRequired filters when', () => {
+      it("true only shows proposals that require the user's action", () =>
+        asUser(user1, async () => {
+          await propose();
+
+          expect(await service.findMany({ actionRequired: true })).toHaveLength(1);
+        }));
+
+      it("false doesn't show proposals that require the user's action", () =>
+        asUser(user1, async () => {
+          const { id } = await propose();
+
+          await approve(id);
+
+          expect(await service.findMany({ actionRequired: false })).toHaveLength(0);
+        }));
+    });
   });
 
   describe('approve', () => {
-    const approve = (id: string) => {
-      provider.isValidSignature.mockImplementationOnce(async () => true);
-      return service.approve({ id, signature: hexlify(randomBytes(32)) });
-    };
-
     it('creates approval', () =>
       asUser(user1, async () => {
         const { id } = await propose();
