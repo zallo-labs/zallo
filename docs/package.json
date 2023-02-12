@@ -37,7 +37,7 @@
     "recoil": "^0.7.6",
     "use-deep-compare-effect": "^1.8.1",
     "utf-8-validate": "^5.0.10",
-    "zksync-web3": "^0.13.0"
+    "zksync-web3": "^0.13.1"
   },
   "devDependencies": {
     "@docusaurus/module-type-aliases": "latest",

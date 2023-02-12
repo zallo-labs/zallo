@@ -7685,16 +7685,16 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@matterlabs/hardhat-zksync-solc@npm:^0.3.13":
-  version: 0.3.13
-  resolution: "@matterlabs/hardhat-zksync-solc@npm:0.3.13"
+"@matterlabs/hardhat-zksync-solc@npm:^0.3.14":
+  version: 0.3.14
+  resolution: "@matterlabs/hardhat-zksync-solc@npm:0.3.14"
   dependencies:
     "@nomiclabs/hardhat-docker": ^2.0.0
     chalk: 4.1.2
     dockerode: ^3.3.4
   peerDependencies:
-    hardhat: ^2.12.4
-  checksum: 12d8089eb4935e056ecb66b73fad1a27faee29546f47886790960afbea76e06b4f65b35f6282d2d07b4333e71257dbc4c9783dcf643a88761e5949bb8b707851
+    hardhat: ^2.12.6
+  checksum: 11ca4bc8fbe1d654412249cd99c689f84ac1d7d4515cac1cd99d1700b91108b472b518a5ef6aafc16c1c008cb785800504a5b58f5591ddaf05f930fe9e184ffe
   languageName: node
   linkType: hard
 
@@ -13924,7 +13924,7 @@ __metadata:
     tsconfig-paths: ^4.1.2
     type-graphql: ^1.1.1
     typescript: ^4.9.4
-    zksync-web3: ^0.13.0
+    zksync-web3: ^0.13.1
   languageName: unknown
   linkType: soft
 
@@ -14483,7 +14483,7 @@ __metadata:
     use-debounce: ^9.0.3
     use-immer: ^0.8.1
     yup: ^0.32.11
-    zksync-web3: ^0.13.0
+    zksync-web3: ^0.13.1
   languageName: unknown
   linkType: soft
 
@@ -17203,7 +17203,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"cli-table3@npm:0.6.3, cli-table3@npm:^0.6.2":
+"cli-table3@npm:0.6.3, cli-table3@npm:^0.6.0, cli-table3@npm:^0.6.2":
   version: 0.6.3
   resolution: "cli-table3@npm:0.6.3"
   dependencies:
@@ -17918,7 +17918,7 @@ __metadata:
   dependencies:
     "@matterlabs/hardhat-zksync-chai-matchers": ^0.1.0
     "@matterlabs/hardhat-zksync-deploy": ^0.6.1
-    "@matterlabs/hardhat-zksync-solc": ^0.3.13
+    "@matterlabs/hardhat-zksync-solc": ^0.3.14
     "@matterlabs/signature-checker": ^1.1.1
     "@matterlabs/zksync-contracts": ^0.5.2
     "@nomicfoundation/hardhat-chai-matchers": ^1.0.5
@@ -17947,6 +17947,7 @@ __metadata:
     ethers: ^5.7.2
     hardhat: ^2.12.6
     hardhat-abi-exporter: ^2.10.1
+    hardhat-contract-sizer: ^2.8.0
     hardhat-gas-reporter: ^1.0.9
     hardhat-tracer: ^1.2.1
     keccak256: ^1.0.6
@@ -17958,7 +17959,7 @@ __metadata:
     ts-node: ^10.9.1
     typechain: ^8.1.1
     typescript: ^4.9.4
-    zksync-web3: ^0.13.0
+    zksync-web3: ^0.13.1
   languageName: unknown
   linkType: soft
 
@@ -19599,7 +19600,7 @@ __metadata:
     typescript: ^4.9.4
     use-deep-compare-effect: ^1.8.1
     utf-8-validate: ^5.0.10
-    zksync-web3: ^0.13.0
+    zksync-web3: ^0.13.1
   languageName: unknown
   linkType: soft
 
@@ -24235,6 +24236,19 @@ __metadata:
   peerDependencies:
     hardhat: ^2.0.0
   checksum: 5dba9ebb7bd1002311b504a87cc0f9197ffe5066a61d27073f49bde2adcd080e94ef9e2e696e4fb26c9731df1bed76967e1e0428742af36b37d9c70f9944c98b
+  languageName: node
+  linkType: hard
+
+"hardhat-contract-sizer@npm:^2.8.0":
+  version: 2.8.0
+  resolution: "hardhat-contract-sizer@npm:2.8.0"
+  dependencies:
+    chalk: ^4.0.0
+    cli-table3: ^0.6.0
+    strip-ansi: ^6.0.0
+  peerDependencies:
+    hardhat: ^2.0.0
+  checksum: 6f1f4aca16a8ceeb9b3ce8ec89075c2fb292a3c82941ae826a9d503e077fda58e1d62b5c561252385c320a978d65399a2e829cec7c643250eaca163546831cbb
   languageName: node
   linkType: hard
 
@@ -29102,7 +29116,7 @@ __metadata:
     ts-jest: ^29.0.5
     typechain: ^8.1.1
     typescript: ^4.9.4
-    zksync-web3: ^0.13.0
+    zksync-web3: ^0.13.1
   languageName: unknown
   linkType: soft
 
@@ -43093,12 +43107,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"zksync-web3@npm:^0.13.0":
-  version: 0.13.0
-  resolution: "zksync-web3@npm:0.13.0"
+"zksync-web3@npm:^0.13.1":
+  version: 0.13.1
+  resolution: "zksync-web3@npm:0.13.1"
   peerDependencies:
     ethers: ^5.7.0
-  checksum: 74830d88401f198530f3170c151d7982f2544734c94b468eba01055f3fb2a6c9ecc284e530020be1960a3a0308c015fca7e5dfdaf4694f34acabf5f01181b60d
+  checksum: 7774b4ca7f83f1bd6d4274b978016a6ed0f2eea03a3011761c6e7824af72a0f83e3efa21b05e078c91cc5a9e1523971edf628921a8d7dda8dd2888612e85e428
   languageName: node
   linkType: hard
 
