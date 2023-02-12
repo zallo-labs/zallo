@@ -5,9 +5,7 @@ import '@nomiclabs/hardhat-ethers';
 // import '@nomiclabs/hardhat-waffle';
 import '@nomiclabs/hardhat-etherscan';
 import '@nomiclabs/hardhat-solhint'; // https://github.com/protofire/solhint/blob/master/docs/rules.md
-import '@matterlabs/hardhat-zksync-deploy';
-import '@matterlabs/hardhat-zksync-solc';
-import '@matterlabs/hardhat-zksync-chai-matchers';
+import '@matterlabs/hardhat-zksync-toolbox';
 import '@typechain/hardhat';
 import 'hardhat-gas-reporter';
 import 'hardhat-abi-exporter';
@@ -19,7 +17,7 @@ import 'hardhat-contract-sizer';
 import './tasks/accounts';
 import './tasks/balance';
 import './tasks/deposit';
-import { ChainName, CHAINS } from 'lib';
+import { CHAINS } from 'lib';
 
 // https://hardhat.org/config/
 const config: HardhatUserConfig = {
@@ -34,7 +32,7 @@ const config: HardhatUserConfig = {
       isSystem: true,
     },
   },
-  defaultNetwork: 'local' satisfies ChainName,
+  defaultNetwork: CONFIG.chain.name,
   networks: {
     // https://hardhat.org/hardhat-network/reference/
     hardhat: { zksync: true },

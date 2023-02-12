@@ -7673,6 +7673,18 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@matterlabs/hardhat-zksync-solc@npm:0.3.12":
+  version: 0.3.12
+  resolution: "@matterlabs/hardhat-zksync-solc@npm:0.3.12"
+  dependencies:
+    "@nomiclabs/hardhat-docker": ^2.0.0
+    dockerode: ^3.3.4
+  peerDependencies:
+    hardhat: ^2.12.2
+  checksum: 1ce3eccda94db5f9cf9b965bb3c7c02b7992467c4d5f977cb3c9a800d4cb16c76d0bb74fee81d79d9221672d6da262ff339159f5aa47c6d84f2ab2a14c183a00
+  languageName: node
+  linkType: hard
+
 "@matterlabs/hardhat-zksync-solc@npm:^0.2.1":
   version: 0.2.4
   resolution: "@matterlabs/hardhat-zksync-solc@npm:0.2.4"
@@ -7695,6 +7707,31 @@ __metadata:
   peerDependencies:
     hardhat: ^2.12.6
   checksum: 11ca4bc8fbe1d654412249cd99c689f84ac1d7d4515cac1cd99d1700b91108b472b518a5ef6aafc16c1c008cb785800504a5b58f5591ddaf05f930fe9e184ffe
+  languageName: node
+  linkType: hard
+
+"@matterlabs/hardhat-zksync-toolbox@npm:^0.1.0":
+  version: 0.1.0
+  resolution: "@matterlabs/hardhat-zksync-toolbox@npm:0.1.0"
+  peerDependencies:
+    "@matterlabs/hardhat-zksync-chai-matchers": ^0.1.0
+    "@matterlabs/hardhat-zksync-deploy": ^0.6.1
+    "@matterlabs/hardhat-zksync-solc": ^0.3.13
+    "@matterlabs/hardhat-zksync-verify": ^0.1.1
+  checksum: 6c87cee27dbbbd67ee4276fd07fbda9493338e5436d9a57cfd93c45b6a68bad176043d9e228fbbc074908e8cd31637cb53c8e0cb7ea5710a0ec70ffd84042a76
+  languageName: node
+  linkType: hard
+
+"@matterlabs/hardhat-zksync-verify@npm:^0.1.1":
+  version: 0.1.1
+  resolution: "@matterlabs/hardhat-zksync-verify@npm:0.1.1"
+  dependencies:
+    "@matterlabs/hardhat-zksync-solc": 0.3.12
+    axios: ^1.2.1
+    dockerode: ^3.3.4
+  peerDependencies:
+    "@nomiclabs/hardhat-etherscan": 3.1.2
+  checksum: 90471f7c97c2a49d625a005d85c679e653c4dcb3515887017e1044b0c3a2b6d7deb81a8a1b22298c2818ccdd636c08be55b4a23e31ac58797618418068c3fda5
   languageName: node
   linkType: hard
 
@@ -8365,14 +8402,13 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@nomicfoundation/hardhat-chai-matchers@npm:^1.0.5":
-  version: 1.0.5
-  resolution: "@nomicfoundation/hardhat-chai-matchers@npm:1.0.5"
+"@nomicfoundation/hardhat-chai-matchers@npm:^1.0.6":
+  version: 1.0.6
+  resolution: "@nomicfoundation/hardhat-chai-matchers@npm:1.0.6"
   dependencies:
     "@ethersproject/abi": ^5.1.2
     "@types/chai-as-promised": ^7.1.3
     chai-as-promised: ^7.1.1
-    chalk: ^2.4.2
     deep-eql: ^4.0.1
     ordinal: ^1.0.3
   peerDependencies:
@@ -8380,7 +8416,7 @@ __metadata:
     chai: ^4.2.0
     ethers: ^5.0.0
     hardhat: ^2.9.4
-  checksum: ad1f34d62be22323a12cd623bbc43c05bcd88cf9f3bc77a4fd449d076a6e890c9abf58c9d75f2254bf2f060e1c8d666c71715cff555c0cb6029d7357a200273d
+  checksum: c388e5ed9068f2ba7c227737ab7312dd03405d5fab195247b061f2fa52e700fbd0fb65359c2d4f2086f2905bfca642c19a9122d034533edd936f89aea65ac7f2
   languageName: node
   linkType: hard
 
@@ -8514,9 +8550,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@nomiclabs/hardhat-etherscan@npm:^3.1.5":
-  version: 3.1.5
-  resolution: "@nomiclabs/hardhat-etherscan@npm:3.1.5"
+"@nomiclabs/hardhat-etherscan@npm:^3.1.6":
+  version: 3.1.6
+  resolution: "@nomiclabs/hardhat-etherscan@npm:3.1.6"
   dependencies:
     "@ethersproject/abi": ^5.1.2
     "@ethersproject/address": ^5.0.2
@@ -8530,7 +8566,7 @@ __metadata:
     undici: ^5.14.0
   peerDependencies:
     hardhat: ^2.0.4
-  checksum: d90d7eb3f2c62d53f2609f87e633d7af1395465ecfd6322160a45cbc8bc0e71780a9c52624e23817ca251df74df064cbfe3d09a86c69133359200f0f4f30c5c8
+  checksum: 5b1fd197f567d896064c81a4a09995e5be354d008e25be092a5d740136e5b118c2b0f2162c808caec2bbe64718ca3aeb8e886cd4d8968c92800408626429bf7b
   languageName: node
   linkType: hard
 
@@ -15077,6 +15113,17 @@ __metadata:
   languageName: node
   linkType: hard
 
+"axios@npm:^1.2.1":
+  version: 1.3.2
+  resolution: "axios@npm:1.3.2"
+  dependencies:
+    follow-redirects: ^1.15.0
+    form-data: ^4.0.0
+    proxy-from-env: ^1.1.0
+  checksum: 9791af75a6df137b15ef45d13ad11eb357b3860d2496347ee18778db9d0abc2320362a4452f1e070e3160f1dbcc518fcefdc9e005be097e7db39acb22cf608e5
+  languageName: node
+  linkType: hard
+
 "babel-core@npm:^7.0.0-bridge.0":
   version: 7.0.0-bridge.0
   resolution: "babel-core@npm:7.0.0-bridge.0"
@@ -17919,11 +17966,13 @@ __metadata:
     "@matterlabs/hardhat-zksync-chai-matchers": ^0.1.0
     "@matterlabs/hardhat-zksync-deploy": ^0.6.1
     "@matterlabs/hardhat-zksync-solc": ^0.3.14
+    "@matterlabs/hardhat-zksync-toolbox": ^0.1.0
+    "@matterlabs/hardhat-zksync-verify": ^0.1.1
     "@matterlabs/signature-checker": ^1.1.1
     "@matterlabs/zksync-contracts": ^0.5.2
-    "@nomicfoundation/hardhat-chai-matchers": ^1.0.5
+    "@nomicfoundation/hardhat-chai-matchers": ^1.0.6
     "@nomiclabs/hardhat-ethers": ^2.2.2
-    "@nomiclabs/hardhat-etherscan": ^3.1.5
+    "@nomiclabs/hardhat-etherscan": ^3.1.6
     "@nomiclabs/hardhat-solhint": 3.0.0
     "@openzeppelin/contracts": ^4.8.1
     "@openzeppelin/contracts-upgradeable": ^4.8.1
@@ -17945,7 +17994,7 @@ __metadata:
     eslint-plugin-prettier: ^4.2.1
     eslint-plugin-promise: ^6.1.1
     ethers: ^5.7.2
-    hardhat: ^2.12.6
+    hardhat: ^2.12.7
     hardhat-abi-exporter: ^2.10.1
     hardhat-contract-sizer: ^2.8.0
     hardhat-gas-reporter: ^1.0.9
@@ -24278,9 +24327,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"hardhat@npm:^2.12.6":
-  version: 2.12.6
-  resolution: "hardhat@npm:2.12.6"
+"hardhat@npm:^2.12.7":
+  version: 2.12.7
+  resolution: "hardhat@npm:2.12.7"
   dependencies:
     "@ethersproject/abi": ^5.1.2
     "@metamask/eth-sig-util": ^4.0.0
@@ -24342,7 +24391,7 @@ __metadata:
       optional: true
   bin:
     hardhat: internal/cli/cli.js
-  checksum: c97c5ed2336541e8b0a3034dc5c94319cffbf93fa1b6385091858f8eefb392129c6109cbaca0837fd4dff4d627b3e3ccb931706257a5d0bee71fc7f7fe90a536
+  checksum: d1f86c09f3db1cc67a448214ebf67a15fc980304ad892ca90792bba679c887a23d8bc2006daf301f4106d638230229dc1ddbc5ba363b1c6aa6b361064f0d7aec
   languageName: node
   linkType: hard
 

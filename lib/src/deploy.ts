@@ -81,7 +81,7 @@ export const deployAccountProxy = async (
 
   const encodedConstructorData = encodeProxyConstructorArgs(args);
   const deployTx = await factory.deploy(encodedConstructorData, salt, {
-    gasLimit: 2_000_000, // 500_000 used on local
+    gasLimit: 1_000_000, // 500_000 used on local
   });
   await deployTx.wait();
 

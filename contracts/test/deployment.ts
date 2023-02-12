@@ -1,12 +1,13 @@
 import { expect } from 'chai';
-import { hashQuorum } from 'lib';
+import { hashQuorum, ZERO_ADDR } from 'lib';
 import {
   AccountImplData,
   gasLimit,
   deployAccountImpl,
   deployFactory,
   deployTesterProxy,
-  DeployTesterProxyData,
+  deployer,
+  deployProxy,
 } from './util';
 
 describe('Deployment', () => {
@@ -32,18 +33,22 @@ describe('Deployment', () => {
     });
   });
 
-  describe('Account proxy', () => {
-    let { account, quorum } = {} as DeployTesterProxyData;
-
-    before(async () => {
-      ({ account, quorum } = await deployTesterProxy());
+  describe('ERC1967Proxy', () => {
+    it('deploys', async () => {
+      const artifact = await deployer.loadArtifact('ERC1967Proxy');
+      const contract = await deployer.deploy(artifact, [ZERO_ADDR, []]);
+      await contract.deployed();
     });
+  });
 
+  describe('Account proxy', () => {
     it('should deploy', async () => {
+      const { account } = await deployProxy();
       await account.deployed();
     });
 
     it('should be initialized with quorums', async () => {
+      const { account, quorum } = await deployTesterProxy();
       expect(await account.getQuorumHash(quorum.key)).to.eq(hashQuorum(quorum));
     });
   });
