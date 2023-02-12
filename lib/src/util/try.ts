@@ -1,4 +1,4 @@
-export const tryOr = <R, O>(f: () => R, otherwise: (e: unknown) => O): R | O => {
+export const tryOrCatch = <R, O>(f: () => R, otherwise: (e: unknown) => O): R | O => {
   try {
     return f();
   } catch (e) {
@@ -6,7 +6,7 @@ export const tryOr = <R, O>(f: () => R, otherwise: (e: unknown) => O): R | O => 
   }
 };
 
-export const tryOrAsync = async <R, O>(
+export const tryOrCatchAsync = async <R, O>(
   f: () => R,
   otherwise: (e: unknown) => O,
 ): Promise<R | O> => {
@@ -17,10 +17,10 @@ export const tryOrAsync = async <R, O>(
   }
 };
 
-export const tryOrDefault = <R, O>(f: () => R, otherwise: O) => tryOr(f, () => otherwise);
+export const tryOr = <R, O>(f: () => R, otherwise: O) => tryOrCatch(f, () => otherwise);
 
-export const tryOrDefaultAsync = <R, O>(f: () => R, otherwise: O) => tryOrAsync(f, () => otherwise);
+export const tryOrAsync = <R, O>(f: () => R, otherwise: O) => tryOrCatchAsync(f, () => otherwise);
 
-export const tryOrIgnore = <R>(f: () => R) => tryOrDefault(f, undefined);
+export const tryOrIgnore = <R>(f: () => R) => tryOr(f, undefined);
 
-export const tryOrIgnoreAsync = <R>(f: () => R) => tryOrDefaultAsync(f, undefined);
+export const tryOrIgnoreAsync = <R>(f: () => R) => tryOrAsync(f, undefined);
