@@ -98,6 +98,9 @@ contract Account is
     if (hasBeenExecuted(txHash)) revert TransactionAlreadyExecuted();
 
     _validateSignature(txHash, transaction.signature);
+
+    if (TransactionHelper.totalRequiredBalance(transaction) > address(this).balance)
+      revert InsufficientBalance();
   }
 
   /*//////////////////////////////////////////////////////////////
@@ -110,7 +113,7 @@ contract Account is
     Transaction calldata transaction
   ) external payable override onlyBootloader {
     bool success = TransactionHelper.payToTheBootloader(transaction);
-    require(success, 'Failed to pay the fee to the operator');
+    if (!success) revert FailedToPayBootloader();
   }
 
   function prepareForPaymaster(

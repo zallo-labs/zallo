@@ -6,6 +6,16 @@
   },
   {
     "inputs": [],
+    "name": "FailedToPayBootloader",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "InsufficientBalance",
+    "type": "error"
+  },
+  {
+    "inputs": [],
     "name": "InvalidProof",
     "type": "error"
   },
