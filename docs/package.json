@@ -26,7 +26,7 @@
     "@mdx-js/react": "^1.6.22",
     "bufferutil": "^4.0.7",
     "clsx": "^1.2.1",
-    "dotenv-vault-core": "^0.6.1",
+    "dotenv-vault-core": "^0.7.0",
     "graphql": "^16.6.0",
     "graphql-tag": "^2.12.6",
     "lib": "workspace:*",
