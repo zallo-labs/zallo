@@ -88,11 +88,11 @@ contract Account is
   }
 
   function _validateTransaction(bytes32 txHash, Transaction calldata transaction) internal {
-    SystemContractsCaller.systemCall(
+    SystemContractsCaller.systemCallWithPropagatedRevert(
       uint32(gasleft()),
       address(NONCE_HOLDER_SYSTEM_CONTRACT),
       0,
-      abi.encodeCall(INonceHolder.incrementMinNonceIfEquals, (transaction.reserved[0]))
+      abi.encodeCall(INonceHolder.incrementMinNonceIfEquals, (transaction.nonce))
     );
 
     if (hasBeenExecuted(txHash)) revert TransactionAlreadyExecuted();
