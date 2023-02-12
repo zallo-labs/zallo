@@ -12,12 +12,14 @@ import '@typechain/hardhat';
 import 'hardhat-gas-reporter';
 import 'hardhat-abi-exporter';
 import 'hardhat-tracer';
+import 'hardhat-contract-sizer';
 // import 'solidity-coverage';
 
 // Tasks
 import './tasks/accounts';
 import './tasks/balance';
 import './tasks/deposit';
+import { ChainName, CHAINS } from 'lib';
 
 // https://hardhat.org/config/
 const config: HardhatUserConfig = {
@@ -28,19 +30,25 @@ const config: HardhatUserConfig = {
     // https://github.com/matter-labs/zksolc-bin/tree/main/linux-amd64
     version: '1.3.1',
     compilerSource: 'binary',
+    settings: {
+      isSystem: true,
+    },
   },
-  defaultNetwork: 'zkSyncTestnet',
+  defaultNetwork: 'local' satisfies ChainName,
   networks: {
     // https://hardhat.org/hardhat-network/reference/
-    hardhat: {
-      zksync: true,
-      // loggingEnabled: true,
-    },
-    zkSyncTestnet: {
-      url: CONFIG.chain.rpc,
-      ethNetwork: CONFIG.chain.l1Rpc,
-      zksync: true,
-    },
+    hardhat: { zksync: true },
+
+    ...Object.fromEntries(
+      Object.values(CHAINS).map((chain) => [
+        chain.name,
+        {
+          url: chain.rpc,
+          ethNetwork: chain.l1Rpc,
+          zksync: true,
+        },
+      ]),
+    ),
   },
   // Plugins
   typechain: {
