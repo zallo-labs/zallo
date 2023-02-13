@@ -22,7 +22,6 @@ import { ExpoService } from '../util/expo/expo.service';
 import { TransactionsService } from '../transactions/transactions.service';
 import { Proposal } from '@prisma/client';
 import { ProposalState } from './proposals.args';
-import { isTypeExtensionNode } from 'graphql';
 
 describe(ProposalsService.name, () => {
   let service: ProposalsService;
@@ -271,13 +270,12 @@ describe(ProposalsService.name, () => {
           expect(await service.findMany({ actionRequired: true })).toHaveLength(1);
         }));
 
-      it("false doesn't show proposals that require the user's action", () =>
+      it("false shows proposals that don't require the user's action", () =>
         asUser(user1, async () => {
           const { id } = await propose();
-
           await approve(id);
 
-          expect(await service.findMany({ actionRequired: false })).toHaveLength(0);
+          expect(await service.findMany({ actionRequired: false })).toHaveLength(1);
         }));
     });
   });
