@@ -1,6 +1,6 @@
 import { gql } from '@apollo/client';
 import assert from 'assert';
-import { compareAddress, QuorumGuid } from 'lib';
+import { QuorumGuid } from 'lib';
 import { useCallback } from 'react';
 import {
   AccountsDocument,
@@ -48,7 +48,7 @@ export const useUpdateQuorumMetadata = (quorum: QuorumGuid) => {
             cache,
             variables: {},
             updater: (data) => {
-              const account = data.accounts.find((a) => compareAddress(a.id, quorum.account));
+              const account = data.accounts.find((a) => a.id === quorum.account);
               assert(account);
 
               const q = account.quorums?.find((q) => q.key === quorum.key);

@@ -8,7 +8,6 @@ import {
 import { IS_DEV } from '~/config';
 import { IncomingContext, Context, IncomingWsContext } from '~/request/ctx';
 import { AddressMiddleware } from './address.middleware';
-import { IdMiddleware } from './id.middleware';
 import { AuthModule } from '~/features/auth/auth.module';
 import { SessionMiddleware } from '~/features/auth/session.middleware';
 import { AuthMiddleware } from '~/features/auth/auth.middleware';
@@ -43,7 +42,7 @@ const chain = (req: Request, resolve: () => void, middlewares: NestMiddleware[])
         cache: 'bounded',
         cors: false, // Configured in main.ts; omitting reconfigures CORS
         buildSchemaOptions: {
-          fieldMiddleware: [IdMiddleware, AddressMiddleware],
+          fieldMiddleware: [AddressMiddleware],
         },
         bodyParserConfig: {
           limit: '1mb',
