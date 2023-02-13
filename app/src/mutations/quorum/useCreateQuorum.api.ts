@@ -1,12 +1,15 @@
 import { gql } from '@apollo/client';
 import assert from 'assert';
-import { Address, QuorumGuid, QuorumKey, toQuorumKey } from 'lib';
+import { Address, compareAddress, QuorumGuid, QuorumKey, toQuorumKey } from 'lib';
 import { useCallback } from 'react';
 import {
   AccountsDocument,
+  AccountsQuery,
+  AccountsQueryVariables,
   QuorumFieldsFragmentDoc,
   useCreateQuorumMutation,
 } from '~/gql/generated.api';
+import { updateQuery } from '~/gql/update';
 import { useUser } from '~/queries/useUser.api';
 import { useSelectQuorum } from '~/screens/account/quorums/useSelectQuorum';
 
@@ -50,7 +53,22 @@ export const useCreateQuorum = (accountAddr: Address) => {
           name,
           proposingQuorumKey: proposingQuorumKey ?? (await selectQuorum()).key,
         },
-        refetchQueries: [AccountsDocument],
+        update: async (cache, res) => {
+          const quorum = res.data?.createQuorum;
+          if (!quorum) return;
+
+          await updateQuery<AccountsQuery, AccountsQueryVariables>({
+            query: AccountsDocument,
+            cache,
+            variables: {},
+            updater: (data) => {
+              const i = data.accounts.findIndex((a) => compareAddress(a.id, quorum.accountId));
+
+              if (!data.accounts[i].quorums) data.accounts[i].quorums = [];
+              data.accounts[i].quorums?.push(quorum);
+            },
+          });
+        },
       });
 
       assert(r.data);
