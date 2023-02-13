@@ -35,11 +35,11 @@ const config = {
           remarkPlugins: [[require('@docusaurus/remark-plugin-npm2yarn'), { sync: true }]],
           // editUrl: `${repo}/tree/main/docs`,     // Adds edit button
         },
-        blog: {
-          showReadingTime: true,
-          remarkPlugins: [require('@docusaurus/remark-plugin-npm2yarn')],
-          // editUrl: `${repo}/tree/main/docs`,     // Adds edit button
-        },
+        // blog: {
+        //   showReadingTime: true,
+        //   remarkPlugins: [require('@docusaurus/remark-plugin-npm2yarn')],
+        //   // editUrl: `${repo}/tree/main/docs`,     // Adds edit button
+        // },
         pages: {
           remarkPlugins: [require('@docusaurus/remark-plugin-npm2yarn')],
         },
@@ -86,11 +86,11 @@ const config = {
             docId: 'getting-started',
             position: 'left',
           },
-          {
-            label: 'Blog',
-            to: '/blog',
-            position: 'left',
-          },
+          // {
+          //   label: 'Blog',
+          //   to: '/blog',
+          //   position: 'left',
+          // },
           {
             label: 'Playground',
             to: '/playground',
@@ -98,12 +98,12 @@ const config = {
           },
           {
             label: 'Twitter',
-            href: twitter,
+            to: twitter,
             position: 'right',
           },
           {
             label: 'GitHub',
-            href: repo,
+            to: repo,
             position: 'right',
           },
         ],
