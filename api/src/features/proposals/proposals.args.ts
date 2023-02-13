@@ -34,7 +34,8 @@ export class ProposalsArgs extends FindManyProposalArgs {
   @SetField(() => AddressScalar, { nullable: true })
   accounts?: Set<Address>;
 
-  states?: ProposalState[];
+  @SetField(() => ProposalState, { nullable: true })
+  states?: Set<ProposalState>;
 
   @Field(() => Boolean, { nullable: true, description: 'User is required to take action' })
   actionRequired?: boolean;

@@ -234,7 +234,7 @@ describe(ProposalsService.name, () => {
 
       it('pending only shows pending proposals', () =>
         asUser(user1, async () => {
-          const proposals = await service.findMany({ states: [ProposalState.Pending] });
+          const proposals = await service.findMany({ states: new Set([ProposalState.Pending]) });
 
           expect(new Set(proposals.map((p) => p.id))).toEqual(
             new Set([pending, pendingWithFailed].map((p) => p.id)),
@@ -243,19 +243,23 @@ describe(ProposalsService.name, () => {
 
       it('executing only shows executing proposals', () =>
         asUser(user1, async () => {
-          expect(await service.findMany({ states: [ProposalState.Executing] })).toEqual([
+          expect(await service.findMany({ states: new Set([ProposalState.Executing]) })).toEqual([
             executing,
           ]);
         }));
 
       it('executed only shows executed proposals', () =>
         asUser(user1, async () => {
-          expect(await service.findMany({ states: [ProposalState.Executed] })).toEqual([executed]);
+          expect(await service.findMany({ states: new Set([ProposalState.Executed]) })).toEqual([
+            executed,
+          ]);
         }));
 
       it('shows all when all filters are applied', () =>
         asUser(user1, async () => {
-          expect(await service.findMany({ states: Object.values(ProposalState) })).toHaveLength(4);
+          expect(
+            await service.findMany({ states: new Set(Object.values(ProposalState)) }),
+          ).toHaveLength(4);
         }));
     });
 
