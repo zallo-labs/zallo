@@ -45,6 +45,9 @@ const chain = (req: Request, resolve: () => void, middlewares: NestMiddleware[])
         buildSchemaOptions: {
           fieldMiddleware: [IdMiddleware, AddressMiddleware],
         },
+        bodyParserConfig: {
+          limit: '1mb',
+        },
         subscriptions: {
           'graphql-ws': {
             onSubscribe: async (ctx) => {
