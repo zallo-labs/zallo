@@ -24,9 +24,9 @@ export const isAddress = (v: unknown): v is Address => typeof v === 'string' && 
 export const isAddressLike = (v: unknown): v is Addresslike =>
   typeof v === 'string' && ethers.utils.isAddress(v);
 
-export const compareAddress = (a: Address, b: Address) => {
-  const aArr = ethers.utils.arrayify(a);
-  const bArr = ethers.utils.arrayify(b);
+export const compareAddress = (a: Addresslike, b: Addresslike) => {
+  const aArr = ethers.utils.arrayify(address(a));
+  const bArr = ethers.utils.arrayify(address(b));
 
   if (aArr.length > bArr.length) return 1;
 

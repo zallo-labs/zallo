@@ -38,6 +38,14 @@ const TX_IS_EXECUTING: Prisma.TransactionWhereInput = { response: { isNot: {} } 
 const TX_IS_EXECUTED: Prisma.TransactionWhereInput = {
   response: { is: { success: { equals: true } } },
 };
+const PROPOSAL_IS_PENDING: Prisma.ProposalWhereInput = {
+  transactions: { none: { OR: [TX_IS_EXECUTING, TX_IS_EXECUTED] } },
+};
+const getProposalRequiresAction = (user: Address): Prisma.ProposalWhereInput => ({
+  ...PROPOSAL_IS_PENDING,
+  quorum: { activeState: { approvers: { some: { userId: user } } } },
+  approvals: { none: { userId: user } },
+});
 
 export interface ProposeParams extends TxOptions {
   account: Address;
@@ -67,39 +75,31 @@ export class ProposalsService {
     const user = getUserId();
 
     return this.prisma.asUser.proposal.findMany({
+      orderBy: { createdAt: 'desc' },
       ...args,
       where: {
-        AND: (
-          [
-            where,
-            accounts && { accountId: { in: [...accounts] } },
-            states && {
-              OR: states.map((state) =>
-                match<ProposalState, Prisma.ProposalWhereInput>(state)
-                  .with(ProposalState.Pending, () => ({
-                    transactions: { none: { OR: [TX_IS_EXECUTING, TX_IS_EXECUTED] } },
-                  }))
-                  .with(ProposalState.Executing, () => ({
-                    transactions: { some: TX_IS_EXECUTING },
-                  }))
-                  .with(ProposalState.Executed, () => ({
-                    transactions: { some: TX_IS_EXECUTED },
-                  }))
-                  .exhaustive(),
-              ),
-            },
-            actionRequired !== undefined &&
-              (actionRequired
-                ? {
-                    transactions: { none: {} },
-                    quorum: { activeState: { approvers: { some: { userId: user } } } },
-                    approvals: { none: { userId: user } },
-                  }
-                : { approvals: { none: { userId: user } } }),
-          ] as const
-        ).filter(isTruthy),
+        AND: [
+          where,
+          accounts && { accountId: { in: [...accounts] } },
+          states && {
+            OR: [...states].map((state) =>
+              match<ProposalState, Prisma.ProposalWhereInput>(state)
+                .with(ProposalState.Pending, () => PROPOSAL_IS_PENDING)
+                .with(ProposalState.Executing, () => ({
+                  transactions: { some: TX_IS_EXECUTING },
+                }))
+                .with(ProposalState.Executed, () => ({
+                  transactions: { some: TX_IS_EXECUTED },
+                }))
+                .exhaustive(),
+            ),
+          },
+          actionRequired !== undefined &&
+            (actionRequired
+              ? getProposalRequiresAction(user)
+              : { NOT: getProposalRequiresAction(user) }),
+        ].filter(isTruthy),
       },
-      orderBy: { createdAt: 'desc' },
       ...res,
     });
   }

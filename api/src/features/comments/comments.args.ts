@@ -1,16 +1,13 @@
 import { ArgsType } from '@nestjs/graphql';
-import { Address, Id } from 'lib';
+import { Address } from 'lib';
 import { AddressField } from '~/apollo/scalars/Address.scalar';
-import { IdField } from '~/apollo/scalars/Id.scalar';
 
 @ArgsType()
 export class FindCommentsArgs {
   @AddressField()
   account: Address;
 
-  // TODO: replace with @Lowercase() directive
-  @IdField()
-  key: Id;
+  key: string;
 }
 
 @ArgsType()

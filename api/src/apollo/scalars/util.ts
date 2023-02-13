@@ -26,4 +26,6 @@ export const minLengthMiddleware =
 
     if (min && value.length < min)
       throw new UserInputError(`Must have at least ${min} item${min > 1 ? 's' : ''}`);
+
+    return value;
   };

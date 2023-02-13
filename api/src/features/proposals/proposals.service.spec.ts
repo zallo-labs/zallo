@@ -22,7 +22,6 @@ import { ExpoService } from '../util/expo/expo.service';
 import { TransactionsService } from '../transactions/transactions.service';
 import { Proposal } from '@prisma/client';
 import { ProposalState } from './proposals.args';
-import { isTypeExtensionNode } from 'graphql';
 
 describe(ProposalsService.name, () => {
   let service: ProposalsService;
@@ -234,7 +233,7 @@ describe(ProposalsService.name, () => {
 
       it('pending only shows pending proposals', () =>
         asUser(user1, async () => {
-          const proposals = await service.findMany({ states: [ProposalState.Pending] });
+          const proposals = await service.findMany({ states: new Set([ProposalState.Pending]) });
 
           expect(new Set(proposals.map((p) => p.id))).toEqual(
             new Set([pending, pendingWithFailed].map((p) => p.id)),
@@ -243,19 +242,23 @@ describe(ProposalsService.name, () => {
 
       it('executing only shows executing proposals', () =>
         asUser(user1, async () => {
-          expect(await service.findMany({ states: [ProposalState.Executing] })).toEqual([
+          expect(await service.findMany({ states: new Set([ProposalState.Executing]) })).toEqual([
             executing,
           ]);
         }));
 
       it('executed only shows executed proposals', () =>
         asUser(user1, async () => {
-          expect(await service.findMany({ states: [ProposalState.Executed] })).toEqual([executed]);
+          expect(await service.findMany({ states: new Set([ProposalState.Executed]) })).toEqual([
+            executed,
+          ]);
         }));
 
       it('shows all when all filters are applied', () =>
         asUser(user1, async () => {
-          expect(await service.findMany({ states: Object.values(ProposalState) })).toHaveLength(4);
+          expect(
+            await service.findMany({ states: new Set(Object.values(ProposalState)) }),
+          ).toHaveLength(4);
         }));
     });
 
@@ -267,13 +270,12 @@ describe(ProposalsService.name, () => {
           expect(await service.findMany({ actionRequired: true })).toHaveLength(1);
         }));
 
-      it("false doesn't show proposals that require the user's action", () =>
+      it("false shows proposals that don't require the user's action", () =>
         asUser(user1, async () => {
           const { id } = await propose();
-
           await approve(id);
 
-          expect(await service.findMany({ actionRequired: false })).toHaveLength(0);
+          expect(await service.findMany({ actionRequired: false })).toHaveLength(1);
         }));
     });
   });
