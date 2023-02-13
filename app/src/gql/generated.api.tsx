@@ -384,7 +384,6 @@ export type Mutation = {
   reject: Proposal;
   removeProposal: Proposal;
   removeQuorum: Quorum;
-  requestApproval: Scalars['Boolean'];
   requestTokens: Array<Scalars['Address']>;
   updateAccountMetadata: Account;
   updateQuorum: Quorum;
@@ -464,12 +463,6 @@ export type MutationRemoveQuorumArgs = {
   account: Scalars['Address'];
   key: Scalars['QuorumKey'];
   proposingQuorumKey?: InputMaybe<Scalars['QuorumKey']>;
-};
-
-
-export type MutationRequestApprovalArgs = {
-  approvers: Array<Scalars['Address']>;
-  id: Scalars['Bytes32'];
 };
 
 
@@ -1352,14 +1345,6 @@ export type RemoveProposalMutationVariables = Exact<{
 
 export type RemoveProposalMutation = { __typename?: 'Mutation', removeProposal: { __typename?: 'Proposal', id: string } };
 
-export type RequestApprovalMutationVariables = Exact<{
-  id: Scalars['Bytes32'];
-  approvers: Array<Scalars['Address']> | Scalars['Address'];
-}>;
-
-
-export type RequestApprovalMutation = { __typename?: 'Mutation', requestApproval: boolean };
-
 export type CreateQuorumMutationVariables = Exact<{
   account: Scalars['Address'];
   approvers: Array<Scalars['Address']> | Scalars['Address'];
@@ -1368,7 +1353,7 @@ export type CreateQuorumMutationVariables = Exact<{
 }>;
 
 
-export type CreateQuorumMutation = { __typename?: 'Mutation', createQuorum: { __typename?: 'Quorum', id: string, key: number } };
+export type CreateQuorumMutation = { __typename?: 'Mutation', createQuorum: { __typename?: 'Quorum', id: string, accountId: string, key: number, name: string, activeState?: { __typename?: 'QuorumState', proposalId?: string | null, isRemoved: boolean, createdAt: any, spendingFallback: SpendingFallback, approvers?: Array<{ __typename?: 'Approver', userId: string }> | null, limits?: Array<{ __typename?: 'TokenLimit', token: string, amount: string, period: LimitPeriod }> | null } | null, proposedStates: Array<{ __typename?: 'QuorumState', proposalId?: string | null, isRemoved: boolean, createdAt: any, spendingFallback: SpendingFallback, approvers?: Array<{ __typename?: 'Approver', userId: string }> | null, limits?: Array<{ __typename?: 'TokenLimit', token: string, amount: string, period: LimitPeriod }> | null }> } };
 
 export type RemoveQuorumMutationVariables = Exact<{
   account: Scalars['Address'];
@@ -1988,38 +1973,6 @@ export function useRemoveProposalMutation(baseOptions?: Apollo.MutationHookOptio
 export type RemoveProposalMutationHookResult = ReturnType<typeof useRemoveProposalMutation>;
 export type RemoveProposalMutationResult = Apollo.MutationResult<RemoveProposalMutation>;
 export type RemoveProposalMutationOptions = Apollo.BaseMutationOptions<RemoveProposalMutation, RemoveProposalMutationVariables>;
-export const RequestApprovalDocument = gql`
-    mutation RequestApproval($id: Bytes32!, $approvers: [Address!]!) {
-  requestApproval(id: $id, approvers: $approvers)
-}
-    `;
-export type RequestApprovalMutationFn = Apollo.MutationFunction<RequestApprovalMutation, RequestApprovalMutationVariables>;
-
-/**
- * __useRequestApprovalMutation__
- *
- * To run a mutation, you first call `useRequestApprovalMutation` within a React component and pass it any options that fit your needs.
- * When your component renders, `useRequestApprovalMutation` returns a tuple that includes:
- * - A mutate function that you can call at any time to execute the mutation
- * - An object with fields that represent the current status of the mutation's execution
- *
- * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
- *
- * @example
- * const [requestApprovalMutation, { data, loading, error }] = useRequestApprovalMutation({
- *   variables: {
- *      id: // value for 'id'
- *      approvers: // value for 'approvers'
- *   },
- * });
- */
-export function useRequestApprovalMutation(baseOptions?: Apollo.MutationHookOptions<RequestApprovalMutation, RequestApprovalMutationVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useMutation<RequestApprovalMutation, RequestApprovalMutationVariables>(RequestApprovalDocument, options);
-      }
-export type RequestApprovalMutationHookResult = ReturnType<typeof useRequestApprovalMutation>;
-export type RequestApprovalMutationResult = Apollo.MutationResult<RequestApprovalMutation>;
-export type RequestApprovalMutationOptions = Apollo.BaseMutationOptions<RequestApprovalMutation, RequestApprovalMutationVariables>;
 export const CreateQuorumDocument = gql`
     mutation CreateQuorum($account: Address!, $approvers: [Address!]!, $name: String!, $proposingQuorumKey: QuorumKey!) {
   createQuorum(
@@ -2028,11 +1981,10 @@ export const CreateQuorumDocument = gql`
     name: $name
     proposingQuorumKey: $proposingQuorumKey
   ) {
-    id
-    key
+    ...QuorumFields
   }
 }
-    `;
+    ${QuorumFieldsFragmentDoc}`;
 export type CreateQuorumMutationFn = Apollo.MutationFunction<CreateQuorumMutation, CreateQuorumMutationVariables>;
 
 /**

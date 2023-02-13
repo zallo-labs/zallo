@@ -9,6 +9,7 @@ import { updateQuery } from '~/gql/update';
 import { useCallback } from 'react';
 import { CombinedAccount } from '~/queries/account';
 import assert from 'assert';
+import { compareAddress } from 'lib';
 
 gql`
   mutation UpdateAccountMetadata($account: Address!, $name: String!) {
@@ -48,7 +49,7 @@ export const useUpdateAccountMetadata = (account?: CombinedAccount) => {
             query: AccountsDocument,
             variables: {},
             updater: (data) => {
-              const i = data.accounts.findIndex((a) => a.id === r.id);
+              const i = data.accounts.findIndex((a) => compareAddress(a.id, r.id));
               assert(i >= 0);
               data.accounts[i].name = r.name;
             },
