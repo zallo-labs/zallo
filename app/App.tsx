@@ -22,6 +22,7 @@ import { WalletConnectProvider } from '~/util/walletconnect/WalletConnectProvide
 import { NotificationsRegistrar } from '~/util/NotificationsRegistrar';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { DrawerNavigator } from '~/navigation/Drawer/DrawerNavigator';
+import { AccountsSubscription } from '~/queries/account/AccountsSubscription';
 
 export default withSentry(() => (
   <LocalizatonProvider>
@@ -36,6 +37,7 @@ export default withSentry(() => (
                   <AuthGate>
                     <SentryUser />
                     <GqlProvider>
+                      <AccountsSubscription />
                       <NavigationProvider>
                         <NotificationsRegistrar />
                         <WalletConnectProvider>

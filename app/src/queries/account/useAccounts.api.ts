@@ -7,9 +7,7 @@ import {
   AccountsDocument,
   AccountsQuery,
   AccountsQueryVariables,
-  useAccountSubscriptionSubscription,
 } from '~/gql/generated.api';
-import { updateQuery } from '~/gql/update';
 import { useSuspenseQuery } from '~/gql/useSuspenseQuery';
 import { CombinedAccount } from '.';
 import { CombinedQuorum } from '../quroum';
@@ -44,24 +42,6 @@ export const useAccounts = () => {
 
   const { data } = useSuspenseQuery<AccountsQuery, AccountsQueryVariables>(AccountsDocument, {
     variables: {},
-  });
-
-  useAccountSubscriptionSubscription({
-    onData: ({ client: { cache }, data: { data } }) => {
-      const account = data?.account;
-      if (!account) return;
-
-      updateQuery<AccountsQuery, AccountsQueryVariables>({
-        cache,
-        query: AccountsDocument,
-        variables: {},
-        defaultData: { accounts: [] },
-        updater: (data) => {
-          const i = data.accounts.findIndex((a) => a.id === account.id);
-          data.accounts[i >= 0 ? i : data.accounts.length] = account;
-        },
-      });
-    },
   });
 
   return useMemo(
