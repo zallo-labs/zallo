@@ -378,7 +378,7 @@ export type Mutation = {
   createComment: Comment;
   createQuorum: Quorum;
   deleteComment: Comment;
-  deleteContact: Scalars['Boolean'];
+  deleteContact: Contact;
   propose: Proposal;
   reactToComment?: Maybe<Reaction>;
   reject: Proposal;
@@ -739,7 +739,7 @@ export type Query = {
   quorum?: Maybe<Quorum>;
   quorums: Array<Quorum>;
   requestableTokens: Array<Scalars['Address']>;
-  user?: Maybe<User>;
+  user: User;
 };
 
 
@@ -1216,7 +1216,6 @@ export type User = {
   id: Scalars['ID'];
   name?: Maybe<Scalars['String']>;
   proposals?: Maybe<Array<Proposal>>;
-  pushToken?: Maybe<Scalars['String']>;
   reactions?: Maybe<Array<Reaction>>;
 };
 
@@ -1307,7 +1306,7 @@ export type DeleteContactMutationVariables = Exact<{
 }>;
 
 
-export type DeleteContactMutation = { __typename?: 'Mutation', deleteContact: boolean };
+export type DeleteContactMutation = { __typename?: 'Mutation', deleteContact: { __typename?: 'Contact', addr: string } };
 
 export type UpsertContactMutationVariables = Exact<{
   name: Scalars['String'];
@@ -1412,7 +1411,7 @@ export type UpdateUserMutationVariables = Exact<{
 }>;
 
 
-export type UpdateUserMutation = { __typename?: 'Mutation', updateUser: { __typename?: 'User', id: string, name?: string | null, pushToken?: string | null } };
+export type UpdateUserMutation = { __typename?: 'Mutation', updateUser: { __typename?: 'User', id: string, name?: string | null } };
 
 export type AccountFieldsFragment = { __typename?: 'Account', id: string, isActive: boolean, name: string, quorums?: Array<{ __typename?: 'Quorum', id: string, accountId: string, key: number, name: string, activeState?: { __typename?: 'QuorumState', proposalId?: string | null, isRemoved: boolean, createdAt: any, spendingFallback: SpendingFallback, approvers?: Array<{ __typename?: 'Approver', userId: string }> | null, limits?: Array<{ __typename?: 'TokenLimit', token: string, amount: string, period: LimitPeriod }> | null } | null, proposedStates: Array<{ __typename?: 'QuorumState', proposalId?: string | null, isRemoved: boolean, createdAt: any, spendingFallback: SpendingFallback, approvers?: Array<{ __typename?: 'Approver', userId: string }> | null, limits?: Array<{ __typename?: 'TokenLimit', token: string, amount: string, period: LimitPeriod }> | null }> }> | null };
 
@@ -1505,7 +1504,7 @@ export type UserQueryVariables = Exact<{
 }>;
 
 
-export type UserQuery = { __typename?: 'Query', user?: { __typename?: 'User', id: string, name?: string | null, pushToken?: string | null } | null };
+export type UserQuery = { __typename?: 'Query', user: { __typename?: 'User', id: string, name?: string | null } };
 
 export const QuorumStateFieldsFragmentDoc = gql`
     fragment QuorumStateFields on QuorumState {
@@ -1770,7 +1769,9 @@ export type ReactMutationResult = Apollo.MutationResult<ReactMutation>;
 export type ReactMutationOptions = Apollo.BaseMutationOptions<ReactMutation, ReactMutationVariables>;
 export const DeleteContactDocument = gql`
     mutation DeleteContact($addr: Address!) {
-  deleteContact(addr: $addr)
+  deleteContact(addr: $addr) {
+    addr
+  }
 }
     `;
 export type DeleteContactMutationFn = Apollo.MutationFunction<DeleteContactMutation, DeleteContactMutationVariables>;
@@ -2210,7 +2211,6 @@ export const UpdateUserDocument = gql`
   updateUser(name: $name, pushToken: $pushToken) {
     id
     name
-    pushToken
   }
 }
     `;
@@ -2592,7 +2592,6 @@ export const UserDocument = gql`
   user(id: $id) {
     id
     name
-    pushToken
   }
 }
     `;

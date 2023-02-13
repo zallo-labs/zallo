@@ -71,12 +71,6 @@ export class QuorumsResolver {
     @Args() args: CreateQuorumArgs,
     @Info() info: GraphQLResolveInfo,
   ): Promise<Quorum> {
-    const z = await this.service.create(args, {
-      select: {
-        name: true,
-      },
-    });
-
     return this.service.create(args, getSelect(info));
   }
 

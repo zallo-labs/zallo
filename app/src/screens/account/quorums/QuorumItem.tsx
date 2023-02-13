@@ -18,7 +18,7 @@ export const QuorumItem = ({ quorum: id, onPress }: QuorumItemProps) => {
       leading={quorum.name}
       headline={quorum.name}
       supporting={({ Text }) => (
-        <Container separator={<Text>, </Text>}>
+        <Container horizontal separator={<Text>, </Text>}>
           {[...state.approvers].map((approver) => (
             <Text key={approver}>
               <Addr addr={approver} />

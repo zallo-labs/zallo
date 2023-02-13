@@ -34,7 +34,7 @@ export const DAI = token({
   decimals: 18,
   addresses: {
     mainnet: '0x6B175474E89094C44Da98b954EedeAC495271d0F',
-    testnet: '0x537200b9Dd13Adc66749d5D8f1De2556F7f428eC',
+    testnet: '0x3e7676937A7E96CFB7616f255b9AD9FF47363D4b',
   },
   iconUri:
     'https://raw.githubusercontent.com/compound-finance/token-list/master/assets/asset_DAI.svg',
@@ -46,7 +46,7 @@ export const USDC = token({
   decimals: 6,
   addresses: {
     mainnet: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
-    testnet: '0xf9A9aFd74Dc8A5BD3745d6613b0E169B3eac4fcF',
+    testnet: '0x0faF6df7054946141266420b43783387A78d82A9',
   },
   iconUri:
     'https://raw.githubusercontent.com/compound-finance/token-list/master/assets/asset_USDC.svg',
@@ -58,7 +58,7 @@ export const WBTC = token({
   decimals: 8,
   addresses: {
     mainnet: '0x2260FAC5E5542a773Aa44fBCfeDf7C193bc2C599',
-    testnet: '0x862c83a0845d8f866f4d8E61558FDd77A3585b23',
+    testnet: '0x0BfcE1D53451B4a8175DD94e6e029F7d8a701e9c',
   },
 });
 
@@ -68,7 +68,7 @@ export const LINK = token({
   decimals: 18,
   addresses: {
     mainnet: '0x514910771af9ca656af840dff83e8264ecf986ca',
-    testnet: '0x440b4f63674b5Cc4B1FE3021ecA276C49518db27',
+    testnet: '0x40609141Db628BeEE3BfAB8034Fc2D8278D0Cc78',
   },
   iconUri: 'https://s2.coinmarketcap.com/static/img/coins/64x64/1975.png',
 });

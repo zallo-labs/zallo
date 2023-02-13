@@ -96,7 +96,7 @@ export const useApiPropose = () => {
                   quorumKey: quorum.key,
                   proposerId: credentials.address,
                   to: tx.to,
-                  value: tx.value?.toString(),
+                  value: tx.value ? tx.value.toString() : null,
                   data: tx.data ? hexlify(tx.data) : null,
                   salt: hexlify(tx.salt),
                   createdAt,

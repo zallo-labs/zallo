@@ -20,7 +20,9 @@ export interface AccountQuorumsScreenParams {
   onlyActive?: boolean;
 }
 
-export type AccountQuorumsScreenProps = StackNavigatorScreenProps<'AccountQuorums'>;
+export type AccountQuorumsScreenProps =
+  | StackNavigatorScreenProps<'AccountQuorums'>
+  | StackNavigatorScreenProps<'AccountQuorumsModal'>;
 
 export const AccountQuorumsScreen = ({
   route,

@@ -42,8 +42,8 @@ export class TransactionsService {
 
   async tryExecute<T extends Prisma.ProposalArgs>(
     proposalId: string,
-    respArgs?: T,
-  ): Promise<Prisma.ProposalGetPayload<T> | undefined> {
+    res?: Prisma.SelectSubset<T, Prisma.ProposalArgs>,
+  ) {
     const proposal = await this.prisma.asUser.proposal.findUniqueOrThrow({
       where: { id: proposalId },
       include: {
@@ -117,7 +117,7 @@ export class TransactionsService {
         gasPrice: transaction.gasPrice?.toString(),
       },
       select: {
-        proposal: { ...respArgs } ?? { select: { id: true } },
+        proposal: { ...res } ?? { select: { id: true } },
       },
     });
     this.proposals.publishProposal({ proposal: updatedProposal, event: ProposalEvent.update });

@@ -75,8 +75,17 @@ CREATE POLICY member_all ON "Account" FOR ALL
 GRANT SELECT, INSERT, UPDATE ("key", "name", "activeStateId") ON "Quorum" TO PUBLIC;
 ALTER TABLE "Quorum" ENABLE ROW LEVEL SECURITY;
 
-CREATE POLICY account_member_all ON "Quorum" FOR ALL
+CREATE POLICY account_member_select ON "Quorum" FOR SELECT
     USING (is_user_account("accountId"));
+
+CREATE POLICY account_member_insert ON "Quorum" FOR INSERT
+    WITH CHECK (is_user_account("accountId"));
+
+CREATE POLICY account_member_update ON "Quorum" FOR UPDATE
+    USING (is_user_account("accountId"));
+
+CREATE POLICY account_member_delete ON "Quorum" FOR DELETE
+    USING (is_user_account("accountId") AND "activeStateId" IS NULL);
 
 
 
@@ -144,6 +153,9 @@ CREATE POLICY account_member_view ON "Approval" FOR SELECT
     USING (is_user_account(
         (SELECT "accountId" FROM "Proposal" WHERE "id" = "proposalId")
     ));
+
+CREATE POLICY user_insert ON "Approval" FOR INSERT
+    WITH CHECK (is_user("userId"));
 
 CREATE POLICY user_update ON "Approval" FOR UPDATE
     USING (is_user("userId"));

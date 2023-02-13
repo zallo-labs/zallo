@@ -2,9 +2,12 @@
 pragma solidity ^0.8.0;
 
 import '@matterlabs/zksync-contracts/l2/system-contracts/Constants.sol';
-import {SystemContractsCaller} from '@matterlabs/zksync-contracts/l2/system-contracts/SystemContractsCaller.sol';
+import '@matterlabs/zksync-contracts/l2/system-contracts/libraries/SystemContractsCaller.sol';
 
 contract Factory {
+  IContractDeployer.AccountAbstractionVersion private constant AA_VERSION =
+    IContractDeployer.AccountAbstractionVersion.Version1;
+
   bytes32 public immutable _BYTECODE_HASH;
 
   error DeployFailed(address account, bytes revertData);
@@ -21,7 +24,10 @@ contract Factory {
       uint32(gasleft()),
       address(DEPLOYER_SYSTEM_CONTRACT),
       0,
-      abi.encodeCall(IContractDeployer.create2Account, (salt, _BYTECODE_HASH, constructorArgsData))
+      abi.encodeCall(
+        DEPLOYER_SYSTEM_CONTRACT.create2Account,
+        (salt, _BYTECODE_HASH, constructorArgsData, AA_VERSION)
+      )
     );
 
     if (!success) {
@@ -30,6 +36,6 @@ contract Factory {
       revert DeployFailed(account, revertData);
     }
 
-    (account, ) = abi.decode(data, (address, bytes));
+    (account) = abi.decode(data, (address));
   }
 }

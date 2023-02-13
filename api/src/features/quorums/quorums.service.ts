@@ -1,11 +1,12 @@
-import { forwardRef, Inject, Injectable } from '@nestjs/common';
-import { Prisma } from '@prisma/client';
+import { forwardRef, Inject, Injectable, OnModuleInit } from '@nestjs/common';
+import { Prisma, Transaction, TransactionResponse } from '@prisma/client';
 import {
   ACCOUNT_INTERFACE,
   Address,
   hashQuorum,
   mapAsync,
   Quorum,
+  QuorumGuid,
   QuorumKey,
   toQuorumKey,
 } from 'lib';
@@ -19,6 +20,9 @@ import {
   UpdateQuorumArgs,
   UpdateQuorumMetadataArgs,
 } from './quorums.args';
+import { getUserId } from '~/request/ctx';
+import { UserInputError } from 'apollo-server-core';
+import { TransactionsConsumer } from '../transactions/transactions.consumer';
 
 interface CreateStateParams {
   account: Address;
@@ -32,12 +36,18 @@ interface CreateStateParams {
 type ArgsParam<T> = Prisma.SelectSubset<T, Prisma.QuorumArgs>;
 
 @Injectable()
-export class QuorumsService {
+export class QuorumsService implements OnModuleInit {
   constructor(
     private prisma: PrismaService,
     @Inject(forwardRef(() => ProposalsService))
     private proposals: ProposalsService,
+    @Inject(forwardRef(() => TransactionsConsumer))
+    private transactionsConsumer: TransactionsConsumer,
   ) {}
+
+  onModuleInit() {
+    this.transactionsConsumer.addProcessor(QuorumsService.name, this.processTransaction);
+  }
 
   findUnique = this.prisma.asUser.quorum.findUnique;
   findUniqueOrThrow = this.prisma.asUser.quorum.findUniqueOrThrow;
@@ -98,8 +108,9 @@ export class QuorumsService {
   async remove<A extends Prisma.QuorumArgs>(
     { account, key, proposingQuorumKey = key }: RemoveQuorumArgs,
     res?: ArgsParam<A>,
+    tx?: Prisma.TransactionClient,
   ) {
-    return this.prisma.asUser.$transaction(async (tx) => {
+    return this.prisma.$transactionAsUser(tx, async (tx) => {
       const isActive = !!(
         await tx.quorum.findUniqueOrThrow({
           where: { accountId_key: { accountId: account, key } },
@@ -112,15 +123,12 @@ export class QuorumsService {
         isActive &&
         (await this.proposals.propose(
           {
-            quorum: { account, key: proposingQuorumKey },
-            options: {
-              to: account,
-              data: ACCOUNT_INTERFACE.encodeFunctionData('removeQuorum', [key]),
-            },
-            select: {
-              id: true,
-            },
+            account,
+            quorumKey: proposingQuorumKey,
+            to: account,
+            data: ACCOUNT_INTERFACE.encodeFunctionData('removeQuorum', [key]),
           },
+          { select: { id: true } },
           tx,
         ));
 
@@ -160,13 +168,12 @@ export class QuorumsService {
 
       const { id: proposalId } = await this.proposals.propose(
         {
-          quorum: { account, key: proposingQuorumKey },
-          options: {
-            to: account,
-            data: ACCOUNT_INTERFACE.encodeFunctionData('upsertQuorum', [key, hashQuorum(quorum)]),
-          },
-          select: { id: true },
+          account,
+          quorumKey: proposingQuorumKey,
+          to: account,
+          data: ACCOUNT_INTERFACE.encodeFunctionData('upsertQuorum', [key, hashQuorum(quorum)]),
         },
+        { select: { id: true } },
         tx,
       );
 
@@ -202,9 +209,28 @@ export class QuorumsService {
     });
   }
 
-  async handleSuccessfulTransaction(transactionHash: string) {
-    const { proposal } = await this.prisma.asUser.transaction.findUniqueOrThrow({
-      where: { hash: transactionHash },
+  // TODO: write tests for
+  async getDefaultQuorum(account: Address): Promise<QuorumGuid> {
+    const quorum = await this.prisma.asUser.quorumState.findFirst({
+      where: {
+        accountId: account,
+        approvers: { some: { userId: getUserId() } },
+        isRemoved: false,
+      },
+      orderBy: [{ approvers: { _count: 'asc' } }, { id: 'asc' }],
+      select: { quorumKey: true },
+    });
+
+    if (!quorum) throw new UserInputError('No quorum could be found for this account');
+
+    return { account, key: toQuorumKey(quorum.quorumKey) };
+  }
+
+  private async processTransaction(resp: TransactionResponse) {
+    if (!resp.success) return;
+
+    const { proposal } = await this.prisma.asSuperuser.transaction.findUniqueOrThrow({
+      where: { hash: resp.transactionHash },
       select: {
         proposal: {
           select: {
@@ -224,7 +250,7 @@ export class QuorumsService {
       },
     });
 
-    return mapAsync(proposal.quorumStates, (state) =>
+    await mapAsync(proposal.quorumStates, (state) =>
       this.prisma.asUser.quorum.update({
         where: {
           accountId_key: {

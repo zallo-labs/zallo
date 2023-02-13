@@ -33,6 +33,12 @@ export const PAPER_THEME = {
     surfaceDisabled: c(overrided.colors.onSurface, (c) => c.alpha(opacityModifier.focus)),
     onSurfaceOpaque: c(overrided.colors.onSurface, (c) => c.alpha(opacity.opaque)),
     onSurfaceDisabled: c(overrided.colors.onSurface, (c) => c.alpha(opacity.disabled)),
+    primaryContainerDisabled: c(overrided.colors.primaryContainer, (c) =>
+      c.alpha(opacity.disabled),
+    ),
+    onPrimaryContainerDisabled: c(overrided.colors.onPrimaryContainer, (c) =>
+      c.alpha(opacity.disabled),
+    ),
 
     success: '#48C12A', // Green
     info: '#559EFC', // Blue

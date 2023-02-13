@@ -34,6 +34,7 @@ export const useUpdateAccountMetadata = (account?: CombinedAccount) => {
         variables: { account: account.addr, name },
         optimisticResponse: {
           updateAccountMetadata: {
+            __typename: 'Account',
             id: account.addr,
             name,
           },
@@ -47,7 +48,7 @@ export const useUpdateAccountMetadata = (account?: CombinedAccount) => {
             query: AccountsDocument,
             variables: {},
             updater: (data) => {
-              const i = data.accounts.findIndex((a) => a.id === account.addr);
+              const i = data.accounts.findIndex((a) => a.id === r.id);
               assert(i >= 0);
               data.accounts[i].name = r.name;
             },

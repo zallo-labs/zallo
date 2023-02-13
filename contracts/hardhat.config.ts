@@ -5,19 +5,19 @@ import '@nomiclabs/hardhat-ethers';
 // import '@nomiclabs/hardhat-waffle';
 import '@nomiclabs/hardhat-etherscan';
 import '@nomiclabs/hardhat-solhint'; // https://github.com/protofire/solhint/blob/master/docs/rules.md
-import '@matterlabs/hardhat-zksync-deploy';
-import '@matterlabs/hardhat-zksync-solc';
-import '@matterlabs/hardhat-zksync-chai-matchers';
+import '@matterlabs/hardhat-zksync-toolbox';
 import '@typechain/hardhat';
 import 'hardhat-gas-reporter';
 import 'hardhat-abi-exporter';
 import 'hardhat-tracer';
+import 'hardhat-contract-sizer';
 // import 'solidity-coverage';
 
 // Tasks
 import './tasks/accounts';
 import './tasks/balance';
 import './tasks/deposit';
+import { CHAINS } from 'lib';
 
 // https://hardhat.org/config/
 const config: HardhatUserConfig = {
@@ -26,21 +26,27 @@ const config: HardhatUserConfig = {
   },
   zksolc: {
     // https://github.com/matter-labs/zksolc-bin/tree/main/linux-amd64
-    version: '1.2.1',
+    version: '1.3.1',
     compilerSource: 'binary',
+    settings: {
+      isSystem: true,
+    },
   },
-  defaultNetwork: 'zkSyncTestnet',
+  defaultNetwork: CONFIG.chain.name,
   networks: {
     // https://hardhat.org/hardhat-network/reference/
-    hardhat: {
-      zksync: true,
-      // loggingEnabled: true,
-    },
-    zkSyncTestnet: {
-      url: CONFIG.chain.rpc,
-      ethNetwork: CONFIG.chain.l1Rpc,
-      zksync: true,
-    },
+    hardhat: { zksync: true },
+
+    ...Object.fromEntries(
+      Object.values(CHAINS).map((chain) => [
+        chain.name,
+        {
+          url: chain.rpc,
+          ethNetwork: chain.l1Rpc,
+          zksync: true,
+        },
+      ]),
+    ),
   },
   // Plugins
   typechain: {

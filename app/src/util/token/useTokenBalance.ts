@@ -32,7 +32,6 @@ export const TOKEN_BALANCE = atomFamily<BigNumber, BalanceKey>({
     persistAtom({
       save: (v) => v.toString(),
       load: BigNumber.from,
-      version: 1,
     }),
     refreshAtom({
       fetch: () => fetch(key),

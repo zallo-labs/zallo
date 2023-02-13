@@ -18,15 +18,15 @@
   "dependencies": {
     "@apollo/client": "^3.7.4",
     "@apollo/explorer": "^2.0.2",
-    "@docusaurus/core": "2.2.0",
-    "@docusaurus/preset-classic": "2.2.0",
-    "@docusaurus/remark-plugin-npm2yarn": "^2.2.0",
+    "@docusaurus/core": "latest",
+    "@docusaurus/preset-classic": "latest",
+    "@docusaurus/remark-plugin-npm2yarn": "latest",
     "@emotion/react": "^11.10.5",
     "@graphql-markdown/docusaurus": "^1.16.3",
     "@mdx-js/react": "^1.6.22",
     "bufferutil": "^4.0.7",
     "clsx": "^1.2.1",
-    "dotenv-vault-core": "^0.6.1",
+    "dotenv-vault-core": "^0.7.0",
     "graphql": "^16.6.0",
     "graphql-tag": "^2.12.6",
     "lib": "workspace:*",
@@ -37,10 +37,10 @@
     "recoil": "^0.7.6",
     "use-deep-compare-effect": "^1.8.1",
     "utf-8-validate": "^5.0.10",
-    "zksync-web3": "^0.12.5"
+    "zksync-web3": "^0.13.1"
   },
   "devDependencies": {
-    "@docusaurus/module-type-aliases": "^2.2.0",
+    "@docusaurus/module-type-aliases": "latest",
     "@graphql-codegen/cli": "2.16.4",
     "@graphql-codegen/introspection": "^2.2.3",
     "@graphql-codegen/typescript": "^2.8.7",

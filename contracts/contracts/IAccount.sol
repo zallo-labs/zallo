@@ -29,6 +29,8 @@ interface IAccount is BaseIAccount, IERC1271 {
   error TransactionAlreadyExecuted();
   error InvalidSignature(address approver);
   error InvalidProof();
+  error InsufficientBalance();
+  error FailedToPayBootloader();
   error OnlyCallableByBootloader();
 
   /// @notice Upsert (create or update) a quorum

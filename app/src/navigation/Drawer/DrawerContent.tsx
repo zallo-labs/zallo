@@ -1,5 +1,5 @@
 import { DrawerContentComponentProps, DrawerContentScrollView } from '@react-navigation/drawer';
-import { PeopleIcon, SettingsIcon, HomeIcon, PlusIcon } from '~/util/theme/icons';
+import { ContactsIcon, SettingsIcon, HomeIcon, PlusIcon } from '~/util/theme/icons';
 import { Suspense, useCallback } from 'react';
 import { Drawer } from 'react-native-paper';
 import { Navigate } from '../useRootNavigation';
@@ -46,7 +46,7 @@ export const DrawerContent = (props: DrawerContentProps) => {
 
         <Drawer.Item
           label="Contacts"
-          icon={PeopleIcon}
+          icon={ContactsIcon}
           onPress={() => navigate('Contacts', {})}
           active={route === 'Contacts'}
         />

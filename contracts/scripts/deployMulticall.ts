@@ -1,5 +1,5 @@
 import { deployMulticall } from '../test/util/deploy';
-import { displayTx } from './display';
+import { displayTx } from './util/display';
 
 const main = async () => {
   const { multicall, deployTx } = await deployMulticall();

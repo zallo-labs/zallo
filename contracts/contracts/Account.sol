@@ -2,13 +2,14 @@
 pragma solidity ^0.8.0;
 
 import '@matterlabs/zksync-contracts/l2/system-contracts/Constants.sol';
-import '@matterlabs/zksync-contracts/l2/system-contracts/TransactionHelper.sol';
-import {SystemContractsCaller} from '@matterlabs/zksync-contracts/l2/system-contracts/SystemContractsCaller.sol';
+import '@matterlabs/zksync-contracts/l2/system-contracts/libraries/TransactionHelper.sol';
+import {SystemContractsCaller} from '@matterlabs/zksync-contracts/l2/system-contracts/libraries/SystemContractsCaller.sol';
+import {ACCOUNT_VALIDATION_SUCCESS_MAGIC} from '@matterlabs/zksync-contracts/l2/system-contracts/interfaces/IAccount.sol';
 
 import './IAccount.sol';
 import './SelfOwned.sol';
 import './Initializable.sol';
-import './Upgradeable.sol';
+import {Upgradeable} from './Upgradeable.sol';
 import './TransactionExecutor.sol';
 import './ERC165.sol';
 import './ERC721Receiver.sol';
@@ -63,8 +64,9 @@ contract Account is
     bytes32 /* _txHash */,
     bytes32 /* suggestedSignedHash */,
     Transaction calldata transaction
-  ) external payable override onlyBootloader {
+  ) external payable override onlyBootloader returns (bytes4 magic) {
     _validateTransaction(_hashTx(transaction), transaction);
+    return ACCOUNT_VALIDATION_SUCCESS_MAGIC;
   }
 
   /// @inheritdoc BaseIAccount
@@ -86,16 +88,19 @@ contract Account is
   }
 
   function _validateTransaction(bytes32 txHash, Transaction calldata transaction) internal {
-    SystemContractsCaller.systemCall(
+    SystemContractsCaller.systemCallWithPropagatedRevert(
       uint32(gasleft()),
       address(NONCE_HOLDER_SYSTEM_CONTRACT),
       0,
-      abi.encodeCall(INonceHolder.incrementMinNonceIfEquals, (transaction.reserved[0]))
+      abi.encodeCall(INonceHolder.incrementMinNonceIfEquals, (transaction.nonce))
     );
 
     if (hasBeenExecuted(txHash)) revert TransactionAlreadyExecuted();
 
     _validateSignature(txHash, transaction.signature);
+
+    if (TransactionHelper.totalRequiredBalance(transaction) > address(this).balance)
+      revert InsufficientBalance();
   }
 
   /*//////////////////////////////////////////////////////////////
@@ -108,10 +113,10 @@ contract Account is
     Transaction calldata transaction
   ) external payable override onlyBootloader {
     bool success = TransactionHelper.payToTheBootloader(transaction);
-    require(success, 'Failed to pay the fee to the operator');
+    if (!success) revert FailedToPayBootloader();
   }
 
-  function prePaymaster(
+  function prepareForPaymaster(
     bytes32, // txHash
     bytes32, // suggestedSignedHash
     Transaction calldata transaction

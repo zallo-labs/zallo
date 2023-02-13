@@ -22,7 +22,7 @@ import { execute } from './execute';
 type AccountArtifact = 'Account' | 'TestAccount';
 type Artifact = AccountArtifact | 'ERC1967Proxy';
 
-const ACCOUNT_START_BALANCE = parseEther('0.001');
+const ACCOUNT_START_BALANCE = parseEther('0.01');
 
 export const deployer = new Deployer(hre, WALLET);
 
@@ -31,7 +31,7 @@ export const deployFactory = async (contractName: Artifact) => {
   const contractBytecodeHash = zk.utils.hashBytecode(contractArtifact.bytecode);
 
   const artifact = await deployer.loadArtifact('Factory');
-  const contract = await deployer.deploy(artifact, [contractBytecodeHash], {}, [
+  const contract = await deployer.deploy(artifact, [contractBytecodeHash], undefined, [
     contractArtifact.bytecode,
   ]);
   await contract.deployed();

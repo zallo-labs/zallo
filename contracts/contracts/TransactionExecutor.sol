@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 pragma solidity ^0.8.0;
 
-import '@matterlabs/zksync-contracts/l2/system-contracts/TransactionHelper.sol';
+import '@matterlabs/zksync-contracts/l2/system-contracts/libraries/TransactionHelper.sol';
 
 import './EIP712.sol';
 
@@ -30,7 +30,7 @@ abstract contract TransactionExecutor is EIP712 {
     address to = address(uint160(t.to));
     (, bytes memory data) = abi.decode(t.data, (bytes8, bytes));
 
-    (bool success, bytes memory response) = to.call{value: t.reserved[1]}(data);
+    (bool success, bytes memory response) = to.call{value: t.value}(data);
 
     if (!success) {
       emit TransactionReverted(txHash, response);
@@ -51,15 +51,7 @@ abstract contract TransactionExecutor is EIP712 {
   function _hashTx(Transaction calldata t) internal view returns (bytes32) {
     (bytes8 salt, bytes memory data) = abi.decode(t.data, (bytes8, bytes));
 
-    bytes32 structHash = keccak256(
-      abi.encode(
-        _TX_TYPE_HASH,
-        t.to,
-        t.reserved[1], // value
-        keccak256(data),
-        salt
-      )
-    );
+    bytes32 structHash = keccak256(abi.encode(_TX_TYPE_HASH, t.to, t.value, keccak256(data), salt));
 
     return _typedDataHash(structHash);
   }

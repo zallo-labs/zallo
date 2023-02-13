@@ -1,7 +1,7 @@
 import { makeStyles } from '@theme/makeStyles';
 import { StyleProp, ViewStyle } from 'react-native';
 import { Text } from 'react-native-paper';
-import { Addr } from '~/components/addr/Addr';
+import { useAddrName } from '~/components/addr/useAddrName';
 import { useProposalLabel } from '~/components/call/useProposalLabel';
 import { AddrIcon } from '~/components/Identicon/AddrIcon';
 import { Box } from '~/components/layout/Box';
@@ -19,28 +19,28 @@ export const ProposalHeader = ({ proposal: p, style }: ProposalHeaderProps) => {
 
   return (
     <Box alignItems="center" style={style}>
-      <AddrIcon addr={p.to} size={styles.iconSize.fontSize} style={styles.icon} />
+      <AddrIcon addr={p.account} size={styles.iconSize.fontSize} />
+
+      <Text variant="headlineMedium" style={styles.from}>
+        {`${useAddrName(p.account)}/${p.quorum.name}`}
+      </Text>
 
       <ProposalMethod proposal={p}>
-        <Box alignItems="center">
-          <Text variant="headlineMedium">
-            <Addr addr={p.to} />
-          </Text>
-          <Text variant="headlineSmall" style={styles.label}>
-            {label}
-          </Text>
-        </Box>
+        <Text variant="headlineSmall" style={styles.label}>
+          {label}
+        </Text>
       </ProposalMethod>
     </Box>
   );
 };
 
-const useStyles = makeStyles(({ iconSize, colors, typoSpace }) => ({
+const useStyles = makeStyles(({ iconSize, colors, s }) => ({
   iconSize: {
     fontSize: iconSize.large,
   },
-  icon: {
-    marginBottom: typoSpace(1),
+  from: {
+    marginTop: s(8),
+    marginBottom: s(4),
   },
   label: {
     color: colors.primary,

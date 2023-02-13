@@ -15,7 +15,6 @@ gql`
     updateUser(name: $name, pushToken: $pushToken) {
       id
       name
-      pushToken
     }
   }
 `;
@@ -40,7 +39,6 @@ export const useUpdateUser = () => {
           updateUser: {
             id: user.id,
             name: name !== undefined ? name : user.name,
-            pushToken: pushToken !== undefined ? pushToken : user.pushToken || null,
           },
         },
         update: (cache, res) => {
@@ -57,6 +55,6 @@ export const useUpdateUser = () => {
         },
       });
     },
-    [mutation, user.id, user.name, user.pushToken],
+    [mutation, user.id, user.name],
   );
 };

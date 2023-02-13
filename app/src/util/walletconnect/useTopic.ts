@@ -50,13 +50,12 @@ export const useSession = (topic: Topic) => {
         } else {
           tryOrAsync(
             () => clientV2.ping({ topic }),
-            () =>
-              withClientV2((client) =>
-                client.disconnect({
-                  topic,
-                  reason: getSdkError('USER_DISCONNECTED'),
-                }),
-              ),
+            withClientV2((client) =>
+              client.disconnect({
+                topic,
+                reason: getSdkError('USER_DISCONNECTED'),
+              }),
+            ),
           );
         }
       },

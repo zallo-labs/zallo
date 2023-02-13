@@ -76,6 +76,7 @@ export type AccountImplProxiesArgs = {
 export type AccountImpl_Filter = {
   /** Filter for the block changed event. */
   _change_block?: InputMaybe<BlockChangedFilter>;
+  and?: InputMaybe<Array<InputMaybe<AccountImpl_Filter>>>;
   blockHash?: InputMaybe<Scalars['Bytes']>;
   blockHash_contains?: InputMaybe<Scalars['Bytes']>;
   blockHash_gt?: InputMaybe<Scalars['Bytes']>;
@@ -96,6 +97,7 @@ export type AccountImpl_Filter = {
   id_not?: InputMaybe<Scalars['Bytes']>;
   id_not_contains?: InputMaybe<Scalars['Bytes']>;
   id_not_in?: InputMaybe<Array<Scalars['Bytes']>>;
+  or?: InputMaybe<Array<InputMaybe<AccountImpl_Filter>>>;
   proxies_?: InputMaybe<Account_Filter>;
   timestamp?: InputMaybe<Scalars['BigInt']>;
   timestamp_gt?: InputMaybe<Scalars['BigInt']>;
@@ -116,6 +118,7 @@ export type AccountImpl_OrderBy =
 export type Account_Filter = {
   /** Filter for the block changed event. */
   _change_block?: InputMaybe<BlockChangedFilter>;
+  and?: InputMaybe<Array<InputMaybe<Account_Filter>>>;
   id?: InputMaybe<Scalars['Bytes']>;
   id_contains?: InputMaybe<Scalars['Bytes']>;
   id_gt?: InputMaybe<Scalars['Bytes']>;
@@ -147,6 +150,7 @@ export type Account_Filter = {
   impl_not_starts_with_nocase?: InputMaybe<Scalars['String']>;
   impl_starts_with?: InputMaybe<Scalars['String']>;
   impl_starts_with_nocase?: InputMaybe<Scalars['String']>;
+  or?: InputMaybe<Array<InputMaybe<Account_Filter>>>;
   quorums_?: InputMaybe<Quorum_Filter>;
   transactions_?: InputMaybe<Transaction_Filter>;
   transfers_?: InputMaybe<Transfer_Filter>;
@@ -318,6 +322,7 @@ export type Quorum_Filter = {
   account_not_starts_with_nocase?: InputMaybe<Scalars['String']>;
   account_starts_with?: InputMaybe<Scalars['String']>;
   account_starts_with_nocase?: InputMaybe<Scalars['String']>;
+  and?: InputMaybe<Array<InputMaybe<Quorum_Filter>>>;
   hash?: InputMaybe<Scalars['Bytes']>;
   hash_contains?: InputMaybe<Scalars['Bytes']>;
   hash_gt?: InputMaybe<Scalars['Bytes']>;
@@ -356,6 +361,7 @@ export type Quorum_Filter = {
   key_lte?: InputMaybe<Scalars['BigInt']>;
   key_not?: InputMaybe<Scalars['BigInt']>;
   key_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  or?: InputMaybe<Array<InputMaybe<Quorum_Filter>>>;
 };
 
 export type Quorum_OrderBy =
@@ -523,6 +529,7 @@ export type Transaction_Filter = {
   account_not_starts_with_nocase?: InputMaybe<Scalars['String']>;
   account_starts_with?: InputMaybe<Scalars['String']>;
   account_starts_with_nocase?: InputMaybe<Scalars['String']>;
+  and?: InputMaybe<Array<InputMaybe<Transaction_Filter>>>;
   blockHash?: InputMaybe<Scalars['Bytes']>;
   blockHash_contains?: InputMaybe<Scalars['Bytes']>;
   blockHash_gt?: InputMaybe<Scalars['Bytes']>;
@@ -563,6 +570,7 @@ export type Transaction_Filter = {
   id_not?: InputMaybe<Scalars['Bytes']>;
   id_not_contains?: InputMaybe<Scalars['Bytes']>;
   id_not_in?: InputMaybe<Array<Scalars['Bytes']>>;
+  or?: InputMaybe<Array<InputMaybe<Transaction_Filter>>>;
   response?: InputMaybe<Scalars['Bytes']>;
   response_contains?: InputMaybe<Scalars['Bytes']>;
   response_gt?: InputMaybe<Scalars['Bytes']>;
@@ -654,6 +662,7 @@ export type Transfer_Filter = {
   account_not_starts_with_nocase?: InputMaybe<Scalars['String']>;
   account_starts_with?: InputMaybe<Scalars['String']>;
   account_starts_with_nocase?: InputMaybe<Scalars['String']>;
+  and?: InputMaybe<Array<InputMaybe<Transfer_Filter>>>;
   blockHash?: InputMaybe<Scalars['Bytes']>;
   blockHash_contains?: InputMaybe<Scalars['Bytes']>;
   blockHash_gt?: InputMaybe<Scalars['Bytes']>;
@@ -694,6 +703,7 @@ export type Transfer_Filter = {
   id_not_starts_with_nocase?: InputMaybe<Scalars['String']>;
   id_starts_with?: InputMaybe<Scalars['String']>;
   id_starts_with_nocase?: InputMaybe<Scalars['String']>;
+  or?: InputMaybe<Array<InputMaybe<Transfer_Filter>>>;
   timestamp?: InputMaybe<Scalars['BigInt']>;
   timestamp_gt?: InputMaybe<Scalars['BigInt']>;
   timestamp_gte?: InputMaybe<Scalars['BigInt']>;

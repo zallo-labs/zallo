@@ -3,10 +3,20 @@ import { AppState } from 'react-native';
 import * as Auth from 'expo-local-authentication';
 import useAsyncEffect from 'use-async-effect';
 import { Suspend } from '~/components/Suspender';
-import { DateTime } from 'luxon';
+import { DateTime, Duration } from 'luxon';
+import { atom, useRecoilState } from 'recoil';
+import { persistAtom } from '~/util/effect/persistAtom';
+
+const IS_FIRST_OPEN = atom({
+  key: 'isFirstOpen',
+  default: false,
+  effects: [persistAtom()],
+});
+
+const TIMEOUT_AFTER = Duration.fromObject({ minutes: 5 });
 
 const isStillActive = (lastActive?: DateTime) =>
-  !!lastActive && DateTime.now().diff(lastActive).as('minutes') < 5;
+  !!lastActive && DateTime.now().diff(lastActive).toMillis() < TIMEOUT_AFTER.toMillis();
 
 const tryAuthenticate = async () => {
   try {
@@ -20,7 +30,7 @@ const tryAuthenticate = async () => {
 };
 
 interface Auth {
-  success: boolean;
+  success?: boolean;
   lastActive?: DateTime;
 }
 
@@ -30,7 +40,11 @@ export interface AuthGateProps {
 
 export const AuthGate = ({ children }: AuthGateProps) => {
   // Use an object to re-render every time setAuth is called
-  const [auth, setAuth] = useState<Auth>({ success: false });
+  const [isFirstOpen, setIsFirstOpen] = useRecoilState(IS_FIRST_OPEN);
+  const [auth, setAuth] = useState<Auth>(() => {
+    if (isFirstOpen) setIsFirstOpen(false);
+    return { success: isFirstOpen };
+  });
 
   // Try authenticate
   useAsyncEffect(
@@ -47,9 +61,7 @@ export const AuthGate = ({ children }: AuthGateProps) => {
   useEffect(() => {
     const listener = AppState.addEventListener('change', (newState) => {
       if (newState === 'active') {
-        setAuth(({ lastActive }) => ({
-          success: isStillActive(lastActive),
-        }));
+        setAuth(({ lastActive }) => ({ success: isStillActive(lastActive) }));
       } else {
         setAuth((prev) => ({ ...prev, lastActive: DateTime.now() }));
       }

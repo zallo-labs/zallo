@@ -1,7 +1,58 @@
 import { PrismaSelect } from '@paljs/plugins';
+import { Prisma } from '@prisma/client';
 import { GraphQLResolveInfo } from 'graphql';
 
-type SelectParams = ConstructorParameters<typeof PrismaSelect>;
+type ModelSelect<M extends Prisma.ModelName> =
+  Prisma.TypeMap['model'][M]['findUnique']['args']['select'];
+
+type DefaultFields = Partial<{
+  [K in Prisma.ModelName]: ModelSelect<K> | ((select: any) => ModelSelect<K>);
+}>;
+
+const DEFAULT_FIELDS: DefaultFields = {
+  Approver: (select) => ({
+    ...(select.id && {
+      quorumStateId: true,
+      userId: true,
+    }),
+  }),
+  Contact: (select) => ({
+    ...(select.id && {
+      addr: true,
+    }),
+  }),
+  ContractMethod: (select) => ({
+    ...(select.id && {
+      contract: true,
+      sighash: true,
+    }),
+  }),
+  Proposal: (select) => ({
+    ...(select.transaction && {
+      transactions: {
+        take: 1,
+        orderBy: { createdAt: 'desc' },
+      },
+    }),
+  }),
+  Quorum: (select) => ({
+    ...(select.id && {
+      accountId: true,
+      key: true,
+    }),
+  }),
+  Reaction: (select) => ({
+    ...(select.id && {
+      commentId: true,
+      userId: true,
+    }),
+  }),
+  Transaction: (select) => ({
+    ...(select.id && {
+      hash: true,
+    }),
+  }),
+};
 
 interface Select {
   select: Record<string, unknown>;
@@ -9,25 +60,14 @@ interface Select {
 
 export const getSelect = (
   info: GraphQLResolveInfo | undefined,
-  options?: SelectParams[1],
+  options?: Omit<ConstructorParameters<typeof PrismaSelect>[1], 'defaultFields'>,
 ): Select | undefined => {
   if (!info) return undefined;
 
-  const v = new PrismaSelect(info, options).value;
+  const v = new PrismaSelect(info, {
+    ...options,
+    defaultFields: DEFAULT_FIELDS as any,
+  }).value;
+
   return v && Object.keys(v.select).length ? v : undefined;
 };
-
-type DefaultFields = {
-  [key: string]:
-    | {
-        [key: string]: boolean | any;
-      }
-    | ((select: any) => {
-        [key: string]: boolean | any;
-      });
-};
-
-export const makeGetSelect =
-  <F extends DefaultFields>(defaultFields: F) =>
-  (info: GraphQLResolveInfo | undefined) =>
-    getSelect(info, { defaultFields });
