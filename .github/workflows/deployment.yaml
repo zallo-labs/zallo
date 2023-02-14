@@ -61,7 +61,7 @@ jobs:
       #   run: yarn eas submit -p android --profile main --latest
 
   subgraph:
-    env: subgraph
+    environment: subgraph
     runs-on: ubuntu-latest
 
     steps:
