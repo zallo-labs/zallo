@@ -19,8 +19,8 @@ services:
           property: connectionString
       - key: SESSION_SECRET
         generateValue: true
-      - key: CHAIN
-        value: testnet
+      - key: DOTENV_KEY
+        sync: false
       - key: WALLET_PRIVATE_KEY
         sync: false
       - key: SUBGRAPH_GQL_URL
