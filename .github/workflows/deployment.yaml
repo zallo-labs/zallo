@@ -90,6 +90,6 @@ jobs:
         run: yarn subgraph build
 
       - name: 🚀 Deploy
-        run: yarn subgraph deploy ${{ env.SUBGRAPH_ID }}
+        run: yarn subgraph deploy $SUBGRAPH_ID
 
   # Docs deployment is handled by Netlify
