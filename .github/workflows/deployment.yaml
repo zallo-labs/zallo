@@ -25,6 +25,9 @@ jobs:
     runs-on: ubuntu-latest
 
     env:
+      SENTRY_DSN: ${{ vars.SENTRY_DSN }}
+      SENTRY_ORG: ${{ vars.SENTRY_ORG }}
+      SENTRY_PROJECT: ${{ vars.SENTRY_PROJECT }}
       SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
 
     steps:
@@ -64,9 +67,6 @@ jobs:
     environment: main - subgraph
     runs-on: ubuntu-latest
 
-    env:
-      SUBGRAPH_ID: ${{ env.SUBGRAPH_ID }}
-
     steps:
       - name: 🚧 Checkout
         uses: actions/checkout@v3
@@ -92,10 +92,7 @@ jobs:
       - name: 🏗️ Build
         run: yarn subgraph build
 
-      - name: Subgraph ID
-        run: echo $SUBGRAPH_ID; echo '$SUBGRAPH_ID'; echo "$SUBGRAPH_ID"; echo ${{ env.SUBGRAPH_ID }}
-
       - name: 🚀 Deploy
-        run: 'yarn subgraph deploy $SUBGRAPH_ID'
+        run: yarn subgraph deploy ${{ vars.SUBGRAPH_ID }}
 
   # Docs deployment is handled by Netlify
