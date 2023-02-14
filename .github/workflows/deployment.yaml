@@ -89,6 +89,9 @@ jobs:
       - name: 🏗️ Build
         run: yarn subgraph build
 
+      - name: Subgraph ID
+        run: echo $SUBGRAPH_ID; echo '$SUBGRAPH_ID'; echo "$SUBGRAPH_ID"; echo ${{ env.SUBGRAPH_ID }}
+
       - name: 🚀 Deploy
         run: 'yarn subgraph deploy $SUBGRAPH_ID'
 
