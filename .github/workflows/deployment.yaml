@@ -64,6 +64,9 @@ jobs:
     environment: main - subgraph
     runs-on: ubuntu-latest
 
+    env:
+      SUBGRAPH_ID: ${{ env.SUBGRAPH_ID }}
+
     steps:
       - name: 🚧 Checkout
         uses: actions/checkout@v3
