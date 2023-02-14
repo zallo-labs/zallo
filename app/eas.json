@@ -16,7 +16,7 @@
         "autoIncrement": true
       }
     },
-    "production": {
+    "main": {
       "extends": "base",
       "channel": "main",
       "env": {
@@ -28,29 +28,14 @@
         "MULTI_CALL_TESTNET": "0xfF96bad2582Cd62d52214A401ccD0BD35D6CB351"
       }
     },
-    "development": {
-      "extends": "base",
-      "channel": "dev",
-      "env": {
-        "API_URL": "https://dev.api.zallo.io",
-        "API_GQL_WS": "wss://dev.api.zallo.io/graphql",
-        "SUBGRAPH_GQL_URL": "https://api.thegraph.com/subgraphs/name/hbriese/zallo-dev",
-        "ACCOUNT_IMPL_TESTNET": "0xaC8397adC2396Bc8e7B82373DAe748a4C4de0545",
-        "PROXY_FACTORY_TESTNET": "0x84059d44a8c4ffe1d8efe03C1497Cb643C265bc7",
-        "MULTI_CALL_TESTNET": "0xfF96bad2582Cd62d52214A401ccD0BD35D6CB351"
-      }
-    },
     "dev-client": {
       "extends": "base",
       "distribution": "internal",
-      "developmentClient": true,
-      "env": {
-        "RELEASE_ENV": "production"
-      }
+      "developmentClient": true
     }
   },
   "submit": {
-    "production:alpha": {
+    "alpha": {
       "android": {
         "serviceAccountKeyPath": "./play-service-account.secret.json",
         "track": "alpha",
@@ -58,7 +43,7 @@
       }
     },
     "development": {
-      "android": {
+      "internal": {
         "serviceAccountKeyPath": "./play-service-account.secret.json",
         "track": "internal",
         "releaseStatus": "completed"

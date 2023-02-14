@@ -3,7 +3,7 @@ name: Tests
 on:
   pull_request:
   push:
-    branches-ignore: [main, dev]
+    branches-ignore: [main]
 
 jobs:
   lib:

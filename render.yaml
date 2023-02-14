@@ -1,7 +1,6 @@
 services:
-  # API: production
   - type: web
-    name: api-prod
+    name: api
     branch: main
     env: node
     autoDeploy: false
@@ -9,19 +8,21 @@ services:
     startCommand: yarn api prisma migrate deploy && yarn api start:prod
     healthCheckPath: /health
     envVars:
-      - fromGroup: api-vars
-      - fromGroup: api-testnet-vars
       - key: DATABASE_URL
         fromDatabase:
-          name: api-db-prod
+          name: api-postgres
           property: connectionString
       - key: REDIS_URL
         fromService:
           type: redis
-          name: api-redis-prod
+          name: api-redis
           property: connectionString
       - key: SESSION_SECRET
         generateValue: true
+      - key: CHAIN
+        value: testnet
+      - key: WALLET_PRIVATE_KEY
+        sync: false
       - key: SUBGRAPH_GQL_URL
         sync: false
       - key: PROXY_FACTORY_TESTNET
@@ -30,8 +31,14 @@ services:
         value: zallo-api-prod@current
       - key: APOLLO_KEY
         sync: false
+      - key: EXPO_TOKEN
+        sync: false
+      - key: ETHERSCAN_API_KEY
+        sync: false
+      - key: APOLLO_SCHEMA_REPORTING
+        value: true
     region: oregon
-    plan: starter
+    plan: standard
     scaling:
       minInstances: 1
       maxInstances: 2
@@ -40,55 +47,8 @@ services:
     domains:
       - api.zallo.io
 
-  # API: development
-  - type: web
-    name: api-dev
-    branch: dev
-    env: node
-    autoDeploy: false
-    buildCommand: yarn && yarn api build
-    startCommand: yarn api start:prod
-    initialDeployHook: yarn api prisma migrate deploy
-    healthCheckPath: /health
-    envVars:
-      - fromGroup: api-vars
-      - fromGroup: api-testnet-vars
-      - key: DATABASE_URL
-        fromDatabase:
-          name: api-db-dev
-          property: connectionString
-      - key: REDIS_URL
-        fromService:
-          type: redis
-          name: api-redis-dev
-          property: connectionString
-      - key: SESSION_SECRET
-        generateValue: true
-      - key: SUBGRAPH_GQL_URL
-        sync: false
-      - key: PROXY_FACTORY_TESTNET
-        sync: false
-      - key: APOLLO_GRAPH_REF
-        value: zallo-api-dev@current
-      - key: APOLLO_KEY
-        sync: false
-    region: oregon
-    plan: free
-    domains:
-      - dev.api.zallo.io
-
-  # Redis: production
   - type: redis
-    name: api-redis-prod
-    region: oregon
-    plan: free
-    ipAllowList:
-      - source: 0.0.0.0/0
-        description: everywhere
-
-  # Redis: development
-  - type: redis
-    name: api-redis-dev
+    name: api-redis
     region: oregon
     plan: free
     ipAllowList:
@@ -96,34 +56,9 @@ services:
         description: everywhere
 
 databases:
-  # API DB: production
-  - name: api-db-prod
+  - name: api-postgres
     region: oregon
     plan: starter
     ipAllowList:
       - source: 0.0.0.0/0
         description: everywhere
-
-  # API DB: development
-  - name: api-db-dev
-    region: oregon
-    plan: free
-    ipAllowList:
-      - source: 0.0.0.0/0
-        description: everywhere
-
-envVarGroups:
-  - name: api-vars
-    envVars:
-      - key: EXPO_TOKEN
-        sync: false
-      - key: ETHERSCAN_API_KEY
-        sync: false
-      - key: APOLLO_SCHEMA_REPORTING
-        value: true
-  - name: api-testnet-vars
-    envVars:
-      - key: CHAIN
-        value: testnet
-      - key: WALLET_PRIVATE_KEY
-        sync: false
