@@ -1,56 +1,41 @@
-name: Deployment - Development
+name: Deployment
 
 on:
   push:
-    branches: [dev]
-  # workflow_run:
-  #   branches: [dev]
-  #   workflows: ['Tests']
-  #   type: [completed]
+    branches: [main]
 
 concurrency:
   group: deployment-${{ github.ref }}
   cancel-in-progress: true
 
-env:
-  SUBGRAPH_GQL_URL: 'https://api.thegraph.com/subgraphs/name/hbriese/zallo-dev'
-
 jobs:
   api:
-    # if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    environment: api
     runs-on: ubuntu-latest
-    environment: 'main - api-dev'
+
     steps:
       - name: 🚀 Deploy
         uses: fjogeleit/http-request-action@v1
         with:
-          url: ${{ secrets.API_DEPLOY_HOOK }}
+          url: ${{ secrets.DEPLOY_HOOK }}
           method: POST
 
   app:
-    # if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    environment: app
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        node-version: [18.x]
-    environment: 'app-dev'
+
     env:
-      # Environment
-      API_URL: 'https://dev.api.zallo.io'
-      # Repository
-      SENTRY_DSN: ${{ secrets.SENTRY_DSN }}
-      SENTRY_ORG: ${{ secrets.SENTRY_ORG }}
-      SENTRY_PROJECT: ${{ secrets.SENTRY_PROJECT }}
       SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
+
     steps:
       - name: 🚧 Checkout
         uses: actions/checkout@v3
 
       # Disabled until expo-cli node 18 support is sanctioned - https://github.com/expo/expo-cli/issues/4478
-      # - name: 🚧 Use Node ${{ matrix.node-version }}
+      # - name: 🚧 Setup Node
       #   uses: actions/setup-node@v3
       #   with:
-      #     node-version: ${{ matrix.node-version }}
+      #     node-version: 18
       #     cache: 'yarn'
 
       # - name: 📦 Install
@@ -70,25 +55,23 @@ jobs:
       #   run: yarn app eas update --auto --non-interactive
 
       # - name: 🏗️ Build
-      #   run: yarn eas build -p android --profile development
+      #   run: yarn eas build -p android --profile main
 
       # - name: 🚀 Publish
-      #   run: yarn eas submit -p android --profile development --latest
+      #   run: yarn eas submit -p android --profile main --latest
 
   subgraph:
-    # if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    env: subgraph
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        node-version: [18.x]
+
     steps:
       - name: 🚧 Checkout
         uses: actions/checkout@v3
 
-      - name: 🚧 Use Node ${{ matrix.node-version }}
+      - name: 🚧 Setup Node
         uses: actions/setup-node@v3
         with:
-          node-version: ${{ matrix.node-version }}
+          node-version: 18
           cache: 'yarn'
 
       - name: 📦 Install
@@ -98,7 +81,7 @@ jobs:
         run: yarn subgraph configure:testnet
 
       - name: 🚧 Auth
-        run: yarn subgraph hosted:auth ${{ secrets.THEGRAPH_ACCESS_TOKEN }}
+        run: yarn subgraph auth ${{ secrets.THEGRAPH_ACCESS_TOKEN }}
 
       - name: 🏗️ Generate
         run: yarn subgraph generate
@@ -107,6 +90,6 @@ jobs:
         run: yarn subgraph build
 
       - name: 🚀 Deploy
-        run: yarn subgraph dev:deploy-hosted
+        run: yarn subgraph deploy ${{ env.SUBGRAPH_ID }}
 
   # Docs deployment is handled by Netlify
