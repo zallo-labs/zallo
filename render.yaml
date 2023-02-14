@@ -17,26 +17,8 @@ services:
           type: redis
           name: api-redis
           property: connectionString
-      - key: SESSION_SECRET
-        generateValue: true
-      - key: CHAIN
-        value: testnet
-      - key: WALLET_PRIVATE_KEY
+      - key: DOTENV_KEY
         sync: false
-      - key: SUBGRAPH_GQL_URL
-        sync: false
-      - key: PROXY_FACTORY_TESTNET
-        sync: false
-      - key: APOLLO_GRAPH_REF
-        value: zallo-api-prod@current
-      - key: APOLLO_KEY
-        sync: false
-      - key: EXPO_TOKEN
-        sync: false
-      - key: ETHERSCAN_API_KEY
-        sync: false
-      - key: APOLLO_SCHEMA_REPORTING
-        value: true
     region: oregon
     plan: standard
     scaling:

@@ -10,7 +10,7 @@ concurrency:
 
 jobs:
   api:
-    environment: api
+    environment: main - api
     runs-on: ubuntu-latest
 
     steps:
@@ -21,7 +21,7 @@ jobs:
           method: POST
 
   app:
-    environment: app
+    environment: main - app
     runs-on: ubuntu-latest
 
     env:
@@ -61,7 +61,7 @@ jobs:
       #   run: yarn eas submit -p android --profile main --latest
 
   subgraph:
-    env: subgraph
+    environment: main - subgraph
     runs-on: ubuntu-latest
 
     steps:
