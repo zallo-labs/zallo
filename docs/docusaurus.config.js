@@ -8,12 +8,12 @@ const darkCodeTheme = require('prism-react-renderer/themes/dracula');
 require('dotenv-vault-core').config({ path: '../.env' });
 
 const repo = 'https://github.com/zallo-labs/zallo';
-const twitter = 'https://twitter.com/zallo-labs';
+const twitter = 'https://twitter.com/ZalloLabs';
 
 /** @type {import('@docusaurus/types').Config} */
 const config = {
   title: 'Zallo',
-  tagline: 'A self-custodial smart wallet',
+  tagline: 'A self-custodial smart wallet for teams',
   url: 'https://docs.zallo.io/',
   baseUrl: '/',
   favicon: 'img/icon-rounded@64.png',
@@ -33,18 +33,12 @@ const config = {
         docs: {
           sidebarPath: require.resolve('./sidebars.js'),
           remarkPlugins: [[require('@docusaurus/remark-plugin-npm2yarn'), { sync: true }]],
-          // editUrl: `${repo}/tree/main/docs`,     // Adds edit button
         },
-        // blog: {
-        //   showReadingTime: true,
-        //   remarkPlugins: [require('@docusaurus/remark-plugin-npm2yarn')],
-        //   // editUrl: `${repo}/tree/main/docs`,     // Adds edit button
-        // },
         pages: {
           remarkPlugins: [require('@docusaurus/remark-plugin-npm2yarn')],
         },
         theme: {
-          customCss: require.resolve('./src/css/custom.css'),
+          customCss: require.resolve('./src/css/custom.scss'),
         },
       }),
     ],
@@ -68,6 +62,7 @@ const config = {
       },
     ],
     'plugin-image-zoom',
+    'docusaurus-plugin-sass',
   ],
 
   themeConfig:
@@ -80,74 +75,34 @@ const config = {
           src: 'img/icon-rounded.svg',
         },
         items: [
+          // Leading
           {
             label: 'Docs',
             type: 'doc',
             docId: 'getting-started',
             position: 'left',
+            className: 'navbar__item--leading',
           },
-          // {
-          //   label: 'Blog',
-          //   to: '/blog',
-          //   position: 'left',
-          // },
           {
             label: 'Playground',
             to: '/playground',
             position: 'left',
+            className: 'navbar__item--leading',
           },
+          // Trailing
           {
-            label: 'Twitter',
+            'aria-label': 'Twitter',
             to: twitter,
             position: 'right',
+            className: 'navbar__icon navbar__twitter',
           },
           {
-            label: 'GitHub',
+            'aria-label': 'GitHub repo',
             to: repo,
             position: 'right',
+            className: 'navbar__icon navbar__github',
           },
         ],
-      },
-      footer: {
-        style: 'dark',
-        links: [
-          {
-            title: 'Docs',
-            items: [
-              {
-                label: 'Getting started',
-                to: '/docs/getting-started',
-              },
-            ],
-          },
-          {
-            title: 'Community',
-            items: [
-              {
-                label: 'Twitter',
-                href: twitter,
-              },
-              {
-                label: 'GitHub',
-                href: repo,
-              },
-            ],
-          },
-          {
-            title: 'More',
-            items: [
-              {
-                label: 'Blog',
-                to: '/blog',
-              },
-              {
-                label: 'Landing page',
-                href: 'https://zallo.io',
-              },
-            ],
-          },
-        ],
-        copyright: `Copyright © ${new Date().getFullYear()} Zallo`,
       },
       prism: {
         theme: lightCodeTheme,

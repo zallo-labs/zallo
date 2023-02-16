@@ -4,38 +4,47 @@ import Link from '@docusaurus/Link';
 import useDocusaurusContext from '@docusaurus/useDocusaurusContext';
 import Layout from '@theme/Layout';
 import HomepageFeatures from '@site/src/components/HomepageFeatures';
+import styles from './index.module.scss';
+import Head from '@docusaurus/Head';
+import AppImage from '@site/static/img/app.png';
 
-import styles from './index.module.css';
-
-function HomepageHeader() {
+const HomepageHeader = () => {
   const { siteConfig } = useDocusaurusContext();
 
   return (
-    <header className={clsx('hero hero--primary', styles.heroBanner)}>
-      <div className="container">
-        <h1 className="hero__title">{siteConfig.title}</h1>
-        <p className="hero__subtitle">{siteConfig.tagline}</p>
-        <div className={styles.buttons}>
-          <Link className="button button--secondary button--lg" to="/docs/getting-started">
-            Getting started - 5min ⏱️
+    <header className={clsx('container', styles.heroBanner)}>
+      <div className={clsx('row', styles.headerRow)}>
+        <div className="col col--9">
+          <h1 className="display--small">{siteConfig.tagline}</h1>
+          <p className="title--large">Secure your zkSync account without compromises</p>
+
+          <Link className="button button--lg" to="/docs/getting-started">
+            Developers - 5 min
           </Link>
+        </div>
+
+        <div className="col col--3">
+          <img src={AppImage} alt="App" className={styles.app} />
         </div>
       </div>
     </header>
   );
-}
+};
 
-export default function Home(): JSX.Element {
-  const { siteConfig } = useDocusaurusContext();
+export default () => {
   return (
-    <Layout
-      // title={`Hello from ${siteConfig.title}`}
-      description="Description will go into a meta tag in <head />"
-    >
-      <HomepageHeader />
-      <main>
-        <HomepageFeatures />
-      </main>
-    </Layout>
+    <>
+      <Head>
+        <body className={styles.homepage} />
+      </Head>
+
+      <Layout description="Home">
+        <HomepageHeader />
+
+        <main>
+          <HomepageFeatures />
+        </main>
+      </Layout>
+    </>
   );
-}
+};
