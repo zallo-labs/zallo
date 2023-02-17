@@ -7,7 +7,7 @@ import HomepageFeatures from '@site/src/components/HomepageFeatures';
 import styles from './index.module.scss';
 import Head from '@docusaurus/Head';
 import AppImage from '@site/static/img/app.png';
-import AppstoreBadgeSvg from '@site/static/img/app-store-badge.svg';
+import AppstoreBadgeSvg from '@site/static/img/app-store-preorder-badge.svg';
 import GooglePlayBadgePng from '@site/static/img/google-play-badge.png';
 
 const HomepageHeader = () => {
