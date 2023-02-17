@@ -1,0 +1,69 @@
+.heroBanner {
+  padding: 2rem 2rem 0rem;
+  text-align: center;
+  align-items: center;
+}
+
+.headerRow {
+  align-items: center;
+}
+
+.buttons {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.homepage {
+  background: linear-gradient(
+    to bottom,
+    var(--ifm-color-primary-dark) 0%,
+    var(--ifm-color-primary) 22%,
+    var(--ifm-color-background) 100%
+  );
+
+  nav {
+    background-color: unset;
+    box-shadow: unset;
+    --ifm-navbar-link-color: var(--ifm-color-on-primary);
+    --ifm-navbar-link-hover-color: var(--ifm-color-primary-lightest);
+    color: var(--ifm-navbar-link-color);
+
+    :global .navbar__item--leading {
+      display: none;
+    }
+  }
+
+  header {
+    color: var(--ifm-color-on-primary);
+    margin: auto;
+  }
+}
+
+.developersContainer {
+  margin: 1.5rem 0 0;
+}
+
+.developersLabel {
+  margin-bottom: 0.5rem;
+}
+
+.storeButtonsContainer {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: end;
+  margin: 0.5rem 0 0;
+}
+
+.storeButton {
+  height: 3rem;
+  margin: 1rem 0.25rem 0;
+}
+
+.appImage {
+  margin: 2rem 0 1rem;
+  border-radius: 0.5rem;
+  height: 25rem;
+}

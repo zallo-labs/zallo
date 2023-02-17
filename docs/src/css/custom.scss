@@ -1,0 +1,153 @@
+/**
+ * Any CSS included here will be global. The classic template
+ * bundles Infima by default. Infima is a CSS framework designed to
+ * work well for content-centric websites.
+ *
+ * Some (but not all) variables:
+ * https://github.com/facebook/docusaurus/issues/3955#issuecomment-751426089
+ */
+
+@import './typography.scss';
+
+:root {
+  /* data-theme='light' */
+  /* Background */
+  --ifm-color-background: #fffbfe;
+  --ifm-color-on-background: #1c1b1f;
+  --ifm-color-surface: #fffbfe;
+  --ifm-color-on-surface: #1c1b1f;
+  --ifm-color-surface-variant: #e7e0ec;
+  --ifm-color-on-surface-variant: #49454f;
+  /* Primary */
+  --ifm-color-primary: #6750a4;
+  --ifm-color-primary-dark: #4f378b;
+  --ifm-color-primary-darker: #381e72;
+  --ifm-color-primary-darkest: #21005d;
+  --ifm-color-primary-light: #7f67be;
+  --ifm-color-primary-lighter: #9a82db;
+  --ifm-color-primary-lightest: #b69df8;
+  --ifm-color-on-primary: #ffffff;
+  --ifm-color-primary-container: #eaddff;
+  --ifm-color-on-primary-container: #21005d;
+  /* Secondary */
+  --ifm-color-secondary: #625b71;
+  --ifm-color-secondary-dark: #4a4458;
+  --ifm-color-secondary-darker: #332d41;
+  --ifm-color-secondary-darkest: #1d192b;
+  --ifm-color-secondary-light: #7a7289;
+  --ifm-color-secondary-lighter: #958da5;
+  --ifm-color-secondary-lightest: #b0a7c0;
+  --ifm-color-on-secondary: #ffffff;
+  --ifm-color-secondary-container: #e8def8;
+  --ifm-color-on-secondary-container: #1d192b;
+  /* Font */
+  --ifm-font-color-base: #1c1b1f;
+  --ifm-font-color-base-inverse: #fffbfe;
+  --ifm-font-color-secondary: #625b71;
+  --ifm-code-font-size: 95%;
+  /* Code */
+  --docusaurus-highlighted-code-line-bg: rgba(0, 0, 0, 0.1);
+}
+
+[data-theme='dark'] {
+  /* Background */
+  --ifm-color-background: #1c1b1f;
+  --ifm-color-on-background: #e6e1e5;
+  --ifm-color-surface: #1c1b1f;
+  --ifm-color-on-surface: #e6e1e5;
+  --ifm-footer-background-color: #4a4458;
+  /* Button */
+  --ifm-button-background-color: #eaddff;
+  --ifm-button-color: #21005d;
+  /* Primary */
+  --ifm-color-primary: #d0bcff;
+  --ifm-color-primary-dark: #b69df8;
+  --ifm-color-primary-darker: #9a82db;
+  --ifm-color-primary-darkest: #7f67be;
+  --ifm-color-primary-light: #eaddff;
+  --ifm-color-primary-lighter: #f6edff;
+  --ifm-color-primary-lightest: #fffbfe;
+  --ifm-color-on-primary: #381e72;
+  --ifm-color-primary-container: #4f378b;
+  --ifm-color-on-primary-container: #eaddff;
+  /* Secondary */
+  --ifm-color-secondary: #ccc2dc;
+  --ifm-color-secondary-dark: #b0a7c0;
+  --ifm-color-secondary-darker: #958da5;
+  --ifm-color-secondary-darkest: #7a7289;
+  --ifm-color-secondary-light: #e8def8;
+  --ifm-color-secondary-lighter: #f6edff;
+  --ifm-color-secondary-lightest: #fffbfe;
+  --ifm-color-on-secondary: #332d41;
+  --ifm-color-secondary-container: #4a4458;
+  --ifm-color-on-secondary-container: #e8def8;
+  /* Code */
+  --docusaurus-highlighted-code-line-bg: rgba(0, 0, 0, 0.3);
+}
+
+:root {
+  /* Background */
+  --ifm-background-color: var(--ifm-color-background);
+  --ifm-background-surface-color: var(--ifm-color-surface);
+  /* Font */
+  font-size: clamp(1rem, 1vw, 1.25rem);
+  --ifm-font-family-base: 'Roboto Flex', 'Roboto', sans-serif;
+  font-family: var(--ifm-font-family-base);
+  --ifm-font-color-base: var(--ifm-color-on-background);
+  --ifm-font-color-base-inverse: var(--ifm-color-background);
+  --ifm-font-color-secondary: var(--ifm-color-secondary);
+  --ifm-code-font-size: 95%;
+  /* Button */
+  --ifm-button-background-color: var(--ifm-color-primary-container);
+  --ifm-button-color: var(--ifm-color-on-primary-container);
+  /* Hero */
+  --ifm-hero-background-color: var(--ifm-color-primary);
+  --ifm-hero-text-color: var(--ifm-color-on-primary);
+  /* Footer */
+  --ifm-footer-background-color: var(--ifm-color-surface-variant);
+  --ifm-footer-color: var(--ifm-color-on-surface-variant);
+  --ifm-footer-link-color: var(--ifm-color-on-surface-variant);
+  /* Other */
+  --icon-diameter: 1.25rem;
+}
+
+@media (min-width: 1440px) {
+  .container {
+    max-width: 80vw;
+  }
+}
+
+nav {
+  // Theme toggle
+  svg {
+    height: var(--icon-diameter);
+    width: auto;
+  }
+
+  .navbar__icon:before {
+    content: '';
+    display: flex;
+    height: var(--icon-diameter);
+    width: var(--icon-diameter);
+    background-color: var(--ifm-navbar-link-color);
+  }
+
+  .navbar__icon:hover:before {
+    background-color: var(--ifm-navbar-link-hover-color);
+  }
+
+  .navbar__github:before {
+    mask: url(/img/github.svg) no-repeat 100% 100%;
+    mask-size: cover;
+  }
+
+  .navbar__github {
+    /* Additional padding for theme toggle */
+    padding-right: calc(var(--ifm-navbar-item-padding-horizontal) * 2 - 0.5rem);
+  }
+
+  .navbar__twitter:before {
+    mask: url(/img/twitter.svg) no-repeat 100% 100%;
+    mask-size: cover;
+  }
+}

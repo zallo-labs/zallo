@@ -24,8 +24,6 @@ export type Scalars = {
   DateTime: any;
   /** An arbitrary-precision Decimal type */
   Decimal: any;
-  /** Identifier */
-  Id: any;
   /** The `JSON` scalar type represents JSON values as specified by [ECMA-404](http://www.ecma-international.org/publications/files/ECMA-ST/ECMA-404.pdf). */
   JSON: any;
   /** Quorum key: a 32-bit unsigned integer */
@@ -409,7 +407,7 @@ export type MutationCreateAccountArgs = {
 export type MutationCreateCommentArgs = {
   account: Scalars['Address'];
   content: Scalars['String'];
-  key: Scalars['Id'];
+  key: Scalars['String'];
 };
 
 
@@ -757,7 +755,7 @@ export type QueryAccountsArgs = {
 
 export type QueryCommentsArgs = {
   account: Scalars['Address'];
-  key: Scalars['Id'];
+  key: Scalars['String'];
 };
 
 
