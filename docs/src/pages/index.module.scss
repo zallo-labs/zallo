@@ -36,10 +36,33 @@
 
   header {
     color: var(--ifm-color-on-primary);
+    margin: auto;
   }
 }
 
-.app {
+.developersContainer {
+  margin: 1.5rem 0 0;
+}
+
+.developersLabel {
+  margin-bottom: 0.5rem;
+}
+
+.storeButtonsContainer {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: end;
+  margin: 0.5rem 0 0;
+}
+
+.storeButton {
+  height: 3rem;
+  margin: 1rem 0.25rem 0;
+}
+
+.appImage {
   margin: 2rem 0 1rem;
   border-radius: 0.5rem;
   height: 25rem;
