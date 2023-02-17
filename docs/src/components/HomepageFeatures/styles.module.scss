@@ -11,21 +11,9 @@
 
 .featureImage {
   fill: var(--ifm-color-on-background);
-  height: 120px;
+  height: 7.5rem;
   width: 100%;
   padding-top: 2rem;
   padding-bottom: 0.5rem;
   object-fit: contain;
-}
-
-.code {
-  margin-top: auto;
-
-  code {
-    background-color: var(--ifm-color-primary-container);
-
-    :global .token-line {
-      color: var(--ifm-color-on-primary-container) !important;
-    }
-  }
 }

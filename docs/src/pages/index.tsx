@@ -14,7 +14,7 @@ const HomepageHeader = () => {
   return (
     <header className={clsx('container', styles.heroBanner)}>
       <div className={clsx('row', styles.headerRow)}>
-        <div className="col col--9">
+        <div className="col col--8">
           <h1 className="display--small">{siteConfig.tagline}</h1>
           <p className="title--large">Secure your zkSync account without compromises</p>
 
@@ -23,7 +23,7 @@ const HomepageHeader = () => {
           </Link>
         </div>
 
-        <div className="col col--3">
+        <div className="col col--4">
           <img src={AppImage} alt="App" className={styles.app} />
         </div>
       </div>

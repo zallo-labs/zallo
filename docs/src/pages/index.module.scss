@@ -1,5 +1,5 @@
 .heroBanner {
-  padding: 2rem;
+  padding: 2rem 2rem 0rem;
   text-align: center;
   align-items: center;
 }
@@ -7,12 +7,6 @@
 .headerRow {
   align-items: center;
 }
-
-// @media screen and (max-width: 996px) {
-//   .heroBanner {
-//     padding: 2rem;
-//   }
-// }
 
 .buttons {
   display: flex;
@@ -46,7 +40,7 @@
 }
 
 .app {
-  margin: 2rem 0;
+  margin: 2rem 0 1rem;
   border-radius: 0.5rem;
-  height: 400px;
+  height: 25rem;
 }

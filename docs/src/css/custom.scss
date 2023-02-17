@@ -89,6 +89,7 @@
   --ifm-background-color: var(--ifm-color-background);
   --ifm-background-surface-color: var(--ifm-color-surface);
   /* Font */
+  font-size: clamp(1rem, 1vw, 2rem);
   font-family: 'Roboto', sans-serif;
   --ifm-font-family-base: var(font-family);
   --ifm-font-color-base: var(--ifm-color-on-background);
@@ -107,11 +108,17 @@
   --ifm-footer-link-color: var(--ifm-color-on-surface-variant);
 }
 
+@media (min-width: 1440px) {
+  .container {
+    max-width: 80vw;
+  }
+}
+
 .navbar__icon:before {
   content: '';
   display: flex;
-  height: 24px;
-  width: 24px;
+  height: 1.5rem;
+  width: 1.5rem;
   background-color: var(--ifm-navbar-link-color);
 }
 
