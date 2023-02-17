@@ -9,6 +9,7 @@ require('dotenv-vault-core').config({ path: '../.env' });
 
 const repo = 'https://github.com/zallo-labs/zallo';
 const twitter = 'https://twitter.com/ZalloLabs';
+const trackingID = process.env.SITE_TRACKING_ID;
 
 /** @type {import('@docusaurus/types').Config} */
 const config = {
@@ -40,6 +41,7 @@ const config = {
         theme: {
           customCss: require.resolve('./src/css/custom.scss'),
         },
+        ...(trackingID && { gtag: { trackingID, anonymizeIP: true } }),
       }),
     ],
   ],
