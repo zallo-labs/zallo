@@ -22,7 +22,7 @@
       "env": {
         "API_URL": "https://api.zallo.io",
         "API_GQL_WS": "wss://api.zallo.io/graphql",
-        "SUBGRAPH_GQL_URL": "https://api.thegraph.com/subgraphs/name/hbriese/zallo",
+        "SUBGRAPH_GQL_URL": "https://api.thegraph.com/subgraphs/name/hbriese/zallo-2",
         "ACCOUNT_IMPL_TESTNET": "0xaC8397adC2396Bc8e7B82373DAe748a4C4de0545",
         "PROXY_FACTORY_TESTNET": "0x84059d44a8c4ffe1d8efe03C1497Cb643C265bc7",
         "MULTI_CALL_TESTNET": "0xfF96bad2582Cd62d52214A401ccD0BD35D6CB351"
