@@ -103,14 +103,11 @@ jobs:
       - name: 📦 Install
         run: yarn install
 
-      - name: 🚧 Configure
-        run: yarn subgraph configure:testnet
-
       - name: 🏗️ Generate
         run: yarn subgraph generate
 
       - name: 🏗️ Build
-        run: yarn subgraph build
+        run: yarn subgraph build:testnet
 
   api:
     runs-on: ubuntu-latest
