@@ -15,7 +15,7 @@ dataSources:
       file: ./src/mapping.ts
       abis:
         - name: Account
-          file: ./generated/Account-fixed.json
+          file: ../contracts/abi/Account.json
       entities:
         - Account
         - AccountImpl
