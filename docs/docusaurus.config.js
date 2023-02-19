@@ -46,6 +46,8 @@ const config = {
   ],
 
   plugins: [
+    'docusaurus-plugin-sass',
+    'plugin-image-zoom',
     [
       '@graphql-markdown/docusaurus',
       {
@@ -62,8 +64,6 @@ const config = {
         },
       },
     ],
-    'plugin-image-zoom',
-    'docusaurus-plugin-sass',
   ],
 
   themeConfig:
