@@ -90,7 +90,7 @@
   --ifm-background-color: var(--ifm-color-background);
   --ifm-background-surface-color: var(--ifm-color-surface);
   /* Font */
-  font-size: clamp(1rem, 1vw, 1.25rem);
+  font-size: clamp(1rem, 1vw, 2rem);
   --ifm-font-family-base: 'Roboto Flex', 'Roboto', sans-serif;
   font-family: var(--ifm-font-family-base);
   --ifm-font-color-base: var(--ifm-color-on-background);
