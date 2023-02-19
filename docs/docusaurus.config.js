@@ -120,6 +120,7 @@ const config = {
   customFields: {
     apolloGraphRef: process.env.APOLLO_GRAPH_REF,
     apiUrl: process.env.API_URL,
+    signUpUrl: process.env.SIGN_UP_URL,
   },
 };
 
