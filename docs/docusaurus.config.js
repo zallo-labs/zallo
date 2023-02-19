@@ -14,7 +14,7 @@ const trackingID = process.env.SITE_TRACKING_ID;
 const config = {
   title: 'Zallo',
   tagline: 'A self-custodial smart wallet for teams',
-  url: process.env.URL || FALLBACK_URL,
+  url: process.env.URL || 'https://example.com',
   baseUrl: '/',
   favicon: 'img/icon-rounded@64.png',
   onBrokenLinks: 'throw',
