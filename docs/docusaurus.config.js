@@ -7,15 +7,13 @@ const darkCodeTheme = require('prism-react-renderer/themes/dracula');
 // @ts-ignore
 require('dotenv-vault-core').config({ path: '../.env' });
 
-const repo = 'https://github.com/zallo-labs/zallo';
-const twitter = 'https://twitter.com/ZalloLabs';
 const trackingID = process.env.SITE_TRACKING_ID;
 
 /** @type {import('@docusaurus/types').Config} */
 const config = {
   title: 'Zallo',
   tagline: 'A self-custodial smart wallet for teams',
-  url: 'https://docs.zallo.io/',
+  url: process.env.URL || '',
   baseUrl: '/',
   favicon: 'img/icon-rounded@64.png',
   onBrokenLinks: 'throw',
@@ -94,13 +92,13 @@ const config = {
           // Trailing
           {
             'aria-label': 'Twitter',
-            to: twitter,
+            to: process.env.TWITTER_PROFILE,
             position: 'right',
             className: 'navbar__icon navbar__twitter',
           },
           {
             'aria-label': 'GitHub repo',
-            to: repo,
+            to: process.env.GITHUB_REPO,
             position: 'right',
             className: 'navbar__icon navbar__github',
           },
@@ -122,8 +120,6 @@ const config = {
   customFields: {
     apolloGraphRef: process.env.APOLLO_GRAPH_REF,
     apiUrl: process.env.API_URL,
-    feedbackEmail: 'feedback@zallo.io',
-    supportEmail: 'support@zall.io',
   },
 };
 
