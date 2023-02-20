@@ -35,18 +35,27 @@
     }
   },
   "submit": {
-    "alpha": {
+    "base": {
       "android": {
         "serviceAccountKeyPath": "./play-service-account.secret.json",
-        "track": "alpha",
         "releaseStatus": "completed"
       }
     },
+    "beta": {
+      "extends": "base",
+      "android": {
+        "track": "beta"
+      }
+    },
+    "alpha": {
+      "android": {
+        "track": "alpha"
+      }
+    },
     "development": {
-      "internal": {
-        "serviceAccountKeyPath": "./play-service-account.secret.json",
-        "track": "internal",
-        "releaseStatus": "completed"
+      "extends": "base",
+      "android": {
+        "track": "internal"
       }
     }
   }
