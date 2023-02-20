@@ -118,7 +118,7 @@
     "use-debounce": "^9.0.3",
     "use-immer": "^0.8.1",
     "yup": "^0.32.11",
-    "zksync-web3": "^0.13.1"
+    "zksync-web3": "^0.13.4"
   },
   "devDependencies": {
     "@babel/core": "^7.19.3",
