@@ -64,7 +64,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     ],
   },
   orientation: 'portrait',
-  icon: './assets/icon@1024.png',
+  icon: './assets/icon@2x.png',
   splash: {
     image: './assets/splash.png',
     resizeMode: 'contain',
@@ -75,7 +75,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
   android: {
     package: packageId,
     adaptiveIcon: {
-      foregroundImage: './assets/icon-adaptive@1024.png',
+      foregroundImage: './assets/icon-adaptive@2x.png',
       backgroundColor: '#E8DEF8',
     },
     googleServicesFile: './firebase-google-services.secret.json',
@@ -90,7 +90,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     },
   },
   web: {
-    favicon: './assets/icon-rounded@64.png',
+    favicon: './assets/favicon.png',
   },
   updates: {
     url: `https://u.expo.dev/${PROJECT_ID}`,
