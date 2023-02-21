@@ -14041,7 +14041,7 @@ __metadata:
     tsconfig-paths: ^4.1.2
     type-graphql: ^1.1.1
     typescript: ^4.9.4
-    zksync-web3: ^0.13.1
+    zksync-web3: ^0.13.4
   languageName: unknown
   linkType: soft
 
@@ -14600,7 +14600,7 @@ __metadata:
     use-debounce: ^9.0.3
     use-immer: ^0.8.1
     yup: ^0.32.11
-    zksync-web3: ^0.13.1
+    zksync-web3: ^0.13.4
   languageName: unknown
   linkType: soft
 
@@ -18098,7 +18098,7 @@ __metadata:
     ts-node: ^10.9.1
     typechain: ^8.1.1
     typescript: ^4.9.4
-    zksync-web3: ^0.13.1
+    zksync-web3: ^0.13.4
   languageName: unknown
   linkType: soft
 
@@ -19741,7 +19741,7 @@ __metadata:
     typescript: ^4.9.4
     use-deep-compare-effect: ^1.8.1
     utf-8-validate: ^5.0.10
-    zksync-web3: ^0.13.1
+    zksync-web3: ^0.13.4
   languageName: unknown
   linkType: soft
 
@@ -29292,7 +29292,7 @@ __metadata:
     ts-jest: ^29.0.5
     typechain: ^8.1.1
     typescript: ^4.9.4
-    zksync-web3: ^0.13.1
+    zksync-web3: ^0.13.4
   languageName: unknown
   linkType: soft
 
@@ -43328,12 +43328,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"zksync-web3@npm:^0.13.1":
-  version: 0.13.1
-  resolution: "zksync-web3@npm:0.13.1"
+"zksync-web3@npm:^0.13.4":
+  version: 0.13.4
+  resolution: "zksync-web3@npm:0.13.4"
   peerDependencies:
     ethers: ^5.7.0
-  checksum: 7774b4ca7f83f1bd6d4274b978016a6ed0f2eea03a3011761c6e7824af72a0f83e3efa21b05e078c91cc5a9e1523971edf628921a8d7dda8dd2888612e85e428
+  checksum: 628d91a2c699d8977ba560f271d1f78692f3b65e9fd2aa2fd568460040c4dc4cf230aba6382283f5d8d7f3f0b796ebf5ea09d39b78be1d869702dea1a45baf40
   languageName: node
   linkType: hard
 

@@ -21,7 +21,7 @@
     "lodash": "^4.17.21",
     "merkletreejs": "^0.3.9",
     "typechain": "^8.1.1",
-    "zksync-web3": "^0.13.1"
+    "zksync-web3": "^0.13.4"
   },
   "devDependencies": {
     "@types/jest": "^29.2.6",

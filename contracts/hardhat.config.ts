@@ -22,11 +22,11 @@ import { CHAINS } from 'lib';
 // https://hardhat.org/config/
 const config: HardhatUserConfig = {
   solidity: {
-    version: '0.8.17',
+    version: '0.8.18',
   },
   zksolc: {
     // https://github.com/matter-labs/zksolc-bin/tree/main/linux-amd64
-    version: '1.3.1',
+    version: '1.3.5',
     compilerSource: 'binary',
     settings: {
       isSystem: true,
