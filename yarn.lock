@@ -4836,12 +4836,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@expo/apple-utils@npm:0.0.0-alpha.34":
-  version: 0.0.0-alpha.34
-  resolution: "@expo/apple-utils@npm:0.0.0-alpha.34"
+"@expo/apple-utils@npm:0.0.0-alpha.37":
+  version: 0.0.0-alpha.37
+  resolution: "@expo/apple-utils@npm:0.0.0-alpha.37"
   bin:
     apple-utils: bin.js
-  checksum: 65ac39a8f52fbab24c3ee5322208bb45cd31d370f0d6a205a32faec8809c91e3ed3cdcb505c8107779f6449aff1395caf2cc0de91a4dc7ba53061d51cada649a
+  checksum: 787b1b04b0cb8d561f063826e9a9c9f4aa8eefcaa5d6a76c7db5a145a17d7661c4ac935d37056287ba2c669fb73e24e2d1c9b9664bcbbc78edc999eb2e03b064
   languageName: node
   linkType: hard
 
@@ -5114,9 +5114,19 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@expo/eas-json@npm:3.3.2":
-  version: 3.3.2
-  resolution: "@expo/eas-json@npm:3.3.2"
+"@expo/eas-build-job@npm:0.2.103":
+  version: 0.2.103
+  resolution: "@expo/eas-build-job@npm:0.2.103"
+  dependencies:
+    joi: ^17.4.2
+    semver: ^7.3.5
+  checksum: 556e524e444c0ba247e309d42e1e32e53b903fe20cd969d87570659bed40b6e37d4761dde9dfc288243167144ee1d858082423ba087908eb09f5755d633bd126
+  languageName: node
+  linkType: hard
+
+"@expo/eas-json@npm:3.6.1":
+  version: 3.6.1
+  resolution: "@expo/eas-json@npm:3.6.1"
   dependencies:
     "@babel/code-frame": 7.18.6
     "@expo/eas-build-job": 0.2.102
@@ -5129,7 +5139,7 @@ __metadata:
     semver: 7.3.8
     terminal-link: 2.1.1
     tslib: 2.4.1
-  checksum: dcbed9c2cdd0b1aa5c5b051ea74ea9873e5045e10aa40822173baf84c6aaea9a81b7a99efb82bd9f1d68a57f141bd1bfcb6b9eb180839130ae1b82005a3109fd
+  checksum: 635d2e72f50c88cb58b5d8acbaca23063e1895231fdfc5c7393d00c2a09f07408a12c6b801579b58a7d6235d6133c75bc8a11e9127dd61d57b074cb166390eef
   languageName: node
   linkType: hard
 
@@ -14517,7 +14527,7 @@ __metadata:
     crypto-hash: ^2.0.1
     dotenv-cli: ^7.0.0
     dotenv-vault-core: ^0.7.0
-    eas-cli: ^3.4.1
+    eas-cli: ^3.6.1
     eslint-plugin-formatjs: ^4.3.9
     eth-url-parser: ^1.0.4
     ethers: ^5.7.2
@@ -20058,17 +20068,17 @@ __metadata:
   languageName: node
   linkType: hard
 
-"eas-cli@npm:^3.4.1":
-  version: 3.4.1
-  resolution: "eas-cli@npm:3.4.1"
+"eas-cli@npm:^3.6.1":
+  version: 3.6.1
+  resolution: "eas-cli@npm:3.6.1"
   dependencies:
-    "@expo/apple-utils": 0.0.0-alpha.34
+    "@expo/apple-utils": 0.0.0-alpha.37
     "@expo/code-signing-certificates": 0.0.5
     "@expo/config": 7.0.3
     "@expo/config-plugins": 5.0.4
     "@expo/config-types": 47.0.0
-    "@expo/eas-build-job": 0.2.102
-    "@expo/eas-json": 3.3.2
+    "@expo/eas-build-job": 0.2.103
+    "@expo/eas-json": 3.6.1
     "@expo/json-file": 8.2.37
     "@expo/multipart-body-parser": 1.1.0
     "@expo/osascript": 2.0.33
@@ -20137,7 +20147,7 @@ __metadata:
     wrap-ansi: 7.0.0
   bin:
     eas: bin/run
-  checksum: 9fcc26cf93c7adf6e8a3dca0c98a95a8d673a4516bd749621c9272bc176eaa36be352c6f1a9b5fa09c4961eecb5450c15f312e912c5f855698d3497260d40a15
+  checksum: a11d2069476a9f31b3f4ec5cfade89359dcde50ea4e483939c9d8058c3501415fee9b3d52217ef360cee67fb8729b9d74ff573d8e5c6314a63de0c3e3e820769
   languageName: node
   linkType: hard
 
