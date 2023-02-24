@@ -9,9 +9,9 @@
     "analyze": "myth analyze src/*",
     "test": "CHAIN=local hardhat test",
     "test:debug": "yarn test --logs --trace",
-    "deploy-account-impl": "CHAIN=testnet ts-node scripts/deployAccountImpl.ts",
-    "deploy-proxy-factory": "CHAIN=testnet ts-node scripts/deployProxyFactory.ts",
-    "deploy-multicall": "CHAIN=testnet ts-node scripts/deployMulticall.ts",
+    "deploy:account-impl": "CHAIN=testnet ts-node scripts/deployAccountImpl.ts",
+    "deploy:factory": "CHAIN=testnet ts-node scripts/deployProxyFactory.ts",
+    "deploy:multicall": "CHAIN=testnet ts-node scripts/deployMulticall.ts",
     "clean": "hardhat clean && npx rimraf artifacts cache"
   },
   "devDependencies": {
