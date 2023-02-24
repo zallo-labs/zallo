@@ -3,9 +3,9 @@ import { useEffect } from 'react';
 import { Native } from 'sentry-expo';
 
 export const SentryUser = () => {
-  const device = useCredentials();
+  const credentials = useCredentials();
 
-  useEffect(() => Native.setUser({ id: device.address }), [device.address]);
+  useEffect(() => Native.setUser({ id: credentials.address }), [credentials.address]);
 
   return null;
 };
