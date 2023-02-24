@@ -1,6 +1,7 @@
 import { ethers } from 'hardhat';
 import { TransactionResponse } from '@ethersproject/abstract-provider';
 import { Address } from 'lib';
+import { CONFIG } from '../../config';
 
 export const displayTx = async (addr: Address, tx: TransactionResponse) => {
   const receipt = await tx.wait();
@@ -19,7 +20,7 @@ export const displayTx = async (addr: Address, tx: TransactionResponse) => {
   Cost (eth)  - est.  : ${ethers.utils.formatEther(estCost)}
   Cost (gwei) - actual: ${ethers.utils.formatUnits(actualCost, 9)}
   Cost (eth)  - actual: ${ethers.utils.formatEther(actualCost)}
-  https://zksync2-testnet.zkscan.io/tx/${tx.hash}
+  ${CONFIG.chain.explorer}/tx/${tx.hash}
   ========================
   `);
 };
