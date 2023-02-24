@@ -8,7 +8,11 @@ const main = async () => {
   await displayTx(impl, deployTx);
 
   // TODO: re-enable once zksync system contracts cyclic dependencies issue has been fixed
-  // await verify('contracts/Account.sol:Account', impl);
+  // await verify({
+  //   contract: 'contracts/Account.sol:Account',
+  //   address: impl,
+  //   constructorArguments: [],
+  // });
 };
 
 main().catch((error) => {
