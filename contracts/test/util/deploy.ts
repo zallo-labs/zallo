@@ -13,7 +13,7 @@ import {
   TxOptions,
 } from 'lib';
 import { SIGNERS, WALLET } from './wallet';
-import { ContractTransaction } from 'ethers';
+import { BigNumberish, ContractTransaction } from 'ethers';
 import * as zk from 'zksync-web3';
 import { parseEther } from 'ethers/lib/utils';
 import { Tester__factory } from 'lib/src/contracts';
@@ -22,7 +22,7 @@ import { execute } from './execute';
 type AccountArtifact = 'Account' | 'TestAccount';
 type Artifact = AccountArtifact | 'ERC1967Proxy';
 
-const ACCOUNT_START_BALANCE = parseEther('0.01');
+export const ACCOUNT_START_BALANCE = parseEther('0.02');
 
 export const deployer = new Deployer(hre, WALLET);
 
@@ -73,7 +73,7 @@ export type AccountImplData = Awaited<ReturnType<typeof deployAccountImpl>>;
 export interface DeployOptions {
   signers?: number;
   contractName?: AccountArtifact;
-  extraBalance?: string;
+  extraBalance?: BigNumberish;
 }
 
 export const deployProxy = async ({
@@ -92,7 +92,7 @@ export const deployProxy = async ({
 
   const txResp = await WALLET.sendTransaction({
     to: account.address,
-    value: ACCOUNT_START_BALANCE.add(extraBalance ? parseEther(extraBalance) : 0),
+    value: ACCOUNT_START_BALANCE.add(extraBalance || 0),
   });
   await txResp.wait();
 

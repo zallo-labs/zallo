@@ -1,11 +1,16 @@
 import { expect } from 'chai';
 import { BigNumber } from 'ethers';
 import { AccountError, hashQuorum, toQuorumKey, zeroHexBytes } from 'lib';
-import { DeployTesterProxyData, deployTesterProxy } from './util';
+import { DeployTesterProxyData, deployTesterProxy, ACCOUNT_START_BALANCE } from './util';
 
 describe('Quorum', () => {
   let { account, quorum, execute } = {} as DeployTesterProxyData;
-  before(async () => ({ account, quorum, execute } = await deployTesterProxy()));
+  before(
+    async () =>
+      ({ account, quorum, execute } = await deployTesterProxy({
+        extraBalance: ACCOUNT_START_BALANCE.mul(5),
+      })),
+  );
 
   describe('Hashing', () => {
     it('should match', async () => {
@@ -23,6 +28,7 @@ describe('Quorum', () => {
       upsert: execute({
         to: account.address,
         data: account.interface.encodeFunctionData('upsertQuorum', [key, hash]),
+        gasLimit: BigNumber.from(1_000_000),
       }),
     };
   };

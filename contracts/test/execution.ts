@@ -7,7 +7,7 @@ describe('Execution', () => {
   let { account, execute } = {} as DeployProxyData;
   let tester = {} as Tester;
   before(async () => {
-    ({ account, execute } = await deployProxy({ extraBalance: '0.0001' }));
+    ({ account, execute } = await deployProxy({ extraBalance: parseEther('0.0001') }));
     tester = await deployTester();
   });
 
