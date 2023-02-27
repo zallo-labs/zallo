@@ -79,7 +79,7 @@ export class TransactionsService {
         signature: approval.signature!, // Rejections are filtered out
       }));
 
-    if (quorum.approvers.length < signers.length) return undefined;
+    if (signers.length < quorum.approvers.length) return undefined;
 
     const transaction = await executeTx({
       account: this.provider.connectAccount(address(proposal.accountId)),
