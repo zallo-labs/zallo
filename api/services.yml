@@ -2,7 +2,7 @@ version: '3.8'
 
 services:
   pg:
-    image: postgres:14-alpine
+    image: postgres:15-alpine
     restart: always
     command: ['postgres', '-c', 'log_statement=all', '-c', 'log_line_prefix=%t ']
     environment:
@@ -11,7 +11,7 @@ services:
     ports:
       - '5435:5432'
     volumes:
-      - pg:/var/lib/postgresql/data
+      - ./zallo-api-postgres:/var/lib/postgresql/data
 
   redis:
     image: redis:7-alpine
@@ -20,10 +20,4 @@ services:
       - '6379:6379'
     command: redis-server --save 20 1 --loglevel warning
     volumes:
-      - redis:/data
-
-volumes:
-  pg:
-    driver: local
-  redis:
-    driver: local
+      - ./zallo-api-redis:/data
