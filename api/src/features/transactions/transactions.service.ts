@@ -26,7 +26,10 @@ export interface TransactionResponseJob {
 export class TransactionsService {
   static readonly QUEUE_OPTIONS = {
     name: 'Transactions',
-    defaultJobOptions: { attempts: 20 },
+    defaultJobOptions: {
+      attempts: 15, // 2^15 * 200ms = ~1.8h
+      backoff: { type: 'exponential', delay: 200 },
+    },
   } satisfies BullModuleOptions;
 
   constructor(
@@ -128,14 +131,12 @@ export class TransactionsService {
   }
 
   private async addMissingResponseJobs() {
-    const jobs = (await this.responseQueue.getJobs(['waiting', 'active', 'delayed', 'paused'])).map(
-      (job) => job.data,
-    );
+    const jobs = await this.responseQueue.getJobs(['waiting', 'active', 'delayed', 'paused']);
 
     const missingResponses = await this.prisma.asSuperuser.transaction.findMany({
       where: {
         response: null,
-        hash: { notIn: jobs.map((job) => job.transactionHash) },
+        hash: { notIn: jobs.map((job) => job.data.transactionHash) },
       },
       select: {
         hash: true,
