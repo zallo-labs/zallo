@@ -10,7 +10,7 @@ import { Tx } from './tx';
 import { EMPTY_BYTES } from './bytes';
 import { tryOrAsync } from './util/try';
 
-export const FALLBACK_GAS_LIMIT = BigNumber.from(1_000_000);
+export const FALLBACK_GAS_LIMIT = BigNumber.from(3_000_000);
 const GAS_PER_SIGNER = BigNumber.from(200_000);
 
 export interface ExecuteTxOptions {
