@@ -1,4 +1,4 @@
-import { Process, Processor } from '@nestjs/bull';
+import { OnQueueFailed, Process, Processor } from '@nestjs/bull';
 import { forwardRef, Inject, Injectable } from '@nestjs/common';
 import { Job } from 'bull';
 import { PrismaService } from '../util/prisma/prisma.service';
@@ -9,6 +9,8 @@ import { TransactionResponseJob, TransactionsService } from './transactions.serv
 import { TransactionResponse } from '@prisma/client';
 
 export type TransactionResponseProcessor = (resp: TransactionResponse) => Promise<void>;
+
+const RESPONSE_NOT_FOUND = 'Transaction response not found';
 
 @Injectable()
 @Processor(TransactionsService.QUEUE_OPTIONS.name)
@@ -22,10 +24,16 @@ export class TransactionsConsumer {
     private proposals: ProposalsService,
   ) {}
 
+  @OnQueueFailed()
+  onFailed(job: Job<TransactionResponseJob>, error: unknown) {
+    if (job.failedReason !== RESPONSE_NOT_FOUND)
+      console.warn('Job failed', { job: job.data.transactionHash, error });
+  }
+
   @Process()
   async process(job: Job<TransactionResponseJob>) {
     const response = await this.subgraph.transactionResponse(job.data.transactionHash);
-    if (!response) return job.moveToFailed({ message: 'Transaction response not found' });
+    if (!response) return job.moveToFailed({ message: RESPONSE_NOT_FOUND });
 
     await Promise.all(Object.values(this.processors).map((processor) => processor(response)));
 
