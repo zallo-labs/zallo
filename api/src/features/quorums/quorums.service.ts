@@ -1,5 +1,5 @@
 import { forwardRef, Inject, Injectable, OnModuleInit } from '@nestjs/common';
-import { Prisma, Transaction, TransactionResponse } from '@prisma/client';
+import { Prisma, TransactionResponse } from '@prisma/client';
 import {
   ACCOUNT_INTERFACE,
   Address,
@@ -46,7 +46,9 @@ export class QuorumsService implements OnModuleInit {
   ) {}
 
   onModuleInit() {
-    this.transactionsConsumer.addProcessor(QuorumsService.name, this.processTransaction);
+    this.transactionsConsumer.addProcessor(QuorumsService.name, (...args) =>
+      this.processTransaction(...args),
+    );
   }
 
   findUnique = this.prisma.asUser.quorum.findUnique;
@@ -251,7 +253,7 @@ export class QuorumsService implements OnModuleInit {
     });
 
     await mapAsync(proposal.quorumStates, (state) =>
-      this.prisma.asUser.quorum.update({
+      this.prisma.asSuperuser.quorum.update({
         where: {
           accountId_key: {
             accountId: state.quorum.accountId,
