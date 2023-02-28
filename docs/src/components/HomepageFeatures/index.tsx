@@ -28,7 +28,7 @@ const FeatureList: FeatureItem[] = [
     description: (
       <>
         <p>
-          Interact programatically, seamlessly integrated with our app for handling your
+          Interact programmatically, seamlessly integrated with our app for handling your
           authorization rules.
         </p>
         <p>Such as multi-user approvals of more sensitive tasks like contract upgrades.</p>

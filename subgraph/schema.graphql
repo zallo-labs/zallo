@@ -39,7 +39,7 @@ type Quorum @entity {
 }
 
 type Transfer @entity {
-  "{transaction.id}-{transaction.log.index}"
+  "{account.id}-{transaction.id}-{transaction.log.index}"
   id: String!
   account: Account!
   transaction: Transaction

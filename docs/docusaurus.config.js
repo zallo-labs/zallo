@@ -16,7 +16,7 @@ const config = {
   tagline: 'A self-custodial smart wallet for teams',
   url: process.env.URL || 'https://example.com',
   baseUrl: '/',
-  favicon: 'img/icon-rounded@64.png',
+  favicon: 'img/favicon.png',
   onBrokenLinks: 'throw',
   onBrokenMarkdownLinks: 'warn',
 

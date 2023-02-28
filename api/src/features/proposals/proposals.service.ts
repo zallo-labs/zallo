@@ -159,14 +159,13 @@ export class ProposalsService {
     const proposal = await client.proposal.findUniqueOrThrow({
       where: { id },
       include: { _count: { select: { approvals: true } } },
-      ...res,
     });
 
-    if ((proposal as any)._count.approvals === 1) await this.notifyApprovers(id);
+    if (proposal._count.approvals === 1) await this.notifyApprovers(id);
 
     this.publishProposal({ proposal, event: ProposalEvent.update });
 
-    return proposal;
+    return client.proposal.findUniqueOrThrow({ where: { id }, ...res });
   }
 
   async reject<T extends Prisma.ProposalArgs>(

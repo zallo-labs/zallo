@@ -13,6 +13,6 @@ import { TransactionsService } from './transactions.service';
     SubgraphModule,
   ],
   exports: [TransactionsService, TransactionsConsumer],
-  providers: [TransactionsResolver, TransactionsService, TransactionsConsumer],
+  providers: [TransactionsConsumer, TransactionsResolver, TransactionsService],
 })
 export class TransactionsModule {}

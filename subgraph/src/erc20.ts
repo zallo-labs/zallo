@@ -12,12 +12,16 @@ function transformEthAddress(address: Address): Address {
 }
 
 export function handleTransfer(e: TransferEvent): void {
-  // Only handle transfers from or to a account
-  let account = Account.load(getAccountId(e.params.from));
-  if (!account) account = Account.load(getAccountId(e.params.to));
-  if (!account) return;
+  // Only handle transfers related to an account
+  const from = Account.load(getAccountId(e.params.from));
+  if (from) handleTransferWithAccount(e, from);
 
-  const transfer = new Transfer(getTransferId(e));
+  const to = e.params.to.notEqual(e.params.from) ? Account.load(getAccountId(e.params.to)) : null;
+  if (to) handleTransferWithAccount(e, to);
+}
+
+function handleTransferWithAccount(e: TransferEvent, account: Account): void {
+  const transfer = new Transfer(getTransferId(account, e));
 
   transfer.account = account.id;
   transfer.transaction = getTransactionId(e.transaction);
@@ -33,9 +37,9 @@ export function handleTransfer(e: TransferEvent): void {
   transfer.save();
 }
 
-function getTransferId(e: ethereum.Event): string {
-  // {tx.hash}-{tx.log.index}
-  return `${e.transaction.hash.toHex()}-${e.transactionLogIndex}`;
+function getTransferId(account: Account, e: ethereum.Event): string {
+  // {account.id}-{tx.hash}-{tx.log.index}
+  return `${account.id}-${e.transaction.hash.toHex()}-${e.transactionLogIndex}`;
 }
 
 // Breaks handleTransfer somehow...?

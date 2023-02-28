@@ -11,7 +11,7 @@ import {
   SignatureLike,
 } from 'lib';
 import { Mutex } from 'async-mutex';
-import { BytesLike } from 'ethers';
+import { BytesLike, ethers } from 'ethers';
 
 @Injectable()
 export class ProviderService extends zk.Provider {
@@ -59,7 +59,9 @@ export class ProviderService extends zk.Provider {
     }
   }
 
-  isValidSignature(addr: Address, message: BytesLike, signature: SignatureLike) {
-    return zk.utils.isMessageSignatureCorrect(this, addr, message, signature);
+  async isValidSignature(addr: Address, message: BytesLike, signature: SignatureLike) {
+    // return zk.utils.isSignatureCorrect(this, addr, message, signature);  // TODO: use once exported from zksync-web3, otherwise extract code
+
+    return ethers.utils.recoverAddress(message, signature) === addr;
   }
 }

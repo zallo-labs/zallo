@@ -1,4 +1,10 @@
-import { INestApplication, INestMicroservice, Injectable, Optional } from '@nestjs/common';
+import {
+  INestApplication,
+  INestMicroservice,
+  Injectable,
+  OnModuleInit,
+  Optional,
+} from '@nestjs/common';
 import { Prisma, PrismaClient } from '@prisma/client';
 import { getUser } from '~/request/ctx';
 import { loggingMiddleware } from './prisma.logging';
@@ -28,7 +34,9 @@ const getUserClient = (prisma: PrismaClient) =>
   });
 
 @Injectable()
-export class PrismaService<T extends Prisma.PrismaClientOptions = Prisma.PrismaClientOptions> {
+export class PrismaService<T extends Prisma.PrismaClientOptions = Prisma.PrismaClientOptions>
+  implements OnModuleInit
+{
   readonly asSuperuser: PrismaClient<T>;
   readonly asUser: ReturnType<typeof getUserClient>;
 
@@ -37,6 +45,9 @@ export class PrismaService<T extends Prisma.PrismaClientOptions = Prisma.PrismaC
     this.asSuperuser.$use(loggingMiddleware());
 
     this.asUser = getUserClient(this.asSuperuser);
+  }
+  async onModuleInit() {
+    await this.setUserPermission();
   }
 
   enableShutdownHooks(app: INestApplication | INestMicroservice) {
@@ -48,5 +59,12 @@ export class PrismaService<T extends Prisma.PrismaClientOptions = Prisma.PrismaC
     f: (prisma: Prisma.TransactionClient) => Promise<R>,
   ) {
     return tx ? f(tx) : this.asUser.$transaction((tx) => f(tx));
+  }
+
+  private async setUserPermission() {
+    const [{ current_user: currentUser }] = (await this.asSuperuser
+      .$queryRaw`SELECT current_user`) as [{ current_user: string }];
+
+    await this.asSuperuser.$queryRawUnsafe(`GRANT "user" TO "${currentUser}"`);
   }
 }

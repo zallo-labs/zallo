@@ -3,10 +3,11 @@ export type ChainName = 'local' | 'testnet' | 'mainnet';
 export interface Chain {
   name: ChainName;
   id: number;
+  isTestnet: boolean;
   rpc: string;
   ws: string | undefined;
   l1Rpc: string;
-  isTestnet: boolean;
+  explorer: string | undefined;
 }
 
 // https://v2-docs.zksync.io/dev/troubleshooting/important-links.html
@@ -14,26 +15,29 @@ export const CHAINS = {
   local: {
     name: 'local',
     id: 270,
+    isTestnet: true,
     rpc: 'http://localhost:3050',
     ws: 'ws://localhost:3051',
     l1Rpc: 'http://localhost:8545',
-    isTestnet: true,
+    explorer: undefined,
   } as const,
   testnet: {
     name: 'testnet',
     id: 280,
+    isTestnet: true,
     rpc: 'https://zksync2-testnet.zksync.dev',
     ws: 'wss://zksync2-testnet.zksync.dev/ws',
     l1Rpc: 'goerli',
-    isTestnet: true,
+    explorer: 'https://goerli.explorer.zksync.io',
   } as const,
   mainnet: {
     name: 'mainnet',
     id: 324,
+    isTestnet: false,
     rpc: 'https://zksync2-mainnet.zksync.io',
     ws: 'wss://zksync2-mainnet.zksync.io/ws',
     l1Rpc: 'mainnet',
-    isTestnet: false,
+    explorer: 'https://explorer.zksync.io',
   },
 } satisfies Record<ChainName, Chain>;
 

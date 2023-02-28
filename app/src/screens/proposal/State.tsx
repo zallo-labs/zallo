@@ -44,11 +44,11 @@ export const State = ({ Icon, title, timestamp, events, selected, style }: State
         )}
       </Box>
 
-      <Box horizontal>
-        <Box style={styles.iconContainer} />
-
+      <Box vertical>
         {events?.map((event) => (
-          <Fragment key={event.addr}>
+          <Box key={event.addr} horizontal>
+            <Box style={styles.iconContainer} />
+
             <Text variant="bodyMedium" style={styles.addr}>
               <Addr addr={event.addr} />
             </Text>
@@ -58,7 +58,7 @@ export const State = ({ Icon, title, timestamp, events, selected, style }: State
                 <Timestamp timestamp={event.timestamp} />
               </Text>
             )}
-          </Fragment>
+          </Box>
         ))}
       </Box>
     </Animated.View>
