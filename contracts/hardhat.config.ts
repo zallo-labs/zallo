@@ -64,7 +64,7 @@ const config: HardhatUserConfig = {
   },
   abiExporter: {
     path: './abi',
-    only: [':Account$', ':Factory$', ':ERC1967Proxy$', ':*.test.*$'],
+    only: [':Account$', ':AccountProxy$', ':Factory$', ':*.test.*$'],
     flat: true,
     clear: true,
     runOnCompile: true,

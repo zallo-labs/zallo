@@ -3,17 +3,22 @@
     "inputs": [
       {
         "internalType": "address",
-        "name": "_logic",
+        "name": "logic",
         "type": "address"
       },
       {
         "internalType": "bytes",
-        "name": "_data",
+        "name": "data",
         "type": "bytes"
       }
     ],
     "stateMutability": "payable",
     "type": "constructor"
+  },
+  {
+    "inputs": [],
+    "name": "NoInitializationDataProvided",
+    "type": "error"
   },
   {
     "anonymous": false,
