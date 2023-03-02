@@ -8,7 +8,7 @@ import {CONDITION_SUCCESS_MAGIC} from '../Rule.sol';
 
 abstract contract ApproversVerifier {
   error ApproverSignaturesMismatch();
-  error InvalidSignature(address approver);
+  error InvalidApproverSignature(address approver);
 
   // TODO: accept approversHash + contractApprovers. Callback to a contractApprover if ecdsa recover fails
   function _verifyApprovers(
@@ -20,8 +20,8 @@ abstract contract ApproversVerifier {
     if (approversLength != signatures.length) revert ApproverSignaturesMismatch();
 
     for (uint256 i; i < approversLength; ) {
-      if (!_isValidSignerSignatureNow(approvers[i], txHash, signatures[i]))
-        revert InvalidSignature(approvers[i]);
+      if (!_isApproverSignatureValidNow(approvers[i], txHash, signatures[i]))
+        revert InvalidApproverSignature(approvers[i]);
 
       unchecked {
         ++i;
@@ -29,7 +29,7 @@ abstract contract ApproversVerifier {
     }
   }
 
-  function _isValidSignerSignatureNow(
+  function _isApproverSignatureValidNow(
     address signer,
     bytes32 hash,
     bytes memory signature

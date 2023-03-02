@@ -79,11 +79,6 @@
     "type": "error"
   },
   {
-    "inputs": [],
-    "name": "InvalidProof",
-    "type": "error"
-  },
-  {
     "inputs": [
       {
         "internalType": "address",
@@ -91,7 +86,7 @@
         "type": "address"
       }
     ],
-    "name": "InvalidSignature",
+    "name": "InvalidApproverSignature",
     "type": "error"
   },
   {

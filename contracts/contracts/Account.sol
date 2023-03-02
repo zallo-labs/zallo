@@ -26,7 +26,6 @@ contract Account is
   ERC165,
   ERC721Receiver
 {
-  error InvalidProof();
   error InsufficientBalance();
   error FailedToPayBootloader();
   error OnlyCallableByBootloader();

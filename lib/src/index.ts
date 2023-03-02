@@ -5,8 +5,6 @@ export {
   Factory__factory,
   ERC1967Proxy as AccountProxy,
   ERC1967Proxy__factory as AccountProxy__factory,
-  Multicall,
-  Multicall__factory,
   TestAccount,
   TestAccount__factory,
   Tester,
@@ -27,7 +25,7 @@ export * from './call';
 export * from './chain';
 export * from './decode';
 export * from './deploy';
-export * from './events';
+export * from './errors';
 export * from './execute';
 export * from './quorum';
 export * from './id';
