@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 pragma solidity ^0.8.0;
 
-import '@matterlabs/zksync-contracts/l2/system-contracts/libraries/TransactionHelper.sol';
+import {Transaction} from '@matterlabs/zksync-contracts/l2/system-contracts/libraries/TransactionHelper.sol';
 
-import './EIP712.sol';
+import {EIP712} from './standards/EIP712.sol';
 
 abstract contract TransactionExecutor is EIP712 {
   /*//////////////////////////////////////////////////////////////
@@ -19,6 +19,8 @@ abstract contract TransactionExecutor is EIP712 {
 
   event TransactionExecuted(bytes32 txHash, bytes response);
   event TransactionReverted(bytes32 txHash, bytes response);
+
+  error TransactionAlreadyExecuted(bytes32 txHash);
 
   /*//////////////////////////////////////////////////////////////
                                 EXECUTION
@@ -69,21 +71,22 @@ abstract contract TransactionExecutor is EIP712 {
   }
 
   /// @param txHash Hash of the transaction
-  /// @return True if the transaction has been executed
-  function hasBeenExecuted(bytes32 txHash) public view returns (bool) {
+  function _revertIfExecuted(bytes32 txHash) internal view {
     uint256 index = uint256(txHash);
     uint256 wordIndex = index >> 256;
     uint256 bitIndex = index % 256;
     uint256 mask = (1 << bitIndex);
-    return _executedTransactions()[wordIndex] & mask == mask;
+
+    if (_executedTransactions()[wordIndex] & mask == mask)
+      revert TransactionAlreadyExecuted(txHash);
   }
 
   function _setExecuted(bytes32 txHash) internal {
+    mapping(uint256 => uint256) storage executedTxs = _executedTransactions();
     uint256 index = uint256(txHash);
     uint256 wordIndex = index >> 256;
     uint256 bitIndex = index % 256;
 
-    mapping(uint256 => uint256) storage executedTxs = _executedTransactions();
     executedTxs[wordIndex] = executedTxs[wordIndex] | (1 << bitIndex);
   }
 }

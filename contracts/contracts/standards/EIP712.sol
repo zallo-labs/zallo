@@ -5,6 +5,7 @@ import '@openzeppelin/contracts/utils/cryptography/ECDSA.sol';
 
 /// @dev https://github.com/ethereum/EIPs/blob/master/EIPS/eip-712.md
 /// Inspired by: https://github.com/OpenZeppelin/openzeppelin-contracts/blob/master/contracts/utils/cryptography/draft-EIP712.sol
+/// Modifications are made to support proxies
 abstract contract EIP712 {
   bytes32 private constant _DOMAIN_TYPE_HASH =
     keccak256('EIP712Domain(uint256 chainId,address verifyingContract)');

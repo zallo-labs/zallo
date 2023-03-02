@@ -55,7 +55,7 @@ const config: HardhatUserConfig = {
   },
   gasReporter: {
     // https://github.com/cgewecke/eth-gas-reporter#options
-    enabled: false,
+    enabled: true,
     currency: 'USD',
     coinmarketcap: CONFIG.coinmarketcapApiKey,
   },
@@ -63,11 +63,11 @@ const config: HardhatUserConfig = {
     apiKey: CONFIG.etherscanApiKey,
   },
   abiExporter: {
-    runOnCompile: true,
     path: './abi',
+    only: [':Account$', ':Factory$', ':ERC1967Proxy$', ':*.test.*$'],
     flat: true,
     clear: true,
-    only: [':Account$', ':TestAccount$', ':ERC1967Proxy$', ':Tester$', ':Multicall$', ':Factory$'],
+    runOnCompile: true,
   },
 };
 

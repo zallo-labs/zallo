@@ -3,8 +3,6 @@ pragma solidity ^0.8.0;
 
 import '@openzeppelin/contracts/interfaces/IERC1155Receiver.sol';
 
-import './ERC721Receiver.sol';
-
 abstract contract ERC1155Reciever is IERC1155Receiver {
   /// @inheritdoc IERC1155Receiver
   function onERC1155Received(

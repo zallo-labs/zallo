@@ -1,31 +1,35 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 pragma solidity ^0.8.0;
 
-import '@matterlabs/zksync-contracts/l2/system-contracts/Constants.sol';
-import '@matterlabs/zksync-contracts/l2/system-contracts/libraries/TransactionHelper.sol';
-import {SystemContractsCaller} from '@matterlabs/zksync-contracts/l2/system-contracts/libraries/SystemContractsCaller.sol';
+import {IAccount} from '@matterlabs/zksync-contracts/l2/system-contracts/interfaces/IAccount.sol';
+import {Transaction, TransactionHelper} from '@matterlabs/zksync-contracts/l2/system-contracts/libraries/TransactionHelper.sol';
 import {ACCOUNT_VALIDATION_SUCCESS_MAGIC} from '@matterlabs/zksync-contracts/l2/system-contracts/interfaces/IAccount.sol';
+import {INonceHolder, NONCE_HOLDER_SYSTEM_CONTRACT, BOOTLOADER_FORMAL_ADDRESS} from '@matterlabs/zksync-contracts/l2/system-contracts/Constants.sol';
+import {SystemContractsCaller} from '@matterlabs/zksync-contracts/l2/system-contracts/libraries/SystemContractsCaller.sol';
 
-import './IAccount.sol';
-import './SelfOwned.sol';
-import './Initializable.sol';
+import {Initializable} from './Initializable.sol';
 import {Upgradeable} from './Upgradeable.sol';
-import './TransactionExecutor.sol';
-import './ERC165.sol';
-import './ERC721Receiver.sol';
-import {SignatureChecker} from './utils/SignatureChecker.sol';
+import {TransactionExecutor} from './TransactionExecutor.sol';
+import {Rule, RuleKey} from './rule/Rule.sol';
+import {RuleManager} from './rule/RuleManager.sol';
+import {RuleValidator} from './rule/RuleValidator.sol';
+import {ERC165} from './standards/ERC165.sol';
+import {ERC721Receiver} from './standards/ERC721Receiver.sol';
 
 contract Account is
   IAccount,
-  SelfOwned,
   Initializable,
   Upgradeable,
   TransactionExecutor,
+  RuleManager,
+  RuleValidator,
   ERC165,
   ERC721Receiver
 {
-  using SignatureChecker for address;
-  using QuorumHelper for Quorum;
+  error InvalidProof();
+  error InsufficientBalance();
+  error FailedToPayBootloader();
+  error OnlyCallableByBootloader();
 
   /*//////////////////////////////////////////////////////////////
                              INITIALIZATION
@@ -36,10 +40,10 @@ contract Account is
     _disableInitializers();
   }
 
-  function initialize(QuorumDefinition[] calldata quorums) external initializer {
-    uint256 quorumsLen = quorums.length;
-    for (uint256 i; i < quorumsLen; ) {
-      _upsertQuorum(quorums[i].key, quorums[i].hash);
+  function initialize(Rule[] calldata rules) external initializer {
+    uint256 rulesLen = rules.length;
+    for (uint256 i; i < rulesLen; ) {
+      _addRule(rules[i]);
 
       unchecked {
         ++i;
@@ -59,7 +63,7 @@ contract Account is
                           TRANSACTION HANDLING
   //////////////////////////////////////////////////////////////*/
 
-  /// @inheritdoc BaseIAccount
+  /// @inheritdoc IAccount
   function validateTransaction(
     bytes32 /* _txHash */,
     bytes32 /* suggestedSignedHash */,
@@ -69,7 +73,7 @@ contract Account is
     return ACCOUNT_VALIDATION_SUCCESS_MAGIC;
   }
 
-  /// @inheritdoc BaseIAccount
+  /// @inheritdoc IAccount
   function executeTransaction(
     bytes32 /* _txHash */,
     bytes32 /* suggestedSignedHash */,
@@ -78,7 +82,7 @@ contract Account is
     _executeTransaction(_hashTx(transaction), transaction);
   }
 
-  /// @inheritdoc BaseIAccount
+  /// @inheritdoc IAccount
   function executeTransactionFromOutside(
     Transaction calldata transaction
   ) external payable override {
@@ -88,6 +92,8 @@ contract Account is
   }
 
   function _validateTransaction(bytes32 txHash, Transaction calldata transaction) internal {
+    _revertIfExecuted(txHash);
+
     SystemContractsCaller.systemCallWithPropagatedRevert(
       uint32(gasleft()),
       address(NONCE_HOLDER_SYSTEM_CONTRACT),
@@ -95,12 +101,21 @@ contract Account is
       abi.encodeCall(INonceHolder.incrementMinNonceIfEquals, (transaction.nonce))
     );
 
-    if (hasBeenExecuted(txHash)) revert TransactionAlreadyExecuted();
-
-    _validateSignature(txHash, transaction.signature);
-
     if (TransactionHelper.totalRequiredBalance(transaction) > address(this).balance)
       revert InsufficientBalance();
+
+    SystemContractsCaller.systemCallWithPropagatedRevert(
+      uint32(gasleft()),
+      address(NONCE_HOLDER_SYSTEM_CONTRACT),
+      0,
+      abi.encodeCall(INonceHolder.incrementMinNonceIfEquals, (transaction.nonce))
+    );
+
+    (Rule memory rule, bytes[] memory signatures) = abi.decode(
+      transaction.signature,
+      (Rule, bytes[])
+    );
+    _validateRule(rule, transaction, txHash, signatures);
   }
 
   /*//////////////////////////////////////////////////////////////
@@ -122,80 +137,6 @@ contract Account is
     Transaction calldata transaction
   ) external payable override onlyBootloader {
     TransactionHelper.processPaymasterInput(transaction);
-  }
-
-  /*//////////////////////////////////////////////////////////////
-                            QUORUM MANAGEMENT
-  //////////////////////////////////////////////////////////////*/
-
-  /// @inheritdoc IAccount
-  function upsertQuorum(QuorumKey key, bytes32 hash) external payable onlySelf {
-    _upsertQuorum(key, hash);
-  }
-
-  /// @inheritdoc IAccount
-  function removeQuorum(QuorumKey key) external payable onlySelf {
-    delete _quorums()[key];
-    emit QuorumRemoved(key);
-  }
-
-  function _upsertQuorum(QuorumKey key, bytes32 hash) internal {
-    _quorums()[key] = hash;
-    emit QuorumUpserted(key, hash);
-  }
-
-  /*//////////////////////////////////////////////////////////////
-                          SIGNATURE VALIDATION
-  //////////////////////////////////////////////////////////////*/
-
-  /// @inheritdoc IERC1271
-  function isValidSignature(
-    bytes32 hash,
-    bytes memory signature
-  ) external view override returns (bytes4) {
-    _validateSignature(hash, signature);
-    return EIP1271_SUCCESS;
-  }
-
-  function _validateSignature(bytes32 hash, bytes memory signature) internal view {
-    (QuorumKey key, Quorum memory quorum, bytes[] memory signatures) = abi.decode(
-      signature,
-      (QuorumKey, Quorum, bytes[])
-    );
-
-    bytes32 expectedQuorumHash = _quorums()[key];
-    if (quorum.hash() != expectedQuorumHash) revert QuorumHashMismatch(expectedQuorumHash);
-
-    _validateSignatures(hash, quorum.approvers, signatures);
-  }
-
-  function _validateSignatures(
-    bytes32 hash,
-    address[] memory approvers,
-    bytes[] memory signatures
-  ) internal view {
-    uint256 approversLength = approvers.length;
-    if (approversLength != signatures.length) revert ApproverSignaturesMismatch();
-
-    for (uint256 i; i < approversLength; ) {
-      if (!approvers[i].isValidSignatureNow(hash, signatures[i]))
-        revert InvalidSignature(approvers[i]);
-
-      unchecked {
-        ++i;
-      }
-    }
-  }
-
-  /*//////////////////////////////////////////////////////////////
-                          QUORUM MERKLE ROOTS
-    //////////////////////////////////////////////////////////////*/
-
-  function _quorums() internal pure returns (mapping(QuorumKey => bytes32) storage s) {
-    assembly {
-      // keccack256('Account.quorums')
-      s.slot := 0x37960d0a655d0d781716b0e17600d3e44caa3d99659d8fb953b4c370d154d1a4
-    }
   }
 
   /*//////////////////////////////////////////////////////////////

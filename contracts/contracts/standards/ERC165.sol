@@ -1,11 +1,10 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 pragma solidity ^0.8.0;
 
-import '@openzeppelin/contracts/interfaces/IERC165.sol';
-import '@openzeppelin/contracts/interfaces/IERC777Recipient.sol';
-import '@openzeppelin/contracts/interfaces/IERC1155Receiver.sol';
+import {IERC165} from '@openzeppelin/contracts/interfaces/IERC165.sol';
 
-import './ERC721Receiver.sol';
+import {IERC721Receiver} from './ERC721Receiver.sol';
+import {IERC1155Receiver} from './ERC1155Receiver.sol';
 
 abstract contract ERC165 is IERC165 {
   /// @inheritdoc IERC165
@@ -13,7 +12,6 @@ abstract contract ERC165 is IERC165 {
     return
       interfaceId == type(IERC165).interfaceId ||
       interfaceId == type(IERC721Receiver).interfaceId ||
-      interfaceId == type(IERC777Recipient).interfaceId ||
       interfaceId == type(IERC1155Receiver).interfaceId;
   }
 }

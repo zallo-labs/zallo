@@ -1,0 +1,112 @@
+[
+  {
+    "inputs": [],
+    "name": "OnlyCallableBySelf",
+    "type": "error"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "bytes",
+        "name": "actualRuleData",
+        "type": "bytes"
+      },
+      {
+        "internalType": "bytes32",
+        "name": "expectedRuleDataHash",
+        "type": "bytes32"
+      }
+    ],
+    "name": "RuleDoesNotMatchExpectedHash",
+    "type": "error"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "RuleKey",
+        "name": "key",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "bytes",
+        "name": "data",
+        "type": "bytes"
+      }
+    ],
+    "name": "RuleAdded",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "RuleKey",
+        "name": "key",
+        "type": "uint256"
+      }
+    ],
+    "name": "RuleRemoved",
+    "type": "event"
+  },
+  {
+    "inputs": [
+      {
+        "components": [
+          {
+            "internalType": "RuleKey",
+            "name": "key",
+            "type": "uint256"
+          },
+          {
+            "internalType": "bytes",
+            "name": "data",
+            "type": "bytes"
+          }
+        ],
+        "internalType": "struct Rule",
+        "name": "rule",
+        "type": "tuple"
+      }
+    ],
+    "name": "addRule",
+    "outputs": [],
+    "stateMutability": "payable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "RuleKey",
+        "name": "key",
+        "type": "uint256"
+      }
+    ],
+    "name": "getRuleDataHash",
+    "outputs": [
+      {
+        "internalType": "bytes32",
+        "name": "",
+        "type": "bytes32"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "RuleKey",
+        "name": "key",
+        "type": "uint256"
+      }
+    ],
+    "name": "removeRule",
+    "outputs": [],
+    "stateMutability": "payable",
+    "type": "function"
+  }
+]

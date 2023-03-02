@@ -8,10 +8,6 @@ contract TestAccount is Account {
     _executeTransaction(_hashTx(transaction), transaction);
   }
 
-  function getQuorumHash(QuorumKey key) external view returns (bytes32) {
-    return _quorums()[key];
-  }
-
   function hashTx(Transaction calldata transaction) external view returns (bytes32) {
     return _hashTx(transaction);
   }
