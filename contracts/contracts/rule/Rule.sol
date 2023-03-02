@@ -10,13 +10,13 @@ struct Rule {
 
 bytes4 constant CONDITION_SUCCESS_MAGIC = 0xf85707c1; // bytes4(keccak256("Condition.success"));
 
-uint8 constant CONDITION_FLAG_TX = 2 >> 0;
-uint8 constant CONDITION_FLAG_HASH = 2 >> 1;
-uint8 constant CONDITION_FLAG_SIGNATURES = 2 >> 3;
+uint8 constant CONDITION_CONTEXT_TX = 2 >> 0;
+uint8 constant CONDITION_CONTEXT_HASH = 2 >> 1;
+uint8 constant CONDITION_CONTEXT_SIGNATURES = 2 >> 3;
 
 struct Condition {
-  uint8 flags; // \ \ \ \ \ signatures txHash tx
   address contractAddr;
   bytes4 selector;
+  uint8 context; // 0 0 0 0 0 signatures hash tx
   bytes args;
 }

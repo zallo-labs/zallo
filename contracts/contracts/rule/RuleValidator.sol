@@ -3,7 +3,7 @@ pragma solidity ^0.8.0;
 
 import {Transaction} from '@matterlabs/zksync-contracts/l2/system-contracts/libraries/TransactionHelper.sol';
 
-import {Rule, Condition, CONDITION_SUCCESS_MAGIC, CONDITION_FLAG_TX, CONDITION_FLAG_HASH, CONDITION_FLAG_SIGNATURES} from './Rule.sol';
+import {Rule, Condition, CONDITION_SUCCESS_MAGIC, CONDITION_CONTEXT_TX, CONDITION_CONTEXT_HASH, CONDITION_CONTEXT_SIGNATURES} from './Rule.sol';
 import {ApproversVerifier} from './verifiers/ApproversVerifier.sol';
 import {MatchingTargetVerifier} from './verifiers/MatchingTargetVerifier.sol';
 import {MatchingFunctionVerifier} from './verifiers/MatchingFunctionVerifier.sol';
@@ -79,11 +79,12 @@ abstract contract RuleValidator is
     bytes32 txHash,
     bytes[] memory signatures
   ) private pure returns (bytes memory) {
-    if ((c.flags & CONDITION_FLAG_TX) != 0) c.args = bytes.concat(c.args, abi.encode(t));
+    if ((c.context & CONDITION_CONTEXT_TX) != 0) c.args = bytes.concat(c.args, abi.encode(t));
 
-    if ((c.flags & CONDITION_FLAG_HASH) != 0) c.args = bytes.concat(c.args, abi.encode(txHash));
+    if ((c.context & CONDITION_CONTEXT_HASH) != 0)
+      c.args = bytes.concat(c.args, abi.encode(txHash));
 
-    if ((c.flags & CONDITION_FLAG_SIGNATURES) != 0)
+    if ((c.context & CONDITION_CONTEXT_SIGNATURES) != 0)
       c.args = bytes.concat(c.args, abi.encode(signatures));
 
     return c.args;

@@ -114,11 +114,6 @@
       {
         "components": [
           {
-            "internalType": "uint8",
-            "name": "flags",
-            "type": "uint8"
-          },
-          {
             "internalType": "address",
             "name": "contractAddr",
             "type": "address"
@@ -127,6 +122,11 @@
             "internalType": "bytes4",
             "name": "selector",
             "type": "bytes4"
+          },
+          {
+            "internalType": "uint8",
+            "name": "context",
+            "type": "uint8"
           },
           {
             "internalType": "bytes",
