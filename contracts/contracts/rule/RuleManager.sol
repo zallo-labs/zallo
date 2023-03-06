@@ -1,21 +1,36 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 pragma solidity ^0.8.0;
 
-import {Rule, RuleKey} from './Rule.sol';
+import {Rule, RuleKey, RuleHelper} from './Rule.sol';
 import {SelfOwned} from '../SelfOwned.sol';
 
 abstract contract RuleManager is SelfOwned {
-  event RuleAdded(RuleKey indexed key, bytes data);
-  event RuleRemoved(RuleKey indexed key);
-  error RuleDoesNotMatchExpectedHash(bytes actualRuleData, bytes32 expectedRuleDataHash);
+  using RuleHelper for Rule;
+
+  event RuleAdded(RuleKey key, bytes32 dataHash);
+  event RuleRemoved(RuleKey key);
+
+  error RuleDoesNotMatchExpectedHash(bytes32 expectedRuleDataHash);
 
   function addRule(Rule calldata rule) external payable onlySelf {
     _addRule(rule);
   }
 
   function _addRule(Rule calldata rule) internal {
-    _ruleDataHashes()[rule.key] = keccak256(rule.data);
-    emit RuleAdded(rule.key, rule.data);
+    bytes32 hash = rule.hash();
+    _ruleDataHashes()[rule.key] = hash;
+    emit RuleAdded(rule.key, hash);
+  }
+
+  function _addRules(Rule[] calldata rules) internal {
+    uint256 rulesLen = rules.length;
+    for (uint256 i; i < rulesLen; ) {
+      _addRule(rules[i]);
+
+      unchecked {
+        ++i;
+      }
+    }
   }
 
   function removeRule(RuleKey key) external payable onlySelf {
@@ -23,20 +38,23 @@ abstract contract RuleManager is SelfOwned {
     emit RuleRemoved(key);
   }
 
-  function _getRuleDataHash(RuleKey key) internal view returns (bytes32) {
-    return _ruleDataHashes()[key];
-  }
+  function _decodeAndVerifySignature(
+    bytes memory signature
+  ) internal view returns (Rule memory rule, bytes[] memory signatures) {
+    (rule, signatures) = abi.decode(signature, (Rule, bytes[]));
 
-  function _verifyRuleData(Rule memory rule) internal view {
     bytes32 expectedHash = _ruleDataHashes()[rule.key];
-    if (keccak256(rule.data) != expectedHash)
-      revert RuleDoesNotMatchExpectedHash(rule.data, expectedHash);
+    if (rule.hash() != expectedHash) revert RuleDoesNotMatchExpectedHash(expectedHash);
   }
 
   function _ruleDataHashes() private pure returns (mapping(RuleKey => bytes32 ruleHash) storage s) {
     assembly {
-      // keccack256('Account.ruleHashes')
-      s.slot := 0x09014d155d7d835fa145cc93ce960f4209afc92bbc2094712143ef95b66a840b
+      // keccack256('RuleManager.ruleDataHashes')
+      s.slot := 0x802fed699346f5fc9a637c76639db8d2c903afbffe3d02c2f0c499f3e92c93b5
     }
+  }
+
+  function _getRuleDataHash(RuleKey key) internal view returns (bytes32) {
+    return _ruleDataHashes()[key];
   }
 }

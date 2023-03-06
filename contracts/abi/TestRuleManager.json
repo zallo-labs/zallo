@@ -7,11 +7,6 @@
   {
     "inputs": [
       {
-        "internalType": "bytes",
-        "name": "actualRuleData",
-        "type": "bytes"
-      },
-      {
         "internalType": "bytes32",
         "name": "expectedRuleDataHash",
         "type": "bytes32"
@@ -24,16 +19,16 @@
     "anonymous": false,
     "inputs": [
       {
-        "indexed": true,
+        "indexed": false,
         "internalType": "RuleKey",
         "name": "key",
         "type": "uint256"
       },
       {
         "indexed": false,
-        "internalType": "bytes",
-        "name": "data",
-        "type": "bytes"
+        "internalType": "bytes32",
+        "name": "dataHash",
+        "type": "bytes32"
       }
     ],
     "name": "RuleAdded",
@@ -43,7 +38,7 @@
     "anonymous": false,
     "inputs": [
       {
-        "indexed": true,
+        "indexed": false,
         "internalType": "RuleKey",
         "name": "key",
         "type": "uint256"
@@ -62,9 +57,38 @@
             "type": "uint256"
           },
           {
-            "internalType": "bytes",
-            "name": "data",
-            "type": "bytes"
+            "components": [
+              {
+                "internalType": "enum InternalSelector",
+                "name": "selector",
+                "type": "uint8"
+              },
+              {
+                "internalType": "bytes",
+                "name": "args",
+                "type": "bytes"
+              }
+            ],
+            "internalType": "struct Verifier[]",
+            "name": "signatureVerifiers",
+            "type": "tuple[]"
+          },
+          {
+            "components": [
+              {
+                "internalType": "enum InternalSelector",
+                "name": "selector",
+                "type": "uint8"
+              },
+              {
+                "internalType": "bytes",
+                "name": "args",
+                "type": "bytes"
+              }
+            ],
+            "internalType": "struct Verifier[]",
+            "name": "txVerifiers",
+            "type": "tuple[]"
           }
         ],
         "internalType": "struct Rule",
@@ -107,6 +131,73 @@
     "name": "removeRule",
     "outputs": [],
     "stateMutability": "payable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "components": [
+          {
+            "internalType": "RuleKey",
+            "name": "key",
+            "type": "uint256"
+          },
+          {
+            "components": [
+              {
+                "internalType": "enum InternalSelector",
+                "name": "selector",
+                "type": "uint8"
+              },
+              {
+                "internalType": "bytes",
+                "name": "args",
+                "type": "bytes"
+              }
+            ],
+            "internalType": "struct Verifier[]",
+            "name": "signatureVerifiers",
+            "type": "tuple[]"
+          },
+          {
+            "components": [
+              {
+                "internalType": "enum InternalSelector",
+                "name": "selector",
+                "type": "uint8"
+              },
+              {
+                "internalType": "bytes",
+                "name": "args",
+                "type": "bytes"
+              }
+            ],
+            "internalType": "struct Verifier[]",
+            "name": "txVerifiers",
+            "type": "tuple[]"
+          }
+        ],
+        "internalType": "struct Rule",
+        "name": "rule",
+        "type": "tuple"
+      }
+    ],
+    "name": "testAddRule",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "RuleKey",
+        "name": "key",
+        "type": "uint256"
+      }
+    ],
+    "name": "testRemoveRule",
+    "outputs": [],
+    "stateMutability": "nonpayable",
     "type": "function"
   }
 ]

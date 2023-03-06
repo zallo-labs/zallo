@@ -5,70 +5,6 @@
     "type": "error"
   },
   {
-    "inputs": [
-      {
-        "internalType": "bytes4[]",
-        "name": "functions",
-        "type": "bytes4[]"
-      },
-      {
-        "internalType": "bytes4",
-        "name": "sighash",
-        "type": "bytes4"
-      }
-    ],
-    "name": "DidNotMatchAnyFunctions",
-    "type": "error"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "actual",
-        "type": "address"
-      },
-      {
-        "internalType": "address[]",
-        "name": "expectedAnyOf",
-        "type": "address[]"
-      }
-    ],
-    "name": "DidNotMatchAnyTarget",
-    "type": "error"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "bytes4",
-        "name": "actual",
-        "type": "bytes4"
-      },
-      {
-        "internalType": "bytes4",
-        "name": "expected",
-        "type": "bytes4"
-      }
-    ],
-    "name": "DidNotMatchFunction",
-    "type": "error"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "actual",
-        "type": "address"
-      },
-      {
-        "internalType": "address",
-        "name": "expected",
-        "type": "address"
-      }
-    ],
-    "name": "DidNotMatchTarget",
-    "type": "error"
-  },
-  {
     "inputs": [],
     "name": "FailedToPayBootloader",
     "type": "error"
@@ -90,8 +26,72 @@
     "type": "error"
   },
   {
+    "inputs": [
+      {
+        "internalType": "bytes4[]",
+        "name": "expectedAnyOfSelectors",
+        "type": "bytes4[]"
+      },
+      {
+        "internalType": "bytes4",
+        "name": "actualSelector",
+        "type": "bytes4"
+      }
+    ],
+    "name": "NotAnyOfFunctions",
+    "type": "error"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "actual",
+        "type": "address"
+      },
+      {
+        "internalType": "address[]",
+        "name": "expectedAnyOf",
+        "type": "address[]"
+      }
+    ],
+    "name": "NotAnyOfTargets",
+    "type": "error"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "bytes4",
+        "name": "expectedSelector",
+        "type": "bytes4"
+      },
+      {
+        "internalType": "bytes4",
+        "name": "actualSelector",
+        "type": "bytes4"
+      }
+    ],
+    "name": "NotFunction",
+    "type": "error"
+  },
+  {
     "inputs": [],
     "name": "NotFunctionCall",
+    "type": "error"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "actual",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "expected",
+        "type": "address"
+      }
+    ],
+    "name": "NotTarget",
     "type": "error"
   },
   {
@@ -107,49 +107,6 @@
   {
     "inputs": [
       {
-        "components": [
-          {
-            "internalType": "address",
-            "name": "contractAddr",
-            "type": "address"
-          },
-          {
-            "internalType": "bytes4",
-            "name": "selector",
-            "type": "bytes4"
-          },
-          {
-            "internalType": "uint8",
-            "name": "context",
-            "type": "uint8"
-          },
-          {
-            "internalType": "bytes",
-            "name": "args",
-            "type": "bytes"
-          }
-        ],
-        "internalType": "struct Condition",
-        "name": "condition",
-        "type": "tuple"
-      },
-      {
-        "internalType": "bytes",
-        "name": "reason",
-        "type": "bytes"
-      }
-    ],
-    "name": "RuleConditionFailed",
-    "type": "error"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "bytes",
-        "name": "actualRuleData",
-        "type": "bytes"
-      },
-      {
         "internalType": "bytes32",
         "name": "expectedRuleDataHash",
         "type": "bytes32"
@@ -164,9 +121,41 @@
         "internalType": "bytes32",
         "name": "txHash",
         "type": "bytes32"
+      },
+      {
+        "internalType": "uint256",
+        "name": "nonce",
+        "type": "uint256"
       }
     ],
     "name": "TransactionAlreadyExecuted",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "TransactionRevertedWithoutReason",
+    "type": "error"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "enum InternalSelector",
+        "name": "selector",
+        "type": "uint8"
+      }
+    ],
+    "name": "UnknownSignatureVerifier",
+    "type": "error"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "enum InternalSelector",
+        "name": "selector",
+        "type": "uint8"
+      }
+    ],
+    "name": "UnknownTransactionVerifier",
     "type": "error"
   },
   {
@@ -205,16 +194,16 @@
     "anonymous": false,
     "inputs": [
       {
-        "indexed": true,
+        "indexed": false,
         "internalType": "RuleKey",
         "name": "key",
         "type": "uint256"
       },
       {
         "indexed": false,
-        "internalType": "bytes",
-        "name": "data",
-        "type": "bytes"
+        "internalType": "bytes32",
+        "name": "dataHash",
+        "type": "bytes32"
       }
     ],
     "name": "RuleAdded",
@@ -224,7 +213,7 @@
     "anonymous": false,
     "inputs": [
       {
-        "indexed": true,
+        "indexed": false,
         "internalType": "RuleKey",
         "name": "key",
         "type": "uint256"
@@ -291,429 +280,6 @@
   {
     "inputs": [
       {
-        "internalType": "address[]",
-        "name": "approvers",
-        "type": "address[]"
-      },
-      {
-        "internalType": "bytes32",
-        "name": "txHash",
-        "type": "bytes32"
-      },
-      {
-        "internalType": "bytes[]",
-        "name": "signatures",
-        "type": "bytes[]"
-      }
-    ],
-    "name": "_verifyApprovers",
-    "outputs": [],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "bytes4[]",
-        "name": "functions",
-        "type": "bytes4[]"
-      },
-      {
-        "components": [
-          {
-            "internalType": "uint256",
-            "name": "txType",
-            "type": "uint256"
-          },
-          {
-            "internalType": "uint256",
-            "name": "from",
-            "type": "uint256"
-          },
-          {
-            "internalType": "uint256",
-            "name": "to",
-            "type": "uint256"
-          },
-          {
-            "internalType": "uint256",
-            "name": "gasLimit",
-            "type": "uint256"
-          },
-          {
-            "internalType": "uint256",
-            "name": "gasPerPubdataByteLimit",
-            "type": "uint256"
-          },
-          {
-            "internalType": "uint256",
-            "name": "maxFeePerGas",
-            "type": "uint256"
-          },
-          {
-            "internalType": "uint256",
-            "name": "maxPriorityFeePerGas",
-            "type": "uint256"
-          },
-          {
-            "internalType": "uint256",
-            "name": "paymaster",
-            "type": "uint256"
-          },
-          {
-            "internalType": "uint256",
-            "name": "nonce",
-            "type": "uint256"
-          },
-          {
-            "internalType": "uint256",
-            "name": "value",
-            "type": "uint256"
-          },
-          {
-            "internalType": "uint256[4]",
-            "name": "reserved",
-            "type": "uint256[4]"
-          },
-          {
-            "internalType": "bytes",
-            "name": "data",
-            "type": "bytes"
-          },
-          {
-            "internalType": "bytes",
-            "name": "signature",
-            "type": "bytes"
-          },
-          {
-            "internalType": "bytes32[]",
-            "name": "factoryDeps",
-            "type": "bytes32[]"
-          },
-          {
-            "internalType": "bytes",
-            "name": "paymasterInput",
-            "type": "bytes"
-          },
-          {
-            "internalType": "bytes",
-            "name": "reservedDynamic",
-            "type": "bytes"
-          }
-        ],
-        "internalType": "struct Transaction",
-        "name": "transaction",
-        "type": "tuple"
-      }
-    ],
-    "name": "_verifyMatchingAnyFunction",
-    "outputs": [],
-    "stateMutability": "pure",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "address[]",
-        "name": "targets",
-        "type": "address[]"
-      },
-      {
-        "components": [
-          {
-            "internalType": "uint256",
-            "name": "txType",
-            "type": "uint256"
-          },
-          {
-            "internalType": "uint256",
-            "name": "from",
-            "type": "uint256"
-          },
-          {
-            "internalType": "uint256",
-            "name": "to",
-            "type": "uint256"
-          },
-          {
-            "internalType": "uint256",
-            "name": "gasLimit",
-            "type": "uint256"
-          },
-          {
-            "internalType": "uint256",
-            "name": "gasPerPubdataByteLimit",
-            "type": "uint256"
-          },
-          {
-            "internalType": "uint256",
-            "name": "maxFeePerGas",
-            "type": "uint256"
-          },
-          {
-            "internalType": "uint256",
-            "name": "maxPriorityFeePerGas",
-            "type": "uint256"
-          },
-          {
-            "internalType": "uint256",
-            "name": "paymaster",
-            "type": "uint256"
-          },
-          {
-            "internalType": "uint256",
-            "name": "nonce",
-            "type": "uint256"
-          },
-          {
-            "internalType": "uint256",
-            "name": "value",
-            "type": "uint256"
-          },
-          {
-            "internalType": "uint256[4]",
-            "name": "reserved",
-            "type": "uint256[4]"
-          },
-          {
-            "internalType": "bytes",
-            "name": "data",
-            "type": "bytes"
-          },
-          {
-            "internalType": "bytes",
-            "name": "signature",
-            "type": "bytes"
-          },
-          {
-            "internalType": "bytes32[]",
-            "name": "factoryDeps",
-            "type": "bytes32[]"
-          },
-          {
-            "internalType": "bytes",
-            "name": "paymasterInput",
-            "type": "bytes"
-          },
-          {
-            "internalType": "bytes",
-            "name": "reservedDynamic",
-            "type": "bytes"
-          }
-        ],
-        "internalType": "struct Transaction",
-        "name": "transaction",
-        "type": "tuple"
-      }
-    ],
-    "name": "_verifyMatchingAnyTarget",
-    "outputs": [],
-    "stateMutability": "pure",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "bytes4",
-        "name": "func",
-        "type": "bytes4"
-      },
-      {
-        "components": [
-          {
-            "internalType": "uint256",
-            "name": "txType",
-            "type": "uint256"
-          },
-          {
-            "internalType": "uint256",
-            "name": "from",
-            "type": "uint256"
-          },
-          {
-            "internalType": "uint256",
-            "name": "to",
-            "type": "uint256"
-          },
-          {
-            "internalType": "uint256",
-            "name": "gasLimit",
-            "type": "uint256"
-          },
-          {
-            "internalType": "uint256",
-            "name": "gasPerPubdataByteLimit",
-            "type": "uint256"
-          },
-          {
-            "internalType": "uint256",
-            "name": "maxFeePerGas",
-            "type": "uint256"
-          },
-          {
-            "internalType": "uint256",
-            "name": "maxPriorityFeePerGas",
-            "type": "uint256"
-          },
-          {
-            "internalType": "uint256",
-            "name": "paymaster",
-            "type": "uint256"
-          },
-          {
-            "internalType": "uint256",
-            "name": "nonce",
-            "type": "uint256"
-          },
-          {
-            "internalType": "uint256",
-            "name": "value",
-            "type": "uint256"
-          },
-          {
-            "internalType": "uint256[4]",
-            "name": "reserved",
-            "type": "uint256[4]"
-          },
-          {
-            "internalType": "bytes",
-            "name": "data",
-            "type": "bytes"
-          },
-          {
-            "internalType": "bytes",
-            "name": "signature",
-            "type": "bytes"
-          },
-          {
-            "internalType": "bytes32[]",
-            "name": "factoryDeps",
-            "type": "bytes32[]"
-          },
-          {
-            "internalType": "bytes",
-            "name": "paymasterInput",
-            "type": "bytes"
-          },
-          {
-            "internalType": "bytes",
-            "name": "reservedDynamic",
-            "type": "bytes"
-          }
-        ],
-        "internalType": "struct Transaction",
-        "name": "transaction",
-        "type": "tuple"
-      }
-    ],
-    "name": "_verifyMatchingFunction",
-    "outputs": [],
-    "stateMutability": "pure",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "target",
-        "type": "address"
-      },
-      {
-        "components": [
-          {
-            "internalType": "uint256",
-            "name": "txType",
-            "type": "uint256"
-          },
-          {
-            "internalType": "uint256",
-            "name": "from",
-            "type": "uint256"
-          },
-          {
-            "internalType": "uint256",
-            "name": "to",
-            "type": "uint256"
-          },
-          {
-            "internalType": "uint256",
-            "name": "gasLimit",
-            "type": "uint256"
-          },
-          {
-            "internalType": "uint256",
-            "name": "gasPerPubdataByteLimit",
-            "type": "uint256"
-          },
-          {
-            "internalType": "uint256",
-            "name": "maxFeePerGas",
-            "type": "uint256"
-          },
-          {
-            "internalType": "uint256",
-            "name": "maxPriorityFeePerGas",
-            "type": "uint256"
-          },
-          {
-            "internalType": "uint256",
-            "name": "paymaster",
-            "type": "uint256"
-          },
-          {
-            "internalType": "uint256",
-            "name": "nonce",
-            "type": "uint256"
-          },
-          {
-            "internalType": "uint256",
-            "name": "value",
-            "type": "uint256"
-          },
-          {
-            "internalType": "uint256[4]",
-            "name": "reserved",
-            "type": "uint256[4]"
-          },
-          {
-            "internalType": "bytes",
-            "name": "data",
-            "type": "bytes"
-          },
-          {
-            "internalType": "bytes",
-            "name": "signature",
-            "type": "bytes"
-          },
-          {
-            "internalType": "bytes32[]",
-            "name": "factoryDeps",
-            "type": "bytes32[]"
-          },
-          {
-            "internalType": "bytes",
-            "name": "paymasterInput",
-            "type": "bytes"
-          },
-          {
-            "internalType": "bytes",
-            "name": "reservedDynamic",
-            "type": "bytes"
-          }
-        ],
-        "internalType": "struct Transaction",
-        "name": "transaction",
-        "type": "tuple"
-      }
-    ],
-    "name": "_verifyMatchingTarget",
-    "outputs": [],
-    "stateMutability": "pure",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
         "components": [
           {
             "internalType": "RuleKey",
@@ -721,9 +287,38 @@
             "type": "uint256"
           },
           {
-            "internalType": "bytes",
-            "name": "data",
-            "type": "bytes"
+            "components": [
+              {
+                "internalType": "enum InternalSelector",
+                "name": "selector",
+                "type": "uint8"
+              },
+              {
+                "internalType": "bytes",
+                "name": "args",
+                "type": "bytes"
+              }
+            ],
+            "internalType": "struct Verifier[]",
+            "name": "signatureVerifiers",
+            "type": "tuple[]"
+          },
+          {
+            "components": [
+              {
+                "internalType": "enum InternalSelector",
+                "name": "selector",
+                "type": "uint8"
+              },
+              {
+                "internalType": "bytes",
+                "name": "args",
+                "type": "bytes"
+              }
+            ],
+            "internalType": "struct Verifier[]",
+            "name": "txVerifiers",
+            "type": "tuple[]"
           }
         ],
         "internalType": "struct Rule",
@@ -734,19 +329,6 @@
     "name": "addRule",
     "outputs": [],
     "stateMutability": "payable",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "domainSeparator",
-    "outputs": [
-      {
-        "internalType": "bytes32",
-        "name": "",
-        "type": "bytes32"
-      }
-    ],
-    "stateMutability": "view",
     "type": "function"
   },
   {
@@ -954,115 +536,43 @@
       {
         "components": [
           {
-            "internalType": "uint256",
-            "name": "txType",
-            "type": "uint256"
-          },
-          {
-            "internalType": "uint256",
-            "name": "from",
-            "type": "uint256"
-          },
-          {
-            "internalType": "uint256",
-            "name": "to",
-            "type": "uint256"
-          },
-          {
-            "internalType": "uint256",
-            "name": "gasLimit",
-            "type": "uint256"
-          },
-          {
-            "internalType": "uint256",
-            "name": "gasPerPubdataByteLimit",
-            "type": "uint256"
-          },
-          {
-            "internalType": "uint256",
-            "name": "maxFeePerGas",
-            "type": "uint256"
-          },
-          {
-            "internalType": "uint256",
-            "name": "maxPriorityFeePerGas",
-            "type": "uint256"
-          },
-          {
-            "internalType": "uint256",
-            "name": "paymaster",
-            "type": "uint256"
-          },
-          {
-            "internalType": "uint256",
-            "name": "nonce",
-            "type": "uint256"
-          },
-          {
-            "internalType": "uint256",
-            "name": "value",
-            "type": "uint256"
-          },
-          {
-            "internalType": "uint256[4]",
-            "name": "reserved",
-            "type": "uint256[4]"
-          },
-          {
-            "internalType": "bytes",
-            "name": "data",
-            "type": "bytes"
-          },
-          {
-            "internalType": "bytes",
-            "name": "signature",
-            "type": "bytes"
-          },
-          {
-            "internalType": "bytes32[]",
-            "name": "factoryDeps",
-            "type": "bytes32[]"
-          },
-          {
-            "internalType": "bytes",
-            "name": "paymasterInput",
-            "type": "bytes"
-          },
-          {
-            "internalType": "bytes",
-            "name": "reservedDynamic",
-            "type": "bytes"
-          }
-        ],
-        "internalType": "struct Transaction",
-        "name": "transaction",
-        "type": "tuple"
-      }
-    ],
-    "name": "hashTx",
-    "outputs": [
-      {
-        "internalType": "bytes32",
-        "name": "",
-        "type": "bytes32"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "components": [
-          {
             "internalType": "RuleKey",
             "name": "key",
             "type": "uint256"
           },
           {
-            "internalType": "bytes",
-            "name": "data",
-            "type": "bytes"
+            "components": [
+              {
+                "internalType": "enum InternalSelector",
+                "name": "selector",
+                "type": "uint8"
+              },
+              {
+                "internalType": "bytes",
+                "name": "args",
+                "type": "bytes"
+              }
+            ],
+            "internalType": "struct Verifier[]",
+            "name": "signatureVerifiers",
+            "type": "tuple[]"
+          },
+          {
+            "components": [
+              {
+                "internalType": "enum InternalSelector",
+                "name": "selector",
+                "type": "uint8"
+              },
+              {
+                "internalType": "bytes",
+                "name": "args",
+                "type": "bytes"
+              }
+            ],
+            "internalType": "struct Verifier[]",
+            "name": "txVerifiers",
+            "type": "tuple[]"
           }
         ],
         "internalType": "struct Rule[]",

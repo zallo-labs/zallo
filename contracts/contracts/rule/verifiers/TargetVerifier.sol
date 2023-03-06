@@ -3,19 +3,19 @@ pragma solidity ^0.8.0;
 
 import {Transaction} from '@matterlabs/zksync-contracts/l2/system-contracts/libraries/TransactionHelper.sol';
 
-abstract contract MatchingTargetVerifier {
-  error DidNotMatchTarget(address actual, address expected);
-  error DidNotMatchAnyTarget(address actual, address[] expectedAnyOf);
+library TargetVerifier {
+  error NotTarget(address actual, address expected);
+  error NotAnyOfTargets(address actual, address[] expectedAnyOf);
 
-  function _verifyMatchingTarget(address target, Transaction memory transaction) public pure {
+  function verifyTarget(address target, Transaction memory transaction) internal pure {
     address to = address(uint160(transaction.to));
-    if (target != to) revert DidNotMatchTarget(to, target);
+    if (target != to) revert NotTarget(to, target);
   }
 
-  function _verifyMatchingAnyTarget(
+  function verifyAnyOfTargets(
     address[] memory targets,
     Transaction memory transaction
-  ) public pure {
+  ) internal pure {
     address to = address(uint160(transaction.to));
 
     uint256 targetsLen = targets.length;
@@ -27,6 +27,6 @@ abstract contract MatchingTargetVerifier {
       }
     }
 
-    revert DidNotMatchAnyTarget(to, targets);
+    revert NotAnyOfTargets(to, targets);
   }
 }

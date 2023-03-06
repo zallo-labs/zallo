@@ -16,7 +16,13 @@
     "type": "constructor"
   },
   {
-    "inputs": [],
+    "inputs": [
+      {
+        "internalType": "bytes",
+        "name": "data",
+        "type": "bytes"
+      }
+    ],
     "name": "NoInitializationDataProvided",
     "type": "error"
   },

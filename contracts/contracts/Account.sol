@@ -4,28 +4,34 @@ pragma solidity ^0.8.0;
 import {IAccount} from '@matterlabs/zksync-contracts/l2/system-contracts/interfaces/IAccount.sol';
 import {Transaction, TransactionHelper} from '@matterlabs/zksync-contracts/l2/system-contracts/libraries/TransactionHelper.sol';
 import {ACCOUNT_VALIDATION_SUCCESS_MAGIC} from '@matterlabs/zksync-contracts/l2/system-contracts/interfaces/IAccount.sol';
-import {INonceHolder, NONCE_HOLDER_SYSTEM_CONTRACT, BOOTLOADER_FORMAL_ADDRESS} from '@matterlabs/zksync-contracts/l2/system-contracts/Constants.sol';
+import {IContractDeployer, DEPLOYER_SYSTEM_CONTRACT, BOOTLOADER_FORMAL_ADDRESS} from '@matterlabs/zksync-contracts/l2/system-contracts/Constants.sol';
 import {SystemContractsCaller} from '@matterlabs/zksync-contracts/l2/system-contracts/libraries/SystemContractsCaller.sol';
 
 import {Initializable} from './Initializable.sol';
 import {Upgradeable} from './Upgradeable.sol';
-import {TransactionExecutor} from './TransactionExecutor.sol';
 import {Rule, RuleKey} from './rule/Rule.sol';
 import {RuleManager} from './rule/RuleManager.sol';
-import {RuleValidator} from './rule/RuleValidator.sol';
+import {RuleVerifier} from './rule/RuleVerifier.sol';
+import {Executor} from './Executor.sol';
 import {ERC165} from './standards/ERC165.sol';
 import {ERC721Receiver} from './standards/ERC721Receiver.sol';
+import {ERC1271Validator} from './standards/ERC1271Validator.sol';
+import {TransactionHasher} from './standards/TransactionHasher.sol';
 
 contract Account is
   IAccount,
   Initializable,
   Upgradeable,
-  TransactionExecutor,
   RuleManager,
-  RuleValidator,
+  RuleVerifier,
+  Executor,
   ERC165,
-  ERC721Receiver
+  ERC721Receiver,
+  ERC1271Validator
 {
+  using TransactionHelper for Transaction;
+  using TransactionHasher for Transaction;
+
   error InsufficientBalance();
   error FailedToPayBootloader();
   error OnlyCallableByBootloader();
@@ -40,14 +46,8 @@ contract Account is
   }
 
   function initialize(Rule[] calldata rules) external initializer {
-    uint256 rulesLen = rules.length;
-    for (uint256 i; i < rulesLen; ) {
-      _addRule(rules[i]);
-
-      unchecked {
-        ++i;
-      }
-    }
+    _addRules(rules);
+    // _initializeArbitraryNonceOrdering();
   }
 
   /*//////////////////////////////////////////////////////////////
@@ -68,8 +68,20 @@ contract Account is
     bytes32 /* suggestedSignedHash */,
     Transaction calldata transaction
   ) external payable override onlyBootloader returns (bytes4 magic) {
-    _validateTransaction(_hashTx(transaction), transaction);
-    return ACCOUNT_VALIDATION_SUCCESS_MAGIC;
+    _validateTransaction(transaction.hash(), transaction);
+    magic = ACCOUNT_VALIDATION_SUCCESS_MAGIC;
+  }
+
+  function _validateTransaction(bytes32 txHash, Transaction calldata transaction) internal {
+    _incrementNonceIfEquals(transaction);
+
+    if (transaction.totalRequiredBalance() > address(this).balance) revert InsufficientBalance();
+
+    (Rule memory rule, bytes[] memory signatures) = _decodeAndVerifySignature(
+      transaction.signature
+    );
+    _verifySignatureRule(rule, signatures, txHash);
+    _verifyTransactionRule(rule, transaction);
   }
 
   /// @inheritdoc IAccount
@@ -78,43 +90,16 @@ contract Account is
     bytes32 /* suggestedSignedHash */,
     Transaction calldata transaction
   ) external payable override onlyBootloader {
-    _executeTransaction(_hashTx(transaction), transaction);
+    _executeTransaction(transaction.hash(), transaction);
   }
 
   /// @inheritdoc IAccount
   function executeTransactionFromOutside(
     Transaction calldata transaction
   ) external payable override {
-    bytes32 txHash = _hashTx(transaction);
+    bytes32 txHash = transaction.hash();
     _validateTransaction(txHash, transaction);
     _executeTransaction(txHash, transaction);
-  }
-
-  function _validateTransaction(bytes32 txHash, Transaction calldata transaction) internal {
-    _revertIfExecuted(txHash);
-
-    SystemContractsCaller.systemCallWithPropagatedRevert(
-      uint32(gasleft()),
-      address(NONCE_HOLDER_SYSTEM_CONTRACT),
-      0,
-      abi.encodeCall(INonceHolder.incrementMinNonceIfEquals, (transaction.nonce))
-    );
-
-    if (TransactionHelper.totalRequiredBalance(transaction) > address(this).balance)
-      revert InsufficientBalance();
-
-    SystemContractsCaller.systemCallWithPropagatedRevert(
-      uint32(gasleft()),
-      address(NONCE_HOLDER_SYSTEM_CONTRACT),
-      0,
-      abi.encodeCall(INonceHolder.incrementMinNonceIfEquals, (transaction.nonce))
-    );
-
-    (Rule memory rule, bytes[] memory signatures) = abi.decode(
-      transaction.signature,
-      (Rule, bytes[])
-    );
-    _validateRule(rule, transaction, txHash, signatures);
   }
 
   /*//////////////////////////////////////////////////////////////
@@ -126,7 +111,7 @@ contract Account is
     bytes32, // suggestedSignedHash
     Transaction calldata transaction
   ) external payable override onlyBootloader {
-    bool success = TransactionHelper.payToTheBootloader(transaction);
+    bool success = transaction.payToTheBootloader();
     if (!success) revert FailedToPayBootloader();
   }
 
@@ -135,7 +120,7 @@ contract Account is
     bytes32, // suggestedSignedHash
     Transaction calldata transaction
   ) external payable override onlyBootloader {
-    TransactionHelper.processPaymasterInput(transaction);
+    transaction.processPaymasterInput();
   }
 
   /*//////////////////////////////////////////////////////////////

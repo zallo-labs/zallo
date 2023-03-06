@@ -5,18 +5,25 @@ type RuleKey is uint256;
 
 struct Rule {
   RuleKey key;
-  bytes data;
+  Verifier[] signatureVerifiers;
+  Verifier[] txVerifiers;
 }
 
-bytes4 constant CONDITION_SUCCESS_MAGIC = 0xf85707c1; // bytes4(keccak256("Condition.success"));
-
-uint8 constant CONDITION_CONTEXT_TX = 2 >> 0;
-uint8 constant CONDITION_CONTEXT_HASH = 2 >> 1;
-uint8 constant CONDITION_CONTEXT_SIGNATURES = 2 >> 3;
-
-struct Condition {
-  address contractAddr;
-  bytes4 selector;
-  uint8 context; // 0 0 0 0 0 signatures hash tx
+struct Verifier {
+  InternalSelector selector;
   bytes args;
+}
+
+enum InternalSelector {
+  Approvers,
+  Function,
+  AnyOfFunctions,
+  Target,
+  AnyOfTargets
+}
+
+library RuleHelper {
+  function hash(Rule memory rule) internal pure returns (bytes32) {
+    return keccak256(abi.encode(rule.signatureVerifiers, rule.txVerifiers));
+  }
 }
