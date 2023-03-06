@@ -1,5 +1,15 @@
 export type MaybePromise<T> = T | Promise<T>;
 
+export type AwaitedObj<T> = {
+  [K in keyof T]: T[K] extends Promise<infer U>
+    ? U extends object
+      ? AwaitedObj<U>
+      : Awaited<U>
+    : T[K] extends object
+    ? AwaitedObj<T[K]>
+    : Awaited<T[K]>;
+};
+
 type TupleSplit<T, N extends number, O extends readonly any[] = readonly []> = O['length'] extends N
   ? [O, T]
   : T extends readonly [infer F, ...infer R]

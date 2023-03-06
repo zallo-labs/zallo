@@ -1,35 +1,18 @@
 import { TypedDataDomain, TypedDataField } from '@ethersproject/abstract-signer';
 import { BigNumber, ethers } from 'ethers';
-import { hexDataLength, hexlify, randomBytes } from 'ethers/lib/utils';
 import { Addresslike } from './addr';
 import { ZERO } from './bignum';
-import { EMPTY_BYTES, zeroHexBytes } from './bytes';
+import { EMPTY_BYTES } from './bytes';
 import { Call } from './call';
 
-export type TxSalt = string & { isTxSalt: true };
-const TX_SALT_BYTES = 8;
-
-export const randomTxSalt = (): TxSalt => hexlify(randomBytes(TX_SALT_BYTES)) as TxSalt;
-
-export const toTxSalt = (v: string): TxSalt => {
-  if (hexDataLength(v) !== TX_SALT_BYTES) throw new Error('Invalid tx salt: ' + v);
-
-  return v as TxSalt;
-};
-
-export const ZERO_TX_SALT = zeroHexBytes(TX_SALT_BYTES) as TxSalt;
-
 export interface Tx extends Call {
-  salt: TxSalt;
+  nonce: BigNumber;
   gasLimit?: BigNumber;
 }
 
-export type TxOptions = Omit<Tx, 'salt'> & Partial<Pick<Tx, 'salt'>>;
+export type TxOptions = Tx;
 
-export const toTx = (opts: TxOptions): Tx => ({
-  ...opts,
-  salt: opts.salt ?? randomTxSalt(),
-});
+export const toTx = (opts: TxOptions): Tx => opts;
 
 export type TypedDataTypes = Record<string, TypedDataField[]>;
 
@@ -38,7 +21,7 @@ export const TX_EIP712_TYPE: TypedDataTypes = {
     { name: 'to', type: 'address' },
     { name: 'value', type: 'uint256' },
     { name: 'data', type: 'bytes' },
-    { name: 'salt', type: 'bytes8' },
+    { name: 'nonce', type: 'uint256' },
   ],
 };
 
@@ -60,5 +43,5 @@ export const hashTx = async (tx: Tx, domainParams: GetDomainParams) =>
     to: tx.to,
     value: tx.value ?? ZERO,
     data: tx.data ?? EMPTY_BYTES,
-    salt: tx.salt,
+    nonce: tx.nonce,
   } satisfies Tx);

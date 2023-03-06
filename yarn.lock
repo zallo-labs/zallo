@@ -29358,6 +29358,8 @@ __metadata:
     lodash: ^4.17.21
     merkletreejs: ^0.3.9
     ts-jest: ^29.0.5
+    ts-pattern: ^4.2.1
+    ts-toolbelt: ^9.6.0
     typechain: ^8.1.1
     typescript: ^4.9.4
     zksync-web3: ^0.13.4
@@ -40619,6 +40621,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"ts-pattern@npm:^4.2.1":
+  version: 4.2.1
+  resolution: "ts-pattern@npm:4.2.1"
+  checksum: bafff4f5fa74cb697b679a3a7a276c5102fa0712570e3fa1cb5ccb1e36aaabbd21d1207878cd9aa3c23a2b87b2b26f90ec32904d98fd8b53c681c41c14e03260
+  languageName: node
+  linkType: hard
+
 "ts-pnp@npm:^1.1.6":
   version: 1.2.0
   resolution: "ts-pnp@npm:1.2.0"
@@ -40626,6 +40635,13 @@ __metadata:
     typescript:
       optional: true
   checksum: c2a698b85d521298fe6f2435fbf2d3dc5834b423ea25abd321805ead3f399dbeedce7ca09492d7eb005b9d2c009c6b9587055bc3ab273dc6b9e40eefd7edb5b2
+  languageName: node
+  linkType: hard
+
+"ts-toolbelt@npm:^9.6.0":
+  version: 9.6.0
+  resolution: "ts-toolbelt@npm:9.6.0"
+  checksum: 9f35fd95d895a5d32ea9fd2e532a695b0bae6cbff6832b77292efa188a0ed1ed6e54f63f74a8920390f3d909a7a3adb20a144686372a8e78b420246a9bd3d58a
   languageName: node
   linkType: hard
 

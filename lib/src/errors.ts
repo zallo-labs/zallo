@@ -23,9 +23,10 @@ const ACCOUNT_ERRORS = [
   'DidNotMatchTarget',
   'DidNotMatchAnyTarget',
 ] as const;
-
 export const AccountError = toObj<(typeof ACCOUNT_ERRORS)[number]>(ACCOUNT_ERRORS);
 
-const FACTORY_ERRORS = ['DeployFailed'] as const;
+const ACCOUNT_PROXY_ERRORS = ['NoInitializationDataProvided'] as const;
+export const AccountProxyError = toObj<(typeof ACCOUNT_PROXY_ERRORS)[number]>(ACCOUNT_PROXY_ERRORS);
 
+const FACTORY_ERRORS = ['DeployFailed'] as const;
 export const FactoryError = toObj<(typeof FACTORY_ERRORS)[number]>(FACTORY_ERRORS);

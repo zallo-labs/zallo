@@ -1,18 +1,11 @@
-import { BytesLike, ethers, Signer } from 'ethers';
-import { Address, address, Addresslike } from './addr';
-import {
-  Factory,
-  Factory__factory,
-  Account__factory,
-  ERC1967Proxy__factory,
-  TestAccount__factory,
-  Multicall__factory,
-} from './contracts';
+import { BytesLike } from 'ethers';
+import { Address, address } from './addr';
+import { Factory } from './contracts/Factory';
 import { defaultAbiCoder, hexlify, isHexString, randomBytes } from 'ethers/lib/utils';
 import * as zk from 'zksync-web3';
-import { UserWallet } from './user';
 import { ACCOUNT_INTERFACE } from './decode';
-import { Quorum, toQuorumDefinitionStruct } from './quorum';
+import { Rule } from './rule';
+import { AccountProxy__factory, Account__factory } from './contracts';
 
 export type DeploySalt = string & { isDeploySalt: true };
 const DEPLOY_SALT_BYTES = 32;
@@ -26,28 +19,17 @@ export const toDeploySalt = (v: string): DeploySalt => {
 
 export const randomDeploySalt = () => hexlify(randomBytes(DEPLOY_SALT_BYTES)) as DeploySalt;
 
-const createConnect =
-  <T>(f: (addr: string, signer: Signer | ethers.providers.Provider | UserWallet) => T) =>
-  (addr: Addresslike, signer: Signer | ethers.providers.Provider | UserWallet): T =>
-    f(address(addr), signer);
-
-export const connectFactory = createConnect(Factory__factory.connect);
-export const connectAccount = createConnect(Account__factory.connect);
-export const connectTestAccount = createConnect(TestAccount__factory.connect);
-export const connectProxy = createConnect(ERC1967Proxy__factory.connect);
-export const connectMulticall = createConnect(Multicall__factory.connect);
-
 export interface AccountConstructorArgs {
-  quorums: Quorum[];
+  rules: Rule[];
 }
 
 export interface ProxyConstructorArgs extends AccountConstructorArgs {
   impl: Address;
 }
 
-export const encodeProxyConstructorArgs = ({ quorums, impl }: ProxyConstructorArgs) => {
+export const encodeProxyConstructorArgs = ({ rules, impl }: ProxyConstructorArgs) => {
   const encodedInitializeCall = ACCOUNT_INTERFACE.encodeFunctionData('initialize', [
-    quorums.map(toQuorumDefinitionStruct),
+    rules.map((r) => r.struct),
   ]);
 
   return defaultAbiCoder.encode(
@@ -84,8 +66,8 @@ export const deployAccountProxy = async (
   await deployTx.wait();
 
   return {
-    proxy: connectProxy(addr, factory.signer),
-    account: connectAccount(addr, factory.signer),
+    proxy: AccountProxy__factory.connect(addr, factory.signer),
+    account: Account__factory.connect(addr, factory.signer),
     salt,
     deployTx,
   };

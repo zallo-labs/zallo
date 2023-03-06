@@ -1,9 +1,9 @@
 import { BytesLike, ethers } from 'ethers';
 import { defaultAbiCoder } from 'ethers/lib/utils';
 import { Address, compareAddress } from './addr';
+import { Approver } from './approver';
+import { Rule } from './rule';
 import { hashTx, Tx } from './tx';
-import { UserWallet } from './user';
-import { Quorum, QUORUM_ABI, QUORUM_KEY_ABI, toQuorumStruct } from './quorum';
 
 export type SignatureLike = Parameters<typeof ethers.utils.splitSignature>[0];
 
@@ -11,24 +11,21 @@ export type SignatureLike = Parameters<typeof ethers.utils.splitSignature>[0];
 export const toCompactSignature = (signature: SignatureLike) =>
   ethers.utils.splitSignature(signature).compact;
 
-export interface Signer {
-  approver: Address;
+export interface Approval {
+  signer: Address;
   signature: BytesLike;
 }
 
-export const toAccountSignature = (quorum: Quorum, signers: Signer[]): BytesLike => {
-  const signatures = signers
-    .sort((a, b) => compareAddress(a.approver, b.approver))
+export const encodeAccountSignature = (rule: Rule, approvals: Approval[]): BytesLike => {
+  const signatures = approvals
+    .sort((a, b) => compareAddress(a.signer, b.signer))
     .map((s) => toCompactSignature(s.signature));
 
-  return defaultAbiCoder.encode(
-    [QUORUM_KEY_ABI, QUORUM_ABI, 'bytes[] signatures'],
-    [quorum.key, toQuorumStruct(quorum), signatures],
-  );
+  return defaultAbiCoder.encode([Rule.ABI, 'bytes[] signatures'], [rule.struct, signatures]);
 };
 
-export const signProposal = (id: string, device: UserWallet) =>
-  ethers.utils.joinSignature(device._signingKey().signDigest(id));
+export const signDigest = (digest: string, approver: Approver) =>
+  ethers.utils.joinSignature(approver._signingKey().signDigest(digest));
 
-export const signTx = async (wallet: UserWallet, account: Address, tx: Tx) =>
-  signProposal(await hashTx(tx, { address: account, provider: wallet.provider }), wallet);
+export const signTx = async (approver: Approver, account: Address, tx: Tx) =>
+  signDigest(await hashTx(tx, { address: account, provider: approver.provider }), approver);
