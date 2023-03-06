@@ -1,29 +1,45 @@
 import { expect } from 'chai';
+import { BigNumber } from 'ethers';
 import { parseEther } from 'ethers/lib/utils';
-import { toTx, hashTx, Tester } from 'lib';
-import { deployProxy, DeployProxyData, deployTester, SIGNERS } from './util';
+import { toTx, hashTx, TestUtil, address, TestUtil__factory, ZERO } from 'lib';
+import { deploy, deployProxy, DeployProxyData, WALLET, WALLETS } from './util';
 
 describe('Execution', () => {
   let { account, execute } = {} as DeployProxyData;
-  let tester = {} as Tester;
+  let tester = {} as TestUtil;
+
+  let nonce: BigNumber = ZERO;
+  const nonceAndInc = () => {
+    const n = nonce;
+    nonce = nonce.add(1);
+    return n;
+  };
+
   before(async () => {
-    ({ account, execute } = await deployProxy({ extraBalance: parseEther('0.0001') }));
-    tester = await deployTester();
+    ({ account, execute } = await deployProxy({
+      extraBalance: parseEther('0.0001'),
+      nApprovers: 0,
+    }));
+    tester = TestUtil__factory.connect((await deploy('TestUtil')).address, WALLET);
   });
 
   it('should send the specified value', async () => {
-    const to = SIGNERS[SIGNERS.length - 1];
+    const to = WALLETS[WALLETS.length - 1];
     const value = parseEther('0.00001');
 
-    await expect(execute({ to: to.address, value })).to.changeEtherBalance(to, value);
+    await expect(execute({ to: to.address, value, nonce: nonceAndInc() })).to.changeEtherBalance(
+      to,
+      value,
+    );
   });
 
   it('should call with the specified data', async () => {
     const data = '0xabc123';
     await expect(
       execute({
-        to: tester.address,
+        to: address(tester.address),
         data: tester.interface.encodeFunctionData('echo', [data]),
+        nonce: nonceAndInc(),
       }),
     )
       .to.emit(tester, tester.interface.events['Echo(bytes)'].name)
@@ -33,8 +49,9 @@ describe('Execution', () => {
   it('should emit an event with the response', async () => {
     const data = '0xabc123';
     const txReq = toTx({
-      to: tester.address,
+      to: address(tester.address),
       data: tester.interface.encodeFunctionData('echo', [data]),
+      nonce: nonceAndInc(),
     });
 
     await expect(execute(txReq))
@@ -46,21 +63,10 @@ describe('Execution', () => {
   });
 
   it('should revert if the transaction has already been executed', async () => {
-    const txDef = toTx({ to: account.address });
+    const tx = toTx({ to: WALLET.address, nonce: nonceAndInc() });
+    await (await execute(tx)).wait();
 
-    await (await execute(txDef)).wait();
-
-    let threw = false;
-    try {
-      await (await execute(txDef)).wait();
-    } catch (e) {
-      // console.log(e instanceof Error && e.message);
-      expect(e instanceof Error && e.message).to.contain(
-        'Validation revert: Account validation error',
-      );
-      threw = true;
-    }
-    expect(threw).to.be.eq(true, 'Expected to throw');
+    await expect(execute(tx)).to.be.rejected;
   });
 
   it('should revert if the transaction reverts without a message', async () => {
@@ -72,8 +78,9 @@ describe('Execution', () => {
     try {
       await (
         await execute({
-          to: tester.address,
+          to: address(tester.address),
           data: tester.interface.encodeFunctionData('revertWithoutReason'),
+          nonce: nonceAndInc(),
         })
       ).wait();
 
@@ -96,8 +103,9 @@ describe('Execution', () => {
     try {
       await (
         await execute({
-          to: tester.address,
+          to: address(tester.address),
           data: tester.interface.encodeFunctionData('revertWithReason'),
+          nonce: nonceAndInc(),
         })
       ).wait();
 
