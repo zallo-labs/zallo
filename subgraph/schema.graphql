@@ -2,7 +2,7 @@ type Account @entity {
   "{address}"
   id: Bytes!
   impl: AccountImpl!
-  quorums: [Quorum!]! @derivedFrom(field: "account")
+  rules: [Rule!]! @derivedFrom(field: "account")
   transactions: [Transaction!]! @derivedFrom(field: "account")
   transfers: [Transfer!]! @derivedFrom(field: "account")
 }
@@ -30,12 +30,12 @@ type Transaction @entity {
   transfers: [Transfer!]! @derivedFrom(field: "transaction")
 }
 
-type Quorum @entity {
+type Rule @entity {
   "{account.id}-{key}"
   id: String!
   account: Account!
   key: BigInt!
-  hash: Bytes!
+  dataHash: Bytes!
 }
 
 type Transfer @entity {

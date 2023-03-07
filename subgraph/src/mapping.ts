@@ -1,2 +1,2 @@
 export { handleTransactionExecuted, handleTransactionReverted } from './transaction';
-export { handleQuorumUpserted, handleQuorumRemoved } from './quorum';
+export { handleRuleAdded, handleRuleRemoved } from './rule';
