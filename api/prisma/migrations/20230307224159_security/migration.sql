@@ -45,7 +45,7 @@ GRANT EXECUTE ON FUNCTION is_user_account(text) TO "user";
 
 
 /* User */
-GRANT SELECT ("id", "name"), INSERT, UPDATE ("name", "pushToken") ON "User" TO PUBLIC;
+GRANT SELECT, INSERT, UPDATE ("name", "pushToken") ON "User" TO PUBLIC;
 ALTER TABLE "User" ENABLE ROW LEVEL SECURITY;
 
 CREATE POLICY public_view ON "User" FOR SELECT
@@ -71,29 +71,29 @@ CREATE POLICY member_all ON "Account" FOR ALL
 
 
 
-/* Rule */
-GRANT SELECT, INSERT, UPDATE ("key", "name", "activeId", "draftId") ON "Rule" TO PUBLIC;
-ALTER TABLE "Rule" ENABLE ROW LEVEL SECURITY;
+/* Policy */
+GRANT SELECT, INSERT, UPDATE ("key", "name", "activeId", "draftId") ON "Policy" TO PUBLIC;
+ALTER TABLE "Policy" ENABLE ROW LEVEL SECURITY;
 
-CREATE POLICY account_member_select ON "Rule" FOR SELECT
+CREATE POLICY account_member_select ON "Policy" FOR SELECT
     USING (is_user_account("accountId"));
 
-CREATE POLICY account_member_insert ON "Rule" FOR INSERT
+CREATE POLICY account_member_insert ON "Policy" FOR INSERT
     WITH CHECK (is_user_account("accountId"));
 
-CREATE POLICY account_member_update ON "Rule" FOR UPDATE
+CREATE POLICY account_member_update ON "Policy" FOR UPDATE
     USING (is_user_account("accountId"));
 
-CREATE POLICY account_member_delete ON "Rule" FOR DELETE
+CREATE POLICY account_member_delete ON "Policy" FOR DELETE
     USING (is_user_account("accountId") AND "activeId" IS NULL);
 
 
 
-/* RuleState */
-GRANT SELECT, INSERT ON "RuleState" TO PUBLIC;
-ALTER TABLE "RuleState" ENABLE ROW LEVEL SECURITY;
+/* PolicyRules */
+GRANT SELECT, INSERT ON "PolicyRules" TO PUBLIC;
+ALTER TABLE "PolicyRules" ENABLE ROW LEVEL SECURITY;
 
-CREATE POLICY account_member_all ON "RuleState" FOR ALL
+CREATE POLICY account_member_all ON "PolicyRules" FOR ALL
     USING (is_user_account("accountId"));
 
 
@@ -104,7 +104,7 @@ ALTER TABLE "Approver" ENABLE ROW LEVEL SECURITY;
 
 CREATE POLICY account_member_all ON "Approver" FOR ALL
     USING (is_user_account(
-        (SELECT "accountId" FROM "RuleState" WHERE "id" = "ruleStateId")
+        (SELECT "accountId" FROM "PolicyRules" WHERE "id" = "policyRulesId")
     ));
 
 

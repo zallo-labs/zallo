@@ -28,50 +28,36 @@ CREATE TABLE "Contact" (
 );
 
 -- CreateTable
-CREATE TABLE "Rule" (
+CREATE TABLE "Policy" (
     "accountId" CHAR(42) NOT NULL,
-    "key" INTEGER NOT NULL,
+    "key" BIGINT NOT NULL,
     "name" TEXT NOT NULL,
-    "activeId" INTEGER,
-    "draftId" INTEGER,
+    "activeId" BIGINT,
+    "draftId" BIGINT,
 
-    CONSTRAINT "Rule_pkey" PRIMARY KEY ("accountId","key")
+    CONSTRAINT "Policy_pkey" PRIMARY KEY ("accountId","key")
 );
 
 -- CreateTable
-CREATE TABLE "RuleState" (
-    "id" SERIAL NOT NULL,
+CREATE TABLE "PolicyRules" (
+    "id" BIGSERIAL NOT NULL,
     "accountId" CHAR(42) NOT NULL,
-    "ruleKey" INTEGER NOT NULL,
+    "policyKey" BIGINT NOT NULL,
     "proposalId" CHAR(66),
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "isRemoved" BOOLEAN NOT NULL DEFAULT false,
+    "onlyFunctions" CHAR(10)[],
+    "onlyTargets" CHAR(66)[],
 
-    CONSTRAINT "RuleState_pkey" PRIMARY KEY ("id")
+    CONSTRAINT "PolicyRules_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
 CREATE TABLE "Approver" (
-    "ruleStateId" INTEGER NOT NULL,
+    "policyRulesId" BIGINT NOT NULL,
     "userId" CHAR(42) NOT NULL,
 
-    CONSTRAINT "Approver_pkey" PRIMARY KEY ("ruleStateId","userId")
-);
-
--- CreateTable
-CREATE TABLE "FunctionSelector" (
-    "ruleStateId" INTEGER NOT NULL,
-    "selector" CHAR(10) NOT NULL,
-
-    CONSTRAINT "FunctionSelector_pkey" PRIMARY KEY ("ruleStateId","selector")
-);
-
--- CreateTable
-CREATE TABLE "Target" (
-    "ruleStateId" INTEGER NOT NULL,
-    "address" CHAR(66) NOT NULL,
-
-    CONSTRAINT "Target_pkey" PRIMARY KEY ("ruleStateId","address")
+    CONSTRAINT "Approver_pkey" PRIMARY KEY ("policyRulesId","userId")
 );
 
 -- CreateTable
@@ -149,7 +135,6 @@ CREATE TABLE "Reaction" (
     "emojis" TEXT[],
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
-    "accountId" CHAR(42),
 
     CONSTRAINT "Reaction_pkey" PRIMARY KEY ("commentId","userId")
 );
@@ -158,16 +143,16 @@ CREATE TABLE "Reaction" (
 CREATE UNIQUE INDEX "Contact_userId_name_key" ON "Contact"("userId", "name");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "Rule_activeId_key" ON "Rule"("activeId");
+CREATE UNIQUE INDEX "Policy_activeId_key" ON "Policy"("activeId");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "Rule_draftId_key" ON "Rule"("draftId");
+CREATE UNIQUE INDEX "Policy_draftId_key" ON "Policy"("draftId");
 
 -- CreateIndex
-CREATE INDEX "rule_createdAt" ON "RuleState"("accountId", "ruleKey", "createdAt" DESC);
+CREATE INDEX "policy_createdAt" ON "PolicyRules"("accountId", "policyKey", "createdAt" DESC);
 
 -- CreateIndex
-CREATE UNIQUE INDEX "RuleState_accountId_ruleKey_proposalId_key" ON "RuleState"("accountId", "ruleKey", "proposalId");
+CREATE UNIQUE INDEX "PolicyRules_accountId_policyKey_proposalId_key" ON "PolicyRules"("accountId", "policyKey", "proposalId");
 
 -- CreateIndex
 CREATE INDEX "ContractMethod_sighash_idx" ON "ContractMethod"("sighash");
@@ -179,34 +164,28 @@ CREATE INDEX "Comment_accountId_key_idx" ON "Comment"("accountId", "key");
 ALTER TABLE "Contact" ADD CONSTRAINT "Contact_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "Rule" ADD CONSTRAINT "Rule_accountId_fkey" FOREIGN KEY ("accountId") REFERENCES "Account"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE "Policy" ADD CONSTRAINT "Policy_accountId_fkey" FOREIGN KEY ("accountId") REFERENCES "Account"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "Rule" ADD CONSTRAINT "Rule_activeId_fkey" FOREIGN KEY ("activeId") REFERENCES "RuleState"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE "Policy" ADD CONSTRAINT "Policy_activeId_fkey" FOREIGN KEY ("activeId") REFERENCES "PolicyRules"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "Rule" ADD CONSTRAINT "Rule_draftId_fkey" FOREIGN KEY ("draftId") REFERENCES "RuleState"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE "Policy" ADD CONSTRAINT "Policy_draftId_fkey" FOREIGN KEY ("draftId") REFERENCES "PolicyRules"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "RuleState" ADD CONSTRAINT "RuleState_accountId_fkey" FOREIGN KEY ("accountId") REFERENCES "Account"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE "PolicyRules" ADD CONSTRAINT "PolicyRules_accountId_fkey" FOREIGN KEY ("accountId") REFERENCES "Account"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "RuleState" ADD CONSTRAINT "RuleState_accountId_ruleKey_fkey" FOREIGN KEY ("accountId", "ruleKey") REFERENCES "Rule"("accountId", "key") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE "PolicyRules" ADD CONSTRAINT "PolicyRules_accountId_policyKey_fkey" FOREIGN KEY ("accountId", "policyKey") REFERENCES "Policy"("accountId", "key") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "RuleState" ADD CONSTRAINT "RuleState_proposalId_fkey" FOREIGN KEY ("proposalId") REFERENCES "Proposal"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE "PolicyRules" ADD CONSTRAINT "PolicyRules_proposalId_fkey" FOREIGN KEY ("proposalId") REFERENCES "Proposal"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "Approver" ADD CONSTRAINT "Approver_ruleStateId_fkey" FOREIGN KEY ("ruleStateId") REFERENCES "RuleState"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE "Approver" ADD CONSTRAINT "Approver_policyRulesId_fkey" FOREIGN KEY ("policyRulesId") REFERENCES "PolicyRules"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "Approver" ADD CONSTRAINT "Approver_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE CASCADE ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE "FunctionSelector" ADD CONSTRAINT "FunctionSelector_ruleStateId_fkey" FOREIGN KEY ("ruleStateId") REFERENCES "RuleState"("id") ON DELETE CASCADE ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE "Target" ADD CONSTRAINT "Target_ruleStateId_fkey" FOREIGN KEY ("ruleStateId") REFERENCES "RuleState"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "Proposal" ADD CONSTRAINT "Proposal_accountId_fkey" FOREIGN KEY ("accountId") REFERENCES "Account"("id") ON DELETE CASCADE ON UPDATE CASCADE;
@@ -237,6 +216,3 @@ ALTER TABLE "Reaction" ADD CONSTRAINT "Reaction_commentId_fkey" FOREIGN KEY ("co
 
 -- AddForeignKey
 ALTER TABLE "Reaction" ADD CONSTRAINT "Reaction_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE CASCADE ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE "Reaction" ADD CONSTRAINT "Reaction_accountId_fkey" FOREIGN KEY ("accountId") REFERENCES "Account"("id") ON DELETE SET NULL ON UPDATE CASCADE;
