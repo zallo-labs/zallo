@@ -4,7 +4,7 @@ import { Factory } from './contracts/Factory';
 import { defaultAbiCoder, hexlify, isHexString, randomBytes } from 'ethers/lib/utils';
 import * as zk from 'zksync-web3';
 import { ACCOUNT_INTERFACE } from './decode';
-import { Rule } from './rule';
+import { Policy } from './policy';
 import { AccountProxy__factory, Account__factory } from './contracts';
 
 export type DeploySalt = string & { isDeploySalt: true };
@@ -20,7 +20,7 @@ export const toDeploySalt = (v: string): DeploySalt => {
 export const randomDeploySalt = () => hexlify(randomBytes(DEPLOY_SALT_BYTES)) as DeploySalt;
 
 export interface AccountConstructorArgs {
-  rules: Rule[];
+  rules: Policy[];
 }
 
 export interface ProxyConstructorArgs extends AccountConstructorArgs {

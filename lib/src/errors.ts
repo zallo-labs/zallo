@@ -12,14 +12,14 @@ const ACCOUNT_ERRORS = [
   'TransactionAlreadyExecuted',
   // RuleManager
   'RuleConditionFailed',
-  // ApproversVerifier
+  // ApprovalsRule
   'ApproverSignaturesMismatch',
   'InvalidApproverSignature',
-  // MatchingFunctionVerifier
+  // MatchingFunctionRule
   'NotFunctionCall',
   'DidNotMatchFunction',
   'DidNotMatchAnyFunctions',
-  // MatchingTargetVerifier
+  // MatchingTargetRule
   'DidNotMatchTarget',
   'DidNotMatchAnyTarget',
 ] as const;

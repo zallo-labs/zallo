@@ -3,10 +3,10 @@ import { expect } from 'chai';
 import { BytesLike } from 'ethers';
 import {
   address,
+  Policy,
   Rule,
-  Verifier,
-  TestRuleVerifier,
-  TestRuleVerifier__factory,
+  TestVerifier,
+  TestVerifier__factory,
   ZERO,
   zeroHexBytes,
   ZERO_ADDR,
@@ -36,30 +36,27 @@ const defaultTx: TransactionStruct = {
 const defaultTxHash = zeroHexBytes(32);
 
 interface ValidateOptions {
-  verifiers: Verifier[];
+  rules: Rule[];
   tx?: TransactionStruct;
   txHash?: string;
   signatures?: BytesLike[];
 }
 
-describe('RuleVerifier', () => {
-  let verifier = {} as TestRuleVerifier;
+describe('Verifier', () => {
+  let verifier = {} as TestVerifier;
 
   before(async () => {
-    verifier = TestRuleVerifier__factory.connect(
-      (await deploy('TestRuleVerifier')).address,
-      WALLET,
-    );
+    verifier = TestVerifier__factory.connect((await deploy('TestVerifier')).address, WALLET);
   });
 
   const verify = ({
-    verifiers,
+    rules: verifiers,
     tx = defaultTx,
     txHash = defaultTxHash,
     signatures = [],
   }: ValidateOptions) =>
-    verifier.functions.verifySignatureAndTransactionRules(
-      new Rule(1, verifiers).struct,
+    verifier.functions.verifySignatureAndTransactionPolicy(
+      new Policy(1, verifiers).struct,
       tx,
       txHash,
       signatures,
@@ -67,7 +64,7 @@ describe('RuleVerifier', () => {
     );
 
   it('succeed with no conditions', async () => {
-    await verify({ verifiers: [] });
+    await verify({ rules: [] });
   });
 
   // it('succeed with AlwaysPassVerifier', async () => {

@@ -9,9 +9,9 @@ import {SystemContractsCaller} from '@matterlabs/zksync-contracts/l2/system-cont
 
 import {Initializable} from './Initializable.sol';
 import {Upgradeable} from './Upgradeable.sol';
-import {Rule, RuleKey} from './rule/Rule.sol';
-import {RuleManager} from './rule/RuleManager.sol';
-import {RuleVerifier} from './rule/RuleVerifier.sol';
+import {Policy, PolicyKey} from './policy/Policy.sol';
+import {PolicyManager} from './policy/PolicyManager.sol';
+import {Verifier} from './policy/Verifier.sol';
 import {Executor} from './Executor.sol';
 import {ERC165} from './standards/ERC165.sol';
 import {ERC721Receiver} from './standards/ERC721Receiver.sol';
@@ -22,8 +22,8 @@ contract Account is
   IAccount,
   Initializable,
   Upgradeable,
-  RuleManager,
-  RuleVerifier,
+  PolicyManager,
+  Verifier,
   Executor,
   ERC165,
   ERC721Receiver,
@@ -45,8 +45,8 @@ contract Account is
     _disableInitializers();
   }
 
-  function initialize(Rule[] calldata rules) external initializer {
-    _addRules(rules);
+  function initialize(Policy[] calldata policies) external initializer {
+    _addPolicies(policies);
     // _initializeArbitraryNonceOrdering();
   }
 
@@ -77,11 +77,11 @@ contract Account is
 
     if (transaction.totalRequiredBalance() > address(this).balance) revert InsufficientBalance();
 
-    (Rule memory rule, bytes[] memory signatures) = _decodeAndVerifySignature(
+    (Policy memory policy, bytes[] memory signatures) = _decodeAndVerifySignature(
       transaction.signature
     );
-    _verifySignatureRule(rule, signatures, txHash);
-    _verifyTransactionRule(rule, transaction);
+    _verifySignaturePolicy(policy, signatures, txHash);
+    _verifyTransactionPolicy(policy, transaction);
   }
 
   /// @inheritdoc IAccount

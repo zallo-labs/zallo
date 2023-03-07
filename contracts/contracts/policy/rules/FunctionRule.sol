@@ -3,7 +3,7 @@ pragma solidity ^0.8.0;
 
 import {Transaction} from '@matterlabs/zksync-contracts/l2/system-contracts/libraries/TransactionHelper.sol';
 
-library FunctionVerifier {
+library FunctionRule {
   error NotFunctionCall();
   error NotFunction(bytes4 expectedSelector, bytes4 actualSelector);
   error NotAnyOfFunctions(bytes4[] expectedAnyOfSelectors, bytes4 actualSelector);

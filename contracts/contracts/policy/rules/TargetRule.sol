@@ -3,7 +3,7 @@ pragma solidity ^0.8.0;
 
 import {Transaction} from '@matterlabs/zksync-contracts/l2/system-contracts/libraries/TransactionHelper.sol';
 
-library TargetVerifier {
+library TargetRule {
   error NotTarget(address actual, address expected);
   error NotAnyOfTargets(address actual, address[] expectedAnyOf);
 

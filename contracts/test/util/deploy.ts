@@ -5,9 +5,9 @@ import {
   address,
   deployAccountProxy,
   Factory__factory,
-  Rule,
+  Policy,
   TestAccount__factory,
-  ApproversVerifier,
+  ApprovalsRule,
   Tx,
 } from 'lib';
 import { WALLETS, WALLET } from './wallet';
@@ -87,11 +87,11 @@ export const deployProxy = async ({
   extraBalance,
 }: DeployProxyOptions = {}) => {
   const approvers = new Set(WALLETS.slice(0, nApprovers).map((signer) => signer.address));
-  const rule = new Rule(1, nApprovers > 0 ? [new ApproversVerifier(approvers)] : []);
+  const policy = new Policy(1, nApprovers > 0 ? [new ApprovalsRule(approvers)] : []);
 
   const { factory } = await deployFactory('ERC1967Proxy');
   const { impl } = await deployAccountImpl({ contractName });
-  const { account } = await deployAccountProxy({ impl, rules: [rule] }, factory);
+  const { account } = await deployAccountProxy({ impl, rules: [policy] }, factory);
 
   const txResp = await WALLET.sendTransaction({
     to: account.address,
@@ -101,8 +101,8 @@ export const deployProxy = async ({
 
   return {
     account,
-    rule,
-    execute: (tx: Tx) => execute(account, rule, approvers, tx),
+    policy,
+    execute: (tx: Tx) => execute(account, policy, approvers, tx),
   };
 };
 

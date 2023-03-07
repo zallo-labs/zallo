@@ -3,11 +3,11 @@ pragma solidity ^0.8.0;
 
 import {Transaction} from '@matterlabs/zksync-contracts/l2/system-contracts/libraries/TransactionHelper.sol';
 
-import {ApproversVerifier} from '../rule/verifiers/ApproversVerifier.sol';
-import {FunctionVerifier} from '../rule/verifiers/FunctionVerifier.sol';
-import {TargetVerifier} from '../rule/verifiers/TargetVerifier.sol';
+import {ApprovalsRule} from '../policy/rules/ApprovalsRule.sol';
+import {FunctionRule} from '../policy/rules/FunctionRule.sol';
+import {TargetRule} from '../policy/rules/TargetRule.sol';
 
-contract TestVerifiers {
+contract TestRules {
   /*//////////////////////////////////////////////////////////////
                            APPROVERS VERIFIER
   //////////////////////////////////////////////////////////////*/
@@ -17,7 +17,7 @@ contract TestVerifiers {
     bytes32 hash,
     bytes[] memory signatures
   ) external view {
-    ApproversVerifier.verifyApprovers(approvers, hash, signatures);
+    ApprovalsRule.verifyApprovals(approvers, hash, signatures);
   }
 
   /*//////////////////////////////////////////////////////////////
@@ -25,14 +25,14 @@ contract TestVerifiers {
   //////////////////////////////////////////////////////////////*/
 
   function verifyFunction(bytes4 selector, Transaction memory transaction) external pure {
-    FunctionVerifier.verifyFunction(selector, transaction);
+    FunctionRule.verifyFunction(selector, transaction);
   }
 
   function verifyAnyOfFunctions(
     bytes4[] memory selectors,
     Transaction memory transaction
   ) external pure {
-    FunctionVerifier.verifyAnyOfFunctions(selectors, transaction);
+    FunctionRule.verifyAnyOfFunctions(selectors, transaction);
   }
 
   /*//////////////////////////////////////////////////////////////
@@ -40,13 +40,13 @@ contract TestVerifiers {
   //////////////////////////////////////////////////////////////*/
 
   function verifyTarget(address target, Transaction memory transaction) external pure {
-    TargetVerifier.verifyTarget(target, transaction);
+    TargetRule.verifyTarget(target, transaction);
   }
 
   function verifyAnyOfTargets(
     address[] memory targets,
     Transaction memory transaction
   ) external pure {
-    TargetVerifier.verifyAnyOfTargets(targets, transaction);
+    TargetRule.verifyAnyOfTargets(targets, transaction);
   }
 }

@@ -4,13 +4,13 @@ pragma solidity ^0.8.0;
 import {SignatureChecker as BaseSignatureChecker} from '@matterlabs/signature-checker/contracts/SignatureChecker.sol';
 import {ECDSA} from '@openzeppelin/contracts/utils/cryptography/ECDSA.sol';
 
-library ApproversVerifier {
+library ApprovalsRule {
   error ApproverSignaturesMismatch();
-  error InvalidApproverSignature(address approver);
+  error InvalidSignature(address approver);
 
   // TODO: accept approversHash + contractApprovers. Callback to a contractApprover if ecdsa recover fails
   /// Expects signatures[i] to be for approvers[i]
-  function verifyApprovers(
+  function verifyApprovals(
     address[] memory approvers,
     bytes32 hash,
     bytes[] memory signatures
@@ -20,7 +20,7 @@ library ApproversVerifier {
 
     for (uint256 i; i < approversLength; ) {
       if (!_isApproverSignatureValidNow(approvers[i], hash, signatures[i]))
-        revert InvalidApproverSignature(approvers[i]);
+        revert InvalidSignature(approvers[i]);
 
       unchecked {
         ++i;

@@ -7,7 +7,7 @@ import {
   Approval,
   Tx,
   TxOptions,
-  Rule,
+  Policy,
   Address,
 } from 'lib';
 import { WALLETS } from './wallet';
@@ -24,7 +24,7 @@ export const getApprovals = async (
 
 export const execute = async (
   account: Account,
-  rule: Rule,
+  policy: Policy,
   approvers: Set<Address>,
   txOpts: TxOptions,
 ) => {
@@ -32,7 +32,7 @@ export const execute = async (
 
   return await executeTx({
     account,
-    rule,
+    policy,
     approvals: await getApprovals(account, approvers, tx),
     tx,
   });

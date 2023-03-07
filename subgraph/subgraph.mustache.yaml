@@ -20,16 +20,16 @@ dataSources:
         - Account
         - AccountImpl
         - Transaction
-        - Rule
+        - Policy
       eventHandlers:
         - event: TransactionExecuted(bytes32,bytes)
           handler: handleTransactionExecuted
         - event: TransactionReverted(bytes32,bytes)
           handler: handleTransactionReverted
-        - event: RuleAdded(uint256,bytes32)
-          handler: handleRuleAdded
-        - event: RuleRemoved(uint256)
-          handler: handleRuleRemoved
+        - event: PolicyAdded(uint256,bytes32)
+          handler: handlePolicyAdded
+        - event: PolicyRemoved(uint256)
+          handler: handlePolicyRemoved
   - name: AccountProxy
     kind: ethereum/contract
     network: {{network}}

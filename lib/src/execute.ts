@@ -6,7 +6,7 @@ import { Eip712Meta, TransactionRequest } from 'zksync-web3/build/src/types';
 import { EIP712_TX_TYPE } from 'zksync-web3/build/src/utils';
 import { Tx } from './tx';
 import { tryOrAsync } from './util/try';
-import { Rule } from './rule';
+import { Policy } from './policy';
 
 export const FALLBACK_GAS_LIMIT = BigNumber.from(3_000_000);
 const GAS_PER_SIGNER = BigNumber.from(200_000);
@@ -18,7 +18,7 @@ export interface ExecuteTxOptions {
 export interface TransactionRequestOptions {
   account: Account;
   tx: Tx;
-  rule: Rule;
+  policy: Policy;
   approvals: Approval[];
   opts?: ExecuteTxOptions;
 }
@@ -26,7 +26,7 @@ export interface TransactionRequestOptions {
 export const asTransactionRequest = async ({
   account,
   tx,
-  rule,
+  policy,
   approvals,
   opts = {},
 }: TransactionRequestOptions): Promise<TransactionRequest> => {
@@ -43,7 +43,7 @@ export const asTransactionRequest = async ({
     customData: {
       gasPerPubdata: zk.utils.DEFAULT_GAS_PER_PUBDATA_LIMIT,
       ...opts.customData,
-      customSignature: encodeAccountSignature(rule, approvals),
+      customSignature: encodeAccountSignature(policy, approvals),
     },
   };
 

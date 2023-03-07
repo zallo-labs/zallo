@@ -1,12 +1,12 @@
 import { defaultAbiCoder } from 'ethers/lib/utils';
 import { Address, compareAddress } from '../addr';
-import { SignatureVerifier, VerifierStruct } from './verifier';
+import { SignatureRule, RuleStruct } from './rule';
 import { Arraylike, toSet } from '../util/maybe';
 import { asUint8 } from '../evmTypes';
 import { tryOrIgnore } from '../util/try';
-import { InternalSelector } from './uitl';
+import { RuleSelector } from './uitl';
 
-export class ApproversVerifier extends SignatureVerifier {
+export class ApprovalsRule extends SignatureRule {
   constructor(public approvers: Arraylike<Address>) {
     super();
   }
@@ -15,16 +15,16 @@ export class ApproversVerifier extends SignatureVerifier {
     const approvers = [...toSet(this.approvers)].sort(compareAddress);
 
     return {
-      selector: asUint8(InternalSelector.Approvers),
+      selector: asUint8(RuleSelector.Approvals),
       args: defaultAbiCoder.encode(['address[]'], [approvers]),
     };
   }
 
-  static tryFromStruct(s: VerifierStruct): ApproversVerifier | undefined {
+  static tryFromStruct(s: RuleStruct): ApprovalsRule | undefined {
     return tryOrIgnore(() => {
-      if (s.selector !== InternalSelector.Approvers) return undefined;
+      if (s.selector !== RuleSelector.Approvals) return undefined;
 
-      return new ApproversVerifier(defaultAbiCoder.decode(['address[]'], s.args)[0]);
+      return new ApprovalsRule(defaultAbiCoder.decode(['address[]'], s.args)[0]);
     });
   }
 }

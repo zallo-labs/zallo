@@ -1,5 +1,10 @@
-import { ZERO_ADDR, ZERO, AwaitedObj, Tx } from 'lib';
+import { ZERO_ADDR, ZERO, AwaitedObj, Tx, TestRules__factory } from 'lib';
 import { TransactionStruct } from 'lib/src/contracts/Account';
+import { deploy } from './deploy';
+import { WALLET } from './wallet';
+
+export const deployTestRules = async () =>
+  TestRules__factory.connect((await deploy('TestRules')).address, WALLET);
 
 export const asTransactionStruct = (tx: Tx): AwaitedObj<TransactionStruct> => ({
   txType: 0,

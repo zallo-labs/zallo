@@ -22,7 +22,7 @@
         "type": "address"
       }
     ],
-    "name": "InvalidApproverSignature",
+    "name": "InvalidSignature",
     "type": "error"
   },
   {
@@ -108,11 +108,11 @@
     "inputs": [
       {
         "internalType": "bytes32",
-        "name": "expectedRuleDataHash",
+        "name": "expectedHash",
         "type": "bytes32"
       }
     ],
-    "name": "RuleDoesNotMatchExpectedHash",
+    "name": "PolicyDoesNotMatchExpectedHash",
     "type": "error"
   },
   {
@@ -139,23 +139,23 @@
   {
     "inputs": [
       {
-        "internalType": "enum InternalSelector",
+        "internalType": "enum RuleSelector",
         "name": "selector",
         "type": "uint8"
       }
     ],
-    "name": "UnknownSignatureVerifier",
+    "name": "UnknownSignatureRule",
     "type": "error"
   },
   {
     "inputs": [
       {
-        "internalType": "enum InternalSelector",
+        "internalType": "enum RuleSelector",
         "name": "selector",
         "type": "uint8"
       }
     ],
-    "name": "UnknownTransactionVerifier",
+    "name": "UnknownTransactionRule",
     "type": "error"
   },
   {
@@ -195,18 +195,18 @@
     "inputs": [
       {
         "indexed": false,
-        "internalType": "RuleKey",
+        "internalType": "PolicyKey",
         "name": "key",
         "type": "uint256"
       },
       {
         "indexed": false,
         "internalType": "bytes32",
-        "name": "dataHash",
+        "name": "hash",
         "type": "bytes32"
       }
     ],
-    "name": "RuleAdded",
+    "name": "PolicyAdded",
     "type": "event"
   },
   {
@@ -214,12 +214,12 @@
     "inputs": [
       {
         "indexed": false,
-        "internalType": "RuleKey",
+        "internalType": "PolicyKey",
         "name": "key",
         "type": "uint256"
       }
     ],
-    "name": "RuleRemoved",
+    "name": "PolicyRemoved",
     "type": "event"
   },
   {
@@ -282,14 +282,14 @@
       {
         "components": [
           {
-            "internalType": "RuleKey",
+            "internalType": "PolicyKey",
             "name": "key",
             "type": "uint256"
           },
           {
             "components": [
               {
-                "internalType": "enum InternalSelector",
+                "internalType": "enum RuleSelector",
                 "name": "selector",
                 "type": "uint8"
               },
@@ -299,14 +299,14 @@
                 "type": "bytes"
               }
             ],
-            "internalType": "struct Verifier[]",
-            "name": "signatureVerifiers",
+            "internalType": "struct Rule[]",
+            "name": "signatureRules",
             "type": "tuple[]"
           },
           {
             "components": [
               {
-                "internalType": "enum InternalSelector",
+                "internalType": "enum RuleSelector",
                 "name": "selector",
                 "type": "uint8"
               },
@@ -316,17 +316,17 @@
                 "type": "bytes"
               }
             ],
-            "internalType": "struct Verifier[]",
-            "name": "txVerifiers",
+            "internalType": "struct Rule[]",
+            "name": "transactionRules",
             "type": "tuple[]"
           }
         ],
-        "internalType": "struct Rule",
-        "name": "rule",
+        "internalType": "struct Policy",
+        "name": "policy",
         "type": "tuple"
       }
     ],
-    "name": "addRule",
+    "name": "addPolicy",
     "outputs": [],
     "stateMutability": "payable",
     "type": "function"
@@ -536,14 +536,14 @@
       {
         "components": [
           {
-            "internalType": "RuleKey",
+            "internalType": "PolicyKey",
             "name": "key",
             "type": "uint256"
           },
           {
             "components": [
               {
-                "internalType": "enum InternalSelector",
+                "internalType": "enum RuleSelector",
                 "name": "selector",
                 "type": "uint8"
               },
@@ -553,14 +553,14 @@
                 "type": "bytes"
               }
             ],
-            "internalType": "struct Verifier[]",
-            "name": "signatureVerifiers",
+            "internalType": "struct Rule[]",
+            "name": "signatureRules",
             "type": "tuple[]"
           },
           {
             "components": [
               {
-                "internalType": "enum InternalSelector",
+                "internalType": "enum RuleSelector",
                 "name": "selector",
                 "type": "uint8"
               },
@@ -570,13 +570,13 @@
                 "type": "bytes"
               }
             ],
-            "internalType": "struct Verifier[]",
-            "name": "txVerifiers",
+            "internalType": "struct Rule[]",
+            "name": "transactionRules",
             "type": "tuple[]"
           }
         ],
-        "internalType": "struct Rule[]",
-        "name": "rules",
+        "internalType": "struct Policy[]",
+        "name": "policies",
         "type": "tuple[]"
       }
     ],
@@ -869,12 +869,12 @@
   {
     "inputs": [
       {
-        "internalType": "RuleKey",
+        "internalType": "PolicyKey",
         "name": "key",
         "type": "uint256"
       }
     ],
-    "name": "removeRule",
+    "name": "removePolicy",
     "outputs": [],
     "stateMutability": "payable",
     "type": "function"
