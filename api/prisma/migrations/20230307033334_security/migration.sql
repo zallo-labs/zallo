@@ -71,29 +71,29 @@ CREATE POLICY member_all ON "Account" FOR ALL
 
 
 
-/* Quorum */
-GRANT SELECT, INSERT, UPDATE ("key", "name", "activeStateId") ON "Quorum" TO PUBLIC;
-ALTER TABLE "Quorum" ENABLE ROW LEVEL SECURITY;
+/* Rule */
+GRANT SELECT, INSERT, UPDATE ("key", "name", "activeId", "draftId") ON "Rule" TO PUBLIC;
+ALTER TABLE "Rule" ENABLE ROW LEVEL SECURITY;
 
-CREATE POLICY account_member_select ON "Quorum" FOR SELECT
+CREATE POLICY account_member_select ON "Rule" FOR SELECT
     USING (is_user_account("accountId"));
 
-CREATE POLICY account_member_insert ON "Quorum" FOR INSERT
+CREATE POLICY account_member_insert ON "Rule" FOR INSERT
     WITH CHECK (is_user_account("accountId"));
 
-CREATE POLICY account_member_update ON "Quorum" FOR UPDATE
+CREATE POLICY account_member_update ON "Rule" FOR UPDATE
     USING (is_user_account("accountId"));
 
-CREATE POLICY account_member_delete ON "Quorum" FOR DELETE
-    USING (is_user_account("accountId") AND "activeStateId" IS NULL);
+CREATE POLICY account_member_delete ON "Rule" FOR DELETE
+    USING (is_user_account("accountId") AND "activeId" IS NULL);
 
 
 
-/* QuorumState */
-GRANT SELECT, INSERT ON "QuorumState" TO PUBLIC;
-ALTER TABLE "QuorumState" ENABLE ROW LEVEL SECURITY;
+/* RuleState */
+GRANT SELECT, INSERT ON "RuleState" TO PUBLIC;
+ALTER TABLE "RuleState" ENABLE ROW LEVEL SECURITY;
 
-CREATE POLICY account_member_all ON "QuorumState" FOR ALL
+CREATE POLICY account_member_all ON "RuleState" FOR ALL
     USING (is_user_account("accountId"));
 
 
@@ -104,18 +104,7 @@ ALTER TABLE "Approver" ENABLE ROW LEVEL SECURITY;
 
 CREATE POLICY account_member_all ON "Approver" FOR ALL
     USING (is_user_account(
-        (SELECT "accountId" FROM "QuorumState" WHERE "id" = "quorumStateId")
-    ));
-
-
-
-/* TokenLimit */
-GRANT SELECT, INSERT ON "TokenLimit" TO PUBLIC;
-ALTER TABLE "TokenLimit" ENABLE ROW LEVEL SECURITY;
-
-CREATE POLICY account_member_all ON "TokenLimit" FOR ALL
-    USING (is_user_account(
-        (SELECT "accountId" FROM "QuorumState" WHERE "id" = "quorumStateId")
+        (SELECT "accountId" FROM "RuleState" WHERE "id" = "ruleStateId")
     ));
 
 

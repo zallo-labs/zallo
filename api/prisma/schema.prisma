@@ -13,6 +13,23 @@ generator nestgraphql {
   output   = "../generated"
 }
 
+model Account {
+  id         String  @id @db.Char(42) // address
+  impl       String  @db.Char(42) // address
+  deploySalt String  @db.Char(66) // bytes32
+  name       String
+  isActive   Boolean @default(false)
+
+  rules      Rule[]
+  ruleStates RuleState[]
+  proposals  Proposal[]
+  comments   Comment[]
+}
+
+////////////////////////////////////////////////////////////////
+//                                USER                        //
+////////////////////////////////////////////////////////////////
+
 model User {
   id        String  @id @db.Char(42) // address
   name      String?
@@ -27,103 +44,87 @@ model User {
   proposals Proposal[]
 }
 
-model Account {
-  id         String  @id @db.Char(42) // address
-  impl       String  @db.Char(42) // address
-  deploySalt String  @db.Char(66) // bytes32
-  name       String
-  isActive   Boolean @default(false)
+model Contact {
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId String @db.Char(42) // address
+  addr   String @db.Char(42) // address
+  name   String
 
-  quorums      Quorum[]
-  quorumStates QuorumState[]
-  proposals    Proposal[]
-  comments     Comment[]
-  reactions    Reaction[]
+  @@id([userId, addr])
+  @@unique([userId, name], name: "name_identifier")
 }
 
-model Quorum {
-  account       Account      @relation(fields: [accountId], references: [id], onDelete: Cascade)
-  accountId     String       @db.Char(42) // address
-  key           Int
-  name          String
-  activeState   QuorumState? @relation(name: "active_state", fields: [activeStateId], references: [id], onDelete: Cascade)
-  activeStateId Int?
+////////////////////////////////////////////////////////////////
+//                                RULE                        //
+////////////////////////////////////////////////////////////////
 
-  states    QuorumState[]
-  proposals Proposal[]
+model Rule {
+  account   Account    @relation(fields: [accountId], references: [id], onDelete: Cascade)
+  accountId String     @db.Char(42) // address
+  key       Int
+  name      String
+  active    RuleState? @relation(name: "active", fields: [activeId], references: [id], onDelete: Cascade)
+  activeId  Int?
+  draft     RuleState? @relation(name: "draft", fields: [draftId], references: [id], onDelete: Cascade)
+  draftId   Int?
+
+  states RuleState[]
 
   @@id([accountId, key])
-  @@unique([activeStateId])
+  @@unique([activeId])
+  @@unique([draftId])
 }
 
-model QuorumState {
-  id               Int              @id @default(autoincrement())
-  account          Account          @relation(fields: [accountId], references: [id], onDelete: Cascade)
-  accountId        String           @db.Char(42) // address
-  quorum           Quorum           @relation(fields: [accountId, quorumKey], references: [accountId, key], onDelete: Cascade)
-  quorumKey        Int
-  proposal         Proposal?        @relation(fields: [proposalId], references: [id], onDelete: Cascade)
-  proposalId       String?          @db.Char(66) // bytes32
-  createdAt        DateTime         @default(now())
-  isRemoved        Boolean          @default(false)
-  spendingFallback SpendingFallback @default(allow)
+model RuleState {
+  id         Int       @id @default(autoincrement())
+  account    Account   @relation(fields: [accountId], references: [id], onDelete: Cascade)
+  accountId  String    @db.Char(42) // address
+  rule       Rule      @relation(fields: [accountId, ruleKey], references: [accountId, key], onDelete: Cascade)
+  ruleKey    Int
+  proposal   Proposal? @relation(fields: [proposalId], references: [id], onDelete: Cascade)
+  proposalId String?   @db.Char(66) // bytes32
+  createdAt  DateTime  @default(now())
+  isRemoved  Boolean   @default(false)
 
-  approvers           Approver[]
-  limits              TokenLimit[]
-  activeStateOfQuorum Quorum?      @relation(name: "active_state")
+  activeStateOf Rule?              @relation(name: "active")
+  draftStateOf  Rule?              @relation(name: "draft")
+  approvers     Approver[]
+  onlyFunctions String[]    @db.Char(10)  // bytes4
+  onlyTargets   String[]    @db.Char(66)  // address
 
-  @@index([accountId, quorumKey, createdAt(sort: Desc)], name: "quorum_createdAt")
+  @@unique([accountId, ruleKey, proposalId])
+  @@index([accountId, ruleKey, createdAt(sort: Desc)], name: "rule_createdAt")
 }
 
 model Approver {
-  quorumState   QuorumState @relation(fields: [quorumStateId], references: [id], onDelete: Cascade)
-  quorumStateId Int
-  user          User        @relation(fields: [userId], references: [id], onDelete: Cascade)
-  userId        String      @db.Char(42) // address
+  ruleState   RuleState @relation(fields: [ruleStateId], references: [id], onDelete: Cascade)
+  ruleStateId Int
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId      String    @db.Char(42) // address
 
-  @@id([quorumStateId, userId])
+  @@id([ruleStateId, userId])
 }
 
-enum SpendingFallback {
-  allow
-  deny
-}
-
-model TokenLimit {
-  quorumState   QuorumState @relation(fields: [quorumStateId], references: [id], onDelete: Cascade)
-  quorumStateId Int
-  token         String      @db.Char(42) // address
-
-  amount String //@db.Decimal(79, 0) // uint256
-  period LimitPeriod
-
-  @@id([quorumStateId, token])
-}
-
-enum LimitPeriod {
-  Day
-  Week
-  Month
-}
+////////////////////////////////////////////////////////////////
+//                             TRANSACTION                    //
+////////////////////////////////////////////////////////////////
 
 model Proposal {
   id         String   @id @db.Char(66) // hash: bytes32
   account    Account  @relation(fields: [accountId], references: [id], onDelete: Cascade)
   accountId  String   @db.Char(42) // address
-  quorum     Quorum   @relation(fields: [accountId, quorumKey], references: [accountId, key])
-  quorumKey  Int
   proposer   User     @relation(fields: [proposerId], references: [id])
   proposerId String   @db.Char(42) // address
   to         String   @db.Char(42) // address
   value      String? //@db.Decimal(79, 0) // uint256
   data       String? // bytes
-  salt       String   @db.Char(18) // bytes8
+  nonce      Int
   gasLimit   Decimal? @db.Decimal(19, 0)
   createdAt  DateTime @default(now())
 
   approvals    Approval[]
   transactions Transaction[]
-  quorumStates QuorumState[]
+  ruleStates   RuleState[]
 }
 
 model Transaction {
@@ -131,7 +132,6 @@ model Transaction {
 
   proposal   Proposal             @relation(fields: [proposalId], references: [id], onDelete: Cascade)
   proposalId String               @db.Char(66) // bytes32
-  nonce      Int
   gasLimit   Decimal              @db.Decimal(19, 0)
   gasPrice   Decimal?             @db.Decimal(19, 0)
   createdAt  DateTime             @default(now())
@@ -159,16 +159,6 @@ model Approval {
   @@id([proposalId, userId])
 }
 
-model Contact {
-  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
-  userId String @db.Char(42) // address
-  addr   String @db.Char(42) // address
-  name   String
-
-  @@id([userId, addr])
-  @@unique([userId, name], name: "name_identifier")
-}
-
 model ContractMethod {
   contract String @default("0x0000000000000000000000000000000000000000") @db.Char(42) // address
   sighash  String @db.Char(10) // bytes4
@@ -177,6 +167,10 @@ model ContractMethod {
   @@id([contract, sighash])
   @@index([sighash])
 }
+
+////////////////////////////////////////////////////////////////
+//                               COMMENT                      //
+////////////////////////////////////////////////////////////////
 
 model Comment {
   id Int @id @default(autoincrement())
@@ -204,8 +198,6 @@ model Reaction {
   emojis    String[]
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt()
-  account   Account? @relation(fields: [accountId], references: [id])
-  accountId String?  @db.Char(42)
 
   @@id([commentId, userId])
 }
