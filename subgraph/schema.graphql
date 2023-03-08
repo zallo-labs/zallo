@@ -20,7 +20,7 @@ type Transaction @entity {
   id: Bytes!
   account: Account!
   transactionHash: Bytes!
-  hash: Bytes!
+  proposalId: Bytes!
   success: Boolean!
   response: Bytes!
   # Metadata

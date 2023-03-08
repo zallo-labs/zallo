@@ -20,18 +20,18 @@ export type Account = {
   /** {address} */
   id: Scalars['Bytes'];
   impl: AccountImpl;
-  quorums: Array<Quorum>;
+  policies: Array<Policy>;
   transactions: Array<Transaction>;
   transfers: Array<Transfer>;
 };
 
 
-export type AccountQuorumsArgs = {
+export type AccountPoliciesArgs = {
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<Quorum_OrderBy>;
+  orderBy?: InputMaybe<Policy_OrderBy>;
   orderDirection?: InputMaybe<OrderDirection>;
   skip?: InputMaybe<Scalars['Int']>;
-  where?: InputMaybe<Quorum_Filter>;
+  where?: InputMaybe<Policy_Filter>;
 };
 
 
@@ -73,6 +73,7 @@ export type AccountImplProxiesArgs = {
 export type AccountImpl_Filter = {
   /** Filter for the block changed event. */
   _change_block?: InputMaybe<BlockChangedFilter>;
+  and?: InputMaybe<Array<InputMaybe<AccountImpl_Filter>>>;
   blockHash?: InputMaybe<Scalars['Bytes']>;
   blockHash_contains?: InputMaybe<Scalars['Bytes']>;
   blockHash_gt?: InputMaybe<Scalars['Bytes']>;
@@ -93,6 +94,7 @@ export type AccountImpl_Filter = {
   id_not?: InputMaybe<Scalars['Bytes']>;
   id_not_contains?: InputMaybe<Scalars['Bytes']>;
   id_not_in?: InputMaybe<Array<Scalars['Bytes']>>;
+  or?: InputMaybe<Array<InputMaybe<AccountImpl_Filter>>>;
   proxies_?: InputMaybe<Account_Filter>;
   timestamp?: InputMaybe<Scalars['BigInt']>;
   timestamp_gt?: InputMaybe<Scalars['BigInt']>;
@@ -114,6 +116,7 @@ export enum AccountImpl_OrderBy {
 export type Account_Filter = {
   /** Filter for the block changed event. */
   _change_block?: InputMaybe<BlockChangedFilter>;
+  and?: InputMaybe<Array<InputMaybe<Account_Filter>>>;
   id?: InputMaybe<Scalars['Bytes']>;
   id_contains?: InputMaybe<Scalars['Bytes']>;
   id_gt?: InputMaybe<Scalars['Bytes']>;
@@ -145,7 +148,8 @@ export type Account_Filter = {
   impl_not_starts_with_nocase?: InputMaybe<Scalars['String']>;
   impl_starts_with?: InputMaybe<Scalars['String']>;
   impl_starts_with_nocase?: InputMaybe<Scalars['String']>;
-  quorums_?: InputMaybe<Quorum_Filter>;
+  or?: InputMaybe<Array<InputMaybe<Account_Filter>>>;
+  policies_?: InputMaybe<Policy_Filter>;
   transactions_?: InputMaybe<Transaction_Filter>;
   transfers_?: InputMaybe<Transfer_Filter>;
 };
@@ -153,7 +157,10 @@ export type Account_Filter = {
 export enum Account_OrderBy {
   Id = 'id',
   Impl = 'impl',
-  Quorums = 'quorums',
+  ImplBlockHash = 'impl__blockHash',
+  ImplId = 'impl__id',
+  ImplTimestamp = 'impl__timestamp',
+  Policies = 'policies',
   Transactions = 'transactions',
   Transfers = 'transfers'
 }
@@ -174,6 +181,89 @@ export enum OrderDirection {
   Desc = 'desc'
 }
 
+export type Policy = {
+  __typename?: 'Policy';
+  account: Account;
+  hash: Scalars['Bytes'];
+  /** {account.id}-{key} */
+  id: Scalars['String'];
+  key: Scalars['BigInt'];
+};
+
+export type Policy_Filter = {
+  /** Filter for the block changed event. */
+  _change_block?: InputMaybe<BlockChangedFilter>;
+  account?: InputMaybe<Scalars['String']>;
+  account_?: InputMaybe<Account_Filter>;
+  account_contains?: InputMaybe<Scalars['String']>;
+  account_contains_nocase?: InputMaybe<Scalars['String']>;
+  account_ends_with?: InputMaybe<Scalars['String']>;
+  account_ends_with_nocase?: InputMaybe<Scalars['String']>;
+  account_gt?: InputMaybe<Scalars['String']>;
+  account_gte?: InputMaybe<Scalars['String']>;
+  account_in?: InputMaybe<Array<Scalars['String']>>;
+  account_lt?: InputMaybe<Scalars['String']>;
+  account_lte?: InputMaybe<Scalars['String']>;
+  account_not?: InputMaybe<Scalars['String']>;
+  account_not_contains?: InputMaybe<Scalars['String']>;
+  account_not_contains_nocase?: InputMaybe<Scalars['String']>;
+  account_not_ends_with?: InputMaybe<Scalars['String']>;
+  account_not_ends_with_nocase?: InputMaybe<Scalars['String']>;
+  account_not_in?: InputMaybe<Array<Scalars['String']>>;
+  account_not_starts_with?: InputMaybe<Scalars['String']>;
+  account_not_starts_with_nocase?: InputMaybe<Scalars['String']>;
+  account_starts_with?: InputMaybe<Scalars['String']>;
+  account_starts_with_nocase?: InputMaybe<Scalars['String']>;
+  and?: InputMaybe<Array<InputMaybe<Policy_Filter>>>;
+  hash?: InputMaybe<Scalars['Bytes']>;
+  hash_contains?: InputMaybe<Scalars['Bytes']>;
+  hash_gt?: InputMaybe<Scalars['Bytes']>;
+  hash_gte?: InputMaybe<Scalars['Bytes']>;
+  hash_in?: InputMaybe<Array<Scalars['Bytes']>>;
+  hash_lt?: InputMaybe<Scalars['Bytes']>;
+  hash_lte?: InputMaybe<Scalars['Bytes']>;
+  hash_not?: InputMaybe<Scalars['Bytes']>;
+  hash_not_contains?: InputMaybe<Scalars['Bytes']>;
+  hash_not_in?: InputMaybe<Array<Scalars['Bytes']>>;
+  id?: InputMaybe<Scalars['String']>;
+  id_contains?: InputMaybe<Scalars['String']>;
+  id_contains_nocase?: InputMaybe<Scalars['String']>;
+  id_ends_with?: InputMaybe<Scalars['String']>;
+  id_ends_with_nocase?: InputMaybe<Scalars['String']>;
+  id_gt?: InputMaybe<Scalars['String']>;
+  id_gte?: InputMaybe<Scalars['String']>;
+  id_in?: InputMaybe<Array<Scalars['String']>>;
+  id_lt?: InputMaybe<Scalars['String']>;
+  id_lte?: InputMaybe<Scalars['String']>;
+  id_not?: InputMaybe<Scalars['String']>;
+  id_not_contains?: InputMaybe<Scalars['String']>;
+  id_not_contains_nocase?: InputMaybe<Scalars['String']>;
+  id_not_ends_with?: InputMaybe<Scalars['String']>;
+  id_not_ends_with_nocase?: InputMaybe<Scalars['String']>;
+  id_not_in?: InputMaybe<Array<Scalars['String']>>;
+  id_not_starts_with?: InputMaybe<Scalars['String']>;
+  id_not_starts_with_nocase?: InputMaybe<Scalars['String']>;
+  id_starts_with?: InputMaybe<Scalars['String']>;
+  id_starts_with_nocase?: InputMaybe<Scalars['String']>;
+  key?: InputMaybe<Scalars['BigInt']>;
+  key_gt?: InputMaybe<Scalars['BigInt']>;
+  key_gte?: InputMaybe<Scalars['BigInt']>;
+  key_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  key_lt?: InputMaybe<Scalars['BigInt']>;
+  key_lte?: InputMaybe<Scalars['BigInt']>;
+  key_not?: InputMaybe<Scalars['BigInt']>;
+  key_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  or?: InputMaybe<Array<InputMaybe<Policy_Filter>>>;
+};
+
+export enum Policy_OrderBy {
+  Account = 'account',
+  AccountId = 'account__id',
+  Hash = 'hash',
+  Id = 'id',
+  Key = 'key'
+}
+
 export type Query = {
   __typename?: 'Query';
   /** Access to subgraph metadata */
@@ -182,8 +272,8 @@ export type Query = {
   accountImpl?: Maybe<AccountImpl>;
   accountImpls: Array<AccountImpl>;
   accounts: Array<Account>;
-  quorum?: Maybe<Quorum>;
-  quorums: Array<Quorum>;
+  policies: Array<Policy>;
+  policy?: Maybe<Policy>;
   transaction?: Maybe<Transaction>;
   transactions: Array<Transaction>;
   transfer?: Maybe<Transfer>;
@@ -232,21 +322,21 @@ export type QueryAccountsArgs = {
 };
 
 
-export type QueryQuorumArgs = {
-  block?: InputMaybe<Block_Height>;
-  id: Scalars['ID'];
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-
-export type QueryQuorumsArgs = {
+export type QueryPoliciesArgs = {
   block?: InputMaybe<Block_Height>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<Quorum_OrderBy>;
+  orderBy?: InputMaybe<Policy_OrderBy>;
   orderDirection?: InputMaybe<OrderDirection>;
   skip?: InputMaybe<Scalars['Int']>;
   subgraphError?: _SubgraphErrorPolicy_;
-  where?: InputMaybe<Quorum_Filter>;
+  where?: InputMaybe<Policy_Filter>;
+};
+
+
+export type QueryPolicyArgs = {
+  block?: InputMaybe<Block_Height>;
+  id: Scalars['ID'];
+  subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
@@ -285,86 +375,6 @@ export type QueryTransfersArgs = {
   where?: InputMaybe<Transfer_Filter>;
 };
 
-export type Quorum = {
-  __typename?: 'Quorum';
-  account: Account;
-  hash: Scalars['Bytes'];
-  /** {account.id}-{key} */
-  id: Scalars['String'];
-  key: Scalars['BigInt'];
-};
-
-export type Quorum_Filter = {
-  /** Filter for the block changed event. */
-  _change_block?: InputMaybe<BlockChangedFilter>;
-  account?: InputMaybe<Scalars['String']>;
-  account_?: InputMaybe<Account_Filter>;
-  account_contains?: InputMaybe<Scalars['String']>;
-  account_contains_nocase?: InputMaybe<Scalars['String']>;
-  account_ends_with?: InputMaybe<Scalars['String']>;
-  account_ends_with_nocase?: InputMaybe<Scalars['String']>;
-  account_gt?: InputMaybe<Scalars['String']>;
-  account_gte?: InputMaybe<Scalars['String']>;
-  account_in?: InputMaybe<Array<Scalars['String']>>;
-  account_lt?: InputMaybe<Scalars['String']>;
-  account_lte?: InputMaybe<Scalars['String']>;
-  account_not?: InputMaybe<Scalars['String']>;
-  account_not_contains?: InputMaybe<Scalars['String']>;
-  account_not_contains_nocase?: InputMaybe<Scalars['String']>;
-  account_not_ends_with?: InputMaybe<Scalars['String']>;
-  account_not_ends_with_nocase?: InputMaybe<Scalars['String']>;
-  account_not_in?: InputMaybe<Array<Scalars['String']>>;
-  account_not_starts_with?: InputMaybe<Scalars['String']>;
-  account_not_starts_with_nocase?: InputMaybe<Scalars['String']>;
-  account_starts_with?: InputMaybe<Scalars['String']>;
-  account_starts_with_nocase?: InputMaybe<Scalars['String']>;
-  hash?: InputMaybe<Scalars['Bytes']>;
-  hash_contains?: InputMaybe<Scalars['Bytes']>;
-  hash_gt?: InputMaybe<Scalars['Bytes']>;
-  hash_gte?: InputMaybe<Scalars['Bytes']>;
-  hash_in?: InputMaybe<Array<Scalars['Bytes']>>;
-  hash_lt?: InputMaybe<Scalars['Bytes']>;
-  hash_lte?: InputMaybe<Scalars['Bytes']>;
-  hash_not?: InputMaybe<Scalars['Bytes']>;
-  hash_not_contains?: InputMaybe<Scalars['Bytes']>;
-  hash_not_in?: InputMaybe<Array<Scalars['Bytes']>>;
-  id?: InputMaybe<Scalars['String']>;
-  id_contains?: InputMaybe<Scalars['String']>;
-  id_contains_nocase?: InputMaybe<Scalars['String']>;
-  id_ends_with?: InputMaybe<Scalars['String']>;
-  id_ends_with_nocase?: InputMaybe<Scalars['String']>;
-  id_gt?: InputMaybe<Scalars['String']>;
-  id_gte?: InputMaybe<Scalars['String']>;
-  id_in?: InputMaybe<Array<Scalars['String']>>;
-  id_lt?: InputMaybe<Scalars['String']>;
-  id_lte?: InputMaybe<Scalars['String']>;
-  id_not?: InputMaybe<Scalars['String']>;
-  id_not_contains?: InputMaybe<Scalars['String']>;
-  id_not_contains_nocase?: InputMaybe<Scalars['String']>;
-  id_not_ends_with?: InputMaybe<Scalars['String']>;
-  id_not_ends_with_nocase?: InputMaybe<Scalars['String']>;
-  id_not_in?: InputMaybe<Array<Scalars['String']>>;
-  id_not_starts_with?: InputMaybe<Scalars['String']>;
-  id_not_starts_with_nocase?: InputMaybe<Scalars['String']>;
-  id_starts_with?: InputMaybe<Scalars['String']>;
-  id_starts_with_nocase?: InputMaybe<Scalars['String']>;
-  key?: InputMaybe<Scalars['BigInt']>;
-  key_gt?: InputMaybe<Scalars['BigInt']>;
-  key_gte?: InputMaybe<Scalars['BigInt']>;
-  key_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  key_lt?: InputMaybe<Scalars['BigInt']>;
-  key_lte?: InputMaybe<Scalars['BigInt']>;
-  key_not?: InputMaybe<Scalars['BigInt']>;
-  key_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-};
-
-export enum Quorum_OrderBy {
-  Account = 'account',
-  Hash = 'hash',
-  Id = 'id',
-  Key = 'key'
-}
-
 export type Subscription = {
   __typename?: 'Subscription';
   /** Access to subgraph metadata */
@@ -373,8 +383,8 @@ export type Subscription = {
   accountImpl?: Maybe<AccountImpl>;
   accountImpls: Array<AccountImpl>;
   accounts: Array<Account>;
-  quorum?: Maybe<Quorum>;
-  quorums: Array<Quorum>;
+  policies: Array<Policy>;
+  policy?: Maybe<Policy>;
   transaction?: Maybe<Transaction>;
   transactions: Array<Transaction>;
   transfer?: Maybe<Transfer>;
@@ -423,21 +433,21 @@ export type SubscriptionAccountsArgs = {
 };
 
 
-export type SubscriptionQuorumArgs = {
-  block?: InputMaybe<Block_Height>;
-  id: Scalars['ID'];
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-
-export type SubscriptionQuorumsArgs = {
+export type SubscriptionPoliciesArgs = {
   block?: InputMaybe<Block_Height>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<Quorum_OrderBy>;
+  orderBy?: InputMaybe<Policy_OrderBy>;
   orderDirection?: InputMaybe<OrderDirection>;
   skip?: InputMaybe<Scalars['Int']>;
   subgraphError?: _SubgraphErrorPolicy_;
-  where?: InputMaybe<Quorum_Filter>;
+  where?: InputMaybe<Policy_Filter>;
+};
+
+
+export type SubscriptionPolicyArgs = {
+  block?: InputMaybe<Block_Height>;
+  id: Scalars['ID'];
+  subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
@@ -481,9 +491,9 @@ export type Transaction = {
   account: Account;
   blockHash: Scalars['Bytes'];
   executor: Scalars['Bytes'];
-  hash: Scalars['Bytes'];
   /** {transaction.hash} */
   id: Scalars['Bytes'];
+  proposalId: Scalars['Bytes'];
   response: Scalars['Bytes'];
   success: Scalars['Boolean'];
   timestamp: Scalars['BigInt'];
@@ -524,6 +534,7 @@ export type Transaction_Filter = {
   account_not_starts_with_nocase?: InputMaybe<Scalars['String']>;
   account_starts_with?: InputMaybe<Scalars['String']>;
   account_starts_with_nocase?: InputMaybe<Scalars['String']>;
+  and?: InputMaybe<Array<InputMaybe<Transaction_Filter>>>;
   blockHash?: InputMaybe<Scalars['Bytes']>;
   blockHash_contains?: InputMaybe<Scalars['Bytes']>;
   blockHash_gt?: InputMaybe<Scalars['Bytes']>;
@@ -544,16 +555,6 @@ export type Transaction_Filter = {
   executor_not?: InputMaybe<Scalars['Bytes']>;
   executor_not_contains?: InputMaybe<Scalars['Bytes']>;
   executor_not_in?: InputMaybe<Array<Scalars['Bytes']>>;
-  hash?: InputMaybe<Scalars['Bytes']>;
-  hash_contains?: InputMaybe<Scalars['Bytes']>;
-  hash_gt?: InputMaybe<Scalars['Bytes']>;
-  hash_gte?: InputMaybe<Scalars['Bytes']>;
-  hash_in?: InputMaybe<Array<Scalars['Bytes']>>;
-  hash_lt?: InputMaybe<Scalars['Bytes']>;
-  hash_lte?: InputMaybe<Scalars['Bytes']>;
-  hash_not?: InputMaybe<Scalars['Bytes']>;
-  hash_not_contains?: InputMaybe<Scalars['Bytes']>;
-  hash_not_in?: InputMaybe<Array<Scalars['Bytes']>>;
   id?: InputMaybe<Scalars['Bytes']>;
   id_contains?: InputMaybe<Scalars['Bytes']>;
   id_gt?: InputMaybe<Scalars['Bytes']>;
@@ -564,6 +565,17 @@ export type Transaction_Filter = {
   id_not?: InputMaybe<Scalars['Bytes']>;
   id_not_contains?: InputMaybe<Scalars['Bytes']>;
   id_not_in?: InputMaybe<Array<Scalars['Bytes']>>;
+  or?: InputMaybe<Array<InputMaybe<Transaction_Filter>>>;
+  proposalId?: InputMaybe<Scalars['Bytes']>;
+  proposalId_contains?: InputMaybe<Scalars['Bytes']>;
+  proposalId_gt?: InputMaybe<Scalars['Bytes']>;
+  proposalId_gte?: InputMaybe<Scalars['Bytes']>;
+  proposalId_in?: InputMaybe<Array<Scalars['Bytes']>>;
+  proposalId_lt?: InputMaybe<Scalars['Bytes']>;
+  proposalId_lte?: InputMaybe<Scalars['Bytes']>;
+  proposalId_not?: InputMaybe<Scalars['Bytes']>;
+  proposalId_not_contains?: InputMaybe<Scalars['Bytes']>;
+  proposalId_not_in?: InputMaybe<Array<Scalars['Bytes']>>;
   response?: InputMaybe<Scalars['Bytes']>;
   response_contains?: InputMaybe<Scalars['Bytes']>;
   response_gt?: InputMaybe<Scalars['Bytes']>;
@@ -601,10 +613,11 @@ export type Transaction_Filter = {
 
 export enum Transaction_OrderBy {
   Account = 'account',
+  AccountId = 'account__id',
   BlockHash = 'blockHash',
   Executor = 'executor',
-  Hash = 'hash',
   Id = 'id',
+  ProposalId = 'proposalId',
   Response = 'response',
   Success = 'success',
   Timestamp = 'timestamp',
@@ -617,7 +630,7 @@ export type Transfer = {
   account: Account;
   blockHash: Scalars['Bytes'];
   from: Scalars['Bytes'];
-  /** {transaction.id}-{transaction.log.index} */
+  /** {account.id}-{transaction.id}-{transaction.log.index} */
   id: Scalars['String'];
   timestamp: Scalars['BigInt'];
   to: Scalars['Bytes'];
@@ -657,6 +670,7 @@ export type Transfer_Filter = {
   account_not_starts_with_nocase?: InputMaybe<Scalars['String']>;
   account_starts_with?: InputMaybe<Scalars['String']>;
   account_starts_with_nocase?: InputMaybe<Scalars['String']>;
+  and?: InputMaybe<Array<InputMaybe<Transfer_Filter>>>;
   blockHash?: InputMaybe<Scalars['Bytes']>;
   blockHash_contains?: InputMaybe<Scalars['Bytes']>;
   blockHash_gt?: InputMaybe<Scalars['Bytes']>;
@@ -697,6 +711,7 @@ export type Transfer_Filter = {
   id_not_starts_with_nocase?: InputMaybe<Scalars['String']>;
   id_starts_with?: InputMaybe<Scalars['String']>;
   id_starts_with_nocase?: InputMaybe<Scalars['String']>;
+  or?: InputMaybe<Array<InputMaybe<Transfer_Filter>>>;
   timestamp?: InputMaybe<Scalars['BigInt']>;
   timestamp_gt?: InputMaybe<Scalars['BigInt']>;
   timestamp_gte?: InputMaybe<Scalars['BigInt']>;
@@ -772,6 +787,7 @@ export type Transfer_Filter = {
 
 export enum Transfer_OrderBy {
   Account = 'account',
+  AccountId = 'account__id',
   BlockHash = 'blockHash',
   From = 'from',
   Id = 'id',
@@ -780,6 +796,14 @@ export enum Transfer_OrderBy {
   Token = 'token',
   Transaction = 'transaction',
   TransactionHash = 'transactionHash',
+  TransactionBlockHash = 'transaction__blockHash',
+  TransactionExecutor = 'transaction__executor',
+  TransactionId = 'transaction__id',
+  TransactionProposalId = 'transaction__proposalId',
+  TransactionResponse = 'transaction__response',
+  TransactionSuccess = 'transaction__success',
+  TransactionTimestamp = 'transaction__timestamp',
+  TransactionTransactionHash = 'transaction__transactionHash',
   Type = 'type',
   Value = 'value'
 }

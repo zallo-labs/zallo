@@ -26,9 +26,9 @@ dataSources:
           handler: handleTransactionExecuted
         - event: TransactionReverted(bytes32,bytes)
           handler: handleTransactionReverted
-        - event: PolicyAdded(uint256,bytes32)
+        - event: PolicyAdded(uint32,bytes32)
           handler: handlePolicyAdded
-        - event: PolicyRemoved(uint256)
+        - event: PolicyRemoved(uint32)
           handler: handlePolicyRemoved
   - name: AccountProxy
     kind: ethereum/contract
