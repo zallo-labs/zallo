@@ -18,7 +18,7 @@ export const getApprovals = async (
   tx: Tx,
 ): Promise<Approval[]> =>
   mapAsync([...approvers], async (approver) => ({
-    signer: approver,
+    approver,
     signature: await signTx(WALLETS.find((w) => w.address === approver)!, account.address, tx),
   }));
 

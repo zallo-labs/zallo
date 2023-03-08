@@ -9,9 +9,9 @@ import { CONFIG } from '~/config';
 import { AccountsService } from './accounts.service';
 import { asUser, UserContext } from '~/request/ctx';
 import { randomAddress } from '~/util/test';
-import { address, Address } from 'lib';
+import { asAddress, Address } from 'lib';
 
-CONFIG.accountImplAddress = '0xC73505BBbB8A8b07F35DE0F5588753e286423122';
+CONFIG.accountImplAddress = '0xC73505BBbB8A8b07F35DE0F5588753e286423122' as Address;
 
 jest.mock('lib', () => ({
   __esModule: true,
@@ -45,12 +45,7 @@ describe(AccountsResolver.name, () => {
 
     await resolver.createAccount({
       name: 'Test account',
-      quorums: [
-        {
-          name: 'Admin',
-          approvers: new Set([user.id]),
-        },
-      ],
+      policies: [{ rules: { approvers: new Set([user.id]) } }],
     });
     user.accounts.add(account);
   };
@@ -114,14 +109,14 @@ describe(AccountsResolver.name, () => {
   describe('accounts', () => {
     it('returns user accounts', () =>
       asUser(user1, async () => {
-        const accounts = (await resolver.accounts({})).map((acc) => address(acc.id));
+        const accounts = (await resolver.accounts({})).map((acc) => asAddress(acc.id));
         expect(new Set(accounts)).toEqual(user1.accounts);
       }));
 
     it("doesn't return accounts the user isn't a member of", async () => {
       await asUser(user2, async () => {
         await createAccount(user2, user2Account);
-        const accounts = (await resolver.accounts({})).map((acc) => address(acc.id));
+        const accounts = (await resolver.accounts({})).map((acc) => asAddress(acc.id));
 
         expect(new Set(accounts)).toEqual(user2.accounts);
       });

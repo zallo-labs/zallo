@@ -13,8 +13,8 @@ import { UsersResolver } from './features/users/users.resolver';
 import { FaucetResolver } from './features/faucet/faucet.resolver';
 import { ProposalsResolver } from './features/proposals/proposals.resolver';
 import { ReactionsResolver } from './features/reactions/reactions.resolver';
-import { QuorumsResolver } from './features/quorums/quorums.resolver';
 import { TransactionsResolver } from './features/transactions/transactions.resolver';
+import { PoliciesResolver } from './features/policies/policies.resolver';
 
 const resolvers = [
   AccountsResolver,
@@ -23,8 +23,8 @@ const resolvers = [
   ContactsResolver,
   ContractMethodsResolver,
   FaucetResolver,
+  PoliciesResolver,
   ProposalsResolver,
-  QuorumsResolver,
   ReactionsResolver,
   TransactionsResolver,
   UsersResolver,

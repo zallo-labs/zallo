@@ -1,5 +1,13 @@
 import { BigNumber } from 'ethers';
-import { address, Address, Addresslike, createIsObj, Erc20, Erc20__factory, isAddress } from 'lib';
+import {
+  asAddress,
+  Address,
+  Addresslike,
+  createIsObj,
+  Erc20,
+  Erc20__factory,
+  isAddress,
+} from 'lib';
 import _ from 'lodash';
 import { CHAIN, PROVIDER } from '~/util/network/provider';
 
@@ -31,7 +39,7 @@ type TokenDef = Pick<Token, 'name' | 'symbol' | 'decimals'> & {
 };
 
 export const createToken = (def: TokenDef): Token => {
-  const addresses = _.mapValues(def.addresses, address);
+  const addresses = _.mapValues(def.addresses, asAddress);
 
   if (CHAIN.name !== 'testnet') throw new Error('Only testnet is supported');
   const addr = def.addresses[CHAIN.name];
@@ -40,7 +48,7 @@ export const createToken = (def: TokenDef): Token => {
   const token: Token = {
     type: 'ERC20',
     ...def,
-    addr: address(addr),
+    addr: asAddress(addr),
     addresses,
     iconUri:
       def.iconUri ??

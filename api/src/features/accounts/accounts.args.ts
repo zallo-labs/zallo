@@ -5,7 +5,7 @@ import { Address } from 'lib';
 import { AddressField, AddressScalar } from '~/apollo/scalars/Address.scalar';
 import { SetField } from '~/apollo/scalars/SetField';
 import { minLengthMiddleware } from '~/apollo/scalars/util';
-import { QuorumInput } from '../quorums/quorums.args';
+import { PolicyInput } from '../policies/policies.args';
 
 @ArgsType()
 export class AccountArgs {
@@ -43,8 +43,8 @@ export class AccountSubscriptionFilters {
 export class CreateAccountArgs {
   name: string;
 
-  @Field(() => [QuorumInput], { middleware: [minLengthMiddleware(1)] })
-  quorums: QuorumInput[];
+  @Field(() => [PolicyInput], { middleware: [minLengthMiddleware(1)] })
+  policies: PolicyInput[];
 }
 
 @ArgsType()

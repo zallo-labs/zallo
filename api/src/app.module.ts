@@ -18,12 +18,12 @@ import { FaucetModule } from './features/faucet/faucet.module';
 import { SubgraphModule } from './features/subgraph/subgraph.module';
 import { ExpoModule } from './features/util/expo/expo.module';
 import { PubsubModule } from './features/util/pubsub/pubsub.module';
-import { QuorumsModule } from './features/quorums/quorums.module';
 import { RedisModule } from '@liaoliaots/nestjs-redis';
 import { PrismaModule } from './features/util/prisma/prisma.module';
 import { CONFIG } from './config';
 import { REDIS_PUBLISHER, REDIS_SUBSCRIBER } from './decorators/redis.decorator';
 import { BullModule } from '@nestjs/bull';
+import { PoliciesModule } from './features/policies/policies.module';
 
 @Module({
   imports: [
@@ -61,8 +61,8 @@ import { BullModule } from '@nestjs/bull';
     ContractMethodsModule,
     FaucetModule,
     HealthModule,
+    PoliciesModule,
     ProposalsModule,
-    QuorumsModule,
     ReactionsModule,
     SubgraphModule,
     TransactionsModule,

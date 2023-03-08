@@ -1,5 +1,5 @@
 import { gql } from '@apollo/client';
-import { address, Address, Id, MaybeArray, toId } from 'lib';
+import { asAddress, Address, Id, MaybeArray, toId } from 'lib';
 import { DateTime } from 'luxon';
 import { useMemo } from 'react';
 import {
@@ -59,7 +59,7 @@ export const useProposalsMetadata = ({
       data.proposals.map(
         (p): ProposalMetadata => ({
           id: toId(p.id),
-          account: address(p.accountId),
+          account: asAddress(p.accountId),
           hash: p.id,
           timestamp: DateTime.fromISO(p.createdAt),
         }),

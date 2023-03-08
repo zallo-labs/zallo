@@ -2,7 +2,7 @@ import '@matterlabs/hardhat-zksync-chai-matchers';
 import { expect } from 'chai';
 import { BytesLike } from 'ethers';
 import {
-  address,
+  asAddress,
   Policy,
   Rule,
   TestVerifier,

@@ -1,6 +1,6 @@
 import { gql } from '@apollo/client';
 import { CommentsDocument, CommentsQuery, CommentsQueryVariables } from '~/gql/generated.api';
-import { address, Address, Id, toId } from 'lib';
+import { asAddress, Address, Id, toId } from 'lib';
 import { DateTime } from 'luxon';
 import { useMemo } from 'react';
 import { Proposal } from './proposal';
@@ -60,11 +60,11 @@ export const useComments = (commentable: Commentable) => {
         (c): Comment => ({
           id: parseFloat(c.id),
           key: id.key,
-          author: address(c.authorId),
+          author: asAddress(c.authorId),
           content: c.content,
           reactions: Object.fromEntries(
             (c.reactions ?? []).map(
-              (r) => [address(r.userId), new Set(r.emojis as Emoji[])] as const,
+              (r) => [asAddress(r.userId), new Set(r.emojis as Emoji[])] as const,
             ),
           ),
           updatedAt: DateTime.fromISO(c.updatedAt),

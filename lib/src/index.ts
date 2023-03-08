@@ -41,5 +41,4 @@ export * from './execute';
 export * from './id';
 export * from './policy';
 export * from './signature';
-export * from './spending';
 export * from './tx';

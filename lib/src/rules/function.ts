@@ -1,14 +1,19 @@
 import { defaultAbiCoder } from 'ethers/lib/utils';
-import { Selector } from '../bytes';
+import { asSelector, Selector } from '../bytes';
 import { Arraylike, toSet } from '../util/maybe';
-import { asUint8 } from '../evmTypes';
+import { asUint8 } from '../uint';
 import { RuleSelector } from './uitl';
-import { TransactionRule, RuleStruct } from './rule';
+import { TransactionRule, RuleStruct, TransactionRuleIsSatisfiedOptions } from './rule';
 import { tryOrIgnore } from '../util/try';
 
 export class FunctionRule extends TransactionRule {
-  constructor(public functions: Arraylike<Selector>) {
+  functions: Set<Selector>;
+
+  constructor(functions: Arraylike<Selector>) {
     super();
+
+    this.functions = toSet(functions);
+    if (this.functions.size === 0) throw new Error('At least one function is required');
   }
 
   get struct() {
@@ -33,5 +38,9 @@ export class FunctionRule extends TransactionRule {
         return new FunctionRule(defaultAbiCoder.decode(['bytes4[]'], s.args)[0]);
       }
     });
+  }
+
+  isSatisfied({ tx }: TransactionRuleIsSatisfiedOptions): boolean {
+    return tx.data !== undefined && this.functions.has(asSelector(tx.data));
   }
 }

@@ -1,24 +1,23 @@
 import { BytesLike, ethers } from 'ethers';
 import { defaultAbiCoder } from 'ethers/lib/utils';
+import { SignatureLike } from '@ethersproject/bytes';
 import { Address, compareAddress } from './addr';
 import { Approver } from './approver';
 import { Policy } from './policy';
 import { hashTx, Tx } from './tx';
-
-export type SignatureLike = Parameters<typeof ethers.utils.splitSignature>[0];
 
 // Convert to a compact 64 byte (eip-2098) signature
 export const toCompactSignature = (signature: SignatureLike) =>
   ethers.utils.splitSignature(signature).compact;
 
 export interface Approval {
-  signer: Address;
+  approver: Address;
   signature: BytesLike;
 }
 
 export const encodeAccountSignature = (policy: Policy, approvals: Approval[]): BytesLike => {
   const signatures = approvals
-    .sort((a, b) => compareAddress(a.signer, b.signer))
+    .sort((a, b) => compareAddress(a.approver, b.approver))
     .map((s) => toCompactSignature(s.signature));
 
   return defaultAbiCoder.encode([Policy.ABI, 'bytes[] signatures'], [policy.struct, signatures]);

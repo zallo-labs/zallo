@@ -1,5 +1,5 @@
 import { Prisma } from '@prisma/client';
-import { Address, QuorumGuid, QuorumKey } from 'lib';
+import { Address, PolicyGuid, PolicyKey } from 'lib';
 import { getUserId } from '~/request/ctx';
 
 export const connectAccount = (
@@ -24,13 +24,12 @@ export const connectOrCreateUser = (
   },
 });
 
-export const connectQuorum = (
-  ...params: [QuorumGuid] | [Address, QuorumKey]
-): Prisma.QuorumCreateNestedOneWithoutProposalsInput => ({
-  connect: {
-    accountId_key: {
-      accountId: params.length === 1 ? params[0].account : params[0],
-      key: params.length === 1 ? params[0].key : params[1],
+export const connectPolicy = (...params: [PolicyGuid] | [Address, PolicyKey]) =>
+  ({
+    connect: {
+      accountId_key: {
+        accountId: params.length === 1 ? params[0].account : params[0],
+        key: params.length === 1 ? params[0].key : params[1],
+      },
     },
-  },
-});
+  } satisfies Prisma.PolicyCreateNestedManyWithoutAccountInput);

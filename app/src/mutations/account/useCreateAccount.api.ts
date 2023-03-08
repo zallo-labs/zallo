@@ -6,7 +6,7 @@ import {
   AccountsQueryVariables,
   useCreateAccountMutation,
 } from '~/gql/generated.api';
-import { Address, Quorum, toQuorumKey, tryAddress } from 'lib';
+import { Address, Quorum, toQuorumKey, asAddress } from 'lib';
 import { useUser } from '~/queries/useUser.api';
 import { updateQuery } from '~/gql/update';
 import assert from 'assert';
@@ -64,7 +64,7 @@ export const useCreateAccount = () => {
       },
     });
 
-    const account = tryAddress(r.data?.createAccount.id);
+    const account = asAddress(r.data?.createAccount.id);
     assert(account);
     return { account, quorums };
   };

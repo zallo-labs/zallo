@@ -1,32 +1,29 @@
 import { ethers } from 'ethers';
 import * as zk from 'zksync-web3';
+import { A } from 'ts-toolbelt';
+import { tryOr } from './util/try';
 
-export type Address = string & { readonly isAddress: true };
-
+export type Address = A.Type<string, 'Address'>;
 export type Addresslike = Address | string;
 
 export const ZERO_ADDR = ethers.constants.AddressZero as Address;
 
-export const address = (addr: Addresslike) => ethers.utils.getAddress(addr) as Address;
+export const asAddress = (addr: Addresslike) => ethers.utils.getAddress(addr) as Address;
 
-export const tryAddress = <A extends Addresslike | undefined>(addr: A) => {
-  try {
-    return (addr ? ethers.utils.getAddress(addr) : undefined) as A extends undefined
-      ? Address | undefined
-      : Address;
-  } catch {
-    return undefined;
-  }
+export const tryAsAddress = <A extends Addresslike | undefined>(addr: A) => {
+  const r = tryOr(() => (addr ? ethers.utils.getAddress(addr) : undefined), undefined);
+
+  return r as A extends undefined ? Address | undefined : Address;
 };
 
-export const isAddress = (v: unknown): v is Address => typeof v === 'string' && tryAddress(v) === v;
+export const isAddress = (v: unknown): v is Address => typeof v === 'string' && asAddress(v) === v;
 
 export const isAddressLike = (v: unknown): v is Addresslike =>
   typeof v === 'string' && ethers.utils.isAddress(v);
 
 export const compareAddress = (a: Addresslike, b: Addresslike) => {
-  const aArr = ethers.utils.arrayify(address(a));
-  const bArr = ethers.utils.arrayify(address(b));
+  const aArr = ethers.utils.arrayify(asAddress(a));
+  const bArr = ethers.utils.arrayify(asAddress(b));
 
   if (aArr.length > bArr.length) return 1;
 
@@ -38,8 +35,6 @@ export const compareAddress = (a: Addresslike, b: Addresslike) => {
 
   return 0;
 };
-
-export const sortAddresses = (addresses: Address[]) => addresses.sort(compareAddress);
 
 /* Module augmentation; including in a .ts file to compile into lib's typings */
 declare module './contracts/index' {

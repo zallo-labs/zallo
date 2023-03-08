@@ -26,5 +26,5 @@ export const asTransactionStruct = (tx: Tx): AwaitedObj<TransactionStruct> => ({
 
 export const defaultTx: Tx = {
   to: ZERO_ADDR,
-  nonce: ZERO,
+  nonce: 0n,
 };

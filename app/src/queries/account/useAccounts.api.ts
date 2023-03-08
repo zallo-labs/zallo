@@ -1,6 +1,6 @@
 import { gql } from '@apollo/client';
 import { useCredentials } from '@network/useCredentials';
-import { address, connectAccount } from 'lib';
+import { asAddress, connectAccount } from 'lib';
 import { useMemo } from 'react';
 import {
   QuorumFieldsFragmentDoc,
@@ -47,7 +47,7 @@ export const useAccounts = () => {
   return useMemo(
     (): CombinedAccount[] =>
       data.accounts.map((a): CombinedAccount => {
-        const addr = address(a.id);
+        const addr = asAddress(a.id);
 
         return {
           addr,

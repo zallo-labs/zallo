@@ -1,4 +1,4 @@
-import { BigNumber, Overrides } from 'ethers';
+import { Overrides } from 'ethers';
 import { Account } from './contracts';
 import { encodeAccountSignature, Approval } from './signature';
 import * as zk from 'zksync-web3';
@@ -7,9 +7,10 @@ import { EIP712_TX_TYPE } from 'zksync-web3/build/src/utils';
 import { Tx } from './tx';
 import { tryOrAsync } from './util/try';
 import { Policy } from './policy';
+import { asBigInt } from './bignum';
 
-export const FALLBACK_GAS_LIMIT = BigNumber.from(3_000_000);
-const GAS_PER_SIGNER = BigNumber.from(200_000);
+export const FALLBACK_GAS_LIMIT = 3_000_000n;
+const GAS_PER_SIGNER = 200_000n;
 
 export interface ExecuteTxOptions {
   customData?: Overrides & Eip712Meta;
@@ -48,8 +49,9 @@ export const asTransactionRequest = async ({
   };
 
   const opGas =
-    tx.gasLimit || (await tryOrAsync(() => provider.estimateGas(req), FALLBACK_GAS_LIMIT));
-  req.gasLimit = opGas.add(GAS_PER_SIGNER.mul(approvals.length));
+    tx.gasLimit ||
+    (await tryOrAsync(async () => asBigInt(await provider.estimateGas(req)), FALLBACK_GAS_LIMIT));
+  req.gasLimit = opGas + GAS_PER_SIGNER * BigInt(approvals.length);
 
   return req;
 };

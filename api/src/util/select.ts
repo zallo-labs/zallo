@@ -12,7 +12,7 @@ type DefaultFields = Partial<{
 const DEFAULT_FIELDS: DefaultFields = {
   Approver: (select) => ({
     ...(select.id && {
-      quorumStateId: true,
+      ruleStateId: true,
       userId: true,
     }),
   }),
@@ -35,7 +35,7 @@ const DEFAULT_FIELDS: DefaultFields = {
       },
     }),
   }),
-  Quorum: (select) => ({
+  Policy: (select) => ({
     ...(select.id && {
       accountId: true,
       key: true,

@@ -1,5 +1,5 @@
 import { BytesLike } from 'ethers';
-import { Address, address } from './addr';
+import { Address, asAddress } from './addr';
 import { Factory } from './contracts/Factory';
 import { defaultAbiCoder, hexlify, isHexString, randomBytes } from 'ethers/lib/utils';
 import * as zk from 'zksync-web3';
@@ -20,16 +20,16 @@ export const toDeploySalt = (v: string): DeploySalt => {
 export const randomDeploySalt = () => hexlify(randomBytes(DEPLOY_SALT_BYTES)) as DeploySalt;
 
 export interface AccountConstructorArgs {
-  rules: Policy[];
+  policies: Policy[];
 }
 
 export interface ProxyConstructorArgs extends AccountConstructorArgs {
   impl: Address;
 }
 
-export const encodeProxyConstructorArgs = ({ rules, impl }: ProxyConstructorArgs) => {
+export const encodeProxyConstructorArgs = ({ policies: policies, impl }: ProxyConstructorArgs) => {
   const encodedInitializeCall = ACCOUNT_INTERFACE.encodeFunctionData('initialize', [
-    rules.map((r) => r.struct),
+    policies.map((p) => p.struct),
   ]);
 
   return defaultAbiCoder.encode(
@@ -51,7 +51,7 @@ export const calculateProxyAddress = async (
     encodeProxyConstructorArgs(args),
   );
 
-  return address(addr);
+  return asAddress(addr);
 };
 
 export const deployAccountProxy = async (

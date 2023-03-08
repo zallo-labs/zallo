@@ -3,7 +3,7 @@ import { Token } from '@token/token';
 import { useMaybeToken } from '@token/useToken';
 import assert from 'assert';
 import { BigNumber } from 'ethers';
-import { Address, address, Id } from 'lib';
+import { Address, asAddress, Id } from 'lib';
 import { DateTime } from 'luxon';
 import { useMemo } from 'react';
 import {
@@ -47,14 +47,14 @@ export const useTransfer = (id: Id) => {
 
   const t = data.transfer!;
 
-  const token = useMaybeToken(address(t.token));
+  const token = useMaybeToken(asAddress(t.token));
   assert(token, 'token not found for transfer');
 
   return useMemo(
     (): Transfer => ({
       token,
-      from: address(t.from),
-      to: address(t.to),
+      from: asAddress(t.from),
+      to: asAddress(t.to),
       amount: BigNumber.from(t.value),
       direction: t.type,
       timestamp: dateTimeFromSubgraph(t.timestamp),

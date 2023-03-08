@@ -1,14 +1,11 @@
 import { FindManyProposalArgs } from '@gen/proposal/find-many-proposal.args';
 import { ArgsType, Field, registerEnumType } from '@nestjs/graphql';
-import { BigNumber } from 'ethers';
-import { Address, QuorumKey, TxOptions, TxSalt } from 'lib';
+import { Address, HexString } from 'lib';
 import { AddressField, AddressScalar } from '~/apollo/scalars/Address.scalar';
-import { Uint256BnField } from '~/apollo/scalars/BigNumber.scalar';
-import { QuorumKeyField } from '~/apollo/scalars/QuorumKey.sclar';
+import { Uint256Field } from '~/apollo/scalars/BigInt.scalar';
 import {
   Bytes32Field,
   Bytes32Scalar,
-  Bytes8Field,
   BytesField,
   BytesScalar,
 } from '~/apollo/scalars/Bytes.scalar';
@@ -73,35 +70,27 @@ export class ProposalSubscriptionFilters {
 }
 
 @ArgsType()
-export class ProposeArgs implements TxOptions {
+export class ProposeArgs {
   @AddressField()
   account: Address;
-
-  @QuorumKeyField({
-    nullable: true,
-    description:
-      'Defaults to quorum with the least amount of approvers, followed by the lowest id (by lexical comparison)',
-  })
-  quorumKey?: QuorumKey;
 
   @AddressField()
   to: Address;
 
-  // Wei
-  @Uint256BnField({ nullable: true })
-  value?: BigNumber;
+  @Uint256Field({ nullable: true, description: 'WEI' })
+  value?: bigint;
 
   @BytesField({ nullable: true })
-  data?: string;
+  data?: HexString;
 
-  @Bytes8Field({ nullable: true })
-  salt?: TxSalt;
+  @Uint256Field({ nullable: true })
+  nonce?: bigint;
 
-  @Uint256BnField({ nullable: true })
-  gasLimit?: BigNumber;
+  @Uint256Field({ nullable: true })
+  gasLimit?: bigint;
 
   @Field(() => BytesScalar, { nullable: true, description: 'Approve the proposal' })
-  signature?: string;
+  signature?: HexString;
 }
 
 @ArgsType()

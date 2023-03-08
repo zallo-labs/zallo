@@ -1,5 +1,5 @@
 import { gql } from '@apollo/client';
-import { address, Address } from 'lib';
+import { asAddress, Address } from 'lib';
 import { useSuspenseQuery } from '~/gql/useSuspenseQuery';
 import { useMemo } from 'react';
 import { UserDocument, UserQuery, UserQueryVariables } from '~/gql/generated.api';
@@ -29,7 +29,7 @@ export const useUser = (id?: Address) => {
 
   return useMemo(
     (): User => ({
-      id: address(u.id),
+      id: asAddress(u.id),
       name: u.name || undefined,
     }),
     [u.id, u.name],

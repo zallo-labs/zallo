@@ -1,4 +1,4 @@
-import { getChain, makeRequiredEnv, optionalEnv as optional } from 'lib';
+import { getChain, makeRequiredEnv, optionalEnv as optional, tryAsAddress } from 'lib';
 require('dotenv-vault-core').config({ path: '../.env' });
 
 const required = makeRequiredEnv(!!process.env.JEST_WORKER_ID);
@@ -17,8 +17,8 @@ export const CONFIG = {
   etherscanApiKey: required`ETHERSCAN_API_KEY`,
   subgraphGqlUrl: required`SUBGRAPH_GQL_URL`,
   walletPrivateKey: required`WALLET_PRIVATE_KEY`,
-  accountImplAddress: required`ACCOUNT_IMPL_${chain.name.toUpperCase()}`,
-  proxyFactoryAddress: required`PROXY_FACTORY_${chain.name.toUpperCase()}`,
+  accountImplAddress: tryAsAddress(required`ACCOUNT_IMPL_${chain.name.toUpperCase()}`),
+  proxyFactoryAddress: tryAsAddress(required`PROXY_FACTORY_${chain.name.toUpperCase()}`),
 };
 
 export const IS_DEV = CONFIG.env === 'development';

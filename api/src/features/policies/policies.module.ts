@@ -1,12 +1,12 @@
 import { forwardRef, Module } from '@nestjs/common';
 import { ProposalsModule } from '../proposals/proposals.module';
 import { TransactionsModule } from '../transactions/transactions.module';
-import { QuorumsResolver } from './quorums.resolver';
-import { QuorumsService } from './quorums.service';
+import { PoliciesResolver } from './policies.resolver';
+import { PoliciesService } from './policies.service';
 
 @Module({
   imports: [forwardRef(() => ProposalsModule), forwardRef(() => TransactionsModule)],
-  exports: [QuorumsService],
-  providers: [QuorumsResolver, QuorumsService],
+  exports: [PoliciesService],
+  providers: [PoliciesResolver, PoliciesService],
 })
-export class QuorumsModule {}
+export class PoliciesModule {}

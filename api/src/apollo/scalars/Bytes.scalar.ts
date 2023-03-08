@@ -1,21 +1,21 @@
 import { UserInputError } from 'apollo-server-core';
 import { BytesLike, ethers } from 'ethers';
-import { hexDataLength } from 'ethers/lib/utils';
 import { Kind } from 'graphql';
+import { asHexString, HexString, isHexString } from 'lib';
 import { createScalar } from './util';
 
-const isBytes = (v: unknown): v is BytesLike => ethers.utils.isHexString(v);
+const parse = (value: unknown, len?: number): HexString => {
+  try {
+    if (!isHexString(value)) throw new UserInputError(`Provided value is not a bytes hex string`);
 
-const parse = (value: unknown, len?: number): BytesLike => {
-  if (!isBytes(value)) throw new UserInputError(`Provided value is not a bytes hex string`);
-  if (len !== undefined && hexDataLength(value) !== len)
-    throw new UserInputError(`Must have length ${len}`);
-
-  return value;
+    return asHexString(value, len);
+  } catch (e) {
+    throw new UserInputError((e as Error).message);
+  }
 };
 
 const createBytesScalar = (name: string, description: string, len?: number) =>
-  createScalar<BytesLike, string>({
+  createScalar<HexString, string>({
     name,
     description,
     serialize: (value) => ethers.utils.hexlify(value as BytesLike),
@@ -28,8 +28,11 @@ const createBytesScalar = (name: string, description: string, len?: number) =>
 
 export const [BytesScalar, BytesField] = createBytesScalar('Bytes', 'bytes hex string');
 
-export const [Bytes4Scalar, Bytes4Field] = createBytesScalar('Bytes4', '4-byte hex string');
+export const [Bytes4Scalar, Bytes4Field] = createBytesScalar('Bytes4', '4-byte hex string', 4);
+export const [SelectorScalar, SelectorField] = createBytesScalar(
+  'Selector',
+  'function selector (4-byte hex string)',
+  4,
+);
 
-export const [Bytes8Scalar, Bytes8Field] = createBytesScalar('Bytes8', '8-byte hex string');
-
-export const [Bytes32Scalar, Bytes32Field] = createBytesScalar('Bytes32', '32-byte hex string');
+export const [Bytes32Scalar, Bytes32Field] = createBytesScalar('Bytes32', '32-byte hex string', 32);

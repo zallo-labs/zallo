@@ -1,7 +1,7 @@
 import { gql } from '@apollo/client';
 import assert from 'assert';
 import { BigNumber } from 'ethers';
-import { Address, address, toQuorumKey, toTxSalt } from 'lib';
+import { Address, asAddress, toQuorumKey, toTxSalt } from 'lib';
 import { DateTime } from 'luxon';
 import { useMemo } from 'react';
 import { ProposalDocument, ProposalQuery, ProposalQueryVariables } from '~/gql/generated.api';
@@ -72,7 +72,7 @@ export const useProposal = <Id extends ProposalId | undefined>(id: Id) => {
   if (id) assert(p);
 
   const quorum = useQuorum(
-    p ? { account: address(p.accountId), key: toQuorumKey(p.quorumKey) } : undefined,
+    p ? { account: asAddress(p.accountId), key: toQuorumKey(p.quorumKey) } : undefined,
   );
 
   const proposal = useMemo((): Proposal | undefined => {
@@ -82,7 +82,7 @@ export const useProposal = <Id extends ProposalId | undefined>(id: Id) => {
       p.approvals
         ?.filter((a) => a.signature)
         .map((a) => ({
-          addr: address(a.userId),
+          addr: asAddress(a.userId),
           signature: a.signature!,
           timestamp: DateTime.fromISO(a.createdAt),
         }))
@@ -112,9 +112,9 @@ export const useProposal = <Id extends ProposalId | undefined>(id: Id) => {
       p.approvals
         ?.filter((a) => !a.signature)
         .map((a): [Address, Rejection] => [
-          address(a.userId),
+          asAddress(a.userId),
           {
-            addr: address(a.userId),
+            addr: asAddress(a.userId),
             timestamp: DateTime.fromISO(a.createdAt),
           },
         ]),
@@ -126,10 +126,10 @@ export const useProposal = <Id extends ProposalId | undefined>(id: Id) => {
 
     return {
       id: id.id,
-      account: address(p.accountId),
+      account: asAddress(p.accountId),
       quorum,
       timestamp: DateTime.fromISO(p.createdAt),
-      to: address(p.to),
+      to: asAddress(p.to),
       value: p.value ? BigNumber.from(p.value) : undefined,
       data: p.data || undefined,
       salt: toTxSalt(p.salt),
@@ -139,7 +139,7 @@ export const useProposal = <Id extends ProposalId | undefined>(id: Id) => {
       isApproved: approvals.size === quorum.activeOrLatest.approvers.size,
       submissions: transactions,
       proposedAt: DateTime.fromISO(p.createdAt),
-      proposer: address(p.proposerId),
+      proposer: asAddress(p.proposerId),
       state: getStatus(transactions),
     };
   }, [p, quorum, id]);

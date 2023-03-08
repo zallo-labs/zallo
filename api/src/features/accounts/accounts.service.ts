@@ -1,17 +1,8 @@
 import { Injectable } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
-import {
-  address,
-  Address,
-  deployAccountProxy,
-  TokenLimit,
-  TokenLimitPeriod,
-  toDeploySalt,
-  toQuorumKey,
-} from 'lib';
+import { asAddress, Address, deployAccountProxy, toDeploySalt } from 'lib';
 import { PrismaService } from '../util/prisma/prisma.service';
 import { ProviderService } from '~/features/util/provider/provider.service';
-import { BigNumber } from 'ethers';
 import { PubsubService } from '../util/pubsub/pubsub.service';
 import assert from 'assert';
 import {
@@ -19,6 +10,7 @@ import {
   ACCOUNT_SUBSCRIPTION,
   USER_ACCOUNT_SUBSCRIPTION,
 } from './accounts.args';
+import { prismaAsPolicy } from '../policies/policies.util';
 
 @Injectable()
 export class AccountsService {
@@ -34,49 +26,38 @@ export class AccountsService {
     accountAddr: Address,
     updateArgs?: T,
   ) {
-    const { impl, deploySalt, isActive, quorumStates } =
-      await this.prisma.asUser.account.findUniqueOrThrow({
-        where: { id: accountAddr },
-        select: {
-          impl: true,
-          deploySalt: true,
-          isActive: true,
-          // Initialization quorums
-          quorumStates: {
-            where: { proposal: null },
-            include: {
-              approvers: true,
-              limits: true,
-            },
+    const {
+      impl,
+      deploySalt,
+      isActive,
+      policyRulesHistory: rules,
+    } = await this.prisma.asUser.account.findUniqueOrThrow({
+      where: { id: accountAddr },
+      select: {
+        impl: true,
+        deploySalt: true,
+        isActive: true,
+        // Initialization rules
+        policyRulesHistory: {
+          where: { proposal: null },
+          select: {
+            id: true,
+            policyKey: true,
+            approvers: { select: { userId: true } },
+            onlyFunctions: true,
+            onlyTargets: true,
           },
         },
-      });
+      },
+    });
     assert(!isActive);
 
     // Activate
     const r = await this.provider.useProxyFactory((factory) =>
       deployAccountProxy(
         {
-          impl: address(impl),
-          quorums: quorumStates.map((q) => ({
-            key: toQuorumKey(q.quorumKey),
-            // @ts-expect-error https://github.com/prisma/prisma/issues/17349
-            approvers: new Set(q.approvers.map((a) => address(a.userId))),
-            spending: {
-              fallback: q.spendingFallback,
-              limits: Object.fromEntries(
-                // @ts-expect-error https://github.com/prisma/prisma/issues/17349
-                q.limits.map((l): [Address, TokenLimit] => [
-                  address(l.token),
-                  {
-                    token: address(l.token),
-                    amount: BigNumber.from(l.amount),
-                    period: l.period as TokenLimitPeriod,
-                  },
-                ]),
-              ),
-            },
-          })),
+          impl: asAddress(impl),
+          policies: rules.map(prismaAsPolicy),
         },
         factory,
         toDeploySalt(deploySalt),
@@ -88,17 +69,10 @@ export class AccountsService {
       where: { id: accountAddr },
       data: {
         isActive: true,
-        quorums: {
-          update: quorumStates.map((state) => ({
-            where: {
-              accountId_key: {
-                accountId: state.accountId,
-                key: state.quorumKey,
-              },
-            },
-            data: {
-              activeStateId: state.id,
-            },
+        policies: {
+          update: rules.map((r) => ({
+            where: { accountId_key: { accountId: accountAddr, key: r.policyKey } },
+            data: { activeId: r.id },
           })),
         },
       },
@@ -110,18 +84,19 @@ export class AccountsService {
     const id = payload[ACCOUNT_SUBSCRIPTION].id;
     await this.pubsub.publish<AccountSubscriptionPayload>(`${ACCOUNT_SUBSCRIPTION}.${id}`, payload);
 
-    // Publish account for each approver
-    const { quorumStates } = await this.prisma.asUser.account.findUniqueOrThrow({
+    // Publish event to all users with access to the account
+    const { policyRulesHistory: rules } = await this.prisma.asUser.account.findUniqueOrThrow({
       where: { id },
       select: {
-        quorumStates: {
+        policyRulesHistory: {
+          where: { OR: [{ activeRulesOf: {} }, { draftRulesOf: {} }] },
           select: {
             approvers: { select: { userId: true } },
           },
         },
       },
     });
-    const approvers = quorumStates.flatMap((state) => state.approvers.map((a) => a.userId));
+    const approvers = rules.flatMap((r) => r.approvers.map((a) => a.userId));
 
     await Promise.all(
       approvers.map((user) =>

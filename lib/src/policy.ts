@@ -1,22 +1,40 @@
 import { defaultAbiCoder } from 'ethers/lib/utils';
+import { SignatureLike } from '@ethersproject/bytes';
 import { A } from 'ts-toolbelt';
 import { isSignatureRule, isTransactionRule, Rule, RULES_ABI } from './rules/rule';
 import { asSignatureRule, asTransactionRule } from './rules/uitl';
-import { asUint256 } from './evmTypes';
-import { BigNumberish, ethers } from 'ethers';
+import { asUint32, BigIntLike, MAX_UINT32, MIN_UINT32 } from './uint';
+import { ethers } from 'ethers';
 import { PolicyStruct as BasePolicyStruct } from './contracts/Account';
 import { AwaitedObj } from './util/mappedTypes';
+import { Address } from './addr';
+import { GetDomainParams, hashTx, Tx } from './tx';
 
 export type PolicyStruct = AwaitedObj<BasePolicyStruct>;
 
 export type PolicyKey = A.Type<bigint, 'PolicyKey'>;
+export const asPolicyKey = (key: BigIntLike) => asUint32(key) as unknown as PolicyKey;
+export const MIN_POLICY_KEY = MIN_UINT32 as unknown as PolicyKey;
+export const MAX_POLICY_KEY = MAX_UINT32 as unknown as PolicyKey;
 
-export const asPolicyKey = (key: BigNumberish) => asUint256(key) as unknown as PolicyKey;
+export interface PolicyGuid {
+  account: Address;
+  key: PolicyKey;
+}
+
+export type OnlySatisfied = 'signature' | 'transaction';
+
+export interface IsSatisfiedOptions {
+  domainParams: GetDomainParams;
+  tx: Tx;
+  signatures: SignatureLike[];
+  only?: OnlySatisfied;
+}
 
 export class Policy {
   public readonly key: PolicyKey;
 
-  constructor(key: BigNumberish, public verifiers: Rule[]) {
+  constructor(key: BigIntLike, public rules: Rule[]) {
     this.key = asPolicyKey(key);
   }
 
@@ -30,11 +48,11 @@ export class Policy {
   }
 
   get signatureRules() {
-    return this.verifiers.filter(isSignatureRule);
+    return this.rules.filter(isSignatureRule);
   }
 
   get transactionRules() {
-    return this.verifiers.filter(isTransactionRule);
+    return this.rules.filter(isTransactionRule);
   }
 
   static fromStruct(data: PolicyStruct): Policy {
@@ -50,5 +68,25 @@ export class Policy {
     return ethers.utils.keccak256(
       defaultAbiCoder.encode([RULES_ABI, RULES_ABI], [signatureRules, transactionRules]),
     );
+  }
+
+  async isSatisfied({
+    domainParams: { address, provider },
+    tx,
+    signatures,
+    only,
+  }: IsSatisfiedOptions): Promise<boolean> {
+    const hash = await hashTx(tx, { address, provider });
+
+    return (
+      await Promise.all([
+        ...(!only || only === 'signature' ? this.signatureRules : []).map((v) =>
+          v.isSatisfied({ provider, digest: hash, signatures }),
+        ),
+        ...(!only || only === 'transaction' ? this.transactionRules : []).map((v) =>
+          v.isSatisfied({ provider, tx }),
+        ),
+      ])
+    ).every((isValid) => isValid);
   }
 }

@@ -5,19 +5,18 @@ import { hexlify } from 'ethers/lib/utils';
 import {
   toTx,
   hashTx,
-  TxOptions,
   isTruthy,
   Address,
-  QuorumKey,
   isPresent,
-  QuorumGuid,
-  address,
-  toQuorumKey,
+  asAddress,
+  Tx,
+  PolicyGuid,
+  asPolicyKey,
 } from 'lib';
 import { PrismaService } from '../util/prisma/prisma.service';
 import { ProviderService } from '~/features/util/provider/provider.service';
 import { PubsubService } from '~/features/util/pubsub/pubsub.service';
-import { connectAccount, connectQuorum, connectUser } from '~/util/connect-or-create';
+import { connectAccount, connectUser } from '~/util/connect-or-create';
 import { TransactionsService } from '../transactions/transactions.service';
 import {
   ACCOUNT_PROPOSAL_SUB_TRIGGER,
@@ -31,8 +30,9 @@ import {
 } from './proposals.args';
 import { getUser, getUserId } from '~/request/ctx';
 import { match } from 'ts-pattern';
-import { QuorumsService } from '../quorums/quorums.service';
 import { ExpoService } from '../util/expo/expo.service';
+import { O } from 'ts-toolbelt';
+import { PoliciesService } from '../policies/policies.service';
 
 const TX_IS_EXECUTING: Prisma.TransactionWhereInput = { response: { isNot: {} } };
 const TX_IS_EXECUTED: Prisma.TransactionWhereInput = {
@@ -41,15 +41,9 @@ const TX_IS_EXECUTED: Prisma.TransactionWhereInput = {
 const PROPOSAL_IS_PENDING: Prisma.ProposalWhereInput = {
   transactions: { none: { OR: [TX_IS_EXECUTING, TX_IS_EXECUTED] } },
 };
-const getProposalRequiresAction = (user: Address): Prisma.ProposalWhereInput => ({
-  ...PROPOSAL_IS_PENDING,
-  quorum: { activeState: { approvers: { some: { userId: user } } } },
-  approvals: { none: { userId: user } },
-});
 
-export interface ProposeParams extends TxOptions {
+export interface ProposeParams extends O.Optional<Tx, 'nonce'> {
   account: Address;
-  quorumKey?: QuorumKey;
   signature?: string;
 }
 
@@ -58,12 +52,11 @@ export class ProposalsService {
   constructor(
     private prisma: PrismaService,
     private provider: ProviderService,
-    private expo: ExpoService,
     private pubsub: PubsubService,
     @Inject(forwardRef(() => TransactionsService))
     private transactions: TransactionsService,
-    @Inject(forwardRef(() => QuorumsService))
-    private quorums: QuorumsService,
+    @Inject(forwardRef(() => PoliciesService))
+    private policies: PoliciesService,
   ) {}
 
   findUnique = this.prisma.asUser.proposal.findUnique;
@@ -94,10 +87,11 @@ export class ProposalsService {
                 .exhaustive(),
             ),
           },
-          actionRequired !== undefined &&
-            (actionRequired
-              ? getProposalRequiresAction(user)
-              : { NOT: getProposalRequiresAction(user) }),
+          // TODO: handle actionRequired
+          // actionRequired !== undefined &&
+          //   (actionRequired
+          //     ? getProposalRequiresAction(user)
+          //     : { NOT: getProposalRequiresAction(user) }),
         ].filter(isTruthy),
       },
       ...res,
@@ -105,26 +99,26 @@ export class ProposalsService {
   }
 
   async propose<T extends Prisma.ProposalArgs>(
-    { account, quorumKey, signature, ...options }: ProposeParams,
+    { account, signature, ...txOptions }: ProposeParams,
     res?: Prisma.SelectSubset<T, Prisma.ProposalArgs>,
     client?: Prisma.TransactionClient,
   ) {
     return this.prisma.$transactionAsUser(client, async (client) => {
-      const tx = toTx(options);
-
-      if (!quorumKey) quorumKey = (await this.quorums.getDefaultQuorum(account)).key;
+      const tx: Tx = {
+        ...txOptions,
+        nonce: BigInt((await client.proposal.count({ where: { account: { id: account } } })) - 1),
+      };
 
       const proposal = await client.proposal.create({
         data: {
           id: await hashTx(tx, { address: account, provider: this.provider }),
           account: connectAccount(account),
-          quorum: connectQuorum(account, quorumKey),
           proposer: connectUser(getUser().id),
           to: tx.to,
           value: tx.value?.toString(),
           data: tx.data ? hexlify(tx.data) : undefined,
-          salt: tx.salt,
-          gasLimit: tx.gasLimit?.toString(),
+          nonce: tx.nonce,
+          gasLimit: tx.gasLimit,
         },
         ...(signature ? { select: { id: true } } : res),
       });
@@ -141,7 +135,7 @@ export class ProposalsService {
     client: Prisma.TransactionClient = this.prisma.asUser,
   ): Promise<Proposal> {
     const user = getUser().id;
-    if (!(await this.provider.isValidSignature(user, id, signature)))
+    if (!(await this.provider.isValidSignatureNow(user, id, signature)))
       throw new UserInputError('Invalid signature');
 
     await client.approval.create({
@@ -203,16 +197,16 @@ export class ProposalsService {
     res?: Prisma.SelectSubset<A, Prisma.ProposalArgs>,
   ) {
     // Delete quorums for which this proposal contains their creation state
-    return this.prisma.asUser.$transaction(async (tx) => {
-      const { quorumStates, ...r } = await tx.proposal.delete({
+    return this.prisma.asUser.$transaction(async (client) => {
+      const { policyRules, ...r } = await client.proposal.delete({
         where: { id },
         select: {
           ...(res?.select ?? {}),
-          quorumStates: {
+          policyRules: {
             select: {
-              quorum: {
+              policy: {
                 select: {
-                  _count: { select: { states: true } },
+                  _count: { select: { rulesHistory: true } },
                   accountId: true,
                   key: true,
                 },
@@ -222,20 +216,20 @@ export class ProposalsService {
         },
       });
 
-      const uniqueQuorumsToRemove = new Map(
-        quorumStates
-          .filter((s) => s.quorum._count.states === 1)
-          .map((s) => {
-            const quorum: QuorumGuid = {
-              account: address(s.quorum.accountId),
-              key: toQuorumKey(s.quorum.key),
+      const policiesToRemove = new Map(
+        policyRules
+          .filter((s) => s.policy._count.rulesHistory === 1)
+          .map(({ policy }) => {
+            const guid: PolicyGuid = {
+              account: asAddress(policy.accountId),
+              key: asPolicyKey(policy.key),
             };
-            return [quorum, quorum];
+            return [guid, guid];
           }),
       ).values();
 
       await Promise.all(
-        [...uniqueQuorumsToRemove].map((quorum) => this.quorums.remove(quorum, undefined, tx)),
+        [...policiesToRemove].map((policy) => this.policies.remove(policy, undefined, client)),
       );
 
       return r as Partial<Proposal>;
@@ -254,51 +248,46 @@ export class ProposalsService {
   }
 
   private async notifyApprovers(proposalId: string) {
-    // Data is fetched as superuser to user's RLS settings - in order to get the approvers' push tokens
-    const { approvals, quorum } = await this.prisma.asSuperuser.proposal.findUniqueOrThrow({
-      where: { id: proposalId },
-      select: {
-        approvals: { select: { userId: true } },
-        quorum: {
-          select: {
-            key: true,
-            activeState: {
-              select: {
-                approvers: {
-                  select: {
-                    user: {
-                      select: {
-                        id: true,
-                        pushToken: true,
-                      },
-                    },
-                  },
-                },
-              },
-            },
-          },
-        },
-      },
-    });
-
-    const alreadyApproved = new Set(approvals.map((a) => a.userId));
-    const approverPushTokens = (quorum.activeState?.approvers ?? [])
-      .filter((a) => !alreadyApproved.has(a.user.id) && a.user.pushToken)
-      .map((a) => a.user.pushToken)
-      .filter(isPresent);
-
-    // Send a notification to specified users that haven't approved yet
-    this.expo.chunkPushNotifications([
-      {
-        to: approverPushTokens,
-        title: 'Approval Request',
-        body: 'Your approval has been required on a proposal',
-        data: { url: `zallo://proposal/?id=${proposalId}` },
-      },
-    ]);
-
+    // TODO: implement
+    // const { approvals, quorum } = await this.prisma.asUser.proposal.findUniqueOrThrow({
+    //   where: { id: proposalId },
+    //   select: {
+    //     approvals: { select: { userId: true } },
+    //     quorum: {
+    //       select: {
+    //         key: true,
+    //         activeState: {
+    //           select: {
+    //             approvers: {
+    //               select: {
+    //                 user: {
+    //                   select: {
+    //                     id: true,
+    //                     pushToken: true,
+    //                   },
+    //                 },
+    //               },
+    //             },
+    //           },
+    //         },
+    //       },
+    //     },
+    //   },
+    // });
+    // const alreadyApproved = new Set(approvals.map((a) => a.userId));
+    // const approverPushTokens = (quorum.activeState?.approvers ?? [])
+    //   .filter((a) => !alreadyApproved.has(a.user.id) && a.user.pushToken)
+    //   .map((a) => a.user.pushToken)
+    //   .filter(isPresent);
+    // // Send a notification to specified users that haven't approved yet
+    // this.expo.chunkPushNotifications([
+    //   {
+    //     to: approverPushTokens,
+    //     title: 'Approval Request',
+    //     body: 'Your approval has been required on a proposal',
+    //     data: { url: `zallo://proposal/?id=${proposalId}` },
+    //   },
+    // ]);
     // TODO: handle failed notifications, removing push tokens of users that have uninstalled or disabled notifications
-
-    return true;
   }
 }

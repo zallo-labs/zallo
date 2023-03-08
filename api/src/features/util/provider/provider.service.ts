@@ -4,14 +4,17 @@ import { CONFIG } from '~/config';
 import {
   Address,
   Account,
-  connectAccount,
   Factory,
   Factory__factory,
   Chain,
-  SignatureLike,
+  ApprovalsRule,
+  Account__factory,
+  Addresslike,
+  asAddress,
 } from 'lib';
 import { Mutex } from 'async-mutex';
-import { BytesLike, ethers } from 'ethers';
+import { BytesLike } from 'ethers';
+import { SignatureLike } from '@ethersproject/bytes';
 
 @Injectable()
 export class ProviderService extends zk.Provider {
@@ -34,8 +37,8 @@ export class ProviderService extends zk.Provider {
     this.proxyFactory = Factory__factory.connect(CONFIG.proxyFactoryAddress, this.wallet);
   }
 
-  connectAccount(account: Address): Account {
-    return connectAccount(account, this);
+  connectAccount(account: Addresslike): Account {
+    return Account__factory.connect(asAddress(account), this);
   }
 
   useWallet<R>(f: (wallet: zk.Wallet) => R): Promise<R> {
@@ -59,9 +62,7 @@ export class ProviderService extends zk.Provider {
     }
   }
 
-  async isValidSignature(addr: Address, message: BytesLike, signature: SignatureLike) {
-    // return zk.utils.isSignatureCorrect(this, addr, message, signature);  // TODO: use once exported from zksync-web3, otherwise extract code
-
-    return ethers.utils.recoverAddress(message, signature) === addr;
+  async isValidSignatureNow(addr: Address, digest: BytesLike, signature: SignatureLike) {
+    return ApprovalsRule.isValidSignatureNow(this, addr, digest, signature);
   }
 }

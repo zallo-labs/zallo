@@ -1,7 +1,7 @@
 import { Injectable, NestMiddleware, UnauthorizedException } from '@nestjs/common';
 import { Request, Response, NextFunction } from 'express';
 import { ethers, Wallet } from 'ethers';
-import { Address, address } from 'lib';
+import { Address, asAddress } from 'lib';
 import { DateTime } from 'luxon';
 import { PrismaService } from '../util/prisma/prisma.service';
 import { SiweMessage } from 'siwe';
@@ -90,10 +90,10 @@ export class AuthMiddleware implements NestMiddleware {
       // Use the session expiry time if provided
       if (message.expirationTime) req.session.cookie.expires = new Date(message.expirationTime);
 
-      return address(message.address);
+      return asAddress(message.address);
     } else if (typeof auth === 'string' && AUTH_MESSAGE) {
       try {
-        return address(ethers.utils.verifyMessage(AUTH_MESSAGE, auth));
+        return asAddress(ethers.utils.verifyMessage(AUTH_MESSAGE, auth));
       } catch {
         throw new UnauthorizedException(
           `Invalid signature; required auth message: ${AUTH_MESSAGE}`,
@@ -101,7 +101,7 @@ export class AuthMiddleware implements NestMiddleware {
       }
     } else if (isPlayground(req)) {
       if (!req.session.playgroundWallet)
-        req.session.playgroundWallet = address(Wallet.createRandom().address);
+        req.session.playgroundWallet = asAddress(Wallet.createRandom().address);
 
       return req.session.playgroundWallet;
     }
@@ -110,13 +110,12 @@ export class AuthMiddleware implements NestMiddleware {
   private async getAccounts(userId: Address) {
     const accounts = await this.prisma.asSuperuser.account.findMany({
       where: {
-        quorumStates: {
+        policies: {
           some: {
-            approvers: {
-              some: {
-                userId,
-              },
-            },
+            OR: [
+              { active: { approvers: { some: { userId } } } },
+              { draft: { approvers: { some: { userId } } } },
+            ],
           },
         },
       },
@@ -125,6 +124,6 @@ export class AuthMiddleware implements NestMiddleware {
       },
     });
 
-    return [...new Set(accounts.map((acc) => address(acc.id)))];
+    return [...new Set(accounts.map((acc) => asAddress(acc.id)))];
   }
 }

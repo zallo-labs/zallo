@@ -1,7 +1,7 @@
 import { expect } from 'chai';
 import { BigNumber } from 'ethers';
 import { parseEther } from 'ethers/lib/utils';
-import { toTx, hashTx, TestUtil, address, TestUtil__factory, ZERO } from 'lib';
+import { toTx, hashTx, TestUtil, asAddress, TestUtil__factory, ZERO } from 'lib';
 import { deploy, deployProxy, DeployProxyData, WALLET, WALLETS } from './util';
 
 describe('Execution', () => {
@@ -37,7 +37,7 @@ describe('Execution', () => {
     const data = '0xabc123';
     await expect(
       execute({
-        to: address(tester.address),
+        to: asAddress(tester.address),
         data: tester.interface.encodeFunctionData('echo', [data]),
         nonce: nonceAndInc(),
       }),
@@ -49,7 +49,7 @@ describe('Execution', () => {
   it('should emit an event with the response', async () => {
     const data = '0xabc123';
     const txReq = toTx({
-      to: address(tester.address),
+      to: asAddress(tester.address),
       data: tester.interface.encodeFunctionData('echo', [data]),
       nonce: nonceAndInc(),
     });
@@ -78,7 +78,7 @@ describe('Execution', () => {
     try {
       await (
         await execute({
-          to: address(tester.address),
+          to: asAddress(tester.address),
           data: tester.interface.encodeFunctionData('revertWithoutReason'),
           nonce: nonceAndInc(),
         })
@@ -103,7 +103,7 @@ describe('Execution', () => {
     try {
       await (
         await execute({
-          to: address(tester.address),
+          to: asAddress(tester.address),
           data: tester.interface.encodeFunctionData('revertWithReason'),
           nonce: nonceAndInc(),
         })

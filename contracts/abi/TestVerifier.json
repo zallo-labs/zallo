@@ -113,7 +113,7 @@
           {
             "internalType": "PolicyKey",
             "name": "key",
-            "type": "uint256"
+            "type": "uint32"
           },
           {
             "components": [
@@ -264,7 +264,7 @@
           {
             "internalType": "PolicyKey",
             "name": "key",
-            "type": "uint256"
+            "type": "uint32"
           },
           {
             "components": [
@@ -328,7 +328,7 @@
           {
             "internalType": "PolicyKey",
             "name": "key",
-            "type": "uint256"
+            "type": "uint32"
           },
           {
             "components": [

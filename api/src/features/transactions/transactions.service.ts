@@ -1,22 +1,13 @@
 import { BullModuleOptions, InjectQueue } from '@nestjs/bull';
 import { forwardRef, Inject, Injectable } from '@nestjs/common';
 import { Queue } from 'bull';
-import { BigNumber } from 'ethers';
-import {
-  address,
-  executeTx,
-  TokenLimitPeriod,
-  Signer,
-  toTxSalt,
-  toQuorumKey,
-  toTx,
-  TokenLimit,
-} from 'lib';
+import { asAddress, Approval, executeTx } from 'lib';
 import { PrismaService } from '../util/prisma/prisma.service';
 import { ProviderService } from '~/features/util/provider/provider.service';
 import { ProposalEvent } from '../proposals/proposals.args';
 import { ProposalsService } from '../proposals/proposals.service';
 import { Prisma } from '@prisma/client';
+import { PoliciesService } from '../policies/policies.service';
 
 export interface TransactionResponseJob {
   transactionHash: string;
@@ -39,6 +30,8 @@ export class TransactionsService {
     private responseQueue: Queue<TransactionResponseJob>,
     @Inject(forwardRef(() => ProposalsService))
     private proposals: ProposalsService,
+    @Inject(forwardRef(() => PoliciesService))
+    private policies: PoliciesService,
   ) {
     this.addMissingResponseJobs();
   }
@@ -47,6 +40,9 @@ export class TransactionsService {
     proposalId: string,
     res?: Prisma.SelectSubset<T, Prisma.ProposalArgs>,
   ) {
+    const policy = await this.policies.getFirstSatisfiedPolicy(proposalId);
+    if (!policy) return undefined;
+
     const proposal = await this.prisma.asUser.proposal.findUniqueOrThrow({
       where: { id: proposalId },
       include: {
@@ -56,66 +52,33 @@ export class TransactionsService {
             signature: true,
           },
         },
-        quorum: {
-          select: {
-            activeState: {
-              include: {
-                approvers: { select: { userId: true } },
-                limits: true,
-              },
-            },
-          },
-        },
       },
     });
 
-    const quorum = proposal.quorum.activeState;
-    if (!quorum) return undefined;
-
-    const signers: Signer[] = proposal.approvals
+    const approvals: Approval[] = proposal.approvals
       .filter((approval) => approval.signature)
       .map((approval) => ({
-        approver: address(approval.userId),
+        approver: asAddress(approval.userId),
         signature: approval.signature!, // Rejections are filtered out
       }));
 
-    if (signers.length < quorum.approvers.length) return undefined;
-
     const transaction = await executeTx({
-      account: this.provider.connectAccount(address(proposal.accountId)),
-      tx: toTx({
-        to: address(proposal.to),
-        value: proposal.value ? BigNumber.from(proposal.value) : undefined,
+      account: this.provider.connectAccount(asAddress(proposal.accountId)),
+      tx: {
+        to: asAddress(proposal.to),
+        value: proposal.value ? BigInt(proposal.value.toString()) : undefined,
         data: proposal.data ?? undefined,
-        salt: toTxSalt(proposal.salt),
-        gasLimit: proposal.gasLimit ? BigNumber.from(proposal.gasLimit.toString()) : undefined,
-      }),
-      quorum: {
-        key: toQuorumKey(quorum.quorumKey),
-        approvers: new Set(quorum.approvers.map((a) => address(a.userId))),
-        spending: {
-          fallback: quorum.spendingFallback,
-          limits: Object.fromEntries(
-            quorum.limits
-              .map(
-                (l): TokenLimit => ({
-                  token: address(l.token),
-                  amount: BigNumber.from(l.amount),
-                  period: l.period as TokenLimitPeriod,
-                }),
-              )
-              .map((l) => [l.token, l]),
-          ),
-        },
+        nonce: proposal.nonce,
+        gasLimit: proposal.gasLimit || undefined,
       },
-      signers,
+      policy,
+      approvals,
     });
 
     const { proposal: updatedProposal } = await this.prisma.asUser.transaction.create({
       data: {
         proposal: { connect: { id: proposalId } },
         hash: transaction.hash,
-        nonce: transaction.nonce,
         gasLimit: transaction.gasLimit.toString(),
         gasPrice: transaction.gasPrice?.toString(),
       },

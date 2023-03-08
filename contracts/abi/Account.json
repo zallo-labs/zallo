@@ -202,7 +202,7 @@
         "indexed": false,
         "internalType": "PolicyKey",
         "name": "key",
-        "type": "uint256"
+        "type": "uint32"
       },
       {
         "indexed": false,
@@ -221,7 +221,7 @@
         "indexed": false,
         "internalType": "PolicyKey",
         "name": "key",
-        "type": "uint256"
+        "type": "uint32"
       }
     ],
     "name": "PolicyRemoved",
@@ -289,7 +289,7 @@
           {
             "internalType": "PolicyKey",
             "name": "key",
-            "type": "uint256"
+            "type": "uint32"
           },
           {
             "components": [
@@ -543,7 +543,7 @@
           {
             "internalType": "PolicyKey",
             "name": "key",
-            "type": "uint256"
+            "type": "uint32"
           },
           {
             "components": [
@@ -876,7 +876,7 @@
       {
         "internalType": "PolicyKey",
         "name": "key",
-        "type": "uint256"
+        "type": "uint32"
       }
     ],
     "name": "removePolicy",

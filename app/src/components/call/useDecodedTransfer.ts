@@ -1,6 +1,6 @@
 import { ERC20_INTERFACE } from '@token/token';
 import { BigNumber } from 'ethers';
-import { address, Address, Call } from 'lib';
+import { asAddress, Address, Call } from 'lib';
 import { useContractMethod } from '~/queries/useContractMethod.api';
 
 export const ERC20_TRANSFER_SIGHASH = ERC20_INTERFACE.getSighash(
@@ -19,5 +19,5 @@ export const useDecodedTransfer = (call?: Call): DecodedTransfer | undefined => 
 
   const [dest, value] = method.contract.decodeFunctionData(method.fragment, call.data);
 
-  return { to: address(dest), value };
+  return { to: asAddress(dest), value };
 };

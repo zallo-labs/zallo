@@ -10,10 +10,10 @@ export const getSelector = (data?: BytesLike) =>
 export const ACCOUNT_INTERFACE = Account__factory.createInterface();
 
 export const ADD_POLICY_FUNCTION =
-  ACCOUNT_INTERFACE.functions['addPolicy((uint256,(uint8,bytes)[],(uint8,bytes)[]))'];
+  ACCOUNT_INTERFACE.functions['addPolicy((uint32,(uint8,bytes)[],(uint8,bytes)[]))'];
 export const ADD_POLICY_SELECTOR = ACCOUNT_INTERFACE.getSighash(ADD_POLICY_FUNCTION);
 
-export const REMOVE_POLICY_FUNCTION = ACCOUNT_INTERFACE.functions['removePolicy(uint256)'];
+export const REMOVE_POLICY_FUNCTION = ACCOUNT_INTERFACE.functions['removePolicy(uint32)'];
 export const REMOVE_POLICY_SELECTOR = ACCOUNT_INTERFACE.getSighash(REMOVE_POLICY_FUNCTION);
 
 export const tryDecodeAddPolicyFunctionData = (data?: BytesLike): Policy | undefined => {

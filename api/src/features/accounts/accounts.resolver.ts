@@ -16,14 +16,15 @@ import {
 import { getSelect } from '~/util/select';
 import { AccountsService } from './accounts.service';
 import { ProviderService } from '~/features/util/provider/provider.service';
-import { address, calculateProxyAddress, Quorum, randomDeploySalt, toQuorumKey } from 'lib';
+import { asPolicyKey, calculateProxyAddress, randomDeploySalt } from 'lib';
 import { CONFIG } from '~/config';
 import { UserCtx } from '~/decorators/user.decorator';
-import { QuorumInput } from '../quorums/quorums.args';
 import { FaucetService } from '../faucet/faucet.service';
 import { PubsubService } from '../util/pubsub/pubsub.service';
 import { UserContext, getRequestContext, getUser } from '~/request/ctx';
 import { connectOrCreateUser } from '~/util/connect-or-create';
+import { RulesInput } from '../policies/policies.args';
+import { Prisma } from '@prisma/client';
 
 @Resolver(() => Account)
 export class AccountsResolver {
@@ -77,62 +78,82 @@ export class AccountsResolver {
 
   @Mutation(() => Account)
   async createAccount(
-    @Args() { name, quorums: quorumsArg }: CreateAccountArgs,
+    @Args() { name, policies: policies }: CreateAccountArgs,
     @Info() info?: GraphQLResolveInfo,
   ): Promise<Account> {
-    const impl = address(CONFIG.accountImplAddress);
+    const impl = CONFIG.accountImplAddress;
     const deploySalt = randomDeploySalt();
-
-    // Start key from 1 as apollo interprets key=0 as key=NaN for some reason?
-    const quorums: Quorum[] = quorumsArg.map((q, i) => QuorumInput.toQuorum(q, toQuorumKey(i + 1)));
-
-    const addr = await this.provider.useProxyFactory((factory) =>
-      calculateProxyAddress({ impl, quorums }, factory, deploySalt),
+    const account = await this.provider.useProxyFactory((factory) =>
+      calculateProxyAddress(
+        { impl, policies: policies.map((p, i) => RulesInput.asPolicy(asPolicyKey(i), p.rules)) },
+        factory,
+        deploySalt,
+      ),
     );
 
     // Add account to user context
-    getUser().accounts.add(addr);
-    getRequestContext()?.session?.accounts?.push(addr);
+    getUser().accounts.add(account);
+    getRequestContext()?.session?.accounts?.push(account);
 
-    await this.prisma.asUser.account.create({
-      data: {
-        id: addr,
-        deploySalt,
-        impl,
-        name,
-        quorums: {
-          create: quorums.map((q, i) => ({
-            name: quorumsArg[i].name,
-            key: q.key,
-            states: {
-              create: {
-                approvers: {
-                  create: [...q.approvers].map((a) => ({ user: connectOrCreateUser(a) })),
-                },
-                spendingFallback: q.spending?.fallback,
-                limits: q.spending?.limits
-                  ? {
-                      createMany: {
-                        data: Object.values(q.spending.limits).map((limit) => ({
-                          token: limit.token,
-                          amount: limit.amount.toString(),
-                          period: limit.period,
+    await this.prisma.asUser.$transaction(async (prisma) => {
+      const { policyRulesHistory } = await prisma.account.create({
+        data: {
+          id: account,
+          deploySalt,
+          impl,
+          name,
+          policies: {
+            create: policies.map(
+              ({ name, rules }, i): Prisma.PolicyCreateWithoutAccountInput => ({
+                key: i,
+                name: name || `Policy ${i}`,
+                rulesHistory: {
+                  create: {
+                    ...(rules.approvers?.size && {
+                      approvers: {
+                        create: [...rules.approvers].map((a) => ({
+                          user: connectOrCreateUser(a),
                         })),
                       },
-                    }
-                  : undefined,
-              },
-            },
-          })),
+                    }),
+                    ...(rules.onlyFunctions?.size && {
+                      onlyFunctions: [...rules.onlyFunctions],
+                    }),
+                    ...(rules.onlyTargets?.size && {
+                      onlyTargets: [...rules.onlyTargets],
+                    }),
+                  },
+                },
+              }),
+            ),
+          },
         },
-      },
-      select: null,
+        select: {
+          policyRulesHistory: {
+            select: {
+              id: true,
+              policyKey: true,
+            },
+          },
+        },
+      });
+
+      // Set policy rules as draft of policies - this can't be done in the same create as the account )':
+      await Promise.all(
+        policyRulesHistory.map(({ id, policyKey }) =>
+          prisma.policy.update({
+            where: { accountId_key: { accountId: account, key: policyKey } },
+            data: { draftId: id },
+            select: null,
+          }),
+        ),
+      );
     });
 
-    const r = await this.service.activateAccount(addr, { ...getSelect(info) });
+    const r = await this.service.activateAccount(account, { ...getSelect(info) });
 
     this.service.publishAccount({ account: r, event: AccountEvent.create });
-    this.faucet.requestTokens(addr);
+    this.faucet.requestTokens(account);
 
     return r;
   }

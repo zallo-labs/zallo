@@ -1,11 +1,11 @@
 import { expect } from 'chai';
 import { hexlify, randomBytes } from 'ethers/lib/utils';
-import { address, TestRules, ZERO_ADDR } from 'lib';
+import { asAddress, TestRules, ZERO_ADDR } from 'lib';
 import { asTransactionStruct, defaultTx, deployTestRules } from '../util/rules';
 
 describe('TargetRule', () => {
   let rules = {} as TestRules;
-  const tx = { ...defaultTx, to: address(hexlify(randomBytes(20))) };
+  const tx = { ...defaultTx, to: asAddress(hexlify(randomBytes(20))) };
 
   before(async () => {
     rules = await deployTestRules();

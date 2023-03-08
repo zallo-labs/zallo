@@ -1,7 +1,7 @@
 import assert from 'assert';
 import { BigNumber } from 'ethers';
 import {
-  address,
+  asAddress,
   Address,
   Quorum,
   QuorumGuid,
@@ -30,14 +30,14 @@ const stateFromFragment = (
 ): Proposable<Quorum> => ({
   key: id.key,
   proposal: state.proposalId ? { id: state.proposalId } : undefined,
-  approvers: new Set(state.approvers?.map((a) => address(a.userId))),
+  approvers: new Set(state.approvers?.map((a) => asAddress(a.userId))),
   spending: {
     fallback: state.spendingFallback,
     limits: Object.fromEntries(
       state.limits?.map((l): [Address, TokenLimit] => [
-        address(l.token),
+        asAddress(l.token),
         {
-          token: address(l.token),
+          token: asAddress(l.token),
           amount: BigNumber.from(l.amount),
           period: l.period as TokenLimitPeriod,
         },
@@ -74,7 +74,7 @@ export class CombinedQuorum<Active extends boolean = false> implements QuorumGui
 
   static fromFragment(q: QuorumFieldsFragment) {
     const id: QuorumGuid = {
-      account: address(q.accountId),
+      account: asAddress(q.accountId),
       key: toQuorumKey(q.key),
     };
 

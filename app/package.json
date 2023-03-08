@@ -18,7 +18,7 @@
     "//": "https://www.npmjs.com/package/expo-yarn-workspaces"
   },
   "dependencies": {
-    "@apollo/client": "^3.7.4",
+    "@apollo/client": "^3.7.10",
     "@ethersproject/shims": "5.7.0",
     "@expo/config": "^7.0.3",
     "@expo/vector-icons": "^13.0.0",
@@ -38,7 +38,7 @@
     "apollo-link-offline": "^1.0.1",
     "apollo3-cache-persist": "^0.14.1",
     "async-mutex": "^0.4.0",
-    "babel-plugin-formatjs": "^10.3.35",
+    "babel-plugin-formatjs": "^10.4.0",
     "chardet": "^1.5.1",
     "color": "^4.2.3",
     "crypto-hash": "^2.0.1",
@@ -72,10 +72,10 @@
     "expo-yarn-workspaces": "^2.0.4",
     "formik": "^2.2.9",
     "fuzzy-search": "^3.2.1",
-    "graphql-ws": "^5.11.2",
-    "immer": "^9.0.18",
+    "graphql-ws": "^5.12.0",
+    "immer": "^9.0.19",
     "lib": "workspace:*",
-    "luxon": "^3.2.1",
+    "luxon": "^3.3.0",
     "node-libs-react-native": "^1.2.1",
     "react": "18.1.0",
     "react-content-loader": "^6.2.0",
@@ -112,7 +112,7 @@
     "siwe": "^1.1.6",
     "styled-components": "^5.3.6",
     "styled-system": "^5.1.5",
-    "ts-pattern": "^4.1.3",
+    "ts-pattern": "^4.2.1",
     "url": "^0.11.0",
     "use-async-effect": "^2.2.7",
     "use-debounce": "^9.0.3",
@@ -121,11 +121,11 @@
     "zksync-web3": "^0.13.4"
   },
   "devDependencies": {
-    "@babel/core": "^7.19.3",
-    "@graphql-codegen/cli": "^2.16.4",
-    "@graphql-codegen/introspection": "^2.2.3",
-    "@graphql-codegen/typescript": "^2.8.7",
-    "@graphql-codegen/typescript-operations": "^2.5.12",
+    "@babel/core": "^7.21.0",
+    "@graphql-codegen/cli": "^3.2.1",
+    "@graphql-codegen/introspection": "^3.0.1",
+    "@graphql-codegen/typescript": "^3.0.1",
+    "@graphql-codegen/typescript-operations": "^3.0.1",
     "@graphql-codegen/typescript-react-apollo": "^3.3.7",
     "@testing-library/jest-native": "^5.4.1",
     "@testing-library/react-native": "^11.5.0",
@@ -144,7 +144,7 @@
     "babel-plugin-lodash": "^3.3.4",
     "babel-plugin-transform-remove-console": "^6.9.4",
     "concurrently": "^7.6.0",
-    "eslint-plugin-formatjs": "^4.3.9",
+    "eslint-plugin-formatjs": "^4.9.0",
     "jest": "^26.6.3",
     "jest-environment-node": "26.6.2",
     "jest-expo": "^47.0.1",
@@ -152,6 +152,6 @@
     "react-test-renderer": "18.2.0",
     "rimraf": "^3.0.2",
     "ts-node": "^10.9.1",
-    "typescript": "^4.9.4"
+    "typescript": "^4.9.5"
   }
 }

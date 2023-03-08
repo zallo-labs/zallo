@@ -2,7 +2,7 @@ import * as hre from 'hardhat';
 import { Deployer } from '@matterlabs/hardhat-zksync-deploy';
 import {
   Account__factory,
-  address,
+  asAddress,
   deployAccountProxy,
   Factory__factory,
   Policy,
@@ -64,7 +64,7 @@ export const deployAccountImpl = async ({
   contractName?: AccountContractName;
 } = {}) => {
   const contract = await deploy(contractName);
-  const impl = address(contract.address);
+  const impl = asAddress(contract.address);
 
   return {
     impl,
