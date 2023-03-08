@@ -63,9 +63,9 @@ model Policy {
   accountId String       @db.Char(42) // address
   key       BigInt // uint32
   name      String
-  active    PolicyRules? @relation(name: "active", fields: [activeId], references: [id], onDelete: Cascade)
+  active    PolicyRules? @relation(name: "active", fields: [activeId], references: [id])
   activeId  BigInt?
-  draft     PolicyRules? @relation(name: "draft", fields: [draftId], references: [id], onDelete: Cascade)
+  draft     PolicyRules? @relation(name: "draft", fields: [draftId], references: [id])
   draftId   BigInt?
 
   rulesHistory PolicyRules[]
@@ -79,7 +79,7 @@ model PolicyRules {
   id         BigInt    @id @default(autoincrement())
   account    Account   @relation(fields: [accountId], references: [id], onDelete: Cascade)
   accountId  String    @db.Char(42) // address
-  policy     Policy    @relation(fields: [accountId, policyKey], references: [accountId, key], onDelete: Cascade)
+  policy     Policy    @relation(fields: [accountId, policyKey], references: [accountId, key])
   policyKey  BigInt // uint32
   proposal   Proposal? @relation(fields: [proposalId], references: [id], onDelete: Cascade)
   proposalId String?   @db.Char(66) // bytes32
@@ -99,7 +99,7 @@ model PolicyRules {
 model Approver {
   policyRules   PolicyRules @relation(fields: [policyRulesId], references: [id], onDelete: Cascade)
   policyRulesId BigInt
-  user          User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user          User        @relation(fields: [userId], references: [id])
   userId        String      @db.Char(42) // address
 
   @@id([policyRulesId, userId])
@@ -150,7 +150,7 @@ model TransactionResponse {
 model Approval {
   proposal   Proposal @relation(fields: [proposalId], references: [id], onDelete: Cascade)
   proposalId String   @db.Char(66) // bytes32
-  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user       User     @relation(fields: [userId], references: [id])
   userId     String   @db.Char(42) // address
 
   signature String? // bytes; rejected if null
@@ -178,7 +178,7 @@ model Comment {
   account   Account  @relation(fields: [accountId], references: [id], onDelete: Cascade)
   accountId String   @db.Char(42) // address
   key       String
-  author    User     @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  author    User     @relation(fields: [authorId], references: [id])
   authorId  String   @db.Char(42) // address
   content   String
   createdAt DateTime @default(now())
