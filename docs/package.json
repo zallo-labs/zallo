@@ -16,13 +16,13 @@
     "generate:gql": "graphql-codegen --config codegen.ts"
   },
   "dependencies": {
-    "@apollo/client": "^3.7.4",
-    "@apollo/explorer": "^2.0.2",
-    "@docusaurus/core": "latest",
-    "@docusaurus/preset-classic": "latest",
-    "@docusaurus/remark-plugin-npm2yarn": "latest",
+    "@apollo/client": "^3.7.10",
+    "@apollo/explorer": "^3.0.0",
+    "@docusaurus/core": "^2.3.1",
+    "@docusaurus/preset-classic": "^2.3.1",
+    "@docusaurus/remark-plugin-npm2yarn": "^2.3.1",
     "@emotion/react": "^11.10.5",
-    "@graphql-markdown/docusaurus": "^1.16.3",
+    "@graphql-markdown/docusaurus": "^1.16.6",
     "@mdx-js/react": "^1.6.22",
     "bufferutil": "^4.0.7",
     "clsx": "^1.2.1",
@@ -42,13 +42,13 @@
     "zksync-web3": "^0.13.4"
   },
   "devDependencies": {
-    "@docusaurus/module-type-aliases": "latest",
-    "@graphql-codegen/cli": "2.16.4",
-    "@graphql-codegen/introspection": "^2.2.3",
-    "@graphql-codegen/typescript": "^2.8.7",
-    "@graphql-codegen/typescript-operations": "^2.5.12",
+    "@docusaurus/module-type-aliases": "^2.3.1",
+    "@graphql-codegen/cli": "^3.2.1",
+    "@graphql-codegen/introspection": "^3.0.1",
+    "@graphql-codegen/typescript": "^3.0.1",
+    "@graphql-codegen/typescript-operations": "^3.0.1",
     "@tsconfig/docusaurus": "^1.0.6",
-    "typescript": "^4.9.4"
+    "typescript": "^4.9.5"
   },
   "browserslist": {
     "production": [
