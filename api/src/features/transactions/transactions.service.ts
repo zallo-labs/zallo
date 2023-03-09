@@ -29,7 +29,7 @@ export class TransactionsService {
     proposalId: string,
     res?: Prisma.SelectSubset<T, Prisma.ProposalArgs>,
   ) {
-    const policy = await this.policies.getFirstSatisfiedPolicy(proposalId);
+    const policy = (await this.policies.getSatisifiedPolicies(proposalId).next()).value;
     if (!policy) return undefined;
 
     const proposal = await this.prisma.asUser.proposal.findUniqueOrThrow({

@@ -192,7 +192,11 @@ export class PoliciesService implements OnModuleInit {
     });
   }
 
-  async getSatisifiedPolicies(proposalId: string, only?: OnlySatisfied): Promise<Policy[]> {
+  getSatisfiablePolicies(proposalId: string) {
+    return this.getSatisifiedPolicies(proposalId, 'transaction');
+  }
+
+  async *getSatisifiedPolicies(proposalId: string, only?: OnlySatisfied) {
     const proposal = await this.prisma.asUser.proposal.findUniqueOrThrow({
       where: { id: proposalId },
       select: {
@@ -241,21 +245,11 @@ export class PoliciesService implements OnModuleInit {
       .sort((a, b) => compareAddress(a.approver, b.approver))
       .map((a) => a.signature);
 
-    return filterAsync(policies, (policy) =>
-      policy.isSatisfied({
-        domainParams: this.provider.connectAccount(proposal.accountId),
-        tx,
-        signatures,
-        only,
-      }),
-    );
-  }
+    const account = this.provider.connectAccount(proposal.accountId);
 
-  async getFirstSatisfiedPolicy(
-    proposalId: string,
-    only?: OnlySatisfied,
-  ): Promise<Policy | undefined> {
-    return (await this.getSatisifiedPolicies(proposalId, only))[0];
+    for (const policy of policies) {
+      if (await policy.isSatisfied({ domainParams: account, tx, signatures, only })) yield policy;
+    }
   }
 
   private async processTransaction(resp: TransactionResponse) {
