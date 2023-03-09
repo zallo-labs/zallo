@@ -16,5 +16,6 @@
     "noUnusedLocals": false
   },
   "references": [{ "path": "../lib" }],
-  "include": ["src/**/*", "generated/**/*"]
+  "include": ["src/**/*", "generated/**/*"],
+  "exclude": ["**/*.test.*"]
 }
