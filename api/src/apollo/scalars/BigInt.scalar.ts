@@ -1,6 +1,6 @@
 import { UserInputError } from 'apollo-server-core';
 import { Kind } from 'graphql';
-import { MAX_UINT256, MIN_UINT256 } from 'lib/src/uint';
+import { MAX_UINT256, MIN_UINT256 } from 'lib';
 import { createScalar } from './util';
 
 const parse = (value: unknown, description: string, min?: bigint, max?: bigint): bigint => {
@@ -13,7 +13,7 @@ const parse = (value: unknown, description: string, min?: bigint, max?: bigint):
   return v;
 };
 
-const createBnScalar = (name: string, description: string, min?: bigint, max?: bigint) =>
+const createBigIntScalar = (name: string, description: string, min?: bigint, max?: bigint) =>
   createScalar<bigint, bigint>({
     name,
     description,
@@ -26,7 +26,7 @@ const createBnScalar = (name: string, description: string, min?: bigint, max?: b
     },
   });
 
-export const [Uint256Scalar, Uint256Field] = createBnScalar(
+export const [Uint256Scalar, Uint256Field] = createBigIntScalar(
   'Uint256',
   '256-bit unsigned integer',
   MIN_UINT256,

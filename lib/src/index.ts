@@ -42,3 +42,4 @@ export * from './id';
 export * from './policy';
 export * from './signature';
 export * from './tx';
+export * from './uint';
