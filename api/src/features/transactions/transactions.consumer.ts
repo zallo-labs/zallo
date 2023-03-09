@@ -5,15 +5,15 @@ import { PrismaService } from '../util/prisma/prisma.service';
 import { ProposalEvent } from '../proposals/proposals.args';
 import { ProposalsService } from '../proposals/proposals.service';
 import { SubgraphService } from '../subgraph/subgraph.service';
-import { TransactionResponseJob, TransactionsService } from './transactions.service';
 import { TransactionResponse } from '@prisma/client';
+import { TransactionEvent, TRANSACTIONS_QUEUE } from './transactions.queue';
 
 export type TransactionResponseProcessor = (resp: TransactionResponse) => Promise<void>;
 
 const RESPONSE_NOT_FOUND = 'Transaction response not found';
 
 @Injectable()
-@Processor(TransactionsService.QUEUE_OPTIONS.name)
+@Processor(TRANSACTIONS_QUEUE.name)
 export class TransactionsConsumer {
   private processors: Record<string, TransactionResponseProcessor> = {};
 
@@ -25,13 +25,13 @@ export class TransactionsConsumer {
   ) {}
 
   @OnQueueFailed()
-  onFailed(job: Job<TransactionResponseJob>, error: unknown) {
+  onFailed(job: Job<TransactionEvent>, error: unknown) {
     if (job.failedReason !== RESPONSE_NOT_FOUND)
       console.warn('Job failed', { job: job.data.transactionHash, error });
   }
 
   @Process()
-  async process(job: Job<TransactionResponseJob>) {
+  async process(job: Job<TransactionEvent>) {
     const response = await this.subgraph.transactionResponse(job.data.transactionHash);
     if (!response) return job.moveToFailed({ message: RESPONSE_NOT_FOUND });
 

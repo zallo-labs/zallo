@@ -1,4 +1,4 @@
-import { BullModuleOptions, InjectQueue } from '@nestjs/bull';
+import { InjectQueue } from '@nestjs/bull';
 import { forwardRef, Inject, Injectable } from '@nestjs/common';
 import { Queue } from 'bull';
 import { asAddress, Approval, executeTx } from 'lib';
@@ -8,26 +8,15 @@ import { ProposalEvent } from '../proposals/proposals.args';
 import { ProposalsService } from '../proposals/proposals.service';
 import { Prisma } from '@prisma/client';
 import { PoliciesService } from '../policies/policies.service';
-
-export interface TransactionResponseJob {
-  transactionHash: string;
-}
+import { TransactionEvent, TRANSACTIONS_QUEUE } from './transactions.queue';
 
 @Injectable()
 export class TransactionsService {
-  static readonly QUEUE_OPTIONS = {
-    name: 'Transactions',
-    defaultJobOptions: {
-      attempts: 15, // 2^15 * 200ms = ~1.8h
-      backoff: { type: 'exponential', delay: 200 },
-    },
-  } satisfies BullModuleOptions;
-
   constructor(
     private prisma: PrismaService,
     private provider: ProviderService,
-    @InjectQueue(TransactionsService.QUEUE_OPTIONS.name)
-    private responseQueue: Queue<TransactionResponseJob>,
+    @InjectQueue(TRANSACTIONS_QUEUE.name)
+    private transactionsQueue: Queue<TransactionEvent>,
     @Inject(forwardRef(() => ProposalsService))
     private proposals: ProposalsService,
     @Inject(forwardRef(() => PoliciesService))
@@ -88,13 +77,13 @@ export class TransactionsService {
     });
     this.proposals.publishProposal({ proposal: updatedProposal, event: ProposalEvent.update });
 
-    this.responseQueue.add({ transactionHash: transaction.hash }, { delay: 1000 /* 1s */ });
+    this.transactionsQueue.add({ transactionHash: transaction.hash }, { delay: 1000 /* 1s */ });
 
     return updatedProposal as Prisma.ProposalGetPayload<T>;
   }
 
   private async addMissingResponseJobs() {
-    const jobs = await this.responseQueue.getJobs(['waiting', 'active', 'delayed', 'paused']);
+    const jobs = await this.transactionsQueue.getJobs(['waiting', 'active', 'delayed', 'paused']);
 
     const missingResponses = await this.prisma.asSuperuser.transaction.findMany({
       where: {
@@ -106,7 +95,7 @@ export class TransactionsService {
       },
     });
 
-    return this.responseQueue.addBulk(
+    return this.transactionsQueue.addBulk(
       missingResponses.map((r) => ({ data: { transactionHash: r.hash } })),
     );
   }
