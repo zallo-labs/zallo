@@ -27,7 +27,7 @@ export interface ProxyConstructorArgs extends AccountConstructorArgs {
   impl: Address;
 }
 
-export const encodeProxyConstructorArgs = ({ policies: policies, impl }: ProxyConstructorArgs) => {
+export const encodeProxyConstructorArgs = ({ policies, impl }: ProxyConstructorArgs) => {
   const encodedInitializeCall = ACCOUNT_INTERFACE.encodeFunctionData('initialize', [
     policies.map((p) => p.struct),
   ]);
@@ -61,8 +61,7 @@ export const deployAccountProxy = async (
 ) => {
   const addr = await calculateProxyAddress(args, factory, salt);
 
-  const encodedConstructorData = encodeProxyConstructorArgs(args);
-  const deployTx = await factory.deploy(encodedConstructorData, salt);
+  const deployTx = await factory.deploy(encodeProxyConstructorArgs(args), salt);
   await deployTx.wait();
 
   return {

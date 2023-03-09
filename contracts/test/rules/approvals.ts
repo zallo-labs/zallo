@@ -25,7 +25,7 @@ describe('ApprovalsRule', () => {
   it('succeed when all approvers sign', async () => {
     await expect(
       rules.verifyApprovers(
-        approvals.map((a) => a.signer),
+        approvals.map((a) => a.approver),
         txHash,
         approvals.map((a) => a.signature),
       ),
@@ -35,7 +35,7 @@ describe('ApprovalsRule', () => {
   it("revert when an approver doesn't sign", async () => {
     await expect(
       rules.verifyApprovers(
-        approvals.map((a) => a.signer),
+        approvals.map((a) => a.approver),
         txHash,
         [approvals[0].signature],
       ),
@@ -45,7 +45,7 @@ describe('ApprovalsRule', () => {
   it("revert when an approvers's signature is incorrect", async () => {
     await expect(
       rules.verifyApprovers(
-        approvals.map((a) => a.signer),
+        approvals.map((a) => a.approver),
         txHash,
         [approvals[0].signature, '0xaa'],
       ),

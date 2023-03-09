@@ -1,19 +1,12 @@
 import { expect } from 'chai';
-import { BigNumber } from 'ethers';
 import { parseEther } from 'ethers/lib/utils';
-import { toTx, hashTx, TestUtil, asAddress, TestUtil__factory, ZERO } from 'lib';
+import { toTx, hashTx, TestUtil, asAddress, TestUtil__factory } from 'lib';
 import { deploy, deployProxy, DeployProxyData, WALLET, WALLETS } from './util';
 
 describe('Execution', () => {
   let { account, execute } = {} as DeployProxyData;
   let tester = {} as TestUtil;
-
-  let nonce: BigNumber = ZERO;
-  const nonceAndInc = () => {
-    const n = nonce;
-    nonce = nonce.add(1);
-    return n;
-  };
+  let nonce = 0n;
 
   before(async () => {
     ({ account, execute } = await deployProxy({
@@ -27,10 +20,9 @@ describe('Execution', () => {
     const to = WALLETS[WALLETS.length - 1];
     const value = parseEther('0.00001');
 
-    await expect(execute({ to: to.address, value, nonce: nonceAndInc() })).to.changeEtherBalance(
-      to,
-      value,
-    );
+    await expect(
+      execute({ to: to.address, value: value.toBigInt(), nonce: nonce++ }),
+    ).to.changeEtherBalance(to, value);
   });
 
   it('should call with the specified data', async () => {
@@ -39,7 +31,7 @@ describe('Execution', () => {
       execute({
         to: asAddress(tester.address),
         data: tester.interface.encodeFunctionData('echo', [data]),
-        nonce: nonceAndInc(),
+        nonce: nonce++,
       }),
     )
       .to.emit(tester, tester.interface.events['Echo(bytes)'].name)
@@ -51,7 +43,7 @@ describe('Execution', () => {
     const txReq = toTx({
       to: asAddress(tester.address),
       data: tester.interface.encodeFunctionData('echo', [data]),
-      nonce: nonceAndInc(),
+      nonce: nonce++,
     });
 
     await expect(execute(txReq))
@@ -63,7 +55,7 @@ describe('Execution', () => {
   });
 
   it('should revert if the transaction has already been executed', async () => {
-    const tx = toTx({ to: WALLET.address, nonce: nonceAndInc() });
+    const tx = toTx({ to: WALLET.address, nonce: nonce++ });
     await (await execute(tx)).wait();
 
     await expect(execute(tx)).to.be.rejected;
@@ -80,7 +72,7 @@ describe('Execution', () => {
         await execute({
           to: asAddress(tester.address),
           data: tester.interface.encodeFunctionData('revertWithoutReason'),
-          nonce: nonceAndInc(),
+          nonce: nonce++,
         })
       ).wait();
 
@@ -105,7 +97,7 @@ describe('Execution', () => {
         await execute({
           to: asAddress(tester.address),
           data: tester.interface.encodeFunctionData('revertWithReason'),
-          nonce: nonceAndInc(),
+          nonce: nonce++,
         })
       ).wait();
 

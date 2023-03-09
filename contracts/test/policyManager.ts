@@ -14,8 +14,8 @@ describe('PolicyManager', () => {
   const addPolicy = async () =>
     await (await manager.testAddPolicy(policy.struct, { gasLimit })).wait();
 
-  describe('addRule', () => {
-    it('set rule data', async () => {
+  describe('addPolicy', () => {
+    it('set polcy hash', async () => {
       await addPolicy();
 
       expect(await manager.getPolicyHash(policy.key)).to.eq(policy.hash);
@@ -23,7 +23,7 @@ describe('PolicyManager', () => {
 
     it('emit event', async () => {
       await expect(manager.testAddPolicy(policy.struct, { gasLimit }))
-        .to.emit(manager, manager.interface.events['PolicyAdded(uint256,bytes32)'].name)
+        .to.emit(manager, manager.interface.events['PolicyAdded(uint32,bytes32)'].name)
         .withArgs(policy.key, policy.hash);
     });
 
@@ -32,8 +32,8 @@ describe('PolicyManager', () => {
     });
   });
 
-  describe('removeRule', async () => {
-    it('zero data hash', async () => {
+  describe('removePolicy', async () => {
+    it('zero policy hash', async () => {
       await addPolicy();
 
       await (await manager.testRemovePolicy(policy.key, { gasLimit })).wait();
@@ -45,7 +45,7 @@ describe('PolicyManager', () => {
       await addPolicy();
 
       await expect(manager.testRemovePolicy(policy.key, { gasLimit }))
-        .to.emit(manager, manager.interface.events['PolicyRemoved(uint256)'].name)
+        .to.emit(manager, manager.interface.events['PolicyRemoved(uint32)'].name)
         .withArgs(policy.key);
     });
 

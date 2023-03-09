@@ -91,7 +91,7 @@ export const deployProxy = async ({
 
   const { factory } = await deployFactory('ERC1967Proxy');
   const { impl } = await deployAccountImpl({ contractName });
-  const { account } = await deployAccountProxy({ impl, rules: [policy] }, factory);
+  const { account } = await deployAccountProxy({ impl, policies: [policy] }, factory);
 
   const txResp = await WALLET.sendTransaction({
     to: account.address,
