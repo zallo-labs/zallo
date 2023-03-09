@@ -55,10 +55,10 @@ export class PrismaService<T extends Prisma.PrismaClientOptions = Prisma.PrismaC
   }
 
   $transactionAsUser<R>(
-    tx: Prisma.TransactionClient | undefined,
+    client: Prisma.TransactionClient | undefined,
     f: (prisma: Prisma.TransactionClient) => Promise<R>,
   ) {
-    return tx ? f(tx) : this.asUser.$transaction((tx) => f(tx));
+    return client ? f(client) : this.asUser.$transaction((tx) => f(tx));
   }
 
   private async setUserPermission() {

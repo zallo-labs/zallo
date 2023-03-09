@@ -27,7 +27,7 @@ import { ProviderService } from '../util/provider/provider.service';
 import { prismaAsPolicy } from './policies.util';
 
 interface CreateRulesParams {
-  client?: Prisma.TransactionClient;
+  prisma?: Prisma.TransactionClient;
   account: Address;
   key: PolicyKey;
   rules: RulesInput;
@@ -60,11 +60,11 @@ export class PoliciesService implements OnModuleInit {
     { account, name, rules }: CreatePolicyArgs,
     res?: ArgsParam<A>,
   ) {
-    return this.prisma.asUser.$transaction(async (tx) => {
-      const existingQuorums = await tx.policy.count({ where: { accountId: account } });
+    return this.prisma.asUser.$transaction(async (prisma) => {
+      const existingQuorums = await prisma.policy.count({ where: { accountId: account } });
       const key = asPolicyKey(existingQuorums + 1);
 
-      await tx.policy.create({
+      await prisma.policy.create({
         data: {
           accountId: account,
           key: key as bigint,
@@ -73,7 +73,7 @@ export class PoliciesService implements OnModuleInit {
         select: null,
       });
 
-      return this.proposeRules({ client: tx, account, key, rules }, res);
+      return this.proposeRules({ prisma, account, key, rules }, res);
     });
   }
 
@@ -81,9 +81,9 @@ export class PoliciesService implements OnModuleInit {
     { account, key, name, rules }: UpdatePolicyArgs,
     res?: ArgsParam<A>,
   ) {
-    return this.prisma.asUser.$transaction(async (tx) => {
+    return this.prisma.asUser.$transaction(async (prisma) => {
       // Rules
-      if (rules) await this.proposeRules({ client: tx, account, key, rules });
+      if (rules) await this.proposeRules({ prisma, account, key, rules });
 
       // Metadata
       return this.prisma.asUser.policy.update({
@@ -97,11 +97,11 @@ export class PoliciesService implements OnModuleInit {
   async remove<A extends Prisma.PolicyArgs>(
     { account, key }: UniquePolicyArgs,
     res?: ArgsParam<A>,
-    tx?: Prisma.TransactionClient,
+    prisma?: Prisma.TransactionClient,
   ) {
-    return this.prisma.$transactionAsUser(tx, async (tx) => {
+    return this.prisma.$transactionAsUser(prisma, async (prisma) => {
       const isActive = !!(
-        await tx.policy.findUniqueOrThrow({
+        await prisma.policy.findUniqueOrThrow({
           where: { accountId_key: { accountId: account, key } },
           select: { activeId: true },
         })
@@ -117,10 +117,10 @@ export class PoliciesService implements OnModuleInit {
             data: ACCOUNT_INTERFACE.encodeFunctionData('removePolicy', [key]),
           },
           { select: { id: true } },
-          tx,
+          prisma,
         ));
 
-      const rules = await tx.policyRules.create({
+      const rules = await prisma.policyRules.create({
         data: {
           account: connectAccount(account),
           policy: connectPolicy(account, key),
@@ -137,10 +137,10 @@ export class PoliciesService implements OnModuleInit {
   }
 
   private async proposeRules<A extends Prisma.PolicyArgs>(
-    { client, account, key, rules }: CreateRulesParams,
+    { prisma, account, key, rules }: CreateRulesParams,
     res?: ArgsParam<A>,
   ) {
-    return this.prisma.$transactionAsUser(client, async (client) => {
+    return this.prisma.$transactionAsUser(prisma, async (prisma) => {
       const policy = new Policy(
         key,
         [
@@ -157,10 +157,10 @@ export class PoliciesService implements OnModuleInit {
           data: ACCOUNT_INTERFACE.encodeFunctionData('addPolicy', [policy.struct]),
         },
         { select: { id: true } },
-        client,
+        prisma,
       );
 
-      const policyRules = await client.policyRules.create({
+      const policyRules = await prisma.policyRules.create({
         data: {
           proposal: { connect: { id: proposalId } },
           policy: connectPolicy(account, key),

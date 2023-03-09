@@ -73,7 +73,7 @@ describe(AccountsResolver.name, () => {
   });
 
   describe('createAccount', () => {
-    it('creates an account in the database', () =>
+    it('creates an account', () =>
       asUser(user1, async () => {
         expect(
           await prisma.asUser.account.findUnique({ where: { id: user1Account } }),

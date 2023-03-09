@@ -2,17 +2,7 @@ import { forwardRef, Inject, Injectable } from '@nestjs/common';
 import { Prisma, Proposal } from '@prisma/client';
 import { UserInputError } from 'apollo-server-core';
 import { hexlify } from 'ethers/lib/utils';
-import {
-  toTx,
-  hashTx,
-  isTruthy,
-  Address,
-  isPresent,
-  asAddress,
-  Tx,
-  PolicyGuid,
-  asPolicyKey,
-} from 'lib';
+import { hashTx, isTruthy, Address, asAddress, Tx, PolicyGuid, asPolicyKey } from 'lib';
 import { PrismaService } from '../util/prisma/prisma.service';
 import { ProviderService } from '~/features/util/provider/provider.service';
 import { PubsubService } from '~/features/util/pubsub/pubsub.service';
@@ -53,6 +43,7 @@ export class ProposalsService {
     private prisma: PrismaService,
     private provider: ProviderService,
     private pubsub: PubsubService,
+    private expo: ExpoService,
     @Inject(forwardRef(() => TransactionsService))
     private transactions: TransactionsService,
     @Inject(forwardRef(() => PoliciesService))
@@ -101,12 +92,12 @@ export class ProposalsService {
   async propose<T extends Prisma.ProposalArgs>(
     { account, signature, ...txOptions }: ProposeParams,
     res?: Prisma.SelectSubset<T, Prisma.ProposalArgs>,
-    client?: Prisma.TransactionClient,
+    prisma?: Prisma.TransactionClient,
   ) {
-    return this.prisma.$transactionAsUser(client, async (client) => {
+    return this.prisma.$transactionAsUser(prisma, async (client) => {
       const tx: Tx = {
         ...txOptions,
-        nonce: BigInt((await client.proposal.count({ where: { account: { id: account } } })) - 1),
+        nonce: BigInt(await client.proposal.count({ where: { account: { id: account } } })),
       };
 
       const proposal = await client.proposal.create({
@@ -132,13 +123,13 @@ export class ProposalsService {
   async approve<T extends Omit<Prisma.ProposalArgs, 'include'>>(
     { id, signature }: ApproveArgs,
     res?: Prisma.SelectSubset<T, Prisma.ProposalArgs>,
-    client: Prisma.TransactionClient = this.prisma.asUser,
+    prisma: Prisma.TransactionClient = this.prisma.asUser,
   ): Promise<Proposal> {
     const user = getUser().id;
     if (!(await this.provider.isValidSignatureNow(user, id, signature)))
       throw new UserInputError('Invalid signature');
 
-    await client.approval.create({
+    await prisma.approval.create({
       data: {
         proposalId: id,
         userId: user,
@@ -150,7 +141,7 @@ export class ProposalsService {
     const executedProposal = await this.transactions.tryExecute(id, res);
     if (executedProposal) return executedProposal; // proposal update is published upon execution
 
-    const proposal = await client.proposal.findUniqueOrThrow({
+    const proposal = await prisma.proposal.findUniqueOrThrow({
       where: { id },
       include: { _count: { select: { approvals: true } } },
     });
@@ -159,7 +150,7 @@ export class ProposalsService {
 
     this.publishProposal({ proposal, event: ProposalEvent.update });
 
-    return client.proposal.findUniqueOrThrow({ where: { id }, ...res });
+    return prisma.proposal.findUniqueOrThrow({ where: { id }, ...res });
   }
 
   async reject<T extends Prisma.ProposalArgs>(
