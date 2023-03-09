@@ -1,218 +1,215 @@
-// import { Test } from '@nestjs/testing';
-// import { createMock, DeepMocked } from '@golevelup/ts-jest';
-// import { PRISMA_MOCK_PROVIDER } from '../util/prisma/prisma.service.mock';
-// import { PrismaService } from '../util/prisma/prisma.service';
-// import { PoliciesService } from './policies.service';
-// import { Address, QuorumGuid, randomDeploySalt, randomTxSalt, toQuorumKey } from 'lib';
-// import { asUser, UserContext } from '~/request/ctx';
-// import { randomAddress, randomUser } from '~/util/test';
-// import { hexlify, randomBytes } from 'ethers/lib/utils';
-// import { ProposalsService } from '../proposals/proposals.service';
-// import { connectAccount, connectOrCreateUser, connectPolicy } from '~/util/connect-or-create';
+import { Test } from '@nestjs/testing';
+import { createMock, DeepMocked } from '@golevelup/ts-jest';
+import { PRISMA_MOCK_PROVIDER } from '../util/prisma/prisma.service.mock';
+import { PrismaService } from '../util/prisma/prisma.service';
+import { PoliciesService } from './policies.service';
+import { Address, asPolicyKey, PolicyGuid, randomDeploySalt } from 'lib';
+import { asUser, UserContext } from '~/request/ctx';
+import { randomAddress, randomUser } from '~/util/test';
+import { hexlify, randomBytes } from 'ethers/lib/utils';
+import { ProposalsService } from '../proposals/proposals.service';
+import { connectAccount, connectOrCreateUser } from '~/util/connect-or-create';
 
-// describe(PoliciesService.name, () => {
-//   let service: PoliciesService;
-//   let prisma: PrismaService;
-//   let proposals: DeepMocked<ProposalsService>;
+describe(PoliciesService.name, () => {
+  let service: PoliciesService;
+  let prisma: PrismaService;
+  let proposals: DeepMocked<ProposalsService>;
 
-//   beforeEach(async () => {
-//     const module = await Test.createTestingModule({
-//       providers: [PoliciesService, PRISMA_MOCK_PROVIDER],
-//     })
-//       .useMocker(createMock)
-//       .compile();
+  beforeEach(async () => {
+    const module = await Test.createTestingModule({
+      providers: [PoliciesService, PRISMA_MOCK_PROVIDER],
+    })
+      .useMocker(createMock)
+      .compile();
 
-//     service = module.get(PoliciesService);
-//     prisma = module.get(PrismaService);
-//     proposals = module.get(ProposalsService);
-//   });
+    service = module.get(PoliciesService);
+    prisma = module.get(PrismaService);
+    proposals = module.get(ProposalsService);
+  });
 
-//   let user1Account: Address;
-//   let user1: UserContext;
+  let user1Account: Address;
+  let user1: UserContext;
 
-//   const create = async ({ active }: { active?: boolean } = {}) => {
-//     const quorum: QuorumGuid = {
-//       account: user1Account,
-//       key: toQuorumKey(1),
-//     };
+  const create = async ({ active }: { active?: boolean } = {}) => {
+    const account = user1Account;
 
-//     await prisma.asUser.account.create({
-//       data: {
-//         id: quorum.account,
-//         deploySalt: randomDeploySalt(),
-//         impl: quorum.account,
-//         name: '',
-//       },
-//     });
+    await prisma.asUser.account.create({
+      data: {
+        id: account,
+        deploySalt: randomDeploySalt(),
+        impl: account,
+        name: '',
+      },
+    });
 
-//     proposals.propose.mockImplementation(async () =>
-//       prisma.asUser.proposal.create({
-//         data: {
-//           id: hexlify(randomBytes(32)),
-//           account: connectAccount(user1Account),
-//           quorum: connectPolicy(quorum),
-//           proposer: connectOrCreateUser(user1.id),
-//           to: user1Account,
-//           salt: randomTxSalt(),
-//         },
-//       }),
-//     );
+    proposals.propose.mockImplementation(async () =>
+      prisma.asUser.proposal.create({
+        data: {
+          id: hexlify(randomBytes(32)),
+          account: connectAccount(account),
+          proposer: connectOrCreateUser(user1.id),
+          to: account,
+          nonce: 0,
+        },
+      }),
+    );
 
-//     await service.create(
-//       {
-//         account: quorum.account,
-//         proposingQuorumKey: quorum.key,
-//         approvers: new Set(),
-//       },
-//       { select: null },
-//     );
+    const { key } = await service.create(
+      {
+        account,
+        rules: { approvers: new Set() },
+      },
+      { select: null },
+    );
 
-//     if (active) {
-//       // Mark quorum state as active
-//       await prisma.asUser.quorum.update({
-//         where: {
-//           accountId_key: {
-//             accountId: quorum.account,
-//             key: quorum.key,
-//           },
-//         },
-//         data: { activeStateId: (await prisma.asUser.quorumState.findFirstOrThrow()).id },
-//       });
-//     }
+    if (active) {
+      // Mark policy state as active
+      await prisma.asUser.policy.update({
+        where: {
+          accountId_key: {
+            accountId: account,
+            key,
+          },
+        },
+        data: { activeId: (await prisma.asUser.policyRules.findFirstOrThrow()).id },
+      });
+    }
 
-//     return quorum;
-//   };
+    return { account, key: asPolicyKey(key) } satisfies PolicyGuid;
+  };
 
-//   beforeEach(() => {
-//     user1Account = randomAddress();
-//     user1 = {
-//       id: randomAddress(),
-//       accounts: new Set([user1Account]),
-//     };
-//   });
+  beforeEach(() => {
+    user1Account = randomAddress();
+    user1 = {
+      id: randomAddress(),
+      accounts: new Set([user1Account]),
+    };
+  });
 
-//   describe('create', () => {
-//     it('create quorum', () =>
-//       asUser(user1, async () => {
-//         const quorum = await create();
+  describe('create', () => {
+    it('create policy', () =>
+      asUser(user1, async () => {
+        const policy = await create();
 
-//         expect(
-//           await service.findUnique({
-//             where: {
-//               accountId_key: {
-//                 accountId: quorum.account,
-//                 key: quorum.key,
-//               },
-//             },
-//           }),
-//         ).toBeTruthy();
-//       }));
+        expect(
+          await service.findUnique({
+            where: {
+              accountId_key: {
+                accountId: policy.account,
+                key: policy.key,
+              },
+            },
+          }),
+        ).toBeTruthy();
+      }));
 
-//     it('creates state', () =>
-//       asUser(user1, async () => {
-//         await create();
-//         expect(await prisma.asUser.quorumState.count()).toEqual(1);
-//       }));
+    it('creates state', () =>
+      asUser(user1, async () => {
+        await create();
+        expect(await prisma.asUser.policyRules.count()).toEqual(1);
+      }));
 
-//     it('proposes an upsert', () =>
-//       asUser(user1, async () => {
-//         await create();
-//         expect(proposals.propose).toHaveBeenCalledTimes(1);
-//       }));
+    it('proposes an upsert', () =>
+      asUser(user1, async () => {
+        await create();
+        expect(proposals.propose).toHaveBeenCalledTimes(1);
+      }));
 
-//     it("throws if the user isn't a member of the account", () =>
-//       asUser(randomUser(), async () => {
-//         await expect(create()).rejects.toThrow();
-//       }));
-//   });
+    it("throws if the user isn't a member of the account", () =>
+      asUser(randomUser(), async () => {
+        await expect(create()).rejects.toThrow();
+      }));
+  });
 
-//   describe('update', () => {
-//     it('creates state', () =>
-//       asUser(user1, async () => {
-//         const quorum = await create();
-//         await service.update({ ...quorum, approvers: new Set() });
+  describe('update', () => {
+    it('updates name', () =>
+      asUser(user1, async () => {
+        const policy = await create();
 
-//         expect(await prisma.asUser.quorumState.count()).toEqual(2);
-//       }));
+        const newName = 'new';
+        expect((await service.update({ ...policy, name: newName })).name).toEqual(newName);
+      }));
 
-//     it('proposes an upsert', () =>
-//       asUser(user1, async () => {
-//         const quorum = await create();
+    it('creates state', () =>
+      asUser(user1, async () => {
+        const policy = await create();
+        await service.update({ ...policy, rules: { approvers: new Set() } });
 
-//         expect(proposals.propose).toBeCalledTimes(1);
-//         await service.update({ ...quorum, approvers: new Set() });
-//       }));
+        expect(await prisma.asUser.policyRules.count()).toEqual(2);
+      }));
 
-//     it("throws if the quorum doesn't exist", () =>
-//       asUser(user1, async () => {
-//         await expect(
-//           service.update({ account: user1Account, key: toQuorumKey(1), approvers: new Set() }),
-//         ).rejects.toThrow();
-//       }));
-//   });
+    it('propose', () =>
+      asUser(user1, async () => {
+        const policy = await create();
 
-//   describe('updateMetadata', () => {
-//     it('updates name', () =>
-//       asUser(user1, async () => {
-//         const quorum = await create();
+        expect(proposals.propose).toBeCalledTimes(1);
+        await service.update({ ...policy, rules: { approvers: new Set() } });
+      }));
 
-//         const newName = 'new';
-//         expect((await service.updateMetadata({ ...quorum, name: newName })).name).toEqual(newName);
-//       }));
+    it("throws if the user isn't a member of the account", async () => {
+      const policy = await asUser(user1, create);
 
-//     it("throws if the user isn't a member of the account", async () => {
-//       const quorum = await asUser(user1, create);
+      await asUser(randomUser(), () =>
+        expect(service.update({ ...policy, name: '' })).rejects.toThrow(),
+      );
+    });
 
-//       await asUser(randomUser(), () =>
-//         expect(service.updateMetadata({ ...quorum, name: '' })).rejects.toThrow(),
-//       );
-//     });
-//   });
+    it("throws if the policy doesn't exist", () =>
+      asUser(user1, async () => {
+        await expect(
+          service.update({
+            account: user1Account,
+            key: asPolicyKey(10),
+            rules: { approvers: new Set() },
+          }),
+        ).rejects.toThrow();
+      }));
+  });
 
-//   describe('remove', () => {
-//     it('creates a removed state', () =>
-//       asUser(user1, async () => {
-//         const quorum = await create();
-//         await service.remove(quorum);
+  describe('remove', () => {
+    it('creates a removed state', () =>
+      asUser(user1, async () => {
+        const policy = await create();
+        await service.remove(policy);
 
-//         expect(await prisma.asUser.quorumState.count({ where: { isRemoved: true } })).toEqual(1);
-//       }));
+        expect(await prisma.asUser.policyRules.count({ where: { isRemoved: true } })).toEqual(1);
+      }));
 
-//     it('proposes a remove if the quorum is active', () =>
-//       asUser(user1, async () => {
-//         const quorum = await create({ active: true });
+    it('proposes a remove if the policy is active', () =>
+      asUser(user1, async () => {
+        const policy = await create({ active: true });
 
-//         expect(proposals.propose).toHaveBeenCalledTimes(1);
-//         await service.remove(quorum);
-//         expect(proposals.propose).toHaveBeenCalledTimes(2);
-//       }));
+        expect(proposals.propose).toHaveBeenCalledTimes(1);
+        await service.remove(policy);
+        expect(proposals.propose).toHaveBeenCalledTimes(2);
+      }));
 
-//     it('removes without a proposal if the quorum is inactive', () =>
-//       asUser(user1, async () => {
-//         const quorum = await create();
+    it('removes without a proposal if the policy is inactive', () =>
+      asUser(user1, async () => {
+        const policy = await create();
 
-//         expect(proposals.propose).toHaveBeenCalledTimes(1);
-//         await service.remove(quorum);
-//         expect(proposals.propose).toHaveBeenCalledTimes(1);
-//       }));
+        expect(proposals.propose).toHaveBeenCalledTimes(1);
+        await service.remove(policy);
+        expect(proposals.propose).toHaveBeenCalledTimes(1);
+      }));
 
-//     it("throws if the user isn't a member of the account", async () => {
-//       const quorum = await asUser(user1, create);
+    it("throws if the user isn't a member of the account", async () => {
+      const policy = await asUser(user1, create);
 
-//       await asUser(randomUser(), () => expect(service.remove(quorum)).rejects.toThrow());
-//     });
-//   });
+      await asUser(randomUser(), () => expect(service.remove(policy)).rejects.toThrow());
+    });
+  });
 
-//   describe('delete', () => {
-//     it('should throw if quorum is active', () =>
-//       asUser(user1, async () => {
-//         const quorum = await create({ active: true });
+  describe('delete', () => {
+    it('should throw if policy is active', () =>
+      asUser(user1, async () => {
+        const policy = await create({ active: true });
 
-//         await expect(
-//           prisma.asUser.quorum.delete({
-//             where: { accountId_key: { accountId: quorum.account, key: quorum.key } },
-//           }),
-//         ).rejects.toThrow();
-//       }));
-//   });
-// });
+        await expect(
+          prisma.asUser.policy.delete({
+            where: { accountId_key: { accountId: policy.account, key: policy.key } },
+          }),
+        ).rejects.toThrow();
+      }));
+  });
+});
