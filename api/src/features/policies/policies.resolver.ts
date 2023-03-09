@@ -31,7 +31,7 @@ export class PoliciesResolver {
   }
 
   @Query(() => [Policy])
-  async quorums(@Args() args: PoliciesArgs, @Info() info: GraphQLResolveInfo): Promise<Policy[]> {
+  async policies(@Args() args: PoliciesArgs, @Info() info: GraphQLResolveInfo): Promise<Policy[]> {
     return this.service.findMany({
       ...args,
       ...getSelect(info),
@@ -39,8 +39,8 @@ export class PoliciesResolver {
   }
 
   @ResolveField(() => ID)
-  id(@Parent() quorum: Policy): string {
-    return `${quorum.accountId}-${quorum.key}`;
+  id(@Parent() p: Policy): string {
+    return `${p.accountId}-${p.key}`;
   }
 
   @Mutation(() => Policy)

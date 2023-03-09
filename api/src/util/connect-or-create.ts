@@ -1,28 +1,23 @@
 import { Prisma } from '@prisma/client';
-import { Address, PolicyGuid, PolicyKey } from 'lib';
+import { Address, Addresslike, asAddress, PolicyGuid, PolicyKey } from 'lib';
 import { getUserId } from '~/request/ctx';
 
 export const connectAccount = (
-  id: Address,
+  id: Addresslike,
 ): Prisma.AccountCreateNestedOneWithoutProposalsInput => ({
-  connect: { id },
+  connect: { id: asAddress(id) },
 });
 
-export const connectUser = (id: Address): Prisma.UserCreateNestedOneWithoutApprovalsInput => ({
-  connectOrCreate: {
-    where: { id },
-    create: { id },
-  },
-});
+export const connectOrCreateUser = (user?: Addresslike) => {
+  const id = user ? asAddress(user) : getUserId();
 
-export const connectOrCreateUser = (
-  id: Address = getUserId(),
-): Prisma.UserCreateNestedOneWithoutApprovalsInput => ({
-  connectOrCreate: {
-    where: { id },
-    create: { id },
-  },
-});
+  return {
+    connectOrCreate: {
+      where: { id },
+      create: { id },
+    },
+  } satisfies Prisma.UserCreateNestedOneWithoutApprovalsInput;
+};
 
 export const connectPolicy = (...params: [PolicyGuid] | [Address, PolicyKey]) =>
   ({

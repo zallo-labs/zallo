@@ -6,7 +6,7 @@ import { hashTx, isTruthy, Address, asAddress, Tx, PolicyGuid, asPolicyKey } fro
 import { PrismaService } from '../util/prisma/prisma.service';
 import { ProviderService } from '~/features/util/provider/provider.service';
 import { PubsubService } from '~/features/util/pubsub/pubsub.service';
-import { connectAccount, connectUser } from '~/util/connect-or-create';
+import { connectAccount, connectOrCreateUser } from '~/util/connect-or-create';
 import { TransactionsService } from '../transactions/transactions.service';
 import {
   ACCOUNT_PROPOSAL_SUB_TRIGGER,
@@ -104,7 +104,7 @@ export class ProposalsService {
         data: {
           id: await hashTx(tx, { address: account, provider: this.provider }),
           account: connectAccount(account),
-          proposer: connectUser(getUser().id),
+          proposer: connectOrCreateUser(),
           to: tx.to,
           value: tx.value?.toString(),
           data: tx.data ? hexlify(tx.data) : undefined,
