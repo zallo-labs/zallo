@@ -45,7 +45,7 @@ export class RulesInput {
   static asPolicy(key: PolicyKey, rules: RulesInput): Policy {
     return new Policy(
       key,
-      [
+      ...[
         rules.approvers?.size ? new ApprovalsRule(rules.approvers) : null,
         rules.onlyFunctions?.size ? new FunctionRule(rules.onlyFunctions) : null,
         rules.onlyTargets?.size ? new TargetRule(rules.onlyTargets) : null,

@@ -87,7 +87,7 @@ export const deployProxy = async ({
   extraBalance,
 }: DeployProxyOptions = {}) => {
   const approvers = new Set(WALLETS.slice(0, nApprovers).map((signer) => signer.address));
-  const policy = new Policy(1, nApprovers > 0 ? [new ApprovalsRule(approvers)] : []);
+  const policy = new Policy(1, ...(nApprovers > 0 ? [new ApprovalsRule(approvers)] : []));
 
   const { factory } = await deployFactory('ERC1967Proxy');
   const { impl } = await deployAccountImpl({ contractName });

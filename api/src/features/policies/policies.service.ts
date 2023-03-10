@@ -143,7 +143,7 @@ export class PoliciesService implements OnModuleInit {
     return this.prisma.$transactionAsUser(prisma, async (prisma) => {
       const policy = new Policy(
         key,
-        [
+        ...[
           rules.approvers?.size ? new ApprovalsRule(rules.approvers) : null,
           rules.onlyFunctions?.size ? new FunctionRule(rules.onlyFunctions) : null,
           rules.onlyTargets?.size ? new TargetRule(rules.onlyTargets) : null,

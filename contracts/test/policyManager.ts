@@ -10,7 +10,7 @@ describe('PolicyManager', () => {
     manager = TestPolicyManager__factory.connect(contract.address, WALLET);
   });
 
-  const policy: Policy = new Policy(1, []);
+  const policy: Policy = new Policy(1);
   const addPolicy = async () =>
     await (await manager.testAddPolicy(policy.struct, { gasLimit })).wait();
 

@@ -9,6 +9,7 @@ import { PolicyStruct as BasePolicyStruct } from './contracts/Account';
 import { AwaitedObj } from './util/mappedTypes';
 import { Address } from './addr';
 import { GetDomainParams, hashTx, Tx } from './tx';
+import { ClassMap } from './util/ClassMap';
 
 export type PolicyStruct = AwaitedObj<BasePolicyStruct>;
 
@@ -33,9 +34,11 @@ export interface IsSatisfiedOptions {
 
 export class Policy {
   public readonly key: PolicyKey;
+  public rules: ClassMap<Rule>;
 
-  constructor(key: BigIntLike, public rules: Rule[]) {
+  constructor(key: BigIntLike, ...rules: Rule[]) {
     this.key = asPolicyKey(key);
+    this.rules = new ClassMap(...rules);
   }
 
   public static readonly ABI = `(uint256 key, ${RULES_ABI} signatureRules, ${RULES_ABI} transactionRules)`;
@@ -48,18 +51,18 @@ export class Policy {
   }
 
   get signatureRules() {
-    return this.rules.filter(isSignatureRule);
+    return [...this.rules].filter(isSignatureRule);
   }
 
   get transactionRules() {
-    return this.rules.filter(isTransactionRule);
+    return [...this.rules].filter(isTransactionRule);
   }
 
   static fromStruct(data: PolicyStruct): Policy {
     const signatureVerifiers = data.signatureRules.map(asSignatureRule);
     const txVerifiers = data.transactionRules.map(asTransactionRule);
 
-    return new Policy(data.key, [...signatureVerifiers, ...txVerifiers]);
+    return new Policy(data.key, ...signatureVerifiers, ...txVerifiers);
   }
 
   get hash() {

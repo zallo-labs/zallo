@@ -1,16 +1,7 @@
 import '@matterlabs/hardhat-zksync-chai-matchers';
 import { expect } from 'chai';
-import { BytesLike } from 'ethers';
-import {
-  asAddress,
-  Policy,
-  Rule,
-  TestVerifier,
-  TestVerifier__factory,
-  ZERO,
-  zeroHexBytes,
-  ZERO_ADDR,
-} from 'lib';
+import { BigNumber, BytesLike } from 'ethers';
+import { Policy, Rule, TestVerifier, TestVerifier__factory, zeroHexBytes, ZERO_ADDR } from 'lib';
 import { TransactionStruct } from 'lib/src/contracts/Account';
 import { deploy, gasLimit, WALLET } from './util';
 
@@ -24,7 +15,7 @@ const defaultTx: TransactionStruct = {
   maxPriorityFeePerGas: 0,
   paymaster: ZERO_ADDR,
   nonce: 0,
-  value: ZERO,
+  value: BigNumber.from(0),
   reserved: [0, 0, 0, 0],
   data: [],
   signature: [],
@@ -50,13 +41,13 @@ describe('Verifier', () => {
   });
 
   const verify = ({
-    rules: verifiers,
+    rules,
     tx = defaultTx,
     txHash = defaultTxHash,
     signatures = [],
   }: ValidateOptions) =>
     verifier.functions.verifySignatureAndTransactionPolicy(
-      new Policy(1, verifiers).struct,
+      new Policy(1, ...rules).struct,
       tx,
       txHash,
       signatures,
