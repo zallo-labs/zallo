@@ -38,13 +38,11 @@ export class ContactsResolver {
     });
 
     const accounts = await this.accounts.findMany({
+      where: { id: { notIn: contacts.map((c) => c.addr) } },
       select: { id: true, name: true },
     });
 
-    return filterFirst(
-      [...contacts, ...accounts.map((a) => ({ addr: a.id, name: a.name }))],
-      (contact) => contact.addr,
-    );
+    return [...contacts, ...accounts.map((a) => ({ ...a, addr: a.id }))];
   }
 
   @Mutation(() => ContactObject)
