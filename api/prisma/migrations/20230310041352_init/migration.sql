@@ -66,10 +66,10 @@ CREATE TABLE "Proposal" (
     "accountId" CHAR(42) NOT NULL,
     "proposerId" CHAR(42) NOT NULL,
     "to" CHAR(42) NOT NULL,
-    "value" TEXT,
+    "value" DECIMAL(79,0),
     "data" TEXT,
-    "nonce" INTEGER NOT NULL,
-    "gasLimit" DECIMAL(19,0),
+    "nonce" BIGINT NOT NULL,
+    "gasLimit" BIGINT,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
     CONSTRAINT "Proposal_pkey" PRIMARY KEY ("id")
@@ -167,16 +167,16 @@ ALTER TABLE "Contact" ADD CONSTRAINT "Contact_userId_fkey" FOREIGN KEY ("userId"
 ALTER TABLE "Policy" ADD CONSTRAINT "Policy_accountId_fkey" FOREIGN KEY ("accountId") REFERENCES "Account"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "Policy" ADD CONSTRAINT "Policy_activeId_fkey" FOREIGN KEY ("activeId") REFERENCES "PolicyRules"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE "Policy" ADD CONSTRAINT "Policy_activeId_fkey" FOREIGN KEY ("activeId") REFERENCES "PolicyRules"("id") ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "Policy" ADD CONSTRAINT "Policy_draftId_fkey" FOREIGN KEY ("draftId") REFERENCES "PolicyRules"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE "Policy" ADD CONSTRAINT "Policy_draftId_fkey" FOREIGN KEY ("draftId") REFERENCES "PolicyRules"("id") ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "PolicyRules" ADD CONSTRAINT "PolicyRules_accountId_fkey" FOREIGN KEY ("accountId") REFERENCES "Account"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "PolicyRules" ADD CONSTRAINT "PolicyRules_accountId_policyKey_fkey" FOREIGN KEY ("accountId", "policyKey") REFERENCES "Policy"("accountId", "key") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE "PolicyRules" ADD CONSTRAINT "PolicyRules_accountId_policyKey_fkey" FOREIGN KEY ("accountId", "policyKey") REFERENCES "Policy"("accountId", "key") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "PolicyRules" ADD CONSTRAINT "PolicyRules_proposalId_fkey" FOREIGN KEY ("proposalId") REFERENCES "Proposal"("id") ON DELETE CASCADE ON UPDATE CASCADE;
@@ -185,7 +185,7 @@ ALTER TABLE "PolicyRules" ADD CONSTRAINT "PolicyRules_proposalId_fkey" FOREIGN K
 ALTER TABLE "Approver" ADD CONSTRAINT "Approver_policyRulesId_fkey" FOREIGN KEY ("policyRulesId") REFERENCES "PolicyRules"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "Approver" ADD CONSTRAINT "Approver_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE "Approver" ADD CONSTRAINT "Approver_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "Proposal" ADD CONSTRAINT "Proposal_accountId_fkey" FOREIGN KEY ("accountId") REFERENCES "Account"("id") ON DELETE CASCADE ON UPDATE CASCADE;
@@ -203,13 +203,13 @@ ALTER TABLE "TransactionResponse" ADD CONSTRAINT "TransactionResponse_transactio
 ALTER TABLE "Approval" ADD CONSTRAINT "Approval_proposalId_fkey" FOREIGN KEY ("proposalId") REFERENCES "Proposal"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "Approval" ADD CONSTRAINT "Approval_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE "Approval" ADD CONSTRAINT "Approval_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "Comment" ADD CONSTRAINT "Comment_accountId_fkey" FOREIGN KEY ("accountId") REFERENCES "Account"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "Comment" ADD CONSTRAINT "Comment_authorId_fkey" FOREIGN KEY ("authorId") REFERENCES "User"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE "Comment" ADD CONSTRAINT "Comment_authorId_fkey" FOREIGN KEY ("authorId") REFERENCES "User"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "Reaction" ADD CONSTRAINT "Reaction_commentId_fkey" FOREIGN KEY ("commentId") REFERENCES "Comment"("id") ON DELETE CASCADE ON UPDATE CASCADE;
