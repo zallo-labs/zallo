@@ -25,7 +25,6 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
   slug: 'app',
   owner: 'zallo',
   githubUrl: 'https://github.com/zallo-labs/zallo',
-  jsEngine: 'hermes',
   version: '0.1.0',
   runtimeVersion: {
     policy: 'sdkVersion',
@@ -36,17 +35,16 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
   },
   plugins: [
     'sentry-expo',
+    'expo-notifications', // https://docs.expo.dev/versions/latest/sdk/notifications/#configurable-properties
     [
-      'expo-community-flipper',
+      'expo-build-properties',
       {
-        // https://github.com/jakobo/expo-community-flipper#configuration
+        // https://docs.expo.dev/versions/latest/sdk/build-properties/
         ios: {
-          enabled: false, // Disable on ios due to issue https://github.com/jakobo/expo-community-flipper/issues/27
-          // stripUseFrameworks: true,  // Alternative to disabling on ios, but enabling may break other packages
+          flipper: false, // Disable on ios due to issue https://github.com/jakobo/expo-community-flipper/issues/27
         },
       },
     ],
-    'expo-notifications', // https://docs.expo.dev/versions/latest/sdk/notifications/#configuration-in-appjson--appconfigjs
   ],
   hooks: {
     postPublish: [
