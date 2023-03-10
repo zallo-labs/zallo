@@ -3,14 +3,14 @@ import { setContext } from '@apollo/client/link/context';
 import { onError } from '@apollo/client/link/error';
 import { SiweMessage } from 'siwe';
 import { tryAcquire, E_ALREADY_LOCKED, Mutex } from 'async-mutex';
-import * as zk from 'zksync-web3';
 import { CONFIG } from '~/util/config';
 import { atom, useRecoilState } from 'recoil';
 import { getSecureStore, persistAtom } from '~/util/effect/persistAtom';
 import { useCallback, useMemo, useRef } from 'react';
 import { captureException } from '~/util/sentry/sentry';
-import { useCredentials } from '@network/useCredentials';
+import { useApprover } from '@network/useApprover';
 import { DateTime } from 'luxon';
+import { Approver } from 'lib';
 
 const fetchMutex = new Mutex();
 
@@ -21,13 +21,13 @@ const HOST_PATTERN = /^(?:[a-z]+?:\/\/)?([^:/?#]+(:\d+)?)/; // RN lacks URL supp
 //                      protocol://      (hostname:port)
 const API_HOSTNAME = HOST_PATTERN.exec(CONFIG.apiUrl)![1];
 
-const fetchToken = async (credentials: zk.Wallet): Promise<string> => {
+const fetchToken = async (approver: Approver): Promise<string> => {
   const nonceResp = await fetch(`${CONFIG.apiUrl}/auth/nonce`, { credentials: 'include' });
 
   const message = new SiweMessage({
     version: '1',
     domain: API_HOSTNAME,
-    address: credentials.address,
+    address: approver.address,
     nonce: await nonceResp.text(),
     expirationTime: DateTime.now().plus({ days: 2 }).toString(),
     // Required but unused
@@ -36,7 +36,7 @@ const fetchToken = async (credentials: zk.Wallet): Promise<string> => {
   });
   const token = {
     message,
-    signature: await credentials.signMessage(message.prepareMessage()),
+    signature: await approver.signMessage(message.prepareMessage()),
   };
 
   return JSON.stringify(token);
@@ -53,7 +53,7 @@ const apiTokenState = atom<string | null>({
 });
 
 export const useApiAuth = () => {
-  const credentials = useCredentials();
+  const approver = useApprover();
   const [token, setToken] = useRecoilState(apiTokenState);
 
   const tokenRef = useRef<string | null>(token);
@@ -62,7 +62,7 @@ export const useApiAuth = () => {
     // Ensure token is reset exactly once at any given time
     try {
       await tryAcquire(fetchMutex).runExclusive(async () => {
-        tokenRef.current = await fetchToken(credentials);
+        tokenRef.current = await fetchToken(approver);
         setToken(tokenRef.current);
       });
     } catch (e) {
@@ -72,7 +72,7 @@ export const useApiAuth = () => {
         throw e;
       }
     }
-  }, [credentials, setToken]);
+  }, [approver, setToken]);
 
   return useMemo(() => {
     const getHeaders = () => ({ Authorization: tokenRef.current });

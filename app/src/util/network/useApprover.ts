@@ -2,15 +2,15 @@ import * as storage from 'expo-secure-store';
 import { PROVIDER } from '~/util/network/provider';
 import { atom, useRecoilValue } from 'recoil';
 import { getSecureStore, persistAtom } from '~/util/effect/persistAtom';
-import * as zk from 'zksync-web3';
+import { Approver } from 'lib';
 
-export const CREDENTIALS = atom<zk.Wallet>({
-  key: 'credentials',
-  default: zk.Wallet.createRandom().connect(PROVIDER),
+export const APPROVER = atom<Approver>({
+  key: 'approver',
+  default: Approver.createRandom().connect(PROVIDER),
   effects: [
     persistAtom({
-      save: (wallet) => wallet.privateKey,
-      load: (privateKey) => new zk.Wallet(privateKey, PROVIDER),
+      save: (approver) => approver.privateKey,
+      load: (privateKey) => new Approver(privateKey, PROVIDER),
       storage: getSecureStore({
         keychainAccessible: storage.WHEN_UNLOCKED_THIS_DEVICE_ONLY,
       }),
@@ -19,4 +19,4 @@ export const CREDENTIALS = atom<zk.Wallet>({
   dangerouslyAllowMutability: true, // Required due to provider internal mutations
 });
 
-export const useCredentials = () => useRecoilValue(CREDENTIALS);
+export const useApprover = () => useRecoilValue(APPROVER);

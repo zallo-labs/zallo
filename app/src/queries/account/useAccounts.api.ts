@@ -1,5 +1,5 @@
 import { gql } from '@apollo/client';
-import { useCredentials } from '@network/useCredentials';
+import { useApprover } from '@network/useApprover';
 import { asAddress, connectAccount } from 'lib';
 import { useMemo } from 'react';
 import {
@@ -38,7 +38,7 @@ gql`
 `;
 
 export const useAccounts = () => {
-  const credentials = useCredentials();
+  const approver = useApprover();
 
   const { data } = useSuspenseQuery<AccountsQuery, AccountsQueryVariables>(AccountsDocument, {
     variables: {},
@@ -51,13 +51,13 @@ export const useAccounts = () => {
 
         return {
           addr,
-          contract: connectAccount(addr, credentials),
+          contract: connectAccount(addr, approver),
           active: a.isActive,
           name: a.name,
           quorums: (a.quorums ?? []).map(CombinedQuorum.fromFragment),
         };
       }),
-    [credentials, data.accounts],
+    [approver, data.accounts],
   );
 };
 

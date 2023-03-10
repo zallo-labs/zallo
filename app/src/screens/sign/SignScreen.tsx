@@ -1,4 +1,4 @@
-import { useCredentials } from '@network/useCredentials';
+import { useApprover } from '@network/useApprover';
 import { Address, toAccountSignature } from 'lib';
 import { match } from 'ts-pattern';
 import { StackNavigatorScreenProps } from '~/navigation/StackNavigator';
@@ -42,7 +42,7 @@ export type SignScreenProps = StackNavigatorScreenProps<'Sign'>;
 export const SignScreen = ({ navigation, route }: SignScreenProps) => {
   const { id, request } = route.params;
   const styles = useStyles();
-  const credentials = useCredentials();
+  const approver = useApprover();
   const topic = useSession(route.params.topic);
 
   const [account, data] = useMemo(
@@ -76,7 +76,7 @@ export const SignScreen = ({ navigation, route }: SignScreenProps) => {
     const ownSignature = await match(data)
       .when(
         (data): data is string => typeof data === 'string',
-        (message) => credentials.signMessage(message),
+        (message) => approver.signMessage(message),
       )
       .when(
         (data): data is Eip712TypedDomainData => typeof data === 'object',
@@ -88,7 +88,7 @@ export const SignScreen = ({ navigation, route }: SignScreenProps) => {
           )
             return { error: 'UNSUPPORTED_CHAINS' } as const;
 
-          return credentials._signTypedData(typedData.domain, typedData.types, typedData.message);
+          return approver._signTypedData(typedData.domain, typedData.types, typedData.message);
         },
       )
       .exhaustive();
@@ -97,8 +97,8 @@ export const SignScreen = ({ navigation, route }: SignScreenProps) => {
 
     return isSigningError(ownSignature)
       ? ownSignature
-      : toAccountSignature(quorum, [{ approver: credentials.address, signature: ownSignature }]);
-  }, [data, quorum, credentials]);
+      : toAccountSignature(quorum, [{ approver: approver.address, signature: ownSignature }]);
+  }, [data, quorum, approver]);
 
   const validateSignature = useCallback(
     (signature: BytesLike | SigningError): signature is BytesLike => {

@@ -13,7 +13,7 @@ import {
   useApproveMutation,
   TransactionFieldsFragmentDoc,
 } from '~/gql/generated.api';
-import { useCredentials } from '@network/useCredentials';
+import { useApprover } from '@network/useApprover';
 
 gql`
   ${TransactionFieldsFragmentDoc}
@@ -29,12 +29,12 @@ gql`
 `;
 
 export const useApprove = () => {
-  const credentials = useCredentials();
+  const approver = useApprover();
   const [mutate] = useApproveMutation();
 
   const approve = useCallback(
     async (p: Proposal) => {
-      const signature = await signTx(credentials, p.account, p);
+      const signature = await signTx(approver, p.account, p);
 
       const res = await mutate({
         variables: {
@@ -67,7 +67,7 @@ export const useApprove = () => {
               data.proposal!.approvals = [
                 ...(data.proposal!.approvals ?? []),
                 {
-                  userId: credentials.address,
+                  userId: approver.address,
                   signature,
                   createdAt: DateTime.now().toISO(),
                 },
@@ -84,7 +84,7 @@ export const useApprove = () => {
 
       return { submissionHash };
     },
-    [credentials, mutate],
+    [approver, mutate],
   );
 
   return approve;

@@ -1,11 +1,11 @@
-import { useCredentials } from '@network/useCredentials';
+import { useApprover } from '@network/useApprover';
 import { useEffect } from 'react';
 import { Native } from 'sentry-expo';
 
 export const SentryUser = () => {
-  const credentials = useCredentials();
+  const approver = useApprover();
 
-  useEffect(() => Native.setUser({ id: credentials.address }), [credentials.address]);
+  useEffect(() => Native.setUser({ id: approver.address }), [approver.address]);
 
   return null;
 };

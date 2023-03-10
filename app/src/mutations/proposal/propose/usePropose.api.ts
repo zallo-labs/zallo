@@ -15,7 +15,7 @@ import {
 } from '~/gql/generated.api';
 import { updateQuery } from '~/gql/update';
 import { ProposalId } from '~/queries/proposal';
-import { useCredentials } from '@network/useCredentials';
+import { useApprover } from '@network/useApprover';
 
 gql`
   ${TransactionFieldsFragmentDoc}
@@ -51,13 +51,13 @@ export interface ProposeResponse extends ProposalId {
 }
 
 export const useApiPropose = () => {
-  const credentials = useCredentials();
+  const approver = useApprover();
   const [mutation] = useProposeMutation();
 
   const propose = useCallback(
     async (txOpts: TxOptions, quorum: QuorumGuid): Promise<ProposeResponse> => {
       const tx = toTx(txOpts);
-      const id = await hashTx(tx, { address: quorum.account, provider: credentials.provider });
+      const id = await hashTx(tx, { address: quorum.account, provider: approver.provider });
 
       const createdAt = DateTime.now().toISO();
 
@@ -94,7 +94,7 @@ export const useApiPropose = () => {
                   ...proposal!,
                   accountId: quorum.account,
                   quorumKey: quorum.key,
-                  proposerId: credentials.address,
+                  proposerId: approver.address,
                   to: tx.to,
                   value: tx.value ? tx.value.toString() : null,
                   data: tx.data ? hexlify(tx.data) : null,
@@ -132,7 +132,7 @@ export const useApiPropose = () => {
 
       return { id, submissionHash };
     },
-    [credentials.provider, credentials.address, mutation],
+    [approver.provider, approver.address, mutation],
   );
 
   return propose;
