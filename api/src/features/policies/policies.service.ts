@@ -61,8 +61,8 @@ export class PoliciesService implements OnModuleInit {
     res?: ArgsParam<A>,
   ) {
     return this.prisma.asUser.$transaction(async (prisma) => {
-      const existingQuorums = await prisma.policy.count({ where: { accountId: account } });
-      const key = asPolicyKey(existingQuorums + 1);
+      const existingPolicies = await prisma.policy.count({ where: { accountId: account } });
+      const key = asPolicyKey(existingPolicies + 1);
 
       await prisma.policy.create({
         data: {

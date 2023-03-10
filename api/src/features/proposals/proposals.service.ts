@@ -187,7 +187,7 @@ export class ProposalsService {
     { id }: UniqueProposalArgs,
     res?: Prisma.SelectSubset<A, Prisma.ProposalArgs>,
   ) {
-    // Delete quorums for which this proposal contains their creation state
+    // Delete policies for which this proposal contains their creation state
     return this.prisma.asUser.$transaction(async (client) => {
       const { policyRules, ...r } = await client.proposal.delete({
         where: { id },
