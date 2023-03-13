@@ -1,7 +1,8 @@
+import { useContractMethod } from '@api/method';
 import { ZERO_ADDR } from 'lib';
-import { Proposal } from '~/queries/proposal';
-import { useContractMethod } from '~/queries/useContractMethod.api';
-import { useDecodeQuorumMethodsData } from '~/screens/proposal/useDecodeQuorumMethodsData';
+import { match } from 'ts-pattern';
+import { Proposal } from '@api/proposal';
+import { useTryDecodeAccountFunctionData } from '~/screens/proposal/useTryDecodeAccountFunctionData';
 import { uppercaseFirst } from '~/util/string';
 import { useAddrName } from '../addr/useAddrName';
 import { useDecodedTransfer } from './useDecodedTransfer';
@@ -10,7 +11,7 @@ export const TRANSFER_LABEL = 'Transfer';
 
 export const useProposalLabel = (p?: Proposal) => {
   const method = useContractMethod(p);
-  const quorum = useDecodeQuorumMethodsData(p?.account ?? ZERO_ADDR, p?.data);
+  const accountMethod = useTryDecodeAccountFunctionData(p?.account ?? ZERO_ADDR, p?.data);
   const transfer = useDecodedTransfer(p);
   const to = useAddrName(transfer?.to ?? p?.to);
 
@@ -18,11 +19,13 @@ export const useProposalLabel = (p?: Proposal) => {
 
   if (transfer) return `${TRANSFER_LABEL} to ${to}`;
 
-  if (quorum) {
-    if (quorum.method === 'upsert') return `Modify "${quorum.name}" quorum`;
-    if (quorum.method === 'remove') return `Remove "${quorum.name}" quorum`;
+  if (accountMethod) {
+    return match(accountMethod)
+      .with({ type: 'addPolicy' }, (p) => `Add policy: ${p.name}`)
+      .with({ type: 'removePolicy' }, (p) => `Remove policy: ${p.name}`)
+      .exhaustive();
   }
 
-  const methodName = uppercaseFirst(method.fragment.name) || method.sighash;
+  const methodName = uppercaseFirst(method.fragment.name) || method.selector;
   return `${methodName} on ${to}`;
 };

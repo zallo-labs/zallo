@@ -20,11 +20,11 @@ export const tryDecodeAddPolicyFunctionData = (data?: BytesLike): Policy | undef
   if (!data || getSelector(data) !== ADD_POLICY_SELECTOR) return undefined;
 
   try {
-    const [rule] = ACCOUNT_INTERFACE.decodeFunctionData(ADD_POLICY_FUNCTION, data) as [
+    const [policy] = ACCOUNT_INTERFACE.decodeFunctionData(ADD_POLICY_FUNCTION, data) as [
       PolicyStruct,
     ];
 
-    return Policy.fromStruct(rule);
+    return Policy.fromStruct(policy);
   } catch {
     return undefined;
   }
