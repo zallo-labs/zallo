@@ -6,19 +6,19 @@ const plugins = ['typescript', 'typescript-operations', 'typescript-react-apollo
 const config: CodegenConfig = {
   overwrite: true,
   generates: {
-    'src/gql/generated.api.tsx': {
+    'src/gql/api/generated.ts': {
       schema: '../api/schema.graphql',
-      documents: 'src/{mutations,queries}/**/*.api.ts',
+      documents: 'src/gql/api/**/*.ts',
       plugins,
     },
-    'src/gql/generated.sub.tsx': {
+    'src/gql/subgraph/generated.ts': {
       schema: process.env.SUBGRAPH_GQL_URL,
-      documents: 'src/{mutations,queries}/**/*.sub.ts',
+      documents: 'src/gql/subgraph/**/*.ts',
       plugins,
     },
-    'src/gql/generated.uni.tsx': {
+    'src/gql/uniswap/generated.ts': {
       schema: 'https://api.thegraph.com/subgraphs/name/uniswap/uniswap-v3',
-      documents: 'src/{mutations,queries}/**/*.uni.ts',
+      documents: 'src/gql/uniswap/**/*.ts',
       plugins,
     },
   },
