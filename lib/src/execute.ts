@@ -7,7 +7,7 @@ import { EIP712_TX_TYPE } from 'zksync-web3/build/src/utils';
 import { Tx } from './tx';
 import { tryOrAsync } from './util/try';
 import { Policy } from './policy';
-import { asBigInt } from './bignum';
+import { asBigInt } from './bigint';
 
 export const FALLBACK_GAS_LIMIT = 3_000_000n;
 const GAS_PER_SIGNER = 200_000n;
