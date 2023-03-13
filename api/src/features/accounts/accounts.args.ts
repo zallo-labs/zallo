@@ -48,6 +48,6 @@ export class CreateAccountArgs {
 }
 
 @ArgsType()
-export class UpdateAccountMetadataArgs extends AccountArgs {
+export class UpdateAccountArgs extends AccountArgs {
   name: string;
 }

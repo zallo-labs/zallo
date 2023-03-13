@@ -128,22 +128,20 @@ describe(AccountsResolver.name, () => {
 
     it('updates metadata', () =>
       asUser(user1, async () => {
-        await resolver.updateAccountMetadata({ id: user1Account, name: newName });
+        await resolver.updateAccount({ id: user1Account, name: newName });
         expect((await resolver.account({ id: user1Account }))?.name).toEqual(newName);
       }));
 
     it('publishes account', () =>
       asUser(user1, async () => {
         expect(service.publishAccount).toBeCalledTimes(1); // beforeEach
-        await resolver.updateAccountMetadata({ id: user1Account, name: newName });
+        await resolver.updateAccount({ id: user1Account, name: newName });
         expect(service.publishAccount).toBeCalledTimes(2); // Once more
       }));
 
     it('throws if user is not member of account being updated', () =>
       asUser(user2, async () => {
-        await expect(
-          resolver.updateAccountMetadata({ id: user1Account, name: newName }),
-        ).rejects.toThrow();
+        await expect(resolver.updateAccount({ id: user1Account, name: newName })).rejects.toThrow();
       }));
   });
 });

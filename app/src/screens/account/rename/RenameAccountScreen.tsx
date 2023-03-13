@@ -1,18 +1,17 @@
 import { UndoIcon } from '@theme/icons';
 import { makeStyles } from '@theme/makeStyles';
-import { Address } from 'lib';
 import { useState } from 'react';
 import { TextInput } from 'react-native-paper';
 import { AppbarBack2 } from '~/components/Appbar/AppbarBack';
 import { AppbarLarge } from '~/components/Appbar/AppbarLarge';
 import { TextField } from '~/components/fields/TextField';
 import { Box } from '~/components/layout/Box';
-import { useUpdateAccountMetadata } from '~/mutations/account/useUpdateAccountMetadata.api';
+import { AccountId, useUpdateAccount } from '@api/account';
 import { StackNavigatorScreenProps } from '~/navigation/StackNavigator';
-import { useAccount } from '~/queries/account/useAccount.api';
+import { useAccount } from '@api/account';
 
 export interface RenameAccountScreenParams {
-  account: Address;
+  account: AccountId;
 }
 
 export type RenameAccountScreenProps = StackNavigatorScreenProps<'RenameAccount'>;
@@ -20,7 +19,7 @@ export type RenameAccountScreenProps = StackNavigatorScreenProps<'RenameAccount'
 export const RenameAccountScreen = ({ route: { params } }: RenameAccountScreenProps) => {
   const styles = useStyles();
   const account = useAccount(params.account);
-  const update = useUpdateAccountMetadata(account);
+  const update = useUpdateAccount(account);
 
   const [name, setName] = useState(account.name);
   const submit = () => update({ name });

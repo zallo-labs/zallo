@@ -4,7 +4,7 @@ import { GraphQLResolveInfo } from 'graphql';
 import { Account } from '@gen/account/account.model';
 import {
   AccountArgs,
-  UpdateAccountMetadataArgs,
+  UpdateAccountArgs,
   CreateAccountArgs,
   AccountsArgs,
   AccountSubscriptionFilters,
@@ -159,8 +159,8 @@ export class AccountsResolver {
   }
 
   @Mutation(() => Account)
-  async updateAccountMetadata(
-    @Args() { id, name }: UpdateAccountMetadataArgs,
+  async updateAccount(
+    @Args() { id, name }: UpdateAccountArgs,
     @Info() info?: GraphQLResolveInfo,
   ): Promise<Account> {
     const r = await this.prisma.asUser.account.update({
