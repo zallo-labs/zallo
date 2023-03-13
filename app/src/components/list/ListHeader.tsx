@@ -1,5 +1,6 @@
 import { makeStyles } from '@theme/makeStyles';
-import { Text, TextProps } from 'react-native-paper';
+import { TextProps } from '@theme/types';
+import { Text } from 'react-native-paper';
 
 export interface ListHeaderProps extends TextProps {}
 

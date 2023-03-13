@@ -1,10 +1,11 @@
 import { FC, ReactNode } from 'react';
 import { IconProps } from '@theme/icons';
 import { makeStyles } from '@theme/makeStyles';
-import { Text, TextProps, TouchableRipple, TouchableRippleProps } from 'react-native-paper';
+import { Text, TouchableRipple, TouchableRippleProps } from 'react-native-paper';
 import { match } from 'ts-pattern';
 import { Box } from '../layout/Box';
 import { AddrOrLabelIcon } from '../Identicon/AddrOrLabelIcon';
+import { TextProps } from '@theme/types';
 
 /*
  * https://m3.material.io/components/lists/specs

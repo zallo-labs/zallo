@@ -3,7 +3,6 @@ import { useSelectedAccount } from '~/screens/home/useSelectedAccount';
 import { ReceiveAppbar } from './ReceiveAppbar';
 import { buildAddrLink, buildTransferLink } from '~/util/addrLink';
 import { useMemo, useState } from 'react';
-import { BigNumber } from 'ethers';
 import { SelectableTokenAmountCard } from '~/components/token/SelectableTokenAmountCard';
 import { useSelectedToken } from '~/components/token/useSelectedToken';
 import { Button } from 'react-native-paper';
@@ -24,7 +23,7 @@ export const ReceiveScreen = withSkeleton(
     const [account, setAccount] = useState(useSelectedAccount());
 
     const token = useSelectedToken();
-    const [amount, setAmount] = useState<BigNumber | undefined>();
+    const [amount, setAmount] = useState<bigint | undefined>();
 
     const url = useMemo(
       () =>

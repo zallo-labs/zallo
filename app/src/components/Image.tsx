@@ -1,5 +1,5 @@
 import { makeStyles } from '@theme/makeStyles';
-import { MaybeArray, toArray } from 'lib';
+import { Arraylike, toArray } from 'lib';
 import { FC, useCallback, useState } from 'react';
 import { StyleProp, View } from 'react-native';
 import { CircleSkeleton } from '~/components/skeleton/CircleSkeleton';
@@ -14,7 +14,7 @@ interface Style {
 }
 
 export interface ImageProps extends Style {
-  source: MaybeArray<string>;
+  source: Arraylike<string>;
   size?: number;
   fallback?: FC<Style>;
 }
