@@ -44,15 +44,6 @@ export const AccountScreen = withSkeleton(
             supporting="Change the name of the account"
             onPress={() => navigate('RenameAccount', { account: account.id })}
           />
-
-          <ListItem
-            leading={QuorumsIcon}
-            headline="Quorums"
-            supporting="View and configure account quorums"
-            trailing={account.quorums.length}
-            maxTrailing={100}
-            onPress={() => navigate('AccountQuorums', { account: account.id })}
-          />
         </Box>
       </Box>
     );
