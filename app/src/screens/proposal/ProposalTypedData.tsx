@@ -3,8 +3,8 @@ import { ParamType } from 'ethers/lib/utils';
 import { useMemo } from 'react';
 import { TypedData } from '~/components/TypedData/TypedData';
 import { TypedDataComponent } from '~/components/TypedData/TypedDataObject';
-import { Proposal } from '~/queries/proposal';
-import { useContractMethod } from '~/queries/useContractMethod.api';
+import { Proposal } from '@api/proposal';
+import { useContractMethod } from '@api/method';
 
 const paramToComponent = (param: ParamType, value: unknown): TypedDataComponent => {
   if (param.components === null) {

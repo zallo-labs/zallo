@@ -1,6 +1,6 @@
 import { useAddrEns } from '~/components/addr/useAddrEns';
 import { ListItem, ListItemProps } from '~/components/list/ListItem';
-import { Contact } from '~/queries/contacts/useContacts.api';
+import { Contact } from '@api/contacts';
 import { truncateAddr } from '~/util/format';
 
 export interface ContactItemProps extends Partial<ListItemProps> {

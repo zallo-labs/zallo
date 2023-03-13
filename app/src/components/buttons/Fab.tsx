@@ -2,7 +2,7 @@ import { makeStyles } from '@theme/makeStyles';
 import { ComponentPropsWithoutRef } from 'react';
 import { Keyboard, ViewStyle } from 'react-native';
 import { FAB as Base } from 'react-native-paper';
-import { IconSource } from 'react-native-paper/lib/typescript/components/Icon';
+import { IconSource } from 'react-native-paper/lib/typescript/src/components/Icon';
 import { Box } from '../layout/Box';
 
 type BaseProps = ComponentPropsWithoutRef<typeof Base>;

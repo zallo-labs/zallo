@@ -1,7 +1,7 @@
 import { DeviceIcon } from '@theme/icons';
 import { Share } from 'react-native';
 import { Drawer } from 'react-native-paper';
-import { useUser } from '~/queries/useUser.api';
+import { useUser } from '@api/user';
 import { truncateAddr } from '~/util/format';
 
 export const DeviceItem = () => {

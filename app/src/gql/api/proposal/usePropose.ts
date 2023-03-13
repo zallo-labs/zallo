@@ -2,7 +2,7 @@ import { Tx } from 'lib';
 import { useCallback, useState } from 'react';
 import { RootNavigation, useRootNavigation } from '~/navigation/useRootNavigation';
 import { showInfo } from '~/provider/SnackbarProvider';
-import { asProposalId, ProposalId } from '~/gql/api/proposal/types';
+import { asProposalId, ProposalId } from './types';
 import { OnExecute } from '~/screens/proposal/ProposalActions';
 import { O } from 'ts-toolbelt';
 import { ProposalFieldsFragmentDoc, useProposeMutation } from '@api/generated';

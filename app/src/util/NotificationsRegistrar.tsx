@@ -4,8 +4,8 @@ import * as Notifications from 'expo-notifications';
 import { DevicePushToken } from 'expo-notifications';
 import { useCallback, useEffect } from 'react';
 import { Platform } from 'react-native';
-import { useUpdateUser } from '~/mutations/user/useUpdateUser.api';
-import { useProposalsMetadata } from '~/queries/proposal/useProposalsMetadata.api';
+import { useUpdateUser } from '@api/user';
+import { useProposals } from '@api/proposal';
 
 Notifications.setNotificationHandler({
   handleNotification: async () => ({
@@ -15,7 +15,7 @@ Notifications.setNotificationHandler({
   }),
 });
 
-export const useNotificationsCount = () => useProposalsMetadata({ actionRequired: true }).length;
+export const useNotificationsCount = () => useProposals({ actionRequired: true }).length;
 
 export const NotificationsRegistrar = () => {
   const count = useNotificationsCount();

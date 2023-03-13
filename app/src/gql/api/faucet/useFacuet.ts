@@ -9,7 +9,7 @@ import {
 import { Address } from 'lib';
 import { useCallback } from 'react';
 import { CHAIN } from '~/util/network/provider';
-import { useCanRequestTokens } from '~/gql/api/faucet/useCanRequestTokens';
+import { useCanRequestTokens } from './useCanRequestTokens';
 
 gql`
   mutation RequestTokens($recipient: Address!) {

@@ -4,7 +4,7 @@ import { Address } from 'lib';
 import { FlatList } from 'react-native';
 import { Fab } from '~/components/buttons/Fab';
 import { StackNavigatorScreenProps } from '~/navigation/StackNavigator';
-import { Contact, useContacts } from '~/queries/contacts/useContacts.api';
+import { Contact, useContacts } from '@api/contacts';
 import { useSearch } from '@hook/useSearch';
 import { withSkeleton } from '~/components/skeleton/withSkeleton';
 import { ScreenSkeleton } from '~/components/skeleton/ScreenSkeleton';

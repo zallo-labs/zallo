@@ -6,9 +6,8 @@ import { Timestamp } from '~/components/format/Timestamp';
 import { ListItem } from '~/components/list/ListItem';
 import { ListItemSkeleton } from '~/components/list/ListItemSkeleton';
 import { withSkeleton } from '~/components/skeleton/withSkeleton';
-import { useAccount } from '~/queries/account/useAccount.api';
-import { useAccountIds } from '~/queries/account/useAccounts.api';
-import { useTransfer } from '~/queries/transfer/useTransfer.sub';
+import { useAccount, useAccountIds } from '@api/account';
+import { useTransfer } from '@subgraph/transfer';
 import { ActivityTransfers } from './ActivityTransfers';
 
 export interface IncomingTransferItemProps {

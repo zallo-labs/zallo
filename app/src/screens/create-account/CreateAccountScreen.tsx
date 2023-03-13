@@ -5,7 +5,7 @@ import { StackNavigatorScreenProps } from '~/navigation/StackNavigator';
 import * as Yup from 'yup';
 import { useCallback } from 'react';
 import { FormikTextField } from '~/components/fields/FormikTextField';
-import { CreateAccountResult, useCreateAccount } from '~/mutations/account/useCreateAccount.api';
+import { CreateAccountResult, useCreateAccount } from '@api/account';
 import { AppbarBack } from '~/components/Appbar/AppbarBack';
 import { makeStyles } from '~/util/theme/makeStyles';
 
@@ -34,7 +34,7 @@ export const CreateAccountScreen = ({
   const handleSubmit = useCallback(
     async ({ name }: Values) => {
       const r = await createAccount(name);
-      onCreate ? onCreate(r) : navigate('Account', { account: r.account });
+      onCreate ? onCreate(r) : navigate('Account', { account: r.id });
     },
     [createAccount, navigate, onCreate],
   );

@@ -13,7 +13,7 @@ import { useCallback } from 'react';
 import { Comment, Emoji } from './types';
 import produce from 'immer';
 import assert from 'assert';
-import { useUser } from '~/gql/api/user/useUser.api';
+import { useUser } from '@api/user';
 import { AccountId } from '@api/account';
 
 gql`

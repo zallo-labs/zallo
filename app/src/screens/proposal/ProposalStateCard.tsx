@@ -9,7 +9,7 @@ import { StyleProp, ViewStyle } from 'react-native';
 import { ActivityIndicator } from 'react-native-paper';
 import { match } from 'ts-pattern';
 import { Card } from '~/components/card/Card';
-import { Proposal } from '~/queries/proposal';
+import { Proposal } from '@api/proposal';
 import { State } from './State';
 
 export interface ProposalStateCardProps {

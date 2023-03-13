@@ -6,8 +6,7 @@ import { Appbar, Button, Text } from 'react-native-paper';
 import { AppbarBack } from '~/components/Appbar/AppbarBack';
 import { TextField } from '~/components/fields/TextField';
 import * as Device from 'expo-device';
-import { useUpdateUser } from '~/mutations/user/useUpdateUser.api';
-import { useUser } from '~/queries/useUser.api';
+import { useUser, useUpdateUser } from '@api/user';
 
 export interface NameDeviceScreenParams {
   onContinue: () => void;

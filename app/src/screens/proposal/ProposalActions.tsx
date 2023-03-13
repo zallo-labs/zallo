@@ -4,11 +4,8 @@ import { MaybePromise } from 'lib';
 import { Button } from 'react-native-paper';
 import { TransactionResponse } from 'zksync-web3/build/src/types';
 import { Actions } from '~/components/layout/Actions';
-import { useApprove } from '~/mutations/proposal/approve/useApprove.api';
-import { useReject } from '~/mutations/proposal/approve/useReject.api';
-import { Proposal } from '~/queries/proposal';
-import { useQuorum } from '~/queries/quroum/useQuorum.api';
-import { useUser } from '~/queries/useUser.api';
+import { useUser } from '@api/user';
+import { Proposal, useApprove, useReject } from '@api/proposal';
 
 export type OnExecute = (response: TransactionResponse) => MaybePromise<void>;
 
@@ -22,7 +19,6 @@ export const ProposalActions = ({ proposal: p, onExecute }: ProposalActionsProps
   const user = useUser();
   const approve = useApprove();
   const reject = useReject();
-  const quorum = useQuorum(p.quorum);
 
   const isApprover = quorum.activeOrLatest.approvers.has(user.id);
 

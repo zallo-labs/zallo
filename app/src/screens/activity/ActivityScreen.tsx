@@ -8,13 +8,9 @@ import { Appbar } from 'react-native-paper';
 import { AppbarMenu } from '~/components/Appbar/AppbarMenu';
 import { useAppbarHeader } from '~/components/Appbar/useAppbarHeader';
 import { ProposalItem } from '~/screens/activity/ProposalItem';
-import { ProposalMetadata } from '~/queries/proposal';
-import {
-  TransferMetadata,
-  useTransfersMetadata,
-} from '~/queries/transfer/useTransfersMetadata.sub';
+import { Proposal, useProposals } from '@api/proposal';
+import { TransferMetadata, useTransfersMetadata } from '@subgraph/transfer';
 import { IncomingTransferItem } from './IncomingTransferItem';
-import { useProposalsMetadata } from '~/queries/proposal/useProposalsMetadata.api';
 import { match, P } from 'ts-pattern';
 import { ListHeader } from '~/components/list/ListHeader';
 import { makeStyles } from '@theme/makeStyles';
@@ -24,7 +20,7 @@ import { useNavigation } from '@react-navigation/native';
 
 type Item =
   | {
-      activity: ProposalMetadata;
+      activity: Proposal;
       type: 'proposal';
     }
   | {
@@ -41,10 +37,10 @@ export const ActivityScreen = withSkeleton(() => {
   const styles = useStyles();
   const { AppbarHeader, handleScroll } = useAppbarHeader();
   const { navigate } = useNavigation();
-  const pRequiringAction = useProposalsMetadata({ actionRequired: true });
-  const pAwaitingApproval = useProposalsMetadata({ states: 'Pending', actionRequired: false });
-  const pExecuting = useProposalsMetadata({ states: 'Executing' });
-  const pExecuted = useProposalsMetadata({ states: 'Executed' });
+  const pRequiringAction = useProposals({ actionRequired: true });
+  const pAwaitingApproval = useProposals({ states: 'Pending', actionRequired: false });
+  const pExecuting = useProposals({ states: 'Executing' });
+  const pExecuted = useProposals({ states: 'Executed' });
   const incomingTransfers = useTransfersMetadata('IN');
 
   const data = useMemo(() => {

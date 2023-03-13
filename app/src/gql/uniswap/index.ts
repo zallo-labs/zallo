@@ -1,1 +1,1 @@
-export * from './useTokenPrice.uni';
+export * from './useTokenPrice';

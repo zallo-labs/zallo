@@ -6,7 +6,7 @@ import {
   AccountIdsQueryVariables,
   useCreateAccountMutation,
 } from '@api/generated';
-import { useUser } from '~/gql/api/user/useUser.api';
+import { useUser } from '@api/user';
 import { updateQuery } from '~/gql/util';
 import { AccountId, asAccountId } from './types';
 

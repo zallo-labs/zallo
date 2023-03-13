@@ -5,7 +5,7 @@ import { useAddrName } from '~/components/addr/useAddrName';
 import { useProposalLabel } from '~/components/call/useProposalLabel';
 import { AddrIcon } from '~/components/Identicon/AddrIcon';
 import { Box } from '~/components/layout/Box';
-import { Proposal } from '~/queries/proposal';
+import { Proposal } from '@api/proposal';
 import { ProposalMethod } from './ProposalMethod';
 
 export interface ProposalHeaderProps {

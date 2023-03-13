@@ -10,8 +10,8 @@ import { Item } from '~/components/item/Item';
 import { Box } from '~/components/layout/Box';
 import { TokenAmount } from '~/components/token/TokenAmount';
 import TokenIcon from '~/components/token/TokenIcon/TokenIcon';
-import { Proposal } from '~/queries/proposal';
-import { Transfer } from '~/queries/transfer/useTransfer.sub';
+import { Proposal } from '@api/proposal';
+import { Transfer } from '@subgraph/transfer';
 
 interface ProposalTransferProps {
   proposal: Proposal;
@@ -20,7 +20,7 @@ interface ProposalTransferProps {
 
 export const ProposalTransfer = memo(({ proposal, transfer }: ProposalTransferProps) => {
   const balance = useTokenAvailable(transfer.token, proposal.quorum);
-  const insufficient = balance.lt(transfer.amount) && proposal.state !== 'executed';
+  const insufficient = balance < transfer.amount && proposal.state !== 'executed';
   const styles = useStyles(insufficient);
 
   return (

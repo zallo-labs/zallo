@@ -8,10 +8,9 @@ import { AppbarMore } from '~/components/Appbar/AppbarMore';
 import { ExpandableText } from '~/components/ExpandableText';
 import { TextField } from '~/components/fields/TextField';
 import { Box } from '~/components/layout/Box';
-import { useUpdateUser } from '~/mutations/user/useUpdateUser.api';
+import { useUser, useUpdateUser } from '@api/user';
 import { StackNavigatorScreenProps } from '~/navigation/StackNavigator';
 import { hideSnackbar, showInfo } from '~/provider/SnackbarProvider';
-import { useUser } from '~/queries/useUser.api';
 import { buildAddrLink } from '~/util/addrLink';
 import { QrCode } from '../receive/QrCode';
 

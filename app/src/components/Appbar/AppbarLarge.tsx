@@ -1,6 +1,6 @@
 import { IconProps } from '@theme/icons';
 import { makeStyles } from '@theme/makeStyles';
-import { MaybeArray, toArray } from 'lib';
+import { Arraylike, toArray } from 'lib';
 import { FC, ReactNode } from 'react';
 import { Surface, Text } from 'react-native-paper';
 import { EdgeInsets, useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -11,7 +11,7 @@ import { AppbarMenu2 } from './AppbarMenu';
 
 export interface AppbarLargeContentProps {
   leading: FC<IconProps> | 'back' | 'menu';
-  trailing?: MaybeArray<FC<IconProps>>;
+  trailing?: Arraylike<FC<IconProps>>;
   headline: ReactNode;
   supporting?: ReactNode;
   center?: boolean;

@@ -1,12 +1,11 @@
 import { FiatValue } from '~/components/fiat/FiatValue';
-import { TextProps } from 'react-native-paper';
 import { TokenAmount } from '~/components/token/TokenAmount';
 import { FC, memo } from 'react';
 import { useTokenValues } from '@token/useTokenValue';
-import { Address } from 'lib';
-import { BigNumber } from 'ethers';
 import _ from 'lodash';
-import { Transfer } from '~/queries/transfer/useTransfer.sub';
+import { Transfer } from '@subgraph/transfer';
+import { TextProps } from '@theme/types';
+import { Address } from 'lib';
 
 export interface ActivityTransfersProps {
   transfers: Transfer[];
@@ -16,7 +15,7 @@ export interface ActivityTransfersProps {
 export const ActivityTransfers = memo(({ transfers, text: Text }: ActivityTransfersProps) => {
   const values = _.zip(
     transfers,
-    useTokenValues(...transfers.map((t): [Address, BigNumber] => [t.token.addr, t.amount])),
+    useTokenValues(...transfers.map((t): [Address, string] => [t.token.addr, t.amount.toString()])),
   );
   const totalValue = values.reduce((sum, [transfer, value]) => {
     if (!transfer || !value) return sum;

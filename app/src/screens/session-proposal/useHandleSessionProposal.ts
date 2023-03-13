@@ -4,14 +4,15 @@ import { getSdkError } from '@walletconnect/utils';
 import { useCallback } from 'react';
 import { useRootNavigation } from '~/navigation/useRootNavigation';
 import { showError } from '~/provider/SnackbarProvider';
-import { WcEventParams, WC_METHODS } from '~/util/walletconnect/methods';
+import { WC_METHODS } from '~/util/walletconnect/methods';
 import { WC_NAMESPACE } from '~/util/walletconnect/namespaces';
+import { WalletConnectEventArgs } from '~/util/walletconnect/types';
 
 export const useHandleSessionProposal = () => {
   const { navigate } = useRootNavigation();
 
   return useCallback(
-    (client: SignClient, proposal: WcEventParams['session_proposal']) => {
+    (client: SignClient, proposal: WalletConnectEventArgs['session_proposal']) => {
       // Check required namespaces
       const usNamespaces = Object.keys(proposal.params.requiredNamespaces).filter(
         (ns) => ns !== WC_NAMESPACE,
@@ -31,13 +32,13 @@ export const useHandleSessionProposal = () => {
       // Check required chains
       const namespace = proposal.params.requiredNamespaces[WC_NAMESPACE];
       const chain = `${CHAIN_ID()}`;
-      const usChains = namespace.chains.filter((c) => c !== chain);
-      if (usChains) {
+      const unsupportedChains = namespace.chains?.filter((c) => c !== chain);
+      if (unsupportedChains) {
         showError('Session requires unsupported chains', {
           event: {
             extra: {
               proposal,
-              unsupportedChains: usChains,
+              unsupportedChains,
             },
           },
         });

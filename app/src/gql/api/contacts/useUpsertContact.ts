@@ -9,7 +9,7 @@ import {
 import { Contact, NewContact } from './types';
 import { toId } from 'lib';
 import { updateQuery } from '~/gql/util';
-import { useUser } from '~/gql/api/user/useUser.api';
+import { useUser } from '@api/user';
 
 gql`
   mutation UpsertContact($name: String!, $newAddr: Address!, $prevAddr: Address) {

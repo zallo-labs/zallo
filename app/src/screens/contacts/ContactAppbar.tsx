@@ -3,9 +3,8 @@ import { ShareIcon, DeleteIcon } from '~/util/theme/icons';
 import { Share } from 'react-native';
 import { Appbar } from 'react-native-paper';
 import { useGoBack } from '~/components/Appbar/useGoBack';
-import { useDeleteContact } from '~/mutations/contact/useDeleteContact.api';
+import { Contact, useDeleteContact } from '@api/contacts';
 import { useRootNavigation } from '~/navigation/useRootNavigation';
-import { Contact } from '~/queries/contacts/useContacts.api';
 
 export interface ContactAppbarProps {
   existing?: Contact;

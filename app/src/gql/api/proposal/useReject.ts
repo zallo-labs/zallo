@@ -1,7 +1,7 @@
 import { gql } from '@apollo/client';
 import { RejectionFieldsFragmentDoc, useRejectMutation } from '@api/generated';
 import { useCallback } from 'react';
-import { Proposal } from '~/gql/api/proposal/types';
+import { Proposal } from './types';
 import { useApprover } from '@network/useApprover';
 import { DateTime } from 'luxon';
 

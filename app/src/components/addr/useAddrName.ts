@@ -3,7 +3,7 @@ import { useMemo } from 'react';
 import { useMaybeToken } from '@token/useToken';
 import { truncateAddr } from '~/util/format';
 import { useAddrEns } from './useAddrEns';
-import { useUser } from '~/queries/useUser.api';
+import { useUser } from '@api/user';
 
 export const useAddrName = <Addr extends Address | undefined>(addr: Addr) => {
   const user = useUser(addr);

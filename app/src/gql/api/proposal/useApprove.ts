@@ -2,7 +2,7 @@ import { gql } from '@apollo/client';
 import { signTx } from 'lib';
 import { DateTime } from 'luxon';
 import { useCallback } from 'react';
-import { Proposal } from '~/gql/api/proposal/types';
+import { Proposal } from './types';
 import { ApprovalFieldsFragmentDoc, useApproveMutation } from '@api/generated';
 import { useApprover } from '@network/useApprover';
 

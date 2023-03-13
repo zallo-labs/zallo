@@ -2,7 +2,7 @@ import { gql } from '@apollo/client';
 import { useCallback } from 'react';
 import { UserDocument, UserQuery, UserQueryVariables, useUpdateUserMutation } from '@api/generated';
 import { updateQuery } from '~/gql/util';
-import { useUser } from '~/gql/api/user/useUser.api';
+import { useUser } from './useUser.api';
 import { RequireAtLeastOne } from '~/util/typing';
 
 gql`

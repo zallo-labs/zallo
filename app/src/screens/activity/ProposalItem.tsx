@@ -1,16 +1,14 @@
-import { ProposalId } from '~/queries/proposal';
 import { ETH } from '@token/tokens';
 import { useMaybeToken } from '@token/useToken';
 import { useProposalLabel } from '../../components/call/useProposalLabel';
 import { useProposalTransfers } from '~/components/call/useProposalTransfers';
-import { useProposal } from '~/queries/proposal/useProposal.api';
 import { ActivityTransfers } from './ActivityTransfers';
 import { Timestamp } from '~/components/format/Timestamp';
 import { ListItem } from '~/components/list/ListItem';
 import { withSkeleton } from '~/components/skeleton/withSkeleton';
 import { ListItemSkeleton } from '~/components/list/ListItemSkeleton';
-import { useAccount } from '~/queries/account/useAccount.api';
-import { useAccountIds } from '~/queries/account/useAccounts.api';
+import { ProposalId, useProposal } from '@api/proposal';
+import { useAccount, useAccountIds } from '@api/account';
 
 export interface ProposalItemProps {
   proposal: ProposalId;

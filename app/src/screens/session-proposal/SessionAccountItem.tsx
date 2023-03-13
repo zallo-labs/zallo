@@ -1,12 +1,10 @@
-import { Address, QuorumKey } from 'lib';
+import { Address } from 'lib';
 import { Checkbox, Text } from 'react-native-paper';
 import { AddrIcon } from '~/components/Identicon/AddrIcon';
 import { Item, ItemProps } from '~/components/item/Item';
 import { ItemSkeleton } from '~/components/item/ItemSkeleton';
 import { withSkeleton } from '~/components/skeleton/withSkeleton';
-import { useAccount } from '~/queries/account/useAccount.api';
-import { useQuorum } from '~/queries/quroum/useQuorum.api';
-import { useSelectQuorum } from '../account/quorums/useSelectQuorum';
+import { useAccount } from '@api/account';
 
 export interface SessionAccountItemProps extends Omit<ItemProps, 'selected'> {
   account: Address;

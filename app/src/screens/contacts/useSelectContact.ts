@@ -1,6 +1,6 @@
 import { useNavigation } from '@react-navigation/native';
 import { useCallback } from 'react';
-import { Contact } from '~/queries/contacts/useContacts.api';
+import { Contact } from '@api/contacts';
 import { ContactsScreenParams } from './ContactsScreen';
 
 export const useSelectContact = () => {

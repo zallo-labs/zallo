@@ -8,9 +8,9 @@ import { IconButton } from 'react-native-paper';
 import { Chevron } from '~/components/Chevron';
 import { Box } from '~/components/layout/Box';
 import { useRootNavigation } from '~/navigation/useRootNavigation';
-import { Proposal } from '~/queries/proposal';
+import { Proposal } from '@api/proposal';
 import { ProposalTypedData } from './ProposalTypedData';
-import { useDecodeQuorumMethodsData } from './useDecodeQuorumMethodsData';
+import { useTryDecodeAccountFunctionData } from './useTryDecodeAccountFunctionData';
 
 const WithIcon = ({ content, right }: { content: ReactNode; right: ReactNode }) => {
   const styles = useStyles();
@@ -34,7 +34,7 @@ export interface ProposalMethodProps {
 export const ProposalMethod = ({ children, proposal: p }: ProposalMethodProps) => {
   const styles = useStyles();
   const { navigate } = useRootNavigation();
-  const quorum = useDecodeQuorumMethodsData(p.account, p.data);
+  const quorum = useTryDecodeAccountFunctionData(p.account, p.data);
 
   const [expanded, toggleExpanded] = useToggle(false);
 
