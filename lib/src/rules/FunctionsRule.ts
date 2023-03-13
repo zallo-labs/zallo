@@ -6,7 +6,7 @@ import { RuleSelector } from './uitl';
 import { TransactionRule, RuleStruct, TransactionRuleIsSatisfiedOptions } from './rule';
 import { tryOrIgnore } from '../util/try';
 
-export class FunctionRule extends TransactionRule {
+export class FunctionsRule extends TransactionRule {
   functions: Set<Selector>;
 
   constructor(functions: Arraylike<Selector>) {
@@ -30,12 +30,12 @@ export class FunctionRule extends TransactionRule {
         };
   }
 
-  static tryFromStruct(s: RuleStruct): FunctionRule | undefined {
+  static tryFromStruct(s: RuleStruct): FunctionsRule | undefined {
     return tryOrIgnore(() => {
       if (s.selector === RuleSelector.Function) {
-        return new FunctionRule(defaultAbiCoder.decode(['bytes4'], s.args)[0]);
+        return new FunctionsRule(defaultAbiCoder.decode(['bytes4'], s.args)[0]);
       } else if (s.selector === RuleSelector.AnyOfFunctions) {
-        return new FunctionRule(defaultAbiCoder.decode(['bytes4[]'], s.args)[0]);
+        return new FunctionsRule(defaultAbiCoder.decode(['bytes4[]'], s.args)[0]);
       }
     });
   }

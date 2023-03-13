@@ -2,7 +2,7 @@ import { BytesLike, SignatureLike } from '@ethersproject/bytes';
 import { providers } from 'ethers';
 import { RuleStruct as BaseRuleStruct } from '../contracts/Account';
 import { Tx } from '../tx';
-import { AwaitedObj, MaybePromise } from '../util/mappedTypes';
+import { AwaitedObj, MaybePromise } from '../util/types';
 
 export const RULE_ABI = '(uint8 selector, bytes args)';
 export const RULES_ABI = `${RULE_ABI}[]`;

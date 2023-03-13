@@ -1,8 +1,8 @@
 import { isPresent } from '../util/arrays';
 import { RuleStruct, SignatureRule, TransactionRule } from './rule';
-import { ApprovalsRule } from './approvals';
-import { FunctionRule } from './function';
-import { TargetRule } from './target';
+import { ApprovalsRule } from './ApprovalsRule';
+import { FunctionsRule } from './FunctionsRule';
+import { TargetsRule } from './TargetsRule';
 
 export enum RuleSelector {
   Approvals,
@@ -16,7 +16,7 @@ export const asSignatureRule = (data: RuleStruct): SignatureRule =>
   fromStruct<SignatureRule>(data, [ApprovalsRule.tryFromStruct]);
 
 export const asTransactionRule = (data: RuleStruct): TransactionRule =>
-  fromStruct<TransactionRule>(data, [FunctionRule.tryFromStruct, TargetRule.tryFromStruct]);
+  fromStruct<TransactionRule>(data, [FunctionsRule.tryFromStruct, TargetsRule.tryFromStruct]);
 
 const fromStruct = <T>(
   data: RuleStruct,

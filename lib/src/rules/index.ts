@@ -1,4 +1,4 @@
-export * from './approvals';
-export * from './function';
+export * from './ApprovalsRule';
+export * from './FunctionsRule';
 export * from './rule';
-export * from './target';
+export * from './TargetsRule';

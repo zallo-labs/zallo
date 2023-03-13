@@ -6,18 +6,18 @@ import { TransactionRule, RuleStruct, TransactionRuleIsSatisfiedOptions } from '
 import { tryOrIgnore } from '../util/try';
 import { Address } from '../addr';
 
-export class TargetRule extends TransactionRule {
-  functions: Set<Address>;
+export class TargetsRule extends TransactionRule {
+  targets: Set<Address>;
 
   constructor(functions: Arraylike<Address>) {
     super();
 
-    this.functions = toSet(functions);
-    if (this.functions.size === 0) throw new Error('At least one function is required');
+    this.targets = toSet(functions);
+    if (this.targets.size === 0) throw new Error('At least one function is required');
   }
 
   get struct() {
-    const functions = [...toSet(this.functions)];
+    const functions = [...toSet(this.targets)];
 
     return functions.length === 1
       ? {
@@ -30,17 +30,17 @@ export class TargetRule extends TransactionRule {
         };
   }
 
-  static tryFromStruct(s: RuleStruct): TargetRule | undefined {
+  static tryFromStruct(s: RuleStruct): TargetsRule | undefined {
     return tryOrIgnore(() => {
       if (s.selector === RuleSelector.Target) {
-        return new TargetRule(defaultAbiCoder.decode(['address'], s.args)[0]);
+        return new TargetsRule(defaultAbiCoder.decode(['address'], s.args)[0]);
       } else if (s.selector === RuleSelector.AnyOfTargets) {
-        return new TargetRule(defaultAbiCoder.decode(['address[]'], s.args)[0]);
+        return new TargetsRule(defaultAbiCoder.decode(['address[]'], s.args)[0]);
       }
     });
   }
 
   isSatisfied({ tx }: TransactionRuleIsSatisfiedOptions): boolean {
-    return this.functions.has(tx.to);
+    return this.targets.has(tx.to);
   }
 }
