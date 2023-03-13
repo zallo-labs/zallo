@@ -1,13 +1,17 @@
+import assert from 'assert';
 import { PolicyGuid } from 'lib';
 import { useMemo } from 'react';
-import { useAccount } from '../account';
+import { asAccountId, useAccount } from '../account';
+import { WPolicy } from './types';
 
-export const usePolicy = (guid: PolicyGuid) => {
-  const account = useAccount(guid.account);
+export const usePolicy = <G extends PolicyGuid | undefined>(guid: G) => {
+  const account = useAccount(asAccountId(guid));
 
-  return useMemo(() => {
-    const p = account.policies.find((p) => p.key === guid.key);
-    if (!p) throw new Error(`Policy not found: ${guid}`);
-    return p;
-  }, [account.policies, guid]);
+  const p = useMemo(() => {
+    if (!guid) return undefined;
+    return account?.policies.find((p) => p.key === guid.key);
+  }, [account?.policies, guid]);
+
+  if (guid) assert(p, `Policy not found: ${guid}`);
+  return p as G extends undefined ? WPolicy | undefined : WPolicy;
 };

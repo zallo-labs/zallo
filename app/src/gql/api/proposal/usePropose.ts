@@ -1,4 +1,4 @@
-import { Address, Tx } from 'lib';
+import { Tx } from 'lib';
 import { useCallback, useState } from 'react';
 import { RootNavigation, useRootNavigation } from '~/navigation/useRootNavigation';
 import { showInfo } from '~/provider/SnackbarProvider';
@@ -8,6 +8,7 @@ import { O } from 'ts-toolbelt';
 import { ProposalFieldsFragmentDoc, useProposeMutation } from '@api/generated';
 import assert from 'assert';
 import { gql } from '@apollo/client';
+import { AccountIdlike, asAccountId } from '@api/account';
 
 gql`
   ${ProposalFieldsFragmentDoc}
@@ -51,10 +52,10 @@ export const usePropose = () => {
   const [proposing, setProposing] = useState(false);
 
   const propose = useCallback(
-    async (tx: TxOptions, account: Address): Promise<ProposeResponse> => {
+    async (tx: TxOptions, account: AccountIdlike): Promise<ProposeResponse> => {
       const r = await mutation({
         variables: {
-          account,
+          account: asAccountId(account),
           to: tx.to,
           value: tx.value?.toString(),
           data: tx.data,
@@ -70,7 +71,7 @@ export const usePropose = () => {
   );
 
   const p = useCallback(
-    async (txOpts: TxOptions, account: Address, onPropose?: OnPropose) => {
+    async (txOpts: TxOptions, account: AccountIdlike, onPropose?: OnPropose) => {
       setProposing(true);
 
       const proposal = await propose(txOpts, account);

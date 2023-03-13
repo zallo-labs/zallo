@@ -1,10 +1,9 @@
 import { persistAtom } from '~/util/effect/persistAtom';
-import { Address } from 'lib';
 import { useCallback, useEffect } from 'react';
 import { atom, useRecoilState, useSetRecoilState } from 'recoil';
-import { useAccountIds } from '~/queries/account/useAccounts.api';
+import { AccountId, useAccountIds } from '@api/account';
 
-const SELECTED_ACCOUNT = atom<Address | null>({
+const SELECTED_ACCOUNT = atom<AccountId | null>({
   key: 'selectedAccount',
   default: null,
   effects: [persistAtom()],
@@ -24,7 +23,7 @@ export const useSelectedAccount = () => {
 
 export const useSelectAccount = () => {
   const select = useSetRecoilState(SELECTED_ACCOUNT);
-  return useCallback((account: Address) => select(account), [select]);
+  return useCallback((account: AccountId) => select(account), [select]);
 };
 
 // export const useSelectedUser = () => useDeviceUser(useSelectedAccount());

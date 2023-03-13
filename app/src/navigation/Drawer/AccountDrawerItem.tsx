@@ -1,11 +1,10 @@
 import { AccountIcon } from '@theme/icons';
-import { Address } from 'lib';
 import { Drawer } from 'react-native-paper';
-import { useAccount } from '~/queries/account/useAccount.api';
+import { AccountId, useAccount } from '@api/account';
 import { useRootNavigation } from '../useRootNavigation';
 
 export interface AccountDrawerItemProps {
-  account: Address;
+  account: AccountId;
 }
 
 export const AccountDrawerItem = ({ account: accountAddr }: AccountDrawerItemProps) => {

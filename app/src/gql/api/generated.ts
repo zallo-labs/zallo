@@ -369,7 +369,7 @@ export type Mutation = {
   removePolicy: Policy;
   removeProposal: Proposal;
   requestTokens: Array<Scalars['Address']>;
-  updateAccountMetadata: Account;
+  updateAccount: Account;
   updatePolicy: Policy;
   updateUser: User;
   upsertContact: ContactObject;
@@ -450,7 +450,7 @@ export type MutationRequestTokensArgs = {
 };
 
 
-export type MutationUpdateAccountMetadataArgs = {
+export type MutationUpdateAccountArgs = {
   id: Scalars['Address'];
   name: Scalars['String'];
 };
@@ -1221,13 +1221,13 @@ export type CreateAccountMutationVariables = Exact<{
 
 export type CreateAccountMutation = { __typename?: 'Mutation', createAccount: { __typename?: 'Account', id: string, name: string, isActive: boolean, policies?: Array<{ __typename?: 'Policy', id: string, key: string, name: string, active?: { __typename?: 'PolicyRules', id: string, proposalId?: string | null, createdAt: any, isRemoved: boolean, onlyFunctions?: Array<string> | null, onlyTargets?: Array<string> | null, approvers?: Array<{ __typename?: 'Approver', userId: string }> | null } | null, draft?: { __typename?: 'PolicyRules', id: string, proposalId?: string | null, createdAt: any, isRemoved: boolean, onlyFunctions?: Array<string> | null, onlyTargets?: Array<string> | null, approvers?: Array<{ __typename?: 'Approver', userId: string }> | null } | null }> | null } };
 
-export type UpdateAccountMetadataMutationVariables = Exact<{
+export type UpdateAccountMutationVariables = Exact<{
   account: Scalars['Address'];
   name: Scalars['String'];
 }>;
 
 
-export type UpdateAccountMetadataMutation = { __typename?: 'Mutation', updateAccountMetadata: { __typename?: 'Account', id: string, name: string } };
+export type UpdateAccountMutation = { __typename?: 'Mutation', updateAccount: { __typename?: 'Account', id: string, name: string } };
 
 export type CommentFieldsFragment = { __typename?: 'Comment', id: string, authorId: string, content: string, updatedAt: any, reactions?: Array<{ __typename?: 'Reaction', userId: string, emojis?: Array<string> | null }> | null };
 
@@ -1662,41 +1662,41 @@ export function useCreateAccountMutation(baseOptions?: Apollo.MutationHookOption
 export type CreateAccountMutationHookResult = ReturnType<typeof useCreateAccountMutation>;
 export type CreateAccountMutationResult = Apollo.MutationResult<CreateAccountMutation>;
 export type CreateAccountMutationOptions = Apollo.BaseMutationOptions<CreateAccountMutation, CreateAccountMutationVariables>;
-export const UpdateAccountMetadataDocument = gql`
-    mutation UpdateAccountMetadata($account: Address!, $name: String!) {
-  updateAccountMetadata(id: $account, name: $name) {
+export const UpdateAccountDocument = gql`
+    mutation UpdateAccount($account: Address!, $name: String!) {
+  updateAccount(id: $account, name: $name) {
     id
     name
   }
 }
     `;
-export type UpdateAccountMetadataMutationFn = Apollo.MutationFunction<UpdateAccountMetadataMutation, UpdateAccountMetadataMutationVariables>;
+export type UpdateAccountMutationFn = Apollo.MutationFunction<UpdateAccountMutation, UpdateAccountMutationVariables>;
 
 /**
- * __useUpdateAccountMetadataMutation__
+ * __useUpdateAccountMutation__
  *
- * To run a mutation, you first call `useUpdateAccountMetadataMutation` within a React component and pass it any options that fit your needs.
- * When your component renders, `useUpdateAccountMetadataMutation` returns a tuple that includes:
+ * To run a mutation, you first call `useUpdateAccountMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUpdateAccountMutation` returns a tuple that includes:
  * - A mutate function that you can call at any time to execute the mutation
  * - An object with fields that represent the current status of the mutation's execution
  *
  * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
  *
  * @example
- * const [updateAccountMetadataMutation, { data, loading, error }] = useUpdateAccountMetadataMutation({
+ * const [updateAccountMutation, { data, loading, error }] = useUpdateAccountMutation({
  *   variables: {
  *      account: // value for 'account'
  *      name: // value for 'name'
  *   },
  * });
  */
-export function useUpdateAccountMetadataMutation(baseOptions?: Apollo.MutationHookOptions<UpdateAccountMetadataMutation, UpdateAccountMetadataMutationVariables>) {
+export function useUpdateAccountMutation(baseOptions?: Apollo.MutationHookOptions<UpdateAccountMutation, UpdateAccountMutationVariables>) {
         const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useMutation<UpdateAccountMetadataMutation, UpdateAccountMetadataMutationVariables>(UpdateAccountMetadataDocument, options);
+        return Apollo.useMutation<UpdateAccountMutation, UpdateAccountMutationVariables>(UpdateAccountDocument, options);
       }
-export type UpdateAccountMetadataMutationHookResult = ReturnType<typeof useUpdateAccountMetadataMutation>;
-export type UpdateAccountMetadataMutationResult = Apollo.MutationResult<UpdateAccountMetadataMutation>;
-export type UpdateAccountMetadataMutationOptions = Apollo.BaseMutationOptions<UpdateAccountMetadataMutation, UpdateAccountMetadataMutationVariables>;
+export type UpdateAccountMutationHookResult = ReturnType<typeof useUpdateAccountMutation>;
+export type UpdateAccountMutationResult = Apollo.MutationResult<UpdateAccountMutation>;
+export type UpdateAccountMutationOptions = Apollo.BaseMutationOptions<UpdateAccountMutation, UpdateAccountMutationVariables>;
 export const CommentsDocument = gql`
     query Comments($account: Address!, $key: String!) {
   comments(account: $account, key: $key) {

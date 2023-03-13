@@ -2,9 +2,8 @@ import { Box } from '~/components/layout/Box';
 import { ScreenSkeleton } from '~/components/skeleton/ScreenSkeleton';
 import { withSkeleton } from '~/components/skeleton/withSkeleton';
 import { makeStyles } from '~/util/theme/makeStyles';
-import { Address } from 'lib';
 import { StackNavigatorScreenProps } from '~/navigation/StackNavigator';
-import { useAccount } from '~/queries/account/useAccount.api';
+import { AccountId, useAccount } from '@api/account';
 import { Appbar } from 'react-native-paper';
 import { NameIcon, QuorumsIcon, ShareIcon } from '@theme/icons';
 import { buildAddrLink } from '~/util/addrLink';
@@ -13,7 +12,7 @@ import { ListItem } from '~/components/list/ListItem';
 import { useGoBack } from '~/components/Appbar/useGoBack';
 
 export interface AccountScreenParams {
-  account: Address;
+  account: AccountId;
 }
 
 export type AccountScreenProps = StackNavigatorScreenProps<'Account'>;
@@ -32,7 +31,7 @@ export const AccountScreen = withSkeleton(
           <Appbar.Action
             icon={ShareIcon}
             onPress={() => {
-              const url = buildAddrLink({ target_address: account.addr });
+              const url = buildAddrLink({ target_address: account.id });
               Share.share({ url, message: `${account.name}\n${url}` });
             }}
           />
@@ -43,7 +42,7 @@ export const AccountScreen = withSkeleton(
             leading={NameIcon}
             headline="Rename"
             supporting="Change the name of the account"
-            onPress={() => navigate('RenameAccount', { account: account.addr })}
+            onPress={() => navigate('RenameAccount', { account: account.id })}
           />
 
           <ListItem
@@ -52,7 +51,7 @@ export const AccountScreen = withSkeleton(
             supporting="View and configure account quorums"
             trailing={account.quorums.length}
             maxTrailing={100}
-            onPress={() => navigate('AccountQuorums', { account: account.addr })}
+            onPress={() => navigate('AccountQuorums', { account: account.id })}
           />
         </Box>
       </Box>

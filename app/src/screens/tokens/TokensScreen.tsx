@@ -7,7 +7,7 @@ import { makeStyles } from '@theme/makeStyles';
 import { StackNavigatorScreenProps } from '~/navigation/StackNavigator';
 import { Searchbar } from '~/components/fields/Searchbar';
 import { TokenItem2 } from '~/components/TokenItem2';
-import { Accountlike } from '~/queries/account/useAccount.api';
+import { AccountIdlike } from '@api/account';
 import { SafeAreaView } from '~/components/SafeAreaView';
 import { AppbarMenu2 } from '~/components/Appbar/AppbarMenu';
 import { AppbarBack2 } from '~/components/Appbar/AppbarBack';
@@ -16,7 +16,7 @@ import { ListHeader } from '~/components/list/ListHeader';
 
 export interface TokensScreenParams {
   onSelect?: (token: Token) => void;
-  account?: Accountlike;
+  account?: AccountIdlike;
   disabled?: Set<Address>;
 }
 

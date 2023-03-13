@@ -10,12 +10,11 @@ import { ACCOUNT_CARD_STYLE } from './AccountCard/AccountCardSkeleton';
 import Carousel from 'react-native-snap-carousel';
 import { useWindowDimensions } from 'react-native';
 import * as Haptics from 'expo-haptics';
-import { Address } from 'lib';
-import { useAccountIds } from '~/queries/account/useAccounts.api';
+import { AccountId, useAccountIds } from '@api/account';
 
 export interface AccountSelectorProps {
-  selected: Address;
-  onSelect: (account: Address) => void;
+  selected: AccountId;
+  onSelect: (account: AccountId) => void;
   cardProps?: Partial<AccountCardProps>;
 }
 
@@ -42,7 +41,7 @@ export const AccountSelector = ({ selected, onSelect, cardProps }: AccountSelect
         firstItem={position}
         onSnapToItem={(index) => {
           setPosition(index);
-          const newSelection: Address | undefined = accountIds[index];
+          const newSelection: AccountId | undefined = accountIds[index];
           if (newSelection && newSelection !== selected) {
             Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
             onSelect(newSelection);

@@ -1,11 +1,11 @@
+import { AccountId } from '@api/account';
 import { ReceiveIcon } from '@theme/icons';
-import { Address } from 'lib';
 import { StyleSheet } from 'react-native';
 import { Button } from 'react-native-paper';
-import { useFaucet } from '~/mutations/useFacuet.api';
+import { useFaucet } from '@api/faucet';
 
 export interface FaucetButtonProps {
-  account: Address;
+  account: AccountId;
 }
 
 export const FaucetButton = ({ account }: FaucetButtonProps) => {

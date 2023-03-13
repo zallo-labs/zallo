@@ -3,20 +3,18 @@ import { FC } from 'react';
 import { Appbar } from 'react-native-paper';
 import { AppbarMenu } from '~/components/Appbar/AppbarMenu';
 import { AppbarHeaderProps } from '~/components/Appbar/useAppbarHeader';
-import { Address } from 'lib';
-import { useSelectQuorum } from '../account/quorums/useSelectQuorum';
 import { useNavigation } from '@react-navigation/native';
 import { useSelectContact } from '../contacts/useSelectContact';
 import { useScanAddr } from '../scan/useScanAddr';
+import { AccountId } from '@api/account';
 
 export interface HomeAppbarProps {
   AppbarHeader: FC<AppbarHeaderProps>;
-  account: Address;
+  account: AccountId;
 }
 
 export const HomeAppbar = ({ AppbarHeader, account }: HomeAppbarProps) => {
   const { navigate } = useNavigation();
-  const selectQuorum = useSelectQuorum(account);
   const selectContact = useSelectContact();
   const scanAddr = useScanAddr();
 
@@ -30,7 +28,7 @@ export const HomeAppbar = ({ AppbarHeader, account }: HomeAppbarProps) => {
         onPress={async () =>
           navigate('Send', {
             to: (await selectContact()).addr,
-            quorum: await selectQuorum(),
+            account,
           })
         }
       />
@@ -39,7 +37,7 @@ export const HomeAppbar = ({ AppbarHeader, account }: HomeAppbarProps) => {
         onPress={async () =>
           navigate('Send', {
             to: (await scanAddr()).target_address,
-            quorum: await selectQuorum(),
+            account,
           })
         }
       />

@@ -7,13 +7,12 @@ import { useSelectedToken } from '~/components/token/useSelectedToken';
 import { useTokenValue } from '@token/useTokenValue';
 import { FiatValue } from '~/components/fiat/FiatValue';
 import { makeStyles } from '@theme/makeStyles';
-import { Address } from 'lib';
-import { useAccount } from '~/queries/account/useAccount.api';
+import { AccountId, useAccount } from '@api/account';
 import { useTokenAvailable } from '@token/useTokenAvailable';
 import { MastercardIcon } from '@theme/icons';
 
 export interface AccountCardProps extends CardProps {
-  account: Address;
+  account: AccountId;
   available?: boolean;
 }
 

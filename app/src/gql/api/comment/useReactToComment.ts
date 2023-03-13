@@ -14,6 +14,7 @@ import { Comment, Emoji } from './types';
 import produce from 'immer';
 import assert from 'assert';
 import { useUser } from '~/gql/api/user/useUser.api';
+import { AccountId } from '@api/account';
 
 gql`
   mutation React($comment: Float!, $emojis: [String!]!) {
@@ -25,7 +26,7 @@ gql`
 
 export const getReactionId = (c: Comment, user: Address): Id => toId(`${c.id}-${user}`);
 
-export const useReactToComment = (account: Address) => {
+export const useReactToComment = (account: AccountId) => {
   const user = useUser();
   const [mutate] = useMutation<ReactMutation, ReactMutationVariables>(ReactDocument);
 

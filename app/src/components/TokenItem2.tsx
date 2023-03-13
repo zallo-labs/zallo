@@ -1,8 +1,8 @@
 import { Tokenlike, useToken } from '@token/useToken';
 import { useTokenBalance } from '@token/useTokenBalance';
 import { useTokenValue } from '@token/useTokenValue';
-import { Accountlike } from '~/queries/account/useAccount.api';
-import { useTokenPrice } from '~/queries/useTokenPrice.uni';
+import { AccountIdlike } from '@api/account';
+import { useTokenPrice } from '~/gql/uniswap/useTokenPrice.uni';
 import { FiatValue } from './fiat/FiatValue';
 import { Percent } from './format/Percent';
 import { Box } from './layout/Box';
@@ -11,7 +11,7 @@ import { TokenAmount } from './token/TokenAmount';
 
 export interface TokenItem2Props extends Partial<ListItemProps> {
   token: Tokenlike;
-  account?: Accountlike;
+  account?: AccountIdlike;
 }
 
 export const TokenItem2 = ({ token: tokenAddr, account, ...itemProps }: TokenItem2Props) => {

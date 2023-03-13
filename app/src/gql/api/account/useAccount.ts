@@ -1,25 +1,11 @@
 import { useMemo } from 'react';
 import assert from 'assert';
 import { gql } from '@apollo/client';
-import { AccountIdlike, asAccountId, Removable, REMOVAL, WAccount } from './types';
+import { AccountIdlike, asAccountId, WAccount } from './types';
 import { useSuspenseQuery } from '~/gql/util';
-import {
-  AccountDocument,
-  AccountQuery,
-  AccountQueryVariables,
-  PolicyRulesFieldsFragment,
-} from '@api/generated';
-import {
-  ApprovalsRule,
-  asAddress,
-  asPolicyKey,
-  asSelector,
-  FunctionsRule,
-  isTruthy,
-  Policy,
-  PolicyKey,
-  TargetsRule,
-} from 'lib';
+import { AccountDocument, AccountQuery, AccountQueryVariables } from '@api/generated';
+import { asPolicyKey } from 'lib';
+import { convertPolicyFragment } from '@api/policy/types';
 
 gql`
   fragment PolicyRulesFields on PolicyRules {
@@ -99,24 +85,3 @@ export const useAccount = <Id extends AccountIdlike | undefined>(AccountIdlike: 
   if (id) assert(account);
   return account as Id extends undefined ? WAccount | undefined : WAccount;
 };
-
-function convertPolicyFragment(
-  key: PolicyKey,
-  r: PolicyRulesFieldsFragment | null | undefined,
-): Removable<Policy> | undefined {
-  if (!r) return undefined;
-  if (r.isRemoved) return REMOVAL;
-
-  return new Policy(
-    key,
-    ...[
-      r.approvers &&
-        r.approvers?.length > 0 &&
-        new ApprovalsRule(r.approvers.map((a) => asAddress(a.userId))),
-      r.onlyFunctions &&
-        r.onlyFunctions.length > 0 &&
-        new FunctionsRule(r.onlyFunctions.map(asSelector)),
-      r.onlyTargets && r.onlyTargets.length > 0 && new TargetsRule(r.onlyTargets.map(asAddress)),
-    ].filter(isTruthy),
-  );
-}

@@ -8,9 +8,9 @@ import {
 import { updateQuery } from '~/gql/util';
 import { useCallback } from 'react';
 import { Comment } from './types';
-import { Address } from 'lib';
 import assert from 'assert';
 import { useUser } from '@api/user';
+import { AccountId } from '@api/account';
 
 gql`
   mutation DeleteComment($id: Float!) {
@@ -20,7 +20,7 @@ gql`
   }
 `;
 
-export const useDeleteComment = (account: Address) => {
+export const useDeleteComment = (account: AccountId) => {
   const user = useUser();
   const [mutate] = useDeleteCommentMutation();
 

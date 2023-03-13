@@ -1,8 +1,8 @@
+import { WAccount } from '@api/account';
 import { StackNavigatorScreenProps } from '~/navigation/StackNavigator';
-import { CombinedAccount } from '~/queries/account';
 
 export type AccountsScreenParams = {
-  onSelect?: (account: CombinedAccount) => void;
+  onSelect?: (account: WAccount) => void;
 };
 
 export type AccountsScreenProps = StackNavigatorScreenProps<'Accounts'>;

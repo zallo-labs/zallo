@@ -1,6 +1,6 @@
 import { gql } from '@apollo/client';
 import assert from 'assert';
-import { Address, ApprovalsRule, FunctionsRule, Policy, TargetsRule } from 'lib';
+import { ApprovalsRule, FunctionsRule, Policy, TargetsRule } from 'lib';
 import { useCallback } from 'react';
 import {
   AccountDocument,
@@ -11,6 +11,7 @@ import {
   useCreatePolicyMutation,
 } from '@api/generated';
 import { updateQuery } from '~/gql/util';
+import { AccountId } from '@api/account';
 
 gql`
   ${PolicyFieldsFragmentDoc}
@@ -26,7 +27,7 @@ export interface CreatePolicyOptions extends Policy {
   name: string;
 }
 
-export const useCreatePolicy = (account: Address) => {
+export const useCreatePolicy = (account: AccountId) => {
   const [mutation] = useCreatePolicyMutation();
 
   return useCallback(

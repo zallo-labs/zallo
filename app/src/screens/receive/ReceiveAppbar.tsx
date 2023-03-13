@@ -2,11 +2,10 @@ import { ShareIcon } from '~/util/theme/icons';
 import { Share } from 'react-native';
 import { Appbar } from 'react-native-paper';
 import { AppbarMenu } from '~/components/Appbar/AppbarMenu';
-import { Address } from 'lib';
-import { useAccount } from '~/queries/account/useAccount.api';
+import { AccountId, useAccount } from '@api/account';
 
 export interface ReceiveAppbarProps {
-  account: Address;
+  account: AccountId;
   url: string;
 }
 
