@@ -33,9 +33,6 @@ export class ProposalsArgs extends FindManyProposalArgs {
 
   @SetField(() => ProposalState, { nullable: true })
   states?: Set<ProposalState>;
-
-  @Field(() => Boolean, { nullable: true, description: 'User is required to take action' })
-  actionRequired?: boolean;
 }
 
 export const PROPOSAL_SUBSCRIPTION = 'proposal';

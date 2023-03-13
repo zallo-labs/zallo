@@ -1,4 +1,4 @@
-import { Address, Hex, Tx, KeySet, asHex, asAddress, asBigInt } from 'lib';
+import { Address, Hex, Tx, KeySet, asHex, asAddress, asBigInt, asPolicyKey, PolicyKey } from 'lib';
 import { DateTime } from 'luxon';
 import { match } from 'ts-pattern';
 import { ProposalFieldsFragment } from '@api/generated';
@@ -13,6 +13,7 @@ export interface Proposal extends Tx {
   state: ProposalState;
   approvals: KeySet<Address, Approval>;
   rejections: KeySet<Address, Rejection>;
+  satisfiablePolicies: SatisfiablePolicy[];
   submissions: Submission[];
   proposedAt: DateTime;
   proposer: Address;
@@ -33,6 +34,13 @@ export interface Rejection {
   timestamp: DateTime;
 }
 
+export interface SatisfiablePolicy {
+  account: AccountId;
+  key: PolicyKey;
+  satisfied: boolean;
+  requiresUserAction: boolean;
+}
+
 export interface Submission {
   hash: Hex;
   status: SubmissionStatus;
@@ -51,6 +59,8 @@ export interface SubmissionResponse {
 }
 
 export const toProposal = (p: ProposalFieldsFragment): Proposal => {
+  const account = asAccountId(p.accountId);
+
   const approvals = new KeySet<Address, Approval>(
     (a) => a.approver,
     (p.approvals ?? []).map((a) => ({
@@ -67,6 +77,13 @@ export const toProposal = (p: ProposalFieldsFragment): Proposal => {
       timestamp: DateTime.fromISO(r.createdAt),
     })),
   );
+
+  const satisfiablePolicies: SatisfiablePolicy[] = p.satisfiablePolicies.map((p) => ({
+    account,
+    key: asPolicyKey(p.key),
+    satisfied: p.satisfied,
+    requiresUserAction: p.requiresUserAction,
+  }));
 
   const transactions =
     p?.transactions?.map(
@@ -95,7 +112,7 @@ export const toProposal = (p: ProposalFieldsFragment): Proposal => {
 
   return {
     id: asProposalId(p.id),
-    account: asAccountId(p.accountId),
+    account,
     state,
     to: asAddress(p.to),
     value: p.value ? BigInt(p.value) : undefined,
@@ -103,6 +120,7 @@ export const toProposal = (p: ProposalFieldsFragment): Proposal => {
     nonce: BigInt(p.nonce),
     approvals,
     rejections,
+    satisfiablePolicies,
     submissions: transactions,
     proposedAt: DateTime.fromISO(p.createdAt),
     proposer: asAddress(p.proposerId),

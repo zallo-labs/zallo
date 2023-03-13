@@ -11,6 +11,7 @@ import {
   PolicyGuid,
   asPolicyKey,
   PolicySatisfiability,
+  ApprovalsRule,
 } from 'lib';
 import { PrismaService } from '../util/prisma/prisma.service';
 import { ProviderService } from '~/features/util/provider/provider.service';
@@ -63,11 +64,9 @@ export class ProposalsService {
   findUnique = this.prisma.asUser.proposal.findUnique;
 
   async findMany<A extends Prisma.ProposalArgs>(
-    { accounts, states, actionRequired, where, ...args }: ProposalsArgs = {},
+    { accounts, states, where, ...args }: ProposalsArgs = {},
     res?: Prisma.SelectSubset<A, Prisma.ProposalArgs>,
   ) {
-    const user = getUserId();
-
     return this.prisma.asUser.proposal.findMany({
       orderBy: { createdAt: 'desc' },
       ...args,
@@ -88,11 +87,6 @@ export class ProposalsService {
                 .exhaustive(),
             ),
           },
-          // TODO: handle actionRequired
-          // actionRequired !== undefined &&
-          //   (actionRequired
-          //     ? getProposalRequiresAction(user)
-          //     : { NOT: getProposalRequiresAction(user) }),
         ].filter(isTruthy),
       },
       ...res,
@@ -252,6 +246,11 @@ export class ProposalsService {
     proposalId: string,
     query?: SelectManyPoliciesArgs,
   ): Promise<SatisfiablePolicy[]> {
+    const user = getUserId();
+    const userHasApproved = !!(await this.prisma.asUser.approval.count({
+      where: { proposalId, userId: user },
+    }));
+
     const policies: SatisfiablePolicy[] = [];
     for await (const [policy, satisfiability] of this.policies.policiesWithSatisfiability(
       proposalId,
@@ -262,6 +261,10 @@ export class ProposalsService {
           id: `${proposalId}-${policy.key}`,
           key: policy.key,
           satisfied: satisfiability === PolicySatisfiability.Satisfied,
+          requiresUserAction:
+            satisfiability === PolicySatisfiability.Satisfiable &&
+            !userHasApproved &&
+            (policy.rules.get(ApprovalsRule)?.approvers.has(getUserId()) || false),
         });
       }
     }

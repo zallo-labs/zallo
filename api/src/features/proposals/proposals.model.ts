@@ -14,4 +14,6 @@ export class SatisfiablePolicy {
   key: PolicyKey;
 
   satisfied: boolean;
+
+  requiresUserAction: boolean;
 }

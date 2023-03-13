@@ -51,6 +51,7 @@ gql`
       id
       key
       satisfied
+      requiresUserAction
     }
     transactions {
       ...TransactionFields

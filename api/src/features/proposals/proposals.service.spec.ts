@@ -238,23 +238,14 @@ describe(ProposalsService.name, () => {
           ).toHaveLength(4);
         }));
     });
+  });
 
-    describe('actionRequired filters when', () => {
-      it("true only shows proposals that require the user's action", () =>
-        asUser(user1, async () => {
-          await propose();
+  describe('satisfiablePolicies', () => {
+    it.todo('return satisfiable policies');
 
-          expect(await service.findMany({ actionRequired: true })).toHaveLength(1);
-        }));
+    it.todo('return satisfied policies');
 
-      it("false shows proposals that don't require the user's action", () =>
-        asUser(user1, async () => {
-          const { id } = await propose();
-          await approve(id);
-
-          expect(await service.findMany({ actionRequired: false })).toHaveLength(1);
-        }));
-    });
+    it.todo('set requiresUserAction correctly');
   });
 
   describe('approve', () => {
