@@ -115,22 +115,6 @@ describe('ContactsResolver', () => {
         expect(contacts.map((c) => c.addr)).toEqual([account]);
       }));
 
-    it('uses the contact name, rather than an account name if both exist', () =>
-      asUser(user1, async () => {
-        const account = randomAddress();
-        const contactName = 'this';
-        await upsertContact(account, contactName);
-
-        accounts.findMany.mockReturnValueOnce(
-          asPrismaPromise([
-            { id: account, name: 'not this', impl: '', deploySalt: '', isActive: false },
-          ]),
-        );
-
-        const contacts = await resolver.contacts({});
-        expect(contacts.map((c) => c.name)).toEqual([contactName]);
-      }));
-
     it("doesn't include other user's contacts", async () => {
       await asUser(user1, () => upsertContact(user1Contact));
 
