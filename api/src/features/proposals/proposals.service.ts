@@ -2,7 +2,16 @@ import { forwardRef, Inject, Injectable } from '@nestjs/common';
 import { Prisma, Proposal } from '@prisma/client';
 import { UserInputError } from 'apollo-server-core';
 import { hexlify } from 'ethers/lib/utils';
-import { hashTx, isTruthy, Address, asAddress, Tx, PolicyGuid, asPolicyKey } from 'lib';
+import {
+  hashTx,
+  isTruthy,
+  Address,
+  asAddress,
+  Tx,
+  PolicyGuid,
+  asPolicyKey,
+  PolicySatisfiability,
+} from 'lib';
 import { PrismaService } from '../util/prisma/prisma.service';
 import { ProviderService } from '~/features/util/provider/provider.service';
 import { PubsubService } from '~/features/util/pubsub/pubsub.service';
@@ -22,7 +31,8 @@ import { getUser, getUserId } from '~/request/ctx';
 import { match } from 'ts-pattern';
 import { ExpoService } from '../util/expo/expo.service';
 import { O } from 'ts-toolbelt';
-import { PoliciesService } from '../policies/policies.service';
+import { PoliciesService, SelectManyPoliciesArgs } from '../policies/policies.service';
+import { SatisfiablePolicy } from './proposals.model';
 
 const TX_IS_EXECUTING: Prisma.TransactionWhereInput = { response: { isNot: {} } };
 const TX_IS_EXECUTED: Prisma.TransactionWhereInput = {
@@ -236,6 +246,27 @@ export class ProposalsService {
       `${ACCOUNT_PROPOSAL_SUB_TRIGGER}.${payload[PROPOSAL_SUBSCRIPTION].accountId}`,
       payload,
     );
+  }
+
+  async satisfiablePolicies(
+    proposalId: string,
+    query?: SelectManyPoliciesArgs,
+  ): Promise<SatisfiablePolicy[]> {
+    const policies: SatisfiablePolicy[] = [];
+    for await (const [policy, satisfiability] of this.policies.policiesWithSatisfiability(
+      proposalId,
+      query,
+    )) {
+      if (satisfiability !== PolicySatisfiability.Unsatisifable) {
+        policies.push({
+          id: `${proposalId}-${policy.key}`,
+          key: policy.key,
+          satisfied: satisfiability === PolicySatisfiability.Satisfied,
+        });
+      }
+    }
+
+    return policies;
   }
 
   private async notifyApprovers(proposalId: string) {

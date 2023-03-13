@@ -1,6 +1,6 @@
 import { FindManyProposalArgs } from '@gen/proposal/find-many-proposal.args';
 import { ArgsType, Field, registerEnumType } from '@nestjs/graphql';
-import { Address, HexString } from 'lib';
+import { Address, Hex } from 'lib';
 import { AddressField, AddressScalar } from '~/apollo/scalars/Address.scalar';
 import { Uint256Field } from '~/apollo/scalars/BigInt.scalar';
 import {
@@ -81,7 +81,7 @@ export class ProposeArgs {
   value?: bigint;
 
   @BytesField({ nullable: true })
-  data?: HexString;
+  data?: Hex;
 
   @Uint256Field({ nullable: true })
   nonce?: bigint;
@@ -90,7 +90,7 @@ export class ProposeArgs {
   gasLimit?: bigint;
 
   @Field(() => BytesScalar, { nullable: true, description: 'Approve the proposal' })
-  signature?: HexString;
+  signature?: Hex;
 }
 
 @ArgsType()

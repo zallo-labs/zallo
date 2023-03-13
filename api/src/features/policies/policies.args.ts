@@ -3,13 +3,13 @@ import { ArgsType, InputType } from '@nestjs/graphql';
 import {
   Address,
   ApprovalsRule,
-  FunctionRule,
+  FunctionsRule,
   isPresent,
   Policy,
   PolicyGuid,
   PolicyKey,
   Selector,
-  TargetRule,
+  TargetsRule,
 } from 'lib';
 import { AddressField, AddressScalar } from '~/apollo/scalars/Address.scalar';
 import { SelectorScalar } from '~/apollo/scalars/Bytes.scalar';
@@ -47,8 +47,8 @@ export class RulesInput {
       key,
       ...[
         rules.approvers?.size ? new ApprovalsRule(rules.approvers) : null,
-        rules.onlyFunctions?.size ? new FunctionRule(rules.onlyFunctions) : null,
-        rules.onlyTargets?.size ? new TargetRule(rules.onlyTargets) : null,
+        rules.onlyFunctions?.size ? new FunctionsRule(rules.onlyFunctions) : null,
+        rules.onlyTargets?.size ? new TargetsRule(rules.onlyTargets) : null,
       ].filter(isPresent),
     );
   }
@@ -62,9 +62,13 @@ export class PolicyInput {
 }
 
 @ArgsType()
-export class CreatePolicyArgs extends PolicyInput {
+export class CreatePolicyArgs {
   @AddressField()
   account: Address;
+
+  name?: string;
+
+  rules: RulesInput;
 }
 
 @ArgsType()

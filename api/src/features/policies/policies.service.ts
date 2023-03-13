@@ -6,16 +6,16 @@ import {
   Approval,
   ApprovalsRule,
   asAddress,
+  asHex,
   asPolicyKey,
   compareAddress,
-  filterAsync,
-  FunctionRule,
+  FunctionsRule,
   isPresent,
   mapAsync,
-  OnlySatisfied,
   Policy,
   PolicyKey,
-  TargetRule,
+  PolicySatisfiability,
+  TargetsRule,
   Tx,
 } from 'lib';
 import { PrismaService } from '../util/prisma/prisma.service';
@@ -24,7 +24,8 @@ import { ProposalsService } from '../proposals/proposals.service';
 import { CreatePolicyArgs, RulesInput, UniquePolicyArgs, UpdatePolicyArgs } from './policies.args';
 import { TransactionsConsumer } from '../transactions/transactions.consumer';
 import { ProviderService } from '../util/provider/provider.service';
-import { prismaAsPolicy } from './policies.util';
+import { prismaAsPolicy, PrismaPolicy } from './policies.util';
+import merge from 'ts-deepmerge';
 
 interface CreateRulesParams {
   prisma?: Prisma.TransactionClient;
@@ -34,6 +35,8 @@ interface CreateRulesParams {
 }
 
 type ArgsParam<T> = Prisma.SelectSubset<T, Prisma.PolicyArgs>;
+
+export type SelectManyPoliciesArgs = Omit<Prisma.PolicyFindManyArgs, 'where' | 'include'>;
 
 @Injectable()
 export class PoliciesService implements OnModuleInit {
@@ -114,7 +117,7 @@ export class PoliciesService implements OnModuleInit {
           {
             account,
             to: account,
-            data: ACCOUNT_INTERFACE.encodeFunctionData('removePolicy', [key]),
+            data: asHex(ACCOUNT_INTERFACE.encodeFunctionData('removePolicy', [key])),
           },
           { select: { id: true } },
           prisma,
@@ -145,8 +148,8 @@ export class PoliciesService implements OnModuleInit {
         key,
         ...[
           rules.approvers?.size ? new ApprovalsRule(rules.approvers) : null,
-          rules.onlyFunctions?.size ? new FunctionRule(rules.onlyFunctions) : null,
-          rules.onlyTargets?.size ? new TargetRule(rules.onlyTargets) : null,
+          rules.onlyFunctions?.size ? new FunctionsRule(rules.onlyFunctions) : null,
+          rules.onlyTargets?.size ? new TargetsRule(rules.onlyTargets) : null,
         ].filter(isPresent),
       );
 
@@ -154,7 +157,7 @@ export class PoliciesService implements OnModuleInit {
         {
           account,
           to: account,
-          data: ACCOUNT_INTERFACE.encodeFunctionData('addPolicy', [policy.struct]),
+          data: asHex(ACCOUNT_INTERFACE.encodeFunctionData('addPolicy', [policy.struct])),
         },
         { select: { id: true } },
         prisma,
@@ -192,11 +195,7 @@ export class PoliciesService implements OnModuleInit {
     });
   }
 
-  getSatisfiablePolicies(proposalId: string) {
-    return this.getSatisifiedPolicies(proposalId, 'transaction');
-  }
-
-  async *getSatisifiedPolicies(proposalId: string, only?: OnlySatisfied) {
+  async *policiesWithSatisfiability(proposalId: string, queryArgs?: SelectManyPoliciesArgs) {
     const proposal = await this.prisma.asUser.proposal.findUniqueOrThrow({
       where: { id: proposalId },
       select: {
@@ -213,23 +212,25 @@ export class PoliciesService implements OnModuleInit {
     const policies = (
       await this.prisma.asUser.policy.findMany({
         where: { accountId: proposal.accountId, active: { is: {} } },
-        select: {
-          active: {
-            select: {
-              policyKey: true,
-              approvers: { select: { userId: true } },
-              onlyFunctions: true,
-              onlyTargets: true,
+        ...merge(queryArgs ?? {}, {
+          select: {
+            active: {
+              select: {
+                policyKey: true,
+                approvers: { select: { userId: true } },
+                onlyFunctions: true,
+                onlyTargets: true,
+              },
             },
           },
-        },
+        } as const),
       })
-    ).map((p) => prismaAsPolicy(p.active!));
+    ).map((p) => prismaAsPolicy(p!.active as PrismaPolicy));
 
     const tx: Tx = {
       to: asAddress(proposal.to),
       value: proposal.value ? BigInt(proposal.value.toString()) : undefined,
-      data: proposal.data || undefined,
+      data: asHex(proposal.data ?? undefined),
       nonce: proposal.nonce,
       gasLimit: proposal.gasLimit || undefined,
     };
@@ -248,7 +249,14 @@ export class PoliciesService implements OnModuleInit {
     const account = this.provider.connectAccount(proposal.accountId);
 
     for (const policy of policies) {
-      if (await policy.isSatisfied({ domainParams: account, tx, signatures, only })) yield policy;
+      const sat = await policy.satisfiability({ domainParams: account, tx, signatures });
+      yield [policy, sat] as const;
+    }
+  }
+
+  async *satisifiedPolicies(proposalId: string, queryArgs?: SelectManyPoliciesArgs) {
+    for await (const [policy, sat] of this.policiesWithSatisfiability(proposalId, queryArgs)) {
+      if (sat === PolicySatisfiability.Satisfied) yield policy;
     }
   }
 

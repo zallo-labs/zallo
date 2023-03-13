@@ -25,6 +25,9 @@ import { ProposalsService } from './proposals.service';
 import { Transaction } from '@gen/transaction/transaction.model';
 import { PubsubService } from '~/features/util/pubsub/pubsub.service';
 import { getUser } from '~/request/ctx';
+import { Rejection, SatisfiablePolicy } from './proposals.model';
+import { asHex } from 'lib';
+import { Approval } from '@gen/approval/approval.model';
 
 @Resolver(() => Proposal)
 export class ProposalsResolver {
@@ -52,6 +55,28 @@ export class ProposalsResolver {
   @ResolveField(() => Transaction, { nullable: true })
   async transaction(@Parent() proposal: Proposal): Promise<Transaction | null> {
     return proposal.transactions ? proposal.transactions[0] : null;
+  }
+
+  @ResolveField(() => [Approval])
+  async approvals(@Parent() proposal: Proposal): Promise<Approval[]> {
+    return (
+      (proposal.approvals ?? [])
+        ?.filter((approval) => approval.signature)
+        .map((a) => ({ ...a, signature: asHex(a.signature!) })) ?? []
+    );
+  }
+
+  @ResolveField(() => [Rejection])
+  async rejections(@Parent() proposal: Proposal): Promise<Rejection[]> {
+    return (proposal.approvals ?? []).filter((approval) => !approval.signature);
+  }
+
+  @ResolveField(() => [SatisfiablePolicy])
+  async satisfiablePolicies(
+    proposal: Proposal,
+    @Info() info: GraphQLResolveInfo,
+  ): Promise<SatisfiablePolicy[]> {
+    return this.service.satisfiablePolicies(proposal.id, getSelect(info));
   }
 
   @Subscription(() => Proposal, {

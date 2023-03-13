@@ -3,13 +3,13 @@ import {
   ApprovalsRule,
   asAddress,
   asSelector,
-  FunctionRule,
+  FunctionsRule,
   isPresent,
   Policy,
-  TargetRule,
+  TargetsRule,
 } from 'lib';
 
-type PrismaPolicy = Pick<PolicyRules, 'policyKey' | 'onlyFunctions' | 'onlyTargets'> & {
+export type PrismaPolicy = Pick<PolicyRules, 'policyKey' | 'onlyFunctions' | 'onlyTargets'> & {
   approvers: Pick<Approver, 'userId'>[];
 };
 
@@ -18,7 +18,7 @@ export const prismaAsPolicy = (p: PrismaPolicy): Policy =>
     p.policyKey,
     ...[
       p.approvers?.length ? new ApprovalsRule(p.approvers.map((a) => asAddress(a.userId))) : null,
-      p.onlyFunctions?.length ? new FunctionRule(p.onlyFunctions.map(asSelector)) : null,
-      p.onlyTargets?.length ? new TargetRule(p.onlyTargets.map(asAddress)) : null,
+      p.onlyFunctions?.length ? new FunctionsRule(p.onlyFunctions.map(asSelector)) : null,
+      p.onlyTargets?.length ? new TargetsRule(p.onlyTargets.map(asAddress)) : null,
     ].filter(isPresent),
   );

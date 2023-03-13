@@ -1,7 +1,7 @@
 import { InjectQueue } from '@nestjs/bull';
 import { forwardRef, Inject, Injectable } from '@nestjs/common';
 import { Queue } from 'bull';
-import { asAddress, Approval, executeTx } from 'lib';
+import { asAddress, Approval, executeTx, asHex } from 'lib';
 import { PrismaService } from '../util/prisma/prisma.service';
 import { ProviderService } from '~/features/util/provider/provider.service';
 import { ProposalEvent } from '../proposals/proposals.args';
@@ -29,7 +29,7 @@ export class TransactionsService {
     proposalId: string,
     res?: Prisma.SelectSubset<T, Prisma.ProposalArgs>,
   ) {
-    const policy = (await this.policies.getSatisifiedPolicies(proposalId).next()).value;
+    const policy = (await this.policies.satisifiedPolicies(proposalId).next()).value;
     if (!policy) return undefined;
 
     const proposal = await this.prisma.asUser.proposal.findUniqueOrThrow({
@@ -56,7 +56,7 @@ export class TransactionsService {
       tx: {
         to: asAddress(proposal.to),
         value: proposal.value ? BigInt(proposal.value.toString()) : undefined,
-        data: proposal.data ?? undefined,
+        data: asHex(proposal.data ?? undefined),
         nonce: proposal.nonce,
         gasLimit: proposal.gasLimit || undefined,
       },

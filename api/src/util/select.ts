@@ -34,6 +34,9 @@ const DEFAULT_FIELDS: DefaultFields = {
         orderBy: { createdAt: 'desc' },
       },
     }),
+    ...((select.approvals || select.rejections) && {
+      approvals: true,
+    }),
   }),
   Policy: (select) => ({
     ...(select.id && {
