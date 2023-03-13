@@ -12423,17 +12423,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@walletconnect/heartbeat@npm:^1.0.1":
-  version: 1.0.1
-  resolution: "@walletconnect/heartbeat@npm:1.0.1"
-  dependencies:
-    "@walletconnect/events": ^1.0.1
-    "@walletconnect/time": ^1.0.2
-    tslib: 1.14.1
-  checksum: 7591f92327cfca702eeeef277e66de036ed871b62d56dc1f8fa5f942301ca8e7e43eae4d9a1ca8399b8d433c4f6f32942af32cd9a4caca82eef4939dc484c6bb
-  languageName: node
-  linkType: hard
-
 "@walletconnect/jsonrpc-provider@npm:^1.0.6":
   version: 1.0.6
   resolution: "@walletconnect/jsonrpc-provider@npm:1.0.6"
@@ -12589,20 +12578,6 @@ __metadata:
   dependencies:
     tslib: 1.14.1
   checksum: e3fc0113ca9e7ecedfc65f9e1517196682d5ffcda60750f51073b8d704719a17fea75da8b242c804bfa5b994707723043892a2db3cc86988b190b7b8711fe3c0
-  languageName: node
-  linkType: hard
-
-"@walletconnect/types@npm:2.2.1":
-  version: 2.2.1
-  resolution: "@walletconnect/types@npm:2.2.1"
-  dependencies:
-    "@walletconnect/events": ^1.0.1
-    "@walletconnect/heartbeat": ^1.0.1
-    "@walletconnect/jsonrpc-types": ^1.0.2
-    "@walletconnect/keyvaluestorage": ^1.0.2
-    "@walletconnect/logger": ^2.0.1
-    events: ^3.3.0
-  checksum: 187335d0b2d860cad7ed3687b05db7e09fab70657e206736becd4341f2e3cf3860ea783fabe5094353ba600ec3477f65570523b25d3b72f6899d335c5680d8e6
   languageName: node
   linkType: hard
 
@@ -14236,7 +14211,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"apollo@npm:2.34.0, apollo@npm:^2.34.0":
+"apollo@npm:^2.34.0":
   version: 2.34.0
   resolution: "apollo@npm:2.34.0"
   dependencies:
@@ -14327,9 +14302,7 @@ __metadata:
     "@types/styled-system": ^5.1.16
     "@walletconnect/react-native-compat": 2.4.7
     "@walletconnect/sign-client": 2.4.7
-    "@walletconnect/types": 2.2.1
     "@walletconnect/utils": 2.4.7
-    apollo: 2.34.0
     apollo-link-offline: ^1.0.1
     apollo3-cache-persist: ^0.14.1
     async-mutex: ^0.4.0
@@ -14394,7 +14367,7 @@ __metadata:
     react-native-get-random-values: ~1.8.0
     react-native-jazzicon: "patch:react-native-jazzicon@npm:^0.1.2#../.yarn/patches/react-native-jazzicon-npm-0.1.2-c1633b051f.patch"
     react-native-keyboard-aware-scroll-view: ^0.9.5
-    react-native-paper: ^5.3.1
+    react-native-paper: ^5.4.0
     react-native-popover-view: ^5.1.7
     react-native-qrcode-svg: ^6.2.0
     react-native-randombytes: ^3.6.1
@@ -14418,6 +14391,7 @@ __metadata:
     styled-system: ^5.1.5
     ts-node: ^10.9.1
     ts-pattern: ^4.2.1
+    ts-toolbelt: ^9.6.0
     typescript: ^4.9.5
     url: ^0.11.0
     use-async-effect: ^2.2.7
@@ -35869,9 +35843,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"react-native-paper@npm:^5.3.1":
-  version: 5.3.1
-  resolution: "react-native-paper@npm:5.3.1"
+"react-native-paper@npm:^5.4.0":
+  version: 5.4.0
+  resolution: "react-native-paper@npm:5.4.0"
   dependencies:
     "@callstack/react-theme-provider": ^3.0.8
     color: ^3.1.2
@@ -35881,7 +35855,7 @@ __metadata:
     react-native: "*"
     react-native-safe-area-context: "*"
     react-native-vector-icons: "*"
-  checksum: 57b2654fc7cff23168e183cbcee7dccd3f467b754ebf512c67f770d0989fdb67608f4546361a1f009b0bbcc52153e9f8c5c529eca493d631a2b4a965fc707a04
+  checksum: 3b0f013881e89f757941c105eda8dc4cc9bf8327df708a9587ba08734fe747639078ff3f621aee76688aaf5fd57331a609b747981e5da5a4dbdbdeffae4ce611
   languageName: node
   linkType: hard
 
