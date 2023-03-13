@@ -16,7 +16,7 @@ export interface Proposal extends Tx {
   submissions: Submission[];
   proposedAt: DateTime;
   proposer: Address;
-  createdAt: DateTime;
+  timestamp: DateTime;
 }
 
 export type ProposalState = 'pending' | 'executing' | 'executed' | 'failed';
@@ -106,6 +106,6 @@ export const toProposal = (p: ProposalFieldsFragment): Proposal => {
     submissions: transactions,
     proposedAt: DateTime.fromISO(p.createdAt),
     proposer: asAddress(p.proposerId),
-    createdAt: DateTime.fromISO(p.createdAt),
+    timestamp: DateTime.fromISO(p.createdAt),
   };
 };
