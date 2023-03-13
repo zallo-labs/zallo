@@ -1,6 +1,6 @@
 import { expect } from 'chai';
 import { parseEther } from 'ethers/lib/utils';
-import { toTx, hashTx, TestUtil, asAddress, TestUtil__factory } from 'lib';
+import { hashTx, TestUtil, asAddress, TestUtil__factory, Tx, asHex } from 'lib';
 import { deploy, deployProxy, DeployProxyData, WALLET, WALLETS } from './util';
 
 describe('Execution', () => {
@@ -30,7 +30,7 @@ describe('Execution', () => {
     await expect(
       execute({
         to: asAddress(tester.address),
-        data: tester.interface.encodeFunctionData('echo', [data]),
+        data: asHex(tester.interface.encodeFunctionData('echo', [data])),
         nonce: nonce++,
       }),
     )
@@ -40,11 +40,11 @@ describe('Execution', () => {
 
   it('should emit an event with the response', async () => {
     const data = '0xabc123';
-    const txReq = toTx({
+    const txReq: Tx = {
       to: asAddress(tester.address),
-      data: tester.interface.encodeFunctionData('echo', [data]),
+      data: asHex(tester.interface.encodeFunctionData('echo', [data])),
       nonce: nonce++,
-    });
+    };
 
     await expect(execute(txReq))
       .to.emit(account, account.interface.events['TransactionExecuted(bytes32,bytes)'].name)
@@ -55,7 +55,7 @@ describe('Execution', () => {
   });
 
   it('should revert if the transaction has already been executed', async () => {
-    const tx = toTx({ to: WALLET.address, nonce: nonce++ });
+    const tx: Tx = { to: WALLET.address, nonce: nonce++ };
     await (await execute(tx)).wait();
 
     await expect(execute(tx)).to.be.rejected;
@@ -71,7 +71,7 @@ describe('Execution', () => {
       await (
         await execute({
           to: asAddress(tester.address),
-          data: tester.interface.encodeFunctionData('revertWithoutReason'),
+          data: asHex(tester.interface.encodeFunctionData('revertWithoutReason')),
           nonce: nonce++,
         })
       ).wait();
@@ -96,7 +96,7 @@ describe('Execution', () => {
       await (
         await execute({
           to: asAddress(tester.address),
-          data: tester.interface.encodeFunctionData('revertWithReason'),
+          data: asHex(tester.interface.encodeFunctionData('revertWithReason')),
           nonce: nonce++,
         })
       ).wait();

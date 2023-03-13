@@ -1,6 +1,6 @@
 import { expect } from 'chai';
 import { hexDataSlice } from 'ethers/lib/utils';
-import { Erc20__factory, TestRules, Tx } from 'lib';
+import { asHex, Erc20__factory, TestRules, Tx } from 'lib';
 import { WALLET } from '../util';
 import { asTransactionStruct, defaultTx, deployTestRules } from '../util/rules';
 
@@ -8,7 +8,9 @@ describe('FunctionRule', () => {
   let rules = {} as TestRules;
   const tx = {
     ...defaultTx,
-    data: Erc20__factory.createInterface().encodeFunctionData('transfer', [WALLET.address, 1]),
+    data: asHex(
+      Erc20__factory.createInterface().encodeFunctionData('transfer', [WALLET.address, 1]),
+    ),
   } satisfies Tx;
 
   before(async () => {

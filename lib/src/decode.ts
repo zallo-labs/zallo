@@ -2,7 +2,7 @@ import { BytesLike } from 'ethers';
 import { hexDataLength, hexDataSlice } from 'ethers/lib/utils';
 import { Account, Account__factory } from './contracts';
 import { Policy, PolicyKey, asPolicyKey, PolicyStruct } from './policy';
-import { OnlyRequiredItems } from './util/mappedTypes';
+import { OnlyRequiredItems } from './util/types';
 
 export const getSelector = (data?: BytesLike) =>
   data && hexDataLength(data) >= 4 ? hexDataSlice(data, 0, 4) : undefined;

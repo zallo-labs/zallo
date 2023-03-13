@@ -1,4 +1,8 @@
+import { A } from 'ts-toolbelt';
+
 export type MaybePromise<T> = T | Promise<T>;
+
+export type StrictType<T, Id extends string> = A.Type<T, Id>;
 
 export type AwaitedObj<T> = {
   [K in keyof T]: T[K] extends Promise<infer U>

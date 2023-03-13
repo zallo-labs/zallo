@@ -1,17 +1,13 @@
 import { TypedDataDomain, TypedDataField } from '@ethersproject/abstract-signer';
 import { ethers } from 'ethers';
 import { Addresslike } from './addr';
-import { ZERO_BYTES } from './bytes';
+import { EMPTY_HEX_BYTES } from './bytes';
 import { Call } from './call';
 
 export interface Tx extends Call {
   nonce: bigint;
   gasLimit?: bigint;
 }
-
-export type TxOptions = Tx;
-
-export const toTx = (opts: TxOptions): Tx => opts;
 
 export type TypedDataTypes = Record<string, TypedDataField[]>;
 
@@ -41,6 +37,6 @@ export const hashTx = async (tx: Tx, domainParams: GetDomainParams) =>
   ethers.utils._TypedDataEncoder.hash(await getDomain(domainParams), TX_EIP712_TYPE, {
     to: tx.to,
     value: tx.value ?? 0n,
-    data: tx.data ?? ZERO_BYTES,
+    data: tx.data ?? EMPTY_HEX_BYTES,
     nonce: tx.nonce,
   } satisfies Tx);

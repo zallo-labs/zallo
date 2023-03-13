@@ -1,8 +1,8 @@
-import { BytesLike } from 'ethers';
 import { Address } from './addr';
+import { Hex } from './bytes';
 
 export interface Call {
   to: Address;
   value?: bigint;
-  data?: BytesLike;
+  data?: Hex;
 }

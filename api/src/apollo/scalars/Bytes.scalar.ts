@@ -1,24 +1,23 @@
 import { UserInputError } from 'apollo-server-core';
-import { BytesLike, ethers } from 'ethers';
 import { Kind } from 'graphql';
-import { asHexString, HexString, isHexString } from 'lib';
+import { asHex, Hex, isHex } from 'lib';
 import { createScalar } from './util';
 
-const parse = (value: unknown, len?: number): HexString => {
+const parse = (value: unknown, len?: number): Hex => {
   try {
-    if (!isHexString(value)) throw new UserInputError(`Provided value is not a bytes hex string`);
+    if (!isHex(value)) throw new UserInputError(`Provided value is not a bytes hex string`);
 
-    return asHexString(value, len);
+    return asHex(value, len);
   } catch (e) {
     throw new UserInputError((e as Error).message);
   }
 };
 
 const createBytesScalar = (name: string, description: string, len?: number) =>
-  createScalar<HexString, string>({
+  createScalar<Hex, string>({
     name,
     description,
-    serialize: (value) => ethers.utils.hexlify(value as BytesLike),
+    serialize: (value) => asHex(value as string),
     parseValue: (value) => parse(value, len),
     parseLiteral: (ast) => {
       if (ast.kind === Kind.STRING) return parse(ast.value, len);

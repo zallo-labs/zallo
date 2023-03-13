@@ -1,15 +1,4 @@
-import {
-  toTx,
-  executeTx,
-  mapAsync,
-  Account,
-  signTx,
-  Approval,
-  Tx,
-  TxOptions,
-  Policy,
-  Address,
-} from 'lib';
+import { executeTx, mapAsync, Account, signTx, Approval, Tx, Policy, Address } from 'lib';
 import { WALLETS } from './wallet';
 
 export const getApprovals = async (
@@ -26,10 +15,8 @@ export const execute = async (
   account: Account,
   policy: Policy,
   approvers: Set<Address>,
-  txOpts: TxOptions,
+  tx: Tx,
 ) => {
-  const tx = toTx(txOpts);
-
   return await executeTx({
     account,
     policy,

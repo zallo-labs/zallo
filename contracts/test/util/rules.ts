@@ -1,4 +1,4 @@
-import { ZERO_ADDR, ZERO, AwaitedObj, Tx, TestRules__factory } from 'lib';
+import { ZERO_ADDR, AwaitedObj, Tx, TestRules__factory } from 'lib';
 import { TransactionStruct } from 'lib/src/contracts/Account';
 import { deploy } from './deploy';
 import { WALLET } from './wallet';
@@ -14,7 +14,7 @@ export const asTransactionStruct = (tx: Tx): AwaitedObj<TransactionStruct> => ({
   maxFeePerGas: 0,
   maxPriorityFeePerGas: 0,
   paymaster: ZERO_ADDR,
-  value: ZERO,
+  value: 0n,
   reserved: [0, 0, 0, 0],
   data: [],
   signature: [],
