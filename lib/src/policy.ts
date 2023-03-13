@@ -6,10 +6,11 @@ import { asSignatureRule, asTransactionRule } from './rules/uitl';
 import { asUint32, BigIntLike, MAX_UINT32, MIN_UINT32 } from './uint';
 import { ethers } from 'ethers';
 import { PolicyStruct as BasePolicyStruct } from './contracts/Account';
-import { AwaitedObj } from './util/mappedTypes';
+import { AwaitedObj } from './util/types';
 import { Address } from './addr';
 import { GetDomainParams, hashTx, Tx } from './tx';
-import { ClassMap } from './util/ClassMap';
+import { ClassSet } from './util/ClassSet';
+import { match } from 'ts-pattern';
 
 export type PolicyStruct = AwaitedObj<BasePolicyStruct>;
 
@@ -23,22 +24,25 @@ export interface PolicyGuid {
   key: PolicyKey;
 }
 
-export type OnlySatisfied = 'signature' | 'transaction';
-
 export interface IsSatisfiedOptions {
   domainParams: GetDomainParams;
   tx: Tx;
   signatures: SignatureLike[];
-  only?: OnlySatisfied;
+}
+
+export enum PolicySatisfiability {
+  Unsatisifable = 'unsatisfiable',
+  Satisfiable = 'satisfiable',
+  Satisfied = 'satisfied',
 }
 
 export class Policy {
   public readonly key: PolicyKey;
-  public rules: ClassMap<Rule>;
+  public rules: ClassSet<Rule>;
 
   constructor(key: BigIntLike, ...rules: Rule[]) {
     this.key = asPolicyKey(key);
-    this.rules = new ClassMap(...rules);
+    this.rules = new ClassSet(rules);
   }
 
   public static readonly ABI = `(uint256 key, ${RULES_ABI} signatureRules, ${RULES_ABI} transactionRules)`;
@@ -73,23 +77,26 @@ export class Policy {
     );
   }
 
-  async isSatisfied({
+  async satisfiability({
     domainParams: { address, provider },
     tx,
     signatures,
-    only,
-  }: IsSatisfiedOptions): Promise<boolean> {
+  }: IsSatisfiedOptions): Promise<PolicySatisfiability> {
     const hash = await hashTx(tx, { address, provider });
 
-    return (
-      await Promise.all([
-        ...(!only || only === 'signature' ? this.signatureRules : []).map((v) =>
-          v.isSatisfied({ provider, digest: hash, signatures }),
-        ),
-        ...(!only || only === 'transaction' ? this.transactionRules : []).map((v) =>
-          v.isSatisfied({ provider, tx }),
-        ),
-      ])
-    ).every((isValid) => isValid);
+    const sigRules = (
+      await Promise.all(
+        this.signatureRules.map((v) => v.isSatisfied({ provider, digest: hash, signatures })),
+      )
+    ).every((satisfied) => satisfied);
+
+    const txRules = (
+      await Promise.all(this.transactionRules.map((v) => v.isSatisfied({ provider, tx })))
+    ).every((satisfied) => satisfied);
+
+    return match({ sigRules, txRules })
+      .with({ sigRules: true, txRules: true }, () => PolicySatisfiability.Satisfied)
+      .with({ txRules: true }, () => PolicySatisfiability.Satisfiable)
+      .otherwise(() => PolicySatisfiability.Unsatisifable);
   }
 }

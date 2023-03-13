@@ -19,18 +19,12 @@ export {
 } from './contracts';
 export { Erc20, Erc20__factory } from './typechain';
 
-export * from './util/arrays';
-export * from './util/assert';
-export * from './util/env';
-export * from './util/mappedTypes';
-export * from './util/maybe';
-export * from './util/try';
-
 export * from './rules';
+export * from './util';
 
 export * from './addr';
 export * from './approver';
-export * from './bignum';
+export * from './bigint';
 export * from './bytes';
 export * from './call';
 export * from './chain';
