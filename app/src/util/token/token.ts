@@ -1,4 +1,3 @@
-import { BigNumber } from 'ethers';
 import {
   asAddress,
   Address,
@@ -63,15 +62,11 @@ export const ERC20_INTERFACE = Erc20__factory.createInterface();
 export const getTokenContract = (token: Token): Erc20 =>
   Erc20__factory.connect(token.addr, PROVIDER);
 
-export const convertTokenAmount = (
-  amount: BigNumber,
-  prevToken: Token,
-  newToken: Token,
-): BigNumber => {
+export const convertTokenAmount = (amount: bigint, prevToken: Token, newToken: Token): bigint => {
   const decimalsDiff = prevToken.decimals - newToken.decimals;
   if (decimalsDiff === 0) return amount;
 
-  const div = BigNumber.from(10).pow(Math.abs(decimalsDiff));
+  const factor = 10n ** BigInt(Math.abs(decimalsDiff));
 
-  return decimalsDiff >= 0 ? amount.div(div) : amount.mul(div);
+  return decimalsDiff >= 0 ? amount / factor : amount * factor;
 };

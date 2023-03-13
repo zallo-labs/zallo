@@ -13,7 +13,7 @@ const TOTAL_BALANCE_VALUE = selectorFamily<number, Address | null>({
       const balances = get(TOKEN_BALANCES(addr));
 
       return balances.reduce(
-        (sum, { balance, token }) => sum + get(TOKEN_VALUE([token.addr, balance])),
+        (sum, { balance, token }) => sum + get(TOKEN_VALUE([token.addr, balance.toString()])),
         0,
       );
     },

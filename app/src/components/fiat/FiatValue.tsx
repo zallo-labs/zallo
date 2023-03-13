@@ -1,4 +1,4 @@
-import { BigNumberish } from 'ethers';
+import { BigIntlike } from 'lib';
 import { FIAT_DECIMALS } from '~/util/token/fiat';
 import { useFormattedNumber } from '../format/FormattedNumber';
 
@@ -7,7 +7,7 @@ const currency = 'USD';
 const withoutSymbol = (value: string, currency: string) => value.replace(currency, '').trim();
 
 export interface FormattedFiatOptions {
-  value: BigNumberish;
+  value: BigIntlike;
   symbol?: boolean;
 }
 

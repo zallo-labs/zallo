@@ -1,5 +1,4 @@
-import { BytesLike, BigNumber } from 'ethers';
-import { Address, Hex, Tx, KeySet, asHex, asAddress } from 'lib';
+import { Address, Hex, Tx, KeySet, asHex, asAddress, asBigInt } from 'lib';
 import { DateTime } from 'luxon';
 import { match } from 'ts-pattern';
 import { ProposalFieldsFragment } from '@api/generated';
@@ -35,18 +34,18 @@ export interface Rejection {
 }
 
 export interface Submission {
-  hash: BytesLike;
+  hash: Hex;
   status: SubmissionStatus;
   timestamp: DateTime;
-  gasLimit: BigNumber;
-  gasPrice?: BigNumber;
+  gasLimit: bigint;
+  gasPrice?: bigint;
   response?: SubmissionResponse;
 }
 
 export type SubmissionStatus = 'pending' | 'success' | 'failure';
 
 export interface SubmissionResponse {
-  response: BytesLike;
+  response: Hex;
   reverted: boolean;
   timestamp: DateTime;
 }
@@ -72,14 +71,14 @@ export const toProposal = (p: ProposalFieldsFragment): Proposal => {
   const transactions =
     p?.transactions?.map(
       (s): Submission => ({
-        hash: s.hash,
+        hash: asHex(s.hash),
         status: !s.response ? 'pending' : s.response.success ? 'success' : 'failure',
         timestamp: DateTime.fromISO(s.createdAt),
-        gasLimit: BigNumber.from(s.gasLimit),
-        gasPrice: s.gasPrice ? BigNumber.from(s.gasPrice) : undefined,
+        gasLimit: BigInt(s.gasLimit),
+        gasPrice: s.gasPrice ? asBigInt(s.gasPrice) : undefined,
         response: s.response
           ? {
-              response: s.response.response,
+              response: asHex(s.response.response),
               reverted: !s.response.success,
               timestamp: DateTime.fromISO(s.response.timestamp),
             }

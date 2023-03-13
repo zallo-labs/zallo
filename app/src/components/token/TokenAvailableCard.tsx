@@ -8,11 +8,11 @@ import { useTokenValue } from '@token/useTokenValue';
 import { FiatValue } from '../fiat/FiatValue';
 import { TokenAmount } from './TokenAmount';
 import TokenIcon from './TokenIcon/TokenIcon';
-import { Accountlike } from '~/queries/account/useAccount.api';
+import { AccountIdlike } from '@api/account';
 
 export interface TokenAvailableCardProps extends CardItemProps {
   token: Token;
-  account: Accountlike;
+  account: AccountIdlike;
   showZero?: boolean;
 }
 

@@ -1,8 +1,6 @@
 import { AppbarBack } from '~/components/Appbar/AppbarBack';
 import { Box } from '~/components/layout/Box';
 import { CheckIcon, CloseIcon } from '~/util/theme/icons';
-import { BigNumber } from 'ethers';
-import { ZERO } from 'lib';
 import { useState } from 'react';
 import { Appbar } from 'react-native-paper';
 import { Fab } from '~/components/buttons/Fab';
@@ -16,7 +14,7 @@ import { TokenCard } from '~/components/token/TokenCard';
 import { useSelectToken } from '../tokens/useSelectToken';
 
 export interface AmountScreenParams {
-  onChange: (amount?: BigNumber) => void;
+  onChange: (amount?: bigint) => void;
 }
 
 export type AmountScreenProps = StackNavigatorScreenProps<'Amount'>;
@@ -26,7 +24,7 @@ export const AmountScreen = ({ navigation, route }: AmountScreenProps) => {
   const selectToken = useSelectToken();
   const [token, setToken] = [useSelectedToken(), useSetSelectedToken()];
 
-  const [amount, setAmount] = useState<BigNumber | undefined>();
+  const [amount, setAmount] = useState<bigint | undefined>();
 
   return (
     <Box flex={1}>
@@ -59,7 +57,7 @@ export const AmountScreen = ({ navigation, route }: AmountScreenProps) => {
       <Fab
         icon={CheckIcon}
         label="Accept"
-        disabled={!amount || amount.eq(ZERO)}
+        disabled={!amount}
         onPress={() => {
           onChange(amount);
           navigation.goBack();

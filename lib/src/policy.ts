@@ -3,7 +3,7 @@ import { SignatureLike } from '@ethersproject/bytes';
 import { A } from 'ts-toolbelt';
 import { isSignatureRule, isTransactionRule, Rule, RULES_ABI } from './rules/rule';
 import { asSignatureRule, asTransactionRule } from './rules/uitl';
-import { asUint32, BigIntLike, MAX_UINT32, MIN_UINT32 } from './uint';
+import { asUint32, BigIntlike, MAX_UINT32, MIN_UINT32 } from './bigint';
 import { ethers } from 'ethers';
 import { PolicyStruct as BasePolicyStruct } from './contracts/Account';
 import { AwaitedObj } from './util/types';
@@ -15,7 +15,7 @@ import { match } from 'ts-pattern';
 export type PolicyStruct = AwaitedObj<BasePolicyStruct>;
 
 export type PolicyKey = A.Type<bigint, 'PolicyKey'>;
-export const asPolicyKey = (key: BigIntLike) => asUint32(key) as unknown as PolicyKey;
+export const asPolicyKey = (key: BigIntlike) => asUint32(key) as unknown as PolicyKey;
 export const MIN_POLICY_KEY = MIN_UINT32 as unknown as PolicyKey;
 export const MAX_POLICY_KEY = MAX_UINT32 as unknown as PolicyKey;
 
@@ -40,7 +40,7 @@ export class Policy {
   public readonly key: PolicyKey;
   public rules: ClassSet<Rule>;
 
-  constructor(key: BigIntLike, ...rules: Rule[]) {
+  constructor(key: BigIntlike, ...rules: Rule[]) {
     this.key = asPolicyKey(key);
     this.rules = new ClassSet(rules);
   }

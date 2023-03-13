@@ -3,7 +3,7 @@ import { SignatureLike } from '@ethersproject/bytes';
 import { Address, asAddress, compareAddress } from '../addr';
 import { SignatureRule, RuleStruct, SignatureRuleIsSatisfiedOptions } from './rule';
 import { Arraylike, toSet } from '../util/maybe';
-import { asUint8 } from '../uint';
+import { asUint8 } from '../bigint';
 import { tryOrIgnore } from '../util/try';
 import { RuleSelector } from './uitl';
 import { ethers, providers } from 'ethers';

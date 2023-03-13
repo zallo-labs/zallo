@@ -1,6 +1,5 @@
 import { Token } from '@token/token';
 import { useTokenValue } from '@token/useTokenValue';
-import { BigNumber } from 'ethers';
 import { Text } from 'react-native-paper';
 import { FiatValue } from '../fiat/FiatValue';
 import { Item, ItemProps } from '../item/Item';
@@ -11,7 +10,7 @@ import TokenIcon from './TokenIcon/TokenIcon';
 
 export interface TokenItemProps extends ItemProps {
   token: Token;
-  amount?: BigNumber;
+  amount?: bigint;
 }
 
 const TokenItem = ({ token, amount, ...itemProps }: TokenItemProps) => {

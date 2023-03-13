@@ -9,12 +9,12 @@ import { Box } from '../layout/Box';
 import { Container } from '../layout/Container';
 import TokenIcon from './TokenIcon/TokenIcon';
 import { TokenAmount } from './TokenAmount';
-import { useTokenPrice } from '~/queries/useTokenPrice.uni';
-import { Accountlike } from '~/queries/account/useAccount.api';
+import { useTokenPrice } from '@uniswap/useTokenPrice';
+import { AccountIdlike } from '@api/account';
 
 export interface TokenHoldingCardProps extends CardItemProps {
   token: Token;
-  account: Accountlike;
+  account: AccountIdlike;
   selected?: boolean;
 }
 

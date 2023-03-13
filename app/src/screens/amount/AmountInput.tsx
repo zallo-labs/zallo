@@ -1,11 +1,9 @@
 import { Box } from '~/components/layout/Box';
 import { FiatValue } from '~/components/fiat/FiatValue';
 import { BasicTextField } from '~/components/fields/BasicTextField';
-import { useBigNumberInput } from '~/components/fields/useBigNumberInput';
+import { useBigIntInput } from '~/components/fields/useBigIntInput';
 import { SwapIcon } from '~/util/theme/icons';
 import { useTheme } from '@theme/paper';
-import { BigNumber } from 'ethers';
-import { ZERO } from 'lib';
 import { useEffect, useState } from 'react';
 import { IconButton, Text } from 'react-native-paper';
 import { fiatToToken, FIAT_DECIMALS } from '~/util/token/fiat';
@@ -14,26 +12,26 @@ import { convertTokenAmount, Token } from '@token/token';
 import { makeStyles } from '@theme/makeStyles';
 import { usePrevious } from '@hook/usePrevious';
 import { TokenAmount } from '~/components/token/TokenAmount';
-import { useTokenPrice } from '~/queries/useTokenPrice.uni';
+import { useTokenPrice } from '@uniswap/useTokenPrice';
 import { StyleProp, ViewStyle } from 'react-native';
 
 export interface AmountInputProps {
   token: Token;
-  amount?: BigNumber;
-  setAmount: (amount?: BigNumber) => void;
+  amount?: bigint;
+  setAmount: (amount?: bigint) => void;
   style?: StyleProp<ViewStyle>;
 }
 
 export const AmountInput = ({ token, amount, setAmount, style }: AmountInputProps) => {
   const styles = useStyles();
   const { colors } = useTheme();
-  const fiatValue = useTokenValue(token, amount ?? ZERO);
+  const fiatValue = useTokenValue(token, amount ?? 0n);
   const price = useTokenPrice(token);
 
   const [type, setType] = useState<'token' | 'fiat'>('token');
   const [input, setInput] = useState(amount);
 
-  const inputProps = useBigNumberInput({
+  const inputProps = useBigIntInput({
     value: input,
     onChange: setInput,
     decimals: type === 'token' ? token.decimals : FIAT_DECIMALS,
@@ -44,7 +42,7 @@ export const AmountInput = ({ token, amount, setAmount, style }: AmountInputProp
     if (input) {
       const newAmount = type === 'token' ? input : fiatToToken(input, price.current, token);
 
-      if (!amount || !newAmount.eq(amount)) setAmount(newAmount);
+      if (!amount || newAmount !== amount) setAmount(newAmount);
     }
   }, [amount, input, price, setAmount, token, type]);
 
@@ -96,8 +94,8 @@ export const AmountInput = ({ token, amount, setAmount, style }: AmountInputProp
         <IconButton
           icon={SwapIcon}
           onPress={() => {
-            setInput(ZERO);
-            setAmount(ZERO);
+            setInput(0n);
+            setAmount(0n);
             setType((type) => (type === 'token' ? 'fiat' : 'token'));
           }}
         />

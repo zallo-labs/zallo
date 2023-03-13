@@ -1,4 +1,3 @@
-import { BigNumberish } from 'ethers';
 import { Text } from 'react-native-paper';
 import { CardItem, CardItemProps } from '../card/CardItem';
 import { TokenAmount } from './TokenAmount';
@@ -9,7 +8,7 @@ import TokenIcon from './TokenIcon/TokenIcon';
 
 export interface TokenAmountCardProps extends CardItemProps {
   token: Token;
-  amount: BigNumberish;
+  amount: bigint;
 }
 
 export const TokenAmountCard = ({ token: t, amount, ...itemProps }: TokenAmountCardProps) => {

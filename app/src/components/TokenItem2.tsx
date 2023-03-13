@@ -2,7 +2,7 @@ import { Tokenlike, useToken } from '@token/useToken';
 import { useTokenBalance } from '@token/useTokenBalance';
 import { useTokenValue } from '@token/useTokenValue';
 import { AccountIdlike } from '@api/account';
-import { useTokenPrice } from '~/gql/uniswap/useTokenPrice.uni';
+import { useTokenPrice } from '@uniswap/useTokenPrice';
 import { FiatValue } from './fiat/FiatValue';
 import { Percent } from './format/Percent';
 import { Box } from './layout/Box';

@@ -1,7 +1,7 @@
 import assert from 'assert';
-import { Address, TEN, compareBn } from 'lib';
+import { Address, compareBigInt } from 'lib';
 import { selectorFamily, useRecoilValue } from 'recoil';
-import { TOKEN_PRICE } from '~/queries/useTokenPrice.uni';
+import { TOKEN_PRICE } from '@uniswap/useTokenPrice';
 import { Token } from './token';
 import { TOKEN_BALANCES } from './useTokenBalance';
 
@@ -15,9 +15,10 @@ const TOKENS_BY_VALUE = selectorFamily<Token[], Address | null>({
       return get(TOKEN_BALANCES(addr))
         .map(({ token, balance }) => ({
           token,
-          fiatValue: balance.mul(get(TOKEN_PRICE(token.addr)).current).div(TEN.pow(token.decimals)),
+          fiatValue:
+            (balance * get(TOKEN_PRICE(token.addr)).current) / 10n ** BigInt(token.decimals),
         }))
-        .sort((a, b) => compareBn(b.fiatValue, a.fiatValue))
+        .sort((a, b) => compareBigInt(b.fiatValue, a.fiatValue))
         .map(({ token }) => token);
     },
 });

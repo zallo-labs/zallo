@@ -1,8 +1,7 @@
-import { BigNumber, BigNumberish } from 'ethers';
 import { formatUnits } from 'ethers/lib/utils';
-import { Address, ZERO } from 'lib';
+import { Address } from 'lib';
 import { selectorFamily, useRecoilValue } from 'recoil';
-import { TOKEN_PRICE } from '~/queries/useTokenPrice.uni';
+import { TOKEN_PRICE } from '@uniswap/useTokenPrice';
 import { FIAT_DECIMALS } from './fiat';
 import { Token } from './token';
 import { TOKEN } from './useToken';
@@ -11,7 +10,7 @@ export interface TokenValue {
   fiatValue: number;
 }
 
-type TokenValueParam = [Address, BigNumber];
+type TokenValueParam = [Address, string];
 
 export const TOKEN_VALUE = selectorFamily<number, TokenValueParam>({
   key: 'tokenValue',
@@ -22,13 +21,13 @@ export const TOKEN_VALUE = selectorFamily<number, TokenValueParam>({
       const price = get(TOKEN_PRICE(tokenAddr));
 
       return parseFloat(
-        formatUnits(BigNumber.from(amount).mul(price.current), token.decimals + FIAT_DECIMALS),
+        formatUnits(BigInt(amount) * price.current, token.decimals + FIAT_DECIMALS),
       );
     },
 });
 
-export const useTokenValue = (token: Token, amount?: BigNumberish) =>
-  useRecoilValue(TOKEN_VALUE([token.addr, BigNumber.from(amount ?? ZERO)]));
+export const useTokenValue = (token: Token, amount = 0n) =>
+  useRecoilValue(TOKEN_VALUE([token.addr, amount.toString()]));
 
 const TOKEN_VALUES = selectorFamily<number[], TokenValueParam[]>({
   key: 'tokenValues',
