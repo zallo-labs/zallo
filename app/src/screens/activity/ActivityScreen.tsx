@@ -28,7 +28,7 @@ type Item =
       type: 'transfer';
     };
 
-const proposalToActivity = (proposal: ProposalMetadata): Item => ({
+const proposalAsActivity = (proposal: Proposal): Item => ({
   activity: proposal,
   type: 'proposal',
 });
@@ -37,22 +37,22 @@ export const ActivityScreen = withSkeleton(() => {
   const styles = useStyles();
   const { AppbarHeader, handleScroll } = useAppbarHeader();
   const { navigate } = useNavigation();
-  const pRequiringAction = useProposals({ actionRequired: true });
-  const pAwaitingApproval = useProposals({ states: 'Pending', actionRequired: false });
+  const pRequiringAction = useProposals({ requiresUserAction: true });
+  const pAwaitingApproval = useProposals({ states: 'Pending', requiresUserAction: false });
   const pExecuting = useProposals({ states: 'Executing' });
   const pExecuted = useProposals({ states: 'Executed' });
   const incomingTransfers = useTransfersMetadata('IN');
 
   const data = useMemo(() => {
     const executed = [
-      ...pExecuted.map(proposalToActivity),
+      ...pExecuted.map(proposalAsActivity),
       ...incomingTransfers.map((activity): Item => ({ activity, type: 'transfer' })),
     ].sort((a, b) => b.activity.timestamp.toMillis() - a.activity.timestamp.toMillis());
 
     return [
-      ['Action required', pRequiringAction.map(proposalToActivity)] as const,
-      ['Awaiting approval', pAwaitingApproval.map(proposalToActivity)] as const,
-      ['Executing', pExecuting.map(proposalToActivity)] as const,
+      ['Action required', pRequiringAction.map(proposalAsActivity)] as const,
+      ['Awaiting approval', pAwaitingApproval.map(proposalAsActivity)] as const,
+      ['Executing', pExecuting.map(proposalAsActivity)] as const,
       ['Executed', executed] as const,
     ]
       .filter(([_, data]) => data.length)
@@ -71,11 +71,8 @@ export const ActivityScreen = withSkeleton(() => {
         renderItem={({ item }) =>
           match(item)
             .with(P.string, (title) => <ListHeader>{title}</ListHeader>)
-            .with({ type: 'proposal' }, ({ activity: proposal }) => (
-              <ProposalItem
-                proposal={proposal}
-                onPress={() => navigate('Proposal', { proposal })}
-              />
+            .with({ type: 'proposal' }, ({ activity: { id } }) => (
+              <ProposalItem proposal={id} onPress={() => navigate('Proposal', { proposal: id })} />
             ))
             .with({ type: 'transfer' }, ({ activity: transfer }) => (
               <IncomingTransferItem transfer={transfer.id} />

@@ -15,7 +15,7 @@ Notifications.setNotificationHandler({
   }),
 });
 
-export const useNotificationsCount = () => useProposals({ actionRequired: true }).length;
+export const useNotificationsCount = () => useProposals({ requiresUserAction: true }).length;
 
 export const NotificationsRegistrar = () => {
   const count = useNotificationsCount();

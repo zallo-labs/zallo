@@ -26,13 +26,14 @@ gql`
   }
 `;
 
-export interface ProposalsOptions {
+export type ProposalsOptions = {
   accounts?: Arraylike<Address>;
-  states?: Arraylike<ProposalState>;
   take?: number;
   cursor?: ProposalId;
-  requiresUserAction?: boolean;
-}
+} & (
+  | { states?: Arraylike<ProposalState>; requiresUserAction?: never }
+  | { states?: Arraylike<Extract<ProposalState, 'Pending'>>; requiresUserAction?: boolean }
+);
 
 export const useProposals = ({
   accounts,
@@ -41,6 +42,9 @@ export const useProposals = ({
   cursor,
   requiresUserAction,
 }: ProposalsOptions = {}) => {
+  // Only pending states may require user action
+  if (requiresUserAction) states = ['Pending'];
+
   const { data } = useSuspenseQuery<ProposalsQuery, ProposalsQueryVariables>(ProposalsDocument, {
     variables: {
       accounts,
