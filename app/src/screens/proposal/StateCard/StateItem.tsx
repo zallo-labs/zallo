@@ -11,7 +11,7 @@ import { CARD_BORDER_RADIUS } from '~/components/card/Card';
 import { Timestamp } from '~/components/format/Timestamp';
 import { Box } from '~/components/layout/Box';
 
-interface StateProps {
+interface StateItemProps {
   Icon: FC<IconProps>;
   title: string;
   timestamp?: DateTime;
@@ -23,7 +23,7 @@ interface StateProps {
   style?: StyleProp<ViewStyle>;
 }
 
-export const State = ({ Icon, title, timestamp, events, selected, style }: StateProps) => {
+export const StateItem = ({ Icon, title, timestamp, events, selected, style }: StateItemProps) => {
   const styles = useStyles(selected);
 
   return (

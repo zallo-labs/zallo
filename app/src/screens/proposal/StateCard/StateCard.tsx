@@ -10,14 +10,14 @@ import { ActivityIndicator } from 'react-native-paper';
 import { match } from 'ts-pattern';
 import { Card } from '~/components/card/Card';
 import { Proposal } from '@api/proposal';
-import { State } from './State';
+import { StateItem } from './StateItem';
 
-export interface ProposalStateCardProps {
+export interface StateCardProps {
   proposal: Proposal;
   style?: StyleProp<ViewStyle>;
 }
 
-export const ProposalStateCard = ({ proposal: p, style }: ProposalStateCardProps) => {
+export const StateCard = ({ proposal: p, style }: StateCardProps) => {
   const styles = useStyles();
 
   const status = match(p.state)
@@ -30,17 +30,16 @@ export const ProposalStateCard = ({ proposal: p, style }: ProposalStateCardProps
 
   return (
     <Card style={[style]} touchableStyle={styles.card}>
-      {status === 'pending' && (
-        <State
-          Icon={CircleOutlineIcon}
-          title="Awaiting approval"
-          events={[...p.awaitingApproval].map((addr) => ({ addr }))}
-          selected={status === 'pending'}
-        />
-      )}
+      {/* TODO: Satisfiable policies state card */}
+      {/* <StateItem
+        Icon={CircleOutlineIcon}
+        title="Awaiting approval"
+        events={[...p.awaitingApproval].map((addr) => ({ addr }))}
+        selected={status === 'pending'}
+      /> */}
 
       {status === 'rejected' && (
-        <State
+        <StateItem
           Icon={RejectedCircleIcon}
           title="Rejected"
           events={[...p.rejections.values()]}
@@ -48,7 +47,7 @@ export const ProposalStateCard = ({ proposal: p, style }: ProposalStateCardProps
         />
       )}
 
-      <State
+      <StateItem
         Icon={CheckCircleIcon}
         title="Approved"
         events={[...p.approvals.values()]}
@@ -56,7 +55,7 @@ export const ProposalStateCard = ({ proposal: p, style }: ProposalStateCardProps
       />
 
       {status === 'executing' && (
-        <State
+        <StateItem
           Icon={({ color }) => <ActivityIndicator color={color as string} size="small" />}
           title="Executing"
           timestamp={p.transaction?.timestamp}
@@ -64,7 +63,7 @@ export const ProposalStateCard = ({ proposal: p, style }: ProposalStateCardProps
         />
       )}
 
-      <State
+      <StateItem
         Icon={CheckmarkDoneCircleIcon}
         title="Executed"
         timestamp={p.transaction?.timestamp}
