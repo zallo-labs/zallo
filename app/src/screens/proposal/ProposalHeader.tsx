@@ -22,7 +22,7 @@ export const ProposalHeader = ({ proposal: p, style }: ProposalHeaderProps) => {
       <AddrIcon addr={p.account} size={styles.iconSize.fontSize} />
 
       <Text variant="headlineMedium" style={styles.from}>
-        {`${useAddrName(p.account)}/${p.quorum.name}`}
+        {useAddrName(p.account)}
       </Text>
 
       <ProposalMethod proposal={p}>
