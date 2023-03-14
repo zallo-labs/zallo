@@ -37,6 +37,7 @@ import {
 } from '~/screens/account/rename/RenameAccountScreen';
 import { AlertScreen, AlertScreenParams } from '~/screens/alert/AlertScreen';
 import { BottomNavigator, BottomNavigatorParams } from './BottomNavigator';
+import { PolicyScreen, PolicyScreenParams } from '~/screens/policy/PolicyScreen';
 
 export type StackNavigatorParamList = {
   BottomNavigator: BottomNavigatorParams;
@@ -44,6 +45,7 @@ export type StackNavigatorParamList = {
   Accounts: AccountsScreenParams;
   Account: AccountScreenParams;
   RenameAccount: RenameAccountScreenParams;
+  Policy: PolicyScreenParams;
   Contacts: ContactsScreenParams;
   ContactsModal: ContactsScreenParams;
   Contact: ContactScreenParams;
@@ -92,6 +94,7 @@ export const StackNavigator = () => {
       <Navigation.Screen name="Accounts" component={AccountsScreen} />
       <Navigation.Screen name="Account" component={AccountScreen} />
       <Navigation.Screen name="RenameAccount" component={RenameAccountScreen} />
+      <Navigation.Screen name="Policy" component={PolicyScreen} />
       <Navigation.Screen name="Contacts" component={ContactsScreen} />
       <Navigation.Screen name="Contact" component={ContactScreen} />
       <Navigation.Screen name="Scan" component={ScanScreen} />
