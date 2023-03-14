@@ -33,7 +33,7 @@ export const ActivityTransfers = memo(({ transfers, text: Text }: ActivityTransf
 
       {transfers.map(
         (t) =>
-          !t.amount.isZero() && (
+          t.amount !== 0n && (
             <Text key={t.token.addr}>
               <TokenAmount token={t.token} amount={t.amount} />
             </Text>
