@@ -36,14 +36,7 @@ gql`
 
 export type TxOptions = O.Optional<Tx, 'nonce'>;
 
-export interface ProposeResponse {
-  id: ProposalId;
-}
-
-export type OnPropose = (
-  proposal: ProposeResponse,
-  navigation: RootNavigation,
-) => Promise<void> | void;
+export type OnPropose = (proposal: ProposalId, navigation: RootNavigation) => Promise<void> | void;
 
 export const usePropose = () => {
   const [mutation] = useProposeMutation();
@@ -52,7 +45,7 @@ export const usePropose = () => {
   const [proposing, setProposing] = useState(false);
 
   const propose = useCallback(
-    async (tx: TxOptions, account: AccountIdlike): Promise<ProposeResponse> => {
+    async (tx: TxOptions, account: AccountIdlike): Promise<ProposalId> => {
       const r = await mutation({
         variables: {
           account: asAccountId(account),
@@ -65,7 +58,7 @@ export const usePropose = () => {
       });
 
       assert(r.data?.propose, 'Proposal failed');
-      return { id: asProposalId(r.data.propose.id) };
+      return asProposalId(r.data.propose.id);
     },
     [mutation],
   );
