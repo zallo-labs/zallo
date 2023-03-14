@@ -11,6 +11,7 @@ import { useRootNavigation } from '~/navigation/useRootNavigation';
 import { Proposal } from '@api/proposal';
 import { ProposalTypedData } from './ProposalTypedData';
 import { useTryDecodeAccountFunctionData } from './useTryDecodeAccountFunctionData';
+import { match, P } from 'ts-pattern';
 
 const WithIcon = ({ content, right }: { content: ReactNode; right: ReactNode }) => {
   const styles = useStyles();
@@ -34,21 +35,21 @@ export interface ProposalMethodProps {
 export const ProposalMethod = ({ children, proposal: p }: ProposalMethodProps) => {
   const styles = useStyles();
   const { navigate } = useRootNavigation();
-  const quorum = useTryDecodeAccountFunctionData(p.account, p.data);
+  const accountFunction = useTryDecodeAccountFunctionData(p.account, p.data);
 
   const [expanded, toggleExpanded] = useToggle(false);
 
   if (!p.data) return <View style={styles.contentContainer}>{children}</View>;
 
-  if (quorum)
-    return (
-      <WithIcon
-        content={children}
-        right={
-          <IconButton icon={ViewIcon} onPress={() => navigate('Quorum', { quorum: quorum })} />
-        }
-      />
-    );
+  if (accountFunction)
+    return match(accountFunction)
+      .with({ type: P.union('addPolicy', 'removePolicy') }, (policy) => (
+        <WithIcon
+          content={children}
+          right={<IconButton icon={ViewIcon} onPress={() => navigate('Policy', { policy })} />}
+        />
+      ))
+      .exhaustive();
 
   return (
     <>
