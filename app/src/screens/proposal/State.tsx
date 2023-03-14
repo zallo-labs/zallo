@@ -16,7 +16,7 @@ interface StateProps {
   title: string;
   timestamp?: DateTime;
   events?: {
-    addr: Address;
+    approver: Address;
     timestamp?: DateTime;
   }[];
   selected?: boolean | 'error';
@@ -46,11 +46,11 @@ export const State = ({ Icon, title, timestamp, events, selected, style }: State
 
       <Box vertical>
         {events?.map((event) => (
-          <Box key={event.addr} horizontal>
+          <Box key={event.approver} horizontal>
             <Box style={styles.iconContainer} />
 
             <Text variant="bodyMedium" style={styles.addr}>
-              <Addr addr={event.addr} />
+              <Addr addr={event.approver} />
             </Text>
 
             {event.timestamp && (

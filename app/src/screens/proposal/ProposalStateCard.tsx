@@ -22,8 +22,8 @@ export const ProposalStateCard = ({ proposal: p, style }: ProposalStateCardProps
 
   const status = match(p.state)
     .with('pending', () => {
-      if (p.isApproved) return 'approved';
-      if (p.rejected.size > 0) return 'rejected';
+      if (p.satisfiablePolicies.find((p) => p.satisfied)) return 'approved';
+      if (p.rejections.size > 0) return 'rejected';
       return 'pending';
     })
     .otherwise((status) => status);
@@ -43,7 +43,7 @@ export const ProposalStateCard = ({ proposal: p, style }: ProposalStateCardProps
         <State
           Icon={RejectedCircleIcon}
           title="Rejected"
-          events={[...p.rejected.values()]}
+          events={[...p.rejections.values()]}
           selected="error"
         />
       )}
@@ -59,7 +59,7 @@ export const ProposalStateCard = ({ proposal: p, style }: ProposalStateCardProps
         <State
           Icon={({ color }) => <ActivityIndicator color={color as string} size="small" />}
           title="Executing"
-          timestamp={p.submissions[p.submissions.length - 1]?.timestamp}
+          timestamp={p.transaction?.timestamp}
           selected
         />
       )}
@@ -67,7 +67,7 @@ export const ProposalStateCard = ({ proposal: p, style }: ProposalStateCardProps
       <State
         Icon={CheckmarkDoneCircleIcon}
         title="Executed"
-        timestamp={p.submissions[p.submissions.length - 1]?.timestamp}
+        timestamp={p.transaction?.timestamp}
         selected={status === 'executed'}
       />
     </Card>
