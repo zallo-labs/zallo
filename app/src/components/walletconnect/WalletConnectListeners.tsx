@@ -54,7 +54,7 @@ export const WalletConnectListeners = () => {
                 popToProposal(proposal, navigation, (resp) =>
                   client.respond({
                     topic: topic!,
-                    response: asWalletConnectResult(id, resp.hash),
+                    response: asWalletConnectResult(id, resp.transactionHash),
                   }),
                 );
               },

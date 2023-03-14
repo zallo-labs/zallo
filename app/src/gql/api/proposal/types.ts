@@ -14,7 +14,7 @@ export interface Proposal extends Tx {
   approvals: KeySet<Address, Approval>;
   rejections: KeySet<Address, Rejection>;
   satisfiablePolicies: SatisfiablePolicy[];
-  submissions: Submission[];
+  transaction?: TransactionSubmission;
   proposedAt: DateTime;
   proposer: Address;
   timestamp: DateTime;
@@ -41,7 +41,7 @@ export interface SatisfiablePolicy {
   requiresUserAction: boolean;
 }
 
-export interface Submission {
+export interface TransactionSubmission {
   hash: Hex;
   status: SubmissionStatus;
   timestamp: DateTime;
@@ -53,8 +53,8 @@ export interface Submission {
 export type SubmissionStatus = 'pending' | 'success' | 'failure';
 
 export interface SubmissionResponse {
+  success: boolean;
   response: Hex;
-  reverted: boolean;
   timestamp: DateTime;
 }
 
@@ -85,25 +85,25 @@ export const toProposal = (p: ProposalFieldsFragment): Proposal => {
     requiresUserAction: p.requiresUserAction,
   }));
 
-  const transactions =
-    p?.transactions?.map(
-      (s): Submission => ({
-        hash: asHex(s.hash),
-        status: !s.response ? 'pending' : s.response.success ? 'success' : 'failure',
-        timestamp: DateTime.fromISO(s.createdAt),
-        gasLimit: BigInt(s.gasLimit),
-        gasPrice: s.gasPrice ? asBigInt(s.gasPrice) : undefined,
-        response: s.response
+  const t = p.transaction;
+  const transaction: TransactionSubmission | undefined = t
+    ? {
+        hash: asHex(t.hash),
+        status: !t.response ? 'pending' : t.response.success ? 'success' : 'failure',
+        timestamp: DateTime.fromISO(t.createdAt),
+        gasLimit: BigInt(t.gasLimit),
+        gasPrice: t.gasPrice ? asBigInt(t.gasPrice) : undefined,
+        response: t.response
           ? {
-              response: asHex(s.response.response),
-              reverted: !s.response.success,
-              timestamp: DateTime.fromISO(s.response.timestamp),
+              success: t.response.success,
+              response: asHex(t.response.response),
+              timestamp: DateTime.fromISO(t.response.timestamp),
             }
           : undefined,
-      }),
-    ) ?? [];
+      }
+    : undefined;
 
-  const state = match<Submission | undefined, ProposalState>(transactions[transactions.length - 1])
+  const state = match<TransactionSubmission | undefined, ProposalState>(transaction)
     .with(undefined, () => 'pending')
     .with({ status: 'pending' }, () => 'executing')
     .with({ status: 'success' }, () => 'executed')
@@ -121,7 +121,7 @@ export const toProposal = (p: ProposalFieldsFragment): Proposal => {
     approvals,
     rejections,
     satisfiablePolicies,
-    submissions: transactions,
+    transaction,
     proposedAt: DateTime.fromISO(p.createdAt),
     proposer: asAddress(p.proposerId),
     timestamp: DateTime.fromISO(p.createdAt),

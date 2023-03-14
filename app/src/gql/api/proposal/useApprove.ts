@@ -1,19 +1,27 @@
 import { gql } from '@apollo/client';
-import { signTx } from 'lib';
+import { asHex, signTx } from 'lib';
 import { DateTime } from 'luxon';
 import { useCallback } from 'react';
 import { Proposal } from './types';
-import { ApprovalFieldsFragmentDoc, useApproveMutation } from '@api/generated';
+import {
+  ApprovalFieldsFragmentDoc,
+  TransactionFieldsFragmentDoc,
+  useApproveMutation,
+} from '@api/generated';
 import { useApprover } from '@network/useApprover';
 
 gql`
   ${ApprovalFieldsFragmentDoc}
+  ${TransactionFieldsFragmentDoc}
 
   mutation Approve($id: Bytes32!, $signature: Bytes!) {
     approve(id: $id, signature: $signature) {
       id
       approvals {
         ...ApprovalFields
+      }
+      transaction {
+        ...TransactionFields
       }
     }
   }
@@ -27,7 +35,7 @@ export const useApprove = () => {
     async (p: Proposal) => {
       const signature = await signTx(approver, p.account, p);
 
-      return mutate({
+      const r = await mutate({
         variables: {
           id: p.id,
           signature,
@@ -50,9 +58,30 @@ export const useApprove = () => {
                 createdAt: DateTime.now().toISO(),
               },
             ],
+            transaction: p.transaction
+              ? {
+                  __typename: 'Transaction',
+                  id: p.transaction.hash,
+                  hash: p.transaction.hash,
+                  gasLimit: p.transaction.gasLimit.toString(),
+                  gasPrice: p.transaction.gasPrice?.toString(),
+                  createdAt: p.transaction.timestamp.toISO(),
+                  response: p.transaction.response
+                    ? {
+                        __typename: 'TransactionResponse',
+                        success: p.transaction.response.success,
+                        response: p.transaction.response.response,
+                        timestamp: p.transaction.response.timestamp.toISO(),
+                      }
+                    : undefined,
+                }
+              : undefined,
           },
         },
       });
+
+      const h = r.data?.approve.transaction?.hash;
+      return { transactionHash: h ? asHex(h) : undefined };
     },
     [approver, mutate],
   );

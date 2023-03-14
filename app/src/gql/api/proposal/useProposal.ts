@@ -53,7 +53,7 @@ gql`
       satisfied
       requiresUserAction
     }
-    transactions {
+    transaction {
       ...TransactionFields
     }
   }
