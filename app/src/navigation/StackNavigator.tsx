@@ -29,34 +29,13 @@ import {
   NameDeviceScreen,
   NameDeviceScreenParams,
 } from '~/screens/create-account/NameDeviceScreen';
-import { QuorumScreen, QuorumScreenParams } from '~/screens/quorum/QuorumScreen';
 import { AccountsScreen, AccountsScreenParams } from '~/screens/accounts/AccountsScreen';
-import {
-  CreateQuorumScreen,
-  CreateQuorumScreenParams,
-} from '~/screens/create-quorum/CreateQuorumScreen';
 import { SettingsScreen } from '~/screens/settings/SettingsScreen';
-import {
-  AccountQuorumsScreen,
-  AccountQuorumsScreenParams,
-} from '~/screens/account/quorums/AccountQuorumsScreen';
 import {
   RenameAccountScreen,
   RenameAccountScreenParams,
 } from '~/screens/account/rename/RenameAccountScreen';
-import {
-  RenameQuorumScreen,
-  RenameQuorumScreenParams,
-} from '~/screens/quorum/rename/RenameQuorumScreen';
 import { AlertScreen, AlertScreenParams } from '~/screens/alert/AlertScreen';
-import {
-  QuorumSpendingScreen,
-  QuorumSpendingScreenParams,
-} from '~/screens/quorum/spending/QuorumSpendingScreen';
-import {
-  TokenLimitScreen,
-  TokenLimitScreenParams,
-} from '~/screens/quorum/spending/limit/TokenLimitScreen';
 import { BottomNavigator, BottomNavigatorParams } from './BottomNavigator';
 
 export type StackNavigatorParamList = {
@@ -65,13 +44,6 @@ export type StackNavigatorParamList = {
   Accounts: AccountsScreenParams;
   Account: AccountScreenParams;
   RenameAccount: RenameAccountScreenParams;
-  AccountQuorums: AccountQuorumsScreenParams;
-  AccountQuorumsModal: AccountQuorumsScreenParams;
-  Quorum: QuorumScreenParams;
-  RenameQuorum: RenameQuorumScreenParams;
-  CreateQuorum: CreateQuorumScreenParams;
-  QuorumSpending: QuorumSpendingScreenParams;
-  TokenLimit: TokenLimitScreenParams;
   Contacts: ContactsScreenParams;
   ContactsModal: ContactsScreenParams;
   Contact: ContactScreenParams;
@@ -120,12 +92,6 @@ export const StackNavigator = () => {
       <Navigation.Screen name="Accounts" component={AccountsScreen} />
       <Navigation.Screen name="Account" component={AccountScreen} />
       <Navigation.Screen name="RenameAccount" component={RenameAccountScreen} />
-      <Navigation.Screen name="AccountQuorums" component={AccountQuorumsScreen} />
-      <Navigation.Screen name="Quorum" component={QuorumScreen} />
-      <Navigation.Screen name="RenameQuorum" component={RenameQuorumScreen} />
-      <Navigation.Screen name="CreateQuorum" component={CreateQuorumScreen} />
-      <Navigation.Screen name="QuorumSpending" component={QuorumSpendingScreen} />
-      <Navigation.Screen name="TokenLimit" component={TokenLimitScreen} />
       <Navigation.Screen name="Contacts" component={ContactsScreen} />
       <Navigation.Screen name="Contact" component={ContactScreen} />
       <Navigation.Screen name="Scan" component={ScanScreen} />
@@ -148,7 +114,6 @@ export const StackNavigator = () => {
           ...TransitionPresets.ModalPresentationIOS,
         }}
       >
-        <Navigation.Screen name="AccountQuorumsModal" component={AccountQuorumsScreen} />
         <Navigation.Screen name="TokensModal" component={TokensScreen} />
         <Navigation.Screen name="ContactsModal" component={ContactsScreen} />
       </Navigation.Group>

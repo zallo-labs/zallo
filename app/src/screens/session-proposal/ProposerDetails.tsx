@@ -1,17 +1,17 @@
 import { Text } from 'react-native-paper';
 import * as WebBrowser from 'expo-web-browser';
 import { Image } from '~/components/Image';
-import { WcProposer } from '~/util/walletconnect/useWalletConnectSessions';
 import { Box } from '~/components/layout/Box';
 import { LabelIcon } from '~/components/Identicon/LabelIcon';
 import { Container } from '~/components/layout/Container';
 import { StyleProp, StyleSheet, TouchableOpacity, ViewStyle } from 'react-native';
 import { useTheme } from '@theme/paper';
+import { WalletConnectPeer } from '~/util/walletconnect/types';
 
 export const UNNAMED_DAPP_NAME = 'Unnamed DApp';
 
 export interface ProposerDetailsProps {
-  proposer: WcProposer;
+  proposer: WalletConnectPeer;
   style?: StyleProp<ViewStyle>;
 }
 

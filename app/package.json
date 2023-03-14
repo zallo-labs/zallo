@@ -116,6 +116,7 @@
     "use-async-effect": "^2.2.7",
     "use-debounce": "^9.0.3",
     "use-immer": "^0.8.1",
+    "valtio": "^1.10.3",
     "yup": "^0.32.11",
     "zksync-web3": "^0.13.4"
   },

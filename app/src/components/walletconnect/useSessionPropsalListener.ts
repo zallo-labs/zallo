@@ -8,7 +8,7 @@ import { WC_METHODS } from '~/util/walletconnect/methods';
 import { WC_NAMESPACE } from '~/util/walletconnect/namespaces';
 import { WalletConnectEventArgs } from '~/util/walletconnect/types';
 
-export const useHandleSessionProposal = () => {
+export const useSessionPropsalListener = () => {
   const { navigate } = useRootNavigation();
 
   return useCallback(
@@ -61,7 +61,7 @@ export const useHandleSessionProposal = () => {
 
       navigate('SessionProposal', {
         id: proposal.id,
-        proposer: proposal.params.proposer.metadata,
+        peer: proposal.params.proposer.metadata,
       });
     },
     [navigate],

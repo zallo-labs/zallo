@@ -8,8 +8,8 @@ import { useAccount } from '@api/account';
 
 export interface SessionAccountItemProps extends Omit<ItemProps, 'selected'> {
   account: Address;
-  selected?: QuorumKey;
-  onSelect: (quorumKey: QuorumKey | undefined) => void;
+  selected?: boolean;
+  onSelect: () => void;
 }
 
 const SessionAccountItem = ({
@@ -19,22 +19,15 @@ const SessionAccountItem = ({
   ...itemProps
 }: SessionAccountItemProps) => {
   const account = useAccount(accountAddr);
-  const selectQuorum = useSelectQuorum(accountAddr);
-  const selectedQuorum = useQuorum(selected ? { account: accountAddr, key: selected } : undefined);
 
   return (
     <Item
       Left={<AddrIcon addr={accountAddr} />}
-      Main={[
-        <Text variant="titleLarge">{account.name}</Text>,
-        selectedQuorum && <Text variant="bodyMedium">{selectedQuorum.name}</Text>,
-      ]}
-      selected={!!selectedQuorum}
-      Right={
-        <Checkbox status={selected ? 'checked' : 'unchecked'} onPress={() => onSelect(undefined)} />
-      }
+      Main={[<Text variant="titleLarge">{account.name}</Text>]}
+      selected={selected}
+      Right={<Checkbox status={selected ? 'checked' : 'unchecked'} onPress={() => onSelect()} />}
       padding="vertical"
-      onPress={async () => onSelect((await selectQuorum()).key)}
+      onPress={async () => onSelect()}
       {...itemProps}
     />
   );
