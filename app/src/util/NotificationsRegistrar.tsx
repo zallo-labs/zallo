@@ -61,12 +61,10 @@ export const NotificationsRegistrar = () => {
 
   useEffect(() => {
     tryRegister();
-
-    // Push token added or changed
-    const sub = Notifications.addPushTokenListener(tryRegister);
+    const onChangeSub = Notifications.addPushTokenListener(tryRegister);
 
     return () => {
-      sub.remove();
+      onChangeSub.remove();
     };
   }, [tryRegister]);
 
