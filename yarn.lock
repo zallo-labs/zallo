@@ -14491,7 +14491,7 @@ __metadata:
     eslint-plugin-valtio: ^0.6.2
     eth-url-parser: ^1.0.4
     ethers: ^5.7.2
-    expo: ^48.0.0
+    expo: ^48.0.7
     expo-application: ~5.1.1
     expo-asset: ~8.9.1
     expo-barcode-scanner: ~12.3.2
@@ -22083,13 +22083,13 @@ __metadata:
   languageName: node
   linkType: hard
 
-"expo-modules-core@npm:1.2.4":
-  version: 1.2.4
-  resolution: "expo-modules-core@npm:1.2.4"
+"expo-modules-core@npm:1.2.5":
+  version: 1.2.5
+  resolution: "expo-modules-core@npm:1.2.5"
   dependencies:
     compare-versions: ^3.4.0
     invariant: ^2.2.4
-  checksum: 67c24e761bd1c5adc980f89fb25e7e49ab78ce00af39d39525aa46616f79d48751346ca3b696575c32900f697325892ae6e94140215438e412a8bcd6d957ff93
+  checksum: 11c6a280a337a4a2fe13c61f0e56b7e74ceda25ff51ae4fab95539a3aa6bf7c8c5d49457e006fc0bdd83bdd9738147a6bef2abdd752afe753078fec189593ee2
   languageName: node
   linkType: hard
 
@@ -22235,9 +22235,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"expo@npm:^48.0.0":
-  version: 48.0.6
-  resolution: "expo@npm:48.0.6"
+"expo@npm:^48.0.7":
+  version: 48.0.7
+  resolution: "expo@npm:48.0.7"
   dependencies:
     "@babel/runtime": ^7.20.0
     "@expo/cli": 0.6.2
@@ -22253,7 +22253,7 @@ __metadata:
     expo-font: ~11.1.1
     expo-keep-awake: ~12.0.1
     expo-modules-autolinking: 1.1.2
-    expo-modules-core: 1.2.4
+    expo-modules-core: 1.2.5
     fbemitter: ^3.0.0
     getenv: ^1.0.0
     invariant: ^2.2.4
@@ -22263,7 +22263,7 @@ __metadata:
     uuid: ^3.4.0
   bin:
     expo: bin/cli.js
-  checksum: 4053d77d507c046bdb9d0e15d0ab2239502f6436684de0d47a0f6ea1dbbc8c277c85a9ac1c535da6d0cec248f7990dd8a2f4f6e704bf774c97ce94b76ccae1e8
+  checksum: 50a8d4ca5b9f8cde0d2e1a77a845c7759cc47c181077ddcc5618f9fb971dfb15f151a2b6a47ba7e73061f87f60514434a3eb25da8dfaf88e7d6347b675bd24f2
   languageName: node
   linkType: hard
 
