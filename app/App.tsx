@@ -4,7 +4,7 @@ import '~/util/immer';
 
 import { Suspense } from 'react';
 import { StyleSheet } from 'react-native';
-import { RecoilRoot } from 'recoil';
+import { RecoilEnv, RecoilRoot } from 'recoil';
 import { Background } from '~/components/layout/Background';
 import { LocalizatonProvider } from '~/provider/LocalizationProvider';
 import { GqlProvider } from '~/gql/GqlProvider';
@@ -23,12 +23,15 @@ import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { DrawerNavigator } from '~/navigation/Drawer/DrawerNavigator';
 import { WalletConnectListeners } from '~/components/walletconnect/WalletConnectListeners';
 
+// Disable Recoil atom key checking due to hotreloading issues
+RecoilEnv.RECOIL_DUPLICATE_ATOM_KEY_CHECKING_ENABLED = false;
+
 export default withSentry(() => (
   <LocalizatonProvider>
     <SafeAreaProvider>
       <ThemeProvider>
         <Background>
-          <StatusBar style="light" backgroundColor="transparent" />
+          <StatusBar backgroundColor="transparent" />
           <GestureHandlerRootView style={styles.flexed}>
             <ErrorBoundary>
               <Suspense fallback={<Splash />}>
