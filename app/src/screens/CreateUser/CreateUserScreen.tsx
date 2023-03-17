@@ -1,5 +1,5 @@
 import { View } from 'react-native';
-import { Appbar, Button, Text } from 'react-native-paper';
+import { Button } from 'react-native-paper';
 import { StackNavigatorScreenProps } from '~/navigation/StackNavigator2';
 import { Actions } from '~/components/layout/Actions';
 import { StyleSheet } from 'react-native';
@@ -15,7 +15,7 @@ export type CreateUserScreenProps = StackNavigatorScreenProps<'CreateUser'>;
 export const CreateUserScreen = ({ navigation: { navigate } }: CreateUserScreenProps) => {
   const updateUser = useUpdateUser();
 
-  const [name, setName] = useState(useUser().name);
+  const [name, setName] = useState(useUser().name ?? '');
 
   return (
     <Screen>
@@ -35,7 +35,14 @@ export const CreateUserScreen = ({ navigation: { navigate } }: CreateUserScreenP
       </View>
 
       <Actions>
-        <Button mode="contained" style={styles.button}>
+        <Button
+          mode="contained"
+          style={styles.button}
+          onPress={() => {
+            updateUser({ name });
+            navigate('CreateAccount');
+          }}
+        >
           Create user
         </Button>
       </Actions>

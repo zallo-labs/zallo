@@ -4,6 +4,7 @@ import {
   StackScreenProps,
   TransitionPresets,
 } from '@react-navigation/stack';
+import { CreateAccountScreen } from '~/screens/CreateAccount/CreateAccountScreen';
 import { CreateUserScreen } from '~/screens/CreateUser/CreateUserScreen';
 import { OnboardScreen } from '~/screens/Onboard/OnboardScreen';
 import { useShowOnboarding } from '~/screens/Onboard/useShowOnboarding';
@@ -11,6 +12,7 @@ import { useShowOnboarding } from '~/screens/Onboard/useShowOnboarding';
 export type StackNavigatorParamList = {
   Onboard: undefined;
   CreateUser: undefined;
+  CreateAccount: undefined;
 };
 
 export type StackNavigatorNavigationProp = StackNavigationProp<StackNavigatorParamList>;
@@ -33,6 +35,8 @@ export const StackNavigator = () => {
           <Navigation.Screen name="CreateUser" component={CreateUserScreen} />
         </Navigation.Group>
       )}
+
+      <Navigation.Screen name="CreateAccount" component={CreateAccountScreen} />
     </Navigation.Navigator>
   );
 };
