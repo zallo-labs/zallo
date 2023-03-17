@@ -1,7 +1,7 @@
 import { defaultAbiCoder } from 'ethers/lib/utils';
 import { Arraylike, toSet } from '../util/maybe';
 import { asUint8 } from '../bigint';
-import { RuleSelector } from './uitl';
+import { RuleSelector } from './RuleSelector';
 import { TransactionRule, RuleStruct, TransactionRuleIsSatisfiedOptions } from './rule';
 import { tryOrIgnore } from '../util/try';
 import { Address } from '../addr';

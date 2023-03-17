@@ -5,7 +5,7 @@ import { SignatureRule, RuleStruct, SignatureRuleIsSatisfiedOptions } from './ru
 import { Arraylike, toSet } from '../util/maybe';
 import { asUint8 } from '../bigint';
 import { tryOrIgnore } from '../util/try';
-import { RuleSelector } from './uitl';
+import { RuleSelector } from './RuleSelector';
 import { ethers, providers } from 'ethers';
 import { mapAsync } from '../util/arrays';
 
