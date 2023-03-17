@@ -8,7 +8,7 @@ import { AppbarLarge } from '~/components/Appbar/AppbarLarge';
 import { TextField } from '~/components/fields/TextField';
 import { useUpdateUser, useUser } from '@api/user';
 import { useState } from 'react';
-import { RequireBiometricsItem } from '~/components2/items/RequireBiometricsItem';
+import { RequireBiometricsItem } from '~/components/items/RequireBiometricsItem';
 
 export type CreateUserScreenProps = StackNavigatorScreenProps<'CreateUser'>;
 

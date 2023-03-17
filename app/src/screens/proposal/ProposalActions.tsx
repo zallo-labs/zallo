@@ -19,28 +19,25 @@ export const ProposalActions = ({ proposal: p, onExecute }: ProposalActionsProps
   const reject = useReject();
 
   return (
-    <Actions
-      primary={
-        !p.approvals.has(user.id) && (
-          <Button
-            mode="contained"
-            onPress={async () => {
-              const { transactionHash } = await approve(p);
-              if (transactionHash) onExecute?.({ transactionHash });
-            }}
-          >
-            Approve
-          </Button>
-        )
-      }
-      secondary={
-        !p.rejections.has(user.id) && (
-          <Button mode="text" labelStyle={styles.rejectButtonLabel} onPress={() => reject(p)}>
-            Reject
-          </Button>
-        )
-      }
-    />
+    <Actions horizontal>
+      {!p.rejections.has(user.id) && (
+        <Button mode="text" labelStyle={styles.rejectButtonLabel} onPress={() => reject(p)}>
+          Reject
+        </Button>
+      )}
+
+      {!p.approvals.has(user.id) && (
+        <Button
+          mode="contained"
+          onPress={async () => {
+            const { transactionHash } = await approve(p);
+            if (transactionHash) onExecute?.({ transactionHash });
+          }}
+        >
+          Approve
+        </Button>
+      )}
+    </Actions>
   );
 };
 

@@ -164,14 +164,12 @@ export const SignScreen = ({ navigation, route }: SignScreenProps) => {
         <Eip712TypedData data={data} />
       </Box>
 
-      <Actions
-        primary={
-          <Button mode="contained" onPress={sign}>
-            Sign
-          </Button>
-        }
-        secondary={<Button onPress={() => reject('USER_REJECTED')}>Reject</Button>}
-      />
+      <Actions horizontal>
+        <Button onPress={() => reject('USER_REJECTED')}>Reject</Button>
+        <Button mode="contained" onPress={sign}>
+          Sign
+        </Button>
+      </Actions>
     </Box>
   );
 };
