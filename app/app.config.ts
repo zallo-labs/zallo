@@ -66,7 +66,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
   splash: {
     image: './assets/splash.png',
     resizeMode: 'contain',
-    backgroundColor: '#E8DEF8',
+    backgroundColor: '#FFFBFE',
   },
   assetBundlePatterns: ['**/*'],
   scheme: 'zallo',
