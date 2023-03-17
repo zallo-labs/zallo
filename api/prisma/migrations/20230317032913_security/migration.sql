@@ -38,7 +38,7 @@ $$ LANGUAGE SQL;
 GRANT EXECUTE ON FUNCTION user_accounts TO "user";
 
 CREATE FUNCTION is_user_account(accountId text) RETURNS boolean AS $$
-    SELECT accountId = ANY(user_accounts());
+    SELECT accountId = ANY(user_accounts()) OR accountId IS NULL;
 $$ LANGUAGE SQL;
 GRANT EXECUTE ON FUNCTION is_user_account(text) TO "user";
 
