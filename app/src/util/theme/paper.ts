@@ -1,11 +1,11 @@
-import { MD3DarkTheme as PaperDarkTheme, useTheme as baseUseTheme } from 'react-native-paper';
+import { MD3LightTheme as PaperLightTheme, useTheme as baseUseTheme } from 'react-native-paper';
 import { space, typoSpace, space2, font } from './styledComponents';
 import color from 'color';
 
 const c = (c: string, f: (color: color<string>) => color<string>) => f(color(c)).rgb().string();
 
-const overrided: typeof PaperDarkTheme = {
-  ...PaperDarkTheme,
+const overrided: typeof PaperLightTheme = {
+  ...PaperLightTheme,
 };
 
 const opacityModifier = {
@@ -40,9 +40,16 @@ export const PAPER_THEME = {
       c.alpha(opacity.disabled),
     ),
 
-    success: '#48C12A', // Green
-    info: '#559EFC', // Blue
-    warning: '#FFAF30', // Orange
+    // Green
+    green: '#4b6708',
+    onGreen: '#ffffff',
+    greenContainer: '#cdef85',
+    onGreenContainer: '#131f00',
+    // Orange
+    orange: '#914c00',
+    onOrange: '#ffffff',
+    orangeContainer: '#ffdcc1',
+    onOrangeContainer: '#2f1500',
   },
   color: c,
   opacity,

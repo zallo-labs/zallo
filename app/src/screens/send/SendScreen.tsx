@@ -88,7 +88,7 @@ export const SendScreen = ({ route, navigation }: SendScreenProps) => {
 
 const useStyles = makeStyles(({ colors }) => ({
   warning: {
-    color: colors.warning,
+    color: colors.orange,
     textAlign: 'center',
   },
 }));
