@@ -20,7 +20,7 @@ import { withSentry } from '~/util/sentry/sentry';
 import { NavigationProvider } from '~/navigation/NavigationProvider';
 import { NotificationsRegistrar } from '~/util/NotificationsRegistrar';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
-import { DrawerNavigator } from '~/navigation/Drawer/DrawerNavigator';
+import { StackNavigator } from '~/navigation/StackNavigator2';
 import { WalletConnectListeners } from '~/components/walletconnect/WalletConnectListeners';
 
 // Disable Recoil atom key checking due to hotreloading issues
@@ -41,9 +41,9 @@ export default withSentry(() => (
                     <GqlProvider>
                       <NotificationsRegistrar />
                       <NavigationProvider>
-                        <WalletConnectListeners />
+                        {/* <WalletConnectListeners /> */}
                         <Suspense fallback={<Splash />}>
-                          <DrawerNavigator />
+                          <StackNavigator />
                         </Suspense>
                       </NavigationProvider>
                     </GqlProvider>

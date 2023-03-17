@@ -9,7 +9,7 @@ export type Space = 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8;
 
 const mutableSpace = spaceDef as unknown as number[];
 export const STYLED_COMPONENTS_THEME: StyledComponentsTheme = {
-  space: mutableSpace,
+  space: [],
   radii: mutableSpace,
 };
 

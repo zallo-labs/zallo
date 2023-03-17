@@ -5,24 +5,25 @@ import useAsyncEffect from 'use-async-effect';
 import { Suspend } from '~/components/Suspender';
 import { DateTime, Duration } from 'luxon';
 import { tryOrAsync } from 'lib';
-import { atom, useRecoilValue } from 'recoil';
+import { atom, selector, useRecoilValue } from 'recoil';
 import { persistAtom } from '~/util/effect/persistAtom';
 
-const authSettingsAtom = atom({
+export const authSettingsAtom = atom({
   key: 'AuthSetings',
   default: {
-    requireBiometrics: false,
+    requireBiometrics: true,
   },
   effects: [persistAtom()],
 });
 
+const supportsBiometricsSelector = selector({
+  key: 'SupportsBiometrics',
+  get: async () => (await Auth.getEnrolledLevelAsync()) === Auth.SecurityLevel.BIOMETRIC,
+});
+export const useSupportsBiometrics = () => useRecoilValue(supportsBiometricsSelector);
+
 const tryAuthenticate = async () =>
-  tryOrAsync(
-    async () =>
-      (await Auth.getEnrolledLevelAsync()) !== Auth.SecurityLevel.BIOMETRIC ||
-      (await Auth.authenticateAsync()).success,
-    false,
-  );
+  tryOrAsync(async () => (await Auth.authenticateAsync()).success, false);
 
 const TIMEOUT_AFTER = Duration.fromObject({ minutes: 5 }).toMillis();
 const isStillActive = (lastActive?: DateTime) =>
@@ -39,8 +40,11 @@ export interface AuthGateProps {
 
 export const AuthGate = ({ children }: AuthGateProps) => {
   const { requireBiometrics } = useRecoilValue(authSettingsAtom);
+  const supportsBiometircs = useSupportsBiometrics();
 
-  const [auth, setAuth] = useState<AuthState>({ success: !requireBiometrics }); // Use an object to re-render every time setAuth is called; TODO: test if this is still necessary
+  const [auth, setAuth] = useState<AuthState>({
+    success: !requireBiometrics || !supportsBiometircs,
+  }); // Use an object to re-render every time setAuth is called; TODO: test if this is still necessary
 
   // Try authenticate
   useAsyncEffect(

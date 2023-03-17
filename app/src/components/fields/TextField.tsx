@@ -7,6 +7,7 @@ import { Box } from '~/components/layout/Box';
 type TextInputProps = ComponentPropsWithoutRef<typeof TextInput>;
 
 export type TextFieldProps = Omit<TextInputProps, 'error' | 'style'> & {
+  supporting?: string;
   error?: string | false | ((value: TextInputProps['value']) => string | false);
   wrap?: boolean;
   containerStyle?: StyleProp<ViewStyle>;
@@ -14,6 +15,7 @@ export type TextFieldProps = Omit<TextInputProps, 'error' | 'style'> & {
 };
 
 export const TextField = ({
+  supporting,
   error: errorProp,
   wrap,
   containerStyle,
@@ -39,8 +41,8 @@ export const TextField = ({
         {...props}
       />
 
-      <Collapsible collapsed={!error}>
-        <HelperText type="error">{error}</HelperText>
+      <Collapsible collapsed={!(error || supporting)}>
+        <HelperText type={error ? 'error' : 'info'}>{error || supporting}</HelperText>
       </Collapsible>
     </Box>
   );

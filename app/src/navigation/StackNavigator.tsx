@@ -12,7 +12,7 @@ import {
   CreateAccountScreen,
   CreateAccountScreenParams,
 } from '~/screens/create-account/CreateAccountScreen';
-import { useShowOnboarding } from '~/screens/onboard/useShowOnboarding';
+import { useShowOnboarding } from '~/screens/Onboard/useShowOnboarding';
 import { ContactScreen, ContactScreenParams } from '~/screens/contacts/ContactScreen';
 import { AccountScreen, AccountScreenParams } from '~/screens/account/AccountScreen';
 import { SendScreen, SendScreenParams } from '~/screens/send/SendScreen';
@@ -24,7 +24,7 @@ import { SignScreen, SignScreenParams } from '~/screens/sign/SignScreen';
 import { SessionsScreen } from '~/screens/sessions/SessionsScreen';
 import ProposalScreen, { ProposalScreenParams } from '~/screens/proposal/ProposalScreen';
 import { DeviceScreen } from '~/screens/device/DeviceScreen';
-import { OnboardScreen } from '~/screens/onboard/OnboardScreen';
+import { OnboardScreen } from '~/screens/Onboard/OnboardScreen';
 import {
   NameDeviceScreen,
   NameDeviceScreenParams,
@@ -40,6 +40,8 @@ import { BottomNavigator, BottomNavigatorParams } from './BottomNavigator';
 import { PolicyScreen, PolicyScreenParams } from '~/screens/policy/PolicyScreen';
 
 export type StackNavigatorParamList = {
+  Onboard: undefined;
+
   BottomNavigator: BottomNavigatorParams;
   Proposal: ProposalScreenParams;
   Accounts: AccountsScreenParams;
@@ -55,7 +57,6 @@ export type StackNavigatorParamList = {
   Amount: AmountScreenParams;
   Send: SendScreenParams;
   Device: undefined;
-  Onboard: undefined;
   CreateAccount: CreateAccountScreenParams;
   NameDevice: NameDeviceScreenParams;
   Settings: undefined;
@@ -84,12 +85,16 @@ const Navigation = createStackNavigator<StackNavigatorParamList>();
 
 export const StackNavigator = () => {
   const showOnboarding = useShowOnboarding();
+
   return (
     <Navigation.Navigator screenOptions={{ headerShown: false }}>
-      {showOnboarding && <Navigation.Screen name="Onboard" component={OnboardScreen} />}
+      {showOnboarding && (
+        <Navigation.Group>
+          <Navigation.Screen name="Onboard" component={OnboardScreen} />
+        </Navigation.Group>
+      )}
 
       <Navigation.Screen name="BottomNavigator" component={BottomNavigator} />
-
       <Navigation.Screen name="Proposal" component={ProposalScreen} />
       <Navigation.Screen name="Accounts" component={AccountsScreen} />
       <Navigation.Screen name="Account" component={AccountScreen} />
