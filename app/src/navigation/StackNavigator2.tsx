@@ -10,6 +10,7 @@ import { HomeScreen, HomeScreenParams } from '~/screens/Home/HomeScreen';
 import { OnboardScreen } from '~/screens/Onboard/OnboardScreen';
 import { useShowOnboarding } from '~/screens/Onboard/useShowOnboarding';
 import { ScanScreen, ScanScreenParams } from '~/screens/Scan/ScanScreen';
+import { SettingsScreen, SettingsScreenParams } from '~/screens/Settings/SettingsScreen';
 
 export type StackNavigatorParamList = {
   // Onboarding
@@ -18,6 +19,7 @@ export type StackNavigatorParamList = {
   // Home
   Home: HomeScreenParams;
   Scan: ScanScreenParams;
+  Settings: SettingsScreenParams;
   // Account
   CreateAccount: undefined;
 };
@@ -45,6 +47,8 @@ export const StackNavigator = () => {
 
       <Navigation.Screen name="Home" component={HomeScreen} />
       <Navigation.Screen name="Scan" component={ScanScreen} />
+
+      <Navigation.Screen name="Settings" component={SettingsScreen} />
 
       <Navigation.Screen name="CreateAccount" component={CreateAccountScreen} />
     </Navigation.Navigator>
