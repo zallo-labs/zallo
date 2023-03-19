@@ -4,6 +4,11 @@ import { StackNavigationProp } from '@react-navigation/stack';
 import { BottomNavigatorNavigatonProp, BottomNavigatorParamList } from './BottomNavigator';
 import { DrawerNavigationNavigateProp, DrawerNavigatorParamList } from './Drawer/DrawerNavigator';
 import { StackNavigatorNavigationProp, StackNavigatorParamList } from './StackNavigator';
+import { StackNavigatorParamList as StackNavigatorParamList2 } from './StackNavigator2';
+
+export type RootParamList2 = StackNavigatorParamList2;
+export type RootNavigation2 = StackNavigationProp<RootParamList2>;
+export type Navigate2 = RootNavigation2['navigate'];
 
 /*
  * Navigation:
