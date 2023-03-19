@@ -34,7 +34,7 @@ export const CreateUserScreen = ({ navigation: { navigate } }: CreateUserScreenP
   });
 
   return (
-    <Screen>
+    <Screen safeArea="withoutTop">
       <AppbarLarge leading="back" headline="User" />
 
       <View style={styles.fields}>
