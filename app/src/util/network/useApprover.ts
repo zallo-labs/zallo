@@ -3,7 +3,7 @@ import { atom, useRecoilValue } from 'recoil';
 import { getSecureStore, persistAtom } from '~/util/effect/persistAtom';
 import { Approver } from 'lib';
 
-export const APPROVER = atom<Approver>({
+export const approverAtom = atom<Approver>({
   key: 'approver',
   default: Approver.createRandom().connect(PROVIDER),
   effects: [
@@ -16,4 +16,4 @@ export const APPROVER = atom<Approver>({
   dangerouslyAllowMutability: true, // Required due to provider internal mutations
 });
 
-export const useApprover = () => useRecoilValue(APPROVER);
+export const useApprover = () => useRecoilValue(approverAtom);

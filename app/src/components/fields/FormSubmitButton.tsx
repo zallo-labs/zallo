@@ -10,11 +10,7 @@ export const FormSubmitButton = <TFieldValues extends FieldValues = FieldValues>
   disabled,
   ...props
 }: FormSubmitButtonProps<TFieldValues>) => {
-  const { isValid, isSubmitting, isDirty, isSubmitSuccessful, isSubmitted } = useFormState({
-    control,
-  });
-
-  console.log({ isValid, isSubmitting, isDirty, isSubmitSuccessful, isSubmitted });
+  const { isValid, isSubmitting, isSubmitted } = useFormState({ control });
 
   return <Button {...props} disabled={disabled || (isSubmitted && !isValid) || isSubmitting} />;
 };

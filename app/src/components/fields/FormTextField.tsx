@@ -21,7 +21,7 @@ export const FormTextField = <
 }: FormTextFieldProps<TFieldValues, TName>) => {
   const {
     field: { value, onChange, onBlur },
-    fieldState: { error, isDirty, isTouched },
+    fieldState: { error },
   } = useController({ name, rules, shouldUnregister, defaultValue, control });
 
   return (
