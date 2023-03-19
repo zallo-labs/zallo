@@ -10,7 +10,7 @@ import { useState } from 'react';
 import { RequireBiometricsItem } from '~/components/items/RequireBiometricsItem';
 import { useSetRecoilState } from 'recoil';
 import { approverAtom } from '@network/useApprover';
-import { Approver } from 'lib';
+import { Approver, tryOr } from 'lib';
 import { useForm } from 'react-hook-form';
 import { FormTextField } from '~/components/fields/FormTextField';
 import { FormSubmitButton } from '~/components/fields/FormSubmitButton';
@@ -62,8 +62,12 @@ export const CreateUserScreen = ({ navigation: { navigate } }: CreateUserScreenP
             rules={{
               pattern: {
                 value: /(?:\b\s*\w+){12,24}/,
-                message: 'Must be 12–24 words (BIP-39)',
+                message: 'Must be 12–24 words',
               },
+              validate: (value) =>
+                !value || tryOr(() => Approver.fromMnemonic(value), false)
+                  ? true
+                  : 'Must be a valid BIP-39 phrase',
             }}
           />
         )}
