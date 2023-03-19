@@ -6,12 +6,17 @@ import {
 } from '@react-navigation/stack';
 import { CreateAccountScreen } from '~/screens/CreateAccount/CreateAccountScreen';
 import { CreateUserScreen } from '~/screens/CreateUser/CreateUserScreen';
+import { HomeScreen, HomeScreenParams } from '~/screens/Home/HomeScreen';
 import { OnboardScreen } from '~/screens/Onboard/OnboardScreen';
 import { useShowOnboarding } from '~/screens/Onboard/useShowOnboarding';
 
 export type StackNavigatorParamList = {
+  // Onboarding
   Onboard: undefined;
   CreateUser: undefined;
+  // Home
+  Home: HomeScreenParams;
+  // Account
   CreateAccount: undefined;
 };
 
@@ -35,6 +40,8 @@ export const StackNavigator = () => {
           <Navigation.Screen name="CreateUser" component={CreateUserScreen} />
         </Navigation.Group>
       )}
+
+      <Navigation.Screen name="Home" component={HomeScreen} />
 
       <Navigation.Screen name="CreateAccount" component={CreateAccountScreen} />
     </Navigation.Navigator>
