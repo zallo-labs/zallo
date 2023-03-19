@@ -2,7 +2,7 @@ import { FlatList } from 'react-native';
 import { Token } from '@token/token';
 import { useSearch } from '@hook/useSearch';
 import { Address } from 'lib';
-import { useTokens } from '@token/useTokens';
+import { useTokens } from '@token/useToken';
 import { makeStyles } from '@theme/makeStyles';
 import { StackNavigatorScreenProps } from '~/navigation/StackNavigator';
 import { Searchbar } from '~/components/fields/Searchbar';

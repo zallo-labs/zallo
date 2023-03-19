@@ -10,8 +10,8 @@ import { Address } from 'lib';
 import { refreshAtom } from '~/util/effect/refreshAtom';
 import { UNISWAP_CLIENT } from './client';
 import { fiatAsBigInt } from '@token/fiat';
-import { TOKEN } from '@token/useToken';
-import assert from 'assert';
+import { tokenAtom } from '@token/useToken';
+import { persistAtom } from '~/util/effect/persistAtom';
 
 gql`
   fragment TokenHourFields on TokenHourData {
@@ -46,45 +46,43 @@ export interface TokenPrice {
   change: number;
 }
 
-const fetch = async (tokenMainnetAddr?: Address): Promise<TokenPrice> => {
-  assert(tokenMainnetAddr, "Fetching price for token that doesn't have a mainnet address");
-  const client = await UNISWAP_CLIENT;
-
-  const { data } = await client.query<TokenPriceDataQuery, TokenPriceDataQueryVariables>({
-    query: TokenPriceDataDocument,
-    variables: { token: tokenMainnetAddr.toLocaleLowerCase() },
-  });
-
-  const cur: number = data?.now[0]?.priceUSD ?? 0;
-  const yd: number = data?.yesterday[0]?.priceUSD ?? 0;
-
-  return {
-    current: fiatAsBigInt(cur),
-    yesterday: fiatAsBigInt(yd),
-    change: yd > 0 ? ((cur - yd) / yd) * 100 : Number.POSITIVE_INFINITY,
-  };
-};
-
-const FETCH_TOKEN_PRICE = selectorFamily<TokenPrice, Address>({
+const fetchPriceSelector = selectorFamily<TokenPrice, Address>({
   key: 'fetchTokenPrice',
   get:
     (addr) =>
-    ({ get }) => {
-      assert(addr);
-      return fetch(get(TOKEN(addr)).addresses.mainnet);
+    async ({ get }) => {
+      const mainnetAddr = get(tokenAtom(addr)).addresses.mainnet?.toLocaleLowerCase();
+      if (!mainnetAddr)
+        throw new Error("Can't fetch uniswap price for token without mainnet address");
+
+      const client = await UNISWAP_CLIENT;
+      const { data } = await client.query<TokenPriceDataQuery, TokenPriceDataQueryVariables>({
+        query: TokenPriceDataDocument,
+        variables: { token: mainnetAddr },
+      });
+
+      const cur: number = data?.now[0]?.priceUSD ?? 0;
+      const yd: number = data?.yesterday[0]?.priceUSD ?? 0;
+
+      return {
+        current: fiatAsBigInt(cur),
+        yesterday: fiatAsBigInt(yd),
+        change: yd > 0 ? ((cur - yd) / yd) * 100 : Number.POSITIVE_INFINITY,
+      };
     },
 });
 
-export const TOKEN_PRICE = atomFamily<TokenPrice, Address>({
-  key: 'tokenPrice',
-  default: (token) => FETCH_TOKEN_PRICE(token),
+export const tokenPriceAtom = atomFamily<TokenPrice, Address>({
+  key: 'TokenPrice',
+  default: (token) => fetchPriceSelector(token),
   effects: (token) => [
+    persistAtom(),
     refreshAtom({
-      fetch: ({ get }) => get(FETCH_TOKEN_PRICE(token)),
+      refresh: ({ get }) => get(fetchPriceSelector(token)),
       interval: 10 * 1000,
     }),
   ],
 });
 
 export const useTokenPrice = (token: Token | Address) =>
-  useRecoilValue(TOKEN_PRICE(typeof token === 'object' ? token.addr : token));
+  useRecoilValue(tokenPriceAtom(typeof token === 'object' ? token.addr : token));

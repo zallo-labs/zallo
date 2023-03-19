@@ -31,3 +31,17 @@ export type Uint256 = A.Type<bigint, 'Uint256'>;
 export const MIN_UINT256 = 0n as Uint256;
 export const MAX_UINT256 = (2n ** 256n - 1n) as Uint256;
 export const asUint256 = asBoundedBigInt<Uint256>(MIN_UINT256, MAX_UINT256);
+
+/* JSON */
+const JSON_PATTERN = /^BigInt::([0-9]+)$/;
+export function bigIntReviever(this: unknown, _key: string, v: unknown) {
+  if (typeof v === 'string') {
+    const m = JSON_PATTERN.exec(v);
+    if (m) return BigInt(m[1]);
+  }
+  return v;
+}
+
+export function bigIntReplacer(this: unknown, _key: string, v: unknown) {
+  return v instanceof BigInt ? `BigInt::${v.toString()}` : v;
+}

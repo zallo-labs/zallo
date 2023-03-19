@@ -16,7 +16,7 @@ const addrEnsState = atomFamily<string | null, Address | null>({
       saveIf: (addr) => addr !== null,
     }),
     refreshAtom({
-      fetch: () => fetch(addr),
+      refresh: () => fetch(addr),
       interval: Duration.fromObject({ hours: 1 }).as('milliseconds'),
     }),
   ],

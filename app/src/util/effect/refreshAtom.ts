@@ -1,20 +1,20 @@
 import { MaybePromise } from 'lib';
 import { AtomEffect, DefaultValue } from 'recoil';
 
-interface FetchParams {
+interface RefreshParams {
   get: Parameters<AtomEffect<unknown>>[0]['getPromise'];
 }
 
-type FetchResult<T> = DefaultValue | MaybePromise<T>;
+type RefreshResult<T> = DefaultValue | MaybePromise<T>;
 
 export interface RefreshAtomOptions<T> {
-  fetch: (params: FetchParams) => FetchResult<T>;
+  refresh: (params: RefreshParams) => RefreshResult<T>;
   interval: number;
   cancelIf?: (value: DefaultValue | T) => boolean;
 }
 
 export const refreshAtom =
-  <T>({ fetch, interval, cancelIf }: RefreshAtomOptions<T>): AtomEffect<T> =>
+  <T>({ refresh: fetch, interval, cancelIf }: RefreshAtomOptions<T>): AtomEffect<T> =>
   ({ setSelf, onSet, getPromise }) => {
     let isActive = true;
     let handle: NodeJS.Timer | undefined = undefined;
