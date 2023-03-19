@@ -1,4 +1,4 @@
-import { ComponentPropsWithoutRef, useMemo } from 'react';
+import { ComponentPropsWithoutRef } from 'react';
 import { StyleProp, TextStyle, ViewStyle } from 'react-native';
 import Collapsible from 'react-native-collapsible';
 import { HelperText, TextInput } from 'react-native-paper';
@@ -8,7 +8,8 @@ type TextInputProps = ComponentPropsWithoutRef<typeof TextInput>;
 
 export type TextFieldProps = Omit<TextInputProps, 'error' | 'style'> & {
   supporting?: string;
-  error?: string | false | ((value: TextInputProps['value']) => string | false);
+  error?: string | false;
+  required?: boolean;
   wrap?: boolean;
   containerStyle?: StyleProp<ViewStyle>;
   textStyle?: StyleProp<TextStyle>;
@@ -16,17 +17,13 @@ export type TextFieldProps = Omit<TextInputProps, 'error' | 'style'> & {
 
 export const TextField = ({
   supporting,
-  error: errorProp,
+  error,
+  required,
   wrap,
   containerStyle,
   textStyle,
   ...props
 }: TextFieldProps) => {
-  const error = useMemo(
-    () => (typeof errorProp === 'function' ? errorProp(props.value) : errorProp),
-    [errorProp, props.value],
-  );
-
   return (
     <Box style={containerStyle}>
       <TextInput
@@ -39,6 +36,7 @@ export const TextField = ({
         autoCorrect={false}
         style={textStyle}
         {...props}
+        {...(props.label && required && { label: `${props.label}*` })}
       />
 
       <Collapsible collapsed={!(error || supporting)}>
