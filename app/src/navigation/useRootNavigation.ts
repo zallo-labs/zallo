@@ -9,6 +9,7 @@ import { StackNavigatorParamList as StackNavigatorParamList2 } from './StackNavi
 export type RootParamList2 = StackNavigatorParamList2;
 export type RootNavigation2 = StackNavigationProp<RootParamList2>;
 export type Navigate2 = RootNavigation2['navigate'];
+export const useRootNavigation2 = () => useNavigation<RootNavigation2>();
 
 /*
  * Navigation:

@@ -10,7 +10,7 @@ import { ScanIcon } from '~/util/theme/icons';
 import assert from 'assert';
 import { useMemo } from 'react';
 import { ContactAppbar } from './ContactAppbar';
-import { useScanAddr } from '../scan/useScanAddr';
+import { useScanAddr } from '../Scan/useScanAddr';
 import { makeStyles } from '@theme/makeStyles';
 import { FormikSubmitActionButton } from '~/components/fields/FormikSubmitActionButton';
 

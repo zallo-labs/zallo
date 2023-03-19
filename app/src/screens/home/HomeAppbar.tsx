@@ -5,7 +5,7 @@ import { AppbarMenu } from '~/components/Appbar/AppbarMenu';
 import { AppbarHeaderProps } from '~/components/Appbar/useAppbarHeader';
 import { useNavigation } from '@react-navigation/native';
 import { useSelectContact } from '../contacts/useSelectContact';
-import { useScanAddr } from '../scan/useScanAddr';
+import { useScanAddr } from '../Scan/useScanAddr';
 import { AccountId } from '@api/account';
 
 export interface HomeAppbarProps {

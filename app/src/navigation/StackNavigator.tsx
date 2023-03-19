@@ -7,7 +7,7 @@ import {
 import { AmountScreen, AmountScreenParams } from '~/screens/amount/AmountScreen';
 import { TokensScreen, TokensScreenParams } from '~/screens/tokens/TokensScreen';
 import { ContactsScreen, ContactsScreenParams } from '~/screens/contacts/ContactsScreen';
-import { ScanScreen, ScanScreenParams } from '~/screens/scan/ScanScreen';
+import { ScanScreen, ScanScreenParams } from '~/screens/Scan/ScanScreen';
 import {
   CreateAccountScreen,
   CreateAccountScreenParams,
