@@ -49,8 +49,7 @@ export const useCreateAccount = () => {
           variables: {},
           defaultData: { accounts: [] },
           updater: (data) => {
-            const i = data.accounts.findIndex((a) => a.id === account.id);
-            data.accounts[i >= 0 ? i : data.accounts.length] = account;
+            if (!data.accounts.find((a) => a.id === account.id)) data.accounts.push(account);
           },
         });
       },
