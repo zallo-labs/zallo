@@ -1,6 +1,6 @@
 import { useTokenAvailable } from '@token/useTokenAvailable';
 import { AccountIdlike } from '@api/account';
-import TokenItem, { TokenItemProps } from './TokenItem';
+import { TokenItem, TokenItemProps } from './TokenItem';
 
 export interface TokenAvailableItemProps extends Omit<TokenItemProps, 'amount'> {
   account: AccountIdlike;

@@ -9,7 +9,7 @@ import { Box } from '../layout/Box';
 import { Container } from '../layout/Container';
 import { TokenIcon } from './TokenIcon/TokenIcon';
 import { TokenAmount } from './TokenAmount';
-import { useTokenPrice } from '@uniswap/useTokenPrice';
+import { useTokenPriceData } from '@uniswap/useTokenPrice';
 import { AccountIdlike } from '@api/account';
 
 export interface TokenHoldingCardProps extends CardItemProps {
@@ -24,7 +24,7 @@ export const TokenHoldingCard = ({
   selected,
   ...props
 }: TokenHoldingCardProps) => {
-  const price = useTokenPrice(t);
+  const price = useTokenPriceData(t);
   const available = useTokenAvailable(t, account);
   const fiatValue = useTokenValue(t, available);
 

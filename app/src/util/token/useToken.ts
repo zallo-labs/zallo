@@ -5,10 +5,10 @@ import { atom, atomFamily, selectorFamily, DefaultValue, useRecoilValue, selecto
 import { Token } from './token';
 import { HARDCODED_TOKENS } from './tokens';
 
-const tokenAddressesAtom = atom<Address[]>({
+export const tokenAddressesAtom = atom<Address[]>({
   key: 'TokenAddresses',
   default: HARDCODED_TOKENS.map((t) => t.addr),
-  effects: [persistAtom()],
+  // effects: [persistAtom()],
 });
 
 const tokenMetadataAtom = atomFamily<Token, Address>({
@@ -22,7 +22,7 @@ const tokenMetadataAtom = atomFamily<Token, Address>({
 
     return token;
   },
-  effects: [persistAtom()],
+  // effects: [persistAtom()],
 });
 
 export const tokenAtom = selectorFamily<Token, Address>({

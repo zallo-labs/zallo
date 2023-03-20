@@ -6,20 +6,25 @@ import {
 } from '@react-navigation/stack';
 import { CreateAccountScreen } from '~/screens/CreateAccount/CreateAccountScreen';
 import { CreateUserScreen } from '~/screens/CreateUser/CreateUserScreen';
-import { HomeScreen, HomeScreenParams } from '~/screens/Home/HomeScreen';
+import { AccountsSheet } from '~/screens/Home/AccountsSheet';
+import { HomeScreen } from '~/screens/Home/HomeScreen';
 import { OnboardScreen } from '~/screens/Onboard/OnboardScreen';
 import { useShowOnboarding } from '~/screens/Onboard/useShowOnboarding';
 import { ScanScreen, ScanScreenParams } from '~/screens/Scan/ScanScreen';
-import { SettingsScreen, SettingsScreenParams } from '~/screens/Settings/SettingsScreen';
+// import ProposalScreen, { ProposalScreenParams } from '~/screens/proposal/ProposalScreen';
+// import { SettingsScreen } from '~/screens/Settings/SettingsScreen';
 
 export type StackNavigatorParamList = {
   // Onboarding
   Onboard: undefined;
   CreateUser: undefined;
   // Home
-  Home: HomeScreenParams;
+  Home: undefined;
+  AccountsSheet: undefined;
   Scan: ScanScreenParams;
-  Settings: SettingsScreenParams;
+  // Proposal: ProposalScreenParams;
+  // Settings
+  Settings: undefined;
   // Account
   CreateAccount: undefined;
 };
@@ -47,10 +52,24 @@ export const StackNavigator = () => {
 
       <Navigation.Screen name="Home" component={HomeScreen} />
       <Navigation.Screen name="Scan" component={ScanScreen} />
+      {/* <Navigation.Screen name="Proposal" component={ProposalScreen} />
 
-      <Navigation.Screen name="Settings" component={SettingsScreen} />
+      <Navigation.Screen name="Settings" component={SettingsScreen} /> */}
 
       <Navigation.Screen name="CreateAccount" component={CreateAccountScreen} />
+
+      <Navigation.Group screenOptions={{ presentation: 'transparentModal' }}>
+        <Navigation.Screen name="AccountsSheet" component={AccountsSheet} />
+      </Navigation.Group>
+
+      {/* <Navigation.Group
+        name="Card modal"
+        screenOptions={{
+          gestureEnabled: true,
+          cardOverlayEnabled: true,
+          ...TransitionPresets.ModalPresentationIOS,
+        }}
+      ></Navigation.Group> */}
     </Navigation.Navigator>
   );
 };

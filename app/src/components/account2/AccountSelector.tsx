@@ -1,0 +1,34 @@
+import { makeStyles } from '@theme/makeStyles';
+import { TouchableOpacity } from 'react-native';
+import { Text } from 'react-native-paper';
+import { useRootNavigation2 } from '~/navigation/useRootNavigation';
+import { Addr } from '../addr/Addr';
+import { AddrIcon } from '../Identicon/AddrIcon';
+import { useSelectedAccountId } from './useSelectedAccount';
+
+export const AccountSelector = () => {
+  const styles = useStyles();
+  const { navigate } = useRootNavigation2();
+  const account = useSelectedAccountId();
+
+  return (
+    <TouchableOpacity style={styles.container} onPress={() => navigate('AccountsSheet')}>
+      <AddrIcon addr={account} size={styles.icon.fontSize} />
+
+      <Text variant="titleLarge">
+        <Addr addr={account} />
+      </Text>
+    </TouchableOpacity>
+  );
+};
+
+const useStyles = makeStyles(({ iconSize }) => ({
+  container: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
+  icon: {
+    fontSize: iconSize.small,
+  },
+}));

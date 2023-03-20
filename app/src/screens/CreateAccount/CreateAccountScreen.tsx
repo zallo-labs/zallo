@@ -1,6 +1,7 @@
 import { useCreateAccount } from '@api/account';
 import { useForm } from 'react-hook-form';
 import { StyleSheet, View } from 'react-native';
+import { useSetSelectedAccount } from '~/components/account2/useSelectedAccount';
 import { AppbarLarge } from '~/components/Appbar/AppbarLarge';
 import { FormSubmitButton } from '~/components/fields/FormSubmitButton';
 import { FormTextField } from '~/components/fields/FormTextField';
@@ -16,6 +17,7 @@ export type CreateAccountScreenProps = StackNavigatorScreenProps<'CreateAccount'
 
 export const CreateAccountScreen = ({ navigation: { navigate } }: CreateAccountScreenProps) => {
   const createAccount = useCreateAccount();
+  const setSelected = useSetSelectedAccount();
 
   const { control, handleSubmit } = useForm<Inputs>();
 
@@ -40,8 +42,9 @@ export const CreateAccountScreen = ({ navigation: { navigate } }: CreateAccountS
           style={styles.button}
           control={control}
           onPress={handleSubmit(async ({ name }) => {
-            const { id: account } = await createAccount(name);
-            navigate('Home', { account });
+            const { id } = await createAccount(name);
+            setSelected(id);
+            navigate('Home');
           })}
         >
           Create account

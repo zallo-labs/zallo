@@ -1,5 +1,4 @@
 import { Box } from '~/components/layout/Box';
-import { useSelectedAccount } from '~/screens/home/useSelectedAccount';
 import { ReceiveAppbar } from './ReceiveAppbar';
 import { buildAddrLink, buildTransferLink } from '~/util/addrLink';
 import { useMemo, useState } from 'react';
@@ -14,13 +13,14 @@ import { useRootNavigation } from '~/navigation/useRootNavigation';
 import { Container } from '~/components/layout/Container';
 import { QrCode } from './QrCode';
 import { FaucetButton } from './FaucetButton';
+import { useSelectedAccountId } from '~/components/account2/useSelectedAccount';
 
 export const ReceiveScreen = withSkeleton(
   () => {
     const navigation = useRootNavigation();
     useKeepAwakeWhenFocussed();
 
-    const [account, setAccount] = useState(useSelectedAccount());
+    const [account, setAccount] = useState(useSelectedAccountId());
 
     const token = useSelectedToken();
     const [amount, setAmount] = useState<bigint | undefined>();

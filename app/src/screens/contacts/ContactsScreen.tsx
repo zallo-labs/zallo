@@ -10,10 +10,10 @@ import { withSkeleton } from '~/components/skeleton/withSkeleton';
 import { ScreenSkeleton } from '~/components/skeleton/ScreenSkeleton';
 import { AppbarMenu2 } from '~/components/Appbar/AppbarMenu';
 import { AppbarBack2 } from '~/components/Appbar/AppbarBack';
-import { SafeAreaView } from '~/components/SafeAreaView';
 import { Searchbar } from '~/components/fields/Searchbar';
 import { ListHeader } from '~/components/list/ListHeader';
 import { ContactItem } from './ContactItem';
+import { Screen } from '~/components/layout/Screen';
 
 export interface ContactsScreenParams {
   onSelect?: (contact: Contact) => void;
@@ -33,7 +33,7 @@ export const ContactsScreen = withSkeleton(
     const [contacts, searchProps] = useSearch(useContacts(), ['name', 'addr']);
 
     return (
-      <SafeAreaView enabled={isScreen} style={styles.root}>
+      <Screen safeArea={isScreen ? 'withoutTop' : 'withoutVertical'} style={styles.root}>
         <Searchbar
           leading={onSelect ? AppbarBack2 : AppbarMenu2}
           placeholder="Search contacts"
@@ -58,7 +58,7 @@ export const ContactsScreen = withSkeleton(
         />
 
         <Fab icon={AddIcon} label="Add" onPress={() => navigate('Contact', {})} />
-      </SafeAreaView>
+      </Screen>
     );
   },
   ScreenSkeleton,

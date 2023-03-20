@@ -1,7 +1,7 @@
 import { formatUnits } from 'ethers/lib/utils';
 import { Address } from 'lib';
 import { selectorFamily, useRecoilValue } from 'recoil';
-import { tokenPriceAtom } from '@uniswap/useTokenPrice';
+import { tokenPriceDataAtom } from '@uniswap/useTokenPrice';
 import { FIAT_DECIMALS } from './fiat';
 import { Token } from './token';
 import { tokenAtom } from './useToken';
@@ -11,14 +11,12 @@ type TokenValueParam = [token: Address, amount: string];
 export const tokenValueSelector = selectorFamily<number, TokenValueParam>({
   key: 'tokenValue',
   get:
-    ([tokenAddr, amount]) =>
+    ([token, amount]) =>
     ({ get }) => {
-      const token = get(tokenAtom(tokenAddr));
-      const price = get(tokenPriceAtom(tokenAddr));
+      const { decimals } = get(tokenAtom(token));
+      const price = get(tokenPriceDataAtom(token));
 
-      return parseFloat(
-        formatUnits(BigInt(amount) * price.current, token.decimals + FIAT_DECIMALS),
-      );
+      return parseFloat(formatUnits(BigInt(amount) * price.current, decimals + FIAT_DECIMALS));
     },
 });
 

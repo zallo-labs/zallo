@@ -1,17 +1,6 @@
-import { Image } from 'react-native';
+import { Image } from 'expo-image';
 import * as zk from 'zksync-web3';
-import { createToken, Token } from './token';
-
-export const HARDCODED_TOKENS: Token[] = [];
-
-const token = (...args: Parameters<typeof createToken>) => {
-  const token = createToken(...args);
-  Image.prefetch(token.iconUri);
-
-  if (token.addr) HARDCODED_TOKENS.push(token);
-
-  return token;
-};
+import { createToken as token, Token } from './token';
 
 export const ETH = token({
   type: 'ETH',
@@ -83,3 +72,6 @@ export const USDT = token({
   iconUri:
     'https://raw.githubusercontent.com/compound-finance/token-list/master/assets/asset_USDT.svg',
 });
+
+export const HARDCODED_TOKENS: Token[] = [ETH, DAI, USDC, WBTC, LINK, USDT];
+Image.prefetch(HARDCODED_TOKENS.map((t) => t.iconUri));

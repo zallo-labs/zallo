@@ -6,17 +6,18 @@ import { useTokens } from '@token/useToken';
 import { makeStyles } from '@theme/makeStyles';
 import { StackNavigatorScreenProps } from '~/navigation/StackNavigator';
 import { Searchbar } from '~/components/fields/Searchbar';
-import { TokenItem2 } from '~/components/TokenItem2';
-import { AccountIdlike } from '@api/account';
-import { SafeAreaView } from '~/components/SafeAreaView';
+import { AccountId } from '@api/account';
 import { AppbarMenu2 } from '~/components/Appbar/AppbarMenu';
 import { AppbarBack2 } from '~/components/Appbar/AppbarBack';
 import { SearchIcon } from '@theme/icons';
 import { ListHeader } from '~/components/list/ListHeader';
+import { TokenItem } from '~/components/token/TokenItem';
+import { useSelectedAccountId } from '~/components/account2/useSelectedAccount';
+import { Screen } from '~/components/layout/Screen';
 
 export interface TokensScreenParams {
   onSelect?: (token: Token) => void;
-  account?: AccountIdlike;
+  account?: AccountId;
   disabled?: Set<Address>;
 }
 
@@ -25,14 +26,14 @@ export type TokensScreenProps =
   | StackNavigatorScreenProps<'TokensModal'>;
 
 export const TokensScreen = ({ route }: TokensScreenProps) => {
-  const { onSelect, account, disabled } = route.params;
+  const { onSelect, account = useSelectedAccountId(), disabled } = route.params;
   const styles = useStyles();
   const isScreen = route.name == 'Tokens';
 
   const [tokens, searchProps] = useSearch(useTokens(), ['name', 'symbol', 'addr']);
 
   return (
-    <SafeAreaView enabled={isScreen} style={styles.root}>
+    <Screen safeArea={isScreen ? 'withoutTop' : 'withoutVertical'} style={styles.root}>
       <Searchbar
         leading={isScreen ? AppbarMenu2 : AppbarBack2}
         placeholder="Search tokens"
@@ -44,7 +45,7 @@ export const TokensScreen = ({ route }: TokensScreenProps) => {
         data={tokens}
         ListHeaderComponent={<ListHeader>Tokens</ListHeader>}
         renderItem={({ item: token }) => (
-          <TokenItem2
+          <TokenItem
             token={token}
             account={account}
             onPress={onSelect ? () => onSelect(token) : undefined}
@@ -54,7 +55,7 @@ export const TokensScreen = ({ route }: TokensScreenProps) => {
         contentContainerStyle={styles.container}
         showsVerticalScrollIndicator={false}
       />
-    </SafeAreaView>
+    </Screen>
   );
 };
 

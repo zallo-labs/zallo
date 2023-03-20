@@ -6,7 +6,6 @@ import {
   QrCodeIcon,
 } from '~/util/theme/icons';
 import { ActivityScreen } from '~/screens/activity/ActivityScreen';
-import { HomeScreen } from '~/screens/home/HomeScreen';
 import { ReceiveScreen } from '~/screens/receive/ReceiveScreen';
 import {
   createMaterialBottomTabNavigator,
@@ -47,18 +46,6 @@ export const BottomNavigator = () => {
         component={ReceiveScreen}
         options={{
           tabBarIcon: (props) => <QrCodeIcon size={iconSize.small} {...props} />,
-        }}
-      />
-      <Navigation.Screen
-        name="Home"
-        component={HomeScreen}
-        options={{
-          tabBarIcon: ({ focused, ...props }) =>
-            focused ? (
-              <PayCircleIcon size={iconSize.small} {...props} />
-            ) : (
-              <PayCircleOutlineIcon size={iconSize.small} {...props} />
-            ),
         }}
       />
       <Navigation.Screen

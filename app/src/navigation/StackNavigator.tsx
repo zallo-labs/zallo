@@ -30,7 +30,6 @@ import {
   NameDeviceScreenParams,
 } from '~/screens/create-account/NameDeviceScreen';
 import { AccountsScreen, AccountsScreenParams } from '~/screens/accounts/AccountsScreen';
-import { SettingsScreen } from '~/screens/settings/SettingsScreen';
 import {
   RenameAccountScreen,
   RenameAccountScreenParams,
@@ -109,7 +108,6 @@ export const StackNavigator = () => {
       <Navigation.Screen name="Device" component={DeviceScreen} />
       <Navigation.Screen name="CreateAccount" component={CreateAccountScreen} />
       <Navigation.Screen name="NameDevice" component={NameDeviceScreen} />
-      <Navigation.Screen name="Settings" component={SettingsScreen} />
 
       <Navigation.Group screenOptions={{ presentation: 'transparentModal' }}>
         <Navigation.Screen name="Alert" component={AlertScreen} />

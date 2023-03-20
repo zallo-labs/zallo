@@ -7,7 +7,7 @@ import { useMemo } from 'react';
 import { Appbar } from 'react-native-paper';
 import { AppbarMenu } from '~/components/Appbar/AppbarMenu';
 import { useAppbarHeader } from '~/components/Appbar/useAppbarHeader';
-import { ProposalItem } from '~/screens/activity/ProposalItem';
+import { ProposalItem } from '~/components/proposal/ProposalItem';
 import { Proposal, useProposals } from '@api/proposal';
 import { TransferMetadata, useTransfersMetadata } from '@subgraph/transfer';
 import { IncomingTransferItem } from './IncomingTransferItem';

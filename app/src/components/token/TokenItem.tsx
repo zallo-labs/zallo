@@ -1,38 +1,61 @@
+import { AccountId } from '@api/account';
+import { makeStyles } from '@theme/makeStyles';
 import { Token } from '@token/token';
 import { useTokenBalance } from '@token/useTokenBalance';
 import { useTokenValue } from '@token/useTokenValue';
+import { useTokenPriceData } from '@uniswap/useTokenPrice';
 import { StyleProp, ViewStyle } from 'react-native';
-import { useSelectedAccountId } from '../account2/useSelectedAccount';
 import { FiatValue } from '../fiat/FiatValue';
-import { ItemSkeleton } from '../item/ItemSkeleton';
-import { ListItem } from '../list/ListItem';
+import { Box } from '../layout/Box';
+import { ListItem, ListItemProps } from '../list/ListItem';
+import { ListItemSkeleton } from '../list/ListItemSkeleton';
 import { withSkeleton } from '../skeleton/withSkeleton';
 import { TokenAmount } from './TokenAmount';
-import { TokenIcon } from './TokenIcon/TokenIcon';
 
-export interface TokenItemProps {
+export interface TokenItemProps extends Partial<ListItemProps> {
   token: Token;
+  account: AccountId;
   amount?: bigint;
   style?: StyleProp<ViewStyle>;
 }
 
-export const TokenItem = ({ token, amount, style }: TokenItemProps) => {
-  const balance = useTokenBalance(token, useSelectedAccountId());
-  if (!amount) amount = balance;
+export const TokenItem = withSkeleton(
+  ({ token, account, amount, style, ...itemProps }: TokenItemProps) => {
+    const styles = useStyles();
+    const balance = useTokenBalance(token, account);
+    amount ??= balance;
 
-  return (
-    <ListItem
-      leading={(props) => <TokenIcon token={token} {...props} />}
-      headline={token.name}
-      supporting={<TokenAmount token={token} amount={amount} />}
-      trailing={({ Text }) => (
-        <Text variant="labelLarge">
-          <FiatValue value={useTokenValue(token, amount)} />
-        </Text>
-      )}
-      style={style}
-    />
-  );
-};
+    return (
+      <ListItem
+        leading={token.addr}
+        headline={token.name}
+        supporting={({ Text }) => (
+          <Box horizontal>
+            <Text>
+              <TokenAmount token={token} amount={amount} />
+            </Text>
 
-export default TokenItem;
+            <Text style={styles.price}>
+              {' @ '}
+              <FiatValue value={useTokenPriceData(token).current} maximumFractionDigits={0} />
+            </Text>
+          </Box>
+        )}
+        trailing={({ Text }) => (
+          <Text variant="labelLarge">
+            <FiatValue value={useTokenValue(token, amount)} />
+          </Text>
+        )}
+        style={style}
+        {...itemProps}
+      />
+    );
+  },
+  <ListItemSkeleton leading supporting trailing />,
+);
+
+const useStyles = makeStyles(({ colors }) => ({
+  price: {
+    color: colors.secondary,
+  },
+}));

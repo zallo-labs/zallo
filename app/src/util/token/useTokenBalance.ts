@@ -7,13 +7,16 @@ import { refreshAtom } from '~/util/effect/refreshAtom';
 import { persistAtom } from '~/util/effect/persistAtom';
 import { useCallback } from 'react';
 import { AccountIdlike, asAccountId } from '@api/account';
+import { ETH } from './tokens';
 
 type BalanceKey = [address: Address | null, token: Address];
 
 const fetch = async ([addr, token]: BalanceKey) => {
   if (!addr) return 0n;
   try {
-    return (await PROVIDER.getBalance(addr, undefined, token)).toBigInt();
+    return (
+      await PROVIDER.getBalance(addr, undefined, token !== ETH.addr ? token : undefined)
+    ).toBigInt();
   } catch (e) {
     captureException(e, {
       level: 'error',
@@ -29,7 +32,7 @@ export const tokenBalanceAtom = atomFamily<bigint, BalanceKey>({
   effects: (key) =>
     key[0] !== null
       ? [
-          persistAtom({}),
+          persistAtom(),
           refreshAtom({
             refresh: () => fetch(key),
             interval: 10 * 1000,

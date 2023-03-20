@@ -54,7 +54,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
           // https://docs.expo.dev/guides/using-sentry/#31-configure-a--postpublish--hook
           organization: ENV.SENTRY_ORG,
           project: ENV.SENTRY_PROJECT,
-          authToken: ENV.SENTRY_AUTH_TOKEN,
+          // authToken: ENV.SENTRY_AUTH_TOKEN,  // Hook reads SENTRY_AUTH_TOKEN env
           deployEnv: ENV.env,
           setCommits: true,
         },
@@ -88,6 +88,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     },
   },
   web: {
+    bundler: 'metro',
     favicon: './assets/favicon.png',
   },
   updates: {

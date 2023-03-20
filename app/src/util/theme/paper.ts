@@ -55,6 +55,11 @@ export const PAPER_THEME = {
   opacity,
   opacityModifier,
 
+  state: {
+    focussed: (color: string) => c(color, (c) => c.opaquer(opacityModifier.focus)),
+    pressed: (color: string) => c(color, (c) => c.opaquer(opacityModifier.press)),
+  },
+
   space,
   typoSpace,
   s: space2,

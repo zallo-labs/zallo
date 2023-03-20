@@ -1,4 +1,4 @@
-import { PROJECT_ID } from 'app.config';
+import { PROJECT_ID } from '../../app.config';
 import * as Device from 'expo-device';
 import * as Notifications from 'expo-notifications';
 import { DevicePushToken } from 'expo-notifications';
