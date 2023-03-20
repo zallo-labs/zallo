@@ -1,7 +1,7 @@
 import { Text } from 'react-native-paper';
 import { LabelIcon } from '~/components/Identicon/LabelIcon';
 import { Item } from '~/components/item/Item';
-import { Image } from '~/components/Image';
+import { Image } from 'expo-image';
 import { UNNAMED_DAPP_NAME } from '../session-proposal/ProposerDetails';
 import { WalletConnectPeer } from '~/util/walletconnect';
 

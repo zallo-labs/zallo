@@ -4,7 +4,7 @@ import { CardItemSkeleton } from '../card/CardItemSkeleton';
 import { withSkeleton } from '../skeleton/withSkeleton';
 import { useTokenBalance } from '@token/useTokenBalance';
 import { useTokenValue } from '@token/useTokenValue';
-import TokenIcon from './TokenIcon/TokenIcon';
+import { TokenIcon } from './TokenIcon/TokenIcon';
 import { Text } from 'react-native-paper';
 import { TokenAmount } from './TokenAmount';
 import { FiatValue } from '../fiat/FiatValue';

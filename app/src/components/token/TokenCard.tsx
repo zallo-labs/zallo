@@ -1,7 +1,7 @@
 import { Text } from 'react-native-paper';
 import { CardItem, CardItemProps } from '../card/CardItem';
 import { Token } from '@token/token';
-import TokenIcon from './TokenIcon/TokenIcon';
+import { TokenIcon } from './TokenIcon/TokenIcon';
 
 export interface TokenCardProps extends CardItemProps {
   token: Token;

@@ -1,20 +1,17 @@
 import { useTheme } from '@theme/paper';
 import { useMaybeToken } from '@token/useToken';
 import { Address } from 'lib';
-import { LogBox, Platform, StyleProp, TextStyle } from 'react-native';
+import { ImageStyle } from 'react-native';
+import { StyleProp, TextStyle } from 'react-native';
 import Jazzicon from 'react-native-jazzicon';
 import { useAddrName } from '../addr/useAddrName';
-import { ImageStyle } from '../Image';
-import TokenIcon from '../token/TokenIcon/TokenIcon';
+import { TokenIcon } from '../token/TokenIcon/TokenIcon';
 import { LabelIcon } from './LabelIcon';
-
-// react-native-jazzicon causes a warning; see https://github.com/stanislaw-glogowski/react-native-jazzicon/pull/1
-if (Platform.OS !== 'web') LogBox.ignoreLogs(['componentWillReceiveProps has been renamed']);
 
 export interface AddrIconProps {
   addr: Address;
   size?: number;
-  style?: StyleProp<ImageStyle>;
+  style?: ImageStyle;
   labelStyle?: StyleProp<TextStyle>;
 }
 
@@ -26,7 +23,8 @@ export const AddrIcon = ({ addr, size: sizeProp, style, labelStyle, ...props }: 
 
   if (token) return <TokenIcon token={token} size={size} style={style} />;
 
-  if (name) return <LabelIcon label={name} size={size} style={style} labelStyle={labelStyle} />;
+  if (name)
+    return <LabelIcon label={name} size={size} containerStyle={style} labelStyle={labelStyle} />;
 
   return <Jazzicon size={size} {...props} address={addr} containerStyle={style} />;
 };

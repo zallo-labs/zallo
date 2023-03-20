@@ -4,7 +4,7 @@ import { TokenAmount } from './TokenAmount';
 import { Token } from '@token/token';
 import { useTokenValue } from '@token/useTokenValue';
 import { FiatValue } from '../fiat/FiatValue';
-import TokenIcon from './TokenIcon/TokenIcon';
+import { TokenIcon } from './TokenIcon/TokenIcon';
 
 export interface TokenAmountCardProps extends CardItemProps {
   token: Token;

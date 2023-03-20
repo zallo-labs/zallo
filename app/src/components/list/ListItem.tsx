@@ -6,6 +6,7 @@ import { match } from 'ts-pattern';
 import { Box } from '../layout/Box';
 import { AddrOrLabelIcon } from '../Identicon/AddrOrLabelIcon';
 import { TextProps } from '@theme/types';
+import { StyleProp, ViewStyle } from 'react-native';
 
 /*
  * https://m3.material.io/components/lists/specs
@@ -30,6 +31,7 @@ export interface ListItemProps extends Pick<TouchableRippleProps, 'onPress' | 'd
   maxTrailing?: number;
   lines?: Lines;
   selected?: boolean;
+  style?: StyleProp<ViewStyle>;
 }
 
 export const ListItem = ({
@@ -42,6 +44,7 @@ export const ListItem = ({
   lines = (1 + Number(!!Overline) + Number(!!Supporting)) as Lines,
   selected,
   disabled,
+  style,
   ...touchableProps
 }: ListItemProps) => {
   const styles = useStyles({ lines, selected, disabled });
@@ -67,7 +70,7 @@ export const ListItem = ({
   );
 
   return (
-    <TouchableRipple {...touchableProps} style={styles.container} disabled={disabled}>
+    <TouchableRipple {...touchableProps} style={[styles.container, style]} disabled={disabled}>
       <>
         {Leading && (
           <Box style={styles.leadingContainer}>

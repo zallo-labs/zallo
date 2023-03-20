@@ -9,7 +9,7 @@ import { FiatValue } from '~/components/fiat/FiatValue';
 import { Item } from '~/components/item/Item';
 import { Box } from '~/components/layout/Box';
 import { TokenAmount } from '~/components/token/TokenAmount';
-import TokenIcon from '~/components/token/TokenIcon/TokenIcon';
+import { TokenIcon } from '~/components/token/TokenIcon/TokenIcon';
 import { Proposal } from '@api/proposal';
 import { Transfer } from '@subgraph/transfer';
 
