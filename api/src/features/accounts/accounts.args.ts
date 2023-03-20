@@ -26,7 +26,7 @@ export enum AccountEvent {
 registerEnumType(AccountEvent, { name: 'AccountEvent' });
 
 export interface AccountSubscriptionPayload {
-  [ACCOUNT_SUBSCRIPTION]: Account;
+  [ACCOUNT_SUBSCRIPTION]: Pick<Account, 'id'>;
   event: AccountEvent;
 }
 

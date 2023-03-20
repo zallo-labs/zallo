@@ -80,8 +80,8 @@ export class AccountsService {
     }) as Prisma.Prisma__AccountClient<Prisma.AccountGetPayload<T>>;
   }
 
-  async publishAccount(payload: AccountSubscriptionPayload) {
-    const id = payload[ACCOUNT_SUBSCRIPTION].id;
+  async publishAccount({ event, account: { id } }: AccountSubscriptionPayload) {
+    const payload: AccountSubscriptionPayload = { event, account: { id } }; // Reconstruct to exclude other fields
     await this.pubsub.publish<AccountSubscriptionPayload>(`${ACCOUNT_SUBSCRIPTION}.${id}`, payload);
 
     // Publish event to all users with access to the account
