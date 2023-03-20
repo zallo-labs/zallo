@@ -162,7 +162,7 @@ export class AccountsResolver {
 
     const r = await this.service.activateAccount(account, { ...getSelect(info) });
 
-    this.service.publishAccount({ account: r, event: AccountEvent.create });
+    this.service.publishAccount({ account: { id: account }, event: AccountEvent.create });
     this.faucet.requestTokens(account);
 
     return r;
@@ -179,7 +179,7 @@ export class AccountsResolver {
       ...getSelect(info),
     });
 
-    this.service.publishAccount({ account: r, event: AccountEvent.update });
+    this.service.publishAccount({ account: { id }, event: AccountEvent.update });
 
     return r;
   }
