@@ -19,8 +19,8 @@ export const Skeleton = ({ children, width, height, ...props }: SkeletonProps) =
       width={width}
       height={height}
       viewBox={`0 0 ${width} ${height}`}
-      backgroundColor={colors.surfaceVariant}
-      foregroundColor={colors.secondary}
+      backgroundColor={colors.primaryContainer}
+      foregroundColor={colors.primary}
       {...props}
     >
       {children}
