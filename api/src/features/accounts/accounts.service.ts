@@ -20,6 +20,7 @@ export class AccountsService {
     private pubsub: PubsubService,
   ) {}
 
+  findUnique = this.prisma.asUser.account.findUnique;
   findMany = this.prisma.asUser.account.findMany;
 
   async activateAccount<T extends Pick<Prisma.AccountUpdateArgs, 'select'>>(

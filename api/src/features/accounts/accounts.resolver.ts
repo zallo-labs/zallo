@@ -41,7 +41,7 @@ export class AccountsResolver {
     @Args() { id }: AccountArgs,
     @Info() info?: GraphQLResolveInfo,
   ): Promise<Account | null> {
-    return this.prisma.asUser.account.findUnique({
+    return this.service.findUnique({
       where: { id },
       ...getSelect(info),
     });
@@ -52,16 +52,26 @@ export class AccountsResolver {
     @Args() args: AccountsArgs,
     @Info() info?: GraphQLResolveInfo,
   ): Promise<Account[]> {
-    const accounts = await this.prisma.asUser.account.findMany({
+    return this.service.findMany({
       ...args,
       ...getSelect(info),
     });
-
-    return accounts;
   }
 
   @Subscription(() => Account, {
     name: ACCOUNT_SUBSCRIPTION,
+    resolve(
+      this: AccountsResolver,
+      { account }: AccountSubscriptionPayload,
+      _args,
+      _context,
+      info: GraphQLResolveInfo,
+    ) {
+      return this.service.findUnique({
+        where: { id: account.id },
+        ...getSelect(info),
+      });
+    },
     filter: ({ event }: AccountSubscriptionPayload, { events }: AccountSubscriptionFilters) =>
       !events || events.has(event),
   })
