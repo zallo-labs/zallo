@@ -57,8 +57,6 @@ export const useProposals = ({
   return useMemo((): Proposal[] => {
     const proposals = data.proposals.map(toProposal);
 
-    return requiresUserAction
-      ? proposals.filter((p) => p.satisfiablePolicies.some((p) => p.requiresUserAction))
-      : proposals;
+    return requiresUserAction ? proposals.filter((p) => p.requiresUserAction) : proposals;
   }, [data.proposals, requiresUserAction]);
 };

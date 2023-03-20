@@ -12,7 +12,7 @@ import { convertTokenAmount, Token } from '@token/token';
 import { makeStyles } from '@theme/makeStyles';
 import { usePrevious } from '@hook/usePrevious';
 import { TokenAmount } from '~/components/token/TokenAmount';
-import { useTokenPrice } from '@uniswap/useTokenPrice';
+import { useTokenPriceData } from '@uniswap/useTokenPrice';
 import { StyleProp, ViewStyle } from 'react-native';
 
 export interface AmountInputProps {
@@ -26,7 +26,7 @@ export const AmountInput = ({ token, amount, setAmount, style }: AmountInputProp
   const styles = useStyles();
   const { colors } = useTheme();
   const fiatValue = useTokenValue(token, amount ?? 0n);
-  const price = useTokenPrice(token);
+  const price = useTokenPriceData(token);
 
   const [type, setType] = useState<'token' | 'fiat'>('token');
   const [input, setInput] = useState(amount);

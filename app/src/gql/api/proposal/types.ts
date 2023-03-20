@@ -14,6 +14,7 @@ export interface Proposal extends Tx {
   approvals: KeySet<Address, Approval>;
   rejections: KeySet<Address, Rejection>;
   satisfiablePolicies: SatisfiablePolicy[];
+  requiresUserAction: boolean;
   transaction?: TransactionSubmission;
   proposedAt: DateTime;
   proposer: Address;
@@ -121,6 +122,7 @@ export const toProposal = (p: ProposalFieldsFragment): Proposal => {
     approvals,
     rejections,
     satisfiablePolicies,
+    requiresUserAction: satisfiablePolicies.some((p) => p.requiresUserAction),
     transaction,
     proposedAt: DateTime.fromISO(p.createdAt),
     proposer: asAddress(p.proposerId),

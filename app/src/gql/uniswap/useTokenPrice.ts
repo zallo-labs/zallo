@@ -40,14 +40,14 @@ gql`
   }
 `;
 
-export interface TokenPrice {
+export interface TokenPriceData {
   current: bigint;
   yesterday: bigint;
   change: number;
 }
 
-const fetchPriceSelector = selectorFamily<TokenPrice, Address>({
-  key: 'fetchTokenPrice',
+const fetchSelector = selectorFamily<TokenPriceData, Address>({
+  key: 'FetchTokenPriceData',
   get:
     (addr) =>
     async ({ get }) => {
@@ -72,17 +72,17 @@ const fetchPriceSelector = selectorFamily<TokenPrice, Address>({
     },
 });
 
-export const tokenPriceAtom = atomFamily<TokenPrice, Address>({
+export const tokenPriceDataAtom = atomFamily<TokenPriceData, Address>({
   key: 'TokenPrice',
-  default: (token) => fetchPriceSelector(token),
+  default: (token) => fetchSelector(token),
   effects: (token) => [
     persistAtom(),
     refreshAtom({
-      refresh: ({ get }) => get(fetchPriceSelector(token)),
+      refresh: ({ get }) => get(fetchSelector(token)),
       interval: 10 * 1000,
     }),
   ],
 });
 
-export const useTokenPrice = (token: Token | Address) =>
-  useRecoilValue(tokenPriceAtom(typeof token === 'object' ? token.addr : token));
+export const useTokenPriceData = (token: Token | Address) =>
+  useRecoilValue(tokenPriceDataAtom(typeof token === 'object' ? token.addr : token));
