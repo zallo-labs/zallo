@@ -17,7 +17,7 @@ export const Screen = ({ children, style, safeArea }: ScreenProps) => {
   return <View style={[styles.container, styles.sides, safeAreaStyle, style]}>{children}</View>;
 };
 
-const useStyles = makeStyles((theme, { top, bottom, left, right }: EdgeInsets) => ({
+const useStyles = makeStyles((_theme, { top, bottom, left, right }: EdgeInsets) => ({
   container: {
     flex: 1,
   },
