@@ -42,6 +42,12 @@ export function bigIntReviever(this: unknown, _key: string, v: unknown) {
   return v;
 }
 
-export function bigIntReplacer(this: unknown, _key: string, v: unknown) {
-  return v instanceof BigInt ? `BigInt::${v.toString()}` : v;
+declare global {
+  interface BigInt {
+    toJSON: () => string;
+  }
 }
+
+BigInt.prototype.toJSON = function () {
+  return `BigInt::${this.toString()}`;
+};
