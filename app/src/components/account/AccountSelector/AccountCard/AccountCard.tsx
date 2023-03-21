@@ -1,5 +1,5 @@
 import { Box } from '~/components/layout/Box';
-import { withSkeleton } from '~/components/skeleton/withSkeleton';
+import { withSuspense } from '~/components/skeleton/withSuspense';
 import { Text } from 'react-native-paper';
 import { Card, CardProps } from '~/components/card/Card';
 import { AccountCardSkeleton, ACCOUNT_CARD_STYLE } from './AccountCardSkeleton';
@@ -16,7 +16,7 @@ export interface AccountCardProps extends CardProps {
   available?: boolean;
 }
 
-export const AccountCard = withSkeleton(
+export const AccountCard = withSuspense(
   ({ account: addr, available, ...cardProps }: AccountCardProps) => {
     const styles = useStyles();
     const account = useAccount(addr);

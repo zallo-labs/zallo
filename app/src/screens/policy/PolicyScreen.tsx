@@ -1,6 +1,6 @@
 import { PolicyGuid } from 'lib';
 import { ScreenSkeleton } from '~/components/skeleton/ScreenSkeleton';
-import { withSkeleton } from '~/components/skeleton/withSkeleton';
+import { withSuspense } from '~/components/skeleton/withSuspense';
 import { StackNavigatorScreenProps } from '~/navigation/StackNavigator';
 
 export interface PolicyScreenParams {
@@ -9,6 +9,6 @@ export interface PolicyScreenParams {
 
 export type PolicyScreenProps = StackNavigatorScreenProps<'Policy'>;
 
-export const PolicyScreen = withSkeleton((props: PolicyScreenProps) => {
+export const PolicyScreen = withSuspense((props: PolicyScreenProps) => {
   return null;
 }, ScreenSkeleton);

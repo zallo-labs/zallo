@@ -1,7 +1,7 @@
 import { Token } from '@token/token';
 import { CardItem, CardItemProps } from '../card/CardItem';
 import { CardItemSkeleton } from '../card/CardItemSkeleton';
-import { withSkeleton } from '../skeleton/withSkeleton';
+import { withSuspense } from '../skeleton/withSuspense';
 import { useTokenAvailable } from '@token/useTokenAvailable';
 import { Text } from 'react-native-paper';
 import { useTokenValue } from '@token/useTokenValue';
@@ -16,7 +16,7 @@ export interface TokenAvailableCardProps extends CardItemProps {
   showZero?: boolean;
 }
 
-export const TokenAvailableCard = withSkeleton(
+export const TokenAvailableCard = withSuspense(
   ({ token, account, ...itemProps }: TokenAvailableCardProps) => {
     const available = useTokenAvailable(token, account);
 

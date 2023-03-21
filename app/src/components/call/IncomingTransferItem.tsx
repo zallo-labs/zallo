@@ -5,7 +5,7 @@ import { TRANSFER_LABEL } from '~/components/call/useProposalLabel';
 import { Timestamp } from '~/components/format/Timestamp';
 import { ListItem } from '~/components/list/ListItem';
 import { ListItemSkeleton } from '~/components/list/ListItemSkeleton';
-import { withSkeleton } from '~/components/skeleton/withSkeleton';
+import { withSuspense } from '~/components/skeleton/withSuspense';
 import { useAccount, useAccountIds } from '@api/account';
 import { useTransfer } from '@subgraph/transfer';
 import { useTransfersValue } from '~/components/call/useTransfersValue';
@@ -15,7 +15,7 @@ export interface IncomingTransferItemProps {
   transfer: Id;
 }
 
-export const IncomingTransferItem = withSkeleton(({ transfer: id }: IncomingTransferItemProps) => {
+export const IncomingTransferItem = withSuspense(({ transfer: id }: IncomingTransferItemProps) => {
   const transfer = useTransfer(id);
   assert(transfer.direction === 'IN');
   const account = useAccount(transfer.to);

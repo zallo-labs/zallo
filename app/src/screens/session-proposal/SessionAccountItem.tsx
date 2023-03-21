@@ -3,7 +3,7 @@ import { Checkbox, Text } from 'react-native-paper';
 import { AddrIcon } from '~/components/Identicon/AddrIcon';
 import { Item, ItemProps } from '~/components/item/Item';
 import { ItemSkeleton } from '~/components/item/ItemSkeleton';
-import { withSkeleton } from '~/components/skeleton/withSkeleton';
+import { withSuspense } from '~/components/skeleton/withSuspense';
 import { useAccount } from '@api/account';
 
 export interface SessionAccountItemProps extends Omit<ItemProps, 'selected'> {
@@ -33,4 +33,4 @@ const SessionAccountItem = ({
   );
 };
 
-export default withSkeleton(SessionAccountItem, ItemSkeleton);
+export default withSuspense(SessionAccountItem, ItemSkeleton);

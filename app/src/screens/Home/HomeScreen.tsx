@@ -5,7 +5,7 @@ import { useSelectedAccountId } from '~/components/account2/useSelectedAccount';
 import { FiatValue } from '~/components/fiat/FiatValue';
 import { Screen } from '~/components/layout/Screen';
 import { ScreenSkeleton } from '~/components/skeleton/ScreenSkeleton';
-import { withSkeleton } from '~/components/skeleton/withSkeleton';
+import { withSuspense } from '~/components/skeleton/withSuspense';
 import { StackNavigatorScreenProps } from '~/navigation/StackNavigator2';
 import { Appbar } from './Appbar';
 import { QuickActions } from './QuickActions';
@@ -13,7 +13,7 @@ import { TabNavigator } from './Tabs';
 
 export type HomeScreenProps = StackNavigatorScreenProps<'Home'>;
 
-export const HomeScreen = withSkeleton((_props: HomeScreenProps) => {
+export const HomeScreen = withSuspense((_props: HomeScreenProps) => {
   const account = useSelectedAccountId();
 
   return (

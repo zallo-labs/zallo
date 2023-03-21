@@ -1,7 +1,7 @@
 import { Box } from '~/components/layout/Box';
 import { EmptyListFallback } from '~/components/EmptyListFallback';
 import { ListScreenSkeleton } from '~/components/skeleton/ListScreenSkeleton';
-import { withSkeleton } from '~/components/skeleton/withSkeleton';
+import { withSuspense } from '~/components/skeleton/withSuspense';
 import { ActivityIcon } from '~/util/theme/icons';
 import { useMemo } from 'react';
 import { Appbar } from 'react-native-paper';
@@ -33,7 +33,7 @@ const proposalAsActivity = (proposal: Proposal): Item => ({
   type: 'proposal',
 });
 
-export const ActivityScreen = withSkeleton(() => {
+export const ActivityScreen = withSuspense(() => {
   const styles = useStyles();
   const { AppbarHeader, handleScroll } = useAppbarHeader();
   const { navigate } = useNavigation();

@@ -10,7 +10,7 @@ import { useRootNavigation2 } from '~/navigation/useRootNavigation';
 import { IncomingTransferItem } from '~/components/call/IncomingTransferItem';
 import { ProposalItem } from '~/components/proposal/ProposalItem';
 import { TabNavigatorScreenProp } from '.';
-import { withSkeleton } from '~/components/skeleton/withSkeleton';
+import { withSuspense } from '~/components/skeleton/withSuspense';
 
 type Item = Proposal | TransferMetadata;
 
@@ -48,7 +48,7 @@ export const ActivityTab = memo((_props: ActivityTabProps) => {
   );
 });
 
-export const ActivityTabBadge = withSkeleton(
+export const ActivityTabBadge = withSuspense(
   () => {
     const n = useProposals({ requiresUserAction: true }).length;
     return <Badge visible={n > 0} size={6} style={styles.badge} />;

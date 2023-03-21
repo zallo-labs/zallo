@@ -3,7 +3,7 @@ import { ErrorContextProvider } from '~/components/ErrorContextProvider';
 import { Box } from '~/components/layout/Box';
 import { Container } from '~/components/layout/Container';
 import { ScreenSkeleton } from '~/components/skeleton/ScreenSkeleton';
-import { withSkeleton } from '~/components/skeleton/withSkeleton';
+import { withSuspense } from '~/components/skeleton/withSuspense';
 import { StackNavigatorScreenProps } from '~/navigation/StackNavigator';
 import { ProposalId, useProposal } from '@api/proposal';
 import { OnExecute, ProposalActions } from './ProposalActions';
@@ -46,4 +46,4 @@ const useStyles = makeStyles(({ space }) => ({
   },
 }));
 
-export default withSkeleton(ProposalScreen, ScreenSkeleton);
+export default withSuspense(ProposalScreen, ScreenSkeleton);

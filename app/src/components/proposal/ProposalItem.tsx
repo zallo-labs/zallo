@@ -4,7 +4,7 @@ import { useProposalLabel } from '../call/useProposalLabel';
 import { useProposalTransfers } from '~/components/call/useProposalTransfers';
 import { Timestamp } from '~/components/format/Timestamp';
 import { ListItem, ListItemProps } from '~/components/list/ListItem';
-import { withSkeleton } from '~/components/skeleton/withSkeleton';
+import { withSuspense } from '~/components/skeleton/withSuspense';
 import { ListItemSkeleton } from '~/components/list/ListItemSkeleton';
 import { Proposal, ProposalId, useProposal } from '@api/proposal';
 import { makeStyles } from '@theme/makeStyles';
@@ -17,7 +17,7 @@ export interface ProposalItemProps {
   onPress?: () => void;
 }
 
-export const ProposalItem = withSkeleton(({ proposal: id, onPress }: ProposalItemProps) => {
+export const ProposalItem = withSuspense(({ proposal: id, onPress }: ProposalItemProps) => {
   const styles = useStyles();
   const p = useProposal(id);
   const token = useMaybeToken(p.to) ?? ETH;

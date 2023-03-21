@@ -1,6 +1,6 @@
 import { Box } from '~/components/layout/Box';
 import { ScreenSkeleton } from '~/components/skeleton/ScreenSkeleton';
-import { withSkeleton } from '~/components/skeleton/withSkeleton';
+import { withSuspense } from '~/components/skeleton/withSuspense';
 import { makeStyles } from '~/util/theme/makeStyles';
 import { StackNavigatorScreenProps } from '~/navigation/StackNavigator';
 import { AccountId, useAccount } from '@api/account';
@@ -17,7 +17,7 @@ export interface AccountScreenParams {
 
 export type AccountScreenProps = StackNavigatorScreenProps<'Account'>;
 
-export const AccountScreen = withSkeleton(
+export const AccountScreen = withSuspense(
   ({ navigation: { navigate }, route: { params } }: AccountScreenProps) => {
     const styles = useStyles();
     const account = useAccount(params.account);

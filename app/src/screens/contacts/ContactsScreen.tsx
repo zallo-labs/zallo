@@ -6,7 +6,7 @@ import { Fab } from '~/components/buttons/Fab';
 import { StackNavigatorScreenProps } from '~/navigation/StackNavigator';
 import { Contact, useContacts } from '@api/contacts';
 import { useSearch } from '@hook/useSearch';
-import { withSkeleton } from '~/components/skeleton/withSkeleton';
+import { withSuspense } from '~/components/skeleton/withSuspense';
 import { ScreenSkeleton } from '~/components/skeleton/ScreenSkeleton';
 import { AppbarMenu2 } from '~/components/Appbar/AppbarMenu';
 import { AppbarBack2 } from '~/components/Appbar/AppbarBack';
@@ -24,7 +24,7 @@ export type ContactsScreenProps =
   | StackNavigatorScreenProps<'Contacts'>
   | StackNavigatorScreenProps<'ContactsModal'>;
 
-export const ContactsScreen = withSkeleton(
+export const ContactsScreen = withSuspense(
   ({ route, navigation: { navigate } }: ContactsScreenProps) => {
     const { onSelect, disabled } = route.params;
     const styles = useStyles();

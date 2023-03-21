@@ -9,7 +9,7 @@ import { FiatValue } from '../fiat/FiatValue';
 import { Box } from '../layout/Box';
 import { ListItem, ListItemProps } from '../list/ListItem';
 import { ListItemSkeleton } from '../list/ListItemSkeleton';
-import { withSkeleton } from '../skeleton/withSkeleton';
+import { withSuspense } from '../skeleton/withSuspense';
 import { TokenAmount } from './TokenAmount';
 
 export interface TokenItemProps extends Partial<ListItemProps> {
@@ -19,7 +19,7 @@ export interface TokenItemProps extends Partial<ListItemProps> {
   style?: StyleProp<ViewStyle>;
 }
 
-export const TokenItem = withSkeleton(
+export const TokenItem = withSuspense(
   ({ token, account, amount, style, ...itemProps }: TokenItemProps) => {
     const styles = useStyles();
     const balance = useTokenBalance(token, account);

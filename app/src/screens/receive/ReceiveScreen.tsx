@@ -5,7 +5,7 @@ import { useMemo, useState } from 'react';
 import { SelectableTokenAmountCard } from '~/components/token/SelectableTokenAmountCard';
 import { useSelectedToken } from '~/components/token/useSelectedToken';
 import { Button } from 'react-native-paper';
-import { withSkeleton } from '~/components/skeleton/withSkeleton';
+import { withSuspense } from '~/components/skeleton/withSuspense';
 import { ScreenSkeleton } from '~/components/skeleton/ScreenSkeleton';
 import { useKeepAwakeWhenFocussed } from '~/util/hook/useKeepAwakeWhenFocussed';
 import { AccountSelector } from '../../components/account/AccountSelector/AccountSelector';
@@ -15,7 +15,7 @@ import { QrCode } from './QrCode';
 import { FaucetButton } from './FaucetButton';
 import { useSelectedAccountId } from '~/components/account2/useSelectedAccount';
 
-export const ReceiveScreen = withSkeleton(
+export const ReceiveScreen = withSuspense(
   () => {
     const navigation = useRootNavigation();
     useKeepAwakeWhenFocussed();
