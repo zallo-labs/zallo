@@ -1,17 +1,16 @@
 import { Proposal, useProposals } from '@api/proposal';
 import { FlashList } from '@shopify/flash-list';
 import { TransferMetadata, useTransfersMetadata } from '@subgraph/transfer';
-import { ActivityIcon } from '@theme/icons';
 import { memo } from 'react';
 import { StyleSheet } from 'react-native';
-import { Badge } from 'react-native-paper';
+import { Badge, Text } from 'react-native-paper';
 import { match } from 'ts-pattern';
-import { EmptyListFallback } from '~/components/EmptyListFallback';
 import { ListItemHeight } from '~/components/list/ListItem';
 import { useRootNavigation2 } from '~/navigation/useRootNavigation';
-import { IncomingTransferItem } from '~/screens/activity/IncomingTransferItem';
+import { IncomingTransferItem } from '~/components/call/IncomingTransferItem';
 import { ProposalItem } from '~/components/proposal/ProposalItem';
 import { TabNavigatorScreenProp } from '.';
+import { withSkeleton } from '~/components/skeleton/withSkeleton';
 
 type Item = Proposal | TransferMetadata;
 
@@ -39,26 +38,30 @@ export const ActivityTab = memo((_props: ActivityTabProps) => {
           .otherwise((transfer) => <IncomingTransferItem transfer={transfer.id} />)
       }
       ListEmptyComponent={
-        <EmptyListFallback
-          Icon={ActivityIcon}
-          title="No activity to show"
-          subtitle="Check back later!"
-        />
+        <Text variant="bodyLarge" style={styles.emptyListText}>
+          There is no activity to show
+        </Text>
       }
-      contentContainerStyle={styles.container}
       estimatedItemSize={ListItemHeight.DOUBLE_LINE}
       showsVerticalScrollIndicator={false}
     />
   );
 });
 
+export const ActivityTabBadge = withSkeleton(
+  () => {
+    const n = useProposals({ requiresUserAction: true }).length;
+    return <Badge visible={n > 0} size={6} style={styles.badge} />;
+  },
+  () => null,
+);
+
 const styles = StyleSheet.create({
-  container: {
-    paddingBottom: 8,
+  emptyListText: {
+    alignSelf: 'center',
+    margin: 16,
+  },
+  badge: {
+    transform: [{ translateX: -30 }, { translateY: 12 }],
   },
 });
-
-export const ActivityTabBadge = () => {
-  const n = useProposals({ requiresUserAction: true }).length;
-  return <Badge visible={n > 0} />;
-};

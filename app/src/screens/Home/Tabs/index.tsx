@@ -35,7 +35,7 @@ export const TabNavigator = () => {
       <Tab.Screen
         name="Activity"
         component={ActivityTab}
-        options={{ tabBarBadge: ActivityTabBadge }}
+        options={{ tabBarBadge: () => <ActivityTabBadge /> }}
       />
     </Tab.Navigator>
   );

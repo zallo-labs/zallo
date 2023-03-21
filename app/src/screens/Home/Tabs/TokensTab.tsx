@@ -17,6 +17,7 @@ export const TokensTab = (_props: TokensTabProps) => {
       data={tokens}
       renderItem={({ item }) => <TokenItem token={item} account={account} />}
       estimatedItemSize={ListItemHeight.DOUBLE_LINE}
+      contentContainerStyle={styles.container}
       showsVerticalScrollIndicator={false}
     />
   );
@@ -24,6 +25,6 @@ export const TokensTab = (_props: TokensTabProps) => {
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
+    paddingVertical: 8,
   },
 });
