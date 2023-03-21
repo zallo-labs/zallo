@@ -1,7 +1,7 @@
 import { useTotalValue } from '@token/useTotalValue';
 import { StyleSheet } from 'react-native';
 import { Text } from 'react-native-paper';
-import { useSelectedAccountId } from '~/components/account2/useSelectedAccount';
+import { useSelectedAccountId } from '~/components/AccountSelector/useSelectedAccount';
 import { FiatValue } from '~/components/fiat/FiatValue';
 import { Screen } from '~/components/layout/Screen';
 import { ScreenSkeleton } from '~/components/skeleton/ScreenSkeleton';
@@ -20,7 +20,7 @@ export const HomeScreen = withSuspense((_props: HomeScreenProps) => {
     <Screen safeArea="withoutTop">
       <Appbar />
 
-      <Text variant="displayMedium" style={styles.balance}>
+      <Text variant="displayMedium" style={styles.totalValue}>
         <FiatValue value={useTotalValue(account)} />
       </Text>
 
@@ -32,7 +32,7 @@ export const HomeScreen = withSuspense((_props: HomeScreenProps) => {
 }, ScreenSkeleton);
 
 const styles = StyleSheet.create({
-  balance: {
+  totalValue: {
     margin: 16,
   },
 });

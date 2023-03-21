@@ -1,5 +1,5 @@
 import { useTokensByValue } from '@token/useTokensByValue';
-import { useSelectedAccountId } from '~/components/account2/useSelectedAccount';
+import { useSelectedAccountId } from '~/components/AccountSelector/useSelectedAccount';
 import { FlashList } from '@shopify/flash-list';
 import { ListItemHeight } from '~/components/list/ListItem';
 import { TokenItem } from '~/components/token/TokenItem';

@@ -6,7 +6,7 @@ import {
 } from '@react-navigation/stack';
 import { CreateAccountScreen } from '~/screens/CreateAccount/CreateAccountScreen';
 import { CreateUserScreen } from '~/screens/CreateUser/CreateUserScreen';
-import { AccountsSheet } from '~/screens/Home/AccountsSheet';
+import { AccountsSheetScreen } from '~/screens/AccountsSheet/AccountsSheetScreen';
 import { HomeScreen } from '~/screens/Home/HomeScreen';
 import { OnboardScreen } from '~/screens/Onboard/OnboardScreen';
 import { useShowOnboarding } from '~/screens/Onboard/useShowOnboarding';
@@ -59,7 +59,7 @@ export const StackNavigator = () => {
       <Navigation.Screen name="CreateAccount" component={CreateAccountScreen} />
 
       <Navigation.Group screenOptions={{ presentation: 'transparentModal' }}>
-        <Navigation.Screen name="AccountsSheet" component={AccountsSheet} />
+        <Navigation.Screen name="AccountsSheet" component={AccountsSheetScreen} />
       </Navigation.Group>
 
       {/* <Navigation.Group
