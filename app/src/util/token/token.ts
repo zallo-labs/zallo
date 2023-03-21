@@ -1,11 +1,13 @@
+import assert from 'assert';
 import {
-  asAddress,
   Address,
   Addresslike,
   createIsObj,
   Erc20,
   Erc20__factory,
   isAddress,
+  ChainName,
+  tryAsAddress,
 } from 'lib';
 import _ from 'lodash';
 import { CHAIN, PROVIDER } from '~/util/network/provider';
@@ -33,28 +35,25 @@ export const isToken = createIsObj<Token>(
 
 type TokenDef = Pick<Token, 'name' | 'symbol' | 'decimals'> & {
   type?: TokenType;
-  addresses: Partial<Record<'mainnet' | 'testnet', Addresslike>>;
+  addresses: Partial<Record<ChainName, Addresslike>>;
   iconUri?: string;
 };
 
-export const createToken = (def: TokenDef): Token => {
-  const addresses = _.mapValues(def.addresses, asAddress);
+export const asToken = (def: TokenDef): Token => {
+  const addresses = _.mapValues(def.addresses, tryAsAddress);
 
-  if (CHAIN.name !== 'testnet') throw new Error('Only testnet is supported');
-  const addr = def.addresses[CHAIN.name];
-  if (!addr) throw new Error('Address not found');
+  const addr = addresses[CHAIN.name];
+  assert(addr, `Token '${def.name}' doesn't support current chain '${CHAIN.name}'`);
 
-  const token: Token = {
+  return {
     type: 'ERC20',
     ...def,
-    addr: asAddress(addr),
+    addr,
     addresses,
     iconUri:
       def.iconUri ??
       `https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/ethereum/assets/${def.addresses.mainnet}/logo.png`,
   };
-
-  return token;
 };
 
 export const ERC20_INTERFACE = Erc20__factory.createInterface();

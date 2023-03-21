@@ -1,4 +1,3 @@
-import { persistAtom } from '~/util/effect/persistAtom';
 import { Unimplemented } from '~/util/error/unimplemented';
 import { Address } from 'lib';
 import { atom, atomFamily, selectorFamily, DefaultValue, useRecoilValue, selector } from 'recoil';
@@ -7,14 +6,13 @@ import { HARDCODED_TOKENS } from './tokens';
 
 export const tokenAddressesAtom = atom<Address[]>({
   key: 'TokenAddresses',
-  default: HARDCODED_TOKENS.map((t) => t.addr),
-  // effects: [persistAtom()],
+  default: [...HARDCODED_TOKENS.keys()],
 });
 
 const tokenMetadataAtom = atomFamily<Token, Address>({
   key: 'TokenMetadata',
   default: (addr: Address) => {
-    const token = HARDCODED_TOKENS.find((t) => t.addr === addr);
+    const token = HARDCODED_TOKENS.get(addr);
     if (!token) {
       // TODO: implement dynamic tokens
       throw new Unimplemented(`dynamic tokens; ${addr}`);
@@ -22,7 +20,6 @@ const tokenMetadataAtom = atomFamily<Token, Address>({
 
     return token;
   },
-  // effects: [persistAtom()],
 });
 
 export const tokenAtom = selectorFamily<Token, Address>({

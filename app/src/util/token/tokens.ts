@@ -1,8 +1,9 @@
 import { Image } from 'expo-image';
+import { Address } from 'lib';
 import * as zk from 'zksync-web3';
-import { createToken as token, Token } from './token';
+import { asToken, Token } from './token';
 
-export const ETH = token({
+export const ETH = asToken({
   type: 'ETH',
   name: 'Ether',
   // symbol: 'Ξ',
@@ -16,7 +17,7 @@ export const ETH = token({
     'https://cloudfront-us-east-1.images.arcpublishing.com/coindesk/ZJZZK5B2ZNF25LYQHMUTBTOMLU.png',
 });
 
-export const DAI = token({
+export const DAI = asToken({
   name: 'Dai',
   symbol: 'DAI',
   decimals: 18,
@@ -28,7 +29,7 @@ export const DAI = token({
     'https://raw.githubusercontent.com/compound-finance/token-list/master/assets/asset_DAI.svg',
 });
 
-export const USDC = token({
+export const USDC = asToken({
   name: 'USD Coin',
   symbol: 'USDC',
   decimals: 6,
@@ -40,7 +41,7 @@ export const USDC = token({
     'https://raw.githubusercontent.com/compound-finance/token-list/master/assets/asset_USDC.svg',
 });
 
-export const WBTC = token({
+export const WBTC = asToken({
   name: 'Wrapped Bitcoin',
   symbol: 'wBTC',
   decimals: 8,
@@ -50,7 +51,7 @@ export const WBTC = token({
   },
 });
 
-export const LINK = token({
+export const LINK = asToken({
   name: 'ChainLink',
   symbol: 'LINK',
   decimals: 18,
@@ -61,7 +62,7 @@ export const LINK = token({
   iconUri: 'https://s2.coinmarketcap.com/static/img/coins/64x64/1975.png',
 });
 
-export const USDT = token({
+export const USDT = asToken({
   name: 'Tether USD',
   symbol: 'USDT',
   decimals: 6,
@@ -73,5 +74,7 @@ export const USDT = token({
     'https://raw.githubusercontent.com/compound-finance/token-list/master/assets/asset_USDT.svg',
 });
 
-export const HARDCODED_TOKENS: Token[] = [ETH, DAI, USDC, WBTC, LINK, USDT];
-Image.prefetch(HARDCODED_TOKENS.map((t) => t.iconUri));
+export const HARDCODED_TOKENS = new Map<Address, Token>(
+  [ETH, DAI, USDC, WBTC, LINK, USDT].map((t) => [t.addr, t]),
+);
+Image.prefetch([...HARDCODED_TOKENS.values()].map((t) => t.iconUri));

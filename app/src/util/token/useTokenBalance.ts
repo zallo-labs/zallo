@@ -7,16 +7,13 @@ import { refreshAtom } from '~/util/effect/refreshAtom';
 import { persistAtom } from '~/util/effect/persistAtom';
 import { useCallback } from 'react';
 import { AccountIdlike, asAccountId } from '@api/account';
-import { ETH } from './tokens';
 
 type BalanceKey = [address: Address | null, token: Address];
 
 const fetch = async ([addr, token]: BalanceKey) => {
   if (!addr) return 0n;
   try {
-    return (
-      await PROVIDER.getBalance(addr, undefined, token !== ETH.addr ? token : undefined)
-    ).toBigInt();
+    return (await PROVIDER.getBalance(addr, undefined, token)).toBigInt();
   } catch (e) {
     captureException(e, {
       level: 'error',
