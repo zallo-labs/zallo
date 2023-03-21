@@ -2,7 +2,7 @@ import { useContractMethod } from '@api/method';
 import { ERC20_INTERFACE } from '@token/token';
 import { asAddress, Address, Call } from 'lib';
 
-export const ERC20_TRANSFER_SELECTOR = ERC20_INTERFACE.getSighash(
+const ERC20_TRANSFER_SELECTOR = ERC20_INTERFACE.getSighash(
   ERC20_INTERFACE.functions['transfer(address,uint256)'],
 );
 

@@ -2,16 +2,15 @@ import { ETH } from '@token/tokens';
 import { useMaybeToken } from '@token/useToken';
 import { useProposalLabel } from '../call/useProposalLabel';
 import { useProposalTransfers } from '~/components/call/useProposalTransfers';
-import { ActivityTransfers } from '../../screens/activity/ActivityTransfers';
 import { Timestamp } from '~/components/format/Timestamp';
 import { ListItem, ListItemProps } from '~/components/list/ListItem';
 import { withSkeleton } from '~/components/skeleton/withSkeleton';
 import { ListItemSkeleton } from '~/components/list/ListItemSkeleton';
 import { Proposal, ProposalId, useProposal } from '@api/proposal';
-import { useAccountIds } from '@api/account';
 import { makeStyles } from '@theme/makeStyles';
 import { match } from 'ts-pattern';
-import { Addr } from '~/components/addr/Addr';
+import { FiatValue } from '../fiat/FiatValue';
+import { useTransfersValue } from '../call/useTransfersValue';
 
 export interface ProposalItemProps {
   proposal: ProposalId;
@@ -33,10 +32,13 @@ export const ProposalItem = withSkeleton(({ proposal: id, onPress }: ProposalIte
   return (
     <ListItem
       leading={token.addr}
-      overline={useAccountIds().length > 1 ? <Addr addr={p.account} /> : undefined}
       headline={useProposalLabel(p)}
       supporting={supporting}
-      trailing={({ Text }) => <ActivityTransfers transfers={useProposalTransfers(p)} text={Text} />}
+      trailing={({ Text }) => (
+        <Text variant="labelLarge">
+          <FiatValue value={useTransfersValue(useProposalTransfers(p))} />
+        </Text>
+      )}
       onPress={onPress}
     />
   );

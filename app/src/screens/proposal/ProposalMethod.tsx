@@ -10,7 +10,7 @@ import { Box } from '~/components/layout/Box';
 import { useRootNavigation } from '~/navigation/useRootNavigation';
 import { Proposal } from '@api/proposal';
 import { ProposalTypedData } from './ProposalTypedData';
-import { useTryDecodeAccountFunctionData } from './useTryDecodeAccountFunctionData';
+import { useTryDecodeAccountFunctionData } from '~/components/call/useTryDecodeAccountFunctionData';
 import { match, P } from 'ts-pattern';
 
 const WithIcon = ({ content, right }: { content: ReactNode; right: ReactNode }) => {

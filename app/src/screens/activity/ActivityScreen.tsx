@@ -10,7 +10,7 @@ import { useAppbarHeader } from '~/components/Appbar/useAppbarHeader';
 import { ProposalItem } from '~/components/proposal/ProposalItem';
 import { Proposal, useProposals } from '@api/proposal';
 import { TransferMetadata, useTransfersMetadata } from '@subgraph/transfer';
-import { IncomingTransferItem } from './IncomingTransferItem';
+import { IncomingTransferItem } from '~/components/call/IncomingTransferItem';
 import { match, P } from 'ts-pattern';
 import { ListHeader } from '~/components/list/ListHeader';
 import { makeStyles } from '@theme/makeStyles';

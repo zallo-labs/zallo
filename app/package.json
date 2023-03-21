@@ -56,7 +56,7 @@
     "expo-camera": "~13.2.1",
     "expo-clipboard": "~4.1.2",
     "expo-constants": "~14.2.1",
-    "expo-dev-client": "~2.1.5",
+    "expo-dev-client": "~2.1.6",
     "expo-device": "~5.2.1",
     "expo-haptics": "~12.2.1",
     "expo-image": "~1.0.0",

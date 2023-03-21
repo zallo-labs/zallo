@@ -2,7 +2,7 @@ import { useContractMethod } from '@api/method';
 import { ZERO_ADDR } from 'lib';
 import { match } from 'ts-pattern';
 import { Proposal } from '@api/proposal';
-import { useTryDecodeAccountFunctionData } from '~/screens/proposal/useTryDecodeAccountFunctionData';
+import { useTryDecodeAccountFunctionData } from './useTryDecodeAccountFunctionData';
 import { uppercaseFirst } from '~/util/string';
 import { useAddrName } from '../addr/useAddrName';
 import { useDecodedTransfer } from './useDecodedTransfer';

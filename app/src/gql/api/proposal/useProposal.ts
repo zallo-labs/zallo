@@ -74,9 +74,8 @@ export const useProposal = <Id extends ProposalId | undefined>(id: Id) => {
   useProposalSubscription({ proposals: id, skip });
 
   const p = data.proposal;
-  if (id) assert(p);
-
   const proposal = useMemo((): Proposal | undefined => (p ? toProposal(p) : undefined), [p]);
 
+  if (id) assert(p, 'Proposal not found');
   return proposal as Id extends undefined ? Proposal | undefined : Proposal;
 };

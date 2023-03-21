@@ -1,4 +1,4 @@
-import { AccountIdlike } from '@api/account';
+import { AccountIdlike, asAccountId } from '@api/account';
 import { makeStyles } from '@theme/makeStyles';
 import { getTokenContract, Token } from '@token/token';
 import { useTokenAvailable } from '@token/useTokenAvailable';
@@ -38,7 +38,7 @@ export type SendScreenProps = StackNavigatorScreenProps<'Send'>;
 export const SendScreen = ({ route, navigation }: SendScreenProps) => {
   const { account, to } = route.params;
   const styles = useStyles();
-  const selectToken = useSelectToken({ account });
+  const selectToken = useSelectToken({ account: asAccountId(account) });
   const [propose, proposing] = usePropose();
   const [token, setSelectToken] = [useSelectedToken(), useSetSelectedToken()];
   const available = useTokenAvailable(token, account);
