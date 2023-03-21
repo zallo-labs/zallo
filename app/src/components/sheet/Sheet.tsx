@@ -1,5 +1,7 @@
 import { forwardRef, PropsWithChildren } from 'react';
 import BottomSheet, {
+  BottomSheetBackdrop,
+  BottomSheetBackdropProps,
   BottomSheetBackgroundProps,
   BottomSheetProps,
   BottomSheetView,
@@ -7,6 +9,7 @@ import BottomSheet, {
 } from '@gorhom/bottom-sheet';
 import { makeStyles } from '@theme/makeStyles';
 import { Surface } from 'react-native-paper';
+import { StyleProp, ViewStyle } from 'react-native';
 
 export const CONTENT_HEIGHT_SNAP_POINT = 'CONTENT_HEIGHT';
 const DEFAULT_SNAP_POINTS = [CONTENT_HEIGHT_SNAP_POINT];
@@ -17,13 +20,31 @@ const Background = ({ children, style }: PropsWithChildren<BottomSheetBackground
   </Surface>
 );
 
+const Backdrop = (props: BottomSheetBackdropProps) => (
+  <BottomSheetBackdrop
+    disappearsOnIndex={-1}
+    {...props}
+    style={[props.style, useStyles().backdrop]}
+  />
+);
+
 export interface SheetProps extends Omit<BottomSheetProps, 'ref' | 'snapPoints'> {
   initialSnapPoints?: (string | number)[];
   handle?: boolean;
+  contentContainerStyle?: StyleProp<ViewStyle>;
 }
 
 export const Sheet = forwardRef<BottomSheet, SheetProps>(
-  ({ children, initialSnapPoints = DEFAULT_SNAP_POINTS, handle = true, ...props }, ref) => {
+  (
+    {
+      children,
+      initialSnapPoints = DEFAULT_SNAP_POINTS,
+      handle = true,
+      contentContainerStyle,
+      ...props
+    },
+    ref,
+  ) => {
     const styles = useStyles();
 
     const { animatedHandleHeight, animatedSnapPoints, animatedContentHeight, handleContentLayout } =
@@ -36,16 +57,18 @@ export const Sheet = forwardRef<BottomSheet, SheetProps>(
         snapPoints={animatedSnapPoints}
         contentHeight={animatedContentHeight}
         backgroundComponent={Background}
-        // backdropComponent={SheetBackdrop}
+        backdropComponent={Backdrop}
         enablePanDownToClose
         {...props}
         {...(!handle && { handleComponent: null })}
-        // containerStyle={[styles.container, props.containerStyle]}
         backgroundStyle={[styles.background, props.backgroundStyle]}
         handleStyle={[styles.handle, props.handleStyle]}
         handleIndicatorStyle={[styles.handleIndicator, props.handleIndicatorStyle]}
       >
-        <BottomSheetView onLayout={handleContentLayout} style={styles.contentContainer}>
+        <BottomSheetView
+          onLayout={handleContentLayout}
+          style={[styles.contentContainer, contentContainerStyle]}
+        >
           {children}
         </BottomSheetView>
       </BottomSheet>
@@ -53,25 +76,25 @@ export const Sheet = forwardRef<BottomSheet, SheetProps>(
   },
 );
 
-const useStyles = makeStyles(({ colors, s, corner }) => ({
-  container: {
-    // backgroundColor: colors.scrim,
-  },
+const useStyles = makeStyles(({ colors, corner }) => ({
   background: {
+    backgroundColor: colors.surface,
     borderTopLeftRadius: corner.xl,
     borderTopRightRadius: corner.xl,
   },
   handle: {
-    marginTop: s(8),
+    paddingVertical: 16,
   },
   handleIndicator: {
     backgroundColor: colors.onSurfaceVariant,
-    width: s(32),
-    heigh: s(4),
+    width: 32,
+    height: 4,
+    opacity: 0.4,
   },
   contentContainer: {
-    // paddingVertical isn't setting paddingBottom...
-    paddingTop: s(24),
-    paddingBottom: s(24),
+    paddingBottom: 16,
+  },
+  backdrop: {
+    backgroundColor: colors.scrim,
   },
 }));
