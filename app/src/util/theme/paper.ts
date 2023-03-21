@@ -1,25 +1,9 @@
-import { MD3LightTheme as PaperLightTheme, useTheme as baseUseTheme } from 'react-native-paper';
+import { MD3LightTheme as overrided, useTheme as baseUseTheme } from 'react-native-paper';
 import { space, typoSpace, space2, font } from './styledComponents';
 import color from 'color';
+import { match } from 'ts-pattern';
 
-const c = (c: string, f: (color: color<string>) => color<string>) => f(color(c)).rgb().string();
-
-const overrided: typeof PaperLightTheme = {
-  ...PaperLightTheme,
-};
-
-const opacityModifier = {
-  // https://m3.material.io/foundations/interaction-states
-  hover: 0.08,
-  focus: 0.12,
-  press: 0.12,
-  drag: 0.16,
-} as const;
-
-const opacity = {
-  disabled: 0.38,
-  opaque: 0.6,
-} as const;
+const c = (c: string, f: (color: color<string>) => color<string>) => f(color(c)).hexa();
 
 // https://github.com/callstack/react-native-paper/blob/main/src/styles/themes/v3/DarkTheme.tsx
 export const PAPER_THEME = {
@@ -28,17 +12,8 @@ export const PAPER_THEME = {
   colors: {
     ...overrided.colors,
 
-    surfaceFocussed: c(overrided.colors.surface, (c) => c.opaquer(opacityModifier.focus)),
-    surfacePressed: c(overrided.colors.surface, (c) => c.opaquer(opacityModifier.press)),
-    surfaceDisabled: c(overrided.colors.onSurface, (c) => c.alpha(opacityModifier.focus)),
-    onSurfaceOpaque: c(overrided.colors.onSurface, (c) => c.alpha(opacity.opaque)),
-    onSurfaceDisabled: c(overrided.colors.onSurface, (c) => c.alpha(opacity.disabled)),
-    primaryContainerDisabled: c(overrided.colors.primaryContainer, (c) =>
-      c.alpha(opacity.disabled),
-    ),
-    onPrimaryContainerDisabled: c(overrided.colors.onPrimaryContainer, (c) =>
-      c.alpha(opacity.disabled),
-    ),
+    surfaceDisabled: c(overrided.colors.onSurface, (c) => c.alpha(0.12)),
+    onSurfaceOpaque: c(overrided.colors.onSurface, (c) => c.alpha(0.6)),
 
     // Green
     green: '#4b6708',
@@ -51,14 +26,18 @@ export const PAPER_THEME = {
     orangeContainer: '#ffdcc1',
     onOrangeContainer: '#2f1500',
   },
-  color: c,
-  opacity,
-  opacityModifier,
 
-  state: {
-    focussed: (color: string) => c(color, (c) => c.opaquer(opacityModifier.focus)),
-    pressed: (color: string) => c(color, (c) => c.opaquer(opacityModifier.press)),
-  },
+  // https://m3.material.io/foundations/interaction-states
+  stateLayer: (
+    color: string,
+    state: 'normal' | false | undefined | 'hover' | 'focus' | 'pressed' | 'disabled',
+  ) =>
+    match(state)
+      .with('hover', () => c(color, (c) => c.alpha(0.08)))
+      .with('focus', () => c(color, (c) => c.alpha(0.12)))
+      .with('pressed', () => c(color, (c) => c.alpha(0.12)))
+      .with('disabled', () => c(color, (c) => c.alpha(0.38)))
+      .otherwise(() => color),
 
   space,
   typoSpace,

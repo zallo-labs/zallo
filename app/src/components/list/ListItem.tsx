@@ -144,68 +144,67 @@ export enum ListItemHeight {
   TRIPLE_LINE = 88,
 }
 
-const useStyles = makeStyles(({ colors, s, corner }, { lines, selected, disabled }: StyleProps) => {
-  const justifyContent = lines === 3 ? 'flex-start' : 'center';
+const useStyles = makeStyles(
+  ({ colors, s, corner, stateLayer }, { lines, selected, disabled }: StyleProps) => {
+    const justifyContent = lines === 3 ? 'flex-start' : 'center';
 
-  return {
-    container: {
-      flexDirection: 'row',
-      // backgroundColor: !disabled ? undefined : colors.surfaceDisabled,
-      height: [
-        s(ListItemHeight.SINGLE_LINE),
-        s(ListItemHeight.DOUBLE_LINE),
-        s(ListItemHeight.TRIPLE_LINE),
-      ][lines - 1],
-      paddingLeft: s(16),
-      paddingRight: s(24),
-      paddingVertical: lines === 3 ? s(12) : s(8),
-    },
-    leadingContainer: {
-      justifyContent,
-      marginRight: s(16),
-    },
-    leadingAvatarContainer: {
-      fontSize: 40,
-      backgroundColor: !disabled ? colors.primaryContainer : colors.primaryContainerDisabled,
-      borderRadius: corner.full,
-    },
-    leadingAvatarLabel: {
-      color: !disabled ? colors.onPrimaryContainer : colors.onPrimaryContainerDisabled,
-    },
-    leadingIcon: {
-      fontSize: 18,
-      backgroundColor: !disabled ? colors.onSurfaceVariant : colors.onSurfaceDisabled,
-    },
-    mainContainer: {
-      flex: 1,
-      justifyContent,
-    },
-    overline: {
-      color: !disabled ? colors.onSurfaceVariant : colors.onSurfaceDisabled,
-    },
-    headline: {
-      color: !disabled ? colors.onSurface : colors.onSurfaceDisabled,
-    },
-    supporting: {
-      color: !disabled ? colors.onSurfaceVariant : colors.onSurfaceDisabled,
-    },
-    trailingContainer: {
-      justifyContent,
-      alignItems: 'flex-end',
-      marginLeft: s(16),
-    },
-    trailingText: {
-      color: !disabled ? colors.onSurfaceVariant : colors.onSurfaceDisabled,
-      textAlign: 'right',
-    },
-    trailingIcon: {
-      fontSize: s(24),
-      color: match({ selected, disabled })
-        .with({ disabled: true }, () => colors.onSurfaceDisabled)
-        .with({ selected: undefined }, () => colors.onSurfaceVariant)
-        .with({ selected: true }, () => colors.primary)
-        .with({ selected: false }, () => colors.onSurface)
-        .exhaustive(),
-    },
-  };
-});
+    const withState = (color: string) => stateLayer(color, disabled && 'disabled');
+
+    return {
+      container: {
+        flexDirection: 'row',
+        ...(selected && { backgroundColor: stateLayer(colors.onSurface, 'focus') }),
+        height: [
+          s(ListItemHeight.SINGLE_LINE),
+          s(ListItemHeight.DOUBLE_LINE),
+          s(ListItemHeight.TRIPLE_LINE),
+        ][lines - 1],
+        paddingLeft: s(16),
+        paddingRight: s(24),
+        paddingVertical: lines === 3 ? s(12) : s(8),
+      },
+      leadingContainer: {
+        justifyContent,
+        marginRight: s(16),
+      },
+      leadingAvatarContainer: {
+        fontSize: 40,
+        backgroundColor: withState(colors.tertiaryContainer),
+        borderRadius: corner.full,
+      },
+      leadingAvatarLabel: {
+        color: withState(colors.tertiary),
+      },
+      leadingIcon: {
+        fontSize: 18,
+        backgroundColor: withState(colors.onSurfaceVariant),
+      },
+      mainContainer: {
+        flex: 1,
+        justifyContent,
+      },
+      overline: {
+        color: withState(colors.onSurfaceVariant),
+      },
+      headline: {
+        color: withState(colors.onSurface),
+      },
+      supporting: {
+        color: withState(colors.onSurfaceVariant),
+      },
+      trailingContainer: {
+        justifyContent,
+        alignItems: 'flex-end',
+        marginLeft: s(16),
+      },
+      trailingText: {
+        color: withState(colors.onSurfaceVariant),
+        textAlign: 'right',
+      },
+      trailingIcon: {
+        fontSize: s(24),
+        color: withState(colors.onSurface),
+      },
+    };
+  },
+);
