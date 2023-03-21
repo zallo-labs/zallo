@@ -12,7 +12,7 @@ import { AppbarBack2 } from '~/components/Appbar/AppbarBack';
 import { SearchIcon } from '@theme/icons';
 import { ListHeader } from '~/components/list/ListHeader';
 import { TokenItem } from '~/components/token/TokenItem';
-import { useSelectedAccountId } from '~/components/account2/useSelectedAccount';
+import { useSelectedAccountId } from '~/components/AccountSelector/useSelectedAccount';
 import { Screen } from '~/components/layout/Screen';
 
 export interface TokensScreenParams {

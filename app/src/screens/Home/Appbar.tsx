@@ -1,7 +1,7 @@
 import { ScanIcon, SettingsOutlineIcon } from '@theme/icons';
 import { StyleSheet, View } from 'react-native';
 import { Appbar as BaseAppbar } from 'react-native-paper';
-import { AccountSelector } from '~/components/account2/AccountSelector';
+import { AccountSelector } from '~/components/AccountSelector/AccountSelector';
 import { useRootNavigation2 } from '~/navigation/useRootNavigation';
 
 export const Appbar = () => {

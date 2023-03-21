@@ -13,7 +13,7 @@ import { useRootNavigation } from '~/navigation/useRootNavigation';
 import { Container } from '~/components/layout/Container';
 import { QrCode } from './QrCode';
 import { FaucetButton } from './FaucetButton';
-import { useSelectedAccountId } from '~/components/account2/useSelectedAccount';
+import { useSelectedAccountId } from '~/components/AccountSelector/useSelectedAccount';
 
 export const ReceiveScreen = withSuspense(
   () => {
