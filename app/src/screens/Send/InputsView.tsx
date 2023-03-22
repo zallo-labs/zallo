@@ -49,7 +49,7 @@ export const InputsView = ({ input, setInput, type, setType }: InputsViewProps) 
     type === InputType.Token ? tokenToFiat(token, tokenAmount, price) : fiatAsBigInt(inputAmount);
 
   return (
-    <View style={styles.inputsContainer}>
+    <View style={styles.container}>
       <View style={styles.primaryInputContainer}>
         <Button
           mode="text"
@@ -114,7 +114,7 @@ export const InputsView = ({ input, setInput, type, setType }: InputsViewProps) 
 };
 
 const useStyles = makeStyles(({ colors }) => ({
-  inputsContainer: {
+  container: {
     alignItems: 'center',
     marginHorizontal: 16,
     marginVertical: 32,
