@@ -1,11 +1,18 @@
 import { QrCodeIcon, SendIcon, SwapIcon } from '@theme/icons';
 import { StyleSheet, View } from 'react-native';
 import { Button } from 'react-native-paper';
+import { useRootNavigation2 } from '~/navigation/useRootNavigation';
+import { useScanAddress } from '../Scan/useScanAddress';
 
 export const QuickActions = () => {
+  const { navigate } = useRootNavigation2();
+  const scan = useScanAddress();
+
+  const send = async () => navigate('Send', { to: await scan() });
+
   return (
     <View style={styles.container}>
-      <Button icon={SendIcon} mode="contained-tonal" style={styles.button}>
+      <Button icon={SendIcon} mode="contained-tonal" style={styles.button} onPress={send}>
         Send
       </Button>
 
