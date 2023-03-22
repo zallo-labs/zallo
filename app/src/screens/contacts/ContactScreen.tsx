@@ -10,7 +10,7 @@ import { ScanIcon } from '~/util/theme/icons';
 import assert from 'assert';
 import { useMemo } from 'react';
 import { ContactAppbar } from './ContactAppbar';
-import { useScanAddr } from '../Scan/useScanAddr';
+import { useScanAddress } from '../Scan/useScanAddress';
 import { makeStyles } from '@theme/makeStyles';
 import { FormikSubmitActionButton } from '~/components/fields/FormikSubmitActionButton';
 
@@ -41,7 +41,7 @@ const getSchema = (contacts: Contact[], existing?: Contact): Yup.SchemaOf<Values
   });
 
 export interface ContactScreenParams {
-  addr?: Address;
+  address?: Address;
 }
 
 export type ContactScreenProps = StackNavigatorScreenProps<'Contact'>;
@@ -49,9 +49,9 @@ export type ContactScreenProps = StackNavigatorScreenProps<'Contact'>;
 export const ContactScreen = ({ route, navigation: { goBack, setParams } }: ContactScreenProps) => {
   const styles = useStyles();
   const contacts = useContacts();
-  const existing = useContact(route.params.addr);
+  const existing = useContact(route.params.address);
   const upsert = useUpsertContact();
-  const scanAddr = useScanAddr();
+  const scanAddress = useScanAddress();
 
   const handleSubmit = async (values: Values, helpers: FormikHelpers<Values>) => {
     assert(isAddress(values.addr)); // Enforced by schema
@@ -62,7 +62,7 @@ export const ContactScreen = ({ route, navigation: { goBack, setParams } }: Cont
       },
       existing,
     );
-    setParams({ addr: values.addr });
+    setParams({ address: values.addr });
   };
 
   return (
@@ -94,7 +94,7 @@ export const ContactScreen = ({ route, navigation: { goBack, setParams } }: Cont
                 style={styles.scanButton}
                 disabled={isSubmitting}
                 onPress={async () => {
-                  setFieldValue('addr', (await scanAddr()).target_address);
+                  setFieldValue('addr', await scanAddress());
                   goBack();
                 }}
               >

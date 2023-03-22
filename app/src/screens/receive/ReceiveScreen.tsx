@@ -1,6 +1,6 @@
 import { Box } from '~/components/layout/Box';
 import { ReceiveAppbar } from './ReceiveAppbar';
-import { buildAddrLink, buildTransferLink } from '~/util/addrLink';
+import { buildAddressLink } from '~/util/addressLink';
 import { useMemo, useState } from 'react';
 import { SelectableTokenAmountCard } from '~/components/token/SelectableTokenAmountCard';
 import { useSelectedToken } from '~/components/token/useSelectedToken';
@@ -27,9 +27,10 @@ export const ReceiveScreen = withSuspense(
 
     const url = useMemo(
       () =>
-        amount
-          ? buildTransferLink({ target_address: account }, token, amount)
-          : buildAddrLink({ target_address: account }),
+        buildAddressLink({
+          target_address: account,
+          ...(amount && { token, amount }),
+        }),
       [account, amount, token],
     );
 

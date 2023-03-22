@@ -1,61 +1,69 @@
-import { BackIcon, PasteIcon } from '~/util/theme/icons';
+import { BackIcon, ContactsIcon, PasteIcon } from '~/util/theme/icons';
 import { makeStyles } from '~/util/theme/makeStyles';
 import { IconButton } from 'react-native-paper';
 import { EdgeInsets, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useGoBack } from '~/components/Appbar/useGoBack';
 import BarcodeMask from 'react-native-barcode-mask';
-import { useTheme } from '@theme/paper';
-import { SafeAreaView } from 'react-native';
+import { View } from 'react-native';
 import * as Clipboard from 'expo-clipboard';
+import { useSelectContact } from '../contacts/useSelectContact';
 
 export interface OverlayProps {
-  handleScanned: (data: string) => void;
+  tryHandle: (data: string) => void;
 }
 
-export const Overlay = ({ handleScanned }: OverlayProps) => {
+export const Overlay = ({ tryHandle }: OverlayProps) => {
   const styles = useStyles(useSafeAreaInsets());
-  const { colors, roundness } = useTheme();
+  const selectContact = useSelectContact();
 
   return (
-    <SafeAreaView style={styles.root}>
+    <View style={styles.root}>
       <BarcodeMask
         outerMaskOpacity={0.4}
-        edgeRadius={roundness}
-        edgeColor={colors.onBackground}
+        edgeColor={styles.maskEdge.color}
+        edgeRadius={styles.maskEdge.borderRadius}
         showAnimatedLine={false}
       />
 
-      <IconButton
-        icon={BackIcon}
-        mode="contained-tonal"
-        style={styles.back}
-        onPress={useGoBack()}
-      />
+      <View style={styles.actionsContainer}>
+        <IconButton icon={BackIcon} mode="contained-tonal" onPress={useGoBack()} />
 
-      <IconButton
-        icon={PasteIcon}
-        mode="contained-tonal"
-        style={styles.paste}
-        onPress={async () => handleScanned(await Clipboard.getStringAsync())}
-      />
-    </SafeAreaView>
+        <View style={styles.spacer} />
+
+        <IconButton
+          icon={ContactsIcon}
+          mode="contained-tonal"
+          onPress={async () => tryHandle((await selectContact()).addr)}
+        />
+
+        <IconButton
+          icon={PasteIcon}
+          mode="contained-tonal"
+          onPress={async () => tryHandle(await Clipboard.getStringAsync())}
+        />
+      </View>
+    </View>
   );
 };
 
-const useStyles = makeStyles(({ space }, accountArea: EdgeInsets) => ({
+const useStyles = makeStyles(({ colors, roundness }, insets: EdgeInsets) => ({
   root: {
     flex: 1,
   },
-  back: {
-    position: 'absolute',
-    top: accountArea.top,
-    left: accountArea.left,
-    margin: space(2),
+  maskEdge: {
+    color: colors.primaryContainer,
+    borderRadius: roundness,
   },
-  paste: {
+  actionsContainer: {
     position: 'absolute',
-    top: accountArea.top,
-    right: accountArea.right,
-    margin: space(2),
+    top: 0,
+    left: insets.left,
+    flexDirection: 'row',
+    margin: 16,
+    marginRight: 16 + insets.right,
+    gap: 16,
+  },
+  spacer: {
+    flex: 1,
   },
 }));

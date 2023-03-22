@@ -5,11 +5,11 @@ import { makeStyles } from '~/util/theme/makeStyles';
 import { StackNavigatorScreenProps } from '~/navigation/StackNavigator';
 import { AccountId, useAccount } from '@api/account';
 import { Appbar } from 'react-native-paper';
-import { NameIcon, QuorumsIcon, ShareIcon } from '@theme/icons';
-import { buildAddrLink } from '~/util/addrLink';
+import { NameIcon, ShareIcon } from '@theme/icons';
 import { Share } from 'react-native';
 import { ListItem } from '~/components/list/ListItem';
 import { useGoBack } from '~/components/Appbar/useGoBack';
+import { buildAddressLink } from '~/util/addressLink';
 
 export interface AccountScreenParams {
   account: AccountId;
@@ -31,7 +31,7 @@ export const AccountScreen = withSuspense(
           <Appbar.Action
             icon={ShareIcon}
             onPress={() => {
-              const url = buildAddrLink({ target_address: account.id });
+              const url = buildAddressLink(account.id);
               Share.share({ url, message: `${account.name}\n${url}` });
             }}
           />

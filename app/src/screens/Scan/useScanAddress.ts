@@ -1,17 +1,17 @@
 import { useNavigation } from '@react-navigation/native';
+import { Address } from 'lib';
 import { useCallback } from 'react';
-import { AddrLink } from '~/util/addrLink';
 import { ScanScreenParams } from './ScanScreen';
 
-export const useScanAddr = () => {
+export const useScanAddress = () => {
   const { navigate } = useNavigation();
 
   return useCallback(
-    (params?: Omit<ScanScreenParams, 'onScanAddr'>) =>
-      new Promise<AddrLink>((resolve) =>
+    (params?: Omit<ScanScreenParams, 'onAddress'>) =>
+      new Promise<Address>((resolve) =>
         navigate('Scan', {
           ...params,
-          onScanAddr: resolve,
+          onAddress: resolve,
         }),
       ),
     [navigate],

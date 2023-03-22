@@ -1,87 +1,97 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { StyleSheet } from 'react-native';
 import { Camera } from 'expo-camera';
 import { BarCodeScanner } from 'expo-barcode-scanner';
-import { Box } from '~/components/layout/Box';
-import { Button, Title } from 'react-native-paper';
-import { AddrLink, parseAddrLink } from '~/util/addrLink';
-import { StackNavigatorScreenProps } from '~/navigation/StackNavigator';
+import { Button, Text } from 'react-native-paper';
+import { parseAddressLink } from '~/util/addressLink';
+import { StackNavigatorScreenProps } from '~/navigation/StackNavigator2';
 import { Overlay } from './Overlay';
 import { isWalletConnectUri, useWalletConnect } from '~/util/walletconnect';
+import { Screen } from '~/components/layout/Screen';
+import { Actions } from '~/components/layout/Actions';
+import { Address, tryAsAddress } from 'lib';
+import { withSuspense } from '~/components/skeleton/withSuspense';
+import { Splash } from '~/components/Splash';
 
 export type ScanScreenParams = {
-  onScanAddr?: (link: AddrLink) => void;
+  onAddress?: (address: Address) => void;
 };
 
 export type ScanScreenProps = StackNavigatorScreenProps<'Scan'>;
 
-export const ScanScreen = ({ route, navigation }: ScanScreenProps) => {
-  const { onScanAddr } = route.params;
-  const walletconnect = useWalletConnect();
+export const ScanScreen = withSuspense(
+  ({ route, navigation: { goBack, replace } }: ScanScreenProps) => {
+    const { onAddress } = route.params;
+    const walletconnect = useWalletConnect();
 
-  const camera = useRef<Camera>(null);
-  const [hasPermission, setHasPermission] = useState<boolean | null>(null);
-  const [canAskAgain, setCanAskAgain] = useState(false);
-  const requestPermissions = useCallback(async () => {
-    const { granted, canAskAgain } = await Camera.requestCameraPermissionsAsync();
+    const [scan, setScan] = useState(true);
+    const tryHandle = async (data: string) => {
+      setScan(false);
 
-    setHasPermission(granted);
-    setCanAskAgain(canAskAgain);
-  }, []);
+      const address = tryAsAddress(data) || parseAddressLink(data)?.target_address;
+      if (address) {
+        if (onAddress) {
+          onAddress(address);
+        } else {
+          replace('AddressSheet', { address });
+        }
+      } else if (isWalletConnectUri(data)) {
+        await walletconnect.pair({ uri: data });
+        goBack();
+      } else {
+        setScan(true);
+      }
+    };
 
-  const [ratio, setRatio] = useState<string | undefined>('16:9');
-  const detectRatio = useCallback(async () => {
-    const ratios = await camera.current?.getSupportedRatiosAsync();
-    if (ratios?.length) setRatio(ratios[ratios.length - 1]);
-  }, [camera]);
+    const [permission, requestPermission] = Camera.useCameraPermissions();
 
-  useEffect(() => {
-    requestPermissions();
-    detectRatio();
-  }, [detectRatio, requestPermissions]);
+    useEffect(() => {
+      requestPermission();
+    }, [requestPermission]);
 
-  const [scanning, setScanning] = useState(false);
-  const handleScanned = async (data: string) => {
-    setScanning(true);
+    if (!permission?.granted) {
+      return (
+        <Screen>
+          <Text variant="headlineMedium" style={styles.pleaseGrantText}>
+            Please grant camera permissions in order to scan a QR code
+          </Text>
 
-    const addrLink = parseAddrLink(data);
-    if (addrLink) {
-      onScanAddr?.(addrLink);
-    } else if (isWalletConnectUri(data)) {
-      await walletconnect.pair({ uri: data });
-      navigation.goBack();
-    } else {
-      setScanning(false);
-    }
-  };
-
-  if (!hasPermission) {
-    if (hasPermission === null) {
-      // User being prompted for permission
-      return null;
+          <Actions>
+            <Button
+              mode="contained"
+              onPress={requestPermission}
+              style={styles.requestAction}
+              disabled={permission !== null && !permission.canAskAgain}
+            >
+              Grant
+            </Button>
+          </Actions>
+        </Screen>
+      );
     }
 
     return (
-      <Box flex={1} vertical center m={3}>
-        <Title style={{ textAlign: 'center' }}>
-          Please grant camera permissions in order to scan a QR code
-        </Title>
-        {canAskAgain && <Button onPress={requestPermissions}>Grant</Button>}
-      </Box>
+      <Camera
+        onBarCodeScanned={scan ? ({ data }) => tryHandle(data) : undefined}
+        barCodeScannerSettings={{ barCodeTypes: [BarCodeScanner.Constants.BarCodeType.qr] }}
+        style={StyleSheet.absoluteFill}
+        ratio="16:9"
+        useCamera2Api
+      >
+        <Overlay tryHandle={tryHandle} />
+      </Camera>
     );
-  }
+  },
+  Splash,
+);
 
-  return (
-    <Camera
-      ref={camera}
-      onBarCodeScanned={!scanning ? ({ data }) => handleScanned(data) : undefined}
-      barCodeScannerSettings={{
-        barCodeTypes: [BarCodeScanner.Constants.BarCodeType.qr],
-      }}
-      style={StyleSheet.absoluteFill}
-      ratio={ratio}
-    >
-      <Overlay handleScanned={handleScanned} />
-    </Camera>
-  );
-};
+const styles = StyleSheet.create({
+  pleaseGrantText: {
+    textAlign: 'center',
+    marginHorizontal: 16,
+    marginVertical: 32,
+  },
+  requestAction: {
+    alignSelf: 'stretch',
+  },
+});

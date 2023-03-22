@@ -8,7 +8,6 @@ import { Contact, useContacts } from '@api/contacts';
 import { useSearch } from '@hook/useSearch';
 import { withSuspense } from '~/components/skeleton/withSuspense';
 import { ScreenSkeleton } from '~/components/skeleton/ScreenSkeleton';
-import { AppbarMenu2 } from '~/components/Appbar/AppbarMenu';
 import { AppbarBack2 } from '~/components/Appbar/AppbarBack';
 import { Searchbar } from '~/components/fields/Searchbar';
 import { ListHeader } from '~/components/list/ListHeader';
@@ -35,7 +34,7 @@ export const ContactsScreen = withSuspense(
     return (
       <Screen safeArea={isScreen ? 'withoutTop' : 'withoutVertical'} style={styles.root}>
         <Searchbar
-          leading={onSelect ? AppbarBack2 : AppbarMenu2}
+          leading={AppbarBack2}
           placeholder="Search contacts"
           trailing={SearchIcon}
           {...searchProps}
@@ -49,7 +48,7 @@ export const ContactsScreen = withSuspense(
               contact={contact}
               disabled={disabled?.has(contact.addr)}
               onPress={() => {
-                onSelect ? onSelect(contact) : navigate('Contact', { addr: contact.addr });
+                onSelect ? onSelect(contact) : navigate('Contact', { address: contact.addr });
               }}
             />
           )}

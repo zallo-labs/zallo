@@ -11,7 +11,7 @@ import { Box } from '~/components/layout/Box';
 import { useUser, useUpdateUser } from '@api/user';
 import { StackNavigatorScreenProps } from '~/navigation/StackNavigator';
 import { hideSnackbar, showInfo } from '~/provider/SnackbarProvider';
-import { buildAddrLink } from '~/util/addrLink';
+import { buildAddressLink } from '~/util/addressLink';
 import { QrCode } from '../receive/QrCode';
 
 export type DeviceScreenProps = StackNavigatorScreenProps<'Device'>;
@@ -34,7 +34,7 @@ export const DeviceScreen = (_props: DeviceScreenProps) => {
     return () => hideSnackbar();
   }, []);
 
-  const url = useMemo(() => buildAddrLink({ target_address: id }), [id]);
+  const url = useMemo(() => buildAddressLink(id), [id]);
 
   return (
     <Box flex={1}>
