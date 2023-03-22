@@ -1,7 +1,7 @@
 import { Token } from '@token/token';
-import { useFormattedNumber } from '../format/FormattedNumber';
+import { FormattedNumberOptions, useFormattedNumber } from '../format/FormattedNumber';
 
-export interface FormattedTokenAmountOptions {
+export interface FormattedTokenAmountOptions extends Partial<FormattedNumberOptions> {
   token: Token;
   amount?: bigint;
   trailing?: 'name' | 'symbol' | false;
@@ -11,6 +11,7 @@ export const useFormattedTokenAmount = ({
   token,
   amount = 0n,
   trailing = 'symbol',
+  ...options
 }: FormattedTokenAmountOptions) =>
   useFormattedNumber({
     value: amount,
@@ -18,6 +19,7 @@ export const useFormattedTokenAmount = ({
     maximumFractionDigits: 3,
     extendedFractionDigits: 4,
     postFormat: trailing ? (v) => `${v} ${token[trailing]}` : undefined,
+    ...options,
   });
 
 export interface TokenAmountProps extends FormattedTokenAmountOptions {}

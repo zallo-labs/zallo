@@ -12,6 +12,7 @@ import { OnboardScreen } from '~/screens/Onboard/OnboardScreen';
 import { useShowOnboarding } from '~/screens/Onboard/useShowOnboarding';
 import { ScanScreen, ScanScreenParams } from '~/screens/Scan/ScanScreen';
 import { ProposalScreen, ProposalScreenParams } from '~/screens/Proposal/ProposalScreen2';
+import { SendScreen, SendScreenParams } from '~/screens/Send/SendScreen2';
 // import { SettingsScreen } from '~/screens/Settings/SettingsScreen';
 
 export type StackNavigatorParamList = {
@@ -23,6 +24,7 @@ export type StackNavigatorParamList = {
   AccountsSheet: undefined;
   Scan: ScanScreenParams;
   Proposal: ProposalScreenParams;
+  Send: SendScreenParams;
   // Settings
   Settings: undefined;
   // Account
@@ -53,6 +55,7 @@ export const StackNavigator = () => {
       <Navigation.Screen name="Home" component={HomeScreen} />
       <Navigation.Screen name="Scan" component={ScanScreen} />
       <Navigation.Screen name="Proposal" component={ProposalScreen} />
+      <Navigation.Screen name="Send" component={SendScreen} />
 
       {/* <Navigation.Screen name="Settings" component={SettingsScreen} /> */}
 

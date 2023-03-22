@@ -48,6 +48,7 @@ export const RemoveIcon = CloseIcon;
 export const ErrorIcon = materialIcon('error');
 export const RetryIcon = materialIcon('redo');
 export const SwapIcon = materialCommunityIcon('swap-horizontal');
+export const SwapVerticalIcon = materialCommunityIcon('swap-vertical');
 export const SearchIcon = materialIcon('search');
 export const PlusIcon = materialCommunityIcon('plus');
 export const SettingsIcon = materialCommunityIcon('cog');
