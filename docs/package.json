@@ -21,7 +21,7 @@
     "@docusaurus/core": "^2.3.1",
     "@docusaurus/preset-classic": "^2.3.1",
     "@docusaurus/remark-plugin-npm2yarn": "^2.3.1",
-    "@emotion/react": "^11.10.5",
+    "@emotion/react": "^11.10.6",
     "@graphql-markdown/docusaurus": "^1.16.6",
     "@mdx-js/react": "^1.6.22",
     "bufferutil": "^4.0.7",
@@ -39,7 +39,7 @@
     "sass": "^1.58.1",
     "use-deep-compare-effect": "^1.8.1",
     "utf-8-validate": "^5.0.10",
-    "zksync-web3": "^0.13.4"
+    "zksync-web3": "^0.14.3"
   },
   "devDependencies": {
     "@docusaurus/module-type-aliases": "^2.3.1",

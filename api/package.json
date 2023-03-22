@@ -72,7 +72,7 @@
     "ts-deepmerge": "^6.0.2",
     "ts-pattern": "^4.2.1",
     "type-graphql": "^1.1.1",
-    "zksync-web3": "^0.13.4"
+    "zksync-web3": "^0.14.3"
   },
   "devDependencies": {
     "@graphql-codegen/cli": "^3.2.2",

@@ -120,7 +120,7 @@
     "use-immer": "^0.8.1",
     "valtio": "^1.10.3",
     "yup": "^0.32.11",
-    "zksync-web3": "^0.13.4"
+    "zksync-web3": "^0.14.3"
   },
   "devDependencies": {
     "@babel/core": "^7.20.0",

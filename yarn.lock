@@ -1883,7 +1883,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@babel/plugin-syntax-jsx@npm:7, @babel/plugin-syntax-jsx@npm:^7.0.0, @babel/plugin-syntax-jsx@npm:^7.17.12, @babel/plugin-syntax-jsx@npm:^7.18.6, @babel/plugin-syntax-jsx@npm:^7.7.2":
+"@babel/plugin-syntax-jsx@npm:7, @babel/plugin-syntax-jsx@npm:^7.0.0, @babel/plugin-syntax-jsx@npm:^7.18.6, @babel/plugin-syntax-jsx@npm:^7.7.2":
   version: 7.18.6
   resolution: "@babel/plugin-syntax-jsx@npm:7.18.6"
   dependencies:
@@ -3687,12 +3687,11 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@emotion/babel-plugin@npm:^11.10.5":
-  version: 11.10.5
-  resolution: "@emotion/babel-plugin@npm:11.10.5"
+"@emotion/babel-plugin@npm:^11.10.6":
+  version: 11.10.6
+  resolution: "@emotion/babel-plugin@npm:11.10.6"
   dependencies:
     "@babel/helper-module-imports": ^7.16.7
-    "@babel/plugin-syntax-jsx": ^7.17.12
     "@babel/runtime": ^7.18.3
     "@emotion/hash": ^0.9.0
     "@emotion/memoize": ^0.8.0
@@ -3703,9 +3702,7 @@ __metadata:
     find-root: ^1.1.0
     source-map: ^0.5.7
     stylis: 4.1.3
-  peerDependencies:
-    "@babel/core": ^7.0.0
-  checksum: e3353499c76c4422d6e900c0dfab73607056d9da86161a3f27c3459c193c4908050c5d252c68fcde231e13f02a9d8e0dc07d260317ae0e5206841e331cc4caae
+  checksum: 3eed138932e8edf2598352e69ad949b9db3051a4d6fcff190dacbac9aa838d7ef708b9f3e6c48660625d9311dae82d73477ae4e7a31139feef5eb001a5528421
   languageName: node
   linkType: hard
 
@@ -3752,12 +3749,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@emotion/react@npm:^11.10.5":
-  version: 11.10.5
-  resolution: "@emotion/react@npm:11.10.5"
+"@emotion/react@npm:^11.10.6":
+  version: 11.10.6
+  resolution: "@emotion/react@npm:11.10.6"
   dependencies:
     "@babel/runtime": ^7.18.3
-    "@emotion/babel-plugin": ^11.10.5
+    "@emotion/babel-plugin": ^11.10.6
     "@emotion/cache": ^11.10.5
     "@emotion/serialize": ^1.1.1
     "@emotion/use-insertion-effect-with-fallbacks": ^1.0.0
@@ -3765,14 +3762,11 @@ __metadata:
     "@emotion/weak-memoize": ^0.3.0
     hoist-non-react-statics: ^3.3.1
   peerDependencies:
-    "@babel/core": ^7.0.0
     react: ">=16.8.0"
   peerDependenciesMeta:
-    "@babel/core":
-      optional: true
     "@types/react":
       optional: true
-  checksum: 32b67b28e9b6d6c53b970072680697f04c2521441050bdeb19a1a7f0164af549b4dad39ff375eda1b6a3cf1cc86ba2c6fa55460ec040e6ebbca3e9ec58353cf7
+  checksum: 4762042e39126ffaffe76052dc65c9bb0ba6b8893013687ba3cc13ed4dd834c31597f1230684c3c078e90aecc13ab6cd0e3cde0dec8b7761affd2571f4d80019
   languageName: node
   linkType: hard
 
@@ -7706,13 +7700,13 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@matterlabs/zksync-contracts@npm:^0.5.2":
-  version: 0.5.2
-  resolution: "@matterlabs/zksync-contracts@npm:0.5.2"
+"@matterlabs/zksync-contracts@npm:^0.6.0":
+  version: 0.6.0
+  resolution: "@matterlabs/zksync-contracts@npm:0.6.0"
   peerDependencies:
     "@openzeppelin/contracts": 4.6.0
     "@openzeppelin/contracts-upgradeable": 4.6.0
-  checksum: 09cd1d9f851e5f77ef3a0d06e1b1c41faff5e3e06b52ea4bac119ccb7805411a0684c6d231bc1af7bd2f46c7c89dd51ceb56a056bd560ab54a9986e05bf57501
+  checksum: 04ac21088ed6416c23a10b573bf3ae21164f7f1a61ff58a9f396cfde7310683cf67788454db418952cbb3cccddbcd2cd9ca3e3c5b0611d8a6ba0b4f3b19913e1
   languageName: node
   linkType: hard
 
@@ -14048,7 +14042,7 @@ __metadata:
     tsconfig-paths: ^4.1.2
     type-graphql: ^1.1.1
     typescript: ^4.9.5
-    zksync-web3: ^0.13.4
+    zksync-web3: ^0.14.3
   languageName: unknown
   linkType: soft
 
@@ -14616,7 +14610,7 @@ __metadata:
     use-immer: ^0.8.1
     valtio: ^1.10.3
     yup: ^0.32.11
-    zksync-web3: ^0.13.4
+    zksync-web3: ^0.14.3
   languageName: unknown
   linkType: soft
 
@@ -18164,7 +18158,7 @@ __metadata:
     "@matterlabs/hardhat-zksync-toolbox": ^0.1.1
     "@matterlabs/hardhat-zksync-verify": ^0.1.3
     "@matterlabs/signature-checker": ^1.1.1
-    "@matterlabs/zksync-contracts": ^0.5.2
+    "@matterlabs/zksync-contracts": ^0.6.0
     "@nomicfoundation/hardhat-chai-matchers": ^1.0.6
     "@nomiclabs/hardhat-ethers": ^2.2.2
     "@nomiclabs/hardhat-etherscan": ^3.1.7
@@ -18203,7 +18197,7 @@ __metadata:
     ts-node: ^10.9.1
     typechain: ^8.1.1
     typescript: ^5.0.2
-    zksync-web3: ^0.13.4
+    zksync-web3: ^0.14.3
   languageName: unknown
   linkType: soft
 
@@ -19826,7 +19820,7 @@ __metadata:
     "@docusaurus/module-type-aliases": ^2.3.1
     "@docusaurus/preset-classic": ^2.3.1
     "@docusaurus/remark-plugin-npm2yarn": ^2.3.1
-    "@emotion/react": ^11.10.5
+    "@emotion/react": ^11.10.6
     "@graphql-codegen/cli": ^3.2.2
     "@graphql-codegen/introspection": ^3.0.1
     "@graphql-codegen/typescript": ^3.0.2
@@ -19850,7 +19844,7 @@ __metadata:
     typescript: ^5.0.2
     use-deep-compare-effect: ^1.8.1
     utf-8-validate: ^5.0.10
-    zksync-web3: ^0.13.4
+    zksync-web3: ^0.14.3
   languageName: unknown
   linkType: soft
 
@@ -29574,7 +29568,7 @@ __metadata:
     ts-toolbelt: ^9.6.0
     typechain: ^8.1.1
     typescript: ^5.0.2
-    zksync-web3: ^0.13.4
+    zksync-web3: ^0.14.3
   languageName: unknown
   linkType: soft
 
@@ -44038,12 +44032,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"zksync-web3@npm:^0.13.4":
-  version: 0.13.4
-  resolution: "zksync-web3@npm:0.13.4"
+"zksync-web3@npm:^0.14.3":
+  version: 0.14.3
+  resolution: "zksync-web3@npm:0.14.3"
   peerDependencies:
     ethers: ^5.7.0
-  checksum: 628d91a2c699d8977ba560f271d1f78692f3b65e9fd2aa2fd568460040c4dc4cf230aba6382283f5d8d7f3f0b796ebf5ea09d39b78be1d869702dea1a45baf40
+  checksum: e89760c13e01ec43433e1e38a473138948c6a8d3a825c0f0aa6328eb7d28c63037a5ee4c922c1fd7d9580d2bf2cbbf2c7911f5e4d872f856dc591850a7e6f260
   languageName: node
   linkType: hard
 
