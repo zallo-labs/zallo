@@ -38,10 +38,10 @@ export const tokenBalanceAtom = atomFamily<bigint, BalanceKey>({
       : [],
 });
 
-export const useTokenBalance = (token: Token, account?: AccountIdlike) =>
+export const useTokenBalance = (token: Token, account: AccountIdlike | undefined) =>
   useRecoilValue(tokenBalanceAtom([asAccountId(account) ?? null, token.addr]));
 
-export const useUpdateTokenBalance = (token: Token, account?: AccountIdlike) => {
+export const useUpdateTokenBalance = (token: Token, account: AccountIdlike | undefined) => {
   const update = useSetRecoilState(tokenBalanceAtom([asAccountId(account) ?? null, token.addr]));
 
   return useCallback(
