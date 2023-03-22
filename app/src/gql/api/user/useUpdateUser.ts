@@ -1,8 +1,7 @@
 import { gql } from '@apollo/client';
 import { useCallback } from 'react';
-import { UserDocument, UserQuery, UserQueryVariables, useUpdateUserMutation } from '@api/generated';
-import { updateQuery } from '~/gql/util';
-import { useUser } from './useUser.api';
+import { useUpdateUserMutation } from '@api/generated';
+import { useUser } from './useUser';
 import { RequireAtLeastOne } from '~/util/typing';
 
 gql`
@@ -32,21 +31,10 @@ export const useUpdateUser = () => {
         },
         optimisticResponse: {
           updateUser: {
+            __typename: 'User',
             id: user.id,
-            name: name !== undefined ? name : user.name,
+            name: name !== undefined ? name : user.name || null,
           },
-        },
-        update: (cache, res) => {
-          const u = res.data?.updateUser;
-          if (!u) return;
-
-          updateQuery<UserQuery, UserQueryVariables>({
-            cache,
-            query: UserDocument,
-            updater: (data) => {
-              data.user = u;
-            },
-          });
         },
       });
     },

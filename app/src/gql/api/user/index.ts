@@ -1,3 +1,3 @@
 export * from './types';
-export * from './useUpdateUser.api';
-export * from './useUser.api';
+export * from './useUpdateUser';
+export * from './useUser';
