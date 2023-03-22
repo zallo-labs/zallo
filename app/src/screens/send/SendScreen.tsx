@@ -11,10 +11,7 @@ import { ActionButton } from '~/components/buttons/ActionButton';
 import { Box } from '~/components/layout/Box';
 import { Container } from '~/components/layout/Container';
 import { TokenAvailableCard } from '~/components/token/TokenAvailableCard';
-import {
-  useSelectedToken,
-  useSelectToken as useSetSelectedToken,
-} from '~/components/token/useSelectedToken';
+import { useSelectedToken, useSetSelectedToken } from '~/components/token/useSelectedToken';
 import { popToProposal, usePropose } from '@api/proposal';
 import { StackNavigatorScreenProps } from '~/navigation/StackNavigator';
 import { AmountInput } from '../amount/AmountInput';

@@ -4,10 +4,7 @@ import { CheckIcon, CloseIcon } from '~/util/theme/icons';
 import { useState } from 'react';
 import { Appbar } from 'react-native-paper';
 import { Fab } from '~/components/buttons/Fab';
-import {
-  useSelectedToken,
-  useSelectToken as useSetSelectedToken,
-} from '~/components/token/useSelectedToken';
+import { useSelectedToken, useSetSelectedToken } from '~/components/token/useSelectedToken';
 import { StackNavigatorScreenProps } from '~/navigation/StackNavigator';
 import { AmountInput } from './AmountInput';
 import { TokenCard } from '~/components/token/TokenCard';
