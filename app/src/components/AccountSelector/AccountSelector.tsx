@@ -2,8 +2,8 @@ import { makeStyles } from '@theme/makeStyles';
 import { TouchableOpacity } from 'react-native';
 import { Text } from 'react-native-paper';
 import { useRootNavigation2 } from '~/navigation/useRootNavigation';
-import { Addr } from '../addr/Addr';
-import { AddrIcon } from '../Identicon/AddrIcon';
+import { AddressLabel } from '../addr/AddressLabel';
+import { AddressIcon } from '../Identicon/AddressIcon';
 import { useSelectedAccountId } from './useSelectedAccount';
 
 export const AccountSelector = () => {
@@ -13,10 +13,10 @@ export const AccountSelector = () => {
 
   return (
     <TouchableOpacity style={styles.container} onPress={() => navigate('AccountsSheet')}>
-      <AddrIcon addr={account} size={styles.icon.fontSize} />
+      <AddressIcon addr={account} size={styles.icon.fontSize} />
 
       <Text variant="titleLarge">
-        <Addr addr={account} />
+        <AddressLabel address={account} />
       </Text>
     </TouchableOpacity>
   );

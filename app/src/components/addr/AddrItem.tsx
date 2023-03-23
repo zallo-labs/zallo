@@ -2,9 +2,9 @@ import { Address } from 'lib';
 import { memo, ReactNode } from 'react';
 import { Text } from 'react-native-paper';
 import { truncateAddr } from '~/util/format';
-import { AddrIcon } from '../Identicon/AddrIcon';
+import { AddressIcon } from '../Identicon/AddressIcon';
 import { Item, ItemProps } from '../item/Item';
-import { useAddrName } from './useAddrName';
+import { useAddressLabel } from './useAddrName';
 
 export interface AddrItemProps extends ItemProps {
   addr: Address;
@@ -12,12 +12,12 @@ export interface AddrItemProps extends ItemProps {
 }
 
 export const AddrItem = memo(({ addr, secondary, ...itemProps }: AddrItemProps) => {
-  const name = useAddrName(addr);
+  const name = useAddressLabel(addr);
   const truncatedAddr = truncateAddr(addr);
 
   return (
     <Item
-      Left={<AddrIcon addr={addr} />}
+      Left={<AddressIcon addr={addr} />}
       Main={[<Text variant="titleMedium">{name ?? truncatedAddr}</Text>, secondary]}
       Right={name && <Text variant="bodyMedium">{truncatedAddr}</Text>}
       padding

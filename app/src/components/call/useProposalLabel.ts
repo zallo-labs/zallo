@@ -4,7 +4,7 @@ import { match } from 'ts-pattern';
 import { Proposal } from '@api/proposal';
 import { useTryDecodeAccountFunctionData } from './useTryDecodeAccountFunctionData';
 import { uppercaseFirst } from '~/util/string';
-import { useAddrName } from '../addr/useAddrName';
+import { useAddressLabel } from '../addr/useAddrName';
 import { useDecodedTransfer } from './useDecodedTransfer';
 
 export const TRANSFER_LABEL = 'Transfer';
@@ -13,7 +13,7 @@ export const useProposalLabel = (p?: Proposal) => {
   const method = useContractMethod(p);
   const accountMethod = useTryDecodeAccountFunctionData(p?.account ?? ZERO_ADDR, p?.data);
   const transfer = useDecodedTransfer(p);
-  const to = useAddrName(transfer?.to ?? p?.to);
+  const to = useAddressLabel(transfer?.to ?? p?.to);
 
   if (!method) return p?.value ? `${TRANSFER_LABEL} to ${to}` : `Call ${to}`;
 

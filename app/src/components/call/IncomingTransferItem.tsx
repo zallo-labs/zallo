@@ -1,6 +1,6 @@
 import { assert } from 'console';
 import { Id } from 'lib';
-import { useAddrName } from '~/components/addr/useAddrName';
+import { useAddressLabel } from '~/components/addr/useAddrName';
 import { TRANSFER_LABEL } from '~/components/call/useProposalLabel';
 import { Timestamp } from '~/components/format/Timestamp';
 import { ListItem } from '~/components/list/ListItem';
@@ -25,7 +25,7 @@ export const IncomingTransferItem = withSuspense(({ transfer: id }: IncomingTran
     <ListItem
       leading={transfer.token.addr}
       overline={accounts.length > 1 ? account.name : undefined}
-      headline={`${TRANSFER_LABEL} from ${useAddrName(transfer.from)}`}
+      headline={`${TRANSFER_LABEL} from ${useAddressLabel(transfer.from)}`}
       supporting={<Timestamp timestamp={transfer.timestamp} weekday />}
       trailing={({ Text }) => (
         <Text variant="labelLarge">

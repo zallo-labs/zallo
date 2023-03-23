@@ -10,7 +10,7 @@ import { useState } from 'react';
 import { View } from 'react-native';
 import { Appbar, Button, Divider } from 'react-native-paper';
 import { useSelectedAccountId } from '~/components/AccountSelector/useSelectedAccount';
-import { useAddrName } from '~/components/addr/useAddrName';
+import { useAddressLabel } from '~/components/addr/useAddrName';
 import { useGoBack } from '~/components/Appbar/useGoBack';
 import { NumericInput } from '~/components/fields/NumericInput';
 import { Screen } from '~/components/layout/Screen';
@@ -62,7 +62,7 @@ export const SendScreen = withSuspense(({ route }: SendScreenProps) => {
     <Screen safeArea="withoutTop">
       <Appbar.Header>
         <Appbar.Action icon={CloseIcon} onPress={useGoBack()} />
-        <Appbar.Content title={`Send to ${useAddrName(to)}`} />
+        <Appbar.Content title={`Send to ${useAddressLabel(to)}`} />
       </Appbar.Header>
 
       <InputsView input={input} setInput={setInput} type={type} setType={setType} />

@@ -4,7 +4,7 @@ import { makeStyles } from '@theme/makeStyles';
 import { Text, TouchableRipple, TouchableRippleProps } from 'react-native-paper';
 import { match } from 'ts-pattern';
 import { Box } from '../layout/Box';
-import { AddrOrLabelIcon } from '../Identicon/AddrOrLabelIcon';
+import { AddressOrLabelIcon } from '../Identicon/AddressOrLabelIcon';
 import { TextProps } from '@theme/types';
 import { StyleProp, ViewStyle } from 'react-native';
 
@@ -75,7 +75,7 @@ export const ListItem = ({
         {Leading && (
           <Box style={styles.leadingContainer}>
             {typeof Leading === 'string' ? (
-              <AddrOrLabelIcon
+              <AddressOrLabelIcon
                 label={Leading}
                 size={styles.leadingAvatarContainer.fontSize}
                 style={styles.leadingAvatarContainer}

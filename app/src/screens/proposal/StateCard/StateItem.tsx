@@ -6,7 +6,7 @@ import { FC, Fragment } from 'react';
 import { StyleProp, ViewStyle } from 'react-native';
 import { Text } from 'react-native-paper';
 import Animated, { FadeIn, FadeInDown, FadeOut, FadeOutUp } from 'react-native-reanimated';
-import { Addr } from '~/components/addr/Addr';
+import { AddressLabel } from '~/components/addr/AddressLabel';
 import { CARD_BORDER_RADIUS } from '~/components/card/Card';
 import { Timestamp } from '~/components/format/Timestamp';
 import { Box } from '~/components/layout/Box';
@@ -50,7 +50,7 @@ export const StateItem = ({ Icon, title, timestamp, events, selected, style }: S
             <Box style={styles.iconContainer} />
 
             <Text variant="bodyMedium" style={styles.addr}>
-              <Addr addr={event.approver} />
+              <AddressLabel address={event.approver} />
             </Text>
 
             {event.timestamp && (

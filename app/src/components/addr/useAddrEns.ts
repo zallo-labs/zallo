@@ -8,8 +8,8 @@ import { atomFamily, useRecoilValue } from 'recoil';
 const fetch = async (addr: Address | null) =>
   addr ? tryOrAsync(() => PROVIDER.lookupAddress(addr), null) : null;
 
-const addrEnsState = atomFamily<string | null, Address | null>({
-  key: 'addrEns',
+const addressEnsAtom = atomFamily<string | null, Address | null>({
+  key: 'AddressEns',
   default: fetch,
   effects: (addr) => [
     persistAtom({
@@ -22,4 +22,4 @@ const addrEnsState = atomFamily<string | null, Address | null>({
   ],
 });
 
-export const useAddrEns = (addr?: Address) => useRecoilValue(addrEnsState(addr || null));
+export const useAddressEns = (addr?: Address) => useRecoilValue(addressEnsAtom(addr || null));

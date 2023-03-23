@@ -10,7 +10,7 @@ import {
 } from '~/components/AccountSelector/useSelectedAccount';
 import { ListHeader } from '~/components/list/ListHeader';
 import { NavigateNextIcon } from '@theme/icons';
-import { Addr } from '~/components/addr/Addr';
+import { AddressLabel } from '~/components/addr/AddressLabel';
 import { ListItem } from '~/components/list/ListItem';
 import { StyleSheet } from 'react-native';
 import { Button } from 'react-native-paper';
@@ -39,7 +39,7 @@ export const AccountsSheetScreen = ({ navigation: { navigate } }: AccountsSheetS
         renderItem={({ item: account }) => (
           <ListItem
             leading={account}
-            headline={<Addr addr={account} />}
+            headline={<AddressLabel address={account} />}
             trailing={NavigateNextIcon}
             selected={account === selected}
             onPress={() => {

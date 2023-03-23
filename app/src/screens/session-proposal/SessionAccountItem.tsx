@@ -1,6 +1,6 @@
 import { Address } from 'lib';
 import { Checkbox, Text } from 'react-native-paper';
-import { AddrIcon } from '~/components/Identicon/AddrIcon';
+import { AddressIcon } from '~/components/Identicon/AddressIcon';
 import { Item, ItemProps } from '~/components/item/Item';
 import { ItemSkeleton } from '~/components/item/ItemSkeleton';
 import { withSuspense } from '~/components/skeleton/withSuspense';
@@ -22,7 +22,7 @@ const SessionAccountItem = ({
 
   return (
     <Item
-      Left={<AddrIcon addr={accountAddr} />}
+      Left={<AddressIcon addr={accountAddr} />}
       Main={[<Text variant="titleLarge">{account.name}</Text>]}
       selected={selected}
       Right={<Checkbox status={selected ? 'checked' : 'unchecked'} onPress={() => onSelect()} />}

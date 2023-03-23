@@ -8,7 +8,7 @@ import { CloseIcon, ShareIcon } from '@theme/icons';
 import { Actions } from '~/components/layout/Actions';
 import { StyleSheet, Share, View } from 'react-native';
 import { BlurView } from '@react-native-community/blur';
-import { Addr } from '~/components/addr/Addr';
+import { AddressLabel } from '~/components/addr/AddressLabel';
 import { buildAddressLink } from '~/util/addressLink';
 
 export interface QrModalScreenParams {
@@ -34,7 +34,7 @@ export const QrModalScreen = ({ route, navigation: { goBack } }: QrModalScreenPr
 
         <View style={styles.qrContainer}>
           <Text variant="headlineLarge" style={styles.name}>
-            <Addr addr={address} />
+            <AddressLabel address={address} />
           </Text>
 
           <Surface style={styles.qrSurface}>

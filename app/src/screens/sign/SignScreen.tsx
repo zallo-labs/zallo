@@ -17,7 +17,7 @@ import { showError, showWarning } from '~/provider/SnackbarProvider';
 import { Eip712TypedData } from './Eip712TypedData';
 import { Box } from '~/components/layout/Box';
 import { Actions } from '~/components/layout/Actions';
-import { Addr } from '~/components/addr/Addr';
+import { AddressLabel } from '~/components/addr/AddressLabel';
 import { makeStyles } from '@theme/makeStyles';
 import { AccountIdlike, useAccount } from '@api/account';
 import {
@@ -157,7 +157,7 @@ export const SignScreen = ({ navigation, route }: SignScreenProps) => {
         <Text variant="headlineSmall" style={styles.signTitle}>
           {'Wants '}
           <Text variant="headlineSmall" style={styles.accountName}>
-            <Addr addr={account.id} />
+            <AddressLabel address={account.id} />
           </Text>
           {' to sign'}
         </Text>

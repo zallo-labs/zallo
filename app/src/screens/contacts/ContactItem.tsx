@@ -1,4 +1,4 @@
-import { useAddrEns } from '~/components/addr/useAddrEns';
+import { useAddressEns } from '~/components/addr/useAddrEns';
 import { ListItem, ListItemProps } from '~/components/list/ListItem';
 import { Contact } from '@api/contacts';
 import { truncateAddr } from '~/util/format';
@@ -12,7 +12,7 @@ export const ContactItem = ({ contact, ...itemProps }: ContactItemProps) => (
     leading={contact.name}
     headline={contact.name}
     supporting={truncateAddr(contact.addr)}
-    trailing={useAddrEns(contact.addr) || undefined}
+    trailing={useAddressEns(contact.addr) || undefined}
     {...itemProps}
   />
 );

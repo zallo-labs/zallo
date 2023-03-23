@@ -1,9 +1,9 @@
 import { makeStyles } from '@theme/makeStyles';
 import { StyleProp, ViewStyle } from 'react-native';
 import { Text } from 'react-native-paper';
-import { useAddrName } from '~/components/addr/useAddrName';
+import { useAddressLabel } from '~/components/addr/useAddrName';
 import { useProposalLabel } from '~/components/call/useProposalLabel';
-import { AddrIcon } from '~/components/Identicon/AddrIcon';
+import { AddressIcon } from '~/components/Identicon/AddressIcon';
 import { Box } from '~/components/layout/Box';
 import { Proposal } from '@api/proposal';
 import { ProposalMethod } from './ProposalMethod';
@@ -19,10 +19,10 @@ export const ProposalHeader = ({ proposal: p, style }: ProposalHeaderProps) => {
 
   return (
     <Box alignItems="center" style={style}>
-      <AddrIcon addr={p.account} size={styles.iconSize.fontSize} />
+      <AddressIcon addr={p.account} size={styles.iconSize.fontSize} />
 
       <Text variant="headlineMedium" style={styles.from}>
-        {useAddrName(p.account)}
+        {useAddressLabel(p.account)}
       </Text>
 
       <ProposalMethod proposal={p}>

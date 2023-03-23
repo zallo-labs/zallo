@@ -14,7 +14,16 @@ export const TokenIcon = ({ token: tokenlike, size, style, ...imageProps }: Toke
   const styles = useStyles(size);
   const { iconUri } = useToken(tokenlike);
 
-  return <Image {...imageProps} source={iconUri} style={[styles.icon, style].filter(isPresent)} />;
+  return (
+    <Image
+      {...imageProps}
+      source={{
+        uri: iconUri,
+        blurhash: 'QiMahmfk~5j[N1j[NIj[oct7j[offQayfQfQa|j[t2fQflfQM}azxrj@ay', // USDC blurhash
+      }}
+      style={[styles.icon, style].filter(isPresent)}
+    />
+  );
 };
 
 const useStyles = makeStyles(({ iconSize }, size: number = iconSize.medium) => ({

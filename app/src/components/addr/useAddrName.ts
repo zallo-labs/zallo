@@ -2,16 +2,16 @@ import { Address } from 'lib';
 import { useMemo } from 'react';
 import { useMaybeToken } from '@token/useToken';
 import { truncateAddr } from '~/util/format';
-import { useAddrEns } from './useAddrEns';
+import { useAddressEns } from './useAddrEns';
 import { useUser } from '@api/user';
 
-export const useAddrName = <Addr extends Address | undefined>(addr: Addr) => {
-  const user = useUser(addr);
-  const token = useMaybeToken(addr);
-  const ens = useAddrEns(addr);
+export const useAddressLabel = <A extends Address | undefined>(address: A) => {
+  const user = useUser(address);
+  const token = useMaybeToken(address);
+  const ens = useAddressEns(address);
 
   return useMemo(
-    () => (!addr ? undefined : user?.name || token?.name || ens || truncateAddr(addr)),
-    [addr, user?.name, ens, token?.name],
-  ) as Addr extends undefined ? string | undefined : string;
+    () => (!address ? undefined : user?.name || token?.name || ens || truncateAddr(address)),
+    [address, user?.name, ens, token?.name],
+  ) as A extends undefined ? string | undefined : string;
 };
