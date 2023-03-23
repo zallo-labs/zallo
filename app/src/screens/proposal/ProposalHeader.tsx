@@ -34,13 +34,13 @@ export const ProposalHeader = ({ proposal: p, style }: ProposalHeaderProps) => {
   );
 };
 
-const useStyles = makeStyles(({ iconSize, colors, s }) => ({
+const useStyles = makeStyles(({ iconSize, colors }) => ({
   iconSize: {
     fontSize: iconSize.large,
   },
   from: {
-    marginTop: s(8),
-    marginBottom: s(4),
+    marginTop: 8,
+    marginBottom: 4,
   },
   label: {
     color: colors.primary,

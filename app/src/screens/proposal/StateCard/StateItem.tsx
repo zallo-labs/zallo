@@ -65,40 +65,38 @@ export const StateItem = ({ Icon, title, timestamp, events, selected, style }: S
   );
 };
 
-const useStyles = makeStyles(
-  ({ colors, space, iconSize, onBackground }, selected?: boolean | string) => {
-    const backgroundColor = selected
-      ? selected === true
-        ? colors.primaryContainer
-        : colors.errorContainer
-      : undefined;
-    const color = onBackground(backgroundColor);
+const useStyles = makeStyles(({ colors, iconSize, onBackground }, selected?: boolean | string) => {
+  const backgroundColor = selected
+    ? selected === true
+      ? colors.primaryContainer
+      : colors.errorContainer
+    : undefined;
+  const color = onBackground(backgroundColor);
 
-    return {
-      container: {
-        backgroundColor,
-        padding: space(2),
-        borderRadius: CARD_BORDER_RADIUS,
-      },
-      icon: {
-        fontSize: iconSize.small,
-        color,
-      },
-      iconContainer: {
-        width: iconSize.small,
-        marginRight: space(2),
-      },
-      title: {
-        flex: 1,
-        color,
-      },
-      addr: {
-        flex: 1,
-        color,
-      },
-      timestamp: {
-        color,
-      },
-    };
-  },
-);
+  return {
+    container: {
+      backgroundColor,
+      padding: 16,
+      borderRadius: CARD_BORDER_RADIUS,
+    },
+    icon: {
+      fontSize: iconSize.small,
+      color,
+    },
+    iconContainer: {
+      width: iconSize.small,
+      marginRight: 16,
+    },
+    title: {
+      flex: 1,
+      color,
+    },
+    addr: {
+      flex: 1,
+      color,
+    },
+    timestamp: {
+      color,
+    },
+  };
+});

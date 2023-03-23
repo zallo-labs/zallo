@@ -16,11 +16,11 @@ export const ActionButton = ({ containerStyle, ...props }: ActionButtonProps) =>
   );
 };
 
-const useStyles = makeStyles(({ s }) => ({
+const useStyles = makeStyles((_) => ({
   container: {
     flex: 1,
     justifyContent: 'flex-end',
-    marginBottom: s(16),
-    marginHorizontal: s(16),
+    marginBottom: 16,
+    marginHorizontal: 16,
   },
 }));

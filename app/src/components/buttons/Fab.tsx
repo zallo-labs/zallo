@@ -34,13 +34,13 @@ export const Fab = ({ appbar, align, onPress, style, ...props }: FabProps) => {
   );
 };
 
-const useStyles = makeStyles(({ s }, align?: ViewStyle['alignItems']) => ({
+const useStyles = makeStyles((_, align?: ViewStyle['alignItems']) => ({
   container: {
     position: 'absolute',
     left: 0,
     right: 0,
     bottom: 0,
     alignItems: align ?? 'flex-end',
-    margin: s(16),
+    margin: 16,
   },
 }));

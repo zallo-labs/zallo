@@ -2,7 +2,6 @@ import { FC, ReactNode } from 'react';
 import { IconProps } from '@theme/icons';
 import { makeStyles } from '@theme/makeStyles';
 import { Text, TouchableRipple, TouchableRippleProps } from 'react-native-paper';
-import { match } from 'ts-pattern';
 import { Box } from '../layout/Box';
 import { AddressOrLabelIcon } from '../Identicon/AddressOrLabelIcon';
 import { TextProps } from '@theme/types';
@@ -14,8 +13,7 @@ import { StyleProp, ViewStyle } from 'react-native';
 
 type Lines = 1 | 2 | 3;
 
-interface ListIconElementProps extends Omit<IconProps, 'color'> {
-  color: string;
+interface ListIconElementProps extends IconProps {
   disabled?: boolean;
 }
 
@@ -146,7 +144,7 @@ export enum ListItemHeight {
 }
 
 const useStyles = makeStyles(
-  ({ colors, s, corner, stateLayer, iconSize }, { lines, selected, disabled }: StyleProps) => {
+  ({ colors, corner, stateLayer, iconSize }, { lines, selected, disabled }: StyleProps) => {
     const justifyContent = lines === 3 ? 'flex-start' : 'center';
 
     const withState = (color: string) => stateLayer(color, disabled && 'disabled');
@@ -156,17 +154,17 @@ const useStyles = makeStyles(
         flexDirection: 'row',
         ...(selected && { backgroundColor: stateLayer(colors.onSurface, 'focus') }),
         height: [
-          s(ListItemHeight.SINGLE_LINE),
-          s(ListItemHeight.DOUBLE_LINE),
-          s(ListItemHeight.TRIPLE_LINE),
+          ListItemHeight.SINGLE_LINE,
+          ListItemHeight.DOUBLE_LINE,
+          ListItemHeight.TRIPLE_LINE,
         ][lines - 1],
-        paddingLeft: s(16),
-        paddingRight: s(24),
-        paddingVertical: lines === 3 ? s(12) : s(8),
+        paddingLeft: 16,
+        paddingRight: 24,
+        paddingVertical: lines === 3 ? 12 : 8,
       },
       leadingContainer: {
         justifyContent,
-        marginRight: s(16),
+        marginRight: 16,
       },
       leadingAvatarContainer: {
         fontSize: iconSize.medium,
@@ -196,14 +194,14 @@ const useStyles = makeStyles(
       trailingContainer: {
         justifyContent,
         alignItems: 'flex-end',
-        marginLeft: s(16),
+        marginLeft: 16,
       },
       trailingText: {
         color: withState(colors.onSurfaceVariant),
         textAlign: 'right',
       },
       trailingIcon: {
-        fontSize: s(24),
+        fontSize: 24,
         color: withState(colors.onSurface),
       },
     };

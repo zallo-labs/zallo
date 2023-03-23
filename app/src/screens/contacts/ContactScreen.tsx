@@ -11,8 +11,8 @@ import assert from 'assert';
 import { useMemo } from 'react';
 import { ContactAppbar } from './ContactAppbar';
 import { useScanAddress } from '../Scan/useScanAddress';
-import { makeStyles } from '@theme/makeStyles';
 import { FormikSubmitActionButton } from '~/components/fields/FormikSubmitActionButton';
+import { StyleSheet } from 'react-native';
 
 const defaultValues = {
   name: '',
@@ -47,7 +47,6 @@ export interface ContactScreenParams {
 export type ContactScreenProps = StackNavigatorScreenProps<'Contact'>;
 
 export const ContactScreen = ({ route, navigation: { goBack, setParams } }: ContactScreenProps) => {
-  const styles = useStyles();
   const contacts = useContacts();
   const existing = useContact(route.params.address);
   const upsert = useUpsertContact();
@@ -112,18 +111,18 @@ export const ContactScreen = ({ route, navigation: { goBack, setParams } }: Cont
   );
 };
 
-const useStyles = makeStyles(({ s }) => ({
+const styles = StyleSheet.create({
   fieldsContainer: {
-    marginHorizontal: s(16),
+    marginHorizontal: 16,
   },
   addressField: {
-    marginTop: s(16),
-    marginBottom: s(8),
+    marginTop: 16,
+    marginBottom: 8,
   },
   scanButton: {
     alignSelf: 'flex-end',
   },
   actionButton: {
-    margin: s(16),
+    margin: 16,
   },
-}));
+});

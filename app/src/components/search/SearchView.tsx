@@ -1,7 +1,7 @@
 import { SearchInputProps } from '@hook/useSearch';
 import { BackIcon, CloseIcon } from '@theme/icons';
-import { makeStyles } from '@theme/makeStyles';
 import { ReactNode } from 'react';
+import { StyleSheet } from 'react-native';
 import { Divider, Surface } from 'react-native-paper';
 import { useGoBack } from '../Appbar/useGoBack';
 import { BasicTextField, BasicTextFieldProps } from '../fields/BasicTextField';
@@ -13,8 +13,6 @@ export type SearchViewProps = SearchInputProps &
   };
 
 export const SearchView = ({ children, value, onChangeText, ...inputProps }: SearchViewProps) => {
-  const styles = useStyles();
-
   return (
     <Surface elevation={3}>
       <Box style={styles.searchContainer}>
@@ -32,17 +30,17 @@ export const SearchView = ({ children, value, onChangeText, ...inputProps }: Sea
   );
 };
 
-const useStyles = makeStyles(({ s }) => ({
+const styles = StyleSheet.create({
   searchContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    height: s(72),
+    height: 72,
   },
   icon: {
-    fontSize: s(24),
-    marginHorizontal: s(16),
+    fontSize: 24,
+    marginHorizontal: 16,
   },
   contentContainer: {
-    marginVertical: s(8),
+    marginVertical: 8,
   },
-}));
+});

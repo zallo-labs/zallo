@@ -73,14 +73,14 @@ interface StyleOptions {
   insets: EdgeInsets;
 }
 
-const useStyles = makeStyles(({ s, colors }, { center, insets }: StyleOptions) => ({
+const useStyles = makeStyles(({ colors }, { center, insets }: StyleOptions) => ({
   root: {
     display: 'flex',
     justifyContent: 'space-between',
     height: 152 + insets.top,
-    paddingTop: s(20) + insets.top,
-    paddingBottom: s(28),
-    paddingHorizontal: s(16),
+    paddingTop: 20 + insets.top,
+    paddingBottom: 28,
+    paddingHorizontal: 16,
   },
   headerContainer: {
     flexDirection: 'row',
@@ -91,18 +91,18 @@ const useStyles = makeStyles(({ s, colors }, { center, insets }: StyleOptions) =
   },
   leadingIcon: {
     color: colors.onSurface,
-    fontSize: s(24),
+    fontSize: 24,
   },
   trailingContainer: {
     flexDirection: 'row',
     alignItems: 'center',
   },
   trailingIconSeparator: {
-    marginLeft: s(24),
+    marginLeft: 24,
   },
   trailingIcon: {
     color: colors.onSurfaceVariant,
-    fontSize: s(24),
+    fontSize: 24,
   },
   textContainer: {
     alignItems: center ? 'center' : 'flex-start',

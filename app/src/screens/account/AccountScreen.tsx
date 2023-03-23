@@ -51,7 +51,7 @@ export const AccountScreen = withSuspense(
   ScreenSkeleton,
 );
 
-const useStyles = makeStyles(({ space }) => ({
+const useStyles = makeStyles((_) => ({
   list: {
     paddingVertical: 8,
   },

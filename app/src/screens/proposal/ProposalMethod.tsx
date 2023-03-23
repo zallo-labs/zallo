@@ -72,17 +72,17 @@ export const ProposalMethod = ({ children, proposal: p }: ProposalMethodProps) =
   );
 };
 
-const useStyles = makeStyles(({ space, iconButton }) => ({
+const useStyles = makeStyles(({ iconButton }) => ({
   contentContainer: {
     flexDirection: 'row',
     justifyContent: 'center',
     alignItems: 'baseline',
   },
   data: {
-    marginTop: space(2),
-    marginHorizontal: space(2),
+    marginTop: 16,
+    marginHorizontal: 16,
   },
   iconPlaceholder: {
-    width: iconButton.containerSize + space(1),
+    width: iconButton.containerSize + 8,
   },
 }));

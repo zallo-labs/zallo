@@ -1,5 +1,4 @@
 import { MD3LightTheme as overrided, useTheme as baseUseTheme } from 'react-native-paper';
-import { space, typoSpace, space2, font } from './styledComponents';
 import color from 'color';
 import { match } from 'ts-pattern';
 
@@ -40,12 +39,6 @@ export const PAPER_THEME = {
       .with('pressed', () => c(color, (c) => c.alpha(0.12)))
       .with('disabled', () => c(color, (c) => c.alpha(0.38)))
       .otherwise(() => color),
-
-  space,
-  typoSpace,
-  s: space2,
-  font,
-  iconSize2: (n: number) => n * 1.5,
 
   onBackground: (backgroundColor?: string): string | undefined => {
     if (backgroundColor) {

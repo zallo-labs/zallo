@@ -1,12 +1,12 @@
 import { useState } from 'react';
 import { StackNavigatorScreenProps } from '~/navigation/StackNavigator';
 import { View } from 'react-native';
-import { makeStyles } from '@theme/makeStyles';
 import { Appbar, Button, Text } from 'react-native-paper';
 import { AppbarBack } from '~/components/Appbar/AppbarBack';
 import { TextField } from '~/components/fields/TextField';
 import * as Device from 'expo-device';
 import { useUser, useUpdateUser } from '@api/user';
+import { StyleSheet } from 'react-native';
 
 export interface NameDeviceScreenParams {
   onContinue: () => void;
@@ -16,7 +16,6 @@ export type NameDeviceScreenProps = StackNavigatorScreenProps<'NameDevice'>;
 
 export const NameDeviceScreen = ({ route }: NameDeviceScreenProps) => {
   const { onContinue } = route.params;
-  const styles = useStyles();
   const updateUser = useUpdateUser();
 
   const [name, setName] = useState(useUser().name || Device.deviceName || '');
@@ -55,19 +54,19 @@ export const NameDeviceScreen = ({ route }: NameDeviceScreenProps) => {
   );
 };
 
-const useStyles = makeStyles(({ space, s }) => ({
+const styles = StyleSheet.create({
   root: {
     flex: 1,
   },
   container: {
     flex: 1,
-    marginHorizontal: space(2),
+    marginHorizontal: 16,
   },
   text: {
     textAlign: 'center',
-    marginVertical: space(4),
+    marginVertical: 16,
   },
   actionButton: {
-    margin: s(16),
+    margin: 16,
   },
-}));
+});

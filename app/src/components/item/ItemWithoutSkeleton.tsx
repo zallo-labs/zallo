@@ -68,14 +68,14 @@ interface Style {
   padding?: true | 'vertical' | 'horizontal';
 }
 
-const useStyles = makeStyles(({ colors, space }, { selected, disabled, padding }: Style) => ({
+const useStyles = makeStyles(({ colors }, { selected, disabled, padding }: Style) => ({
   container: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     ...(selected && { backgroundColor: colors.surfaceVariant }),
     ...(disabled && { opacity: 0.6 }),
-    ...(padding === true && { padding: space(2) }),
-    ...(padding === 'vertical' && { paddingVertical: space(2) }),
-    ...(padding === 'horizontal' && { paddingHorizontal: space(2) }),
+    ...(padding === true && { padding: 16 }),
+    ...(padding === 'vertical' && { paddingVertical: 16 }),
+    ...(padding === 'horizontal' && { paddingHorizontal: 16 }),
   },
 }));

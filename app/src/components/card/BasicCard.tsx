@@ -1,4 +1,3 @@
-import { Space } from '@theme/styledComponents';
 import { ComponentPropsWithoutRef, ReactNode } from 'react';
 import { StyleProp, ViewProps, ViewStyle } from 'react-native';
 import { Surface as Base, TouchableRipple } from 'react-native-paper';
@@ -101,7 +100,7 @@ interface Style {
   padding?: boolean;
 }
 
-const useStyles = makeStyles(({ colors, space }, { selected, selectedColor, padding }: Style) => ({
+const useStyles = makeStyles(({ colors }, { selected, selectedColor, padding }: Style) => ({
   card: {
     borderRadius: CARD_BORDER_RADIUS,
     // TouchableOpacity doesn't respect borderRadius, so hide the touchable ripple effect outside of the view;
@@ -109,6 +108,6 @@ const useStyles = makeStyles(({ colors, space }, { selected, selectedColor, padd
     ...(selected && {
       backgroundColor: selectedColor ?? colors.surfaceVariant,
     }),
-    ...(padding && { padding: space(2) }),
+    ...(padding && { padding: 16 }),
   },
 }));

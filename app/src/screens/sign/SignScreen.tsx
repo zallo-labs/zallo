@@ -174,10 +174,10 @@ export const SignScreen = ({ navigation, route }: SignScreenProps) => {
   );
 };
 
-const useStyles = makeStyles(({ colors, space }) => ({
+const useStyles = makeStyles(({ colors }) => ({
   signTitle: {
-    marginTop: space(3),
-    marginBottom: space(2),
+    marginTop: 24,
+    marginBottom: 16,
   },
   accountName: {
     color: colors.primary,

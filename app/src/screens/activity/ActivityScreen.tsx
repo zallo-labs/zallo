@@ -13,10 +13,10 @@ import { TransferMetadata, useTransfers } from '@subgraph/transfer';
 import { IncomingTransferItem } from '~/components/call/IncomingTransferItem';
 import { match, P } from 'ts-pattern';
 import { ListHeader } from '~/components/list/ListHeader';
-import { makeStyles } from '@theme/makeStyles';
 import { FlashList } from '@shopify/flash-list';
 import { ListItemHeight } from '~/components/list/ListItem';
 import { useNavigation } from '@react-navigation/native';
+import { StyleSheet } from 'react-native';
 
 type Item =
   | {
@@ -34,7 +34,6 @@ const proposalAsActivity = (proposal: Proposal): Item => ({
 });
 
 export const ActivityScreen = withSuspense(() => {
-  const styles = useStyles();
   const { AppbarHeader, handleScroll } = useAppbarHeader();
   const { navigate } = useNavigation();
   const pRequiringAction = useProposals({ requiresUserAction: true });
@@ -96,8 +95,8 @@ export const ActivityScreen = withSuspense(() => {
   );
 }, ListScreenSkeleton);
 
-const useStyles = makeStyles(({ s }) => ({
+const styles = StyleSheet.create({
   listContainer: {
-    paddingBottom: s(8),
+    paddingBottom: 8,
   },
-}));
+});

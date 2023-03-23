@@ -40,13 +40,13 @@ export const EmptyListFallback = ({
   );
 };
 
-const useStyles = makeStyles(({ colors, iconSize, space }) => ({
+const useStyles = makeStyles(({ colors, iconSize }) => ({
   icon: {
     color: colors.onBackground,
     fontSize: iconSize.large,
   },
   title: {
-    marginVertical: space(2),
+    marginVertical: 16,
   },
   text: {
     textAlign: 'center',

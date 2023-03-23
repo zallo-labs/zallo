@@ -99,7 +99,7 @@ export const DeviceScreen = (_props: DeviceScreenProps) => {
   );
 };
 
-const useStyles = makeStyles(({ space }) => ({
+const useStyles = makeStyles((_) => ({
   text: {
     textAlign: 'center',
   },
@@ -107,10 +107,10 @@ const useStyles = makeStyles(({ space }) => ({
     flex: 1,
   },
   name: {
-    marginTop: space(2),
-    marginBottom: space(4),
+    marginTop: 16,
+    marginBottom: 32,
   },
   address: {
-    marginTop: space(4),
+    marginTop: 32,
   },
 }));

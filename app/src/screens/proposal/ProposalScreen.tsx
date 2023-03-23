@@ -40,9 +40,9 @@ const ProposalScreen = ({ route: { params } }: ProposalScreenProps) => {
   );
 };
 
-const useStyles = makeStyles(({ space }) => ({
+const useStyles = makeStyles((_) => ({
   mx: {
-    marginHorizontal: space(2),
+    marginHorizontal: 16,
   },
 }));
 

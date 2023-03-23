@@ -1,4 +1,3 @@
-import { makeStyles } from '@theme/makeStyles';
 import { isAddress, isHex } from 'lib';
 import { useMemo } from 'react';
 import { Text } from 'react-native-paper';
@@ -8,6 +7,7 @@ import { TouchableOpacity } from 'react-native';
 import { useToggle } from '@hook/useToggle';
 import { tryDecodeHexString } from '~/util/decodeHex';
 import { useContacts } from '@api/contacts';
+import { StyleSheet } from 'react-native';
 
 export interface TypedValue {
   name?: string;
@@ -16,7 +16,6 @@ export interface TypedValue {
 }
 
 export const TypedDataValue = ({ name, value }: TypedValue) => {
-  const styles = useStyles();
   const contacts = useContacts();
 
   const [isExpanded, toggleExpanded] = useToggle(false);
@@ -70,11 +69,11 @@ export const TypedDataValue = ({ name, value }: TypedValue) => {
   );
 };
 
-const useStyles = makeStyles(({ space }) => ({
+const styles = StyleSheet.create({
   name: {
-    marginRight: space(2),
+    marginRight: 16,
   },
   formatted: {
     flexShrink: 1,
   },
-}));
+});

@@ -51,9 +51,9 @@ export const ErrorBoundary = ({ children }: ErrorBoundaryProps) => (
   </Sentry.ErrorBoundary>
 );
 
-const useStyles = makeStyles(({ colors, space }) => ({
+const useStyles = makeStyles(({ colors }) => ({
   root: {
-    paddingHorizontal: space(1),
+    paddingHorizontal: 8,
     backgroundColor: colors.errorContainer,
   },
   onRoot: {
@@ -63,6 +63,6 @@ const useStyles = makeStyles(({ colors, space }) => ({
     textAlign: 'center',
   },
   title: {
-    marginVertical: space(1),
+    marginVertical: 8,
   },
 }));

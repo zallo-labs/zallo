@@ -7,7 +7,7 @@ import { useCallback } from 'react';
 import { FormikTextField } from '~/components/fields/FormikTextField';
 import { CreateAccountResult, useCreateAccount } from '@api/account';
 import { AppbarBack } from '~/components/Appbar/AppbarBack';
-import { makeStyles } from '~/util/theme/makeStyles';
+import { StyleSheet } from 'react-native';
 
 interface Values {
   name: string;
@@ -28,7 +28,6 @@ export const CreateAccountScreen = ({
   navigation: { navigate },
 }: CreateAccountScreenProps) => {
   const { onCreate } = route.params;
-  const styles = useStyles();
   const createAccount = useCreateAccount();
 
   const handleSubmit = useCallback(
@@ -66,18 +65,18 @@ export const CreateAccountScreen = ({
   );
 };
 
-const useStyles = makeStyles(({ space, s }) => ({
+const styles = StyleSheet.create({
   container: {
     flex: 1,
-    marginHorizontal: s(16),
+    marginHorizontal: 16,
   },
   input: {
     textAlign: 'center',
-    marginVertical: space(4),
+    marginVertical: 32,
   },
   actionContainer: {
     flex: 1,
     justifyContent: 'flex-end',
-    marginBottom: s(16),
+    marginBottom: 16,
   },
-}));
+});

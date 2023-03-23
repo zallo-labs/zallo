@@ -1,5 +1,4 @@
 import { UndoIcon } from '@theme/icons';
-import { makeStyles } from '@theme/makeStyles';
 import { useState } from 'react';
 import { TextInput } from 'react-native-paper';
 import { AppbarBack2 } from '~/components/Appbar/AppbarBack';
@@ -9,6 +8,7 @@ import { Box } from '~/components/layout/Box';
 import { AccountId, useUpdateAccount } from '@api/account';
 import { StackNavigatorScreenProps } from '~/navigation/StackNavigator';
 import { useAccount } from '@api/account';
+import { StyleSheet } from 'react-native';
 
 export interface RenameAccountScreenParams {
   account: AccountId;
@@ -17,7 +17,6 @@ export interface RenameAccountScreenParams {
 export type RenameAccountScreenProps = StackNavigatorScreenProps<'RenameAccount'>;
 
 export const RenameAccountScreen = ({ route: { params } }: RenameAccountScreenProps) => {
-  const styles = useStyles();
   const account = useAccount(params.account);
   const update = useUpdateAccount(account);
 
@@ -55,8 +54,8 @@ export const RenameAccountScreen = ({ route: { params } }: RenameAccountScreenPr
   );
 };
 
-const useStyles = makeStyles(({ s }) => ({
+const styles = StyleSheet.create({
   fieldsContainer: {
-    marginHorizontal: s(16),
+    marginHorizontal: 16,
   },
-}));
+});

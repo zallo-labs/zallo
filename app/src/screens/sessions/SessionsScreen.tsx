@@ -1,5 +1,5 @@
 import { ScanIcon, WalletConnectIcon } from '@theme/icons';
-import { makeStyles } from '@theme/makeStyles';
+import { StyleSheet } from 'react-native';
 import { FlatList } from 'react-native';
 import { Appbar } from 'react-native-paper';
 import { useAppbarHeader } from '~/components/Appbar/useAppbarHeader';
@@ -13,7 +13,6 @@ import { SessionCard } from './SessionCard';
 export type SessionsScreenProps = StackNavigatorScreenProps<'Sessions'>;
 
 export const SessionsScreen = ({ navigation }: SessionsScreenProps) => {
-  const styles = useStyles();
   const { AppbarHeader, handleScroll } = useAppbarHeader();
   const client = useWalletConnect();
 
@@ -45,8 +44,8 @@ export const SessionsScreen = ({ navigation }: SessionsScreenProps) => {
   );
 };
 
-const useStyles = makeStyles(({ space }) => ({
+const styles = StyleSheet.create({
   list: {
-    marginHorizontal: space(2),
+    marginHorizontal: 16,
   },
-}));
+});

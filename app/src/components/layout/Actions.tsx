@@ -1,7 +1,6 @@
-import { makeStyles } from '@theme/makeStyles';
 import React from 'react';
 import { ReactNode } from 'react';
-import { View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 import { Box } from './Box';
 
 export interface ActionsProps {
@@ -10,8 +9,6 @@ export interface ActionsProps {
 }
 
 export const Actions = ({ children, horizontal }: ActionsProps) => {
-  const styles = useStyles();
-
   return (
     <>
       <Box flex={1} />
@@ -29,16 +26,16 @@ export const Actions = ({ children, horizontal }: ActionsProps) => {
   );
 };
 
-const useStyles = makeStyles(({ s }) => ({
+const styles = StyleSheet.create({
   hContainer: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    margin: s(16),
+    margin: 16,
   },
   vContainer: {
     alignItems: 'stretch',
-    gap: s(8),
-    margin: s(16),
+    gap: 8,
+    margin: 16,
   },
-}));
+});

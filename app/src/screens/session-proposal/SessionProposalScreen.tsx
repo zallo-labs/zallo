@@ -7,12 +7,12 @@ import { showError } from '~/provider/SnackbarProvider';
 import { toNamespaces } from '~/util/walletconnect/namespaces';
 import { getSdkError } from '@walletconnect/utils';
 import { Box } from '~/components/layout/Box';
-import { makeStyles } from '@theme/makeStyles';
 import { Actions } from '~/components/layout/Actions';
 import { useImmer } from 'use-immer';
 import { useWalletConnect, WalletConnectPeer } from '~/util/walletconnect';
 import { AccountId } from '@api/account';
 import { tryOrCatchAsync } from 'lib';
+import { StyleSheet } from 'react-native';
 
 export interface SessionProposalScreenParams {
   id: number;
@@ -23,7 +23,6 @@ export type SessionProposalScreenProps = StackNavigatorScreenProps<'SessionPropo
 
 export const SessionProposalScreen = ({ route, navigation }: SessionProposalScreenProps) => {
   const { id, peer } = route.params;
-  const styles = useStyles();
   const client = useWalletConnect();
 
   const [accounts, setAccounts] = useImmer<Set<AccountId>>(new Set());
@@ -78,8 +77,8 @@ export const SessionProposalScreen = ({ route, navigation }: SessionProposalScre
   );
 };
 
-const useStyles = makeStyles(({ space }) => ({
+const styles = StyleSheet.create({
   accounts: {
-    marginTop: space(3),
+    marginTop: 24,
   },
-}));
+});

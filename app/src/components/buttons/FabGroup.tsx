@@ -23,9 +23,9 @@ export const FabGroup = ({ children }: FabGroupProps) => {
   );
 };
 
-const useStyles = makeStyles(({ s }) => ({
+const useStyles = makeStyles((_) => ({
   separator: {
-    marginVertical: s(64),
+    marginVertical: 64,
   },
   fab: {
     position: undefined,
