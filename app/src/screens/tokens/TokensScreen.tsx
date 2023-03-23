@@ -1,13 +1,11 @@
-import { FlatList } from 'react-native';
+import { FlatList, StyleSheet } from 'react-native';
 import { Token } from '@token/token';
 import { useSearch } from '@hook/useSearch';
 import { Address } from 'lib';
 import { useTokens } from '@token/useToken';
-import { makeStyles } from '@theme/makeStyles';
 import { StackNavigatorScreenProps } from '~/navigation/StackNavigator';
 import { Searchbar } from '~/components/fields/Searchbar';
 import { AccountId } from '@api/account';
-import { AppbarMenu2 } from '~/components/Appbar/AppbarMenu';
 import { AppbarBack2 } from '~/components/Appbar/AppbarBack';
 import { SearchIcon } from '@theme/icons';
 import { ListHeader } from '~/components/list/ListHeader';
@@ -16,8 +14,8 @@ import { useSelectedAccountId } from '~/components/AccountSelector/useSelectedAc
 import { Screen } from '~/components/layout/Screen';
 
 export interface TokensScreenParams {
-  onSelect?: (token: Token) => void;
   account?: AccountId;
+  onSelect?: (token: Token) => void;
   disabled?: Set<Address>;
 }
 
@@ -26,16 +24,14 @@ export type TokensScreenProps =
   | StackNavigatorScreenProps<'TokensModal'>;
 
 export const TokensScreen = ({ route }: TokensScreenProps) => {
-  const { onSelect, account = useSelectedAccountId(), disabled } = route.params;
-  const styles = useStyles();
-  const isScreen = route.name == 'Tokens';
+  const { account = useSelectedAccountId(), onSelect, disabled } = route.params;
 
   const [tokens, searchProps] = useSearch(useTokens(), ['name', 'symbol', 'addr']);
 
   return (
-    <Screen safeArea={isScreen ? 'withoutTop' : 'withoutVertical'} style={styles.root}>
+    <Screen withoutTopInset isModal={route.name === 'TokensModal'}>
       <Searchbar
-        leading={isScreen ? AppbarMenu2 : AppbarBack2}
+        leading={AppbarBack2}
         placeholder="Search tokens"
         trailing={SearchIcon}
         {...searchProps}
@@ -59,11 +55,8 @@ export const TokensScreen = ({ route }: TokensScreenProps) => {
   );
 };
 
-const useStyles = makeStyles(({ s }) => ({
-  root: {
-    marginTop: s(16),
-  },
+const styles = StyleSheet.create({
   container: {
-    paddingVertical: s(8),
+    paddingVertical: 8,
   },
-}));
+});

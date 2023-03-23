@@ -20,6 +20,8 @@ import {
 } from '~/screens/AddressSheet/AddressSheetScreen';
 import { ContactScreen, ContactScreenParams } from '~/screens/contacts/ContactScreen';
 import { QrModalScreen, QrModalScreenParams } from '~/screens/QrModal/QrModalScreen';
+import { SessionsScreen } from '~/screens/sessions/SessionsScreen';
+import { TokensScreen, TokensScreenParams } from '~/screens/tokens/TokensScreen';
 // import { SettingsScreen } from '~/screens/Settings/SettingsScreen';
 
 export type StackNavigatorParamList = {
@@ -39,6 +41,9 @@ export type StackNavigatorParamList = {
   QrModal: QrModalScreenParams;
   // Settings
   Settings: undefined;
+  Sessions: undefined;
+  Tokens: TokensScreenParams;
+  TokensModal: TokensScreenParams;
   // Account
   CreateAccount: undefined;
 };
@@ -71,7 +76,8 @@ export const StackNavigator = () => {
       <Navigation.Screen name="Contacts" component={ContactsScreen} />
       <Navigation.Screen name="Contact" component={ContactScreen} />
 
-      {/* <Navigation.Screen name="Settings" component={SettingsScreen} /> */}
+      <Navigation.Screen name="Sessions" component={SessionsScreen} />
+      <Navigation.Screen name="Tokens" component={TokensScreen} />
 
       <Navigation.Screen name="CreateAccount" component={CreateAccountScreen} />
 
@@ -89,6 +95,7 @@ export const StackNavigator = () => {
         }}
       >
         <Navigation.Screen name="ContactsModal" component={ContactsScreen} />
+        <Navigation.Screen name="TokensModal" component={TokensScreen} />
       </Navigation.Group>
     </Navigation.Navigator>
   );
