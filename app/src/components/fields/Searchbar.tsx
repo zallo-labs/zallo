@@ -42,22 +42,23 @@ export const Searchbar = ({ leading: Leading, trailing, ...inputProps }: Searchb
   );
 };
 
-const useStyles = makeStyles(({ colors, s, corner, fonts }) => ({
+const useStyles = makeStyles(({ colors, corner, fonts }) => ({
   container: {
     flexDirection: 'row',
     alignItems: 'center',
-    height: s(56),
-    minWidth: s(360),
-    maxWidth: s(720),
+    height: 56,
+    minWidth: 360,
+    maxWidth: 720,
     borderRadius: corner.full,
-    marginHorizontal: s(16),
-    paddingHorizontal: s(16),
+    paddingHorizontal: 16,
+    marginHorizontal: 16,
+    marginVertical: 8,
   },
   leadingContainer: {
-    paddingRight: s(16),
+    paddingRight: 16,
   },
   leadingIcon: {
-    fontSize: s(24),
+    fontSize: 24,
     color: colors.onSurface,
   },
   input: {
@@ -68,10 +69,10 @@ const useStyles = makeStyles(({ colors, s, corner, fonts }) => ({
     color: colors.onSurfaceVariant,
   },
   trailingContainer: {
-    marginLeft: s(16),
+    marginLeft: 16,
   },
   trailingIcon: {
-    fontSize: s(24),
+    fontSize: 24,
     color: colors.onSurfaceVariant,
   },
 }));
