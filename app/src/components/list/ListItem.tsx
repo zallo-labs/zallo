@@ -14,7 +14,8 @@ import { StyleProp, ViewStyle } from 'react-native';
 
 type Lines = 1 | 2 | 3;
 
-interface ListIconElementProps extends IconProps {
+interface ListIconElementProps extends Omit<IconProps, 'color'> {
+  color: string;
   disabled?: boolean;
 }
 
@@ -145,7 +146,7 @@ export enum ListItemHeight {
 }
 
 const useStyles = makeStyles(
-  ({ colors, s, corner, stateLayer }, { lines, selected, disabled }: StyleProps) => {
+  ({ colors, s, corner, stateLayer, iconSize }, { lines, selected, disabled }: StyleProps) => {
     const justifyContent = lines === 3 ? 'flex-start' : 'center';
 
     const withState = (color: string) => stateLayer(color, disabled && 'disabled');
@@ -168,7 +169,7 @@ const useStyles = makeStyles(
         marginRight: s(16),
       },
       leadingAvatarContainer: {
-        fontSize: 40,
+        fontSize: iconSize.medium,
         backgroundColor: withState(colors.tertiaryContainer),
         borderRadius: corner.full,
       },
