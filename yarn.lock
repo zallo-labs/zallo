@@ -5562,9 +5562,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@graphprotocol/graph-cli@npm:0.42.4":
-  version: 0.42.4
-  resolution: "@graphprotocol/graph-cli@npm:0.42.4"
+"@graphprotocol/graph-cli@npm:0.43.0":
+  version: 0.43.0
+  resolution: "@graphprotocol/graph-cli@npm:0.43.0"
   dependencies:
     "@float-capital/float-subgraph-uncrashable": ^0.0.0-alpha.4
     "@oclif/core": 2.0.7
@@ -5594,7 +5594,7 @@ __metadata:
     yaml: 1.9.2
   bin:
     graph: dist/bin.js
-  checksum: dc11036d583be537f35071b8b7c62d1e42d80392bd24e81355e57396ac20372aa42d3c5654489e120d40734db9745403ee8d4d9510aed8c321d2220827be168f
+  checksum: 4e1f2c3079980d050ee2e72416c7c0ef0d2c5726691fac5c4f8746920508923b2b418c7c1e95b10aacc782f76bbac79a2af5a7b0eedc2f6f86b430e6e233dc99
   languageName: node
   linkType: hard
 
@@ -9520,6 +9520,26 @@ __metadata:
   peerDependencies:
     react-native: ^0.0.0-0 || 0.60 - 0.71 || 1000.0.0
   checksum: 691f2b74498160d0b532f673402d8affeecb28b005b1c6d6fa2e7c87f89ab3068177e8e2d2686738306e7592a39c6d7148aa4c426b7e8e149c43a336ad446648
+  languageName: node
+  linkType: hard
+
+"@react-native-community/blur@npm:^4.3.0":
+  version: 4.3.0
+  resolution: "@react-native-community/blur@npm:4.3.0"
+  peerDependencies:
+    react: "*"
+    react-native: "*"
+  checksum: 1fb168a88d5901f0c86cf537a51e272ddd63b057cec4fb102f2e3a4b50f16d04fc0575567de7440dfab01d090fb3863cec74055538141f96e7d7bc8835101ac0
+  languageName: node
+  linkType: hard
+
+"@react-native-community/blur@patch:@react-native-community/blur@npm:^4.3.0#../.yarn/patches/react-native-blur-e67c3fc.patch::locator=app%40workspace%3Aapp":
+  version: 4.3.0
+  resolution: "@react-native-community/blur@patch:@react-native-community/blur@npm%3A4.3.0#../.yarn/patches/react-native-blur-e67c3fc.patch::version=4.3.0&hash=51c35b&locator=app%40workspace%3Aapp"
+  peerDependencies:
+    react: "*"
+    react-native: "*"
+  checksum: 4671fdd06c4ead728f376c630c51aedc50b5538cc0f56cdb507f38fb3be7687182655f4faa7f829c34fbb2c635cacf15ad7984c56b76d17e1fb1ff7189de50ab
   languageName: node
   linkType: hard
 
@@ -14481,6 +14501,7 @@ __metadata:
     "@graphql-codegen/typescript-operations": ^3.0.2
     "@graphql-codegen/typescript-react-apollo": ^3.3.7
     "@react-native-async-storage/async-storage": 1.17.11
+    "@react-native-community/blur": "patch:@react-native-community/blur@npm:^4.3.0#../.yarn/patches/react-native-blur-e67c3fc.patch"
     "@react-navigation/drawer": ^6.6.2
     "@react-navigation/material-bottom-tabs": ^6.2.15
     "@react-navigation/material-top-tabs": ^6.6.2
@@ -39935,7 +39956,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "subgraph@workspace:subgraph"
   dependencies:
-    "@graphprotocol/graph-cli": 0.42.4
+    "@graphprotocol/graph-cli": 0.43.0
     "@graphprotocol/graph-ts": 0.29.3
     mustache: ^4.2.0
   languageName: unknown

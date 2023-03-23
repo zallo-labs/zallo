@@ -22,18 +22,18 @@ const useStyles = makeStyles((_theme, { top, bottom, left, right }: EdgeInsets) 
     flex: 1,
   },
   sides: {
-    marginLeft: left,
-    marginRight: right,
+    paddingLeft: left,
+    paddingRight: right,
   },
   full: {
-    marginTop: top,
-    marginBottom: bottom,
+    paddingTop: top,
+    paddingBottom: bottom,
   },
   withoutTop: {
-    marginBottom: bottom,
+    paddingBottom: bottom,
   },
   withoutBottom: {
-    marginTop: top,
+    paddingTop: top,
   },
   withoutVertical: {},
 }));

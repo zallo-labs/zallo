@@ -19,6 +19,7 @@ import {
   AddressSheetScreenParams,
 } from '~/screens/AddressSheet/AddressSheetScreen';
 import { ContactScreen, ContactScreenParams } from '~/screens/contacts/ContactScreen';
+import { QrModalScreen, QrModalScreenParams } from '~/screens/QrModal/QrModalScreen';
 // import { SettingsScreen } from '~/screens/Settings/SettingsScreen';
 
 export type StackNavigatorParamList = {
@@ -35,6 +36,7 @@ export type StackNavigatorParamList = {
   Contacts: ContactsScreenParams;
   ContactsModal: ContactsScreenParams;
   Contact: ContactScreenParams;
+  QrModal: QrModalScreenParams;
   // Settings
   Settings: undefined;
   // Account
@@ -76,6 +78,7 @@ export const StackNavigator = () => {
       <Navigation.Group screenOptions={{ presentation: 'transparentModal' }}>
         <Navigation.Screen name="AccountsSheet" component={AccountsSheetScreen} />
         <Navigation.Screen name="AddressSheet" component={AddressSheetScreen} />
+        <Navigation.Screen name="QrModal" component={QrModalScreen} />
       </Navigation.Group>
 
       <Navigation.Group

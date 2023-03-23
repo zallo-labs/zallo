@@ -15,6 +15,8 @@ export const PAPER_THEME = {
     surfaceDisabled: c(overrided.colors.onSurface, (c) => c.alpha(0.12)),
     onSurfaceOpaque: c(overrided.colors.onSurface, (c) => c.alpha(0.6)),
 
+    onScrim: '#F4EFF4',
+
     // Green
     green: '#4b6708',
     onGreen: '#ffffff',
