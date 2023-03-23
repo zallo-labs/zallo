@@ -22,7 +22,7 @@ export const CreateAccountScreen = ({ navigation: { replace } }: CreateAccountSc
   const { control, handleSubmit } = useForm<Inputs>();
 
   return (
-    <Screen safeArea="withoutTop">
+    <Screen withoutTopInset>
       <AppbarLarge leading="back" headline="Account" />
 
       <View style={styles.fields}>

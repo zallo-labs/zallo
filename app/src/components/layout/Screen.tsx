@@ -3,37 +3,30 @@ import { ReactNode } from 'react';
 import { StyleProp, View, ViewStyle } from 'react-native';
 import { EdgeInsets, useSafeAreaInsets } from 'react-native-safe-area-context';
 
-export interface ScreenProps {
+export interface ScreenProps extends Omit<Style, 'insets'> {
   children: ReactNode;
   style?: StyleProp<ViewStyle>;
-  safeArea?: 'full' | 'withoutTop' | 'withoutBottom' | 'withoutVertical';
 }
 
-export const Screen = ({ children, style, safeArea }: ScreenProps) => {
-  const styles = useStyles(useSafeAreaInsets());
+export const Screen = ({ children, style, ...styleParams }: ScreenProps) => {
+  const styles = useStyles({ insets: useSafeAreaInsets(), ...styleParams });
 
-  const safeAreaStyle = styles[safeArea || 'full'];
-
-  return <View style={[styles.container, styles.sides, safeAreaStyle, style]}>{children}</View>;
+  return <View style={[styles.container, style]}>{children}</View>;
 };
 
-const useStyles = makeStyles((_theme, { top, bottom, left, right }: EdgeInsets) => ({
+interface Style {
+  insets: EdgeInsets;
+  withoutTopInset?: boolean;
+  isModal?: boolean;
+}
+
+const useStyles = makeStyles((_theme, { insets, withoutTopInset, isModal }: Style) => ({
   container: {
     flex: 1,
+    ...(!withoutTopInset && { paddingTop: insets.top }),
+    ...(isModal && { paddingTop: 16 }),
+    paddingBottom: insets.bottom,
+    paddingLeft: insets.left,
+    paddingRight: insets.right,
   },
-  sides: {
-    paddingLeft: left,
-    paddingRight: right,
-  },
-  full: {
-    paddingTop: top,
-    paddingBottom: bottom,
-  },
-  withoutTop: {
-    paddingBottom: bottom,
-  },
-  withoutBottom: {
-    paddingTop: top,
-  },
-  withoutVertical: {},
 }));
