@@ -1,11 +1,13 @@
-import { ElementType } from 'react';
+import { ElementType, ComponentPropsWithoutRef, FC } from 'react';
+import { ColorValue } from 'react-native';
 import { Ionicons, MaterialCommunityIcons, MaterialIcons } from '@expo/vector-icons';
-import { ComponentPropsWithoutRef, FC } from 'react';
 import { SvgProps } from 'react-native-svg';
 import LogoSvg from '~/../assets/logo.svg';
 import MastercardSvg from '~/../assets/mastercard.svg';
 import WalletConnectSvg from '~/../assets/walletconnect.svg';
-import { ColorValue } from 'react-native';
+import TwitterSvg from '~/../assets/twitter.svg';
+import GithubSvg from '~/../assets/github.svg';
+import { useTheme } from './paper';
 
 export interface IconProps {
   size?: number;
@@ -100,3 +102,7 @@ export const svgIcon =
 export const LogoIcon = LogoSvg;
 export const MastercardIcon = svgIcon(MastercardSvg);
 export const WalletConnectIcon = svgIcon(WalletConnectSvg);
+export const TwitterIcon = svgIcon(TwitterSvg);
+export const GithubIcon = svgIcon((props) => (
+  <GithubSvg {...props} fill={useTheme().dark ? 'white' : 'black'} />
+));

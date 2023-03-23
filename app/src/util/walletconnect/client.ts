@@ -12,8 +12,8 @@ const WALLET_CONNECT = proxy(
     metadata: {
       name: 'Zallo',
       description: 'Smart wallet',
-      url: CONFIG.app.site,
-      icons: [CONFIG.app.iconUri],
+      url: CONFIG.metadata.site,
+      icons: [CONFIG.metadata.iconUri],
     },
   }),
 );

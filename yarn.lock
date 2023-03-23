@@ -14564,7 +14564,7 @@ __metadata:
     expo-haptics: ~12.2.1
     expo-image: ~1.0.0
     expo-keep-awake: ~12.0.1
-    expo-linking: ~4.0.1
+    expo-linking: ^4.0.1
     expo-local-authentication: ~13.2.1
     expo-localization: ~14.1.1
     expo-notifications: ~0.18.1
@@ -22110,7 +22110,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"expo-linking@npm:~4.0.1":
+"expo-linking@npm:^4.0.1":
   version: 4.0.1
   resolution: "expo-linking@npm:4.0.1"
   dependencies:

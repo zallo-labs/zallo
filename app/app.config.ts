@@ -11,9 +11,11 @@ export const CONFIG = {
   apiGqlWs: ENV.API_GQL_WS!,
   subgraphGqlUrl: ENV.SUBGRAPH_GQL_URL!,
   walletConnectProjectId: '599f2bebcaf0baedaaf87f899ad27991',
-  app: {
+  metadata: {
     site: ENV.SITE!,
     iconUri: ENV.ICON_URI!,
+    twitter: ENV.TWITTER!,
+    github: ENV.GITHUB!,
   },
 } as const;
 
@@ -28,7 +30,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
   name: 'Zallo',
   slug: 'app',
   owner: 'zallo',
-  githubUrl: 'https://github.com/zallo-labs/zallo',
+  githubUrl: CONFIG.metadata.github,
   version: '0.1.0',
   runtimeVersion: {
     policy: 'sdkVersion',

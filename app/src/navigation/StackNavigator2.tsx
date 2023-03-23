@@ -20,9 +20,9 @@ import {
 } from '~/screens/AddressSheet/AddressSheetScreen';
 import { ContactScreen, ContactScreenParams } from '~/screens/contacts/ContactScreen';
 import { QrModalScreen, QrModalScreenParams } from '~/screens/QrModal/QrModalScreen';
+import { SettingsScreen } from '~/screens/Settings/SettingsScreen';
 import { SessionsScreen } from '~/screens/sessions/SessionsScreen';
 import { TokensScreen, TokensScreenParams } from '~/screens/tokens/TokensScreen';
-// import { SettingsScreen } from '~/screens/Settings/SettingsScreen';
 
 export type StackNavigatorParamList = {
   // Onboarding
@@ -76,6 +76,7 @@ export const StackNavigator = () => {
       <Navigation.Screen name="Contacts" component={ContactsScreen} />
       <Navigation.Screen name="Contact" component={ContactScreen} />
 
+      <Navigation.Screen name="Settings" component={SettingsScreen} />
       <Navigation.Screen name="Sessions" component={SessionsScreen} />
       <Navigation.Screen name="Tokens" component={TokensScreen} />
 
