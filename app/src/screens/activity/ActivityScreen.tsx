@@ -9,7 +9,7 @@ import { AppbarMenu } from '~/components/Appbar/AppbarMenu';
 import { useAppbarHeader } from '~/components/Appbar/useAppbarHeader';
 import { ProposalItem } from '~/components/proposal/ProposalItem';
 import { Proposal, useProposals } from '@api/proposal';
-import { TransferMetadata, useTransfersMetadata } from '@subgraph/transfer';
+import { TransferMetadata, useTransfers } from '@subgraph/transfer';
 import { IncomingTransferItem } from '~/components/call/IncomingTransferItem';
 import { match, P } from 'ts-pattern';
 import { ListHeader } from '~/components/list/ListHeader';
@@ -41,7 +41,7 @@ export const ActivityScreen = withSuspense(() => {
   const pAwaitingApproval = useProposals({ states: 'Pending', requiresUserAction: false });
   const pExecuting = useProposals({ states: 'Executing' });
   const pExecuted = useProposals({ states: 'Executed' });
-  const incomingTransfers = useTransfersMetadata('IN');
+  const incomingTransfers = useTransfers('IN');
 
   const data = useMemo(() => {
     const executed = [

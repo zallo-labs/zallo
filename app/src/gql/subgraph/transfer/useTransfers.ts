@@ -1,19 +1,20 @@
 import { gql } from '@apollo/client';
-import { Id, toId } from 'lib';
+import { toId } from 'lib';
 import { DateTime } from 'luxon';
 import { useMemo } from 'react';
 import {
-  TransfersMetadataDocument,
-  TransfersMetadataQuery,
-  TransfersMetadataQueryVariables,
+  TransfersDocument,
+  TransfersQuery,
+  TransfersQueryVariables,
   TransferType,
 } from '@subgraph/generated';
 import { useSubgraphClient } from '~/gql/GqlProvider';
 import { useSuspenseQuery, usePollWhenFocussed } from '~/gql/util';
 import { useAccountIds } from '@api/account';
+import { TransferMetadata } from './types';
 
 gql`
-  query TransfersMetadata($accounts: [String!]!, $types: [TransferType!]!) {
+  query Transfers($accounts: [String!]!, $types: [TransferType!]!) {
     transfers(where: { account_in: $accounts, type_in: $types }) {
       id
       timestamp
@@ -21,24 +22,19 @@ gql`
   }
 `;
 
-export interface TransferMetadata {
-  id: Id;
-  timestamp: DateTime;
-}
-
-export const useTransfersMetadata = (...types: TransferType[]) => {
+export const useTransfers = (...types: TransferType[]) => {
   const accounts = useAccountIds();
 
-  const { data, ...rest } = useSuspenseQuery<
-    TransfersMetadataQuery,
-    TransfersMetadataQueryVariables
-  >(TransfersMetadataDocument, {
-    client: useSubgraphClient(),
-    variables: {
-      accounts: accounts.map(toId),
-      types,
+  const { data, ...rest } = useSuspenseQuery<TransfersQuery, TransfersQueryVariables>(
+    TransfersDocument,
+    {
+      client: useSubgraphClient(),
+      variables: {
+        accounts: accounts.map(toId),
+        types,
+      },
     },
-  });
+  );
   usePollWhenFocussed(rest, 10);
 
   return useMemo(

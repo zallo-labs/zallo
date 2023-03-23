@@ -1,2 +1,3 @@
-export * from './useTransfer.sub';
-export * from './useTransfersMetadata.sub';
+export * from './types';
+export * from './useTransfer';
+export * from './useTransfers';

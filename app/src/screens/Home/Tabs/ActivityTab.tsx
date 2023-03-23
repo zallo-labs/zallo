@@ -1,6 +1,6 @@
 import { Proposal, useProposals } from '@api/proposal';
 import { FlashList } from '@shopify/flash-list';
-import { TransferMetadata, useTransfersMetadata } from '@subgraph/transfer';
+import { TransferMetadata, useTransfers } from '@subgraph/transfer';
 import { memo } from 'react';
 import { StyleSheet } from 'react-native';
 import { Badge, Text } from 'react-native-paper';
@@ -24,7 +24,7 @@ export const ActivityTab = memo((_props: ActivityTabProps) => {
   const { navigate } = useRootNavigation2();
 
   const proposals = useProposals();
-  const inTransfers = useTransfersMetadata('IN');
+  const inTransfers = useTransfers('IN');
   const data: Item[] = [...proposals, ...inTransfers].sort(compare);
 
   return (

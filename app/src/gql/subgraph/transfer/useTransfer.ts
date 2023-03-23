@@ -1,39 +1,28 @@
 import { gql } from '@apollo/client';
-import { Token } from '@token/token';
 import { useMaybeToken } from '@token/useToken';
 import assert from 'assert';
-import { Address, asAddress, Id } from 'lib';
-import { DateTime } from 'luxon';
+import { asAddress, Id, tryAsAddress } from 'lib';
 import { useMemo } from 'react';
-import {
-  TransferDocument,
-  TransferQuery,
-  TransferQueryVariables,
-  TransferType,
-} from '@subgraph/generated';
+import { TransferDocument, TransferQuery, TransferQueryVariables } from '@subgraph/generated';
 import { useSubgraphClient } from '~/gql/GqlProvider';
 import { dateTimeFromSubgraph } from '~/gql/subgraph/util';
 import { useSuspenseQuery } from '~/gql/util';
-
-export interface Transfer {
-  token: Token;
-  from: Address;
-  to: Address;
-  amount: bigint;
-  direction: TransferType;
-  timestamp: DateTime;
-}
+import { Transfer } from './types';
 
 gql`
+  fragment TransferFields on Transfer {
+    id
+    type
+    token
+    from
+    to
+    value
+    timestamp
+  }
+
   query Transfer($id: ID!) {
     transfer(id: $id) {
-      id
-      type
-      token
-      from
-      to
-      value
-      timestamp
+      ...TransferFields
     }
   }
 `;
@@ -44,9 +33,10 @@ export const useTransfer = (id: Id) => {
     variables: { id },
   });
 
-  const t = data.transfer!;
+  const t = data.transfer;
+  assert(t, "transfer doesn't exist");
 
-  const token = useMaybeToken(asAddress(t.token));
+  const token = useMaybeToken(tryAsAddress(t?.token));
   assert(token, 'token not found for transfer');
 
   return useMemo(
