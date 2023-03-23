@@ -6,8 +6,6 @@ import { StyleProp, StyleSheet, TouchableOpacity, ViewStyle } from 'react-native
 import { WalletConnectPeer } from '~/util/walletconnect/types';
 import { PeerItem } from '../sessions/PeerItem';
 
-export const UNNAMED_DAPP_NAME = 'Unnamed DApp';
-
 export interface ProposerDetailsProps {
   proposer: WalletConnectPeer;
   style?: StyleProp<ViewStyle>;
