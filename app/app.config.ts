@@ -11,6 +11,10 @@ export const CONFIG = {
   apiGqlWs: ENV.API_GQL_WS!,
   subgraphGqlUrl: ENV.SUBGRAPH_GQL_URL!,
   walletConnectProjectId: '599f2bebcaf0baedaaf87f899ad27991',
+  app: {
+    site: ENV.SITE!,
+    iconUri: ENV.ICON_URI!,
+  },
 } as const;
 
 export type Config = typeof CONFIG;
