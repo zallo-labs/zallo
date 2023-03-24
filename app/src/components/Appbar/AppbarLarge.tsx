@@ -2,10 +2,9 @@ import { IconProps } from '@theme/icons';
 import { makeStyles } from '@theme/makeStyles';
 import { Arraylike, toArray } from 'lib';
 import { FC, ReactNode } from 'react';
+import { View } from 'react-native';
 import { Surface, Text } from 'react-native-paper';
 import { EdgeInsets, useSafeAreaInsets } from 'react-native-safe-area-context';
-import { Box } from '../layout/Box';
-import { Container } from '../layout/Container';
 import { AppbarBack2 } from './AppbarBack';
 import { AppbarMenu2 } from './AppbarMenu';
 
@@ -32,28 +31,23 @@ export const AppbarLarge = ({
 
   return (
     <Surface elevation={elevated ? 2 : 0} style={styles.root}>
-      <Box style={styles.headerContainer}>
-        <Box style={styles.leadingIconContainer}>
+      <View style={styles.headerContainer}>
+        <View style={styles.leadingIconContainer}>
           <Leading size={styles.leadingIcon.fontSize} color={styles.leadingIcon.color} />
-        </Box>
+        </View>
 
-        {trailing && (
-          <Container
-            style={styles.trailingContainer}
-            separator={<Box style={styles.trailingIconSeparator} />}
-          >
-            {toArray(trailing).map((Trailing, index) => (
-              <Trailing
-                key={index}
-                size={styles.trailingIcon.fontSize}
-                color={styles.trailingIcon.color}
-              />
-            ))}
-          </Container>
-        )}
-      </Box>
+        <View style={styles.trailingContainer}>
+          {toArray(trailing ?? []).map((Trailing, index) => (
+            <Trailing
+              key={index}
+              size={styles.trailingIcon.fontSize}
+              color={styles.trailingIcon.color}
+            />
+          ))}
+        </View>
+      </View>
 
-      <Box style={styles.textContainer}>
+      <View style={styles.textContainer}>
         <Text variant="headlineMedium" style={styles.headline}>
           {Headline}
         </Text>
@@ -63,7 +57,7 @@ export const AppbarLarge = ({
             {Supporting}
           </Text>
         )}
-      </Box>
+      </View>
     </Surface>
   );
 };
@@ -96,9 +90,7 @@ const useStyles = makeStyles(({ colors }, { center, insets }: StyleOptions) => (
   trailingContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-  },
-  trailingIconSeparator: {
-    marginLeft: 24,
+    gap: 16,
   },
   trailingIcon: {
     color: colors.onSurfaceVariant,
