@@ -7,7 +7,7 @@ import RnToast, { ToastConfig, ToastConfigParams, ToastOptions } from 'react-nat
 import { match } from 'ts-pattern';
 import { captureEvent, SentryEvent } from '~/util/sentry/sentry';
 
-type SnackVariant = 'info' | 'error';
+type SnackVariant = 'info' | 'success' | 'warning' | 'error';
 
 type SnackParams = Pick<SnackbarProps, 'action' | 'style' | 'elevation'> & {
   message: string;
@@ -60,6 +60,8 @@ const Snack = ({
 const useStyles = makeStyles(({ colors }, variant: SnackVariant) => {
   const [backgroundColor, color] = match(variant)
     .with('info', () => [colors.inverseSurface, colors.inverseOnSurface])
+    .with('success', () => [colors.greenContainer, colors.onGreenContainer])
+    .with('warning', () => [colors.orangeContainer, colors.onOrangeContainer])
     .with('error', () => [colors.errorContainer, colors.onErrorContainer])
     .exhaustive();
 
@@ -101,10 +103,14 @@ export const showSnack = (
 export const showInfo = (message: string, options?: ShowSnackOptions) =>
   showSnack(message, { ...options, variant: 'info' });
 
+export const showSuccess = (message: string, options?: ShowSnackOptions) =>
+  showSnack(message, { ...options, variant: 'success' });
+
+export const showWarning = (message: string, options?: ShowSnackOptions) =>
+  showSnack(message, { ...options, variant: 'warning' });
+
 export const showError = (message: string, options?: ShowSnackOptions) =>
   showSnack(message, { ...options, variant: 'error' });
-
-export const showWarning = showError;
 
 export const hideSnackbar = RnToast.hide;
 
