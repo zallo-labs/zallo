@@ -3,6 +3,7 @@ import { makeStyles } from '@theme/makeStyles';
 import { toArray } from 'lib';
 import React from 'react';
 import { FC } from 'react';
+import { View } from 'react-native';
 import { Surface } from 'react-native-paper';
 import { Box } from '../layout/Box';
 import { Container } from '../layout/Container';
@@ -27,16 +28,14 @@ export const Searchbar = ({ leading: Leading, trailing, ...inputProps }: Searchb
 
       <BasicTextField {...inputProps} style={[styles.input, inputProps.style]} />
 
+      <View style={styles.trailingContainer}>
+        {toArray(trailing ?? []).map((Trailing, i) => (
+          <Trailing key={i} size={styles.trailingIcon.fontSize} color={styles.trailingIcon.color} />
+        ))}
+      </View>
+
       {trailing && (
-        <Container style={styles.trailingContainer} separator={<Box mr={2} />}>
-          {toArray(trailing).map((Trailing, i) => (
-            <Trailing
-              key={i}
-              size={styles.trailingIcon.fontSize}
-              color={styles.trailingIcon.color}
-            />
-          ))}
-        </Container>
+        <Container style={styles.trailingContainer} separator={<Box mr={2} />}></Container>
       )}
     </Surface>
   );
@@ -69,7 +68,8 @@ const useStyles = makeStyles(({ colors, corner, fonts }) => ({
     color: colors.onSurfaceVariant,
   },
   trailingContainer: {
-    marginLeft: 16,
+    flexDirection: 'row',
+    gap: 16,
   },
   trailingIcon: {
     fontSize: 24,
