@@ -37,6 +37,7 @@ export const SettingsScreen = ({ navigation: { navigate } }: SettingsScreenProps
           leading={approver.address}
           headline="User"
           supporting="Manage the user for this device"
+          onPress={() => navigate('User')}
         />
 
         <ListItem
@@ -59,8 +60,6 @@ export const SettingsScreen = ({ navigation: { navigate } }: SettingsScreenProps
           supporting="Manage contacts"
           onPress={() => navigate('Contacts', {})}
         />
-
-        <RequireBiometricsItem />
 
         <Divider horizontalInset />
 

@@ -24,6 +24,7 @@ import { SettingsScreen } from '~/screens/Settings/SettingsScreen';
 import { SessionsScreen } from '~/screens/sessions/SessionsScreen';
 import { TokensScreen, TokensScreenParams } from '~/screens/tokens/TokensScreen';
 import { AlertModal, AlertModalParams } from '~/screens/alert/AlertModal';
+import { UserScreen } from '~/screens/User/UserScreen';
 
 export type StackNavigatorParamList = {
   // Onboarding
@@ -43,6 +44,7 @@ export type StackNavigatorParamList = {
   Alert: AlertModalParams;
   // Settings
   Settings: undefined;
+  User: undefined;
   Sessions: undefined;
   Tokens: TokensScreenParams;
   TokensModal: TokensScreenParams;
@@ -79,6 +81,7 @@ export const StackNavigator = () => {
       <Navigation.Screen name="Contact" component={ContactScreen} />
 
       <Navigation.Screen name="Settings" component={SettingsScreen} />
+      <Navigation.Screen name="User" component={UserScreen} />
       <Navigation.Screen name="Sessions" component={SessionsScreen} />
       <Navigation.Screen name="Tokens" component={TokensScreen} />
 
