@@ -14,11 +14,15 @@ import { captureEvent } from '~/util/sentry/sentry';
 import { LogLevel } from '@ethersproject/logger';
 import { SeverityLevel } from '@sentry/browser';
 import { CHAINS, getChain } from 'lib';
+import _ from 'lodash';
 
 // Ethers uses long timers; these tasks WON'T be executed when the app is in the background but will resume once re-opened
 if (Platform.OS !== 'web') LogBox.ignoreLogs(['Setting a timer']);
 
-export const CHAIN = getChain(CONFIG.chainName);
+export const SUPPORTED_CHAINS =
+  CONFIG.env === 'development' ? CHAINS : _.omit(CHAINS, ['local'] /* satisfies ChainName[] */);
+
+export const CHAIN = getChain(CONFIG.chainName, SUPPORTED_CHAINS);
 export const PROVIDER = new zk.Provider(CHAIN.rpc);
 export const CHAIN_ID = () => PROVIDER?.network?.chainId ?? CHAINS.testnet.id;
 
