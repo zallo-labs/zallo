@@ -23,7 +23,7 @@ export const TypedDataValue = ({ name, value }: TypedValue) => {
   const formatted = useMemo(() => {
     if (typeof value === 'string') {
       if (isHex(value)) {
-        const contact = isAddress(value) && contacts.find((c) => c.addr === value);
+        const contact = isAddress(value) && contacts.find((c) => c.address === value);
         if (contact) return contact.name;
 
         const decoded = tryDecodeHexString(value);
