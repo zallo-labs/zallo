@@ -25,14 +25,15 @@ export const useAccountSubscription = () =>
       const account = data?.account;
       if (!account) return;
 
+      // Add account id if missing
       updateQuery<AccountIdsQuery, AccountIdsQueryVariables>({
         cache,
         query: AccountIdsDocument,
         variables: {},
         defaultData: { accounts: [] },
         updater: (data) => {
-          const i = data.accounts.findIndex((a) => compareAddress(a.id, account.id));
-          data.accounts[i >= 0 ? i : data.accounts.length] = account;
+          if (!data.accounts.find((a) => compareAddress(a.id, account.id)))
+            data.accounts.push({ __typename: 'Account', id: account.id });
         },
       });
     },
