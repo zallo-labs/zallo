@@ -1,13 +1,13 @@
 import { useTheme } from '@theme/paper';
 import { useCallback } from 'react';
 import { useRootNavigation } from '~/navigation/useRootNavigation';
-import { AlertScreenParams } from './AlertScreen';
+import { AlertModalParams } from './AlertModal';
 
 type ConfirmFunction<Defaults extends Partial<ConfirmOptions>> = (
   overrides: Defaults extends ConfirmOptions ? Partial<ConfirmOptions> : ConfirmOptions,
 ) => void;
 
-export interface ConfirmOptions extends AlertScreenParams {
+export interface ConfirmOptions extends AlertModalParams {
   enabled?: boolean;
 }
 

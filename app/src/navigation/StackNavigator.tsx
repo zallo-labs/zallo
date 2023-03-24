@@ -34,7 +34,7 @@ import {
   RenameAccountScreen,
   RenameAccountScreenParams,
 } from '~/screens/account/rename/RenameAccountScreen';
-import { AlertScreen, AlertScreenParams } from '~/screens/alert/AlertScreen';
+import { AlertModal, AlertModalParams } from '~/screens/alert/AlertModal';
 import { BottomNavigator, BottomNavigatorParams } from './BottomNavigator';
 import { PolicyScreen, PolicyScreenParams } from '~/screens/policy/PolicyScreen';
 
@@ -60,7 +60,7 @@ export type StackNavigatorParamList = {
   NameDevice: NameDeviceScreenParams;
   Settings: undefined;
   // Modal
-  Alert: AlertScreenParams;
+  Alert: AlertModalParams;
   // WalletConnect
   Sessions: undefined;
   SessionProposal: SessionProposalScreenParams;
@@ -110,7 +110,7 @@ export const StackNavigator = () => {
       <Navigation.Screen name="NameDevice" component={NameDeviceScreen} />
 
       <Navigation.Group screenOptions={{ presentation: 'transparentModal' }}>
-        <Navigation.Screen name="Alert" component={AlertScreen} />
+        <Navigation.Screen name="Alert" component={AlertModal} />
       </Navigation.Group>
 
       <Navigation.Group

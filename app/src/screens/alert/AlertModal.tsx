@@ -1,10 +1,9 @@
-import { useTheme } from '@theme/paper';
+import { makeStyles } from '@theme/makeStyles';
 import { Button, Dialog, Text } from 'react-native-paper';
-import { useRootNavigation } from '~/navigation/useRootNavigation';
 import { DialogRoot } from '~/components/DialogRoot';
-import { StackNavigatorScreenProps } from '~/navigation/StackNavigator';
+import { StackNavigatorScreenProps } from '~/navigation/StackNavigator2';
 
-export interface AlertScreenParams {
+export interface AlertModalParams {
   title?: string;
   message?: string;
   onConfirm: () => unknown;
@@ -12,12 +11,11 @@ export interface AlertScreenParams {
   confirmTextColor?: string;
 }
 
-export type AlertScreenProps = StackNavigatorScreenProps<'Alert'>;
+export type AlertModalProps = StackNavigatorScreenProps<'Alert'>;
 
-export const AlertScreen = ({ route: { params } }: AlertScreenProps) => {
+export const AlertModal = ({ route: { params }, navigation: { goBack } }: AlertModalProps) => {
+  const styles = useStyles();
   const { title, message, onConfirm, confirmLabel, confirmTextColor } = params;
-  const { colors } = useTheme();
-  const { goBack } = useRootNavigation();
 
   return (
     <DialogRoot>
@@ -30,12 +28,12 @@ export const AlertScreen = ({ route: { params } }: AlertScreenProps) => {
       )}
 
       <Dialog.Actions>
-        <Button textColor={colors.onSurfaceVariant} onPress={goBack}>
+        <Button textColor={styles.cancel.color} onPress={goBack}>
           Cancel
         </Button>
 
         <Button
-          textColor={confirmTextColor || colors.primary}
+          textColor={confirmTextColor || styles.confirm.color}
           onPress={async () => {
             await onConfirm();
             goBack();
@@ -47,3 +45,12 @@ export const AlertScreen = ({ route: { params } }: AlertScreenProps) => {
     </DialogRoot>
   );
 };
+
+const useStyles = makeStyles(({ colors }) => ({
+  cancel: {
+    color: colors.onSurfaceVariant,
+  },
+  confirm: {
+    color: colors.primary,
+  },
+}));

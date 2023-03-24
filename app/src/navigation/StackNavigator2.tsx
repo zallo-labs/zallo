@@ -23,6 +23,7 @@ import { QrModalScreen, QrModalScreenParams } from '~/screens/QrModal/QrModalScr
 import { SettingsScreen } from '~/screens/Settings/SettingsScreen';
 import { SessionsScreen } from '~/screens/sessions/SessionsScreen';
 import { TokensScreen, TokensScreenParams } from '~/screens/tokens/TokensScreen';
+import { AlertModal, AlertModalParams } from '~/screens/alert/AlertModal';
 
 export type StackNavigatorParamList = {
   // Onboarding
@@ -39,6 +40,7 @@ export type StackNavigatorParamList = {
   ContactsModal: ContactsScreenParams;
   Contact: ContactScreenParams;
   QrModal: QrModalScreenParams;
+  Alert: AlertModalParams;
   // Settings
   Settings: undefined;
   Sessions: undefined;
@@ -86,6 +88,7 @@ export const StackNavigator = () => {
         <Navigation.Screen name="AccountsSheet" component={AccountsSheetScreen} />
         <Navigation.Screen name="AddressSheet" component={AddressSheetScreen} />
         <Navigation.Screen name="QrModal" component={QrModalScreen} />
+        <Navigation.Screen name="Alert" component={AlertModal} />
       </Navigation.Group>
 
       <Navigation.Group
