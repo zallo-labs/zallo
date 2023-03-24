@@ -14,7 +14,7 @@ export interface RefreshAtomOptions<T> {
 }
 
 export const refreshAtom =
-  <T>({ refresh: fetch, interval, cancelIf }: RefreshAtomOptions<T>): AtomEffect<T> =>
+  <T>({ refresh, interval, cancelIf }: RefreshAtomOptions<T>): AtomEffect<T> =>
   ({ setSelf, onSet, getPromise }) => {
     let isActive = true;
     let handle: NodeJS.Timer | undefined = undefined;
@@ -27,7 +27,7 @@ export const refreshAtom =
     };
 
     handle = setInterval(async () => {
-      const value = await fetch({ get: getPromise });
+      const value = await refresh({ get: getPromise });
 
       setSelf(value);
       maybeCancel(value);
