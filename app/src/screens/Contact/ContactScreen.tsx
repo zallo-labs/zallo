@@ -20,6 +20,7 @@ import { ICON_SIZE } from '@theme/paper';
 import { SelectField } from '~/components/fields/SelectField';
 import { CHAIN, SUPPORTED_CHAINS } from '@network/provider';
 import { Unimplemented } from '~/util/error/unimplemented';
+import { FormResetIcon } from '~/components/fields/ResetFormIcon';
 
 interface Inputs {
   name: string;
@@ -41,7 +42,7 @@ export const ContactScreen = withSuspense(
     const confirmRemove = useConfirmRemoval({
       message: 'Are you sure you want to remove this contact',
     });
-    const { control, handleSubmit } = useForm<Inputs>({
+    const { control, handleSubmit, reset } = useForm<Inputs>({
       ...(current && { defaultValues: { name: current.name, address: current.address } }),
     });
 
@@ -56,25 +57,28 @@ export const ContactScreen = withSuspense(
           leading="back"
           headline="Contact"
           {...(current && {
-            trailing: (props) => (
-              <AppbarMore2 iconProps={props}>
-                {({ close }) => (
-                  <Menu.Item
-                    leadingIcon={RemoveIcon}
-                    title="Remove contact"
-                    onPress={() => {
-                      close();
-                      confirmRemove({
-                        onConfirm: () => {
-                          removeContact(current);
-                          goBack();
-                        },
-                      });
-                    }}
-                  />
-                )}
-              </AppbarMore2>
-            ),
+            trailing: [
+              (props) => <FormResetIcon control={control} reset={reset} {...props} />,
+              (props) => (
+                <AppbarMore2 iconProps={props}>
+                  {({ close }) => (
+                    <Menu.Item
+                      leadingIcon={RemoveIcon}
+                      title="Remove contact"
+                      onPress={() => {
+                        close();
+                        confirmRemove({
+                          onConfirm: () => {
+                            removeContact(current);
+                            goBack();
+                          },
+                        });
+                      }}
+                    />
+                  )}
+                </AppbarMore2>
+              ),
+            ],
           })}
         />
 
