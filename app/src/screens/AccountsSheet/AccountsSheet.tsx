@@ -12,12 +12,11 @@ import { ListHeader } from '~/components/list/ListHeader';
 import { NavigateNextIcon } from '@theme/icons';
 import { AddressLabel } from '~/components/address/AddressLabel';
 import { ListItem } from '~/components/list/ListItem';
-import { StyleSheet } from 'react-native';
 import { Button } from 'react-native-paper';
 
-export type AccountsSheetScreenProps = StackNavigatorScreenProps<'AccountsSheet'>;
+export type AccountsSheetProps = StackNavigatorScreenProps<'AccountsSheet'>;
 
-export const AccountsSheetScreen = ({ navigation: { navigate } }: AccountsSheetScreenProps) => {
+export const AccountsSheet = ({ navigation: { navigate } }: AccountsSheetProps) => {
   const ref = useRef<BottomSheet>(null);
   const [selected, setSelected] = [useSelectedAccountId(), useSetSelectedAccount()];
 
@@ -53,9 +52,3 @@ export const AccountsSheetScreen = ({ navigation: { navigate } }: AccountsSheetS
     </Sheet>
   );
 };
-
-const styles = StyleSheet.create({
-  header: {
-    marginTop: 0,
-  },
-});

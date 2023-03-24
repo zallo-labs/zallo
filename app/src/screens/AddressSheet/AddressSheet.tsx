@@ -9,12 +9,9 @@ export interface AddressSheetScreenParams {
   address: Address;
 }
 
-export type AddressSheetScreenProps = StackNavigatorScreenProps<'AddressSheet'>;
+export type AddressSheetProps = StackNavigatorScreenProps<'AddressSheet'>;
 
-export const AddressSheetScreen = ({
-  route,
-  navigation: { navigate },
-}: AddressSheetScreenProps) => {
+export const AddressSheet = ({ route, navigation: { navigate } }: AddressSheetProps) => {
   const { address } = route.params;
 
   return (

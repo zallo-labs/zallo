@@ -6,7 +6,7 @@ import {
 } from '@react-navigation/stack';
 import { CreateAccountScreen } from '~/screens/CreateAccount/CreateAccountScreen';
 import { CreateUserScreen } from '~/screens/CreateUser/CreateUserScreen';
-import { AccountsSheetScreen } from '~/screens/AccountsSheet/AccountsSheetScreen';
+import { AccountsSheet } from '~/screens/AccountsSheet/AccountsSheet';
 import { HomeScreen } from '~/screens/Home/HomeScreen';
 import { OnboardScreen } from '~/screens/Onboard/OnboardScreen';
 import { useShowOnboarding } from '~/screens/Onboard/useShowOnboarding';
@@ -14,10 +14,7 @@ import { ScanScreen, ScanScreenParams } from '~/screens/Scan/ScanScreen';
 import { ProposalScreen, ProposalScreenParams } from '~/screens/Proposal/ProposalScreen2';
 import { SendScreen, SendScreenParams } from '~/screens/Send/SendScreen2';
 import { ContactsScreen, ContactsScreenParams } from '~/screens/contacts/ContactsScreen';
-import {
-  AddressSheetScreen,
-  AddressSheetScreenParams,
-} from '~/screens/AddressSheet/AddressSheetScreen';
+import { AddressSheet, AddressSheetScreenParams } from '~/screens/AddressSheet/AddressSheet';
 import { ContactScreen, ContactScreenParams } from '~/screens/Contact/ContactScreen';
 import { QrModalScreen, QrModalScreenParams } from '~/screens/QrModal/QrModalScreen';
 import { SettingsScreen } from '~/screens/Settings/SettingsScreen';
@@ -88,8 +85,8 @@ export const StackNavigator = () => {
       <Navigation.Screen name="CreateAccount" component={CreateAccountScreen} />
 
       <Navigation.Group screenOptions={{ presentation: 'transparentModal' }}>
-        <Navigation.Screen name="AccountsSheet" component={AccountsSheetScreen} />
-        <Navigation.Screen name="AddressSheet" component={AddressSheetScreen} />
+        <Navigation.Screen name="AccountsSheet" component={AccountsSheet} />
+        <Navigation.Screen name="AddressSheet" component={AddressSheet} />
         <Navigation.Screen name="QrModal" component={QrModalScreen} />
         <Navigation.Screen name="Alert" component={AlertModal} />
       </Navigation.Group>
