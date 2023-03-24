@@ -17,7 +17,7 @@ import { showError, showWarning } from '~/provider/SnackbarProvider';
 import { Eip712TypedData } from './Eip712TypedData';
 import { Box } from '~/components/layout/Box';
 import { Actions } from '~/components/layout/Actions';
-import { AddressLabel } from '~/components/addr/AddressLabel';
+import { AddressLabel } from '~/components/address/AddressLabel';
 import { makeStyles } from '@theme/makeStyles';
 import { AccountIdlike, useAccount } from '@api/account';
 import {

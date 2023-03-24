@@ -1,7 +1,7 @@
 import { makeStyles } from '@theme/makeStyles';
 import { StyleProp, ViewStyle } from 'react-native';
 import { Text } from 'react-native-paper';
-import { useAddressLabel } from '~/components/addr/useAddrName';
+import { useAddressLabel } from '~/components/address/AddressLabel';
 import { useProposalLabel } from '~/components/call/useProposalLabel';
 import { AddressIcon } from '~/components/Identicon/AddressIcon';
 import { Box } from '~/components/layout/Box';

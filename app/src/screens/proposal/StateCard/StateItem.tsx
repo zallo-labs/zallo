@@ -6,7 +6,7 @@ import { FC, Fragment } from 'react';
 import { StyleProp, ViewStyle } from 'react-native';
 import { Text } from 'react-native-paper';
 import Animated, { FadeIn, FadeInDown, FadeOut, FadeOutUp } from 'react-native-reanimated';
-import { AddressLabel } from '~/components/addr/AddressLabel';
+import { AddressLabel } from '~/components/address/AddressLabel';
 import { CARD_BORDER_RADIUS } from '~/components/card/Card';
 import { Timestamp } from '~/components/format/Timestamp';
 import { Box } from '~/components/layout/Box';

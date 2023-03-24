@@ -5,7 +5,7 @@ import { useTokenAvailable } from '@token/useTokenAvailable';
 import { Address, asHex, Call } from 'lib';
 import { useState } from 'react';
 import { Appbar, Text } from 'react-native-paper';
-import { AddrCard } from '~/components/addr/AddrCard';
+import { AddrCard } from '~/components/address/AddrCard';
 import { AppbarBack } from '~/components/Appbar/AppbarBack';
 import { ActionButton } from '~/components/buttons/ActionButton';
 import { Box } from '~/components/layout/Box';

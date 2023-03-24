@@ -6,7 +6,7 @@ import { Image } from 'expo-image';
 import { ScrollView } from 'react-native';
 import { Divider } from 'react-native-paper';
 import { useSelectedAccountId } from '~/components/AccountSelector/useSelectedAccount';
-import { useAddressLabel } from '~/components/addr/useAddrName';
+import { useAddressLabel } from '~/components/address/AddressLabel';
 import { AppbarLarge } from '~/components/Appbar/AppbarLarge';
 import { RequireBiometricsItem } from '~/components/items/RequireBiometricsItem';
 import { Screen } from '~/components/layout/Screen';

@@ -8,7 +8,7 @@ import { CloseIcon, ShareIcon } from '@theme/icons';
 import { Actions } from '~/components/layout/Actions';
 import { StyleSheet, Share, View } from 'react-native';
 import { BlurView } from '@react-native-community/blur';
-import { AddressLabel } from '~/components/addr/AddressLabel';
+import { AddressLabel } from '~/components/address/AddressLabel';
 import { buildAddressLink } from '~/util/addressLink';
 
 export interface QrModalScreenParams {

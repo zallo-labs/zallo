@@ -3,7 +3,7 @@ import { Text } from 'react-native-paper';
 import { CardItem, CardItemProps } from '../card/CardItem';
 import { Address } from 'lib';
 import { memo } from 'react';
-import { useAddressLabel } from './useAddrName';
+import { useAddressLabel } from './AddressLabel';
 import { AddressIcon } from '../Identicon/AddressIcon';
 
 export interface AddrCardProps extends CardItemProps {

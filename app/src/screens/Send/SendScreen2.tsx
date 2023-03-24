@@ -10,7 +10,7 @@ import { useState } from 'react';
 import { View } from 'react-native';
 import { Appbar, Button, Divider } from 'react-native-paper';
 import { useSelectedAccountId } from '~/components/AccountSelector/useSelectedAccount';
-import { useAddressLabel } from '~/components/addr/useAddrName';
+import { useAddressLabel } from '~/components/address/AddressLabel';
 import { useGoBack } from '~/components/Appbar/useGoBack';
 import { NumericInput } from '~/components/fields/NumericInput';
 import { Screen } from '~/components/layout/Screen';

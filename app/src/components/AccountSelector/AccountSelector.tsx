@@ -2,7 +2,7 @@ import { makeStyles } from '@theme/makeStyles';
 import { TouchableOpacity } from 'react-native';
 import { Text } from 'react-native-paper';
 import { useRootNavigation2 } from '~/navigation/useRootNavigation';
-import { AddressLabel } from '../addr/AddressLabel';
+import { AddressLabel } from '../address/AddressLabel';
 import { AddressIcon } from '../Identicon/AddressIcon';
 import { useSelectedAccountId } from './useSelectedAccount';
 

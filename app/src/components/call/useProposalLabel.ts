@@ -4,7 +4,7 @@ import { match } from 'ts-pattern';
 import { Proposal } from '@api/proposal';
 import { useTryDecodeAccountFunctionData } from './useTryDecodeAccountFunctionData';
 import { uppercaseFirst } from '~/util/string';
-import { useAddressLabel } from '../addr/useAddrName';
+import { useAddressLabel } from '../address/AddressLabel';
 import { useDecodedTransfer } from './useDecodedTransfer';
 
 export const TRANSFER_LABEL = 'Transfer';

@@ -4,7 +4,7 @@ import { Text } from 'react-native-paper';
 import { truncateAddr } from '~/util/format';
 import { AddressIcon } from '../Identicon/AddressIcon';
 import { Item, ItemProps } from '../item/Item';
-import { useAddressLabel } from './useAddrName';
+import { useAddressLabel } from './AddressLabel';
 
 export interface AddrItemProps extends ItemProps {
   addr: Address;

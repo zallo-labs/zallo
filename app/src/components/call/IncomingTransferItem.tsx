@@ -1,6 +1,6 @@
 import { assert } from 'console';
 import { Id } from 'lib';
-import { useAddressLabel } from '~/components/addr/useAddrName';
+import { useAddressLabel } from '~/components/address/AddressLabel';
 import { TRANSFER_LABEL } from '~/components/call/useProposalLabel';
 import { Timestamp } from '~/components/format/Timestamp';
 import { ListItem } from '~/components/list/ListItem';

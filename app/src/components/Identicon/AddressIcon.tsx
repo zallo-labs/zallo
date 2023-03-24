@@ -4,7 +4,7 @@ import { Address } from 'lib';
 import { ImageStyle } from 'react-native';
 import { StyleProp, TextStyle } from 'react-native';
 import Jazzicon from 'react-native-jazzicon';
-import { useAddressLabel } from '../addr/useAddrName';
+import { useAddressLabel } from '../address/AddressLabel';
 import { TokenIcon } from '../token/TokenIcon/TokenIcon';
 import { LabelIcon } from './LabelIcon';
 
