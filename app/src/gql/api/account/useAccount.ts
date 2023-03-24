@@ -82,6 +82,6 @@ export const useAccount = <Id extends AccountIdlike | undefined>(AccountIdlike: 
     };
   }, [data, id]);
 
-  if (id) assert(account);
+  if (id) assert(account, `Expected Account '${id}' to exist`);
   return account as Id extends undefined ? WAccount | undefined : WAccount;
 };
