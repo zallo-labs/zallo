@@ -9,10 +9,10 @@ import * as Clipboard from 'expo-clipboard';
 import { useSelectContact } from '../contacts/useSelectContact';
 
 export interface OverlayProps {
-  tryHandle: (data: string) => void;
+  onData: (data: string) => void;
 }
 
-export const Overlay = ({ tryHandle }: OverlayProps) => {
+export const Overlay = ({ onData }: OverlayProps) => {
   const styles = useStyles(useSafeAreaInsets());
   const selectContact = useSelectContact();
 
@@ -33,13 +33,13 @@ export const Overlay = ({ tryHandle }: OverlayProps) => {
         <IconButton
           icon={ContactsIcon}
           mode="contained-tonal"
-          onPress={async () => tryHandle((await selectContact()).address)}
+          onPress={async () => onData((await selectContact()).address)}
         />
 
         <IconButton
           icon={PasteIcon}
           mode="contained-tonal"
-          onPress={async () => tryHandle(await Clipboard.getStringAsync())}
+          onPress={async () => onData(await Clipboard.getStringAsync())}
         />
       </View>
     </View>
