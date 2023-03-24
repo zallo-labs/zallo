@@ -27,13 +27,13 @@ export const useUpsertContact = () => {
     (cur: NewContact, prev?: Contact) => {
       return mutation({
         variables: {
-          prevAddr: prev?.addr,
-          newAddr: cur.addr,
+          prevAddr: prev?.address,
+          newAddr: cur.address,
           name: cur.name,
         },
         optimisticResponse: {
           upsertContact: {
-            id: toId(`${user.id}-${cur.addr}`),
+            id: toId(`${user.id}-${cur.address}`),
           },
         },
         update: (cache, res) => {
@@ -49,12 +49,12 @@ export const useUpsertContact = () => {
             updater: (data) => {
               // Upsert current contact, or replace prev if the id has changed
               const i = data.contacts.findIndex(
-                prev && prev.addr !== cur.addr ? (c) => c.id === prev.id : (c) => c.id === id,
+                prev && prev.address !== cur.address ? (c) => c.id === prev.id : (c) => c.id === id,
               );
               data.contacts[i >= 0 ? i : data.contacts.length] = {
                 __typename: 'ContactObject',
                 id,
-                addr: cur.addr,
+                addr: cur.address,
                 name: cur.name,
               };
             },

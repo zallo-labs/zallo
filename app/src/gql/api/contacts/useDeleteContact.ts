@@ -28,12 +28,12 @@ export const useDeleteContact = () => {
     (contact: Contact) =>
       mutation({
         variables: {
-          addr: contact.addr,
+          addr: contact.address,
         },
         optimisticResponse: {
           deleteContact: {
             __typename: 'Contact',
-            addr: contact.addr,
+            addr: contact.address,
           },
         },
         update: (cache, res) => {
@@ -52,7 +52,7 @@ export const useDeleteContact = () => {
             ...opts,
             overwrite: true,
             data: {
-              contacts: data.contacts.filter((c) => c.addr !== contact.addr),
+              contacts: data.contacts.filter((c) => c.addr !== contact.address),
             },
           });
         },

@@ -2,7 +2,7 @@ import { Address } from 'lib';
 
 export interface Contact {
   id: string;
-  addr: Address;
+  address: Address;
   name: string;
 }
 

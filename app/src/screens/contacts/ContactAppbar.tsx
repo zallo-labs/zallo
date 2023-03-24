@@ -24,7 +24,7 @@ export const ContactAppbar = ({ existing }: ContactAppbarProps) => {
         <Appbar.Action
           icon={ShareIcon}
           onPress={() => {
-            const link = buildAddressLink(existing.addr);
+            const link = buildAddressLink(existing.address);
             Share.share({
               message: `${existing.name}\n${link}`,
             });

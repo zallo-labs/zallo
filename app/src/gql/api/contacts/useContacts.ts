@@ -1,8 +1,8 @@
 import { gql } from '@apollo/client';
 import { ContactsDocument, ContactsQuery, ContactsQueryVariables } from '@api/generated';
-import { asAddress, toId } from 'lib';
+import { asAddress } from 'lib';
 import { useMemo } from 'react';
-import { useSuspenseQuery, usePollWhenFocussed } from '~/gql/util';
+import { useSuspenseQuery } from '~/gql/util';
 import { Contact } from './types';
 
 gql`
@@ -20,17 +20,15 @@ gql`
 `;
 
 export const useContacts = () => {
-  const { data, ...rest } = useSuspenseQuery<ContactsQuery, ContactsQueryVariables>(
-    ContactsDocument,
-    { variables: {} },
-  );
-  usePollWhenFocussed(rest, 120);
+  const { data } = useSuspenseQuery<ContactsQuery, ContactsQueryVariables>(ContactsDocument, {
+    variables: {},
+  });
 
   return useMemo(
     (): Contact[] =>
       data.contacts.map((c) => ({
-        id: toId(c.id),
-        addr: asAddress(c.addr),
+        id: c.id,
+        address: asAddress(c.addr),
         name: c.name,
       })),
     [data.contacts],

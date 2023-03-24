@@ -6,7 +6,7 @@ export const useContact = (addr?: Address) => {
   const contacts = useContacts();
 
   return useMemo(
-    () => (addr ? contacts.find((c) => c.addr === addr) : undefined),
+    () => (addr ? contacts.find((c) => c.address === addr) : undefined),
     [contacts, addr],
   );
 };

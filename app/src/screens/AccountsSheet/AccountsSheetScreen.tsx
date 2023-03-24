@@ -10,7 +10,7 @@ import {
 } from '~/components/AccountSelector/useSelectedAccount';
 import { ListHeader } from '~/components/list/ListHeader';
 import { NavigateNextIcon } from '@theme/icons';
-import { AddressLabel } from '~/components/addr/AddressLabel';
+import { AddressLabel } from '~/components/address/AddressLabel';
 import { ListItem } from '~/components/list/ListItem';
 import { StyleSheet } from 'react-native';
 import { Button } from 'react-native-paper';

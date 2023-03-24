@@ -16,7 +16,7 @@ import { StyleSheet } from 'react-native';
 
 const defaultValues = {
   name: '',
-  addr: '',
+  address: '',
 };
 
 type Values = typeof defaultValues;
@@ -34,9 +34,10 @@ const getSchema = (contacts: Contact[], existing?: Contact): Yup.SchemaOf<Values
         message: 'Contact already exists with this name',
         test: (name) => existing?.name === name || !contacts.find((c) => c.name === name),
       }),
-    addr: ADDR_YUP_SCHEMA.test({
+    address: ADDR_YUP_SCHEMA.test({
       message: 'Contact already exists for this address',
-      test: (addr) => existing?.addr === addr || !contacts.find((c) => c.addr === addr),
+      test: (address) =>
+        existing?.address === address || !contacts.find((c) => c.address === address),
     }),
   });
 
@@ -53,15 +54,15 @@ export const ContactScreen = ({ route, navigation: { goBack, setParams } }: Cont
   const scanAddress = useScanAddress();
 
   const handleSubmit = async (values: Values, helpers: FormikHelpers<Values>) => {
-    assert(isAddress(values.addr)); // Enforced by schema
+    assert(isAddress(values.address)); // Enforced by schema
     await upsert(
       {
         name: values.name,
-        addr: values.addr,
+        address: values.address,
       },
       existing,
     );
-    setParams({ address: values.addr });
+    setParams({ address: values.address });
   };
 
   return (
