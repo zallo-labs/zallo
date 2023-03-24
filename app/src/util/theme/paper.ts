@@ -60,7 +60,7 @@ export const PAPER_THEME = {
     small: 24,
     medium: 40,
     large: 60,
-  },
+  } as const,
   iconButton: {
     size: 24,
     containerSize: 40,
@@ -73,8 +73,11 @@ export const PAPER_THEME = {
     l: 16,
     xl: 28,
     full: 1000,
-  },
+  } as const,
 };
+
+export const ICON_SIZE = PAPER_THEME.iconSize;
+export const CORNER = PAPER_THEME.corner;
 
 export type ThemeOverride = typeof PAPER_THEME;
 
