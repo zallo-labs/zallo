@@ -4,7 +4,7 @@ import { asUint8 } from '../bigint';
 import { RuleSelector } from './RuleSelector';
 import { TransactionRule, RuleStruct, TransactionRuleIsSatisfiedOptions } from './rule';
 import { tryOrIgnore } from '../util/try';
-import { Address } from '../addr';
+import { Address } from '../address';
 
 export class TargetsRule extends TransactionRule {
   targets: Set<Address>;

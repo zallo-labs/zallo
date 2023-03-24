@@ -1,4 +1,4 @@
-import { Address } from './addr';
+import { Address } from './address';
 import { Hex } from './bytes';
 
 export interface Call {

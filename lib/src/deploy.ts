@@ -1,5 +1,5 @@
 import { BytesLike } from 'ethers';
-import { Address, asAddress } from './addr';
+import { Address, asAddress } from './address';
 import { Factory } from './contracts/Factory';
 import { defaultAbiCoder, hexlify, isHexString, randomBytes } from 'ethers/lib/utils';
 import * as zk from 'zksync-web3';

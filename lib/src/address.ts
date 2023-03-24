@@ -16,7 +16,8 @@ export const tryAsAddress = <A extends Addresslike | undefined>(addr: A) => {
   return r as A extends undefined ? Address | undefined : Address;
 };
 
-export const isAddress = (v: unknown): v is Address => typeof v === 'string' && asAddress(v) === v;
+export const isAddress = (v: unknown): v is Address =>
+  typeof v === 'string' && tryAsAddress(v) === v;
 
 export const isAddressLike = (v: unknown): v is Addresslike =>
   typeof v === 'string' && ethers.utils.isAddress(v);

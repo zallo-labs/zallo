@@ -1,7 +1,7 @@
 import { BytesLike, ethers } from 'ethers';
 import { defaultAbiCoder } from 'ethers/lib/utils';
 import { SignatureLike } from '@ethersproject/bytes';
-import { Address, compareAddress } from './addr';
+import { Address, compareAddress } from './address';
 import { Approver } from './approver';
 import { Policy } from './policy';
 import { hashTx, Tx } from './tx';

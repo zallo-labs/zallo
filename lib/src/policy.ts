@@ -7,7 +7,7 @@ import { asUint32, BigIntlike, MAX_UINT32, MIN_UINT32 } from './bigint';
 import { ethers } from 'ethers';
 import { PolicyStruct as BasePolicyStruct } from './contracts/Account';
 import { AwaitedObj } from './util/types';
-import { Address } from './addr';
+import { Address } from './address';
 import { GetDomainParams, hashTx, Tx } from './tx';
 import { ClassSet } from './util/ClassSet';
 import { match } from 'ts-pattern';

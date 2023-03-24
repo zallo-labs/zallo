@@ -1,6 +1,6 @@
 import { BytesLike, defaultAbiCoder, recoverAddress } from 'ethers/lib/utils';
 import { SignatureLike } from '@ethersproject/bytes';
-import { Address, asAddress, compareAddress } from '../addr';
+import { Address, asAddress, compareAddress } from '../address';
 import { SignatureRule, RuleStruct, SignatureRuleIsSatisfiedOptions } from './rule';
 import { Arraylike, toSet } from '../util/maybe';
 import { asUint8 } from '../bigint';

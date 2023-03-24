@@ -22,7 +22,7 @@ export { Erc20, Erc20__factory } from './typechain';
 export * from './rules';
 export * from './util';
 
-export * from './addr';
+export * from './address';
 export * from './approver';
 export * from './bigint';
 export * from './bytes';

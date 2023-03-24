@@ -1,6 +1,6 @@
 import { TypedDataDomain, TypedDataField } from '@ethersproject/abstract-signer';
 import { ethers } from 'ethers';
-import { Addresslike } from './addr';
+import { Addresslike } from './address';
 import { EMPTY_HEX_BYTES } from './bytes';
 import { Call } from './call';
 
