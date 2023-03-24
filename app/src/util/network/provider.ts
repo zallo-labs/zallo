@@ -42,12 +42,12 @@ const ethersLevelToSentrySeverity = (level: LogLevel): SeverityLevel => {
 
 const logger = Logger.globalLogger();
 const ogLog = logger._log;
-logger._log = (logLevel: LogLevel, args: unknown[]) => {
-  if (logLevel !== LogLevel.OFF)
+logger._log = (level: LogLevel, args: unknown[]) => {
+  if (level !== LogLevel.OFF)
     captureEvent({
-      level: ethersLevelToSentrySeverity(logLevel),
-      message: args.join(' '),
+      level: ethersLevelToSentrySeverity(level),
+      message: JSON.stringify(args, null, 2),
     });
 
-  return ogLog(logLevel, args);
+  return ogLog(level, args);
 };
