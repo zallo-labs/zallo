@@ -33,6 +33,7 @@ export const ActivityIcon = materialCommunityIcon('chart-timeline-variant');
 export const SendIcon = materialCommunityIcon('send');
 export const ReceiveIcon = materialCommunityIcon('arrow-bottom-left');
 export const UserIcon = materialIcon('person');
+export const UserOutlineIcon = materialIcon('person-outline');
 export const ContactsIcon = materialIcon('people');
 export const AddIcon = materialCommunityIcon('plus');
 export const DeleteIcon = materialCommunityIcon('delete');
@@ -93,6 +94,7 @@ export const RejectedCircleIcon = materialCommunityIcon('close-circle');
 export const CheckmarkDoneCircleIcon = materialIcon('done-all');
 export const DescriptionIcon = materialIcon('description');
 export const NameIcon = materialIcon('text-fields');
+export const NetworkIcon = materialIcon('location-pin');
 
 export const svgIcon =
   (Svg: FC<SvgProps>): FC<IconProps> =>

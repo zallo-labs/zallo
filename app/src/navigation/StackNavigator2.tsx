@@ -18,7 +18,7 @@ import {
   AddressSheetScreen,
   AddressSheetScreenParams,
 } from '~/screens/AddressSheet/AddressSheetScreen';
-import { ContactScreen, ContactScreenParams } from '~/screens/contacts/ContactScreen';
+import { ContactScreen, ContactScreenParams } from '~/screens/Contact/ContactScreen';
 import { QrModalScreen, QrModalScreenParams } from '~/screens/QrModal/QrModalScreen';
 import { SettingsScreen } from '~/screens/Settings/SettingsScreen';
 import { SessionsScreen } from '~/screens/sessions/SessionsScreen';
