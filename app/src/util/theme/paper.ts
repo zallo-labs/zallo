@@ -46,8 +46,8 @@ export const PAPER_THEME = {
         (key) => (overrided.colors as any)[key] === backgroundColor,
       );
 
-      if (bgKey) {
-        const onColor = (overrided.colors as any)[`on${bgKey[0].toUpperCase()}${bgKey.slice(1)}`];
+      if (bgKey && bgKey.length >= 1) {
+        const onColor = (overrided.colors as any)[`on${bgKey[0]!.toUpperCase()}${bgKey.slice(1)}`];
 
         if (onColor) return onColor;
       }
