@@ -51,7 +51,12 @@ export const ActivityTab = memo((_props: ActivityTabProps) => {
 export const ActivityTabBadge = withSuspense(
   () => {
     const n = useProposals({ requiresUserAction: true }).length;
-    return <Badge visible={n > 0} size={6} style={styles.badge} />;
+
+    return (
+      <Badge visible={n > 0} size={16} style={styles.badge}>
+        {n}
+      </Badge>
+    );
   },
   () => null,
 );
@@ -62,6 +67,6 @@ const styles = StyleSheet.create({
     margin: 16,
   },
   badge: {
-    transform: [{ translateX: -30 }, { translateY: 12 }],
+    transform: [{ translateX: -20 }, { translateY: 12 }],
   },
 });
