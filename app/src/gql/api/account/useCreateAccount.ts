@@ -49,7 +49,11 @@ export const useCreateAccount = () => {
           variables: {},
           defaultData: { accounts: [] },
           updater: (data) => {
-            if (!data.accounts.find((a) => a.id === account.id)) data.accounts.push(account);
+            if (!data.accounts.find((a) => a.id === account.id))
+              data.accounts.push({
+                __typename: 'Account',
+                id: account.id,
+              });
           },
         });
       },
