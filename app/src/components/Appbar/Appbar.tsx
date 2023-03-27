@@ -70,7 +70,12 @@ const useStyles = makeStyles(({ colors, fonts }, { mode, center, insets }: Style
   root: {
     display: 'flex',
     justifyContent: 'space-between',
-    height: 152 + insets.top,
+    height:
+      insets.top +
+      match(mode)
+        .with('medium', () => 112)
+        .with('large', () => 154)
+        .exhaustive(),
     paddingTop: 20 + insets.top,
     paddingBottom: match(mode)
       .with('medium', () => 24)
