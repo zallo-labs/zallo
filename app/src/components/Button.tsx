@@ -1,5 +1,6 @@
 import { MaybePromise } from 'lib';
 import { useEffect, useRef, useState } from 'react';
+import { Keyboard } from 'react-native';
 import { Button as PaperButton, ButtonProps as PaperButtonProps } from 'react-native-paper';
 
 export interface ButtonProps extends PaperButtonProps {}
@@ -20,6 +21,8 @@ export const Button = ({ onPress, ...props }: PaperButtonProps) => {
       loading={props.loading || (props.loading !== false && loading)}
       {...(onPress && {
         onPress: async (e) => {
+          Keyboard.dismiss();
+
           const r: MaybePromise<unknown> = onPress(e);
 
           const isPromise = r instanceof Promise;
