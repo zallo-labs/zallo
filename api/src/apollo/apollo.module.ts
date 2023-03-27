@@ -20,7 +20,7 @@ const chain = (req: Request, resolve: () => void, middlewares: NestMiddleware[])
   if (!middlewares.length) return () => resolve();
   const [middleware, ...rest] = middlewares;
 
-  return () => middleware.use(req, {} as Response, chain(req, resolve, rest));
+  return () => middleware!.use(req, {} as Response, chain(req, resolve, rest));
 };
 
 @Module({

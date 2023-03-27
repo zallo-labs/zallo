@@ -9,7 +9,7 @@ import { LineSkeleton } from '~/components/skeleton/LineSkeleton';
 import { NavigationState } from '@react-navigation/native';
 
 const getRouteName = (state: NavigationState): string => {
-  const route = state.routes[state.index];
+  const route = state.routes[state.index]!;
   return route.state ? getRouteName(route.state as NavigationState) : route.name;
 };
 

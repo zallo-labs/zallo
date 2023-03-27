@@ -14,6 +14,7 @@ import { TransactionsService } from '../transactions/transactions.service';
 import { Proposal } from '@prisma/client';
 import { ProposalState } from './proposals.args';
 import { PoliciesService } from '../policies/policies.service';
+import assert from 'assert';
 
 describe(ProposalsService.name, () => {
   let service: ProposalsService;
@@ -89,10 +90,13 @@ describe(ProposalsService.name, () => {
       },
     });
 
+    const initRule = rules[0];
+    assert(initRule);
+
     // Mark policy rules as active
     await prisma.asUser.policy.update({
-      where: { accountId_key: { accountId: account, key: rules[0].policyKey } },
-      data: { activeId: rules[0].id },
+      where: { accountId_key: { accountId: account, key: initRule.policyKey } },
+      data: { activeId: initRule.id },
     });
 
     return service.propose({ account, to, ...params });

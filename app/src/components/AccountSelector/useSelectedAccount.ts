@@ -13,9 +13,9 @@ const selectedAtom = atom<AccountId | null>({
 });
 
 export const useSelectedAccountId = () => {
-  const [fallback] = useAccountIds();
+  const accountIds = useAccountIds();
 
-  return useRecoilValue(selectedAtom) ?? fallback;
+  return useRecoilValue(selectedAtom) ?? accountIds[0]!;
 };
 
 export const useSelectedAccount = () => useAccount(useSelectedAccountId());

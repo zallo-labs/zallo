@@ -54,7 +54,7 @@ export class ProposalsResolver {
 
   @ResolveField(() => Transaction, { nullable: true })
   async transaction(@Parent() proposal: Proposal): Promise<Transaction | null> {
-    return proposal.transactions ? proposal.transactions[0] : null;
+    return proposal.transactions?.[0] || null;
   }
 
   @ResolveField(() => [Approval])

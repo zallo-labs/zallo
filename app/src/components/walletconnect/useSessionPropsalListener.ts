@@ -31,6 +31,17 @@ export const useSessionPropsalListener = () => {
 
       // Check required chains
       const namespace = proposal.params.requiredNamespaces[WC_NAMESPACE];
+      if (!namespace) {
+        showError("Session doesn't support Ethereum", {
+          event: {
+            extra: {
+              proposal,
+            },
+          },
+        });
+        return client.reject({ id: proposal.id, reason: getSdkError('UNSUPPORTED_NAMESPACE_KEY') });
+      }
+
       const chain = `${CHAIN_ID()}`;
       const unsupportedChains = namespace.chains?.filter((c) => c !== chain);
       if (unsupportedChains) {
