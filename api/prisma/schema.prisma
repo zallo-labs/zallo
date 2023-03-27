@@ -11,6 +11,10 @@ generator client {
 generator nestgraphql {
   provider = "prisma-nestjs-graphql"
   output   = "../generated"
+
+  noTypeId = true
+  graphqlScalars_BigInt_name      = "GraphQLBigInt"
+  graphqlScalars_BigInt_specifier = "graphql-scalars"
 }
 
 model Account {
@@ -118,8 +122,8 @@ model Proposal {
   to         String   @db.Char(42) // address
   value      Decimal? @db.Decimal(79, 0) // uint256
   data       String? // bytes
-  nonce      BigInt
-  gasLimit   BigInt?
+  nonce      BigInt // uint256
+  gasLimit   BigInt? // uint256
   createdAt  DateTime @default(now())
 
   approvals    Approval[]
