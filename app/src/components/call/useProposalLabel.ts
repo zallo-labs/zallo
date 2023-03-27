@@ -9,7 +9,7 @@ import { useDecodedTransfer } from './useDecodedTransfer';
 
 export const TRANSFER_LABEL = 'Transfer';
 
-export const useProposalLabel = (p?: Proposal) => {
+export const useProposalLabel = (p: Proposal | undefined) => {
   const method = useContractMethod(p);
   const accountMethod = useTryDecodeAccountFunctionData(p?.account ?? ZERO_ADDR, p?.data);
   const transfer = useDecodedTransfer(p);
