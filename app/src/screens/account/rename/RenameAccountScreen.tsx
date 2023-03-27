@@ -2,7 +2,7 @@ import { UndoIcon } from '@theme/icons';
 import { useState } from 'react';
 import { TextInput } from 'react-native-paper';
 import { AppbarBack2 } from '~/components/Appbar/AppbarBack';
-import { AppbarLarge } from '~/components/Appbar/AppbarLarge';
+import { Appbar } from '~/components/Appbar/Appbar';
 import { TextField } from '~/components/fields/TextField';
 import { Box } from '~/components/layout/Box';
 import { AccountId, useUpdateAccount } from '@api/account';
@@ -25,7 +25,8 @@ export const RenameAccountScreen = ({ route: { params } }: RenameAccountScreenPr
 
   return (
     <Box>
-      <AppbarLarge
+      <Appbar
+        mode="large"
         leading={(props) => (
           <AppbarBack2
             {...props}

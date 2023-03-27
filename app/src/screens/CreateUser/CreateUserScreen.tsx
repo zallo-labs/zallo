@@ -4,7 +4,7 @@ import { StackNavigatorScreenProps } from '~/navigation/StackNavigator2';
 import { Actions } from '~/components/layout/Actions';
 import { StyleSheet } from 'react-native';
 import { Screen } from '~/components/layout/Screen';
-import { AppbarLarge } from '~/components/Appbar/AppbarLarge';
+import { Appbar } from '~/components/Appbar/Appbar';
 import { useUpdateUser, useUser } from '@api/user';
 import { useState } from 'react';
 import { RequireBiometricsItem } from '~/components/items/RequireBiometricsItem';
@@ -35,7 +35,7 @@ export const CreateUserScreen = ({ navigation: { navigate } }: CreateUserScreenP
 
   return (
     <Screen withoutTopInset>
-      <AppbarLarge leading="back" headline="User" />
+      <Appbar mode="large" leading="back" headline="User" />
 
       <View style={styles.fields}>
         <FormTextField

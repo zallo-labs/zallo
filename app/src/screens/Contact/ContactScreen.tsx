@@ -5,7 +5,7 @@ import { useForm } from 'react-hook-form';
 import { StyleSheet } from 'react-native';
 import { View } from 'react-native';
 import { Menu } from 'react-native-paper';
-import { AppbarLarge } from '~/components/Appbar/AppbarLarge';
+import { Appbar } from '~/components/Appbar/Appbar';
 import { AppbarMore2 } from '~/components/Appbar/AppbarMore';
 import { FormSubmitButton } from '~/components/fields/FormSubmitButton';
 import { FormTextField } from '~/components/fields/FormTextField';
@@ -53,7 +53,8 @@ export const ContactScreen = withSuspense(
 
     return (
       <Screen withoutTopInset>
-        <AppbarLarge
+        <Appbar
+          mode="large"
           leading="back"
           headline="Contact"
           {...(current && {

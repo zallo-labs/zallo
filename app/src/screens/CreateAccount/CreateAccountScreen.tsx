@@ -2,7 +2,7 @@ import { useCreateAccount } from '@api/account';
 import { useForm } from 'react-hook-form';
 import { StyleSheet, View } from 'react-native';
 import { useSetSelectedAccount } from '~/components/AccountSelector/useSelectedAccount';
-import { AppbarLarge } from '~/components/Appbar/AppbarLarge';
+import { Appbar } from '~/components/Appbar/Appbar';
 import { FormSubmitButton } from '~/components/fields/FormSubmitButton';
 import { FormTextField } from '~/components/fields/FormTextField';
 import { Actions } from '~/components/layout/Actions';
@@ -23,7 +23,7 @@ export const CreateAccountScreen = ({ navigation: { replace } }: CreateAccountSc
 
   return (
     <Screen withoutTopInset>
-      <AppbarLarge leading="back" headline="Account" />
+      <Appbar mode="large" leading="back" headline="Account" />
 
       <View style={styles.fields}>
         <FormTextField

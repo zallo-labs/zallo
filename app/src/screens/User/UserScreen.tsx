@@ -2,7 +2,7 @@ import { useUpdateUser, useUser } from '@api/user';
 import { ShareIcon } from '@theme/icons';
 import { useForm } from 'react-hook-form';
 import { StyleSheet } from 'react-native';
-import { AppbarLarge } from '~/components/Appbar/AppbarLarge';
+import { Appbar } from '~/components/Appbar/Appbar';
 import { Button } from '~/components/Button';
 import { FormSubmitButton } from '~/components/fields/FormSubmitButton';
 import { FormTextField } from '~/components/fields/FormTextField';
@@ -28,7 +28,8 @@ export const UserScreen = ({ navigation: { navigate } }: UserScreenProps) => {
 
   return (
     <Screen withoutTopInset>
-      <AppbarLarge
+      <Appbar
+        mode="large"
         leading="back"
         headline="User"
         trailing={(props) => <FormResetIcon control={control} reset={reset} {...props} />}

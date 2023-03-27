@@ -7,8 +7,7 @@ import { ScrollView } from 'react-native';
 import { Divider } from 'react-native-paper';
 import { useSelectedAccountId } from '~/components/AccountSelector/useSelectedAccount';
 import { useAddressLabel } from '~/components/address/AddressLabel';
-import { AppbarLarge } from '~/components/Appbar/AppbarLarge';
-import { RequireBiometricsItem } from '~/components/items/RequireBiometricsItem';
+import { Appbar } from '~/components/Appbar/Appbar';
 import { Screen } from '~/components/layout/Screen';
 import { ListItem } from '~/components/list/ListItem';
 import { StackNavigatorScreenProps } from '~/navigation/StackNavigator2';
@@ -24,7 +23,7 @@ export const SettingsScreen = ({ navigation: { navigate } }: SettingsScreenProps
 
   return (
     <Screen withoutTopInset>
-      <AppbarLarge leading="back" headline="Settings" />
+      <Appbar mode="large" leading="back" headline="Settings" />
 
       <ScrollView style={styles.container}>
         <ListItem
