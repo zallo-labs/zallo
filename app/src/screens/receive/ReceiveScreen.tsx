@@ -74,5 +74,5 @@ export const ReceiveScreen = withSuspense(
       </Box>
     );
   },
-  () => <ScreenSkeleton menu mode="center-aligned" />,
+  () => <ScreenSkeleton mode="center-aligned" />,
 );
