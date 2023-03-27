@@ -6,6 +6,7 @@ import { Box } from '../layout/Box';
 import { AddressOrLabelIcon } from '../Identicon/AddressOrLabelIcon';
 import { TextProps } from '@theme/types';
 import { StyleProp, ViewStyle } from 'react-native';
+import { O } from 'ts-toolbelt';
 
 /*
  * https://m3.material.io/components/lists/specs
@@ -21,17 +22,16 @@ export interface ListItemTextProps {
   Text: FC<TextProps>;
 }
 
-export interface ListItemProps extends Pick<TouchableRippleProps, 'onPress' | 'disabled'> {
-  leading?: FC<ListIconElementProps> | string;
-  overline?: ReactNode | FC<ListItemTextProps>;
-  headline: ReactNode | FC<ListItemTextProps>;
-  supporting?: ReactNode | FC<ListItemTextProps>;
-  trailing?: FC<ListIconElementProps & ListItemTextProps> | ReactNode | number;
-  maxTrailing?: number;
-  lines?: Lines;
-  selected?: boolean;
-  style?: StyleProp<ViewStyle>;
-}
+export type ListItemProps = Pick<TouchableRippleProps, 'onPress'> &
+  O.Optional<StyleProps, 'lines'> & {
+    leading?: FC<ListIconElementProps> | string;
+    overline?: ReactNode | FC<ListItemTextProps>;
+    headline: ReactNode | FC<ListItemTextProps>;
+    supporting?: ReactNode | FC<ListItemTextProps>;
+    trailing?: FC<ListIconElementProps & ListItemTextProps> | ReactNode | number;
+    maxTrailing?: number;
+    style?: StyleProp<ViewStyle>;
+  };
 
 export const ListItem = ({
   leading: Leading,
