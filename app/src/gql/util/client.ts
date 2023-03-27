@@ -10,14 +10,12 @@ export const DEFAULT_GQL_CLIENT_OPTIONS: DefaultOptions = {
   },
 };
 
+const storage = new AsyncStorageWrapper(AsyncStorage);
+
 export const getPersistedCache = async (clientName: string) => {
   const cache = new InMemoryCache();
 
-  await persistCache({
-    key: clientName,
-    cache,
-    storage: new AsyncStorageWrapper(AsyncStorage),
-  });
+  await persistCache({ key: clientName, cache, storage });
 
   return cache;
 };
