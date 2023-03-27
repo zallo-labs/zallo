@@ -26,6 +26,7 @@ import { TransactionsConsumer } from '../transactions/transactions.consumer';
 import { ProviderService } from '../util/provider/provider.service';
 import { prismaAsPolicy, PrismaPolicy } from './policies.util';
 import merge from 'ts-deepmerge';
+import _ from 'lodash';
 
 interface CreateRulesParams {
   prisma?: Prisma.TransactionClient;
@@ -212,8 +213,9 @@ export class PoliciesService implements OnModuleInit {
     const policies = (
       await this.prisma.asUser.policy.findMany({
         where: { accountId: proposal.accountId, active: { is: {} } },
-        ...merge(queryArgs ?? {}, {
-          select: {
+        ..._.omit(queryArgs, ['select']),
+        select: {
+          ...merge(_.omit(queryArgs?.select ?? {}, ['id', 'satisfied', 'requiresUserAction']), {
             active: {
               select: {
                 policyKey: true,
@@ -222,8 +224,8 @@ export class PoliciesService implements OnModuleInit {
                 onlyTargets: true,
               },
             },
-          },
-        } as const),
+          }),
+        },
       })
     ).map((p) => prismaAsPolicy(p!.active as PrismaPolicy));
 

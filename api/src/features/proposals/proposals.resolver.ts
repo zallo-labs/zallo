@@ -73,7 +73,7 @@ export class ProposalsResolver {
 
   @ResolveField(() => [SatisfiablePolicy])
   async satisfiablePolicies(
-    proposal: Proposal,
+    @Parent() proposal: Proposal,
     @Info() info: GraphQLResolveInfo,
   ): Promise<SatisfiablePolicy[]> {
     return this.service.satisfiablePolicies(proposal.id, getSelect(info));
