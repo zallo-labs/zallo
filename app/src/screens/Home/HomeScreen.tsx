@@ -9,7 +9,7 @@ import { withSuspense } from '~/components/skeleton/withSuspense';
 import { StackNavigatorScreenProps } from '~/navigation/StackNavigator2';
 import { Appbar } from './Appbar';
 import { QuickActions } from './QuickActions';
-import { TabNavigator } from './Tabs';
+import { Tabs } from './Tabs';
 
 export type HomeScreenProps = StackNavigatorScreenProps<'Home'>;
 
@@ -26,7 +26,7 @@ export const HomeScreen = withSuspense((_props: HomeScreenProps) => {
 
       <QuickActions />
 
-      <TabNavigator />
+      <Tabs />
     </Screen>
   );
 }, ScreenSkeleton);

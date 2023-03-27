@@ -19,7 +19,7 @@ export type TabNavigatorScreenProp<K extends keyof TabNavigatorParamList> =
 
 const Tab = createMaterialTopTabNavigator<TabNavigatorParamList>();
 
-export const TabNavigator = () => {
+export const Tabs = () => {
   const styles = useStyles();
 
   return (
