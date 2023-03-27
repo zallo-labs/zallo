@@ -16,9 +16,9 @@ import {
 
 export const WalletConnectListeners = () => {
   const { navigate } = useRootNavigation();
-  const handleSessionProposal = useSessionPropsalListener();
-  const [propose] = usePropose();
   const client = useWalletConnect();
+  const handleSessionProposal = useSessionPropsalListener();
+  const propose = usePropose();
 
   useEffect(() => {
     const x = [

@@ -36,7 +36,7 @@ export const SendScreen = ({ route, navigation }: SendScreenProps) => {
   const { account, to } = route.params;
   const styles = useStyles();
   const selectToken = useSelectToken({ account: asAccountId(account) });
-  const [propose, proposing] = usePropose();
+  const propose = usePropose();
   const [token, setSelectToken] = [useSelectedToken(), useSetSelectedToken()];
   const available = useTokenAvailable(token, account);
 
@@ -69,7 +69,6 @@ export const SendScreen = ({ route, navigation }: SendScreenProps) => {
       </Container>
 
       <ActionButton
-        loading={proposing}
         disabled={!amount || amount === 0n}
         {...(amount && {
           onPress: () => {

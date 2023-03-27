@@ -42,7 +42,7 @@ export const SendScreen = withSuspense(({ route }: SendScreenProps) => {
   const account = useSelectedAccountId();
   const [token, setToken] = [useSelectedToken(), useSetSelectedToken()];
   const selectToken = useSelectToken();
-  const [propose] = usePropose();
+  const propose = usePropose();
   const price = useTokenPriceData(token).current;
 
   const [input, setInput] = useState('');

@@ -1,14 +1,21 @@
 import { Tx } from 'lib';
-import { useCallback, useState } from 'react';
+import { useCallback } from 'react';
 import { RootNavigation, useRootNavigation } from '~/navigation/useRootNavigation';
 import { showInfo } from '~/provider/SnackbarProvider';
 import { asProposalId, ProposalId } from './types';
 import { OnExecute } from '~/screens/proposal/ProposalActions';
 import { O } from 'ts-toolbelt';
-import { ProposalFieldsFragmentDoc, useProposeMutation } from '@api/generated';
+import {
+  ProposalFieldsFragmentDoc,
+  ProposalsDocument,
+  ProposalsQuery,
+  ProposalsQueryVariables,
+  useProposeMutation,
+} from '@api/generated';
 import assert from 'assert';
 import { gql } from '@apollo/client';
 import { AccountIdlike, asAccountId } from '@api/account';
+import { updateQuery } from '~/gql/util';
 
 gql`
   ${ProposalFieldsFragmentDoc}
@@ -42,8 +49,6 @@ export const usePropose = () => {
   const [mutation] = useProposeMutation();
   const navigation = useRootNavigation();
 
-  const [proposing, setProposing] = useState(false);
-
   const propose = useCallback(
     async (tx: TxOptions, account: AccountIdlike): Promise<ProposalId> => {
       const r = await mutation({
@@ -54,7 +59,20 @@ export const usePropose = () => {
           data: tx.data,
           gasLimit: tx.gasLimit?.toString(),
         },
-        // TODO: cache update - insert into Proposals
+        update: async (cache, { data }) => {
+          const proposal = data?.propose;
+          if (!proposal) return;
+
+          // TODO: update all relevant variants based on appropriate query variables
+          await updateQuery<ProposalsQuery, ProposalsQueryVariables>({
+            query: ProposalsDocument,
+            cache,
+            defaultData: { proposals: [] },
+            updater: (data) => {
+              data.proposals.push(proposal);
+            },
+          });
+        },
       });
 
       assert(r.data?.propose, 'Proposal failed');
@@ -63,21 +81,15 @@ export const usePropose = () => {
     [mutation],
   );
 
-  const p = useCallback(
+  return useCallback(
     async (txOpts: TxOptions, account: AccountIdlike, onPropose?: OnPropose) => {
-      setProposing(true);
-
       const proposal = await propose(txOpts, account);
-
       await onPropose?.(proposal, navigation);
-      setProposing(false);
 
       return proposal;
     },
     [navigation, propose],
   );
-
-  return [p, proposing] as const;
 };
 
 export const popToProposal = (
