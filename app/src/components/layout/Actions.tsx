@@ -1,32 +1,30 @@
-import React from 'react';
-import { ReactNode } from 'react';
+import React, { ReactNode } from 'react';
 import { StyleSheet, View } from 'react-native';
-import { Box } from './Box';
 
 export interface ActionsProps {
   children?: ReactNode;
   horizontal?: boolean;
 }
 
-export const Actions = ({ children, horizontal }: ActionsProps) => {
-  return (
-    <>
-      <Box flex={1} />
+export const Actions = ({ children, horizontal }: ActionsProps) => (
+  <View style={styles.rootContainer}>
+    {horizontal ? (
+      <View style={styles.hContainer}>
+        {React.Children.count(children) === 1 ? <View /> : null}
 
-      {horizontal ? (
-        <Box style={styles.hContainer}>
-          {React.Children.count(children) === 1 ? <View /> : null}
-
-          {children}
-        </Box>
-      ) : (
-        <Box style={styles.vContainer}>{children}</Box>
-      )}
-    </>
-  );
-};
+        {children}
+      </View>
+    ) : (
+      <View style={styles.vContainer}>{children}</View>
+    )}
+  </View>
+);
 
 const styles = StyleSheet.create({
+  rootContainer: {
+    flexGrow: 1,
+    justifyContent: 'flex-end',
+  },
   hContainer: {
     flexDirection: 'row',
     justifyContent: 'space-between',
