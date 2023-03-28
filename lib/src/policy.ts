@@ -2,7 +2,7 @@ import { defaultAbiCoder } from 'ethers/lib/utils';
 import { SignatureLike } from '@ethersproject/bytes';
 import { A } from 'ts-toolbelt';
 import { isSignatureRule, isTransactionRule, Rule, RULES_ABI } from './rules/rule';
-import { asSignatureRule, asTransactionRule } from './rules/uitl';
+import { asSignatureRule, asTransactionRule } from './rules/util';
 import { asUint32, BigIntlike, MAX_UINT32, MIN_UINT32 } from './bigint';
 import { ethers } from 'ethers';
 import { PolicyStruct as BasePolicyStruct } from './contracts/Account';

@@ -43,7 +43,7 @@ export const filterFirst = <K, V>(
   comparator: (a: V, b: V) => number = () => 0,
 ): V[] =>
   [...groupBy(items, key).values()].map((v) => {
-    return v.length === 1 ? v[0] : v.sort(comparator)[0];
+    return v.length === 1 ? v[0]! : v.sort(comparator)[0]!;
   });
 
 export const mapAsync = async <T, U>(

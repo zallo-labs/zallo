@@ -19,5 +19,5 @@ const fromStruct = <T>(
   if (rules.length === 0) throw new Error(`Invalid VerifierStruct: ${data}`);
   if (rules.length > 1) throw new Error(`Ambiguous VerifierStruct: ${data}`);
 
-  return rules[0];
+  return rules[0]!;
 };

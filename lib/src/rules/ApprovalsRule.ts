@@ -53,7 +53,7 @@ export class ApprovalsRule extends SignatureRule {
 
     return (
       await mapAsync([...this.approvers].sort(compareAddress), async (approver, i) =>
-        ApprovalsRule.isValidSignatureNow(provider, approver, digest, signatures[i]),
+        ApprovalsRule.isValidSignatureNow(provider, approver, digest, signatures[i]!),
       )
     ).every((isValid) => isValid);
   }

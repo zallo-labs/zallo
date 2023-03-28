@@ -55,6 +55,6 @@ export class KeySet<K, V> {
   }
 
   get [Symbol.toStringTag](): string {
-    return this.map[Symbol.toStringTag];
+    return [...this.map.entries()].toString();
   }
 }

@@ -29,7 +29,7 @@ export const compareAddress = (a: Addresslike, b: Addresslike) => {
   if (aArr.length > bArr.length) return 1;
 
   for (let i = 0; i < aArr.length; i++) {
-    const diff = aArr[i] - bArr[i];
+    const diff = aArr[i]! - bArr[i]!;
     if (diff > 0) return 1;
     if (diff < 0) return -1;
   }
