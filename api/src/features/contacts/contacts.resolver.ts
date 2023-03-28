@@ -3,12 +3,13 @@ import { PrismaService } from '../util/prisma/prisma.service';
 import { GraphQLResolveInfo } from 'graphql';
 import { getSelect } from '~/util/select';
 import { UserId } from '~/decorators/user.decorator';
-import { Address, filterFirst, Id, toId } from 'lib';
+import { Address, Id, toId } from 'lib';
 import { ContactsArgs, ContactArgs, ContactObject, UpsertContactArgs } from './contacts.args';
 import { connectOrCreateUser } from '~/util/connect-or-create';
 import { getUser, getUserId } from '~/request/ctx';
 import { AccountsService } from '../accounts/accounts.service';
 import { Contact } from '@gen/contact/contact.model';
+import _ from 'lodash';
 
 @Resolver(() => ContactObject)
 export class ContactsResolver {
@@ -54,6 +55,7 @@ export class ContactsResolver {
     name = name.trim();
 
     const user = getUserId();
+    const selectArgs = getSelect(info);
 
     return this.prisma.asUser.contact.upsert({
       where: {
@@ -71,7 +73,9 @@ export class ContactsResolver {
         addr: { set: newAddr },
         name: { set: name },
       },
-      // ...getSelect(info),  // FIXME: Causes can't find 'id' field error; note. 'id' is a @ResolveField
+      ...(selectArgs && {
+        select: _.omit(selectArgs.select, 'id'),
+      }),
     });
   }
 
