@@ -1,14 +1,14 @@
 import { DateTime } from 'luxon';
 import { useMemo } from 'react';
 
-export interface TimestampProps {
+export interface UseTimestampOptions {
   timestamp: DateTime;
   weekday?: boolean;
   time?: boolean;
 }
 
-export const Timestamp = ({ timestamp, weekday, time = true }: TimestampProps) => {
-  const formatted = useMemo(
+export const useTimestamp = ({ timestamp, weekday, time = true }: TimestampProps) =>
+  useMemo(
     () =>
       timestamp.toLocaleString({
         year: timestamp.year !== DateTime.now().year ? '2-digit' : undefined,
@@ -23,5 +23,6 @@ export const Timestamp = ({ timestamp, weekday, time = true }: TimestampProps) =
     [timestamp, weekday, time],
   );
 
-  return <>{formatted}</>;
-};
+export interface TimestampProps extends UseTimestampOptions {}
+
+export const Timestamp = (props: TimestampProps) => <>{useTimestamp(props)}</>;
