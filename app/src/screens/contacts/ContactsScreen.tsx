@@ -14,9 +14,7 @@ import { truncateAddr } from '~/util/format';
 import { ListItem } from '~/components/list/ListItem';
 import { useScanAddress } from '../Scan/useScanAddress';
 import { ListHeaderButton } from '~/components/list/ListHeaderButton';
-import { EventEmitter } from '~/util/EventEmitter';
-
-export const CONTACT_EMITTER = new EventEmitter<Contact>('Contact');
+import { CONTACT_EMITTER } from './useSelectContact';
 
 export interface ContactsScreenParams {
   emitOnSelect?: boolean;

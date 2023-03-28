@@ -1,6 +1,10 @@
+import { Contact } from '@api/contacts';
 import { useNavigation } from '@react-navigation/native';
 import { useCallback } from 'react';
-import { ContactsScreenParams, CONTACT_EMITTER } from './ContactsScreen';
+import { EventEmitter } from '~/util/EventEmitter';
+import { ContactsScreenParams } from './ContactsScreen';
+
+export const CONTACT_EMITTER = new EventEmitter<Contact>('Contact');
 
 export const useSelectContact = () => {
   const { navigate } = useNavigation();
