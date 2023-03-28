@@ -40,6 +40,7 @@ export const NumericInput = ({ value, onChange, maxDecimals }: NumericInputProps
   const decimals = decimalPointIndex !== -1 ? value.length - decimalPointIndex - 1 : 0;
   const disableNum = !!maxDecimals && decimals >= maxDecimals;
 
+  const addDecimal = useCallback(() => onChange((v) => (v.length ? `${v}.` : '0.')), [onChange]);
   const pop = useCallback(() => onChange((v) => v.slice(0, v.length - 1)), [onChange]);
   const clear = useCallback(() => onChange(''), [onChange]);
 
@@ -49,7 +50,7 @@ export const NumericInput = ({ value, onChange, maxDecimals }: NumericInputProps
         <B key={i} onChange={onChange} disabled={disableNum}>{`${i + 1}`}</B>
       ))}
 
-      <B onChange={onChange} disabled={decimalPointIndex !== -1 || maxDecimals === 0}>
+      <B onPress={addDecimal} disabled={decimalPointIndex !== -1 || maxDecimals === 0}>
         {DECIMAL_SEPARATOR}
       </B>
 
