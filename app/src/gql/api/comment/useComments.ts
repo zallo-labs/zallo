@@ -39,7 +39,7 @@ export const useComments = (commentable: Commentable) => {
     () =>
       data.comments.map(
         (c): Comment => ({
-          id: parseFloat(c.id),
+          id: c.id,
           key: id.key,
           author: asAddress(c.authorId),
           content: c.content,

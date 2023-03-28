@@ -35,7 +35,7 @@ export const useDeleteComment = (account: AccountId) => {
         optimisticResponse: {
           deleteComment: {
             __typename: 'Comment',
-            id: c.id.toString(),
+            id: c.id,
           },
         },
         update: (cache, res) => {

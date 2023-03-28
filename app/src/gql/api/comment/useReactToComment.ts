@@ -67,7 +67,7 @@ export const useReactToComment = (account: AccountId) => {
             ...opts,
             overwrite: true,
             data: produce(data, (data) => {
-              const comment = data.comments.find((c) => c.id === id);
+              const comment = data.comments.find((c) => `${c.id}` === id);
               assert(comment);
 
               comment.reactions = [
