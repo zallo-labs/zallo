@@ -24,6 +24,7 @@ export const Tabs = () => {
 
   return (
     <Tab.Navigator
+      sceneContainerStyle={styles.sceneContainer}
       screenOptions={{
         tabBarStyle: styles.tabBar,
         tabBarLabelStyle: styles.label,
@@ -42,6 +43,10 @@ export const Tabs = () => {
 };
 
 const useStyles = makeStyles(({ colors }) => ({
+  sceneContainer: {
+    flex: 1,
+    marginVertical: 8,
+  },
   tabBar: {
     backgroundColor: colors.surface,
   },
