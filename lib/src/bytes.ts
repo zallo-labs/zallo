@@ -1,9 +1,8 @@
 import { Bytes, BytesLike } from 'ethers';
 import { arrayify, hexDataSlice, hexlify, isHexString as baseIsHexString } from 'ethers/lib/utils';
 import { A } from 'ts-toolbelt';
-import { StrictType } from './util/types';
 
-export type Hex = StrictType<string, 'Hex'>;
+export type Hex = A.Type<`0x${string}`, 'Hex'>;
 export const isHex = (v: unknown, len?: number): v is Hex => baseIsHexString(v, len);
 export const asHex = <V extends BytesLike | undefined>(v: V, len?: number) => {
   const hex = v !== undefined ? hexlify(v) : undefined;
