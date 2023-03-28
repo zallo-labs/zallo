@@ -1,19 +1,20 @@
 import { useNavigation } from '@react-navigation/native';
-import { Address } from 'lib';
 import { useCallback } from 'react';
-import { ScanScreenParams } from './ScanScreen';
+import { ScanScreenParams, SCAN_ADDRESS_EMITTER } from './ScanScreen';
 
 export const useScanAddress = () => {
   const { navigate } = useNavigation();
 
   return useCallback(
-    (params?: Omit<ScanScreenParams, 'onAddress'>) =>
-      new Promise<Address>((resolve) =>
-        navigate('Scan', {
-          ...params,
-          onAddress: resolve,
-        }),
-      ),
+    (params?: Omit<ScanScreenParams, 'emitAddress'>) => {
+      const p = SCAN_ADDRESS_EMITTER.getEvent();
+      navigate('Scan', {
+        ...params,
+        emitAddress: true,
+      });
+
+      return p;
+    },
     [navigate],
   );
 };

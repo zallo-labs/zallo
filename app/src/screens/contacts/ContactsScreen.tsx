@@ -1,6 +1,6 @@
 import { NavigateNextIcon, ScanIcon, SearchIcon } from '~/util/theme/icons';
 import { Address } from 'lib';
-import { FlatList, TouchableOpacity } from 'react-native';
+import { FlatList } from 'react-native';
 import { StackNavigatorScreenProps } from '~/navigation/StackNavigator2';
 import { Contact, useContacts } from '@api/contacts';
 import { useSearch } from '@hook/useSearch';
@@ -14,9 +14,12 @@ import { truncateAddr } from '~/util/format';
 import { ListItem } from '~/components/list/ListItem';
 import { useScanAddress } from '../Scan/useScanAddress';
 import { ListHeaderButton } from '~/components/list/ListHeaderButton';
+import { EventEmitter } from '~/util/EventEmitter';
+
+export const CONTACT_EMITTER = new EventEmitter<Contact>('Contact');
 
 export interface ContactsScreenParams {
-  onSelect?: (contact: Contact) => void;
+  emitOnSelect?: boolean;
   disabled?: Set<Address>;
 }
 
@@ -26,13 +29,17 @@ export type ContactsScreenProps =
 
 export const ContactsScreen = withSuspense(
   ({ route, navigation: { navigate } }: ContactsScreenProps) => {
-    const { onSelect = ({ address }) => navigate('Contact', { address }), disabled } = route.params;
+    const { emitOnSelect, disabled } = route.params;
     const scanAddress = useScanAddress();
 
     const [contacts, searchProps] = useSearch(useContacts(), ['name', 'address']);
 
     const add = () => navigate('Contact', {});
     const scan = async () => navigate('Contact', { address: await scanAddress() });
+
+    const onSelect: (c: Contact) => void = emitOnSelect
+      ? (c) => CONTACT_EMITTER.emit(c)
+      : ({ address }) => navigate('Contact', { address });
 
     return (
       <Screen isModal={route.name === 'ContactsModal'}>

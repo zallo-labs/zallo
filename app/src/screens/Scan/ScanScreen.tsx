@@ -14,16 +14,19 @@ import { withSuspense } from '~/components/skeleton/withSuspense';
 import { Splash } from '~/components/Splash';
 import { AppbarBack } from '~/components/Appbar/AppbarBack';
 import * as Linking from 'expo-linking';
+import { EventEmitter } from '~/util/EventEmitter';
+
+export const SCAN_ADDRESS_EMITTER = new EventEmitter<Address>('Scan::Address');
 
 export type ScanScreenParams = {
-  onAddress?: (address: Address) => void;
+  emitAddress?: boolean;
 };
 
 export type ScanScreenProps = StackNavigatorScreenProps<'Scan'>;
 
 export const ScanScreen = withSuspense(
   ({ route, navigation: { goBack, replace } }: ScanScreenProps) => {
-    const { onAddress } = route.params;
+    const { emitAddress } = route.params;
     const walletconnect = useWalletConnect();
 
     const [scan, setScan] = useState(true);
@@ -32,8 +35,8 @@ export const ScanScreen = withSuspense(
 
       const address = tryAsAddress(data) || parseAddressLink(data)?.target_address;
       if (address) {
-        if (onAddress) {
-          onAddress(address);
+        if (emitAddress) {
+          SCAN_ADDRESS_EMITTER.emit(address);
         } else {
           replace('AddressSheet', { address });
         }
