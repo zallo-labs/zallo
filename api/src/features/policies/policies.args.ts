@@ -1,5 +1,5 @@
 import { FindManyPolicyArgs } from '@gen/policy/find-many-policy.args';
-import { ArgsType, InputType } from '@nestjs/graphql';
+import { ArgsType, Field, InputType } from '@nestjs/graphql';
 import {
   Address,
   ApprovalsRule,
@@ -14,7 +14,6 @@ import {
 import { AddressField, AddressScalar } from '~/apollo/scalars/Address.scalar';
 import { SelectorScalar } from '~/apollo/scalars/Bytes.scalar';
 import { PolicyKeyField } from '~/apollo/scalars/PolicyKey.scalar';
-import { SetField } from '~/apollo/scalars/SetField';
 
 @ArgsType()
 export class UniquePolicyArgs implements PolicyGuid {
@@ -30,25 +29,25 @@ export class PoliciesArgs extends FindManyPolicyArgs {}
 
 @InputType()
 export class RulesInput {
-  @SetField(() => AddressScalar, {
+  @Field(() => [AddressScalar], {
     nullable: true,
     description: 'Signers that are required to approve',
   })
-  approvers?: Set<Address>;
+  approvers?: Address[];
 
-  @SetField(() => SelectorScalar, { nullable: true, description: 'Functions that can be called' })
-  onlyFunctions?: Set<Selector>;
+  @Field(() => [SelectorScalar], { nullable: true, description: 'Functions that can be called' })
+  onlyFunctions?: Selector[];
 
-  @SetField(() => AddressScalar, { nullable: true, description: 'Addresses that can be called' })
-  onlyTargets?: Set<Address>;
+  @Field(() => [AddressScalar], { nullable: true, description: 'Addresses that can be called' })
+  onlyTargets?: Address[];
 
   static asPolicy(key: PolicyKey, rules: RulesInput): Policy {
     return new Policy(
       key,
       ...[
-        rules.approvers?.size ? new ApprovalsRule(rules.approvers) : null,
-        rules.onlyFunctions?.size ? new FunctionsRule(rules.onlyFunctions) : null,
-        rules.onlyTargets?.size ? new TargetsRule(rules.onlyTargets) : null,
+        rules.approvers?.length ? new ApprovalsRule(rules.approvers) : null,
+        rules.onlyFunctions?.length ? new FunctionsRule(rules.onlyFunctions) : null,
+        rules.onlyTargets?.length ? new TargetsRule(rules.onlyTargets) : null,
       ].filter(isPresent),
     );
   }

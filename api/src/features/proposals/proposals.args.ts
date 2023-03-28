@@ -9,7 +9,6 @@ import {
   BytesField,
   BytesScalar,
 } from '~/apollo/scalars/Bytes.scalar';
-import { SetField } from '~/apollo/scalars/SetField';
 import { Proposal } from '@gen/proposal/proposal.model';
 
 @ArgsType()
@@ -27,12 +26,11 @@ registerEnumType(ProposalState, { name: 'ProposalState' });
 
 @ArgsType()
 export class ProposalsArgs extends FindManyProposalArgs {
-  // Only show the specified accounts
-  @SetField(() => AddressScalar, { nullable: true })
-  accounts?: Set<Address>;
+  @Field(() => [AddressScalar], { nullable: true })
+  accounts?: Address[];
 
-  @SetField(() => ProposalState, { nullable: true })
-  states?: Set<ProposalState>;
+  @Field(() => [ProposalState], { nullable: true })
+  states?: ProposalState[];
 }
 
 export const PROPOSAL_SUBSCRIPTION = 'proposal';
@@ -53,17 +51,17 @@ export interface ProposalSubscriptionPayload {
 
 @ArgsType()
 export class ProposalSubscriptionFilters {
-  @SetField(() => AddressScalar, {
+  @Field(() => [AddressScalar], {
     nullable: true,
     description: 'Defaults to user accounts if no proposals are provided',
   })
-  accounts?: Set<Address>;
+  accounts?: Address[];
 
-  @SetField(() => Bytes32Scalar, { nullable: true })
-  proposals?: Set<string>;
+  @Field(() => [Bytes32Scalar], { nullable: true })
+  proposals?: string[];
 
-  @SetField(() => ProposalEvent, { nullable: true, description: 'Defaults to all events' })
-  events?: Set<ProposalEvent>;
+  @Field(() => [ProposalEvent], { nullable: true, description: 'Defaults to all events' })
+  events?: ProposalEvent[];
 }
 
 @ArgsType()

@@ -82,10 +82,10 @@ export class ProposalsResolver {
   @Subscription(() => Proposal, {
     name: PROPOSAL_SUBSCRIPTION,
     filter: ({ event }: ProposalSubscriptionPayload, { events }: ProposalSubscriptionFilters) =>
-      !events || events.has(event),
+      !events || events.includes(event),
   })
   async proposalSubscription(@Args() { accounts, proposals }: ProposalSubscriptionFilters) {
-    if (!accounts && !proposals) accounts = getUser().accounts;
+    if (!accounts && !proposals) accounts = [...getUser().accounts];
 
     return this.pubsub.asyncIterator([
       ...[...(accounts ?? [])].map((account) => `${ACCOUNT_PROPOSAL_SUB_TRIGGER}.${account}`),

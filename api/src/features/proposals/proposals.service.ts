@@ -264,7 +264,7 @@ export class ProposalsService {
           requiresUserAction:
             satisfiability === PolicySatisfiability.Satisfiable &&
             !userHasApproved &&
-            (policy.rules.get(ApprovalsRule)?.approvers.has(getUserId()) || false),
+            (policy.rules.get(ApprovalsRule)?.approvers.has(user) || false),
         });
       }
     }

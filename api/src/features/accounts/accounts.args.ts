@@ -3,7 +3,6 @@ import { FindManyAccountArgs } from '@gen/account/find-many-account.args';
 import { ArgsType, Field, registerEnumType } from '@nestjs/graphql';
 import { Address } from 'lib';
 import { AddressField, AddressScalar } from '~/apollo/scalars/Address.scalar';
-import { SetField } from '~/apollo/scalars/SetField';
 import { minLengthMiddleware } from '~/apollo/scalars/util';
 import { PolicyInput } from '../policies/policies.args';
 
@@ -32,11 +31,14 @@ export interface AccountSubscriptionPayload {
 
 @ArgsType()
 export class AccountSubscriptionFilters {
-  @SetField(() => AddressScalar, { nullable: true, description: 'Defaults to user accounts' })
-  accounts?: Set<Address>;
+  @Field(() => [AddressScalar], {
+    nullable: true,
+    description: 'Defaults to user accounts',
+  })
+  accounts?: Address[];
 
-  @SetField(() => AccountEvent, { nullable: true, description: 'Defaults to all events' })
-  events?: Set<AccountEvent>;
+  @Field(() => AccountEvent, { nullable: true, description: 'Defaults to all events' })
+  events?: AccountEvent[];
 }
 
 @ArgsType()

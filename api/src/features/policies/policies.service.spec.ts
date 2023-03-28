@@ -57,7 +57,7 @@ describe(PoliciesService.name, () => {
     const { key } = await service.create(
       {
         account,
-        rules: { approvers: new Set() },
+        rules: { approvers: [] },
       },
       { select: null },
     );
@@ -133,7 +133,7 @@ describe(PoliciesService.name, () => {
     it('creates state', () =>
       asUser(user1, async () => {
         const policy = await create();
-        await service.update({ ...policy, rules: { approvers: new Set() } });
+        await service.update({ ...policy, rules: { approvers: [] } });
 
         expect(await prisma.asUser.policyRules.count()).toEqual(2);
       }));
@@ -143,7 +143,7 @@ describe(PoliciesService.name, () => {
         const policy = await create();
 
         expect(proposals.propose).toBeCalledTimes(1);
-        await service.update({ ...policy, rules: { approvers: new Set() } });
+        await service.update({ ...policy, rules: { approvers: [] } });
       }));
 
     it("throws if the user isn't a member of the account", async () => {
@@ -160,7 +160,7 @@ describe(PoliciesService.name, () => {
           service.update({
             account: user1Account,
             key: asPolicyKey(10),
-            rules: { approvers: new Set() },
+            rules: { approvers: [] },
           }),
         ).rejects.toThrow();
       }));

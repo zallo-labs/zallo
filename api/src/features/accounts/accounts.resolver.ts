@@ -18,7 +18,7 @@ import { AccountsService } from './accounts.service';
 import { ProviderService } from '~/features/util/provider/provider.service';
 import { asPolicyKey, calculateProxyAddress, randomDeploySalt } from 'lib';
 import { CONFIG } from '~/config';
-import { UserCtx } from '~/decorators/user.decorator';
+import { UserId } from '~/decorators/user.decorator';
 import { FaucetService } from '../faucet/faucet.service';
 import { PubsubService } from '../util/pubsub/pubsub.service';
 import { UserContext, getRequestContext, getUser } from '~/request/ctx';
@@ -73,22 +73,22 @@ export class AccountsResolver {
       });
     },
     filter: ({ event }: AccountSubscriptionPayload, { events }: AccountSubscriptionFilters) =>
-      !events || events.has(event),
+      !events || events.includes(event),
   })
   async accountSubscription(
-    @UserCtx() user: UserContext,
+    @UserId() user: UserContext,
     @Args() { accounts }: AccountSubscriptionFilters,
   ) {
     return this.pubsub.asyncIterator(
       accounts
         ? [...accounts].map((id) => `${ACCOUNT_SUBSCRIPTION}.${id}`)
-        : `${USER_ACCOUNT_SUBSCRIPTION}.${user.id}`,
+        : `${USER_ACCOUNT_SUBSCRIPTION}.${user}`,
     );
   }
 
   @Mutation(() => Account)
   async createAccount(
-    @Args() { name, policies: policies }: CreateAccountArgs,
+    @Args() { name, policies }: CreateAccountArgs,
     @Info() info?: GraphQLResolveInfo,
   ): Promise<Account> {
     const impl = CONFIG.accountImplAddress;
@@ -119,17 +119,17 @@ export class AccountsResolver {
                 name: name || `Policy ${i}`,
                 rulesHistory: {
                   create: {
-                    ...(rules.approvers?.size && {
+                    ...(rules.approvers?.length && {
                       approvers: {
                         create: [...rules.approvers].map((a) => ({
                           user: connectOrCreateUser(a),
                         })),
                       },
                     }),
-                    ...(rules.onlyFunctions?.size && {
+                    ...(rules.onlyFunctions?.length && {
                       onlyFunctions: [...rules.onlyFunctions],
                     }),
-                    ...(rules.onlyTargets?.size && {
+                    ...(rules.onlyTargets?.length && {
                       onlyTargets: [...rules.onlyTargets],
                     }),
                   },

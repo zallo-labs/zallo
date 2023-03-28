@@ -148,9 +148,9 @@ export class PoliciesService implements OnModuleInit {
       const policy = new Policy(
         key,
         ...[
-          rules.approvers?.size ? new ApprovalsRule(rules.approvers) : null,
-          rules.onlyFunctions?.size ? new FunctionsRule(rules.onlyFunctions) : null,
-          rules.onlyTargets?.size ? new TargetsRule(rules.onlyTargets) : null,
+          rules.approvers?.length ? new ApprovalsRule(rules.approvers) : null,
+          rules.onlyFunctions?.length ? new FunctionsRule(rules.onlyFunctions) : null,
+          rules.onlyTargets?.length ? new TargetsRule(rules.onlyTargets) : null,
         ].filter(isPresent),
       );
 
@@ -169,7 +169,7 @@ export class PoliciesService implements OnModuleInit {
           proposal: { connect: { id: proposalId } },
           policy: connectPolicy(account, key),
           account: connectAccount(account),
-          ...(rules.approvers?.size && {
+          ...(rules.approvers?.length && {
             approvers: {
               create: [...rules.approvers].map((approver) => ({
                 user: connectOrCreateUser(approver),
