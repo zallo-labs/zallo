@@ -1,9 +1,9 @@
 import {
   createMaterialTopTabNavigator,
   MaterialTopTabScreenProps,
-  MaterialTopTabBar,
 } from '@react-navigation/material-top-tabs';
-import { makeStyles } from '@theme/makeStyles';
+import { StyleSheet } from 'react-native';
+import { TopTabBar } from '~/components/TopTabBar';
 import { ActivityTab, ActivityTabBadge } from './ActivityTab';
 import { CollectablesTab } from './CollectablesTab';
 import { TokensTab } from './TokensTab';
@@ -20,17 +20,8 @@ export type TabNavigatorScreenProp<K extends keyof TabNavigatorParamList> =
 const Tab = createMaterialTopTabNavigator<TabNavigatorParamList>();
 
 export const Tabs = () => {
-  const styles = useStyles();
-
   return (
-    <Tab.Navigator
-      sceneContainerStyle={styles.sceneContainer}
-      screenOptions={{
-        tabBarStyle: styles.tabBar,
-        tabBarLabelStyle: styles.label,
-        tabBarInactiveTintColor: styles.inactiveLabel.color,
-      }}
-    >
+    <Tab.Navigator tabBar={TopTabBar} sceneContainerStyle={styles.sceneContainer}>
       <Tab.Screen name="Tokens" component={TokensTab} />
       <Tab.Screen name="Collectables" component={CollectablesTab} />
       <Tab.Screen
@@ -42,18 +33,9 @@ export const Tabs = () => {
   );
 };
 
-const useStyles = makeStyles(({ colors }) => ({
+const styles = StyleSheet.create({
   sceneContainer: {
     flex: 1,
     marginVertical: 8,
   },
-  tabBar: {
-    backgroundColor: colors.surface,
-  },
-  label: {
-    color: colors.primary,
-  },
-  inactiveLabel: {
-    color: colors.onSurfaceVariant,
-  },
-}));
+});
