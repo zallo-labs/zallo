@@ -22,7 +22,6 @@ import { NotificationsRegistrar } from '~/util/NotificationsRegistrar';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { StackNavigator } from '~/navigation/StackNavigator2';
 import { WalletConnectListeners } from '~/components/walletconnect/WalletConnectListeners';
-import { Text } from 'react-native-paper';
 
 // Disable Recoil atom key checking due to hotreloading issues
 RecoilEnv.RECOIL_DUPLICATE_ATOM_KEY_CHECKING_ENABLED = false;
