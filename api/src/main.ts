@@ -1,4 +1,4 @@
-import './utils/patches';
+import './util/patches';
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { Logger } from '@nestjs/common';
