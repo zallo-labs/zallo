@@ -28,7 +28,7 @@ import {
   PROPOSAL_SUBSCRIPTION,
   UniqueProposalArgs,
 } from './proposals.args';
-import { getUser, getUserId } from '~/request/ctx';
+import { getUserId } from '~/request/ctx';
 import { match } from 'ts-pattern';
 import { ExpoService } from '../util/expo/expo.service';
 import { O } from 'ts-toolbelt';
@@ -129,14 +129,20 @@ export class ProposalsService {
     res?: Prisma.SelectSubset<T, Prisma.ProposalArgs>,
     prisma: Prisma.TransactionClient = this.prisma.asUser,
   ): Promise<Proposal> {
-    const user = getUser().id;
+    const user = getUserId();
     if (!(await this.provider.isValidSignatureNow(user, id, signature)))
       throw new UserInputError('Invalid signature');
 
-    await prisma.approval.create({
-      data: {
+    await prisma.approval.upsert({
+      where: {
+        proposalId_userId: { proposalId: id, userId: user },
+      },
+      create: {
         proposalId: id,
         userId: user,
+        signature,
+      },
+      update: {
         signature,
       },
       select: null,
