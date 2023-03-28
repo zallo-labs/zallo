@@ -20,6 +20,9 @@ gql`
       approvals {
         ...ApprovalFields
       }
+      rejections {
+        ...RejectionFields
+      }
       transaction {
         ...TransactionFields
       }
@@ -49,7 +52,7 @@ export const useApprove = () => {
                 __typename: 'Approval' as const,
                 userId: a.approver,
                 signature: a.signature,
-                createdAt: a.timestamp,
+                createdAt: a.timestamp.toISO(),
               })),
               {
                 __typename: 'Approval' as const,
@@ -58,6 +61,13 @@ export const useApprove = () => {
                 createdAt: DateTime.now().toISO(),
               },
             ],
+            rejections: [...p.rejections]
+              .filter((r) => r.approver !== approver.address)
+              .map((r) => ({
+                __typename: 'Rejection' as const,
+                userId: r.approver,
+                createdAt: r.timestamp.toISO(),
+              })),
             transaction: p.transaction
               ? {
                   __typename: 'Transaction',
@@ -73,9 +83,9 @@ export const useApprove = () => {
                         response: p.transaction.response.response,
                         timestamp: p.transaction.response.timestamp.toISO(),
                       }
-                    : undefined,
+                    : null,
                 }
-              : undefined,
+              : null,
           },
         },
       });

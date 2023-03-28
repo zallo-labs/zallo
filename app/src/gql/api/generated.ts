@@ -1343,7 +1343,7 @@ export type ApproveMutationVariables = Exact<{
 }>;
 
 
-export type ApproveMutation = { __typename?: 'Mutation', approve: { __typename?: 'Proposal', id: string, approvals?: Array<{ __typename?: 'Approval', userId: string, signature?: string | null, createdAt: any }> | null, transaction?: { __typename?: 'Transaction', id: string, hash: string, gasLimit: any, gasPrice?: any | null, createdAt: any, response?: { __typename?: 'TransactionResponse', success: boolean, response: string, timestamp: any } | null } | null } };
+export type ApproveMutation = { __typename?: 'Mutation', approve: { __typename?: 'Proposal', id: string, approvals?: Array<{ __typename?: 'Approval', userId: string, signature?: string | null, createdAt: any }> | null, rejections: Array<{ __typename?: 'Rejection', userId: string, createdAt: any }>, transaction?: { __typename?: 'Transaction', id: string, hash: string, gasLimit: any, gasPrice?: any | null, createdAt: any, response?: { __typename?: 'TransactionResponse', success: boolean, response: string, timestamp: any } | null } | null } };
 
 export type ApprovalFieldsFragment = { __typename?: 'Approval', userId: string, signature?: string | null, createdAt: any };
 
@@ -2152,12 +2152,16 @@ export const ApproveDocument = gql`
     approvals {
       ...ApprovalFields
     }
+    rejections {
+      ...RejectionFields
+    }
     transaction {
       ...TransactionFields
     }
   }
 }
     ${ApprovalFieldsFragmentDoc}
+${RejectionFieldsFragmentDoc}
 ${TransactionFieldsFragmentDoc}`;
 export type ApproveMutationFn = Apollo.MutationFunction<ApproveMutation, ApproveMutationVariables>;
 
