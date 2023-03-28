@@ -5,7 +5,7 @@ import { Text, TouchableRipple, TouchableRippleProps } from 'react-native-paper'
 import { Box } from '../layout/Box';
 import { AddressOrLabelIcon } from '../Identicon/AddressOrLabelIcon';
 import { TextProps } from '@theme/types';
-import { StyleProp, ViewStyle } from 'react-native';
+import { StyleProp, TextStyle, ViewStyle } from 'react-native';
 import { O } from 'ts-toolbelt';
 
 /*
@@ -29,8 +29,8 @@ export type ListItemProps = Pick<TouchableRippleProps, 'onPress'> &
     headline: ReactNode | FC<ListItemTextProps>;
     supporting?: ReactNode | FC<ListItemTextProps>;
     trailing?: FC<ListIconElementProps & ListItemTextProps> | ReactNode | number;
-    maxTrailing?: number;
-    style?: StyleProp<ViewStyle>;
+    containerStyle?: StyleProp<ViewStyle>;
+    textStyle?: StyleProp<TextStyle>;
   };
 
 export const ListItem = ({
@@ -39,37 +39,49 @@ export const ListItem = ({
   headline: Headline,
   supporting: Supporting,
   trailing: Trailing,
-  maxTrailing = 100,
   lines = (1 + Number(!!Overline) + Number(!!Supporting)) as Lines,
   selected,
   disabled,
-  style,
+  containerStyle,
+  textStyle,
   ...touchableProps
 }: ListItemProps) => {
   const styles = useStyles({ lines, selected, disabled });
 
-  if (typeof Trailing === 'number' && Trailing > maxTrailing) Trailing = `${maxTrailing}+`;
-
   const OverlineText = ({ style, ...props }: TextProps) => (
-    <Text variant="labelSmall" numberOfLines={1} {...props} style={[styles.overline, style]} />
+    <Text
+      variant="labelSmall"
+      numberOfLines={1}
+      {...props}
+      style={[styles.overline, textStyle, style]}
+    />
   );
   const HeadlineText = ({ style, ...props }: TextProps) => (
-    <Text variant="bodyLarge" numberOfLines={2} {...props} style={[styles.headline, style]} />
+    <Text
+      variant="bodyLarge"
+      numberOfLines={2}
+      {...props}
+      style={[styles.headline, textStyle, style]}
+    />
   );
   const SupportingText = ({ style, ...props }: TextProps) => (
     <Text
       variant="bodyMedium"
       {...props}
-      style={[styles.supporting, style]}
+      style={[styles.supporting, textStyle, style]}
       numberOfLines={Math.max(lines - 1, 1)}
     />
   );
   const TrailingText = ({ style, ...props }: TextProps) => (
-    <Text variant="labelSmall" {...props} style={[styles.trailingText, style]} />
+    <Text variant="labelSmall" {...props} style={[styles.trailingText, textStyle, style]} />
   );
 
   return (
-    <TouchableRipple {...touchableProps} style={[styles.container, style]} disabled={disabled}>
+    <TouchableRipple
+      {...touchableProps}
+      style={[styles.container, containerStyle]}
+      disabled={disabled}
+    >
       <>
         {Leading && (
           <Box style={styles.leadingContainer}>

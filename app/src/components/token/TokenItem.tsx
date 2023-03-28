@@ -16,11 +16,11 @@ export interface TokenItemProps extends Partial<ListItemProps> {
   token: Token;
   account: AccountId;
   amount?: bigint;
-  style?: StyleProp<ViewStyle>;
+  containerStyle?: StyleProp<ViewStyle>;
 }
 
 export const TokenItem = withSuspense(
-  ({ token, account, amount, style, ...itemProps }: TokenItemProps) => {
+  ({ token, account, amount, containerStyle, ...itemProps }: TokenItemProps) => {
     const styles = useStyles();
     const balance = useTokenBalance(token, account);
     amount ??= balance;
@@ -46,7 +46,7 @@ export const TokenItem = withSuspense(
             <FiatValue value={useTokenValue(token, amount)} />
           </Text>
         )}
-        style={style}
+        containerStyle={containerStyle}
         {...itemProps}
       />
     );
