@@ -1,20 +1,22 @@
 import { useCallback } from 'react';
 import { gql } from '@apollo/client';
 import {
+  ContactFieldsFragmentDoc,
   ContactsDocument,
   ContactsQuery,
   ContactsQueryVariables,
   useUpsertContactMutation,
 } from '@api/generated';
 import { Contact, NewContact } from './types';
-import { toId } from 'lib';
 import { updateQuery } from '~/gql/util';
 import { useUser } from '@api/user';
 
 gql`
+  ${ContactFieldsFragmentDoc}
+
   mutation UpsertContact($name: String!, $newAddr: Address!, $prevAddr: Address) {
     upsertContact(name: $name, prevAddr: $prevAddr, newAddr: $newAddr) {
-      id
+      ...ContactFields
     }
   }
 `;
@@ -33,32 +35,32 @@ export const useUpsertContact = () => {
         },
         optimisticResponse: {
           upsertContact: {
-            id: toId(`${user.id}-${cur.address}`),
+            __typename: 'ContactObject',
+            id: `${user.id}-${cur.address}`,
+            addr: cur.address,
+            name: cur.name,
           },
         },
         update: (cache, res) => {
-          const id = res?.data?.upsertContact.id;
-          if (!id) return;
+          const contact = res?.data?.upsertContact;
+          if (!contact) return;
 
-          // Contacts: upsert contact and remove prior
-          updateQuery<ContactsQuery, ContactsQueryVariables>({
-            cache,
-            query: ContactsDocument,
-            variables: {},
-            defaultData: { contacts: [] },
-            updater: (data) => {
-              // Upsert current contact, or replace prev if the id has changed
-              const i = data.contacts.findIndex(
-                prev && prev.address !== cur.address ? (c) => c.id === prev.id : (c) => c.id === id,
-              );
-              data.contacts[i >= 0 ? i : data.contacts.length] = {
-                __typename: 'ContactObject',
-                id,
-                addr: cur.address,
-                name: cur.name,
-              };
-            },
-          });
+          // Contacts: insert new contact or remove existing
+          if (prev?.address !== cur.address) {
+            updateQuery<ContactsQuery, ContactsQueryVariables>({
+              cache,
+              query: ContactsDocument,
+              variables: {},
+              defaultData: { contacts: [] },
+              updater: (data) => {
+                if (prev) {
+                  data.contacts = data.contacts.filter((c) => c.id !== prev.id);
+                } else {
+                  data.contacts.push(contact);
+                }
+              },
+            });
+          }
         },
       });
     },
