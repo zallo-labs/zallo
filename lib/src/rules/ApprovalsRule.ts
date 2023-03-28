@@ -1,10 +1,10 @@
 import { BytesLike, defaultAbiCoder, recoverAddress } from 'ethers/lib/utils';
 import { SignatureLike } from '@ethersproject/bytes';
-import { Address, asAddress, compareAddress } from '../address';
+import { Address, tryAsAddress, asAddress, compareAddress } from '../address';
 import { SignatureRule, RuleStruct, SignatureRuleIsSatisfiedOptions } from './rule';
 import { Arraylike, toSet } from '../util/maybe';
 import { asUint8 } from '../bigint';
-import { tryOrIgnore } from '../util/try';
+import { tryOrAsync, tryOrIgnore } from '../util/try';
 import { RuleSelector } from './RuleSelector';
 import { ethers, providers } from 'ethers';
 import { mapAsync } from '../util/arrays';
@@ -64,17 +64,19 @@ export class ApprovalsRule extends SignatureRule {
     digest: BytesLike,
     signature: SignatureLike,
   ): Promise<boolean> {
-    const isContract = (await provider.getCode(approver)).length > 0;
-    if (isContract) {
-      const contract = new ethers.Contract(
-        approver,
-        ['function isValidSignature(bytes32,bytes) view returns (bool)'],
-        provider,
-      );
+    // Note. EOAs are contracts on zkSync
+    if (tryAsAddress(recoverAddress(digest, signature)) === approver) return true;
 
-      return contract.isValidSignature(digest, signature) === '0x1626ba7e';
-    } else {
-      return asAddress(recoverAddress(digest, signature)) === approver;
+    const erc1271Contract = new ethers.Contract(
+      approver,
+      ['function isValidSignature(bytes32,bytes) view returns (bool)'],
+      provider,
+    );
+
+    try {
+      return (await erc1271Contract.isValidSignature(digest, signature)) === '0x1626ba7e';
+    } catch {
+      return false;
     }
   }
 }
