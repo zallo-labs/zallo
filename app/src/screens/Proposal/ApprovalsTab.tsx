@@ -40,12 +40,13 @@ export const ApprovalsTab = ({ route }: ApprovalsTabProps) => {
       {policy ? (
         <ListItem
           headline={policy.name}
-          supporting={
-            nOtherSatPolicies > 0
-              ? `${nOtherSatPolicies} other policies are satisfiable`
-              : 'Only satisfiable policy'
-          }
-          trailing={(props) => <NavigateNextIcon {...props} onPress={selectPolicy} />}
+          supporting="Only satisfiable policy"
+          {...(nOtherSatPolicies > 0 && {
+            supporting: `${nOtherSatPolicies} other ${
+              nOtherSatPolicies > 0 ? 'policies are' : 'policy is'
+            } satisfiable`,
+            trailing: (props) => <NavigateNextIcon {...props} onPress={selectPolicy} />,
+          })}
         />
       ) : (
         <ListItem headline="No policy is satisfiable" />

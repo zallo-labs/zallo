@@ -11,6 +11,13 @@ export type RootNavigation2 = StackNavigationProp<RootParamList2>;
 export type Navigate2 = RootNavigation2['navigate'];
 export const useRootNavigation2 = () => useNavigation<RootNavigation2>();
 
+declare global {
+  // eslint-disable-next-line @typescript-eslint/no-namespace
+  namespace ReactNavigation {
+    interface RootParamList extends RootParamList2 {}
+  }
+}
+
 /*
  * Navigation:
  * -> Drawer navigator
@@ -25,7 +32,7 @@ export type RootStackParamList = DrawerNavigatorParamList &
 
 // export type RootNavigation = BottomNavigatorScreenProps<'Home'>['navigation'];
 
-export type RootNavigation = StackNavigationProp<ReactNavigation.RootParamList>;
+export type RootNavigation = StackNavigationProp<RootStackParamList>;
 
 // export type RootNavigation = CompositeNavigationProp<
 //   DrawerNavigationNavigateProp,
@@ -50,10 +57,3 @@ export type OnlyRouteParamsScreenProps<T extends keyof RootStackParamList> = {
     params: RootStackParamList[T];
   };
 };
-
-declare global {
-  // eslint-disable-next-line @typescript-eslint/no-namespace
-  namespace ReactNavigation {
-    interface RootParamList extends RootStackParamList {}
-  }
-}
