@@ -28,7 +28,7 @@ export type ListItemProps = Pick<TouchableRippleProps, 'onPress'> &
     overline?: ReactNode | FC<ListItemTextProps>;
     headline: ReactNode | FC<ListItemTextProps>;
     supporting?: ReactNode | FC<ListItemTextProps>;
-    trailing?: FC<ListIconElementProps & ListItemTextProps> | ReactNode | number;
+    trailing?: FC<ListIconElementProps & ListItemTextProps> | ReactNode;
     containerStyle?: StyleProp<ViewStyle>;
     textStyle?: StyleProp<TextStyle>;
   };
