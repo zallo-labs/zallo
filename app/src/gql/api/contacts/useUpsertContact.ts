@@ -41,13 +41,13 @@ export const useUpsertContact = () => {
             name: cur.name,
           },
         },
-        update: (cache, res) => {
+        update: async (cache, res) => {
           const contact = res?.data?.upsertContact;
           if (!contact) return;
 
           // Contacts: insert new contact or remove existing
-          if (prev?.address !== cur.address) {
-            updateQuery<ContactsQuery, ContactsQueryVariables>({
+          if (prev?.address !== contact.addr) {
+            await updateQuery<ContactsQuery, ContactsQueryVariables>({
               cache,
               query: ContactsDocument,
               variables: {},
@@ -55,7 +55,7 @@ export const useUpsertContact = () => {
               updater: (data) => {
                 if (prev) {
                   data.contacts = data.contacts.filter((c) => c.id !== prev.id);
-                } else {
+                } else if (!data.contacts.find((c) => c.id === contact.id)) {
                   data.contacts.push(contact);
                 }
               },
