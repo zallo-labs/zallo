@@ -56,7 +56,7 @@ export class AuthMiddleware implements NestMiddleware {
     const id = await this.tryGetUserId(req);
     if (!id) return undefined;
 
-    if (!req.session.accounts) req.session.accounts = await this.getAccounts(id);
+    req.session.accounts ||= await this.getAccounts(id);
 
     return { id, accounts: new Set(req.session.accounts) };
   }
@@ -100,8 +100,9 @@ export class AuthMiddleware implements NestMiddleware {
         );
       }
     } else if (isPlayground(req)) {
-      if (!req.session.playgroundWallet)
-        req.session.playgroundWallet = asAddress(Wallet.createRandom().address);
+      // if (!req.session.playgroundWallet)
+      //   req.session.playgroundWallet = asAddress(Wallet.createRandom().address);
+      req.session.playgroundWallet = asAddress('0xb616B9D2076AEc293b6E1CFc7874f8C5fEa1fE87');
 
       return req.session.playgroundWallet;
     }
