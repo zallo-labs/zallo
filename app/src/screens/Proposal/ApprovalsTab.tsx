@@ -1,5 +1,6 @@
 import { isRemoval, usePolicy } from '@api/policy';
 import { ProposalId, useProposal } from '@api/proposal';
+import { NavigateNextIcon } from '@theme/icons';
 import { ApprovalsRule } from 'lib';
 import { StyleSheet } from 'react-native';
 import { ScrollView } from 'react-native';
@@ -18,17 +19,38 @@ export type ApprovalsTabProps = TabNavigatorScreenProp<'Approvals'>;
 
 export const ApprovalsTab = ({ route }: ApprovalsTabProps) => {
   const proposal = useProposal(route.params.proposal);
-  const policyRules = usePolicy(proposal.satisfiablePolicies[0])?.active;
+  const policy = usePolicy(proposal.satisfiablePolicies[0]);
+  const policyRules = policy?.active;
 
   if (!policyRules || isRemoval(policyRules)) return null;
+
+  const nOtherSatPolicies = proposal.satisfiablePolicies.length - 1;
 
   const requiredApproval = policyRules.rules.get(ApprovalsRule)?.approvers ?? new Set();
   const awaitingApproval = [...requiredApproval].filter(
     (a) => !proposal.approvals.has(a) && !proposal.rejections.has(a),
   );
 
+  const selectPolicy = () => {
+    // TODO: allow for policy selection
+  };
+
   return (
     <ScrollView contentContainerStyle={styles.container}>
+      {policy ? (
+        <ListItem
+          headline={policy.name}
+          supporting={
+            nOtherSatPolicies > 0
+              ? `${nOtherSatPolicies} other policies are satisfiable`
+              : 'Only satisfiable policy'
+          }
+          trailing={(props) => <NavigateNextIcon {...props} onPress={selectPolicy} />}
+        />
+      ) : (
+        <ListItem headline="No policy is satisfiable" />
+      )}
+
       {proposal.rejections.size > 0 && <ListHeader>Rejected</ListHeader>}
       {[...proposal.rejections].map((rejection) => (
         <ListItem
