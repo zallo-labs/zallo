@@ -21,16 +21,15 @@ export type WPolicy = {
   key: PolicyKey;
   name: string;
 } & O.AtLeast<{
-  active: Removable<Policy>;
+  active: Policy;
   draft: Removable<Policy>;
 }>;
 
 export const convertPolicyFragment = (
   key: PolicyKey,
   r: PolicyRulesFieldsFragment | null | undefined,
-): Removable<Policy> | undefined => {
+): Policy | undefined => {
   if (!r) return undefined;
-  if (r.isRemoved) return REMOVAL;
 
   return new Policy(
     key,
