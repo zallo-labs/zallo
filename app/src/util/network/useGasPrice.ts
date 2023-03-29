@@ -4,9 +4,16 @@ import { atom, selector, useRecoilValue } from 'recoil';
 import { PROVIDER } from '~/util/network/provider';
 import { feeTokenAddr } from '~/components/token/useFeeToken';
 
-const fetch = (feeToken: Address) => PROVIDER.getGasPrice(feeToken);
+const fetch = async (feeToken: Address) => {
+  try {
+    return (await PROVIDER.getGasPrice(feeToken)).toBigInt();
+  } catch {
+    console.warn(`Failed to fetch gas price for ${feeToken}`);
+    return 0n;
+  }
+};
 
-const gasPriceAtom = atom({
+const gasPriceAtom = atom<bigint>({
   key: 'GasPrice',
   default: selector({
     key: 'GasPriceDefault',

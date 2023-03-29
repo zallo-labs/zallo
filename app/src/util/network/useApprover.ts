@@ -1,7 +1,7 @@
 import { PROVIDER } from '~/util/network/provider';
 import { atom, useRecoilValue } from 'recoil';
 import { getSecureStore, persistAtom } from '~/util/effect/persistAtom';
-import { Approver } from 'lib';
+import { Address, Approver } from 'lib';
 
 export const approverAtom = atom<Approver>({
   key: 'approver',
@@ -17,3 +17,5 @@ export const approverAtom = atom<Approver>({
 });
 
 export const useApprover = () => useRecoilValue(approverAtom);
+
+export const useApproverId = () => useApprover().address as Address;
