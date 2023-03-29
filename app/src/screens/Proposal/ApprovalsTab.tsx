@@ -1,4 +1,4 @@
-import { isRemoval, usePolicy } from '@api/policy';
+import { usePolicy } from '@api/policy';
 import { ProposalId, useProposal } from '@api/proposal';
 import { NavigateNextIcon } from '@theme/icons';
 import { ApprovalsRule } from 'lib';
@@ -22,11 +22,7 @@ export const ApprovalsTab = ({ route }: ApprovalsTabProps) => {
   const policy = usePolicy(proposal.satisfiablePolicies[0]);
   const policyRules = policy?.active;
 
-  if (!policyRules || isRemoval(policyRules)) return null;
-
-  const nOtherSatPolicies = proposal.satisfiablePolicies.length - 1;
-
-  const requiredApproval = policyRules.rules.get(ApprovalsRule)?.approvers ?? new Set();
+  const requiredApproval = policyRules?.rules.get(ApprovalsRule)?.approvers ?? new Set();
   const awaitingApproval = [...requiredApproval].filter(
     (a) => !proposal.approvals.has(a) && !proposal.rejections.has(a),
   );
@@ -41,15 +37,13 @@ export const ApprovalsTab = ({ route }: ApprovalsTabProps) => {
         <ListItem
           headline={policy.name}
           supporting="Only satisfiable policy"
-          {...(nOtherSatPolicies > 0 && {
-            supporting: `${nOtherSatPolicies} other ${
-              nOtherSatPolicies > 0 ? 'policies are' : 'policy is'
-            } satisfiable`,
+          {...(proposal.satisfiablePolicies.length > 1 && {
+            supporting: `${proposal.satisfiablePolicies.length} policies are satisfiable`,
             trailing: (props) => <NavigateNextIcon {...props} onPress={selectPolicy} />,
           })}
         />
       ) : (
-        <ListItem headline="No policy is satisfiable" />
+        <ListItem headline="No satisfiable policy" />
       )}
 
       {proposal.rejections.size > 0 && <ListHeader>Rejected</ListHeader>}
