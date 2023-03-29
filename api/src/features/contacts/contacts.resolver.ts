@@ -3,7 +3,7 @@ import { PrismaService } from '../util/prisma/prisma.service';
 import { GraphQLResolveInfo } from 'graphql';
 import { getSelect } from '~/util/select';
 import { UserId } from '~/decorators/user.decorator';
-import { Address, Id, toId } from 'lib';
+import { Address } from 'lib';
 import { ContactsArgs, ContactArgs, ContactObject, UpsertContactArgs } from './contacts.args';
 import { connectOrCreateUser } from '~/util/connect-or-create';
 import { getUser, getUserId } from '~/request/ctx';
@@ -16,8 +16,8 @@ export class ContactsResolver {
   constructor(private prisma: PrismaService, private accounts: AccountsService) {}
 
   @ResolveField(() => String)
-  id(@Parent() contact: ContactObject, @UserId() user: Address): Id {
-    return toId(`${user}-${contact.addr}`);
+  id(@Parent() contact: ContactObject, @UserId() user: Address): string {
+    return `${user}-${contact.addr}`;
   }
 
   @Query(() => ContactObject, { nullable: true })
