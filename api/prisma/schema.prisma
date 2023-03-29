@@ -12,7 +12,7 @@ generator nestgraphql {
   provider = "prisma-nestjs-graphql"
   output   = "../generated"
 
-  noTypeId = true
+  noTypeId                        = true
   graphqlScalars_BigInt_name      = "GraphQLBigInt"
   graphqlScalars_BigInt_specifier = "graphql-scalars"
 }
@@ -146,9 +146,11 @@ model TransactionResponse {
   transaction     Transaction @relation(fields: [transactionHash], references: [hash], onDelete: Cascade)
   transactionHash String      @id @db.Char(66) // bytes32
 
-  success   Boolean
-  response  String   @db.Char(66) // bytes32
-  timestamp DateTime @default(now())
+  success           Boolean
+  response          String   @db.Char(66) // bytes32
+  gasUsed           Decimal  @db.Decimal(19, 0)
+  effectiveGasPrice Decimal  @db.Decimal(19, 0)
+  timestamp         DateTime @default(now())
 }
 
 model Approval {

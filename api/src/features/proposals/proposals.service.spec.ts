@@ -183,6 +183,8 @@ describe(ProposalsService.name, () => {
                 create: {
                   success: false,
                   response: hexlify(randomBytes(32)),
+                  gasUsed: 0,
+                  effectiveGasPrice: 0,
                 },
               },
             },
@@ -205,6 +207,8 @@ describe(ProposalsService.name, () => {
                 create: {
                   success: true,
                   response: hexlify(randomBytes(32)),
+                  gasUsed: 0,
+                  effectiveGasPrice: 0,
                 },
               },
             },
