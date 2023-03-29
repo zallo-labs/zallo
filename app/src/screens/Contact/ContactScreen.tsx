@@ -143,7 +143,7 @@ export const ContactScreen = withSuspense(
           <FormSubmitButton
             mode="contained"
             onPress={submit}
-            requireChanges
+            requireChanges={!!current}
             control={control}
             style={styles.action}
           >
