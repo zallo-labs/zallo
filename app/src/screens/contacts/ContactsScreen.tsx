@@ -1,6 +1,7 @@
+import { useMemo } from 'react';
+import { FlatList } from 'react-native';
 import { NavigateNextIcon, ScanIcon, SearchIcon } from '~/util/theme/icons';
 import { Address } from 'lib';
-import { FlatList } from 'react-native';
 import { StackNavigatorScreenProps } from '~/navigation/StackNavigator2';
 import { Contact, useContacts } from '@api/contacts';
 import { useSearch } from '@hook/useSearch';
@@ -35,9 +36,13 @@ export const ContactsScreen = withSuspense(
     const add = () => navigate('Contact', {});
     const scan = async () => navigate('Contact', { address: await scanAddress() });
 
-    const onSelect: (c: Contact) => void = emitOnSelect
-      ? (c) => CONTACT_EMITTER.emit(c)
-      : ({ address }) => navigate('Contact', { address });
+    const onSelect: (c: Contact) => void = useMemo(
+      () =>
+        emitOnSelect
+          ? (c) => CONTACT_EMITTER.emit(c)
+          : ({ address }) => navigate('Contact', { address }),
+      [navigate, emitOnSelect],
+    );
 
     return (
       <Screen isModal={route.name === 'ContactsModal'}>
