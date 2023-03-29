@@ -1101,6 +1101,8 @@ export type TransactionRelationFilter = {
 
 export type TransactionResponse = {
   __typename?: 'TransactionResponse';
+  effectiveGasPrice: Scalars['Decimal'];
+  gasUsed: Scalars['Decimal'];
   response: Scalars['String'];
   success: Scalars['Boolean'];
   timestamp: Scalars['DateTime'];
@@ -1117,6 +1119,8 @@ export type TransactionResponseWhereInput = {
   AND?: InputMaybe<Array<TransactionResponseWhereInput>>;
   NOT?: InputMaybe<Array<TransactionResponseWhereInput>>;
   OR?: InputMaybe<Array<TransactionResponseWhereInput>>;
+  effectiveGasPrice?: InputMaybe<DecimalFilter>;
+  gasUsed?: InputMaybe<DecimalFilter>;
   response?: InputMaybe<StringFilter>;
   success?: InputMaybe<BoolFilter>;
   timestamp?: InputMaybe<DateTimeFilter>;
@@ -1343,22 +1347,22 @@ export type ApproveMutationVariables = Exact<{
 }>;
 
 
-export type ApproveMutation = { __typename?: 'Mutation', approve: { __typename?: 'Proposal', id: string, approvals?: Array<{ __typename?: 'Approval', userId: string, signature?: string | null, createdAt: any }> | null, rejections: Array<{ __typename?: 'Rejection', userId: string, createdAt: any }>, transaction?: { __typename?: 'Transaction', id: string, hash: string, gasLimit: any, gasPrice?: any | null, createdAt: any, response?: { __typename?: 'TransactionResponse', success: boolean, response: string, timestamp: any } | null } | null } };
+export type ApproveMutation = { __typename?: 'Mutation', approve: { __typename?: 'Proposal', id: string, approvals?: Array<{ __typename?: 'Approval', userId: string, signature?: string | null, createdAt: any }> | null, rejections: Array<{ __typename?: 'Rejection', userId: string, createdAt: any }>, transaction?: { __typename?: 'Transaction', id: string, hash: string, gasLimit: any, gasPrice?: any | null, createdAt: any, response?: { __typename?: 'TransactionResponse', success: boolean, response: string, gasUsed: any, effectiveGasPrice: any, timestamp: any } | null } | null } };
 
 export type ApprovalFieldsFragment = { __typename?: 'Approval', userId: string, signature?: string | null, createdAt: any };
 
 export type RejectionFieldsFragment = { __typename?: 'Rejection', userId: string, createdAt: any };
 
-export type TransactionFieldsFragment = { __typename?: 'Transaction', id: string, hash: string, gasLimit: any, gasPrice?: any | null, createdAt: any, response?: { __typename?: 'TransactionResponse', success: boolean, response: string, timestamp: any } | null };
+export type TransactionFieldsFragment = { __typename?: 'Transaction', id: string, hash: string, gasLimit: any, gasPrice?: any | null, createdAt: any, response?: { __typename?: 'TransactionResponse', success: boolean, response: string, gasUsed: any, effectiveGasPrice: any, timestamp: any } | null };
 
-export type ProposalFieldsFragment = { __typename?: 'Proposal', id: string, accountId: string, proposerId: string, to: string, value?: any | null, data?: string | null, nonce: any, gasLimit?: any | null, createdAt: any, approvals?: Array<{ __typename?: 'Approval', userId: string, signature?: string | null, createdAt: any }> | null, rejections: Array<{ __typename?: 'Rejection', userId: string, createdAt: any }>, satisfiablePolicies: Array<{ __typename?: 'SatisfiablePolicy', id: string, key: any, satisfied: boolean, requiresUserAction: boolean }>, transaction?: { __typename?: 'Transaction', id: string, hash: string, gasLimit: any, gasPrice?: any | null, createdAt: any, response?: { __typename?: 'TransactionResponse', success: boolean, response: string, timestamp: any } | null } | null };
+export type ProposalFieldsFragment = { __typename?: 'Proposal', id: string, accountId: string, proposerId: string, to: string, value?: any | null, data?: string | null, nonce: any, gasLimit?: any | null, createdAt: any, approvals?: Array<{ __typename?: 'Approval', userId: string, signature?: string | null, createdAt: any }> | null, rejections: Array<{ __typename?: 'Rejection', userId: string, createdAt: any }>, satisfiablePolicies: Array<{ __typename?: 'SatisfiablePolicy', id: string, key: any, satisfied: boolean, requiresUserAction: boolean }>, transaction?: { __typename?: 'Transaction', id: string, hash: string, gasLimit: any, gasPrice?: any | null, createdAt: any, response?: { __typename?: 'TransactionResponse', success: boolean, response: string, gasUsed: any, effectiveGasPrice: any, timestamp: any } | null } | null };
 
 export type ProposalQueryVariables = Exact<{
   id: Scalars['Bytes32'];
 }>;
 
 
-export type ProposalQuery = { __typename?: 'Query', proposal?: { __typename?: 'Proposal', id: string, accountId: string, proposerId: string, to: string, value?: any | null, data?: string | null, nonce: any, gasLimit?: any | null, createdAt: any, approvals?: Array<{ __typename?: 'Approval', userId: string, signature?: string | null, createdAt: any }> | null, rejections: Array<{ __typename?: 'Rejection', userId: string, createdAt: any }>, satisfiablePolicies: Array<{ __typename?: 'SatisfiablePolicy', id: string, key: any, satisfied: boolean, requiresUserAction: boolean }>, transaction?: { __typename?: 'Transaction', id: string, hash: string, gasLimit: any, gasPrice?: any | null, createdAt: any, response?: { __typename?: 'TransactionResponse', success: boolean, response: string, timestamp: any } | null } | null } | null };
+export type ProposalQuery = { __typename?: 'Query', proposal?: { __typename?: 'Proposal', id: string, accountId: string, proposerId: string, to: string, value?: any | null, data?: string | null, nonce: any, gasLimit?: any | null, createdAt: any, approvals?: Array<{ __typename?: 'Approval', userId: string, signature?: string | null, createdAt: any }> | null, rejections: Array<{ __typename?: 'Rejection', userId: string, createdAt: any }>, satisfiablePolicies: Array<{ __typename?: 'SatisfiablePolicy', id: string, key: any, satisfied: boolean, requiresUserAction: boolean }>, transaction?: { __typename?: 'Transaction', id: string, hash: string, gasLimit: any, gasPrice?: any | null, createdAt: any, response?: { __typename?: 'TransactionResponse', success: boolean, response: string, gasUsed: any, effectiveGasPrice: any, timestamp: any } | null } | null } | null };
 
 export type ProposalSubscriptionSubscriptionVariables = Exact<{
   accounts?: InputMaybe<Array<Scalars['Address']> | Scalars['Address']>;
@@ -1367,7 +1371,7 @@ export type ProposalSubscriptionSubscriptionVariables = Exact<{
 }>;
 
 
-export type ProposalSubscriptionSubscription = { __typename?: 'Subscription', proposal: { __typename?: 'Proposal', id: string, accountId: string, proposerId: string, to: string, value?: any | null, data?: string | null, nonce: any, gasLimit?: any | null, createdAt: any, approvals?: Array<{ __typename?: 'Approval', userId: string, signature?: string | null, createdAt: any }> | null, rejections: Array<{ __typename?: 'Rejection', userId: string, createdAt: any }>, satisfiablePolicies: Array<{ __typename?: 'SatisfiablePolicy', id: string, key: any, satisfied: boolean, requiresUserAction: boolean }>, transaction?: { __typename?: 'Transaction', id: string, hash: string, gasLimit: any, gasPrice?: any | null, createdAt: any, response?: { __typename?: 'TransactionResponse', success: boolean, response: string, timestamp: any } | null } | null } };
+export type ProposalSubscriptionSubscription = { __typename?: 'Subscription', proposal: { __typename?: 'Proposal', id: string, accountId: string, proposerId: string, to: string, value?: any | null, data?: string | null, nonce: any, gasLimit?: any | null, createdAt: any, approvals?: Array<{ __typename?: 'Approval', userId: string, signature?: string | null, createdAt: any }> | null, rejections: Array<{ __typename?: 'Rejection', userId: string, createdAt: any }>, satisfiablePolicies: Array<{ __typename?: 'SatisfiablePolicy', id: string, key: any, satisfied: boolean, requiresUserAction: boolean }>, transaction?: { __typename?: 'Transaction', id: string, hash: string, gasLimit: any, gasPrice?: any | null, createdAt: any, response?: { __typename?: 'TransactionResponse', success: boolean, response: string, gasUsed: any, effectiveGasPrice: any, timestamp: any } | null } | null } };
 
 export type ProposalsQueryVariables = Exact<{
   accounts?: InputMaybe<Array<Scalars['Address']> | Scalars['Address']>;
@@ -1377,7 +1381,7 @@ export type ProposalsQueryVariables = Exact<{
 }>;
 
 
-export type ProposalsQuery = { __typename?: 'Query', proposals: Array<{ __typename?: 'Proposal', id: string, accountId: string, proposerId: string, to: string, value?: any | null, data?: string | null, nonce: any, gasLimit?: any | null, createdAt: any, approvals?: Array<{ __typename?: 'Approval', userId: string, signature?: string | null, createdAt: any }> | null, rejections: Array<{ __typename?: 'Rejection', userId: string, createdAt: any }>, satisfiablePolicies: Array<{ __typename?: 'SatisfiablePolicy', id: string, key: any, satisfied: boolean, requiresUserAction: boolean }>, transaction?: { __typename?: 'Transaction', id: string, hash: string, gasLimit: any, gasPrice?: any | null, createdAt: any, response?: { __typename?: 'TransactionResponse', success: boolean, response: string, timestamp: any } | null } | null }> };
+export type ProposalsQuery = { __typename?: 'Query', proposals: Array<{ __typename?: 'Proposal', id: string, accountId: string, proposerId: string, to: string, value?: any | null, data?: string | null, nonce: any, gasLimit?: any | null, createdAt: any, approvals?: Array<{ __typename?: 'Approval', userId: string, signature?: string | null, createdAt: any }> | null, rejections: Array<{ __typename?: 'Rejection', userId: string, createdAt: any }>, satisfiablePolicies: Array<{ __typename?: 'SatisfiablePolicy', id: string, key: any, satisfied: boolean, requiresUserAction: boolean }>, transaction?: { __typename?: 'Transaction', id: string, hash: string, gasLimit: any, gasPrice?: any | null, createdAt: any, response?: { __typename?: 'TransactionResponse', success: boolean, response: string, gasUsed: any, effectiveGasPrice: any, timestamp: any } | null } | null }> };
 
 export type ProposeMutationVariables = Exact<{
   account: Scalars['Address'];
@@ -1389,7 +1393,7 @@ export type ProposeMutationVariables = Exact<{
 }>;
 
 
-export type ProposeMutation = { __typename?: 'Mutation', propose: { __typename?: 'Proposal', id: string, accountId: string, proposerId: string, to: string, value?: any | null, data?: string | null, nonce: any, gasLimit?: any | null, createdAt: any, approvals?: Array<{ __typename?: 'Approval', userId: string, signature?: string | null, createdAt: any }> | null, rejections: Array<{ __typename?: 'Rejection', userId: string, createdAt: any }>, satisfiablePolicies: Array<{ __typename?: 'SatisfiablePolicy', id: string, key: any, satisfied: boolean, requiresUserAction: boolean }>, transaction?: { __typename?: 'Transaction', id: string, hash: string, gasLimit: any, gasPrice?: any | null, createdAt: any, response?: { __typename?: 'TransactionResponse', success: boolean, response: string, timestamp: any } | null } | null } };
+export type ProposeMutation = { __typename?: 'Mutation', propose: { __typename?: 'Proposal', id: string, accountId: string, proposerId: string, to: string, value?: any | null, data?: string | null, nonce: any, gasLimit?: any | null, createdAt: any, approvals?: Array<{ __typename?: 'Approval', userId: string, signature?: string | null, createdAt: any }> | null, rejections: Array<{ __typename?: 'Rejection', userId: string, createdAt: any }>, satisfiablePolicies: Array<{ __typename?: 'SatisfiablePolicy', id: string, key: any, satisfied: boolean, requiresUserAction: boolean }>, transaction?: { __typename?: 'Transaction', id: string, hash: string, gasLimit: any, gasPrice?: any | null, createdAt: any, response?: { __typename?: 'TransactionResponse', success: boolean, response: string, gasUsed: any, effectiveGasPrice: any, timestamp: any } | null } | null } };
 
 export type RejectMutationVariables = Exact<{
   id: Scalars['Bytes32'];
@@ -1498,6 +1502,8 @@ export const TransactionFieldsFragmentDoc = gql`
   response {
     success
     response
+    gasUsed
+    effectiveGasPrice
     timestamp
   }
 }

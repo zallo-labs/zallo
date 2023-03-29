@@ -27,6 +27,8 @@ gql`
     response {
       success
       response
+      gasUsed
+      effectiveGasPrice
       timestamp
     }
   }

@@ -44,18 +44,20 @@ export interface SatisfiablePolicy {
 
 export interface TransactionSubmission {
   hash: Hex;
-  status: SubmissionStatus;
+  status: TransactionStatus;
   timestamp: DateTime;
   gasLimit: bigint;
   gasPrice?: bigint;
-  response?: SubmissionResponse;
+  response?: TransactionResponse;
 }
 
-export type SubmissionStatus = 'pending' | 'success' | 'failure';
+export type TransactionStatus = 'pending' | 'success' | 'failure';
 
-export interface SubmissionResponse {
+export interface TransactionResponse {
   success: boolean;
   response: Hex;
+  gasUsed: bigint;
+  effectiveGasPrice: bigint;
   timestamp: DateTime;
 }
 
@@ -98,6 +100,8 @@ export const toProposal = (p: ProposalFieldsFragment): Proposal => {
           ? {
               success: t.response.success,
               response: asHex(t.response.response),
+              gasUsed: BigInt(t.response.gasUsed),
+              effectiveGasPrice: asBigInt(t.response.effectiveGasPrice),
               timestamp: DateTime.fromISO(t.response.timestamp),
             }
           : undefined,
