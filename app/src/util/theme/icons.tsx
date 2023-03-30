@@ -1,4 +1,4 @@
-import { ElementType, ComponentPropsWithoutRef, FC } from 'react';
+import React, { ElementType, ComponentPropsWithoutRef, FC } from 'react';
 import { ColorValue } from 'react-native';
 import { Ionicons, MaterialCommunityIcons, MaterialIcons } from '@expo/vector-icons';
 import { SvgProps } from 'react-native-svg';
@@ -95,12 +95,23 @@ export const CheckmarkDoneCircleIcon = materialIcon('done-all');
 export const DescriptionIcon = materialIcon('description');
 export const NameIcon = materialIcon('text-fields');
 export const NetworkIcon = materialIcon('location-pin');
-export const PolicySatisfiedIcon = materialCommunityIcon('shield-check-outline');
-export const PolicyActiveIcon = materialCommunityIcon('shield');
-export const PolicyDraftIcon = materialCommunityIcon('shield-outline');
-export const PolicyActiveWithDraftIcon = materialCommunityIcon('shield-half-full');
+export const ClockIcon = materialCommunityIcon('clock');
 export const ClockOutlineIcon = materialCommunityIcon('clock-outline');
+export const GasIcon = materialCommunityIcon('gas-station');
 export const GasOutlineIcon = materialCommunityIcon('gas-station-outline');
+
+export const PolicyActiveIcon = materialCommunityIcon('shield');
+export const PolicyActiveOutlineIcon = materialCommunityIcon('shield-outline');
+export const PolicyEditIcon = materialCommunityIcon('shield-edit');
+export const PolicyEditOutlineIcon = materialCommunityIcon('shield-edit-outline');
+export const PolicyAddIcon = materialCommunityIcon('shield-plus');
+export const PolicyAddOutlineIcon = materialCommunityIcon('shield-plus-outline');
+export const PolicyRemoveIcon = materialCommunityIcon('shield-remove');
+export const PolicyRemoveOutlineIcon = materialCommunityIcon('shield-remove-outline');
+export const PolicySatisfiableIcon = materialCommunityIcon('shield-check');
+export const PolicySatisfiableOutlineIcon = materialCommunityIcon('shield-check-outline');
+export const PolicyUnsatisfiableIcon = materialCommunityIcon('shield-alert');
+export const PolicyUnsatisfiableOutlineIcon = materialCommunityIcon('shield-alert-outline');
 
 export const svgIcon =
   (Svg: FC<SvgProps>): FC<IconProps> =>
