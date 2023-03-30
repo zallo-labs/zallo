@@ -12,7 +12,7 @@ export interface FormattedNumberOptions extends FormatNumberOptions {
 
 export const useFormattedNumber = ({
   value,
-  decimals = 1,
+  decimals = 0,
   maximumFractionDigits = 2,
   extendedFractionDigits,
   postFormat,
