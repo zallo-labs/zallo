@@ -8,16 +8,17 @@ import { AddressLabel } from '~/components/address/AddressLabel';
 import { Timestamp } from '~/components/format/Timestamp';
 import { ListHeader } from '~/components/list/ListHeader';
 import { ListItem } from '~/components/list/ListItem';
+import { showError } from '~/provider/SnackbarProvider';
 import { ApprovalActions } from './ApprovalActions';
 import { TabNavigatorScreenProp } from './Tabs';
 
-export interface ApprovalsTabParams {
+export interface PolicyTabParams {
   proposal: ProposalId;
 }
 
-export type ApprovalsTabProps = TabNavigatorScreenProp<'Approvals'>;
+export type PolicyTabProps = TabNavigatorScreenProp<'Policy'>;
 
-export const ApprovalsTab = ({ route }: ApprovalsTabProps) => {
+export const PolicyTab = ({ route }: PolicyTabProps) => {
   const proposal = useProposal(route.params.proposal);
   const policy = usePolicy(proposal.satisfiablePolicies[0]);
   const policyRules = policy?.active;
@@ -29,6 +30,7 @@ export const ApprovalsTab = ({ route }: ApprovalsTabProps) => {
 
   const selectPolicy = () => {
     // TODO: allow for policy selection
+    showError('Changing preferred execution policy is not yet supported');
   };
 
   return (

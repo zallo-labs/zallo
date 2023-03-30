@@ -6,13 +6,13 @@ import {
 import { memo } from 'react';
 import { StyleSheet } from 'react-native';
 import { TopTabBar } from '~/components/TopTabBar';
-import { ApprovalsTab, ApprovalsTabParams } from './ApprovalsTab';
+import { PolicyTab, PolicyTabParams } from './PolicyTab';
 import { DetailsTab, DetailsTabParams } from './DetailsTab';
 import { ExecutionTab, ExecutionTabParams } from './ExecutionTab';
 
 export type TabNavigatorParamList = {
   Details: DetailsTabParams;
-  Approvals: ApprovalsTabParams;
+  Policy: PolicyTabParams;
   Execution: ExecutionTabParams;
 };
 
@@ -29,7 +29,7 @@ export const Tabs = memo(({ proposal }: TabsProps) => {
   return (
     <Tab.Navigator tabBar={TopTabBar} sceneContainerStyle={styles.sceneContainer}>
       <Tab.Screen name="Details" component={DetailsTab} initialParams={{ proposal }} />
-      <Tab.Screen name="Approvals" component={ApprovalsTab} initialParams={{ proposal }} />
+      <Tab.Screen name="Policy" component={PolicyTab} initialParams={{ proposal }} />
       <Tab.Screen name="Execution" component={ExecutionTab} initialParams={{ proposal }} />
     </Tab.Navigator>
   );
