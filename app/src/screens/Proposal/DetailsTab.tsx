@@ -1,12 +1,14 @@
 import { ProposalId, useProposal } from '@api/proposal';
+import { GasIcon } from '@theme/icons';
 import { makeStyles } from '@theme/makeStyles';
-import { memo } from 'react';
+import { ICON_SIZE } from '@theme/paper';
 import { ScrollView } from 'react-native';
 import { Text } from 'react-native-paper';
 import { useAddressLabel } from '~/components/address/AddressLabel';
 import { useProposalTransfers } from '~/components/call/useProposalTransfers';
 import { useTransfersValue } from '~/components/call/useTransfersValue';
 import { FiatValue } from '~/components/fiat/FiatValue';
+import { FormattedNumber } from '~/components/format/FormattedNumber';
 import { ListHeader } from '~/components/list/ListHeader';
 import { ListItem } from '~/components/list/ListItem';
 import { withSuspense } from '~/components/skeleton/withSuspense';
@@ -32,6 +34,11 @@ export const DetailsTab = withSuspense(({ route }: DetailsTabProps) => {
       <ListItem leading={p.to} headline="To" trailing={useAddressLabel(p.to)} />
       <ListItem leading={p.account} headline="From" trailing={useAddressLabel(p.account)} />
       <ListItem leading={p.proposer} headline="Proposer" trailing={useAddressLabel(p.proposer)} />
+      <ListItem
+        leading={(props) => <GasIcon size={ICON_SIZE.medium} {...props} />}
+        headline="Gas limit"
+        trailing={p.gasLimit ? <FormattedNumber value={p.gasLimit} /> : 'Dynamic'}
+      />
 
       <ListHeader
         {...(transfers.length > 1 && {
