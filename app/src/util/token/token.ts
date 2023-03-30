@@ -14,7 +14,12 @@ import { CHAIN, PROVIDER } from '~/util/network/provider';
 
 export type TokenType = 'ETH' | 'ERC20';
 
-export interface Token {
+export interface TokenUnit {
+  symbol: string;
+  decimals: number;
+}
+
+export interface Token extends TokenUnit {
   type: TokenType;
   name: string;
   symbol: string;
@@ -22,6 +27,7 @@ export interface Token {
   addr: Address; // Current chain address
   addresses: Partial<Record<'mainnet' | 'testnet', Address>>;
   iconUri: string;
+  units: [TokenUnit, ...TokenUnit[]];
 }
 
 export const isToken = createIsObj<Token>(
@@ -37,6 +43,7 @@ type TokenDef = Pick<Token, 'name' | 'symbol' | 'decimals'> & {
   type?: TokenType;
   addresses: Partial<Record<ChainName, Addresslike>>;
   iconUri?: string;
+  units?: TokenUnit[];
 };
 
 export const asToken = (def: TokenDef): Token => {
@@ -44,6 +51,8 @@ export const asToken = (def: TokenDef): Token => {
 
   const addr = addresses[CHAIN.name];
   assert(addr, `Token '${def.name}' doesn't support current chain '${CHAIN.name}'`);
+
+  const baseUnit: TokenUnit = { symbol: def.symbol, decimals: def.decimals };
 
   return {
     type: 'ERC20',
@@ -53,6 +62,7 @@ export const asToken = (def: TokenDef): Token => {
     iconUri:
       def.iconUri ??
       `https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/ethereum/assets/${def.addresses.mainnet}/logo.png`,
+    units: [baseUnit, ...(def.units ?? [])],
   };
 };
 

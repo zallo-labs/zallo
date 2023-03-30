@@ -9,6 +9,10 @@ export const ETH = asToken({
   // symbol: 'Ξ',
   symbol: 'ETH',
   decimals: 18,
+  units: [
+    { symbol: 'WEI', decimals: 1 },
+    { symbol: 'GWEI', decimals: 9 },
+  ],
   addresses: {
     mainnet: '0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2', // wETH
     testnet: zk.utils.ETH_ADDRESS,

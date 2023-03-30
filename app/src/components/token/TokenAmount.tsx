@@ -1,4 +1,4 @@
-import { Token } from '@token/token';
+import { Token, TokenUnit } from '@token/token';
 import { FormattedNumberOptions, useFormattedNumber } from '../format/FormattedNumber';
 
 export interface FormattedTokenAmountOptions extends Partial<FormattedNumberOptions> {
@@ -12,15 +12,28 @@ export const useFormattedTokenAmount = ({
   amount = 0n,
   trailing = 'symbol',
   ...options
-}: FormattedTokenAmountOptions) =>
-  useFormattedNumber({
+}: FormattedTokenAmountOptions) => {
+  // Format with the closest unit
+  const amountDecimals = amount.toString().length;
+  const unit: TokenUnit =
+    amount === 0n
+      ? token
+      : token.units.reduce((closest, unit) => {
+          const diff = Math.abs(unit.decimals - amountDecimals);
+          return diff < Math.abs(closest.decimals - amountDecimals) ? unit : closest;
+        }, token);
+
+  return useFormattedNumber({
     value: amount,
-    decimals: token.decimals,
+    decimals: unit.decimals,
     maximumFractionDigits: 3,
     extendedFractionDigits: 4,
-    postFormat: trailing ? (v) => `${v} ${token[trailing]}` : undefined,
+    postFormat: trailing
+      ? (v) => `${v} ${trailing === 'name' ? token.name : unit.symbol}`
+      : undefined,
     ...options,
   });
+};
 
 export interface TokenAmountProps extends FormattedTokenAmountOptions {}
 
