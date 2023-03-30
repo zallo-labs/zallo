@@ -27,7 +27,14 @@ export const ProposalItem = withSuspense(({ proposal: id, onPress }: ProposalIte
       <Text style={styles.approvalRequired}>Approval required</Text>
     ))
     .with({ state: 'pending' }, () => 'Pending approval')
-    .otherwise((p) => <Timestamp timestamp={p.timestamp} weekday />);
+    .with({ state: 'executing' }, () => 'Executing...')
+    .with({ state: 'failed' }, () => (
+      <>
+        Failed at <Timestamp timestamp={p.timestamp} />
+      </>
+    ))
+    .with({ state: 'executed' }, () => <Timestamp timestamp={p.timestamp} />)
+    .exhaustive();
 
   return (
     <ListItem
