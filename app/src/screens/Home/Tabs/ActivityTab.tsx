@@ -11,6 +11,7 @@ import { IncomingTransferItem } from '~/components/call/IncomingTransferItem';
 import { ProposalItem } from '~/components/proposal/ProposalItem';
 import { TabNavigatorScreenProp } from '.';
 import { withSuspense } from '~/components/skeleton/withSuspense';
+import { TabBadge } from '~/components/tab/TabBadge';
 
 type Item = Proposal | TransferMetadata;
 
@@ -49,15 +50,7 @@ export const ActivityTab = memo((_props: ActivityTabProps) => {
 });
 
 export const ActivityTabBadge = withSuspense(
-  () => {
-    const n = useProposals({ requiresUserAction: true }).length;
-
-    return (
-      <Badge visible={n > 0} size={16} style={styles.badge}>
-        {n}
-      </Badge>
-    );
-  },
+  () => <TabBadge value={useProposals({ requiresUserAction: true }).length} style={styles.badge} />,
   () => null,
 );
 
@@ -67,6 +60,6 @@ const styles = StyleSheet.create({
     margin: 16,
   },
   badge: {
-    transform: [{ translateX: -20 }, { translateY: 12 }],
+    transform: [{ translateX: -10 }],
   },
 });
