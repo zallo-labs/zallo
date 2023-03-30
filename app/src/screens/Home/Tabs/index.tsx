@@ -3,7 +3,7 @@ import {
   MaterialTopTabScreenProps,
 } from '@react-navigation/material-top-tabs';
 import { StyleSheet } from 'react-native';
-import { TopTabBar } from '~/components/TopTabBar';
+import { TopTabBar } from '~/components/tab/TopTabBar';
 import { ActivityTab, ActivityTabBadge } from './ActivityTab';
 import { CollectablesTab } from './CollectablesTab';
 import { TokensTab } from './TokensTab';
