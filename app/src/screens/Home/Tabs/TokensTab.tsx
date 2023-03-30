@@ -4,10 +4,12 @@ import { FlashList } from '@shopify/flash-list';
 import { ListItemHeight } from '~/components/list/ListItem';
 import { TokenItem } from '~/components/token/TokenItem';
 import { TabNavigatorScreenProp } from '.';
+import { withSuspense } from '~/components/skeleton/withSuspense';
+import { TabScreenSkeleton } from '~/components/tab/TabScreenSkeleton';
 
 export type TokensTabProps = TabNavigatorScreenProp<'Tokens'>;
 
-export const TokensTab = (_props: TokensTabProps) => {
+export const TokensTab = withSuspense((_props: TokensTabProps) => {
   const account = useSelectedAccountId();
   const tokens = useTokensByValue(account);
 
@@ -19,4 +21,4 @@ export const TokensTab = (_props: TokensTabProps) => {
       showsVerticalScrollIndicator={false}
     />
   );
-};
+}, TabScreenSkeleton);

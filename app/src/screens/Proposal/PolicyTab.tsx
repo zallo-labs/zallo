@@ -12,6 +12,8 @@ import { showError } from '~/provider/SnackbarProvider';
 import { ApprovalActions } from './ApprovalActions';
 import { TabNavigatorScreenProp } from './Tabs';
 import { TabBadge } from '~/components/tab/TabBadge';
+import { withSuspense } from '~/components/skeleton/withSuspense';
+import { TabScreenSkeleton } from '~/components/tab/TabScreenSkeleton';
 
 const getApprovalsAwaiting = (proposal: Proposal, policy?: WPolicy) => {
   const policyRules = policy?.active;
@@ -28,7 +30,7 @@ export interface PolicyTabParams {
 
 export type PolicyTabProps = TabNavigatorScreenProp<'Policy'>;
 
-export const PolicyTab = ({ route }: PolicyTabProps) => {
+export const PolicyTab = withSuspense(({ route }: PolicyTabProps) => {
   const proposal = useProposal(route.params.proposal);
   const policy = usePolicy(proposal.satisfiablePolicies[0]);
 
@@ -107,7 +109,7 @@ export const PolicyTab = ({ route }: PolicyTabProps) => {
       <ApprovalActions proposal={proposal} />
     </ScrollView>
   );
-};
+}, TabScreenSkeleton);
 
 const styles = StyleSheet.create({
   container: {

@@ -9,6 +9,8 @@ import { useTransfersValue } from '~/components/call/useTransfersValue';
 import { FiatValue } from '~/components/fiat/FiatValue';
 import { ListHeader } from '~/components/list/ListHeader';
 import { ListItem } from '~/components/list/ListItem';
+import { withSuspense } from '~/components/skeleton/withSuspense';
+import { TabScreenSkeleton } from '~/components/tab/TabScreenSkeleton';
 import { TokenItem } from '~/components/token/TokenItem';
 import { ApprovalActions } from './ApprovalActions';
 import { TabNavigatorScreenProp } from './Tabs';
@@ -19,7 +21,7 @@ export interface DetailsTabParams {
 
 export type DetailsTabProps = TabNavigatorScreenProp<'Details'>;
 
-export const DetailsTab = memo(({ route }: DetailsTabProps) => {
+export const DetailsTab = withSuspense(({ route }: DetailsTabProps) => {
   const styles = useStyles();
   const p = useProposal(route.params.proposal);
   const transfers = useProposalTransfers(p);
@@ -50,7 +52,7 @@ export const DetailsTab = memo(({ route }: DetailsTabProps) => {
       <ApprovalActions proposal={p} />
     </ScrollView>
   );
-});
+}, TabScreenSkeleton);
 
 const useStyles = makeStyles(({ colors }) => ({
   container: {

@@ -12,6 +12,7 @@ import { ProposalItem } from '~/components/proposal/ProposalItem';
 import { TabNavigatorScreenProp } from '.';
 import { withSuspense } from '~/components/skeleton/withSuspense';
 import { TabBadge } from '~/components/tab/TabBadge';
+import { TabScreenSkeleton } from '~/components/tab/TabScreenSkeleton';
 
 type Item = Proposal | TransferMetadata;
 
@@ -21,7 +22,7 @@ const compare = (a: Item, b: Item) => b.timestamp.toMillis() - a.timestamp.toMil
 
 export type ActivityTabProps = TabNavigatorScreenProp<'Activity'>;
 
-export const ActivityTab = memo((_props: ActivityTabProps) => {
+export const ActivityTab = withSuspense((_props: ActivityTabProps) => {
   const { navigate } = useRootNavigation2();
 
   const proposals = useProposals();
@@ -47,7 +48,7 @@ export const ActivityTab = memo((_props: ActivityTabProps) => {
       showsVerticalScrollIndicator={false}
     />
   );
-});
+}, TabScreenSkeleton);
 
 export const ActivityTabBadge = withSuspense(
   () => <TabBadge value={useProposals({ requiresUserAction: true }).length} style={styles.badge} />,
