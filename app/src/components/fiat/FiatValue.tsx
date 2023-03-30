@@ -16,10 +16,10 @@ export interface FormattedFiatOptions extends Partial<Omit<FormattedNumberOption
 export const useFormattedFiat = ({ value: v, symbol = true, ...options }: FormattedFiatOptions) => {
   const params: Parameters<typeof useTokenValue> =
     typeof v === 'object' && 'token' in v ? [v.token, v.amount] : [undefined, undefined];
-  const value = useTokenValue(...params);
+  const tokenValue = useTokenValue(...params);
 
   return useFormattedNumber({
-    value,
+    value: typeof v === 'object' && 'token' in v ? tokenValue : v,
     decimals: FIAT_DECIMALS,
     minimumFractionDigits: 0,
     maximumFractionDigits: 2,
