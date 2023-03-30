@@ -1,6 +1,7 @@
 import { PrismaSelect } from '@paljs/plugins';
 import { Prisma } from '@prisma/client';
 import { GraphQLResolveInfo } from 'graphql';
+import _ from 'lodash';
 
 type ModelSelect<M extends Prisma.ModelName> =
   Prisma.TypeMap['model'][M]['findUnique']['args']['select'];
@@ -32,6 +33,7 @@ const DEFAULT_FIELDS: DefaultFields = {
       transactions: {
         take: 1,
         orderBy: { createdAt: 'desc' },
+        select: _.omit(select.transaction.select, ['id']) ?? true,
       },
     }),
     ...((select.approvals || select.rejections) && {
