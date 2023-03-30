@@ -15,6 +15,7 @@ import { Splash } from '~/components/Splash';
 import { AppbarBack } from '~/components/Appbar/AppbarBack';
 import * as Linking from 'expo-linking';
 import { EventEmitter } from '~/util/EventEmitter';
+import useAsyncEffect from 'use-async-effect';
 
 export const SCAN_ADDRESS_EMITTER = new EventEmitter<Address>('Scan::Address');
 
@@ -48,13 +49,20 @@ export const ScanScreen = withSuspense(
       }
     };
 
+    const [permissionsRequested, setPermissionsRequested] = useState(false);
     const [permission, requestPermission] = Camera.useCameraPermissions();
 
-    useEffect(() => {
-      if (!permission?.granted && permission?.canAskAgain !== false) requestPermission();
-    }, [requestPermission]);
+    useAsyncEffect(
+      async (isMounted) => {
+        if (!permission?.granted) {
+          await requestPermission();
+          if (isMounted()) setPermissionsRequested(true);
+        }
+      },
+      [requestPermission],
+    );
 
-    return permission?.granted ? (
+    return permission?.granted || !permissionsRequested ? (
       <Camera
         onBarCodeScanned={scan ? ({ data }) => tryHandle(data) : undefined}
         barCodeScannerSettings={{ barCodeTypes: [BarCodeScanner.Constants.BarCodeType.qr] }}
