@@ -1,6 +1,4 @@
-import 'node-libs-react-native/globals';
-import '~/util/network/provider';
-import '~/util/immer';
+import '~/util/patches';
 
 import { Suspense } from 'react';
 import { StyleSheet } from 'react-native';
