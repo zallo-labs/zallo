@@ -7,7 +7,7 @@ import { StyleSheet } from 'react-native';
 import { TopTabBar } from '~/components/tab/TopTabBar';
 import { PolicyTab, PolicyTabBadge, PolicyTabParams } from './PolicyTab';
 import { DetailsTab, DetailsTabParams } from './DetailsTab';
-import { TransactionTab, TransactionTabParams } from './ExecutionTab';
+import { TransactionTab, TransactionTabParams } from './TransactionTab';
 
 export type TabNavigatorParamList = {
   Details: DetailsTabParams;

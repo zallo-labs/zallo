@@ -14,7 +14,6 @@ import { withSuspense } from '~/components/skeleton/withSuspense';
 import { TabScreenSkeleton } from '~/components/tab/TabScreenSkeleton';
 import { TokenAmount } from '~/components/token/TokenAmount';
 import { TokenIcon } from '~/components/token/TokenIcon/TokenIcon';
-import { clog } from '~/util/format';
 import { TabNavigatorScreenProp } from './Tabs';
 
 const Item = (props: ListItemProps) => (
@@ -41,8 +40,8 @@ export const TransactionTab = withSuspense(({ route }: TransactionTabProps) => {
   const currentGasPrice = useGasPrice(feeToken);
   const gasPrice = resp?.effectiveGasPrice ?? tx?.gasPrice;
   const gasLimit = tx?.gasLimit ?? proposal.gasLimit;
-
-  clog(proposal);
+  const estimatedFee = currentGasPrice * (gasLimit ?? proposal.estimatedOpGas); // TODO: factor in number of approvers when using estimatedOpGas
+  const actualFee = resp && resp.gasUsed * resp.effectiveGasPrice;
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
@@ -113,26 +112,19 @@ export const TransactionTab = withSuspense(({ route }: TransactionTabProps) => {
         />
       )}
 
-      {resp ? (
+      {actualFee ? (
         <Item
           leading={(props) => <TokenIcon token={feeToken} {...props} />}
           headline="Network fee"
-          trailing={
-            <FiatValue value={{ token: feeToken, amount: resp.gasUsed * resp.effectiveGasPrice }} />
-          }
+          supporting={<TokenAmount token={feeToken} amount={actualFee} />}
+          trailing={<FiatValue value={{ token: feeToken, amount: actualFee }} />}
         />
       ) : (
         <Item
           leading={(props) => <TokenIcon token={feeToken} {...props} />}
           headline="Network fee (estimated)"
-          trailing={
-            <FiatValue
-              value={{
-                token: feeToken,
-                amount: currentGasPrice * (gasLimit ?? proposal.estimatedOpGas), // TODO: factor in number of approvers when using estimatedOpGas
-              }}
-            />
-          }
+          supporting={<TokenAmount token={feeToken} amount={estimatedFee} />}
+          trailing={<FiatValue value={{ token: feeToken, amount: estimatedFee }} />}
         />
       )}
     </ScrollView>
