@@ -32,6 +32,7 @@ export * from './decode';
 export * from './deploy';
 export * from './errors';
 export * from './execute';
+export * from './gas';
 export * from './id';
 export * from './policy';
 export * from './signature';

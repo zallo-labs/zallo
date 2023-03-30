@@ -5,12 +5,8 @@ import * as zk from 'zksync-web3';
 import { Eip712Meta, TransactionRequest } from 'zksync-web3/build/src/types';
 import { EIP712_TX_TYPE } from 'zksync-web3/build/src/utils';
 import { Tx } from './tx';
-import { tryOrAsync } from './util/try';
 import { Policy } from './policy';
-import { asBigInt } from './bigint';
-
-export const FALLBACK_GAS_LIMIT = 3_000_000n;
-const GAS_PER_SIGNER = 200_000n;
+import { estimateTxGas } from './gas';
 
 export interface ExecuteTxOptions {
   customData?: Overrides & Eip712Meta;
@@ -40,6 +36,7 @@ export const asTransactionRequest = async ({
     from: account.address,
     type: EIP712_TX_TYPE,
     chainId: (await provider.getNetwork()).chainId,
+    gasLimit: tx.gasLimit,
     gasPrice: await provider.getGasPrice(),
     customData: {
       gasPerPubdata: zk.utils.DEFAULT_GAS_PER_PUBDATA_LIMIT,
@@ -48,10 +45,7 @@ export const asTransactionRequest = async ({
     },
   };
 
-  const opGas =
-    tx.gasLimit ||
-    (await tryOrAsync(async () => asBigInt(await provider.estimateGas(req)), FALLBACK_GAS_LIMIT));
-  req.gasLimit = opGas + GAS_PER_SIGNER * BigInt(approvals.length);
+  req.gasLimit ||= await estimateTxGas([provider, req], approvals.length);
 
   return req;
 };
