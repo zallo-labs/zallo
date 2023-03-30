@@ -1,6 +1,6 @@
 import { usePolicy, WPolicy } from '@api/policy';
 import { Proposal, ProposalId, useProposal } from '@api/proposal';
-import { NavigateNextIcon } from '@theme/icons';
+import { NavigateNextIcon, PolicySatisfiableIcon, PolicyUnsatisfiableIcon } from '@theme/icons';
 import { ApprovalsRule } from 'lib';
 import { StyleSheet } from 'react-native';
 import { ScrollView } from 'react-native';
@@ -45,6 +45,7 @@ export const PolicyTab = withSuspense(({ route }: PolicyTabProps) => {
     <ScrollView contentContainerStyle={styles.container}>
       {policy ? (
         <ListItem
+          leading={PolicySatisfiableIcon}
           headline={policy.name}
           supporting="Only satisfiable policy"
           {...(proposal.satisfiablePolicies.length > 1 && {
@@ -53,7 +54,7 @@ export const PolicyTab = withSuspense(({ route }: PolicyTabProps) => {
           })}
         />
       ) : (
-        <ListItem headline="No satisfiable policy" />
+        <ListItem leading={PolicyUnsatisfiableIcon} headline="No satisfiable policy" />
       )}
 
       {proposal.rejections.size > 0 && <ListHeader>Rejected</ListHeader>}
