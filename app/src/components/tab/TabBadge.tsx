@@ -1,7 +1,7 @@
 import { isPresent } from 'lib';
 import { memo } from 'react';
 import { StyleProp, StyleSheet, TranslateXTransform, ViewStyle } from 'react-native';
-import { Badge, BadgeProps } from 'react-native-paper';
+import { Badge } from 'react-native-paper';
 
 type SmallBadgeProps = { visible: boolean };
 type LargeBageProps = { value: number; max?: number };
@@ -25,8 +25,6 @@ export const TabBadge = memo(({ style, ...props }: TabBadgeProps) => {
   const translateX = flattened?.transform?.find((t): t is TranslateXTransform => 'translateX' in t);
 
   const width = flattened?.width || isLarge(props) ? 12 + 4 * value.length : 6;
-
-  console.log(translateX);
 
   const transform = [
     translateX ? { translateX: translateX.translateX - width } : undefined,
