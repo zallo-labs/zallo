@@ -3,17 +3,16 @@ import {
   createMaterialTopTabNavigator,
   MaterialTopTabScreenProps,
 } from '@react-navigation/material-top-tabs';
-import { memo } from 'react';
 import { StyleSheet } from 'react-native';
-import { TopTabBar } from '~/components/TopTabBar';
-import { PolicyTab, PolicyTabParams } from './PolicyTab';
+import { TopTabBar } from '~/components/tab/TopTabBar';
+import { PolicyTab, PolicyTabBadge, PolicyTabParams } from './PolicyTab';
 import { DetailsTab, DetailsTabParams } from './DetailsTab';
-import { ExecutionTab, ExecutionTabParams } from './ExecutionTab';
+import { TransactionTab, TransactionTabParams } from './ExecutionTab';
 
 export type TabNavigatorParamList = {
   Details: DetailsTabParams;
   Policy: PolicyTabParams;
-  Execution: ExecutionTabParams;
+  Transaction: TransactionTabParams;
 };
 
 export type TabNavigatorScreenProp<K extends keyof TabNavigatorParamList> =
@@ -25,15 +24,18 @@ export interface TabsProps {
   proposal: ProposalId;
 }
 
-export const Tabs = memo(({ proposal }: TabsProps) => {
-  return (
-    <Tab.Navigator tabBar={TopTabBar} sceneContainerStyle={styles.sceneContainer}>
-      <Tab.Screen name="Details" component={DetailsTab} initialParams={{ proposal }} />
-      <Tab.Screen name="Policy" component={PolicyTab} initialParams={{ proposal }} />
-      <Tab.Screen name="Execution" component={ExecutionTab} initialParams={{ proposal }} />
-    </Tab.Navigator>
-  );
-});
+export const Tabs = ({ proposal }: TabsProps) => (
+  <Tab.Navigator tabBar={TopTabBar} sceneContainerStyle={styles.sceneContainer}>
+    <Tab.Screen name="Details" component={DetailsTab} initialParams={{ proposal }} />
+    <Tab.Screen
+      name="Policy"
+      component={PolicyTab}
+      options={{ tabBarBadge: () => <PolicyTabBadge proposal={proposal} /> }}
+      initialParams={{ proposal }}
+    />
+    <Tab.Screen name="Transaction" component={TransactionTab} initialParams={{ proposal }} />
+  </Tab.Navigator>
+);
 
 const styles = StyleSheet.create({
   sceneContainer: {

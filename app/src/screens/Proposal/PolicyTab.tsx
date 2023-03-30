@@ -1,5 +1,5 @@
-import { usePolicy } from '@api/policy';
-import { ProposalId, useProposal } from '@api/proposal';
+import { usePolicy, WPolicy } from '@api/policy';
+import { Proposal, ProposalId, useProposal } from '@api/proposal';
 import { NavigateNextIcon } from '@theme/icons';
 import { ApprovalsRule } from 'lib';
 import { StyleSheet } from 'react-native';
@@ -11,6 +11,16 @@ import { ListItem } from '~/components/list/ListItem';
 import { showError } from '~/provider/SnackbarProvider';
 import { ApprovalActions } from './ApprovalActions';
 import { TabNavigatorScreenProp } from './Tabs';
+import { TabBadge } from '~/components/tab/TabBadge';
+
+const getApprovalsAwaiting = (proposal: Proposal, policy?: WPolicy) => {
+  const policyRules = policy?.active;
+  const requiredApproval = policyRules?.rules.get(ApprovalsRule)?.approvers ?? new Set();
+
+  return [...requiredApproval].filter(
+    (a) => !proposal.approvals.has(a) && !proposal.rejections.has(a),
+  );
+};
 
 export interface PolicyTabParams {
   proposal: ProposalId;
@@ -21,12 +31,8 @@ export type PolicyTabProps = TabNavigatorScreenProp<'Policy'>;
 export const PolicyTab = ({ route }: PolicyTabProps) => {
   const proposal = useProposal(route.params.proposal);
   const policy = usePolicy(proposal.satisfiablePolicies[0]);
-  const policyRules = policy?.active;
 
-  const requiredApproval = policyRules?.rules.get(ApprovalsRule)?.approvers ?? new Set();
-  const awaitingApproval = [...requiredApproval].filter(
-    (a) => !proposal.approvals.has(a) && !proposal.rejections.has(a),
-  );
+  const awaitingApproval = getApprovalsAwaiting(proposal, policy);
 
   const selectPolicy = () => {
     // TODO: allow for policy selection
@@ -108,3 +114,14 @@ const styles = StyleSheet.create({
     flex: 1,
   },
 });
+
+export interface PolicyTabBadgeProps {
+  proposal: ProposalId;
+}
+
+export const PolicyTabBadge = ({ proposal: id }: PolicyTabBadgeProps) => {
+  const proposal = useProposal(id);
+  const policy = usePolicy(proposal.satisfiablePolicies[0]);
+
+  return <TabBadge value={getApprovalsAwaiting(proposal, policy).length} />;
+};
