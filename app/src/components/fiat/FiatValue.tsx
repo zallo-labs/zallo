@@ -1,3 +1,5 @@
+import { Token } from '@token/token';
+import { useTokenValue } from '@token/useTokenValue';
 import { BigIntlike } from 'lib';
 import { FIAT_DECIMALS } from '~/util/token/fiat';
 import { FormattedNumberOptions, useFormattedNumber } from '../format/FormattedNumber';
@@ -6,13 +8,17 @@ const currency = 'USD';
 
 const withoutSymbol = (value: string, currency: string) => value.replace(currency, '').trim();
 
-export interface FormattedFiatOptions extends Partial<FormattedNumberOptions> {
-  value: BigIntlike;
+export interface FormattedFiatOptions extends Partial<Omit<FormattedNumberOptions, 'value'>> {
+  value: BigIntlike | { token: Token; amount: bigint };
   symbol?: boolean;
 }
 
-export const useFormattedFiat = ({ value, symbol = true, ...options }: FormattedFiatOptions) =>
-  useFormattedNumber({
+export const useFormattedFiat = ({ value: v, symbol = true, ...options }: FormattedFiatOptions) => {
+  const params: Parameters<typeof useTokenValue> =
+    typeof v === 'object' && 'token' in v ? [v.token, v.amount] : [undefined, undefined];
+  const value = useTokenValue(...params);
+
+  return useFormattedNumber({
     value,
     decimals: FIAT_DECIMALS,
     minimumFractionDigits: 0,
@@ -26,6 +32,7 @@ export const useFormattedFiat = ({ value, symbol = true, ...options }: Formatted
     }),
     ...options,
   });
+};
 
 export interface FormattedFiatProps extends FormattedFiatOptions {}
 
