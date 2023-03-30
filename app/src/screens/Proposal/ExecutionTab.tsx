@@ -1,102 +1,146 @@
 import { ProposalId, useProposal } from '@api/proposal';
 import { useGasPrice } from '@network/useGasPrice';
-import { CheckIcon, ClockOutlineIcon, GasOutlineIcon } from '@theme/icons';
+import { CheckIcon, ClockOutlineIcon, CloseIcon, GasOutlineIcon } from '@theme/icons';
 import { ETH } from '@token/tokens';
-import { useTokenValue } from '@token/useTokenValue';
-import _ from 'lodash';
-import { ReactNode } from 'react';
-import { StyleSheet, View } from 'react-native';
-import { ScrollView } from 'react-native';
-import { Text } from 'react-native-paper';
+import { useMaybeToken } from '@token/useToken';
+import { StyleSheet, ScrollView } from 'react-native';
+import { ActivityIndicator } from 'react-native-paper';
+import { match } from 'ts-pattern';
 import { FiatValue } from '~/components/fiat/FiatValue';
 import { FormattedNumber } from '~/components/format/FormattedNumber';
 import { Timestamp } from '~/components/format/Timestamp';
-import { ListItem, ListItemTextProps } from '~/components/list/ListItem';
+import { ListItem, ListItemProps } from '~/components/list/ListItem';
+import { withSuspense } from '~/components/skeleton/withSuspense';
+import { TabScreenSkeleton } from '~/components/tab/TabScreenSkeleton';
+import { TokenAmount } from '~/components/token/TokenAmount';
 import { TokenIcon } from '~/components/token/TokenIcon/TokenIcon';
-import { useFeeToken } from '~/components/token/useFeeToken';
 import { clog } from '~/util/format';
 import { TabNavigatorScreenProp } from './Tabs';
 
-export interface ExecutionTabParams {
+const Item = (props: ListItemProps) => (
+  <ListItem
+    {...props}
+    trailing={
+      props.trailing ? ({ Text }) => <Text variant="bodyMedium">{props.trailing}</Text> : undefined
+    }
+  />
+);
+
+export interface TransactionTabParams {
   proposal: ProposalId;
 }
 
-export type ExecutionTabProps = TabNavigatorScreenProp<'Execution'>;
+export type TransactionTabProps = TabNavigatorScreenProp<'Transaction'>;
 
-export const ExecutionTab = ({ route }: ExecutionTabProps) => {
+export const TransactionTab = withSuspense(({ route }: TransactionTabProps) => {
   const proposal = useProposal(route.params.proposal);
   const tx = proposal.transaction;
   const resp = tx?.response;
 
-  const feeToken = useFeeToken();
-  const gasPrice = useGasPrice();
-  const maxFeeValue = useTokenValue(feeToken, gasPrice * (tx?.gasLimit ?? 0n));
-  // TODO: use actual fee token
-  const actualFeeValue = useTokenValue(ETH, resp ? resp.gasUsed * resp.effectiveGasPrice : 0n);
+  const feeToken = useMaybeToken(proposal.feeToken) ?? ETH;
+  const currentGasPrice = useGasPrice(feeToken);
+  const gasPrice = resp?.effectiveGasPrice ?? tx?.gasPrice;
+  const gasLimit = tx?.gasLimit ?? proposal.gasLimit;
 
   clog(proposal);
 
-  if (!tx)
-    return (
-      <View>
-        <Text variant="bodyLarge" style={styles.unsatisfiedText}>
-          The proposal will execute once a policy is satisfied.
-        </Text>
-      </View>
-    );
-
-  const trailing =
-    (children: ReactNode) =>
-    ({ Text }: ListItemTextProps) =>
-      <Text style={styles.trailing}>{children}</Text>;
-
   return (
     <ScrollView contentContainerStyle={styles.container}>
-      <ListItem
-        leading={CheckIcon}
-        headline="Status"
-        trailing={trailing(_.upperFirst(tx.status))}
-      />
-      <ListItem
-        leading={ClockOutlineIcon}
-        headline="Submitted"
-        trailing={trailing(<Timestamp timestamp={tx.timestamp} />)}
-      />
-      {resp && (
-        <ListItem
+      {match(tx)
+        .with(undefined, () => (
+          <Item
+            leading={ClockOutlineIcon}
+            headline="Status"
+            trailing={'Awaiting for policy to be satisfied'}
+          />
+        ))
+        .with({ status: 'pending' }, () => (
+          <Item
+            leading={({ size }) => <ActivityIndicator size={size} />}
+            headline="Status"
+            trailing={'Executing'}
+          />
+        ))
+        .with({ status: 'success' }, () => (
+          <Item leading={CheckIcon} headline="Status" trailing={'Success'} />
+        ))
+        .with({ status: 'failure' }, () => (
+          <Item leading={CloseIcon} headline="Status" trailing={'Failed'} />
+        ))
+        .exhaustive()}
+
+      {tx && (
+        <Item
           leading={ClockOutlineIcon}
-          headline="Executed"
-          trailing={trailing(<Timestamp timestamp={resp.timestamp} />)}
+          headline="Submitted"
+          trailing={<Timestamp timestamp={tx.timestamp} />}
         />
       )}
-      <ListItem
-        leading={GasOutlineIcon}
-        headline="Gas limit"
-        trailing={trailing(<FormattedNumber value={tx.gasLimit} />)}
-      />
-      {resp ? (
-        <ListItem
-          leading={(props) => <TokenIcon token={feeToken} {...props} />}
-          headline="Network fee"
-          trailing={trailing(<FiatValue value={actualFeeValue} />)}
+
+      {resp && (
+        <Item
+          leading={ClockOutlineIcon}
+          headline="Executed"
+          trailing={<Timestamp timestamp={resp.timestamp} />}
+        />
+      )}
+
+      {gasLimit ? (
+        <Item
+          leading={GasOutlineIcon}
+          headline="Gas limit"
+          trailing={<FormattedNumber value={gasLimit} />}
         />
       ) : (
-        <ListItem
+        <Item
+          leading={GasOutlineIcon}
+          headline="Gas limit (estimated)"
+          trailing={<FormattedNumber value={proposal.estimatedOpGas} />}
+        />
+      )}
+
+      {gasPrice ? (
+        <Item
+          leading={GasOutlineIcon}
+          headline="Gas price"
+          trailing={<TokenAmount token={feeToken} amount={gasPrice} />}
+        />
+      ) : (
+        <Item
+          leading={GasOutlineIcon}
+          headline="Gas price (current)"
+          trailing={<TokenAmount token={feeToken} amount={currentGasPrice} />}
+        />
+      )}
+
+      {resp ? (
+        <Item
           leading={(props) => <TokenIcon token={feeToken} {...props} />}
-          headline="Estimated network fee"
-          trailing={trailing(<FiatValue value={maxFeeValue} />)}
+          headline="Network fee"
+          trailing={
+            <FiatValue value={{ token: feeToken, amount: resp.gasUsed * resp.effectiveGasPrice }} />
+          }
+        />
+      ) : (
+        <Item
+          leading={(props) => <TokenIcon token={feeToken} {...props} />}
+          headline="Network fee (estimated)"
+          trailing={
+            <FiatValue
+              value={{
+                token: feeToken,
+                amount: currentGasPrice * (gasLimit ?? proposal.estimatedOpGas), // TODO: factor in number of approvers when using estimatedOpGas
+              }}
+            />
+          }
         />
       )}
     </ScrollView>
   );
-};
+}, TabScreenSkeleton);
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
   },
-  unsatisfiedText: {
-    textAlign: 'center',
-  },
-  trailing: {},
 });

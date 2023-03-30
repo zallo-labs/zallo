@@ -95,6 +95,12 @@ export const CheckmarkDoneCircleIcon = materialIcon('done-all');
 export const DescriptionIcon = materialIcon('description');
 export const NameIcon = materialIcon('text-fields');
 export const NetworkIcon = materialIcon('location-pin');
+export const PolicySatisfiedIcon = materialCommunityIcon('shield-check-outline');
+export const PolicyActiveIcon = materialCommunityIcon('shield');
+export const PolicyDraftIcon = materialCommunityIcon('shield-outline');
+export const PolicyActiveWithDraftIcon = materialCommunityIcon('shield-half-full');
+export const ClockOutlineIcon = materialCommunityIcon('clock-outline');
+export const GasOutlineIcon = materialCommunityIcon('gas-station-outline');
 
 export const svgIcon =
   (Svg: FC<SvgProps>): FC<IconProps> =>
