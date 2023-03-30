@@ -1,7 +1,7 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { AtomEffect, DefaultValue } from 'recoil';
 import * as SecureStore from 'expo-secure-store';
-import { bigIntReviever } from 'lib';
+import BigIntJSON from '../BigIntJSON';
 
 export const DEFAULT_VERSION = 0;
 
@@ -36,8 +36,8 @@ export interface PersistAtomOptions<T> {
 
 export const persistAtom =
   <T>({
-    save = JSON.stringify,
-    load = (text) => JSON.parse(text, bigIntReviever),
+    save = BigIntJSON.stringify,
+    load = BigIntJSON.parse,
     storage = AsyncStorage,
     saveIf,
     version = DEFAULT_VERSION,
