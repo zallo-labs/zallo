@@ -6,13 +6,15 @@ import { FIAT_DECIMALS } from './fiat';
 import { Token } from './token';
 import { tokenAtom } from './useToken';
 
-type TokenValueParam = [token: Address, amount: string];
+type TokenValueParam = [token: Address | undefined, amount: string | undefined];
 
 export const tokenValueSelector = selectorFamily<number, TokenValueParam>({
   key: 'tokenValue',
   get:
     ([token, amount]) =>
     ({ get }) => {
+      if (!token || !amount) return 0;
+
       const { decimals } = get(tokenAtom(token));
       const price = get(tokenPriceDataAtom(token));
 
@@ -20,8 +22,8 @@ export const tokenValueSelector = selectorFamily<number, TokenValueParam>({
     },
 });
 
-export const useTokenValue = (token: Token, amount = 0n) =>
-  useRecoilValue(tokenValueSelector([token.addr, amount.toString()]));
+export const useTokenValue = (token: Token | undefined, amount: bigint | undefined) =>
+  useRecoilValue(tokenValueSelector([token?.addr, amount?.toString()]));
 
 const tokenValuesSelector = selectorFamily<number[], TokenValueParam[]>({
   key: 'tokenValues',
