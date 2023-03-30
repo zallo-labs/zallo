@@ -1,11 +1,13 @@
 const PATTERN = /^BigInt::([0-9]+)$/;
 const toString = (value: bigint) => `BigInt::${value.toString()}`;
 
-const stringify = (
+const stringify: typeof JSON.stringify = (
   value: any,
-  replacer?: (this: any, key: string, value: any) => any,
+  replacer?: ((this: any, key: string, value: any) => any) | (number | string)[] | null,
   space?: string | number,
 ): string => {
+  if (Array.isArray(replacer)) throw new Error("Array replacer support isn't implemented");
+
   const wrappedReplacer = (key: string, value: any) => {
     if (typeof value === 'bigint') value = toString(value);
 
@@ -14,7 +16,10 @@ const stringify = (
   return JSON.stringify(value, wrappedReplacer, space);
 };
 
-const parse = (text: string, reviver?: (this: any, key: string, value: any) => any): any => {
+const parse: typeof JSON.parse = (
+  text: string,
+  reviver?: (this: any, key: string, value: any) => any,
+): any => {
   const wrappedReviver = (key: string, value: any) => {
     if (typeof value === 'string') {
       const matches = value.match(PATTERN);

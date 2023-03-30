@@ -6,6 +6,7 @@ import { Box } from '~/components/layout/Box';
 import { makeStyles } from '@theme/makeStyles';
 import { Fab } from '~/components/buttons/Fab';
 import { RefreshIcon } from '@theme/icons';
+import BigIntJSON from '../BigIntJSON';
 
 interface FallbackProps {
   resetError(): void;
@@ -44,7 +45,7 @@ export const ErrorBoundary = ({ children }: ErrorBoundaryProps) => (
   <Sentry.ErrorBoundary
     fallback={Fallback}
     onError={(error) => {
-      console.error(JSON.stringify(error, null, 2));
+      console.error(BigIntJSON.stringify(error, null, 2));
     }}
   >
     {children}

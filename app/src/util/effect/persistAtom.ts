@@ -49,7 +49,7 @@ export const persistAtom =
       storage.getItem(key).then((wrapped) => {
         if (wrapped === null) return new DefaultValue();
 
-        const { data, version: dataVersion }: Wrapped = JSON.parse(wrapped);
+        const { data, version: dataVersion }: Wrapped = BigIntJSON.parse(wrapped);
         if (dataVersion !== version)
           return migrate ? migrate(load(data), dataVersion) : new DefaultValue();
 
@@ -62,7 +62,7 @@ export const persistAtom =
       if (!saveIf || saveIf(newValue, isReset)) {
         const wrapped: Wrapped = { data: save(newValue) ?? null, version };
 
-        storage.setItem(key, JSON.stringify(wrapped));
+        storage.setItem(key, BigIntJSON.stringify(wrapped));
       } else {
         storage.removeItem(key);
       }

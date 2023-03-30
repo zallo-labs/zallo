@@ -15,6 +15,7 @@ import { LogLevel } from '@ethersproject/logger';
 import { SeverityLevel } from '@sentry/browser';
 import { CHAINS, getChain } from 'lib';
 import _ from 'lodash';
+import BigIntJSON from '../BigIntJSON';
 
 // Ethers uses long timers; these tasks WON'T be executed when the app is in the background but will resume once re-opened
 if (Platform.OS !== 'web') LogBox.ignoreLogs(['Setting a timer']);
@@ -46,7 +47,7 @@ logger._log = (level: LogLevel, args: unknown[]) => {
   if (level !== LogLevel.OFF)
     captureEvent({
       level: ethersLevelToSentrySeverity(level),
-      message: JSON.stringify(args, null, 2),
+      message: BigIntJSON.stringify(args, null, 2),
     });
 
   return ogLog(level, args);

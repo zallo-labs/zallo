@@ -1,5 +1,6 @@
 import { ethers } from 'ethers';
 import { AccountIdlike } from '@api/account';
+import BigIntJSON from '~/util/BigIntJSON';
 
 export type SigningRequest = EthSignRequest | PersonalSignRequest | SignTypedDataRequest;
 
@@ -44,7 +45,7 @@ export interface Eip712TypedDomainData<M = Record<string, unknown>, Type extends
 }
 
 export const toTypedData = (typedDataJson: string): Eip712TypedDomainData => {
-  const typedData = JSON.parse(typedDataJson) as Eip712TypedDomainData;
+  const typedData = BigIntJSON.parse(typedDataJson) as Eip712TypedDomainData;
 
   // EIP712Domain is sent according to the RPC spec, but must not be passed into ethers
   // https://github.com/ethers-io/ethers.js/issues/687#issuecomment-714069471
