@@ -81,6 +81,8 @@ export const useApprove = () => {
                         __typename: 'TransactionResponse',
                         success: p.transaction.response.success,
                         response: p.transaction.response.response,
+                        gasUsed: p.transaction.response.gasUsed.toString(),
+                        effectiveGasPrice: p.transaction.response.effectiveGasPrice.toString(),
                         timestamp: p.transaction.response.timestamp.toISO(),
                       }
                     : null,

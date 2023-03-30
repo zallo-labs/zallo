@@ -10,6 +10,9 @@ export const asProposalId = (id: string) => asHex(id) as ProposalId;
 export interface Proposal extends Tx {
   id: ProposalId;
   account: AccountId;
+  gasLimit?: bigint;
+  estimatedOpGas: bigint;
+  feeToken?: Address;
   state: ProposalState;
   approvals: KeySet<Address, Approval>;
   rejections: KeySet<Address, Rejection>;
@@ -118,11 +121,14 @@ export const toProposal = (p: ProposalFieldsFragment): Proposal => {
   return {
     id: asProposalId(p.id),
     account,
-    state,
     to: asAddress(p.to),
     value: p.value ? BigInt(p.value) : undefined,
     data: asHex(p.data ?? undefined),
     nonce: BigInt(p.nonce),
+    gasLimit: p.gasLimit ? BigInt(p.gasLimit) : undefined,
+    estimatedOpGas: BigInt(p.estimatedOpGas),
+    feeToken: p.feeToken ? asAddress(p.feeToken) : undefined,
+    state,
     approvals,
     rejections,
     satisfiablePolicies,

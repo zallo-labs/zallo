@@ -50,6 +50,7 @@ describe(PoliciesService.name, () => {
           proposer: connectOrCreateUser(user1.id),
           to: account,
           nonce: 0,
+          estimatedOpGas: 0,
         },
       }),
     );

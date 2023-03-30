@@ -42,6 +42,8 @@ gql`
     data
     nonce
     gasLimit
+    estimatedOpGas
+    feeToken
     createdAt
     approvals {
       ...ApprovalFields

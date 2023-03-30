@@ -124,6 +124,8 @@ model Proposal {
   data       String? // bytes
   nonce      BigInt // uint256
   gasLimit   BigInt? // uint256
+  estimatedOpGas BigInt // uint256
+  feeToken   String?  @db.Char(42) // address
   createdAt  DateTime @default(now())
 
   approvals    Approval[]

@@ -84,6 +84,9 @@ export class ProposeArgs {
   @Uint256Field({ nullable: true })
   gasLimit?: bigint;
 
+  @AddressField({ nullable: true })
+  feeToken?: Address;
+
   @Field(() => BytesScalar, { nullable: true, description: 'Approve the proposal' })
   signature?: Hex;
 }

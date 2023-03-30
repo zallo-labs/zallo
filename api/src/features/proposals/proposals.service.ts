@@ -12,6 +12,7 @@ import {
   asPolicyKey,
   PolicySatisfiability,
   ApprovalsRule,
+  estimateOpGas,
 } from 'lib';
 import { PrismaService } from '../util/prisma/prisma.service';
 import { ProviderService } from '~/features/util/provider/provider.service';
@@ -46,6 +47,7 @@ const PROPOSAL_IS_PENDING: Prisma.ProposalWhereInput = {
 export interface ProposeParams extends O.Optional<Tx, 'nonce'> {
   account: Address;
   signature?: string;
+  feeToken?: Address;
 }
 
 @Injectable()
@@ -94,7 +96,7 @@ export class ProposalsService {
   }
 
   async propose<T extends Prisma.ProposalArgs>(
-    { account, signature, ...txOptions }: ProposeParams,
+    { account, signature, feeToken, ...txOptions }: ProposeParams,
     res?: Prisma.SelectSubset<T, Prisma.ProposalArgs>,
     prisma?: Prisma.TransactionClient,
   ) {
@@ -114,6 +116,8 @@ export class ProposalsService {
           data: tx.data ? hexlify(tx.data) : undefined,
           nonce: tx.nonce,
           gasLimit: tx.gasLimit,
+          estimatedOpGas: await estimateOpGas(this.provider, tx),
+          feeToken,
         },
         ...(signature ? { select: { id: true } } : res),
       });
