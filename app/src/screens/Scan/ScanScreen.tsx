@@ -76,7 +76,13 @@ export const ScanScreen = withSuspense(
         </Text>
 
         <Actions>
-          <Button mode="contained" onPress={Linking.openSettings}>
+          <Button
+            mode="contained"
+            onPress={async () => {
+              await Linking.openSettings();
+              requestPermission();
+            }}
+          >
             Open app settings
           </Button>
         </Actions>
