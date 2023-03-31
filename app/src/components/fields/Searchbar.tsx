@@ -1,10 +1,10 @@
 import { IconProps } from '@theme/icons';
 import { makeStyles } from '@theme/makeStyles';
 import { toArray } from 'lib';
-import React from 'react';
 import { FC } from 'react';
 import { View } from 'react-native';
 import { Surface } from 'react-native-paper';
+import { EdgeInsets, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Box } from '../layout/Box';
 import { Container } from '../layout/Container';
 import { BasicTextField, BasicTextFieldProps } from './BasicTextField';
@@ -13,10 +13,17 @@ export interface SearchbarProps extends BasicTextFieldProps {
   leading?: FC<IconProps>;
   trailing?: FC<IconProps> | FC<IconProps>[];
   placeholder: string;
+  inset?: boolean;
 }
 
-export const Searchbar = ({ leading: Leading, trailing, ...inputProps }: SearchbarProps) => {
-  const styles = useStyles();
+export const Searchbar = ({
+  leading: Leading,
+  trailing,
+  inset = true,
+  ...inputProps
+}: SearchbarProps) => {
+  const insets = useSafeAreaInsets();
+  const styles = useStyles(inset ? insets : undefined);
 
   return (
     <Surface elevation={3} style={styles.container}>
@@ -41,7 +48,7 @@ export const Searchbar = ({ leading: Leading, trailing, ...inputProps }: Searchb
   );
 };
 
-const useStyles = makeStyles(({ colors, corner, fonts }) => ({
+const useStyles = makeStyles(({ colors, corner, fonts }, insets?: EdgeInsets) => ({
   container: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -51,7 +58,8 @@ const useStyles = makeStyles(({ colors, corner, fonts }) => ({
     borderRadius: corner.full,
     paddingHorizontal: 16,
     marginHorizontal: 16,
-    marginVertical: 8,
+    marginTop: 16 + (insets?.top ?? 0),
+    marginBottom: 8,
   },
   leadingContainer: {
     paddingRight: 16,

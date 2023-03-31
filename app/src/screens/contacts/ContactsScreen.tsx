@@ -45,11 +45,12 @@ export const ContactsScreen = withSuspense(
     );
 
     return (
-      <Screen isModal={route.name === 'ContactsModal'}>
+      <Screen withoutTopInset>
         <Searchbar
           leading={AppbarBack2}
           placeholder="Search contacts"
           trailing={[SearchIcon, (props) => <ScanIcon {...props} onPress={scan} />]}
+          inset={route.name === 'Contacts'}
           {...searchProps}
         />
 

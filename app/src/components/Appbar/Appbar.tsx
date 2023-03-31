@@ -15,6 +15,7 @@ export interface AppbarProps extends Pick<StyleOptions, 'mode' | 'center'> {
   headline: ReactNode;
   supporting?: ReactNode;
   elevated?: boolean;
+  inset?: boolean;
 }
 
 export const Appbar = ({
@@ -25,8 +26,10 @@ export const Appbar = ({
   supporting: Supporting,
   center,
   elevated,
+  inset = true,
 }: AppbarProps) => {
-  const styles = useStyles({ mode, center, insets: useSafeAreaInsets() });
+  const insets = useSafeAreaInsets();
+  const styles = useStyles({ mode, center, insets: inset ? insets : undefined });
 
   const Leading = leading === 'back' ? AppbarBack2 : leading === 'close' ? AppbarClose : leading;
 
@@ -62,7 +65,7 @@ export const Appbar = ({
 interface StyleOptions {
   mode: 'medium' | 'large';
   center?: boolean;
-  insets: EdgeInsets;
+  insets?: EdgeInsets;
 }
 
 const useStyles = makeStyles(({ colors, fonts }, { mode, center, insets }: StyleOptions) => ({
@@ -70,12 +73,12 @@ const useStyles = makeStyles(({ colors, fonts }, { mode, center, insets }: Style
     display: 'flex',
     justifyContent: 'space-between',
     height:
-      insets.top +
+      (insets?.top ?? 0) +
       match(mode)
         .with('medium', () => 112)
         .with('large', () => 154)
         .exhaustive(),
-    paddingTop: 20 + insets.top,
+    paddingTop: 20 + (insets?.top ?? 0),
     paddingBottom: match(mode)
       .with('medium', () => 24)
       .with('large', () => 28)

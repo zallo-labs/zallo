@@ -29,11 +29,12 @@ export const TokensScreen = ({ route }: TokensScreenProps) => {
   const [tokens, searchProps] = useSearch(useTokens(), ['name', 'symbol', 'addr']);
 
   return (
-    <Screen withoutTopInset isModal={route.name === 'TokensModal'}>
+    <Screen withoutTopInset>
       <Searchbar
         leading={AppbarBack2}
         placeholder="Search tokens"
         trailing={SearchIcon}
+        inset={route.name === 'Tokens'}
         {...searchProps}
       />
 

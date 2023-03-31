@@ -17,14 +17,12 @@ export const Screen = ({ children, style, ...styleParams }: ScreenProps) => {
 interface Style {
   insets: EdgeInsets;
   withoutTopInset?: boolean;
-  isModal?: boolean;
 }
 
-const useStyles = makeStyles((_theme, { insets, withoutTopInset, isModal }: Style) => ({
+const useStyles = makeStyles((_theme, { insets, withoutTopInset }: Style) => ({
   container: {
     flex: 1,
     ...(!withoutTopInset && { paddingTop: insets.top }),
-    ...(isModal && { paddingTop: 16 }),
     paddingBottom: insets.bottom,
     paddingLeft: insets.left,
     paddingRight: insets.right,
