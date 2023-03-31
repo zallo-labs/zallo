@@ -1,24 +1,20 @@
-import { makeStyles } from '@theme/makeStyles';
 import { ComponentPropsWithoutRef } from 'react';
-import { Keyboard, ViewStyle } from 'react-native';
-import { FAB as Base } from 'react-native-paper';
+import { StyleSheet, View } from 'react-native';
+import { Keyboard } from 'react-native';
+import { FAB as PaperFAB } from 'react-native-paper';
 import { IconSource } from 'react-native-paper/lib/typescript/src/components/Icon';
-import { Box } from '../layout/Box';
 
-type BaseProps = ComponentPropsWithoutRef<typeof Base>;
+type BaseProps = ComponentPropsWithoutRef<typeof PaperFAB>;
 
 export type FabProps = Omit<BaseProps, 'icon'> &
   Partial<Pick<BaseProps, 'icon'>> & {
     appbar?: boolean;
-    align?: ViewStyle['alignItems'];
   };
 
-export const Fab = ({ appbar, align, onPress, style, ...props }: FabProps) => {
-  const styles = useStyles(align);
-
+export const Fab = ({ appbar, onPress, style, ...props }: FabProps) => {
   return (
-    <Box style={[styles.container, style]}>
-      <Base
+    <View style={[styles.container, style]}>
+      <PaperFAB
         icon={undefined as unknown as IconSource} // https://github.com/callstack/react-native-paper/issues/3594
         size={appbar ? 'small' : 'medium'}
         mode={appbar ? 'flat' : 'elevated'}
@@ -30,17 +26,16 @@ export const Fab = ({ appbar, align, onPress, style, ...props }: FabProps) => {
           },
         })}
       />
-    </Box>
+    </View>
   );
 };
 
-const useStyles = makeStyles((_, align?: ViewStyle['alignItems']) => ({
+const styles = StyleSheet.create({
   container: {
     position: 'absolute',
-    left: 0,
-    right: 0,
     bottom: 0,
-    alignItems: align ?? 'flex-end',
+    right: 0,
+    alignItems: 'flex-end',
     margin: 16,
   },
-}));
+});
