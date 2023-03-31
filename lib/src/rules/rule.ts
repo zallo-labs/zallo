@@ -1,5 +1,6 @@
 import { BytesLike, SignatureLike } from '@ethersproject/bytes';
 import { providers } from 'ethers';
+import { Address } from '../address';
 import { RuleStruct as BaseRuleStruct } from '../contracts/Account';
 import { Tx } from '../tx';
 import { AwaitedObj, MaybePromise } from '../util/types';
@@ -20,6 +21,7 @@ export interface SignatureRuleIsSatisfiedOptions {
 export abstract class SignatureRule {
   abstract get struct(): RuleStruct;
   abstract isSatisfied(opts: SignatureRuleIsSatisfiedOptions): MaybePromise<boolean>;
+  abstract get approvers(): Set<Address>;
 }
 
 export const isSignatureRule = (v: unknown): v is SignatureRule => v instanceof SignatureRule;

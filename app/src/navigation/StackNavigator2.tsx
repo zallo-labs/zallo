@@ -24,6 +24,7 @@ import { SessionsScreen } from '~/screens/sessions/SessionsScreen';
 import { SettingsScreen } from '~/screens/Settings/SettingsScreen';
 import { TokensScreen, TokensScreenParams } from '~/screens/tokens/TokensScreen';
 import { UserScreen } from '~/screens/User/UserScreen';
+import { PolicyScreen, PolicyScreenParams } from '~/screens/Policy/PolicyScreen2';
 
 export type StackNavigatorParamList = {
   Home: undefined;
@@ -36,6 +37,7 @@ export type StackNavigatorParamList = {
   Settings: undefined;
   User: undefined;
   Account: AccountScreen2Params;
+  Policy: PolicyScreenParams;
   Sessions: undefined;
   Tokens: TokensScreenParams;
   // Onboarding
@@ -84,6 +86,7 @@ export const StackNavigator = () => {
       <Navigation.Screen name="Settings" component={SettingsScreen} />
       <Navigation.Screen name="User" component={UserScreen} />
       <Navigation.Screen name="Account" component={AccountScreen2} />
+      <Navigation.Screen name="Policy" component={PolicyScreen} />
       <Navigation.Screen name="Sessions" component={SessionsScreen} />
       <Navigation.Screen name="Tokens" component={TokensScreen} />
 

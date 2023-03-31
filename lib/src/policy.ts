@@ -99,4 +99,8 @@ export class Policy {
       .with({ txRules: true }, () => PolicySatisfiability.Satisfiable)
       .otherwise(() => PolicySatisfiability.Unsatisifable);
   }
+
+  get approvers() {
+    return new Set(this.signatureRules.flatMap((v) => [...v.approvers]));
+  }
 }
