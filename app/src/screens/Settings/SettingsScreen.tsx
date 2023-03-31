@@ -30,6 +30,7 @@ export const SettingsScreen = ({ navigation: { navigate } }: SettingsScreenProps
           leading={account}
           headline="Account"
           supporting={`Manage ${useAddressLabel(account)}`}
+          onPress={() => navigate('Account', { account })}
         />
 
         <ListItem

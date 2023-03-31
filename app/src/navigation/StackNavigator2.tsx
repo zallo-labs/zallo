@@ -4,6 +4,7 @@ import {
   StackScreenProps,
   TransitionPresets,
 } from '@react-navigation/stack';
+import { AccountScreen2, AccountScreen2Params } from '~/screens/Account/AccountScreen2';
 import { AccountsSheet } from '~/screens/AccountsSheet/AccountsSheet';
 import { AddressSheet, AddressSheetScreenParams } from '~/screens/AddressSheet/AddressSheet';
 import { AlertModal, AlertModalParams } from '~/screens/alert/AlertModal';
@@ -16,6 +17,7 @@ import { OnboardScreen } from '~/screens/Onboard/OnboardScreen';
 import { useShowOnboarding } from '~/screens/Onboard/useShowOnboarding';
 import { ProposalScreen, ProposalScreenParams } from '~/screens/Proposal/ProposalScreen2';
 import { QrModal, QrModalParams } from '~/screens/QrModal/QrModal';
+import { RenameAccountModal, RenameAccountModalParams } from '~/screens/Account/RenameAccountModal';
 import { ScanScreen, ScanScreenParams } from '~/screens/Scan/ScanScreen';
 import { SendScreen, SendScreenParams } from '~/screens/Send/SendScreen2';
 import { SessionsScreen } from '~/screens/sessions/SessionsScreen';
@@ -33,6 +35,7 @@ export type StackNavigatorParamList = {
   Contact: ContactScreenParams;
   Settings: undefined;
   User: undefined;
+  Account: AccountScreen2Params;
   Sessions: undefined;
   Tokens: TokensScreenParams;
   // Onboarding
@@ -45,6 +48,7 @@ export type StackNavigatorParamList = {
   QrModal: QrModalParams;
   Alert: AlertModalParams;
   // Card modal
+  RenameAccountModal: RenameAccountModalParams;
   ContactsModal: ContactsScreenParams;
   TokensModal: TokensScreenParams;
 };
@@ -79,6 +83,7 @@ export const StackNavigator = () => {
       <Navigation.Screen name="Contact" component={ContactScreen} />
       <Navigation.Screen name="Settings" component={SettingsScreen} />
       <Navigation.Screen name="User" component={UserScreen} />
+      <Navigation.Screen name="Account" component={AccountScreen2} />
       <Navigation.Screen name="Sessions" component={SessionsScreen} />
       <Navigation.Screen name="Tokens" component={TokensScreen} />
 
@@ -96,6 +101,7 @@ export const StackNavigator = () => {
           ...TransitionPresets.ModalPresentationIOS,
         }}
       >
+        <Navigation.Screen name="RenameAccountModal" component={RenameAccountModal} />
         <Navigation.Screen name="ContactsModal" component={ContactsScreen} />
         <Navigation.Screen name="TokensModal" component={TokensScreen} />
       </Navigation.Group>
