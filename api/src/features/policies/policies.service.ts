@@ -296,6 +296,7 @@ export class PoliciesService implements OnModuleInit {
         },
         data: {
           activeId: rules.id,
+          draftId: null,
         },
       }),
     );

@@ -73,7 +73,7 @@ export class AccountsService {
         policies: {
           update: rules.map((r) => ({
             where: { accountId_key: { accountId: accountAddr, key: r.policyKey } },
-            data: { activeId: r.id },
+            data: { activeId: r.id, draftId: null },
           })),
         },
       },
