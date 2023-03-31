@@ -11,14 +11,18 @@ import { BlurView, BlurViewProps } from '@react-native-community/blur';
 import { AddressLabel } from '~/components/address/AddressLabel';
 import { buildAddressLink } from '~/util/addressLink';
 import { withSuspense } from '~/components/skeleton/withSuspense';
+import { StatusBar } from 'expo-status-bar';
 
 const Blur = (props: Partial<BlurViewProps>) => (
-  <BlurView
-    blurAmount={16}
-    blurType={useTheme().dark ? 'light' : 'dark'}
-    style={StyleSheet.absoluteFill}
-    {...props}
-  />
+  <>
+    <StatusBar style="light" />
+    <BlurView
+      blurAmount={16}
+      blurType={useTheme().dark ? 'light' : 'dark'}
+      style={StyleSheet.absoluteFill}
+      {...props}
+    />
+  </>
 );
 
 export interface QrModalParams {
