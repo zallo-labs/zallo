@@ -7,9 +7,10 @@ import { Surface, Text } from 'react-native-paper';
 import { EdgeInsets, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { match } from 'ts-pattern';
 import { AppbarBack2 } from './AppbarBack';
+import { AppbarClose } from './AppbarClose';
 
 export interface AppbarProps extends Pick<StyleOptions, 'mode' | 'center'> {
-  leading: FC<IconProps> | 'back';
+  leading: FC<IconProps> | 'back' | 'close';
   trailing?: Arraylike<FC<IconProps>>;
   headline: ReactNode;
   supporting?: ReactNode;
@@ -27,14 +28,12 @@ export const Appbar = ({
 }: AppbarProps) => {
   const styles = useStyles({ mode, center, insets: useSafeAreaInsets() });
 
-  const Leading = leading === 'back' ? AppbarBack2 : leading;
+  const Leading = leading === 'back' ? AppbarBack2 : leading === 'close' ? AppbarClose : leading;
 
   return (
     <Surface elevation={elevated ? 2 : 0} style={styles.root}>
       <View style={styles.headerContainer}>
-        <View style={styles.leadingIconContainer}>
-          <Leading size={styles.leadingIcon.fontSize} color={styles.leadingIcon.color} />
-        </View>
+        <Leading size={styles.leadingIcon.fontSize} color={styles.leadingIcon.color} />
 
         <View style={styles.trailingContainer}>
           {toArray(trailing ?? []).map((Trailing, index) => (
@@ -85,10 +84,8 @@ const useStyles = makeStyles(({ colors, fonts }, { mode, center, insets }: Style
   },
   headerContainer: {
     flexDirection: 'row',
+    justifyContent: 'space-between',
     alignItems: 'center',
-  },
-  leadingIconContainer: {
-    flex: 1,
   },
   leadingIcon: {
     color: colors.onSurface,
