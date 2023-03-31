@@ -18,7 +18,13 @@ export interface AppbarBack2Props extends IconProps {
 }
 
 export const AppbarBack2 = ({ onPress, ...props }: AppbarBack2Props) => {
-  const goBack = useRootNavigation().goBack;
+  const { goBack, canGoBack } = useRootNavigation();
 
-  return <BackIcon {...props} onPress={onPress ? () => onPress(goBack) : goBack} />;
+  return (
+    <BackIcon
+      {...props}
+      disabled={!canGoBack()}
+      onPress={onPress ? () => onPress(goBack) : goBack}
+    />
+  );
 };
