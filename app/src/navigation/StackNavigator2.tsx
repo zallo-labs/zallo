@@ -15,7 +15,7 @@ import { HomeScreen } from '~/screens/Home/HomeScreen';
 import { OnboardScreen } from '~/screens/Onboard/OnboardScreen';
 import { useShowOnboarding } from '~/screens/Onboard/useShowOnboarding';
 import { ProposalScreen, ProposalScreenParams } from '~/screens/Proposal/ProposalScreen2';
-import { QrModalScreen, QrModalScreenParams } from '~/screens/QrModal/QrModalScreen';
+import { QrModal, QrModalParams } from '~/screens/QrModal/QrModal';
 import { ScanScreen, ScanScreenParams } from '~/screens/Scan/ScanScreen';
 import { SendScreen, SendScreenParams } from '~/screens/Send/SendScreen2';
 import { SessionsScreen } from '~/screens/sessions/SessionsScreen';
@@ -42,7 +42,7 @@ export type StackNavigatorParamList = {
   // Transparent modal
   AccountsSheet: undefined;
   AddressSheet: AddressSheetScreenParams;
-  QrModal: QrModalScreenParams;
+  QrModal: QrModalParams;
   Alert: AlertModalParams;
   // Card modal
   ContactsModal: ContactsScreenParams;
@@ -85,7 +85,7 @@ export const StackNavigator = () => {
       <Navigation.Group screenOptions={{ presentation: 'transparentModal' }}>
         <Navigation.Screen name="AccountsSheet" component={AccountsSheet} />
         <Navigation.Screen name="AddressSheet" component={AddressSheet} />
-        <Navigation.Screen name="QrModal" component={QrModalScreen} />
+        <Navigation.Screen name="QrModal" component={QrModal} />
         <Navigation.Screen name="Alert" component={AlertModal} />
       </Navigation.Group>
 

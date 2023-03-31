@@ -7,20 +7,29 @@ import { Button, IconButton, Surface, Text, useTheme } from 'react-native-paper'
 import { CloseIcon, ShareIcon } from '@theme/icons';
 import { Actions } from '~/components/layout/Actions';
 import { StyleSheet, Share, View } from 'react-native';
-import { BlurView } from '@react-native-community/blur';
+import { BlurView, BlurViewProps } from '@react-native-community/blur';
 import { AddressLabel } from '~/components/address/AddressLabel';
 import { buildAddressLink } from '~/util/addressLink';
+import { withSuspense } from '~/components/skeleton/withSuspense';
 
-export interface QrModalScreenParams {
+const Blur = (props: Partial<BlurViewProps>) => (
+  <BlurView
+    blurAmount={16}
+    blurType={useTheme().dark ? 'light' : 'dark'}
+    style={StyleSheet.absoluteFill}
+    {...props}
+  />
+);
+
+export interface QrModalParams {
   address: Address;
 }
 
-export type QrModalScreenProps = StackNavigatorScreenProps<'QrModal'>;
+export type QrModalProps = StackNavigatorScreenProps<'QrModal'>;
 
-export const QrModalScreen = ({ route, navigation: { goBack } }: QrModalScreenProps) => {
+export const QrModal = withSuspense(({ route, navigation: { goBack } }: QrModalProps) => {
   const { address } = route.params;
   const styles = uesStyles();
-  const { dark } = useTheme();
 
   const share = () => {
     const link = buildAddressLink(address);
@@ -28,7 +37,7 @@ export const QrModalScreen = ({ route, navigation: { goBack } }: QrModalScreenPr
   };
 
   return (
-    <BlurView blurAmount={16} blurType={dark ? 'light' : 'dark'} style={StyleSheet.absoluteFill}>
+    <Blur>
       <Screen>
         <IconButton mode="contained-tonal" icon={CloseIcon} style={styles.close} onPress={goBack} />
 
@@ -56,9 +65,9 @@ export const QrModalScreen = ({ route, navigation: { goBack } }: QrModalScreenPr
           </Button>
         </Actions>
       </Screen>
-    </BlurView>
+    </Blur>
   );
-};
+}, Blur);
 
 const uesStyles = makeStyles(({ colors, window }) => ({
   close: {
