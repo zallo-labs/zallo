@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { StyleSheet } from 'react-native';
 import { Camera } from 'expo-camera';
 import { BarCodeScanner } from 'expo-barcode-scanner';
@@ -73,7 +73,7 @@ export const ScanScreen = withSuspense(
         <Overlay onData={tryHandle} />
       </Camera>
     ) : (
-      <Screen withoutTopInset>
+      <Screen>
         <Appbar.Header>
           <AppbarBack />
           <Appbar.Content title="Permission required" />

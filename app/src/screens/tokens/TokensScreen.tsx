@@ -29,7 +29,7 @@ export const TokensScreen = ({ route }: TokensScreenProps) => {
   const [tokens, searchProps] = useSearch(useTokens(), ['name', 'symbol', 'addr']);
 
   return (
-    <Screen withoutTopInset>
+    <Screen>
       <Searchbar
         leading={AppbarBack2}
         placeholder="Search tokens"

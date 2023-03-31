@@ -59,7 +59,7 @@ export const SendScreen = withSuspense(({ route }: SendScreenProps) => {
       : fiatToToken(fiatAsBigInt(inputAmount), price, token);
 
   return (
-    <Screen withoutTopInset>
+    <Screen>
       <Appbar.Header>
         <Appbar.Action icon={CloseIcon} onPress={useGoBack()} />
         <Appbar.Content title={`Send to ${useAddressLabel(to)}`} />

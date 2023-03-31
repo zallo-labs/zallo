@@ -17,7 +17,7 @@ export const HomeScreen = withSuspense((_props: HomeScreenProps) => {
   const account = useSelectedAccountId();
 
   return (
-    <Screen withoutTopInset>
+    <Screen>
       <Appbar />
 
       <Text variant="displayMedium" style={styles.totalValue}>

@@ -26,7 +26,7 @@ export const ProposalScreen = withSuspense(
     });
 
     return (
-      <Screen withoutTopInset>
+      <Screen>
         <Appbar
           mode="medium"
           leading="back"

@@ -22,7 +22,7 @@ export const SettingsScreen = ({ navigation: { navigate } }: SettingsScreenProps
   const approver = useApprover();
 
   return (
-    <Screen withoutTopInset>
+    <Screen>
       <Appbar mode="large" leading="back" headline="Settings" />
 
       <ScrollView style={styles.container}>

@@ -10,7 +10,7 @@ export type OnboardScreenProps = StackNavigatorScreenProps<'Onboard'>;
 
 export const OnboardScreen = ({ navigation: { navigate } }: OnboardScreenProps) => {
   return (
-    <Screen>
+    <Screen topInset>
       <View style={styles.header}>
         <LogoSvg style={styles.logo} />
         <Text variant="headlineSmall">Self-custodial smart wallet</Text>

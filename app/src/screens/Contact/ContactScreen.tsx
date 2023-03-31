@@ -52,7 +52,7 @@ export const ContactScreen = withSuspense(
     });
 
     return (
-      <Screen withoutTopInset>
+      <Screen>
         <Appbar
           mode="large"
           leading="back"

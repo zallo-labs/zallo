@@ -11,7 +11,7 @@ export interface ScreenSkeletonProps {
 }
 
 export const ScreenSkeleton = ({ children, mode }: ScreenSkeletonProps) => (
-  <Screen withoutTopInset>
+  <Screen>
     <Appbar.Header mode={mode}>
       <AppbarBack />
     </Appbar.Header>

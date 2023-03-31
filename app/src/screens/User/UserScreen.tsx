@@ -27,7 +27,7 @@ export const UserScreen = ({ navigation: { navigate } }: UserScreenProps) => {
   });
 
   return (
-    <Screen withoutTopInset>
+    <Screen>
       <Appbar
         mode="large"
         leading="back"

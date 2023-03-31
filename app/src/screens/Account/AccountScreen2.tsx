@@ -26,7 +26,7 @@ export const AccountScreen2 = withSuspense(
     const account = useAccount(route.params.account);
 
     return (
-      <Screen withoutTopInset>
+      <Screen>
         <Appbar
           mode="large"
           leading="back"

@@ -45,7 +45,7 @@ export const ContactsScreen = withSuspense(
     );
 
     return (
-      <Screen withoutTopInset>
+      <Screen>
         <Searchbar
           leading={AppbarBack2}
           placeholder="Search contacts"

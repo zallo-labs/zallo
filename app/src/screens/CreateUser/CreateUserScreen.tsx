@@ -34,7 +34,7 @@ export const CreateUserScreen = ({ navigation: { navigate } }: CreateUserScreenP
   });
 
   return (
-    <Screen withoutTopInset>
+    <Screen>
       <Appbar mode="large" leading="back" headline="User" />
 
       <View style={styles.fields}>

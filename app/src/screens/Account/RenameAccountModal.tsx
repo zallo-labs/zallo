@@ -29,7 +29,7 @@ export const RenameAccountModal = withSuspense(
     const { control, handleSubmit } = useForm<Inputs>({ defaultValues: { name: account.name } });
 
     return (
-      <Screen withoutTopInset>
+      <Screen>
         <Appbar mode="large" inset={false} leading="close" headline="Rename Account" />
 
         <View style={styles.fields}>
