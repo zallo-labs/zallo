@@ -5,7 +5,7 @@ import { AccountIdlike, asAccountId, WAccount } from './types';
 import { useSuspenseQuery } from '~/gql/util';
 import { AccountDocument, AccountQuery, AccountQueryVariables } from '@api/generated';
 import { asPolicyKey } from 'lib';
-import { convertPolicyFragment, REMOVAL } from '@api/policy/types';
+import { convertPolicyFragment } from '@api/policy/types';
 
 gql`
   fragment PolicyRulesFields on PolicyRules {
@@ -68,7 +68,7 @@ export const useAccount = <Id extends AccountIdlike | undefined>(AccountIdlike: 
         const key = asPolicyKey(p.key);
 
         const active = p.active?.isRemoved ? undefined : convertPolicyFragment(key, p.active);
-        const draft = p.draft?.isRemoved ? REMOVAL : convertPolicyFragment(key, p.draft);
+        const draft = p.draft?.isRemoved ? null : convertPolicyFragment(key, p.draft);
         assert(active || draft);
 
         return {

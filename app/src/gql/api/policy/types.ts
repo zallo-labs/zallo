@@ -10,20 +10,21 @@ import {
   isTruthy,
   TargetsRule,
 } from 'lib';
-import { O } from 'ts-toolbelt';
-
-export const REMOVAL = Symbol();
-export const isRemoval = (value: unknown): value is typeof REMOVAL => value === REMOVAL;
-export type Removable<T> = T | typeof REMOVAL;
 
 export type WPolicy = {
   account: AccountId;
   key: PolicyKey;
   name: string;
-} & O.AtLeast<{
-  active: Policy;
-  draft: Removable<Policy>;
-}>;
+} & (
+  | {
+      active: Policy;
+      draft?: Policy | null;
+    }
+  | {
+      active?: Policy;
+      draft: Policy;
+    }
+);
 
 export const convertPolicyFragment = (
   key: PolicyKey,
