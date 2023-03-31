@@ -79,15 +79,15 @@ export const PAPER_THEME = {
 export const ICON_SIZE = PAPER_THEME.iconSize;
 export const CORNER = PAPER_THEME.corner;
 
-export type ThemeOverride = typeof PAPER_THEME;
+export type Theme = typeof PAPER_THEME;
+type AppTheme = Theme;
 
 declare global {
   // eslint-disable-next-line @typescript-eslint/no-namespace
   namespace ReactNativePaper {
-    // type Theme = ThemeOverride;
-    interface Theme extends ThemeOverride {}
+    type Theme = AppTheme;
+    // interface Theme extends AppTheme {}
   }
 }
 
-export const useTheme = (overrides?: Partial<ThemeOverride>): ThemeOverride =>
-  baseUseTheme<ThemeOverride>(overrides);
+export const useTheme = (overrides?: Partial<Theme>): Theme => baseUseTheme<Theme>(overrides);
