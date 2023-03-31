@@ -187,7 +187,7 @@ const useStyles = makeStyles(
         color: withState(colors.tertiary),
       },
       leadingIcon: {
-        fontSize: 18,
+        fontSize: 24,
         backgroundColor: withState(colors.onSurfaceVariant),
       },
       mainContainer: {
