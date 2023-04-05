@@ -1,4 +1,4 @@
-import { executeTx, mapAsync, Account, signTx, Approval, Tx, Policy, Address } from 'lib';
+import { mapAsync, Account, signTx, Approval, Tx, Address } from 'lib';
 import { WALLETS } from './wallet';
 
 export const getApprovals = async (
@@ -7,20 +7,7 @@ export const getApprovals = async (
   tx: Tx,
 ): Promise<Approval[]> =>
   mapAsync([...approvers], async (approver) => ({
+    type: 'secp256k1',
     approver,
     signature: await signTx(WALLETS.find((w) => w.address === approver)!, account.address, tx),
   }));
-
-export const execute = async (
-  account: Account,
-  policy: Policy,
-  approvers: Set<Address>,
-  tx: Tx,
-) => {
-  return await executeTx({
-    account,
-    policy,
-    approvals: await getApprovals(account, approvers, tx),
-    tx,
-  });
-};

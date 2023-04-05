@@ -1,5 +1,11 @@
-import { Bytes, BytesLike } from 'ethers';
-import { arrayify, hexDataSlice, hexlify, isHexString as baseIsHexString } from 'ethers/lib/utils';
+import { Bytes, BytesLike, ethers } from 'ethers';
+import {
+  arrayify,
+  hexDataSlice,
+  hexlify,
+  isHexString as baseIsHexString,
+  hexDataLength,
+} from 'ethers/lib/utils';
 import { A } from 'ts-toolbelt';
 
 export type Hex = A.Type<`0x${string}`, 'Hex'>;
@@ -13,10 +19,28 @@ export const asHex = <V extends BytesLike | undefined>(v: V, len?: number) => {
 export const EMPTY_HEX_BYTES = '0x' as Hex;
 
 export type Selector = A.Type<string, 'Selector'>;
-export const asSelector = (v: BytesLike) => asHex(hexDataSlice(v, 0, 4), 4) as unknown as Selector;
+export const asSelector = <V extends BytesLike | undefined>(v: V) =>
+  (v && hexDataLength(v) >= 4 ? asHex(hexDataSlice(v, 0, 4), 4) : undefined) as V extends undefined
+    ? Selector | undefined
+    : Selector;
 
 export const byteslikeToBuffer = (b: BytesLike): Buffer => Buffer.from(arrayify(b));
 
 export const bufferToBytes = (b: Buffer): Bytes => Uint8Array.from([...b.values()]);
 
 export const zeroHexBytes = (nBytes: number) => ('0x' + '0'.repeat(nBytes * 2)) as unknown as Hex;
+
+export const compareBytes = (a: BytesLike, b: BytesLike) => {
+  const aArr = ethers.utils.arrayify(a);
+  const bArr = ethers.utils.arrayify(b);
+
+  if (aArr.length > bArr.length) return 1;
+
+  for (let i = 0; i < aArr.length; i++) {
+    const diff = aArr[i]! - bArr[i]!;
+    if (diff > 0) return 1;
+    if (diff < 0) return -1;
+  }
+
+  return 0;
+};

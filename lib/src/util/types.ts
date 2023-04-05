@@ -20,7 +20,7 @@ type TupleSplit<T, N extends number, O extends readonly any[] = readonly []> = O
   ? TupleSplit<readonly [...R], N, readonly [...O, F]>
   : [O, T];
 
-export type TakeFirst<T extends readonly unknown[], N extends number> = TupleSplit<T, N>[0];
+export type TakeFirst<T extends readonly unknown[], N extends number = 1> = TupleSplit<T, N>[0];
 
 export type SkipFirst<T extends readonly unknown[], N extends number = 1> = TupleSplit<T, N>[1];
 

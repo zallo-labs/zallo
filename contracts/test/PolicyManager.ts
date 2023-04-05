@@ -1,5 +1,12 @@
 import { expect } from 'chai';
-import { Policy, TestPolicyManager, TestPolicyManager__factory, zeroHexBytes } from 'lib';
+import {
+  POLICY_ABI,
+  TestPolicyManager,
+  TestPolicyManager__factory,
+  asPolicy,
+  hashPolicy,
+  zeroHexBytes,
+} from 'lib';
 import { deploy, gasLimit, WALLET } from './util';
 
 describe('PolicyManager', () => {
@@ -10,25 +17,26 @@ describe('PolicyManager', () => {
     manager = TestPolicyManager__factory.connect(contract.address, WALLET);
   });
 
-  const policy: Policy = new Policy(1);
+  const policy = asPolicy({ key: 1, approvers: [] });
   const addPolicy = async () =>
-    await (await manager.testAddPolicy(policy.struct, { gasLimit })).wait();
+    await (await manager.testAddPolicy(POLICY_ABI.asStruct(policy), { gasLimit })).wait();
 
   describe('addPolicy', () => {
     it('set polcy hash', async () => {
       await addPolicy();
 
-      expect(await manager.getPolicyHash(policy.key)).to.eq(policy.hash);
+      expect(await manager.getPolicyHash(policy.key)).to.eq(hashPolicy(policy));
     });
 
     it('emit event', async () => {
-      await expect(manager.testAddPolicy(policy.struct, { gasLimit }))
+      await expect(manager.testAddPolicy(POLICY_ABI.asStruct(policy), { gasLimit }))
         .to.emit(manager, manager.interface.events['PolicyAdded(uint32,bytes32)'].name)
-        .withArgs(policy.key, policy.hash);
+        .withArgs(policy.key, hashPolicy(policy));
     });
 
     it('revert if not called by account', async () => {
-      await expect((await manager.addPolicy(policy.struct, { gasLimit })).wait()).to.be.rejected; //.revertedWithCustomError(ruleManager, AccountError.OnlyCallableBySelf);
+      await expect((await manager.addPolicy(POLICY_ABI.asStruct(policy), { gasLimit })).wait()).to
+        .be.rejected; //.revertedWithCustomError(ruleManager, AccountError.OnlyCallableBySelf);
     });
   });
 

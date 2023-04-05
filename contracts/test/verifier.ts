@@ -1,9 +1,20 @@
 import '@matterlabs/hardhat-zksync-chai-matchers';
 import { expect } from 'chai';
 import { BigNumber, BytesLike } from 'ethers';
-import { Policy, Rule, TestVerifier, TestVerifier__factory, zeroHexBytes, ZERO_ADDR } from 'lib';
+import {
+  Policy,
+  TestVerifier,
+  TestVerifier__factory,
+  zeroHexBytes,
+  ZERO_ADDR,
+  asPolicyKey,
+  POLICY_ABI,
+  APPROVALS_ABI,
+  asPolicy,
+} from 'lib';
 import { TransactionStruct } from 'lib/src/contracts/Account';
-import { deploy, gasLimit, WALLET } from './util';
+import { deploy, gasLimit, getApprovals, WALLET } from './util';
+import { deployTestVerifier } from './util/verifier';
 
 const defaultTx: TransactionStruct = {
   txType: 0,
@@ -24,38 +35,30 @@ const defaultTx: TransactionStruct = {
   reservedDynamic: [],
 };
 
-const defaultTxHash = zeroHexBytes(32);
-
 interface ValidateOptions {
-  rules: Rule[];
   tx?: TransactionStruct;
-  txHash?: string;
-  signatures?: BytesLike[];
+  policy: Policy;
 }
 
 describe('Verifier', () => {
   let verifier = {} as TestVerifier;
 
   before(async () => {
-    verifier = TestVerifier__factory.connect((await deploy('TestVerifier')).address, WALLET);
+    verifier = await deployTestVerifier();
   });
 
-  const verify = ({
-    rules,
-    tx = defaultTx,
-    txHash = defaultTxHash,
-    signatures = [],
-  }: ValidateOptions) =>
-    verifier.functions.verifySignatureAndTransactionPolicy(
-      new Policy(1, ...rules).struct,
+  const verify = ({ tx = defaultTx, policy }: ValidateOptions) =>
+    verifier.functions.verifyTransactionPermissionsAndApprovals(
       tx,
-      txHash,
-      signatures,
+      POLICY_ABI.asStruct(policy),
+      APPROVALS_ABI.asStruct({ approvals: [], approvers: policy.approvers }),
       { gasLimit },
     );
 
   it('succeed with no conditions', async () => {
-    await verify({ rules: [] });
+    await verify({
+      policy: asPolicy({ key: 0, approvers: new Set() }),
+    });
   });
 
   // it('succeed with AlwaysPassVerifier', async () => {

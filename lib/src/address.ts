@@ -2,6 +2,7 @@ import { ethers } from 'ethers';
 import * as zk from 'zksync-web3';
 import { A } from 'ts-toolbelt';
 import { tryOr } from './util/try';
+import { compareBytes } from './bytes';
 
 export type Address = A.Type<string, 'Address'>;
 export type Addresslike = Address | string;
@@ -22,20 +23,8 @@ export const isAddress = (v: unknown): v is Address =>
 export const isAddressLike = (v: unknown): v is Addresslike =>
   typeof v === 'string' && ethers.utils.isAddress(v);
 
-export const compareAddress = (a: Addresslike, b: Addresslike) => {
-  const aArr = ethers.utils.arrayify(asAddress(a));
-  const bArr = ethers.utils.arrayify(asAddress(b));
-
-  if (aArr.length > bArr.length) return 1;
-
-  for (let i = 0; i < aArr.length; i++) {
-    const diff = aArr[i]! - bArr[i]!;
-    if (diff > 0) return 1;
-    if (diff < 0) return -1;
-  }
-
-  return 0;
-};
+export const compareAddress = (a: Addresslike, b: Addresslike) =>
+  compareBytes(asAddress(a), asAddress(b));
 
 /* Module augmentation; including in a .ts file to compile into lib's typings */
 declare module './contracts/index' {

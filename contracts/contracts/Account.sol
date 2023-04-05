@@ -9,9 +9,10 @@ import {SystemContractsCaller} from '@matterlabs/zksync-contracts/l2/system-cont
 
 import {Initializable} from './Initializable.sol';
 import {Upgradeable} from './Upgradeable.sol';
-import {Policy, PolicyKey} from './policy/Policy.sol';
+import {Policy, PolicyKey, Permission} from './policy/Policy.sol';
 import {PolicyManager} from './policy/PolicyManager.sol';
-import {Verifier} from './policy/Verifier.sol';
+import {Approvals, ApprovalsVerifier} from './policy/ApprovalsVerifier.sol';
+import {TransactionVerifier} from './policy/TransactionVerifier.sol';
 import {Executor} from './Executor.sol';
 import {ERC165} from './standards/ERC165.sol';
 import {ERC721Receiver} from './standards/ERC721Receiver.sol';
@@ -23,7 +24,6 @@ contract Account is
   Initializable,
   Upgradeable,
   PolicyManager,
-  Verifier,
   Executor,
   ERC165,
   ERC721Receiver,
@@ -31,6 +31,8 @@ contract Account is
 {
   using TransactionHelper for Transaction;
   using TransactionHasher for Transaction;
+  using TransactionVerifier for Transaction;
+  using ApprovalsVerifier for Approvals;
 
   error InsufficientBalance();
   error FailedToPayBootloader();
@@ -77,11 +79,11 @@ contract Account is
 
     if (transaction.totalRequiredBalance() > address(this).balance) revert InsufficientBalance();
 
-    (Policy memory policy, bytes[] memory signatures) = _decodeAndVerifySignature(
+    (Policy memory policy, Approvals memory approvals) = _decodeAndVerifySignature(
       transaction.signature
     );
-    _verifySignaturePolicy(policy, signatures, txHash);
-    _verifyTransactionPolicy(policy, transaction);
+    transaction.verifyPermissions(policy.permissions);
+    approvals.verify(txHash, policy);
   }
 
   /// @inheritdoc IAccount

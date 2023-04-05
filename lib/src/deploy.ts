@@ -4,8 +4,9 @@ import { Factory } from './contracts/Factory';
 import { defaultAbiCoder, hexlify, isHexString, randomBytes } from 'ethers/lib/utils';
 import * as zk from 'zksync-web3';
 import { ACCOUNT_INTERFACE } from './decode';
-import { Policy } from './policy';
+import { POLICY_ABI, Policy } from './policy';
 import { AccountProxy__factory, Account__factory } from './contracts';
+import { asHex } from './bytes';
 
 export type DeploySalt = string & { isDeploySalt: true };
 const DEPLOY_SALT_BYTES = 32;
@@ -29,13 +30,15 @@ export interface ProxyConstructorArgs extends AccountConstructorArgs {
 
 export const encodeProxyConstructorArgs = ({ policies, impl }: ProxyConstructorArgs) => {
   const encodedInitializeCall = ACCOUNT_INTERFACE.encodeFunctionData('initialize', [
-    policies.map((p) => p.struct),
+    policies.map(POLICY_ABI.asStruct),
   ]);
 
-  return defaultAbiCoder.encode(
-    // new ERC1967Proxy(address _logic, bytes memory _data)
-    ['address', 'bytes'],
-    [impl, encodedInitializeCall],
+  return asHex(
+    defaultAbiCoder.encode(
+      // new ERC1967Proxy(address logic, bytes data)
+      ['address', 'bytes'],
+      [impl, encodedInitializeCall],
+    ),
   );
 };
 

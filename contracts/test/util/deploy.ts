@@ -3,18 +3,18 @@ import { Deployer } from '@matterlabs/hardhat-zksync-deploy';
 import {
   Account__factory,
   asAddress,
+  asPolicy,
   deployAccountProxy,
+  executeTx,
   Factory__factory,
-  Policy,
   TestAccount__factory,
-  ApprovalsRule,
   Tx,
 } from 'lib';
 import { WALLETS, WALLET } from './wallet';
-import { BigNumberish } from 'ethers';
+import { BigNumberish, Overrides } from 'ethers';
 import * as zk from 'zksync-web3';
 import { BytesLike, parseEther } from 'ethers/lib/utils';
-import { execute } from './execute';
+import { getApprovals } from './execute';
 
 type AccountContractName = 'Account' | 'TestAccount';
 
@@ -22,20 +22,21 @@ export const ACCOUNT_START_BALANCE = parseEther('0.02');
 
 interface DeployOptions<ConstructorArgs extends unknown[] = unknown[]> {
   constructorArgs?: ConstructorArgs;
+  overrides?: Overrides;
   additionalFactoryDeps?: BytesLike[];
 }
 
 const deployer = new Deployer(hre, WALLET);
 export const deploy = async (
   contractName: string,
-  { constructorArgs, additionalFactoryDeps }: DeployOptions = {},
+  { constructorArgs, overrides, additionalFactoryDeps }: DeployOptions = {},
 ) => {
   const artifact = await deployer.loadArtifact(contractName);
 
   const contract = await deployer.deploy(
     artifact,
     constructorArgs,
-    undefined,
+    overrides,
     additionalFactoryDeps,
   );
   await contract.deployed();
@@ -87,7 +88,7 @@ export const deployProxy = async ({
   extraBalance,
 }: DeployProxyOptions = {}) => {
   const approvers = new Set(WALLETS.slice(0, nApprovers).map((signer) => signer.address));
-  const policy = new Policy(1, ...(nApprovers > 0 ? [new ApprovalsRule(approvers)] : []));
+  const policy = asPolicy({ key: 1, approvers, threshold: approvers.size });
 
   const { factory } = await deployFactory('ERC1967Proxy');
   const { impl } = await deployAccountImpl({ contractName });
@@ -102,7 +103,13 @@ export const deployProxy = async ({
   return {
     account,
     policy,
-    execute: (tx: Tx) => execute(account, policy, approvers, tx),
+    execute: async (tx: Tx) =>
+      await executeTx({
+        account,
+        policy,
+        tx,
+        approvals: await getApprovals(account, approvers, tx),
+      }),
   };
 };
 

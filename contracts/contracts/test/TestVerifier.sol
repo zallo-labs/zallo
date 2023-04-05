@@ -3,29 +3,49 @@ pragma solidity ^0.8.0;
 
 import {Transaction} from '@matterlabs/zksync-contracts/l2/system-contracts/libraries/TransactionHelper.sol';
 
-import {Verifier} from '../policy/Verifier.sol';
-import {Policy, PolicyKey} from '../policy/Policy.sol';
+import {Policy, PolicyKey, Permission} from '../policy/Policy.sol';
+import {TransactionVerifier} from '../policy/TransactionVerifier.sol';
+import {Approvals, ApprovalsVerifier} from '../policy/ApprovalsVerifier.sol';
+import {TransactionHasher} from '../standards/TransactionHasher.sol';
+import {TargetPermission, Target} from '../policy/permissions/TargetPermission.sol';
 
-contract TestVerifier is Verifier {
-  function verifySignaturePolicy(
-    Policy memory policy,
-    bytes[] memory signatures,
-    bytes32 txHash
-  ) external view {
-    return _verifySignaturePolicy(policy, signatures, txHash);
+contract TestVerifier {
+  using TransactionHasher for Transaction;
+  using TransactionVerifier for Transaction;
+  using ApprovalsVerifier for Approvals;
+
+  function verifyTransactionPermissions(
+    Transaction calldata transaction,
+    Permission[] calldata permissions
+  ) external pure {
+    transaction.verifyPermissions(permissions);
   }
 
-  function verifyTransactionPolicy(Policy memory policy, Transaction memory t) external pure {
-    return _verifyTransactionPolicy(policy, t);
+  function verifyApprovals(
+    Approvals calldata approvals,
+    bytes32 hash,
+    Policy calldata policy
+  ) external view {
+    approvals.verify(hash, policy);
   }
 
-  function verifySignatureAndTransactionPolicy(
-    Policy memory policy,
-    Transaction memory t,
-    bytes32 txHash,
-    bytes[] memory signatures
+  function verifyTransactionPermissionsAndApprovals(
+    Transaction calldata transaction,
+    Policy calldata policy,
+    Approvals calldata approvals
   ) external view {
-    _verifySignaturePolicy(policy, signatures, txHash);
-    _verifyTransactionPolicy(policy, t);
+    transaction.verifyPermissions(policy.permissions);
+    approvals.verify(transaction.hash(), policy);
+  }
+
+  /*//////////////////////////////////////////////////////////////
+                              PERMISSIONS
+  //////////////////////////////////////////////////////////////*/
+
+  function verifyTargetPermission(
+    Transaction calldata transaction,
+    Target[] calldata targets
+  ) external pure {
+    TargetPermission.verify(transaction, targets);
   }
 }

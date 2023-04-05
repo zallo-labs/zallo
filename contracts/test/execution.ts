@@ -1,7 +1,7 @@
 import { expect } from 'chai';
 import { parseEther } from 'ethers/lib/utils';
 import { hashTx, TestUtil, asAddress, TestUtil__factory, Tx, asHex } from 'lib';
-import { deploy, deployProxy, DeployProxyData, WALLET, WALLETS } from './util';
+import { deploy, deployProxy, DeployProxyData, WALLET } from './util';
 
 describe('Execution', () => {
   let { account, execute } = {} as DeployProxyData;
@@ -11,13 +11,13 @@ describe('Execution', () => {
   before(async () => {
     ({ account, execute } = await deployProxy({
       extraBalance: parseEther('0.0001'),
-      nApprovers: 0,
+      // nApprovers: 0,
     }));
     tester = TestUtil__factory.connect((await deploy('TestUtil')).address, WALLET);
   });
 
   it('should send the specified value', async () => {
-    const to = WALLETS[WALLETS.length - 1];
+    const to = WALLET;
     const value = parseEther('0.00001');
 
     await expect(

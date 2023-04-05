@@ -1,11 +1,6 @@
 [
   {
     "inputs": [],
-    "name": "ApproverSignaturesMismatch",
-    "type": "error"
-  },
-  {
-    "inputs": [],
     "name": "FailedToPayBootloader",
     "type": "error"
   },
@@ -28,70 +23,45 @@
   {
     "inputs": [
       {
+        "internalType": "bytes4",
+        "name": "selector",
+        "type": "bytes4"
+      },
+      {
         "internalType": "bytes4[]",
-        "name": "expectedAnyOfSelectors",
+        "name": "targetSelectors",
         "type": "bytes4[]"
-      },
-      {
-        "internalType": "bytes4",
-        "name": "actualSelector",
-        "type": "bytes4"
       }
     ],
-    "name": "NotAnyOfFunctions",
+    "name": "NotAnyOfTargetSelectors",
     "type": "error"
   },
   {
     "inputs": [
       {
         "internalType": "address",
-        "name": "actual",
+        "name": "to",
         "type": "address"
       },
       {
-        "internalType": "address[]",
-        "name": "expectedAnyOf",
-        "type": "address[]"
+        "components": [
+          {
+            "internalType": "address",
+            "name": "to",
+            "type": "address"
+          },
+          {
+            "internalType": "bytes4[]",
+            "name": "selectors",
+            "type": "bytes4[]"
+          }
+        ],
+        "internalType": "struct Target[]",
+        "name": "targets",
+        "type": "tuple[]"
       }
     ],
-    "name": "NotAnyOfTargets",
-    "type": "error"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "bytes4",
-        "name": "expectedSelector",
-        "type": "bytes4"
-      },
-      {
-        "internalType": "bytes4",
-        "name": "actualSelector",
-        "type": "bytes4"
-      }
-    ],
-    "name": "NotFunction",
-    "type": "error"
-  },
-  {
-    "inputs": [],
-    "name": "NotFunctionCall",
-    "type": "error"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "actual",
-        "type": "address"
-      },
-      {
-        "internalType": "address",
-        "name": "expected",
-        "type": "address"
-      }
-    ],
-    "name": "NotTarget",
+    "name": "NotToAnyOfTargets",
     "type": "error"
   },
   {
@@ -108,11 +78,80 @@
     "inputs": [
       {
         "internalType": "bytes32",
+        "name": "actualHash",
+        "type": "bytes32"
+      },
+      {
+        "internalType": "bytes32",
         "name": "expectedHash",
         "type": "bytes32"
       }
     ],
     "name": "PolicyDoesNotMatchExpectedHash",
+    "type": "error"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "threshold",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "nSignatures",
+        "type": "uint256"
+      }
+    ],
+    "name": "ThresholdNotReached",
+    "type": "error"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint8",
+        "name": "threshold",
+        "type": "uint8"
+      },
+      {
+        "internalType": "uint256",
+        "name": "nApprovers",
+        "type": "uint256"
+      }
+    ],
+    "name": "ThresholdTooHigh",
+    "type": "error"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint8",
+        "name": "threshold",
+        "type": "uint8"
+      },
+      {
+        "internalType": "uint256",
+        "name": "nApprovers",
+        "type": "uint256"
+      }
+    ],
+    "name": "ThresholdTooLow",
+    "type": "error"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "max",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "nApprovers",
+        "type": "uint256"
+      }
+    ],
+    "name": "TooManyApprovers",
     "type": "error"
   },
   {
@@ -139,23 +178,12 @@
   {
     "inputs": [
       {
-        "internalType": "enum RuleSelector",
+        "internalType": "enum PermissionSelector",
         "name": "selector",
         "type": "uint8"
       }
     ],
-    "name": "UnknownSignatureRule",
-    "type": "error"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "enum RuleSelector",
-        "name": "selector",
-        "type": "uint8"
-      }
-    ],
-    "name": "UnknownTransactionRule",
+    "name": "UnknownPermission",
     "type": "error"
   },
   {
@@ -287,26 +315,19 @@
             "type": "uint32"
           },
           {
-            "components": [
-              {
-                "internalType": "enum RuleSelector",
-                "name": "selector",
-                "type": "uint8"
-              },
-              {
-                "internalType": "bytes",
-                "name": "args",
-                "type": "bytes"
-              }
-            ],
-            "internalType": "struct Rule[]",
-            "name": "signatureRules",
-            "type": "tuple[]"
+            "internalType": "uint8",
+            "name": "threshold",
+            "type": "uint8"
+          },
+          {
+            "internalType": "address[]",
+            "name": "approvers",
+            "type": "address[]"
           },
           {
             "components": [
               {
-                "internalType": "enum RuleSelector",
+                "internalType": "enum PermissionSelector",
                 "name": "selector",
                 "type": "uint8"
               },
@@ -316,8 +337,8 @@
                 "type": "bytes"
               }
             ],
-            "internalType": "struct Rule[]",
-            "name": "transactionRules",
+            "internalType": "struct Permission[]",
+            "name": "permissions",
             "type": "tuple[]"
           }
         ],
@@ -541,26 +562,19 @@
             "type": "uint32"
           },
           {
-            "components": [
-              {
-                "internalType": "enum RuleSelector",
-                "name": "selector",
-                "type": "uint8"
-              },
-              {
-                "internalType": "bytes",
-                "name": "args",
-                "type": "bytes"
-              }
-            ],
-            "internalType": "struct Rule[]",
-            "name": "signatureRules",
-            "type": "tuple[]"
+            "internalType": "uint8",
+            "name": "threshold",
+            "type": "uint8"
+          },
+          {
+            "internalType": "address[]",
+            "name": "approvers",
+            "type": "address[]"
           },
           {
             "components": [
               {
-                "internalType": "enum RuleSelector",
+                "internalType": "enum PermissionSelector",
                 "name": "selector",
                 "type": "uint8"
               },
@@ -570,8 +584,8 @@
                 "type": "bytes"
               }
             ],
-            "internalType": "struct Rule[]",
-            "name": "transactionRules",
+            "internalType": "struct Permission[]",
+            "name": "permissions",
             "type": "tuple[]"
           }
         ],

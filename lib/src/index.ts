@@ -14,12 +14,10 @@ export {
   TestVerifier__factory,
   TestUtil,
   TestUtil__factory,
-  TestRules,
-  TestRules__factory,
 } from './contracts';
 export { Erc20, Erc20__factory } from './typechain';
 
-export * from './rules';
+export * from './permissions';
 export * from './util';
 
 export * from './address';

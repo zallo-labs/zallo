@@ -2,26 +2,30 @@ const toObj = <T extends string>(arr: readonly T[]): Record<T, T> =>
   arr.reduce((acc, key) => ({ ...acc, [key]: key }), {}) as Record<T, T>;
 
 const ACCOUNT_ERRORS = [
+  // AccountProxy
+  'NoInitializationDataProvided',
   // Account
   'InsufficientBalance',
   'FailedToPayBootloader',
   'OnlyCallableByBootloader',
   // SelfOwned
   'OnlyCallableBySelf',
-  // TransactionExectuor
+  // Exectuor
   'TransactionAlreadyExecuted',
-  // RuleManager
-  'RuleConditionFailed',
-  // ApprovalsRule
-  'ApproverSignaturesMismatch',
-  'InvalidApproverSignature',
-  // MatchingFunctionRule
-  'NotFunctionCall',
-  'DidNotMatchFunction',
-  'DidNotMatchAnyFunctions',
-  // MatchingTargetRule
-  'DidNotMatchTarget',
-  'DidNotMatchAnyTarget',
+  'TransactionRevertedWithoutReason',
+  // PolicyManager
+  'TooManyApprovers',
+  'ThresholdTooLow',
+  'ThresholdTooHigh',
+  'PolicyDoesNotMatchExpectedHash',
+  // ApprovalsVerifier
+  'ThresholdNotReached',
+  'InvalidSignature',
+  // TransactionVerifier
+  'UnknownPermission',
+  // TargetPermission
+  'NotToAnyOfTargets',
+  'NotAnyOfTargetSelectors',
 ] as const;
 export const AccountError = toObj<(typeof ACCOUNT_ERRORS)[number]>(ACCOUNT_ERRORS);
 

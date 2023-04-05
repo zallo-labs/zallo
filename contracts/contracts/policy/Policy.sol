@@ -5,25 +5,16 @@ type PolicyKey is uint32;
 
 struct Policy {
   PolicyKey key;
-  Rule[] signatureRules;
-  Rule[] transactionRules;
+  uint8 threshold; /// @dev Each policy may only have up to 256 approvals; constrained by ApprovalsVerifier.MAX_APPROVALS
+  address[] approvers;
+  Permission[] permissions;
 }
 
-struct Rule {
-  RuleSelector selector;
+struct Permission {
+  PermissionSelector selector;
   bytes args;
 }
 
-enum RuleSelector {
-  Approvals,
-  Function,
-  AnyOfFunctions,
-  Target,
-  AnyOfTargets
-}
-
-library PolicyLib {
-  function hash(Policy memory policy) internal pure returns (bytes32) {
-    return keccak256(abi.encode(policy.signatureRules, policy.transactionRules));
-  }
+enum PermissionSelector {
+  Target
 }
