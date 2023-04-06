@@ -6,7 +6,6 @@
     "moduleResolution": "Node",
 
     "strict": true,
-    "noUncheckedIndexedAccess": true,
     "esModuleInterop": true,
 
     "experimentalDecorators": true,
