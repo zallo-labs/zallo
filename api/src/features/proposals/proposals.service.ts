@@ -8,11 +8,11 @@ import {
   Address,
   asAddress,
   Tx,
-  PolicyGuid,
+  PolicyId,
   asPolicyKey,
   PolicySatisfiability,
-  ApprovalsRule,
   estimateOpGas,
+  Hex,
 } from 'lib';
 import { PrismaService } from '../util/prisma/prisma.service';
 import { ProviderService } from '~/features/util/provider/provider.service';
@@ -46,7 +46,7 @@ const PROPOSAL_IS_PENDING: Prisma.ProposalWhereInput = {
 
 export interface ProposeParams extends O.Optional<Tx, 'nonce'> {
   account: Address;
-  signature?: string;
+  signature?: Hex;
   feeToken?: Address;
 }
 
@@ -134,7 +134,7 @@ export class ProposalsService {
     prisma: Prisma.TransactionClient = this.prisma.asUser,
   ): Promise<Proposal> {
     const user = getUserId();
-    if (!(await this.provider.isValidSignatureNow(user, id, signature)))
+    if (!(await this.provider.verifySignature({ digest: id, approver: user, signature })))
       throw new UserInputError('Invalid signature');
 
     await prisma.approval.upsert({
@@ -203,15 +203,15 @@ export class ProposalsService {
   ) {
     // Delete policies for which this proposal contains their creation state
     return this.prisma.asUser.$transaction(async (client) => {
-      const { policyRules, ...r } = await client.proposal.delete({
+      const { policyStates, ...r } = await client.proposal.delete({
         where: { id },
         select: {
           ...(res?.select ?? {}),
-          policyRules: {
+          policyStates: {
             select: {
               policy: {
                 select: {
-                  _count: { select: { rulesHistory: true } },
+                  _count: { select: { states: true } },
                   accountId: true,
                   key: true,
                 },
@@ -222,10 +222,10 @@ export class ProposalsService {
       });
 
       const policiesToRemove = new Map(
-        policyRules
-          .filter((s) => s.policy._count.rulesHistory === 1)
+        policyStates
+          .filter((s) => s.policy._count.states === 1)
           .map(({ policy }) => {
-            const guid: PolicyGuid = {
+            const guid: PolicyId = {
               account: asAddress(policy.accountId),
               key: asPolicyKey(policy.key),
             };
@@ -274,7 +274,7 @@ export class ProposalsService {
           requiresUserAction:
             satisfiability === PolicySatisfiability.Satisfiable &&
             !userHasApproved &&
-            (policy.rules.get(ApprovalsRule)?.approvers.has(user) || false),
+            policy.approvers.has(user),
         });
       }
     }

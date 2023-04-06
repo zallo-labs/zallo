@@ -1,7 +1,7 @@
 import { InjectQueue } from '@nestjs/bull';
 import { forwardRef, Inject, Injectable } from '@nestjs/common';
 import { Queue } from 'bull';
-import { asAddress, Approval, executeTx, asHex } from 'lib';
+import { asAddress, Approval, executeTx, asHex, mapAsync, isPresent } from 'lib';
 import { PrismaService } from '../util/prisma/prisma.service';
 import { ProviderService } from '~/features/util/provider/provider.service';
 import { ProposalEvent } from '../proposals/proposals.args';
@@ -44,12 +44,22 @@ export class TransactionsService {
       },
     });
 
-    const approvals: Approval[] = proposal.approvals
-      .filter((approval) => approval.signature)
-      .map((approval) => ({
-        approver: asAddress(approval.userId),
-        signature: approval.signature!, // Rejections are filtered out
-      }));
+    const approvals = (
+      await mapAsync(
+        proposal.approvals.filter((approval) => approval.signature),
+        (approval) =>
+          this.provider.asApproval({
+            digest: proposalId,
+            approver: asAddress(approval.userId),
+            signature: asHex(approval.signature!),
+          }),
+      )
+    ).filter(isPresent);
+
+    if (approvals.length !== proposal.approvals.length) {
+      // TODO: remove now invalid approvals
+      return undefined;
+    }
 
     const transaction = await executeTx({
       account: this.provider.connectAccount(asAddress(proposal.accountId)),

@@ -24,10 +24,10 @@ model Account {
   name       String
   isActive   Boolean @default(false)
 
-  policies           Policy[]
-  policyRulesHistory PolicyRules[]
-  proposals          Proposal[]
-  comments           Comment[]
+  policies     Policy[]
+  policyStates PolicyState[]
+  proposals    Proposal[]
+  comments     Comment[]
 }
 
 ////////////////////////////////////////////////////////////////
@@ -67,19 +67,19 @@ model Policy {
   accountId String       @db.Char(42) // address
   key       BigInt // uint32
   name      String
-  active    PolicyRules? @relation(name: "active", fields: [activeId], references: [id])
+  active    PolicyState? @relation(name: "active", fields: [activeId], references: [id])
   activeId  BigInt?
-  draft     PolicyRules? @relation(name: "draft", fields: [draftId], references: [id])
+  draft     PolicyState? @relation(name: "draft", fields: [draftId], references: [id])
   draftId   BigInt?
 
-  rulesHistory PolicyRules[]
+  states PolicyState[]
 
   @@id([accountId, key])
   @@unique([activeId])
   @@unique([draftId])
 }
 
-model PolicyRules {
+model PolicyState {
   id         BigInt    @id @default(autoincrement())
   account    Account   @relation(fields: [accountId], references: [id], onDelete: Cascade)
   accountId  String    @db.Char(42) // address
@@ -90,23 +90,32 @@ model PolicyRules {
   createdAt  DateTime  @default(now())
   isRemoved  Boolean   @default(false)
 
-  activeRulesOf Policy?    @relation(name: "active")
-  draftRulesOf  Policy?    @relation(name: "draft")
-  approvers     Approver[]
-  onlyFunctions String[]   @db.Char(10) // bytes4
-  onlyTargets   String[]   @db.Char(66) // address
+  activeOf Policy?    @relation(name: "active")
+  draftOf   Policy?    @relation(name: "draft")
+  approvers Approver[]
+  threshold Int        @default(0)
+  targets   Target[]
 
   @@unique([accountId, policyKey, proposalId])
   @@index([accountId, policyKey, createdAt(sort: Desc)], name: "policy_createdAt")
 }
 
 model Approver {
-  policyRules   PolicyRules @relation(fields: [policyRulesId], references: [id], onDelete: Cascade)
-  policyRulesId BigInt
-  user          User        @relation(fields: [userId], references: [id])
-  userId        String      @db.Char(42) // address
+  state   PolicyState @relation(fields: [stateId], references: [id], onDelete: Cascade)
+  stateId BigInt
+  user    User        @relation(fields: [userId], references: [id])
+  userId  String      @db.Char(42) // address
 
-  @@id([policyRulesId, userId])
+  @@id([stateId, userId])
+}
+
+model Target {
+  state     PolicyState @relation(fields: [stateId], references: [id], onDelete: Cascade)
+  stateId   BigInt
+  to        String      @db.Char(42) // address
+  selectors String[]    @db.Char(10) // bytes4
+
+  @@id([stateId, to])
 }
 
 ////////////////////////////////////////////////////////////////
@@ -114,23 +123,23 @@ model Approver {
 ////////////////////////////////////////////////////////////////
 
 model Proposal {
-  id         String   @id @db.Char(66) // hash: bytes32
-  account    Account  @relation(fields: [accountId], references: [id], onDelete: Cascade)
-  accountId  String   @db.Char(42) // address
-  proposer   User     @relation(fields: [proposerId], references: [id])
-  proposerId String   @db.Char(42) // address
-  to         String   @db.Char(42) // address
-  value      Decimal? @db.Decimal(79, 0) // uint256
-  data       String? // bytes
-  nonce      BigInt // uint256
-  gasLimit   BigInt? // uint256
+  id             String   @id @db.Char(66) // hash: bytes32
+  account        Account  @relation(fields: [accountId], references: [id], onDelete: Cascade)
+  accountId      String   @db.Char(42) // address
+  proposer       User     @relation(fields: [proposerId], references: [id])
+  proposerId     String   @db.Char(42) // address
+  to             String   @db.Char(42) // address
+  value          Decimal? @db.Decimal(79, 0) // uint256
+  data           String? // bytes
+  nonce          BigInt // uint256
+  gasLimit       BigInt? // uint256
   estimatedOpGas BigInt // uint256
-  feeToken   String?  @db.Char(42) // address
-  createdAt  DateTime @default(now())
+  feeToken       String?  @db.Char(42) // address
+  createdAt      DateTime @default(now())
 
   approvals    Approval[]
   transactions Transaction[]
-  policyRules  PolicyRules[]
+  policyStates PolicyState[]
 }
 
 model Transaction {

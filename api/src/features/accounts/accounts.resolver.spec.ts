@@ -45,7 +45,7 @@ describe(AccountsResolver.name, () => {
 
     await resolver.createAccount({
       name: 'Test account',
-      policies: [{ rules: { approvers: [user.id] } }],
+      policies: [{ approvers: [user.id], permissions: {} }],
     });
     user.accounts.add(account);
   };

@@ -1,12 +1,13 @@
 import { Overrides } from 'ethers';
 import { Account } from './contracts';
-import { encodeAccountSignature, Approval } from './signature';
+import { encodeAccountSignature } from './signature';
 import * as zk from 'zksync-web3';
 import { Eip712Meta, TransactionRequest } from 'zksync-web3/build/src/types';
 import { EIP712_TX_TYPE } from 'zksync-web3/build/src/utils';
 import { Tx } from './tx';
 import { estimateTxGas } from './gas';
 import { Policy } from './policy';
+import { Approval } from './approvals';
 
 export interface ExecuteTxOptions {
   customData?: Overrides & Eip712Meta;

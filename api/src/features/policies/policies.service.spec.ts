@@ -3,7 +3,7 @@ import { createMock, DeepMocked } from '@golevelup/ts-jest';
 import { PRISMA_MOCK_PROVIDER } from '../util/prisma/prisma.service.mock';
 import { PrismaService } from '../util/prisma/prisma.service';
 import { PoliciesService } from './policies.service';
-import { Address, asPolicyKey, PolicyGuid, randomDeploySalt } from 'lib';
+import { Address, asPolicyKey, PolicyId, randomDeploySalt } from 'lib';
 import { asUser, UserContext } from '~/request/ctx';
 import { randomAddress, randomUser } from '~/util/test';
 import { hexlify, randomBytes } from 'ethers/lib/utils';
@@ -58,25 +58,25 @@ describe(PoliciesService.name, () => {
     const { key } = await service.create(
       {
         account,
-        rules: { approvers: [] },
+        approvers: [],
+        permissions: {},
       },
       { select: null },
     );
 
-    if (active) {
-      // Mark policy state as active
-      await prisma.asUser.policy.update({
-        where: {
-          accountId_key: {
-            accountId: account,
-            key,
-          },
+    await prisma.asUser.policy.update({
+      where: {
+        accountId_key: {
+          accountId: account,
+          key,
         },
-        data: { activeId: (await prisma.asUser.policyRules.findFirstOrThrow()).id },
-      });
-    }
+      },
+      data: {
+        [active ? 'activeId' : 'draftId']: (await prisma.asUser.policyState.findFirstOrThrow()).id,
+      },
+    });
 
-    return { account, key: asPolicyKey(key) } satisfies PolicyGuid;
+    return { account, key: asPolicyKey(key) } satisfies PolicyId;
   };
 
   beforeEach(() => {
@@ -107,7 +107,7 @@ describe(PoliciesService.name, () => {
     it('creates state', () =>
       asUser(user1, async () => {
         await create();
-        expect(await prisma.asUser.policyRules.count()).toEqual(1);
+        expect(await prisma.asUser.policyState.count()).toEqual(1);
       }));
 
     it('proposes an upsert', () =>
@@ -134,9 +134,9 @@ describe(PoliciesService.name, () => {
     it('creates state', () =>
       asUser(user1, async () => {
         const policy = await create();
-        await service.update({ ...policy, rules: { approvers: [] } });
+        await service.update({ ...policy, approvers: [] });
 
-        expect(await prisma.asUser.policyRules.count()).toEqual(2);
+        expect(await prisma.asUser.policyState.count()).toEqual(2);
       }));
 
     it('propose', () =>
@@ -144,7 +144,7 @@ describe(PoliciesService.name, () => {
         const policy = await create();
 
         expect(proposals.propose).toBeCalledTimes(1);
-        await service.update({ ...policy, rules: { approvers: [] } });
+        await service.update({ ...policy, approvers: [] });
       }));
 
     it("throws if the user isn't a member of the account", async () => {
@@ -161,7 +161,7 @@ describe(PoliciesService.name, () => {
           service.update({
             account: user1Account,
             key: asPolicyKey(10),
-            rules: { approvers: [] },
+            approvers: [],
           }),
         ).rejects.toThrow();
       }));
@@ -173,7 +173,7 @@ describe(PoliciesService.name, () => {
         const policy = await create();
         await service.remove(policy);
 
-        expect(await prisma.asUser.policyRules.count({ where: { isRemoved: true } })).toEqual(1);
+        expect(await prisma.asUser.policyState.count({ where: { isRemoved: true } })).toEqual(1);
       }));
 
     it('proposes a remove if the policy is active', () =>

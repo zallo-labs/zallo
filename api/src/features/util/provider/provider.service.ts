@@ -7,14 +7,15 @@ import {
   Factory,
   Factory__factory,
   Chain,
-  ApprovalsRule,
   Account__factory,
   Addresslike,
   asAddress,
+  verifySignature,
+  Hex,
+  VerifySignatureOptions,
+  asApproval,
 } from 'lib';
 import { Mutex } from 'async-mutex';
-import { BytesLike } from 'ethers';
-import { SignatureLike } from '@ethersproject/bytes';
 
 @Injectable()
 export class ProviderService extends zk.Provider {
@@ -62,7 +63,11 @@ export class ProviderService extends zk.Provider {
     }
   }
 
-  async isValidSignatureNow(addr: Address, digest: BytesLike, signature: SignatureLike) {
-    return ApprovalsRule.isValidSignatureNow(this, addr, digest, signature);
+  async asApproval(options: Omit<VerifySignatureOptions, 'provider'>) {
+    return asApproval({ ...options, provider: this });
+  }
+
+  async verifySignature(options: Omit<VerifySignatureOptions, 'provider'>) {
+    return this.asApproval(options) !== null;
   }
 }

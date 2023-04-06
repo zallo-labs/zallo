@@ -21,6 +21,7 @@ export * from './permissions';
 export * from './util';
 
 export * from './address';
+export * from './approvals';
 export * from './approver';
 export * from './bigint';
 export * from './bytes';

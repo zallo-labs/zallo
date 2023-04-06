@@ -39,25 +39,33 @@ CREATE TABLE "Policy" (
 );
 
 -- CreateTable
-CREATE TABLE "PolicyRules" (
+CREATE TABLE "PolicyState" (
     "id" BIGSERIAL NOT NULL,
     "accountId" CHAR(42) NOT NULL,
     "policyKey" BIGINT NOT NULL,
     "proposalId" CHAR(66),
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "isRemoved" BOOLEAN NOT NULL DEFAULT false,
-    "onlyFunctions" CHAR(10)[],
-    "onlyTargets" CHAR(66)[],
+    "threshold" INTEGER NOT NULL,
 
-    CONSTRAINT "PolicyRules_pkey" PRIMARY KEY ("id")
+    CONSTRAINT "PolicyState_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
 CREATE TABLE "Approver" (
-    "policyRulesId" BIGINT NOT NULL,
+    "stateId" BIGINT NOT NULL,
     "userId" CHAR(42) NOT NULL,
 
-    CONSTRAINT "Approver_pkey" PRIMARY KEY ("policyRulesId","userId")
+    CONSTRAINT "Approver_pkey" PRIMARY KEY ("stateId","userId")
+);
+
+-- CreateTable
+CREATE TABLE "Target" (
+    "stateId" BIGINT NOT NULL,
+    "to" CHAR(42) NOT NULL,
+    "selectors" CHAR(10)[],
+
+    CONSTRAINT "Target_pkey" PRIMARY KEY ("stateId","to")
 );
 
 -- CreateTable
@@ -70,6 +78,8 @@ CREATE TABLE "Proposal" (
     "data" TEXT,
     "nonce" BIGINT NOT NULL,
     "gasLimit" BIGINT,
+    "estimatedOpGas" BIGINT NOT NULL,
+    "feeToken" CHAR(42),
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
     CONSTRAINT "Proposal_pkey" PRIMARY KEY ("id")
@@ -91,6 +101,8 @@ CREATE TABLE "TransactionResponse" (
     "transactionHash" CHAR(66) NOT NULL,
     "success" BOOLEAN NOT NULL,
     "response" CHAR(66) NOT NULL,
+    "gasUsed" DECIMAL(19,0) NOT NULL,
+    "effectiveGasPrice" DECIMAL(19,0) NOT NULL,
     "timestamp" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
     CONSTRAINT "TransactionResponse_pkey" PRIMARY KEY ("transactionHash")
@@ -149,10 +161,10 @@ CREATE UNIQUE INDEX "Policy_activeId_key" ON "Policy"("activeId");
 CREATE UNIQUE INDEX "Policy_draftId_key" ON "Policy"("draftId");
 
 -- CreateIndex
-CREATE INDEX "policy_createdAt" ON "PolicyRules"("accountId", "policyKey", "createdAt" DESC);
+CREATE INDEX "policy_createdAt" ON "PolicyState"("accountId", "policyKey", "createdAt" DESC);
 
 -- CreateIndex
-CREATE UNIQUE INDEX "PolicyRules_accountId_policyKey_proposalId_key" ON "PolicyRules"("accountId", "policyKey", "proposalId");
+CREATE UNIQUE INDEX "PolicyState_accountId_policyKey_proposalId_key" ON "PolicyState"("accountId", "policyKey", "proposalId");
 
 -- CreateIndex
 CREATE INDEX "ContractMethod_sighash_idx" ON "ContractMethod"("sighash");
@@ -167,25 +179,28 @@ ALTER TABLE "Contact" ADD CONSTRAINT "Contact_userId_fkey" FOREIGN KEY ("userId"
 ALTER TABLE "Policy" ADD CONSTRAINT "Policy_accountId_fkey" FOREIGN KEY ("accountId") REFERENCES "Account"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "Policy" ADD CONSTRAINT "Policy_activeId_fkey" FOREIGN KEY ("activeId") REFERENCES "PolicyRules"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+ALTER TABLE "Policy" ADD CONSTRAINT "Policy_activeId_fkey" FOREIGN KEY ("activeId") REFERENCES "PolicyState"("id") ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "Policy" ADD CONSTRAINT "Policy_draftId_fkey" FOREIGN KEY ("draftId") REFERENCES "PolicyRules"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+ALTER TABLE "Policy" ADD CONSTRAINT "Policy_draftId_fkey" FOREIGN KEY ("draftId") REFERENCES "PolicyState"("id") ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "PolicyRules" ADD CONSTRAINT "PolicyRules_accountId_fkey" FOREIGN KEY ("accountId") REFERENCES "Account"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE "PolicyState" ADD CONSTRAINT "PolicyState_accountId_fkey" FOREIGN KEY ("accountId") REFERENCES "Account"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "PolicyRules" ADD CONSTRAINT "PolicyRules_accountId_policyKey_fkey" FOREIGN KEY ("accountId", "policyKey") REFERENCES "Policy"("accountId", "key") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "PolicyState" ADD CONSTRAINT "PolicyState_accountId_policyKey_fkey" FOREIGN KEY ("accountId", "policyKey") REFERENCES "Policy"("accountId", "key") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "PolicyRules" ADD CONSTRAINT "PolicyRules_proposalId_fkey" FOREIGN KEY ("proposalId") REFERENCES "Proposal"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE "PolicyState" ADD CONSTRAINT "PolicyState_proposalId_fkey" FOREIGN KEY ("proposalId") REFERENCES "Proposal"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "Approver" ADD CONSTRAINT "Approver_policyRulesId_fkey" FOREIGN KEY ("policyRulesId") REFERENCES "PolicyRules"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE "Approver" ADD CONSTRAINT "Approver_stateId_fkey" FOREIGN KEY ("stateId") REFERENCES "PolicyState"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "Approver" ADD CONSTRAINT "Approver_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "Target" ADD CONSTRAINT "Target_stateId_fkey" FOREIGN KEY ("stateId") REFERENCES "PolicyState"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "Proposal" ADD CONSTRAINT "Proposal_accountId_fkey" FOREIGN KEY ("accountId") REFERENCES "Account"("id") ON DELETE CASCADE ON UPDATE CASCADE;

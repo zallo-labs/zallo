@@ -1,5 +1,5 @@
 import { Prisma } from '@prisma/client';
-import { Address, Addresslike, asAddress, PolicyGuid, PolicyKey } from 'lib';
+import { Address, Addresslike, asAddress, PolicyId, PolicyKey } from 'lib';
 import { getUserId } from '~/request/ctx';
 
 export const connectAccount = (
@@ -19,7 +19,7 @@ export const connectOrCreateUser = (user?: Addresslike) => {
   } satisfies Prisma.UserCreateNestedOneWithoutApprovalsInput;
 };
 
-export const connectPolicy = (...params: [PolicyGuid] | [Address, PolicyKey]) =>
+export const connectPolicy = (...params: [PolicyId] | [Address, PolicyKey]) =>
   ({
     connect: {
       accountId_key: {

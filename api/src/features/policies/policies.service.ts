@@ -3,36 +3,39 @@ import { Prisma, TransactionResponse } from '@prisma/client';
 import {
   ACCOUNT_INTERFACE,
   Address,
-  Approval,
-  ApprovalsRule,
   asAddress,
   asHex,
   asPolicyKey,
-  compareAddress,
-  FunctionsRule,
-  isPresent,
+  asSelector,
+  DEFAULT_TARGETS,
+  getTransactionSatisfiability,
   mapAsync,
   Policy,
-  PolicyKey,
+  POLICY_ABI,
   PolicySatisfiability,
-  TargetsRule,
   Tx,
 } from 'lib';
 import { PrismaService } from '../util/prisma/prisma.service';
-import { connectAccount, connectOrCreateUser, connectPolicy } from '~/util/connect-or-create';
+import { connectAccount, connectPolicy } from '~/util/connect-or-create';
 import { ProposalsService } from '../proposals/proposals.service';
-import { CreatePolicyArgs, RulesInput, UniquePolicyArgs, UpdatePolicyArgs } from './policies.args';
+import { CreatePolicyArgs, UniquePolicyArgs, UpdatePolicyArgs } from './policies.args';
 import { TransactionsConsumer } from '../transactions/transactions.consumer';
 import { ProviderService } from '../util/provider/provider.service';
-import { prismaAsPolicy, PrismaPolicy } from './policies.util';
+import {
+  inputAsPolicy,
+  POLICY_STATE_FIELDS,
+  policyAsCreateState,
+  prismaAsPolicy,
+  PrismaPolicy,
+} from './policies.util';
 import merge from 'ts-deepmerge';
 import _ from 'lodash';
+import { UserInputError } from 'apollo-server-core';
 
-interface CreateRulesParams {
+interface ProposeStateParams {
   prisma?: Prisma.TransactionClient;
   account: Address;
-  key: PolicyKey;
-  rules: RulesInput;
+  policy: Policy;
 }
 
 type ArgsParam<T> = Prisma.SelectSubset<T, Prisma.PolicyArgs>;
@@ -61,33 +64,61 @@ export class PoliciesService implements OnModuleInit {
   findMany = this.prisma.asUser.policy.findMany;
 
   async create<A extends Prisma.PolicyArgs>(
-    { account, name, rules }: CreatePolicyArgs,
+    { account, name, ...policyInput }: CreatePolicyArgs,
     res?: ArgsParam<A>,
   ) {
     return this.prisma.asUser.$transaction(async (prisma) => {
       const existingPolicies = await prisma.policy.count({ where: { accountId: account } });
-      const key = asPolicyKey(existingPolicies + 1);
+      const key = asPolicyKey(existingPolicies + 1); // TODO: count key from 0 instead?
 
       await prisma.policy.create({
         data: {
           accountId: account,
-          key: key as bigint,
+          key,
           name: name || `Policy ${key}`,
         },
         select: null,
       });
 
-      return this.proposeRules({ prisma, account, key, rules }, res);
+      return this.proposeState({ prisma, account, policy: inputAsPolicy(key, policyInput) }, res);
     });
   }
 
   async update<A extends Prisma.PolicyArgs>(
-    { account, key, name, rules }: UpdatePolicyArgs,
+    { account, key, name, approvers, threshold, permissions }: UpdatePolicyArgs,
     res?: ArgsParam<A>,
   ) {
     return this.prisma.asUser.$transaction(async (prisma) => {
-      // Rules
-      if (rules) await this.proposeRules({ prisma, account, key, rules });
+      // State
+      if (approvers || threshold !== undefined || permissions) {
+        const r = await prisma.policy.findUnique({
+          where: { accountId_key: { accountId: account, key } },
+          select: {
+            active: { select: POLICY_STATE_FIELDS },
+            draft: { select: POLICY_STATE_FIELDS },
+          },
+        });
+
+        const p = r?.draft ?? r?.active;
+        if (!p) throw new UserInputError("Can't update policy that doesn't exist");
+
+        const policy = { ...prismaAsPolicy(p) };
+        if (approvers) policy.approvers = new Set(approvers);
+        if (threshold !== undefined) policy.threshold = threshold;
+        if (permissions)
+          policy.permissions = {
+            targets: permissions.targets
+              ? Object.fromEntries(
+                  permissions.targets.map((t) => [
+                    asAddress(t.to),
+                    new Set(t.selectors.map(asSelector)),
+                  ]),
+                )
+              : DEFAULT_TARGETS,
+          };
+
+        await this.proposeState({ prisma, account, policy });
+      }
 
       // Metadata
       return this.prisma.asUser.policy.update({
@@ -124,75 +155,52 @@ export class PoliciesService implements OnModuleInit {
           prisma,
         ));
 
-      const rules = await prisma.policyRules.create({
+      const state = await prisma.policyState.create({
         data: {
           account: connectAccount(account),
           policy: connectPolicy(account, key),
           isRemoved: true,
           ...(proposal
             ? { proposal: { connect: { id: proposal.id } } }
-            : { activeRulesOf: connectPolicy(account, key) }),
+            : { activeOf: connectPolicy(account, key) }),
         },
         select: { policy: { ...res } },
       });
 
-      return rules.policy;
+      return state.policy;
     });
   }
 
-  private async proposeRules<A extends Prisma.PolicyArgs>(
-    { prisma, account, key, rules }: CreateRulesParams,
+  private async proposeState<A extends Prisma.PolicyArgs>(
+    { prisma, account, policy }: ProposeStateParams,
     res?: ArgsParam<A>,
   ) {
     return this.prisma.$transactionAsUser(prisma, async (prisma) => {
-      const policy = new Policy(
-        key,
-        ...[
-          rules.approvers?.length ? new ApprovalsRule(rules.approvers) : null,
-          rules.onlyFunctions?.length ? new FunctionsRule(rules.onlyFunctions) : null,
-          rules.onlyTargets?.length ? new TargetsRule(rules.onlyTargets) : null,
-        ].filter(isPresent),
-      );
-
       const { id: proposalId } = await this.proposals.propose(
         {
           account,
           to: account,
-          data: asHex(ACCOUNT_INTERFACE.encodeFunctionData('addPolicy', [policy.struct])),
+          data: asHex(
+            ACCOUNT_INTERFACE.encodeFunctionData('addPolicy', [POLICY_ABI.asStruct(policy)]),
+          ),
         },
         { select: { id: true } },
         prisma,
       );
 
-      const policyRules = await prisma.policyRules.create({
+      const state = await prisma.policyState.create({
         data: {
           proposal: { connect: { id: proposalId } },
-          policy: connectPolicy(account, key),
+          policy: connectPolicy(account, policy.key),
           account: connectAccount(account),
-          ...(rules.approvers?.length && {
-            approvers: {
-              create: [...rules.approvers].map((approver) => ({
-                user: connectOrCreateUser(approver),
-              })),
-            },
-          }),
-          ...(rules.onlyFunctions && {
-            onlyFunctions: {
-              set: [...rules.onlyFunctions],
-            },
-          }),
-          ...(rules.onlyTargets && {
-            onlyTargets: {
-              set: [...rules.onlyTargets],
-            },
-          }),
+          ...policyAsCreateState(policy),
         },
         select: {
           policy: { ...res },
         },
       });
 
-      return policyRules.policy;
+      return state.policy;
     });
   }
 
@@ -217,12 +225,7 @@ export class PoliciesService implements OnModuleInit {
         select: {
           ...merge(_.omit(queryArgs?.select ?? {}, ['id', 'satisfied', 'requiresUserAction']), {
             active: {
-              select: {
-                policyKey: true,
-                approvers: { select: { userId: true } },
-                onlyFunctions: true,
-                onlyTargets: true,
-              },
+              select: POLICY_STATE_FIELDS,
             },
           }),
         },
@@ -237,21 +240,12 @@ export class PoliciesService implements OnModuleInit {
       gasLimit: proposal.gasLimit || undefined,
     };
 
-    const signatures = proposal.approvals
-      .filter((a) => a.signature)
-      .map(
-        (a): Approval => ({
-          approver: asAddress(a.userId),
-          signature: a.signature!, // null signatures are filtered out
-        }),
-      )
-      .sort((a, b) => compareAddress(a.approver, b.approver))
-      .map((a) => a.signature);
-
-    const account = this.provider.connectAccount(proposal.accountId);
+    const approvals = new Set(
+      proposal.approvals.filter((a) => a.signature).map((a) => asAddress(a.userId)),
+    );
 
     for (const policy of policies) {
-      const sat = await policy.satisfiability({ domainParams: account, tx, signatures });
+      const sat = getTransactionSatisfiability(policy, tx, approvals);
       yield [policy, sat] as const;
     }
   }
@@ -270,7 +264,7 @@ export class PoliciesService implements OnModuleInit {
       select: {
         proposal: {
           select: {
-            policyRules: {
+            policyStates: {
               select: {
                 id: true,
                 policy: {
@@ -286,16 +280,16 @@ export class PoliciesService implements OnModuleInit {
       },
     });
 
-    await mapAsync(proposal.policyRules, (rules) =>
+    await mapAsync(proposal.policyStates, (state) =>
       this.prisma.asSuperuser.policy.update({
         where: {
           accountId_key: {
-            accountId: rules.policy.accountId,
-            key: rules.policy.key,
+            accountId: state.policy.accountId,
+            key: state.policy.key,
           },
         },
         data: {
-          activeId: rules.id,
+          activeId: state.id,
           draftId: null,
         },
       }),

@@ -1,22 +1,12 @@
 import { FindManyPolicyArgs } from '@gen/policy/find-many-policy.args';
-import { ArgsType, Field, InputType } from '@nestjs/graphql';
-import {
-  Address,
-  ApprovalsRule,
-  FunctionsRule,
-  isPresent,
-  Policy,
-  PolicyGuid,
-  PolicyKey,
-  Selector,
-  TargetsRule,
-} from 'lib';
+import { ArgsType, Field, InputType, PartialType } from '@nestjs/graphql';
+import { Address, PolicyId, PolicyKey, Selector } from 'lib';
 import { AddressField, AddressScalar } from '~/apollo/scalars/Address.scalar';
 import { SelectorScalar } from '~/apollo/scalars/Bytes.scalar';
 import { PolicyKeyField } from '~/apollo/scalars/PolicyKey.scalar';
 
 @ArgsType()
-export class UniquePolicyArgs implements PolicyGuid {
+export class UniquePolicyArgs implements PolicyId {
   @AddressField()
   account: Address;
 
@@ -28,51 +18,47 @@ export class UniquePolicyArgs implements PolicyGuid {
 export class PoliciesArgs extends FindManyPolicyArgs {}
 
 @InputType()
-export class RulesInput {
-  @Field(() => [AddressScalar], {
-    nullable: true,
-    description: 'Signers that are required to approve',
-  })
-  approvers?: Address[];
+export class TargetInput {
+  @AddressField({ description: 'Address of target' })
+  to: Address;
 
-  @Field(() => [SelectorScalar], { nullable: true, description: 'Functions that can be called' })
-  onlyFunctions?: Selector[];
+  @Field(() => [SelectorScalar], { description: 'Functions that can be called on target' })
+  selectors: Selector[];
+}
 
-  @Field(() => [AddressScalar], { nullable: true, description: 'Addresses that can be called' })
-  onlyTargets?: Address[];
-
-  static asPolicy(key: PolicyKey, rules: RulesInput): Policy {
-    return new Policy(
-      key,
-      ...[
-        rules.approvers?.length ? new ApprovalsRule(rules.approvers) : null,
-        rules.onlyFunctions?.length ? new FunctionsRule(rules.onlyFunctions) : null,
-        rules.onlyTargets?.length ? new TargetsRule(rules.onlyTargets) : null,
-      ].filter(isPresent),
-    );
-  }
+@InputType()
+export class PermissionsInput {
+  @Field(() => [TargetInput], { nullable: true, description: 'Targets that can be called' })
+  targets?: TargetInput[];
 }
 
 @InputType()
 export class PolicyInput {
   name?: string;
 
-  rules: RulesInput;
+  @Field(() => [AddressScalar], {
+    nullable: true,
+    description: 'Signers that are required to approve',
+  })
+  approvers: Address[];
+
+  @Field(() => Number, { description: 'Defaults to all approvers' })
+  threshold?: number;
+
+  permissions: PermissionsInput;
 }
 
 @ArgsType()
-export class CreatePolicyArgs {
+export class CreatePolicyArgs extends PolicyInput {
+  @AddressField()
+  account: Address;
+}
+
+@ArgsType()
+export class UpdatePolicyArgs extends PartialType(PolicyInput) {
   @AddressField()
   account: Address;
 
-  name?: string;
-
-  rules: RulesInput;
-}
-
-@ArgsType()
-export class UpdatePolicyArgs extends UniquePolicyArgs {
-  name?: string;
-
-  rules?: RulesInput;
+  @PolicyKeyField()
+  key: PolicyKey;
 }

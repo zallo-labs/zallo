@@ -94,5 +94,5 @@ export class ProposeArgs {
 @ArgsType()
 export class ApproveArgs extends UniqueProposalArgs {
   @BytesField()
-  signature: string;
+  signature: Hex;
 }

@@ -13,7 +13,7 @@ type DefaultFields = Partial<{
 const DEFAULT_FIELDS: DefaultFields = {
   Approver: (select) => ({
     ...(select.id && {
-      ruleStateId: true,
+      stateId: true,
       userId: true,
     }),
   }),

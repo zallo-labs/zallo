@@ -10,7 +10,7 @@ import {
   ACCOUNT_SUBSCRIPTION,
   USER_ACCOUNT_SUBSCRIPTION,
 } from './accounts.args';
-import { prismaAsPolicy } from '../policies/policies.util';
+import { POLICY_STATE_FIELDS, prismaAsPolicy } from '../policies/policies.util';
 
 @Injectable()
 export class AccountsService {
@@ -31,7 +31,7 @@ export class AccountsService {
       impl,
       deploySalt,
       isActive,
-      policyRulesHistory: rules,
+      policyStates: states,
     } = await this.prisma.asUser.account.findUniqueOrThrow({
       where: { id: accountAddr },
       select: {
@@ -39,14 +39,11 @@ export class AccountsService {
         deploySalt: true,
         isActive: true,
         // Initialization rules
-        policyRulesHistory: {
+        policyStates: {
           where: { proposal: null },
           select: {
             id: true,
-            policyKey: true,
-            approvers: { select: { userId: true } },
-            onlyFunctions: true,
-            onlyTargets: true,
+            ...POLICY_STATE_FIELDS,
           },
         },
       },
@@ -58,7 +55,7 @@ export class AccountsService {
       deployAccountProxy(
         {
           impl: asAddress(impl),
-          policies: rules.map(prismaAsPolicy),
+          policies: states.map(prismaAsPolicy),
         },
         factory,
         toDeploySalt(deploySalt),
@@ -71,7 +68,7 @@ export class AccountsService {
       data: {
         isActive: true,
         policies: {
-          update: rules.map((r) => ({
+          update: states.map((r) => ({
             where: { accountId_key: { accountId: accountAddr, key: r.policyKey } },
             data: { activeId: r.id, draftId: null },
           })),
@@ -86,18 +83,18 @@ export class AccountsService {
     await this.pubsub.publish<AccountSubscriptionPayload>(`${ACCOUNT_SUBSCRIPTION}.${id}`, payload);
 
     // Publish event to all users with access to the account
-    const { policyRulesHistory: rules } = await this.prisma.asUser.account.findUniqueOrThrow({
+    const { policyStates: states } = await this.prisma.asUser.account.findUniqueOrThrow({
       where: { id },
       select: {
-        policyRulesHistory: {
-          where: { OR: [{ activeRulesOf: {} }, { draftRulesOf: {} }] },
+        policyStates: {
+          where: { OR: [{ activeOf: {} }, { draftOf: {} }] },
           select: {
             approvers: { select: { userId: true } },
           },
         },
       },
     });
-    const approvers = rules.flatMap((r) => r.approvers.map((a) => a.userId));
+    const approvers = states.flatMap((r) => r.approvers.map((a) => a.userId));
 
     await Promise.all(
       approvers.map((user) =>

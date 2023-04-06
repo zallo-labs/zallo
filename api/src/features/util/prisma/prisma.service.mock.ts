@@ -3,7 +3,7 @@ import { execSync } from 'child_process';
 import { CONFIG } from '~/config';
 import { PrismaService } from './prisma.service';
 import { PrismaClient } from '@prisma/client';
-import uuid from 'uuid';
+import { v4 as uuidv4 } from 'uuid';
 
 @Injectable()
 export class PrismaMockService extends PrismaService {
@@ -11,7 +11,7 @@ export class PrismaMockService extends PrismaService {
   private database: string;
 
   constructor() {
-    const database = `test-${uuid()}`;
+    const database = `test-${uuidv4()}`;
     const url = `${CONFIG.databaseUrl}/${database}`;
     super({ datasources: { db: { url } } });
 

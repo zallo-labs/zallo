@@ -22,9 +22,8 @@ import { UserId } from '~/decorators/user.decorator';
 import { FaucetService } from '../faucet/faucet.service';
 import { PubsubService } from '../util/pubsub/pubsub.service';
 import { UserContext, getRequestContext, getUser } from '~/request/ctx';
-import { connectOrCreateUser } from '~/util/connect-or-create';
-import { RulesInput } from '../policies/policies.args';
 import { Prisma } from '@prisma/client';
+import { inputAsPolicy, policyAsCreateState } from '../policies/policies.util';
 
 @Resolver(() => Account)
 export class AccountsResolver {
@@ -88,17 +87,19 @@ export class AccountsResolver {
 
   @Mutation(() => Account)
   async createAccount(
-    @Args() { name, policies }: CreateAccountArgs,
+    @Args() { name, policies: policyInputs }: CreateAccountArgs,
     @Info() info?: GraphQLResolveInfo,
   ): Promise<Account> {
     const impl = CONFIG.accountImplAddress;
     const deploySalt = randomDeploySalt();
+
+    const policies = policyInputs.map((p, i) => ({
+      ...inputAsPolicy(asPolicyKey(i), p),
+      name: p.name || `Policy ${i}`,
+    }));
+
     const account = await this.provider.useProxyFactory((factory) =>
-      calculateProxyAddress(
-        { impl, policies: policies.map((p, i) => RulesInput.asPolicy(asPolicyKey(i), p.rules)) },
-        factory,
-        deploySalt,
-      ),
+      calculateProxyAddress({ impl, policies }, factory, deploySalt),
     );
 
     // Add account to user context
@@ -106,7 +107,7 @@ export class AccountsResolver {
     getRequestContext()?.session?.accounts?.push(account);
 
     await this.prisma.asUser.$transaction(async (prisma) => {
-      const { policyRulesHistory } = await prisma.account.create({
+      const { policyStates } = await prisma.account.create({
         data: {
           id: account,
           deploySalt,
@@ -114,24 +115,12 @@ export class AccountsResolver {
           name,
           policies: {
             create: policies.map(
-              ({ name, rules }, i): Prisma.PolicyCreateWithoutAccountInput => ({
-                key: i,
-                name: name || `Policy ${i}`,
-                rulesHistory: {
+              (policy): Prisma.PolicyCreateWithoutAccountInput => ({
+                key: policy.key,
+                name: policy.name,
+                states: {
                   create: {
-                    ...(rules.approvers?.length && {
-                      approvers: {
-                        create: [...rules.approvers].map((a) => ({
-                          user: connectOrCreateUser(a),
-                        })),
-                      },
-                    }),
-                    ...(rules.onlyFunctions?.length && {
-                      onlyFunctions: [...rules.onlyFunctions],
-                    }),
-                    ...(rules.onlyTargets?.length && {
-                      onlyTargets: [...rules.onlyTargets],
-                    }),
+                    ...policyAsCreateState(policy),
                   },
                 },
               }),
@@ -139,7 +128,7 @@ export class AccountsResolver {
           },
         },
         select: {
-          policyRulesHistory: {
+          policyStates: {
             select: {
               id: true,
               policyKey: true,
@@ -150,7 +139,7 @@ export class AccountsResolver {
 
       // Set policy rules as draft of policies - this can't be done in the same create as the account )':
       await Promise.all(
-        policyRulesHistory.map(({ id, policyKey }) =>
+        policyStates.map(({ id, policyKey }) =>
           prisma.policy.update({
             where: { accountId_key: { accountId: account, key: policyKey } },
             data: { draftId: id },

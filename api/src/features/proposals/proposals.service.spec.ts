@@ -5,7 +5,7 @@ import { PRISMA_MOCK_PROVIDER } from '../util/prisma/prisma.service.mock';
 import { PrismaService } from '../util/prisma/prisma.service';
 import { asUser, UserContext } from '~/request/ctx';
 import { randomAddress, randomUser } from '~/util/test';
-import { asAddress, Address, CHAINS, randomDeploySalt } from 'lib';
+import { asAddress, Address, CHAINS, randomDeploySalt, asHex } from 'lib';
 import { hexlify, randomBytes } from 'ethers/lib/utils';
 import { ProviderService } from '../util/provider/provider.service';
 import { connectAccount, connectOrCreateUser, connectPolicy } from '~/util/connect-or-create';
@@ -15,6 +15,8 @@ import { Proposal } from '@prisma/client';
 import { ProposalState } from './proposals.args';
 import { PoliciesService } from '../policies/policies.service';
 import assert from 'assert';
+
+const randomSignature = () => asHex(randomBytes(32));
 
 describe(ProposalsService.name, () => {
   let service: ProposalsService;
@@ -65,7 +67,7 @@ describe(ProposalsService.name, () => {
     ...params
   }: Partial<ProposeParams> = {}) => {
     // Account & policy
-    const { policyRulesHistory: rules } = await prisma.asUser.account.upsert({
+    const { policyStates: states } = await prisma.asUser.account.upsert({
       where: { id: account },
       create: {
         id: account,
@@ -76,7 +78,7 @@ describe(ProposalsService.name, () => {
           create: {
             key: 0,
             name: '',
-            rulesHistory: {
+            states: {
               create: {
                 approvers: { create: { user: connectOrCreateUser() } },
               },
@@ -86,25 +88,25 @@ describe(ProposalsService.name, () => {
       },
       update: {},
       select: {
-        policyRulesHistory: { select: { id: true, policyKey: true } },
+        policyStates: { select: { id: true, policyKey: true } },
       },
     });
 
-    const initRule = rules[0];
-    assert(initRule);
+    const initState = states[0];
+    assert(initState);
 
     // Mark policy rules as active
     await prisma.asUser.policy.update({
-      where: { accountId_key: { accountId: account, key: initRule.policyKey } },
-      data: { activeId: initRule.id },
+      where: { accountId_key: { accountId: account, key: initState.policyKey } },
+      data: { activeId: initState.id },
     });
 
     return service.propose({ account, to, ...params });
   };
 
   const approve = (id: string) => {
-    provider.isValidSignatureNow.mockImplementationOnce(async () => true);
-    return service.approve({ id, signature: hexlify(randomBytes(32)) });
+    provider.verifySignature.mockImplementationOnce(async () => true);
+    return service.approve({ id, signature: randomSignature() });
   };
 
   describe('propose', () => {
@@ -117,7 +119,7 @@ describe(ProposalsService.name, () => {
     it('approves proposal if signature was provided', () =>
       asUser(user1, async () => {
         jest.spyOn(service, 'approve').mockImplementationOnce(async () => ({ id: '' } as any));
-        await propose({ signature: '0xMySignature' });
+        await propose({ signature: randomSignature() });
         expect(service.approve).toHaveBeenCalled();
       }));
   });
@@ -275,10 +277,8 @@ describe(ProposalsService.name, () => {
       asUser(user1, async () => {
         const { id } = await propose();
 
-        provider.isValidSignatureNow.mockImplementationOnce(async () => false);
-        await expect(
-          service.approve({ id, signature: hexlify(randomBytes(32)) }),
-        ).rejects.toThrow();
+        provider.verifySignature.mockImplementationOnce(async () => false);
+        await expect(service.approve({ id, signature: randomSignature() })).rejects.toThrow();
       }));
 
     // TODO: notification tests once it has been implemented
@@ -336,8 +336,8 @@ describe(ProposalsService.name, () => {
       asUser(user1, async () => {
         const { id } = await propose();
 
-        provider.isValidSignatureNow.mockImplementationOnce(async () => true);
-        await service.approve({ id, signature: hexlify(randomBytes(32)) });
+        provider.verifySignature.mockImplementationOnce(async () => true);
+        await service.approve({ id, signature: randomSignature() });
 
         await service.reject({ id });
 
@@ -352,10 +352,10 @@ describe(ProposalsService.name, () => {
 
     it("throws if the proposal doesn't exist", () =>
       asUser(user1, async () => {
-        provider.isValidSignatureNow.mockImplementationOnce(async () => true);
+        provider.verifySignature.mockImplementationOnce(async () => true);
 
         await expect(
-          service.approve({ id: "doesn't exist", signature: hexlify(randomBytes(32)) }),
+          service.approve({ id: "doesn't exist", signature: randomSignature() }),
         ).rejects.toThrow();
       }));
   });
@@ -390,7 +390,7 @@ describe(ProposalsService.name, () => {
             account: connectAccount(accountId),
             key: 1,
             name: '',
-            rulesHistory: {
+            states: {
               create: {
                 account: connectAccount(accountId),
                 proposal: { connect: { id } },
@@ -415,7 +415,7 @@ describe(ProposalsService.name, () => {
             account: connectAccount(asAddress(accountId)),
             key: 1,
             name: '',
-            rulesHistory: {
+            states: {
               create: [{}, { proposalId: id }],
             },
           },

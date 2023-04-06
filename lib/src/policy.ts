@@ -9,9 +9,8 @@ import { Permissions, permissionsAsStruct, structAsPermissions } from './permiss
 import { DEFAULT_TARGETS, verifyTargetsPermission } from './permissions/TargetPermission';
 import { newAbiType } from './util/abi';
 import { asHex } from './bytes';
-import { defaultAbiCoder, keccak256 } from 'ethers/lib/utils';
+import { keccak256 } from 'ethers/lib/utils';
 import { Arraylike, toSet } from './util';
-import _ from 'lodash';
 
 export type PolicyStruct = AwaitedObj<BasePolicyStruct>;
 
@@ -34,25 +33,24 @@ export interface Policy {
   threshold: number;
 }
 
-export const asPolicy = (
-  p: Partial<Omit<Policy, 'key' | 'approvers'>> & {
-    key: BigIntlike;
-    approvers: Arraylike<Address>;
-  },
-): Policy => {
+export const asPolicy = (p: {
+  key: BigIntlike;
+  permissions?: Partial<Permissions>;
+  approvers: Arraylike<Address>;
+  threshold?: number;
+}): Policy => {
   const approvers = toSet(p.approvers);
 
   if (p.threshold !== undefined && p.threshold > approvers.size)
     throw new Error(`Policy threshold must be greater than approvers`);
 
   return {
-    permissions: {
-      targets: DEFAULT_TARGETS,
-    },
-    threshold: approvers.size,
-    ...p,
     key: asPolicyKey(p.key),
     approvers,
+    threshold: p.threshold ?? approvers.size,
+    permissions: {
+      targets: p.permissions?.targets ?? DEFAULT_TARGETS,
+    },
   };
 };
 

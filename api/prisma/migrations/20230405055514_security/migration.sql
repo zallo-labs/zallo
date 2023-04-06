@@ -89,11 +89,11 @@ CREATE POLICY account_member_delete ON "Policy" FOR DELETE
 
 
 
-/* PolicyRules */
-GRANT SELECT, INSERT ON "PolicyRules" TO PUBLIC;
-ALTER TABLE "PolicyRules" ENABLE ROW LEVEL SECURITY;
+/* PolicyState */
+GRANT SELECT, INSERT ON "PolicyState" TO PUBLIC;
+ALTER TABLE "PolicyState" ENABLE ROW LEVEL SECURITY;
 
-CREATE POLICY account_member_all ON "PolicyRules" FOR ALL
+CREATE POLICY account_member_all ON "PolicyState" FOR ALL
     USING (is_user_account("accountId"));
 
 
@@ -104,9 +104,19 @@ ALTER TABLE "Approver" ENABLE ROW LEVEL SECURITY;
 
 CREATE POLICY account_member_all ON "Approver" FOR ALL
     USING (is_user_account(
-        (SELECT "accountId" FROM "PolicyRules" WHERE "id" = "policyRulesId")
+        (SELECT "accountId" FROM "PolicyState" WHERE "id" = "stateId")
     ));
 
+
+
+/* Target */
+GRANT SELECT, INSERT ON "Target" TO PUBLIC;
+ALTER TABLE "Target" ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY account_member_all ON "Target" FOR ALL
+    USING (is_user_account(
+        (SELECT "accountId" FROM "PolicyState" WHERE "id" = "stateId")
+    ));
 
 
 /* Proposal */
