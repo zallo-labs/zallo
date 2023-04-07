@@ -7438,16 +7438,16 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@matterlabs/hardhat-zksync-solc@npm:^0.3.15":
-  version: 0.3.15
-  resolution: "@matterlabs/hardhat-zksync-solc@npm:0.3.15"
+"@matterlabs/hardhat-zksync-solc@npm:^0.3.16":
+  version: 0.3.16
+  resolution: "@matterlabs/hardhat-zksync-solc@npm:0.3.16"
   dependencies:
     "@nomiclabs/hardhat-docker": ^2.0.0
     chalk: 4.1.2
     dockerode: ^3.3.4
   peerDependencies:
     hardhat: ^2.13.0
-  checksum: 0c780be8df9577fa8b6abdcd94c3fe00c358ff7dfa52c7585bfaa608d6b467481f66335e7ac6f241fc4e188344537c9363ccb5c58722a134b547899e9392a826
+  checksum: e6caf562d21caeebc8d51eb17cb2b45116c5470b9f42ec4344ba676d1de9f056e36f2edd2bd99f601d45f44eec48c151f1fe7e6e4f80793313eaa4eef3966c26
   languageName: node
   linkType: hard
 
@@ -18068,7 +18068,7 @@ __metadata:
   dependencies:
     "@matterlabs/hardhat-zksync-chai-matchers": ^0.1.2
     "@matterlabs/hardhat-zksync-deploy": ^0.6.3
-    "@matterlabs/hardhat-zksync-solc": ^0.3.15
+    "@matterlabs/hardhat-zksync-solc": ^0.3.16
     "@matterlabs/hardhat-zksync-toolbox": ^0.1.1
     "@matterlabs/hardhat-zksync-verify": ^0.1.4
     "@matterlabs/signature-checker": ^1.1.1
