@@ -1,7 +1,7 @@
 import { useTheme } from '@theme/paper';
 import { useCallback } from 'react';
-import { useRootNavigation } from '~/navigation/useRootNavigation';
 import { AlertModalParams } from './AlertModal';
+import { useNavigation } from '@react-navigation/native';
 
 type ConfirmFunction<Defaults extends Partial<ConfirmOptions>> = (
   overrides: Defaults extends ConfirmOptions ? Partial<ConfirmOptions> : ConfirmOptions,
@@ -14,7 +14,7 @@ export interface ConfirmOptions extends AlertModalParams {
 export const useConfirm = <Defaults extends Partial<ConfirmOptions>>(
   defaults?: Defaults,
 ): ConfirmFunction<Defaults> => {
-  const { navigate } = useRootNavigation();
+  const { navigate } = useNavigation();
 
   return useCallback(
     (overrides) => {
