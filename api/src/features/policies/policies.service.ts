@@ -108,12 +108,15 @@ export class PoliciesService implements OnModuleInit {
         if (permissions)
           policy.permissions = {
             targets: permissions.targets
-              ? Object.fromEntries(
-                  permissions.targets.map((t) => [
-                    asAddress(t.to),
-                    new Set(t.selectors.map(asSelector)),
-                  ]),
-                )
+              ? {
+                  '*': new Set([]),
+                  ...Object.fromEntries(
+                    permissions.targets.map((t) => [
+                      asAddress(t.to),
+                      new Set(t.selectors.map(asSelector)),
+                    ]),
+                  ),
+                }
               : DEFAULT_TARGETS,
           };
 

@@ -1,21 +1,37 @@
-import { Address, ZERO_ADDR, asAddress, compareAddress } from '../address';
+import { Address, Addresslike, ZERO_ADDR, asAddress, compareAddress } from '../address';
 import { Selector, asSelector, compareBytes } from '../bytes';
 import { TargetStruct } from '../contracts/TestRules';
 import { PermissionSelector } from './PermissionSelector';
-import { AwaitedObj } from '../util';
+import { Arraylike, AwaitedObj, toArray } from '../util';
 import { newAbiType } from '../util/abi';
 import { Tx } from '../tx';
 import { PermissionStruct } from './permissions';
 import _ from 'lodash';
+import { BytesLike } from 'ethers';
 
-export type TargetPermission = Record<Address, Set<Selector>>;
+export type TargetPermission = Record<Address | '*', Set<Selector | '*'>>;
 
-export const FALLBACK_ADDRESS = ZERO_ADDR;
-export const ANY_SELECTOR = '0x00000000' as Selector;
+export const asTargets = (
+  entries?: { to: Addresslike | '*'; selectors: Arraylike<BytesLike | '*'> }[],
+): TargetPermission =>
+  entries
+    ? {
+        '*': new Set([]),
+        ...Object.fromEntries(
+          entries.map(({ to, selectors }) => [
+            to === '*' ? to : asAddress(to),
+            new Set(toArray(selectors).map((s) => (s === '*' ? s : asSelector(s)))),
+          ]),
+        ),
+      }
+    : DEFAULT_TARGETS;
 
-export const DEFAULT_TARGETS: TargetPermission = {
-  [FALLBACK_ADDRESS]: new Set([ANY_SELECTOR]),
-};
+const FALLBACK_ADDRESS = ZERO_ADDR;
+const ANY_SELECTOR = '0x00000000' as Selector;
+
+export const DEFAULT_TARGETS = {
+  '*': new Set(['*'] as const),
+} satisfies TargetPermission;
 
 export const TARGET_PERMISSION_ABI = newAbiType<
   TargetPermission,
@@ -35,9 +51,16 @@ export const TARGET_PERMISSION_ABI = newAbiType<
     (targetStructs ?? []).reduce(
       (acc, { to, selectors }) => ({
         ...acc,
-        [to]: new Set(selectors.map(asSelector)),
+        [to === FALLBACK_ADDRESS ? '*' : to]: new Set(
+          selectors.map((s) => {
+            const selector = asSelector(s);
+            return selector !== ANY_SELECTOR ? selector : '*';
+          }),
+        ),
       }),
-      {},
+      {
+        '*': new Set([]),
+      },
     ),
 );
 

@@ -19,6 +19,8 @@ export const asHex = <V extends BytesLike | undefined>(v: V, len?: number) => {
 export const EMPTY_HEX_BYTES = '0x' as Hex;
 
 export type Selector = A.Type<string, 'Selector'>;
+
+export const isSelector = (v: unknown): v is Selector => isHex(v, 4);
 export const asSelector = <V extends BytesLike | undefined>(v: V) =>
   (v && hexDataLength(v) >= 4 ? asHex(hexDataSlice(v, 0, 4), 4) : undefined) as V extends undefined
     ? Selector | undefined

@@ -1,5 +1,5 @@
 import { Approver, PolicyState, Prisma, Target } from '@prisma/client';
-import { asAddress, asPolicy, asSelector, Policy, PolicyKey } from 'lib';
+import { asAddress, asPolicy, asTargets, Policy, PolicyKey } from 'lib';
 import { connectOrCreateUser } from '~/util/connect-or-create';
 import { PolicyInput } from './policies.args';
 
@@ -21,9 +21,7 @@ export const prismaAsPolicy = (p: PrismaPolicy): Policy =>
     approvers: p.approvers.map((a) => asAddress(a.userId)),
     threshold: p.threshold,
     permissions: {
-      targets: Object.fromEntries(
-        p.targets.map(({ to, selectors }) => [asAddress(to), new Set(selectors.map(asSelector))]),
-      ),
+      targets: asTargets(p.targets),
     },
   });
 
@@ -49,13 +47,6 @@ export const inputAsPolicy = (key: PolicyKey, p: PolicyInput): Policy =>
     approvers: p.approvers,
     threshold: p.threshold,
     permissions: {
-      targets: p.permissions.targets
-        ? Object.fromEntries(
-            p.permissions.targets.map((t) => [
-              asAddress(t.to),
-              new Set(t.selectors.map(asSelector)),
-            ]),
-          )
-        : undefined,
+      targets: asTargets(p.permissions.targets),
     },
   });

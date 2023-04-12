@@ -289,7 +289,7 @@ describe(ProposalsService.name, () => {
     //     const usersToNotify = [randomAddress(), randomAddress()];
 
     //     // Mark policy rules as active
-    //     const policy: PolicyGuid = { account: asAddress(accountId), key: toPolicyKey(policyKey) };
+    //     const policy: PolicyId = { account: asAddress(accountId), key: toPolicyKey(policyKey) };
     //     await prisma.asUser.policyRules.create({
     //       data: {
     //         account: connectAccount(policy.account),
