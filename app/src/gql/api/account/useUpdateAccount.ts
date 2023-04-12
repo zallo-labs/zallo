@@ -24,7 +24,7 @@ export const useUpdateAccount = (account?: WAccount) => {
       account &&
       name !== account.name &&
       mutate({
-        variables: { args: { account: account.id, name } },
+        variables: { args: { id: account.id, name } },
         optimisticResponse: {
           updateAccount: {
             __typename: 'Account',

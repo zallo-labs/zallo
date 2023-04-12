@@ -346,6 +346,7 @@ export type ContractSourceConfidence =
   | 'Medium';
 
 export type CreateAccountInput = {
+  name: Scalars['String'];
   policies: Array<PolicyInput>;
 };
 
@@ -1235,6 +1236,7 @@ export type UniquePolicyInput = {
 
 export type UpdateAccountInput = {
   id: Scalars['Address'];
+  name: Scalars['String'];
 };
 
 export type UpdatePolicyInput = {

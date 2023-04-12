@@ -33,10 +33,12 @@ export const useCreateAccount = () => {
       variables: {
         args: {
           name,
-          policies: {
-            approvers: [user.id],
-            permissions: {},
-          },
+          policies: [
+            {
+              approvers: [user.id],
+              permissions: {},
+            },
+          ],
         },
       },
       update: (cache, res) => {
