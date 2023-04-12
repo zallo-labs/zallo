@@ -4,12 +4,12 @@ import { Text } from 'react-native-paper';
 import { useSelectedAccountId } from '~/components/AccountSelector/useSelectedAccount';
 import { FiatValue } from '~/components/fiat/FiatValue';
 import { Screen } from '~/components/layout/Screen';
-import { ScreenSkeleton } from '~/components/skeleton/ScreenSkeleton';
 import { withSuspense } from '~/components/skeleton/withSuspense';
 import { StackNavigatorScreenProps } from '~/navigation/StackNavigator2';
 import { Appbar } from './Appbar';
 import { QuickActions } from './QuickActions';
 import { Tabs } from './Tabs';
+import { Splash } from '~/components/Splash';
 
 export type HomeScreenProps = StackNavigatorScreenProps<'Home'>;
 
@@ -29,7 +29,7 @@ export const HomeScreen = withSuspense((_props: HomeScreenProps) => {
       <Tabs />
     </Screen>
   );
-}, ScreenSkeleton);
+}, Splash);
 
 const styles = StyleSheet.create({
   totalValue: {
