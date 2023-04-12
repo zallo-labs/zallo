@@ -3,14 +3,14 @@ import { StyleSheet, View } from 'react-native';
 import { Button } from 'react-native-paper';
 import { useSelectedAccountId } from '~/components/AccountSelector/useSelectedAccount';
 import { useRootNavigation2 } from '~/navigation/useRootNavigation';
-import { useScanAddress } from '../Scan/useScanAddress';
+import { useScanAddress } from '../Scan/ScanScreen';
 
 export const QuickActions = () => {
   const { navigate } = useRootNavigation2();
   const account = useSelectedAccountId();
   const scan = useScanAddress();
 
-  const send = async () => navigate('Send', { to: await scan() });
+  const send = async () => navigate('Send', { to: await scan({}) });
   const receive = () => navigate('QrModal', { address: account });
 
   return (

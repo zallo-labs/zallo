@@ -1,4 +1,7 @@
-import { useEffect, useState } from 'react';
+import { useNavigation } from '@react-navigation/native';
+import { useCallback, useEffect, useState } from 'react';
+import { StackNavigatorParamList } from '~/navigation/StackNavigator2';
+import { useRootNavigation2 } from '~/navigation/useRootNavigation';
 
 export type Listener<T> = (params: T) => void;
 
@@ -22,6 +25,33 @@ export class EventEmitter<T> {
 
       this.listeners.add(listener);
     });
+  }
+
+  createUseSelect<RouteName extends keyof StackNavigatorParamList>(
+    route: RouteName,
+    defaults?: Partial<StackNavigatorParamList[RouteName]>,
+  ) {
+    const emitter = this;
+    return () => {
+      const { navigate, goBack } = useRootNavigation2();
+
+      return useCallback(
+        async (
+          ...args: StackNavigatorParamList[RouteName] extends undefined
+            ? []
+            : [StackNavigatorParamList[RouteName]]
+        ) => {
+          const p = emitter.getEvent();
+          (navigate as any)(route, { ...(defaults ?? {}), ...(args[0] ?? {}) });
+
+          await p;
+          goBack();
+
+          return p;
+        },
+        [navigate],
+      );
+    };
   }
 }
 

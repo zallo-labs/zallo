@@ -10,7 +10,7 @@ import { ScanIcon } from '~/util/theme/icons';
 import assert from 'assert';
 import { useMemo } from 'react';
 import { ContactAppbar } from './ContactAppbar';
-import { useScanAddress } from '../Scan/useScanAddress';
+import { useScanAddress } from '../Scan/ScanScreen';
 import { FormikSubmitActionButton } from '~/components/fields/FormikSubmitActionButton';
 import { StyleSheet } from 'react-native';
 
@@ -94,7 +94,7 @@ export const ContactScreen = ({ route, navigation: { goBack, setParams } }: Cont
                 style={styles.scanButton}
                 disabled={isSubmitting}
                 onPress={async () => {
-                  setFieldValue('addr', await scanAddress());
+                  setFieldValue('addr', await scanAddress({}));
                   goBack();
                 }}
               >

@@ -13,7 +13,7 @@ import { ListHeader } from '~/components/list/ListHeader';
 import { Screen } from '~/components/layout/Screen';
 import { truncateAddr } from '~/util/format';
 import { ListItem } from '~/components/list/ListItem';
-import { useScanAddress } from '../Scan/useScanAddress';
+import { useScanAddress } from '../Scan/ScanScreen';
 import { ListHeaderButton } from '~/components/list/ListHeaderButton';
 import { CONTACT_EMITTER } from './useSelectContact';
 
@@ -34,7 +34,7 @@ export const ContactsScreen = withSuspense(
     const [contacts, searchProps] = useSearch(useContacts(), ['name', 'address']);
 
     const add = () => navigate('Contact', {});
-    const scan = async () => navigate('Contact', { address: await scanAddress() });
+    const scan = async () => navigate('Contact', { address: await scanAddress({}) });
 
     const onSelect: (c: Contact) => void = useMemo(
       () =>

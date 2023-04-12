@@ -33,7 +33,7 @@ export const Overlay = ({ onData }: OverlayProps) => {
         <IconButton
           icon={ContactsIcon}
           mode="contained-tonal"
-          onPress={async () => onData((await selectContact()).address)}
+          onPress={async () => onData((await selectContact({})).address)}
         />
 
         <IconButton

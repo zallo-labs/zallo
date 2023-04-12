@@ -18,6 +18,7 @@ import { EventEmitter } from '~/util/EventEmitter';
 import useAsyncEffect from 'use-async-effect';
 
 export const SCAN_ADDRESS_EMITTER = new EventEmitter<Address>('Scan::Address');
+export const useScanAddress = SCAN_ADDRESS_EMITTER.createUseSelect('Scan', { emitAddress: true });
 
 export type ScanScreenParams = {
   emitAddress?: boolean;
