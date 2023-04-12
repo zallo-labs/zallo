@@ -29,7 +29,7 @@ export const tokenBalanceAtom = atomFamily<bigint, BalanceKey>({
   effects: (key) =>
     key[0] !== null
       ? [
-          persistAtom(),
+          // persistAtom(),
           refreshAtom({
             refresh: () => fetch(key),
             interval: 10 * 1000,
@@ -39,13 +39,13 @@ export const tokenBalanceAtom = atomFamily<bigint, BalanceKey>({
 });
 
 export const useTokenBalance = (token: Token, account: AccountIdlike | undefined) =>
-  useRecoilValue(tokenBalanceAtom([asAccountId(account) ?? null, token.addr]));
+  useRecoilValue(tokenBalanceAtom([asAccountId(account) ?? null, token.address]));
 
 export const useUpdateTokenBalance = (token: Token, account: AccountIdlike | undefined) => {
-  const update = useSetRecoilState(tokenBalanceAtom([asAccountId(account) ?? null, token.addr]));
+  const update = useSetRecoilState(tokenBalanceAtom([asAccountId(account) ?? null, token.address]));
 
   return useCallback(
-    async () => update(await fetch([asAccountId(account) ?? null, token.addr])),
-    [account, token.addr, update],
+    async () => update(await fetch([asAccountId(account) ?? null, token.address])),
+    [account, token.address, update],
   );
 };

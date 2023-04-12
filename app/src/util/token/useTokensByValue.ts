@@ -12,9 +12,9 @@ const tokensByValueSelector = selectorFamily<Token[], Address | null>({
     ({ get }) => {
       return get(tokensSelector)
         .map((token) => {
-          const balance = get(tokenBalanceAtom([account, token.addr]));
+          const balance = get(tokenBalanceAtom([account, token.address]));
 
-          return { token, value: get(tokenValueSelector([token.addr, balance.toString()])) };
+          return { token, value: get(tokenValueSelector([token.address, balance.toString()])) };
         })
         .sort((a, b) => b.value - a.value)
         .map(({ token }) => token);

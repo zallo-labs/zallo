@@ -24,8 +24,8 @@ export interface Token extends TokenUnit {
   name: string;
   symbol: string;
   decimals: number;
-  addr: Address; // Current chain address
-  addresses: Partial<Record<'mainnet' | 'testnet', Address>>;
+  address: Address; // Current chain address
+  addresses: Partial<Record<'ethereum' | 'testnet', Address>>;
   iconUri: string;
   units: [TokenUnit, ...TokenUnit[]];
 }
@@ -35,13 +35,13 @@ export const isToken = createIsObj<Token>(
   ['name', 'string'],
   ['symbol', 'string'],
   ['decimals', 'number'],
-  ['addr', isAddress],
+  ['address', isAddress],
   ['iconUri', 'string'],
 );
 
 type TokenDef = Pick<Token, 'name' | 'symbol' | 'decimals'> & {
   type?: TokenType;
-  addresses: Partial<Record<ChainName, Addresslike>>;
+  addresses: Partial<Record<'ethereum' | ChainName, Addresslike>>;
   iconUri?: string;
   units?: TokenUnit[];
 };
@@ -49,15 +49,15 @@ type TokenDef = Pick<Token, 'name' | 'symbol' | 'decimals'> & {
 export const asToken = (def: TokenDef): Token => {
   const addresses = _.mapValues(def.addresses, tryAsAddress);
 
-  const addr = addresses[CHAIN.name];
-  assert(addr, `Token '${def.name}' doesn't support current chain '${CHAIN.name}'`);
+  const address = addresses[CHAIN.name];
+  assert(address, `Token '${def.name}' doesn't support current chain '${CHAIN.name}'`);
 
   const baseUnit: TokenUnit = { symbol: def.symbol, decimals: def.decimals };
 
   return {
     type: 'ERC20',
     ...def,
-    addr,
+    address,
     addresses,
     iconUri:
       def.iconUri ??
@@ -69,7 +69,7 @@ export const asToken = (def: TokenDef): Token => {
 export const ERC20_INTERFACE = Erc20__factory.createInterface();
 
 export const getTokenContract = (token: Token): Erc20 =>
-  Erc20__factory.connect(token.addr, PROVIDER);
+  Erc20__factory.connect(token.address, PROVIDER);
 
 export const convertTokenAmount = (amount: bigint, prevToken: Token, newToken: Token): bigint => {
   const decimalsDiff = prevToken.decimals - newToken.decimals;

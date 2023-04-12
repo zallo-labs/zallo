@@ -52,7 +52,7 @@ export const buildAddressLink = (o: BuildAddressLinkOptions) => {
   };
 
   if (isTransferRequestOptions(o)) {
-    if (o.token === ETH.addr) {
+    if (o.token === ETH.address) {
       link.parameters.value = o.amount.toString();
     } else {
       link.function_name = 'transfer';

@@ -23,7 +23,7 @@ export const tokenValueSelector = selectorFamily<number, TokenValueParam>({
 });
 
 export const useTokenValue = (token: Token | undefined, amount: bigint | undefined) =>
-  useRecoilValue(tokenValueSelector([token?.addr, amount?.toString()]));
+  useRecoilValue(tokenValueSelector([token?.address, amount?.toString()]));
 
 const tokenValuesSelector = selectorFamily<number[], TokenValueParam[]>({
   key: 'tokenValues',

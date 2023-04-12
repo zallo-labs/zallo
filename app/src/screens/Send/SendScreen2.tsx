@@ -25,7 +25,7 @@ import { InputsView, InputType } from './InputsView';
 const createTransferTx = (token: Token, to: Address, amount: bigint): Call =>
   token.type === 'ERC20'
     ? {
-        to: token.addr,
+        to: token.address,
         data: asHex(getTokenContract(token).interface.encodeFunctionData('transfer', [to, amount])),
       }
     : { to, value: amount };

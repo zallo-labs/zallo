@@ -7,7 +7,7 @@ import { ETH } from '@token/tokens';
 import { Token } from '@token/token';
 
 const fetch = async (token: Address) => {
-  if (token !== ETH.addr)
+  if (token !== ETH.address)
     throw new Error('Only ETH is curerntly supported -- zk.Provider throws 🤷');
   try {
     return (await PROVIDER.getGasPrice()).toBigInt();
@@ -34,5 +34,5 @@ const gasPriceAtom = atomFamily<bigint, Address>({
 
 export const useGasPrice = (token?: Token) => {
   const feeToken = useFeeToken();
-  return useRecoilValue(gasPriceAtom((token || feeToken).addr));
+  return useRecoilValue(gasPriceAtom((token || feeToken).address));
 };

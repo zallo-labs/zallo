@@ -44,7 +44,7 @@ export const tokenAtom = selectorFamily<Token, Address>({
 export type Tokenlike = Address | Token;
 
 export const useToken = (token: Tokenlike) =>
-  useRecoilValue(tokenAtom(typeof token === 'string' ? token : token.addr));
+  useRecoilValue(tokenAtom(typeof token === 'string' ? token : token.address));
 
 const MAYBE_TOKEN = selectorFamily<Token | null, Address | undefined>({
   key: 'maybeToken',

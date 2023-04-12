@@ -26,7 +26,7 @@ export type TokensScreenProps =
 export const TokensScreen = ({ route }: TokensScreenProps) => {
   const { account = useSelectedAccountId(), onSelect, disabled } = route.params;
 
-  const [tokens, searchProps] = useSearch(useTokens(), ['name', 'symbol', 'addr']);
+  const [tokens, searchProps] = useSearch(useTokens(), ['name', 'symbol', 'address']);
 
   return (
     <Screen>
@@ -46,7 +46,7 @@ export const TokensScreen = ({ route }: TokensScreenProps) => {
             token={token}
             account={account}
             onPress={onSelect ? () => onSelect(token) : undefined}
-            disabled={disabled?.has(token.addr)}
+            disabled={disabled?.has(token.address)}
           />
         )}
         contentContainerStyle={styles.container}
