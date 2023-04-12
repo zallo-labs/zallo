@@ -7,7 +7,7 @@ import MastercardSvg from '~/../assets/mastercard.svg';
 import WalletConnectSvg from '~/../assets/walletconnect.svg';
 import TwitterSvg from '~/../assets/twitter.svg';
 import GithubSvg from '~/../assets/github.svg';
-import { useTheme } from './paper';
+import { ICON_SIZE, useTheme } from './paper';
 
 export interface IconProps {
   size?: number;
@@ -20,17 +20,18 @@ type Curried<C extends ElementType, Props = ComponentPropsWithoutRef<C>> = (
 ) => FC<Omit<Props, 'name'>>;
 
 export const materialIcon: Curried<typeof MaterialIcons> = (name) => (props) =>
-  <MaterialIcons name={name} {...props} />;
+  <MaterialIcons name={name} size={ICON_SIZE.small} {...props} />;
 
 export const materialCommunityIcon: Curried<typeof MaterialCommunityIcons> = (name) => (props) =>
-  <MaterialCommunityIcons name={name} {...props} />;
+  <MaterialCommunityIcons name={name} size={ICON_SIZE.small} {...props} />;
 
 export const ionIcon: Curried<typeof Ionicons> = (name) => (props) =>
-  <Ionicons name={name} {...props} />;
+  <Ionicons name={name} size={ICON_SIZE.small} {...props} />;
 
 export const HomeIcon = materialIcon('home');
 export const ActivityIcon = materialCommunityIcon('chart-timeline-variant');
 export const SendIcon = materialCommunityIcon('send');
+export const SendOutlineIcon = materialCommunityIcon('send-outline');
 export const ReceiveIcon = materialCommunityIcon('arrow-bottom-left');
 export const UserIcon = materialIcon('person');
 export const UserOutlineIcon = materialIcon('person-outline');
@@ -99,6 +100,10 @@ export const ClockIcon = materialCommunityIcon('clock');
 export const ClockOutlineIcon = materialCommunityIcon('clock-outline');
 export const GasIcon = materialCommunityIcon('gas-station');
 export const GasOutlineIcon = materialCommunityIcon('gas-station-outline');
+export const FunctionIcon = materialCommunityIcon('script-text');
+export const FunctionOutlineIcon = materialCommunityIcon('script-text-outline');
+export const UnknownIcon = materialCommunityIcon('help-circle');
+export const UnknownOutlineIcon = materialCommunityIcon('help-circle-outline');
 
 export const PolicyActiveIcon = materialCommunityIcon('shield');
 export const PolicyActiveOutlineIcon = materialCommunityIcon('shield-outline');

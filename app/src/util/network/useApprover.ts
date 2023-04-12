@@ -8,8 +8,8 @@ export const approverAtom = atom<Approver>({
   default: Approver.createRandom().connect(PROVIDER),
   effects: [
     persistAtom({
-      save: (approver) => approver.privateKey,
-      load: (privateKey) => new Approver(privateKey, PROVIDER),
+      stringify: (approver) => approver.privateKey,
+      parse: (privateKey) => new Approver(privateKey, PROVIDER),
       storage: getSecureStore(),
     }),
   ],

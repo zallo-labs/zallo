@@ -76,6 +76,8 @@
     "fuzzy-search": "^3.2.1",
     "graphql-ws": "^5.12.0",
     "immer": "^9.0.19",
+    "jotai": "^2.0.3",
+    "jotai-immer": "^0.2.0",
     "lib": "workspace:*",
     "luxon": "^3.3.0",
     "metro-react-native-babel-transformer": "^0.76.0",
@@ -119,7 +121,7 @@
     "use-async-effect": "^2.2.7",
     "use-debounce": "^9.0.3",
     "use-immer": "^0.8.1",
-    "valtio": "^1.10.3",
+    "valtio": "^1.10.4",
     "yup": "^0.32.11",
     "zksync-web3": "^0.14.3"
   },

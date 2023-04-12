@@ -14526,6 +14526,8 @@ __metadata:
     jest: ^29.2.1
     jest-environment-node: 29.5.0
     jest-expo: ^48.0.0
+    jotai: ^2.0.3
+    jotai-immer: ^0.2.0
     lib: "workspace:*"
     luxon: ^3.3.0
     metro-react-native-babel-transformer: ^0.76.0
@@ -14574,7 +14576,7 @@ __metadata:
     use-async-effect: ^2.2.7
     use-debounce: ^9.0.3
     use-immer: ^0.8.1
-    valtio: ^1.10.3
+    valtio: ^1.10.4
     yup: ^0.32.11
     zksync-web3: ^0.14.3
   languageName: unknown
@@ -28443,6 +28445,29 @@ __metadata:
   languageName: node
   linkType: hard
 
+"jotai-immer@npm:^0.2.0":
+  version: 0.2.0
+  resolution: "jotai-immer@npm:0.2.0"
+  peerDependencies:
+    immer: "*"
+    jotai: ">=1.11.0"
+    react: ">=17.0.0"
+  checksum: 6860557e0e1550e5c7393b46632ecd90a803774c9b88f69a52b38bf14061ebc0a1de0c8484edd6b956d85de603dca5d06b50ed164bc12a83514c0bcf5d394a5c
+  languageName: node
+  linkType: hard
+
+"jotai@npm:^2.0.3":
+  version: 2.0.3
+  resolution: "jotai@npm:2.0.3"
+  peerDependencies:
+    react: ">=17.0.0"
+  peerDependenciesMeta:
+    react:
+      optional: true
+  checksum: 3ad1d6a9b7e40a8dd8cdc423441164c25852a328c98806ed0e2a283a4e07af661f4a88b50528367aeae582932171bc8979e45cbc9023af30b9f4a348faeed567
+  languageName: node
+  linkType: hard
+
 "js-sdsl@npm:^4.1.4":
   version: 4.1.4
   resolution: "js-sdsl@npm:4.1.4"
@@ -42123,9 +42148,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"valtio@npm:^1.10.3":
-  version: 1.10.3
-  resolution: "valtio@npm:1.10.3"
+"valtio@npm:^1.10.4":
+  version: 1.10.4
+  resolution: "valtio@npm:1.10.4"
   dependencies:
     proxy-compare: 2.5.0
     use-sync-external-store: 1.2.0
@@ -42134,7 +42159,7 @@ __metadata:
   peerDependenciesMeta:
     react:
       optional: true
-  checksum: 2e0951090a0bc9c63ecc1c4fa3bf4dea46b561a1c8e35ae7c7359908029a3b56ea202ebe485152e7c79dfa3781e84d59be5c5cf082bb005ba5b463c3309ed850
+  checksum: 6d877e24cc065ef70b7d4fdfe0914398098c08505df885103bec3bc34ea4c0562d89a94e05c16ddc125ff800601564986eab4792e5ba9f1130013f932f224b1b
   languageName: node
   linkType: hard
 

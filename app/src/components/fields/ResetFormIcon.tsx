@@ -1,8 +1,8 @@
 import { IconProps, UndoIcon } from '@theme/icons';
-import { FieldValues, UseFormReset, useFormState, UseFormStateProps } from 'react-hook-form';
+import { Control, FieldValues, UseFormReset, useFormState } from 'react-hook-form';
 
 export interface FormResetIconProps<TFieldValues extends FieldValues> extends IconProps {
-  control?: UseFormStateProps<TFieldValues>['control'];
+  control?: Control<TFieldValues>;
   reset: UseFormReset<TFieldValues>;
 }
 

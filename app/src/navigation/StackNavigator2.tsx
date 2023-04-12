@@ -25,6 +25,12 @@ import { SettingsScreen } from '~/screens/Settings/SettingsScreen';
 import { TokensScreen, TokensScreenParams } from '~/screens/tokens/TokensScreen';
 import { UserScreen } from '~/screens/User/UserScreen';
 import { PolicyScreen, PolicyScreenParams } from '~/screens/Policy/PolicyScreen2';
+import {
+  InteractionsScreen,
+  InteractionsScreenParams,
+} from '~/screens/Interactions/InteractionsScreen';
+import { ContractsModal, ContractsModalParams } from '~/components/Contracts/ContractsModal';
+import { ImportSelectorModal } from '../screens/ImportSelector/ImportSelectorModal';
 
 export type StackNavigatorParamList = {
   Home: undefined;
@@ -38,6 +44,7 @@ export type StackNavigatorParamList = {
   User: undefined;
   Account: AccountScreen2Params;
   Policy: PolicyScreenParams;
+  Interactions: InteractionsScreenParams;
   Sessions: undefined;
   Tokens: TokensScreenParams;
   // Onboarding
@@ -53,6 +60,8 @@ export type StackNavigatorParamList = {
   RenameAccountModal: RenameAccountModalParams;
   ContactsModal: ContactsScreenParams;
   TokensModal: TokensScreenParams;
+  ContractsModal: ContractsModalParams;
+  ImportSelectorModal: undefined;
 };
 
 export type StackNavigatorNavigationProp = StackNavigationProp<StackNavigatorParamList>;
@@ -87,6 +96,7 @@ export const StackNavigator = () => {
       <Navigation.Screen name="User" component={UserScreen} />
       <Navigation.Screen name="Account" component={AccountScreen2} />
       <Navigation.Screen name="Policy" component={PolicyScreen} />
+      <Navigation.Screen name="Interactions" component={InteractionsScreen} />
       <Navigation.Screen name="Sessions" component={SessionsScreen} />
       <Navigation.Screen name="Tokens" component={TokensScreen} />
 
@@ -107,6 +117,8 @@ export const StackNavigator = () => {
         <Navigation.Screen name="RenameAccountModal" component={RenameAccountModal} />
         <Navigation.Screen name="ContactsModal" component={ContactsScreen} />
         <Navigation.Screen name="TokensModal" component={TokensScreen} />
+        <Navigation.Screen name="ContractsModal" component={ContractsModal} />
+        <Navigation.Screen name="ImportSelectorModal" component={ImportSelectorModal} />
       </Navigation.Group>
     </Navigation.Navigator>
   );

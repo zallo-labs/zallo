@@ -7,6 +7,7 @@ import { AddressOrLabelIcon } from '../Identicon/AddressOrLabelIcon';
 import { TextProps } from '@theme/types';
 import { StyleProp, TextStyle, ViewStyle } from 'react-native';
 import { O } from 'ts-toolbelt';
+import { ICON_SIZE } from '@theme/paper';
 
 /*
  * https://m3.material.io/components/lists/specs
@@ -42,11 +43,12 @@ export const ListItem = ({
   lines = (1 + Number(!!Overline) + Number(!!Supporting)) as Lines,
   selected,
   disabled,
+  avatarLeadingSize,
   containerStyle,
   textStyle,
   ...touchableProps
 }: ListItemProps) => {
-  const styles = useStyles({ lines, selected, disabled });
+  const styles = useStyles({ lines, selected, disabled, avatarLeadingSize });
 
   const OverlineText = ({ style, ...props }: TextProps) => (
     <Text
@@ -147,6 +149,7 @@ interface StyleProps {
   lines: Lines;
   selected?: boolean;
   disabled?: boolean;
+  avatarLeadingSize?: boolean;
 }
 
 export enum ListItemHeight {
@@ -156,7 +159,10 @@ export enum ListItemHeight {
 }
 
 const useStyles = makeStyles(
-  ({ colors, corner, stateLayer, iconSize }, { lines, selected, disabled }: StyleProps) => {
+  (
+    { colors, corner, stateLayer, iconSize },
+    { lines, selected, disabled, avatarLeadingSize }: StyleProps,
+  ) => {
     const justifyContent = lines === 3 ? 'flex-start' : 'center';
 
     const withState = (color: string) => stateLayer(color, disabled && 'disabled');
@@ -187,7 +193,7 @@ const useStyles = makeStyles(
         color: withState(colors.tertiary),
       },
       leadingIcon: {
-        fontSize: 24,
+        fontSize: avatarLeadingSize ? ICON_SIZE.medium : ICON_SIZE.small,
         backgroundColor: withState(colors.onSurfaceVariant),
       },
       mainContainer: {

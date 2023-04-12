@@ -3,8 +3,6 @@ import { AtomEffect, DefaultValue } from 'recoil';
 import * as SecureStore from 'expo-secure-store';
 import BigIntJSON from '../BigIntJSON';
 
-export const DEFAULT_VERSION = 0;
-
 interface Storage {
   getItem: (key: string) => Promise<string | null>;
   setItem: (key: string, value: string) => Promise<void>;
@@ -25,44 +23,68 @@ export const getSecureStore = (options?: SecureStore.SecureStoreOptions): Storag
   removeItem: (key) => SecureStore.deleteItemAsync(key, options),
 });
 
-export interface PersistAtomOptions<T> {
-  save?: Save<T>;
-  load?: Load<T>;
+type Migrations = Record<number, (value: string) => string | DefaultValue>;
+
+const migrate = (
+  atomKey: string,
+  data: string | DefaultValue,
+  dataVersion: number,
+  migrations: Migrations,
+  currentVersion: number,
+): string | DefaultValue => {
+  if (dataVersion === currentVersion || data instanceof DefaultValue) return data;
+
+  const migration = migrations[dataVersion];
+  if (!migration) throw new Error(`Atom '${atomKey}' has no migration for version ${dataVersion}`);
+
+  return migrate(atomKey, migration(data), dataVersion + 1, migrations, currentVersion);
+};
+
+export type PersistAtomOptions<T> = {
+  stringify?: Save<T>;
+  parse?: Load<T>;
   storage?: Storage;
   saveIf?: (value: T, isDefault: boolean) => boolean;
-  version?: number;
-  migrate?: (value: unknown, version: number) => T;
-}
+  clear?: boolean;
+} & ({ version?: never; migrations?: never } | { version: number; migrations: Migrations });
 
 export const persistAtom =
   <T>({
-    save = BigIntJSON.stringify,
-    load = BigIntJSON.parse,
+    stringify = BigIntJSON.stringify,
+    parse = BigIntJSON.parse,
     storage = AsyncStorage,
     saveIf,
-    version = DEFAULT_VERSION,
-    migrate,
+    version = 0,
+    migrations = {},
+    clear,
   }: PersistAtomOptions<T> = {}): AtomEffect<T> =>
   ({ setSelf, onSet, node: { key } }) => {
     // Loads the saved value, otherwise uses the default value
     setSelf(
       storage.getItem(key).then((wrapped) => {
-        if (wrapped === null) return new DefaultValue();
+        if (clear) {
+          storage.removeItem(key);
+          return new DefaultValue();
+        }
+        if (wrapped === null || clear) return new DefaultValue();
 
-        const { data, version: dataVersion }: Wrapped = BigIntJSON.parse(wrapped);
-        if (dataVersion !== version)
-          return migrate ? migrate(load(data), dataVersion) : new DefaultValue();
+        let { data, version: dataVersion }: Wrapped = JSON.parse(wrapped);
+        if (dataVersion !== version) {
+          const migrated = migrate(key, data, dataVersion, migrations, version);
+          if (migrated instanceof DefaultValue) return migrated;
+          data = migrated;
+        }
 
-        return load(data ?? null);
+        return parse(data ?? null);
       }),
     );
 
     // Subscribe to state changes and persist them to localForage
     onSet((newValue, _oldValue, isReset) => {
       if (!saveIf || saveIf(newValue, isReset)) {
-        const wrapped: Wrapped = { data: save(newValue) ?? null, version };
+        const wrapped: Wrapped = { data: stringify(newValue) ?? null, version };
 
-        storage.setItem(key, BigIntJSON.stringify(wrapped));
+        storage.setItem(key, JSON.stringify(wrapped));
       } else {
         storage.removeItem(key);
       }
