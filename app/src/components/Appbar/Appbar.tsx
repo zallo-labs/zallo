@@ -5,15 +5,15 @@ import { FC, ReactNode } from 'react';
 import { View } from 'react-native';
 import { Surface, Text } from 'react-native-paper';
 import { EdgeInsets, useSafeAreaInsets } from 'react-native-safe-area-context';
-import { match } from 'ts-pattern';
 import { AppbarBack2 } from './AppbarBack';
 import { AppbarClose } from './AppbarClose';
+import { TextProps } from '@theme/types';
+import { P, match } from 'ts-pattern';
 
 export interface AppbarProps extends Pick<StyleOptions, 'mode' | 'center'> {
   leading: FC<IconProps> | 'back' | 'close';
   trailing?: Arraylike<FC<IconProps>>;
-  headline: ReactNode;
-  supporting?: ReactNode;
+  headline: ReactNode | FC<Omit<TextProps, 'children'>>;
   elevated?: boolean;
   inset?: boolean;
 }
@@ -23,7 +23,6 @@ export const Appbar = ({
   leading,
   trailing,
   headline: Headline,
-  supporting: Supporting,
   center,
   elevated,
   inset = true,
@@ -33,10 +32,24 @@ export const Appbar = ({
 
   const Leading = leading === 'back' ? AppbarBack2 : leading === 'close' ? AppbarClose : leading;
 
+  const HeadlineView = () => (
+    <View style={styles.headlineContainer}>
+      {typeof Headline === 'function' ? (
+        <Headline style={styles.headline} />
+      ) : (
+        <Text style={styles.headline}>{Headline}</Text>
+      )}
+    </View>
+  );
+
   return (
     <Surface elevation={elevated ? 2 : 0} style={styles.root}>
       <View style={styles.headerContainer}>
-        <Leading size={styles.leadingIcon.fontSize} color={styles.leadingIcon.color} />
+        <View style={styles.leadingContainer}>
+          <Leading size={styles.leadingIcon.fontSize} color={styles.leadingIcon.color} />
+        </View>
+
+        <View style={{ flex: 1 }}>{mode === 'small' && <HeadlineView />}</View>
 
         <View style={styles.trailingContainer}>
           {toArray(trailing ?? []).map((Trailing, index) => (
@@ -49,21 +62,13 @@ export const Appbar = ({
         </View>
       </View>
 
-      <View style={styles.textContainer}>
-        <Text style={styles.headline}>{Headline}</Text>
-
-        {Supporting && (
-          <Text variant="bodyMedium" style={styles.supporting}>
-            {Supporting}
-          </Text>
-        )}
-      </View>
+      {mode !== 'small' && <HeadlineView />}
     </Surface>
   );
 };
 
 interface StyleOptions {
-  mode: 'medium' | 'large';
+  mode: 'small' | 'medium' | 'large';
   center?: boolean;
   insets?: EdgeInsets;
 }
@@ -71,24 +76,36 @@ interface StyleOptions {
 const useStyles = makeStyles(({ colors, fonts }, { mode, center, insets }: StyleOptions) => ({
   root: {
     display: 'flex',
-    justifyContent: 'space-between',
+    justifyContent: match(mode)
+      .with('small', () => 'center' as const)
+      .with(P.union('medium', 'large'), () => 'space-between' as const)
+      .exhaustive(),
     height:
       (insets?.top ?? 0) +
+      {
+        small: 64,
+        medium: 112,
+        large: 154,
+      }[mode],
+    paddingTop:
+      (insets?.top ?? 0) +
       match(mode)
-        .with('medium', () => 112)
-        .with('large', () => 154)
+        .with('small', () => 0)
+        .with(P.union('medium', 'large'), () => 20)
         .exhaustive(),
-    paddingTop: 20 + (insets?.top ?? 0),
-    paddingBottom: match(mode)
-      .with('medium', () => 24)
-      .with('large', () => 28)
-      .exhaustive(),
+    paddingBottom: {
+      small: 0,
+      medium: 24,
+      large: 28,
+    }[mode],
     paddingHorizontal: 16,
   },
   headerContainer: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
     alignItems: 'center',
+  },
+  leadingContainer: {
+    marginRight: 16,
   },
   leadingIcon: {
     color: colors.onSurface,
@@ -103,15 +120,18 @@ const useStyles = makeStyles(({ colors, fonts }, { mode, center, insets }: Style
     color: colors.onSurfaceVariant,
     fontSize: 24,
   },
-  textContainer: {
+  headlineContainer: {
     alignItems: center ? 'center' : 'flex-start',
   },
   headline: {
     ...fonts[
-      match(mode)
-        .with('medium', () => 'headlineSmall' as const)
-        .with('large', () => 'headlineMedium' as const)
-        .exhaustive()
+      (
+        {
+          small: 'titleLarge',
+          medium: 'headlineSmall',
+          large: 'headlineMedium',
+        } as const
+      )[mode]
     ],
     color: colors.onSurface,
   },

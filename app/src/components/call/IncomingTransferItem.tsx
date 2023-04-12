@@ -23,7 +23,7 @@ export const IncomingTransferItem = withSuspense(({ transfer: id }: IncomingTran
 
   return (
     <ListItem
-      leading={transfer.token.addr}
+      leading={transfer.token.address}
       overline={accounts.length > 1 ? account.name : undefined}
       headline={`${TRANSFER_LABEL} from ${useAddressLabel(transfer.from)}`}
       supporting={<Timestamp timestamp={transfer.timestamp} weekday />}

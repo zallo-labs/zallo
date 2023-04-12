@@ -1,4 +1,4 @@
-import { useContractMethod } from '@api/method';
+import { useContractFunction } from '@api/contracts';
 import { ERC20_INTERFACE } from '@token/token';
 import { asAddress, Address, Call } from 'lib';
 
@@ -12,11 +12,11 @@ export interface DecodedTransfer {
 }
 
 export const useDecodedTransfer = (call?: Call): DecodedTransfer | undefined => {
-  const method = useContractMethod(call);
+  const method = useContractFunction(call);
 
   if (!call?.data || method?.selector !== ERC20_TRANSFER_SELECTOR) return undefined;
 
-  const [dest, value] = method.contract.decodeFunctionData(method.fragment, call.data);
+  const [dest, value] = method.iface.decodeFunctionData(method.fragment, call.data);
 
   return { to: asAddress(dest), value: BigInt(value) };
 };

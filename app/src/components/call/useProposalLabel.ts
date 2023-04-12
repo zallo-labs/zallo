@@ -1,4 +1,4 @@
-import { useContractMethod } from '@api/method';
+import { useContractFunction } from '@api/contracts';
 import { ZERO_ADDR } from 'lib';
 import { match } from 'ts-pattern';
 import { Proposal } from '@api/proposal';
@@ -10,12 +10,12 @@ import { useDecodedTransfer } from './useDecodedTransfer';
 export const TRANSFER_LABEL = 'Transfer';
 
 export const useProposalLabel = (p: Proposal | undefined) => {
-  const method = useContractMethod(p);
+  const func = useContractFunction(p);
   const accountMethod = useTryDecodeAccountFunctionData(p?.account ?? ZERO_ADDR, p?.data);
   const transfer = useDecodedTransfer(p);
   const to = useAddressLabel(transfer?.to ?? p?.to);
 
-  if (!method) return p?.value ? `${TRANSFER_LABEL} to ${to}` : `Call ${to}`;
+  if (!func) return p?.value ? `${TRANSFER_LABEL} to ${to}` : `Call ${to}`;
 
   if (transfer) return `${TRANSFER_LABEL} to ${to}`;
 
@@ -26,6 +26,6 @@ export const useProposalLabel = (p: Proposal | undefined) => {
       .exhaustive();
   }
 
-  const methodName = uppercaseFirst(method.fragment.name) || method.selector;
-  return `${methodName} on ${to}`;
+  const funcName = uppercaseFirst(func.fragment.name) || func.selector;
+  return `${funcName} on ${to}`;
 };

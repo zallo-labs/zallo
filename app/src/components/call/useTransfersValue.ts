@@ -7,7 +7,9 @@ import _ from 'lodash';
 export const useTransfersValue = (transfers: Transfer[]) => {
   const values = _.zip(
     transfers,
-    useTokenValues(...transfers.map((t): [Address, string] => [t.token.addr, t.amount.toString()])),
+    useTokenValues(
+      ...transfers.map((t): [Address, string] => [t.token.address, t.amount.toString()]),
+    ),
   );
 
   return values.reduce((sum, [transfer, value]) => {
