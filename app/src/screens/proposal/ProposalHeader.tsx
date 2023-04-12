@@ -19,7 +19,7 @@ export const ProposalHeader = ({ proposal: p, style }: ProposalHeaderProps) => {
 
   return (
     <Box alignItems="center" style={style}>
-      <AddressIcon addr={p.account} size={styles.iconSize.fontSize} />
+      <AddressIcon address={p.account} size={styles.iconSize.fontSize} />
 
       <Text variant="headlineMedium" style={styles.from}>
         {useAddressLabel(p.account)}

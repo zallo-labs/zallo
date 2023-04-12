@@ -7,7 +7,7 @@ import { persistAtom } from '~/util/effect/persistAtom';
 
 export const feeTokenAddr = atom<Address>({
   key: 'feeTokenAddr',
-  default: ETH.addr,
+  default: ETH.address,
   effects: [persistAtom()],
 });
 
@@ -20,7 +20,7 @@ const feeToken = selector<Token>({
   set:
     ({ set }) =>
     (token: Token) => {
-      set(feeTokenAddr, token.addr);
+      set(feeTokenAddr, token.address);
     },
 });
 

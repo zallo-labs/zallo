@@ -10,7 +10,7 @@ import {
   PolicyRemoveIcon,
   PolicyRemoveOutlineIcon,
 } from '@theme/icons';
-import { match, P } from 'ts-pattern';
+import { match } from 'ts-pattern';
 
 export interface PolicyIconProps extends IconProps {
   policy: WPolicy;

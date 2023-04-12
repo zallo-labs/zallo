@@ -38,7 +38,7 @@ export const ProposalItem = withSuspense(({ proposal: id, onPress }: ProposalIte
 
   return (
     <ListItem
-      leading={token.addr}
+      leading={token.address}
       headline={useProposalLabel(p)}
       supporting={supporting}
       trailing={({ Text }) => (

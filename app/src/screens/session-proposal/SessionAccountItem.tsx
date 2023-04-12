@@ -22,7 +22,7 @@ const SessionAccountItem = ({
 
   return (
     <Item
-      Left={<AddressIcon addr={accountAddr} />}
+      Left={<AddressIcon address={accountAddr} />}
       Main={[<Text variant="titleLarge">{account.name}</Text>]}
       selected={selected}
       Right={<Checkbox status={selected ? 'checked' : 'unchecked'} onPress={() => onSelect()} />}

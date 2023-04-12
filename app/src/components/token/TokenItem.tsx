@@ -27,7 +27,7 @@ export const TokenItem = withSuspense(
 
     return (
       <ListItem
-        leading={token.addr}
+        leading={token.address}
         headline={token.name}
         supporting={({ Text }) => (
           <Box horizontal>
@@ -51,7 +51,7 @@ export const TokenItem = withSuspense(
       />
     );
   },
-  <ListItemSkeleton leading supporting trailing />,
+  (props) => <ListItemSkeleton {...props} leading supporting trailing />,
 );
 
 const useStyles = makeStyles(({ colors }) => ({

@@ -17,7 +17,7 @@ export const AddrItem = memo(({ addr, secondary, ...itemProps }: AddrItemProps) 
 
   return (
     <Item
-      Left={<AddressIcon addr={addr} />}
+      Left={<AddressIcon address={addr} />}
       Main={[<Text variant="titleMedium">{name ?? truncatedAddr}</Text>, secondary]}
       Right={name && <Text variant="bodyMedium">{truncatedAddr}</Text>}
       padding

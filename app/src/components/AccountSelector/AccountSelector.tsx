@@ -13,7 +13,7 @@ export const AccountSelector = () => {
 
   return (
     <TouchableOpacity style={styles.container} onPress={() => navigate('AccountsSheet')}>
-      <AddressIcon addr={account} size={styles.icon.fontSize} />
+      <AddressIcon address={account} size={styles.icon.fontSize} />
 
       <Text variant="titleLarge">
         <AddressLabel address={account} />

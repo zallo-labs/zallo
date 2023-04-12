@@ -7,7 +7,7 @@ import { tokenAtom } from '@token/useToken';
 
 const selectedTokenAddressAtom = atom<Address>({
   key: 'SelectedTokenAddress',
-  default: ETH.addr,
+  default: ETH.address,
   effects: [persistAtom()],
 });
 
@@ -18,7 +18,7 @@ const selectedTokenSelector = selector<Token>({
     return get(tokenAtom(addr));
   },
   set: ({ set }, token) => {
-    set(selectedTokenAddressAtom, token instanceof DefaultValue ? token : token.addr);
+    set(selectedTokenAddressAtom, token instanceof DefaultValue ? token : token.address);
   },
 });
 
