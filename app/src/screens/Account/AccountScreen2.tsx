@@ -1,6 +1,6 @@
 import { AccountId, useAccount } from '@api/account';
 import { FlashList } from '@shopify/flash-list';
-import { EditIcon, PlusIcon } from '@theme/icons';
+import { EditIcon, NavigateNextIcon, PlusIcon } from '@theme/icons';
 import { StyleSheet, View } from 'react-native';
 import { Menu } from 'react-native-paper';
 import { match } from 'ts-pattern';
@@ -55,11 +55,11 @@ export const AccountScreen2 = withSuspense(
               <ListItem
                 leading={(props) => <PolicyIcon policy={policy} filled {...props} />}
                 headline={policy.name}
-                supporting="TODO: brief description of permissions"
-                trailing={match((policy.active ?? policy.draft)!.approvers.size)
+                supporting={match((policy.active ?? policy.draft)!.approvers.size)
                   .with(0, () => 'No approvers')
                   .with(1, () => '1 approver')
                   .otherwise((approvers) => `${approvers} approvers`)}
+                trailing={NavigateNextIcon}
                 onPress={() =>
                   navigate('Policy', { account: policy.account, key: policy.key.toString() })
                 }
