@@ -4,8 +4,8 @@ import { GraphQLResolveInfo } from 'graphql';
 import { Account } from '@gen/account/account.model';
 import {
   AccountArgs,
-  UpdateAccountArgs,
-  CreateAccountArgs,
+  UpdateAccountInput,
+  CreateAccountInput,
   AccountsArgs,
   AccountSubscriptionFilters,
   AccountSubscriptionPayload,
@@ -89,7 +89,7 @@ export class AccountsResolver {
 
   @Mutation(() => Account)
   async createAccount(
-    @Args() { name, policies: policyInputs }: CreateAccountArgs,
+    @Args('args') { name, policies: policyInputs }: CreateAccountInput,
     @Info() info?: GraphQLResolveInfo,
   ): Promise<Account> {
     const impl = CONFIG.accountImplAddress;
@@ -162,7 +162,7 @@ export class AccountsResolver {
 
   @Mutation(() => Account)
   async updateAccount(
-    @Args() { id, name }: UpdateAccountArgs,
+    @Args('args') { id, name }: UpdateAccountInput,
     @Info() info?: GraphQLResolveInfo,
   ): Promise<Account> {
     const r = await this.prisma.asUser.account.update({

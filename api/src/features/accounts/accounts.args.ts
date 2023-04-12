@@ -1,6 +1,6 @@
 import { Account } from '@gen/account/account.model';
 import { FindManyAccountArgs } from '@gen/account/find-many-account.args';
-import { ArgsType, Field, registerEnumType } from '@nestjs/graphql';
+import { ArgsType, Field, InputType, registerEnumType } from '@nestjs/graphql';
 import { Address } from 'lib';
 import { AddressField, AddressScalar } from '~/apollo/scalars/Address.scalar';
 import { minLengthMiddleware } from '~/apollo/scalars/util';
@@ -41,15 +41,18 @@ export class AccountSubscriptionFilters {
   events?: AccountEvent[];
 }
 
-@ArgsType()
-export class CreateAccountArgs {
+@InputType()
+export class CreateAccountInput {
   name: string;
 
   @Field(() => [PolicyInput], { middleware: [minLengthMiddleware(1)] })
   policies: PolicyInput[];
 }
 
-@ArgsType()
-export class UpdateAccountArgs extends AccountArgs {
+@InputType()
+export class UpdateAccountInput {
+  @AddressField()
+  id: Address;
+
   name: string;
 }

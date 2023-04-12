@@ -1,12 +1,11 @@
 import { FindManyPolicyArgs } from '@gen/policy/find-many-policy.args';
-import { ArgsType, Field, InputType, PartialType } from '@nestjs/graphql';
+import { ArgsType, Field, InputType, IntersectionType, PartialType } from '@nestjs/graphql';
 import { Address, PolicyId, PolicyKey, Selector } from 'lib';
 import { AddressField, AddressScalar } from '~/apollo/scalars/Address.scalar';
-import { SelectorScalar } from '~/apollo/scalars/Bytes.scalar';
 import { PolicyKeyField } from '~/apollo/scalars/PolicyKey.scalar';
 
-@ArgsType()
-export class UniquePolicyArgs implements PolicyId {
+@InputType()
+export class UniquePolicyInput implements PolicyId {
   @AddressField()
   account: Address;
 
@@ -16,21 +15,6 @@ export class UniquePolicyArgs implements PolicyId {
 
 @ArgsType()
 export class PoliciesArgs extends FindManyPolicyArgs {}
-
-@InputType()
-export class TargetInput {
-  @AddressField({ description: 'Address of target' })
-  to: Address;
-
-  @Field(() => [SelectorScalar], { description: 'Functions that can be called on target' })
-  selectors: Selector[];
-}
-
-@InputType()
-export class PermissionsInput {
-  @Field(() => [TargetInput], { nullable: true, description: 'Targets that can be called' })
-  targets?: TargetInput[];
-}
 
 @InputType()
 export class PolicyInput {
@@ -48,17 +32,29 @@ export class PolicyInput {
   permissions: PermissionsInput;
 }
 
-@ArgsType()
-export class CreatePolicyArgs extends PolicyInput {
+@InputType()
+export class PermissionsInput {
+  @Field(() => [TargetInput], { nullable: true, description: 'Targets that can be called' })
+  targets?: TargetInput[];
+}
+
+@InputType()
+export class TargetInput {
+  @Field(() => String, { description: 'Address of target (or *)' })
+  to: Address | '*';
+
+  @Field(() => [String], { description: 'Functions that can be called on target (or *)' })
+  selectors: (Selector | '*')[];
+}
+
+@InputType()
+export class CreatePolicyInput extends PolicyInput {
   @AddressField()
   account: Address;
 }
 
-@ArgsType()
-export class UpdatePolicyArgs extends PartialType(PolicyInput) {
-  @AddressField()
-  account: Address;
-
-  @PolicyKeyField()
-  key: PolicyKey;
-}
+@InputType()
+export class UpdatePolicyInput extends IntersectionType(
+  UniquePolicyInput,
+  PartialType(PolicyInput),
+) {}

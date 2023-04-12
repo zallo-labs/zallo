@@ -6,8 +6,7 @@ import {
   asAddress,
   asHex,
   asPolicyKey,
-  asSelector,
-  DEFAULT_TARGETS,
+  asTargets,
   getTransactionSatisfiability,
   mapAsync,
   Policy,
@@ -18,7 +17,7 @@ import {
 import { PrismaService } from '../util/prisma/prisma.service';
 import { connectAccount, connectPolicy } from '~/util/connect-or-create';
 import { ProposalsService } from '../proposals/proposals.service';
-import { CreatePolicyArgs, UniquePolicyArgs, UpdatePolicyArgs } from './policies.args';
+import { CreatePolicyInput, UniquePolicyInput, UpdatePolicyInput } from './policies.args';
 import { TransactionsConsumer } from '../transactions/transactions.consumer';
 import { ProviderService } from '../util/provider/provider.service';
 import {
@@ -64,7 +63,7 @@ export class PoliciesService implements OnModuleInit {
   findMany = this.prisma.asUser.policy.findMany;
 
   async create<A extends Prisma.PolicyArgs>(
-    { account, name, ...policyInput }: CreatePolicyArgs,
+    { account, name, ...policyInput }: CreatePolicyInput,
     res?: ArgsParam<A>,
   ) {
     return this.prisma.asUser.$transaction(async (prisma) => {
@@ -85,7 +84,7 @@ export class PoliciesService implements OnModuleInit {
   }
 
   async update<A extends Prisma.PolicyArgs>(
-    { account, key, name, approvers, threshold, permissions }: UpdatePolicyArgs,
+    { account, key, name, approvers, threshold, permissions }: UpdatePolicyInput,
     res?: ArgsParam<A>,
   ) {
     return this.prisma.asUser.$transaction(async (prisma) => {
@@ -107,17 +106,7 @@ export class PoliciesService implements OnModuleInit {
         if (threshold !== undefined) policy.threshold = threshold;
         if (permissions)
           policy.permissions = {
-            targets: permissions.targets
-              ? {
-                  '*': new Set([]),
-                  ...Object.fromEntries(
-                    permissions.targets.map((t) => [
-                      asAddress(t.to),
-                      new Set(t.selectors.map(asSelector)),
-                    ]),
-                  ),
-                }
-              : DEFAULT_TARGETS,
+            targets: asTargets(permissions.targets),
           };
 
         await this.proposeState({ prisma, account, policy });
@@ -133,7 +122,7 @@ export class PoliciesService implements OnModuleInit {
   }
 
   async remove<A extends Prisma.PolicyArgs>(
-    { account, key }: UniquePolicyArgs,
+    { account, key }: UniquePolicyInput,
     res?: ArgsParam<A>,
     prisma?: Prisma.TransactionClient,
   ) {
@@ -197,6 +186,7 @@ export class PoliciesService implements OnModuleInit {
           policy: connectPolicy(account, policy.key),
           account: connectAccount(account),
           ...policyAsCreateState(policy),
+          draftOf: connectPolicy(account, policy.key),
         },
         select: {
           policy: { ...res },

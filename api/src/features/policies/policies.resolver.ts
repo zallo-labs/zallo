@@ -1,12 +1,12 @@
 import { Policy } from '@gen/policy/policy.model';
-import { Args, ID, Info, Mutation, Parent, Query, ResolveField, Resolver } from '@nestjs/graphql';
+import { Args, Info, Mutation, Parent, Query, ResolveField, Resolver } from '@nestjs/graphql';
 import { GraphQLResolveInfo } from 'graphql';
 import { getSelect } from '~/util/select';
 import {
-  CreatePolicyArgs,
+  CreatePolicyInput,
   PoliciesArgs,
-  UniquePolicyArgs,
-  UpdatePolicyArgs,
+  UniquePolicyInput,
+  UpdatePolicyInput,
 } from './policies.args';
 import { PoliciesService } from './policies.service';
 
@@ -16,14 +16,14 @@ export class PoliciesResolver {
 
   @Query(() => Policy, { nullable: true })
   async policy(
-    @Args() policy: UniquePolicyArgs,
+    @Args('args') policy: UniquePolicyInput,
     @Info() info: GraphQLResolveInfo,
   ): Promise<Policy | null> {
     return this.service.findUnique({
       where: {
         accountId_key: {
           accountId: policy.account,
-          key: policy.key as bigint,
+          key: policy.key,
         },
       },
       ...getSelect(info),
@@ -38,14 +38,14 @@ export class PoliciesResolver {
     });
   }
 
-  @ResolveField(() => ID)
+  @ResolveField(() => String)
   id(@Parent() p: Policy): string {
     return `${p.accountId}-${p.key}`;
   }
 
   @Mutation(() => Policy)
   async createPolicy(
-    @Args() args: CreatePolicyArgs,
+    @Args('args') args: CreatePolicyInput,
     @Info() info: GraphQLResolveInfo,
   ): Promise<Policy> {
     return this.service.create(args, getSelect(info));
@@ -53,7 +53,7 @@ export class PoliciesResolver {
 
   @Mutation(() => Policy)
   async updatePolicy(
-    @Args() args: UpdatePolicyArgs,
+    @Args('args') args: UpdatePolicyInput,
     @Info() info: GraphQLResolveInfo,
   ): Promise<Policy> {
     return this.service.update(args, getSelect(info));
@@ -61,7 +61,7 @@ export class PoliciesResolver {
 
   @Mutation(() => Policy)
   async removePolicy(
-    @Args() args: UniquePolicyArgs,
+    @Args('args') args: UniquePolicyInput,
     @Info() info: GraphQLResolveInfo,
   ): Promise<Policy> {
     return this.service.remove(args, getSelect(info));
