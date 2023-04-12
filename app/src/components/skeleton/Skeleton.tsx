@@ -1,4 +1,5 @@
 import { useTheme } from '@theme/paper';
+import { memo } from 'react';
 import ContentLoader, { IContentLoaderProps } from 'react-content-loader/native';
 import { NumberProp } from 'react-native-svg';
 
@@ -10,7 +11,7 @@ export type SkeletonProps = IContentLoaderProps & {
 /*
  * Skeleton generator: https://skeletonreact.com
  */
-export const Skeleton = ({ children, width, height, ...props }: SkeletonProps) => {
+export const Skeleton = memo(({ children, width, height, ...props }: SkeletonProps) => {
   const { colors } = useTheme();
 
   return (
@@ -19,11 +20,11 @@ export const Skeleton = ({ children, width, height, ...props }: SkeletonProps) =
       width={width}
       height={height}
       viewBox={`0 0 ${width} ${height}`}
-      backgroundColor={colors.primaryContainer}
-      foregroundColor={colors.primary}
+      backgroundColor={colors.surfaceVariant}
+      foregroundColor={colors.surface}
       {...props}
     >
       {children}
     </ContentLoader>
   );
-};
+});
