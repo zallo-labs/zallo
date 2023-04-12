@@ -4,7 +4,7 @@ import { useMemo } from 'react';
 import { TypedData } from '~/components/TypedData/TypedData';
 import { TypedDataComponent } from '~/components/TypedData/TypedDataObject';
 import { Proposal } from '@api/proposal';
-import { useContractMethod } from '@api/method';
+import { useContractFunction } from '@api/contracts';
 
 const paramToComponent = (param: ParamType, value: unknown): TypedDataComponent => {
   if (param.components === null) {
@@ -30,22 +30,22 @@ export interface ProposalTypedDataProps {
 }
 
 export const ProposalTypedData = ({ proposal }: ProposalTypedDataProps) => {
-  const method = useContractMethod(proposal);
+  const func = useContractFunction(proposal);
 
   const data = useMemo((): TypedDataComponent => {
     if (!proposal.data) return { value: undefined };
 
-    const decoded = method?.contract.decodeFunctionData(method.fragment, proposal.data);
-    if (!method || !decoded) return { value: proposal.data };
+    const decoded = func?.iface.decodeFunctionData(func.fragment, proposal.data);
+    if (!func || !decoded) return { value: proposal.data };
 
     return {
-      name: method.fragment.name,
-      type: method.fragment.type,
-      components: method.fragment.inputs.map((component, i) =>
+      name: func.fragment.name,
+      type: func.fragment.type,
+      components: func.fragment.inputs.map((component, i) =>
         paramToComponent(component, decoded[i]),
       ),
     };
-  }, [method, proposal.data]);
+  }, [func, proposal.data]);
 
   return <TypedData data={data} />;
 };
