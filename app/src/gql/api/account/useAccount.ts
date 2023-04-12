@@ -6,18 +6,22 @@ import { useSuspenseQuery } from '~/gql/util';
 import { AccountDocument, AccountQuery, AccountQueryVariables } from '@api/generated';
 import { asPolicyKey } from 'lib';
 import { convertPolicyFragment } from '@api/policy/types';
+import { match } from 'ts-pattern';
 
 gql`
-  fragment PolicyRulesFields on PolicyRules {
+  fragment PolicyStateFields on PolicyState {
     id
     proposalId
     createdAt
     isRemoved
+    threshold
     approvers {
       userId
     }
-    onlyFunctions
-    onlyTargets
+    targets {
+      to
+      selectors
+    }
   }
 
   fragment PolicyFields on Policy {
@@ -25,10 +29,10 @@ gql`
     key
     name
     active {
-      ...PolicyRulesFields
+      ...PolicyStateFields
     }
     draft {
-      ...PolicyRulesFields
+      ...PolicyStateFields
     }
   }
 
@@ -77,6 +81,11 @@ export const useAccount = <Id extends AccountIdlike | undefined>(AccountIdlike: 
           name: p.name,
           active: active!, // At least one must be present - see assert above
           draft,
+          state: match({ active, draft })
+            .with({ active: undefined }, () => 'add' as const)
+            .with({ draft: undefined }, () => 'active' as const)
+            .with({ draft: null }, () => 'remove' as const)
+            .otherwise(() => 'edit' as const),
         };
       }),
     };

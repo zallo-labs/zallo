@@ -13,8 +13,8 @@ import { AccountId, asAccountId } from './types';
 gql`
   ${AccountFieldsFragmentDoc}
 
-  mutation CreateAccount($name: String!, $policies: [PolicyInput!]!) {
-    createAccount(name: $name, policies: $policies) {
+  mutation CreateAccount($args: CreateAccountInput!) {
+    createAccount(args: $args) {
       ...AccountFields
     }
   }
@@ -31,10 +31,11 @@ export const useCreateAccount = () => {
   return async (name: string): Promise<CreateAccountResult> => {
     const r = await mutation({
       variables: {
-        name,
-        policies: {
-          rules: {
+        args: {
+          name,
+          policies: {
             approvers: [user.id],
+            permissions: {},
           },
         },
       },

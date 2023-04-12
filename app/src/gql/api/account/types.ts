@@ -1,8 +1,8 @@
-import { Address, PolicyGuid, tryAsAddress } from 'lib';
+import { Address, PolicyId, tryAsAddress } from 'lib';
 import { WPolicy } from '../policy/types';
 
 export type AccountId = Address & { isAccountId: true };
-export type AccountIdlike = AccountId | PolicyGuid | string;
+export type AccountIdlike = AccountId | PolicyId | string;
 
 export const asAccountId = <T extends AccountIdlike | undefined>(id: T) =>
   (typeof id === 'object'

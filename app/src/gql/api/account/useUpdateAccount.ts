@@ -4,8 +4,8 @@ import { useCallback } from 'react';
 import { WAccount } from './types';
 
 gql`
-  mutation UpdateAccount($account: Address!, $name: String!) {
-    updateAccount(id: $account, name: $name) {
+  mutation UpdateAccount($args: UpdateAccountInput!) {
+    updateAccount(args: $args) {
       id
       name
     }
@@ -24,7 +24,7 @@ export const useUpdateAccount = (account?: WAccount) => {
       account &&
       name !== account.name &&
       mutate({
-        variables: { account: account.id, name },
+        variables: { args: { account: account.id, name } },
         optimisticResponse: {
           updateAccount: {
             __typename: 'Account',

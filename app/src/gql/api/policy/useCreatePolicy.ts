@@ -1,13 +1,12 @@
 import { gql } from '@apollo/client';
 import assert from 'assert';
-import { ApprovalsRule, FunctionsRule, Policy, TargetsRule } from 'lib';
+import { Policy } from 'lib';
 import { useCallback } from 'react';
 import {
   AccountDocument,
   AccountQuery,
   AccountQueryVariables,
   PolicyFieldsFragmentDoc,
-  RulesInput,
   useCreatePolicyMutation,
 } from '@api/generated';
 import { updateQuery } from '~/gql/util';
@@ -16,14 +15,14 @@ import { AccountId } from '@api/account';
 gql`
   ${PolicyFieldsFragmentDoc}
 
-  mutation CreatePolicy($account: Address!, $name: String, $rules: RulesInput!) {
-    createPolicy(account: $account, name: $name, rules: $rules) {
+  mutation CreatePolicy($args: CreatePolicyInput!) {
+    createPolicy(args: $args) {
       ...PolicyFields
     }
   }
 `;
 
-export interface CreatePolicyOptions extends Policy {
+export interface CreatePolicyOptions extends Omit<Policy, 'key'> {
   name: string;
 }
 
@@ -31,12 +30,21 @@ export const useCreatePolicy = (account: AccountId) => {
   const [mutation] = useCreatePolicyMutation();
 
   return useCallback(
-    async ({ name, rules }: CreatePolicyOptions) => {
+    async ({ name, approvers, threshold, permissions }: CreatePolicyOptions) => {
       const r = await mutation({
         variables: {
-          account,
-          name,
-          rules: asRulesInput(rules),
+          args: {
+            account,
+            name,
+            approvers: [...approvers],
+            threshold,
+            permissions: {
+              targets: Object.entries(permissions.targets).map(([to, selectors]) => ({
+                to,
+                selectors: [...selectors],
+              })),
+            },
+          },
         },
         update: async (cache, res) => {
           const policy = res.data?.createPolicy;
@@ -55,16 +63,8 @@ export const useCreatePolicy = (account: AccountId) => {
         },
       });
 
-      return r;
+      return r.data?.createPolicy;
     },
     [account, mutation],
   );
 };
-
-export function asRulesInput(rules: Policy['rules']): RulesInput {
-  return {
-    approvers: [...(rules.get(ApprovalsRule)?.approvers ?? [])],
-    onlyFunctions: [...(rules.get(FunctionsRule)?.functions ?? [])],
-    onlyTargets: [...(rules.get(TargetsRule)?.targets ?? [])],
-  };
-}

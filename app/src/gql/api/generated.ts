@@ -29,11 +29,14 @@ export type Scalars = {
   JSON: any;
   /** Policy key: an unsigned integer [0, 4294967295] */
   PolicyKey: any;
-  /** function selector (4-byte hex string) */
-  Selector: any;
   /** 256-bit unsigned integer */
   Uint256: any;
 };
+
+export type AbiSource =
+  | 'DECOMPILED'
+  | 'STANDARD'
+  | 'VERIFIED';
 
 export type Account = {
   __typename?: 'Account';
@@ -45,7 +48,7 @@ export type Account = {
   isActive: Scalars['Boolean'];
   name: Scalars['String'];
   policies?: Maybe<Array<Policy>>;
-  policyRulesHistory?: Maybe<Array<PolicyRules>>;
+  policyStates?: Maybe<Array<PolicyState>>;
   proposals?: Maybe<Array<Proposal>>;
 };
 
@@ -53,7 +56,7 @@ export type AccountCount = {
   __typename?: 'AccountCount';
   comments: Scalars['Int'];
   policies: Scalars['Int'];
-  policyRulesHistory: Scalars['Int'];
+  policyStates: Scalars['Int'];
   proposals: Scalars['Int'];
 };
 
@@ -69,7 +72,7 @@ export type AccountOrderByWithRelationInput = {
   isActive?: InputMaybe<SortOrder>;
   name?: InputMaybe<SortOrder>;
   policies?: InputMaybe<PolicyOrderByRelationAggregateInput>;
-  policyRulesHistory?: InputMaybe<PolicyRulesOrderByRelationAggregateInput>;
+  policyStates?: InputMaybe<PolicyStateOrderByRelationAggregateInput>;
   proposals?: InputMaybe<ProposalOrderByRelationAggregateInput>;
 };
 
@@ -96,7 +99,7 @@ export type AccountWhereInput = {
   isActive?: InputMaybe<BoolFilter>;
   name?: InputMaybe<StringFilter>;
   policies?: InputMaybe<PolicyListRelationFilter>;
-  policyRulesHistory?: InputMaybe<PolicyRulesListRelationFilter>;
+  policyStates?: InputMaybe<PolicyStateListRelationFilter>;
   proposals?: InputMaybe<ProposalListRelationFilter>;
 };
 
@@ -138,9 +141,9 @@ export type ApprovalWhereInput = {
 
 export type Approver = {
   __typename?: 'Approver';
-  id: Scalars['ID'];
-  policyRules: PolicyRules;
-  policyRulesId: Scalars['BigInt'];
+  id: Scalars['String'];
+  state: PolicyState;
+  stateId: Scalars['BigInt'];
   user: User;
   userId: Scalars['String'];
 };
@@ -159,8 +162,8 @@ export type ApproverWhereInput = {
   AND?: InputMaybe<Array<ApproverWhereInput>>;
   NOT?: InputMaybe<Array<ApproverWhereInput>>;
   OR?: InputMaybe<Array<ApproverWhereInput>>;
-  policyRules?: InputMaybe<PolicyRulesRelationFilter>;
-  policyRulesId?: InputMaybe<BigIntFilter>;
+  state?: InputMaybe<PolicyStateRelationFilter>;
+  stateId?: InputMaybe<BigIntFilter>;
   user?: InputMaybe<UserRelationFilter>;
   userId?: InputMaybe<StringFilter>;
 };
@@ -305,12 +308,55 @@ export type ContactWhereUniqueInput = {
   userId_addr?: InputMaybe<ContactUserIdAddrCompoundUniqueInput>;
 };
 
-export type ContractMethod = {
-  __typename?: 'ContractMethod';
-  contract: Scalars['String'];
-  fragment: Scalars['JSON'];
+export type Contract = {
+  __typename?: 'Contract';
+  _count: ContractCount;
+  functions?: Maybe<Array<ContractFunction>>;
   id: Scalars['String'];
-  sighash: Scalars['String'];
+};
+
+export type ContractCount = {
+  __typename?: 'ContractCount';
+  functions: Scalars['Int'];
+};
+
+export type ContractFunction = {
+  __typename?: 'ContractFunction';
+  abi: Scalars['JSON'];
+  contract?: Maybe<Contract>;
+  contractId?: Maybe<Scalars['String']>;
+  id: Scalars['Int'];
+  selector: Scalars['String'];
+  source: AbiSource;
+  sourceConfidence: ContractSourceConfidence;
+};
+
+export type ContractFunctionInput = {
+  contract: Scalars['Address'];
+  selector: Scalars['Bytes'];
+};
+
+export type ContractInput = {
+  contract: Scalars['Address'];
+};
+
+export type ContractSourceConfidence =
+  | 'High'
+  | 'Low'
+  | 'Medium';
+
+export type CreateAccountInput = {
+  policies: Array<PolicyInput>;
+};
+
+export type CreatePolicyInput = {
+  account: Scalars['Address'];
+  /** Signers that are required to approve */
+  approvers?: InputMaybe<Array<Scalars['Address']>>;
+  name?: InputMaybe<Scalars['String']>;
+  permissions: PermissionsInput;
+  /** Defaults to all approvers */
+  threshold?: InputMaybe<Scalars['Float']>;
 };
 
 export type DateTimeFilter = {
@@ -385,8 +431,7 @@ export type MutationApproveArgs = {
 
 
 export type MutationCreateAccountArgs = {
-  name: Scalars['String'];
-  policies: Array<PolicyInput>;
+  args: CreateAccountInput;
 };
 
 
@@ -398,9 +443,7 @@ export type MutationCreateCommentArgs = {
 
 
 export type MutationCreatePolicyArgs = {
-  account: Scalars['Address'];
-  name?: InputMaybe<Scalars['String']>;
-  rules: RulesInput;
+  args: CreatePolicyInput;
 };
 
 
@@ -438,8 +481,7 @@ export type MutationRejectArgs = {
 
 
 export type MutationRemovePolicyArgs = {
-  account: Scalars['Address'];
-  key: Scalars['PolicyKey'];
+  args: UniquePolicyInput;
 };
 
 
@@ -454,16 +496,12 @@ export type MutationRequestTokensArgs = {
 
 
 export type MutationUpdateAccountArgs = {
-  id: Scalars['Address'];
-  name: Scalars['String'];
+  args: UpdateAccountInput;
 };
 
 
 export type MutationUpdatePolicyArgs = {
-  account: Scalars['Address'];
-  key: Scalars['PolicyKey'];
-  name?: InputMaybe<Scalars['String']>;
-  rules?: InputMaybe<RulesInput>;
+  args: UpdatePolicyInput;
 };
 
 
@@ -578,19 +616,24 @@ export type NestedStringNullableFilter = {
   startsWith?: InputMaybe<Scalars['String']>;
 };
 
+export type PermissionsInput = {
+  /** Targets that can be called */
+  targets?: InputMaybe<Array<TargetInput>>;
+};
+
 export type Policy = {
   __typename?: 'Policy';
   _count: PolicyCount;
   account: Account;
   accountId: Scalars['String'];
-  active?: Maybe<PolicyRules>;
+  active?: Maybe<PolicyState>;
   activeId?: Maybe<Scalars['BigInt']>;
-  draft?: Maybe<PolicyRules>;
+  draft?: Maybe<PolicyState>;
   draftId?: Maybe<Scalars['BigInt']>;
-  id: Scalars['ID'];
+  id: Scalars['String'];
   key: Scalars['BigInt'];
   name: Scalars['String'];
-  rulesHistory?: Maybe<Array<PolicyRules>>;
+  states?: Maybe<Array<PolicyState>>;
 };
 
 export type PolicyAccountIdKeyCompoundUniqueInput = {
@@ -600,12 +643,16 @@ export type PolicyAccountIdKeyCompoundUniqueInput = {
 
 export type PolicyCount = {
   __typename?: 'PolicyCount';
-  rulesHistory: Scalars['Int'];
+  states: Scalars['Int'];
 };
 
 export type PolicyInput = {
+  /** Signers that are required to approve */
+  approvers?: InputMaybe<Array<Scalars['Address']>>;
   name?: InputMaybe<Scalars['String']>;
-  rules: RulesInput;
+  permissions: PermissionsInput;
+  /** Defaults to all approvers */
+  threshold?: InputMaybe<Scalars['Float']>;
 };
 
 export type PolicyListRelationFilter = {
@@ -621,94 +668,18 @@ export type PolicyOrderByRelationAggregateInput = {
 export type PolicyOrderByWithRelationInput = {
   account?: InputMaybe<AccountOrderByWithRelationInput>;
   accountId?: InputMaybe<SortOrder>;
-  active?: InputMaybe<PolicyRulesOrderByWithRelationInput>;
+  active?: InputMaybe<PolicyStateOrderByWithRelationInput>;
   activeId?: InputMaybe<SortOrder>;
-  draft?: InputMaybe<PolicyRulesOrderByWithRelationInput>;
+  draft?: InputMaybe<PolicyStateOrderByWithRelationInput>;
   draftId?: InputMaybe<SortOrder>;
   key?: InputMaybe<SortOrder>;
   name?: InputMaybe<SortOrder>;
-  rulesHistory?: InputMaybe<PolicyRulesOrderByRelationAggregateInput>;
+  states?: InputMaybe<PolicyStateOrderByRelationAggregateInput>;
 };
 
 export type PolicyRelationFilter = {
   is?: InputMaybe<PolicyWhereInput>;
   isNot?: InputMaybe<PolicyWhereInput>;
-};
-
-export type PolicyRules = {
-  __typename?: 'PolicyRules';
-  _count: PolicyRulesCount;
-  account: Account;
-  accountId: Scalars['String'];
-  activeRulesOf?: Maybe<Policy>;
-  approvers?: Maybe<Array<Approver>>;
-  createdAt: Scalars['DateTime'];
-  draftRulesOf?: Maybe<Policy>;
-  id: Scalars['BigInt'];
-  isRemoved: Scalars['Boolean'];
-  onlyFunctions?: Maybe<Array<Scalars['String']>>;
-  onlyTargets?: Maybe<Array<Scalars['String']>>;
-  policy: Policy;
-  policyKey: Scalars['BigInt'];
-  proposal?: Maybe<Proposal>;
-  proposalId?: Maybe<Scalars['String']>;
-};
-
-export type PolicyRulesCount = {
-  __typename?: 'PolicyRulesCount';
-  approvers: Scalars['Int'];
-};
-
-export type PolicyRulesListRelationFilter = {
-  every?: InputMaybe<PolicyRulesWhereInput>;
-  none?: InputMaybe<PolicyRulesWhereInput>;
-  some?: InputMaybe<PolicyRulesWhereInput>;
-};
-
-export type PolicyRulesOrderByRelationAggregateInput = {
-  _count?: InputMaybe<SortOrder>;
-};
-
-export type PolicyRulesOrderByWithRelationInput = {
-  account?: InputMaybe<AccountOrderByWithRelationInput>;
-  accountId?: InputMaybe<SortOrder>;
-  activeRulesOf?: InputMaybe<PolicyOrderByWithRelationInput>;
-  approvers?: InputMaybe<ApproverOrderByRelationAggregateInput>;
-  createdAt?: InputMaybe<SortOrder>;
-  draftRulesOf?: InputMaybe<PolicyOrderByWithRelationInput>;
-  id?: InputMaybe<SortOrder>;
-  isRemoved?: InputMaybe<SortOrder>;
-  onlyFunctions?: InputMaybe<SortOrder>;
-  onlyTargets?: InputMaybe<SortOrder>;
-  policy?: InputMaybe<PolicyOrderByWithRelationInput>;
-  policyKey?: InputMaybe<SortOrder>;
-  proposal?: InputMaybe<ProposalOrderByWithRelationInput>;
-  proposalId?: InputMaybe<SortOrder>;
-};
-
-export type PolicyRulesRelationFilter = {
-  is?: InputMaybe<PolicyRulesWhereInput>;
-  isNot?: InputMaybe<PolicyRulesWhereInput>;
-};
-
-export type PolicyRulesWhereInput = {
-  AND?: InputMaybe<Array<PolicyRulesWhereInput>>;
-  NOT?: InputMaybe<Array<PolicyRulesWhereInput>>;
-  OR?: InputMaybe<Array<PolicyRulesWhereInput>>;
-  account?: InputMaybe<AccountRelationFilter>;
-  accountId?: InputMaybe<StringFilter>;
-  activeRulesOf?: InputMaybe<PolicyRelationFilter>;
-  approvers?: InputMaybe<ApproverListRelationFilter>;
-  createdAt?: InputMaybe<DateTimeFilter>;
-  draftRulesOf?: InputMaybe<PolicyRelationFilter>;
-  id?: InputMaybe<BigIntFilter>;
-  isRemoved?: InputMaybe<BoolFilter>;
-  onlyFunctions?: InputMaybe<StringNullableListFilter>;
-  onlyTargets?: InputMaybe<StringNullableListFilter>;
-  policy?: InputMaybe<PolicyRelationFilter>;
-  policyKey?: InputMaybe<BigIntFilter>;
-  proposal?: InputMaybe<ProposalRelationFilter>;
-  proposalId?: InputMaybe<StringNullableFilter>;
 };
 
 export type PolicyScalarFieldEnum =
@@ -718,19 +689,96 @@ export type PolicyScalarFieldEnum =
   | 'key'
   | 'name';
 
+export type PolicyState = {
+  __typename?: 'PolicyState';
+  _count: PolicyStateCount;
+  account: Account;
+  accountId: Scalars['String'];
+  activeOf?: Maybe<Policy>;
+  approvers?: Maybe<Array<Approver>>;
+  createdAt: Scalars['DateTime'];
+  draftOf?: Maybe<Policy>;
+  id: Scalars['BigInt'];
+  isRemoved: Scalars['Boolean'];
+  policy: Policy;
+  policyKey: Scalars['BigInt'];
+  proposal?: Maybe<Proposal>;
+  proposalId?: Maybe<Scalars['String']>;
+  targets?: Maybe<Array<Target>>;
+  threshold: Scalars['Int'];
+};
+
+export type PolicyStateCount = {
+  __typename?: 'PolicyStateCount';
+  approvers: Scalars['Int'];
+  targets: Scalars['Int'];
+};
+
+export type PolicyStateListRelationFilter = {
+  every?: InputMaybe<PolicyStateWhereInput>;
+  none?: InputMaybe<PolicyStateWhereInput>;
+  some?: InputMaybe<PolicyStateWhereInput>;
+};
+
+export type PolicyStateOrderByRelationAggregateInput = {
+  _count?: InputMaybe<SortOrder>;
+};
+
+export type PolicyStateOrderByWithRelationInput = {
+  account?: InputMaybe<AccountOrderByWithRelationInput>;
+  accountId?: InputMaybe<SortOrder>;
+  activeOf?: InputMaybe<PolicyOrderByWithRelationInput>;
+  approvers?: InputMaybe<ApproverOrderByRelationAggregateInput>;
+  createdAt?: InputMaybe<SortOrder>;
+  draftOf?: InputMaybe<PolicyOrderByWithRelationInput>;
+  id?: InputMaybe<SortOrder>;
+  isRemoved?: InputMaybe<SortOrder>;
+  policy?: InputMaybe<PolicyOrderByWithRelationInput>;
+  policyKey?: InputMaybe<SortOrder>;
+  proposal?: InputMaybe<ProposalOrderByWithRelationInput>;
+  proposalId?: InputMaybe<SortOrder>;
+  targets?: InputMaybe<TargetOrderByRelationAggregateInput>;
+  threshold?: InputMaybe<SortOrder>;
+};
+
+export type PolicyStateRelationFilter = {
+  is?: InputMaybe<PolicyStateWhereInput>;
+  isNot?: InputMaybe<PolicyStateWhereInput>;
+};
+
+export type PolicyStateWhereInput = {
+  AND?: InputMaybe<Array<PolicyStateWhereInput>>;
+  NOT?: InputMaybe<Array<PolicyStateWhereInput>>;
+  OR?: InputMaybe<Array<PolicyStateWhereInput>>;
+  account?: InputMaybe<AccountRelationFilter>;
+  accountId?: InputMaybe<StringFilter>;
+  activeOf?: InputMaybe<PolicyRelationFilter>;
+  approvers?: InputMaybe<ApproverListRelationFilter>;
+  createdAt?: InputMaybe<DateTimeFilter>;
+  draftOf?: InputMaybe<PolicyRelationFilter>;
+  id?: InputMaybe<BigIntFilter>;
+  isRemoved?: InputMaybe<BoolFilter>;
+  policy?: InputMaybe<PolicyRelationFilter>;
+  policyKey?: InputMaybe<BigIntFilter>;
+  proposal?: InputMaybe<ProposalRelationFilter>;
+  proposalId?: InputMaybe<StringNullableFilter>;
+  targets?: InputMaybe<TargetListRelationFilter>;
+  threshold?: InputMaybe<IntFilter>;
+};
+
 export type PolicyWhereInput = {
   AND?: InputMaybe<Array<PolicyWhereInput>>;
   NOT?: InputMaybe<Array<PolicyWhereInput>>;
   OR?: InputMaybe<Array<PolicyWhereInput>>;
   account?: InputMaybe<AccountRelationFilter>;
   accountId?: InputMaybe<StringFilter>;
-  active?: InputMaybe<PolicyRulesRelationFilter>;
+  active?: InputMaybe<PolicyStateRelationFilter>;
   activeId?: InputMaybe<BigIntNullableFilter>;
-  draft?: InputMaybe<PolicyRulesRelationFilter>;
+  draft?: InputMaybe<PolicyStateRelationFilter>;
   draftId?: InputMaybe<BigIntNullableFilter>;
   key?: InputMaybe<BigIntFilter>;
   name?: InputMaybe<StringFilter>;
-  rulesHistory?: InputMaybe<PolicyRulesListRelationFilter>;
+  states?: InputMaybe<PolicyStateListRelationFilter>;
 };
 
 export type PolicyWhereUniqueInput = {
@@ -752,7 +800,7 @@ export type Proposal = {
   gasLimit?: Maybe<Scalars['BigInt']>;
   id: Scalars['String'];
   nonce: Scalars['BigInt'];
-  policyRules?: Maybe<Array<PolicyRules>>;
+  policyStates?: Maybe<Array<PolicyState>>;
   proposer: User;
   proposerId: Scalars['String'];
   rejections: Array<Rejection>;
@@ -766,7 +814,7 @@ export type Proposal = {
 export type ProposalCount = {
   __typename?: 'ProposalCount';
   approvals: Scalars['Int'];
-  policyRules: Scalars['Int'];
+  policyStates: Scalars['Int'];
   transactions: Scalars['Int'];
 };
 
@@ -797,7 +845,7 @@ export type ProposalOrderByWithRelationInput = {
   gasLimit?: InputMaybe<SortOrder>;
   id?: InputMaybe<SortOrder>;
   nonce?: InputMaybe<SortOrder>;
-  policyRules?: InputMaybe<PolicyRulesOrderByRelationAggregateInput>;
+  policyStates?: InputMaybe<PolicyStateOrderByRelationAggregateInput>;
   proposer?: InputMaybe<UserOrderByWithRelationInput>;
   proposerId?: InputMaybe<SortOrder>;
   to?: InputMaybe<SortOrder>;
@@ -842,7 +890,7 @@ export type ProposalWhereInput = {
   gasLimit?: InputMaybe<BigIntNullableFilter>;
   id?: InputMaybe<StringFilter>;
   nonce?: InputMaybe<BigIntFilter>;
-  policyRules?: InputMaybe<PolicyRulesListRelationFilter>;
+  policyStates?: InputMaybe<PolicyStateListRelationFilter>;
   proposer?: InputMaybe<UserRelationFilter>;
   proposerId?: InputMaybe<StringFilter>;
   to?: InputMaybe<StringFilter>;
@@ -861,7 +909,8 @@ export type Query = {
   comments: Array<Comment>;
   contact?: Maybe<ContactObject>;
   contacts: Array<ContactObject>;
-  contractMethod?: Maybe<ContractMethod>;
+  contract?: Maybe<Contract>;
+  contractFunction?: Maybe<ContractFunction>;
   policies: Array<Policy>;
   policy?: Maybe<Policy>;
   proposal?: Maybe<Proposal>;
@@ -906,9 +955,13 @@ export type QueryContactsArgs = {
 };
 
 
-export type QueryContractMethodArgs = {
-  contract: Scalars['Address'];
-  sighash: Scalars['Bytes'];
+export type QueryContractArgs = {
+  args: ContractInput;
+};
+
+
+export type QueryContractFunctionArgs = {
+  args: ContractFunctionInput;
 };
 
 
@@ -923,8 +976,7 @@ export type QueryPoliciesArgs = {
 
 
 export type QueryPolicyArgs = {
-  account: Scalars['Address'];
-  key: Scalars['PolicyKey'];
+  args: UniquePolicyInput;
 };
 
 
@@ -1002,15 +1054,6 @@ export type Rejection = {
   userId: Scalars['String'];
 };
 
-export type RulesInput = {
-  /** Signers that are required to approve */
-  approvers?: InputMaybe<Array<Scalars['Address']>>;
-  /** Functions that can be called */
-  onlyFunctions?: InputMaybe<Array<Scalars['Selector']>>;
-  /** Addresses that can be called */
-  onlyTargets?: InputMaybe<Array<Scalars['Address']>>;
-};
-
 export type SatisfiablePolicy = {
   __typename?: 'SatisfiablePolicy';
   id: Scalars['String'];
@@ -1078,6 +1121,41 @@ export type SubscriptionProposalArgs = {
   accounts?: InputMaybe<Array<Scalars['Address']>>;
   events?: InputMaybe<Array<ProposalEvent>>;
   proposals?: InputMaybe<Array<Scalars['Bytes32']>>;
+};
+
+export type Target = {
+  __typename?: 'Target';
+  selectors?: Maybe<Array<Scalars['String']>>;
+  state: PolicyState;
+  stateId: Scalars['BigInt'];
+  to: Scalars['String'];
+};
+
+export type TargetInput = {
+  /** Functions that can be called on target (or *) */
+  selectors: Array<Scalars['String']>;
+  /** Address of target (or *) */
+  to: Scalars['String'];
+};
+
+export type TargetListRelationFilter = {
+  every?: InputMaybe<TargetWhereInput>;
+  none?: InputMaybe<TargetWhereInput>;
+  some?: InputMaybe<TargetWhereInput>;
+};
+
+export type TargetOrderByRelationAggregateInput = {
+  _count?: InputMaybe<SortOrder>;
+};
+
+export type TargetWhereInput = {
+  AND?: InputMaybe<Array<TargetWhereInput>>;
+  NOT?: InputMaybe<Array<TargetWhereInput>>;
+  OR?: InputMaybe<Array<TargetWhereInput>>;
+  selectors?: InputMaybe<StringNullableListFilter>;
+  state?: InputMaybe<PolicyStateRelationFilter>;
+  stateId?: InputMaybe<BigIntFilter>;
+  to?: InputMaybe<StringFilter>;
 };
 
 export type Transaction = {
@@ -1150,6 +1228,26 @@ export type TransactionWhereInput = {
   response?: InputMaybe<TransactionResponseRelationFilter>;
 };
 
+export type UniquePolicyInput = {
+  account: Scalars['Address'];
+  key: Scalars['PolicyKey'];
+};
+
+export type UpdateAccountInput = {
+  id: Scalars['Address'];
+};
+
+export type UpdatePolicyInput = {
+  account: Scalars['Address'];
+  /** Signers that are required to approve */
+  approvers?: InputMaybe<Array<Scalars['Address']>>;
+  key: Scalars['PolicyKey'];
+  name?: InputMaybe<Scalars['String']>;
+  permissions?: InputMaybe<PermissionsInput>;
+  /** Defaults to all approvers */
+  threshold?: InputMaybe<Scalars['Float']>;
+};
+
 export type User = {
   __typename?: 'User';
   _count: UserCount;
@@ -1205,18 +1303,18 @@ export type UserWhereInput = {
   reactions?: InputMaybe<ReactionListRelationFilter>;
 };
 
-export type PolicyRulesFieldsFragment = { __typename?: 'PolicyRules', id: any, proposalId?: string | null, createdAt: any, isRemoved: boolean, onlyFunctions?: Array<string> | null, onlyTargets?: Array<string> | null, approvers?: Array<{ __typename?: 'Approver', userId: string }> | null };
+export type PolicyStateFieldsFragment = { __typename?: 'PolicyState', id: any, proposalId?: string | null, createdAt: any, isRemoved: boolean, threshold: number, approvers?: Array<{ __typename?: 'Approver', userId: string }> | null, targets?: Array<{ __typename?: 'Target', to: string, selectors?: Array<string> | null }> | null };
 
-export type PolicyFieldsFragment = { __typename?: 'Policy', id: string, key: any, name: string, active?: { __typename?: 'PolicyRules', id: any, proposalId?: string | null, createdAt: any, isRemoved: boolean, onlyFunctions?: Array<string> | null, onlyTargets?: Array<string> | null, approvers?: Array<{ __typename?: 'Approver', userId: string }> | null } | null, draft?: { __typename?: 'PolicyRules', id: any, proposalId?: string | null, createdAt: any, isRemoved: boolean, onlyFunctions?: Array<string> | null, onlyTargets?: Array<string> | null, approvers?: Array<{ __typename?: 'Approver', userId: string }> | null } | null };
+export type PolicyFieldsFragment = { __typename?: 'Policy', id: string, key: any, name: string, active?: { __typename?: 'PolicyState', id: any, proposalId?: string | null, createdAt: any, isRemoved: boolean, threshold: number, approvers?: Array<{ __typename?: 'Approver', userId: string }> | null, targets?: Array<{ __typename?: 'Target', to: string, selectors?: Array<string> | null }> | null } | null, draft?: { __typename?: 'PolicyState', id: any, proposalId?: string | null, createdAt: any, isRemoved: boolean, threshold: number, approvers?: Array<{ __typename?: 'Approver', userId: string }> | null, targets?: Array<{ __typename?: 'Target', to: string, selectors?: Array<string> | null }> | null } | null };
 
-export type AccountFieldsFragment = { __typename?: 'Account', id: string, name: string, isActive: boolean, policies?: Array<{ __typename?: 'Policy', id: string, key: any, name: string, active?: { __typename?: 'PolicyRules', id: any, proposalId?: string | null, createdAt: any, isRemoved: boolean, onlyFunctions?: Array<string> | null, onlyTargets?: Array<string> | null, approvers?: Array<{ __typename?: 'Approver', userId: string }> | null } | null, draft?: { __typename?: 'PolicyRules', id: any, proposalId?: string | null, createdAt: any, isRemoved: boolean, onlyFunctions?: Array<string> | null, onlyTargets?: Array<string> | null, approvers?: Array<{ __typename?: 'Approver', userId: string }> | null } | null }> | null };
+export type AccountFieldsFragment = { __typename?: 'Account', id: string, name: string, isActive: boolean, policies?: Array<{ __typename?: 'Policy', id: string, key: any, name: string, active?: { __typename?: 'PolicyState', id: any, proposalId?: string | null, createdAt: any, isRemoved: boolean, threshold: number, approvers?: Array<{ __typename?: 'Approver', userId: string }> | null, targets?: Array<{ __typename?: 'Target', to: string, selectors?: Array<string> | null }> | null } | null, draft?: { __typename?: 'PolicyState', id: any, proposalId?: string | null, createdAt: any, isRemoved: boolean, threshold: number, approvers?: Array<{ __typename?: 'Approver', userId: string }> | null, targets?: Array<{ __typename?: 'Target', to: string, selectors?: Array<string> | null }> | null } | null }> | null };
 
 export type AccountQueryVariables = Exact<{
   id: Scalars['Address'];
 }>;
 
 
-export type AccountQuery = { __typename?: 'Query', account?: { __typename?: 'Account', id: string, name: string, isActive: boolean, policies?: Array<{ __typename?: 'Policy', id: string, key: any, name: string, active?: { __typename?: 'PolicyRules', id: any, proposalId?: string | null, createdAt: any, isRemoved: boolean, onlyFunctions?: Array<string> | null, onlyTargets?: Array<string> | null, approvers?: Array<{ __typename?: 'Approver', userId: string }> | null } | null, draft?: { __typename?: 'PolicyRules', id: any, proposalId?: string | null, createdAt: any, isRemoved: boolean, onlyFunctions?: Array<string> | null, onlyTargets?: Array<string> | null, approvers?: Array<{ __typename?: 'Approver', userId: string }> | null } | null }> | null } | null };
+export type AccountQuery = { __typename?: 'Query', account?: { __typename?: 'Account', id: string, name: string, isActive: boolean, policies?: Array<{ __typename?: 'Policy', id: string, key: any, name: string, active?: { __typename?: 'PolicyState', id: any, proposalId?: string | null, createdAt: any, isRemoved: boolean, threshold: number, approvers?: Array<{ __typename?: 'Approver', userId: string }> | null, targets?: Array<{ __typename?: 'Target', to: string, selectors?: Array<string> | null }> | null } | null, draft?: { __typename?: 'PolicyState', id: any, proposalId?: string | null, createdAt: any, isRemoved: boolean, threshold: number, approvers?: Array<{ __typename?: 'Approver', userId: string }> | null, targets?: Array<{ __typename?: 'Target', to: string, selectors?: Array<string> | null }> | null } | null }> | null } | null };
 
 export type AccountIdsQueryVariables = Exact<{ [key: string]: never; }>;
 
@@ -1226,19 +1324,17 @@ export type AccountIdsQuery = { __typename?: 'Query', accounts: Array<{ __typena
 export type AccountSubscriptionSubscriptionVariables = Exact<{ [key: string]: never; }>;
 
 
-export type AccountSubscriptionSubscription = { __typename?: 'Subscription', account: { __typename?: 'Account', id: string, name: string, isActive: boolean, policies?: Array<{ __typename?: 'Policy', id: string, key: any, name: string, active?: { __typename?: 'PolicyRules', id: any, proposalId?: string | null, createdAt: any, isRemoved: boolean, onlyFunctions?: Array<string> | null, onlyTargets?: Array<string> | null, approvers?: Array<{ __typename?: 'Approver', userId: string }> | null } | null, draft?: { __typename?: 'PolicyRules', id: any, proposalId?: string | null, createdAt: any, isRemoved: boolean, onlyFunctions?: Array<string> | null, onlyTargets?: Array<string> | null, approvers?: Array<{ __typename?: 'Approver', userId: string }> | null } | null }> | null } };
+export type AccountSubscriptionSubscription = { __typename?: 'Subscription', account: { __typename?: 'Account', id: string, name: string, isActive: boolean, policies?: Array<{ __typename?: 'Policy', id: string, key: any, name: string, active?: { __typename?: 'PolicyState', id: any, proposalId?: string | null, createdAt: any, isRemoved: boolean, threshold: number, approvers?: Array<{ __typename?: 'Approver', userId: string }> | null, targets?: Array<{ __typename?: 'Target', to: string, selectors?: Array<string> | null }> | null } | null, draft?: { __typename?: 'PolicyState', id: any, proposalId?: string | null, createdAt: any, isRemoved: boolean, threshold: number, approvers?: Array<{ __typename?: 'Approver', userId: string }> | null, targets?: Array<{ __typename?: 'Target', to: string, selectors?: Array<string> | null }> | null } | null }> | null } };
 
 export type CreateAccountMutationVariables = Exact<{
-  name: Scalars['String'];
-  policies: Array<PolicyInput> | PolicyInput;
+  args: CreateAccountInput;
 }>;
 
 
-export type CreateAccountMutation = { __typename?: 'Mutation', createAccount: { __typename?: 'Account', id: string, name: string, isActive: boolean, policies?: Array<{ __typename?: 'Policy', id: string, key: any, name: string, active?: { __typename?: 'PolicyRules', id: any, proposalId?: string | null, createdAt: any, isRemoved: boolean, onlyFunctions?: Array<string> | null, onlyTargets?: Array<string> | null, approvers?: Array<{ __typename?: 'Approver', userId: string }> | null } | null, draft?: { __typename?: 'PolicyRules', id: any, proposalId?: string | null, createdAt: any, isRemoved: boolean, onlyFunctions?: Array<string> | null, onlyTargets?: Array<string> | null, approvers?: Array<{ __typename?: 'Approver', userId: string }> | null } | null }> | null } };
+export type CreateAccountMutation = { __typename?: 'Mutation', createAccount: { __typename?: 'Account', id: string, name: string, isActive: boolean, policies?: Array<{ __typename?: 'Policy', id: string, key: any, name: string, active?: { __typename?: 'PolicyState', id: any, proposalId?: string | null, createdAt: any, isRemoved: boolean, threshold: number, approvers?: Array<{ __typename?: 'Approver', userId: string }> | null, targets?: Array<{ __typename?: 'Target', to: string, selectors?: Array<string> | null }> | null } | null, draft?: { __typename?: 'PolicyState', id: any, proposalId?: string | null, createdAt: any, isRemoved: boolean, threshold: number, approvers?: Array<{ __typename?: 'Approver', userId: string }> | null, targets?: Array<{ __typename?: 'Target', to: string, selectors?: Array<string> | null }> | null } | null }> | null } };
 
 export type UpdateAccountMutationVariables = Exact<{
-  account: Scalars['Address'];
-  name: Scalars['String'];
+  args: UpdateAccountInput;
 }>;
 
 
@@ -1301,6 +1397,22 @@ export type UpsertContactMutationVariables = Exact<{
 
 export type UpsertContactMutation = { __typename?: 'Mutation', upsertContact: { __typename?: 'ContactObject', id: string, addr: any, name: string } };
 
+export type ContractFunctionFieldsFragment = { __typename?: 'ContractFunction', id: number, contractId?: string | null, selector: string, abi: any, source: AbiSource, sourceConfidence: ContractSourceConfidence };
+
+export type ContractFunctionQueryVariables = Exact<{
+  args: ContractFunctionInput;
+}>;
+
+
+export type ContractFunctionQuery = { __typename?: 'Query', contractFunction?: { __typename?: 'ContractFunction', id: number, contractId?: string | null, selector: string, abi: any, source: AbiSource, sourceConfidence: ContractSourceConfidence } | null };
+
+export type ContractQueryVariables = Exact<{
+  args: ContractInput;
+}>;
+
+
+export type ContractQuery = { __typename?: 'Query', contract?: { __typename?: 'Contract', id: string, functions?: Array<{ __typename?: 'ContractFunction', id: number, contractId?: string | null, selector: string, abi: any, source: AbiSource, sourceConfidence: ContractSourceConfidence }> | null } | null };
+
 export type RequestableTokensQueryVariables = Exact<{
   recipient: Scalars['Address'];
 }>;
@@ -1315,40 +1427,26 @@ export type RequestTokensMutationVariables = Exact<{
 
 export type RequestTokensMutation = { __typename?: 'Mutation', requestTokens: Array<any> };
 
-export type ContractMethodQueryVariables = Exact<{
-  contract: Scalars['Address'];
-  sighash: Scalars['Bytes'];
-}>;
-
-
-export type ContractMethodQuery = { __typename?: 'Query', contractMethod?: { __typename?: 'ContractMethod', id: string, fragment: any } | null };
-
 export type CreatePolicyMutationVariables = Exact<{
-  account: Scalars['Address'];
-  name?: InputMaybe<Scalars['String']>;
-  rules: RulesInput;
+  args: CreatePolicyInput;
 }>;
 
 
-export type CreatePolicyMutation = { __typename?: 'Mutation', createPolicy: { __typename?: 'Policy', id: string, key: any, name: string, active?: { __typename?: 'PolicyRules', id: any, proposalId?: string | null, createdAt: any, isRemoved: boolean, onlyFunctions?: Array<string> | null, onlyTargets?: Array<string> | null, approvers?: Array<{ __typename?: 'Approver', userId: string }> | null } | null, draft?: { __typename?: 'PolicyRules', id: any, proposalId?: string | null, createdAt: any, isRemoved: boolean, onlyFunctions?: Array<string> | null, onlyTargets?: Array<string> | null, approvers?: Array<{ __typename?: 'Approver', userId: string }> | null } | null } };
+export type CreatePolicyMutation = { __typename?: 'Mutation', createPolicy: { __typename?: 'Policy', id: string, key: any, name: string, active?: { __typename?: 'PolicyState', id: any, proposalId?: string | null, createdAt: any, isRemoved: boolean, threshold: number, approvers?: Array<{ __typename?: 'Approver', userId: string }> | null, targets?: Array<{ __typename?: 'Target', to: string, selectors?: Array<string> | null }> | null } | null, draft?: { __typename?: 'PolicyState', id: any, proposalId?: string | null, createdAt: any, isRemoved: boolean, threshold: number, approvers?: Array<{ __typename?: 'Approver', userId: string }> | null, targets?: Array<{ __typename?: 'Target', to: string, selectors?: Array<string> | null }> | null } | null } };
 
 export type RemovePolicyMutationVariables = Exact<{
-  account: Scalars['Address'];
-  key: Scalars['PolicyKey'];
+  args: UniquePolicyInput;
 }>;
 
 
-export type RemovePolicyMutation = { __typename?: 'Mutation', removePolicy: { __typename?: 'Policy', id: string, key: any, name: string, active?: { __typename?: 'PolicyRules', id: any, proposalId?: string | null, createdAt: any, isRemoved: boolean, onlyFunctions?: Array<string> | null, onlyTargets?: Array<string> | null, approvers?: Array<{ __typename?: 'Approver', userId: string }> | null } | null, draft?: { __typename?: 'PolicyRules', id: any, proposalId?: string | null, createdAt: any, isRemoved: boolean, onlyFunctions?: Array<string> | null, onlyTargets?: Array<string> | null, approvers?: Array<{ __typename?: 'Approver', userId: string }> | null } | null } };
+export type RemovePolicyMutation = { __typename?: 'Mutation', removePolicy: { __typename?: 'Policy', id: string, key: any, name: string, active?: { __typename?: 'PolicyState', id: any, proposalId?: string | null, createdAt: any, isRemoved: boolean, threshold: number, approvers?: Array<{ __typename?: 'Approver', userId: string }> | null, targets?: Array<{ __typename?: 'Target', to: string, selectors?: Array<string> | null }> | null } | null, draft?: { __typename?: 'PolicyState', id: any, proposalId?: string | null, createdAt: any, isRemoved: boolean, threshold: number, approvers?: Array<{ __typename?: 'Approver', userId: string }> | null, targets?: Array<{ __typename?: 'Target', to: string, selectors?: Array<string> | null }> | null } | null } };
 
 export type UpdatePolicyMutationVariables = Exact<{
-  account: Scalars['Address'];
-  key: Scalars['PolicyKey'];
-  name?: InputMaybe<Scalars['String']>;
-  rules?: InputMaybe<RulesInput>;
+  args: UpdatePolicyInput;
 }>;
 
 
-export type UpdatePolicyMutation = { __typename?: 'Mutation', updatePolicy: { __typename?: 'Policy', id: string, key: any, name: string, active?: { __typename?: 'PolicyRules', id: any, proposalId?: string | null, createdAt: any, isRemoved: boolean, onlyFunctions?: Array<string> | null, onlyTargets?: Array<string> | null, approvers?: Array<{ __typename?: 'Approver', userId: string }> | null } | null, draft?: { __typename?: 'PolicyRules', id: any, proposalId?: string | null, createdAt: any, isRemoved: boolean, onlyFunctions?: Array<string> | null, onlyTargets?: Array<string> | null, approvers?: Array<{ __typename?: 'Approver', userId: string }> | null } | null } };
+export type UpdatePolicyMutation = { __typename?: 'Mutation', updatePolicy: { __typename?: 'Policy', id: string, key: any, name: string, active?: { __typename?: 'PolicyState', id: any, proposalId?: string | null, createdAt: any, isRemoved: boolean, threshold: number, approvers?: Array<{ __typename?: 'Approver', userId: string }> | null, targets?: Array<{ __typename?: 'Target', to: string, selectors?: Array<string> | null }> | null } | null, draft?: { __typename?: 'PolicyState', id: any, proposalId?: string | null, createdAt: any, isRemoved: boolean, threshold: number, approvers?: Array<{ __typename?: 'Approver', userId: string }> | null, targets?: Array<{ __typename?: 'Target', to: string, selectors?: Array<string> | null }> | null } | null } };
 
 export type ApproveMutationVariables = Exact<{
   id: Scalars['Bytes32'];
@@ -1433,17 +1531,20 @@ export type UserQueryVariables = Exact<{
 
 export type UserQuery = { __typename?: 'Query', user: { __typename?: 'User', id: string, name?: string | null } };
 
-export const PolicyRulesFieldsFragmentDoc = gql`
-    fragment PolicyRulesFields on PolicyRules {
+export const PolicyStateFieldsFragmentDoc = gql`
+    fragment PolicyStateFields on PolicyState {
   id
   proposalId
   createdAt
   isRemoved
+  threshold
   approvers {
     userId
   }
-  onlyFunctions
-  onlyTargets
+  targets {
+    to
+    selectors
+  }
 }
     `;
 export const PolicyFieldsFragmentDoc = gql`
@@ -1452,13 +1553,13 @@ export const PolicyFieldsFragmentDoc = gql`
   key
   name
   active {
-    ...PolicyRulesFields
+    ...PolicyStateFields
   }
   draft {
-    ...PolicyRulesFields
+    ...PolicyStateFields
   }
 }
-    ${PolicyRulesFieldsFragmentDoc}`;
+    ${PolicyStateFieldsFragmentDoc}`;
 export const AccountFieldsFragmentDoc = gql`
     fragment AccountFields on Account {
   id
@@ -1486,6 +1587,16 @@ export const ContactFieldsFragmentDoc = gql`
   id
   addr
   name
+}
+    `;
+export const ContractFunctionFieldsFragmentDoc = gql`
+    fragment ContractFunctionFields on ContractFunction {
+  id
+  contractId
+  selector
+  abi
+  source
+  sourceConfidence
 }
     `;
 export const ApprovalFieldsFragmentDoc = gql`
@@ -1648,8 +1759,8 @@ export function useAccountSubscriptionSubscription(baseOptions?: Apollo.Subscrip
 export type AccountSubscriptionSubscriptionHookResult = ReturnType<typeof useAccountSubscriptionSubscription>;
 export type AccountSubscriptionSubscriptionResult = Apollo.SubscriptionResult<AccountSubscriptionSubscription>;
 export const CreateAccountDocument = gql`
-    mutation CreateAccount($name: String!, $policies: [PolicyInput!]!) {
-  createAccount(name: $name, policies: $policies) {
+    mutation CreateAccount($args: CreateAccountInput!) {
+  createAccount(args: $args) {
     ...AccountFields
   }
 }
@@ -1669,8 +1780,7 @@ export type CreateAccountMutationFn = Apollo.MutationFunction<CreateAccountMutat
  * @example
  * const [createAccountMutation, { data, loading, error }] = useCreateAccountMutation({
  *   variables: {
- *      name: // value for 'name'
- *      policies: // value for 'policies'
+ *      args: // value for 'args'
  *   },
  * });
  */
@@ -1682,8 +1792,8 @@ export type CreateAccountMutationHookResult = ReturnType<typeof useCreateAccount
 export type CreateAccountMutationResult = Apollo.MutationResult<CreateAccountMutation>;
 export type CreateAccountMutationOptions = Apollo.BaseMutationOptions<CreateAccountMutation, CreateAccountMutationVariables>;
 export const UpdateAccountDocument = gql`
-    mutation UpdateAccount($account: Address!, $name: String!) {
-  updateAccount(id: $account, name: $name) {
+    mutation UpdateAccount($args: UpdateAccountInput!) {
+  updateAccount(args: $args) {
     id
     name
   }
@@ -1704,8 +1814,7 @@ export type UpdateAccountMutationFn = Apollo.MutationFunction<UpdateAccountMutat
  * @example
  * const [updateAccountMutation, { data, loading, error }] = useUpdateAccountMutation({
  *   variables: {
- *      account: // value for 'account'
- *      name: // value for 'name'
+ *      args: // value for 'args'
  *   },
  * });
  */
@@ -1956,6 +2065,79 @@ export function useUpsertContactMutation(baseOptions?: Apollo.MutationHookOption
 export type UpsertContactMutationHookResult = ReturnType<typeof useUpsertContactMutation>;
 export type UpsertContactMutationResult = Apollo.MutationResult<UpsertContactMutation>;
 export type UpsertContactMutationOptions = Apollo.BaseMutationOptions<UpsertContactMutation, UpsertContactMutationVariables>;
+export const ContractFunctionDocument = gql`
+    query ContractFunction($args: ContractFunctionInput!) {
+  contractFunction(args: $args) {
+    ...ContractFunctionFields
+  }
+}
+    ${ContractFunctionFieldsFragmentDoc}`;
+
+/**
+ * __useContractFunctionQuery__
+ *
+ * To run a query within a React component, call `useContractFunctionQuery` and pass it any options that fit your needs.
+ * When your component renders, `useContractFunctionQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useContractFunctionQuery({
+ *   variables: {
+ *      args: // value for 'args'
+ *   },
+ * });
+ */
+export function useContractFunctionQuery(baseOptions: Apollo.QueryHookOptions<ContractFunctionQuery, ContractFunctionQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<ContractFunctionQuery, ContractFunctionQueryVariables>(ContractFunctionDocument, options);
+      }
+export function useContractFunctionLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<ContractFunctionQuery, ContractFunctionQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<ContractFunctionQuery, ContractFunctionQueryVariables>(ContractFunctionDocument, options);
+        }
+export type ContractFunctionQueryHookResult = ReturnType<typeof useContractFunctionQuery>;
+export type ContractFunctionLazyQueryHookResult = ReturnType<typeof useContractFunctionLazyQuery>;
+export type ContractFunctionQueryResult = Apollo.QueryResult<ContractFunctionQuery, ContractFunctionQueryVariables>;
+export const ContractDocument = gql`
+    query Contract($args: ContractInput!) {
+  contract(args: $args) {
+    id
+    functions {
+      ...ContractFunctionFields
+    }
+  }
+}
+    ${ContractFunctionFieldsFragmentDoc}`;
+
+/**
+ * __useContractQuery__
+ *
+ * To run a query within a React component, call `useContractQuery` and pass it any options that fit your needs.
+ * When your component renders, `useContractQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useContractQuery({
+ *   variables: {
+ *      args: // value for 'args'
+ *   },
+ * });
+ */
+export function useContractQuery(baseOptions: Apollo.QueryHookOptions<ContractQuery, ContractQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<ContractQuery, ContractQueryVariables>(ContractDocument, options);
+      }
+export function useContractLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<ContractQuery, ContractQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<ContractQuery, ContractQueryVariables>(ContractDocument, options);
+        }
+export type ContractQueryHookResult = ReturnType<typeof useContractQuery>;
+export type ContractLazyQueryHookResult = ReturnType<typeof useContractLazyQuery>;
+export type ContractQueryResult = Apollo.QueryResult<ContractQuery, ContractQueryVariables>;
 export const RequestableTokensDocument = gql`
     query RequestableTokens($recipient: Address!) {
   requestableTokens(recipient: $recipient)
@@ -2020,46 +2202,9 @@ export function useRequestTokensMutation(baseOptions?: Apollo.MutationHookOption
 export type RequestTokensMutationHookResult = ReturnType<typeof useRequestTokensMutation>;
 export type RequestTokensMutationResult = Apollo.MutationResult<RequestTokensMutation>;
 export type RequestTokensMutationOptions = Apollo.BaseMutationOptions<RequestTokensMutation, RequestTokensMutationVariables>;
-export const ContractMethodDocument = gql`
-    query ContractMethod($contract: Address!, $sighash: Bytes!) {
-  contractMethod(contract: $contract, sighash: $sighash) {
-    id
-    fragment
-  }
-}
-    `;
-
-/**
- * __useContractMethodQuery__
- *
- * To run a query within a React component, call `useContractMethodQuery` and pass it any options that fit your needs.
- * When your component renders, `useContractMethodQuery` returns an object from Apollo Client that contains loading, error, and data properties
- * you can use to render your UI.
- *
- * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
- *
- * @example
- * const { data, loading, error } = useContractMethodQuery({
- *   variables: {
- *      contract: // value for 'contract'
- *      sighash: // value for 'sighash'
- *   },
- * });
- */
-export function useContractMethodQuery(baseOptions: Apollo.QueryHookOptions<ContractMethodQuery, ContractMethodQueryVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useQuery<ContractMethodQuery, ContractMethodQueryVariables>(ContractMethodDocument, options);
-      }
-export function useContractMethodLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<ContractMethodQuery, ContractMethodQueryVariables>) {
-          const options = {...defaultOptions, ...baseOptions}
-          return Apollo.useLazyQuery<ContractMethodQuery, ContractMethodQueryVariables>(ContractMethodDocument, options);
-        }
-export type ContractMethodQueryHookResult = ReturnType<typeof useContractMethodQuery>;
-export type ContractMethodLazyQueryHookResult = ReturnType<typeof useContractMethodLazyQuery>;
-export type ContractMethodQueryResult = Apollo.QueryResult<ContractMethodQuery, ContractMethodQueryVariables>;
 export const CreatePolicyDocument = gql`
-    mutation CreatePolicy($account: Address!, $name: String, $rules: RulesInput!) {
-  createPolicy(account: $account, name: $name, rules: $rules) {
+    mutation CreatePolicy($args: CreatePolicyInput!) {
+  createPolicy(args: $args) {
     ...PolicyFields
   }
 }
@@ -2079,9 +2224,7 @@ export type CreatePolicyMutationFn = Apollo.MutationFunction<CreatePolicyMutatio
  * @example
  * const [createPolicyMutation, { data, loading, error }] = useCreatePolicyMutation({
  *   variables: {
- *      account: // value for 'account'
- *      name: // value for 'name'
- *      rules: // value for 'rules'
+ *      args: // value for 'args'
  *   },
  * });
  */
@@ -2093,8 +2236,8 @@ export type CreatePolicyMutationHookResult = ReturnType<typeof useCreatePolicyMu
 export type CreatePolicyMutationResult = Apollo.MutationResult<CreatePolicyMutation>;
 export type CreatePolicyMutationOptions = Apollo.BaseMutationOptions<CreatePolicyMutation, CreatePolicyMutationVariables>;
 export const RemovePolicyDocument = gql`
-    mutation RemovePolicy($account: Address!, $key: PolicyKey!) {
-  removePolicy(account: $account, key: $key) {
+    mutation RemovePolicy($args: UniquePolicyInput!) {
+  removePolicy(args: $args) {
     ...PolicyFields
   }
 }
@@ -2114,8 +2257,7 @@ export type RemovePolicyMutationFn = Apollo.MutationFunction<RemovePolicyMutatio
  * @example
  * const [removePolicyMutation, { data, loading, error }] = useRemovePolicyMutation({
  *   variables: {
- *      account: // value for 'account'
- *      key: // value for 'key'
+ *      args: // value for 'args'
  *   },
  * });
  */
@@ -2127,8 +2269,8 @@ export type RemovePolicyMutationHookResult = ReturnType<typeof useRemovePolicyMu
 export type RemovePolicyMutationResult = Apollo.MutationResult<RemovePolicyMutation>;
 export type RemovePolicyMutationOptions = Apollo.BaseMutationOptions<RemovePolicyMutation, RemovePolicyMutationVariables>;
 export const UpdatePolicyDocument = gql`
-    mutation UpdatePolicy($account: Address!, $key: PolicyKey!, $name: String, $rules: RulesInput) {
-  updatePolicy(account: $account, key: $key, name: $name, rules: $rules) {
+    mutation UpdatePolicy($args: UpdatePolicyInput!) {
+  updatePolicy(args: $args) {
     ...PolicyFields
   }
 }
@@ -2148,10 +2290,7 @@ export type UpdatePolicyMutationFn = Apollo.MutationFunction<UpdatePolicyMutatio
  * @example
  * const [updatePolicyMutation, { data, loading, error }] = useUpdatePolicyMutation({
  *   variables: {
- *      account: // value for 'account'
- *      key: // value for 'key'
- *      name: // value for 'name'
- *      rules: // value for 'rules'
+ *      args: // value for 'args'
  *   },
  * });
  */
