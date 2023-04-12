@@ -3,6 +3,8 @@ import { Tokenlike, useToken } from '@token/useToken';
 import { Image, ImageProps } from 'expo-image';
 import { isPresent } from 'lib';
 import { ImageStyle } from 'react-native';
+import { CircleSkeleton } from '~/components/skeleton/CircleSkeleton';
+import { withSuspense } from '~/components/skeleton/withSuspense';
 
 export interface TokenIconProps extends Omit<ImageProps, 'source' | 'style'> {
   token: Tokenlike;
@@ -10,21 +12,21 @@ export interface TokenIconProps extends Omit<ImageProps, 'source' | 'style'> {
   style?: ImageStyle;
 }
 
-export const TokenIcon = ({ token: tokenlike, size, style, ...imageProps }: TokenIconProps) => {
-  const styles = useStyles(size);
-  const { iconUri } = useToken(tokenlike);
+export const TokenIcon = withSuspense(
+  ({ token: tokenlike, size, style, ...imageProps }: TokenIconProps) => {
+    const styles = useStyles(size);
+    const { iconUri } = useToken(tokenlike);
 
-  return (
-    <Image
-      {...imageProps}
-      source={{
-        uri: iconUri,
-        blurhash: 'QiMahmfk~5j[N1j[NIj[oct7j[offQayfQfQa|j[t2fQflfQM}azxrj@ay', // USDC blurhash
-      }}
-      style={[style, styles.icon].filter(isPresent)}
-    />
-  );
-};
+    return (
+      <Image
+        {...imageProps}
+        source={{ uri: iconUri }}
+        style={[style, styles.icon].filter(isPresent)}
+      />
+    );
+  },
+  CircleSkeleton,
+);
 
 const useStyles = makeStyles(({ iconSize }, size: number = iconSize.medium) => ({
   icon: {
