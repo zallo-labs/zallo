@@ -1,7 +1,6 @@
 import { usePolicy, WPolicy } from '@api/policy';
 import { Proposal, ProposalId, useProposal } from '@api/proposal';
 import { NavigateNextIcon, PolicySatisfiableIcon, PolicyUnsatisfiableIcon } from '@theme/icons';
-import { ApprovalsRule } from 'lib';
 import { StyleSheet } from 'react-native';
 import { ScrollView } from 'react-native';
 import { AddressLabel } from '~/components/address/AddressLabel';
@@ -16,8 +15,7 @@ import { withSuspense } from '~/components/skeleton/withSuspense';
 import { TabScreenSkeleton } from '~/components/tab/TabScreenSkeleton';
 
 const getApprovalsAwaiting = (proposal: Proposal, policy?: WPolicy) => {
-  const policyRules = policy?.active;
-  const requiredApproval = policyRules?.rules.get(ApprovalsRule)?.approvers ?? new Set();
+  const requiredApproval = policy?.active?.approvers ?? new Set();
 
   return [...requiredApproval].filter(
     (a) => !proposal.approvals.has(a) && !proposal.rejections.has(a),
