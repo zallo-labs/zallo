@@ -4,10 +4,10 @@ const PATTERN = /^BigInt::([0-9]+)$/;
 const toString = (value: bigint) => `BigInt::${value}`;
 
 export default wrapJSON({
-  trySerialize: (_key, value) => {
+  tryStringify: (_key, value) => {
     if (typeof value === 'bigint') return toString(value);
   },
-  tryDeserialize: (_key, value) => {
+  tryParse: (_key, value) => {
     if (typeof value === 'string') {
       const matches = value.match(PATTERN);
       if (matches) {
