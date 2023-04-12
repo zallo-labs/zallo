@@ -12,7 +12,7 @@ export default wrapJSON({
       const matches = value.match(PATTERN);
       if (matches) {
         try {
-          value = BigInt(matches[1]!);
+          return BigInt(matches[1]);
         } catch (e) {
           console.error(`Failed to convert from "${matches[1]}" to BigInt: ${e}"`);
         }
