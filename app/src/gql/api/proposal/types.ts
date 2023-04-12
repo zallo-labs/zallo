@@ -2,7 +2,7 @@ import { Address, Hex, Tx, KeySet, asHex, asAddress, asBigInt, asPolicyKey, Poli
 import { DateTime } from 'luxon';
 import { match } from 'ts-pattern';
 import { ProposalFieldsFragment } from '@api/generated';
-import { AccountId, asAccountId } from '@api/account';
+import { AccountId, asAccountId } from '@api/account/types';
 
 export type ProposalId = Hex & { isProposalId: true };
 export const asProposalId = (id: string) => asHex(id) as ProposalId;
