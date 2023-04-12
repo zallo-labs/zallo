@@ -21,7 +21,7 @@ export const TokenIcon = ({ token: tokenlike, size, style, ...imageProps }: Toke
         uri: iconUri,
         blurhash: 'QiMahmfk~5j[N1j[NIj[oct7j[offQayfQfQa|j[t2fQflfQM}azxrj@ay', // USDC blurhash
       }}
-      style={[styles.icon, style].filter(isPresent)}
+      style={[style, styles.icon].filter(isPresent)}
     />
   );
 };
@@ -30,5 +30,6 @@ const useStyles = makeStyles(({ iconSize }, size: number = iconSize.medium) => (
   icon: {
     width: size,
     height: size,
+    backgroundColor: undefined,
   },
 }));
