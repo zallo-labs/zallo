@@ -22,10 +22,9 @@ const DEFAULT_FIELDS: DefaultFields = {
       addr: true,
     }),
   }),
-  ContractMethod: (select) => ({
-    ...(select.id && {
-      contract: true,
-      sighash: true,
+  ContractFunction: (select) => ({
+    ...(select.sourceConfidence && {
+      source: true,
     }),
   }),
   Proposal: (select) => ({

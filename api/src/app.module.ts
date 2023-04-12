@@ -9,7 +9,7 @@ import { ApolloModule } from './apollo/apollo.module';
 import { ProviderModule } from './features/util/provider/provider.module';
 import { ContactsModule } from './features/contacts/contacts.module';
 import { ApproversModule } from './features/approvers/approvers.module';
-import { ContractMethodsModule } from './features/contract-methods/contract-methods.module';
+import { ContractFunctionsModule } from './features/contract-methods/contract-functions.module';
 import { ProposalsModule } from './features/proposals/proposals.module';
 import { TransactionsModule } from './features/transactions/transactions.module';
 import { CommentsModule } from './features/comments/comments.module';
@@ -24,6 +24,7 @@ import { CONFIG } from './config';
 import { REDIS_PUBLISHER, REDIS_SUBSCRIBER } from './decorators/redis.decorator';
 import { BullModule } from '@nestjs/bull';
 import { PoliciesModule } from './features/policies/policies.module';
+import { ContractsModule } from './features/contracts/contracts.module';
 
 @Module({
   imports: [
@@ -58,7 +59,8 @@ import { PoliciesModule } from './features/policies/policies.module';
     AuthModule,
     CommentsModule,
     ContactsModule,
-    ContractMethodsModule,
+    ContractFunctionsModule,
+    ContractsModule,
     FaucetModule,
     HealthModule,
     PoliciesModule,

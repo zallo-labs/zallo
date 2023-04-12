@@ -1,18 +1,18 @@
 import { createMock } from '@golevelup/ts-jest';
 import { Test, TestingModule } from '@nestjs/testing';
-import { ContractMethodsService } from './contract-methods.service';
+import { ContractFunctionsService } from './contract-functions.service';
 
-describe('ContractMethodsService', () => {
-  let service: ContractMethodsService;
+describe(ContractFunctionsService.name, () => {
+  let service: ContractFunctionsService;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      providers: [ContractMethodsService],
+      providers: [ContractFunctionsService],
     })
       .useMocker(createMock)
       .compile();
 
-    service = module.get<ContractMethodsService>(ContractMethodsService);
+    service = module.get<ContractFunctionsService>(ContractFunctionsService);
   });
 
   it('should be defined', () => {

@@ -8,7 +8,8 @@ import { AccountsResolver } from './features/accounts/accounts.resolver';
 import { ApproversResolver } from './features/approvers/approvers.resolver';
 import { CommentsResolver } from './features/comments/comments.resolver';
 import { ContactsResolver } from './features/contacts/contacts.resolver';
-import { ContractMethodsResolver } from './features/contract-methods/contract-methods.resolver';
+import { ContractsResolver } from './features/contracts/contracts.resolver';
+import { ContractFunctionsResolver } from './features/contract-methods/contract-functions.resolver';
 import { UsersResolver } from './features/users/users.resolver';
 import { FaucetResolver } from './features/faucet/faucet.resolver';
 import { ProposalsResolver } from './features/proposals/proposals.resolver';
@@ -21,7 +22,8 @@ const resolvers = [
   ApproversResolver,
   CommentsResolver,
   ContactsResolver,
-  ContractMethodsResolver,
+  ContractsResolver,
+  ContractFunctionsResolver,
   FaucetResolver,
   PoliciesResolver,
   ProposalsResolver,

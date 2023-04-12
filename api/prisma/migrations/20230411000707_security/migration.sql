@@ -170,8 +170,13 @@ CREATE POLICY user_all ON "Contact" FOR ALL
 
 
 
-/* ContractMethod */
-GRANT SELECT, INSERT, UPDATE ON "ContractMethod" TO PUBLIC;
+/* Contract */
+GRANT SELECT, INSERT, UPDATE ON "Contract" TO PUBLIC;
+
+
+
+/* ContractFunction */
+GRANT SELECT, INSERT, UPDATE ON "ContractFunction" TO PUBLIC;
 
 
 

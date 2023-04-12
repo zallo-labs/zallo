@@ -90,7 +90,7 @@ model PolicyState {
   createdAt  DateTime  @default(now())
   isRemoved  Boolean   @default(false)
 
-  activeOf Policy?    @relation(name: "active")
+  activeOf  Policy?    @relation(name: "active")
   draftOf   Policy?    @relation(name: "draft")
   approvers Approver[]
   threshold Int        @default(0)
@@ -112,8 +112,8 @@ model Approver {
 model Target {
   state     PolicyState @relation(fields: [stateId], references: [id], onDelete: Cascade)
   stateId   BigInt
-  to        String      @db.Char(42) // address
-  selectors String[]    @db.Char(10) // bytes4
+  to        String // address | '*'
+  selectors String[] // bytes4 | '*'
 
   @@id([stateId, to])
 }
@@ -176,13 +176,32 @@ model Approval {
   @@id([proposalId, userId])
 }
 
-model ContractMethod {
-  contract String @default("0x0000000000000000000000000000000000000000") @db.Char(42) // address
-  sighash  String @db.Char(10) // bytes4
-  fragment Json
+////////////////////////////////////////////////////////////////
+//                               CONTRACT                     //
+////////////////////////////////////////////////////////////////
 
-  @@id([contract, sighash])
-  @@index([sighash])
+model Contract {
+  id String @id @db.Char(42) // address
+
+  functions ContractFunction[]
+}
+
+model ContractFunction {
+  id         Int       @id @default(autoincrement())
+  contract   Contract? @relation(fields: [contractId], references: [id], onDelete: Cascade)
+  contractId String?   @db.Char(42) // address
+  selector   String    @db.Char(10) // bytes4
+  abi        Json
+  source     AbiSource
+
+  @@unique([contractId, selector])
+  @@index([selector])
+}
+
+enum AbiSource {
+  VERIFIED
+  STANDARD
+  DECOMPILED
 }
 
 ////////////////////////////////////////////////////////////////

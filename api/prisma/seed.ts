@@ -1,25 +1,25 @@
-import { PrismaClient } from '@prisma/client';
-import { ACCOUNT_INTERFACE, Erc20__factory } from 'lib';
+import { AbiSource, PrismaClient } from '@prisma/client';
+import { ACCOUNT_INTERFACE, Erc20__factory, asSelector } from 'lib';
 
 const prisma = new PrismaClient();
 
-const createFragments = async () => {
+const createContracts = async () => {
   // Interfaces in order of precedence (in case of sighash collisions)
   const interfaces = [ACCOUNT_INTERFACE, Erc20__factory.createInterface()];
 
-  await prisma.contractMethod.createMany({
+  await prisma.contractFunction.createMany({
     data: interfaces.flatMap((i) =>
       Object.values(i.functions).map((f) => ({
-        sighash: i.getSighash(f),
-        fragment: JSON.parse(f.format('json')),
+        selector: asSelector(i.getSighash(f)),
+        abi: JSON.parse(f.format('json')),
+        source: AbiSource.STANDARD,
       })),
     ),
-    skipDuplicates: true,
   });
 };
 
 const main = async () => {
-  await createFragments();
+  await createContracts();
 };
 
 main()

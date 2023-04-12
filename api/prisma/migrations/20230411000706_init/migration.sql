@@ -1,3 +1,6 @@
+-- CreateEnum
+CREATE TYPE "AbiSource" AS ENUM ('VERIFIED', 'STANDARD', 'DECOMPILED');
+
 -- CreateTable
 CREATE TABLE "Account" (
     "id" CHAR(42) NOT NULL,
@@ -46,7 +49,7 @@ CREATE TABLE "PolicyState" (
     "proposalId" CHAR(66),
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "isRemoved" BOOLEAN NOT NULL DEFAULT false,
-    "threshold" INTEGER NOT NULL,
+    "threshold" INTEGER NOT NULL DEFAULT 0,
 
     CONSTRAINT "PolicyState_pkey" PRIMARY KEY ("id")
 );
@@ -62,8 +65,8 @@ CREATE TABLE "Approver" (
 -- CreateTable
 CREATE TABLE "Target" (
     "stateId" BIGINT NOT NULL,
-    "to" CHAR(42) NOT NULL,
-    "selectors" CHAR(10)[],
+    "to" TEXT NOT NULL,
+    "selectors" TEXT[],
 
     CONSTRAINT "Target_pkey" PRIMARY KEY ("stateId","to")
 );
@@ -119,12 +122,21 @@ CREATE TABLE "Approval" (
 );
 
 -- CreateTable
-CREATE TABLE "ContractMethod" (
-    "contract" CHAR(42) NOT NULL DEFAULT '0x0000000000000000000000000000000000000000',
-    "sighash" CHAR(10) NOT NULL,
-    "fragment" JSONB NOT NULL,
+CREATE TABLE "Contract" (
+    "id" CHAR(42) NOT NULL,
 
-    CONSTRAINT "ContractMethod_pkey" PRIMARY KEY ("contract","sighash")
+    CONSTRAINT "Contract_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "ContractFunction" (
+    "id" SERIAL NOT NULL,
+    "contractId" CHAR(42),
+    "selector" CHAR(10) NOT NULL,
+    "abi" JSONB NOT NULL,
+    "source" "AbiSource" NOT NULL,
+
+    CONSTRAINT "ContractFunction_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
@@ -167,7 +179,10 @@ CREATE INDEX "policy_createdAt" ON "PolicyState"("accountId", "policyKey", "crea
 CREATE UNIQUE INDEX "PolicyState_accountId_policyKey_proposalId_key" ON "PolicyState"("accountId", "policyKey", "proposalId");
 
 -- CreateIndex
-CREATE INDEX "ContractMethod_sighash_idx" ON "ContractMethod"("sighash");
+CREATE INDEX "ContractFunction_selector_idx" ON "ContractFunction"("selector");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "ContractFunction_contractId_selector_key" ON "ContractFunction"("contractId", "selector");
 
 -- CreateIndex
 CREATE INDEX "Comment_accountId_key_idx" ON "Comment"("accountId", "key");
@@ -219,6 +234,9 @@ ALTER TABLE "Approval" ADD CONSTRAINT "Approval_proposalId_fkey" FOREIGN KEY ("p
 
 -- AddForeignKey
 ALTER TABLE "Approval" ADD CONSTRAINT "Approval_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "ContractFunction" ADD CONSTRAINT "ContractFunction_contractId_fkey" FOREIGN KEY ("contractId") REFERENCES "Contract"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "Comment" ADD CONSTRAINT "Comment_accountId_fkey" FOREIGN KEY ("accountId") REFERENCES "Account"("id") ON DELETE CASCADE ON UPDATE CASCADE;

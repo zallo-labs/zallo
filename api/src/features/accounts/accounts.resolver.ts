@@ -24,6 +24,7 @@ import { PubsubService } from '../util/pubsub/pubsub.service';
 import { UserContext, getRequestContext, getUser } from '~/request/ctx';
 import { Prisma } from '@prisma/client';
 import { inputAsPolicy, policyAsCreateState } from '../policies/policies.util';
+import { ContractsService } from '../contracts/contracts.service';
 
 @Resolver(() => Account)
 export class AccountsResolver {
@@ -31,6 +32,7 @@ export class AccountsResolver {
     private service: AccountsService,
     private prisma: PrismaService,
     private provider: ProviderService,
+    private contracts: ContractsService,
     private faucet: FaucetService,
     private pubsub: PubsubService,
   ) {}
@@ -152,6 +154,7 @@ export class AccountsResolver {
     const r = await this.service.activateAccount(account, { ...getSelect(info) });
 
     this.service.publishAccount({ account: { id: account }, event: AccountEvent.create });
+    await this.contracts.addAccountAsVerified(account);
     this.faucet.requestTokens(account);
 
     return r;
