@@ -1,5 +1,5 @@
 import { useApprover } from '@network/useApprover';
-import { ApprovalsRule, asAddress, asHex, encodeAccountSignature, Hex, Policy } from 'lib';
+import { asAddress, asHex, encodeAccountSignature, Hex } from 'lib';
 import { match } from 'ts-pattern';
 import { StackNavigatorScreenProps } from '~/navigation/StackNavigator';
 import { Appbar, Button, Text } from 'react-native-paper';
@@ -63,14 +63,10 @@ export const SignScreen = ({ navigation, route }: SignScreenProps) => {
     [request],
   );
   const account = useAccount(accountId);
-  const approverOnlyPolicy = (() => {
-    const p = account.policies.find((p) => {
-      const approvers =
-        p.active instanceof Policy ? p.active.rules.get(ApprovalsRule)?.approvers : undefined;
-      return approvers?.size === 1 && approvers.has(asAddress(approver.address));
-    });
-    return p?.active && p.active instanceof Policy ? p.active! : undefined;
-  })();
+  const approverOnlyPolicy = account.policies.find((p) => {
+    const approvers = p.active?.approvers;
+    return approvers?.size === 1 && approvers.has(asAddress(approver.address));
+  })?.active;
 
   const reject = useCallback(
     async (error: WalletConnectErrorKey) => {
@@ -113,7 +109,7 @@ export const SignScreen = ({ navigation, route }: SignScreenProps) => {
     }
 
     return encodeAccountSignature(approverOnlyPolicy, [
-      { approver: asAddress(approver.address), signature: approverSignature },
+      { approver: asAddress(approver.address), signature: approverSignature, type: 'secp256k1' },
     ]);
   }, [data, approverOnlyPolicy, approver]);
 
