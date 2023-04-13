@@ -4,6 +4,7 @@
 
 /* User role */
 -- Create a limitted role that will be used by the user
+-- Create roles: system & user
 DO
 $$
 BEGIN
@@ -21,11 +22,16 @@ GRANT USAGE ON SCHEMA public TO "user";
 GRANT USAGE, SELECT ON ALL SEQUENCES IN SCHEMA public to "user";
 
 
-/* User functions */
+-- Functions
 CREATE FUNCTION user_id() RETURNS text AS $$
     SELECT current_setting('user.id', true)::text;
 $$ LANGUAGE SQL;
 GRANT EXECUTE ON FUNCTION user_id() TO "user";
+
+CREATE FUNCTION is_system() RETURNS boolean AS $$
+    SELECT user_id() IS NULL;
+$$ LANGUAGE SQL;
+
 
 CREATE FUNCTION is_user(userId text) RETURNS boolean AS $$
     SELECT userId = (SELECT current_setting('user.id', true));
@@ -37,10 +43,10 @@ CREATE FUNCTION user_accounts() RETURNS text[] AS $$
 $$ LANGUAGE SQL;
 GRANT EXECUTE ON FUNCTION user_accounts TO "user";
 
-CREATE FUNCTION is_user_account(accountId text) RETURNS boolean AS $$
-    SELECT accountId = ANY(user_accounts()) OR accountId IS NULL;
+CREATE FUNCTION can_access_account(accountId text) RETURNS boolean AS $$
+    SELECT accountId = ANY(user_accounts()) OR accountId IS NULL OR is_system();
 $$ LANGUAGE SQL;
-GRANT EXECUTE ON FUNCTION is_user_account(text) TO "user";
+GRANT EXECUTE ON FUNCTION can_access_account(text) TO "user";
 
 
 
@@ -67,7 +73,7 @@ GRANT SELECT, INSERT, UPDATE ON "Account" TO PUBLIC;
 ALTER TABLE "Account" ENABLE ROW LEVEL SECURITY;
 
 CREATE POLICY member_all ON "Account" FOR ALL
-    USING (is_user_account("id"));
+    USING (can_access_account("id"));
 
 
 
@@ -76,16 +82,16 @@ GRANT SELECT, INSERT, UPDATE ("key", "name", "activeId", "draftId") ON "Policy" 
 ALTER TABLE "Policy" ENABLE ROW LEVEL SECURITY;
 
 CREATE POLICY account_member_select ON "Policy" FOR SELECT
-    USING (is_user_account("accountId"));
+    USING (can_access_account("accountId"));
 
 CREATE POLICY account_member_insert ON "Policy" FOR INSERT
-    WITH CHECK (is_user_account("accountId"));
+    WITH CHECK (can_access_account("accountId"));
 
 CREATE POLICY account_member_update ON "Policy" FOR UPDATE
-    USING (is_user_account("accountId"));
+    USING (can_access_account("accountId"));
 
 CREATE POLICY account_member_delete ON "Policy" FOR DELETE
-    USING (is_user_account("accountId") AND "activeId" IS NULL);
+    USING (can_access_account("accountId") AND "activeId" IS NULL);
 
 
 
@@ -94,7 +100,7 @@ GRANT SELECT, INSERT ON "PolicyState" TO PUBLIC;
 ALTER TABLE "PolicyState" ENABLE ROW LEVEL SECURITY;
 
 CREATE POLICY account_member_all ON "PolicyState" FOR ALL
-    USING (is_user_account("accountId"));
+    USING (can_access_account("accountId"));
 
 
 
@@ -103,7 +109,7 @@ GRANT SELECT, INSERT ON "Approver" TO PUBLIC;
 ALTER TABLE "Approver" ENABLE ROW LEVEL SECURITY;
 
 CREATE POLICY account_member_all ON "Approver" FOR ALL
-    USING (is_user_account(
+    USING (can_access_account(
         (SELECT "accountId" FROM "PolicyState" WHERE "id" = "stateId")
     ));
 
@@ -114,7 +120,7 @@ GRANT SELECT, INSERT ON "Target" TO PUBLIC;
 ALTER TABLE "Target" ENABLE ROW LEVEL SECURITY;
 
 CREATE POLICY account_member_all ON "Target" FOR ALL
-    USING (is_user_account(
+    USING (can_access_account(
         (SELECT "accountId" FROM "PolicyState" WHERE "id" = "stateId")
     ));
 
@@ -124,7 +130,7 @@ GRANT SELECT, INSERT, UPDATE, DELETE ON "Proposal" TO PUBLIC;
 ALTER TABLE "Proposal" ENABLE ROW LEVEL SECURITY;
 
 CREATE POLICY account_member_all ON "Proposal" FOR ALL
-    USING (is_user_account("accountId"));
+    USING (can_access_account("accountId"));
 
 
 
@@ -133,7 +139,7 @@ GRANT SELECT, INSERT ON "Transaction" TO PUBLIC;
 ALTER TABLE "Transaction" ENABLE ROW LEVEL SECURITY;
 
 CREATE POLICY account_member_all ON "Transaction" FOR ALL
-    USING (is_user_account(
+    USING (can_access_account(
         (SELECT "accountId" FROM "Proposal" WHERE "id" = "proposalId")
     ));
 
@@ -149,7 +155,7 @@ GRANT SELECT, INSERT, UPDATE ("signature") ON "Approval" TO PUBLIC;
 ALTER TABLE "Approval" ENABLE ROW LEVEL SECURITY;
 
 CREATE POLICY account_member_view ON "Approval" FOR SELECT
-    USING (is_user_account(
+    USING (can_access_account(
         (SELECT "accountId" FROM "Proposal" WHERE "id" = "proposalId")
     ));
 
@@ -185,7 +191,7 @@ GRANT SELECT, INSERT, UPDATE ("content") ON "Comment" TO PUBLIC;
 ALTER TABLE "Comment" ENABLE ROW LEVEL SECURITY;
 
 CREATE POLICY account_members_view ON "Comment" FOR SELECT
-    USING (is_user_account("accountId"));
+    USING (can_access_account("accountId"));
 
 CREATE POLICY user_all ON "Comment" FOR ALL
     USING (is_user("authorId"));
@@ -197,7 +203,7 @@ GRANT SELECT, INSERT, UPDATE ("emojis"), DELETE ON "Reaction" TO PUBLIC;
 ALTER TABLE "Reaction" ENABLE ROW LEVEL SECURITY;
 
 CREATE POLICY account_members_view ON "Reaction" FOR SELECT
-    USING (is_user_account(
+    USING (can_access_account(
         (SELECT "accountId" FROM "Comment" WHERE "id" = "commentId")
     ));
 

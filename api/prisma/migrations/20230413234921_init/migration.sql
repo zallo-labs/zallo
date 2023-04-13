@@ -173,6 +173,9 @@ CREATE UNIQUE INDEX "Policy_activeId_key" ON "Policy"("activeId");
 CREATE UNIQUE INDEX "Policy_draftId_key" ON "Policy"("draftId");
 
 -- CreateIndex
+CREATE UNIQUE INDEX "Policy_accountId_name_key" ON "Policy"("accountId", "name");
+
+-- CreateIndex
 CREATE INDEX "policy_createdAt" ON "PolicyState"("accountId", "policyKey", "createdAt" DESC);
 
 -- CreateIndex
