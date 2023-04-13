@@ -3,7 +3,6 @@ import { StyleSheet } from 'react-native';
 import { FlatList } from 'react-native';
 import { Appbar } from 'react-native-paper';
 import { useAppbarHeader } from '~/components/Appbar/useAppbarHeader';
-import { useGoBack } from '~/components/Appbar/useGoBack';
 import { EmptyListFallback } from '~/components/EmptyListFallback';
 import { Box } from '~/components/layout/Box';
 import { StackNavigatorScreenProps } from '~/navigation/StackNavigator';
@@ -12,7 +11,7 @@ import { SessionCard } from './SessionCard';
 
 export type SessionsScreenProps = StackNavigatorScreenProps<'Sessions'>;
 
-export const SessionsScreen = ({ navigation }: SessionsScreenProps) => {
+export const SessionsScreen = ({ navigation: { navigate, goBack } }: SessionsScreenProps) => {
   const { AppbarHeader, handleScroll } = useAppbarHeader();
   const client = useWalletConnect();
 
@@ -20,9 +19,9 @@ export const SessionsScreen = ({ navigation }: SessionsScreenProps) => {
     <Box>
       <AppbarHeader mode="large">
         {/* TODO: replace with AppbarMenu once issue is fixed: https://github.com/callstack/react-native-paper/issues/3287 */}
-        <Appbar.BackAction onPress={useGoBack()} />
+        <Appbar.BackAction onPress={goBack} />
         <Appbar.Content title="Sessions" />
-        <Appbar.Action icon={ScanIcon} onPress={() => navigation.navigate('Scan', {})} />
+        <Appbar.Action icon={ScanIcon} onPress={() => navigate('Scan', {})} />
       </AppbarHeader>
 
       <FlatList

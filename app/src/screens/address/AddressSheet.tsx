@@ -1,6 +1,5 @@
 import { Sheet } from '~/components/sheet/Sheet';
 import { StackNavigatorScreenProps } from '~/navigation/StackNavigator';
-import { useGoBack } from '~/components/Appbar/useGoBack';
 import { ContactsIcon, NavigateNextIcon, SendIcon } from '@theme/icons';
 import { ListItem } from '~/components/list/ListItem';
 import { Address } from 'lib';
@@ -11,11 +10,11 @@ export interface AddressSheetScreenParams {
 
 export type AddressSheetProps = StackNavigatorScreenProps<'AddressSheet'>;
 
-export const AddressSheet = ({ route, navigation: { navigate } }: AddressSheetProps) => {
+export const AddressSheet = ({ route, navigation: { navigate, goBack } }: AddressSheetProps) => {
   const { address } = route.params;
 
   return (
-    <Sheet onClose={useGoBack()} handle={false}>
+    <Sheet onClose={goBack} handle={false}>
       <ListItem
         leading={SendIcon}
         headline="Send"

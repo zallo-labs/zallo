@@ -11,7 +11,6 @@ import { View } from 'react-native';
 import { Appbar, Button, Divider } from 'react-native-paper';
 import { useSelectedAccountId } from '~/components/AccountSelector/useSelectedAccount';
 import { useAddressLabel } from '~/components/address/AddressLabel';
-import { useGoBack } from '~/components/Appbar/useGoBack';
 import { NumericInput } from '~/components/fields/NumericInput';
 import { Screen } from '~/components/layout/Screen';
 import { ScreenSkeleton } from '~/components/skeleton/ScreenSkeleton';
@@ -36,7 +35,7 @@ export interface SendScreenParams {
 
 export type SendScreenProps = StackNavigatorScreenProps<'Send'>;
 
-export const SendScreen = withSuspense(({ route }: SendScreenProps) => {
+export const SendScreen = withSuspense(({ route, navigation: { goBack } }: SendScreenProps) => {
   const { to } = route.params;
   const styles = useStyles();
   const account = useSelectedAccountId();
@@ -61,7 +60,7 @@ export const SendScreen = withSuspense(({ route }: SendScreenProps) => {
   return (
     <Screen>
       <Appbar.Header>
-        <Appbar.Action icon={CloseIcon} onPress={useGoBack()} />
+        <Appbar.Action icon={CloseIcon} onPress={goBack} />
         <Appbar.Content title={`Send to ${useAddressLabel(to)}`} />
       </Appbar.Header>
 

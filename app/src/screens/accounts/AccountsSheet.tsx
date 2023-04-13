@@ -2,7 +2,6 @@ import { useRef } from 'react';
 import BottomSheet, { BottomSheetFlatList } from '@gorhom/bottom-sheet';
 import { Sheet } from '~/components/sheet/Sheet';
 import { StackNavigatorScreenProps } from '~/navigation/StackNavigator';
-import { useGoBack } from '~/components/Appbar/useGoBack';
 import { useAccountIds } from '@api/account';
 import {
   useSelectedAccountId,
@@ -16,12 +15,12 @@ import { Button } from 'react-native-paper';
 
 export type AccountsSheetProps = StackNavigatorScreenProps<'AccountsSheet'>;
 
-export const AccountsSheet = ({ navigation: { navigate } }: AccountsSheetProps) => {
+export const AccountsSheet = ({ navigation: { navigate, goBack } }: AccountsSheetProps) => {
   const ref = useRef<BottomSheet>(null);
   const [selected, setSelected] = [useSelectedAccountId(), useSetSelectedAccount()];
 
   return (
-    <Sheet ref={ref} onClose={useGoBack()}>
+    <Sheet ref={ref} onClose={goBack}>
       <BottomSheetFlatList
         data={useAccountIds()}
         ListHeaderComponent={

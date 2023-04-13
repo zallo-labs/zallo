@@ -2,11 +2,11 @@ import { BackIcon, ContactsIcon, PasteIcon } from '~/util/theme/icons';
 import { makeStyles } from '~/util/theme/makeStyles';
 import { IconButton } from 'react-native-paper';
 import { EdgeInsets, useSafeAreaInsets } from 'react-native-safe-area-context';
-import { useGoBack } from '~/components/Appbar/useGoBack';
 import BarcodeMask from 'react-native-barcode-mask';
 import { View } from 'react-native';
 import * as Clipboard from 'expo-clipboard';
 import { useSelectContact } from '../contacts/useSelectContact';
+import { useNavigation } from '@react-navigation/native';
 
 export interface OverlayProps {
   onData: (data: string) => void;
@@ -26,7 +26,7 @@ export const Overlay = ({ onData }: OverlayProps) => {
       />
 
       <View style={styles.actionsContainer}>
-        <IconButton icon={BackIcon} mode="contained-tonal" onPress={useGoBack()} />
+        <IconButton icon={BackIcon} mode="contained-tonal" onPress={useNavigation().goBack} />
 
         <View style={styles.spacer} />
 
