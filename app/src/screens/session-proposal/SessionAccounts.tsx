@@ -2,7 +2,7 @@ import { StyleProp, ViewStyle } from 'react-native';
 import { Updater } from 'use-immer';
 import { Box } from '~/components/layout/Box';
 import { AccountId, useAccountIds } from '@api/account';
-import SessionAccountItem from './SessionAccountItem';
+import { SessionAccountItem } from './SessionAccountItem';
 
 export interface SessionAccountsProps {
   selected: Set<AccountId>;
@@ -20,7 +20,7 @@ export const SessionAccounts = ({ selected, setSelected, style }: SessionAccount
           key={account}
           account={account}
           selected={selected.has(account)}
-          onSelect={() =>
+          onPress={() =>
             setSelected((selected) => {
               selected.has(account) ? selected.delete(account) : selected.add(account);
             })

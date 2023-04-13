@@ -1,36 +1,26 @@
 import { Address } from 'lib';
-import { Checkbox, Text } from 'react-native-paper';
-import { AddressIcon } from '~/components/Identicon/AddressIcon';
-import { Item, ItemProps } from '~/components/item/Item';
-import { ItemSkeleton } from '~/components/item/ItemSkeleton';
-import { withSuspense } from '~/components/skeleton/withSuspense';
-import { useAccount } from '@api/account';
+import { Checkbox } from 'react-native-paper';
+import { ListItem, ListItemProps } from '~/components/list/ListItem';
+import { AddressLabel } from '~/components/address/AddressLabel';
 
-export interface SessionAccountItemProps extends Omit<ItemProps, 'selected'> {
+export interface SessionAccountItemProps extends Partial<ListItemProps> {
   account: Address;
-  selected?: boolean;
-  onSelect: () => void;
+  onPress: ListItemProps['onPress'];
 }
 
-const SessionAccountItem = ({
-  account: accountAddr,
+export const SessionAccountItem = ({
+  account,
   selected,
-  onSelect,
+  onPress,
   ...itemProps
 }: SessionAccountItemProps) => {
-  const account = useAccount(accountAddr);
-
   return (
-    <Item
-      Left={<AddressIcon address={accountAddr} />}
-      Main={[<Text variant="titleLarge">{account.name}</Text>]}
+    <ListItem
+      leading={account}
+      headline={<AddressLabel address={account} />}
       selected={selected}
-      Right={<Checkbox status={selected ? 'checked' : 'unchecked'} onPress={() => onSelect()} />}
-      padding="vertical"
-      onPress={async () => onSelect()}
+      trailing={<Checkbox status={selected ? 'checked' : 'unchecked'} onPress={onPress} />}
       {...itemProps}
     />
   );
 };
-
-export default withSuspense(SessionAccountItem, ItemSkeleton);

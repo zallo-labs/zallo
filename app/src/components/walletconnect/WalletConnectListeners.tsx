@@ -1,4 +1,3 @@
-import { useRootNavigation } from '~/navigation/useRootNavigation';
 import { useEffect } from 'react';
 import { showError } from '~/provider/SnackbarProvider';
 import { SigningRequest, WC_SIGNING_METHODS } from '../../util/walletconnect/methods/signing';
@@ -13,9 +12,10 @@ import {
   WalletConnectEventArgs,
   asWalletConnectResult,
 } from '~/util/walletconnect';
+import { useNavigation } from '@react-navigation/native';
 
 export const WalletConnectListeners = () => {
-  const { navigate } = useRootNavigation();
+  const { navigate } = useNavigation();
   const client = useWalletConnect();
   const handleSessionProposal = useSessionPropsalListener();
   const propose = usePropose();
@@ -51,11 +51,14 @@ export const WalletConnectListeners = () => {
               },
               tx.from,
               (proposal, navigation) => {
-                popToProposal(proposal, navigation, (resp) =>
+                // TODO: handle response (onExecute)
+                popToProposal(
+                  proposal,
+                  navigation /*, (resp) =>
                   client.respond({
                     topic: topic!,
                     response: asWalletConnectResult(id, resp.transactionHash),
-                  }),
+                  }),*/,
                 );
               },
             );

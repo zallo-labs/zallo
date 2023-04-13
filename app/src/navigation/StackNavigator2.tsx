@@ -31,6 +31,11 @@ import {
 } from '~/screens/Interactions/InteractionsScreen';
 import { ContractsModal, ContractsModalParams } from '~/components/Contracts/ContractsModal';
 import { ImportSelectorModal } from '../screens/ImportSelector/ImportSelectorModal';
+import { SignScreen, SignScreenParams } from '~/screens/sign/SignScreen';
+import {
+  SessionProposalScreen,
+  SessionProposalScreenParams,
+} from '~/screens/session-proposal/SessionProposalScreen';
 
 export type StackNavigatorParamList = {
   Home: undefined;
@@ -62,6 +67,8 @@ export type StackNavigatorParamList = {
   TokensModal: TokensScreenParams;
   ContractsModal: ContractsModalParams;
   ImportSelectorModal: undefined;
+  SessionProposal: SessionProposalScreenParams;
+  Sign: SignScreenParams;
 };
 
 export type StackNavigatorNavigationProp = StackNavigationProp<StackNavigatorParamList>;
@@ -119,6 +126,8 @@ export const StackNavigator = () => {
         <Navigation.Screen name="TokensModal" component={TokensScreen} />
         <Navigation.Screen name="ContractsModal" component={ContractsModal} />
         <Navigation.Screen name="ImportSelectorModal" component={ImportSelectorModal} />
+        <Navigation.Screen name="SessionProposal" component={SessionProposalScreen} />
+        <Navigation.Screen name="Sign" component={SignScreen} />
       </Navigation.Group>
     </Navigation.Navigator>
   );

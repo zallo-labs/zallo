@@ -1,9 +1,8 @@
-import { Tx } from 'lib';
+import { Hex, MaybePromise, Tx } from 'lib';
 import { useCallback } from 'react';
 import { RootNavigation, useRootNavigation } from '~/navigation/useRootNavigation';
 import { showInfo } from '~/provider/SnackbarProvider';
 import { asProposalId, ProposalId } from './types';
-import { OnExecute } from '~/screens/proposal/ProposalActions';
 import { O } from 'ts-toolbelt';
 import {
   ProposalFieldsFragmentDoc,
@@ -92,11 +91,10 @@ export const usePropose = () => {
   );
 };
 
-export const popToProposal = (
-  proposal: ProposalId,
-  navigation: RootNavigation,
-  onExecute?: OnExecute,
-) => navigation.replace('Proposal', { proposal, onExecute });
+export type OnExecute = (response: { transactionHash: Hex }) => MaybePromise<void>;
+
+export const popToProposal = (proposal: ProposalId, navigation: RootNavigation) =>
+  navigation.replace('Proposal', { proposal });
 
 export const showProposalSnack = (...params: Parameters<typeof popToProposal>) => {
   showInfo('Proposal created', {
