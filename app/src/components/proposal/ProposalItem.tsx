@@ -12,12 +12,11 @@ import { match } from 'ts-pattern';
 import { FiatValue } from '../fiat/FiatValue';
 import { useTransfersValue } from '../call/useTransfersValue';
 
-export interface ProposalItemProps {
+export interface ProposalItemProps extends Partial<ListItemProps> {
   proposal: ProposalId;
-  onPress?: () => void;
 }
 
-export const ProposalItem = withSuspense(({ proposal: id, onPress }: ProposalItemProps) => {
+export const ProposalItem = withSuspense(({ proposal: id, ...itemProps }: ProposalItemProps) => {
   const styles = useStyles();
   const p = useProposal(id);
   const token = useMaybeToken(p.to) ?? ETH;
@@ -43,10 +42,10 @@ export const ProposalItem = withSuspense(({ proposal: id, onPress }: ProposalIte
       supporting={supporting}
       trailing={({ Text }) => (
         <Text variant="labelLarge">
-          <FiatValue value={useTransfersValue(useProposalTransfers(p))} />
+          <FiatValue value={useTransfersValue(useProposalTransfers(p))} hideZero />
         </Text>
       )}
-      onPress={onPress}
+      {...itemProps}
     />
   );
 }, <ListItemSkeleton leading supporting />);
