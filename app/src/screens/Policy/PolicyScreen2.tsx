@@ -12,7 +12,8 @@ import { Approvers } from './Approvers';
 import { POLICY_DRAFT_ATOM, PolicyDraft } from './PolicyDraft';
 import { Permissions } from './Permissions';
 import { useEffect, useMemo } from 'react';
-import { useAtom, useAtomValue, useSetAtom } from 'jotai';
+import { useAtom, useSetAtom } from 'jotai';
+import { useHydrateAtoms } from 'jotai/utils';
 import _ from 'lodash';
 import { Fab } from '~/components/buttons/Fab';
 import { SendOutlineIcon } from '@theme/icons';
@@ -51,12 +52,12 @@ export const PolicyScreen = withSuspense((props: PolicyScreenProps) => {
     [accountId, policy, viewState, approverId],
   );
 
+  useHydrateAtoms([[POLICY_DRAFT_ATOM, initState]]);
+
   const setDraft = useSetAtom(POLICY_DRAFT_ATOM);
   useEffect(() => {
     setDraft(initState);
   }, [setDraft, initState]);
-
-  const draft = useAtomValue(POLICY_DRAFT_ATOM);
 
   return <PolicyView {...props} initState={initState} state={viewState} />;
 }, ScreenSkeleton);
