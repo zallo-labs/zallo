@@ -53,7 +53,7 @@ export const AccountScreen = withSuspense(
             ListHeaderComponent={<ListHeader>Access Policies</ListHeader>}
             renderItem={({ item: policy }) => (
               <ListItem
-                leading={(props) => <PolicyIcon policy={policy} filled {...props} />}
+                leading={(props) => <PolicyIcon policy={policy} {...props} />}
                 headline={policy.name}
                 supporting={match((policy.active ?? policy.draft)!.approvers.size)
                   .with(0, () => 'No approvers')
