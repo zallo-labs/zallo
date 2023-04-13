@@ -8,14 +8,16 @@ export interface FormattedNumberOptions extends FormatNumberOptions {
   decimals?: number;
   extendedFractionDigits?: number;
   postFormat?: (value: string) => string;
+  hideZero?: boolean;
 }
 
 export const useFormattedNumber = ({
-  value,
+  value: valueProp,
   decimals = 0,
   maximumFractionDigits = 2,
   extendedFractionDigits,
   postFormat,
+  hideZero,
   ...formatOpts
 }: FormattedNumberOptions) => {
   const intl = useIntl();
@@ -24,9 +26,11 @@ export const useFormattedNumber = ({
   const extendedMin = 1 / 10 ** extendedFracDigits;
   const maxMin = 1 / 10 ** maximumFractionDigits;
 
-  const formatted = useMemo(() => {
-    let v = typeof value === 'number' ? value : parseFloat(formatUnits(value, decimals));
+  const value =
+    typeof valueProp === 'number' ? valueProp : parseFloat(formatUnits(valueProp, decimals));
 
+  const formatted = useMemo(() => {
+    let v = value;
     const isLt = v < extendedMin && v > 0;
     if (isLt) v = extendedMin;
 
@@ -50,7 +54,7 @@ export const useFormattedNumber = ({
     postFormat,
   ]);
 
-  return formatted;
+  return hideZero && value === 0 ? '' : formatted;
 };
 
 export interface FormattedNumberProps extends FormattedNumberOptions {}
