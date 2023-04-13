@@ -10,7 +10,7 @@ export class PrismaHealthIndicator extends HealthIndicator {
 
   async isHealthy(key: string) {
     try {
-      await this.prisma.asSuperuser.$executeRaw`SELECT 1;`;
+      await this.prisma.asSystem.$executeRaw`SELECT 1;`;
       return this.getStatus(key, true, { status: 'up' });
     } catch (e) {
       throw new HealthCheckError('Prisma check failed', e);

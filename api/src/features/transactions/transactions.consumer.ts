@@ -37,7 +37,7 @@ export class TransactionsConsumer {
 
     await Promise.all(Object.values(this.processors).map((processor) => processor(response)));
 
-    const { transaction } = await this.prisma.asSuperuser.transactionResponse.create({
+    const { transaction } = await this.prisma.asSystem.transactionResponse.create({
       data: response,
       select: {
         transaction: {

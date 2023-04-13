@@ -109,7 +109,7 @@ export class AuthMiddleware implements NestMiddleware {
   }
 
   private async getAccounts(userId: Address) {
-    const accounts = await this.prisma.asSuperuser.account.findMany({
+    const accounts = await this.prisma.asSystem.account.findMany({
       where: {
         policies: {
           some: {

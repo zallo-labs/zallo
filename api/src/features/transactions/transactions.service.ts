@@ -95,7 +95,7 @@ export class TransactionsService {
   private async addMissingResponseJobs() {
     const jobs = await this.transactionsQueue.getJobs(['waiting', 'active', 'delayed', 'paused']);
 
-    const missingResponses = await this.prisma.asSuperuser.transaction.findMany({
+    const missingResponses = await this.prisma.asSystem.transaction.findMany({
       where: {
         response: null,
         hash: { notIn: jobs.map((job) => job.data.transactionHash) },

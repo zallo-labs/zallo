@@ -176,7 +176,7 @@ describe(ProposalsService.name, () => {
           executing = await propose();
           executed = await propose();
 
-          await prisma.asSuperuser.transaction.create({
+          await prisma.asSystem.transaction.create({
             data: {
               hash: hexlify(randomBytes(32)),
               proposal: { connect: { id: pendingWithFailed.id } },
@@ -192,7 +192,7 @@ describe(ProposalsService.name, () => {
             },
           });
 
-          await prisma.asSuperuser.transaction.create({
+          await prisma.asSystem.transaction.create({
             data: {
               hash: hexlify(randomBytes(32)),
               proposal: { connect: { id: executing.id } },
@@ -200,7 +200,7 @@ describe(ProposalsService.name, () => {
             },
           });
 
-          await prisma.asSuperuser.transaction.create({
+          await prisma.asSystem.transaction.create({
             data: {
               hash: hexlify(randomBytes(32)),
               proposal: { connect: { id: executed.id } },

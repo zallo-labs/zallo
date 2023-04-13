@@ -253,7 +253,7 @@ export class PoliciesService implements OnModuleInit {
   private async processTransaction(resp: TransactionResponse) {
     if (!resp.success) return;
 
-    const { proposal } = await this.prisma.asSuperuser.transaction.findUniqueOrThrow({
+    const { proposal } = await this.prisma.asSystem.transaction.findUniqueOrThrow({
       where: { hash: resp.transactionHash },
       select: {
         proposal: {
@@ -275,7 +275,7 @@ export class PoliciesService implements OnModuleInit {
     });
 
     await mapAsync(proposal.policyStates, (state) =>
-      this.prisma.asSuperuser.policy.update({
+      this.prisma.asSystem.policy.update({
         where: {
           accountId_key: {
             accountId: state.policy.accountId,
