@@ -1,7 +1,7 @@
 import { useApprover } from '@network/useApprover';
 import { asAddress, asHex, encodeAccountSignature, Hex } from 'lib';
 import { match } from 'ts-pattern';
-import { StackNavigatorScreenProps } from '~/navigation/StackNavigator2';
+import { StackNavigatorScreenProps } from '~/navigation/StackNavigator';
 import { Appbar, Button, Text } from 'react-native-paper';
 import {
   toTypedData,

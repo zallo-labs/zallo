@@ -7,7 +7,7 @@ import { useProposalLabel } from '~/components/call/useProposalLabel';
 import { Screen } from '~/components/layout/Screen';
 import { ScreenSkeleton } from '~/components/skeleton/ScreenSkeleton';
 import { withSuspense } from '~/components/skeleton/withSuspense';
-import { StackNavigatorScreenProps } from '~/navigation/StackNavigator2';
+import { StackNavigatorScreenProps } from '~/navigation/StackNavigator';
 import { useConfirmRemoval } from '../alert/useConfirm';
 import { Tabs } from './Tabs';
 

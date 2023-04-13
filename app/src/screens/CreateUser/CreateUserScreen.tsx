@@ -1,6 +1,6 @@
 import { View } from 'react-native';
 import { Button } from 'react-native-paper';
-import { StackNavigatorScreenProps } from '~/navigation/StackNavigator2';
+import { StackNavigatorScreenProps } from '~/navigation/StackNavigator';
 import { Actions } from '~/components/layout/Actions';
 import { StyleSheet } from 'react-native';
 import { Screen } from '~/components/layout/Screen';

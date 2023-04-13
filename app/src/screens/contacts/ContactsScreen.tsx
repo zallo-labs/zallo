@@ -2,7 +2,7 @@ import { useMemo } from 'react';
 import { FlatList } from 'react-native';
 import { NavigateNextIcon, ScanIcon, SearchIcon } from '~/util/theme/icons';
 import { Address } from 'lib';
-import { StackNavigatorScreenProps } from '~/navigation/StackNavigator2';
+import { StackNavigatorScreenProps } from '~/navigation/StackNavigator';
 import { Contact, useContacts } from '@api/contacts';
 import { useSearch } from '@hook/useSearch';
 import { withSuspense } from '~/components/skeleton/withSuspense';

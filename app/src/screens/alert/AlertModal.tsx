@@ -2,7 +2,7 @@ import { makeStyles } from '@theme/makeStyles';
 import { Dialog, Text } from 'react-native-paper';
 import { Button } from '~/components/Button';
 import { DialogRoot } from '~/components/DialogRoot';
-import { StackNavigatorScreenProps } from '~/navigation/StackNavigator2';
+import { StackNavigatorScreenProps } from '~/navigation/StackNavigator';
 
 export interface AlertModalParams {
   title?: string;

@@ -1,3 +1,3 @@
-import { useRootNavigation } from '~/navigation/useRootNavigation';
+import { useNavigation } from '@react-navigation/native';
 
-export const useGoBack = () => useRootNavigation().goBack;
+export const useGoBack = () => useNavigation().goBack;

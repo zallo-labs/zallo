@@ -1,10 +1,10 @@
 import { CloseIcon, IconProps } from '@theme/icons';
-import { useRootNavigation2 } from '~/navigation/useRootNavigation';
+import { useNavigation } from '@react-navigation/native';
 
 export interface AppbarCloseProps extends IconProps {}
 
 export const AppbarClose = (props: AppbarCloseProps) => {
-  const { goBack, canGoBack } = useRootNavigation2();
+  const { goBack, canGoBack } = useNavigation();
 
   return <CloseIcon {...props} onPress={goBack} disabled={!canGoBack} />;
 };

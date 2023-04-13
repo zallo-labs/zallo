@@ -6,7 +6,7 @@ import { StyleSheet } from 'react-native';
 import { Badge, Text } from 'react-native-paper';
 import { match } from 'ts-pattern';
 import { ListItemHeight } from '~/components/list/ListItem';
-import { useRootNavigation2 } from '~/navigation/useRootNavigation';
+import { useNavigation } from '@react-navigation/native';
 import { IncomingTransferItem } from '~/components/call/IncomingTransferItem';
 import { ProposalItem } from '~/components/proposal/ProposalItem';
 import { TabNavigatorScreenProp } from '.';
@@ -23,7 +23,7 @@ const compare = (a: Item, b: Item) => b.timestamp.toMillis() - a.timestamp.toMil
 export type ActivityTabProps = TabNavigatorScreenProp<'Activity'>;
 
 export const ActivityTab = withSuspense((_props: ActivityTabProps) => {
-  const { navigate } = useRootNavigation2();
+  const { navigate } = useNavigation();
 
   const proposals = useProposals();
   const inTransfers = useTransfers('IN');

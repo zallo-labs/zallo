@@ -1,14 +1,14 @@
 import { makeStyles } from '@theme/makeStyles';
 import { TouchableOpacity } from 'react-native';
 import { Text } from 'react-native-paper';
-import { useRootNavigation2 } from '~/navigation/useRootNavigation';
 import { AddressLabel } from '../address/AddressLabel';
 import { AddressIcon } from '../Identicon/AddressIcon';
 import { useSelectedAccountId } from './useSelectedAccount';
+import { useNavigation } from '@react-navigation/native';
 
 export const AccountSelector = () => {
   const styles = useStyles();
-  const { navigate } = useRootNavigation2();
+  const { navigate } = useNavigation();
   const account = useSelectedAccountId();
 
   return (

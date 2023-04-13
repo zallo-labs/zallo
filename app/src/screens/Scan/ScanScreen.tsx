@@ -4,7 +4,7 @@ import { Camera } from 'expo-camera';
 import { BarCodeScanner } from 'expo-barcode-scanner';
 import { Appbar, Button, Text } from 'react-native-paper';
 import { parseAddressLink } from '~/util/addressLink';
-import { StackNavigatorScreenProps } from '~/navigation/StackNavigator2';
+import { StackNavigatorScreenProps } from '~/navigation/StackNavigator';
 import { Overlay } from './Overlay';
 import { isWalletConnectUri, useWalletConnect } from '~/util/walletconnect';
 import { Screen } from '~/components/layout/Screen';

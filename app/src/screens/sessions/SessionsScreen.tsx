@@ -6,7 +6,7 @@ import { useAppbarHeader } from '~/components/Appbar/useAppbarHeader';
 import { useGoBack } from '~/components/Appbar/useGoBack';
 import { EmptyListFallback } from '~/components/EmptyListFallback';
 import { Box } from '~/components/layout/Box';
-import { StackNavigatorScreenProps } from '~/navigation/StackNavigator2';
+import { StackNavigatorScreenProps } from '~/navigation/StackNavigator';
 import { useWalletConnect } from '~/util/walletconnect';
 import { SessionCard } from './SessionCard';
 

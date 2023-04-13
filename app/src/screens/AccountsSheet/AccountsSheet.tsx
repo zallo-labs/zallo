@@ -1,7 +1,7 @@
 import { useRef } from 'react';
 import BottomSheet, { BottomSheetFlatList } from '@gorhom/bottom-sheet';
 import { Sheet } from '~/components/sheet/Sheet';
-import { StackNavigatorScreenProps } from '~/navigation/StackNavigator2';
+import { StackNavigatorScreenProps } from '~/navigation/StackNavigator';
 import { useGoBack } from '~/components/Appbar/useGoBack';
 import { useAccountIds } from '@api/account';
 import {

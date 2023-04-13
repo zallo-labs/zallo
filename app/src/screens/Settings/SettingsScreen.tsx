@@ -10,7 +10,7 @@ import { useAddressLabel } from '~/components/address/AddressLabel';
 import { Appbar } from '~/components/Appbar/Appbar';
 import { Screen } from '~/components/layout/Screen';
 import { ListItem } from '~/components/list/ListItem';
-import { StackNavigatorScreenProps } from '~/navigation/StackNavigator2';
+import { StackNavigatorScreenProps } from '~/navigation/StackNavigator';
 import * as Linking from 'expo-linking';
 import { CONFIG } from '~/util/config';
 

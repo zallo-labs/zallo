@@ -1,4 +1,4 @@
-import { StackNavigatorScreenProps } from '~/navigation/StackNavigator2';
+import { StackNavigatorScreenProps } from '~/navigation/StackNavigator';
 import { Appbar } from '../Appbar/Appbar';
 import { Screen } from '../layout/Screen';
 import { Contact, useContacts } from '@api/contacts';

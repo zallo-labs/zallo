@@ -1,6 +1,6 @@
 import { Hex, MaybePromise, Tx } from 'lib';
 import { useCallback } from 'react';
-import { RootNavigation, useRootNavigation } from '~/navigation/useRootNavigation';
+import { StackNavigation, useStackNavigation } from '~/navigation/useStackNavigation';
 import { showInfo } from '~/provider/SnackbarProvider';
 import { asProposalId, ProposalId } from './types';
 import { O } from 'ts-toolbelt';
@@ -15,6 +15,7 @@ import assert from 'assert';
 import { gql } from '@apollo/client';
 import { AccountIdlike, asAccountId } from '@api/account';
 import { updateQuery } from '~/gql/util';
+import { NavigationProp, useNavigation } from '@react-navigation/native';
 
 gql`
   ${ProposalFieldsFragmentDoc}
@@ -42,11 +43,11 @@ gql`
 
 export type TxOptions = O.Optional<Tx, 'nonce'>;
 
-export type OnPropose = (proposal: ProposalId, navigation: RootNavigation) => Promise<void> | void;
+export type OnPropose = (proposal: ProposalId, navigation: StackNavigation) => Promise<void> | void;
 
 export const usePropose = () => {
   const [mutation] = useProposeMutation();
-  const navigation = useRootNavigation();
+  const navigation = useStackNavigation();
 
   const propose = useCallback(
     async (tx: TxOptions, account: AccountIdlike): Promise<ProposalId> => {
@@ -93,7 +94,7 @@ export const usePropose = () => {
 
 export type OnExecute = (response: { transactionHash: Hex }) => MaybePromise<void>;
 
-export const popToProposal = (proposal: ProposalId, navigation: RootNavigation) =>
+export const popToProposal = (proposal: ProposalId, navigation: StackNavigation) =>
   navigation.replace('Proposal', { proposal });
 
 export const showProposalSnack = (...params: Parameters<typeof popToProposal>) => {

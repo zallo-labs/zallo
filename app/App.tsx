@@ -18,7 +18,7 @@ import { withSentry } from '~/util/sentry/sentry';
 import { NavigationProvider } from '~/navigation/NavigationProvider';
 import { NotificationsRegistrar } from '~/util/NotificationsRegistrar';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
-import { StackNavigator } from '~/navigation/StackNavigator2';
+import { StackNavigator } from '~/navigation/StackNavigator';
 import { WalletConnectListeners } from '~/components/walletconnect/WalletConnectListeners';
 
 // Disable Recoil atom key checking due to hotreloading issues

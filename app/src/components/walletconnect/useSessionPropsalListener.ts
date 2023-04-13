@@ -2,14 +2,14 @@ import { CHAIN_ID } from '@network/provider';
 import SignClient from '@walletconnect/sign-client';
 import { getSdkError } from '@walletconnect/utils';
 import { useCallback } from 'react';
-import { useRootNavigation } from '~/navigation/useRootNavigation';
+import { useNavigation } from '@react-navigation/native';
 import { showError } from '~/provider/SnackbarProvider';
 import { WC_METHODS } from '~/util/walletconnect/methods';
 import { WC_NAMESPACE } from '~/util/walletconnect/namespaces';
 import { WalletConnectEventArgs } from '~/util/walletconnect/types';
 
 export const useSessionPropsalListener = () => {
-  const { navigate } = useRootNavigation();
+  const { navigate } = useNavigation();
 
   return useCallback(
     (client: SignClient, proposal: WalletConnectEventArgs['session_proposal']) => {

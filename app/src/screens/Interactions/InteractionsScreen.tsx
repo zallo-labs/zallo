@@ -1,5 +1,5 @@
 import { Address, Selector, asSelector, isAddress } from 'lib';
-import { StackNavigatorScreenProps } from '~/navigation/StackNavigator2';
+import { StackNavigatorScreenProps } from '~/navigation/StackNavigator';
 import { POLICY_DRAFT_ATOM } from '../Policy/PolicyDraft';
 import { Screen } from '~/components/layout/Screen';
 import { ListHeader } from '~/components/list/ListHeader';

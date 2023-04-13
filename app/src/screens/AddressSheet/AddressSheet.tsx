@@ -1,5 +1,5 @@
 import { Sheet } from '~/components/sheet/Sheet';
-import { StackNavigatorScreenProps } from '~/navigation/StackNavigator2';
+import { StackNavigatorScreenProps } from '~/navigation/StackNavigator';
 import { useGoBack } from '~/components/Appbar/useGoBack';
 import { ContactsIcon, NavigateNextIcon, SendIcon } from '@theme/icons';
 import { ListItem } from '~/components/list/ListItem';

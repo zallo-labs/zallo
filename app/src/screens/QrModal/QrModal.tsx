@@ -1,6 +1,6 @@
 import QRCode from 'react-native-qrcode-svg';
 import { Address } from 'lib';
-import { StackNavigatorScreenProps } from '~/navigation/StackNavigator2';
+import { StackNavigatorScreenProps } from '~/navigation/StackNavigator';
 import { Screen } from '~/components/layout/Screen';
 import { makeStyles } from '@theme/makeStyles';
 import { Button, IconButton, Surface, Text, useTheme } from 'react-native-paper';

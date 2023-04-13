@@ -2,10 +2,10 @@ import { ScanIcon, SettingsOutlineIcon } from '@theme/icons';
 import { StyleSheet, View } from 'react-native';
 import { Appbar as BaseAppbar } from 'react-native-paper';
 import { AccountSelector } from '~/components/AccountSelector/AccountSelector';
-import { useRootNavigation2 } from '~/navigation/useRootNavigation';
+import { useNavigation } from '@react-navigation/native';
 
 export const Appbar = () => {
-  const { navigate } = useRootNavigation2();
+  const { navigate } = useNavigation();
 
   return (
     <BaseAppbar.Header>

@@ -1,6 +1,6 @@
 import { Selector, asSelector } from 'lib';
 import { EventEmitter } from '~/util/EventEmitter';
-import { StackNavigatorScreenProps } from '../../navigation/StackNavigator2';
+import { StackNavigatorScreenProps } from '../../navigation/StackNavigator';
 import { Screen } from '~/components/layout/Screen';
 import { Appbar } from '~/components/Appbar/Appbar';
 import { useForm } from 'react-hook-form';

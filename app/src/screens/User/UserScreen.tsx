@@ -9,7 +9,7 @@ import { FormTextField } from '~/components/fields/FormTextField';
 import { RequireBiometricsItem } from '~/components/items/RequireBiometricsItem';
 import { Actions } from '~/components/layout/Actions';
 import { Screen } from '~/components/layout/Screen';
-import { StackNavigatorScreenProps } from '~/navigation/StackNavigator2';
+import { StackNavigatorScreenProps } from '~/navigation/StackNavigator';
 import { FormResetIcon } from '~/components/fields/ResetFormIcon';
 
 interface Inputs {

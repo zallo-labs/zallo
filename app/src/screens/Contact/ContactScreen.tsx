@@ -13,7 +13,7 @@ import { Actions } from '~/components/layout/Actions';
 import { Screen } from '~/components/layout/Screen';
 import { ScreenSkeleton } from '~/components/skeleton/ScreenSkeleton';
 import { withSuspense } from '~/components/skeleton/withSuspense';
-import { StackNavigatorScreenProps } from '~/navigation/StackNavigator2';
+import { StackNavigatorScreenProps } from '~/navigation/StackNavigator';
 import { useConfirmRemoval } from '../alert/useConfirm';
 import { UserOutlineIcon } from '~/util/theme/icons';
 import { ICON_SIZE } from '@theme/paper';

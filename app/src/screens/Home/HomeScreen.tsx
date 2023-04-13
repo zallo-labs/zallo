@@ -5,7 +5,7 @@ import { useSelectedAccountId } from '~/components/AccountSelector/useSelectedAc
 import { FiatValue } from '~/components/fiat/FiatValue';
 import { Screen } from '~/components/layout/Screen';
 import { withSuspense } from '~/components/skeleton/withSuspense';
-import { StackNavigatorScreenProps } from '~/navigation/StackNavigator2';
+import { StackNavigatorScreenProps } from '~/navigation/StackNavigator';
 import { Appbar } from './Appbar';
 import { QuickActions } from './QuickActions';
 import { Tabs } from './Tabs';

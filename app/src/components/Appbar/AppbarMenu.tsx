@@ -1,10 +1,10 @@
 import { IconProps, MenuIcon } from '~/util/theme/icons';
 import { Appbar } from 'react-native-paper';
-import { useRootNavigation } from '~/navigation/useRootNavigation';
+import { useNavigation } from '@react-navigation/native';
 import { DrawerActions } from '@react-navigation/native';
 
 export const AppbarMenu = () => {
-  const navigation = useRootNavigation();
+  const navigation = useNavigation();
 
   return (
     <Appbar.Action
@@ -15,7 +15,7 @@ export const AppbarMenu = () => {
 };
 
 export const AppbarMenu2 = (props: IconProps) => {
-  const { dispatch } = useRootNavigation();
+  const { dispatch } = useNavigation();
 
   return <MenuIcon {...props} onPress={() => dispatch(DrawerActions.openDrawer())} />;
 };

@@ -5,7 +5,7 @@ import { ScrollView } from 'react-native';
 import { Screen } from '~/components/layout/Screen';
 import { ScreenSkeleton } from '~/components/skeleton/ScreenSkeleton';
 import { withSuspense } from '~/components/skeleton/withSuspense';
-import { StackNavigatorScreenProps } from '~/navigation/StackNavigator2';
+import { StackNavigatorScreenProps } from '~/navigation/StackNavigator';
 import { PolicyAppbar } from './PolicyAppbar';
 import { useApproverId } from '@network/useApprover';
 import { Approvers } from './Approvers';

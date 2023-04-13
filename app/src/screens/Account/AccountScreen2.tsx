@@ -13,7 +13,7 @@ import { ListItem, ListItemHeight } from '~/components/list/ListItem';
 import { PolicyIcon } from '~/components/policy/PolicyIcon';
 import { ScreenSkeleton } from '~/components/skeleton/ScreenSkeleton';
 import { withSuspense } from '~/components/skeleton/withSuspense';
-import { StackNavigatorScreenProps } from '~/navigation/StackNavigator2';
+import { StackNavigatorScreenProps } from '~/navigation/StackNavigator';
 
 export interface AccountScreen2Params {
   account: AccountId;

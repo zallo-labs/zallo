@@ -3,7 +3,7 @@ import { Token } from '@token/token';
 import { useSearch } from '@hook/useSearch';
 import { Address } from 'lib';
 import { useTokens } from '@token/useToken';
-import { StackNavigatorScreenProps } from '~/navigation/StackNavigator2';
+import { StackNavigatorScreenProps } from '~/navigation/StackNavigator';
 import { Searchbar } from '~/components/fields/Searchbar';
 import { AccountId } from '@api/account';
 import { AppbarBack2 } from '~/components/Appbar/AppbarBack';

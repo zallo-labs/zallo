@@ -1,7 +1,6 @@
 import { useNavigation } from '@react-navigation/native';
 import { useCallback, useEffect, useState } from 'react';
-import { StackNavigatorParamList } from '~/navigation/StackNavigator2';
-import { useRootNavigation2 } from '~/navigation/useRootNavigation';
+import { StackNavigatorParamList } from '~/navigation/StackNavigator';
 
 export type Listener<T> = (params: T) => void;
 
@@ -33,7 +32,7 @@ export class EventEmitter<T> {
   ) {
     const emitter = this;
     return () => {
-      const { navigate, goBack } = useRootNavigation2();
+      const { navigate, goBack } = useNavigation();
 
       return useCallback(
         async (

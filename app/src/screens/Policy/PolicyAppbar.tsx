@@ -11,12 +11,12 @@ import { Menu } from 'react-native-paper';
 import { Appbar } from '~/components/Appbar/Appbar';
 import { AppbarMore2 } from '~/components/Appbar/AppbarMore';
 import { useConfirmRemoval } from '../alert/useConfirm';
-import { useRootNavigation2 } from '~/navigation/useRootNavigation';
 import type { PolicyScreenParams, PolicyViewState } from './PolicyScreen2';
 import { ProposalId } from '@api/proposal';
 import { P, match } from 'ts-pattern';
 import { POLICY_DRAFT_ATOM } from './PolicyDraft';
 import { useAtomValue } from 'jotai';
+import { useNavigation } from '@react-navigation/native';
 
 export interface PolicyAppbarProps {
   policy?: WPolicy;
@@ -27,7 +27,7 @@ export interface PolicyAppbarProps {
 }
 
 export const PolicyAppbar = ({ policy, proposal, state, reset, setParams }: PolicyAppbarProps) => {
-  const { navigate, goBack } = useRootNavigation2();
+  const { navigate, goBack } = useNavigation();
   const removePolicy = useRemovePolicy();
   const confirmRemove = useConfirmRemoval({
     title: 'Remove policy',

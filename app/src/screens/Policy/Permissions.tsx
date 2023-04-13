@@ -3,7 +3,7 @@ import { useSelectContract } from '~/components/Contracts/ContractsModal';
 import { ListHeader } from '~/components/list/ListHeader';
 import { ListHeaderButton } from '~/components/list/ListHeaderButton';
 import { ListItem, ListItemProps } from '~/components/list/ListItem';
-import { useRootNavigation2 } from '~/navigation/useRootNavigation';
+import { useNavigation } from '@react-navigation/native';
 import { POLICY_DRAFT_ATOM } from './PolicyDraft';
 import { AddressLabel } from '~/components/address/AddressLabel';
 import { Address, Selector, ZERO_ADDR, isAddress } from 'lib';
@@ -35,7 +35,7 @@ const getSelectorDetails = (
 export interface PermissionsProps {}
 
 export const Permissions = (props: PermissionsProps) => {
-  const { navigate } = useRootNavigation2();
+  const { navigate } = useNavigation();
   const selectContract = useSelectContract();
 
   const [

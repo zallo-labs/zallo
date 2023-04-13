@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 import { Appbar, Button } from 'react-native-paper';
-import { StackNavigatorScreenProps } from '~/navigation/StackNavigator2';
+import { StackNavigatorScreenProps } from '~/navigation/StackNavigator';
 import { ProposerDetails } from './ProposerDetails';
 import { SessionAccounts } from './SessionAccounts';
 import { showError } from '~/provider/SnackbarProvider';
