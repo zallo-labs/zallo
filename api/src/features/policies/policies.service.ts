@@ -21,6 +21,7 @@ import { CreatePolicyInput, UniquePolicyInput, UpdatePolicyInput } from './polic
 import { TransactionsConsumer } from '../transactions/transactions.consumer';
 import { ProviderService } from '../util/provider/provider.service';
 import {
+  getDefaultPolicyName,
   inputAsPolicy,
   POLICY_STATE_FIELDS,
   policyAsCreateState,
@@ -74,7 +75,7 @@ export class PoliciesService implements OnModuleInit {
         data: {
           accountId: account,
           key,
-          name: name || `Policy ${key}`,
+          name: name || getDefaultPolicyName(key),
         },
         select: null,
       });

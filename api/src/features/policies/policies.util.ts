@@ -50,3 +50,5 @@ export const inputAsPolicy = (key: PolicyKey, p: PolicyInput): Policy =>
       targets: asTargets(p.permissions.targets),
     },
   });
+
+export const getDefaultPolicyName = (key: PolicyKey) => `Policy ${key + 1n}`;
