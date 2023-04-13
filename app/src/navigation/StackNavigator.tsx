@@ -36,6 +36,10 @@ import {
   SessionProposalScreen,
   SessionProposalScreenParams,
 } from '~/screens/session-proposal/SessionProposalScreen';
+import {
+  RenamePolicyScreen,
+  RenamePolicyScreenParams,
+} from '~/screens/rename-policy/RenamePolicySheet';
 
 export type StackNavigatorParamList = {
   Home: undefined;
@@ -69,6 +73,7 @@ export type StackNavigatorParamList = {
   ImportSelectorModal: undefined;
   SessionProposal: SessionProposalScreenParams;
   Sign: SignScreenParams;
+  RenamePolicy: RenamePolicyScreenParams;
 };
 
 export type StackNavigatorNavigationProp = StackNavigationProp<StackNavigatorParamList>;
@@ -128,6 +133,7 @@ export const StackNavigator = () => {
         <Navigation.Screen name="ImportSelectorModal" component={ImportSelectorModal} />
         <Navigation.Screen name="SessionProposal" component={SessionProposalScreen} />
         <Navigation.Screen name="Sign" component={SignScreen} />
+        <Navigation.Screen name="RenamePolicy" component={RenamePolicyScreen} />
       </Navigation.Group>
     </Navigation.Navigator>
   );

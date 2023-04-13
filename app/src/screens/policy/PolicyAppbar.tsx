@@ -67,7 +67,7 @@ export const PolicyAppbar = ({ policy, proposal, state, reset, setParams }: Poli
                   title="Rename policy"
                   onPress={() => {
                     close();
-                    // TODO: navigate -> Rename policy
+                    navigate('RenamePolicy', {});
                   }}
                 />
 
