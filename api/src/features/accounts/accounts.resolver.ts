@@ -7,12 +7,11 @@ import {
   CreateAccountInput,
   AccountsArgs,
   AccountSubscriptionFilters,
-  AccountSubscriptionPayload,
   ACCOUNT_SUBSCRIPTION,
   USER_ACCOUNT_SUBSCRIPTION,
 } from './accounts.args';
 import { getSelect } from '~/util/select';
-import { AccountsService } from './accounts.service';
+import { AccountSubscriptionPayload, AccountsService } from './accounts.service';
 import { UserId } from '~/decorators/user.decorator';
 import { PubsubService } from '../util/pubsub/pubsub.service';
 import { UserContext } from '~/request/ctx';

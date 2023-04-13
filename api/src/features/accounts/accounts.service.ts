@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { Prisma } from '@prisma/client';
+import { Account, Prisma } from '@prisma/client';
 import {
   asAddress,
   Address,
@@ -14,7 +14,6 @@ import { ProviderService } from '~/features/util/provider/provider.service';
 import { PubsubService } from '../util/pubsub/pubsub.service';
 import assert from 'assert';
 import {
-  AccountSubscriptionPayload,
   ACCOUNT_SUBSCRIPTION,
   USER_ACCOUNT_SUBSCRIPTION,
   AccountEvent,
@@ -32,6 +31,11 @@ import { CONFIG } from '~/config';
 import { getUser, getRequestContext } from '~/request/ctx';
 import { ContractsService } from '../contracts/contracts.service';
 import { FaucetService } from '../faucet/faucet.service';
+
+export interface AccountSubscriptionPayload {
+  [ACCOUNT_SUBSCRIPTION]: Pick<Account, 'id'>;
+  event: AccountEvent;
+}
 
 @Injectable()
 export class AccountsService {

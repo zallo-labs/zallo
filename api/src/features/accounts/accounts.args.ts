@@ -1,4 +1,3 @@
-import { Account } from '@gen/account/account.model';
 import { FindManyAccountArgs } from '@gen/account/find-many-account.args';
 import { ArgsType, Field, InputType, registerEnumType } from '@nestjs/graphql';
 import { Address } from 'lib';
@@ -23,11 +22,6 @@ export enum AccountEvent {
   update,
 }
 registerEnumType(AccountEvent, { name: 'AccountEvent' });
-
-export interface AccountSubscriptionPayload {
-  [ACCOUNT_SUBSCRIPTION]: Pick<Account, 'id'>;
-  event: AccountEvent;
-}
 
 @ArgsType()
 export class AccountSubscriptionFilters {
