@@ -30,17 +30,17 @@ export interface PolicyScreenParams {
 export type PolicyScreenProps = StackNavigatorScreenProps<'Policy'>;
 
 export const PolicyScreen = withSuspense((props: PolicyScreenProps) => {
-  const { account: accountId, key } = props.route.params;
-  const policy = usePolicy(key ? { account: accountId, key: asPolicyKey(key) } : undefined);
+  const { account, key } = props.route.params;
+  const policy = usePolicy(key ? { account, key: asPolicyKey(key) } : undefined);
   const approverId = useApproverId();
 
-  const viewState = props.route.params.state ?? policy?.active ? 'active' : 'draft';
+  const state = props.route.params.state ?? policy?.active ? 'active' : 'draft';
 
   const initState = useMemo(
     (): PolicyDraft => ({
-      account: accountId,
+      account,
       name: policy?.name ?? 'New policy',
-      ...((viewState === 'active' && policy?.active) ||
+      ...((state === 'active' && policy?.active) ||
         policy?.draft || {
           approvers: new Set([approverId]),
           threshold: 1,
@@ -49,7 +49,7 @@ export const PolicyScreen = withSuspense((props: PolicyScreenProps) => {
           },
         }),
     }),
-    [accountId, policy, viewState, approverId],
+    [account, policy, state, approverId],
   );
 
   useHydrateAtoms([[POLICY_DRAFT_ATOM, initState]]);
@@ -59,7 +59,7 @@ export const PolicyScreen = withSuspense((props: PolicyScreenProps) => {
     setDraft(initState);
   }, [setDraft, initState]);
 
-  return <PolicyView {...props} initState={initState} state={viewState} />;
+  return <PolicyView {...props} initState={initState} state={state} />;
 }, ScreenSkeleton);
 
 interface PolicyViewProps extends PolicyScreenProps {
