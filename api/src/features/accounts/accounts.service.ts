@@ -1,14 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { Account, Prisma } from '@prisma/client';
-import {
-  asAddress,
-  Address,
-  deployAccountProxy,
-  toDeploySalt,
-  randomDeploySalt,
-  asPolicyKey,
-  calculateProxyAddress,
-} from 'lib';
+import { asAddress, Address, toDeploySalt, randomDeploySalt, asPolicyKey } from 'lib';
 import { PrismaService } from '../util/prisma/prisma.service';
 import { ProviderService } from '~/features/util/provider/provider.service';
 import { PubsubService } from '../util/pubsub/pubsub.service';
@@ -66,9 +58,7 @@ export class AccountsService {
       };
     });
 
-    const account = await this.provider.useProxyFactory((factory) =>
-      calculateProxyAddress({ impl, policies }, factory, deploySalt),
-    );
+    const account = await this.provider.getProxyAddress({ impl, salt: deploySalt, policies });
 
     // Add account to user context
     getUser().accounts.add(account);
@@ -142,7 +132,7 @@ export class AccountsService {
   }
 
   private async activateAccount<R extends Prisma.AccountArgs>(
-    accountAddr: Address,
+    account: Address,
     res?: Prisma.SelectSubset<R, Prisma.AccountArgs>,
   ) {
     const {
@@ -151,7 +141,7 @@ export class AccountsService {
       isActive,
       policyStates: states,
     } = await this.prisma.asUser.account.findUniqueOrThrow({
-      where: { id: accountAddr },
+      where: { id: account },
       select: {
         impl: true,
         deploySalt: true,
@@ -168,32 +158,25 @@ export class AccountsService {
     });
     assert(!isActive);
 
-    // Activate
-    const r = await this.provider.useProxyFactory((factory) =>
-      deployAccountProxy(
-        {
-          impl: asAddress(impl),
-          policies: states.map(prismaAsPolicy),
-        },
-        factory,
-        toDeploySalt(deploySalt),
-      ),
-    );
-    await r.account.deployed();
+    await this.provider.deployProxy({
+      impl: asAddress(impl),
+      policies: states.map(prismaAsPolicy),
+      salt: toDeploySalt(deploySalt),
+    });
 
     return this.prisma.asUser.account.update({
-      where: { id: accountAddr },
+      where: { id: account },
       data: {
         isActive: true,
         policies: {
           update: states.map((r) => ({
-            where: { accountId_key: { accountId: accountAddr, key: r.policyKey } },
+            where: { accountId_key: { accountId: account, key: r.policyKey } },
             data: { activeId: r.id, draftId: null },
           })),
         },
       },
       ...res,
-    }); // as Prisma.Prisma__AccountClient<Prisma.AccountGetPayload<R>>;
+    });
   }
 
   private async publishAccount({ event, account: { id } }: AccountSubscriptionPayload) {

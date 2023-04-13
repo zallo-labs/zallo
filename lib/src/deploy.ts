@@ -42,34 +42,30 @@ export const encodeProxyConstructorArgs = ({ policies, impl }: ProxyConstructorA
   );
 };
 
-export const calculateProxyAddress = async (
-  args: ProxyConstructorArgs,
-  factory: Factory,
-  salt: BytesLike,
-) => {
-  const addr = zk.utils.create2Address(
-    factory.address,
-    await factory._BYTECODE_HASH(),
-    salt,
-    encodeProxyConstructorArgs(args),
+export interface DeployArgs extends ProxyConstructorArgs {
+  factory: Factory;
+  salt: BytesLike;
+}
+
+export const getProxyAddress = async ({ factory, salt, ...constructorArgs }: DeployArgs) =>
+  asAddress(
+    zk.utils.create2Address(
+      factory.address,
+      await factory._BYTECODE_HASH(),
+      salt,
+      encodeProxyConstructorArgs(constructorArgs),
+    ),
   );
 
-  return asAddress(addr);
-};
+export const deployAccountProxy = async ({ factory, salt, ...constructorArgs }: DeployArgs) => {
+  const proxy = await getProxyAddress({ factory, salt, ...constructorArgs });
 
-export const deployAccountProxy = async (
-  args: ProxyConstructorArgs,
-  factory: Factory,
-  salt = randomDeploySalt(),
-) => {
-  const addr = await calculateProxyAddress(args, factory, salt);
-
-  const deployTx = await factory.deploy(encodeProxyConstructorArgs(args), salt);
+  const deployTx = await factory.deploy(encodeProxyConstructorArgs(constructorArgs), salt);
   await deployTx.wait();
 
   return {
-    proxy: AccountProxy__factory.connect(addr, factory.signer),
-    account: Account__factory.connect(addr, factory.signer),
+    proxy: AccountProxy__factory.connect(proxy, factory.signer),
+    account: Account__factory.connect(proxy, factory.signer),
     salt,
     deployTx,
   };

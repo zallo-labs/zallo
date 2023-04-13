@@ -14,6 +14,9 @@ import {
   Hex,
   VerifySignatureOptions,
   asApproval,
+  DeployArgs,
+  getProxyAddress,
+  deployAccountProxy,
 } from 'lib';
 import { Mutex } from 'async-mutex';
 
@@ -69,5 +72,16 @@ export class ProviderService extends zk.Provider {
 
   async verifySignature(options: Omit<VerifySignatureOptions, 'provider'>) {
     return this.asApproval(options) !== null;
+  }
+
+  async getProxyAddress(args: Omit<DeployArgs, 'factory'>) {
+    return this.useProxyFactory((factory) => getProxyAddress({ ...args, factory }));
+  }
+
+  async deployProxy(args: Omit<DeployArgs, 'factory'>) {
+    const { account } = await this.useProxyFactory((factory) =>
+      deployAccountProxy({ ...args, factory }),
+    );
+    await account.deployed();
   }
 }
