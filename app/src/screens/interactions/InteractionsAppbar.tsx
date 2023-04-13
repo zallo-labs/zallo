@@ -8,7 +8,7 @@ import { AddressOrLabelIcon } from '~/components/Identicon/AddressOrLabelIcon';
 import { AddressLabel } from '~/components/address/AddressLabel';
 import { useConfirmRemoval } from '../alert/useConfirm';
 import { useImmerAtom } from 'jotai-immer';
-import { POLICY_DRAFT_ATOM } from '../Policy/PolicyDraft';
+import { POLICY_DRAFT_ATOM } from '../policy/PolicyDraft';
 import { useNavigation } from '@react-navigation/native';
 
 export interface InteractionsAppbarProps {

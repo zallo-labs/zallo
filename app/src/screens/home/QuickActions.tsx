@@ -3,7 +3,7 @@ import { StyleSheet, View } from 'react-native';
 import { Button } from 'react-native-paper';
 import { useSelectedAccountId } from '~/components/AccountSelector/useSelectedAccount';
 import { useNavigation } from '@react-navigation/native';
-import { useScanAddress } from '../Scan/ScanScreen';
+import { useScanAddress } from '../scan/ScanScreen';
 
 export const QuickActions = () => {
   const { navigate } = useNavigation();

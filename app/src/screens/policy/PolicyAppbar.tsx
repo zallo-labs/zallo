@@ -11,7 +11,7 @@ import { Menu } from 'react-native-paper';
 import { Appbar } from '~/components/Appbar/Appbar';
 import { AppbarMore2 } from '~/components/Appbar/AppbarMore';
 import { useConfirmRemoval } from '../alert/useConfirm';
-import type { PolicyScreenParams, PolicyViewState } from './PolicyScreen2';
+import type { PolicyScreenParams, PolicyViewState } from './PolicyScreen';
 import { ProposalId } from '@api/proposal';
 import { P, match } from 'ts-pattern';
 import { POLICY_DRAFT_ATOM } from './PolicyDraft';

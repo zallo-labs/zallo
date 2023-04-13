@@ -15,14 +15,14 @@ import { ScreenSkeleton } from '~/components/skeleton/ScreenSkeleton';
 import { withSuspense } from '~/components/skeleton/withSuspense';
 import { StackNavigatorScreenProps } from '~/navigation/StackNavigator';
 
-export interface AccountScreen2Params {
+export interface AccountScreenParams {
   account: AccountId;
 }
 
-export type AccountScreen2Props = StackNavigatorScreenProps<'Account'>;
+export type AccountScreenProps = StackNavigatorScreenProps<'Account'>;
 
-export const AccountScreen2 = withSuspense(
-  ({ route, navigation: { navigate } }: AccountScreen2Props) => {
+export const AccountScreen = withSuspense(
+  ({ route, navigation: { navigate } }: AccountScreenProps) => {
     const account = useAccount(route.params.account);
 
     return (

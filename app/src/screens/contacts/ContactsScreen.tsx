@@ -13,7 +13,7 @@ import { ListHeader } from '~/components/list/ListHeader';
 import { Screen } from '~/components/layout/Screen';
 import { truncateAddr } from '~/util/format';
 import { ListItem } from '~/components/list/ListItem';
-import { useScanAddress } from '../Scan/ScanScreen';
+import { useScanAddress } from '../scan/ScanScreen';
 import { ListHeaderButton } from '~/components/list/ListHeaderButton';
 import { CONTACT_EMITTER } from './useSelectContact';
 

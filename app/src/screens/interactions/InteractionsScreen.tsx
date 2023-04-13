@@ -1,6 +1,6 @@
 import { Address, Selector, asSelector, isAddress } from 'lib';
 import { StackNavigatorScreenProps } from '~/navigation/StackNavigator';
-import { POLICY_DRAFT_ATOM } from '../Policy/PolicyDraft';
+import { POLICY_DRAFT_ATOM } from '../policy/PolicyDraft';
 import { Screen } from '~/components/layout/Screen';
 import { ListHeader } from '~/components/list/ListHeader';
 import { Button, Divider } from 'react-native-paper';
@@ -12,7 +12,7 @@ import { StyleSheet } from 'react-native';
 import { InteractionItem } from './InteractionItem';
 import { AllInteractionsItem } from './AllInteractionsItem';
 import { Actions } from '~/components/layout/Actions';
-import { useImportSelector } from '~/screens/ImportSelector/ImportSelectorModal';
+import { useImportSelector } from '~/screens/import-selector/ImportSelectorModal';
 import { useImmerAtom } from 'jotai-immer';
 import { InteractionsAppbar } from './InteractionsAppbar';
 

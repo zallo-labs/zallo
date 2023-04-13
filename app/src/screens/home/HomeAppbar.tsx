@@ -4,7 +4,7 @@ import { Appbar as BaseAppbar } from 'react-native-paper';
 import { AccountSelector } from '~/components/AccountSelector/AccountSelector';
 import { useNavigation } from '@react-navigation/native';
 
-export const Appbar = () => {
+export const HomeAppbar = () => {
   const { navigate } = useNavigation();
 
   return (

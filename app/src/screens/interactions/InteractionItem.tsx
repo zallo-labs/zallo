@@ -1,7 +1,7 @@
 import { useImmerAtom } from 'jotai-immer';
 import { Address, Selector, TargetPermission, isAddress } from 'lib';
 import { withSuspense } from '~/components/skeleton/withSuspense';
-import { POLICY_DRAFT_ATOM } from '../Policy/PolicyDraft';
+import { POLICY_DRAFT_ATOM } from '../policy/PolicyDraft';
 import { ListItem } from '~/components/list/ListItem';
 import { FunctionLabel } from '~/components/call/FunctionLabel';
 import { FUNCTION_DESCRIPTIONS } from './descriptions';

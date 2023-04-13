@@ -4,33 +4,33 @@ import {
   StackScreenProps,
   TransitionPresets,
 } from '@react-navigation/stack';
-import { AccountScreen2, AccountScreen2Params } from '~/screens/Account/AccountScreen2';
-import { AccountsSheet } from '~/screens/AccountsSheet/AccountsSheet';
-import { AddressSheet, AddressSheetScreenParams } from '~/screens/AddressSheet/AddressSheet';
+import { AccountScreen, AccountScreenParams } from '~/screens/account/AccountScreen';
+import { AccountsSheet } from '~/screens/accounts/AccountsSheet';
+import { AddressSheet, AddressSheetScreenParams } from '~/screens/address/AddressSheet';
 import { AlertModal, AlertModalParams } from '~/screens/alert/AlertModal';
-import { ContactScreen, ContactScreenParams } from '~/screens/Contact/ContactScreen';
+import { ContactScreen, ContactScreenParams } from '~/screens/contact/ContactScreen';
 import { ContactsScreen, ContactsScreenParams } from '~/screens/contacts/ContactsScreen';
-import { CreateAccountScreen } from '~/screens/CreateAccount/CreateAccountScreen';
-import { CreateUserScreen } from '~/screens/CreateUser/CreateUserScreen';
-import { HomeScreen } from '~/screens/Home/HomeScreen';
-import { OnboardScreen } from '~/screens/Onboard/OnboardScreen';
-import { useShowOnboarding } from '~/screens/Onboard/useShowOnboarding';
-import { ProposalScreen, ProposalScreenParams } from '~/screens/Proposal/ProposalScreen2';
-import { QrModal, QrModalParams } from '~/screens/QrModal/QrModal';
-import { RenameAccountModal, RenameAccountModalParams } from '~/screens/Account/RenameAccountModal';
-import { ScanScreen, ScanScreenParams } from '~/screens/Scan/ScanScreen';
-import { SendScreen, SendScreenParams } from '~/screens/Send/SendScreen2';
+import { CreateAccountScreen } from '~/screens/create-account/CreateAccountScreen';
+import { CreateUserScreen } from '~/screens/create-user/CreateUserScreen';
+import { HomeScreen } from '~/screens/home/HomeScreen';
+import { OnboardScreen } from '~/screens/onboard/OnboardScreen';
+import { useShowOnboarding } from '~/screens/onboard/useShowOnboarding';
+import { ProposalScreen, ProposalScreenParams } from '~/screens/proposal/ProposalScreen';
+import { QrModal, QrModalParams } from '~/screens/qr/QrModal';
+import { RenameAccountModal, RenameAccountModalParams } from '~/screens/account/RenameAccountModal';
+import { ScanScreen, ScanScreenParams } from '~/screens/scan/ScanScreen';
+import { SendScreen, SendScreenParams } from '~/screens/send/SendScreen';
 import { SessionsScreen } from '~/screens/sessions/SessionsScreen';
-import { SettingsScreen } from '~/screens/Settings/SettingsScreen';
+import { SettingsScreen } from '~/screens/settings/SettingsScreen';
 import { TokensScreen, TokensScreenParams } from '~/screens/tokens/TokensScreen';
-import { UserScreen } from '~/screens/User/UserScreen';
-import { PolicyScreen, PolicyScreenParams } from '~/screens/Policy/PolicyScreen2';
+import { UserScreen } from '~/screens/user/UserScreen';
+import { PolicyScreen, PolicyScreenParams } from '~/screens/policy/PolicyScreen';
 import {
   InteractionsScreen,
   InteractionsScreenParams,
-} from '~/screens/Interactions/InteractionsScreen';
+} from '~/screens/interactions/InteractionsScreen';
 import { ContractsModal, ContractsModalParams } from '~/components/Contracts/ContractsModal';
-import { ImportSelectorModal } from '../screens/ImportSelector/ImportSelectorModal';
+import { ImportSelectorModal } from '../screens/import-selector/ImportSelectorModal';
 import { SignScreen, SignScreenParams } from '~/screens/sign/SignScreen';
 import {
   SessionProposalScreen,
@@ -47,7 +47,7 @@ export type StackNavigatorParamList = {
   Contact: ContactScreenParams;
   Settings: undefined;
   User: undefined;
-  Account: AccountScreen2Params;
+  Account: AccountScreenParams;
   Policy: PolicyScreenParams;
   Interactions: InteractionsScreenParams;
   Sessions: undefined;
@@ -101,7 +101,7 @@ export const StackNavigator = () => {
       <Navigation.Screen name="Contact" component={ContactScreen} />
       <Navigation.Screen name="Settings" component={SettingsScreen} />
       <Navigation.Screen name="User" component={UserScreen} />
-      <Navigation.Screen name="Account" component={AccountScreen2} />
+      <Navigation.Screen name="Account" component={AccountScreen} />
       <Navigation.Screen name="Policy" component={PolicyScreen} />
       <Navigation.Screen name="Interactions" component={InteractionsScreen} />
       <Navigation.Screen name="Sessions" component={SessionsScreen} />
