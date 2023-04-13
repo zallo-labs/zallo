@@ -1,6 +1,6 @@
 import { Address, Addresslike, ZERO_ADDR, asAddress, compareAddress } from '../address';
 import { Selector, asSelector, compareBytes } from '../bytes';
-import { TargetStruct } from '../contracts/TestRules';
+import { TargetStruct } from '../contracts/TestVerifier';
 import { PermissionSelector } from './PermissionSelector';
 import { Arraylike, AwaitedObj, toArray } from '../util';
 import { newAbiType } from '../util/abi';
