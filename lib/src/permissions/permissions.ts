@@ -1,10 +1,10 @@
-import { TargetPermission, permissionAsTargets, targetsAsPermission } from './TargetPermission';
+import { Targets, permissionAsTargets, targetsAsPermission } from './TargetPermission';
 import { PermissionStruct as BasePermissionStruct } from '../contracts/Account';
 import { AwaitedObj, isTruthy } from '../util';
 import { PermissionSelector } from './PermissionSelector';
 
 export interface Permissions {
-  targets: TargetPermission;
+  targets: Targets;
 }
 
 export type PermissionStruct = AwaitedObj<BasePermissionStruct>;

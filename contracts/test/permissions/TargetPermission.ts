@@ -7,7 +7,7 @@ import {
   asSelector,
   asTargets,
   Hex,
-  TARGET_PERMISSION_ABI,
+  TARGETS_ABI,
   Targetslike,
   TestVerifier,
   Tx,
@@ -26,7 +26,7 @@ describe('TargetPermission', () => {
   const verify = (tx: Omit<Tx, 'nonce'>, targets: Targetslike) =>
     verifier.verifyTargetPermission(
       asTransactionStruct({ ...tx, nonce: nonce++ }),
-      TARGET_PERMISSION_ABI.asStruct(asTargets(targets)) ?? [],
+      TARGETS_ABI.asStruct(asTargets(targets)) ?? [],
     );
 
   before(async () => {

@@ -1,12 +1,12 @@
 import { useImmerAtom } from 'jotai-immer';
-import { Address, Selector, TargetPermission } from 'lib';
+import { Address, Selector, Targets } from 'lib';
 import { POLICY_DRAFT_ATOM } from '../policy/PolicyDraft';
 import { ListItem } from '~/components/list/ListItem';
 import { Switch } from 'react-native-paper';
 
 export interface AllInteractionsItemProps {
   contract: Address | '*';
-  targets: TargetPermission;
+  targets: Targets;
   interactions: Set<Selector | '*'>;
 }
 

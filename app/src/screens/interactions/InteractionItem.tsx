@@ -1,5 +1,5 @@
 import { useImmerAtom } from 'jotai-immer';
-import { Address, Selector, TargetPermission, isAddress } from 'lib';
+import { Address, Selector, Targets, isAddress } from 'lib';
 import { withSuspense } from '~/components/skeleton/withSuspense';
 import { POLICY_DRAFT_ATOM } from '../policy/PolicyDraft';
 import { ListItem } from '~/components/list/ListItem';
@@ -11,7 +11,7 @@ import { ListItemSkeleton } from '~/components/list/ListItemSkeleton';
 export interface InteractionItemProps {
   contract: Address | '*';
   selector: Selector;
-  targets: TargetPermission;
+  targets: Targets;
   interactions: Set<Selector | '*'>;
 }
 

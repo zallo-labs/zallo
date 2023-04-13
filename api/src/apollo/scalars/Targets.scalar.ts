@@ -1,9 +1,9 @@
 import { UserInputError } from 'apollo-server-core';
-import { Address, asAddress, asSelector, Selector, TargetPermission } from 'lib';
+import { Address, asAddress, asSelector, Selector, Targets } from 'lib';
 import { createScalar } from './util';
 import { parseLiteral } from './parseLiteral';
 
-const parseValue = (value: unknown): TargetPermission => {
+const parseValue = (value: unknown): Targets => {
   if (value === null || typeof value !== 'object') throw new UserInputError('Must be an object');
 
   return Object.entries(value).reduce(

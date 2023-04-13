@@ -10,14 +10,14 @@ import _ from 'lodash';
 import { BytesLike } from 'ethers';
 
 export type Target = Address | '*';
-export type TargetPermission = Record<Target, Set<Selector | '*'>>;
+export type Targets = Record<Target, Set<Selector | '*'>>;
 
 export type Targetlike = Addresslike | '*';
 export type Targetslike =
   | Partial<Record<Targetlike, Arraylike<BytesLike | '*'>>>
   | { to: Targetlike; selectors: Arraylike<BytesLike | '*'> }[];
 
-export const asTargets = (targets?: Targetslike): TargetPermission => {
+export const asTargets = (targets?: Targetslike): Targets => {
   if (!targets) return ALLOW_ALL_TARGETS;
 
   const entries: { to: Targetlike; selectors: Arraylike<BytesLike | '*'> }[] = Array.isArray(
@@ -47,12 +47,9 @@ const ANY_SELECTOR = '0x00000000' as Selector;
 
 export const ALLOW_ALL_TARGETS = {
   '*': new Set(['*'] as const),
-} satisfies TargetPermission;
+} satisfies Targets;
 
-export const TARGET_PERMISSION_ABI = newAbiType<
-  TargetPermission,
-  AwaitedObj<TargetStruct>[] | undefined
->(
+export const TARGETS_ABI = newAbiType<Targets, AwaitedObj<TargetStruct>[] | undefined>(
   '(address to, bytes4[] selectors)[]',
   (targets) =>
     Object.entries(targets)
@@ -69,19 +66,19 @@ export const TARGET_PERMISSION_ABI = newAbiType<
 );
 
 export const permissionAsTargets = (p: PermissionStruct | undefined) =>
-  p ? TARGET_PERMISSION_ABI.decode(p.args) : ALLOW_ALL_TARGETS;
+  p ? TARGETS_ABI.decode(p.args) : ALLOW_ALL_TARGETS;
 
-export const targetsAsPermission = (targets: TargetPermission): PermissionStruct | undefined => {
+export const targetsAsPermission = (targets: Targets): PermissionStruct | undefined => {
   // There's no need for target permissions if they're allow all
   if (_.isEqual(targets, ALLOW_ALL_TARGETS)) return undefined;
 
   return {
     selector: PermissionSelector.Target,
-    args: TARGET_PERMISSION_ABI.encode(targets),
+    args: TARGETS_ABI.encode(targets),
   };
 };
 
-export const verifyTargetsPermission = (t: TargetPermission, tx: Tx) => {
+export const verifyTargetsPermission = (t: Targets, tx: Tx) => {
   const selectors = t[tx.to] ?? t[FALLBACK_ADDRESS];
   if (!selectors) return false;
 
