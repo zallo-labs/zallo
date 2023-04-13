@@ -18,7 +18,7 @@ export type Targetslike =
   | { to: Targetlike; selectors: Arraylike<BytesLike | '*'> }[];
 
 export const asTargets = (targets?: Targetslike): TargetPermission => {
-  if (!targets) return DEFAULT_TARGETS;
+  if (!targets) return ALLOW_ALL_TARGETS;
 
   const entries: { to: Targetlike; selectors: Arraylike<BytesLike | '*'> }[] = Array.isArray(
     targets,
@@ -45,7 +45,7 @@ export const asTargets = (targets?: Targetslike): TargetPermission => {
 const FALLBACK_ADDRESS = ZERO_ADDR;
 const ANY_SELECTOR = '0x00000000' as Selector;
 
-export const DEFAULT_TARGETS = {
+export const ALLOW_ALL_TARGETS = {
   '*': new Set(['*'] as const),
 } satisfies TargetPermission;
 
@@ -69,15 +69,17 @@ export const TARGET_PERMISSION_ABI = newAbiType<
 );
 
 export const permissionAsTargets = (p: PermissionStruct | undefined) =>
-  p ? TARGET_PERMISSION_ABI.decode(p.args) : DEFAULT_TARGETS;
+  p ? TARGET_PERMISSION_ABI.decode(p.args) : ALLOW_ALL_TARGETS;
 
-export const targetsAsPermission = (targets: TargetPermission): PermissionStruct | undefined =>
-  !_.isEqual(targets, DEFAULT_TARGETS)
-    ? {
-        selector: PermissionSelector.Target,
-        args: TARGET_PERMISSION_ABI.encode(targets),
-      }
-    : undefined;
+export const targetsAsPermission = (targets: TargetPermission): PermissionStruct | undefined => {
+  // There's no need for target permissions if they're allow all
+  if (_.isEqual(targets, ALLOW_ALL_TARGETS)) return undefined;
+
+  return {
+    selector: PermissionSelector.Target,
+    args: TARGET_PERMISSION_ABI.encode(targets),
+  };
+};
 
 export const verifyTargetsPermission = (t: TargetPermission, tx: Tx) => {
   const selectors = t[tx.to] ?? t[FALLBACK_ADDRESS];

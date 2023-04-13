@@ -6,7 +6,7 @@ import { AwaitedObj } from './util/types';
 import { Address, asAddress, compareAddress } from './address';
 import { Tx } from './tx';
 import { Permissions, permissionsAsStruct, structAsPermissions } from './permissions';
-import { DEFAULT_TARGETS, verifyTargetsPermission } from './permissions/TargetPermission';
+import { ALLOW_ALL_TARGETS, verifyTargetsPermission } from './permissions/TargetPermission';
 import { newAbiType } from './util/abi';
 import { asHex } from './bytes';
 import { keccak256 } from 'ethers/lib/utils';
@@ -49,7 +49,7 @@ export const asPolicy = (p: {
     approvers,
     threshold: p.threshold ?? approvers.size,
     permissions: {
-      targets: p.permissions?.targets ?? DEFAULT_TARGETS,
+      targets: p.permissions?.targets ?? ALLOW_ALL_TARGETS,
     },
   };
 };

@@ -1,6 +1,6 @@
 import { AccountId } from '@api/account';
 import { useCreatePolicy, usePolicy, useUpdatePolicy } from '@api/policy';
-import { DEFAULT_TARGETS, asPolicyKey } from 'lib';
+import { ALLOW_ALL_TARGETS, asPolicyKey } from 'lib';
 import { ScrollView } from 'react-native';
 import { Screen } from '~/components/layout/Screen';
 import { ScreenSkeleton } from '~/components/skeleton/ScreenSkeleton';
@@ -45,7 +45,7 @@ export const PolicyScreen = withSuspense((props: PolicyScreenProps) => {
           approvers: new Set([approverId]),
           threshold: 1,
           permissions: {
-            targets: DEFAULT_TARGETS,
+            targets: ALLOW_ALL_TARGETS,
           },
         }),
     }),
