@@ -38,8 +38,7 @@
     "recoil": "^0.7.7",
     "sass": "^1.58.1",
     "use-deep-compare-effect": "^1.8.1",
-    "utf-8-validate": "^5.0.10",
-    "zksync-web3": "^0.14.3"
+    "utf-8-validate": "^5.0.10"
   },
   "devDependencies": {
     "@docusaurus/module-type-aliases": "^2.4.0",

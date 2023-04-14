@@ -19773,7 +19773,6 @@ __metadata:
     typescript: ^5.0.3
     use-deep-compare-effect: ^1.8.1
     utf-8-validate: ^5.0.10
-    zksync-web3: ^0.14.3
   languageName: unknown
   linkType: soft
 
