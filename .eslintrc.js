@@ -17,21 +17,15 @@ module.exports = {
     mocha: true,
   },
   rules: {
+    'comma-dangle': ['always', 'never'],
     '@typescript-eslint/no-var-requires': 'off',
-    '@typescript-eslint/no-unused-vars': [
-      'warn',
-      {
-        argsIgnorePattern: '^_',
-      },
-    ],
+    '@typescript-eslint/no-unused-vars': ['warn', { argsIgnorePattern: '^_' }],
     '@typescript-eslint/no-non-null-assertion': 'off',
+    '@typescript-eslint/no-empty-interface': 'off',
     'react-hooks/rules-of-hooks': 'error',
     'react-hooks/exhaustive-deps': [
       'warn',
-      {
-        additionalHooks: '(useRecoilCallback|useRecoilTransaction_UNSTABLE)',
-      },
+      { additionalHooks: '(useRecoilCallback|useRecoilTransaction_UNSTABLE)' },
     ],
-    '@typescript-eslint/no-empty-interface': 'off',
   },
 };
