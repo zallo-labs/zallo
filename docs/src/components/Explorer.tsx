@@ -3,19 +3,26 @@
 import { jsx } from '@emotion/react';
 import { ApolloExplorer } from '@apollo/explorer/react';
 import { useColorMode } from '@docusaurus/theme-common';
-import { BaseEmbeddableExplorerOptions as BaseProps } from '@apollo/explorer/src/EmbeddedExplorer';
+import { BaseEmbeddableExplorerOptions as EmbeddedExplorerProps } from '@apollo/explorer/src/EmbeddedExplorer';
 import { Interpolation, Theme } from '@emotion/react';
 import { useCustomFields } from '@site/src/hooks/useCustomFields';
 import gql from 'graphql-tag';
 import { print } from 'graphql';
 import { useAuthorization, useDevice } from '../hooks/useDevice';
 import BrowserOnly from '@docusaurus/BrowserOnly';
+import { JSONObject } from '@apollo/explorer/src/helpers/types';
 
 export interface ExplorerProps {
   document: ReturnType<typeof gql>;
-  variables?: NonNullable<BaseProps['initialState']>['variables'];
-  initialState?: Partial<BaseProps['initialState']>;
-  persistExplorerState?: BaseProps['persistExplorerState'];
+  variables?: JSONObject;
+  initialState?: Partial<
+    EmbeddedExplorerProps['initialState'] & {
+      // Force type narrowing to prevent type errors when using document, variables etc.
+      collectionId?: never;
+      operationId?: never;
+    }
+  >;
+  persistExplorerState?: EmbeddedExplorerProps['persistExplorerState'];
   style?: Interpolation<Theme>;
 }
 
