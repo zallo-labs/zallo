@@ -30,6 +30,10 @@ const config: HardhatUserConfig = {
     compilerSource: 'binary',
     settings: {
       isSystem: true,
+      optimizer: {
+        enabled: true,
+        mode: '3',
+      },
     },
   },
   defaultNetwork: CONFIG.chain.name,
