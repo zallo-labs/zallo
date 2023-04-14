@@ -1,13 +1,13 @@
 # Inspect included files using:
-# yarn eas build:inspect --stage archive --output ~/tmp/inspect --profile production --platform android
+# rm -rf ~/tmp/inspect yarn eas build:inspect --stage archive --output ~/tmp/inspect --profile production --platform android
 
 # Required for notifications
-!app/firebase-google-services.secret.json
+!/app/firebase-google-services.secret.json
 
 ## Unnecessary files
-api
-subgraph
-docs
+/api
+/subgraph
+/docs
 # lib is required
 # contracts is required by lib
 # config is required by contracts
