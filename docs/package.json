@@ -46,7 +46,7 @@
     "@graphql-codegen/introspection": "^3.0.1",
     "@graphql-codegen/typescript": "^3.0.3",
     "@graphql-codegen/typescript-operations": "^3.0.3",
-    "@tsconfig/docusaurus": "^1.0.7",
+    "@tsconfig/docusaurus": "1.0.6",
     "typescript": "^5.0.4"
   },
   "browserslist": {
