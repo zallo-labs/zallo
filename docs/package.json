@@ -16,7 +16,7 @@
     "generate:gql": "graphql-codegen --config codegen.ts"
   },
   "dependencies": {
-    "@apollo/client": "^3.7.10",
+    "@apollo/client": "^3.7.12",
     "@apollo/explorer": "^3.4.0",
     "@docusaurus/core": "^2.4.0",
     "@docusaurus/preset-classic": "^2.4.0",
@@ -42,12 +42,12 @@
   },
   "devDependencies": {
     "@docusaurus/module-type-aliases": "^2.4.0",
-    "@graphql-codegen/cli": "^3.2.2",
+    "@graphql-codegen/cli": "^3.3.0",
     "@graphql-codegen/introspection": "^3.0.1",
-    "@graphql-codegen/typescript": "^3.0.2",
-    "@graphql-codegen/typescript-operations": "^3.0.2",
+    "@graphql-codegen/typescript": "^3.0.3",
+    "@graphql-codegen/typescript-operations": "^3.0.3",
     "@tsconfig/docusaurus": "^1.0.7",
-    "typescript": "^5.0.3"
+    "typescript": "^5.0.4"
   },
   "browserslist": {
     "production": [
