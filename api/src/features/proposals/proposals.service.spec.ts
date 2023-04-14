@@ -389,7 +389,7 @@ describe(ProposalsService.name, () => {
           data: {
             account: connectAccount(accountId),
             key: 1,
-            name: '',
+            name: 'abc',
             states: {
               create: {
                 account: connectAccount(accountId),
@@ -414,7 +414,7 @@ describe(ProposalsService.name, () => {
           data: {
             account: connectAccount(asAddress(accountId)),
             key: 1,
-            name: '',
+            name: 'abc',
             states: {
               create: [{}, { proposalId: id }],
             },
