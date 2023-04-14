@@ -5,30 +5,33 @@ import { Box } from '~/components/layout/Box';
 import { CloseIcon } from '@theme/icons';
 import { useEffect } from 'react';
 import { tryOrIgnoreAsync } from 'lib';
-import { WcSessionData } from '~/util/walletconnect/useWalletConnectSessions';
-import { useSession } from '~/util/walletconnect/useTopic';
-import { ProposerItem } from './ProposerItem';
+import { PeerItem } from './PeerItem';
+import { getSdkError } from '@walletconnect/utils';
+import { useWalletConnect } from '~/util/walletconnect';
+import { WalletConnectSession } from '~/util/walletconnect/types';
+import { DateTime } from 'luxon';
 
 export interface SessionCardProps {
-  sessionData: WcSessionData;
+  session: WalletConnectSession;
 }
 
-export const SessionCard = ({ sessionData }: SessionCardProps) => {
-  const session = useSession(sessionData.topic);
+export const SessionCard = ({ session: { expiry, topic, peer } }: SessionCardProps) => {
+  const client = useWalletConnect();
 
   useEffect(() => {
-    session.checkConnectedOrDisconnect();
-  }, [session]);
+    // Ensure the session is alive
+    tryOrIgnoreAsync(() => client.ping({ topic }));
+  }, [client, topic]);
 
   return (
     <Card>
-      <ProposerItem proposer={sessionData.proposer} />
+      <PeerItem peer={peer.metadata} />
 
-      {sessionData.expiry && (
+      {expiry && (
         <Box horizontal mt={2}>
           <Text variant="titleSmall">Expires: </Text>
           <Text variant="bodyMedium">
-            <Timestamp timestamp={sessionData.expiry} />
+            <Timestamp timestamp={DateTime.fromSeconds(expiry)} />
           </Text>
         </Box>
       )}
@@ -41,7 +44,14 @@ export const SessionCard = ({ sessionData }: SessionCardProps) => {
             // width: 72
           }}
           icon={CloseIcon}
-          onPress={() => tryOrIgnoreAsync(() => session.disconnect('USER_DISCONNECTED'))}
+          onPress={() =>
+            tryOrIgnoreAsync(() =>
+              client.disconnect({
+                topic,
+                reason: getSdkError('USER_DISCONNECTED'),
+              }),
+            )
+          }
         >
           Disconnect
         </Button>

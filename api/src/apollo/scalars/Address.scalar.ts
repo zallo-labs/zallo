@@ -1,13 +1,13 @@
 import { UserInputError } from 'apollo-server-core';
 import { Kind } from 'graphql';
-import { address, Address, isAddressLike } from 'lib';
+import { asAddress, Address, isAddressLike } from 'lib';
 import { createScalar } from './util';
 
 const description = 'Ethereum address';
 
 const parseValue = (value: unknown): Address => {
   if (!isAddressLike(value)) throw new UserInputError(`Provided value is not a ${description}`);
-  return address(value);
+  return asAddress(value);
 };
 
 export const [AddressScalar, AddressField] = createScalar<Address, string>({

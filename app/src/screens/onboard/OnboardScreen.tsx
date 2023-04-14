@@ -1,71 +1,41 @@
-import { LogoIcon } from '@theme/icons';
-import { makeStyles } from '@theme/makeStyles';
 import { View } from 'react-native';
-import { Button } from 'react-native-paper';
+import { Button, Text } from 'react-native-paper';
 import { StackNavigatorScreenProps } from '~/navigation/StackNavigator';
-import { OnboardCarousel } from './OnboardCarousel';
+import LogoSvg from '~/../assets/logo.svg';
+import { Actions } from '~/components/layout/Actions';
+import { StyleSheet } from 'react-native';
+import { Screen } from '~/components/layout/Screen';
 
 export type OnboardScreenProps = StackNavigatorScreenProps<'Onboard'>;
 
 export const OnboardScreen = ({ navigation: { navigate } }: OnboardScreenProps) => {
-  const styles = useStyles();
-
   return (
-    <View style={styles.root}>
-      <LogoIcon width={styles.logo.width} style={styles.logo} />
-
-      <OnboardCarousel style={styles.carousel} />
-
-      <View style={styles.actions}>
-        <Button
-          mode="text"
-          style={styles.secondaryAction}
-          onPress={() =>
-            navigate('NameDevice', {
-              onContinue: () => navigate('Device'),
-            })
-          }
-        >
-          I already have an account
-        </Button>
-
-        <Button
-          mode="contained"
-          onPress={() =>
-            navigate('NameDevice', {
-              onContinue: () =>
-                navigate('CreateAccount', {
-                  onCreate: () => navigate('BottomNavigator', { screen: 'Home' }),
-                }),
-            })
-          }
-        >
-          Create account
-        </Button>
+    <Screen topInset>
+      <View style={styles.header}>
+        <LogoSvg style={styles.logo} />
+        <Text variant="headlineSmall">Self-custodial smart wallet</Text>
       </View>
-    </View>
+
+      <Actions>
+        <Button mode="contained" style={styles.button} onPress={() => navigate('CreateUser')}>
+          Get started
+        </Button>
+      </Actions>
+    </Screen>
   );
 };
 
-const useStyles = makeStyles(({ space, s }) => ({
-  root: {
+const styles = StyleSheet.create({
+  header: {
     flex: 1,
-    marginTop: space(6),
-    marginBottom: space(2),
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginHorizontal: 16,
   },
   logo: {
-    alignSelf: 'center',
-    width: 250,
+    marginBottom: 32,
   },
-  carousel: {
-    marginHorizontal: s(16),
+  button: {
+    alignSelf: 'stretch',
   },
-  actions: {
-    flex: 1,
-    justifyContent: 'flex-end',
-    marginHorizontal: s(16),
-  },
-  secondaryAction: {
-    marginBottom: s(8),
-  },
-}));
+});

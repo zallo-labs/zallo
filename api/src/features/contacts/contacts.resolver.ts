@@ -3,20 +3,21 @@ import { PrismaService } from '../util/prisma/prisma.service';
 import { GraphQLResolveInfo } from 'graphql';
 import { getSelect } from '~/util/select';
 import { UserId } from '~/decorators/user.decorator';
-import { Address, filterFirst, Id, toId } from 'lib';
+import { Address } from 'lib';
 import { ContactsArgs, ContactArgs, ContactObject, UpsertContactArgs } from './contacts.args';
 import { connectOrCreateUser } from '~/util/connect-or-create';
 import { getUser, getUserId } from '~/request/ctx';
 import { AccountsService } from '../accounts/accounts.service';
 import { Contact } from '@gen/contact/contact.model';
+import _ from 'lodash';
 
 @Resolver(() => ContactObject)
 export class ContactsResolver {
   constructor(private prisma: PrismaService, private accounts: AccountsService) {}
 
   @ResolveField(() => String)
-  id(@Parent() contact: ContactObject, @UserId() user: Address): Id {
-    return toId(`${user}-${contact.addr}`);
+  id(@Parent() contact: ContactObject, @UserId() user: Address): string {
+    return `${user}-${contact.addr}`;
   }
 
   @Query(() => ContactObject, { nullable: true })
@@ -38,13 +39,11 @@ export class ContactsResolver {
     });
 
     const accounts = await this.accounts.findMany({
+      where: { id: { notIn: contacts.map((c) => c.addr) } },
       select: { id: true, name: true },
     });
 
-    return filterFirst(
-      [...contacts, ...accounts.map((a) => ({ addr: a.id, name: a.name }))],
-      (contact) => contact.addr,
-    );
+    return [...contacts, ...accounts.map((a) => ({ ...a, addr: a.id }))];
   }
 
   @Mutation(() => ContactObject)
@@ -56,6 +55,7 @@ export class ContactsResolver {
     name = name.trim();
 
     const user = getUserId();
+    const selectArgs = getSelect(info);
 
     return this.prisma.asUser.contact.upsert({
       where: {
@@ -73,7 +73,9 @@ export class ContactsResolver {
         addr: { set: newAddr },
         name: { set: name },
       },
-      // ...getSelect(info),  // FIXME: Causes can't find 'id' field error; note. 'id' is a @ResolveField
+      ...(selectArgs && {
+        select: _.omit(selectArgs.select, 'id'),
+      }),
     });
   }
 

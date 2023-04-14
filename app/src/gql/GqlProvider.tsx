@@ -1,10 +1,10 @@
 import { createContext, ReactNode, useContext, useState } from 'react';
 import { ApolloClient, ApolloProvider, NormalizedCacheObject } from '@apollo/client';
-import { UNISWAP_CLIENT, UNISWAP_CLIENT_NAME } from './clients/uniswap';
 import { Suspend } from '~/components/Suspender';
 import useAsyncEffect from 'use-async-effect';
-import { API_CLIENT_NAME, usePromisedApiClient } from './clients/usePromisedApiClient';
-import { SUBGRAPH_CLIENT_NAME, SUBGRAPH_CLIENT } from './clients/subgraph';
+import { API_CLIENT_NAME, usePromisedApiClient } from '@api/client';
+import { SUBGRAPH_CLIENT_NAME, SUBGRAPH_CLIENT } from '@subgraph/client';
+import { UNISWAP_CLIENT, UNISWAP_CLIENT_NAME } from '@uniswap/client';
 
 const clientNames = [API_CLIENT_NAME, SUBGRAPH_CLIENT_NAME, UNISWAP_CLIENT_NAME] as const;
 type Name = (typeof clientNames)[number];

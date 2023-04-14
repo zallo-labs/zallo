@@ -20,7 +20,7 @@ export const PriceChange = ({ change }: PriceDeltaProps) => {
 
 const useStyles = makeStyles(({ colors }) => ({
   positive: {
-    color: colors.success,
+    color: colors.green,
   },
   negative: {
     color: colors.error,

@@ -3,7 +3,7 @@ import Schema from '../schema/mutations/propose.mdx';
 
 # Approving a Proposal
 
-Only members of the proposal quorum can approve it.
+Only members of the proposal policy can approve it.
 
 ## Signing
 
@@ -15,7 +15,7 @@ const signature = ethers.utils.joinSignature(wallet._signingKey().signDigest(pro
 
 ## Execution
 
-Once all members of the quorum have approved the proposal it will be executed.
+Once all members of the policy have approved the proposal it will be executed.
 
 It is recommended that you [subscribe to the proposal](./subscribe) if you need the execution response.
 

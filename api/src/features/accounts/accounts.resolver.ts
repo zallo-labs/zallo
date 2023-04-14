@@ -1,155 +1,85 @@
 import { Args, Info, Mutation, Query, Resolver, Subscription } from '@nestjs/graphql';
-import { PrismaService } from '../util/prisma/prisma.service';
 import { GraphQLResolveInfo } from 'graphql';
 import { Account } from '@gen/account/account.model';
 import {
   AccountArgs,
-  UpdateAccountMetadataArgs,
-  CreateAccountArgs,
+  UpdateAccountInput,
+  CreateAccountInput,
   AccountsArgs,
   AccountSubscriptionFilters,
-  AccountSubscriptionPayload,
   ACCOUNT_SUBSCRIPTION,
-  AccountEvent,
   USER_ACCOUNT_SUBSCRIPTION,
 } from './accounts.args';
 import { getSelect } from '~/util/select';
-import { AccountsService } from './accounts.service';
-import { ProviderService } from '~/features/util/provider/provider.service';
-import { address, calculateProxyAddress, Quorum, randomDeploySalt, toQuorumKey } from 'lib';
-import { CONFIG } from '~/config';
-import { UserCtx } from '~/decorators/user.decorator';
-import { QuorumInput } from '../quorums/quorums.args';
-import { FaucetService } from '../faucet/faucet.service';
+import { AccountSubscriptionPayload, AccountsService } from './accounts.service';
+import { UserId } from '~/decorators/user.decorator';
 import { PubsubService } from '../util/pubsub/pubsub.service';
-import { UserContext, getRequestContext, getUser } from '~/request/ctx';
-import { connectOrCreateUser } from '~/util/connect-or-create';
+import { UserContext } from '~/request/ctx';
 
 @Resolver(() => Account)
 export class AccountsResolver {
-  constructor(
-    private service: AccountsService,
-    private prisma: PrismaService,
-    private provider: ProviderService,
-    private faucet: FaucetService,
-    private pubsub: PubsubService,
-  ) {}
+  constructor(private service: AccountsService, private pubsub: PubsubService) {}
 
   @Query(() => Account, { nullable: true })
   async account(
     @Args() { id }: AccountArgs,
-    @Info() info?: GraphQLResolveInfo,
+    @Info() info: GraphQLResolveInfo,
   ): Promise<Account | null> {
-    return this.prisma.asUser.account.findUnique({
+    return this.service.findUnique({
       where: { id },
       ...getSelect(info),
     });
   }
 
   @Query(() => [Account])
-  async accounts(
-    @Args() args: AccountsArgs,
-    @Info() info?: GraphQLResolveInfo,
-  ): Promise<Account[]> {
-    const accounts = await this.prisma.asUser.account.findMany({
+  async accounts(@Args() args: AccountsArgs, @Info() info: GraphQLResolveInfo): Promise<Account[]> {
+    return this.service.findMany({
       ...args,
       ...getSelect(info),
     });
-
-    return accounts;
   }
 
   @Subscription(() => Account, {
     name: ACCOUNT_SUBSCRIPTION,
+    resolve(
+      this: AccountsResolver,
+      { account }: AccountSubscriptionPayload,
+      _args,
+      _context,
+      info: GraphQLResolveInfo,
+    ) {
+      return this.service.findUnique({
+        where: { id: account.id },
+        ...getSelect(info),
+      });
+    },
     filter: ({ event }: AccountSubscriptionPayload, { events }: AccountSubscriptionFilters) =>
-      !events || events.has(event),
+      !events || events.includes(event),
   })
   async accountSubscription(
-    @UserCtx() user: UserContext,
+    @UserId() user: UserContext,
     @Args() { accounts }: AccountSubscriptionFilters,
   ) {
     return this.pubsub.asyncIterator(
       accounts
         ? [...accounts].map((id) => `${ACCOUNT_SUBSCRIPTION}.${id}`)
-        : `${USER_ACCOUNT_SUBSCRIPTION}.${user.id}`,
+        : `${USER_ACCOUNT_SUBSCRIPTION}.${user}`,
     );
   }
 
   @Mutation(() => Account)
   async createAccount(
-    @Args() { name, quorums: quorumsArg }: CreateAccountArgs,
-    @Info() info?: GraphQLResolveInfo,
+    @Args('args') input: CreateAccountInput,
+    @Info() info: GraphQLResolveInfo,
   ): Promise<Account> {
-    const impl = address(CONFIG.accountImplAddress);
-    const deploySalt = randomDeploySalt();
-
-    // Start key from 1 as apollo interprets key=0 as key=NaN for some reason?
-    const quorums: Quorum[] = quorumsArg.map((q, i) => QuorumInput.toQuorum(q, toQuorumKey(i + 1)));
-
-    const addr = await this.provider.useProxyFactory((factory) =>
-      calculateProxyAddress({ impl, quorums }, factory, deploySalt),
-    );
-
-    // Add account to user context
-    getUser().accounts.add(addr);
-    getRequestContext()?.session?.accounts?.push(addr);
-
-    await this.prisma.asUser.account.create({
-      data: {
-        id: addr,
-        deploySalt,
-        impl,
-        name,
-        quorums: {
-          create: quorums.map((q, i) => ({
-            name: quorumsArg[i].name,
-            key: q.key,
-            states: {
-              create: {
-                approvers: {
-                  create: [...q.approvers].map((a) => ({ user: connectOrCreateUser(a) })),
-                },
-                spendingFallback: q.spending?.fallback,
-                limits: q.spending?.limits
-                  ? {
-                      createMany: {
-                        data: Object.values(q.spending.limits).map((limit) => ({
-                          token: limit.token,
-                          amount: limit.amount.toString(),
-                          period: limit.period,
-                        })),
-                      },
-                    }
-                  : undefined,
-              },
-            },
-          })),
-        },
-      },
-      select: null,
-    });
-
-    const r = await this.service.activateAccount(addr, { ...getSelect(info) });
-
-    this.service.publishAccount({ account: r, event: AccountEvent.create });
-    this.faucet.requestTokens(addr);
-
-    return r;
+    return this.service.createAccount(input, getSelect(info));
   }
 
   @Mutation(() => Account)
-  async updateAccountMetadata(
-    @Args() { id, name }: UpdateAccountMetadataArgs,
-    @Info() info?: GraphQLResolveInfo,
+  async updateAccount(
+    @Args('args') input: UpdateAccountInput,
+    @Info() info: GraphQLResolveInfo,
   ): Promise<Account> {
-    const r = await this.prisma.asUser.account.update({
-      where: { id },
-      data: { name },
-      ...getSelect(info),
-    });
-
-    this.service.publishAccount({ account: r, event: AccountEvent.update });
-
-    return r;
+    return this.service.updateAccount(input, getSelect(info));
   }
 }

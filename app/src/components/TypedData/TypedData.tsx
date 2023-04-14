@@ -1,16 +1,14 @@
-import { makeStyles } from '@theme/makeStyles';
 import { ScrollView } from 'react-native';
 import { Card } from 'react-native-paper';
 import { TypedDataValue } from './TypedDataValue';
 import { isTypedObject, TypedDataComponent, TypedDataObject } from './TypedDataObject';
+import { StyleSheet } from 'react-native';
 
 export interface TypedDataProps {
   data: TypedDataComponent;
 }
 
 export const TypedData = ({ data }: TypedDataProps) => {
-  const styles = useStyles();
-
   return (
     <Card mode="contained">
       <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
@@ -20,10 +18,10 @@ export const TypedData = ({ data }: TypedDataProps) => {
   );
 };
 
-const useStyles = makeStyles(({ space }) => ({
+const styles = StyleSheet.create({
   container: {
-    marginVertical: space(1),
-    marginLeft: space(1),
-    marginRight: space(2),
+    marginVertical: 8,
+    marginLeft: 8,
+    marginRight: 16,
   },
-}));
+});

@@ -1,0 +1,23 @@
+From e67c3fc40ef62a82ccd4a9302e631695b461c871 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Van=20der=20Auwermeulen=20Gr=C3=A9goire?=
+ <gregoirevandera@gmail.com>
+Date: Thu, 24 Nov 2022 12:51:23 +0100
+Subject: [PATCH] Update BlurViewManagerImpl.java
+
+---
+ .../com/reactnativecommunity/blurview/BlurViewManagerImpl.java  | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/android/src/main/java/com/reactnativecommunity/blurview/BlurViewManagerImpl.java b/android/src/main/java/com/reactnativecommunity/blurview/BlurViewManagerImpl.java
+index 47030e59..b059acc2 100644
+--- a/android/src/main/java/com/reactnativecommunity/blurview/BlurViewManagerImpl.java
++++ b/android/src/main/java/com/reactnativecommunity/blurview/BlurViewManagerImpl.java
+@@ -29,7 +29,7 @@ class BlurViewManagerImpl {
+       .getDecorView();
+     ViewGroup rootView = decorView.findViewById(android.R.id.content);
+     Drawable windowBackground = decorView.getBackground();
+-    if (Build.VERSION.SDK_INT >= 31) {
++    if (Build.VERSION.SDK_INT >= 31 && blurView.isHardwareAccelerated()) {
+       blurView
+         .setupWith(rootView, new RenderEffectBlur())
+         .setFrameClearDrawable(windowBackground)

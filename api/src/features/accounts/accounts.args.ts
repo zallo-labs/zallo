@@ -1,11 +1,9 @@
-import { Account } from '@gen/account/account.model';
 import { FindManyAccountArgs } from '@gen/account/find-many-account.args';
-import { ArgsType, Field, registerEnumType } from '@nestjs/graphql';
+import { ArgsType, Field, InputType, registerEnumType } from '@nestjs/graphql';
 import { Address } from 'lib';
 import { AddressField, AddressScalar } from '~/apollo/scalars/Address.scalar';
-import { SetField } from '~/apollo/scalars/SetField';
 import { minLengthMiddleware } from '~/apollo/scalars/util';
-import { QuorumInput } from '../quorums/quorums.args';
+import { PolicyInput } from '../policies/policies.args';
 
 @ArgsType()
 export class AccountArgs {
@@ -25,29 +23,32 @@ export enum AccountEvent {
 }
 registerEnumType(AccountEvent, { name: 'AccountEvent' });
 
-export interface AccountSubscriptionPayload {
-  [ACCOUNT_SUBSCRIPTION]: Account;
-  event: AccountEvent;
-}
-
 @ArgsType()
 export class AccountSubscriptionFilters {
-  @SetField(() => AddressScalar, { nullable: true, description: 'Defaults to user accounts' })
-  accounts?: Set<Address>;
+  @Field(() => [AddressScalar], {
+    nullable: true,
+    description: 'Defaults to user accounts',
+  })
+  accounts?: Address[];
 
-  @SetField(() => AccountEvent, { nullable: true, description: 'Defaults to all events' })
-  events?: Set<AccountEvent>;
+  @Field(() => AccountEvent, { nullable: true, description: 'Defaults to all events' })
+  events?: AccountEvent[];
 }
 
-@ArgsType()
-export class CreateAccountArgs {
+@InputType()
+export class CreateAccountInput {
+  @Field(() => String)
   name: string;
 
-  @Field(() => [QuorumInput], { middleware: [minLengthMiddleware(1)] })
-  quorums: QuorumInput[];
+  @Field(() => [PolicyInput], { middleware: [minLengthMiddleware(1)] })
+  policies: PolicyInput[];
 }
 
-@ArgsType()
-export class UpdateAccountMetadataArgs extends AccountArgs {
+@InputType()
+export class UpdateAccountInput {
+  @AddressField()
+  id: Address;
+
+  @Field(() => String)
   name: string;
 }

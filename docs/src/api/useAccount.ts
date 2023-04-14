@@ -27,16 +27,18 @@ const useFirstAccount = (): string | undefined =>
 const useCreateAccount = () =>
   useMutation<CreateTestAccountMutation, CreateTestAccountMutationVariables>(
     gql`
-      mutation CreateTestAccount($name: String!, $quorums: [QuorumInput!]!) {
-        createAccount(name: $name, quorums: $quorums) {
+      mutation CreateTestAccount($args: CreateAccountInput!) {
+        createAccount(args: $args) {
           id
         }
       }
     `,
     {
       variables: {
-        name: 'Test account',
-        quorums: [{ name: 'Test quorum', approvers: [useDevice().address] }],
+        args: {
+          name: 'Test account',
+          policies: [{ name: 'Admin policy', approvers: [useDevice().address], permissions: {} }],
+        },
       },
     },
   );

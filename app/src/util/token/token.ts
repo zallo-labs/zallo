@@ -1,18 +1,33 @@
-import { BigNumber } from 'ethers';
-import { address, Address, Addresslike, createIsObj, Erc20, Erc20__factory, isAddress } from 'lib';
+import assert from 'assert';
+import {
+  Address,
+  Addresslike,
+  createIsObj,
+  Erc20,
+  Erc20__factory,
+  isAddress,
+  ChainName,
+  tryAsAddress,
+} from 'lib';
 import _ from 'lodash';
 import { CHAIN, PROVIDER } from '~/util/network/provider';
 
 export type TokenType = 'ETH' | 'ERC20';
 
-export interface Token {
+export interface TokenUnit {
+  symbol: string;
+  decimals: number;
+}
+
+export interface Token extends TokenUnit {
   type: TokenType;
   name: string;
   symbol: string;
   decimals: number;
-  addr: Address; // Current chain address
-  addresses: Partial<Record<'mainnet' | 'testnet', Address>>;
+  address: Address; // Current chain address
+  addresses: Partial<Record<'ethereum' | 'testnet', Address>>;
   iconUri: string;
+  units: [TokenUnit, ...TokenUnit[]];
 }
 
 export const isToken = createIsObj<Token>(
@@ -20,50 +35,47 @@ export const isToken = createIsObj<Token>(
   ['name', 'string'],
   ['symbol', 'string'],
   ['decimals', 'number'],
-  ['addr', isAddress],
+  ['address', isAddress],
   ['iconUri', 'string'],
 );
 
 type TokenDef = Pick<Token, 'name' | 'symbol' | 'decimals'> & {
   type?: TokenType;
-  addresses: Partial<Record<'mainnet' | 'testnet', Addresslike>>;
+  addresses: Partial<Record<'ethereum' | ChainName, Addresslike>>;
   iconUri?: string;
+  units?: TokenUnit[];
 };
 
-export const createToken = (def: TokenDef): Token => {
-  const addresses = _.mapValues(def.addresses, address);
+export const asToken = (def: TokenDef): Token => {
+  const addresses = _.mapValues(def.addresses, tryAsAddress);
 
-  if (CHAIN.name !== 'testnet') throw new Error('Only testnet is supported');
-  const addr = def.addresses[CHAIN.name];
-  if (!addr) throw new Error('Address not found');
+  const address = addresses[CHAIN.name];
+  assert(address, `Token '${def.name}' doesn't support current chain '${CHAIN.name}'`);
 
-  const token: Token = {
+  const baseUnit: TokenUnit = { symbol: def.symbol, decimals: def.decimals };
+
+  return {
     type: 'ERC20',
     ...def,
-    addr: address(addr),
+    address,
     addresses,
     iconUri:
       def.iconUri ??
       `https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/ethereum/assets/${def.addresses.mainnet}/logo.png`,
+    units: [baseUnit, ...(def.units ?? [])],
   };
-
-  return token;
 };
 
 export const ERC20_INTERFACE = Erc20__factory.createInterface();
 
 export const getTokenContract = (token: Token): Erc20 =>
-  Erc20__factory.connect(token.addr, PROVIDER);
+  Erc20__factory.connect(token.address, PROVIDER);
 
-export const convertTokenAmount = (
-  amount: BigNumber,
-  prevToken: Token,
-  newToken: Token,
-): BigNumber => {
+export const convertTokenAmount = (amount: bigint, prevToken: Token, newToken: Token): bigint => {
   const decimalsDiff = prevToken.decimals - newToken.decimals;
   if (decimalsDiff === 0) return amount;
 
-  const div = BigNumber.from(10).pow(Math.abs(decimalsDiff));
+  const factor = 10n ** BigInt(Math.abs(decimalsDiff));
 
-  return decimalsDiff >= 0 ? amount.div(div) : amount.mul(div);
+  return decimalsDiff >= 0 ? amount / factor : amount * factor;
 };

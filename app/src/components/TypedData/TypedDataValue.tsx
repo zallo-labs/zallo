@@ -1,14 +1,13 @@
-import { makeStyles } from '@theme/makeStyles';
-import { isAddress } from 'lib';
+import { isAddress, isHex } from 'lib';
 import { useMemo } from 'react';
 import { Text } from 'react-native-paper';
 import { Box } from '~/components/layout/Box';
-import { useContacts } from '~/queries/contacts/useContacts.api';
 import * as Clipboard from 'expo-clipboard';
 import { TouchableOpacity } from 'react-native';
 import { useToggle } from '@hook/useToggle';
-import { isHexString } from 'ethers/lib/utils';
 import { tryDecodeHexString } from '~/util/decodeHex';
+import { useContacts } from '@api/contacts';
+import { StyleSheet } from 'react-native';
 
 export interface TypedValue {
   name?: string;
@@ -17,17 +16,16 @@ export interface TypedValue {
 }
 
 export const TypedDataValue = ({ name, value }: TypedValue) => {
-  const styles = useStyles();
   const contacts = useContacts();
 
   const [isExpanded, toggleExpanded] = useToggle(false);
 
   const formatted = useMemo(() => {
     if (typeof value === 'string') {
-      const contact = isAddress(value) && contacts.find((c) => c.addr === value);
-      if (contact) return contact.name;
+      if (isHex(value)) {
+        const contact = isAddress(value) && contacts.find((c) => c.address === value);
+        if (contact) return contact.name;
 
-      if (isHexString(value)) {
         const decoded = tryDecodeHexString(value);
         if (decoded) return decoded;
       }
@@ -71,11 +69,11 @@ export const TypedDataValue = ({ name, value }: TypedValue) => {
   );
 };
 
-const useStyles = makeStyles(({ space }) => ({
+const styles = StyleSheet.create({
   name: {
-    marginRight: space(2),
+    marginRight: 16,
   },
   formatted: {
     flexShrink: 1,
   },
-}));
+});

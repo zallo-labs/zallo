@@ -1,8 +1,9 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 pragma solidity ^0.8.0;
 
-import '@matterlabs/zksync-contracts/l2/system-contracts/Constants.sol';
-import '@matterlabs/zksync-contracts/l2/system-contracts/libraries/SystemContractsCaller.sol';
+import {DEPLOYER_SYSTEM_CONTRACT} from '@matterlabs/zksync-contracts/l2/system-contracts/Constants.sol';
+import {IContractDeployer} from '@matterlabs/zksync-contracts/l2/system-contracts/interfaces/IContractDeployer.sol';
+import {SystemContractsCaller} from '@matterlabs/zksync-contracts/l2/system-contracts/libraries/SystemContractsCaller.sol';
 
 contract Factory {
   IContractDeployer.AccountAbstractionVersion private constant AA_VERSION =

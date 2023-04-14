@@ -1,22 +1,21 @@
-import { FlatList } from 'react-native';
+import { FlatList, StyleSheet } from 'react-native';
 import { Token } from '@token/token';
 import { useSearch } from '@hook/useSearch';
 import { Address } from 'lib';
-import { useTokens } from '@token/useTokens';
-import { makeStyles } from '@theme/makeStyles';
+import { useTokens } from '@token/useToken';
 import { StackNavigatorScreenProps } from '~/navigation/StackNavigator';
 import { Searchbar } from '~/components/fields/Searchbar';
-import { TokenItem2 } from '~/components/TokenItem2';
-import { Accountlike } from '~/queries/account/useAccount.api';
-import { SafeAreaView } from '~/components/SafeAreaView';
-import { AppbarMenu2 } from '~/components/Appbar/AppbarMenu';
+import { AccountId } from '@api/account';
 import { AppbarBack2 } from '~/components/Appbar/AppbarBack';
 import { SearchIcon } from '@theme/icons';
 import { ListHeader } from '~/components/list/ListHeader';
+import { TokenItem } from '~/components/token/TokenItem';
+import { useSelectedAccountId } from '~/components/AccountSelector/useSelectedAccount';
+import { Screen } from '~/components/layout/Screen';
 
 export interface TokensScreenParams {
+  account?: AccountId;
   onSelect?: (token: Token) => void;
-  account?: Accountlike;
   disabled?: Set<Address>;
 }
 
@@ -25,18 +24,17 @@ export type TokensScreenProps =
   | StackNavigatorScreenProps<'TokensModal'>;
 
 export const TokensScreen = ({ route }: TokensScreenProps) => {
-  const { onSelect, account, disabled } = route.params;
-  const styles = useStyles();
-  const isScreen = route.name == 'Tokens';
+  const { account = useSelectedAccountId(), onSelect, disabled } = route.params;
 
-  const [tokens, searchProps] = useSearch(useTokens(), ['name', 'symbol', 'addr']);
+  const [tokens, searchProps] = useSearch(useTokens(), ['name', 'symbol', 'address']);
 
   return (
-    <SafeAreaView enabled={isScreen} style={styles.root}>
+    <Screen>
       <Searchbar
-        leading={isScreen ? AppbarMenu2 : AppbarBack2}
+        leading={AppbarBack2}
         placeholder="Search tokens"
         trailing={SearchIcon}
+        inset={route.name === 'Tokens'}
         {...searchProps}
       />
 
@@ -44,25 +42,22 @@ export const TokensScreen = ({ route }: TokensScreenProps) => {
         data={tokens}
         ListHeaderComponent={<ListHeader>Tokens</ListHeader>}
         renderItem={({ item: token }) => (
-          <TokenItem2
+          <TokenItem
             token={token}
             account={account}
             onPress={onSelect ? () => onSelect(token) : undefined}
-            disabled={disabled?.has(token.addr)}
+            disabled={disabled?.has(token.address)}
           />
         )}
         contentContainerStyle={styles.container}
         showsVerticalScrollIndicator={false}
       />
-    </SafeAreaView>
+    </Screen>
   );
 };
 
-const useStyles = makeStyles(({ s }) => ({
-  root: {
-    marginTop: s(16),
-  },
+const styles = StyleSheet.create({
   container: {
-    paddingVertical: s(8),
+    paddingVertical: 8,
   },
-}));
+});

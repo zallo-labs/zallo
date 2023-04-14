@@ -11,6 +11,12 @@ export const CONFIG = {
   apiGqlWs: ENV.API_GQL_WS!,
   subgraphGqlUrl: ENV.SUBGRAPH_GQL_URL!,
   walletConnectProjectId: '599f2bebcaf0baedaaf87f899ad27991',
+  metadata: {
+    site: ENV.SITE!,
+    iconUri: ENV.ICON_URI!,
+    twitter: ENV.TWITTER!,
+    github: ENV.GITHUB!,
+  },
 } as const;
 
 export type Config = typeof CONFIG;
@@ -24,8 +30,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
   name: 'Zallo',
   slug: 'app',
   owner: 'zallo',
-  githubUrl: 'https://github.com/zallo-labs/zallo',
-  jsEngine: 'hermes',
+  githubUrl: CONFIG.metadata.github,
   version: '0.1.0',
   runtimeVersion: {
     policy: 'sdkVersion',
@@ -36,17 +41,16 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
   },
   plugins: [
     'sentry-expo',
+    'expo-notifications', // https://docs.expo.dev/versions/latest/sdk/notifications/#configurable-properties
     [
-      'expo-community-flipper',
+      'expo-build-properties',
       {
-        // https://github.com/jakobo/expo-community-flipper#configuration
+        // https://docs.expo.dev/versions/latest/sdk/build-properties/
         ios: {
-          enabled: false, // Disable on ios due to issue https://github.com/jakobo/expo-community-flipper/issues/27
-          // stripUseFrameworks: true,  // Alternative to disabling on ios, but enabling may break other packages
+          flipper: false, // Disable on ios due to issue https://github.com/jakobo/expo-community-flipper/issues/27
         },
       },
     ],
-    'expo-notifications', // https://docs.expo.dev/versions/latest/sdk/notifications/#configuration-in-appjson--appconfigjs
   ],
   hooks: {
     postPublish: [
@@ -56,7 +60,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
           // https://docs.expo.dev/guides/using-sentry/#31-configure-a--postpublish--hook
           organization: ENV.SENTRY_ORG,
           project: ENV.SENTRY_PROJECT,
-          authToken: ENV.SENTRY_AUTH_TOKEN,
+          // authToken: ENV.SENTRY_AUTH_TOKEN,  // Hook reads SENTRY_AUTH_TOKEN env
           deployEnv: ENV.env,
           setCommits: true,
         },
@@ -68,14 +72,14 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
   splash: {
     image: './assets/splash.png',
     resizeMode: 'contain',
-    backgroundColor: '#E8DEF8',
+    backgroundColor: '#FFFBFE',
   },
   assetBundlePatterns: ['**/*'],
   scheme: 'zallo',
   android: {
     package: packageId,
     adaptiveIcon: {
-      foregroundImage: './assets/icon-adaptive@2x.png',
+      foregroundImage: './assets/icon-adaptive.png',
       backgroundColor: '#E8DEF8',
     },
     googleServicesFile: './firebase-google-services.secret.json',
@@ -90,6 +94,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     },
   },
   web: {
+    bundler: 'metro',
     favicon: './assets/favicon.png',
   },
   updates: {

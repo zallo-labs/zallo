@@ -1,20 +1,39 @@
-import { ReactNode } from 'react';
-import { View } from 'react-native';
-import { Box } from './Box';
+import React, { ReactNode } from 'react';
+import { StyleSheet, View } from 'react-native';
 
 export interface ActionsProps {
-  primary?: ReactNode;
-  secondary?: ReactNode;
+  children?: ReactNode;
+  horizontal?: boolean;
 }
 
-export const Actions = ({ primary, secondary }: ActionsProps) => {
-  return (
-    <>
-      <Box flex={1} />
-      <Box horizontal justifyContent="space-between" alignItems="center" m={2}>
-        {secondary ? secondary : <View />}
-        {primary ? primary : <View />}
-      </Box>
-    </>
-  );
-};
+export const Actions = ({ children, horizontal }: ActionsProps) => (
+  <View style={styles.rootContainer}>
+    {horizontal ? (
+      <View style={styles.hContainer}>
+        {React.Children.count(children) === 1 ? <View /> : null}
+
+        {children}
+      </View>
+    ) : (
+      <View style={styles.vContainer}>{children}</View>
+    )}
+  </View>
+);
+
+const styles = StyleSheet.create({
+  rootContainer: {
+    flexGrow: 1,
+    justifyContent: 'flex-end',
+  },
+  hContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    margin: 16,
+  },
+  vContainer: {
+    alignItems: 'stretch',
+    gap: 8,
+    margin: 16,
+  },
+});

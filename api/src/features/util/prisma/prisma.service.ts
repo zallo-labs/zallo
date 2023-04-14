@@ -37,34 +37,34 @@ const getUserClient = (prisma: PrismaClient) =>
 export class PrismaService<T extends Prisma.PrismaClientOptions = Prisma.PrismaClientOptions>
   implements OnModuleInit
 {
-  readonly asSuperuser: PrismaClient<T>;
+  readonly asSystem: PrismaClient<T>;
   readonly asUser: ReturnType<typeof getUserClient>;
 
   constructor(@Optional() options?: Prisma.Subset<T, Prisma.PrismaClientOptions>) {
-    this.asSuperuser = new PrismaClient(options);
-    this.asSuperuser.$use(loggingMiddleware());
+    this.asSystem = new PrismaClient(options);
+    this.asSystem.$use(loggingMiddleware());
 
-    this.asUser = getUserClient(this.asSuperuser);
+    this.asUser = getUserClient(this.asSystem);
   }
   async onModuleInit() {
     await this.setUserPermission();
   }
 
   enableShutdownHooks(app: INestApplication | INestMicroservice) {
-    this.asSuperuser.$on('beforeExit', () => app.close());
+    this.asSystem.$on('beforeExit', () => app.close());
   }
 
   $transactionAsUser<R>(
-    tx: Prisma.TransactionClient | undefined,
+    client: Prisma.TransactionClient | undefined,
     f: (prisma: Prisma.TransactionClient) => Promise<R>,
   ) {
-    return tx ? f(tx) : this.asUser.$transaction((tx) => f(tx));
+    return client ? f(client) : this.asUser.$transaction((tx) => f(tx));
   }
 
   private async setUserPermission() {
-    const [{ current_user: currentUser }] = (await this.asSuperuser
+    const [{ current_user: currentUser }] = (await this.asSystem
       .$queryRaw`SELECT current_user`) as [{ current_user: string }];
 
-    await this.asSuperuser.$queryRawUnsafe(`GRANT "user" TO "${currentUser}"`);
+    await this.asSystem.$queryRawUnsafe(`GRANT "user" TO "${currentUser}"`);
   }
 }

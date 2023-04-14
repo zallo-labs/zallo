@@ -1,8 +1,8 @@
-import { BigNumber, BytesLike } from 'ethers';
-import { Address } from './addr';
+import { Address } from './address';
+import { Hex } from './bytes';
 
 export interface Call {
   to: Address;
-  value?: BigNumber;
-  data?: BytesLike;
+  value?: bigint;
+  data?: Hex;
 }

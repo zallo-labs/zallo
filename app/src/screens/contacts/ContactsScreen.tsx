@@ -1,22 +1,24 @@
-import { AddIcon, SearchIcon } from '~/util/theme/icons';
-import { makeStyles } from '~/util/theme/makeStyles';
-import { Address } from 'lib';
+import { useMemo } from 'react';
 import { FlatList } from 'react-native';
-import { Fab } from '~/components/buttons/Fab';
+import { NavigateNextIcon, ScanIcon, SearchIcon } from '~/util/theme/icons';
+import { Address } from 'lib';
 import { StackNavigatorScreenProps } from '~/navigation/StackNavigator';
-import { Contact, useContacts } from '~/queries/contacts/useContacts.api';
+import { Contact, useContacts } from '@api/contacts';
 import { useSearch } from '@hook/useSearch';
-import { withSkeleton } from '~/components/skeleton/withSkeleton';
+import { withSuspense } from '~/components/skeleton/withSuspense';
 import { ScreenSkeleton } from '~/components/skeleton/ScreenSkeleton';
-import { AppbarMenu2 } from '~/components/Appbar/AppbarMenu';
 import { AppbarBack2 } from '~/components/Appbar/AppbarBack';
-import { SafeAreaView } from '~/components/SafeAreaView';
 import { Searchbar } from '~/components/fields/Searchbar';
 import { ListHeader } from '~/components/list/ListHeader';
-import { ContactItem } from './ContactItem';
+import { Screen } from '~/components/layout/Screen';
+import { truncateAddr } from '~/util/format';
+import { ListItem } from '~/components/list/ListItem';
+import { useScanAddress } from '../scan/ScanScreen';
+import { ListHeaderButton } from '~/components/list/ListHeaderButton';
+import { CONTACT_EMITTER } from './useSelectContact';
 
 export interface ContactsScreenParams {
-  onSelect?: (contact: Contact) => void;
+  emitOnSelect?: boolean;
   disabled?: Set<Address>;
 }
 
@@ -24,49 +26,56 @@ export type ContactsScreenProps =
   | StackNavigatorScreenProps<'Contacts'>
   | StackNavigatorScreenProps<'ContactsModal'>;
 
-export const ContactsScreen = withSkeleton(
+export const ContactsScreen = withSuspense(
   ({ route, navigation: { navigate } }: ContactsScreenProps) => {
-    const { onSelect, disabled } = route.params;
-    const styles = useStyles();
-    const isScreen = route.name === 'Contacts';
+    const { emitOnSelect, disabled } = route.params;
+    const scanAddress = useScanAddress();
 
-    const [contacts, searchProps] = useSearch(useContacts(), ['name', 'addr']);
+    const [contacts, searchProps] = useSearch(useContacts(), ['name', 'address']);
+
+    const add = () => navigate('Contact', {});
+    const scan = async () => navigate('Contact', { address: await scanAddress({}) });
+
+    const onSelect: (c: Contact) => void = useMemo(
+      () =>
+        emitOnSelect
+          ? (c) => CONTACT_EMITTER.emit(c)
+          : ({ address }) => navigate('Contact', { address }),
+      [navigate, emitOnSelect],
+    );
 
     return (
-      <SafeAreaView enabled={isScreen} style={styles.root}>
+      <Screen>
         <Searchbar
-          leading={onSelect ? AppbarBack2 : AppbarMenu2}
+          leading={AppbarBack2}
           placeholder="Search contacts"
-          trailing={SearchIcon}
+          trailing={[SearchIcon, (props) => <ScanIcon {...props} onPress={scan} />]}
+          inset={route.name === 'Contacts'}
           {...searchProps}
         />
 
         <FlatList
           data={contacts}
-          ListHeaderComponent={<ListHeader>Contacts</ListHeader>}
+          ListHeaderComponent={
+            <ListHeader trailing={<ListHeaderButton onPress={add}>Add</ListHeaderButton>}>
+              Contacts
+            </ListHeader>
+          }
           renderItem={({ item: contact }) => (
-            <ContactItem
-              contact={contact}
-              disabled={disabled?.has(contact.addr)}
-              onPress={() => {
-                onSelect ? onSelect(contact) : navigate('Contact', { addr: contact.addr });
-              }}
+            <ListItem
+              leading={contact.address}
+              headline={contact.name}
+              supporting={truncateAddr(contact.address)}
+              trailing={NavigateNextIcon}
+              disabled={disabled?.has(contact.address)}
+              onPress={() => onSelect(contact)}
             />
           )}
           extraData={[navigate, onSelect, disabled]}
           showsVerticalScrollIndicator={false}
         />
-
-        <Fab icon={AddIcon} label="Add" onPress={() => navigate('Contact', {})} />
-      </SafeAreaView>
+      </Screen>
     );
   },
   ScreenSkeleton,
 );
-
-const useStyles = makeStyles(({ s }) => ({
-  root: {
-    flex: 1,
-    marginTop: s(16),
-  },
-}));

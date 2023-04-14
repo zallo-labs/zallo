@@ -5,9 +5,9 @@ import { Chip, ChipProps, Menu, MenuProps } from 'react-native-paper';
 export type SelectFieldProps<T> = Pick<MenuProps, 'style' | 'contentStyle'> & {
   value: T;
   onChange: (value: T) => void;
-  entries: [string, T][];
+  entries: readonly (readonly [string, T])[];
   menuProps?: Partial<MenuProps>;
-  chipProps?: Partial<ChipProps>;
+  chipProps?: Partial<Omit<ChipProps, 'children' | 'onPress'>>;
 };
 
 export const SelectField = <T,>({
@@ -30,14 +30,7 @@ export const SelectField = <T,>({
       visible={visible}
       onDismiss={close}
       anchor={
-        <Chip
-          onPress={toggle}
-          closeIcon={visible ? 'menu-up' : 'menu-down'}
-          onClose={() => {
-            //
-          }}
-          {...chipProps}
-        >
+        <Chip {...chipProps} onPress={toggle}>
           {label}
         </Chip>
       }

@@ -1,36 +1,30 @@
 import { Prisma } from '@prisma/client';
-import { Address, QuorumGuid, QuorumKey } from 'lib';
+import { Address, Addresslike, asAddress, PolicyId, PolicyKey } from 'lib';
 import { getUserId } from '~/request/ctx';
 
 export const connectAccount = (
-  id: Address,
+  id: Addresslike,
 ): Prisma.AccountCreateNestedOneWithoutProposalsInput => ({
-  connect: { id },
+  connect: { id: asAddress(id) },
 });
 
-export const connectUser = (id: Address): Prisma.UserCreateNestedOneWithoutApprovalsInput => ({
-  connectOrCreate: {
-    where: { id },
-    create: { id },
-  },
-});
+export const connectOrCreateUser = (user?: Addresslike) => {
+  const id = user ? asAddress(user) : getUserId();
 
-export const connectOrCreateUser = (
-  id: Address = getUserId(),
-): Prisma.UserCreateNestedOneWithoutApprovalsInput => ({
-  connectOrCreate: {
-    where: { id },
-    create: { id },
-  },
-});
-
-export const connectQuorum = (
-  ...params: [QuorumGuid] | [Address, QuorumKey]
-): Prisma.QuorumCreateNestedOneWithoutProposalsInput => ({
-  connect: {
-    accountId_key: {
-      accountId: params.length === 1 ? params[0].account : params[0],
-      key: params.length === 1 ? params[0].key : params[1],
+  return {
+    connectOrCreate: {
+      where: { id },
+      create: { id },
     },
-  },
-});
+  } satisfies Prisma.UserCreateNestedOneWithoutApprovalsInput;
+};
+
+export const connectPolicy = (...params: [PolicyId] | [Address, PolicyKey]) =>
+  ({
+    connect: {
+      accountId_key: {
+        accountId: params.length === 1 ? params[0].account : params[0],
+        key: params.length === 1 ? params[0].key : params[1],
+      },
+    },
+  } satisfies Prisma.PolicyCreateNestedManyWithoutAccountInput);

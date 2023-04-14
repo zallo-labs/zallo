@@ -4,32 +4,32 @@ import * as Auth from 'expo-local-authentication';
 import useAsyncEffect from 'use-async-effect';
 import { Suspend } from '~/components/Suspender';
 import { DateTime, Duration } from 'luxon';
-import { atom, useRecoilState } from 'recoil';
+import { tryOrAsync } from 'lib';
+import { atom, selector, useRecoilValue } from 'recoil';
 import { persistAtom } from '~/util/effect/persistAtom';
 
-const IS_FIRST_OPEN = atom({
-  key: 'isFirstOpen',
-  default: false,
+export const authSettingsAtom = atom({
+  key: 'AuthSetings',
+  default: {
+    requireBiometrics: true,
+  },
   effects: [persistAtom()],
 });
 
-const TIMEOUT_AFTER = Duration.fromObject({ minutes: 5 });
+const supportsBiometricsSelector = selector({
+  key: 'SupportsBiometrics',
+  get: async () => (await Auth.getEnrolledLevelAsync()) === Auth.SecurityLevel.BIOMETRIC,
+});
+export const useSupportsBiometrics = () => useRecoilValue(supportsBiometricsSelector);
 
+const tryAuthenticate = async () =>
+  tryOrAsync(async () => (await Auth.authenticateAsync()).success, false);
+
+const TIMEOUT_AFTER = Duration.fromObject({ minutes: 5 }).toMillis();
 const isStillActive = (lastActive?: DateTime) =>
-  !!lastActive && DateTime.now().diff(lastActive).toMillis() < TIMEOUT_AFTER.toMillis();
+  !!lastActive && DateTime.now().diff(lastActive).toMillis() < TIMEOUT_AFTER;
 
-const tryAuthenticate = async () => {
-  try {
-    const enrolledLevel = await Auth.getEnrolledLevelAsync();
-    if (enrolledLevel === Auth.SecurityLevel.NONE) return true; // What are you gonna do...?
-
-    return (await Auth.authenticateAsync()).success;
-  } catch (_) {
-    return false;
-  }
-};
-
-interface Auth {
+interface AuthState {
   success?: boolean;
   lastActive?: DateTime;
 }
@@ -39,12 +39,12 @@ export interface AuthGateProps {
 }
 
 export const AuthGate = ({ children }: AuthGateProps) => {
-  // Use an object to re-render every time setAuth is called
-  const [isFirstOpen, setIsFirstOpen] = useRecoilState(IS_FIRST_OPEN);
-  const [auth, setAuth] = useState<Auth>(() => {
-    if (isFirstOpen) setIsFirstOpen(false);
-    return { success: isFirstOpen };
-  });
+  const { requireBiometrics } = useRecoilValue(authSettingsAtom);
+  const supportsBiometircs = useSupportsBiometrics();
+
+  const [auth, setAuth] = useState<AuthState>({
+    success: !requireBiometrics || !supportsBiometircs,
+  }); // Use an object to re-render every time setAuth is called; TODO: test if this is still necessary
 
   // Try authenticate
   useAsyncEffect(

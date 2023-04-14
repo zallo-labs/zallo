@@ -8,10 +8,13 @@ import {
   TransactionResponseQueryVariables,
 } from '@gen/generated.subgraph';
 import { TRANSACTION_RESPONSES_QUERY } from './subgraph.gql';
-import { TransactionResponse } from '@prisma/client';
+import { Prisma, TransactionResponse } from '@prisma/client';
+import { ProviderService } from '../util/provider/provider.service';
 
 @Injectable()
 export class SubgraphService {
+  constructor(private provider: ProviderService) {}
+
   private client = new ApolloClient({
     link: ApolloLink.from([
       new RetryLink(),
@@ -40,10 +43,14 @@ export class SubgraphService {
     const t = data.transaction;
     if (!t) return undefined;
 
+    const receipt = await this.provider.getTransactionReceipt(transactionHash);
+
     return {
       transactionHash,
       response: t.response,
       success: t.success,
+      gasUsed: new Prisma.Decimal(receipt.gasUsed.toString()),
+      effectiveGasPrice: new Prisma.Decimal(receipt.effectiveGasPrice.toString()),
       timestamp: new Date(parseFloat(t.timestamp) * 1000),
     };
   }

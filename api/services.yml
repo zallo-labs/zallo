@@ -11,7 +11,7 @@ services:
     ports:
       - '5435:5432'
     volumes:
-      - ./zallo-api-postgres:/var/lib/postgresql/data
+      - zallo-api-postgres:/var/lib/postgresql/data
 
   redis:
     image: redis:7-alpine
@@ -20,4 +20,10 @@ services:
       - '6379:6379'
     command: redis-server --save 20 1 --loglevel warning
     volumes:
-      - ./zallo-api-redis:/data
+      - zallo-api-redis:/data
+
+volumes:
+  zallo-api-postgres:
+    driver: local
+  zallo-api-redis:
+    driver: local

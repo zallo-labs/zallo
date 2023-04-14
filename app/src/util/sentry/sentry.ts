@@ -7,7 +7,7 @@ export const withSentry = <P>(RootComponent: React.ComponentType<P>) => {
   init({
     dsn: CONFIG.sentryDsn,
     environment: CONFIG.env,
-    // enableInExpoDevelopment: true,
+    enableInExpoDevelopment: false,
     // debug: true,
     sampleRate: 1, // Error sampling
     tracesSampleRate: 0.2, // Performance sampling
@@ -19,7 +19,7 @@ export const withSentry = <P>(RootComponent: React.ComponentType<P>) => {
     ],
   });
 
-  return Sentry.wrap(RootComponent);
+  return RootComponent;
 };
 
 export const captureException = (...params: Parameters<typeof Sentry.captureException>) => {

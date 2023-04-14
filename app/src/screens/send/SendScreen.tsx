@@ -1,94 +1,104 @@
+import { popToProposal, usePropose } from '@api/proposal';
+import { CloseIcon } from '@theme/icons';
 import { makeStyles } from '@theme/makeStyles';
+import { fiatAsBigInt, fiatToToken, FIAT_DECIMALS } from '@token/fiat';
 import { getTokenContract, Token } from '@token/token';
-import { useTokenAvailable } from '@token/useTokenAvailable';
-import { BigNumber } from 'ethers';
-import { Address, Call, QuorumGuid, ZERO } from 'lib';
+import { useTokenPriceData } from '@uniswap/index';
+import { parseUnits } from 'ethers/lib/utils';
+import { Address, asHex, Call } from 'lib';
 import { useState } from 'react';
-import { Appbar, Text } from 'react-native-paper';
-import { AddrCard } from '~/components/addr/AddrCard';
-import { AppbarBack } from '~/components/Appbar/AppbarBack';
-import { ActionButton } from '~/components/buttons/ActionButton';
-import { Box } from '~/components/layout/Box';
-import { Container } from '~/components/layout/Container';
-import { TokenAvailableCard } from '~/components/token/TokenAvailableCard';
-import {
-  useSelectedToken,
-  useSelectToken as useSetSelectedToken,
-} from '~/components/token/useSelectedToken';
-import { popToProposal, usePropose } from '~/mutations/proposal/propose/usePropose';
+import { View } from 'react-native';
+import { Appbar, Button, Divider } from 'react-native-paper';
+import { useSelectedAccountId } from '~/components/AccountSelector/useSelectedAccount';
+import { useAddressLabel } from '~/components/address/AddressLabel';
+import { NumericInput } from '~/components/fields/NumericInput';
+import { Screen } from '~/components/layout/Screen';
+import { ScreenSkeleton } from '~/components/skeleton/ScreenSkeleton';
+import { withSuspense } from '~/components/skeleton/withSuspense';
+import { TokenItem } from '~/components/token/TokenItem';
+import { useSelectedToken, useSetSelectedToken } from '~/components/token/useSelectedToken';
 import { StackNavigatorScreenProps } from '~/navigation/StackNavigator';
-import { AmountInput } from '../amount/AmountInput';
 import { useSelectToken } from '../tokens/useSelectToken';
+import { InputsView, InputType } from './InputsView';
 
-const createTransferTx = (token: Token, to: Address, amount: BigNumber): Call =>
+const createTransferTx = (token: Token, to: Address, amount: bigint): Call =>
   token.type === 'ERC20'
     ? {
-        to: token.addr,
-        data: getTokenContract(token).interface.encodeFunctionData('transfer', [to, amount]),
+        to: token.address,
+        data: asHex(getTokenContract(token).interface.encodeFunctionData('transfer', [to, amount])),
       }
     : { to, value: amount };
 
 export interface SendScreenParams {
-  quorum: QuorumGuid;
   to: Address;
 }
 
 export type SendScreenProps = StackNavigatorScreenProps<'Send'>;
 
-export const SendScreen = ({ route, navigation }: SendScreenProps) => {
-  const { quorum, to } = route.params;
+export const SendScreen = withSuspense(({ route, navigation: { goBack } }: SendScreenProps) => {
+  const { to } = route.params;
   const styles = useStyles();
-  const selectToken = useSelectToken({ account: quorum });
-  const [propose, proposing] = usePropose();
-  const [token, setSelectToken] = [useSelectedToken(), useSetSelectedToken()];
-  const available = useTokenAvailable(token, quorum);
+  const account = useSelectedAccountId();
+  const [token, setToken] = [useSelectedToken(), useSetSelectedToken()];
+  const selectToken = useSelectToken();
+  const propose = usePropose();
+  const price = useTokenPriceData(token).current;
 
-  const [amount, setAmount] = useState<BigNumber | undefined>();
+  const [input, setInput] = useState('');
+  const [type, setType] = useState(InputType.Fiat);
+
+  const inputAmount = (() => {
+    const n = parseFloat(input);
+    return isNaN(n) ? '0' : n.toString();
+  })();
+
+  const tokenAmount =
+    type === InputType.Token
+      ? parseUnits(inputAmount, token.decimals).toBigInt()
+      : fiatToToken(fiatAsBigInt(inputAmount), price, token);
 
   return (
-    <Box flex={1}>
+    <Screen>
       <Appbar.Header>
-        <AppbarBack />
-        <Appbar.Content title="Send" />
+        <Appbar.Action icon={CloseIcon} onPress={goBack} />
+        <Appbar.Content title={`Send to ${useAddressLabel(to)}`} />
       </Appbar.Header>
 
-      <Container mx={3} separator={<Box mt={2} />}>
-        <AddrCard addr={to} />
+      <InputsView input={input} setInput={setInput} type={type} setType={setType} />
 
-        <TokenAvailableCard
-          token={token}
-          account={quorum}
-          onPress={async () => {
-            setSelectToken(await selectToken());
-            navigation.goBack();
-          }}
-        />
+      <View style={styles.spacer} />
 
-        <Text variant="headlineSmall" style={styles.warning}>
-          {amount && available.lt(amount) && 'Insufficient available balance'}
-        </Text>
+      <TokenItem
+        token={token}
+        account={account}
+        onPress={async () => setToken(await selectToken())}
+      />
+      <Divider horizontalInset />
 
-        <AmountInput token={token} amount={amount} setAmount={setAmount} />
-      </Container>
+      <NumericInput
+        value={input}
+        onChange={setInput}
+        maxDecimals={type === InputType.Token ? token.decimals : FIAT_DECIMALS}
+      />
 
-      <ActionButton
-        loading={proposing}
-        disabled={!amount || amount.eq(ZERO)}
-        {...(amount && {
-          onPress: () => {
-            propose(quorum, createTransferTx(token, to, amount), popToProposal);
-          },
-        })}
+      <Button
+        mode="contained"
+        style={styles.action}
+        onPress={() => propose(createTransferTx(token, to, tokenAmount), account, popToProposal)}
       >
-        Send
-      </ActionButton>
-    </Box>
+        Propose
+      </Button>
+    </Screen>
   );
-};
+}, ScreenSkeleton);
 
-const useStyles = makeStyles(({ colors }) => ({
-  warning: {
-    color: colors.warning,
-    textAlign: 'center',
+const useStyles = makeStyles(({ colors, fonts }) => ({
+  spacer: {
+    flex: 1,
+  },
+  action: {
+    marginHorizontal: 16,
+    marginBottom: 16,
+    alignSelf: 'stretch',
   },
 }));

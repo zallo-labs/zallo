@@ -1,20 +1,17 @@
-import { BigNumberish, BytesLike } from 'ethers';
-import { Address } from 'lib';
+import { Address, Hex } from 'lib';
 
-export interface WcSendTransactionData {
+export interface WalletConnectSendTransactionData {
   from: Address;
   to: Address;
-  value?: BigNumberish;
-  data?: BytesLike;
-  gasLimit?: BigNumberish;
+  value?: number | string;
+  data?: Hex;
+  gasLimit?: number | string;
 }
 
-export interface SendTransactionRequest {
+export interface WalletConnectSendTransactionRequest {
   method: 'eth_sendTransaction';
-  params: [tx: WcSendTransactionData];
+  params: [tx: WalletConnectSendTransactionData];
 }
-
-export type WcTransactionRequest = SendTransactionRequest;
 
 const WC_TRANSACTION_METHODS_ARRAY = [
   // 'eth_signTransaction',
@@ -25,6 +22,6 @@ export const WC_TRANSACTION_METHODS = new Set<string>(WC_TRANSACTION_METHODS_ARR
 
 // Assert that WC_TRANSACTION_METHODS_ARRAY contains all WcTransactionRequest methods
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-const allMethodsHandled: typeof WC_TRANSACTION_METHODS_ARRAY[number] extends WcTransactionRequest['method']
+const allMethodsHandled: (typeof WC_TRANSACTION_METHODS_ARRAY)[number] extends WalletConnectSendTransactionRequest['method']
   ? true
   : false = true;

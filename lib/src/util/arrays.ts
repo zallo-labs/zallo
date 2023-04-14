@@ -19,10 +19,6 @@ export const keysArePresent2 =
 
 export const isTruthy = <T>(t: T | boolean | null | undefined): t is T => !!t;
 
-export type MaybeArray<T> = T | T[];
-export const toArray = <V>(values: NonNullable<V> | NonNullable<V>[]): NonNullable<V>[] =>
-  Array.isArray(values) ? values : [values];
-
 // Lodash-like groupBy, but using Map to allow for arbitrary keys
 export const groupBy = <K, V>(items: V[], key: (item: V) => K): Map<K, V[]> => {
   const m = new Map<K, V[]>();
@@ -47,7 +43,7 @@ export const filterFirst = <K, V>(
   comparator: (a: V, b: V) => number = () => 0,
 ): V[] =>
   [...groupBy(items, key).values()].map((v) => {
-    return v.length === 1 ? v[0] : v.sort(comparator)[0];
+    return v.length === 1 ? v[0]! : v.sort(comparator)[0]!;
   });
 
 export const mapAsync = async <T, U>(

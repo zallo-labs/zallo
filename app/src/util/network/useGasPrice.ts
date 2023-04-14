@@ -1,23 +1,38 @@
 import { refreshAtom } from '~/util/effect/refreshAtom';
 import { Address } from 'lib';
-import { atom, selector, useRecoilValue } from 'recoil';
+import { atomFamily, selector, useRecoilValue } from 'recoil';
 import { PROVIDER } from '~/util/network/provider';
-import { feeTokenAddr } from '../../components/token/useFeeToken';
+import { useFeeToken } from '~/components/token/useFeeToken';
+import { ETH } from '@token/tokens';
+import { Token } from '@token/token';
 
-const fetch = (feeToken: Address) => PROVIDER.getGasPrice(feeToken);
+const fetch = async (token: Address) => {
+  if (token !== ETH.address)
+    throw new Error('Only ETH is curerntly supported -- zk.Provider throws 🤷');
+  try {
+    return (await PROVIDER.getGasPrice()).toBigInt();
+  } catch (e) {
+    console.warn(`Failed to fetch gas price for ${token}: ${e}`);
+    return 0n;
+  }
+};
 
-const gasPrice = atom({
-  key: 'gasPrice',
-  default: selector({
-    key: 'gasPriceDefault',
-    get: ({ get }) => fetch(get(feeTokenAddr)),
-  }),
-  effects: [
+const gasPriceAtom = atomFamily<bigint, Address>({
+  key: 'GasPrice',
+  default: (token) =>
+    selector({
+      key: 'GasPriceDefault',
+      get: () => fetch(token),
+    }),
+  effects: (token) => [
     refreshAtom({
-      fetch: async ({ get }) => fetch(await get(feeTokenAddr)),
+      refresh: () => fetch(token),
       interval: 5 * 1000,
     }),
   ],
 });
 
-export const useGasPrice = () => useRecoilValue(gasPrice);
+export const useGasPrice = (token?: Token) => {
+  const feeToken = useFeeToken();
+  return useRecoilValue(gasPriceAtom((token || feeToken).address));
+};

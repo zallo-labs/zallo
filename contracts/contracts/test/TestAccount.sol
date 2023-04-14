@@ -2,21 +2,10 @@
 pragma solidity ^0.8.0;
 
 import '../Account.sol';
+import {TransactionHasher} from '../standards/TransactionHasher.sol';
 
 contract TestAccount is Account {
   function testExecuteTransaction(Transaction calldata transaction) external {
-    _executeTransaction(_hashTx(transaction), transaction);
-  }
-
-  function getQuorumHash(QuorumKey key) external view returns (bytes32) {
-    return _quorums()[key];
-  }
-
-  function hashTx(Transaction calldata transaction) external view returns (bytes32) {
-    return _hashTx(transaction);
-  }
-
-  function domainSeparator() external view returns (bytes32) {
-    return _domainSeparator();
+    _executeTransaction(TransactionHasher.hash(transaction), transaction);
   }
 }

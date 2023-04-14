@@ -1,25 +1,25 @@
-import assert from 'assert';
-import { Address, TEN, compareBn } from 'lib';
+import { Address } from 'lib';
 import { selectorFamily, useRecoilValue } from 'recoil';
-import { TOKEN_PRICE } from '~/queries/useTokenPrice.uni';
 import { Token } from './token';
-import { TOKEN_BALANCES } from './useTokenBalance';
+import { tokensSelector } from './useToken';
+import { tokenBalanceAtom } from './useTokenBalance';
+import { tokenValueSelector } from './useTokenValue';
 
-const TOKENS_BY_VALUE = selectorFamily<Token[], Address | null>({
-  key: 'tokensByBalance',
+const tokensByValueSelector = selectorFamily<Token[], Address | null>({
+  key: 'TokensByValue',
   get:
-    (addr) =>
+    (account) =>
     ({ get }) => {
-      assert(get(TOKEN_BALANCES(addr)).every((t) => t.token.addr));
+      return get(tokensSelector)
+        .map((token) => {
+          const balance = get(tokenBalanceAtom([account, token.address]));
 
-      return get(TOKEN_BALANCES(addr))
-        .map(({ token, balance }) => ({
-          token,
-          fiatValue: balance.mul(get(TOKEN_PRICE(token.addr)).current).div(TEN.pow(token.decimals)),
-        }))
-        .sort((a, b) => compareBn(b.fiatValue, a.fiatValue))
+          return { token, value: get(tokenValueSelector([token.address, balance.toString()])) };
+        })
+        .sort((a, b) => b.value - a.value)
         .map(({ token }) => token);
     },
 });
 
-export const useTokensByValue = (addr?: Address) => useRecoilValue(TOKENS_BY_VALUE(addr ?? null));
+export const useTokensByValue = (addr: Address | undefined) =>
+  useRecoilValue(tokensByValueSelector(addr ?? null));

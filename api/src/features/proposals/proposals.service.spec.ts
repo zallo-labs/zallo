@@ -3,32 +3,27 @@ import { ProposalsService, ProposeParams } from './proposals.service';
 import { createMock, DeepMocked } from '@golevelup/ts-jest';
 import { PRISMA_MOCK_PROVIDER } from '../util/prisma/prisma.service.mock';
 import { PrismaService } from '../util/prisma/prisma.service';
-import { asUser, getUserId, UserContext } from '~/request/ctx';
+import { asUser, UserContext } from '~/request/ctx';
 import { randomAddress, randomUser } from '~/util/test';
-import {
-  address,
-  Address,
-  CHAINS,
-  QuorumGuid,
-  randomDeploySalt,
-  randomQuorumKey,
-  toQuorumKey,
-} from 'lib';
-import { QuorumsService } from '../quorums/quorums.service';
+import { asAddress, Address, CHAINS, randomDeploySalt, asHex } from 'lib';
 import { hexlify, randomBytes } from 'ethers/lib/utils';
 import { ProviderService } from '../util/provider/provider.service';
-import { connectAccount, connectOrCreateUser, connectQuorum } from '~/util/connect-or-create';
+import { connectAccount, connectOrCreateUser, connectPolicy } from '~/util/connect-or-create';
 import { ExpoService } from '../util/expo/expo.service';
 import { TransactionsService } from '../transactions/transactions.service';
 import { Proposal } from '@prisma/client';
 import { ProposalState } from './proposals.args';
+import { PoliciesService } from '../policies/policies.service';
+import assert from 'assert';
+
+const randomSignature = () => asHex(randomBytes(32));
 
 describe(ProposalsService.name, () => {
   let service: ProposalsService;
   let prisma: PrismaService;
   let provider: DeepMocked<ProviderService>;
   let expo: DeepMocked<ExpoService>;
-  let quorums: DeepMocked<QuorumsService>;
+  let policies: DeepMocked<PoliciesService>;
   let transactions: DeepMocked<TransactionsService>;
 
   beforeEach(async () => {
@@ -42,7 +37,7 @@ describe(ProposalsService.name, () => {
     prisma = module.get(PrismaService);
     provider = module.get(ProviderService);
     expo = module.get(ExpoService);
-    quorums = module.get(QuorumsService);
+    policies = module.get(PoliciesService);
     transactions = module.get(TransactionsService);
   });
 
@@ -68,49 +63,50 @@ describe(ProposalsService.name, () => {
 
   const propose = async ({
     account = user1Account1,
-    quorumKey = toQuorumKey(1),
     to = account,
     ...params
   }: Partial<ProposeParams> = {}) => {
-    const userId = getUserId();
-
-    // Account & quorum
-    await prisma.asUser.account.upsert({
+    // Account & policy
+    const { policyStates: states } = await prisma.asUser.account.upsert({
       where: { id: account },
       create: {
         id: account,
         impl: account,
         deploySalt: randomDeploySalt(),
         name: '',
-        quorums: {
+        policies: {
           create: {
-            key: quorumKey,
+            key: 0,
             name: '',
+            states: {
+              create: {
+                approvers: { create: { user: connectOrCreateUser() } },
+              },
+            },
           },
         },
       },
       update: {},
-    });
-
-    await prisma.asUser.quorum.update({
-      where: { accountId_key: { accountId: account, key: quorumKey } },
-      data: {
-        activeState: {
-          create: {
-            account: connectAccount(account),
-            quorum: { connect: { accountId_key: { accountId: account, key: quorumKey } } },
-            approvers: { create: { user: connectOrCreateUser(userId) } },
-          },
-        },
+      select: {
+        policyStates: { select: { id: true, policyKey: true } },
       },
     });
 
-    return service.propose({ account, quorumKey, to, ...params });
+    const initState = states[0];
+    assert(initState);
+
+    // Mark policy rules as active
+    await prisma.asUser.policy.update({
+      where: { accountId_key: { accountId: account, key: initState.policyKey } },
+      data: { activeId: initState.id },
+    });
+
+    return service.propose({ account, to, ...params });
   };
 
   const approve = (id: string) => {
-    provider.isValidSignature.mockImplementationOnce(async () => true);
-    return service.approve({ id, signature: hexlify(randomBytes(32)) });
+    provider.verifySignature.mockImplementationOnce(async () => true);
+    return service.approve({ id, signature: randomSignature() });
   };
 
   describe('propose', () => {
@@ -123,18 +119,8 @@ describe(ProposalsService.name, () => {
     it('approves proposal if signature was provided', () =>
       asUser(user1, async () => {
         jest.spyOn(service, 'approve').mockImplementationOnce(async () => ({ id: '' } as any));
-        await propose({ signature: '0xMySignature' });
+        await propose({ signature: randomSignature() });
         expect(service.approve).toHaveBeenCalled();
-      }));
-
-    it("uses default quorum if one isn't provided", () =>
-      asUser(user1, async () => {
-        quorums.getDefaultQuorum.mockImplementationOnce(async () => ({
-          account: user1Account1,
-          key: toQuorumKey(1),
-        }));
-
-        await expect(propose({ quorumKey: undefined })).resolves.not.toThrow();
       }));
   });
 
@@ -173,7 +159,7 @@ describe(ProposalsService.name, () => {
         await propose({ account: user1Account1 });
         await propose({ account: user1Account2 });
 
-        const proposals = await service.findMany({ accounts: new Set([user1Account1]) });
+        const proposals = await service.findMany({ accounts: [user1Account1] });
         expect(new Set(proposals.map((p) => p.accountId))).toEqual(new Set([user1Account1]));
       }));
 
@@ -190,40 +176,41 @@ describe(ProposalsService.name, () => {
           executing = await propose();
           executed = await propose();
 
-          await prisma.asSuperuser.transaction.create({
+          await prisma.asSystem.transaction.create({
             data: {
               hash: hexlify(randomBytes(32)),
               proposal: { connect: { id: pendingWithFailed.id } },
               gasLimit: 0,
-              nonce: 0,
               response: {
                 create: {
                   success: false,
                   response: hexlify(randomBytes(32)),
+                  gasUsed: 0,
+                  effectiveGasPrice: 0,
                 },
               },
             },
           });
 
-          await prisma.asSuperuser.transaction.create({
+          await prisma.asSystem.transaction.create({
             data: {
               hash: hexlify(randomBytes(32)),
               proposal: { connect: { id: executing.id } },
               gasLimit: 0,
-              nonce: 0,
             },
           });
 
-          await prisma.asSuperuser.transaction.create({
+          await prisma.asSystem.transaction.create({
             data: {
               hash: hexlify(randomBytes(32)),
               proposal: { connect: { id: executed.id } },
               gasLimit: 0,
-              nonce: 0,
               response: {
                 create: {
                   success: true,
                   response: hexlify(randomBytes(32)),
+                  gasUsed: 0,
+                  effectiveGasPrice: 0,
                 },
               },
             },
@@ -233,7 +220,7 @@ describe(ProposalsService.name, () => {
 
       it('pending only shows pending proposals', () =>
         asUser(user1, async () => {
-          const proposals = await service.findMany({ states: new Set([ProposalState.Pending]) });
+          const proposals = await service.findMany({ states: [ProposalState.Pending] });
 
           expect(new Set(proposals.map((p) => p.id))).toEqual(
             new Set([pending, pendingWithFailed].map((p) => p.id)),
@@ -242,42 +229,29 @@ describe(ProposalsService.name, () => {
 
       it('executing only shows executing proposals', () =>
         asUser(user1, async () => {
-          expect(await service.findMany({ states: new Set([ProposalState.Executing]) })).toEqual([
+          expect(await service.findMany({ states: [ProposalState.Executing] })).toEqual([
             executing,
           ]);
         }));
 
       it('executed only shows executed proposals', () =>
         asUser(user1, async () => {
-          expect(await service.findMany({ states: new Set([ProposalState.Executed]) })).toEqual([
-            executed,
-          ]);
+          expect(await service.findMany({ states: [ProposalState.Executed] })).toEqual([executed]);
         }));
 
       it('shows all when all filters are applied', () =>
         asUser(user1, async () => {
-          expect(
-            await service.findMany({ states: new Set(Object.values(ProposalState)) }),
-          ).toHaveLength(4);
+          expect(await service.findMany({ states: Object.values(ProposalState) })).toHaveLength(4);
         }));
     });
+  });
 
-    describe('actionRequired filters when', () => {
-      it("true only shows proposals that require the user's action", () =>
-        asUser(user1, async () => {
-          await propose();
+  describe('satisfiablePolicies', () => {
+    it.todo('return satisfiable policies');
 
-          expect(await service.findMany({ actionRequired: true })).toHaveLength(1);
-        }));
+    it.todo('return satisfied policies');
 
-      it("false shows proposals that don't require the user's action", () =>
-        asUser(user1, async () => {
-          const { id } = await propose();
-          await approve(id);
-
-          expect(await service.findMany({ actionRequired: false })).toHaveLength(1);
-        }));
-    });
+    it.todo('set requiresUserAction correctly');
   });
 
   describe('approve', () => {
@@ -303,39 +277,38 @@ describe(ProposalsService.name, () => {
       asUser(user1, async () => {
         const { id } = await propose();
 
-        provider.isValidSignature.mockImplementationOnce(async () => false);
-        await expect(
-          service.approve({ id, signature: hexlify(randomBytes(32)) }),
-        ).rejects.toThrow();
+        provider.verifySignature.mockImplementationOnce(async () => false);
+        await expect(service.approve({ id, signature: randomSignature() })).rejects.toThrow();
       }));
 
-    it("notifies active approvers that haven't approved", () =>
-      asUser(user1, async () => {
-        const { id, accountId, quorumKey } = await propose();
+    // TODO: notification tests once it has been implemented
+    // it("notifies active approvers that haven't approved", () =>
+    //   asUser(user1, async () => {
+    //     const { id, accountId } = await propose();
 
-        const usersToNotify = [randomAddress(), randomAddress()];
+    //     const usersToNotify = [randomAddress(), randomAddress()];
 
-        // Mark quorum state as active
-        const quorum: QuorumGuid = { account: address(accountId), key: toQuorumKey(quorumKey) };
-        await prisma.asUser.quorumState.create({
-          data: {
-            account: connectAccount(quorum.account),
-            quorum: connectQuorum(quorum),
-            activeStateOfQuorum: {
-              connect: { accountId_key: { accountId, key: quorumKey } },
-            },
-            approvers: {
-              create: [user1.id, ...usersToNotify].map((user) => ({
-                user: connectOrCreateUser(user),
-              })),
-            },
-          },
-        });
+    //     // Mark policy rules as active
+    //     const policy: PolicyId = { account: asAddress(accountId), key: toPolicyKey(policyKey) };
+    //     await prisma.asUser.policyRules.create({
+    //       data: {
+    //         account: connectAccount(policy.account),
+    //         policy: connectPolicy(policy),
+    //         activeStateOfPolicy: {
+    //           connect: { accountId_key: { accountId, key: policyKey } },
+    //         },
+    //         approvers: {
+    //           create: [user1.id, ...usersToNotify].map((user) => ({
+    //             user: connectOrCreateUser(user),
+    //           })),
+    //         },
+    //       },
+    //     });
 
-        await approve(id);
+    //     await approve(id);
 
-        expect(expo.chunkPushNotifications).toHaveBeenCalled();
-      }));
+    //     expect(expo.chunkPushNotifications).toHaveBeenCalled();
+    //   }));
 
     it('tries to execute transaction', () =>
       asUser(user1, async () => {
@@ -363,8 +336,8 @@ describe(ProposalsService.name, () => {
       asUser(user1, async () => {
         const { id } = await propose();
 
-        provider.isValidSignature.mockImplementationOnce(async () => true);
-        await service.approve({ id, signature: hexlify(randomBytes(32)) });
+        provider.verifySignature.mockImplementationOnce(async () => true);
+        await service.approve({ id, signature: randomSignature() });
 
         await service.reject({ id });
 
@@ -379,10 +352,10 @@ describe(ProposalsService.name, () => {
 
     it("throws if the proposal doesn't exist", () =>
       asUser(user1, async () => {
-        provider.isValidSignature.mockImplementationOnce(async () => true);
+        provider.verifySignature.mockImplementationOnce(async () => true);
 
         await expect(
-          service.approve({ id: "doesn't exist", signature: hexlify(randomBytes(32)) }),
+          service.approve({ id: "doesn't exist", signature: randomSignature() }),
         ).rejects.toThrow();
       }));
   });
@@ -396,7 +369,7 @@ describe(ProposalsService.name, () => {
         expect(await service.findUnique({ where: { id } })).toBeNull();
       }));
 
-    it("throws if the quorum doesn't exist", () =>
+    it("throws if the policy doesn't exist", () =>
       asUser(user1, async () => {
         await expect(service.delete({ id: hexlify(randomBytes(32)) })).rejects.toThrow();
       }));
@@ -407,19 +380,20 @@ describe(ProposalsService.name, () => {
       await asUser(randomUser(), () => expect(service.delete({ id })).rejects.toThrow());
     });
 
-    it('deletes quorums that the proposal was going to create', () =>
+    it('deletes policy that the proposal was going to create', () =>
       asUser(user1, async () => {
         const { id, accountId } = await propose();
 
-        // Create quorum with 1 state - the state being proposed
-        await prisma.asUser.quorum.create({
+        // Create policy with a single creation rule
+        await prisma.asUser.policy.create({
           data: {
-            account: connectAccount(address(accountId)),
-            key: randomQuorumKey(),
-            name: '',
+            account: connectAccount(accountId),
+            key: 1,
+            name: 'abc',
             states: {
               create: {
-                proposalId: id,
+                account: connectAccount(accountId),
+                proposal: { connect: { id } },
               },
             },
           },
@@ -427,20 +401,20 @@ describe(ProposalsService.name, () => {
 
         await service.delete({ id });
 
-        // Expect all created quorums to be deleted
-        expect(quorums.remove).toHaveBeenCalledTimes(1);
+        // Expect all created policies to be deleted
+        expect(policies.remove).toHaveBeenCalledTimes(1);
       }));
 
-    it("quorums being updated by proposal aren't deleted", () =>
+    it("policies being updated by proposal aren't deleted", () =>
       asUser(user1, async () => {
         const { id, accountId } = await propose();
 
-        // Create quorum with 2 states, only one of which is being proposed
-        await prisma.asUser.quorum.create({
+        // Create policy with 2 states, only one of which is being proposed
+        await prisma.asUser.policy.create({
           data: {
-            account: connectAccount(address(accountId)),
-            key: randomQuorumKey(),
-            name: '',
+            account: connectAccount(asAddress(accountId)),
+            key: 1,
+            name: 'abc',
             states: {
               create: [{}, { proposalId: id }],
             },
@@ -449,8 +423,8 @@ describe(ProposalsService.name, () => {
 
         await service.delete({ id });
 
-        // Expect all created quorums to be deleted
-        expect(quorums.remove).toHaveBeenCalledTimes(0);
+        // Expect all created policies to be deleted
+        expect(policies.remove).toHaveBeenCalledTimes(0);
       }));
   });
 });

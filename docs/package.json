@@ -16,13 +16,13 @@
     "generate:gql": "graphql-codegen --config codegen.ts"
   },
   "dependencies": {
-    "@apollo/client": "^3.7.4",
-    "@apollo/explorer": "^2.0.2",
-    "@docusaurus/core": "latest",
-    "@docusaurus/preset-classic": "latest",
-    "@docusaurus/remark-plugin-npm2yarn": "latest",
-    "@emotion/react": "^11.10.5",
-    "@graphql-markdown/docusaurus": "^1.16.3",
+    "@apollo/client": "^3.7.12",
+    "@apollo/explorer": "^3.4.0",
+    "@docusaurus/core": "^2.4.0",
+    "@docusaurus/preset-classic": "^2.4.0",
+    "@docusaurus/remark-plugin-npm2yarn": "^2.4.0",
+    "@emotion/react": "^11.10.6",
+    "@graphql-markdown/docusaurus": "^1.17.0",
     "@mdx-js/react": "^1.6.22",
     "bufferutil": "^4.0.7",
     "clsx": "^1.2.1",
@@ -35,20 +35,19 @@
     "prism-react-renderer": "^1.3.5",
     "react": "^17.0.2",
     "react-dom": "^17.0.2",
-    "recoil": "^0.7.6",
+    "recoil": "^0.7.7",
     "sass": "^1.58.1",
     "use-deep-compare-effect": "^1.8.1",
-    "utf-8-validate": "^5.0.10",
-    "zksync-web3": "^0.13.4"
+    "utf-8-validate": "^5.0.10"
   },
   "devDependencies": {
-    "@docusaurus/module-type-aliases": "latest",
-    "@graphql-codegen/cli": "2.16.4",
-    "@graphql-codegen/introspection": "^2.2.3",
-    "@graphql-codegen/typescript": "^2.8.7",
-    "@graphql-codegen/typescript-operations": "^2.5.12",
-    "@tsconfig/docusaurus": "^1.0.6",
-    "typescript": "^4.9.4"
+    "@docusaurus/module-type-aliases": "^2.4.0",
+    "@graphql-codegen/cli": "^3.3.0",
+    "@graphql-codegen/introspection": "^3.0.1",
+    "@graphql-codegen/typescript": "^3.0.3",
+    "@graphql-codegen/typescript-operations": "^3.0.3",
+    "@tsconfig/docusaurus": "1.0.6",
+    "typescript": "^5.0.4"
   },
   "browserslist": {
     "production": [

@@ -1,68 +1,92 @@
-import { Box } from '~/components/layout/Box';
+import { AccountId, useAccount } from '@api/account';
+import { FlashList } from '@shopify/flash-list';
+import { EditIcon, NavigateNextIcon, PlusIcon } from '@theme/icons';
+import { StyleSheet, View } from 'react-native';
+import { Menu } from 'react-native-paper';
+import { match } from 'ts-pattern';
+import { Appbar } from '~/components/Appbar/Appbar';
+import { AppbarMore2 } from '~/components/Appbar/AppbarMore';
+import { Fab } from '~/components/buttons/Fab';
+import { Screen } from '~/components/layout/Screen';
+import { ListHeader } from '~/components/list/ListHeader';
+import { ListItem, ListItemHeight } from '~/components/list/ListItem';
+import { PolicyIcon } from '~/components/policy/PolicyIcon';
 import { ScreenSkeleton } from '~/components/skeleton/ScreenSkeleton';
-import { withSkeleton } from '~/components/skeleton/withSkeleton';
-import { makeStyles } from '~/util/theme/makeStyles';
-import { Address } from 'lib';
+import { withSuspense } from '~/components/skeleton/withSuspense';
 import { StackNavigatorScreenProps } from '~/navigation/StackNavigator';
-import { useAccount } from '~/queries/account/useAccount.api';
-import { Appbar } from 'react-native-paper';
-import { NameIcon, QuorumsIcon, ShareIcon } from '@theme/icons';
-import { buildAddrLink } from '~/util/addrLink';
-import { Share } from 'react-native';
-import { ListItem } from '~/components/list/ListItem';
-import { useGoBack } from '~/components/Appbar/useGoBack';
 
 export interface AccountScreenParams {
-  account: Address;
+  account: AccountId;
 }
 
 export type AccountScreenProps = StackNavigatorScreenProps<'Account'>;
 
-export const AccountScreen = withSkeleton(
-  ({ navigation: { navigate }, route: { params } }: AccountScreenProps) => {
-    const styles = useStyles();
-    const account = useAccount(params.account);
+export const AccountScreen = withSuspense(
+  ({ route, navigation: { navigate } }: AccountScreenProps) => {
+    const account = useAccount(route.params.account);
 
     return (
-      <Box flex={1}>
-        <Appbar.Header mode="large">
-          <Appbar.BackAction onPress={useGoBack()} />
-          <Appbar.Content title={account.name} />
+      <Screen>
+        <Appbar
+          mode="large"
+          leading="back"
+          headline={account.name}
+          trailing={(props) => (
+            <AppbarMore2 iconProps={props}>
+              {({ close }) => (
+                <Menu.Item
+                  leadingIcon={EditIcon}
+                  title="Rename"
+                  onPress={() => {
+                    close();
+                    navigate('RenameAccountModal', { account: account.id });
+                  }}
+                />
+              )}
+            </AppbarMore2>
+          )}
+        />
 
-          <Appbar.Action
-            icon={ShareIcon}
-            onPress={() => {
-              const url = buildAddrLink({ target_address: account.addr });
-              Share.share({ url, message: `${account.name}\n${url}` });
-            }}
+        <View style={styles.listContainer}>
+          <FlashList
+            data={account.policies}
+            ListHeaderComponent={<ListHeader>Access Policies</ListHeader>}
+            renderItem={({ item: policy }) => (
+              <ListItem
+                leading={(props) => <PolicyIcon policy={policy} {...props} />}
+                headline={policy.name}
+                supporting={match((policy.active ?? policy.draft)!.approvers.size)
+                  .with(0, () => 'No approvers')
+                  .with(1, () => '1 approver')
+                  .otherwise((approvers) => `${approvers} approvers`)}
+                trailing={NavigateNextIcon}
+                onPress={() =>
+                  navigate('Policy', { account: policy.account, key: policy.key.toString() })
+                }
+              />
+            )}
+            estimatedItemSize={ListItemHeight.DOUBLE_LINE}
+            contentContainerStyle={styles.contentContainer}
+            showsVerticalScrollIndicator={false}
           />
-        </Appbar.Header>
+        </View>
 
-        <Box style={styles.list}>
-          <ListItem
-            leading={NameIcon}
-            headline="Rename"
-            supporting="Change the name of the account"
-            onPress={() => navigate('RenameAccount', { account: account.addr })}
-          />
-
-          <ListItem
-            leading={QuorumsIcon}
-            headline="Quorums"
-            supporting="View and configure account quorums"
-            trailing={account.quorums.length}
-            maxTrailing={100}
-            onPress={() => navigate('AccountQuorums', { account: account.addr })}
-          />
-        </Box>
-      </Box>
+        <Fab
+          icon={PlusIcon}
+          label="Add policy"
+          onPress={() => navigate('Policy', { account: account.id })}
+        />
+      </Screen>
     );
   },
   ScreenSkeleton,
 );
 
-const useStyles = makeStyles(({ space }) => ({
-  list: {
+const styles = StyleSheet.create({
+  listContainer: {
+    flex: 1,
+  },
+  contentContainer: {
     paddingVertical: 8,
   },
-}));
+});

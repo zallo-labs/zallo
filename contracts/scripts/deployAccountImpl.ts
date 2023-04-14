@@ -1,21 +1,26 @@
+import { exit } from 'process';
 import { deployAccountImpl } from '../test/util';
 import { displayTx } from './util/display';
 import { verify } from './util/verify';
+import hardhat from 'hardhat';
 
 const main = async () => {
-  const { impl, deployTx } = await deployAccountImpl();
+  await hardhat.run('compile');
 
+  const { impl, deployTx } = await deployAccountImpl();
   await displayTx(impl, deployTx);
 
   // TODO: re-enable once zksync system contracts cyclic dependencies issue has been fixed
-  // await verify({
-  //   contract: 'contracts/Account.sol:Account',
-  //   address: impl,
-  //   constructorArguments: [],
-  // });
+  await verify({
+    contract: 'contracts/Account.sol:Account',
+    address: impl,
+    constructorArguments: [],
+  });
 };
 
-main().catch((error) => {
-  console.error(error);
-  process.exitCode = 1;
-});
+main()
+  .then(() => exit(0))
+  .catch((error) => {
+    console.error(error);
+    exit(1);
+  });

@@ -1,18 +1,14 @@
 import { FindManyProposalArgs } from '@gen/proposal/find-many-proposal.args';
 import { ArgsType, Field, registerEnumType } from '@nestjs/graphql';
-import { BigNumber } from 'ethers';
-import { Address, QuorumKey, TxOptions, TxSalt } from 'lib';
+import { Address, Hex } from 'lib';
 import { AddressField, AddressScalar } from '~/apollo/scalars/Address.scalar';
-import { Uint256BnField } from '~/apollo/scalars/BigNumber.scalar';
-import { QuorumKeyField } from '~/apollo/scalars/QuorumKey.sclar';
+import { Uint256Field } from '~/apollo/scalars/BigInt.scalar';
 import {
   Bytes32Field,
   Bytes32Scalar,
-  Bytes8Field,
   BytesField,
   BytesScalar,
 } from '~/apollo/scalars/Bytes.scalar';
-import { SetField } from '~/apollo/scalars/SetField';
 import { Proposal } from '@gen/proposal/proposal.model';
 
 @ArgsType()
@@ -30,15 +26,11 @@ registerEnumType(ProposalState, { name: 'ProposalState' });
 
 @ArgsType()
 export class ProposalsArgs extends FindManyProposalArgs {
-  // Only show the specified accounts
-  @SetField(() => AddressScalar, { nullable: true })
-  accounts?: Set<Address>;
+  @Field(() => [AddressScalar], { nullable: true })
+  accounts?: Address[];
 
-  @SetField(() => ProposalState, { nullable: true })
-  states?: Set<ProposalState>;
-
-  @Field(() => Boolean, { nullable: true, description: 'User is required to take action' })
-  actionRequired?: boolean;
+  @Field(() => [ProposalState], { nullable: true })
+  states?: ProposalState[];
 }
 
 export const PROPOSAL_SUBSCRIPTION = 'proposal';
@@ -59,53 +51,48 @@ export interface ProposalSubscriptionPayload {
 
 @ArgsType()
 export class ProposalSubscriptionFilters {
-  @SetField(() => AddressScalar, {
+  @Field(() => [AddressScalar], {
     nullable: true,
     description: 'Defaults to user accounts if no proposals are provided',
   })
-  accounts?: Set<Address>;
+  accounts?: Address[];
 
-  @SetField(() => Bytes32Scalar, { nullable: true })
-  proposals?: Set<string>;
+  @Field(() => [Bytes32Scalar], { nullable: true })
+  proposals?: string[];
 
-  @SetField(() => ProposalEvent, { nullable: true, description: 'Defaults to all events' })
-  events?: Set<ProposalEvent>;
+  @Field(() => [ProposalEvent], { nullable: true, description: 'Defaults to all events' })
+  events?: ProposalEvent[];
 }
 
 @ArgsType()
-export class ProposeArgs implements TxOptions {
+export class ProposeArgs {
   @AddressField()
   account: Address;
-
-  @QuorumKeyField({
-    nullable: true,
-    description:
-      'Defaults to quorum with the least amount of approvers, followed by the lowest id (by lexical comparison)',
-  })
-  quorumKey?: QuorumKey;
 
   @AddressField()
   to: Address;
 
-  // Wei
-  @Uint256BnField({ nullable: true })
-  value?: BigNumber;
+  @Uint256Field({ nullable: true, description: 'WEI' })
+  value?: bigint;
 
   @BytesField({ nullable: true })
-  data?: string;
+  data?: Hex;
 
-  @Bytes8Field({ nullable: true })
-  salt?: TxSalt;
+  @Uint256Field({ nullable: true })
+  nonce?: bigint;
 
-  @Uint256BnField({ nullable: true })
-  gasLimit?: BigNumber;
+  @Uint256Field({ nullable: true })
+  gasLimit?: bigint;
+
+  @AddressField({ nullable: true })
+  feeToken?: Address;
 
   @Field(() => BytesScalar, { nullable: true, description: 'Approve the proposal' })
-  signature?: string;
+  signature?: Hex;
 }
 
 @ArgsType()
 export class ApproveArgs extends UniqueProposalArgs {
   @BytesField()
-  signature: string;
+  signature: Hex;
 }

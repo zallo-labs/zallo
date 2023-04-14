@@ -1,83 +1,65 @@
-import { Box } from '~/components/layout/Box';
-import { Formik } from 'formik';
-import { Appbar, Button, Text } from 'react-native-paper';
+import { useCreateAccount } from '@api/account';
+import { useForm } from 'react-hook-form';
+import { StyleSheet, View } from 'react-native';
+import { useSetSelectedAccount } from '~/components/AccountSelector/useSelectedAccount';
+import { Appbar } from '~/components/Appbar/Appbar';
+import { FormSubmitButton } from '~/components/fields/FormSubmitButton';
+import { FormTextField } from '~/components/fields/FormTextField';
+import { Actions } from '~/components/layout/Actions';
+import { Screen } from '~/components/layout/Screen';
 import { StackNavigatorScreenProps } from '~/navigation/StackNavigator';
-import * as Yup from 'yup';
-import { useCallback } from 'react';
-import { FormikTextField } from '~/components/fields/FormikTextField';
-import { CreateAccountResult, useCreateAccount } from '~/mutations/account/useCreateAccount.api';
-import { AppbarBack } from '~/components/Appbar/AppbarBack';
-import { makeStyles } from '~/util/theme/makeStyles';
 
-interface Values {
+interface Inputs {
   name: string;
-}
-
-const schema: Yup.SchemaOf<Values> = Yup.object({
-  name: Yup.string().required('Required'),
-});
-
-export interface CreateAccountScreenParams {
-  onCreate?: (res: CreateAccountResult) => void;
 }
 
 export type CreateAccountScreenProps = StackNavigatorScreenProps<'CreateAccount'>;
 
-export const CreateAccountScreen = ({
-  route,
-  navigation: { navigate },
-}: CreateAccountScreenProps) => {
-  const { onCreate } = route.params;
-  const styles = useStyles();
+export const CreateAccountScreen = ({ navigation: { replace } }: CreateAccountScreenProps) => {
   const createAccount = useCreateAccount();
+  const setSelected = useSetSelectedAccount();
 
-  const handleSubmit = useCallback(
-    async ({ name }: Values) => {
-      const r = await createAccount(name);
-      onCreate ? onCreate(r) : navigate('Account', { account: r.account });
-    },
-    [createAccount, navigate, onCreate],
-  );
+  const { control, handleSubmit } = useForm<Inputs>();
 
   return (
-    <Box flex={1}>
-      <Appbar.Header>
-        <AppbarBack />
-      </Appbar.Header>
+    <Screen>
+      <Appbar mode="large" leading="back" headline="Account" />
 
-      <Formik initialValues={{ name: '' }} onSubmit={handleSubmit} validationSchema={schema}>
-        {({ submitForm, isSubmitting }) => (
-          <Box style={styles.container}>
-            <Text variant="headlineLarge" style={styles.input}>
-              What should we call your account?
-            </Text>
+      <View style={styles.fields}>
+        <FormTextField
+          name="name"
+          control={control}
+          label="Name"
+          supporting="Only visible by account members"
+          autoFocus
+          rules={{ required: true }}
+        />
+      </View>
 
-            <FormikTextField name="name" label="Account name" autoFocus />
-
-            <Box style={styles.actionContainer}>
-              <Button mode="contained" loading={isSubmitting} onPress={submitForm}>
-                Create
-              </Button>
-            </Box>
-          </Box>
-        )}
-      </Formik>
-    </Box>
+      <Actions>
+        <FormSubmitButton
+          mode="contained"
+          style={styles.button}
+          control={control}
+          onPress={handleSubmit(async ({ name }) => {
+            const { id } = await createAccount(name);
+            setSelected(id);
+            replace('Home');
+          })}
+        >
+          Create account
+        </FormSubmitButton>
+      </Actions>
+    </Screen>
   );
 };
 
-const useStyles = makeStyles(({ space, s }) => ({
-  container: {
-    flex: 1,
-    marginHorizontal: s(16),
+const styles = StyleSheet.create({
+  fields: {
+    margin: 16,
+    gap: 16,
   },
-  input: {
-    textAlign: 'center',
-    marginVertical: space(4),
+  button: {
+    alignSelf: 'stretch',
   },
-  actionContainer: {
-    flex: 1,
-    justifyContent: 'flex-end',
-    marginBottom: s(16),
-  },
-}));
+});

@@ -1,21 +1,12 @@
 import { useMemo } from 'react';
-import {
-  StyleSheet,
-  ViewStyle,
-  TextStyle,
-  ImageStyle,
-  ScaledSize,
-  useWindowDimensions,
-} from 'react-native';
-import { ThemeOverride, useTheme } from './paper';
+import { StyleSheet, ScaledSize, useWindowDimensions } from 'react-native';
+import { Theme, useTheme } from './paper';
 
-type InjectedTheme = ThemeOverride & {
+type InjectedTheme = Theme & {
   window: ScaledSize;
 };
 
-type NamedStyles<T> = {
-  [P in keyof T]: ViewStyle | TextStyle | ImageStyle;
-};
+type NamedStyles<T> = StyleSheet.NamedStyles<T>;
 
 export function makeStyles<T extends NamedStyles<T> | NamedStyles<any>, Params = never>(
   styles: T | NamedStyles<T> | ((theme: InjectedTheme, params: Params) => T | NamedStyles<T>),

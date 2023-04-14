@@ -1,26 +1,39 @@
-import { Token } from '@token/token';
-import { BigNumberish } from 'ethers';
-import { ZERO } from 'lib';
-import { useFormattedNumber } from '../format/FormattedNumber';
+import { Token, TokenUnit } from '@token/token';
+import { FormattedNumberOptions, useFormattedNumber } from '../format/FormattedNumber';
 
-export interface FormattedTokenAmountOptions {
+export interface FormattedTokenAmountOptions extends Partial<FormattedNumberOptions> {
   token: Token;
-  amount?: BigNumberish;
+  amount?: bigint;
   trailing?: 'name' | 'symbol' | false;
 }
 
 export const useFormattedTokenAmount = ({
   token,
-  amount = ZERO,
+  amount = 0n,
   trailing = 'symbol',
-}: FormattedTokenAmountOptions) =>
-  useFormattedNumber({
+  ...options
+}: FormattedTokenAmountOptions) => {
+  // Format with the closest unit
+  const amountDecimals = amount.toString().length;
+  const unit: TokenUnit =
+    amount === 0n
+      ? token
+      : token.units.reduce((closest, unit) => {
+          const diff = Math.abs(unit.decimals - amountDecimals);
+          return diff < Math.abs(closest.decimals - amountDecimals) ? unit : closest;
+        }, token);
+
+  return useFormattedNumber({
     value: amount,
-    unitDecimals: token.decimals,
+    decimals: unit.decimals,
     maximumFractionDigits: 3,
     extendedFractionDigits: 4,
-    postFormat: trailing ? (v) => `${v} ${token[trailing]}` : undefined,
+    postFormat: trailing
+      ? (v) => `${v} ${trailing === 'name' ? token.name : unit.symbol}`
+      : undefined,
+    ...options,
   });
+};
 
 export interface TokenAmountProps extends FormattedTokenAmountOptions {}
 

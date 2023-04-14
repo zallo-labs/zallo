@@ -1,14 +1,38 @@
 import { Field, FieldMiddleware, FieldOptions } from '@nestjs/graphql';
 import { UserInputError } from 'apollo-server-core';
-import { GraphQLScalarType } from 'graphql';
+import { GraphQLScalarType, GraphQLScalarTypeConfig } from 'graphql';
 import merge from 'ts-deepmerge';
+import { O } from 'ts-toolbelt';
+import { parseLiteral } from './parseLiteral';
+
+type Jsonable =
+  | string
+  | number
+  | boolean
+  | null
+  | undefined
+  | Jsonable[]
+  | { [key: string]: Jsonable }
+  | { toJSON(): Jsonable };
+
+type Config<TInternal, TExternal extends Jsonable> = Omit<
+  O.Optional<GraphQLScalarTypeConfig<TInternal, TExternal>, 'parseLiteral'>,
+  'serialize'
+> & {
+  serialize: (value: TInternal) => TExternal;
+};
 
 // TODO: util for creating scalar and field
-export const createScalar = <TInternal, TExternal = TInternal>(
-  config: ConstructorParameters<typeof GraphQLScalarType<TInternal, TExternal>>[0],
+export const createScalar = <TInternal, TExternal extends Jsonable>(
+  config: Config<TInternal, TExternal>,
   defaultOptions?: FieldOptions,
 ) => {
-  const scalar = new GraphQLScalarType(config);
+  const scalar = new GraphQLScalarType({
+    ...(config.parseValue && {
+      parseLiteral: (ast, variables) => config.parseValue!(parseLiteral(ast, variables)),
+    }),
+    ...config,
+  } as GraphQLScalarTypeConfig<TInternal, TExternal>);
 
   const field =
     (options?: FieldOptions): PropertyDecorator =>

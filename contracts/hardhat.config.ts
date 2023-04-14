@@ -26,10 +26,14 @@ const config: HardhatUserConfig = {
   },
   zksolc: {
     // https://github.com/matter-labs/zksolc-bin/tree/main/linux-amd64
-    version: '1.3.5',
+    version: '1.3.8',
     compilerSource: 'binary',
     settings: {
       isSystem: true,
+      optimizer: {
+        enabled: true,
+        mode: '3',
+      },
     },
   },
   defaultNetwork: CONFIG.chain.name,
@@ -55,7 +59,7 @@ const config: HardhatUserConfig = {
   },
   gasReporter: {
     // https://github.com/cgewecke/eth-gas-reporter#options
-    enabled: false,
+    enabled: true,
     currency: 'USD',
     coinmarketcap: CONFIG.coinmarketcapApiKey,
   },
@@ -63,11 +67,11 @@ const config: HardhatUserConfig = {
     apiKey: CONFIG.etherscanApiKey,
   },
   abiExporter: {
-    runOnCompile: true,
     path: './abi',
+    only: [':Account$', ':AccountProxy$', ':Factory$', ':*.test.*$'],
     flat: true,
     clear: true,
-    only: [':Account$', ':TestAccount$', ':ERC1967Proxy$', ':Tester$', ':Multicall$', ':Factory$'],
+    runOnCompile: true,
   },
 };
 

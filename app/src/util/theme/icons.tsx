@@ -1,11 +1,13 @@
-import { ElementType } from 'react';
+import React, { ElementType, ComponentPropsWithoutRef, FC } from 'react';
+import { ColorValue } from 'react-native';
 import { Ionicons, MaterialCommunityIcons, MaterialIcons } from '@expo/vector-icons';
-import { ComponentPropsWithoutRef, FC } from 'react';
 import { SvgProps } from 'react-native-svg';
 import LogoSvg from '~/../assets/logo.svg';
 import MastercardSvg from '~/../assets/mastercard.svg';
 import WalletConnectSvg from '~/../assets/walletconnect.svg';
-import { ColorValue } from 'react-native';
+import TwitterSvg from '~/../assets/twitter.svg';
+import GithubSvg from '~/../assets/github.svg';
+import { ICON_SIZE, useTheme } from './paper';
 
 export interface IconProps {
   size?: number;
@@ -18,19 +20,21 @@ type Curried<C extends ElementType, Props = ComponentPropsWithoutRef<C>> = (
 ) => FC<Omit<Props, 'name'>>;
 
 export const materialIcon: Curried<typeof MaterialIcons> = (name) => (props) =>
-  <MaterialIcons name={name} {...props} />;
+  <MaterialIcons name={name} size={ICON_SIZE.small} {...props} />;
 
 export const materialCommunityIcon: Curried<typeof MaterialCommunityIcons> = (name) => (props) =>
-  <MaterialCommunityIcons name={name} {...props} />;
+  <MaterialCommunityIcons name={name} size={ICON_SIZE.small} {...props} />;
 
 export const ionIcon: Curried<typeof Ionicons> = (name) => (props) =>
-  <Ionicons name={name} {...props} />;
+  <Ionicons name={name} size={ICON_SIZE.small} {...props} />;
 
 export const HomeIcon = materialIcon('home');
 export const ActivityIcon = materialCommunityIcon('chart-timeline-variant');
 export const SendIcon = materialCommunityIcon('send');
+export const SendOutlineIcon = materialCommunityIcon('send-outline');
 export const ReceiveIcon = materialCommunityIcon('arrow-bottom-left');
 export const UserIcon = materialIcon('person');
+export const UserOutlineIcon = materialIcon('person-outline');
 export const ContactsIcon = materialIcon('people');
 export const AddIcon = materialCommunityIcon('plus');
 export const DeleteIcon = materialCommunityIcon('delete');
@@ -47,7 +51,8 @@ export const CancelIcon = CloseIcon;
 export const RemoveIcon = CloseIcon;
 export const ErrorIcon = materialIcon('error');
 export const RetryIcon = materialIcon('redo');
-export const SwapIcon = materialCommunityIcon('swap-vertical');
+export const SwapIcon = materialCommunityIcon('swap-horizontal');
+export const SwapVerticalIcon = materialCommunityIcon('swap-vertical');
 export const SearchIcon = materialIcon('search');
 export const PlusIcon = materialCommunityIcon('plus');
 export const SettingsIcon = materialCommunityIcon('cog');
@@ -90,6 +95,28 @@ export const RejectedCircleIcon = materialCommunityIcon('close-circle');
 export const CheckmarkDoneCircleIcon = materialIcon('done-all');
 export const DescriptionIcon = materialIcon('description');
 export const NameIcon = materialIcon('text-fields');
+export const NetworkIcon = materialIcon('location-pin');
+export const ClockIcon = materialCommunityIcon('clock');
+export const ClockOutlineIcon = materialCommunityIcon('clock-outline');
+export const GasIcon = materialCommunityIcon('gas-station');
+export const GasOutlineIcon = materialCommunityIcon('gas-station-outline');
+export const FunctionIcon = materialCommunityIcon('script-text');
+export const FunctionOutlineIcon = materialCommunityIcon('script-text-outline');
+export const UnknownIcon = materialCommunityIcon('help-circle');
+export const UnknownOutlineIcon = materialCommunityIcon('help-circle-outline');
+
+export const PolicyActiveIcon = materialCommunityIcon('shield');
+export const PolicyActiveOutlineIcon = materialCommunityIcon('shield-outline');
+export const PolicyEditIcon = materialCommunityIcon('shield-edit');
+export const PolicyEditOutlineIcon = materialCommunityIcon('shield-edit-outline');
+export const PolicyAddIcon = materialCommunityIcon('shield-plus');
+export const PolicyAddOutlineIcon = materialCommunityIcon('shield-plus-outline');
+export const PolicyRemoveIcon = materialCommunityIcon('shield-remove');
+export const PolicyRemoveOutlineIcon = materialCommunityIcon('shield-remove-outline');
+export const PolicySatisfiableIcon = materialCommunityIcon('shield-check');
+export const PolicySatisfiableOutlineIcon = materialCommunityIcon('shield-check-outline');
+export const PolicyUnsatisfiableIcon = materialCommunityIcon('shield-alert');
+export const PolicyUnsatisfiableOutlineIcon = materialCommunityIcon('shield-alert-outline');
 
 export const svgIcon =
   (Svg: FC<SvgProps>): FC<IconProps> =>
@@ -99,3 +126,7 @@ export const svgIcon =
 export const LogoIcon = LogoSvg;
 export const MastercardIcon = svgIcon(MastercardSvg);
 export const WalletConnectIcon = svgIcon(WalletConnectSvg);
+export const TwitterIcon = svgIcon(TwitterSvg);
+export const GithubIcon = svgIcon((props) => (
+  <GithubSvg {...props} fill={useTheme().dark ? 'white' : 'black'} />
+));

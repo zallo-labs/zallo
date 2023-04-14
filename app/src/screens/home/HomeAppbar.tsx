@@ -1,48 +1,27 @@
-import { ContactsIcon, ScanIcon } from '~/util/theme/icons';
-import { FC } from 'react';
-import { Appbar } from 'react-native-paper';
-import { AppbarMenu } from '~/components/Appbar/AppbarMenu';
-import { AppbarHeaderProps } from '~/components/Appbar/useAppbarHeader';
-import { Address } from 'lib';
-import { useSelectQuorum } from '../account/quorums/useSelectQuorum';
+import { ScanIcon, SettingsOutlineIcon } from '@theme/icons';
+import { StyleSheet, View } from 'react-native';
+import { Appbar as BaseAppbar } from 'react-native-paper';
+import { AccountSelector } from '~/components/AccountSelector/AccountSelector';
 import { useNavigation } from '@react-navigation/native';
-import { useSelectContact } from '../contacts/useSelectContact';
-import { useScanAddr } from '../scan/useScanAddr';
 
-export interface HomeAppbarProps {
-  AppbarHeader: FC<AppbarHeaderProps>;
-  account: Address;
-}
-
-export const HomeAppbar = ({ AppbarHeader, account }: HomeAppbarProps) => {
+export const HomeAppbar = () => {
   const { navigate } = useNavigation();
-  const selectQuorum = useSelectQuorum(account);
-  const selectContact = useSelectContact();
-  const scanAddr = useScanAddr();
 
   return (
-    <AppbarHeader>
-      <AppbarMenu />
-      <Appbar.Content title="" />
+    <BaseAppbar.Header>
+      <View style={styles.selectorContainer}>
+        <AccountSelector />
+      </View>
 
-      <Appbar.Action
-        icon={ContactsIcon}
-        onPress={async () =>
-          navigate('Send', {
-            to: (await selectContact()).addr,
-            quorum: await selectQuorum(),
-          })
-        }
-      />
-      <Appbar.Action
-        icon={ScanIcon}
-        onPress={async () =>
-          navigate('Send', {
-            to: (await scanAddr()).target_address,
-            quorum: await selectQuorum(),
-          })
-        }
-      />
-    </AppbarHeader>
+      <BaseAppbar.Action icon={ScanIcon} onPress={() => navigate('Scan', {})} />
+      <BaseAppbar.Action icon={SettingsOutlineIcon} onPress={() => navigate('Settings')} />
+    </BaseAppbar.Header>
   );
 };
+
+const styles = StyleSheet.create({
+  selectorContainer: {
+    flex: 1,
+    marginHorizontal: 16,
+  },
+});

@@ -1,11 +1,11 @@
-import { PROJECT_ID } from 'app.config';
+import { PROJECT_ID } from '../../app.config';
 import * as Device from 'expo-device';
 import * as Notifications from 'expo-notifications';
 import { DevicePushToken } from 'expo-notifications';
 import { useCallback, useEffect } from 'react';
 import { Platform } from 'react-native';
-import { useUpdateUser } from '~/mutations/user/useUpdateUser.api';
-import { useProposalsMetadata } from '~/queries/proposal/useProposalsMetadata.api';
+import { useUpdateUser } from '@api/user';
+import { useProposals } from '@api/proposal';
 
 Notifications.setNotificationHandler({
   handleNotification: async () => ({
@@ -15,7 +15,7 @@ Notifications.setNotificationHandler({
   }),
 });
 
-export const useNotificationsCount = () => useProposalsMetadata({ actionRequired: true }).length;
+export const useNotificationsCount = () => useProposals({ requiresUserAction: true }).length;
 
 export const NotificationsRegistrar = () => {
   const count = useNotificationsCount();
@@ -61,12 +61,10 @@ export const NotificationsRegistrar = () => {
 
   useEffect(() => {
     tryRegister();
-
-    // Push token added or changed
-    const sub = Notifications.addPushTokenListener(tryRegister);
+    const onChangeSub = Notifications.addPushTokenListener(tryRegister);
 
     return () => {
-      sub.remove();
+      onChangeSub.remove();
     };
   }, [tryRegister]);
 

@@ -1,40 +1,31 @@
 import { useEffect } from 'react';
 import { Appbar, Button } from 'react-native-paper';
 import { StackNavigatorScreenProps } from '~/navigation/StackNavigator';
-import { useWalletConnectClients } from '~/util/walletconnect/WalletConnectProvider';
 import { ProposerDetails } from './ProposerDetails';
 import { SessionAccounts } from './SessionAccounts';
 import { showError } from '~/provider/SnackbarProvider';
-import { WcProposer } from '~/util/walletconnect/useWalletConnectSessions';
 import { toNamespaces } from '~/util/walletconnect/namespaces';
-import { CHAIN_ID } from '@network/provider';
 import { getSdkError } from '@walletconnect/utils';
 import { Box } from '~/components/layout/Box';
-import { makeStyles } from '@theme/makeStyles';
 import { Actions } from '~/components/layout/Actions';
 import { useImmer } from 'use-immer';
-import { SessionAccountQuorum, useSessionAccountQuorumsState } from './useSessionAccountQuorum';
-import { Address } from 'lib';
+import { useWalletConnect, WalletConnectPeer } from '~/util/walletconnect';
+import { AccountId } from '@api/account';
+import { tryOrCatchAsync } from 'lib';
+import { StyleSheet } from 'react-native';
 
 export interface SessionProposalScreenParams {
-  uri?: string;
   id: number;
-  proposer: WcProposer;
+  peer: WalletConnectPeer;
 }
 
 export type SessionProposalScreenProps = StackNavigatorScreenProps<'SessionProposal'>;
 
 export const SessionProposalScreen = ({ route, navigation }: SessionProposalScreenProps) => {
-  const { uri, id, proposer } = route.params;
-  const styles = useStyles();
-  const {
-    client: clientV2,
-    withClient: withClientV2,
-    withConnectionV1,
-  } = useWalletConnectClients();
-  const setAccountQuorums = useSessionAccountQuorumsState(id)[1];
+  const { id, peer } = route.params;
+  const client = useWalletConnect();
 
-  const [selected, setSelected] = useImmer<SessionAccountQuorum>({});
+  const [accounts, setAccounts] = useImmer<Set<AccountId>>(new Set());
 
   // Handle session proposal expiry -- only for v2
   useEffect(() => {
@@ -44,48 +35,23 @@ export const SessionProposalScreen = ({ route, navigation }: SessionProposalScre
         navigation.goBack();
       }
     };
-    clientV2.on('proposal_expire', handleExpiry);
+    client.on('proposal_expire', handleExpiry);
 
     return () => {
-      clientV2.removeListener('proposal_expire', handleExpiry);
+      client.removeListener('proposal_expire', handleExpiry);
     };
-  }, [clientV2, id, navigation]);
+  }, [client, id, navigation]);
 
-  const approve = () => {
-    try {
-      const accounts = Object.keys(selected) as Address[];
-      if (uri) {
-        withConnectionV1(uri, (connection) => {
-          connection.approveSession({ accounts, chainId: CHAIN_ID() });
-        });
-      } else {
-        withClientV2((client) => {
-          client.approve({ id, namespaces: toNamespaces(accounts) });
-        });
-      }
-
-      setAccountQuorums(selected);
-    } catch {
-      showError('Failed to establish wallet connect session');
-    }
-
+  const approve = async () => {
+    await tryOrCatchAsync(
+      () => client.approve({ id, namespaces: toNamespaces(accounts) }),
+      () => showError('Failed to establish wallet connect session'),
+    );
     navigation.goBack();
   };
 
   const reject = () => {
-    const reason = getSdkError('USER_REJECTED');
-    if (uri) {
-      withConnectionV1(uri, (connection) => {
-        connection.rejectSession({
-          message: reason.message,
-        });
-      });
-    } else {
-      withClientV2((client) => {
-        client.reject({ id, reason });
-      });
-    }
-
+    client.reject({ id, reason: getSdkError('USER_REJECTED') });
     navigation.goBack();
   };
 
@@ -96,25 +62,23 @@ export const SessionProposalScreen = ({ route, navigation }: SessionProposalScre
       </Appbar.Header>
 
       <Box flex={1} mx={2}>
-        <ProposerDetails proposer={proposer} />
+        <ProposerDetails proposer={peer} />
 
-        <SessionAccounts selected={selected} setSelected={setSelected} style={styles.accounts} />
+        <SessionAccounts selected={accounts} setSelected={setAccounts} style={styles.accounts} />
       </Box>
 
-      <Actions
-        primary={
-          <Button mode="contained" onPress={approve} disabled={!Object.keys(selected).length}>
-            Connect
-          </Button>
-        }
-        secondary={<Button onPress={reject}>Reject</Button>}
-      />
+      <Actions horizontal>
+        <Button onPress={reject}>Reject</Button>
+        <Button mode="contained" onPress={approve} disabled={!Object.keys(accounts).length}>
+          Connect
+        </Button>
+      </Actions>
     </Box>
   );
 };
 
-const useStyles = makeStyles(({ space }) => ({
+const styles = StyleSheet.create({
   accounts: {
-    marginTop: space(3),
+    marginTop: 24,
   },
-}));
+});

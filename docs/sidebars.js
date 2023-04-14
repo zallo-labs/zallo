@@ -11,7 +11,7 @@ const sidebars = {
         type: 'generated-index',
         slug: 'tutorials',
       },
-      items: ['tutorials/transaction', 'tutorials/quorums'],
+      items: ['tutorials/transaction', 'tutorials/policies'],
     },
     {
       type: 'category',
@@ -45,17 +45,16 @@ const sidebars = {
         },
         {
           type: 'category',
-          label: 'Quorum',
+          label: 'Policy',
           link: {
             type: 'doc',
-            id: 'reference/quorum/index',
+            id: 'reference/policy/index',
           },
           items: [
-            'reference/quorum/create',
-            'reference/quorum/spending',
-            'reference/quorum/query',
-            'reference/quorum/query-many',
-            'reference/quorum/remove',
+            'reference/policy/create',
+            'reference/policy/query',
+            'reference/policy/query-many',
+            'reference/policy/remove',
           ],
         },
         {

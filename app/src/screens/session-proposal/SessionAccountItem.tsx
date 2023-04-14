@@ -1,45 +1,26 @@
-import { Address, QuorumKey } from 'lib';
-import { Checkbox, Text } from 'react-native-paper';
-import { AddrIcon } from '~/components/Identicon/AddrIcon';
-import { Item, ItemProps } from '~/components/item/Item';
-import { ItemSkeleton } from '~/components/item/ItemSkeleton';
-import { withSkeleton } from '~/components/skeleton/withSkeleton';
-import { useAccount } from '~/queries/account/useAccount.api';
-import { useQuorum } from '~/queries/quroum/useQuorum.api';
-import { useSelectQuorum } from '../account/quorums/useSelectQuorum';
+import { Address } from 'lib';
+import { Checkbox } from 'react-native-paper';
+import { ListItem, ListItemProps } from '~/components/list/ListItem';
+import { AddressLabel } from '~/components/address/AddressLabel';
 
-export interface SessionAccountItemProps extends Omit<ItemProps, 'selected'> {
+export interface SessionAccountItemProps extends Partial<ListItemProps> {
   account: Address;
-  selected?: QuorumKey;
-  onSelect: (quorumKey: QuorumKey | undefined) => void;
+  onPress: ListItemProps['onPress'];
 }
 
-const SessionAccountItem = ({
-  account: accountAddr,
+export const SessionAccountItem = ({
+  account,
   selected,
-  onSelect,
+  onPress,
   ...itemProps
 }: SessionAccountItemProps) => {
-  const account = useAccount(accountAddr);
-  const selectQuorum = useSelectQuorum(accountAddr);
-  const selectedQuorum = useQuorum(selected ? { account: accountAddr, key: selected } : undefined);
-
   return (
-    <Item
-      Left={<AddrIcon addr={accountAddr} />}
-      Main={[
-        <Text variant="titleLarge">{account.name}</Text>,
-        selectedQuorum && <Text variant="bodyMedium">{selectedQuorum.name}</Text>,
-      ]}
-      selected={!!selectedQuorum}
-      Right={
-        <Checkbox status={selected ? 'checked' : 'unchecked'} onPress={() => onSelect(undefined)} />
-      }
-      padding="vertical"
-      onPress={async () => onSelect((await selectQuorum()).key)}
+    <ListItem
+      leading={account}
+      headline={<AddressLabel address={account} />}
+      selected={selected}
+      trailing={<Checkbox status={selected ? 'checked' : 'unchecked'} onPress={onPress} />}
       {...itemProps}
     />
   );
 };
-
-export default withSkeleton(SessionAccountItem, ItemSkeleton);

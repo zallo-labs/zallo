@@ -78,6 +78,7 @@
     "prettier.ignorePath": "../.prettierignore",
     "editor.tabSize": 2,
     "jest.disabledWorkspaceFolders": ["/", "contracts", "docs", "subgraph"],
-    "jest.autoRun": "off"
+    "jest.autoRun": "off",
+    "typescript.tsdk": "/node_modules/typescript/lib"
   }
 }

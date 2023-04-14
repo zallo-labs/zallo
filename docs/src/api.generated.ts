@@ -12,12 +12,10 @@ export type Scalars = {
   Float: number;
   /** Ethereum address */
   Address: any;
-  /** integer */
-  BigNumber: any;
+  /** The `BigInt` scalar type represents non-fractional signed whole numeric values. */
+  BigInt: any;
   /** bytes hex string */
   Bytes: any;
-  /** 8-byte hex string */
-  Bytes8: any;
   /** 32-byte hex string */
   Bytes32: any;
   /** A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date-time format. */
@@ -26,34 +24,38 @@ export type Scalars = {
   Decimal: any;
   /** The `JSON` scalar type represents JSON values as specified by [ECMA-404](http://www.ecma-international.org/publications/files/ECMA-ST/ECMA-404.pdf). */
   JSON: any;
-  /** Quorum key: a 32-bit unsigned integer */
-  QuorumKey: any;
+  /** Policy key: an unsigned integer [0, 4294967295] */
+  PolicyKey: any;
   /** 256-bit unsigned integer */
   Uint256: any;
 };
+
+export enum AbiSource {
+  Decompiled = 'DECOMPILED',
+  Standard = 'STANDARD',
+  Verified = 'VERIFIED'
+}
 
 export type Account = {
   __typename?: 'Account';
   _count: AccountCount;
   comments?: Maybe<Array<Comment>>;
   deploySalt: Scalars['String'];
-  id: Scalars['ID'];
+  id: Scalars['String'];
   impl: Scalars['String'];
   isActive: Scalars['Boolean'];
   name: Scalars['String'];
+  policies?: Maybe<Array<Policy>>;
+  policyStates?: Maybe<Array<PolicyState>>;
   proposals?: Maybe<Array<Proposal>>;
-  quorumStates?: Maybe<Array<QuorumState>>;
-  quorums?: Maybe<Array<Quorum>>;
-  reactions?: Maybe<Array<Reaction>>;
 };
 
 export type AccountCount = {
   __typename?: 'AccountCount';
   comments: Scalars['Int'];
+  policies: Scalars['Int'];
+  policyStates: Scalars['Int'];
   proposals: Scalars['Int'];
-  quorumStates: Scalars['Int'];
-  quorums: Scalars['Int'];
-  reactions: Scalars['Int'];
 };
 
 export enum AccountEvent {
@@ -68,10 +70,9 @@ export type AccountOrderByWithRelationInput = {
   impl?: InputMaybe<SortOrder>;
   isActive?: InputMaybe<SortOrder>;
   name?: InputMaybe<SortOrder>;
+  policies?: InputMaybe<PolicyOrderByRelationAggregateInput>;
+  policyStates?: InputMaybe<PolicyStateOrderByRelationAggregateInput>;
   proposals?: InputMaybe<ProposalOrderByRelationAggregateInput>;
-  quorumStates?: InputMaybe<QuorumStateOrderByRelationAggregateInput>;
-  quorums?: InputMaybe<QuorumOrderByRelationAggregateInput>;
-  reactions?: InputMaybe<ReactionOrderByRelationAggregateInput>;
 };
 
 export type AccountRelationFilter = {
@@ -97,10 +98,9 @@ export type AccountWhereInput = {
   impl?: InputMaybe<StringFilter>;
   isActive?: InputMaybe<BoolFilter>;
   name?: InputMaybe<StringFilter>;
+  policies?: InputMaybe<PolicyListRelationFilter>;
+  policyStates?: InputMaybe<PolicyStateListRelationFilter>;
   proposals?: InputMaybe<ProposalListRelationFilter>;
-  quorumStates?: InputMaybe<QuorumStateListRelationFilter>;
-  quorums?: InputMaybe<QuorumListRelationFilter>;
-  reactions?: InputMaybe<ReactionListRelationFilter>;
 };
 
 export type AccountWhereUniqueInput = {
@@ -141,9 +141,9 @@ export type ApprovalWhereInput = {
 
 export type Approver = {
   __typename?: 'Approver';
-  id: Scalars['ID'];
-  quorumState: QuorumState;
-  quorumStateId: Scalars['Int'];
+  id: Scalars['String'];
+  state: PolicyState;
+  stateId: Scalars['BigInt'];
   user: User;
   userId: Scalars['String'];
 };
@@ -162,10 +162,32 @@ export type ApproverWhereInput = {
   AND?: InputMaybe<Array<ApproverWhereInput>>;
   NOT?: InputMaybe<Array<ApproverWhereInput>>;
   OR?: InputMaybe<Array<ApproverWhereInput>>;
-  quorumState?: InputMaybe<QuorumStateRelationFilter>;
-  quorumStateId?: InputMaybe<IntFilter>;
+  state?: InputMaybe<PolicyStateRelationFilter>;
+  stateId?: InputMaybe<BigIntFilter>;
   user?: InputMaybe<UserRelationFilter>;
   userId?: InputMaybe<StringFilter>;
+};
+
+export type BigIntFilter = {
+  equals?: InputMaybe<Scalars['BigInt']>;
+  gt?: InputMaybe<Scalars['BigInt']>;
+  gte?: InputMaybe<Scalars['BigInt']>;
+  in?: InputMaybe<Array<Scalars['BigInt']>>;
+  lt?: InputMaybe<Scalars['BigInt']>;
+  lte?: InputMaybe<Scalars['BigInt']>;
+  not?: InputMaybe<NestedBigIntFilter>;
+  notIn?: InputMaybe<Array<Scalars['BigInt']>>;
+};
+
+export type BigIntNullableFilter = {
+  equals?: InputMaybe<Scalars['BigInt']>;
+  gt?: InputMaybe<Scalars['BigInt']>;
+  gte?: InputMaybe<Scalars['BigInt']>;
+  in?: InputMaybe<Array<Scalars['BigInt']>>;
+  lt?: InputMaybe<Scalars['BigInt']>;
+  lte?: InputMaybe<Scalars['BigInt']>;
+  not?: InputMaybe<NestedBigIntNullableFilter>;
+  notIn?: InputMaybe<Array<Scalars['BigInt']>>;
 };
 
 export type BoolFilter = {
@@ -182,7 +204,7 @@ export type Comment = {
   authorId: Scalars['String'];
   content: Scalars['String'];
   createdAt: Scalars['DateTime'];
-  id: Scalars['ID'];
+  id: Scalars['Int'];
   key: Scalars['String'];
   reactions?: Maybe<Array<Reaction>>;
   updatedAt: Scalars['DateTime'];
@@ -287,12 +309,57 @@ export type ContactWhereUniqueInput = {
   userId_addr?: InputMaybe<ContactUserIdAddrCompoundUniqueInput>;
 };
 
-export type ContractMethod = {
-  __typename?: 'ContractMethod';
-  contract: Scalars['String'];
-  fragment: Scalars['JSON'];
+export type Contract = {
+  __typename?: 'Contract';
+  _count: ContractCount;
+  functions?: Maybe<Array<ContractFunction>>;
   id: Scalars['String'];
-  sighash: Scalars['String'];
+};
+
+export type ContractCount = {
+  __typename?: 'ContractCount';
+  functions: Scalars['Int'];
+};
+
+export type ContractFunction = {
+  __typename?: 'ContractFunction';
+  abi: Scalars['JSON'];
+  contract?: Maybe<Contract>;
+  contractId?: Maybe<Scalars['String']>;
+  id: Scalars['Int'];
+  selector: Scalars['String'];
+  source: AbiSource;
+  sourceConfidence: ContractSourceConfidence;
+};
+
+export type ContractFunctionInput = {
+  contract: Scalars['Address'];
+  selector: Scalars['Bytes'];
+};
+
+export type ContractInput = {
+  contract: Scalars['Address'];
+};
+
+export enum ContractSourceConfidence {
+  High = 'High',
+  Low = 'Low',
+  Medium = 'Medium'
+}
+
+export type CreateAccountInput = {
+  name: Scalars['String'];
+  policies: Array<PolicyInput>;
+};
+
+export type CreatePolicyInput = {
+  account: Scalars['Address'];
+  /** Signers that are required to approve */
+  approvers?: InputMaybe<Array<Scalars['Address']>>;
+  name?: InputMaybe<Scalars['String']>;
+  permissions: PermissionsInput;
+  /** Defaults to all approvers */
+  threshold?: InputMaybe<Scalars['Float']>;
 };
 
 export type DateTimeFilter = {
@@ -328,20 +395,6 @@ export type DecimalNullableFilter = {
   notIn?: InputMaybe<Array<Scalars['Decimal']>>;
 };
 
-export type EnumLimitPeriodFilter = {
-  equals?: InputMaybe<LimitPeriod>;
-  in?: InputMaybe<Array<LimitPeriod>>;
-  not?: InputMaybe<NestedEnumLimitPeriodFilter>;
-  notIn?: InputMaybe<Array<LimitPeriod>>;
-};
-
-export type EnumSpendingFallbackFilter = {
-  equals?: InputMaybe<SpendingFallback>;
-  in?: InputMaybe<Array<SpendingFallback>>;
-  not?: InputMaybe<NestedEnumSpendingFallbackFilter>;
-  notIn?: InputMaybe<Array<SpendingFallback>>;
-};
-
 export type IntFilter = {
   equals?: InputMaybe<Scalars['Int']>;
   gt?: InputMaybe<Scalars['Int']>;
@@ -353,40 +406,22 @@ export type IntFilter = {
   notIn?: InputMaybe<Array<Scalars['Int']>>;
 };
 
-export type IntNullableFilter = {
-  equals?: InputMaybe<Scalars['Int']>;
-  gt?: InputMaybe<Scalars['Int']>;
-  gte?: InputMaybe<Scalars['Int']>;
-  in?: InputMaybe<Array<Scalars['Int']>>;
-  lt?: InputMaybe<Scalars['Int']>;
-  lte?: InputMaybe<Scalars['Int']>;
-  not?: InputMaybe<NestedIntNullableFilter>;
-  notIn?: InputMaybe<Array<Scalars['Int']>>;
-};
-
-export enum LimitPeriod {
-  Day = 'Day',
-  Month = 'Month',
-  Week = 'Week'
-}
-
 export type Mutation = {
   __typename?: 'Mutation';
   approve: Proposal;
   createAccount: Account;
   createComment: Comment;
-  createQuorum: Quorum;
+  createPolicy: Policy;
   deleteComment: Comment;
   deleteContact: Contact;
   propose: Proposal;
   reactToComment?: Maybe<Reaction>;
   reject: Proposal;
+  removePolicy: Policy;
   removeProposal: Proposal;
-  removeQuorum: Quorum;
   requestTokens: Array<Scalars['Address']>;
-  updateAccountMetadata: Account;
-  updateQuorum: Quorum;
-  updateQuorumMetadata: Quorum;
+  updateAccount: Account;
+  updatePolicy: Policy;
   updateUser: User;
   upsertContact: ContactObject;
 };
@@ -399,8 +434,7 @@ export type MutationApproveArgs = {
 
 
 export type MutationCreateAccountArgs = {
-  name: Scalars['String'];
-  quorums: Array<QuorumInput>;
+  args: CreateAccountInput;
 };
 
 
@@ -411,12 +445,8 @@ export type MutationCreateCommentArgs = {
 };
 
 
-export type MutationCreateQuorumArgs = {
-  account: Scalars['Address'];
-  approvers: Array<Scalars['Address']>;
-  name?: InputMaybe<Scalars['String']>;
-  proposingQuorumKey: Scalars['QuorumKey'];
-  spending?: InputMaybe<SpendingInput>;
+export type MutationCreatePolicyArgs = {
+  args: CreatePolicyInput;
 };
 
 
@@ -433,9 +463,9 @@ export type MutationDeleteContactArgs = {
 export type MutationProposeArgs = {
   account: Scalars['Address'];
   data?: InputMaybe<Scalars['Bytes']>;
+  feeToken?: InputMaybe<Scalars['Address']>;
   gasLimit?: InputMaybe<Scalars['Uint256']>;
-  quorumKey?: InputMaybe<Scalars['QuorumKey']>;
-  salt?: InputMaybe<Scalars['Bytes8']>;
+  nonce?: InputMaybe<Scalars['Uint256']>;
   signature?: InputMaybe<Scalars['Bytes']>;
   to: Scalars['Address'];
   value?: InputMaybe<Scalars['Uint256']>;
@@ -453,15 +483,13 @@ export type MutationRejectArgs = {
 };
 
 
-export type MutationRemoveProposalArgs = {
-  id: Scalars['Bytes32'];
+export type MutationRemovePolicyArgs = {
+  args: UniquePolicyInput;
 };
 
 
-export type MutationRemoveQuorumArgs = {
-  account: Scalars['Address'];
-  key: Scalars['QuorumKey'];
-  proposingQuorumKey?: InputMaybe<Scalars['QuorumKey']>;
+export type MutationRemoveProposalArgs = {
+  id: Scalars['Bytes32'];
 };
 
 
@@ -470,25 +498,13 @@ export type MutationRequestTokensArgs = {
 };
 
 
-export type MutationUpdateAccountMetadataArgs = {
-  id: Scalars['Address'];
-  name: Scalars['String'];
+export type MutationUpdateAccountArgs = {
+  args: UpdateAccountInput;
 };
 
 
-export type MutationUpdateQuorumArgs = {
-  account: Scalars['Address'];
-  approvers: Array<Scalars['Address']>;
-  key: Scalars['QuorumKey'];
-  proposingQuorumKey?: InputMaybe<Scalars['QuorumKey']>;
-  spending?: InputMaybe<SpendingInput>;
-};
-
-
-export type MutationUpdateQuorumMetadataArgs = {
-  account: Scalars['Address'];
-  key: Scalars['QuorumKey'];
-  name: Scalars['String'];
+export type MutationUpdatePolicyArgs = {
+  args: UpdatePolicyInput;
 };
 
 
@@ -502,6 +518,28 @@ export type MutationUpsertContactArgs = {
   name: Scalars['String'];
   newAddr: Scalars['Address'];
   prevAddr?: InputMaybe<Scalars['Address']>;
+};
+
+export type NestedBigIntFilter = {
+  equals?: InputMaybe<Scalars['BigInt']>;
+  gt?: InputMaybe<Scalars['BigInt']>;
+  gte?: InputMaybe<Scalars['BigInt']>;
+  in?: InputMaybe<Array<Scalars['BigInt']>>;
+  lt?: InputMaybe<Scalars['BigInt']>;
+  lte?: InputMaybe<Scalars['BigInt']>;
+  not?: InputMaybe<NestedBigIntFilter>;
+  notIn?: InputMaybe<Array<Scalars['BigInt']>>;
+};
+
+export type NestedBigIntNullableFilter = {
+  equals?: InputMaybe<Scalars['BigInt']>;
+  gt?: InputMaybe<Scalars['BigInt']>;
+  gte?: InputMaybe<Scalars['BigInt']>;
+  in?: InputMaybe<Array<Scalars['BigInt']>>;
+  lt?: InputMaybe<Scalars['BigInt']>;
+  lte?: InputMaybe<Scalars['BigInt']>;
+  not?: InputMaybe<NestedBigIntNullableFilter>;
+  notIn?: InputMaybe<Array<Scalars['BigInt']>>;
 };
 
 export type NestedBoolFilter = {
@@ -542,20 +580,6 @@ export type NestedDecimalNullableFilter = {
   notIn?: InputMaybe<Array<Scalars['Decimal']>>;
 };
 
-export type NestedEnumLimitPeriodFilter = {
-  equals?: InputMaybe<LimitPeriod>;
-  in?: InputMaybe<Array<LimitPeriod>>;
-  not?: InputMaybe<NestedEnumLimitPeriodFilter>;
-  notIn?: InputMaybe<Array<LimitPeriod>>;
-};
-
-export type NestedEnumSpendingFallbackFilter = {
-  equals?: InputMaybe<SpendingFallback>;
-  in?: InputMaybe<Array<SpendingFallback>>;
-  not?: InputMaybe<NestedEnumSpendingFallbackFilter>;
-  notIn?: InputMaybe<Array<SpendingFallback>>;
-};
-
 export type NestedIntFilter = {
   equals?: InputMaybe<Scalars['Int']>;
   gt?: InputMaybe<Scalars['Int']>;
@@ -564,17 +588,6 @@ export type NestedIntFilter = {
   lt?: InputMaybe<Scalars['Int']>;
   lte?: InputMaybe<Scalars['Int']>;
   not?: InputMaybe<NestedIntFilter>;
-  notIn?: InputMaybe<Array<Scalars['Int']>>;
-};
-
-export type NestedIntNullableFilter = {
-  equals?: InputMaybe<Scalars['Int']>;
-  gt?: InputMaybe<Scalars['Int']>;
-  gte?: InputMaybe<Scalars['Int']>;
-  in?: InputMaybe<Array<Scalars['Int']>>;
-  lt?: InputMaybe<Scalars['Int']>;
-  lte?: InputMaybe<Scalars['Int']>;
-  not?: InputMaybe<NestedIntNullableFilter>;
   notIn?: InputMaybe<Array<Scalars['Int']>>;
 };
 
@@ -606,6 +619,184 @@ export type NestedStringNullableFilter = {
   startsWith?: InputMaybe<Scalars['String']>;
 };
 
+export type PermissionsInput = {
+  /** Targets that can be called */
+  targets?: InputMaybe<Array<TargetInput>>;
+};
+
+export type Policy = {
+  __typename?: 'Policy';
+  _count: PolicyCount;
+  account: Account;
+  accountId: Scalars['String'];
+  active?: Maybe<PolicyState>;
+  activeId?: Maybe<Scalars['BigInt']>;
+  draft?: Maybe<PolicyState>;
+  draftId?: Maybe<Scalars['BigInt']>;
+  id: Scalars['String'];
+  key: Scalars['BigInt'];
+  name: Scalars['String'];
+  states?: Maybe<Array<PolicyState>>;
+};
+
+export type PolicyAccountIdKeyCompoundUniqueInput = {
+  accountId: Scalars['String'];
+  key: Scalars['BigInt'];
+};
+
+export type PolicyAccountIdNameCompoundUniqueInput = {
+  accountId: Scalars['String'];
+  name: Scalars['String'];
+};
+
+export type PolicyCount = {
+  __typename?: 'PolicyCount';
+  states: Scalars['Int'];
+};
+
+export type PolicyInput = {
+  /** Signers that are required to approve */
+  approvers?: InputMaybe<Array<Scalars['Address']>>;
+  name?: InputMaybe<Scalars['String']>;
+  permissions: PermissionsInput;
+  /** Defaults to all approvers */
+  threshold?: InputMaybe<Scalars['Float']>;
+};
+
+export type PolicyListRelationFilter = {
+  every?: InputMaybe<PolicyWhereInput>;
+  none?: InputMaybe<PolicyWhereInput>;
+  some?: InputMaybe<PolicyWhereInput>;
+};
+
+export type PolicyOrderByRelationAggregateInput = {
+  _count?: InputMaybe<SortOrder>;
+};
+
+export type PolicyOrderByWithRelationInput = {
+  account?: InputMaybe<AccountOrderByWithRelationInput>;
+  accountId?: InputMaybe<SortOrder>;
+  active?: InputMaybe<PolicyStateOrderByWithRelationInput>;
+  activeId?: InputMaybe<SortOrder>;
+  draft?: InputMaybe<PolicyStateOrderByWithRelationInput>;
+  draftId?: InputMaybe<SortOrder>;
+  key?: InputMaybe<SortOrder>;
+  name?: InputMaybe<SortOrder>;
+  states?: InputMaybe<PolicyStateOrderByRelationAggregateInput>;
+};
+
+export type PolicyRelationFilter = {
+  is?: InputMaybe<PolicyWhereInput>;
+  isNot?: InputMaybe<PolicyWhereInput>;
+};
+
+export enum PolicyScalarFieldEnum {
+  AccountId = 'accountId',
+  ActiveId = 'activeId',
+  DraftId = 'draftId',
+  Key = 'key',
+  Name = 'name'
+}
+
+export type PolicyState = {
+  __typename?: 'PolicyState';
+  _count: PolicyStateCount;
+  account: Account;
+  accountId: Scalars['String'];
+  activeOf?: Maybe<Policy>;
+  approvers?: Maybe<Array<Approver>>;
+  createdAt: Scalars['DateTime'];
+  draftOf?: Maybe<Policy>;
+  id: Scalars['BigInt'];
+  isRemoved: Scalars['Boolean'];
+  policy: Policy;
+  policyKey: Scalars['BigInt'];
+  proposal?: Maybe<Proposal>;
+  proposalId?: Maybe<Scalars['String']>;
+  targets?: Maybe<Array<Target>>;
+  threshold: Scalars['Int'];
+};
+
+export type PolicyStateCount = {
+  __typename?: 'PolicyStateCount';
+  approvers: Scalars['Int'];
+  targets: Scalars['Int'];
+};
+
+export type PolicyStateListRelationFilter = {
+  every?: InputMaybe<PolicyStateWhereInput>;
+  none?: InputMaybe<PolicyStateWhereInput>;
+  some?: InputMaybe<PolicyStateWhereInput>;
+};
+
+export type PolicyStateOrderByRelationAggregateInput = {
+  _count?: InputMaybe<SortOrder>;
+};
+
+export type PolicyStateOrderByWithRelationInput = {
+  account?: InputMaybe<AccountOrderByWithRelationInput>;
+  accountId?: InputMaybe<SortOrder>;
+  activeOf?: InputMaybe<PolicyOrderByWithRelationInput>;
+  approvers?: InputMaybe<ApproverOrderByRelationAggregateInput>;
+  createdAt?: InputMaybe<SortOrder>;
+  draftOf?: InputMaybe<PolicyOrderByWithRelationInput>;
+  id?: InputMaybe<SortOrder>;
+  isRemoved?: InputMaybe<SortOrder>;
+  policy?: InputMaybe<PolicyOrderByWithRelationInput>;
+  policyKey?: InputMaybe<SortOrder>;
+  proposal?: InputMaybe<ProposalOrderByWithRelationInput>;
+  proposalId?: InputMaybe<SortOrder>;
+  targets?: InputMaybe<TargetOrderByRelationAggregateInput>;
+  threshold?: InputMaybe<SortOrder>;
+};
+
+export type PolicyStateRelationFilter = {
+  is?: InputMaybe<PolicyStateWhereInput>;
+  isNot?: InputMaybe<PolicyStateWhereInput>;
+};
+
+export type PolicyStateWhereInput = {
+  AND?: InputMaybe<Array<PolicyStateWhereInput>>;
+  NOT?: InputMaybe<Array<PolicyStateWhereInput>>;
+  OR?: InputMaybe<Array<PolicyStateWhereInput>>;
+  account?: InputMaybe<AccountRelationFilter>;
+  accountId?: InputMaybe<StringFilter>;
+  activeOf?: InputMaybe<PolicyRelationFilter>;
+  approvers?: InputMaybe<ApproverListRelationFilter>;
+  createdAt?: InputMaybe<DateTimeFilter>;
+  draftOf?: InputMaybe<PolicyRelationFilter>;
+  id?: InputMaybe<BigIntFilter>;
+  isRemoved?: InputMaybe<BoolFilter>;
+  policy?: InputMaybe<PolicyRelationFilter>;
+  policyKey?: InputMaybe<BigIntFilter>;
+  proposal?: InputMaybe<ProposalRelationFilter>;
+  proposalId?: InputMaybe<StringNullableFilter>;
+  targets?: InputMaybe<TargetListRelationFilter>;
+  threshold?: InputMaybe<IntFilter>;
+};
+
+export type PolicyWhereInput = {
+  AND?: InputMaybe<Array<PolicyWhereInput>>;
+  NOT?: InputMaybe<Array<PolicyWhereInput>>;
+  OR?: InputMaybe<Array<PolicyWhereInput>>;
+  account?: InputMaybe<AccountRelationFilter>;
+  accountId?: InputMaybe<StringFilter>;
+  active?: InputMaybe<PolicyStateRelationFilter>;
+  activeId?: InputMaybe<BigIntNullableFilter>;
+  draft?: InputMaybe<PolicyStateRelationFilter>;
+  draftId?: InputMaybe<BigIntNullableFilter>;
+  key?: InputMaybe<BigIntFilter>;
+  name?: InputMaybe<StringFilter>;
+  states?: InputMaybe<PolicyStateListRelationFilter>;
+};
+
+export type PolicyWhereUniqueInput = {
+  accountId_key?: InputMaybe<PolicyAccountIdKeyCompoundUniqueInput>;
+  accountId_name?: InputMaybe<PolicyAccountIdNameCompoundUniqueInput>;
+  activeId?: InputMaybe<Scalars['BigInt']>;
+  draftId?: InputMaybe<Scalars['BigInt']>;
+};
+
 export type Proposal = {
   __typename?: 'Proposal';
   _count: ProposalCount;
@@ -614,24 +805,26 @@ export type Proposal = {
   approvals?: Maybe<Array<Approval>>;
   createdAt: Scalars['DateTime'];
   data?: Maybe<Scalars['String']>;
-  gasLimit?: Maybe<Scalars['Decimal']>;
-  id: Scalars['ID'];
+  estimatedOpGas: Scalars['BigInt'];
+  feeToken?: Maybe<Scalars['String']>;
+  gasLimit?: Maybe<Scalars['BigInt']>;
+  id: Scalars['String'];
+  nonce: Scalars['BigInt'];
+  policyStates?: Maybe<Array<PolicyState>>;
   proposer: User;
   proposerId: Scalars['String'];
-  quorum: Quorum;
-  quorumKey: Scalars['Int'];
-  quorumStates?: Maybe<Array<QuorumState>>;
-  salt: Scalars['String'];
+  rejections: Array<Rejection>;
+  satisfiablePolicies: Array<SatisfiablePolicy>;
   to: Scalars['String'];
   transaction?: Maybe<Transaction>;
   transactions?: Maybe<Array<Transaction>>;
-  value?: Maybe<Scalars['String']>;
+  value?: Maybe<Scalars['Decimal']>;
 };
 
 export type ProposalCount = {
   __typename?: 'ProposalCount';
   approvals: Scalars['Int'];
-  quorumStates: Scalars['Int'];
+  policyStates: Scalars['Int'];
   transactions: Scalars['Int'];
 };
 
@@ -658,14 +851,14 @@ export type ProposalOrderByWithRelationInput = {
   approvals?: InputMaybe<ApprovalOrderByRelationAggregateInput>;
   createdAt?: InputMaybe<SortOrder>;
   data?: InputMaybe<SortOrder>;
+  estimatedOpGas?: InputMaybe<SortOrder>;
+  feeToken?: InputMaybe<SortOrder>;
   gasLimit?: InputMaybe<SortOrder>;
   id?: InputMaybe<SortOrder>;
+  nonce?: InputMaybe<SortOrder>;
+  policyStates?: InputMaybe<PolicyStateOrderByRelationAggregateInput>;
   proposer?: InputMaybe<UserOrderByWithRelationInput>;
   proposerId?: InputMaybe<SortOrder>;
-  quorum?: InputMaybe<QuorumOrderByWithRelationInput>;
-  quorumKey?: InputMaybe<SortOrder>;
-  quorumStates?: InputMaybe<QuorumStateOrderByRelationAggregateInput>;
-  salt?: InputMaybe<SortOrder>;
   to?: InputMaybe<SortOrder>;
   transactions?: InputMaybe<TransactionOrderByRelationAggregateInput>;
   value?: InputMaybe<SortOrder>;
@@ -680,11 +873,12 @@ export enum ProposalScalarFieldEnum {
   AccountId = 'accountId',
   CreatedAt = 'createdAt',
   Data = 'data',
+  EstimatedOpGas = 'estimatedOpGas',
+  FeeToken = 'feeToken',
   GasLimit = 'gasLimit',
   Id = 'id',
+  Nonce = 'nonce',
   ProposerId = 'proposerId',
-  QuorumKey = 'quorumKey',
-  Salt = 'salt',
   To = 'to',
   Value = 'value'
 }
@@ -704,17 +898,17 @@ export type ProposalWhereInput = {
   approvals?: InputMaybe<ApprovalListRelationFilter>;
   createdAt?: InputMaybe<DateTimeFilter>;
   data?: InputMaybe<StringNullableFilter>;
-  gasLimit?: InputMaybe<DecimalNullableFilter>;
+  estimatedOpGas?: InputMaybe<BigIntFilter>;
+  feeToken?: InputMaybe<StringNullableFilter>;
+  gasLimit?: InputMaybe<BigIntNullableFilter>;
   id?: InputMaybe<StringFilter>;
+  nonce?: InputMaybe<BigIntFilter>;
+  policyStates?: InputMaybe<PolicyStateListRelationFilter>;
   proposer?: InputMaybe<UserRelationFilter>;
   proposerId?: InputMaybe<StringFilter>;
-  quorum?: InputMaybe<QuorumRelationFilter>;
-  quorumKey?: InputMaybe<IntFilter>;
-  quorumStates?: InputMaybe<QuorumStateListRelationFilter>;
-  salt?: InputMaybe<StringFilter>;
   to?: InputMaybe<StringFilter>;
   transactions?: InputMaybe<TransactionListRelationFilter>;
-  value?: InputMaybe<StringNullableFilter>;
+  value?: InputMaybe<DecimalNullableFilter>;
 };
 
 export type ProposalWhereUniqueInput = {
@@ -728,11 +922,12 @@ export type Query = {
   comments: Array<Comment>;
   contact?: Maybe<ContactObject>;
   contacts: Array<ContactObject>;
-  contractMethod?: Maybe<ContractMethod>;
+  contract?: Maybe<Contract>;
+  contractFunction?: Maybe<ContractFunction>;
+  policies: Array<Policy>;
+  policy?: Maybe<Policy>;
   proposal?: Maybe<Proposal>;
   proposals: Array<Proposal>;
-  quorum?: Maybe<Quorum>;
-  quorums: Array<Quorum>;
   requestableTokens: Array<Scalars['Address']>;
   user: User;
 };
@@ -773,9 +968,28 @@ export type QueryContactsArgs = {
 };
 
 
-export type QueryContractMethodArgs = {
-  contract: Scalars['Address'];
-  sighash: Scalars['Bytes'];
+export type QueryContractArgs = {
+  args: ContractInput;
+};
+
+
+export type QueryContractFunctionArgs = {
+  args: ContractFunctionInput;
+};
+
+
+export type QueryPoliciesArgs = {
+  cursor?: InputMaybe<PolicyWhereUniqueInput>;
+  distinct?: InputMaybe<Array<PolicyScalarFieldEnum>>;
+  orderBy?: InputMaybe<Array<PolicyOrderByWithRelationInput>>;
+  skip?: InputMaybe<Scalars['Int']>;
+  take?: InputMaybe<Scalars['Int']>;
+  where?: InputMaybe<PolicyWhereInput>;
+};
+
+
+export type QueryPolicyArgs = {
+  args: UniquePolicyInput;
 };
 
 
@@ -786,7 +1000,6 @@ export type QueryProposalArgs = {
 
 export type QueryProposalsArgs = {
   accounts?: InputMaybe<Array<Scalars['Address']>>;
-  actionRequired?: InputMaybe<Scalars['Boolean']>;
   cursor?: InputMaybe<ProposalWhereUniqueInput>;
   distinct?: InputMaybe<Array<ProposalScalarFieldEnum>>;
   orderBy?: InputMaybe<Array<ProposalOrderByWithRelationInput>>;
@@ -794,22 +1007,6 @@ export type QueryProposalsArgs = {
   states?: InputMaybe<Array<ProposalState>>;
   take?: InputMaybe<Scalars['Int']>;
   where?: InputMaybe<ProposalWhereInput>;
-};
-
-
-export type QueryQuorumArgs = {
-  account: Scalars['Address'];
-  key: Scalars['QuorumKey'];
-};
-
-
-export type QueryQuorumsArgs = {
-  cursor?: InputMaybe<QuorumWhereUniqueInput>;
-  distinct?: InputMaybe<Array<QuorumScalarFieldEnum>>;
-  orderBy?: InputMaybe<Array<QuorumOrderByWithRelationInput>>;
-  skip?: InputMaybe<Scalars['Int']>;
-  take?: InputMaybe<Scalars['Int']>;
-  where?: InputMaybe<QuorumWhereInput>;
 };
 
 
@@ -827,168 +1024,8 @@ export enum QueryMode {
   Insensitive = 'insensitive'
 }
 
-export type Quorum = {
-  __typename?: 'Quorum';
-  _count: QuorumCount;
-  account: Account;
-  accountId: Scalars['String'];
-  activeState?: Maybe<QuorumState>;
-  activeStateId?: Maybe<Scalars['Int']>;
-  id: Scalars['ID'];
-  key: Scalars['Int'];
-  name: Scalars['String'];
-  proposals?: Maybe<Array<Proposal>>;
-  proposedStates: Array<QuorumState>;
-  states?: Maybe<Array<QuorumState>>;
-};
-
-export type QuorumAccountIdKeyCompoundUniqueInput = {
-  accountId: Scalars['String'];
-  key: Scalars['Int'];
-};
-
-export type QuorumCount = {
-  __typename?: 'QuorumCount';
-  proposals: Scalars['Int'];
-  states: Scalars['Int'];
-};
-
-export type QuorumInput = {
-  approvers: Array<Scalars['Address']>;
-  name: Scalars['String'];
-  spending?: InputMaybe<SpendingInput>;
-};
-
-export type QuorumListRelationFilter = {
-  every?: InputMaybe<QuorumWhereInput>;
-  none?: InputMaybe<QuorumWhereInput>;
-  some?: InputMaybe<QuorumWhereInput>;
-};
-
-export type QuorumOrderByRelationAggregateInput = {
-  _count?: InputMaybe<SortOrder>;
-};
-
-export type QuorumOrderByWithRelationInput = {
-  account?: InputMaybe<AccountOrderByWithRelationInput>;
-  accountId?: InputMaybe<SortOrder>;
-  activeState?: InputMaybe<QuorumStateOrderByWithRelationInput>;
-  activeStateId?: InputMaybe<SortOrder>;
-  key?: InputMaybe<SortOrder>;
-  name?: InputMaybe<SortOrder>;
-  proposals?: InputMaybe<ProposalOrderByRelationAggregateInput>;
-  states?: InputMaybe<QuorumStateOrderByRelationAggregateInput>;
-};
-
-export type QuorumRelationFilter = {
-  is?: InputMaybe<QuorumWhereInput>;
-  isNot?: InputMaybe<QuorumWhereInput>;
-};
-
-export enum QuorumScalarFieldEnum {
-  AccountId = 'accountId',
-  ActiveStateId = 'activeStateId',
-  Key = 'key',
-  Name = 'name'
-}
-
-export type QuorumState = {
-  __typename?: 'QuorumState';
-  _count: QuorumStateCount;
-  account: Account;
-  accountId: Scalars['String'];
-  activeStateOfQuorum?: Maybe<Quorum>;
-  approvers?: Maybe<Array<Approver>>;
-  createdAt: Scalars['DateTime'];
-  id: Scalars['ID'];
-  isRemoved: Scalars['Boolean'];
-  limits?: Maybe<Array<TokenLimit>>;
-  proposal?: Maybe<Proposal>;
-  proposalId?: Maybe<Scalars['String']>;
-  quorum: Quorum;
-  quorumKey: Scalars['Int'];
-  spendingFallback: SpendingFallback;
-};
-
-export type QuorumStateCount = {
-  __typename?: 'QuorumStateCount';
-  approvers: Scalars['Int'];
-  limits: Scalars['Int'];
-};
-
-export type QuorumStateListRelationFilter = {
-  every?: InputMaybe<QuorumStateWhereInput>;
-  none?: InputMaybe<QuorumStateWhereInput>;
-  some?: InputMaybe<QuorumStateWhereInput>;
-};
-
-export type QuorumStateOrderByRelationAggregateInput = {
-  _count?: InputMaybe<SortOrder>;
-};
-
-export type QuorumStateOrderByWithRelationInput = {
-  account?: InputMaybe<AccountOrderByWithRelationInput>;
-  accountId?: InputMaybe<SortOrder>;
-  activeStateOfQuorum?: InputMaybe<QuorumOrderByWithRelationInput>;
-  approvers?: InputMaybe<ApproverOrderByRelationAggregateInput>;
-  createdAt?: InputMaybe<SortOrder>;
-  id?: InputMaybe<SortOrder>;
-  isRemoved?: InputMaybe<SortOrder>;
-  limits?: InputMaybe<TokenLimitOrderByRelationAggregateInput>;
-  proposal?: InputMaybe<ProposalOrderByWithRelationInput>;
-  proposalId?: InputMaybe<SortOrder>;
-  quorum?: InputMaybe<QuorumOrderByWithRelationInput>;
-  quorumKey?: InputMaybe<SortOrder>;
-  spendingFallback?: InputMaybe<SortOrder>;
-};
-
-export type QuorumStateRelationFilter = {
-  is?: InputMaybe<QuorumStateWhereInput>;
-  isNot?: InputMaybe<QuorumStateWhereInput>;
-};
-
-export type QuorumStateWhereInput = {
-  AND?: InputMaybe<Array<QuorumStateWhereInput>>;
-  NOT?: InputMaybe<Array<QuorumStateWhereInput>>;
-  OR?: InputMaybe<Array<QuorumStateWhereInput>>;
-  account?: InputMaybe<AccountRelationFilter>;
-  accountId?: InputMaybe<StringFilter>;
-  activeStateOfQuorum?: InputMaybe<QuorumRelationFilter>;
-  approvers?: InputMaybe<ApproverListRelationFilter>;
-  createdAt?: InputMaybe<DateTimeFilter>;
-  id?: InputMaybe<IntFilter>;
-  isRemoved?: InputMaybe<BoolFilter>;
-  limits?: InputMaybe<TokenLimitListRelationFilter>;
-  proposal?: InputMaybe<ProposalRelationFilter>;
-  proposalId?: InputMaybe<StringNullableFilter>;
-  quorum?: InputMaybe<QuorumRelationFilter>;
-  quorumKey?: InputMaybe<IntFilter>;
-  spendingFallback?: InputMaybe<EnumSpendingFallbackFilter>;
-};
-
-export type QuorumWhereInput = {
-  AND?: InputMaybe<Array<QuorumWhereInput>>;
-  NOT?: InputMaybe<Array<QuorumWhereInput>>;
-  OR?: InputMaybe<Array<QuorumWhereInput>>;
-  account?: InputMaybe<AccountRelationFilter>;
-  accountId?: InputMaybe<StringFilter>;
-  activeState?: InputMaybe<QuorumStateRelationFilter>;
-  activeStateId?: InputMaybe<IntNullableFilter>;
-  key?: InputMaybe<IntFilter>;
-  name?: InputMaybe<StringFilter>;
-  proposals?: InputMaybe<ProposalListRelationFilter>;
-  states?: InputMaybe<QuorumStateListRelationFilter>;
-};
-
-export type QuorumWhereUniqueInput = {
-  accountId_key?: InputMaybe<QuorumAccountIdKeyCompoundUniqueInput>;
-  activeStateId?: InputMaybe<Scalars['Int']>;
-};
-
 export type Reaction = {
   __typename?: 'Reaction';
-  account?: Maybe<Account>;
-  accountId?: Maybe<Scalars['String']>;
   comment: Comment;
   commentId: Scalars['Int'];
   createdAt: Scalars['DateTime'];
@@ -1013,8 +1050,6 @@ export type ReactionWhereInput = {
   AND?: InputMaybe<Array<ReactionWhereInput>>;
   NOT?: InputMaybe<Array<ReactionWhereInput>>;
   OR?: InputMaybe<Array<ReactionWhereInput>>;
-  account?: InputMaybe<AccountRelationFilter>;
-  accountId?: InputMaybe<StringNullableFilter>;
   comment?: InputMaybe<CommentRelationFilter>;
   commentId?: InputMaybe<IntFilter>;
   createdAt?: InputMaybe<DateTimeFilter>;
@@ -1024,20 +1059,27 @@ export type ReactionWhereInput = {
   userId?: InputMaybe<StringFilter>;
 };
 
+export type Rejection = {
+  __typename?: 'Rejection';
+  createdAt: Scalars['DateTime'];
+  proposal: Proposal;
+  proposalId: Scalars['String'];
+  user: User;
+  userId: Scalars['String'];
+};
+
+export type SatisfiablePolicy = {
+  __typename?: 'SatisfiablePolicy';
+  id: Scalars['String'];
+  key: Scalars['PolicyKey'];
+  requiresUserAction: Scalars['Boolean'];
+  satisfied: Scalars['Boolean'];
+};
+
 export enum SortOrder {
   Asc = 'asc',
   Desc = 'desc'
 }
-
-export enum SpendingFallback {
-  Allow = 'allow',
-  Deny = 'deny'
-}
-
-export type SpendingInput = {
-  fallback?: InputMaybe<SpendingFallback>;
-  limits?: InputMaybe<Array<TokenLimitInput>>;
-};
 
 export type StringFilter = {
   contains?: InputMaybe<Scalars['String']>;
@@ -1086,7 +1128,7 @@ export type Subscription = {
 
 export type SubscriptionAccountArgs = {
   accounts?: InputMaybe<Array<Scalars['Address']>>;
-  events?: InputMaybe<Array<AccountEvent>>;
+  events?: InputMaybe<AccountEvent>;
 };
 
 
@@ -1096,46 +1138,39 @@ export type SubscriptionProposalArgs = {
   proposals?: InputMaybe<Array<Scalars['Bytes32']>>;
 };
 
-export type TokenLimit = {
-  __typename?: 'TokenLimit';
-  amount: Scalars['String'];
-  period: LimitPeriod;
-  quorumState: QuorumState;
-  quorumStateId: Scalars['Int'];
-  token: Scalars['String'];
+export type Target = {
+  __typename?: 'Target';
+  selectors?: Maybe<Array<Scalars['String']>>;
+  state: PolicyState;
+  stateId: Scalars['BigInt'];
+  to: Scalars['String'];
 };
 
-export type TokenLimitInput = {
-  amount: Scalars['BigNumber'];
-  period: TokenLimitPeriod;
-  token: Scalars['Address'];
+export type TargetInput = {
+  /** Functions that can be called on target (or *) */
+  selectors: Array<Scalars['String']>;
+  /** Address of target (or *) */
+  to: Scalars['String'];
 };
 
-export type TokenLimitListRelationFilter = {
-  every?: InputMaybe<TokenLimitWhereInput>;
-  none?: InputMaybe<TokenLimitWhereInput>;
-  some?: InputMaybe<TokenLimitWhereInput>;
+export type TargetListRelationFilter = {
+  every?: InputMaybe<TargetWhereInput>;
+  none?: InputMaybe<TargetWhereInput>;
+  some?: InputMaybe<TargetWhereInput>;
 };
 
-export type TokenLimitOrderByRelationAggregateInput = {
+export type TargetOrderByRelationAggregateInput = {
   _count?: InputMaybe<SortOrder>;
 };
 
-export enum TokenLimitPeriod {
-  Day = 'Day',
-  Month = 'Month',
-  Week = 'Week'
-}
-
-export type TokenLimitWhereInput = {
-  AND?: InputMaybe<Array<TokenLimitWhereInput>>;
-  NOT?: InputMaybe<Array<TokenLimitWhereInput>>;
-  OR?: InputMaybe<Array<TokenLimitWhereInput>>;
-  amount?: InputMaybe<StringFilter>;
-  period?: InputMaybe<EnumLimitPeriodFilter>;
-  quorumState?: InputMaybe<QuorumStateRelationFilter>;
-  quorumStateId?: InputMaybe<IntFilter>;
-  token?: InputMaybe<StringFilter>;
+export type TargetWhereInput = {
+  AND?: InputMaybe<Array<TargetWhereInput>>;
+  NOT?: InputMaybe<Array<TargetWhereInput>>;
+  OR?: InputMaybe<Array<TargetWhereInput>>;
+  selectors?: InputMaybe<StringNullableListFilter>;
+  state?: InputMaybe<PolicyStateRelationFilter>;
+  stateId?: InputMaybe<BigIntFilter>;
+  to?: InputMaybe<StringFilter>;
 };
 
 export type Transaction = {
@@ -1143,10 +1178,9 @@ export type Transaction = {
   createdAt: Scalars['DateTime'];
   gasLimit: Scalars['Decimal'];
   gasPrice?: Maybe<Scalars['Decimal']>;
-  hash: Scalars['ID'];
+  hash: Scalars['String'];
   /** hash */
   id: Scalars['ID'];
-  nonce: Scalars['Int'];
   proposal: Proposal;
   proposalId: Scalars['String'];
   response?: Maybe<TransactionResponse>;
@@ -1169,11 +1203,13 @@ export type TransactionRelationFilter = {
 
 export type TransactionResponse = {
   __typename?: 'TransactionResponse';
+  effectiveGasPrice: Scalars['Decimal'];
+  gasUsed: Scalars['Decimal'];
   response: Scalars['String'];
   success: Scalars['Boolean'];
   timestamp: Scalars['DateTime'];
   transaction: Transaction;
-  transactionHash: Scalars['ID'];
+  transactionHash: Scalars['String'];
 };
 
 export type TransactionResponseRelationFilter = {
@@ -1185,6 +1221,8 @@ export type TransactionResponseWhereInput = {
   AND?: InputMaybe<Array<TransactionResponseWhereInput>>;
   NOT?: InputMaybe<Array<TransactionResponseWhereInput>>;
   OR?: InputMaybe<Array<TransactionResponseWhereInput>>;
+  effectiveGasPrice?: InputMaybe<DecimalFilter>;
+  gasUsed?: InputMaybe<DecimalFilter>;
   response?: InputMaybe<StringFilter>;
   success?: InputMaybe<BoolFilter>;
   timestamp?: InputMaybe<DateTimeFilter>;
@@ -1200,10 +1238,30 @@ export type TransactionWhereInput = {
   gasLimit?: InputMaybe<DecimalFilter>;
   gasPrice?: InputMaybe<DecimalNullableFilter>;
   hash?: InputMaybe<StringFilter>;
-  nonce?: InputMaybe<IntFilter>;
   proposal?: InputMaybe<ProposalRelationFilter>;
   proposalId?: InputMaybe<StringFilter>;
   response?: InputMaybe<TransactionResponseRelationFilter>;
+};
+
+export type UniquePolicyInput = {
+  account: Scalars['Address'];
+  key: Scalars['PolicyKey'];
+};
+
+export type UpdateAccountInput = {
+  id: Scalars['Address'];
+  name: Scalars['String'];
+};
+
+export type UpdatePolicyInput = {
+  account: Scalars['Address'];
+  /** Signers that are required to approve */
+  approvers?: InputMaybe<Array<Scalars['Address']>>;
+  key: Scalars['PolicyKey'];
+  name?: InputMaybe<Scalars['String']>;
+  permissions?: InputMaybe<PermissionsInput>;
+  /** Defaults to all approvers */
+  threshold?: InputMaybe<Scalars['Float']>;
 };
 
 export type User = {
@@ -1213,7 +1271,7 @@ export type User = {
   approvers?: Maybe<Array<Approver>>;
   comments?: Maybe<Array<Comment>>;
   contacts?: Maybe<Array<Contact>>;
-  id: Scalars['ID'];
+  id: Scalars['String'];
   name?: Maybe<Scalars['String']>;
   proposals?: Maybe<Array<Proposal>>;
   reactions?: Maybe<Array<Reaction>>;
@@ -1262,8 +1320,7 @@ export type UserWhereInput = {
 };
 
 export type CreateAccountMutationVariables = Exact<{
-  name: Scalars['String'];
-  quorums: Array<QuorumInput> | QuorumInput;
+  args: CreateAccountInput;
 }>;
 
 
@@ -1274,23 +1331,22 @@ export type AccountQueryVariables = Exact<{
 }>;
 
 
-export type AccountQuery = { __typename?: 'Query', account?: { __typename?: 'Account', id: string, name: string, isActive: boolean, quorums?: Array<{ __typename?: 'Quorum', key: number }> | null } | null };
+export type AccountQuery = { __typename?: 'Query', account?: { __typename?: 'Account', id: string, name: string, isActive: boolean, policies?: Array<{ __typename?: 'Policy', name: string, key: any }> | null } | null };
 
 export type AccountsQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type AccountsQuery = { __typename?: 'Query', accounts: Array<{ __typename?: 'Account', id: string, name: string, isActive: boolean, quorums?: Array<{ __typename?: 'Quorum', key: number }> | null }> };
+export type AccountsQuery = { __typename?: 'Query', accounts: Array<{ __typename?: 'Account', id: string, name: string, isActive: boolean, policies?: Array<{ __typename?: 'Policy', name: string, key: any }> | null }> };
 
 export type ProposeMutationVariables = Exact<{
   account: Scalars['Address'];
-  quorumKey?: InputMaybe<Scalars['QuorumKey']>;
   to: Scalars['Address'];
   value?: InputMaybe<Scalars['Uint256']>;
   data?: InputMaybe<Scalars['Bytes']>;
 }>;
 
 
-export type ProposeMutation = { __typename?: 'Mutation', propose: { __typename?: 'Proposal', id: string, to: string, value?: string | null, data?: string | null, salt: string } };
+export type ProposeMutation = { __typename?: 'Mutation', propose: { __typename?: 'Proposal', id: string, to: string, value?: any | null, data?: string | null } };
 
 export type ApproveMutationVariables = Exact<{
   id: Scalars['Bytes32'];
@@ -1298,24 +1354,24 @@ export type ApproveMutationVariables = Exact<{
 }>;
 
 
-export type ApproveMutation = { __typename?: 'Mutation', approve: { __typename?: 'Proposal', id: string, to: string, value?: string | null, data?: string | null } };
+export type ApproveMutation = { __typename?: 'Mutation', approve: { __typename?: 'Proposal', id: string, to: string, value?: any | null, data?: string | null } };
 
 export type ProposalChangesSubscriptionVariables = Exact<{ [key: string]: never; }>;
 
 
-export type ProposalChangesSubscription = { __typename?: 'Subscription', proposal: { __typename?: 'Proposal', id: string, to: string, value?: string | null, data?: string | null, transaction?: { __typename?: 'Transaction', hash: string, gasLimit: any, gasPrice?: any | null, createdAt: any, response?: { __typename?: 'TransactionResponse', success: boolean, response: string, timestamp: any } | null } | null } };
+export type ProposalChangesSubscription = { __typename?: 'Subscription', proposal: { __typename?: 'Proposal', id: string, to: string, value?: any | null, data?: string | null, transaction?: { __typename?: 'Transaction', hash: string, gasLimit: any, gasPrice?: any | null, createdAt: any, response?: { __typename?: 'TransactionResponse', success: boolean, response: string, timestamp: any } | null } | null } };
 
 export type ProposalQueryVariables = Exact<{
   id: Scalars['Bytes32'];
 }>;
 
 
-export type ProposalQuery = { __typename?: 'Query', proposal?: { __typename?: 'Proposal', id: string, to: string, value?: string | null, data?: string | null, transaction?: { __typename?: 'Transaction', hash: string, gasLimit: any, gasPrice?: any | null, createdAt: any, response?: { __typename?: 'TransactionResponse', success: boolean, response: string, timestamp: any } | null } | null } | null };
+export type ProposalQuery = { __typename?: 'Query', proposal?: { __typename?: 'Proposal', id: string, to: string, value?: any | null, data?: string | null, transaction?: { __typename?: 'Transaction', hash: string, gasLimit: any, gasPrice?: any | null, createdAt: any, response?: { __typename?: 'TransactionResponse', success: boolean, response: string, timestamp: any } | null } | null } | null };
 
 export type ProposalsQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type ProposalsQuery = { __typename?: 'Query', proposals: Array<{ __typename?: 'Proposal', id: string, to: string, value?: string | null, data?: string | null, transaction?: { __typename?: 'Transaction', hash: string, gasLimit: any, gasPrice?: any | null, createdAt: any, response?: { __typename?: 'TransactionResponse', success: boolean, response: string, timestamp: any } | null } | null }> };
+export type ProposalsQuery = { __typename?: 'Query', proposals: Array<{ __typename?: 'Proposal', id: string, to: string, value?: any | null, data?: string | null, transaction?: { __typename?: 'Transaction', hash: string, gasLimit: any, gasPrice?: any | null, createdAt: any, response?: { __typename?: 'TransactionResponse', success: boolean, response: string, timestamp: any } | null } | null }> };
 
 export type FirstAccountQueryVariables = Exact<{ [key: string]: never; }>;
 
@@ -1323,8 +1379,7 @@ export type FirstAccountQueryVariables = Exact<{ [key: string]: never; }>;
 export type FirstAccountQuery = { __typename?: 'Query', accounts: Array<{ __typename?: 'Account', id: string }> };
 
 export type CreateTestAccountMutationVariables = Exact<{
-  name: Scalars['String'];
-  quorums: Array<QuorumInput> | QuorumInput;
+  args: CreateAccountInput;
 }>;
 
 

@@ -1,12 +1,12 @@
 import { atom, DefaultValue, selectorFamily, useRecoilValue } from 'recoil';
 import { useCustomFields } from './useCustomFields';
 import ExecutionEnvironment from '@docusaurus/ExecutionEnvironment';
-import { Wallet as WalletType } from 'zksync-web3';
-const { Wallet } = ExecutionEnvironment.canUseDOM ? require('zksync-web3') : ({} as any);
+import { Approver as ApproverType } from 'lib';
+const { Approver } = ExecutionEnvironment.canUseDOM ? require('lib') : ({} as any);
 
-const DEVICE = atom<WalletType>({
+const DEVICE = atom<ApproverType>({
   key: 'device',
-  default: ExecutionEnvironment.canUseDOM ? Wallet.createRandom() : undefined,
+  default: ExecutionEnvironment.canUseDOM ? Approver.createRandom() : undefined,
   effects: ExecutionEnvironment.canUseDOM
     ? [
         ({ onSet, setSelf, node: { key } }) => {
@@ -17,7 +17,7 @@ const DEVICE = atom<WalletType>({
           setSelf(
             (async () => {
               const pk = localStorage.getItem(key);
-              return pk ? new Wallet(pk) : new DefaultValue();
+              return pk ? new Approver(pk) : new DefaultValue();
             })(),
           );
         },

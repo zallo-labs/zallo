@@ -1,12 +1,13 @@
 import { Circle } from 'react-content-loader/native';
 import { Skeleton } from './Skeleton';
+import { ICON_SIZE } from '@theme/paper';
 
 export interface CircleSkeletonProps {
-  radius?: number;
+  size?: number;
 }
 
-export const CircleSkeleton = ({ radius = 20 }: CircleSkeletonProps) => (
-  <Skeleton width={radius * 2} height={radius * 2}>
-    <Circle cx={radius} cy={radius} r={radius} />
+export const CircleSkeleton = ({ size = ICON_SIZE.medium }: CircleSkeletonProps) => (
+  <Skeleton width={size} height={size}>
+    <Circle cx={size / 2} cy={size / 2} r={size / 2} />
   </Skeleton>
 );

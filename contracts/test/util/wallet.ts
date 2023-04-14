@@ -4,6 +4,6 @@ import localWallets from '../../local-wallets.json';
 
 export const PROVIDER = new zk.Provider(CONFIG.chain.rpc);
 
-export const SIGNERS = localWallets.map((w) => new zk.Wallet(w.privateKey, PROVIDER));
-
 export const WALLET = new zk.Wallet(CONFIG.walletPrivateKey, PROVIDER);
+
+export const WALLETS = localWallets.map((w) => new zk.Wallet(w.privateKey, PROVIDER));

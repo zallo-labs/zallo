@@ -1,72 +1,51 @@
-import { BigNumber } from 'ethers';
 import { Token } from './token';
 import { PROVIDER } from '~/util/network/provider';
-import { atomFamily, selectorFamily, useRecoilValue, useSetRecoilState } from 'recoil';
-import { Address, ZERO } from 'lib';
+import { atomFamily, useRecoilValue, useSetRecoilState } from 'recoil';
+import { Address } from 'lib';
 import { captureException } from '~/util/sentry/sentry';
 import { refreshAtom } from '~/util/effect/refreshAtom';
 import { persistAtom } from '~/util/effect/persistAtom';
 import { useCallback } from 'react';
-import { TOKENS } from './useTokens';
-import { Accountlike, getAccountlikeAddr } from '~/queries/account/useAccount.api';
+import { AccountIdlike, asAccountId } from '@api/account';
 
-type BalanceKey = [addr: Address | null, token: Address];
+type BalanceKey = [address: Address | null, token: Address];
 
 const fetch = async ([addr, token]: BalanceKey) => {
-  if (!addr) return ZERO;
+  if (!addr) return 0n;
   try {
-    return PROVIDER.getBalance(addr, undefined, token);
+    return (await PROVIDER.getBalance(addr, undefined, token)).toBigInt();
   } catch (e) {
     captureException(e, {
       level: 'error',
       extra: { token, addr },
     });
-    return BigNumber.from(0);
+    return 0n;
   }
 };
 
-export const TOKEN_BALANCE = atomFamily<BigNumber, BalanceKey>({
-  key: 'tokenBalance',
+export const tokenBalanceAtom = atomFamily<bigint, BalanceKey>({
+  key: 'TokenBalance',
   default: (key) => fetch(key),
-  effects: (key) => [
-    persistAtom({
-      save: (v) => v.toString(),
-      load: BigNumber.from,
-    }),
-    refreshAtom({
-      fetch: () => fetch(key),
-      interval: 10 * 1000,
-    }),
-  ],
+  effects: (key) =>
+    key[0] !== null
+      ? [
+          // persistAtom(),
+          refreshAtom({
+            refresh: () => fetch(key),
+            interval: 10 * 1000,
+          }),
+        ]
+      : [],
 });
 
-export const useTokenBalance = (token: Token, account?: Accountlike) =>
-  useRecoilValue(TOKEN_BALANCE([getAccountlikeAddr(account), token.addr]));
+export const useTokenBalance = (token: Token, account: AccountIdlike | undefined) =>
+  useRecoilValue(tokenBalanceAtom([asAccountId(account) ?? null, token.address]));
 
-export const useUpdateTokenBalance = (token: Token, account?: Accountlike) => {
-  const update = useSetRecoilState(TOKEN_BALANCE([getAccountlikeAddr(account), token.addr]));
+export const useUpdateTokenBalance = (token: Token, account: AccountIdlike | undefined) => {
+  const update = useSetRecoilState(tokenBalanceAtom([asAccountId(account) ?? null, token.address]));
 
   return useCallback(
-    async () => update(await fetch([getAccountlikeAddr(account), token.addr])),
-    [account, token.addr, update],
+    async () => update(await fetch([asAccountId(account) ?? null, token.address])),
+    [account, token.address, update],
   );
 };
-
-export interface TokenWithBalance {
-  token: Token;
-  balance: BigNumber;
-}
-
-export const TOKEN_BALANCES = selectorFamily<TokenWithBalance[], Address | null>({
-  key: 'tokenBalances',
-  get:
-    (addr) =>
-    ({ get }) =>
-      get(TOKENS).map((token) => ({
-        token,
-        balance: get(TOKEN_BALANCE([addr, token.addr])),
-      })),
-});
-
-export const useTokenBalances = (account: Accountlike | undefined) =>
-  useRecoilValue(TOKEN_BALANCES(getAccountlikeAddr(account)));

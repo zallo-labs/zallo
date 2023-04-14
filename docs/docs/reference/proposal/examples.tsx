@@ -11,9 +11,9 @@ import {
 import { useAccount } from '@site/src/api/useAccount';
 import { useDevice } from '@site/src/hooks/useDevice';
 import { useProposal } from '@site/src/api/useProposal';
-import { signProposal } from 'lib';
 import { Suspend } from '@site/src/components/Suspender';
 import { withBrowser } from '@site/src/components/withBrowser';
+import { signDigest } from '@site/../lib/dist';
 
 export const ProposeExample = withBrowser(() => {
   const device = useDevice().address;
@@ -24,19 +24,12 @@ export const ProposeExample = withBrowser(() => {
   return (
     <Explorer
       document={gql`
-        mutation Propose(
-          $account: Address!
-          $quorumKey: QuorumKey
-          $to: Address!
-          $value: Uint256
-          $data: Bytes
-        ) {
-          propose(account: $account, quorumKey: $quorumKey, to: $to, value: $value, data: $data) {
+        mutation Propose($account: Address!, $to: Address!, $value: Uint256, $data: Bytes) {
+          propose(account: $account, to: $to, value: $value, data: $data) {
             id
             to
             value
             data
-            salt
           }
         }
       `}
@@ -69,7 +62,7 @@ export const ApproveExample = withBrowser(() => {
         }
       `}
       variables={
-        { id: proposal, signature: signProposal(proposal, device) } as ApproveMutationVariables
+        { id: proposal, signature: signDigest(proposal, device) } as ApproveMutationVariables
       }
     />
   );

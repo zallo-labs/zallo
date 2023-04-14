@@ -1,40 +1,61 @@
+import { AccountId } from '@api/account';
+import { makeStyles } from '@theme/makeStyles';
 import { Token } from '@token/token';
+import { useTokenBalance } from '@token/useTokenBalance';
 import { useTokenValue } from '@token/useTokenValue';
-import { BigNumber } from 'ethers';
-import { Text } from 'react-native-paper';
+import { useTokenPriceData } from '@uniswap/useTokenPrice';
+import { StyleProp, ViewStyle } from 'react-native';
 import { FiatValue } from '../fiat/FiatValue';
-import { Item, ItemProps } from '../item/Item';
-import { ItemSkeleton } from '../item/ItemSkeleton';
-import { withSkeleton } from '../skeleton/withSkeleton';
+import { Box } from '../layout/Box';
+import { ListItem, ListItemProps } from '../list/ListItem';
+import { ListItemSkeleton } from '../list/ListItemSkeleton';
+import { withSuspense } from '../skeleton/withSuspense';
 import { TokenAmount } from './TokenAmount';
-import TokenIcon from './TokenIcon/TokenIcon';
 
-export interface TokenItemProps extends ItemProps {
+export interface TokenItemProps extends Partial<ListItemProps> {
   token: Token;
-  amount?: BigNumber;
+  account: AccountId;
+  amount?: bigint;
+  containerStyle?: StyleProp<ViewStyle>;
 }
 
-const TokenItem = ({ token, amount, ...itemProps }: TokenItemProps) => {
-  const fiatValue = useTokenValue(token, amount);
+export const TokenItem = withSuspense(
+  ({ token, account, amount, containerStyle, ...itemProps }: TokenItemProps) => {
+    const styles = useStyles();
+    const balance = useTokenBalance(token, account);
+    amount ??= balance;
 
-  return (
-    <Item
-      Left={<TokenIcon token={token} />}
-      Main={<Text variant="titleMedium">{token.name}</Text>}
-      {...(amount && {
-        Right: [
-          <Text variant="titleSmall">
-            <FiatValue value={fiatValue} />
-          </Text>,
-          <Text variant="bodyMedium">
-            <TokenAmount token={token} amount={amount} />
-          </Text>,
-        ],
-      })}
-      padding
-      {...itemProps}
-    />
-  );
-};
+    return (
+      <ListItem
+        leading={token.address}
+        headline={token.name}
+        supporting={({ Text }) => (
+          <Box horizontal>
+            <Text>
+              <TokenAmount token={token} amount={amount} />
+            </Text>
 
-export default withSkeleton(TokenItem, ItemSkeleton);
+            <Text style={styles.price}>
+              {' @ '}
+              <FiatValue value={useTokenPriceData(token).current} maximumFractionDigits={0} />
+            </Text>
+          </Box>
+        )}
+        trailing={({ Text }) => (
+          <Text variant="labelLarge">
+            <FiatValue value={useTokenValue(token, amount)} />
+          </Text>
+        )}
+        containerStyle={containerStyle}
+        {...itemProps}
+      />
+    );
+  },
+  (props) => <ListItemSkeleton {...props} leading supporting trailing />,
+);
+
+const useStyles = makeStyles(({ colors }) => ({
+  price: {
+    color: colors.secondary,
+  },
+}));

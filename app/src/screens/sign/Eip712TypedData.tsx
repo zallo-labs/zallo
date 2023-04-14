@@ -18,7 +18,7 @@ const fieldToComponent = (
     name,
     type,
     components: Object.entries(value as Record<string, unknown>).map(([fieldName, fieldValue]) => {
-      const fieldType = types[type].find((f) => f.name === fieldName)?.type;
+      const fieldType = types[type]?.find((f) => f.name === fieldName)?.type;
       assert(fieldType);
 
       return fieldToComponent(fieldName, fieldValue, fieldType, types);
@@ -37,7 +37,7 @@ export const Eip712TypedData = ({ data }: Eip712TypedDataProps) => {
     return {
       type: data.primaryType,
       components: Object.entries(data.message).map(([fieldName, fieldValue]) => {
-        const fieldType = data.types[data.primaryType].find((f) => f.name === fieldName)?.type;
+        const fieldType = data.types[data.primaryType]?.find((f) => f.name === fieldName)?.type;
         assert(fieldType);
 
         return fieldToComponent(fieldName, fieldValue, fieldType, data.types);

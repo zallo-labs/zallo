@@ -1,19 +1,40 @@
+import { ReactNode } from 'react';
+import { View } from 'react-native';
+import { Text } from 'react-native-paper';
 import { makeStyles } from '@theme/makeStyles';
-import { Text, TextProps } from 'react-native-paper';
+import { TextProps } from '@theme/types';
 
-export interface ListHeaderProps extends TextProps {}
+export interface ListHeaderProps extends TextProps {
+  trailing?: string | ReactNode;
+}
 
-export const ListHeader = (props: ListHeaderProps) => {
+export const ListHeader = ({ style, trailing: Trailing, ...props }: ListHeaderProps) => {
   const styles = useStyles();
 
-  return <Text {...props} variant="bodyMedium" style={[styles.header, props.style]} />;
+  return (
+    <View style={styles.container}>
+      <Text variant="bodyMedium" style={styles.header} {...props} />
+      {typeof Trailing === 'function' ? (
+        <Trailing />
+      ) : (
+        <Text style={styles.trailingText}>{Trailing}</Text>
+      )}
+    </View>
+  );
 };
 
-const useStyles = makeStyles(({ colors, s }) => ({
+const useStyles = makeStyles(({ colors }) => ({
+  container: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginTop: 8,
+    marginBottom: 4,
+    marginHorizontal: 16,
+  },
   header: {
+    flex: 1,
+  },
+  trailingText: {
     color: colors.onSurfaceVariant,
-    marginTop: s(16),
-    marginBottom: s(4),
-    marginHorizontal: s(16),
   },
 }));

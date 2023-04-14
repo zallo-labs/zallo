@@ -39,7 +39,7 @@ function handleTransferWithAccount(e: TransferEvent, account: Account): void {
 
 function getTransferId(account: Account, e: ethereum.Event): string {
   // {account.id}-{tx.hash}-{tx.log.index}
-  return `${account.id}-${e.transaction.hash.toHex()}-${e.transactionLogIndex}`;
+  return `${account.id.toHex()}-${e.transaction.hash.toHex()}-${e.transactionLogIndex}`;
 }
 
 // Breaks handleTransfer somehow...?

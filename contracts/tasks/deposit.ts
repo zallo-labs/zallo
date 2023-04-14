@@ -10,7 +10,7 @@ task('deposit', 'Deposit funds to an address')
   .addParam('amount', 'Deposit amount (in ETH)')
   .setAction(async (taskArgs: Args, { ethers }) => {
     const signers = await ethers.getSigners();
-    const signer = signers[signers.length - 1];
+    const signer = signers[signers.length - 1]!;
     const value = ethers.utils.parseEther(taskArgs.amount);
 
     const tx = await signer.sendTransaction({

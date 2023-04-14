@@ -8,7 +8,7 @@ export function handleTransactionExecuted(e: TransactionExecuted): void {
 
   tx.account = getAccountId(e.address);
   tx.transactionHash = e.transaction.hash;
-  tx.hash = e.params.txHash;
+  tx.proposalId = e.params.txHash;
   tx.success = true;
   tx.response = e.params.response;
   tx.executor = e.transaction.from;
@@ -23,7 +23,7 @@ export function handleTransactionReverted(e: TransactionReverted): void {
 
   tx.account = getAccountId(e.address);
   tx.transactionHash = e.transaction.hash;
-  tx.hash = e.params.txHash;
+  tx.proposalId = e.params.txHash;
   tx.success = false;
   tx.response = e.params.response;
   tx.executor = e.transaction.from;

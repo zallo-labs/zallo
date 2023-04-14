@@ -3,7 +3,7 @@ import { execSync } from 'child_process';
 import { CONFIG } from '~/config';
 import { PrismaService } from './prisma.service';
 import { PrismaClient } from '@prisma/client';
-import uuid from 'uuid';
+import { v4 as uuidv4 } from 'uuid';
 
 @Injectable()
 export class PrismaMockService extends PrismaService {
@@ -11,7 +11,7 @@ export class PrismaMockService extends PrismaService {
   private database: string;
 
   constructor() {
-    const database = `test-${uuid()}`;
+    const database = `test-${uuidv4()}`;
     const url = `${CONFIG.databaseUrl}/${database}`;
     super({ datasources: { db: { url } } });
 
@@ -29,21 +29,21 @@ export class PrismaMockService extends PrismaService {
   }
 
   async truncate() {
-    const tablenames = await this.asSuperuser.$queryRaw<
+    const tablenames = await this.asSystem.$queryRaw<
       Array<{ tablename: string }>
     >`SELECT tablename FROM pg_tables WHERE schemaname='public'`;
 
-    await this.asSuperuser.$transaction(
+    await this.asSystem.$transaction(
       tablenames
         .filter(({ tablename }) => !tablename.startsWith('_'))
         .map(({ tablename }) =>
-          this.asSuperuser.$executeRawUnsafe(`TRUNCATE TABLE "public"."${tablename}" CASCADE;`),
+          this.asSystem.$executeRawUnsafe(`TRUNCATE TABLE "public"."${tablename}" CASCADE;`),
         ),
     );
   }
 
   async drop() {
-    await this.asSuperuser.$disconnect();
+    await this.asSystem.$disconnect();
     const client = new PrismaClient({ datasources: { db: { url: CONFIG.databaseUrl } } });
     await client.$executeRawUnsafe(`DROP DATABASE "${this.database}" WITH (FORCE)`);
   }

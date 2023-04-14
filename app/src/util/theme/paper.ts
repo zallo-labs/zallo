@@ -1,25 +1,8 @@
-import { MD3DarkTheme as PaperDarkTheme, useTheme as baseUseTheme } from 'react-native-paper';
-import { space, typoSpace, space2, font } from './styledComponents';
+import { MD3LightTheme as overrided, useTheme as baseUseTheme } from 'react-native-paper';
 import color from 'color';
+import { match } from 'ts-pattern';
 
-const c = (c: string, f: (color: color<string>) => color<string>) => f(color(c)).rgb().string();
-
-const overrided: typeof PaperDarkTheme = {
-  ...PaperDarkTheme,
-};
-
-const opacityModifier = {
-  // https://m3.material.io/foundations/interaction-states
-  hover: 0.08,
-  focus: 0.12,
-  press: 0.12,
-  drag: 0.16,
-} as const;
-
-const opacity = {
-  disabled: 0.38,
-  opaque: 0.6,
-} as const;
+const c = (c: string, f: (color: color<string>) => color<string>) => f(color(c)).hexa();
 
 // https://github.com/callstack/react-native-paper/blob/main/src/styles/themes/v3/DarkTheme.tsx
 export const PAPER_THEME = {
@@ -28,31 +11,34 @@ export const PAPER_THEME = {
   colors: {
     ...overrided.colors,
 
-    surfaceFocussed: c(overrided.colors.surface, (c) => c.opaquer(opacityModifier.focus)),
-    surfacePressed: c(overrided.colors.surface, (c) => c.opaquer(opacityModifier.press)),
-    surfaceDisabled: c(overrided.colors.onSurface, (c) => c.alpha(opacityModifier.focus)),
-    onSurfaceOpaque: c(overrided.colors.onSurface, (c) => c.alpha(opacity.opaque)),
-    onSurfaceDisabled: c(overrided.colors.onSurface, (c) => c.alpha(opacity.disabled)),
-    primaryContainerDisabled: c(overrided.colors.primaryContainer, (c) =>
-      c.alpha(opacity.disabled),
-    ),
-    onPrimaryContainerDisabled: c(overrided.colors.onPrimaryContainer, (c) =>
-      c.alpha(opacity.disabled),
-    ),
+    surfaceDisabled: c(overrided.colors.onSurface, (c) => c.alpha(0.12)),
+    onSurfaceOpaque: c(overrided.colors.onSurface, (c) => c.alpha(0.6)),
 
-    success: '#48C12A', // Green
-    info: '#559EFC', // Blue
-    warning: '#FFAF30', // Orange
+    onScrim: '#F4EFF4',
+
+    // Green
+    green: '#4b6708',
+    onGreen: '#ffffff',
+    greenContainer: '#cdef85',
+    onGreenContainer: '#131f00',
+    // Orange
+    orange: '#914c00',
+    onOrange: '#ffffff',
+    orangeContainer: '#ffdcc1',
+    onOrangeContainer: '#2f1500',
   },
-  color: c,
-  opacity,
-  opacityModifier,
 
-  space,
-  typoSpace,
-  s: space2,
-  font,
-  iconSize2: (n: number) => n * 1.5,
+  // https://m3.material.io/foundations/interaction-states
+  stateLayer: (
+    color: string,
+    state: 'normal' | false | undefined | 'hover' | 'focus' | 'pressed' | 'disabled',
+  ) =>
+    match(state)
+      .with('hover', () => c(color, (c) => c.alpha(0.08)))
+      .with('focus', () => c(color, (c) => c.alpha(0.12)))
+      .with('pressed', () => c(color, (c) => c.alpha(0.12)))
+      .with('disabled', () => c(color, (c) => c.alpha(0.38)))
+      .otherwise(() => color),
 
   onBackground: (backgroundColor?: string): string | undefined => {
     if (backgroundColor) {
@@ -60,8 +46,8 @@ export const PAPER_THEME = {
         (key) => (overrided.colors as any)[key] === backgroundColor,
       );
 
-      if (bgKey) {
-        const onColor = (overrided.colors as any)[`on${bgKey[0].toUpperCase()}${bgKey.slice(1)}`];
+      if (bgKey && bgKey.length >= 1) {
+        const onColor = (overrided.colors as any)[`on${bgKey[0]!.toUpperCase()}${bgKey.slice(1)}`];
 
         if (onColor) return onColor;
       }
@@ -74,7 +60,7 @@ export const PAPER_THEME = {
     small: 24,
     medium: 40,
     large: 60,
-  },
+  } as const,
   iconButton: {
     size: 24,
     containerSize: 40,
@@ -87,18 +73,21 @@ export const PAPER_THEME = {
     l: 16,
     xl: 28,
     full: 1000,
-  },
+  } as const,
 };
 
-export type ThemeOverride = typeof PAPER_THEME;
+export const ICON_SIZE = PAPER_THEME.iconSize;
+export const CORNER = PAPER_THEME.corner;
+
+export type Theme = typeof PAPER_THEME;
+type AppTheme = Theme;
 
 declare global {
   // eslint-disable-next-line @typescript-eslint/no-namespace
   namespace ReactNativePaper {
-    // type Theme = ThemeOverride;
-    interface Theme extends ThemeOverride {}
+    type Theme = AppTheme;
+    // interface Theme extends AppTheme {}
   }
 }
 
-export const useTheme = (overrides?: Partial<ThemeOverride>): ThemeOverride =>
-  baseUseTheme<ThemeOverride>(overrides);
+export const useTheme = (overrides?: Partial<Theme>): Theme => baseUseTheme<Theme>(overrides);

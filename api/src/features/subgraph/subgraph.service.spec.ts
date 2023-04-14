@@ -1,5 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { SubgraphService } from './subgraph.service';
+import { createMock } from '@golevelup/ts-jest';
 
 describe(SubgraphService.name, () => {
   let service: SubgraphService;
@@ -7,7 +8,9 @@ describe(SubgraphService.name, () => {
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [SubgraphService],
-    }).compile();
+    })
+      .useMocker(createMock)
+      .compile();
 
     service = module.get<SubgraphService>(SubgraphService);
   });

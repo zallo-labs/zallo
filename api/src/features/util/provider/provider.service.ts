@@ -4,14 +4,21 @@ import { CONFIG } from '~/config';
 import {
   Address,
   Account,
-  connectAccount,
   Factory,
   Factory__factory,
   Chain,
-  SignatureLike,
+  Account__factory,
+  Addresslike,
+  asAddress,
+  verifySignature,
+  Hex,
+  VerifySignatureOptions,
+  asApproval,
+  DeployArgs,
+  getProxyAddress,
+  deployAccountProxy,
 } from 'lib';
 import { Mutex } from 'async-mutex';
-import { BytesLike, ethers } from 'ethers';
 
 @Injectable()
 export class ProviderService extends zk.Provider {
@@ -34,8 +41,8 @@ export class ProviderService extends zk.Provider {
     this.proxyFactory = Factory__factory.connect(CONFIG.proxyFactoryAddress, this.wallet);
   }
 
-  connectAccount(account: Address): Account {
-    return connectAccount(account, this);
+  connectAccount(account: Addresslike): Account {
+    return Account__factory.connect(asAddress(account), this);
   }
 
   useWallet<R>(f: (wallet: zk.Wallet) => R): Promise<R> {
@@ -59,9 +66,22 @@ export class ProviderService extends zk.Provider {
     }
   }
 
-  async isValidSignature(addr: Address, message: BytesLike, signature: SignatureLike) {
-    // return zk.utils.isSignatureCorrect(this, addr, message, signature);  // TODO: use once exported from zksync-web3, otherwise extract code
+  async asApproval(options: Omit<VerifySignatureOptions, 'provider'>) {
+    return asApproval({ ...options, provider: this });
+  }
 
-    return ethers.utils.recoverAddress(message, signature) === addr;
+  async verifySignature(options: Omit<VerifySignatureOptions, 'provider'>) {
+    return this.asApproval(options) !== null;
+  }
+
+  async getProxyAddress(args: Omit<DeployArgs, 'factory'>) {
+    return this.useProxyFactory((factory) => getProxyAddress({ ...args, factory }));
+  }
+
+  async deployProxy(args: Omit<DeployArgs, 'factory'>) {
+    const { account } = await this.useProxyFactory((factory) =>
+      deployAccountProxy({ ...args, factory }),
+    );
+    await account.deployed();
   }
 }

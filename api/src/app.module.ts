@@ -9,7 +9,7 @@ import { ApolloModule } from './apollo/apollo.module';
 import { ProviderModule } from './features/util/provider/provider.module';
 import { ContactsModule } from './features/contacts/contacts.module';
 import { ApproversModule } from './features/approvers/approvers.module';
-import { ContractMethodsModule } from './features/contract-methods/contract-methods.module';
+import { ContractFunctionsModule } from './features/contract-methods/contract-functions.module';
 import { ProposalsModule } from './features/proposals/proposals.module';
 import { TransactionsModule } from './features/transactions/transactions.module';
 import { CommentsModule } from './features/comments/comments.module';
@@ -18,12 +18,13 @@ import { FaucetModule } from './features/faucet/faucet.module';
 import { SubgraphModule } from './features/subgraph/subgraph.module';
 import { ExpoModule } from './features/util/expo/expo.module';
 import { PubsubModule } from './features/util/pubsub/pubsub.module';
-import { QuorumsModule } from './features/quorums/quorums.module';
 import { RedisModule } from '@liaoliaots/nestjs-redis';
 import { PrismaModule } from './features/util/prisma/prisma.module';
 import { CONFIG } from './config';
 import { REDIS_PUBLISHER, REDIS_SUBSCRIBER } from './decorators/redis.decorator';
 import { BullModule } from '@nestjs/bull';
+import { PoliciesModule } from './features/policies/policies.module';
+import { ContractsModule } from './features/contracts/contracts.module';
 
 @Module({
   imports: [
@@ -58,11 +59,12 @@ import { BullModule } from '@nestjs/bull';
     AuthModule,
     CommentsModule,
     ContactsModule,
-    ContractMethodsModule,
+    ContractFunctionsModule,
+    ContractsModule,
     FaucetModule,
     HealthModule,
+    PoliciesModule,
     ProposalsModule,
-    QuorumsModule,
     ReactionsModule,
     SubgraphModule,
     TransactionsModule,

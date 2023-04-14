@@ -2,12 +2,12 @@ import { Address } from 'lib';
 import { atom, selector, useRecoilValue, useSetRecoilState } from 'recoil';
 import { Token } from '@token/token';
 import { ETH } from '@token/tokens';
-import { TOKEN } from '@token/useToken';
+import { tokenAtom } from '@token/useToken';
 import { persistAtom } from '~/util/effect/persistAtom';
 
 export const feeTokenAddr = atom<Address>({
   key: 'feeTokenAddr',
-  default: ETH.addr,
+  default: ETH.address,
   effects: [persistAtom()],
 });
 
@@ -15,12 +15,12 @@ const feeToken = selector<Token>({
   key: 'feeToken',
   get: ({ get }) => {
     const addr = get(feeTokenAddr);
-    return get(TOKEN(addr));
+    return get(tokenAtom(addr));
   },
   set:
     ({ set }) =>
     (token: Token) => {
-      set(feeTokenAddr, token.addr);
+      set(feeTokenAddr, token.address);
     },
 });
 

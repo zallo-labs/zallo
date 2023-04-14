@@ -1,10 +1,8 @@
-import 'node-libs-react-native/globals';
-import '~/util/network/provider';
-import '~/util/immer';
+import '~/util/patches';
 
 import { Suspense } from 'react';
 import { StyleSheet } from 'react-native';
-import { RecoilRoot } from 'recoil';
+import { RecoilEnv, RecoilRoot } from 'recoil';
 import { Background } from '~/components/layout/Background';
 import { LocalizatonProvider } from '~/provider/LocalizationProvider';
 import { GqlProvider } from '~/gql/GqlProvider';
@@ -18,18 +16,20 @@ import { ThemeProvider } from '~/util/theme/ThemeProvider';
 import { SentryUser } from '~/util/sentry/SentryUser';
 import { withSentry } from '~/util/sentry/sentry';
 import { NavigationProvider } from '~/navigation/NavigationProvider';
-import { WalletConnectProvider } from '~/util/walletconnect/WalletConnectProvider';
 import { NotificationsRegistrar } from '~/util/NotificationsRegistrar';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
-import { DrawerNavigator } from '~/navigation/Drawer/DrawerNavigator';
-import { AccountsSubscription } from '~/queries/account/AccountsSubscription';
+import { StackNavigator } from '~/navigation/StackNavigator';
+import { WalletConnectListeners } from '~/components/walletconnect/WalletConnectListeners';
+
+// Disable Recoil atom key checking due to hotreloading issues
+RecoilEnv.RECOIL_DUPLICATE_ATOM_KEY_CHECKING_ENABLED = false;
 
 export default withSentry(() => (
   <LocalizatonProvider>
     <SafeAreaProvider>
       <ThemeProvider>
         <Background>
-          <StatusBar style="light" backgroundColor="transparent" />
+          <StatusBar backgroundColor="transparent" />
           <GestureHandlerRootView style={styles.flexed}>
             <ErrorBoundary>
               <Suspense fallback={<Splash />}>
@@ -37,15 +37,13 @@ export default withSentry(() => (
                   <AuthGate>
                     <SentryUser />
                     <GqlProvider>
-                      <AccountsSubscription />
-                      <NavigationProvider>
+                      <Suspense fallback={<Splash />}>
                         <NotificationsRegistrar />
-                        <WalletConnectProvider>
-                          <Suspense fallback={<Splash />}>
-                            <DrawerNavigator />
-                          </Suspense>
-                        </WalletConnectProvider>
-                      </NavigationProvider>
+                        <NavigationProvider>
+                          {/* <WalletConnectListeners /> */}
+                          <StackNavigator />
+                        </NavigationProvider>
+                      </Suspense>
                     </GqlProvider>
                   </AuthGate>
                   <SnackbarProvider />

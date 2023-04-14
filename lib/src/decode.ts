@@ -1,50 +1,44 @@
 import { BytesLike } from 'ethers';
-import { hexDataLength, hexDataSlice, hexlify } from 'ethers/lib/utils';
 import { Account, Account__factory } from './contracts';
-import { QuorumKey, toQuorumKey } from './quorum';
-import { OnlyRequiredItems } from './util/mappedTypes';
-
-export const getDataSighash = (data?: BytesLike) =>
-  data && hexDataLength(data) >= 4 ? hexDataSlice(data, 0, 4) : undefined;
+import { Policy, PolicyKey, asPolicyKey, PolicyStruct, POLICY_ABI } from './policy';
+import { OnlyRequiredItems } from './util/types';
+import { Selector, asSelector } from './bytes';
 
 export const ACCOUNT_INTERFACE = Account__factory.createInterface();
 
-export const UPSERT_QUORUM_FUNCTION = ACCOUNT_INTERFACE.functions['upsertQuorum(uint32,bytes32)'];
-export const UPSERT_QUORUM_SIGHSAH = ACCOUNT_INTERFACE.getSighash(UPSERT_QUORUM_FUNCTION);
+export const ADD_POLICY_FUNCTION =
+  ACCOUNT_INTERFACE.functions['addPolicy((uint32,uint8,address[],(uint8,bytes)[]))'];
+export const ADD_POLICY_SELECTOR = ACCOUNT_INTERFACE.getSighash(ADD_POLICY_FUNCTION) as Selector;
 
-export const REMOVE_QUORUM_FUNCTION = ACCOUNT_INTERFACE.functions['removeQuorum(uint32)'];
-export const REMOVE_QUORUM_SIGHASH = ACCOUNT_INTERFACE.getSighash(REMOVE_QUORUM_FUNCTION);
+export const REMOVE_POLICY_FUNCTION = ACCOUNT_INTERFACE.functions['removePolicy(uint32)'];
+export const REMOVE_POLICY_SELECTOR = ACCOUNT_INTERFACE.getSighash(
+  REMOVE_POLICY_FUNCTION,
+) as Selector;
 
-type UpsertQuorumParams = OnlyRequiredItems<Parameters<Account['upsertQuorum']>>;
-
-export const tryDecodeUpsertQuorumData = (data?: BytesLike) => {
-  if (!data || getDataSighash(data) !== UPSERT_QUORUM_SIGHSAH) return undefined;
+export const tryDecodeAddPolicyFunctionData = (data?: BytesLike): Policy | undefined => {
+  if (!data || asSelector(data) !== ADD_POLICY_SELECTOR) return undefined;
 
   try {
-    const [key, hash] = ACCOUNT_INTERFACE.decodeFunctionData(
-      UPSERT_QUORUM_FUNCTION,
-      data,
-    ) as UpsertQuorumParams;
+    const [policy] = ACCOUNT_INTERFACE.decodeFunctionData(ADD_POLICY_FUNCTION, data) as [
+      PolicyStruct,
+    ];
 
-    return {
-      key: toQuorumKey(key),
-      hash: hexlify(hash),
-    };
+    return POLICY_ABI.fromStruct(policy);
   } catch {
     return undefined;
   }
 };
 
-export const tryDecodeRemoveQuorumData = (data?: BytesLike): QuorumKey | undefined => {
-  if (!data || getDataSighash(data) !== REMOVE_QUORUM_SIGHASH) return undefined;
+export const tryDecodeRemovePolicyFunctionData = (data?: BytesLike): PolicyKey | undefined => {
+  if (!data || asSelector(data) !== REMOVE_POLICY_SELECTOR) return undefined;
 
   try {
     const [key] = ACCOUNT_INTERFACE.decodeFunctionData(
-      REMOVE_QUORUM_FUNCTION,
+      REMOVE_POLICY_FUNCTION,
       data,
-    ) as OnlyRequiredItems<Parameters<Account['removeQuorum']>>;
+    ) as OnlyRequiredItems<Parameters<Account['removePolicy']>>;
 
-    return toQuorumKey(key);
+    return asPolicyKey(key);
   } catch {
     return undefined;
   }

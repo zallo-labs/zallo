@@ -1,19 +1,7 @@
-import { useNavigation } from '@react-navigation/native';
-import { useCallback } from 'react';
-import { Contact } from '~/queries/contacts/useContacts.api';
-import { ContactsScreenParams } from './ContactsScreen';
+import { EventEmitter } from '~/util/EventEmitter';
+import { Contact } from '@api/contacts';
 
-export const useSelectContact = () => {
-  const { navigate } = useNavigation();
-
-  return useCallback(
-    (params?: Omit<ContactsScreenParams, 'onSelect'>) =>
-      new Promise<Contact>((resolve) =>
-        navigate('ContactsModal', {
-          ...params,
-          onSelect: resolve,
-        }),
-      ),
-    [navigate],
-  );
-};
+export const CONTACT_EMITTER = new EventEmitter<Contact>('Contact');
+export const useSelectContact = CONTACT_EMITTER.createUseSelect('ContactsModal', {
+  emitOnSelect: true,
+});

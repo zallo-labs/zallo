@@ -6,22 +6,12 @@
   },
   {
     "inputs": [],
-    "name": "ApproverSignaturesMismatch",
-    "type": "error"
-  },
-  {
-    "inputs": [],
     "name": "FailedToPayBootloader",
     "type": "error"
   },
   {
     "inputs": [],
     "name": "InsufficientBalance",
-    "type": "error"
-  },
-  {
-    "inputs": [],
-    "name": "InvalidProof",
     "type": "error"
   },
   {
@@ -33,6 +23,50 @@
       }
     ],
     "name": "InvalidSignature",
+    "type": "error"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "bytes4",
+        "name": "selector",
+        "type": "bytes4"
+      },
+      {
+        "internalType": "bytes4[]",
+        "name": "targetSelectors",
+        "type": "bytes4[]"
+      }
+    ],
+    "name": "NotAnyOfTargetSelectors",
+    "type": "error"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "to",
+        "type": "address"
+      },
+      {
+        "components": [
+          {
+            "internalType": "address",
+            "name": "to",
+            "type": "address"
+          },
+          {
+            "internalType": "bytes4[]",
+            "name": "selectors",
+            "type": "bytes4[]"
+          }
+        ],
+        "internalType": "struct Target[]",
+        "name": "targets",
+        "type": "tuple[]"
+      }
+    ],
+    "name": "NotToAnyOfTargets",
     "type": "error"
   },
   {
@@ -49,16 +83,112 @@
     "inputs": [
       {
         "internalType": "bytes32",
-        "name": "expected",
+        "name": "actualHash",
+        "type": "bytes32"
+      },
+      {
+        "internalType": "bytes32",
+        "name": "expectedHash",
         "type": "bytes32"
       }
     ],
-    "name": "QuorumHashMismatch",
+    "name": "PolicyDoesNotMatchExpectedHash",
+    "type": "error"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "threshold",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "nSignatures",
+        "type": "uint256"
+      }
+    ],
+    "name": "ThresholdNotReached",
+    "type": "error"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint8",
+        "name": "threshold",
+        "type": "uint8"
+      },
+      {
+        "internalType": "uint256",
+        "name": "nApprovers",
+        "type": "uint256"
+      }
+    ],
+    "name": "ThresholdTooHigh",
+    "type": "error"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint8",
+        "name": "threshold",
+        "type": "uint8"
+      },
+      {
+        "internalType": "uint256",
+        "name": "nApprovers",
+        "type": "uint256"
+      }
+    ],
+    "name": "ThresholdTooLow",
+    "type": "error"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "max",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "nApprovers",
+        "type": "uint256"
+      }
+    ],
+    "name": "TooManyApprovers",
+    "type": "error"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "bytes32",
+        "name": "txHash",
+        "type": "bytes32"
+      },
+      {
+        "internalType": "uint256",
+        "name": "nonce",
+        "type": "uint256"
+      }
+    ],
+    "name": "TransactionAlreadyExecuted",
     "type": "error"
   },
   {
     "inputs": [],
-    "name": "TransactionAlreadyExecuted",
+    "name": "TransactionRevertedWithoutReason",
+    "type": "error"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "enum PermissionSelector",
+        "name": "selector",
+        "type": "uint8"
+      }
+    ],
+    "name": "UnknownPermission",
     "type": "error"
   },
   {
@@ -97,32 +227,32 @@
     "anonymous": false,
     "inputs": [
       {
-        "indexed": true,
-        "internalType": "QuorumKey",
-        "name": "key",
-        "type": "uint32"
-      }
-    ],
-    "name": "QuorumRemoved",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": true,
-        "internalType": "QuorumKey",
+        "indexed": false,
+        "internalType": "PolicyKey",
         "name": "key",
         "type": "uint32"
       },
       {
         "indexed": false,
         "internalType": "bytes32",
-        "name": "quorumHash",
+        "name": "hash",
         "type": "bytes32"
       }
     ],
-    "name": "QuorumUpserted",
+    "name": "PolicyAdded",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "internalType": "PolicyKey",
+        "name": "key",
+        "type": "uint32"
+      }
+    ],
+    "name": "PolicyRemoved",
     "type": "event"
   },
   {
@@ -179,6 +309,53 @@
   {
     "stateMutability": "payable",
     "type": "fallback"
+  },
+  {
+    "inputs": [
+      {
+        "components": [
+          {
+            "internalType": "PolicyKey",
+            "name": "key",
+            "type": "uint32"
+          },
+          {
+            "internalType": "uint8",
+            "name": "threshold",
+            "type": "uint8"
+          },
+          {
+            "internalType": "address[]",
+            "name": "approvers",
+            "type": "address[]"
+          },
+          {
+            "components": [
+              {
+                "internalType": "enum PermissionSelector",
+                "name": "selector",
+                "type": "uint8"
+              },
+              {
+                "internalType": "bytes",
+                "name": "args",
+                "type": "bytes"
+              }
+            ],
+            "internalType": "struct Permission[]",
+            "name": "permissions",
+            "type": "tuple[]"
+          }
+        ],
+        "internalType": "struct Policy",
+        "name": "policy",
+        "type": "tuple"
+      }
+    ],
+    "name": "addPolicy",
+    "outputs": [],
+    "stateMutability": "payable",
+    "type": "function"
   },
   {
     "inputs": [
@@ -383,39 +560,42 @@
   {
     "inputs": [
       {
-        "internalType": "bytes32",
-        "name": "txHash",
-        "type": "bytes32"
-      }
-    ],
-    "name": "hasBeenExecuted",
-    "outputs": [
-      {
-        "internalType": "bool",
-        "name": "",
-        "type": "bool"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
         "components": [
           {
-            "internalType": "QuorumKey",
+            "internalType": "PolicyKey",
             "name": "key",
             "type": "uint32"
           },
           {
-            "internalType": "bytes32",
-            "name": "hash",
-            "type": "bytes32"
+            "internalType": "uint8",
+            "name": "threshold",
+            "type": "uint8"
+          },
+          {
+            "internalType": "address[]",
+            "name": "approvers",
+            "type": "address[]"
+          },
+          {
+            "components": [
+              {
+                "internalType": "enum PermissionSelector",
+                "name": "selector",
+                "type": "uint8"
+              },
+              {
+                "internalType": "bytes",
+                "name": "args",
+                "type": "bytes"
+              }
+            ],
+            "internalType": "struct Permission[]",
+            "name": "permissions",
+            "type": "tuple[]"
           }
         ],
-        "internalType": "struct QuorumDefinition[]",
-        "name": "quorums",
+        "internalType": "struct Policy[]",
+        "name": "policies",
         "type": "tuple[]"
       }
     ],
@@ -441,7 +621,7 @@
     "outputs": [
       {
         "internalType": "bytes4",
-        "name": "",
+        "name": "magicValue",
         "type": "bytes4"
       }
     ],
@@ -708,12 +888,12 @@
   {
     "inputs": [
       {
-        "internalType": "QuorumKey",
+        "internalType": "PolicyKey",
         "name": "key",
         "type": "uint32"
       }
     ],
-    "name": "removeQuorum",
+    "name": "removePolicy",
     "outputs": [],
     "stateMutability": "payable",
     "type": "function"
@@ -764,24 +944,6 @@
       }
     ],
     "name": "upgradeToAndCall",
-    "outputs": [],
-    "stateMutability": "payable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "QuorumKey",
-        "name": "key",
-        "type": "uint32"
-      },
-      {
-        "internalType": "bytes32",
-        "name": "hash",
-        "type": "bytes32"
-      }
-    ],
-    "name": "upsertQuorum",
     "outputs": [],
     "stateMutability": "payable",
     "type": "function"

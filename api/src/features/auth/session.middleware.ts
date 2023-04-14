@@ -2,13 +2,11 @@ import { Injectable, NestMiddleware } from '@nestjs/common';
 import { NextFunction, Request, Response } from 'express';
 import { RequestHandler } from 'express';
 import session from 'express-session';
-import createStore from 'connect-redis';
+import RedisStore from 'connect-redis';
 import { CONFIG } from '~/config';
 import { Duration } from 'luxon';
 import Redis from 'ioredis';
 import { InjectRedisPub } from '~/decorators/redis.decorator';
-
-const RedisStore = createStore(session);
 
 @Injectable()
 export class SessionMiddleware implements NestMiddleware {
@@ -17,6 +15,7 @@ export class SessionMiddleware implements NestMiddleware {
   constructor(@InjectRedisPub() redis: Redis) {
     this.handler = session({
       secret: CONFIG.sessionSecret,
+      store: new RedisStore({ client: redis }),
       resave: false,
       saveUninitialized: false,
       cookie: {
@@ -24,7 +23,6 @@ export class SessionMiddleware implements NestMiddleware {
         secure: 'auto',
         sameSite: 'none', // Required by apollo studio when includeCookies=true
       },
-      store: new RedisStore({ client: redis }),
     });
   }
 

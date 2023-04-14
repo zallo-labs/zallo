@@ -1,20 +1,23 @@
 import { useMemo } from 'react';
-import { BigNumber, BigNumberish, ethers } from 'ethers';
 import { FormatNumberOptions, useIntl } from 'react-intl';
+import { BigIntlike } from 'lib';
+import { formatUnits } from 'ethers/lib/utils';
 
 export interface FormattedNumberOptions extends FormatNumberOptions {
-  value: BigNumberish;
-  unitDecimals?: number;
+  value: BigIntlike;
+  decimals?: number;
   extendedFractionDigits?: number;
   postFormat?: (value: string) => string;
+  hideZero?: boolean;
 }
 
 export const useFormattedNumber = ({
-  value,
-  unitDecimals,
+  value: valueProp,
+  decimals = 0,
   maximumFractionDigits = 2,
   extendedFractionDigits,
   postFormat,
+  hideZero,
   ...formatOpts
 }: FormattedNumberOptions) => {
   const intl = useIntl();
@@ -23,13 +26,11 @@ export const useFormattedNumber = ({
   const extendedMin = 1 / 10 ** extendedFracDigits;
   const maxMin = 1 / 10 ** maximumFractionDigits;
 
+  const value =
+    typeof valueProp === 'number' ? valueProp : parseFloat(formatUnits(valueProp, decimals));
+
   const formatted = useMemo(() => {
     let v = value;
-    if (BigNumber.isBigNumber(v)) v = ethers.utils.formatUnits(v, unitDecimals);
-
-    if (typeof v === 'string') v = parseFloat(v);
-    if (typeof v !== 'number') v = BigNumber.from(v).toNumber();
-
     const isLt = v < extendedMin && v > 0;
     if (isLt) v = extendedMin;
 
@@ -43,7 +44,7 @@ export const useFormattedNumber = ({
     return isLt ? `< ${formatted}` : formatted;
   }, [
     value,
-    unitDecimals,
+    decimals,
     extendedMin,
     intl,
     maxMin,
@@ -53,7 +54,7 @@ export const useFormattedNumber = ({
     postFormat,
   ]);
 
-  return formatted;
+  return hideZero && value === 0 ? '' : formatted;
 };
 
 export interface FormattedNumberProps extends FormattedNumberOptions {}

@@ -1,0 +1,242 @@
+[
+  {
+    "inputs": [],
+    "name": "OnlyCallableBySelf",
+    "type": "error"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "bytes32",
+        "name": "actualHash",
+        "type": "bytes32"
+      },
+      {
+        "internalType": "bytes32",
+        "name": "expectedHash",
+        "type": "bytes32"
+      }
+    ],
+    "name": "PolicyDoesNotMatchExpectedHash",
+    "type": "error"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint8",
+        "name": "threshold",
+        "type": "uint8"
+      },
+      {
+        "internalType": "uint256",
+        "name": "nApprovers",
+        "type": "uint256"
+      }
+    ],
+    "name": "ThresholdTooHigh",
+    "type": "error"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint8",
+        "name": "threshold",
+        "type": "uint8"
+      },
+      {
+        "internalType": "uint256",
+        "name": "nApprovers",
+        "type": "uint256"
+      }
+    ],
+    "name": "ThresholdTooLow",
+    "type": "error"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "max",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "nApprovers",
+        "type": "uint256"
+      }
+    ],
+    "name": "TooManyApprovers",
+    "type": "error"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "internalType": "PolicyKey",
+        "name": "key",
+        "type": "uint32"
+      },
+      {
+        "indexed": false,
+        "internalType": "bytes32",
+        "name": "hash",
+        "type": "bytes32"
+      }
+    ],
+    "name": "PolicyAdded",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "internalType": "PolicyKey",
+        "name": "key",
+        "type": "uint32"
+      }
+    ],
+    "name": "PolicyRemoved",
+    "type": "event"
+  },
+  {
+    "inputs": [
+      {
+        "components": [
+          {
+            "internalType": "PolicyKey",
+            "name": "key",
+            "type": "uint32"
+          },
+          {
+            "internalType": "uint8",
+            "name": "threshold",
+            "type": "uint8"
+          },
+          {
+            "internalType": "address[]",
+            "name": "approvers",
+            "type": "address[]"
+          },
+          {
+            "components": [
+              {
+                "internalType": "enum PermissionSelector",
+                "name": "selector",
+                "type": "uint8"
+              },
+              {
+                "internalType": "bytes",
+                "name": "args",
+                "type": "bytes"
+              }
+            ],
+            "internalType": "struct Permission[]",
+            "name": "permissions",
+            "type": "tuple[]"
+          }
+        ],
+        "internalType": "struct Policy",
+        "name": "policy",
+        "type": "tuple"
+      }
+    ],
+    "name": "addPolicy",
+    "outputs": [],
+    "stateMutability": "payable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "PolicyKey",
+        "name": "key",
+        "type": "uint32"
+      }
+    ],
+    "name": "getPolicyHash",
+    "outputs": [
+      {
+        "internalType": "bytes32",
+        "name": "",
+        "type": "bytes32"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "PolicyKey",
+        "name": "key",
+        "type": "uint32"
+      }
+    ],
+    "name": "removePolicy",
+    "outputs": [],
+    "stateMutability": "payable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "components": [
+          {
+            "internalType": "PolicyKey",
+            "name": "key",
+            "type": "uint32"
+          },
+          {
+            "internalType": "uint8",
+            "name": "threshold",
+            "type": "uint8"
+          },
+          {
+            "internalType": "address[]",
+            "name": "approvers",
+            "type": "address[]"
+          },
+          {
+            "components": [
+              {
+                "internalType": "enum PermissionSelector",
+                "name": "selector",
+                "type": "uint8"
+              },
+              {
+                "internalType": "bytes",
+                "name": "args",
+                "type": "bytes"
+              }
+            ],
+            "internalType": "struct Permission[]",
+            "name": "permissions",
+            "type": "tuple[]"
+          }
+        ],
+        "internalType": "struct Policy",
+        "name": "policy",
+        "type": "tuple"
+      }
+    ],
+    "name": "testAddPolicy",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "PolicyKey",
+        "name": "key",
+        "type": "uint32"
+      }
+    ],
+    "name": "testRemovePolicy",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  }
+]

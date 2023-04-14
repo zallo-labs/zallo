@@ -1,6 +1,7 @@
 import { PrismaSelect } from '@paljs/plugins';
 import { Prisma } from '@prisma/client';
 import { GraphQLResolveInfo } from 'graphql';
+import _ from 'lodash';
 
 type ModelSelect<M extends Prisma.ModelName> =
   Prisma.TypeMap['model'][M]['findUnique']['args']['select'];
@@ -12,7 +13,7 @@ type DefaultFields = Partial<{
 const DEFAULT_FIELDS: DefaultFields = {
   Approver: (select) => ({
     ...(select.id && {
-      quorumStateId: true,
+      stateId: true,
       userId: true,
     }),
   }),
@@ -21,10 +22,9 @@ const DEFAULT_FIELDS: DefaultFields = {
       addr: true,
     }),
   }),
-  ContractMethod: (select) => ({
-    ...(select.id && {
-      contract: true,
-      sighash: true,
+  ContractFunction: (select) => ({
+    ...(select.sourceConfidence && {
+      source: true,
     }),
   }),
   Proposal: (select) => ({
@@ -32,10 +32,14 @@ const DEFAULT_FIELDS: DefaultFields = {
       transactions: {
         take: 1,
         orderBy: { createdAt: 'desc' },
+        select: _.omit(select.transaction.select, ['id']) ?? true,
       },
     }),
+    ...((select.approvals || select.rejections) && {
+      approvals: true,
+    }),
   }),
-  Quorum: (select) => ({
+  Policy: (select) => ({
     ...(select.id && {
       accountId: true,
       key: true,

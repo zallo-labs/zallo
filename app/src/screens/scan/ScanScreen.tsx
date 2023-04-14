@@ -1,91 +1,113 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useState } from 'react';
 import { StyleSheet } from 'react-native';
 import { Camera } from 'expo-camera';
 import { BarCodeScanner } from 'expo-barcode-scanner';
-import { Box } from '~/components/layout/Box';
-import { Button, Title } from 'react-native-paper';
-import { AddrLink, parseAddrLink } from '~/util/addrLink';
+import { Appbar, Button, Text } from 'react-native-paper';
+import { parseAddressLink } from '~/util/addressLink';
 import { StackNavigatorScreenProps } from '~/navigation/StackNavigator';
 import { Overlay } from './Overlay';
-import {
-  isWalletConnectUri,
-  usePairWalletConnect,
-} from '~/util/walletconnect/usePairWalletConnect';
+import { isWalletConnectUri, useWalletConnect } from '~/util/walletconnect';
+import { Screen } from '~/components/layout/Screen';
+import { Actions } from '~/components/layout/Actions';
+import { Address, tryAsAddress } from 'lib';
+import { withSuspense } from '~/components/skeleton/withSuspense';
+import { Splash } from '~/components/Splash';
+import { AppbarBack } from '~/components/Appbar/AppbarBack';
+import * as Linking from 'expo-linking';
+import { EventEmitter } from '~/util/EventEmitter';
+import useAsyncEffect from 'use-async-effect';
+
+export const SCAN_ADDRESS_EMITTER = new EventEmitter<Address>('Scan::Address');
+export const useScanAddress = SCAN_ADDRESS_EMITTER.createUseSelect('Scan', { emitAddress: true });
 
 export type ScanScreenParams = {
-  onScanAddr?: (link: AddrLink) => void;
+  emitAddress?: boolean;
 };
 
 export type ScanScreenProps = StackNavigatorScreenProps<'Scan'>;
 
-export const ScanScreen = ({ route, navigation }: ScanScreenProps) => {
-  const { onScanAddr } = route.params;
-  const pairWc = usePairWalletConnect();
+export const ScanScreen = withSuspense(
+  ({ route, navigation: { goBack, replace } }: ScanScreenProps) => {
+    const { emitAddress } = route.params;
+    const walletconnect = useWalletConnect();
 
-  const camera = useRef<Camera>(null);
-  const [hasPermission, setHasPermission] = useState<boolean | null>(null);
-  const [canAskAgain, setCanAskAgain] = useState(false);
-  const requestPermissions = useCallback(async () => {
-    const { granted, canAskAgain } = await Camera.requestCameraPermissionsAsync();
+    const [scan, setScan] = useState(true);
+    const tryHandle = async (data: string) => {
+      setScan(false);
 
-    setHasPermission(granted);
-    setCanAskAgain(canAskAgain);
-  }, []);
+      const address = tryAsAddress(data) || parseAddressLink(data)?.target_address;
+      if (address) {
+        if (emitAddress) {
+          SCAN_ADDRESS_EMITTER.emit(address);
+        } else {
+          replace('AddressSheet', { address });
+        }
+      } else if (isWalletConnectUri(data)) {
+        await walletconnect.pair({ uri: data });
+        goBack();
+      } else {
+        setScan(true);
+      }
+    };
 
-  const [ratio, setRatio] = useState<string | undefined>('16:9');
-  const detectRatio = useCallback(async () => {
-    const ratios = await camera.current?.getSupportedRatiosAsync();
-    if (ratios?.length) setRatio(ratios[ratios.length - 1]);
-  }, [camera]);
+    const [permissionsRequested, setPermissionsRequested] = useState(false);
+    const [permission, requestPermission] = Camera.useCameraPermissions();
 
-  useEffect(() => {
-    requestPermissions();
-    detectRatio();
-  }, [detectRatio, requestPermissions]);
-
-  const [scanning, setScanning] = useState(false);
-  const handleScanned = async (data: string) => {
-    setScanning(true);
-
-    const addrLink = parseAddrLink(data);
-    if (addrLink) {
-      onScanAddr?.(addrLink);
-    } else if (isWalletConnectUri(data)) {
-      await pairWc(data);
-      navigation.goBack();
-      // Navigates away on pair
-    } else {
-      setScanning(false);
-    }
-  };
-
-  if (!hasPermission) {
-    if (hasPermission === null) {
-      // User being prompted for permission
-      return null;
-    }
-
-    return (
-      <Box flex={1} vertical center m={3}>
-        <Title style={{ textAlign: 'center' }}>
-          Please grant camera permissions in order to scan a QR code
-        </Title>
-        {canAskAgain && <Button onPress={requestPermissions}>Grant</Button>}
-      </Box>
+    useAsyncEffect(
+      async (isMounted) => {
+        if (!permission?.granted) {
+          await requestPermission();
+          if (isMounted()) setPermissionsRequested(true);
+        }
+      },
+      [requestPermission],
     );
-  }
 
-  return (
-    <Camera
-      ref={camera}
-      onBarCodeScanned={!scanning ? ({ data }) => handleScanned(data) : undefined}
-      barCodeScannerSettings={{
-        barCodeTypes: [BarCodeScanner.Constants.BarCodeType.qr],
-      }}
-      style={StyleSheet.absoluteFill}
-      ratio={ratio}
-    >
-      <Overlay handleScanned={handleScanned} />
-    </Camera>
-  );
-};
+    return permission?.granted || !permissionsRequested ? (
+      <Camera
+        onBarCodeScanned={scan ? ({ data }) => tryHandle(data) : undefined}
+        barCodeScannerSettings={{ barCodeTypes: [BarCodeScanner.Constants.BarCodeType.qr] }}
+        style={StyleSheet.absoluteFill}
+        ratio="16:9"
+        useCamera2Api
+      >
+        <Overlay onData={tryHandle} />
+      </Camera>
+    ) : (
+      <Screen>
+        <Appbar.Header>
+          <AppbarBack />
+          <Appbar.Content title="Permission required" />
+        </Appbar.Header>
+
+        <Text variant="headlineMedium" style={styles.pleaseGrantText}>
+          Please grant camera permissions in order to scan a QR code
+        </Text>
+
+        <Actions>
+          <Button
+            mode="contained"
+            onPress={async () => {
+              await Linking.openSettings();
+              requestPermission();
+            }}
+          >
+            Open app settings
+          </Button>
+        </Actions>
+      </Screen>
+    );
+  },
+  Splash,
+);
+
+const styles = StyleSheet.create({
+  pleaseGrantText: {
+    textAlign: 'center',
+    marginHorizontal: 16,
+    marginVertical: 32,
+  },
+  actionButton: {
+    alignSelf: 'stretch',
+  },
+});

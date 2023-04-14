@@ -20,21 +20,21 @@ dataSources:
         - Account
         - AccountImpl
         - Transaction
-        - Quorum
+        - Policy
       eventHandlers:
         - event: TransactionExecuted(bytes32,bytes)
           handler: handleTransactionExecuted
         - event: TransactionReverted(bytes32,bytes)
           handler: handleTransactionReverted
-        - event: QuorumUpserted(indexed uint32,bytes32)
-          handler: handleQuorumUpserted
-        - event: QuorumRemoved(indexed uint32)
-          handler: handleQuorumRemoved
-  - name: ERC1967Proxy
+        - event: PolicyAdded(uint32,bytes32)
+          handler: handlePolicyAdded
+        - event: PolicyRemoved(uint32)
+          handler: handlePolicyRemoved
+  - name: AccountProxy
     kind: ethereum/contract
     network: {{network}}
     source:
-      abi: ERC1967Proxy
+      abi: AccountProxy
       startBlock: {{startBlock}}
     mapping:
       kind: ethereum/events
@@ -42,8 +42,8 @@ dataSources:
       language: wasm/assemblyscript
       file: ./src/proxy.ts
       abis:
-        - name: ERC1967Proxy
-          file: ../contracts/abi/ERC1967Proxy.json
+        - name: AccountProxy
+          file: ../contracts/abi/AccountProxy.json
       entities:
         - Account
         - AccountImpl

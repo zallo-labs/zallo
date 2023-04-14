@@ -1,6 +1,5 @@
 {
   "name": "subgraph",
-  "version": "0.1",
   "scripts": {
     "configure:testnet": "mustache networks/testnet.json subgraph.mustache.yaml > subgraph.yaml",
     "generate": "(cd .. && yarn workspace contracts build) && yarn configure:testnet && graph codegen",
@@ -10,7 +9,7 @@
     "deploy": "graph deploy --product hosted-service"
   },
   "dependencies": {
-    "@graphprotocol/graph-cli": "0.40.0",
+    "@graphprotocol/graph-cli": "0.46.1",
     "@graphprotocol/graph-ts": "0.29.3"
   },
   "devDependencies": {
