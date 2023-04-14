@@ -93,13 +93,13 @@ const config = {
           // Trailing
           {
             'aria-label': 'Twitter',
-            to: process.env.TWITTER_PROFILE || FALLBACK_URL,
+            to: process.env.TWITTER || FALLBACK_URL,
             position: 'right',
             className: 'navbar__icon navbar__twitter',
           },
           {
-            'aria-label': 'GitHub repo',
-            to: process.env.GITHUB_REPO || FALLBACK_URL,
+            'aria-label': 'GitHub',
+            to: process.env.GITHUB || FALLBACK_URL,
             position: 'right',
             className: 'navbar__icon navbar__github',
           },
