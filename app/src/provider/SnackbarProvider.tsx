@@ -5,7 +5,7 @@ import { StyleProp, TextStyle } from 'react-native';
 import { Snackbar, SnackbarProps, Text } from 'react-native-paper';
 import RnToast, { ToastConfig, ToastConfigParams, ToastOptions } from 'react-native-toast-message';
 import { match } from 'ts-pattern';
-import { captureEvent, SentryEvent } from '~/util/sentry/sentry';
+import { captureEvent, SentryEvent } from '~/util/sentry';
 
 type SnackVariant = 'info' | 'success' | 'warning' | 'error';
 

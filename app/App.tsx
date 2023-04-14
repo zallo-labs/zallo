@@ -14,51 +14,53 @@ import { StatusBar } from 'expo-status-bar';
 import { AuthGate } from '~/provider/AuthGate';
 import { ThemeProvider } from '~/util/theme/ThemeProvider';
 import { SentryUser } from '~/util/sentry/SentryUser';
-import { withSentry } from '~/util/sentry/sentry';
+import { SentryProvider } from '~/util/sentry';
 import { NavigationProvider } from '~/navigation/NavigationProvider';
 import { NotificationsRegistrar } from '~/util/NotificationsRegistrar';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { StackNavigator } from '~/navigation/StackNavigator';
-import { WalletConnectListeners } from '~/components/walletconnect/WalletConnectListeners';
+// import { WalletConnectListeners } from '~/components/walletconnect/WalletConnectListeners';
 
 // Disable Recoil atom key checking due to hotreloading issues
 RecoilEnv.RECOIL_DUPLICATE_ATOM_KEY_CHECKING_ENABLED = false;
 
-export default withSentry(() => (
-  <LocalizatonProvider>
-    <SafeAreaProvider>
-      <ThemeProvider>
-        <Background>
-          <StatusBar backgroundColor="transparent" />
-          <GestureHandlerRootView style={styles.flexed}>
-            <ErrorBoundary>
-              <Suspense fallback={<Splash />}>
-                <RecoilRoot>
-                  <AuthGate>
-                    <SentryUser />
-                    <GqlProvider>
-                      <Suspense fallback={<Splash />}>
-                        <NotificationsRegistrar />
-                        <NavigationProvider>
-                          {/* <WalletConnectListeners /> */}
-                          <StackNavigator />
-                        </NavigationProvider>
-                      </Suspense>
-                    </GqlProvider>
-                  </AuthGate>
-                  <SnackbarProvider />
-                </RecoilRoot>
-              </Suspense>
-            </ErrorBoundary>
-          </GestureHandlerRootView>
-        </Background>
-      </ThemeProvider>
-    </SafeAreaProvider>
-  </LocalizatonProvider>
-));
+export default () => (
+  <SentryProvider>
+    <LocalizatonProvider>
+      <SafeAreaProvider>
+        <ThemeProvider>
+          <Background>
+            <StatusBar backgroundColor="transparent" />
+            <GestureHandlerRootView style={styles.flex}>
+              <ErrorBoundary>
+                <Suspense fallback={<Splash />}>
+                  <RecoilRoot>
+                    <AuthGate>
+                      <SentryUser />
+                      <GqlProvider>
+                        <Suspense fallback={<Splash />}>
+                          <NotificationsRegistrar />
+                          <NavigationProvider>
+                            {/* <WalletConnectListeners /> */}
+                            <StackNavigator />
+                          </NavigationProvider>
+                        </Suspense>
+                      </GqlProvider>
+                    </AuthGate>
+                    <SnackbarProvider />
+                  </RecoilRoot>
+                </Suspense>
+              </ErrorBoundary>
+            </GestureHandlerRootView>
+          </Background>
+        </ThemeProvider>
+      </SafeAreaProvider>
+    </LocalizatonProvider>
+  </SentryProvider>
+);
 
 const styles = StyleSheet.create({
-  flexed: {
+  flex: {
     flex: 1,
   },
 });
