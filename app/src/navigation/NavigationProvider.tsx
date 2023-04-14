@@ -1,5 +1,5 @@
 import { NavigationContainer, useNavigationContainerRef } from '@react-navigation/native';
-import { addBreadcrumb, SENTRY_ROUTING_INSTRUMENTATION } from '~/util/sentry/sentry';
+import { SENTRY_ROUTING_INSTRUMENTATION, addBreadcrumb } from '~/util/sentry';
 import { NAVIGATION_THEME } from '~/util/theme/navigation';
 import { ReactNode, useCallback, useRef } from 'react';
 import { LogBox } from 'react-native';

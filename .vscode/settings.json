@@ -11,5 +11,9 @@
   "prettier.ignorePath": ".prettierignore",
   "jest.testExplorer": {
     "enabled": false
+  },
+  "eslint.options": {
+    "overrideConfigFile": ".config/.eslintrc.js",
+    "ignorePath": ".config/.eslintignore"
   }
 }

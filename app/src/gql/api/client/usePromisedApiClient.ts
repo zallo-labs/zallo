@@ -5,8 +5,6 @@ import { useMemo } from 'react';
 import { CONFIG } from '~/util/config';
 import { useApiAuth } from './useApiAuth';
 import { getPersistedCache, DEFAULT_GQL_CLIENT_OPTIONS } from '~/gql/util';
-import OfflineLink from 'apollo-link-offline';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import { createHash } from 'crypto';
 import { GraphQLWsLink } from '@apollo/client/link/subscriptions';
 import { createClient } from 'graphql-ws';

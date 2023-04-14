@@ -1,26 +1,4 @@
-import { Native as Sentry, init } from 'sentry-expo';
-import { CONFIG } from '~/util/config';
-
-export const SENTRY_ROUTING_INSTRUMENTATION = new Sentry.ReactNavigationInstrumentation();
-
-export const withSentry = <P>(RootComponent: React.ComponentType<P>) => {
-  init({
-    dsn: CONFIG.sentryDsn,
-    environment: CONFIG.env,
-    enableInExpoDevelopment: false,
-    // debug: true,
-    sampleRate: 1, // Error sampling
-    tracesSampleRate: 0.2, // Performance sampling
-    attachStacktrace: true,
-    integrations: [
-      new Sentry.ReactNativeTracing({
-        routingInstrumentation: SENTRY_ROUTING_INSTRUMENTATION,
-      }),
-    ],
-  });
-
-  return RootComponent;
-};
+import { Native as Sentry } from 'sentry-expo';
 
 export const captureException = (...params: Parameters<typeof Sentry.captureException>) => {
   console.warn('Sentry.captureException', ...params);

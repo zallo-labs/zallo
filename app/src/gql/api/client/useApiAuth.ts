@@ -7,7 +7,7 @@ import { CONFIG } from '~/util/config';
 import { atom, useRecoilState } from 'recoil';
 import { getSecureStore, persistAtom } from '~/util/effect/persistAtom';
 import { useCallback, useMemo, useRef } from 'react';
-import { captureException } from '~/util/sentry/sentry';
+import { captureException } from '~/util/sentry';
 import { useApprover } from '@network/useApprover';
 import { DateTime } from 'luxon';
 import { Approver } from 'lib';

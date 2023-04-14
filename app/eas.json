@@ -1,14 +1,11 @@
 {
   "cli": {
-    "version": ">= 3.3.0",
+    "version": ">=3.8.0",
     "appVersionSource": "remote"
   },
   "build": {
     "base": {
       "node": "18.12.1",
-      "env": {
-        "ENTRY_FILE": "./__generated__/AppEntry.js"
-      },
       "android": {
         "autoIncrement": true
       },
