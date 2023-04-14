@@ -32,11 +32,14 @@ export interface ContractFunctionParams {
   selector: Selector;
 }
 
+const isCall = (params?: ContractFunctionParams | Call): params is Call =>
+  params !== undefined && 'to' in params;
+
 export const useContractFunction = <P extends ContractFunctionParams | Call | undefined>(
   params: P,
 ) => {
-  const contract = params && 'to' in params ? params.to : params?.contract;
-  const selector = params && ('selector' in params ? params.selector : asSelector(params.data));
+  const contract = isCall(params) ? params.to : params?.contract;
+  const selector = isCall(params) ? asSelector(params.data) : params?.selector;
 
   const skip = !contract || !selector;
   const { data } = useSuspenseQuery<ContractFunctionQuery, ContractFunctionQueryVariables>(
