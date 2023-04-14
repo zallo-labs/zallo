@@ -1,20 +1,20 @@
-import Schema from '../schema/objects/quorum.mdx';
+import Schema from '../schema/objects/policy.mdx';
 
-# Quorum
+# Policy
 
 A set of apporvers that are required to approve a proposal.
 
-Quorums are identified by their `key`.
+Policies are identified by their `key`.
 
 ## States
 
-Upon creation the quorums state will be pending (inactive; see [creating a quorum](./create)).  
+Upon creation the policies state will be pending (inactive; see [creating a policy](./create)).  
 Activating a state will supercede any previously active state.
 
 ### `activeState`
 
 The most recently activated state.  
-**Proposals will be executed according to this state.** A quorum without an active state can't execute proposals.
+**Proposals will be executed according to this state.** A policy without an active state can't execute proposals.
 
 ### `pendingStates`
 

@@ -269,7 +269,6 @@ export type ContactObject = {
   __typename?: 'ContactObject';
   addr: Scalars['Address'];
   id: Scalars['String'];
-  name: Scalars['String'];
 };
 
 export type ContactOrderByRelationAggregateInput = {
@@ -348,7 +347,6 @@ export enum ContractSourceConfidence {
 }
 
 export type CreateAccountInput = {
-  name: Scalars['String'];
   policies: Array<PolicyInput>;
 };
 
@@ -356,10 +354,8 @@ export type CreatePolicyInput = {
   account: Scalars['Address'];
   /** Signers that are required to approve */
   approvers?: InputMaybe<Array<Scalars['Address']>>;
-  name?: InputMaybe<Scalars['String']>;
-  permissions: PermissionsInput;
   /** Defaults to all approvers */
-  threshold?: InputMaybe<Scalars['Float']>;
+  threshold: Scalars['Float'];
 };
 
 export type DateTimeFilter = {
@@ -440,18 +436,11 @@ export type MutationCreateAccountArgs = {
 
 export type MutationCreateCommentArgs = {
   account: Scalars['Address'];
-  content: Scalars['String'];
-  key: Scalars['String'];
 };
 
 
 export type MutationCreatePolicyArgs = {
   args: CreatePolicyInput;
-};
-
-
-export type MutationDeleteCommentArgs = {
-  id: Scalars['Float'];
 };
 
 
@@ -469,12 +458,6 @@ export type MutationProposeArgs = {
   signature?: InputMaybe<Scalars['Bytes']>;
   to: Scalars['Address'];
   value?: InputMaybe<Scalars['Uint256']>;
-};
-
-
-export type MutationReactToCommentArgs = {
-  emojis: Array<Scalars['String']>;
-  id: Scalars['Float'];
 };
 
 
@@ -508,14 +491,7 @@ export type MutationUpdatePolicyArgs = {
 };
 
 
-export type MutationUpdateUserArgs = {
-  name?: InputMaybe<Scalars['String']>;
-  pushToken?: InputMaybe<Scalars['String']>;
-};
-
-
 export type MutationUpsertContactArgs = {
-  name: Scalars['String'];
   newAddr: Scalars['Address'];
   prevAddr?: InputMaybe<Scalars['Address']>;
 };
@@ -619,11 +595,6 @@ export type NestedStringNullableFilter = {
   startsWith?: InputMaybe<Scalars['String']>;
 };
 
-export type PermissionsInput = {
-  /** Targets that can be called */
-  targets?: InputMaybe<Array<TargetInput>>;
-};
-
 export type Policy = {
   __typename?: 'Policy';
   _count: PolicyCount;
@@ -657,10 +628,8 @@ export type PolicyCount = {
 export type PolicyInput = {
   /** Signers that are required to approve */
   approvers?: InputMaybe<Array<Scalars['Address']>>;
-  name?: InputMaybe<Scalars['String']>;
-  permissions: PermissionsInput;
   /** Defaults to all approvers */
-  threshold?: InputMaybe<Scalars['Float']>;
+  threshold: Scalars['Float'];
 };
 
 export type PolicyListRelationFilter = {
@@ -950,7 +919,6 @@ export type QueryAccountsArgs = {
 
 export type QueryCommentsArgs = {
   account: Scalars['Address'];
-  key: Scalars['String'];
 };
 
 
@@ -1070,10 +1038,7 @@ export type Rejection = {
 
 export type SatisfiablePolicy = {
   __typename?: 'SatisfiablePolicy';
-  id: Scalars['String'];
   key: Scalars['PolicyKey'];
-  requiresUserAction: Scalars['Boolean'];
-  satisfied: Scalars['Boolean'];
 };
 
 export enum SortOrder {
@@ -1143,13 +1108,6 @@ export type Target = {
   selectors?: Maybe<Array<Scalars['String']>>;
   state: PolicyState;
   stateId: Scalars['BigInt'];
-  to: Scalars['String'];
-};
-
-export type TargetInput = {
-  /** Functions that can be called on target (or *) */
-  selectors: Array<Scalars['String']>;
-  /** Address of target (or *) */
   to: Scalars['String'];
 };
 
@@ -1250,7 +1208,6 @@ export type UniquePolicyInput = {
 
 export type UpdateAccountInput = {
   id: Scalars['Address'];
-  name: Scalars['String'];
 };
 
 export type UpdatePolicyInput = {
@@ -1258,8 +1215,6 @@ export type UpdatePolicyInput = {
   /** Signers that are required to approve */
   approvers?: InputMaybe<Array<Scalars['Address']>>;
   key: Scalars['PolicyKey'];
-  name?: InputMaybe<Scalars['String']>;
-  permissions?: InputMaybe<PermissionsInput>;
   /** Defaults to all approvers */
   threshold?: InputMaybe<Scalars['Float']>;
 };
