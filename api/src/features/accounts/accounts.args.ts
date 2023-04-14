@@ -37,6 +37,7 @@ export class AccountSubscriptionFilters {
 
 @InputType()
 export class CreateAccountInput {
+  @Field(() => String)
   name: string;
 
   @Field(() => [PolicyInput], { middleware: [minLengthMiddleware(1)] })
@@ -48,5 +49,6 @@ export class UpdateAccountInput {
   @AddressField()
   id: Address;
 
+  @Field(() => String)
   name: string;
 }
