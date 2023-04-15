@@ -18,6 +18,9 @@ export class PoliciesArgs extends FindManyPolicyArgs {}
 
 @InputType()
 export class PolicyInput {
+  @PolicyKeyField({ nullable: true })
+  key?: PolicyKey;
+
   name?: string;
 
   @Field(() => [AddressScalar], {
