@@ -6,7 +6,7 @@ import {
   Optional,
 } from '@nestjs/common';
 import { Prisma, PrismaClient } from '@prisma/client';
-import { getUser } from '~/request/ctx';
+import { getUserCtx } from '~/request/ctx';
 import { loggingMiddleware } from './prisma.logging';
 
 const getUserClient = (prisma: PrismaClient) =>
@@ -15,12 +15,12 @@ const getUserClient = (prisma: PrismaClient) =>
     query: {
       $allModels: {
         async $allOperations({ args, query }) {
-          const user = getUser();
-          const accounts = [...user.accounts].map((a) => `'${a}'`).join(',');
+          const userCtx = getUserCtx();
+          const accounts = [...userCtx.accounts].map((a) => `'${a}'`).join(',');
 
           const [, , , response] = await prisma.$transaction([
             prisma.$queryRaw`SET LOCAL ROLE "user"`,
-            prisma.$queryRaw`SELECT set_config('user.id', ${user.id}, true)`,
+            prisma.$queryRaw`SELECT set_config('user.id', ${userCtx.id}, true)`,
             prisma.$queryRawUnsafe(
               `SELECT set_config('user.accounts', ARRAY[${accounts}]::text[]::text, true)`,
             ),

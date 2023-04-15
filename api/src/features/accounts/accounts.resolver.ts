@@ -12,9 +12,8 @@ import {
 } from './accounts.args';
 import { getSelect } from '~/util/select';
 import { AccountSubscriptionPayload, AccountsService } from './accounts.service';
-import { UserId } from '~/decorators/user.decorator';
 import { PubsubService } from '../util/pubsub/pubsub.service';
-import { UserContext } from '~/request/ctx';
+import { getUser } from '~/request/ctx';
 
 @Resolver(() => Account)
 export class AccountsResolver {
@@ -56,14 +55,11 @@ export class AccountsResolver {
     filter: ({ event }: AccountSubscriptionPayload, { events }: AccountSubscriptionFilters) =>
       !events || events.includes(event),
   })
-  async accountSubscription(
-    @UserId() user: UserContext,
-    @Args() { accounts }: AccountSubscriptionFilters,
-  ) {
+  async accountSubscription(@Args() { accounts }: AccountSubscriptionFilters) {
     return this.pubsub.asyncIterator(
       accounts
         ? [...accounts].map((id) => `${ACCOUNT_SUBSCRIPTION}.${id}`)
-        : `${USER_ACCOUNT_SUBSCRIPTION}.${user}`,
+        : `${USER_ACCOUNT_SUBSCRIPTION}.${getUser()}`,
     );
   }
 

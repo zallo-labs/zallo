@@ -1,6 +1,6 @@
 import { Prisma } from '@prisma/client';
 import { Address, Addresslike, asAddress, PolicyId, PolicyKey } from 'lib';
-import { getUserId } from '~/request/ctx';
+import { getUser } from '~/request/ctx';
 
 export const connectAccount = (
   id: Addresslike,
@@ -9,7 +9,7 @@ export const connectAccount = (
 });
 
 export const connectOrCreateUser = (user?: Addresslike) => {
-  const id = user ? asAddress(user) : getUserId();
+  const id = user ? asAddress(user) : getUser();
 
   return {
     connectOrCreate: {

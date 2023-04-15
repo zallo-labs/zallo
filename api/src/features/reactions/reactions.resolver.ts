@@ -1,12 +1,12 @@
 import { Reaction } from '@gen/reaction/reaction.model';
 import { Args, Info, Mutation, Parent, ResolveField, Resolver } from '@nestjs/graphql';
 import { GraphQLResolveInfo } from 'graphql';
-import { Address, Id, toId } from 'lib';
+import { Id, toId } from 'lib';
 import { PrismaService } from '../util/prisma/prisma.service';
-import { UserId } from '~/decorators/user.decorator';
 import { connectOrCreateUser } from '~/util/connect-or-create';
 import { getSelect } from '~/util/select';
 import { ReactToCommentArgs } from './reactions.args';
+import { getUser } from '~/request/ctx';
 
 @Resolver(() => Reaction)
 export class ReactionsResolver {
@@ -20,9 +20,10 @@ export class ReactionsResolver {
   @Mutation(() => Reaction, { nullable: true })
   async reactToComment(
     @Args() { id, emojis }: ReactToCommentArgs,
-    @UserId() user: Address,
     @Info() info: GraphQLResolveInfo,
   ): Promise<Reaction | null> {
+    const user = getUser();
+
     return this.prisma.asUser.reaction.upsert({
       where: {
         commentId_userId: {
