@@ -18,7 +18,7 @@ import { FaucetModule } from './features/faucet/faucet.module';
 import { SubgraphModule } from './features/subgraph/subgraph.module';
 import { ExpoModule } from './features/util/expo/expo.module';
 import { PubsubModule } from './features/util/pubsub/pubsub.module';
-import { RedisModule } from '@liaoliaots/nestjs-redis';
+import { RedisModule, DEFAULT_REDIS_NAMESPACE } from '@liaoliaots/nestjs-redis';
 import { PrismaModule } from './features/util/prisma/prisma.module';
 import { CONFIG } from './config';
 import { REDIS_PUBLISHER, REDIS_SUBSCRIBER } from './decorators/redis.decorator';
@@ -32,6 +32,10 @@ import { ContractsModule } from './features/contracts/contracts.module';
     PrismaModule,
     RedisModule.forRoot({
       config: [
+        {
+          namespace: DEFAULT_REDIS_NAMESPACE,
+          url: CONFIG.redisUrl,
+        },
         {
           namespace: REDIS_PUBLISHER,
           url: CONFIG.redisUrl,
