@@ -5,8 +5,8 @@
         <img src="https://img.shields.io/badge/License-AGPL%20v3-blue.svg" /></a>
     <a href="https://github.com/badges/shields/pulse" alt="Activity">
         <img src="https://img.shields.io/github/commit-activity/m/zallo-labs/zallo" /></a>
-    <a href="https://twitter.com/intent/follow?screen_name=ZalloLabs" alt="Follow on Twitter">
-        <img src="https://img.shields.io/twitter/follow/ZalloLabs"></a>
+    <a href="https://twitter.com/intent/follow?screen_name=ZalloWallet" alt="Follow on Twitter">
+        <img src="https://img.shields.io/twitter/follow/ZalloWallet"></a>
 </p>
 <p align="center">
     <a href="https://api.zallo.io/health" alt="Uptime">
