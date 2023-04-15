@@ -72,7 +72,13 @@ CREATE POLICY user_all ON "User" FOR ALL
 GRANT SELECT, INSERT, UPDATE ON "Account" TO PUBLIC;
 ALTER TABLE "Account" ENABLE ROW LEVEL SECURITY;
 
-CREATE POLICY member_all ON "Account" FOR ALL
+CREATE POLICY member_select ON "Account" FOR SELECT
+    USING (can_access_account("id"));
+
+CREATE POLICY member_insert ON "Account" FOR INSERT
+    WITH CHECK (true);
+
+CREATE POLICY member_update ON "Account" FOR UPDATE
     USING (can_access_account("id"));
 
 
