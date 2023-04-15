@@ -5,7 +5,7 @@ import { getSelect } from '~/util/select';
 import { UpdateUserArgs, UserArgs } from './users.args';
 import { User } from '@gen/user/user.model';
 import { ProviderService } from '../util/provider/provider.service';
-import { getUserId } from '~/request/ctx';
+import { getUser } from '~/request/ctx';
 
 @Resolver(() => User)
 export class UsersResolver {
@@ -13,7 +13,7 @@ export class UsersResolver {
 
   @Query(() => User)
   async user(
-    @Args() { id = getUserId() }: UserArgs,
+    @Args() { id = getUser() }: UserArgs,
     @Info() info?: GraphQLResolveInfo,
   ): Promise<User> {
     return (
@@ -29,7 +29,7 @@ export class UsersResolver {
   @ResolveField(() => String, { nullable: true })
   async name(@Parent() user: User): Promise<string | null> {
     const contact = this.prisma.asUser.contact.findUnique({
-      where: { userId_addr: { userId: getUserId(), addr: user.id } },
+      where: { userId_addr: { userId: getUser(), addr: user.id } },
       select: { name: true },
     });
 
@@ -51,7 +51,7 @@ export class UsersResolver {
     @Args() { name, pushToken }: UpdateUserArgs,
     @Info() info?: GraphQLResolveInfo,
   ): Promise<User> {
-    const user = getUserId();
+    const user = getUser();
 
     return this.prisma.asUser.user.upsert({
       where: { id: user },

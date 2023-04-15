@@ -12,17 +12,13 @@ import {
   CreateAccountInput,
   UpdateAccountInput,
 } from './accounts.args';
-import {
-  POLICY_STATE_FIELDS,
-  getDefaultPolicyName,
-  inputAsPolicy,
-  policyAsCreateState,
-  prismaAsPolicy,
-} from '../policies/policies.util';
+import { POLICY_STATE_FIELDS, inputAsPolicy, prismaAsPolicy } from '../policies/policies.util';
 import { CONFIG } from '~/config';
-import { getUser, getRequestContext } from '~/request/ctx';
 import { ContractsService } from '../contracts/contracts.service';
 import { FaucetService } from '../faucet/faucet.service';
+import { PoliciesService } from '../policies/policies.service';
+import { getUser } from '~/request/ctx';
+import { UserInputError } from 'apollo-server-core';
 
 export interface AccountSubscriptionPayload {
   [ACCOUNT_SUBSCRIPTION]: Pick<Account, 'id'>;
@@ -37,6 +33,7 @@ export class AccountsService {
     private pubsub: PubsubService,
     private contracts: ContractsService,
     private faucet: FaucetService,
+    private policies: PoliciesService,
   ) {}
 
   findUnique = this.prisma.asUser.account.findUnique;
@@ -46,71 +43,46 @@ export class AccountsService {
     { name, policies: policyInputs }: CreateAccountInput,
     res?: Prisma.SelectSubset<R, Prisma.AccountArgs>,
   ) {
+    const user = getUser();
+    if (!policyInputs.find((p) => p.approvers.includes(user)))
+      throw new UserInputError('User must be included in at least one policy');
+
     const impl = CONFIG.accountImplAddress;
     const deploySalt = randomDeploySalt();
+    const policyKeys = policyInputs.map((p, i) => asPolicyKey(p.key ?? i));
 
-    const policies = policyInputs.map((p, i) => {
-      const key = asPolicyKey(i);
-
-      return {
-        ...inputAsPolicy(key, p),
-        name: p.name || getDefaultPolicyName(key),
-      };
+    const account = await this.provider.getProxyAddress({
+      impl,
+      salt: deploySalt,
+      policies: policyInputs.map((p, i) => inputAsPolicy(policyKeys[i], p)),
     });
 
-    const account = await this.provider.getProxyAddress({ impl, salt: deploySalt, policies });
-
-    // Add account to user context
-    getUser().accounts.add(account);
-    getRequestContext()?.session?.accounts?.push(account);
-
     await this.prisma.asUser.$transaction(async (prisma) => {
-      const { policyStates } = await prisma.account.create({
+      // Prisma create always SELECTs after the INSERT. However the user isn't yet a member of the account - https://github.com/prisma/prisma/issues/4246
+      // createMany doesn't have this behaviour
+      await prisma.account.createMany({
         data: {
           id: account,
           deploySalt,
           impl,
           name,
-          policies: {
-            create: policies.map(
-              (policy): Prisma.PolicyCreateWithoutAccountInput => ({
-                key: policy.key,
-                name: policy.name,
-                states: {
-                  create: {
-                    ...policyAsCreateState(policy),
-                  },
-                },
-              }),
-            ),
-          },
-        },
-        select: {
-          policyStates: {
-            select: {
-              id: true,
-              policyKey: true,
-            },
-          },
         },
       });
 
-      // Set policy rules as draft of policies - this can't be done in the same create as the account )':
       await Promise.all(
-        policyStates.map(({ id, policyKey }) =>
-          prisma.policy.update({
-            where: { accountId_key: { accountId: account, key: policyKey } },
-            data: { draftId: id },
-            select: null,
-          }),
+        policyInputs.map((policy, i) =>
+          this.policies.create(
+            { ...policy, account, key: policyKeys[i], skipProposal: true },
+            { select: null },
+          ),
         ),
       );
     });
 
     const r = await this.activateAccount(account, res);
 
-    this.publishAccount({ account: { id: account }, event: AccountEvent.create });
     await this.contracts.addAccountAsVerified(account);
+    this.publishAccount({ account: { id: account }, event: AccountEvent.create });
     this.faucet.requestTokens(account);
 
     return r;

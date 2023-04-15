@@ -5,9 +5,10 @@ import { PRISMA_MOCK_PROVIDER } from '../util/prisma/prisma.service.mock';
 import { AccountsService } from './accounts.service';
 import { ProviderService } from '../util/provider/provider.service';
 import { CONFIG } from '~/config';
-import { asUser, getUser, UserContext } from '~/request/ctx';
+import { asUser, getUserCtx, UserContext } from '~/request/ctx';
 import { randomAddress } from '~/util/test';
 import { asAddress, Address } from 'lib';
+import { PoliciesService } from '../policies/policies.service';
 
 CONFIG.accountImplAddress = '0xC73505BBbB8A8b07F35DE0F5588753e286423122' as Address;
 
@@ -15,6 +16,7 @@ describe(AccountsService.name, () => {
   let service: AccountsService;
   let prisma: PrismaService;
   let provider: DeepMocked<ProviderService>;
+  let policiesService: DeepMocked<PoliciesService>;
 
   beforeEach(async () => {
     const module = await Test.createTestingModule({
@@ -24,13 +26,14 @@ describe(AccountsService.name, () => {
       .compile();
     service = module.get(AccountsService);
     prisma = module.get(PrismaService);
+    policiesService = module.get(PoliciesService);
 
     provider = module.get(ProviderService);
     provider.useProxyFactory.mockImplementation(async (f) => f(undefined as any));
   });
 
   const createAccount = async () => {
-    const user = getUser();
+    const userCtx = getUserCtx();
 
     const account = randomAddress();
     provider.getProxyAddress.mockReturnValue((async () => account)());
@@ -42,11 +45,14 @@ describe(AccountsService.name, () => {
       }))() as any,
     );
 
+    policiesService.create.mockImplementation(async (p): Promise<any> => {
+      if (p.approvers.includes(userCtx.id)) userCtx.accounts.add(account);
+    });
+
     await service.createAccount({
       name: 'Test account',
-      policies: [{ approvers: [user.id], permissions: {} }],
+      policies: [{ approvers: [userCtx.id], permissions: {} }],
     });
-    user.accounts.add(account);
 
     return account;
   };

@@ -24,14 +24,19 @@ import { Proposal } from '@gen/proposal/proposal.model';
 import { ProposalsService } from './proposals.service';
 import { Transaction } from '@gen/transaction/transaction.model';
 import { PubsubService } from '~/features/util/pubsub/pubsub.service';
-import { getUser } from '~/request/ctx';
+import { getUserCtx } from '~/request/ctx';
 import { Rejection, SatisfiablePolicy } from './proposals.model';
 import { asHex } from 'lib';
 import { Approval } from '@gen/approval/approval.model';
+import { UserAccountsService } from '../auth/userAccounts.service';
 
 @Resolver(() => Proposal)
 export class ProposalsResolver {
-  constructor(private service: ProposalsService, private pubsub: PubsubService) {}
+  constructor(
+    private service: ProposalsService,
+    private pubsub: PubsubService,
+    private userAccounts: UserAccountsService,
+  ) {}
 
   @Query(() => Proposal, { nullable: true })
   async proposal(
@@ -85,7 +90,7 @@ export class ProposalsResolver {
       !events || events.includes(event),
   })
   async proposalSubscription(@Args() { accounts, proposals }: ProposalSubscriptionFilters) {
-    if (!accounts && !proposals) accounts = [...getUser().accounts];
+    if (!accounts && !proposals) accounts = [...getUserCtx().accounts];
 
     return this.pubsub.asyncIterator([
       ...[...(accounts ?? [])].map((account) => `${ACCOUNT_PROPOSAL_SUB_TRIGGER}.${account}`),

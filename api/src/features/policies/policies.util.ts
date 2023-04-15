@@ -1,6 +1,5 @@
 import { Approver, PolicyState, Prisma, Target } from '@prisma/client';
 import { asAddress, asPolicy, asTargets, Policy, PolicyKey } from 'lib';
-import { connectOrCreateUser } from '~/util/connect-or-create';
 import { PolicyInput } from './policies.args';
 
 export type PrismaPolicy = Pick<PolicyState, 'policyKey' | 'threshold'> & {
@@ -25,22 +24,6 @@ export const prismaAsPolicy = (p: PrismaPolicy): Policy =>
     },
   });
 
-export const policyAsCreateState = (p: Policy) =>
-  ({
-    approvers: {
-      create: [...p.approvers].map((approver) => ({
-        user: connectOrCreateUser(approver),
-      })),
-    },
-    threshold: p.threshold,
-    targets: {
-      create: Object.entries(p.permissions.targets).map(([to, selectors]) => ({
-        to,
-        selectors: [...selectors],
-      })),
-    },
-  } satisfies Partial<Prisma.PolicyStateCreateInput>);
-
 export const inputAsPolicy = (key: PolicyKey, p: PolicyInput): Policy =>
   asPolicy({
     key,
@@ -50,5 +33,3 @@ export const inputAsPolicy = (key: PolicyKey, p: PolicyInput): Policy =>
       targets: asTargets(p.permissions.targets),
     },
   });
-
-export const getDefaultPolicyName = (key: PolicyKey) => `Policy ${key + 1n}`;

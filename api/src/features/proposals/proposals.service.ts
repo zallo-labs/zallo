@@ -29,7 +29,7 @@ import {
   PROPOSAL_SUBSCRIPTION,
   UniqueProposalArgs,
 } from './proposals.args';
-import { getUserId } from '~/request/ctx';
+import { getUser } from '~/request/ctx';
 import { match } from 'ts-pattern';
 import { ExpoService } from '../util/expo/expo.service';
 import { O } from 'ts-toolbelt';
@@ -133,7 +133,7 @@ export class ProposalsService {
     res?: Prisma.SelectSubset<T, Prisma.ProposalArgs>,
     prisma: Prisma.TransactionClient = this.prisma.asUser,
   ): Promise<Proposal> {
-    const user = getUserId();
+    const user = getUser();
     if (!(await this.provider.verifySignature({ digest: id, approver: user, signature })))
       throw new UserInputError('Invalid signature');
 
@@ -171,7 +171,7 @@ export class ProposalsService {
     { id }: UniqueProposalArgs,
     res?: Prisma.SelectSubset<T, Prisma.ProposalArgs>,
   ) {
-    const user = getUserId();
+    const user = getUser();
 
     const { proposal } = await this.prisma.asUser.approval.upsert({
       where: {
@@ -256,7 +256,7 @@ export class ProposalsService {
     proposalId: string,
     query?: SelectManyPoliciesArgs,
   ): Promise<SatisfiablePolicy[]> {
-    const user = getUserId();
+    const user = getUser();
     const userHasApproved = !!(await this.prisma.asUser.approval.count({
       where: { proposalId, userId: user },
     }));

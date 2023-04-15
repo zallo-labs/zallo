@@ -2,11 +2,9 @@ import { Args, Info, Mutation, Parent, Query, ResolveField, Resolver } from '@ne
 import { PrismaService } from '../util/prisma/prisma.service';
 import { GraphQLResolveInfo } from 'graphql';
 import { getSelect } from '~/util/select';
-import { UserId } from '~/decorators/user.decorator';
-import { Address } from 'lib';
 import { ContactsArgs, ContactArgs, ContactObject, UpsertContactArgs } from './contacts.args';
 import { connectOrCreateUser } from '~/util/connect-or-create';
-import { getUser, getUserId } from '~/request/ctx';
+import { getUser } from '~/request/ctx';
 import { AccountsService } from '../accounts/accounts.service';
 import { Contact } from '@gen/contact/contact.model';
 import _ from 'lodash';
@@ -16,8 +14,8 @@ export class ContactsResolver {
   constructor(private prisma: PrismaService, private accounts: AccountsService) {}
 
   @ResolveField(() => String)
-  id(@Parent() contact: ContactObject, @UserId() user: Address): string {
-    return `${user}-${contact.addr}`;
+  id(@Parent() contact: ContactObject): string {
+    return `${getUser()}-${contact.addr}`;
   }
 
   @Query(() => ContactObject, { nullable: true })
@@ -26,7 +24,7 @@ export class ContactsResolver {
     @Info() info?: GraphQLResolveInfo,
   ): Promise<ContactObject | null> {
     return this.prisma.asUser.contact.findUnique({
-      where: { userId_addr: { addr, userId: getUser().id } },
+      where: { userId_addr: { addr, userId: getUser() } },
       ...getSelect(info),
     });
   }
@@ -54,7 +52,7 @@ export class ContactsResolver {
     // Ignore leading and trailing whitespace
     name = name.trim();
 
-    const user = getUserId();
+    const user = getUser();
     const selectArgs = getSelect(info);
 
     return this.prisma.asUser.contact.upsert({
@@ -87,7 +85,7 @@ export class ContactsResolver {
     return this.prisma.asUser.contact.delete({
       where: {
         userId_addr: {
-          userId: getUser().id,
+          userId: getUser(),
           addr,
         },
       },

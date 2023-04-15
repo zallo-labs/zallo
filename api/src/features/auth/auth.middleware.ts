@@ -3,11 +3,10 @@ import { Request, Response, NextFunction } from 'express';
 import { ethers, Wallet } from 'ethers';
 import { Address, asAddress } from 'lib';
 import { DateTime } from 'luxon';
-import { PrismaService } from '../util/prisma/prisma.service';
 import { SiweMessage } from 'siwe';
 import { CONFIG } from '~/config';
 import { ProviderService } from '~/features/util/provider/provider.service';
-import { UserContext } from '~/request/ctx';
+import { UserAccountsService } from './userAccounts.service';
 
 interface AuthToken {
   message: SiweMessage;
@@ -45,23 +44,16 @@ const isPlayground = (req: Request) => {
 
 @Injectable()
 export class AuthMiddleware implements NestMiddleware {
-  constructor(private provider: ProviderService, private prisma: PrismaService) {}
+  constructor(private provider: ProviderService, private userAccount: UserAccountsService) {}
 
   async use(req: Request, _res: Response, next: NextFunction) {
-    req.user = await this.tryAuth(req);
+    const user = await this.tryAuth(req);
+    if (user) req.user = { id: user, accounts: await this.userAccount.get(user) };
+
     next();
   }
 
-  async tryAuth(req: Request): Promise<UserContext | undefined> {
-    const id = await this.tryGetUserId(req);
-    if (!id) return undefined;
-
-    req.session.accounts ||= await this.getAccounts(id);
-
-    return { id, accounts: new Set(req.session.accounts) };
-  }
-
-  private async tryGetUserId(req: Request): Promise<Address | undefined> {
+  private async tryAuth(req: Request): Promise<Address | undefined> {
     const auth = tryParseAuth(req.headers.authorization);
 
     if (typeof auth === 'object') {
@@ -100,31 +92,9 @@ export class AuthMiddleware implements NestMiddleware {
         );
       }
     } else if (isPlayground(req)) {
-      // if (!req.session.playgroundWallet)
-      //   req.session.playgroundWallet = asAddress(Wallet.createRandom().address);
-      req.session.playgroundWallet = asAddress('0xb616B9D2076AEc293b6E1CFc7874f8C5fEa1fE87');
+      req.session.playgroundWallet ??= asAddress(Wallet.createRandom().address);
 
       return req.session.playgroundWallet;
     }
-  }
-
-  private async getAccounts(userId: Address) {
-    const accounts = await this.prisma.asSystem.account.findMany({
-      where: {
-        policies: {
-          some: {
-            OR: [
-              { active: { approvers: { some: { userId } } } },
-              { draft: { approvers: { some: { userId } } } },
-            ],
-          },
-        },
-      },
-      select: {
-        id: true,
-      },
-    });
-
-    return [...new Set(accounts.map((acc) => asAddress(acc.id)))];
   }
 }
