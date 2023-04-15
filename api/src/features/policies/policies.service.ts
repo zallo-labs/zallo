@@ -67,6 +67,10 @@ export class PoliciesService implements OnModuleInit {
   ) {
     return this.prisma.asUser.$transaction(async (prisma) => {
       const key = keyArg ?? (await this.getNextKey(account));
+      const policy = inputAsPolicy(key, policyInput);
+
+      // User needs to belong to the account before they can create a policy
+      await this.addApproversToAccount(account, policy);
 
       await prisma.policy.create({
         data: {
@@ -77,10 +81,7 @@ export class PoliciesService implements OnModuleInit {
         select: null,
       });
 
-      return this.createState(
-        { prisma, account, skipProposal, policy: inputAsPolicy(key, policyInput) },
-        res,
-      );
+      return this.createState({ prisma, account, skipProposal, policy }, res);
     });
   }
 
@@ -110,6 +111,7 @@ export class PoliciesService implements OnModuleInit {
             targets: asTargets(permissions.targets),
           };
 
+        await this.addApproversToAccount(account, policy);
         await this.createState({ prisma, account, policy });
       }
 
@@ -169,14 +171,6 @@ export class PoliciesService implements OnModuleInit {
     res?: ArgsParam<A>,
   ) {
     return this.prisma.$transactionAsUser(prisma, async (prisma) => {
-      // Add approvers to account
-      // Note. approvers aren't removed when a draft is replaced they were previously an approver of
-      // These users will have account access until the cache expires.
-      // This prevent loss of account access on an accidental draft be should be considered more thoroughly
-      await Promise.all(
-        [...policy.approvers].map((user) => this.userAccounts.add({ user, account })),
-      );
-
       // Proposal may be skipped on account creation
       const proposal =
         !skipProposal &&
@@ -323,5 +317,14 @@ export class PoliciesService implements OnModuleInit {
     });
 
     return asPolicyKey(aggregate._max?.key ?? 0);
+  }
+
+  // Note. approvers aren't removed when a draft is replaced they were previously an approver of
+  // These users will have account access until the cache expires.
+  // This prevent loss of account access on an accidental draft be should be considered more thoroughly
+  private async addApproversToAccount(account: Address, policy: Policy) {
+    return Promise.all(
+      [...policy.approvers].map((user) => this.userAccounts.add({ user, account })),
+    );
   }
 }

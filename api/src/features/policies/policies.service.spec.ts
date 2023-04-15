@@ -4,16 +4,18 @@ import { PRISMA_MOCK_PROVIDER } from '../util/prisma/prisma.service.mock';
 import { PrismaService } from '../util/prisma/prisma.service';
 import { PoliciesService } from './policies.service';
 import { Address, asPolicyKey, PolicyId, randomDeploySalt } from 'lib';
-import { asUser, UserContext } from '~/request/ctx';
+import { asUser, getUserCtx, UserContext } from '~/request/ctx';
 import { randomAddress, randomUser } from '~/util/test';
 import { hexlify, randomBytes } from 'ethers/lib/utils';
 import { ProposalsService } from '../proposals/proposals.service';
 import { connectAccount, connectOrCreateUser } from '~/util/connect-or-create';
+import { UserAccountsService } from '../auth/userAccounts.service';
 
 describe(PoliciesService.name, () => {
   let service: PoliciesService;
   let prisma: PrismaService;
   let proposals: DeepMocked<ProposalsService>;
+  let userAccounts: DeepMocked<UserAccountsService>;
 
   beforeEach(async () => {
     const module = await Test.createTestingModule({
@@ -25,6 +27,7 @@ describe(PoliciesService.name, () => {
     service = module.get(PoliciesService);
     prisma = module.get(PrismaService);
     proposals = module.get(ProposalsService);
+    userAccounts = module.get(UserAccountsService);
   });
 
   let user1Account: Address;
@@ -33,13 +36,18 @@ describe(PoliciesService.name, () => {
   const create = async ({ active }: { active?: boolean } = {}) => {
     const account = user1Account;
 
-    await prisma.asUser.account.create({
+    await prisma.asUser.account.createMany({
       data: {
         id: account,
         deploySalt: randomDeploySalt(),
         impl: account,
         name: '',
       },
+    });
+
+    const userCtx = getUserCtx();
+    userAccounts.add.mockImplementation(async (p) => {
+      if (userCtx.id === p.user && account === p.account) userCtx.accounts.add(account);
     });
 
     proposals.propose.mockImplementation(async () =>
@@ -58,7 +66,7 @@ describe(PoliciesService.name, () => {
     const { key } = await service.create(
       {
         account,
-        approvers: [],
+        approvers: [userCtx.id],
         permissions: {},
       },
       { select: null },
@@ -83,7 +91,7 @@ describe(PoliciesService.name, () => {
     user1Account = randomAddress();
     user1 = {
       id: randomAddress(),
-      accounts: new Set([user1Account]),
+      accounts: new Set([]),
     };
   });
 
@@ -114,11 +122,6 @@ describe(PoliciesService.name, () => {
       asUser(user1, async () => {
         await create();
         expect(proposals.propose).toHaveBeenCalledTimes(1);
-      }));
-
-    it("throws if the user isn't a member of the account", () =>
-      asUser(randomUser(), async () => {
-        await expect(create()).rejects.toThrow();
       }));
   });
 

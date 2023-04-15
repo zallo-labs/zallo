@@ -17,7 +17,7 @@ export const RequireBiometricsItem = () => {
     <ListItem
       leading={(props) => <FingerprintIcon {...props} size={useStyles().icon.fontSize} />}
       headline="Biometrics"
-      supporting="Requireon app open and approval"
+      supporting="Require on app open and approval"
       trailing={<Switch value={requireBiometrics} onValueChange={toggle} disabled={disabled} />}
       disabled={disabled}
     />
