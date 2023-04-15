@@ -17,7 +17,7 @@
         <img src="https://img.shields.io/netlify/f3543118-0495-4215-af87-4c77b5c55763?label=Site" /></a>
 </p>
 
-A self-custodial smart wallet
+A self-custodial zkSync smart wallet with permission-based access.
 
 ## Setup
 
