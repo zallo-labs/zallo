@@ -9,6 +9,7 @@ import { TransactionEvent, TRANSACTIONS_QUEUE } from './transactions.queue';
 import { ExplorerService } from '../explorer/explorer.service';
 import { ProviderService } from '../util/provider/provider.service';
 import { Hex } from 'lib';
+import { BigNumber } from 'ethers';
 
 export interface TransactionResponseData {
   transactionHash: Hex;
@@ -43,13 +44,13 @@ export class TransactionsConsumer {
   async process(job: Job<TransactionEvent>) {
     const { transactionHash } = job.data;
 
-    const [receipt, transfers, response] = await Promise.all([
+    const [receipt, explorerTx, response] = await Promise.all([
       this.provider.getTransactionReceipt(transactionHash),
-      this.explorer.transactionTransfers(transactionHash),
+      this.explorer.transaction(transactionHash),
       this.subgraph.transactionResponse(job.data.transactionHash),
     ]);
     if (!receipt) return job.moveToFailed({ message: TRANSACTION_NOT_FOUND });
-    if (!transfers) return job.moveToFailed({ message: TRANSACTION_NOT_FOUND });
+    if (!explorerTx) return job.moveToFailed({ message: TRANSACTION_NOT_FOUND });
     if (!response) return job.moveToFailed({ message: RESPONSE_NOT_FOUND });
 
     const createResponse = this.prisma.asSystem.transactionResponse.create({
@@ -58,16 +59,17 @@ export class TransactionsConsumer {
         success: response.success,
         response: response.response,
         gasUsed: receipt.gasUsed.toString(),
-        effectiveGasPrice: receipt.effectiveGasPrice.toString(),
+        gasPrice: receipt.effectiveGasPrice.toString(),
+        fee: BigNumber.from(explorerTx.fee).toString(),
         timestamp: new Date(parseFloat(response.timestamp) * 1000),
         transfers: {
           createMany: {
-            data: transfers.map((t) => ({
-              transferNumber: 0, // TODO: get transfer number from explorer
-              token: t.token,
+            data: explorerTx.erc20Transfers.map((t, i) => ({
+              transferNumber: i,
+              token: t.tokenInfo.l2Address,
               from: t.from,
               to: t.to,
-              amount: t.amount.toString(),
+              amount: BigNumber.from(t.amount).toString(),
             })),
           },
         },

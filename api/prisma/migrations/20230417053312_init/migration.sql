@@ -105,7 +105,8 @@ CREATE TABLE "TransactionResponse" (
     "success" BOOLEAN NOT NULL,
     "response" CHAR(66) NOT NULL,
     "gasUsed" DECIMAL(19,0) NOT NULL,
-    "effectiveGasPrice" DECIMAL(19,0) NOT NULL,
+    "gasPrice" DECIMAL(19,0) NOT NULL,
+    "fee" DECIMAL(79,0) NOT NULL,
     "timestamp" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
     CONSTRAINT "TransactionResponse_pkey" PRIMARY KEY ("transactionHash")

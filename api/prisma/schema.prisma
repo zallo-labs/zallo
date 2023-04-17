@@ -158,11 +158,12 @@ model TransactionResponse {
   transaction     Transaction @relation(fields: [transactionHash], references: [hash], onDelete: Cascade)
   transactionHash String      @id @db.Char(66) // bytes32
 
-  success           Boolean
-  response          String   @db.Char(66) // bytes32
-  gasUsed           Decimal  @db.Decimal(19, 0)
-  effectiveGasPrice Decimal  @db.Decimal(19, 0)
-  timestamp         DateTime @default(now())
+  success   Boolean
+  response  String   @db.Char(66) // bytes32
+  gasUsed   Decimal  @db.Decimal(19, 0)
+  gasPrice  Decimal  @db.Decimal(19, 0)
+  fee       Decimal  @db.Decimal(79, 0) // uint256
+  timestamp DateTime @default(now())
 
   transfers Transfer[]
 }
