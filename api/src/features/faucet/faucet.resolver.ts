@@ -10,7 +10,7 @@ export class FaucetResolver {
 
   @Query(() => [AddressScalar])
   async requestableTokens(@Args() { recipient }: RequestTokensArgs): Promise<Address[]> {
-    return (await this.service.getTokensToSend(recipient)).map((token) => token.addr);
+    return this.service.requestableTokens(recipient);
   }
 
   @Mutation(() => [AddressScalar])

@@ -33,9 +33,11 @@ const LINK: TokenFaucet = {
 export class FaucetService {
   constructor(private provider: ProviderService) {}
 
-  async requestTokens(recipient: Address): Promise<Address[]> {
-    if (!getUserCtx().accounts.has(recipient)) return [];
+  async requestableTokens(recipient: Address): Promise<Address[]> {
+    return (await this.getTokensToSend(recipient)).map((token) => token.addr);
+  }
 
+  async requestTokens(recipient: Address): Promise<Address[]> {
     const tokensToSend = await this.getTokensToSend(recipient);
 
     return (
@@ -43,7 +45,9 @@ export class FaucetService {
     ).map((token) => token.addr);
   }
 
-  async getTokensToSend(recipient: Address) {
+  private async getTokensToSend(recipient: Address) {
+    if (!getUserCtx().accounts.has(recipient)) return [];
+
     return filterAsync([ETH, DAI, USDC, LINK], async (token) => {
       const recipientBalance = await this.provider.getBalance(recipient, undefined, token.addr);
       if (recipientBalance.gte(token.amount)) return false;
