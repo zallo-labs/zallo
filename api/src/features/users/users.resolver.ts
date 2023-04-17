@@ -38,10 +38,13 @@ export class UsersResolver {
       select: { name: true },
     });
 
+    const zalloMatch = user.id === this.provider.walletAddress && 'Zallo';
+
     return (
       (await contact)?.name ||
       (await account)?.name ||
       user.name ||
+      zalloMatch ||
       (await this.provider.lookupAddress(user.id))
     );
   }
