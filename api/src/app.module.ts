@@ -25,6 +25,7 @@ import { REDIS_PUBLISHER, REDIS_SUBSCRIBER } from './decorators/redis.decorator'
 import { BullModule } from '@nestjs/bull';
 import { PoliciesModule } from './features/policies/policies.module';
 import { ContractsModule } from './features/contracts/contracts.module';
+import { ExplorerModule } from './features/explorer/explorer.module';
 
 @Module({
   imports: [
@@ -65,6 +66,7 @@ import { ContractsModule } from './features/contracts/contracts.module';
     ContactsModule,
     ContractFunctionsModule,
     ContractsModule,
+    ExplorerModule,
     FaucetModule,
     HealthModule,
     PoliciesModule,
