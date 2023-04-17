@@ -163,6 +163,20 @@ model TransactionResponse {
   gasUsed           Decimal  @db.Decimal(19, 0)
   effectiveGasPrice Decimal  @db.Decimal(19, 0)
   timestamp         DateTime @default(now())
+
+  transfers Transfer[]
+}
+
+model Transfer {
+  fromResponse    TransactionResponse @relation(fields: [transactionHash], references: [transactionHash], onDelete: Cascade)
+  transactionHash String              @db.Char(66) // bytes32
+  transferNumber  Int
+  token           String              @db.Char(42) // address
+  from            String              @db.Char(42) // address
+  to              String              @db.Char(42) // address
+  amount          Decimal             @db.Decimal(79, 0) // uint256
+
+  @@id([transactionHash, transferNumber])
 }
 
 model Approval {

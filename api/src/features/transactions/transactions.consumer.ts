@@ -6,6 +6,7 @@ import { ProposalEvent } from '../proposals/proposals.args';
 import { ProposalsService } from '../proposals/proposals.service';
 import { SubgraphService, SubgraphTransactionResponse } from '../subgraph/subgraph.service';
 import { TransactionEvent, TRANSACTIONS_QUEUE } from './transactions.queue';
+import { ExplorerService } from '../explorer/explorer.service';
 import { ProviderService } from '../util/provider/provider.service';
 import { Hex } from 'lib';
 
@@ -16,7 +17,7 @@ export interface TransactionResponseData {
 
 export type TransactionResponseProcessor = (data: TransactionResponseData) => Promise<void>;
 
-const TRANSACTION_NOT_FIND = 'Transaction not found';
+const TRANSACTION_NOT_FOUND = 'Transaction not found';
 const RESPONSE_NOT_FOUND = 'Transaction response not found';
 
 @Injectable()
@@ -30,23 +31,25 @@ export class TransactionsConsumer {
     @Inject(forwardRef(() => ProposalsService))
     private proposals: ProposalsService,
     private provider: ProviderService,
+    private explorer: ExplorerService,
   ) {}
 
   @OnQueueFailed()
   onFailed(job: Job<TransactionEvent>, error: unknown) {
-    if (job.failedReason !== RESPONSE_NOT_FOUND)
-      console.warn('Job failed', { job: job.data.transactionHash, error });
+    if (job.failedReason !== RESPONSE_NOT_FOUND) console.warn('Job failed', { job, error });
   }
 
   @Process()
   async process(job: Job<TransactionEvent>) {
     const { transactionHash } = job.data;
 
-    const [receipt, response] = await Promise.all([
+    const [receipt, transfers, response] = await Promise.all([
       this.provider.getTransactionReceipt(transactionHash),
+      this.explorer.transactionTransfers(transactionHash),
       this.subgraph.transactionResponse(job.data.transactionHash),
     ]);
-    if (!receipt) return job.moveToFailed({ message: TRANSACTION_NOT_FIND });
+    if (!receipt) return job.moveToFailed({ message: TRANSACTION_NOT_FOUND });
+    if (!transfers) return job.moveToFailed({ message: TRANSACTION_NOT_FOUND });
     if (!response) return job.moveToFailed({ message: RESPONSE_NOT_FOUND });
 
     const createResponse = this.prisma.asSystem.transactionResponse.create({
@@ -57,6 +60,17 @@ export class TransactionsConsumer {
         gasUsed: receipt.gasUsed.toString(),
         effectiveGasPrice: receipt.effectiveGasPrice.toString(),
         timestamp: new Date(parseFloat(response.timestamp) * 1000),
+        transfers: {
+          createMany: {
+            data: transfers.map((t) => ({
+              transferNumber: 0, // TODO: get transfer number from explorer
+              token: t.token,
+              from: t.from,
+              to: t.to,
+              amount: t.amount.toString(),
+            })),
+          },
+        },
       },
       select: {
         transaction: {

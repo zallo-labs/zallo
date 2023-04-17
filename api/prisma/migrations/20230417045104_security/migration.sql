@@ -152,7 +152,12 @@ CREATE POLICY account_member_all ON "Transaction" FOR ALL
 
 
 /* TransactionResponse */
-GRANT SELECT ON "TransactionResponse" TO PUBLIC;
+GRANT SELECT, INSERT ON "TransactionResponse" TO PUBLIC;
+
+
+
+/* Transfer */
+GRANT SELECT, INSERT ON "Transfer" TO PUBLIC;
 
 
 

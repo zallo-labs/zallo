@@ -2,11 +2,10 @@ import { Injectable } from '@nestjs/common';
 import { BigNumber, BigNumberish } from 'ethers';
 import { Address, ChainName, Hex, asAddress } from 'lib';
 import { fetchJsonWithRetry } from '~/util/fetch';
-import { Transfer } from './explorer.model';
 
 @Injectable()
 export class ExplorerService {
-  async transactionTransfers(transactionHash: Hex): Promise<Transfer[]> {
+  async transactionTransfers(transactionHash: Hex): Promise<ExplorerTransfer[]> {
     // https://zksync2-testnet-explorer.zksync.dev/transaction/0x71c873a22ca9a1d05f06cb1dbb6bb73d0ff5be0cce67ed04a5ae8f0fa87e787f
     const tx = await this.query<TransactionData>(`/transaction/${transactionHash}`);
     if (!tx) return [];
@@ -18,7 +17,7 @@ export class ExplorerService {
     account,
     limit = 100,
     direction = 'newer',
-  }: AccountTransfersArgs): Promise<Transfer[]> {
+  }: AccountTransfersArgs): Promise<ExplorerTransfer[]> {
     if (limit < 0 || limit > 100) throw new Error('limit must be [0, 100]');
 
     // https://zksync2-testnet-explorer.zksync.dev/transactions?limit=10&direction=older&accountAddress=0x6BfA67e65e4735DCc9Ff6036D09F680f35740A83
@@ -57,7 +56,14 @@ interface TransactionsData {
   total: number;
 }
 
-const toTransfers = (tx: TransactionData): Transfer[] =>
+export interface ExplorerTransfer {
+  token: Address;
+  from: Address;
+  to: Address;
+  amount: bigint;
+}
+
+const toTransfers = (tx: TransactionData): ExplorerTransfer[] =>
   tx.erc20Transfers.map((t) => ({
     token: asAddress(t.tokenInfo.l2Address),
     from: asAddress(t.from),
