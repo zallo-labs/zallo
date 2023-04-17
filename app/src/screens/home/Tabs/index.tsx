@@ -46,6 +46,6 @@ export const Tabs = () => {
 const styles = StyleSheet.create({
   sceneContainer: {
     flex: 1,
-    marginVertical: 8,
+    paddingVertical: 8,
   },
 });
