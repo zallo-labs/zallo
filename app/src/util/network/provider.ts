@@ -10,7 +10,7 @@ import { LogBox, Platform } from 'react-native';
 import * as zk from 'zksync-web3';
 import { CONFIG } from '~/util/config';
 import { Logger } from 'ethers/lib/utils';
-import { captureEvent } from '~/util/sentry';
+import { captureEvent } from '~/util/sentry/events';
 import { LogLevel } from '@ethersproject/logger';
 import { SeverityLevel } from '@sentry/browser';
 import { CHAINS, getChain } from 'lib';
