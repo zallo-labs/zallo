@@ -5,5 +5,5 @@ import { AddressField } from '~/apollo/scalars/Address.scalar';
 @ArgsType()
 export class RequestTokensArgs {
   @AddressField()
-  recipient: Address;
+  account: Address;
 }

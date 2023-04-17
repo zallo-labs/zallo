@@ -1,4 +1,5 @@
 import { Injectable } from '@nestjs/common';
+import { UserInputError } from 'apollo-server-core';
 import { BigNumber } from 'ethers';
 import { parseEther, parseUnits } from 'ethers/lib/utils';
 import { asAddress, Address, filterAsync } from 'lib';
@@ -33,23 +34,24 @@ const LINK: TokenFaucet = {
 export class FaucetService {
   constructor(private provider: ProviderService) {}
 
-  async requestableTokens(recipient: Address): Promise<Address[]> {
-    return (await this.getTokensToSend(recipient)).map((token) => token.addr);
+  async requestableTokens(account: Address): Promise<Address[]> {
+    return (await this.getTokensToSend(account)).map((token) => token.addr);
   }
 
-  async requestTokens(recipient: Address): Promise<Address[]> {
-    const tokensToSend = await this.getTokensToSend(recipient);
+  async requestTokens(account: Address): Promise<Address[]> {
+    const tokensToSend = await this.getTokensToSend(account);
 
     return (
-      await filterAsync(tokensToSend, async (token) => !!(await this.transfer(recipient, token)))
+      await filterAsync(tokensToSend, async (token) => !!(await this.transfer(account, token)))
     ).map((token) => token.addr);
   }
 
-  private async getTokensToSend(recipient: Address) {
-    if (!getUserCtx().accounts.has(recipient)) return [];
+  private async getTokensToSend(account: Address) {
+    if (!getUserCtx().accounts.has(account))
+      throw new UserInputError('User is not a member of the account');
 
     return filterAsync([ETH, DAI, USDC, LINK], async (token) => {
-      const recipientBalance = await this.provider.getBalance(recipient, undefined, token.addr);
+      const recipientBalance = await this.provider.getBalance(account, undefined, token.addr);
       if (recipientBalance.gte(token.amount)) return false;
 
       const walletBalance = await this.provider.getBalance(

@@ -9,12 +9,12 @@ export class FaucetResolver {
   constructor(private service: FaucetService) {}
 
   @Query(() => [AddressScalar])
-  async requestableTokens(@Args() { recipient }: RequestTokensArgs): Promise<Address[]> {
-    return this.service.requestableTokens(recipient);
+  async requestableTokens(@Args() { account }: RequestTokensArgs): Promise<Address[]> {
+    return this.service.requestableTokens(account);
   }
 
   @Mutation(() => [AddressScalar])
-  async requestTokens(@Args() { recipient }: RequestTokensArgs): Promise<Address[]> {
-    return this.service.requestTokens(recipient);
+  async requestTokens(@Args() { account }: RequestTokensArgs): Promise<Address[]> {
+    return this.service.requestTokens(account);
   }
 }
