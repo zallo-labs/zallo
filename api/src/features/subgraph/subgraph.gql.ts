@@ -9,16 +9,6 @@ export const TRANSACTION_RESPONSES_QUERY = gql`
       executor
       blockHash
       timestamp
-      transfers {
-        id
-        token
-        type
-        from
-        to
-        value
-        blockHash
-        timestamp
-      }
     }
   }
 `;

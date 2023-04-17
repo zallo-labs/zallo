@@ -22,7 +22,6 @@ export type Account = {
   impl: AccountImpl;
   policies: Array<Policy>;
   transactions: Array<Transaction>;
-  transfers: Array<Transfer>;
 };
 
 
@@ -41,15 +40,6 @@ export type AccountTransactionsArgs = {
   orderDirection?: InputMaybe<OrderDirection>;
   skip?: InputMaybe<Scalars['Int']>;
   where?: InputMaybe<Transaction_Filter>;
-};
-
-
-export type AccountTransfersArgs = {
-  first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<Transfer_OrderBy>;
-  orderDirection?: InputMaybe<OrderDirection>;
-  skip?: InputMaybe<Scalars['Int']>;
-  where?: InputMaybe<Transfer_Filter>;
 };
 
 export type AccountImpl = {
@@ -151,7 +141,6 @@ export type Account_Filter = {
   or?: InputMaybe<Array<InputMaybe<Account_Filter>>>;
   policies_?: InputMaybe<Policy_Filter>;
   transactions_?: InputMaybe<Transaction_Filter>;
-  transfers_?: InputMaybe<Transfer_Filter>;
 };
 
 export enum Account_OrderBy {
@@ -161,8 +150,7 @@ export enum Account_OrderBy {
   ImplId = 'impl__id',
   ImplTimestamp = 'impl__timestamp',
   Policies = 'policies',
-  Transactions = 'transactions',
-  Transfers = 'transfers'
+  Transactions = 'transactions'
 }
 
 export type BlockChangedFilter = {
@@ -276,8 +264,6 @@ export type Query = {
   policy?: Maybe<Policy>;
   transaction?: Maybe<Transaction>;
   transactions: Array<Transaction>;
-  transfer?: Maybe<Transfer>;
-  transfers: Array<Transfer>;
 };
 
 
@@ -357,24 +343,6 @@ export type QueryTransactionsArgs = {
   where?: InputMaybe<Transaction_Filter>;
 };
 
-
-export type QueryTransferArgs = {
-  block?: InputMaybe<Block_Height>;
-  id: Scalars['ID'];
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-
-export type QueryTransfersArgs = {
-  block?: InputMaybe<Block_Height>;
-  first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<Transfer_OrderBy>;
-  orderDirection?: InputMaybe<OrderDirection>;
-  skip?: InputMaybe<Scalars['Int']>;
-  subgraphError?: _SubgraphErrorPolicy_;
-  where?: InputMaybe<Transfer_Filter>;
-};
-
 export type Subscription = {
   __typename?: 'Subscription';
   /** Access to subgraph metadata */
@@ -387,8 +355,6 @@ export type Subscription = {
   policy?: Maybe<Policy>;
   transaction?: Maybe<Transaction>;
   transactions: Array<Transaction>;
-  transfer?: Maybe<Transfer>;
-  transfers: Array<Transfer>;
 };
 
 
@@ -468,24 +434,6 @@ export type SubscriptionTransactionsArgs = {
   where?: InputMaybe<Transaction_Filter>;
 };
 
-
-export type SubscriptionTransferArgs = {
-  block?: InputMaybe<Block_Height>;
-  id: Scalars['ID'];
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-
-export type SubscriptionTransfersArgs = {
-  block?: InputMaybe<Block_Height>;
-  first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<Transfer_OrderBy>;
-  orderDirection?: InputMaybe<OrderDirection>;
-  skip?: InputMaybe<Scalars['Int']>;
-  subgraphError?: _SubgraphErrorPolicy_;
-  where?: InputMaybe<Transfer_Filter>;
-};
-
 export type Transaction = {
   __typename?: 'Transaction';
   account: Account;
@@ -498,16 +446,6 @@ export type Transaction = {
   success: Scalars['Boolean'];
   timestamp: Scalars['BigInt'];
   transactionHash: Scalars['Bytes'];
-  transfers: Array<Transfer>;
-};
-
-
-export type TransactionTransfersArgs = {
-  first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<Transfer_OrderBy>;
-  orderDirection?: InputMaybe<OrderDirection>;
-  skip?: InputMaybe<Scalars['Int']>;
-  where?: InputMaybe<Transfer_Filter>;
 };
 
 export type Transaction_Filter = {
@@ -608,7 +546,6 @@ export type Transaction_Filter = {
   transactionHash_not?: InputMaybe<Scalars['Bytes']>;
   transactionHash_not_contains?: InputMaybe<Scalars['Bytes']>;
   transactionHash_not_in?: InputMaybe<Array<Scalars['Bytes']>>;
-  transfers_?: InputMaybe<Transfer_Filter>;
 };
 
 export enum Transaction_OrderBy {
@@ -621,191 +558,7 @@ export enum Transaction_OrderBy {
   Response = 'response',
   Success = 'success',
   Timestamp = 'timestamp',
-  TransactionHash = 'transactionHash',
-  Transfers = 'transfers'
-}
-
-export type Transfer = {
-  __typename?: 'Transfer';
-  account: Account;
-  blockHash: Scalars['Bytes'];
-  from: Scalars['Bytes'];
-  /** {account.id}-{transaction.id}-{transaction.log.index} */
-  id: Scalars['String'];
-  timestamp: Scalars['BigInt'];
-  to: Scalars['Bytes'];
-  token: Scalars['Bytes'];
-  transaction?: Maybe<Transaction>;
-  transactionHash: Scalars['Bytes'];
-  type: TransferType;
-  value: Scalars['BigInt'];
-};
-
-export enum TransferType {
-  In = 'IN',
-  Out = 'OUT'
-}
-
-export type Transfer_Filter = {
-  /** Filter for the block changed event. */
-  _change_block?: InputMaybe<BlockChangedFilter>;
-  account?: InputMaybe<Scalars['String']>;
-  account_?: InputMaybe<Account_Filter>;
-  account_contains?: InputMaybe<Scalars['String']>;
-  account_contains_nocase?: InputMaybe<Scalars['String']>;
-  account_ends_with?: InputMaybe<Scalars['String']>;
-  account_ends_with_nocase?: InputMaybe<Scalars['String']>;
-  account_gt?: InputMaybe<Scalars['String']>;
-  account_gte?: InputMaybe<Scalars['String']>;
-  account_in?: InputMaybe<Array<Scalars['String']>>;
-  account_lt?: InputMaybe<Scalars['String']>;
-  account_lte?: InputMaybe<Scalars['String']>;
-  account_not?: InputMaybe<Scalars['String']>;
-  account_not_contains?: InputMaybe<Scalars['String']>;
-  account_not_contains_nocase?: InputMaybe<Scalars['String']>;
-  account_not_ends_with?: InputMaybe<Scalars['String']>;
-  account_not_ends_with_nocase?: InputMaybe<Scalars['String']>;
-  account_not_in?: InputMaybe<Array<Scalars['String']>>;
-  account_not_starts_with?: InputMaybe<Scalars['String']>;
-  account_not_starts_with_nocase?: InputMaybe<Scalars['String']>;
-  account_starts_with?: InputMaybe<Scalars['String']>;
-  account_starts_with_nocase?: InputMaybe<Scalars['String']>;
-  and?: InputMaybe<Array<InputMaybe<Transfer_Filter>>>;
-  blockHash?: InputMaybe<Scalars['Bytes']>;
-  blockHash_contains?: InputMaybe<Scalars['Bytes']>;
-  blockHash_gt?: InputMaybe<Scalars['Bytes']>;
-  blockHash_gte?: InputMaybe<Scalars['Bytes']>;
-  blockHash_in?: InputMaybe<Array<Scalars['Bytes']>>;
-  blockHash_lt?: InputMaybe<Scalars['Bytes']>;
-  blockHash_lte?: InputMaybe<Scalars['Bytes']>;
-  blockHash_not?: InputMaybe<Scalars['Bytes']>;
-  blockHash_not_contains?: InputMaybe<Scalars['Bytes']>;
-  blockHash_not_in?: InputMaybe<Array<Scalars['Bytes']>>;
-  from?: InputMaybe<Scalars['Bytes']>;
-  from_contains?: InputMaybe<Scalars['Bytes']>;
-  from_gt?: InputMaybe<Scalars['Bytes']>;
-  from_gte?: InputMaybe<Scalars['Bytes']>;
-  from_in?: InputMaybe<Array<Scalars['Bytes']>>;
-  from_lt?: InputMaybe<Scalars['Bytes']>;
-  from_lte?: InputMaybe<Scalars['Bytes']>;
-  from_not?: InputMaybe<Scalars['Bytes']>;
-  from_not_contains?: InputMaybe<Scalars['Bytes']>;
-  from_not_in?: InputMaybe<Array<Scalars['Bytes']>>;
-  id?: InputMaybe<Scalars['String']>;
-  id_contains?: InputMaybe<Scalars['String']>;
-  id_contains_nocase?: InputMaybe<Scalars['String']>;
-  id_ends_with?: InputMaybe<Scalars['String']>;
-  id_ends_with_nocase?: InputMaybe<Scalars['String']>;
-  id_gt?: InputMaybe<Scalars['String']>;
-  id_gte?: InputMaybe<Scalars['String']>;
-  id_in?: InputMaybe<Array<Scalars['String']>>;
-  id_lt?: InputMaybe<Scalars['String']>;
-  id_lte?: InputMaybe<Scalars['String']>;
-  id_not?: InputMaybe<Scalars['String']>;
-  id_not_contains?: InputMaybe<Scalars['String']>;
-  id_not_contains_nocase?: InputMaybe<Scalars['String']>;
-  id_not_ends_with?: InputMaybe<Scalars['String']>;
-  id_not_ends_with_nocase?: InputMaybe<Scalars['String']>;
-  id_not_in?: InputMaybe<Array<Scalars['String']>>;
-  id_not_starts_with?: InputMaybe<Scalars['String']>;
-  id_not_starts_with_nocase?: InputMaybe<Scalars['String']>;
-  id_starts_with?: InputMaybe<Scalars['String']>;
-  id_starts_with_nocase?: InputMaybe<Scalars['String']>;
-  or?: InputMaybe<Array<InputMaybe<Transfer_Filter>>>;
-  timestamp?: InputMaybe<Scalars['BigInt']>;
-  timestamp_gt?: InputMaybe<Scalars['BigInt']>;
-  timestamp_gte?: InputMaybe<Scalars['BigInt']>;
-  timestamp_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  timestamp_lt?: InputMaybe<Scalars['BigInt']>;
-  timestamp_lte?: InputMaybe<Scalars['BigInt']>;
-  timestamp_not?: InputMaybe<Scalars['BigInt']>;
-  timestamp_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  to?: InputMaybe<Scalars['Bytes']>;
-  to_contains?: InputMaybe<Scalars['Bytes']>;
-  to_gt?: InputMaybe<Scalars['Bytes']>;
-  to_gte?: InputMaybe<Scalars['Bytes']>;
-  to_in?: InputMaybe<Array<Scalars['Bytes']>>;
-  to_lt?: InputMaybe<Scalars['Bytes']>;
-  to_lte?: InputMaybe<Scalars['Bytes']>;
-  to_not?: InputMaybe<Scalars['Bytes']>;
-  to_not_contains?: InputMaybe<Scalars['Bytes']>;
-  to_not_in?: InputMaybe<Array<Scalars['Bytes']>>;
-  token?: InputMaybe<Scalars['Bytes']>;
-  token_contains?: InputMaybe<Scalars['Bytes']>;
-  token_gt?: InputMaybe<Scalars['Bytes']>;
-  token_gte?: InputMaybe<Scalars['Bytes']>;
-  token_in?: InputMaybe<Array<Scalars['Bytes']>>;
-  token_lt?: InputMaybe<Scalars['Bytes']>;
-  token_lte?: InputMaybe<Scalars['Bytes']>;
-  token_not?: InputMaybe<Scalars['Bytes']>;
-  token_not_contains?: InputMaybe<Scalars['Bytes']>;
-  token_not_in?: InputMaybe<Array<Scalars['Bytes']>>;
-  transaction?: InputMaybe<Scalars['String']>;
-  transactionHash?: InputMaybe<Scalars['Bytes']>;
-  transactionHash_contains?: InputMaybe<Scalars['Bytes']>;
-  transactionHash_gt?: InputMaybe<Scalars['Bytes']>;
-  transactionHash_gte?: InputMaybe<Scalars['Bytes']>;
-  transactionHash_in?: InputMaybe<Array<Scalars['Bytes']>>;
-  transactionHash_lt?: InputMaybe<Scalars['Bytes']>;
-  transactionHash_lte?: InputMaybe<Scalars['Bytes']>;
-  transactionHash_not?: InputMaybe<Scalars['Bytes']>;
-  transactionHash_not_contains?: InputMaybe<Scalars['Bytes']>;
-  transactionHash_not_in?: InputMaybe<Array<Scalars['Bytes']>>;
-  transaction_?: InputMaybe<Transaction_Filter>;
-  transaction_contains?: InputMaybe<Scalars['String']>;
-  transaction_contains_nocase?: InputMaybe<Scalars['String']>;
-  transaction_ends_with?: InputMaybe<Scalars['String']>;
-  transaction_ends_with_nocase?: InputMaybe<Scalars['String']>;
-  transaction_gt?: InputMaybe<Scalars['String']>;
-  transaction_gte?: InputMaybe<Scalars['String']>;
-  transaction_in?: InputMaybe<Array<Scalars['String']>>;
-  transaction_lt?: InputMaybe<Scalars['String']>;
-  transaction_lte?: InputMaybe<Scalars['String']>;
-  transaction_not?: InputMaybe<Scalars['String']>;
-  transaction_not_contains?: InputMaybe<Scalars['String']>;
-  transaction_not_contains_nocase?: InputMaybe<Scalars['String']>;
-  transaction_not_ends_with?: InputMaybe<Scalars['String']>;
-  transaction_not_ends_with_nocase?: InputMaybe<Scalars['String']>;
-  transaction_not_in?: InputMaybe<Array<Scalars['String']>>;
-  transaction_not_starts_with?: InputMaybe<Scalars['String']>;
-  transaction_not_starts_with_nocase?: InputMaybe<Scalars['String']>;
-  transaction_starts_with?: InputMaybe<Scalars['String']>;
-  transaction_starts_with_nocase?: InputMaybe<Scalars['String']>;
-  type?: InputMaybe<TransferType>;
-  type_in?: InputMaybe<Array<TransferType>>;
-  type_not?: InputMaybe<TransferType>;
-  type_not_in?: InputMaybe<Array<TransferType>>;
-  value?: InputMaybe<Scalars['BigInt']>;
-  value_gt?: InputMaybe<Scalars['BigInt']>;
-  value_gte?: InputMaybe<Scalars['BigInt']>;
-  value_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  value_lt?: InputMaybe<Scalars['BigInt']>;
-  value_lte?: InputMaybe<Scalars['BigInt']>;
-  value_not?: InputMaybe<Scalars['BigInt']>;
-  value_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-};
-
-export enum Transfer_OrderBy {
-  Account = 'account',
-  AccountId = 'account__id',
-  BlockHash = 'blockHash',
-  From = 'from',
-  Id = 'id',
-  Timestamp = 'timestamp',
-  To = 'to',
-  Token = 'token',
-  Transaction = 'transaction',
-  TransactionHash = 'transactionHash',
-  TransactionBlockHash = 'transaction__blockHash',
-  TransactionExecutor = 'transaction__executor',
-  TransactionId = 'transaction__id',
-  TransactionProposalId = 'transaction__proposalId',
-  TransactionResponse = 'transaction__response',
-  TransactionSuccess = 'transaction__success',
-  TransactionTimestamp = 'transaction__timestamp',
-  TransactionTransactionHash = 'transaction__transactionHash',
-  Type = 'type',
-  Value = 'value'
+  TransactionHash = 'transactionHash'
 }
 
 export type _Block_ = {
@@ -847,4 +600,4 @@ export type TransactionResponseQueryVariables = Exact<{
 }>;
 
 
-export type TransactionResponseQuery = { __typename?: 'Query', transaction?: { __typename?: 'Transaction', id: any, success: boolean, response: any, executor: any, blockHash: any, timestamp: any, transfers: Array<{ __typename?: 'Transfer', id: string, token: any, type: TransferType, from: any, to: any, value: any, blockHash: any, timestamp: any }> } | null };
+export type TransactionResponseQuery = { __typename?: 'Query', transaction?: { __typename?: 'Transaction', id: any, success: boolean, response: any, executor: any, blockHash: any, timestamp: any } | null };
