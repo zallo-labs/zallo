@@ -1,4 +1,13 @@
-import { Args, Info, Mutation, Query, Resolver, Subscription } from '@nestjs/graphql';
+import {
+  Args,
+  Info,
+  Mutation,
+  Parent,
+  Query,
+  ResolveField,
+  Resolver,
+  Subscription,
+} from '@nestjs/graphql';
 import { GraphQLResolveInfo } from 'graphql';
 import { Account } from '@gen/account/account.model';
 import {
@@ -14,10 +23,18 @@ import { getSelect } from '~/util/select';
 import { AccountSubscriptionPayload, AccountsService } from './accounts.service';
 import { PubsubService } from '../util/pubsub/pubsub.service';
 import { getUser } from '~/request/ctx';
+import { Transfer } from '@gen/transfer/transfer.model';
+import { AccountTransfersArgs } from './accounts.args';
+import { Address } from 'lib';
 
 @Resolver(() => Account)
 export class AccountsResolver {
   constructor(private service: AccountsService, private pubsub: PubsubService) {}
+
+  @ResolveField(() => Transfer)
+  transfers(@Parent() { id }: Account, @Args() args: AccountTransfersArgs) {
+    return this.service.transfers(id as Address, args);
+  }
 
   @Query(() => Account, { nullable: true })
   async account(
