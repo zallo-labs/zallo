@@ -5,7 +5,6 @@ import { ICON_SIZE } from '@theme/paper';
 import { ScrollView } from 'react-native';
 import { Text } from 'react-native-paper';
 import { useAddressLabel } from '~/components/address/AddressLabel';
-import { useProposalTransfers } from '~/components/call/useProposalTransfers';
 import { useTransfersValue } from '~/components/call/useTransfersValue';
 import { FiatValue } from '~/components/fiat/FiatValue';
 import { FormattedNumber } from '~/components/format/FormattedNumber';
@@ -26,7 +25,7 @@ export type DetailsTabProps = TabNavigatorScreenProp<'Details'>;
 export const DetailsTab = withSuspense(({ route }: DetailsTabProps) => {
   const styles = useStyles();
   const p = useProposal(route.params.proposal);
-  const transfers = useProposalTransfers(p);
+  const transfers = p.transaction?.response?.transfers ?? [];
   const transfersValue = useTransfersValue(transfers);
 
   return (

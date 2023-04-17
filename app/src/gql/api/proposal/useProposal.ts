@@ -29,7 +29,14 @@ gql`
       response
       gasUsed
       gasPrice
+      fee
       timestamp
+      transfers {
+        token
+        from
+        to
+        amount
+      }
     }
   }
 

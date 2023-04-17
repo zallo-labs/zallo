@@ -23,16 +23,19 @@ import { getSelect } from '~/util/select';
 import { AccountSubscriptionPayload, AccountsService } from './accounts.service';
 import { PubsubService } from '../util/pubsub/pubsub.service';
 import { getUser } from '~/request/ctx';
-import { Transfer } from '@gen/transfer/transfer.model';
 import { AccountTransfersArgs } from './accounts.args';
 import { Address } from 'lib';
+import { ExplorerTransfer } from '../explorer/explorer.model';
 
 @Resolver(() => Account)
 export class AccountsResolver {
   constructor(private service: AccountsService, private pubsub: PubsubService) {}
 
-  @ResolveField(() => Transfer)
-  transfers(@Parent() { id }: Account, @Args() args: AccountTransfersArgs) {
+  @ResolveField(() => [ExplorerTransfer])
+  transfers(
+    @Parent() { id }: Account,
+    @Args() args: AccountTransfersArgs,
+  ): Promise<ExplorerTransfer[]> {
     return this.service.transfers(id as Address, args);
   }
 

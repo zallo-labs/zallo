@@ -20,4 +20,6 @@ export class ExplorerTransfer {
 
   @Uint256Field()
   amount: bigint;
+
+  timestamp: Date;
 }

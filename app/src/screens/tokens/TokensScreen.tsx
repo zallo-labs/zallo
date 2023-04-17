@@ -43,7 +43,7 @@ export const TokensScreen = ({ route }: TokensScreenProps) => {
         ListHeaderComponent={<ListHeader>Tokens</ListHeader>}
         renderItem={({ item: token }) => (
           <TokenItem
-            token={token}
+            token={token.address}
             account={account}
             onPress={onSelect ? () => onSelect(token) : undefined}
             disabled={disabled?.has(token.address)}

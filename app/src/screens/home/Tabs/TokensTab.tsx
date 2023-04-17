@@ -16,7 +16,7 @@ export const TokensTab = withSuspense((_props: TokensTabProps) => {
   return (
     <FlashList
       data={tokens}
-      renderItem={({ item }) => <TokenItem token={item} account={account} />}
+      renderItem={({ item }) => <TokenItem token={item.address} account={account} />}
       estimatedItemSize={ListItemHeight.DOUBLE_LINE}
       showsVerticalScrollIndicator={false}
     />

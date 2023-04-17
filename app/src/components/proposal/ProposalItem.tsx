@@ -1,7 +1,6 @@
 import { ETH } from '@token/tokens';
 import { useMaybeToken } from '@token/useToken';
 import { useProposalLabel } from '../call/useProposalLabel';
-import { useProposalTransfers } from '~/components/call/useProposalTransfers';
 import { Timestamp } from '~/components/format/Timestamp';
 import { ListItem, ListItemProps } from '~/components/list/ListItem';
 import { withSuspense } from '~/components/skeleton/withSuspense';
@@ -42,7 +41,7 @@ export const ProposalItem = withSuspense(({ proposal: id, ...itemProps }: Propos
       supporting={supporting}
       trailing={({ Text }) => (
         <Text variant="labelLarge">
-          <FiatValue value={useTransfersValue(useProposalTransfers(p))} hideZero />
+          <FiatValue value={useTransfersValue(p.transaction?.response?.transfers ?? [])} hideZero />
         </Text>
       )}
       {...itemProps}

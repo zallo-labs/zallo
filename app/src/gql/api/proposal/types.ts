@@ -2,7 +2,7 @@ import { Address, Hex, Tx, KeySet, asHex, asAddress, asBigInt, asPolicyKey, Poli
 import { DateTime } from 'luxon';
 import { match } from 'ts-pattern';
 import { ProposalFieldsFragment } from '@api/generated';
-import { AccountId, asAccountId } from '@api/account/types';
+import { AccountId, Transfer, asAccountId } from '@api/account/types';
 
 export type ProposalId = Hex & { isProposalId: true };
 export const asProposalId = (id: string) => asHex(id) as ProposalId;
@@ -61,7 +61,9 @@ export interface TransactionResponse {
   response: Hex;
   gasUsed: bigint;
   gasPrice: bigint;
+  fee: bigint;
   timestamp: DateTime;
+  transfers: Transfer[];
 }
 
 export const toProposal = (p: ProposalFieldsFragment): Proposal => {
@@ -105,7 +107,16 @@ export const toProposal = (p: ProposalFieldsFragment): Proposal => {
               response: asHex(t.response.response),
               gasUsed: BigInt(t.response.gasUsed),
               gasPrice: asBigInt(t.response.gasPrice),
+              fee: asBigInt(t.response.fee),
               timestamp: DateTime.fromISO(t.response.timestamp),
+              transfers: (t.response.transfers ?? []).map((transfer) => ({
+                direction: transfer.from === account ? 'OUT' : 'IN',
+                token: asAddress(transfer.token),
+                from: asAddress(transfer.from),
+                to: asAddress(transfer.to),
+                amount: asBigInt(transfer.amount),
+                timestamp: DateTime.fromISO(t.response!.timestamp),
+              })),
             }
           : undefined,
       }

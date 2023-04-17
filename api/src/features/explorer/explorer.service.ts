@@ -32,6 +32,7 @@ export class ExplorerService {
         from: asAddress(t.from),
         to: asAddress(t.to),
         amount: BigNumber.from(t.amount).toBigInt(),
+        timestamp: new Date(tx.receivedAt),
       })),
     );
   }
