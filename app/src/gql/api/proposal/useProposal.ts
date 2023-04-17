@@ -28,7 +28,7 @@ gql`
       success
       response
       gasUsed
-      effectiveGasPrice
+      gasPrice
       timestamp
     }
   }

@@ -60,7 +60,7 @@ export interface TransactionResponse {
   success: boolean;
   response: Hex;
   gasUsed: bigint;
-  effectiveGasPrice: bigint;
+  gasPrice: bigint;
   timestamp: DateTime;
 }
 
@@ -104,7 +104,7 @@ export const toProposal = (p: ProposalFieldsFragment): Proposal => {
               success: t.response.success,
               response: asHex(t.response.response),
               gasUsed: BigInt(t.response.gasUsed),
-              effectiveGasPrice: asBigInt(t.response.effectiveGasPrice),
+              gasPrice: asBigInt(t.response.gasPrice),
               timestamp: DateTime.fromISO(t.response.timestamp),
             }
           : undefined,

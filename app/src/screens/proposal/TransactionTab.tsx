@@ -38,10 +38,10 @@ export const TransactionTab = withSuspense(({ route }: TransactionTabProps) => {
 
   const feeToken = useMaybeToken(proposal.feeToken) ?? ETH;
   const currentGasPrice = useGasPrice(feeToken);
-  const gasPrice = resp?.effectiveGasPrice ?? tx?.gasPrice;
+  const gasPrice = resp?.gasPrice ?? tx?.gasPrice;
   const gasLimit = tx?.gasLimit ?? proposal.gasLimit;
   const estimatedFee = currentGasPrice * (gasLimit ?? proposal.estimatedOpGas); // TODO: factor in number of approvers when using estimatedOpGas
-  const actualFee = resp && resp.gasUsed * resp.effectiveGasPrice;
+  const actualFee = resp && resp.gasUsed * resp.gasPrice;
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
