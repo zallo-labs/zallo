@@ -19,7 +19,6 @@
       "env": {
         "API_URL": "https://api.zallo.io",
         "API_GQL_WS": "wss://api.zallo.io/graphql",
-        "SUBGRAPH_GQL_URL": "https://api.thegraph.com/subgraphs/name/hbriese/zallo-2",
         "ACCOUNT_IMPL_TESTNET": "0x94C8c1D10AbD542e8890362Ae3bC5b23F8658d6f",
         "PROXY_FACTORY_TESTNET": "0xfc161222647dB9B6760539FBa5DC041610f13FF8"
       }

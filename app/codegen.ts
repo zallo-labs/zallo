@@ -11,11 +11,6 @@ const config: CodegenConfig = {
       documents: 'src/gql/api/**/*.ts',
       plugins,
     },
-    'src/gql/subgraph/generated.ts': {
-      schema: process.env.SUBGRAPH_GQL_URL,
-      documents: 'src/gql/subgraph/**/*.ts',
-      plugins,
-    },
     'src/gql/uniswap/generated.ts': {
       schema: 'https://api.thegraph.com/subgraphs/name/uniswap/uniswap-v3',
       documents: 'src/gql/uniswap/**/*.ts',
