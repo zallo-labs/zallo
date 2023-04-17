@@ -50,27 +50,3 @@ dataSources:
       eventHandlers:
         - event: Upgraded(indexed address)
           handler: handleUpgraded
-
-  - name: ERC20
-    kind: ethereum/contract
-    network: {{network}}
-    source:
-      abi: ERC20
-      startBlock: {{startBlock}}
-    mapping:
-      kind: ethereum/events
-      apiVersion: 0.0.7
-      language: wasm/assemblyscript
-      file: ./src/erc20.ts
-      abis:
-        - name: ERC20
-          file: ../lib/abi/erc20.json
-      entities:
-        - Transaction
-        - Transfer
-        # - TokenTransferApproval
-      eventHandlers:
-        - event: Transfer(indexed address,indexed address,uint256)
-          handler: handleTransfer
-        # - event: Approval(indexed address,indexed address,uint256)
-        #   handler: handleApproval
