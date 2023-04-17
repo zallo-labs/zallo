@@ -20,7 +20,7 @@ export class ExplorerService {
 
     // https://zksync2-testnet-explorer.zksync.dev/transactions?limit=10&direction=older&accountAddress=0x6BfA67e65e4735DCc9Ff6036D09F680f35740A83
     const txs = await this.query<TransactionsData>(
-      `/transaction?accountAddress=${account}&limit=${limit}&direction=${direction}`,
+      `/transactions?accountAddress=${account}&limit=${limit}&direction=${direction}`,
     );
     if (!txs) return [];
 
