@@ -4,12 +4,19 @@ import { Job } from 'bull';
 import { PrismaService } from '../util/prisma/prisma.service';
 import { ProposalEvent } from '../proposals/proposals.args';
 import { ProposalsService } from '../proposals/proposals.service';
-import { SubgraphService } from '../subgraph/subgraph.service';
-import { TransactionResponse } from '@prisma/client';
+import { SubgraphService, SubgraphTransactionResponse } from '../subgraph/subgraph.service';
 import { TransactionEvent, TRANSACTIONS_QUEUE } from './transactions.queue';
+import { ProviderService } from '../util/provider/provider.service';
+import { Hex } from 'lib';
 
-export type TransactionResponseProcessor = (resp: TransactionResponse) => Promise<void>;
+export interface TransactionResponseData {
+  transactionHash: Hex;
+  response: SubgraphTransactionResponse;
+}
 
+export type TransactionResponseProcessor = (data: TransactionResponseData) => Promise<void>;
+
+const TRANSACTION_NOT_FIND = 'Transaction not found';
 const RESPONSE_NOT_FOUND = 'Transaction response not found';
 
 @Injectable()
@@ -22,6 +29,7 @@ export class TransactionsConsumer {
     private subgraph: SubgraphService,
     @Inject(forwardRef(() => ProposalsService))
     private proposals: ProposalsService,
+    private provider: ProviderService,
   ) {}
 
   @OnQueueFailed()
@@ -32,13 +40,24 @@ export class TransactionsConsumer {
 
   @Process()
   async process(job: Job<TransactionEvent>) {
-    const response = await this.subgraph.transactionResponse(job.data.transactionHash);
+    const { transactionHash } = job.data;
+
+    const [receipt, response] = await Promise.all([
+      this.provider.getTransactionReceipt(transactionHash),
+      this.subgraph.transactionResponse(job.data.transactionHash),
+    ]);
+    if (!receipt) return job.moveToFailed({ message: TRANSACTION_NOT_FIND });
     if (!response) return job.moveToFailed({ message: RESPONSE_NOT_FOUND });
 
-    await Promise.all(Object.values(this.processors).map((processor) => processor(response)));
-
-    const { transaction } = await this.prisma.asSystem.transactionResponse.create({
-      data: response,
+    const createResponse = this.prisma.asSystem.transactionResponse.create({
+      data: {
+        transactionHash,
+        success: response.success,
+        response: response.response,
+        gasUsed: receipt.gasUsed.toString(),
+        effectiveGasPrice: receipt.effectiveGasPrice.toString(),
+        timestamp: new Date(parseFloat(response.timestamp) * 1000),
+      },
       select: {
         transaction: {
           include: {
@@ -48,7 +67,13 @@ export class TransactionsConsumer {
       },
     });
 
-    this.proposals.publishProposal({
+    const data: TransactionResponseData = { transactionHash, response };
+    const [{ transaction }] = await Promise.all([
+      createResponse,
+      ...Object.values(this.processors).map((processor) => processor(data)),
+    ]);
+
+    await this.proposals.publishProposal({
       proposal: transaction.proposal,
       event: ProposalEvent.response,
     });

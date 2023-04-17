@@ -7,6 +7,7 @@ import { TransactionsConsumer } from './transactions.consumer';
 import { TRANSACTIONS_QUEUE } from './transactions.queue';
 import { TransactionsResolver } from './transactions.resolver';
 import { TransactionsService } from './transactions.service';
+import { ExplorerModule } from '../explorer/explorer.module';
 
 @Module({
   imports: [
@@ -14,6 +15,7 @@ import { TransactionsService } from './transactions.service';
     forwardRef(() => ProposalsModule),
     forwardRef(() => PoliciesModule),
     SubgraphModule,
+    ExplorerModule,
   ],
   exports: [TransactionsService, TransactionsConsumer],
   providers: [TransactionsConsumer, TransactionsResolver, TransactionsService],
