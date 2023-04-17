@@ -4,6 +4,7 @@ import { parseEther, parseUnits } from 'ethers/lib/utils';
 import { asAddress, Address, filterAsync } from 'lib';
 import * as zk from 'zksync-web3';
 import { ProviderService } from '~/features/util/provider/provider.service';
+import { getUserCtx } from '~/request/ctx';
 
 interface TokenFaucet {
   addr: Address;
@@ -33,6 +34,8 @@ export class FaucetService {
   constructor(private provider: ProviderService) {}
 
   async requestTokens(recipient: Address): Promise<Address[]> {
+    if (!getUserCtx().accounts.has(recipient)) return [];
+
     const tokensToSend = await this.getTokensToSend(recipient);
 
     return (
