@@ -92,6 +92,9 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
         'This app uses the camera to scan QR codes of addresses and to connect to DApps.',
       NSFaceIDUsageDescription: 'This app uses Face ID to authenticate the user.',
     },
+    config: {
+      usesNonExemptEncryption: false,
+    },
   },
   web: {
     bundler: 'metro',
