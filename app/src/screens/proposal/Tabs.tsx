@@ -39,6 +39,6 @@ export const Tabs = ({ proposal }: TabsProps) => (
 
 const styles = StyleSheet.create({
   sceneContainer: {
-    paddingVertical: 8,
+    // paddingVertical: 8,
   },
 });

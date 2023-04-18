@@ -113,6 +113,7 @@ export const PolicyTab = withSuspense(({ route }: PolicyTabProps) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    paddingTop: 8,
   },
   badge: {
     transform: [{ translateX: -10 }],
