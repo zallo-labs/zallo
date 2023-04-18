@@ -159,7 +159,7 @@ model TransactionResponse {
   transactionHash String      @id @db.Char(66) // bytes32
 
   success   Boolean
-  response  String   @db.Char(66) // bytes32
+  response  String? // bytes
   gasUsed   Decimal  @db.Decimal(19, 0)
   gasPrice  Decimal  @db.Decimal(19, 0)
   fee       Decimal  @db.Decimal(79, 0) // uint256

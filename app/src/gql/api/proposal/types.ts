@@ -59,7 +59,7 @@ export type TransactionStatus = 'pending' | 'success' | 'failure';
 
 export interface TransactionResponse {
   success: boolean;
-  response: Hex;
+  response?: Hex;
   gasUsed: bigint;
   gasPrice: bigint;
   fee: bigint;
@@ -116,7 +116,7 @@ export const toProposal = (p: ProposalFieldsFragment): Proposal => {
         response: t.response
           ? {
               success: t.response.success,
-              response: asHex(t.response.response),
+              response: asHex(t.response.response || undefined),
               gasUsed: asBigInt(t.response.gasUsed),
               gasPrice: asBigInt(t.response.gasPrice),
               fee: asBigInt(t.response.fee),

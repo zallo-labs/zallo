@@ -103,7 +103,7 @@ CREATE TABLE "Transaction" (
 CREATE TABLE "TransactionResponse" (
     "transactionHash" CHAR(66) NOT NULL,
     "success" BOOLEAN NOT NULL,
-    "response" CHAR(66) NOT NULL,
+    "response" TEXT,
     "gasUsed" DECIMAL(19,0) NOT NULL,
     "gasPrice" DECIMAL(19,0) NOT NULL,
     "fee" DECIMAL(79,0) NOT NULL,
