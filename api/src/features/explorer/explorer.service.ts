@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { BigNumber, BigNumberish } from 'ethers';
-import { Address, ChainName, Hex, asAddress } from 'lib';
+import { Address, Addresslike, ChainName, Hex, asAddress } from 'lib';
 import { fetchJsonWithRetry } from '~/util/fetch';
 import { ExplorerTransfer } from './explorer.model';
 
@@ -35,6 +35,19 @@ export class ExplorerService {
         timestamp: new Date(tx.receivedAt),
       })),
     );
+  }
+
+  async tokenInfo(token: Address) {
+    // https://zksync2-testnet-explorer.zksync.dev/token/0x0faF6df7054946141266420b43783387A78d82A9
+    const info = await this.query<TokenInfo>(`/token/${token}`);
+
+    return info
+      ? {
+          ...info,
+          l1Address: asAddress(info.l1Address),
+          l2Address: asAddress(info.l2Address),
+        }
+      : undefined;
   }
 
   private async query<T = any>(url: string): Promise<T | undefined> {
@@ -73,4 +86,12 @@ interface AccountTransfersArgs {
   account: Address;
   limit: number;
   direction?: 'older' | 'newer';
+}
+
+interface TokenInfo {
+  l1Address: Addresslike;
+  l2Address: Addresslike;
+  symbol: string;
+  name: string;
+  decimals: number;
 }
