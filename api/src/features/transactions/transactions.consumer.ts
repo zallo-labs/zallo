@@ -8,8 +8,9 @@ import { SubgraphService, SubgraphTransactionResponse } from '../subgraph/subgra
 import { TransactionEvent, TRANSACTIONS_QUEUE } from './transactions.queue';
 import { ExplorerService } from '../explorer/explorer.service';
 import { ProviderService } from '../util/provider/provider.service';
-import { Hex } from 'lib';
+import { Hex, asHex, tryOrIgnoreAsync } from 'lib';
 import { BigNumber } from 'ethers';
+import { hexDataLength } from 'ethers/lib/utils';
 
 export interface TransactionResponseData {
   transactionHash: Hex;
@@ -45,10 +46,11 @@ export class TransactionsConsumer {
     const { transactionHash } = job.data;
 
     const [receipt, explorerTx, response] = await Promise.all([
-      this.provider.getTransactionReceipt(transactionHash),
+      tryOrIgnoreAsync(() => this.provider.getTransactionReceipt(transactionHash)),
       this.explorer.transaction(transactionHash),
       this.subgraph.transactionResponse(job.data.transactionHash),
     ]);
+
     if (!receipt) return job.moveToFailed({ message: TRANSACTION_NOT_FOUND });
     if (!explorerTx) return job.moveToFailed({ message: TRANSACTION_NOT_FOUND });
     if (!response) return job.moveToFailed({ message: RESPONSE_NOT_FOUND });
@@ -57,7 +59,7 @@ export class TransactionsConsumer {
       data: {
         transactionHash,
         success: response.success,
-        response: response.response,
+        response: hexDataLength(response.response) ? asHex(response.response)! : null,
         gasUsed: receipt.gasUsed.toString(),
         gasPrice: receipt.effectiveGasPrice.toString(),
         fee: BigNumber.from(explorerTx.fee).toString(),
