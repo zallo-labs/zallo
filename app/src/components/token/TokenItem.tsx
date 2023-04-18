@@ -2,9 +2,8 @@ import { AccountId } from '@api/account';
 import { makeStyles } from '@theme/makeStyles';
 import { useTokenBalance } from '@token/useTokenBalance';
 import { useTokenPriceData } from '@uniswap/useTokenPrice';
-import { StyleProp, ViewStyle } from 'react-native';
+import { StyleProp, View, ViewStyle } from 'react-native';
 import { FiatValue } from '../fiat/FiatValue';
-import { Box } from '../layout/Box';
 import { ListItem, ListItemProps } from '../list/ListItem';
 import { ListItemSkeleton } from '../list/ListItemSkeleton';
 import { withSuspense } from '../skeleton/withSuspense';
@@ -31,7 +30,7 @@ export const TokenItem = withSuspense(
         leading={token.address}
         headline={token.name}
         supporting={({ Text }) => (
-          <Box horizontal>
+          <View style={styles.supportingContainer}>
             <Text>
               <TokenAmount token={token} amount={amount} />
             </Text>
@@ -40,7 +39,7 @@ export const TokenItem = withSuspense(
               {' @ '}
               <FiatValue value={useTokenPriceData(token).current} maximumFractionDigits={0} />
             </Text>
-          </Box>
+          </View>
         )}
         trailing={({ Text }) => (
           <Text variant="labelLarge">
@@ -58,5 +57,10 @@ export const TokenItem = withSuspense(
 const useStyles = makeStyles(({ colors }) => ({
   price: {
     color: colors.secondary,
+    textAlignVertical: 'center',
+  },
+  supportingContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
   },
 }));
