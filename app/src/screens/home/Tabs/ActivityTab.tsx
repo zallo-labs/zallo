@@ -22,33 +22,38 @@ const compare = (a: Item, b: Item) => b.timestamp.toMillis() - a.timestamp.toMil
 
 export type ActivityTabProps = TabNavigatorScreenProp<'Activity'>;
 
-export const ActivityTab = withSuspense((_props: ActivityTabProps) => {
-  const { navigate } = useNavigation();
+export const ActivityTab = withSuspense(
+  (_props: ActivityTabProps) => {
+    const { navigate } = useNavigation();
 
-  const proposals = useProposals();
-  const inTransfers = useTransfers(useSelectedAccountId(), 'IN');
-  const data: Item[] = [...proposals, ...inTransfers].sort(compare);
+    const proposals = useProposals();
+    const inTransfers = useTransfers(useSelectedAccountId(), 'IN');
+    const data: Item[] = [...proposals, ...inTransfers].sort(compare);
 
-  return (
-    <FlashList
-      data={data}
-      renderItem={({ item }) =>
-        match(item)
-          .when(isProposalItem, ({ id }) => (
-            <ProposalItem proposal={id} onPress={() => navigate('Proposal', { proposal: id })} />
-          ))
-          .otherwise((transfer) => <IncomingTransferItem transfer={transfer} />)
-      }
-      ListEmptyComponent={
-        <Text variant="bodyLarge" style={styles.emptyListText}>
-          There is no activity to show
-        </Text>
-      }
-      estimatedItemSize={ListItemHeight.DOUBLE_LINE}
-      showsVerticalScrollIndicator={false}
-    />
-  );
-}, TabScreenSkeleton);
+    return (
+      <FlashList
+        data={data}
+        renderItem={({ item }) =>
+          match(item)
+            .when(isProposalItem, ({ id }) => (
+              <ProposalItem proposal={id} onPress={() => navigate('Proposal', { proposal: id })} />
+            ))
+            .otherwise((transfer) => <IncomingTransferItem transfer={transfer} />)
+        }
+        ListEmptyComponent={
+          <Text variant="bodyLarge" style={styles.emptyListText}>
+            There is no activity to show
+          </Text>
+        }
+        estimatedItemSize={ListItemHeight.DOUBLE_LINE}
+        showsVerticalScrollIndicator={false}
+      />
+    );
+  },
+  (props) => (
+    <TabScreenSkeleton {...props} listItems={{ leading: true, supporting: true, trailing: true }} />
+  ),
+);
 
 export const ActivityTabBadge = withSuspense(
   () => <TabBadge value={useProposals({ requiresUserAction: true }).length} style={styles.badge} />,
