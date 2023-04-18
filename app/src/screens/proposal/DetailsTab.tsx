@@ -27,9 +27,11 @@ export const DetailsTab = withSuspense(({ route }: DetailsTabProps) => {
   const p = useProposal(route.params.proposal);
   const transfersValue = useTransfersValue(p.transfers);
 
+  const to = p.transfers.find((t) => t.token === p.to)?.to ?? p.to;
+
   return (
     <ScrollView contentContainerStyle={styles.container}>
-      <ListItem leading={p.to} headline="To" trailing={useAddressLabel(p.to)} />
+      <ListItem leading={to} headline="To" trailing={useAddressLabel(to)} />
       <ListItem leading={p.account} headline="From" trailing={useAddressLabel(p.account)} />
       <ListItem leading={p.proposer} headline="Proposer" trailing={useAddressLabel(p.proposer)} />
       <ListItem
