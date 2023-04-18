@@ -116,7 +116,7 @@ export const toProposal = (p: ProposalFieldsFragment): Proposal => {
         response: t.response
           ? {
               success: t.response.success,
-              response: asHex(t.response.response || undefined),
+              response: asHex(t.response.response),
               gasUsed: asBigInt(t.response.gasUsed),
               gasPrice: asBigInt(t.response.gasPrice),
               fee: asBigInt(t.response.fee),
