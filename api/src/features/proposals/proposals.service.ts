@@ -1,4 +1,4 @@
-import { forwardRef, Inject, Injectable } from '@nestjs/common';
+import { forwardRef, Inject, Injectable, Logger } from '@nestjs/common';
 import { Prisma, Proposal } from '@prisma/client';
 import { UserInputError } from 'apollo-server-core';
 import { hexlify } from 'ethers/lib/utils';
@@ -13,6 +13,11 @@ import {
   PolicySatisfiability,
   estimateOpGas,
   Hex,
+  asBigInt,
+  asHex,
+  Erc20__factory,
+  asSelector,
+  Addresslike,
 } from 'lib';
 import { PrismaService } from '../util/prisma/prisma.service';
 import { ProviderService } from '~/features/util/provider/provider.service';
@@ -35,6 +40,9 @@ import { ExpoService } from '../util/expo/expo.service';
 import { O } from 'ts-toolbelt';
 import { PoliciesService, SelectManyPoliciesArgs } from '../policies/policies.service';
 import { SatisfiablePolicy } from './proposals.model';
+import { ExplorerTransfer } from '../explorer/explorer.model';
+import { ETH_ADDRESS } from 'zksync-web3/build/src/utils';
+import { BigNumberish } from 'ethers';
 
 const TX_IS_EXECUTING: Prisma.TransactionWhereInput = { response: { isNot: {} } };
 const TX_IS_EXECUTED: Prisma.TransactionWhereInput = {
@@ -43,6 +51,10 @@ const TX_IS_EXECUTED: Prisma.TransactionWhereInput = {
 const PROPOSAL_IS_PENDING: Prisma.ProposalWhereInput = {
   transactions: { none: { OR: [TX_IS_EXECUTING, TX_IS_EXECUTED] } },
 };
+
+const ERC20 = Erc20__factory.createInterface();
+const ERC20_TRANSFER = ERC20.functions['transfer(address,uint256)'];
+const ERC20_TRANSFER_SELECTOR = asSelector(ERC20.getSighash(ERC20_TRANSFER));
 
 export interface ProposeParams extends O.Optional<Tx, 'nonce'> {
   account: Address;
@@ -280,6 +292,51 @@ export class ProposalsService {
     }
 
     return policies;
+  }
+
+  async transfers(p: Proposal): Promise<ExplorerTransfer[]> {
+    const to = asAddress(p.to);
+    const from = asAddress(p.accountId);
+    const value = p.value ? asBigInt(p.value.toString()) : undefined;
+    const data = p.data ? asHex(p.data) : undefined;
+
+    const transfers: ExplorerTransfer[] = [];
+    if (value && value > 0n) {
+      transfers.push({
+        id: `${p.id}-0`,
+        transferNumber: 0,
+        token: asAddress(ETH_ADDRESS),
+        from,
+        to,
+        amount: value,
+        timestamp: p.createdAt,
+      });
+    }
+
+    // Infer ERC20 transfer from proposal data; ideally the transaction would be simulated
+    if (data && asSelector(data) === ERC20_TRANSFER_SELECTOR) {
+      try {
+        const [dest, amount] = ERC20.decodeFunctionData(ERC20_TRANSFER, data) as [
+          Addresslike,
+          BigNumberish,
+        ];
+        const transferNumber = transfers.length;
+
+        transfers.push({
+          id: `${p.id}-${transferNumber}`,
+          transferNumber,
+          token: to,
+          from,
+          to: asAddress(dest),
+          amount: asBigInt(amount),
+          timestamp: p.createdAt,
+        });
+      } catch (e) {
+        Logger.warn(`Failed to decode ERC20 transfer data; data=${data}, error=${e}`);
+      }
+    }
+
+    return transfers;
   }
 
   private async notifyApprovers(proposalId: string) {

@@ -38,6 +38,14 @@ const DEFAULT_FIELDS: DefaultFields = {
     ...((select.approvals || select.rejections) && {
       approvals: true,
     }),
+    ...(select.transfers && {
+      id: true,
+      accountId: true,
+      to: true,
+      value: true,
+      data: true,
+      createdAt: true,
+    }),
   }),
   Policy: (select) => ({
     ...(select.id && {
