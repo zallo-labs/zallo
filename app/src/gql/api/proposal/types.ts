@@ -18,6 +18,7 @@ export interface Proposal extends Tx {
   rejections: KeySet<Address, Rejection>;
   satisfiablePolicies: SatisfiablePolicy[];
   requiresUserAction: boolean;
+  transfers: Transfer[];
   transaction?: TransactionSubmission;
   proposedAt: DateTime;
   proposer: Address;
@@ -93,7 +94,16 @@ export const toProposal = (p: ProposalFieldsFragment): Proposal => {
     requiresUserAction: p.requiresUserAction,
   }));
 
-  const timestamp = DateTime.fromISO(p.createdAt);
+  const createdAt = DateTime.fromISO(p.createdAt);
+
+  const transfers: Transfer[] = p.transfers.map((t) => ({
+    direction: 'OUT',
+    token: t.token,
+    from: t.from,
+    to: t.to,
+    amount: asBigInt(t.amount),
+    timestamp: createdAt,
+  }));
 
   const t = p.transaction;
   const transaction: TransactionSubmission | undefined = t
@@ -146,9 +156,10 @@ export const toProposal = (p: ProposalFieldsFragment): Proposal => {
     rejections,
     satisfiablePolicies,
     requiresUserAction: satisfiablePolicies.some((p) => p.requiresUserAction),
+    transfers,
     transaction,
-    proposedAt: DateTime.fromISO(p.createdAt),
+    proposedAt: createdAt,
     proposer: asAddress(p.proposerId),
-    timestamp,
+    timestamp: createdAt,
   };
 };

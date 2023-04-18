@@ -64,6 +64,13 @@ gql`
       satisfied
       requiresUserAction
     }
+    transfers {
+      id
+      token
+      from
+      to
+      amount
+    }
     transaction {
       ...TransactionFields
     }
@@ -79,7 +86,7 @@ gql`
 export const useProposal = <Id extends ProposalId | undefined>(id: Id) => {
   const skip = !id;
   const { data } = useSuspenseQuery<ProposalQuery, ProposalQueryVariables>(ProposalDocument, {
-    variables: { id },
+    variables: { id: id! },
     skip,
   });
   useProposalSubscription({ proposals: id, skip });
