@@ -1,5 +1,7 @@
 import { Address, PolicyId, tryAsAddress } from 'lib';
 import { WPolicy } from '../policy/types';
+import { DateTime } from 'luxon';
+import { TransferDirection } from '@api/generated';
 
 export type AccountId = Address & { isAccountId: true };
 export type AccountIdlike = AccountId | PolicyId | string;
@@ -16,4 +18,13 @@ export interface WAccount {
   name: string;
   isActive: boolean;
   policies: WPolicy[];
+}
+
+export interface Transfer {
+  direction: TransferDirection;
+  token: Address;
+  from: Address;
+  to: Address;
+  amount: bigint;
+  timestamp: DateTime;
 }

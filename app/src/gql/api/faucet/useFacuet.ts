@@ -12,27 +12,27 @@ import { CHAIN } from '~/util/network/provider';
 import { useCanRequestTokens } from './useCanRequestTokens';
 
 gql`
-  mutation RequestTokens($recipient: Address!) {
-    requestTokens(recipient: $recipient)
+  mutation RequestTokens($account: Address!) {
+    requestTokens(account: $account)
   }
 `;
 
-export const useFaucet = (recipient: Address) => {
+export const useFaucet = (account: Address) => {
   const [mutation] = useRequestTokensMutation({
-    variables: { recipient },
+    variables: { account },
     update: (cache, { data }) => {
       if (!data) return;
 
       cache.writeQuery<RequestableTokensQuery, RequestableTokensQueryVariables>({
         query: RequestableTokensDocument,
-        variables: { recipient },
+        variables: { account },
         data: {
           requestableTokens: [],
         },
       });
     },
   });
-  const canRequest = useCanRequestTokens(recipient);
+  const canRequest = useCanRequestTokens(account);
 
   const receive = useCallback(async () => {
     showInfo('Requesting testnet tokens...', { autoHide: false });

@@ -11,6 +11,8 @@ import {
   AccountEvent,
   CreateAccountInput,
   UpdateAccountInput,
+  AccountTransfersArgs,
+  TransferDirection,
 } from './accounts.args';
 import { POLICY_STATE_FIELDS, inputAsPolicy, prismaAsPolicy } from '../policies/policies.util';
 import { CONFIG } from '~/config';

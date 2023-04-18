@@ -105,10 +105,23 @@ CREATE TABLE "TransactionResponse" (
     "success" BOOLEAN NOT NULL,
     "response" CHAR(66) NOT NULL,
     "gasUsed" DECIMAL(19,0) NOT NULL,
-    "effectiveGasPrice" DECIMAL(19,0) NOT NULL,
+    "gasPrice" DECIMAL(19,0) NOT NULL,
+    "fee" DECIMAL(79,0) NOT NULL,
     "timestamp" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
     CONSTRAINT "TransactionResponse_pkey" PRIMARY KEY ("transactionHash")
+);
+
+-- CreateTable
+CREATE TABLE "Transfer" (
+    "transactionHash" CHAR(66) NOT NULL,
+    "transferNumber" INTEGER NOT NULL,
+    "token" CHAR(42) NOT NULL,
+    "from" CHAR(42) NOT NULL,
+    "to" CHAR(42) NOT NULL,
+    "amount" DECIMAL(79,0) NOT NULL,
+
+    CONSTRAINT "Transfer_pkey" PRIMARY KEY ("transactionHash","transferNumber")
 );
 
 -- CreateTable
@@ -231,6 +244,9 @@ ALTER TABLE "Transaction" ADD CONSTRAINT "Transaction_proposalId_fkey" FOREIGN K
 
 -- AddForeignKey
 ALTER TABLE "TransactionResponse" ADD CONSTRAINT "TransactionResponse_transactionHash_fkey" FOREIGN KEY ("transactionHash") REFERENCES "Transaction"("hash") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "Transfer" ADD CONSTRAINT "Transfer_transactionHash_fkey" FOREIGN KEY ("transactionHash") REFERENCES "TransactionResponse"("transactionHash") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "Approval" ADD CONSTRAINT "Approval_proposalId_fkey" FOREIGN KEY ("proposalId") REFERENCES "Proposal"("id") ON DELETE CASCADE ON UPDATE CASCADE;

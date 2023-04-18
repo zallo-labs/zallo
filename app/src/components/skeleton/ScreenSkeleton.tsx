@@ -1,20 +1,17 @@
 import { ReactNode } from 'react';
 import { StyleSheet, View } from 'react-native';
-import { ActivityIndicator, Appbar } from 'react-native-paper';
-import { AppbarBack } from '~/components/Appbar/AppbarBack';
-import { AppbarHeaderProps } from '~/components/Appbar/useAppbarHeader';
+import { ActivityIndicator } from 'react-native-paper';
 import { Screen } from '../layout/Screen';
+import { Appbar, AppbarProps } from '../Appbar/Appbar';
 
 export interface ScreenSkeletonProps {
   children?: ReactNode;
-  mode?: AppbarHeaderProps['mode'];
+  mode?: AppbarProps['mode'];
 }
 
 export const ScreenSkeleton = ({ children, mode }: ScreenSkeletonProps) => (
   <Screen>
-    <Appbar.Header mode={mode}>
-      <AppbarBack />
-    </Appbar.Header>
+    <Appbar leading="back" mode={mode ?? 'large'} headline="" />
 
     {children || (
       <View style={styles.spinnerContainer}>

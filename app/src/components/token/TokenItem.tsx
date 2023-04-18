@@ -1,6 +1,5 @@
 import { AccountId } from '@api/account';
 import { makeStyles } from '@theme/makeStyles';
-import { Token } from '@token/token';
 import { useTokenBalance } from '@token/useTokenBalance';
 import { useTokenValue } from '@token/useTokenValue';
 import { useTokenPriceData } from '@uniswap/useTokenPrice';
@@ -11,17 +10,20 @@ import { ListItem, ListItemProps } from '../list/ListItem';
 import { ListItemSkeleton } from '../list/ListItemSkeleton';
 import { withSuspense } from '../skeleton/withSuspense';
 import { TokenAmount } from './TokenAmount';
+import { Address } from 'lib';
+import { useToken } from '@token/useToken';
 
 export interface TokenItemProps extends Partial<ListItemProps> {
-  token: Token;
+  token: Address;
   account: AccountId;
   amount?: bigint;
   containerStyle?: StyleProp<ViewStyle>;
 }
 
 export const TokenItem = withSuspense(
-  ({ token, account, amount, containerStyle, ...itemProps }: TokenItemProps) => {
+  ({ token: tokenProp, account, amount, containerStyle, ...itemProps }: TokenItemProps) => {
     const styles = useStyles();
+    const token = useToken(tokenProp);
     const balance = useTokenBalance(token, account);
     amount ??= balance;
 

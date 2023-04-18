@@ -1,7 +1,7 @@
 import { InjectQueue } from '@nestjs/bull';
 import { forwardRef, Inject, Injectable } from '@nestjs/common';
 import { Queue } from 'bull';
-import { asAddress, Approval, executeTx, asHex, mapAsync, isPresent } from 'lib';
+import { asAddress, executeTx, asHex, mapAsync, isPresent } from 'lib';
 import { PrismaService } from '../util/prisma/prisma.service';
 import { ProviderService } from '~/features/util/provider/provider.service';
 import { ProposalEvent } from '../proposals/proposals.args';
@@ -74,10 +74,11 @@ export class TransactionsService {
       approvals,
     });
 
+    const transactionHash = asHex(transaction.hash);
     const { proposal: updatedProposal } = await this.prisma.asUser.transaction.create({
       data: {
         proposal: { connect: { id: proposalId } },
-        hash: transaction.hash,
+        hash: transactionHash,
         gasLimit: transaction.gasLimit.toString(),
         gasPrice: transaction.gasPrice?.toString(),
       },
@@ -87,7 +88,7 @@ export class TransactionsService {
     });
     this.proposals.publishProposal({ proposal: updatedProposal, event: ProposalEvent.update });
 
-    this.transactionsQueue.add({ transactionHash: transaction.hash }, { delay: 1000 /* 1s */ });
+    this.transactionsQueue.add({ transactionHash }, { delay: 1000 /* 1s */ });
 
     return updatedProposal as Prisma.ProposalGetPayload<T>;
   }
@@ -106,7 +107,7 @@ export class TransactionsService {
     });
 
     return this.transactionsQueue.addBulk(
-      missingResponses.map((r) => ({ data: { transactionHash: r.hash } })),
+      missingResponses.map((r) => ({ data: { transactionHash: asHex(r.hash) } })),
     );
   }
 }

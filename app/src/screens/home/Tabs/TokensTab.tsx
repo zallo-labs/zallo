@@ -9,16 +9,21 @@ import { TabScreenSkeleton } from '~/components/tab/TabScreenSkeleton';
 
 export type TokensTabProps = TabNavigatorScreenProp<'Tokens'>;
 
-export const TokensTab = withSuspense((_props: TokensTabProps) => {
-  const account = useSelectedAccountId();
-  const tokens = useTokensByValue(account);
+export const TokensTab = withSuspense(
+  (_props: TokensTabProps) => {
+    const account = useSelectedAccountId();
+    const tokens = useTokensByValue(account);
 
-  return (
-    <FlashList
-      data={tokens}
-      renderItem={({ item }) => <TokenItem token={item} account={account} />}
-      estimatedItemSize={ListItemHeight.DOUBLE_LINE}
-      showsVerticalScrollIndicator={false}
-    />
-  );
-}, TabScreenSkeleton);
+    return (
+      <FlashList
+        data={tokens}
+        renderItem={({ item }) => <TokenItem token={item.address} account={account} />}
+        estimatedItemSize={ListItemHeight.DOUBLE_LINE}
+        showsVerticalScrollIndicator={false}
+      />
+    );
+  },
+  (props) => (
+    <TabScreenSkeleton {...props} listItems={{ leading: true, supporting: true, trailing: true }} />
+  ),
+);

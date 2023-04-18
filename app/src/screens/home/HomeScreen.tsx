@@ -1,8 +1,5 @@
-import { useTotalValue } from '@token/useTotalValue';
 import { StyleSheet } from 'react-native';
-import { Text } from 'react-native-paper';
 import { useSelectedAccountId } from '~/components/AccountSelector/useSelectedAccount';
-import { FiatValue } from '~/components/fiat/FiatValue';
 import { Screen } from '~/components/layout/Screen';
 import { withSuspense } from '~/components/skeleton/withSuspense';
 import { StackNavigatorScreenProps } from '~/navigation/StackNavigator';
@@ -10,6 +7,7 @@ import { HomeAppbar } from './HomeAppbar';
 import { QuickActions } from './QuickActions';
 import { Tabs } from './Tabs';
 import { Splash } from '~/components/Splash';
+import { AccountValue } from './AccountValue';
 
 export type HomeScreenProps = StackNavigatorScreenProps<'Home'>;
 
@@ -20,9 +18,7 @@ export const HomeScreen = withSuspense((_props: HomeScreenProps) => {
     <Screen>
       <HomeAppbar />
 
-      <Text variant="displayMedium" style={styles.totalValue}>
-        <FiatValue value={useTotalValue(account)} />
-      </Text>
+      <AccountValue account={account} />
 
       <QuickActions />
 

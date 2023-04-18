@@ -28,8 +28,15 @@ gql`
       success
       response
       gasUsed
-      effectiveGasPrice
+      gasPrice
+      fee
       timestamp
+      transfers {
+        token
+        from
+        to
+        amount
+      }
     }
   }
 

@@ -69,7 +69,7 @@ export const SendScreen = withSuspense(({ route, navigation: { goBack } }: SendS
       <View style={styles.spacer} />
 
       <TokenItem
-        token={token}
+        token={token.address}
         account={account}
         onPress={async () => setToken(await selectToken())}
       />

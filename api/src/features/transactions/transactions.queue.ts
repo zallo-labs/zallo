@@ -1,4 +1,5 @@
 import { BullModuleOptions } from '@nestjs/bull';
+import { Hex } from 'lib';
 
 export const TRANSACTIONS_QUEUE = {
   name: 'Transactions',
@@ -9,5 +10,5 @@ export const TRANSACTIONS_QUEUE = {
 } satisfies BullModuleOptions;
 
 export interface TransactionEvent {
-  transactionHash: string;
+  transactionHash: Hex;
 }

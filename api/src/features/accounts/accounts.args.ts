@@ -52,3 +52,18 @@ export class UpdateAccountInput {
   @Field(() => String)
   name: string;
 }
+
+export enum TransferDirection {
+  IN,
+  OUT,
+}
+registerEnumType(TransferDirection, { name: 'TransferDirection' });
+
+@ArgsType()
+export class AccountTransfersArgs {
+  @Field(() => TransferDirection, { nullable: true })
+  direction?: TransferDirection;
+
+  @Field(() => Number, { nullable: true, defaultValue: 100 })
+  skip: number;
+}

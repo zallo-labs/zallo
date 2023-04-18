@@ -1,5 +1,4 @@
-import { Proposal } from '@api/proposal';
-import { Transfer } from '@subgraph/transfer';
+import { Transfer } from '@api/account';
 import { useTokenValues } from '@token/useTokenValue';
 import { Address } from 'lib';
 import _ from 'lodash';
@@ -7,9 +6,7 @@ import _ from 'lodash';
 export const useTransfersValue = (transfers: Transfer[]) => {
   const values = _.zip(
     transfers,
-    useTokenValues(
-      ...transfers.map((t): [Address, string] => [t.token.address, t.amount.toString()]),
-    ),
+    useTokenValues(...transfers.map((t): [Address, string] => [t.token, t.amount.toString()])),
   );
 
   return values.reduce((sum, [transfer, value]) => {

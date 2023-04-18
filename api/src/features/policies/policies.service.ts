@@ -18,7 +18,10 @@ import { PrismaService } from '../util/prisma/prisma.service';
 import { connectAccount, connectOrCreateUser, connectPolicy } from '~/util/connect-or-create';
 import { ProposalsService } from '../proposals/proposals.service';
 import { CreatePolicyInput, UniquePolicyInput, UpdatePolicyInput } from './policies.args';
-import { TransactionsConsumer } from '../transactions/transactions.consumer';
+import {
+  TransactionResponseData,
+  TransactionsConsumer,
+} from '../transactions/transactions.consumer';
 import { inputAsPolicy, POLICY_STATE_FIELDS, prismaAsPolicy, PrismaPolicy } from './policies.util';
 import merge from 'ts-deepmerge';
 import _ from 'lodash';
@@ -266,11 +269,11 @@ export class PoliciesService implements OnModuleInit {
     }
   }
 
-  private async processTransaction(resp: TransactionResponse) {
+  private async processTransaction({ transactionHash, response: resp }: TransactionResponseData) {
     if (!resp.success) return;
 
     const { proposal } = await this.prisma.asSystem.transaction.findUniqueOrThrow({
-      where: { hash: resp.transactionHash },
+      where: { hash: transactionHash },
       select: {
         proposal: {
           select: {

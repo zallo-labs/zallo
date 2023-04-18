@@ -4,7 +4,6 @@ type Account @entity {
   impl: AccountImpl!
   policies: [Policy!]! @derivedFrom(field: "account")
   transactions: [Transaction!]! @derivedFrom(field: "account")
-  transfers: [Transfer!]! @derivedFrom(field: "account")
 }
 
 type AccountImpl @entity {
@@ -27,7 +26,6 @@ type Transaction @entity {
   executor: Bytes!
   blockHash: Bytes!
   timestamp: BigInt!
-  transfers: [Transfer!]! @derivedFrom(field: "transaction")
 }
 
 type Policy @entity {
@@ -37,36 +35,3 @@ type Policy @entity {
   key: BigInt!
   hash: Bytes!
 }
-
-type Transfer @entity {
-  "{account.id}-{transaction.id}-{transaction.log.index}"
-  id: String!
-  account: Account!
-  transaction: Transaction
-  transactionHash: Bytes!
-  token: Bytes!
-  type: TransferType!
-  from: Bytes!
-  to: Bytes!
-  value: BigInt!
-  # Metadata
-  blockHash: Bytes!
-  timestamp: BigInt!
-}
-
-enum TransferType {
-  IN
-  OUT
-}
-
-# type TokenTransferApproval @entity {
-#   "{transaction.hash}-{transaction.log.index}"
-#   id: ID!
-#   # token: Token!
-#   token: Bytes!
-#   account: Account!
-#   type: String!
-#   owner: Bytes!
-#   spender: Bytes!
-#   value: BigInt!
-# }
