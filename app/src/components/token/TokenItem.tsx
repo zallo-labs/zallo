@@ -1,7 +1,6 @@
 import { AccountId } from '@api/account';
 import { makeStyles } from '@theme/makeStyles';
 import { useTokenBalance } from '@token/useTokenBalance';
-import { useTokenValue } from '@token/useTokenValue';
 import { useTokenPriceData } from '@uniswap/useTokenPrice';
 import { StyleProp, ViewStyle } from 'react-native';
 import { FiatValue } from '../fiat/FiatValue';
@@ -45,7 +44,7 @@ export const TokenItem = withSuspense(
         )}
         trailing={({ Text }) => (
           <Text variant="labelLarge">
-            <FiatValue value={useTokenValue(token, amount)} />
+            <FiatValue value={{ token, amount: amount! }} />
           </Text>
         )}
         containerStyle={containerStyle}
