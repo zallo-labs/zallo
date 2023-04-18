@@ -98,6 +98,14 @@ export const TransactionTab = withSuspense(({ route }: TransactionTabProps) => {
         />
       )}
 
+      {resp && (
+        <Item
+          leading={GasOutlineIcon}
+          headline="Gas used"
+          trailing={<FormattedNumber value={resp.gasUsed} />}
+        />
+      )}
+
       {gasPrice ? (
         <Item
           leading={GasOutlineIcon}
