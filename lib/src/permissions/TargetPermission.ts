@@ -79,9 +79,7 @@ export const targetsAsPermission = (targets: Targets): PermissionStruct | undefi
 };
 
 export const verifyTargetsPermission = (t: Targets, tx: Tx) => {
-  const selectors = t[tx.to] ?? t[FALLBACK_ADDRESS];
-  if (!selectors) return false;
+  const selectors = t[tx.to] ?? t['*'];
 
-  const selector = asSelector(tx.data);
-  return !!selector && selectors.has(selector);
+  return selectors?.has('*') || selectors?.has(asSelector(tx.data)!);
 };
