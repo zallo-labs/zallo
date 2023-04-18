@@ -1,6 +1,6 @@
 import { gql } from '@apollo/client';
 import { AccountId, Transfer } from './types';
-import { useSuspenseQuery } from '~/gql/util';
+import { usePollWhenFocussed, useSuspenseQuery } from '~/gql/util';
 import {
   TransferDirection,
   TransfersDocument,
@@ -25,18 +25,22 @@ gql`
 `;
 
 export const useTransfers = (account: AccountId, direction?: TransferDirection) => {
-  const query = useSuspenseQuery<TransfersQuery, TransfersQueryVariables>(TransfersDocument, {
-    variables: {
-      input: {
-        account,
-        direction,
+  const { data, ...rest } = useSuspenseQuery<TransfersQuery, TransfersQueryVariables>(
+    TransfersDocument,
+    {
+      variables: {
+        input: {
+          account,
+          direction,
+        },
       },
     },
-  });
+  );
+  usePollWhenFocussed(rest, 10);
 
   return useMemo(
     (): Transfer[] =>
-      query.data.transfers.map((t) => ({
+      data.transfers.map((t) => ({
         direction: direction || (account === t.from ? 'OUT' : 'IN'),
         token: asAddress(t.token),
         from: asAddress(t.from),
@@ -44,6 +48,6 @@ export const useTransfers = (account: AccountId, direction?: TransferDirection) 
         amount: BigInt(t.amount),
         timestamp: DateTime.fromISO(t.timestamp),
       })),
-    [query.data],
+    [data],
   );
 };
