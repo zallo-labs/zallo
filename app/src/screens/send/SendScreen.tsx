@@ -18,8 +18,8 @@ import { withSuspense } from '~/components/skeleton/withSuspense';
 import { TokenItem } from '~/components/token/TokenItem';
 import { useSelectedToken, useSetSelectedToken } from '~/components/token/useSelectedToken';
 import { StackNavigatorScreenProps } from '~/navigation/StackNavigator';
-import { useSelectToken } from '../tokens/useSelectToken';
 import { InputsView, InputType } from './InputsView';
+import { useSelectToken } from '../tokens/TokensScreen';
 
 const createTransferTx = (token: Token, to: Address, amount: bigint): Call =>
   token.type === 'ERC20'
@@ -71,7 +71,7 @@ export const SendScreen = withSuspense(({ route, navigation: { goBack } }: SendS
       <TokenItem
         token={token.address}
         account={account}
-        onPress={async () => setToken(await selectToken())}
+        onPress={async () => setToken(await selectToken({ account }))}
       />
       <Divider horizontalInset />
 

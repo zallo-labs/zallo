@@ -12,11 +12,14 @@ import { ListHeader } from '~/components/list/ListHeader';
 import { TokenItem } from '~/components/token/TokenItem';
 import { useSelectedAccountId } from '~/components/AccountSelector/useSelectedAccount';
 import { Screen } from '~/components/layout/Screen';
+import { EventEmitter } from '~/util/EventEmitter';
+
+const TOKEN_EMITTER = new EventEmitter<Token>('Token');
+export const useSelectToken = TOKEN_EMITTER.createUseSelect('TokensModal');
 
 export interface TokensScreenParams {
   account?: AccountId;
-  onSelect?: (token: Token) => void;
-  disabled?: Set<Address>;
+  disabled?: Address[];
 }
 
 export type TokensScreenProps =
@@ -24,9 +27,14 @@ export type TokensScreenProps =
   | StackNavigatorScreenProps<'TokensModal'>;
 
 export const TokensScreen = ({ route }: TokensScreenProps) => {
-  const { account = useSelectedAccountId(), onSelect, disabled } = route.params;
+  const { account = useSelectedAccountId() } = route.params;
+  const disabled = new Set(route.params.disabled);
 
   const [tokens, searchProps] = useSearch(useTokens(), ['name', 'symbol', 'address']);
+
+  const getOnSelect = TOKEN_EMITTER.listeners.size
+    ? (token: Token) => () => TOKEN_EMITTER.emit(token)
+    : undefined;
 
   return (
     <Screen>
@@ -45,7 +53,7 @@ export const TokensScreen = ({ route }: TokensScreenProps) => {
           <TokenItem
             token={token.address}
             account={account}
-            onPress={onSelect ? () => onSelect(token) : undefined}
+            onPress={getOnSelect?.(token)}
             disabled={disabled?.has(token.address)}
           />
         )}
