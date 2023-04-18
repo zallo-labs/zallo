@@ -26,6 +26,7 @@ import { BullModule } from '@nestjs/bull';
 import { PoliciesModule } from './features/policies/policies.module';
 import { ContractsModule } from './features/contracts/contracts.module';
 import { ExplorerModule } from './features/explorer/explorer.module';
+import { TransfersModule } from './features/transfers/transfers.module';
 
 @Module({
   imports: [
@@ -74,6 +75,7 @@ import { ExplorerModule } from './features/explorer/explorer.module';
     ReactionsModule,
     SubgraphModule,
     TransactionsModule,
+    TransfersModule,
     UsersModule,
     ExpoModule,
   ],

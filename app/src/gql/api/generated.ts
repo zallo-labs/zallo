@@ -50,13 +50,6 @@ export type Account = {
   policies?: Maybe<Array<Policy>>;
   policyStates?: Maybe<Array<PolicyState>>;
   proposals?: Maybe<Array<Proposal>>;
-  transfers: Array<ExplorerTransfer>;
-};
-
-
-export type AccountTransfersArgs = {
-  direction?: InputMaybe<TransferDirection>;
-  skip?: InputMaybe<Scalars['Float']>;
 };
 
 export type AccountCount = {
@@ -943,6 +936,7 @@ export type Query = {
   proposal?: Maybe<Proposal>;
   proposals: Array<Proposal>;
   requestableTokens: Array<Scalars['Address']>;
+  transfers: Array<ExplorerTransfer>;
   user: User;
 };
 
@@ -1026,6 +1020,11 @@ export type QueryProposalsArgs = {
 
 export type QueryRequestableTokensArgs = {
   account: Scalars['Address'];
+};
+
+
+export type QueryTransfersArgs = {
+  input: TransfersInput;
 };
 
 
@@ -1299,6 +1298,12 @@ export type TransferWhereInput = {
   transferNumber?: InputMaybe<IntFilter>;
 };
 
+export type TransfersInput = {
+  account: Scalars['Address'];
+  direction?: InputMaybe<TransferDirection>;
+  skip?: InputMaybe<Scalars['Float']>;
+};
+
 export type UniquePolicyInput = {
   account: Scalars['Address'];
   key: Scalars['PolicyKey'];
@@ -1406,12 +1411,11 @@ export type CreateAccountMutationVariables = Exact<{
 export type CreateAccountMutation = { __typename?: 'Mutation', createAccount: { __typename?: 'Account', id: string, name: string, isActive: boolean, policies?: Array<{ __typename?: 'Policy', id: string, key: any, name: string, active?: { __typename?: 'PolicyState', id: any, proposalId?: string | null, createdAt: any, isRemoved: boolean, threshold: number, approvers?: Array<{ __typename?: 'Approver', userId: string }> | null, targets?: Array<{ __typename?: 'Target', to: string, selectors?: Array<string> | null }> | null } | null, draft?: { __typename?: 'PolicyState', id: any, proposalId?: string | null, createdAt: any, isRemoved: boolean, threshold: number, approvers?: Array<{ __typename?: 'Approver', userId: string }> | null, targets?: Array<{ __typename?: 'Target', to: string, selectors?: Array<string> | null }> | null } | null }> | null } };
 
 export type TransfersQueryVariables = Exact<{
-  account: Scalars['Address'];
-  direction?: InputMaybe<TransferDirection>;
+  input: TransfersInput;
 }>;
 
 
-export type TransfersQuery = { __typename?: 'Query', account?: { __typename?: 'Account', transfers: Array<{ __typename?: 'ExplorerTransfer', id: string, token: any, from: any, to: any, amount: any, timestamp: any }> } | null };
+export type TransfersQuery = { __typename?: 'Query', transfers: Array<{ __typename?: 'ExplorerTransfer', id: string, token: any, from: any, to: any, amount: any, timestamp: any }> };
 
 export type UpdateAccountMutationVariables = Exact<{
   args: UpdateAccountInput;
@@ -1879,16 +1883,14 @@ export type CreateAccountMutationHookResult = ReturnType<typeof useCreateAccount
 export type CreateAccountMutationResult = Apollo.MutationResult<CreateAccountMutation>;
 export type CreateAccountMutationOptions = Apollo.BaseMutationOptions<CreateAccountMutation, CreateAccountMutationVariables>;
 export const TransfersDocument = gql`
-    query Transfers($account: Address!, $direction: TransferDirection) {
-  account(id: $account) {
-    transfers(direction: $direction) {
-      id
-      token
-      from
-      to
-      amount
-      timestamp
-    }
+    query Transfers($input: TransfersInput!) {
+  transfers(input: $input) {
+    id
+    token
+    from
+    to
+    amount
+    timestamp
   }
 }
     `;
@@ -1905,8 +1907,7 @@ export const TransfersDocument = gql`
  * @example
  * const { data, loading, error } = useTransfersQuery({
  *   variables: {
- *      account: // value for 'account'
- *      direction: // value for 'direction'
+ *      input: // value for 'input'
  *   },
  * });
  */

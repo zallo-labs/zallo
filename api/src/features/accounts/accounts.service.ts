@@ -21,7 +21,6 @@ import { FaucetService } from '../faucet/faucet.service';
 import { PoliciesService } from '../policies/policies.service';
 import { getUser } from '~/request/ctx';
 import { UserInputError } from 'apollo-server-core';
-import { ExplorerService } from '../explorer/explorer.service';
 
 export interface AccountSubscriptionPayload {
   [ACCOUNT_SUBSCRIPTION]: Pick<Account, 'id'>;
@@ -37,7 +36,6 @@ export class AccountsService {
     private contracts: ContractsService,
     private faucet: FaucetService,
     private policies: PoliciesService,
-    private explorer: ExplorerService,
   ) {}
 
   findUnique = this.prisma.asUser.account.findUnique;
@@ -105,16 +103,6 @@ export class AccountsService {
     this.publishAccount({ account: { id }, event: AccountEvent.update });
 
     return r;
-  }
-
-  async transfers(account: Address, { direction, skip }: AccountTransfersArgs) {
-    const transfers = await this.explorer.accountTransfers({ account, limit: skip });
-
-    return direction !== undefined
-      ? transfers.filter((t) =>
-          direction === TransferDirection.IN ? t.to === account : t.from === account,
-        )
-      : transfers;
   }
 
   private async activateAccount<R extends Prisma.AccountArgs>(

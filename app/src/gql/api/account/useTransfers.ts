@@ -12,16 +12,14 @@ import { useMemo } from 'react';
 import { DateTime } from 'luxon';
 
 gql`
-  query Transfers($account: Address!, $direction: TransferDirection) {
-    account(id: $account) {
-      transfers(direction: $direction) {
-        id
-        token
-        from
-        to
-        amount
-        timestamp
-      }
+  query Transfers($input: TransfersInput!) {
+    transfers(input: $input) {
+      id
+      token
+      from
+      to
+      amount
+      timestamp
     }
   }
 `;
@@ -29,14 +27,16 @@ gql`
 export const useTransfers = (account: AccountId, direction?: TransferDirection) => {
   const query = useSuspenseQuery<TransfersQuery, TransfersQueryVariables>(TransfersDocument, {
     variables: {
-      account,
-      direction,
+      input: {
+        account,
+        direction,
+      },
     },
   });
 
   return useMemo(
     (): Transfer[] =>
-      (query.data.account?.transfers ?? []).map((t) => ({
+      query.data.transfers.map((t) => ({
         direction: direction || (account === t.from ? 'OUT' : 'IN'),
         token: asAddress(t.token),
         from: asAddress(t.from),
