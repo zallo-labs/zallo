@@ -1,3 +1,7 @@
+import { Address } from 'lib';
+import { BigIntlike } from 'lib';
+import { Hex } from 'lib';
+import { PolicyKey } from 'lib';
 import { gql } from '@apollo/client';
 import * as Apollo from '@apollo/client';
 export type Maybe<T> = T | null;
@@ -14,23 +18,23 @@ export type Scalars = {
   Int: number;
   Float: number;
   /** Ethereum address */
-  Address: any;
+  Address: Address;
   /** The `BigInt` scalar type represents non-fractional signed whole numeric values. */
-  BigInt: any;
+  BigInt: BigIntlike;
   /** bytes hex string */
-  Bytes: any;
+  Bytes: Hex;
   /** 32-byte hex string */
-  Bytes32: any;
+  Bytes32: Hex;
   /** A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date-time format. */
-  DateTime: any;
+  DateTime: string;
   /** An arbitrary-precision Decimal type */
-  Decimal: any;
+  Decimal: BigIntlike;
   /** The `JSON` scalar type represents JSON values as specified by [ECMA-404](http://www.ecma-international.org/publications/files/ECMA-ST/ECMA-404.pdf). */
   JSON: any;
   /** Policy key: an unsigned integer [0, 4294967295] */
-  PolicyKey: any;
+  PolicyKey: PolicyKey;
   /** 256-bit unsigned integer */
-  Uint256: any;
+  Uint256: BigIntlike;
 };
 
 export type AbiSource =
@@ -828,6 +832,7 @@ export type Proposal = {
   to: Scalars['String'];
   transaction?: Maybe<Transaction>;
   transactions?: Maybe<Array<Transaction>>;
+  transfers: Array<ExplorerTransfer>;
   value?: Maybe<Scalars['Decimal']>;
 };
 
@@ -1380,18 +1385,18 @@ export type UserWhereInput = {
   reactions?: InputMaybe<ReactionListRelationFilter>;
 };
 
-export type PolicyStateFieldsFragment = { __typename?: 'PolicyState', id: any, proposalId?: string | null, createdAt: any, isRemoved: boolean, threshold: number, approvers?: Array<{ __typename?: 'Approver', userId: string }> | null, targets?: Array<{ __typename?: 'Target', to: string, selectors?: Array<string> | null }> | null };
+export type PolicyStateFieldsFragment = { __typename?: 'PolicyState', id: BigIntlike, proposalId?: string | null, createdAt: string, isRemoved: boolean, threshold: number, approvers?: Array<{ __typename?: 'Approver', userId: string }> | null, targets?: Array<{ __typename?: 'Target', to: string, selectors?: Array<string> | null }> | null };
 
-export type PolicyFieldsFragment = { __typename?: 'Policy', id: string, key: any, name: string, active?: { __typename?: 'PolicyState', id: any, proposalId?: string | null, createdAt: any, isRemoved: boolean, threshold: number, approvers?: Array<{ __typename?: 'Approver', userId: string }> | null, targets?: Array<{ __typename?: 'Target', to: string, selectors?: Array<string> | null }> | null } | null, draft?: { __typename?: 'PolicyState', id: any, proposalId?: string | null, createdAt: any, isRemoved: boolean, threshold: number, approvers?: Array<{ __typename?: 'Approver', userId: string }> | null, targets?: Array<{ __typename?: 'Target', to: string, selectors?: Array<string> | null }> | null } | null };
+export type PolicyFieldsFragment = { __typename?: 'Policy', id: string, key: BigIntlike, name: string, active?: { __typename?: 'PolicyState', id: BigIntlike, proposalId?: string | null, createdAt: string, isRemoved: boolean, threshold: number, approvers?: Array<{ __typename?: 'Approver', userId: string }> | null, targets?: Array<{ __typename?: 'Target', to: string, selectors?: Array<string> | null }> | null } | null, draft?: { __typename?: 'PolicyState', id: BigIntlike, proposalId?: string | null, createdAt: string, isRemoved: boolean, threshold: number, approvers?: Array<{ __typename?: 'Approver', userId: string }> | null, targets?: Array<{ __typename?: 'Target', to: string, selectors?: Array<string> | null }> | null } | null };
 
-export type AccountFieldsFragment = { __typename?: 'Account', id: string, name: string, isActive: boolean, policies?: Array<{ __typename?: 'Policy', id: string, key: any, name: string, active?: { __typename?: 'PolicyState', id: any, proposalId?: string | null, createdAt: any, isRemoved: boolean, threshold: number, approvers?: Array<{ __typename?: 'Approver', userId: string }> | null, targets?: Array<{ __typename?: 'Target', to: string, selectors?: Array<string> | null }> | null } | null, draft?: { __typename?: 'PolicyState', id: any, proposalId?: string | null, createdAt: any, isRemoved: boolean, threshold: number, approvers?: Array<{ __typename?: 'Approver', userId: string }> | null, targets?: Array<{ __typename?: 'Target', to: string, selectors?: Array<string> | null }> | null } | null }> | null };
+export type AccountFieldsFragment = { __typename?: 'Account', id: string, name: string, isActive: boolean, policies?: Array<{ __typename?: 'Policy', id: string, key: BigIntlike, name: string, active?: { __typename?: 'PolicyState', id: BigIntlike, proposalId?: string | null, createdAt: string, isRemoved: boolean, threshold: number, approvers?: Array<{ __typename?: 'Approver', userId: string }> | null, targets?: Array<{ __typename?: 'Target', to: string, selectors?: Array<string> | null }> | null } | null, draft?: { __typename?: 'PolicyState', id: BigIntlike, proposalId?: string | null, createdAt: string, isRemoved: boolean, threshold: number, approvers?: Array<{ __typename?: 'Approver', userId: string }> | null, targets?: Array<{ __typename?: 'Target', to: string, selectors?: Array<string> | null }> | null } | null }> | null };
 
 export type AccountQueryVariables = Exact<{
   id: Scalars['Address'];
 }>;
 
 
-export type AccountQuery = { __typename?: 'Query', account?: { __typename?: 'Account', id: string, name: string, isActive: boolean, policies?: Array<{ __typename?: 'Policy', id: string, key: any, name: string, active?: { __typename?: 'PolicyState', id: any, proposalId?: string | null, createdAt: any, isRemoved: boolean, threshold: number, approvers?: Array<{ __typename?: 'Approver', userId: string }> | null, targets?: Array<{ __typename?: 'Target', to: string, selectors?: Array<string> | null }> | null } | null, draft?: { __typename?: 'PolicyState', id: any, proposalId?: string | null, createdAt: any, isRemoved: boolean, threshold: number, approvers?: Array<{ __typename?: 'Approver', userId: string }> | null, targets?: Array<{ __typename?: 'Target', to: string, selectors?: Array<string> | null }> | null } | null }> | null } | null };
+export type AccountQuery = { __typename?: 'Query', account?: { __typename?: 'Account', id: string, name: string, isActive: boolean, policies?: Array<{ __typename?: 'Policy', id: string, key: BigIntlike, name: string, active?: { __typename?: 'PolicyState', id: BigIntlike, proposalId?: string | null, createdAt: string, isRemoved: boolean, threshold: number, approvers?: Array<{ __typename?: 'Approver', userId: string }> | null, targets?: Array<{ __typename?: 'Target', to: string, selectors?: Array<string> | null }> | null } | null, draft?: { __typename?: 'PolicyState', id: BigIntlike, proposalId?: string | null, createdAt: string, isRemoved: boolean, threshold: number, approvers?: Array<{ __typename?: 'Approver', userId: string }> | null, targets?: Array<{ __typename?: 'Target', to: string, selectors?: Array<string> | null }> | null } | null }> | null } | null };
 
 export type AccountIdsQueryVariables = Exact<{ [key: string]: never; }>;
 
@@ -1401,21 +1406,21 @@ export type AccountIdsQuery = { __typename?: 'Query', accounts: Array<{ __typena
 export type AccountSubscriptionSubscriptionVariables = Exact<{ [key: string]: never; }>;
 
 
-export type AccountSubscriptionSubscription = { __typename?: 'Subscription', account: { __typename?: 'Account', id: string, name: string, isActive: boolean, policies?: Array<{ __typename?: 'Policy', id: string, key: any, name: string, active?: { __typename?: 'PolicyState', id: any, proposalId?: string | null, createdAt: any, isRemoved: boolean, threshold: number, approvers?: Array<{ __typename?: 'Approver', userId: string }> | null, targets?: Array<{ __typename?: 'Target', to: string, selectors?: Array<string> | null }> | null } | null, draft?: { __typename?: 'PolicyState', id: any, proposalId?: string | null, createdAt: any, isRemoved: boolean, threshold: number, approvers?: Array<{ __typename?: 'Approver', userId: string }> | null, targets?: Array<{ __typename?: 'Target', to: string, selectors?: Array<string> | null }> | null } | null }> | null } };
+export type AccountSubscriptionSubscription = { __typename?: 'Subscription', account: { __typename?: 'Account', id: string, name: string, isActive: boolean, policies?: Array<{ __typename?: 'Policy', id: string, key: BigIntlike, name: string, active?: { __typename?: 'PolicyState', id: BigIntlike, proposalId?: string | null, createdAt: string, isRemoved: boolean, threshold: number, approvers?: Array<{ __typename?: 'Approver', userId: string }> | null, targets?: Array<{ __typename?: 'Target', to: string, selectors?: Array<string> | null }> | null } | null, draft?: { __typename?: 'PolicyState', id: BigIntlike, proposalId?: string | null, createdAt: string, isRemoved: boolean, threshold: number, approvers?: Array<{ __typename?: 'Approver', userId: string }> | null, targets?: Array<{ __typename?: 'Target', to: string, selectors?: Array<string> | null }> | null } | null }> | null } };
 
 export type CreateAccountMutationVariables = Exact<{
   args: CreateAccountInput;
 }>;
 
 
-export type CreateAccountMutation = { __typename?: 'Mutation', createAccount: { __typename?: 'Account', id: string, name: string, isActive: boolean, policies?: Array<{ __typename?: 'Policy', id: string, key: any, name: string, active?: { __typename?: 'PolicyState', id: any, proposalId?: string | null, createdAt: any, isRemoved: boolean, threshold: number, approvers?: Array<{ __typename?: 'Approver', userId: string }> | null, targets?: Array<{ __typename?: 'Target', to: string, selectors?: Array<string> | null }> | null } | null, draft?: { __typename?: 'PolicyState', id: any, proposalId?: string | null, createdAt: any, isRemoved: boolean, threshold: number, approvers?: Array<{ __typename?: 'Approver', userId: string }> | null, targets?: Array<{ __typename?: 'Target', to: string, selectors?: Array<string> | null }> | null } | null }> | null } };
+export type CreateAccountMutation = { __typename?: 'Mutation', createAccount: { __typename?: 'Account', id: string, name: string, isActive: boolean, policies?: Array<{ __typename?: 'Policy', id: string, key: BigIntlike, name: string, active?: { __typename?: 'PolicyState', id: BigIntlike, proposalId?: string | null, createdAt: string, isRemoved: boolean, threshold: number, approvers?: Array<{ __typename?: 'Approver', userId: string }> | null, targets?: Array<{ __typename?: 'Target', to: string, selectors?: Array<string> | null }> | null } | null, draft?: { __typename?: 'PolicyState', id: BigIntlike, proposalId?: string | null, createdAt: string, isRemoved: boolean, threshold: number, approvers?: Array<{ __typename?: 'Approver', userId: string }> | null, targets?: Array<{ __typename?: 'Target', to: string, selectors?: Array<string> | null }> | null } | null }> | null } };
 
 export type TransfersQueryVariables = Exact<{
   input: TransfersInput;
 }>;
 
 
-export type TransfersQuery = { __typename?: 'Query', transfers: Array<{ __typename?: 'ExplorerTransfer', id: string, token: any, from: any, to: any, amount: any, timestamp: any }> };
+export type TransfersQuery = { __typename?: 'Query', transfers: Array<{ __typename?: 'ExplorerTransfer', id: string, token: Address, from: Address, to: Address, amount: BigIntlike, timestamp: string }> };
 
 export type UpdateAccountMutationVariables = Exact<{
   args: UpdateAccountInput;
@@ -1424,7 +1429,7 @@ export type UpdateAccountMutationVariables = Exact<{
 
 export type UpdateAccountMutation = { __typename?: 'Mutation', updateAccount: { __typename?: 'Account', id: string, name: string } };
 
-export type CommentFieldsFragment = { __typename?: 'Comment', id: number, authorId: string, content: string, updatedAt: any, reactions?: Array<{ __typename?: 'Reaction', userId: string, emojis?: Array<string> | null }> | null };
+export type CommentFieldsFragment = { __typename?: 'Comment', id: number, authorId: string, content: string, updatedAt: string, reactions?: Array<{ __typename?: 'Reaction', userId: string, emojis?: Array<string> | null }> | null };
 
 export type CommentsQueryVariables = Exact<{
   account: Scalars['Address'];
@@ -1432,7 +1437,7 @@ export type CommentsQueryVariables = Exact<{
 }>;
 
 
-export type CommentsQuery = { __typename?: 'Query', comments: Array<{ __typename?: 'Comment', id: number, authorId: string, content: string, updatedAt: any, reactions?: Array<{ __typename?: 'Reaction', userId: string, emojis?: Array<string> | null }> | null }> };
+export type CommentsQuery = { __typename?: 'Query', comments: Array<{ __typename?: 'Comment', id: number, authorId: string, content: string, updatedAt: string, reactions?: Array<{ __typename?: 'Reaction', userId: string, emojis?: Array<string> | null }> | null }> };
 
 export type CreateCommentMutationVariables = Exact<{
   account: Scalars['Address'];
@@ -1441,7 +1446,7 @@ export type CreateCommentMutationVariables = Exact<{
 }>;
 
 
-export type CreateCommentMutation = { __typename?: 'Mutation', createComment: { __typename?: 'Comment', id: number, authorId: string, content: string, updatedAt: any, reactions?: Array<{ __typename?: 'Reaction', userId: string, emojis?: Array<string> | null }> | null } };
+export type CreateCommentMutation = { __typename?: 'Mutation', createComment: { __typename?: 'Comment', id: number, authorId: string, content: string, updatedAt: string, reactions?: Array<{ __typename?: 'Reaction', userId: string, emojis?: Array<string> | null }> | null } };
 
 export type DeleteCommentMutationVariables = Exact<{
   id: Scalars['Float'];
@@ -1458,12 +1463,12 @@ export type ReactMutationVariables = Exact<{
 
 export type ReactMutation = { __typename?: 'Mutation', reactToComment?: { __typename?: 'Reaction', id: string } | null };
 
-export type ContactFieldsFragment = { __typename?: 'ContactObject', id: string, addr: any, name: string };
+export type ContactFieldsFragment = { __typename?: 'ContactObject', id: string, addr: Address, name: string };
 
 export type ContactsQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type ContactsQuery = { __typename?: 'Query', contacts: Array<{ __typename?: 'ContactObject', id: string, addr: any, name: string }> };
+export type ContactsQuery = { __typename?: 'Query', contacts: Array<{ __typename?: 'ContactObject', id: string, addr: Address, name: string }> };
 
 export type DeleteContactMutationVariables = Exact<{
   addr: Scalars['Address'];
@@ -1479,7 +1484,7 @@ export type UpsertContactMutationVariables = Exact<{
 }>;
 
 
-export type UpsertContactMutation = { __typename?: 'Mutation', upsertContact: { __typename?: 'ContactObject', id: string, addr: any, name: string } };
+export type UpsertContactMutation = { __typename?: 'Mutation', upsertContact: { __typename?: 'ContactObject', id: string, addr: Address, name: string } };
 
 export type ContractFunctionFieldsFragment = { __typename?: 'ContractFunction', id: number, contractId?: string | null, selector: string, abi: any, source: AbiSource, sourceConfidence: ContractSourceConfidence };
 
@@ -1502,35 +1507,35 @@ export type RequestableTokensQueryVariables = Exact<{
 }>;
 
 
-export type RequestableTokensQuery = { __typename?: 'Query', requestableTokens: Array<any> };
+export type RequestableTokensQuery = { __typename?: 'Query', requestableTokens: Array<Address> };
 
 export type RequestTokensMutationVariables = Exact<{
   account: Scalars['Address'];
 }>;
 
 
-export type RequestTokensMutation = { __typename?: 'Mutation', requestTokens: Array<any> };
+export type RequestTokensMutation = { __typename?: 'Mutation', requestTokens: Array<Address> };
 
 export type CreatePolicyMutationVariables = Exact<{
   args: CreatePolicyInput;
 }>;
 
 
-export type CreatePolicyMutation = { __typename?: 'Mutation', createPolicy: { __typename?: 'Policy', id: string, key: any, name: string, active?: { __typename?: 'PolicyState', id: any, proposalId?: string | null, createdAt: any, isRemoved: boolean, threshold: number, approvers?: Array<{ __typename?: 'Approver', userId: string }> | null, targets?: Array<{ __typename?: 'Target', to: string, selectors?: Array<string> | null }> | null } | null, draft?: { __typename?: 'PolicyState', id: any, proposalId?: string | null, createdAt: any, isRemoved: boolean, threshold: number, approvers?: Array<{ __typename?: 'Approver', userId: string }> | null, targets?: Array<{ __typename?: 'Target', to: string, selectors?: Array<string> | null }> | null } | null } };
+export type CreatePolicyMutation = { __typename?: 'Mutation', createPolicy: { __typename?: 'Policy', id: string, key: BigIntlike, name: string, active?: { __typename?: 'PolicyState', id: BigIntlike, proposalId?: string | null, createdAt: string, isRemoved: boolean, threshold: number, approvers?: Array<{ __typename?: 'Approver', userId: string }> | null, targets?: Array<{ __typename?: 'Target', to: string, selectors?: Array<string> | null }> | null } | null, draft?: { __typename?: 'PolicyState', id: BigIntlike, proposalId?: string | null, createdAt: string, isRemoved: boolean, threshold: number, approvers?: Array<{ __typename?: 'Approver', userId: string }> | null, targets?: Array<{ __typename?: 'Target', to: string, selectors?: Array<string> | null }> | null } | null } };
 
 export type RemovePolicyMutationVariables = Exact<{
   args: UniquePolicyInput;
 }>;
 
 
-export type RemovePolicyMutation = { __typename?: 'Mutation', removePolicy: { __typename?: 'Policy', id: string, key: any, name: string, active?: { __typename?: 'PolicyState', id: any, proposalId?: string | null, createdAt: any, isRemoved: boolean, threshold: number, approvers?: Array<{ __typename?: 'Approver', userId: string }> | null, targets?: Array<{ __typename?: 'Target', to: string, selectors?: Array<string> | null }> | null } | null, draft?: { __typename?: 'PolicyState', id: any, proposalId?: string | null, createdAt: any, isRemoved: boolean, threshold: number, approvers?: Array<{ __typename?: 'Approver', userId: string }> | null, targets?: Array<{ __typename?: 'Target', to: string, selectors?: Array<string> | null }> | null } | null } };
+export type RemovePolicyMutation = { __typename?: 'Mutation', removePolicy: { __typename?: 'Policy', id: string, key: BigIntlike, name: string, active?: { __typename?: 'PolicyState', id: BigIntlike, proposalId?: string | null, createdAt: string, isRemoved: boolean, threshold: number, approvers?: Array<{ __typename?: 'Approver', userId: string }> | null, targets?: Array<{ __typename?: 'Target', to: string, selectors?: Array<string> | null }> | null } | null, draft?: { __typename?: 'PolicyState', id: BigIntlike, proposalId?: string | null, createdAt: string, isRemoved: boolean, threshold: number, approvers?: Array<{ __typename?: 'Approver', userId: string }> | null, targets?: Array<{ __typename?: 'Target', to: string, selectors?: Array<string> | null }> | null } | null } };
 
 export type UpdatePolicyMutationVariables = Exact<{
   args: UpdatePolicyInput;
 }>;
 
 
-export type UpdatePolicyMutation = { __typename?: 'Mutation', updatePolicy: { __typename?: 'Policy', id: string, key: any, name: string, active?: { __typename?: 'PolicyState', id: any, proposalId?: string | null, createdAt: any, isRemoved: boolean, threshold: number, approvers?: Array<{ __typename?: 'Approver', userId: string }> | null, targets?: Array<{ __typename?: 'Target', to: string, selectors?: Array<string> | null }> | null } | null, draft?: { __typename?: 'PolicyState', id: any, proposalId?: string | null, createdAt: any, isRemoved: boolean, threshold: number, approvers?: Array<{ __typename?: 'Approver', userId: string }> | null, targets?: Array<{ __typename?: 'Target', to: string, selectors?: Array<string> | null }> | null } | null } };
+export type UpdatePolicyMutation = { __typename?: 'Mutation', updatePolicy: { __typename?: 'Policy', id: string, key: BigIntlike, name: string, active?: { __typename?: 'PolicyState', id: BigIntlike, proposalId?: string | null, createdAt: string, isRemoved: boolean, threshold: number, approvers?: Array<{ __typename?: 'Approver', userId: string }> | null, targets?: Array<{ __typename?: 'Target', to: string, selectors?: Array<string> | null }> | null } | null, draft?: { __typename?: 'PolicyState', id: BigIntlike, proposalId?: string | null, createdAt: string, isRemoved: boolean, threshold: number, approvers?: Array<{ __typename?: 'Approver', userId: string }> | null, targets?: Array<{ __typename?: 'Target', to: string, selectors?: Array<string> | null }> | null } | null } };
 
 export type ApproveMutationVariables = Exact<{
   id: Scalars['Bytes32'];
@@ -1538,22 +1543,22 @@ export type ApproveMutationVariables = Exact<{
 }>;
 
 
-export type ApproveMutation = { __typename?: 'Mutation', approve: { __typename?: 'Proposal', id: string, approvals?: Array<{ __typename?: 'Approval', userId: string, signature?: string | null, createdAt: any }> | null, rejections: Array<{ __typename?: 'Rejection', userId: string, createdAt: any }>, transaction?: { __typename?: 'Transaction', id: string, hash: string, gasLimit: any, gasPrice?: any | null, createdAt: any, response?: { __typename?: 'TransactionResponse', success: boolean, response: string, gasUsed: any, gasPrice: any, fee: any, timestamp: any, transfers?: Array<{ __typename?: 'Transfer', token: string, from: string, to: string, amount: any }> | null } | null } | null } };
+export type ApproveMutation = { __typename?: 'Mutation', approve: { __typename?: 'Proposal', id: string, approvals?: Array<{ __typename?: 'Approval', userId: string, signature?: string | null, createdAt: string }> | null, rejections: Array<{ __typename?: 'Rejection', userId: string, createdAt: string }>, transaction?: { __typename?: 'Transaction', id: string, hash: string, gasLimit: BigIntlike, gasPrice?: BigIntlike | null, createdAt: string, response?: { __typename?: 'TransactionResponse', success: boolean, response: string, gasUsed: BigIntlike, gasPrice: BigIntlike, fee: BigIntlike, timestamp: string, transfers?: Array<{ __typename?: 'Transfer', token: string, from: string, to: string, amount: BigIntlike }> | null } | null } | null } };
 
-export type ApprovalFieldsFragment = { __typename?: 'Approval', userId: string, signature?: string | null, createdAt: any };
+export type ApprovalFieldsFragment = { __typename?: 'Approval', userId: string, signature?: string | null, createdAt: string };
 
-export type RejectionFieldsFragment = { __typename?: 'Rejection', userId: string, createdAt: any };
+export type RejectionFieldsFragment = { __typename?: 'Rejection', userId: string, createdAt: string };
 
-export type TransactionFieldsFragment = { __typename?: 'Transaction', id: string, hash: string, gasLimit: any, gasPrice?: any | null, createdAt: any, response?: { __typename?: 'TransactionResponse', success: boolean, response: string, gasUsed: any, gasPrice: any, fee: any, timestamp: any, transfers?: Array<{ __typename?: 'Transfer', token: string, from: string, to: string, amount: any }> | null } | null };
+export type TransactionFieldsFragment = { __typename?: 'Transaction', id: string, hash: string, gasLimit: BigIntlike, gasPrice?: BigIntlike | null, createdAt: string, response?: { __typename?: 'TransactionResponse', success: boolean, response: string, gasUsed: BigIntlike, gasPrice: BigIntlike, fee: BigIntlike, timestamp: string, transfers?: Array<{ __typename?: 'Transfer', token: string, from: string, to: string, amount: BigIntlike }> | null } | null };
 
-export type ProposalFieldsFragment = { __typename?: 'Proposal', id: string, accountId: string, proposerId: string, to: string, value?: any | null, data?: string | null, nonce: any, gasLimit?: any | null, estimatedOpGas: any, feeToken?: string | null, createdAt: any, approvals?: Array<{ __typename?: 'Approval', userId: string, signature?: string | null, createdAt: any }> | null, rejections: Array<{ __typename?: 'Rejection', userId: string, createdAt: any }>, satisfiablePolicies: Array<{ __typename?: 'SatisfiablePolicy', id: string, key: any, satisfied: boolean, requiresUserAction: boolean }>, transaction?: { __typename?: 'Transaction', id: string, hash: string, gasLimit: any, gasPrice?: any | null, createdAt: any, response?: { __typename?: 'TransactionResponse', success: boolean, response: string, gasUsed: any, gasPrice: any, fee: any, timestamp: any, transfers?: Array<{ __typename?: 'Transfer', token: string, from: string, to: string, amount: any }> | null } | null } | null };
+export type ProposalFieldsFragment = { __typename?: 'Proposal', id: string, accountId: string, proposerId: string, to: string, value?: BigIntlike | null, data?: string | null, nonce: BigIntlike, gasLimit?: BigIntlike | null, estimatedOpGas: BigIntlike, feeToken?: string | null, createdAt: string, approvals?: Array<{ __typename?: 'Approval', userId: string, signature?: string | null, createdAt: string }> | null, rejections: Array<{ __typename?: 'Rejection', userId: string, createdAt: string }>, satisfiablePolicies: Array<{ __typename?: 'SatisfiablePolicy', id: string, key: PolicyKey, satisfied: boolean, requiresUserAction: boolean }>, transfers: Array<{ __typename?: 'ExplorerTransfer', id: string, token: Address, from: Address, to: Address, amount: BigIntlike }>, transaction?: { __typename?: 'Transaction', id: string, hash: string, gasLimit: BigIntlike, gasPrice?: BigIntlike | null, createdAt: string, response?: { __typename?: 'TransactionResponse', success: boolean, response: string, gasUsed: BigIntlike, gasPrice: BigIntlike, fee: BigIntlike, timestamp: string, transfers?: Array<{ __typename?: 'Transfer', token: string, from: string, to: string, amount: BigIntlike }> | null } | null } | null };
 
 export type ProposalQueryVariables = Exact<{
   id: Scalars['Bytes32'];
 }>;
 
 
-export type ProposalQuery = { __typename?: 'Query', proposal?: { __typename?: 'Proposal', id: string, accountId: string, proposerId: string, to: string, value?: any | null, data?: string | null, nonce: any, gasLimit?: any | null, estimatedOpGas: any, feeToken?: string | null, createdAt: any, approvals?: Array<{ __typename?: 'Approval', userId: string, signature?: string | null, createdAt: any }> | null, rejections: Array<{ __typename?: 'Rejection', userId: string, createdAt: any }>, satisfiablePolicies: Array<{ __typename?: 'SatisfiablePolicy', id: string, key: any, satisfied: boolean, requiresUserAction: boolean }>, transaction?: { __typename?: 'Transaction', id: string, hash: string, gasLimit: any, gasPrice?: any | null, createdAt: any, response?: { __typename?: 'TransactionResponse', success: boolean, response: string, gasUsed: any, gasPrice: any, fee: any, timestamp: any, transfers?: Array<{ __typename?: 'Transfer', token: string, from: string, to: string, amount: any }> | null } | null } | null } | null };
+export type ProposalQuery = { __typename?: 'Query', proposal?: { __typename?: 'Proposal', id: string, accountId: string, proposerId: string, to: string, value?: BigIntlike | null, data?: string | null, nonce: BigIntlike, gasLimit?: BigIntlike | null, estimatedOpGas: BigIntlike, feeToken?: string | null, createdAt: string, approvals?: Array<{ __typename?: 'Approval', userId: string, signature?: string | null, createdAt: string }> | null, rejections: Array<{ __typename?: 'Rejection', userId: string, createdAt: string }>, satisfiablePolicies: Array<{ __typename?: 'SatisfiablePolicy', id: string, key: PolicyKey, satisfied: boolean, requiresUserAction: boolean }>, transfers: Array<{ __typename?: 'ExplorerTransfer', id: string, token: Address, from: Address, to: Address, amount: BigIntlike }>, transaction?: { __typename?: 'Transaction', id: string, hash: string, gasLimit: BigIntlike, gasPrice?: BigIntlike | null, createdAt: string, response?: { __typename?: 'TransactionResponse', success: boolean, response: string, gasUsed: BigIntlike, gasPrice: BigIntlike, fee: BigIntlike, timestamp: string, transfers?: Array<{ __typename?: 'Transfer', token: string, from: string, to: string, amount: BigIntlike }> | null } | null } | null } | null };
 
 export type ProposalSubscriptionSubscriptionVariables = Exact<{
   accounts?: InputMaybe<Array<Scalars['Address']> | Scalars['Address']>;
@@ -1562,7 +1567,7 @@ export type ProposalSubscriptionSubscriptionVariables = Exact<{
 }>;
 
 
-export type ProposalSubscriptionSubscription = { __typename?: 'Subscription', proposal: { __typename?: 'Proposal', id: string, accountId: string, proposerId: string, to: string, value?: any | null, data?: string | null, nonce: any, gasLimit?: any | null, estimatedOpGas: any, feeToken?: string | null, createdAt: any, approvals?: Array<{ __typename?: 'Approval', userId: string, signature?: string | null, createdAt: any }> | null, rejections: Array<{ __typename?: 'Rejection', userId: string, createdAt: any }>, satisfiablePolicies: Array<{ __typename?: 'SatisfiablePolicy', id: string, key: any, satisfied: boolean, requiresUserAction: boolean }>, transaction?: { __typename?: 'Transaction', id: string, hash: string, gasLimit: any, gasPrice?: any | null, createdAt: any, response?: { __typename?: 'TransactionResponse', success: boolean, response: string, gasUsed: any, gasPrice: any, fee: any, timestamp: any, transfers?: Array<{ __typename?: 'Transfer', token: string, from: string, to: string, amount: any }> | null } | null } | null } };
+export type ProposalSubscriptionSubscription = { __typename?: 'Subscription', proposal: { __typename?: 'Proposal', id: string, accountId: string, proposerId: string, to: string, value?: BigIntlike | null, data?: string | null, nonce: BigIntlike, gasLimit?: BigIntlike | null, estimatedOpGas: BigIntlike, feeToken?: string | null, createdAt: string, approvals?: Array<{ __typename?: 'Approval', userId: string, signature?: string | null, createdAt: string }> | null, rejections: Array<{ __typename?: 'Rejection', userId: string, createdAt: string }>, satisfiablePolicies: Array<{ __typename?: 'SatisfiablePolicy', id: string, key: PolicyKey, satisfied: boolean, requiresUserAction: boolean }>, transfers: Array<{ __typename?: 'ExplorerTransfer', id: string, token: Address, from: Address, to: Address, amount: BigIntlike }>, transaction?: { __typename?: 'Transaction', id: string, hash: string, gasLimit: BigIntlike, gasPrice?: BigIntlike | null, createdAt: string, response?: { __typename?: 'TransactionResponse', success: boolean, response: string, gasUsed: BigIntlike, gasPrice: BigIntlike, fee: BigIntlike, timestamp: string, transfers?: Array<{ __typename?: 'Transfer', token: string, from: string, to: string, amount: BigIntlike }> | null } | null } | null } };
 
 export type ProposalsQueryVariables = Exact<{
   accounts?: InputMaybe<Array<Scalars['Address']> | Scalars['Address']>;
@@ -1572,7 +1577,7 @@ export type ProposalsQueryVariables = Exact<{
 }>;
 
 
-export type ProposalsQuery = { __typename?: 'Query', proposals: Array<{ __typename?: 'Proposal', id: string, accountId: string, proposerId: string, to: string, value?: any | null, data?: string | null, nonce: any, gasLimit?: any | null, estimatedOpGas: any, feeToken?: string | null, createdAt: any, approvals?: Array<{ __typename?: 'Approval', userId: string, signature?: string | null, createdAt: any }> | null, rejections: Array<{ __typename?: 'Rejection', userId: string, createdAt: any }>, satisfiablePolicies: Array<{ __typename?: 'SatisfiablePolicy', id: string, key: any, satisfied: boolean, requiresUserAction: boolean }>, transaction?: { __typename?: 'Transaction', id: string, hash: string, gasLimit: any, gasPrice?: any | null, createdAt: any, response?: { __typename?: 'TransactionResponse', success: boolean, response: string, gasUsed: any, gasPrice: any, fee: any, timestamp: any, transfers?: Array<{ __typename?: 'Transfer', token: string, from: string, to: string, amount: any }> | null } | null } | null }> };
+export type ProposalsQuery = { __typename?: 'Query', proposals: Array<{ __typename?: 'Proposal', id: string, accountId: string, proposerId: string, to: string, value?: BigIntlike | null, data?: string | null, nonce: BigIntlike, gasLimit?: BigIntlike | null, estimatedOpGas: BigIntlike, feeToken?: string | null, createdAt: string, approvals?: Array<{ __typename?: 'Approval', userId: string, signature?: string | null, createdAt: string }> | null, rejections: Array<{ __typename?: 'Rejection', userId: string, createdAt: string }>, satisfiablePolicies: Array<{ __typename?: 'SatisfiablePolicy', id: string, key: PolicyKey, satisfied: boolean, requiresUserAction: boolean }>, transfers: Array<{ __typename?: 'ExplorerTransfer', id: string, token: Address, from: Address, to: Address, amount: BigIntlike }>, transaction?: { __typename?: 'Transaction', id: string, hash: string, gasLimit: BigIntlike, gasPrice?: BigIntlike | null, createdAt: string, response?: { __typename?: 'TransactionResponse', success: boolean, response: string, gasUsed: BigIntlike, gasPrice: BigIntlike, fee: BigIntlike, timestamp: string, transfers?: Array<{ __typename?: 'Transfer', token: string, from: string, to: string, amount: BigIntlike }> | null } | null } | null }> };
 
 export type ProposeMutationVariables = Exact<{
   account: Scalars['Address'];
@@ -1584,14 +1589,14 @@ export type ProposeMutationVariables = Exact<{
 }>;
 
 
-export type ProposeMutation = { __typename?: 'Mutation', propose: { __typename?: 'Proposal', id: string, accountId: string, proposerId: string, to: string, value?: any | null, data?: string | null, nonce: any, gasLimit?: any | null, estimatedOpGas: any, feeToken?: string | null, createdAt: any, approvals?: Array<{ __typename?: 'Approval', userId: string, signature?: string | null, createdAt: any }> | null, rejections: Array<{ __typename?: 'Rejection', userId: string, createdAt: any }>, satisfiablePolicies: Array<{ __typename?: 'SatisfiablePolicy', id: string, key: any, satisfied: boolean, requiresUserAction: boolean }>, transaction?: { __typename?: 'Transaction', id: string, hash: string, gasLimit: any, gasPrice?: any | null, createdAt: any, response?: { __typename?: 'TransactionResponse', success: boolean, response: string, gasUsed: any, gasPrice: any, fee: any, timestamp: any, transfers?: Array<{ __typename?: 'Transfer', token: string, from: string, to: string, amount: any }> | null } | null } | null } };
+export type ProposeMutation = { __typename?: 'Mutation', propose: { __typename?: 'Proposal', id: string, accountId: string, proposerId: string, to: string, value?: BigIntlike | null, data?: string | null, nonce: BigIntlike, gasLimit?: BigIntlike | null, estimatedOpGas: BigIntlike, feeToken?: string | null, createdAt: string, approvals?: Array<{ __typename?: 'Approval', userId: string, signature?: string | null, createdAt: string }> | null, rejections: Array<{ __typename?: 'Rejection', userId: string, createdAt: string }>, satisfiablePolicies: Array<{ __typename?: 'SatisfiablePolicy', id: string, key: PolicyKey, satisfied: boolean, requiresUserAction: boolean }>, transfers: Array<{ __typename?: 'ExplorerTransfer', id: string, token: Address, from: Address, to: Address, amount: BigIntlike }>, transaction?: { __typename?: 'Transaction', id: string, hash: string, gasLimit: BigIntlike, gasPrice?: BigIntlike | null, createdAt: string, response?: { __typename?: 'TransactionResponse', success: boolean, response: string, gasUsed: BigIntlike, gasPrice: BigIntlike, fee: BigIntlike, timestamp: string, transfers?: Array<{ __typename?: 'Transfer', token: string, from: string, to: string, amount: BigIntlike }> | null } | null } | null } };
 
 export type RejectMutationVariables = Exact<{
   id: Scalars['Bytes32'];
 }>;
 
 
-export type RejectMutation = { __typename?: 'Mutation', reject: { __typename?: 'Proposal', id: string, rejections: Array<{ __typename?: 'Rejection', userId: string, createdAt: any }> } };
+export type RejectMutation = { __typename?: 'Mutation', reject: { __typename?: 'Proposal', id: string, rejections: Array<{ __typename?: 'Rejection', userId: string, createdAt: string }> } };
 
 export type RemoveProposalMutationVariables = Exact<{
   id: Scalars['Bytes32'];
@@ -1743,6 +1748,13 @@ export const ProposalFieldsFragmentDoc = gql`
     key
     satisfied
     requiresUserAction
+  }
+  transfers {
+    id
+    token
+    from
+    to
+    amount
   }
   transaction {
     ...TransactionFields

@@ -1,3 +1,5 @@
+import { BigIntlike } from 'lib';
+import { Hex } from 'lib';
 import { gql } from '@apollo/client';
 import * as Apollo from '@apollo/client';
 export type Maybe<T> = T | null;
@@ -14,8 +16,8 @@ export type Scalars = {
   Int: number;
   Float: number;
   BigDecimal: any;
-  BigInt: any;
-  Bytes: any;
+  BigInt: BigIntlike;
+  Bytes: Hex;
 };
 
 export type BlockChangedFilter = {

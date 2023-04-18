@@ -36,7 +36,7 @@ export const useProposalSubscription = ({
 }: ProposalSubscriptionOptions = {}) =>
   useProposalSubscriptionSubscription({
     variables: {
-      accounts,
+      accounts: accounts ? toArray(accounts) : undefined,
       proposals: proposals ? toArray(proposals) : undefined,
       events: events ? toArray(events) : undefined,
     },

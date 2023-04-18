@@ -93,19 +93,21 @@ export const toProposal = (p: ProposalFieldsFragment): Proposal => {
     requiresUserAction: p.requiresUserAction,
   }));
 
+  const timestamp = DateTime.fromISO(p.createdAt);
+
   const t = p.transaction;
   const transaction: TransactionSubmission | undefined = t
     ? {
         hash: asHex(t.hash),
         status: !t.response ? 'pending' : t.response.success ? 'success' : 'failure',
         timestamp: DateTime.fromISO(t.createdAt),
-        gasLimit: BigInt(t.gasLimit),
+        gasLimit: asBigInt(t.gasLimit),
         gasPrice: t.gasPrice ? asBigInt(t.gasPrice) : undefined,
         response: t.response
           ? {
               success: t.response.success,
               response: asHex(t.response.response),
-              gasUsed: BigInt(t.response.gasUsed),
+              gasUsed: asBigInt(t.response.gasUsed),
               gasPrice: asBigInt(t.response.gasPrice),
               fee: asBigInt(t.response.fee),
               timestamp: DateTime.fromISO(t.response.timestamp),
@@ -133,11 +135,11 @@ export const toProposal = (p: ProposalFieldsFragment): Proposal => {
     id: asProposalId(p.id),
     account,
     to: asAddress(p.to),
-    value: p.value ? BigInt(p.value) : undefined,
+    value: p.value ? asBigInt(p.value) : undefined,
     data: asHex(p.data ?? undefined),
-    nonce: BigInt(p.nonce),
-    gasLimit: p.gasLimit ? BigInt(p.gasLimit) : undefined,
-    estimatedOpGas: BigInt(p.estimatedOpGas),
+    nonce: asBigInt(p.nonce),
+    gasLimit: p.gasLimit ? asBigInt(p.gasLimit) : undefined,
+    estimatedOpGas: asBigInt(p.estimatedOpGas),
     feeToken: p.feeToken ? asAddress(p.feeToken) : undefined,
     state,
     approvals,
@@ -147,6 +149,6 @@ export const toProposal = (p: ProposalFieldsFragment): Proposal => {
     transaction,
     proposedAt: DateTime.fromISO(p.createdAt),
     proposer: asAddress(p.proposerId),
-    timestamp: DateTime.fromISO(p.createdAt),
+    timestamp,
   };
 };

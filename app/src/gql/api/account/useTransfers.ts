@@ -7,7 +7,7 @@ import {
   TransfersQuery,
   TransfersQueryVariables,
 } from '@api/generated';
-import { asAddress } from 'lib';
+import { asAddress, asBigInt } from 'lib';
 import { useMemo } from 'react';
 import { DateTime } from 'luxon';
 
@@ -45,7 +45,7 @@ export const useTransfers = (account: AccountId, direction?: TransferDirection) 
         token: asAddress(t.token),
         from: asAddress(t.from),
         to: asAddress(t.to),
-        amount: BigInt(t.amount),
+        amount: asBigInt(t.amount),
         timestamp: DateTime.fromISO(t.timestamp),
       })),
     [data],

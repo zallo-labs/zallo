@@ -45,7 +45,7 @@ export const useContractFunction = <P extends ContractFunctionParams | Call | un
   const { data } = useSuspenseQuery<ContractFunctionQuery, ContractFunctionQueryVariables>(
     ContractFunctionDocument,
     {
-      variables: { args: { contract, selector } },
+      variables: { args: { contract: contract!, selector: selector! } },
       skip,
     },
   );
