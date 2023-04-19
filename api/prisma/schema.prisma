@@ -179,7 +179,7 @@ model Transfer {
 }
 
 model Simulation {
-  proposal   Proposal @relation(fields: [proposalId], references: [id])
+  proposal   Proposal @relation(fields: [proposalId], references: [id], onDelete: Cascade)
   proposalId String   @id @db.Char(66) // bytes32 @map("id")
 
   transfers SimulatedTransfer[]
@@ -187,7 +187,7 @@ model Simulation {
 
 model SimulatedTransfer {
   id         Int        @id @default(autoincrement())
-  simulation Simulation @relation(fields: [proposalId], references: [proposalId])
+  simulation Simulation @relation(fields: [proposalId], references: [proposalId], onDelete: Cascade)
   proposalId String     @db.Char(66) // bytes32 @map("simulationId")
   token      String     @db.Char(42) // address
   from       String     @db.Char(42) // address

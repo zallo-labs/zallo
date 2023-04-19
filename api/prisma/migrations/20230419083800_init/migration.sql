@@ -268,10 +268,10 @@ ALTER TABLE "TransactionReceipt" ADD CONSTRAINT "TransactionReceipt_transactionH
 ALTER TABLE "Transfer" ADD CONSTRAINT "Transfer_transactionHash_fkey" FOREIGN KEY ("transactionHash") REFERENCES "TransactionReceipt"("transactionHash") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "Simulation" ADD CONSTRAINT "Simulation_proposalId_fkey" FOREIGN KEY ("proposalId") REFERENCES "Proposal"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "Simulation" ADD CONSTRAINT "Simulation_proposalId_fkey" FOREIGN KEY ("proposalId") REFERENCES "Proposal"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "SimulatedTransfer" ADD CONSTRAINT "SimulatedTransfer_proposalId_fkey" FOREIGN KEY ("proposalId") REFERENCES "Simulation"("proposalId") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "SimulatedTransfer" ADD CONSTRAINT "SimulatedTransfer_proposalId_fkey" FOREIGN KEY ("proposalId") REFERENCES "Simulation"("proposalId") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "Approval" ADD CONSTRAINT "Approval_proposalId_fkey" FOREIGN KEY ("proposalId") REFERENCES "Proposal"("id") ON DELETE CASCADE ON UPDATE CASCADE;

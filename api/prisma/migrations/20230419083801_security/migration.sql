@@ -162,7 +162,7 @@ GRANT SELECT, INSERT ON "Transfer" TO PUBLIC;
 
 
 /* Simulation */
-GRANT SELECT, INSERT ON "Simulation" TO PUBLIC;
+GRANT SELECT, INSERT, DELETE ON "Simulation" TO PUBLIC;
 ALTER TABLE "Simulation" ENABLE ROW LEVEL SECURITY;
 
 CREATE POLICY account_member_all ON "Simulation" FOR ALL
@@ -173,7 +173,7 @@ CREATE POLICY account_member_all ON "Simulation" FOR ALL
 
 
 /* SimulatedTransfer */
-GRANT SELECT, INSERT ON "SimulatedTransfer" TO PUBLIC;
+GRANT SELECT, INSERT, DELETE ON "SimulatedTransfer" TO PUBLIC;
 ALTER TABLE "SimulatedTransfer" ENABLE ROW LEVEL SECURITY;
 
 CREATE POLICY account_member_all ON "SimulatedTransfer" FOR ALL
