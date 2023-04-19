@@ -37,7 +37,6 @@ export type SendScreenProps = StackNavigatorScreenProps<'Send'>;
 
 export const SendScreen = withSuspense(({ route, navigation: { goBack } }: SendScreenProps) => {
   const { to } = route.params;
-  const styles = useStyles();
   const account = useSelectedAccountId();
   const [token, setToken] = [useSelectedToken(), useSetSelectedToken()];
   const selectToken = useSelectToken();
