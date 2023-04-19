@@ -42,7 +42,6 @@ import { PoliciesService, SelectManyPoliciesArgs } from '../policies/policies.se
 import { SatisfiablePolicy } from './proposals.model';
 import { ETH_ADDRESS } from 'zksync-web3/build/src/utils';
 import { BigNumberish } from 'ethers';
-import merge from 'ts-deepmerge';
 
 const TX_IS_EXECUTING: Prisma.TransactionWhereInput = { receipt: { isNot: {} } };
 const TX_IS_EXECUTED: Prisma.TransactionWhereInput = {
@@ -118,9 +117,10 @@ export class ProposalsService {
         nonce: BigInt(await client.proposal.count({ where: { account: { id: account } } })),
       };
 
-      const proposal = (await client.proposal.create({
+      const id = await hashTx(tx, { address: account, provider: this.provider });
+      const proposal = await client.proposal.create({
         data: {
-          id: await hashTx(tx, { address: account, provider: this.provider }),
+          id,
           account: connectAccount(account),
           proposer: connectOrCreateUser(),
           to: tx.to,
@@ -132,10 +132,11 @@ export class ProposalsService {
           feeToken,
           simulation: { create: this.simulate(account, tx) },
         },
-        select: merge(res?.select ?? {}, PROPOSAL_PAYLOAD_SELECT),
-      })) as Prisma.ProposalGetPayload<T>;
+        ...res,
+      });
 
-      if (!signature) this.publishProposal({ proposal, event: ProposalEvent.create });
+      if (!signature)
+        this.publishProposal({ proposal: { id, accountId: account }, event: ProposalEvent.create });
 
       return signature ? this.approve({ id: proposal.id, signature }, res) : proposal;
     });
@@ -204,9 +205,7 @@ export class ProposalsService {
         signature: null,
       },
       select: {
-        proposal: {
-          select: merge(res?.select ?? {}, PROPOSAL_PAYLOAD_SELECT),
-        },
+        proposal: res?.select ? { select: { ...res.select, ...PROPOSAL_PAYLOAD_SELECT } } : true,
       },
     });
 
