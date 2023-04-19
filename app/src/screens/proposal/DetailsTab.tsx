@@ -35,7 +35,7 @@ export const DetailsTab = withSuspense(({ route }: DetailsTabProps) => {
       <ListItem leading={p.account} headline="From" trailing={useAddressLabel(p.account)} />
       <ListItem leading={p.proposer} headline="Proposer" trailing={useAddressLabel(p.proposer)} />
       <ListItem
-        leading={(props) => <GasIcon size={ICON_SIZE.medium} {...props} />}
+        leading={(props) => <GasIcon {...props} size={ICON_SIZE.medium} />}
         headline="Gas limit"
         trailing={p.gasLimit ? <FormattedNumber value={p.gasLimit} /> : 'Dynamic'}
       />
