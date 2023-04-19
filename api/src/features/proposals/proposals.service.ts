@@ -33,6 +33,7 @@ import {
   ProposalSubscriptionPayload,
   PROPOSAL_SUBSCRIPTION,
   UniqueProposalArgs,
+  PROPOSAL_PAYLOAD_SELECT,
 } from './proposals.args';
 import { getUser } from '~/request/ctx';
 import { match } from 'ts-pattern';
@@ -43,6 +44,7 @@ import { SatisfiablePolicy } from './proposals.model';
 import { ExplorerTransfer } from '../explorer/explorer.model';
 import { ETH_ADDRESS } from 'zksync-web3/build/src/utils';
 import { BigNumberish } from 'ethers';
+import merge from 'ts-deepmerge';
 
 const TX_IS_EXECUTING: Prisma.TransactionWhereInput = { response: { isNot: {} } };
 const TX_IS_EXECUTED: Prisma.TransactionWhereInput = {
@@ -118,7 +120,7 @@ export class ProposalsService {
         nonce: BigInt(await client.proposal.count({ where: { account: { id: account } } })),
       };
 
-      const proposal = await client.proposal.create({
+      const proposal = (await client.proposal.create({
         data: {
           id: await hashTx(tx, { address: account, provider: this.provider }),
           account: connectAccount(account),
@@ -131,8 +133,8 @@ export class ProposalsService {
           estimatedOpGas: await estimateOpGas(this.provider, tx),
           feeToken,
         },
-        ...(signature ? { select: { id: true } } : res),
-      });
+        select: merge(res?.select ?? {}, PROPOSAL_PAYLOAD_SELECT),
+      })) as Prisma.ProposalGetPayload<T>;
 
       if (!signature) this.publishProposal({ proposal, event: ProposalEvent.create });
 
@@ -169,7 +171,10 @@ export class ProposalsService {
 
     const proposal = await prisma.proposal.findUniqueOrThrow({
       where: { id },
-      include: { _count: { select: { approvals: true } } },
+      select: {
+        _count: { select: { approvals: true } },
+        ...PROPOSAL_PAYLOAD_SELECT,
+      },
     });
 
     if (proposal._count.approvals === 1) await this.notifyApprovers(id);
@@ -200,13 +205,15 @@ export class ProposalsService {
         signature: null,
       },
       select: {
-        proposal: { ...res },
+        proposal: {
+          select: merge(res?.select ?? {}, PROPOSAL_PAYLOAD_SELECT),
+        },
       },
     });
 
     this.publishProposal({ proposal, event: ProposalEvent.update });
 
-    return proposal;
+    return proposal as Prisma.ProposalGetPayload<T>;
   }
 
   async delete<A extends Prisma.ProposalArgs>(
@@ -254,14 +261,21 @@ export class ProposalsService {
   }
 
   async publishProposal(payload: ProposalSubscriptionPayload) {
-    await this.pubsub.publish<ProposalSubscriptionPayload>(
-      `${PROPOSAL_SUBSCRIPTION}.${payload[PROPOSAL_SUBSCRIPTION].id}`,
-      payload,
-    );
-    await this.pubsub.publish<ProposalSubscriptionPayload>(
-      `${ACCOUNT_PROPOSAL_SUB_TRIGGER}.${payload[PROPOSAL_SUBSCRIPTION].accountId}`,
-      payload,
-    );
+    console.log(`
+      Publishing proposal:
+      ${PROPOSAL_SUBSCRIPTION}.${payload[PROPOSAL_SUBSCRIPTION].id}
+      ${ACCOUNT_PROPOSAL_SUB_TRIGGER}.${payload[PROPOSAL_SUBSCRIPTION].accountId}
+    `);
+    await Promise.all([
+      this.pubsub.publish<ProposalSubscriptionPayload>(
+        `${PROPOSAL_SUBSCRIPTION}.${payload[PROPOSAL_SUBSCRIPTION].id}`,
+        payload,
+      ),
+      this.pubsub.publish<ProposalSubscriptionPayload>(
+        `${ACCOUNT_PROPOSAL_SUB_TRIGGER}.${payload[PROPOSAL_SUBSCRIPTION].accountId}`,
+        payload,
+      ),
+    ]);
   }
 
   async satisfiablePolicies(

@@ -4,11 +4,12 @@ import { Queue } from 'bull';
 import { asAddress, executeTx, asHex, mapAsync, isPresent } from 'lib';
 import { PrismaService } from '../util/prisma/prisma.service';
 import { ProviderService } from '~/features/util/provider/provider.service';
-import { ProposalEvent } from '../proposals/proposals.args';
+import { PROPOSAL_PAYLOAD_SELECT, ProposalEvent } from '../proposals/proposals.args';
 import { ProposalsService } from '../proposals/proposals.service';
 import { Prisma } from '@prisma/client';
 import { PoliciesService } from '../policies/policies.service';
 import { TransactionEvent, TRANSACTIONS_QUEUE } from './transactions.queue';
+import merge from 'ts-deepmerge';
 
 @Injectable()
 export class TransactionsService {
@@ -83,7 +84,9 @@ export class TransactionsService {
         gasPrice: transaction.gasPrice?.toString(),
       },
       select: {
-        proposal: { ...res } ?? { select: { id: true } },
+        proposal: {
+          select: merge(res?.select ?? {}, PROPOSAL_PAYLOAD_SELECT),
+        },
       },
     });
     this.proposals.publishProposal({ proposal: updatedProposal, event: ProposalEvent.update });

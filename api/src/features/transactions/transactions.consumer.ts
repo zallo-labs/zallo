@@ -2,7 +2,7 @@ import { OnQueueFailed, Process, Processor } from '@nestjs/bull';
 import { forwardRef, Inject, Injectable } from '@nestjs/common';
 import { Job } from 'bull';
 import { PrismaService } from '../util/prisma/prisma.service';
-import { ProposalEvent } from '../proposals/proposals.args';
+import { PROPOSAL_PAYLOAD_SELECT, ProposalEvent } from '../proposals/proposals.args';
 import { ProposalsService } from '../proposals/proposals.service';
 import { SubgraphService, SubgraphTransactionResponse } from '../subgraph/subgraph.service';
 import { TransactionEvent, TRANSACTIONS_QUEUE } from './transactions.queue';
@@ -78,8 +78,10 @@ export class TransactionsConsumer {
       },
       select: {
         transaction: {
-          include: {
-            proposal: true,
+          select: {
+            proposal: {
+              select: PROPOSAL_PAYLOAD_SELECT,
+            },
           },
         },
       },
@@ -91,7 +93,7 @@ export class TransactionsConsumer {
       ...Object.values(this.processors).map((processor) => processor(data)),
     ]);
 
-    await this.proposals.publishProposal({
+    this.proposals.publishProposal({
       proposal: transaction.proposal,
       event: ProposalEvent.response,
     });

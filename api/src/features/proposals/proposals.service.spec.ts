@@ -164,10 +164,10 @@ describe(ProposalsService.name, () => {
       }));
 
     describe('states filters when', () => {
-      let pending: Proposal;
-      let pendingWithFailed: Proposal;
-      let executing: Proposal;
-      let executed: Proposal;
+      let pending: Awaited<ReturnType<typeof propose>>;
+      let pendingWithFailed: Awaited<ReturnType<typeof propose>>;
+      let executing: Awaited<ReturnType<typeof propose>>;
+      let executed: Awaited<ReturnType<typeof propose>>;
 
       beforeEach(() =>
         asUser(user1, async () => {

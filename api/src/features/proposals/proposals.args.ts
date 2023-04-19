@@ -34,7 +34,7 @@ export class ProposalsArgs extends FindManyProposalArgs {
 }
 
 export const PROPOSAL_SUBSCRIPTION = 'proposal';
-export const ACCOUNT_PROPOSAL_SUB_TRIGGER = `${PROPOSAL_SUBSCRIPTION}.Account`;
+export const ACCOUNT_PROPOSAL_SUB_TRIGGER = `${PROPOSAL_SUBSCRIPTION}.Account` as const;
 
 export enum ProposalEvent {
   create,
@@ -44,8 +44,9 @@ export enum ProposalEvent {
 }
 registerEnumType(ProposalEvent, { name: 'ProposalEvent' });
 
+export const PROPOSAL_PAYLOAD_SELECT = { id: true, accountId: true } as const;
 export interface ProposalSubscriptionPayload {
-  [PROPOSAL_SUBSCRIPTION]: Proposal;
+  [PROPOSAL_SUBSCRIPTION]: Pick<Proposal, keyof typeof PROPOSAL_PAYLOAD_SELECT>;
   event: ProposalEvent;
 }
 
