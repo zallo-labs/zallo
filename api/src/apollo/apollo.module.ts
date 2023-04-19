@@ -55,14 +55,17 @@ const chain = (req: Request, resolve: () => void, middlewares: NestMiddleware[])
               // Copy connection parameters into headers
               req.headers = {
                 ...req.headers,
-                ...(ctx.connectionParams as Partial<typeof req.headers>),
+                // Lowercase all header keys - as done by express for http requests; this is done by request to avoid ambiguity in headers
+                ...(Object.fromEntries(
+                  Object.entries(ctx.connectionParams ?? {}).map(([k, v]) => [k.toLowerCase(), v]),
+                ) as Partial<typeof req.headers>),
               };
 
               await new Promise<void>((resolve) =>
                 chain(req, resolve, [
                   sessionMiddleware,
                   authMiddleware,
-                  requestContextMiddleware, // Doesn't pass through to subscription handler, TODO: test if it works in the resolve or filter function
+                  requestContextMiddleware, // Note. RequestContext does *NOT* pass through to subscription resolvers
                 ])(),
               );
             },
