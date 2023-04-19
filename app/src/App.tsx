@@ -19,6 +19,7 @@ import { NavigationProvider } from '~/navigation/NavigationProvider';
 import { NotificationsRegistrar } from '~/util/NotificationsRegistrar';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { StackNavigator } from '~/navigation/StackNavigator';
+import { Subscriptions } from './components/Subscriptions';
 // import { WalletConnectListeners } from '~/components/walletconnect/WalletConnectListeners';
 
 // Disable Recoil atom key checking due to hotreloading issues
@@ -40,6 +41,7 @@ export default () => (
                       <GqlProvider>
                         <Suspense fallback={<Splash />}>
                           <NotificationsRegistrar />
+                          <Subscriptions />
                           <NavigationProvider>
                             {/* <WalletConnectListeners /> */}
                             <StackNavigator />

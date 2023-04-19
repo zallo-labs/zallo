@@ -56,7 +56,7 @@ export const useAccount = <Id extends AccountIdlike | undefined>(AccountIdlike: 
   const id = asAccountId(AccountIdlike);
 
   const query = useSuspenseQuery<AccountQuery, AccountQueryVariables>(AccountDocument, {
-    variables: { id },
+    variables: { id: id! },
     skip: !id,
   });
 

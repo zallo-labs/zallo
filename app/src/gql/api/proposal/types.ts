@@ -18,7 +18,8 @@ export interface Proposal extends Tx {
   rejections: KeySet<Address, Rejection>;
   satisfiablePolicies: SatisfiablePolicy[];
   requiresUserAction: boolean;
-  transaction?: TransactionSubmission;
+  simulation?: Simulation;
+  transaction?: Transaction;
   proposedAt: DateTime;
   proposer: Address;
   timestamp: DateTime;
@@ -45,20 +46,24 @@ export interface SatisfiablePolicy {
   requiresUserAction: boolean;
 }
 
-export interface TransactionSubmission {
+export interface Simulation {
+  transfers: Transfer[];
+}
+
+export interface Transaction {
   hash: Hex;
   status: TransactionStatus;
   timestamp: DateTime;
   gasLimit: bigint;
   gasPrice?: bigint;
-  response?: TransactionResponse;
+  receipt?: TransactionReceipt;
 }
 
 export type TransactionStatus = 'pending' | 'success' | 'failure';
 
-export interface TransactionResponse {
+export interface TransactionReceipt {
   success: boolean;
-  response: Hex;
+  response?: Hex;
   gasUsed: bigint;
   gasPrice: bigint;
   fee: bigint;
@@ -93,36 +98,51 @@ export const toProposal = (p: ProposalFieldsFragment): Proposal => {
     requiresUserAction: p.requiresUserAction,
   }));
 
+  const createdAt = DateTime.fromISO(p.createdAt);
+
   const t = p.transaction;
-  const transaction: TransactionSubmission | undefined = t
+  const transaction: Transaction | undefined = t
     ? {
         hash: asHex(t.hash),
-        status: !t.response ? 'pending' : t.response.success ? 'success' : 'failure',
+        status: !t.receipt ? 'pending' : t.receipt.success ? 'success' : 'failure',
         timestamp: DateTime.fromISO(t.createdAt),
-        gasLimit: BigInt(t.gasLimit),
+        gasLimit: asBigInt(t.gasLimit),
         gasPrice: t.gasPrice ? asBigInt(t.gasPrice) : undefined,
-        response: t.response
+        receipt: t.receipt
           ? {
-              success: t.response.success,
-              response: asHex(t.response.response),
-              gasUsed: BigInt(t.response.gasUsed),
-              gasPrice: asBigInt(t.response.gasPrice),
-              fee: asBigInt(t.response.fee),
-              timestamp: DateTime.fromISO(t.response.timestamp),
-              transfers: (t.response.transfers ?? []).map((transfer) => ({
+              success: t.receipt.success,
+              response: asHex(t.receipt.response),
+              gasUsed: asBigInt(t.receipt.gasUsed),
+              gasPrice: asBigInt(t.receipt.gasPrice),
+              fee: asBigInt(t.receipt.fee),
+              timestamp: DateTime.fromISO(t.receipt.timestamp),
+              transfers: (t.receipt.transfers ?? []).map((transfer) => ({
                 direction: transfer.from === account ? 'OUT' : 'IN',
                 token: asAddress(transfer.token),
                 from: asAddress(transfer.from),
                 to: asAddress(transfer.to),
-                amount: asBigInt(transfer.amount),
-                timestamp: DateTime.fromISO(t.response!.timestamp),
+                amount: asBigInt(transfer.amount) * (transfer.from === account ? -1n : 1n),
+                timestamp: DateTime.fromISO(t.receipt!.timestamp),
               })),
             }
           : undefined,
       }
     : undefined;
 
-  const state = match<TransactionSubmission | undefined, ProposalState>(transaction)
+  const simulation: Simulation | undefined = p.simulation
+    ? {
+        transfers: (p.simulation.transfers ?? []).map((t) => ({
+          direction: 'OUT',
+          token: asAddress(t.token),
+          from: asAddress(t.from),
+          to: asAddress(t.to),
+          amount: asBigInt(t.amount),
+          timestamp: createdAt,
+        })),
+      }
+    : undefined;
+
+  const state = match<Transaction | undefined, ProposalState>(transaction)
     .with(undefined, () => 'pending')
     .with({ status: 'pending' }, () => 'executing')
     .with({ status: 'success' }, () => 'executed')
@@ -133,20 +153,21 @@ export const toProposal = (p: ProposalFieldsFragment): Proposal => {
     id: asProposalId(p.id),
     account,
     to: asAddress(p.to),
-    value: p.value ? BigInt(p.value) : undefined,
+    value: p.value ? asBigInt(p.value) : undefined,
     data: asHex(p.data ?? undefined),
-    nonce: BigInt(p.nonce),
-    gasLimit: p.gasLimit ? BigInt(p.gasLimit) : undefined,
-    estimatedOpGas: BigInt(p.estimatedOpGas),
+    nonce: asBigInt(p.nonce),
+    gasLimit: p.gasLimit ? asBigInt(p.gasLimit) : undefined,
+    estimatedOpGas: asBigInt(p.estimatedOpGas),
     feeToken: p.feeToken ? asAddress(p.feeToken) : undefined,
     state,
     approvals,
     rejections,
     satisfiablePolicies,
     requiresUserAction: satisfiablePolicies.some((p) => p.requiresUserAction),
+    simulation,
     transaction,
-    proposedAt: DateTime.fromISO(p.createdAt),
+    proposedAt: createdAt,
     proposer: asAddress(p.proposerId),
-    timestamp: DateTime.fromISO(p.createdAt),
+    timestamp: createdAt,
   };
 };

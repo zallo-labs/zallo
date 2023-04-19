@@ -8,10 +8,9 @@ import { randomAddress, randomUser } from '~/util/test';
 import { asAddress, Address, CHAINS, randomDeploySalt, asHex } from 'lib';
 import { hexlify, randomBytes } from 'ethers/lib/utils';
 import { ProviderService } from '../util/provider/provider.service';
-import { connectAccount, connectOrCreateUser, connectPolicy } from '~/util/connect-or-create';
+import { connectAccount, connectOrCreateUser } from '~/util/connect-or-create';
 import { ExpoService } from '../util/expo/expo.service';
 import { TransactionsService } from '../transactions/transactions.service';
-import { Proposal } from '@prisma/client';
 import { ProposalState } from './proposals.args';
 import { PoliciesService } from '../policies/policies.service';
 import assert from 'assert';
@@ -164,10 +163,10 @@ describe(ProposalsService.name, () => {
       }));
 
     describe('states filters when', () => {
-      let pending: Proposal;
-      let pendingWithFailed: Proposal;
-      let executing: Proposal;
-      let executed: Proposal;
+      let pending: Awaited<ReturnType<typeof propose>>;
+      let pendingWithFailed: Awaited<ReturnType<typeof propose>>;
+      let executing: Awaited<ReturnType<typeof propose>>;
+      let executed: Awaited<ReturnType<typeof propose>>;
 
       beforeEach(() =>
         asUser(user1, async () => {
@@ -181,7 +180,7 @@ describe(ProposalsService.name, () => {
               hash: hexlify(randomBytes(32)),
               proposal: { connect: { id: pendingWithFailed.id } },
               gasLimit: 0,
-              response: {
+              receipt: {
                 create: {
                   success: false,
                   response: hexlify(randomBytes(32)),
@@ -206,7 +205,7 @@ describe(ProposalsService.name, () => {
               hash: hexlify(randomBytes(32)),
               proposal: { connect: { id: executed.id } },
               gasLimit: 0,
-              response: {
+              receipt: {
                 create: {
                   success: true,
                   response: hexlify(randomBytes(32)),

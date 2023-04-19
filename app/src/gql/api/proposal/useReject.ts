@@ -34,12 +34,12 @@ export const useReject = () => {
               ...[...rejections.values()].map((a) => ({
                 __typename: 'Rejection' as const,
                 userId: a.approver,
-                createdAt: a.timestamp,
+                createdAt: a.timestamp.toISO(),
               })),
               {
                 __typename: 'Rejection' as const,
                 userId: approver.address,
-                createdAt: DateTime.now(),
+                createdAt: DateTime.now().toISO(),
               },
             ],
           },

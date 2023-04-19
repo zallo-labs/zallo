@@ -21,6 +21,16 @@ const config: CodegenConfig = {
     // https://the-guild.dev/graphql/codegen/plugins/typescript/typescript
     // defaultScalarType: 'unknown',
     enumsAsTypes: true,
+    scalars: {
+      Address: 'lib#Address',
+      BigInt: 'lib#BigIntlike',
+      Bytes: 'lib#Hex',
+      Bytes32: 'lib#Hex',
+      DateTime: 'string',
+      Decimal: 'lib#BigIntlike',
+      PolicyKey: 'lib#PolicyKey',
+      Uint256: 'lib#BigIntlike',
+    },
   },
 };
 

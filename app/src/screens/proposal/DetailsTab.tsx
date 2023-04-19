@@ -25,16 +25,18 @@ export type DetailsTabProps = TabNavigatorScreenProp<'Details'>;
 export const DetailsTab = withSuspense(({ route }: DetailsTabProps) => {
   const styles = useStyles();
   const p = useProposal(route.params.proposal);
-  const transfers = p.transaction?.response?.transfers ?? [];
+  const transfers = p.transaction?.receipt?.transfers ?? p.simulation?.transfers ?? [];
   const transfersValue = useTransfersValue(transfers);
+
+  const to = transfers.find((t) => t.token === p.to)?.to ?? p.to;
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
-      <ListItem leading={p.to} headline="To" trailing={useAddressLabel(p.to)} />
+      <ListItem leading={to} headline="To" trailing={useAddressLabel(to)} />
       <ListItem leading={p.account} headline="From" trailing={useAddressLabel(p.account)} />
       <ListItem leading={p.proposer} headline="Proposer" trailing={useAddressLabel(p.proposer)} />
       <ListItem
-        leading={(props) => <GasIcon size={ICON_SIZE.medium} {...props} />}
+        leading={(props) => <GasIcon {...props} size={ICON_SIZE.medium} />}
         headline="Gas limit"
         trailing={p.gasLimit ? <FormattedNumber value={p.gasLimit} /> : 'Dynamic'}
       />
@@ -63,6 +65,7 @@ export const DetailsTab = withSuspense(({ route }: DetailsTabProps) => {
 const useStyles = makeStyles(({ colors }) => ({
   container: {
     flex: 1,
+    paddingTop: 8,
   },
   transfersHeaderSupporting: {
     color: colors.onSurfaceVariant,

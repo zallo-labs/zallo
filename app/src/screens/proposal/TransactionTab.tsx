@@ -15,6 +15,11 @@ import { TabScreenSkeleton } from '~/components/tab/TabScreenSkeleton';
 import { TokenAmount } from '~/components/token/TokenAmount';
 import { TokenIcon } from '~/components/token/TokenIcon/TokenIcon';
 import { TabNavigatorScreenProp } from './Tabs';
+import { Actions } from '~/components/layout/Actions';
+import { Button } from '~/components/Button';
+import * as Linking from 'expo-linking';
+import { CHAIN } from '@network/provider';
+import { TabBadge } from '~/components/tab/TabBadge';
 
 const Item = (props: ListItemProps) => (
   <ListItem
@@ -34,14 +39,14 @@ export type TransactionTabProps = TabNavigatorScreenProp<'Transaction'>;
 export const TransactionTab = withSuspense(({ route }: TransactionTabProps) => {
   const proposal = useProposal(route.params.proposal);
   const tx = proposal.transaction;
-  const resp = tx?.response;
+  const receipt = tx?.receipt;
 
   const feeToken = useMaybeToken(proposal.feeToken) ?? ETH;
   const currentGasPrice = useGasPrice(feeToken);
-  const gasPrice = resp?.gasPrice ?? tx?.gasPrice;
+  const gasPrice = receipt?.gasPrice ?? tx?.gasPrice;
   const gasLimit = tx?.gasLimit ?? proposal.gasLimit;
   const estimatedFee = currentGasPrice * (gasLimit ?? proposal.estimatedOpGas); // TODO: factor in number of approvers when using estimatedOpGas
-  const actualFee = resp && resp.gasUsed * resp.gasPrice;
+  const actualFee = receipt && receipt.gasUsed * receipt.gasPrice;
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
@@ -76,11 +81,11 @@ export const TransactionTab = withSuspense(({ route }: TransactionTabProps) => {
         />
       )}
 
-      {resp && (
+      {receipt && (
         <Item
           leading={ClockOutlineIcon}
           headline="Executed"
-          trailing={<Timestamp timestamp={resp.timestamp} />}
+          trailing={<Timestamp timestamp={receipt.timestamp} />}
         />
       )}
 
@@ -95,6 +100,14 @@ export const TransactionTab = withSuspense(({ route }: TransactionTabProps) => {
           leading={GasOutlineIcon}
           headline="Gas limit (estimated)"
           trailing={<FormattedNumber value={proposal.estimatedOpGas} />}
+        />
+      )}
+
+      {receipt && (
+        <Item
+          leading={GasOutlineIcon}
+          headline="Gas used"
+          trailing={<FormattedNumber value={receipt.gasUsed} />}
         />
       )}
 
@@ -127,12 +140,37 @@ export const TransactionTab = withSuspense(({ route }: TransactionTabProps) => {
           trailing={<FiatValue value={{ token: feeToken, amount: estimatedFee }} />}
         />
       )}
+
+      {tx && (
+        <Actions>
+          <Button
+            mode="outlined"
+            onPress={() => Linking.openURL(`${CHAIN.explorer}/tx/${tx.hash}`)}
+          >
+            Explorer
+          </Button>
+        </Actions>
+      )}
     </ScrollView>
   );
 }, TabScreenSkeleton);
 
+export interface TransactionTabBadgeProps {
+  proposal: ProposalId;
+}
+
+export const TransactionTabBadge = ({ proposal: id }: TransactionTabBadgeProps) => {
+  const { state } = useProposal(id);
+
+  return <TabBadge visible={state === 'executing' || state === 'failed'} style={styles.badge} />;
+};
+
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    paddingTop: 8,
+  },
+  badge: {
+    transform: [{ translateX: -8 }],
   },
 });

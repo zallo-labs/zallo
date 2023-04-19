@@ -113,6 +113,10 @@ export const PolicyTab = withSuspense(({ route }: PolicyTabProps) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    paddingTop: 8,
+  },
+  badge: {
+    transform: [{ translateX: -10 }],
   },
 });
 
@@ -124,5 +128,5 @@ export const PolicyTabBadge = ({ proposal: id }: PolicyTabBadgeProps) => {
   const proposal = useProposal(id);
   const policy = usePolicy(proposal.satisfiablePolicies[0]);
 
-  return <TabBadge value={getApprovalsAwaiting(proposal, policy).length} />;
+  return <TabBadge value={getApprovalsAwaiting(proposal, policy).length} style={styles.badge} />;
 };

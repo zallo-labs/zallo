@@ -47,7 +47,7 @@ export const useProposals = ({
 
   const { data } = useSuspenseQuery<ProposalsQuery, ProposalsQueryVariables>(ProposalsDocument, {
     variables: {
-      accounts,
+      accounts: accounts ? toArray(accounts) : undefined,
       states: states ? toArray(states) : undefined,
       take,
       ...(cursor && { cursor: { id: cursor } }),

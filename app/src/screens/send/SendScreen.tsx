@@ -1,14 +1,13 @@
 import { popToProposal, usePropose } from '@api/proposal';
 import { CloseIcon } from '@theme/icons';
-import { makeStyles } from '@theme/makeStyles';
 import { fiatAsBigInt, fiatToToken, FIAT_DECIMALS } from '@token/fiat';
 import { getTokenContract, Token } from '@token/token';
 import { useTokenPriceData } from '@uniswap/index';
 import { parseUnits } from 'ethers/lib/utils';
 import { Address, asHex, Call } from 'lib';
 import { useState } from 'react';
-import { View } from 'react-native';
-import { Appbar, Button, Divider } from 'react-native-paper';
+import { StyleSheet, View } from 'react-native';
+import { Appbar, Divider } from 'react-native-paper';
 import { useSelectedAccountId } from '~/components/AccountSelector/useSelectedAccount';
 import { useAddressLabel } from '~/components/address/AddressLabel';
 import { NumericInput } from '~/components/fields/NumericInput';
@@ -18,8 +17,9 @@ import { withSuspense } from '~/components/skeleton/withSuspense';
 import { TokenItem } from '~/components/token/TokenItem';
 import { useSelectedToken, useSetSelectedToken } from '~/components/token/useSelectedToken';
 import { StackNavigatorScreenProps } from '~/navigation/StackNavigator';
-import { useSelectToken } from '../tokens/useSelectToken';
 import { InputsView, InputType } from './InputsView';
+import { useSelectToken } from '../tokens/TokensScreen';
+import { Button } from '~/components/Button';
 
 const createTransferTx = (token: Token, to: Address, amount: bigint): Call =>
   token.type === 'ERC20'
@@ -37,7 +37,6 @@ export type SendScreenProps = StackNavigatorScreenProps<'Send'>;
 
 export const SendScreen = withSuspense(({ route, navigation: { goBack } }: SendScreenProps) => {
   const { to } = route.params;
-  const styles = useStyles();
   const account = useSelectedAccountId();
   const [token, setToken] = [useSelectedToken(), useSetSelectedToken()];
   const selectToken = useSelectToken();
@@ -71,7 +70,7 @@ export const SendScreen = withSuspense(({ route, navigation: { goBack } }: SendS
       <TokenItem
         token={token.address}
         account={account}
-        onPress={async () => setToken(await selectToken())}
+        onPress={async () => setToken(await selectToken({ account }))}
       />
       <Divider horizontalInset />
 
@@ -92,7 +91,7 @@ export const SendScreen = withSuspense(({ route, navigation: { goBack } }: SendS
   );
 }, ScreenSkeleton);
 
-const useStyles = makeStyles(({ colors, fonts }) => ({
+const styles = StyleSheet.create({
   spacer: {
     flex: 1,
   },
@@ -101,4 +100,4 @@ const useStyles = makeStyles(({ colors, fonts }) => ({
     marginBottom: 16,
     alignSelf: 'stretch',
   },
-}));
+});

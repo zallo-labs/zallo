@@ -5,14 +5,15 @@ import { Proposal } from '@api/proposal';
 import { useTryDecodeAccountFunctionData } from './useTryDecodeAccountFunctionData';
 import { uppercaseFirst } from '~/util/string';
 import { useAddressLabel } from '../address/AddressLabel';
-import { useDecodedTransfer } from './useDecodedTransfer';
 
 export const TRANSFER_LABEL = 'Transfer';
 
 export const useProposalLabel = (p: Proposal | undefined) => {
   const func = useContractFunction(p);
   const accountMethod = useTryDecodeAccountFunctionData(p?.account ?? ZERO_ADDR, p?.data);
-  const transfer = useDecodedTransfer(p);
+  const transfer = (p?.transaction?.receipt?.transfers ?? p?.simulation?.transfers)?.find(
+    (t) => t.token === p.to,
+  );
   const to = useAddressLabel(transfer?.to ?? p?.to);
 
   if (!func) return p?.value ? `${TRANSFER_LABEL} to ${to}` : `Call ${to}`;

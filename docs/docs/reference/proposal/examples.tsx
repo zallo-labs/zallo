@@ -86,7 +86,7 @@ export const SubscribeExample = withBrowser(() => {
               gasLimit
               gasPrice
               createdAt
-              response {
+              receipt {
                 success
                 response
                 timestamp
@@ -118,7 +118,7 @@ export const ProposalExample = withBrowser(() => {
               gasLimit
               gasPrice
               createdAt
-              response {
+              receipt {
                 success
                 response
                 timestamp
@@ -149,7 +149,7 @@ export const ProposalsExample = withBrowser(() => {
               gasLimit
               gasPrice
               createdAt
-              response {
+              receipt {
                 success
                 response
                 timestamp

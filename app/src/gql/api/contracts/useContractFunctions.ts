@@ -25,7 +25,7 @@ gql`
 
 export const useContractFunctions = (contract: Address | undefined) => {
   const { data } = useSuspenseQuery<ContractQuery, ContractQueryVariables>(ContractDocument, {
-    variables: { args: { contract } },
+    variables: { args: { contract: contract! } },
     skip: !contract,
   });
 

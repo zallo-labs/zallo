@@ -100,28 +100,47 @@ CREATE TABLE "Transaction" (
 );
 
 -- CreateTable
-CREATE TABLE "TransactionResponse" (
+CREATE TABLE "TransactionReceipt" (
     "transactionHash" CHAR(66) NOT NULL,
     "success" BOOLEAN NOT NULL,
-    "response" CHAR(66) NOT NULL,
+    "response" TEXT,
     "gasUsed" DECIMAL(19,0) NOT NULL,
     "gasPrice" DECIMAL(19,0) NOT NULL,
     "fee" DECIMAL(79,0) NOT NULL,
     "timestamp" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
-    CONSTRAINT "TransactionResponse_pkey" PRIMARY KEY ("transactionHash")
+    CONSTRAINT "TransactionReceipt_pkey" PRIMARY KEY ("transactionHash")
 );
 
 -- CreateTable
 CREATE TABLE "Transfer" (
+    "id" SERIAL NOT NULL,
     "transactionHash" CHAR(66) NOT NULL,
-    "transferNumber" INTEGER NOT NULL,
     "token" CHAR(42) NOT NULL,
     "from" CHAR(42) NOT NULL,
     "to" CHAR(42) NOT NULL,
     "amount" DECIMAL(79,0) NOT NULL,
 
-    CONSTRAINT "Transfer_pkey" PRIMARY KEY ("transactionHash","transferNumber")
+    CONSTRAINT "Transfer_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "Simulation" (
+    "proposalId" CHAR(66) NOT NULL,
+
+    CONSTRAINT "Simulation_pkey" PRIMARY KEY ("proposalId")
+);
+
+-- CreateTable
+CREATE TABLE "SimulatedTransfer" (
+    "id" SERIAL NOT NULL,
+    "proposalId" CHAR(66) NOT NULL,
+    "token" CHAR(42) NOT NULL,
+    "from" CHAR(42) NOT NULL,
+    "to" CHAR(42) NOT NULL,
+    "amount" DECIMAL(79,0) NOT NULL,
+
+    CONSTRAINT "SimulatedTransfer_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
@@ -240,13 +259,19 @@ ALTER TABLE "Proposal" ADD CONSTRAINT "Proposal_accountId_fkey" FOREIGN KEY ("ac
 ALTER TABLE "Proposal" ADD CONSTRAINT "Proposal_proposerId_fkey" FOREIGN KEY ("proposerId") REFERENCES "User"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "Transaction" ADD CONSTRAINT "Transaction_proposalId_fkey" FOREIGN KEY ("proposalId") REFERENCES "Proposal"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE "Transaction" ADD CONSTRAINT "Transaction_proposalId_fkey" FOREIGN KEY ("proposalId") REFERENCES "Proposal"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "TransactionResponse" ADD CONSTRAINT "TransactionResponse_transactionHash_fkey" FOREIGN KEY ("transactionHash") REFERENCES "Transaction"("hash") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE "TransactionReceipt" ADD CONSTRAINT "TransactionReceipt_transactionHash_fkey" FOREIGN KEY ("transactionHash") REFERENCES "Transaction"("hash") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "Transfer" ADD CONSTRAINT "Transfer_transactionHash_fkey" FOREIGN KEY ("transactionHash") REFERENCES "TransactionResponse"("transactionHash") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE "Transfer" ADD CONSTRAINT "Transfer_transactionHash_fkey" FOREIGN KEY ("transactionHash") REFERENCES "TransactionReceipt"("transactionHash") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "Simulation" ADD CONSTRAINT "Simulation_proposalId_fkey" FOREIGN KEY ("proposalId") REFERENCES "Proposal"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "SimulatedTransfer" ADD CONSTRAINT "SimulatedTransfer_proposalId_fkey" FOREIGN KEY ("proposalId") REFERENCES "Simulation"("proposalId") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "Approval" ADD CONSTRAINT "Approval_proposalId_fkey" FOREIGN KEY ("proposalId") REFERENCES "Proposal"("id") ON DELETE CASCADE ON UPDATE CASCADE;

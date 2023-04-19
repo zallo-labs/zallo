@@ -1,13 +1,4 @@
-import {
-  Args,
-  Info,
-  Mutation,
-  Parent,
-  Query,
-  ResolveField,
-  Resolver,
-  Subscription,
-} from '@nestjs/graphql';
+import { Args, Context, Info, Mutation, Query, Resolver, Subscription } from '@nestjs/graphql';
 import { GraphQLResolveInfo } from 'graphql';
 import { Account } from '@gen/account/account.model';
 import {
@@ -22,7 +13,7 @@ import {
 import { getSelect } from '~/util/select';
 import { AccountSubscriptionPayload, AccountsService } from './accounts.service';
 import { PubsubService } from '../util/pubsub/pubsub.service';
-import { getUser } from '~/request/ctx';
+import { GqlContext, asUser, getUser } from '~/request/ctx';
 
 @Resolver(() => Account)
 export class AccountsResolver {
@@ -53,22 +44,28 @@ export class AccountsResolver {
       this: AccountsResolver,
       { account }: AccountSubscriptionPayload,
       _args,
-      _context,
+      ctx: GqlContext,
       info: GraphQLResolveInfo,
     ) {
-      return this.service.findUnique({
-        where: { id: account.id },
-        ...getSelect(info),
-      });
+      return asUser(
+        ctx,
+        async () =>
+          await this.service.findUnique({ where: { id: account.id }, ...getSelect(info) }),
+      );
     },
     filter: ({ event }: AccountSubscriptionPayload, { events }: AccountSubscriptionFilters) =>
       !events || events.includes(event),
   })
-  async accountSubscription(@Args() { accounts }: AccountSubscriptionFilters) {
-    return this.pubsub.asyncIterator(
-      accounts
-        ? [...accounts].map((id) => `${ACCOUNT_SUBSCRIPTION}.${id}`)
-        : `${USER_ACCOUNT_SUBSCRIPTION}.${getUser()}`,
+  async accountSubscription(
+    @Args() { accounts }: AccountSubscriptionFilters,
+    @Context() ctx: GqlContext,
+  ) {
+    return asUser(ctx, () =>
+      this.pubsub.asyncIterator(
+        accounts
+          ? [...accounts].map((id) => `${ACCOUNT_SUBSCRIPTION}.${id}`)
+          : `${USER_ACCOUNT_SUBSCRIPTION}.${getUser()}`,
+      ),
     );
   }
 

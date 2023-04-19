@@ -22,7 +22,7 @@ export class TransactionsService {
     @Inject(forwardRef(() => PoliciesService))
     private policies: PoliciesService,
   ) {
-    this.addMissingResponseJobs();
+    this.addMissingReceiptJobs();
   }
 
   async tryExecute<T extends Prisma.ProposalArgs>(
@@ -82,23 +82,21 @@ export class TransactionsService {
         gasLimit: transaction.gasLimit.toString(),
         gasPrice: transaction.gasPrice?.toString(),
       },
-      select: {
-        proposal: { ...res } ?? { select: { id: true } },
-      },
+      select: { proposal: { ...res } ?? true },
     });
-    this.proposals.publishProposal({ proposal: updatedProposal, event: ProposalEvent.update });
+    this.proposals.publishProposal({ proposal, event: ProposalEvent.update });
 
     this.transactionsQueue.add({ transactionHash }, { delay: 1000 /* 1s */ });
 
     return updatedProposal as Prisma.ProposalGetPayload<T>;
   }
 
-  private async addMissingResponseJobs() {
+  private async addMissingReceiptJobs() {
     const jobs = await this.transactionsQueue.getJobs(['waiting', 'active', 'delayed', 'paused']);
 
     const missingResponses = await this.prisma.asSystem.transaction.findMany({
       where: {
-        response: null,
+        receipt: null,
         hash: { notIn: jobs.map((job) => job.data.transactionHash) },
       },
       select: {

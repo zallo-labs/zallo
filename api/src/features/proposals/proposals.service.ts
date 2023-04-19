@@ -1,4 +1,4 @@
-import { forwardRef, Inject, Injectable } from '@nestjs/common';
+import { forwardRef, Inject, Injectable, Logger } from '@nestjs/common';
 import { Prisma, Proposal } from '@prisma/client';
 import { UserInputError } from 'apollo-server-core';
 import { hexlify } from 'ethers/lib/utils';
@@ -13,6 +13,10 @@ import {
   PolicySatisfiability,
   estimateOpGas,
   Hex,
+  asBigInt,
+  Erc20__factory,
+  asSelector,
+  Addresslike,
 } from 'lib';
 import { PrismaService } from '../util/prisma/prisma.service';
 import { ProviderService } from '~/features/util/provider/provider.service';
@@ -28,6 +32,7 @@ import {
   ProposalSubscriptionPayload,
   PROPOSAL_SUBSCRIPTION,
   UniqueProposalArgs,
+  PROPOSAL_PAYLOAD_SELECT,
 } from './proposals.args';
 import { getUser } from '~/request/ctx';
 import { match } from 'ts-pattern';
@@ -35,14 +40,20 @@ import { ExpoService } from '../util/expo/expo.service';
 import { O } from 'ts-toolbelt';
 import { PoliciesService, SelectManyPoliciesArgs } from '../policies/policies.service';
 import { SatisfiablePolicy } from './proposals.model';
+import { ETH_ADDRESS } from 'zksync-web3/build/src/utils';
+import { BigNumberish } from 'ethers';
 
-const TX_IS_EXECUTING: Prisma.TransactionWhereInput = { response: { isNot: {} } };
+const TX_IS_EXECUTING: Prisma.TransactionWhereInput = { receipt: { isNot: {} } };
 const TX_IS_EXECUTED: Prisma.TransactionWhereInput = {
-  response: { is: { success: { equals: true } } },
+  receipt: { is: { success: { equals: true } } },
 };
 const PROPOSAL_IS_PENDING: Prisma.ProposalWhereInput = {
   transactions: { none: { OR: [TX_IS_EXECUTING, TX_IS_EXECUTED] } },
 };
+
+const ERC20 = Erc20__factory.createInterface();
+const ERC20_TRANSFER = ERC20.functions['transfer(address,uint256)'];
+const ERC20_TRANSFER_SELECTOR = asSelector(ERC20.getSighash(ERC20_TRANSFER));
 
 export interface ProposeParams extends O.Optional<Tx, 'nonce'> {
   account: Address;
@@ -106,9 +117,10 @@ export class ProposalsService {
         nonce: BigInt(await client.proposal.count({ where: { account: { id: account } } })),
       };
 
+      const id = await hashTx(tx, { address: account, provider: this.provider });
       const proposal = await client.proposal.create({
         data: {
-          id: await hashTx(tx, { address: account, provider: this.provider }),
+          id,
           account: connectAccount(account),
           proposer: connectOrCreateUser(),
           to: tx.to,
@@ -118,11 +130,13 @@ export class ProposalsService {
           gasLimit: tx.gasLimit,
           estimatedOpGas: await estimateOpGas(this.provider, tx),
           feeToken,
+          simulation: { create: this.simulate(account, tx) },
         },
-        ...(signature ? { select: { id: true } } : res),
+        ...res,
       });
 
-      if (!signature) this.publishProposal({ proposal, event: ProposalEvent.create });
+      if (!signature)
+        this.publishProposal({ proposal: { id, accountId: account }, event: ProposalEvent.create });
 
       return signature ? this.approve({ id: proposal.id, signature }, res) : proposal;
     });
@@ -157,7 +171,10 @@ export class ProposalsService {
 
     const proposal = await prisma.proposal.findUniqueOrThrow({
       where: { id },
-      include: { _count: { select: { approvals: true } } },
+      select: {
+        _count: { select: { approvals: true } },
+        ...PROPOSAL_PAYLOAD_SELECT,
+      },
     });
 
     if (proposal._count.approvals === 1) await this.notifyApprovers(id);
@@ -188,13 +205,13 @@ export class ProposalsService {
         signature: null,
       },
       select: {
-        proposal: { ...res },
+        proposal: res?.select ? { select: { ...res.select, ...PROPOSAL_PAYLOAD_SELECT } } : true,
       },
     });
 
     this.publishProposal({ proposal, event: ProposalEvent.update });
 
-    return proposal;
+    return proposal as Prisma.ProposalGetPayload<T>;
   }
 
   async delete<A extends Prisma.ProposalArgs>(
@@ -242,14 +259,16 @@ export class ProposalsService {
   }
 
   async publishProposal(payload: ProposalSubscriptionPayload) {
-    await this.pubsub.publish<ProposalSubscriptionPayload>(
-      `${PROPOSAL_SUBSCRIPTION}.${payload[PROPOSAL_SUBSCRIPTION].id}`,
-      payload,
-    );
-    await this.pubsub.publish<ProposalSubscriptionPayload>(
-      `${ACCOUNT_PROPOSAL_SUB_TRIGGER}.${payload[PROPOSAL_SUBSCRIPTION].accountId}`,
-      payload,
-    );
+    await Promise.all([
+      this.pubsub.publish<ProposalSubscriptionPayload>(
+        `${PROPOSAL_SUBSCRIPTION}.${payload[PROPOSAL_SUBSCRIPTION].id}`,
+        payload,
+      ),
+      this.pubsub.publish<ProposalSubscriptionPayload>(
+        `${ACCOUNT_PROPOSAL_SUB_TRIGGER}.${payload[PROPOSAL_SUBSCRIPTION].accountId}`,
+        payload,
+      ),
+    ]);
   }
 
   async satisfiablePolicies(
@@ -280,6 +299,41 @@ export class ProposalsService {
     }
 
     return policies;
+  }
+
+  private simulate(account: Address, tx: Tx): Prisma.SimulationCreateWithoutProposalInput {
+    const transfers: Prisma.SimulatedTransferCreateWithoutSimulationInput[] = [];
+    if (tx.value && tx.value > 0n) {
+      transfers.push({
+        token: asAddress(ETH_ADDRESS),
+        from: account,
+        to: tx.to,
+        amount: (-tx.value).toString(),
+      });
+    }
+
+    // Infer ERC20 transfer from proposal data; ideally the transaction would be simulated
+    if (tx.data && asSelector(tx.data) === ERC20_TRANSFER_SELECTOR) {
+      try {
+        const [dest, amount] = ERC20.decodeFunctionData(ERC20_TRANSFER, tx.data) as [
+          Addresslike,
+          BigNumberish,
+        ];
+
+        transfers.push({
+          token: tx.to,
+          from: account,
+          to: asAddress(dest),
+          amount: (-asBigInt(amount)).toString(),
+        });
+      } catch (e) {
+        Logger.warn(`Failed to decode ERC20 transfer data: ${e}`);
+      }
+    }
+
+    return {
+      transfers: { createMany: { data: transfers } },
+    };
   }
 
   private async notifyApprovers(proposalId: string) {

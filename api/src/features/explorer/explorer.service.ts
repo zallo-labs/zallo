@@ -65,7 +65,7 @@ const ZKSYNC_EXPLORER_ADDRESSS_API = {
 interface TransactionData {
   transactionHash: Hex;
   receivedAt: string; // ISO
-  status: 'included' | 'verified';
+  status: 'pending' | 'included' | 'verified';
   fee: BigNumberish;
   erc20Transfers: {
     tokenInfo: {

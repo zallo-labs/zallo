@@ -2,14 +2,15 @@ import { OnQueueFailed, Process, Processor } from '@nestjs/bull';
 import { forwardRef, Inject, Injectable } from '@nestjs/common';
 import { Job } from 'bull';
 import { PrismaService } from '../util/prisma/prisma.service';
-import { ProposalEvent } from '../proposals/proposals.args';
+import { PROPOSAL_PAYLOAD_SELECT, ProposalEvent } from '../proposals/proposals.args';
 import { ProposalsService } from '../proposals/proposals.service';
 import { SubgraphService, SubgraphTransactionResponse } from '../subgraph/subgraph.service';
 import { TransactionEvent, TRANSACTIONS_QUEUE } from './transactions.queue';
 import { ExplorerService } from '../explorer/explorer.service';
 import { ProviderService } from '../util/provider/provider.service';
-import { Hex } from 'lib';
+import { Hex, asHex, tryOrIgnoreAsync } from 'lib';
 import { BigNumber } from 'ethers';
+import { hexDataLength } from 'ethers/lib/utils';
 
 export interface TransactionResponseData {
   transactionHash: Hex;
@@ -45,27 +46,27 @@ export class TransactionsConsumer {
     const { transactionHash } = job.data;
 
     const [receipt, explorerTx, response] = await Promise.all([
-      this.provider.getTransactionReceipt(transactionHash),
+      tryOrIgnoreAsync(() => this.provider.getTransactionReceipt(transactionHash)),
       this.explorer.transaction(transactionHash),
       this.subgraph.transactionResponse(job.data.transactionHash),
     ]);
+
     if (!receipt) return job.moveToFailed({ message: TRANSACTION_NOT_FOUND });
     if (!explorerTx) return job.moveToFailed({ message: TRANSACTION_NOT_FOUND });
     if (!response) return job.moveToFailed({ message: RESPONSE_NOT_FOUND });
 
-    const createResponse = this.prisma.asSystem.transactionResponse.create({
+    const createResponse = this.prisma.asSystem.transactionReceipt.create({
       data: {
         transactionHash,
         success: response.success,
-        response: response.response,
+        response: hexDataLength(response.response) ? asHex(response.response)! : null,
         gasUsed: receipt.gasUsed.toString(),
         gasPrice: receipt.effectiveGasPrice.toString(),
         fee: BigNumber.from(explorerTx.fee).toString(),
         timestamp: new Date(parseFloat(response.timestamp) * 1000),
         transfers: {
           createMany: {
-            data: explorerTx.erc20Transfers.map((t, i) => ({
-              transferNumber: i,
+            data: explorerTx.erc20Transfers.map((t) => ({
               token: t.tokenInfo.l2Address,
               from: t.from,
               to: t.to,
@@ -76,8 +77,10 @@ export class TransactionsConsumer {
       },
       select: {
         transaction: {
-          include: {
-            proposal: true,
+          select: {
+            proposal: {
+              select: PROPOSAL_PAYLOAD_SELECT,
+            },
           },
         },
       },
@@ -89,7 +92,7 @@ export class TransactionsConsumer {
       ...Object.values(this.processors).map((processor) => processor(data)),
     ]);
 
-    await this.proposals.publishProposal({
+    this.proposals.publishProposal({
       proposal: transaction.proposal,
       event: ProposalEvent.response,
     });

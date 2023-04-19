@@ -6,7 +6,7 @@ import {
   ApolloServerPluginInlineTrace,
 } from 'apollo-server-core';
 import { IS_DEV } from '~/config';
-import { IncomingContext, Context, IncomingWsContext } from '~/request/ctx';
+import { IncomingContext, GqlContext, IncomingWsContext } from '~/request/ctx';
 import { AddressMiddleware } from './address.middleware';
 import { AuthModule } from '~/features/auth/auth.module';
 import { SessionMiddleware } from '~/features/auth/session.middleware';
@@ -54,21 +54,25 @@ const chain = (req: Request, resolve: () => void, middlewares: NestMiddleware[])
 
               // Copy connection parameters into headers
               req.headers = {
+                // Lowercase all header keys - as done by express for http requests; this is done by request to avoid ambiguity in headers
+                ...(Object.fromEntries(
+                  Object.entries(ctx.connectionParams ?? {}).map(([k, v]) => [k.toLowerCase(), v]),
+                ) as Partial<typeof req.headers>),
+                // Load req.headers after connectionParams to avoid potentially malicious overwrites (e.g. host)
                 ...req.headers,
-                ...(ctx.connectionParams as Partial<typeof req.headers>),
               };
 
               await new Promise<void>((resolve) =>
                 chain(req, resolve, [
                   sessionMiddleware,
                   authMiddleware,
-                  requestContextMiddleware, // Doesn't pass through to subscription handler, TODO: test if it works in the resolve or filter function
+                  requestContextMiddleware, // Note. RequestContext does *NOT* pass through to subscription resolvers
                 ])(),
               );
             },
           },
         },
-        context: (ctx: IncomingContext): Context =>
+        context: (ctx: IncomingContext): GqlContext =>
           'req' in ctx ? { req: ctx.req } : { req: ctx.extra.request },
         playground: false,
         plugins: [

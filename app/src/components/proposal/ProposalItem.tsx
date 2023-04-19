@@ -41,7 +41,12 @@ export const ProposalItem = withSuspense(({ proposal: id, ...itemProps }: Propos
       supporting={supporting}
       trailing={({ Text }) => (
         <Text variant="labelLarge">
-          <FiatValue value={useTransfersValue(p.transaction?.response?.transfers ?? [])} hideZero />
+          <FiatValue
+            value={useTransfersValue(
+              p.transaction?.receipt?.transfers ?? p.simulation?.transfers ?? [],
+            )}
+            hideZero
+          />
         </Text>
       )}
       {...itemProps}

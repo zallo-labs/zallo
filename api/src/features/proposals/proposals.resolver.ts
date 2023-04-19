@@ -1,5 +1,6 @@
 import {
   Args,
+  Context,
   Info,
   Mutation,
   Parent,
@@ -24,19 +25,14 @@ import { Proposal } from '@gen/proposal/proposal.model';
 import { ProposalsService } from './proposals.service';
 import { Transaction } from '@gen/transaction/transaction.model';
 import { PubsubService } from '~/features/util/pubsub/pubsub.service';
-import { getUserCtx } from '~/request/ctx';
+import { GqlContext, asUser, getUserCtx } from '~/request/ctx';
 import { Rejection, SatisfiablePolicy } from './proposals.model';
 import { asHex } from 'lib';
 import { Approval } from '@gen/approval/approval.model';
-import { UserAccountsService } from '../auth/userAccounts.service';
 
 @Resolver(() => Proposal)
 export class ProposalsResolver {
-  constructor(
-    private service: ProposalsService,
-    private pubsub: PubsubService,
-    private userAccounts: UserAccountsService,
-  ) {}
+  constructor(private service: ProposalsService, private pubsub: PubsubService) {}
 
   @Query(() => Proposal, { nullable: true })
   async proposal(
@@ -86,16 +82,35 @@ export class ProposalsResolver {
 
   @Subscription(() => Proposal, {
     name: PROPOSAL_SUBSCRIPTION,
-    filter: ({ event }: ProposalSubscriptionPayload, { events }: ProposalSubscriptionFilters) =>
-      !events || events.includes(event),
+    filter: ({ event }: ProposalSubscriptionPayload, { events }: ProposalSubscriptionFilters) => {
+      return !events || events.includes(event);
+    },
+    resolve(
+      this: ProposalsResolver,
+      { proposal }: ProposalSubscriptionPayload,
+      _args,
+      ctx: GqlContext,
+      info: GraphQLResolveInfo,
+    ) {
+      return asUser(
+        ctx,
+        async () =>
+          await this.service.findUnique({ where: { id: proposal.id }, ...getSelect(info) }),
+      );
+    },
   })
-  async proposalSubscription(@Args() { accounts, proposals }: ProposalSubscriptionFilters) {
-    if (!accounts && !proposals) accounts = [...getUserCtx().accounts];
+  async proposalSubscription(
+    @Args() { accounts, proposals }: ProposalSubscriptionFilters,
+    @Context() ctx: GqlContext,
+  ) {
+    return asUser(ctx, () => {
+      if (!accounts && !proposals) accounts = [...getUserCtx().accounts];
 
-    return this.pubsub.asyncIterator([
-      ...[...(accounts ?? [])].map((account) => `${ACCOUNT_PROPOSAL_SUB_TRIGGER}.${account}`),
-      ...[...(proposals ?? [])].map((proposal) => `${PROPOSAL_SUBSCRIPTION}.${proposal}`),
-    ]);
+      return this.pubsub.asyncIterator([
+        ...[...(accounts ?? [])].map((account) => `${ACCOUNT_PROPOSAL_SUB_TRIGGER}.${account}`),
+        ...[...(proposals ?? [])].map((proposal) => `${PROPOSAL_SUBSCRIPTION}.${proposal}`),
+      ]);
+    });
   }
 
   @Mutation(() => Proposal)
