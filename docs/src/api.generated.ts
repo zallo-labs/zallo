@@ -356,6 +356,7 @@ export type CreatePolicyInput = {
   account: Scalars['Address'];
   /** Signers that are required to approve */
   approvers?: InputMaybe<Array<Scalars['Address']>>;
+  key?: InputMaybe<Scalars['PolicyKey']>;
   name?: InputMaybe<Scalars['String']>;
   permissions: PermissionsInput;
   /** Defaults to all approvers */
@@ -494,7 +495,7 @@ export type MutationRemoveProposalArgs = {
 
 
 export type MutationRequestTokensArgs = {
-  recipient: Scalars['Address'];
+  account: Scalars['Address'];
 };
 
 
@@ -657,6 +658,7 @@ export type PolicyCount = {
 export type PolicyInput = {
   /** Signers that are required to approve */
   approvers?: InputMaybe<Array<Scalars['Address']>>;
+  key?: InputMaybe<Scalars['PolicyKey']>;
   name?: InputMaybe<Scalars['String']>;
   permissions: PermissionsInput;
   /** Defaults to all approvers */
@@ -815,6 +817,7 @@ export type Proposal = {
   proposerId: Scalars['String'];
   rejections: Array<Rejection>;
   satisfiablePolicies: Array<SatisfiablePolicy>;
+  simulation?: Maybe<Simulation>;
   to: Scalars['String'];
   transaction?: Maybe<Transaction>;
   transactions?: Maybe<Array<Transaction>>;
@@ -859,6 +862,7 @@ export type ProposalOrderByWithRelationInput = {
   policyStates?: InputMaybe<PolicyStateOrderByRelationAggregateInput>;
   proposer?: InputMaybe<UserOrderByWithRelationInput>;
   proposerId?: InputMaybe<SortOrder>;
+  simulation?: InputMaybe<SimulationOrderByWithRelationInput>;
   to?: InputMaybe<SortOrder>;
   transactions?: InputMaybe<TransactionOrderByRelationAggregateInput>;
   value?: InputMaybe<SortOrder>;
@@ -906,6 +910,7 @@ export type ProposalWhereInput = {
   policyStates?: InputMaybe<PolicyStateListRelationFilter>;
   proposer?: InputMaybe<UserRelationFilter>;
   proposerId?: InputMaybe<StringFilter>;
+  simulation?: InputMaybe<SimulationRelationFilter>;
   to?: InputMaybe<StringFilter>;
   transactions?: InputMaybe<TransactionListRelationFilter>;
   value?: InputMaybe<DecimalNullableFilter>;
@@ -1011,7 +1016,7 @@ export type QueryProposalsArgs = {
 
 
 export type QueryRequestableTokensArgs = {
-  recipient: Scalars['Address'];
+  account: Scalars['Address'];
 };
 
 
@@ -1074,6 +1079,73 @@ export type SatisfiablePolicy = {
   key: Scalars['PolicyKey'];
   requiresUserAction: Scalars['Boolean'];
   satisfied: Scalars['Boolean'];
+};
+
+export type SimulatedTransfer = {
+  __typename?: 'SimulatedTransfer';
+  amount: Scalars['Decimal'];
+  from: Scalars['String'];
+  id: Scalars['Int'];
+  proposalId: Scalars['String'];
+  simulation: Simulation;
+  to: Scalars['String'];
+  token: Scalars['String'];
+};
+
+export type SimulatedTransferListRelationFilter = {
+  every?: InputMaybe<SimulatedTransferWhereInput>;
+  none?: InputMaybe<SimulatedTransferWhereInput>;
+  some?: InputMaybe<SimulatedTransferWhereInput>;
+};
+
+export type SimulatedTransferOrderByRelationAggregateInput = {
+  _count?: InputMaybe<SortOrder>;
+};
+
+export type SimulatedTransferWhereInput = {
+  AND?: InputMaybe<Array<SimulatedTransferWhereInput>>;
+  NOT?: InputMaybe<Array<SimulatedTransferWhereInput>>;
+  OR?: InputMaybe<Array<SimulatedTransferWhereInput>>;
+  amount?: InputMaybe<DecimalFilter>;
+  from?: InputMaybe<StringFilter>;
+  id?: InputMaybe<IntFilter>;
+  proposalId?: InputMaybe<StringFilter>;
+  simulation?: InputMaybe<SimulationRelationFilter>;
+  to?: InputMaybe<StringFilter>;
+  token?: InputMaybe<StringFilter>;
+};
+
+export type Simulation = {
+  __typename?: 'Simulation';
+  _count: SimulationCount;
+  proposal: Proposal;
+  proposalId: Scalars['String'];
+  transfers?: Maybe<Array<SimulatedTransfer>>;
+};
+
+export type SimulationCount = {
+  __typename?: 'SimulationCount';
+  transfers: Scalars['Int'];
+};
+
+export type SimulationOrderByWithRelationInput = {
+  proposal?: InputMaybe<ProposalOrderByWithRelationInput>;
+  proposalId?: InputMaybe<SortOrder>;
+  transfers?: InputMaybe<SimulatedTransferOrderByRelationAggregateInput>;
+};
+
+export type SimulationRelationFilter = {
+  is?: InputMaybe<SimulationWhereInput>;
+  isNot?: InputMaybe<SimulationWhereInput>;
+};
+
+export type SimulationWhereInput = {
+  AND?: InputMaybe<Array<SimulationWhereInput>>;
+  NOT?: InputMaybe<Array<SimulationWhereInput>>;
+  OR?: InputMaybe<Array<SimulationWhereInput>>;
+  proposal?: InputMaybe<ProposalRelationFilter>;
+  proposalId?: InputMaybe<StringFilter>;
+  transfers?: InputMaybe<SimulatedTransferListRelationFilter>;
 };
 
 export enum SortOrder {
@@ -1183,7 +1255,7 @@ export type Transaction = {
   id: Scalars['ID'];
   proposal: Proposal;
   proposalId: Scalars['String'];
-  response?: Maybe<TransactionResponse>;
+  receipt?: Maybe<TransactionReceipt>;
 };
 
 export type TransactionListRelationFilter = {
@@ -1196,38 +1268,48 @@ export type TransactionOrderByRelationAggregateInput = {
   _count?: InputMaybe<SortOrder>;
 };
 
-export type TransactionRelationFilter = {
-  is?: InputMaybe<TransactionWhereInput>;
-  isNot?: InputMaybe<TransactionWhereInput>;
-};
-
-export type TransactionResponse = {
-  __typename?: 'TransactionResponse';
-  effectiveGasPrice: Scalars['Decimal'];
+export type TransactionReceipt = {
+  __typename?: 'TransactionReceipt';
+  _count: TransactionReceiptCount;
+  fee: Scalars['Decimal'];
+  gasPrice: Scalars['Decimal'];
   gasUsed: Scalars['Decimal'];
-  response: Scalars['String'];
+  response?: Maybe<Scalars['String']>;
   success: Scalars['Boolean'];
   timestamp: Scalars['DateTime'];
   transaction: Transaction;
   transactionHash: Scalars['String'];
+  transfers?: Maybe<Array<Transfer>>;
 };
 
-export type TransactionResponseRelationFilter = {
-  is?: InputMaybe<TransactionResponseWhereInput>;
-  isNot?: InputMaybe<TransactionResponseWhereInput>;
+export type TransactionReceiptCount = {
+  __typename?: 'TransactionReceiptCount';
+  transfers: Scalars['Int'];
 };
 
-export type TransactionResponseWhereInput = {
-  AND?: InputMaybe<Array<TransactionResponseWhereInput>>;
-  NOT?: InputMaybe<Array<TransactionResponseWhereInput>>;
-  OR?: InputMaybe<Array<TransactionResponseWhereInput>>;
-  effectiveGasPrice?: InputMaybe<DecimalFilter>;
+export type TransactionReceiptRelationFilter = {
+  is?: InputMaybe<TransactionReceiptWhereInput>;
+  isNot?: InputMaybe<TransactionReceiptWhereInput>;
+};
+
+export type TransactionReceiptWhereInput = {
+  AND?: InputMaybe<Array<TransactionReceiptWhereInput>>;
+  NOT?: InputMaybe<Array<TransactionReceiptWhereInput>>;
+  OR?: InputMaybe<Array<TransactionReceiptWhereInput>>;
+  fee?: InputMaybe<DecimalFilter>;
+  gasPrice?: InputMaybe<DecimalFilter>;
   gasUsed?: InputMaybe<DecimalFilter>;
-  response?: InputMaybe<StringFilter>;
+  response?: InputMaybe<StringNullableFilter>;
   success?: InputMaybe<BoolFilter>;
   timestamp?: InputMaybe<DateTimeFilter>;
   transaction?: InputMaybe<TransactionRelationFilter>;
   transactionHash?: InputMaybe<StringFilter>;
+  transfers?: InputMaybe<TransferListRelationFilter>;
+};
+
+export type TransactionRelationFilter = {
+  is?: InputMaybe<TransactionWhereInput>;
+  isNot?: InputMaybe<TransactionWhereInput>;
 };
 
 export type TransactionWhereInput = {
@@ -1240,7 +1322,37 @@ export type TransactionWhereInput = {
   hash?: InputMaybe<StringFilter>;
   proposal?: InputMaybe<ProposalRelationFilter>;
   proposalId?: InputMaybe<StringFilter>;
-  response?: InputMaybe<TransactionResponseRelationFilter>;
+  receipt?: InputMaybe<TransactionReceiptRelationFilter>;
+};
+
+export type Transfer = {
+  __typename?: 'Transfer';
+  amount: Scalars['Decimal'];
+  from: Scalars['String'];
+  id: Scalars['Int'];
+  receipt: TransactionReceipt;
+  to: Scalars['String'];
+  token: Scalars['String'];
+  transactionHash: Scalars['String'];
+};
+
+export type TransferListRelationFilter = {
+  every?: InputMaybe<TransferWhereInput>;
+  none?: InputMaybe<TransferWhereInput>;
+  some?: InputMaybe<TransferWhereInput>;
+};
+
+export type TransferWhereInput = {
+  AND?: InputMaybe<Array<TransferWhereInput>>;
+  NOT?: InputMaybe<Array<TransferWhereInput>>;
+  OR?: InputMaybe<Array<TransferWhereInput>>;
+  amount?: InputMaybe<DecimalFilter>;
+  from?: InputMaybe<StringFilter>;
+  id?: InputMaybe<IntFilter>;
+  receipt?: InputMaybe<TransactionReceiptRelationFilter>;
+  to?: InputMaybe<StringFilter>;
+  token?: InputMaybe<StringFilter>;
+  transactionHash?: InputMaybe<StringFilter>;
 };
 
 export type UniquePolicyInput = {
@@ -1257,7 +1369,7 @@ export type UpdatePolicyInput = {
   account: Scalars['Address'];
   /** Signers that are required to approve */
   approvers?: InputMaybe<Array<Scalars['Address']>>;
-  key: Scalars['PolicyKey'];
+  key?: InputMaybe<Scalars['PolicyKey']>;
   name?: InputMaybe<Scalars['String']>;
   permissions?: InputMaybe<PermissionsInput>;
   /** Defaults to all approvers */
@@ -1359,19 +1471,19 @@ export type ApproveMutation = { __typename?: 'Mutation', approve: { __typename?:
 export type ProposalChangesSubscriptionVariables = Exact<{ [key: string]: never; }>;
 
 
-export type ProposalChangesSubscription = { __typename?: 'Subscription', proposal: { __typename?: 'Proposal', id: string, to: string, value?: any | null, data?: string | null, transaction?: { __typename?: 'Transaction', hash: string, gasLimit: any, gasPrice?: any | null, createdAt: any, response?: { __typename?: 'TransactionResponse', success: boolean, response: string, timestamp: any } | null } | null } };
+export type ProposalChangesSubscription = { __typename?: 'Subscription', proposal: { __typename?: 'Proposal', id: string, to: string, value?: any | null, data?: string | null, transaction?: { __typename?: 'Transaction', hash: string, gasLimit: any, gasPrice?: any | null, createdAt: any, receipt?: { __typename?: 'TransactionReceipt', success: boolean, response?: string | null, timestamp: any } | null } | null } };
 
 export type ProposalQueryVariables = Exact<{
   id: Scalars['Bytes32'];
 }>;
 
 
-export type ProposalQuery = { __typename?: 'Query', proposal?: { __typename?: 'Proposal', id: string, to: string, value?: any | null, data?: string | null, transaction?: { __typename?: 'Transaction', hash: string, gasLimit: any, gasPrice?: any | null, createdAt: any, response?: { __typename?: 'TransactionResponse', success: boolean, response: string, timestamp: any } | null } | null } | null };
+export type ProposalQuery = { __typename?: 'Query', proposal?: { __typename?: 'Proposal', id: string, to: string, value?: any | null, data?: string | null, transaction?: { __typename?: 'Transaction', hash: string, gasLimit: any, gasPrice?: any | null, createdAt: any, receipt?: { __typename?: 'TransactionReceipt', success: boolean, response?: string | null, timestamp: any } | null } | null } | null };
 
 export type ProposalsQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type ProposalsQuery = { __typename?: 'Query', proposals: Array<{ __typename?: 'Proposal', id: string, to: string, value?: any | null, data?: string | null, transaction?: { __typename?: 'Transaction', hash: string, gasLimit: any, gasPrice?: any | null, createdAt: any, response?: { __typename?: 'TransactionResponse', success: boolean, response: string, timestamp: any } | null } | null }> };
+export type ProposalsQuery = { __typename?: 'Query', proposals: Array<{ __typename?: 'Proposal', id: string, to: string, value?: any | null, data?: string | null, transaction?: { __typename?: 'Transaction', hash: string, gasLimit: any, gasPrice?: any | null, createdAt: any, receipt?: { __typename?: 'TransactionReceipt', success: boolean, response?: string | null, timestamp: any } | null } | null }> };
 
 export type FirstAccountQueryVariables = Exact<{ [key: string]: never; }>;
 
