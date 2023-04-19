@@ -1,3 +1,4 @@
+import { GqlExecutionContext } from '@nestjs/graphql';
 import { Request, Response } from 'express';
 import { Context as BaseWsContext } from 'graphql-ws';
 import { Address } from 'lib';
@@ -40,4 +41,14 @@ export const asUser = <R, TArgs extends unknown[]>(
   user: UserContext,
   callback: (...args: TArgs) => R,
   ...args: TArgs
-): R => RequestContext.cls.run(new RequestContext({ user }, {}), callback, ...args);
+): R => {
+  const requestContext = new RequestContext({ user }, {});
+  RequestContext.cls.enterWith(requestContext); // Used to persist context in @ResolveField. TODO: test this doesn't leak across @ResolveField requests. If it does then @Context can be used inside @ResolveField to re-establish context.
+  return RequestContext.cls.run(requestContext, callback, ...args);
+};
+
+export const userFromGraphqlContext = ({ req }: { req: Request }) => {
+  const user = req.user;
+  if (!user) throw new Error("Can't get user from graphql context");
+  return user;
+};

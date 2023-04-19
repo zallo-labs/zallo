@@ -22,7 +22,7 @@ import {
 import { getSelect } from '~/util/select';
 import { AccountSubscriptionPayload, AccountsService } from './accounts.service';
 import { PubsubService } from '../util/pubsub/pubsub.service';
-import { getUser } from '~/request/ctx';
+import { asUser, getUser, userFromGraphqlContext } from '~/request/ctx';
 
 @Resolver(() => Account)
 export class AccountsResolver {
@@ -53,13 +53,14 @@ export class AccountsResolver {
       this: AccountsResolver,
       { account }: AccountSubscriptionPayload,
       _args,
-      _context,
+      ctx,
       info: GraphQLResolveInfo,
     ) {
-      return this.service.findUnique({
-        where: { id: account.id },
-        ...getSelect(info),
-      });
+      return asUser(
+        userFromGraphqlContext(ctx),
+        async () =>
+          await this.service.findUnique({ where: { id: account.id }, ...getSelect(info) }),
+      );
     },
     filter: ({ event }: AccountSubscriptionPayload, { events }: AccountSubscriptionFilters) =>
       !events || events.includes(event),
