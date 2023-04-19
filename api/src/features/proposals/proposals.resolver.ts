@@ -29,7 +29,6 @@ import { GqlContext, asUser, getUserCtx } from '~/request/ctx';
 import { Rejection, SatisfiablePolicy } from './proposals.model';
 import { asHex } from 'lib';
 import { Approval } from '@gen/approval/approval.model';
-import { ExplorerTransfer } from '../explorer/explorer.model';
 
 @Resolver(() => Proposal)
 export class ProposalsResolver {
@@ -79,11 +78,6 @@ export class ProposalsResolver {
     @Info() info: GraphQLResolveInfo,
   ): Promise<SatisfiablePolicy[]> {
     return this.service.satisfiablePolicies(proposal.id, getSelect(info));
-  }
-
-  @ResolveField(() => [ExplorerTransfer])
-  async transfers(@Parent() proposal: Proposal): Promise<ExplorerTransfer[]> {
-    return this.service.transfers(proposal);
   }
 
   @Subscription(() => Proposal, {

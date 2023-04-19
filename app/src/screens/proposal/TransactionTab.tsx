@@ -38,14 +38,14 @@ export type TransactionTabProps = TabNavigatorScreenProp<'Transaction'>;
 export const TransactionTab = withSuspense(({ route }: TransactionTabProps) => {
   const proposal = useProposal(route.params.proposal);
   const tx = proposal.transaction;
-  const resp = tx?.response;
+  const receipt = tx?.receipt;
 
   const feeToken = useMaybeToken(proposal.feeToken) ?? ETH;
   const currentGasPrice = useGasPrice(feeToken);
-  const gasPrice = resp?.gasPrice ?? tx?.gasPrice;
+  const gasPrice = receipt?.gasPrice ?? tx?.gasPrice;
   const gasLimit = tx?.gasLimit ?? proposal.gasLimit;
   const estimatedFee = currentGasPrice * (gasLimit ?? proposal.estimatedOpGas); // TODO: factor in number of approvers when using estimatedOpGas
-  const actualFee = resp && resp.gasUsed * resp.gasPrice;
+  const actualFee = receipt && receipt.gasUsed * receipt.gasPrice;
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
@@ -80,11 +80,11 @@ export const TransactionTab = withSuspense(({ route }: TransactionTabProps) => {
         />
       )}
 
-      {resp && (
+      {receipt && (
         <Item
           leading={ClockOutlineIcon}
           headline="Executed"
-          trailing={<Timestamp timestamp={resp.timestamp} />}
+          trailing={<Timestamp timestamp={receipt.timestamp} />}
         />
       )}
 
@@ -102,11 +102,11 @@ export const TransactionTab = withSuspense(({ route }: TransactionTabProps) => {
         />
       )}
 
-      {resp && (
+      {receipt && (
         <Item
           leading={GasOutlineIcon}
           headline="Gas used"
-          trailing={<FormattedNumber value={resp.gasUsed} />}
+          trailing={<FormattedNumber value={receipt.gasUsed} />}
         />
       )}
 

@@ -4,7 +4,6 @@ import { useMemo } from 'react';
 import { ProposalDocument, ProposalQuery, ProposalQueryVariables } from '@api/generated';
 import { useSuspenseQuery } from '~/gql/util';
 import { Proposal, ProposalId, toProposal } from './types';
-import { useProposalSubscription } from './useProposalSubscription';
 
 gql`
   fragment ApprovalFields on Approval {
@@ -24,7 +23,7 @@ gql`
     gasLimit
     gasPrice
     createdAt
-    response {
+    receipt {
       success
       response
       gasUsed
@@ -64,12 +63,14 @@ gql`
       satisfied
       requiresUserAction
     }
-    transfers {
-      id
-      token
-      from
-      to
-      amount
+    simulation {
+      transfers {
+        id
+        token
+        from
+        to
+        amount
+      }
     }
     transaction {
       ...TransactionFields
@@ -89,7 +90,6 @@ export const useProposal = <Id extends ProposalId | undefined>(id: Id) => {
     variables: { id: id! },
     skip,
   });
-  useProposalSubscription({ proposals: id, skip });
 
   const p = data.proposal;
   const proposal = useMemo((): Proposal | undefined => (p ? toProposal(p) : undefined), [p]);

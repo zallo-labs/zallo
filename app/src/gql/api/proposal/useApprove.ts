@@ -76,15 +76,15 @@ export const useApprove = () => {
                   gasLimit: p.transaction.gasLimit.toString(),
                   gasPrice: p.transaction.gasPrice?.toString(),
                   createdAt: p.transaction.timestamp.toISO(),
-                  response: p.transaction.response
+                  receipt: p.transaction.receipt
                     ? {
-                        __typename: 'TransactionResponse',
-                        success: p.transaction.response.success,
-                        response: p.transaction.response.response,
-                        gasUsed: p.transaction.response.gasUsed.toString(),
-                        gasPrice: p.transaction.response.gasPrice.toString(),
-                        fee: p.transaction.response.fee.toString(),
-                        timestamp: p.transaction.response.timestamp.toISO(),
+                        __typename: 'TransactionReceipt',
+                        success: p.transaction.receipt.success,
+                        response: p.transaction.receipt.response,
+                        gasUsed: p.transaction.receipt.gasUsed.toString(),
+                        gasPrice: p.transaction.receipt.gasPrice.toString(),
+                        fee: p.transaction.receipt.fee.toString(),
+                        timestamp: p.transaction.receipt.timestamp.toISO(),
                       }
                     : null,
                 }

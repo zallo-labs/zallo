@@ -124,19 +124,20 @@ model Target {
 ////////////////////////////////////////////////////////////////
 
 model Proposal {
-  id             String   @id @db.Char(66) // hash: bytes32
-  account        Account  @relation(fields: [accountId], references: [id], onDelete: Cascade)
-  accountId      String   @db.Char(42) // address
-  proposer       User     @relation(fields: [proposerId], references: [id])
-  proposerId     String   @db.Char(42) // address
-  to             String   @db.Char(42) // address
-  value          Decimal? @db.Decimal(79, 0) // uint256
+  id             String      @id @db.Char(66) // hash: bytes32
+  account        Account     @relation(fields: [accountId], references: [id], onDelete: Cascade)
+  accountId      String      @db.Char(42) // address
+  proposer       User        @relation(fields: [proposerId], references: [id])
+  proposerId     String      @db.Char(42) // address
+  to             String      @db.Char(42) // address
+  value          Decimal?    @db.Decimal(79, 0) // uint256
   data           String? // bytes
   nonce          BigInt // uint256
   gasLimit       BigInt? // uint256
   estimatedOpGas BigInt // uint256
-  feeToken       String?  @db.Char(42) // address
-  createdAt      DateTime @default(now())
+  feeToken       String?     @db.Char(42) // address
+  createdAt      DateTime    @default(now())
+  simulation     Simulation?
 
   approvals    Approval[]
   transactions Transaction[]
@@ -146,38 +147,52 @@ model Proposal {
 model Transaction {
   hash String @id @db.Char(66) // bytes32
 
-  proposal   Proposal             @relation(fields: [proposalId], references: [id], onDelete: Cascade)
-  proposalId String               @db.Char(66) // bytes32
-  gasLimit   Decimal              @db.Decimal(19, 0)
-  gasPrice   Decimal?             @db.Decimal(19, 0)
-  createdAt  DateTime             @default(now())
-  response   TransactionResponse?
+  proposal   Proposal            @relation(fields: [proposalId], references: [id])
+  proposalId String              @db.Char(66) // bytes32
+  gasLimit   Decimal             @db.Decimal(19, 0)
+  gasPrice   Decimal?            @db.Decimal(19, 0)
+  createdAt  DateTime            @default(now())
+  receipt    TransactionReceipt?
 }
 
-model TransactionResponse {
-  transaction     Transaction @relation(fields: [transactionHash], references: [hash], onDelete: Cascade)
+model TransactionReceipt {
+  transaction     Transaction @relation(fields: [transactionHash], references: [hash])
   transactionHash String      @id @db.Char(66) // bytes32
-
-  success   Boolean
-  response  String? // bytes
-  gasUsed   Decimal  @db.Decimal(19, 0)
-  gasPrice  Decimal  @db.Decimal(19, 0)
-  fee       Decimal  @db.Decimal(79, 0) // uint256
-  timestamp DateTime @default(now())
+  success         Boolean
+  response        String? // bytes
+  gasUsed         Decimal     @db.Decimal(19, 0)
+  gasPrice        Decimal     @db.Decimal(19, 0)
+  fee             Decimal     @db.Decimal(79, 0) // uint256
+  timestamp       DateTime    @default(now())
 
   transfers Transfer[]
 }
 
 model Transfer {
-  fromResponse    TransactionResponse @relation(fields: [transactionHash], references: [transactionHash], onDelete: Cascade)
-  transactionHash String              @db.Char(66) // bytes32
-  transferNumber  Int
-  token           String              @db.Char(42) // address
-  from            String              @db.Char(42) // address
-  to              String              @db.Char(42) // address
-  amount          Decimal             @db.Decimal(79, 0) // uint256
+  id              Int                @id @default(autoincrement())
+  receipt         TransactionReceipt @relation(fields: [transactionHash], references: [transactionHash])
+  transactionHash String             @db.Char(66) // bytes32
+  token           String             @db.Char(42) // address
+  from            String             @db.Char(42) // address
+  to              String             @db.Char(42) // address
+  amount          Decimal            @db.Decimal(79, 0) // uint256
+}
 
-  @@id([transactionHash, transferNumber])
+model Simulation {
+  proposal   Proposal @relation(fields: [proposalId], references: [id])
+  proposalId String   @id @db.Char(66) // bytes32 @map("id")
+
+  transfers SimulatedTransfer[]
+}
+
+model SimulatedTransfer {
+  id         Int        @id @default(autoincrement())
+  simulation Simulation @relation(fields: [proposalId], references: [proposalId])
+  proposalId String     @db.Char(66) // bytes32 @map("simulationId")
+  token      String     @db.Char(42) // address
+  from       String     @db.Char(42) // address
+  to         String     @db.Char(42) // address
+  amount     Decimal    @db.Decimal(79, 0) // uint256
 }
 
 model Approval {

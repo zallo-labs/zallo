@@ -55,7 +55,7 @@ export class TransactionsConsumer {
     if (!explorerTx) return job.moveToFailed({ message: TRANSACTION_NOT_FOUND });
     if (!response) return job.moveToFailed({ message: RESPONSE_NOT_FOUND });
 
-    const createResponse = this.prisma.asSystem.transactionResponse.create({
+    const createResponse = this.prisma.asSystem.transactionReceipt.create({
       data: {
         transactionHash,
         success: response.success,
@@ -66,8 +66,7 @@ export class TransactionsConsumer {
         timestamp: new Date(parseFloat(response.timestamp) * 1000),
         transfers: {
           createMany: {
-            data: explorerTx.erc20Transfers.map((t, i) => ({
-              transferNumber: i,
+            data: explorerTx.erc20Transfers.map((t) => ({
               token: t.tokenInfo.l2Address,
               from: t.from,
               to: t.to,

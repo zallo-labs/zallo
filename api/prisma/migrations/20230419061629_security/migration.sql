@@ -151,13 +151,35 @@ CREATE POLICY account_member_all ON "Transaction" FOR ALL
 
 
 
-/* TransactionResponse */
-GRANT SELECT, INSERT ON "TransactionResponse" TO PUBLIC;
+/* TransactionReceipt */
+GRANT SELECT, INSERT ON "TransactionReceipt" TO PUBLIC;
 
 
 
 /* Transfer */
 GRANT SELECT, INSERT ON "Transfer" TO PUBLIC;
+
+
+
+/* Simulation */
+GRANT SELECT, INSERT ON "Simulation" TO PUBLIC;
+ALTER TABLE "Simulation" ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY account_member_all ON "Simulation" FOR ALL
+    USING (can_access_account(
+        (SELECT "accountId" FROM "Proposal" WHERE "id" = "proposalId")
+    ));
+
+
+
+/* SimulatedTransfer */
+GRANT SELECT, INSERT ON "SimulatedTransfer" TO PUBLIC;
+ALTER TABLE "SimulatedTransfer" ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY account_member_all ON "SimulatedTransfer" FOR ALL
+    USING (can_access_account(
+        (SELECT "accountId" FROM "Proposal" WHERE "id" = "proposalId")
+    ));
 
 
 

@@ -1,5 +1,5 @@
 import { forwardRef, Inject, Injectable, OnModuleInit } from '@nestjs/common';
-import { Prisma, TransactionResponse } from '@prisma/client';
+import { Prisma } from '@prisma/client';
 import {
   ACCOUNT_INTERFACE,
   Address,

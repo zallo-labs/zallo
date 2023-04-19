@@ -23,7 +23,7 @@ export class TransactionsService {
     @Inject(forwardRef(() => PoliciesService))
     private policies: PoliciesService,
   ) {
-    this.addMissingResponseJobs();
+    this.addMissingReceiptJobs();
   }
 
   async tryExecute<T extends Prisma.ProposalArgs>(
@@ -96,12 +96,12 @@ export class TransactionsService {
     return updatedProposal as Prisma.ProposalGetPayload<T>;
   }
 
-  private async addMissingResponseJobs() {
+  private async addMissingReceiptJobs() {
     const jobs = await this.transactionsQueue.getJobs(['waiting', 'active', 'delayed', 'paused']);
 
     const missingResponses = await this.prisma.asSystem.transaction.findMany({
       where: {
-        response: null,
+        receipt: null,
         hash: { notIn: jobs.map((job) => job.data.transactionHash) },
       },
       select: {

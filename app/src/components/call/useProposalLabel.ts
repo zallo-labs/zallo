@@ -11,7 +11,9 @@ export const TRANSFER_LABEL = 'Transfer';
 export const useProposalLabel = (p: Proposal | undefined) => {
   const func = useContractFunction(p);
   const accountMethod = useTryDecodeAccountFunctionData(p?.account ?? ZERO_ADDR, p?.data);
-  const transfer = p?.transfers.find((t) => t.token === p.to);
+  const transfer = (p?.transaction?.receipt?.transfers ?? p?.simulation?.transfers)?.find(
+    (t) => t.token === p.to,
+  );
   const to = useAddressLabel(transfer?.to ?? p?.to);
 
   if (!func) return p?.value ? `${TRANSFER_LABEL} to ${to}` : `Call ${to}`;

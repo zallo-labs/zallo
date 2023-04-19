@@ -12,6 +12,6 @@ export const useTransfersValue = (transfers: Transfer[]) => {
   return values.reduce((sum, [transfer, value]) => {
     if (!transfer || !value) return sum;
 
-    return sum + value * (transfer.direction === 'IN' ? 1 : -1);
+    return sum + value;
   }, 0);
 };

@@ -25,9 +25,10 @@ export type DetailsTabProps = TabNavigatorScreenProp<'Details'>;
 export const DetailsTab = withSuspense(({ route }: DetailsTabProps) => {
   const styles = useStyles();
   const p = useProposal(route.params.proposal);
-  const transfersValue = useTransfersValue(p.transfers);
+  const transfers = p.transaction?.receipt?.transfers ?? p.simulation?.transfers ?? [];
+  const transfersValue = useTransfersValue(transfers);
 
-  const to = p.transfers.find((t) => t.token === p.to)?.to ?? p.to;
+  const to = transfers.find((t) => t.token === p.to)?.to ?? p.to;
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
@@ -41,7 +42,7 @@ export const DetailsTab = withSuspense(({ route }: DetailsTabProps) => {
       />
 
       <ListHeader
-        {...(p.transfers.length > 1 && {
+        {...(transfers.length > 1 && {
           trailing: (
             <Text variant="labelLarge" style={styles.transfersHeaderSupporting}>
               <FiatValue value={transfersValue} />
@@ -52,7 +53,7 @@ export const DetailsTab = withSuspense(({ route }: DetailsTabProps) => {
         Transfers
       </ListHeader>
 
-      {p.transfers.map((t, i) => (
+      {transfers.map((t, i) => (
         <TokenItem key={i} token={t.token} amount={t.amount} account={p.account} />
       ))}
 

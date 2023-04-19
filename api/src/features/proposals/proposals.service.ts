@@ -14,7 +14,6 @@ import {
   estimateOpGas,
   Hex,
   asBigInt,
-  asHex,
   Erc20__factory,
   asSelector,
   Addresslike,
@@ -41,14 +40,13 @@ import { ExpoService } from '../util/expo/expo.service';
 import { O } from 'ts-toolbelt';
 import { PoliciesService, SelectManyPoliciesArgs } from '../policies/policies.service';
 import { SatisfiablePolicy } from './proposals.model';
-import { ExplorerTransfer } from '../explorer/explorer.model';
 import { ETH_ADDRESS } from 'zksync-web3/build/src/utils';
 import { BigNumberish } from 'ethers';
 import merge from 'ts-deepmerge';
 
-const TX_IS_EXECUTING: Prisma.TransactionWhereInput = { response: { isNot: {} } };
+const TX_IS_EXECUTING: Prisma.TransactionWhereInput = { receipt: { isNot: {} } };
 const TX_IS_EXECUTED: Prisma.TransactionWhereInput = {
-  response: { is: { success: { equals: true } } },
+  receipt: { is: { success: { equals: true } } },
 };
 const PROPOSAL_IS_PENDING: Prisma.ProposalWhereInput = {
   transactions: { none: { OR: [TX_IS_EXECUTING, TX_IS_EXECUTED] } },
@@ -132,6 +130,7 @@ export class ProposalsService {
           gasLimit: tx.gasLimit,
           estimatedOpGas: await estimateOpGas(this.provider, tx),
           feeToken,
+          simulation: { create: this.simulate(account, tx) },
         },
         select: merge(res?.select ?? {}, PROPOSAL_PAYLOAD_SELECT),
       })) as Prisma.ProposalGetPayload<T>;
@@ -303,49 +302,39 @@ export class ProposalsService {
     return policies;
   }
 
-  async transfers(p: Proposal): Promise<ExplorerTransfer[]> {
-    const to = asAddress(p.to);
-    const from = asAddress(p.accountId);
-    const value = p.value ? asBigInt(p.value.toString()) : undefined;
-    const data = p.data ? asHex(p.data) : undefined;
-
-    const transfers: ExplorerTransfer[] = [];
-    if (value && value > 0n) {
+  private simulate(account: Address, tx: Tx): Prisma.SimulationCreateWithoutProposalInput {
+    const transfers: Prisma.SimulatedTransferCreateWithoutSimulationInput[] = [];
+    if (tx.value && tx.value > 0n) {
       transfers.push({
-        id: `${p.id}-0`,
-        transferNumber: 0,
         token: asAddress(ETH_ADDRESS),
-        from,
-        to,
-        amount: value,
-        timestamp: p.createdAt,
+        from: account,
+        to: tx.to,
+        amount: (-tx.value).toString(),
       });
     }
 
     // Infer ERC20 transfer from proposal data; ideally the transaction would be simulated
-    if (data && asSelector(data) === ERC20_TRANSFER_SELECTOR) {
+    if (tx.data && asSelector(tx.data) === ERC20_TRANSFER_SELECTOR) {
       try {
-        const [dest, amount] = ERC20.decodeFunctionData(ERC20_TRANSFER, data) as [
+        const [dest, amount] = ERC20.decodeFunctionData(ERC20_TRANSFER, tx.data) as [
           Addresslike,
           BigNumberish,
         ];
-        const transferNumber = transfers.length;
 
         transfers.push({
-          id: `${p.id}-${transferNumber}`,
-          transferNumber,
-          token: to,
-          from,
+          token: tx.to,
+          from: account,
           to: asAddress(dest),
-          amount: asBigInt(amount),
-          timestamp: p.createdAt,
+          amount: (-asBigInt(amount)).toString(),
         });
       } catch (e) {
-        Logger.warn(`Failed to decode ERC20 transfer data; data=${data}, error=${e}`);
+        Logger.warn(`Failed to decode ERC20 transfer data: ${e}`);
       }
     }
 
-    return transfers;
+    return {
+      transfers: { createMany: { data: transfers } },
+    };
   }
 
   private async notifyApprovers(proposalId: string) {
