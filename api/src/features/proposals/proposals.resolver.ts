@@ -89,7 +89,6 @@ export class ProposalsResolver {
   @Subscription(() => Proposal, {
     name: PROPOSAL_SUBSCRIPTION,
     filter: ({ event }: ProposalSubscriptionPayload, { events }: ProposalSubscriptionFilters) => {
-      console.log('Filtering proposal subscription');
       return !events || events.includes(event);
     },
     resolve(

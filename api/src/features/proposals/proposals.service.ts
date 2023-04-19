@@ -261,11 +261,6 @@ export class ProposalsService {
   }
 
   async publishProposal(payload: ProposalSubscriptionPayload) {
-    console.log(`
-      Publishing proposal:
-      ${PROPOSAL_SUBSCRIPTION}.${payload[PROPOSAL_SUBSCRIPTION].id}
-      ${ACCOUNT_PROPOSAL_SUB_TRIGGER}.${payload[PROPOSAL_SUBSCRIPTION].accountId}
-    `);
     await Promise.all([
       this.pubsub.publish<ProposalSubscriptionPayload>(
         `${PROPOSAL_SUBSCRIPTION}.${payload[PROPOSAL_SUBSCRIPTION].id}`,
