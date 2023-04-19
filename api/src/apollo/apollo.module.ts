@@ -54,11 +54,12 @@ const chain = (req: Request, resolve: () => void, middlewares: NestMiddleware[])
 
               // Copy connection parameters into headers
               req.headers = {
-                ...req.headers,
                 // Lowercase all header keys - as done by express for http requests; this is done by request to avoid ambiguity in headers
                 ...(Object.fromEntries(
                   Object.entries(ctx.connectionParams ?? {}).map(([k, v]) => [k.toLowerCase(), v]),
                 ) as Partial<typeof req.headers>),
+                // Load req.headers after connectionParams to avoid potentially malicious overwrites (e.g. host)
+                ...req.headers,
               };
 
               await new Promise<void>((resolve) =>
