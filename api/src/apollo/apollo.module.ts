@@ -6,7 +6,7 @@ import {
   ApolloServerPluginInlineTrace,
 } from 'apollo-server-core';
 import { IS_DEV } from '~/config';
-import { IncomingContext, Context, IncomingWsContext } from '~/request/ctx';
+import { IncomingContext, GqlContext, IncomingWsContext } from '~/request/ctx';
 import { AddressMiddleware } from './address.middleware';
 import { AuthModule } from '~/features/auth/auth.module';
 import { SessionMiddleware } from '~/features/auth/session.middleware';
@@ -72,7 +72,7 @@ const chain = (req: Request, resolve: () => void, middlewares: NestMiddleware[])
             },
           },
         },
-        context: (ctx: IncomingContext): Context =>
+        context: (ctx: IncomingContext): GqlContext =>
           'req' in ctx ? { req: ctx.req } : { req: ctx.extra.request },
         playground: false,
         plugins: [

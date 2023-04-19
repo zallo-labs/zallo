@@ -25,7 +25,7 @@ import { Proposal } from '@gen/proposal/proposal.model';
 import { ProposalsService } from './proposals.service';
 import { Transaction } from '@gen/transaction/transaction.model';
 import { PubsubService } from '~/features/util/pubsub/pubsub.service';
-import { asUser, getUserCtx, userFromGraphqlContext } from '~/request/ctx';
+import { GqlContext, asUser, getUserCtx } from '~/request/ctx';
 import { Rejection, SatisfiablePolicy } from './proposals.model';
 import { asHex } from 'lib';
 import { Approval } from '@gen/approval/approval.model';
@@ -96,30 +96,28 @@ export class ProposalsResolver {
       this: ProposalsResolver,
       { proposal }: ProposalSubscriptionPayload,
       _args,
-      ctx,
+      ctx: GqlContext,
       info: GraphQLResolveInfo,
     ) {
       return asUser(
-        userFromGraphqlContext(ctx),
+        ctx,
         async () =>
           await this.service.findUnique({ where: { id: proposal.id }, ...getSelect(info) }),
       );
     },
   })
-  async proposalSubscription(@Args() { accounts, proposals }: ProposalSubscriptionFilters) {
-    if (!accounts && !proposals) accounts = [...getUserCtx().accounts];
+  async proposalSubscription(
+    @Args() { accounts, proposals }: ProposalSubscriptionFilters,
+    @Context() ctx: GqlContext,
+  ) {
+    return asUser(ctx, () => {
+      if (!accounts && !proposals) accounts = [...getUserCtx().accounts];
 
-    console.log(
-      `Subscribing: ${JSON.stringify([
+      return this.pubsub.asyncIterator([
         ...[...(accounts ?? [])].map((account) => `${ACCOUNT_PROPOSAL_SUB_TRIGGER}.${account}`),
         ...[...(proposals ?? [])].map((proposal) => `${PROPOSAL_SUBSCRIPTION}.${proposal}`),
-      ])}`,
-    );
-
-    return this.pubsub.asyncIterator([
-      ...[...(accounts ?? [])].map((account) => `${ACCOUNT_PROPOSAL_SUB_TRIGGER}.${account}`),
-      ...[...(proposals ?? [])].map((proposal) => `${PROPOSAL_SUBSCRIPTION}.${proposal}`),
-    ]);
+      ]);
+    });
   }
 
   @Mutation(() => Proposal)
