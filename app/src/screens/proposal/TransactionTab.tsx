@@ -19,6 +19,7 @@ import { Actions } from '~/components/layout/Actions';
 import { Button } from '~/components/Button';
 import * as Linking from 'expo-linking';
 import { CHAIN } from '@network/provider';
+import { TabBadge } from '~/components/tab/TabBadge';
 
 const Item = (props: ListItemProps) => (
   <ListItem
@@ -154,9 +155,22 @@ export const TransactionTab = withSuspense(({ route }: TransactionTabProps) => {
   );
 }, TabScreenSkeleton);
 
+export interface TransactionTabBadgeProps {
+  proposal: ProposalId;
+}
+
+export const TransactionTabBadge = ({ proposal: id }: TransactionTabBadgeProps) => {
+  const { state } = useProposal(id);
+
+  return <TabBadge visible={state === 'executing' || state === 'failed'} style={styles.badge} />;
+};
+
 const styles = StyleSheet.create({
   container: {
     flex: 1,
     paddingTop: 8,
+  },
+  badge: {
+    transform: [{ translateX: -8 }],
   },
 });

@@ -3,11 +3,10 @@ import {
   createMaterialTopTabNavigator,
   MaterialTopTabScreenProps,
 } from '@react-navigation/material-top-tabs';
-import { StyleSheet } from 'react-native';
 import { TopTabBar } from '~/components/tab/TopTabBar';
 import { PolicyTab, PolicyTabBadge, PolicyTabParams } from './PolicyTab';
 import { DetailsTab, DetailsTabParams } from './DetailsTab';
-import { TransactionTab, TransactionTabParams } from './TransactionTab';
+import { TransactionTab, TransactionTabBadge, TransactionTabParams } from './TransactionTab';
 
 export type TabNavigatorParamList = {
   Details: DetailsTabParams;
@@ -25,7 +24,7 @@ export interface TabsProps {
 }
 
 export const Tabs = ({ proposal }: TabsProps) => (
-  <Tab.Navigator tabBar={TopTabBar} sceneContainerStyle={styles.sceneContainer}>
+  <Tab.Navigator tabBar={TopTabBar}>
     <Tab.Screen name="Details" component={DetailsTab} initialParams={{ proposal }} />
     <Tab.Screen
       name="Policy"
@@ -33,12 +32,11 @@ export const Tabs = ({ proposal }: TabsProps) => (
       options={{ tabBarBadge: () => <PolicyTabBadge proposal={proposal} /> }}
       initialParams={{ proposal }}
     />
-    <Tab.Screen name="Transaction" component={TransactionTab} initialParams={{ proposal }} />
+    <Tab.Screen
+      name="Transaction"
+      component={TransactionTab}
+      options={{ tabBarBadge: () => <TransactionTabBadge proposal={proposal} /> }}
+      initialParams={{ proposal }}
+    />
   </Tab.Navigator>
 );
-
-const styles = StyleSheet.create({
-  sceneContainer: {
-    // paddingVertical: 8,
-  },
-});
