@@ -47,13 +47,13 @@ export class AuthMiddleware implements NestMiddleware {
   constructor(private provider: ProviderService, private userAccount: UserAccountsService) {}
 
   async use(req: Request, _res: Response, next: NextFunction) {
-    const user = await this.tryAuth(req);
+    const user = await this.tryAuthenticate(req);
     if (user) req.user = { id: user, accounts: await this.userAccount.get(user) };
 
     next();
   }
 
-  private async tryAuth(req: Request): Promise<Address | undefined> {
+  private async tryAuthenticate(req: Request): Promise<Address | undefined> {
     const auth = tryParseAuth(req.headers.authorization);
 
     if (typeof auth === 'object') {
@@ -65,7 +65,8 @@ export class AuthMiddleware implements NestMiddleware {
         try {
           const r = await message.validate(signature, this.provider);
 
-          if (r.domain !== req.get('host')) return 'Invalid domain (host)';
+          const host = req.headers.host;
+          if (host && r.domain !== host) return 'Invalid domain (host)';
           if (r.nonce !== req.session.nonce) return 'Invalid nonce';
           if (r.expirationTime && DateTime.fromISO(r.expirationTime) < DateTime.now())
             return 'Expired';
