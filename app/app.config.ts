@@ -46,10 +46,14 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
       {
         // https://docs.expo.dev/versions/latest/sdk/build-properties/
         ios: {
-          flipper: false, // Disable on ios due to issue https://github.com/jakobo/expo-community-flipper/issues/27
+          useFrameworks: 'static', // Required by react-native-firebase
+          // flipper: false, // Disallowed by `useFrameworks: 'static'` https://github.com/jakobo/expo-community-flipper/issues/27
         },
       },
     ],
+    '@react-native-firebase/app',
+    '@react-native-firebase/perf',
+    '@react-native-firebase/crashlytics',
   ],
   hooks: {
     postPublish: [
@@ -94,6 +98,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     config: {
       usesNonExemptEncryption: false,
     },
+    googleServicesFile: './GoogleService-Info.secret.plist',
   },
   web: {
     bundler: 'metro',
