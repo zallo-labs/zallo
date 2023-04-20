@@ -17,6 +17,9 @@ shim();
 // Crypto needs to be shimmed before this - https://docs.ethers.org/v5/cookbook/react-native/
 import '@ethersproject/shims';
 
+// Log ethers events
+import './ethersLogger';
+
 // Immer features
 import { enableES5, enableMapSet } from 'immer';
 enableES5();

@@ -8,18 +8,18 @@ import { LocalizatonProvider } from '~/provider/LocalizationProvider';
 import { GqlProvider } from '~/gql/GqlProvider';
 import { SnackbarProvider } from '~/provider/SnackbarProvider';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
-import { ErrorBoundary } from '~/util/sentry/ErrorBoundary';
+import { ErrorBoundary } from '~/components/ErrorBoundary';
 import { Splash } from '~/components/Splash';
 import { StatusBar } from 'expo-status-bar';
 import { AuthGate } from '~/provider/AuthGate';
 import { ThemeProvider } from '~/util/theme/ThemeProvider';
 import { AnalyticsUser } from '~/components/AnalyticsUser';
-import { SentryProvider } from '~/util/sentry';
 import { NavigationProvider } from '~/navigation/NavigationProvider';
 import { NotificationsRegistrar } from '~/util/NotificationsRegistrar';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { StackNavigator } from '~/navigation/StackNavigator';
 import { Subscriptions } from './components/Subscriptions';
+import { SentryProvider } from './provider/SentryProvider';
 // import { WalletConnectListeners } from '~/components/walletconnect/WalletConnectListeners';
 
 // Disable Recoil atom key checking due to hotreloading issues
