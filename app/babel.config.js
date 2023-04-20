@@ -16,7 +16,18 @@ module.exports = function (api) {
   return {
     presets: ['babel-preset-expo'],
     plugins: [
-      ['module-resolver', { alias: getAliasPaths() }],
+      [
+        'module-resolver',
+        {
+          alias: {
+            crypto: 'react-native-quick-crypto',
+            stream: 'stream-browserify',
+            buffer: '@craftzdog/react-native-buffer',
+            '@ethersproject/pbkdf2': './src/util/patches/pbkdf2.js',
+            ...getAliasPaths(),
+          },
+        },
+      ],
       [
         'formatjs',
         // {

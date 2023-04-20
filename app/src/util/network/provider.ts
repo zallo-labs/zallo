@@ -1,11 +1,3 @@
-/*
- * CRITICAL: Import exactly in this order
- * https://docs.ethers.io/v5/cookbook/react-native/
- */
-import 'react-native-get-random-values';
-import '@ethersproject/shims';
-import 'ethers';
-
 import { LogBox, Platform } from 'react-native';
 import * as zk from 'zksync-web3';
 import { CONFIG } from '~/util/config';
