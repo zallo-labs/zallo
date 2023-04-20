@@ -81,13 +81,12 @@ export class AccountsService {
       );
     });
 
-    const r = await this.activateAccount(account, res);
-
-    await this.contracts.addAccountAsVerified(account);
     this.publishAccount({ account: { id: account }, event: AccountEvent.create });
+    this.activateAccount(account, { select: null });
+    this.contracts.addAccountAsVerified(account);
     this.faucet.requestTokens(account);
 
-    return r;
+    return this.prisma.asUser.account.findUniqueOrThrow({ where: { id: account }, ...res });
   }
 
   async updateAccount<R extends Prisma.AccountArgs>(
@@ -130,7 +129,7 @@ export class AccountsService {
         },
       },
     });
-    assert(!isActive);
+    if (isActive) throw new Error('Account is already active');
 
     await this.provider.deployProxy({
       impl: asAddress(impl),
@@ -138,7 +137,7 @@ export class AccountsService {
       salt: toDeploySalt(deploySalt),
     });
 
-    return this.prisma.asUser.account.update({
+    const r = await this.prisma.asUser.account.update({
       where: { id: account },
       data: {
         isActive: true,
@@ -151,6 +150,10 @@ export class AccountsService {
       },
       ...res,
     });
+
+    this.publishAccount({ account: { id: account }, event: AccountEvent.update });
+
+    return r;
   }
 
   private async publishAccount({ event, account: { id } }: AccountSubscriptionPayload) {
