@@ -6,6 +6,7 @@ import { LogBox } from 'react-native';
 import * as NotificationsLinking from '~/util/notifications/notificationLinking';
 import * as Linking from 'expo-linking';
 import { ROUTES } from './routes';
+import analytics from '@react-native-firebase/analytics';
 
 LogBox.ignoreLogs(['Non-serializable values were found in the navigation state']);
 
@@ -30,6 +31,11 @@ export const NavigationProvider = ({ children }: NavigationProviderProps) => {
     const currentRouteName = navigationRef.getCurrentRoute()?.name;
 
     if (previousRouteName !== currentRouteName) {
+      await analytics().logScreenView({
+        screen_name: currentRouteName,
+        screen_class: currentRouteName,
+      });
+
       addBreadcrumb({
         level: 'info',
         type: 'navigation',
@@ -40,7 +46,6 @@ export const NavigationProvider = ({ children }: NavigationProviderProps) => {
       });
     }
 
-    // Save the current route name for later comparison
     routeNameRef.current = currentRouteName;
   }, [navigationRef]);
 
