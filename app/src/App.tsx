@@ -13,7 +13,7 @@ import { Splash } from '~/components/Splash';
 import { StatusBar } from 'expo-status-bar';
 import { AuthGate } from '~/provider/AuthGate';
 import { ThemeProvider } from '~/util/theme/ThemeProvider';
-import { SentryUser } from '~/util/sentry/SentryUser';
+import { AnalyticsUser } from '~/components/AnalyticsUser';
 import { SentryProvider } from '~/util/sentry';
 import { NavigationProvider } from '~/navigation/NavigationProvider';
 import { NotificationsRegistrar } from '~/util/NotificationsRegistrar';
@@ -36,8 +36,8 @@ export default () => (
               <ErrorBoundary>
                 <Suspense fallback={<Splash />}>
                   <RecoilRoot>
+                    <AnalyticsUser />
                     <AuthGate>
-                      <SentryUser />
                       <GqlProvider>
                         <Suspense fallback={<Splash />}>
                           <NotificationsRegistrar />
