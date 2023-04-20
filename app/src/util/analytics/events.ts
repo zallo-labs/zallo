@@ -41,3 +41,8 @@ const getConsoleLog = (level: EventLevel) =>
     .with('warning', () => console.warn)
     .with('error', () => console.error)
     .exhaustive();
+
+export const setContext = (key: string, value: unknown) => {
+  Sentry.setExtra(key, value);
+  crashlytics().setAttribute(key, JSON.stringify(value, null, 2));
+};
