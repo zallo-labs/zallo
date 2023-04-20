@@ -14639,7 +14639,6 @@ __metadata:
     chardet: ^1.5.1
     color: ^4.2.3
     concurrently: ^7.6.0
-    crypto-hash: ^2.0.1
     dotenv-cli: ^7.2.1
     dotenv-vault-core: ^0.7.0
     eas-cli: ^3.9.2
@@ -14697,7 +14696,6 @@ __metadata:
     react-native: 0.71.4
     react-native-barcode-mask: ^1.2.4
     react-native-collapsible: ^1.6.1
-    react-native-crypto: ^2.2.0
     react-native-dashed-line: ^1.1.0
     react-native-gesture-handler: ~2.9.0
     react-native-get-random-values: ~1.8.0
@@ -18598,13 +18596,6 @@ __metadata:
     randombytes: ^2.0.0
     randomfill: ^1.0.3
   checksum: c1609af82605474262f3eaa07daa0b2140026bd264ab316d4bf1170272570dbe02f0c49e29407fe0d3634f96c507c27a19a6765fb856fed854a625f9d15618e2
-  languageName: node
-  linkType: hard
-
-"crypto-hash@npm:^2.0.1":
-  version: 2.0.1
-  resolution: "crypto-hash@npm:2.0.1"
-  checksum: 08d304024166ef4856d71ec16f9429dfe6ddd8126d07b2a798e0f586eb60106c0f05b210b6d6f6f8189f8304ec33e7f1a880d5a38c2fadca19c4801fb5bd3e36
   languageName: node
   linkType: hard
 
@@ -35355,7 +35346,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"react-native-crypto@npm:^2.0.1, react-native-crypto@npm:^2.2.0":
+"react-native-crypto@npm:^2.0.1":
   version: 2.2.0
   resolution: "react-native-crypto@npm:2.2.0"
   dependencies:
