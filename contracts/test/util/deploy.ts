@@ -93,12 +93,13 @@ export const deployProxy = async ({
 
   const { factory } = await deployFactory('ERC1967Proxy');
   const { impl } = await deployAccountImpl({ contractName });
-  const { account } = await deployAccountProxy({
+  const { account, transaction } = await deployAccountProxy({
     factory,
     impl,
     policies: [policy],
     salt: randomDeploySalt(),
   });
+  await transaction.wait();
 
   const txResp = await WALLET.sendTransaction({
     to: account.address,
