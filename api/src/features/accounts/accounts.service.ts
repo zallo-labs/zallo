@@ -1,18 +1,15 @@
 import { Injectable } from '@nestjs/common';
 import { Account, Prisma } from '@prisma/client';
-import { asAddress, Address, toDeploySalt, randomDeploySalt, asPolicyKey } from 'lib';
+import { asAddress, Address, toDeploySalt, randomDeploySalt, asPolicyKey, asHex } from 'lib';
 import { PrismaService } from '../util/prisma/prisma.service';
 import { ProviderService } from '~/features/util/provider/provider.service';
 import { PubsubService } from '../util/pubsub/pubsub.service';
-import assert from 'assert';
 import {
   ACCOUNT_SUBSCRIPTION,
   USER_ACCOUNT_SUBSCRIPTION,
   AccountEvent,
   CreateAccountInput,
   UpdateAccountInput,
-  AccountTransfersArgs,
-  TransferDirection,
 } from './accounts.args';
 import { POLICY_STATE_FIELDS, inputAsPolicy, prismaAsPolicy } from '../policies/policies.util';
 import { CONFIG } from '~/config';
@@ -21,6 +18,9 @@ import { FaucetService } from '../faucet/faucet.service';
 import { PoliciesService } from '../policies/policies.service';
 import { getUser } from '~/request/ctx';
 import { UserInputError } from 'apollo-server-core';
+import { InjectQueue } from '@nestjs/bull';
+import { ACCOUNTS_QUEUE, AccountActivationEvent } from './accounts.queue';
+import { Queue } from 'bull';
 
 export interface AccountSubscriptionPayload {
   [ACCOUNT_SUBSCRIPTION]: Pick<Account, 'id'>;
@@ -36,6 +36,8 @@ export class AccountsService {
     private contracts: ContractsService,
     private faucet: FaucetService,
     private policies: PoliciesService,
+    @InjectQueue(ACCOUNTS_QUEUE.name)
+    private activationQueue: Queue<AccountActivationEvent>,
   ) {}
 
   findUnique = this.prisma.asUser.account.findUnique;
@@ -59,7 +61,7 @@ export class AccountsService {
       policies: policyInputs.map((p, i) => inputAsPolicy(policyKeys[i], p)),
     });
 
-    await this.prisma.asUser.$transaction(async (prisma) => {
+    const r = await this.prisma.asUser.$transaction(async (prisma) => {
       // Prisma create always SELECTs after the INSERT. However the user isn't yet a member of the account - https://github.com/prisma/prisma/issues/4246
       // createMany doesn't have this behaviour
       await prisma.account.createMany({
@@ -79,14 +81,16 @@ export class AccountsService {
           ),
         ),
       );
+
+      return prisma.account.findUniqueOrThrow({ where: { id: account }, ...res });
     });
 
-    this.publishAccount({ account: { id: account }, event: AccountEvent.create });
-    this.activateAccount(account, { select: null });
+    await this.publishAccount({ account: { id: account }, event: AccountEvent.create });
+    await this.activateAccount(account);
     this.contracts.addAccountAsVerified(account);
     this.faucet.requestTokens(account);
 
-    return this.prisma.asUser.account.findUniqueOrThrow({ where: { id: account }, ...res });
+    return r;
   }
 
   async updateAccount<R extends Prisma.AccountArgs>(
@@ -104,10 +108,7 @@ export class AccountsService {
     return r;
   }
 
-  private async activateAccount<R extends Prisma.AccountArgs>(
-    account: Address,
-    res?: Prisma.SelectSubset<R, Prisma.AccountArgs>,
-  ) {
+  private async activateAccount(account: Address) {
     const {
       impl,
       deploySalt,
@@ -131,32 +132,16 @@ export class AccountsService {
     });
     if (isActive) throw new Error('Account is already active');
 
-    await this.provider.deployProxy({
+    const { transaction } = await this.provider.deployProxy({
       impl: asAddress(impl),
       policies: states.map(prismaAsPolicy),
       salt: toDeploySalt(deploySalt),
     });
 
-    const r = await this.prisma.asUser.account.update({
-      where: { id: account },
-      data: {
-        isActive: true,
-        policies: {
-          update: states.map((r) => ({
-            where: { accountId_key: { accountId: account, key: r.policyKey } },
-            data: { activeId: r.id, draftId: null },
-          })),
-        },
-      },
-      ...res,
-    });
-
-    this.publishAccount({ account: { id: account }, event: AccountEvent.update });
-
-    return r;
+    this.activationQueue.add({ account, transaction: asHex(transaction.hash) });
   }
 
-  private async publishAccount({ event, account: { id } }: AccountSubscriptionPayload) {
+  async publishAccount({ event, account: { id } }: AccountSubscriptionPayload) {
     const payload: AccountSubscriptionPayload = { event, account: { id } }; // Reconstruct to exclude other fields
     await this.pubsub.publish<AccountSubscriptionPayload>(`${ACCOUNT_SUBSCRIPTION}.${id}`, payload);
 
