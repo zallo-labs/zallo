@@ -10,8 +10,6 @@ import {
   Account__factory,
   Addresslike,
   asAddress,
-  verifySignature,
-  Hex,
   VerifySignatureOptions,
   asApproval,
   DeployArgs,
@@ -24,8 +22,8 @@ import { Mutex } from 'async-mutex';
 export class ProviderService extends zk.Provider {
   public chain: Chain;
 
-  private walletMutex = new Mutex();
   private wallet: zk.Wallet;
+  private walletMutex = new Mutex(); // TODO: replace with distributed mutex - https://linear.app/zallo/issue/ZAL-91
   private proxyFactory: Factory;
 
   constructor() {
@@ -41,21 +39,21 @@ export class ProviderService extends zk.Provider {
     this.proxyFactory = Factory__factory.connect(CONFIG.proxyFactoryAddress, this.wallet);
   }
 
-  connectAccount(account: Addresslike): Account {
-    return Account__factory.connect(asAddress(account), this);
+  get walletAddress(): Address {
+    return this.wallet.address;
   }
 
   useWallet<R>(f: (wallet: zk.Wallet) => R): Promise<R> {
     return this.walletMutex.runExclusive(() => f(this.wallet));
   }
 
-  get walletAddress(): Address {
-    return this.wallet.address;
-  }
-
   useProxyFactory<R>(f: (factory: Factory) => R): Promise<R> {
     // Proxy factory is connect to the wallet
     return this.walletMutex.runExclusive(() => f(this.proxyFactory));
+  }
+
+  connectAccount(account: Addresslike): Account {
+    return Account__factory.connect(asAddress(account), this);
   }
 
   async lookupAddress(address: string | Promise<string>): Promise<string | null> {
@@ -75,13 +73,10 @@ export class ProviderService extends zk.Provider {
   }
 
   async getProxyAddress(args: Omit<DeployArgs, 'factory'>) {
-    return this.useProxyFactory((factory) => getProxyAddress({ ...args, factory }));
+    return getProxyAddress({ ...args, factory: this.proxyFactory }); // Only uses (read-only) static call so it doesn't require locking
   }
 
   async deployProxy(args: Omit<DeployArgs, 'factory'>) {
-    const { account } = await this.useProxyFactory((factory) =>
-      deployAccountProxy({ ...args, factory }),
-    );
-    await account.deployed();
+    return this.useProxyFactory((factory) => deployAccountProxy({ ...args, factory }));
   }
 }
