@@ -20,8 +20,8 @@ import { ProposalsService } from '../proposals/proposals.service';
 import { CreatePolicyInput, UniquePolicyInput, UpdatePolicyInput } from './policies.args';
 import {
   TransactionResponseData,
-  TransactionsConsumer,
-} from '../transactions/transactions.consumer';
+  TransactionsProcessor,
+} from '../transactions/transactions.processor';
 import { inputAsPolicy, POLICY_STATE_FIELDS, prismaAsPolicy, PrismaPolicy } from './policies.util';
 import merge from 'ts-deepmerge';
 import _ from 'lodash';
@@ -49,8 +49,8 @@ export class PoliciesService implements OnModuleInit {
     private prisma: PrismaService,
     @Inject(forwardRef(() => ProposalsService))
     private proposals: ProposalsService,
-    @Inject(forwardRef(() => TransactionsConsumer))
-    private transactionsConsumer: TransactionsConsumer,
+    @Inject(forwardRef(() => TransactionsProcessor))
+    private transactionsConsumer: TransactionsProcessor,
     private userAccounts: UserAccountsService,
   ) {}
 

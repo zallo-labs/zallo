@@ -86,7 +86,7 @@ export class TransactionsService {
     });
     this.proposals.publishProposal({ proposal, event: ProposalEvent.update });
 
-    this.transactionsQueue.add({ transactionHash }, { delay: 1000 /* 1s */ });
+    this.transactionsQueue.add({ transaction: transactionHash }, { delay: 1000 /* 1s */ });
 
     return updatedProposal as Prisma.ProposalGetPayload<T>;
   }
@@ -97,7 +97,7 @@ export class TransactionsService {
     const missingResponses = await this.prisma.asSystem.transaction.findMany({
       where: {
         receipt: null,
-        hash: { notIn: jobs.map((job) => job.data.transactionHash) },
+        hash: { notIn: jobs.map((job) => job.data.transaction) },
       },
       select: {
         hash: true,
@@ -105,7 +105,7 @@ export class TransactionsService {
     });
 
     return this.transactionsQueue.addBulk(
-      missingResponses.map((r) => ({ data: { transactionHash: asHex(r.hash) } })),
+      missingResponses.map((r) => ({ data: { transaction: asHex(r.hash) } })),
     );
   }
 }

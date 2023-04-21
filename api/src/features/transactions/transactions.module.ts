@@ -3,7 +3,7 @@ import { forwardRef, Module } from '@nestjs/common';
 import { PoliciesModule } from '../policies/policies.module';
 import { ProposalsModule } from '../proposals/proposals.module';
 import { SubgraphModule } from '../subgraph/subgraph.module';
-import { TransactionsConsumer } from './transactions.consumer';
+import { TransactionsProcessor } from './transactions.processor';
 import { TRANSACTIONS_QUEUE } from './transactions.queue';
 import { TransactionsResolver } from './transactions.resolver';
 import { TransactionsService } from './transactions.service';
@@ -17,7 +17,7 @@ import { ExplorerModule } from '../explorer/explorer.module';
     SubgraphModule,
     ExplorerModule,
   ],
-  exports: [TransactionsService, TransactionsConsumer],
-  providers: [TransactionsConsumer, TransactionsResolver, TransactionsService],
+  exports: [TransactionsService, TransactionsProcessor],
+  providers: [TransactionsResolver, TransactionsService, TransactionsProcessor],
 })
 export class TransactionsModule {}
