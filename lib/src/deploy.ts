@@ -59,14 +59,11 @@ export const getProxyAddress = async ({ factory, salt, ...constructorArgs }: Dep
 
 export const deployAccountProxy = async ({ factory, salt, ...constructorArgs }: DeployArgs) => {
   const proxy = await getProxyAddress({ factory, salt, ...constructorArgs });
-
-  const deployTx = await factory.deploy(encodeProxyConstructorArgs(constructorArgs), salt);
-  await deployTx.wait();
+  const transaction = await factory.deploy(encodeProxyConstructorArgs(constructorArgs), salt);
 
   return {
     proxy: AccountProxy__factory.connect(proxy, factory.signer),
     account: Account__factory.connect(proxy, factory.signer),
-    salt,
-    deployTx,
+    transaction,
   };
 };

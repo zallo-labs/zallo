@@ -20,7 +20,7 @@ export const useSessionPropsalListener = () => {
       if (usNamespaces) {
         showError('Session requires unsupported namespaces', {
           event: {
-            extra: {
+            context: {
               proposal,
               unsupportedNamespaces: usNamespaces,
             },
@@ -34,7 +34,7 @@ export const useSessionPropsalListener = () => {
       if (!namespace) {
         showError("Session doesn't support Ethereum", {
           event: {
-            extra: {
+            context: {
               proposal,
             },
           },
@@ -47,7 +47,7 @@ export const useSessionPropsalListener = () => {
       if (unsupportedChains) {
         showError('Session requires unsupported chains', {
           event: {
-            extra: {
+            context: {
               proposal,
               unsupportedChains,
             },
@@ -61,7 +61,7 @@ export const useSessionPropsalListener = () => {
       if (usMethods.length) {
         showError('Session requires unsupported methods', {
           event: {
-            extra: {
+            context: {
               proposal,
               unsupportedMethods: usMethods,
             },

@@ -7,7 +7,7 @@ import { CONFIG } from '~/util/config';
 import { atom, useRecoilState } from 'recoil';
 import { getSecureStore, persistAtom } from '~/util/effect/persistAtom';
 import { useCallback, useMemo, useRef } from 'react';
-import { captureException } from '~/util/sentry';
+import { event } from '~/util/analytics';
 import { useApprover } from '@network/useApprover';
 import { DateTime } from 'luxon';
 import { Approver } from 'lib';
@@ -105,7 +105,12 @@ export const useApiAuth = () => {
             2,
           );
 
-          captureException(networkError, { extra: { operation } });
+          event({
+            message: 'Api error',
+            level: 'error',
+            error: networkError,
+            context: { operation },
+          });
         }
       } else if (networkError) {
         console.warn('API network error', JSON.stringify(networkError, null, 2));

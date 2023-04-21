@@ -5,7 +5,7 @@ import { StyleProp, TextStyle } from 'react-native';
 import { Snackbar, SnackbarProps, Text } from 'react-native-paper';
 import RnToast, { ToastConfig, ToastConfigParams, ToastOptions } from 'react-native-toast-message';
 import { match } from 'ts-pattern';
-import { captureEvent, SentryEvent } from '~/util/sentry';
+import { EventParams, event } from '~/util/analytics';
 
 type SnackVariant = 'info' | 'success' | 'warning' | 'error';
 
@@ -13,7 +13,7 @@ type SnackParams = Pick<SnackbarProps, 'action' | 'style' | 'elevation'> & {
   message: string;
   variant?: SnackVariant;
   messageStyle?: StyleProp<TextStyle>;
-  event?: Partial<SentryEvent> | false;
+  event?: Partial<EventParams> | false;
 };
 
 export type SnackProps = ToastConfigParams<SnackParams>;
@@ -21,21 +21,20 @@ export type SnackProps = ToastConfigParams<SnackParams>;
 const Snack = ({
   isVisible,
   hide,
-  props: { message, variant = 'info', messageStyle, event, action, style, ...props },
+  props: { message, variant = 'info', messageStyle, event: eventProp, action, style, ...props },
 }: SnackProps) => {
   const styles = useStyles(variant);
 
   useEffect(() => {
-    if (variant === 'error' && event !== false)
-      captureEvent({
+    if (variant === 'warning' || variant === 'error') {
+      event({
+        level: variant,
         message,
-        ...event,
-        tags: {
-          from: 'snack',
-          ...event?.tags,
-        },
+        ...eventProp,
+        context: { ...(typeof eventProp === 'object' && eventProp), snackShown: true },
       });
-  }, [message, variant, event]);
+    }
+  }, [message, variant, eventProp]);
 
   return (
     <Snackbar

@@ -1,12 +1,16 @@
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { Text } from 'react-native-paper';
-import { ReactNode, useEffect } from 'react';
+import { ComponentPropsWithoutRef, ReactNode, useEffect } from 'react';
 import { Native as Sentry } from 'sentry-expo';
 import { Box } from '~/components/layout/Box';
 import { makeStyles } from '@theme/makeStyles';
 import { Fab } from '~/components/buttons/Fab';
 import { RefreshIcon } from '@theme/icons';
-import BigIntJSON from '../BigIntJSON';
+import { event } from '~/util/analytics';
+
+const onError: ComponentPropsWithoutRef<typeof Sentry.ErrorBoundary>['onError'] = (error) => {
+  event({ level: 'error', message: error.message, error, context: { errorBoundary: true } });
+};
 
 interface FallbackProps {
   resetError(): void;
@@ -42,12 +46,7 @@ export interface ErrorBoundaryProps {
 }
 
 export const ErrorBoundary = ({ children }: ErrorBoundaryProps) => (
-  <Sentry.ErrorBoundary
-    fallback={Fallback}
-    onError={(error) => {
-      console.error(BigIntJSON.stringify(error, null, 2));
-    }}
-  >
+  <Sentry.ErrorBoundary fallback={Fallback} onError={onError}>
     {children}
   </Sentry.ErrorBoundary>
 );

@@ -2,13 +2,14 @@ import './util/patches';
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { Logger } from '@nestjs/common';
-import { CONFIG } from '~/config';
+import { CONFIG, IS_DEV } from '~/config';
 import { GQL_ENDPOINT } from './apollo/apollo.module';
 import { PrismaService } from './features/util/prisma/prisma.service';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule, {
     cors: { origin: true, credentials: true },
+    logger: [...(IS_DEV ? (['debug', 'verbose'] as const) : []), 'log', 'warn', 'error'],
   });
 
   // Allow prisma to gracefully shutdown app

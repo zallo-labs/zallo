@@ -1,5 +1,5 @@
 import { createMock, DeepMocked } from '@golevelup/ts-jest';
-import { Test } from '@nestjs/testing';
+import { Test, TestingModule } from '@nestjs/testing';
 import { PrismaService } from '../util/prisma/prisma.service';
 import { PRISMA_MOCK_PROVIDER } from '../util/prisma/prisma.service.mock';
 import { AccountsService } from './accounts.service';
@@ -7,8 +7,12 @@ import { ProviderService } from '../util/provider/provider.service';
 import { CONFIG } from '~/config';
 import { asUser, getUserCtx, UserContext } from '~/request/ctx';
 import { randomAddress } from '~/util/test';
-import { asAddress, Address } from 'lib';
+import { asAddress, Address, asHex } from 'lib';
 import { PoliciesService } from '../policies/policies.service';
+import { randomBytes } from 'ethers/lib/utils';
+import { BullModule, getQueueToken } from '@nestjs/bull';
+import { AccountActivationEvent, ACCOUNTS_QUEUE } from './accounts.queue';
+import { Queue } from 'bull';
 
 CONFIG.accountImplAddress = '0xC73505BBbB8A8b07F35DE0F5588753e286423122' as Address;
 
@@ -17,20 +21,24 @@ describe(AccountsService.name, () => {
   let prisma: PrismaService;
   let provider: DeepMocked<ProviderService>;
   let policiesService: DeepMocked<PoliciesService>;
+  let accountsQueue: DeepMocked<Queue<AccountActivationEvent>>;
 
+  let module: TestingModule;
   beforeEach(async () => {
-    const module = await Test.createTestingModule({
+    module = await Test.createTestingModule({
+      imports: [BullModule.registerQueue(ACCOUNTS_QUEUE)],
       providers: [AccountsService, PRISMA_MOCK_PROVIDER],
     })
       .useMocker(createMock)
       .compile();
     service = module.get(AccountsService);
     prisma = module.get(PrismaService);
-    policiesService = module.get(PoliciesService);
-
     provider = module.get(ProviderService);
-    provider.useProxyFactory.mockImplementation(async (f) => f(undefined as any));
+    policiesService = module.get(PoliciesService);
+    accountsQueue = module.get(getQueueToken(ACCOUNTS_QUEUE.name));
   });
+
+  afterEach(() => module.close());
 
   const createAccount = async () => {
     const userCtx = getUserCtx();
@@ -39,8 +47,8 @@ describe(AccountsService.name, () => {
     provider.getProxyAddress.mockReturnValue((async () => account)());
     provider.deployProxy.mockReturnValue(
       (async () => ({
-        account: {
-          deployed: () => true,
+        transaction: {
+          hash: asHex(randomBytes(32)),
         },
       }))() as any,
     );
@@ -86,8 +94,7 @@ describe(AccountsService.name, () => {
 
     it('activates the account', () =>
       asUser(user1, async () => {
-        const account = await prisma.asUser.account.findUnique({ where: { id: user1Account } });
-        expect(account?.isActive).toBeTruthy();
+        expect(provider.deployProxy).toHaveBeenCalledTimes(1);
       }));
   });
 

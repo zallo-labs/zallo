@@ -1,5 +1,5 @@
 import { OnQueueFailed, Process, Processor } from '@nestjs/bull';
-import { forwardRef, Inject, Injectable } from '@nestjs/common';
+import { forwardRef, Inject, Injectable, Logger } from '@nestjs/common';
 import { Job } from 'bull';
 import { PrismaService } from '../util/prisma/prisma.service';
 import { PROPOSAL_PAYLOAD_SELECT, ProposalEvent } from '../proposals/proposals.args';
@@ -19,12 +19,14 @@ export interface TransactionResponseData {
 
 export type TransactionResponseProcessor = (data: TransactionResponseData) => Promise<void>;
 
-const TRANSACTION_NOT_FOUND = 'Transaction not found';
-const RESPONSE_NOT_FOUND = 'Transaction response not found';
+enum NotFound {
+  Transaction = 'Transaction not found',
+  Response = 'Transaction response not found',
+}
 
 @Injectable()
 @Processor(TRANSACTIONS_QUEUE.name)
-export class TransactionsConsumer {
+export class TransactionsProcessor {
   private processors: Record<string, TransactionResponseProcessor> = {};
 
   constructor(
@@ -38,22 +40,22 @@ export class TransactionsConsumer {
 
   @OnQueueFailed()
   onFailed(job: Job<TransactionEvent>, error: unknown) {
-    if (job.failedReason !== RESPONSE_NOT_FOUND) console.warn('Job failed', { job, error });
+    Logger.error('Transaction queue job failed', { job, error });
   }
 
   @Process()
   async process(job: Job<TransactionEvent>) {
-    const { transactionHash } = job.data;
+    const { transaction: transactionHash } = job.data;
 
     const [receipt, explorerTx, response] = await Promise.all([
       tryOrIgnoreAsync(() => this.provider.getTransactionReceipt(transactionHash)),
       this.explorer.transaction(transactionHash),
-      this.subgraph.transactionResponse(job.data.transactionHash),
+      this.subgraph.transactionResponse(job.data.transaction),
     ]);
 
-    if (!receipt) return job.moveToFailed({ message: TRANSACTION_NOT_FOUND });
-    if (!explorerTx) return job.moveToFailed({ message: TRANSACTION_NOT_FOUND });
-    if (!response) return job.moveToFailed({ message: RESPONSE_NOT_FOUND });
+    if (!receipt) return job.moveToFailed({ message: NotFound.Transaction });
+    if (!explorerTx) return job.moveToFailed({ message: NotFound.Transaction });
+    if (!response) return job.moveToFailed({ message: NotFound.Response });
 
     const createResponse = this.prisma.asSystem.transactionReceipt.create({
       data: {
@@ -92,7 +94,7 @@ export class TransactionsConsumer {
       ...Object.values(this.processors).map((processor) => processor(data)),
     ]);
 
-    this.proposals.publishProposal({
+    await this.proposals.publishProposal({
       proposal: transaction.proposal,
       event: ProposalEvent.response,
     });

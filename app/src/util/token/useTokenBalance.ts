@@ -2,7 +2,6 @@ import { Token } from './token';
 import { PROVIDER } from '~/util/network/provider';
 import { atomFamily, useRecoilValue, useSetRecoilState } from 'recoil';
 import { Address } from 'lib';
-import { captureException } from '~/util/sentry';
 import { refreshAtom } from '~/util/effect/refreshAtom';
 import { persistAtom } from '~/util/effect/persistAtom';
 import { useCallback } from 'react';
@@ -15,10 +14,7 @@ const fetch = async ([addr, token]: BalanceKey) => {
   try {
     return (await PROVIDER.getBalance(addr, undefined, token)).toBigInt();
   } catch (e) {
-    captureException(e, {
-      level: 'error',
-      extra: { token, addr },
-    });
+    // TODO: continue to show previous balance on error
     return 0n;
   }
 };

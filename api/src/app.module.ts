@@ -53,7 +53,9 @@ import { TransfersModule } from './features/transfers/transfers.module';
       url: CONFIG.redisUrl,
       defaultJobOptions: {
         removeOnComplete: true,
-        removeOnFail: true,
+        removeOnFail: false,
+        attempts: 18, // 2^18 * 200ms = ~14.5h
+        backoff: { type: 'exponential', delay: 200 },
       },
     }),
     ApolloModule,
