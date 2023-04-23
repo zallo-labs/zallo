@@ -69,7 +69,6 @@ export const ScanScreen = withSuspense(
         barCodeScannerSettings={{ barCodeTypes: [BarCodeScanner.Constants.BarCodeType.qr] }}
         style={StyleSheet.absoluteFill}
         ratio="16:9"
-        useCamera2Api
       >
         <Overlay onData={tryHandle} />
       </Camera>
