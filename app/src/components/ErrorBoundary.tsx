@@ -2,11 +2,11 @@ import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { Text } from 'react-native-paper';
 import { ComponentPropsWithoutRef, ReactNode, useEffect } from 'react';
 import { Native as Sentry } from 'sentry-expo';
-import { Box } from '~/components/layout/Box';
 import { makeStyles } from '@theme/makeStyles';
 import { Fab } from '~/components/buttons/Fab';
 import { RefreshIcon } from '@theme/icons';
 import { event } from '~/util/analytics';
+import { View } from 'react-native';
 
 const onError: ComponentPropsWithoutRef<typeof Sentry.ErrorBoundary>['onError'] = (error) => {
   event({ level: 'error', message: error.message, error, context: { errorBoundary: true } });
@@ -26,7 +26,7 @@ const Fallback = ({ resetError }: FallbackProps) => {
   }, [resetError]);
 
   return (
-    <Box flex={1} vertical center style={styles.root}>
+    <View style={styles.root}>
       <MaterialCommunityIcons name="robot-confused" size={60} style={styles.onRoot} />
 
       <Text variant="displaySmall" style={[styles.onRoot, styles.text, styles.title]}>
@@ -37,7 +37,7 @@ const Fallback = ({ resetError }: FallbackProps) => {
       </Text>
 
       <Fab icon={RefreshIcon} label="Refresh" onPress={resetError} />
-    </Box>
+    </View>
   );
 };
 
@@ -46,13 +46,19 @@ export interface ErrorBoundaryProps {
 }
 
 export const ErrorBoundary = ({ children }: ErrorBoundaryProps) => (
-  <Sentry.ErrorBoundary fallback={Fallback} onError={onError}>
+  <Sentry.ErrorBoundary
+    fallback={({ resetError }) => <Fallback resetError={resetError} />}
+    onError={onError}
+  >
     {children}
   </Sentry.ErrorBoundary>
 );
 
 const useStyles = makeStyles(({ colors }) => ({
   root: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
     paddingHorizontal: 8,
     backgroundColor: colors.errorContainer,
   },
