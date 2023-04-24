@@ -14,9 +14,10 @@ export interface EventParams {
 
 export const event = ({ level, message, context: contextParam, error }: EventParams) => {
   // Record the event in both sentry and crashlytics
-  const context = contextParam
-    ? _.mapValues(contextParam, (v) => JSON.stringify(v, null, 2))
-    : undefined;
+  const context =
+    contextParam !== undefined
+      ? _.mapValues(contextParam, (v) => JSON.stringify(v ?? null, null, 2))
+      : undefined;
 
   crashlytics().log(`${level}: ${message}`);
   if (context) crashlytics().setAttributes(context);
@@ -43,6 +44,8 @@ const getConsoleLog = (level: EventLevel) =>
     .exhaustive();
 
 export const setContext = (key: string, value: unknown) => {
-  Sentry.setExtra(key, value);
-  crashlytics().setAttribute(key, JSON.stringify(value, null, 2));
+  if (value !== undefined) {
+    Sentry.setExtra(key, value);
+    crashlytics().setAttribute(key, JSON.stringify(value, null, 2));
+  }
 };
