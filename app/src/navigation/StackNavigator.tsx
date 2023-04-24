@@ -40,6 +40,7 @@ import {
   RenamePolicyScreen,
   RenamePolicyScreenParams,
 } from '~/screens/rename-policy/RenamePolicySheet';
+import { ConnectSheet, ConnectSheetParams } from '~/screens/connect/ConnectSheet';
 
 export type StackNavigatorParamList = {
   Home: undefined;
@@ -65,6 +66,7 @@ export type StackNavigatorParamList = {
   AddressSheet: AddressSheetScreenParams;
   QrModal: QrModalParams;
   Alert: AlertModalParams;
+  ConnectSheet: ConnectSheetParams;
   // Card modal
   RenameAccountModal: RenameAccountModalParams;
   ContactsModal: ContactsScreenParams;
@@ -117,6 +119,7 @@ export const StackNavigator = () => {
         <Navigation.Screen name="AddressSheet" component={AddressSheet} />
         <Navigation.Screen name="QrModal" component={QrModal} />
         <Navigation.Screen name="Alert" component={AlertModal} />
+        <Navigation.Screen name="ConnectSheet" component={ConnectSheet} />
       </Navigation.Group>
 
       <Navigation.Group
