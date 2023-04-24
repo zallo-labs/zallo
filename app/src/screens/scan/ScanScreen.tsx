@@ -16,6 +16,7 @@ import { AppbarBack } from '~/components/Appbar/AppbarBack';
 import * as Linking from 'expo-linking';
 import { EventEmitter } from '~/util/EventEmitter';
 import useAsyncEffect from 'use-async-effect';
+import { showError } from '~/provider/SnackbarProvider';
 
 export const SCAN_ADDRESS_EMITTER = new EventEmitter<Address>('Scan::Address');
 export const useScanAddress = SCAN_ADDRESS_EMITTER.createUseSelect('Scan', { emitAddress: true });
@@ -35,6 +36,7 @@ export const ScanScreen = withSuspense(
     const tryHandle = async (data: string) => {
       setScan(false);
 
+      let handled = true;
       const address = tryAsAddress(data) || parseAddressLink(data)?.target_address;
       if (address) {
         if (emitAddress) {
@@ -43,11 +45,18 @@ export const ScanScreen = withSuspense(
           replace('AddressSheet', { address });
         }
       } else if (isWalletConnectUri(data)) {
-        await walletconnect.pair({ uri: data });
-        goBack();
+        try {
+          await walletconnect.core.pairing.pair({ uri: data });
+          goBack();
+        } catch {
+          showError('Failed to connect. Please refresh the DApp and try again');
+        }
       } else {
-        setScan(true);
+        handled = false;
       }
+
+      setScan(true);
+      return handled;
     };
 
     const [permissionsRequested, setPermissionsRequested] = useState(false);

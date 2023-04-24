@@ -7,9 +7,10 @@ import { View } from 'react-native';
 import * as Clipboard from 'expo-clipboard';
 import { useSelectContact } from '../contacts/useSelectContact';
 import { useNavigation } from '@react-navigation/native';
+import { showWarning } from '~/provider/SnackbarProvider';
 
 export interface OverlayProps {
-  onData: (data: string) => void;
+  onData: (data: string) => boolean;
 }
 
 export const Overlay = ({ onData }: OverlayProps) => {
@@ -39,7 +40,12 @@ export const Overlay = ({ onData }: OverlayProps) => {
         <IconButton
           icon={PasteIcon}
           mode="contained-tonal"
-          onPress={async () => onData(await Clipboard.getStringAsync())}
+          onPress={async () => {
+            const data = await Clipboard.getStringAsync();
+            const handled = onData(data);
+            if (!handled)
+              showWarning('No handler found for clipboard data', { event: { context: { data } } });
+          }}
         />
       </View>
     </View>
