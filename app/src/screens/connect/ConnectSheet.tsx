@@ -1,8 +1,7 @@
 import { AccountId, useAccountIds } from '@api/account';
-import { CheckIcon } from '@theme/icons';
 import { makeStyles } from '@theme/makeStyles';
+import { getSdkError } from '@walletconnect/utils';
 import { tryOrCatchAsync } from 'lib';
-import { DateTime } from 'luxon';
 import { Text } from 'react-native-paper';
 import { useImmer } from 'use-immer';
 import { Button } from '~/components/Button';
@@ -43,10 +42,15 @@ export const ConnectSheet = ({ navigation: { goBack }, route }: ConnectSheetProp
     }
   };
 
+  const reject = () => {
+    client.reject({ id, reason: getSdkError('USER_REJECTED') });
+    goBack();
+  };
+
   const hasPaired = !!client.pairing.getAll({ topic: params.pairingTopic })?.[0];
 
   return (
-    <Sheet onClose={goBack}>
+    <Sheet onClose={reject}>
       <PeerHeader peer={params.proposer.metadata}>wants to connect</PeerHeader>
 
       {!hasPaired && (
