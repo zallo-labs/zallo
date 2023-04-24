@@ -10,7 +10,7 @@ import { useNavigation } from '@react-navigation/native';
 import { showWarning } from '~/provider/SnackbarProvider';
 
 export interface OverlayProps {
-  onData: (data: string) => boolean;
+  onData: (data: string) => Promise<boolean>;
 }
 
 export const Overlay = ({ onData }: OverlayProps) => {
@@ -42,9 +42,9 @@ export const Overlay = ({ onData }: OverlayProps) => {
           mode="contained-tonal"
           onPress={async () => {
             const data = await Clipboard.getStringAsync();
-            const handled = onData(data);
+            const handled = await onData(data);
             if (!handled)
-              showWarning('No handler found for clipboard data', { event: { context: { data } } });
+              showWarning('No handler found for data', { event: { context: { data } } });
           }}
         />
       </View>
