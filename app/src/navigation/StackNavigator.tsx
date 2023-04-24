@@ -33,10 +33,6 @@ import { ContractsModal, ContractsModalParams } from '~/components/Contracts/Con
 import { ImportSelectorModal } from '../screens/import-selector/ImportSelectorModal';
 import { SignScreen, SignScreenParams } from '~/screens/sign/SignScreen';
 import {
-  SessionProposalScreen,
-  SessionProposalScreenParams,
-} from '~/screens/session-proposal/SessionProposalScreen';
-import {
   RenamePolicyScreen,
   RenamePolicyScreenParams,
 } from '~/screens/rename-policy/RenamePolicySheet';
@@ -73,7 +69,6 @@ export type StackNavigatorParamList = {
   TokensModal: TokensScreenParams;
   ContractsModal: ContractsModalParams;
   ImportSelectorModal: undefined;
-  SessionProposal: SessionProposalScreenParams;
   Sign: SignScreenParams;
   RenamePolicy: RenamePolicyScreenParams;
 };
@@ -134,7 +129,6 @@ export const StackNavigator = () => {
         <Navigation.Screen name="TokensModal" component={TokensScreen} />
         <Navigation.Screen name="ContractsModal" component={ContractsModal} />
         <Navigation.Screen name="ImportSelectorModal" component={ImportSelectorModal} />
-        <Navigation.Screen name="SessionProposal" component={SessionProposalScreen} />
         <Navigation.Screen name="Sign" component={SignScreen} />
         <Navigation.Screen name="RenamePolicy" component={RenamePolicyScreen} />
       </Navigation.Group>

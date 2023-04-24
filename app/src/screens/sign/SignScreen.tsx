@@ -8,7 +8,7 @@ import {
   Eip712TypedDomainData,
   SigningRequest,
 } from '~/util/walletconnect/methods/signing';
-import { ProposerDetails } from '../session-proposal/ProposerDetails';
+import { ProposerDetails } from '../../components/walletconnect/ProposerDetails';
 import { CHAIN_ID } from '@network/provider';
 import { BigNumber } from 'ethers';
 import { useCallback, useMemo } from 'react';
