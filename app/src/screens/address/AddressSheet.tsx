@@ -3,6 +3,7 @@ import { StackNavigatorScreenProps } from '~/navigation/StackNavigator';
 import { ContactsIcon, NavigateNextIcon, SendIcon } from '@theme/icons';
 import { ListItem } from '~/components/list/ListItem';
 import { Address } from 'lib';
+import { StyleSheet } from 'react-native';
 
 export interface AddressSheetScreenParams {
   address: Address;
@@ -14,7 +15,7 @@ export const AddressSheet = ({ route, navigation: { navigate, goBack } }: Addres
   const { address } = route.params;
 
   return (
-    <Sheet onClose={goBack} handle={false}>
+    <Sheet onClose={goBack} handle={false} contentContainerStyle={styles.contentContainer}>
       <ListItem
         leading={SendIcon}
         headline="Send"
@@ -31,3 +32,9 @@ export const AddressSheet = ({ route, navigation: { navigate, goBack } }: Addres
     </Sheet>
   );
 };
+
+const styles = StyleSheet.create({
+  contentContainer: {
+    paddingBottom: 16,
+  },
+});

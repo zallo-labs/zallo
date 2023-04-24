@@ -91,9 +91,7 @@ const useStyles = makeStyles(({ colors, corner }) => ({
     height: 4,
     opacity: 0.4,
   },
-  contentContainer: {
-    paddingBottom: 16,
-  },
+  contentContainer: {},
   backdrop: {
     backgroundColor: colors.scrim,
   },
