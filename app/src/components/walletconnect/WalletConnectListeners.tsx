@@ -1,12 +1,13 @@
 import { useEffect } from 'react';
 import { useSessionPropsalListener } from './useSessionPropsalListener';
-import { useWalletConnect } from '~/util/walletconnect';
+import { useUpdateWalletConnect, useWalletConnectWithoutWatching } from '~/util/walletconnect';
 import { useSessionRequestListener } from './useSessionRequestListener';
 import { withSuspense } from '../skeleton/withSuspense';
 
 export const WalletConnectListeners = withSuspense(
   () => {
-    const client = useWalletConnect();
+    const client = useWalletConnectWithoutWatching();
+    const update = useUpdateWalletConnect();
     const handleSessionProposal = useSessionPropsalListener();
     const handleSessionRequest = useSessionRequestListener();
 
@@ -24,6 +25,9 @@ export const WalletConnectListeners = withSuspense(
             handleSessionRequest(client, event);
           },
         ] as Parameters<typeof client.on<'session_request'>>,
+        ['session_update', update] as Parameters<typeof client.on<'session_update'>>,
+        ['session_expire', update] as Parameters<typeof client.on<'session_expire'>>,
+        ['session_delete', update] as Parameters<typeof client.on<'session_delete'>>,
       ] as const;
 
       handlers.forEach(([type, f]) => client.on(type, f as any)); // type error 🤷

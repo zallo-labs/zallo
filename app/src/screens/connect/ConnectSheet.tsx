@@ -10,8 +10,13 @@ import { Sheet } from '~/components/sheet/Sheet';
 import { AccountsList } from '~/components/walletconnect/AccountsList';
 import { PeerHeader } from '~/components/walletconnect/PeerHeader';
 import { StackNavigatorScreenProps } from '~/navigation/StackNavigator';
-import { showError, showInfo, showSuccess } from '~/provider/SnackbarProvider';
-import { WalletConnectEventArgs, toNamespaces, useWalletConnect } from '~/util/walletconnect';
+import { showError, showSuccess } from '~/provider/SnackbarProvider';
+import {
+  WalletConnectEventArgs,
+  toNamespaces,
+  useUpdateWalletConnect,
+  useWalletConnect,
+} from '~/util/walletconnect';
 
 export type ConnectSheetParams = WalletConnectEventArgs['session_proposal'];
 
@@ -21,6 +26,7 @@ export const ConnectSheet = ({ navigation: { goBack }, route }: ConnectSheetProp
   const { id, params } = route.params;
   const styles = useStyles();
   const client = useWalletConnect();
+  const update = useUpdateWalletConnect();
 
   const accounts = useAccountIds();
   const [selected, updateSelected] = useImmer<Set<AccountId>>(new Set(accounts));
@@ -35,6 +41,7 @@ export const ConnectSheet = ({ navigation: { goBack }, route }: ConnectSheetProp
     if (req) {
       try {
         await req.acknowledged();
+        update();
         showSuccess('Connected');
       } catch {
         showError('DApp failed to acknowledge connection, please try again');
