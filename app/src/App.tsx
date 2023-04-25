@@ -20,7 +20,7 @@ import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { StackNavigator } from '~/navigation/StackNavigator';
 import { Subscriptions } from './components/Subscriptions';
 import { SentryProvider } from './provider/SentryProvider';
-// import { WalletConnectListeners } from '~/components/walletconnect/WalletConnectListeners';
+import { WalletConnectListeners } from '~/components/walletconnect/WalletConnectListeners';
 
 // Disable Recoil atom key checking due to hotreloading issues
 RecoilEnv.RECOIL_DUPLICATE_ATOM_KEY_CHECKING_ENABLED = false;
@@ -43,8 +43,8 @@ export default () => (
                           <NotificationsRegistrar />
                           <Subscriptions />
                           <NavigationProvider>
-                            {/* <WalletConnectListeners /> */}
                             <StackNavigator />
+                            <WalletConnectListeners />
                           </NavigationProvider>
                         </Suspense>
                       </GqlProvider>

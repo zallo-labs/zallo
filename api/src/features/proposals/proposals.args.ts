@@ -40,6 +40,7 @@ export enum ProposalEvent {
   create,
   update,
   delete,
+  execute,
   response,
 }
 registerEnumType(ProposalEvent, { name: 'ProposalEvent' });

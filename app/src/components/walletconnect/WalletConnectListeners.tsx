@@ -1,83 +1,43 @@
 import { useEffect } from 'react';
-import { showError } from '~/provider/SnackbarProvider';
-import { SigningRequest, WC_SIGNING_METHODS } from '../../util/walletconnect/methods/signing';
-import {
-  WalletConnectSendTransactionRequest,
-  WC_TRANSACTION_METHODS,
-} from '../../util/walletconnect/methods/transaction';
 import { useSessionPropsalListener } from './useSessionPropsalListener';
-import { popToProposal, usePropose } from '@api/proposal';
-import {
-  useWalletConnect,
-  WalletConnectEventArgs,
-  asWalletConnectResult,
-} from '~/util/walletconnect';
-import { useNavigation } from '@react-navigation/native';
+import { useUpdateWalletConnect, useWalletConnectWithoutWatching } from '~/util/walletconnect';
+import { useSessionRequestListener } from './useSessionRequestListener';
+import { withSuspense } from '../skeleton/withSuspense';
 
-export const WalletConnectListeners = () => {
-  const { navigate } = useNavigation();
-  const client = useWalletConnect();
-  const handleSessionProposal = useSessionPropsalListener();
-  const propose = usePropose();
+export const WalletConnectListeners = withSuspense(
+  () => {
+    const client = useWalletConnectWithoutWatching();
+    const update = useUpdateWalletConnect();
+    const handleSessionProposal = useSessionPropsalListener();
+    const handleSessionRequest = useSessionRequestListener();
 
-  useEffect(() => {
-    const x = [
-      [
-        'session_proposal',
-        (p: WalletConnectEventArgs['session_proposal']) => {
-          handleSessionProposal(client, p);
-        },
-      ],
-      [
-        'session_request',
-        ({ id, topic, params }: WalletConnectEventArgs['session_request']) => {
-          const method = params.request.method;
+    useEffect(() => {
+      const handlers = [
+        [
+          'session_proposal',
+          (p) => {
+            handleSessionProposal(client, p);
+          },
+        ] as Parameters<typeof client.on<'session_proposal'>>,
+        [
+          'session_request',
+          (event) => {
+            handleSessionRequest(client, event);
+          },
+        ] as Parameters<typeof client.on<'session_request'>>,
+        ['session_update', update] as Parameters<typeof client.on<'session_update'>>,
+        ['session_expire', update] as Parameters<typeof client.on<'session_expire'>>,
+        ['session_delete', update] as Parameters<typeof client.on<'session_delete'>>,
+      ] as const;
 
-          if (WC_SIGNING_METHODS.has(method)) {
-            navigate('Sign', {
-              topic,
-              id,
-              request: params.request as SigningRequest,
-            });
-          } else if (WC_TRANSACTION_METHODS.has(method)) {
-            const [tx] = (params.request as WalletConnectSendTransactionRequest).params;
+      handlers.forEach(([type, f]) => client.on(type, f as any)); // type error 🤷
 
-            propose(
-              {
-                to: tx.to,
-                value: tx.value ? BigInt(tx.value) : undefined,
-                data: tx.data,
-                gasLimit: tx.gasLimit ? BigInt(tx.gasLimit) : undefined,
-              },
-              tx.from,
-              (proposal, navigation) => {
-                // TODO: handle response (onExecute)
-                popToProposal(
-                  proposal,
-                  navigation /*, (resp) =>
-                  client.respond({
-                    topic: topic!,
-                    response: asWalletConnectResult(id, resp.transactionHash),
-                  }),*/,
-                );
-              },
-            );
-          } else {
-            showError(`Unsupported WalletConnect request method: ${method}`);
-          }
-        },
-      ],
-    ] as const;
+      return () => {
+        handlers.forEach(([type, f]) => client.off(type, f as any)); // type error 🤷
+      };
+    }, [client?.on, handleSessionProposal, handleSessionRequest]);
 
-    client.on(...x[0]);
-    client.on(...x[1]);
-    // x.forEach((z) => c.on(...z)); // type error 🤷
-
-    return () => {
-      client.events.removeListener(...x[0]);
-      client.events.removeListener(...x[1]);
-    };
-  }, [client, handleSessionProposal, navigate, propose]);
-
-  return null;
-};
+    return null;
+  },
+  () => null,
+);

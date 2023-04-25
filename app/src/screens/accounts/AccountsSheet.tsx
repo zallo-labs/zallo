@@ -12,6 +12,7 @@ import { NavigateNextIcon } from '@theme/icons';
 import { AddressLabel } from '~/components/address/AddressLabel';
 import { ListItem } from '~/components/list/ListItem';
 import { Button } from 'react-native-paper';
+import { StyleSheet } from 'react-native';
 
 export type AccountsSheetProps = StackNavigatorScreenProps<'AccountsSheet'>;
 
@@ -46,8 +47,15 @@ export const AccountsSheet = ({ navigation: { navigate, goBack } }: AccountsShee
             }}
           />
         )}
+        contentContainerStyle={styles.contentContaiiner}
         showsVerticalScrollIndicator={false}
       />
     </Sheet>
   );
 };
+
+const styles = StyleSheet.create({
+  contentContaiiner: {
+    paddingBottom: 16,
+  },
+});

@@ -1,9 +1,7 @@
-import { SignClient } from '@walletconnect/sign-client';
 import { SignClientTypes, SessionTypes } from '@walletconnect/types';
 import { getSdkError } from '@walletconnect/utils';
 import { formatJsonRpcResult, formatJsonRpcError } from '@walletconnect/jsonrpc-utils';
 
-export type WalletConnectClient = typeof SignClient;
 export type WalletConnectEvent = SignClientTypes.Event;
 export type WalletConnectEventArgs = SignClientTypes.EventArguments;
 export type WalletConnectPeer = SignClientTypes.Metadata;

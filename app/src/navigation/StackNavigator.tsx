@@ -31,15 +31,13 @@ import {
 } from '~/screens/interactions/InteractionsScreen';
 import { ContractsModal, ContractsModalParams } from '~/components/Contracts/ContractsModal';
 import { ImportSelectorModal } from '../screens/import-selector/ImportSelectorModal';
-import { SignScreen, SignScreenParams } from '~/screens/sign/SignScreen';
-import {
-  SessionProposalScreen,
-  SessionProposalScreenParams,
-} from '~/screens/session-proposal/SessionProposalScreen';
 import {
   RenamePolicyScreen,
   RenamePolicyScreenParams,
 } from '~/screens/rename-policy/RenamePolicySheet';
+import { ConnectSheet, ConnectSheetParams } from '~/screens/connect/ConnectSheet';
+import { PairingSheet, PairingSheetParams } from '~/screens/pairing/PairingSheet';
+import { SignSheet, SignSheetParams } from '~/screens/sign/SignSheet';
 
 export type StackNavigatorParamList = {
   Home: undefined;
@@ -65,14 +63,15 @@ export type StackNavigatorParamList = {
   AddressSheet: AddressSheetScreenParams;
   QrModal: QrModalParams;
   Alert: AlertModalParams;
+  ConnectSheet: ConnectSheetParams;
+  PairingSheet: PairingSheetParams;
+  Sign: SignSheetParams;
   // Card modal
   RenameAccountModal: RenameAccountModalParams;
   ContactsModal: ContactsScreenParams;
   TokensModal: TokensScreenParams;
   ContractsModal: ContractsModalParams;
   ImportSelectorModal: undefined;
-  SessionProposal: SessionProposalScreenParams;
-  Sign: SignScreenParams;
   RenamePolicy: RenamePolicyScreenParams;
 };
 
@@ -117,6 +116,9 @@ export const StackNavigator = () => {
         <Navigation.Screen name="AddressSheet" component={AddressSheet} />
         <Navigation.Screen name="QrModal" component={QrModal} />
         <Navigation.Screen name="Alert" component={AlertModal} />
+        <Navigation.Screen name="ConnectSheet" component={ConnectSheet} />
+        <Navigation.Screen name="PairingSheet" component={PairingSheet} />
+        <Navigation.Screen name="Sign" component={SignSheet} />
       </Navigation.Group>
 
       <Navigation.Group
@@ -131,8 +133,6 @@ export const StackNavigator = () => {
         <Navigation.Screen name="TokensModal" component={TokensScreen} />
         <Navigation.Screen name="ContractsModal" component={ContractsModal} />
         <Navigation.Screen name="ImportSelectorModal" component={ImportSelectorModal} />
-        <Navigation.Screen name="SessionProposal" component={SessionProposalScreen} />
-        <Navigation.Screen name="Sign" component={SignScreen} />
         <Navigation.Screen name="RenamePolicy" component={RenamePolicyScreen} />
       </Navigation.Group>
     </Navigation.Navigator>

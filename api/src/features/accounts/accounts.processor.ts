@@ -6,6 +6,7 @@ import { ProviderService } from '../util/provider/provider.service';
 import { AccountsService } from './accounts.service';
 import { AccountEvent } from './accounts.args';
 import { ACCOUNTS_QUEUE, AccountActivationEvent } from './accounts.queue';
+import { tryOrIgnoreAsync } from 'lib';
 
 @Injectable()
 @Processor(ACCOUNTS_QUEUE.name)
@@ -24,33 +25,38 @@ export class AccountsProcessor {
   @Process()
   async process(job: Job<AccountActivationEvent>) {
     const { account, transaction } = job.data;
-    const receipt = await this.provider.getTransactionReceipt(transaction);
+
+    const receipt = await tryOrIgnoreAsync(() => this.provider.getTransactionReceipt(transaction));
+    if (!receipt) return job.moveToFailed({ message: 'Transaction receipt not found' });
+
     if (receipt.status !== 1) {
       // TODO: handle failed activation
       Logger.error('Account activation transaction failed', { account, transaction });
       return;
     }
 
-    const { isActive, policyStates: states } = await this.prisma.asUser.account.findUniqueOrThrow({
-      where: { id: account },
-      select: {
-        isActive: true,
-        // Initialization rules
-        policyStates: {
-          where: { proposal: null },
-          select: {
-            id: true,
-            policyKey: true,
+    const { isActive, policyStates: states } = await this.prisma.asSystem.account.findUniqueOrThrow(
+      {
+        where: { id: account },
+        select: {
+          isActive: true,
+          // Initialization rules
+          policyStates: {
+            where: { proposal: null },
+            select: {
+              id: true,
+              policyKey: true,
+            },
           },
         },
       },
-    });
+    );
     if (isActive) {
       Logger.warn('Account is already active', { account });
       return;
     }
 
-    await this.prisma.asUser.account.update({
+    await this.prisma.asSystem.account.update({
       where: { id: account },
       data: {
         isActive: true,

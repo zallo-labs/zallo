@@ -1,79 +1,65 @@
-import { CHAIN_ID } from '@network/provider';
-import SignClient from '@walletconnect/sign-client';
 import { getSdkError } from '@walletconnect/utils';
 import { useCallback } from 'react';
 import { useNavigation } from '@react-navigation/native';
 import { showError } from '~/provider/SnackbarProvider';
 import { WC_METHODS } from '~/util/walletconnect/methods';
-import { WC_NAMESPACE } from '~/util/walletconnect/namespaces';
-import { WalletConnectEventArgs } from '~/util/walletconnect/types';
+import {
+  WcClient,
+  WalletConnectEventArgs,
+  WC_NAMESPACE_KEY,
+  WC_SUPPORTED_CHAINS,
+} from '~/util/walletconnect';
+import { isPresent } from 'lib';
 
 export const useSessionPropsalListener = () => {
   const { navigate } = useNavigation();
 
   return useCallback(
-    (client: SignClient, proposal: WalletConnectEventArgs['session_proposal']) => {
-      // Check required namespaces
-      const usNamespaces = Object.keys(proposal.params.requiredNamespaces).filter(
-        (ns) => ns !== WC_NAMESPACE,
-      );
-      if (usNamespaces) {
-        showError('Session requires unsupported namespaces', {
-          event: {
-            context: {
-              proposal,
-              unsupportedNamespaces: usNamespaces,
-            },
-          },
-        });
-        return client.reject({ id: proposal.id, reason: getSdkError('UNSUPPORTED_NAMESPACE_KEY') });
-      }
+    (client: WcClient, proposal: WalletConnectEventArgs['session_proposal']) => {
+      const { requiredNamespaces, optionalNamespaces } = proposal.params;
+      const proposer = proposal.params.proposer.metadata;
 
-      // Check required chains
-      const namespace = proposal.params.requiredNamespaces[WC_NAMESPACE];
-      if (!namespace) {
-        showError("Session doesn't support Ethereum", {
-          event: {
-            context: {
-              proposal,
-            },
-          },
-        });
-        return client.reject({ id: proposal.id, reason: getSdkError('UNSUPPORTED_NAMESPACE_KEY') });
-      }
+      // Check that at least one chain is supported
+      const peerChains = [
+        ...(requiredNamespaces[WC_NAMESPACE_KEY]?.chains ?? []),
+        ...(optionalNamespaces[WC_NAMESPACE_KEY]?.chains ?? []),
+      ];
 
-      const chain = `${CHAIN_ID()}`;
-      const unsupportedChains = namespace.chains?.filter((c) => c !== chain);
-      if (unsupportedChains) {
-        showError('Session requires unsupported chains', {
-          event: {
-            context: {
-              proposal,
-              unsupportedChains,
-            },
-          },
+      if (!peerChains.some((chain) => WC_SUPPORTED_CHAINS.includes(chain))) {
+        showError("DApp doesn't support any zkSync network", {
+          event: { context: { proposer, peerChains } },
         });
         return client.reject({ id: proposal.id, reason: getSdkError('UNSUPPORTED_CHAINS') });
       }
 
+      // Check that all required chains are supported
+      const requiredChains = Object.values(requiredNamespaces)
+        .flatMap((ns) => ns.chains)
+        .filter(isPresent);
+
+      const unsupportedChains = requiredChains.filter(
+        (chain) => !WC_SUPPORTED_CHAINS.includes(chain),
+      );
+      if (unsupportedChains.length) {
+        showError('DApp requires unsupported networks', {
+          event: { context: { proposer, unsupportedChains } },
+        });
+        return client.reject({ id: proposal.id, reason: getSdkError('UNSUPPORTED_CHAINS') });
+      }
+
+      const namespace =
+        requiredNamespaces[WC_NAMESPACE_KEY] ?? optionalNamespaces[WC_NAMESPACE_KEY];
+
       // Check required methods
-      const usMethods = namespace.methods.filter((method) => !WC_METHODS.has(method));
-      if (usMethods.length) {
-        showError('Session requires unsupported methods', {
-          event: {
-            context: {
-              proposal,
-              unsupportedMethods: usMethods,
-            },
-          },
+      const unsupportedMethods = namespace.methods.filter((method) => !WC_METHODS.has(method));
+      if (unsupportedMethods.length) {
+        showError('DApp requires unsupported methods', {
+          event: { context: { proposer, unsupportedMethods } },
         });
         return client.reject({ id: proposal.id, reason: getSdkError('UNSUPPORTED_METHODS') });
       }
 
-      navigate('SessionProposal', {
-        id: proposal.id,
-        peer: proposal.params.proposer.metadata,
-      });
+      navigate('ConnectSheet', proposal);
     },
     [navigate],
   );

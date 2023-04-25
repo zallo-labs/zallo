@@ -1,32 +1,39 @@
 import { ScanIcon, WalletConnectIcon } from '@theme/icons';
 import { StyleSheet } from 'react-native';
-import { FlatList } from 'react-native';
-import { Appbar } from 'react-native-paper';
-import { useAppbarHeader } from '~/components/Appbar/useAppbarHeader';
 import { EmptyListFallback } from '~/components/EmptyListFallback';
-import { Box } from '~/components/layout/Box';
 import { StackNavigatorScreenProps } from '~/navigation/StackNavigator';
 import { useWalletConnect } from '~/util/walletconnect';
-import { SessionCard } from './SessionCard';
+import { Screen } from '~/components/layout/Screen';
+import { Appbar } from '~/components/Appbar/Appbar';
+import { FlashList } from '@shopify/flash-list';
+import { PairingItem } from './PairingItem';
+import { ListItemHeight } from '~/components/list/ListItem';
+import { Divider } from 'react-native-paper';
 
 export type SessionsScreenProps = StackNavigatorScreenProps<'Sessions'>;
 
 export const SessionsScreen = ({ navigation: { navigate, goBack } }: SessionsScreenProps) => {
-  const { AppbarHeader, handleScroll } = useAppbarHeader();
   const client = useWalletConnect();
 
-  return (
-    <Box>
-      <AppbarHeader mode="large">
-        {/* TODO: replace with AppbarMenu once issue is fixed: https://github.com/callstack/react-native-paper/issues/3287 */}
-        <Appbar.BackAction onPress={goBack} />
-        <Appbar.Content title="Sessions" />
-        <Appbar.Action icon={ScanIcon} onPress={() => navigate('Scan', {})} />
-      </AppbarHeader>
+  const pairings = client.pairing.values;
 
-      <FlatList
-        renderItem={({ item }) => <SessionCard session={item} />}
-        ItemSeparatorComponent={() => <Box mt={2} />}
+  return (
+    <Screen>
+      <Appbar
+        mode="large"
+        leading="back"
+        headline="Sessions"
+        trailing={(props) => <ScanIcon {...props} onPress={() => navigate('Scan', {})} />}
+      />
+
+      <FlashList
+        data={pairings}
+        renderItem={({ item, index }) => (
+          <>
+            <PairingItem pairing={item} />
+            {index < pairings.length - 1 && <Divider />}
+          </>
+        )}
         ListEmptyComponent={
           <EmptyListFallback
             Icon={WalletConnectIcon}
@@ -34,17 +41,16 @@ export const SessionsScreen = ({ navigation: { navigate, goBack } }: SessionsScr
             subtitle="Pair by scanning a WalletConnect QR code"
           />
         }
-        data={client.session.values}
-        style={styles.list}
-        onScroll={handleScroll}
+        contentContainerStyle={styles.contentContainer}
         showsVerticalScrollIndicator={false}
+        estimatedItemSize={ListItemHeight.TRIPLE_LINE}
       />
-    </Box>
+    </Screen>
   );
 };
 
 const styles = StyleSheet.create({
-  list: {
-    marginHorizontal: 16,
+  contentContainer: {
+    paddingBottom: 8,
   },
 });

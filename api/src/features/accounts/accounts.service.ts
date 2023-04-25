@@ -146,7 +146,7 @@ export class AccountsService {
     await this.pubsub.publish<AccountSubscriptionPayload>(`${ACCOUNT_SUBSCRIPTION}.${id}`, payload);
 
     // Publish event to all users with access to the account
-    const { policyStates: states } = await this.prisma.asUser.account.findUniqueOrThrow({
+    const { policyStates: states } = await this.prisma.asSystem.account.findUniqueOrThrow({
       where: { id },
       select: {
         policyStates: {

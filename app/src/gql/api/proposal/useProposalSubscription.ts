@@ -1,11 +1,15 @@
 import { gql } from '@apollo/client';
-import { Address, Arraylike, toArray } from 'lib';
 import {
-  ProposalEvent,
+  ProposalFieldsFragment,
   ProposalFieldsFragmentDoc,
   useProposalSubscriptionSubscription,
 } from '@api/generated';
-import { ProposalId } from './types';
+import { EventEmitter } from '~/util/EventEmitter';
+import assert from 'assert';
+
+export const PROPOSAL_EXECUTE_EMITTER = new EventEmitter<ProposalFieldsFragment>(
+  'Proposal::exeucte',
+);
 
 gql`
   ${ProposalFieldsFragmentDoc}
@@ -21,24 +25,16 @@ gql`
   }
 `;
 
-export interface ProposalSubscriptionOptions {
-  accounts?: Arraylike<Address>;
-  proposals?: Arraylike<ProposalId>;
-  events?: Arraylike<ProposalEvent>;
-  skip?: boolean;
-}
+export const useProposalSubscription = useProposalSubscriptionSubscription;
 
-export const useProposalSubscription = ({
-  accounts,
-  proposals,
-  events,
-  skip,
-}: ProposalSubscriptionOptions = {}) =>
-  useProposalSubscriptionSubscription({
-    variables: {
-      accounts: accounts ? toArray(accounts) : undefined,
-      proposals: proposals ? toArray(proposals) : undefined,
-      events: events ? toArray(events) : undefined,
+export const useEmitProposalExecutionEvents = (
+  params: Parameters<typeof useProposalSubscription>[0],
+) =>
+  useProposalSubscription({
+    ...params,
+    variables: { ...params?.variables, events: 'execute' },
+    onData: ({ data }) => {
+      assert(data.data);
+      PROPOSAL_EXECUTE_EMITTER.emit(data.data.proposal);
     },
-    skip,
   });

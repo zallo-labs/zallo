@@ -846,6 +846,7 @@ export type ProposalCount = {
 export type ProposalEvent =
   | 'create'
   | 'delete'
+  | 'execute'
   | 'response'
   | 'update';
 

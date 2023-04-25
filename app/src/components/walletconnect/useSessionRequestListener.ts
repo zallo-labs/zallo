@@ -1,0 +1,64 @@
+import { PROPOSAL_EXECUTE_EMITTER, popToProposal, usePropose } from '@api/proposal';
+import { useNavigation } from '@react-navigation/native';
+import { asBigInt } from 'lib';
+import { useCallback } from 'react';
+import { showInfo } from '~/provider/SnackbarProvider';
+import { event } from '~/util/analytics';
+import { WalletConnectEventArgs, WcClient, asWalletConnectResult } from '~/util/walletconnect';
+import {
+  SigningRequest,
+  WC_SIGNING_METHODS,
+  WC_TRANSACTION_METHODS,
+  WalletConnectSendTransactionRequest,
+} from '~/util/walletconnect/methods';
+
+export const useSessionRequestListener = () => {
+  const { navigate } = useNavigation();
+  const propose = usePropose();
+
+  return useCallback(
+    async (client: WcClient, { id, topic, params }: WalletConnectEventArgs['session_request']) => {
+      const method = params.request.method;
+
+      if (WC_SIGNING_METHODS.has(method)) {
+        navigate('Sign', {
+          topic,
+          id,
+          request: params.request as SigningRequest,
+        });
+      } else if (WC_TRANSACTION_METHODS.has(method)) {
+        const [tx] = (params.request as WalletConnectSendTransactionRequest).params;
+
+        const peer = client.session.get(topic).peer.metadata;
+        showInfo(`${peer.name} has proposed a transaction`);
+
+        const proposalId = await propose(
+          {
+            to: tx.to,
+            value: tx.value ? asBigInt(tx.value) : undefined,
+            data: tx.data,
+            gasLimit: tx.gasLimit ? asBigInt(tx.gasLimit) : undefined,
+          },
+          tx.from,
+          popToProposal,
+        );
+
+        PROPOSAL_EXECUTE_EMITTER.listeners.add((proposal) => {
+          if (proposal.id === proposalId) {
+            client.respond({
+              topic,
+              response: asWalletConnectResult(id, proposal.transaction!.hash),
+            });
+          }
+        });
+      } else {
+        event({
+          level: 'error',
+          message: 'Unsupported session_request method executed',
+          context: { params },
+        });
+      }
+    },
+    [navigate, propose],
+  );
+};

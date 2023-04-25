@@ -4,7 +4,7 @@ import { Box } from '~/components/layout/Box';
 import { Container } from '~/components/layout/Container';
 import { StyleProp, StyleSheet, TouchableOpacity, ViewStyle } from 'react-native';
 import { WalletConnectPeer } from '~/util/walletconnect/types';
-import { PeerItem } from '../sessions/PeerItem';
+import { PeerItem } from '../../screens/sessions/PeerItem';
 
 export interface ProposerDetailsProps {
   proposer: WalletConnectPeer;
