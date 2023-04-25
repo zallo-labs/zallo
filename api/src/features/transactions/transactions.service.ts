@@ -84,7 +84,7 @@ export class TransactionsService {
       },
       select: { proposal: { ...res } ?? true },
     });
-    this.proposals.publishProposal({ proposal, event: ProposalEvent.update });
+    this.proposals.publishProposal({ proposal, event: ProposalEvent.execute });
 
     this.transactionsQueue.add({ transaction: transactionHash }, { delay: 1000 /* 1s */ });
 
