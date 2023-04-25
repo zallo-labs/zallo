@@ -38,10 +38,9 @@ jobs:
           cache: 'yarn'
 
       - name: 🚧 Setup Expo
-        uses: expo/expo-github-action@v7
+        uses: expo/expo-github-action@v8
         with:
-          token: ${{ secrets.EXPO_API_TOKEN }}
-          expo-version: latest
+          token: ${{ secrets.EXPO_TOKEN }}
           eas-version: latest
 
       - name: 📦 Install
