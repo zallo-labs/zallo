@@ -25,43 +25,37 @@ jobs:
     runs-on: ubuntu-latest
 
     env:
-      SENTRY_DSN: ${{ vars.SENTRY_DSN }}
-      SENTRY_ORG: ${{ vars.SENTRY_ORG }}
-      SENTRY_PROJECT: ${{ vars.SENTRY_PROJECT }}
-      SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
+      DOTENV_KEY: ${{ secrets.DOTENV_KEY }}
 
     steps:
       - name: 🚧 Checkout
         uses: actions/checkout@v3
 
-      # Disabled until expo-cli node 18 support is sanctioned - https://github.com/expo/expo-cli/issues/4478
-      # - name: 🚧 Setup Node
-      #   uses: actions/setup-node@v3
-      #   with:
-      #     node-version: 18
-      #     cache: 'yarn'
+      - name: 🚧 Setup Node
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18
+          cache: 'yarn'
 
-      # - name: 📦 Install
-      #   run: yarn install
+      - name: 🚧 Setup Expo
+        uses: expo/expo-github-action@v7
+        with:
+          token: ${{ secrets.EXPO_API_TOKEN }}
+          expo-version: latest
+          eas-version: latest
 
-      # - name: 🚧 Setup Expo
-      #   uses: expo/expo-github-action@v7
-      #   with:
-      #     token: ${{ secrets.EXPO_TOKEN }}
-      #     expo-version: latest
-      #     eas-version: latest
+      - name: 📦 Install
+        run: yarn install
 
-      # - name: 🏗️ Prebuild
-      #   run: yarn app prebuild
+      - name: 🏗️ Prebuild
+        run: yarn app prebuild
 
-      # - name: 🚀 Publish update
-      #   run: yarn app eas update --auto --non-interactive
+      # Update both android & ios, but not web (thus not all). Web build fails when bundling @react-native-community/blur
+      - name: 🚀 Publish update (Android)
+        run: yarn app eas update --auto --non-interactive --platform android
 
-      # - name: 🏗️ Build
-      #   run: yarn eas build -p android --profile main
-
-      # - name: 🚀 Publish
-      #   run: yarn eas submit -p android --profile main --latest
+      - name: 🚀 Publish update (iOS)
+        run: yarn app eas update --auto --non-interactive --platform ios
 
   subgraph:
     environment: main - subgraph

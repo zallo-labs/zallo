@@ -8,7 +8,7 @@ const chain = getChain(optional`CHAIN`);
 export const CONFIG = {
   env: optional`RELEASE_ENV` === 'development' ? 'development' : 'production',
   apiPort: optional`API_PORT` || 3000,
-  expoToken: required`EXPO_TOKEN`,
+  expoToken: required`EXPO_API_TOKEN`,
   databaseUrl: required`DATABASE_URL`,
   redisUrl: required`REDIS_URL`,
   sessionSecret: required`SESSION_SECRET`,

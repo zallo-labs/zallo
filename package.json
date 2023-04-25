@@ -23,8 +23,7 @@
     "lint": "eslint \"**/*.{js,ts,jsx,tsx}\"",
     "lint:fix": "yarn lint --fix",
     "prettier": "prettier --config .config/.prettierrc --ignore-path .config/.prettierignore --ignore-unknown",
-    "clean": "yarn workspaces foreach run clean",
-    "update-env": "npx dotenv-vault push production && npx dotenv-vault build"
+    "clean": "yarn workspaces foreach run clean"
   },
   "engines": {
     "node": "18.12.1",
