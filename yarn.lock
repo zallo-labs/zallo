@@ -14658,7 +14658,6 @@ __metadata:
     chardet: ^1.5.1
     color: ^4.2.3
     concurrently: ^7.6.0
-    dotenv-cli: ^7.2.1
     dotenv-vault-core: ^0.7.0
     dotenv-vault-core-cli: ^0.1.4
     eas-cli: ^3.9.2
