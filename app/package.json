@@ -6,11 +6,13 @@
   "scripts": {
     "postinstall": "expo-yarn-workspaces postinstall",
     "prebuild": "(cd .. && yarn lib build)",
-    "start": "yarn load-env -- expo start --dev-client",
+    "start": "yarn expo start --dev-client",
     "test": "yarn typecheck && jest",
     "typecheck": "tsc --noEmit",
+    "with-env": "dotenv-vault-core -e ../.env",
+    "eas": "yarn with-env -- eas",
+    "expo": "yarn with-env -- expo",
     "generate": "graphql-codegen --config codegen.ts",
-    "load-env": "dotenv -e ../.env",
     "clean": "npx rimraf web-build"
   },
   "expo-yarn-workspaces": {
@@ -44,7 +46,6 @@
     "babel-preset-expo": "^9.3.2",
     "chardet": "^1.5.1",
     "color": "^4.2.3",
-    "dotenv-cli": "^7.2.1",
     "dotenv-vault-core": "^0.7.0",
     "eas-cli": "^3.9.2",
     "eth-url-parser": "^1.0.4",
@@ -148,6 +149,7 @@
     "babel-plugin-lodash": "^3.3.4",
     "babel-plugin-transform-remove-console": "^6.9.4",
     "concurrently": "^7.6.0",
+    "dotenv-vault-core-cli": "^0.1.4",
     "eslint": "^8.38.0",
     "eslint-config-prettier": "^8.8.0",
     "eslint-config-standard-with-typescript": "^34.0.1",
