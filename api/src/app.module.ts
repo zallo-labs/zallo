@@ -1,5 +1,5 @@
 import { Module } from '@nestjs/common';
-import { APP_GUARD } from '@nestjs/core';
+import { APP_FILTER, APP_GUARD } from '@nestjs/core';
 import { HealthModule } from './features/health/health.module';
 import { UsersModule } from './features/users/users.module';
 import { AccountsModule } from './features/accounts/accounts.module';
@@ -27,6 +27,7 @@ import { PoliciesModule } from './features/policies/policies.module';
 import { ContractsModule } from './features/contracts/contracts.module';
 import { ExplorerModule } from './features/explorer/explorer.module';
 import { TransfersModule } from './features/transfers/transfers.module';
+import { ExceptionsFilter } from './execptions.filter';
 
 @Module({
   imports: [
@@ -82,10 +83,8 @@ import { TransfersModule } from './features/transfers/transfers.module';
     ExpoModule,
   ],
   providers: [
-    {
-      provide: APP_GUARD,
-      useClass: AuthGuard,
-    },
+    { provide: APP_FILTER, useClass: ExceptionsFilter },
+    { provide: APP_GUARD, useClass: AuthGuard },
   ],
 })
 export class AppModule {}
