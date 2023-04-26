@@ -21,6 +21,7 @@ import { StackNavigator } from '~/navigation/StackNavigator';
 import { Subscriptions } from './components/Subscriptions';
 import { SentryProvider } from './provider/SentryProvider';
 import { WalletConnectListeners } from '~/components/walletconnect/WalletConnectListeners';
+import { UpdateProvider } from './provider/UpdateProvider';
 
 // Disable Recoil atom key checking due to hotreloading issues
 RecoilEnv.RECOIL_DUPLICATE_ATOM_KEY_CHECKING_ENABLED = false;
@@ -50,6 +51,7 @@ export default () => (
                       </GqlProvider>
                     </AuthGate>
                     <SnackbarProvider />
+                    <UpdateProvider />
                   </RecoilRoot>
                 </Suspense>
               </ErrorBoundary>
