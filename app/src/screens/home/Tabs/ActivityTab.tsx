@@ -45,6 +45,7 @@ export const ActivityTab = withSuspense(
             There is no activity to show
           </Text>
         }
+        contentContainerStyle={styles.contentContainer}
         estimatedItemSize={ListItemHeight.DOUBLE_LINE}
         showsVerticalScrollIndicator={false}
       />
@@ -61,6 +62,9 @@ export const ActivityTabBadge = withSuspense(
 );
 
 const styles = StyleSheet.create({
+  contentContainer: {
+    paddingVertical: 8,
+  },
   emptyListText: {
     alignSelf: 'center',
     margin: 16,
