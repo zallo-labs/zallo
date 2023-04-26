@@ -56,9 +56,9 @@ export const usePromisedApiClient = () => {
           // new OfflineLink({ storage: AsyncStorage }),  // Breaks optimistic updates
           new RetryLink(),
           errorLink,
+          auth.link,
           splitLinks({
             other: ApolloLink.from([
-              auth.link,
               persistedQueryLink,
               new HttpLink({
                 uri: `${CONFIG.apiUrl}/graphql`,
