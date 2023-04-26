@@ -11,6 +11,7 @@ import { createClient } from 'graphql-ws';
 import { getMainDefinition } from '@apollo/client/utilities';
 import { onError } from '@apollo/client/link/error';
 import { event } from '~/util/analytics';
+import _ from 'lodash';
 
 export const API_CLIENT_NAME = 'api';
 const CACHE = getPersistedCache(API_CLIENT_NAME);
@@ -36,7 +37,7 @@ const errorLink = onError(({ forward, operation, graphQLErrors, networkError }) 
     level: 'error',
     message: 'API error',
     error: networkError ?? undefined,
-    context: { operation, graphQLErrors },
+    context: { graphQLErrors, operation: _.pick(operation, ['operationName', 'variables']) },
   });
 
   return forward(operation);
