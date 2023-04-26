@@ -1,30 +1,22 @@
-import { useEffect } from 'react';
-import * as SplashScreen from 'expo-splash-screen';
-import { Box } from '~/components/layout/Box';
-import { Image, ImageRequireSource } from 'react-native';
+import { StyleSheet } from 'react-native';
+import { Image, ImageRequireSource, View } from 'react-native';
 import { SPLASH } from '~/util/config';
 const splash: ImageRequireSource = require('../../assets/splash.png');
 
-export const Splash = () => {
-  useEffect(() => {
-    SplashScreen.preventAutoHideAsync();
+export const Splash = () => (
+  <View style={styles.container}>
+    <Image source={splash} style={styles.splash} />
+  </View>
+);
 
-    return () => {
-      SplashScreen.hideAsync();
-      // setTimeout(() => SplashScreen.hideAsync(), 200);
-    };
-  }, []);
-
-  return (
-    <Box flex={1} backgroundColor={SPLASH?.backgroundColor}>
-      <Image
-        source={splash}
-        style={{
-          width: '100%',
-          height: '100%',
-          resizeMode: SPLASH?.resizeMode,
-        }}
-      />
-    </Box>
-  );
-};
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: SPLASH?.backgroundColor,
+  },
+  splash: {
+    width: '100%',
+    height: '100%',
+    resizeMode: SPLASH?.resizeMode,
+  },
+});

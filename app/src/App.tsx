@@ -22,9 +22,13 @@ import { Subscriptions } from './components/Subscriptions';
 import { SentryProvider } from './provider/SentryProvider';
 import { WalletConnectListeners } from '~/components/walletconnect/WalletConnectListeners';
 import { UpdateProvider } from './provider/UpdateProvider';
+import * as SplashScreen from 'expo-splash-screen';
+import { HideSplash } from './components/HideSplash';
 
 // Disable Recoil atom key checking due to hotreloading issues
 RecoilEnv.RECOIL_DUPLICATE_ATOM_KEY_CHECKING_ENABLED = false;
+
+SplashScreen.preventAutoHideAsync();
 
 export default () => (
   <SentryProvider>
@@ -46,6 +50,7 @@ export default () => (
                           <NavigationProvider>
                             <StackNavigator />
                             <WalletConnectListeners />
+                            <HideSplash />
                           </NavigationProvider>
                         </Suspense>
                       </GqlProvider>
