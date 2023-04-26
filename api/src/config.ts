@@ -4,9 +4,11 @@ require('dotenv-vault-core').config({ path: '../.env' });
 const required = makeRequiredEnv(!!process.env.JEST_WORKER_ID);
 
 const chain = getChain(optional`CHAIN`);
+const env = optional`RELEASE_ENV` === 'development' ? 'development' : 'production';
 
 export const CONFIG = {
-  env: optional`RELEASE_ENV` === 'development' ? 'development' : 'production',
+  env,
+  debug: optional`DEBUG` === 'true' || (optional`DEBUG` === undefined && env === 'development'),
   apiPort: optional`API_PORT` || 3000,
   expoToken: required`EXPO_TOKEN`,
   databaseUrl: required`DATABASE_URL`,
@@ -22,3 +24,5 @@ export const CONFIG = {
 };
 
 export const IS_DEV = CONFIG.env === 'development';
+
+export const __DEBUG__ = CONFIG.debug;

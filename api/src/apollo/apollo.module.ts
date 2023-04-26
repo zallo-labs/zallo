@@ -5,7 +5,7 @@ import {
   ApolloServerPluginLandingPageLocalDefault,
   ApolloServerPluginInlineTrace,
 } from 'apollo-server-core';
-import { IS_DEV } from '~/config';
+import { IS_DEV, __DEBUG__ } from '~/config';
 import { IncomingContext, GqlContext, IncomingWsContext } from '~/request/ctx';
 import { AddressMiddleware } from './address.middleware';
 import { AuthModule } from '~/features/auth/auth.module';
@@ -41,7 +41,7 @@ const useMiddleware = async (req: Request, ...middleware: NestMiddleware[]) => {
       ) => ({
         autoSchemaFile: 'schema.graphql',
         sortSchema: true,
-        debug: IS_DEV,
+        debug: __DEBUG__,
         introspection: true,
         path: GQL_ENDPOINT,
         cache: 'bounded',
