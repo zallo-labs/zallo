@@ -78,6 +78,7 @@ export const ScanScreen = withSuspense(
         barCodeScannerSettings={{ barCodeTypes: [BarCodeScanner.Constants.BarCodeType.qr] }}
         style={StyleSheet.absoluteFill}
         ratio="16:9"
+        useCamera2Api={false} // Causes crash on screen unmount - https://github.com/expo/expo/issues/18996
       >
         <Overlay onData={tryHandle} />
       </Camera>
