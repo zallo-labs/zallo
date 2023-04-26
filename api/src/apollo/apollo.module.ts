@@ -76,7 +76,7 @@ const useMiddleware = async (req: Request, ...middleware: NestMiddleware[]) => {
                 );
               } catch (e) {
                 Logger.debug('GraphQL onSubscription error', e);
-                return [e as GraphQLError];
+                return [new GraphQLError((e as Error).message, { originalError: e as Error })];
               }
             },
           },
