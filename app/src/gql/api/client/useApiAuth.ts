@@ -1,4 +1,4 @@
-import { ApolloLink, fromPromise, ServerError } from '@apollo/client';
+import { ApolloLink, fromPromise } from '@apollo/client';
 import { setContext } from '@apollo/client/link/context';
 import { onError } from '@apollo/client/link/error';
 import { SiweMessage } from 'siwe';
@@ -7,15 +7,11 @@ import { CONFIG } from '~/util/config';
 import { atom, useRecoilState } from 'recoil';
 import { getSecureStore, persistAtom } from '~/util/effect/persistAtom';
 import { useCallback, useMemo, useRef } from 'react';
-import { event } from '~/util/analytics';
 import { useApprover } from '@network/useApprover';
 import { DateTime } from 'luxon';
 import { Approver } from 'lib';
 
 const fetchMutex = new Mutex();
-
-export const isServerError = (e?: unknown): e is ServerError =>
-  typeof e === 'object' && e !== null && (e as any)['name'] === 'ServerError';
 
 const HOST_PATTERN = /^(?:[a-z]+?:\/\/)?([^:/?#]+(:\d+)?)/; // RN lacks URL support )':
 //                      protocol://      (hostname:port)
@@ -89,35 +85,15 @@ export const useApiAuth = () => {
       };
     });
 
-    const onUnauthorizedLink: ApolloLink = onError(({ networkError, forward, operation }) => {
-      if (isServerError(networkError)) {
-        if (networkError.statusCode === 401) {
-          fromPromise(reset()).flatMap(() => forward(operation));
-        } else {
-          console.error(
-            JSON.stringify({
-              status: networkError.statusCode,
-              name: networkError.name,
-              message: networkError.message,
-              result: JSON.stringify(networkError.result),
-            }),
-            null,
-            2,
-          );
-
-          event({
-            message: 'Api error',
-            level: 'error',
-            error: networkError,
-            context: { operation },
-          });
-        }
-      } else if (networkError) {
-        console.warn('API network error', JSON.stringify(networkError, null, 2));
+    const onUnauthorizedLink: ApolloLink = onError(({ forward, operation, networkError }) => {
+      if (networkError && 'statusCode' in networkError && networkError.statusCode === 401) {
+        return fromPromise(reset()).flatMap(() => forward(operation));
       }
+
+      return forward(operation);
     });
 
-    const link = ApolloLink.from([setHeadersLink, onUnauthorizedLink]);
+    const link = ApolloLink.from([onUnauthorizedLink, setHeadersLink]);
 
     return { link, getHeaders };
   }, [reset]);

@@ -2,7 +2,6 @@ import {
   createMaterialTopTabNavigator,
   MaterialTopTabScreenProps,
 } from '@react-navigation/material-top-tabs';
-import { StyleSheet } from 'react-native';
 import { TopTabBar } from '~/components/tab/TopTabBar';
 import { showInfo } from '~/provider/SnackbarProvider';
 import { ActivityTab, ActivityTabBadge } from './ActivityTab';
@@ -22,7 +21,7 @@ const Tab = createMaterialTopTabNavigator<TabNavigatorParamList>();
 
 export const Tabs = () => {
   return (
-    <Tab.Navigator tabBar={TopTabBar} sceneContainerStyle={styles.sceneContainer}>
+    <Tab.Navigator tabBar={TopTabBar}>
       <Tab.Screen name="Tokens" component={TokensTab} />
       <Tab.Screen
         name="Collectables"
@@ -42,10 +41,3 @@ export const Tabs = () => {
     </Tab.Navigator>
   );
 };
-
-const styles = StyleSheet.create({
-  sceneContainer: {
-    flex: 1,
-    paddingVertical: 8,
-  },
-});

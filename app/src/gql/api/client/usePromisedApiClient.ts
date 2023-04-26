@@ -9,6 +9,8 @@ import { createHash } from 'crypto';
 import { GraphQLWsLink } from '@apollo/client/link/subscriptions';
 import { createClient } from 'graphql-ws';
 import { getMainDefinition } from '@apollo/client/utilities';
+import { onError } from '@apollo/client/link/error';
+import { event } from '~/util/analytics';
 
 export const API_CLIENT_NAME = 'api';
 const CACHE = getPersistedCache(API_CLIENT_NAME);
@@ -29,6 +31,17 @@ const persistedQueryLink = createPersistedQueryLink({
   useGETForHashedQueries: true,
 });
 
+const errorLink = onError(({ forward, operation, graphQLErrors, networkError }) => {
+  event({
+    level: 'error',
+    message: 'API error',
+    error: networkError ?? undefined,
+    context: { operation, graphQLErrors },
+  });
+
+  return forward(operation);
+});
+
 export const usePromisedApiClient = () => {
   const auth = useApiAuth();
 
@@ -42,9 +55,10 @@ export const usePromisedApiClient = () => {
         link: ApolloLink.from([
           // new OfflineLink({ storage: AsyncStorage }),  // Breaks optimistic updates
           new RetryLink(),
+          errorLink,
+          auth.link,
           splitLinks({
             other: ApolloLink.from([
-              auth.link,
               persistedQueryLink,
               new HttpLink({
                 uri: `${CONFIG.apiUrl}/graphql`,

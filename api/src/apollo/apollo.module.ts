@@ -1,11 +1,11 @@
 import { ApolloDriverConfig, ApolloDriver } from '@nestjs/apollo';
-import { Module, NestMiddleware } from '@nestjs/common';
+import { Logger, Module, NestMiddleware } from '@nestjs/common';
 import { GraphQLModule } from '@nestjs/graphql';
 import {
   ApolloServerPluginLandingPageLocalDefault,
   ApolloServerPluginInlineTrace,
 } from 'apollo-server-core';
-import { IS_DEV } from '~/config';
+import { IS_DEV, __DEBUG__ } from '~/config';
 import { IncomingContext, GqlContext, IncomingWsContext } from '~/request/ctx';
 import { AddressMiddleware } from './address.middleware';
 import { AuthModule } from '~/features/auth/auth.module';
@@ -13,14 +13,19 @@ import { SessionMiddleware } from '~/features/auth/session.middleware';
 import { AuthMiddleware } from '~/features/auth/auth.middleware';
 import { Request, Response } from 'express';
 import { RequestContextMiddleware } from 'nestjs-request-context';
+import { GraphQLError } from 'graphql';
 
 export const GQL_ENDPOINT = '/graphql';
 
-const chain = (req: Request, resolve: () => void, middlewares: NestMiddleware[]) => {
-  if (!middlewares.length) return () => resolve();
-  const [middleware, ...rest] = middlewares;
+const useMiddleware = async (req: Request, ...middleware: NestMiddleware[]) => {
+  const chain = (req: Request, resolve: () => void, middlewares: NestMiddleware[]) => {
+    if (!middlewares.length) return () => resolve();
+    const [middleware, ...rest] = middlewares;
 
-  return () => middleware!.use(req, {} as Response, chain(req, resolve, rest));
+    return () => middleware!.use(req, {} as Response, chain(req, resolve, rest));
+  };
+
+  return new Promise<void>((resolve) => chain(req, resolve, middleware)());
 };
 
 @Module({
@@ -36,7 +41,7 @@ const chain = (req: Request, resolve: () => void, middlewares: NestMiddleware[])
       ) => ({
         autoSchemaFile: 'schema.graphql',
         sortSchema: true,
-        debug: IS_DEV,
+        debug: __DEBUG__,
         introspection: true,
         path: GQL_ENDPOINT,
         cache: 'bounded',
@@ -62,13 +67,17 @@ const chain = (req: Request, resolve: () => void, middlewares: NestMiddleware[])
                 ...req.headers,
               };
 
-              await new Promise<void>((resolve) =>
-                chain(req, resolve, [
+              try {
+                await useMiddleware(
+                  req,
                   sessionMiddleware,
                   authMiddleware,
-                  requestContextMiddleware, // Note. RequestContext does *NOT* pass through to subscription resolvers
-                ])(),
-              );
+                  requestContextMiddleware, // RequestContext does *NOT* pass through to subscription resolvers, remove?
+                );
+              } catch (e) {
+                Logger.debug('GraphQL onSubscription error', e);
+                return [e as GraphQLError];
+              }
             },
           },
         },

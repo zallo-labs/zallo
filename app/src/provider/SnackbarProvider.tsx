@@ -26,7 +26,7 @@ const Snack = ({
   const styles = useStyles(variant);
 
   useEffect(() => {
-    if (variant === 'warning' || variant === 'error') {
+    if ((variant === 'warning' || variant === 'error') && eventProp !== false) {
       event({
         level: variant,
         message,

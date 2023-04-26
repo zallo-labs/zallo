@@ -1,4 +1,3 @@
-import { StyleSheet } from 'react-native';
 import { useSelectedAccountId } from '~/components/AccountSelector/useSelectedAccount';
 import { Screen } from '~/components/layout/Screen';
 import { withSuspense } from '~/components/skeleton/withSuspense';
@@ -26,9 +25,3 @@ export const HomeScreen = withSuspense((_props: HomeScreenProps) => {
     </Screen>
   );
 }, Splash);
-
-const styles = StyleSheet.create({
-  totalValue: {
-    margin: 16,
-  },
-});
