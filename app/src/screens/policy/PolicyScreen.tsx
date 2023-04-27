@@ -67,7 +67,12 @@ interface PolicyViewProps extends PolicyScreenProps {
   state: PolicyViewState;
 }
 
-const PolicyView = ({ route, navigation, initState, state }: PolicyViewProps) => {
+const PolicyView = ({
+  route,
+  navigation: { navigate, setParams },
+  initState,
+  state,
+}: PolicyViewProps) => {
   const { account: accountId, key } = route.params;
   const createPolicy = useCreatePolicy(accountId);
   const updatePolicy = useUpdatePolicy();
@@ -85,7 +90,7 @@ const PolicyView = ({ route, navigation, initState, state }: PolicyViewProps) =>
         proposal={proposal}
         state={state}
         reset={isModified ? () => setDraft(initState) : undefined}
-        setParams={navigation.setParams}
+        setParams={setParams}
       />
 
       <ScrollView>
@@ -101,8 +106,11 @@ const PolicyView = ({ route, navigation, initState, state }: PolicyViewProps) =>
             const r = await (draft.key
               ? updatePolicy({ key: draft.key, ...draft })
               : createPolicy(draft));
+
+            setParams({ key: r?.key.toString(), state: 'draft' });
+
             const proposal = r?.draft?.proposalId;
-            if (proposal) navigation.navigate('Proposal', { proposal: asProposalId(proposal) });
+            if (proposal) navigate('Proposal', { proposal: asProposalId(proposal) });
           }}
         />
       )}
