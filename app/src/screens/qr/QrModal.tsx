@@ -3,27 +3,14 @@ import { Address } from 'lib';
 import { StackNavigatorScreenProps } from '~/navigation/StackNavigator';
 import { Screen } from '~/components/layout/Screen';
 import { makeStyles } from '@theme/makeStyles';
-import { Button, IconButton, Surface, Text, useTheme } from 'react-native-paper';
+import { Button, IconButton, Surface, Text } from 'react-native-paper';
 import { CloseIcon, ShareIcon } from '@theme/icons';
 import { Actions } from '~/components/layout/Actions';
-import { StyleSheet, Share, View } from 'react-native';
-import { BlurView, BlurViewProps } from '@react-native-community/blur';
+import { Share, View } from 'react-native';
 import { AddressLabel } from '~/components/address/AddressLabel';
 import { buildAddressLink } from '~/util/addressLink';
 import { withSuspense } from '~/components/skeleton/withSuspense';
-import { StatusBar } from 'expo-status-bar';
-
-const Blur = (props: Partial<BlurViewProps>) => (
-  <>
-    <StatusBar style="light" />
-    <BlurView
-      blurAmount={16}
-      blurType={useTheme().dark ? 'light' : 'dark'}
-      style={StyleSheet.absoluteFill}
-      {...props}
-    />
-  </>
-);
+import { Blur } from '~/components/Blur';
 
 export interface QrModalParams {
   address: Address;
