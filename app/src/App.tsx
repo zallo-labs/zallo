@@ -8,7 +8,7 @@ import { LocalizatonProvider } from '~/provider/LocalizationProvider';
 import { GqlProvider } from '~/gql/GqlProvider';
 import { SnackbarProvider } from '~/provider/SnackbarProvider';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
-import { ErrorBoundary } from '~/components/ErrorBoundary';
+import { ErrorBoundary } from '~/components/ErrorBoundary/ErrorBoundary';
 import { Splash } from '~/components/Splash';
 import { StatusBar } from 'expo-status-bar';
 import { AuthGate } from '~/provider/AuthGate';
@@ -32,39 +32,47 @@ SplashScreen.preventAutoHideAsync();
 
 export default () => (
   <SentryProvider>
-    <LocalizatonProvider>
-      <SafeAreaProvider>
-        <ThemeProvider>
-          <Background>
-            <StatusBar backgroundColor="transparent" />
-            <GestureHandlerRootView style={styles.flex}>
-              <ErrorBoundary>
-                <Suspense fallback={<Splash />}>
-                  <RecoilRoot>
-                    <AnalyticsUser />
-                    <AuthGate>
-                      <GqlProvider>
-                        <Suspense fallback={<Splash />}>
-                          <NotificationsRegistrar />
-                          <Subscriptions />
+    <ErrorBoundary fallback={<Splash />}>
+      <LocalizatonProvider>
+        <SafeAreaProvider>
+          <ThemeProvider>
+            <SnackbarProvider />
+            <Background>
+              <StatusBar backgroundColor="transparent" />
+              <GestureHandlerRootView style={styles.flex}>
+                <RecoilRoot>
+                  <ErrorBoundary>
+                    <Suspense fallback={<Splash />}>
+                      <AuthGate>
+                        <GqlProvider>
                           <NavigationProvider>
-                            <StackNavigator />
-                            <WalletConnectListeners />
-                            <HideSplash />
+                            <ErrorBoundary>
+                              <Suspense fallback={<Splash />}>
+                                <StackNavigator />
+                              </Suspense>
+                            </ErrorBoundary>
+                            <ErrorBoundary fallback={undefined}>
+                              <Suspense fallback={null}>
+                                <AnalyticsUser />
+                                <WalletConnectListeners />
+                                <HideSplash />
+                                <Subscriptions />
+                                <NotificationsRegistrar />
+                                <UpdateProvider />
+                              </Suspense>
+                            </ErrorBoundary>
                           </NavigationProvider>
-                        </Suspense>
-                      </GqlProvider>
-                    </AuthGate>
-                    <SnackbarProvider />
-                    <UpdateProvider />
-                  </RecoilRoot>
-                </Suspense>
-              </ErrorBoundary>
-            </GestureHandlerRootView>
-          </Background>
-        </ThemeProvider>
-      </SafeAreaProvider>
-    </LocalizatonProvider>
+                        </GqlProvider>
+                      </AuthGate>
+                    </Suspense>
+                  </ErrorBoundary>
+                </RecoilRoot>
+              </GestureHandlerRootView>
+            </Background>
+          </ThemeProvider>
+        </SafeAreaProvider>
+      </LocalizatonProvider>
+    </ErrorBoundary>
   </SentryProvider>
 );
 
