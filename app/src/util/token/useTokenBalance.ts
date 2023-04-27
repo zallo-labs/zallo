@@ -5,6 +5,7 @@ import { Address, tryOrIgnoreAsync } from 'lib';
 import { refreshAtom } from '~/util/effect/refreshAtom';
 import { persistAtom } from '~/util/effect/persistAtom';
 import { AccountIdlike, asAccountId } from '@api/account';
+import BigIntJSON from '../BigIntJSON';
 
 type BalanceKey = [address: Address | null, token: Address];
 
@@ -26,8 +27,8 @@ export const tokenBalanceAtom: (param: BalanceKey) => RecoilState<bigint> = atom
     key[0] !== null
       ? [
           persistAtom({
-            stringify: (v) => v.toString(),
-            parse: (str) => BigInt(str),
+            stringify: BigIntJSON.stringify,
+            parse: BigIntJSON.parse,
           }),
           refreshAtom({
             refresh: async ({ get }) => {
