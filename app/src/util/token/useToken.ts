@@ -2,7 +2,8 @@ import { Unimplemented } from '~/util/error/unimplemented';
 import { Address } from 'lib';
 import { atom, atomFamily, selectorFamily, DefaultValue, useRecoilValue, selector } from 'recoil';
 import { Token } from './token';
-import { HARDCODED_TOKENS } from './tokens';
+import { ETH, HARDCODED_TOKENS } from './tokens';
+import _ from 'lodash';
 
 export const tokenAddressesAtom = atom<Address[]>({
   key: 'TokenAddresses',
@@ -25,9 +26,11 @@ const tokenMetadataAtom = atomFamily<Token, Address>({
 export const tokenAtom = selectorFamily<Token, Address>({
   key: 'token',
   get:
-    (addr) =>
+    (
+      addr: Address | DefaultValue, // For some reason `addr` is randomly DefaultValue
+    ) =>
     ({ get }) =>
-      get(tokenMetadataAtom(addr)),
+      get(tokenMetadataAtom(addr instanceof DefaultValue ? ETH.address : addr)),
   set:
     (addr) =>
     ({ set, reset }, token) => {
