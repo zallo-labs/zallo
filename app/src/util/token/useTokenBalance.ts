@@ -25,7 +25,10 @@ export const tokenBalanceAtom: (param: BalanceKey) => RecoilState<bigint> = atom
   effects: (key) =>
     key[0] !== null
       ? [
-          // persistAtom(),
+          persistAtom({
+            stringify: (v) => v.toString(),
+            parse: (str) => BigInt(str),
+          }),
           refreshAtom({
             refresh: async ({ get }) => {
               const newValue = await fetch(key);
