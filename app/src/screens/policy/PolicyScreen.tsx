@@ -16,7 +16,7 @@ import { useAtom, useSetAtom } from 'jotai';
 import { useHydrateAtoms } from 'jotai/utils';
 import _ from 'lodash';
 import { Fab } from '~/components/buttons/Fab';
-import { SendOutlineIcon } from '@theme/icons';
+import { SendIcon } from '@theme/icons';
 import { asProposalId } from '@api/proposal';
 
 export type PolicyViewState = 'active' | 'draft';
@@ -100,8 +100,8 @@ const PolicyView = ({
 
       {isModified && (
         <Fab
-          icon={SendOutlineIcon}
-          label="Propose changes"
+          icon={SendIcon}
+          label={draft.key ? 'Update' : 'Create'}
           onPress={async () => {
             const r = await (draft.key
               ? updatePolicy({ key: draft.key, ...draft })
