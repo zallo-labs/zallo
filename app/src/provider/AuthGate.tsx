@@ -5,8 +5,8 @@ import useAsyncEffect from 'use-async-effect';
 import { DateTime, Duration } from 'luxon';
 import { tryOrAsync } from 'lib';
 import { persistedAtom } from '~/util/jotai';
+import { Blur } from '~/components/Blur';
 import { useAtomValue } from 'jotai';
-import { Suspend } from '~/components/Suspender';
 
 export const AUTH_SETTINGS_ATOM = persistedAtom('AuthenticationSettings', {
   require: null as boolean | null,
@@ -59,7 +59,10 @@ export const AuthGate = ({ children }: AuthGateProps) => {
     return () => listener.remove();
   }, []);
 
-  if (!auth.success) return <Suspend />;
-
-  return <>{children}</>;
+  return (
+    <>
+      {children}
+      {!auth.success && <Blur blurAmount={20} />}
+    </>
+  );
 };
