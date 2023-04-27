@@ -1,33 +1,36 @@
 import { Token } from './token';
 import { PROVIDER } from '~/util/network/provider';
-import { atomFamily, useRecoilValue, useSetRecoilState } from 'recoil';
-import { Address } from 'lib';
+import { RecoilState, atomFamily, useRecoilValue } from 'recoil';
+import { Address, tryOrIgnoreAsync } from 'lib';
 import { refreshAtom } from '~/util/effect/refreshAtom';
 import { persistAtom } from '~/util/effect/persistAtom';
-import { useCallback } from 'react';
 import { AccountIdlike, asAccountId } from '@api/account';
 
 type BalanceKey = [address: Address | null, token: Address];
 
 const fetch = async ([addr, token]: BalanceKey) => {
   if (!addr) return 0n;
-  try {
-    return (await PROVIDER.getBalance(addr, undefined, token)).toBigInt();
-  } catch (e) {
-    // TODO: continue to show previous balance on error
-    return 0n;
-  }
+
+  return tryOrIgnoreAsync(async () =>
+    (await PROVIDER.getBalance(addr, undefined, token)).toBigInt(),
+  );
 };
 
-export const tokenBalanceAtom = atomFamily<bigint, BalanceKey>({
+export const tokenBalanceAtom: (param: BalanceKey) => RecoilState<bigint> = atomFamily<
+  bigint,
+  BalanceKey
+>({
   key: 'TokenBalance',
-  default: (key) => fetch(key),
+  default: async (key) => (await fetch(key)) ?? 0n,
   effects: (key) =>
     key[0] !== null
       ? [
           // persistAtom(),
           refreshAtom({
-            refresh: () => fetch(key),
+            refresh: async ({ get }) => {
+              const newValue = await fetch(key);
+              return newValue ?? get(tokenBalanceAtom(key)); // Use previous value if fetch fails
+            },
             interval: 10 * 1000,
           }),
         ]
@@ -36,12 +39,3 @@ export const tokenBalanceAtom = atomFamily<bigint, BalanceKey>({
 
 export const useTokenBalance = (token: Token, account: AccountIdlike | undefined) =>
   useRecoilValue(tokenBalanceAtom([asAccountId(account) ?? null, token.address]));
-
-export const useUpdateTokenBalance = (token: Token, account: AccountIdlike | undefined) => {
-  const update = useSetRecoilState(tokenBalanceAtom([asAccountId(account) ?? null, token.address]));
-
-  return useCallback(
-    async () => update(await fetch([asAccountId(account) ?? null, token.address])),
-    [account, token.address, update],
-  );
-};
