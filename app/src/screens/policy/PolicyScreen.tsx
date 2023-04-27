@@ -98,7 +98,7 @@ const PolicyView = ({
         <Approvers />
       </ScrollView>
 
-      {isModified && (
+      {(!policy || isModified) && (
         <Fab
           icon={SendIcon}
           label={draft.key ? 'Update' : 'Create'}
