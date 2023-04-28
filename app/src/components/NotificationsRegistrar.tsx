@@ -1,7 +1,7 @@
 import { PROJECT_ID } from '../../app.config';
 import * as Notifications from 'expo-notifications';
 import type { DevicePushToken } from 'expo-notifications';
-import { useCallback, useEffect } from 'react';
+import { useEffect } from 'react';
 import { Platform } from 'react-native';
 import { useUpdateUser } from '@api/user';
 import { useProposals } from '@api/proposal';
@@ -10,6 +10,7 @@ import {
   NotificationChannelConfig,
   useNotificationSettings,
 } from '~/screens/notifications/NotificationSettingsScreen';
+import { retryAsPromised } from 'retry-as-promised';
 
 Notifications.setNotificationHandler({
   handleNotification: async () => ({
@@ -28,45 +29,47 @@ export const NotificationsRegistrar = () => {
 
   const hasPermission = Notifications.usePermissions()[0]?.granted;
 
-  // Set badge count
-  useEffect(() => {
-    if (hasPermission) Notifications.setBadgeCountAsync(count);
-  }, [hasPermission, count]);
-
-  const tryRegister = useCallback(
-    async (devicePushToken: DevicePushToken) => {
-      if (Platform.OS === 'android') {
-        for (const [channel, config] of Object.entries(NotificationChannelConfig)) {
-          if (channelEnabled[channel as NotificationChannel]) {
-            Notifications.setNotificationChannelAsync(channel, config);
-          } else {
-            Notifications.deleteNotificationChannelAsync(channel);
-          }
-        }
-      }
-
-      const token = (
-        await Notifications.getExpoPushTokenAsync({
-          projectId: PROJECT_ID,
-          devicePushToken,
-        })
-      ).data;
-
-      await updateUser({ pushToken: token });
-    },
-    [hasPermission, updateUser],
-  );
-
+  // Register
   useEffect(() => {
     if (!hasPermission) return;
 
-    Notifications.getDevicePushTokenAsync().then(tryRegister);
-    const listener = Notifications.addPushTokenListener(tryRegister);
+    const register = async (devicePushToken?: DevicePushToken) =>
+      retryAsPromised(
+        async () => {
+          if (Platform.OS === 'android') {
+            for (const [channel, config] of Object.entries(NotificationChannelConfig)) {
+              if (channelEnabled[channel as NotificationChannel]) {
+                Notifications.setNotificationChannelAsync(channel, config);
+              } else {
+                Notifications.deleteNotificationChannelAsync(channel);
+              }
+            }
+          }
+
+          const token = (
+            await Notifications.getExpoPushTokenAsync({
+              projectId: PROJECT_ID,
+              devicePushToken: devicePushToken ?? (await Notifications.getDevicePushTokenAsync()),
+            })
+          ).data;
+
+          await updateUser({ pushToken: token });
+        },
+        { max: 3 },
+      );
+
+    register();
+    const listener = Notifications.addPushTokenListener(register);
 
     return () => {
       listener.remove();
     };
-  }, [hasPermission, tryRegister]);
+  }, [hasPermission, channelEnabled, updateUser]);
+
+  // Set badge count
+  useEffect(() => {
+    if (hasPermission) Notifications.setBadgeCountAsync(count);
+  }, [hasPermission, count]);
 
   return null;
 };

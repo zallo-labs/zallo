@@ -113,6 +113,7 @@
     "react-native-vector-icons": "^9.2.0",
     "react-native-web": "~0.18.11",
     "recoil": "^0.7.7",
+    "retry-as-promised": "^7.0.4",
     "sentry-expo": "~6.1.0",
     "siwe": "^1.1.6",
     "styled-components": "^5.3.8",
