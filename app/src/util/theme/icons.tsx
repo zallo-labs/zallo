@@ -104,6 +104,8 @@ export const FunctionIcon = materialCommunityIcon('script-text');
 export const FunctionOutlineIcon = materialCommunityIcon('script-text-outline');
 export const UnknownIcon = materialCommunityIcon('help-circle');
 export const UnknownOutlineIcon = materialCommunityIcon('help-circle-outline');
+export const NotificationsIcon = materialIcon('notifications');
+export const NotificationsOutlineIcon = materialIcon('notifications-none');
 
 export const PolicyActiveIcon = materialCommunityIcon('shield');
 export const PolicyActiveOutlineIcon = materialCommunityIcon('shield-outline');

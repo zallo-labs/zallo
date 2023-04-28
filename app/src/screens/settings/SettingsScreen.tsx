@@ -1,5 +1,12 @@
 import { useApprover } from '@network/useApprover';
-import { ContactsIcon, GithubIcon, TwitterIcon, WalletConnectIcon } from '@theme/icons';
+import {
+  ContactsIcon,
+  GithubIcon,
+  NotificationsIcon,
+  NotificationsOutlineIcon,
+  TwitterIcon,
+  WalletConnectIcon,
+} from '@theme/icons';
 import { makeStyles } from '@theme/makeStyles';
 import { ETH } from '@token/tokens';
 import { Image } from 'expo-image';
@@ -59,6 +66,13 @@ export const SettingsScreen = ({ navigation: { navigate } }: SettingsScreenProps
           headline="Contacts"
           supporting="Manage contacts"
           onPress={() => navigate('Contacts', {})}
+        />
+
+        <ListItem
+          leading={(props) => <NotificationsIcon {...props} size={styles.icon.width} />}
+          headline="Notifications"
+          supporting="Choose which notifications to receive"
+          onPress={() => navigate('NotificationSettings', {})}
         />
 
         <Divider horizontalInset />
