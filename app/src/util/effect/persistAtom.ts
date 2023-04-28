@@ -50,8 +50,8 @@ export type PersistAtomOptions<T> = {
 
 export const persistAtom =
   <T>({
-    stringify = BigIntJSON.stringify,
-    parse = BigIntJSON.parse,
+    stringify = JSON.stringify,
+    parse = JSON.parse,
     storage = AsyncStorage,
     saveIf,
     version = 0,

@@ -1,23 +1,23 @@
 export interface WrapJsonParams {
-  tryStringify: (key: string, value: any) => unknown | undefined;
-  tryParse: (key: string, value: any) => unknown | undefined;
+  tryStringify: (this: any, key: string, value: any) => unknown | undefined;
+  tryParse: (this: any, key: string, value: any) => unknown | undefined;
 }
 
 export const wrapJSON = ({ tryStringify, tryParse }: WrapJsonParams): typeof JSON => ({
-  stringify: (value, replacer, space): string => {
+  stringify(value, replacer, space) {
     if (Array.isArray(replacer)) throw new Error("Array replacer support isn't implemented");
 
-    const wrappedReplacer = (key: string, value: any) => {
-      const v = tryStringify(key, value);
+    function wrappedReplacer(this: any, key: string, value: any) {
+      const v = tryStringify.call(this, key, value);
       if (v !== undefined) value = v;
 
-      return replacer ? replacer(key, value) : value;
-    };
+      return replacer && !Array.isArray(replacer) ? replacer(key, value) : value;
+    }
     return JSON.stringify(value, wrappedReplacer, space);
   },
-  parse: (text, reviver) => {
+  parse(text, reviver) {
     const wrappedReviver = (key: string, value: any) => {
-      const v = tryParse(key, value);
+      const v = tryParse.call(this, key, value);
       if (v !== undefined) value = v;
 
       return reviver ? reviver(key, value) : value;

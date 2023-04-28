@@ -13,7 +13,7 @@ export const ListHeader = ({ style, trailing: Trailing, ...props }: ListHeaderPr
 
   return (
     <View style={styles.container}>
-      <Text variant="bodyMedium" style={styles.header} {...props} />
+      <Text variant="titleSmall" style={styles.header} {...props} />
       {typeof Trailing === 'function' ? (
         <Trailing />
       ) : (

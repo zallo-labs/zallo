@@ -38,6 +38,10 @@ import {
 import { ConnectSheet, ConnectSheetParams } from '~/screens/connect/ConnectSheet';
 import { PairingSheet, PairingSheetParams } from '~/screens/pairing/PairingSheet';
 import { SignSheet, SignSheetParams } from '~/screens/sign/SignSheet';
+import {
+  NotificationSettingsParams,
+  NotificationSettingsScreen,
+} from '~/screens/notifications/NotificationSettingsScreen';
 
 export type StackNavigatorParamList = {
   Home: undefined;
@@ -54,6 +58,7 @@ export type StackNavigatorParamList = {
   Interactions: InteractionsScreenParams;
   Sessions: undefined;
   Tokens: TokensScreenParams;
+  NotificationSettings: NotificationSettingsParams;
   // Onboarding
   Onboard: undefined;
   CreateUser: undefined;
@@ -110,6 +115,7 @@ export const StackNavigator = () => {
       <Navigation.Screen name="Interactions" component={InteractionsScreen} />
       <Navigation.Screen name="Sessions" component={SessionsScreen} />
       <Navigation.Screen name="Tokens" component={TokensScreen} />
+      <Navigation.Screen name="NotificationSettings" component={NotificationSettingsScreen} />
 
       <Navigation.Group screenOptions={{ presentation: 'transparentModal' }}>
         <Navigation.Screen name="AccountsSheet" component={AccountsSheet} />

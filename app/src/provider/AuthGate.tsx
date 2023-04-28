@@ -2,25 +2,15 @@ import { ReactNode, useEffect, useState } from 'react';
 import { AppState } from 'react-native';
 import * as Auth from 'expo-local-authentication';
 import useAsyncEffect from 'use-async-effect';
-import { Suspend } from '~/components/Suspender';
 import { DateTime, Duration } from 'luxon';
 import { tryOrAsync } from 'lib';
-import { atom, selector, useRecoilValue } from 'recoil';
-import { persistAtom } from '~/util/effect/persistAtom';
+import { persistedAtom } from '~/util/jotai';
+import { Blur } from '~/components/Blur';
+import { useAtomValue } from 'jotai';
 
-export const authSettingsAtom = atom({
-  key: 'AuthSetings',
-  default: {
-    requireBiometrics: true,
-  },
-  effects: [persistAtom()],
+export const AUTH_SETTINGS_ATOM = persistedAtom('AuthenticationSettings', {
+  require: null as boolean | null,
 });
-
-const supportsBiometricsSelector = selector({
-  key: 'SupportsBiometrics',
-  get: async () => (await Auth.getEnrolledLevelAsync()) === Auth.SecurityLevel.BIOMETRIC,
-});
-export const useSupportsBiometrics = () => useRecoilValue(supportsBiometricsSelector);
 
 const tryAuthenticate = async () =>
   tryOrAsync(async () => (await Auth.authenticateAsync()).success, false);
@@ -39,12 +29,9 @@ export interface AuthGateProps {
 }
 
 export const AuthGate = ({ children }: AuthGateProps) => {
-  const { requireBiometrics } = useRecoilValue(authSettingsAtom);
-  const supportsBiometircs = useSupportsBiometrics();
+  const { require } = useAtomValue(AUTH_SETTINGS_ATOM);
 
-  const [auth, setAuth] = useState<AuthState>({
-    success: !requireBiometrics || !supportsBiometircs,
-  }); // Use an object to re-render every time setAuth is called; TODO: test if this is still necessary
+  const [auth, setAuth] = useState<AuthState>({ success: !require });
 
   // Try authenticate
   useAsyncEffect(
@@ -59,6 +46,8 @@ export const AuthGate = ({ children }: AuthGateProps) => {
 
   // Unauthenticate if app had left foreground
   useEffect(() => {
+    if (!require) return;
+
     const listener = AppState.addEventListener('change', (newState) => {
       if (newState === 'active') {
         setAuth(({ lastActive }) => ({ success: isStillActive(lastActive) }));
@@ -70,7 +59,10 @@ export const AuthGate = ({ children }: AuthGateProps) => {
     return () => listener.remove();
   }, []);
 
-  if (!auth.success) return <Suspend />;
-
-  return <>{children}</>;
+  return (
+    <>
+      {children}
+      {!auth.success && <Blur blurAmount={20} />}
+    </>
+  );
 };

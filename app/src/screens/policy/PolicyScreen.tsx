@@ -16,7 +16,7 @@ import { useAtom, useSetAtom } from 'jotai';
 import { useHydrateAtoms } from 'jotai/utils';
 import _ from 'lodash';
 import { Fab } from '~/components/buttons/Fab';
-import { SendOutlineIcon } from '@theme/icons';
+import { SendIcon } from '@theme/icons';
 import { asProposalId } from '@api/proposal';
 
 export type PolicyViewState = 'active' | 'draft';
@@ -67,7 +67,12 @@ interface PolicyViewProps extends PolicyScreenProps {
   state: PolicyViewState;
 }
 
-const PolicyView = ({ route, navigation, initState, state }: PolicyViewProps) => {
+const PolicyView = ({
+  route,
+  navigation: { navigate, setParams },
+  initState,
+  state,
+}: PolicyViewProps) => {
   const { account: accountId, key } = route.params;
   const createPolicy = useCreatePolicy(accountId);
   const updatePolicy = useUpdatePolicy();
@@ -85,7 +90,7 @@ const PolicyView = ({ route, navigation, initState, state }: PolicyViewProps) =>
         proposal={proposal}
         state={state}
         reset={isModified ? () => setDraft(initState) : undefined}
-        setParams={navigation.setParams}
+        setParams={setParams}
       />
 
       <ScrollView>
@@ -93,16 +98,19 @@ const PolicyView = ({ route, navigation, initState, state }: PolicyViewProps) =>
         <Approvers />
       </ScrollView>
 
-      {isModified && (
+      {(!policy || isModified) && (
         <Fab
-          icon={SendOutlineIcon}
-          label="Propose changes"
+          icon={SendIcon}
+          label={draft.key ? 'Update' : 'Create'}
           onPress={async () => {
             const r = await (draft.key
               ? updatePolicy({ key: draft.key, ...draft })
               : createPolicy(draft));
+
+            setParams({ key: r?.key.toString(), state: 'draft' });
+
             const proposal = r?.draft?.proposalId;
-            if (proposal) navigation.navigate('Proposal', { proposal: asProposalId(proposal) });
+            if (proposal) navigate('Proposal', { proposal: asProposalId(proposal) });
           }}
         />
       )}

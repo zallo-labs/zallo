@@ -14740,6 +14740,7 @@ __metadata:
     react-native-web: ~0.18.11
     react-test-renderer: 18.2.0
     recoil: ^0.7.7
+    retry-as-promised: ^7.0.4
     sentry-expo: ~6.1.0
     siwe: ^1.1.6
     styled-components: ^5.3.8
@@ -36854,6 +36855,13 @@ __metadata:
   version: 3.0.0
   resolution: "retimer@npm:3.0.0"
   checksum: f88309196e9d4f2d4be0c76eafc27a9f102c74b40b391ce730785b052c345d7bd59c3e4411a4c422f89f19a42b97b28034639e2f06c63133a06ec8958e9e7516
+  languageName: node
+  linkType: hard
+
+"retry-as-promised@npm:^7.0.4":
+  version: 7.0.4
+  resolution: "retry-as-promised@npm:7.0.4"
+  checksum: 2b0dcddb06649d42b1384ec1f933c7cb4461939c28004460b0c4be0c8ae16cabaed2411aa5d46e734a320f33f4a1d480078a19b97c743c754bd32e896b3f8ea2
   languageName: node
   linkType: hard
 

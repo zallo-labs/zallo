@@ -90,7 +90,7 @@ export const CreateUserScreen = ({ navigation: { navigate } }: CreateUserScreenP
             updateUser({ name });
             if (phrase) setApprover(Approver.fromMnemonic(phrase));
 
-            navigate('CreateAccount');
+            navigate('NotificationSettings', { onboard: true });
           })}
         >
           Create user

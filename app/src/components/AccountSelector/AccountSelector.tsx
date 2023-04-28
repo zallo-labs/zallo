@@ -5,6 +5,8 @@ import { AddressLabel } from '../address/AddressLabel';
 import { AddressIcon } from '../Identicon/AddressIcon';
 import { useSelectedAccountId } from './useSelectedAccount';
 import { useNavigation } from '@react-navigation/native';
+import { Suspense } from 'react';
+import { LineSkeleton } from '../skeleton/LineSkeleton';
 
 export const AccountSelector = () => {
   const styles = useStyles();
@@ -15,9 +17,11 @@ export const AccountSelector = () => {
     <TouchableOpacity style={styles.container} onPress={() => navigate('AccountsSheet')}>
       <AddressIcon address={account} size={styles.icon.fontSize} />
 
-      <Text variant="titleLarge">
-        <AddressLabel address={account} />
-      </Text>
+      <Suspense fallback={<LineSkeleton />}>
+        <Text variant="titleLarge">
+          <AddressLabel address={account} />
+        </Text>
+      </Suspense>
     </TouchableOpacity>
   );
 };

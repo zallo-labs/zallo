@@ -69,7 +69,7 @@ export class PoliciesService implements OnModuleInit {
     res?: ArgsParam<A>,
   ) {
     return this.prisma.asUser.$transaction(async (prisma) => {
-      const key = keyArg ?? (await this.getNextKey(account));
+      const key = keyArg ?? (await this.getFreeKey(account));
       const policy = inputAsPolicy(key, policyInput);
 
       // User needs to belong to the account before they can create a policy
@@ -313,13 +313,13 @@ export class PoliciesService implements OnModuleInit {
     });
   }
 
-  private async getNextKey(account: Address) {
-    const aggregate = await this.prisma.asUser.policy.aggregate({
+  private async getFreeKey(account: Address) {
+    const { _max } = await this.prisma.asUser.policy.aggregate({
       where: { accountId: account },
       _max: { key: true },
     });
 
-    return asPolicyKey(aggregate._max?.key ?? 0);
+    return asPolicyKey(_max.key !== null ? _max.key + 1n : 0);
   }
 
   // Note. approvers aren't removed when a draft is replaced they were previously an approver of

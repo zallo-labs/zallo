@@ -1,7 +1,6 @@
 import { Logger } from 'ethers/lib/utils';
 import { LogLevel } from '@ethersproject/logger';
 import { EventLevel, event } from '../analytics';
-import BigIntJSON from '../BigIntJSON';
 
 const toEventLevel = (level: LogLevel): EventLevel => {
   switch (level) {
@@ -23,7 +22,7 @@ logger._log = (level: LogLevel, args: unknown[]) => {
   if (level !== LogLevel.OFF) {
     event({
       level: toEventLevel(level),
-      message: BigIntJSON.stringify(args, null, 2),
+      message: JSON.stringify(args, null, 2),
     });
   }
 
