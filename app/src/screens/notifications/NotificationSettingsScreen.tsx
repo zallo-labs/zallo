@@ -10,7 +10,6 @@ import { persistedAtom } from '~/util/jotai';
 import { useImmerAtom } from 'jotai-immer';
 import * as Notifications from 'expo-notifications';
 import type { NotificationChannelInput } from 'expo-notifications';
-import * as Device from 'expo-device';
 import { Switch } from 'react-native-paper';
 import { Actions } from '~/components/layout/Actions';
 import { Button } from '~/components/Button';
@@ -42,8 +41,6 @@ const NOTIFICATIONS_ATOM = persistedAtom<Record<NotificationChannel, boolean>>('
 
 export const useNotificationSettings = () => useAtomValue(NOTIFICATIONS_ATOM);
 
-const SUPPORTS_NOTIFICATIONS = Device.isDevice; // Notifications don't work on emulators
-
 export interface NotificationSettingsParams {
   onboard?: boolean;
 }
@@ -56,8 +53,13 @@ export const NotificationSettingsScreen = withSuspense(
     const [settings, update] = useImmerAtom(NOTIFICATIONS_ATOM);
 
     const [perm, requestPerm] = Notifications.usePermissions({
-      request: SUPPORTS_NOTIFICATIONS,
-      ios: { allowAlert: true, allowBadge: true },
+      ios: {
+        allowAlert: true,
+        allowBadge: true,
+        allowSound: true,
+        allowProvisional: true,
+        provideAppNotificationSettings: true,
+      },
     });
 
     const next = onboard ? () => navigation.navigate('CreateAccount') : undefined;
@@ -97,10 +99,10 @@ export const NotificationSettingsScreen = withSuspense(
           ))}
         </View>
 
-        {!perm?.granted && (
-          <Actions>
-            {next && <Button onPress={next}>Skip</Button>}
+        <Actions>
+          {!perm?.granted && next && <Button onPress={next}>Skip</Button>}
 
+          {(!perm?.granted || next) && (
             <Button
               mode="contained"
               onPress={async () => {
@@ -108,10 +110,10 @@ export const NotificationSettingsScreen = withSuspense(
                 next?.();
               }}
             >
-              Enable
+              {perm?.granted ? 'Continue' : 'Enable'}
             </Button>
-          </Actions>
-        )}
+          )}
+        </Actions>
       </Screen>
     );
   },
