@@ -15,7 +15,7 @@ import { AuthGate } from '~/provider/AuthGate';
 import { ThemeProvider } from '~/util/theme/ThemeProvider';
 import { AnalyticsUser } from '~/components/AnalyticsUser';
 import { NavigationProvider } from '~/navigation/NavigationProvider';
-import { NotificationsRegistrar } from '~/util/NotificationsRegistrar';
+import { NotificationsRegistrar } from '~/components/NotificationsRegistrar';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { StackNavigator } from '~/navigation/StackNavigator';
 import { Subscriptions } from './components/Subscriptions';

@@ -1,11 +1,15 @@
 import { PROJECT_ID } from '../../app.config';
-import * as Device from 'expo-device';
 import * as Notifications from 'expo-notifications';
-import { DevicePushToken } from 'expo-notifications';
+import type { DevicePushToken } from 'expo-notifications';
 import { useCallback, useEffect } from 'react';
 import { Platform } from 'react-native';
 import { useUpdateUser } from '@api/user';
 import { useProposals } from '@api/proposal';
+import {
+  NotificationChannel,
+  NotificationChannelConfig,
+  useNotificationSettings,
+} from '~/screens/notifications/NotificationSettingsScreen';
 
 Notifications.setNotificationHandler({
   handleNotification: async () => ({
@@ -18,33 +22,27 @@ Notifications.setNotificationHandler({
 export const useNotificationsCount = () => useProposals({ requiresUserAction: true }).length;
 
 export const NotificationsRegistrar = () => {
+  const channelEnabled = useNotificationSettings();
   const count = useNotificationsCount();
   const updateUser = useUpdateUser();
 
+  const hasPermission = Notifications.usePermissions()[0]?.granted;
+
   // Set badge count
   useEffect(() => {
-    Notifications.setBadgeCountAsync(count);
-  }, [count]);
+    if (hasPermission) Notifications.setBadgeCountAsync(count);
+  }, [hasPermission, count]);
 
   const tryRegister = useCallback(
-    async (devicePushToken?: DevicePushToken) => {
-      // Notifications don't work on emulators
-      if (!Device.isDevice) return undefined;
-
-      const perms = await Notifications.getPermissionsAsync();
-      let granted = perms.granted;
-      if (!granted && perms.canAskAgain)
-        granted = (await Notifications.requestPermissionsAsync()).granted;
-      if (!granted) return undefined;
-
+    async (devicePushToken: DevicePushToken) => {
       if (Platform.OS === 'android') {
-        await Notifications.setNotificationChannelAsync('default', {
-          name: 'default',
-          importance: Notifications.AndroidImportance.MAX,
-          showBadge: true,
-          enableLights: true,
-          enableVibrate: true,
-        });
+        for (const [channel, config] of Object.entries(NotificationChannelConfig)) {
+          if (channelEnabled[channel as NotificationChannel]) {
+            Notifications.setNotificationChannelAsync(channel, config);
+          } else {
+            Notifications.deleteNotificationChannelAsync(channel);
+          }
+        }
       }
 
       const token = (
@@ -56,17 +54,19 @@ export const NotificationsRegistrar = () => {
 
       await updateUser({ pushToken: token });
     },
-    [updateUser],
+    [hasPermission, updateUser],
   );
 
   useEffect(() => {
-    tryRegister();
-    const onChangeSub = Notifications.addPushTokenListener(tryRegister);
+    if (!hasPermission) return;
+
+    Notifications.getDevicePushTokenAsync().then(tryRegister);
+    const listener = Notifications.addPushTokenListener(tryRegister);
 
     return () => {
-      onChangeSub.remove();
+      listener.remove();
     };
-  }, [tryRegister]);
+  }, [hasPermission, tryRegister]);
 
   return null;
 };
