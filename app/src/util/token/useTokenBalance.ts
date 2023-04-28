@@ -26,10 +26,11 @@ export const tokenBalanceAtom: (param: BalanceKey) => RecoilState<bigint> = atom
   effects: (key) =>
     key[0] !== null
       ? [
-          persistAtom({
-            stringify: BigIntJSON.stringify,
-            parse: BigIntJSON.parse,
-          }),
+          // Causes promise rejection on first load (before serialize). Not sure why... :(
+          // persistAtom({
+          //   stringify: BigIntJSON.stringify,
+          //   parse: BigIntJSON.parse,
+          // }),
           refreshAtom({
             refresh: async ({ get }) => {
               const newValue = await fetch(key);
