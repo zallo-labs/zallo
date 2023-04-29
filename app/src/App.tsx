@@ -36,7 +36,6 @@ export default () => (
       <LocalizatonProvider>
         <SafeAreaProvider>
           <ThemeProvider>
-            <SnackbarProvider />
             <Background>
               <StatusBar backgroundColor="transparent" />
               <GestureHandlerRootView style={styles.flex}>
@@ -69,6 +68,7 @@ export default () => (
                 </RecoilRoot>
               </GestureHandlerRootView>
             </Background>
+            <SnackbarProvider />
           </ThemeProvider>
         </SafeAreaProvider>
       </LocalizatonProvider>

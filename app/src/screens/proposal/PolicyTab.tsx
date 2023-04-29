@@ -7,7 +7,7 @@ import { AddressLabel } from '~/components/address/AddressLabel';
 import { Timestamp } from '~/components/format/Timestamp';
 import { ListHeader } from '~/components/list/ListHeader';
 import { ListItem } from '~/components/list/ListItem';
-import { showError } from '~/provider/SnackbarProvider';
+import { showInfo } from '~/provider/SnackbarProvider';
 import { ApprovalActions } from './ApprovalActions';
 import { TabNavigatorScreenProp } from './Tabs';
 import { TabBadge } from '~/components/tab/TabBadge';
@@ -36,7 +36,7 @@ export const PolicyTab = withSuspense(({ route }: PolicyTabProps) => {
 
   const selectPolicy = () => {
     // TODO: allow for policy selection
-    showError('Changing preferred execution policy is not yet supported');
+    showInfo('Changing preferred execution policy is not yet supported');
   };
 
   return (
