@@ -7,8 +7,7 @@ import _ from 'lodash';
 // Ethers uses long timers; these tasks WON'T be executed when the app is in the background but will resume once re-opened
 if (Platform.OS !== 'web') LogBox.ignoreLogs(['Setting a timer']);
 
-export const SUPPORTED_CHAINS =
-  CONFIG.env === 'development' ? CHAINS : _.omit(CHAINS, ['local'] /* satisfies ChainName[] */);
+export const SUPPORTED_CHAINS = _.pick(CHAINS, ['testnet']);
 
 export const CHAIN = getChain(CONFIG.chainName, SUPPORTED_CHAINS);
 export const PROVIDER = new zk.Provider(CHAIN.rpc);
