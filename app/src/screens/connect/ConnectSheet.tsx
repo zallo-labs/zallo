@@ -34,7 +34,7 @@ export const ConnectSheet = ({ navigation: { goBack }, route }: ConnectSheetProp
   const connect = async () => {
     const req = await tryOrCatchAsync(
       () => client.approve({ id, namespaces: toNamespaces(selected) }),
-      () => showError('Failed to connect to DApp, please try again'),
+      (error) => showError('Failed to connect to DApp, please try again', { event: { error } }),
     );
     goBack();
 
@@ -43,8 +43,8 @@ export const ConnectSheet = ({ navigation: { goBack }, route }: ConnectSheetProp
         await req.acknowledged();
         update();
         showSuccess('Connected');
-      } catch {
-        showError('DApp failed to acknowledge connection, please try again');
+      } catch (error) {
+        showError('DApp failed to acknowledge connection, please try again', { event: { error } });
       }
     }
   };
