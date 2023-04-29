@@ -9,7 +9,7 @@ export interface EventParams {
   level: EventLevel;
   message: string;
   context?: Record<string, unknown>;
-  error?: Error;
+  error?: Error | unknown;
 }
 
 export const event = ({ level, message, context: contextParam, error }: EventParams) => {
@@ -26,12 +26,12 @@ export const event = ({ level, message, context: contextParam, error }: EventPar
 
   if (error) {
     Sentry.captureException(error);
-    crashlytics().recordError(error);
+    crashlytics().recordError(error as Error);
   }
 
   getConsoleLog(level)(`Event: ${message}`, {
     ...(context && { context }),
-    ...(error && { error }),
+    ...(error !== undefined && { error: error as Error }),
   });
 };
 

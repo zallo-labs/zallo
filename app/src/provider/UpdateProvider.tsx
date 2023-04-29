@@ -24,11 +24,7 @@ const update = async () => {
       });
     }
   } catch (error) {
-    event({
-      level: 'error',
-      message: 'Error encountered during update',
-      error: error as Error,
-    });
+    event({ level: 'error', message: 'Error encountered during update', error });
   }
 };
 
