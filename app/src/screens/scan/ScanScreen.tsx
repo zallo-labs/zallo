@@ -49,7 +49,7 @@ export const ScanScreen = withSuspense(
           await walletconnect.core.pairing.pair({ uri: data });
           goBack();
         } catch {
-          showError('Failed to connect. Please refresh the DApp and try again', { event: false });
+          showError('Failed to connect. Please refresh the DApp and try again');
         }
       } else {
         handled = false;

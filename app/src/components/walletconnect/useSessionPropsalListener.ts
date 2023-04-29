@@ -26,7 +26,7 @@ export const useSessionPropsalListener = () => {
       ];
 
       if (!peerChains.some((chain) => WC_SUPPORTED_CHAINS.includes(chain))) {
-        showError("DApp doesn't support any zkSync network", { event: false });
+        showError("DApp doesn't support any zkSync network");
         return client.reject({ id: proposal.id, reason: getSdkError('UNSUPPORTED_CHAINS') });
       }
 
@@ -39,7 +39,7 @@ export const useSessionPropsalListener = () => {
         (chain) => !WC_SUPPORTED_CHAINS.includes(chain),
       );
       if (unsupportedChains.length) {
-        showError('DApp requires unsupported networks', { event: false });
+        showError('DApp requires unsupported networks');
         return client.reject({ id: proposal.id, reason: getSdkError('UNSUPPORTED_CHAINS') });
       }
 

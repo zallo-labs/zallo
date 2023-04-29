@@ -13,7 +13,7 @@ type SnackParams = Pick<SnackbarProps, 'action' | 'style' | 'elevation'> & {
   message: string;
   variant?: SnackVariant;
   messageStyle?: StyleProp<TextStyle>;
-  event?: Partial<EventParams> | false;
+  event?: Partial<EventParams> | boolean;
 };
 
 export type SnackProps = ToastConfigParams<SnackParams>;
@@ -26,11 +26,11 @@ const Snack = ({
   const styles = useStyles(variant);
 
   useEffect(() => {
-    if ((variant === 'warning' || variant === 'error') && eventProp !== false) {
+    if (eventProp && (variant === 'warning' || variant === 'error')) {
       event({
         level: variant,
         message,
-        ...eventProp,
+        ...(typeof eventProp === 'object' && eventProp),
         context: { ...(typeof eventProp === 'object' && eventProp), snackShown: true },
       });
     }
