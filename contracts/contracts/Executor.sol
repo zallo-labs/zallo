@@ -14,10 +14,9 @@ abstract contract Executor {
   //////////////////////////////////////////////////////////////*/
 
   event TransactionExecuted(bytes32 txHash, bytes response);
-  event TransactionReverted(bytes32 txHash, bytes response);
 
+  error TransactionReverted(bytes reason);
   error TransactionAlreadyExecuted(bytes32 txHash, uint256 nonce);
-  error TransactionRevertedWithoutReason();
 
   /*//////////////////////////////////////////////////////////////
                                 EXECUTION
@@ -41,19 +40,11 @@ abstract contract Executor {
       (success, response) = to.call{value: t.value, gas: gas}(t.data);
     }
 
-    if (!success) {
-      emit TransactionReverted(txHash, response);
-
-      if (response.length > 0) {
-        assembly {
-          revert(add(32, response), mload(response))
-        }
-      } else {
-        revert TransactionRevertedWithoutReason();
-      }
+    if (success) {
+      emit TransactionExecuted(txHash, response);
+    } else {
+      revert TransactionReverted(response);
     }
-
-    emit TransactionExecuted(txHash, response);
   }
 
   /*//////////////////////////////////////////////////////////////

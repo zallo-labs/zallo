@@ -1,4 +1,7 @@
 -- CreateEnum
+CREATE TYPE "TransferDirection" AS ENUM ('IN', 'OUT');
+
+-- CreateEnum
 CREATE TYPE "AbiSource" AS ENUM ('VERIFIED', 'STANDARD', 'DECOMPILED');
 
 -- CreateTable
@@ -107,6 +110,7 @@ CREATE TABLE "TransactionReceipt" (
     "gasUsed" DECIMAL(19,0) NOT NULL,
     "gasPrice" DECIMAL(19,0) NOT NULL,
     "fee" DECIMAL(79,0) NOT NULL,
+    "blockNumber" INTEGER NOT NULL,
     "timestamp" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
     CONSTRAINT "TransactionReceipt_pkey" PRIMARY KEY ("transactionHash")
@@ -115,11 +119,15 @@ CREATE TABLE "TransactionReceipt" (
 -- CreateTable
 CREATE TABLE "Transfer" (
     "id" SERIAL NOT NULL,
-    "transactionHash" CHAR(66) NOT NULL,
+    "accountId" CHAR(42) NOT NULL,
     "token" CHAR(42) NOT NULL,
     "from" CHAR(42) NOT NULL,
     "to" CHAR(42) NOT NULL,
     "amount" DECIMAL(79,0) NOT NULL,
+    "direction" "TransferDirection" NOT NULL,
+    "blockNumber" INTEGER NOT NULL,
+    "timestamp" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "transactionHash" CHAR(66),
 
     CONSTRAINT "Transfer_pkey" PRIMARY KEY ("id")
 );
@@ -265,7 +273,10 @@ ALTER TABLE "Transaction" ADD CONSTRAINT "Transaction_proposalId_fkey" FOREIGN K
 ALTER TABLE "TransactionReceipt" ADD CONSTRAINT "TransactionReceipt_transactionHash_fkey" FOREIGN KEY ("transactionHash") REFERENCES "Transaction"("hash") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "Transfer" ADD CONSTRAINT "Transfer_transactionHash_fkey" FOREIGN KEY ("transactionHash") REFERENCES "TransactionReceipt"("transactionHash") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "Transfer" ADD CONSTRAINT "Transfer_accountId_fkey" FOREIGN KEY ("accountId") REFERENCES "Account"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "Transfer" ADD CONSTRAINT "Transfer_transactionHash_fkey" FOREIGN KEY ("transactionHash") REFERENCES "TransactionReceipt"("transactionHash") ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "Simulation" ADD CONSTRAINT "Simulation_proposalId_fkey" FOREIGN KEY ("proposalId") REFERENCES "Proposal"("id") ON DELETE CASCADE ON UPDATE CASCADE;

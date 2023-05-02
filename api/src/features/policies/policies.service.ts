@@ -1,4 +1,4 @@
-import { forwardRef, Inject, Injectable, OnModuleInit } from '@nestjs/common';
+import { forwardRef, Inject, Injectable } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
 import {
   ACCOUNT_INTERFACE,
@@ -8,7 +8,6 @@ import {
   asPolicyKey,
   asTargets,
   getTransactionSatisfiability,
-  mapAsync,
   Policy,
   POLICY_ABI,
   PolicySatisfiability,
@@ -18,10 +17,6 @@ import { PrismaService } from '../util/prisma/prisma.service';
 import { connectAccount, connectOrCreateUser, connectPolicy } from '~/util/connect-or-create';
 import { ProposalsService } from '../proposals/proposals.service';
 import { CreatePolicyInput, UniquePolicyInput, UpdatePolicyInput } from './policies.args';
-import {
-  TransactionResponseData,
-  TransactionsProcessor,
-} from '../transactions/transactions.processor';
 import { inputAsPolicy, POLICY_STATE_FIELDS, prismaAsPolicy, PrismaPolicy } from './policies.util';
 import merge from 'ts-deepmerge';
 import _ from 'lodash';
@@ -44,21 +39,13 @@ type ArgsParam<T> = Prisma.SelectSubset<T, Prisma.PolicyArgs>;
 export type SelectManyPoliciesArgs = Omit<Prisma.PolicyFindManyArgs, 'where' | 'include'>;
 
 @Injectable()
-export class PoliciesService implements OnModuleInit {
+export class PoliciesService {
   constructor(
     private prisma: PrismaService,
     @Inject(forwardRef(() => ProposalsService))
     private proposals: ProposalsService,
-    @Inject(forwardRef(() => TransactionsProcessor))
-    private transactionsConsumer: TransactionsProcessor,
     private userAccounts: UserAccountsService,
   ) {}
-
-  onModuleInit() {
-    this.transactionsConsumer.addProcessor(PoliciesService.name, (...args) =>
-      this.processTransaction(...args),
-    );
-  }
 
   findUnique = this.prisma.asUser.policy.findUnique;
   findUniqueOrThrow = this.prisma.asUser.policy.findUniqueOrThrow;
@@ -267,50 +254,6 @@ export class PoliciesService implements OnModuleInit {
     for await (const [policy, sat] of this.policiesWithSatisfiability(proposalId, queryArgs)) {
       if (sat === PolicySatisfiability.Satisfied) yield policy;
     }
-  }
-
-  private async processTransaction({ transactionHash, response: resp }: TransactionResponseData) {
-    if (!resp.success) return;
-
-    const { proposal } = await this.prisma.asSystem.transaction.findUniqueOrThrow({
-      where: { hash: transactionHash },
-      select: {
-        proposal: {
-          select: {
-            accountId: true,
-            policyStates: {
-              select: {
-                id: true,
-                policy: {
-                  select: {
-                    accountId: true,
-                    key: true,
-                  },
-                },
-                approvers: {
-                  select: { userId: true },
-                },
-              },
-            },
-          },
-        },
-      },
-    });
-
-    await mapAsync(proposal.policyStates, (state) => {
-      return this.prisma.asSystem.policy.update({
-        where: {
-          accountId_key: {
-            accountId: state.policy.accountId,
-            key: state.policy.key,
-          },
-        },
-        data: {
-          activeId: state.id,
-          draftId: null,
-        },
-      });
-    });
   }
 
   private async getFreeKey(account: Address) {

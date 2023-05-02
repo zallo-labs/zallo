@@ -1,7 +1,8 @@
 import { Injectable } from '@nestjs/common';
 import { ExplorerService } from '../explorer/explorer.service';
-import { TransferDirection, TransfersInput } from './transfers.args';
+import { TransfersInput } from './transfers.args';
 import { ExplorerTransfer } from '../explorer/explorer.model';
+import { TransferDirection } from '@gen/prisma/transfer-direction.enum';
 
 @Injectable()
 export class TransfersService {

@@ -28,6 +28,7 @@ model Account {
   policyStates PolicyState[]
   proposals    Proposal[]
   comments     Comment[]
+  transfer     Transfer[]
 }
 
 ////////////////////////////////////////////////////////////////
@@ -163,19 +164,30 @@ model TransactionReceipt {
   gasUsed         Decimal     @db.Decimal(19, 0)
   gasPrice        Decimal     @db.Decimal(19, 0)
   fee             Decimal     @db.Decimal(79, 0) // uint256
+  blockNumber     Int
   timestamp       DateTime    @default(now())
 
   transfers Transfer[]
 }
 
 model Transfer {
-  id              Int                @id @default(autoincrement())
-  receipt         TransactionReceipt @relation(fields: [transactionHash], references: [transactionHash])
-  transactionHash String             @db.Char(66) // bytes32
-  token           String             @db.Char(42) // address
-  from            String             @db.Char(42) // address
-  to              String             @db.Char(42) // address
-  amount          Decimal            @db.Decimal(79, 0) // uint256
+  id              Int                 @id @default(autoincrement())
+  account         Account             @relation(fields: [accountId], references: [id])
+  accountId       String              @db.Char(42) // address
+  token           String              @db.Char(42) // address
+  from            String              @db.Char(42) // address
+  to              String              @db.Char(42) // address
+  amount          Decimal             @db.Decimal(79, 0) // uint256
+  direction       TransferDirection
+  blockNumber     Int
+  timestamp       DateTime            @default(now())
+  receipt         TransactionReceipt? @relation(fields: [transactionHash], references: [transactionHash])
+  transactionHash String?             @db.Char(66) // bytes32
+}
+
+enum TransferDirection {
+  IN
+  OUT
 }
 
 model Simulation {
