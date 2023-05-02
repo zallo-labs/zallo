@@ -29,6 +29,7 @@ const config: CodegenConfig = {
       DateTime: 'string',
       Decimal: 'lib#BigIntlike',
       PolicyKey: 'lib#PolicyKey',
+      Selector: 'lib#Selector',
       Uint256: 'lib#BigIntlike',
     },
   },

@@ -3,9 +3,9 @@ import { PrismaService } from '../util/prisma/prisma.service';
 import { GraphQLResolveInfo } from 'graphql';
 import { getSelect } from '~/util/select';
 import { UpdateUserArgs, UserArgs } from './users.args';
-import { User } from '@gen/user/user.model';
 import { ProviderService } from '../util/provider/provider.service';
 import { getUser } from '~/request/ctx';
+import { User } from './users.model';
 
 @Resolver(() => User)
 export class UsersResolver {

@@ -21,14 +21,12 @@ import {
   PROPOSAL_SUBSCRIPTION,
   ACCOUNT_PROPOSAL_SUB_TRIGGER,
 } from './proposals.args';
-import { Proposal } from '@gen/proposal/proposal.model';
 import { ProposalsService } from './proposals.service';
-import { Transaction } from '@gen/transaction/transaction.model';
 import { PubsubService } from '~/features/util/pubsub/pubsub.service';
 import { GqlContext, asUser, getUserCtx } from '~/request/ctx';
-import { Rejection, SatisfiablePolicy } from './proposals.model';
+import { Approval, Proposal, Rejection, SatisfiablePolicy } from './proposals.model';
 import { asHex } from 'lib';
-import { Approval } from '@gen/approval/approval.model';
+import { Transaction } from '../transactions/transactions.model';
 
 @Resolver(() => Proposal)
 export class ProposalsResolver {

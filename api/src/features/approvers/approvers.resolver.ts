@@ -1,5 +1,5 @@
-import { Approver } from '@gen/approver/approver.model';
 import { Parent, ResolveField, Resolver } from '@nestjs/graphql';
+import { Approver } from './approvers.model';
 
 @Resolver(() => Approver)
 export class ApproversResolver {

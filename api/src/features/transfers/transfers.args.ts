@@ -8,7 +8,6 @@ export class TransfersInput {
   @AddressField()
   account: Address;
 
-  @Field(() => TransferDirection, { nullable: true })
   direction?: TransferDirection;
 
   @Field(() => Number, { nullable: true, defaultValue: 100 })

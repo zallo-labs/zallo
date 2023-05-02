@@ -1,11 +1,11 @@
-import { Contract } from '@gen/contract/contract.model';
 import { Args, Info, Query, Resolver } from '@nestjs/graphql';
 import { ContractsService } from './contracts.service';
 import { ContractInput } from './contracts.args';
 import { GraphQLResolveInfo } from 'graphql';
 import { getSelect } from '~/util/select';
+import { Contract } from './contracts.model';
 
-@Resolver()
+@Resolver(() => Contract)
 export class ContractsResolver {
   constructor(private service: ContractsService) {}
 

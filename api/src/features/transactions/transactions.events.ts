@@ -1,6 +1,6 @@
 import { Injectable, OnModuleInit } from '@nestjs/common';
 import { PrismaService } from '../util/prisma/prisma.service';
-import { ACCOUNT_INTERFACE as ACCOUNT, Address, Hex, asAddress, asHex } from 'lib';
+import { ACCOUNT_INTERFACE as ACCOUNT, asAddress, asHex } from 'lib';
 import { BytesLike } from 'ethers';
 import { hexDataLength } from 'ethers/lib/utils';
 import { ProposalsService } from '../proposals/proposals.service';
@@ -10,7 +10,6 @@ import {
   TransactionEventData,
   TransactionsProcessor,
 } from './transactions.processor';
-import { TransactionReceipt } from '@ethersproject/abstract-provider';
 import { InjectQueue } from '@nestjs/bull';
 import { TRANSACTIONS_QUEUE, TransactionEvent } from './transactions.queue';
 import { Queue } from 'bull';

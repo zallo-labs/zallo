@@ -13,7 +13,6 @@ import { ContractFunctionsModule } from './features/contract-functions/contract-
 import { ProposalsModule } from './features/proposals/proposals.module';
 import { TransactionsModule } from './features/transactions/transactions.module';
 import { FaucetModule } from './features/faucet/faucet.module';
-import { SubgraphModule } from './features/subgraph/subgraph.module';
 import { ExpoModule } from './features/util/expo/expo.module';
 import { PubsubModule } from './features/util/pubsub/pubsub.module';
 import { RedisModule, DEFAULT_REDIS_NAMESPACE } from '@liaoliaots/nestjs-redis';
@@ -74,7 +73,6 @@ import { EventsModule } from './features/events/events.module';
     HealthModule,
     PoliciesModule,
     ProposalsModule,
-    SubgraphModule,
     TransactionsModule,
     TransfersModule,
     UsersModule,

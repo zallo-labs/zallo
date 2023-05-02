@@ -1,4 +1,3 @@
-import { Policy } from '@gen/policy/policy.model';
 import { Args, Info, Mutation, Parent, Query, ResolveField, Resolver } from '@nestjs/graphql';
 import { GraphQLResolveInfo } from 'graphql';
 import { getSelect } from '~/util/select';
@@ -9,6 +8,7 @@ import {
   UpdatePolicyInput,
 } from './policies.args';
 import { PoliciesService } from './policies.service';
+import { Policy } from './policies.model';
 
 @Resolver(() => Policy)
 export class PoliciesResolver {
