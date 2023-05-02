@@ -42,7 +42,6 @@ export class PrismaService<T extends Prisma.PrismaClientOptions = Prisma.PrismaC
 
   constructor(@Optional() options?: Prisma.Subset<T, Prisma.PrismaClientOptions>) {
     this.asSystem = new PrismaClient(options);
-    this.asSystem.$use(loggingMiddleware());
 
     this.asUser = getUserClient(this.asSystem);
   }
