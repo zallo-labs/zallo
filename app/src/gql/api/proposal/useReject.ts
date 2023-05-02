@@ -4,6 +4,7 @@ import { useCallback } from 'react';
 import { Proposal } from './types';
 import { useApprover } from '@network/useApprover';
 import { DateTime } from 'luxon';
+import { Address } from 'lib';
 
 gql`
   ${RejectionFieldsFragmentDoc}
@@ -38,7 +39,7 @@ export const useReject = () => {
               })),
               {
                 __typename: 'Rejection' as const,
-                userId: approver.address,
+                userId: approver.address as Address,
                 createdAt: DateTime.now().toISO(),
               },
             ],
