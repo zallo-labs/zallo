@@ -23,12 +23,13 @@ describe(AccountsService.name, () => {
   let policiesService: DeepMocked<PoliciesService>;
   let accountsQueue: DeepMocked<Queue<AccountActivationEvent>>;
 
-  let module: TestingModule;
   beforeEach(async () => {
-    module = await Test.createTestingModule({
+    const module = await Test.createTestingModule({
       imports: [BullModule.registerQueue(ACCOUNTS_QUEUE)],
       providers: [AccountsService, PRISMA_MOCK_PROVIDER],
     })
+      .overrideProvider(getQueueToken(ACCOUNTS_QUEUE.name))
+      .useValue(createMock())
       .useMocker(createMock)
       .compile();
     service = module.get(AccountsService);
@@ -37,8 +38,6 @@ describe(AccountsService.name, () => {
     policiesService = module.get(PoliciesService);
     accountsQueue = module.get(getQueueToken(ACCOUNTS_QUEUE.name));
   });
-
-  afterEach(() => module.close());
 
   const createAccount = async () => {
     const userCtx = getUserCtx();
