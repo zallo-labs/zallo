@@ -28,6 +28,7 @@ import { ContractsModule } from './features/contracts/contracts.module';
 import { ExplorerModule } from './features/explorer/explorer.module';
 import { TransfersModule } from './features/transfers/transfers.module';
 import { ExceptionsFilter } from './execptions.filter';
+import { EventsModule } from './features/events/events.module';
 
 @Module({
   imports: [
@@ -70,6 +71,7 @@ import { ExceptionsFilter } from './execptions.filter';
     ContactsModule,
     ContractFunctionsModule,
     ContractsModule,
+    EventsModule,
     ExplorerModule,
     FaucetModule,
     HealthModule,
