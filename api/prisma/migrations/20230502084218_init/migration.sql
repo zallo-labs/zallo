@@ -179,30 +179,6 @@ CREATE TABLE "ContractFunction" (
     CONSTRAINT "ContractFunction_pkey" PRIMARY KEY ("id")
 );
 
--- CreateTable
-CREATE TABLE "Comment" (
-    "id" SERIAL NOT NULL,
-    "accountId" CHAR(42) NOT NULL,
-    "key" TEXT NOT NULL,
-    "authorId" CHAR(42) NOT NULL,
-    "content" TEXT NOT NULL,
-    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "updatedAt" TIMESTAMP(3) NOT NULL,
-
-    CONSTRAINT "Comment_pkey" PRIMARY KEY ("id")
-);
-
--- CreateTable
-CREATE TABLE "Reaction" (
-    "commentId" INTEGER NOT NULL,
-    "userId" CHAR(42) NOT NULL,
-    "emojis" TEXT[],
-    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "updatedAt" TIMESTAMP(3) NOT NULL,
-
-    CONSTRAINT "Reaction_pkey" PRIMARY KEY ("commentId","userId")
-);
-
 -- CreateIndex
 CREATE UNIQUE INDEX "Contact_userId_name_key" ON "Contact"("userId", "name");
 
@@ -226,9 +202,6 @@ CREATE INDEX "ContractFunction_selector_idx" ON "ContractFunction"("selector");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "ContractFunction_contractId_selector_key" ON "ContractFunction"("contractId", "selector");
-
--- CreateIndex
-CREATE INDEX "Comment_accountId_key_idx" ON "Comment"("accountId", "key");
 
 -- AddForeignKey
 ALTER TABLE "Contact" ADD CONSTRAINT "Contact_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE CASCADE ON UPDATE CASCADE;
@@ -292,15 +265,3 @@ ALTER TABLE "Approval" ADD CONSTRAINT "Approval_userId_fkey" FOREIGN KEY ("userI
 
 -- AddForeignKey
 ALTER TABLE "ContractFunction" ADD CONSTRAINT "ContractFunction_contractId_fkey" FOREIGN KEY ("contractId") REFERENCES "Contract"("id") ON DELETE CASCADE ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE "Comment" ADD CONSTRAINT "Comment_accountId_fkey" FOREIGN KEY ("accountId") REFERENCES "Account"("id") ON DELETE CASCADE ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE "Comment" ADD CONSTRAINT "Comment_authorId_fkey" FOREIGN KEY ("authorId") REFERENCES "User"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE "Reaction" ADD CONSTRAINT "Reaction_commentId_fkey" FOREIGN KEY ("commentId") REFERENCES "Comment"("id") ON DELETE CASCADE ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE "Reaction" ADD CONSTRAINT "Reaction_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE CASCADE ON UPDATE CASCADE;

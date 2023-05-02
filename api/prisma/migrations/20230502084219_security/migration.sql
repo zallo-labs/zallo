@@ -219,29 +219,3 @@ GRANT SELECT, INSERT, UPDATE ON "Contract" TO PUBLIC;
 
 /* ContractFunction */
 GRANT SELECT, INSERT, UPDATE ON "ContractFunction" TO PUBLIC;
-
-
-
-/* Comment */
-GRANT SELECT, INSERT, UPDATE ("content") ON "Comment" TO PUBLIC;
-ALTER TABLE "Comment" ENABLE ROW LEVEL SECURITY;
-
-CREATE POLICY account_members_view ON "Comment" FOR SELECT
-    USING (can_access_account("accountId"));
-
-CREATE POLICY user_all ON "Comment" FOR ALL
-    USING (is_user("authorId"));
-
-
-
-/* Reaction */
-GRANT SELECT, INSERT, UPDATE ("emojis"), DELETE ON "Reaction" TO PUBLIC;
-ALTER TABLE "Reaction" ENABLE ROW LEVEL SECURITY;
-
-CREATE POLICY account_members_view ON "Reaction" FOR SELECT
-    USING (can_access_account(
-        (SELECT "accountId" FROM "Comment" WHERE "id" = "commentId")
-    ));
-
-CREATE POLICY user_all ON "Reaction" FOR ALL
-    USING (is_user("userId"));

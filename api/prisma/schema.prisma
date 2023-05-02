@@ -37,7 +37,6 @@ model Account {
 model User {
   id        String  @id @db.Char(42) // address
   name      String?
-  /// @HideField()
   pushToken String?
 
   contacts  Contact[]
