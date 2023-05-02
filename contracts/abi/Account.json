@@ -176,8 +176,14 @@
     "type": "error"
   },
   {
-    "inputs": [],
-    "name": "TransactionRevertedWithoutReason",
+    "inputs": [
+      {
+        "internalType": "bytes",
+        "name": "reason",
+        "type": "bytes"
+      }
+    ],
+    "name": "TransactionReverted",
     "type": "error"
   },
   {
@@ -272,25 +278,6 @@
       }
     ],
     "name": "TransactionExecuted",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": false,
-        "internalType": "bytes32",
-        "name": "txHash",
-        "type": "bytes32"
-      },
-      {
-        "indexed": false,
-        "internalType": "bytes",
-        "name": "response",
-        "type": "bytes"
-      }
-    ],
-    "name": "TransactionReverted",
     "type": "event"
   },
   {

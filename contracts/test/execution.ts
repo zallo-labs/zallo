@@ -75,11 +75,6 @@ describe('Execution', () => {
           nonce: nonce++,
         })
       ).wait();
-
-      expect(true).to.emit(
-        account,
-        account.interface.events['TransactionReverted(bytes32,bytes)'].name,
-      );
     } catch (e) {
       reverted = true;
     }
@@ -87,10 +82,6 @@ describe('Execution', () => {
   });
 
   it('should revert with the message if the transaction reverts with a message', async () => {
-    // AA transactions simply fail, ideally we would expect to:
-    // - revertedWithMessage(account, AccountError.ExecutionReverted);
-    // - emit(account, account.interface.events['TxReverted(bytes32,bytes)'].name);
-
     let reverted = false;
     try {
       await (
@@ -100,11 +91,6 @@ describe('Execution', () => {
           nonce: nonce++,
         })
       ).wait();
-
-      expect(true).to.emit(
-        account,
-        account.interface.events['TransactionReverted(bytes32,bytes)'].name,
-      );
     } catch (e) {
       reverted = true;
     }

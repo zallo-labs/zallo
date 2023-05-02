@@ -6,7 +6,7 @@ export interface Chain {
   id: number;
   isTestnet: boolean;
   rpc: string;
-  ws: string | undefined;
+  ws: string;
   l1Rpc: string;
   explorer: string | undefined;
 }
