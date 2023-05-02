@@ -7,7 +7,7 @@ import _ from 'lodash';
 import { Log } from '@ethersproject/abstract-provider';
 import { BigNumber } from 'ethers';
 
-const DEFAULT_CHUNK_SIZE = 100;
+const DEFAULT_CHUNK_SIZE = 75;
 const BLOCK_TIME_MS = 500;
 const BLOCKS_DELAYED_MS = 2500;
 const TOO_MANY_RESULTS_PATTERN =
