@@ -111,9 +111,9 @@ export class EventsProcessor implements OnModuleInit {
   }
 
   private async addMissingJob() {
-    const existingJobs = await this.queue.getJobs(['waiting', 'active', 'delayed']);
-    Logger.verbose(`Starting with ${existingJobs.length} existing event jobs`);
-    if (existingJobs.length) return;
+    const nExistingJobs = await this.queue.getJobCountByTypes(['waiting', 'active', 'delayed']);
+    Logger.verbose(`Events: starting with ${nExistingJobs} jobs`);
+    if (nExistingJobs) return;
 
     const [lastTxBlock, lastTransferBlock] = await Promise.all([
       this.prisma.asSystem.transactionReceipt.aggregate({ _max: { blockNumber: true } }),
