@@ -24,8 +24,6 @@ dataSources:
       eventHandlers:
         - event: TransactionExecuted(bytes32,bytes)
           handler: handleTransactionExecuted
-        - event: TransactionReverted(bytes32,bytes)
-          handler: handleTransactionReverted
         - event: PolicyAdded(uint32,bytes32)
           handler: handlePolicyAdded
         - event: PolicyRemoved(uint32)
