@@ -8,6 +8,7 @@ import { TRANSACTIONS_QUEUE } from './transactions.queue';
 import { TransactionsResolver } from './transactions.resolver';
 import { TransactionsService } from './transactions.service';
 import { ExplorerModule } from '../explorer/explorer.module';
+import { TransactionsEvents } from './transactions.events';
 
 @Module({
   imports: [
@@ -18,6 +19,6 @@ import { ExplorerModule } from '../explorer/explorer.module';
     ExplorerModule,
   ],
   exports: [TransactionsService, TransactionsProcessor],
-  providers: [TransactionsResolver, TransactionsService, TransactionsProcessor],
+  providers: [TransactionsResolver, TransactionsService, TransactionsProcessor, TransactionsEvents],
 })
 export class TransactionsModule {}

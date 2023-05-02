@@ -1,107 +1,54 @@
 import { OnQueueFailed, Process, Processor } from '@nestjs/bull';
-import { forwardRef, Inject, Injectable, Logger } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { Job } from 'bull';
-import { PrismaService } from '../util/prisma/prisma.service';
-import { PROPOSAL_PAYLOAD_SELECT, ProposalEvent } from '../proposals/proposals.args';
-import { ProposalsService } from '../proposals/proposals.service';
-import { SubgraphService, SubgraphTransactionResponse } from '../subgraph/subgraph.service';
 import { TransactionEvent, TRANSACTIONS_QUEUE } from './transactions.queue';
-import { ExplorerService } from '../explorer/explorer.service';
 import { ProviderService } from '../util/provider/provider.service';
-import { Hex, asHex, tryOrIgnoreAsync } from 'lib';
-import { BigNumber } from 'ethers';
-import { hexDataLength } from 'ethers/lib/utils';
+import { Log, TransactionReceipt } from '@ethersproject/abstract-provider';
 
-export interface TransactionResponseData {
-  transactionHash: Hex;
-  response: SubgraphTransactionResponse;
+export interface TransactionData {
+  receipt: TransactionReceipt;
 }
 
-export type TransactionResponseProcessor = (data: TransactionResponseData) => Promise<void>;
+export type TransactionListener = (data: TransactionData) => Promise<void>;
 
-enum NotFound {
-  Transaction = 'Transaction not found',
-  Response = 'Transaction response not found',
+export interface TransactionEventData {
+  log: Log;
+  receipt: TransactionReceipt;
 }
+
+export type TransactionEventListener = (data: TransactionEventData) => Promise<void>;
 
 @Injectable()
 @Processor(TRANSACTIONS_QUEUE.name)
 export class TransactionsProcessor {
-  private processors: Record<string, TransactionResponseProcessor> = {};
+  private listeners: TransactionListener[] = [];
+  private eventListeners = new Map<string, TransactionEventListener[]>();
 
-  constructor(
-    private prisma: PrismaService,
-    private subgraph: SubgraphService,
-    @Inject(forwardRef(() => ProposalsService))
-    private proposals: ProposalsService,
-    private provider: ProviderService,
-    private explorer: ExplorerService,
-  ) {}
+  constructor(private provider: ProviderService) {}
 
-  @OnQueueFailed()
-  onFailed(job: Job<TransactionEvent>, error: unknown) {
-    Logger.error('Transaction queue job failed', { job, error });
+  onTransaction(listener: TransactionListener) {
+    this.listeners.push(listener);
+  }
+
+  onEvent(topic: string, listener: TransactionEventListener) {
+    this.eventListeners.set(topic, [...(this.eventListeners.get(topic) ?? []), listener]);
   }
 
   @Process()
   async process(job: Job<TransactionEvent>) {
     const { transaction: transactionHash } = job.data;
 
-    const [receipt, explorerTx, response] = await Promise.all([
-      tryOrIgnoreAsync(() => this.provider.getTransactionReceipt(transactionHash)),
-      this.explorer.transaction(transactionHash),
-      this.subgraph.transactionResponse(job.data.transaction),
-    ]);
+    const receipt = await this.provider.waitForTransaction(transactionHash, 1, 10000);
 
-    if (!receipt) return job.moveToFailed({ message: NotFound.Transaction });
-    if (!explorerTx) return job.moveToFailed({ message: NotFound.Transaction });
-    if (!response) return job.moveToFailed({ message: NotFound.Response });
-
-    const createResponse = this.prisma.asSystem.transactionReceipt.create({
-      data: {
-        transactionHash,
-        success: response.success,
-        response: hexDataLength(response.response) ? asHex(response.response)! : null,
-        gasUsed: receipt.gasUsed.toString(),
-        gasPrice: receipt.effectiveGasPrice.toString(),
-        fee: BigNumber.from(explorerTx.fee).toString(),
-        timestamp: new Date(parseFloat(response.timestamp) * 1000),
-        transfers: {
-          createMany: {
-            data: explorerTx.erc20Transfers.map((t) => ({
-              token: t.tokenInfo.l2Address,
-              from: t.from,
-              to: t.to,
-              amount: BigNumber.from(t.amount).toString(),
-            })),
-          },
-        },
-      },
-      select: {
-        transaction: {
-          select: {
-            proposal: {
-              select: PROPOSAL_PAYLOAD_SELECT,
-            },
-          },
-        },
-      },
-    });
-
-    const data: TransactionResponseData = { transactionHash, response };
-    const [{ transaction }] = await Promise.all([
-      createResponse,
-      ...Object.values(this.processors).map((processor) => processor(data)),
-    ]);
-
-    await this.proposals.publishProposal({
-      proposal: transaction.proposal,
-      event: ProposalEvent.response,
-    });
+    await Promise.all(
+      receipt.logs.flatMap((log) =>
+        this.eventListeners.get(log.topics[0])?.map((listener) => listener({ log, receipt })),
+      ),
+    );
   }
 
-  addProcessor(key: string, processor: TransactionResponseProcessor) {
-    if (this.processors[key]) throw new Error(`Processor with key='${key}' already exists`);
-    this.processors[key] = processor;
+  @OnQueueFailed()
+  onFailed(job: Job<TransactionEvent>, error: unknown) {
+    Logger.error('Transactions queue job failed', { job, error });
   }
 }
