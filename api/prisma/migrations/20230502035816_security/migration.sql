@@ -159,6 +159,9 @@ GRANT SELECT, INSERT ON "TransactionReceipt" TO PUBLIC;
 /* Transfer */
 GRANT SELECT, INSERT ON "Transfer" TO PUBLIC;
 
+CREATE POLICY account_member_all ON "Transaction" FOR ALL
+    USING (can_access_account("accountId"));
+
 
 
 /* Simulation */
