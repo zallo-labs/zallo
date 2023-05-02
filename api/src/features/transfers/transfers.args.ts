@@ -1,12 +1,7 @@
-import { Field, InputType, registerEnumType } from '@nestjs/graphql';
+import { TransferDirection } from '@gen/prisma/transfer-direction.enum';
+import { Field, InputType } from '@nestjs/graphql';
 import { Address } from 'lib';
 import { AddressField } from '~/apollo/scalars/Address.scalar';
-
-export enum TransferDirection {
-  IN,
-  OUT,
-}
-registerEnumType(TransferDirection, { name: 'TransferDirection' });
 
 @InputType()
 export class TransfersInput {

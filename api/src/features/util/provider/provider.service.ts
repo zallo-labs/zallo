@@ -17,11 +17,13 @@ import {
   deployAccountProxy,
 } from 'lib';
 import { Mutex } from 'async-mutex';
+import { ethers } from 'ethers';
 
 @Injectable()
 export class ProviderService extends zk.Provider {
   public chain: Chain;
 
+  private websocketProvider: ethers.providers.WebSocketProvider;
   private wallet: zk.Wallet;
   private walletMutex = new Mutex(); // TODO: replace with distributed mutex - https://linear.app/zallo/issue/ZAL-91
   private proxyFactory: Factory;
@@ -41,6 +43,10 @@ export class ProviderService extends zk.Provider {
 
   get walletAddress(): Address {
     return this.wallet.address;
+  }
+
+  get websocket(): ethers.providers.WebSocketProvider {
+    return (this.websocketProvider ??= new ethers.providers.WebSocketProvider(CONFIG.chain.ws));
   }
 
   useWallet<R>(f: (wallet: zk.Wallet) => R): Promise<R> {
