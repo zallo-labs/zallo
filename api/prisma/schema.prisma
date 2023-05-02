@@ -27,8 +27,7 @@ model Account {
   policies     Policy[]
   policyStates PolicyState[]
   proposals    Proposal[]
-  comments     Comment[]
-  transfer     Transfer[]
+  transfers    Transfer[]
 }
 
 ////////////////////////////////////////////////////////////////
@@ -43,8 +42,6 @@ model User {
 
   contacts  Contact[]
   approvals Approval[]
-  comments  Comment[]
-  reactions Reaction[]
   approvers Approver[]
   proposals Proposal[]
 }
@@ -245,38 +242,4 @@ enum AbiSource {
   VERIFIED
   STANDARD
   DECOMPILED
-}
-
-////////////////////////////////////////////////////////////////
-//                               COMMENT                      //
-////////////////////////////////////////////////////////////////
-
-model Comment {
-  id Int @id @default(autoincrement())
-
-  account   Account  @relation(fields: [accountId], references: [id], onDelete: Cascade)
-  accountId String   @db.Char(42) // address
-  key       String
-  author    User     @relation(fields: [authorId], references: [id])
-  authorId  String   @db.Char(42) // address
-  content   String
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt()
-
-  reactions Reaction[]
-
-  @@index([accountId, key])
-}
-
-model Reaction {
-  comment   Comment @relation(fields: [commentId], references: [id], onDelete: Cascade)
-  commentId Int
-  user      User    @relation(fields: [userId], references: [id], onDelete: Cascade)
-  userId    String  @db.Char(42) // address
-
-  emojis    String[]
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt()
-
-  @@id([commentId, userId])
 }
