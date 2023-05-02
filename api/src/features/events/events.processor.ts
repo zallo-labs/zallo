@@ -1,11 +1,4 @@
-import {
-  BullModuleOptions,
-  InjectQueue,
-  OnQueueFailed,
-  Process,
-  Processor as EventListener,
-  OnQueueCompleted,
-} from '@nestjs/bull';
+import { BullModuleOptions, InjectQueue, OnQueueFailed, Process, Processor } from '@nestjs/bull';
 import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { Job, Queue } from 'bull';
 import { PrismaService } from '../util/prisma/prisma.service';
@@ -36,6 +29,7 @@ export const EVENTS_QUEUE = {
 interface Event {
   from: number;
   to?: number;
+  skipNext?: boolean;
 }
 
 export interface EventData {
@@ -45,11 +39,10 @@ export interface EventData {
 export type EventListener = (data: EventData) => Promise<void>;
 
 @Injectable()
-@EventListener(EVENTS_QUEUE.name)
+@Processor(EVENTS_QUEUE.name)
 export class EventsProcessor implements OnModuleInit {
   private listeners = new Map<string, EventListener[]>();
   private topics: string[] = [];
-  private complete = new Set<number | string>();
 
   constructor(
     @InjectQueue(EVENTS_QUEUE.name)
@@ -69,18 +62,17 @@ export class EventsProcessor implements OnModuleInit {
 
   @Process()
   async process(job: Job<Event>) {
-    if (this.complete.has(job.id)) console.warn('Found complete job', job.data);
-
     const latest = await this.provider.getBlockNumber();
     const from = job.data.from;
-    if (latest < from) {
+    const queueNext = !job.data.skipNext;
+    if (latest < from && queueNext) {
       this.queue.add({ from }, { delay: BLOCKS_DELAYED_MS });
       return;
     }
 
     const to = Math.min(job.data.to ?? from + DEFAULT_CHUNK_SIZE - 1, latest);
     const behind = latest > to;
-    if (behind) this.queue.add({ from: to + 1 });
+    if (behind && queueNext) this.queue.add({ from: to + 1 });
 
     let logs: Log[];
     try {
@@ -93,8 +85,10 @@ export class EventsProcessor implements OnModuleInit {
       const match = BLOCK_RANGE_PATTERN.exec((e as Error).message ?? '');
       if (match) {
         const newTo = BigNumber.from(match[1]).toNumber();
-        this.queue.addBulk([{ data: { from, to: newTo } }, { data: { from: newTo + 1, to } }]);
-        Logger.verbose(`Split ${from}-${newTo}-${to}`);
+        this.queue.addBulk([
+          { data: { from, to: newTo, skipNext: true } },
+          { data: { from: newTo + 1, to } },
+        ]);
         return;
       }
 
@@ -108,17 +102,12 @@ export class EventsProcessor implements OnModuleInit {
     );
     Logger.verbose(`Processed ${logs.length} events from ${to - from + 1} blocks [${from}, ${to}]`);
 
-    if (!behind) this.queue.add({ from: to + 1 }, { delay: BLOCK_TIME_MS });
+    if (!behind && queueNext) this.queue.add({ from: to + 1 }, { delay: BLOCK_TIME_MS });
   }
 
   @OnQueueFailed()
   onFailed(job: Job<Event>, error: unknown) {
     Logger.error('Events queue job failed', { job, error });
-  }
-
-  @OnQueueCompleted()
-  onComplete(job: Job<Event>) {
-    this.complete.add(job.id);
   }
 
   private async addMissingJob() {
