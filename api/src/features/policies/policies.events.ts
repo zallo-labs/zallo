@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../util/prisma/prisma.service';
-import { EventsProcessor, EventData } from '../events/events.processor';
+import { EventsProcessor, ListenerData } from '../events/events.processor';
 import { ACCOUNT_INTERFACE, Address, Hex, PolicyKey, asAddress, asHex, asPolicyKey } from 'lib';
 
 @Injectable()
@@ -16,7 +16,7 @@ export class PoliciesEventsProcessor {
     );
   }
 
-  private async policyAdded({ log }: EventData) {
+  private async policyAdded({ log }: ListenerData) {
     const r = ACCOUNT_INTERFACE.decodeEventLog(
       ACCOUNT_INTERFACE.events['PolicyAdded(uint32,bytes32)'],
       log.data,
@@ -30,7 +30,7 @@ export class PoliciesEventsProcessor {
     );
   }
 
-  private async policyRemoved({ log }: EventData) {
+  private async policyRemoved({ log }: ListenerData) {
     const r = ACCOUNT_INTERFACE.decodeEventLog(
       ACCOUNT_INTERFACE.events['PolicyRemoved(uint32)'],
       log.data,

@@ -5,7 +5,7 @@ import {
   TransactionEventData,
   TransactionsProcessor,
 } from '../transactions/transactions.processor';
-import { EventData, EventsProcessor } from '../events/events.processor';
+import { ListenerData, EventsProcessor } from '../events/events.processor';
 import { TransferDirection } from '@prisma/client';
 
 const ERC20 = Erc20__factory.createInterface();
@@ -27,7 +27,10 @@ export class TransfersEvents {
     );
   }
 
-  private async transfer({ log }: EventData | TransactionEventData, isTransactionEvent: boolean) {
+  private async transfer(
+    { log }: ListenerData | TransactionEventData,
+    isTransactionEvent: boolean,
+  ) {
     const r = tryOrIgnore(() =>
       ERC20.decodeEventLog(ERC20.events['Transfer(address,address,uint256)'], log.data, log.topics),
     );

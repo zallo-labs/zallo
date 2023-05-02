@@ -10,8 +10,8 @@ import { BigNumber } from 'ethers';
 const DEFAULT_CHUNK_SIZE = 100;
 const BLOCK_TIME_MS = 500;
 const BLOCKS_DELAYED_MS = 2500;
-const BLOCK_RANGE_PATTERN =
-  /'Query returned more than 10000 results. Try with this block range \[(?:0x[0-9a-f]+), (0x[0-9a-f]+)\]/;
+const TOO_MANY_RESULTS_PATTERN =
+  /Query returned more than 10000 results. Try with this block range \[(?:0x[0-9a-f]+), (0x[0-9a-f]+)\]/;
 
 export const EVENTS_QUEUE = {
   name: 'Events',
@@ -26,17 +26,17 @@ export const EVENTS_QUEUE = {
   },
 } satisfies BullModuleOptions;
 
-interface Event {
+export interface EventData {
   from: number;
   to?: number;
   skipNext?: boolean;
 }
 
-export interface EventData {
+export interface ListenerData {
   log: Log;
 }
 
-export type EventListener = (data: EventData) => Promise<void>;
+export type EventListener = (data: ListenerData) => Promise<void>;
 
 @Injectable()
 @Processor(EVENTS_QUEUE.name)
@@ -46,7 +46,7 @@ export class EventsProcessor implements OnModuleInit {
 
   constructor(
     @InjectQueue(EVENTS_QUEUE.name)
-    private queue: Queue<Event>,
+    private queue: Queue<EventData>,
     private provider: ProviderService,
     private prisma: PrismaService,
   ) {}
@@ -61,7 +61,7 @@ export class EventsProcessor implements OnModuleInit {
   }
 
   @Process()
-  async process(job: Job<Event>) {
+  async process(job: Job<EventData>) {
     const latest = await this.provider.getBlockNumber();
     const from = job.data.from;
     const queueNext = !job.data.skipNext;
@@ -82,7 +82,7 @@ export class EventsProcessor implements OnModuleInit {
         topics: [this.topics],
       });
     } catch (e) {
-      const match = BLOCK_RANGE_PATTERN.exec((e as Error).message ?? '');
+      const match = TOO_MANY_RESULTS_PATTERN.exec((e as Error).message ?? '');
       if (match) {
         const newTo = BigNumber.from(match[1]).toNumber();
         this.queue.addBulk([
@@ -106,7 +106,7 @@ export class EventsProcessor implements OnModuleInit {
   }
 
   @OnQueueFailed()
-  onFailed(job: Job<Event>, error: unknown) {
+  onFailed(job: Job<EventData>, error: unknown) {
     Logger.error('Events queue job failed', { job, error });
   }
 
