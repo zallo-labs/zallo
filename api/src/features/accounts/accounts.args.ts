@@ -4,6 +4,7 @@ import { Address } from 'lib';
 import { AddressField, AddressScalar } from '~/apollo/scalars/Address.scalar';
 import { minLengthMiddleware } from '~/apollo/scalars/util';
 import { PolicyInput } from '../policies/policies.args';
+import { TransferDirection } from '@gen/prisma/transfer-direction.enum';
 
 @ArgsType()
 export class AccountArgs {
@@ -49,19 +50,11 @@ export class UpdateAccountInput {
   @AddressField()
   id: Address;
 
-  @Field(() => String)
   name: string;
 }
 
-export enum TransferDirection {
-  IN,
-  OUT,
-}
-registerEnumType(TransferDirection, { name: 'TransferDirection' });
-
 @ArgsType()
 export class AccountTransfersArgs {
-  @Field(() => TransferDirection, { nullable: true })
   direction?: TransferDirection;
 
   @Field(() => Number, { nullable: true, defaultValue: 100 })

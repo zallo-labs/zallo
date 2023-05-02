@@ -2,35 +2,35 @@ import { Args, Info, Mutation, Parent, Query, ResolveField, Resolver } from '@ne
 import { PrismaService } from '../util/prisma/prisma.service';
 import { GraphQLResolveInfo } from 'graphql';
 import { getSelect } from '~/util/select';
-import { ContactsArgs, ContactArgs, ContactObject, UpsertContactArgs } from './contacts.args';
+import { ContactsArgs, ContactArgs, UpsertContactArgs } from './contacts.args';
 import { connectOrCreateUser } from '~/util/connect-or-create';
 import { getUser } from '~/request/ctx';
 import { AccountsService } from '../accounts/accounts.service';
-import { Contact } from '@gen/contact/contact.model';
 import _ from 'lodash';
+import { Contact } from './contacts.model';
 
-@Resolver(() => ContactObject)
+@Resolver(() => Contact)
 export class ContactsResolver {
   constructor(private prisma: PrismaService, private accounts: AccountsService) {}
 
   @ResolveField(() => String)
-  id(@Parent() contact: ContactObject): string {
+  id(@Parent() contact: Contact): string {
     return `${getUser()}-${contact.addr}`;
   }
 
-  @Query(() => ContactObject, { nullable: true })
+  @Query(() => Contact, { nullable: true })
   async contact(
     @Args() { addr }: ContactArgs,
     @Info() info?: GraphQLResolveInfo,
-  ): Promise<ContactObject | null> {
+  ): Promise<Contact | null> {
     return this.prisma.asUser.contact.findUnique({
       where: { userId_addr: { addr, userId: getUser() } },
       ...getSelect(info),
     });
   }
 
-  @Query(() => [ContactObject])
-  async contacts(@Args() args: ContactsArgs): Promise<ContactObject[]> {
+  @Query(() => [Contact])
+  async contacts(@Args() args: ContactsArgs): Promise<Contact[]> {
     const contacts = await this.prisma.asUser.contact.findMany({
       ...args,
       select: { addr: true, name: true },
@@ -44,11 +44,11 @@ export class ContactsResolver {
     return [...contacts, ...accounts.map((a) => ({ ...a, addr: a.id }))];
   }
 
-  @Mutation(() => ContactObject)
+  @Mutation(() => Contact)
   async upsertContact(
     @Args() { prevAddr, newAddr, name }: UpsertContactArgs,
     @Info() info?: GraphQLResolveInfo,
-  ): Promise<ContactObject> {
+  ): Promise<Contact> {
     // Ignore leading and trailing whitespace
     name = name.trim();
 

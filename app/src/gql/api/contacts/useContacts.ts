@@ -6,7 +6,7 @@ import { useSuspenseQuery } from '~/gql/util';
 import { Contact } from './types';
 
 gql`
-  fragment ContactFields on ContactObject {
+  fragment ContactFields on Contact {
     id
     addr
     name

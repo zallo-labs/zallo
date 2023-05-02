@@ -1,34 +1,32 @@
+import type {} from './request/request';
 import { NestFactory } from '@nestjs/core';
 import { GraphQLSchemaBuilderModule, GraphQLSchemaFactory } from '@nestjs/graphql';
 import { writeFileSync } from 'fs';
 import { printSchema } from 'graphql';
 import { join } from 'path';
-import type {} from './request/request';
 import { AccountsResolver } from './features/accounts/accounts.resolver';
 import { ApproversResolver } from './features/approvers/approvers.resolver';
-import { CommentsResolver } from './features/comments/comments.resolver';
 import { ContactsResolver } from './features/contacts/contacts.resolver';
+import { ContractFunctionsResolver } from './features/contract-functions/contract-functions.resolver';
 import { ContractsResolver } from './features/contracts/contracts.resolver';
-import { ContractFunctionsResolver } from './features/contract-methods/contract-functions.resolver';
-import { UsersResolver } from './features/users/users.resolver';
 import { FaucetResolver } from './features/faucet/faucet.resolver';
-import { ProposalsResolver } from './features/proposals/proposals.resolver';
-import { ReactionsResolver } from './features/reactions/reactions.resolver';
-import { TransactionsResolver } from './features/transactions/transactions.resolver';
 import { PoliciesResolver } from './features/policies/policies.resolver';
+import { ProposalsResolver } from './features/proposals/proposals.resolver';
+import { TransactionsResolver } from './features/transactions/transactions.resolver';
+import { TransfersResolver } from './features/transfers/transfers.resolver';
+import { UsersResolver } from './features/users/users.resolver';
 
 const resolvers = [
   AccountsResolver,
   ApproversResolver,
-  CommentsResolver,
   ContactsResolver,
-  ContractsResolver,
   ContractFunctionsResolver,
+  ContractsResolver,
   FaucetResolver,
   PoliciesResolver,
   ProposalsResolver,
-  ReactionsResolver,
   TransactionsResolver,
+  TransfersResolver,
   UsersResolver,
 ];
 

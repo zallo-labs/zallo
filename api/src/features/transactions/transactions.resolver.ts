@@ -1,5 +1,5 @@
-import { Transaction } from '@gen/transaction/transaction.model';
 import { ID, Parent, ResolveField, Resolver } from '@nestjs/graphql';
+import { Transaction } from './transactions.model';
 
 @Resolver(() => Transaction)
 export class TransactionsResolver {

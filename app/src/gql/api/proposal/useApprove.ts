@@ -1,5 +1,5 @@
 import { gql } from '@apollo/client';
-import { asHex, signTx } from 'lib';
+import { Address, asHex, signTx } from 'lib';
 import { DateTime } from 'luxon';
 import { useCallback } from 'react';
 import { Proposal } from './types';
@@ -56,7 +56,7 @@ export const useApprove = () => {
               })),
               {
                 __typename: 'Approval' as const,
-                userId: approver.address,
+                userId: approver.address as Address,
                 signature,
                 createdAt: DateTime.now().toISO(),
               },

@@ -35,7 +35,7 @@ export const useUpsertContact = () => {
         },
         optimisticResponse: {
           upsertContact: {
-            __typename: 'ContactObject',
+            __typename: 'Contact',
             id: `${user.id}-${cur.address}`,
             addr: cur.address,
             name: cur.name,

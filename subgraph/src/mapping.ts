@@ -1,2 +1,2 @@
-export { handleTransactionExecuted, handleTransactionReverted } from './transaction';
+export { handleTransactionExecuted } from './transaction';
 export { handlePolicyAdded, handlePolicyRemoved } from './policy';

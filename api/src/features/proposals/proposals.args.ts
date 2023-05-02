@@ -9,7 +9,7 @@ import {
   BytesField,
   BytesScalar,
 } from '~/apollo/scalars/Bytes.scalar';
-import { Proposal } from '@gen/proposal/proposal.model';
+import { Proposal } from './proposals.model';
 
 @ArgsType()
 export class UniqueProposalArgs {

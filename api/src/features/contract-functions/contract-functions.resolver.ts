@@ -3,9 +3,8 @@ import { GraphQLResolveInfo } from 'graphql';
 import { getSelect } from '~/util/select';
 import { ContractFunctionInput } from './contract-functions.args';
 import { ContractFunctionsService } from './contract-functions.service';
-import { ContractSourceConfidence } from './contract-functions.model';
+import { ContractFunction, ContractSourceConfidence } from './contract-functions.model';
 import { match } from 'ts-pattern';
-import { ContractFunction } from '@gen/contract-function/contract-function.model';
 
 @Resolver(() => ContractFunction)
 export class ContractFunctionsResolver {

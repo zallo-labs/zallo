@@ -45,12 +45,6 @@ const DEFAULT_FIELDS: DefaultFields = {
       key: true,
     }),
   }),
-  Reaction: (select) => ({
-    ...(select.id && {
-      commentId: true,
-      userId: true,
-    }),
-  }),
   Transaction: (select) => ({
     ...(select.id && {
       hash: true,
