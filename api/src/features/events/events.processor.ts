@@ -29,7 +29,7 @@ export const EVENTS_QUEUE = {
 export interface EventData {
   from: number;
   to?: number;
-  skipNext?: boolean;
+  queueNext?: boolean;
 }
 
 export interface ListenerData {
@@ -64,15 +64,18 @@ export class EventsProcessor implements OnModuleInit {
   async process(job: Job<EventData>) {
     const latest = await this.provider.getBlockNumber();
     const from = job.data.from;
-    const queueNext = !job.data.skipNext;
-    if (latest < from && queueNext) {
-      this.queue.add({ from }, { delay: BLOCKS_DELAYED_MS });
-      return;
-    }
-
     const to = Math.min(job.data.to ?? from + DEFAULT_CHUNK_SIZE - 1, latest);
-    const behind = latest > to;
-    if (behind && queueNext) this.queue.add({ from: to + 1 });
+
+    // Only queue next jobs on the first attempt to prevent retried jobs creating duplicates
+    if (job.attemptsMade === 0 && job.data.queueNext !== false) {
+      if (latest < from) {
+        // Up to date; try again after a delay
+        return this.queue.add({ from }, { delay: BLOCKS_DELAYED_MS });
+      } else {
+        // Queue up next job
+        this.queue.add({ from: to + 1 }, { delay: latest === from ? BLOCK_TIME_MS : undefined });
+      }
+    }
 
     let logs: Log[];
     try {
@@ -84,12 +87,12 @@ export class EventsProcessor implements OnModuleInit {
     } catch (e) {
       const match = TOO_MANY_RESULTS_PATTERN.exec((e as Error).message ?? '');
       if (match) {
+        // Split the job into two smaller jobs
         const newTo = BigNumber.from(match[1]).toNumber();
-        this.queue.addBulk([
-          { data: { from, to: newTo, skipNext: true } },
-          { data: { from: newTo + 1, to } },
+        return this.queue.addBulk([
+          { data: { from, to: newTo, queueNext: false } },
+          { data: { from: newTo + 1, to, queueNext: false } },
         ]);
-        return;
       }
 
       throw e;
@@ -101,8 +104,6 @@ export class EventsProcessor implements OnModuleInit {
       ),
     );
     Logger.verbose(`Processed ${logs.length} events from ${to - from + 1} blocks [${from}, ${to}]`);
-
-    if (!behind && queueNext) this.queue.add({ from: to + 1 }, { delay: BLOCK_TIME_MS });
   }
 
   @OnQueueFailed()
@@ -112,7 +113,7 @@ export class EventsProcessor implements OnModuleInit {
 
   private async addMissingJob() {
     const nExistingJobs = await this.queue.getJobCountByTypes(['waiting', 'active', 'delayed']);
-    Logger.verbose(`Events: starting with ${nExistingJobs} jobs`);
+    Logger.verbose(`Events: starting with jobs: ${nExistingJobs}`);
     if (nExistingJobs) return;
 
     const [lastTxBlock, lastTransferBlock] = await Promise.all([
@@ -124,7 +125,7 @@ export class EventsProcessor implements OnModuleInit {
       from:
         lastTxBlock._max.blockNumber || lastTransferBlock._max.blockNumber
           ? Math.max(lastTxBlock._max.blockNumber ?? 0, lastTransferBlock._max.blockNumber ?? 0)
-          : await this.provider.getBlockNumber(), // Start from latest block
+          : 5072904, // Start from latest block
     });
   }
 }
