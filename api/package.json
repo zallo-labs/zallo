@@ -20,7 +20,6 @@
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register ../node_modules/.bin/jest --runInBand",
     "with-env": "dotenv -e ../.env",
     "prisma": "yarn with-env -- prisma",
-    "generate:gql": "DOTENV_CONFIG_PATH=\"../.env\" graphql-codegen --require dotenv/config --config codegen.yml",
     "generate:schema": "yarn prebuild && SKIP_ENV_CHECK=true nest start --entryFile generate-schema",
     "generate:edgedb": "npx @edgedb/generate edgeql-js && npx @edgedb/generate edgeql-js"
   },

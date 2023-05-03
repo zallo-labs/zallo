@@ -30,7 +30,6 @@ yarn-error.log*
 
 
 ## Api
-!api/generated/generated.subgraph.ts
 api/schema.graphql
 
 
