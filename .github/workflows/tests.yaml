@@ -143,8 +143,13 @@ jobs:
           node-version: 18
           cache: 'yarn'
 
-      - name: 🚧 Setup EdgeDB
+      - name: 💾 Setup EdgeDB
         uses: edgedb/setup-edgedb@v1
+        with:
+          instance-name: tests
+
+      - name: 💾 Initialize EdgeDB project
+        run: edgedb project init --non-interactive
 
       - name: 📦 Install
         run: yarn install
