@@ -38,6 +38,7 @@ api/dbschema/interfaces.ts
 app/.expo
 app/.vscode/.react
 app/web-build
+app/**/*generated.ts
 
 
 ## Contracts
