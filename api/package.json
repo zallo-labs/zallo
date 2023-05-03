@@ -6,7 +6,7 @@
     "seed": "ts-node prisma/seed.ts"
   },
   "scripts": {
-    "prebuild": "(cd .. && yarn lib build) && yarn prisma generate",
+    "prebuild": "(cd .. && yarn lib build) && yarn prisma generate && yarn generate:edgeql",
     "build": "yarn prebuild && nest build",
     "clean": "npx rimraf dist generated node_modules",
     "clean:services": "docker compose -f ./services.yml down -v",
@@ -21,7 +21,7 @@
     "with-env": "dotenv -e ../.env",
     "prisma": "yarn with-env -- prisma",
     "generate:schema": "yarn prebuild && SKIP_ENV_CHECK=true nest start --entryFile generate-schema",
-    "generate:edgedb": "npx @edgedb/generate edgeql-js && npx @edgedb/generate edgeql-js"
+    "generate:edgeql": "npx @edgedb/generate edgeql-js --target ts && npx @edgedb/generate interfaces"
   },
   "dependencies": {
     "@apollo/client": "^3.7.12",

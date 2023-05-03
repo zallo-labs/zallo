@@ -111,6 +111,10 @@ jobs:
   api:
     runs-on: ubuntu-latest
 
+    defaults:
+      run:
+        working-directory: ./api
+
     services:
       postgres:
         image: postgres
@@ -139,14 +143,17 @@ jobs:
           node-version: 18
           cache: 'yarn'
 
+      - name: 🚧 Setup EdgeDB
+        uses: edgedb/setup-edgedb@v1
+
       - name: 📦 Install
         run: yarn install
 
       - name: 🏗️ Build
-        run: yarn api build
+        run: yarn build
 
       - name: 🧪 Test
-        run: yarn api test
+        run: yarn test
 
   app:
     runs-on: ubuntu-latest
