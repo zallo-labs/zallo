@@ -26,7 +26,6 @@ import { ExplorerModule } from './features/explorer/explorer.module';
 import { TransfersModule } from './features/transfers/transfers.module';
 import { ExceptionsFilter } from './execptions.filter';
 import { EventsModule } from './features/events/events.module';
-import { TestModule } from './features/test/test.module';
 
 @Module({
   imports: [
@@ -74,7 +73,6 @@ import { TestModule } from './features/test/test.module';
     HealthModule,
     PoliciesModule,
     ProposalsModule,
-    TestModule,
     TransactionsModule,
     TransfersModule,
     UsersModule,
