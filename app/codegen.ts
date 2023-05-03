@@ -1,9 +1,8 @@
 import type { CodegenConfig } from '@graphql-codegen/cli';
-require('dotenv-vault-core').config({ path: '../.env' });
 
 const plugins = ['typescript', 'typescript-operations', 'typescript-react-apollo'];
 
-const config: CodegenConfig = {
+export default {
   overwrite: true,
   generates: {
     'src/gql/api/generated.ts': {
@@ -33,6 +32,4 @@ const config: CodegenConfig = {
       Uint256: 'lib#BigIntlike',
     },
   },
-};
-
-export default config;
+} satisfies CodegenConfig;
