@@ -30,6 +30,8 @@ yarn-error.log*
 
 
 ## Api
+api/dbschema/edgeql-js
+api/dbschema/interfaces.ts
 
 
 ## App
