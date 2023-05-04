@@ -56,6 +56,17 @@ jobs:
       - name: 🚀 Publish update (iOS)
         run: yarn app eas update --auto --non-interactive --platform ios
 
+  docs:
+    environment: main - docs
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 🚀 Deploy
+        uses: fjogeleit/http-request-action@v1
+        with:
+          url: ${{ secrets.DEPLOY_HOOK }}
+          method: POST
+
   # subgraph:
   #   environment: main - subgraph
   #   runs-on: ubuntu-latest
