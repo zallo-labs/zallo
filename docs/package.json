@@ -2,7 +2,7 @@
   "name": "docs",
   "private": true,
   "scripts": {
-    "build": "yarn generate && docusaurus build",
+    "build": "(cd .. && yarn lib build) && yarn generate && docusaurus build",
     "start": "docusaurus start",
     "swizzle": "docusaurus swizzle",
     "deploy": "docusaurus deploy",

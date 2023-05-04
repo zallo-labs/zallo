@@ -13,7 +13,7 @@ import { useDevice } from '@site/src/hooks/useDevice';
 import { useProposal } from '@site/src/api/useProposal';
 import { Suspend } from '@site/src/components/Suspender';
 import { withBrowser } from '@site/src/components/withBrowser';
-import { signDigest } from '@site/../lib/dist';
+import { signDigest } from 'lib';
 
 export const ProposeExample = withBrowser(() => {
   const device = useDevice().address;

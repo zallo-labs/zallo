@@ -53,6 +53,7 @@ contracts/zk
 docs/.docusaurus
 docs/.cache-loader
 docs/docs/reference/schema
+docs/**/*generated.ts
 
 
 ## Lib

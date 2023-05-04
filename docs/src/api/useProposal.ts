@@ -1,5 +1,5 @@
 import { gql, useMutation } from '@apollo/client';
-import { ZERO_ADDR } from '@site/../lib/dist';
+import { ZERO_ADDR } from 'lib';
 import { useEffect, useState } from 'react';
 import {
   FirstPendingProposalQuery,
