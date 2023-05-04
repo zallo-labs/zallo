@@ -1,6 +1,6 @@
 import { $infer } from '@db/edgeql-js';
 import { Injectable } from '@nestjs/common';
-import createClient, { Client } from 'edgedb';
+import { Client, createClient } from 'edgedb';
 import { Expression } from '@db/edgeql-js/typesystem';
 
 @Injectable()
