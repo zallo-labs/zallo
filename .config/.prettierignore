@@ -4,73 +4,74 @@
 
 ### .prettierignore
 ## Shared
-**/*generated*
-**/*.mustache.yaml
+../**/*generated*
+../**/*.mustache.yaml
 
 
 
 ### .gitignore
 ## Shared
-.env
-**/bin
-**/build
-**/cache
-**/dist
-**/generated/*
-**/node_modules
-**/__generated__
-**/*.secret.*
+../.env
+../**/bin
+../**/build
+../**/cache
+../**/dist
+../**/generated/*
+../**/node_modules
+../**/__generated__
+../**/*.secret.*
 
 # Yarn
-**/.yarn/*
-!**/.yarn/patches
-!**/.yarn/plugins
-!**/.yarn/releases
-!**/.yarn/sdks
-!**/.yarn/versions
+../**/.yarn/*
+!../**/.yarn/patches
+!../**/.yarn/plugins
+!../**/.yarn/releases
+!../**/.yarn/sdks
+!../**/.yarn/versions
 # Zero install ignores - https://yarnpkg.com/features/zero-installs
-!**/.yarn/cache
+!../**/.yarn/cache
 # Non-zero install ignores
-#**/.pnp.*
+#../**/.pnp.*
 # Other
-yarn-debug.log*
-yarn-error.log*
+../yarn-debug.log*
+../yarn-error.log*
 
 # MacOS
-**/.DS_Store
+../**/.DS_Store
 
 
 ## Api
-!api/generated/generated.subgraph.ts
-api/schema.graphql
+../api/dbschema
+../api/schema.graphql
 
 
 ## App
-app/.expo
-app/.vscode/.react
-app/web-build
+../app/.expo
+../app/.vscode/.react
+../app/web-build
 
 
 ## Contracts
-contracts/artifacts
-contracts/artifacts-zk
-contracts/cache-zk
-contracts/coverage*
-contracts/zk
+../contracts/artifacts
+../contracts/artifacts-zk
+../contracts/cache-zk
+../contracts/coverage*
+../contracts/zk
 
 
 ## Docs
-docs/.docusaurus
-docs/.cache-loader
+../docs/.docusaurus
+../docs/.cache-loader
+../docs/docs/reference/schema
 
 
 ## Lib
-lib/src/contracts
-lib/src/typechain
+../lib/src/contracts
+../lib/src/typechain
 
 
 ## Subgraph
-subgraph/build
-subgraph/data
-subgraph/generated
-subgraph/subgraph.yaml
+../subgraph/build
+../subgraph/data
+../subgraph/generated
+../subgraph/subgraph.yaml
