@@ -6,15 +6,17 @@
     "baseUrl": "./",
     "paths": {
       "~/*": ["./src/*"],
-      "@gen/*": ["./generated/*"]
+      "@gen/*": ["./generated/*"],
+      "@db/*": ["./dbschema/*"]
     },
 
     "allowJs": true,
     "resolveJsonModule": true,
     "strictPropertyInitialization": false,
     "noImplicitAny": false,
-    "noUnusedLocals": false
+    "noUnusedLocals": false,
+    "downlevelIteration": true
   },
   "references": [{ "path": "../lib" }],
-  "include": ["src/**/*", "generated/**/*"]
+  "include": ["src/**/*", "generated/**/*", "dbschema/**/*"]
 }

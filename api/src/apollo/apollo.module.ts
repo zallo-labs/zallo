@@ -1,11 +1,8 @@
 import { ApolloDriverConfig, ApolloDriver } from '@nestjs/apollo';
 import { Logger, Module, NestMiddleware } from '@nestjs/common';
 import { GraphQLModule } from '@nestjs/graphql';
-import {
-  ApolloServerPluginLandingPageLocalDefault,
-  ApolloServerPluginInlineTrace,
-} from 'apollo-server-core';
-import { IS_DEV, __DEBUG__ } from '~/config';
+import { ApolloServerPluginLandingPageLocalDefault } from 'apollo-server-core';
+import { __DEBUG__ } from '~/config';
 import { IncomingContext, GqlContext, IncomingWsContext } from '~/request/ctx';
 import { AddressMiddleware } from './address.middleware';
 import { AuthModule } from '~/features/auth/auth.module';
@@ -84,16 +81,7 @@ const useMiddleware = async (req: Request, ...middleware: NestMiddleware[]) => {
         context: (ctx: IncomingContext): GqlContext =>
           'req' in ctx ? { req: ctx.req } : { req: ctx.extra.request },
         playground: false,
-        plugins: [
-          ...(IS_DEV
-            ? [
-                ApolloServerPluginLandingPageLocalDefault({
-                  includeCookies: true,
-                }),
-                ApolloServerPluginInlineTrace(),
-              ]
-            : []),
-        ],
+        plugins: [ApolloServerPluginLandingPageLocalDefault({ includeCookies: true })],
       }),
     }),
   ],

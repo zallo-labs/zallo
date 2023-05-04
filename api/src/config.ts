@@ -17,7 +17,6 @@ export const CONFIG = {
   graphRef: optional`APOLLO_GRAPH_REF`,
   chain,
   etherscanApiKey: required`ETHERSCAN_API_KEY`,
-  subgraphGqlUrl: required`SUBGRAPH_GQL_URL`,
   walletPrivateKey: required`WALLET_PRIVATE_KEY`,
   accountImplAddress: tryAsAddress(required`ACCOUNT_IMPL_${chain.name.toUpperCase()}`),
   proxyFactoryAddress: tryAsAddress(required`PROXY_FACTORY_${chain.name.toUpperCase()}`),

@@ -56,33 +56,44 @@ jobs:
       - name: 🚀 Publish update (iOS)
         run: yarn app eas update --auto --non-interactive --platform ios
 
-  subgraph:
-    environment: main - subgraph
+  docs:
+    environment: main - docs
     runs-on: ubuntu-latest
 
     steps:
-      - name: 🚧 Checkout
-        uses: actions/checkout@v3
-
-      - name: 🚧 Setup Node
-        uses: actions/setup-node@v3
-        with:
-          node-version: 18
-          cache: 'yarn'
-
-      - name: 📦 Install
-        run: yarn install
-
-      - name: 🚧 Auth
-        run: yarn subgraph auth ${{ secrets.THEGRAPH_ACCESS_TOKEN }}
-
-      - name: 🏗️ Generate
-        run: yarn subgraph generate
-
-      - name: 🏗️ Build
-        run: yarn subgraph build:testnet
-
       - name: 🚀 Deploy
-        run: yarn subgraph deploy ${{ vars.SUBGRAPH_ID }}
+        uses: fjogeleit/http-request-action@v1
+        with:
+          url: ${{ secrets.DEPLOY_HOOK }}
+          method: POST
+
+  # subgraph:
+  #   environment: main - subgraph
+  #   runs-on: ubuntu-latest
+
+  #   steps:
+  #     - name: 🚧 Checkout
+  #       uses: actions/checkout@v3
+
+  #     - name: 🚧 Setup Node
+  #       uses: actions/setup-node@v3
+  #       with:
+  #         node-version: 18
+  #         cache: 'yarn'
+
+  #     - name: 📦 Install
+  #       run: yarn install
+
+  #     - name: 🚧 Auth
+  #       run: yarn subgraph auth ${{ secrets.THEGRAPH_ACCESS_TOKEN }}
+
+  #     - name: 🏗️ Generate
+  #       run: yarn subgraph generate
+
+  #     - name: 🏗️ Build
+  #       run: yarn subgraph build:testnet
+
+  #     - name: 🚀 Deploy
+  #       run: yarn subgraph deploy ${{ vars.SUBGRAPH_ID }}
 
   # Docs deployment is handled by Netlify

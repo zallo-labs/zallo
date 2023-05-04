@@ -77,39 +77,40 @@ jobs:
       - name: 📦 Install
         run: yarn install
 
-      - name: 🏗️ Generate
-        run: yarn docs generate
-
       - name: 🏗️ Build
         run: yarn docs build
 
       - name: 🧪 Typecheck
         run: yarn docs typecheck
 
-  subgraph:
-    runs-on: ubuntu-latest
+  # subgraph:
+  #   runs-on: ubuntu-latest
 
-    steps:
-      - name: 🚧 Checkout
-        uses: actions/checkout@v3
+  #   steps:
+  #     - name: 🚧 Checkout
+  #       uses: actions/checkout@v3
 
-      - name: 🚧 Setup Node
-        uses: actions/setup-node@v3
-        with:
-          node-version: 18
-          cache: 'yarn'
+  #     - name: 🚧 Setup Node
+  #       uses: actions/setup-node@v3
+  #       with:
+  #         node-version: 18
+  #         cache: 'yarn'
 
-      - name: 📦 Install
-        run: yarn install
+  #     - name: 📦 Install
+  #       run: yarn install
 
-      - name: 🏗️ Generate
-        run: yarn subgraph generate
+  #     - name: 🏗️ Generate
+  #       run: yarn subgraph generate
 
-      - name: 🏗️ Build
-        run: yarn subgraph build:testnet
+  #     - name: 🏗️ Build
+  #       run: yarn subgraph build:testnet
 
   api:
     runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        working-directory: ./api
 
     services:
       postgres:
@@ -139,14 +140,22 @@ jobs:
           node-version: 18
           cache: 'yarn'
 
+      - name: 💾 Setup EdgeDB
+        uses: edgedb/setup-edgedb@v1
+        with:
+          instance-name: tests
+
+      - name: 💾 Initialize EdgeDB project
+        run: edgedb project init --non-interactive
+
       - name: 📦 Install
         run: yarn install
 
       - name: 🏗️ Build
-        run: yarn api build
+        run: yarn build
 
       - name: 🧪 Test
-        run: yarn api test
+        run: yarn test
 
   app:
     runs-on: ubuntu-latest

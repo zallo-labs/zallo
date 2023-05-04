@@ -5,14 +5,14 @@
   "main": "index.js",
   "scripts": {
     "postinstall": "expo-yarn-workspaces postinstall",
-    "prebuild": "(cd .. && yarn lib build)",
+    "prebuild": "(cd .. && yarn lib build) && yarn generate:gql",
     "start": "yarn expo start --dev-client",
     "test": "yarn typecheck && jest",
     "typecheck": "tsc --noEmit",
     "with-env": "dotenv-vault-core -e ../.env",
     "eas": "yarn with-env -- eas",
     "expo": "yarn with-env -- expo",
-    "generate": "graphql-codegen --config codegen.ts",
+    "generate:gql": "graphql-codegen --config codegen.ts",
     "clean": "npx rimraf web-build"
   },
   "expo-yarn-workspaces": {

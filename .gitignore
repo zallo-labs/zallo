@@ -30,14 +30,15 @@ yarn-error.log*
 
 
 ## Api
-!api/generated/generated.subgraph.ts
-api/schema.graphql
+api/dbschema/edgeql-js
+api/dbschema/interfaces.ts
 
 
 ## App
 app/.expo
 app/.vscode/.react
 app/web-build
+app/**/*generated.ts
 
 
 ## Contracts
@@ -52,6 +53,7 @@ contracts/zk
 docs/.docusaurus
 docs/.cache-loader
 docs/docs/reference/schema
+docs/**/*generated.ts
 
 
 ## Lib
