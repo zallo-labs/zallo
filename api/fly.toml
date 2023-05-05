@@ -1,0 +1,23 @@
+app = "zallo-api-prod"
+primary_region = "lax"  # Los Angeles
+
+[build]
+  dockerfile = "Dockerfile"
+
+[env]
+  API_PORT = 3000
+
+  # Secrets
+  # DOTENV_KEY                  # npx dotenv-vault keys
+
+
+[http_service]
+  internal_port = 3000
+  force_https = true
+  # TODO: re-enable auto start/stop once min instances is supported
+  auto_stop_machines = false
+  auto_start_machines = false
+  # [http_service.concurrency]
+  #   type = "requests"
+  #   soft_limit = 200    # Example used in docs, testing is needed
+  #   hard_limit = 250
