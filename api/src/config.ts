@@ -13,6 +13,7 @@ export const CONFIG = {
   expoToken: required`EXPO_TOKEN`,
   databaseUrl: required`DATABASE_URL`,
   redisUrl: required`REDIS_URL`,
+  redisFamily: optional`REDIS_FAMILY` === '6' ? 6 : undefined,
   sessionSecret: required`SESSION_SECRET`,
   graphRef: optional`APOLLO_GRAPH_REF`,
   chain,

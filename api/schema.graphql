@@ -69,9 +69,7 @@ input AccountWhereUniqueInput {
   id: String
 }
 
-"""
-Ethereum address
-"""
+"""Ethereum address"""
 scalar Address
 
 type Approval {
@@ -165,14 +163,10 @@ input BoolFilter {
   not: NestedBoolFilter
 }
 
-"""
-bytes hex string
-"""
+"""bytes hex string"""
 scalar Bytes
 
-"""
-32-byte hex string
-"""
+"""32-byte hex string"""
 scalar Bytes32
 
 type Contact {
@@ -267,17 +261,13 @@ input CreateAccountInput {
 input CreatePolicyInput {
   account: Address!
 
-  """
-  Signers that are required to approve
-  """
+  """Signers that are required to approve"""
   approvers: [Address!]
   key: PolicyKey
   name: String
   permissions: PermissionsInput!
 
-  """
-  Defaults to all approvers
-  """
+  """Defaults to all approvers"""
   threshold: Float
 }
 
@@ -297,9 +287,7 @@ input DateTimeFilter {
   notIn: [DateTime!]
 }
 
-"""
-An arbitrary-precision Decimal type
-"""
+"""An arbitrary-precision Decimal type"""
 scalar Decimal
 
 input DecimalFilter {
@@ -355,8 +343,7 @@ input IntFilter {
 """
 The `JSON` scalar type represents JSON values as specified by [ECMA-404](http://www.ecma-international.org/publications/files/ECMA-ST/ECMA-404.pdf).
 """
-scalar JSON
-  @specifiedBy(url: "http://www.ecma-international.org/publications/files/ECMA-ST/ECMA-404.pdf")
+scalar JSON @specifiedBy(url: "http://www.ecma-international.org/publications/files/ECMA-ST/ECMA-404.pdf")
 
 type Mutation {
   approve(id: Bytes32!, signature: Bytes!): Proposal!
@@ -370,15 +357,11 @@ type Mutation {
     gasLimit: Uint256
     nonce: Uint256
 
-    """
-    Approve the proposal
-    """
+    """Approve the proposal"""
     signature: Bytes
     to: Address!
 
-    """
-    WEI
-    """
+    """WEI"""
     value: Uint256
   ): Proposal!
   reject(id: Bytes32!): Proposal!
@@ -498,9 +481,7 @@ input NestedStringNullableFilter {
 }
 
 input PermissionsInput {
-  """
-  Targets that can be called
-  """
+  """Targets that can be called"""
   targets: [TargetInput!]
 }
 
@@ -528,23 +509,17 @@ input PolicyAccountIdNameCompoundUniqueInput {
 }
 
 input PolicyInput {
-  """
-  Signers that are required to approve
-  """
+  """Signers that are required to approve"""
   approvers: [Address!]
   key: PolicyKey
   name: String
   permissions: PermissionsInput!
 
-  """
-  Defaults to all approvers
-  """
+  """Defaults to all approvers"""
   threshold: Float
 }
 
-"""
-Policy key: an unsigned integer [0, 4294967295]
-"""
+"""Policy key: an unsigned integer [0, 4294967295]"""
 scalar PolicyKey
 
 input PolicyListRelationFilter {
@@ -788,50 +763,19 @@ input ProposalWhereUniqueInput {
 
 type Query {
   account(id: Address!): Account
-  accounts(
-    cursor: AccountWhereUniqueInput
-    distinct: [AccountScalarFieldEnum!]
-    orderBy: [AccountOrderByWithRelationInput!]
-    skip: Int
-    take: Int
-    where: AccountWhereInput
-  ): [Account!]!
+  accounts(cursor: AccountWhereUniqueInput, distinct: [AccountScalarFieldEnum!], orderBy: [AccountOrderByWithRelationInput!], skip: Int, take: Int, where: AccountWhereInput): [Account!]!
   contact(addr: Address!): Contact
-  contacts(
-    cursor: ContactWhereUniqueInput
-    distinct: [ContactScalarFieldEnum!]
-    orderBy: [ContactOrderByWithRelationInput!]
-    skip: Int
-    take: Int
-  ): [Contact!]!
+  contacts(cursor: ContactWhereUniqueInput, distinct: [ContactScalarFieldEnum!], orderBy: [ContactOrderByWithRelationInput!], skip: Int, take: Int): [Contact!]!
   contract(args: ContractInput!): Contract
   contractFunction(args: ContractFunctionInput!): ContractFunction
-  policies(
-    cursor: PolicyWhereUniqueInput
-    distinct: [PolicyScalarFieldEnum!]
-    orderBy: [PolicyOrderByWithRelationInput!]
-    skip: Int
-    take: Int
-    where: PolicyWhereInput
-  ): [Policy!]!
+  policies(cursor: PolicyWhereUniqueInput, distinct: [PolicyScalarFieldEnum!], orderBy: [PolicyOrderByWithRelationInput!], skip: Int, take: Int, where: PolicyWhereInput): [Policy!]!
   policy(args: UniquePolicyInput!): Policy
   proposal(id: Bytes32!): Proposal
-  proposals(
-    accounts: [Address!]
-    cursor: ProposalWhereUniqueInput
-    distinct: [ProposalScalarFieldEnum!]
-    orderBy: [ProposalOrderByWithRelationInput!]
-    skip: Int
-    states: [ProposalState!]
-    take: Int
-    where: ProposalWhereInput
-  ): [Proposal!]!
+  proposals(accounts: [Address!], cursor: ProposalWhereUniqueInput, distinct: [ProposalScalarFieldEnum!], orderBy: [ProposalOrderByWithRelationInput!], skip: Int, states: [ProposalState!], take: Int, where: ProposalWhereInput): [Proposal!]!
   requestableTokens(account: Address!): [Address!]!
   transfers(input: TransfersInput!): [ExplorerTransfer!]!
   user(
-    """
-    Defaults to user
-    """
+    """Defaults to user"""
     id: Address
   ): User!
 }
@@ -856,9 +800,7 @@ type SatisfiablePolicy {
   satisfied: Boolean!
 }
 
-"""
-function selector (4-byte hex string)
-"""
+"""function selector (4-byte hex string)"""
 scalar Selector
 
 type SimulatedTransfer {
@@ -965,25 +907,17 @@ input StringNullableListFilter {
 
 type Subscription {
   account(
-    """
-    Defaults to user accounts
-    """
+    """Defaults to user accounts"""
     accounts: [Address!]
 
-    """
-    Defaults to all events
-    """
+    """Defaults to all events"""
     events: AccountEvent
   ): Account!
   proposal(
-    """
-    Defaults to user accounts if no proposals are provided
-    """
+    """Defaults to user accounts if no proposals are provided"""
     accounts: [Address!]
 
-    """
-    Defaults to all events
-    """
+    """Defaults to all events"""
     events: [ProposalEvent!]
     proposals: [Bytes32!]
   ): Proposal!
@@ -997,14 +931,10 @@ type Target {
 }
 
 input TargetInput {
-  """
-  Functions that can be called on target (or *)
-  """
+  """Functions that can be called on target (or *)"""
   selectors: [String!]!
 
-  """
-  Address of target (or *)
-  """
+  """Address of target (or *)"""
   to: String!
 }
 
@@ -1034,9 +964,7 @@ type Transaction {
   gasPrice: Decimal
   hash: Bytes32!
 
-  """
-  hash
-  """
+  """hash"""
   id: ID!
   proposal: Proposal!
   proposalId: Bytes32!
@@ -1159,9 +1087,7 @@ input TransfersInput {
   skip: Float = 100
 }
 
-"""
-256-bit unsigned integer
-"""
+"""256-bit unsigned integer"""
 scalar Uint256
 
 input UniquePolicyInput {
@@ -1177,17 +1103,13 @@ input UpdateAccountInput {
 input UpdatePolicyInput {
   account: Address!
 
-  """
-  Signers that are required to approve
-  """
+  """Signers that are required to approve"""
   approvers: [Address!]
   key: PolicyKey
   name: String
   permissions: PermissionsInput
 
-  """
-  Defaults to all approvers
-  """
+  """Defaults to all approvers"""
   threshold: Float
 }
 
