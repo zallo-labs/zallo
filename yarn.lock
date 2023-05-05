@@ -14158,6 +14158,7 @@ __metadata:
     dotenv: ^16.0.3
     dotenv-cli: ^7.2.1
     dotenv-vault-core: ^0.7.0
+    dotenv-vault-core-cli: ^0.1.4
     edgedb: ^1.1.0
     eslint: ^8.38.0
     eslint-config-prettier: ^8.8.0
