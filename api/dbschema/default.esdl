@@ -1,15 +1,14 @@
 module default {
-  global current_user_id -> uuid;
-  
-  global current_user_acccounts -> array<uuid>;
-
-  global current_user := (
-    select User filter .id = global current_user_id
-  );
-
   scalar type Address extending str {
     constraint regexp(r'^0x[0-9a-fA-F]{40}$');
   }
+
+  global current_user_address -> Address;
+
+  global current_user_accounts_array -> array<uuid>;
+  global current_user_accounts := (
+    select array_unpack(global current_user_accounts_array)
+  );
 
   scalar type Name extending str {
     constraint min_len_value(1);
@@ -65,6 +64,10 @@ module default {
 
   type Device extending User {
     property pushToken -> str;
+
+    access policy user_only
+      allow all
+      using (.address ?= global current_user_address);
   }
 
   type Account extending User {
@@ -73,7 +76,12 @@ module default {
     required property salt -> Bytes32;
     multi link policies := .<account[is Policy];
     multi link proposals := .<account[is Proposal];
+    multi link transactionProposals := .<account[is TransactionProposal];
     multi link transfers := .<account[is Transfer];
+    
+    access policy members_only
+      allow select, insert, update
+      using (.id in global current_user_accounts);
   }
 
   type Policy {
@@ -85,7 +93,11 @@ module default {
 
     constraint expression on (
       exists (.state, .draft)
-    )
+    );
+
+    access policy members_only
+      allow all
+      using (.account.id in global current_user_accounts);
   }
 
   abstract type Permissions {
@@ -96,6 +108,10 @@ module default {
     required link policy -> Policy;
     multi link approvers -> User;
     required property threshold -> uint16;
+
+    access policy members_only
+      allow all
+      using (.policy.account.id in global current_user_accounts);
   }
 
   scalar type TargetSelector extending str {
@@ -125,6 +141,10 @@ module default {
         default := datetime_of_statement();
       }
     }
+
+    access policy members_only
+      allow all
+      using (.account.id in global current_user_accounts);
   }
 
   type TransactionProposal extending Proposal {
@@ -144,26 +164,22 @@ module default {
   }
 
   type Simulation {
-    multi link transfers -> SimulatedTransfer;
-  }
-
-  type SimulatedTransfer {
-    required property from -> Address;
-    required property to -> Address;
-    required property token -> Address;
-    required property amount -> uint256;
+    multi link transfers -> TransferDetails;
   }
 
   scalar type TransferDirection extending enum<'In', 'Out'>;
 
-  type Transfer {
+  type TransferDetails {
     required link account -> Account;
-    required link receipt -> Receipt;
     required property direction -> TransferDirection;
     required property from -> Address;
     required property to -> Address;
     required property token -> Address;
     required property amount -> uint256;
+  }
+
+  type Transfer extending TransferDetails {
+    required link receipt -> Receipt;
   }
 
   type Transaction {
