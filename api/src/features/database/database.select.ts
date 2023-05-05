@@ -1,12 +1,10 @@
 import { SelectModifiers, objectTypeToSelectShape } from '@db/edgeql-js/select';
 import {
-  FieldNode,
   GraphQLField,
   GraphQLInterfaceType,
   GraphQLObjectType,
   GraphQLOutputType,
   GraphQLResolveInfo,
-  InlineFragmentNode,
   Kind,
   SelectionSetNode,
   isInterfaceType,
@@ -15,21 +13,22 @@ import {
 import { P, match } from 'ts-pattern';
 import { $scopify, ObjectTypeExpression, ObjectTypeSet } from '@db/edgeql-js/typesystem';
 import merge from 'ts-deepmerge';
-import e from '@db/edgeql-js';
 import { $linkPropify } from '@db/edgeql-js/syntax';
 import { Cardinality } from 'edgedb/dist/reflection';
+
+export type Scope<Expr extends ObjectTypeExpression> = $scopify<Expr['__element__']> &
+  $linkPropify<{
+    [k in keyof Expr]: k extends '__cardinality__' ? Cardinality.One : Expr[k];
+  }>;
 
 export type Shape<T extends ObjectTypeSet> = objectTypeToSelectShape<T['__element__']> &
   SelectModifiers<T['__element__']>;
 
+export type Select<Expr extends ObjectTypeExpression> = (scope: Scope<Expr>) => Shape<Expr>;
+
 export const getSelect =
-  (info: GraphQLResolveInfo) =>
-  <Expr extends ObjectTypeExpression>(
-    scope: $scopify<Expr['__element__']> &
-      $linkPropify<{
-        [k in keyof Expr]: k extends '__cardinality__' ? Cardinality.One : Expr[k];
-      }>,
-  ) => {
+  <Expr extends ObjectTypeExpression>(info: GraphQLResolveInfo): Select<Expr> =>
+  (scope): Shape<Expr> => {
     return fieldToShape(
       info.fieldNodes.find((node) => node.name.value === info.fieldName)!.selectionSet,
       info.parentType.getFields()[info.fieldName],

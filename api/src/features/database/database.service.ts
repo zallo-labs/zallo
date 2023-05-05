@@ -5,7 +5,7 @@ import { Expression } from '@db/edgeql-js/typesystem';
 import { getRequestContext } from '~/request/ctx';
 
 @Injectable()
-export class DbService {
+export class DatabaseService {
   private __client: Client;
 
   constructor() {

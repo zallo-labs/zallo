@@ -1,6 +1,6 @@
 import { Extensions, ResolveField, ResolveFieldOptions, ReturnTypeFunc } from '@nestjs/graphql';
 import { ObjectTypeSet } from '@db/edgeql-js/reflection';
-import { Shape } from '~/features/db/db.select';
+import { Shape } from '~/features/database/database.select';
 
 export const ComputedField =
   <T extends ObjectTypeSet>(
