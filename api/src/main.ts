@@ -12,7 +12,7 @@ async function bootstrap() {
     logger: [...(__DEBUG__ ? (['debug', 'verbose'] as const) : []), 'log', 'warn', 'error'],
   });
 
-  // Allow prisma to gracefully shutdown app
+  app.enableShutdownHooks(); // Enable shutdown signals
   app.get(PrismaService).enableShutdownHooks(app);
 
   await app.listen(CONFIG.apiPort);
