@@ -20,7 +20,7 @@ const getUserClient = (prisma: PrismaClient) =>
 
           const [, , , response] = await prisma.$transaction([
             prisma.$queryRaw`SET LOCAL ROLE "user"`,
-            prisma.$queryRaw`SELECT set_config('user.id', ${userCtx.id}, true)`,
+            prisma.$queryRaw`SELECT set_config('user.id', ${userCtx.address}, true)`,
             prisma.$queryRawUnsafe(
               `SELECT set_config('user.accounts', ARRAY[${accounts}]::text[]::text, true)`,
             ),

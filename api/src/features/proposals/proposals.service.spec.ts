@@ -48,7 +48,7 @@ describe(ProposalsService.name, () => {
     user1Account1 = randomAddress();
     user1Account2 = randomAddress();
     user1 = {
-      id: randomAddress(),
+      address: randomAddress(),
       accounts: new Set([user1Account1, user1Account2]),
     };
 
@@ -266,7 +266,7 @@ describe(ProposalsService.name, () => {
 
         expect(
           await prisma.asUser.approval.findUnique({
-            where: { proposalId_userId: { proposalId: id, userId: user1.id } },
+            where: { proposalId_userId: { proposalId: id, userId: user1.address } },
           }),
         ).toBeTruthy();
       }));
@@ -330,7 +330,7 @@ describe(ProposalsService.name, () => {
 
         expect(
           await prisma.asUser.approval.findUnique({
-            where: { proposalId_userId: { proposalId: id, userId: user1.id } },
+            where: { proposalId_userId: { proposalId: id, userId: user1.address } },
           }),
         ).toBeTruthy();
       }));
@@ -347,7 +347,7 @@ describe(ProposalsService.name, () => {
         expect(
           (
             await prisma.asUser.approval.findUnique({
-              where: { proposalId_userId: { proposalId: id, userId: user1.id } },
+              where: { proposalId_userId: { proposalId: id, userId: user1.address } },
             })
           )?.signature,
         ).toBe(null);

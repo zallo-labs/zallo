@@ -29,14 +29,14 @@ describe(UsersResolver.name, () => {
   let user1Obj: User;
 
   beforeEach(async () => {
-    user1 = { id: randomAddress(), accounts: new Set() };
+    user1 = { address: randomAddress(), accounts: new Set() };
     user1Obj = await asUser(user1, () => create());
   });
 
   describe('user', () => {
     it('returns user', () =>
       asUser(user1, async () => {
-        expect((await resolver.user({ id: user1.id }))?.id).toEqual(user1Obj.id);
+        expect((await resolver.user({ id: user1.address }))?.id).toEqual(user1Obj.id);
       }));
 
     it("returns constructed user if the user doesn't exist", () =>
@@ -49,7 +49,7 @@ describe(UsersResolver.name, () => {
   describe('name', () => {
     it('returns contact name if the user is a contact of the caller', () =>
       asUser(user1, async () => {
-        const contact: Contact = { userId: user1.id, addr: 'das', name: 'test' };
+        const contact: Contact = { userId: user1.address, addr: 'das', name: 'test' };
         jest
           .spyOn(prisma.asUser.contact, 'findUnique')
           .mockReturnValue(asPrismaPromise((async () => contact)()) as any);

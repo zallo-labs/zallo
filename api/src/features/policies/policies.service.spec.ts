@@ -47,7 +47,7 @@ describe(PoliciesService.name, () => {
 
     const userCtx = getUserCtx();
     userAccounts.add.mockImplementation(async (p) => {
-      if (userCtx.id === p.user && account === p.account) userCtx.accounts.add(account);
+      if (userCtx.address === p.user && account === p.account) userCtx.accounts.add(account);
     });
 
     proposals.propose.mockImplementation(async () =>
@@ -55,7 +55,7 @@ describe(PoliciesService.name, () => {
         data: {
           id: hexlify(randomBytes(32)),
           account: connectAccount(account),
-          proposer: connectOrCreateUser(user1.id),
+          proposer: connectOrCreateUser(user1.address),
           to: account,
           nonce: 0,
           estimatedOpGas: 0,
@@ -66,7 +66,7 @@ describe(PoliciesService.name, () => {
     const { key } = await service.create(
       {
         account,
-        approvers: [userCtx.id],
+        approvers: [userCtx.address],
         permissions: {},
       },
       { select: null },
@@ -90,7 +90,7 @@ describe(PoliciesService.name, () => {
   beforeEach(() => {
     user1Account = randomAddress();
     user1 = {
-      id: randomAddress(),
+      address: randomAddress(),
       accounts: new Set([]),
     };
   });

@@ -30,8 +30,8 @@ describe('ContactsResolver', () => {
   let user1Contact: Address;
 
   beforeEach(async () => {
-    user1 = { id: randomAddress(), accounts: new Set() };
-    user2 = { id: randomAddress(), accounts: new Set() };
+    user1 = { address: randomAddress(), accounts: new Set() };
+    user2 = { address: randomAddress(), accounts: new Set() };
     user1Contact = randomAddress();
   });
 
@@ -45,7 +45,7 @@ describe('ContactsResolver', () => {
 
         expect(
           await prisma.asUser.contact.findUnique({
-            where: { userId_addr: { userId: user1.id, addr: user1Contact } },
+            where: { userId_addr: { userId: user1.address, addr: user1Contact } },
           }),
         ).toBeTruthy();
       }));
@@ -59,7 +59,7 @@ describe('ContactsResolver', () => {
         expect(
           (
             await prisma.asUser.contact.findUnique({
-              where: { userId_addr: { userId: user1.id, addr: user1Contact } },
+              where: { userId_addr: { userId: user1.address, addr: user1Contact } },
             })
           )?.name,
         ).toEqual(newName);
@@ -132,7 +132,7 @@ describe('ContactsResolver', () => {
 
         expect(
           await prisma.asUser.contact.findUnique({
-            where: { userId_addr: { userId: user1.id, addr: user1Contact } },
+            where: { userId_addr: { userId: user1.address, addr: user1Contact } },
           }),
         ).toBeNull();
       }));

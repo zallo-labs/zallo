@@ -48,7 +48,7 @@ export class AuthMiddleware implements NestMiddleware {
 
   async use(req: Request, _res: Response, next: NextFunction) {
     const user = await this.tryAuthenticate(req);
-    if (user) req.user = { id: user, accounts: await this.userAccount.get(user) };
+    if (user) req.user = { address: user, accounts: await this.userAccount.get(user) };
 
     next();
   }

@@ -53,12 +53,12 @@ describe(AccountsService.name, () => {
     );
 
     policiesService.create.mockImplementation(async (p): Promise<any> => {
-      if (p.approvers.includes(userCtx.id)) userCtx.accounts.add(account);
+      if (p.approvers.includes(userCtx.address)) userCtx.accounts.add(account);
     });
 
     await service.createAccount({
       name: 'Test account',
-      policies: [{ approvers: [userCtx.id], permissions: {} }],
+      policies: [{ approvers: [userCtx.address], permissions: {} }],
     });
 
     return account;
@@ -70,11 +70,11 @@ describe(AccountsService.name, () => {
 
   beforeEach(async () => {
     user1 = {
-      id: randomAddress(),
+      address: randomAddress(),
       accounts: new Set([]),
     };
     user2 = {
-      id: randomAddress(),
+      address: randomAddress(),
       accounts: new Set([]),
     };
 
