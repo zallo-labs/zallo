@@ -70,6 +70,6 @@ export class AccountsProcessor {
       select: null,
     });
 
-    this.accounts.publishAccount({ account: { id: account }, event: AccountEvent.update });
+    this.accounts.publishAccount({ account, event: AccountEvent.update });
   }
 }

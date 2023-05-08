@@ -4,27 +4,32 @@ import { Bytes32Field } from '~/apollo/scalars/Bytes.scalar';
 import { Transfer } from '../transfers/transfers.model';
 import { Policy, PolicyState } from '../policies/policies.model';
 import { Proposal } from '../proposals/proposals.model';
+import { IdField } from '~/apollo/scalars/Id.scalar';
+import type { Account as EqlAccount } from '~/edgeql-interfaces';
 
 @ObjectType()
-export class Account {
-  @AddressField()
-  id: string; // Address
+export class Account implements EqlAccount {
+  @IdField()
+  id: string;
 
   @AddressField()
-  impl: string; // Address
+  address: string; // Address;
+
+  @AddressField()
+  implementation: string; // Address
 
   @Bytes32Field()
-  deploySalt: string; // Hex
+  salt: string; // Hex
 
-  name: string;
+  name?: string | null;
 
   isActive: boolean;
 
-  policies?: Policy[];
+  policies: Policy[];
 
-  policyStates?: PolicyState[];
+  policyStates: PolicyState[];
 
-  proposals?: Proposal[];
+  proposals: Proposal[];
 
-  transfers?: Transfer[];
+  transfers: Transfer[];
 }

@@ -4,38 +4,28 @@ import {
   AccountArgs,
   UpdateAccountInput,
   CreateAccountInput,
-  AccountsArgs,
   AccountSubscriptionFilters,
   ACCOUNT_SUBSCRIPTION,
   USER_ACCOUNT_SUBSCRIPTION,
 } from './accounts.args';
-import { getSelect } from '~/util/select';
-import { AccountSubscriptionPayload, AccountsService } from './accounts.service';
 import { PubsubService } from '../util/pubsub/pubsub.service';
 import { GqlContext, asUser, getUser } from '~/request/ctx';
 import { Account } from './accounts.model';
+import { AccountSubscriptionPayload, AccountsService } from './accounts.service';
+import { getShape } from '../database/database.select';
 
 @Resolver(() => Account)
 export class AccountsResolver {
   constructor(private service: AccountsService, private pubsub: PubsubService) {}
 
   @Query(() => Account, { nullable: true })
-  async account(
-    @Args() { id }: AccountArgs,
-    @Info() info: GraphQLResolveInfo,
-  ): Promise<Account | null> {
-    return this.service.findUnique({
-      where: { id },
-      ...getSelect(info),
-    });
+  async account(@Args() { address }: AccountArgs, @Info() info: GraphQLResolveInfo) {
+    return this.service.selectUnique(address, getShape(info));
   }
 
   @Query(() => [Account])
-  async accounts(@Args() args: AccountsArgs, @Info() info: GraphQLResolveInfo): Promise<Account[]> {
-    return this.service.findMany({
-      ...args,
-      ...getSelect(info),
-    });
+  async accounts(@Info() info: GraphQLResolveInfo) {
+    return this.service.select(getShape(info));
   }
 
   @Subscription(() => Account, {
@@ -47,11 +37,7 @@ export class AccountsResolver {
       ctx: GqlContext,
       info: GraphQLResolveInfo,
     ) {
-      return asUser(
-        ctx,
-        async () =>
-          await this.service.findUnique({ where: { id: account.id }, ...getSelect(info) }),
-      );
+      return asUser(ctx, async () => this.service.selectUnique(account, getShape(info)));
     },
     filter: ({ event }: AccountSubscriptionPayload, { events }: AccountSubscriptionFilters) =>
       !events || events.includes(event),
@@ -70,18 +56,14 @@ export class AccountsResolver {
   }
 
   @Mutation(() => Account)
-  async createAccount(
-    @Args('args') input: CreateAccountInput,
-    @Info() info: GraphQLResolveInfo,
-  ): Promise<Account> {
-    return this.service.createAccount(input, getSelect(info));
+  async createAccount(@Args('args') input: CreateAccountInput, @Info() info: GraphQLResolveInfo) {
+    const { address } = await this.service.createAccount(input);
+    return this.service.selectUnique(address, getShape(info));
   }
 
   @Mutation(() => Account)
-  async updateAccount(
-    @Args('args') input: UpdateAccountInput,
-    @Info() info: GraphQLResolveInfo,
-  ): Promise<Account> {
-    return this.service.updateAccount(input, getSelect(info));
+  async updateAccount(@Args('args') input: UpdateAccountInput, @Info() info: GraphQLResolveInfo) {
+    await this.service.updateAccount(input);
+    return this.service.selectUnique(input.address, getShape(info));
   }
 }

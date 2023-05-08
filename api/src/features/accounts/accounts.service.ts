@@ -1,36 +1,36 @@
 import { Injectable } from '@nestjs/common';
-import { Account, Prisma } from '@prisma/client';
-import { asAddress, Address, toDeploySalt, randomDeploySalt, asPolicyKey, asHex } from 'lib';
-import { PrismaService } from '../util/prisma/prisma.service';
-import { ProviderService } from '~/features/util/provider/provider.service';
-import { PubsubService } from '../util/pubsub/pubsub.service';
+import { DatabaseService } from '../database/database.service';
+import e from '~/edgeql-js';
+import { Address, DeploySalt, Policy, asHex, asPolicyKey, randomDeploySalt } from 'lib';
+import { ShapeFunc } from '../database/database.select';
 import {
   ACCOUNT_SUBSCRIPTION,
-  USER_ACCOUNT_SUBSCRIPTION,
   AccountEvent,
   CreateAccountInput,
   UpdateAccountInput,
 } from './accounts.args';
-import { POLICY_STATE_FIELDS, inputAsPolicy, prismaAsPolicy } from '../policies/policies.util';
+import { getUser } from '~/request/ctx';
+import { UserInputError } from 'apollo-server-core';
 import { CONFIG } from '~/config';
+import { ProviderService } from '../util/provider/provider.service';
+import { PubsubService } from '../util/pubsub/pubsub.service';
 import { ContractsService } from '../contracts/contracts.service';
 import { FaucetService } from '../faucet/faucet.service';
 import { PoliciesService } from '../policies/policies.service';
-import { getUser } from '~/request/ctx';
-import { UserInputError } from 'apollo-server-core';
 import { InjectQueue } from '@nestjs/bull';
 import { ACCOUNTS_QUEUE, AccountActivationEvent } from './accounts.queue';
+import { inputAsPolicy } from '../policies/policies.util';
 import { Queue } from 'bull';
 
 export interface AccountSubscriptionPayload {
-  [ACCOUNT_SUBSCRIPTION]: Pick<Account, 'id'>;
+  [ACCOUNT_SUBSCRIPTION]: Address;
   event: AccountEvent;
 }
 
 @Injectable()
 export class AccountsService {
   constructor(
-    private prisma: PrismaService,
+    private db: DatabaseService,
     private provider: ProviderService,
     private pubsub: PubsubService,
     private contracts: ContractsService,
@@ -40,132 +40,120 @@ export class AccountsService {
     private activationQueue: Queue<AccountActivationEvent>,
   ) {}
 
-  findUnique = this.prisma.asUser.account.findUnique;
-  findMany = this.prisma.asUser.account.findMany;
+  unique = (address: Address) =>
+    e.shape(e.Account, () => ({
+      filter_single: { address },
+    }));
 
-  async createAccount<R extends Prisma.AccountArgs>(
-    { name, policies: policyInputs }: CreateAccountInput,
-    res?: Prisma.SelectSubset<R, Prisma.AccountArgs>,
-  ) {
+  selectUnique(address: Address, shape?: ShapeFunc<typeof e.Account>) {
+    return this.db.query(
+      e.select(e.Account, (acc) => ({
+        ...(shape && shape(acc)),
+        ...this.unique(address)(acc),
+      })),
+    );
+  }
+
+  select(_filter: {}, shape?: ShapeFunc<typeof e.Account>) {
+    return this.db.query(
+      e.select(e.Account, (acc) => ({
+        id: true,
+        ...(shape && shape(acc)),
+      })),
+    );
+  }
+
+  async createAccount({ name, policies: policyInputs }: CreateAccountInput) {
     const user = getUser();
+
     if (!policyInputs.find((p) => p.approvers.includes(user)))
       throw new UserInputError('User must be included in at least one policy');
 
-    const impl = CONFIG.accountImplAddress;
-    const deploySalt = randomDeploySalt();
+    const implementation = CONFIG.accountImplAddress;
+    const salt = randomDeploySalt();
     const policyKeys = policyInputs.map((p, i) => asPolicyKey(p.key ?? i));
+    const policies = policyInputs.map((p, i) => inputAsPolicy(policyKeys[i], p));
 
     const account = await this.provider.getProxyAddress({
-      impl,
-      salt: deploySalt,
-      policies: policyInputs.map((p, i) => inputAsPolicy(policyKeys[i], p)),
+      impl: implementation,
+      salt,
+      policies,
     });
 
-    const r = await this.prisma.asUser.$transaction(async (prisma) => {
-      // Prisma create always SELECTs after the INSERT. However the user isn't yet a member of the account - https://github.com/prisma/prisma/issues/4246
-      // createMany doesn't have this behaviour
-      await prisma.account.createMany({
-        data: {
-          id: account,
-          deploySalt,
-          impl,
+    const id = await this.db.transaction(async (client) => {
+      const { id } = await e
+        .insert(e.Account, {
+          address: account,
           name,
-        },
-      });
+          isActive: false,
+          implementation,
+          salt,
+        })
+        .run(client);
 
       await Promise.all(
         policyInputs.map((policy, i) =>
           this.policies.create(
-            { ...policy, account, key: policyKeys[i], skipProposal: true },
+            { ...policy, account: id, key: policyKeys[i], skipProposal: true },
             { select: null },
           ),
         ),
       );
 
-      return prisma.account.findUniqueOrThrow({ where: { id: account }, ...res });
+      return id;
     });
 
-    await this.publishAccount({ account: { id: account }, event: AccountEvent.create });
-    await this.activateAccount(account);
+    await this.publishAccount({ account, event: AccountEvent.create });
+    await this.activateAccount(account, implementation, salt, policies);
     this.contracts.addAccountAsVerified(account);
     this.faucet.requestTokens(account);
 
-    return r;
+    return { id, address: account };
   }
 
-  async updateAccount<R extends Prisma.AccountArgs>(
-    { id, name }: UpdateAccountInput,
-    res?: Prisma.SelectSubset<R, Prisma.AccountArgs>,
-  ) {
-    const r = await this.prisma.asUser.account.update({
-      where: { id },
-      data: { name },
-      ...res,
-    });
-
-    this.publishAccount({ account: { id }, event: AccountEvent.update });
-
-    return r;
-  }
-
-  private async activateAccount(account: Address) {
-    const {
-      impl,
-      deploySalt,
-      isActive,
-      policyStates: states,
-    } = await this.prisma.asUser.account.findUniqueOrThrow({
-      where: { id: account },
-      select: {
-        impl: true,
-        deploySalt: true,
-        isActive: true,
-        // Initialization rules
-        policyStates: {
-          where: { proposal: null },
-          select: {
-            id: true,
-            ...POLICY_STATE_FIELDS,
-          },
+  async updateAccount({ address, name }: UpdateAccountInput) {
+    const r = await e
+      .update(e.Account, () => ({
+        set: {
+          name,
         },
-      },
-    });
-    if (isActive) throw new Error('Account is already active');
+        filter_single: { address },
+      }))
+      .run(this.db.client);
 
-    const { transaction } = await this.provider.deployProxy({
-      impl: asAddress(impl),
-      policies: states.map(prismaAsPolicy),
-      salt: toDeploySalt(deploySalt),
+    if (!r) throw new UserInputError(`Must be a member of the account to update it`);
+
+    this.publishAccount({ account: address, event: AccountEvent.update });
+  }
+
+  private async activateAccount(
+    account: Address,
+    implementation: Address,
+    salt: DeploySalt,
+    policies: Policy[],
+  ) {
+    const { transaction, account: deployedAccount } = await this.provider.deployProxy({
+      impl: implementation,
+      salt,
+      policies,
     });
+
+    if (account !== deployedAccount.address)
+      throw new Error(
+        `Deployed account address didn't match stored address; expected '${account}', actual '${deployedAccount.address}'`,
+      );
 
     this.activationQueue.add({ account, transaction: asHex(transaction.hash) });
   }
 
-  async publishAccount({ event, account: { id } }: AccountSubscriptionPayload) {
-    const payload: AccountSubscriptionPayload = { event, account: { id } }; // Reconstruct to exclude other fields
-    await this.pubsub.publish<AccountSubscriptionPayload>(`${ACCOUNT_SUBSCRIPTION}.${id}`, payload);
+  async publishAccount(payload: AccountSubscriptionPayload) {
+    const { account } = payload;
 
-    // Publish event to all users with access to the account
-    const { policyStates: states } = await this.prisma.asSystem.account.findUniqueOrThrow({
-      where: { id },
-      select: {
-        policyStates: {
-          where: { OR: [{ activeOf: {} }, { draftOf: {} }] },
-          select: {
-            approvers: { select: { userId: true } },
-          },
-        },
-      },
-    });
-    const approvers = states.flatMap((r) => r.approvers.map((a) => a.userId));
-
-    await Promise.all(
-      approvers.map((user) =>
-        this.pubsub.publish<AccountSubscriptionPayload>(
-          `${USER_ACCOUNT_SUBSCRIPTION}.${user}`,
-          payload,
-        ),
-      ),
+    await this.pubsub.publish<AccountSubscriptionPayload>(
+      `${ACCOUNT_SUBSCRIPTION}.${account}`,
+      payload,
     );
+
+    // TODO: Publish event to all users with access to the account
   }
 }

@@ -14,7 +14,7 @@
     "downlevelIteration": true,
     "esModuleInterop": true,
     "strict": true,
-    "skipLibCheck": true,
+    "skipLibCheck": false,
     "forceConsistentCasingInFileNames": true,
     "strictPropertyInitialization": false,
     "noImplicitAny": false,
@@ -22,6 +22,7 @@
     "paths": {
       "~/edgeql-js": ["./dbschema/edgeql-js"],
       "~/edgeql-js/*": ["./dbschema/edgeql-js/*"],
+      "~/edgeql-interfaces": ["./dbschema/interfaces"],
       "~/*": ["./src/*"],
       "@gen/*": ["./generated/*"]
     }

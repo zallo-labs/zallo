@@ -78,9 +78,12 @@ module default {
     multi link proposals := .<account[is Proposal];
     multi link transactionProposals := .<account[is TransactionProposal];
     multi link transfers := .<account[is Transfer];
+
+    access policy anyone_can_insert
+      allow insert;
     
-    access policy members_only
-      allow select, insert, update
+    access policy members_can_select_update
+      allow select, update
       using (.id in global current_user_accounts);
   }
 
@@ -106,6 +109,8 @@ module default {
 
   type PolicyState extending Permissions {
     required link policy -> Policy;
+    link proposal -> TransactionProposal;
+    required property isAccountInitState := not exists .proposal;
     multi link approvers -> User;
     required property threshold -> uint16;
 

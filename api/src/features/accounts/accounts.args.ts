@@ -1,4 +1,3 @@
-import { FindManyAccountArgs } from '@gen/account/find-many-account.args';
 import { ArgsType, Field, InputType, registerEnumType } from '@nestjs/graphql';
 import { Address } from 'lib';
 import { AddressField, AddressScalar } from '~/apollo/scalars/Address.scalar';
@@ -9,11 +8,8 @@ import { TransferDirection } from '@gen/prisma/transfer-direction.enum';
 @ArgsType()
 export class AccountArgs {
   @AddressField()
-  id: Address;
+  address: Address;
 }
-
-@ArgsType()
-export class AccountsArgs extends FindManyAccountArgs {}
 
 export const ACCOUNT_SUBSCRIPTION = 'account';
 export const USER_ACCOUNT_SUBSCRIPTION = `${ACCOUNT_SUBSCRIPTION}.user`;
@@ -48,7 +44,7 @@ export class CreateAccountInput {
 @InputType()
 export class UpdateAccountInput {
   @AddressField()
-  id: Address;
+  address: Address;
 
   name: string;
 }
