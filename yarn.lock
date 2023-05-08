@@ -3815,16 +3815,16 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@edgedb/generate@npm:^0.0.8":
-  version: 0.0.8
-  resolution: "@edgedb/generate@npm:0.0.8"
+"@edgedb/generate@npm:^0.1.0":
+  version: 0.1.0
+  resolution: "@edgedb/generate@npm:0.1.0"
   dependencies:
     chokidar: ^3.5.3
   peerDependencies:
-    edgedb: ^1.0.0-alpha.0
+    edgedb: ^1.1.0
   bin:
     generate: dist/cli.js
-  checksum: da937593f749ddb9fcd09e9729006d597dc1880efbc5e1f11e9b6655e8456ac0b565d57f4bcbed9f9dc10305454b4d43992018ffecddc3662f1d5f1985c86e46
+  checksum: ba24330fb03092a3b6579a18ca31a81de25844cf604f19b19fbda73bc91312654a6c807c1b30fef0d42775cea6a15ef2a7ff06ccc89bec7e2523208fe37ba025
   languageName: node
   linkType: hard
 
@@ -14117,7 +14117,7 @@ __metadata:
   resolution: "api@workspace:api"
   dependencies:
     "@apollo/client": ^3.7.12
-    "@edgedb/generate": ^0.0.8
+    "@edgedb/generate": ^0.1.0
     "@golevelup/ts-jest": ^0.3.5
     "@graphql-codegen/cli": ^3.3.0
     "@graphql-codegen/typescript": ^3.0.3
@@ -14159,7 +14159,7 @@ __metadata:
     dotenv-cli: ^7.2.1
     dotenv-vault-core: ^0.7.0
     dotenv-vault-core-cli: ^0.1.4
-    edgedb: ^1.1.0
+    edgedb: ^1.2.1
     eslint: ^8.38.0
     eslint-config-prettier: ^8.8.0
     eslint-plugin-prettier: ^4.2.1
@@ -20274,12 +20274,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"edgedb@npm:^1.1.0":
-  version: 1.1.0
-  resolution: "edgedb@npm:1.1.0"
+"edgedb@npm:^1.2.1":
+  version: 1.2.1
+  resolution: "edgedb@npm:1.2.1"
   bin:
     edgeql-js: dist/cli.js
-  checksum: ee760aaf1e94f19354a36e1a2360c34b805d501ebd644522b205c615fba01c877aa8a1010c456234802c201ee78e717ccbba40c41cd4ecc96d2236bf02a7905c
+  checksum: 96a9055e09749a59fba945c83799dcb7d5fe4b29fe7ef55e8a5d2b86d7d8f8f72a5050b0ef3dd744462e27f9e39edc23fef833d2d3b09e020ddcff20a75719f2
   languageName: node
   linkType: hard
 
