@@ -1,74 +1,32 @@
-import { Args, Info, Mutation, Parent, Query, ResolveField, Resolver } from '@nestjs/graphql';
-import { PrismaService } from '../util/prisma/prisma.service';
+import { Args, Info, Mutation, Parent, Query, Resolver } from '@nestjs/graphql';
 import { GraphQLResolveInfo } from 'graphql';
-import { getSelect } from '~/util/select';
 import { UpdateUserArgs, UserArgs } from './users.args';
-import { ProviderService } from '../util/provider/provider.service';
 import { getUser } from '~/request/ctx';
 import { User } from './users.model';
+import { UsersService } from './users.service';
+import { getShape } from '../database/database.select';
+import { ComputedField } from '~/decorators/computed.decorator';
+import e from '~/edgeql-js';
 
 @Resolver(() => User)
 export class UsersResolver {
-  constructor(private prisma: PrismaService, private provider: ProviderService) {}
+  constructor(private service: UsersService) {}
 
   @Query(() => User)
-  async user(
-    @Args() { id = getUser() }: UserArgs,
-    @Info() info?: GraphQLResolveInfo,
-  ): Promise<User> {
-    return (
-      (await this.prisma.asUser.user.findUnique({
-        where: { id },
-        // Prevent pushToken from being included by default, as prevented by RLS
-        select: { id: true, name: true, pushToken: false },
-        ...(getSelect(info) as any),
-      })) ?? { id, name: null, pushToken: null }
-    );
+  async user(@Args() { address = getUser() }: UserArgs, @Info() info: GraphQLResolveInfo) {
+    return this.service.selectUnique(address, getShape(info));
   }
 
-  @ResolveField(() => String, { nullable: true })
+  @ComputedField<typeof e.User>(() => String, { name: true }, { nullable: true })
   async name(@Parent() user: User): Promise<string | null> {
-    const contact = this.prisma.asUser.contact.findUnique({
-      where: { userId_addr: { userId: getUser(), addr: user.id } },
-      select: { name: true },
-    });
-
-    const account = this.prisma.asUser.account.findUnique({
-      where: { id: user.id },
-      select: { name: true },
-    });
-
-    const zalloMatch = user.id === this.provider.walletAddress && 'Zallo';
-
-    return (
-      (await contact)?.name ||
-      (await account)?.name ||
-      user.name ||
-      zalloMatch ||
-      (await this.provider.lookupAddress(user.id))
-    );
+    return this.service.name(user.address);
   }
 
   @Mutation(() => User)
-  async updateUser(
-    @Args() { name, pushToken }: UpdateUserArgs,
-    @Info() info?: GraphQLResolveInfo,
-  ): Promise<User> {
+  async updateUser(@Args() args: UpdateUserArgs, @Info() info: GraphQLResolveInfo) {
     const user = getUser();
+    await this.service.upsert(user, args);
 
-    return this.prisma.asUser.user.upsert({
-      where: { id: user },
-      create: {
-        id: user,
-        name,
-        pushToken,
-      },
-      update: {
-        name,
-        pushToken,
-      },
-      select: { id: true, name: true, pushToken: false },
-      ...(getSelect(info) as any),
-    });
+    return (await this.service.selectUnique(user, getShape(info)))!;
   }
 }

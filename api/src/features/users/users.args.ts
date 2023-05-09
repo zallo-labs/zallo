@@ -5,7 +5,7 @@ import { AddressField } from '~/apollo/scalars/Address.scalar';
 @ArgsType()
 export class UserArgs {
   @AddressField({ nullable: true, description: 'Defaults to user' })
-  id?: Address;
+  address?: Address;
 }
 
 @ArgsType()

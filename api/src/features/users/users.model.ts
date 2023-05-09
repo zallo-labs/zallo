@@ -1,21 +1,17 @@
 import { ObjectType } from '@nestjs/graphql';
 import { AddressField } from '~/apollo/scalars/Address.scalar';
+import { IdField } from '~/apollo/scalars/Id.scalar';
 import { Contact } from '../contacts/contacts.model';
-import { Approval, Proposal } from '../proposals/proposals.model';
 
 @ObjectType()
 export class User {
+  @IdField()
+  id: string;
+
   @AddressField()
-  id: string; // Address
+  address: string; // Address
 
   name: string | null;
 
-  // Hidden
-  // pushToken: string | null;
-
   contacts?: Contact[];
-
-  approvals?: Approval[];
-
-  proposals?: Proposal[];
 }
