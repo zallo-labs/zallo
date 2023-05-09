@@ -127,13 +127,14 @@ export class PoliciesService {
   async update({ account, key, name, approvers, threshold, permissions }: UpdatePolicyInput) {
     await this.db.transaction(async (db) => {
       // Metadata
-      if (name) {
-        await e
+      if (name !== undefined) {
+        const p = await e
           .update(e.Policy, (p) => ({
             ...uniquePolicy(account, key)(p),
             set: { name },
           }))
           .run(this.db.client);
+        if (!p) throw new UserInputError("Policy doesn't exist");
       }
 
       // State
@@ -211,7 +212,7 @@ export class PoliciesService {
         }));
       })());
 
-    await e
+    const r = await e
       .update(e.Policy, () => ({
         filter_single: { account: selectAccount, key },
         set: {
@@ -225,6 +226,7 @@ export class PoliciesService {
         },
       }))
       .run(this.db.client);
+    if (!r) throw new UserInputError("Policy doesn't exist");
   }
 
   private async proposeState(account: Address, policy: Policy) {

@@ -9,5 +9,5 @@ export const asPrismaPromise = <V>(v: V) => v as Prisma.PrismaPromise<Awaited<V>
 
 export const randomUser = (): UserContext => ({
   address: randomAddress(),
-  accounts: new Set([randomAddress()]),
+  accounts: new Set(),
 });
