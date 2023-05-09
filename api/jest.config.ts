@@ -10,7 +10,7 @@ const config: JestConfigWithTsJest = {
   },
   testRegex: '.*\\.spec\\.ts$',
   testTimeout: 30_000,
-  globalSetup: './src/global.setup.ts',
+  globalSetup: './src/setup.jest.ts',
 
   moduleNameMapper: {
     ...pathsToModuleNameMapper(compilerOptions.paths, { prefix: '<rootDir>/' }),
