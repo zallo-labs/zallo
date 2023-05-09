@@ -1,4 +1,3 @@
-import { FindManyPolicyArgs } from '@gen/policy/find-many-policy.args';
 import { ArgsType, Field, InputType, IntersectionType, PartialType } from '@nestjs/graphql';
 import { Address, PolicyId, PolicyKey, Selector } from 'lib';
 import { AddressField, AddressScalar } from '~/apollo/scalars/Address.scalar';
@@ -12,9 +11,6 @@ export class UniquePolicyInput implements PolicyId {
   @PolicyKeyField()
   key: PolicyKey;
 }
-
-@ArgsType()
-export class PoliciesArgs extends FindManyPolicyArgs {}
 
 @InputType()
 export class PolicyInput {

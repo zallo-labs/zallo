@@ -8,6 +8,7 @@ import {
   asPolicyKey,
   asTargets,
   Policy,
+  PolicyKey,
   POLICY_ABI,
 } from 'lib';
 import { ProposalsService } from '../proposals/proposals.service';
@@ -19,6 +20,7 @@ import { UserAccountsService } from '../auth/userAccounts.service';
 import { uuid } from 'edgedb/dist/codecs/ifaces';
 import { DatabaseService } from '../database/database.service';
 import e from '~/edgeql-js';
+import { ShapeFunc } from '../database/database.select';
 
 interface CreateParams extends CreatePolicyInput {
   skipProposal?: boolean;
@@ -43,12 +45,17 @@ export const policyStateAsPolicy = (key: number, state: any) =>
     },
   });
 
-export const uniquePolicy = (address: Address, key: number) =>
+export type UniquePolicyId = { id: uuid } | { account: Address; key: PolicyKey };
+
+export const uniquePolicy = (unique: UniquePolicyId) =>
   e.shape(e.Policy, (p) => ({
-    filter_single: {
-      account: e.select(p.account, () => ({ filter_single: { address } })),
-      key,
-    },
+    filter_single:
+      'id' in unique
+        ? { id: unique.id }
+        : {
+            account: e.select(p.account, () => ({ filter_single: { address: unique.account } })),
+            key: unique.key,
+          },
   }));
 
 export type SelectManyPoliciesArgs = Omit<Prisma.PolicyFindManyArgs, 'where' | 'include'>;
@@ -61,6 +68,19 @@ export class PoliciesService {
     private proposals: ProposalsService,
     private userAccounts: UserAccountsService,
   ) {}
+
+  async selectUnique(unique: UniquePolicyId, shape?: ShapeFunc<typeof e.Policy>) {
+    return e
+      .select(e.Policy, (p) => ({
+        ...(shape && shape(p)),
+        ...uniquePolicy(unique)(p),
+      }))
+      .run(this.db.client);
+  }
+
+  async select(shape: ShapeFunc<typeof e.Policy>) {
+    return e.select(e.Policy, shape).run(this.db.client);
+  }
 
   async create({
     account,
@@ -130,7 +150,7 @@ export class PoliciesService {
       if (name !== undefined) {
         const p = await e
           .update(e.Policy, (p) => ({
-            ...uniquePolicy(account, key)(p),
+            ...uniquePolicy({ account, key })(p),
             set: { name },
           }))
           .run(this.db.client);
@@ -144,7 +164,7 @@ export class PoliciesService {
         // Propose new state
         const existing = await e
           .select(e.Policy, (p) => ({
-            ...uniquePolicy(account, key)(p),
+            ...uniquePolicy({ account, key })(p),
             state: policyStateShape,
             draft: policyStateShape,
           }))
@@ -167,7 +187,7 @@ export class PoliciesService {
 
         await e
           .update(e.Policy, (p) => ({
-            ...uniquePolicy(account, key)(p),
+            ...uniquePolicy({ account, key })(p),
             set: {
               stateHistory: {
                 '+=': e.insert(e.PolicyState, {
