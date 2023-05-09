@@ -8,7 +8,7 @@ import { AuthGuard } from './features/auth/auth.guard';
 import { ApolloModule } from './apollo/apollo.module';
 import { ProviderModule } from './features/util/provider/provider.module';
 import { ContactsModule } from './features/contacts/contacts.module';
-import { ApproversModule } from './features/approvers/approvers.module';
+import { DatabaseModule } from './features/database/database.module';
 import { ContractFunctionsModule } from './features/contract-functions/contract-functions.module';
 import { ProposalsModule } from './features/proposals/proposals.module';
 import { TransactionsModule } from './features/transactions/transactions.module';
@@ -29,6 +29,7 @@ import { RedisModule } from './features/util/redis/redis.module';
 @Module({
   imports: [
     // Util
+    DatabaseModule,
     PrismaModule,
     RedisModule,
     BullModule.forRoot({
@@ -46,7 +47,6 @@ import { RedisModule } from './features/util/redis/redis.module';
     ProviderModule,
     // Features
     AccountsModule,
-    ApproversModule,
     AuthModule,
     ContactsModule,
     ContractFunctionsModule,
