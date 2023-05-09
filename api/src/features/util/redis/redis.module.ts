@@ -6,6 +6,7 @@ import {
   RedisClientOptions,
 } from '@liaoliaots/nestjs-redis';
 import { REDIS_PUBLISHER, REDIS_SUBSCRIBER } from '~/decorators/redis.decorator';
+import { RedisHealthIndicator } from './redis.indicator';
 
 const redisConfig = {
   url: CONFIG.redisUrl,
@@ -31,5 +32,7 @@ const redisConfig = {
       ],
     }),
   ],
+  exports: [RedisHealthIndicator],
+  providers: [RedisHealthIndicator],
 })
 export class RedisModule {}
