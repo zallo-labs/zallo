@@ -1,78 +1,59 @@
 import { Field } from '@nestjs/graphql';
 import { ObjectType } from '@nestjs/graphql';
 import { GraphQLBigInt } from 'graphql-scalars';
-import { AddressField } from '~/apollo/scalars/Address.scalar';
 import { Account } from '../accounts/accounts.model';
 import { Proposal } from '../proposals/proposals.model';
-import { Approver } from '../approvers/approvers.model';
+import { User } from '../users/users.model';
+import { IdField } from '~/apollo/scalars/Id.scalar';
 
 @ObjectType()
 export class Policy {
+  @IdField()
+  id: string;
+
   @Field(() => Account, { nullable: false })
   account?: Account;
 
-  @AddressField()
-  accountId: string; // Address
-
-  @Field(() => GraphQLBigInt)
-  key: bigint;
+  key: number; // PolicyKey;
 
   name: string;
 
-  active?: PolicyState | null;
-
-  @Field(() => GraphQLBigInt, { nullable: true })
-  activeId: bigint | null;
+  state?: PolicyState | null;
 
   draft?: PolicyState | null;
 
-  @Field(() => GraphQLBigInt, { nullable: true })
-  draftId: bigint | null;
+  stateHistory?: PolicyState[];
 
-  states?: PolicyState[];
+  isActive: boolean;
 }
 
 @ObjectType()
 export class PolicyState {
-  @Field(() => GraphQLBigInt)
-  id: bigint;
-
-  @Field(() => Account, { nullable: false })
-  account?: Account;
-
-  accountId: string;
-
-  @Field(() => Policy, { nullable: false })
-  policy?: Policy;
-
-  @Field(() => GraphQLBigInt)
-  policyKey: bigint;
+  @IdField()
+  id: string;
 
   proposal?: Proposal | null;
 
-  proposalId: string | null;
+  isAccountInitState: boolean;
 
-  createdAt: Date;
-
-  isRemoved: boolean;
-
-  activeOf?: Policy | null;
-
-  draftOf?: Policy | null;
-
-  approvers?: Approver[];
+  approvers?: User[];
 
   threshold: number;
 
   targets?: Target[];
+
+  isRemoved: boolean;
+
+  @Field(() => GraphQLBigInt, { nullable: true })
+  activationBlocNumber?: bigint;
+
+  createdAt: Date;
 }
 
 @ObjectType()
 export class Target {
-  state: PolicyState;
-
-  @Field(() => GraphQLBigInt)
-  stateId: bigint;
+  @IdField()
+  id: string;
 
   to: string; // Address | '*'
 

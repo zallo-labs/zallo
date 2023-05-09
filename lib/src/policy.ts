@@ -1,5 +1,5 @@
 import { A } from 'ts-toolbelt';
-import { asUint32, BigIntlike, MAX_UINT32, MIN_UINT32 } from './bigint';
+import { asUint16, BigIntlike, MAX_UINT16, MIN_UINT16 } from './bigint';
 import { BigNumber } from 'ethers';
 import { PolicyStruct as BasePolicyStruct } from './contracts/Account';
 import { AwaitedObj } from './util/types';
@@ -14,10 +14,10 @@ import { Arraylike, toSet } from './util';
 
 export type PolicyStruct = AwaitedObj<BasePolicyStruct>;
 
-export type PolicyKey = A.Type<bigint, 'PolicyKey'>;
-export const asPolicyKey = (key: BigIntlike) => asUint32(key) as unknown as PolicyKey;
-export const MIN_POLICY_KEY = MIN_UINT32 as unknown as PolicyKey;
-export const MAX_POLICY_KEY = MAX_UINT32 as unknown as PolicyKey;
+export type PolicyKey = A.Type<number, 'PolicyKey'>;
+export const asPolicyKey = (key: BigIntlike) => asUint16(key) as unknown as PolicyKey;
+export const MIN_POLICY_KEY = MIN_UINT16 as unknown as PolicyKey;
+export const MAX_POLICY_KEY = MAX_UINT16 as unknown as PolicyKey;
 
 export interface PolicyId {
   readonly account: Address;

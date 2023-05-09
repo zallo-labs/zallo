@@ -4,6 +4,9 @@ module default {
   }
 
   global current_user_address -> Address;
+  global current_user := (
+    select User filter .address = global current_user_address
+  );
 
   global current_user_accounts_array -> array<uuid>;
   global current_user_accounts := (
@@ -90,47 +93,67 @@ module default {
   type Policy {
     required link account -> Account;
     required property key -> uint16;
-    link state -> PolicyState;
-    link draft -> PolicyState;
-    multi link stateHistory := .<policy[is PolicyState];
+    required property name -> Name;
 
-    constraint expression on (
-      exists (.state, .draft)
+    required multi link stateHistory -> PolicyState {
+      constraint exclusive;
+      on source delete delete target;
+    }
+    link state := (
+      select (
+        select .stateHistory
+        order by .activationBlockNumber desc
+        limit 1
+      ) filter exists .activationBlockNumber
     );
+    link draft := (
+      select (
+        select .stateHistory
+        order by .createdAt desc
+        limit 1
+      ) filter not exists .activationBlockNumber
+    );
+    property isActive := (exists .state);
+
+    constraint exclusive on ((.account, .key));
+    constraint exclusive on ((.account, .name));
 
     access policy members_only
       allow all
       using (.account.id in global current_user_accounts);
+
+    access policy can_not_be_deleted_when_active 
+      deny delete
+      using (.isActive);
   }
 
-  abstract type Permissions {
-    multi link targets := .<permissions[is Target];
-  }
-
-  type PolicyState extending Permissions {
-    required link policy -> Policy;
+  type PolicyState {
     link proposal -> TransactionProposal;
     required property isAccountInitState := not exists .proposal;
     multi link approvers -> User;
     required property threshold -> uint16;
-
-    access policy members_only
-      allow all
-      using (.policy.account.id in global current_user_accounts);
+    multi link targets -> Target;
+    required property isRemoved -> bool {
+      default := false;
+    }
+    property activationBlockNumber -> bigint {
+      constraint min_value(0n);
+    }
+    required property createdAt -> datetime {
+      readonly := true;
+      default := datetime_of_statement();
+    }
   }
 
   scalar type TargetSelector extending str {
-    constraint regexp(r'^*|(?:0x[0-9a-fA-F]{10})$'); # * | Bytes4
+    constraint regexp(r'^\*|(?:0x[0-9a-fA-F]{8})$'); # * | Bytes4
   }
 
   type Target {
-    required link permissions -> Permissions;
     required property to -> str {
-      constraint regexp(r'^*|(?:0x[0-9a-fA-F]{40}$)');  # * | Address
+      constraint regexp(r'^\*|(?:0x[0-9a-fA-F]{40}$)');  # * | Address
     };
     required property selectors -> array<TargetSelector>;
-
-    constraint exclusive on ((.permissions, .to));
   }
 
   abstract type Proposal {
@@ -139,6 +162,10 @@ module default {
     }
     required link account -> Account;
     link policy -> Policy;
+    required link proposer -> User {
+      readonly := true;
+      default := (select User filter .address = global current_user_address);
+    }
     multi link approvals -> User {
       property signature -> Bytes;
       property createdAt -> datetime {

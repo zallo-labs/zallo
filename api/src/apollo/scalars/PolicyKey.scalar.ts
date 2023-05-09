@@ -21,7 +21,7 @@ const parse = (value: string | number): PolicyKey => {
   throw new UserInputError(`Provided value is not a ${description}`);
 };
 
-export const [PolicyKeyScalar, PolicyKeyField] = createScalar<PolicyKey, bigint>({
+export const [PolicyKeyScalar, PolicyKeyField] = createScalar<PolicyKey, number>({
   name: 'PolicyKey',
   description,
   serialize: (value) => value as PolicyKey,

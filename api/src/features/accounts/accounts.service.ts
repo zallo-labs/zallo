@@ -93,10 +93,13 @@ export class AccountsService {
 
       await Promise.all(
         policyInputs.map((policy, i) =>
-          this.policies.create(
-            { ...policy, account: id, key: policyKeys[i], skipProposal: true },
-            { select: null },
-          ),
+          this.policies.create({
+            ...policy,
+            account,
+            accountId: id,
+            key: policyKeys[i],
+            skipProposal: true,
+          }),
         ),
       );
 

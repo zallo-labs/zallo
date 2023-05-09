@@ -57,7 +57,7 @@ describe(AccountsService.name, () => {
     );
 
     policies.create.mockImplementation(async (p): Promise<any> => {
-      if (p.approvers.includes(userCtx.address)) userCtx.accounts.add(p.account);
+      if (p.approvers.includes(userCtx.address) && p.accountId) userCtx.accounts.add(p.accountId);
     });
 
     return service.createAccount({
