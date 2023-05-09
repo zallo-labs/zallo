@@ -1,11 +1,12 @@
 import { BullModuleOptions, InjectQueue, OnQueueFailed, Process, Processor } from '@nestjs/bull';
 import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { Job, Queue } from 'bull';
-import { PrismaService } from '../util/prisma/prisma.service';
 import { ProviderService } from '../util/provider/provider.service';
 import _ from 'lodash';
 import { Log } from '@ethersproject/abstract-provider';
 import { BigNumber } from 'ethers';
+import { DatabaseService } from '../database/database.service';
+import e from '~/edgeql-js';
 
 const DEFAULT_CHUNK_SIZE = 75;
 const BLOCK_TIME_MS = 500;
@@ -48,7 +49,7 @@ export class EventsProcessor implements OnModuleInit {
     @InjectQueue(EVENTS_QUEUE.name)
     private queue: Queue<EventData>,
     private provider: ProviderService,
-    private prisma: PrismaService,
+    private db: DatabaseService,
   ) {}
 
   onModuleInit() {
@@ -116,16 +117,20 @@ export class EventsProcessor implements OnModuleInit {
     Logger.verbose(`Events: starting with jobs: ${nExistingJobs}`);
     if (nExistingJobs) return;
 
-    const [lastTxBlock, lastTransferBlock] = await Promise.all([
-      this.prisma.asSystem.transactionReceipt.aggregate({ _max: { blockNumber: true } }),
-      this.prisma.asSystem.transfer.aggregate({ _max: { blockNumber: true } }),
-    ]);
+    const lastProcessedBlock = (await e
+      .max(
+        e.op(
+          e.select(e.Receipt, () => ({ blockNumber: true })).blockNumber,
+          'union',
+          e.select(e.Transfer, () => ({ blockNumber: true })).blockNumber,
+        ),
+      )
+      .run(this.db.client)) as bigint | null; // Return type is overly broad - https://github.com/edgedb/edgedb-js/issues/594
 
     this.queue.add({
-      from:
-        lastTxBlock._max.blockNumber || lastTransferBlock._max.blockNumber
-          ? Math.max(lastTxBlock._max.blockNumber ?? 0, lastTransferBlock._max.blockNumber ?? 0)
-          : 5072904, // Start from latest block
+      from: lastProcessedBlock
+        ? parseInt(lastProcessedBlock.toString()) // Warning: bigint -> number
+        : await this.provider.getBlockNumber(),
     });
   }
 }
