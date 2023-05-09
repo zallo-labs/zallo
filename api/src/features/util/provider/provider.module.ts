@@ -1,9 +1,10 @@
 import { Global, Module } from '@nestjs/common';
+import { ProviderHealthIndicator } from './provider.health';
 import { ProviderService } from './provider.service';
 
 @Global()
 @Module({
-  providers: [ProviderService],
-  exports: [ProviderService],
+  exports: [ProviderService, ProviderHealthIndicator],
+  providers: [ProviderService, ProviderHealthIndicator],
 })
 export class ProviderModule {}

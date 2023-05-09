@@ -3,6 +3,7 @@ import { HealthCheck, HealthCheckService } from '@nestjs/terminus';
 import { Public } from '~/decorators/public.decorator';
 import { RedisHealthIndicator } from '../util/redis/redis.indicator';
 import { DatabaseHealthIndicator } from '../database/database.health';
+import { ProviderHealthIndicator } from '../util/provider/provider.health';
 
 @Controller('health')
 export class HealthController {
@@ -10,6 +11,7 @@ export class HealthController {
     private health: HealthCheckService,
     private dbHealth: DatabaseHealthIndicator,
     private redisHealth: RedisHealthIndicator,
+    private providerHealth: ProviderHealthIndicator,
   ) {}
 
   @Public()
@@ -19,6 +21,7 @@ export class HealthController {
     return this.health.check([
       () => this.dbHealth.check('Database'),
       () => this.redisHealth.check('Redis'),
+      () => this.providerHealth.check('Provider'),
     ]);
   }
 }
