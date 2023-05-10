@@ -60,15 +60,26 @@ module default {
       constraint exclusive;
     }
     property name -> Name;
-    multi link contacts -> User {
-      property alias -> Name;
-    }
+    multi link contacts := .<user[is Contact];
+  }
+
+  type Contact {
+    required link user -> User;
+    required property address -> Address;
+    required property name -> Name;
+
+    constraint exclusive on ((.user, .address));
+    constraint exclusive on ((.user, .name));
+
+    access policy user_all
+      allow all
+      using (.user.address ?= global current_user_address);
   }
 
   type Device extending User {
     property pushToken -> str;
 
-    access policy user_only
+    access policy user_all
       allow all
       using (.address ?= global current_user_address);
   }
@@ -211,7 +222,10 @@ module default {
   }
 
   type Transfer extending TransferDetails {
-    required link receipt -> Receipt;
+    link receipt -> Receipt;
+    required property blockNumber -> bigint {
+      constraint min_value(0n);
+    }
   }
 
   type Transaction {
@@ -245,11 +259,14 @@ module default {
     multi link functions -> Function;
   }
 
-  scalar type AbiSource extending enum<'Verified', 'Asserted', 'Decompiled'>;
+  scalar type AbiSource extending enum<'Verified'>;
 
   type Function {
     required property selector -> Bytes4;
     required property abi -> json;
+    required property abiMd5 -> str {
+      constraint exclusive;
+    }
     required property source -> AbiSource;
 
     index on (.selector);

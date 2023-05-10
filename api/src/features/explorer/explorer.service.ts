@@ -1,8 +1,10 @@
 import { Injectable } from '@nestjs/common';
-import { BigNumber, BigNumberish } from 'ethers';
+import { BigNumber, BigNumberish, Contract } from 'ethers';
 import { Address, Addresslike, ChainName, Hex, asAddress } from 'lib';
 import { fetchJsonWithRetry } from '~/util/fetch';
 import { ExplorerTransfer } from './explorer.model';
+import { JsonFragment } from '@ethersproject/abi';
+import { AbiSource } from '../contract-functions/contract-functions.model';
 
 @Injectable()
 export class ExplorerService {
@@ -50,6 +52,15 @@ export class ExplorerService {
       : undefined;
   }
 
+  async verifiedContract(contract: Address) {
+    // https://zksync2-testnet-explorer.zksync.dev/api/contract/0x0faF6df7054946141266420b43783387A78d82A9
+    const resp = await this.query<VerificationResponse>(`/address/${contract}`);
+
+    return resp?.verificationInfo?.artifacts?.abi
+      ? ([Contract.getInterface(resp.verificationInfo.artifacts.abi), AbiSource.Verified] as const)
+      : undefined;
+  }
+
   private async query<T = any>(url: string): Promise<T | undefined> {
     if (!url.startsWith('/')) url = `/${url}`;
 
@@ -94,4 +105,12 @@ interface TokenInfo {
   symbol: string;
   name: string;
   decimals: number;
+}
+
+interface VerificationResponse {
+  verificationInfo?: {
+    artifacts?: {
+      abi: JsonFragment[];
+    };
+  };
 }
