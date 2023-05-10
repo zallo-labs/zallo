@@ -1,25 +1,27 @@
 import { Injectable } from '@nestjs/common';
-import { Address } from 'lib';
+import { Address, isAddress } from 'lib';
 import { DatabaseService } from '../database/database.service';
 import { ShapeFunc } from '../database/database.select';
 import e from '~/edgeql-js';
 import { UpdateUserArgs } from './users.args';
 import { ProviderService } from '../util/provider/provider.service';
 import { getUser } from '~/request/ctx';
+import { uuid } from 'edgedb/dist/codecs/ifaces';
+
+export const selectUser = (id: uuid | Address, shape?: ShapeFunc<typeof e.User>) =>
+  e.select(e.User, (u) => ({
+    ...shape?.(u),
+    filter_single: isAddress(id) ? { address: id } : { id },
+  }));
 
 @Injectable()
 export class UsersService {
   constructor(private db: DatabaseService, private provider: ProviderService) {}
 
   async selectUnique(address: Address, shape?: ShapeFunc<typeof e.User>) {
-    const r = await e
-      .select(e.User, (u) => ({
-        ...(shape && shape(u)),
-        filter_single: { address },
-      }))
-      .run(this.db.client);
-
-    return r ?? { id: address, address, name: null };
+    return (
+      (await this.db.query(selectUser(address, shape))) ?? { id: address, address, name: null }
+    );
   }
 
   async upsert(address: Address, { name, pushToken }: UpdateUserArgs) {
