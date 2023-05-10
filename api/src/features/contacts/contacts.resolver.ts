@@ -1,95 +1,33 @@
-import { Args, Info, Mutation, Parent, Query, ResolveField, Resolver } from '@nestjs/graphql';
-import { PrismaService } from '../util/prisma/prisma.service';
+import { Args, Info, Mutation, Query, Resolver } from '@nestjs/graphql';
 import { GraphQLResolveInfo } from 'graphql';
-import { getSelect } from '~/util/select';
-import { ContactsArgs, ContactArgs, UpsertContactArgs } from './contacts.args';
-import { connectOrCreateUser } from '~/util/connect-or-create';
-import { getUser } from '~/request/ctx';
-import { AccountsService } from '../accounts/accounts.service';
-import _ from 'lodash';
+import { ContactArgs, UpsertContactArgs } from './contacts.args';
 import { Contact } from './contacts.model';
+import { ContactsService } from './contacts.service';
+import { getShape } from '../database/database.select';
 
 @Resolver(() => Contact)
 export class ContactsResolver {
-  constructor(private prisma: PrismaService, private accounts: AccountsService) {}
-
-  @ResolveField(() => String)
-  id(@Parent() contact: Contact): string {
-    return `${getUser()}-${contact.addr}`;
-  }
+  constructor(private service: ContactsService) {}
 
   @Query(() => Contact, { nullable: true })
-  async contact(
-    @Args() { addr }: ContactArgs,
-    @Info() info?: GraphQLResolveInfo,
-  ): Promise<Contact | null> {
-    return this.prisma.asUser.contact.findUnique({
-      where: { userId_addr: { addr, userId: getUser() } },
-      ...getSelect(info),
-    });
+  async contact(@Args() { address }: ContactArgs, @Info() info: GraphQLResolveInfo) {
+    return this.service.selectUnique(address, getShape(info));
   }
 
   @Query(() => [Contact])
-  async contacts(@Args() args: ContactsArgs): Promise<Contact[]> {
-    const contacts = await this.prisma.asUser.contact.findMany({
-      ...args,
-      select: { addr: true, name: true },
-    });
-
-    const accounts = await this.accounts.findMany({
-      where: { id: { notIn: contacts.map((c) => c.addr) } },
-      select: { id: true, name: true },
-    });
-
-    return [...contacts, ...accounts.map((a) => ({ ...a, addr: a.id }))];
+  async contacts(@Info() info: GraphQLResolveInfo) {
+    return this.service.select(getShape(info));
   }
 
   @Mutation(() => Contact)
-  async upsertContact(
-    @Args() { prevAddr, newAddr, name }: UpsertContactArgs,
-    @Info() info?: GraphQLResolveInfo,
-  ): Promise<Contact> {
-    // Ignore leading and trailing whitespace
-    name = name.trim();
-
-    const user = getUser();
-    const selectArgs = getSelect(info);
-
-    return this.prisma.asUser.contact.upsert({
-      where: {
-        userId_addr: {
-          userId: user,
-          addr: prevAddr ?? newAddr,
-        },
-      },
-      create: {
-        user: connectOrCreateUser(user),
-        addr: newAddr,
-        name,
-      },
-      update: {
-        addr: { set: newAddr },
-        name: { set: name },
-      },
-      ...(selectArgs && {
-        select: _.omit(selectArgs.select, 'id'),
-      }),
-    });
+  async upsertContact(@Args() args: UpsertContactArgs, @Info() info: GraphQLResolveInfo) {
+    const id = await this.service.upsert(args);
+    return this.service.selectUnique(id, getShape(info));
   }
 
   @Mutation(() => Contact)
-  async deleteContact(
-    @Args() { addr }: ContactArgs,
-    @Info() info?: GraphQLResolveInfo,
-  ): Promise<Contact> {
-    return this.prisma.asUser.contact.delete({
-      where: {
-        userId_addr: {
-          userId: getUser(),
-          addr,
-        },
-      },
-      ...getSelect(info),
-    });
+  async deleteContact(@Args() { address }: ContactArgs, @Info() info: GraphQLResolveInfo) {
+    const id = await this.service.delete(address);
+    return this.service.selectUnique(id, getShape(info));
   }
 }
