@@ -39,7 +39,7 @@ export class ContractsService {
     return this.insert(account, ACCOUNT_INTERFACE, AbiSource.Verified);
   }
 
-  async tryFetchAbi(contract: Address) {
+  private async tryFetchAbi(contract: Address) {
     const resp = await this.explorer.verifiedContract(contract);
     if (!resp) return null;
 
