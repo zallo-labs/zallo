@@ -120,9 +120,9 @@ export class EventsProcessor implements OnModuleInit {
     const lastProcessedBlock = (await e
       .max(
         e.op(
-          e.select(e.Receipt, () => ({ blockNumber: true })).blockNumber,
+          e.select(e.Receipt, () => ({ block: true })).block,
           'union',
-          e.select(e.Transfer, () => ({ blockNumber: true })).blockNumber,
+          e.select(e.Transfer, () => ({ block: true })).block,
         ),
       )
       .run(this.db.client)) as bigint | null; // Return type is overly broad - https://github.com/edgedb/edgedb-js/issues/594
