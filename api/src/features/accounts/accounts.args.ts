@@ -3,7 +3,6 @@ import { Address } from 'lib';
 import { AddressField, AddressScalar } from '~/apollo/scalars/Address.scalar';
 import { minLengthMiddleware } from '~/apollo/scalars/util';
 import { PolicyInput } from '../policies/policies.args';
-import { TransferDirection } from '@gen/prisma/transfer-direction.enum';
 
 @ArgsType()
 export class AccountArgs {
@@ -47,12 +46,4 @@ export class UpdateAccountInput {
   address: Address;
 
   name: string;
-}
-
-@ArgsType()
-export class AccountTransfersArgs {
-  direction?: TransferDirection;
-
-  @Field(() => Number, { nullable: true, defaultValue: 100 })
-  skip: number;
 }

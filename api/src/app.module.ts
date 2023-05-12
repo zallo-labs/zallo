@@ -15,7 +15,6 @@ import { TransactionsModule } from './features/transactions/transactions.module'
 import { FaucetModule } from './features/faucet/faucet.module';
 import { ExpoModule } from './features/util/expo/expo.module';
 import { PubsubModule } from './features/util/pubsub/pubsub.module';
-import { PrismaModule } from './features/util/prisma/prisma.module';
 import { CONFIG } from './config';
 import { BullModule } from '@nestjs/bull';
 import { PoliciesModule } from './features/policies/policies.module';
@@ -30,7 +29,6 @@ import { RedisModule } from './features/util/redis/redis.module';
   imports: [
     // Util
     DatabaseModule,
-    PrismaModule,
     RedisModule,
     BullModule.forRoot({
       // Requires separate redis client - https://github.com/OptimalBits/bull/issues/1873

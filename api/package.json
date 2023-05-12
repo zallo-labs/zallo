@@ -2,11 +2,8 @@
   "name": "api",
   "version": "0.1.0",
   "private": true,
-  "prisma": {
-    "seed": "ts-node prisma/seed.ts"
-  },
   "scripts": {
-    "prebuild": "(cd .. && yarn lib build) && yarn prisma generate",
+    "prebuild": "(cd .. && yarn lib build)",
     "build": "yarn prebuild && nest build",
     "clean": "npx rimraf dist generated node_modules",
     "clean:services": "docker compose -f ./services.yml down -v",
@@ -19,7 +16,6 @@
     "test:cov": "yarn test --coverage",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register ../node_modules/.bin/jest --runInBand",
     "with-env": "dotenv-vault-core -e ../.env",
-    "prisma": "yarn with-env -- prisma",
     "generate:schema": "yarn prebuild && SKIP_ENV_CHECK=true nest start --entryFile generate-schema",
     "generate:edgeql": "npx concurrently -n edgeql-js,interfaces -c blue,magenta \"npx @edgedb/generate edgeql-js --target ts\" \"npx @edgedb/generate interfaces\""
   },
@@ -36,7 +32,6 @@
     "@nestjs/platform-express": "9.2.1",
     "@nestjs/terminus": "^9.2.2",
     "@paljs/plugins": "^5.3.0",
-    "@prisma/client": "^4.12.0",
     "apollo-server-core": "^3.12.0",
     "apollo-server-express": "^3.12.0",
     "async-mutex": "^0.4.0",
@@ -63,9 +58,6 @@
     "lib": "workspace:*",
     "luxon": "^3.3.0",
     "nestjs-request-context": "^2.1.0",
-    "prisma": "^4.12.0",
-    "prisma-graphql-type-decimal": "^3.0.0",
-    "prisma-nestjs-graphql": "^18.0.0",
     "reflect-metadata": "^0.1.13",
     "rxjs": "^7.8.0",
     "siwe": "^1.1.6",
