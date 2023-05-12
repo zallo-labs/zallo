@@ -3,10 +3,9 @@ import { Test } from '@nestjs/testing';
 import { ProviderService } from '../util/provider/provider.service';
 import { CONFIG } from '~/config';
 import { asUser, getUserCtx, UserContext } from '~/request/ctx';
-import { randomAddress, randomUser } from '~/util/test';
-import { Address, asHex } from 'lib';
+import { randomAddress, randomHash, randomUser } from '~/util/test';
+import { Address } from 'lib';
 import { PoliciesService } from '../policies/policies.service';
-import { randomBytes } from 'ethers/lib/utils';
 import { BullModule, getQueueToken } from '@nestjs/bull';
 import { AccountActivationEvent, ACCOUNTS_QUEUE } from './accounts.queue';
 import { Queue } from 'bull';
@@ -15,7 +14,7 @@ import { AccountsService } from './accounts.service';
 import e from '~/edgeql-js';
 import { uuid } from 'edgedb/dist/codecs/ifaces';
 
-CONFIG.accountImplAddress = '0xC73505BBbB8A8b07F35DE0F5588753e286423122' as Address;
+CONFIG.accountImplAddress = randomAddress();
 
 describe(AccountsService.name, () => {
   let service: AccountsService;
@@ -51,7 +50,7 @@ describe(AccountsService.name, () => {
           address: account,
         },
         transaction: {
-          hash: asHex(randomBytes(32)),
+          hash: randomHash(),
         },
       }))() as any,
     );
@@ -67,13 +66,11 @@ describe(AccountsService.name, () => {
   };
 
   let user1: UserContext;
-  let user2: UserContext;
   let user1Account: Address;
   let user1AccountId: uuid;
 
   beforeEach(async () => {
     user1 = randomUser();
-    user2 = randomUser();
 
     await asUser(user1, async () => {
       const { id, address } = await createAccount();
@@ -109,7 +106,7 @@ describe(AccountsService.name, () => {
       }));
 
     it("returns null if the user isn't a member of the account specified", () =>
-      asUser(user2, async () => {
+      asUser(randomUser(), async () => {
         expect(await service.selectUnique(user1Account)).toBeNull();
       }));
   });
@@ -123,6 +120,7 @@ describe(AccountsService.name, () => {
       }));
 
     it("doesn't return accounts the user isn't a member of", async () => {
+      const user2 = randomUser();
       await asUser(user2, async () => {
         await createAccount();
         const accounts = (await service.select({})).map((acc) => acc.id);
@@ -151,7 +149,7 @@ describe(AccountsService.name, () => {
       }));
 
     it('throws if user is not member of account being updated', () =>
-      asUser(user2, async () => {
+      asUser(randomUser(), async () => {
         await expect(
           service.updateAccount({ address: user1Account, name: newName }),
         ).rejects.toThrow();
