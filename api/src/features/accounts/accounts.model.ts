@@ -3,14 +3,14 @@ import { AddressField } from '~/apollo/scalars/Address.scalar';
 import { Bytes32Field } from '~/apollo/scalars/Bytes.scalar';
 import { Transfer } from '../transfers/transfers.model';
 import { Policy } from '../policies/policies.model';
-import { Proposal } from '../proposals/proposals.model';
+import { Proposal, TransactionProposal } from '../proposals/proposals.model';
 import { IdField } from '~/apollo/scalars/Id.scalar';
-import type { Account as EqlAccount } from '~/edgeql-interfaces';
+import { uuid } from 'edgedb/dist/codecs/ifaces';
 
 @ObjectType()
-export class Account /*implements EqlAccount*/ {
+export class Account {
   @IdField()
-  id: string;
+  id: uuid;
 
   @AddressField()
   address: string; // Address;
@@ -29,7 +29,7 @@ export class Account /*implements EqlAccount*/ {
 
   proposals: Proposal[];
 
-  // TODO: transactionProposals: TransactionProposals; may be unnecessary
+  transactionProposals: TransactionProposal[];
 
   transfers: Transfer[];
 }

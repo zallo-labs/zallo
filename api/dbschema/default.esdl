@@ -35,19 +35,9 @@ module default {
     constraint max_value(2 ^ 16 - 1);
   }
 
-  scalar type uint32 extending int64 {
-    constraint min_value(0);
-    constraint max_value(2 ^ 32 - 1);
-  }
-
   scalar type uint64 extending bigint {
     constraint min_value(0);
     constraint max_value(2n ^ 64n - 1n);
-  }
-
-  scalar type uint128 extending bigint {
-    constraint min_value(0);
-    constraint max_value(2n ^ 128n - 1n);
   }
 
   scalar type uint256 extending bigint {
@@ -109,20 +99,21 @@ module default {
     required multi link stateHistory -> PolicyState {
       constraint exclusive;
       on source delete delete target;
+      on target delete allow;
     }
     link state := (
       select (
         select .stateHistory
-        order by .activationBlockNumber desc
+        order by .activationBlock desc
         limit 1
-      ) filter exists .activationBlockNumber
+      ) filter exists .activationBlock
     );
     link draft := (
       select (
         select .stateHistory
         order by .createdAt desc
         limit 1
-      ) filter not exists .activationBlockNumber
+      ) filter not exists .activationBlock
     );
     property isActive := (exists .state);
 
@@ -139,7 +130,11 @@ module default {
   }
 
   type PolicyState {
-    link proposal -> TransactionProposal;
+    link policy := .<stateHistory[is Policy];
+    link proposal -> TransactionProposal {
+      on source delete delete target; 
+      on target delete delete source;
+    }
     required property isAccountInitState := not exists .proposal;
     multi link approvers -> User;
     required property threshold -> uint16;
@@ -147,7 +142,7 @@ module default {
     required property isRemoved -> bool {
       default := false;
     }
-    property activationBlockNumber -> bigint {
+    property activationBlock -> bigint {
       constraint min_value(0n);
     }
     required property createdAt -> datetime {
@@ -173,22 +168,47 @@ module default {
     }
     required link account -> Account;
     link policy -> Policy;
-    required link proposer -> User {
+    property createdAt -> datetime {
+      readonly := true;
+      default := datetime_of_statement();
+    }
+    required link proposedBy -> User {
       readonly := true;
       default := (select User filter .address = global current_user_address);
     }
-    multi link approvals -> User {
-      property signature -> Bytes;
-      property createdAt -> datetime {
-        readonly := true;
-        default := datetime_of_statement();
-      }
-    }
+    multi link responses := .<proposal[is ProposalResponse];
+    multi link approvals := .<proposal[is Approval];
+    multi link rejections := .<proposal[is Rejection];
 
     access policy members_only
       allow all
       using (.account.id in global current_user_accounts);
   }
+
+  abstract type ProposalResponse {
+    required link proposal -> Proposal;
+    required link user -> User;
+    property createdAt -> datetime {
+      readonly := true;
+      default := datetime_of_statement();
+    }
+
+    constraint exclusive on ((.proposal, .user));
+
+    access policy user_all
+      allow all
+      using (.user.address ?= global current_user_address);
+
+    access policy members_can_select
+      allow select
+      using (.proposal.account.id in global current_user_accounts);
+  }
+
+  type Approval extending ProposalResponse {
+    required property signature -> Bytes;
+  }
+
+  type Rejection extending ProposalResponse {}
 
   type TransactionProposal extending Proposal {
     required property to -> Address;
@@ -204,7 +224,17 @@ module default {
       order by .submittedAt desc
       limit 1
     );
+    required property status := (
+      select assert_exists(<TransactionProposalStatus>(
+        'Pending' if (not exists .transaction) else
+        'Executing' if (not exists .transaction.receipt) else
+        'Successful' if (.transaction.receipt.success) else
+        'Failed'
+      ))
+    );
   }
+
+  scalar type TransactionProposalStatus extending enum<'Pending', 'Executing', 'Successful', 'Failed'>;
 
   type Simulation {
     multi link transfers -> TransferDetails;
@@ -223,9 +253,7 @@ module default {
 
   type Transfer extending TransferDetails {
     link receipt -> Receipt;
-    required property blockNumber -> bigint {
-      constraint min_value(0n);
-    }
+    required property block -> bigint { constraint min_value(0n); }
   }
 
   type Transaction {
@@ -233,22 +261,25 @@ module default {
       constraint exclusive;
     }
     required link proposal -> TransactionProposal;
-    required property gasPrice -> uint32;
-    link receipt -> Receipt;
-    property submittedAt -> datetime {
+    required property gasPrice -> uint256;
+    required property submittedAt -> datetime {
       readonly := true;
       default := datetime_of_statement();
     }
+    link receipt -> Receipt;
   }
 
   type Receipt {
     required property success -> bool;
     property response -> Bytes;
     multi link transfers := .<receipt[is Transfer];
-    required property blockNumber -> bigint {
-      constraint min_value(0n);
+    required property gasUsed -> bigint { constraint min_value(0n); }
+    required property fee -> bigint { constraint min_value(0n); }
+    required property block -> bigint { constraint min_value(0n); }
+    required property timestamp -> datetime {
+      readonly := true;
+      default := datetime_of_statement();
     }
-    required property blockTimestamp -> datetime;
   }
 
   type Contract {

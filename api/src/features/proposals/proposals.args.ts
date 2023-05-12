@@ -8,7 +8,6 @@ import {
   BytesField,
   BytesScalar,
 } from '~/apollo/scalars/Bytes.scalar';
-import { Proposal } from './proposals.model';
 
 @ArgsType()
 export class UniqueProposalArgs {
@@ -42,14 +41,13 @@ export enum ProposalEvent {
   approval,
   rejection,
   delete,
-  execute,
-  response,
+  submitted,
+  executed,
 }
 registerEnumType(ProposalEvent, { name: 'ProposalEvent' });
 
-export const PROPOSAL_PAYLOAD_SELECT = { hash: true, account: { address: true } } as const;
 export interface ProposalSubscriptionPayload {
-  [PROPOSAL_SUBSCRIPTION]: Pick<Proposal, keyof typeof PROPOSAL_PAYLOAD_SELECT>;
+  [PROPOSAL_SUBSCRIPTION]: { hash: string; account: string };
   event: ProposalEvent;
 }
 

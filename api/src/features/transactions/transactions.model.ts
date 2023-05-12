@@ -1,6 +1,6 @@
 import { Field } from '@nestjs/graphql';
 import { ObjectType } from '@nestjs/graphql';
-import { Proposal } from '../proposals/proposals.model';
+import { TransactionProposal } from '../proposals/proposals.model';
 import { Bytes32Field, BytesField } from '~/apollo/scalars/Bytes.scalar';
 import { Transfer } from '../transfers/transfers.model';
 import { IdField } from '~/apollo/scalars/Id.scalar';
@@ -15,18 +15,21 @@ export class Transaction {
   @Bytes32Field()
   hash: string; // Hex
 
-  proposal: Proposal;
+  proposal: TransactionProposal;
 
   @Field(() => GraphQLBigInt)
   gasPrice: bigint;
 
   submittedAt: Date;
 
-  receipt?: Receipt;
+  receipt?: Receipt | null;
 }
 
 @ObjectType()
 export class Receipt {
+  @IdField()
+  id: uuid;
+
   success: boolean;
 
   @BytesField({ nullable: true })

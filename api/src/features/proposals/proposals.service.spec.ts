@@ -86,7 +86,7 @@ describe(ProposalsService.name, () => {
           stateHistory: e.insert(e.PolicyState, {
             threshold: 0,
             approvers: selectUser(getUser()),
-            activationBlockNumber: 0n,
+            activationBlock: 0n,
           }),
         })
         .unlessConflict()
@@ -177,26 +177,30 @@ describe(ProposalsService.name, () => {
               e.insert(e.Transaction, {
                 proposal: selectTransactionProposal(executing),
                 hash: randomHash(),
-                gasPrice: 0,
+                gasPrice: 0n,
               }),
               e.insert(e.Transaction, {
                 proposal: selectTransactionProposal(successful),
                 hash: randomHash(),
-                gasPrice: 0,
+                gasPrice: 0n,
                 receipt: e.insert(e.Receipt, {
                   success: true,
-                  blockNumber: 0n,
-                  blockTimestamp: new Date(),
+                  gasUsed: 0n,
+                  fee: 0n,
+                  block: 0n,
+                  timestamp: new Date(),
                 }),
               }),
               e.insert(e.Transaction, {
                 proposal: selectTransactionProposal(failed),
                 hash: randomHash(),
-                gasPrice: 0,
+                gasPrice: 0n,
                 receipt: e.insert(e.Receipt, {
                   success: false,
-                  blockNumber: 0n,
-                  blockTimestamp: new Date(),
+                  gasUsed: 0n,
+                  fee: 0n,
+                  block: 0n,
+                  timestamp: new Date(),
                 }),
               }),
             ].map((expr) => expr.run(db.client)),
@@ -411,12 +415,4 @@ describe(ProposalsService.name, () => {
         expect(await db.query(selectPolicy(policy))).toBeTruthy();
       }));
   });
-
-  // describe('satisfiablePolicies', () => {
-  //   it.todo('return satisfiable policies');
-
-  //   it.todo('return satisfied policies');
-
-  //   it.todo('set requiresUserAction correctly');
-  // });
 });

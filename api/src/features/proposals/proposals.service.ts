@@ -13,8 +13,6 @@ import {
   asSelector,
   Addresslike,
   isHex,
-  getTransactionSatisfiability,
-  Policy,
 } from 'lib';
 import { ProviderService } from '~/features/util/provider/provider.service';
 import { PubsubService } from '~/features/util/pubsub/pubsub.service';
@@ -30,7 +28,6 @@ import {
 } from './proposals.args';
 import { getUser } from '~/request/ctx';
 import { ExpoService } from '../util/expo/expo.service';
-import { policyStateAsPolicy, policyStateShape } from '../policies/policies.service';
 import { SatisfiablePolicy } from './proposals.model';
 import { ETH_ADDRESS } from 'zksync-web3/build/src/utils';
 import { BigNumberish } from 'ethers';
@@ -149,19 +146,9 @@ export class ProposalsService {
         .run(client);
     });
 
-    const proposal = await this.db.query(
-      e.assert_exists(
-        selectProposal(hash, () => ({
-          id: true,
-          account: () => ({ id: true }),
-        })),
-      ),
-    );
-    await this.publishProposal({ proposal: proposal as any, event: ProposalEvent.approval });
+    await this.publishProposal(hash, ProposalEvent.approval);
 
     await this.transactions.tryExecute(hash);
-
-    return proposal;
   }
 
   async reject(id: UniqueProposal) {
@@ -175,15 +162,7 @@ export class ProposalsService {
       await e.insert(e.Rejection, { proposal, user }).run(client);
     });
 
-    const proposal = await this.db.query(
-      e.assert_exists(
-        selectProposal(id, () => ({
-          id: true,
-          account: () => ({ id: true }),
-        })),
-      ),
-    );
-    await this.publishProposal({ proposal: proposal as any, event: ProposalEvent.rejection });
+    await this.publishProposal(id, ProposalEvent.rejection);
   }
 
   async delete(id: UniqueProposal) {
@@ -258,66 +237,43 @@ export class ProposalsService {
     });
   }
 
-  async publishProposal(payload: ProposalSubscriptionPayload) {
+  async publishProposal(
+    proposal: ProposalSubscriptionPayload['proposal'] | UniqueProposal,
+    event: ProposalSubscriptionPayload['event'],
+  ) {
+    const payload: ProposalSubscriptionPayload = {
+      [PROPOSAL_SUBSCRIPTION]:
+        typeof proposal === 'string'
+          ? await (async () => {
+              const p = await this.db.query(
+                e.assert_exists(
+                  selectProposal(proposal, () => ({
+                    hash: true,
+                    account: { address: true },
+                  })),
+                ),
+              );
+
+              return { hash: p.hash, account: (p.account as any).address };
+            })()
+          : proposal,
+      event,
+    };
+
     await Promise.all([
       this.pubsub.publish<ProposalSubscriptionPayload>(
         `${PROPOSAL_SUBSCRIPTION}.${payload[PROPOSAL_SUBSCRIPTION].hash}`,
         payload,
       ),
       this.pubsub.publish<ProposalSubscriptionPayload>(
-        `${ACCOUNT_PROPOSAL_SUB_TRIGGER}.${payload[PROPOSAL_SUBSCRIPTION].account.id}`,
+        `${ACCOUNT_PROPOSAL_SUB_TRIGGER}.${payload[PROPOSAL_SUBSCRIPTION].account}`,
         payload,
       ),
     ]);
   }
 
-  async satisfiablePolicies(id: UniqueProposal) {
-    const proposal = await this.db.query(
-      selectTransactionProposal(id, () => ({
-        to: true,
-        value: true,
-        data: true,
-        nonce: true,
-        gasLimit: true,
-        approvals: {
-          user: { address: true },
-        },
-        account: {
-          policies: {
-            key: true,
-            state: policyStateShape,
-          },
-        },
-      })),
-    );
-    if (!proposal) throw new Error(`Proposal ${id} not found`);
-
-    const tx: Tx = {
-      to: proposal.to as Address,
-      value: proposal.value ?? undefined,
-      data: (proposal.data ?? undefined) as Hex | undefined,
-      nonce: proposal.nonce,
-    };
-
-    const approvals = new Set(proposal.approvals.map((a) => a.address as Address));
-
-    const policies = ((proposal.account as any).policies as any[]).map((policy) => {
-      const p = policyStateAsPolicy(policy.key, policy.state);
-      return { policy: p, satisfiability: getTransactionSatisfiability(p, tx, approvals) };
-    });
-
-    return { policies, approvals };
-  }
-
-  async firstSatisfiedPolicy(id: UniqueProposal): Promise<Policy | undefined> {
-    return (await this.satisfiablePolicies(id)).policies.find(
-      ({ satisfiability }) => satisfiability === PolicySatisfiability.Satisfied,
-    )?.policy;
-  }
-
-  // Can be optimised to include required proposal fields as computed field dependencies
   async satisfiablePoliciesResponse(id: UniqueProposal) {
-    const { policies, approvals } = await this.satisfiablePolicies(id);
+    const { policies, approvals } = await this.transactions.satisfiablePolicies(id);
 
     const user = getUser();
     const userHasApproved = approvals.has(user);

@@ -10,18 +10,19 @@ import { Bytes32Field, BytesField } from '~/apollo/scalars/Bytes.scalar';
 import { Transaction } from '../transactions/transactions.model';
 import { IdField } from '~/apollo/scalars/Id.scalar';
 import { TransferDetails } from '../transfers/transfers.model';
+import { uuid } from 'edgedb/dist/codecs/ifaces';
 
-@ObjectType()
+@ObjectType({ isAbstract: true })
 export class Proposal {
   @IdField()
-  id: string;
+  id: uuid;
 
   @Bytes32Field()
   hash: string; // Hex
 
   account: Account;
 
-  policy?: Policy;
+  policy?: Policy | null;
 
   createdAt: Date;
 
@@ -32,9 +33,12 @@ export class Proposal {
   approvals: Approval[];
 
   rejections: Rejection[];
+}
 
+@ObjectType()
+export class TransactionProposal extends Proposal {
   @AddressField()
-  to: string; // Address
+  to: uuid; // Address
 
   @Field(() => GraphQLBigInt, { nullable: true })
   value?: bigint | null;
@@ -55,7 +59,7 @@ export class Proposal {
 
   transactions: Transaction[];
 
-  transaction?: Transaction;
+  transaction?: Transaction | null;
 
   status: TransactionProposalStatus;
 }
@@ -70,13 +74,16 @@ registerEnumType(TransactionProposalStatus, { name: 'TransactionProposalStatus' 
 
 @ObjectType()
 export class Simulation {
+  @IdField()
+  id: uuid;
+
   transfers: TransferDetails[];
 }
 
 @ObjectType({ isAbstract: true })
 export class ProposalResponse {
   @IdField()
-  id: string;
+  id: uuid;
 
   proposal: Proposal;
 
@@ -96,7 +103,7 @@ export class Rejection extends ProposalResponse {}
 @ObjectType()
 export class SatisfiablePolicy {
   @IdField()
-  id: string;
+  id: uuid;
 
   @PolicyKeyField()
   key: PolicyKey;

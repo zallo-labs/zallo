@@ -80,7 +80,7 @@ describe(PoliciesService.name, () => {
             })).draft.id,
           },
           set: {
-            activationBlockNumber: 0n,
+            activationBlock: 0n,
           },
         }))
         .run(db.client);

@@ -2,17 +2,18 @@ import { Field } from '@nestjs/graphql';
 import { ObjectType } from '@nestjs/graphql';
 import { GraphQLBigInt } from 'graphql-scalars';
 import { Account } from '../accounts/accounts.model';
-import { Proposal } from '../proposals/proposals.model';
+import { TransactionProposal } from '../proposals/proposals.model';
 import { User } from '../users/users.model';
 import { IdField } from '~/apollo/scalars/Id.scalar';
+import * as eql from '~/edgeql-interfaces';
+import { uuid } from 'edgedb/dist/codecs/ifaces';
 
 @ObjectType()
 export class Policy {
   @IdField()
-  id: string;
+  id: uuid;
 
-  @Field(() => Account, { nullable: false })
-  account?: Account;
+  account: Account;
 
   key: number; // PolicyKey;
 
@@ -22,7 +23,7 @@ export class Policy {
 
   draft?: PolicyState | null;
 
-  stateHistory?: PolicyState[];
+  stateHistory: PolicyState[];
 
   isActive: boolean;
 }
@@ -30,30 +31,30 @@ export class Policy {
 @ObjectType()
 export class PolicyState {
   @IdField()
-  id: string;
+  id: uuid;
 
-  proposal?: Proposal | null;
+  proposal?: TransactionProposal | null;
 
   isAccountInitState: boolean;
 
-  approvers?: User[];
+  approvers: User[];
 
   threshold: number;
 
-  targets?: Target[];
+  targets: Target[];
 
   isRemoved: boolean;
 
   @Field(() => GraphQLBigInt, { nullable: true })
-  activationBlocNumber?: bigint;
+  activationBlock?: bigint | null;
 
   createdAt: Date;
 }
 
 @ObjectType()
-export class Target {
+export class Target implements eql.Target {
   @IdField()
-  id: string;
+  id: uuid;
 
   to: string; // Address | '*'
 
