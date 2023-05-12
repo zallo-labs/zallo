@@ -4,16 +4,17 @@ import { Job } from 'bull';
 import { TransactionEvent, TRANSACTIONS_QUEUE } from './transactions.queue';
 import { ProviderService } from '../util/provider/provider.service';
 import { Log, TransactionReceipt } from '@ethersproject/abstract-provider';
+import { Block } from 'zksync-web3/build/src/types';
 
 export interface TransactionData {
   receipt: TransactionReceipt;
+  block: Block;
 }
 
 export type TransactionListener = (data: TransactionData) => Promise<void>;
 
-export interface TransactionEventData {
+export interface TransactionEventData extends TransactionData {
   log: Log;
-  receipt: TransactionReceipt;
 }
 
 export type TransactionEventListener = (data: TransactionEventData) => Promise<void>;
@@ -39,12 +40,16 @@ export class TransactionsProcessor {
     const { transaction: transactionHash } = job.data;
 
     const receipt = await this.provider.waitForTransaction(transactionHash, 1, 10000);
+    const block = await this.provider.getBlock(receipt.blockHash);
 
-    await Promise.all(
-      receipt.logs.flatMap((log) =>
-        this.eventListeners.get(log.topics[0])?.map((listener) => listener({ log, receipt })),
+    await Promise.all([
+      ...this.listeners.map((listener) => listener({ receipt, block })),
+      ...receipt.logs.flatMap((log) =>
+        this.eventListeners
+          .get(log.topics[0])
+          ?.map((listener) => listener({ log, receipt, block })),
       ),
-    );
+    ]);
   }
 
   @OnQueueFailed()

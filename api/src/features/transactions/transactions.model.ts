@@ -1,58 +1,47 @@
 import { Field } from '@nestjs/graphql';
 import { ObjectType } from '@nestjs/graphql';
-import { GraphQLDecimal } from 'prisma-graphql-type-decimal';
-import { Decimal } from '@prisma/client/runtime/library';
 import { Proposal } from '../proposals/proposals.model';
 import { Bytes32Field, BytesField } from '~/apollo/scalars/Bytes.scalar';
 import { Transfer } from '../transfers/transfers.model';
+import { IdField } from '~/apollo/scalars/Id.scalar';
+import { uuid } from 'edgedb/dist/codecs/ifaces';
+import { GraphQLBigInt } from 'graphql-scalars';
 
 @ObjectType()
 export class Transaction {
+  @IdField()
+  id: uuid;
+
   @Bytes32Field()
   hash: string; // Hex
 
-  @Field(() => Proposal, { nullable: false })
-  proposal?: Proposal;
+  proposal: Proposal;
 
-  @Bytes32Field()
-  proposalId: string; // Hex
+  @Field(() => GraphQLBigInt)
+  gasPrice: bigint;
 
-  @Field(() => GraphQLDecimal)
-  gasLimit: Decimal;
+  submittedAt: Date;
 
-  @Field(() => GraphQLDecimal, { nullable: true })
-  gasPrice: Decimal | null;
-
-  createdAt: Date;
-
-  receipt?: TransactionReceipt | null;
+  receipt?: Receipt;
 }
 
 @ObjectType()
-export class TransactionReceipt {
-  @Field(() => Transaction, { nullable: false })
-  transaction?: Transaction;
-
-  @Bytes32Field()
-  transactionHash: string; // Hex
-
+export class Receipt {
   success: boolean;
 
   @BytesField({ nullable: true })
-  response: string | null; // Hex | null
+  response?: string; // Hex
 
-  @Field(() => GraphQLDecimal, { nullable: false })
-  gasUsed: Decimal;
+  transfers: Transfer[];
 
-  @Field(() => GraphQLDecimal, { nullable: false })
-  gasPrice: Decimal;
+  @Field(() => GraphQLBigInt)
+  gasUsed: bigint;
 
-  @Field(() => GraphQLDecimal, { nullable: false })
-  fee: Decimal;
+  @Field(() => GraphQLBigInt)
+  fee: bigint;
 
-  blockNumber: number;
+  @Field(() => GraphQLBigInt)
+  block: bigint;
 
   timestamp: Date;
-
-  transfers?: Transfer[];
 }
