@@ -1,11 +1,11 @@
-import { ArgsType, Field, InputType, registerEnumType } from '@nestjs/graphql';
+import { Field, InputType, registerEnumType } from '@nestjs/graphql';
 import { Address } from 'lib';
 import { AddressField, AddressScalar } from '~/apollo/scalars/Address.scalar';
 import { minLengthMiddleware } from '~/apollo/scalars/util';
-import { PolicyInput } from '../policies/policies.args';
+import { PolicyInput } from '../policies/policies.input';
 
-@ArgsType()
-export class AccountArgs {
+@InputType()
+export class AccountInput {
   @AddressField()
   address: Address;
 }
@@ -19,8 +19,8 @@ export enum AccountEvent {
 }
 registerEnumType(AccountEvent, { name: 'AccountEvent' });
 
-@ArgsType()
-export class AccountSubscriptionFilters {
+@InputType()
+export class AccountSubscriptionInput {
   @Field(() => [AddressScalar], {
     nullable: true,
     description: 'Defaults to user accounts',

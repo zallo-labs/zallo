@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { TransfersInput } from './transfers.args';
+import { TransfersInput } from './transfers.input';
 import { DatabaseService } from '../database/database.service';
 import e from '~/edgeql-js';
 import { and } from '../database/database.util';

@@ -3,7 +3,7 @@ import { Address, isAddress } from 'lib';
 import { DatabaseService } from '../database/database.service';
 import { ShapeFunc } from '../database/database.select';
 import e from '~/edgeql-js';
-import { UpdateUserArgs } from './users.args';
+import { UpdateUserInput } from './users.input';
 import { ProviderService } from '../util/provider/provider.service';
 import { getUser } from '~/request/ctx';
 import { uuid } from 'edgedb/dist/codecs/ifaces';
@@ -24,7 +24,7 @@ export class UsersService {
     );
   }
 
-  async upsert(address: Address, { name, pushToken }: UpdateUserArgs) {
+  async upsert(address: Address, { name, pushToken }: UpdateUserInput) {
     // unlessConflict() upsert can't be performed as the address constraint is on the abstract User type
     return (
       (await e

@@ -1,19 +1,20 @@
-import { Args, Info, Mutation, Parent, Query, Resolver } from '@nestjs/graphql';
+import { Info, Mutation, Parent, Query, Resolver } from '@nestjs/graphql';
 import { GraphQLResolveInfo } from 'graphql';
-import { UpdateUserArgs, UserArgs } from './users.args';
+import { UpdateUserInput, UserInput } from './users.input';
 import { getUser } from '~/request/ctx';
 import { User } from './users.model';
 import { UsersService } from './users.service';
 import { getShape } from '../database/database.select';
 import { ComputedField } from '~/decorators/computed.decorator';
 import e from '~/edgeql-js';
+import { Input } from '~/decorators/input.decorator';
 
 @Resolver(() => User)
 export class UsersResolver {
   constructor(private service: UsersService) {}
 
   @Query(() => User)
-  async user(@Args() { address = getUser() }: UserArgs, @Info() info: GraphQLResolveInfo) {
+  async user(@Input() { address = getUser() }: UserInput, @Info() info: GraphQLResolveInfo) {
     return this.service.selectUnique(address, getShape(info));
   }
 
@@ -23,9 +24,9 @@ export class UsersResolver {
   }
 
   @Mutation(() => User)
-  async updateUser(@Args() args: UpdateUserArgs, @Info() info: GraphQLResolveInfo) {
+  async updateUser(@Input() input: UpdateUserInput, @Info() info: GraphQLResolveInfo) {
     const user = getUser();
-    await this.service.upsert(user, args);
+    await this.service.upsert(user, input);
 
     return (await this.service.selectUnique(user, getShape(info)))!;
   }

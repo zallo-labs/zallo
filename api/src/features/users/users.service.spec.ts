@@ -4,7 +4,7 @@ import { asUser, getUser, UserContext } from '~/request/ctx';
 import { DatabaseService } from '../database/database.service';
 import { UsersService } from './users.service';
 import e from '~/edgeql-js';
-import { UpdateUserArgs } from './users.args';
+import { UpdateUserInput } from './users.input';
 import { randomUser } from '~/util/test';
 
 describe(UsersService.name, () => {
@@ -22,8 +22,8 @@ describe(UsersService.name, () => {
     db = module.get(DatabaseService);
   });
 
-  const upsert = (args?: UpdateUserArgs) =>
-    service.upsert(getUser(), { name: 'user name', ...args });
+  const upsert = (input?: UpdateUserInput) =>
+    service.upsert(getUser(), { name: 'user name', ...input });
 
   let user1: UserContext;
 

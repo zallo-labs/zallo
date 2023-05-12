@@ -27,7 +27,7 @@ import { policyStateAsPolicy, policyStateShape } from '../policies/policies.serv
 import { DatabaseService } from '../database/database.service';
 import e from '~/edgeql-js';
 import _ from 'lodash';
-import { ProposalEvent } from '../proposals/proposals.args';
+import { ProposalEvent } from '../proposals/proposals.input';
 import { selectUser } from '../users/users.service';
 
 @Injectable()

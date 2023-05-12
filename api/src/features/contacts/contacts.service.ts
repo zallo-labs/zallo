@@ -4,7 +4,7 @@ import { ShapeFunc } from '../database/database.select';
 import { DatabaseService } from '../database/database.service';
 import e from '~/edgeql-js';
 import { getUser } from '~/request/ctx';
-import { UpsertContactArgs } from './contacts.args';
+import { UpsertContactInput } from './contacts.input';
 import { uuid } from 'edgedb/dist/codecs/ifaces';
 import { isAddress } from 'ethers/lib/utils';
 import { selectUser } from '../users/users.service';
@@ -49,7 +49,7 @@ export class ContactsService {
     return [...contacts, ...accounts];
   }
 
-  async upsert({ previousAddress, address, name }: UpsertContactArgs) {
+  async upsert({ previousAddress, address, name }: UpsertContactInput) {
     // Ignore leading and trailing whitespace
     name = name.trim();
 

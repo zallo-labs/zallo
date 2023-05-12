@@ -3,7 +3,7 @@ import { Injectable, Logger } from '@nestjs/common';
 import { Job } from 'bull';
 import { ProviderService } from '../util/provider/provider.service';
 import { AccountsService } from './accounts.service';
-import { AccountEvent } from './accounts.args';
+import { AccountEvent } from './accounts.input';
 import { ACCOUNTS_QUEUE, AccountActivationEvent } from './accounts.queue';
 import { tryOrIgnoreAsync } from 'lib';
 import { DatabaseService } from '../database/database.service';

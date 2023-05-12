@@ -6,7 +6,7 @@ import { Address, CHAINS, randomDeploySalt, asHex, Hex } from 'lib';
 import { ProviderService } from '../util/provider/provider.service';
 import { ExpoService } from '../util/expo/expo.service';
 import { TransactionsService } from '../transactions/transactions.service';
-import { ProposeArgs } from './proposals.args';
+import { ProposeInput } from './proposals.input';
 import { DatabaseService } from '../database/database.service';
 import { ProposalsService, selectProposal, selectTransactionProposal } from './proposals.service';
 import e from '~/edgeql-js';
@@ -59,7 +59,7 @@ describe(ProposalsService.name, () => {
     account = user1Account1,
     to = randomAddress(),
     ...params
-  }: Partial<ProposeArgs> = {}) => {
+  }: Partial<ProposeInput> = {}) => {
     // Create account with an active policy
     const accountId = await e
       .insert(e.Account, {

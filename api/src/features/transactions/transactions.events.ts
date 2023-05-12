@@ -3,7 +3,7 @@ import { ACCOUNT_INTERFACE as ACCOUNT, asAddress, asHex, Hex } from 'lib';
 import { BytesLike } from 'ethers';
 import { hexDataLength } from 'ethers/lib/utils';
 import { ProposalsService } from '../proposals/proposals.service';
-import { ProposalEvent } from '../proposals/proposals.args';
+import { ProposalEvent } from '../proposals/proposals.input';
 import {
   TransactionData,
   TransactionEventData,

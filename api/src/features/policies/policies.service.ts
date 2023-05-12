@@ -11,7 +11,7 @@ import {
   POLICY_ABI,
 } from 'lib';
 import { ProposalsService, selectTransactionProposal } from '../proposals/proposals.service';
-import { CreatePolicyInput, UniquePolicyInput, UpdatePolicyInput } from './policies.args';
+import { CreatePolicyInput, UniquePolicyInput, UpdatePolicyInput } from './policies.input';
 import { inputAsPolicy } from './policies.util';
 import _ from 'lodash';
 import { UserInputError } from 'apollo-server-core';

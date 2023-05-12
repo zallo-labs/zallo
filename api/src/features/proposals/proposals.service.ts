@@ -19,13 +19,13 @@ import { PubsubService } from '~/features/util/pubsub/pubsub.service';
 import { TransactionsService } from '../transactions/transactions.service';
 import {
   ACCOUNT_PROPOSAL_SUB_TRIGGER,
-  ApproveArgs,
+  ApproveInput,
   ProposalEvent,
-  ProposalsArgs,
+  ProposalsInput,
   ProposalSubscriptionPayload,
   PROPOSAL_SUBSCRIPTION,
-  ProposeArgs,
-} from './proposals.args';
+  ProposeInput,
+} from './proposals.input';
 import { getUser } from '~/request/ctx';
 import { ExpoService } from '../util/expo/expo.service';
 import { SatisfiablePolicy } from './proposals.model';
@@ -76,7 +76,7 @@ export class ProposalsService {
   }
 
   async select(
-    { accounts, statuses }: ProposalsArgs = {},
+    { accounts, statuses }: ProposalsInput = {},
     shape?: ShapeFunc<typeof e.TransactionProposal>,
   ) {
     return this.db.query(
@@ -95,7 +95,7 @@ export class ProposalsService {
     );
   }
 
-  async propose({ account, to, value, data, nonce, gasLimit, feeToken, signature }: ProposeArgs) {
+  async propose({ account, to, value, data, nonce, gasLimit, feeToken, signature }: ProposeInput) {
     return await this.db.transaction(async (client) => {
       const tx: Tx = {
         to,
@@ -125,7 +125,7 @@ export class ProposalsService {
     });
   }
 
-  async approve({ hash, signature }: ApproveArgs) {
+  async approve({ hash, signature }: ApproveInput) {
     const approver = getUser();
     if (!(await this.provider.verifySignature({ digest: hash, approver, signature })))
       throw new UserInputError('Invalid signature');

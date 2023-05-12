@@ -1,15 +1,15 @@
-import { ArgsType } from '@nestjs/graphql';
+import { InputType } from '@nestjs/graphql';
 import { Address } from 'lib';
 import { AddressField } from '~/apollo/scalars/Address.scalar';
 
-@ArgsType()
-export class ContactArgs {
+@InputType()
+export class ContactInput {
   @AddressField()
   address: Address;
 }
 
-@ArgsType()
-export class UpsertContactArgs {
+@InputType()
+export class UpsertContactInput {
   @AddressField({ nullable: true })
   previousAddress?: Address;
 

@@ -1,15 +1,15 @@
-import { ArgsType } from '@nestjs/graphql';
+import { InputType } from '@nestjs/graphql';
 import { Address } from 'lib';
 import { AddressField } from '~/apollo/scalars/Address.scalar';
 
-@ArgsType()
-export class UserArgs {
+@InputType()
+export class UserInput {
   @AddressField({ nullable: true, description: 'Defaults to user' })
   address?: Address;
 }
 
-@ArgsType()
-export class UpdateUserArgs {
+@InputType()
+export class UpdateUserInput {
   name?: string | null;
 
   pushToken?: string | null;

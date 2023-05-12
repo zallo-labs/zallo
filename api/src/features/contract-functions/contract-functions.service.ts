@@ -3,7 +3,7 @@ import { ContractsService } from '../contracts/contracts.service';
 import { DatabaseService } from '../database/database.service';
 import e from '~/edgeql-js';
 import { ShapeFunc } from '../database/database.select';
-import { ContractFunctionInput } from './contract-functions.args';
+import { ContractFunctionInput } from './contract-functions.input';
 
 @Injectable()
 export class ContractFunctionsService {

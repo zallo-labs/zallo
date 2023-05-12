@@ -1,4 +1,4 @@
-import { ArgsType, Field, InputType, IntersectionType, PartialType } from '@nestjs/graphql';
+import { Field, InputType, IntersectionType, PartialType } from '@nestjs/graphql';
 import { Address, PolicyId, PolicyKey, Selector } from 'lib';
 import { AddressField, AddressScalar } from '~/apollo/scalars/Address.scalar';
 import { PolicyKeyField } from '~/apollo/scalars/PolicyKey.scalar';

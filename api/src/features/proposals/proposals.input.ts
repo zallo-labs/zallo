@@ -1,4 +1,4 @@
-import { ArgsType, Field, InputType, registerEnumType } from '@nestjs/graphql';
+import { Field, InputType, registerEnumType } from '@nestjs/graphql';
 import { Address, Hex } from 'lib';
 import { AddressField, AddressScalar } from '~/apollo/scalars/Address.scalar';
 import { Uint256Field } from '~/apollo/scalars/BigInt.scalar';
@@ -10,14 +10,14 @@ import {
 } from '~/apollo/scalars/Bytes.scalar';
 import { TransactionProposalStatus } from './proposals.model';
 
-@ArgsType()
-export class UniqueProposalArgs {
+@InputType()
+export class UniqueProposalInput {
   @Bytes32Field()
   hash: Hex;
 }
 
-@ArgsType()
-export class ProposalsArgs {
+@InputType()
+export class ProposalsInput {
   @Field(() => [AddressScalar], { nullable: true })
   accounts?: Address[];
 
@@ -44,8 +44,8 @@ export interface ProposalSubscriptionPayload {
   event: ProposalEvent;
 }
 
-@ArgsType()
-export class ProposalSubscriptionFilters {
+@InputType()
+export class ProposalSubscriptionInput {
   @Field(() => [AddressScalar], {
     nullable: true,
     description: 'Defaults to user accounts if no proposals are provided',
@@ -60,7 +60,7 @@ export class ProposalSubscriptionFilters {
 }
 
 @InputType()
-export class ProposeArgs {
+export class ProposeInput {
   @AddressField()
   account: Address;
 
@@ -87,7 +87,7 @@ export class ProposeArgs {
 }
 
 @InputType()
-export class ApproveArgs extends UniqueProposalArgs {
+export class ApproveInput extends UniqueProposalInput {
   @BytesField()
   signature: Hex;
 }

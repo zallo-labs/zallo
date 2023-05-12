@@ -8,7 +8,7 @@ import {
   AccountEvent,
   CreateAccountInput,
   UpdateAccountInput,
-} from './accounts.args';
+} from './accounts.input';
 import { getUser } from '~/request/ctx';
 import { UserInputError } from 'apollo-server-core';
 import { CONFIG } from '~/config';

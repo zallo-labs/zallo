@@ -1,16 +1,17 @@
-import { Args, Info, Query, Resolver } from '@nestjs/graphql';
+import { Info, Query, Resolver } from '@nestjs/graphql';
 import { ContractsService } from './contracts.service';
-import { ContractInput } from './contracts.args';
+import { ContractInput } from './contracts.input';
 import { GraphQLResolveInfo } from 'graphql';
 import { Contract } from './contracts.model';
 import { getShape } from '../database/database.select';
+import { Input } from '~/decorators/input.decorator';
 
 @Resolver(() => Contract)
 export class ContractsResolver {
   constructor(private service: ContractsService) {}
 
   @Query(() => Contract, { nullable: true })
-  async contract(@Args('input') { contract }: ContractInput, @Info() info: GraphQLResolveInfo) {
+  async contract(@Input() { contract }: ContractInput, @Info() info: GraphQLResolveInfo) {
     return this.service.selectUnique(contract, getShape(info));
   }
 }

@@ -1,16 +1,17 @@
-import { Args, Info, Mutation, Query, Resolver } from '@nestjs/graphql';
+import { Info, Mutation, Query, Resolver } from '@nestjs/graphql';
 import { GraphQLResolveInfo } from 'graphql';
-import { ContactArgs, UpsertContactArgs } from './contacts.args';
+import { ContactInput, UpsertContactInput } from './contacts.input';
 import { Contact } from './contacts.model';
 import { ContactsService } from './contacts.service';
 import { getShape } from '../database/database.select';
+import { Input } from '~/decorators/input.decorator';
 
 @Resolver(() => Contact)
 export class ContactsResolver {
   constructor(private service: ContactsService) {}
 
   @Query(() => Contact, { nullable: true })
-  async contact(@Args() { address }: ContactArgs, @Info() info: GraphQLResolveInfo) {
+  async contact(@Input() { address }: ContactInput, @Info() info: GraphQLResolveInfo) {
     return this.service.selectUnique(address, getShape(info));
   }
 
@@ -20,13 +21,13 @@ export class ContactsResolver {
   }
 
   @Mutation(() => Contact)
-  async upsertContact(@Args() args: UpsertContactArgs, @Info() info: GraphQLResolveInfo) {
-    const id = await this.service.upsert(args);
+  async upsertContact(@Input() input: UpsertContactInput, @Info() info: GraphQLResolveInfo) {
+    const id = await this.service.upsert(input);
     return this.service.selectUnique(id, getShape(info));
   }
 
   @Mutation(() => Contact)
-  async deleteContact(@Args() { address }: ContactArgs, @Info() info: GraphQLResolveInfo) {
+  async deleteContact(@Input() { address }: ContactInput, @Info() info: GraphQLResolveInfo) {
     const id = await this.service.delete(address);
     return this.service.selectUnique(id, getShape(info));
   }

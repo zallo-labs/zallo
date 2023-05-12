@@ -1,25 +1,26 @@
-import { Args, Context, Info, Mutation, Query, Resolver, Subscription } from '@nestjs/graphql';
+import { Context, Info, Mutation, Query, Resolver, Subscription } from '@nestjs/graphql';
 import { GraphQLResolveInfo } from 'graphql';
 import {
-  AccountArgs,
+  AccountInput,
   UpdateAccountInput,
   CreateAccountInput,
-  AccountSubscriptionFilters,
+  AccountSubscriptionInput,
   ACCOUNT_SUBSCRIPTION,
   USER_ACCOUNT_SUBSCRIPTION,
-} from './accounts.args';
+} from './accounts.input';
 import { PubsubService } from '../util/pubsub/pubsub.service';
 import { GqlContext, asUser, getUser } from '~/request/ctx';
 import { Account } from './accounts.model';
 import { AccountSubscriptionPayload, AccountsService } from './accounts.service';
 import { getShape } from '../database/database.select';
+import { Input } from '~/decorators/input.decorator';
 
 @Resolver(() => Account)
 export class AccountsResolver {
   constructor(private service: AccountsService, private pubsub: PubsubService) {}
 
   @Query(() => Account, { nullable: true })
-  async account(@Args() { address }: AccountArgs, @Info() info: GraphQLResolveInfo) {
+  async account(@Input() { address }: AccountInput, @Info() info: GraphQLResolveInfo) {
     return this.service.selectUnique(address, getShape(info));
   }
 
@@ -33,17 +34,17 @@ export class AccountsResolver {
     resolve(
       this: AccountsResolver,
       { account }: AccountSubscriptionPayload,
-      _args,
+      _input,
       ctx: GqlContext,
       info: GraphQLResolveInfo,
     ) {
       return asUser(ctx, async () => this.service.selectUnique(account, getShape(info)));
     },
-    filter: ({ event }: AccountSubscriptionPayload, { events }: AccountSubscriptionFilters) =>
+    filter: ({ event }: AccountSubscriptionPayload, { events }: AccountSubscriptionInput) =>
       !events || events.includes(event),
   })
   async accountSubscription(
-    @Args() { accounts }: AccountSubscriptionFilters,
+    @Input() { accounts }: AccountSubscriptionInput,
     @Context() ctx: GqlContext,
   ) {
     return asUser(ctx, () =>
@@ -56,13 +57,13 @@ export class AccountsResolver {
   }
 
   @Mutation(() => Account)
-  async createAccount(@Args('args') input: CreateAccountInput, @Info() info: GraphQLResolveInfo) {
+  async createAccount(@Input() input: CreateAccountInput, @Info() info: GraphQLResolveInfo) {
     const { address } = await this.service.createAccount(input);
     return this.service.selectUnique(address, getShape(info));
   }
 
   @Mutation(() => Account)
-  async updateAccount(@Args('args') input: UpdateAccountInput, @Info() info: GraphQLResolveInfo) {
+  async updateAccount(@Input() input: UpdateAccountInput, @Info() info: GraphQLResolveInfo) {
     await this.service.updateAccount(input);
     return this.service.selectUnique(input.address, getShape(info));
   }
