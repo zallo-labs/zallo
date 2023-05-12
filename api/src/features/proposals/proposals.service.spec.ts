@@ -6,7 +6,7 @@ import { Address, CHAINS, randomDeploySalt, asHex, Hex } from 'lib';
 import { ProviderService } from '../util/provider/provider.service';
 import { ExpoService } from '../util/expo/expo.service';
 import { TransactionsService } from '../transactions/transactions.service';
-import { ProposeArgs, TransactionProposalStatus } from './proposals.args';
+import { ProposeArgs } from './proposals.args';
 import { DatabaseService } from '../database/database.service';
 import { ProposalsService, selectProposal, selectTransactionProposal } from './proposals.service';
 import e from '~/edgeql-js';
@@ -14,6 +14,7 @@ import { selectAccount } from '../accounts/accounts.service';
 import { selectUser } from '../users/users.service';
 import { uuid } from 'edgedb/dist/codecs/ifaces';
 import { selectPolicy } from '../policies/policies.service';
+import { TransactionProposalStatus } from './proposals.model';
 
 const signature = '0x1234' as Hex;
 

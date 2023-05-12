@@ -14,7 +14,7 @@
     "downlevelIteration": true,
     "esModuleInterop": true,
     "strict": true,
-    "skipLibCheck": false,
+    "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
     "strictPropertyInitialization": false,
     "noImplicitAny": false,

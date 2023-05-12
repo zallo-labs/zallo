@@ -1,4 +1,4 @@
-import { ArgsType, Field, registerEnumType } from '@nestjs/graphql';
+import { ArgsType, Field, InputType, registerEnumType } from '@nestjs/graphql';
 import { Address, Hex } from 'lib';
 import { AddressField, AddressScalar } from '~/apollo/scalars/Address.scalar';
 import { Uint256Field } from '~/apollo/scalars/BigInt.scalar';
@@ -8,20 +8,13 @@ import {
   BytesField,
   BytesScalar,
 } from '~/apollo/scalars/Bytes.scalar';
+import { TransactionProposalStatus } from './proposals.model';
 
 @ArgsType()
 export class UniqueProposalArgs {
   @Bytes32Field()
   hash: Hex;
 }
-
-export enum TransactionProposalStatus {
-  Pending = 'Pending',
-  Executing = 'Executing',
-  Successful = 'Successful',
-  Failed = 'Failed',
-}
-registerEnumType(TransactionProposalStatus, { name: 'TransactionProposalStatus' });
 
 @ArgsType()
 export class ProposalsArgs {
@@ -66,7 +59,7 @@ export class ProposalSubscriptionFilters {
   events?: ProposalEvent[];
 }
 
-@ArgsType()
+@InputType()
 export class ProposeArgs {
   @AddressField()
   account: Address;
@@ -93,7 +86,7 @@ export class ProposeArgs {
   signature?: Hex;
 }
 
-@ArgsType()
+@InputType()
 export class ApproveArgs extends UniqueProposalArgs {
   @BytesField()
   signature: Hex;

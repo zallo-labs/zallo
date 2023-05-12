@@ -10,7 +10,7 @@ export class ContractsResolver {
   constructor(private service: ContractsService) {}
 
   @Query(() => Contract, { nullable: true })
-  async contract(@Args() { contract }: ContractInput, @Info() info: GraphQLResolveInfo) {
+  async contract(@Args('input') { contract }: ContractInput, @Info() info: GraphQLResolveInfo) {
     return this.service.selectUnique(contract, getShape(info));
   }
 }

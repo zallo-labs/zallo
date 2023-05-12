@@ -4,7 +4,7 @@ import { DatabaseService } from './database.service';
 
 @Global()
 @Module({
-  exports: [DatabaseService],
+  exports: [DatabaseService, DatabaseHealthIndicator],
   providers: [DatabaseService, DatabaseHealthIndicator],
 })
 export class DatabaseModule {}

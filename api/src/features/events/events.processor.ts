@@ -114,7 +114,7 @@ export class EventsProcessor implements OnModuleInit {
 
   private async addMissingJob() {
     const nExistingJobs = await this.queue.getJobCountByTypes(['waiting', 'active', 'delayed']);
-    Logger.verbose(`Events: starting with jobs: ${nExistingJobs}`);
+    Logger.verbose(`Events starting with jobs: ${nExistingJobs}`);
     if (nExistingJobs) return;
 
     const lastProcessedBlock = (await e

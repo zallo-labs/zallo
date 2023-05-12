@@ -5,27 +5,24 @@ import { writeFileSync } from 'fs';
 import { printSchema } from 'graphql';
 import { join } from 'path';
 import { AccountsResolver } from './features/accounts/accounts.resolver';
-import { ApproversResolver } from './features/approvers/approvers.resolver';
 import { ContactsResolver } from './features/contacts/contacts.resolver';
 import { ContractFunctionsResolver } from './features/contract-functions/contract-functions.resolver';
 import { ContractsResolver } from './features/contracts/contracts.resolver';
 import { FaucetResolver } from './features/faucet/faucet.resolver';
 import { PoliciesResolver } from './features/policies/policies.resolver';
 import { ProposalsResolver } from './features/proposals/proposals.resolver';
-import { TransactionsResolver } from './features/transactions/transactions.resolver';
 import { TransfersResolver } from './features/transfers/transfers.resolver';
 import { UsersResolver } from './features/users/users.resolver';
 
 const resolvers = [
   AccountsResolver,
-  ApproversResolver,
   ContactsResolver,
   ContractFunctionsResolver,
   ContractsResolver,
   FaucetResolver,
   PoliciesResolver,
   ProposalsResolver,
-  TransactionsResolver,
+  TransfersResolver,
   TransfersResolver,
   UsersResolver,
 ];
