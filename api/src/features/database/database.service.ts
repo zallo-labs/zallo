@@ -1,6 +1,6 @@
 import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { createClient, $infer } from '~/edgeql-js';
-import { Expression, ObjectTypeExpression } from '~/edgeql-js/typesystem';
+import { Expression } from '~/edgeql-js/typesystem';
 import { getRequestContext } from '~/request/ctx';
 import { AsyncLocalStorage } from 'async_hooks';
 import type { Client } from 'edgedb';
@@ -16,7 +16,7 @@ export class DatabaseService implements OnModuleInit {
   protected context = new AsyncLocalStorage<Context>();
 
   constructor() {
-    this.__client = createClient();
+    this.__client = createClient().withRetryOptions({ attempts: 5 });
   }
 
   async onModuleInit() {
