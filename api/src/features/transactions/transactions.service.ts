@@ -107,7 +107,7 @@ export class TransactionsService {
       .insert(e.Transaction, {
         hash: transactionHash,
         proposal: selectTransactionProposal(id),
-        gasPrice: transaction.gasPrice?.toNumber() ?? 0,
+        gasPrice: transaction.gasPrice.toBigInt(),
       })
       .run(this.db.client);
 

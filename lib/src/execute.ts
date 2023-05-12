@@ -8,7 +8,6 @@ import { Tx } from './tx';
 import { estimateTxGas } from './gas';
 import { Policy } from './policy';
 import { Approval } from './approvals';
-import { asBigInt } from './bigint';
 
 export interface ExecuteTxOptions {
   customData?: Overrides & Eip712Meta;
