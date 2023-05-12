@@ -3,21 +3,26 @@
 # ------------------------------------------------------
 
 enum AbiSource {
-  DECOMPILED
-  STANDARD
-  VERIFIED
+  Verified
+}
+
+enum AbiSourceConfidence {
+  High
+  Low
+  Medium
 }
 
 type Account {
-  deploySalt: Bytes32!
-  id: Address!
-  impl: Address!
+  address: Address!
+  id: ID!
+  implementation: Address!
   isActive: Boolean!
-  name: String!
-  policies: [Policy!]
-  policyStates: [PolicyState!]
-  proposals: [Proposal!]
-  transfers: [Transfer!]
+  name: String
+  policies: [Policy!]!
+  proposals: [Proposal!]!
+  salt: Bytes32!
+  transactionProposals: [TransactionProposal!]!
+  transfers: [Transfer!]!
 }
 
 enum AccountEvent {
@@ -25,48 +30,16 @@ enum AccountEvent {
   update
 }
 
-input AccountOrderByWithRelationInput {
-  deploySalt: SortOrder
-  id: SortOrder
-  impl: SortOrder
-  isActive: SortOrder
-  name: SortOrder
-  policies: PolicyOrderByRelationAggregateInput
-  policyStates: PolicyStateOrderByRelationAggregateInput
-  proposals: ProposalOrderByRelationAggregateInput
-  transfers: TransferOrderByRelationAggregateInput
+input AccountInput {
+  address: Address!
 }
 
-input AccountRelationFilter {
-  is: AccountWhereInput
-  isNot: AccountWhereInput
-}
+input AccountSubscriptionInput {
+  """Defaults to user accounts"""
+  accounts: [Address!]
 
-enum AccountScalarFieldEnum {
-  deploySalt
-  id
-  impl
-  isActive
-  name
-}
-
-input AccountWhereInput {
-  AND: [AccountWhereInput!]
-  NOT: [AccountWhereInput!]
-  OR: [AccountWhereInput!]
-  deploySalt: StringFilter
-  id: StringFilter
-  impl: StringFilter
-  isActive: BoolFilter
-  name: StringFilter
-  policies: PolicyListRelationFilter
-  policyStates: PolicyStateListRelationFilter
-  proposals: ProposalListRelationFilter
-  transfers: TransferListRelationFilter
-}
-
-input AccountWhereUniqueInput {
-  id: String
+  """Defaults to all events"""
+  events: AccountEvent
 }
 
 """Ethereum address"""
@@ -74,94 +47,20 @@ scalar Address
 
 type Approval {
   createdAt: DateTime!
+  id: ID!
   proposal: Proposal!
-  proposalId: Bytes32!
-  signature: Bytes
   user: User!
-  userId: Address!
 }
 
-input ApprovalListRelationFilter {
-  every: ApprovalWhereInput
-  none: ApprovalWhereInput
-  some: ApprovalWhereInput
-}
-
-input ApprovalOrderByRelationAggregateInput {
-  _count: SortOrder
-}
-
-input ApprovalWhereInput {
-  AND: [ApprovalWhereInput!]
-  NOT: [ApprovalWhereInput!]
-  OR: [ApprovalWhereInput!]
-  createdAt: DateTimeFilter
-  proposal: ProposalRelationFilter
-  proposalId: StringFilter
-  signature: StringNullableFilter
-  user: UserRelationFilter
-  userId: StringFilter
-}
-
-type Approver {
-  id: String!
-  state: PolicyState!
-  stateId: BigInt!
-  user: User!
-  userId: Address!
-}
-
-input ApproverListRelationFilter {
-  every: ApproverWhereInput
-  none: ApproverWhereInput
-  some: ApproverWhereInput
-}
-
-input ApproverOrderByRelationAggregateInput {
-  _count: SortOrder
-}
-
-input ApproverWhereInput {
-  AND: [ApproverWhereInput!]
-  NOT: [ApproverWhereInput!]
-  OR: [ApproverWhereInput!]
-  state: PolicyStateRelationFilter
-  stateId: BigIntFilter
-  user: UserRelationFilter
-  userId: StringFilter
+input ApproveInput {
+  hash: Bytes32!
+  signature: Bytes!
 }
 
 """
 The `BigInt` scalar type represents non-fractional signed whole numeric values.
 """
 scalar BigInt
-
-input BigIntFilter {
-  equals: BigInt
-  gt: BigInt
-  gte: BigInt
-  in: [BigInt!]
-  lt: BigInt
-  lte: BigInt
-  not: NestedBigIntFilter
-  notIn: [BigInt!]
-}
-
-input BigIntNullableFilter {
-  equals: BigInt
-  gt: BigInt
-  gte: BigInt
-  in: [BigInt!]
-  lt: BigInt
-  lte: BigInt
-  not: NestedBigIntNullableFilter
-  notIn: [BigInt!]
-}
-
-input BoolFilter {
-  equals: Boolean
-  not: NestedBoolFilter
-}
 
 """bytes hex string"""
 scalar Bytes
@@ -170,72 +69,28 @@ scalar Bytes
 scalar Bytes32
 
 type Contact {
-  addr: Address!
-  id: String!
+  address: Address!
+  id: ID!
   name: String!
 }
 
-input ContactListRelationFilter {
-  every: ContactWhereInput
-  none: ContactWhereInput
-  some: ContactWhereInput
-}
-
-input ContactName_identifierCompoundUniqueInput {
-  name: String!
-  userId: String!
-}
-
-input ContactOrderByRelationAggregateInput {
-  _count: SortOrder
-}
-
-input ContactOrderByWithRelationInput {
-  addr: SortOrder
-  name: SortOrder
-  user: UserOrderByWithRelationInput
-  userId: SortOrder
-}
-
-enum ContactScalarFieldEnum {
-  addr
-  name
-  userId
-}
-
-input ContactUserIdAddrCompoundUniqueInput {
-  addr: String!
-  userId: String!
-}
-
-input ContactWhereInput {
-  AND: [ContactWhereInput!]
-  NOT: [ContactWhereInput!]
-  OR: [ContactWhereInput!]
-  addr: StringFilter
-  name: StringFilter
-  user: UserRelationFilter
-  userId: StringFilter
-}
-
-input ContactWhereUniqueInput {
-  name_identifier: ContactName_identifierCompoundUniqueInput
-  userId_addr: ContactUserIdAddrCompoundUniqueInput
+input ContactInput {
+  address: Address!
 }
 
 type Contract {
-  functions: [ContractFunction!]
-  id: Address!
+  address: Address!
+  functions: [ContractFunction!]!
+  id: ID!
 }
 
 type ContractFunction {
   abi: JSON!
-  contract: Contract
-  contractId: Address
-  id: Float!
+  abiMd5: String!
+  id: ID!
   selector: Selector!
   source: AbiSource!
-  sourceConfidence: ContractSourceConfidence!
+  sourceConfidence: AbiSourceConfidence!
 }
 
 input ContractFunctionInput {
@@ -245,12 +100,6 @@ input ContractFunctionInput {
 
 input ContractInput {
   contract: Address!
-}
-
-enum ContractSourceConfidence {
-  High
-  Low
-  Medium
 }
 
 input CreateAccountInput {
@@ -276,208 +125,25 @@ A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date
 """
 scalar DateTime
 
-input DateTimeFilter {
-  equals: DateTime
-  gt: DateTime
-  gte: DateTime
-  in: [DateTime!]
-  lt: DateTime
-  lte: DateTime
-  not: NestedDateTimeFilter
-  notIn: [DateTime!]
-}
-
-"""An arbitrary-precision Decimal type"""
-scalar Decimal
-
-input DecimalFilter {
-  equals: Decimal
-  gt: Decimal
-  gte: Decimal
-  in: [Decimal!]
-  lt: Decimal
-  lte: Decimal
-  not: NestedDecimalFilter
-  notIn: [Decimal!]
-}
-
-input DecimalNullableFilter {
-  equals: Decimal
-  gt: Decimal
-  gte: Decimal
-  in: [Decimal!]
-  lt: Decimal
-  lte: Decimal
-  not: NestedDecimalNullableFilter
-  notIn: [Decimal!]
-}
-
-input EnumTransferDirectionFilter {
-  equals: TransferDirection
-  in: [TransferDirection!]
-  not: NestedEnumTransferDirectionFilter
-  notIn: [TransferDirection!]
-}
-
-type ExplorerTransfer {
-  amount: Uint256!
-  from: Address!
-  id: String!
-  timestamp: DateTime!
-  to: Address!
-  token: Address!
-  transferNumber: Float!
-}
-
-input IntFilter {
-  equals: Int
-  gt: Int
-  gte: Int
-  in: [Int!]
-  lt: Int
-  lte: Int
-  not: NestedIntFilter
-  notIn: [Int!]
-}
-
 """
 The `JSON` scalar type represents JSON values as specified by [ECMA-404](http://www.ecma-international.org/publications/files/ECMA-ST/ECMA-404.pdf).
 """
 scalar JSON @specifiedBy(url: "http://www.ecma-international.org/publications/files/ECMA-ST/ECMA-404.pdf")
 
 type Mutation {
-  approve(id: Bytes32!, signature: Bytes!): Proposal!
-  createAccount(args: CreateAccountInput!): Account!
-  createPolicy(args: CreatePolicyInput!): Policy!
-  deleteContact(addr: Address!): Contact!
-  propose(
-    account: Address!
-    data: Bytes
-    feeToken: Address
-    gasLimit: Uint256
-    nonce: Uint256
-
-    """Approve the proposal"""
-    signature: Bytes
-    to: Address!
-
-    """WEI"""
-    value: Uint256
-  ): Proposal!
-  reject(id: Bytes32!): Proposal!
-  removePolicy(args: UniquePolicyInput!): Policy!
-  removeProposal(id: Bytes32!): Proposal!
-  requestTokens(account: Address!): [Address!]!
-  updateAccount(args: UpdateAccountInput!): Account!
-  updatePolicy(args: UpdatePolicyInput!): Policy!
-  updateUser(name: String, pushToken: String): User!
-  upsertContact(name: String!, newAddr: Address!, prevAddr: Address): Contact!
-}
-
-input NestedBigIntFilter {
-  equals: BigInt
-  gt: BigInt
-  gte: BigInt
-  in: [BigInt!]
-  lt: BigInt
-  lte: BigInt
-  not: NestedBigIntFilter
-  notIn: [BigInt!]
-}
-
-input NestedBigIntNullableFilter {
-  equals: BigInt
-  gt: BigInt
-  gte: BigInt
-  in: [BigInt!]
-  lt: BigInt
-  lte: BigInt
-  not: NestedBigIntNullableFilter
-  notIn: [BigInt!]
-}
-
-input NestedBoolFilter {
-  equals: Boolean
-  not: NestedBoolFilter
-}
-
-input NestedDateTimeFilter {
-  equals: DateTime
-  gt: DateTime
-  gte: DateTime
-  in: [DateTime!]
-  lt: DateTime
-  lte: DateTime
-  not: NestedDateTimeFilter
-  notIn: [DateTime!]
-}
-
-input NestedDecimalFilter {
-  equals: Decimal
-  gt: Decimal
-  gte: Decimal
-  in: [Decimal!]
-  lt: Decimal
-  lte: Decimal
-  not: NestedDecimalFilter
-  notIn: [Decimal!]
-}
-
-input NestedDecimalNullableFilter {
-  equals: Decimal
-  gt: Decimal
-  gte: Decimal
-  in: [Decimal!]
-  lt: Decimal
-  lte: Decimal
-  not: NestedDecimalNullableFilter
-  notIn: [Decimal!]
-}
-
-input NestedEnumTransferDirectionFilter {
-  equals: TransferDirection
-  in: [TransferDirection!]
-  not: NestedEnumTransferDirectionFilter
-  notIn: [TransferDirection!]
-}
-
-input NestedIntFilter {
-  equals: Int
-  gt: Int
-  gte: Int
-  in: [Int!]
-  lt: Int
-  lte: Int
-  not: NestedIntFilter
-  notIn: [Int!]
-}
-
-input NestedStringFilter {
-  contains: String
-  endsWith: String
-  equals: String
-  gt: String
-  gte: String
-  in: [String!]
-  lt: String
-  lte: String
-  not: NestedStringFilter
-  notIn: [String!]
-  startsWith: String
-}
-
-input NestedStringNullableFilter {
-  contains: String
-  endsWith: String
-  equals: String
-  gt: String
-  gte: String
-  in: [String!]
-  lt: String
-  lte: String
-  not: NestedStringNullableFilter
-  notIn: [String!]
-  startsWith: String
+  approve(input: ApproveInput!): TransactionProposal!
+  createAccount(input: CreateAccountInput!): Account!
+  createPolicy(input: CreatePolicyInput!): Policy!
+  deleteContact(input: ContactInput!): Contact!
+  propose(input: ProposeInput!): TransactionProposal!
+  reject(input: UniqueProposalInput!): TransactionProposal!
+  removePolicy(input: UniquePolicyInput!): Policy!
+  removeProposal(input: UniqueProposalInput!): Boolean!
+  requestTokens(input: RequestTokensInput!): [Address!]!
+  updateAccount(input: UpdateAccountInput!): Account!
+  updatePolicy(input: UpdatePolicyInput!): Policy!
+  updateUser(input: UpdateUserInput!): User!
+  upsertContact(input: UpsertContactInput!): Contact!
 }
 
 input PermissionsInput {
@@ -487,25 +153,13 @@ input PermissionsInput {
 
 type Policy {
   account: Account!
-  accountId: Address!
-  active: PolicyState
-  activeId: BigInt
   draft: PolicyState
-  draftId: BigInt
-  id: String!
-  key: BigInt!
+  id: ID!
+  isActive: Boolean!
+  key: Float!
   name: String!
-  states: [PolicyState!]
-}
-
-input PolicyAccountIdKeyCompoundUniqueInput {
-  accountId: String!
-  key: BigInt!
-}
-
-input PolicyAccountIdNameCompoundUniqueInput {
-  accountId: String!
-  name: String!
+  state: PolicyState
+  stateHistory: [PolicyState!]!
 }
 
 input PolicyInput {
@@ -519,282 +173,119 @@ input PolicyInput {
   threshold: Float
 }
 
-"""Policy key: an unsigned integer [0, 4294967295]"""
+"""Policy key: an unsigned integer [0, 65535]"""
 scalar PolicyKey
 
-input PolicyListRelationFilter {
-  every: PolicyWhereInput
-  none: PolicyWhereInput
-  some: PolicyWhereInput
-}
-
-input PolicyOrderByRelationAggregateInput {
-  _count: SortOrder
-}
-
-input PolicyOrderByWithRelationInput {
-  account: AccountOrderByWithRelationInput
-  accountId: SortOrder
-  active: PolicyStateOrderByWithRelationInput
-  activeId: SortOrder
-  draft: PolicyStateOrderByWithRelationInput
-  draftId: SortOrder
-  key: SortOrder
-  name: SortOrder
-  states: PolicyStateOrderByRelationAggregateInput
-}
-
-input PolicyRelationFilter {
-  is: PolicyWhereInput
-  isNot: PolicyWhereInput
-}
-
-enum PolicyScalarFieldEnum {
-  accountId
-  activeId
-  draftId
-  key
-  name
-}
-
 type PolicyState {
-  account: Account!
-  accountId: String!
-  activeOf: Policy
-  approvers: [Approver!]
+  activationBlock: BigInt
+  approvers: [User!]!
   createdAt: DateTime!
-  draftOf: Policy
-  id: BigInt!
+  id: ID!
+  isAccountInitState: Boolean!
   isRemoved: Boolean!
-  policy: Policy!
-  policyKey: BigInt!
-  proposal: Proposal
-  proposalId: String
-  targets: [Target!]
+  proposal: TransactionProposal
+  targets: [Target!]!
   threshold: Float!
-}
-
-input PolicyStateListRelationFilter {
-  every: PolicyStateWhereInput
-  none: PolicyStateWhereInput
-  some: PolicyStateWhereInput
-}
-
-input PolicyStateOrderByRelationAggregateInput {
-  _count: SortOrder
-}
-
-input PolicyStateOrderByWithRelationInput {
-  account: AccountOrderByWithRelationInput
-  accountId: SortOrder
-  activeOf: PolicyOrderByWithRelationInput
-  approvers: ApproverOrderByRelationAggregateInput
-  createdAt: SortOrder
-  draftOf: PolicyOrderByWithRelationInput
-  id: SortOrder
-  isRemoved: SortOrder
-  policy: PolicyOrderByWithRelationInput
-  policyKey: SortOrder
-  proposal: ProposalOrderByWithRelationInput
-  proposalId: SortOrder
-  targets: TargetOrderByRelationAggregateInput
-  threshold: SortOrder
-}
-
-input PolicyStateRelationFilter {
-  is: PolicyStateWhereInput
-  isNot: PolicyStateWhereInput
-}
-
-input PolicyStateWhereInput {
-  AND: [PolicyStateWhereInput!]
-  NOT: [PolicyStateWhereInput!]
-  OR: [PolicyStateWhereInput!]
-  account: AccountRelationFilter
-  accountId: StringFilter
-  activeOf: PolicyRelationFilter
-  approvers: ApproverListRelationFilter
-  createdAt: DateTimeFilter
-  draftOf: PolicyRelationFilter
-  id: BigIntFilter
-  isRemoved: BoolFilter
-  policy: PolicyRelationFilter
-  policyKey: BigIntFilter
-  proposal: ProposalRelationFilter
-  proposalId: StringNullableFilter
-  targets: TargetListRelationFilter
-  threshold: IntFilter
-}
-
-input PolicyWhereInput {
-  AND: [PolicyWhereInput!]
-  NOT: [PolicyWhereInput!]
-  OR: [PolicyWhereInput!]
-  account: AccountRelationFilter
-  accountId: StringFilter
-  active: PolicyStateRelationFilter
-  activeId: BigIntNullableFilter
-  draft: PolicyStateRelationFilter
-  draftId: BigIntNullableFilter
-  key: BigIntFilter
-  name: StringFilter
-  states: PolicyStateListRelationFilter
-}
-
-input PolicyWhereUniqueInput {
-  accountId_key: PolicyAccountIdKeyCompoundUniqueInput
-  accountId_name: PolicyAccountIdNameCompoundUniqueInput
-  activeId: BigInt
-  draftId: BigInt
 }
 
 type Proposal {
   account: Account!
-  accountId: Address!
-  approvals: [Approval!]
+  approvals: [Approval!]!
   createdAt: DateTime!
-  data: Bytes
-  estimatedOpGas: BigInt!
-  feeToken: Address
-  gasLimit: BigInt
-  id: Bytes32!
-  nonce: BigInt!
-  policyStates: [PolicyState!]
-  proposer: User!
-  proposerId: Address!
+  hash: Bytes32!
+  id: ID!
+  policy: Policy
+  proposedBy: User!
   rejections: [Rejection!]!
-  satisfiablePolicies: [SatisfiablePolicy!]!
-  simulation: Simulation
-  to: Address!
-  transaction: Transaction
-  transactions: [Transaction!]
-  value: Decimal
+  responses: [ProposalResponse!]!
 }
 
 enum ProposalEvent {
+  approval
   create
   delete
-  execute
-  response
+  executed
+  rejection
+  submitted
   update
 }
 
-input ProposalListRelationFilter {
-  every: ProposalWhereInput
-  none: ProposalWhereInput
-  some: ProposalWhereInput
+type ProposalResponse {
+  createdAt: DateTime!
+  id: ID!
+  proposal: Proposal!
+  user: User!
 }
 
-input ProposalOrderByRelationAggregateInput {
-  _count: SortOrder
+input ProposalSubscriptionInput {
+  """Defaults to user accounts if no proposals are provided"""
+  accounts: [Address!]
+
+  """Defaults to all events"""
+  events: [ProposalEvent!]
+  proposals: [Bytes32!]
 }
 
-input ProposalOrderByWithRelationInput {
-  account: AccountOrderByWithRelationInput
-  accountId: SortOrder
-  approvals: ApprovalOrderByRelationAggregateInput
-  createdAt: SortOrder
-  data: SortOrder
-  estimatedOpGas: SortOrder
-  feeToken: SortOrder
-  gasLimit: SortOrder
-  id: SortOrder
-  nonce: SortOrder
-  policyStates: PolicyStateOrderByRelationAggregateInput
-  proposer: UserOrderByWithRelationInput
-  proposerId: SortOrder
-  simulation: SimulationOrderByWithRelationInput
-  to: SortOrder
-  transactions: TransactionOrderByRelationAggregateInput
-  value: SortOrder
+input ProposalsInput {
+  accounts: [Address!]
+  statuses: [TransactionProposalStatus!]
 }
 
-input ProposalRelationFilter {
-  is: ProposalWhereInput
-  isNot: ProposalWhereInput
-}
+input ProposeInput {
+  account: Address!
+  data: Bytes
+  feeToken: Address
+  gasLimit: Uint256
+  nonce: Uint256
 
-enum ProposalScalarFieldEnum {
-  accountId
-  createdAt
-  data
-  estimatedOpGas
-  feeToken
-  gasLimit
-  id
-  nonce
-  proposerId
-  to
-  value
-}
+  """Approve the proposal"""
+  signature: Bytes
+  to: Address!
 
-enum ProposalState {
-  Executed
-  Executing
-  Pending
-}
-
-input ProposalWhereInput {
-  AND: [ProposalWhereInput!]
-  NOT: [ProposalWhereInput!]
-  OR: [ProposalWhereInput!]
-  account: AccountRelationFilter
-  accountId: StringFilter
-  approvals: ApprovalListRelationFilter
-  createdAt: DateTimeFilter
-  data: StringNullableFilter
-  estimatedOpGas: BigIntFilter
-  feeToken: StringNullableFilter
-  gasLimit: BigIntNullableFilter
-  id: StringFilter
-  nonce: BigIntFilter
-  policyStates: PolicyStateListRelationFilter
-  proposer: UserRelationFilter
-  proposerId: StringFilter
-  simulation: SimulationRelationFilter
-  to: StringFilter
-  transactions: TransactionListRelationFilter
-  value: DecimalNullableFilter
-}
-
-input ProposalWhereUniqueInput {
-  id: String
+  """WEI"""
+  value: Uint256
 }
 
 type Query {
-  account(id: Address!): Account
-  accounts(cursor: AccountWhereUniqueInput, distinct: [AccountScalarFieldEnum!], orderBy: [AccountOrderByWithRelationInput!], skip: Int, take: Int, where: AccountWhereInput): [Account!]!
-  contact(addr: Address!): Contact
-  contacts(cursor: ContactWhereUniqueInput, distinct: [ContactScalarFieldEnum!], orderBy: [ContactOrderByWithRelationInput!], skip: Int, take: Int): [Contact!]!
-  contract(args: ContractInput!): Contract
-  contractFunction(args: ContractFunctionInput!): ContractFunction
-  policies(cursor: PolicyWhereUniqueInput, distinct: [PolicyScalarFieldEnum!], orderBy: [PolicyOrderByWithRelationInput!], skip: Int, take: Int, where: PolicyWhereInput): [Policy!]!
-  policy(args: UniquePolicyInput!): Policy
-  proposal(id: Bytes32!): Proposal
-  proposals(accounts: [Address!], cursor: ProposalWhereUniqueInput, distinct: [ProposalScalarFieldEnum!], orderBy: [ProposalOrderByWithRelationInput!], skip: Int, states: [ProposalState!], take: Int, where: ProposalWhereInput): [Proposal!]!
-  requestableTokens(account: Address!): [Address!]!
-  transfers(input: TransfersInput!): [ExplorerTransfer!]!
-  user(
-    """Defaults to user"""
-    id: Address
-  ): User!
+  account(input: AccountInput!): Account
+  accounts: [Account!]!
+  contact(input: ContactInput!): Contact
+  contacts: [Contact!]!
+  contract(input: ContractInput!): Contract
+  contractFunction(input: ContractFunctionInput!): ContractFunction
+  policies: [Policy!]!
+  policy(input: UniquePolicyInput!): Policy
+  proposal(input: UniqueProposalInput!): TransactionProposal
+  proposals(input: ProposalsInput!): [TransactionProposal!]!
+  requestableTokens(input: RequestTokensInput!): [Address!]!
+  transfers(input: TransfersInput!): [Transfer!]!
+  user(input: UserInput!): User!
 }
 
-enum QueryMode {
-  default
-  insensitive
+type Receipt {
+  block: BigInt!
+  fee: BigInt!
+  gasUsed: BigInt!
+  id: ID!
+  response: Bytes
+  success: Boolean!
+  timestamp: DateTime!
+  transfers: [Transfer!]!
 }
 
 type Rejection {
   createdAt: DateTime!
+  id: ID!
   proposal: Proposal!
-  proposalId: Bytes32!
   user: User!
-  userId: Address!
+}
+
+input RequestTokensInput {
+  account: Address!
 }
 
 type SatisfiablePolicy {
-  id: String!
+  id: ID!
   key: PolicyKey!
   requiresUserAction: Boolean!
   satisfied: Boolean!
@@ -803,130 +294,19 @@ type SatisfiablePolicy {
 """function selector (4-byte hex string)"""
 scalar Selector
 
-type SimulatedTransfer {
-  amount: Decimal!
-  from: Address!
-  id: Float!
-  proposalId: Bytes32!
-  simulation: Simulation!
-  to: Address!
-  token: Address!
-}
-
-input SimulatedTransferListRelationFilter {
-  every: SimulatedTransferWhereInput
-  none: SimulatedTransferWhereInput
-  some: SimulatedTransferWhereInput
-}
-
-input SimulatedTransferOrderByRelationAggregateInput {
-  _count: SortOrder
-}
-
-input SimulatedTransferWhereInput {
-  AND: [SimulatedTransferWhereInput!]
-  NOT: [SimulatedTransferWhereInput!]
-  OR: [SimulatedTransferWhereInput!]
-  amount: DecimalFilter
-  from: StringFilter
-  id: IntFilter
-  proposalId: StringFilter
-  simulation: SimulationRelationFilter
-  to: StringFilter
-  token: StringFilter
-}
-
 type Simulation {
-  proposal: Proposal!
-  proposalId: Bytes32!
-  transfers: [SimulatedTransfer!]
-}
-
-input SimulationOrderByWithRelationInput {
-  proposal: ProposalOrderByWithRelationInput
-  proposalId: SortOrder
-  transfers: SimulatedTransferOrderByRelationAggregateInput
-}
-
-input SimulationRelationFilter {
-  is: SimulationWhereInput
-  isNot: SimulationWhereInput
-}
-
-input SimulationWhereInput {
-  AND: [SimulationWhereInput!]
-  NOT: [SimulationWhereInput!]
-  OR: [SimulationWhereInput!]
-  proposal: ProposalRelationFilter
-  proposalId: StringFilter
-  transfers: SimulatedTransferListRelationFilter
-}
-
-enum SortOrder {
-  asc
-  desc
-}
-
-input StringFilter {
-  contains: String
-  endsWith: String
-  equals: String
-  gt: String
-  gte: String
-  in: [String!]
-  lt: String
-  lte: String
-  mode: QueryMode
-  not: NestedStringFilter
-  notIn: [String!]
-  startsWith: String
-}
-
-input StringNullableFilter {
-  contains: String
-  endsWith: String
-  equals: String
-  gt: String
-  gte: String
-  in: [String!]
-  lt: String
-  lte: String
-  mode: QueryMode
-  not: NestedStringNullableFilter
-  notIn: [String!]
-  startsWith: String
-}
-
-input StringNullableListFilter {
-  equals: [String!]
-  has: String
-  hasEvery: [String!]
-  hasSome: [String!]
-  isEmpty: Boolean
+  id: ID!
+  transfers: [TransferDetails!]!
 }
 
 type Subscription {
-  account(
-    """Defaults to user accounts"""
-    accounts: [Address!]
-
-    """Defaults to all events"""
-    events: AccountEvent
-  ): Account!
-  proposal(
-    """Defaults to user accounts if no proposals are provided"""
-    accounts: [Address!]
-
-    """Defaults to all events"""
-    events: [ProposalEvent!]
-    proposals: [Bytes32!]
-  ): Proposal!
+  account(input: AccountSubscriptionInput!): Account!
+  proposal(input: ProposalSubscriptionInput!): TransactionProposal!
 }
 
 type Target {
+  id: ID!
   selectors: [String!]!
-  state: PolicyState!
-  stateId: BigInt!
   to: String!
 }
 
@@ -938,153 +318,75 @@ input TargetInput {
   to: String!
 }
 
-input TargetListRelationFilter {
-  every: TargetWhereInput
-  none: TargetWhereInput
-  some: TargetWhereInput
-}
-
-input TargetOrderByRelationAggregateInput {
-  _count: SortOrder
-}
-
-input TargetWhereInput {
-  AND: [TargetWhereInput!]
-  NOT: [TargetWhereInput!]
-  OR: [TargetWhereInput!]
-  selectors: StringNullableListFilter
-  state: PolicyStateRelationFilter
-  stateId: BigIntFilter
-  to: StringFilter
-}
-
 type Transaction {
-  createdAt: DateTime!
-  gasLimit: Decimal!
-  gasPrice: Decimal
+  gasPrice: BigInt!
   hash: Bytes32!
-
-  """hash"""
   id: ID!
-  proposal: Proposal!
-  proposalId: Bytes32!
-  receipt: TransactionReceipt
+  proposal: TransactionProposal!
+  receipt: Receipt
+  submittedAt: DateTime!
 }
 
-input TransactionListRelationFilter {
-  every: TransactionWhereInput
-  none: TransactionWhereInput
-  some: TransactionWhereInput
+type TransactionProposal {
+  account: Account!
+  approvals: [Approval!]!
+  createdAt: DateTime!
+  data: Bytes
+  feeToken: Address!
+  gasLimit: BigInt!
+  hash: Bytes32!
+  id: ID!
+  nonce: BigInt!
+  policy: Policy
+  proposedBy: User!
+  rejections: [Rejection!]!
+  responses: [ProposalResponse!]!
+  satisfiablePolicies: [SatisfiablePolicy!]!
+  simulation: Simulation!
+  status: TransactionProposalStatus!
+  to: Address!
+  transaction: Transaction
+  transactions: [Transaction!]!
+  value: BigInt
 }
 
-input TransactionOrderByRelationAggregateInput {
-  _count: SortOrder
-}
-
-type TransactionReceipt {
-  blockNumber: Float!
-  fee: Decimal!
-  gasPrice: Decimal!
-  gasUsed: Decimal!
-  response: Bytes
-  success: Boolean!
-  timestamp: DateTime!
-  transaction: Transaction!
-  transactionHash: Bytes32!
-  transfers: [Transfer!]
-}
-
-input TransactionReceiptRelationFilter {
-  is: TransactionReceiptWhereInput
-  isNot: TransactionReceiptWhereInput
-}
-
-input TransactionReceiptWhereInput {
-  AND: [TransactionReceiptWhereInput!]
-  NOT: [TransactionReceiptWhereInput!]
-  OR: [TransactionReceiptWhereInput!]
-  blockNumber: IntFilter
-  fee: DecimalFilter
-  gasPrice: DecimalFilter
-  gasUsed: DecimalFilter
-  response: StringNullableFilter
-  success: BoolFilter
-  timestamp: DateTimeFilter
-  transaction: TransactionRelationFilter
-  transactionHash: StringFilter
-  transfers: TransferListRelationFilter
-}
-
-input TransactionRelationFilter {
-  is: TransactionWhereInput
-  isNot: TransactionWhereInput
-}
-
-input TransactionWhereInput {
-  AND: [TransactionWhereInput!]
-  NOT: [TransactionWhereInput!]
-  OR: [TransactionWhereInput!]
-  createdAt: DateTimeFilter
-  gasLimit: DecimalFilter
-  gasPrice: DecimalNullableFilter
-  hash: StringFilter
-  proposal: ProposalRelationFilter
-  proposalId: StringFilter
-  receipt: TransactionReceiptRelationFilter
+enum TransactionProposalStatus {
+  Executing
+  Failed
+  Pending
+  Successful
 }
 
 type Transfer {
   account: Account!
-  accountId: Address!
-  amount: Decimal!
-  blockNumber: Float!
+  amount: BigInt!
+  block: BigInt!
   direction: TransferDirection!
   from: Address!
-  id: Float!
-  receipt: TransactionReceipt
-  timestamp: DateTime!
+  id: ID!
+  receipt: Receipt
   to: Address!
   token: Address!
-  transactionHash: Bytes32
+}
+
+type TransferDetails {
+  account: Account!
+  amount: BigInt!
+  direction: TransferDirection!
+  from: Address!
+  id: ID!
+  to: Address!
+  token: Address!
 }
 
 enum TransferDirection {
-  IN
-  OUT
-}
-
-input TransferListRelationFilter {
-  every: TransferWhereInput
-  none: TransferWhereInput
-  some: TransferWhereInput
-}
-
-input TransferOrderByRelationAggregateInput {
-  _count: SortOrder
-}
-
-input TransferWhereInput {
-  AND: [TransferWhereInput!]
-  NOT: [TransferWhereInput!]
-  OR: [TransferWhereInput!]
-  account: AccountRelationFilter
-  accountId: StringFilter
-  amount: DecimalFilter
-  blockNumber: IntFilter
-  direction: EnumTransferDirectionFilter
-  from: StringFilter
-  id: IntFilter
-  receipt: TransactionReceiptRelationFilter
-  timestamp: DateTimeFilter
-  to: StringFilter
-  token: StringFilter
-  transactionHash: StringNullableFilter
+  In
+  Out
 }
 
 input TransfersInput {
-  account: Address!
+  accounts: [Address!]
   direction: TransferDirection
-  skip: Float = 100
 }
 
 """256-bit unsigned integer"""
@@ -1095,8 +397,12 @@ input UniquePolicyInput {
   key: PolicyKey!
 }
 
+input UniqueProposalInput {
+  hash: Bytes32!
+}
+
 input UpdateAccountInput {
-  id: Address!
+  address: Address!
   name: String!
 }
 
@@ -1113,39 +419,25 @@ input UpdatePolicyInput {
   threshold: Float
 }
 
-type User {
-  approvals: [Approval!]
-  approvers: [Approver!]
-  contacts: [Contact!]
-  id: Address!
+input UpdateUserInput {
   name: String
-  proposals: [Proposal!]
+  pushToken: String
 }
 
-input UserOrderByWithRelationInput {
-  approvals: ApprovalOrderByRelationAggregateInput
-  approvers: ApproverOrderByRelationAggregateInput
-  contacts: ContactOrderByRelationAggregateInput
-  id: SortOrder
-  name: SortOrder
-  proposals: ProposalOrderByRelationAggregateInput
-  pushToken: SortOrder
+input UpsertContactInput {
+  address: Address!
+  name: String!
+  previousAddress: Address
 }
 
-input UserRelationFilter {
-  is: UserWhereInput
-  isNot: UserWhereInput
+type User {
+  address: Address!
+  contacts: [Contact!]!
+  id: ID!
+  name: String
 }
 
-input UserWhereInput {
-  AND: [UserWhereInput!]
-  NOT: [UserWhereInput!]
-  OR: [UserWhereInput!]
-  approvals: ApprovalListRelationFilter
-  approvers: ApproverListRelationFilter
-  contacts: ContactListRelationFilter
-  id: StringFilter
-  name: StringNullableFilter
-  proposals: ProposalListRelationFilter
-  pushToken: StringNullableFilter
+input UserInput {
+  """Defaults to user"""
+  address: Address
 }
