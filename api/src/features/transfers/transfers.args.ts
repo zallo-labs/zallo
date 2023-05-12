@@ -1,15 +1,12 @@
-import { TransferDirection } from '@gen/prisma/transfer-direction.enum';
 import { Field, InputType } from '@nestjs/graphql';
 import { Address } from 'lib';
-import { AddressField } from '~/apollo/scalars/Address.scalar';
+import { AddressScalar } from '~/apollo/scalars/Address.scalar';
+import { TransferDirection } from './transfers.model';
 
 @InputType()
 export class TransfersInput {
-  @AddressField()
-  account: Address;
+  @Field(() => [AddressScalar], { nullable: true })
+  accounts?: Address[];
 
   direction?: TransferDirection;
-
-  @Field(() => Number, { nullable: true, defaultValue: 100 })
-  skip: number;
 }
