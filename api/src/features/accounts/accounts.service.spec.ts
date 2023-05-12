@@ -3,7 +3,7 @@ import { Test } from '@nestjs/testing';
 import { ProviderService } from '../util/provider/provider.service';
 import { CONFIG } from '~/config';
 import { asUser, getUserCtx, UserContext } from '~/request/ctx';
-import { randomAddress } from '~/util/test';
+import { randomAddress, randomUser } from '~/util/test';
 import { Address, asHex } from 'lib';
 import { PoliciesService } from '../policies/policies.service';
 import { randomBytes } from 'ethers/lib/utils';
@@ -72,14 +72,8 @@ describe(AccountsService.name, () => {
   let user1AccountId: uuid;
 
   beforeEach(async () => {
-    user1 = {
-      address: randomAddress(),
-      accounts: new Set([]),
-    };
-    user2 = {
-      address: randomAddress(),
-      accounts: new Set([]),
-    };
+    user1 = randomUser();
+    user2 = randomUser();
 
     await asUser(user1, async () => {
       const { id, address } = await createAccount();

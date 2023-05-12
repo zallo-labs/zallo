@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { forwardRef, Module } from '@nestjs/common';
 import { FaucetModule } from '../faucet/faucet.module';
 import { AccountsResolver } from './accounts.resolver';
 import { AccountsService } from './accounts.service';
@@ -13,7 +13,7 @@ import { ACCOUNTS_QUEUE } from './accounts.queue';
     BullModule.registerQueue(ACCOUNTS_QUEUE),
     ContractsModule,
     FaucetModule,
-    PoliciesModule,
+    forwardRef(() => PoliciesModule),
   ],
   exports: [AccountsService],
   providers: [AccountsResolver, AccountsService, AccountsProcessor],

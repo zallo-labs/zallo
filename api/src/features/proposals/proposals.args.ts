@@ -1,4 +1,3 @@
-import { FindManyProposalArgs } from '@gen/proposal/find-many-proposal.args';
 import { ArgsType, Field, registerEnumType } from '@nestjs/graphql';
 import { Address, Hex } from 'lib';
 import { AddressField, AddressScalar } from '~/apollo/scalars/Address.scalar';
@@ -14,23 +13,24 @@ import { Proposal } from './proposals.model';
 @ArgsType()
 export class UniqueProposalArgs {
   @Bytes32Field()
-  id: string;
+  hash: Hex;
 }
 
-export enum ProposalState {
-  Pending = 'pending',
-  Executing = 'executing',
-  Executed = 'executed',
+export enum TransactionProposalStatus {
+  Pending = 'Pending',
+  Executing = 'Executing',
+  Successful = 'Successful',
+  Failed = 'Failed',
 }
-registerEnumType(ProposalState, { name: 'ProposalState' });
+registerEnumType(TransactionProposalStatus, { name: 'TransactionProposalStatus' });
 
 @ArgsType()
-export class ProposalsArgs extends FindManyProposalArgs {
+export class ProposalsArgs {
   @Field(() => [AddressScalar], { nullable: true })
   accounts?: Address[];
 
-  @Field(() => [ProposalState], { nullable: true })
-  states?: ProposalState[];
+  @Field(() => [TransactionProposalStatus], { nullable: true })
+  statuses?: TransactionProposalStatus[];
 }
 
 export const PROPOSAL_SUBSCRIPTION = 'proposal';
@@ -39,13 +39,15 @@ export const ACCOUNT_PROPOSAL_SUB_TRIGGER = `${PROPOSAL_SUBSCRIPTION}.Account` a
 export enum ProposalEvent {
   create,
   update,
+  approval,
+  rejection,
   delete,
   execute,
   response,
 }
 registerEnumType(ProposalEvent, { name: 'ProposalEvent' });
 
-export const PROPOSAL_PAYLOAD_SELECT = { id: true, accountId: true } as const;
+export const PROPOSAL_PAYLOAD_SELECT = { hash: true, account: { address: true } } as const;
 export interface ProposalSubscriptionPayload {
   [PROPOSAL_SUBSCRIPTION]: Pick<Proposal, keyof typeof PROPOSAL_PAYLOAD_SELECT>;
   event: ProposalEvent;

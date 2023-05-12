@@ -1,287 +1,282 @@
 import { Test } from '@nestjs/testing';
-import { ProposalsService, ProposeParams } from './proposals.service';
 import { createMock, DeepMocked } from '@golevelup/ts-jest';
-import { PRISMA_MOCK_PROVIDER } from '../util/prisma/prisma.service.mock';
-import { PrismaService } from '../util/prisma/prisma.service';
-import { asUser, UserContext } from '~/request/ctx';
-import { randomAddress, randomUser } from '~/util/test';
-import { asAddress, Address, CHAINS, randomDeploySalt, asHex } from 'lib';
-import { hexlify, randomBytes } from 'ethers/lib/utils';
+import { asUser, getUser, getUserCtx, UserContext } from '~/request/ctx';
+import { randomAddress, randomHash, randomHex, randomUser } from '~/util/test';
+import { Address, CHAINS, randomDeploySalt, asHex, Hex } from 'lib';
 import { ProviderService } from '../util/provider/provider.service';
-import { connectAccount, connectOrCreateUser } from '~/util/connect-or-create';
 import { ExpoService } from '../util/expo/expo.service';
 import { TransactionsService } from '../transactions/transactions.service';
-import { ProposalState } from './proposals.args';
-import { PoliciesService } from '../policies/policies.service';
-import assert from 'assert';
+import { ProposeArgs, TransactionProposalStatus } from './proposals.args';
+import { DatabaseService } from '../database/database.service';
+import { ProposalsService, selectProposal, selectTransactionProposal } from './proposals.service';
+import e from '~/edgeql-js';
+import { selectAccount } from '../accounts/accounts.service';
+import { selectUser } from '../users/users.service';
+import { uuid } from 'edgedb/dist/codecs/ifaces';
+import { selectPolicy } from '../policies/policies.service';
 
-const randomSignature = () => asHex(randomBytes(32));
+const signature = '0x1234' as Hex;
 
 describe(ProposalsService.name, () => {
   let service: ProposalsService;
-  let prisma: PrismaService;
+  let db: DatabaseService;
   let provider: DeepMocked<ProviderService>;
   let expo: DeepMocked<ExpoService>;
-  let policies: DeepMocked<PoliciesService>;
   let transactions: DeepMocked<TransactionsService>;
 
   beforeEach(async () => {
     const module = await Test.createTestingModule({
-      providers: [ProposalsService, PRISMA_MOCK_PROVIDER],
+      providers: [ProposalsService, DatabaseService],
     })
       .useMocker(createMock)
       .compile();
 
     service = module.get(ProposalsService);
-    prisma = module.get(PrismaService);
+    db = module.get(DatabaseService);
     provider = module.get(ProviderService);
     expo = module.get(ExpoService);
-    policies = module.get(PoliciesService);
     transactions = module.get(TransactionsService);
-  });
 
-  let user1Account1: Address;
-  let user1Account2: Address;
-  let user1: UserContext;
-
-  beforeEach(async () => {
-    user1Account1 = randomAddress();
-    user1Account2 = randomAddress();
-    user1 = {
-      address: randomAddress(),
-      accounts: new Set([user1Account1, user1Account2]),
-    };
-
+    provider.verifySignature.mockImplementation(async () => true);
     provider.getNetwork.mockImplementation(async () => ({
       chainId: CHAINS.local.id,
       name: CHAINS.local.name,
     }));
 
-    transactions.tryExecute.mockImplementationOnce(async () => undefined);
+    transactions.tryExecute.mockImplementation(async () => undefined);
+  });
+
+  let user1: UserContext;
+  let user1Account1: Address;
+
+  beforeEach(async () => {
+    user1 = randomUser();
+    user1Account1 = randomAddress();
   });
 
   const propose = async ({
     account = user1Account1,
-    to = account,
+    to = randomAddress(),
     ...params
-  }: Partial<ProposeParams> = {}) => {
-    // Account & policy
-    const { policyStates: states } = await prisma.asUser.account.upsert({
-      where: { id: account },
-      create: {
-        id: account,
-        impl: account,
-        deploySalt: randomDeploySalt(),
-        name: '',
-        policies: {
-          create: {
-            key: 0,
-            name: '',
-            states: {
-              create: {
-                approvers: { create: { user: connectOrCreateUser() } },
-              },
-            },
-          },
-        },
-      },
-      update: {},
-      select: {
-        policyStates: { select: { id: true, policyKey: true } },
-      },
-    });
+  }: Partial<ProposeArgs> = {}) => {
+    // Create account with an active policy
+    const accountId = await e
+      .insert(e.Account, {
+        address: account,
+        implementation: account,
+        salt: randomDeploySalt(),
+        isActive: true,
+      })
+      .unlessConflict()
+      .id.run(db.client);
 
-    const initState = states[0];
-    assert(initState);
+    if (accountId) {
+      getUserCtx().accounts.add(accountId);
 
-    // Mark policy rules as active
-    await prisma.asUser.policy.update({
-      where: { accountId_key: { accountId: account, key: initState.policyKey } },
-      data: { activeId: initState.id },
-    });
+      await e
+        .insert(e.Device, { address: getUser() })
+        .unlessConflict((d) => ({ on: d.address }))
+        .run(db.client);
+
+      await e
+        .insert(e.Policy, {
+          account: selectAccount(accountId),
+          key: 0,
+          name: 'Policy 0',
+          stateHistory: e.insert(e.PolicyState, {
+            threshold: 0,
+            approvers: selectUser(getUser()),
+            activationBlockNumber: 0n,
+          }),
+        })
+        .unlessConflict()
+        .run(db.client);
+    }
 
     return service.propose({ account, to, ...params });
-  };
-
-  const approve = (id: string) => {
-    provider.verifySignature.mockImplementationOnce(async () => true);
-    return service.approve({ id, signature: randomSignature() });
   };
 
   describe('propose', () => {
     it('creates a proposal', () =>
       asUser(user1, async () => {
         const { id } = await propose();
-        expect(await prisma.asUser.proposal.findUnique({ where: { id } })).toBeTruthy();
+
+        expect(await db.query(selectProposal(id))).toBeTruthy();
       }));
 
     it('approves proposal if signature was provided', () =>
       asUser(user1, async () => {
         jest.spyOn(service, 'approve').mockImplementationOnce(async () => ({ id: '' } as any));
-        await propose({ signature: randomSignature() });
+        await propose({ signature });
         expect(service.approve).toHaveBeenCalled();
       }));
   });
 
-  describe('findUnqiue', () => {
-    // Prisma passthrough, no need fo basic tests
+  describe('selectUnqiue', () => {
+    it('returns proposal', () =>
+      asUser(user1, async () => {
+        const { id } = await propose();
+        expect(await service.selectUnique(id)).toBeTruthy();
+      }));
 
     it("returns null if the proposal if from an account the user isn't a member of", async () => {
       const { id } = await asUser(user1, () => propose());
 
       await asUser(randomUser(), async () => {
-        expect(await service.findUnique({ where: { id } })).toBeNull();
+        expect(await service.selectUnique(id)).toBeNull();
       });
     });
   });
 
-  describe('findMany', () => {
+  describe('select', () => {
     it('returns proposals', () =>
       asUser(user1, async () => {
-        const { id: id1 } = await propose();
-        const { id: id2 } = await propose();
+        await propose();
+        await propose();
 
-        const proposals = (await service.findMany()).map((p) => p.id);
-        expect(new Set(proposals)).toEqual(new Set([id1, id2]));
+        expect(await service.select()).toHaveLength(2);
       }));
 
-    it("doesn't return proposals from accounts the user's a member of", async () => {
+    it("doesn't return proposals from accounts the user isn't a member of", async () => {
       await asUser(user1, () => propose());
 
       await asUser(randomUser(), async () => {
-        expect(await service.findMany()).toHaveLength(0);
+        expect(await service.select()).toHaveLength(0);
       });
     });
 
-    it('only returns proposals from accounts (if explicity provided)', () =>
-      asUser(user1, async () => {
-        await propose({ account: user1Account1 });
-        await propose({ account: user1Account2 });
+    describe('accounts filter', () => {
+      it('only return proposals from listed accounts', () =>
+        asUser(user1, async () => {
+          const [account1, account2] = [randomAddress(), randomAddress()];
+          await propose({ account: account1 });
+          await propose({ account: account2 });
 
-        const proposals = await service.findMany({ accounts: [user1Account1] });
-        expect(new Set(proposals.map((p) => p.accountId))).toEqual(new Set([user1Account1]));
-      }));
+          expect(await service.select({ accounts: [account1] })).toHaveLength(1);
+        }));
+    });
 
-    describe('states filters when', () => {
-      let pending: Awaited<ReturnType<typeof propose>>;
-      let pendingWithFailed: Awaited<ReturnType<typeof propose>>;
-      let executing: Awaited<ReturnType<typeof propose>>;
-      let executed: Awaited<ReturnType<typeof propose>>;
+    describe('statuses filter', () => {
+      let pending: uuid;
+      let executing: uuid;
+      let successful: uuid;
+      let failed: uuid;
 
       beforeEach(() =>
         asUser(user1, async () => {
-          pending = await propose();
-          pendingWithFailed = await propose();
-          executing = await propose();
-          executed = await propose();
+          pending = (await propose()).id;
+          executing = (await propose()).id;
+          successful = (await propose()).id;
+          failed = (await propose()).id;
+          // [pending, executing, successful, failed] = (
+          //   await Promise.all([propose(), propose(), propose(), propose()])
+          // ).map((p) => p.id);
 
-          await prisma.asSystem.transaction.create({
-            data: {
-              hash: hexlify(randomBytes(32)),
-              proposal: { connect: { id: pendingWithFailed.id } },
-              gasLimit: 0,
-              receipt: {
-                create: {
-                  success: false,
-                  response: hexlify(randomBytes(32)),
-                  gasUsed: 0,
-                  gasPrice: 0,
-                  fee: 0,
-                  blockNumber: 0,
-                },
-              },
-            },
-          });
-
-          await prisma.asSystem.transaction.create({
-            data: {
-              hash: hexlify(randomBytes(32)),
-              proposal: { connect: { id: executing.id } },
-              gasLimit: 0,
-            },
-          });
-
-          await prisma.asSystem.transaction.create({
-            data: {
-              hash: hexlify(randomBytes(32)),
-              proposal: { connect: { id: executed.id } },
-              gasLimit: 0,
-              receipt: {
-                create: {
+          await Promise.all(
+            [
+              e.insert(e.Transaction, {
+                proposal: selectTransactionProposal(executing),
+                hash: randomHash(),
+                gasPrice: 0,
+              }),
+              e.insert(e.Transaction, {
+                proposal: selectTransactionProposal(successful),
+                hash: randomHash(),
+                gasPrice: 0,
+                receipt: e.insert(e.Receipt, {
                   success: true,
-                  response: hexlify(randomBytes(32)),
-                  gasUsed: 0,
-                  gasPrice: 0,
-                  fee: 0,
-                  blockNumber: 0,
-                },
-              },
-            },
-          });
+                  blockNumber: 0n,
+                  blockTimestamp: new Date(),
+                }),
+              }),
+              e.insert(e.Transaction, {
+                proposal: selectTransactionProposal(failed),
+                hash: randomHash(),
+                gasPrice: 0,
+                receipt: e.insert(e.Receipt, {
+                  success: false,
+                  blockNumber: 0n,
+                  blockTimestamp: new Date(),
+                }),
+              }),
+            ].map((expr) => expr.run(db.client)),
+          );
         }),
       );
 
-      it('pending only shows pending proposals', () =>
+      it('pending', () =>
         asUser(user1, async () => {
-          const proposals = await service.findMany({ states: [ProposalState.Pending] });
-
-          expect(new Set(proposals.map((p) => p.id))).toEqual(
-            new Set([pending, pendingWithFailed].map((p) => p.id)),
-          );
+          const proposals = await service.select({ statuses: [TransactionProposalStatus.Pending] });
+          expect(proposals.map((p) => p.id)).toEqual([pending]);
         }));
 
-      it('executing only shows executing proposals', () =>
+      it('executing', () =>
         asUser(user1, async () => {
-          expect(await service.findMany({ states: [ProposalState.Executing] })).toEqual([
-            executing,
-          ]);
+          const proposals = await service.select({
+            statuses: [TransactionProposalStatus.Executing],
+          });
+          expect(proposals.map((p) => p.id)).toEqual([executing]);
         }));
 
-      it('executed only shows executed proposals', () =>
+      it('successful', () =>
         asUser(user1, async () => {
-          expect(await service.findMany({ states: [ProposalState.Executed] })).toEqual([executed]);
+          const proposals = await service.select({
+            statuses: [TransactionProposalStatus.Successful],
+          });
+          expect(proposals.map((p) => p.id)).toEqual([successful]);
         }));
 
-      it('shows all when all filters are applied', () =>
+      it('failure', () =>
         asUser(user1, async () => {
-          expect(await service.findMany({ states: Object.values(ProposalState) })).toHaveLength(4);
+          const proposals = await service.select({ statuses: [TransactionProposalStatus.Failed] });
+          expect(proposals.map((p) => p.id)).toEqual([failed]);
+        }));
+
+      it('multiple statuses', () =>
+        asUser(user1, async () => {
+          const proposals = await service.select({
+            statuses: [TransactionProposalStatus.Pending, TransactionProposalStatus.Failed],
+          });
+          expect(new Set(proposals.map((p) => p.id))).toEqual(new Set([pending, failed]));
         }));
     });
-  });
-
-  describe('satisfiablePolicies', () => {
-    it.todo('return satisfiable policies');
-
-    it.todo('return satisfied policies');
-
-    it.todo('set requiresUserAction correctly');
   });
 
   describe('approve', () => {
     it('creates approval', () =>
       asUser(user1, async () => {
-        const { id } = await propose();
+        const { hash } = await propose();
 
-        await approve(id);
+        await service.approve({ hash, signature });
 
         expect(
-          await prisma.asUser.approval.findUnique({
-            where: { proposalId_userId: { proposalId: id, userId: user1.address } },
-          }),
+          await db.query(
+            e.select(e.Approval, () => ({
+              filter_single: { proposal: selectProposal(hash), user: selectUser(getUser()) },
+            })),
+          ),
         ).toBeTruthy();
       }));
 
     it("throws if the proposal doesn't exist", () =>
       asUser(user1, async () => {
-        await expect(approve(hexlify(randomBytes(32)))).rejects.toThrow();
+        await expect(service.approve({ hash: randomHash(), signature })).rejects.toThrow();
       }));
 
     it("throws if the signature isn't valid (from the user for that proposal)", () =>
       asUser(user1, async () => {
-        const { id } = await propose();
+        const { hash } = await propose();
 
         provider.verifySignature.mockImplementationOnce(async () => false);
-        await expect(service.approve({ id, signature: randomSignature() })).rejects.toThrow();
+        await expect(service.approve({ hash, signature })).rejects.toThrow();
+      }));
+
+    it('tries to execute transaction', () =>
+      asUser(user1, async () => {
+        const { hash } = await propose();
+
+        await service.approve({ hash, signature });
+        expect(transactions.tryExecute).toHaveBeenCalled();
       }));
 
     // TODO: notification tests once it has been implemented
@@ -312,54 +307,42 @@ describe(ProposalsService.name, () => {
 
     //     expect(expo.chunkPushNotifications).toHaveBeenCalled();
     //   }));
-
-    it('tries to execute transaction', () =>
-      asUser(user1, async () => {
-        const { id } = await propose();
-
-        await approve(id);
-        expect(transactions.tryExecute).toHaveBeenCalled();
-      }));
   });
 
   describe('reject', () => {
     it('creates rejection', () =>
       asUser(user1, async () => {
-        const { id } = await propose();
-        await service.reject({ id });
+        const { hash } = await propose();
+        await service.reject(hash);
 
         expect(
-          await prisma.asUser.approval.findUnique({
-            where: { proposalId_userId: { proposalId: id, userId: user1.address } },
-          }),
+          await db.query(
+            e.select(e.Rejection, () => ({
+              filter_single: { proposal: selectProposal(hash), user: selectUser(getUser()) },
+            })),
+          ),
         ).toBeTruthy();
       }));
 
     it('creates rejection to proposal when the user had previously approved', () =>
       asUser(user1, async () => {
-        const { id } = await propose();
+        const { hash } = await propose();
 
-        provider.verifySignature.mockImplementationOnce(async () => true);
-        await service.approve({ id, signature: randomSignature() });
-
-        await service.reject({ id });
+        await service.approve({ hash, signature });
+        await service.reject(hash);
 
         expect(
-          (
-            await prisma.asUser.approval.findUnique({
-              where: { proposalId_userId: { proposalId: id, userId: user1.address } },
-            })
-          )?.signature,
-        ).toBe(null);
+          await db.query(
+            e.select(e.Rejection, () => ({
+              filter_single: { proposal: selectProposal(hash), user: selectUser(getUser()) },
+            })),
+          ),
+        ).toBeTruthy();
       }));
 
     it("throws if the proposal doesn't exist", () =>
       asUser(user1, async () => {
-        provider.verifySignature.mockImplementationOnce(async () => true);
-
-        await expect(
-          service.approve({ id: "doesn't exist", signature: randomSignature() }),
-        ).rejects.toThrow();
+        await expect(service.approve({ hash: randomHash(), signature })).rejects.toThrow();
       }));
   });
 
@@ -367,67 +350,73 @@ describe(ProposalsService.name, () => {
     it('deletes proposal', () =>
       asUser(user1, async () => {
         const { id } = await propose();
-        await service.delete({ id });
+        await service.delete(id);
 
-        expect(await service.findUnique({ where: { id } })).toBeNull();
+        expect(await db.query(selectProposal(id))).toBeNull();
       }));
 
-    it("throws if the policy doesn't exist", () =>
+    it("not remove if the policy doesn't exist", () =>
       asUser(user1, async () => {
-        await expect(service.delete({ id: hexlify(randomBytes(32)) })).rejects.toThrow();
+        expect(await service.delete(randomHash())).toEqual(false);
       }));
 
-    it("throws if the user isn't a member of the proposing account", async () => {
+    it("not remove if the user isn't a member of the proposing account", async () => {
       const { id } = await asUser(user1, () => propose());
 
-      await asUser(randomUser(), () => expect(service.delete({ id })).rejects.toThrow());
+      await asUser(randomUser(), async () => expect(await service.delete(id)).toEqual(false));
     });
 
     it('deletes policy that the proposal was going to create', () =>
       asUser(user1, async () => {
-        const { id, accountId } = await propose();
+        const { id } = await propose();
 
-        // Create policy with a single creation rule
-        await prisma.asUser.policy.create({
-          data: {
-            account: connectAccount(accountId),
+        const policy = await e
+          .insert(e.Policy, {
+            account: selectAccount(user1Account1),
             key: 1,
-            name: 'abc',
-            states: {
-              create: {
-                account: connectAccount(accountId),
-                proposal: { connect: { id } },
-              },
-            },
-          },
-        });
+            name: 'Policy 1',
+            stateHistory: e.insert(e.PolicyState, {
+              proposal: selectTransactionProposal(id),
+              threshold: 0,
+            }),
+          })
+          .run(db.client);
 
-        await service.delete({ id });
+        await service.delete(id);
 
-        // Expect all created policies to be deleted
-        expect(policies.remove).toHaveBeenCalledTimes(1);
+        expect(await db.query(selectPolicy(policy))).toBeNull();
       }));
 
     it("policies being updated by proposal aren't deleted", () =>
       asUser(user1, async () => {
-        const { id, accountId } = await propose();
+        const { id } = await propose();
 
-        // Create policy with 2 states, only one of which is being proposed
-        await prisma.asUser.policy.create({
-          data: {
-            account: connectAccount(asAddress(accountId)),
+        const policy = await e
+          .insert(e.Policy, {
+            account: selectAccount(user1Account1),
             key: 1,
-            name: 'abc',
-            states: {
-              create: [{}, { proposalId: id }],
-            },
-          },
-        });
+            name: 'Policy 1',
+            stateHistory: e.set(
+              e.insert(e.PolicyState, { threshold: 0 }),
+              e.insert(e.PolicyState, {
+                proposal: selectTransactionProposal(id),
+                threshold: 0,
+              }),
+            ),
+          })
+          .run(db.client);
 
-        await service.delete({ id });
+        await service.delete(id);
 
-        // Expect all created policies to be deleted
-        expect(policies.remove).toHaveBeenCalledTimes(0);
+        expect(await db.query(selectPolicy(policy))).toBeTruthy();
       }));
   });
+
+  // describe('satisfiablePolicies', () => {
+  //   it.todo('return satisfiable policies');
+
+  //   it.todo('return satisfied policies');
+
+  //   it.todo('set requiresUserAction correctly');
+  // });
 });

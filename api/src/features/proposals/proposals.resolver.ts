@@ -5,12 +5,10 @@ import {
   Mutation,
   Parent,
   Query,
-  ResolveField,
   Resolver,
   Subscription,
 } from '@nestjs/graphql';
 import { GraphQLResolveInfo } from 'graphql';
-import { getSelect } from '~/util/select';
 import {
   ProposeArgs,
   ApproveArgs,
@@ -21,61 +19,34 @@ import {
   PROPOSAL_SUBSCRIPTION,
   ACCOUNT_PROPOSAL_SUB_TRIGGER,
 } from './proposals.args';
-import { ProposalsService } from './proposals.service';
 import { PubsubService } from '~/features/util/pubsub/pubsub.service';
 import { GqlContext, asUser, getUserCtx } from '~/request/ctx';
-import { Approval, Proposal, Rejection, SatisfiablePolicy } from './proposals.model';
-import { asHex } from 'lib';
-import { Transaction } from '../transactions/transactions.model';
+import { Proposal, SatisfiablePolicy } from './proposals.model';
+import { ProposalsService } from './proposals.service';
+import { getShape } from '../database/database.select';
+import { ComputedField } from '~/decorators/computed.decorator';
+import e from '~/edgeql-js';
 
 @Resolver(() => Proposal)
 export class ProposalsResolver {
   constructor(private service: ProposalsService, private pubsub: PubsubService) {}
 
   @Query(() => Proposal, { nullable: true })
-  async proposal(
-    @Args() { id }: UniqueProposalArgs,
-    @Info() info: GraphQLResolveInfo,
-  ): Promise<Proposal | null> {
-    return this.service.findUnique({
-      where: { id },
-      ...getSelect(info),
-    });
+  async proposal(@Args() { hash }: UniqueProposalArgs, @Info() info: GraphQLResolveInfo) {
+    return this.service.selectUnique(hash, getShape(info));
   }
 
   @Query(() => [Proposal])
-  async proposals(
-    @Args() args: ProposalsArgs,
-    @Info() info: GraphQLResolveInfo,
-  ): Promise<Proposal[]> {
-    return this.service.findMany(args, getSelect(info));
+  async proposals(@Args() args: ProposalsArgs, @Info() info: GraphQLResolveInfo) {
+    return this.service.select(args, getShape(info));
   }
 
-  @ResolveField(() => Transaction, { nullable: true })
-  async transaction(@Parent() proposal: Proposal): Promise<Transaction | null> {
-    return proposal.transactions?.[0] || null;
-  }
-
-  @ResolveField(() => [Approval])
-  async approvals(@Parent() proposal: Proposal): Promise<Approval[]> {
-    return (
-      (proposal.approvals ?? [])
-        ?.filter((approval) => approval.signature)
-        .map((a) => ({ ...a, signature: asHex(a.signature!) })) ?? []
-    );
-  }
-
-  @ResolveField(() => [Rejection])
-  async rejections(@Parent() proposal: Proposal): Promise<Rejection[]> {
-    return (proposal.approvals ?? []).filter((approval) => !approval.signature);
-  }
-
-  @ResolveField(() => [SatisfiablePolicy])
+  @ComputedField<typeof e.Policy>(() => [SatisfiablePolicy], { id: true })
   async satisfiablePolicies(
-    @Parent() proposal: Proposal,
+    @Parent() { id }: Proposal,
     @Info() info: GraphQLResolveInfo,
   ): Promise<SatisfiablePolicy[]> {
-    return this.service.satisfiablePolicies(proposal.id, getSelect(info));
+    return this.service.satisfiablePoliciesResponse(id, getShape(info));
   }
 
   @Subscription(() => Proposal, {
@@ -92,8 +63,7 @@ export class ProposalsResolver {
     ) {
       return asUser(
         ctx,
-        async () =>
-          await this.service.findUnique({ where: { id: proposal.id }, ...getSelect(info) }),
+        async () => await this.service.selectUnique(proposal.hash, getShape(info)),
       );
     },
   })
@@ -102,7 +72,7 @@ export class ProposalsResolver {
     @Context() ctx: GqlContext,
   ) {
     return asUser(ctx, () => {
-      if (!accounts && !proposals) accounts = [...getUserCtx().accounts];
+      if (!accounts && !proposals) accounts = [...getUserCtx().accounts2.map((a) => a.address)];
 
       return this.pubsub.asyncIterator([
         ...[...(accounts ?? [])].map((account) => `${ACCOUNT_PROPOSAL_SUB_TRIGGER}.${account}`),
@@ -112,32 +82,25 @@ export class ProposalsResolver {
   }
 
   @Mutation(() => Proposal)
-  async propose(
-    @Args()
-    args: ProposeArgs,
-    @Info() info: GraphQLResolveInfo,
-  ): Promise<Proposal> {
-    return this.service.propose(args, getSelect(info));
+  async propose(@Args('args') args: ProposeArgs, @Info() info: GraphQLResolveInfo) {
+    const { id } = await this.service.propose(args);
+    return this.service.selectUnique(id, getShape(info));
   }
 
   @Mutation(() => Proposal)
-  async approve(@Args() args: ApproveArgs, @Info() info: GraphQLResolveInfo): Promise<Proposal> {
-    return this.service.approve(args, getSelect(info));
+  async approve(@Args('args') args: ApproveArgs, @Info() info: GraphQLResolveInfo) {
+    const { id } = await this.service.approve(args);
+    return this.service.selectUnique(id, getShape(info));
   }
 
   @Mutation(() => Proposal)
-  async reject(
-    @Args() args: UniqueProposalArgs,
-    @Info() info: GraphQLResolveInfo,
-  ): Promise<Proposal> {
-    return this.service.reject(args, getSelect(info));
+  async reject(@Args() { hash }: UniqueProposalArgs, @Info() info: GraphQLResolveInfo) {
+    await this.service.reject(hash);
+    return this.service.selectUnique(hash, getShape(info));
   }
 
-  @Mutation(() => Proposal)
-  async removeProposal(
-    @Args() args: UniqueProposalArgs,
-    @Info() info: GraphQLResolveInfo,
-  ): Promise<Partial<Proposal>> {
-    return this.service.delete(args, getSelect(info));
+  @Mutation(() => Boolean)
+  async removeProposal(@Args() { hash }: UniqueProposalArgs): Promise<boolean> {
+    return this.service.delete(hash);
   }
 }

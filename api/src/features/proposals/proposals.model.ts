@@ -1,125 +1,101 @@
-import { Field, ObjectType, OmitType } from '@nestjs/graphql';
-import { Decimal } from '@prisma/client/runtime';
+import { Field, ObjectType, registerEnumType } from '@nestjs/graphql';
 import { GraphQLBigInt } from 'graphql-scalars';
 import { PolicyKey } from 'lib';
-import { GraphQLDecimal } from 'prisma-graphql-type-decimal';
 import { PolicyKeyField } from '~/apollo/scalars/PolicyKey.scalar';
 import { Account } from '../accounts/accounts.model';
 import { User } from '../users/users.model';
-import { PolicyState } from '../policies/policies.model';
+import { Policy } from '../policies/policies.model';
 import { AddressField } from '~/apollo/scalars/Address.scalar';
 import { Bytes32Field, BytesField } from '~/apollo/scalars/Bytes.scalar';
 import { Transaction } from '../transactions/transactions.model';
+import { IdField } from '~/apollo/scalars/Id.scalar';
+import { TransferDetails } from '../transfers/transfers.model';
 
 @ObjectType()
 export class Proposal {
+  @IdField()
+  id: string;
+
   @Bytes32Field()
-  id: string; // Hex
+  hash: string; // Hex
 
-  @Field(() => Account, { nullable: false })
-  account?: Account;
+  account: Account;
 
-  @AddressField()
-  accountId: string; // Address
+  policy?: Policy;
 
-  @Field(() => User, { nullable: false })
-  proposer?: User;
+  createdAt: Date;
 
-  @AddressField()
-  proposerId: string; // Address
+  proposedBy: User;
+
+  responses: ProposalResponse[];
+
+  approvals: Approval[];
+
+  rejections: Rejection[];
 
   @AddressField()
   to: string; // Address
 
-  @Field(() => GraphQLDecimal, { nullable: true })
-  value: Decimal | null;
+  @Field(() => GraphQLBigInt, { nullable: true })
+  value?: bigint | null;
 
   @BytesField({ nullable: true })
-  data: string | null; // Hex | null
+  data?: string | null; // Hex | null
 
   @Field(() => GraphQLBigInt)
   nonce: bigint;
 
-  @Field(() => GraphQLBigInt, { nullable: true })
-  gasLimit: bigint | null;
-
   @Field(() => GraphQLBigInt)
-  estimatedOpGas: bigint;
+  gasLimit: bigint;
 
   @AddressField()
-  feeToken: string | null; // Address | null
+  feeToken: string; // Address
 
-  createdAt: Date;
+  simulation: Simulation;
 
-  simulation?: Simulation | null;
+  transactions: Transaction[];
 
-  approvals?: Approval[];
+  transaction?: Transaction;
 
-  transactions?: Transaction[];
-
-  policyStates?: PolicyState[];
+  status: TransactionProposalStatus;
 }
+
+export enum TransactionProposalStatus {
+  Pending = 'Pending',
+  Executing = 'Executing',
+  Successful = 'Successful',
+  Failed = 'Failed',
+}
+registerEnumType(TransactionProposalStatus, { name: 'TransactionProposalStatus' });
 
 @ObjectType()
 export class Simulation {
-  @Field(() => Proposal, { nullable: false })
-  proposal?: Proposal;
-
-  @Bytes32Field()
-  proposalId: string; // Hex
-
-  transfers?: SimulatedTransfer[];
+  transfers: TransferDetails[];
 }
 
-@ObjectType()
-export class SimulatedTransfer {
-  id: number;
+@ObjectType({ isAbstract: true })
+export class ProposalResponse {
+  @IdField()
+  id: string;
 
-  @Field(() => Simulation, { nullable: false })
-  simulation?: Simulation;
+  proposal: Proposal;
 
-  @Bytes32Field()
-  proposalId: string; // Hex
+  user: User;
 
-  @AddressField()
-  token: string; // Address
-
-  @AddressField()
-  from: string; // Address
-
-  @AddressField()
-  to: string; // Address
-
-  @Field(() => GraphQLDecimal)
-  amount: Decimal;
-}
-
-@ObjectType()
-export class Approval {
-  @Field(() => Proposal, { nullable: false })
-  proposal?: Proposal;
-
-  @Bytes32Field()
-  proposalId: string; // Hex
-
-  @Field(() => User, { nullable: false })
-  user?: User;
-
-  @AddressField()
-  userId: string; // Address
-
-  @BytesField()
-  signature: string | null; // Hex | null
-
-  @Field(() => Date)
   createdAt: Date;
 }
 
 @ObjectType()
-export class Rejection extends OmitType(Approval, ['signature'] as const) {}
+export class Approval extends ProposalResponse {
+  // Don't include signature as user's may want to retract it later
+}
+
+@ObjectType()
+export class Rejection extends ProposalResponse {}
 
 @ObjectType()
 export class SatisfiablePolicy {
+  @IdField()
   id: string;
 
   @PolicyKeyField()

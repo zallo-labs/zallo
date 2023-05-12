@@ -11,7 +11,7 @@ import {
   PolicyKey,
   POLICY_ABI,
 } from 'lib';
-import { ProposalsService } from '../proposals/proposals.service';
+import { ProposalsService, selectTransactionProposal } from '../proposals/proposals.service';
 import { CreatePolicyInput, UniquePolicyInput, UpdatePolicyInput } from './policies.args';
 import { inputAsPolicy } from './policies.util';
 import _ from 'lodash';
@@ -45,9 +45,9 @@ export const policyStateAsPolicy = (key: number, state: any) =>
     },
   });
 
-export type UniquePolicyId = { id: uuid } | { account: Address; key: PolicyKey };
+export type UniquePolicy = { id: uuid } | { account: Address; key: PolicyKey };
 
-export const uniquePolicy = (unique: UniquePolicyId) =>
+export const uniquePolicy = (unique: UniquePolicy) =>
   e.shape(e.Policy, (p) => ({
     filter_single:
       'id' in unique
@@ -58,7 +58,11 @@ export const uniquePolicy = (unique: UniquePolicyId) =>
           },
   }));
 
-export type SelectManyPoliciesArgs = Omit<Prisma.PolicyFindManyArgs, 'where' | 'include'>;
+export const selectPolicy = (id: UniquePolicy, shape?: ShapeFunc<typeof e.Policy>) =>
+  e.select(e.Policy, (p) => ({
+    ...shape?.(p),
+    ...uniquePolicy(id)(p),
+  }));
 
 @Injectable()
 export class PoliciesService {
@@ -69,7 +73,7 @@ export class PoliciesService {
     private userAccounts: UserAccountsService,
   ) {}
 
-  async selectUnique(unique: UniquePolicyId, shape?: ShapeFunc<typeof e.Policy>) {
+  async selectUnique(unique: UniquePolicy, shape?: ShapeFunc<typeof e.Policy>) {
     return e
       .select(e.Policy, (p) => ({
         ...(shape && shape(p)),
@@ -218,18 +222,13 @@ export class PoliciesService {
     const proposal =
       isActive &&
       (await (async () => {
-        const proposal = await this.proposals.propose(
-          {
-            account,
-            to: account,
-            data: asHex(ACCOUNT_INTERFACE.encodeFunctionData('removePolicy', [key])),
-          },
-          { select: { id: true } },
-        );
+        const proposal = await this.proposals.propose({
+          account,
+          to: account,
+          data: asHex(ACCOUNT_INTERFACE.encodeFunctionData('removePolicy', [key])),
+        });
 
-        return e.select(e.TransactionProposal, () => ({
-          filter_single: { id: proposal.id },
-        }));
+        return selectTransactionProposal(proposal.id);
       })());
 
     const r = await e
@@ -250,16 +249,11 @@ export class PoliciesService {
   }
 
   private async proposeState(account: Address, policy: Policy) {
-    const proposal = await this.proposals.propose(
-      {
-        account,
-        to: account,
-        data: asHex(
-          ACCOUNT_INTERFACE.encodeFunctionData('addPolicy', [POLICY_ABI.asStruct(policy)]),
-        ),
-      },
-      { select: { id: true } },
-    );
+    const proposal = await this.proposals.propose({
+      account,
+      to: account,
+      data: asHex(ACCOUNT_INTERFACE.encodeFunctionData('addPolicy', [POLICY_ABI.asStruct(policy)])),
+    });
 
     return e.select(e.TransactionProposal, () => ({
       filter_single: { id: proposal.id },

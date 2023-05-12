@@ -91,10 +91,7 @@ describe(PoliciesService.name, () => {
 
   beforeEach(() => {
     user1Account = randomAddress();
-    user1 = {
-      address: randomAddress(),
-      accounts: new Set([]),
-    };
+    user1 = randomUser();
   });
 
   describe('create', () => {

@@ -1,10 +1,7 @@
 import { createMock } from '@golevelup/ts-jest';
 import { Test } from '@nestjs/testing';
-import { Account, Contact } from '@prisma/client';
 import { asUser, getUser, UserContext } from '~/request/ctx';
-import { asPrismaPromise, randomAddress } from '~/util/test';
 import { DatabaseService } from '../database/database.service';
-import { User } from './users.model';
 import { UsersService } from './users.service';
 import e from '~/edgeql-js';
 import { UpdateUserArgs } from './users.args';
@@ -31,7 +28,7 @@ describe(UsersService.name, () => {
   let user1: UserContext;
 
   beforeEach(async () => {
-    user1 = { address: randomAddress(), accounts: new Set() };
+    user1 = randomUser();
   });
 
   describe('upsert', () => {

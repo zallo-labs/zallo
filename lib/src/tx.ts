@@ -1,7 +1,7 @@
 import { TypedDataDomain, TypedDataField } from '@ethersproject/abstract-signer';
 import { ethers } from 'ethers';
 import { Addresslike } from './address';
-import { EMPTY_HEX_BYTES } from './bytes';
+import { asHex, EMPTY_HEX_BYTES } from './bytes';
 import { Call } from './call';
 
 export interface Tx extends Call {
@@ -34,9 +34,11 @@ export const getDomain = async ({
 });
 
 export const hashTx = async (tx: Tx, domainParams: GetDomainParams) =>
-  ethers.utils._TypedDataEncoder.hash(await getDomain(domainParams), TX_EIP712_TYPE, {
-    to: tx.to,
-    value: tx.value ?? 0n,
-    data: tx.data ?? EMPTY_HEX_BYTES,
-    nonce: tx.nonce,
-  } satisfies Tx);
+  asHex(
+    ethers.utils._TypedDataEncoder.hash(await getDomain(domainParams), TX_EIP712_TYPE, {
+      to: tx.to,
+      value: tx.value ?? 0n,
+      data: tx.data ?? EMPTY_HEX_BYTES,
+      nonce: tx.nonce,
+    } satisfies Tx),
+  );
