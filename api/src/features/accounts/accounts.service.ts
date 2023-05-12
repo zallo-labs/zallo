@@ -1,7 +1,7 @@
 import { forwardRef, Inject, Injectable } from '@nestjs/common';
 import { DatabaseService } from '../database/database.service';
 import e from '~/edgeql-js';
-import { Address, DeploySalt, Policy, asHex, asPolicyKey, randomDeploySalt, isAddress } from 'lib';
+import { Address, DeploySalt, Policy, asHex, asPolicyKey, randomDeploySalt } from 'lib';
 import { ShapeFunc } from '../database/database.select';
 import {
   ACCOUNT_SUBSCRIPTION,
@@ -21,18 +21,12 @@ import { InjectQueue } from '@nestjs/bull';
 import { ACCOUNTS_QUEUE, AccountActivationEvent } from './accounts.queue';
 import { inputAsPolicy } from '../policies/policies.util';
 import { Queue } from 'bull';
-import { uuid } from 'edgedb/dist/codecs/ifaces';
+import { selectAccount } from './accounts.util';
 
 export interface AccountSubscriptionPayload {
   [ACCOUNT_SUBSCRIPTION]: Address;
   event: AccountEvent;
 }
-
-export const selectAccount = (id: uuid | Address, shape?: ShapeFunc<typeof e.Account>) =>
-  e.select(e.Account, (a) => ({
-    ...shape?.(a),
-    filter_single: isAddress(id) ? { address: id } : { id },
-  }));
 
 @Injectable()
 export class AccountsService {

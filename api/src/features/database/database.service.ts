@@ -30,7 +30,7 @@ export class DatabaseService implements OnModuleInit {
       ? this.__client.withGlobals({
           // current_user_id: user.address,
           current_user_address: user.address,
-          current_user_accounts_array: [...user.accounts],
+          current_user_accounts_array: user.accounts,
         })
       : this.__client.withConfig({
           apply_access_policies: false,

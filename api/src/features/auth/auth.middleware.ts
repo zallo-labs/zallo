@@ -44,11 +44,11 @@ const isPlayground = (req: Request) => {
 
 @Injectable()
 export class AuthMiddleware implements NestMiddleware {
-  constructor(private provider: ProviderService, private userAccount: UserAccountsService) {}
+  constructor(private provider: ProviderService, private userAccounts: UserAccountsService) {}
 
   async use(req: Request, _res: Response, next: NextFunction) {
     const user = await this.tryAuthenticate(req);
-    if (user) req.user = { address: user, accounts: await this.userAccount.get(user) };
+    if (user) req.user = { address: user, accounts: await this.userAccounts.get(user) };
 
     next();
   }

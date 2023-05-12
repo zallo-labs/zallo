@@ -18,10 +18,16 @@ import { getShape } from '../database/database.select';
 import { ComputedField } from '~/decorators/computed.decorator';
 import e from '~/edgeql-js';
 import { Input } from '~/decorators/input.decorator';
+import { DatabaseService } from '../database/database.service';
+import { Address } from 'lib';
 
 @Resolver(() => TransactionProposal)
 export class ProposalsResolver {
-  constructor(private service: ProposalsService, private pubsub: PubsubService) {}
+  constructor(
+    private service: ProposalsService,
+    private db: DatabaseService,
+    private pubsub: PubsubService,
+  ) {}
 
   @Query(() => TransactionProposal, { nullable: true })
   async proposal(@Input() { hash }: UniqueProposalInput, @Info() info: GraphQLResolveInfo) {
@@ -60,8 +66,15 @@ export class ProposalsResolver {
     @Input() { accounts, proposals }: ProposalSubscriptionInput,
     @Context() ctx: GqlContext,
   ) {
-    return asUser(ctx, () => {
-      if (!accounts && !proposals) accounts = [...getUserCtx().accounts2.map((a) => a.address)];
+    return asUser(ctx, async () => {
+      if (!accounts && !proposals) {
+        accounts = (await this.db.query(
+          e.select(e.Account, (a) => ({
+            filter: e.op(a.id, 'in', e.cast(e.uuid, e.set(...getUserCtx().accounts))),
+            address: true,
+          })).address,
+        )) as Address[];
+      }
 
       return this.pubsub.asyncIterator([
         ...[...(accounts ?? [])].map((account) => `${ACCOUNT_PROPOSAL_SUB_TRIGGER}.${account}`),

@@ -45,10 +45,10 @@ describe(PoliciesService.name, () => {
       })
       .run(db.client);
 
-    userCtx.accounts.add(accountId);
+    userCtx.accounts.push(accountId);
 
     userAccounts.add.mockImplementation(async (p) => {
-      if (userCtx.address === p.user && accountId === p.account) userCtx.accounts.add(accountId);
+      if (userCtx.address === p.user && accountId === p.account) userCtx.accounts.push(accountId);
     });
 
     await e.insert(e.Device, { address: userCtx.address }).unlessConflict().run(db.client);

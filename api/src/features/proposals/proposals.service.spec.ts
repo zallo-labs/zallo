@@ -10,7 +10,7 @@ import { ProposeInput } from './proposals.input';
 import { DatabaseService } from '../database/database.service';
 import { ProposalsService, selectProposal, selectTransactionProposal } from './proposals.service';
 import e from '~/edgeql-js';
-import { selectAccount } from '../accounts/accounts.service';
+import { selectAccount } from '../accounts/accounts.util';
 import { selectUser } from '../users/users.service';
 import { uuid } from 'edgedb/dist/codecs/ifaces';
 import { selectPolicy } from '../policies/policies.service';
@@ -72,7 +72,7 @@ describe(ProposalsService.name, () => {
       .id.run(db.client);
 
     if (accountId) {
-      getUserCtx().accounts.add(accountId);
+      getUserCtx().accounts.push(accountId);
 
       await e
         .insert(e.Device, { address: getUser() })

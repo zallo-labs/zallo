@@ -56,7 +56,7 @@ describe(AccountsService.name, () => {
     );
 
     policies.create.mockImplementation(async (p): Promise<any> => {
-      if (p.approvers.includes(userCtx.address) && p.accountId) userCtx.accounts.add(p.accountId);
+      if (p.approvers.includes(userCtx.address) && p.accountId) userCtx.accounts.push(p.accountId);
     });
 
     return service.createAccount({
@@ -116,7 +116,7 @@ describe(AccountsService.name, () => {
       asUser(user1, async () => {
         const accounts = (await service.select({})).map((acc) => acc.id);
 
-        expect(new Set(accounts)).toEqual(user1.accounts);
+        expect(accounts).toEqual(user1.accounts);
       }));
 
     it("doesn't return accounts the user isn't a member of", async () => {
@@ -125,7 +125,7 @@ describe(AccountsService.name, () => {
         await createAccount();
         const accounts = (await service.select({})).map((acc) => acc.id);
 
-        expect(new Set(accounts)).toEqual(user2.accounts);
+        expect(accounts).toEqual(user2.accounts);
       });
     });
   });

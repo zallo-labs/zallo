@@ -36,7 +36,7 @@ import { uuid } from 'edgedb/dist/codecs/ifaces';
 import e from '~/edgeql-js';
 import { ShapeFunc } from '../database/database.select';
 import { and } from '../database/database.util';
-import { selectAccount } from '../accounts/accounts.service';
+import { selectAccount } from '../accounts/accounts.util';
 import { selectUser } from '../users/users.service';
 
 const ERC20 = Erc20__factory.createInterface();

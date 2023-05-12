@@ -113,7 +113,7 @@ describe(ContactsService.name, () => {
             salt: randomDeploySalt(),
           }),
         );
-        getUserCtx().accounts.add(accountId);
+        getUserCtx().accounts.push(accountId);
 
         const contacts = await service.select(() => ({ address: true }));
         expect(contacts.map((c) => c.address)).toEqual([account]);

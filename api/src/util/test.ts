@@ -8,8 +8,4 @@ export const randomAddress = () => asAddress(randomHex(20));
 
 export const randomHash = () => asHex(randomHex(32));
 
-export const randomUser = (): UserContext => ({
-  address: randomAddress(),
-  accounts: new Set(),
-  accounts2: [],
-});
+export const randomUser = (): UserContext => ({ address: randomAddress(), accounts: [] });

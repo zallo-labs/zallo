@@ -7,7 +7,7 @@ import {
 import { ListenerData, EventsProcessor } from '../events/events.processor';
 import { DatabaseService } from '../database/database.service';
 import e from '~/edgeql-js';
-import { selectAccount } from '../accounts/accounts.service';
+import { selectAccount } from '../accounts/accounts.util';
 import { TransferDirection } from './transfers.model';
 
 const ERC20 = Erc20__factory.createInterface();
