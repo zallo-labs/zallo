@@ -14,15 +14,15 @@ import { withBrowser } from '@site/src/components/withBrowser';
 export const CreateAccountExample = withBrowser(() => (
   <Explorer
     document={gql`
-      mutation CreateAccount($args: CreateAccountInput!) {
-        createAccount(args: $args) {
+      mutation CreateAccount($input: CreateAccountInput!) {
+        createAccount(input: $input) {
           id
         }
       }
     `}
     variables={
       {
-        args: {
+        input: {
           name: 'Test account',
           policies: [{ name: 'Admin policy', approvers: [useDevice().address], permissions: {} }],
         },
@@ -38,8 +38,8 @@ export const AccountExample = withBrowser(() => {
   return (
     <Explorer
       document={gql`
-        query Account($id: Address!) {
-          account(id: $id) {
+        query Account($input: AccountInput!) {
+          account(input: $input) {
             id
             name
             isActive
@@ -50,7 +50,7 @@ export const AccountExample = withBrowser(() => {
           }
         }
       `}
-      variables={{ id: account } as AccountQueryVariables}
+      variables={{ input: { address: account } } as AccountQueryVariables}
     />
   );
 });

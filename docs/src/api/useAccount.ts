@@ -14,28 +14,29 @@ const useFirstAccount = (): string | undefined =>
   useSuspenseQuery<FirstAccountQuery, FirstAccountQueryVariables>(
     gql`
       query FirstAccount {
-        accounts(take: 1) {
+        accounts {
           id
+          address
         }
       }
     `,
     {
       variables: {},
     },
-  ).data.accounts[0]?.id;
+  ).data.accounts[0]?.address;
 
 const useCreateAccount = () =>
   useMutation<CreateTestAccountMutation, CreateTestAccountMutationVariables>(
     gql`
-      mutation CreateTestAccount($args: CreateAccountInput!) {
-        createAccount(args: $args) {
+      mutation CreateTestAccount($input: CreateAccountInput!) {
+        createAccount(input: $input) {
           id
         }
       }
     `,
     {
       variables: {
-        args: {
+        input: {
           name: 'Test account',
           policies: [{ name: 'Admin policy', approvers: [useDevice().address], permissions: {} }],
         },

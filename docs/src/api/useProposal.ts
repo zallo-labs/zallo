@@ -10,27 +10,35 @@ import {
 import { useDevice } from '../hooks/useDevice';
 import { useAccount } from './useAccount';
 import { useSuspenseQuery } from './useSuspenseQuery';
+import { TransactionProposalStatus } from '../api.generated';
 
 const useFirstPendingProposal = (account: string): string | undefined =>
   useSuspenseQuery<FirstPendingProposalQuery, FirstPendingProposalQueryVariables>(
     gql`
-      query FirstPendingProposal($account: Address!) {
-        proposals(accounts: [$account], states: Pending, take: 1) {
+      query FirstPendingProposal($input: ProposalsInput) {
+        proposals(input: $input) {
           id
+          hash
         }
       }
     `,
     {
-      variables: { account },
+      variables: {
+        input: {
+          accounts: [account],
+          statuses: [TransactionProposalStatus.Pending],
+        },
+      },
     },
-  ).data.proposals[0]?.id;
+  ).data.proposals[0]?.hash;
 
 const usePropose = () =>
   useMutation<ProposeTestMutation, ProposeTestMutationVariables>(
     gql`
-      mutation ProposeTest($account: Address!, $to: Address!, $value: Uint256) {
-        propose(account: $account, to: $to, value: $value) {
+      mutation ProposeTest($input: ProposeInput!) {
+        propose(input: $input) {
           id
+          hash
         }
       }
     `,
@@ -49,9 +57,11 @@ export const useProposal = () => {
     (async () => {
       if (!proposal && account !== ZERO_ADDR) {
         const { data } = await propose({
-          variables: { account, to: device.address, value: 15000 },
+          variables: {
+            input: { account, to: device.address, value: 15000 },
+          },
         });
-        setProposal(data?.propose.id);
+        setProposal(data?.propose.hash);
       }
     })();
   }, [account, device.address, proposal, propose]);
