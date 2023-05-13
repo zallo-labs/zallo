@@ -52,21 +52,23 @@ describe('TargetPermission', () => {
 
   describe('revert when', () => {
     it('no matching target', async () => {
-      await expect(verify({ to, data }, {})).to.be.reverted; /*WithCustomError(
+      await expect(verify({ to, data }, {})).to.be.revertedWithCustomError(
         verifier,
         AccountError.NotToAnyOfTargets,
-      ); */
+      );
     });
 
     it('matching target but no matching selector', async () => {
-      await expect(verify({ to, data }, { [to]: new Set([]) })).to.be.reverted; /*WithCustomError(
+      await expect(verify({ to, data }, { [to]: new Set([]) })).to.be.revertedWithCustomError(
         verifier,
         AccountError.NotAnyOfTargetSelectors,
-      );*/
+      );
     });
 
     it('matching target target but no matching selector, where fallback target & any selector exists', async () => {
-      await expect(verify({ to, data }, { [to]: new Set([]), '*': new Set(['*']) })).to.be.reverted; //WithCustomError(verifier, AccountError.NotAnyOfTargetSelectors);
+      await expect(
+        verify({ to, data }, { [to]: new Set([]), '*': new Set(['*']) }),
+      ).to.be.revertedWithCustomError(verifier, AccountError.NotAnyOfTargetSelectors);
     });
   });
 });

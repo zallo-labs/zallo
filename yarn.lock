@@ -7645,12 +7645,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@matterlabs/hardhat-zksync-chai-matchers@npm:^0.1.2":
-  version: 0.1.2
-  resolution: "@matterlabs/hardhat-zksync-chai-matchers@npm:0.1.2"
+"@matterlabs/hardhat-zksync-chai-matchers@npm:^0.1.3":
+  version: 0.1.3
+  resolution: "@matterlabs/hardhat-zksync-chai-matchers@npm:0.1.3"
   peerDependencies:
     "@nomicfoundation/hardhat-chai-matchers": ~1.0.4
-  checksum: 3e6b48b9e1b0618239cfc881f7901c0359f4344d84ae84730f59feb51dc645862de7bcb099bf04616aacbe96dad08043f64184cf7fbcecf125d21832c20c358f
+  checksum: 59b8d5d1c9714a4d83cdee45a9d8a77fa2467a479952ca21c9d16c4daea41e0099ca949f3e0dc41f1e302fd1d329dc0bed6b45f5dabe347a99a4b17f3ff38b80
   languageName: node
   linkType: hard
 
@@ -7680,16 +7680,16 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@matterlabs/hardhat-zksync-solc@npm:0.3.14":
-  version: 0.3.14
-  resolution: "@matterlabs/hardhat-zksync-solc@npm:0.3.14"
+"@matterlabs/hardhat-zksync-solc@npm:0.3.17":
+  version: 0.3.17
+  resolution: "@matterlabs/hardhat-zksync-solc@npm:0.3.17"
   dependencies:
     "@nomiclabs/hardhat-docker": ^2.0.0
     chalk: 4.1.2
     dockerode: ^3.3.4
   peerDependencies:
-    hardhat: ^2.12.6
-  checksum: 11ca4bc8fbe1d654412249cd99c689f84ac1d7d4515cac1cd99d1700b91108b472b518a5ef6aafc16c1c008cb785800504a5b58f5591ddaf05f930fe9e184ffe
+    hardhat: ^2.14.0
+  checksum: 2b069bcad29381a8a007ccae36c51f36b62b667ab5623a6271639663c77976c5ff202cc3f28dd7b58f57b3c5d21a86a5e29c1a05fd13d9867203dfd08f61c554
   languageName: node
   linkType: hard
 
@@ -7730,17 +7730,17 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@matterlabs/hardhat-zksync-verify@npm:^0.1.4":
-  version: 0.1.5
-  resolution: "@matterlabs/hardhat-zksync-verify@npm:0.1.5"
+"@matterlabs/hardhat-zksync-verify@npm:^0.1.7":
+  version: 0.1.7
+  resolution: "@matterlabs/hardhat-zksync-verify@npm:0.1.7"
   dependencies:
-    "@matterlabs/hardhat-zksync-solc": 0.3.14
-    axios: ^1.3.4
+    "@matterlabs/hardhat-zksync-solc": 0.3.17
+    axios: ^1.4.0
     chalk: 4.1.2
     dockerode: ^3.3.4
   peerDependencies:
-    "@nomiclabs/hardhat-etherscan": 3.1.2
-  checksum: 7ebbf79d405fe802b9b1d2d1642465329d5c8a997b03858619b00df04ae56df91ccd9d80a97d38f121c5483cb872065a840ea4704365c347c250cbc43c056aaf
+    "@nomiclabs/hardhat-etherscan": ^3.1.2
+  checksum: 65ef5de688b2a51e27af7da77feec35ac37b495cccaebebcc6c73e054a8c841c7006fd412cb9045193f6ca28607bcd44b7d0c21d5a53061cf727fc1c9929b620
   languageName: node
   linkType: hard
 
@@ -15342,14 +15342,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"axios@npm:^1.3.4":
-  version: 1.3.4
-  resolution: "axios@npm:1.3.4"
+"axios@npm:^1.4.0":
+  version: 1.4.0
+  resolution: "axios@npm:1.4.0"
   dependencies:
     follow-redirects: ^1.15.0
     form-data: ^4.0.0
     proxy-from-env: ^1.1.0
-  checksum: 7440edefcf8498bc3cdf39de00443e8101f249972c83b739c6e880d9d669fea9486372dbe8739e88b3bf8bb1ad15f6106693f206f078f4516fe8fd47b1c3093c
+  checksum: 7fb6a4313bae7f45e89d62c70a800913c303df653f19eafec88e56cea2e3821066b8409bc68be1930ecca80e861c52aa787659df0ffec6ad4d451c7816b9386b
   languageName: node
   linkType: hard
 
@@ -18125,11 +18125,11 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "contracts@workspace:contracts"
   dependencies:
-    "@matterlabs/hardhat-zksync-chai-matchers": ^0.1.2
+    "@matterlabs/hardhat-zksync-chai-matchers": ^0.1.3
     "@matterlabs/hardhat-zksync-deploy": ^0.6.3
     "@matterlabs/hardhat-zksync-solc": ^0.3.16
     "@matterlabs/hardhat-zksync-toolbox": ^0.1.1
-    "@matterlabs/hardhat-zksync-verify": ^0.1.4
+    "@matterlabs/hardhat-zksync-verify": ^0.1.7
     "@matterlabs/signature-checker": ^1.1.1
     "@matterlabs/zksync-contracts": ^0.6.1
     "@nomicfoundation/hardhat-chai-matchers": ^1.0.6

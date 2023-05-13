@@ -15,11 +15,11 @@
     "clean": "hardhat clean && npx rimraf artifacts cache"
   },
   "devDependencies": {
-    "@matterlabs/hardhat-zksync-chai-matchers": "^0.1.2",
+    "@matterlabs/hardhat-zksync-chai-matchers": "^0.1.3",
     "@matterlabs/hardhat-zksync-deploy": "^0.6.3",
     "@matterlabs/hardhat-zksync-solc": "^0.3.16",
     "@matterlabs/hardhat-zksync-toolbox": "^0.1.1",
-    "@matterlabs/hardhat-zksync-verify": "^0.1.4",
+    "@matterlabs/hardhat-zksync-verify": "^0.1.7",
     "@matterlabs/signature-checker": "^1.1.1",
     "@matterlabs/zksync-contracts": "^0.6.1",
     "@nomicfoundation/hardhat-chai-matchers": "^1.0.6",
