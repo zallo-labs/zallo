@@ -23,7 +23,7 @@ module default {
   }
 
   scalar type Bytes4 extending str {
-    constraint regexp(r'^0x[0-9a-fA-F]{10}$');
+    constraint regexp(r'^0x[0-9a-fA-F]{8}$');
   }
 
   scalar type Bytes32 extending str {
