@@ -362,13 +362,13 @@ describe(ProposalsService.name, () => {
 
     it("not remove if the policy doesn't exist", () =>
       asUser(user1, async () => {
-        expect(await service.delete(randomHash())).toEqual(false);
+        expect(await service.delete(randomHash())).toEqual(null);
       }));
 
     it("not remove if the user isn't a member of the proposing account", async () => {
       const { id } = await asUser(user1, () => propose());
 
-      await asUser(randomUser(), async () => expect(await service.delete(id)).toEqual(false));
+      await asUser(randomUser(), async () => expect(await service.delete(id)).toEqual(null));
     });
 
     it('deletes policy that the proposal was going to create', () =>

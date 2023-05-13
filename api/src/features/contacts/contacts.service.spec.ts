@@ -137,9 +137,9 @@ describe(ContactsService.name, () => {
         expect(await service.selectUnique(user1Contact)).toBeNull();
       }));
 
-    it("throws if the contact doesn't exist", () =>
+    it("returns null if the contact doesn't exist", () =>
       asUser(user1, async () => {
-        await expect(service.delete(user1Contact)).rejects.toThrow();
+        await expect(await service.delete(user1Contact)).toEqual(null);
       }));
   });
 });
