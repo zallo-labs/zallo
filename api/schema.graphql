@@ -300,8 +300,8 @@ type Simulation {
 }
 
 type Subscription {
-  account(input: AccountSubscriptionInput!): Account!
-  proposal(input: ProposalSubscriptionInput!): TransactionProposal!
+  account(input: AccountSubscriptionInput! = {}): Account!
+  proposal(input: ProposalSubscriptionInput! = {}): TransactionProposal!
 }
 
 type Target {

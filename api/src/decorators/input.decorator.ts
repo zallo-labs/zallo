@@ -1,5 +1,7 @@
-import { Args } from '@nestjs/graphql';
+import { Args, ArgsOptions } from '@nestjs/graphql';
 
-export const Input = (): ParameterDecorator => (target, propertyKey, parameterIndex) => {
-  Args('input')(target, propertyKey, parameterIndex);
-};
+export const Input =
+  (opts: ArgsOptions = {}): ParameterDecorator =>
+  (target, propertyKey, parameterIndex) => {
+    Args('input', opts)(target, propertyKey, parameterIndex);
+  };

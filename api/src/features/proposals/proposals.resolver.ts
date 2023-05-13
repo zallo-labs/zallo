@@ -63,7 +63,7 @@ export class ProposalsResolver {
     },
   })
   async proposalSubscription(
-    @Input() { accounts, proposals }: ProposalSubscriptionInput,
+    @Input({ defaultValue: {} }) { accounts, proposals }: ProposalSubscriptionInput,
     @Context() ctx: GqlContext,
   ) {
     return asUser(ctx, async () => {

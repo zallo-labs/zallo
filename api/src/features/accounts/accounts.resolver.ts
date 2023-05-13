@@ -44,7 +44,7 @@ export class AccountsResolver {
       !events || events.includes(event),
   })
   async accountSubscription(
-    @Input() { accounts }: AccountSubscriptionInput,
+    @Input({ defaultValue: {} }) { accounts }: AccountSubscriptionInput,
     @Context() ctx: GqlContext,
   ) {
     return asUser(ctx, () =>
