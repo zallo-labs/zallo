@@ -263,7 +263,7 @@ export type $ReceiptλShape = $.typeutil.flatten<_std.$Object_fe84743ee09e11edb3
   "block": $.PropertyDesc<_std.$bigint, $.Cardinality.One, false, false, false, false>;
   "fee": $.PropertyDesc<_std.$bigint, $.Cardinality.One, false, false, false, false>;
   "gasUsed": $.PropertyDesc<_std.$bigint, $.Cardinality.One, false, false, false, false>;
-  "timestamp": $.PropertyDesc<_std.$datetime, $.Cardinality.One, false, false, true, true>;
+  "timestamp": $.PropertyDesc<_std.$datetime, $.Cardinality.One, false, false, false, true>;
   "transfers": $.LinkDesc<$Transfer, $.Cardinality.Many, {}, false, true,  false, false>;
   "<receipt[is Transfer]": $.LinkDesc<$Transfer, $.Cardinality.Many, {}, false, false,  false, false>;
   "<receipt[is Transaction]": $.LinkDesc<$Transaction, $.Cardinality.Many, {}, false, false,  false, false>;
@@ -375,6 +375,7 @@ const TransferDetails: $.$expr_PathNode<$.TypeSet<$TransferDetails, $.Cardinalit
 
 export type $TransferλShape = $.typeutil.flatten<Omit<$TransferDetailsλShape, "<transfers"> & {
   "block": $.PropertyDesc<_std.$bigint, $.Cardinality.One, false, false, false, false>;
+  "timestamp": $.PropertyDesc<_std.$datetime, $.Cardinality.One, false, false, false, true>;
   "receipt": $.LinkDesc<$Receipt, $.Cardinality.AtMostOne, {}, false, false,  false, false>;
   "<transfers[is Account]": $.LinkDesc<$Account, $.Cardinality.Many, {}, false, false,  false, false>;
   "<transfers[is Receipt]": $.LinkDesc<$Receipt, $.Cardinality.Many, {}, false, false,  false, false>;

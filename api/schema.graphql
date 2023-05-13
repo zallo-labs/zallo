@@ -134,11 +134,11 @@ type Mutation {
   approve(input: ApproveInput!): TransactionProposal!
   createAccount(input: CreateAccountInput!): Account!
   createPolicy(input: CreatePolicyInput!): Policy!
-  deleteContact(input: ContactInput!): Contact!
+  deleteContact(input: ContactInput!): ID
   propose(input: ProposeInput!): TransactionProposal!
-  reject(input: UniqueProposalInput!): TransactionProposal!
+  reject(input: ProposalInput!): TransactionProposal!
   removePolicy(input: UniquePolicyInput!): Policy!
-  removeProposal(input: UniqueProposalInput!): Boolean!
+  removeProposal(input: ProposalInput!): ID
   requestTokens(input: RequestTokensInput!): [Address!]!
   updateAccount(input: UpdateAccountInput!): Account!
   updatePolicy(input: UpdatePolicyInput!): Policy!
@@ -210,6 +210,10 @@ enum ProposalEvent {
   update
 }
 
+input ProposalInput {
+  hash: Bytes32!
+}
+
 type ProposalResponse {
   createdAt: DateTime!
   id: ID!
@@ -255,11 +259,11 @@ type Query {
   contractFunction(input: ContractFunctionInput!): ContractFunction
   policies: [Policy!]!
   policy(input: UniquePolicyInput!): Policy
-  proposal(input: UniqueProposalInput!): TransactionProposal
-  proposals(input: ProposalsInput!): [TransactionProposal!]!
+  proposal(input: ProposalInput!): TransactionProposal
+  proposals(input: ProposalsInput! = {}): [TransactionProposal!]!
   requestableTokens(input: RequestTokensInput!): [Address!]!
-  transfers(input: TransfersInput!): [Transfer!]!
-  user(input: UserInput!): User!
+  transfers(input: TransfersInput! = {}): [Transfer!]!
+  user(input: UserInput! = {}): User!
 }
 
 type Receipt {
@@ -365,6 +369,7 @@ type Transfer {
   from: Address!
   id: ID!
   receipt: Receipt
+  timestamp: DateTime!
   to: Address!
   token: Address!
 }
@@ -395,10 +400,6 @@ scalar Uint256
 input UniquePolicyInput {
   account: Address!
   key: PolicyKey!
-}
-
-input UniqueProposalInput {
-  hash: Bytes32!
 }
 
 input UpdateAccountInput {

@@ -11,7 +11,10 @@ export class TransfersResolver {
   constructor(private service: TransfersService) {}
 
   @Query(() => [Transfer])
-  async transfers(@Input() input: TransfersInput, @Info() info: GraphQLResolveInfo) {
+  async transfers(
+    @Input({ defaultValue: {} }) input: TransfersInput,
+    @Info() info: GraphQLResolveInfo,
+  ) {
     return this.service.transfers(input, getShape(info));
   }
 }

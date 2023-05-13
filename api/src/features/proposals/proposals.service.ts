@@ -180,7 +180,7 @@ export class ProposalsService {
       // TODO: use policies service instead? Ensures nothing weird happens
       await e.for(e.set(proposalPolicies.beingCreated.policy), (p) => e.delete(p)).run(client);
 
-      return !!(await e.delete(selectProposal(id)).run(client));
+      return e.delete(selectProposal(id)).id.run(client);
     });
   }
 

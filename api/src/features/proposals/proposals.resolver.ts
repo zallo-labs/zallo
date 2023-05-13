@@ -1,9 +1,18 @@
-import { Context, Info, Mutation, Parent, Query, Resolver, Subscription } from '@nestjs/graphql';
+import {
+  Context,
+  ID,
+  Info,
+  Mutation,
+  Parent,
+  Query,
+  Resolver,
+  Subscription,
+} from '@nestjs/graphql';
 import { GraphQLResolveInfo } from 'graphql';
 import {
   ProposeInput,
   ApproveInput,
-  UniqueProposalInput,
+  ProposalInput,
   ProposalsInput,
   ProposalSubscriptionInput,
   ProposalSubscriptionPayload,
@@ -20,6 +29,7 @@ import e from '~/edgeql-js';
 import { Input } from '~/decorators/input.decorator';
 import { DatabaseService } from '../database/database.service';
 import { Address } from 'lib';
+import { uuid } from 'edgedb/dist/codecs/ifaces';
 
 @Resolver(() => TransactionProposal)
 export class ProposalsResolver {
@@ -30,12 +40,15 @@ export class ProposalsResolver {
   ) {}
 
   @Query(() => TransactionProposal, { nullable: true })
-  async proposal(@Input() { hash }: UniqueProposalInput, @Info() info: GraphQLResolveInfo) {
+  async proposal(@Input() { hash }: ProposalInput, @Info() info: GraphQLResolveInfo) {
     return this.service.selectUnique(hash, getShape(info));
   }
 
   @Query(() => [TransactionProposal])
-  async proposals(@Input() input: ProposalsInput, @Info() info: GraphQLResolveInfo) {
+  async proposals(
+    @Input({ defaultValue: {} }) input: ProposalsInput,
+    @Info() info: GraphQLResolveInfo,
+  ) {
     return this.service.select(input, getShape(info));
   }
 
@@ -96,13 +109,13 @@ export class ProposalsResolver {
   }
 
   @Mutation(() => TransactionProposal)
-  async reject(@Input() { hash }: UniqueProposalInput, @Info() info: GraphQLResolveInfo) {
+  async reject(@Input() { hash }: ProposalInput, @Info() info: GraphQLResolveInfo) {
     await this.service.reject(hash);
     return this.service.selectUnique(hash, getShape(info));
   }
 
-  @Mutation(() => Boolean)
-  async removeProposal(@Input() { hash }: UniqueProposalInput): Promise<boolean> {
+  @Mutation(() => ID, { nullable: true })
+  async removeProposal(@Input() { hash }: ProposalInput): Promise<uuid | null> {
     return this.service.delete(hash);
   }
 }

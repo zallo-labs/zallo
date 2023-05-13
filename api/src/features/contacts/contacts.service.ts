@@ -91,9 +91,6 @@ export class ContactsService {
   }
 
   async delete(address: Address) {
-    const id = await this.db.query(e.delete(e.Contact, uniqueContact(address))?.id);
-    if (!id) throw new UserInputError('Contact not found');
-
-    return id;
+    return this.db.query(e.delete(e.Contact, uniqueContact(address)).id);
   }
 }

@@ -11,7 +11,7 @@ import {
 import { TransactionProposalStatus } from './proposals.model';
 
 @InputType()
-export class UniqueProposalInput {
+export class ProposalInput {
   @Bytes32Field()
   hash: Hex;
 }
@@ -87,7 +87,7 @@ export class ProposeInput {
 }
 
 @InputType()
-export class ApproveInput extends UniqueProposalInput {
+export class ApproveInput extends ProposalInput {
   @BytesField()
   signature: Hex;
 }

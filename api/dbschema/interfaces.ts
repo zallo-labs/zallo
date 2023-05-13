@@ -169,6 +169,7 @@ export interface TransferDetails extends std.$Object {
 }
 export interface Transfer extends TransferDetails {
   "block": bigint;
+  "timestamp": Date;
   "receipt"?: Receipt | null;
 }
 export type TransferDirection = "In" | "Out";

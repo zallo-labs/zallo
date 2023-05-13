@@ -34,6 +34,8 @@ export class Transfer extends TransferDetails {
 
   @Field(() => GraphQLBigInt)
   block: bigint;
+
+  timestamp: Date;
 }
 
 export enum TransferDirection {

@@ -14,7 +14,10 @@ export class UsersResolver {
   constructor(private service: UsersService) {}
 
   @Query(() => User)
-  async user(@Input() { address = getUser() }: UserInput, @Info() info: GraphQLResolveInfo) {
+  async user(
+    @Input({ defaultValue: {} }) { address = getUser() }: UserInput,
+    @Info() info: GraphQLResolveInfo,
+  ) {
     return this.service.selectUnique(address, getShape(info));
   }
 
