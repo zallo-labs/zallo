@@ -39,7 +39,7 @@ export const PolicyAppbar = ({ policy, proposal, state, reset, setParams }: Poli
   const switchState =
     state === 'active' && policy?.draft
       ? () => setParams({ state: 'draft' })
-      : state === 'draft' && policy?.active
+      : state === 'draft' && policy?.state
       ? () => setParams({ state: 'active' })
       : undefined;
 
@@ -47,7 +47,7 @@ export const PolicyAppbar = ({ policy, proposal, state, reset, setParams }: Poli
     .with({ policy: undefined }, () => PolicyAddIcon)
     .with({ state: 'active', policy: { draft: P.nullish } }, () => PolicyActiveOutlineIcon)
     .with({ state: 'active' }, () => PolicyActiveIcon)
-    .with({ state: 'draft', policy: { active: P.nullish } }, () => PolicyEditOutlineIcon)
+    .with({ state: 'draft', policy: { state: P.nullish } }, () => PolicyEditOutlineIcon)
     .with({ state: 'draft' }, () => PolicyEditIcon)
     .exhaustive();
 

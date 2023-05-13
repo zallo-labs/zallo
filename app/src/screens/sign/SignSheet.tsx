@@ -33,13 +33,13 @@ export const SignSheet = ({ route, navigation: { goBack } }: SignSheetProps) => 
   const approver = useApprover();
   const client = useWalletConnect();
   const session = client.session.get(topic);
-  const { accountId, message } = normalizeSigningRequest(request);
-  const account = useAccount(accountId);
+  const { account: accountAddress, message } = normalizeSigningRequest(request);
+  const account = useAccount(accountAddress);
 
   const policy = account.policies.find((p) => {
-    const approvers = p.active?.approvers;
+    const approvers = p.state?.approvers;
     return approvers?.size === 1 && approvers.has(asAddress(approver.address));
-  })?.active;
+  })?.state;
 
   // TODO: verify typed data message chain is from one of the session's chains
 
@@ -76,7 +76,7 @@ export const SignSheet = ({ route, navigation: { goBack } }: SignSheetProps) => 
       <PeerHeader peer={session.peer.metadata}>
         {'wants '}
         <Text variant="headlineMedium">
-          <AddressLabel address={account.id} />
+          <AddressLabel address={account.address} />
         </Text>
         {' to sign'}
       </PeerHeader>

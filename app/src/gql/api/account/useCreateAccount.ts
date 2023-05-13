@@ -8,20 +8,20 @@ import {
 } from '@api/generated';
 import { useUser } from '@api/user';
 import { updateQuery } from '~/gql/util';
-import { AccountId, asAccountId } from './types';
+import { Address } from 'lib';
 
 gql`
   ${AccountFieldsFragmentDoc}
 
-  mutation CreateAccount($args: CreateAccountInput!) {
-    createAccount(args: $args) {
+  mutation CreateAccount($input: CreateAccountInput!) {
+    createAccount(input: $input) {
       ...AccountFields
     }
   }
 `;
 
 export interface CreateAccountResult {
-  id: AccountId;
+  address: Address;
 }
 
 export const useCreateAccount = () => {
@@ -31,11 +31,12 @@ export const useCreateAccount = () => {
   return async (name: string): Promise<CreateAccountResult> => {
     const r = await mutation({
       variables: {
-        args: {
+        input: {
           name,
           policies: [
             {
-              approvers: [user.id],
+              name: 'Admin',
+              approvers: [user.address],
               permissions: {},
             },
           ],
@@ -45,17 +46,18 @@ export const useCreateAccount = () => {
         const account = res.data?.createAccount;
         if (!account) return;
 
-        // Insert id
+        // Insert
         updateQuery<AccountIdsQuery, AccountIdsQueryVariables>({
           query: AccountIdsDocument,
           cache,
           variables: {},
           defaultData: { accounts: [] },
           updater: (data) => {
-            if (!data.accounts.find((a) => a.id === account.id))
+            if (!data.accounts.find((a) => a.address === account.address))
               data.accounts.push({
                 __typename: 'Account',
                 id: account.id,
+                address: account.address,
               });
           },
         });
@@ -65,6 +67,6 @@ export const useCreateAccount = () => {
     const a = r.data?.createAccount;
     if (!a) throw new Error('Failed to create account');
 
-    return { id: asAccountId(a.id) };
+    return a;
   };
 };

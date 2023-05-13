@@ -1,6 +1,5 @@
-import { AccountId } from '@api/account';
 import { SUPPORTED_CHAINS } from '@network/provider';
-import { Arraylike, toSet } from 'lib';
+import { Address, Arraylike, toSet } from 'lib';
 import { WC_METHODS } from './methods';
 
 export const WC_NAMESPACE_KEY = 'eip155';
@@ -15,7 +14,7 @@ const WC_NAMESPACE = {
   events: ['accountsChanged', 'chainChanged'],
 };
 
-export const toNamespaces = (accounts: Arraylike<AccountId>) => ({
+export const toNamespaces = (accounts: Arraylike<Address>) => ({
   [WC_NAMESPACE_KEY]: {
     ...WC_NAMESPACE,
     // https://github.com/ChainAgnostic/CAIPs/blob/master/CAIPs/caip-10.md

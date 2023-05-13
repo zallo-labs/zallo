@@ -1,6 +1,7 @@
-import { AccountId, useAccount } from '@api/account';
+import { useAccount } from '@api/account';
 import { FlashList } from '@shopify/flash-list';
 import { EditIcon, NavigateNextIcon, PlusIcon } from '@theme/icons';
+import { Address } from 'lib';
 import { StyleSheet, View } from 'react-native';
 import { Menu } from 'react-native-paper';
 import { match } from 'ts-pattern';
@@ -16,7 +17,7 @@ import { withSuspense } from '~/components/skeleton/withSuspense';
 import { StackNavigatorScreenProps } from '~/navigation/StackNavigator';
 
 export interface AccountScreenParams {
-  account: AccountId;
+  account: Address;
 }
 
 export type AccountScreenProps = StackNavigatorScreenProps<'Account'>;
@@ -39,7 +40,7 @@ export const AccountScreen = withSuspense(
                   title="Rename"
                   onPress={() => {
                     close();
-                    navigate('RenameAccountModal', { account: account.id });
+                    navigate('RenameAccountModal', { account: account.address });
                   }}
                 />
               )}
@@ -55,7 +56,7 @@ export const AccountScreen = withSuspense(
               <ListItem
                 leading={(props) => <PolicyIcon policy={policy} {...props} />}
                 headline={policy.name}
-                supporting={match((policy.active ?? policy.draft)!.approvers.size)
+                supporting={match((policy.state ?? policy.draft)!.approvers.size)
                   .with(0, () => 'No approvers')
                   .with(1, () => '1 approver')
                   .otherwise((approvers) => `${approvers} approvers`)}
@@ -74,7 +75,7 @@ export const AccountScreen = withSuspense(
         <Fab
           icon={PlusIcon}
           label="Add policy"
-          onPress={() => navigate('Policy', { account: account.id })}
+          onPress={() => navigate('Policy', { account: account.address })}
         />
       </Screen>
     );

@@ -14,8 +14,8 @@ import { useUser } from '@api/user';
 gql`
   ${ContactFieldsFragmentDoc}
 
-  mutation UpsertContact($name: String!, $newAddr: Address!, $prevAddr: Address) {
-    upsertContact(name: $name, prevAddr: $prevAddr, newAddr: $newAddr) {
+  mutation UpsertContact($input: UpsertContactInput!) {
+    upsertContact(input: $input) {
       ...ContactFields
     }
   }
@@ -29,15 +29,17 @@ export const useUpsertContact = () => {
     (cur: NewContact, prev?: Contact) => {
       return mutation({
         variables: {
-          prevAddr: prev?.address,
-          newAddr: cur.address,
-          name: cur.name,
+          input: {
+            previousAddress: prev?.address,
+            address: cur.address,
+            name: cur.name,
+          },
         },
         optimisticResponse: {
           upsertContact: {
             __typename: 'Contact',
-            id: `${user.id}-${cur.address}`,
-            addr: cur.address,
+            id: `${user.address}-${cur.address}`,
+            address: cur.address,
             name: cur.name,
           },
         },
@@ -46,7 +48,7 @@ export const useUpsertContact = () => {
           if (!contact) return;
 
           // Contacts: insert new contact or remove existing
-          if (prev?.address !== contact.addr) {
+          if (prev?.address !== contact.address) {
             await updateQuery<ContactsQuery, ContactsQueryVariables>({
               cache,
               query: ContactsDocument,
@@ -54,8 +56,8 @@ export const useUpsertContact = () => {
               defaultData: { contacts: [] },
               updater: (data) => {
                 if (prev) {
-                  data.contacts = data.contacts.filter((c) => c.id !== prev.id);
-                } else if (!data.contacts.find((c) => c.id === contact.id)) {
+                  data.contacts = data.contacts.filter((c) => c.address !== prev.address);
+                } else if (!data.contacts.find((c) => c.address === contact.address)) {
                   data.contacts.push(contact);
                 }
               },
@@ -64,6 +66,6 @@ export const useUpsertContact = () => {
         },
       });
     },
-    [user.id, mutation],
+    [user.address, mutation],
   );
 };

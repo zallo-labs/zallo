@@ -2,20 +2,14 @@ import { gql, useMutation } from '@apollo/client';
 import {
   DeleteContactMutation,
   DeleteContactMutationVariables,
-  ContactsQuery,
   DeleteContactDocument,
-  ContactsQueryVariables,
-  ContactsDocument,
 } from '@api/generated';
 import { useCallback } from 'react';
-import { QueryOpts } from '~/gql/util';
 import { Contact } from './types';
 
 gql`
-  mutation DeleteContact($addr: Address!) {
-    deleteContact(addr: $addr) {
-      addr
-    }
+  mutation DeleteContact($input: ContactInput!) {
+    deleteContact(input: $input)
   }
 `;
 
@@ -28,33 +22,17 @@ export const useDeleteContact = () => {
     (contact: Contact) =>
       mutation({
         variables: {
-          addr: contact.address,
+          input: { address: contact.address },
         },
         optimisticResponse: {
-          deleteContact: {
-            __typename: 'Contact',
-            addr: contact.address,
-          },
+          deleteContact: contact.id,
         },
         update: (cache, res) => {
-          if (!res.data?.deleteContact) return;
-
-          // Contacts: remove contact
-          const opts: QueryOpts<ContactsQueryVariables> = {
-            query: ContactsDocument,
-            variables: {},
-          };
-
-          const data = cache.readQuery<ContactsQuery>(opts);
-          if (!data) return;
-
-          cache.writeQuery<ContactsQuery>({
-            ...opts,
-            overwrite: true,
-            data: {
-              contacts: data.contacts.filter((c) => c.addr !== contact.address),
-            },
-          });
+          const id = res.data?.deleteContact;
+          if (id) {
+            cache.evict({ id });
+            cache.gc();
+          }
         },
       }),
     [mutation],

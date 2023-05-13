@@ -6,8 +6,8 @@ import { PolicyFieldsFragmentDoc, useRemovePolicyMutation } from '@api/generated
 gql`
   ${PolicyFieldsFragmentDoc}
 
-  mutation RemovePolicy($args: UniquePolicyInput!) {
-    removePolicy(args: $args) {
+  mutation RemovePolicy($input: UniquePolicyInput!) {
+    removePolicy(input: $input) {
       ...PolicyFields
     }
   }
@@ -20,7 +20,7 @@ export const useRemovePolicy = () => {
     async ({ account, key }: PolicyId) =>
       await mutate({
         variables: {
-          args: {
+          input: {
             account,
             key,
           },

@@ -12,20 +12,20 @@ import { CHAIN } from '~/util/network/provider';
 import { useCanRequestTokens } from './useCanRequestTokens';
 
 gql`
-  mutation RequestTokens($account: Address!) {
-    requestTokens(account: $account)
+  mutation RequestTokens($input: RequestTokensInput!) {
+    requestTokens(input: $input)
   }
 `;
 
 export const useFaucet = (account: Address) => {
   const [mutation] = useRequestTokensMutation({
-    variables: { account },
+    variables: { input: { account } },
     update: (cache, { data }) => {
       if (!data) return;
 
       cache.writeQuery<RequestableTokensQuery, RequestableTokensQueryVariables>({
         query: RequestableTokensDocument,
-        variables: { account },
+        variables: { input: { account } },
         data: {
           requestableTokens: [],
         },

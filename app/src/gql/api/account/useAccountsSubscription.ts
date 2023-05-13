@@ -32,8 +32,8 @@ export const useAccountSubscription = () =>
         variables: {},
         defaultData: { accounts: [] },
         updater: (data) => {
-          if (!data.accounts.find((a) => compareAddress(a.id, account.id)))
-            data.accounts.push({ __typename: 'Account', id: account.id });
+          if (!data.accounts.find((a) => compareAddress(a.address, account.address)))
+            data.accounts.push({ __typename: 'Account', id: account.id, address: account.address });
         },
       });
     },

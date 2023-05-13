@@ -41,7 +41,7 @@ export const ProposalScreen = withSuspense(
                     close();
                     confirmRemoval({
                       onConfirm: () => {
-                        removeProposal(proposal.id);
+                        removeProposal(proposal.hash);
                         goBack();
                       },
                     });
@@ -52,7 +52,7 @@ export const ProposalScreen = withSuspense(
           )}
         />
 
-        <Tabs proposal={proposal.id} />
+        <Tabs proposal={proposal.hash} />
       </Screen>
     );
   },

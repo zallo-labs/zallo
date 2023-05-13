@@ -14,8 +14,8 @@ gql`
   ${ApprovalFieldsFragmentDoc}
   ${TransactionFieldsFragmentDoc}
 
-  mutation Approve($id: Bytes32!, $signature: Bytes!) {
-    approve(id: $id, signature: $signature) {
+  mutation Approve($input: ApproveInput!) {
+    approve(input: $input) {
       id
       approvals {
         ...ApprovalFields
@@ -40,49 +40,68 @@ export const useApprove = () => {
 
       const r = await mutate({
         variables: {
-          id: p.id,
-          signature,
+          input: {
+            hash: p.hash,
+            signature,
+          },
         },
         optimisticResponse: {
           approve: {
-            __typename: 'Proposal',
+            __typename: 'TransactionProposal',
             id: p.id,
             approvals: [
               ...[...p.approvals.values()].map((a) => ({
                 __typename: 'Approval' as const,
-                userId: a.approver,
-                signature: a.signature,
+                id: a.id,
+                user: {
+                  __typename: 'User' as const,
+                  address: a.user,
+                },
                 createdAt: a.timestamp.toISO(),
               })),
               {
                 __typename: 'Approval' as const,
-                userId: approver.address as Address,
-                signature,
+                id: approver.address, // Incorrect but it doesn't matter
+                user: {
+                  __typename: 'User' as const,
+                  address: approver.address as Address,
+                },
                 createdAt: DateTime.now().toISO(),
               },
             ],
             rejections: [...p.rejections]
-              .filter((r) => r.approver !== approver.address)
+              .filter((r) => r.user !== approver.address)
               .map((r) => ({
                 __typename: 'Rejection' as const,
-                userId: r.approver,
+                id: r.id,
+                user: {
+                  __typename: 'User' as const,
+                  address: r.user,
+                },
                 createdAt: r.timestamp.toISO(),
               })),
             transaction: p.transaction
               ? {
                   __typename: 'Transaction',
-                  id: p.transaction.hash,
+                  id: p.transaction.id,
                   hash: p.transaction.hash,
-                  gasLimit: p.transaction.gasLimit.toString(),
-                  gasPrice: p.transaction.gasPrice?.toString(),
-                  createdAt: p.transaction.timestamp.toISO(),
+                  gasPrice: p.transaction.gasPrice.toString(),
+                  submittedAt: p.transaction.timestamp.toISO(),
                   receipt: p.transaction.receipt
                     ? {
-                        __typename: 'TransactionReceipt',
+                        __typename: 'Receipt',
                         success: p.transaction.receipt.success,
                         response: p.transaction.receipt.response,
+                        transfers: p.transaction.receipt.transfers.map((t) => ({
+                          __typename: 'Transfer' as const,
+                          id: t.id,
+                          direction: t.direction,
+                          from: t.from,
+                          to: t.to,
+                          token: t.token,
+                          amount: t.amount.toString(),
+                        })),
                         gasUsed: p.transaction.receipt.gasUsed.toString(),
-                        gasPrice: p.transaction.receipt.gasPrice.toString(),
                         fee: p.transaction.receipt.fee.toString(),
                         timestamp: p.transaction.receipt.timestamp.toISO(),
                       }

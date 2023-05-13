@@ -1,10 +1,11 @@
 import { useEffect } from 'react';
-import { AccountId, useAccount, useAccountIds } from '@api/account';
+import { useAccount, useAccountIds } from '@api/account';
 import { atom, useRecoilValue, useSetRecoilState } from 'recoil';
 import { persistAtom } from '~/util/effect/persistAtom';
 import { setContext } from '~/util/analytics';
+import { Address } from 'lib';
 
-const selectedAtom = atom<AccountId | null>({
+const selectedAtom = atom<Address | null>({
   key: 'SelectedAccount',
   default: null,
   effects: [

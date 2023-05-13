@@ -1,33 +1,32 @@
 import { gql } from '@apollo/client';
-import { asAddress, Address } from 'lib';
+import { Address } from 'lib';
 import { useSuspenseQuery } from '~/gql/util';
 import { useMemo } from 'react';
 import { UserDocument, UserQuery, UserQueryVariables } from '@api/generated';
-import assert from 'assert';
 import { User } from './types';
 
 gql`
-  query User($id: Address) {
-    user(id: $id) {
+  query User($input: UserInput) {
+    user(input: $input) {
       id
+      address
       name
     }
   }
 `;
 
-export const useUser = (id?: Address) => {
+export const useUser = (address?: Address) => {
   const { data } = useSuspenseQuery<UserQuery, UserQueryVariables>(UserDocument, {
-    variables: { id },
+    variables: {
+      input: { address },
+    },
   });
-
-  const u = data.user;
-  assert(u);
 
   return useMemo(
     (): User => ({
-      id: asAddress(u.id),
-      name: u.name || undefined,
+      address: data.user.address,
+      name: data.user.name || undefined,
     }),
-    [u.id, u.name],
+    [data.user],
   );
 };

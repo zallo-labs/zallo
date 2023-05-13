@@ -1,6 +1,6 @@
 import { gql } from '@apollo/client';
 import assert from 'assert';
-import { Policy } from 'lib';
+import { Address, Policy } from 'lib';
 import { useCallback } from 'react';
 import {
   AccountDocument,
@@ -10,13 +10,12 @@ import {
   useCreatePolicyMutation,
 } from '@api/generated';
 import { updateQuery } from '~/gql/util';
-import { AccountId } from '@api/account';
 
 gql`
   ${PolicyFieldsFragmentDoc}
 
-  mutation CreatePolicy($args: CreatePolicyInput!) {
-    createPolicy(args: $args) {
+  mutation CreatePolicy($input: CreatePolicyInput!) {
+    createPolicy(input: $input) {
       ...PolicyFields
     }
   }
@@ -26,14 +25,14 @@ export interface CreatePolicyOptions extends Omit<Policy, 'key'> {
   name: string;
 }
 
-export const useCreatePolicy = (account: AccountId) => {
+export const useCreatePolicy = (account: Address) => {
   const [mutation] = useCreatePolicyMutation();
 
   return useCallback(
     async ({ name, approvers, threshold, permissions }: CreatePolicyOptions) => {
       const r = await mutation({
         variables: {
-          args: {
+          input: {
             account,
             name,
             approvers: [...approvers],
@@ -53,7 +52,7 @@ export const useCreatePolicy = (account: AccountId) => {
           await updateQuery<AccountQuery, AccountQueryVariables>({
             query: AccountDocument,
             cache,
-            variables: { id: account },
+            variables: { input: { address: account } },
             updater: (data) => {
               assert(data.account);
               if (!data.account?.policies) data.account.policies = [];

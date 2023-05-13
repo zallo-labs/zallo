@@ -3,24 +3,25 @@ import { WPolicy } from '../policy/types';
 import { DateTime } from 'luxon';
 import { TransferDirection } from '@api/generated';
 
-export type AccountId = Address & { isAccountId: true };
-export type AccountIdlike = AccountId | PolicyId | string;
+export type AccountIdlike = Address | PolicyId;
 
 export const asAccountId = <T extends AccountIdlike | undefined>(id: T) =>
   (typeof id === 'object'
-    ? (id.account as AccountId)
-    : (tryAsAddress(id) as AccountId | undefined)) as T extends undefined
-    ? AccountId | undefined
-    : AccountId;
+    ? (id.account as Address)
+    : (tryAsAddress(id) as Address | undefined)) as T extends undefined
+    ? Address | undefined
+    : Address;
 
 export interface WAccount {
-  id: AccountId;
+  id: string;
+  address: Address;
   name: string;
   isActive: boolean;
   policies: WPolicy[];
 }
 
 export interface Transfer {
+  id: string;
   direction: TransferDirection;
   token: Address;
   from: Address;

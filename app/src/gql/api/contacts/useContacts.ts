@@ -1,6 +1,5 @@
 import { gql } from '@apollo/client';
 import { ContactsDocument, ContactsQuery, ContactsQueryVariables } from '@api/generated';
-import { asAddress } from 'lib';
 import { useMemo } from 'react';
 import { useSuspenseQuery } from '~/gql/util';
 import { Contact } from './types';
@@ -8,7 +7,7 @@ import { Contact } from './types';
 gql`
   fragment ContactFields on Contact {
     id
-    addr
+    address
     name
   }
 
@@ -28,7 +27,7 @@ export const useContacts = () => {
     (): Contact[] =>
       data.contacts.map((c) => ({
         id: c.id,
-        address: asAddress(c.addr),
+        address: c.address,
         name: c.name,
       })),
     [data.contacts],

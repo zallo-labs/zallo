@@ -7,8 +7,8 @@ export const Subscriptions = () => {
 
   useAccountSubscription(); // Subscribes to all user accounts
 
-  useProposalSubscription({ variables: { accounts } });
-  useEmitProposalExecutionEvents({ variables: { accounts } });
+  useProposalSubscription({ variables: { input: { accounts } } });
+  useEmitProposalExecutionEvents({ accounts });
 
   return null;
 };
