@@ -1,5 +1,5 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { EVENTS_QUEUE, EventsProcessor, EventData } from './events.processor';
+import { EVENTS_QUEUE, EventsProcessor, EventJobData } from './events.processor';
 import { DeepMocked, createMock } from '@golevelup/ts-jest';
 import { ProviderService } from '../util/provider/provider.service';
 import { BullModule, getQueueToken } from '@nestjs/bull';
@@ -8,7 +8,7 @@ import { Log } from 'zksync-web3/build/src/types';
 
 describe(EventsProcessor.name, () => {
   let processor: EventsProcessor;
-  let queue: DeepMocked<Queue<EventData>>;
+  let queue: DeepMocked<Queue<EventJobData>>;
   let provider: DeepMocked<ProviderService>;
   let attemptsMade = 0;
 
@@ -42,8 +42,8 @@ describe(EventsProcessor.name, () => {
     attemptsMade = 0;
   });
 
-  const process = (data: EventData) =>
-    processor.process({ data, attemptsMade: attemptsMade++ } as Job<EventData>);
+  const process = (data: EventJobData) =>
+    processor.process({ data, attemptsMade: attemptsMade++ } as Job<EventJobData>);
 
   it('send relevant event to listeners', async () => {
     await process({ from: 1 });

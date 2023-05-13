@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { EventsProcessor, ListenerData } from '../events/events.processor';
+import { EventsProcessor, EventData } from '../events/events.processor';
 import { ACCOUNT_INTERFACE, PolicyKey, asAddress, asHex, asPolicyKey } from 'lib';
 import { DatabaseService } from '../database/database.service';
 import e from '~/edgeql-js';
@@ -20,7 +20,7 @@ export class PoliciesEventsProcessor {
     );
   }
 
-  private async policyAdded({ log }: ListenerData) {
+  private async policyAdded({ log }: EventData) {
     const r = ACCOUNT_INTERFACE.decodeEventLog(
       ACCOUNT_INTERFACE.events['PolicyAdded(uint32,bytes32)'],
       log.data,
@@ -30,7 +30,7 @@ export class PoliciesEventsProcessor {
     await this.markStateAsActive(log, asPolicyKey(r[0]));
   }
 
-  private async policyRemoved({ log }: ListenerData) {
+  private async policyRemoved({ log }: EventData) {
     const r = ACCOUNT_INTERFACE.decodeEventLog(
       ACCOUNT_INTERFACE.events['PolicyRemoved(uint32)'],
       log.data,

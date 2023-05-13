@@ -4,11 +4,12 @@ import {
   TransactionEventData,
   TransactionsProcessor,
 } from '../transactions/transactions.processor';
-import { ListenerData, EventsProcessor } from '../events/events.processor';
+import { EventData, EventsProcessor } from '../events/events.processor';
 import { DatabaseService } from '../database/database.service';
 import e from '~/edgeql-js';
 import { selectAccount } from '../accounts/accounts.util';
 import { TransferDirection } from './transfers.model';
+import { ProviderService } from '../util/provider/provider.service';
 
 const ERC20 = Erc20__factory.createInterface();
 
@@ -18,6 +19,7 @@ export class TransfersEvents {
     private db: DatabaseService,
     private eventsProcessor: EventsProcessor,
     private transactionsProcessor: TransactionsProcessor,
+    private provider: ProviderService,
   ) {
     this.eventsProcessor.on(
       ERC20.getEventTopic(ERC20.events['Transfer(address,address,uint256)']),
@@ -29,10 +31,7 @@ export class TransfersEvents {
     );
   }
 
-  private async transfer(
-    { log }: ListenerData | TransactionEventData,
-    isTransactionEvent: boolean,
-  ) {
+  private async transfer({ log }: EventData | TransactionEventData, isTransactionEvent: boolean) {
     const r = tryOrIgnore(() =>
       ERC20.decodeEventLog(ERC20.events['Transfer(address,address,uint256)'], log.data, log.topics),
     );
@@ -48,6 +47,8 @@ export class TransfersEvents {
     );
 
     if (accounts.length) {
+      const block = await this.provider.getBlock(log.blockNumber);
+
       await this.db.query(
         e.set(
           ...accounts.map((a) =>
@@ -59,6 +60,7 @@ export class TransfersEvents {
               token: asAddress(log.address),
               amount,
               block: BigInt(log.blockNumber),
+              timestamp: new Date(block.timestamp * 1000),
               ...(isTransactionEvent && {
                 receipt: e.select(e.Transaction, () => ({
                   filter_single: { hash: log.transactionHash },

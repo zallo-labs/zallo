@@ -27,17 +27,17 @@ export const EVENTS_QUEUE = {
   },
 } satisfies BullModuleOptions;
 
-export interface EventData {
+export interface EventJobData {
   from: number;
   to?: number;
   queueNext?: boolean;
 }
 
-export interface ListenerData {
+export interface EventData {
   log: Log;
 }
 
-export type EventListener = (data: ListenerData) => Promise<void>;
+export type EventListener = (data: EventData) => Promise<void>;
 
 @Injectable()
 @Processor(EVENTS_QUEUE.name)
@@ -47,7 +47,7 @@ export class EventsProcessor implements OnModuleInit {
 
   constructor(
     @InjectQueue(EVENTS_QUEUE.name)
-    private queue: Queue<EventData>,
+    private queue: Queue<EventJobData>,
     private provider: ProviderService,
     private db: DatabaseService,
   ) {}
@@ -62,7 +62,7 @@ export class EventsProcessor implements OnModuleInit {
   }
 
   @Process()
-  async process(job: Job<EventData>) {
+  async process(job: Job<EventJobData>) {
     const latest = await this.provider.getBlockNumber();
     const from = job.data.from;
     const to = Math.min(job.data.to ?? from + DEFAULT_CHUNK_SIZE - 1, latest);
@@ -108,7 +108,7 @@ export class EventsProcessor implements OnModuleInit {
   }
 
   @OnQueueFailed()
-  onFailed(job: Job<EventData>, error: unknown) {
+  onFailed(job: Job<EventJobData>, error: unknown) {
     Logger.error('Events queue job failed', { job, error });
   }
 

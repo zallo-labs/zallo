@@ -254,6 +254,7 @@ module default {
   type Transfer extending TransferDetails {
     link receipt -> Receipt;
     required property block -> bigint { constraint min_value(0n); }
+    required property timestamp -> datetime { default := datetime_of_statement(); }
   }
 
   type Transaction {
@@ -276,10 +277,7 @@ module default {
     required property gasUsed -> bigint { constraint min_value(0n); }
     required property fee -> bigint { constraint min_value(0n); }
     required property block -> bigint { constraint min_value(0n); }
-    required property timestamp -> datetime {
-      readonly := true;
-      default := datetime_of_statement();
-    }
+    required property timestamp -> datetime { default := datetime_of_statement(); }
   }
 
   type Contract {
