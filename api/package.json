@@ -9,15 +9,17 @@
     "clean:services": "docker compose -f ./services.yml down -v",
     "format": "prettier --config ../.prettierrc --write \"src/**/*.ts\"",
     "start": "nest start --debug --watch",
-    "start:prod": "node dist/src/main.js",
+    "start:production": "yarn db:migrate && yarn db:seed && node dist/src/main.js",
     "start:services": "docker compose -f ./services.yml up",
     "test": "yarn with-env -- jest",
     "test:watch": "yarn test --watch",
     "test:cov": "yarn test --coverage",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register ../node_modules/.bin/jest --runInBand",
-    "with-env": "dotenv-vault-core -e ../.env",
+    "with-env": "npx --yes dotenv-vault-core-cli",
     "generate:schema": "yarn prebuild && SKIP_ENV_CHECK=true nest start --entryFile generate-schema",
-    "generate:edgeql": "npx concurrently -n edgeql-js,interfaces -c blue,magenta \"npx @edgedb/generate edgeql-js --target ts\" \"npx @edgedb/generate interfaces\""
+    "generate:edgeql": "npx concurrently -n edgeql-js,interfaces -c blue,magenta \"npx @edgedb/generate edgeql-js --target ts\" \"npx @edgedb/generate interfaces\"",
+    "db:seed": "ts-node ./dbschema/seed.ts",
+    "db:migrate": "yarn with-env -- edgedb migrate"
   },
   "dependencies": {
     "@apollo/client": "^3.7.12",
