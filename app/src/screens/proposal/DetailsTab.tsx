@@ -34,7 +34,11 @@ export const DetailsTab = withSuspense(({ route }: DetailsTabProps) => {
     <ScrollView contentContainerStyle={styles.container}>
       <ListItem leading={to} headline="To" trailing={useAddressLabel(to)} />
       <ListItem leading={p.account} headline="From" trailing={useAddressLabel(p.account)} />
-      <ListItem leading={p.proposer} headline="Proposer" trailing={useAddressLabel(p.proposer)} />
+      <ListItem
+        leading={p.proposedBy}
+        headline="Proposer"
+        trailing={useAddressLabel(p.proposedBy)}
+      />
       <ListItem
         leading={(props) => <GasIcon {...props} size={ICON_SIZE.medium} />}
         headline="Gas limit"

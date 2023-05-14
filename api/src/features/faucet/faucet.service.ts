@@ -5,7 +5,7 @@ import { parseEther, parseUnits } from 'ethers/lib/utils';
 import { asAddress, Address, filterAsync } from 'lib';
 import * as zk from 'zksync-web3';
 import { ProviderService } from '~/features/util/provider/provider.service';
-import { getUserCtx } from '~/request/ctx';
+import { selectAccount } from '../accounts/accounts.util';
 
 interface TokenFaucet {
   addr: Address;
@@ -47,8 +47,7 @@ export class FaucetService {
   }
 
   private async getTokensToSend(account: Address) {
-    if (!getUserCtx().accounts.has(account))
-      throw new UserInputError('User is not a member of the account');
+    if (!selectAccount(account)) throw new UserInputError('User is not a member of the account');
 
     return filterAsync([ETH, DAI, USDC, LINK], async (token) => {
       const recipientBalance = await this.provider.getBalance(account, undefined, token.addr);

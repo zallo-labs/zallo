@@ -42,7 +42,7 @@ export const CreateAccountScreen = ({ navigation: { replace } }: CreateAccountSc
           style={styles.button}
           control={control}
           onPress={handleSubmit(async ({ name }) => {
-            const { id } = await createAccount(name);
+            const { address: id } = await createAccount(name);
             setSelected(id);
             replace('Home');
           })}

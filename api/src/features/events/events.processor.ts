@@ -1,11 +1,12 @@
 import { BullModuleOptions, InjectQueue, OnQueueFailed, Process, Processor } from '@nestjs/bull';
 import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { Job, Queue } from 'bull';
-import { PrismaService } from '../util/prisma/prisma.service';
 import { ProviderService } from '../util/provider/provider.service';
 import _ from 'lodash';
 import { Log } from '@ethersproject/abstract-provider';
 import { BigNumber } from 'ethers';
+import { DatabaseService } from '../database/database.service';
+import e from '~/edgeql-js';
 
 const DEFAULT_CHUNK_SIZE = 75;
 const BLOCK_TIME_MS = 500;
@@ -26,17 +27,17 @@ export const EVENTS_QUEUE = {
   },
 } satisfies BullModuleOptions;
 
-export interface EventData {
+export interface EventJobData {
   from: number;
   to?: number;
   queueNext?: boolean;
 }
 
-export interface ListenerData {
+export interface EventData {
   log: Log;
 }
 
-export type EventListener = (data: ListenerData) => Promise<void>;
+export type EventListener = (data: EventData) => Promise<void>;
 
 @Injectable()
 @Processor(EVENTS_QUEUE.name)
@@ -46,9 +47,9 @@ export class EventsProcessor implements OnModuleInit {
 
   constructor(
     @InjectQueue(EVENTS_QUEUE.name)
-    private queue: Queue<EventData>,
+    private queue: Queue<EventJobData>,
     private provider: ProviderService,
-    private prisma: PrismaService,
+    private db: DatabaseService,
   ) {}
 
   onModuleInit() {
@@ -61,7 +62,7 @@ export class EventsProcessor implements OnModuleInit {
   }
 
   @Process()
-  async process(job: Job<EventData>) {
+  async process(job: Job<EventJobData>) {
     const latest = await this.provider.getBlockNumber();
     const from = job.data.from;
     const to = Math.min(job.data.to ?? from + DEFAULT_CHUNK_SIZE - 1, latest);
@@ -107,25 +108,29 @@ export class EventsProcessor implements OnModuleInit {
   }
 
   @OnQueueFailed()
-  onFailed(job: Job<EventData>, error: unknown) {
+  onFailed(job: Job<EventJobData>, error: unknown) {
     Logger.error('Events queue job failed', { job, error });
   }
 
   private async addMissingJob() {
     const nExistingJobs = await this.queue.getJobCountByTypes(['waiting', 'active', 'delayed']);
-    Logger.verbose(`Events: starting with jobs: ${nExistingJobs}`);
+    Logger.verbose(`Events starting with jobs: ${nExistingJobs}`);
     if (nExistingJobs) return;
 
-    const [lastTxBlock, lastTransferBlock] = await Promise.all([
-      this.prisma.asSystem.transactionReceipt.aggregate({ _max: { blockNumber: true } }),
-      this.prisma.asSystem.transfer.aggregate({ _max: { blockNumber: true } }),
-    ]);
+    const lastProcessedBlock = (await e
+      .max(
+        e.op(
+          e.select(e.Receipt, () => ({ block: true })).block,
+          'union',
+          e.select(e.Transfer, () => ({ block: true })).block,
+        ),
+      )
+      .run(this.db.client)) as bigint | null; // Return type is overly broad - https://github.com/edgedb/edgedb-js/issues/594
 
     this.queue.add({
-      from:
-        lastTxBlock._max.blockNumber || lastTransferBlock._max.blockNumber
-          ? Math.max(lastTxBlock._max.blockNumber ?? 0, lastTransferBlock._max.blockNumber ?? 0)
-          : 5072904, // Start from latest block
+      from: lastProcessedBlock
+        ? parseInt(lastProcessedBlock.toString()) // Warning: bigint -> number
+        : await this.provider.getBlockNumber(),
     });
   }
 }

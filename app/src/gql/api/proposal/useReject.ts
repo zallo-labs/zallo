@@ -9,8 +9,8 @@ import { Address } from 'lib';
 gql`
   ${RejectionFieldsFragmentDoc}
 
-  mutation Reject($id: Bytes32!) {
-    reject(id: $id) {
+  mutation Reject($input: ProposalInput!) {
+    reject(input: $input) {
       id
       rejections {
         ...RejectionFields
@@ -24,22 +24,32 @@ export const useReject = () => {
   const approver = useApprover();
 
   const reject = useCallback(
-    async ({ id, rejections }: Proposal) =>
+    async ({ hash: id, rejections }: Proposal) =>
       mutation({
-        variables: { id },
+        variables: {
+          input: { hash: id },
+        },
         optimisticResponse: {
           reject: {
-            __typename: 'Proposal',
+            __typename: 'TransactionProposal',
             id,
             rejections: [
-              ...[...rejections.values()].map((a) => ({
+              ...[...rejections.values()].map((r) => ({
                 __typename: 'Rejection' as const,
-                userId: a.approver,
-                createdAt: a.timestamp.toISO(),
+                id: r.user,
+                user: {
+                  __typename: 'User' as const,
+                  address: r.user as Address,
+                },
+                createdAt: r.timestamp.toISO(),
               })),
               {
                 __typename: 'Rejection' as const,
-                userId: approver.address as Address,
+                id: approver.address, // Incorrect but it doesn't matter
+                user: {
+                  __typename: 'User' as const,
+                  address: approver.address as Address,
+                },
                 createdAt: DateTime.now().toISO(),
               },
             ],

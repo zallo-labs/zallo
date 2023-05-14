@@ -1,13 +1,14 @@
-import { AccountId, useAccountIds } from '@api/account';
+import { useAccountIds } from '@api/account';
 import { Updater } from 'use-immer';
 import { ListItem } from '../list/ListItem';
 import { useAddressLabel } from '../address/AddressLabel';
 import { Checkbox } from 'react-native-paper';
 import { StyleSheet, View } from 'react-native';
+import { Address } from 'lib';
 
 export interface AccountsListProps {
-  selected: Set<AccountId>;
-  updateSelected: Updater<Set<AccountId>>;
+  selected: Set<Address>;
+  updateSelected: Updater<Set<Address>>;
 }
 
 export const AccountsList = ({ selected, updateSelected }: AccountsListProps) => {

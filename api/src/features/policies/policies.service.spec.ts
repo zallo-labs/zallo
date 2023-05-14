@@ -1,31 +1,30 @@
 import { Test } from '@nestjs/testing';
 import { createMock, DeepMocked } from '@golevelup/ts-jest';
-import { PRISMA_MOCK_PROVIDER } from '../util/prisma/prisma.service.mock';
-import { PrismaService } from '../util/prisma/prisma.service';
 import { PoliciesService } from './policies.service';
-import { Address, asPolicyKey, PolicyId, randomDeploySalt } from 'lib';
+import { Address, asPolicyKey, randomDeploySalt, ZERO_ADDR } from 'lib';
 import { asUser, getUserCtx, UserContext } from '~/request/ctx';
 import { randomAddress, randomUser } from '~/util/test';
 import { hexlify, randomBytes } from 'ethers/lib/utils';
 import { ProposalsService } from '../proposals/proposals.service';
-import { connectAccount, connectOrCreateUser } from '~/util/connect-or-create';
 import { UserAccountsService } from '../auth/userAccounts.service';
+import { DatabaseService } from '../database/database.service';
+import e from '~/edgeql-js';
 
 describe(PoliciesService.name, () => {
   let service: PoliciesService;
-  let prisma: PrismaService;
+  let db: DatabaseService;
   let proposals: DeepMocked<ProposalsService>;
   let userAccounts: DeepMocked<UserAccountsService>;
 
   beforeEach(async () => {
     const module = await Test.createTestingModule({
-      providers: [PoliciesService, PRISMA_MOCK_PROVIDER],
+      providers: [PoliciesService, DatabaseService],
     })
       .useMocker(createMock)
       .compile();
 
     service = module.get(PoliciesService);
-    prisma = module.get(PrismaService);
+    db = module.get(DatabaseService);
     proposals = module.get(ProposalsService);
     userAccounts = module.get(UserAccountsService);
   });
@@ -33,89 +32,90 @@ describe(PoliciesService.name, () => {
   let user1Account: Address;
   let user1: UserContext;
 
-  const create = async ({ active }: { active?: boolean } = {}) => {
+  const create = async ({ activate }: { activate?: boolean } = {}) => {
+    const userCtx = getUserCtx();
     const account = user1Account;
 
-    await prisma.asUser.account.createMany({
-      data: {
-        id: account,
-        deploySalt: randomDeploySalt(),
-        impl: account,
-        name: '',
-      },
-    });
+    const { id: accountId } = await e
+      .insert(e.Account, {
+        address: account,
+        implementation: account,
+        salt: randomDeploySalt(),
+        isActive: false,
+      })
+      .run(db.client);
 
-    const userCtx = getUserCtx();
+    userCtx.accounts.push(accountId);
+
     userAccounts.add.mockImplementation(async (p) => {
-      if (userCtx.id === p.user && account === p.account) userCtx.accounts.add(account);
+      if (userCtx.address === p.user && accountId === p.account) userCtx.accounts.push(accountId);
     });
 
-    proposals.propose.mockImplementation(async () =>
-      prisma.asUser.proposal.create({
-        data: {
-          id: hexlify(randomBytes(32)),
-          account: connectAccount(account),
-          proposer: connectOrCreateUser(user1.id),
-          to: account,
-          nonce: 0,
-          estimatedOpGas: 0,
-        },
-      }),
+    await e.insert(e.Device, { address: userCtx.address }).unlessConflict().run(db.client);
+
+    proposals.propose.mockImplementation(
+      async () =>
+        e.insert(e.TransactionProposal, {
+          hash: hexlify(randomBytes(32)),
+          account: e.select(e.Account, () => ({ filter_single: { address: account } })),
+          to: ZERO_ADDR,
+          feeToken: ZERO_ADDR,
+          simulation: e.insert(e.Simulation, {}),
+        }) as any,
     );
 
-    const { key } = await service.create(
-      {
-        account,
-        approvers: [userCtx.id],
-        permissions: {},
-      },
-      { select: null },
-    );
-
-    await prisma.asUser.policy.update({
-      where: {
-        accountId_key: {
-          accountId: account,
-          key,
-        },
-      },
-      data: {
-        [active ? 'activeId' : 'draftId']: (await prisma.asUser.policyState.findFirstOrThrow()).id,
-      },
+    const { id, key } = await service.create({
+      account,
+      approvers: [userCtx.address],
+      permissions: {},
     });
 
-    return { account, key: asPolicyKey(key) } satisfies PolicyId;
+    if (activate) {
+      await e
+        .update(e.PolicyState, () => ({
+          filter_single: {
+            id: e.select(e.Policy, () => ({
+              filter_single: { id },
+              draft: { id: true },
+            })).draft.id,
+          },
+          set: {
+            activationBlock: 0n,
+          },
+        }))
+        .run(db.client);
+    }
+
+    return { id, account, key };
   };
 
   beforeEach(() => {
     user1Account = randomAddress();
-    user1 = {
-      id: randomAddress(),
-      accounts: new Set([]),
-    };
+    user1 = randomUser();
   });
 
   describe('create', () => {
     it('create policy', () =>
       asUser(user1, async () => {
-        const policy = await create();
+        const { id } = await create();
 
         expect(
-          await service.findUnique({
-            where: {
-              accountId_key: {
-                accountId: policy.account,
-                key: policy.key,
-              },
-            },
-          }),
+          await e.select(e.Policy, () => ({ filter_single: { id } })).run(db.client),
         ).toBeTruthy();
       }));
 
     it('creates state', () =>
       asUser(user1, async () => {
-        await create();
-        expect(await prisma.asUser.policyState.count()).toEqual(1);
+        const { id } = await create();
+
+        const policy = await e
+          .select(e.Policy, () => ({
+            filter_single: { id },
+            stateHistory: { id: true },
+          }))
+          .run(db.client);
+
+        expect(policy?.stateHistory).toHaveLength(1);
       }));
 
     it('proposes an upsert', () =>
@@ -129,9 +129,15 @@ describe(PoliciesService.name, () => {
     it('updates name', () =>
       asUser(user1, async () => {
         const policy = await create();
-
         const newName = 'new';
-        expect((await service.update({ ...policy, name: newName })).name).toEqual(newName);
+        await service.update({ ...policy, name: newName });
+
+        const select = e.select(e.Policy, (p) => ({
+          filter_single: { id: policy.id },
+          name: true,
+        }));
+
+        expect((await select.run(db.client))?.name).toEqual(newName);
       }));
 
     it('creates state', () =>
@@ -139,7 +145,14 @@ describe(PoliciesService.name, () => {
         const policy = await create();
         await service.update({ ...policy, approvers: [] });
 
-        expect(await prisma.asUser.policyState.count()).toEqual(2);
+        const policyWithStates = await e
+          .select(e.Policy, () => ({
+            filter_single: { id: policy.id },
+            stateHistory: { id: true },
+          }))
+          .run(db.client);
+
+        expect(policyWithStates?.stateHistory).toHaveLength(2);
       }));
 
     it('propose', () =>
@@ -176,12 +189,23 @@ describe(PoliciesService.name, () => {
         const policy = await create();
         await service.remove(policy);
 
-        expect(await prisma.asUser.policyState.count({ where: { isRemoved: true } })).toEqual(1);
+        const selected = await e
+          .select(e.Policy, (p) => ({
+            filter_single: { id: policy.id },
+            nRemovedPolicies: e.count(
+              e.select(p.stateHistory, (state) => ({
+                filter: e.op(state.isRemoved, '=', true),
+              })),
+            ),
+          }))
+          .run(db.client);
+
+        expect(selected?.nRemovedPolicies).toEqual(1);
       }));
 
     it('proposes a remove if the policy is active', () =>
       asUser(user1, async () => {
-        const policy = await create({ active: true });
+        const policy = await create({ activate: true });
 
         expect(proposals.propose).toHaveBeenCalledTimes(1);
         await service.remove(policy);
@@ -205,15 +229,15 @@ describe(PoliciesService.name, () => {
   });
 
   describe('delete', () => {
-    it('should throw if policy is active', () =>
+    it('should not delete active policy', () =>
       asUser(user1, async () => {
-        const policy = await create({ active: true });
+        const policy = await create({ activate: true });
 
-        await expect(
-          prisma.asUser.policy.delete({
-            where: { accountId_key: { accountId: policy.account, key: policy.key } },
-          }),
-        ).rejects.toThrow();
+        const deleteQuery = e.delete(e.Policy, () => ({
+          filter_single: { id: policy.id },
+        }));
+
+        expect(await deleteQuery.run(db.client)).toBeNull();
       }));
   });
 });

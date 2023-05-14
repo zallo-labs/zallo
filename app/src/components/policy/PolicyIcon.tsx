@@ -19,7 +19,7 @@ export interface PolicyIconProps extends IconProps {
 
 export const PolicyIcon = ({ policy, filled = false, ...iconProps }: PolicyIconProps) => {
   const icons = match(policy)
-    .with({ active: undefined }, () => [PolicyAddOutlineIcon, PolicyAddIcon] as const)
+    .with({ state: undefined }, () => [PolicyAddOutlineIcon, PolicyAddIcon] as const)
     .with({ draft: undefined }, () => [PolicyActiveOutlineIcon, PolicyActiveIcon] as const)
     .with({ draft: null }, () => [PolicyRemoveOutlineIcon, PolicyRemoveIcon] as const)
     .otherwise(() => [PolicyEditOutlineIcon, PolicyEditIcon] as const);

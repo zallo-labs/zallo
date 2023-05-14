@@ -1,6 +1,6 @@
 import { Address } from 'lib';
 
 export interface User {
-  id: Address;
+  address: Address;
   name?: string;
 }

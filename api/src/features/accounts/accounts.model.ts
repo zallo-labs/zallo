@@ -2,29 +2,34 @@ import { ObjectType } from '@nestjs/graphql';
 import { AddressField } from '~/apollo/scalars/Address.scalar';
 import { Bytes32Field } from '~/apollo/scalars/Bytes.scalar';
 import { Transfer } from '../transfers/transfers.model';
-import { Policy, PolicyState } from '../policies/policies.model';
-import { Proposal } from '../proposals/proposals.model';
+import { Policy } from '../policies/policies.model';
+import { Proposal, TransactionProposal } from '../proposals/proposals.model';
+import { IdField } from '~/apollo/scalars/Id.scalar';
+import { uuid } from 'edgedb/dist/codecs/ifaces';
 
 @ObjectType()
 export class Account {
-  @AddressField()
-  id: string; // Address
+  @IdField()
+  id: uuid;
 
   @AddressField()
-  impl: string; // Address
+  address: string; // Address;
 
-  @Bytes32Field()
-  deploySalt: string; // Hex
-
-  name: string;
+  name?: string | null;
 
   isActive: boolean;
 
-  policies?: Policy[];
+  @AddressField()
+  implementation: string; // Address
 
-  policyStates?: PolicyState[];
+  @Bytes32Field()
+  salt: string; // Hex
 
-  proposals?: Proposal[];
+  policies: Policy[];
 
-  transfers?: Transfer[];
+  proposals: Proposal[];
+
+  transactionProposals: TransactionProposal[];
+
+  transfers: Transfer[];
 }

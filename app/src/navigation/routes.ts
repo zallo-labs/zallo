@@ -1,4 +1,5 @@
 import { LinkingOptions } from '@react-navigation/native';
+import { asHex } from 'lib';
 
 type Routes = NonNullable<LinkingOptions<ReactNavigation.RootParamList>['config']>;
 
@@ -6,9 +7,9 @@ export const ROUTES: Routes = {
   initialRouteName: 'Home',
   screens: {
     Proposal: {
-      path: 'proposal/:id',
+      path: 'proposal/:hash',
       parse: {
-        id: (id) => ({ hash: id }),
+        hash: (hash) => ({ hash: asHex(hash) }),
       },
     },
     Home: '*',

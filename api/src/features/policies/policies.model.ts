@@ -1,78 +1,60 @@
 import { Field } from '@nestjs/graphql';
 import { ObjectType } from '@nestjs/graphql';
 import { GraphQLBigInt } from 'graphql-scalars';
-import { AddressField } from '~/apollo/scalars/Address.scalar';
 import { Account } from '../accounts/accounts.model';
-import { Proposal } from '../proposals/proposals.model';
-import { Approver } from '../approvers/approvers.model';
+import { TransactionProposal } from '../proposals/proposals.model';
+import { User } from '../users/users.model';
+import { IdField } from '~/apollo/scalars/Id.scalar';
+import * as eql from '~/edgeql-interfaces';
+import { uuid } from 'edgedb/dist/codecs/ifaces';
 
 @ObjectType()
 export class Policy {
-  @Field(() => Account, { nullable: false })
-  account?: Account;
+  @IdField()
+  id: uuid;
 
-  @AddressField()
-  accountId: string; // Address
+  account: Account;
 
-  @Field(() => GraphQLBigInt)
-  key: bigint;
+  key: number; // PolicyKey;
 
   name: string;
 
-  active?: PolicyState | null;
-
-  @Field(() => GraphQLBigInt, { nullable: true })
-  activeId: bigint | null;
+  state?: PolicyState | null;
 
   draft?: PolicyState | null;
 
-  @Field(() => GraphQLBigInt, { nullable: true })
-  draftId: bigint | null;
+  stateHistory: PolicyState[];
 
-  states?: PolicyState[];
+  isActive: boolean;
 }
 
 @ObjectType()
 export class PolicyState {
-  @Field(() => GraphQLBigInt)
-  id: bigint;
+  @IdField()
+  id: uuid;
 
-  @Field(() => Account, { nullable: false })
-  account?: Account;
+  proposal?: TransactionProposal | null;
 
-  accountId: string;
+  isAccountInitState: boolean;
 
-  @Field(() => Policy, { nullable: false })
-  policy?: Policy;
-
-  @Field(() => GraphQLBigInt)
-  policyKey: bigint;
-
-  proposal?: Proposal | null;
-
-  proposalId: string | null;
-
-  createdAt: Date;
-
-  isRemoved: boolean;
-
-  activeOf?: Policy | null;
-
-  draftOf?: Policy | null;
-
-  approvers?: Approver[];
+  approvers: User[];
 
   threshold: number;
 
-  targets?: Target[];
+  targets: Target[];
+
+  isRemoved: boolean;
+
+  @Field(() => GraphQLBigInt, { nullable: true })
+  activationBlock?: bigint | null;
+
+  createdAt: Date;
 }
 
 @ObjectType()
-export class Target {
-  state: PolicyState;
-
-  @Field(() => GraphQLBigInt)
-  stateId: bigint;
+export class Target implements eql.Target {
+  @IdField()
+  id: uuid;
 
   to: string; // Address | '*'
 

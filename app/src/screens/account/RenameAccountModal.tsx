@@ -1,8 +1,8 @@
-import { AccountId, useAccount, useUpdateAccount } from '@api/account';
+import { useAccount, useUpdateAccount } from '@api/account';
+import { Address } from 'lib';
 import { useForm } from 'react-hook-form';
 import { StyleSheet, View } from 'react-native';
 import { Appbar } from '~/components/Appbar/Appbar';
-import { Button } from '~/components/Button';
 import { FormSubmitButton } from '~/components/fields/FormSubmitButton';
 import { FormTextField } from '~/components/fields/FormTextField';
 import { Actions } from '~/components/layout/Actions';
@@ -16,7 +16,7 @@ interface Inputs {
 }
 
 export interface RenameAccountModalParams {
-  account: AccountId;
+  account: Address;
 }
 
 export type RenameAccountModalProps = StackNavigatorScreenProps<'RenameAccountModal'>;

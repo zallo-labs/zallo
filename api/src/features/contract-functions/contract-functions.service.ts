@@ -1,35 +1,33 @@
 import { Injectable } from '@nestjs/common';
-import { Address } from 'lib';
-import { PrismaService } from '../util/prisma/prisma.service';
-import { Prisma } from '@prisma/client';
 import { ContractsService } from '../contracts/contracts.service';
+import { DatabaseService } from '../database/database.service';
+import e from '~/edgeql-js';
+import { ShapeFunc } from '../database/database.select';
+import { ContractFunctionInput } from './contract-functions.input';
 
 @Injectable()
 export class ContractFunctionsService {
-  constructor(private prisma: PrismaService, private contracts: ContractsService) {}
+  constructor(private db: DatabaseService, private contracts: ContractsService) {}
 
-  async findUnique<Res extends Prisma.ContractFunctionArgs>(
-    contract: Address,
-    selector: string,
-    res?: Prisma.SelectSubset<Res, Prisma.ContractFunctionArgs>,
+  async findUnique(
+    { contract, selector }: ContractFunctionInput,
+    shape: ShapeFunc<typeof e.Function>,
   ) {
-    const getExact = () =>
-      this.prisma.asUser.contractFunction.findUnique({
-        where: { contractId_selector: { contractId: contract, selector } },
-        ...res,
-      });
-
-    const exactMatch = await getExact();
+    const c = await this.contracts.selectUnique(contract, () => ({
+      functions: (f) => ({
+        filter: e.op(f.selector, '=', selector),
+        ...(shape?.(f) as any), // Type issue
+      }),
+    }));
+    const exactMatch = c?.functions[0];
     if (exactMatch) return exactMatch;
 
-    // Otherwise try fetch the abi for the contract
-    const fetched = await this.contracts.tryFetchAbi(contract, { select: { id: true } });
-    if (fetched) return getExact();
-
-    // Fallback to finding the sighash from any contract
-    return this.prisma.asUser.contractFunction.findFirst({
-      where: { selector },
-      ...res,
-    });
+    // Fallback to finding the selector from any contract
+    return e
+      .select(e.Function, (f) => ({
+        filter: e.op(f.selector, '=', selector),
+        ...shape?.(f),
+      }))
+      .run(this.db.client);
   }
 }

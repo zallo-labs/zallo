@@ -1,7 +1,6 @@
 import { ethers } from 'ethers';
-import { asAccountId } from '@api/account';
 import { match } from 'ts-pattern';
-import { Addresslike, asHex } from 'lib';
+import { Addresslike, asAddress, asHex } from 'lib';
 
 export type SigningRequest = EthSignRequest | PersonalSignRequest | SignTypedDataRequest;
 
@@ -45,16 +44,16 @@ export interface Eip712TypedDomainData<M = Record<string, unknown>, Type extends
   message: M;
 }
 
-export const normalizeSigningRequest = (r: SigningRequest) => {
-  const { account, ...req } = match(r)
+export const normalizeSigningRequest = (r: SigningRequest) =>
+  match(r)
     .with({ method: 'personal_sign' }, ({ method, params: [message, account] }) => ({
       method,
-      account,
+      account: asAddress(account),
       message: asHex(message),
     }))
     .with({ method: 'eth_sign' }, ({ method, params: [account, message] }) => ({
       method,
-      account,
+      account: asAddress(account),
       message: asHex(message),
     }))
     .with(
@@ -63,14 +62,11 @@ export const normalizeSigningRequest = (r: SigningRequest) => {
       { method: 'eth_signTypedData_v4' },
       ({ method, params: [account, typedDataJson] }) => ({
         method,
-        account,
+        account: asAddress(account),
         message: toTypedData(typedDataJson),
       }),
     )
     .exhaustive();
-
-  return { accountId: asAccountId(account), ...req };
-};
 
 const toTypedData = (typedDataJson: string): Eip712TypedDomainData => {
   const typedData = JSON.parse(typedDataJson) as Eip712TypedDomainData;

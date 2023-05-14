@@ -6,8 +6,8 @@ import { PolicyFieldsFragmentDoc, useUpdatePolicyMutation } from '@api/generated
 gql`
   ${PolicyFieldsFragmentDoc}
 
-  mutation UpdatePolicy($args: UpdatePolicyInput!) {
-    updatePolicy(args: $args) {
+  mutation UpdatePolicy($input: UpdatePolicyInput!) {
+    updatePolicy(input: $input) {
       ...PolicyFields
     }
   }
@@ -25,7 +25,7 @@ export const useUpdatePolicy = () => {
     async ({ account, key, name, approvers, threshold, permissions }: UpdatePolicyOptions) => {
       const r = await mutate({
         variables: {
-          args: {
+          input: {
             account,
             key,
             name,

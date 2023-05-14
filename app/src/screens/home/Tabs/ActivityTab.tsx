@@ -27,7 +27,7 @@ export const ActivityTab = withSuspense(
     const { navigate } = useNavigation();
 
     const proposals = useProposals();
-    const inTransfers = useTransfers(useSelectedAccountId(), 'IN');
+    const inTransfers = useTransfers(useSelectedAccountId(), 'In');
     const data: Item[] = [...proposals, ...inTransfers].sort(compare);
 
     return (
@@ -35,7 +35,7 @@ export const ActivityTab = withSuspense(
         data={data}
         renderItem={({ item }) =>
           match(item)
-            .when(isProposalItem, ({ id }) => (
+            .when(isProposalItem, ({ hash: id }) => (
               <ProposalItem proposal={id} onPress={() => navigate('Proposal', { proposal: id })} />
             ))
             .otherwise((transfer) => <IncomingTransferItem transfer={transfer} />)

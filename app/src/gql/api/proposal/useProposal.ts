@@ -7,30 +7,35 @@ import { Proposal, ProposalId, toProposal } from './types';
 
 gql`
   fragment ApprovalFields on Approval {
-    userId
-    signature
+    id
+    user {
+      address
+    }
     createdAt
   }
 
   fragment RejectionFields on Rejection {
-    userId
+    id
+    user {
+      address
+    }
     createdAt
   }
 
   fragment TransactionFields on Transaction {
     id
     hash
-    gasLimit
     gasPrice
-    createdAt
+    submittedAt
     receipt {
       success
       response
       gasUsed
-      gasPrice
       fee
       timestamp
       transfers {
+        id
+        direction
         token
         from
         to
@@ -39,16 +44,20 @@ gql`
     }
   }
 
-  fragment ProposalFields on Proposal {
+  fragment TransactionProposalFields on TransactionProposal {
     id
-    accountId
-    proposerId
+    hash
+    account {
+      address
+    }
+    proposedBy {
+      address
+    }
     to
     value
     data
     nonce
     gasLimit
-    estimatedOpGas
     feeToken
     createdAt
     approvals {
@@ -66,6 +75,7 @@ gql`
     simulation {
       transfers {
         id
+        direction
         token
         from
         to
@@ -77,18 +87,19 @@ gql`
     }
   }
 
-  query Proposal($id: Bytes32!) {
-    proposal(id: $id) {
-      ...ProposalFields
+  query Proposal($input: ProposalInput!) {
+    proposal(input: $input) {
+      ...TransactionProposalFields
     }
   }
 `;
 
 export const useProposal = <Id extends ProposalId | undefined>(id: Id) => {
-  const skip = !id;
   const { data } = useSuspenseQuery<ProposalQuery, ProposalQueryVariables>(ProposalDocument, {
-    variables: { id: id! },
-    skip,
+    variables: {
+      input: { hash: id! },
+    },
+    skip: !id,
   });
 
   const p = data.proposal;

@@ -1,10 +1,9 @@
-import { AccountId } from '@api/account';
 import { Address, PolicyKey } from 'lib';
 import { Permissions } from 'lib';
 import { atom } from 'jotai';
 
 export interface PolicyDraft {
-  account: AccountId;
+  account: Address;
   key?: PolicyKey;
   name: string;
   permissions: Permissions;

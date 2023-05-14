@@ -1,24 +1,18 @@
-import { Field, ObjectType } from '@nestjs/graphql';
+import { ObjectType } from '@nestjs/graphql';
 import { AddressField } from '~/apollo/scalars/Address.scalar';
+import { IdField } from '~/apollo/scalars/Id.scalar';
 import { Contact } from '../contacts/contacts.model';
-import { Approver } from '../approvers/approvers.model';
-import { Approval, Proposal } from '../proposals/proposals.model';
+import { uuid } from 'edgedb/dist/codecs/ifaces';
 
 @ObjectType()
 export class User {
+  @IdField()
+  id: uuid;
+
   @AddressField()
-  id: string; // Address
+  address: string; // Address
 
   name: string | null;
 
-  // Hidden
-  // pushToken: string | null;
-
-  contacts?: Contact[];
-
-  approvals?: Approval[];
-
-  approvers?: Approver[];
-
-  proposals?: Proposal[];
+  contacts: Contact[];
 }

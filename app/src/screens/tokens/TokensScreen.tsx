@@ -5,7 +5,6 @@ import { Address } from 'lib';
 import { useTokens } from '@token/useToken';
 import { StackNavigatorScreenProps } from '~/navigation/StackNavigator';
 import { Searchbar } from '~/components/fields/Searchbar';
-import { AccountId } from '@api/account';
 import { AppbarBack2 } from '~/components/Appbar/AppbarBack';
 import { SearchIcon } from '@theme/icons';
 import { ListHeader } from '~/components/list/ListHeader';
@@ -18,7 +17,7 @@ const TOKEN_EMITTER = new EventEmitter<Token>('Token');
 export const useSelectToken = TOKEN_EMITTER.createUseSelect('TokensModal');
 
 export interface TokensScreenParams {
-  account?: AccountId;
+  account?: Address;
   disabled?: Address[];
 }
 

@@ -15,7 +15,7 @@ import { withSuspense } from '~/components/skeleton/withSuspense';
 import { TabScreenSkeleton } from '~/components/tab/TabScreenSkeleton';
 
 const getApprovalsAwaiting = (proposal: Proposal, policy?: WPolicy) => {
-  const requiredApproval = policy?.active?.approvers ?? new Set();
+  const requiredApproval = policy?.state?.approvers ?? new Set();
 
   return [...requiredApproval].filter(
     (a) => !proposal.approvals.has(a) && !proposal.rejections.has(a),
@@ -58,11 +58,11 @@ export const PolicyTab = withSuspense(({ route }: PolicyTabProps) => {
       {proposal.rejections.size > 0 && <ListHeader>Rejected</ListHeader>}
       {[...proposal.rejections].map((rejection) => (
         <ListItem
-          key={rejection.approver}
-          leading={rejection.approver}
+          key={rejection.user}
+          leading={rejection.user}
           headline={({ Text }) => (
             <Text>
-              <AddressLabel address={rejection.approver} />
+              <AddressLabel address={rejection.user} />
             </Text>
           )}
           supporting="Rejected"
@@ -90,11 +90,11 @@ export const PolicyTab = withSuspense(({ route }: PolicyTabProps) => {
       {proposal.approvals.size > 0 && <ListHeader>Approvals</ListHeader>}
       {[...proposal.approvals].map((approval) => (
         <ListItem
-          key={approval.approver}
-          leading={approval.approver}
+          key={approval.user}
+          leading={approval.user}
           headline={({ Text }) => (
             <Text>
-              <AddressLabel address={approval.approver} />
+              <AddressLabel address={approval.user} />
             </Text>
           )}
           trailing={({ Text }) => (

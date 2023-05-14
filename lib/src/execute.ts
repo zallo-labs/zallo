@@ -1,8 +1,8 @@
-import { Overrides } from 'ethers';
+import { BigNumber, Overrides } from 'ethers';
 import { Account } from './contracts';
 import { encodeAccountSignature } from './signature';
 import * as zk from 'zksync-web3';
-import { Eip712Meta, TransactionRequest } from 'zksync-web3/build/src/types';
+import { Eip712Meta, TransactionRequest, TransactionResponse } from 'zksync-web3/build/src/types';
 import { EIP712_TX_TYPE } from 'zksync-web3/build/src/utils';
 import { Tx } from './tx';
 import { estimateTxGas } from './gas';
@@ -52,5 +52,6 @@ export const asTransactionRequest = async ({
 
 export const executeTx = async (opts: TransactionRequestOptions) => {
   const req = await asTransactionRequest(opts);
-  return opts.account.provider.sendTransaction(zk.utils.serialize(req));
+  const resp = await opts.account.provider.sendTransaction(zk.utils.serialize(req));
+  return resp as TransactionResponse & { gasPrice: BigNumber };
 };

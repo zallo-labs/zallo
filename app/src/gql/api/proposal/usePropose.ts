@@ -5,7 +5,7 @@ import { showInfo } from '~/provider/SnackbarProvider';
 import { asProposalId, ProposalId } from './types';
 import { O } from 'ts-toolbelt';
 import {
-  ProposalFieldsFragmentDoc,
+  TransactionProposalFieldsFragmentDoc,
   ProposalsDocument,
   ProposalsQuery,
   ProposalsQueryVariables,
@@ -18,25 +18,11 @@ import { updateQuery } from '~/gql/util';
 import { NavigationProp, useNavigation } from '@react-navigation/native';
 
 gql`
-  ${ProposalFieldsFragmentDoc}
+  ${TransactionProposalFieldsFragmentDoc}
 
-  mutation Propose(
-    $account: Address!
-    $to: Address!
-    $value: Uint256
-    $data: Bytes
-    $nonce: Uint256
-    $gasLimit: Uint256
-  ) {
-    propose(
-      account: $account
-      to: $to
-      value: $value
-      data: $data
-      nonce: $nonce
-      gasLimit: $gasLimit
-    ) {
-      ...ProposalFields
+  mutation Propose($input: ProposeInput!) {
+    propose(input: $input) {
+      ...TransactionProposalFields
     }
   }
 `;
@@ -53,11 +39,13 @@ export const usePropose = () => {
     async (tx: TxOptions, account: AccountIdlike): Promise<ProposalId> => {
       const r = await mutation({
         variables: {
-          account: asAccountId(account),
-          to: tx.to,
-          value: tx.value?.toString(),
-          data: tx.data,
-          gasLimit: tx.gasLimit?.toString(),
+          input: {
+            account: asAccountId(account),
+            to: tx.to,
+            value: tx.value?.toString(),
+            data: tx.data,
+            gasLimit: tx.gasLimit?.toString(),
+          },
         },
         update: async (cache, { data }) => {
           const proposal = data?.propose;
@@ -75,8 +63,10 @@ export const usePropose = () => {
         },
       });
 
-      assert(r.data?.propose, 'Proposal failed');
-      return asProposalId(r.data.propose.id);
+      const proposal = r.data?.propose;
+      if (!proposal) throw new Error('Proposal failed');
+
+      return asProposalId(proposal.hash);
     },
     [mutation],
   );

@@ -28,13 +28,18 @@ WORKDIR /build
 # Root
 COPY --from=builder --chown=node:node /build/node_modules/ ./node_modules/
 COPY --from=builder --chown=node:node /build/lib/ ./lib/
-COPY --from=builder --chown=node:node /build/.env.vault ./.env.vault
 
 # Api
 COPY --from=builder --chown=node:node /build/api/dbschema/ ./api/dbschema/
 COPY --from=builder --chown=node:node /build/api/dist/ ./api/dist/
-COPY --from=builder --chown=node:node /build/api/generated/ ./api/generated/
+COPY --from=builder --chown=node:node /build/api/dbschema/ ./api/dbschema/
 COPY --from=builder --chown=node:node /build/api/node_modules/ ./api/node_modules/
+COPY --from=builder --chown=node:node /build/.env.vault ./api/.env.vault
+COPY --from=builder --chown=node:node /build/api/edgedb.toml ./api/edgedb.toml
+COPY --from=builder --chown=node:node /build/api/package.json ./api/package.json
+
+# Copy `edgedb` binary - required for migrations
+COPY --from=edgedb/edgedb-cli:latest --chown=node:node /usr/bin/edgedb /usr/bin/edgedb
 
 WORKDIR /build/api
-CMD ["node", "./dist/src/main.js"]
+CMD ["yarn", "start:production"]

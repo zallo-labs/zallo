@@ -1,17 +1,14 @@
 import { Field, ObjectType, registerEnumType } from '@nestjs/graphql';
+import { uuid } from 'edgedb/dist/codecs/ifaces';
 import { GraphQLJSON } from 'graphql-scalars';
-import { Contract } from '../contracts/contracts.model';
-import { AddressField } from '~/apollo/scalars/Address.scalar';
 import { SelectorField } from '~/apollo/scalars/Bytes.scalar';
+import { IdField } from '~/apollo/scalars/Id.scalar';
+import * as eql from '~/edgeql-interfaces';
 
 @ObjectType()
-export class ContractFunction {
-  id: number;
-
-  contract?: Contract | null;
-
-  @AddressField({ nullable: true })
-  contractId: string | null; // Address | null
+export class ContractFunction implements eql.Function {
+  @IdField()
+  id: uuid;
 
   @SelectorField()
   selector: string; // Selector
@@ -19,20 +16,20 @@ export class ContractFunction {
   @Field(() => GraphQLJSON)
   abi: any;
 
+  abiMd5: string;
+
   @Field(() => AbiSource)
   source: keyof typeof AbiSource;
 }
 
 export enum AbiSource {
-  VERIFIED = 'VERIFIED',
-  STANDARD = 'STANDARD',
-  DECOMPILED = 'DECOMPILED',
+  Verified = 'Verified',
 }
 registerEnumType(AbiSource, { name: 'AbiSource' });
 
-export enum ContractSourceConfidence {
+export enum AbiSourceConfidence {
   Low,
   Medium,
   High,
 }
-registerEnumType(ContractSourceConfidence, { name: 'ContractSourceConfidence' });
+registerEnumType(AbiSourceConfidence, { name: 'AbiSourceConfidence' });

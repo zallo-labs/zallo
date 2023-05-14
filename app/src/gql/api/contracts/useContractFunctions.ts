@@ -13,8 +13,8 @@ import { ContractFunction, fragmentToContractFunction } from './types';
 gql`
   ${ContractFunctionFieldsFragmentDoc}
 
-  query Contract($args: ContractInput!) {
-    contract(args: $args) {
+  query Contract($input: ContractInput!) {
+    contract(input: $input) {
       id
       functions {
         ...ContractFunctionFields
@@ -25,7 +25,7 @@ gql`
 
 export const useContractFunctions = (contract: Address | undefined) => {
   const { data } = useSuspenseQuery<ContractQuery, ContractQueryVariables>(ContractDocument, {
-    variables: { args: { contract: contract! } },
+    variables: { input: { contract: contract! } },
     skip: !contract,
   });
 

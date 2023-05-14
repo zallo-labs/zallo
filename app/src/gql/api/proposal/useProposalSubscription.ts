@@ -1,38 +1,37 @@
 import { gql } from '@apollo/client';
 import {
-  ProposalFieldsFragment,
-  ProposalFieldsFragmentDoc,
+  ProposalSubscriptionInput,
+  TransactionProposalFieldsFragment,
+  TransactionProposalFieldsFragmentDoc,
   useProposalSubscriptionSubscription,
 } from '@api/generated';
 import { EventEmitter } from '~/util/EventEmitter';
 import assert from 'assert';
 
-export const PROPOSAL_EXECUTE_EMITTER = new EventEmitter<ProposalFieldsFragment>(
+export const PROPOSAL_EXECUTE_EMITTER = new EventEmitter<TransactionProposalFieldsFragment>(
   'Proposal::exeucte',
 );
 
 gql`
-  ${ProposalFieldsFragmentDoc}
+  ${TransactionProposalFieldsFragmentDoc}
 
-  subscription ProposalSubscription(
-    $accounts: [Address!]
-    $proposals: [Bytes32!]
-    $events: [ProposalEvent!]
-  ) {
-    proposal(accounts: $accounts, proposals: $proposals, events: $events) {
-      ...ProposalFields
+  subscription ProposalSubscription($input: ProposalSubscriptionInput) {
+    proposal(input: $input) {
+      ...TransactionProposalFields
     }
   }
 `;
 
 export const useProposalSubscription = useProposalSubscriptionSubscription;
 
-export const useEmitProposalExecutionEvents = (
-  params: Parameters<typeof useProposalSubscription>[0],
-) =>
+export const useEmitProposalExecutionEvents = (input: Partial<ProposalSubscriptionInput> = {}) =>
   useProposalSubscription({
-    ...params,
-    variables: { ...params?.variables, events: 'execute' },
+    variables: {
+      input: {
+        events: ['executed'],
+        ...input,
+      },
+    },
     onData: ({ data }) => {
       assert(data.data);
       PROPOSAL_EXECUTE_EMITTER.emit(data.data.proposal);

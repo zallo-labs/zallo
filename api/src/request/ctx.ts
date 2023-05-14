@@ -1,3 +1,4 @@
+import { uuid } from 'edgedb/dist/codecs/ifaces';
 import { Request, Response } from 'express';
 import { Context as BaseWsContext } from 'graphql-ws';
 import { Address } from 'lib';
@@ -18,8 +19,8 @@ export type IncomingWsContext = Omit<BaseWsContext, 'extra'> & {
 export type IncomingContext = IncomingHttpContext | IncomingWsContext;
 
 export interface UserContext {
-  id: Address;
-  accounts: Set<Address>;
+  address: Address;
+  accounts: uuid[];
 }
 
 export interface GqlContext {
@@ -34,7 +35,7 @@ export const getUserCtx = () => {
   return ctx;
 };
 
-export const getUser = () => getUserCtx().id;
+export const getUser = () => getUserCtx().address;
 
 export const asUser = <R, TArgs extends unknown[]>(
   user: UserContext | GqlContext,

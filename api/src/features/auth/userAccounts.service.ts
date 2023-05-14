@@ -1,56 +1,62 @@
 import { Injectable } from '@nestjs/common';
-import { asAddress, Address } from 'lib';
-import { PrismaService } from '../util/prisma/prisma.service';
+import { Address } from 'lib';
 import { InjectRedis } from '@liaoliaots/nestjs-redis';
 import Redis from 'ioredis';
 import { getUserCtx } from '~/request/ctx';
+import { DatabaseService } from '../database/database.service';
+import { uuid } from 'edgedb/dist/codecs/ifaces';
+import e from '~/edgeql-js';
+import { selectUser } from '../users/users.service';
 
 interface AddUserAccountParams {
   user: Address;
-  account: Address;
+  account: uuid;
 }
 
 @Injectable()
 export class UserAccountsService {
-  constructor(private prisma: PrismaService, @InjectRedis() private readonly redis: Redis) {}
+  constructor(@InjectRedis() private redis: Redis, private db: DatabaseService) {}
 
   private readonly DAY_IN_SECONDS = 60 * 60 * 24;
 
   async add({ user, account }: AddUserAccountParams) {
-    const accounts = (await this.getUserAccountsFromCache(user)) ?? new Set();
-    await this.setUserAccountsCache(user, accounts.add(account));
+    const accounts = (await this.getUserAccountsFromCache(user)) ?? [];
 
-    // Add to request context
-    getUserCtx().accounts.add(account);
+    accounts.push(account);
+    getUserCtx().accounts.push(account);
+
+    await this.setUserAccountsCache(user, accounts);
   }
 
-  async get(user: Address) {
+  async get(user: Address): Promise<uuid[]> {
     const existingAccountsCache = await this.getUserAccountsFromCache(user);
     if (existingAccountsCache) return existingAccountsCache;
 
-    const r = await this.prisma.asSystem.approver.findMany({
-      where: {
-        userId: user,
-        state: {
-          OR: [{ activeOf: {} }, { draftOf: {} }],
-        },
-      },
-      select: { state: { select: { accountId: true } } },
-    });
+    const userId = await this.db.query(selectUser(user));
+    if (!userId) return [];
 
-    const accounts = new Set([...r.map((r) => asAddress(r.state.accountId))]);
-    await this.setUserAccountsCache(user, accounts);
+    const accounts = await this.db.query(
+      e.select(e.Account, (acc) => ({
+        filter: e.op(
+          e.uuid(userId.id),
+          'in',
+          e.set(acc.policies.state.approvers.id, acc.policies.draft.approvers.id),
+        ),
+      })).id,
+    );
+
+    this.setUserAccountsCache(user, accounts);
 
     return accounts;
   }
 
   private async getUserAccountsFromCache(user: Address) {
     const json = await this.redis.get(`user:${user}:accounts`);
-    return json ? new Set<Address>(JSON.parse(json)) : null;
+    return json ? (JSON.parse(json) as uuid[]) : null;
   }
 
-  private async setUserAccountsCache(user: Address, accounts: Set<Address>) {
+  private async setUserAccountsCache(user: Address, accounts: uuid[]) {
     const key = `user:${user}:accounts`;
-    return this.redis.set(key, JSON.stringify([...accounts]), 'EX', this.DAY_IN_SECONDS);
+    return this.redis.set(key, JSON.stringify(accounts), 'EX', this.DAY_IN_SECONDS);
   }
 }

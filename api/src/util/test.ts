@@ -1,13 +1,11 @@
-import { Wallet } from 'ethers';
-import { asAddress } from 'lib';
-import { Prisma } from '@prisma/client';
+import { asAddress, asHex } from 'lib';
 import { UserContext } from '~/request/ctx';
+import { randomBytes } from 'crypto';
 
-export const randomAddress = () => asAddress(Wallet.createRandom().address);
+export const randomHex = (nBytes: number) => asHex('0x' + randomBytes(nBytes).toString('hex'));
 
-export const asPrismaPromise = <V>(v: V) => v as Prisma.PrismaPromise<Awaited<V>>;
+export const randomAddress = () => asAddress(randomHex(20));
 
-export const randomUser = (): UserContext => ({
-  id: randomAddress(),
-  accounts: new Set([randomAddress()]),
-});
+export const randomHash = () => asHex(randomHex(32));
+
+export const randomUser = (): UserContext => ({ address: randomAddress(), accounts: [] });

@@ -5,9 +5,10 @@ import { useUser } from './useUser';
 import { RequireAtLeastOne } from '~/util/typing';
 
 gql`
-  mutation UpdateUser($name: String, $pushToken: String) {
-    updateUser(name: $name, pushToken: $pushToken) {
+  mutation UpdateUser($input: UpdateUserInput!) {
+    updateUser(input: $input) {
       id
+      address
       name
     }
   }
@@ -26,18 +27,21 @@ export const useUpdateUser = () => {
     ({ name, pushToken }: UpdateUserOptions) => {
       return mutation({
         variables: {
-          name,
-          pushToken,
+          input: {
+            name,
+            pushToken,
+          },
         },
         optimisticResponse: {
           updateUser: {
             __typename: 'User',
-            id: user.id,
+            id: user.address,
+            address: user.address,
             name: name !== undefined ? name : user.name || null,
           },
         },
       });
     },
-    [mutation, user.id, user.name],
+    [mutation, user.address, user.name],
   );
 };

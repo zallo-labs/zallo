@@ -43,10 +43,9 @@ export const TransactionTab = withSuspense(({ route }: TransactionTabProps) => {
 
   const feeToken = useMaybeToken(proposal.feeToken) ?? ETH;
   const currentGasPrice = useGasPrice(feeToken);
-  const gasPrice = receipt?.gasPrice ?? tx?.gasPrice;
-  const gasLimit = tx?.gasLimit ?? proposal.gasLimit;
-  const estimatedFee = currentGasPrice * (gasLimit ?? proposal.estimatedOpGas); // TODO: factor in number of approvers when using estimatedOpGas
-  const actualFee = receipt && receipt.gasUsed * receipt.gasPrice;
+  const gasPrice = tx?.gasPrice;
+  const estimatedFee = currentGasPrice * proposal.gasLimit;
+  const actualFee = receipt && receipt.gasUsed * tx.gasPrice;
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
@@ -89,19 +88,11 @@ export const TransactionTab = withSuspense(({ route }: TransactionTabProps) => {
         />
       )}
 
-      {gasLimit ? (
-        <Item
-          leading={GasOutlineIcon}
-          headline="Gas limit"
-          trailing={<FormattedNumber value={gasLimit} />}
-        />
-      ) : (
-        <Item
-          leading={GasOutlineIcon}
-          headline="Gas limit (estimated)"
-          trailing={<FormattedNumber value={proposal.estimatedOpGas} />}
-        />
-      )}
+      <Item
+        leading={GasOutlineIcon}
+        headline="Gas limit"
+        trailing={<FormattedNumber value={proposal.gasLimit} />}
+      />
 
       {receipt && (
         <Item

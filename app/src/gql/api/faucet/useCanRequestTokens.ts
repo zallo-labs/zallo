@@ -9,8 +9,8 @@ import {
 import { useSuspenseQuery, usePollWhenFocussed } from '~/gql/util';
 
 gql`
-  query RequestableTokens($account: Address!) {
-    requestableTokens(account: $account)
+  query RequestableTokens($input: RequestTokensInput!) {
+    requestableTokens(input: $input)
   }
 `;
 
@@ -18,7 +18,7 @@ export const useCanRequestTokens = (account: Address) => {
   const { data, ...rest } = useSuspenseQuery<
     RequestableTokensQuery,
     RequestableTokensQueryVariables
-  >(RequestableTokensDocument, { variables: { account } });
+  >(RequestableTokensDocument, { variables: { input: { account } } });
   usePollWhenFocussed(rest, 5 * 60);
 
   return useMemo(() => data.requestableTokens.length > 0, [data]);

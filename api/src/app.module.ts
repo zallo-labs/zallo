@@ -8,14 +8,13 @@ import { AuthGuard } from './features/auth/auth.guard';
 import { ApolloModule } from './apollo/apollo.module';
 import { ProviderModule } from './features/util/provider/provider.module';
 import { ContactsModule } from './features/contacts/contacts.module';
-import { ApproversModule } from './features/approvers/approvers.module';
+import { DatabaseModule } from './features/database/database.module';
 import { ContractFunctionsModule } from './features/contract-functions/contract-functions.module';
 import { ProposalsModule } from './features/proposals/proposals.module';
 import { TransactionsModule } from './features/transactions/transactions.module';
 import { FaucetModule } from './features/faucet/faucet.module';
 import { ExpoModule } from './features/util/expo/expo.module';
 import { PubsubModule } from './features/util/pubsub/pubsub.module';
-import { PrismaModule } from './features/util/prisma/prisma.module';
 import { CONFIG } from './config';
 import { BullModule } from '@nestjs/bull';
 import { PoliciesModule } from './features/policies/policies.module';
@@ -29,7 +28,7 @@ import { RedisModule } from './features/util/redis/redis.module';
 @Module({
   imports: [
     // Util
-    PrismaModule,
+    DatabaseModule,
     RedisModule,
     BullModule.forRoot({
       // Requires separate redis client - https://github.com/OptimalBits/bull/issues/1873
@@ -46,7 +45,6 @@ import { RedisModule } from './features/util/redis/redis.module';
     ProviderModule,
     // Features
     AccountsModule,
-    ApproversModule,
     AuthModule,
     ContactsModule,
     ContractFunctionsModule,

@@ -13,15 +13,14 @@ import { ContractFunction, fragmentToContractFunction } from './types';
 gql`
   fragment ContractFunctionFields on ContractFunction {
     id
-    contractId
     selector
     abi
     source
     sourceConfidence
   }
 
-  query ContractFunction($args: ContractFunctionInput!) {
-    contractFunction(args: $args) {
+  query ContractFunction($input: ContractFunctionInput!) {
+    contractFunction(input: $input) {
       ...ContractFunctionFields
     }
   }
@@ -45,7 +44,7 @@ export const useContractFunction = <P extends ContractFunctionParams | Call | un
   const { data } = useSuspenseQuery<ContractFunctionQuery, ContractFunctionQueryVariables>(
     ContractFunctionDocument,
     {
-      variables: { args: { contract: contract!, selector: selector! } },
+      variables: { input: { contract: contract!, selector: selector! } },
       skip,
     },
   );

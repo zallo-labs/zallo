@@ -1,25 +1,19 @@
 import { Field, registerEnumType } from '@nestjs/graphql';
 import { ObjectType } from '@nestjs/graphql';
-import { GraphQLDecimal } from 'prisma-graphql-type-decimal';
-import { Decimal } from '@prisma/client/runtime/library';
 import { AddressField } from '~/apollo/scalars/Address.scalar';
 import { Account } from '../accounts/accounts.model';
-import { TransactionReceipt } from '../transactions/transactions.model';
-import { Bytes32Field } from '~/apollo/scalars/Bytes.scalar';
-import { TransferDirection } from '@gen/prisma/transfer-direction.enum';
+import { Receipt } from '../transactions/transactions.model';
+import { IdField } from '~/apollo/scalars/Id.scalar';
+import { GraphQLBigInt } from 'graphql-scalars';
 
 @ObjectType()
-export class Transfer {
-  id: number;
+export class TransferDetails {
+  @IdField()
+  id: string;
 
-  @Field(() => Account, { nullable: false })
-  account?: Account;
+  account: Account;
 
-  @AddressField()
-  accountId: string; // Address
-
-  @AddressField()
-  token: string; // Address
+  direction: TransferDirection;
 
   @AddressField()
   from: string; // Address
@@ -27,23 +21,25 @@ export class Transfer {
   @AddressField()
   to: string; // Address
 
-  @Field(() => GraphQLDecimal, { nullable: false })
-  amount: Decimal;
+  @AddressField()
+  token: string; // Address
 
-  direction: TransferDirection;
-
-  blockNumber: number;
-
-  timestamp: Date;
-
-  receipt?: TransactionReceipt | null;
-
-  @Bytes32Field()
-  transactionHash: string | null; // Hex | null
+  @Field(() => GraphQLBigInt)
+  amount: bigint;
 }
 
-// export enum TransferDirection {
-//   IN = 'IN',
-//   OUT = 'OUT',
-// }
-// registerEnumType(TransferDirection, { name: 'TransferDirection' });
+@ObjectType()
+export class Transfer extends TransferDetails {
+  receipt?: Receipt | null;
+
+  @Field(() => GraphQLBigInt)
+  block: bigint;
+
+  timestamp: Date;
+}
+
+export enum TransferDirection {
+  In = 'In',
+  Out = 'Out',
+}
+registerEnumType(TransferDirection, { name: 'TransferDirection' });

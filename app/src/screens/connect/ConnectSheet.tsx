@@ -1,4 +1,4 @@
-import { AccountId, useAccountIds } from '@api/account';
+import { useAccountIds } from '@api/account';
 import { makeStyles } from '@theme/makeStyles';
 import { getSdkError } from '@walletconnect/utils';
 import { tryOrCatchAsync } from 'lib';
@@ -29,7 +29,7 @@ export const ConnectSheet = ({ navigation: { goBack }, route }: ConnectSheetProp
   const update = useUpdateWalletConnect();
 
   const accounts = useAccountIds();
-  const [selected, updateSelected] = useImmer<Set<AccountId>>(new Set(accounts));
+  const [selected, updateSelected] = useImmer(new Set(accounts));
 
   const connect = async () => {
     const req = await tryOrCatchAsync(

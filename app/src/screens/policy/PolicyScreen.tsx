@@ -1,6 +1,5 @@
-import { AccountId } from '@api/account';
 import { useCreatePolicy, usePolicy, useUpdatePolicy } from '@api/policy';
-import { ALLOW_ALL_TARGETS, asPolicyKey } from 'lib';
+import { ALLOW_ALL_TARGETS, Address, asPolicyKey } from 'lib';
 import { ScrollView } from 'react-native';
 import { Screen } from '~/components/layout/Screen';
 import { ScreenSkeleton } from '~/components/skeleton/ScreenSkeleton';
@@ -22,7 +21,7 @@ import { asProposalId } from '@api/proposal';
 export type PolicyViewState = 'active' | 'draft';
 
 export interface PolicyScreenParams {
-  account: AccountId;
+  account: Address;
   key?: string;
   state?: PolicyViewState;
 }
@@ -34,13 +33,13 @@ export const PolicyScreen = withSuspense((props: PolicyScreenProps) => {
   const policy = usePolicy(key ? { account, key: asPolicyKey(key) } : undefined);
   const approverId = useApproverId();
 
-  const state = props.route.params.state ?? policy?.active ? 'active' : 'draft';
+  const state = props.route.params.state ?? policy?.state ? 'active' : 'draft';
 
   const initState = useMemo(
     (): PolicyDraft => ({
       account,
       name: policy?.name ?? 'New policy',
-      ...((state === 'active' && policy?.active) ||
+      ...((state === 'active' && policy?.state) ||
         policy?.draft || {
           approvers: new Set([approverId]),
           threshold: 1,
@@ -78,7 +77,7 @@ const PolicyView = ({
   const updatePolicy = useUpdatePolicy();
 
   const policy = usePolicy(key ? { account: accountId, key: asPolicyKey(key) } : undefined);
-  const proposal = (state === 'active' ? policy?.active : policy?.draft)?.proposal;
+  const proposal = (state === 'active' ? policy?.state : policy?.draft)?.proposal;
 
   const [draft, setDraft] = useAtom(POLICY_DRAFT_ATOM);
   const isModified = !_.isEqual(initState, draft);
@@ -109,7 +108,7 @@ const PolicyView = ({
 
             setParams({ key: r?.key.toString(), state: 'draft' });
 
-            const proposal = r?.draft?.proposalId;
+            const proposal = r?.draft?.proposal?.hash;
             if (proposal) navigate('Proposal', { proposal: asProposalId(proposal) });
           }}
         />

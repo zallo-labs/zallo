@@ -51,7 +51,7 @@ export const UserScreen = ({ navigation: { navigate } }: UserScreenProps) => {
           mode="contained-tonal"
           icon={ShareIcon}
           style={styles.actionButton}
-          onPress={() => navigate('QrModal', { address: user.id })}
+          onPress={() => navigate('QrModal', { address: user.address })}
         >
           Share
         </Button>

@@ -1,22 +1,14 @@
 import { BullModule } from '@nestjs/bull';
-import { forwardRef, Module } from '@nestjs/common';
-import { PoliciesModule } from '../policies/policies.module';
-import { ProposalsModule } from '../proposals/proposals.module';
+import { Module, forwardRef } from '@nestjs/common';
 import { TransactionsProcessor } from './transactions.processor';
 import { TRANSACTIONS_QUEUE } from './transactions.queue';
-import { TransactionsResolver } from './transactions.resolver';
 import { TransactionsService } from './transactions.service';
-import { ExplorerModule } from '../explorer/explorer.module';
 import { TransactionsEvents } from './transactions.events';
+import { ProposalsModule } from '../proposals/proposals.module';
 
 @Module({
-  imports: [
-    BullModule.registerQueue(TRANSACTIONS_QUEUE),
-    forwardRef(() => ProposalsModule),
-    forwardRef(() => PoliciesModule),
-    ExplorerModule,
-  ],
+  imports: [BullModule.registerQueue(TRANSACTIONS_QUEUE), forwardRef(() => ProposalsModule)],
   exports: [TransactionsService, TransactionsProcessor],
-  providers: [TransactionsResolver, TransactionsService, TransactionsProcessor, TransactionsEvents],
+  providers: [TransactionsService, TransactionsProcessor, TransactionsEvents],
 })
 export class TransactionsModule {}

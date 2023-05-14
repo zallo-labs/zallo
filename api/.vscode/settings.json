@@ -2,5 +2,6 @@
   "files.exclude": {
     ".vscode": true
   },
-  "jest.jestCommandLine": "yarn test"
+  "jest.jestCommandLine": "yarn test",
+  "typescript.tsdk": "/node_modules/typescript/lib"
 }

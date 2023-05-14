@@ -1,20 +1,23 @@
 import { Injectable } from '@nestjs/common';
-import { ExplorerService } from '../explorer/explorer.service';
-import { TransfersInput } from './transfers.args';
-import { ExplorerTransfer } from '../explorer/explorer.model';
-import { TransferDirection } from '@gen/prisma/transfer-direction.enum';
+import { TransfersInput } from './transfers.input';
+import { DatabaseService } from '../database/database.service';
+import e from '~/edgeql-js';
+import { and } from '../database/database.util';
+import { ShapeFunc } from '../database/database.select';
 
 @Injectable()
 export class TransfersService {
-  constructor(private explorer: ExplorerService) {}
+  constructor(private db: DatabaseService) {}
 
-  async transfers({ account, skip, direction }: TransfersInput): Promise<ExplorerTransfer[]> {
-    const transfers = await this.explorer.accountTransfers({ account, limit: skip });
-
-    return direction !== undefined
-      ? transfers.filter((t) =>
-          direction === TransferDirection.IN ? t.to === account : t.from === account,
-        )
-      : transfers;
+  async transfers({ accounts, direction }: TransfersInput, shape?: ShapeFunc<typeof e.Transfer>) {
+    return this.db.query(
+      e.select(e.Transfer, (t) => ({
+        ...shape?.(t),
+        filter: and(
+          accounts && e.op(t.account.address, 'in', e.set(...accounts)),
+          direction && e.op(t.direction, '=', e.cast(e.TransferDirection, direction)),
+        ),
+      })),
+    );
   }
 }

@@ -1,13 +1,13 @@
-import { AccountId } from '@api/account';
 import { makeStyles } from '@theme/makeStyles';
 import { useTotalValue } from '@token/useTotalValue';
+import { Address } from 'lib';
 import { Text } from 'react-native-paper';
 import { FiatValue } from '~/components/fiat/FiatValue';
 import { LineSkeleton } from '~/components/skeleton/LineSkeleton';
 import { withSuspense } from '~/components/skeleton/withSuspense';
 
 export interface AccountValueProps {
-  account: AccountId;
+  account: Address;
 }
 
 export const AccountValue = withSuspense(({ account }: AccountValueProps) => {

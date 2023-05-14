@@ -1,275 +1,291 @@
 import { forwardRef, Inject, Injectable } from '@nestjs/common';
-import { Prisma } from '@prisma/client';
 import {
   ACCOUNT_INTERFACE,
   Address,
-  asAddress,
   asHex,
+  asPolicy,
   asPolicyKey,
   asTargets,
-  getTransactionSatisfiability,
   Policy,
+  PolicyKey,
   POLICY_ABI,
-  PolicySatisfiability,
-  Tx,
 } from 'lib';
-import { PrismaService } from '../util/prisma/prisma.service';
-import { connectAccount, connectOrCreateUser, connectPolicy } from '~/util/connect-or-create';
-import { ProposalsService } from '../proposals/proposals.service';
-import { CreatePolicyInput, UniquePolicyInput, UpdatePolicyInput } from './policies.args';
-import { inputAsPolicy, POLICY_STATE_FIELDS, prismaAsPolicy, PrismaPolicy } from './policies.util';
-import merge from 'ts-deepmerge';
+import { ProposalsService, selectTransactionProposal } from '../proposals/proposals.service';
+import { CreatePolicyInput, UniquePolicyInput, UpdatePolicyInput } from './policies.input';
+import { inputAsPolicy } from './policies.util';
 import _ from 'lodash';
 import { UserInputError } from 'apollo-server-core';
 import { UserAccountsService } from '../auth/userAccounts.service';
+import { uuid } from 'edgedb/dist/codecs/ifaces';
+import { DatabaseService } from '../database/database.service';
+import e from '~/edgeql-js';
+import { ShapeFunc } from '../database/database.select';
 
 interface CreateParams extends CreatePolicyInput {
   skipProposal?: boolean;
 }
 
-interface CreateStateParams {
-  prisma?: Prisma.TransactionClient;
-  account: Address;
-  policy: Policy;
-  skipProposal?: boolean;
-}
+export const policyStateShape = e.shape(e.PolicyState, () => ({
+  approvers: { address: true },
+  threshold: true,
+  targets: {
+    to: true,
+    selectors: true,
+  },
+}));
 
-type ArgsParam<T> = Prisma.SelectSubset<T, Prisma.PolicyArgs>;
+export const policyStateAsPolicy = (key: number, state: any) =>
+  asPolicy({
+    key,
+    approvers: new Set(state.approvers.map((a) => a.address)),
+    threshold: state.threshold,
+    permissions: {
+      targets: asTargets(state.targets),
+    },
+  });
 
-export type SelectManyPoliciesArgs = Omit<Prisma.PolicyFindManyArgs, 'where' | 'include'>;
+export type UniquePolicy = { id: uuid } | { account: Address; key: PolicyKey };
+
+export const uniquePolicy = (unique: UniquePolicy) =>
+  e.shape(e.Policy, (p) => ({
+    filter_single:
+      'id' in unique
+        ? { id: unique.id }
+        : {
+            account: e.select(p.account, () => ({ filter_single: { address: unique.account } })),
+            key: unique.key,
+          },
+  }));
+
+export const selectPolicy = (id: UniquePolicy, shape?: ShapeFunc<typeof e.Policy>) =>
+  e.select(e.Policy, (p) => ({
+    ...shape?.(p),
+    ...uniquePolicy(id)(p),
+  }));
 
 @Injectable()
 export class PoliciesService {
   constructor(
-    private prisma: PrismaService,
+    private db: DatabaseService,
     @Inject(forwardRef(() => ProposalsService))
     private proposals: ProposalsService,
     private userAccounts: UserAccountsService,
   ) {}
 
-  findUnique = this.prisma.asUser.policy.findUnique;
-  findUniqueOrThrow = this.prisma.asUser.policy.findUniqueOrThrow;
-  findMany = this.prisma.asUser.policy.findMany;
-
-  async create<A extends Prisma.PolicyArgs>(
-    { account, name, key: keyArg, skipProposal, ...policyInput }: CreateParams,
-    res?: ArgsParam<A>,
-  ) {
-    return this.prisma.asUser.$transaction(async (prisma) => {
-      const key = keyArg ?? (await this.getFreeKey(account));
-      const policy = inputAsPolicy(key, policyInput);
-
-      // User needs to belong to the account before they can create a policy
-      await this.addApproversToAccount(account, policy);
-
-      await prisma.policy.create({
-        data: {
-          accountId: account,
-          key,
-          name: name || `Policy ${key}`,
-        },
-        select: null,
-      });
-
-      return this.createState({ prisma, account, skipProposal, policy }, res);
-    });
+  async selectUnique(unique: UniquePolicy, shape?: ShapeFunc<typeof e.Policy>) {
+    return e
+      .select(e.Policy, (p) => ({
+        ...(shape && shape(p)),
+        ...uniquePolicy(unique)(p),
+      }))
+      .run(this.db.client);
   }
 
-  async update<A extends Prisma.PolicyArgs>(
-    { account, key, name, approvers, threshold, permissions }: UpdatePolicyInput,
-    res?: ArgsParam<A>,
-  ) {
-    return this.prisma.asUser.$transaction(async (prisma) => {
-      // State
-      if (approvers || threshold !== undefined || permissions) {
-        const r = await prisma.policy.findUnique({
-          where: { accountId_key: { accountId: account, key } },
-          select: {
-            active: { select: POLICY_STATE_FIELDS },
-            draft: { select: POLICY_STATE_FIELDS },
-          },
-        });
-
-        const p = r?.draft ?? r?.active;
-        if (!p) throw new UserInputError("Can't update policy that doesn't exist");
-
-        const policy = prismaAsPolicy(p);
-        if (approvers) policy.approvers = new Set(approvers);
-        if (threshold !== undefined) policy.threshold = threshold;
-        if (permissions)
-          policy.permissions = {
-            targets: asTargets(permissions.targets),
-          };
-
-        await this.addApproversToAccount(account, policy);
-        await this.createState({ prisma, account, policy });
-      }
-
-      // Metadata
-      return this.prisma.asUser.policy.update({
-        where: { accountId_key: { accountId: account, key } },
-        data: { name },
-        ...res,
-      });
-    });
+  async select(shape: ShapeFunc<typeof e.Policy>) {
+    return e.select(e.Policy, shape).run(this.db.client);
   }
 
-  async remove<A extends Prisma.PolicyArgs>(
-    { account, key }: UniquePolicyInput,
-    res?: ArgsParam<A>,
-    prisma?: Prisma.TransactionClient,
-  ) {
-    return this.prisma.$transactionAsUser(prisma, async (prisma) => {
-      const isActive = !!(
-        await prisma.policy.findUniqueOrThrow({
-          where: { accountId_key: { accountId: account, key } },
-          select: { activeId: true },
-        })
-      ).activeId;
+  async create({
+    account,
+    accountId: accountIdArg,
+    name,
+    key: keyArg,
+    skipProposal,
+    ...policyInput
+  }: CreateParams & { accountId?: uuid }) {
+    const accountId =
+      accountIdArg ??
+      (
+        await e
+          .select(e.Account, () => ({ filter_single: { address: account } }))
+          .run(this.db.client)
+      )?.id;
+    if (!accountId) throw new UserInputError('Account not found');
 
-      // No proposal is required if the policy isn't active
-      const proposal =
-        isActive &&
-        (await this.proposals.propose(
-          {
-            account,
-            to: account,
-            data: asHex(ACCOUNT_INTERFACE.encodeFunctionData('removePolicy', [key])),
-          },
-          { select: { id: true } },
-          prisma,
-        ));
+    const key = keyArg ?? (await this.getFreeKey(accountId));
+    const policy = inputAsPolicy(asPolicyKey(key), policyInput);
 
-      const state = await prisma.policyState.create({
-        data: {
-          account: connectAccount(account),
-          policy: connectPolicy(account, key),
-          isRemoved: true,
-          ...(proposal
-            ? { proposal: { connect: { id: proposal.id } } }
-            : { activeOf: connectPolicy(account, key) }),
-        },
-        select: { policy: { ...res } },
-      });
+    await this.upsertApprovers(accountId, policy);
 
-      return state.policy;
-    });
-  }
+    const proposal = !skipProposal && (await this.proposeState(account, policy));
 
-  private async createState<A extends Prisma.PolicyArgs>(
-    { prisma, account, policy, skipProposal }: CreateStateParams,
-    res?: ArgsParam<A>,
-  ) {
-    return this.prisma.$transactionAsUser(prisma, async (prisma) => {
-      // Proposal may be skipped on account creation
-      const proposal =
-        !skipProposal &&
-        (await this.proposals.propose(
-          {
-            account,
-            to: account,
-            data: asHex(
-              ACCOUNT_INTERFACE.encodeFunctionData('addPolicy', [POLICY_ABI.asStruct(policy)]),
-            ),
-          },
-          { select: { id: true } },
-          prisma,
-        ));
-
-      const state = await prisma.policyState.create({
-        data: {
-          policy: connectPolicy(account, policy.key),
-          account: connectAccount(account),
-          draftOf: connectPolicy(account, policy.key),
-          ...(proposal && { proposal: { connect: { id: proposal.id } } }),
-          approvers: {
-            create: [...policy.approvers].map((approver) => ({
-              user: connectOrCreateUser(approver),
-            })),
-          },
-          threshold: policy.threshold,
-          targets: {
-            create: Object.entries(policy.permissions.targets).map(([to, selectors]) => ({
-              to,
-              selectors: [...selectors],
-            })),
-          },
-        },
-        select: {
-          policy: { ...res },
-        },
-      });
-
-      return state.policy;
-    });
-  }
-
-  async *policiesWithSatisfiability(proposalId: string, queryArgs?: SelectManyPoliciesArgs) {
-    const proposal = await this.prisma.asUser.proposal.findUniqueOrThrow({
-      where: { id: proposalId },
-      select: {
-        accountId: true,
-        to: true,
-        value: true,
-        data: true,
-        nonce: true,
-        gasLimit: true,
-        approvals: { select: { userId: true, signature: true } },
-      },
-    });
-
-    const policies = (
-      await this.prisma.asUser.policy.findMany({
-        where: { accountId: proposal.accountId, active: { is: {} } },
-        ..._.omit(queryArgs, ['select']),
-        select: {
-          ...merge(_.omit(queryArgs?.select ?? {}, ['id', 'satisfied', 'requiresUserAction']), {
-            active: {
-              select: POLICY_STATE_FIELDS,
-            },
-          }),
-        },
+    const { id } = await e
+      .insert(e.Policy, {
+        account: e.select(e.Account, () => ({ filter_single: { address: account } })),
+        key,
+        name: name || `Policy ${key}`,
+        stateHistory: e.insert(e.PolicyState, {
+          ...(proposal && { proposal }),
+          ...this.insertStateShape(policy),
+        }),
       })
-    ).map((p) => prismaAsPolicy(p!.active as PrismaPolicy));
+      .run(this.db.client);
 
-    const tx: Tx = {
-      to: asAddress(proposal.to),
-      value: proposal.value ? BigInt(proposal.value.toString()) : undefined,
-      data: asHex(proposal.data ?? undefined),
-      nonce: proposal.nonce,
-      gasLimit: proposal.gasLimit || undefined,
-    };
+    return { id, key };
+  }
 
-    const approvals = new Set(
-      proposal.approvals.filter((a) => a.signature).map((a) => asAddress(a.userId)),
+  private insertStateShape(policy: Policy) {
+    const targets = e.for(
+      e.set(
+        ...Object.entries(policy.permissions.targets).map(([to, selectors]) =>
+          e.json({ to, selectors: [...selectors] }),
+        ),
+      ),
+      (item) =>
+        e.insert(e.Target, {
+          to: e.cast(e.str, item.to),
+          selectors: e.cast(e.array(e.str), item.selectors),
+        }),
     );
 
-    for (const policy of policies) {
-      const sat = getTransactionSatisfiability(policy, tx, approvals);
-      yield [policy, sat] as const;
-    }
+    return {
+      approvers: e.for(e.cast(e.str, e.set(...policy.approvers)), (approver) =>
+        e.select(e.User, () => ({ filter_single: { address: e.cast(e.str, approver) } })),
+      ),
+      threshold: policy.threshold,
+      targets,
+    } satisfies Partial<Parameters<typeof e.insert<typeof e.PolicyState>>[1]>;
   }
 
-  async *satisifiedPolicies(proposalId: string, queryArgs?: SelectManyPoliciesArgs) {
-    for await (const [policy, sat] of this.policiesWithSatisfiability(proposalId, queryArgs)) {
-      if (sat === PolicySatisfiability.Satisfied) yield policy;
-    }
+  async update({ account, key, name, approvers, threshold, permissions }: UpdatePolicyInput) {
+    await this.db.transaction(async (db) => {
+      // Metadata
+      if (name !== undefined) {
+        const p = await e
+          .update(e.Policy, (p) => ({
+            ...uniquePolicy({ account, key })(p),
+            set: { name },
+          }))
+          .run(this.db.client);
+        if (!p) throw new UserInputError("Policy doesn't exist");
+      }
+
+      // State
+      if (approvers || threshold !== undefined || permissions) {
+        // Get existing policy state
+        // If approvers, threshold, or permissions are undefined then modify the policy accordingly
+        // Propose new state
+        const existing = await e
+          .select(e.Policy, (p) => ({
+            ...uniquePolicy({ account, key })(p),
+            state: policyStateShape,
+            draft: policyStateShape,
+          }))
+          .run(db);
+        if (!existing) throw new UserInputError("Policy doesn't exist");
+
+        const policy = policyStateAsPolicy(key, existing?.draft ?? existing?.state);
+
+        if (approvers) policy.approvers = new Set(approvers);
+        if (threshold !== undefined) policy.threshold = threshold;
+        if (permissions?.targets) policy.permissions = { targets: asTargets(permissions.targets) };
+
+        const accountId = await e
+          .select(e.Account, () => ({ filter_single: { address: account } }))
+          .id.run(this.db.client);
+        if (!accountId) throw new UserInputError('Account not found');
+        await this.upsertApprovers(accountId, policy);
+
+        const proposal = await this.proposeState(account, policy);
+
+        await e
+          .update(e.Policy, (p) => ({
+            ...uniquePolicy({ account, key })(p),
+            set: {
+              stateHistory: {
+                '+=': e.insert(e.PolicyState, {
+                  proposal,
+                  ...this.insertStateShape(policy),
+                }),
+              },
+            },
+          }))
+          .run(db);
+      }
+    });
   }
 
-  private async getFreeKey(account: Address) {
-    const { _max } = await this.prisma.asUser.policy.aggregate({
-      where: { accountId: account },
-      _max: { key: true },
+  async remove({ account, key }: UniquePolicyInput) {
+    const selectAccount = e.select(e.Account, () => ({ filter_single: { address: account } }));
+
+    const isActive =
+      (
+        await e
+          .select(e.Policy, () => ({
+            isActive: true,
+            filter_single: { account: selectAccount, key },
+          }))
+          .run(this.db.client)
+      )?.isActive ?? false;
+
+    const proposal =
+      isActive &&
+      (await (async () => {
+        const proposal = await this.proposals.propose({
+          account,
+          to: account,
+          data: asHex(ACCOUNT_INTERFACE.encodeFunctionData('removePolicy', [key])),
+        });
+
+        return selectTransactionProposal(proposal.id);
+      })());
+
+    const r = await e
+      .update(e.Policy, () => ({
+        filter_single: { account: selectAccount, key },
+        set: {
+          stateHistory: {
+            '+=': e.insert(e.PolicyState, {
+              ...(proposal && { proposal }),
+              isRemoved: true,
+              threshold: 0,
+            }),
+          },
+        },
+      }))
+      .run(this.db.client);
+    if (!r) throw new UserInputError("Policy doesn't exist");
+  }
+
+  private async proposeState(account: Address, policy: Policy) {
+    const proposal = await this.proposals.propose({
+      account,
+      to: account,
+      data: asHex(ACCOUNT_INTERFACE.encodeFunctionData('addPolicy', [POLICY_ABI.asStruct(policy)])),
     });
 
-    return asPolicyKey(_max.key !== null ? _max.key + 1n : 0);
+    return e.select(e.TransactionProposal, () => ({
+      filter_single: { id: proposal.id },
+    }));
+  }
+
+  private async getFreeKey(account: uuid) {
+    const acc = await e
+      .select(e.Account, () => ({
+        policies: {
+          key: true,
+        },
+        filter_single: { id: account },
+      }))
+      .run(this.db.client);
+
+    return asPolicyKey(acc ? acc.policies.reduce((max, { key }) => Math.max(max, key), 0) + 1 : 0);
   }
 
   // Note. approvers aren't removed when a draft is replaced they were previously an approver of
   // These users will have account access until the cache expires.
   // This prevent loss of account access on an accidental draft be should be considered more thoroughly
-  private async addApproversToAccount(account: Address, policy: Policy) {
-    return Promise.all(
+  private async upsertApprovers(account: uuid, policy: Policy) {
+    if (!policy.approvers.size) return;
+
+    // Create devices; this can't done inline with the insert as the User type is abstract, and abstract upserts aren't supported
+    await e
+      .for(e.cast(e.str, e.set(...policy.approvers)), (item) =>
+        e.insert(e.Device, { address: e.cast(e.str, item) }).unlessConflict(),
+      )
+      .run(this.db.client);
+
+    await Promise.all(
       [...policy.approvers].map((user) => this.userAccounts.add({ user, account })),
     );
   }

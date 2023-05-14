@@ -1,19 +1,11 @@
 import { gql } from '@apollo/client';
 import { useCallback } from 'react';
-import {
-  ProposalDocument,
-  ProposalQuery,
-  ProposalQueryVariables,
-  useRemoveProposalMutation,
-} from '@api/generated';
-import { updateQuery } from '~/gql/util';
+import { useRemoveProposalMutation } from '@api/generated';
 import { ProposalId } from './types';
 
 gql`
-  mutation RemoveProposal($id: Bytes32!) {
-    removeProposal(id: $id) {
-      id
-    }
+  mutation RemoveProposal($input: ProposalInput!) {
+    removeProposal(input: $input)
   }
 `;
 
@@ -23,29 +15,18 @@ export const useRemoveProposal = () => {
   return useCallback(
     (id: ProposalId) =>
       remove({
-        variables: { id },
+        variables: {
+          input: { hash: id },
+        },
         optimisticResponse: {
-          removeProposal: {
-            __typename: 'Proposal',
-            id,
-          },
+          removeProposal: id,
         },
         update: (cache, res) => {
-          const proposal = res.data?.removeProposal;
-          if (!proposal) return;
-
-          // Remove proposal from ProposalsMetadataQuery; cache eviction is done as there are multiple variables that may include the proposal
-          cache.evict({ id: cache.identify(proposal) });
-          cache.gc();
-
-          updateQuery<ProposalQuery, ProposalQueryVariables>({
-            query: ProposalDocument,
-            cache,
-            variables: { id },
-            updater: (data) => {
-              data.proposal = null;
-            },
-          });
+          const id = res.data?.removeProposal;
+          if (id) {
+            cache.evict({ id });
+            cache.gc();
+          }
         },
       }),
     [remove],

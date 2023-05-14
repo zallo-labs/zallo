@@ -2,55 +2,45 @@ import { gql } from '@apollo/client';
 import { Address, Arraylike, toArray } from 'lib';
 import { useMemo } from 'react';
 import {
-  ProposalFieldsFragmentDoc,
+  TransactionProposalFieldsFragmentDoc,
   ProposalsDocument,
   ProposalsQuery,
   ProposalsQueryVariables,
-  ProposalState,
+  TransactionProposalStatus,
 } from '@api/generated';
 import { useSuspenseQuery } from '~/gql/util';
-import { Proposal, ProposalId, toProposal } from './types';
+import { Proposal, toProposal } from './types';
 
 gql`
-  ${ProposalFieldsFragmentDoc}
+  ${TransactionProposalFieldsFragmentDoc}
 
-  query Proposals(
-    $accounts: [Address!]
-    $states: [ProposalState!]
-    $take: Int
-    $cursor: ProposalWhereUniqueInput
-  ) {
-    proposals(accounts: $accounts, states: $states, take: $take, cursor: $cursor) {
-      ...ProposalFields
+  query Proposals($input: ProposalsInput) {
+    proposals(input: $input) {
+      ...TransactionProposalFields
     }
   }
 `;
 
 export type ProposalsOptions = {
   accounts?: Arraylike<Address>;
-  take?: number;
-  cursor?: ProposalId;
 } & (
-  | { states?: Arraylike<ProposalState>; requiresUserAction?: never }
-  | { states?: Arraylike<Extract<ProposalState, 'Pending'>>; requiresUserAction?: boolean }
+  | { statuses?: Arraylike<TransactionProposalStatus>; requiresUserAction?: never }
+  | {
+      statuses?: Arraylike<Extract<TransactionProposalStatus, 'Pending'>>;
+      requiresUserAction?: boolean;
+    }
 );
 
-export const useProposals = ({
-  accounts,
-  states,
-  take,
-  cursor,
-  requiresUserAction,
-}: ProposalsOptions = {}) => {
+export const useProposals = ({ accounts, statuses, requiresUserAction }: ProposalsOptions = {}) => {
   // Only pending states may require user action
-  if (requiresUserAction) states = ['Pending'];
+  if (requiresUserAction) statuses = ['Pending'];
 
   const { data } = useSuspenseQuery<ProposalsQuery, ProposalsQueryVariables>(ProposalsDocument, {
     variables: {
-      accounts: accounts ? toArray(accounts) : undefined,
-      states: states ? toArray(states) : undefined,
-      take,
-      ...(cursor && { cursor: { id: cursor } }),
+      input: {
+        accounts: accounts ? toArray(accounts) : undefined,
+        statuses: statuses ? toArray(statuses) : undefined,
+      },
     },
   });
 

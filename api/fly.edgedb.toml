@@ -10,8 +10,8 @@ primary_region = "lax"  # Los Angeles
   EDGEDB_SERVER_TLS_CERT_MODE = "generate_self_signed"
 
   # Secrets
-  # EDGEDB_PASSWORD             # Randomly generated
   # DATABASE_URL                # fly pg attach ...
+  # EDGEDB_PASSWORD             # Randomly generated
   # EDGEDB_SERVER_TLS_KEY       # Exported from app after first start
   # EDGEDB_SERVER_TLS_CERT      # ^
 

@@ -24,9 +24,10 @@ export const ProposeExample = withBrowser(() => {
   return (
     <Explorer
       document={gql`
-        mutation Propose($account: Address!, $to: Address!, $value: Uint256, $data: Bytes) {
-          propose(account: $account, to: $to, value: $value, data: $data) {
+        mutation Propose($input: ProposeInput!) {
+          propose(input: $input) {
             id
+            hash
             to
             value
             data
@@ -35,9 +36,11 @@ export const ProposeExample = withBrowser(() => {
       `}
       variables={
         {
-          account,
-          to: device,
-          value: 3000000,
+          input: {
+            account,
+            to: device,
+            value: 3000000,
+          },
         } as ProposeMutationVariables
       }
     />
@@ -52,9 +55,10 @@ export const ApproveExample = withBrowser(() => {
   return (
     <Explorer
       document={gql`
-        mutation Approve($id: Bytes32!, $signature: Bytes!) {
-          approve(id: $id, signature: $signature) {
+        mutation Approve($input: ApproveInput!) {
+          approve(input: $input) {
             id
+            hash
             to
             value
             data
@@ -62,7 +66,12 @@ export const ApproveExample = withBrowser(() => {
         }
       `}
       variables={
-        { id: proposal, signature: signDigest(proposal, device) } as ApproveMutationVariables
+        {
+          input: {
+            hash: proposal,
+            signature: signDigest(proposal, device),
+          },
+        } as ApproveMutationVariables
       }
     />
   );
@@ -81,15 +90,17 @@ export const SubscribeExample = withBrowser(() => {
             to
             value
             data
+            gasLimit
             transaction {
               hash
-              gasLimit
               gasPrice
-              createdAt
+              submittedAt
               receipt {
                 success
                 response
                 timestamp
+                gasUsed
+                fee
               }
             }
           }
@@ -107,27 +118,29 @@ export const ProposalExample = withBrowser(() => {
   return (
     <Explorer
       document={gql`
-        query Proposal($id: Bytes32!) {
-          proposal(id: $id) {
+        query Proposal($input: ProposalInput!) {
+          proposal(input: $input) {
             id
             to
             value
             data
+            gasLimit
             transaction {
               hash
-              gasLimit
               gasPrice
-              createdAt
+              submittedAt
               receipt {
                 success
                 response
                 timestamp
+                gasUsed
+                fee
               }
             }
           }
         }
       `}
-      variables={{ id: proposal } as ProposalQueryVariables}
+      variables={{ input: { hash: proposal } } as ProposalQueryVariables}
     />
   );
 });
@@ -144,15 +157,17 @@ export const ProposalsExample = withBrowser(() => {
             to
             value
             data
+            gasLimit
             transaction {
               hash
-              gasLimit
               gasPrice
-              createdAt
+              submittedAt
               receipt {
                 success
                 response
                 timestamp
+                gasUsed
+                fee
               }
             }
           }

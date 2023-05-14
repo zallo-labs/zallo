@@ -1,4 +1,3 @@
-import { AccountId } from '@api/account';
 import { makeStyles } from '@theme/makeStyles';
 import { useTokenBalance } from '@token/useTokenBalance';
 import { useTokenPriceData } from '@uniswap/useTokenPrice';
@@ -13,7 +12,7 @@ import { useToken } from '@token/useToken';
 
 export interface TokenItemProps extends Partial<ListItemProps> {
   token: Address;
-  account: AccountId;
+  account: Address;
   amount?: bigint;
   containerStyle?: StyleProp<ViewStyle>;
 }

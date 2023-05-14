@@ -7,16 +7,20 @@ import { AccountDocument, AccountQuery, AccountQueryVariables } from '@api/gener
 import { asPolicyKey } from 'lib';
 import { convertPolicyFragment } from '@api/policy/types';
 import { match } from 'ts-pattern';
+import { truncateAddr } from '~/util/format';
 
 gql`
   fragment PolicyStateFields on PolicyState {
     id
-    proposalId
+    proposal {
+      id
+      hash
+    }
     createdAt
     isRemoved
     threshold
     approvers {
-      userId
+      address
     }
     targets {
       to
@@ -28,7 +32,7 @@ gql`
     id
     key
     name
-    active {
+    state {
       ...PolicyStateFields
     }
     draft {
@@ -38,6 +42,7 @@ gql`
 
   fragment AccountFields on Account {
     id
+    address
     name
     isActive
     policies {
@@ -45,8 +50,8 @@ gql`
     }
   }
 
-  query Account($id: Address!) {
-    account(id: $id) {
+  query Account($input: AccountInput!) {
+    account(input: $input) {
       ...AccountFields
     }
   }
@@ -56,7 +61,7 @@ export const useAccount = <Id extends AccountIdlike | undefined>(AccountIdlike: 
   const id = asAccountId(AccountIdlike);
 
   const query = useSuspenseQuery<AccountQuery, AccountQueryVariables>(AccountDocument, {
-    variables: { id: id! },
+    variables: { input: { address: id! } },
     skip: !id,
   });
 
@@ -65,23 +70,24 @@ export const useAccount = <Id extends AccountIdlike | undefined>(AccountIdlike: 
     if (!id || !data) return undefined;
 
     return {
-      id,
-      name: data.name,
+      id: data.id,
+      address: data.address,
+      name: data.name ?? truncateAddr(data.address),
       isActive: data.isActive,
       policies: (data.policies ?? []).map((p) => {
         const key = asPolicyKey(p.key);
 
-        const active = p.active?.isRemoved ? undefined : convertPolicyFragment(key, p.active);
+        const state = p.state?.isRemoved ? undefined : convertPolicyFragment(key, p.state);
         const draft = p.draft?.isRemoved ? null : convertPolicyFragment(key, p.draft);
-        assert(active || draft);
+        assert(state || draft);
 
         return {
           account: id,
           key,
           name: p.name,
-          active: active!, // At least one must be present - see assert above
+          state: state!, // At least one must be present - see assert above
           draft,
-          state: match({ active, draft })
+          status: match({ active: state, draft })
             .with({ active: undefined }, () => 'add' as const)
             .with({ draft: undefined }, () => 'active' as const)
             .with({ draft: null }, () => 'remove' as const)
