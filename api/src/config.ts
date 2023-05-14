@@ -11,7 +11,6 @@ export const CONFIG = {
   debug: optional`DEBUG` === 'true' || (optional`DEBUG` === undefined && env === 'development'),
   apiPort: optional`API_PORT` || 3000,
   expoToken: required`EXPO_TOKEN`,
-  databaseUrl: required`DATABASE_URL`,
   redisUrl: required`REDIS_URL`,
   redisFamily: optional`REDIS_FAMILY` === '6' ? 6 : undefined,
   sessionSecret: required`SESSION_SECRET`,
