@@ -21,9 +21,9 @@ export class UsersResolver {
     return this.service.selectUnique(address, getShape(info));
   }
 
-  @ComputedField<typeof e.User>(() => String, { name: true }, { nullable: true })
-  async name(@Parent() user: User): Promise<string | null> {
-    return this.service.name(user.address);
+  @ComputedField<typeof e.User>(() => String, { address: true, name: true }, { nullable: true })
+  async name(@Parent() { address, name }: User): Promise<string | null> {
+    return this.service.name(address, name);
   }
 
   @Mutation(() => User)

@@ -40,19 +40,17 @@ export class UsersService {
     );
   }
 
-  async name(address: string) {
-    const contact = await e
-      .select(e.Contact, () => ({
-        filter_single: {
-          user: e.select(e.User, () => ({ filter_single: { address: getUser() } })),
-          address,
-        },
-        name: true,
-      }))
-      .name.run(this.db.client);
-
-    const zalloMatch = address === this.provider.walletAddress && 'Zallo';
-
-    return contact || zalloMatch || (await this.provider.lookupAddress(address));
+  async name(address: string, name?: string | null): Promise<string | null> {
+    return (
+      name ||
+      (await this.db.query(
+        e.select(e.Contact, () => ({
+          filter_single: { user: selectUser(getUser()), address },
+          name: true,
+        })).name,
+      )) ||
+      (address === this.provider.walletAddress && 'Zallo') ||
+      (await this.provider.lookupAddress(address))
+    );
   }
 }
