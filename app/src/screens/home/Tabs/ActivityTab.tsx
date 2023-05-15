@@ -16,7 +16,7 @@ import { useSelectedAccountId } from '~/components/AccountSelector/useSelectedAc
 
 type Item = Proposal | Transfer;
 
-const isProposalItem = (i: Item): i is Proposal => 'proposer' in i;
+const isProposalItem = (i: Item): i is Proposal => 'hash' in i;
 
 const compare = (a: Item, b: Item) => b.timestamp.toMillis() - a.timestamp.toMillis();
 
