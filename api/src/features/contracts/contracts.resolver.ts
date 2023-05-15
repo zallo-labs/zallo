@@ -12,6 +12,6 @@ export class ContractsResolver {
 
   @Query(() => Contract, { nullable: true })
   async contract(@Input() { contract }: ContractInput, @Info() info: GraphQLResolveInfo) {
-    return this.service.selectUnique(contract, getShape(info));
+    return this.service.select(contract, getShape(info));
   }
 }

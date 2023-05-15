@@ -297,9 +297,7 @@ module default {
   type Function {
     required property selector -> Bytes4;
     required property abi -> json;
-    required property abiMd5 -> str {
-      constraint exclusive;
-    }
+    required property abiMd5 -> str { constraint exclusive; }
     required property source -> AbiSource;
 
     index on (.selector);

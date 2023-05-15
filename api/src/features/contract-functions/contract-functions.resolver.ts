@@ -15,7 +15,7 @@ export class ContractFunctionsResolver {
 
   @Query(() => ContractFunction, { nullable: true })
   async contractFunction(@Input() input: ContractFunctionInput, @Info() info: GraphQLResolveInfo) {
-    return this.service.findUnique(input, getShape(info));
+    return this.service.select(input, getShape(info));
   }
 
   @ComputedField<typeof e.Function>(() => AbiSourceConfidence, { source: true })
