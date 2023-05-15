@@ -30,6 +30,7 @@ export const CreateAccountScreen = ({ navigation: { replace } }: CreateAccountSc
           name="name"
           control={control}
           label="Name"
+          placeholder="Personal"
           supporting="Only visible by account members"
           autoFocus
           rules={{ required: true }}
