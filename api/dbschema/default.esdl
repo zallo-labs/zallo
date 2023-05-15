@@ -249,6 +249,10 @@ module default {
     required property to -> Address;
     required property token -> Address;
     required property amount -> uint256;
+
+    access policy members_can_select_insert
+      allow select, insert
+      using (.account.id in global current_user_accounts);
   }
 
   type Transfer extending TransferDetails {
