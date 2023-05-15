@@ -6,9 +6,18 @@ const required = makeRequiredEnv(!!process.env.JEST_WORKER_ID);
 const chain = getChain(optional`CHAIN`);
 const env = optional`RELEASE_ENV` === 'development' ? 'development' : 'production';
 
+export enum LogLevel {
+  Verbose = 'verbose',
+  Debug = 'debug',
+  Log = 'log',
+  Warn = 'warn',
+  Error = 'error',
+}
+
 export const CONFIG = {
   env,
   debug: optional`DEBUG` === 'true' || (optional`DEBUG` === undefined && env === 'development'),
+  logLevel: Object.values(LogLevel).find((l) => l === optional`LOG_LEVEL`) ?? LogLevel.Debug,
   apiPort: optional`API_PORT` || 3000,
   expoToken: required`EXPO_TOKEN`,
   redisUrl: required`REDIS_URL`,
@@ -21,7 +30,3 @@ export const CONFIG = {
   accountImplAddress: tryAsAddress(required`ACCOUNT_IMPL_${chain.name.toUpperCase()}`),
   proxyFactoryAddress: tryAsAddress(required`PROXY_FACTORY_${chain.name.toUpperCase()}`),
 };
-
-export const IS_DEV = CONFIG.env === 'development';
-
-export const __DEBUG__ = CONFIG.debug;

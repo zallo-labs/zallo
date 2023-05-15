@@ -2,7 +2,7 @@ import { ApolloDriverConfig, ApolloDriver } from '@nestjs/apollo';
 import { Logger, Module, NestMiddleware } from '@nestjs/common';
 import { GraphQLModule } from '@nestjs/graphql';
 import { ApolloServerPluginLandingPageLocalDefault } from 'apollo-server-core';
-import { __DEBUG__ } from '~/config';
+import { CONFIG, LogLevel } from '~/config';
 import { IncomingContext, GqlContext, IncomingWsContext } from '~/request/ctx';
 import { AddressMiddleware } from './address.middleware';
 import { AuthModule } from '~/features/auth/auth.module';
@@ -38,7 +38,7 @@ const useMiddleware = async (req: Request, ...middleware: NestMiddleware[]) => {
       ) => ({
         autoSchemaFile: 'schema.graphql',
         sortSchema: true,
-        debug: __DEBUG__,
+        debug: CONFIG.logLevel === LogLevel.Debug || CONFIG.logLevel === LogLevel.Verbose,
         introspection: true,
         path: GQL_ENDPOINT,
         cache: 'bounded',
