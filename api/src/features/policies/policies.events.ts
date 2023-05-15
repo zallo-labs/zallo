@@ -12,11 +12,11 @@ export class PoliciesEventsProcessor {
   constructor(private db: DatabaseService, private events: EventsProcessor) {
     this.events.on(
       ACCOUNT_INTERFACE.getEventTopic(ACCOUNT_INTERFACE.events['PolicyAdded(uint32,bytes32)']),
-      this.policyAdded,
+      (data) => this.policyAdded(data),
     );
     this.events.on(
       ACCOUNT_INTERFACE.getEventTopic(ACCOUNT_INTERFACE.events['PolicyRemoved(uint32)']),
-      this.policyRemoved,
+      (data) => this.policyRemoved(data),
     );
   }
 
