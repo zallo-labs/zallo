@@ -34,7 +34,9 @@ export const UpdateProvider = () => {
     update();
 
     // On app foreground
-    const listener = AppState.addEventListener('focus', update);
+    const listener = AppState.addEventListener('change', (newState) => {
+      if (newState === 'active') update();
+    });
 
     return () => {
       listener.remove();
