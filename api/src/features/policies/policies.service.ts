@@ -22,6 +22,7 @@ import e from '~/edgeql-js';
 import { ShapeFunc } from '../database/database.select';
 
 interface CreateParams extends CreatePolicyInput {
+  accountId?: uuid;
   skipProposal?: boolean;
 }
 
@@ -92,14 +93,9 @@ export class PoliciesService {
     key: keyArg,
     skipProposal,
     ...policyInput
-  }: CreateParams & { accountId?: uuid }) {
-    const accountId =
-      accountIdArg ??
-      (
-        await e
-          .select(e.Account, () => ({ filter_single: { address: account } }))
-          .run(this.db.client)
-      )?.id;
+  }: CreateParams) {
+    const selectAccount = e.select(e.Account, () => ({ filter_single: { address: account } }));
+    const accountId = accountIdArg ?? (await this.db.query(selectAccount.id));
     if (!accountId) throw new UserInputError('Account not found');
 
     const key = keyArg ?? (await this.getFreeKey(accountId));
@@ -111,7 +107,7 @@ export class PoliciesService {
 
     const { id } = await e
       .insert(e.Policy, {
-        account: e.select(e.Account, () => ({ filter_single: { address: account } })),
+        account: selectAccount,
         key,
         name: name || `Policy ${key}`,
         stateHistory: e.insert(e.PolicyState, {
