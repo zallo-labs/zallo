@@ -4,7 +4,7 @@ import { Sheet } from '~/components/sheet/Sheet';
 import { StackNavigatorScreenProps } from '~/navigation/StackNavigator';
 import { useAccountIds } from '@api/account';
 import {
-  useSelectedAccountId,
+  useSelectedAccount,
   useSetSelectedAccount,
 } from '~/components/AccountSelector/useSelectedAccount';
 import { ListHeader } from '~/components/list/ListHeader';
@@ -18,7 +18,7 @@ export type AccountsSheetProps = StackNavigatorScreenProps<'AccountsSheet'>;
 
 export const AccountsSheet = ({ navigation: { navigate, goBack } }: AccountsSheetProps) => {
   const ref = useRef<BottomSheet>(null);
-  const [selected, setSelected] = [useSelectedAccountId(), useSetSelectedAccount()];
+  const [selected, setSelected] = [useSelectedAccount(), useSetSelectedAccount()];
 
   return (
     <Sheet ref={ref} onClose={goBack}>

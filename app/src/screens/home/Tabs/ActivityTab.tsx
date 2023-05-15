@@ -12,7 +12,7 @@ import { withSuspense } from '~/components/skeleton/withSuspense';
 import { TabBadge } from '~/components/tab/TabBadge';
 import { TabScreenSkeleton } from '~/components/tab/TabScreenSkeleton';
 import { Transfer, useTransfers } from '@api/account';
-import { useSelectedAccountId } from '~/components/AccountSelector/useSelectedAccount';
+import { useSelectedAccount } from '~/components/AccountSelector/useSelectedAccount';
 
 type Item = Proposal | Transfer;
 
@@ -27,7 +27,7 @@ export const ActivityTab = withSuspense(
     const { navigate } = useNavigation();
 
     const proposals = useProposals();
-    const inTransfers = useTransfers(useSelectedAccountId(), 'In');
+    const inTransfers = useTransfers(useSelectedAccount(), 'In');
     const data: Item[] = [...proposals, ...inTransfers].sort(compare);
 
     return (

@@ -8,7 +8,7 @@ import { formatUnits, parseUnits } from 'ethers/lib/utils';
 import { Dispatch, SetStateAction } from 'react';
 import { View } from 'react-native';
 import { Button, IconButton, Text } from 'react-native-paper';
-import { useSelectedAccountId } from '~/components/AccountSelector/useSelectedAccount';
+import { useSelectedAccount } from '~/components/AccountSelector/useSelectedAccount';
 import { FiatValue } from '~/components/fiat/FiatValue';
 import { TokenAmount } from '~/components/token/TokenAmount';
 import { useSelectedToken } from '~/components/token/useSelectedToken';
@@ -30,7 +30,7 @@ export interface InputsViewProps {
 
 export const InputsView = ({ input, setInput, type, setType }: InputsViewProps) => {
   const styles = useStyles();
-  const account = useSelectedAccountId();
+  const account = useSelectedAccount();
   const token = useSelectedToken();
   const balance = useTokenBalance(token, account);
   const price = useTokenPriceData(token).current;
