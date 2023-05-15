@@ -44,8 +44,12 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     [
       'expo-build-properties',
       {
+        android: {
+          unstable_networkInspector: true,
+        },
         // https://docs.expo.dev/versions/latest/sdk/build-properties/
         ios: {
+          unstable_networkInspector: true,
           useFrameworks: 'static', // Required by react-native-firebase
           // flipper: false, // Disallowed by `useFrameworks: 'static'` https://github.com/jakobo/expo-community-flipper/issues/27
         },
