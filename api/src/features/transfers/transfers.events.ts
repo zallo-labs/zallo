@@ -1,5 +1,5 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { Erc20__factory, asAddress, asBigInt, tryOrIgnore } from 'lib';
+import { Address, Erc20__factory, asAddress, asBigInt, tryOrIgnore } from 'lib';
 import {
   TransactionEventData,
   TransactionsProcessor,
@@ -10,6 +10,8 @@ import e from '~/edgeql-js';
 import { selectAccount } from '../accounts/accounts.util';
 import { TransferDirection } from './transfers.model';
 import { ProviderService } from '../util/provider/provider.service';
+import { ETH_ADDRESS, isETH } from 'zksync-web3/build/src/utils';
+import { L2_ETH_TOKEN_ADDRESS } from 'zksync-web3/build/src/utils';
 
 const ERC20 = Erc20__factory.createInterface();
 
@@ -50,6 +52,9 @@ export class TransfersEvents {
       Logger.debug(`Transfer ${from} -> ${to}`);
       const block = await this.provider.getBlock(log.blockNumber);
 
+      // Normalize ETH address
+      const token = asAddress(log.address === L2_ETH_TOKEN_ADDRESS ? ETH_ADDRESS : log.address);
+
       await this.db.query(
         e.set(
           ...accounts.map((a) =>
@@ -61,7 +66,7 @@ export class TransfersEvents {
               ),
               from,
               to,
-              token: asAddress(log.address),
+              token,
               amount,
               block: BigInt(log.blockNumber),
               timestamp: new Date(block.timestamp * 1000),
