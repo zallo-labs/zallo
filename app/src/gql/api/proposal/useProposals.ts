@@ -1,5 +1,5 @@
 import { gql } from '@apollo/client';
-import { Address, Arraylike, toArray } from 'lib';
+import { Arraylike, toArray } from 'lib';
 import { useMemo } from 'react';
 import {
   TransactionProposalFieldsFragmentDoc,
@@ -10,6 +10,7 @@ import {
 } from '@api/generated';
 import { useSuspenseQuery } from '~/gql/util';
 import { Proposal, toProposal } from './types';
+import { useSelectedAccount } from '~/components/AccountSelector/useSelectedAccount';
 
 gql`
   ${TransactionProposalFieldsFragmentDoc}
@@ -21,24 +22,23 @@ gql`
   }
 `;
 
-export type ProposalsOptions = {
-  accounts?: Arraylike<Address>;
-} & (
+export type ProposalsOptions =
   | { statuses?: Arraylike<TransactionProposalStatus>; requiresUserAction?: never }
   | {
       statuses?: Arraylike<Extract<TransactionProposalStatus, 'Pending'>>;
       requiresUserAction?: boolean;
-    }
-);
+    };
 
-export const useProposals = ({ accounts, statuses, requiresUserAction }: ProposalsOptions = {}) => {
+export const useProposals = ({ statuses, requiresUserAction }: ProposalsOptions = {}) => {
+  const selectedAccount = useSelectedAccount();
+
   // Only pending states may require user action
   if (requiresUserAction) statuses = ['Pending'];
 
   const { data } = useSuspenseQuery<ProposalsQuery, ProposalsQueryVariables>(ProposalsDocument, {
     variables: {
       input: {
-        accounts: accounts ? toArray(accounts) : undefined,
+        accounts: selectedAccount ? [selectedAccount] : undefined,
         statuses: statuses ? toArray(statuses) : undefined,
       },
     },
