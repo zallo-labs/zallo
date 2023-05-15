@@ -248,7 +248,7 @@ module default {
     required property from -> Address;
     required property to -> Address;
     required property token -> Address;
-    required property amount -> uint256;
+    required property amount -> bigint;
 
     access policy members_can_select_insert
       allow select, insert

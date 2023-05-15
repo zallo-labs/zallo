@@ -357,11 +357,11 @@ const $TransactionProposal = $.makeType<$TransactionProposal>(_.spec, "8e271f31-
 const TransactionProposal: $.$expr_PathNode<$.TypeSet<$TransactionProposal, $.Cardinality.Many>, null> = _.syntax.$PathNode($.$toSet($TransactionProposal, $.Cardinality.Many), null);
 
 export type $TransferDetailsλShape = $.typeutil.flatten<_std.$Object_fe84743ee09e11edb375672f3ae9cdcdλShape & {
-  "amount": $.PropertyDesc<$uint256, $.Cardinality.One, false, false, false, false>;
   "direction": $.PropertyDesc<$TransferDirection, $.Cardinality.One, false, false, false, false>;
   "from": $.PropertyDesc<$Address, $.Cardinality.One, false, false, false, false>;
   "to": $.PropertyDesc<$Address, $.Cardinality.One, false, false, false, false>;
   "token": $.PropertyDesc<$Address, $.Cardinality.One, false, false, false, false>;
+  "amount": $.PropertyDesc<_std.$bigint, $.Cardinality.One, false, false, false, false>;
   "account": $.LinkDesc<$Account, $.Cardinality.One, {}, false, false,  false, false>;
   "<transfers[is Simulation]": $.LinkDesc<$Simulation, $.Cardinality.Many, {}, false, false,  false, false>;
   "<transfers": $.LinkDesc<$.ObjectType, $.Cardinality.Many, {}, false, false,  false, false>;
