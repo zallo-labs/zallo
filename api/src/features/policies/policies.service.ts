@@ -35,15 +35,31 @@ export const policyStateShape = e.shape(e.PolicyState, () => ({
   },
 }));
 
-export const policyStateAsPolicy = (key: number, state: any) =>
-  asPolicy({
-    key,
-    approvers: new Set(state.approvers.map((a) => a.address)),
-    threshold: state.threshold,
-    permissions: {
-      targets: asTargets(state.targets),
-    },
-  });
+export const policyStateAsPolicy = <
+  S extends {
+    threshold: number;
+    approvers: {
+      address: string;
+    }[];
+    targets: {
+      to: string;
+      selectors: string[];
+    }[];
+  } | null,
+>(
+  key: number,
+  state: S,
+) =>
+  (state
+    ? asPolicy({
+        key,
+        approvers: new Set(state.approvers.map((a) => a.address as Address)),
+        threshold: state.threshold,
+        permissions: {
+          targets: asTargets(state.targets),
+        },
+      })
+    : null) as S extends null ? Policy | null : Policy;
 
 export type UniquePolicy = { id: uuid } | { account: Address; key: PolicyKey };
 
@@ -170,7 +186,7 @@ export class PoliciesService {
           .run(db);
         if (!existing) throw new UserInputError("Policy doesn't exist");
 
-        const policy = policyStateAsPolicy(key, existing?.draft ?? existing?.state);
+        const policy = policyStateAsPolicy(key, existing?.draft ?? existing?.state!);
 
         if (approvers) policy.approvers = new Set(approvers);
         if (threshold !== undefined) policy.threshold = threshold;
