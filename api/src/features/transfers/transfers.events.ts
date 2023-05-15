@@ -14,6 +14,7 @@ import { ETH_ADDRESS, isETH } from 'zksync-web3/build/src/utils';
 import { L2_ETH_TOKEN_ADDRESS } from 'zksync-web3/build/src/utils';
 
 const ERC20 = Erc20__factory.createInterface();
+const altEthAddress = asAddress(L2_ETH_TOKEN_ADDRESS);
 
 @Injectable()
 export class TransfersEvents {
@@ -52,8 +53,8 @@ export class TransfersEvents {
       Logger.debug(`Transfer ${from} -> ${to}`);
       const block = await this.provider.getBlock(log.blockNumber);
 
-      // Normalize ETH address
-      const token = asAddress(log.address === L2_ETH_TOKEN_ADDRESS ? ETH_ADDRESS : log.address);
+      let token = asAddress(log.address);
+      if (token === altEthAddress) token = ETH_ADDRESS as Address; // Normalize ETH address
 
       await this.db.query(
         e.set(
