@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { Erc20__factory, asAddress, asBigInt, tryOrIgnore } from 'lib';
 import {
   TransactionEventData,
@@ -47,6 +47,7 @@ export class TransfersEvents {
     );
 
     if (accounts.length) {
+      Logger.debug(`Transfer ${from} -> ${to}`);
       const block = await this.provider.getBlock(log.blockNumber);
 
       await this.db.query(
@@ -54,7 +55,10 @@ export class TransfersEvents {
           ...accounts.map((a) =>
             e.insert(e.Transfer, {
               account: selectAccount(a),
-              direction: a === from ? TransferDirection.Out : TransferDirection.In,
+              direction: e.cast(
+                e.TransferDirection,
+                a === from ? TransferDirection.Out : TransferDirection.In,
+              ),
               from,
               to,
               token: asAddress(log.address),
