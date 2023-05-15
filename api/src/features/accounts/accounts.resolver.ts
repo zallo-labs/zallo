@@ -26,7 +26,7 @@ export class AccountsResolver {
 
   @Query(() => [Account])
   async accounts(@Info() info: GraphQLResolveInfo) {
-    return this.service.select(getShape(info));
+    return this.service.select({}, getShape(info));
   }
 
   @Subscription(() => Account, {
