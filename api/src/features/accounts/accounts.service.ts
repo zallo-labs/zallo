@@ -22,6 +22,8 @@ import { ACCOUNTS_QUEUE, AccountActivationEvent } from './accounts.queue';
 import { inputAsPolicy } from '../policies/policies.util';
 import { Queue } from 'bull';
 import { selectAccount } from './accounts.util';
+import { UserAccountsService } from '../auth/userAccounts.service';
+import { v1 as uuid1 } from 'uuid';
 
 export interface AccountSubscriptionPayload {
   [ACCOUNT_SUBSCRIPTION]: Address;
@@ -40,6 +42,7 @@ export class AccountsService {
     private policies: PoliciesService,
     @InjectQueue(ACCOUNTS_QUEUE.name)
     private activationQueue: Queue<AccountActivationEvent>,
+    private userAccounts: UserAccountsService,
   ) {}
 
   unique = (address: Address) =>
@@ -81,9 +84,14 @@ export class AccountsService {
       policies,
     });
 
+    // The account id must be in the user's list of accounts prior to starting the transaction for the globals to be set correctly
+    const accountId = uuid1();
+    await this.userAccounts.add({ user, account: accountId });
+
     const id = await this.db.transaction(async (client) => {
       const { id } = await e
         .insert(e.Account, {
+          id: accountId,
           address: account,
           name,
           isActive: false,
@@ -147,7 +155,7 @@ export class AccountsService {
         `Deployed account address didn't match stored address; expected '${account}', actual '${deployedAccount.address}'`,
       );
 
-    this.activationQueue.add({ account, transaction: asHex(transaction.hash) });
+    await this.activationQueue.add({ account, transaction: asHex(transaction.hash) });
   }
 
   async publishAccount(payload: AccountSubscriptionPayload) {
