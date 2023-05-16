@@ -16,25 +16,34 @@ export const persistedAtom = <V, U extends AnyJson = AnyJson>(
   key: string,
   initialValue: V,
   options?: StorageOptions<V, U>,
-): WritableAtom<V, [SetStateActionWithReset<V>], V> => {
+): WritableAtom<V | Promise<V>, [SetStateActionWithReset<V>], V> => {
   const storage = getStorage(options);
   const baseAtom = atom(initialValue);
   baseAtom.debugLabel = `${key}::base`;
 
+  let initialized = false;
+  const initialPersistedValue = storage.getItem(key);
+
   baseAtom.onMount = (setAtom) => {
-    storage.getItem(key).then((v) => {
+    initialPersistedValue.then((v) => {
       if (v === unstable_NO_STORAGE_VALUE) {
         storage.setItem(key, initialValue);
       } else if (v !== initialValue) {
         setAtom(v);
       }
+      initialized = true;
     });
 
     if (storage.subscribe) return storage.subscribe(key, setAtom);
   };
 
+  const getUninitializedValue = async () => {
+    const v = await initialPersistedValue;
+    return v === unstable_NO_STORAGE_VALUE ? initialValue : v;
+  };
+
   const pAtom = atom(
-    (get) => get(baseAtom),
+    (get) => (initialized ? get(baseAtom) : getUninitializedValue()),
     (get, set, update: SetStateActionWithReset<V>) => {
       const nextValue =
         typeof update === 'function'
