@@ -58,16 +58,16 @@ gql`
 `;
 
 export const useAccount = <Id extends AccountIdlike | undefined>(AccountIdlike: Id) => {
-  const id = asAccountId(AccountIdlike);
+  const address = asAccountId(AccountIdlike);
 
   const query = useSuspenseQuery<AccountQuery, AccountQueryVariables>(AccountDocument, {
-    variables: { input: { address: id! } },
-    skip: !id,
+    variables: { input: { address: address! } },
+    skip: !address,
   });
 
   const data = query.data.account;
   const account = useMemo((): WAccount | undefined => {
-    if (!id || !data) return undefined;
+    if (!address || !data) return undefined;
 
     return {
       id: data.id,
@@ -82,7 +82,7 @@ export const useAccount = <Id extends AccountIdlike | undefined>(AccountIdlike: 
         assert(state || draft);
 
         return {
-          account: id,
+          account: address,
           key,
           name: p.name,
           state: state!, // At least one must be present - see assert above
@@ -95,8 +95,8 @@ export const useAccount = <Id extends AccountIdlike | undefined>(AccountIdlike: 
         };
       }),
     };
-  }, [data, id]);
+  }, [data, address]);
 
-  if (id) assert(account, `Expected Account '${id}' to exist`);
+  if (address && !account) throw new Error(`Expected Account '${address}' to exist`);
   return account as Id extends undefined ? WAccount | undefined : WAccount;
 };
