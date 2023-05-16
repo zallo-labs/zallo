@@ -4,7 +4,7 @@ import { Timestamp } from '~/components/format/Timestamp';
 import { ListItem } from '~/components/list/ListItem';
 import { ListItemSkeleton } from '~/components/list/ListItemSkeleton';
 import { withSuspense } from '~/components/skeleton/withSuspense';
-import { Transfer, useAccount, useAccountIds } from '@api/account';
+import { Transfer } from '@api/account';
 import { useTransfersValue } from '~/components/call/useTransfersValue';
 import { FiatValue } from '~/components/fiat/FiatValue';
 
@@ -13,13 +13,9 @@ export interface IncomingTransferItemProps {
 }
 
 export const IncomingTransferItem = withSuspense(({ transfer }: IncomingTransferItemProps) => {
-  const account = useAccount(transfer.to);
-  const accounts = useAccountIds();
-
   return (
     <ListItem
       leading={transfer.token}
-      overline={accounts.length > 1 ? account.name : undefined}
       headline={`${TRANSFER_LABEL} from ${useAddressLabel(transfer.from)}`}
       supporting={<Timestamp timestamp={transfer.timestamp} weekday />}
       trailing={({ Text }) => (
