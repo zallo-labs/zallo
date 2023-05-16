@@ -36,7 +36,7 @@ export class UsersService {
           },
         }))
         .run(this.db.client)) ??
-      (await e.insert(e.Device, { address, name, pushToken }).run(this.db.client))
+      (await e.insert(e.Device, { address, name, pushToken }).unlessConflict().run(this.db.client))
     );
   }
 
