@@ -129,7 +129,7 @@ export class EventsProcessor implements OnModuleInit {
 
     this.queue.add({
       from: lastProcessedBlock
-        ? parseInt(lastProcessedBlock.toString()) // Warning: bigint -> number
+        ? parseInt(lastProcessedBlock.toString()) + 1 // Warning: bigint -> number
         : await this.provider.getBlockNumber(),
     });
   }
