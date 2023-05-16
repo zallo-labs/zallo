@@ -63,8 +63,8 @@ export class AuthMiddleware implements NestMiddleware {
         try {
           const r = await message.validate(signature, this.provider);
 
-          // Allow for nonceless authentication if expiration time is set
-          if (r.nonce === 'expiration') {
+          // Allow for nonceless authentication if expiration time is set; note that the standard mandates that `nonce` is set
+          if (r.nonce === 'nonceless') {
             if (!r.expirationTime) return 'Nonce may only be omitted if expiration time is set';
           } else if (!req.session?.nonce) {
             return 'Session lacking nonce; make sure cookies are being included';

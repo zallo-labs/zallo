@@ -63,7 +63,7 @@ export const usePromisedApiClient = () => {
               persistedQueryLink,
               new HttpLink({
                 uri: `${CONFIG.apiUrl}/graphql`,
-                credentials: 'include',
+                credentials: 'include', // TODO: try remove; RN cookies are problematic - https://github.com/facebook/react-native/issues/23185
               }),
             ]),
             subscriptions: new GraphQLWsLink(
