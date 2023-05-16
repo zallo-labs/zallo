@@ -1,19 +1,17 @@
 import { ReactNode, useEffect, useState } from 'react';
-import { AppState } from 'react-native';
 import * as Auth from 'expo-local-authentication';
 import useAsyncEffect from 'use-async-effect';
 import { DateTime, Duration } from 'luxon';
-import { tryOrAsync } from 'lib';
 import { persistedAtom } from '~/util/persistedAtom';
 import { Blur } from '~/components/Blur';
 import { useAtomValue } from 'jotai';
+import { AppState } from 'react-native';
+
+export const SUPPORTS_BIOMETRICS = Auth.isEnrolledAsync();
 
 export const AUTH_SETTINGS_ATOM = persistedAtom('AuthenticationSettings', {
   require: null as boolean | null,
 });
-
-const tryAuthenticate = async () =>
-  tryOrAsync(async () => (await Auth.authenticateAsync()).success, false);
 
 const TIMEOUT_AFTER = Duration.fromObject({ minutes: 5 }).toMillis();
 const isStillActive = (lastActive?: DateTime) =>
@@ -37,7 +35,8 @@ export const AuthGate = ({ children }: AuthGateProps) => {
   useAsyncEffect(
     async (isMounted) => {
       if (!auth.success) {
-        const success = await tryAuthenticate();
+        const r = await Auth.authenticateAsync({ promptMessage: 'Authenticate to continue' });
+        const success = r.success || !(await SUPPORTS_BIOMETRICS); // Succeed if the user has removed biometrics
         if (isMounted()) setAuth({ success });
       }
     },

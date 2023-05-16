@@ -16,7 +16,7 @@ export const persistedAtom = <V, U extends AnyJson = AnyJson>(
   key: string,
   initialValue: V,
   options?: StorageOptions<V, U>,
-): WritableAtom<V | Promise<V>, [SetStateActionWithReset<V>], V> => {
+): WritableAtom<V, [SetStateActionWithReset<V>], void> => {
   const storage = getStorage(options);
   const baseAtom = atom(initialValue);
   baseAtom.debugLabel = `${key}::base`;
@@ -43,7 +43,7 @@ export const persistedAtom = <V, U extends AnyJson = AnyJson>(
   };
 
   const pAtom = atom(
-    (get) => (initialized ? get(baseAtom) : getUninitializedValue()),
+    (get) => (initialized ? get(baseAtom) : getUninitializedValue()) as V, // Actually V | Promise<V> but that's not allowed by jotai-immer and it will return V after mount anyway
     (get, set, update: SetStateActionWithReset<V>) => {
       const nextValue =
         typeof update === 'function'
@@ -54,8 +54,6 @@ export const persistedAtom = <V, U extends AnyJson = AnyJson>(
 
       set(baseAtom, newValue);
       storage.setItem(key, newValue);
-
-      return newValue;
     },
   );
   pAtom.debugLabel = key;
