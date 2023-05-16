@@ -8,6 +8,7 @@ import {
   AccountEvent,
   CreateAccountInput,
   UpdateAccountInput,
+  USER_ACCOUNT_SUBSCRIPTION,
 } from './accounts.input';
 import { getUser } from '~/request/ctx';
 import { UserInputError } from 'apollo-server-core';
@@ -115,7 +116,7 @@ export class AccountsService {
       return id;
     });
 
-    await this.publishAccount({ account, event: AccountEvent.create });
+    this.publishAccount({ account, event: AccountEvent.create });
     await this.activateAccount(account, implementation, salt, policies);
     this.contracts.addAccountAsVerified(account);
     this.faucet.requestTokens(account);
@@ -161,11 +162,30 @@ export class AccountsService {
   async publishAccount(payload: AccountSubscriptionPayload) {
     const { account } = payload;
 
-    await this.pubsub.publish<AccountSubscriptionPayload>(
-      `${ACCOUNT_SUBSCRIPTION}.${account}`,
-      payload,
-    );
+    // Publish events to all users with access to the account
+    const users = await e
+      .select(
+        e.op(
+          'distinct',
+          e.select(e.Policy, (p) => ({
+            filter: e.op(p.account.address, '=', account),
+            users: e.op(p.state.approvers.address, 'union', p.draft.approvers.address),
+          })).users,
+        ),
+      )
+      .run(this.db.DANGEROUS_superuserClient);
 
-    // TODO: Publish event to all users with access to the account
+    await Promise.all([
+      this.pubsub.publish<AccountSubscriptionPayload>(
+        `${ACCOUNT_SUBSCRIPTION}.${account}`,
+        payload,
+      ),
+      ...[...users].map((user) =>
+        this.pubsub.publish<AccountSubscriptionPayload>(
+          `${USER_ACCOUNT_SUBSCRIPTION}.${user}`,
+          payload,
+        ),
+      ),
+    ]);
   }
 }

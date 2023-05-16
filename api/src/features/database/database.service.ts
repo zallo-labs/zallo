@@ -33,9 +33,11 @@ export class DatabaseService implements OnModuleInit {
           current_user_address: user.address,
           current_user_accounts_array: user.accounts,
         })
-      : this.__client.withConfig({
-          apply_access_policies: false,
-        });
+      : this.DANGEROUS_superuserClient;
+  }
+
+  get DANGEROUS_superuserClient() {
+    return this.__client.withConfig({ apply_access_policies: false });
   }
 
   get client() {
