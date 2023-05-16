@@ -43,8 +43,8 @@ export const CreateAccountScreen = ({ navigation: { replace } }: CreateAccountSc
           style={styles.button}
           control={control}
           onPress={handleSubmit(async ({ name }) => {
-            const { address: id } = await createAccount(name);
-            setSelected(id);
+            const { address } = await createAccount(name);
+            // setSelected(address);  // Changing to a new account for the first time is taking a while for some reason, so is disabled right now
             replace('Home');
           })}
         >
