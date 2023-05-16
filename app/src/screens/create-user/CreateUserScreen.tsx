@@ -8,12 +8,11 @@ import { Appbar } from '~/components/Appbar/Appbar';
 import { useUpdateUser, useUser } from '@api/user';
 import { useState } from 'react';
 import { RequireBiometricsItem } from '~/components/items/RequireBiometricsItem';
-import { useSetRecoilState } from 'recoil';
-import { approverAtom } from '@network/useApprover';
 import { Approver, tryOr } from 'lib';
 import { useForm } from 'react-hook-form';
 import { FormTextField } from '~/components/fields/FormTextField';
 import { FormSubmitButton } from '~/components/fields/FormSubmitButton';
+import { useSetApproverFromMnemonic } from '@network/useApprover';
 
 interface Inputs {
   name: string;
@@ -24,7 +23,7 @@ export type CreateUserScreenProps = StackNavigatorScreenProps<'CreateUser'>;
 
 export const CreateUserScreen = ({ navigation: { navigate } }: CreateUserScreenProps) => {
   const updateUser = useUpdateUser();
-  const setApprover = useSetRecoilState(approverAtom);
+  const setApproverFromMnemonic = useSetApproverFromMnemonic();
 
   const [showPhrase, setShowPhrase] = useState(false);
   const { control, handleSubmit } = useForm<Inputs>({
@@ -88,7 +87,7 @@ export const CreateUserScreen = ({ navigation: { navigate } }: CreateUserScreenP
           control={control}
           onPress={handleSubmit(({ name, phrase }) => {
             updateUser({ name });
-            if (phrase) setApprover(Approver.fromMnemonic(phrase));
+            if (phrase) setApproverFromMnemonic(phrase);
 
             navigate('NotificationSettings', { onboard: true });
           })}
