@@ -4,7 +4,7 @@ import * as Auth from 'expo-local-authentication';
 import useAsyncEffect from 'use-async-effect';
 import { DateTime, Duration } from 'luxon';
 import { tryOrAsync } from 'lib';
-import { persistedAtom } from '~/util/jotai';
+import { persistedAtom } from '~/util/persistedAtom';
 import { Blur } from '~/components/Blur';
 import { useAtomValue } from 'jotai';
 

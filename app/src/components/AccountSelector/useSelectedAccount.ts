@@ -1,6 +1,6 @@
 import { useAccountIds } from '@api/account';
 import { Address } from 'lib';
-import { persistedAtom } from '~/util/jotai';
+import { persistedAtom } from '~/util/persistedAtom';
 import { useAtomValue, useSetAtom } from 'jotai';
 
 const selectedAccountAtom = persistedAtom<Address | null>('SelectedAccount', null);
