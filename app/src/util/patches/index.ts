@@ -20,6 +20,9 @@ import '@ethersproject/shims';
 // Log ethers events
 import './ethersLogger';
 
+// Intl pollyfills - required for iOS
+import './intl';
+
 // Immer features
 import { enableES5, enableMapSet } from 'immer';
 enableES5();

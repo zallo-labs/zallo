@@ -1,27 +1,22 @@
 import { ReactNode, useEffect, useState } from 'react';
-import { AppState } from 'react-native';
 import * as Auth from 'expo-local-authentication';
 import useAsyncEffect from 'use-async-effect';
 import { DateTime, Duration } from 'luxon';
-import { tryOrAsync } from 'lib';
-import { persistedAtom } from '~/util/jotai';
+import { persistedAtom } from '~/util/persistedAtom';
 import { Blur } from '~/components/Blur';
 import { useAtomValue } from 'jotai';
+import { AppState } from 'react-native';
+
+export const SUPPORTS_BIOMETRICS = Auth.isEnrolledAsync();
+const TIMEOUT_AFTER = Duration.fromObject({ minutes: 5 }).toMillis();
 
 export const AUTH_SETTINGS_ATOM = persistedAtom('AuthenticationSettings', {
   require: null as boolean | null,
 });
 
-const tryAuthenticate = async () =>
-  tryOrAsync(async () => (await Auth.authenticateAsync()).success, false);
-
-const TIMEOUT_AFTER = Duration.fromObject({ minutes: 5 }).toMillis();
-const isStillActive = (lastActive?: DateTime) =>
-  !!lastActive && DateTime.now().diff(lastActive).toMillis() < TIMEOUT_AFTER;
-
 interface AuthState {
   success?: boolean;
-  lastActive?: DateTime;
+  lastAuthenticated?: DateTime;
 }
 
 export interface AuthGateProps {
@@ -37,7 +32,8 @@ export const AuthGate = ({ children }: AuthGateProps) => {
   useAsyncEffect(
     async (isMounted) => {
       if (!auth.success) {
-        const success = await tryAuthenticate();
+        const r = await Auth.authenticateAsync({ promptMessage: 'Authenticate to continue' });
+        const success = r.success || !(await SUPPORTS_BIOMETRICS); // Succeed if the user has removed biometrics
         if (isMounted()) setAuth({ success });
       }
     },
@@ -50,19 +46,28 @@ export const AuthGate = ({ children }: AuthGateProps) => {
 
     const listener = AppState.addEventListener('change', (newState) => {
       if (newState === 'active') {
-        setAuth(({ lastActive }) => ({ success: isStillActive(lastActive) }));
-      } else {
-        setAuth((prev) => ({ ...prev, lastActive: DateTime.now() }));
+        setAuth((prev) =>
+          prev.lastAuthenticated
+            ? { success: DateTime.now().diff(prev.lastAuthenticated).toMillis() < TIMEOUT_AFTER }
+            : prev,
+        );
+      } else if (newState === 'background') {
+        setAuth((prev) =>
+          prev.success
+            ? { ...prev, lastAuthenticated: DateTime.now() }
+            : // Re-render to prompt authentication
+              {},
+        );
       }
     });
 
     return () => listener.remove();
-  }, []);
+  }, [require, setAuth]);
 
   return (
     <>
       {children}
-      {!auth.success && <Blur blurAmount={20} />}
+      {!auth.success && <Blur blurAmount={16} />}
     </>
   );
 };

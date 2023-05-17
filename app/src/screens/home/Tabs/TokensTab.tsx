@@ -1,5 +1,5 @@
 import { useTokensByValue } from '@token/useTokensByValue';
-import { useSelectedAccountId } from '~/components/AccountSelector/useSelectedAccount';
+import { useSelectedAccount } from '~/components/AccountSelector/useSelectedAccount';
 import { FlashList } from '@shopify/flash-list';
 import { ListItemHeight } from '~/components/list/ListItem';
 import { TokenItem } from '~/components/token/TokenItem';
@@ -12,7 +12,7 @@ export type TokensTabProps = TabNavigatorScreenProp<'Tokens'>;
 
 export const TokensTab = withSuspense(
   (_props: TokensTabProps) => {
-    const account = useSelectedAccountId();
+    const account = useSelectedAccount();
     const tokens = useTokensByValue(account);
 
     return (

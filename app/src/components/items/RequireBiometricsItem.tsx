@@ -1,23 +1,19 @@
 import { materialIcon } from '@theme/icons';
 import { makeStyles } from '@theme/makeStyles';
-import { atom, useAtomValue } from 'jotai';
 import { Switch } from 'react-native-paper';
 import { ListItem } from '~/components/list/ListItem';
-import { AUTH_SETTINGS_ATOM } from '~/provider/AuthGate';
-import * as Auth from 'expo-local-authentication';
+import { AUTH_SETTINGS_ATOM, SUPPORTS_BIOMETRICS } from '~/provider/AuthGate';
 import { useEffect } from 'react';
 import { useImmerAtom } from 'jotai-immer';
+import { atom, useAtomValue } from 'jotai';
 
-const supportsBiometricsSelector = atom({
-  key: 'SupportsBiometrics',
-  get: async () => (await Auth.getEnrolledLevelAsync()) === Auth.SecurityLevel.BIOMETRIC,
-});
+const supportsBiometricsAtom = atom(SUPPORTS_BIOMETRICS);
 
 const FingerprintIcon = materialIcon('fingerprint');
 
 export const RequireBiometricsItem = () => {
   const [{ require }, setSettings] = useImmerAtom(AUTH_SETTINGS_ATOM);
-  const hasSupport = useAtomValue(supportsBiometricsSelector);
+  const hasSupport = useAtomValue(supportsBiometricsAtom);
 
   const toggle = () => setSettings((s) => ({ ...s, require: !s.require }));
 

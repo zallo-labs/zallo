@@ -9,7 +9,7 @@ import { AppbarBack2 } from '~/components/Appbar/AppbarBack';
 import { SearchIcon } from '@theme/icons';
 import { ListHeader } from '~/components/list/ListHeader';
 import { TokenItem } from '~/components/token/TokenItem';
-import { useSelectedAccountId } from '~/components/AccountSelector/useSelectedAccount';
+import { useSelectedAccount } from '~/components/AccountSelector/useSelectedAccount';
 import { Screen } from '~/components/layout/Screen';
 import { EventEmitter } from '~/util/EventEmitter';
 
@@ -26,7 +26,7 @@ export type TokensScreenProps =
   | StackNavigatorScreenProps<'TokensModal'>;
 
 export const TokensScreen = ({ route }: TokensScreenProps) => {
-  const { account = useSelectedAccountId() } = route.params;
+  const { account = useSelectedAccount() } = route.params;
   const disabled = new Set(route.params.disabled);
 
   const [tokens, searchProps] = useSearch(useTokens(), ['name', 'symbol', 'address']);

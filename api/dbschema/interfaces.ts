@@ -160,11 +160,11 @@ export interface TransactionProposal extends Proposal {
 }
 export type TransactionProposalStatus = "Pending" | "Executing" | "Successful" | "Failed";
 export interface TransferDetails extends std.$Object {
-  "amount": bigint;
   "direction": TransferDirection;
   "from": string;
   "to": string;
   "token": string;
+  "amount": bigint;
   "account": Account;
 }
 export interface Transfer extends TransferDetails {

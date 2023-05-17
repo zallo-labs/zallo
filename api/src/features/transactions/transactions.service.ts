@@ -123,7 +123,8 @@ export class TransactionsService {
 
   async satisfiablePolicies(id: UniqueProposal) {
     const proposal = await this.db.query(
-      selectTransactionProposal(id, () => ({
+      e.select(e.TransactionProposal, () => ({
+        filter_single: isHex(id) ? { hash: id } : { id },
         to: true,
         value: true,
         data: true,
@@ -151,10 +152,13 @@ export class TransactionsService {
 
     const approvals = new Set(proposal.approvals.map((a) => a.user.address as Address));
 
-    const policies = ((proposal.account as any).policies as any[]).map((policy) => {
-      const p = policyStateAsPolicy(policy.key, policy.state);
-      return { policy: p, satisfiability: getTransactionSatisfiability(p, tx, approvals) };
-    });
+    const policies = proposal.account.policies
+      .map((policy) => policyStateAsPolicy(policy.key, policy.state))
+      .filter(isPresent)
+      .map((policy) => ({
+        policy,
+        satisfiability: getTransactionSatisfiability(policy, tx, approvals),
+      }));
 
     return { policies, approvals };
   }

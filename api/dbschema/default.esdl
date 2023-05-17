@@ -248,7 +248,11 @@ module default {
     required property from -> Address;
     required property to -> Address;
     required property token -> Address;
-    required property amount -> uint256;
+    required property amount -> bigint;
+
+    access policy members_can_select_insert
+      allow select, insert
+      using (.account.id in global current_user_accounts);
   }
 
   type Transfer extending TransferDetails {
@@ -293,9 +297,7 @@ module default {
   type Function {
     required property selector -> Bytes4;
     required property abi -> json;
-    required property abiMd5 -> str {
-      constraint exclusive;
-    }
+    required property abiMd5 -> str { constraint exclusive; }
     required property source -> AbiSource;
 
     index on (.selector);

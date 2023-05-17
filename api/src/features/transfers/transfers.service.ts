@@ -4,6 +4,7 @@ import { DatabaseService } from '../database/database.service';
 import e from '~/edgeql-js';
 import { and } from '../database/database.util';
 import { ShapeFunc } from '../database/database.select';
+import { selectAccount } from '../accounts/accounts.util';
 
 @Injectable()
 export class TransfersService {
@@ -14,7 +15,7 @@ export class TransfersService {
       e.select(e.Transfer, (t) => ({
         ...shape?.(t),
         filter: and(
-          accounts && e.op(t.account.address, 'in', e.set(...accounts)),
+          accounts && e.op(t.account, 'in', e.set(...accounts.map((a) => selectAccount(a)))),
           direction && e.op(t.direction, '=', e.cast(e.TransferDirection, direction)),
         ),
       })),

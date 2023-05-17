@@ -16,7 +16,9 @@ export class DatabaseService implements OnModuleInit {
   protected context = new AsyncLocalStorage<Context>();
 
   constructor() {
-    this.__client = createClient().withRetryOptions({ attempts: 5 });
+    this.__client = createClient()
+      .withConfig({ allow_user_specified_id: true })
+      .withRetryOptions({ attempts: 5 });
   }
 
   async onModuleInit() {
@@ -28,13 +30,14 @@ export class DatabaseService implements OnModuleInit {
 
     return user
       ? this.__client.withGlobals({
-          // current_user_id: user.address,
           current_user_address: user.address,
           current_user_accounts_array: user.accounts,
         })
-      : this.__client.withConfig({
-          apply_access_policies: false,
-        });
+      : this.DANGEROUS_superuserClient;
+  }
+
+  get DANGEROUS_superuserClient() {
+    return this.__client.withConfig({ apply_access_policies: false });
   }
 
   get client() {

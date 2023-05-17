@@ -8,7 +8,7 @@ import { Address, asHex, Call } from 'lib';
 import { useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 import { Appbar, Divider } from 'react-native-paper';
-import { useSelectedAccountId } from '~/components/AccountSelector/useSelectedAccount';
+import { useSelectedAccount } from '~/components/AccountSelector/useSelectedAccount';
 import { useAddressLabel } from '~/components/address/AddressLabel';
 import { NumericInput } from '~/components/fields/NumericInput';
 import { Screen } from '~/components/layout/Screen';
@@ -37,7 +37,7 @@ export type SendScreenProps = StackNavigatorScreenProps<'Send'>;
 
 export const SendScreen = withSuspense(({ route, navigation: { goBack } }: SendScreenProps) => {
   const { to } = route.params;
-  const account = useSelectedAccountId();
+  const account = useSelectedAccount();
   const [token, setToken] = [useSelectedToken(), useSetSelectedToken()];
   const selectToken = useSelectToken();
   const propose = usePropose();

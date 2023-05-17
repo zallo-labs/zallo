@@ -114,7 +114,7 @@ export class EventsProcessor implements OnModuleInit {
 
   private async addMissingJob() {
     const nExistingJobs = await this.queue.getJobCountByTypes(['waiting', 'active', 'delayed']);
-    Logger.verbose(`Events starting with jobs: ${nExistingJobs}`);
+    Logger.log(`Events starting with jobs: ${nExistingJobs}`);
     if (nExistingJobs) return;
 
     const lastProcessedBlock = (await e
@@ -129,7 +129,7 @@ export class EventsProcessor implements OnModuleInit {
 
     this.queue.add({
       from: lastProcessedBlock
-        ? parseInt(lastProcessedBlock.toString()) // Warning: bigint -> number
+        ? parseInt(lastProcessedBlock.toString()) + 1 // Warning: bigint -> number
         : await this.provider.getBlockNumber(),
     });
   }

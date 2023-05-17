@@ -12,7 +12,7 @@ import { ETH } from '@token/tokens';
 import { Image } from 'expo-image';
 import { ScrollView } from 'react-native';
 import { Divider } from 'react-native-paper';
-import { useSelectedAccountId } from '~/components/AccountSelector/useSelectedAccount';
+import { useSelectedAccount } from '~/components/AccountSelector/useSelectedAccount';
 import { useAddressLabel } from '~/components/address/AddressLabel';
 import { Appbar } from '~/components/Appbar/Appbar';
 import { Screen } from '~/components/layout/Screen';
@@ -25,7 +25,7 @@ export type SettingsScreenProps = StackNavigatorScreenProps<'Settings'>;
 
 export const SettingsScreen = ({ navigation: { navigate } }: SettingsScreenProps) => {
   const styles = useStyles();
-  const account = useSelectedAccountId();
+  const account = useSelectedAccount();
   const approver = useApprover();
 
   return (

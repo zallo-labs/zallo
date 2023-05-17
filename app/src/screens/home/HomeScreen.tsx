@@ -1,4 +1,4 @@
-import { useSelectedAccountId } from '~/components/AccountSelector/useSelectedAccount';
+import { useSelectedAccount } from '~/components/AccountSelector/useSelectedAccount';
 import { Screen } from '~/components/layout/Screen';
 import { withSuspense } from '~/components/skeleton/withSuspense';
 import { StackNavigatorScreenProps } from '~/navigation/StackNavigator';
@@ -11,7 +11,7 @@ import { AccountValue } from './AccountValue';
 export type HomeScreenProps = StackNavigatorScreenProps<'Home'>;
 
 export const HomeScreen = withSuspense((_props: HomeScreenProps) => {
-  const account = useSelectedAccountId();
+  const account = useSelectedAccount();
 
   return (
     <Screen>

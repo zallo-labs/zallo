@@ -11,7 +11,7 @@ export interface AddressSheetScreenParams {
 
 export type AddressSheetProps = StackNavigatorScreenProps<'AddressSheet'>;
 
-export const AddressSheet = ({ route, navigation: { navigate, goBack } }: AddressSheetProps) => {
+export const AddressSheet = ({ route, navigation: { replace, goBack } }: AddressSheetProps) => {
   const { address } = route.params;
 
   return (
@@ -20,14 +20,14 @@ export const AddressSheet = ({ route, navigation: { navigate, goBack } }: Addres
         leading={SendIcon}
         headline="Send"
         trailing={NavigateNextIcon}
-        onPress={() => navigate('Send', { to: address })}
+        onPress={() => replace('Send', { to: address })}
       />
 
       <ListItem
         leading={ContactsIcon}
         headline="Add as contact"
         trailing={NavigateNextIcon}
-        onPress={() => navigate('Contact', { address })}
+        onPress={() => replace('Contact', { address })}
       />
     </Sheet>
   );

@@ -8,6 +8,7 @@ import {
   AccountEvent,
   CreateAccountInput,
   UpdateAccountInput,
+  USER_ACCOUNT_SUBSCRIPTION,
 } from './accounts.input';
 import { getUser } from '~/request/ctx';
 import { UserInputError } from 'apollo-server-core';
@@ -22,6 +23,8 @@ import { ACCOUNTS_QUEUE, AccountActivationEvent } from './accounts.queue';
 import { inputAsPolicy } from '../policies/policies.util';
 import { Queue } from 'bull';
 import { selectAccount } from './accounts.util';
+import { UserAccountsService } from '../auth/userAccounts.service';
+import { v1 as uuid1 } from 'uuid';
 
 export interface AccountSubscriptionPayload {
   [ACCOUNT_SUBSCRIPTION]: Address;
@@ -40,6 +43,7 @@ export class AccountsService {
     private policies: PoliciesService,
     @InjectQueue(ACCOUNTS_QUEUE.name)
     private activationQueue: Queue<AccountActivationEvent>,
+    private userAccounts: UserAccountsService,
   ) {}
 
   unique = (address: Address) =>
@@ -81,9 +85,14 @@ export class AccountsService {
       policies,
     });
 
+    // The account id must be in the user's list of accounts prior to starting the transaction for the globals to be set correctly
+    const accountId = uuid1();
+    await this.userAccounts.add({ user, account: accountId });
+
     const id = await this.db.transaction(async (client) => {
       const { id } = await e
         .insert(e.Account, {
+          id: accountId,
           address: account,
           name,
           isActive: false,
@@ -107,7 +116,7 @@ export class AccountsService {
       return id;
     });
 
-    await this.publishAccount({ account, event: AccountEvent.create });
+    this.publishAccount({ account, event: AccountEvent.create });
     await this.activateAccount(account, implementation, salt, policies);
     this.contracts.addAccountAsVerified(account);
     this.faucet.requestTokens(account);
@@ -147,17 +156,36 @@ export class AccountsService {
         `Deployed account address didn't match stored address; expected '${account}', actual '${deployedAccount.address}'`,
       );
 
-    this.activationQueue.add({ account, transaction: asHex(transaction.hash) });
+    await this.activationQueue.add({ account, transaction: asHex(transaction.hash) });
   }
 
   async publishAccount(payload: AccountSubscriptionPayload) {
     const { account } = payload;
 
-    await this.pubsub.publish<AccountSubscriptionPayload>(
-      `${ACCOUNT_SUBSCRIPTION}.${account}`,
-      payload,
-    );
+    // Publish events to all users with access to the account
+    const users = await e
+      .select(
+        e.op(
+          'distinct',
+          e.select(e.Policy, (p) => ({
+            filter: e.op(p.account.address, '=', account),
+            users: e.op(p.state.approvers.address, 'union', p.draft.approvers.address),
+          })).users,
+        ),
+      )
+      .run(this.db.DANGEROUS_superuserClient);
 
-    // TODO: Publish event to all users with access to the account
+    await Promise.all([
+      this.pubsub.publish<AccountSubscriptionPayload>(
+        `${ACCOUNT_SUBSCRIPTION}.${account}`,
+        payload,
+      ),
+      ...[...users].map((user) =>
+        this.pubsub.publish<AccountSubscriptionPayload>(
+          `${USER_ACCOUNT_SUBSCRIPTION}.${user}`,
+          payload,
+        ),
+      ),
+    ]);
   }
 }

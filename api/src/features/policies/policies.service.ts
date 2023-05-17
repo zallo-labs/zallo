@@ -22,6 +22,7 @@ import e from '~/edgeql-js';
 import { ShapeFunc } from '../database/database.select';
 
 interface CreateParams extends CreatePolicyInput {
+  accountId?: uuid;
   skipProposal?: boolean;
 }
 
@@ -34,15 +35,31 @@ export const policyStateShape = e.shape(e.PolicyState, () => ({
   },
 }));
 
-export const policyStateAsPolicy = (key: number, state: any) =>
-  asPolicy({
-    key,
-    approvers: new Set(state.approvers.map((a) => a.address)),
-    threshold: state.threshold,
-    permissions: {
-      targets: asTargets(state.targets),
-    },
-  });
+export const policyStateAsPolicy = <
+  S extends {
+    threshold: number;
+    approvers: {
+      address: string;
+    }[];
+    targets: {
+      to: string;
+      selectors: string[];
+    }[];
+  } | null,
+>(
+  key: number,
+  state: S,
+) =>
+  (state
+    ? asPolicy({
+        key,
+        approvers: new Set(state.approvers.map((a) => a.address as Address)),
+        threshold: state.threshold,
+        permissions: {
+          targets: asTargets(state.targets),
+        },
+      })
+    : null) as S extends null ? Policy | null : Policy;
 
 export type UniquePolicy = { id: uuid } | { account: Address; key: PolicyKey };
 
@@ -92,14 +109,9 @@ export class PoliciesService {
     key: keyArg,
     skipProposal,
     ...policyInput
-  }: CreateParams & { accountId?: uuid }) {
-    const accountId =
-      accountIdArg ??
-      (
-        await e
-          .select(e.Account, () => ({ filter_single: { address: account } }))
-          .run(this.db.client)
-      )?.id;
+  }: CreateParams) {
+    const selectAccount = e.select(e.Account, () => ({ filter_single: { address: account } }));
+    const accountId = accountIdArg ?? (await this.db.query(selectAccount.id));
     if (!accountId) throw new UserInputError('Account not found');
 
     const key = keyArg ?? (await this.getFreeKey(accountId));
@@ -111,7 +123,7 @@ export class PoliciesService {
 
     const { id } = await e
       .insert(e.Policy, {
-        account: e.select(e.Account, () => ({ filter_single: { address: account } })),
+        account: selectAccount,
         key,
         name: name || `Policy ${key}`,
         stateHistory: e.insert(e.PolicyState, {
@@ -174,7 +186,7 @@ export class PoliciesService {
           .run(db);
         if (!existing) throw new UserInputError("Policy doesn't exist");
 
-        const policy = policyStateAsPolicy(key, existing?.draft ?? existing?.state);
+        const policy = policyStateAsPolicy(key, existing?.draft ?? existing?.state!);
 
         if (approvers) policy.approvers = new Set(approvers);
         if (threshold !== undefined) policy.threshold = threshold;

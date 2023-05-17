@@ -1,31 +1,13 @@
-import { useEffect } from 'react';
-import { useAccount, useAccountIds } from '@api/account';
-import { atom, useRecoilValue, useSetRecoilState } from 'recoil';
-import { persistAtom } from '~/util/effect/persistAtom';
-import { setContext } from '~/util/analytics';
+import { useAccountIds } from '@api/account';
 import { Address } from 'lib';
+import { persistedAtom } from '~/util/persistedAtom';
+import { useAtomValue, useSetAtom } from 'jotai';
 
-const selectedAtom = atom<Address | null>({
-  key: 'SelectedAccount',
-  default: null,
-  effects: [
-    persistAtom({
-      saveIf: (v) => v !== null,
-    }),
-  ],
-});
+const selectedAccountAtom = persistedAtom<Address | null>('SelectedAccount', null);
 
-export const useSelectedAccountId = () => {
-  const accountIds = useAccountIds();
-  const id = useRecoilValue(selectedAtom) ?? accountIds[0]!;
-
-  useEffect(() => {
-    setContext('account', id);
-  }, [id]);
-
-  return id;
+export const useSelectedAccount = () => {
+  const accounts = useAccountIds();
+  return useAtomValue(selectedAccountAtom) ?? accounts[0]!;
 };
 
-export const useSelectedAccount = () => useAccount(useSelectedAccountId());
-
-export const useSetSelectedAccount = () => useSetRecoilState(selectedAtom);
+export const useSetSelectedAccount = () => useSetAtom(selectedAccountAtom);

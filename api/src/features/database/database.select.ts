@@ -51,7 +51,9 @@ const fieldToShape = (
     (acc, node) =>
       match(node)
         .with({ kind: Kind.FIELD }, (childNode) => {
+          if (childNode.name.value === '__typename') return acc;
           const childSchema = schemaType.getFields()[childNode.name.value];
+          if (!childSchema) throw new Error(`Schema field not found: ${childNode.name.value}`);
 
           const { select } = childSchema.extensions;
           if (select && typeof select === 'object') return merge(acc, select);

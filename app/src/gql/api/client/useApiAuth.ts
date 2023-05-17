@@ -4,53 +4,20 @@ import { onError } from '@apollo/client/link/error';
 import { SiweMessage } from 'siwe';
 import { tryAcquire, E_ALREADY_LOCKED, Mutex } from 'async-mutex';
 import { CONFIG } from '~/util/config';
-import { atom, useRecoilState } from 'recoil';
-import { getSecureStore, persistAtom } from '~/util/effect/persistAtom';
 import { useCallback, useMemo, useRef } from 'react';
 import { useApprover } from '@network/useApprover';
 import { DateTime } from 'luxon';
 import { Approver } from 'lib';
+import { persistedAtom } from '~/util/persistedAtom';
+import { useAtom } from 'jotai';
+
+const tokenAtom = persistedAtom<string | null>('ApiToken', null);
 
 const fetchMutex = new Mutex();
 
-const HOST_PATTERN = /^(?:[a-z]+?:\/\/)?([^:/?#]+(:\d+)?)/; // RN lacks URL support )':
-//                      protocol://      (hostname:port)
-const API_HOSTNAME = HOST_PATTERN.exec(CONFIG.apiUrl)![1];
-
-const fetchToken = async (approver: Approver): Promise<string> => {
-  const nonceResp = await fetch(`${CONFIG.apiUrl}/auth/nonce`, { credentials: 'include' });
-
-  const message = new SiweMessage({
-    version: '1',
-    domain: API_HOSTNAME,
-    address: approver.address,
-    nonce: await nonceResp.text(),
-    expirationTime: DateTime.now().plus({ days: 2 }).toString(),
-    // Required but unused
-    uri: 'https://app.zallo.com',
-    chainId: 0,
-  });
-  const token = {
-    message,
-    signature: await approver.signMessage(message.prepareMessage()),
-  };
-
-  return JSON.stringify(token);
-};
-
-const apiTokenState = atom<string | null>({
-  key: 'apiToken',
-  default: null,
-  effects: [
-    persistAtom({
-      storage: getSecureStore(),
-    }),
-  ],
-});
-
 export const useApiAuth = () => {
   const approver = useApprover();
-  const [token, setToken] = useRecoilState(apiTokenState);
+  const [token, setToken] = useAtom(tokenAtom);
 
   const tokenRef = useRef<string | null>(token);
 
@@ -58,12 +25,13 @@ export const useApiAuth = () => {
     // Ensure token is reset exactly once at any given time
     try {
       await tryAcquire(fetchMutex).runExclusive(async () => {
-        tokenRef.current = await fetchToken(approver);
+        tokenRef.current = await getToken(approver);
         setToken(tokenRef.current);
       });
     } catch (e) {
       if (e === E_ALREADY_LOCKED) {
         await fetchMutex.waitForUnlock();
+        // Token has been reset by another call
       } else {
         throw e;
       }
@@ -98,3 +66,30 @@ export const useApiAuth = () => {
     return { link, getHeaders };
   }, [reset]);
 };
+
+const HOST_PATTERN = /^(?:[a-z]+?:\/\/)?([^:/?#]+(:\d+)?)/; // RN lacks URL support )':
+//                      protocol://      (hostname:port)
+const API_HOSTNAME = HOST_PATTERN.exec(CONFIG.apiUrl)![1];
+
+async function getToken(approver: Approver): Promise<string> {
+  // Cookies are problematic on RN - https://github.com/facebook/react-native/issues/23185
+  // const nonce = await (await fetch(`${CONFIG.apiUrl}/auth/nonce`, { credentials: 'include' })).text();
+  const nonce = 'nonceless';
+
+  const message = new SiweMessage({
+    version: '1',
+    domain: API_HOSTNAME,
+    address: approver.address,
+    nonce,
+    expirationTime: DateTime.now().plus({ days: 2 }).toString(),
+    uri: 'https://app.zallo.com', // Required but unused
+    chainId: 0,
+  });
+
+  const token = {
+    message,
+    signature: await approver.signMessage(message.prepareMessage()),
+  };
+
+  return JSON.stringify(token);
+}

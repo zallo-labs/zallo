@@ -49,11 +49,12 @@ export const Searchbar = ({
 };
 
 const useStyles = makeStyles(({ colors, corner, fonts }, insets?: EdgeInsets) => ({
+  // https://m3.material.io/components/search/specs
   container: {
     flexDirection: 'row',
     alignItems: 'center',
     height: 56,
-    minWidth: 360,
+    // minWidth: 360, // In the m3 spec, but breaks on smaller screens
     maxWidth: 720,
     borderRadius: corner.full,
     paddingHorizontal: 16,

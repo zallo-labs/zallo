@@ -83,7 +83,7 @@ const useStyles = makeStyles(({ colors, corner }) => ({
     borderTopRightRadius: corner.xl,
   },
   handle: {
-    paddingVertical: 16,
+    paddingTop: 16,
   },
   handleIndicator: {
     backgroundColor: colors.onSurfaceVariant,
@@ -91,7 +91,9 @@ const useStyles = makeStyles(({ colors, corner }) => ({
     height: 4,
     opacity: 0.4,
   },
-  contentContainer: {},
+  contentContainer: {
+    paddingTop: 8,
+  },
   backdrop: {
     backgroundColor: colors.scrim,
   },

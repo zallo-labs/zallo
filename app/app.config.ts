@@ -44,8 +44,12 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     [
       'expo-build-properties',
       {
+        android: {
+          unstable_networkInspector: true,
+        },
         // https://docs.expo.dev/versions/latest/sdk/build-properties/
         ios: {
+          unstable_networkInspector: true,
           useFrameworks: 'static', // Required by react-native-firebase
           // flipper: false, // Disallowed by `useFrameworks: 'static'` https://github.com/jakobo/expo-community-flipper/issues/27
         },
@@ -91,9 +95,8 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     bundleIdentifier: packageId,
     supportsTablet: true,
     infoPlist: {
-      NSCameraUsageDescription:
-        'This app uses the camera to scan QR codes of addresses and to connect to DApps.',
-      NSFaceIDUsageDescription: 'This app uses Face ID to authenticate the user.',
+      NSCameraUsageDescription: 'Allow Zallo to use the camera to scan QR codes.',
+      NSFaceIDUsageDescription: 'Allow Zallo to (optionally) use Face ID for authentication.',
     },
     config: {
       usesNonExemptEncryption: false,

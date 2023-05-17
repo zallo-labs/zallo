@@ -14,7 +14,7 @@ const md5 = (value: crypto.BinaryLike) => crypto.createHash('md5').update(value)
 export class ContractsService {
   constructor(private db: DatabaseService, private explorer: ExplorerService) {}
 
-  async selectUnique(contract: Address, shape?: ShapeFunc<typeof e.Contract>) {
+  async select(contract: Address, shape?: ShapeFunc<typeof e.Contract>) {
     const stored = await e
       .select(e.Contract, (c) => ({
         ...shape?.(c),
