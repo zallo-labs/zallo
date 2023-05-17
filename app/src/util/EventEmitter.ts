@@ -10,9 +10,8 @@ export class EventEmitter<T> {
   constructor(public readonly name: string) {}
 
   emit(params: T) {
-    if (this.listeners.size === 0) console.warn(`Emitting event ${this.name} with no listeners`);
-
     this.listeners.forEach((listener) => listener(params));
+    return this.listeners.size;
   }
 
   getEvent() {
