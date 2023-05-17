@@ -95,9 +95,8 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     bundleIdentifier: packageId,
     supportsTablet: true,
     infoPlist: {
-      NSCameraUsageDescription:
-        'This app uses the camera to scan QR codes of addresses and to connect to DApps.',
-      NSFaceIDUsageDescription: 'This app (optionally) uses Face ID to authenticate the user.',
+      NSCameraUsageDescription: 'Allow Zallo to use the camera to scan QR codes.',
+      NSFaceIDUsageDescription: 'Allow Zallo to (optionally) use Face ID for authentication.',
     },
     config: {
       usesNonExemptEncryption: false,
