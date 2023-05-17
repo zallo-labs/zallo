@@ -29,7 +29,7 @@ export const QrModal = withSuspense(({ route, navigation: { goBack } }: QrModalP
 
   return (
     <Blur>
-      <Screen>
+      <Screen topInset>
         <IconButton mode="contained-tonal" icon={CloseIcon} style={styles.close} onPress={goBack} />
 
         <View style={styles.qrContainer}>
@@ -62,7 +62,7 @@ export const QrModal = withSuspense(({ route, navigation: { goBack } }: QrModalP
 
 const uesStyles = makeStyles(({ colors, window }) => ({
   close: {
-    margin: 16,
+    marginHorizontal: 16,
   },
   name: {
     textAlign: 'center',
