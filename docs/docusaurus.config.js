@@ -122,6 +122,7 @@ const config = {
     apolloGraphRef: process.env.APOLLO_GRAPH_REF,
     apiUrl: process.env.API_URL,
     signUpUrl: process.env.SIGN_UP_URL || FALLBACK_URL,
+    privacyPolicyUrl: process.env.PRIVACY_POLICY_URL || FALLBACK_URL,
   },
 };
 
