@@ -54,7 +54,7 @@ export const AuthGate = ({ children }: AuthGateProps) => {
       } else if (newState === 'background') {
         setAuth((prev) =>
           prev.success
-            ? { lastAuthenticated: DateTime.now() }
+            ? { ...prev, lastAuthenticated: DateTime.now() }
             : // Re-render to prompt authentication
               {},
         );
