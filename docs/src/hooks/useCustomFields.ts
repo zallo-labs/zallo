@@ -4,6 +4,7 @@ export interface CustomFields {
   apolloGraphRef: string;
   apiUrl: string;
   signUpUrl: string;
+  privacyPolicyUrl: string;
 }
 
 export const useCustomFields = () =>
