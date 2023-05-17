@@ -46,37 +46,69 @@ export const NumericInput = ({ value, onChange, maxDecimals }: NumericInputProps
 
   return (
     <View style={styles.container}>
-      {[...new Array(9)].map((_, i) => (
-        <B key={i} onChange={onChange} disabled={disableNum}>{`${i + 1}`}</B>
-      ))}
+      <View style={styles.row}>
+        <B onChange={onChange} disabled={disableNum}>
+          1
+        </B>
+        <B onChange={onChange} disabled={disableNum}>
+          2
+        </B>
+        <B onChange={onChange} disabled={disableNum}>
+          3
+        </B>
+      </View>
 
-      <B onPress={addDecimal} disabled={decimalPointIndex !== -1 || maxDecimals === 0}>
-        {DECIMAL_SEPARATOR}
-      </B>
+      <View style={styles.row}>
+        <B onChange={onChange} disabled={disableNum}>
+          4
+        </B>
+        <B onChange={onChange} disabled={disableNum}>
+          5
+        </B>
+        <B onChange={onChange} disabled={disableNum}>
+          6
+        </B>
+      </View>
 
-      <B onChange={onChange} disabled={disableNum}>
-        0
-      </B>
+      <View style={styles.row}>
+        <B onChange={onChange} disabled={disableNum}>
+          7
+        </B>
+        <B onChange={onChange} disabled={disableNum}>
+          8
+        </B>
+        <B onChange={onChange} disabled={disableNum}>
+          9
+        </B>
+      </View>
 
-      <B onPress={pop} onLongPress={clear} disabled={!value.length}>
-        {<MaterialIcons name="keyboard-backspace" size={styles.buttonLabel.fontSize} />}
-      </B>
+      <View style={styles.row}>
+        <B onPress={addDecimal} disabled={decimalPointIndex !== -1 || maxDecimals === 0}>
+          {DECIMAL_SEPARATOR}
+        </B>
+
+        <B onChange={onChange} disabled={disableNum}>
+          0
+        </B>
+
+        <B onPress={pop} onLongPress={clear} disabled={!value.length}>
+          {<MaterialIcons name="keyboard-backspace" size={styles.buttonLabel.fontSize} />}
+        </B>
+      </View>
     </View>
   );
 };
 
 const useStyles = makeStyles(({ colors, fonts }) => ({
   container: {
+    flexDirection: 'column',
+    margin: 16,
+  },
+  row: {
     flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: 8,
-    marginHorizontal: 16,
-    marginVertical: 16,
   },
   buttonContainer: {
     flex: 1,
-    flexBasis: '30%',
-    alignSelf: 'stretch',
   },
   buttonLabel: {
     ...fonts.displayMedium,
