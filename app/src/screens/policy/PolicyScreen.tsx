@@ -100,7 +100,7 @@ const PolicyView = ({
       {(!policy || isModified) && (
         <Fab
           icon={SendIcon}
-          label={draft.key ? 'Update' : 'Create'}
+          label={draft.key !== undefined ? 'Update' : 'Create'}
           onPress={async () => {
             const r = await (draft.key
               ? updatePolicy({ key: draft.key, ...draft })
