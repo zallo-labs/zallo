@@ -10,8 +10,9 @@ export class EventEmitter<T> {
   constructor(public readonly name: string) {}
 
   emit(params: T) {
+    const n = this.listeners.size;
     this.listeners.forEach((listener) => listener(params));
-    return this.listeners.size;
+    return n;
   }
 
   getEvent() {
