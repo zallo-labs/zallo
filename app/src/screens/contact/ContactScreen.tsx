@@ -43,7 +43,7 @@ export const ContactScreen = withSuspense(
       message: 'Are you sure you want to remove this contact',
     });
     const { control, handleSubmit, reset } = useForm<Inputs>({
-      ...(current && { defaultValues: { name: current.name, address: current.address } }),
+      defaultValues: { name: current?.name, address: current?.address ?? address },
     });
 
     const submit = handleSubmit(async ({ name, address }) => {
