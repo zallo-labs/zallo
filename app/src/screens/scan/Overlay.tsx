@@ -1,24 +1,24 @@
 import { BackIcon, ContactsIcon, PasteIcon } from '~/util/theme/icons';
 import { makeStyles } from '~/util/theme/makeStyles';
 import { IconButton } from 'react-native-paper';
-import { EdgeInsets, useSafeAreaInsets } from 'react-native-safe-area-context';
 import BarcodeMask from 'react-native-barcode-mask';
 import { View } from 'react-native';
 import * as Clipboard from 'expo-clipboard';
 import { useSelectContact } from '../contacts/useSelectContact';
 import { useNavigation } from '@react-navigation/native';
 import { showWarning } from '~/provider/SnackbarProvider';
+import { Screen } from '~/components/layout/Screen';
 
 export interface OverlayProps {
   onData: (data: string) => Promise<boolean>;
 }
 
 export const Overlay = ({ onData }: OverlayProps) => {
-  const styles = useStyles(useSafeAreaInsets());
+  const styles = useStyles();
   const selectContact = useSelectContact();
 
   return (
-    <View style={styles.root}>
+    <Screen topInset>
       <BarcodeMask
         outerMaskOpacity={0.4}
         edgeColor={styles.maskEdge.color}
@@ -26,7 +26,7 @@ export const Overlay = ({ onData }: OverlayProps) => {
         showAnimatedLine={false}
       />
 
-      <View style={styles.actionsContainer}>
+      <View style={styles.actions}>
         <IconButton icon={BackIcon} mode="contained-tonal" onPress={useNavigation().goBack} />
 
         <View style={styles.spacer} />
@@ -47,11 +47,11 @@ export const Overlay = ({ onData }: OverlayProps) => {
           }}
         />
       </View>
-    </View>
+    </Screen>
   );
 };
 
-const useStyles = makeStyles(({ colors, roundness }, insets: EdgeInsets) => ({
+const useStyles = makeStyles(({ colors, roundness }) => ({
   root: {
     flex: 1,
   },
@@ -59,13 +59,9 @@ const useStyles = makeStyles(({ colors, roundness }, insets: EdgeInsets) => ({
     color: colors.primaryContainer,
     borderRadius: roundness,
   },
-  actionsContainer: {
-    position: 'absolute',
-    top: 0,
-    left: insets.left,
+  actions: {
     flexDirection: 'row',
-    margin: 16,
-    marginRight: 16 + insets.right,
+    marginHorizontal: 16,
     gap: 16,
   },
   spacer: {
