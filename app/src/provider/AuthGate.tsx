@@ -8,18 +8,15 @@ import { useAtomValue } from 'jotai';
 import { AppState } from 'react-native';
 
 export const SUPPORTS_BIOMETRICS = Auth.isEnrolledAsync();
+const TIMEOUT_AFTER = Duration.fromObject({ minutes: 5 }).toMillis();
 
 export const AUTH_SETTINGS_ATOM = persistedAtom('AuthenticationSettings', {
   require: null as boolean | null,
 });
 
-const TIMEOUT_AFTER = Duration.fromObject({ minutes: 5 }).toMillis();
-const isStillActive = (lastActive?: DateTime) =>
-  !!lastActive && DateTime.now().diff(lastActive).toMillis() < TIMEOUT_AFTER;
-
 interface AuthState {
   success?: boolean;
-  lastActive?: DateTime;
+  lastAuthenticated?: DateTime;
 }
 
 export interface AuthGateProps {
@@ -49,19 +46,28 @@ export const AuthGate = ({ children }: AuthGateProps) => {
 
     const listener = AppState.addEventListener('change', (newState) => {
       if (newState === 'active') {
-        setAuth(({ lastActive }) => ({ success: isStillActive(lastActive) }));
-      } else {
-        setAuth((prev) => ({ ...prev, lastActive: DateTime.now() }));
+        setAuth((prev) =>
+          prev.lastAuthenticated
+            ? { success: DateTime.now().diff(prev.lastAuthenticated).toMillis() < TIMEOUT_AFTER }
+            : prev,
+        );
+      } else if (newState === 'background') {
+        setAuth((prev) =>
+          prev.success
+            ? { lastAuthenticated: DateTime.now() }
+            : // Re-render to prompt authentication
+              {},
+        );
       }
     });
 
     return () => listener.remove();
-  }, []);
+  }, [require, setAuth]);
 
   return (
     <>
       {children}
-      {!auth.success && <Blur blurAmount={20} />}
+      {!auth.success && <Blur blurAmount={16} />}
     </>
   );
 };
