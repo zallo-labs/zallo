@@ -152,7 +152,10 @@ export class PoliciesService {
 
     return {
       approvers: e.for(e.cast(e.str, e.set(...policy.approvers)), (approver) =>
-        e.select(e.User, () => ({ filter_single: { address: e.cast(e.str, approver) } })),
+        e.insert(e.User, { address: e.cast(e.str, approver) }).unlessConflict((user) => ({
+          on: user.address,
+          else: user,
+        })),
       ),
       threshold: policy.threshold,
       targets,
@@ -289,13 +292,6 @@ export class PoliciesService {
   // This prevent loss of account access on an accidental draft be should be considered more thoroughly
   private async upsertApprovers(account: uuid, policy: Policy) {
     if (!policy.approvers.size) return;
-
-    // Create devices; this can't done inline with the insert as the User type is abstract, and abstract upserts aren't supported
-    await e
-      .for(e.cast(e.str, e.set(...policy.approvers)), (item) =>
-        e.insert(e.Device, { address: e.cast(e.str, item) }).unlessConflict(),
-      )
-      .run(this.db.client);
 
     await Promise.all(
       [...policy.approvers].map((user) => this.userAccounts.add({ user, account })),

@@ -34,6 +34,7 @@ export type $AbstractConfigλShape = $.typeutil.flatten<$ConfigObjectλShape & {
   "query_execution_timeout": $.PropertyDesc<_std.$duration, $.Cardinality.One, false, false, false, false>;
   "listen_port": $.PropertyDesc<_std.$int16, $.Cardinality.One, false, false, false, true>;
   "listen_addresses": $.PropertyDesc<_std.$str, $.Cardinality.Many, false, false, false, false>;
+  "auth": $.LinkDesc<$Auth, $.Cardinality.Many, {}, false, false,  false, false>;
   "allow_dml_in_functions": $.PropertyDesc<_std.$bool, $.Cardinality.AtMostOne, false, false, false, true>;
   "allow_bare_ddl": $.PropertyDesc<$AllowBareDDL, $.Cardinality.AtMostOne, false, false, false, true>;
   "apply_access_policies": $.PropertyDesc<_std.$bool, $.Cardinality.AtMostOne, false, false, false, true>;
@@ -43,7 +44,6 @@ export type $AbstractConfigλShape = $.typeutil.flatten<$ConfigObjectλShape & {
   "effective_cache_size": $.PropertyDesc<$memory, $.Cardinality.AtMostOne, false, false, false, false>;
   "effective_io_concurrency": $.PropertyDesc<_std.$int64, $.Cardinality.AtMostOne, false, false, false, false>;
   "default_statistics_target": $.PropertyDesc<_std.$int64, $.Cardinality.AtMostOne, false, false, false, false>;
-  "auth": $.LinkDesc<$Auth, $.Cardinality.Many, {}, false, false,  false, false>;
 }>;
 type $AbstractConfig = $.ObjectType<"cfg::AbstractConfig", $AbstractConfigλShape, null, [
   ...$ConfigObject['__exclusives__'],
@@ -55,8 +55,8 @@ const AbstractConfig: $.$expr_PathNode<$.TypeSet<$AbstractConfig, $.Cardinality.
 export type $AuthλShape = $.typeutil.flatten<$ConfigObjectλShape & {
   "priority": $.PropertyDesc<_std.$int64, $.Cardinality.One, true, false, true, false>;
   "user": $.PropertyDesc<_std.$str, $.Cardinality.Many, false, false, true, true>;
-  "comment": $.PropertyDesc<_std.$str, $.Cardinality.AtMostOne, false, false, true, false>;
   "method": $.LinkDesc<$AuthMethod, $.Cardinality.AtMostOne, {}, true, false,  true, false>;
+  "comment": $.PropertyDesc<_std.$str, $.Cardinality.AtMostOne, false, false, true, false>;
   "<auth[is cfg::AbstractConfig]": $.LinkDesc<$AbstractConfig, $.Cardinality.Many, {}, false, false,  false, false>;
   "<auth[is cfg::Config]": $.LinkDesc<$Config, $.Cardinality.Many, {}, false, false,  false, false>;
   "<auth[is cfg::InstanceConfig]": $.LinkDesc<$InstanceConfig, $.Cardinality.Many, {}, false, false,  false, false>;
@@ -65,8 +65,8 @@ export type $AuthλShape = $.typeutil.flatten<$ConfigObjectλShape & {
 }>;
 type $Auth = $.ObjectType<"cfg::Auth", $AuthλShape, null, [
   ...$ConfigObject['__exclusives__'],
-  {priority: {__element__: _std.$int64, __cardinality__: $.Cardinality.One | $.Cardinality.AtMostOne },},
   {method: {__element__: $AuthMethod, __cardinality__: $.Cardinality.One | $.Cardinality.AtMostOne },},
+  {priority: {__element__: _std.$int64, __cardinality__: $.Cardinality.One | $.Cardinality.AtMostOne },},
 ]>;
 const $Auth = $.makeType<$Auth>(_.spec, "0690f07d-e09f-11ed-9faf-e175bb71bd4e", _.syntax.literal);
 

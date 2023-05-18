@@ -5,8 +5,10 @@ import { ShapeFunc } from '../database/database.select';
 import e from '~/edgeql-js';
 import { UpdateUserInput } from './users.input';
 import { ProviderService } from '../util/provider/provider.service';
-import { getUser } from '~/request/ctx';
+import { getUser, getUserCtx } from '~/request/ctx';
 import { uuid } from 'edgedb/dist/codecs/ifaces';
+import { UserInputError } from 'apollo-server-core';
+import { and, or } from '../database/database.util';
 
 export const selectUser = (id: uuid | Address, shape?: ShapeFunc<typeof e.User>) =>
   e.select(e.User, (u) => ({
@@ -19,24 +21,45 @@ export class UsersService {
   constructor(private db: DatabaseService, private provider: ProviderService) {}
 
   async selectUnique(address: Address, shape?: ShapeFunc<typeof e.User>) {
+    const { address: userAddress, accounts } = getUserCtx();
+
+    const r = (
+      await this.db.query(
+        e.select(e.User, (user) => ({
+          // Returns user themself, or any account they are a member of
+          // This really needs to sit at the database level, but can't due to the insert on conflict bug - https://github.com/edgedb/edgedb/issues/5504
+          filter: and(
+            e.op(user.address, '=', address),
+            address !== userAddress && e.op(user.id, 'in', e.cast(e.uuid, e.set(...accounts))),
+          ),
+          limit: 1,
+          ...shape?.(user),
+        })),
+      )
+    )?.[0];
+
     return (
-      (await this.db.query(selectUser(address, shape))) ?? { id: address, address, name: null }
+      r || {
+        id: address,
+        address,
+        name: null,
+      }
     );
   }
 
   async upsert(address: Address, { name, pushToken }: UpdateUserInput) {
-    // unlessConflict() upsert can't be performed as the address constraint is on the abstract User type
-    return (
-      (await e
-        .update(e.Device, () => ({
-          filter_single: { address },
+    if (address !== getUser()) throw new UserInputError('Not user');
+
+    return this.db.query(
+      e.insert(e.User, { address, name, pushToken }).unlessConflict((user) => ({
+        on: user.address,
+        else: e.update(user, () => ({
           set: {
             name,
             pushToken,
           },
-        }))
-        .run(this.db.client)) ??
-      (await e.insert(e.Device, { address, name, pushToken }).unlessConflict().run(this.db.client))
+        })),
+      })),
     );
   }
 

@@ -45,32 +45,19 @@ module default {
     constraint max_value(2n ^ 256n - 1n);
   }
 
-  abstract type User {
-    required property address -> Address {
-      constraint exclusive;
-    }
+  type User {
+    required property address -> Address { constraint exclusive; }
     property name -> Name;
-    multi link contacts := .<user[is Contact];
-  }
-
-  type Contact {
-    required link user -> User;
-    required property address -> Address;
-    required property name -> Name;
-
-    constraint exclusive on ((.user, .address));
-    constraint exclusive on ((.user, .name));
-
-    access policy user_all
-      allow all
-      using (.user.address ?= global current_user_address);
-  }
-
-  type Device extending User {
     property pushToken -> str;
+    multi link contacts := .<user[is Contact];
 
-    access policy user_all
-      allow all
+    # Anyone select is required due to issue - https://github.com/edgedb/edgedb/issues/5504
+    # Ideally we want anyone_insert
+    access policy anyone_select_insert
+      allow select, insert;
+
+    access policy user_select_update
+      allow select, update
       using (.address ?= global current_user_address);
   }
 
@@ -83,11 +70,13 @@ module default {
     multi link transactionProposals := .<account[is TransactionProposal];
     multi link transfers := .<account[is Transfer];
 
-    access policy anyone_can_insert
-      allow insert;
-    
-    access policy members_can_select_update
-      allow select, update
+    # Counteract anyone_select_insert in User, required due to edgedb issue
+    access policy deny_public_select
+      deny select
+      using (.id not in global current_user_accounts);
+
+    access policy members_update
+      allow update
       using (.id in global current_user_accounts);
   }
 
@@ -149,6 +138,19 @@ module default {
       readonly := true;
       default := datetime_of_statement();
     }
+  }
+
+  type Contact {
+    required link user -> User;
+    required property address -> Address;
+    required property name -> Name;
+
+    constraint exclusive on ((.user, .address));
+    constraint exclusive on ((.user, .name));
+
+    access policy user_all
+      allow all
+      using (.user.address ?= global current_user_address);
   }
 
   scalar type TargetSelector extending str {
