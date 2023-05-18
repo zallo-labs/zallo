@@ -1,14 +1,21 @@
-import { WritableAtom, atom } from 'jotai';
+import { Getter, WritableAtom, atom } from 'jotai';
 import { RESET, createJSONStorage, unstable_NO_STORAGE_VALUE } from 'jotai/utils';
 import type { AsyncStorage as TAsyncStorage } from 'jotai/vanilla/utils/atomWithStorage';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as SecureStore from 'expo-secure-store';
 
-interface StorageOptions<V, U extends AnyJson> {
+export type StorageOptions<V, U extends AnyJson> = {
   secure?: SecureStore.SecureStoreOptions;
-  stringifiy?: (value: V) => U;
-  parse?: (value: U) => V;
-}
+} & (
+  | {
+      stringifiy: (value: V) => U;
+      parse: (value: U) => V;
+    }
+  | {
+      stringifiy?: never;
+      parse?: never;
+    }
+);
 
 // Based off https://github.com/pmndrs/jotai/blob/main/src/vanilla/utils/atomWithStorage.ts
 // Primary difference is that this persists the initialValue
@@ -21,9 +28,9 @@ export const persistedAtom = <V, U extends AnyJson = AnyJson>(
   const baseAtom = atom(initialValue);
   baseAtom.debugLabel = `${key}::base`;
 
-  let initialized = false;
   const initialPersistedValue = storage.getItem(key);
 
+  let mounted = false;
   baseAtom.onMount = (setAtom) => {
     initialPersistedValue.then((v) => {
       if (v === unstable_NO_STORAGE_VALUE) {
@@ -31,19 +38,20 @@ export const persistedAtom = <V, U extends AnyJson = AnyJson>(
       } else if (v !== initialValue) {
         setAtom(v);
       }
-      initialized = true;
+      mounted = true;
     });
 
     if (storage.subscribe) return storage.subscribe(key, setAtom);
   };
 
-  const getUninitializedValue = async () => {
+  const getUnmountedValue = async (get: Getter) => {
+    get(baseAtom); // Trigger onMount
     const v = await initialPersistedValue;
     return v === unstable_NO_STORAGE_VALUE ? initialValue : v;
   };
 
   const pAtom = atom(
-    (get) => (initialized ? get(baseAtom) : getUninitializedValue()) as V, // Actually V | Promise<V> but that's not allowed by jotai-immer and it will return V after mount anyway
+    (get) => (mounted ? get(baseAtom) : (getUnmountedValue(get) as V)), // Actually V | Promise<V> but that's not allowed by jotai-immer and it will return V after mount anyway
     (get, set, update: SetStateActionWithReset<V>) => {
       const nextValue =
         typeof update === 'function'
