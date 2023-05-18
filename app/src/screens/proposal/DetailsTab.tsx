@@ -45,17 +45,19 @@ export const DetailsTab = withSuspense(({ route }: DetailsTabProps) => {
         trailing={p.gasLimit ? <FormattedNumber value={p.gasLimit} /> : 'Dynamic'}
       />
 
-      <ListHeader
-        {...(transfers.length > 1 && {
-          trailing: (
-            <Text variant="labelLarge" style={styles.transfersHeaderSupporting}>
-              <FiatValue value={transfersValue} />
-            </Text>
-          ),
-        })}
-      >
-        Transfers
-      </ListHeader>
+      {transfers.length > 0 && (
+        <ListHeader
+          {...(transfers.length > 1 && {
+            trailing: (
+              <Text variant="labelLarge" style={styles.transfersHeaderSupporting}>
+                <FiatValue value={transfersValue} />
+              </Text>
+            ),
+          })}
+        >
+          Transfers
+        </ListHeader>
+      )}
 
       {transfers.map((t, i) => (
         <TokenItem key={i} token={t.token} amount={t.amount} account={p.account} />
