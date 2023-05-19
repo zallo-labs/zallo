@@ -18,10 +18,9 @@ import { PubsubService } from '../util/pubsub/pubsub.service';
 const ERC20 = Erc20__factory.createInterface();
 const altEthAddress = asAddress(L2_ETH_TOKEN_ADDRESS);
 
-export const TRANSFER_SUBSCRIPTION = 'transfer';
-export const ACCOUNT_TRANSFER_SUBSCRIPTION = `${TRANSFER_SUBSCRIPTION}.account`;
+export const getTransferTrigger = (account: Address) => `transfer.account.${account}`;
 export interface TransferSubscriptionPayload {
-  [TRANSFER_SUBSCRIPTION]: uuid;
+  transfer: uuid;
   account: Address;
   direction: TransferDirection;
 }
@@ -97,14 +96,11 @@ export class TransfersEvents {
         toArray(transfers).map(async (transfer, index) => {
           const account = accounts[index] as Address;
 
-          await this.pubsub.publish<TransferSubscriptionPayload>(
-            `${ACCOUNT_TRANSFER_SUBSCRIPTION}.${account}`,
-            {
-              transfer: transfer.id,
-              account,
-              direction: account === from ? TransferDirection.Out : TransferDirection.In,
-            },
-          );
+          await this.pubsub.publish<TransferSubscriptionPayload>(getTransferTrigger(account), {
+            transfer: transfer.id,
+            account,
+            direction: account === from ? TransferDirection.Out : TransferDirection.In,
+          });
         }),
       );
     }

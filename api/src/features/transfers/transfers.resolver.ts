@@ -7,15 +7,18 @@ import { getShape } from '../database/database.select';
 import { Input, InputArgs } from '~/decorators/input.decorator';
 import { GqlContext, asUser, getUserCtx } from '~/request/ctx';
 import { PubsubService } from '../util/pubsub/pubsub.service';
-import {
-  TRANSFER_SUBSCRIPTION,
-  TransferSubscriptionPayload,
-  ACCOUNT_TRANSFER_SUBSCRIPTION,
-} from './transfers.events';
+import { TransferSubscriptionPayload, getTransferTrigger } from './transfers.events';
+import { DatabaseService } from '../database/database.service';
+import e from '~/edgeql-js';
+import { Address } from 'lib';
 
 @Resolver(() => Transfer)
 export class TransfersResolver {
-  constructor(private service: TransfersService, private pubsub: PubsubService) {}
+  constructor(
+    private service: TransfersService,
+    private db: DatabaseService,
+    private pubsub: PubsubService,
+  ) {}
 
   @Query(() => [Transfer])
   async transfers(
@@ -26,7 +29,7 @@ export class TransfersResolver {
   }
 
   @Subscription(() => Transfer, {
-    name: TRANSFER_SUBSCRIPTION,
+    name: 'transfer',
     filter: (
       { direction }: TransferSubscriptionPayload,
       { input: { directions } }: InputArgs<TransferSubscriptionInput>,
@@ -47,12 +50,16 @@ export class TransfersResolver {
     @Input({ defaultValue: {} }) { accounts }: TransferSubscriptionInput,
     @Context() ctx: GqlContext,
   ) {
-    return asUser(ctx, () => {
-      return this.pubsub.asyncIterator(
-        (accounts ?? getUserCtx().accounts).map(
-          (account) => `${ACCOUNT_TRANSFER_SUBSCRIPTION}.${account}`,
-        ),
-      );
+    return asUser(ctx, async () => {
+      // Subscribe to all available accounts if none are specified
+      accounts ??= (await this.db.query(
+        e.select(e.Account, (account) => ({
+          filter: e.op(account.id, 'in', e.cast(e.uuid, e.set(...getUserCtx().accounts))),
+          address: true,
+        })).address,
+      )) as Address[];
+
+      return this.pubsub.asyncIterator(accounts.map((account) => getTransferTrigger(account)));
     });
   }
 }
