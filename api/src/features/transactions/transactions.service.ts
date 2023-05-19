@@ -74,13 +74,12 @@ export class TransactionsService {
     ).filter(isPresent);
 
     if (approvals.length !== proposal.approvals.length) {
-      // TODO: remove invalid approvals
-      const toRemove = proposal.approvals
+      const expiredApprovals = proposal.approvals
         .map((a) => a.user.address as Address)
         .filter((a) => !approvals.find((approval) => approval.approver === a));
 
       await e
-        .for(e.set(...toRemove.map((approver) => selectUser(approver))), (user) =>
+        .for(e.set(...expiredApprovals.map((approver) => selectUser(approver))), (user) =>
           e.delete(e.Approval, () => ({ filter_single: { proposal: selectProposal(id), user } })),
         )
         .run(this.db.client);
@@ -89,6 +88,7 @@ export class TransactionsService {
       return this.tryExecute(id);
     }
 
+    const gasPrice = (await this.provider.getGasPrice()).toBigInt();
     const transaction = await executeTx({
       account: this.provider.connectAccount(asAddress(proposal.account.address as Address)),
       tx: {
@@ -100,6 +100,7 @@ export class TransactionsService {
       },
       policy,
       approvals,
+      gasPrice,
     });
 
     const transactionHash = asHex(transaction.hash);
@@ -107,7 +108,7 @@ export class TransactionsService {
       .insert(e.Transaction, {
         hash: transactionHash,
         proposal: selectTransactionProposal(id),
-        gasPrice: transaction.gasPrice.toBigInt(),
+        gasPrice,
       })
       .run(this.db.client);
 
