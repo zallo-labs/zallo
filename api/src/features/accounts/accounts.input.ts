@@ -10,9 +10,6 @@ export class AccountInput {
   address: Address;
 }
 
-export const ACCOUNT_SUBSCRIPTION = 'account';
-export const USER_ACCOUNT_SUBSCRIPTION = `${ACCOUNT_SUBSCRIPTION}.user`;
-
 export enum AccountEvent {
   create,
   update,

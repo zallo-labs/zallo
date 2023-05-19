@@ -5,15 +5,18 @@ import {
   UpdateAccountInput,
   CreateAccountInput,
   AccountSubscriptionInput,
-  ACCOUNT_SUBSCRIPTION,
-  USER_ACCOUNT_SUBSCRIPTION,
 } from './accounts.input';
 import { PubsubService } from '../util/pubsub/pubsub.service';
 import { GqlContext, asUser, getUser } from '~/request/ctx';
 import { Account } from './accounts.model';
-import { AccountSubscriptionPayload, AccountsService } from './accounts.service';
+import {
+  AccountSubscriptionPayload,
+  AccountsService,
+  getAccountTrigger,
+  getAccountUserTrigger,
+} from './accounts.service';
 import { getShape } from '../database/database.select';
-import { Input } from '~/decorators/input.decorator';
+import { Input, InputArgs } from '~/decorators/input.decorator';
 
 @Resolver(() => Account)
 export class AccountsResolver {
@@ -30,7 +33,11 @@ export class AccountsResolver {
   }
 
   @Subscription(() => Account, {
-    name: ACCOUNT_SUBSCRIPTION,
+    name: 'account',
+    filter: (
+      { event }: AccountSubscriptionPayload,
+      { input: { events } }: InputArgs<AccountSubscriptionInput>,
+    ) => !events || events.includes(event),
     resolve(
       this: AccountsResolver,
       { account }: AccountSubscriptionPayload,
@@ -40,18 +47,14 @@ export class AccountsResolver {
     ) {
       return asUser(ctx, async () => this.service.selectUnique(account, getShape(info)));
     },
-    filter: ({ event }: AccountSubscriptionPayload, { events }: AccountSubscriptionInput) =>
-      !events || events.includes(event),
   })
-  async accountSubscription(
+  async subscribeToAccounts(
     @Input({ defaultValue: {} }) { accounts }: AccountSubscriptionInput,
     @Context() ctx: GqlContext,
   ) {
     return asUser(ctx, () =>
       this.pubsub.asyncIterator(
-        accounts
-          ? [...accounts].map((id) => `${ACCOUNT_SUBSCRIPTION}.${id}`)
-          : `${USER_ACCOUNT_SUBSCRIPTION}.${getUser()}`,
+        accounts ? [...accounts].map(getAccountTrigger) : getAccountUserTrigger(getUser()),
       ),
     );
   }
