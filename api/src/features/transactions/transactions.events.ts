@@ -27,9 +27,9 @@ export class TransactionsEvents implements OnModuleInit {
   ) {
     this.transactionsProcessor.onEvent(
       ACCOUNT.getEventTopic(ACCOUNT.events['TransactionExecuted(bytes32,bytes)']),
-      this.executed,
+      (data) => this.executed(data),
     );
-    this.transactionsProcessor.onTransaction(this.reverted);
+    this.transactionsProcessor.onTransaction((data) => this.reverted(data));
   }
 
   onModuleInit() {
