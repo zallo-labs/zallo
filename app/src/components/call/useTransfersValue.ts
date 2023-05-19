@@ -1,4 +1,4 @@
-import { Transfer } from '@api/account';
+import { Transfer } from '@api/transfer';
 import { useTokenValues } from '@token/useTokenValue';
 import { Address } from 'lib';
 import _ from 'lodash';
