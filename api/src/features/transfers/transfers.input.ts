@@ -10,3 +10,11 @@ export class TransfersInput {
 
   direction?: TransferDirection;
 }
+
+@InputType()
+export class TransferSubscriptionInput {
+  @Field(() => [AddressScalar], { nullable: true })
+  accounts?: Address[];
+
+  directions?: TransferDirection[];
+}

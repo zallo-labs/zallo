@@ -5,12 +5,22 @@ import e from '~/edgeql-js';
 import { and } from '../database/database.util';
 import { ShapeFunc } from '../database/database.select';
 import { selectAccount } from '../accounts/accounts.util';
+import { uuid } from 'edgedb/dist/codecs/ifaces';
 
 @Injectable()
 export class TransfersService {
   constructor(private db: DatabaseService) {}
 
-  async transfers({ accounts, direction }: TransfersInput, shape?: ShapeFunc<typeof e.Transfer>) {
+  async selectUnique(id: uuid, shape?: ShapeFunc<typeof e.Transfer>) {
+    return this.db.query(
+      e.select(e.Transfer, (transfer) => ({
+        filter_single: { id },
+        ...shape?.(transfer),
+      })),
+    );
+  }
+
+  async select({ accounts, direction }: TransfersInput, shape?: ShapeFunc<typeof e.Transfer>) {
     return this.db.query(
       e.select(e.Transfer, (t) => ({
         ...shape?.(t),

@@ -306,6 +306,7 @@ type Simulation {
 type Subscription {
   account(input: AccountSubscriptionInput! = {}): Account!
   proposal(input: ProposalSubscriptionInput! = {}): TransactionProposal!
+  transfer(input: TransferSubscriptionInput! = {}): Transfer!
 }
 
 type Target {
@@ -387,6 +388,11 @@ type TransferDetails {
 enum TransferDirection {
   In
   Out
+}
+
+input TransferSubscriptionInput {
+  accounts: [Address!]
+  directions: [TransferDirection!]
 }
 
 input TransfersInput {
