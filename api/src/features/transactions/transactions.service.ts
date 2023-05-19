@@ -113,7 +113,7 @@ export class TransactionsService {
       .run(this.db.client);
 
     await this.proposals.publishProposal(
-      { hash: proposal.hash, account: (proposal.account as any).address as Address },
+      { hash: proposal.hash as Hex, account: (proposal.account as any).address as Address },
       ProposalEvent.submitted,
     );
 

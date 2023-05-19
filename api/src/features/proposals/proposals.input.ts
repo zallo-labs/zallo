@@ -25,9 +25,6 @@ export class ProposalsInput {
   statuses?: TransactionProposalStatus[];
 }
 
-export const PROPOSAL_SUBSCRIPTION = 'proposal';
-export const ACCOUNT_PROPOSAL_SUB_TRIGGER = `${PROPOSAL_SUBSCRIPTION}.Account` as const;
-
 export enum ProposalEvent {
   create,
   update,
@@ -39,21 +36,16 @@ export enum ProposalEvent {
 }
 registerEnumType(ProposalEvent, { name: 'ProposalEvent' });
 
-export interface ProposalSubscriptionPayload {
-  [PROPOSAL_SUBSCRIPTION]: { hash: string; account: string };
-  event: ProposalEvent;
-}
-
 @InputType()
 export class ProposalSubscriptionInput {
+  @Field(() => [Bytes32Scalar], { nullable: true })
+  proposals?: Hex[];
+
   @Field(() => [AddressScalar], {
     nullable: true,
     description: 'Defaults to user accounts if no proposals are provided',
   })
   accounts?: Address[];
-
-  @Field(() => [Bytes32Scalar], { nullable: true })
-  proposals?: string[];
 
   @Field(() => [ProposalEvent], { nullable: true, description: 'Defaults to all events' })
   events?: ProposalEvent[];

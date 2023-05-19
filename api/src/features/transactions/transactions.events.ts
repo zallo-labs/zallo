@@ -89,7 +89,7 @@ export class TransactionsEvents implements OnModuleInit {
       throw new Error(`Proposal not found for reverted transaction: ${receipt.transactionHash}`);
 
     await this.proposals.publishProposal(
-      { account: asAddress(receipt.contractAddress), hash: proposalHash },
+      { account: asAddress(receipt.contractAddress), hash: proposalHash as Hex },
       ProposalEvent.executed,
     );
   }
