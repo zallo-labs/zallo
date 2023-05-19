@@ -22,7 +22,6 @@ export const Overlay = ({ onData }: OverlayProps) => {
       <BarcodeMask
         outerMaskOpacity={0.4}
         edgeColor={styles.maskEdge.color}
-        edgeRadius={styles.maskEdge.borderRadius}
         showAnimatedLine={false}
       />
 
@@ -57,7 +56,6 @@ const useStyles = makeStyles(({ colors, roundness }) => ({
   },
   maskEdge: {
     color: colors.primaryContainer,
-    borderRadius: roundness,
   },
   actions: {
     flexDirection: 'row',
