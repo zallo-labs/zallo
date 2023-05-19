@@ -9,16 +9,13 @@ import { estimateTxGas } from './gas';
 import { Policy } from './policy';
 import { Approval } from './approvals';
 
-export interface ExecuteTxOptions {
-  customData?: Overrides & Eip712Meta;
-}
-
 export interface TransactionRequestOptions {
   account: Account;
   tx: Tx;
   policy: Policy;
   approvals: Approval[];
-  opts?: ExecuteTxOptions;
+  customData?: Overrides & Eip712Meta;
+  gasPrice?: bigint;
 }
 
 export const asTransactionRequest = async ({
@@ -26,9 +23,10 @@ export const asTransactionRequest = async ({
   tx,
   policy,
   approvals,
-  opts = {},
+  customData,
+  gasPrice,
 }: TransactionRequestOptions): Promise<TransactionRequest> => {
-  const req: TransactionRequest = {
+  const request: TransactionRequest = {
     to: tx.to,
     value: tx.value,
     data: tx.data,
@@ -37,21 +35,20 @@ export const asTransactionRequest = async ({
     type: EIP712_TX_TYPE,
     chainId: (await provider.getNetwork()).chainId,
     gasLimit: tx.gasLimit,
-    gasPrice: await provider.getGasPrice(),
+    gasPrice: gasPrice ? BigNumber.from(gasPrice) : await provider.getGasPrice(),
     customData: {
       gasPerPubdata: zk.utils.DEFAULT_GAS_PER_PUBDATA_LIMIT,
-      ...opts.customData,
+      ...customData,
       customSignature: encodeAccountSignature(policy, approvals),
     },
   };
 
-  req.gasLimit ||= await estimateTxGas([provider, req], approvals.length);
+  request.gasLimit ||= await estimateTxGas([provider, request], approvals.length);
 
-  return req;
+  return request;
 };
 
-export const executeTx = async (opts: TransactionRequestOptions) => {
-  const req = await asTransactionRequest(opts);
-  const resp = await opts.account.provider.sendTransaction(zk.utils.serialize(req));
-  return resp as TransactionResponse & { gasPrice: BigNumber };
+export const executeTx = async (opts: TransactionRequestOptions): Promise<TransactionResponse> => {
+  const request = await asTransactionRequest(opts);
+  return opts.account.provider.sendTransaction(zk.utils.serialize(request));
 };
