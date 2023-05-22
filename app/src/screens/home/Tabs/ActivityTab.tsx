@@ -27,7 +27,11 @@ export const ActivityTab = withSuspense(
     const { navigate } = useNavigation();
 
     const proposals = useProposals();
-    const inTransfers = useTransfers(useSelectedAccount(), 'In');
+    const inTransfers = useTransfers({
+      accounts: [useSelectedAccount()],
+      direction: 'In',
+      excludeProposalOriginating: true,
+    });
     const data: Item[] = [...proposals, ...inTransfers].sort(compare);
 
     return (

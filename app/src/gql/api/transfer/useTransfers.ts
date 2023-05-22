@@ -4,6 +4,7 @@ import { useSuspenseQuery } from '~/gql/util';
 import {
   TransferDirection,
   TransfersDocument,
+  TransfersInput,
   TransfersQuery,
   TransfersQueryVariables,
 } from '@api/generated';
@@ -26,25 +27,17 @@ export const TRANSFER_FRAGMENT = gql`
 gql`
   ${TRANSFER_FRAGMENT}
 
-  query Transfers($input: TransfersInput!) {
+  query Transfers($input: TransfersInput) {
     transfers(input: $input) {
       ...TransferFragment
     }
   }
 `;
 
-export const useTransfers = (account: Address, direction?: TransferDirection) => {
-  const { data, ...rest } = useSuspenseQuery<TransfersQuery, TransfersQueryVariables>(
-    TransfersDocument,
-    {
-      variables: {
-        input: {
-          accounts: [account],
-          direction,
-        },
-      },
-    },
-  );
+export const useTransfers = (input?: TransfersInput) => {
+  const { data } = useSuspenseQuery<TransfersQuery, TransfersQueryVariables>(TransfersDocument, {
+    variables: { input },
+  });
 
   return useMemo(
     (): Transfer[] =>
