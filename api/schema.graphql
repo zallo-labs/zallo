@@ -398,6 +398,7 @@ input TransferSubscriptionInput {
 input TransfersInput {
   accounts: [Address!]
   direction: TransferDirection
+  excludeProposalOriginating: Boolean
 }
 
 """256-bit unsigned integer"""

@@ -20,13 +20,17 @@ export class TransfersService {
     );
   }
 
-  async select({ accounts, direction }: TransfersInput, shape?: ShapeFunc<typeof e.Transfer>) {
+  async select(
+    { accounts, direction, excludeProposalOriginating }: TransfersInput,
+    shape?: ShapeFunc<typeof e.Transfer>,
+  ) {
     return this.db.query(
       e.select(e.Transfer, (t) => ({
         ...shape?.(t),
         filter: and(
           accounts && e.op(t.account, 'in', e.set(...accounts.map((a) => selectAccount(a)))),
           direction && e.op(t.direction, '=', e.cast(e.TransferDirection, direction)),
+          excludeProposalOriginating && e.op('not', e.op('exists', t.receipt)),
         ),
       })),
     );

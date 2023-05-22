@@ -9,6 +9,8 @@ export class TransfersInput {
   accounts?: Address[];
 
   direction?: TransferDirection;
+
+  excludeProposalOriginating?: boolean;
 }
 
 @InputType()
