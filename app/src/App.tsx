@@ -10,7 +10,6 @@ import { SnackbarProvider } from '~/provider/SnackbarProvider';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { ErrorBoundary } from '~/components/ErrorBoundary/ErrorBoundary';
 import { Splash } from '~/components/Splash';
-import { StatusBar } from 'expo-status-bar';
 import { AuthGate } from '~/provider/AuthGate';
 import { ThemeProvider } from '~/util/theme/ThemeProvider';
 import { AnalyticsUser } from '~/components/AnalyticsUser';
@@ -37,7 +36,6 @@ export default () => (
         <SafeAreaProvider>
           <ThemeProvider>
             <Background>
-              <StatusBar backgroundColor="transparent" />
               <GestureHandlerRootView style={styles.flex}>
                 <RecoilRoot>
                   <ErrorBoundary>
