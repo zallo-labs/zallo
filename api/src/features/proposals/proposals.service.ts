@@ -134,8 +134,8 @@ export class ProposalsService {
       const proposal = selectProposal(hash);
       const user = selectUser(approver);
 
-      // Remove prior rejection (if any)
-      await e.delete(e.Rejection, () => ({ filter_single: { proposal, user } })).run(client);
+      // Remove prior response (if any)
+      await e.delete(e.ProposalResponse, () => ({ filter_single: { proposal, user } })).run(client);
 
       await e
         .insert(e.Approval, {
@@ -156,8 +156,8 @@ export class ProposalsService {
       const proposal = selectProposal(id);
       const user = selectUser(getUser());
 
-      // Delete prior approval (if any)
-      await e.delete(e.Approval, () => ({ filter_single: { proposal, user } })).run(client);
+      // Remove prior response (if any)
+      await e.delete(e.ProposalResponse, () => ({ filter_single: { proposal, user } })).run(client);
 
       await e.insert(e.Rejection, { proposal, user }).run(client);
     });
@@ -187,8 +187,10 @@ export class ProposalsService {
   private async getUnusedNonce(account: Address) {
     const maxNonce = (await this.db.query(
       e.max(
-        selectAccount(account, () => ({ transactionProposals: () => ({ nonce: true }) }))
-          .transactionProposals.nonce,
+        e.select(e.TransactionProposal, (p) => ({
+          filter: e.op(p.account, '=', selectAccount(account)),
+          nonce: true,
+        })).nonce,
       ),
     )) as bigint | undefined; // https://github.com/edgedb/edgedb-js/issues/594
 

@@ -41,13 +41,14 @@ export class TransactionsService {
     private proposals: ProposalsService,
   ) {}
 
-  async tryExecute(id: UniqueProposal) {
-    const policy = await this.firstSatisfiedPolicy(id);
+  async tryExecute(uniqueProposal: UniqueProposal) {
+    const policy = await this.firstSatisfiedPolicy(uniqueProposal);
     if (!policy) return undefined;
 
     const proposal = await this.db.query(
       e.select(e.TransactionProposal, () => ({
-        filter_single: isHex(id) ? { hash: id } : { id },
+        filter_single: isHex(uniqueProposal) ? { hash: uniqueProposal } : { id: uniqueProposal },
+        id: true,
         account: { address: true },
         hash: true,
         to: true,
@@ -61,7 +62,7 @@ export class TransactionsService {
         },
       })),
     );
-    if (!proposal) throw new Error(`Proposal ${id} not found`);
+    if (!proposal) throw new Error(`Proposal ${uniqueProposal} not found`);
 
     const approvals = (
       await mapAsync(proposal.approvals, (a) =>
@@ -78,14 +79,16 @@ export class TransactionsService {
         .map((a) => a.user.address as Address)
         .filter((a) => !approvals.find((approval) => approval.approver === a));
 
+      // TODO: Mark approvals as expired rather than removing
       await e
         .for(e.set(...expiredApprovals.map((approver) => selectUser(approver))), (user) =>
-          e.delete(e.Approval, () => ({ filter_single: { proposal: selectProposal(id), user } })),
+          e.delete(e.Approval, () => ({
+            filter_single: { proposal: selectProposal(proposal.id), user },
+          })),
         )
-        .run(this.db.client);
+        .run(this.db.DANGEROUS_superuserClient);
 
-      // Proposal may still be executable under a different path
-      return this.tryExecute(id);
+      return this.tryExecute(proposal.id);
     }
 
     const gasPrice = (await this.provider.getGasPrice()).toBigInt();
@@ -107,13 +110,13 @@ export class TransactionsService {
     await e
       .insert(e.Transaction, {
         hash: transactionHash,
-        proposal: selectTransactionProposal(id),
+        proposal: selectTransactionProposal(proposal.id),
         gasPrice,
       })
       .run(this.db.client);
 
     await this.proposals.publishProposal(
-      { hash: proposal.hash as Hex, account: (proposal.account as any).address as Address },
+      { hash: proposal.hash as Hex, account: proposal.account.address as Address },
       ProposalEvent.submitted,
     );
 
