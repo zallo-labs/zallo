@@ -19,7 +19,7 @@ const getSelectorDetails = (
     .with(new Set(['*']), () => 'All interactions')
     .when(
       (s) => s.size === 0,
-      () => 'None',
+      () => 'No interactions',
     )
     .otherwise(() => ({ Text }) => (
       <Text>
