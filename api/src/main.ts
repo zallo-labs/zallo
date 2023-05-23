@@ -4,6 +4,7 @@ import { AppModule } from './app.module';
 import { Logger } from '@nestjs/common';
 import { CONFIG, LogLevel } from '~/config';
 import { GQL_ENDPOINT } from './apollo/apollo.module';
+import { enableExceptionHooks } from './process.hooks';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule, {
@@ -12,6 +13,7 @@ async function bootstrap() {
   });
 
   app.enableShutdownHooks(); // Enable shutdown signals
+  enableExceptionHooks();
 
   await app.listen(CONFIG.apiPort);
   Logger.debug(`${await app.getUrl()}${GQL_ENDPOINT}`);
