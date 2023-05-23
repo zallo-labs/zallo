@@ -92,7 +92,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     googleServicesFile: './firebase-google-services.secret.json',
   },
   androidStatusBar: {
-    backgroundColor: 'transparent',
+    backgroundColor: '#00000000', // Transparent
   },
   androidNavigationBar: {
     backgroundColor: '#FFFBFE',
