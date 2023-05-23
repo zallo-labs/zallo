@@ -3,43 +3,45 @@ import { useEffect } from 'react';
 import { event } from '~/util/analytics';
 import { AppState } from 'react-native';
 import { showInfo } from './SnackbarProvider';
+import { showWarning } from './SnackbarProvider';
 
-const update = async () => {
-  try {
-    if (__DEV__) return; // Updates don't work in development mode as bundle is always served from server
-
-    const update = await Updates.checkForUpdateAsync();
-
-    if (update.isAvailable) {
-      await Updates.fetchUpdateAsync();
-
-      showInfo('Update available', {
-        visibilityTime: 10000,
-        action: {
-          label: 'Apply',
-          onPress: () => {
-            Updates.reloadAsync();
-          },
-        },
-      });
-    }
-  } catch (error) {
-    event({ level: 'error', message: 'Error encountered during update', error });
-  }
+const onError = (error: unknown) => {
+  showWarning('Failed to download update. You may experience issues.');
+  event({ level: 'error', message: 'Error encountered during update', error });
 };
 
 export const UpdateProvider = () => {
   useEffect(() => {
-    // On app start
-    update();
+    if (__DEV__) return; // Updates don't work in development mode as bundle is always served from server
+
+    const onStartUpdateListener = Updates.addListener((e) => {
+      if (e.type === Updates.UpdateEventType.UPDATE_AVAILABLE) {
+        // Update without prompting user
+        Updates.reloadAsync();
+      } else if (e.type === Updates.UpdateEventType.ERROR) {
+        onError(new Error(e.message));
+      }
+    });
 
     // On app foreground
-    const listener = AppState.addEventListener('change', (newState) => {
-      if (newState === 'active') update();
+    const appStateListener = AppState.addEventListener('change', async (newState) => {
+      if (newState === 'active') {
+        try {
+          const update = await Updates.checkForUpdateAsync();
+          if (update.isAvailable) {
+            showInfo('Updating...', { autoHide: false });
+            await Updates.fetchUpdateAsync();
+            await Updates.reloadAsync();
+          }
+        } catch (error) {
+          onError(error);
+        }
+      }
     });
 
     return () => {
-      listener.remove();
+      onStartUpdateListener.remove();
+      appStateListener.remove();
     };
   }, []);
 
