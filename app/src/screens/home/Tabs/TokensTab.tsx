@@ -1,4 +1,4 @@
-import { useTokensByValue } from '@token/useTokensByValue';
+import { useTokensWithBalanceByValue } from '@token/useTokensWithBalanceByValue';
 import { useSelectedAccount } from '~/components/AccountSelector/useSelectedAccount';
 import { FlashList } from '@shopify/flash-list';
 import { ListItemHeight } from '~/components/list/ListItem';
@@ -13,7 +13,7 @@ export type TokensTabProps = TabNavigatorScreenProp<'Tokens'>;
 export const TokensTab = withSuspense(
   (_props: TokensTabProps) => {
     const account = useSelectedAccount();
-    const tokens = useTokensByValue(account);
+    const tokens = useTokensWithBalanceByValue(account);
 
     return (
       <FlashList
