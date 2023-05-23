@@ -55,7 +55,6 @@ export default () => (
                                 <HideSplash />
                                 <Subscriptions />
                                 <NotificationsRegistrar />
-                                <UpdateProvider />
                               </Suspense>
                             </ErrorBoundary>
                           </NavigationProvider>
@@ -67,6 +66,7 @@ export default () => (
               </GestureHandlerRootView>
             </Background>
             <SnackbarProvider />
+            <UpdateProvider />
           </ThemeProvider>
         </SafeAreaProvider>
       </LocalizatonProvider>
