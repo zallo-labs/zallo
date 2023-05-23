@@ -4,7 +4,7 @@ import { Timestamp } from '~/components/format/Timestamp';
 import { ListItem } from '~/components/list/ListItem';
 import { ListItemSkeleton } from '~/components/list/ListItemSkeleton';
 import { withSuspense } from '~/components/skeleton/withSuspense';
-import { Transfer } from '@api/account';
+import { Transfer } from '@api/transfer';
 import { useTransfersValue } from '~/components/call/useTransfersValue';
 import { FiatValue } from '~/components/fiat/FiatValue';
 

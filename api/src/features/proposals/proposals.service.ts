@@ -17,15 +17,7 @@ import {
 import { ProviderService } from '~/features/util/provider/provider.service';
 import { PubsubService } from '~/features/util/pubsub/pubsub.service';
 import { TransactionsService } from '../transactions/transactions.service';
-import {
-  ACCOUNT_PROPOSAL_SUB_TRIGGER,
-  ApproveInput,
-  ProposalEvent,
-  ProposalsInput,
-  ProposalSubscriptionPayload,
-  PROPOSAL_SUBSCRIPTION,
-  ProposeInput,
-} from './proposals.input';
+import { ApproveInput, ProposalEvent, ProposalsInput, ProposeInput } from './proposals.input';
 import { getUser } from '~/request/ctx';
 import { ExpoService } from '../util/expo/expo.service';
 import { SatisfiablePolicy } from './proposals.model';
@@ -43,16 +35,24 @@ const ERC20 = Erc20__factory.createInterface();
 const ERC20_TRANSFER = ERC20.functions['transfer(address,uint256)'];
 const ERC20_TRANSFER_SELECTOR = asSelector(ERC20.getSighash(ERC20_TRANSFER));
 
+export const getProposalTrigger = (hash: Hex) => `proposal.${hash}`;
+export const getProposalAccountTrigger = (account: Address) => `proposal.account.${account}`;
+export interface ProposalSubscriptionPayload {
+  hash: Hex;
+  account: Address;
+  event: ProposalEvent;
+}
+
 export type UniqueProposal = uuid | Hex;
 
-export const selectProposal = (id: uuid | Hex, shape?: ShapeFunc<typeof e.Proposal>) =>
+export const selectProposal = (id: UniqueProposal, shape?: ShapeFunc<typeof e.Proposal>) =>
   e.select(e.Proposal, (p) => ({
     ...shape?.(p),
     filter_single: isHex(id) ? { hash: id } : { id },
   }));
 
 export const selectTransactionProposal = (
-  id: uuid | Hex,
+  id: UniqueProposal,
   shape?: ShapeFunc<typeof e.TransactionProposal>,
 ) =>
   e.select(e.TransactionProposal, (p) => ({
@@ -134,8 +134,8 @@ export class ProposalsService {
       const proposal = selectProposal(hash);
       const user = selectUser(approver);
 
-      // Remove prior rejection (if any)
-      await e.delete(e.Rejection, () => ({ filter_single: { proposal, user } })).run(client);
+      // Remove prior response (if any)
+      await e.delete(e.ProposalResponse, () => ({ filter_single: { proposal, user } })).run(client);
 
       await e
         .insert(e.Approval, {
@@ -156,8 +156,8 @@ export class ProposalsService {
       const proposal = selectProposal(id);
       const user = selectUser(getUser());
 
-      // Delete prior approval (if any)
-      await e.delete(e.Approval, () => ({ filter_single: { proposal, user } })).run(client);
+      // Remove prior response (if any)
+      await e.delete(e.ProposalResponse, () => ({ filter_single: { proposal, user } })).run(client);
 
       await e.insert(e.Rejection, { proposal, user }).run(client);
     });
@@ -187,8 +187,10 @@ export class ProposalsService {
   private async getUnusedNonce(account: Address) {
     const maxNonce = (await this.db.query(
       e.max(
-        selectAccount(account, () => ({ transactionProposals: () => ({ nonce: true }) }))
-          .transactionProposals.nonce,
+        e.select(e.TransactionProposal, (p) => ({
+          filter: e.op(p.account, '=', selectAccount(account)),
+          nonce: true,
+        })).nonce,
       ),
     )) as bigint | undefined; // https://github.com/edgedb/edgedb-js/issues/594
 
@@ -238,37 +240,31 @@ export class ProposalsService {
   }
 
   async publishProposal(
-    proposal: ProposalSubscriptionPayload['proposal'] | UniqueProposal,
+    proposal: Pick<ProposalSubscriptionPayload, 'hash' | 'account'> | UniqueProposal,
     event: ProposalSubscriptionPayload['event'],
   ) {
-    const payload: ProposalSubscriptionPayload = {
-      [PROPOSAL_SUBSCRIPTION]:
-        typeof proposal === 'string'
-          ? await (async () => {
-              const p = await this.db.query(
-                e.assert_exists(
-                  selectProposal(proposal, () => ({
-                    hash: true,
-                    account: { address: true },
-                  })),
-                ),
-              );
+    const { hash, account } =
+      typeof proposal === 'string'
+        ? await (async () => {
+            const p = await this.db.query(
+              e.assert_exists(
+                e.select(e.Proposal, () => ({
+                  filter_single: isHex(proposal) ? { hash: proposal } : { id: proposal },
+                  hash: true,
+                  account: { address: true },
+                })),
+              ),
+            );
 
-              return { hash: p.hash, account: (p.account as any).address };
-            })()
-          : proposal,
-      event,
-    };
+            return { hash: p.hash as Hex, account: p.account.address as Address };
+          })()
+        : proposal;
+
+    const payload: ProposalSubscriptionPayload = { hash, account, event };
 
     await Promise.all([
-      this.pubsub.publish<ProposalSubscriptionPayload>(
-        `${PROPOSAL_SUBSCRIPTION}.${payload[PROPOSAL_SUBSCRIPTION].hash}`,
-        payload,
-      ),
-      this.pubsub.publish<ProposalSubscriptionPayload>(
-        `${ACCOUNT_PROPOSAL_SUB_TRIGGER}.${payload[PROPOSAL_SUBSCRIPTION].account}`,
-        payload,
-      ),
+      this.pubsub.publish<ProposalSubscriptionPayload>(getProposalTrigger(hash), payload),
+      this.pubsub.publish<ProposalSubscriptionPayload>(getProposalAccountTrigger(account), payload),
     ]);
   }
 

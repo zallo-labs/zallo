@@ -1,6 +1,8 @@
 import { View } from 'react-native';
 import { ReactNode } from 'react';
 import { makeStyles } from '@theme/makeStyles';
+import { StatusBar } from 'expo-status-bar';
+import { NavigationBar } from '../NavigationBar/NavigationBar';
 
 export interface BackgroundProps {
   children: ReactNode;
@@ -9,7 +11,15 @@ export interface BackgroundProps {
 export const Background = ({ children }: BackgroundProps) => {
   const styles = useStyles();
 
-  return <View style={styles.background}>{children}</View>;
+  return (
+    <View style={styles.background}>
+      <>
+        <StatusBar backgroundColor="transparent" />
+        <NavigationBar />
+        {children}
+      </>
+    </View>
+  );
 };
 
 const useStyles = makeStyles(({ colors }) => ({

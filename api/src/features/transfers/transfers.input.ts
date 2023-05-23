@@ -9,4 +9,14 @@ export class TransfersInput {
   accounts?: Address[];
 
   direction?: TransferDirection;
+
+  excludeProposalOriginating?: boolean;
+}
+
+@InputType()
+export class TransferSubscriptionInput {
+  @Field(() => [AddressScalar], { nullable: true })
+  accounts?: Address[];
+
+  directions?: TransferDirection[];
 }

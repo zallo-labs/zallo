@@ -1,9 +1,10 @@
 import { gql } from '@apollo/client';
 import { Transfer } from './types';
-import { usePollWhenFocussed, useSuspenseQuery } from '~/gql/util';
+import { useSuspenseQuery } from '~/gql/util';
 import {
   TransferDirection,
   TransfersDocument,
+  TransfersInput,
   TransfersQuery,
   TransfersQueryVariables,
 } from '@api/generated';
@@ -11,33 +12,32 @@ import { Address, asBigInt } from 'lib';
 import { useMemo } from 'react';
 import { DateTime } from 'luxon';
 
+export const TRANSFER_FRAGMENT = gql`
+  fragment TransferFragment on Transfer {
+    id
+    direction
+    from
+    to
+    token
+    amount
+    timestamp
+  }
+`;
+
 gql`
-  query Transfers($input: TransfersInput!) {
+  ${TRANSFER_FRAGMENT}
+
+  query Transfers($input: TransfersInput) {
     transfers(input: $input) {
-      id
-      direction
-      from
-      to
-      token
-      amount
-      timestamp
+      ...TransferFragment
     }
   }
 `;
 
-export const useTransfers = (account: Address, direction?: TransferDirection) => {
-  const { data, ...rest } = useSuspenseQuery<TransfersQuery, TransfersQueryVariables>(
-    TransfersDocument,
-    {
-      variables: {
-        input: {
-          accounts: [account],
-          direction,
-        },
-      },
-    },
-  );
-  usePollWhenFocussed(rest, 10);
+export const useTransfers = (input?: TransfersInput) => {
+  const { data } = useSuspenseQuery<TransfersQuery, TransfersQueryVariables>(TransfersDocument, {
+    variables: { input },
+  });
 
   return useMemo(
     (): Transfer[] =>

@@ -5,7 +5,7 @@ import { tokensSelector } from './useToken';
 import { tokenBalanceAtom } from './useTokenBalance';
 import { tokenValueSelector } from './useTokenValue';
 
-const tokensByValueSelector = selectorFamily<Token[], Address | null>({
+const tokensWithBalanceByValueSelector = selectorFamily<Token[], Address | null>({
   key: 'TokensByValue',
   get:
     (account) =>
@@ -16,10 +16,11 @@ const tokensByValueSelector = selectorFamily<Token[], Address | null>({
 
           return { token, value: get(tokenValueSelector([token.address, balance.toString()])) };
         })
+        .filter(({ value }) => value)
         .sort((a, b) => b.value - a.value)
         .map(({ token }) => token);
     },
 });
 
-export const useTokensByValue = (addr: Address | undefined) =>
-  useRecoilValue(tokensByValueSelector(addr ?? null));
+export const useTokensWithBalanceByValue = (address: Address | undefined) =>
+  useRecoilValue(tokensWithBalanceByValueSelector(address ?? null));

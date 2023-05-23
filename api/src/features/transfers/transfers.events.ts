@@ -1,5 +1,5 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { Address, Erc20__factory, asAddress, asBigInt, tryOrIgnore } from 'lib';
+import { Address, Erc20__factory, asAddress, asBigInt, toArray, tryOrIgnore } from 'lib';
 import {
   TransactionEventData,
   TransactionsProcessor,
@@ -10,11 +10,20 @@ import e from '~/edgeql-js';
 import { selectAccount } from '../accounts/accounts.util';
 import { TransferDirection } from './transfers.model';
 import { ProviderService } from '../util/provider/provider.service';
-import { ETH_ADDRESS, isETH } from 'zksync-web3/build/src/utils';
+import { ETH_ADDRESS } from 'zksync-web3/build/src/utils';
 import { L2_ETH_TOKEN_ADDRESS } from 'zksync-web3/build/src/utils';
+import { uuid } from 'edgedb/dist/codecs/ifaces';
+import { PubsubService } from '../util/pubsub/pubsub.service';
 
 const ERC20 = Erc20__factory.createInterface();
 const altEthAddress = asAddress(L2_ETH_TOKEN_ADDRESS);
+
+export const getTransferTrigger = (account: Address) => `transfer.account.${account}`;
+export interface TransferSubscriptionPayload {
+  transfer: uuid;
+  account: Address;
+  direction: TransferDirection;
+}
 
 @Injectable()
 export class TransfersEvents {
@@ -23,6 +32,7 @@ export class TransfersEvents {
     private eventsProcessor: EventsProcessor,
     private transactionsProcessor: TransactionsProcessor,
     private provider: ProviderService,
+    private pubsub: PubsubService,
   ) {
     this.eventsProcessor.on(
       ERC20.getEventTopic(ERC20.events['Transfer(address,address,uint256)']),
@@ -56,7 +66,7 @@ export class TransfersEvents {
       let token = asAddress(log.address);
       if (token === altEthAddress) token = ETH_ADDRESS as Address; // Normalize ETH address
 
-      await this.db.query(
+      const transfers: { id: uuid } | { id: uuid }[] = await this.db.query(
         e.set(
           ...accounts.map((a) =>
             e.insert(e.Transfer, {
@@ -80,6 +90,18 @@ export class TransfersEvents {
             }),
           ),
         ),
+      );
+
+      await Promise.all(
+        toArray(transfers).map(async (transfer, index) => {
+          const account = accounts[index] as Address;
+
+          await this.pubsub.publish<TransferSubscriptionPayload>(getTransferTrigger(account), {
+            transfer: transfer.id,
+            account,
+            direction: account === from ? TransferDirection.Out : TransferDirection.In,
+          });
+        }),
       );
     }
   }

@@ -75,18 +75,16 @@ describe(ProposalsService.name, () => {
       getUserCtx().accounts.push(accountId);
 
       await e
-        .insert(e.Device, { address: getUser() })
-        .unlessConflict((d) => ({ on: d.address }))
-        .run(db.client);
-
-      await e
         .insert(e.Policy, {
           account: selectAccount(accountId),
           key: 0,
           name: 'Policy 0',
           stateHistory: e.insert(e.PolicyState, {
             threshold: 0,
-            approvers: selectUser(getUser()),
+            approvers: e.insert(e.User, { address: getUser() }).unlessConflict((user) => ({
+              on: user.address,
+              else: user,
+            })),
             activationBlock: 0n,
           }),
         })

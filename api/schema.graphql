@@ -306,6 +306,7 @@ type Simulation {
 type Subscription {
   account(input: AccountSubscriptionInput! = {}): Account!
   proposal(input: ProposalSubscriptionInput! = {}): TransactionProposal!
+  transfer(input: TransferSubscriptionInput! = {}): Transfer!
 }
 
 type Target {
@@ -389,9 +390,15 @@ enum TransferDirection {
   Out
 }
 
+input TransferSubscriptionInput {
+  accounts: [Address!]
+  directions: [TransferDirection!]
+}
+
 input TransfersInput {
   accounts: [Address!]
   direction: TransferDirection
+  excludeProposalOriginating: Boolean
 }
 
 """256-bit unsigned integer"""

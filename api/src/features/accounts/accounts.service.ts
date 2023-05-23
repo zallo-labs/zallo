@@ -3,13 +3,7 @@ import { DatabaseService } from '../database/database.service';
 import e from '~/edgeql-js';
 import { Address, DeploySalt, Policy, asHex, asPolicyKey, randomDeploySalt } from 'lib';
 import { ShapeFunc } from '../database/database.select';
-import {
-  ACCOUNT_SUBSCRIPTION,
-  AccountEvent,
-  CreateAccountInput,
-  UpdateAccountInput,
-  USER_ACCOUNT_SUBSCRIPTION,
-} from './accounts.input';
+import { AccountEvent, CreateAccountInput, UpdateAccountInput } from './accounts.input';
 import { getUser } from '~/request/ctx';
 import { UserInputError } from 'apollo-server-core';
 import { CONFIG } from '~/config';
@@ -26,8 +20,10 @@ import { selectAccount } from './accounts.util';
 import { UserAccountsService } from '../auth/userAccounts.service';
 import { v1 as uuid1 } from 'uuid';
 
+export const getAccountTrigger = (address: Address) => `account.${address}`;
+export const getAccountUserTrigger = (user: Address) => `account.user.${user}`;
 export interface AccountSubscriptionPayload {
-  [ACCOUNT_SUBSCRIPTION]: Address;
+  account: Address;
   event: AccountEvent;
 }
 
@@ -176,13 +172,10 @@ export class AccountsService {
       .run(this.db.DANGEROUS_superuserClient);
 
     await Promise.all([
-      this.pubsub.publish<AccountSubscriptionPayload>(
-        `${ACCOUNT_SUBSCRIPTION}.${account}`,
-        payload,
-      ),
+      this.pubsub.publish<AccountSubscriptionPayload>(getAccountTrigger(account), payload),
       ...[...users].map((user) =>
         this.pubsub.publish<AccountSubscriptionPayload>(
-          `${USER_ACCOUNT_SUBSCRIPTION}.${user}`,
+          getAccountUserTrigger(user as Address),
           payload,
         ),
       ),

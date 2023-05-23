@@ -11,14 +11,15 @@ type TokenValueParam = [token: Address | undefined, amount: string | undefined];
 export const tokenValueSelector = selectorFamily<number, TokenValueParam>({
   key: 'tokenValue',
   get:
-    ([token, amount]) =>
+    ([token, amountParam]) =>
     ({ get }) => {
-      if (!token || !amount) return 0;
+      const amount = BigInt(amountParam || 0n);
+      if (!token || amount === 0n) return 0;
 
       const { decimals } = get(tokenAtom(token));
       const price = get(tokenPriceDataAtom(token));
 
-      return parseFloat(formatUnits(BigInt(amount) * price.current, decimals + FIAT_DECIMALS));
+      return parseFloat(formatUnits(amount * price.current, decimals + FIAT_DECIMALS));
     },
 });
 

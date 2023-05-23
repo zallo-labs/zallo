@@ -15,18 +15,20 @@ import {
   ProposalInput,
   ProposalsInput,
   ProposalSubscriptionInput,
-  ProposalSubscriptionPayload,
-  PROPOSAL_SUBSCRIPTION,
-  ACCOUNT_PROPOSAL_SUB_TRIGGER,
 } from './proposals.input';
 import { PubsubService } from '~/features/util/pubsub/pubsub.service';
 import { GqlContext, asUser, getUserCtx } from '~/request/ctx';
 import { TransactionProposal, SatisfiablePolicy } from './proposals.model';
-import { ProposalsService } from './proposals.service';
+import {
+  ProposalSubscriptionPayload,
+  ProposalsService,
+  getProposalAccountTrigger,
+  getProposalTrigger,
+} from './proposals.service';
 import { getShape } from '../database/database.select';
 import { ComputedField } from '~/decorators/computed.decorator';
 import e from '~/edgeql-js';
-import { Input } from '~/decorators/input.decorator';
+import { Input, InputArgs } from '~/decorators/input.decorator';
 import { DatabaseService } from '../database/database.service';
 import { Address } from 'lib';
 import { uuid } from 'edgedb/dist/codecs/ifaces';
@@ -58,25 +60,23 @@ export class ProposalsResolver {
   }
 
   @Subscription(() => TransactionProposal, {
-    name: PROPOSAL_SUBSCRIPTION,
-    filter: ({ event }: ProposalSubscriptionPayload, { events }: ProposalSubscriptionInput) => {
-      return !events || events.includes(event);
-    },
+    name: 'proposal',
+    filter: (
+      { event }: ProposalSubscriptionPayload,
+      { input: { events } }: InputArgs<ProposalSubscriptionInput>,
+    ) => !events || events.includes(event),
     resolve(
       this: ProposalsResolver,
-      { proposal }: ProposalSubscriptionPayload,
+      { hash }: ProposalSubscriptionPayload,
       _input,
       ctx: GqlContext,
       info: GraphQLResolveInfo,
     ) {
-      return asUser(
-        ctx,
-        async () => await this.service.selectUnique(proposal.hash, getShape(info)),
-      );
+      return asUser(ctx, () => this.service.selectUnique(hash, getShape(info)));
     },
   })
-  async proposalSubscription(
-    @Input({ defaultValue: {} }) { accounts, proposals }: ProposalSubscriptionInput,
+  async subscribeToProposals(
+    @Input({ defaultValue: {} }) { proposals, accounts }: ProposalSubscriptionInput,
     @Context() ctx: GqlContext,
   ) {
     return asUser(ctx, async () => {
@@ -90,8 +90,8 @@ export class ProposalsResolver {
       }
 
       return this.pubsub.asyncIterator([
-        ...[...(accounts ?? [])].map((account) => `${ACCOUNT_PROPOSAL_SUB_TRIGGER}.${account}`),
-        ...[...(proposals ?? [])].map((proposal) => `${PROPOSAL_SUBSCRIPTION}.${proposal}`),
+        ...[...(proposals ?? [])].map(getProposalTrigger),
+        ...[...(accounts ?? [])].map(getProposalAccountTrigger),
       ]);
     });
   }

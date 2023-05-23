@@ -16,10 +16,10 @@ const getSelectorDetails = (
   selectors: Set<Selector | '*'>,
 ): ListItemProps['supporting'] =>
   match(selectors)
-    .with(new Set(['*']), () => 'All')
+    .with(new Set(['*']), () => 'All interactions')
     .when(
       (s) => s.size === 0,
-      () => 'None',
+      () => 'No interactions',
     )
     .otherwise(() => ({ Text }) => (
       <Text>

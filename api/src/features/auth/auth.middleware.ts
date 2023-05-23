@@ -20,8 +20,8 @@ const tryParseAuth = (token?: string): AuthToken | string | undefined => {
   if (typeof token !== 'string') return undefined;
 
   try {
-    const { message, ...rest }: AuthToken = JSON.parse(token);
-    return { message: new SiweMessage(message), ...rest };
+    const { message, signature }: AuthToken = JSON.parse(token);
+    return { message: new SiweMessage(message), signature };
   } catch {
     if (SIGNATURE_PATTERN.test(token)) return token;
   }

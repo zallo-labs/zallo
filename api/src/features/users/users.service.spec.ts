@@ -34,7 +34,7 @@ describe(UsersService.name, () => {
   describe('upsert', () => {
     it("create a user that doesn't exist", async () =>
       asUser(user1, async () => {
-        const { id } = (await upsert())!;
+        const { id } = await upsert();
 
         const userQuery = e.select(e.User, () => ({ filter_single: { id } }));
         expect((await userQuery.run(db.client))?.id).toEqual(id);
@@ -42,7 +42,7 @@ describe(UsersService.name, () => {
 
     it('update an existing user', async () =>
       asUser(user1, async () => {
-        const { id } = (await upsert())!;
+        const { id } = await upsert();
         const name = 'new name';
         await upsert({ name });
 
@@ -62,7 +62,7 @@ describe(UsersService.name, () => {
   describe('selectUnique', () => {
     it('returns the user', async () =>
       asUser(user1, async () => {
-        const { id } = (await upsert())!;
+        const { id } = await upsert();
         expect((await service.selectUnique(user1.address)).id).toEqual(id);
       }));
 

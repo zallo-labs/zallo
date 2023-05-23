@@ -2,7 +2,8 @@ import { Address, Hex, Tx, KeySet, asHex, asAddress, asBigInt, asPolicyKey, Poli
 import { DateTime } from 'luxon';
 import { match } from 'ts-pattern';
 import { TransactionProposalFieldsFragment } from '@api/generated';
-import { Transfer, asAccountId } from '@api/account/types';
+import { asAccountId } from '@api/account/types';
+import { Transfer } from '@api/transfer/types';
 
 export type ProposalId = Hex & { isProposalId: true };
 export const asProposalId = (id: string) => asHex(id) as ProposalId;
@@ -164,7 +165,9 @@ export const toProposal = (p: TransactionProposalFieldsFragment): Proposal => {
     approvals,
     rejections,
     satisfiablePolicies,
-    requiresUserAction: satisfiablePolicies.some((p) => p.requiresUserAction),
+    requiresUserAction:
+      !satisfiablePolicies.some((p) => p.satisfied) &&
+      satisfiablePolicies.some((p) => p.requiresUserAction),
     simulation,
     transaction,
     proposedBy: p.proposedBy.address,

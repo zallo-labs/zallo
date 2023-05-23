@@ -51,7 +51,7 @@ describe(PoliciesService.name, () => {
       if (userCtx.address === p.user && accountId === p.account) userCtx.accounts.push(accountId);
     });
 
-    await e.insert(e.Device, { address: userCtx.address }).unlessConflict().run(db.client);
+    await e.insert(e.User, { address: userCtx.address }).unlessConflict().run(db.client);
 
     proposals.propose.mockImplementation(
       async () =>

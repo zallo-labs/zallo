@@ -5,3 +5,7 @@ export const Input =
   (target, propertyKey, parameterIndex) => {
     Args('input', opts)(target, propertyKey, parameterIndex);
   };
+
+export interface InputArgs<Input> {
+  input: Input;
+}

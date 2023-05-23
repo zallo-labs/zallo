@@ -29,9 +29,7 @@ describe(ContactsService.name, () => {
     user1 = randomUser();
     user1Contact = randomAddress();
 
-    await asUser(user1, () =>
-      db.query(e.insert(e.Device, { address: getUser() }).unlessConflict()),
-    );
+    await asUser(user1, () => db.query(e.insert(e.User, { address: getUser() }).unlessConflict()));
   });
 
   const upsertContact = (address: Address = randomAddress(), name = `${address} contact`) => {
