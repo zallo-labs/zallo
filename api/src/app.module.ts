@@ -21,7 +21,6 @@ import { PoliciesModule } from './features/policies/policies.module';
 import { ContractsModule } from './features/contracts/contracts.module';
 import { ExplorerModule } from './features/explorer/explorer.module';
 import { TransfersModule } from './features/transfers/transfers.module';
-import { ExceptionsFilter } from './execptions.filter';
 import { EventsModule } from './features/events/events.module';
 import { RedisModule } from './features/util/redis/redis.module';
 
@@ -60,9 +59,6 @@ import { RedisModule } from './features/util/redis/redis.module';
     UsersModule,
     ExpoModule,
   ],
-  providers: [
-    { provide: APP_FILTER, useClass: ExceptionsFilter },
-    { provide: APP_GUARD, useClass: AuthGuard },
-  ],
+  providers: [{ provide: APP_GUARD, useClass: AuthGuard }],
 })
 export class AppModule {}
