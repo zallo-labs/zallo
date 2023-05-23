@@ -15,11 +15,12 @@ import { withSuspense } from '~/components/skeleton/withSuspense';
 import { TabScreenSkeleton } from '~/components/tab/TabScreenSkeleton';
 
 const getApprovalsAwaiting = (proposal: Proposal, policy?: WPolicy) => {
-  const requiredApproval = policy?.state?.approvers ?? new Set();
+  const state = policy?.state;
+  const approvals = [...proposal.approvals].filter((a) => state?.approvers.has(a.user));
 
-  return [...requiredApproval].filter(
-    (a) => !proposal.approvals.has(a) && !proposal.rejections.has(a),
-  );
+  return state && approvals.length < state.threshold
+    ? [...state.approvers].filter((a) => !proposal.approvals.has(a) && !proposal.rejections.has(a))
+    : [];
 };
 
 export interface PolicyTabParams {
