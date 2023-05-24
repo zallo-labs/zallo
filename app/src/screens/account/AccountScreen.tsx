@@ -1,7 +1,7 @@
 import { useAccount } from '@api/account';
 import { FlashList } from '@shopify/flash-list';
 import { EditIcon, NavigateNextIcon, PlusIcon } from '@theme/icons';
-import { Address } from 'lib';
+import { Address, PolicyKey } from 'lib';
 import { StyleSheet, View } from 'react-native';
 import { Menu } from 'react-native-paper';
 import { match } from 'ts-pattern';
@@ -15,6 +15,10 @@ import { PolicyIcon } from '~/components/policy/PolicyIcon';
 import { ScreenSkeleton } from '~/components/skeleton/ScreenSkeleton';
 import { withSuspense } from '~/components/skeleton/withSuspense';
 import { StackNavigatorScreenProps } from '~/navigation/StackNavigator';
+import { EventEmitter } from '~/util/EventEmitter';
+
+const POLICY_EMITTER = new EventEmitter<{ account: Address; key: PolicyKey }>('Account::Policy');
+export const useSelectPolicy = POLICY_EMITTER.createUseSelect('Account');
 
 export interface AccountScreenParams {
   account: Address;
@@ -61,9 +65,10 @@ export const AccountScreen = withSuspense(
                   .with(1, () => '1 approver')
                   .otherwise((approvers) => `${approvers} approvers`)}
                 trailing={NavigateNextIcon}
-                onPress={() =>
-                  navigate('Policy', { account: policy.account, key: policy.key.toString() })
-                }
+                onPress={() => {
+                  if (!POLICY_EMITTER.emit({ account: policy.account, key: policy.key }))
+                    navigate('Policy', { account: policy.account, key: policy.key });
+                }}
               />
             )}
             estimatedItemSize={ListItemHeight.DOUBLE_LINE}
