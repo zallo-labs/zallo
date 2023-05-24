@@ -127,10 +127,11 @@ export class EventsProcessor implements OnModuleInit {
       )
       .run(this.db.client)) as bigint | null; // Return type is overly broad - https://github.com/edgedb/edgedb-js/issues/594
 
-    this.queue.add({
-      from: lastProcessedBlock
-        ? parseInt(lastProcessedBlock.toString()) + 1 // Warning: bigint -> number
-        : await this.provider.getBlockNumber(),
-    });
+    const from = lastProcessedBlock
+      ? parseInt(lastProcessedBlock.toString()) + 1 // Warning: bigint -> number
+      : await this.provider.getBlockNumber();
+    Logger.log(`Events starting from block ${from}`);
+
+    this.queue.add({ from });
   }
 }
