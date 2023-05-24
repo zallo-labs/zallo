@@ -2,7 +2,7 @@ import { makeStyles } from '@theme/makeStyles';
 import { useState } from 'react';
 import { Chip, ChipProps, Menu, MenuProps } from 'react-native-paper';
 
-export type SelectFieldProps<T> = Pick<MenuProps, 'style' | 'contentStyle'> & {
+export type SelectChipProps<T> = Pick<MenuProps, 'style' | 'contentStyle'> & {
   value: T;
   onChange: (value: T) => void;
   entries: readonly (readonly [string, T])[];
@@ -10,13 +10,13 @@ export type SelectFieldProps<T> = Pick<MenuProps, 'style' | 'contentStyle'> & {
   chipProps?: Partial<Omit<ChipProps, 'children' | 'onPress'>>;
 };
 
-export const SelectField = <T,>({
+export const SelectChip = <T,>({
   value,
   onChange,
   entries,
   menuProps,
   chipProps,
-}: SelectFieldProps<T>) => {
+}: SelectChipProps<T>) => {
   const styles = useStyles();
 
   const [visible, setVisible] = useState(false);
@@ -30,7 +30,7 @@ export const SelectField = <T,>({
       visible={visible}
       onDismiss={close}
       anchor={
-        <Chip {...chipProps} onPress={toggle}>
+        <Chip {...(chipProps?.closeIcon && { onClose: () => {} })} {...chipProps} onPress={toggle}>
           {label}
         </Chip>
       }
