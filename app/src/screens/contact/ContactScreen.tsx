@@ -17,7 +17,7 @@ import { StackNavigatorScreenProps } from '~/navigation/StackNavigator';
 import { useConfirmRemoval } from '../alert/useConfirm';
 import { UserOutlineIcon } from '~/util/theme/icons';
 import { ICON_SIZE } from '@theme/paper';
-import { SelectField } from '~/components/fields/SelectField';
+import { SelectChip } from '~/components/fields/SelectChip';
 import { CHAIN, SUPPORTED_CHAINS } from '@network/provider';
 import { Unimplemented } from '~/util/error/unimplemented';
 import { FormResetIcon } from '~/components/fields/ResetFormIcon';
@@ -124,7 +124,7 @@ export const ContactScreen = withSuspense(
           </View>
 
           <View style={[styles.fieldContainer, styles.networkFieldContainer]}>
-            <SelectField
+            <SelectChip
               value={CHAIN.name}
               entries={[
                 ...Object.values(SUPPORTED_CHAINS).map(
