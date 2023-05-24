@@ -22,6 +22,7 @@ export const Approvers = (props: ApproversProps) => {
     const approver = await selectContact({ disabled: new Set([...approvers, account]) });
     updateDraft((draft) => {
       draft.approvers.add(approver.address);
+      draft.threshold++;
     });
   };
 
