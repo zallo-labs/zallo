@@ -21,12 +21,12 @@ import { ethers } from 'ethers';
 
 @Injectable()
 export class ProviderService extends zk.Provider {
+  public chain: Chain;
+
+  private websocketProvider: ethers.providers.WebSocketProvider;
   private wallet: zk.Wallet;
   private walletMutex = new Mutex(); // TODO: replace with distributed mutex - https://linear.app/zallo/issue/ZAL-91
   private proxyFactory: Factory;
-
-  public chain: Chain;
-  public readonly ws: ethers.providers.WebSocketProvider;
 
   constructor() {
     super(CONFIG.chain.rpc);
@@ -39,11 +39,14 @@ export class ProviderService extends zk.Provider {
     ).connect(this);
 
     this.proxyFactory = Factory__factory.connect(CONFIG.proxyFactoryAddress, this.wallet);
-    this.ws = new ethers.providers.WebSocketProvider(CONFIG.chain.ws);
   }
 
   get walletAddress(): Address {
     return this.wallet.address;
+  }
+
+  get websocket(): ethers.providers.WebSocketProvider {
+    return (this.websocketProvider ??= new ethers.providers.WebSocketProvider(CONFIG.chain.ws));
   }
 
   useWallet<R>(f: (wallet: zk.Wallet) => R): Promise<R> {

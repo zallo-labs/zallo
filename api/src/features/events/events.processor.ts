@@ -66,7 +66,7 @@ export class EventsProcessor implements OnModuleInit {
   @Process()
   async process(job: Job<EventJobData>) {
     const latest = await tryOrCatchAsync(
-      () => this.provider.ws.getBlockNumber(),
+      () => this.provider.getBlockNumber(),
       async (e) => {
         if (job.data.queueNext !== false) {
           // Next job hasn't been queued yet, queue it next attempt
@@ -146,7 +146,7 @@ export class EventsProcessor implements OnModuleInit {
 
     const from = lastProcessedBlock
       ? parseInt(lastProcessedBlock.toString()) + 1 // Warning: bigint -> number
-      : await this.provider.ws.getBlockNumber();
+      : await this.provider.getBlockNumber();
     Logger.log(`Events starting from block ${from}`);
 
     this.queue.add({ from });
