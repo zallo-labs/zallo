@@ -71,6 +71,7 @@ export const usePromisedApiClient = () => {
                 url: CONFIG.apiGqlWs,
                 connectionParams: () => auth.getHeaders() as unknown as Record<string, unknown>,
                 lazy: true,
+                retryAttempts: 10,
               }),
             ),
           }),
