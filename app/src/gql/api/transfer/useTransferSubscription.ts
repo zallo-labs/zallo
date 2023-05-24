@@ -40,6 +40,7 @@ export const useTransferSubscription = () => {
           input: {
             accounts: [transfer.to],
             direction: 'In',
+            excludeProposalOriginating: true,
           },
         },
         defaultData: { transfers: [] },

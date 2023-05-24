@@ -1,11 +1,11 @@
 import { Injectable } from '@nestjs/common';
-import { UserInputError } from 'apollo-server-core';
 import { BigNumber } from 'ethers';
 import { parseEther, parseUnits } from 'ethers/lib/utils';
 import { asAddress, Address, filterAsync } from 'lib';
 import * as zk from 'zksync-web3';
 import { ProviderService } from '~/features/util/provider/provider.service';
 import { selectAccount } from '../accounts/accounts.util';
+import { DatabaseService } from '../database/database.service';
 
 interface TokenFaucet {
   addr: Address;
@@ -19,7 +19,7 @@ const ETH: TokenFaucet = {
 
 const DAI: TokenFaucet = {
   addr: asAddress('0x3e7676937A7E96CFB7616f255b9AD9FF47363D4b'),
-  amount: parseUnits('1', 18),
+  amount: parseUnits('3', 18),
 };
 const USDC: TokenFaucet = {
   addr: asAddress('0x0faF6df7054946141266420b43783387A78d82A9'),
@@ -32,7 +32,7 @@ const LINK: TokenFaucet = {
 
 @Injectable()
 export class FaucetService {
-  constructor(private provider: ProviderService) {}
+  constructor(private provider: ProviderService, private db: DatabaseService) {}
 
   async requestableTokens(account: Address): Promise<Address[]> {
     return (await this.getTokensToSend(account)).map((token) => token.addr);
@@ -47,7 +47,7 @@ export class FaucetService {
   }
 
   private async getTokensToSend(account: Address) {
-    if (!selectAccount(account)) throw new UserInputError('User is not a member of the account');
+    if (!this.db.query(selectAccount(account))) return [];
 
     return filterAsync([ETH, DAI, USDC, LINK], async (token) => {
       const recipientBalance = await this.provider.getBalance(account, undefined, token.addr);

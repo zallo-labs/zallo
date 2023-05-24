@@ -7,6 +7,8 @@ import { Log } from '@ethersproject/abstract-provider';
 import { BigNumber } from 'ethers';
 import { DatabaseService } from '../database/database.service';
 import e from '~/edgeql-js';
+import { P, match } from 'ts-pattern';
+import { tryOrCatchAsync } from 'lib';
 
 const DEFAULT_CHUNK_SIZE = 75;
 const BLOCK_TIME_MS = 500;
@@ -30,7 +32,7 @@ export const EVENTS_QUEUE = {
 export interface EventJobData {
   from: number;
   to?: number;
-  queueNext?: boolean;
+  queueNext?: false | number;
 }
 
 export interface EventData {
@@ -63,14 +65,28 @@ export class EventsProcessor implements OnModuleInit {
 
   @Process()
   async process(job: Job<EventJobData>) {
-    const latest = await this.provider.getBlockNumber();
+    const latest = await tryOrCatchAsync(
+      () => this.provider.getBlockNumber(),
+      async (e) => {
+        if (job.data.queueNext !== false) {
+          // Next job hasn't been queued yet, queue it next attempt
+          await job.update({ ...job.data, queueNext: job.attemptsMade + 1 });
+        }
+        throw e;
+      },
+    );
     const from = job.data.from;
     const to = Math.min(job.data.to ?? from + DEFAULT_CHUNK_SIZE - 1, latest);
 
-    // Only queue next jobs on the first attempt to prevent retried jobs creating duplicates
-    if (job.attemptsMade === 0 && job.data.queueNext !== false) {
+    const shouldQueue = match(job.data.queueNext)
+      .with(undefined, () => job.attemptsMade === 0) // First job - default path
+      .with(false, () => false) // Split job - don't queue next
+      .with(P.number, (n) => job.attemptsMade === n) // Prior attempt had failed before queueing - queue only if not already queued
+      .exhaustive();
+
+    if (shouldQueue) {
       if (latest < from) {
-        // Up to date; try again after a delay
+        // Up to date; retry after a delay
         return this.queue.add({ from }, { delay: BLOCKS_DELAYED_MS });
       } else {
         // Queue up next job
@@ -109,7 +125,8 @@ export class EventsProcessor implements OnModuleInit {
 
   @OnQueueFailed()
   onFailed(job: Job<EventJobData>, error: unknown) {
-    Logger.error('Events queue job failed', { job, error });
+    if (!job.opts.attempts || job.attemptsMade === job.opts.attempts)
+      Logger.error('Events queue job failed', { job: job.data, error });
   }
 
   private async addMissingJob() {
@@ -127,10 +144,11 @@ export class EventsProcessor implements OnModuleInit {
       )
       .run(this.db.client)) as bigint | null; // Return type is overly broad - https://github.com/edgedb/edgedb-js/issues/594
 
-    this.queue.add({
-      from: lastProcessedBlock
-        ? parseInt(lastProcessedBlock.toString()) + 1 // Warning: bigint -> number
-        : await this.provider.getBlockNumber(),
-    });
+    const from = lastProcessedBlock
+      ? parseInt(lastProcessedBlock.toString()) + 1 // Warning: bigint -> number
+      : await this.provider.getBlockNumber();
+    Logger.log(`Events starting from block ${from}`);
+
+    this.queue.add({ from });
   }
 }

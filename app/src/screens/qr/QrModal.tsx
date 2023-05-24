@@ -3,14 +3,18 @@ import { Address } from 'lib';
 import { StackNavigatorScreenProps } from '~/navigation/StackNavigator';
 import { Screen } from '~/components/layout/Screen';
 import { makeStyles } from '@theme/makeStyles';
-import { Button, IconButton, Surface, Text } from 'react-native-paper';
-import { CloseIcon, ShareIcon } from '@theme/icons';
+import { IconButton, Surface, Text } from 'react-native-paper';
+import { CloseIcon, ShareIcon, materialCommunityIcon } from '@theme/icons';
 import { Actions } from '~/components/layout/Actions';
 import { Share, View } from 'react-native';
 import { AddressLabel } from '~/components/address/AddressLabel';
 import { buildAddressLink } from '~/util/addressLink';
 import { withSuspense } from '~/components/skeleton/withSuspense';
 import { Blur } from '~/components/Blur';
+import { useFaucet } from '@api/faucet';
+import { Button } from '~/components/Button';
+
+const FaucetIcon = materialCommunityIcon('water');
 
 export interface QrModalParams {
   address: Address;
@@ -21,6 +25,7 @@ export type QrModalProps = StackNavigatorScreenProps<'QrModal'>;
 export const QrModal = withSuspense(({ route, navigation: { goBack } }: QrModalProps) => {
   const { address } = route.params;
   const styles = uesStyles();
+  const requestFromFaucet = useFaucet(address);
 
   const share = () => {
     const link = buildAddressLink(address);
@@ -51,7 +56,13 @@ export const QrModal = withSuspense(({ route, navigation: { goBack } }: QrModalP
         </View>
 
         <Actions>
-          <Button mode="contained-tonal" icon={ShareIcon} onPress={share}>
+          {requestFromFaucet && (
+            <Button mode="contained-tonal" icon={FaucetIcon} onPress={() => requestFromFaucet()}>
+              Request testnet tokens
+            </Button>
+          )}
+
+          <Button mode="contained" icon={ShareIcon} onPress={share}>
             Share
           </Button>
         </Actions>
@@ -88,7 +99,7 @@ const uesStyles = makeStyles(({ colors, window }) => ({
   tertiary: {
     color: colors.tertiary,
   },
-  button: {
-    alignSelf: 'stretch',
+  requestButton: {
+    color: colors.inverseOnSurface,
   },
 }));

@@ -1,5 +1,4 @@
 import { gql } from '@apollo/client';
-import { showInfo } from '~/provider/SnackbarProvider';
 import {
   RequestableTokensDocument,
   RequestableTokensQuery,
@@ -7,7 +6,6 @@ import {
   useRequestTokensMutation,
 } from '@api/generated';
 import { Address } from 'lib';
-import { useCallback } from 'react';
 import { CHAIN } from '~/util/network/provider';
 import { useCanRequestTokens } from './useCanRequestTokens';
 
@@ -17,30 +15,22 @@ gql`
   }
 `;
 
-export const useFaucet = (account: Address) => {
+export const useFaucet = (recepient: Address) => {
   const [mutation] = useRequestTokensMutation({
-    variables: { input: { account } },
+    variables: { input: { account: recepient } },
     update: (cache, { data }) => {
       if (!data) return;
 
       cache.writeQuery<RequestableTokensQuery, RequestableTokensQueryVariables>({
         query: RequestableTokensDocument,
-        variables: { input: { account } },
+        variables: { input: { account: recepient } },
         data: {
           requestableTokens: [],
         },
       });
     },
   });
-  const canRequest = useCanRequestTokens(account);
+  const canRequest = useCanRequestTokens(recepient);
 
-  const receive = useCallback(async () => {
-    showInfo('Requesting testnet tokens...', { autoHide: false });
-
-    await mutation();
-
-    showInfo('Tesetnet tokens received');
-  }, [mutation]);
-
-  return CHAIN.isTestnet && canRequest ? receive : undefined;
+  return CHAIN.isTestnet && canRequest ? mutation : undefined;
 };
