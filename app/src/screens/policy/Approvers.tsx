@@ -2,12 +2,13 @@ import { useImmerAtom } from 'jotai-immer';
 import { useSelectContact } from '../contacts/useSelectContact';
 import { makeStyles } from '@theme/makeStyles';
 import { ListHeader } from '~/components/list/ListHeader';
-import { ListHeaderButton } from '~/components/list/ListHeaderButton';
 import { View } from 'react-native';
 import { ApproverItem } from './ApproverItem';
-import { Text } from 'react-native-paper';
+import { IconButton, Text } from 'react-native-paper';
 import { showInfo } from '~/provider/SnackbarProvider';
 import { POLICY_DRAFT_ATOM } from './PolicyDraft';
+import { ThresholdChip } from './ThresholdChip';
+import { PlusIcon } from '@theme/icons';
 
 export interface ApproversProps {}
 
@@ -26,30 +27,30 @@ export const Approvers = (props: ApproversProps) => {
 
   return (
     <>
-      <ListHeader trailing={<ListHeaderButton onPress={addApprover}>Add</ListHeaderButton>}>
-        Approvers
-      </ListHeader>
+      <ListHeader trailing={<ThresholdChip />}>Approvers</ListHeader>
 
-      {approvers.size > 0 ? (
-        <View style={styles.approversContainer}>
-          {[...approvers].map((approver) => (
-            <ApproverItem
-              key={approver}
-              approver={approver}
-              remove={() => {
-                updateDraft((draft) => {
-                  draft.approvers.delete(approver);
-                });
-                showInfo('Approver removed');
-              }}
-            />
-          ))}
-        </View>
-      ) : (
+      {threshold === 0 && (
         <Text style={styles.noApproversText}>
-          No approvers have been added - anyone can execute this policy
+          {`Warning: no approvals are required.\nLiterally anyone may execute a transaction using this policy.`}
         </Text>
       )}
+
+      <View style={styles.approversContainer}>
+        {[...approvers].map((approver) => (
+          <ApproverItem
+            key={approver}
+            approver={approver}
+            remove={() => {
+              updateDraft((draft) => {
+                draft.approvers.delete(approver);
+              });
+              showInfo('Approver removed');
+            }}
+          />
+        ))}
+
+        <IconButton icon={PlusIcon} onPress={addApprover} />
+      </View>
     </>
   );
 };
