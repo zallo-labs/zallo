@@ -1,5 +1,5 @@
 import { useCreatePolicy, usePolicy, useUpdatePolicy } from '@api/policy';
-import { ALLOW_ALL_TARGETS, Address, asPolicyKey } from 'lib';
+import { ALLOW_ALL_TARGETS, Address, PolicyKey, asPolicyKey } from 'lib';
 import { ScrollView } from 'react-native';
 import { Screen } from '~/components/layout/Screen';
 import { ScreenSkeleton } from '~/components/skeleton/ScreenSkeleton';
@@ -22,7 +22,7 @@ export type PolicyViewState = 'active' | 'draft';
 
 export interface PolicyScreenParams {
   account: Address;
-  key?: string;
+  key?: PolicyKey;
   state?: PolicyViewState;
 }
 
@@ -30,7 +30,7 @@ export type PolicyScreenProps = StackNavigatorScreenProps<'Policy'>;
 
 export const PolicyScreen = withSuspense((props: PolicyScreenProps) => {
   const { account, key } = props.route.params;
-  const policy = usePolicy(key ? { account, key: asPolicyKey(key) } : undefined);
+  const policy = usePolicy(key ? { account, key } : undefined);
   const approverId = useApproverId();
 
   const state = props.route.params.state ?? policy?.state ? 'active' : 'draft';
@@ -106,7 +106,7 @@ const PolicyView = ({
               ? updatePolicy({ key: draft.key, ...draft })
               : createPolicy(draft));
 
-            setParams({ key: r?.key.toString(), state: 'draft' });
+            setParams({ key: r?.key ? asPolicyKey(r.key) : undefined, state: 'draft' });
 
             const proposal = r?.draft?.proposal?.hash;
             if (proposal) navigate('Proposal', { proposal: asProposalId(proposal) });
