@@ -57,7 +57,7 @@ export const QrModal = withSuspense(({ route, navigation: { goBack } }: QrModalP
 
         <Actions>
           {requestFromFaucet && (
-            <Button mode="contained-tonal" onPress={requestFromFaucet} icon={FaucetIcon}>
+            <Button mode="contained-tonal" icon={FaucetIcon} onPress={() => requestFromFaucet()}>
               Request testnet tokens
             </Button>
           )}
