@@ -9,7 +9,7 @@ export interface ApprovalActionsProps {
 
 export const ApprovalActions = ({ proposal }: ApprovalActionsProps) => {
   const approver = useApproverId();
-  const policy = proposal.satisfiablePolicies[0];
+  const policy = proposal.policy;
   const approve = useApprove();
   const reject = useReject();
 

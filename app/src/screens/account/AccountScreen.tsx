@@ -15,10 +15,6 @@ import { PolicyIcon } from '~/components/policy/PolicyIcon';
 import { ScreenSkeleton } from '~/components/skeleton/ScreenSkeleton';
 import { withSuspense } from '~/components/skeleton/withSuspense';
 import { StackNavigatorScreenProps } from '~/navigation/StackNavigator';
-import { EventEmitter } from '~/util/EventEmitter';
-
-const POLICY_EMITTER = new EventEmitter<{ account: Address; key: PolicyKey }>('Account::Policy');
-export const useSelectPolicy = POLICY_EMITTER.createUseSelect('Account');
 
 export interface AccountScreenParams {
   account: Address;
@@ -66,8 +62,7 @@ export const AccountScreen = withSuspense(
                   .otherwise((approvers) => `${approvers} approvers`)}
                 trailing={NavigateNextIcon}
                 onPress={() => {
-                  if (!POLICY_EMITTER.emit({ account: policy.account, key: policy.key }))
-                    navigate('Policy', { account: policy.account, key: policy.key });
+                  navigate('Policy', { account: policy.account, key: policy.key });
                 }}
               />
             )}

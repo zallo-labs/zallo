@@ -66,8 +66,10 @@ gql`
     rejections {
       ...RejectionFields
     }
+    policy {
+      key
+    }
     satisfiablePolicies {
-      id
       key
       satisfied
       requiresUserAction
