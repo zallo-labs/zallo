@@ -26,6 +26,7 @@ import {
   policyStateAsPolicy,
   PolicyStateShape,
   policyStateShape,
+  selectPolicy,
 } from '../policies/policies.service';
 import { DatabaseService } from '../database/database.service';
 import e from '~/edgeql-js';
@@ -134,6 +135,18 @@ export class TransactionsService {
         gasPrice,
       })
       .run(this.db.client);
+
+    // Set executing policy if none was set
+    if (!proposal.policy?.state) {
+      await e
+        .update(e.TransactionProposal, () => ({
+          filter_single: { id: proposal.id },
+          set: {
+            policy: selectPolicy({ account: proposal.account.address as Address, key: policy.key }),
+          },
+        }))
+        .run(this.db.client);
+    }
 
     await this.proposals.publishProposal(
       { hash: proposal.hash as Hex, account: proposal.account.address as Address },
