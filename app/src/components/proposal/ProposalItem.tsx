@@ -21,10 +21,14 @@ export const ProposalItem = withSuspense(({ proposal: id, ...itemProps }: Propos
   const token = useMaybeToken(p.to) ?? ETH;
 
   const supporting = match<Proposal, ListItemProps['supporting']>(p)
-    .with({ requiresUserAction: true }, () => ({ Text }) => (
-      <Text style={styles.approvalRequired}>Approval required</Text>
+    .with({ state: 'pending', policy: undefined }, () => ({ Text }) => (
+      <Text style={styles.noSatisfiablePolicy}>No satisfiable policy</Text>
     ))
-    .with({ state: 'pending' }, () => 'Pending approval')
+    .with({ state: 'pending' }, (proposal) =>
+      proposal.policy?.requiresUserAction
+        ? ({ Text }) => <Text style={styles.approvalRequired}>Approval required</Text>
+        : 'Awaiting approval',
+    )
     .with({ state: 'executing' }, () => 'Executing...')
     .with({ state: 'failed' }, () => (
       <>
@@ -57,5 +61,8 @@ export const ProposalItem = withSuspense(({ proposal: id, ...itemProps }: Propos
 const useStyles = makeStyles(({ colors }) => ({
   approvalRequired: {
     color: colors.primary,
+  },
+  noSatisfiablePolicy: {
+    color: colors.error,
   },
 }));

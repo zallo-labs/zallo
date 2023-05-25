@@ -19,7 +19,6 @@ export interface Proposal extends Omit<Tx, 'gasLimit'> {
   rejections: KeySet<Address, Rejection>;
   policy?: SatisfiablePolicy & { unsatisfiable?: boolean };
   satisfiablePolicies: SatisfiablePolicy[];
-  requiresUserAction: boolean;
   simulation?: Simulation;
   transaction?: Transaction;
   proposedBy: Address;
@@ -177,9 +176,6 @@ export const toProposal = (p: TransactionProposalFieldsFragment): Proposal => {
     rejections,
     policy,
     satisfiablePolicies,
-    requiresUserAction:
-      !satisfiablePolicies.some((p) => p.satisfied) &&
-      satisfiablePolicies.some((p) => p.requiresUserAction),
     simulation,
     transaction,
     proposedBy: p.proposedBy.address,
