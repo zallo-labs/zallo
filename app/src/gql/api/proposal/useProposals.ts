@@ -23,17 +23,17 @@ gql`
 `;
 
 export type ProposalsOptions =
-  | { statuses?: Arraylike<TransactionProposalStatus>; requiresUserAction?: never }
+  | { statuses?: Arraylike<TransactionProposalStatus>; responseRequested?: never }
   | {
       statuses?: Arraylike<Extract<TransactionProposalStatus, 'Pending'>>;
-      requiresUserAction?: boolean;
+      responseRequested?: boolean;
     };
 
-export const useProposals = ({ statuses, requiresUserAction }: ProposalsOptions = {}) => {
+export const useProposals = ({ statuses, responseRequested }: ProposalsOptions = {}) => {
   const selectedAccount = useSelectedAccount();
 
   // Only pending states may require user action
-  if (requiresUserAction) statuses = ['Pending'];
+  if (responseRequested) statuses = ['Pending'];
 
   const { data } = useSuspenseQuery<ProposalsQuery, ProposalsQueryVariables>(ProposalsDocument, {
     variables: {
@@ -47,6 +47,6 @@ export const useProposals = ({ statuses, requiresUserAction }: ProposalsOptions 
   return useMemo((): Proposal[] => {
     const proposals = data.proposals.map(toProposal);
 
-    return requiresUserAction ? proposals.filter((p) => p.policy?.requiresUserAction) : proposals;
-  }, [data.proposals, requiresUserAction]);
+    return responseRequested ? proposals.filter((p) => p.policy?.responseRequested) : proposals;
+  }, [data.proposals, responseRequested]);
 };

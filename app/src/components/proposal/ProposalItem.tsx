@@ -25,7 +25,7 @@ export const ProposalItem = withSuspense(({ proposal: id, ...itemProps }: Propos
       <Text style={styles.noSatisfiablePolicy}>No satisfiable policy</Text>
     ))
     .with({ state: 'pending' }, (proposal) =>
-      proposal.policy?.requiresUserAction
+      proposal.policy?.responseRequested
         ? ({ Text }) => <Text style={styles.approvalRequired}>Approval required</Text>
         : 'Awaiting approval',
     )

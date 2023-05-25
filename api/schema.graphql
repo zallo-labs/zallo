@@ -292,7 +292,7 @@ input RequestTokensInput {
 type SatisfiablePolicy {
   id: ID!
   key: PolicyKey!
-  requiresUserAction: Boolean!
+  responseRequested: Boolean!
   satisfied: Boolean!
 }
 

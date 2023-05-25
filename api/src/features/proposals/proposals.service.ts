@@ -298,10 +298,10 @@ export class ProposalsService {
   }
 
   async satisfiablePoliciesResponse(id: UniqueProposal) {
-    const { policies, approvals } = await this.transactions.satisfiablePolicies(id);
+    const { policies, approvals, rejections } = await this.transactions.satisfiablePolicies(id);
 
     const user = getUser();
-    const userHasApproved = approvals.has(user);
+    const userHasResponded = approvals.has(user) || rejections.has(user);
 
     return policies
       .filter(({ satisfiability }) => satisfiability !== PolicySatisfiability.Unsatisifable)
@@ -310,9 +310,9 @@ export class ProposalsService {
           id: `${id}-${policy.key}`,
           key: policy.key,
           satisfied: satisfiability === PolicySatisfiability.Satisfied,
-          requiresUserAction:
+          responseRequested:
+            !userHasResponded &&
             satisfiability === PolicySatisfiability.Satisfiable &&
-            !userHasApproved &&
             policy.approvers.has(user),
         }),
       );

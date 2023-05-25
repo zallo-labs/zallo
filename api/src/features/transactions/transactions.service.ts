@@ -170,6 +170,9 @@ export class TransactionsService {
         approvals: {
           user: { address: true },
         },
+        rejections: {
+          user: { address: true },
+        },
         account: {
           policies: {
             key: true,
@@ -188,6 +191,7 @@ export class TransactionsService {
     };
 
     const approvals = new Set(proposal.approvals.map((a) => a.user.address as Address));
+    const rejections = new Set(proposal.rejections.map((a) => a.user.address as Address));
 
     const policies = proposal.account.policies
       .map((policy) => policyStateAsPolicy(policy.key, policy.state))
@@ -197,7 +201,7 @@ export class TransactionsService {
         satisfiability: getTransactionSatisfiability(policy, tx, approvals),
       }));
 
-    return { policies, approvals };
+    return { policies, approvals, rejections };
   }
 
   private async getExecutionPolicy(

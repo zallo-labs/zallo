@@ -72,7 +72,7 @@ gql`
     satisfiablePolicies {
       key
       satisfied
-      requiresUserAction
+      responseRequested
     }
     simulation {
       transfers {

@@ -17,12 +17,11 @@ export const ProposalActions = ({ proposal }: ProposalActionsProps) => {
   const reject = useReject();
 
   const canReject =
-    proposal.state === 'pending' &&
-    (policy?.requiresUserAction || proposal.approvals.has(approver));
+    proposal.state === 'pending' && (policy?.responseRequested || proposal.approvals.has(approver));
 
   const canApprove =
     proposal.state === 'pending' &&
-    (policy?.requiresUserAction || proposal.rejections.has(approver));
+    (policy?.responseRequested || proposal.rejections.has(approver));
 
   return (
     <Actions style={{ flexGrow: 0 }}>

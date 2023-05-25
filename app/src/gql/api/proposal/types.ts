@@ -44,7 +44,7 @@ export interface SatisfiablePolicy {
   account: Address;
   key: PolicyKey;
   satisfied: boolean;
-  requiresUserAction: boolean;
+  responseRequested: boolean;
 }
 
 export interface Simulation {
@@ -96,7 +96,7 @@ export const toProposal = (p: TransactionProposalFieldsFragment): Proposal => {
     account,
     key: asPolicyKey(p.key),
     satisfied: p.satisfied,
-    requiresUserAction: p.requiresUserAction,
+    responseRequested: p.responseRequested,
   }));
 
   const policy = p.policy
@@ -105,7 +105,7 @@ export const toProposal = (p: TransactionProposalFieldsFragment): Proposal => {
         key: asPolicyKey(p.policy!.key),
         satisfied: false,
         unsatisfiable: true,
-        requiresUserAction: false,
+        responseRequested: false,
       }
     : satisfiablePolicies[0];
 
