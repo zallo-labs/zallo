@@ -6,7 +6,6 @@ import { AddressLabel } from '~/components/address/AddressLabel';
 import { Timestamp } from '~/components/format/Timestamp';
 import { ListHeader } from '~/components/list/ListHeader';
 import { ListItem } from '~/components/list/ListItem';
-import { ApprovalActions } from './ApprovalActions';
 import { TabNavigatorScreenProp } from './Tabs';
 import { TabBadge } from '~/components/tab/TabBadge';
 import { withSuspense } from '~/components/skeleton/withSuspense';
@@ -96,8 +95,6 @@ export const PolicyTab = withSuspense(({ route }: PolicyTabProps) => {
           )}
         />
       ))}
-
-      <ApprovalActions proposal={proposal} />
     </ScrollView>
   );
 }, TabScreenSkeleton);
