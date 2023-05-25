@@ -17,7 +17,13 @@ import {
 import { ProviderService } from '~/features/util/provider/provider.service';
 import { PubsubService } from '~/features/util/pubsub/pubsub.service';
 import { TransactionsService } from '../transactions/transactions.service';
-import { ApproveInput, ProposalEvent, ProposalsInput, ProposeInput } from './proposals.input';
+import {
+  ApproveInput,
+  ProposalEvent,
+  ProposalsInput,
+  ProposeInput,
+  UpdateProposalInput,
+} from './proposals.input';
 import { getUser } from '~/request/ctx';
 import { ExpoService } from '../util/expo/expo.service';
 import { SatisfiablePolicy } from './proposals.model';
@@ -30,6 +36,7 @@ import { ShapeFunc } from '../database/database.select';
 import { and } from '../database/database.util';
 import { selectAccount } from '../accounts/accounts.util';
 import { selectUser } from '../users/users.service';
+import { selectPolicy } from '../policies/policies.service';
 
 const ERC20 = Erc20__factory.createInterface();
 const ERC20_TRANSFER = ERC20.functions['transfer(address,uint256)'];
@@ -163,6 +170,21 @@ export class ProposalsService {
     });
 
     await this.publishProposal(id, ProposalEvent.rejection);
+  }
+
+  async update({ hash, policy }: UpdateProposalInput) {
+    if (policy !== undefined) {
+      await this.db.query(
+        e.update(e.Proposal, (p) => ({
+          filter_single: { hash },
+          set: {
+            policy: policy
+              ? e.select(e.Policy, () => ({ filter_single: { account: p.account, key: policy } }))
+              : null,
+          },
+        })),
+      );
+    }
   }
 
   async delete(id: UniqueProposal) {

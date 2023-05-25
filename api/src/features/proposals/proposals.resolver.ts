@@ -15,6 +15,7 @@ import {
   ProposalInput,
   ProposalsInput,
   ProposalSubscriptionInput,
+  UpdateProposalInput,
 } from './proposals.input';
 import { PubsubService } from '~/features/util/pubsub/pubsub.service';
 import { GqlContext, asUser, getUserCtx } from '~/request/ctx';
@@ -112,6 +113,12 @@ export class ProposalsResolver {
   async reject(@Input() { hash }: ProposalInput, @Info() info: GraphQLResolveInfo) {
     await this.service.reject(hash);
     return this.service.selectUnique(hash, getShape(info));
+  }
+
+  @Mutation(() => TransactionProposal)
+  async updateProposal(@Input() input: UpdateProposalInput, @Info() info: GraphQLResolveInfo) {
+    await this.service.update(input);
+    return this.service.selectUnique(input.hash, getShape(info));
   }
 
   @Mutation(() => ID, { nullable: true })

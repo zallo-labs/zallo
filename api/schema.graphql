@@ -142,6 +142,7 @@ type Mutation {
   requestTokens(input: RequestTokensInput!): [Address!]!
   updateAccount(input: UpdateAccountInput!): Account!
   updatePolicy(input: UpdatePolicyInput!): Policy!
+  updateProposal(input: UpdateProposalInput!): TransactionProposal!
   updateUser(input: UpdateUserInput!): User!
   upsertContact(input: UpsertContactInput!): Contact!
 }
@@ -425,6 +426,11 @@ input UpdatePolicyInput {
 
   """Defaults to all approvers"""
   threshold: Float
+}
+
+input UpdateProposalInput {
+  hash: Bytes32!
+  policy: PolicyKey
 }
 
 input UpdateUserInput {
