@@ -20,7 +20,7 @@ Notifications.setNotificationHandler({
   }),
 });
 
-export const useNotificationsCount = () => useProposals({ requiresUserAction: true }).length;
+export const useNotificationsCount = () => useProposals({ responseRequested: true }).length;
 
 export const NotificationsRegistrar = () => {
   const channelEnabled = useNotificationSettings();

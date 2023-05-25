@@ -1,7 +1,7 @@
 import { useAccount } from '@api/account';
 import { FlashList } from '@shopify/flash-list';
 import { EditIcon, NavigateNextIcon, PlusIcon } from '@theme/icons';
-import { Address } from 'lib';
+import { Address, PolicyKey } from 'lib';
 import { StyleSheet, View } from 'react-native';
 import { Menu } from 'react-native-paper';
 import { match } from 'ts-pattern';
@@ -61,9 +61,9 @@ export const AccountScreen = withSuspense(
                   .with(1, () => '1 approver')
                   .otherwise((approvers) => `${approvers} approvers`)}
                 trailing={NavigateNextIcon}
-                onPress={() =>
-                  navigate('Policy', { account: policy.account, key: policy.key.toString() })
-                }
+                onPress={() => {
+                  navigate('Policy', { account: policy.account, key: policy.key });
+                }}
               />
             )}
             estimatedItemSize={ListItemHeight.DOUBLE_LINE}

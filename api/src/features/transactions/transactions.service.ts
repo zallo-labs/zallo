@@ -1,5 +1,5 @@
 import { InjectQueue } from '@nestjs/bull';
-import { forwardRef, Inject, Injectable, Logger } from '@nestjs/common';
+import { forwardRef, Inject, Injectable } from '@nestjs/common';
 import { Queue } from 'bull';
 import {
   asAddress,
@@ -11,7 +11,6 @@ import {
   Address,
   Hex,
   getTransactionSatisfiability,
-  Policy,
   PolicySatisfiability,
   isHex,
 } from 'lib';
@@ -23,7 +22,12 @@ import {
   UniqueProposal,
 } from '../proposals/proposals.service';
 import { TransactionEvent, TRANSACTIONS_QUEUE } from './transactions.queue';
-import { policyStateAsPolicy, policyStateShape } from '../policies/policies.service';
+import {
+  policyStateAsPolicy,
+  PolicyStateShape,
+  policyStateShape,
+  selectPolicy,
+} from '../policies/policies.util';
 import { DatabaseService } from '../database/database.service';
 import e from '~/edgeql-js';
 import _ from 'lodash';
@@ -42,14 +46,17 @@ export class TransactionsService {
   ) {}
 
   async tryExecute(uniqueProposal: UniqueProposal) {
-    const policy = await this.firstSatisfiedPolicy(uniqueProposal);
-    if (!policy) return undefined;
-
     const proposal = await this.db.query(
       e.select(e.TransactionProposal, () => ({
         filter_single: isHex(uniqueProposal) ? { hash: uniqueProposal } : { id: uniqueProposal },
         id: true,
-        account: { address: true },
+        account: {
+          address: true,
+          policies: {
+            key: true,
+            state: policyStateShape,
+          },
+        },
         hash: true,
         to: true,
         value: true,
@@ -59,6 +66,10 @@ export class TransactionsService {
         approvals: {
           user: { address: true },
           signature: true,
+        },
+        policy: {
+          key: true,
+          state: policyStateShape,
         },
       })),
     );
@@ -91,16 +102,26 @@ export class TransactionsService {
       return this.tryExecute(proposal.id);
     }
 
+    const tx: Tx = {
+      to: proposal.to as Address,
+      value: proposal.value ?? undefined,
+      data: (proposal.data ?? undefined) as Hex | undefined,
+      nonce: proposal.nonce,
+      gasLimit: proposal.gasLimit,
+    };
+
+    const policy = await this.getExecutionPolicy(
+      tx,
+      new Set(approvals.map((a) => a.approver)),
+      proposal.policy,
+      proposal.account.policies,
+    );
+    if (!policy) return undefined;
+
     const gasPrice = (await this.provider.getGasPrice()).toBigInt();
     const transaction = await executeTx({
       account: this.provider.connectAccount(asAddress(proposal.account.address as Address)),
-      tx: {
-        to: proposal.to as Address,
-        value: proposal.value ?? undefined,
-        data: (proposal.data ?? undefined) as Hex | undefined,
-        nonce: proposal.nonce,
-        gasLimit: proposal.gasLimit,
-      },
+      tx,
       policy,
       approvals,
       gasPrice,
@@ -114,6 +135,18 @@ export class TransactionsService {
         gasPrice,
       })
       .run(this.db.client);
+
+    // Set executing policy if none was set
+    if (!proposal.policy?.state) {
+      await e
+        .update(e.TransactionProposal, () => ({
+          filter_single: { id: proposal.id },
+          set: {
+            policy: selectPolicy({ account: proposal.account.address as Address, key: policy.key }),
+          },
+        }))
+        .run(this.db.client);
+    }
 
     await this.proposals.publishProposal(
       { hash: proposal.hash as Hex, account: proposal.account.address as Address },
@@ -137,6 +170,9 @@ export class TransactionsService {
         approvals: {
           user: { address: true },
         },
+        rejections: {
+          user: { address: true },
+        },
         account: {
           policies: {
             key: true,
@@ -155,6 +191,7 @@ export class TransactionsService {
     };
 
     const approvals = new Set(proposal.approvals.map((a) => a.user.address as Address));
+    const rejections = new Set(proposal.rejections.map((a) => a.user.address as Address));
 
     const policies = proposal.account.policies
       .map((policy) => policyStateAsPolicy(policy.key, policy.state))
@@ -164,12 +201,28 @@ export class TransactionsService {
         satisfiability: getTransactionSatisfiability(policy, tx, approvals),
       }));
 
-    return { policies, approvals };
+    return { policies, approvals, rejections };
   }
 
-  async firstSatisfiedPolicy(id: UniqueProposal): Promise<Policy | undefined> {
-    return (await this.satisfiablePolicies(id)).policies.find(
-      ({ satisfiability }) => satisfiability === PolicySatisfiability.Satisfied,
-    )?.policy;
+  private async getExecutionPolicy(
+    tx: Tx,
+    approvals: Set<Address>,
+    proposalPolicy: { key: number; state: PolicyStateShape } | null,
+    accountPolicies: { key: number; state: PolicyStateShape }[],
+  ) {
+    if (proposalPolicy) {
+      // Only execute with proposal policy if specified
+      const p = policyStateAsPolicy(proposalPolicy.key, proposalPolicy.state);
+      if (p && getTransactionSatisfiability(p, tx, approvals) === PolicySatisfiability.Satisfied)
+        return p;
+    } else {
+      return accountPolicies
+        .map((policy) => policyStateAsPolicy(policy.key, policy.state))
+        .find(
+          (policy) =>
+            policy &&
+            getTransactionSatisfiability(policy, tx, approvals) === PolicySatisfiability.Satisfied,
+        );
+    }
   }
 }

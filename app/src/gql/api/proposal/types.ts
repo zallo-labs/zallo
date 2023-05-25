@@ -17,8 +17,8 @@ export interface Proposal extends Omit<Tx, 'gasLimit'> {
   state: ProposalState;
   approvals: KeySet<Address, Approval>;
   rejections: KeySet<Address, Rejection>;
+  policy?: SatisfiablePolicy & { unsatisfiable?: boolean };
   satisfiablePolicies: SatisfiablePolicy[];
-  requiresUserAction: boolean;
   simulation?: Simulation;
   transaction?: Transaction;
   proposedBy: Address;
@@ -44,7 +44,7 @@ export interface SatisfiablePolicy {
   account: Address;
   key: PolicyKey;
   satisfied: boolean;
-  requiresUserAction: boolean;
+  responseRequested: boolean;
 }
 
 export interface Simulation {
@@ -96,8 +96,18 @@ export const toProposal = (p: TransactionProposalFieldsFragment): Proposal => {
     account,
     key: asPolicyKey(p.key),
     satisfied: p.satisfied,
-    requiresUserAction: p.requiresUserAction,
+    responseRequested: p.responseRequested,
   }));
+
+  const policy = p.policy
+    ? satisfiablePolicies.find((policy) => policy.key === p.policy!.key) ?? {
+        account,
+        key: asPolicyKey(p.policy!.key),
+        satisfied: false,
+        unsatisfiable: true,
+        responseRequested: false,
+      }
+    : satisfiablePolicies[0];
 
   const createdAt = DateTime.fromISO(p.createdAt);
 
@@ -164,10 +174,8 @@ export const toProposal = (p: TransactionProposalFieldsFragment): Proposal => {
     state,
     approvals,
     rejections,
+    policy,
     satisfiablePolicies,
-    requiresUserAction:
-      !satisfiablePolicies.some((p) => p.satisfied) &&
-      satisfiablePolicies.some((p) => p.requiresUserAction),
     simulation,
     transaction,
     proposedBy: p.proposedBy.address,

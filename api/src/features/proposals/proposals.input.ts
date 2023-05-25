@@ -1,5 +1,5 @@
 import { Field, InputType, registerEnumType } from '@nestjs/graphql';
-import { Address, Hex } from 'lib';
+import { Address, Hex, PolicyKey } from 'lib';
 import { AddressField, AddressScalar } from '~/apollo/scalars/Address.scalar';
 import { Uint256Field } from '~/apollo/scalars/BigInt.scalar';
 import {
@@ -9,6 +9,7 @@ import {
   BytesScalar,
 } from '~/apollo/scalars/Bytes.scalar';
 import { TransactionProposalStatus } from './proposals.model';
+import { PolicyKeyField } from '~/apollo/scalars/PolicyKey.scalar';
 
 @InputType()
 export class ProposalInput {
@@ -82,4 +83,10 @@ export class ProposeInput {
 export class ApproveInput extends ProposalInput {
   @BytesField()
   signature: Hex;
+}
+
+@InputType()
+export class UpdateProposalInput extends ProposalInput {
+  @PolicyKeyField()
+  policy?: PolicyKey | null;
 }

@@ -1,18 +1,18 @@
 import { usePolicy, WPolicy } from '@api/policy';
 import { Proposal, ProposalId, useProposal } from '@api/proposal';
-import { NavigateNextIcon, PolicySatisfiableIcon, PolicyUnsatisfiableIcon } from '@theme/icons';
 import { StyleSheet } from 'react-native';
 import { ScrollView } from 'react-native';
 import { AddressLabel } from '~/components/address/AddressLabel';
 import { Timestamp } from '~/components/format/Timestamp';
 import { ListHeader } from '~/components/list/ListHeader';
 import { ListItem } from '~/components/list/ListItem';
-import { showInfo } from '~/provider/SnackbarProvider';
-import { ApprovalActions } from './ApprovalActions';
 import { TabNavigatorScreenProp } from './Tabs';
 import { TabBadge } from '~/components/tab/TabBadge';
 import { withSuspense } from '~/components/skeleton/withSuspense';
 import { TabScreenSkeleton } from '~/components/tab/TabScreenSkeleton';
+import { SelectedPolicy } from './SelectedPolicy';
+import { Text } from 'react-native-paper';
+import { makeStyles } from '@theme/makeStyles';
 
 const getApprovalsAwaiting = (proposal: Proposal, policy?: WPolicy) => {
   const state = policy?.state;
@@ -30,30 +30,20 @@ export interface PolicyTabParams {
 export type PolicyTabProps = TabNavigatorScreenProp<'Policy'>;
 
 export const PolicyTab = withSuspense(({ route }: PolicyTabProps) => {
+  const styles = uesStyles();
   const proposal = useProposal(route.params.proposal);
-  const policy = usePolicy(proposal.satisfiablePolicies[0]);
+  const policy = usePolicy(proposal.policy);
 
   const awaitingApproval = getApprovalsAwaiting(proposal, policy);
 
-  const selectPolicy = () => {
-    // TODO: allow for policy selection
-    showInfo('Changing preferred execution policy is not yet supported');
-  };
-
   return (
     <ScrollView contentContainerStyle={styles.container}>
-      {policy ? (
-        <ListItem
-          leading={PolicySatisfiableIcon}
-          headline={policy.name}
-          supporting="Only satisfiable policy"
-          {...(proposal.satisfiablePolicies.length > 1 && {
-            supporting: `${proposal.satisfiablePolicies.length} policies are satisfiable`,
-            trailing: (props) => <NavigateNextIcon {...props} onPress={selectPolicy} />,
-          })}
-        />
-      ) : (
-        <ListItem leading={PolicyUnsatisfiableIcon} headline="No satisfiable policy" />
+      <SelectedPolicy proposal={proposal} policy={policy} />
+
+      {proposal.policy?.unsatisfiable && (
+        <Text style={styles.unsatisfiable}>
+          Policy lacks permission to execute this transaction
+        </Text>
       )}
 
       {proposal.rejections.size > 0 && <ListHeader>Rejected</ListHeader>}
@@ -105,21 +95,20 @@ export const PolicyTab = withSuspense(({ route }: PolicyTabProps) => {
           )}
         />
       ))}
-
-      <ApprovalActions proposal={proposal} />
     </ScrollView>
   );
 }, TabScreenSkeleton);
 
-const styles = StyleSheet.create({
+const uesStyles = makeStyles(({ colors }) => ({
   container: {
-    flex: 1,
+    flexGrow: 1,
     paddingTop: 8,
   },
-  badge: {
-    transform: [{ translateX: -10 }],
+  unsatisfiable: {
+    color: colors.error,
+    margin: 16,
   },
-});
+}));
 
 export interface PolicyTabBadgeProps {
   proposal: ProposalId;
@@ -127,7 +116,15 @@ export interface PolicyTabBadgeProps {
 
 export const PolicyTabBadge = ({ proposal: id }: PolicyTabBadgeProps) => {
   const proposal = useProposal(id);
-  const policy = usePolicy(proposal.satisfiablePolicies[0]);
+  const policy = usePolicy(proposal.policy);
 
-  return <TabBadge value={getApprovalsAwaiting(proposal, policy).length} style={styles.badge} />;
+  return (
+    <TabBadge value={getApprovalsAwaiting(proposal, policy).length} style={badgeStyles.badge} />
+  );
 };
+
+const badgeStyles = StyleSheet.create({
+  badge: {
+    transform: [{ translateX: -10 }],
+  },
+});

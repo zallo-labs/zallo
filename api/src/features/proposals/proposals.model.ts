@@ -110,5 +110,5 @@ export class SatisfiablePolicy {
 
   satisfied: boolean;
 
-  requiresUserAction: boolean;
+  responseRequested: boolean;
 }

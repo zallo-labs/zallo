@@ -18,6 +18,7 @@ import { EventEmitter } from '~/util/EventEmitter';
 import useAsyncEffect from 'use-async-effect';
 import { showError } from '~/provider/SnackbarProvider';
 import { useFocusEffect } from '@react-navigation/native';
+import { HideNavigationBar } from '~/components/NavigationBar/HideNavigationBar';
 
 export const SCAN_ADDRESS_EMITTER = new EventEmitter<Address>('Scan::Address');
 export const useScanAddress = SCAN_ADDRESS_EMITTER.createUseSelect('Scan');
@@ -76,6 +77,7 @@ export const ScanScreen = withSuspense(({ navigation: { goBack, navigate } }: Sc
       ratio="16:9"
       useCamera2Api={false} // Causes crash on screen unmount - https://github.com/expo/expo/issues/18996
     >
+      <HideNavigationBar />
       <Overlay onData={tryHandle} />
     </Camera>
   ) : (

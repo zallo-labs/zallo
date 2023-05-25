@@ -13,7 +13,7 @@ import e from '~/edgeql-js';
 import { selectAccount } from '../accounts/accounts.util';
 import { selectUser } from '../users/users.service';
 import { uuid } from 'edgedb/dist/codecs/ifaces';
-import { selectPolicy } from '../policies/policies.service';
+import { selectPolicy } from '../policies/policies.util';
 import { TransactionProposalStatus } from './proposals.model';
 
 const signature = '0x1234' as Hex;

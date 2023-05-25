@@ -44,6 +44,12 @@ gql`
     }
   }
 
+  fragment SatisfiablePolicyFields on SatisfiablePolicy {
+    key
+    satisfied
+    responseRequested
+  }
+
   fragment TransactionProposalFields on TransactionProposal {
     id
     hash
@@ -66,11 +72,11 @@ gql`
     rejections {
       ...RejectionFields
     }
-    satisfiablePolicies {
-      id
+    policy {
       key
-      satisfied
-      requiresUserAction
+    }
+    satisfiablePolicies {
+      ...SatisfiablePolicyFields
     }
     simulation {
       transfers {

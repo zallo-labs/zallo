@@ -10,7 +10,6 @@ import { ListItem } from '~/components/list/ListItem';
 import { withSuspense } from '~/components/skeleton/withSuspense';
 import { TabScreenSkeleton } from '~/components/tab/TabScreenSkeleton';
 import { TokenItem } from '~/components/token/TokenItem';
-import { ApprovalActions } from './ApprovalActions';
 import { TabNavigatorScreenProp } from './Tabs';
 
 export interface DetailsTabParams {
@@ -54,15 +53,13 @@ export const DetailsTab = withSuspense(({ route }: DetailsTabProps) => {
       {transfers.map((t, i) => (
         <TokenItem key={i} token={t.token} amount={t.amount} account={p.account} />
       ))}
-
-      <ApprovalActions proposal={p} />
     </ScrollView>
   );
 }, TabScreenSkeleton);
 
 const useStyles = makeStyles(({ colors }) => ({
   container: {
-    flex: 1,
+    flexGrow: 1,
     paddingTop: 8,
   },
   transfersHeaderSupporting: {

@@ -17,7 +17,13 @@ import {
 import { ProviderService } from '~/features/util/provider/provider.service';
 import { PubsubService } from '~/features/util/pubsub/pubsub.service';
 import { TransactionsService } from '../transactions/transactions.service';
-import { ApproveInput, ProposalEvent, ProposalsInput, ProposeInput } from './proposals.input';
+import {
+  ApproveInput,
+  ProposalEvent,
+  ProposalsInput,
+  ProposeInput,
+  UpdateProposalInput,
+} from './proposals.input';
 import { getUser } from '~/request/ctx';
 import { ExpoService } from '../util/expo/expo.service';
 import { SatisfiablePolicy } from './proposals.model';
@@ -165,6 +171,29 @@ export class ProposalsService {
     await this.publishProposal(id, ProposalEvent.rejection);
   }
 
+  async update({ hash, policy }: UpdateProposalInput) {
+    if (policy !== undefined) {
+      await this.db.query(
+        e.update(e.TransactionProposal, (p) => ({
+          filter: and(
+            e.op(p.hash, '=', hash),
+            // Require proposal to be pending or failed
+            e.op(
+              p.status,
+              'in',
+              e.set(e.TransactionProposalStatus.Pending, e.TransactionProposalStatus.Failed),
+            ),
+          ),
+          set: {
+            policy: policy
+              ? e.select(e.Policy, () => ({ filter_single: { account: p.account, key: policy } }))
+              : null,
+          },
+        })),
+      );
+    }
+  }
+
   async delete(id: UniqueProposal) {
     return this.db.transaction(async (client) => {
       // 1. Policies the proposal was going to create
@@ -269,10 +298,10 @@ export class ProposalsService {
   }
 
   async satisfiablePoliciesResponse(id: UniqueProposal) {
-    const { policies, approvals } = await this.transactions.satisfiablePolicies(id);
+    const { policies, approvals, rejections } = await this.transactions.satisfiablePolicies(id);
 
     const user = getUser();
-    const userHasApproved = approvals.has(user);
+    const userHasResponded = approvals.has(user) || rejections.has(user);
 
     return policies
       .filter(({ satisfiability }) => satisfiability !== PolicySatisfiability.Unsatisifable)
@@ -281,9 +310,9 @@ export class ProposalsService {
           id: `${id}-${policy.key}`,
           key: policy.key,
           satisfied: satisfiability === PolicySatisfiability.Satisfied,
-          requiresUserAction:
+          responseRequested:
+            !userHasResponded &&
             satisfiability === PolicySatisfiability.Satisfiable &&
-            !userHasApproved &&
             policy.approvers.has(user),
         }),
       );

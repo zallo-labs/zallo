@@ -6,3 +6,4 @@ export * from './useProposalSubscription';
 export * from './usePropose';
 export * from './useReject';
 export * from './useRemoveProposal';
+export * from './useUpdateProposal';

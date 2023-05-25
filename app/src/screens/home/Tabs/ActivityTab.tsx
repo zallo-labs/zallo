@@ -61,7 +61,7 @@ export const ActivityTab = withSuspense(
 );
 
 export const ActivityTabBadge = withSuspense(
-  () => <TabBadge value={useProposals({ requiresUserAction: true }).length} style={styles.badge} />,
+  () => <TabBadge value={useProposals({ responseRequested: true }).length} style={styles.badge} />,
   () => null,
 );
 
