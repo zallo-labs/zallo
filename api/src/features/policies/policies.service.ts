@@ -35,21 +35,18 @@ export const policyStateShape = e.shape(e.PolicyState, () => ({
   },
 }));
 
-export const policyStateAsPolicy = <
-  S extends {
-    threshold: number;
-    approvers: {
-      address: string;
-    }[];
-    targets: {
-      to: string;
-      selectors: string[];
-    }[];
-  } | null,
->(
-  key: number,
-  state: S,
-) =>
+export type PolicyStateShape = {
+  threshold: number;
+  approvers: {
+    address: string;
+  }[];
+  targets: {
+    to: string;
+    selectors: string[];
+  }[];
+} | null;
+
+export const policyStateAsPolicy = <S extends PolicyStateShape>(key: number, state: S) =>
   (state
     ? asPolicy({
         key,
