@@ -42,7 +42,7 @@ export class TransactionsService {
   ) {}
 
   async tryExecute(uniqueProposal: UniqueProposal) {
-    const policy = await this.firstSatisfiedPolicy(uniqueProposal);
+    const policy = await this.getExecutingPolicy(uniqueProposal);
     if (!policy) return undefined;
 
     const proposal = await this.db.query(
@@ -167,7 +167,21 @@ export class TransactionsService {
     return { policies, approvals };
   }
 
-  async firstSatisfiedPolicy(id: UniqueProposal): Promise<Policy | undefined> {
+  private async getExecutingPolicy(id: UniqueProposal): Promise<Policy | undefined> {
+    const policy = (
+      await this.db.query(
+        e.select(e.TransactionProposal, () => ({
+          filter_single: isHex(id) ? { hash: id } : { id },
+          policy: {
+            key: true,
+            state: policyStateShape,
+          },
+        })),
+      )
+    )?.policy;
+
+    if (policy?.state) return policyStateAsPolicy(policy.key, policy.state);
+
     return (await this.satisfiablePolicies(id)).policies.find(
       ({ satisfiability }) => satisfiability === PolicySatisfiability.Satisfied,
     )?.policy;
