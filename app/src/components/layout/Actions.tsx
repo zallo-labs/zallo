@@ -1,13 +1,14 @@
 import React, { ReactNode } from 'react';
-import { StyleSheet, View } from 'react-native';
+import { StyleProp, StyleSheet, View, ViewStyle } from 'react-native';
 
 export interface ActionsProps {
   children?: ReactNode;
   horizontal?: boolean;
+  style?: StyleProp<ViewStyle>;
 }
 
-export const Actions = ({ children, horizontal }: ActionsProps) => (
-  <View style={styles.rootContainer}>
+export const Actions = ({ children, horizontal, style }: ActionsProps) => (
+  <View style={[styles.rootContainer, style]}>
     {horizontal ? (
       <View style={styles.hContainer}>
         {React.Children.count(children) === 1 ? <View /> : null}
@@ -22,6 +23,7 @@ export const Actions = ({ children, horizontal }: ActionsProps) => (
 
 const styles = StyleSheet.create({
   rootContainer: {
+    // borderWidth: 1,
     flexGrow: 1,
     justifyContent: 'flex-end',
   },

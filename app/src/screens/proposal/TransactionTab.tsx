@@ -15,10 +15,6 @@ import { TabScreenSkeleton } from '~/components/tab/TabScreenSkeleton';
 import { TokenAmount } from '~/components/token/TokenAmount';
 import { TokenIcon } from '~/components/token/TokenIcon/TokenIcon';
 import { TabNavigatorScreenProp } from './Tabs';
-import { Actions } from '~/components/layout/Actions';
-import { Button } from '~/components/Button';
-import * as Linking from 'expo-linking';
-import { CHAIN } from '@network/provider';
 import { TabBadge } from '~/components/tab/TabBadge';
 
 const Item = (props: ListItemProps) => (
@@ -130,17 +126,6 @@ export const TransactionTab = withSuspense(({ route }: TransactionTabProps) => {
           supporting={<TokenAmount token={feeToken} amount={estimatedFee} />}
           trailing={<FiatValue value={{ token: feeToken, amount: estimatedFee }} />}
         />
-      )}
-
-      {tx && (
-        <Actions>
-          <Button
-            mode="outlined"
-            onPress={() => Linking.openURL(`${CHAIN.explorer}/tx/${tx.hash}`)}
-          >
-            Explorer
-          </Button>
-        </Actions>
       )}
     </ScrollView>
   );

@@ -10,7 +10,7 @@ import { withSuspense } from '~/components/skeleton/withSuspense';
 import { StackNavigatorScreenProps } from '~/navigation/StackNavigator';
 import { useConfirmRemoval } from '../alert/useConfirm';
 import { Tabs } from './Tabs';
-import { ApprovalActions } from './ApprovalActions';
+import { ProposalActions } from './ProposalActions';
 
 export interface ProposalScreenParams {
   proposal: ProposalId;
@@ -55,7 +55,7 @@ export const ProposalScreen = withSuspense(
 
         <Tabs proposal={proposal.hash} />
 
-        <ApprovalActions proposal={proposal} />
+        <ProposalActions proposal={proposal} />
       </Screen>
     );
   },
