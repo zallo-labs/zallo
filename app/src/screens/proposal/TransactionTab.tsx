@@ -158,7 +158,7 @@ export const TransactionTabBadge = ({ proposal: id }: TransactionTabBadgeProps) 
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
+    flexGrow: 1,
     paddingTop: 8,
   },
   badge: {

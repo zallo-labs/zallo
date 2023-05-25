@@ -59,7 +59,7 @@ export const DetailsTab = withSuspense(({ route }: DetailsTabProps) => {
 
 const useStyles = makeStyles(({ colors }) => ({
   container: {
-    flex: 1,
+    flexGrow: 1,
     paddingTop: 8,
   },
   transfersHeaderSupporting: {

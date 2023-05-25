@@ -101,7 +101,7 @@ export const PolicyTab = withSuspense(({ route }: PolicyTabProps) => {
 
 const uesStyles = makeStyles(({ colors }) => ({
   container: {
-    flex: 1,
+    flexGrow: 1,
     paddingTop: 8,
   },
   unsatisfiable: {
