@@ -4,7 +4,7 @@ import { ACCOUNT_INTERFACE, PolicyKey, asAddress, asHex, asPolicyKey } from 'lib
 import { DatabaseService } from '../database/database.service';
 import e from '~/edgeql-js';
 import { and } from '../database/database.util';
-import { selectPolicy } from './policies.service';
+import { selectPolicy } from './policies.util';
 import { Log } from '@ethersproject/abstract-provider';
 
 @Injectable()

@@ -27,7 +27,7 @@ import {
   PolicyStateShape,
   policyStateShape,
   selectPolicy,
-} from '../policies/policies.service';
+} from '../policies/policies.util';
 import { DatabaseService } from '../database/database.service';
 import e from '~/edgeql-js';
 import _ from 'lodash';

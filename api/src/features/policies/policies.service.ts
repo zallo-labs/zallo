@@ -1,18 +1,7 @@
 import { forwardRef, Inject, Injectable } from '@nestjs/common';
-import {
-  ACCOUNT_INTERFACE,
-  Address,
-  asHex,
-  asPolicy,
-  asPolicyKey,
-  asTargets,
-  Policy,
-  PolicyKey,
-  POLICY_ABI,
-} from 'lib';
+import { ACCOUNT_INTERFACE, Address, asHex, asPolicyKey, asTargets, Policy, POLICY_ABI } from 'lib';
 import { ProposalsService, selectTransactionProposal } from '../proposals/proposals.service';
 import { CreatePolicyInput, UniquePolicyInput, UpdatePolicyInput } from './policies.input';
-import { inputAsPolicy } from './policies.util';
 import _ from 'lodash';
 import { UserInputError } from 'apollo-server-core';
 import { UserAccountsService } from '../auth/userAccounts.service';
@@ -20,62 +9,18 @@ import { uuid } from 'edgedb/dist/codecs/ifaces';
 import { DatabaseService } from '../database/database.service';
 import e from '~/edgeql-js';
 import { ShapeFunc } from '../database/database.select';
+import {
+  UniquePolicy,
+  uniquePolicy,
+  inputAsPolicy,
+  policyStateShape,
+  policyStateAsPolicy,
+} from './policies.util';
 
 interface CreateParams extends CreatePolicyInput {
   accountId?: uuid;
   skipProposal?: boolean;
 }
-
-export const policyStateShape = e.shape(e.PolicyState, () => ({
-  approvers: { address: true },
-  threshold: true,
-  targets: {
-    to: true,
-    selectors: true,
-  },
-}));
-
-export type PolicyStateShape = {
-  threshold: number;
-  approvers: {
-    address: string;
-  }[];
-  targets: {
-    to: string;
-    selectors: string[];
-  }[];
-} | null;
-
-export const policyStateAsPolicy = <S extends PolicyStateShape>(key: number, state: S) =>
-  (state
-    ? asPolicy({
-        key,
-        approvers: new Set(state.approvers.map((a) => a.address as Address)),
-        threshold: state.threshold,
-        permissions: {
-          targets: asTargets(state.targets),
-        },
-      })
-    : null) as S extends null ? Policy | null : Policy;
-
-export type UniquePolicy = { id: uuid } | { account: Address; key: PolicyKey };
-
-export const uniquePolicy = (unique: UniquePolicy) =>
-  e.shape(e.Policy, (p) => ({
-    filter_single:
-      'id' in unique
-        ? { id: unique.id }
-        : {
-            account: e.select(p.account, () => ({ filter_single: { address: unique.account } })),
-            key: unique.key,
-          },
-  }));
-
-export const selectPolicy = (id: UniquePolicy, shape?: ShapeFunc<typeof e.Policy>) =>
-  e.select(e.Policy, (p) => ({
-    ...shape?.(p),
-    ...uniquePolicy(id)(p),
-  }));
 
 @Injectable()
 export class PoliciesService {

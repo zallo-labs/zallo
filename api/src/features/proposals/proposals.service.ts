@@ -36,7 +36,7 @@ import { ShapeFunc } from '../database/database.select';
 import { and } from '../database/database.util';
 import { selectAccount } from '../accounts/accounts.util';
 import { selectUser } from '../users/users.service';
-import { selectPolicy } from '../policies/policies.service';
+import { selectPolicy } from '../policies/policies.util';
 
 const ERC20 = Erc20__factory.createInterface();
 const ERC20_TRANSFER = ERC20.functions['transfer(address,uint256)'];
