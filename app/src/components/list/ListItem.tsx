@@ -61,7 +61,7 @@ export const ListItem = ({
   const HeadlineText = ({ style, ...props }: TextProps) => (
     <Text
       variant="bodyLarge"
-      numberOfLines={2}
+      numberOfLines={1}
       {...props}
       style={[styles.headline, textStyle, style]}
     />
