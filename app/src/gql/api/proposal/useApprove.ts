@@ -5,13 +5,19 @@ import { useCallback } from 'react';
 import { Proposal } from './types';
 import {
   ApprovalFieldsFragmentDoc,
+  RejectionFieldsFragmentDoc,
+  SatisfiablePolicyFieldsFragmentDoc,
   TransactionFieldsFragmentDoc,
   useApproveMutation,
 } from '@api/generated';
 import { useApprover } from '@network/useApprover';
+import { authenticate, useAuthSettings } from '~/provider/AuthGate';
+import { showError } from '~/provider/SnackbarProvider';
 
 gql`
   ${ApprovalFieldsFragmentDoc}
+  ${RejectionFieldsFragmentDoc}
+  ${SatisfiablePolicyFieldsFragmentDoc}
   ${TransactionFieldsFragmentDoc}
 
   mutation Approve($input: ApproveInput!) {
@@ -23,6 +29,9 @@ gql`
       rejections {
         ...RejectionFields
       }
+      satisfiablePolicies {
+        ...SatisfiablePolicyFields
+      }
       transaction {
         ...TransactionFields
       }
@@ -33,10 +42,16 @@ gql`
 export const useApprove = () => {
   const [mutate] = useApproveMutation();
   const approver = useApprover();
+  const { require: authRequired } = useAuthSettings();
 
   const approve = useCallback(
     async (p: Proposal) => {
       const signature = await signTx(approver, p.account, p);
+
+      if (authRequired && !(await authenticate({ promptMessage: 'Authenticate to approve' }))) {
+        showError('Authentication is required for approval');
+        return;
+      }
 
       const r = await mutate({
         variables: {
@@ -80,6 +95,12 @@ export const useApprove = () => {
                 },
                 createdAt: r.timestamp.toISO(),
               })),
+            satisfiablePolicies: p.satisfiablePolicies.map((p) => ({
+              __typename: 'SatisfiablePolicy' as const,
+              key: p.key,
+              satisfied: p.satisfied,
+              responseRequested: p.responseRequested,
+            })),
             transaction: p.transaction
               ? {
                   __typename: 'Transaction',
