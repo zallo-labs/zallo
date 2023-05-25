@@ -10,9 +10,15 @@ import { AppState } from 'react-native';
 export const SUPPORTS_BIOMETRICS = Auth.isEnrolledAsync();
 const TIMEOUT_AFTER = Duration.fromObject({ minutes: 5 }).toMillis();
 
+export const authenticate = async (opts?: Auth.LocalAuthenticationOptions) => {
+  const resp = await Auth.authenticateAsync({ promptMessage: 'Authenticate to continue', ...opts });
+  return resp.success || !(await SUPPORTS_BIOMETRICS); // Succeed if the user has removed biometrics
+};
+
 export const AUTH_SETTINGS_ATOM = persistedAtom('AuthenticationSettings', {
   require: null as boolean | null,
 });
+export const useAuthSettings = () => useAtomValue(AUTH_SETTINGS_ATOM);
 
 interface AuthState {
   success?: boolean;
@@ -24,7 +30,7 @@ export interface AuthGateProps {
 }
 
 export const AuthGate = ({ children }: AuthGateProps) => {
-  const { require } = useAtomValue(AUTH_SETTINGS_ATOM);
+  const { require } = useAuthSettings();
 
   const [auth, setAuth] = useState<AuthState>({ success: !require });
 
@@ -32,8 +38,7 @@ export const AuthGate = ({ children }: AuthGateProps) => {
   useAsyncEffect(
     async (isMounted) => {
       if (!auth.success) {
-        const r = await Auth.authenticateAsync({ promptMessage: 'Authenticate to continue' });
-        const success = r.success || !(await SUPPORTS_BIOMETRICS); // Succeed if the user has removed biometrics
+        const success = await authenticate();
         if (isMounted()) setAuth({ success });
       }
     },

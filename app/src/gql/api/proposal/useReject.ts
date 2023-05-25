@@ -1,5 +1,11 @@
 import { gql } from '@apollo/client';
-import { RejectionFieldsFragmentDoc, useRejectMutation } from '@api/generated';
+import {
+  ApprovalFieldsFragmentDoc,
+  RejectionFieldsFragmentDoc,
+  SatisfiablePolicyFieldsFragmentDoc,
+  TransactionFieldsFragmentDoc,
+  useRejectMutation,
+} from '@api/generated';
 import { useCallback } from 'react';
 import { Proposal } from './types';
 import { useApprover } from '@network/useApprover';
@@ -7,13 +13,21 @@ import { DateTime } from 'luxon';
 import { Address } from 'lib';
 
 gql`
+  ${ApprovalFieldsFragmentDoc}
   ${RejectionFieldsFragmentDoc}
+  ${SatisfiablePolicyFieldsFragmentDoc}
 
   mutation Reject($input: ProposalInput!) {
     reject(input: $input) {
       id
+      approvals {
+        ...ApprovalFields
+      }
       rejections {
         ...RejectionFields
+      }
+      satisfiablePolicies {
+        ...SatisfiablePolicyFields
       }
     }
   }
@@ -24,17 +38,26 @@ export const useReject = () => {
   const approver = useApprover();
 
   const reject = useCallback(
-    async ({ hash: id, rejections }: Proposal) =>
+    async (p: Proposal) =>
       mutation({
         variables: {
-          input: { hash: id },
+          input: { hash: p.hash },
         },
         optimisticResponse: {
           reject: {
             __typename: 'TransactionProposal',
-            id,
+            id: p.id,
+            approvals: [...p.approvals.values()].map((a) => ({
+              __typename: 'Approval' as const,
+              id: a.id,
+              user: {
+                __typename: 'User' as const,
+                address: a.user,
+              },
+              createdAt: a.timestamp.toISO(),
+            })),
             rejections: [
-              ...[...rejections.values()].map((r) => ({
+              ...[...p.rejections.values()].map((r) => ({
                 __typename: 'Rejection' as const,
                 id: r.user,
                 user: {
@@ -53,6 +76,12 @@ export const useReject = () => {
                 createdAt: DateTime.now().toISO(),
               },
             ],
+            satisfiablePolicies: p.satisfiablePolicies.map((p) => ({
+              __typename: 'SatisfiablePolicy' as const,
+              key: p.key,
+              satisfied: p.satisfied,
+              responseRequested: p.responseRequested,
+            })),
           },
         },
       }),
