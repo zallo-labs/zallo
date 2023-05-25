@@ -36,7 +36,6 @@ import { ShapeFunc } from '../database/database.select';
 import { and } from '../database/database.util';
 import { selectAccount } from '../accounts/accounts.util';
 import { selectUser } from '../users/users.service';
-import { selectPolicy } from '../policies/policies.util';
 
 const ERC20 = Erc20__factory.createInterface();
 const ERC20_TRANSFER = ERC20.functions['transfer(address,uint256)'];
@@ -175,8 +174,16 @@ export class ProposalsService {
   async update({ hash, policy }: UpdateProposalInput) {
     if (policy !== undefined) {
       await this.db.query(
-        e.update(e.Proposal, (p) => ({
-          filter_single: { hash },
+        e.update(e.TransactionProposal, (p) => ({
+          filter: and(
+            e.op(p.hash, '=', hash),
+            // Require proposal to be pending or failed
+            e.op(
+              p.status,
+              'in',
+              e.set(e.TransactionProposalStatus.Pending, e.TransactionProposalStatus.Failed),
+            ),
+          ),
           set: {
             policy: policy
               ? e.select(e.Policy, () => ({ filter_single: { account: p.account, key: policy } }))

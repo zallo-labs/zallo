@@ -19,6 +19,8 @@ export const SelectedPolicy = ({ proposal, policy }: SelectedPolicyProps) => {
 
   const [expanded, toggleExpanded] = useToggle(false);
 
+  const canChange = proposal.state === 'pending' || proposal.state === 'failed';
+
   if (!policy)
     return <ListItem leading={PolicyUnsatisfiableIcon} headline="No satisfiable policy" />;
 
@@ -27,16 +29,18 @@ export const SelectedPolicy = ({ proposal, policy }: SelectedPolicyProps) => {
       <ListItem
         leading={PolicyIcon}
         headline={policy.name}
-        trailing="Only satisfiable policy"
-        {...(proposal.satisfiablePolicies.length > 1 && {
-          onPress: toggleExpanded,
-          trailing: ({ Text, ...props }) => (
-            <View style={styles.trailingContainer}>
-              <Text>{proposal.satisfiablePolicies.length}</Text>
+        {...(canChange && {
+          trailing: 'Only satisfiable policy',
+          ...(proposal.satisfiablePolicies.length > 1 && {
+            onPress: toggleExpanded,
+            trailing: ({ Text, ...props }) => (
+              <View style={styles.trailingContainer}>
+                <Text>{proposal.satisfiablePolicies.length}</Text>
 
-              <Chevron {...props} expanded={expanded} />
-            </View>
-          ),
+                <Chevron {...props} expanded={expanded} />
+              </View>
+            ),
+          }),
         })}
       />
 
