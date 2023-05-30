@@ -45,12 +45,12 @@ export const ThresholdChip = () => {
 const useStyles = makeStyles(({ colors }, threshold: number) => ({
   chip: {
     ...(!threshold && {
-      backgroundColor: colors.orangeContainer,
+      backgroundColor: colors.warningContainer,
     }),
   },
   chipLabel: {
     ...(!threshold && {
-      color: colors.onOrangeContainer,
+      color: colors.onWarningContainer,
     }),
   },
 }));

@@ -67,6 +67,6 @@ const useStyles = makeStyles(({ colors }) => ({
   noApproversText: {
     marginVertical: 8,
     marginHorizontal: 16,
-    color: colors.orange,
+    color: colors.warning,
   },
 }));

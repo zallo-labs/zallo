@@ -1,6 +1,7 @@
 import { MD3LightTheme as overrided, useTheme as baseUseTheme } from 'react-native-paper';
 import color from 'color';
 import { match } from 'ts-pattern';
+import { Palette } from './palette';
 
 const c = (c: string, f: (color: color<string>) => color<string>) => f(color(c)).hexa();
 
@@ -16,16 +17,14 @@ export const PAPER_THEME = {
 
     onScrim: '#F4EFF4',
 
-    // Green
-    green: '#4b6708',
-    onGreen: '#ffffff',
-    greenContainer: '#cdef85',
-    onGreenContainer: '#131f00',
-    // Orange
-    orange: '#914c00',
-    onOrange: '#ffffff',
-    orangeContainer: '#ffdcc1',
-    onOrangeContainer: '#2f1500',
+    success: Palette.success40, // Dark - Palette.success80
+    onSuccess: Palette.success100, // Dark - Platte.success20
+    successContainer: Palette.success90, // Dark - Palette.success30
+    onSuccessContainer: Palette.success10, // Dark - Palette.success90
+    warning: Palette.warning40, // Dark - Palette.warning80
+    onWarning: Palette.warning100, // Dark - Platte.warning20
+    warningContainer: Palette.warning90, // Dark - Palette.warning30
+    onWarningContainer: Palette.warning10, // Dark - Palette.warning90
   },
 
   // https://m3.material.io/foundations/interaction-states
