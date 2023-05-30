@@ -21,16 +21,16 @@ export interface AddressIconProps {
 export const AddressIcon = withSuspense(
   ({ address, size = ICON_SIZE.medium, style, labelStyle, ...props }: AddressIconProps) => {
     const token = useMaybeToken(address);
-    const name = useAddressLabel(address);
+    // const name = useAddressLabel(address);
 
     if (token) return <TokenIcon token={token} size={size} style={style} />;
 
-    // return <Blockie seed={address} size={size} style={style} />;
+    // if (name)
+    //   return <LabelIcon label={name} size={size} containerStyle={style} labelStyle={labelStyle} />;
 
-    if (name)
-      return <LabelIcon label={name} size={size} containerStyle={style} labelStyle={labelStyle} />;
+    // return <Jazzicon size={size} {...props} address={address} containerStyle={style} />;
 
-    return <Jazzicon size={size} {...props} address={address} containerStyle={style} />;
+    return <Blockie seed={address} size={size} />;
   },
   ({ size = ICON_SIZE.medium }) => <CircleSkeleton size={size} />,
 );

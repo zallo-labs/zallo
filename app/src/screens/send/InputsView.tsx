@@ -109,6 +109,10 @@ export const InputsView = ({ input, setInput, type, setType }: InputsViewProps) 
           )
         ) : undefined}
       </Text>
+
+      {tokenAmount > balance && (
+        <Text style={styles.balanceWarning}>Greater than available balance</Text>
+      )}
     </View>
   );
 };
@@ -136,5 +140,9 @@ const useStyles = makeStyles(({ colors }) => ({
   },
   secondaryInput: {
     textAlign: 'center',
+  },
+  balanceWarning: {
+    marginVertical: 8,
+    color: colors.warning,
   },
 }));

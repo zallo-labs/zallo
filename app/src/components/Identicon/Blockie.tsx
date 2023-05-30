@@ -88,7 +88,7 @@ export const Blockie = ({ size = 24, nBlocks = 8, ...props }: BlockieProps) => {
   const imageData = createImageData(seed, nBlocks);
 
   return (
-    <View style={{ borderRadius: size / 4, overflow: 'hidden' }}>
+    <View style={{ borderRadius: size / 2, overflow: 'hidden' }}>
       <Svg {...props} width={size} height={size}>
         {imageData.map((item, i) => (
           <Rect

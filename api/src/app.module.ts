@@ -22,7 +22,7 @@ import { ContractsModule } from './features/contracts/contracts.module';
 import { ExplorerModule } from './features/explorer/explorer.module';
 import { TransfersModule } from './features/transfers/transfers.module';
 import { EventsModule } from './features/events/events.module';
-import { RedisModule } from './features/util/redis/redis.module';
+import { REDIS_OPTIONS, RedisModule } from './features/util/redis/redis.module';
 
 @Module({
   imports: [
@@ -32,6 +32,7 @@ import { RedisModule } from './features/util/redis/redis.module';
     BullModule.forRoot({
       // Requires separate redis client - https://github.com/OptimalBits/bull/issues/1873
       url: CONFIG.redisUrl,
+      redis: REDIS_OPTIONS,
       defaultJobOptions: {
         removeOnComplete: true,
         removeOnFail: false,

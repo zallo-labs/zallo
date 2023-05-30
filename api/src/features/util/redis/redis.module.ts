@@ -7,10 +7,15 @@ import {
 } from '@liaoliaots/nestjs-redis';
 import { REDIS_PUBLISHER, REDIS_SUBSCRIBER } from '~/decorators/redis.decorator';
 import { RedisHealthIndicator } from './redis.indicator';
+import { RedisOptions } from 'ioredis';
 
-const redisConfig = {
-  url: CONFIG.redisUrl,
+export const REDIS_OPTIONS = {
   family: CONFIG.redisFamily,
+} satisfies RedisOptions;
+
+const config = {
+  url: CONFIG.redisUrl,
+  ...REDIS_OPTIONS,
 } satisfies RedisClientOptions;
 
 @Module({
@@ -19,15 +24,15 @@ const redisConfig = {
       config: [
         {
           namespace: DEFAULT_REDIS_NAMESPACE,
-          ...redisConfig,
+          ...config,
         },
         {
           namespace: REDIS_PUBLISHER,
-          ...redisConfig,
+          ...config,
         },
         {
           namespace: REDIS_SUBSCRIBER,
-          ...redisConfig,
+          ...config,
         },
       ],
     }),

@@ -81,6 +81,6 @@ const useStyles = makeStyles(({ colors }) => ({
   pairWarning: {
     marginHorizontal: 16,
     textAlign: 'center',
-    color: colors.orange,
+    color: colors.warning,
   },
 }));

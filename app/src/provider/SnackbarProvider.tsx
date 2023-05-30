@@ -59,8 +59,8 @@ const Snack = ({
 const useStyles = makeStyles(({ colors }, variant: SnackVariant) => {
   const [backgroundColor, color] = match(variant)
     .with('info', () => [colors.inverseSurface, colors.inverseOnSurface])
-    .with('success', () => [colors.greenContainer, colors.onGreenContainer])
-    .with('warning', () => [colors.orangeContainer, colors.onOrangeContainer])
+    .with('success', () => [colors.successContainer, colors.onSuccessContainer])
+    .with('warning', () => [colors.warningContainer, colors.onWarningContainer])
     .with('error', () => [colors.errorContainer, colors.onErrorContainer])
     .exhaustive();
 

@@ -7,6 +7,7 @@ import { TabNavigatorScreenProp } from '.';
 import { withSuspense } from '~/components/skeleton/withSuspense';
 import { TabScreenSkeleton } from '~/components/tab/TabScreenSkeleton';
 import { StyleSheet } from 'react-native';
+import { Text } from 'react-native-paper';
 
 export type TokensTabProps = TabNavigatorScreenProp<'Tokens'>;
 
@@ -22,6 +23,12 @@ export const TokensTab = withSuspense(
         contentContainerStyle={styles.contentContainer}
         estimatedItemSize={ListItemHeight.DOUBLE_LINE}
         showsVerticalScrollIndicator={false}
+        ListEmptyComponent={
+          <Text variant="titleMedium" style={styles.emptyText}>
+            You have no tokens{'\n'}
+            Receive tokens to get started
+          </Text>
+        }
       />
     );
   },
@@ -33,5 +40,9 @@ export const TokensTab = withSuspense(
 const styles = StyleSheet.create({
   contentContainer: {
     paddingVertical: 8,
+  },
+  emptyText: {
+    margin: 16,
+    textAlign: 'center',
   },
 });
