@@ -1,4 +1,3 @@
-// import '@walletconnect/react-native-compat';
 import 'fast-text-encoding';
 import { SignClient } from '@walletconnect/sign-client';
 import { atom, useAtom, useAtomValue } from 'jotai';

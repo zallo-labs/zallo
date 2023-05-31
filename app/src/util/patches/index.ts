@@ -17,6 +17,8 @@ shim();
 // Crypto needs to be shimmed before this - https://docs.ethers.org/v5/cookbook/react-native/
 import '@ethersproject/shims';
 
+import '@walletconnect/react-native-compat';
+
 // Log ethers events
 import './ethersLogger';
 
