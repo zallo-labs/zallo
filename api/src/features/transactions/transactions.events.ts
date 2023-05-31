@@ -15,13 +15,16 @@ import { Queue } from 'bull';
 import e from '~/edgeql-js';
 import { DatabaseService } from '../database/database.service';
 import { and } from '../database/database.util';
+import { ProviderService } from '../util/provider/provider.service';
+import { EIP712_TX_TYPE } from 'zksync-web3/build/src/utils';
 
 @Injectable()
 export class TransactionsEvents implements OnModuleInit {
   constructor(
-    private db: DatabaseService,
     @InjectQueue(TRANSACTIONS_QUEUE.name)
     private queue: Queue<TransactionEvent>,
+    private db: DatabaseService,
+    private provider: ProviderService,
     private transactionsProcessor: TransactionsProcessor,
     private proposals: ProposalsService,
   ) {
@@ -69,11 +72,14 @@ export class TransactionsEvents implements OnModuleInit {
   private async reverted({ receipt, block }: TransactionData) {
     if (receipt.status !== 0) return;
 
+    const revertReason = await this.getRevertReason(receipt);
+
     const transaction = e.update(e.Transaction, () => ({
       filter_single: { hash: asHex(receipt.transactionHash) },
       set: {
         receipt: e.insert(e.Receipt, {
           success: false,
+          response: revertReason,
           gasUsed: receipt.gasUsed.toBigInt(),
           fee: receipt.gasUsed.toBigInt() * receipt.effectiveGasPrice.toBigInt(),
           block: BigInt(receipt.blockNumber),
@@ -114,5 +120,13 @@ export class TransactionsEvents implements OnModuleInit {
         orphanedTransactionHashes.map((hash) => ({ data: { transaction: hash as Hex } })),
       );
     }
+  }
+
+  private async getRevertReason(receipt: TransactionData['receipt']) {
+    const resp = await this.provider.getTransaction(receipt.transactionHash);
+
+    const reason = await this.provider.call({ ...resp, type: EIP712_TX_TYPE }, receipt.blockNumber);
+
+    return hexDataLength(reason) > 0 ? reason : undefined;
   }
 }
