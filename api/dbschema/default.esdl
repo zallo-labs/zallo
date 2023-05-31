@@ -188,7 +188,9 @@ module default {
   }
 
   abstract type ProposalResponse {
-    required link proposal -> Proposal;
+    required link proposal -> Proposal {
+      on target delete delete source;
+    }
     required link user -> User;
     property createdAt -> datetime {
       readonly := true;
