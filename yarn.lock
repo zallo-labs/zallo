@@ -14270,6 +14270,7 @@ __metadata:
     apollo-server-express: ^3.12.0
     async-mutex: ^0.4.0
     bull: ^4.10.4
+    chardet: ^1.5.1
     class-transformer: ^0.5.1
     connect-redis: ^7.0.1
     cross-fetch: ^3.1.5

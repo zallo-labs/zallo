@@ -2,7 +2,7 @@ import { Field, registerEnumType } from '@nestjs/graphql';
 import { ObjectType } from '@nestjs/graphql';
 import { AddressField } from '~/apollo/scalars/Address.scalar';
 import { Account } from '../accounts/accounts.model';
-import { Receipt } from '../transactions/transactions.model';
+import { Receipt } from '../receipts/receipts.model';
 import { IdField } from '~/apollo/scalars/Id.scalar';
 import { GraphQLBigInt } from 'graphql-scalars';
 
