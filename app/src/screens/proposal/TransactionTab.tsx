@@ -66,7 +66,7 @@ export const TransactionTab = withSuspense(({ route }: TransactionTabProps) => {
           <Item leading={CheckIcon} headline="Status" trailing="Success" />
         ))
         .with({ status: 'failure' }, () => (
-          <Item
+          <ListItem
             leading={CloseIcon}
             headline="Status"
             trailing={({ Text }) => <Text style={styles.failed}>Failed</Text>}
