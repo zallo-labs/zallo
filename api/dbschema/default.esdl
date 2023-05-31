@@ -261,8 +261,11 @@ module default {
 
   type Transfer extending TransferDetails {
     link receipt -> Receipt;
+    required property logIndex -> int32 { constraint min_value(0n); }
     required property block -> bigint { constraint min_value(0n); }
     required property timestamp -> datetime { default := datetime_of_statement(); }
+
+    constraint exclusive on ((.block, .logIndex));
   }
 
   type Transaction {

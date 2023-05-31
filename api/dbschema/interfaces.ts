@@ -169,6 +169,7 @@ export interface Transfer extends TransferDetails {
   "block": bigint;
   "timestamp": Date;
   "receipt"?: Receipt | null;
+  "logIndex": number;
 }
 export type TransferDirection = "In" | "Out";
 export interface current_user extends User {}

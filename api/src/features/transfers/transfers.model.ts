@@ -32,6 +32,8 @@ export class TransferDetails {
 export class Transfer extends TransferDetails {
   receipt?: Receipt | null;
 
+  logIndex: number;
+
   @Field(() => GraphQLBigInt)
   block: bigint;
 

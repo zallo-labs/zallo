@@ -371,6 +371,7 @@ type Transfer {
   direction: TransferDirection!
   from: Address!
   id: ID!
+  logIndex: Float!
   receipt: Receipt
   timestamp: DateTime!
   to: Address!
