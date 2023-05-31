@@ -1,4 +1,4 @@
-import { Injectable, OnModuleInit } from '@nestjs/common';
+import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { ACCOUNT_INTERFACE as ACCOUNT, asAddress, asHex, Hex } from 'lib';
 import { BytesLike } from 'ethers';
 import { hexDataLength } from 'ethers/lib/utils';
@@ -63,6 +63,8 @@ export class TransactionsEvents implements OnModuleInit {
       })),
     );
 
+    Logger.debug(`Proposal executed: ${proposalHash}`);
+
     await this.proposals.publishProposal(
       { account: asAddress(log.address), hash: proposalHash },
       ProposalEvent.executed,
@@ -93,6 +95,8 @@ export class TransactionsEvents implements OnModuleInit {
     );
     if (!proposalHash)
       throw new Error(`Proposal not found for reverted transaction: ${receipt.transactionHash}`);
+
+    Logger.debug(`Proposal reverted: ${proposalHash}`);
 
     await this.proposals.publishProposal(
       { account: asAddress(receipt.from), hash: proposalHash as Hex },
