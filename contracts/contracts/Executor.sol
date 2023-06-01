@@ -5,9 +5,11 @@ import {Transaction} from '@matterlabs/zksync-contracts/l2/system-contracts/libr
 import {IContractDeployer, INonceHolder, DEPLOYER_SYSTEM_CONTRACT, NONCE_HOLDER_SYSTEM_CONTRACT, BOOTLOADER_FORMAL_ADDRESS} from '@matterlabs/zksync-contracts/l2/system-contracts/Constants.sol';
 import {SystemContractsCaller} from '@matterlabs/zksync-contracts/l2/system-contracts/libraries/SystemContractsCaller.sol';
 import {Utils as CastUtils} from '@matterlabs/zksync-contracts/l2/system-contracts/libraries/Utils.sol';
+import {TransactionUtil} from './standards/TransactionUtil.sol';
 
 abstract contract Executor {
   using CastUtils for uint256;
+  using TransactionUtil for Transaction;
 
   /*//////////////////////////////////////////////////////////////
                              EVENTS / ERRORS
@@ -16,7 +18,7 @@ abstract contract Executor {
   event TransactionExecuted(bytes32 txHash, bytes response);
 
   error TransactionReverted(bytes reason);
-  error TransactionAlreadyExecuted(bytes32 txHash, uint256 nonce);
+  error TransactionAlreadyExecuted(bytes32 txHash);
 
   /*//////////////////////////////////////////////////////////////
                                 EXECUTION
@@ -24,6 +26,8 @@ abstract contract Executor {
 
   /// @dev **Only to be called post validation**
   function _executeTransaction(bytes32 txHash, Transaction calldata t) internal {
+    _setExecuted(txHash);
+
     address to = address(uint160(t.to));
     uint32 gas = gasleft().safeCastToU32() - 2000;
 
@@ -48,10 +52,37 @@ abstract contract Executor {
   }
 
   /*//////////////////////////////////////////////////////////////
+                         EXECUTED TRANSACTIONS
+  //////////////////////////////////////////////////////////////*/
+
+  function _executedTransactions() private pure returns (mapping(uint256 => uint256) storage s) {
+    assembly {
+      // keccack256('Executor.executedTransactions')
+      s.slot := 0x471df6250cbf7b0cf3c66793e0bf1c0e5b4836f3a593130285b5e9f28489db7c
+    }
+  }
+
+  function _setExecuted(bytes32 txHash) private {
+    uint256 wordIndex = uint256(txHash) / 256;
+    uint256 bitIndex = uint256(txHash) % 256;
+
+    _executedTransactions()[wordIndex] |= (1 << bitIndex);
+  }
+
+  function _validateTransactionUnexecuted(bytes32 txHash) internal view {
+    uint256 wordIndex = uint256(txHash) / 256;
+    uint256 bitIndex = uint256(txHash) % 256;
+    uint256 mask = (1 << bitIndex);
+
+    if (_executedTransactions()[wordIndex] & mask == mask)
+      revert TransactionAlreadyExecuted(txHash);
+  }
+
+  /*//////////////////////////////////////////////////////////////
                                   NONCE
   //////////////////////////////////////////////////////////////*/
 
-  function _incrementNonceIfEquals(Transaction memory t) internal {
+  function _incrementNonceIfEquals(Transaction calldata t) internal {
     SystemContractsCaller.systemCallWithPropagatedRevert(
       uint32(gasleft()),
       address(NONCE_HOLDER_SYSTEM_CONTRACT),

@@ -2,10 +2,10 @@
 pragma solidity ^0.8.0;
 
 import '../Account.sol';
-import {TransactionHasher} from '../standards/TransactionHasher.sol';
+import {TransactionUtil} from '../standards/TransactionUtil.sol';
 
 contract TestAccount is Account {
   function testExecuteTransaction(Transaction calldata transaction) external {
-    _executeTransaction(TransactionHasher.hash(transaction), transaction);
+    _executeTransaction(TransactionUtil.hash(transaction), transaction);
   }
 }

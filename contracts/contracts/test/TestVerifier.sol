@@ -6,11 +6,11 @@ import {Transaction} from '@matterlabs/zksync-contracts/l2/system-contracts/libr
 import {Policy, PolicyKey, Permission} from '../policy/Policy.sol';
 import {TransactionVerifier} from '../policy/TransactionVerifier.sol';
 import {Approvals, ApprovalsVerifier} from '../policy/ApprovalsVerifier.sol';
-import {TransactionHasher} from '../standards/TransactionHasher.sol';
+import {TransactionUtil} from '../standards/TransactionUtil.sol';
 import {TargetPermission, Target} from '../policy/permissions/TargetPermission.sol';
 
 contract TestVerifier {
-  using TransactionHasher for Transaction;
+  using TransactionUtil for Transaction;
   using TransactionVerifier for Transaction;
   using ApprovalsVerifier for Approvals;
 

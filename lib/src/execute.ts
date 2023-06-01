@@ -18,7 +18,7 @@ export interface TransactionRequestOptions {
   gasPrice?: bigint;
 }
 
-export const asTransactionRequest = async ({
+const asTransactionRequest = async ({
   account: { address: from, provider },
   tx,
   policy,
@@ -30,7 +30,7 @@ export const asTransactionRequest = async ({
     to: tx.to,
     value: tx.value,
     data: tx.data,
-    nonce: tx.nonce,
+    nonce: await provider.getTransactionCount(from),
     from,
     type: EIP712_TX_TYPE,
     chainId: (await provider.getNetwork()).chainId,
@@ -39,7 +39,7 @@ export const asTransactionRequest = async ({
     customData: {
       gasPerPubdata: zk.utils.DEFAULT_GAS_PER_PUBDATA_LIMIT,
       ...customData,
-      customSignature: encodeAccountSignature(policy, approvals),
+      customSignature: encodeAccountSignature(tx, policy, approvals),
     },
   };
 
