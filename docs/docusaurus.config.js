@@ -5,7 +5,7 @@ const darkCodeTheme = require('prism-react-renderer/themes/dracula');
 
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore
-require('dotenv-vault-core').config({ path: '../.env' });
+require('dotenv').config({ path: '../.env' });
 
 const FALLBACK_URL = '/';
 const trackingID = process.env.SITE_TRACKING_ID;

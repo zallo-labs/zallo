@@ -2,7 +2,7 @@ import { ACCOUNT_INTERFACE, Erc20__factory, asSelector } from 'lib';
 import crypto from 'crypto';
 import e, { createClient } from './edgeql-js';
 import * as eql from './interfaces';
-require('dotenv-vault-core').config({ path: '../.env' });
+require('dotenv').config({ path: '../.env' });
 
 const client = createClient();
 
