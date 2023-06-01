@@ -1,16 +1,19 @@
 import { QrCodeIcon, SendIcon, SwapIcon } from '@theme/icons';
 import { StyleSheet, View } from 'react-native';
 import { Button } from 'react-native-paper';
-import { useSelectedAccount } from '~/components/AccountSelector/useSelectedAccount';
 import { useNavigation } from '@react-navigation/native';
 import { useScanAddress } from '../scan/ScanScreen';
+import { Address } from 'lib';
 
-export const QuickActions = () => {
+export interface QuickActionsProps {
+  account: Address;
+}
+
+export const QuickActions = ({ account }: QuickActionsProps) => {
   const { navigate } = useNavigation();
-  const account = useSelectedAccount();
   const scan = useScanAddress();
 
-  const send = async () => navigate('Send', { to: await scan({}) });
+  const send = async () => navigate('Send', { account, to: await scan({ account }) });
   const receive = () => navigate('QrModal', { address: account });
 
   return (

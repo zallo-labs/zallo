@@ -3,22 +3,23 @@ import BottomSheet, { BottomSheetFlatList } from '@gorhom/bottom-sheet';
 import { Sheet } from '~/components/sheet/Sheet';
 import { StackNavigatorScreenProps } from '~/navigation/StackNavigator';
 import { useAccountIds } from '@api/account';
-import {
-  useSelectedAccount,
-  useSetSelectedAccount,
-} from '~/components/AccountSelector/useSelectedAccount';
 import { ListHeader } from '~/components/list/ListHeader';
 import { NavigateNextIcon } from '@theme/icons';
 import { AddressLabel } from '~/components/address/AddressLabel';
 import { ListItem } from '~/components/list/ListItem';
 import { Button } from 'react-native-paper';
 import { StyleSheet } from 'react-native';
+import { Address } from 'lib';
+
+export interface AccountsSheetParams {
+  account: Address;
+}
 
 export type AccountsSheetProps = StackNavigatorScreenProps<'AccountsSheet'>;
 
-export const AccountsSheet = ({ navigation: { navigate, goBack } }: AccountsSheetProps) => {
+export const AccountsSheet = ({ route, navigation: { navigate, goBack } }: AccountsSheetProps) => {
+  const { account: selected } = route.params;
   const ref = useRef<BottomSheet>(null);
-  const [selected, setSelected] = [useSelectedAccount(), useSetSelectedAccount()];
 
   return (
     <Sheet ref={ref} onClose={goBack}>
@@ -42,8 +43,8 @@ export const AccountsSheet = ({ navigation: { navigate, goBack } }: AccountsShee
             trailing={NavigateNextIcon}
             selected={account === selected}
             onPress={() => {
-              setSelected(account);
-              ref.current?.close();
+              navigate('Home', { account });
+              // ref.current?.close();
             }}
           />
         )}

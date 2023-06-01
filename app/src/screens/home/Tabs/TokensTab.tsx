@@ -1,5 +1,4 @@
 import { useTokensWithBalanceByValue } from '@token/useTokensWithBalanceByValue';
-import { useSelectedAccount } from '~/components/AccountSelector/useSelectedAccount';
 import { FlashList } from '@shopify/flash-list';
 import { ListItemHeight } from '~/components/list/ListItem';
 import { TokenItem } from '~/components/token/TokenItem';
@@ -8,12 +7,17 @@ import { withSuspense } from '~/components/skeleton/withSuspense';
 import { TabScreenSkeleton } from '~/components/tab/TabScreenSkeleton';
 import { StyleSheet } from 'react-native';
 import { Text } from 'react-native-paper';
+import { Address } from 'lib';
+
+export interface TokensTabParams {
+  account: Address;
+}
 
 export type TokensTabProps = TabNavigatorScreenProp<'Tokens'>;
 
 export const TokensTab = withSuspense(
-  (_props: TokensTabProps) => {
-    const account = useSelectedAccount();
+  ({ route }: TokensTabProps) => {
+    const { account } = route.params;
     const tokens = useTokensWithBalanceByValue(account);
 
     return (

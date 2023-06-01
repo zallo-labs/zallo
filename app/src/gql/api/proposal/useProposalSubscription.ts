@@ -11,7 +11,6 @@ import {
 import { EventEmitter } from '~/util/EventEmitter';
 import assert from 'assert';
 import { updateQuery } from '~/gql/util';
-import { useSelectedAccount } from '~/components/AccountSelector/useSelectedAccount';
 
 export const PROPOSAL_EXECUTE_EMITTER = new EventEmitter<TransactionProposalFieldsFragment>(
   'Proposal::exeucte',
@@ -29,17 +28,15 @@ gql`
 
 export const useProposalSubscription = (
   opts?: Parameters<typeof useProposalSubscriptionSubscription>[0],
-) => {
-  const selectedAccount = useSelectedAccount();
-
-  return useProposalSubscriptionSubscription({
+) =>
+  useProposalSubscriptionSubscription({
     onData: ({ client: { cache }, data: { data } }) => {
       const proposal = data?.proposal;
       if (!proposal) return;
 
       updateQuery<ProposalsQuery, ProposalsQueryVariables>({
         query: ProposalsDocument,
-        variables: { input: { accounts: [selectedAccount] } },
+        variables: { input: { accounts: [proposal.account.address] } },
         cache,
         defaultData: { proposals: [] },
         updater: (data) => {
@@ -49,7 +46,6 @@ export const useProposalSubscription = (
     },
     ...opts,
   });
-};
 
 export const useEmitProposalExecutionEvents = (input: Partial<ProposalSubscriptionInput> = {}) =>
   useProposalSubscription({

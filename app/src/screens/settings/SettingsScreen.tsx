@@ -3,7 +3,6 @@ import {
   ContactsIcon,
   GithubIcon,
   NotificationsIcon,
-  NotificationsOutlineIcon,
   TwitterIcon,
   WalletConnectIcon,
 } from '@theme/icons';
@@ -12,7 +11,6 @@ import { ETH } from '@token/tokens';
 import { Image } from 'expo-image';
 import { ScrollView } from 'react-native';
 import { Divider } from 'react-native-paper';
-import { useSelectedAccount } from '~/components/AccountSelector/useSelectedAccount';
 import { useAddressLabel } from '~/components/address/AddressLabel';
 import { Appbar } from '~/components/Appbar/Appbar';
 import { Screen } from '~/components/layout/Screen';
@@ -20,12 +18,17 @@ import { ListItem } from '~/components/list/ListItem';
 import { StackNavigatorScreenProps } from '~/navigation/StackNavigator';
 import * as Linking from 'expo-linking';
 import { CONFIG } from '~/util/config';
+import { Address } from 'lib';
+
+export interface SettingsScreenParams {
+  account: Address;
+}
 
 export type SettingsScreenProps = StackNavigatorScreenProps<'Settings'>;
 
-export const SettingsScreen = ({ navigation: { navigate } }: SettingsScreenProps) => {
+export const SettingsScreen = ({ route, navigation: { navigate } }: SettingsScreenProps) => {
+  const { account } = route.params;
   const styles = useStyles();
-  const account = useSelectedAccount();
   const approver = useApprover();
 
   return (
@@ -51,7 +54,7 @@ export const SettingsScreen = ({ navigation: { navigate } }: SettingsScreenProps
           leading={(props) => <WalletConnectIcon {...props} size={styles.icon.width} />}
           headline="Sessions"
           supporting="Manage WalletConnect sessions"
-          onPress={() => navigate('Sessions')}
+          onPress={() => navigate('Sessions', { account })}
         />
 
         <ListItem

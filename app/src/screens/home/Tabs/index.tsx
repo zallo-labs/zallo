@@ -4,14 +4,15 @@ import {
 } from '@react-navigation/material-top-tabs';
 import { TopTabBar } from '~/components/tab/TopTabBar';
 import { showInfo } from '~/provider/SnackbarProvider';
-import { ActivityTab, ActivityTabBadge } from './ActivityTab';
+import { ActivityTab, ActivityTabBadge, ActivityTabParams } from './ActivityTab';
 import { CollectablesTab } from './CollectablesTab';
-import { TokensTab } from './TokensTab';
+import { TokensTab, TokensTabParams } from './TokensTab';
+import { Address } from 'lib';
 
 export type TabNavigatorParamList = {
-  Tokens: undefined;
+  Tokens: TokensTabParams;
   Collectables: undefined;
-  Activity: undefined;
+  Activity: ActivityTabParams;
 };
 
 export type TabNavigatorScreenProp<K extends keyof TabNavigatorParamList> =
@@ -19,10 +20,14 @@ export type TabNavigatorScreenProp<K extends keyof TabNavigatorParamList> =
 
 const Tab = createMaterialTopTabNavigator<TabNavigatorParamList>();
 
-export const Tabs = () => {
+export interface TabsProps {
+  account: Address;
+}
+
+export const Tabs = ({ account }: TabsProps) => {
   return (
     <Tab.Navigator tabBar={TopTabBar}>
-      <Tab.Screen name="Tokens" component={TokensTab} />
+      <Tab.Screen name="Tokens" component={TokensTab} initialParams={{ account }} />
       <Tab.Screen
         name="Collectables"
         component={CollectablesTab}
@@ -36,7 +41,8 @@ export const Tabs = () => {
       <Tab.Screen
         name="Activity"
         component={ActivityTab}
-        options={{ tabBarBadge: () => <ActivityTabBadge /> }}
+        initialParams={{ account }}
+        options={{ tabBarBadge: () => <ActivityTabBadge account={account} /> }}
       />
     </Tab.Navigator>
   );
