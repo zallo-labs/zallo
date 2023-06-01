@@ -221,9 +221,9 @@ export class ProposalsService {
           nonce: true,
         })).nonce,
       ),
-    )) as bigint | undefined; // https://github.com/edgedb/edgedb-js/issues/594
+    )) as bigint | unknown; // https://github.com/edgedb/edgedb-js/issues/594
 
-    return maxNonce !== undefined ? maxNonce + 1n : 0n;
+    return typeof maxNonce === 'bigint' ? maxNonce + 1n : 0n;
   }
 
   private insertSimulation(accountAddress: Address, { to, value, data }: Tx) {
