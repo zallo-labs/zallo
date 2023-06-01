@@ -1,5 +1,5 @@
 import { getChain, makeRequiredEnv, optionalEnv as optional, tryAsAddress } from 'lib';
-require('dotenv-vault-core').config({ path: '../.env' });
+require('dotenv').config({ path: '../.env' });
 
 const required = makeRequiredEnv(!!process.env.JEST_WORKER_ID);
 

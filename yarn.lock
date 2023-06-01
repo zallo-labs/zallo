@@ -8811,19 +8811,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@oclif/color@npm:^1.0.4":
-  version: 1.0.4
-  resolution: "@oclif/color@npm:1.0.4"
-  dependencies:
-    ansi-styles: ^4.2.1
-    chalk: ^4.1.0
-    strip-ansi: ^6.0.1
-    supports-color: ^8.1.1
-    tslib: ^2
-  checksum: 5dc377db5684dc482d299d79037a9dcdfc104482d01a60d99f4f8e92cbc8b89e533086f34f3f6e702ba025d4882e24816199c33529a545a8d43ff8bf542d1cfd
-  languageName: node
-  linkType: hard
-
 "@oclif/command@npm:1.8.16":
   version: 1.8.16
   resolution: "@oclif/command@npm:1.8.16"
@@ -8941,42 +8928,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@oclif/core@npm:^1":
-  version: 1.22.0
-  resolution: "@oclif/core@npm:1.22.0"
-  dependencies:
-    "@oclif/linewrap": ^1.0.0
-    "@oclif/screen": ^3.0.3
-    ansi-escapes: ^4.3.2
-    ansi-styles: ^4.3.0
-    cardinal: ^2.1.1
-    chalk: ^4.1.2
-    clean-stack: ^3.0.1
-    cli-progress: ^3.10.0
-    debug: ^4.3.4
-    ejs: ^3.1.6
-    fs-extra: ^9.1.0
-    get-package-type: ^0.1.0
-    globby: ^11.1.0
-    hyperlinker: ^1.0.0
-    indent-string: ^4.0.0
-    is-wsl: ^2.2.0
-    js-yaml: ^3.14.1
-    natural-orderby: ^2.0.3
-    object-treeify: ^1.1.33
-    password-prompt: ^1.1.2
-    semver: ^7.3.7
-    string-width: ^4.2.3
-    strip-ansi: ^6.0.1
-    supports-color: ^8.1.1
-    supports-hyperlinks: ^2.2.0
-    tslib: ^2.4.1
-    widest-line: ^3.1.0
-    wrap-ansi: ^7.0.0
-  checksum: 61b3cd030acfdeff942ac59e2e46207607119a5429c4bc2d0975bcfd9d46e347cfb64e8be8ec841c8d6fbc087ece0a4835f758cc38453505395eaff76e98f99a
-  languageName: node
-  linkType: hard
-
 "@oclif/core@npm:^1.0.8, @oclif/core@npm:^1.1.1, @oclif/core@npm:^1.2.0, @oclif/core@npm:^1.2.1, @oclif/core@npm:^1.3.6, @oclif/core@npm:^1.7.0":
   version: 1.12.0
   resolution: "@oclif/core@npm:1.12.0"
@@ -9046,79 +8997,6 @@ __metadata:
     widest-line: ^3.1.0
     wrap-ansi: ^7.0.0
   checksum: 8d19eb9787301e26b5f2043caadc55792360b0010dbe79a3fa3289b81465989bbc6308a880d5a22d528a1b784aa5e72c0038bdab2bd339833cd0f3efdca8d25b
-  languageName: node
-  linkType: hard
-
-"@oclif/core@npm:^2.1.2":
-  version: 2.1.2
-  resolution: "@oclif/core@npm:2.1.2"
-  dependencies:
-    "@types/cli-progress": ^3.11.0
-    ansi-escapes: ^4.3.2
-    ansi-styles: ^4.3.0
-    cardinal: ^2.1.1
-    chalk: ^4.1.2
-    clean-stack: ^3.0.1
-    cli-progress: ^3.11.2
-    debug: ^4.3.4
-    ejs: ^3.1.6
-    fs-extra: ^9.1.0
-    get-package-type: ^0.1.0
-    globby: ^11.1.0
-    hyperlinker: ^1.0.0
-    indent-string: ^4.0.0
-    is-wsl: ^2.2.0
-    js-yaml: ^3.14.1
-    natural-orderby: ^2.0.3
-    object-treeify: ^1.1.33
-    password-prompt: ^1.1.2
-    semver: ^7.3.7
-    string-width: ^4.2.3
-    strip-ansi: ^6.0.1
-    supports-color: ^8.1.1
-    supports-hyperlinks: ^2.2.0
-    tslib: ^2.5.0
-    widest-line: ^3.1.0
-    wordwrap: ^1.0.0
-    wrap-ansi: ^7.0.0
-  checksum: cb8e119ca0d973a07ee1f05d8f99ace4cdc9431aa3fe09719f6d7237e54197b70e96e275a898f8e747f58714e70c10694db162d9aec2da3b21e2f6d227d12121
-  languageName: node
-  linkType: hard
-
-"@oclif/core@npm:^2.7.1, @oclif/core@npm:^2.8.0":
-  version: 2.8.2
-  resolution: "@oclif/core@npm:2.8.2"
-  dependencies:
-    "@types/cli-progress": ^3.11.0
-    ansi-escapes: ^4.3.2
-    ansi-styles: ^4.3.0
-    cardinal: ^2.1.1
-    chalk: ^4.1.2
-    clean-stack: ^3.0.1
-    cli-progress: ^3.12.0
-    debug: ^4.3.4
-    ejs: ^3.1.8
-    fs-extra: ^9.1.0
-    get-package-type: ^0.1.0
-    globby: ^11.1.0
-    hyperlinker: ^1.0.0
-    indent-string: ^4.0.0
-    is-wsl: ^2.2.0
-    js-yaml: ^3.14.1
-    natural-orderby: ^2.0.3
-    object-treeify: ^1.1.33
-    password-prompt: ^1.1.2
-    semver: ^7.3.7
-    string-width: ^4.2.3
-    strip-ansi: ^6.0.1
-    supports-color: ^8.1.1
-    supports-hyperlinks: ^2.2.0
-    ts-node: ^10.9.1
-    tslib: ^2.5.0
-    widest-line: ^3.1.0
-    wordwrap: ^1.0.0
-    wrap-ansi: ^7.0.0
-  checksum: 8d3bd8064a78f7dc08136da531b19ca5b1fea3a96f7344d93daa0c6eddb731cd2dcd4035f9a6adb489684d8fa08c6cafb846d02c49f322f5d2bef09d1ef334e3
   languageName: node
   linkType: hard
 
@@ -9204,15 +9082,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@oclif/plugin-help@npm:^5.2.9":
-  version: 5.2.9
-  resolution: "@oclif/plugin-help@npm:5.2.9"
-  dependencies:
-    "@oclif/core": ^2.8.0
-  checksum: bf75daa86db8aac91230824a9a4bb301b243738280128baa53f8dca6cc14b5340c2fca37733c84e89d242e7947094ba4fc46693a0a44bbd24144a50c1c364732
-  languageName: node
-  linkType: hard
-
 "@oclif/plugin-not-found@npm:2.3.1":
   version: 2.3.1
   resolution: "@oclif/plugin-not-found@npm:2.3.1"
@@ -9222,18 +9091,6 @@ __metadata:
     fast-levenshtein: ^3.0.0
     lodash: ^4.17.21
   checksum: b6aeddb7335f2963b5835f0a7f9c0fe0952e112a0360373974059d927cbb21cb9f3c3cb0dcf36268d8db5e524877268c7bc3def51a4f907fe7fdc5471fb42819
-  languageName: node
-  linkType: hard
-
-"@oclif/plugin-not-found@npm:^2.3.13":
-  version: 2.3.20
-  resolution: "@oclif/plugin-not-found@npm:2.3.20"
-  dependencies:
-    "@oclif/color": ^1.0.4
-    "@oclif/core": ^2.1.2
-    fast-levenshtein: ^3.0.0
-    lodash: ^4.17.21
-  checksum: a4e6dde419bb5413763fc98fb2e88d215c6b55d0cd88bae75a58821ec2c4834b92e89563b88d57f9da55ee5da11c6ca8aebe4bb7e86ba003740fa25c48ac9a11
   languageName: node
   linkType: hard
 
@@ -9256,26 +9113,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@oclif/plugin-update@npm:^3.1.9":
-  version: 3.1.10
-  resolution: "@oclif/plugin-update@npm:3.1.10"
-  dependencies:
-    "@oclif/color": ^1.0.4
-    "@oclif/core": ^2.7.1
-    cross-spawn: ^7.0.3
-    debug: ^4.3.1
-    filesize: ^6.1.0
-    fs-extra: ^9.0.1
-    http-call: ^5.3.0
-    inquirer: ^8.2.5
-    lodash.throttle: ^4.1.1
-    log-chopper: ^1.0.2
-    semver: ^7.3.8
-    tar-fs: ^2.1.1
-  checksum: 7d1ef9f26f3b3352bfa711a1982a82760c3a88824fbbe8409fbfed2c441c9332985d6a437c5af7e4f54efd25a732724efb071197729f4b0988531e2e98b5d450
-  languageName: node
-  linkType: hard
-
 "@oclif/plugin-warn-if-update-available@npm:2.0.4":
   version: 2.0.4
   resolution: "@oclif/plugin-warn-if-update-available@npm:2.0.4"
@@ -9291,21 +9128,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@oclif/plugin-warn-if-update-available@npm:^2.0.24":
-  version: 2.0.33
-  resolution: "@oclif/plugin-warn-if-update-available@npm:2.0.33"
-  dependencies:
-    "@oclif/core": ^2.7.1
-    chalk: ^4.1.0
-    debug: ^4.1.0
-    fs-extra: ^9.0.1
-    http-call: ^5.2.2
-    lodash: ^4.17.21
-    semver: ^7.3.8
-  checksum: 71c7860e7516da154b6f395b705019dabbab568a6ab4948672a8a2cd8d192454d03b9a7d413e61c097779fe8be327f7ad1ac5db1448969bedfd34d8adcac0f92
-  languageName: node
-  linkType: hard
-
 "@oclif/screen@npm:^1.0.4 ":
   version: 1.0.4
   resolution: "@oclif/screen@npm:1.0.4"
@@ -9317,13 +9139,6 @@ __metadata:
   version: 3.0.2
   resolution: "@oclif/screen@npm:3.0.2"
   checksum: 962678c65f1cf5b06864295a212020e3ddda36ab37190ca317e938943325a5acdbf3cb2761c371612daf1565e397fa5ff7bd0563887d746ccfde7c4ab312f005
-  languageName: node
-  linkType: hard
-
-"@oclif/screen@npm:^3.0.3":
-  version: 3.0.3
-  resolution: "@oclif/screen@npm:3.0.3"
-  checksum: c40650869b1c0c5c16e6ac4a82e10ee7a2879c85bdbddcb10b342dac84b62f6a6b69ec484d485b8ce0970b6383e87535a18737cca077e646818f240afc2a7c26
   languageName: node
   linkType: hard
 
@@ -13633,13 +13448,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"abortcontroller-polyfill@npm:1.7.5":
-  version: 1.7.5
-  resolution: "abortcontroller-polyfill@npm:1.7.5"
-  checksum: daf4169f4228ae0e4f4dbcfa782e501b923667f2666b7c55bd3b7664e5d6b100e333a93371173985fdf21f65d7dfba15bdb2e6031bdc9e57e4ce0297147da3aa
-  languageName: node
-  linkType: hard
-
 "absolute-path@npm:^0.0.0":
   version: 0.0.0
   resolution: "absolute-path@npm:0.0.0"
@@ -14268,10 +14076,8 @@ __metadata:
     class-transformer: ^0.5.1
     connect-redis: ^7.0.1
     cross-fetch: ^3.1.5
-    dotenv: ^16.0.3
+    dotenv: ^16.1.3
     dotenv-cli: ^7.2.1
-    dotenv-vault-core: ^0.7.0
-    dotenv-vault-core-cli: ^0.1.4
     edgedb: ^1.2.1
     eslint: ^8.38.0
     eslint-config-prettier: ^8.8.0
@@ -14790,8 +14596,7 @@ __metadata:
     chardet: ^1.5.1
     color: ^4.2.3
     concurrently: ^7.6.0
-    dotenv-vault-core: ^0.7.0
-    dotenv-vault-core-cli: ^0.1.4
+    dotenv: ^16.1.3
     eas-cli: ^3.12.0
     eslint: ^8.38.0
     eslint-config-prettier: ^8.8.0
@@ -15483,16 +15288,6 @@ __metadata:
   dependencies:
     follow-redirects: ^1.14.7
   checksum: 2a8a3787c05f2a0c9c3878f49782357e2a9f38945b93018fb0c4fd788171c43dceefbb577988628e09fea53952744d1ecebde234b561f1e703aa43e0a598a3ad
-  languageName: node
-  linkType: hard
-
-"axios@npm:^0.27.2":
-  version: 0.27.2
-  resolution: "axios@npm:0.27.2"
-  dependencies:
-    follow-redirects: ^1.14.9
-    form-data: ^4.0.0
-  checksum: 38cb7540465fe8c4102850c4368053c21683af85c5fdf0ea619f9628abbcb59415d1e22ebc8a6390d2bbc9b58a9806c874f139767389c862ec9b772235f06854
   languageName: node
   linkType: hard
 
@@ -16731,7 +16526,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"byline@npm:5.0.0, byline@npm:5.x":
+"byline@npm:5.0.0":
   version: 5.0.0
   resolution: "byline@npm:5.0.0"
   checksum: 737ca83e8eda2976728dae62e68bc733aea095fab08db4c6f12d3cee3cf45b6f97dce45d1f6b6ff9c2c947736d10074985b4425b31ce04afa1985a4ef3d334a7
@@ -17526,7 +17321,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"cli-progress@npm:3.11.2, cli-progress@npm:^3.10.0, cli-progress@npm:^3.11.2":
+"cli-progress@npm:3.11.2, cli-progress@npm:^3.10.0":
   version: 3.11.2
   resolution: "cli-progress@npm:3.11.2"
   dependencies:
@@ -18301,7 +18096,7 @@ __metadata:
     "@typescript-eslint/parser": ^5.58.0
     chai: ^4.3.7
     chai-as-promised: ^7.1.1
-    dotenv-vault: ^1.19.0
+    dotenv: ^16.1.3
     eslint: ^8.38.0
     eslint-config-prettier: ^8.8.0
     eslint-config-standard: ^17.0.0
@@ -19939,7 +19734,7 @@ __metadata:
     bufferutil: ^4.0.7
     clsx: ^1.2.1
     docusaurus-plugin-sass: ^0.2.3
-    dotenv-vault-core: ^0.7.0
+    dotenv: ^16.1.3
     graphql: ^16.6.0
     graphql-tag: ^2.12.6
     lib: "workspace:*"
@@ -20162,61 +19957,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"dotenv-vault-core-cli@npm:^0.1.4":
-  version: 0.1.4
-  resolution: "dotenv-vault-core-cli@npm:0.1.4"
-  dependencies:
-    cross-spawn: ^7.0.3
-    dotenv-expand: ^10.0.0
-    dotenv-vault-core: ^0.7.0
-    minimist: ^1.2.8
-    path: ^0.12.7
-  bin:
-    dotenv-vault-core: main.js
-  checksum: ef2f4df6b8d89ee263b7c67252ecc2d636cf09130859fcae4ea05480e9af6a08100b2378167b917f0e61acf8232d50054ddb90dcdb1c1ec489a04a9f0dad5fae
-  languageName: node
-  linkType: hard
-
-"dotenv-vault-core@npm:0.7.0, dotenv-vault-core@npm:^0.7.0":
-  version: 0.7.0
-  resolution: "dotenv-vault-core@npm:0.7.0"
-  dependencies:
-    dotenv: ^16.0.3
-  checksum: 66084a7a836a364204131a4eb29b33fac0ed240d053ca12c20d0d6883d0f39390777f5332b34ae6906a18c102de0720b8bdfad3d7119cf4d50d38e9ab70373f5
-  languageName: node
-  linkType: hard
-
-"dotenv-vault@npm:^1.19.0":
-  version: 1.19.0
-  resolution: "dotenv-vault@npm:1.19.0"
-  dependencies:
-    "@oclif/core": ^1
-    "@oclif/plugin-help": ^5.2.9
-    "@oclif/plugin-not-found": ^2.3.13
-    "@oclif/plugin-update": ^3.1.9
-    "@oclif/plugin-warn-if-update-available": ^2.0.24
-    abortcontroller-polyfill: 1.7.5
-    axios: ^0.27.2
-    chalk: ^4.1.2
-    dotenv: 16.0.3
-    dotenv-vault-core: 0.7.0
-  bin:
-    dotenv-vault: bin/run
-  checksum: 0655a5d1168e5c2bb4b27c6f7a5f92041b377bbcb67e14f34e31f287b80aa6d9f446fb06b21263e5434c0c126b2604a5470aeda5ea471439e6b1aa86bde8ca14
-  languageName: node
-  linkType: hard
-
-"dotenv@npm:16.0.3, dotenv@npm:^16.0.3":
-  version: 16.0.3
-  resolution: "dotenv@npm:16.0.3"
-  checksum: afcf03f373d7a6d62c7e9afea6328e62851d627a4e73f2e12d0a8deae1cd375892004f3021883f8aec85932cd2834b091f568ced92b4774625b321db83b827f8
-  languageName: node
-  linkType: hard
-
-"dotenv@npm:^16.0.0":
-  version: 16.0.1
-  resolution: "dotenv@npm:16.0.1"
-  checksum: f459ffce07b977b7f15d8cc4ee69cdff77d4dd8c5dc8c85d2d485ee84655352c2415f9dd09d42b5b5985ced3be186130871b34e2f3e2569ebc72fbc2e8096792
+"dotenv@npm:^16.1.3":
+  version: 16.1.3
+  resolution: "dotenv@npm:16.1.3"
+  checksum: 8f73bae720161cf365b679de162fe79a05f5b7a21d0d2b8bf9fb0601a2ed30f7e9dc49fa8b752d93206e4b7d427eccea2f383a1622cd5da4a1824f43bf8f780b
   languageName: node
   linkType: hard
 
@@ -22891,13 +22635,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"filesize@npm:^6.1.0":
-  version: 6.4.0
-  resolution: "filesize@npm:6.4.0"
-  checksum: 83619b0a656225e84ba9a73271b80091629c0e88c2936c1ebd36fff96fb0e2fbae0273c2caccd522c02bc1a32ad9eba869c28c6b2c36e06187d25fd298c3dfe8
-  languageName: node
-  linkType: hard
-
 "filesize@npm:^8.0.6":
   version: 8.0.7
   resolution: "filesize@npm:8.0.7"
@@ -23141,7 +22878,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"follow-redirects@npm:^1.14.7, follow-redirects@npm:^1.14.9, follow-redirects@npm:^1.15.0":
+"follow-redirects@npm:^1.14.7, follow-redirects@npm:^1.15.0":
   version: 1.15.2
   resolution: "follow-redirects@npm:1.15.2"
   peerDependenciesMeta:
@@ -25330,7 +25067,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"http-call@npm:^5.2.2, http-call@npm:^5.3.0":
+"http-call@npm:^5.2.2":
   version: 5.3.0
   resolution: "http-call@npm:5.3.0"
   dependencies:
@@ -25865,7 +25602,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"inquirer@npm:8.2.5, inquirer@npm:^8.2.5":
+"inquirer@npm:8.2.5":
   version: 8.2.5
   resolution: "inquirer@npm:8.2.5"
   dependencies:
@@ -29648,15 +29385,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"log-chopper@npm:^1.0.2":
-  version: 1.0.2
-  resolution: "log-chopper@npm:1.0.2"
-  dependencies:
-    byline: 5.x
-  checksum: c5990ddaab57ee642d991f451f39fa7aeed89db94aae1e95abb8e77b50f6307d97b2f8fec72344f69726a9e40c22cdbdc09a9d14d0668fc43e0cef761debedd8
-  languageName: node
-  linkType: hard
-
 "log-symbols@npm:3.0.0, log-symbols@npm:^3.0.0":
   version: 3.0.0
   resolution: "log-symbols@npm:3.0.0"
@@ -30970,13 +30698,6 @@ __metadata:
   version: 1.2.6
   resolution: "minimist@npm:1.2.6"
   checksum: d15428cd1e11eb14e1233bcfb88ae07ed7a147de251441d61158619dfb32c4d7e9061d09cab4825fdee18ecd6fce323228c8c47b5ba7cd20af378ca4048fb3fb
-  languageName: node
-  linkType: hard
-
-"minimist@npm:^1.2.8":
-  version: 1.2.8
-  resolution: "minimist@npm:1.2.8"
-  checksum: 75a6d645fb122dad29c06a7597bddea977258957ed88d7a6df59b5cd3fe4a527e253e9bbf2e783e4b73657f9098b96a5fe96ab8a113655d4109108577ecf85b0
   languageName: node
   linkType: hard
 
@@ -33305,16 +33026,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"path@npm:^0.12.7":
-  version: 0.12.7
-  resolution: "path@npm:0.12.7"
-  dependencies:
-    process: ^0.11.1
-    util: ^0.10.3
-  checksum: 5dedb71e78fc008fcba797defc0b4e1cf06c1f18e0a631e03ba5bb505136f587ff017afc14f9a3d481cbe77aeedff7dc0c1d2ce4d820c1ebf3c4281ca49423a1
-  languageName: node
-  linkType: hard
-
 "pathval@npm:^1.1.1":
   version: 1.1.1
   resolution: "pathval@npm:1.1.1"
@@ -34589,7 +34300,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"process@npm:^0.11.0, process@npm:^0.11.1, process@npm:^0.11.10":
+"process@npm:^0.11.0, process@npm:^0.11.10":
   version: 0.11.10
   resolution: "process@npm:0.11.10"
   checksum: bfcce49814f7d172a6e6a14d5fa3ac92cc3d0c3b9feb1279774708a719e19acd673995226351a082a9ae99978254e320ccda4240ddc474ba31a76c79491ca7c3
@@ -39511,18 +39222,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"tar-fs@npm:^2.1.1":
-  version: 2.1.1
-  resolution: "tar-fs@npm:2.1.1"
-  dependencies:
-    chownr: ^1.1.1
-    mkdirp-classic: ^0.5.2
-    pump: ^3.0.0
-    tar-stream: ^2.1.4
-  checksum: f5b9a70059f5b2969e65f037b4e4da2daf0fa762d3d232ffd96e819e3f94665dbbbe62f76f084f1acb4dbdcce16c6e4dac08d12ffc6d24b8d76720f4d9cf032d
-  languageName: node
-  linkType: hard
-
 "tar-fs@npm:~1.16.3":
   version: 1.16.3
   resolution: "tar-fs@npm:1.16.3"
@@ -39562,7 +39261,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"tar-stream@npm:^2.0.0, tar-stream@npm:^2.1.4, tar-stream@npm:^2.2.0":
+"tar-stream@npm:^2.0.0, tar-stream@npm:^2.2.0":
   version: 2.2.0
   resolution: "tar-stream@npm:2.2.0"
   dependencies:
