@@ -125,6 +125,10 @@ A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date
 """
 scalar DateTime
 
+input ExecuteInput {
+  proposalHash: Bytes32!
+}
+
 """
 The `JSON` scalar type represents JSON values as specified by [ECMA-404](http://www.ecma-international.org/publications/files/ECMA-ST/ECMA-404.pdf).
 """
@@ -135,6 +139,7 @@ type Mutation {
   createAccount(input: CreateAccountInput!): Account!
   createPolicy(input: CreatePolicyInput!): Policy!
   deleteContact(input: ContactInput!): ID
+  execute(input: ExecuteInput!): Transaction
   propose(input: ProposeInput!): TransactionProposal!
   reject(input: ProposalInput!): TransactionProposal!
   removePolicy(input: UniquePolicyInput!): Policy!
@@ -263,6 +268,7 @@ type Query {
   proposal(input: ProposalInput!): TransactionProposal
   proposals(input: ProposalsInput! = {}): [TransactionProposal!]!
   requestableTokens(input: RequestTokensInput!): [Address!]!
+  transaction(input: TransactionInput!): Transaction
   transfers(input: TransfersInput! = {}): [Transfer!]!
   user(input: UserInput! = {}): User!
 }
@@ -332,6 +338,10 @@ type Transaction {
   proposal: TransactionProposal!
   receipt: Receipt
   submittedAt: DateTime!
+}
+
+input TransactionInput {
+  hash: Bytes32!
 }
 
 type TransactionProposal {

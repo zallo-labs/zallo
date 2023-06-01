@@ -33,6 +33,8 @@ import e from '~/edgeql-js';
 import _ from 'lodash';
 import { ProposalEvent } from '../proposals/proposals.input';
 import { selectUser } from '../users/users.service';
+import { ShapeFunc } from '../database/database.select';
+import { UserInputError } from 'apollo-server-core';
 
 @Injectable()
 export class TransactionsService {
@@ -44,6 +46,15 @@ export class TransactionsService {
     @Inject(forwardRef(() => ProposalsService))
     private proposals: ProposalsService,
   ) {}
+
+  async selectUnique(txHash: Hex, shape?: ShapeFunc<typeof e.Transaction>) {
+    return this.db.query(
+      e.select(e.Transaction, (t) => ({
+        filter_single: { hash: txHash },
+        ...shape?.(t),
+      })),
+    );
+  }
 
   async tryExecute(uniqueProposal: UniqueProposal) {
     const proposal = await this.db.query(
@@ -71,9 +82,12 @@ export class TransactionsService {
           key: true,
           state: policyStateShape,
         },
+        status: true,
       })),
     );
-    if (!proposal) throw new Error(`Proposal ${uniqueProposal} not found`);
+    if (!proposal) throw new UserInputError(`Proposal ${uniqueProposal} not found`);
+    if (proposal.status !== 'Pending' && proposal.status !== 'Failed')
+      throw new UserInputError(`Proposal ${uniqueProposal} must be pending or failed to execute`);
 
     const approvals = (
       await mapAsync(proposal.approvals, (a) =>

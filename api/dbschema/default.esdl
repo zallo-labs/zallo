@@ -279,6 +279,10 @@ module default {
       default := datetime_of_statement();
     }
     link receipt -> Receipt;
+
+    access policy members_can_select_insert
+      allow select, insert
+      using (.proposal.account.id in global current_user_accounts);
   }
 
   type Receipt {

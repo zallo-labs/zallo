@@ -5,10 +5,11 @@ import { TRANSACTIONS_QUEUE } from './transactions.queue';
 import { TransactionsService } from './transactions.service';
 import { TransactionsEvents } from './transactions.events';
 import { ProposalsModule } from '../proposals/proposals.module';
+import { TransactionsResolver } from './transactions.resolver';
 
 @Module({
   imports: [BullModule.registerQueue(TRANSACTIONS_QUEUE), forwardRef(() => ProposalsModule)],
   exports: [TransactionsService, TransactionsProcessor],
-  providers: [TransactionsService, TransactionsProcessor, TransactionsEvents],
+  providers: [TransactionsService, TransactionsResolver, TransactionsProcessor, TransactionsEvents],
 })
 export class TransactionsModule {}
