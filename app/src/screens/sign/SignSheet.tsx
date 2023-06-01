@@ -59,7 +59,7 @@ export const SignSheet = ({ route, navigation: { goBack } }: SignSheetProps) => 
           )
           .exhaustive();
 
-        return encodeAccountSignature(policy, [
+        return encodeAccountSignature(0n, policy, [
           { approver: asAddress(approver.address), signature, type: 'secp256k1' },
         ]);
       })(),

@@ -39,7 +39,7 @@ const asTransactionRequest = async ({
     customData: {
       gasPerPubdata: zk.utils.DEFAULT_GAS_PER_PUBDATA_LIMIT,
       ...customData,
-      customSignature: encodeAccountSignature(tx, policy, approvals),
+      customSignature: encodeAccountSignature(tx.nonce, policy, approvals),
     },
   };
 
