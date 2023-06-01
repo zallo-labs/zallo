@@ -23,88 +23,98 @@ import { HideNavigationBar } from '~/components/NavigationBar/HideNavigationBar'
 export const SCAN_ADDRESS_EMITTER = new EventEmitter<Address>('Scan::Address');
 export const useScanAddress = SCAN_ADDRESS_EMITTER.createUseSelect('Scan');
 
-export type ScanScreenParams = {};
+export interface ScanScreenParams {
+  account?: Address;
+}
 
 export type ScanScreenProps = StackNavigatorScreenProps<'Scan'>;
 
-export const ScanScreen = withSuspense(({ navigation: { goBack, navigate } }: ScanScreenProps) => {
-  const walletconnect = useWalletConnect();
+export const ScanScreen = withSuspense(
+  ({ route, navigation: { goBack, navigate } }: ScanScreenProps) => {
+    const { account } = route.params;
+    const walletconnect = useWalletConnect();
 
-  const [scan, setScan] = useState(true);
+    const [scan, setScan] = useState(true);
 
-  useFocusEffect(useCallback(() => setScan(true), [setScan]));
+    useFocusEffect(useCallback(() => setScan(true), [setScan]));
 
-  const tryHandle = async (data: string) => {
-    setScan(false);
+    const tryHandle = async (data: string) => {
+      setScan(false);
 
-    const address = tryAsAddress(data) || parseAddressLink(data)?.target_address;
-    if (address) {
-      const nListeners = SCAN_ADDRESS_EMITTER.emit(address);
-      if (!nListeners) navigate('AddressSheet', { address });
-      return true;
-    } else if (isWalletConnectUri(data)) {
-      try {
-        await walletconnect.core.pairing.pair({ uri: data });
-        goBack();
+      const address = tryAsAddress(data) || parseAddressLink(data)?.target_address;
+      if (address) {
+        const nListeners = SCAN_ADDRESS_EMITTER.emit(address);
+        if (!nListeners) {
+          if (!account) throw new Error('No listeners or account');
+          navigate('AddressSheet', { account, address });
+        }
+        if (!nListeners && account) navigate('AddressSheet', { account, address });
         return true;
-      } catch {
-        showError('Failed to connect. Please refresh the DApp and try again');
+      } else if (isWalletConnectUri(data)) {
+        try {
+          await walletconnect.core.pairing.pair({ uri: data });
+          goBack();
+          return true;
+        } catch {
+          showError('Failed to connect. Please refresh the DApp and try again');
+        }
       }
-    }
 
-    setScan(true);
-    return false;
-  };
+      setScan(true);
+      return false;
+    };
 
-  const [permissionsRequested, setPermissionsRequested] = useState(false);
-  const [permission, requestPermission] = Camera.useCameraPermissions();
+    const [permissionsRequested, setPermissionsRequested] = useState(false);
+    const [permission, requestPermission] = Camera.useCameraPermissions();
 
-  useAsyncEffect(
-    async (isMounted) => {
-      if (!permission?.granted) {
-        await requestPermission();
-        if (isMounted()) setPermissionsRequested(true);
-      }
-    },
-    [requestPermission],
-  );
+    useAsyncEffect(
+      async (isMounted) => {
+        if (!permission?.granted) {
+          await requestPermission();
+          if (isMounted()) setPermissionsRequested(true);
+        }
+      },
+      [requestPermission],
+    );
 
-  return permission?.granted || !permissionsRequested ? (
-    <Camera
-      onBarCodeScanned={scan ? ({ data }) => tryHandle(data) : undefined}
-      barCodeScannerSettings={{ barCodeTypes: [BarCodeScanner.Constants.BarCodeType.qr] }}
-      style={StyleSheet.absoluteFill}
-      ratio="16:9"
-      useCamera2Api={false} // Causes crash on screen unmount - https://github.com/expo/expo/issues/18996
-    >
-      <HideNavigationBar />
-      <Overlay onData={tryHandle} />
-    </Camera>
-  ) : (
-    <Screen>
-      <Appbar.Header>
-        <AppbarBack />
-        <Appbar.Content title="Permission required" />
-      </Appbar.Header>
+    return permission?.granted || !permissionsRequested ? (
+      <Camera
+        onBarCodeScanned={scan ? ({ data }) => tryHandle(data) : undefined}
+        barCodeScannerSettings={{ barCodeTypes: [BarCodeScanner.Constants.BarCodeType.qr] }}
+        style={StyleSheet.absoluteFill}
+        ratio="16:9"
+        useCamera2Api={false} // Causes crash on screen unmount - https://github.com/expo/expo/issues/18996
+      >
+        <HideNavigationBar />
+        <Overlay onData={tryHandle} />
+      </Camera>
+    ) : (
+      <Screen>
+        <Appbar.Header>
+          <AppbarBack />
+          <Appbar.Content title="Permission required" />
+        </Appbar.Header>
 
-      <Text variant="headlineMedium" style={styles.pleaseGrantText}>
-        Please grant camera permissions in order to scan a QR code
-      </Text>
+        <Text variant="headlineMedium" style={styles.pleaseGrantText}>
+          Please grant camera permissions in order to scan a QR code
+        </Text>
 
-      <Actions>
-        <Button
-          mode="contained"
-          onPress={async () => {
-            await Linking.openSettings();
-            requestPermission();
-          }}
-        >
-          Open app settings
-        </Button>
-      </Actions>
-    </Screen>
-  );
-}, Splash);
+        <Actions>
+          <Button
+            mode="contained"
+            onPress={async () => {
+              await Linking.openSettings();
+              requestPermission();
+            }}
+          >
+            Open app settings
+          </Button>
+        </Actions>
+      </Screen>
+    );
+  },
+  Splash,
+);
 
 const styles = StyleSheet.create({
   pleaseGrantText: {

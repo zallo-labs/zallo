@@ -16,6 +16,7 @@ import { TokenAmount } from '~/components/token/TokenAmount';
 import { TokenIcon } from '~/components/token/TokenIcon/TokenIcon';
 import { TabNavigatorScreenProp } from './Tabs';
 import { TabBadge } from '~/components/tab/TabBadge';
+import { makeStyles } from '@theme/makeStyles';
 
 const Item = (props: ListItemProps) => (
   <ListItem
@@ -33,6 +34,7 @@ export interface TransactionTabParams {
 export type TransactionTabProps = TabNavigatorScreenProp<'Transaction'>;
 
 export const TransactionTab = withSuspense(({ route }: TransactionTabProps) => {
+  const styles = useStyles();
   const proposal = useProposal(route.params.proposal);
   const tx = proposal.transaction;
   const receipt = tx?.receipt;
@@ -50,21 +52,25 @@ export const TransactionTab = withSuspense(({ route }: TransactionTabProps) => {
           <Item
             leading={ClockOutlineIcon}
             headline="Status"
-            trailing={'Awaiting for policy to be satisfied'}
+            trailing="Awaiting for policy to be satisfied"
           />
         ))
         .with({ status: 'pending' }, () => (
           <Item
             leading={({ size }) => <ActivityIndicator size={size} />}
             headline="Status"
-            trailing={'Executing'}
+            trailing="Executing"
           />
         ))
         .with({ status: 'success' }, () => (
-          <Item leading={CheckIcon} headline="Status" trailing={'Success'} />
+          <Item leading={CheckIcon} headline="Status" trailing="Success" />
         ))
         .with({ status: 'failure' }, () => (
-          <Item leading={CloseIcon} headline="Status" trailing={'Failed'} />
+          <ListItem
+            leading={CloseIcon}
+            headline="Status"
+            trailing={({ Text }) => <Text style={styles.failed}>Failed</Text>}
+          />
         ))
         .exhaustive()}
 
@@ -131,6 +137,16 @@ export const TransactionTab = withSuspense(({ route }: TransactionTabProps) => {
   );
 }, TabScreenSkeleton);
 
+const useStyles = makeStyles(({ colors }) => ({
+  container: {
+    flexGrow: 1,
+    paddingTop: 8,
+  },
+  failed: {
+    color: colors.error,
+  },
+}));
+
 export interface TransactionTabBadgeProps {
   proposal: ProposalId;
 }
@@ -138,14 +154,12 @@ export interface TransactionTabBadgeProps {
 export const TransactionTabBadge = ({ proposal: id }: TransactionTabBadgeProps) => {
   const { state } = useProposal(id);
 
-  return <TabBadge visible={state === 'executing' || state === 'failed'} style={styles.badge} />;
+  return (
+    <TabBadge visible={state === 'executing' || state === 'failed'} style={badgeStyles.badge} />
+  );
 };
 
-const styles = StyleSheet.create({
-  container: {
-    flexGrow: 1,
-    paddingTop: 8,
-  },
+const badgeStyles = StyleSheet.create({
   badge: {
     transform: [{ translateX: -8 }],
   },

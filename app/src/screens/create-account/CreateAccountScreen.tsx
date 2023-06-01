@@ -1,7 +1,6 @@
 import { useCreateAccount } from '@api/account';
 import { useForm } from 'react-hook-form';
 import { StyleSheet, View } from 'react-native';
-import { useSetSelectedAccount } from '~/components/AccountSelector/useSelectedAccount';
 import { Appbar } from '~/components/Appbar/Appbar';
 import { FormSubmitButton } from '~/components/fields/FormSubmitButton';
 import { FormTextField } from '~/components/fields/FormTextField';
@@ -17,7 +16,6 @@ export type CreateAccountScreenProps = StackNavigatorScreenProps<'CreateAccount'
 
 export const CreateAccountScreen = ({ navigation: { replace } }: CreateAccountScreenProps) => {
   const createAccount = useCreateAccount();
-  const setSelected = useSetSelectedAccount();
 
   const { control, handleSubmit } = useForm<Inputs>();
 
@@ -44,8 +42,7 @@ export const CreateAccountScreen = ({ navigation: { replace } }: CreateAccountSc
           control={control}
           onPress={handleSubmit(async ({ name }) => {
             const { address } = await createAccount(name);
-            // setSelected(address);  // Changing to a new account for the first time is taking a while for some reason, so is disabled right now
-            replace('Home');
+            replace('Home', { account: address });
           })}
         >
           Create account

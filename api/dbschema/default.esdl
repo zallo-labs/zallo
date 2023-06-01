@@ -188,7 +188,9 @@ module default {
   }
 
   abstract type ProposalResponse {
-    required link proposal -> Proposal;
+    required link proposal -> Proposal {
+      on target delete delete source;
+    }
     required link user -> User;
     property createdAt -> datetime {
       readonly := true;
@@ -259,8 +261,11 @@ module default {
 
   type Transfer extending TransferDetails {
     link receipt -> Receipt;
+    required property logIndex -> int32 { constraint min_value(0n); }
     required property block -> bigint { constraint min_value(0n); }
     required property timestamp -> datetime { default := datetime_of_statement(); }
+
+    constraint exclusive on ((.block, .logIndex));
   }
 
   type Transaction {
@@ -274,6 +279,10 @@ module default {
       default := datetime_of_statement();
     }
     link receipt -> Receipt;
+
+    access policy members_can_select_insert
+      allow select, insert
+      using (.proposal.account.id in global current_user_accounts);
   }
 
   type Receipt {

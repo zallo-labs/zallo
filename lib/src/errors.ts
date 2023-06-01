@@ -11,8 +11,8 @@ const ACCOUNT_ERRORS = [
   // SelfOwned
   'OnlyCallableBySelf',
   // Exectuor
+  'TransactionReverted',
   'TransactionAlreadyExecuted',
-  'TransactionRevertedWithoutReason',
   // PolicyManager
   'TooManyApprovers',
   'ThresholdTooLow',

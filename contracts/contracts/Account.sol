@@ -17,7 +17,7 @@ import {Executor} from './Executor.sol';
 import {ERC165} from './standards/ERC165.sol';
 import {ERC721Receiver} from './standards/ERC721Receiver.sol';
 import {ERC1271Validator} from './standards/ERC1271Validator.sol';
-import {TransactionHasher} from './standards/TransactionHasher.sol';
+import {TransactionUtil} from './standards/TransactionUtil.sol';
 
 contract Account is
   IAccount,
@@ -30,7 +30,7 @@ contract Account is
   ERC1271Validator
 {
   using TransactionHelper for Transaction;
-  using TransactionHasher for Transaction;
+  using TransactionUtil for Transaction;
   using TransactionVerifier for Transaction;
   using ApprovalsVerifier for Approvals;
 
@@ -76,6 +76,7 @@ contract Account is
 
   function _validateTransaction(bytes32 txHash, Transaction calldata transaction) internal {
     _incrementNonceIfEquals(transaction);
+    _validateTransactionUnexecuted(txHash);
 
     if (transaction.totalRequiredBalance() > address(this).balance) revert InsufficientBalance();
 

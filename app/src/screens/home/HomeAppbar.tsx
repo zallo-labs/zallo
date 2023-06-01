@@ -3,18 +3,26 @@ import { StyleSheet, View } from 'react-native';
 import { Appbar as BaseAppbar } from 'react-native-paper';
 import { AccountSelector } from '~/components/AccountSelector/AccountSelector';
 import { useNavigation } from '@react-navigation/native';
+import { Address } from 'lib';
 
-export const HomeAppbar = () => {
+export interface HomeAppbarProps {
+  account: Address;
+}
+
+export const HomeAppbar = ({ account }: HomeAppbarProps) => {
   const { navigate } = useNavigation();
 
   return (
     <BaseAppbar.Header>
       <View style={styles.selectorContainer}>
-        <AccountSelector />
+        <AccountSelector account={account} />
       </View>
 
-      <BaseAppbar.Action icon={ScanIcon} onPress={() => navigate('Scan', {})} />
-      <BaseAppbar.Action icon={SettingsOutlineIcon} onPress={() => navigate('Settings')} />
+      <BaseAppbar.Action icon={ScanIcon} onPress={() => navigate('Scan', { account })} />
+      <BaseAppbar.Action
+        icon={SettingsOutlineIcon}
+        onPress={() => navigate('Settings', { account })}
+      />
     </BaseAppbar.Header>
   );
 };

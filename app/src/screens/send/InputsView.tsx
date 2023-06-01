@@ -5,10 +5,10 @@ import { useTokenBalance } from '@token/useTokenBalance';
 import { useTokenPriceData } from '@uniswap/useTokenPrice';
 import assert from 'assert';
 import { formatUnits, parseUnits } from 'ethers/lib/utils';
+import { Address } from 'lib';
 import { Dispatch, SetStateAction } from 'react';
 import { View } from 'react-native';
 import { Button, IconButton, Text } from 'react-native-paper';
-import { useSelectedAccount } from '~/components/AccountSelector/useSelectedAccount';
 import { FiatValue } from '~/components/fiat/FiatValue';
 import { TokenAmount } from '~/components/token/TokenAmount';
 import { useSelectedToken } from '~/components/token/useSelectedToken';
@@ -22,15 +22,15 @@ export enum InputType {
 }
 
 export interface InputsViewProps {
+  account: Address;
   input: string;
   setInput: Dispatch<SetStateAction<string>>;
   type: InputType;
   setType: Dispatch<SetStateAction<InputType>>;
 }
 
-export const InputsView = ({ input, setInput, type, setType }: InputsViewProps) => {
+export const InputsView = ({ account, input, setInput, type, setType }: InputsViewProps) => {
   const styles = useStyles();
-  const account = useSelectedAccount();
   const token = useSelectedToken();
   const balance = useTokenBalance(token, account);
   const price = useTokenPriceData(token).current;

@@ -36,6 +36,7 @@ export const useProposalSubscription = (
 
       updateQuery<ProposalsQuery, ProposalsQueryVariables>({
         query: ProposalsDocument,
+        variables: { input: { accounts: [proposal.account.address] } },
         cache,
         defaultData: { proposals: [] },
         updater: (data) => {

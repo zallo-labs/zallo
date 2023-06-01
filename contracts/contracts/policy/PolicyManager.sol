@@ -53,7 +53,8 @@ abstract contract PolicyManager is SelfOwned {
   function _decodeAndVerifySignature(
     bytes memory signature
   ) internal view returns (Policy memory policy, Approvals memory approvals) {
-    (policy, approvals) = abi.decode(signature, (Policy, Approvals));
+    // proposalNonce is ignored
+    (, policy, approvals) = abi.decode(signature, (uint32, Policy, Approvals));
 
     bytes32 actualHash = _hashPolicy(policy);
     bytes32 expectedHash = _policyHashes()[policy.key];

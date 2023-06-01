@@ -23,6 +23,7 @@ import { ExplorerModule } from './features/explorer/explorer.module';
 import { TransfersModule } from './features/transfers/transfers.module';
 import { EventsModule } from './features/events/events.module';
 import { REDIS_OPTIONS, RedisModule } from './features/util/redis/redis.module';
+import { ReceiptsModule } from './features/receipts/receipts.module';
 
 @Module({
   imports: [
@@ -55,6 +56,7 @@ import { REDIS_OPTIONS, RedisModule } from './features/util/redis/redis.module';
     HealthModule,
     PoliciesModule,
     ProposalsModule,
+    ReceiptsModule,
     TransactionsModule,
     TransfersModule,
     UsersModule,

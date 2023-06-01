@@ -9,10 +9,16 @@ import { FlashList } from '@shopify/flash-list';
 import { PairingItem } from './PairingItem';
 import { ListItemHeight } from '~/components/list/ListItem';
 import { Divider } from 'react-native-paper';
+import { Address } from 'lib';
+
+export interface SessionsScreenParams {
+  account: Address;
+}
 
 export type SessionsScreenProps = StackNavigatorScreenProps<'Sessions'>;
 
-export const SessionsScreen = ({ navigation: { navigate, goBack } }: SessionsScreenProps) => {
+export const SessionsScreen = ({ route, navigation: { navigate } }: SessionsScreenProps) => {
+  const { account } = route.params;
   const client = useWalletConnect();
 
   const pairings = client.pairing.values;
@@ -23,7 +29,7 @@ export const SessionsScreen = ({ navigation: { navigate, goBack } }: SessionsScr
         mode="large"
         leading="back"
         headline="Sessions"
-        trailing={(props) => <ScanIcon {...props} onPress={() => navigate('Scan', {})} />}
+        trailing={(props) => <ScanIcon {...props} onPress={() => navigate('Scan', { account })} />}
       />
 
       <FlashList

@@ -12,7 +12,7 @@ import { withSuspense } from '~/components/skeleton/withSuspense';
 import { TabBadge } from '~/components/tab/TabBadge';
 import { TabScreenSkeleton } from '~/components/tab/TabScreenSkeleton';
 import { Transfer, useTransfers } from '@api/transfer';
-import { useSelectedAccount } from '~/components/AccountSelector/useSelectedAccount';
+import { Address } from 'lib';
 
 type Item = Proposal | Transfer;
 
@@ -20,15 +20,20 @@ const isProposalItem = (i: Item): i is Proposal => 'hash' in i;
 
 const compare = (a: Item, b: Item) => b.timestamp.toMillis() - a.timestamp.toMillis();
 
+export interface ActivityTabParams {
+  account: Address;
+}
+
 export type ActivityTabProps = TabNavigatorScreenProp<'Activity'>;
 
 export const ActivityTab = withSuspense(
-  (_props: ActivityTabProps) => {
+  ({ route }: ActivityTabProps) => {
+    const { account } = route.params;
     const { navigate } = useNavigation();
 
-    const proposals = useProposals();
+    const proposals = useProposals({ accounts: [account] });
     const inTransfers = useTransfers({
-      accounts: [useSelectedAccount()],
+      accounts: [account],
       direction: 'In',
       excludeProposalOriginating: true,
     });
@@ -60,8 +65,17 @@ export const ActivityTab = withSuspense(
   ),
 );
 
+export interface ActivityTabBadgeProps {
+  account: Address;
+}
+
 export const ActivityTabBadge = withSuspense(
-  () => <TabBadge value={useProposals({ responseRequested: true }).length} style={styles.badge} />,
+  ({ account }: ActivityTabBadgeProps) => (
+    <TabBadge
+      value={useProposals({ accounts: [account], responseRequested: true }).length}
+      style={styles.badge}
+    />
+  ),
   () => null,
 );
 

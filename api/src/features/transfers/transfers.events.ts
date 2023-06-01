@@ -66,28 +66,42 @@ export class TransfersEvents {
       let token = asAddress(log.address);
       if (token === altEthAddress) token = ETH_ADDRESS as Address; // Normalize ETH address
 
+      const receipt = isTransactionEvent
+        ? e.select(e.Transaction, () => ({
+            filter_single: { hash: log.transactionHash },
+            receipt: { id: true },
+          })).receipt
+        : undefined;
+
       const transfers: { id: uuid } | { id: uuid }[] = await this.db.query(
         e.set(
           ...accounts.map((a) =>
-            e.insert(e.Transfer, {
-              account: selectAccount(a),
-              direction: e.cast(
-                e.TransferDirection,
-                a === from ? TransferDirection.Out : TransferDirection.In,
-              ),
-              from,
-              to,
-              token,
-              amount,
-              block: BigInt(log.blockNumber),
-              timestamp: new Date(block.timestamp * 1000),
-              ...(isTransactionEvent && {
-                receipt: e.select(e.Transaction, () => ({
-                  filter_single: { hash: log.transactionHash },
-                  receipt: { id: true },
-                })).receipt,
-              }),
-            }),
+            e
+              .insert(e.Transfer, {
+                account: selectAccount(a),
+                direction: e.cast(
+                  e.TransferDirection,
+                  a === from ? TransferDirection.Out : TransferDirection.In,
+                ),
+                from,
+                to,
+                token,
+                amount,
+                logIndex: log.logIndex,
+                block: BigInt(log.blockNumber),
+                timestamp: new Date(block.timestamp * 1000),
+                receipt,
+              })
+              .unlessConflict((t) => ({
+                on: e.tuple([t.block, t.logIndex]),
+                ...(receipt && {
+                  else: e.update(t, () => ({
+                    set: {
+                      receipt,
+                    },
+                  })),
+                }),
+              })),
           ),
         ),
       );

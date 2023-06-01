@@ -6,13 +6,14 @@ import { Address } from 'lib';
 import { StyleSheet } from 'react-native';
 
 export interface AddressSheetScreenParams {
+  account: Address;
   address: Address;
 }
 
 export type AddressSheetProps = StackNavigatorScreenProps<'AddressSheet'>;
 
 export const AddressSheet = ({ route, navigation: { replace, goBack } }: AddressSheetProps) => {
-  const { address } = route.params;
+  const { account, address } = route.params;
 
   return (
     <Sheet onClose={goBack} handle={false} contentContainerStyle={styles.contentContainer}>
@@ -20,7 +21,7 @@ export const AddressSheet = ({ route, navigation: { replace, goBack } }: Address
         leading={SendIcon}
         headline="Send"
         trailing={NavigateNextIcon}
-        onPress={() => replace('Send', { to: address })}
+        onPress={() => replace('Send', { account, to: address })}
       />
 
       <ListItem

@@ -8,7 +8,6 @@ import { Address, asHex, Call } from 'lib';
 import { useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 import { Appbar, Divider } from 'react-native-paper';
-import { useSelectedAccount } from '~/components/AccountSelector/useSelectedAccount';
 import { useAddressLabel } from '~/components/address/AddressLabel';
 import { NumericInput } from '~/components/fields/NumericInput';
 import { Screen } from '~/components/layout/Screen';
@@ -30,14 +29,14 @@ const createTransferTx = (token: Token, to: Address, amount: bigint): Call =>
     : { to, value: amount };
 
 export interface SendScreenParams {
+  account: Address;
   to: Address;
 }
 
 export type SendScreenProps = StackNavigatorScreenProps<'Send'>;
 
 export const SendScreen = withSuspense(({ route, navigation: { goBack } }: SendScreenProps) => {
-  const { to } = route.params;
-  const account = useSelectedAccount();
+  const { account, to } = route.params;
   const [token, setToken] = [useSelectedToken(), useSetSelectedToken()];
   const selectToken = useSelectToken();
   const propose = usePropose();
@@ -63,7 +62,13 @@ export const SendScreen = withSuspense(({ route, navigation: { goBack } }: SendS
         <Appbar.Content title={`Send to ${useAddressLabel(to)}`} />
       </Appbar.Header>
 
-      <InputsView input={input} setInput={setInput} type={type} setType={setType} />
+      <InputsView
+        account={account}
+        input={input}
+        setInput={setInput}
+        type={type}
+        setType={setType}
+      />
 
       <View style={styles.spacer} />
 

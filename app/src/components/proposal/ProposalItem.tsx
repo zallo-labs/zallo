@@ -30,10 +30,10 @@ export const ProposalItem = withSuspense(({ proposal: id, ...itemProps }: Propos
         : 'Awaiting approval',
     )
     .with({ state: 'executing' }, () => 'Executing...')
-    .with({ state: 'failed' }, () => (
-      <>
-        Failed at <Timestamp timestamp={p.timestamp} />
-      </>
+    .with({ state: 'failed' }, () => ({ Text }) => (
+      <Text style={styles.failed}>
+        <Timestamp timestamp={p.timestamp} />
+      </Text>
     ))
     .with({ state: 'executed' }, () => <Timestamp timestamp={p.timestamp} />)
     .exhaustive();
@@ -63,6 +63,9 @@ const useStyles = makeStyles(({ colors }) => ({
     color: colors.primary,
   },
   noSatisfiablePolicy: {
+    color: colors.error,
+  },
+  failed: {
     color: colors.error,
   },
 }));

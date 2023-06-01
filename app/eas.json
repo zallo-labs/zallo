@@ -18,9 +18,7 @@
       "channel": "main",
       "env": {
         "API_URL": "https://api.zallo.io",
-        "API_GQL_WS": "wss://api.zallo.io/graphql",
-        "ACCOUNT_IMPL_TESTNET": "0x96765F6376AC5907Da535745a7980A6F81BBBDDD",
-        "PROXY_FACTORY_TESTNET": "0xeBcfcc65118c49Ad0C225515Ee304Da21DfBEeEc"
+        "API_GQL_WS": "wss://api.zallo.io/graphql"
       }
     },
     "dev-client": {

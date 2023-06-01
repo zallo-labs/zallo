@@ -5,14 +5,14 @@ import {
   TransitionPresets,
 } from '@react-navigation/stack';
 import { AccountScreen, AccountScreenParams } from '~/screens/account/AccountScreen';
-import { AccountsSheet } from '~/screens/accounts/AccountsSheet';
+import { AccountsSheet, AccountsSheetParams } from '~/screens/accounts/AccountsSheet';
 import { AddressSheet, AddressSheetScreenParams } from '~/screens/address/AddressSheet';
 import { AlertModal, AlertModalParams } from '~/screens/alert/AlertModal';
 import { ContactScreen, ContactScreenParams } from '~/screens/contact/ContactScreen';
 import { ContactsScreen, ContactsScreenParams } from '~/screens/contacts/ContactsScreen';
 import { CreateAccountScreen } from '~/screens/create-account/CreateAccountScreen';
 import { CreateUserScreen } from '~/screens/create-user/CreateUserScreen';
-import { HomeScreen } from '~/screens/home/HomeScreen';
+import { HomeScreen, HomeScreenParams } from '~/screens/home/HomeScreen';
 import { OnboardScreen } from '~/screens/onboard/OnboardScreen';
 import { useShowOnboarding } from '~/screens/onboard/useShowOnboarding';
 import { ProposalScreen, ProposalScreenParams } from '~/screens/proposal/ProposalScreen';
@@ -20,8 +20,8 @@ import { QrModal, QrModalParams } from '~/screens/qr/QrModal';
 import { RenameAccountModal, RenameAccountModalParams } from '~/screens/account/RenameAccountModal';
 import { ScanScreen, ScanScreenParams } from '~/screens/scan/ScanScreen';
 import { SendScreen, SendScreenParams } from '~/screens/send/SendScreen';
-import { SessionsScreen } from '~/screens/sessions/SessionsScreen';
-import { SettingsScreen } from '~/screens/settings/SettingsScreen';
+import { SessionsScreen, SessionsScreenParams } from '~/screens/sessions/SessionsScreen';
+import { SettingsScreen, SettingsScreenParams } from '~/screens/settings/SettingsScreen';
 import { TokensScreen, TokensScreenParams } from '~/screens/tokens/TokensScreen';
 import { UserScreen } from '~/screens/user/UserScreen';
 import { PolicyScreen, PolicyScreenParams } from '~/screens/policy/PolicyScreen';
@@ -44,19 +44,19 @@ import {
 } from '~/screens/notifications/NotificationSettingsScreen';
 
 export type StackNavigatorParamList = {
-  Home: undefined;
+  Home: HomeScreenParams;
   CreateAccount: undefined;
   Scan: ScanScreenParams;
   Proposal: ProposalScreenParams;
   Send: SendScreenParams;
   Contacts: ContactsScreenParams;
   Contact: ContactScreenParams;
-  Settings: undefined;
+  Settings: SettingsScreenParams;
   User: undefined;
   Account: AccountScreenParams;
   Policy: PolicyScreenParams;
   Interactions: InteractionsScreenParams;
-  Sessions: undefined;
+  Sessions: SessionsScreenParams;
   Tokens: TokensScreenParams;
   NotificationSettings: NotificationSettingsParams;
   // Onboarding
@@ -64,7 +64,7 @@ export type StackNavigatorParamList = {
   CreateUser: undefined;
   // Account
   // Transparent modal
-  AccountsSheet: undefined;
+  AccountsSheet: AccountsSheetParams;
   AddressSheet: AddressSheetScreenParams;
   QrModal: QrModalParams;
   Alert: AlertModalParams;
