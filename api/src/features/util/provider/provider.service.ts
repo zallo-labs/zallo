@@ -17,8 +17,7 @@ import {
   deployAccountProxy,
 } from 'lib';
 import { Mutex } from 'async-mutex';
-import { BigNumber, ethers } from 'ethers';
-import assert from 'assert';
+import { ethers } from 'ethers';
 
 @Injectable()
 export class ProviderService extends zk.Provider {
@@ -85,15 +84,5 @@ export class ProviderService extends zk.Provider {
 
   async deployProxy(args: Omit<DeployArgs, 'factory'>) {
     return this.useProxyFactory((factory) => deployAccountProxy({ ...args, factory }));
-  }
-
-  async getGasPrice(token?: string | undefined): Promise<BigNumber> {
-    assert(this.chain.isTestnet); // Mainnet TODO: get token specific gas price; the testnet paymaster has a 1:1 conversion (token unit:WEI)
-
-    return super.getGasPrice();
-  }
-
-  async isSupportedFeeToken(token: Address) {
-    return true; // TODO: restrict to supported testnet tokens
   }
 }

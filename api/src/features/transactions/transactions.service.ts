@@ -39,6 +39,7 @@ import { ETH_ADDRESS } from 'zksync-web3/build/src/utils';
 import * as zk from 'zksync-web3';
 import { BigNumber } from 'ethers';
 import { assert } from 'console';
+import { PaymasterService } from '../paymaster/paymaster.service';
 
 @Injectable()
 export class TransactionsService {
@@ -49,6 +50,7 @@ export class TransactionsService {
     private transactionsQueue: Queue<TransactionEvent>,
     @Inject(forwardRef(() => ProposalsService))
     private proposals: ProposalsService,
+    private paymaster: PaymasterService,
   ) {}
 
   async selectUnique(txHash: Hex, shape?: ShapeFunc<typeof e.Transaction>) {
@@ -148,11 +150,11 @@ export class TransactionsService {
           approvals,
           gasPrice,
           customData: {
-            paymasterParams: await this.getPaymasterParams(
-              proposal.feeToken,
+            paymasterParams: await this.paymaster.getPaymasterParams({
+              feeToken: proposal.feeToken as Address,
+              gasLimit: proposal.gasLimit,
               gasPrice,
-              proposal.gasLimit,
-            ),
+            }),
           },
         }),
       (e) => {
@@ -257,20 +259,5 @@ export class TransactionsService {
             getTransactionSatisfiability(policy, tx, approvals) === PolicySatisfiability.Satisfied,
         );
     }
-  }
-
-  private async getPaymasterParams(feeToken: string, gasPrice: bigint, gasLimit: bigint) {
-    if (feeToken === ETH_ADDRESS) return undefined;
-
-    assert(this.provider.chain.isTestnet); // Mainnet TODO: testnet paymaster can't be used
-    const paymaster = await this.provider.getTestnetPaymasterAddress();
-    if (!paymaster) throw new Error('Failed to get testnet paymaster address');
-
-    return zk.utils.getPaymasterParams(paymaster, {
-      type: 'ApprovalBased',
-      token: feeToken,
-      minimalAllowance: BigNumber.from(gasPrice * gasLimit),
-      innerInput: [],
-    });
   }
 }

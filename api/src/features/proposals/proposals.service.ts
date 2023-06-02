@@ -36,6 +36,7 @@ import { ShapeFunc } from '../database/database.select';
 import { and } from '../database/database.util';
 import { selectAccount } from '../accounts/accounts.util';
 import { selectUser } from '../users/users.service';
+import { PaymasterService } from '../paymaster/paymaster.service';
 
 const ERC20 = Erc20__factory.createInterface();
 const ERC20_TRANSFER = ERC20.functions['transfer(address,uint256)'];
@@ -75,6 +76,7 @@ export class ProposalsService {
     private expo: ExpoService,
     @Inject(forwardRef(() => TransactionsService))
     private transactions: TransactionsService,
+    private paymaster: PaymasterService,
   ) {}
 
   async selectUnique(id: UniqueProposal, shape?: ShapeFunc<typeof e.TransactionProposal>) {
@@ -120,7 +122,7 @@ export class ProposalsService {
       };
       const hash = await hashTx(tx, { address: account, provider: this.provider });
 
-      if (!(await this.provider.isSupportedFeeToken(feeToken)))
+      if (!(await this.paymaster.isSupportedFeeToken(feeToken)))
         throw new UserInputError(`Fee token not supported: ${feeToken}`);
 
       const { id } = await e
@@ -184,7 +186,7 @@ export class ProposalsService {
   }
 
   async update({ hash, policy, feeToken }: UpdateProposalInput) {
-    if (feeToken !== undefined && !(await this.provider.isSupportedFeeToken(feeToken)))
+    if (feeToken !== undefined && !(await this.paymaster.isSupportedFeeToken(feeToken)))
       throw new UserInputError(`Fee token not supported: ${feeToken}`);
 
     const updatedProposal = e.assert_single(
