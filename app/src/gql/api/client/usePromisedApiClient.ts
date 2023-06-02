@@ -10,7 +10,7 @@ import { GraphQLWsLink } from '@apollo/client/link/subscriptions';
 import { createClient } from 'graphql-ws';
 import { getMainDefinition } from '@apollo/client/utilities';
 import { onError } from '@apollo/client/link/error';
-import { event } from '~/util/analytics';
+import { logError } from '~/util/analytics';
 import _ from 'lodash';
 
 export const API_CLIENT_NAME = 'api';
@@ -33,11 +33,10 @@ const persistedQueryLink = createPersistedQueryLink({
 });
 
 const errorLink = onError(({ forward, operation, graphQLErrors, networkError }) => {
-  event({
-    level: 'error',
-    message: 'API error',
-    error: networkError ?? undefined,
-    context: { graphQLErrors, operation: _.pick(operation, ['operationName', 'variables']) },
+  logError('API error', {
+    error: networkError,
+    graphQLErrors,
+    operation: _.pick(operation, ['operationName', 'variables']),
   });
 
   return forward(operation);

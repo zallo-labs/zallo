@@ -8,7 +8,8 @@ import { LocalizatonProvider } from '~/provider/LocalizationProvider';
 import { GqlProvider } from '~/gql/GqlProvider';
 import { SnackbarProvider } from '~/provider/SnackbarProvider';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
-import { ErrorBoundary } from '~/components/ErrorBoundary/ErrorBoundary';
+import { MinimalErrorBoundary } from '~/components/ErrorBoundary/MinimalErrorBoundary';
+import { ErrorBoundary } from './components/ErrorBoundary/ErrorBoundary';
 import { Splash } from '~/components/Splash';
 import { AuthGate } from '~/provider/AuthGate';
 import { ThemeProvider } from '~/util/theme/ThemeProvider';
@@ -31,7 +32,7 @@ SplashScreen.preventAutoHideAsync();
 
 export default () => (
   <SentryProvider>
-    <ErrorBoundary fallback={<Splash />}>
+    <MinimalErrorBoundary fallback={<Splash />}>
       <LocalizatonProvider>
         <SafeAreaProvider>
           <ThemeProvider>
@@ -48,7 +49,7 @@ export default () => (
                                 <StackNavigator />
                               </Suspense>
                             </ErrorBoundary>
-                            <ErrorBoundary fallback={undefined}>
+                            <MinimalErrorBoundary>
                               <Suspense fallback={null}>
                                 <AnalyticsUser />
                                 <WalletConnectListeners />
@@ -56,7 +57,7 @@ export default () => (
                                 <Subscriptions />
                                 <NotificationsRegistrar />
                               </Suspense>
-                            </ErrorBoundary>
+                            </MinimalErrorBoundary>
                           </NavigationProvider>
                         </GqlProvider>
                       </AuthGate>
@@ -70,7 +71,7 @@ export default () => (
           </ThemeProvider>
         </SafeAreaProvider>
       </LocalizatonProvider>
-    </ErrorBoundary>
+    </MinimalErrorBoundary>
   </SentryProvider>
 );
 

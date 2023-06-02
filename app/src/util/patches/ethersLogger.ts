@@ -1,6 +1,6 @@
 import { Logger } from 'ethers/lib/utils';
 import { LogLevel } from '@ethersproject/logger';
-import { EventLevel, event } from '../analytics';
+import { EventLevel, logEvent } from '../analytics';
 
 const toEventLevel = (level: LogLevel): EventLevel => {
   switch (level) {
@@ -20,9 +20,10 @@ const logger = Logger.globalLogger();
 const ogLog = logger._log;
 logger._log = (level: LogLevel, args: unknown[]) => {
   if (level !== LogLevel.OFF) {
-    event({
+    logEvent({
       level: toEventLevel(level),
       message: JSON.stringify(args, null, 2),
+      args,
     });
   }
 

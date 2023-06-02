@@ -17,12 +17,6 @@ interface Wrapped {
   version: number;
 }
 
-export const getSecureStore = (options?: SecureStore.SecureStoreOptions): Storage => ({
-  getItem: (key) => SecureStore.getItemAsync(key, options),
-  setItem: (key, value) => SecureStore.setItemAsync(key, value, options),
-  removeItem: (key) => SecureStore.deleteItemAsync(key, options),
-});
-
 type Migrations = Record<number, (value: string) => string | DefaultValue>;
 
 const migrate = (
