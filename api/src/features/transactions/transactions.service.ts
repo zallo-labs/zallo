@@ -2,7 +2,6 @@ import { InjectQueue } from '@nestjs/bull';
 import { forwardRef, Inject, Injectable } from '@nestjs/common';
 import { Queue } from 'bull';
 import {
-  asAddress,
   executeTx,
   asHex,
   mapAsync,
@@ -13,6 +12,7 @@ import {
   getTransactionSatisfiability,
   PolicySatisfiability,
   isHex,
+  tryOrCatchAsync,
 } from 'lib';
 import { ProviderService } from '~/features/util/provider/provider.service';
 import {
@@ -35,6 +35,10 @@ import { ProposalEvent } from '../proposals/proposals.input';
 import { selectUser } from '../users/users.service';
 import { ShapeFunc } from '../database/database.select';
 import { UserInputError } from 'apollo-server-core';
+import { ETH_ADDRESS } from 'zksync-web3/build/src/utils';
+import * as zk from 'zksync-web3';
+import { BigNumber } from 'ethers';
+import { assert } from 'console';
 
 @Injectable()
 export class TransactionsService {
@@ -74,6 +78,7 @@ export class TransactionsService {
         data: true,
         nonce: true,
         gasLimit: true,
+        feeToken: true,
         approvals: {
           user: { address: true },
           signature: true,
@@ -133,13 +138,27 @@ export class TransactionsService {
     if (!policy) return undefined;
 
     const gasPrice = (await this.provider.getGasPrice()).toBigInt();
-    const transaction = await executeTx({
-      account: this.provider.connectAccount(asAddress(proposal.account.address as Address)),
-      tx,
-      policy,
-      approvals,
-      gasPrice,
-    });
+
+    const transaction = await tryOrCatchAsync(
+      async () =>
+        await executeTx({
+          account: this.provider.connectAccount(proposal.account.address as Address),
+          tx,
+          policy,
+          approvals,
+          gasPrice,
+          customData: {
+            paymasterParams: await this.getPaymasterParams(
+              proposal.feeToken,
+              gasPrice,
+              proposal.gasLimit,
+            ),
+          },
+        }),
+      (e) => {
+        throw new UserInputError(`Failed to execute transaction: ${e}`);
+      },
+    );
 
     const transactionHash = asHex(transaction.hash);
     await e
@@ -238,5 +257,20 @@ export class TransactionsService {
             getTransactionSatisfiability(policy, tx, approvals) === PolicySatisfiability.Satisfied,
         );
     }
+  }
+
+  private async getPaymasterParams(feeToken: string, gasPrice: bigint, gasLimit: bigint) {
+    if (feeToken === ETH_ADDRESS) return undefined;
+
+    assert(this.provider.chain.isTestnet); // Mainnet TODO: testnet paymaster can't be used
+    const paymaster = await this.provider.getTestnetPaymasterAddress();
+    if (!paymaster) throw new Error('Failed to get testnet paymaster address');
+
+    return zk.utils.getPaymasterParams(paymaster, {
+      type: 'ApprovalBased',
+      token: feeToken,
+      minimalAllowance: BigNumber.from(gasPrice * gasLimit),
+      innerInput: [],
+    });
   }
 }
