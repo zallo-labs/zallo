@@ -12,6 +12,18 @@ export interface Tx extends Call {
 export type TypedDataTypes = Record<string, TypedDataField[]>;
 
 export const TX_EIP712_TYPE: TypedDataTypes = {
+  /* Fields that probably SHOULD be included but are not yet: */
+  // maxFeePerGas
+  // maxPriorityFeePerGas
+  // paymaster: problematic as this would require re-signing for ETH <-> non-ETH feeToken switching
+
+  /* Fields NOT included: */
+  // gasLimit: not dangerous and can't be predicted due to approvals requiring gas; a maxGasFee could be implemented instead
+  // gasPerPubdataByteLimit: not dangerous
+  // paymasterInput: minimalAllowance can't be predicted and changing fee token would require re-signing
+  // factoryDeps: not dangerous
+  // reserved:        maybe it should be? Currently unused by zkSync
+  // reservedDynamic: ^
   Tx: [
     { name: 'to', type: 'address' },
     { name: 'value', type: 'uint256' },
