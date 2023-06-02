@@ -441,6 +441,7 @@ input UpdatePolicyInput {
 }
 
 input UpdateProposalInput {
+  feeToken: Address
   hash: Bytes32!
   policy: PolicyKey
 }
