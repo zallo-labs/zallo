@@ -87,6 +87,9 @@ export class ApproveInput extends ProposalInput {
 
 @InputType()
 export class UpdateProposalInput extends ProposalInput {
-  @PolicyKeyField()
+  @PolicyKeyField({ nullable: true })
   policy?: PolicyKey | null;
+
+  @AddressField({ nullable: true })
+  feeToken?: Address;
 }

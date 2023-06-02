@@ -13,7 +13,7 @@ export interface Proposal extends Omit<Tx, 'gasLimit'> {
   hash: ProposalId;
   account: Address;
   gasLimit: bigint;
-  feeToken?: Address;
+  feeToken: Address;
   state: ProposalState;
   approvals: KeySet<Address, Approval>;
   rejections: KeySet<Address, Rejection>;
@@ -24,6 +24,7 @@ export interface Proposal extends Omit<Tx, 'gasLimit'> {
   proposedBy: Address;
   proposedAt: DateTime;
   timestamp: DateTime;
+  updatable: boolean;
 }
 
 export type ProposalState = 'pending' | 'executing' | 'executed' | 'failed';
@@ -181,5 +182,6 @@ export const toProposal = (p: TransactionProposalFieldsFragment): Proposal => {
     proposedBy: p.proposedBy.address,
     proposedAt: createdAt,
     timestamp: createdAt,
+    updatable: state === 'pending' || state === 'failed',
   };
 };

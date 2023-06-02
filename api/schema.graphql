@@ -263,6 +263,7 @@ type Query {
   contacts: [Contact!]!
   contract(input: ContractInput!): Contract
   contractFunction(input: ContractFunctionInput!): ContractFunction
+  paymaster: Address!
   policies: [Policy!]!
   policy(input: UniquePolicyInput!): Policy
   proposal(input: ProposalInput!): TransactionProposal
@@ -441,6 +442,7 @@ input UpdatePolicyInput {
 }
 
 input UpdateProposalInput {
+  feeToken: Address
   hash: Bytes32!
   policy: PolicyKey
 }

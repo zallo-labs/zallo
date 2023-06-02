@@ -2,7 +2,6 @@ import { InjectQueue } from '@nestjs/bull';
 import { forwardRef, Inject, Injectable } from '@nestjs/common';
 import { Queue } from 'bull';
 import {
-  asAddress,
   executeTx,
   asHex,
   mapAsync,
@@ -13,6 +12,7 @@ import {
   getTransactionSatisfiability,
   PolicySatisfiability,
   isHex,
+  tryOrCatchAsync,
 } from 'lib';
 import { ProviderService } from '~/features/util/provider/provider.service';
 import {
@@ -35,6 +35,11 @@ import { ProposalEvent } from '../proposals/proposals.input';
 import { selectUser } from '../users/users.service';
 import { ShapeFunc } from '../database/database.select';
 import { UserInputError } from 'apollo-server-core';
+import { ETH_ADDRESS } from 'zksync-web3/build/src/utils';
+import * as zk from 'zksync-web3';
+import { BigNumber } from 'ethers';
+import { assert } from 'console';
+import { PaymasterService } from '../paymaster/paymaster.service';
 
 @Injectable()
 export class TransactionsService {
@@ -45,6 +50,7 @@ export class TransactionsService {
     private transactionsQueue: Queue<TransactionEvent>,
     @Inject(forwardRef(() => ProposalsService))
     private proposals: ProposalsService,
+    private paymaster: PaymasterService,
   ) {}
 
   async selectUnique(txHash: Hex, shape?: ShapeFunc<typeof e.Transaction>) {
@@ -74,6 +80,7 @@ export class TransactionsService {
         data: true,
         nonce: true,
         gasLimit: true,
+        feeToken: true,
         approvals: {
           user: { address: true },
           signature: true,
@@ -133,13 +140,27 @@ export class TransactionsService {
     if (!policy) return undefined;
 
     const gasPrice = (await this.provider.getGasPrice()).toBigInt();
-    const transaction = await executeTx({
-      account: this.provider.connectAccount(asAddress(proposal.account.address as Address)),
-      tx,
-      policy,
-      approvals,
-      gasPrice,
-    });
+
+    const transaction = await tryOrCatchAsync(
+      async () =>
+        await executeTx({
+          account: this.provider.connectAccount(proposal.account.address as Address),
+          tx,
+          policy,
+          approvals,
+          gasPrice,
+          customData: {
+            paymasterParams: await this.paymaster.getPaymasterParams({
+              feeToken: proposal.feeToken as Address,
+              gasLimit: proposal.gasLimit,
+              gasPrice,
+            }),
+          },
+        }),
+      (e) => {
+        throw new UserInputError(`Failed to execute transaction: ${e}`);
+      },
+    );
 
     const transactionHash = asHex(transaction.hash);
     await e

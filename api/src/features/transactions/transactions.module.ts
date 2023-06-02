@@ -6,9 +6,14 @@ import { TransactionsService } from './transactions.service';
 import { TransactionsEvents } from './transactions.events';
 import { ProposalsModule } from '../proposals/proposals.module';
 import { TransactionsResolver } from './transactions.resolver';
+import { PaymasterModule } from '../paymaster/paymaster.module';
 
 @Module({
-  imports: [BullModule.registerQueue(TRANSACTIONS_QUEUE), forwardRef(() => ProposalsModule)],
+  imports: [
+    BullModule.registerQueue(TRANSACTIONS_QUEUE),
+    forwardRef(() => ProposalsModule),
+    PaymasterModule,
+  ],
   exports: [TransactionsService, TransactionsProcessor],
   providers: [TransactionsService, TransactionsResolver, TransactionsProcessor, TransactionsEvents],
 })

@@ -36,6 +36,7 @@ import { ShapeFunc } from '../database/database.select';
 import { and } from '../database/database.util';
 import { selectAccount } from '../accounts/accounts.util';
 import { selectUser } from '../users/users.service';
+import { PaymasterService } from '../paymaster/paymaster.service';
 
 const ERC20 = Erc20__factory.createInterface();
 const ERC20_TRANSFER = ERC20.functions['transfer(address,uint256)'];
@@ -75,6 +76,7 @@ export class ProposalsService {
     private expo: ExpoService,
     @Inject(forwardRef(() => TransactionsService))
     private transactions: TransactionsService,
+    private paymaster: PaymasterService,
   ) {}
 
   async selectUnique(id: UniqueProposal, shape?: ShapeFunc<typeof e.TransactionProposal>) {
@@ -101,7 +103,16 @@ export class ProposalsService {
     );
   }
 
-  async propose({ account, to, value, data, nonce, gasLimit, feeToken, signature }: ProposeInput) {
+  async propose({
+    account,
+    to,
+    value,
+    data,
+    nonce,
+    gasLimit,
+    feeToken = ETH_ADDRESS as Address,
+    signature,
+  }: ProposeInput) {
     return await this.db.transaction(async (client) => {
       const tx: Tx = {
         to,
@@ -110,6 +121,9 @@ export class ProposalsService {
         nonce: nonce ?? (await this.getUnusedNonce(account)),
       };
       const hash = await hashTx(tx, { address: account, provider: this.provider });
+
+      if (!(await this.paymaster.isSupportedFeeToken(feeToken)))
+        throw new UserInputError(`Fee token not supported: ${feeToken}`);
 
       const { id } = await e
         .insert(e.TransactionProposal, {
@@ -120,7 +134,7 @@ export class ProposalsService {
           data,
           nonce: tx.nonce,
           gasLimit: gasLimit || (await estimateOpGas(this.provider, tx)),
-          feeToken: feeToken ?? asAddress(ETH_ADDRESS),
+          feeToken,
           simulation: this.insertSimulation(account, tx),
         })
         .run(client);
@@ -171,27 +185,49 @@ export class ProposalsService {
     await this.publishProposal(id, ProposalEvent.rejection);
   }
 
-  async update({ hash, policy }: UpdateProposalInput) {
-    if (policy !== undefined) {
-      await this.db.query(
-        e.update(e.TransactionProposal, (p) => ({
-          filter: and(
-            e.op(p.hash, '=', hash),
-            // Require proposal to be pending or failed
-            e.op(
-              p.status,
-              'in',
-              e.set(e.TransactionProposalStatus.Pending, e.TransactionProposalStatus.Failed),
-            ),
+  async update({ hash, policy, feeToken }: UpdateProposalInput) {
+    if (feeToken !== undefined && !(await this.paymaster.isSupportedFeeToken(feeToken)))
+      throw new UserInputError(`Fee token not supported: ${feeToken}`);
+
+    const updatedProposal = e.assert_single(
+      e.update(e.TransactionProposal, (p) => ({
+        filter: and(
+          e.op(p.hash, '=', hash),
+          // Require proposal to be pending or failed
+          e.op(
+            p.status,
+            'in',
+            e.set(e.TransactionProposalStatus.Pending, e.TransactionProposalStatus.Failed),
           ),
-          set: {
+        ),
+        set: {
+          ...(policy !== undefined && {
             policy: policy
               ? e.select(e.Policy, () => ({ filter_single: { account: p.account, key: policy } }))
               : null,
-          },
-        })),
+          }),
+          ...(feeToken !== undefined && { feeToken }), // TODO: validate paymaster supports fee tokens
+        },
+      })),
+    );
+
+    const p = await this.db.query(
+      e.select(updatedProposal, () => ({
+        hash: true,
+        account: {
+          address: true,
+        },
+      })),
+    );
+
+    if (p) {
+      this.publishProposal(
+        { hash: p.hash as Hex, account: p.account.address as Address },
+        ProposalEvent.update,
       );
     }
+
+    return p;
   }
 
   async delete(id: UniqueProposal) {

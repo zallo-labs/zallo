@@ -11,6 +11,7 @@ import { withSuspense } from '~/components/skeleton/withSuspense';
 import { TabScreenSkeleton } from '~/components/tab/TabScreenSkeleton';
 import { TokenItem } from '~/components/token/TokenItem';
 import { TabNavigatorScreenProp } from './Tabs';
+import { FeeToken } from './FeeToken';
 
 export interface DetailsTabParams {
   proposal: ProposalId;
@@ -26,6 +27,8 @@ export const DetailsTab = withSuspense(({ route }: DetailsTabProps) => {
 
   const to = transfers.find((t) => t.token === p.to)?.to ?? p.to;
 
+  console.log(p.id);
+
   return (
     <ScrollView contentContainerStyle={styles.container}>
       <ListItem leading={to} headline="To" trailing={useAddressLabel(to)} />
@@ -35,6 +38,7 @@ export const DetailsTab = withSuspense(({ route }: DetailsTabProps) => {
         headline="Proposer"
         trailing={useAddressLabel(p.proposedBy)}
       />
+      <FeeToken proposal={p} />
 
       {transfers.length > 0 && (
         <ListHeader

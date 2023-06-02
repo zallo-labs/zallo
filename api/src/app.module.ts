@@ -1,5 +1,5 @@
 import { Module } from '@nestjs/common';
-import { APP_FILTER, APP_GUARD } from '@nestjs/core';
+import { APP_GUARD } from '@nestjs/core';
 import { HealthModule } from './features/health/health.module';
 import { UsersModule } from './features/users/users.module';
 import { AccountsModule } from './features/accounts/accounts.module';
@@ -24,6 +24,7 @@ import { TransfersModule } from './features/transfers/transfers.module';
 import { EventsModule } from './features/events/events.module';
 import { REDIS_OPTIONS, RedisModule } from './features/util/redis/redis.module';
 import { ReceiptsModule } from './features/receipts/receipts.module';
+import { PaymasterModule } from './features/paymaster/paymaster.module';
 
 @Module({
   imports: [
@@ -54,6 +55,7 @@ import { ReceiptsModule } from './features/receipts/receipts.module';
     ExplorerModule,
     FaucetModule,
     HealthModule,
+    PaymasterModule,
     PoliciesModule,
     ProposalsModule,
     ReceiptsModule,
