@@ -1,13 +1,13 @@
 import * as Updates from 'expo-updates';
 import { useEffect } from 'react';
-import { event } from '~/util/analytics';
+import { logError } from '~/util/analytics';
 import { AppState } from 'react-native';
 import { showInfo } from './SnackbarProvider';
 import { showWarning } from './SnackbarProvider';
 
 const onError = (error: unknown) => {
   showWarning('Failed to download update. You may experience issues.');
-  event({ level: 'error', message: 'Error encountered during update', error });
+  logError('Error encountered during update', { error });
 };
 
 export const UpdateProvider = () => {

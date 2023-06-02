@@ -3,7 +3,7 @@ import { useNavigation } from '@react-navigation/native';
 import { asBigInt } from 'lib';
 import { useCallback } from 'react';
 import { showInfo } from '~/provider/SnackbarProvider';
-import { event } from '~/util/analytics';
+import { logError } from '~/util/analytics';
 import { WalletConnectEventArgs, WcClient, asWalletConnectResult } from '~/util/walletconnect';
 import {
   SigningRequest,
@@ -52,11 +52,7 @@ export const useSessionRequestListener = () => {
           }
         });
       } else {
-        event({
-          level: 'error',
-          message: 'Unsupported session_request method executed',
-          context: { params },
-        });
+        logError('Unsupported session_request method executed', { params });
       }
     },
     [navigate, propose],

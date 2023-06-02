@@ -50,7 +50,7 @@ export const useSessionPropsalListener = () => {
       const unsupportedMethods = namespace.methods.filter((method) => !WC_METHODS.has(method));
       if (unsupportedMethods.length) {
         showError('DApp requires unsupported methods', {
-          event: { context: { proposer, unsupportedMethods } },
+          event: { proposer, unsupportedMethods },
         });
         return client.reject({ id: proposal.id, reason: getSdkError('UNSUPPORTED_METHODS') });
       }

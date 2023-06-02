@@ -5,7 +5,7 @@ import { StyleProp, TextStyle } from 'react-native';
 import { Snackbar, SnackbarProps, Text } from 'react-native-paper';
 import RnToast, { ToastConfig, ToastConfigParams, ToastOptions } from 'react-native-toast-message';
 import { match } from 'ts-pattern';
-import { EventParams, event } from '~/util/analytics';
+import { LogEventParams, logEvent } from '~/util/analytics';
 
 type SnackVariant = 'info' | 'success' | 'warning' | 'error';
 
@@ -13,7 +13,7 @@ type SnackParams = Pick<SnackbarProps, 'action' | 'style' | 'elevation'> & {
   message: string;
   variant?: SnackVariant;
   messageStyle?: StyleProp<TextStyle>;
-  event?: Partial<EventParams> | boolean;
+  event?: Partial<LogEventParams> | boolean;
 };
 
 export type SnackProps = ToastConfigParams<SnackParams>;
@@ -27,11 +27,11 @@ const Snack = ({
 
   useEffect(() => {
     if (eventProp && (variant === 'warning' || variant === 'error')) {
-      event({
+      logEvent({
         level: variant,
         message,
+        snack: true,
         ...(typeof eventProp === 'object' && eventProp),
-        context: { ...(typeof eventProp === 'object' && eventProp), snackShown: true },
       });
     }
   }, [message, variant, eventProp]);

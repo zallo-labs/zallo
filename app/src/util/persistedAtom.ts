@@ -3,7 +3,7 @@ import { RESET, createJSONStorage, unstable_NO_STORAGE_VALUE } from 'jotai/utils
 import type { AsyncStorage as TAsyncStorage } from 'jotai/vanilla/utils/atomWithStorage';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as SecureStore from 'expo-secure-store';
-import { event } from './analytics';
+import { logError } from './analytics';
 
 export type StorageOptions<V, U extends AnyJson> = {
   secure?: SecureStore.SecureStoreOptions;
@@ -87,12 +87,7 @@ const getStorage = <V, U extends AnyJson>({
               e instanceof Error &&
               e.message !== 'Could not encrypt/decrypt the value for SecureStore'
             ) {
-              event({
-                level: 'error',
-                message: `SecureStore.getItemAsync error: ${e.message}`,
-                error: e,
-                context: { key },
-              });
+              logError(`SecureStore.getItemAsync error: ${e.message}`, { error: e, key });
             }
 
             return null;
