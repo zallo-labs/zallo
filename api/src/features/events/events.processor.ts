@@ -10,7 +10,7 @@ import e from '~/edgeql-js';
 import { P, match } from 'ts-pattern';
 import { tryOrCatchAsync } from 'lib';
 
-const DEFAULT_CHUNK_SIZE = 75;
+const DEFAULT_CHUNK_SIZE = 200;
 const BLOCK_TIME_MS = 500;
 const BLOCKS_DELAYED_MS = 2500;
 const TOO_MANY_RESULTS_PATTERN =

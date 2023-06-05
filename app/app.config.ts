@@ -6,7 +6,7 @@ const chain = ENV?.CHAIN?.toUpperCase();
 export const CONFIG = {
   env: ENV.RELEASE_ENV === 'development' ? 'development' : 'production',
   chainName: chain!,
-  sentryDsn: ENV.SENTRY_DSN!,
+  sentryDsn: ENV.APP_SENTRY_DSN!,
   apiUrl: ENV.API_URL!,
   apiGqlWs: ENV.API_GQL_WS!,
   walletConnectProjectId: ENV.WALLET_CONNECT_PROJECT_ID!,
@@ -66,7 +66,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
         config: {
           // https://docs.expo.dev/guides/using-sentry/#31-configure-a--postpublish--hook
           organization: ENV.SENTRY_ORG,
-          project: ENV.SENTRY_PROJECT,
+          project: ENV.APP_SENTRY_PROJECT,
           // authToken: ENV.SENTRY_AUTH_TOKEN,  // Hook reads SENTRY_AUTH_TOKEN env
           deployEnv: ENV.env,
           setCommits: true,

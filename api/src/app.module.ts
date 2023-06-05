@@ -1,5 +1,5 @@
 import { Module } from '@nestjs/common';
-import { APP_GUARD } from '@nestjs/core';
+import { APP_GUARD, APP_INTERCEPTOR } from '@nestjs/core';
 import { HealthModule } from './features/health/health.module';
 import { UsersModule } from './features/users/users.module';
 import { AccountsModule } from './features/accounts/accounts.module';
@@ -25,10 +25,13 @@ import { EventsModule } from './features/events/events.module';
 import { REDIS_OPTIONS, RedisModule } from './features/util/redis/redis.module';
 import { ReceiptsModule } from './features/receipts/receipts.module';
 import { PaymasterModule } from './features/paymaster/paymaster.module';
+import { SentryModule } from './features/util/sentry/sentry.module';
+import { SentryInterceptor } from './features/util/sentry/sentry.interceptor';
 
 @Module({
   imports: [
     // Util
+    SentryModule.forRoot(),
     DatabaseModule,
     RedisModule,
     BullModule.forRoot({
@@ -64,6 +67,12 @@ import { PaymasterModule } from './features/paymaster/paymaster.module';
     UsersModule,
     ExpoModule,
   ],
-  providers: [{ provide: APP_GUARD, useClass: AuthGuard }],
+  providers: [
+    { provide: APP_GUARD, useClass: AuthGuard },
+    {
+      provide: APP_INTERCEPTOR,
+      useClass: SentryInterceptor,
+    },
+  ],
 })
 export class AppModule {}
