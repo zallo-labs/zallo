@@ -8,16 +8,16 @@
     "api",
     "app",
     "contracts",
-    "docs",
     "lib",
+    "site",
     "subgraph"
   ],
   "scripts": {
     "api": "yarn workspace api",
     "app": "yarn workspace app",
     "contracts": "yarn workspace contracts",
-    "docs": "yarn workspace docs",
     "lib": "yarn workspace lib",
+    "site": "yarn workspace site",
     "subgraph": "yarn workspace subgraph",
     "postinstall": "husky install .config/husky",
     "lint": "eslint \"**/*.{js,ts,jsx,tsx}\"",

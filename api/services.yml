@@ -1,18 +1,6 @@
 version: '3.8'
 
 services:
-  pg:
-    image: postgres:15-alpine
-    restart: always
-    command: ['postgres', '-c', 'log_statement=all', '-c', 'log_line_prefix=%t ']
-    environment:
-      - POSTGRES_USER=postgres
-      - POSTGRES_PASSWORD=postgres
-    ports:
-      - '5435:5432'
-    volumes:
-      - zallo-api-postgres:/var/lib/postgresql/data
-
   redis:
     image: redis:7-alpine
     restart: always
@@ -23,7 +11,5 @@ services:
       - zallo-api-redis:/data
 
 volumes:
-  zallo-api-postgres:
-    driver: local
   zallo-api-redis:
     driver: local

@@ -61,8 +61,8 @@ jobs:
       - name: 🚀 Publish update (iOS)
         run: yarn app eas update --auto --non-interactive --platform ios
 
-  docs:
-    environment: main - docs
+  site:
+    environment: main - site
     runs-on: ubuntu-latest
 
     steps:

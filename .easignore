@@ -7,7 +7,7 @@
 ## Unnecessary files
 /api
 /subgraph
-/docs
+/site
 # lib is required
 # contracts is required by lib
 # config is required by contracts
