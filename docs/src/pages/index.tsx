@@ -1,58 +1,50 @@
 import React from 'react';
 import clsx from 'clsx';
 import Link from '@docusaurus/Link';
-import useDocusaurusContext from '@docusaurus/useDocusaurusContext';
 import Layout from '@theme/Layout';
-import HomepageFeatures from '@site/src/components/HomepageFeatures';
 import styles from './index.module.scss';
 import Head from '@docusaurus/Head';
-import AppImage from '@site/static/img/app.png';
-import AppstoreBadgeSvg from '@site/static/img/app-store-preorder-badge.svg';
+import Screenshots from '@site/static/img/screenshots.png';
+import AppstoreBadgeSvg from '@site/static/img/app-store-badge.svg';
 import GooglePlayBadgePng from '@site/static/img/google-play-badge.png';
+import ZkSyncSvg from '@site/static/img/zksync.svg';
 import { useCustomFields } from '../hooks/useCustomFields';
 
-const HomepageHeader = () => {
-  const { siteConfig } = useDocusaurusContext();
+const Homepage = () => {
+  const customFields = useCustomFields();
+
+  console.log(customFields);
 
   return (
-    <header className={clsx('container', styles.heroBanner)}>
-      <div className={clsx('row', styles.headerRow)}>
+    <main className={clsx('container', styles.container)}>
+      <div className={clsx('row', styles.content)}>
         <div className="col col--8">
-          <h1 className="display--small">{siteConfig.tagline}</h1>
-          <p className="title--large">Secure your zkSync account without compromises</p>
+          <p className="display--medium">
+            <b>Permission-based</b>
+            <br />
+            self-custodial <b>smart account</b>
+          </p>
 
-          <Link className="button button--lg" to={useCustomFields().signUpUrl}>
-            Sign up to Early Access
-          </Link>
-
-          {/* <div className={styles.developersContainer}>
-            <h6 className={clsx('label--large', styles.developersLabel)}>Developers</h6>
-
-            <Link className="button button--lg" to="/docs/getting-started">
-              Get started
-            </Link>
-          </div>
+          <p className="title--large">Define the approvals required for different actions</p>
 
           <div className={styles.storeButtonsContainer}>
-            <AppstoreBadgeSvg
-              role="img"
-              className={styles.storeButton}
-              onClick={() => alert('Coming soon')}
-            />
+            <Link to={customFields.appStoreUrl} className={styles.storeButton}>
+              <AppstoreBadgeSvg role="img" className={styles.storeButton} />
+            </Link>
 
-            <img
-              src={GooglePlayBadgePng}
-              className={styles.storeButton}
-              onClick={() => alert('Coming soon')}
-            />
-          </div> */}
+            <Link to={customFields.googlePlayUrl} className={styles.storeButton}>
+              <img src={GooglePlayBadgePng} className={styles.storeButton} />
+            </Link>
+          </div>
         </div>
 
-        <div className="col col--4">
-          <img src={AppImage} alt="App" className={styles.appImage} />
-        </div>
+        <img src={Screenshots} alt="App" className={clsx('col col--4', styles.screenshots)} />
       </div>
-    </header>
+
+      <div className={styles.zksyncContainer}>
+        <ZkSyncSvg className={styles.zksync} />
+      </div>
+    </main>
   );
 };
 
@@ -60,15 +52,11 @@ export default () => {
   return (
     <>
       <Head>
-        <body className={styles.homepage} />
+        <body className={styles.root} />
       </Head>
 
-      <Layout description="Home">
-        <HomepageHeader />
-
-        <main>
-          <HomepageFeatures />
-        </main>
+      <Layout description="Home" wrapperClassName={styles.root}>
+        <Homepage />
       </Layout>
     </>
   );

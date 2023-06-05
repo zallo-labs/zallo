@@ -1,11 +1,17 @@
-.heroBanner {
+.container {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
   padding: 2rem 2rem 0rem;
-  text-align: center;
-  align-items: center;
+  padding-bottom: 2rem;
 }
 
-.headerRow {
+.content {
+  display: flex;
+  flex: 2;
+  justify-content: center;
   align-items: center;
+  text-align: center;
 }
 
 .buttons {
@@ -14,38 +20,26 @@
   justify-content: center;
 }
 
-.homepage {
-  background: linear-gradient(
-    to bottom,
-    var(--ifm-color-primary-dark) 0%,
-    var(--ifm-color-primary) 22%,
-    var(--ifm-color-background) 100%
-  );
+.root {
+  background: linear-gradient(145deg, var(--ifm-color-primary), var(--ifm-color-tertiary));
+  color: white;
 
   nav {
     background-color: unset;
     box-shadow: unset;
-    --ifm-navbar-link-color: var(--ifm-color-on-primary);
+    --ifm-navbar-link-color: white;
     --ifm-navbar-link-hover-color: var(--ifm-color-primary-lightest);
     color: var(--ifm-navbar-link-color);
 
     :global .navbar__item--leading {
       display: none;
     }
+
+    :global
+      .toggle_node_modules-\@docusaurus-theme-classic-lib-theme-ColorModeToggle-styles-module.colorModeToggle_node_modules-\@docusaurus-theme-classic-lib-theme-Navbar-Content-styles-module {
+      display: none;
+    }
   }
-
-  header {
-    color: var(--ifm-color-on-primary);
-    margin: auto;
-  }
-}
-
-.developersContainer {
-  margin: 1.5rem 0 0;
-}
-
-.developersLabel {
-  margin-bottom: 0.5rem;
 }
 
 .storeButtonsContainer {
@@ -54,16 +48,26 @@
   flex-wrap: wrap;
   justify-content: center;
   align-items: end;
-  margin: 0.5rem 0 0;
+  margin-top: 3rem;
+  gap: 1rem;
 }
 
 .storeButton {
-  height: 3rem;
-  margin: 1rem 0.25rem 0;
+  height: 4rem;
 }
 
-.appImage {
-  margin: 2rem 0 1rem;
-  border-radius: 0.5rem;
-  height: 25rem;
+.screenshots {
+  margin: 3rem 0;
+}
+
+.zksyncContainer {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  justify-content: flex-end;
+  align-items: center;
+}
+
+.zksync {
+  height: 2rem;
 }

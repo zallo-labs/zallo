@@ -13,7 +13,7 @@ const trackingID = process.env.SITE_TRACKING_ID;
 /** @type {import('@docusaurus/types').Config} */
 const config = {
   title: 'Zallo',
-  tagline: 'A self-custodial smart wallet for teams',
+  tagline: 'Permission-based self-custodial smart account',
   url: process.env.URL || 'https://example.com',
   baseUrl: '/',
   favicon: 'img/favicon.png',
@@ -121,8 +121,9 @@ const config = {
   customFields: {
     apolloGraphRef: process.env.APOLLO_GRAPH_REF,
     apiUrl: process.env.API_URL,
-    signUpUrl: process.env.SIGN_UP_URL || FALLBACK_URL,
-    privacyPolicyUrl: process.env.PRIVACY_POLICY_URL || FALLBACK_URL,
+    privacyPolicyUrl: process.env.PRIVACY_POLICY_URL,
+    googlePlayUrl: process.env.GOOGLE_PLAY_URL,
+    appStoreUrl: process.env.APP_STORE_URL,
   },
 };
 
