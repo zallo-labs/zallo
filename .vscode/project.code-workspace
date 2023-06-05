@@ -17,12 +17,12 @@
       "path": "../contracts"
     },
     {
-      "name": "docs",
-      "path": "../docs"
-    },
-    {
       "name": "lib",
       "path": "../lib"
+    },
+    {
+      "name": "site",
+      "path": "../site"
     },
     {
       "name": "subgraph",
@@ -77,7 +77,7 @@
     "prettier.configPath": "../.config/.prettierrc",
     "prettier.ignorePath": "../.prettierignore",
     "editor.tabSize": 2,
-    "jest.disabledWorkspaceFolders": ["/", "contracts", "docs", "subgraph"],
+    "jest.disabledWorkspaceFolders": ["/", "contracts", "site", "subgraph"],
     "jest.autoRun": "off",
     "typescript.tsdk": "/node_modules/typescript/lib"
   }

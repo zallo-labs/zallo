@@ -47,11 +47,11 @@ contracts/coverage*
 contracts/zk
 
 
-## Docs
-docs/.docusaurus
-docs/.cache-loader
-docs/docs/reference/schema
-docs/**/*generated.ts
+## Site
+site/.docusaurus
+site/.cache-loader
+site/docs/reference/schema
+site/**/*generated.ts
 
 
 ## Lib

@@ -59,10 +59,10 @@
 ../contracts/zk
 
 
-## Docs
-../docs/.docusaurus
-../docs/.cache-loader
-../docs/docs/reference/schema
+## Site
+../site/.docusaurus
+../site/.cache-loader
+../site/docs/reference/schema
 
 
 ## Lib
