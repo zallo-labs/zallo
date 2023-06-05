@@ -30,5 +30,5 @@ export const CONFIG = {
   accountImplAddress: tryAsAddress(required`ACCOUNT_IMPL_${chain.name.toUpperCase()}`),
   proxyFactoryAddress: tryAsAddress(required`PROXY_FACTORY_${chain.name.toUpperCase()}`),
   sentryDsn: required`API_SENTRY_DSN`,
-  flyId: optional`FLY_ALLOC_ID`,
+  serverId: optional`FLY_ALLOC_ID`,
 };

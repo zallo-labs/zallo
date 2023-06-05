@@ -47,7 +47,7 @@ export class FaucetService {
   }
 
   private async getTokensToSend(account: Address) {
-    if (!this.db.query(selectAccount(account))) return [];
+    if (!(await this.db.query(selectAccount(account)))) return [];
 
     return filterAsync([ETH, DAI, USDC, LINK], async (token) => {
       const recipientBalance = await this.provider.getBalance(account, undefined, token.addr);
