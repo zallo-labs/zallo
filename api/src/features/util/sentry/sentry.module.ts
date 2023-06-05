@@ -49,11 +49,6 @@ export class SentryModule implements OnApplicationShutdown {
         new Sentry.Integrations.OnUncaughtException(),
         new Sentry.Integrations.OnUnhandledRejection({ mode: 'warn' }),
       ],
-      debug: true,
-      beforeSend: (e) => {
-        console.log('Before send', e);
-        return e;
-      },
     });
     SentryModule.initialized = true;
   }

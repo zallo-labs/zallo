@@ -25,7 +25,7 @@ import { EventsModule } from './features/events/events.module';
 import { REDIS_OPTIONS, RedisModule } from './features/util/redis/redis.module';
 import { ReceiptsModule } from './features/receipts/receipts.module';
 import { PaymasterModule } from './features/paymaster/paymaster.module';
-import { SentryModule } from './features/util/sentry/Sentry.module';
+import { SentryModule } from './features/util/sentry/sentry.module';
 import { SentryInterceptor } from './features/util/sentry/sentry.interceptor';
 
 @Module({
