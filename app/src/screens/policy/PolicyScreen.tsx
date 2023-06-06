@@ -30,8 +30,8 @@ export type PolicyScreenProps = StackNavigatorScreenProps<'Policy'>;
 
 export const PolicyScreen = withSuspense((props: PolicyScreenProps) => {
   const { account, key } = props.route.params;
-  const policy = usePolicy(key ? { account, key } : undefined);
-  const approverId = useApproverId();
+  const policy = usePolicy(key !== undefined ? { account, key } : undefined);
+  const approver = useApproverId();
 
   const state = props.route.params.state ?? policy?.state ? 'active' : 'draft';
 
@@ -41,14 +41,14 @@ export const PolicyScreen = withSuspense((props: PolicyScreenProps) => {
       name: policy?.name ?? 'New policy',
       ...((state === 'active' && policy?.state) ||
         policy?.draft || {
-          approvers: new Set([approverId]),
+          approvers: new Set([approver]),
           threshold: 1,
           permissions: {
             targets: ALLOW_ALL_TARGETS,
           },
         }),
     }),
-    [account, policy, state, approverId],
+    [account, policy, state, approver],
   );
 
   useHydrateAtoms([[POLICY_DRAFT_ATOM, initState]]);
@@ -72,11 +72,11 @@ const PolicyView = ({
   initState,
   state,
 }: PolicyViewProps) => {
-  const { account: accountId, key } = route.params;
-  const createPolicy = useCreatePolicy(accountId);
+  const { account, key } = route.params;
+  const createPolicy = useCreatePolicy(account);
   const updatePolicy = useUpdatePolicy();
 
-  const policy = usePolicy(key ? { account: accountId, key: asPolicyKey(key) } : undefined);
+  const policy = usePolicy(key !== undefined ? { account, key } : undefined);
   const proposal = (state === 'active' ? policy?.state : policy?.draft)?.proposal;
 
   const [draft, setDraft] = useAtom(POLICY_DRAFT_ATOM);
