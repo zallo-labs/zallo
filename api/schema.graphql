@@ -152,6 +152,18 @@ type Mutation {
   upsertContact(input: UpsertContactInput!): Contact!
 }
 
+type Operation {
+  data: Bytes
+  to: Address!
+  value: Uint256
+}
+
+input OperationInput {
+  data: Bytes
+  to: Address!
+  value: Uint256
+}
+
 input PermissionsInput {
   """Targets that can be called"""
   targets: [TargetInput!]
@@ -243,17 +255,13 @@ input ProposalsInput {
 
 input ProposeInput {
   account: Address!
-  data: Bytes
   feeToken: Address
   gasLimit: Uint256
   nonce: Uint256
+  operations: [OperationInput!]!
 
   """Approve the proposal"""
   signature: Bytes
-  to: Address!
-
-  """WEI"""
-  value: Uint256
 }
 
 type Query {
@@ -349,12 +357,12 @@ type TransactionProposal {
   account: Account!
   approvals: [Approval!]!
   createdAt: DateTime!
-  data: Bytes
   feeToken: Address!
   gasLimit: BigInt!
   hash: Bytes32!
   id: ID!
   nonce: BigInt!
+  operations: [Operation!]!
   policy: Policy
   proposedBy: User!
   rejections: [Rejection!]!
@@ -362,10 +370,8 @@ type TransactionProposal {
   satisfiablePolicies: [SatisfiablePolicy!]!
   simulation: Simulation!
   status: TransactionProposalStatus!
-  to: Address!
   transaction: Transaction
   transactions: [Transaction!]!
-  value: BigInt
 }
 
 enum TransactionProposalStatus {

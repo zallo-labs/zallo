@@ -214,11 +214,18 @@ module default {
 
   type Rejection extending ProposalResponse {}
 
-  type TransactionProposal extending Proposal {
+  type Operation {
     required property to -> Address;
     property value -> uint256;
     property data -> Bytes;
-    required property nonce -> uint64 { default := 0n; }
+  }
+
+  type TransactionProposal extending Proposal {
+    required multi link operations -> Operation {
+      constraint exclusive;
+      on source delete delete target;
+    }
+    required property nonce -> uint64;
     required property gasLimit -> uint256 { default := 0n; }
     required property feeToken -> Address;
     required link simulation -> Simulation;
@@ -236,6 +243,8 @@ module default {
         'Failed'
       ))
     );
+
+    constraint exclusive on ((.account, .nonce));
   }
 
   scalar type TransactionProposalStatus extending enum<'Pending', 'Executing', 'Successful', 'Failed'>;

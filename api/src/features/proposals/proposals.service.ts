@@ -13,12 +13,14 @@ import {
   asSelector,
   Addresslike,
   isHex,
+  asTx,
 } from 'lib';
 import { ProviderService } from '~/features/util/provider/provider.service';
 import { PubsubService } from '~/features/util/pubsub/pubsub.service';
 import { TransactionsService } from '../transactions/transactions.service';
 import {
   ApproveInput,
+  OperationInput,
   ProposalEvent,
   ProposalsInput,
   ProposeInput,
@@ -105,21 +107,19 @@ export class ProposalsService {
 
   async propose({
     account,
-    to,
-    value,
-    data,
+    operations,
     nonce,
     gasLimit,
     feeToken = ETH_ADDRESS as Address,
     signature,
   }: ProposeInput) {
     return await this.db.transaction(async (client) => {
-      const tx: Tx = {
-        to,
-        value,
-        data,
+      if (!operations.length) throw new UserInputError('No operations provided');
+
+      const tx = asTx({
+        operations: operations as [OperationInput, ...OperationInput[]],
         nonce: nonce ?? (await this.getUnusedNonce(account)),
-      };
+      });
       const hash = await hashTx(tx, { address: account, provider: this.provider });
 
       if (!(await this.paymaster.isSupportedFeeToken(feeToken)))
@@ -129,9 +129,22 @@ export class ProposalsService {
         .insert(e.TransactionProposal, {
           hash,
           account: selectAccount(account),
-          to,
-          value,
-          data,
+          operations: e.set(
+            ...operations.map((op) =>
+              e.insert(e.Operation, {
+                to: op.to,
+                value: op.value,
+                data: op.data,
+              }),
+            ),
+          ),
+          // operations: e.for(e.set(...operations.map((op) => e.json(op))), (item) =>
+          //   e.insert(e.Operation, {
+          //     to: e.cast(e.str, item.to),
+          //     value: e.cast(e.bigint, item.value), // bigint needs to be converted to a string (in e.json(op)) first
+          //     data: e.cast(e.str, item.data),
+          //   }),
+          // ),
           nonce: tx.nonce,
           gasLimit: gasLimit || (await estimateOpGas(this.provider, tx)),
           feeToken,
@@ -262,40 +275,45 @@ export class ProposalsService {
     return typeof maxNonce === 'bigint' ? maxNonce + 1n : 0n;
   }
 
-  private insertSimulation(accountAddress: Address, { to, value, data }: Tx) {
+  private insertSimulation(accountAddress: Address, { operations }: Tx) {
     const account = selectAccount(accountAddress);
 
-    const transfers: Parameters<typeof e.insert<typeof e.TransferDetails>>[1][] = [];
-    if (value && value > 0n) {
-      transfers.push({
-        account,
-        direction: 'Out',
-        from: accountAddress,
-        to,
-        token: asAddress(ETH_ADDRESS),
-        amount: -value,
+    const transfers: Parameters<typeof e.insert<typeof e.TransferDetails>>[1][] =
+      operations.flatMap(({ to, value, data }) => {
+        const transfers: Parameters<typeof e.insert<typeof e.TransferDetails>>[1][] = [];
+        if (value && value > 0n) {
+          transfers.push({
+            account,
+            direction: 'Out',
+            from: accountAddress,
+            to,
+            token: asAddress(ETH_ADDRESS),
+            amount: -value,
+          });
+        }
+
+        if (data && asSelector(data) === ERC20_TRANSFER_SELECTOR) {
+          try {
+            const [dest, amount] = ERC20.decodeFunctionData(ERC20_TRANSFER, data) as [
+              Addresslike,
+              BigNumberish,
+            ];
+
+            transfers.push({
+              account,
+              direction: 'Out',
+              from: accountAddress,
+              to: asAddress(dest),
+              token: to,
+              amount: -asBigInt(amount),
+            });
+          } catch (e) {
+            Logger.warn(`Failed to decode ERC20 transfer data: ${e}`);
+          }
+        }
+
+        return transfers;
       });
-    }
-
-    if (data && asSelector(data) === ERC20_TRANSFER_SELECTOR) {
-      try {
-        const [dest, amount] = ERC20.decodeFunctionData(ERC20_TRANSFER, data) as [
-          Addresslike,
-          BigNumberish,
-        ];
-
-        transfers.push({
-          account,
-          direction: 'Out',
-          from: accountAddress,
-          to: asAddress(dest),
-          token: to,
-          amount: -asBigInt(amount),
-        });
-      } catch (e) {
-        Logger.warn(`Failed to decode ERC20 transfer data: ${e}`);
-      }
-    }
 
     return e.insert(e.Simulation, {
       ...(transfers.length && {

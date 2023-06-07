@@ -1,6 +1,6 @@
 import { Address, asPolicy, asTargets, Policy, PolicyKey } from 'lib';
 import { uuid } from 'edgedb/dist/codecs/ifaces';
-import e from '~/edgeql-js';
+import e, { $infer } from '~/edgeql-js';
 import { ShapeFunc } from '../database/database.select';
 import { PolicyInput } from './policies.input';
 
@@ -32,16 +32,8 @@ export const policyStateShape = e.shape(e.PolicyState, () => ({
   },
 }));
 
-export type PolicyStateShape = {
-  threshold: number;
-  approvers: {
-    address: string;
-  }[];
-  targets: {
-    to: string;
-    selectors: string[];
-  }[];
-} | null;
+const s = e.select(e.PolicyState, policyStateShape);
+export type PolicyStateShape = $infer<typeof s>[0] | null;
 
 export const policyStateAsPolicy = <S extends PolicyStateShape>(key: number, state: S) =>
   (state

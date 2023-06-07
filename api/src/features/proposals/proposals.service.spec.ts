@@ -57,7 +57,7 @@ describe(ProposalsService.name, () => {
 
   const propose = async ({
     account = user1Account1,
-    to = randomAddress(),
+    operations = [{ to: randomAddress() }],
     ...params
   }: Partial<ProposeInput> = {}) => {
     // Create account with an active policy
@@ -92,7 +92,7 @@ describe(ProposalsService.name, () => {
         .run(db.client);
     }
 
-    return service.propose({ account, to, ...params });
+    return service.propose({ account, operations, ...params });
   };
 
   describe('propose', () => {
