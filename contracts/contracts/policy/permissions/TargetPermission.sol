@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 pragma solidity ^0.8.0;
 
-import {Transaction} from '@matterlabs/zksync-contracts/l2/system-contracts/libraries/TransactionHelper.sol';
+import {Operation} from '../../TransactionUtil.sol';
 
 struct Target {
   address to;
@@ -16,15 +16,13 @@ library TargetPermission {
   bytes4 private constant ANY_SELECTOR = bytes4(0);
 
   /**
-   * @dev Verify that transaction is matches the specific (or fallback) target.
+   * @dev Verify that op is matches the specific (or fallback) target.
    * @param targets Targets to verify. Sorted by `to` (ascending).
-   * @param transaction Transaction to verify.
+   * @param op Operation to verify.
    */
-  function verify(Transaction memory transaction, Target[] memory targets) internal pure {
-    address to = address(uint160(transaction.to));
-
+  function verify(Operation memory op, Target[] memory targets) internal pure {
     uint256 targetsLen = targets.length;
-    if (targets.length == 0) revert NotToAnyOfTargets(to, targets);
+    if (targets.length == 0) revert NotToAnyOfTargets(op.to, targets);
 
     uint256 left;
     uint256 right = targetsLen - 1;
@@ -33,9 +31,9 @@ library TargetPermission {
       mid = (left + right) >> 1; // (left + right) / 2
 
       Target memory target = targets[mid];
-      if (target.to == to) return _verifySelectorsOrRevert(target.selectors, transaction.data);
+      if (target.to == op.to) return _verifySelectorsOrRevert(target.selectors, op.data);
 
-      if (target.to < to) {
+      if (target.to < op.to) {
         left = mid + 1;
       } else {
         right = mid - 1;
@@ -43,9 +41,9 @@ library TargetPermission {
     }
 
     if (targets.length > 0 && targets[0].to == FALLBACK_ADDRESS) {
-      _verifySelectorsOrRevert(targets[0].selectors, transaction.data);
+      _verifySelectorsOrRevert(targets[0].selectors, op.data);
     } else {
-      revert NotToAnyOfTargets(to, targets);
+      revert NotToAnyOfTargets(op.to, targets);
     }
   }
 

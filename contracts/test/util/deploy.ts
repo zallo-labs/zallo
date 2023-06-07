@@ -4,12 +4,14 @@ import {
   Account__factory,
   asAddress,
   asPolicy,
+  asTx,
   deployAccountProxy,
   executeTx,
   Factory__factory,
   randomDeploySalt,
   TestAccount__factory,
   Tx,
+  TxOptions,
 } from 'lib';
 import { WALLETS, WALLET } from './wallet';
 import { BigNumberish, Overrides } from 'ethers';
@@ -110,13 +112,16 @@ export const deployProxy = async ({
   return {
     account,
     policy,
-    execute: async (tx: Tx) =>
-      await executeTx({
+    execute: async (txOpts: TxOptions) => {
+      const tx = asTx(txOpts);
+
+      return await executeTx({
         account,
         policy,
         tx,
         approvals: await getApprovals(account, approvers, tx),
-      }),
+      });
+    },
   };
 };
 

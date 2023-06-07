@@ -25,7 +25,7 @@ export * from './approvals';
 export * from './approver';
 export * from './bigint';
 export * from './bytes';
-export * from './call';
+export * from './operation';
 export * from './chain';
 export * from './decode';
 export * from './deploy';

@@ -7,25 +7,28 @@ import {
   asSelector,
   asTargets,
   Hex,
+  Operation,
   TARGETS_ABI,
   Targetslike,
   TestVerifier,
-  Tx,
 } from 'lib';
-import { asTransactionStruct, deployTestVerifier } from '../util/verifier';
+import { deployTestVerifier } from '../util/verifier';
 import { TestUtil, TestUtil__factory } from 'lib/src/contracts';
 import { WALLET, deploy } from '../util';
 
 describe('TargetPermission', () => {
   let verifier = {} as TestVerifier;
   let tester = {} as TestUtil;
-  let nonce = 0n;
   let to: Address;
   let data: Hex;
 
-  const verify = (tx: Omit<Tx, 'nonce'>, targets: Targetslike) =>
+  const verify = (op: Operation, targets: Targetslike) =>
     verifier.verifyTargetPermission(
-      asTransactionStruct({ ...tx, nonce: nonce++ }),
+      {
+        to: op.to,
+        value: op.value ?? 0n,
+        data: op.data ?? '0x',
+      },
       TARGETS_ABI.asStruct(asTargets(targets)) ?? [],
     );
 
