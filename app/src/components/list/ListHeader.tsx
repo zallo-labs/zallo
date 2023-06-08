@@ -41,6 +41,7 @@ const useStyles = makeStyles(({ colors }) => ({
   },
   header: {
     flex: 1,
+    color: colors.onSurfaceVariant,
   },
   trailingText: {
     color: colors.onSurfaceVariant,
