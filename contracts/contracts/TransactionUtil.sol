@@ -48,9 +48,9 @@ library TransactionUtil {
     if (hasOperations) {
       return abi.decode(t.data[4:], (Operation[]));
     } else {
-      Operation[] memory operations = new Operation[](1);
-      operations[0] = Operation({to: toAddress(t), value: uint96(t.value), data: t.data});
-      return operations;
+      Operation[] memory ops = new Operation[](1);
+      ops[0] = Operation({to: toAddress(t), value: uint96(t.value), data: t.data});
+      return ops;
     }
   }
 }
