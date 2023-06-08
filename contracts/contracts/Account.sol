@@ -17,7 +17,7 @@ import {Executor} from './Executor.sol';
 import {ERC165} from './standards/ERC165.sol';
 import {ERC721Receiver} from './standards/ERC721Receiver.sol';
 import {ERC1271Validator} from './standards/ERC1271Validator.sol';
-import {TransactionUtil} from './standards/TransactionUtil.sol';
+import {TransactionUtil} from './TransactionUtil.sol';
 
 contract Account is
   IAccount,

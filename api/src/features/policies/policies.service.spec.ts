@@ -31,6 +31,7 @@ describe(PoliciesService.name, () => {
 
   let user1Account: Address;
   let user1: UserContext;
+  let nonce = 0n;
 
   const create = async ({ activate }: { activate?: boolean } = {}) => {
     const userCtx = getUserCtx();
@@ -58,7 +59,8 @@ describe(PoliciesService.name, () => {
         e.insert(e.TransactionProposal, {
           hash: hexlify(randomBytes(32)),
           account: e.select(e.Account, () => ({ filter_single: { address: account } })),
-          to: ZERO_ADDR,
+          operations: e.insert(e.Operation, { to: ZERO_ADDR }),
+          nonce: nonce++,
           feeToken: ZERO_ADDR,
           simulation: e.insert(e.Simulation, {}),
         }) as any,

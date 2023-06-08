@@ -53,18 +53,23 @@ export class ProposalSubscriptionInput {
 }
 
 @InputType()
-export class ProposeInput {
-  @AddressField()
-  account: Address;
-
+export class OperationInput {
   @AddressField()
   to: Address;
 
-  @Uint256Field({ nullable: true, description: 'WEI' })
+  @Uint256Field({ nullable: true })
   value?: bigint;
 
   @BytesField({ nullable: true })
   data?: Hex;
+}
+
+@InputType()
+export class ProposeInput {
+  @AddressField()
+  account: Address;
+
+  operations: OperationInput[];
 
   @Uint256Field({ nullable: true })
   nonce?: bigint;

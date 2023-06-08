@@ -34,12 +34,16 @@ export const useSessionRequestListener = () => {
 
         const proposalId = await propose(
           {
-            to: tx.to,
-            value: tx.value ? asBigInt(tx.value) : undefined,
-            data: tx.data,
+            account: tx.from,
+            operations: [
+              {
+                to: tx.to,
+                value: tx.value ? asBigInt(tx.value) : undefined,
+                data: tx.data,
+              },
+            ],
             gasLimit: tx.gasLimit ? asBigInt(tx.gasLimit) : undefined,
           },
-          tx.from,
           popToProposal,
         );
 

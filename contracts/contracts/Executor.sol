@@ -5,7 +5,7 @@ import {Transaction} from '@matterlabs/zksync-contracts/l2/system-contracts/libr
 import {IContractDeployer, INonceHolder, DEPLOYER_SYSTEM_CONTRACT, NONCE_HOLDER_SYSTEM_CONTRACT, BOOTLOADER_FORMAL_ADDRESS} from '@matterlabs/zksync-contracts/l2/system-contracts/Constants.sol';
 import {SystemContractsCaller} from '@matterlabs/zksync-contracts/l2/system-contracts/libraries/SystemContractsCaller.sol';
 import {Utils as CastUtils} from '@matterlabs/zksync-contracts/l2/system-contracts/libraries/Utils.sol';
-import {TransactionUtil} from './standards/TransactionUtil.sol';
+import {TransactionUtil, Operation} from './TransactionUtil.sol';
 
 abstract contract Executor {
   using CastUtils for uint256;
@@ -15,9 +15,10 @@ abstract contract Executor {
                              EVENTS / ERRORS
   //////////////////////////////////////////////////////////////*/
 
-  event TransactionExecuted(bytes32 txHash, bytes response);
+  event OperationExecuted(bytes32 txHash, bytes response);
+  event OperationsExecuted(bytes32 txHash, bytes[] responses);
 
-  error TransactionReverted(bytes reason);
+  error OperationReverted(uint256 operationIndex, bytes reason);
   error TransactionAlreadyExecuted(bytes32 txHash);
 
   /*//////////////////////////////////////////////////////////////
@@ -28,27 +29,31 @@ abstract contract Executor {
   function _executeTransaction(bytes32 txHash, Transaction calldata t) internal {
     _setExecuted(txHash);
 
-    address to = address(uint160(t.to));
+    Operation[] memory operations = t.operations();
+    if (operations.length == 1) {
+      bytes memory response = _executeOperation(operations[0], 0);
+
+      emit OperationExecuted(txHash, response);
+    } else {
+      bytes[] memory responses = new bytes[](operations.length);
+      for (uint256 i; i < operations.length; ++i) {
+        responses[i] = _executeOperation(operations[i], i);
+      }
+
+      emit OperationsExecuted(txHash, responses);
+    }
+  }
+
+  function _executeOperation(Operation memory op, uint256 opIndex) private returns (bytes memory) {
     uint32 gas = gasleft().safeCastToU32() - 2000;
 
-    bool success;
-    bytes memory response;
-    if (to == address(DEPLOYER_SYSTEM_CONTRACT)) {
-      (success, response) = SystemContractsCaller.systemCallWithReturndata(
-        gas,
-        to,
-        t.value.safeCastToU128(),
-        t.data
-      );
-    } else {
-      (success, response) = to.call{value: t.value, gas: gas}(t.data);
-    }
+    (bool success, bytes memory response) = (op.to == address(DEPLOYER_SYSTEM_CONTRACT))
+      ? SystemContractsCaller.systemCallWithReturndata(gas, op.to, op.value, op.data)
+      : op.to.call{value: op.value, gas: gas}(op.data);
 
-    if (success) {
-      emit TransactionExecuted(txHash, response);
-    } else {
-      revert TransactionReverted(response);
-    }
+    if (!success) revert OperationReverted(opIndex, response);
+
+    return response;
   }
 
   /*//////////////////////////////////////////////////////////////

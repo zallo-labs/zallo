@@ -180,8 +180,12 @@ export class PoliciesService {
       (await (async () => {
         const proposal = await this.proposals.propose({
           account,
-          to: account,
-          data: asHex(ACCOUNT_INTERFACE.encodeFunctionData('removePolicy', [key])),
+          operations: [
+            {
+              to: account,
+              data: asHex(ACCOUNT_INTERFACE.encodeFunctionData('removePolicy', [key])),
+            },
+          ],
         });
 
         return selectTransactionProposal(proposal.id);
@@ -207,8 +211,14 @@ export class PoliciesService {
   private async proposeState(account: Address, policy: Policy) {
     const proposal = await this.proposals.propose({
       account,
-      to: account,
-      data: asHex(ACCOUNT_INTERFACE.encodeFunctionData('addPolicy', [POLICY_ABI.asStruct(policy)])),
+      operations: [
+        {
+          to: account,
+          data: asHex(
+            ACCOUNT_INTERFACE.encodeFunctionData('addPolicy', [POLICY_ABI.asStruct(policy)]),
+          ),
+        },
+      ],
     });
 
     return e.select(e.TransactionProposal, () => ({

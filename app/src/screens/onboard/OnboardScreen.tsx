@@ -1,19 +1,21 @@
 import { View } from 'react-native';
 import { Button, Text } from 'react-native-paper';
 import { StackNavigatorScreenProps } from '~/navigation/StackNavigator';
-import LogoSvg from '~/../assets/logo.svg';
+import LogoSvg from '~/../assets/logo-color.svg';
 import { Actions } from '~/components/layout/Actions';
 import { StyleSheet } from 'react-native';
 import { Screen } from '~/components/layout/Screen';
 
 export type OnboardScreenProps = StackNavigatorScreenProps<'Onboard'>;
 
-export const OnboardScreen = ({ navigation: { navigate } }: OnboardScreenProps) => {
+export function OnboardScreen({ navigation: { navigate } }: OnboardScreenProps) {
   return (
     <Screen topInset>
       <View style={styles.header}>
         <LogoSvg style={styles.logo} />
-        <Text variant="headlineSmall">Self-custodial smart wallet</Text>
+        <Text variant="headlineSmall" style={styles.description}>
+          Permission-based{'\n'}self-custodial smart wallet
+        </Text>
       </View>
 
       <Actions>
@@ -23,7 +25,7 @@ export const OnboardScreen = ({ navigation: { navigate } }: OnboardScreenProps) 
       </Actions>
     </Screen>
   );
-};
+}
 
 const styles = StyleSheet.create({
   header: {
@@ -34,6 +36,9 @@ const styles = StyleSheet.create({
   },
   logo: {
     marginBottom: 32,
+  },
+  description: {
+    textAlign: 'center',
   },
   button: {
     alignSelf: 'stretch',

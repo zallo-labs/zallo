@@ -33,7 +33,7 @@ const persistedQueryLink = createPersistedQueryLink({
 });
 
 const errorLink = onError(({ forward, operation, graphQLErrors, networkError }) => {
-  logError('API error', {
+  logError(`API error: ${graphQLErrors?.map((e) => e.message).join('; ')}`, {
     error: networkError,
     graphQLErrors,
     operation: _.pick(operation, ['operationName', 'variables']),

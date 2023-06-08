@@ -40,6 +40,7 @@ import * as zk from 'zksync-web3';
 import { BigNumber } from 'ethers';
 import { assert } from 'console';
 import { PaymasterService } from '../paymaster/paymaster.service';
+import { proposalTxShape, transactionProposalAsTx } from '../proposals/proposals.uitl';
 
 @Injectable()
 export class TransactionsService {
@@ -64,7 +65,7 @@ export class TransactionsService {
 
   async tryExecute(uniqueProposal: UniqueProposal) {
     const proposal = await this.db.query(
-      e.select(e.TransactionProposal, () => ({
+      e.select(e.TransactionProposal, (p) => ({
         filter_single: isHex(uniqueProposal) ? { hash: uniqueProposal } : { id: uniqueProposal },
         id: true,
         account: {
@@ -75,11 +76,7 @@ export class TransactionsService {
           },
         },
         hash: true,
-        to: true,
-        value: true,
-        data: true,
-        nonce: true,
-        gasLimit: true,
+        ...proposalTxShape(p),
         feeToken: true,
         approvals: {
           user: { address: true },
@@ -123,13 +120,7 @@ export class TransactionsService {
       return this.tryExecute(proposal.id);
     }
 
-    const tx: Tx = {
-      to: proposal.to as Address,
-      value: proposal.value ?? undefined,
-      data: (proposal.data ?? undefined) as Hex | undefined,
-      nonce: proposal.nonce,
-      gasLimit: proposal.gasLimit,
-    };
+    const tx = transactionProposalAsTx(proposal);
 
     const policy = await this.getExecutionPolicy(
       tx,
@@ -195,13 +186,9 @@ export class TransactionsService {
 
   async satisfiablePolicies(id: UniqueProposal) {
     const proposal = await this.db.query(
-      e.select(e.TransactionProposal, () => ({
+      e.select(e.TransactionProposal, (p) => ({
         filter_single: isHex(id) ? { hash: id } : { id },
-        to: true,
-        value: true,
-        data: true,
-        nonce: true,
-        gasLimit: true,
+        ...proposalTxShape(p),
         approvals: {
           user: { address: true },
         },
@@ -218,12 +205,7 @@ export class TransactionsService {
     );
     if (!proposal) throw new Error(`Proposal ${id} not found`);
 
-    const tx: Tx = {
-      to: proposal.to as Address,
-      value: proposal.value ?? undefined,
-      data: (proposal.data ?? undefined) as Hex | undefined,
-      nonce: proposal.nonce,
-    };
+    const tx = transactionProposalAsTx(proposal);
 
     const approvals = new Set(proposal.approvals.map((a) => a.user.address as Address));
     const rejections = new Set(proposal.rejections.map((a) => a.user.address as Address));

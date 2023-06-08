@@ -4,7 +4,7 @@ import {
   ContractFunctionQuery,
   ContractFunctionQueryVariables,
 } from '@api/generated';
-import { Address, Call, Selector, asSelector } from 'lib';
+import { Address, Operation, Selector, asSelector } from 'lib';
 import { useMemo } from 'react';
 import { useSuspenseQuery } from '~/gql/util';
 import assert from 'assert';
@@ -31,14 +31,14 @@ export interface ContractFunctionParams {
   selector: Selector;
 }
 
-const isCall = (params?: ContractFunctionParams | Call): params is Call =>
+const isOp = (params?: ContractFunctionParams | Operation): params is Operation =>
   params !== undefined && 'to' in params;
 
-export const useContractFunction = <P extends ContractFunctionParams | Call | undefined>(
+export const useContractFunction = <P extends ContractFunctionParams | Operation | undefined>(
   params: P,
 ) => {
-  const contract = isCall(params) ? params.to : params?.contract;
-  const selector = isCall(params) ? asSelector(params.data) : params?.selector;
+  const contract = isOp(params) ? params.to : params?.contract;
+  const selector = isOp(params) ? asSelector(params.data) : params?.selector;
 
   const skip = !contract || !selector;
   const { data } = useSuspenseQuery<ContractFunctionQuery, ContractFunctionQueryVariables>(

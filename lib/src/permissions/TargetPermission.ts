@@ -8,6 +8,7 @@ import { Tx } from '../tx';
 import { PermissionStruct } from './permissions';
 import _ from 'lodash';
 import { BytesLike } from 'ethers';
+import { Operation } from '../operation';
 
 export type Target = Address | '*';
 export type Targets = Record<Target, Set<Selector | '*'>>;
@@ -78,8 +79,8 @@ export const targetsAsPermission = (targets: Targets): PermissionStruct | undefi
   };
 };
 
-export const verifyTargetsPermission = (t: Targets, tx: Tx) => {
-  const selectors = t[tx.to] ?? t['*'];
+export const verifyTargetsPermission = (t: Targets, op: Operation) => {
+  const selectors = t[op.to] ?? t['*'];
 
-  return selectors?.has('*') || selectors?.has(asSelector(tx.data)!);
+  return selectors?.has('*') || selectors?.has(asSelector(op.data)!);
 };

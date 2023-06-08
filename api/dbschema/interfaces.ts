@@ -90,6 +90,11 @@ export interface Function extends std.$Object {
   "abiMd5": string;
   "source": AbiSource;
 }
+export interface Operation extends std.$Object {
+  "data"?: string | null;
+  "to": string;
+  "value"?: bigint | null;
+}
 export interface Policy extends std.$Object {
   "account": Account;
   "name": string;
@@ -116,9 +121,9 @@ export interface Proposal extends std.$Object {
   "createdAt"?: Date | null;
   "hash": string;
   "approvals": Approval[];
-  "policy"?: Policy | null;
   "rejections": Rejection[];
   "responses": ProposalResponse[];
+  "policy"?: Policy | null;
 }
 export interface Receipt extends std.$Object {
   "block": bigint;
@@ -138,20 +143,18 @@ export interface Target extends std.$Object {
   "to": string;
 }
 export interface Transaction extends std.$Object {
-  "proposal": TransactionProposal;
-  "receipt"?: Receipt | null;
   "submittedAt": Date;
   "gasPrice": bigint;
   "hash": string;
+  "proposal": TransactionProposal;
+  "receipt"?: Receipt | null;
 }
 export interface TransactionProposal extends Proposal {
+  "operations": Operation[];
   "simulation": Simulation;
-  "data"?: string | null;
   "feeToken": string;
   "gasLimit": bigint;
   "nonce": bigint;
-  "to": string;
-  "value"?: bigint | null;
   "transactions": Transaction[];
   "transaction"?: Transaction | null;
   "status": TransactionProposalStatus;
@@ -167,9 +170,9 @@ export interface TransferDetails extends std.$Object {
 }
 export interface Transfer extends TransferDetails {
   "block": bigint;
+  "logIndex": number;
   "timestamp": Date;
   "receipt"?: Receipt | null;
-  "logIndex": number;
 }
 export type TransferDirection = "In" | "Out";
 export interface current_user extends User {}
@@ -392,6 +395,7 @@ export interface types {
     "Contact": Contact;
     "Contract": Contract;
     "Function": Function;
+    "Operation": Operation;
     "Policy": Policy;
     "PolicyState": PolicyState;
     "Proposal": Proposal;

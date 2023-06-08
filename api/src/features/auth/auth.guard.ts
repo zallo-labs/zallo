@@ -11,7 +11,8 @@ export class AuthGuard implements CanActivate {
   canActivate(context: ExecutionContext): boolean {
     const ctx = GqlExecutionContext.create(context).getContext<GqlContext>();
 
-    if (!ctx.req.user && !isPublic(this.reflector, context)) throw new UnauthorizedException();
+    if (!ctx.req.user && !isPublic(this.reflector, context))
+      throw new UnauthorizedException('Route requires authentication');
 
     return true;
   }

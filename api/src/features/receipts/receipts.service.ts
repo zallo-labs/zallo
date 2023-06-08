@@ -1,9 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import {
-  AbiCoder,
   ErrorFragment,
   Interface,
-  ParamType,
   Result,
   defaultAbiCoder,
   hexDataLength,
@@ -24,10 +22,13 @@ const FRAGMENTS: Record<string, { fragment: ErrorFragment; stringify?: (r: Resul
   Object.fromEntries([
     // Error(string) & Panic(uint256) are forbidden inside ErrorFragment.from(...) for some reason
     [
-      '0x08c379a0',
+      '0x08c379a0' /* Error(string) sighash */,
       { fragment: ErrorFragment.fromString('Reverted(string)'), stringify: (r: Result) => r[0] },
-    ], // Error(string)
-    ['0x4e487b71', { fragment: ErrorFragment.fromString('Panicked(uint256)') }], // Panic(uint256)
+    ],
+    [
+      '0x4e487b71' /* Panic(uint256) sighash */,
+      { fragment: ErrorFragment.fromString('Panicked(uint256)') },
+    ],
     ...Object.values(ACCOUNT_INTERFACE.errors).map((fragment) => [
       Interface.getSighash(fragment),
       { fragment },

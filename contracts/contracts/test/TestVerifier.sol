@@ -6,7 +6,7 @@ import {Transaction} from '@matterlabs/zksync-contracts/l2/system-contracts/libr
 import {Policy, PolicyKey, Permission} from '../policy/Policy.sol';
 import {TransactionVerifier} from '../policy/TransactionVerifier.sol';
 import {Approvals, ApprovalsVerifier} from '../policy/ApprovalsVerifier.sol';
-import {TransactionUtil} from '../standards/TransactionUtil.sol';
+import {TransactionUtil, Operation} from '../TransactionUtil.sol';
 import {TargetPermission, Target} from '../policy/permissions/TargetPermission.sol';
 
 contract TestVerifier {
@@ -17,7 +17,7 @@ contract TestVerifier {
   function verifyTransactionPermissions(
     Transaction calldata transaction,
     Permission[] calldata permissions
-  ) external pure {
+  ) external view {
     transaction.verifyPermissions(permissions);
   }
 
@@ -43,9 +43,9 @@ contract TestVerifier {
   //////////////////////////////////////////////////////////////*/
 
   function verifyTargetPermission(
-    Transaction calldata transaction,
+    Operation calldata operation,
     Target[] calldata targets
   ) external pure {
-    TargetPermission.verify(transaction, targets);
+    TargetPermission.verify(operation, targets);
   }
 }

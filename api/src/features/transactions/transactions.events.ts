@@ -29,7 +29,7 @@ export class TransactionsEvents implements OnModuleInit {
     private proposals: ProposalsService,
   ) {
     this.transactionsProcessor.onEvent(
-      ACCOUNT.getEventTopic(ACCOUNT.events['TransactionExecuted(bytes32,bytes)']),
+      ACCOUNT.getEventTopic(ACCOUNT.events['OperationExecuted(bytes32,bytes)']),
       (data) => this.executed(data),
     );
     this.transactionsProcessor.onTransaction((data) => this.reverted(data));
@@ -41,7 +41,7 @@ export class TransactionsEvents implements OnModuleInit {
 
   private async executed({ log, receipt, block }: TransactionEventData) {
     const r = ACCOUNT.decodeEventLog(
-      ACCOUNT.events['TransactionExecuted(bytes32,bytes)'],
+      ACCOUNT.events['OperationExecuted(bytes32,bytes)'],
       log.data,
       log.topics,
     );

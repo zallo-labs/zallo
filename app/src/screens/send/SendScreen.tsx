@@ -4,7 +4,7 @@ import { fiatAsBigInt, fiatToToken, FIAT_DECIMALS } from '@token/fiat';
 import { getTokenContract, Token } from '@token/token';
 import { useTokenPriceData } from '@uniswap/index';
 import { parseUnits } from 'ethers/lib/utils';
-import { Address, asHex, Call } from 'lib';
+import { Address, asHex, Operation } from 'lib';
 import { useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 import { Appbar, Divider } from 'react-native-paper';
@@ -20,7 +20,7 @@ import { InputsView, InputType } from './InputsView';
 import { useSelectToken } from '../tokens/TokensScreen';
 import { Button } from '~/components/Button';
 
-const createTransferTx = (token: Token, to: Address, amount: bigint): Call =>
+const createTransferOp = (token: Token, to: Address, amount: bigint): Operation =>
   token.type === 'ERC20'
     ? {
         to: token.address,
@@ -88,7 +88,15 @@ export const SendScreen = withSuspense(({ route, navigation: { goBack } }: SendS
       <Button
         mode="contained"
         style={styles.action}
-        onPress={() => propose(createTransferTx(token, to, tokenAmount), account, popToProposal)}
+        onPress={() =>
+          propose(
+            {
+              account,
+              operations: [createTransferOp(token, to, tokenAmount)],
+            },
+            popToProposal,
+          )
+        }
       >
         Propose
       </Button>

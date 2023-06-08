@@ -58,7 +58,7 @@ export const useProposal = () => {
       if (!proposal && account !== ZERO_ADDR) {
         const { data } = await propose({
           variables: {
-            input: { account, to: device.address, value: 15000 },
+            input: { account, operations: [{ to: device.address, value: 15000 }] },
           },
         });
         setProposal(data?.propose.hash);

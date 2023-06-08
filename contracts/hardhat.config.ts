@@ -19,16 +19,19 @@ import './tasks/balance';
 import './tasks/deposit';
 import { CHAINS } from 'lib';
 
+// https://github.com/matter-labs/zksolc-bin/tree/main/linux-amd64
+const ZKSYNC_COMPILER_VERSION = '1.3.11';
+
 // https://hardhat.org/config/
-const config: HardhatUserConfig = {
+export default {
   solidity: {
     version: '0.8.20',
   },
   zksolc: {
-    // https://github.com/matter-labs/zksolc-bin/tree/main/linux-amd64
-    version: '1.3.11',
+    version: ZKSYNC_COMPILER_VERSION,
     compilerSource: 'binary',
     settings: {
+      compilerPath: `./zksolc-linux-amd64-musl-v${ZKSYNC_COMPILER_VERSION}`,
       isSystem: true,
       optimizer: {
         enabled: true,
@@ -73,6 +76,4 @@ const config: HardhatUserConfig = {
     clear: true,
     runOnCompile: true,
   },
-};
-
-export default config;
+} satisfies HardhatUserConfig;

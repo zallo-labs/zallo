@@ -77,6 +77,22 @@
   {
     "inputs": [
       {
+        "internalType": "uint256",
+        "name": "operationIndex",
+        "type": "uint256"
+      },
+      {
+        "internalType": "bytes",
+        "name": "reason",
+        "type": "bytes"
+      }
+    ],
+    "name": "OperationReverted",
+    "type": "error"
+  },
+  {
+    "inputs": [
+      {
         "internalType": "bytes32",
         "name": "actualHash",
         "type": "bytes32"
@@ -168,17 +184,6 @@
   {
     "inputs": [
       {
-        "internalType": "bytes",
-        "name": "reason",
-        "type": "bytes"
-      }
-    ],
-    "name": "TransactionReverted",
-    "type": "error"
-  },
-  {
-    "inputs": [
-      {
         "internalType": "enum PermissionSelector",
         "name": "selector",
         "type": "uint8"
@@ -224,6 +229,44 @@
     "inputs": [
       {
         "indexed": false,
+        "internalType": "bytes32",
+        "name": "txHash",
+        "type": "bytes32"
+      },
+      {
+        "indexed": false,
+        "internalType": "bytes",
+        "name": "response",
+        "type": "bytes"
+      }
+    ],
+    "name": "OperationExecuted",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "internalType": "bytes32",
+        "name": "txHash",
+        "type": "bytes32"
+      },
+      {
+        "indexed": false,
+        "internalType": "bytes[]",
+        "name": "responses",
+        "type": "bytes[]"
+      }
+    ],
+    "name": "OperationsExecuted",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
         "internalType": "PolicyKey",
         "name": "key",
         "type": "uint32"
@@ -249,25 +292,6 @@
       }
     ],
     "name": "PolicyRemoved",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": false,
-        "internalType": "bytes32",
-        "name": "txHash",
-        "type": "bytes32"
-      },
-      {
-        "indexed": false,
-        "internalType": "bytes",
-        "name": "response",
-        "type": "bytes"
-      }
-    ],
-    "name": "TransactionExecuted",
     "type": "event"
   },
   {

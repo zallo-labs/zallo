@@ -2,7 +2,7 @@
 pragma solidity ^0.8.0;
 
 import '../Account.sol';
-import {TransactionUtil} from '../standards/TransactionUtil.sol';
+import {TransactionUtil} from '../TransactionUtil.sol';
 
 contract TestAccount is Account {
   function testExecuteTransaction(Transaction calldata transaction) external {

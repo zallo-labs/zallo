@@ -1,13 +1,36 @@
 import { TypedDataDomain, TypedDataField } from '@ethersproject/abstract-signer';
 import { ethers } from 'ethers';
-import { Addresslike } from './address';
+import { Address, Addresslike, asAddress } from './address';
 import { asHex, EMPTY_HEX_BYTES } from './bytes';
-import { Call } from './call';
+import { Operation, encodeOperationsData } from './operation';
+import _ from 'lodash';
 
-export interface Tx extends Call {
+export interface Tx {
+  operations: [Operation, ...Operation[]];
   nonce: bigint;
   gasLimit?: bigint;
 }
+
+export type TxOptions = Omit<Tx, 'operations'> &
+  ((Operation & { operations?: never }) | { operations: [Operation, ...Operation[]] });
+
+export const asTx = (o: TxOptions): Tx => ({
+  ..._.omit(o, 'operations'),
+  operations: 'operations' in o ? o.operations! : [_.pick(o, ['to', 'value', 'data'])],
+});
+
+export interface TransactionData extends Omit<Tx, 'operations'>, Operation {}
+
+export const asTransactionData = (account: Address, tx: Tx): TransactionData => ({
+  ...(tx.operations.length === 1
+    ? tx.operations[0]
+    : {
+        to: account,
+        data: encodeOperationsData(tx.operations),
+      }),
+  nonce: tx.nonce,
+  gasLimit: tx.gasLimit,
+});
 
 export type TypedDataTypes = Record<string, TypedDataField[]>;
 
@@ -45,12 +68,15 @@ export const getDomain = async ({
   verifyingContract: address,
 });
 
-export const hashTx = async (tx: Tx, domainParams: GetDomainParams) =>
-  asHex(
+export const hashTx = async (tx: Tx, domainParams: GetDomainParams) => {
+  const txData = asTransactionData(asAddress(domainParams.address), tx);
+
+  return asHex(
     ethers.utils._TypedDataEncoder.hash(await getDomain(domainParams), TX_EIP712_TYPE, {
-      to: tx.to,
-      value: tx.value ?? 0n,
-      data: tx.data ?? EMPTY_HEX_BYTES,
-      nonce: tx.nonce,
-    } satisfies Tx),
+      to: txData.to,
+      value: txData.value ?? 0n,
+      data: txData.data ?? EMPTY_HEX_BYTES,
+      nonce: txData.nonce,
+    } satisfies TransactionData),
   );
+};

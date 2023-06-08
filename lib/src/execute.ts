@@ -4,7 +4,7 @@ import { encodeAccountSignature } from './signature';
 import * as zk from 'zksync-web3';
 import { Eip712Meta, TransactionRequest, TransactionResponse } from 'zksync-web3/build/src/types';
 import { EIP712_TX_TYPE } from 'zksync-web3/build/src/utils';
-import { Tx } from './tx';
+import { Tx, asTransactionData } from './tx';
 import { estimateTxGas } from './gas';
 import { Policy } from './policy';
 import { Approval } from './approvals';
@@ -26,10 +26,12 @@ const asTransactionRequest = async ({
   customData,
   gasPrice,
 }: TransactionRequestOptions): Promise<TransactionRequest> => {
+  const txData = asTransactionData(from, tx);
+
   const request: TransactionRequest = {
-    to: tx.to,
-    value: tx.value,
-    data: tx.data,
+    to: txData.to,
+    value: txData.value,
+    data: txData.data,
     nonce: await provider.getTransactionCount(from),
     from,
     type: EIP712_TX_TYPE,
