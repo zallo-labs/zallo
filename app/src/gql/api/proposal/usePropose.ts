@@ -11,11 +11,9 @@ import {
   ProposalsQueryVariables,
   useProposeMutation,
 } from '@api/generated';
-import assert from 'assert';
 import { gql } from '@apollo/client';
 import { AccountIdlike, asAccountId } from '@api/account';
 import { updateQuery } from '~/gql/util';
-import { NavigationProp, useNavigation } from '@react-navigation/native';
 
 gql`
   ${TransactionProposalFieldsFragmentDoc}
@@ -27,6 +25,10 @@ gql`
   }
 `;
 
+export interface ProposeOptions extends O.Optional<Tx, 'nonce'> {
+  account: AccountIdlike;
+}
+
 export type TxOptions = O.Optional<Tx, 'nonce'>;
 
 export type OnPropose = (proposal: ProposalId, navigation: StackNavigation) => Promise<void> | void;
@@ -36,15 +38,14 @@ export const usePropose = () => {
   const navigation = useStackNavigation();
 
   const propose = useCallback(
-    async (tx: TxOptions, account: AccountIdlike): Promise<ProposalId> => {
+    async (opts: ProposeOptions): Promise<ProposalId> => {
       const r = await mutation({
         variables: {
           input: {
-            account: asAccountId(account),
-            to: tx.to,
-            value: tx.value?.toString(),
-            data: tx.data,
-            gasLimit: tx.gasLimit?.toString(),
+            account: asAccountId(opts.account),
+            operations: opts.operations,
+            gasLimit: opts.gasLimit?.toString(),
+            nonce: opts.nonce?.toString(),
           },
         },
         update: async (cache, { data }) => {
@@ -72,8 +73,8 @@ export const usePropose = () => {
   );
 
   return useCallback(
-    async (txOpts: TxOptions, account: AccountIdlike, onPropose?: OnPropose) => {
-      const proposal = await propose(txOpts, account);
+    async (opts: ProposeOptions, onPropose?: OnPropose) => {
+      const proposal = await propose(opts);
       await onPropose?.(proposal, navigation);
 
       return proposal;

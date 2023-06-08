@@ -1,5 +1,5 @@
 import { useAddressLabel } from '~/components/address/AddressLabel';
-import { TRANSFER_LABEL } from '~/components/call/useProposalLabel';
+import { TRANSFER_LABEL } from '~/components/call/useOperationLabel';
 import { Timestamp } from '~/components/format/Timestamp';
 import { ListItem } from '~/components/list/ListItem';
 import { ListItemSkeleton } from '~/components/list/ListItemSkeleton';

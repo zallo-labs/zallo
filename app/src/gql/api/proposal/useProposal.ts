@@ -59,9 +59,11 @@ gql`
     proposedBy {
       address
     }
-    to
-    value
-    data
+    operations {
+      to
+      value
+      data
+    }
     nonce
     gasLimit
     feeToken

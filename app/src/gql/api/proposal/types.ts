@@ -1,4 +1,15 @@
-import { Address, Hex, Tx, KeySet, asHex, asAddress, asBigInt, asPolicyKey, PolicyKey } from 'lib';
+import {
+  Address,
+  Hex,
+  Tx,
+  KeySet,
+  asHex,
+  asAddress,
+  asBigInt,
+  asPolicyKey,
+  PolicyKey,
+  Operation,
+} from 'lib';
 import { DateTime } from 'luxon';
 import { match } from 'ts-pattern';
 import { TransactionProposalFieldsFragment } from '@api/generated';
@@ -166,9 +177,13 @@ export const toProposal = (p: TransactionProposalFieldsFragment): Proposal => {
     id: p.id,
     hash: asProposalId(p.hash),
     account,
-    to: p.to,
-    value: p.value ? asBigInt(p.value) : undefined,
-    data: p.data ?? undefined,
+    operations: p.operations.map(
+      (o): Operation => ({
+        to: o.to,
+        value: o.value ? asBigInt(o.value) : undefined,
+        data: o.data ? asHex(o.data) : undefined,
+      }),
+    ) as [Operation, ...Operation[]],
     nonce: asBigInt(p.nonce),
     gasLimit: asBigInt(p.gasLimit),
     feeToken: p.feeToken,
