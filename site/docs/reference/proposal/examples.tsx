@@ -40,8 +40,12 @@ export const ProposeExample = withBrowser(() => {
         {
           input: {
             account,
-            to: device,
-            value: 3000000,
+            operations: [
+              {
+                to: device,
+                value: 3000000,
+              },
+            ],
           },
         } as ProposeMutationVariables
       }
