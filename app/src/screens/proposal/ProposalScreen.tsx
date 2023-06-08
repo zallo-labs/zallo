@@ -1,5 +1,4 @@
 import { ProposalId, useProposal, useRemoveProposal } from '@api/proposal';
-import { RemoveIcon } from '@theme/icons';
 import { Menu } from 'react-native-paper';
 import { Appbar } from '~/components/Appbar/Appbar';
 import { AppbarMore2 } from '~/components/Appbar/AppbarMore';
@@ -36,7 +35,6 @@ export const ProposalScreen = withSuspense(
             <AppbarMore2 iconProps={props}>
               {({ close }) => (
                 <Menu.Item
-                  leadingIcon={RemoveIcon}
                   title="Remove proposal"
                   onPress={() => {
                     close();
