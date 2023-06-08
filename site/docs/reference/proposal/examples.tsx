@@ -28,9 +28,11 @@ export const ProposeExample = withBrowser(() => {
           propose(input: $input) {
             id
             hash
-            to
-            value
-            data
+            operations {
+              to
+              value
+              data
+            }
           }
         }
       `}
@@ -59,9 +61,11 @@ export const ApproveExample = withBrowser(() => {
           approve(input: $input) {
             id
             hash
-            to
-            value
-            data
+            operations {
+              to
+              value
+              data
+            }
           }
         }
       `}
@@ -87,9 +91,11 @@ export const SubscribeExample = withBrowser(() => {
         subscription ProposalChanges {
           proposal {
             id
-            to
-            value
-            data
+            operations {
+              to
+              value
+              data
+            }
             gasLimit
             transaction {
               hash
@@ -121,9 +127,11 @@ export const ProposalExample = withBrowser(() => {
         query Proposal($input: ProposalInput!) {
           proposal(input: $input) {
             id
-            to
-            value
-            data
+            operations {
+              to
+              value
+              data
+            }
             gasLimit
             transaction {
               hash
@@ -154,9 +162,11 @@ export const ProposalsExample = withBrowser(() => {
         query Proposals {
           proposals {
             id
-            to
-            value
-            data
+            operations {
+              to
+              value
+              data
+            }
             gasLimit
             transaction {
               hash
