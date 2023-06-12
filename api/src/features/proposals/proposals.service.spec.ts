@@ -40,8 +40,8 @@ describe(ProposalsService.name, () => {
 
     provider.verifySignature.mockImplementation(async () => true);
     provider.getNetwork.mockImplementation(async () => ({
-      chainId: CHAINS.local.id,
-      name: CHAINS.local.name,
+      chainId: CHAINS.testnet.id,
+      name: CHAINS.testnet.name,
     }));
 
     transactions.tryExecute.mockImplementation(async () => undefined);

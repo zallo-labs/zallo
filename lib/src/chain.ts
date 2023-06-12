@@ -1,4 +1,4 @@
-export type ChainName = 'mainnet' | 'testnet' | 'local';
+export type ChainName = 'mainnet' | 'testnet';
 
 export interface Chain {
   name: ChainName;
@@ -32,16 +32,6 @@ export const CHAINS = {
     ws: 'wss://testnet.era.zksync.dev/ws',
     l1Rpc: 'goerli',
     explorer: 'https://goerli.explorer.zksync.io',
-  } as const,
-  local: {
-    name: 'local',
-    friendlyName: 'Local testnet',
-    id: 270,
-    isTestnet: true,
-    rpc: 'http://localhost:3050',
-    ws: 'ws://localhost:3051',
-    l1Rpc: 'http://localhost:8545',
-    explorer: undefined,
   } as const,
 } satisfies Record<ChainName, Chain>;
 
