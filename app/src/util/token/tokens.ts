@@ -21,6 +21,20 @@ export const ETH = asToken({
     'https://cloudfront-us-east-1.images.arcpublishing.com/coindesk/ZJZZK5B2ZNF25LYQHMUTBTOMLU.png',
 });
 
+export const WETH = asToken({
+  name: 'Wrapped ETH',
+  symbol: 'wETH',
+  decimals: 18,
+  units: ETH.units.map((unit) => ({ ...unit, symbol: `w${unit.symbol}` })),
+  addresses: {
+    ethereum: '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2',
+    mainnet: '0x5AEa5775959fBC2557Cc8789bC1bf90A239D9a91',
+    testnet: '0x20b28b1e4665fff290650586ad76e977eab90c5d',
+  },
+  iconUri:
+    'https://cloudfront-us-east-1.images.arcpublishing.com/coindesk/ZJZZK5B2ZNF25LYQHMUTBTOMLU.png',
+});
+
 export const DAI = asToken({
   name: 'Dai',
   symbol: 'DAI',
@@ -113,6 +127,6 @@ export const AAVE = asToken({
 });
 
 export const HARDCODED_TOKENS = new Map<Address, Token>(
-  [ETH, DAI, USDC, WBTC, LINK, USDT, CURVE, FRAX, AAVE].map((t) => [t.address, t]),
+  [ETH, WETH, DAI, USDC, WBTC, LINK, USDT, CURVE, FRAX, AAVE].map((t) => [t.address, t]),
 );
 Image.prefetch([...HARDCODED_TOKENS.values()].map((t) => t.iconUri));

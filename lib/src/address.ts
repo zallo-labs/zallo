@@ -1,10 +1,9 @@
 import { ethers } from 'ethers';
 import * as zk from 'zksync-web3';
-import { A } from 'ts-toolbelt';
 import { tryOr } from './util/try';
 import { compareBytes } from './bytes';
 
-export type Address = A.Type<string, 'Address'>;
+export type Address = `0x${string}`;
 export type Addresslike = Address | string;
 
 export const ZERO_ADDR = ethers.constants.AddressZero as Address;

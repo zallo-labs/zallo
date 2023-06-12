@@ -13,6 +13,7 @@
     "eas": "yarn with-env -- eas",
     "expo": "yarn with-env -- expo",
     "generate:gql": "graphql-codegen --config codegen.ts",
+    "generate:typechain": "typechain --target ethers-v5 --out-dir ./src/util/contracts './src/util/abi/*.json'",
     "clean": "npx rimraf web-build"
   },
   "expo-yarn-workspaces": {
@@ -42,6 +43,7 @@
     "@react-navigation/stack": "^6.3.16",
     "@sentry/react-native": "4.13.0",
     "@shopify/flash-list": "1.4.0",
+    "@typechain/ethers-v5": "^11.0.0",
     "@walletconnect/react-native-compat": "^2.7.7",
     "@walletconnect/sign-client": "^2.7.7",
     "@walletconnect/utils": "^2.7.7",
@@ -81,6 +83,7 @@
     "expo-updates": "~0.16.4",
     "expo-web-browser": "~12.1.1",
     "expo-yarn-workspaces": "^2.1.0",
+    "fast-deep-equal": "^3.1.3",
     "fuzzy-search": "^3.2.1",
     "graphql-ws": "^5.12.1",
     "immer": "^9.0.21",
@@ -126,11 +129,13 @@
     "styled-components": "^5.3.8",
     "styled-system": "^5.1.5",
     "ts-pattern": "^4.2.2",
+    "typechain": "^8.2.0",
     "url": "^0.11.0",
     "use-async-effect": "^2.2.7",
     "use-debounce": "^9.0.4",
     "use-immer": "^0.9.0",
     "valtio": "^1.10.4",
+    "viem": "^1.0.2",
     "yup": "^0.32.11",
     "zksync-web3": "^0.14.3"
   },
