@@ -55,7 +55,6 @@ export const TokenItem = withSuspense(
 
 const useStyles = makeStyles(({ colors }) => ({
   price: {
-    color: colors.secondary,
     textAlignVertical: 'center',
   },
   supportingContainer: {
