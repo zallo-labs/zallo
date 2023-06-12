@@ -1,9 +1,9 @@
 import { SwapVerticalIcon } from '@theme/icons';
 import { makeStyles } from '@theme/makeStyles';
 import { fiatAsBigInt, fiatToToken, tokenToFiat } from '@token/fiat';
+import { Token } from '@token/token';
 import { useTokenBalance } from '@token/useTokenBalance';
 import { useTokenPriceData } from '@uniswap/useTokenPrice';
-import assert from 'assert';
 import { formatUnits, parseUnits } from 'ethers/lib/utils';
 import { Address } from 'lib';
 import { Dispatch, SetStateAction } from 'react';
@@ -11,7 +11,7 @@ import { View } from 'react-native';
 import { Button, IconButton, Text } from 'react-native-paper';
 import { FiatValue } from '~/components/fiat/FiatValue';
 import { TokenAmount } from '~/components/token/TokenAmount';
-import { useSelectedToken } from '~/components/token/useSelectedToken';
+import { logWarning } from '~/util/analytics';
 
 const BUTTON_WIDTH = 64;
 const ICON_BUTTON_WIDTH = 40;
@@ -23,15 +23,15 @@ export enum InputType {
 
 export interface InputsViewProps {
   account: Address;
+  token: Token;
   input: string;
   setInput: Dispatch<SetStateAction<string>>;
   type: InputType;
   setType: Dispatch<SetStateAction<InputType>>;
 }
 
-export const InputsView = ({ account, input, setInput, type, setType }: InputsViewProps) => {
+export const InputsView = ({ account, token, input, setInput, type, setType }: InputsViewProps) => {
   const styles = useStyles();
-  const token = useSelectedToken();
   const balance = useTokenBalance(token, account);
   const price = useTokenPriceData(token).current;
 
@@ -59,7 +59,8 @@ export const InputsView = ({ account, input, setInput, type, setType }: InputsVi
             setInput(formatUnits(balance, token.decimals));
           }}
           onLayout={(e) => {
-            assert(e.nativeEvent.layout.width === BUTTON_WIDTH, `BUTTON_WIDTH mismatch`);
+            if (e.nativeEvent.layout.width !== BUTTON_WIDTH)
+              logWarning(`BUTTON_WIDTH mismatch`, { width: e.nativeEvent.layout.width });
           }}
         >
           Max
@@ -72,16 +73,6 @@ export const InputsView = ({ account, input, setInput, type, setType }: InputsVi
           numberOfLines={1}
         >
           {type === InputType.Token ? input || '0' : `$${input || 0}`}
-          {/* {type === InputType.Token ? (
-              <TokenAmount
-                amount={tokenAmount}
-                token={token}
-                trailing={false}
-                maximumFractionDigits={token.decimals}
-              />
-            ) : (
-              <FiatValue value={fiatValue} maximumFractionDigits={FIAT_DECIMALS} />
-            )} */}
         </Text>
 
         <IconButton
@@ -90,20 +81,21 @@ export const InputsView = ({ account, input, setInput, type, setType }: InputsVi
           style={styles.iconButton}
           onPress={() => setType((type) => Number(!type))}
           onLayout={(e) => {
-            assert(e.nativeEvent.layout.width === ICON_BUTTON_WIDTH, `ICON_BUTTON_WIDTH mismatch`);
+            if (e.nativeEvent.layout.width !== ICON_BUTTON_WIDTH)
+              logWarning('ICON_BUTTON_WIDTH mismatch', { width: e.nativeEvent.layout.width });
           }}
         />
       </View>
 
       <Text
-        variant="headlineMedium"
+        variant="titleLarge"
         style={styles.secondaryInput}
         adjustsFontSizeToFit
         numberOfLines={1}
       >
         {input.length ? (
           type !== InputType.Token ? (
-            <TokenAmount amount={tokenAmount} token={token} trailing={false} />
+            <TokenAmount amount={tokenAmount} token={token} />
           ) : (
             <FiatValue value={fiatValue} />
           )
@@ -126,6 +118,7 @@ const useStyles = makeStyles(({ colors }) => ({
   primaryInputContainer: {
     flexDirection: 'row',
     alignItems: 'center',
+    marginBottom: 8,
   },
   button: {
     color: colors.secondary,
@@ -139,6 +132,7 @@ const useStyles = makeStyles(({ colors }) => ({
     color: colors.primary,
   },
   secondaryInput: {
+    color: colors.secondary,
     textAlign: 'center',
   },
   balanceWarning: {

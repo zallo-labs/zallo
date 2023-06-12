@@ -42,6 +42,7 @@ import {
   NotificationSettingsParams,
   NotificationSettingsScreen,
 } from '~/screens/notifications/NotificationSettingsScreen';
+import { SwapScreen, SwapScreenParams } from '~/screens/swap/SwapScreen';
 
 export type StackNavigatorParamList = {
   Home: HomeScreenParams;
@@ -49,6 +50,7 @@ export type StackNavigatorParamList = {
   Scan: ScanScreenParams;
   Proposal: ProposalScreenParams;
   Send: SendScreenParams;
+  Swap: SwapScreenParams;
   Contacts: ContactsScreenParams;
   Contact: ContactScreenParams;
   Settings: SettingsScreenParams;
@@ -106,6 +108,7 @@ export const StackNavigator = () => {
       <Navigation.Screen name="Scan" component={ScanScreen} />
       <Navigation.Screen name="Proposal" component={ProposalScreen} />
       <Navigation.Screen name="Send" component={SendScreen} />
+      <Navigation.Screen name="Swap" component={SwapScreen} />
       <Navigation.Screen name="Contacts" component={ContactsScreen} />
       <Navigation.Screen name="Contact" component={ContactScreen} />
       <Navigation.Screen name="Settings" component={SettingsScreen} />

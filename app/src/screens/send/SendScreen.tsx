@@ -16,7 +16,7 @@ import { withSuspense } from '~/components/skeleton/withSuspense';
 import { TokenItem } from '~/components/token/TokenItem';
 import { useSelectedToken, useSetSelectedToken } from '~/components/token/useSelectedToken';
 import { StackNavigatorScreenProps } from '~/navigation/StackNavigator';
-import { InputsView, InputType } from './InputsView';
+import { InputsView, InputType } from '../../components/InputsView';
 import { useSelectToken } from '../tokens/TokensScreen';
 import { Button } from '~/components/Button';
 
@@ -37,9 +37,10 @@ export type SendScreenProps = StackNavigatorScreenProps<'Send'>;
 
 export const SendScreen = withSuspense(({ route, navigation: { goBack } }: SendScreenProps) => {
   const { account, to } = route.params;
+  const propose = usePropose();
+
   const [token, setToken] = [useSelectedToken(), useSetSelectedToken()];
   const selectToken = useSelectToken();
-  const propose = usePropose();
   const price = useTokenPriceData(token).current;
 
   const [input, setInput] = useState('');
@@ -63,6 +64,7 @@ export const SendScreen = withSuspense(({ route, navigation: { goBack } }: SendS
       </Appbar.Header>
 
       <InputsView
+        token={token}
         account={account}
         input={input}
         setInput={setInput}
