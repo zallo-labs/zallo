@@ -25,6 +25,7 @@ export const useFormattedFiat = ({ value: v, symbol = true, ...options }: Format
     extendedFractionDigits: 3,
     style: 'currency',
     currency,
+    currencyDisplay: 'narrowSymbol',
     ...(!symbol && {
       currencyDisplay: 'code',
       postFormat: (v) => withoutSymbol(v, currency),
