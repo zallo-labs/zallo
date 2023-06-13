@@ -52,7 +52,7 @@ export const ProposalItem = withSuspense(({ proposal: id, ...itemProps }: Propos
           ? (props) => <MultiOperationIcon {...props} size={ICON_SIZE.medium} />
           : token.address
       }
-      headline={isMulti ? `${p.operations.length} operations` : opLabel}
+      headline={p.label ?? (isMulti ? `${p.operations.length} operations` : opLabel)}
       supporting={supporting}
       trailing={({ Text }) => (
         <Text variant="labelLarge">
