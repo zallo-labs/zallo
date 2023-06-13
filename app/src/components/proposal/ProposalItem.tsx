@@ -11,6 +11,7 @@ import { FiatValue } from '../fiat/FiatValue';
 import { useTransfersValue } from '../call/useTransfersValue';
 import { useOperationLabel } from '../call/useOperationLabel';
 import { materialCommunityIcon } from '@theme/icons';
+import { ICON_SIZE } from '@theme/paper';
 
 const MultiOperationIcon = materialCommunityIcon('multiplication');
 
@@ -46,7 +47,11 @@ export const ProposalItem = withSuspense(({ proposal: id, ...itemProps }: Propos
 
   return (
     <ListItem
-      leading={isMulti ? MultiOperationIcon : token.address}
+      leading={
+        isMulti
+          ? (props) => <MultiOperationIcon {...props} size={ICON_SIZE.medium} />
+          : token.address
+      }
       headline={isMulti ? `${p.operations.length} operations` : opLabel}
       supporting={supporting}
       trailing={({ Text }) => (
