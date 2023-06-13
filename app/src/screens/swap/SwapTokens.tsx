@@ -1,4 +1,4 @@
-import { useMaybeToken, useToken, useTokens } from '@token/useToken';
+import { useToken, useTokens } from '@token/useToken';
 import { Address, compareAddress } from 'lib';
 import { StyleSheet, View } from 'react-native';
 import { ListItem } from '~/components/list/ListItem';
@@ -6,11 +6,11 @@ import { useFormattedTokenAmount } from '~/components/token/TokenAmount';
 import { useSelectToken } from '../tokens/TokensScreen';
 import { Button, IconButton } from 'react-native-paper';
 import { materialCommunityIcon } from '@theme/icons';
-import { Dispatch, SetStateAction, Suspense } from 'react';
+import { Dispatch, SetStateAction } from 'react';
 import { ListItemHeight } from '~/components/list/ListItem';
-import { useSwapPools, EstimatedSwap } from '~/util/swap';
+import { useSwapPools } from '~/util/swap';
 import deepEqual from 'fast-deep-equal';
-import { LineSkeleton } from '~/components/skeleton/LineSkeleton';
+import ToTokenItem from './ToTokenItem';
 
 const DownArrow = materialCommunityIcon('arrow-down-thin');
 const ICON_BUTTON_SIZE = 24;
@@ -42,7 +42,6 @@ export function SwapTokens({
 
   const fromToken = useToken(from);
   const to = pool ? toParam : undefined;
-  const toToken = useMaybeToken(to);
 
   const selectFrom = async () => {
     const disabled = allTokens.filter((t) => !pools.some((p) => p.pair.includes(t)));
@@ -72,31 +71,12 @@ export function SwapTokens({
         onPress={selectFrom}
       />
 
-      {to && toToken && pool ? (
+      {to && pool ? (
         <>
-          <ListItem
-            leading={to}
-            overline="To (estimated)"
-            headline={({ Text }) => (
-              <Suspense
-                fallback={
-                  <Text>
-                    <LineSkeleton />
-                  </Text>
-                }
-              >
-                <Text>
-                  <EstimatedSwap
-                    account={account}
-                    pool={pool}
-                    from={{
-                      token: from,
-                      amount: fromAmount,
-                    }}
-                  />
-                </Text>
-              </Suspense>
-            )}
+          <ToTokenItem
+            account={account}
+            pool={pool}
+            from={{ token: from, amount: fromAmount }}
             onPress={selectTo}
           />
 

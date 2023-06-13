@@ -132,7 +132,7 @@ const useStyles = makeStyles(({ colors }) => ({
     color: colors.primary,
   },
   secondaryInput: {
-    color: colors.secondary,
+    color: colors.onSurfaceVariant,
     textAlign: 'center',
   },
   balanceWarning: {
