@@ -14844,7 +14844,7 @@ __metadata:
     use-debounce: ^9.0.4
     use-immer: ^0.9.0
     valtio: ^1.10.4
-    viem: ^1.0.2
+    viem: ^1.0.6
     yup: ^0.32.11
     zksync-web3: ^0.14.3
   languageName: unknown
@@ -28967,6 +28967,7 @@ __metadata:
     ts-toolbelt: ^9.6.0
     typechain: ^8.1.1
     typescript: ^5.0.4
+    viem: ^1.0.6
     yarn: ^1.22.19
     zksync-web3: ^0.14.3
   languageName: unknown
@@ -41647,9 +41648,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"viem@npm:^1.0.2":
-  version: 1.0.2
-  resolution: "viem@npm:1.0.2"
+"viem@npm:^1.0.6":
+  version: 1.0.6
+  resolution: "viem@npm:1.0.6"
   dependencies:
     "@adraffy/ens-normalize": 1.9.0
     "@noble/curves": 1.0.0
@@ -41660,7 +41661,7 @@ __metadata:
     abitype: 0.8.7
     isomorphic-ws: 5.0.0
     ws: 8.12.0
-  checksum: 95f570126d6252a321702c805d1957e1405102a01037ad7d5085815ba793f7af41638a113f992bddb801602d5acaf8d321a2f9f16d4489d63b2beffdec1d202c
+  checksum: ef107979a72712514fb7a8aac1abc685c440f1e2aba514fd86a849e3d72ffd201271d01a9ccbfea1e415c9206227a985f8ab9ca1723346dd4d83db84980d8342
   languageName: node
   linkType: hard
 
