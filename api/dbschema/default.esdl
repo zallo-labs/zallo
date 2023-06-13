@@ -170,6 +170,10 @@ module default {
     }
     required link account -> Account;
     link policy -> Policy;
+    property label -> str {
+      constraint min_len_value(1);
+      constraint max_len_value(50);
+    }
     property createdAt -> datetime {
       readonly := true;
       default := datetime_of_statement();

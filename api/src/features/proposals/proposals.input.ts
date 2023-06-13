@@ -71,6 +71,8 @@ export class ProposeInput {
 
   operations: OperationInput[];
 
+  label?: string;
+
   @Uint256Field({ nullable: true })
   nonce?: bigint;
 

@@ -238,6 +238,7 @@ const $PolicyState = $.makeType<$PolicyState>(_.spec, "11bd6460-04f3-11ee-9f0f-2
 const PolicyState: $.$expr_PathNode<$.TypeSet<$PolicyState, $.Cardinality.Many>, null> = _.syntax.$PathNode($.$toSet($PolicyState, $.Cardinality.Many), null);
 
 export type $ProposalλShape = $.typeutil.flatten<_std.$Object_fe84743ee09e11edb375672f3ae9cdcdλShape & {
+  "label": $.PropertyDesc<_std.$str, $.Cardinality.AtMostOne, false, false, false, false>;
   "account": $.LinkDesc<$Account, $.Cardinality.One, {}, false, false,  false, false>;
   "proposedBy": $.LinkDesc<$User, $.Cardinality.One, {}, false, false,  true, true>;
   "createdAt": $.PropertyDesc<_std.$datetime, $.Cardinality.AtMostOne, false, false, true, true>;

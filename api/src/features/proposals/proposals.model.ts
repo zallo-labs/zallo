@@ -25,6 +25,8 @@ export class Proposal {
 
   policy?: Policy | null;
 
+  label: string;
+
   createdAt: Date;
 
   proposedBy: User;

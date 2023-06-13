@@ -212,6 +212,7 @@ type Proposal {
   createdAt: DateTime!
   hash: Bytes32!
   id: ID!
+  label: String!
   policy: Policy
   proposedBy: User!
   rejections: [Rejection!]!
@@ -257,6 +258,7 @@ input ProposeInput {
   account: Address!
   feeToken: Address
   gasLimit: Uint256
+  label: String
   nonce: Uint256
   operations: [OperationInput!]!
 
@@ -361,6 +363,7 @@ type TransactionProposal {
   gasLimit: BigInt!
   hash: Bytes32!
   id: ID!
+  label: String!
   nonce: BigInt!
   operations: [Operation!]!
   policy: Policy

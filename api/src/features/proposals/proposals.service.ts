@@ -108,6 +108,7 @@ export class ProposalsService {
   async propose({
     account,
     operations,
+    label,
     nonce,
     gasLimit,
     feeToken = ETH_ADDRESS as Address,
@@ -129,6 +130,7 @@ export class ProposalsService {
         .insert(e.TransactionProposal, {
           hash,
           account: selectAccount(account),
+          label,
           operations: e.set(
             ...operations.map((op) =>
               e.insert(e.Operation, {

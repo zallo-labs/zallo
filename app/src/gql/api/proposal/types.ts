@@ -23,6 +23,7 @@ export interface Proposal extends Omit<Tx, 'gasLimit'> {
   id: string;
   hash: ProposalId;
   account: Address;
+  label?: string;
   gasLimit: bigint;
   feeToken: Address;
   state: ProposalState;
@@ -177,6 +178,7 @@ export const toProposal = (p: TransactionProposalFieldsFragment): Proposal => {
     id: p.id,
     hash: asProposalId(p.hash),
     account,
+    label: p.label,
     operations: p.operations.map(
       (o): Operation => ({
         to: o.to,

@@ -116,6 +116,7 @@ export interface PolicyState extends std.$Object {
   "policy"?: Policy | null;
 }
 export interface Proposal extends std.$Object {
+  "label"?: string | null;
   "account": Account;
   "proposedBy": User;
   "createdAt"?: Date | null;
