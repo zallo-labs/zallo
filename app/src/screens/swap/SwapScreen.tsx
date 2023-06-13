@@ -9,7 +9,7 @@ import { ScreenSkeleton } from '~/components/skeleton/ScreenSkeleton';
 import { withSuspense } from '~/components/skeleton/withSuspense';
 import { useSelectedToken } from '~/components/token/useSelectedToken';
 import { StackNavigatorScreenProps } from '~/navigation/StackNavigator';
-import { Button, Divider } from 'react-native-paper';
+import { Divider } from 'react-native-paper';
 import { makeStyles } from '@theme/makeStyles';
 import { Screen } from '~/components/layout/Screen';
 import { Appbar } from '~/components/Appbar/Appbar';
@@ -20,6 +20,7 @@ import { useToken } from '@token/useToken';
 import deepEqual from 'fast-deep-equal';
 import { getSwapOperations, useSwapPools } from '~/util/swap';
 import { DateTime } from 'luxon';
+import { Button } from '~/components/Button';
 
 export interface SwapScreenParams {
   account: Address;
