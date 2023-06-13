@@ -1,10 +1,9 @@
 import { useMemo } from 'react';
 import { FormatNumberOptions, useIntl } from 'react-intl';
-import { BigIntlike } from 'lib';
 import { formatUnits } from 'ethers/lib/utils';
 
 export interface FormattedNumberOptions extends FormatNumberOptions {
-  value: BigIntlike;
+  value: bigint | number;
   decimals?: number;
   extendedFractionDigits?: number;
   postFormat?: (value: string) => string;

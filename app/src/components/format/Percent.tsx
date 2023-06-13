@@ -1,8 +1,7 @@
-import { BigNumberish } from 'ethers';
 import { useFormattedNumber } from './FormattedNumber';
 
 export interface FormattedPercentOptions {
-  value: BigNumberish;
+  value: number;
   leading?: 'sign';
   sign?: boolean;
 }

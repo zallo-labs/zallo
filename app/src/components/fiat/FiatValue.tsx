@@ -1,6 +1,5 @@
 import { Token } from '@token/token';
 import { useTokenValue } from '@token/useTokenValue';
-import { BigIntlike } from 'lib';
 import { FIAT_DECIMALS } from '~/util/token/fiat';
 import { FormattedNumberOptions, useFormattedNumber } from '../format/FormattedNumber';
 
@@ -9,7 +8,7 @@ const currency = 'USD';
 const withoutSymbol = (value: string, currency: string) => value.replace(currency, '').trim();
 
 export interface FormattedFiatOptions extends Partial<Omit<FormattedNumberOptions, 'value'>> {
-  value: BigIntlike | { token: Token; amount: bigint };
+  value: bigint | number | { token: Token; amount: bigint };
   symbol?: boolean;
 }
 
