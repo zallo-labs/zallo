@@ -22,7 +22,7 @@ export const useFormattedFiat = ({ value: v, symbol = true, ...options }: Format
     decimals: FIAT_DECIMALS,
     minimumFractionDigits: 0,
     maximumFractionDigits: 2,
-    extendedFractionDigits: 3,
+    minimumNumberFractionDigits: 3,
     style: 'currency',
     currency,
     currencyDisplay: 'narrowSymbol',

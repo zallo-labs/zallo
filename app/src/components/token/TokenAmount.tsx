@@ -31,7 +31,7 @@ export const useFormattedTokenAmount = ({
     value: amount,
     decimals: unit.decimals,
     maximumFractionDigits: 3,
-    extendedFractionDigits: 4,
+    minimumNumberFractionDigits: 4,
     postFormat: trailing
       ? (v) => `${v} ${trailing === 'name' ? token.name : unit.symbol}`
       : undefined,
