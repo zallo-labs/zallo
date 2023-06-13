@@ -152,6 +152,8 @@ export class ProposalsService {
         })
         .run(client);
 
+      await this.publishProposal({ account, hash }, ProposalEvent.create);
+
       if (signature) await this.approve({ hash, signature });
 
       return { id, hash };

@@ -13,11 +13,9 @@ export const useRemoveProposal = () => {
   const [remove] = useRemoveProposalMutation();
 
   return useCallback(
-    (id: ProposalId) =>
+    (hash: ProposalId) =>
       remove({
-        variables: {
-          input: { hash: id },
-        },
+        variables: { input: { hash } },
         update: (cache, res) => {
           const id = res.data?.removeProposal;
           if (id) {
