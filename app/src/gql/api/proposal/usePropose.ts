@@ -2,7 +2,7 @@ import { Hex, MaybePromise, Tx } from 'lib';
 import { useCallback } from 'react';
 import { StackNavigation, useStackNavigation } from '~/navigation/useStackNavigation';
 import { showInfo } from '~/provider/SnackbarProvider';
-import { asProposalId, ProposalId } from './types';
+import { ProposalId } from './types';
 import { O } from 'ts-toolbelt';
 import {
   TransactionProposalFieldsFragmentDoc,
@@ -10,9 +10,10 @@ import {
   ProposalsQuery,
   ProposalsQueryVariables,
   useProposeMutation,
+  ProposeInput,
 } from '@api/generated';
 import { gql } from '@apollo/client';
-import { AccountIdlike, asAccountId } from '@api/account';
+import { AccountIdlike } from '@api/account';
 import { updateQuery } from '~/gql/util';
 
 gql`
@@ -37,17 +38,10 @@ export const usePropose = () => {
   const [mutation] = useProposeMutation();
   const navigation = useStackNavigation();
 
-  const propose = useCallback(
-    async (opts: ProposeOptions): Promise<ProposalId> => {
+  return useCallback(
+    async (input: ProposeInput, onPropose?: OnPropose) => {
       const r = await mutation({
-        variables: {
-          input: {
-            account: asAccountId(opts.account),
-            operations: opts.operations,
-            gasLimit: opts.gasLimit?.toString(),
-            nonce: opts.nonce?.toString(),
-          },
-        },
+        variables: { input },
         update: async (cache, { data }) => {
           const proposal = data?.propose;
           if (!proposal) return;
@@ -64,22 +58,14 @@ export const usePropose = () => {
         },
       });
 
-      const proposal = r.data?.propose;
-      if (!proposal) throw new Error('Proposal failed');
+      const hash = r.data?.propose?.hash as ProposalId | undefined;
+      if (!hash) throw new Error('Proposal failed');
 
-      return asProposalId(proposal.hash);
+      await onPropose?.(hash, navigation);
+
+      return hash;
     },
-    [mutation],
-  );
-
-  return useCallback(
-    async (opts: ProposeOptions, onPropose?: OnPropose) => {
-      const proposal = await propose(opts);
-      await onPropose?.(proposal, navigation);
-
-      return proposal;
-    },
-    [navigation, propose],
+    [navigation, mutation],
   );
 };
 

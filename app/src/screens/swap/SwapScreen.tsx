@@ -16,7 +16,7 @@ import { Appbar } from '~/components/Appbar/Appbar';
 import { View } from 'react-native';
 import { NumericInput } from '~/components/fields/NumericInput';
 import { SwapTokens } from './SwapTokens';
-import { useToken } from '@token/useToken';
+import { useMaybeToken, useToken } from '@token/useToken';
 import deepEqual from 'fast-deep-equal';
 import { getSwapOperations, useSwapPools } from '~/util/swap';
 import { DateTime } from 'luxon';
@@ -51,6 +51,7 @@ export const SwapScreen = withSuspense(({ route }: SwapScreenProps) => {
       : fiatToToken(fiatAsBigInt(fromInput), fromPrice, fromToken);
 
   const [to, setTo] = useState<Address | undefined>();
+  const toToken = useMaybeToken(to);
 
   const pools = useSwapPools();
   const pair = to ? ([from, to].sort(compareAddress) as [Address, Address]) : undefined;
@@ -96,6 +97,7 @@ export const SwapScreen = withSuspense(({ route }: SwapScreenProps) => {
           propose(
             {
               account,
+              label: `Swap ${fromToken.symbol} for ${toToken?.symbol}}`,
               operations: await getSwapOperations({
                 account,
                 pool: pool!,
