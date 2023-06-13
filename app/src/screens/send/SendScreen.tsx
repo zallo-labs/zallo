@@ -1,10 +1,9 @@
 import { popToProposal, usePropose } from '@api/proposal';
 import { CloseIcon } from '@theme/icons';
 import { fiatAsBigInt, fiatToToken, FIAT_DECIMALS } from '@token/fiat';
-import { getTokenContract, Token } from '@token/token';
 import { useTokenPriceData } from '@uniswap/index';
 import { parseUnits } from 'ethers/lib/utils';
-import { Address, asHex, Operation } from 'lib';
+import { Address } from 'lib';
 import { useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 import { Appbar, Divider } from 'react-native-paper';
@@ -19,14 +18,7 @@ import { StackNavigatorScreenProps } from '~/navigation/StackNavigator';
 import { InputsView, InputType } from '../../components/InputsView';
 import { useSelectToken } from '../tokens/TokensScreen';
 import { Button } from '~/components/Button';
-
-const createTransferOp = (token: Token, to: Address, amount: bigint): Operation =>
-  token.type === 'ERC20'
-    ? {
-        to: token.address,
-        data: asHex(getTokenContract(token).interface.encodeFunctionData('transfer', [to, amount])),
-      }
-    : { to, value: amount };
+import { createTransferOp } from './transfer';
 
 export interface SendScreenParams {
   account: Address;
@@ -94,7 +86,7 @@ export const SendScreen = withSuspense(({ route, navigation: { goBack } }: SendS
           propose(
             {
               account,
-              operations: [createTransferOp(token, to, tokenAmount)],
+              operations: [createTransferOp(token.address, token.type, to, tokenAmount)],
             },
             popToProposal,
           )
