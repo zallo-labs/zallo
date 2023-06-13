@@ -18,9 +18,6 @@ export const useRemoveProposal = () => {
         variables: {
           input: { hash: id },
         },
-        optimisticResponse: {
-          removeProposal: id,
-        },
         update: (cache, res) => {
           const id = res.data?.removeProposal;
           if (id) {
