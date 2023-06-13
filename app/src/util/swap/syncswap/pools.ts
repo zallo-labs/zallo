@@ -2,7 +2,7 @@ import { Address, ZERO_ADDR, asAddress, compareAddress, isPresent } from 'lib';
 import { Pool } from '../types';
 import { VIEM_CLIENT } from '@network/provider';
 import { SYNCSWAP_CLASSIC_POOL_FACTORY, SYNCSWAP_STABLE_POOL_FACTORY } from './contracts';
-import { normalizeSyncswapToken } from './util';
+import { normalizeSyncswapPoolToken } from './util';
 
 export async function getPools(tokensParam: Address[]): Promise<Pool[]> {
   const tokens = [...tokensParam].sort(compareAddress);
@@ -13,7 +13,7 @@ export async function getPools(tokensParam: Address[]): Promise<Pool[]> {
     return toTokens.flatMap((toToken) => {
       const pair: [Address, Address] = [fromToken, toToken];
 
-      const args = pair.map(normalizeSyncswapToken) as [Address, Address];
+      const args = pair.map(normalizeSyncswapPoolToken) as [Address, Address];
 
       return [
         {

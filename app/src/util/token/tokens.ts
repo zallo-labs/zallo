@@ -4,7 +4,7 @@ import * as zk from 'zksync-web3';
 import { asToken, Token } from './token';
 
 export const ETH = asToken({
-  type: 'ETH',
+  type: 'Native',
   name: 'Ether',
   // symbol: 'Ξ',
   symbol: 'ETH',

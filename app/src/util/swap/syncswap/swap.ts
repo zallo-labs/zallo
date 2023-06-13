@@ -1,9 +1,10 @@
-import { Operation, ZERO_ADDR, asHex } from 'lib';
+import { Operation, ZERO_ADDR, asHex, ERC20_ABI, isPresent } from 'lib';
 import { EstimateSwapParams, GetSwapOperationsParams, TokenAmount } from '../types';
-import { SYNCSWAP_ROUTER, getSyncswapPoolContract } from './contracts';
-import { WETH } from '@token/tokens';
+import { SYNCSWAP_ROUTER, SYNCSWAP_VAULT, getSyncswapPoolContract } from './contracts';
+import { ETH, WETH } from '@token/tokens';
 import { encodeAbiParameters, encodeFunctionData } from 'viem';
-import { normalizeSyncswapToken } from './util';
+import { normalizeSyncswapPoolToken } from './util';
+import { createTransferOp } from '~/screens/send/transfer';
 
 const SLIPPAGE_FACTOR = 10 ** 5;
 const SLIPPAGE_FACTOR_BN = BigInt(SLIPPAGE_FACTOR);
@@ -19,7 +20,7 @@ export const estimateSwap = async ({
   const contract = getSyncswapPoolContract(pool.contract, pool.type);
 
   const amount = await contract.read.getAmountOut([
-    normalizeSyncswapToken(from.token),
+    normalizeSyncswapPoolToken(from.token),
     from.amount,
     account,
   ]);
@@ -34,24 +35,11 @@ export const getSwapOperations = async ({
   slippage,
   deadline,
 }: GetSwapOperationsParams): Promise<[Operation, ...Operation[]]> => {
-  // Determine withdraw mode, to withdraw native ETH or wETH on last step.
+  // Withdraw mode - executed on last step
   // 0 - vault internal transfer
   // 1 - withdraw and unwrap to naitve ETH
   // 2 - withdraw and wrap to wETH
   const withdrawMode = from.token === WETH.address ? 2 : 1;
-
-  from.token = normalizeSyncswapToken(from.token);
-
-  const swapData = asHex(
-    encodeAbiParameters(
-      [
-        { name: 'tokenIn', type: 'address' },
-        { name: 'to', type: 'address' },
-        { name: 'withdrawMode', type: 'uint8' },
-      ],
-      [from.token, account, withdrawMode],
-    ),
-  );
 
   const estimated = await estimateSwap({ pool, account, from });
 
@@ -59,33 +47,55 @@ export const getSwapOperations = async ({
     (estimated.amount * (SLIPPAGE_FACTOR_BN - BigInt(slippage * SLIPPAGE_FACTOR))) /
     SLIPPAGE_FACTOR_BN;
 
-  return [
-    {
-      to: SYNCSWAP_ROUTER.address,
-      data: asHex(
-        encodeFunctionData({
-          abi: SYNCSWAP_ROUTER.abi,
-          functionName: 'swap',
-          args: [
-            [
-              {
-                tokenIn: from.token,
-                amountIn: from.amount,
-                steps: [
-                  {
-                    pool: pool.contract,
-                    data: swapData,
-                    callback: ZERO_ADDR,
-                    callbackData: '0x',
-                  },
-                ],
-              },
-            ],
-            minAmountOut,
-            BigInt(deadline.toSeconds()),
+  const transferOp: Operation | undefined =
+    from.token !== ETH.address
+      ? {
+          to: from.token,
+          data: asHex(
+            encodeFunctionData({
+              abi: ERC20_ABI,
+              functionName: 'approve',
+              args: [SYNCSWAP_ROUTER.address, from.amount],
+            }),
+          ),
+        }
+      : undefined;
+
+  const swapOp: Operation = {
+    to: SYNCSWAP_ROUTER.address,
+    value: !transferOp ? from.amount : undefined,
+    data: asHex(
+      encodeFunctionData({
+        abi: SYNCSWAP_ROUTER.abi,
+        functionName: 'swap',
+        args: [
+          [
+            {
+              tokenIn: from.token,
+              amountIn: from.amount,
+              steps: [
+                {
+                  pool: pool.contract,
+                  data: encodeAbiParameters(
+                    [
+                      { name: 'tokenIn', type: 'address' },
+                      { name: 'to', type: 'address' },
+                      { name: 'withdrawMode', type: 'uint8' },
+                    ],
+                    [from.token, account, withdrawMode],
+                  ),
+                  callback: ZERO_ADDR,
+                  callbackData: '0x',
+                },
+              ],
+            },
           ],
-        }),
-      ),
-    },
-  ];
+          minAmountOut,
+          BigInt(Math.round(deadline.toSeconds())),
+        ],
+      }),
+    ),
+  };
+
+  return transferOp ? [transferOp, swapOp] : [swapOp];
 };

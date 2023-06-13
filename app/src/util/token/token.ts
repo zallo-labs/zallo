@@ -3,16 +3,15 @@ import {
   Address,
   Addresslike,
   createIsObj,
-  Erc20,
   Erc20__factory,
   isAddress,
   ChainName,
   tryAsAddress,
 } from 'lib';
 import _ from 'lodash';
-import { CHAIN, PROVIDER } from '~/util/network/provider';
+import { CHAIN } from '~/util/network/provider';
 
-export type TokenType = 'ETH' | 'ERC20';
+export type TokenType = 'Native' | 'ERC20';
 
 export interface TokenUnit {
   symbol: string;
@@ -68,11 +67,12 @@ export const asToken = (def: TokenDef): Token => {
 
 export const ERC20_INTERFACE = Erc20__factory.createInterface();
 
-export const getTokenContract = (token: Token): Erc20 =>
-  Erc20__factory.connect(token.address, PROVIDER);
-
-export const convertTokenAmount = (amount: bigint, prevToken: Token, newToken: Token): bigint => {
-  const decimalsDiff = prevToken.decimals - newToken.decimals;
+export const convertDecimals = (
+  amount: bigint,
+  curDecimals: number,
+  newDecimals: number,
+): bigint => {
+  const decimalsDiff = curDecimals - newDecimals;
   if (decimalsDiff === 0) return amount;
 
   const factor = 10n ** BigInt(Math.abs(decimalsDiff));

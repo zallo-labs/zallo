@@ -5,7 +5,7 @@ import deepEqual from 'fast-deep-equal';
 import { atomFamily } from 'jotai/utils';
 
 const estimateFamily = atomFamily(
-  (params: EstimateSwapParams) => atom(params && estimateSwap(params)),
+  (params: EstimateSwapParams) => atom(estimateSwap(params)),
   deepEqual,
 );
 
