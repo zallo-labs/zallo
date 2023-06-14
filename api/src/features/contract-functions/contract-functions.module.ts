@@ -6,5 +6,6 @@ import { ContractsModule } from '../contracts/contracts.module';
 @Module({
   imports: [ContractsModule],
   providers: [ContractFunctionsResolver, ContractFunctionsService],
+  exports: [ContractFunctionsService],
 })
 export class ContractFunctionsModule {}

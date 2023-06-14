@@ -1,3 +1,6 @@
+import * as viem from 'viem';
+import * as viemChain from 'viem/chains';
+
 export type ChainName = 'mainnet' | 'testnet';
 
 export interface Chain {
@@ -9,6 +12,7 @@ export interface Chain {
   ws: string;
   l1Rpc: string;
   explorer: string | undefined;
+  viem: viem.Chain;
 }
 
 // https://v2-docs.zksync.io/dev/troubleshooting/important-links.html
@@ -22,6 +26,7 @@ export const CHAINS = {
     ws: 'wss://mainnet.era.zksync.io/ws',
     l1Rpc: 'mainnet',
     explorer: 'https://explorer.zksync.io',
+    viem: viemChain.zkSync,
   },
   testnet: {
     name: 'testnet',
@@ -32,6 +37,7 @@ export const CHAINS = {
     ws: 'wss://testnet.era.zksync.dev/ws',
     l1Rpc: 'goerli',
     explorer: 'https://goerli.explorer.zksync.io',
+    viem: viemChain.zkSyncTestnet,
   } as const,
 } satisfies Record<ChainName, Chain>;
 

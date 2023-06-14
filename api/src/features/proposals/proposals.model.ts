@@ -1,17 +1,17 @@
 import { Field, ObjectType, registerEnumType } from '@nestjs/graphql';
 import { GraphQLBigInt } from 'graphql-scalars';
-import { Address, Hex, PolicyKey } from 'lib';
+import { PolicyKey } from 'lib';
 import { PolicyKeyField } from '~/apollo/scalars/PolicyKey.scalar';
 import { Account } from '../accounts/accounts.model';
 import { User } from '../users/users.model';
 import { Policy } from '../policies/policies.model';
 import { AddressField } from '~/apollo/scalars/Address.scalar';
-import { Bytes32Field, BytesField } from '~/apollo/scalars/Bytes.scalar';
+import { Bytes32Field } from '~/apollo/scalars/Bytes.scalar';
 import { Transaction } from '../transactions/transactions.model';
 import { IdField } from '~/apollo/scalars/Id.scalar';
 import { TransferDetails } from '../transfers/transfers.model';
 import { uuid } from 'edgedb/dist/codecs/ifaces';
-import { Uint256Field } from '~/apollo/scalars/BigInt.scalar';
+import { Operation } from '../operations/operations.model';
 
 @ObjectType({ isAbstract: true })
 export class Proposal {
@@ -44,18 +44,6 @@ export class Proposal {
 
   @Field(() => [Rejection])
   rejections: Rejection[];
-}
-
-@ObjectType()
-export class Operation {
-  @AddressField()
-  to: Address;
-
-  @Uint256Field({ nullable: true })
-  value?: bigint;
-
-  @BytesField({ nullable: true })
-  data?: Hex;
 }
 
 @ObjectType()

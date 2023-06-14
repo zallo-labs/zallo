@@ -42,6 +42,16 @@ input AccountSubscriptionInput {
   events: AccountEvent
 }
 
+type AddPolicyOp {
+  _args: [JSON!]!
+  _name: String!
+  account: Address!
+  approvers: [Address!]!
+  key: PolicyKey!
+  targets: [Target!]!
+  threshold: Float!
+}
+
 """Ethereum address"""
 scalar Address
 
@@ -129,6 +139,11 @@ input ExecuteInput {
   proposalHash: Bytes32!
 }
 
+type GenericOp {
+  _args: [JSON!]!
+  _name: String!
+}
+
 """
 The `JSON` scalar type represents JSON values as specified by [ECMA-404](http://www.ecma-international.org/publications/files/ECMA-ST/ECMA-404.pdf).
 """
@@ -154,9 +169,12 @@ type Mutation {
 
 type Operation {
   data: Bytes
+  function: OperationFunction
   to: Address!
   value: Uint256
 }
+
+union OperationFunction = AddPolicyOp | GenericOp | RemovePolicyOp | SwapOp | TransferApprovalOp | TransferFromOp | TransferOp
 
 input OperationInput {
   data: Bytes
@@ -303,6 +321,13 @@ type Rejection {
   user: User!
 }
 
+type RemovePolicyOp {
+  _args: [JSON!]!
+  _name: String!
+  account: Address!
+  key: PolicyKey!
+}
+
 input RequestTokensInput {
   account: Address!
 }
@@ -326,6 +351,16 @@ type Subscription {
   account(input: AccountSubscriptionInput! = {}): Account!
   proposal(input: ProposalSubscriptionInput! = {}): TransactionProposal!
   transfer(input: TransferSubscriptionInput! = {}): Transfer!
+}
+
+type SwapOp {
+  _args: [JSON!]!
+  _name: String!
+  deadline: DateTime!
+  fromAmount: Uint256!
+  fromToken: Address!
+  minimumToAmount: Uint256!
+  toToken: Address!
 }
 
 type Target {
@@ -398,6 +433,14 @@ type Transfer {
   token: Address!
 }
 
+type TransferApprovalOp {
+  _args: [JSON!]!
+  _name: String!
+  amount: Uint256!
+  spender: Address!
+  token: Address!
+}
+
 type TransferDetails {
   account: Account!
   amount: BigInt!
@@ -411,6 +454,23 @@ type TransferDetails {
 enum TransferDirection {
   In
   Out
+}
+
+type TransferFromOp {
+  _args: [JSON!]!
+  _name: String!
+  amount: Uint256!
+  from: Address!
+  to: Address!
+  token: Address!
+}
+
+type TransferOp {
+  _args: [JSON!]!
+  _name: String!
+  amount: Uint256!
+  to: Address!
+  token: Address!
 }
 
 input TransferSubscriptionInput {

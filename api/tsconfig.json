@@ -28,5 +28,6 @@
     }
   },
   "references": [{ "path": "../lib" }],
-  "include": ["src/**/*", "generated/**/*", "dbschema/**/*"]
+  "include": ["src/**/*", "generated/**/*", "dbschema/**/*"],
+  "exclude": ["node_modules", "../node_modules", "dist"]
 }

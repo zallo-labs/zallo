@@ -18,10 +18,12 @@ import {
 } from 'lib';
 import { Mutex } from 'async-mutex';
 import { ethers } from 'ethers';
+import { PublicClient, WebSocketTransport, createPublicClient, webSocket } from 'viem';
 
 @Injectable()
 export class ProviderService extends zk.Provider {
   public chain: Chain;
+  public client: PublicClient<WebSocketTransport, typeof CONFIG.chain.viem>;
 
   private websocketProvider: ethers.providers.WebSocketProvider;
   private wallet: zk.Wallet;
@@ -31,6 +33,11 @@ export class ProviderService extends zk.Provider {
   constructor() {
     super(CONFIG.chain.rpc);
     this.chain = CONFIG.chain;
+
+    this.client = createPublicClient({
+      transport: webSocket(undefined, { retryCount: 10 }),
+      chain: CONFIG.chain.viem,
+    });
 
     this.wallet = (
       this.chain.isTestnet && CONFIG.walletPrivateKey

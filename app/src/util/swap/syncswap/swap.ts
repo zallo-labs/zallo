@@ -43,7 +43,7 @@ export const getSwapOperations = async ({
 
   const estimated = await estimateSwap({ pool, account, from });
 
-  const minAmountOut =
+  const minimumToAmount =
     (estimated.amount * (SLIPPAGE_FACTOR_BN - BigInt(slippage * SLIPPAGE_FACTOR))) /
     SLIPPAGE_FACTOR_BN;
 
@@ -90,7 +90,7 @@ export const getSwapOperations = async ({
               ],
             },
           ],
-          minAmountOut,
+          minimumToAmount,
           BigInt(Math.round(deadline.toSeconds())),
         ],
       }),
