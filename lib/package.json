@@ -22,7 +22,7 @@
     "keccak256": "^1.0.6",
     "lodash": "^4.17.21",
     "merkletreejs": "^0.3.10",
-    "ts-pattern": "^4.3.0",
+    "ts-pattern": "^5.0.1",
     "ts-toolbelt": "^9.6.0",
     "typechain": "^8.2.0",
     "viem": "^1.0.7",

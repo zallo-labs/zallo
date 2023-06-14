@@ -128,7 +128,7 @@
     "siwe": "^1.1.6",
     "styled-components": "^5.3.8",
     "styled-system": "^5.1.5",
-    "ts-pattern": "^4.3.0",
+    "ts-pattern": "^5.0.1",
     "typechain": "^8.2.0",
     "url": "^0.11.0",
     "use-async-effect": "^2.2.7",

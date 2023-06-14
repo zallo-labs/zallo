@@ -7,7 +7,7 @@ import { useNavigation } from '@react-navigation/native';
 import { POLICY_DRAFT_ATOM } from './PolicyDraft';
 import { AddressLabel } from '~/components/address/AddressLabel';
 import { Address, Selector, ZERO_ADDR, isAddress } from 'lib';
-import { match } from 'ts-pattern';
+import { match, P } from 'ts-pattern';
 import { useImmerAtom } from 'jotai-immer';
 import { FunctionLabel } from '~/components/call/FunctionLabel';
 
@@ -16,7 +16,7 @@ const getSelectorDetails = (
   selectors: Set<Selector | '*'>,
 ): ListItemProps['supporting'] =>
   match(selectors)
-    .with(new Set(['*']), () => 'All interactions')
+    .with(P.set('*'), () => 'All interactions')
     .when(
       (s) => s.size === 0,
       () => 'No interactions',
