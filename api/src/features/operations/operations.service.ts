@@ -79,10 +79,7 @@ export class OperationsService {
     return selectorMatches[0]?.abi as AbiFunction | undefined;
   }
 
-  private async decodeCustom(
-    to: Address,
-    data: Hex,
-  ): Promise<typeof OperationFunction | undefined> {
+  async decodeCustom(to: Address, data: Hex): Promise<typeof OperationFunction | undefined> {
     const f = tryOrIgnore(() =>
       decodeFunctionData({ abi: [...ACCOUNT_ABI, ...ERC20_ABI, ...SYNCSWAP_ROUTER_ABI], data }),
     );
