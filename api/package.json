@@ -65,7 +65,6 @@
     "siwe": "^1.1.6",
     "ts-deepmerge": "^6.0.3",
     "ts-pattern": "^4.2.2",
-    "type-graphql": "^2.0.0-beta.2",
     "viem": "^1.0.7",
     "zksync-web3": "^0.14.3"
   },

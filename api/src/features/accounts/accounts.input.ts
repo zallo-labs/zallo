@@ -42,5 +42,6 @@ export class UpdateAccountInput {
   @AddressField()
   address: Address;
 
+  @Field(() => String)
   name: string;
 }

@@ -21,20 +21,28 @@ export class Proposal {
   @Bytes32Field()
   hash: string; // Hex
 
+  @Field(() => Account)
   account: Account;
 
+  @Field(() => Policy, { nullable: true })
   policy?: Policy | null;
 
+  @Field(() => String)
   label: string;
 
+  @Field(() => Date)
   createdAt: Date;
 
+  @Field(() => User)
   proposedBy: User;
 
+  @Field(() => [ProposalResponse])
   responses: ProposalResponse[];
 
+  @Field(() => [Approval])
   approvals: Approval[];
 
+  @Field(() => [Rejection])
   rejections: Rejection[];
 }
 
@@ -51,7 +59,17 @@ export class Operation {
 }
 
 @ObjectType()
+export class Simulation {
+  @IdField()
+  id: uuid;
+
+  @Field(() => [TransferDetails])
+  transfers: TransferDetails[];
+}
+
+@ObjectType()
 export class TransactionProposal extends Proposal {
+  @Field(() => [Operation])
   operations: Operation[];
 
   @Field(() => GraphQLBigInt)
@@ -63,12 +81,16 @@ export class TransactionProposal extends Proposal {
   @AddressField()
   feeToken: string; // Address
 
+  @Field(() => Simulation)
   simulation: Simulation;
 
+  @Field(() => [Transaction])
   transactions: Transaction[];
 
+  @Field(() => Transaction, { nullable: true })
   transaction?: Transaction | null;
 
+  @Field(() => TransactionProposalStatus)
   status: TransactionProposalStatus;
 }
 
@@ -80,23 +102,18 @@ export enum TransactionProposalStatus {
 }
 registerEnumType(TransactionProposalStatus, { name: 'TransactionProposalStatus' });
 
-@ObjectType()
-export class Simulation {
-  @IdField()
-  id: uuid;
-
-  transfers: TransferDetails[];
-}
-
 @ObjectType({ isAbstract: true })
 export class ProposalResponse {
   @IdField()
   id: uuid;
 
+  @Field(() => Proposal)
   proposal: Proposal;
 
+  @Field(() => User)
   user: User;
 
+  @Field(() => Date)
   createdAt: Date;
 }
 
@@ -116,7 +133,9 @@ export class SatisfiablePolicy {
   @PolicyKeyField()
   key: PolicyKey;
 
+  @Field(() => Boolean)
   satisfied: boolean;
 
+  @Field(() => Boolean)
   responseRequested: boolean;
 }

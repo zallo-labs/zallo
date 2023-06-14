@@ -10,7 +10,9 @@ export class UserInput {
 
 @InputType()
 export class UpdateUserInput {
+  @Field(() => String, { nullable: true })
   name?: string | null;
 
+  @Field(() => String, { nullable: true })
   pushToken?: string | null;
 }

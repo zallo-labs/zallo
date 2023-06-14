@@ -11,11 +11,13 @@ export class Receipt {
   @IdField()
   id: uuid;
 
+  @Field(() => Boolean)
   success: boolean;
 
   @BytesField({ nullable: true })
   response?: string; // Hex
 
+  @Field(() => [Transfer])
   transfers: Transfer[];
 
   @Field(() => GraphQLBigInt)
@@ -27,5 +29,6 @@ export class Receipt {
   @Field(() => GraphQLBigInt)
   block: bigint;
 
+  @Field(() => Date)
   timestamp: Date;
 }

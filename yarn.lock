@@ -12016,13 +12016,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/semver@npm:^7.5.0":
-  version: 7.5.0
-  resolution: "@types/semver@npm:7.5.0"
-  checksum: 0a64b9b9c7424d9a467658b18dd70d1d781c2d6f033096a6e05762d20ebbad23c1b69b0083b0484722aabf35640b78ccc3de26368bcae1129c87e9df028a22e2
-  languageName: node
-  linkType: hard
-
 "@types/send@npm:*":
   version: 0.17.1
   resolution: "@types/send@npm:0.17.1"
@@ -14277,7 +14270,6 @@ __metadata:
     ts-pattern: ^4.2.2
     ts-toolbelt: ^9.6.0
     tsconfig-paths: ^4.2.0
-    type-graphql: ^2.0.0-beta.2
     typescript: ^5.1.3
     uuid: ^9.0.0
     viem: ^1.0.7
@@ -24071,17 +24063,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"graphql-query-complexity@npm:^0.12.0":
-  version: 0.12.0
-  resolution: "graphql-query-complexity@npm:0.12.0"
-  dependencies:
-    lodash.get: ^4.4.2
-  peerDependencies:
-    graphql: ^14.6.0 || ^15.0.0 || ^16.0.0
-  checksum: 9323bebd2a3cc5d85c34a8426f6312721a5bf5f465eb00c1fceb5fd2779a1f26edc48c119a3db6cf8e000390aacfe2126de3b316a159bd6742877ae97519df2f
-  languageName: node
-  linkType: hard
-
 "graphql-redis-subscriptions@npm:^2.6.0":
   version: 2.6.0
   resolution: "graphql-redis-subscriptions@npm:2.6.0"
@@ -29037,7 +29018,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"lodash.get@npm:^4, lodash.get@npm:^4.4.2":
+"lodash.get@npm:^4":
   version: 4.4.2
   resolution: "lodash.get@npm:4.4.2"
   checksum: e403047ddb03181c9d0e92df9556570e2b67e0f0a930fcbbbd779370972368f5568e914f913e93f3b08f6d492abc71e14d4e9b7a18916c31fa04bd2306efe545
@@ -37004,17 +36985,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"semver@npm:^7.5.0":
-  version: 7.5.1
-  resolution: "semver@npm:7.5.1"
-  dependencies:
-    lru-cache: ^6.0.0
-  bin:
-    semver: bin/semver.js
-  checksum: d16dbedad53c65b086f79524b9ef766bf38670b2395bdad5c957f824dcc566b624988013564f4812bcace3f9d405355c3635e2007396a39d1bffc71cfec4a2fc
-  languageName: node
-  linkType: hard
-
 "send@npm:0.18.0, send@npm:^0.18.0":
   version: 0.18.0
   resolution: "send@npm:0.18.0"
@@ -40148,26 +40118,6 @@ __metadata:
   version: 3.6.1
   resolution: "type-fest@npm:3.6.1"
   checksum: f7e39bf6b74a883661ec8642707f49c33cfcdc6221e1ba36b1d329c1cf301d87351b3ca0839b894cbfe47dc62140c0ce47e69c88f76800b678e0b67b7fe826e6
-  languageName: node
-  linkType: hard
-
-"type-graphql@npm:^2.0.0-beta.2":
-  version: 2.0.0-beta.2
-  resolution: "type-graphql@npm:2.0.0-beta.2"
-  dependencies:
-    "@types/node": "*"
-    "@types/semver": ^7.5.0
-    graphql-query-complexity: ^0.12.0
-    graphql-subscriptions: ^2.0.0
-    semver: ^7.5.0
-    tslib: ^2.5.0
-  peerDependencies:
-    class-validator: ">=0.14.0"
-    graphql: ^16.6.0
-  peerDependenciesMeta:
-    class-validator:
-      optional: true
-  checksum: 66112e8074abc29aec31a234b110bbf43eb50993e2ec56d472a886b273fdf240ad36a582d079b2226a6ebe3724605d768f75ad7556727231516c1b8a00184ad8
   languageName: node
   linkType: hard
 
