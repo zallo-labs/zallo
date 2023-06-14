@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { Address, isAddress } from 'lib';
+import { Address, SYNCSWAP_CONTRACTS, isAddress } from 'lib';
 import { DatabaseService } from '../database/database.service';
 import { ShapeFunc } from '../database/database.select';
 import e from '~/edgeql-js';
@@ -8,7 +8,7 @@ import { ProviderService } from '../util/provider/provider.service';
 import { getUser, getUserCtx } from '~/request/ctx';
 import { uuid } from 'edgedb/dist/codecs/ifaces';
 import { UserInputError } from '@nestjs/apollo';
-import { and, or } from '../database/database.util';
+import { and } from '../database/database.util';
 
 export const selectUser = (id: uuid | Address, shape?: ShapeFunc<typeof e.User>) =>
   e.select(e.User, (u) => ({
@@ -18,7 +18,18 @@ export const selectUser = (id: uuid | Address, shape?: ShapeFunc<typeof e.User>)
 
 @Injectable()
 export class UsersService {
-  constructor(private db: DatabaseService, private provider: ProviderService) {}
+  private hardcodedAddresses: Record<Address, string>;
+
+  constructor(private db: DatabaseService, private provider: ProviderService) {
+    this.hardcodedAddresses = {
+      [this.provider.walletAddress]: 'Zallo',
+      ...Object.fromEntries(
+        Object.values(SYNCSWAP_CONTRACTS.router).map(
+          (address) => [address, 'SyncSwap Router'] as const,
+        ),
+      ),
+    };
+  }
 
   async selectUnique(address: Address, shape?: ShapeFunc<typeof e.User>) {
     const { address: userAddress, accounts } = getUserCtx();
@@ -72,7 +83,7 @@ export class UsersService {
           name: true,
         })).name,
       )) ||
-      (address === this.provider.walletAddress && 'Zallo') ||
+      this.hardcodedAddresses[address] ||
       (await this.provider.lookupAddress(address))
     );
   }
