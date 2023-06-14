@@ -95,12 +95,13 @@ export class OperationsService {
         /* Account */
         .with({ functionName: 'addPolicy' }, (f) =>
           Object.assign(new AddPolicyOp(), {
+            // TODO: include policy object and policyState object (the actual one being added)
             ...base,
             account: to,
             key: f.args[0].key as PolicyKey,
             threshold: f.args[0].threshold,
             approvers: f.args[0].approvers,
-            targets: [], // TODO: decode; or just return the actual PolicyState
+            targets: [],
           } satisfies AddPolicyOp),
         )
         .with({ functionName: 'removePolicy' }, (f) =>

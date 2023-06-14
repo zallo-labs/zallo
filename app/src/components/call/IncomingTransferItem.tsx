@@ -1,5 +1,4 @@
 import { useAddressLabel } from '~/components/address/AddressLabel';
-import { TRANSFER_LABEL } from '~/components/call/useOperationLabel';
 import { Timestamp } from '~/components/format/Timestamp';
 import { ListItem } from '~/components/list/ListItem';
 import { ListItemSkeleton } from '~/components/list/ListItemSkeleton';
@@ -16,7 +15,7 @@ export const IncomingTransferItem = withSuspense(({ transfer }: IncomingTransfer
   return (
     <ListItem
       leading={transfer.token}
-      headline={`${TRANSFER_LABEL} from ${useAddressLabel(transfer.from)}`}
+      headline={`Transfer from ${useAddressLabel(transfer.from)}`}
       supporting={<Timestamp timestamp={transfer.timestamp} weekday />}
       trailing={({ Text }) => (
         <Text variant="labelLarge">

@@ -50,6 +50,50 @@ gql`
     responseRequested
   }
 
+  fragment OperationFields on Operation {
+    to
+    value
+    data
+    function {
+      __typename
+      ... on GenericOp {
+        _name
+        _args
+      }
+      ... on AddPolicyOp {
+        account
+        key
+      }
+      ... on RemovePolicyOp {
+        account
+        key
+      }
+      ... on TransferOp {
+        token
+        to
+        amount
+      }
+      ... on TransferFromOp {
+        token
+        from
+        to
+        amount
+      }
+      ... on TransferApprovalOp {
+        token
+        spender
+        amount
+      }
+      ... on SwapOp {
+        fromToken
+        fromAmount
+        toToken
+        minimumToAmount
+        deadline
+      }
+    }
+  }
+
   fragment TransactionProposalFields on TransactionProposal {
     id
     hash
@@ -60,9 +104,7 @@ gql`
       address
     }
     operations {
-      to
-      value
-      data
+      ...OperationFields
     }
     label
     nonce

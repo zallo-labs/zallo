@@ -12,18 +12,24 @@ import {
 } from 'lib';
 import { DateTime } from 'luxon';
 import { match } from 'ts-pattern';
-import { TransactionProposalFieldsFragment } from '@api/generated';
+import { OperationFieldsFragment, TransactionProposalFieldsFragment } from '@api/generated';
 import { asAccountId } from '@api/account/types';
 import { Transfer } from '@api/transfer/types';
 
 export type ProposalId = Hex & { isProposalId: true };
 export const asProposalId = (id: string) => asHex(id) as ProposalId;
 
-export interface Proposal extends Omit<Tx, 'gasLimit'> {
+export interface ProposalOperation extends Operation {
+  function?: OperationFieldsFragment['function'];
+}
+
+export interface Proposal {
   id: string;
   hash: ProposalId;
   account: Address;
   label?: string;
+  operations: [ProposalOperation, ...ProposalOperation[]];
+  nonce: bigint;
   gasLimit: bigint;
   feeToken: Address;
   state: ProposalState;
@@ -180,12 +186,13 @@ export const toProposal = (p: TransactionProposalFieldsFragment): Proposal => {
     account,
     label: p.label,
     operations: p.operations.map(
-      (o): Operation => ({
+      (o): ProposalOperation => ({
         to: o.to,
         value: o.value ? asBigInt(o.value) : undefined,
         data: o.data ? asHex(o.data) : undefined,
+        function: o.function,
       }),
-    ) as [Operation, ...Operation[]],
+    ) as [ProposalOperation, ...ProposalOperation[]],
     nonce: asBigInt(p.nonce),
     gasLimit: asBigInt(p.gasLimit),
     feeToken: p.feeToken,
