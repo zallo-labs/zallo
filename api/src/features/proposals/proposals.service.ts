@@ -1,5 +1,5 @@
 import { forwardRef, Inject, Injectable, Logger } from '@nestjs/common';
-import { UserInputError } from 'apollo-server-core';
+import { UserInputError } from '@nestjs/apollo';
 import {
   hashTx,
   Address,

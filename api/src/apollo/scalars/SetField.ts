@@ -1,5 +1,5 @@
 import { Field, FieldMiddleware, FieldOptions, GqlTypeReference } from '@nestjs/graphql';
-import { UserInputError } from 'apollo-server-core';
+import { UserInputError } from '@nestjs/apollo';
 import { minLengthMiddleware } from './util';
 
 export const setMiddleware: FieldMiddleware = async (_ctx, next) => {

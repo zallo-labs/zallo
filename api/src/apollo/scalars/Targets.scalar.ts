@@ -1,4 +1,4 @@
-import { UserInputError } from 'apollo-server-core';
+import { UserInputError } from '@nestjs/apollo';
 import { Address, asAddress, asSelector, Selector, Targets } from 'lib';
 import { createScalar } from './util';
 import { parseLiteral } from './parseLiteral';

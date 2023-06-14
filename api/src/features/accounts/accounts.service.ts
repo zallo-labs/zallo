@@ -5,7 +5,7 @@ import { Address, DeploySalt, Policy, asHex, asPolicyKey, randomDeploySalt } fro
 import { ShapeFunc } from '../database/database.select';
 import { AccountEvent, CreateAccountInput, UpdateAccountInput } from './accounts.input';
 import { getUser } from '~/request/ctx';
-import { UserInputError } from 'apollo-server-core';
+import { UserInputError } from '@nestjs/apollo';
 import { CONFIG } from '~/config';
 import { ProviderService } from '../util/provider/provider.service';
 import { PubsubService } from '../util/pubsub/pubsub.service';

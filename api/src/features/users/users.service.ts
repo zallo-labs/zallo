@@ -7,7 +7,7 @@ import { UpdateUserInput } from './users.input';
 import { ProviderService } from '../util/provider/provider.service';
 import { getUser, getUserCtx } from '~/request/ctx';
 import { uuid } from 'edgedb/dist/codecs/ifaces';
-import { UserInputError } from 'apollo-server-core';
+import { UserInputError } from '@nestjs/apollo';
 import { and, or } from '../database/database.util';
 
 export const selectUser = (id: uuid | Address, shape?: ShapeFunc<typeof e.User>) =>
