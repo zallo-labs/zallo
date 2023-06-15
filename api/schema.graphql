@@ -230,7 +230,7 @@ type Proposal {
   createdAt: DateTime!
   hash: Bytes32!
   id: ID!
-  label: String!
+  label: String
   policy: Policy
   proposedBy: User!
   rejections: [Rejection!]!
@@ -398,7 +398,7 @@ type TransactionProposal {
   gasLimit: BigInt!
   hash: Bytes32!
   id: ID!
-  label: String!
+  label: String
   nonce: BigInt!
   operations: [Operation!]!
   policy: Policy

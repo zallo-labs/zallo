@@ -27,8 +27,8 @@ export class Proposal {
   @Field(() => Policy, { nullable: true })
   policy?: Policy | null;
 
-  @Field(() => String)
-  label: string;
+  @Field(() => String, { nullable: true })
+  label?: string;
 
   @Field(() => Date)
   createdAt: Date;
