@@ -36,14 +36,12 @@ export const ProposalScreen = withSuspense(
               {({ close }) => (
                 <Menu.Item
                   title="Remove proposal"
-                  onPress={() => {
+                  onPress={async () => {
                     close();
-                    confirmRemoval({
-                      onConfirm: () => {
-                        removeProposal(proposal.hash);
-                        goBack();
-                      },
-                    });
+                    if (await confirmRemoval()) {
+                      await removeProposal(proposal.hash);
+                      goBack();
+                    }
                   }}
                 />
               )}

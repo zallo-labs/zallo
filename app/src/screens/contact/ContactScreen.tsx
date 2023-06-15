@@ -66,14 +66,12 @@ export const ContactScreen = withSuspense(
                     <Menu.Item
                       leadingIcon={RemoveIcon}
                       title="Remove contact"
-                      onPress={() => {
+                      onPress={async () => {
                         close();
-                        confirmRemove({
-                          onConfirm: () => {
-                            removeContact(current);
-                            goBack();
-                          },
-                        });
+                        if (await confirmRemove()) {
+                          removeContact(current);
+                          goBack();
+                        }
                       }}
                     />
                   )}

@@ -84,14 +84,12 @@ export const PolicyAppbar = ({ policy, proposal, state, reset, setParams }: Poli
                 {policy && (
                   <Menu.Item
                     title="Remove policy"
-                    onPress={() => {
+                    onPress={async () => {
                       close();
-                      confirmRemove({
-                        onConfirm: async () => {
-                          await removePolicy(policy);
-                          goBack();
-                        },
-                      });
+                      if (await confirmRemove()) {
+                        await removePolicy(policy);
+                        goBack();
+                      }
                     }}
                   />
                 )}

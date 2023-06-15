@@ -50,16 +50,14 @@ export const InteractionsAppbar = ({ contract }: InteractionsAppbarProps) => {
             {({ close }) => (
               <Menu.Item
                 title="Remove"
-                onPress={() => {
+                onPress={async () => {
                   close();
-                  confirmRemove({
-                    onConfirm: () => {
-                      updateDraft(({ permissions: { targets } }) => {
-                        delete targets[contract];
-                      });
-                      goBack();
-                    },
-                  });
+                  if (await confirmRemove()) {
+                    updateDraft(({ permissions: { targets } }) => {
+                      delete targets[contract];
+                    });
+                    goBack();
+                  }
                 }}
                 {...props}
               />
