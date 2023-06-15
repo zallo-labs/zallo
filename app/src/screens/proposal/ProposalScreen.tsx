@@ -39,7 +39,7 @@ export const ProposalScreen = withSuspense(
                   onPress={async () => {
                     close();
                     if (await confirmRemoval()) {
-                      await removeProposal(proposal.hash);
+                      await removeProposal(proposal);
                       goBack();
                     }
                   }}
