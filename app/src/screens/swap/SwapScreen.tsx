@@ -97,7 +97,7 @@ export const SwapScreen = withSuspense(({ route }: SwapScreenProps) => {
           propose(
             {
               account,
-              label: `Swap ${fromToken.symbol} for ${toToken?.symbol}}`,
+              label: `Swap ${fromToken.symbol} for ${toToken?.symbol}`,
               operations: await getSwapOperations({
                 account,
                 pool: pool!,
