@@ -17,9 +17,6 @@ export class Operation {
 
   @BytesField({ nullable: true })
   data?: Hex;
-
-  @Field(() => OperationFunction, { nullable: true })
-  function?: typeof OperationFunction;
 }
 
 export const OperationFunction = createUnionType({
