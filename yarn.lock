@@ -14206,13 +14206,9 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "api@workspace:api"
   dependencies:
-    "@apollo/client": ^3.7.15
     "@apollo/server": ^4.7.3
     "@edgedb/generate": ^0.1.0
     "@golevelup/ts-jest": ^0.3.7
-    "@graphql-codegen/cli": ^3.3.0
-    "@graphql-codegen/typescript": ^3.0.3
-    "@graphql-codegen/typescript-operations": ^3.0.3
     "@liaoliaots/nestjs-redis": ^9.0.5
     "@nestjs/apollo": ^11.0.6
     "@nestjs/axios": ^2.0.0
