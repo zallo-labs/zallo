@@ -37,9 +37,10 @@ export function OperationSection({
       <Collapsible collapsed={!expanded}>
         <OperationDetails account={proposal.account} op={op} />
 
-        <Button mode="outlined" icon={DataIcon} style={styles.dataButton}>
+        {/* TODO: user can swap tokens in-app (ZAL-137) */}
+        {/* <Button mode="outlined" icon={DataIcon} style={styles.dataButton}>
           Data
-        </Button>
+        </Button> */}
       </Collapsible>
 
       <Divider horizontalInset style={styles.divider} />
