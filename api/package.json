@@ -34,7 +34,7 @@
     "@nestjs/graphql": "^11.0.6",
     "@nestjs/platform-express": "^9.4.3",
     "@nestjs/terminus": "^9.2.2",
-    "@sentry/node": "^7.54.0",
+    "@sentry/node": "^7.55.2",
     "abitype": "^0.8.9",
     "async-mutex": "^0.4.0",
     "bull": "^4.10.4",

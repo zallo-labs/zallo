@@ -12,6 +12,7 @@ import { captureException, Scope, withScope, addRequestDataToEvent } from '@sent
 import { Request } from 'express';
 import { Observable } from 'rxjs';
 import { tap } from 'rxjs/operators';
+import { match } from 'ts-pattern';
 
 type Filter<E = any> = [type: new (...args: any[]) => E, shouldReport: (exception: E) => boolean];
 
@@ -29,16 +30,15 @@ export class SentryInterceptor implements NestInterceptor {
         error: (exception) => {
           if (this.shouldReport(exception)) {
             withScope((scope) => {
-              switch (context.getType<GqlContextType>()) {
-                case 'graphql':
-                  this.addGraphQLExceptionMetadatas(scope, GqlArgumentsHost.create(context));
-                case 'http':
-                  this.addHttpExceptionMetadatas(scope, context.switchToHttp());
-                case 'ws':
-                  this.addWsExceptionMetadatas(scope, context.switchToWs());
-                case 'rpc':
-                  this.addRpcExceptionMetadatas(scope, context.switchToRpc());
-              }
+              match(context.getType<GqlContextType>())
+                .with('graphql', () =>
+                  this.addGraphQLExceptionMetadatas(scope, GqlArgumentsHost.create(context)),
+                )
+                .with('http', () => this.addHttpExceptionMetadatas(scope, context.switchToHttp()))
+                .with('ws', () => this.addWsExceptionMetadatas(scope, context.switchToWs()))
+                .with('rpc', () => this.addRpcExceptionMetadatas(scope, context.switchToRpc()))
+                .exhaustive();
+
               return captureException(exception);
             });
           }
