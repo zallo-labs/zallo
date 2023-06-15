@@ -4,7 +4,7 @@ import { Timestamp } from '~/components/format/Timestamp';
 import { ListItem, ListItemProps } from '~/components/list/ListItem';
 import { withSuspense } from '~/components/skeleton/withSuspense';
 import { ListItemSkeleton } from '~/components/list/ListItemSkeleton';
-import { Proposal, ProposalId, useProposal } from '@api/proposal';
+import { Proposal, useProposal } from '@api/proposal';
 import { makeStyles } from '@theme/makeStyles';
 import { match } from 'ts-pattern';
 import { FiatValue } from '../fiat/FiatValue';
@@ -12,16 +12,17 @@ import { useTransfersValue } from '../call/useTransfersValue';
 import { useOperationLabel } from '../call/useOperationLabel';
 import { materialCommunityIcon } from '@theme/icons';
 import { ICON_SIZE } from '@theme/paper';
+import { Hex } from 'lib';
 
 const MultiOperationIcon = materialCommunityIcon('multiplication');
 
 export interface ProposalItemProps extends Partial<ListItemProps> {
-  proposal: ProposalId;
+  proposal: Hex;
 }
 
-export const ProposalItem = withSuspense(({ proposal: id, ...itemProps }: ProposalItemProps) => {
+export const ProposalItem = withSuspense(({ proposal: hash, ...itemProps }: ProposalItemProps) => {
   const styles = useStyles();
-  const p = useProposal(id);
+  const p = useProposal(hash);
   const token = useMaybeToken(p.operations[0].to) ?? ETH;
 
   const isMulti = p.operations.length > 1;

@@ -16,7 +16,6 @@ import { useHydrateAtoms } from 'jotai/utils';
 import _ from 'lodash';
 import { Fab } from '~/components/buttons/Fab';
 import { SendIcon } from '@theme/icons';
-import { asProposalId } from '@api/proposal';
 
 export type PolicyViewState = 'active' | 'draft';
 
@@ -109,7 +108,7 @@ const PolicyView = ({
             setParams({ key: r?.key ? asPolicyKey(r.key) : undefined, state: 'draft' });
 
             const proposal = r?.draft?.proposal?.hash;
-            if (proposal) navigate('Proposal', { proposal: asProposalId(proposal) });
+            if (proposal) navigate('Proposal', { proposal });
           }}
         />
       )}

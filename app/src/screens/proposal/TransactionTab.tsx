@@ -1,4 +1,4 @@
-import { ProposalId, useProposal } from '@api/proposal';
+import { useProposal } from '@api/proposal';
 import { useGasPrice } from '@network/useGasPrice';
 import { CheckIcon, ClockOutlineIcon, CloseIcon, GasOutlineIcon } from '@theme/icons';
 import { ETH } from '@token/tokens';
@@ -17,6 +17,7 @@ import { TokenIcon } from '~/components/token/TokenIcon/TokenIcon';
 import { TabNavigatorScreenProp } from './Tabs';
 import { TabBadge } from '~/components/tab/TabBadge';
 import { makeStyles } from '@theme/makeStyles';
+import { Hex } from 'lib';
 
 const Item = (props: ListItemProps) => (
   <ListItem
@@ -28,7 +29,7 @@ const Item = (props: ListItemProps) => (
 );
 
 export interface TransactionTabParams {
-  proposal: ProposalId;
+  proposal: Hex;
 }
 
 export type TransactionTabProps = TabNavigatorScreenProp<'Transaction'>;
@@ -148,7 +149,7 @@ const useStyles = makeStyles(({ colors }) => ({
 }));
 
 export interface TransactionTabBadgeProps {
-  proposal: ProposalId;
+  proposal: Hex;
 }
 
 export const TransactionTabBadge = ({ proposal: id }: TransactionTabBadgeProps) => {

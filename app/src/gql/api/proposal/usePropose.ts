@@ -2,7 +2,6 @@ import { Hex, MaybePromise, Tx } from 'lib';
 import { useCallback } from 'react';
 import { StackNavigation, useStackNavigation } from '~/navigation/useStackNavigation';
 import { showInfo } from '~/provider/SnackbarProvider';
-import { ProposalId } from './types';
 import { O } from 'ts-toolbelt';
 import {
   TransactionProposalFieldsFragmentDoc,
@@ -32,7 +31,7 @@ export interface ProposeOptions extends O.Optional<Tx, 'nonce'> {
 
 export type TxOptions = O.Optional<Tx, 'nonce'>;
 
-export type OnPropose = (proposal: ProposalId, navigation: StackNavigation) => Promise<void> | void;
+export type OnPropose = (proposal: Hex, navigation: StackNavigation) => Promise<void> | void;
 
 export const usePropose = () => {
   const [mutation] = useProposeMutation();
@@ -58,7 +57,7 @@ export const usePropose = () => {
         },
       });
 
-      const hash = r.data?.propose?.hash as ProposalId | undefined;
+      const hash = r.data?.propose?.hash;
       if (!hash) throw new Error('Proposal failed');
 
       await onPropose?.(hash, navigation);
@@ -71,7 +70,7 @@ export const usePropose = () => {
 
 export type OnExecute = (response: { transactionHash: Hex }) => MaybePromise<void>;
 
-export const popToProposal = (proposal: ProposalId, navigation: StackNavigation) =>
+export const popToProposal = (proposal: Hex, navigation: StackNavigation) =>
   navigation.replace('Proposal', { proposal });
 
 export const showProposalSnack = (...params: Parameters<typeof popToProposal>) => {

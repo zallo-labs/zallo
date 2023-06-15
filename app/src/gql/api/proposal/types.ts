@@ -1,7 +1,6 @@
 import {
   Address,
   Hex,
-  Tx,
   KeySet,
   asHex,
   asAddress,
@@ -16,16 +15,13 @@ import { OperationFieldsFragment, TransactionProposalFieldsFragment } from '@api
 import { asAccountId } from '@api/account/types';
 import { Transfer } from '@api/transfer/types';
 
-export type ProposalId = Hex & { isProposalId: true };
-export const asProposalId = (id: string) => asHex(id) as ProposalId;
-
 export interface ProposalOperation extends Operation {
   function?: OperationFieldsFragment['function'];
 }
 
 export interface Proposal {
   id: string;
-  hash: ProposalId;
+  hash: Hex;
   account: Address;
   label?: string;
   operations: [ProposalOperation, ...ProposalOperation[]];
@@ -182,7 +178,7 @@ export const toProposal = (p: TransactionProposalFieldsFragment): Proposal => {
 
   return {
     id: p.id,
-    hash: asProposalId(p.hash),
+    hash: p.hash,
     account,
     label: p.label || undefined,
     operations: p.operations.map(

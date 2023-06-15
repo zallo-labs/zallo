@@ -3,7 +3,8 @@ import assert from 'assert';
 import { useMemo } from 'react';
 import { ProposalDocument, ProposalQuery, ProposalQueryVariables } from '@api/generated';
 import { useSuspenseQuery } from '~/gql/util';
-import { Proposal, ProposalId, toProposal } from './types';
+import { Proposal, toProposal } from './types';
+import { Hex } from 'lib';
 
 gql`
   fragment ApprovalFields on Approval {
@@ -145,17 +146,17 @@ gql`
   }
 `;
 
-export const useProposal = <Id extends ProposalId | undefined>(id: Id) => {
+export const useProposal = <Hash extends Hex | undefined>(hash: Hash) => {
   const { data } = useSuspenseQuery<ProposalQuery, ProposalQueryVariables>(ProposalDocument, {
     variables: {
-      input: { hash: id! },
+      input: { hash: hash! },
     },
-    skip: !id,
+    skip: !hash,
   });
 
   const p = data.proposal;
   const proposal = useMemo((): Proposal | undefined => (p ? toProposal(p) : undefined), [p]);
 
-  if (id) assert(p, 'Proposal not found');
-  return proposal as Id extends undefined ? Proposal | undefined : Proposal;
+  if (hash) assert(p, 'Proposal not found');
+  return proposal as Hash extends undefined ? Proposal | undefined : Proposal;
 };

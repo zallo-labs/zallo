@@ -1,4 +1,3 @@
-import { ProposalId } from '@api/proposal';
 import {
   createMaterialTopTabNavigator,
   MaterialTopTabScreenProps,
@@ -7,6 +6,7 @@ import { TopTabBar } from '~/components/tab/TopTabBar';
 import { PolicyTab, PolicyTabBadge, PolicyTabParams } from './PolicyTab';
 import { DetailsTab, DetailsTabParams } from './DetailsTab';
 import { TransactionTab, TransactionTabBadge, TransactionTabParams } from './TransactionTab';
+import { Hex } from 'lib';
 
 export type TabNavigatorParamList = {
   Details: DetailsTabParams;
@@ -20,7 +20,7 @@ export type TabNavigatorScreenProp<K extends keyof TabNavigatorParamList> =
 const Tab = createMaterialTopTabNavigator<TabNavigatorParamList>();
 
 export interface TabsProps {
-  proposal: ProposalId;
+  proposal: Hex;
 }
 
 export const Tabs = ({ proposal }: TabsProps) => (
