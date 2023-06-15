@@ -184,7 +184,7 @@ export const toProposal = (p: TransactionProposalFieldsFragment): Proposal => {
     id: p.id,
     hash: asProposalId(p.hash),
     account,
-    label: p.label,
+    label: p.label || undefined,
     operations: p.operations.map(
       (o): ProposalOperation => ({
         to: o.to,
