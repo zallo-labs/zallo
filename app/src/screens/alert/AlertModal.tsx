@@ -38,9 +38,8 @@ export const AlertModal = ({ route, navigation: { goBack } }: AlertModalProps) =
 
         <Button
           textColor={confirmTextColor || styles.confirm.color}
-          onPress={async () => {
+          onPress={() => {
             ALERT_EMITTER.emit(true);
-            goBack();
           }}
         >
           {confirmLabel || 'Ok'}
