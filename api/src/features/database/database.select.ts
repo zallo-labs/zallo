@@ -1,19 +1,19 @@
 import {
   GraphQLField,
-  GraphQLInterfaceType,
-  GraphQLObjectType,
+  GraphQLFieldMap,
   GraphQLOutputType,
   GraphQLResolveInfo,
   Kind,
-  SelectionSetNode,
+  SelectionNode,
   isInterfaceType,
   isObjectType,
+  isUnionType,
 } from 'graphql';
 import { P, match } from 'ts-pattern';
 import { SelectModifiers, objectTypeToSelectShape } from '~/edgeql-js/select';
-import { $scopify, ObjectTypeExpression, ObjectTypeSet } from '~/edgeql-js/typesystem';
+import { $scopify, ObjectTypeExpression, ObjectTypeSet, SomeType } from '~/edgeql-js/typesystem';
 import { $linkPropify } from '~/edgeql-js/syntax';
-import { Cardinality } from 'edgedb/dist/reflection';
+import { Cardinality, TypeKind } from 'edgedb/dist/reflection';
 import merge from 'ts-deepmerge';
 
 export type Scope<Expr extends ObjectTypeExpression> = $scopify<Expr['__element__']> &
@@ -30,58 +30,101 @@ export const getShape =
   <Expr extends ObjectTypeExpression>(info: GraphQLResolveInfo): ShapeFunc<Expr> =>
   (scope): Shape<Expr> => {
     return fieldToShape(
-      info.fieldNodes.find((node) => node.name.value === info.fieldName)!.selectionSet,
-      info.parentType.getFields()[info.fieldName],
+      {
+        selections: info.fieldNodes.find((node) => node.name.value === info.fieldName)!.selectionSet
+          ?.selections,
+        graphql: info.parentType.getFields()[info.fieldName],
+        edgeql: scope.__element__,
+      },
       info,
     );
   };
 
-const fieldToShape = (
-  // node: FieldNode | InlineFragmentNode,
-  selectionSet: SelectionSetNode | undefined,
-  fieldSchema: GraphQLField<unknown, unknown>,
-  info: GraphQLResolveInfo,
-): any => {
-  if (!selectionSet) return true;
+interface FieldDetails {
+  selections: readonly SelectionNode[] | undefined;
+  graphql: GraphQLField<unknown, unknown>;
+  edgeql: SomeType | undefined;
+}
 
-  const schemaType = getObjType(fieldSchema.type);
-  if (!schemaType) throw new Error(`Schema type not found for field: ${fieldSchema.name}`);
+const fieldToShape = (field: FieldDetails, graphqlInfo: GraphQLResolveInfo) => {
+  if (!field.selections) return true;
 
-  return selectionSet.selections.reduce(
+  const graphqlFields = getGraphqlTypeFields(field.graphql.type);
+
+  return field.selections.reduce(
     (acc, node) =>
       match(node)
         .with({ kind: Kind.FIELD }, (childNode) => {
-          if (childNode.name.value === '__typename') return acc;
-          const childSchema = schemaType.getFields()[childNode.name.value];
-          if (!childSchema) throw new Error(`Schema field not found: ${childNode.name.value}`);
+          const childName = childNode.name.value;
+          if (childName === '__typename') return acc; // Resolved by GraphQL
+
+          const childSchema = graphqlFields[childName];
+          if (!childSchema) throw new Error(`Schema for child field not found: ${childName}`);
 
           const { select } = childSchema.extensions;
-          if (select && typeof select === 'object') return merge(acc, select);
+          if (select && typeof select === 'object') acc = merge(acc, select);
+
+          if (field.edgeql?.__kind__ !== TypeKind.object)
+            throw new Error(`Expected EQL field '${field.graphql.name}' type to be an object`);
+
+          // Skip non-edgeql fields e.g. ResolveField
+          const childEqlType: SomeType | undefined = field.edgeql.__pointers__[childName]?.target;
+          if (!childEqlType) return acc;
 
           return {
             ...acc,
-            [childNode.name.value]: fieldToShape(childNode.selectionSet, childSchema, info),
+            [childNode.name.value]: fieldToShape(
+              {
+                selections: childNode.selectionSet?.selections,
+                graphql: childSchema,
+                edgeql: childEqlType,
+              },
+              graphqlInfo,
+            ),
           };
         })
         .with({ kind: Kind.FRAGMENT_SPREAD }, (fragmentNode) => {
-          const fragment = info.fragments[fragmentNode.name.value];
-          // TODO: handle type restriction
+          const fragment = graphqlInfo.fragments[fragmentNode.name.value];
+          // TODO: handle type restriction for EQL types?
 
-          return merge(acc, fieldToShape(fragment.selectionSet, fieldSchema, info));
+          return merge(
+            acc,
+            fieldToShape(
+              {
+                selections: fragment.selectionSet?.selections,
+                graphql: field.graphql,
+                edgeql: field.edgeql,
+              },
+              graphqlInfo,
+            ),
+          );
         })
         .with({ kind: Kind.INLINE_FRAGMENT }, (fragment) => {
-          // TODO: handle type restriction
+          // TODO: handle type restriction for EQL types?
 
-          return merge(acc, fieldToShape(fragment.selectionSet, fieldSchema, info));
+          return merge(
+            acc,
+            fieldToShape(
+              {
+                selections: fragment.selectionSet?.selections,
+                graphql: field.graphql,
+                edgeql: field.edgeql,
+              },
+              graphqlInfo,
+            ),
+          );
         })
         .exhaustive(),
     {},
   );
 };
 
-const getObjType = (type: GraphQLOutputType): GraphQLObjectType | GraphQLInterfaceType | null =>
+const getGraphqlTypeFields = (type: GraphQLOutputType): GraphQLFieldMap<unknown, unknown> =>
   match(type)
-    .when(isObjectType, (type) => type)
-    .when(isInterfaceType, (type) => type)
-    .with({ ofType: P.not(P.nullish) }, (type) => getObjType(type.ofType))
-    .otherwise(() => null);
+    .when(isObjectType, (type) => type.getFields())
+    .when(isInterfaceType, (type) => type.getFields())
+    .when(isUnionType, (type) =>
+      type.getTypes().reduce((acc, subType) => ({ ...acc, ...getGraphqlTypeFields(subType) }), {}),
+    )
+    .with({ ofType: P.not(P.nullish) }, (type) => getGraphqlTypeFields(type.ofType))
+    .otherwise(() => ({}));
