@@ -15,6 +15,7 @@ import { selectUser } from '../users/users.service';
 import { uuid } from 'edgedb/dist/codecs/ifaces';
 import { selectPolicy } from '../policies/policies.util';
 import { TransactionProposalStatus } from './proposals.model';
+import { SimulationService } from '../simulation/simulation.service';
 
 const signature = '0x1234' as Hex;
 
@@ -24,6 +25,7 @@ describe(ProposalsService.name, () => {
   let provider: DeepMocked<ProviderService>;
   let expo: DeepMocked<ExpoService>;
   let transactions: DeepMocked<TransactionsService>;
+  let simulation: DeepMocked<SimulationService>;
 
   beforeEach(async () => {
     const module = await Test.createTestingModule({
@@ -37,6 +39,7 @@ describe(ProposalsService.name, () => {
     provider = module.get(ProviderService);
     expo = module.get(ExpoService);
     transactions = module.get(TransactionsService);
+    simulation = module.get(SimulationService);
 
     provider.verifySignature.mockImplementation(async () => true);
     provider.getNetwork.mockImplementation(async () => ({
@@ -45,6 +48,7 @@ describe(ProposalsService.name, () => {
     }));
 
     transactions.tryExecute.mockImplementation(async () => undefined);
+    simulation.getInsert.mockImplementation(async () => e.insert(e.Simulation, {}));
   });
 
   let user1: UserContext;
