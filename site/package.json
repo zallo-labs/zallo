@@ -42,10 +42,10 @@
   },
   "devDependencies": {
     "@docusaurus/module-type-aliases": "^2.4.0",
-    "@graphql-codegen/cli": "^3.3.0",
-    "@graphql-codegen/introspection": "^3.0.1",
-    "@graphql-codegen/typescript": "^3.0.3",
-    "@graphql-codegen/typescript-operations": "^3.0.3",
+    "@graphql-codegen/cli": "^4.0.1",
+    "@graphql-codegen/introspection": "^4.0.0",
+    "@graphql-codegen/typescript": "^4.0.0",
+    "@graphql-codegen/typescript-operations": "^4.0.0",
     "@tsconfig/docusaurus": "1.0.6",
     "typescript": "^5.1.3"
   },
