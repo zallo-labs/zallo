@@ -1,6 +1,6 @@
 {
   "name": "zallo",
-  "packageManager": "yarn@3.2.4",
+  "packageManager": "yarn@3.6.0",
   "private": true,
   "version": "0.1.0",
   "author": "Hayden Briese <haydenbriese@gmail.com>",

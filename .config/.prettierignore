@@ -23,18 +23,6 @@
 
 # Yarn
 ../**/.yarn/*
-!../**/.yarn/patches
-!../**/.yarn/plugins
-!../**/.yarn/releases
-!../**/.yarn/sdks
-!../**/.yarn/versions
-# Zero install ignores - https://yarnpkg.com/features/zero-installs
-!../**/.yarn/cache
-# Non-zero install ignores
-#../**/.pnp.*
-# Other
-../yarn-debug.log*
-../yarn-error.log*
 
 # MacOS
 ../**/.DS_Store
