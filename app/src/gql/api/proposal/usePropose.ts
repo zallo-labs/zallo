@@ -45,9 +45,9 @@ export const usePropose = () => {
           const proposal = data?.propose;
           if (!proposal) return;
 
-          // TODO: update all relevant variants based on appropriate query variables
-          await updateQuery<ProposalsQuery, ProposalsQueryVariables>({
+          updateQuery<ProposalsQuery, ProposalsQueryVariables>({
             query: ProposalsDocument,
+            variables: { input: { accounts: [input.account] } },
             cache,
             defaultData: { proposals: [] },
             updater: (data) => {
