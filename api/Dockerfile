@@ -34,7 +34,8 @@ COPY --from=builder --chown=node:node /build/.env.vault ./.env.vault
 COPY --from=builder --chown=node:node /build/api/dbschema/ ./api/dbschema/
 COPY --from=builder --chown=node:node /build/api/dist/ ./api/dist/
 COPY --from=builder --chown=node:node /build/api/dbschema/ ./api/dbschema/
-COPY --from=builder --chown=node:node /build/api/node_modules/ ./api/node_modules/
+# Copy api/node_modules only if it exists; COPY may fail without the glob pattern
+COPY --from=builder --chown=node:node /build/api/node_module[s] ./api/node_modules/
 COPY --from=builder --chown=node:node /build/api/edgedb.toml ./api/edgedb.toml
 COPY --from=builder --chown=node:node /build/api/package.json ./api/package.json
 
