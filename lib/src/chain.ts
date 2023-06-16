@@ -5,6 +5,7 @@ import * as ethers from 'ethers';
 export type ChainKey = 'mainnet' | 'testnet' | 'local';
 export interface Chain extends viem.Chain {
   key: ChainKey;
+  layer1: viem.Chain;
 }
 
 export type Chains = typeof CHAINS;
@@ -15,15 +16,17 @@ export const CHAINS: Record<ChainKey, Chain> = {
     key: 'mainnet',
     ...viemChain.zkSync,
     name: 'zkSync',
+    layer1: viemChain.mainnet,
   },
   testnet: {
     key: 'testnet',
     ...viemChain.zkSyncTestnet,
     name: 'zkSync testnet',
+    layer1: viemChain.goerli,
   },
   local: {
     key: 'local',
-    id: 280,
+    id: 270,
     name: 'zkSync local testnet',
     network: 'zksync-local-testnet',
     nativeCurrency: viemChain.zkSyncTestnet.nativeCurrency,
@@ -37,6 +40,7 @@ export const CHAINS: Record<ChainKey, Chain> = {
         webSocket: ['ws://localhost:3051'],
       },
     },
+    layer1: viemChain.localhost,
     testnet: true,
   },
 };

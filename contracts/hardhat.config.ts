@@ -50,6 +50,7 @@ export default {
         {
           chainId: chain.id,
           url: chain.rpcUrls.default.http[0],
+          ethNetwork: chain.layer1.rpcUrls.default.http[0],
           zksync: true,
         },
       ]),
