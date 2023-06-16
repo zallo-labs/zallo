@@ -8,7 +8,7 @@ export const CONFIG = {
   env: optional`RELEASE_ENV` === 'development' ? 'development' : 'production',
   chain: getChain(optional`CHAIN`),
   walletPrivateKey:
-    chain.name === 'local' ? localWallets[0]!.privateKey : required`WALLET_PRIVATE_KEY`,
+    chain.key === 'local' ? localWallets[0]!.privateKey : required`WALLET_PRIVATE_KEY`,
   etherscanApiKey: optional`ETHERSCAN_API_KEY`,
   coinmarketcapApiKey: optional`COINMARKETCAP_API_KEY`,
 };

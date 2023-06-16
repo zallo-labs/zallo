@@ -27,8 +27,8 @@ export const CONFIG = {
   chain,
   etherscanApiKey: required`ETHERSCAN_API_KEY`,
   walletPrivateKey: required`WALLET_PRIVATE_KEY`,
-  accountImplAddress: tryAsAddress(required`ACCOUNT_IMPL_${chain.name.toUpperCase()}`),
-  proxyFactoryAddress: tryAsAddress(required`PROXY_FACTORY_${chain.name.toUpperCase()}`),
+  accountImplAddress: tryAsAddress(required`ACCOUNT_IMPL_${chain.key.toUpperCase()}`),
+  proxyFactoryAddress: tryAsAddress(required`PROXY_FACTORY_${chain.key.toUpperCase()}`),
   sentryDsn: required`API_SENTRY_DSN`,
   serverId: optional`FLY_ALLOC_ID`,
 };

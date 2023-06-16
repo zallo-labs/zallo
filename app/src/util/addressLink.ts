@@ -4,7 +4,7 @@
 // @ts-ignore
 import { parse, build } from 'eth-url-parser';
 import { Address, tryOrIgnore } from 'lib';
-import { CHAIN_ID } from '~/util/network/provider';
+import { CHAIN } from '~/util/network/provider';
 import { ETH } from '@token/tokens';
 
 export interface AddressLink {
@@ -26,7 +26,7 @@ export interface AddressLink {
 
 const getDefaults = () => ({
   scheme: 'ethereum',
-  chain_id: CHAIN_ID(),
+  chain_id: CHAIN.id,
   parameters: {},
 });
 

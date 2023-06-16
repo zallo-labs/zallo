@@ -126,7 +126,7 @@ export const ContactScreen = withSuspense(
               value={CHAIN.name}
               entries={[
                 ...Object.values(SUPPORTED_CHAINS).map(
-                  (chain) => [chain.friendlyName, chain.name] as const,
+                  (chain) => [chain.name, chain.name] as const,
                 ),
               ]}
               chipProps={{ icon: NetworkIcon, disabled: true }}

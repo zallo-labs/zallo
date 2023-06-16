@@ -17,7 +17,7 @@ export class PaymasterService {
   constructor(private provider: ProviderService) {}
 
   async getPaymaster() {
-    assert(this.provider.chain.isTestnet); // Mainnet TODO: testnet paymaster can't be used
+    assert(this.provider.chain.testnet); // Mainnet TODO: testnet paymaster can't be used
     const paymaster = await this.provider.getTestnetPaymasterAddress();
     if (!paymaster) throw new Error('Failed to get testnet paymaster address');
 

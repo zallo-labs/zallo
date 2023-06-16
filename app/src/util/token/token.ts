@@ -1,13 +1,5 @@
 import assert from 'assert';
-import {
-  Address,
-  Addresslike,
-  createIsObj,
-  Erc20__factory,
-  isAddress,
-  ChainName,
-  tryAsAddress,
-} from 'lib';
+import { Address, createIsObj, Erc20__factory, isAddress, ChainKey, tryAsAddress } from 'lib';
 import _ from 'lodash';
 import { CHAIN } from '~/util/network/provider';
 
@@ -40,7 +32,7 @@ export const isToken = createIsObj<Token>(
 
 type TokenDef = Pick<Token, 'name' | 'symbol' | 'decimals'> & {
   type?: TokenType;
-  addresses: Partial<Record<'ethereum' | ChainName, Addresslike>>;
+  addresses: Partial<Record<'ethereum' | ChainKey, Address>>;
   iconUri?: string;
   units?: TokenUnit[];
 };
@@ -48,7 +40,7 @@ type TokenDef = Pick<Token, 'name' | 'symbol' | 'decimals'> & {
 export const asToken = (def: TokenDef): Token => {
   const addresses = _.mapValues(def.addresses, tryAsAddress);
 
-  const address = addresses[CHAIN.name];
+  const address = addresses[CHAIN.key];
   assert(address, `Token '${def.name}' doesn't support current chain '${CHAIN.name}'`);
 
   const baseUnit: TokenUnit = { symbol: def.symbol, decimals: def.decimals };

@@ -15,32 +15,31 @@ import {
   DeployArgs,
   getProxyAddress,
   deployAccountProxy,
+  getEthersConnectionParams,
 } from 'lib';
 import { Mutex } from 'async-mutex';
-import { ethers } from 'ethers';
 import { PublicClient, WebSocketTransport, createPublicClient, webSocket } from 'viem';
 
 @Injectable()
 export class ProviderService extends zk.Provider {
   public chain: Chain;
-  public client: PublicClient<WebSocketTransport, typeof CONFIG.chain.viem>;
+  public client: PublicClient<WebSocketTransport, typeof CONFIG.chain>;
 
-  private websocketProvider: ethers.providers.WebSocketProvider;
   private wallet: zk.Wallet;
   private walletMutex = new Mutex(); // TODO: replace with distributed mutex - https://linear.app/zallo/issue/ZAL-91
   private proxyFactory: Factory;
 
   constructor() {
-    super(CONFIG.chain.rpc);
+    super(...getEthersConnectionParams(CONFIG.chain, 'http'));
     this.chain = CONFIG.chain;
 
     this.client = createPublicClient({
       transport: webSocket(undefined, { retryCount: 10 }),
-      chain: CONFIG.chain.viem,
+      chain: CONFIG.chain,
     });
 
     this.wallet = (
-      this.chain.isTestnet && CONFIG.walletPrivateKey
+      this.chain.testnet && CONFIG.walletPrivateKey
         ? new zk.Wallet(CONFIG.walletPrivateKey)
         : zk.Wallet.createRandom()
     ).connect(this);
@@ -50,10 +49,6 @@ export class ProviderService extends zk.Provider {
 
   get walletAddress(): Address {
     return this.wallet.address;
-  }
-
-  get websocket(): ethers.providers.WebSocketProvider {
-    return (this.websocketProvider ??= new ethers.providers.WebSocketProvider(CONFIG.chain.ws));
   }
 
   useWallet<R>(f: (wallet: zk.Wallet) => R): Promise<R> {
