@@ -179,7 +179,7 @@ export class TransactionsService {
       ProposalEvent.submitted,
     );
 
-    this.transactionsQueue.add({ transaction: transactionHash }, { delay: 2000 /* 2s */ });
+    await this.transactionsQueue.add({ transaction: transactionHash }, { delay: 2000 /* 2s */ });
 
     return transactionHash;
   }

@@ -1,7 +1,5 @@
 import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
-import { ACCOUNT_INTERFACE as ACCOUNT, asAddress, asHex, Hex } from 'lib';
-import { BytesLike } from 'ethers';
-import { hexDataLength } from 'ethers/lib/utils';
+import { ACCOUNT_ABI, asAddress, asHex, Hex } from 'lib';
 import { ProposalsService } from '../proposals/proposals.service';
 import { ProposalEvent } from '../proposals/proposals.input';
 import {
@@ -17,6 +15,7 @@ import { DatabaseService } from '../database/database.service';
 import { and } from '../database/database.util';
 import { ProviderService } from '../util/provider/provider.service';
 import { EIP712_TX_TYPE } from 'zksync-web3/build/src/utils';
+import { decodeEventLog, getAbiItem, getEventSelector } from 'viem';
 
 @Injectable()
 export class TransactionsEvents implements OnModuleInit {
@@ -29,7 +28,11 @@ export class TransactionsEvents implements OnModuleInit {
     private proposals: ProposalsService,
   ) {
     this.transactionsProcessor.onEvent(
-      ACCOUNT.getEventTopic(ACCOUNT.events['OperationExecuted(bytes32,bytes)']),
+      getEventSelector(getAbiItem({ abi: ACCOUNT_ABI, name: 'OperationExecuted' })),
+      (data) => this.executed(data),
+    );
+    this.transactionsProcessor.onEvent(
+      getEventSelector(getAbiItem({ abi: ACCOUNT_ABI, name: 'OperationsExecuted' })),
       (data) => this.executed(data),
     );
     this.transactionsProcessor.onTransaction((data) => this.reverted(data));
@@ -40,12 +43,14 @@ export class TransactionsEvents implements OnModuleInit {
   }
 
   private async executed({ log, receipt, block }: TransactionEventData) {
-    const r = ACCOUNT.decodeEventLog(
-      ACCOUNT.events['OperationExecuted(bytes32,bytes)'],
-      log.data,
-      log.topics,
-    );
-    const [proposalHash, response] = [asHex(r[0] as BytesLike), asHex(r[1] as BytesLike)];
+    const r = decodeEventLog({
+      abi: ACCOUNT_ABI,
+      topics: log.topics as any,
+      data: log.data as any,
+    });
+    if (r.eventName !== 'OperationExecuted' && r.eventName !== 'OperationsExecuted') return;
+
+    const proposalHash = asHex(r.args.txHash);
 
     await this.db.query(
       e.update(e.Transaction, () => ({
@@ -53,7 +58,7 @@ export class TransactionsEvents implements OnModuleInit {
         set: {
           receipt: e.insert(e.Receipt, {
             success: true,
-            response: hexDataLength(response) ? response : undefined,
+            responses: 'responses' in r.args ? [...r.args.responses] : [r.args.response],
             gasUsed: receipt.gasUsed.toBigInt(),
             fee: receipt.gasUsed.toBigInt() * receipt.effectiveGasPrice.toBigInt(),
             block: BigInt(receipt.blockNumber),
@@ -81,7 +86,7 @@ export class TransactionsEvents implements OnModuleInit {
       set: {
         receipt: e.insert(e.Receipt, {
           success: false,
-          response: revertReason,
+          responses: [revertReason],
           gasUsed: receipt.gasUsed.toBigInt(),
           fee: receipt.gasUsed.toBigInt() * receipt.effectiveGasPrice.toBigInt(),
           block: BigInt(receipt.blockNumber),
@@ -119,7 +124,7 @@ export class TransactionsEvents implements OnModuleInit {
       })).hash,
     );
 
-    if (!orphanedTransactionHashes.length) {
+    if (orphanedTransactionHashes.length) {
       await this.queue.addBulk(
         orphanedTransactionHashes.map((hash) => ({ data: { transaction: hash as Hex } })),
       );
@@ -129,8 +134,6 @@ export class TransactionsEvents implements OnModuleInit {
   private async getRevertReason(receipt: TransactionData['receipt']) {
     const resp = await this.provider.getTransaction(receipt.transactionHash);
 
-    const reason = await this.provider.call({ ...resp, type: EIP712_TX_TYPE }, receipt.blockNumber);
-
-    return hexDataLength(reason) > 0 ? reason : undefined;
+    return this.provider.call({ ...resp, type: EIP712_TX_TYPE }, receipt.blockNumber);
   }
 }

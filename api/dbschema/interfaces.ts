@@ -127,10 +127,10 @@ export interface Proposal extends std.$Object {
   "policy"?: Policy | null;
 }
 export interface Receipt extends std.$Object {
+  "responses": string[];
   "block": bigint;
   "fee": bigint;
   "gasUsed": bigint;
-  "response"?: string | null;
   "success": boolean;
   "timestamp": Date;
   "transfers": Transfer[];

@@ -112,7 +112,7 @@ export const useApprove = () => {
                     ? {
                         __typename: 'Receipt',
                         success: p.transaction.receipt.success,
-                        response: p.transaction.receipt.response,
+                        responses: p.transaction.receipt.responses,
                         transfers: p.transaction.receipt.transfers.map((t) => ({
                           __typename: 'Transfer' as const,
                           id: t.id,

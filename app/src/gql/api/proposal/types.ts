@@ -79,7 +79,7 @@ export type TransactionStatus = 'pending' | 'success' | 'failure';
 
 export interface Receipt {
   success: boolean;
-  response?: Hex;
+  responses: Hex[];
   gasUsed: bigint;
   fee: bigint;
   timestamp: DateTime;
@@ -137,7 +137,7 @@ export const toProposal = (p: TransactionProposalFieldsFragment): Proposal => {
         receipt: t.receipt
           ? {
               success: t.receipt.success,
-              response: asHex(t.receipt.response),
+              responses: t.receipt.responses,
               gasUsed: asBigInt(t.receipt.gasUsed),
               fee: asBigInt(t.receipt.fee),
               timestamp: DateTime.fromISO(t.receipt.timestamp),

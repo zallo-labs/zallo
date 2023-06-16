@@ -188,6 +188,7 @@ describe(ProposalsService.name, () => {
                 gasPrice: 0n,
                 receipt: e.insert(e.Receipt, {
                   success: true,
+                  responses: [],
                   gasUsed: 0n,
                   fee: 0n,
                   block: 0n,
@@ -200,6 +201,7 @@ describe(ProposalsService.name, () => {
                 gasPrice: 0n,
                 receipt: e.insert(e.Receipt, {
                   success: false,
+                  responses: [],
                   gasUsed: 0n,
                   fee: 0n,
                   block: 0n,

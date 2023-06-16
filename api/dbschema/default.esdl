@@ -300,7 +300,7 @@ module default {
 
   type Receipt {
     required property success -> bool;
-    property response -> Bytes;
+    required property responses -> array<Bytes>;
     multi link transfers := .<receipt[is Transfer];
     required property gasUsed -> bigint { constraint min_value(0n); }
     required property fee -> bigint { constraint min_value(0n); }

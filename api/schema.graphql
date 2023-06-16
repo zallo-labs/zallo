@@ -304,11 +304,10 @@ type Query {
 
 type Receipt {
   block: BigInt!
-  decodedResponse: String
   fee: BigInt!
   gasUsed: BigInt!
   id: ID!
-  response: Bytes
+  responses: [Bytes!]!
   success: Boolean!
   timestamp: DateTime!
   transfers: [Transfer!]!

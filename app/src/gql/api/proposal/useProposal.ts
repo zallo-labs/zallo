@@ -30,7 +30,7 @@ gql`
     submittedAt
     receipt {
       success
-      response
+      responses
       gasUsed
       fee
       timestamp
