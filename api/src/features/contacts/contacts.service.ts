@@ -8,7 +8,7 @@ import { UpsertContactInput } from './contacts.input';
 import { uuid } from 'edgedb/dist/codecs/ifaces';
 import { isAddress } from 'ethers/lib/utils';
 import { selectUser } from '../users/users.service';
-import { UserInputError } from 'apollo-server-core';
+import { UserInputError } from '@nestjs/apollo';
 
 type UniqueContact = uuid | Address;
 

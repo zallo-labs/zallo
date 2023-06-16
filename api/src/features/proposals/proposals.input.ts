@@ -69,7 +69,11 @@ export class ProposeInput {
   @AddressField()
   account: Address;
 
+  @Field(() => [OperationInput])
   operations: OperationInput[];
+
+  @Field(() => String, { nullable: true })
+  label?: string;
 
   @Uint256Field({ nullable: true })
   nonce?: bigint;

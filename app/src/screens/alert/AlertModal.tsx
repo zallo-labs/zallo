@@ -3,20 +3,23 @@ import { Dialog, Text } from 'react-native-paper';
 import { Button } from '~/components/Button';
 import { DialogRoot } from '~/components/DialogRoot';
 import { StackNavigatorScreenProps } from '~/navigation/StackNavigator';
+import { EventEmitter } from '~/util/EventEmitter';
+
+const ALERT_EMITTER = new EventEmitter<true>('Alert');
+export const useAlert = ALERT_EMITTER.createUseSelect('Alert');
 
 export interface AlertModalParams {
   title?: string;
   message?: string;
-  onConfirm: () => unknown;
   confirmLabel?: string;
   confirmTextColor?: string;
 }
 
 export type AlertModalProps = StackNavigatorScreenProps<'Alert'>;
 
-export const AlertModal = ({ route: { params }, navigation: { goBack } }: AlertModalProps) => {
+export const AlertModal = ({ route, navigation: { goBack } }: AlertModalProps) => {
   const styles = useStyles();
-  const { title, message, onConfirm, confirmLabel, confirmTextColor } = params;
+  const { title, message, confirmLabel, confirmTextColor } = route.params;
 
   return (
     <DialogRoot>
@@ -35,9 +38,8 @@ export const AlertModal = ({ route: { params }, navigation: { goBack } }: AlertM
 
         <Button
           textColor={confirmTextColor || styles.confirm.color}
-          onPress={async () => {
-            await onConfirm();
-            goBack();
+          onPress={() => {
+            ALERT_EMITTER.emit(true);
           }}
         >
           {confirmLabel || 'Ok'}

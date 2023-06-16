@@ -15,12 +15,15 @@ export class Transaction {
   @Bytes32Field()
   hash: string; // Hex
 
+  @Field(() => TransactionProposal)
   proposal: TransactionProposal;
 
   @Field(() => GraphQLBigInt)
   gasPrice: bigint;
 
+  @Field(() => Date)
   submittedAt: Date;
 
+  @Field(() => Receipt, { nullable: true })
   receipt?: Receipt | null;
 }

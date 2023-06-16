@@ -1,62 +1,72 @@
-export type ChainName = 'mainnet' | 'testnet' | 'local';
+import * as viem from 'viem';
+import * as viemChain from 'viem/chains';
+import * as ethers from 'ethers';
 
-export interface Chain {
-  name: ChainName;
-  friendlyName: string;
-  id: number;
-  isTestnet: boolean;
-  rpc: string;
-  ws: string;
-  l1Rpc: string;
-  explorer: string | undefined;
+export type ChainKey = 'mainnet' | 'testnet' | 'local';
+export interface Chain extends viem.Chain {
+  key: ChainKey;
+  layer1: viem.Chain;
 }
-
-// https://v2-docs.zksync.io/dev/troubleshooting/important-links.html
-export const CHAINS = {
-  mainnet: {
-    name: 'mainnet',
-    friendlyName: 'zkSync',
-    id: 324,
-    isTestnet: false,
-    rpc: 'https://mainnet.era.zksync.io',
-    ws: 'wss://mainnet.era.zksync.io/ws',
-    l1Rpc: 'mainnet',
-    explorer: 'https://explorer.zksync.io',
-  },
-  testnet: {
-    name: 'testnet',
-    friendlyName: 'zkSync testnet',
-    id: 280,
-    isTestnet: true,
-    rpc: 'https://testnet.era.zksync.dev',
-    ws: 'wss://testnet.era.zksync.dev/ws',
-    l1Rpc: 'goerli',
-    explorer: 'https://goerli.explorer.zksync.io',
-  } as const,
-  local: {
-    name: 'local',
-    friendlyName: 'Local testnet',
-    id: 270,
-    isTestnet: true,
-    rpc: 'http://localhost:3050',
-    ws: 'ws://localhost:3051',
-    l1Rpc: 'http://localhost:8545',
-    explorer: undefined,
-  } as const,
-} satisfies Record<ChainName, Chain>;
 
 export type Chains = typeof CHAINS;
 
+// https://v2-docs.zksync.io/dev/troubleshooting/important-links.html
+export const CHAINS: Record<ChainKey, Chain> = {
+  mainnet: {
+    key: 'mainnet',
+    ...viemChain.zkSync,
+    name: 'zkSync',
+    layer1: viemChain.mainnet,
+  },
+  testnet: {
+    key: 'testnet',
+    ...viemChain.zkSyncTestnet,
+    name: 'zkSync testnet',
+    layer1: viemChain.goerli,
+  },
+  local: {
+    key: 'local',
+    id: 270,
+    name: 'zkSync local testnet',
+    network: 'zksync-local-testnet',
+    nativeCurrency: viemChain.zkSyncTestnet.nativeCurrency,
+    rpcUrls: {
+      default: {
+        http: ['http://localhost:3050'],
+        webSocket: ['ws://localhost:3051'],
+      },
+      public: {
+        http: ['http://localhost:3050'],
+        webSocket: ['ws://localhost:3051'],
+      },
+    },
+    layer1: viemChain.localhost,
+    testnet: true,
+  },
+};
+
 export const getChain = (
-  name: ChainName | string = CHAINS.testnet.name,
-  supportedChains: Partial<Record<ChainName, Chain>> = CHAINS,
+  key: ChainKey | string = 'testnet' satisfies ChainKey,
+  supportedChains: Partial<Chains> = CHAINS,
 ) => {
-  const chain = supportedChains[name.toLowerCase() as ChainName];
+  const chain = supportedChains[key.toLowerCase() as ChainKey];
   if (!chain) {
     throw new Error(
-      `Unsupported chain: ${name}\nSupported chains: ${Object.keys(supportedChains).join(', ')}`,
+      `Unsupported chain: ${key}\nSupported chains: ${Object.keys(supportedChains).join(', ')}`,
     );
   }
 
   return chain;
 };
+
+export const getEthersConnectionParams = (
+  chain: Chain,
+  transport: 'http' | 'ws',
+): [string, ethers.providers.Network] => [
+  (transport === 'ws' && chain.rpcUrls.default.webSocket?.[0]) || chain.rpcUrls.default.http[0],
+  {
+    chainId: chain.id,
+    name: chain.name,
+    ensAddress: chain.contracts?.ensUniversalResolver?.address,
+  },
+];

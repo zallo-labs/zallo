@@ -1,10 +1,9 @@
 import { popToProposal, usePropose } from '@api/proposal';
 import { CloseIcon } from '@theme/icons';
 import { fiatAsBigInt, fiatToToken, FIAT_DECIMALS } from '@token/fiat';
-import { getTokenContract, Token } from '@token/token';
 import { useTokenPriceData } from '@uniswap/index';
 import { parseUnits } from 'ethers/lib/utils';
-import { Address, asHex, Operation } from 'lib';
+import { Address } from 'lib';
 import { useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 import { Appbar, Divider } from 'react-native-paper';
@@ -16,17 +15,10 @@ import { withSuspense } from '~/components/skeleton/withSuspense';
 import { TokenItem } from '~/components/token/TokenItem';
 import { useSelectedToken, useSetSelectedToken } from '~/components/token/useSelectedToken';
 import { StackNavigatorScreenProps } from '~/navigation/StackNavigator';
-import { InputsView, InputType } from './InputsView';
+import { InputsView, InputType } from '../../components/InputsView';
 import { useSelectToken } from '../tokens/TokensScreen';
 import { Button } from '~/components/Button';
-
-const createTransferOp = (token: Token, to: Address, amount: bigint): Operation =>
-  token.type === 'ERC20'
-    ? {
-        to: token.address,
-        data: asHex(getTokenContract(token).interface.encodeFunctionData('transfer', [to, amount])),
-      }
-    : { to, value: amount };
+import { createTransferOp } from './transfer';
 
 export interface SendScreenParams {
   account: Address;
@@ -37,9 +29,10 @@ export type SendScreenProps = StackNavigatorScreenProps<'Send'>;
 
 export const SendScreen = withSuspense(({ route, navigation: { goBack } }: SendScreenProps) => {
   const { account, to } = route.params;
+  const propose = usePropose();
+
   const [token, setToken] = [useSelectedToken(), useSetSelectedToken()];
   const selectToken = useSelectToken();
-  const propose = usePropose();
   const price = useTokenPriceData(token).current;
 
   const [input, setInput] = useState('');
@@ -63,6 +56,7 @@ export const SendScreen = withSuspense(({ route, navigation: { goBack } }: SendS
       </Appbar.Header>
 
       <InputsView
+        token={token}
         account={account}
         input={input}
         setInput={setInput}
@@ -92,7 +86,7 @@ export const SendScreen = withSuspense(({ route, navigation: { goBack } }: SendS
           propose(
             {
               account,
-              operations: [createTransferOp(token, to, tokenAmount)],
+              operations: [createTransferOp(token.address, token.type, to, tokenAmount)],
             },
             popToProposal,
           )

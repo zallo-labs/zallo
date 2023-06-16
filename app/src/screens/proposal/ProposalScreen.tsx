@@ -1,4 +1,4 @@
-import { ProposalId, useProposal, useRemoveProposal } from '@api/proposal';
+import { useProposal, useRemoveProposal } from '@api/proposal';
 import { Menu } from 'react-native-paper';
 import { Appbar } from '~/components/Appbar/Appbar';
 import { AppbarMore2 } from '~/components/Appbar/AppbarMore';
@@ -10,9 +10,10 @@ import { useConfirmRemoval } from '../alert/useConfirm';
 import { Tabs } from './Tabs';
 import { ProposalActions } from './ProposalActions';
 import { useAddressLabel } from '~/components/address/AddressLabel';
+import { Hex } from 'lib';
 
 export interface ProposalScreenParams {
-  proposal: ProposalId;
+  proposal: Hex;
 }
 
 export type ProposalScreenProps = StackNavigatorScreenProps<'Proposal'>;
@@ -36,14 +37,12 @@ export const ProposalScreen = withSuspense(
               {({ close }) => (
                 <Menu.Item
                   title="Remove proposal"
-                  onPress={() => {
+                  onPress={async () => {
                     close();
-                    confirmRemoval({
-                      onConfirm: () => {
-                        removeProposal(proposal.hash);
-                        goBack();
-                      },
-                    });
+                    if (await confirmRemoval()) {
+                      await removeProposal(proposal);
+                      goBack();
+                    }
                   }}
                 />
               )}

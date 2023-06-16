@@ -1,18 +1,9 @@
 import assert from 'assert';
-import {
-  Address,
-  Addresslike,
-  createIsObj,
-  Erc20,
-  Erc20__factory,
-  isAddress,
-  ChainName,
-  tryAsAddress,
-} from 'lib';
+import { Address, createIsObj, Erc20__factory, isAddress, ChainKey, tryAsAddress } from 'lib';
 import _ from 'lodash';
-import { CHAIN, PROVIDER } from '~/util/network/provider';
+import { CHAIN } from '~/util/network/provider';
 
-export type TokenType = 'ETH' | 'ERC20';
+export type TokenType = 'Native' | 'ERC20';
 
 export interface TokenUnit {
   symbol: string;
@@ -41,7 +32,7 @@ export const isToken = createIsObj<Token>(
 
 type TokenDef = Pick<Token, 'name' | 'symbol' | 'decimals'> & {
   type?: TokenType;
-  addresses: Partial<Record<'ethereum' | ChainName, Addresslike>>;
+  addresses: Partial<Record<'ethereum' | ChainKey, Address>>;
   iconUri?: string;
   units?: TokenUnit[];
 };
@@ -49,7 +40,7 @@ type TokenDef = Pick<Token, 'name' | 'symbol' | 'decimals'> & {
 export const asToken = (def: TokenDef): Token => {
   const addresses = _.mapValues(def.addresses, tryAsAddress);
 
-  const address = addresses[CHAIN.name];
+  const address = addresses[CHAIN.key];
   assert(address, `Token '${def.name}' doesn't support current chain '${CHAIN.name}'`);
 
   const baseUnit: TokenUnit = { symbol: def.symbol, decimals: def.decimals };
@@ -68,11 +59,12 @@ export const asToken = (def: TokenDef): Token => {
 
 export const ERC20_INTERFACE = Erc20__factory.createInterface();
 
-export const getTokenContract = (token: Token): Erc20 =>
-  Erc20__factory.connect(token.address, PROVIDER);
-
-export const convertTokenAmount = (amount: bigint, prevToken: Token, newToken: Token): bigint => {
-  const decimalsDiff = prevToken.decimals - newToken.decimals;
+export const convertDecimals = (
+  amount: bigint,
+  curDecimals: number,
+  newDecimals: number,
+): bigint => {
+  const decimalsDiff = curDecimals - newDecimals;
   if (decimalsDiff === 0) return amount;
 
   const factor = 10n ** BigInt(Math.abs(decimalsDiff));

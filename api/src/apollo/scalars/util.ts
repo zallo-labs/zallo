@@ -1,5 +1,5 @@
 import { Field, FieldMiddleware, FieldOptions } from '@nestjs/graphql';
-import { UserInputError } from 'apollo-server-core';
+import { UserInputError } from '@nestjs/apollo';
 import { GraphQLScalarType, GraphQLScalarTypeConfig } from 'graphql';
 import merge from 'ts-deepmerge';
 import { O } from 'ts-toolbelt';

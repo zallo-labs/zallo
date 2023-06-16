@@ -24,7 +24,7 @@ export interface ListItemTextProps {
 }
 
 export type ListItemProps = Pick<TouchableRippleProps, 'onPress'> &
-  O.Optional<StyleProps, 'lines'> & {
+  O.Optional<StyleProps, 'lines' | 'leadingSize'> & {
     leading?: FC<ListIconElementProps> | string;
     overline?: ReactNode | FC<ListItemTextProps>;
     headline: ReactNode | FC<ListItemTextProps>;
@@ -36,6 +36,7 @@ export type ListItemProps = Pick<TouchableRippleProps, 'onPress'> &
 
 export const ListItem = ({
   leading: Leading,
+  leadingSize = typeof Leading === 'string' ? 'medium' : 'small',
   overline: Overline,
   headline: Headline,
   supporting: Supporting,
@@ -48,7 +49,7 @@ export const ListItem = ({
   textStyle,
   ...touchableProps
 }: ListItemProps) => {
-  const styles = useStyles({ lines, selected, disabled, avatarLeadingSize });
+  const styles = useStyles({ lines, leadingSize, selected, disabled, avatarLeadingSize });
 
   const OverlineText = ({ style, ...props }: TextProps) => (
     <Text
@@ -90,7 +91,7 @@ export const ListItem = ({
             {typeof Leading === 'string' ? (
               <AddressOrLabelIcon
                 label={Leading}
-                size={styles.leadingAvatarContainer.fontSize}
+                size={styles.leadingIcon.fontSize}
                 style={styles.leadingAvatarContainer}
                 labelStyle={styles.leadingAvatarLabel}
               />
@@ -150,6 +151,7 @@ interface StyleProps {
   selected?: boolean;
   disabled?: boolean;
   avatarLeadingSize?: boolean;
+  leadingSize: 'small' | 'medium';
 }
 
 export enum ListItemHeight {
@@ -159,10 +161,7 @@ export enum ListItemHeight {
 }
 
 const useStyles = makeStyles(
-  (
-    { colors, corner, stateLayer, iconSize },
-    { lines, selected, disabled, avatarLeadingSize }: StyleProps,
-  ) => {
+  ({ colors, corner, stateLayer }, { lines, selected, disabled, leadingSize }: StyleProps) => {
     const justifyContent = lines === 3 ? 'flex-start' : 'center';
 
     const withState = (color: string) => stateLayer(color, disabled && 'disabled');
@@ -185,7 +184,6 @@ const useStyles = makeStyles(
         marginRight: 16,
       },
       leadingAvatarContainer: {
-        fontSize: iconSize.medium,
         backgroundColor: withState(colors.tertiaryContainer),
         borderRadius: corner.full,
       },
@@ -193,7 +191,7 @@ const useStyles = makeStyles(
         color: withState(colors.tertiary),
       },
       leadingIcon: {
-        fontSize: avatarLeadingSize ? ICON_SIZE.medium : ICON_SIZE.small,
+        fontSize: ICON_SIZE[leadingSize],
         backgroundColor: withState(colors.onSurfaceVariant),
       },
       mainContainer: {

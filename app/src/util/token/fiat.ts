@@ -4,7 +4,7 @@ export const FIAT_DECIMALS = 8;
 const multiplier = 10 ** FIAT_DECIMALS;
 
 export const fiatAsBigInt = (value: string | number): bigint =>
-  BigInt(((typeof value === 'number' ? value : parseFloat(value)) * multiplier).toFixed(0));
+  BigInt(Math.floor((typeof value === 'number' ? value : parseFloat(value)) * multiplier));
 
 // export const asFiat = (value: bigint) => value / BigInt(FIAT_DECIMALS);
 

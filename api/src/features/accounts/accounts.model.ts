@@ -1,4 +1,4 @@
-import { ObjectType } from '@nestjs/graphql';
+import { Field, ObjectType } from '@nestjs/graphql';
 import { AddressField } from '~/apollo/scalars/Address.scalar';
 import { Bytes32Field } from '~/apollo/scalars/Bytes.scalar';
 import { Transfer } from '../transfers/transfers.model';
@@ -15,8 +15,10 @@ export class Account {
   @AddressField()
   address: string; // Address;
 
+  @Field(() => String, { nullable: true })
   name?: string | null;
 
+  @Field(() => Boolean)
   isActive: boolean;
 
   @AddressField()
@@ -25,11 +27,15 @@ export class Account {
   @Bytes32Field()
   salt: string; // Hex
 
+  @Field(() => [Policy])
   policies: Policy[];
 
+  @Field(() => [Proposal])
   proposals: Proposal[];
 
+  @Field(() => [TransactionProposal])
   transactionProposals: TransactionProposal[];
 
+  @Field(() => [Transfer])
   transfers: Transfer[];
 }

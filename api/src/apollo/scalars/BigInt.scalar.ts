@@ -1,4 +1,4 @@
-import { UserInputError } from 'apollo-server-core';
+import { UserInputError } from '@nestjs/apollo';
 import { Kind } from 'graphql';
 import { MAX_UINT256, MIN_UINT256 } from 'lib';
 import { createScalar } from './util';

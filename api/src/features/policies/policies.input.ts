@@ -13,25 +13,6 @@ export class UniquePolicyInput implements PolicyId {
 }
 
 @InputType()
-export class PolicyInput {
-  @PolicyKeyField({ nullable: true })
-  key?: PolicyKey;
-
-  name?: string;
-
-  @Field(() => [AddressScalar], {
-    nullable: true,
-    description: 'Signers that are required to approve',
-  })
-  approvers: Address[];
-
-  @Field(() => Number, { description: 'Defaults to all approvers' })
-  threshold?: number;
-
-  permissions: PermissionsInput;
-}
-
-@InputType()
 export class PermissionsInput {
   @Field(() => [TargetInput], { nullable: true, description: 'Targets that can be called' })
   targets?: TargetInput[];
@@ -44,6 +25,27 @@ export class TargetInput {
 
   @Field(() => [String], { description: 'Functions that can be called on target (or *)' })
   selectors: (Selector | '*')[];
+}
+
+@InputType()
+export class PolicyInput {
+  @PolicyKeyField({ nullable: true })
+  key?: PolicyKey;
+
+  @Field(() => String, { nullable: true })
+  name?: string;
+
+  @Field(() => [AddressScalar], {
+    nullable: true,
+    description: 'Signers that are required to approve',
+  })
+  approvers: Address[];
+
+  @Field(() => Number, { nullable: true, description: 'Defaults to all approvers' })
+  threshold?: number;
+
+  @Field(() => PermissionsInput)
+  permissions: PermissionsInput;
 }
 
 @InputType()

@@ -8,8 +8,10 @@ export class TransfersInput {
   @Field(() => [AddressScalar], { nullable: true })
   accounts?: Address[];
 
+  @Field(() => TransferDirection, { nullable: true })
   direction?: TransferDirection;
 
+  @Field(() => Boolean, { nullable: true })
   excludeProposalOriginating?: boolean;
 }
 
@@ -18,5 +20,6 @@ export class TransferSubscriptionInput {
   @Field(() => [AddressScalar], { nullable: true })
   accounts?: Address[];
 
+  @Field(() => [TransferDirection], { nullable: true })
   directions?: TransferDirection[];
 }

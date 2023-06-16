@@ -26,22 +26,27 @@ export class EventEmitter<T> {
     });
   }
 
-  createUseSelect<RouteName extends keyof StackNavigatorParamList>(
-    route: RouteName,
-    defaults?: Partial<StackNavigatorParamList[RouteName]>,
-  ) {
+  createUseSelect<
+    RouteName extends keyof StackNavigatorParamList,
+    Defaults extends Partial<StackNavigatorParamList[RouteName]>,
+  >(route: RouteName, creationDefaults?: Partial<StackNavigatorParamList[RouteName]>) {
     const emitter = this;
-    return () => {
+    return (hookDefaults?: Defaults) => {
       const { navigate, goBack } = useNavigation();
 
       return useCallback(
         async (
-          ...args: StackNavigatorParamList[RouteName] extends undefined
-            ? []
+          ...args: Defaults extends StackNavigatorParamList[RouteName] | undefined
+            ? [] | [Partial<StackNavigatorParamList[RouteName]>]
             : [StackNavigatorParamList[RouteName]]
         ) => {
           const p = emitter.getEvent();
-          (navigate as any)(route, { ...(defaults ?? {}), ...(args[0] ?? {}) });
+
+          (navigate as any)(route, {
+            ...(creationDefaults ?? {}),
+            ...(hookDefaults ?? {}),
+            ...(args[0] ?? {}),
+          });
 
           await p;
           goBack();

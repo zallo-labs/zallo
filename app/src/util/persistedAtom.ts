@@ -1,5 +1,5 @@
 import { Getter, WritableAtom, atom } from 'jotai';
-import { RESET, createJSONStorage, unstable_NO_STORAGE_VALUE } from 'jotai/utils';
+import { RESET, createJSONStorage } from 'jotai/utils';
 import type { AsyncStorage as TAsyncStorage } from 'jotai/vanilla/utils/atomWithStorage';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as SecureStore from 'expo-secure-store';
@@ -26,15 +26,15 @@ export const persistedAtom = <V, U extends AnyJson = AnyJson>(
   options?: StorageOptions<V, U>,
 ): WritableAtom<V, [SetStateActionWithReset<V>], void> => {
   const storage = getStorage(options);
+  const initialPersistedValue = storage.getItem(key, initialValue);
+
   const baseAtom = atom(initialValue);
   baseAtom.debugLabel = `${key}::base`;
-
-  const initialPersistedValue = storage.getItem(key);
 
   let mounted = false;
   baseAtom.onMount = (setAtom) => {
     initialPersistedValue.then((v) => {
-      if (v === unstable_NO_STORAGE_VALUE) {
+      if (v === initialValue) {
         storage.setItem(key, initialValue);
       } else if (v !== initialValue) {
         setAtom(v);
@@ -42,13 +42,12 @@ export const persistedAtom = <V, U extends AnyJson = AnyJson>(
       mounted = true;
     });
 
-    if (storage.subscribe) return storage.subscribe(key, setAtom);
+    if (storage.subscribe) return storage.subscribe(key, setAtom, initialValue);
   };
 
   const getUnmountedValue = async (get: Getter) => {
     get(baseAtom); // Trigger onMount
-    const v = await initialPersistedValue;
-    return v === unstable_NO_STORAGE_VALUE ? initialValue : v;
+    return initialPersistedValue;
   };
 
   const pAtom = atom(
@@ -78,7 +77,7 @@ const getStorage = <V, U extends AnyJson>({
   stringifiy,
 }: StorageOptions<V, U> = {}): TAsyncStorage<V> => {
   const store = secure
-    ? createJSONStorage<U>(() => ({
+    ? createJSONStorage<U | undefined>(() => ({
         getItem: async (key) => {
           try {
             return await SecureStore.getItemAsync(key, secure);
@@ -96,14 +95,14 @@ const getStorage = <V, U extends AnyJson>({
         setItem: (key, newValue) => SecureStore.setItemAsync(key, newValue, secure),
         removeItem: (key) => SecureStore.deleteItemAsync(key, secure),
       }))
-    : (ASYNC_STORAGE as TAsyncStorage<U>);
+    : (ASYNC_STORAGE as TAsyncStorage<U | undefined>);
 
   const getItem: TAsyncStorage<V>['getItem'] = parse
-    ? async (key) => {
-        const r = await store.getItem(key);
-        return r === unstable_NO_STORAGE_VALUE ? unstable_NO_STORAGE_VALUE : parse(r);
+    ? async (key, initialValue) => {
+        const r = await store.getItem(key, undefined);
+        return r === undefined ? initialValue : parse(r);
       }
-    : (store.getItem as TAsyncStorage<V>['getItem']);
+    : (store.getItem as unknown as TAsyncStorage<V>['getItem']);
 
   const setItem: TAsyncStorage<V>['setItem'] = stringifiy
     ? async (key, newValue) => store.setItem(key, stringifiy(newValue))

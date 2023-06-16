@@ -1,17 +1,17 @@
 import { Field, ObjectType, registerEnumType } from '@nestjs/graphql';
 import { GraphQLBigInt } from 'graphql-scalars';
-import { Address, Hex, PolicyKey } from 'lib';
+import { PolicyKey } from 'lib';
 import { PolicyKeyField } from '~/apollo/scalars/PolicyKey.scalar';
 import { Account } from '../accounts/accounts.model';
 import { User } from '../users/users.model';
 import { Policy } from '../policies/policies.model';
 import { AddressField } from '~/apollo/scalars/Address.scalar';
-import { Bytes32Field, BytesField } from '~/apollo/scalars/Bytes.scalar';
+import { Bytes32Field } from '~/apollo/scalars/Bytes.scalar';
 import { Transaction } from '../transactions/transactions.model';
 import { IdField } from '~/apollo/scalars/Id.scalar';
 import { TransferDetails } from '../transfers/transfers.model';
 import { uuid } from 'edgedb/dist/codecs/ifaces';
-import { Uint256Field } from '~/apollo/scalars/BigInt.scalar';
+import { Operation } from '../operations/operations.model';
 
 @ObjectType({ isAbstract: true })
 export class Proposal {
@@ -21,35 +21,43 @@ export class Proposal {
   @Bytes32Field()
   hash: string; // Hex
 
+  @Field(() => Account)
   account: Account;
 
+  @Field(() => Policy, { nullable: true })
   policy?: Policy | null;
 
+  @Field(() => String, { nullable: true })
+  label?: string;
+
+  @Field(() => Date)
   createdAt: Date;
 
+  @Field(() => User)
   proposedBy: User;
 
+  @Field(() => [ProposalResponse])
   responses: ProposalResponse[];
 
+  @Field(() => [Approval])
   approvals: Approval[];
 
+  @Field(() => [Rejection])
   rejections: Rejection[];
 }
 
 @ObjectType()
-export class Operation {
-  @AddressField()
-  to: Address;
+export class Simulation {
+  @IdField()
+  id: uuid;
 
-  @Uint256Field({ nullable: true })
-  value?: bigint;
-
-  @BytesField({ nullable: true })
-  data?: Hex;
+  @Field(() => [TransferDetails])
+  transfers: TransferDetails[];
 }
 
 @ObjectType()
 export class TransactionProposal extends Proposal {
+  @Field(() => [Operation])
   operations: Operation[];
 
   @Field(() => GraphQLBigInt)
@@ -61,12 +69,16 @@ export class TransactionProposal extends Proposal {
   @AddressField()
   feeToken: string; // Address
 
+  @Field(() => Simulation)
   simulation: Simulation;
 
+  @Field(() => [Transaction])
   transactions: Transaction[];
 
+  @Field(() => Transaction, { nullable: true })
   transaction?: Transaction | null;
 
+  @Field(() => TransactionProposalStatus)
   status: TransactionProposalStatus;
 }
 
@@ -78,23 +90,18 @@ export enum TransactionProposalStatus {
 }
 registerEnumType(TransactionProposalStatus, { name: 'TransactionProposalStatus' });
 
-@ObjectType()
-export class Simulation {
-  @IdField()
-  id: uuid;
-
-  transfers: TransferDetails[];
-}
-
 @ObjectType({ isAbstract: true })
 export class ProposalResponse {
   @IdField()
   id: uuid;
 
+  @Field(() => Proposal)
   proposal: Proposal;
 
+  @Field(() => User)
   user: User;
 
+  @Field(() => Date)
   createdAt: Date;
 }
 
@@ -114,7 +121,9 @@ export class SatisfiablePolicy {
   @PolicyKeyField()
   key: PolicyKey;
 
+  @Field(() => Boolean)
   satisfied: boolean;
 
+  @Field(() => Boolean)
   responseRequested: boolean;
 }

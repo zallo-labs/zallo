@@ -170,6 +170,10 @@ module default {
     }
     required link account -> Account;
     link policy -> Policy;
+    property label -> str {
+      constraint min_len_value(1);
+      constraint max_len_value(50);
+    }
     property createdAt -> datetime {
       readonly := true;
       default := datetime_of_statement();
@@ -296,7 +300,7 @@ module default {
 
   type Receipt {
     required property success -> bool;
-    property response -> Bytes;
+    required property responses -> array<Bytes>;
     multi link transfers := .<receipt[is Transfer];
     required property gasUsed -> bigint { constraint min_value(0n); }
     required property fee -> bigint { constraint min_value(0n); }

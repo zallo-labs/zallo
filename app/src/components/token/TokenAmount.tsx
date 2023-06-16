@@ -20,7 +20,7 @@ export const useFormattedTokenAmount = ({
   // Format with the closest unit
   const amountDecimals = amount.toString().length;
   const unit: TokenUnit =
-    amount === 0n
+    trailing !== 'symbol' || amount === 0n
       ? token
       : token.units.reduce((closest, unit) => {
           const diff = Math.abs(unit.decimals - amountDecimals);
@@ -31,7 +31,7 @@ export const useFormattedTokenAmount = ({
     value: amount,
     decimals: unit.decimals,
     maximumFractionDigits: 3,
-    extendedFractionDigits: 4,
+    minimumNumberFractionDigits: 4,
     postFormat: trailing
       ? (v) => `${v} ${trailing === 'name' ? token.name : unit.symbol}`
       : undefined,

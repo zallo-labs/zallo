@@ -66,14 +66,12 @@ export const ContactScreen = withSuspense(
                     <Menu.Item
                       leadingIcon={RemoveIcon}
                       title="Remove contact"
-                      onPress={() => {
+                      onPress={async () => {
                         close();
-                        confirmRemove({
-                          onConfirm: () => {
-                            removeContact(current);
-                            goBack();
-                          },
-                        });
+                        if (await confirmRemove()) {
+                          removeContact(current);
+                          goBack();
+                        }
                       }}
                     />
                   )}
@@ -128,7 +126,7 @@ export const ContactScreen = withSuspense(
               value={CHAIN.name}
               entries={[
                 ...Object.values(SUPPORTED_CHAINS).map(
-                  (chain) => [chain.friendlyName, chain.name] as const,
+                  (chain) => [chain.name, chain.name] as const,
                 ),
               ]}
               chipProps={{ icon: NetworkIcon, disabled: true }}

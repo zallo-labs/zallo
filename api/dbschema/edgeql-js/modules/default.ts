@@ -238,6 +238,7 @@ const $PolicyState = $.makeType<$PolicyState>(_.spec, "11bd6460-04f3-11ee-9f0f-2
 const PolicyState: $.$expr_PathNode<$.TypeSet<$PolicyState, $.Cardinality.Many>, null> = _.syntax.$PathNode($.$toSet($PolicyState, $.Cardinality.Many), null);
 
 export type $ProposalλShape = $.typeutil.flatten<_std.$Object_fe84743ee09e11edb375672f3ae9cdcdλShape & {
+  "label": $.PropertyDesc<_std.$str, $.Cardinality.AtMostOne, false, false, false, false>;
   "account": $.LinkDesc<$Account, $.Cardinality.One, {}, false, false,  false, false>;
   "proposedBy": $.LinkDesc<$User, $.Cardinality.One, {}, false, false,  true, true>;
   "createdAt": $.PropertyDesc<_std.$datetime, $.Cardinality.AtMostOne, false, false, true, true>;
@@ -262,10 +263,10 @@ const $Proposal = $.makeType<$Proposal>(_.spec, "103fcc90-04f3-11ee-a09d-37f45c2
 const Proposal: $.$expr_PathNode<$.TypeSet<$Proposal, $.Cardinality.Many>, null> = _.syntax.$PathNode($.$toSet($Proposal, $.Cardinality.Many), null);
 
 export type $ReceiptλShape = $.typeutil.flatten<_std.$Object_fe84743ee09e11edb375672f3ae9cdcdλShape & {
+  "responses": $.PropertyDesc<$.ArrayType<$Bytes>, $.Cardinality.One, false, false, false, false>;
   "block": $.PropertyDesc<_std.$bigint, $.Cardinality.One, false, false, false, false>;
   "fee": $.PropertyDesc<_std.$bigint, $.Cardinality.One, false, false, false, false>;
   "gasUsed": $.PropertyDesc<_std.$bigint, $.Cardinality.One, false, false, false, false>;
-  "response": $.PropertyDesc<$Bytes, $.Cardinality.AtMostOne, false, false, false, false>;
   "success": $.PropertyDesc<_std.$bool, $.Cardinality.One, false, false, false, false>;
   "timestamp": $.PropertyDesc<_std.$datetime, $.Cardinality.One, false, false, false, true>;
   "transfers": $.LinkDesc<$Transfer, $.Cardinality.Many, {}, false, true,  false, false>;

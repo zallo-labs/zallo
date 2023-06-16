@@ -1,7 +1,7 @@
 import { ApolloDriverConfig, ApolloDriver } from '@nestjs/apollo';
 import { Logger, Module, NestMiddleware } from '@nestjs/common';
 import { GraphQLModule } from '@nestjs/graphql';
-import { ApolloServerPluginLandingPageLocalDefault } from 'apollo-server-core';
+import { ApolloServerPluginLandingPageLocalDefault } from '@apollo/server/plugin/landingPage/default';
 import { CONFIG, LogLevel } from '~/config';
 import { IncomingContext, GqlContext, IncomingWsContext } from '~/request/ctx';
 import { AddressMiddleware } from './address.middleware';

@@ -1,61 +1,44 @@
-import { useMemo } from 'react';
 import { FormatNumberOptions, useIntl } from 'react-intl';
-import { BigIntlike } from 'lib';
 import { formatUnits } from 'ethers/lib/utils';
 
 export interface FormattedNumberOptions extends FormatNumberOptions {
-  value: BigIntlike;
+  value: bigint | number;
   decimals?: number;
-  extendedFractionDigits?: number;
+  minimumNumberFractionDigits?: number;
   postFormat?: (value: string) => string;
   hideZero?: boolean;
 }
 
-export const useFormattedNumber = ({
+export function useFormattedNumber({
   value: valueProp,
   decimals = 0,
   maximumFractionDigits = 2,
-  extendedFractionDigits,
+  minimumNumberFractionDigits = maximumFractionDigits,
   postFormat,
   hideZero,
   ...formatOpts
-}: FormattedNumberOptions) => {
+}: FormattedNumberOptions) {
   const intl = useIntl();
 
-  const extendedFracDigits = extendedFractionDigits ?? maximumFractionDigits;
-  const extendedMin = 1 / 10 ** extendedFracDigits;
-  const maxMin = 1 / 10 ** maximumFractionDigits;
+  const minRegularNumber = 1 / 10 ** maximumFractionDigits;
+  const minNumber = 1 / 10 ** minimumNumberFractionDigits;
 
-  const value =
-    typeof valueProp === 'number' ? valueProp : parseFloat(formatUnits(valueProp, decimals));
+  let n = typeof valueProp === 'number' ? valueProp : parseFloat(formatUnits(valueProp, decimals));
+  if (n === 0 && hideZero) return '';
 
-  const formatted = useMemo(() => {
-    let v = value;
-    const isLt = v < extendedMin && v > 0;
-    if (isLt) v = extendedMin;
+  const isLtMin = n < minNumber && n > 0;
+  if (isLtMin) n = minNumber;
 
-    let formatted = intl.formatNumber(v, {
-      maximumFractionDigits: Math.abs(v) < maxMin ? extendedFracDigits : maximumFractionDigits,
-      ...formatOpts,
-    });
+  let formatted = intl.formatNumber(n, {
+    maximumFractionDigits:
+      Math.abs(n) < minRegularNumber ? minimumNumberFractionDigits : maximumFractionDigits,
+    ...formatOpts,
+  });
 
-    if (postFormat) formatted = postFormat(formatted);
+  if (postFormat) formatted = postFormat(formatted);
 
-    return isLt ? `< ${formatted}` : formatted;
-  }, [
-    value,
-    decimals,
-    extendedMin,
-    intl,
-    maxMin,
-    extendedFracDigits,
-    maximumFractionDigits,
-    formatOpts,
-    postFormat,
-  ]);
-
-  return hideZero && value === 0 ? '' : formatted;
-};
+  return isLtMin ? `< ${formatted}` : formatted;
+}
 
 export interface FormattedNumberProps extends FormattedNumberOptions {}
 

@@ -1,22 +1,20 @@
-import { Proposal } from '@api/proposal';
+import { Proposal, ProposalOperation } from '@api/proposal';
 import { useToggle } from '@hook/useToggle';
 import { materialCommunityIcon } from '@theme/icons';
-import { Operation } from 'lib';
 import { StyleSheet } from 'react-native';
 import Collapsible from 'react-native-collapsible';
 import { Divider } from 'react-native-paper';
 import { Button } from '~/components/Button';
 import { Chevron } from '~/components/Chevron';
-import { useAddressLabel } from '~/components/address/AddressLabel';
 import { useOperationLabel } from '~/components/call/useOperationLabel';
 import { ListItem } from '~/components/list/ListItem';
-import { TransferOperationSection } from './TransferOperationSection';
+import { OperationDetails } from './OperationDetails';
 
 const DataIcon = materialCommunityIcon('code-tags');
 
 export interface OperationSectionProps {
   proposal: Proposal;
-  op: Operation;
+  op: ProposalOperation;
   initiallyExpanded?: boolean;
 }
 
@@ -37,17 +35,12 @@ export function OperationSection({
       />
 
       <Collapsible collapsed={!expanded}>
-        <ListItem
-          leading={op.to}
-          overline={op.data ? 'Contract' : 'To'}
-          headline={useAddressLabel(op.to)}
-        />
+        <OperationDetails account={proposal.account} op={op} />
 
-        <TransferOperationSection op={op} />
-
-        <Button mode="outlined" icon={DataIcon} style={styles.dataButton}>
+        {/* TODO: user can swap tokens in-app (ZAL-137) */}
+        {/* <Button mode="outlined" icon={DataIcon} style={styles.dataButton}>
           Data
-        </Button>
+        </Button> */}
       </Collapsible>
 
       <Divider horizontalInset style={styles.divider} />

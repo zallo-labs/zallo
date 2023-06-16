@@ -1,20 +1,6 @@
-import { forwardRef, Inject, Injectable, Logger } from '@nestjs/common';
-import { UserInputError } from 'apollo-server-core';
-import {
-  hashTx,
-  Address,
-  asAddress,
-  Tx,
-  PolicySatisfiability,
-  estimateOpGas,
-  Hex,
-  asBigInt,
-  Erc20__factory,
-  asSelector,
-  Addresslike,
-  isHex,
-  asTx,
-} from 'lib';
+import { forwardRef, Inject, Injectable } from '@nestjs/common';
+import { UserInputError } from '@nestjs/apollo';
+import { hashTx, Address, PolicySatisfiability, estimateOpGas, Hex, isHex, asTx } from 'lib';
 import { ProviderService } from '~/features/util/provider/provider.service';
 import { PubsubService } from '~/features/util/pubsub/pubsub.service';
 import { TransactionsService } from '../transactions/transactions.service';
@@ -30,7 +16,6 @@ import { getUser } from '~/request/ctx';
 import { ExpoService } from '../util/expo/expo.service';
 import { SatisfiablePolicy } from './proposals.model';
 import { ETH_ADDRESS } from 'zksync-web3/build/src/utils';
-import { BigNumberish } from 'ethers';
 import { DatabaseService } from '../database/database.service';
 import { uuid } from 'edgedb/dist/codecs/ifaces';
 import e from '~/edgeql-js';
@@ -39,10 +24,7 @@ import { and } from '../database/database.util';
 import { selectAccount } from '../accounts/accounts.util';
 import { selectUser } from '../users/users.service';
 import { PaymasterService } from '../paymaster/paymaster.service';
-
-const ERC20 = Erc20__factory.createInterface();
-const ERC20_TRANSFER = ERC20.functions['transfer(address,uint256)'];
-const ERC20_TRANSFER_SELECTOR = asSelector(ERC20.getSighash(ERC20_TRANSFER));
+import { SimulationService } from '../simulation/simulation.service';
 
 export const getProposalTrigger = (hash: Hex) => `proposal.${hash}`;
 export const getProposalAccountTrigger = (account: Address) => `proposal.account.${account}`;
@@ -79,6 +61,7 @@ export class ProposalsService {
     @Inject(forwardRef(() => TransactionsService))
     private transactions: TransactionsService,
     private paymaster: PaymasterService,
+    private simulation: SimulationService,
   ) {}
 
   async selectUnique(id: UniqueProposal, shape?: ShapeFunc<typeof e.TransactionProposal>) {
@@ -108,6 +91,7 @@ export class ProposalsService {
   async propose({
     account,
     operations,
+    label,
     nonce,
     gasLimit,
     feeToken = ETH_ADDRESS as Address,
@@ -129,6 +113,7 @@ export class ProposalsService {
         .insert(e.TransactionProposal, {
           hash,
           account: selectAccount(account),
+          label,
           operations: e.set(
             ...operations.map((op) =>
               e.insert(e.Operation, {
@@ -148,9 +133,11 @@ export class ProposalsService {
           nonce: tx.nonce,
           gasLimit: gasLimit || (await estimateOpGas(this.provider, tx)),
           feeToken,
-          simulation: this.insertSimulation(account, tx),
+          simulation: await this.simulation.getInsert(account, tx),
         })
         .run(client);
+
+      await this.publishProposal({ account, hash }, ProposalEvent.create);
 
       if (signature) await this.approve({ hash, signature });
 
@@ -273,53 +260,6 @@ export class ProposalsService {
     )) as bigint | unknown; // https://github.com/edgedb/edgedb-js/issues/594
 
     return typeof maxNonce === 'bigint' ? maxNonce + 1n : 0n;
-  }
-
-  private insertSimulation(accountAddress: Address, { operations }: Tx) {
-    const account = selectAccount(accountAddress);
-
-    const transfers: Parameters<typeof e.insert<typeof e.TransferDetails>>[1][] =
-      operations.flatMap(({ to, value, data }) => {
-        const transfers: Parameters<typeof e.insert<typeof e.TransferDetails>>[1][] = [];
-        if (value && value > 0n) {
-          transfers.push({
-            account,
-            direction: 'Out',
-            from: accountAddress,
-            to,
-            token: asAddress(ETH_ADDRESS),
-            amount: -value,
-          });
-        }
-
-        if (data && asSelector(data) === ERC20_TRANSFER_SELECTOR) {
-          try {
-            const [dest, amount] = ERC20.decodeFunctionData(ERC20_TRANSFER, data) as [
-              Addresslike,
-              BigNumberish,
-            ];
-
-            transfers.push({
-              account,
-              direction: 'Out',
-              from: accountAddress,
-              to: asAddress(dest),
-              token: to,
-              amount: -asBigInt(amount),
-            });
-          } catch (e) {
-            Logger.warn(`Failed to decode ERC20 transfer data: ${e}`);
-          }
-        }
-
-        return transfers;
-      });
-
-    return e.insert(e.Simulation, {
-      ...(transfers.length && {
-        transfers: e.set(...transfers.map((t) => e.insert(e.TransferDetails, t))),
-      }),
-    });
   }
 
   async publishProposal(

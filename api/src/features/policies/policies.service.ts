@@ -3,7 +3,7 @@ import { ACCOUNT_INTERFACE, Address, asHex, asPolicyKey, asTargets, Policy, POLI
 import { ProposalsService, selectTransactionProposal } from '../proposals/proposals.service';
 import { CreatePolicyInput, UniquePolicyInput, UpdatePolicyInput } from './policies.input';
 import _ from 'lodash';
-import { UserInputError } from 'apollo-server-core';
+import { UserInputError } from '@nestjs/apollo';
 import { UserAccountsService } from '../auth/userAccounts.service';
 import { uuid } from 'edgedb/dist/codecs/ifaces';
 import { DatabaseService } from '../database/database.service';

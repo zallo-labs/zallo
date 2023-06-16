@@ -7,8 +7,7 @@ import {
 import { Address, Operation, Selector, asSelector } from 'lib';
 import { useMemo } from 'react';
 import { useSuspenseQuery } from '~/gql/util';
-import assert from 'assert';
-import { ContractFunction, fragmentToContractFunction } from './types';
+import { fragmentToContractFunction } from './types';
 
 gql`
   fragment ContractFunctionFields on ContractFunction {
@@ -34,9 +33,7 @@ export interface ContractFunctionParams {
 const isOp = (params?: ContractFunctionParams | Operation): params is Operation =>
   params !== undefined && 'to' in params;
 
-export const useContractFunction = <P extends ContractFunctionParams | Operation | undefined>(
-  params: P,
-) => {
+export const useContractFunction = (params: ContractFunctionParams | Operation | undefined) => {
   const contract = isOp(params) ? params.to : params?.contract;
   const selector = isOp(params) ? asSelector(params.data) : params?.selector;
 
@@ -49,11 +46,8 @@ export const useContractFunction = <P extends ContractFunctionParams | Operation
     },
   );
 
-  const func = useMemo(
+  return useMemo(
     () => (data.contractFunction ? fragmentToContractFunction(data.contractFunction) : undefined),
     [data.contractFunction],
   );
-
-  if (!skip) assert(func);
-  return func as P extends undefined ? ContractFunction | undefined : ContractFunction;
 };

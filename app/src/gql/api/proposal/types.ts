@@ -1,7 +1,6 @@
 import {
   Address,
   Hex,
-  Tx,
   KeySet,
   asHex,
   asAddress,
@@ -12,17 +11,21 @@ import {
 } from 'lib';
 import { DateTime } from 'luxon';
 import { match } from 'ts-pattern';
-import { TransactionProposalFieldsFragment } from '@api/generated';
+import { OperationFieldsFragment, TransactionProposalFieldsFragment } from '@api/generated';
 import { asAccountId } from '@api/account/types';
 import { Transfer } from '@api/transfer/types';
 
-export type ProposalId = Hex & { isProposalId: true };
-export const asProposalId = (id: string) => asHex(id) as ProposalId;
+export interface ProposalOperation extends Operation {
+  function?: OperationFieldsFragment['function'];
+}
 
-export interface Proposal extends Omit<Tx, 'gasLimit'> {
+export interface Proposal {
   id: string;
-  hash: ProposalId;
+  hash: Hex;
   account: Address;
+  label?: string;
+  operations: [ProposalOperation, ...ProposalOperation[]];
+  nonce: bigint;
   gasLimit: bigint;
   feeToken: Address;
   state: ProposalState;
@@ -76,7 +79,7 @@ export type TransactionStatus = 'pending' | 'success' | 'failure';
 
 export interface Receipt {
   success: boolean;
-  response?: Hex;
+  responses: Hex[];
   gasUsed: bigint;
   fee: bigint;
   timestamp: DateTime;
@@ -134,7 +137,7 @@ export const toProposal = (p: TransactionProposalFieldsFragment): Proposal => {
         receipt: t.receipt
           ? {
               success: t.receipt.success,
-              response: asHex(t.receipt.response),
+              responses: t.receipt.responses,
               gasUsed: asBigInt(t.receipt.gasUsed),
               fee: asBigInt(t.receipt.fee),
               timestamp: DateTime.fromISO(t.receipt.timestamp),
@@ -175,15 +178,17 @@ export const toProposal = (p: TransactionProposalFieldsFragment): Proposal => {
 
   return {
     id: p.id,
-    hash: asProposalId(p.hash),
+    hash: p.hash,
     account,
+    label: p.label || undefined,
     operations: p.operations.map(
-      (o): Operation => ({
+      (o): ProposalOperation => ({
         to: o.to,
         value: o.value ? asBigInt(o.value) : undefined,
         data: o.data ? asHex(o.data) : undefined,
+        function: o.function,
       }),
-    ) as [Operation, ...Operation[]],
+    ) as [ProposalOperation, ...ProposalOperation[]],
     nonce: asBigInt(p.nonce),
     gasLimit: asBigInt(p.gasLimit),
     feeToken: p.feeToken,

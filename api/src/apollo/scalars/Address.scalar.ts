@@ -1,4 +1,4 @@
-import { UserInputError } from 'apollo-server-core';
+import { UserInputError } from '@nestjs/apollo';
 import { Kind } from 'graphql';
 import { asAddress, Address, isAddressLike } from 'lib';
 import { createScalar } from './util';

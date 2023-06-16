@@ -11,8 +11,10 @@ export class TransferDetails {
   @IdField()
   id: string;
 
+  @Field(() => Account)
   account: Account;
 
+  @Field(() => TransferDirection)
   direction: TransferDirection;
 
   @AddressField()
@@ -30,13 +32,16 @@ export class TransferDetails {
 
 @ObjectType()
 export class Transfer extends TransferDetails {
+  @Field(() => Receipt, { nullable: true })
   receipt?: Receipt | null;
 
+  @Field(() => Number)
   logIndex: number;
 
   @Field(() => GraphQLBigInt)
   block: bigint;
 
+  @Field(() => Date)
   timestamp: Date;
 }
 

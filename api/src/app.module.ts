@@ -27,6 +27,8 @@ import { ReceiptsModule } from './features/receipts/receipts.module';
 import { PaymasterModule } from './features/paymaster/paymaster.module';
 import { SentryModule } from './features/util/sentry/sentry.module';
 import { SentryInterceptor } from './features/util/sentry/sentry.interceptor';
+import { OperationsModule } from './features/operations/operations.module';
+import { SimulationModule } from './features/simulation/simulation.module';
 
 @Module({
   imports: [
@@ -58,10 +60,12 @@ import { SentryInterceptor } from './features/util/sentry/sentry.interceptor';
     ExplorerModule,
     FaucetModule,
     HealthModule,
+    OperationsModule,
     PaymasterModule,
     PoliciesModule,
     ProposalsModule,
     ReceiptsModule,
+    SimulationModule,
     TransactionsModule,
     TransfersModule,
     UsersModule,

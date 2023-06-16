@@ -72,7 +72,7 @@ export const useApprove = () => {
                   __typename: 'User' as const,
                   address: a.user,
                 },
-                createdAt: a.timestamp.toISO(),
+                createdAt: a.timestamp.toISO()!,
               })),
               {
                 __typename: 'Approval' as const,
@@ -81,7 +81,7 @@ export const useApprove = () => {
                   __typename: 'User' as const,
                   address: approver.address as Address,
                 },
-                createdAt: DateTime.now().toISO(),
+                createdAt: DateTime.now().toISO()!,
               },
             ],
             rejections: [...p.rejections]
@@ -93,7 +93,7 @@ export const useApprove = () => {
                   __typename: 'User' as const,
                   address: r.user,
                 },
-                createdAt: r.timestamp.toISO(),
+                createdAt: r.timestamp.toISO()!,
               })),
             satisfiablePolicies: p.satisfiablePolicies.map((p) => ({
               __typename: 'SatisfiablePolicy' as const,
@@ -107,12 +107,12 @@ export const useApprove = () => {
                   id: p.transaction.id,
                   hash: p.transaction.hash,
                   gasPrice: p.transaction.gasPrice.toString(),
-                  submittedAt: p.transaction.timestamp.toISO(),
+                  submittedAt: p.transaction.timestamp.toISO()!,
                   receipt: p.transaction.receipt
                     ? {
                         __typename: 'Receipt',
                         success: p.transaction.receipt.success,
-                        response: p.transaction.receipt.response,
+                        responses: p.transaction.receipt.responses,
                         transfers: p.transaction.receipt.transfers.map((t) => ({
                           __typename: 'Transfer' as const,
                           id: t.id,
@@ -124,7 +124,7 @@ export const useApprove = () => {
                         })),
                         gasUsed: p.transaction.receipt.gasUsed.toString(),
                         fee: p.transaction.receipt.fee.toString(),
-                        timestamp: p.transaction.receipt.timestamp.toISO(),
+                        timestamp: p.transaction.receipt.timestamp.toISO()!,
                       }
                     : null,
                 }

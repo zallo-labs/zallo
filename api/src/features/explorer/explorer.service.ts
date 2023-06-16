@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { BigNumberish, Contract } from 'ethers';
-import { Address, Addresslike, ChainName, Hex, asAddress } from 'lib';
+import { Address, Addresslike, Hex, asAddress } from 'lib';
 import { fetchJsonWithRetry } from '~/util/fetch';
 import { JsonFragment } from '@ethersproject/abi';
 import { AbiSource } from '../contract-functions/contract-functions.model';
@@ -44,7 +44,7 @@ export class ExplorerService {
 const ZKSYNC_EXPLORER_ADDRESSS_API = {
   testnet: 'https://zksync2-testnet-explorer.zksync.dev',
   mainnet: 'https://zksync2-mainnet-explorer.zksync.io',
-} satisfies Partial<Record<ChainName, string>>;
+};
 
 interface TransactionData {
   transactionHash: Hex;

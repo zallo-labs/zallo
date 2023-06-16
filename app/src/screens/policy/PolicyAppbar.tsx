@@ -12,15 +12,15 @@ import { Appbar } from '~/components/Appbar/Appbar';
 import { AppbarMore2 } from '~/components/Appbar/AppbarMore';
 import { useConfirmRemoval } from '../alert/useConfirm';
 import type { PolicyScreenParams, PolicyViewState } from './PolicyScreen';
-import { ProposalId } from '@api/proposal';
 import { P, match } from 'ts-pattern';
 import { POLICY_DRAFT_ATOM } from './PolicyDraft';
 import { useAtomValue } from 'jotai';
 import { useNavigation } from '@react-navigation/native';
+import { Hex } from 'lib';
 
 export interface PolicyAppbarProps {
   policy?: WPolicy;
-  proposal?: ProposalId;
+  proposal?: Hex;
   state: PolicyViewState;
   reset?: () => void;
   setParams: (params: Partial<PolicyScreenParams>) => void;
@@ -84,14 +84,12 @@ export const PolicyAppbar = ({ policy, proposal, state, reset, setParams }: Poli
                 {policy && (
                   <Menu.Item
                     title="Remove policy"
-                    onPress={() => {
+                    onPress={async () => {
                       close();
-                      confirmRemove({
-                        onConfirm: async () => {
-                          await removePolicy(policy);
-                          goBack();
-                        },
-                      });
+                      if (await confirmRemove()) {
+                        await removePolicy(policy);
+                        goBack();
+                      }
                     }}
                   />
                 )}

@@ -98,7 +98,7 @@ export class EventsProcessor implements OnModuleInit {
     try {
       logs = await this.provider.getLogs({
         fromBlock: from,
-        toBlock: Math.min(to, latest),
+        toBlock: to,
         topics: [this.topics],
       });
     } catch (e) {

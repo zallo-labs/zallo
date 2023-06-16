@@ -32,5 +32,5 @@ export const useFaucet = (recepient: Address) => {
   });
   const canRequest = useCanRequestTokens(recepient);
 
-  return CHAIN.isTestnet && canRequest ? mutation : undefined;
+  return CHAIN.testnet && canRequest ? mutation : undefined;
 };

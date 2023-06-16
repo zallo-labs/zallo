@@ -1,9 +1,8 @@
 import { PolicyStateFieldsFragment } from '@api/generated';
-import { ProposalId, asProposalId } from '@api/proposal/types';
-import { PolicyKey, Policy, asAddress, asSelector, asPolicy, Address } from 'lib';
+import { PolicyKey, Policy, asAddress, asSelector, asPolicy, Address, Hex } from 'lib';
 
 export interface PolicyState extends Policy {
-  proposal?: ProposalId;
+  proposal?: Hex;
 }
 
 export type WPolicy = {
@@ -45,6 +44,6 @@ export const convertPolicyFragment = (
         },
       },
     }),
-    proposal: s.proposal?.hash ? asProposalId(s.proposal.hash) : undefined,
+    proposal: s.proposal?.hash,
   };
 };

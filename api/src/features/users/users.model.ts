@@ -1,4 +1,4 @@
-import { ObjectType } from '@nestjs/graphql';
+import { Field, ObjectType } from '@nestjs/graphql';
 import { AddressField } from '~/apollo/scalars/Address.scalar';
 import { IdField } from '~/apollo/scalars/Id.scalar';
 import { Contact } from '../contacts/contacts.model';
@@ -12,7 +12,9 @@ export class User {
   @AddressField()
   address: string; // Address
 
+  @Field(() => String, { nullable: true })
   name: string | null;
 
+  @Field(() => [Contact])
   contacts: Contact[];
 }

@@ -34,7 +34,7 @@ import _ from 'lodash';
 import { ProposalEvent } from '../proposals/proposals.input';
 import { selectUser } from '../users/users.service';
 import { ShapeFunc } from '../database/database.select';
-import { UserInputError } from 'apollo-server-core';
+import { UserInputError } from '@nestjs/apollo';
 import { ETH_ADDRESS } from 'zksync-web3/build/src/utils';
 import * as zk from 'zksync-web3';
 import { BigNumber } from 'ethers';
@@ -179,7 +179,7 @@ export class TransactionsService {
       ProposalEvent.submitted,
     );
 
-    this.transactionsQueue.add({ transaction: transactionHash }, { delay: 2000 /* 2s */ });
+    await this.transactionsQueue.add({ transaction: transactionHash }, { delay: 2000 /* 2s */ });
 
     return transactionHash;
   }

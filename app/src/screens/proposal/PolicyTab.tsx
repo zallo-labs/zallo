@@ -1,5 +1,5 @@
 import { usePolicy, WPolicy } from '@api/policy';
-import { Proposal, ProposalId, useProposal } from '@api/proposal';
+import { Proposal, useProposal } from '@api/proposal';
 import { StyleSheet } from 'react-native';
 import { ScrollView } from 'react-native';
 import { AddressLabel } from '~/components/address/AddressLabel';
@@ -13,6 +13,7 @@ import { TabScreenSkeleton } from '~/components/tab/TabScreenSkeleton';
 import { SelectedPolicy } from './SelectedPolicy';
 import { Text } from 'react-native-paper';
 import { makeStyles } from '@theme/makeStyles';
+import { Hex } from 'lib';
 
 const getApprovalsAwaiting = (proposal: Proposal, policy?: WPolicy) => {
   const state = policy?.state;
@@ -24,7 +25,7 @@ const getApprovalsAwaiting = (proposal: Proposal, policy?: WPolicy) => {
 };
 
 export interface PolicyTabParams {
-  proposal: ProposalId;
+  proposal: Hex;
 }
 
 export type PolicyTabProps = TabNavigatorScreenProp<'Policy'>;
@@ -111,7 +112,7 @@ const uesStyles = makeStyles(({ colors }) => ({
 }));
 
 export interface PolicyTabBadgeProps {
-  proposal: ProposalId;
+  proposal: Hex;
 }
 
 export const PolicyTabBadge = ({ proposal: id }: PolicyTabBadgeProps) => {

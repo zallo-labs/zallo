@@ -39,17 +39,18 @@ export default {
       },
     },
   },
-  defaultNetwork: CONFIG.chain.name,
+  defaultNetwork: CONFIG.chain.key,
   networks: {
     // https://hardhat.org/hardhat-network/reference/
     hardhat: { zksync: true },
 
     ...Object.fromEntries(
       Object.values(CHAINS).map((chain) => [
-        chain.name,
+        chain.key,
         {
-          url: chain.rpc,
-          ethNetwork: chain.l1Rpc,
+          chainId: chain.id,
+          url: chain.rpcUrls.default.http[0],
+          ethNetwork: chain.layer1.rpcUrls.default.http[0],
           zksync: true,
         },
       ]),

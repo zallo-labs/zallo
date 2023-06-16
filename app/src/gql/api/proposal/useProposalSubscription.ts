@@ -9,7 +9,6 @@ import {
   useProposalSubscriptionSubscription,
 } from '@api/generated';
 import { EventEmitter } from '~/util/EventEmitter';
-import assert from 'assert';
 import { updateQuery } from '~/gql/util';
 
 export const PROPOSAL_EXECUTE_EMITTER = new EventEmitter<TransactionProposalFieldsFragment>(
@@ -56,7 +55,7 @@ export const useEmitProposalExecutionEvents = (input: Partial<ProposalSubscripti
       },
     },
     onData: ({ data }) => {
-      assert(data.data);
-      PROPOSAL_EXECUTE_EMITTER.emit(data.data.proposal);
+      const proposal = data.data?.proposal;
+      if (proposal) PROPOSAL_EXECUTE_EMITTER.emit(proposal);
     },
   });

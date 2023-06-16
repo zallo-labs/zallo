@@ -54,7 +54,7 @@ export const useReject = () => {
                 __typename: 'User' as const,
                 address: a.user,
               },
-              createdAt: a.timestamp.toISO(),
+              createdAt: a.timestamp.toISO()!,
             })),
             rejections: [
               ...[...p.rejections.values()].map((r) => ({
@@ -64,7 +64,7 @@ export const useReject = () => {
                   __typename: 'User' as const,
                   address: r.user as Address,
                 },
-                createdAt: r.timestamp.toISO(),
+                createdAt: r.timestamp.toISO()!,
               })),
               {
                 __typename: 'Rejection' as const,
@@ -73,7 +73,7 @@ export const useReject = () => {
                   __typename: 'User' as const,
                   address: approver.address as Address,
                 },
-                createdAt: DateTime.now().toISO(),
+                createdAt: DateTime.now().toISO()!,
               },
             ],
             satisfiablePolicies: p.satisfiablePolicies.map((p) => ({

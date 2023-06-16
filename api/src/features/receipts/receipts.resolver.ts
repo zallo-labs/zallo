@@ -8,12 +8,12 @@ import e from '~/edgeql-js';
 export class ReceiptsResolver {
   constructor(private service: ReceiptsService) {}
 
-  @ComputedField<typeof e.Receipt>(
-    () => String,
-    { success: true, response: true },
-    { nullable: true },
-  )
-  decodedResponse(@Parent() { success, response }: Receipt): string | undefined {
-    return this.service.decodeResponse(success, response);
-  }
+  // @ComputedField<typeof e.Receipt>(
+  //   () => String,
+  //   { success: true, response: true },
+  //   { nullable: true },
+  // )
+  // decodedResponse(@Parent() { success, response }: Receipt): string | undefined {
+  //   return this.service.decodeResponse(success, response);
+  // }
 }

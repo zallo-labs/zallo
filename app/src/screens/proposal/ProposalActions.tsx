@@ -25,6 +25,8 @@ export const ProposalActions = ({ proposal }: ProposalActionsProps) => {
     proposal.state === 'pending' &&
     (policy?.responseRequested || proposal.rejections.has(approver));
 
+  const blockExplorerUrl = CHAIN.blockExplorers?.default.url;
+
   return (
     <Actions style={{ flexGrow: 0 }}>
       {canReject && <Button onPress={() => reject(proposal)}>Reject</Button>}
@@ -35,12 +37,12 @@ export const ProposalActions = ({ proposal }: ProposalActionsProps) => {
         </Button>
       )}
 
-      {proposal.transaction && (
+      {proposal.transaction && blockExplorerUrl && (
         <Button
           mode="contained-tonal"
           icon={ShareIcon}
           onPress={() => {
-            const url = `${CHAIN.explorer}/tx/${proposal.transaction!.hash}`;
+            const url = `${blockExplorerUrl}/tx/${proposal.transaction!.hash}`;
             Share.share({ message: url, url });
           }}
         >

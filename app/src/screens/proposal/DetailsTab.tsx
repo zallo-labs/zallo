@@ -1,4 +1,4 @@
-import { ProposalId, useProposal } from '@api/proposal';
+import { useProposal } from '@api/proposal';
 import { makeStyles } from '@theme/makeStyles';
 import { ScrollView } from 'react-native';
 import { useTransfersValue } from '~/components/call/useTransfersValue';
@@ -10,9 +10,10 @@ import { TokenItem } from '~/components/token/TokenItem';
 import { TabNavigatorScreenProp } from './Tabs';
 import { FeeToken } from './FeeToken';
 import { OperationSection } from './OperationSection';
+import { Hex } from 'lib';
 
 export interface DetailsTabParams {
-  proposal: ProposalId;
+  proposal: Hex;
 }
 
 export type DetailsTabProps = TabNavigatorScreenProp<'Details'>;

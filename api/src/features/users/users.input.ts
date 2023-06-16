@@ -1,4 +1,4 @@
-import { InputType } from '@nestjs/graphql';
+import { Field, InputType } from '@nestjs/graphql';
 import { Address } from 'lib';
 import { AddressField } from '~/apollo/scalars/Address.scalar';
 
@@ -10,7 +10,9 @@ export class UserInput {
 
 @InputType()
 export class UpdateUserInput {
+  @Field(() => String, { nullable: true })
   name?: string | null;
 
+  @Field(() => String, { nullable: true })
   pushToken?: string | null;
 }

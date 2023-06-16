@@ -7,7 +7,7 @@ import { Token } from '@token/token';
 import assert from 'assert';
 
 const fetch = async (token: Address) => {
-  assert(CHAIN.isTestnet); // Mainnet FIXME: get correct gas price
+  assert(CHAIN.testnet); // Mainnet FIXME: get correct gas price
   // On testnet the conversion is 1:1 token:ETH (wei)
   try {
     return (await PROVIDER.getGasPrice()).toBigInt();

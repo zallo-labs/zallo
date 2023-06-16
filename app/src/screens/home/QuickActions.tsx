@@ -26,7 +26,12 @@ export const QuickActions = ({ account }: QuickActionsProps) => {
         Receive
       </Button>
 
-      <Button icon={SwapIcon} mode="contained-tonal" style={styles.button} disabled>
+      <Button
+        icon={SwapIcon}
+        mode="contained-tonal"
+        style={styles.button}
+        onPress={() => navigate('Swap', { account })}
+      >
         Swap
       </Button>
     </View>
