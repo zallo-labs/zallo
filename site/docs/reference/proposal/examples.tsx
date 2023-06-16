@@ -107,7 +107,7 @@ export const SubscribeExample = withBrowser(() => {
               submittedAt
               receipt {
                 success
-                response
+                responses
                 timestamp
                 gasUsed
                 fee
@@ -143,7 +143,7 @@ export const ProposalExample = withBrowser(() => {
               submittedAt
               receipt {
                 success
-                response
+                responses
                 timestamp
                 gasUsed
                 fee
@@ -178,7 +178,7 @@ export const ProposalsExample = withBrowser(() => {
               submittedAt
               receipt {
                 success
-                response
+                responses
                 timestamp
                 gasUsed
                 fee
