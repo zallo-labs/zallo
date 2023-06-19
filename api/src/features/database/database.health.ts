@@ -10,10 +10,10 @@ export class DatabaseHealthIndicator extends HealthIndicator {
 
   async check(key: string) {
     try {
-      await this.db.authedClient.ensureConnected();
-      return this.getStatus(key, true, { status: 'ok' });
+      await this.db.DANGEROUS_superuserClient.ensureConnected();
+      return this.getStatus(key, true);
     } catch (e) {
-      throw new HealthCheckError('Database check failed', e);
+      throw new HealthCheckError('Database not connected', e);
     }
   }
 }
