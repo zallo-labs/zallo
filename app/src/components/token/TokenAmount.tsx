@@ -1,21 +1,22 @@
 import { Token, TokenUnit } from '@token/token';
 import { FormattedNumberOptions, useFormattedNumber } from '../format/FormattedNumber';
-import { Address } from 'lib';
+import { Address, BigIntlike, asBigInt } from 'lib';
 import { useToken } from '@token/useToken';
 
 export interface FormattedTokenAmountOptions extends Partial<FormattedNumberOptions> {
   token: Token | Address;
-  amount?: bigint;
+  amount?: BigIntlike;
   trailing?: 'name' | 'symbol' | false;
 }
 
 export const useFormattedTokenAmount = ({
   token: tokenProp,
-  amount = 0n,
+  amount: amountProp,
   trailing = 'symbol',
   ...options
 }: FormattedTokenAmountOptions) => {
   const token = useToken(typeof tokenProp === 'object' ? tokenProp.address : tokenProp);
+  const amount = amountProp ? asBigInt(amountProp) : 0n;
 
   // Format with the closest unit
   const amountDecimals = amount.toString().length;

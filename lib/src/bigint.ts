@@ -1,9 +1,9 @@
 import { BigNumber, BigNumberish } from 'ethers';
 import { A } from 'ts-toolbelt';
 
-export type BigIntlike = BigNumberish;
+export type BigIntlike = bigint | number | string;
 
-export const asBigInt = (v: BigIntlike) => BigNumber.from(v).toBigInt();
+export const asBigInt = (v: BigNumberish) => BigNumber.from(v).toBigInt();
 
 export const asBounded =
   <T extends number>(min: number, max: number) =>
@@ -17,7 +17,7 @@ export const asBounded =
 
 export const asBoundedBigInt =
   <T extends bigint>(min: bigint, max: bigint) =>
-  (value: BigIntlike) => {
+  (value: BigNumberish) => {
     const n = asBigInt(value);
     if (n < min) throw new Error(`${n} is less than minimum ${min}`);
     if (n > max) throw new Error(`${n} is greater than maximum ${max}`);
