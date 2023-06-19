@@ -6,13 +6,13 @@ import RedisStore from 'connect-redis';
 import { CONFIG } from '~/config';
 import { Duration } from 'luxon';
 import Redis from 'ioredis';
-import { InjectRedisPub } from '~/decorators/redis.decorator';
+import { InjectRedis } from '@liaoliaots/nestjs-redis';
 
 @Injectable()
 export class SessionMiddleware implements NestMiddleware {
   private handler: RequestHandler;
 
-  constructor(@InjectRedisPub() redis: Redis) {
+  constructor(@InjectRedis() redis: Redis) {
     this.handler = session({
       secret: CONFIG.sessionSecret,
       store: new RedisStore({ client: redis }),

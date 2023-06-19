@@ -2,20 +2,17 @@ import { Module } from '@nestjs/common';
 import { CONFIG } from '~/config';
 import {
   RedisModule as BaseModule,
-  DEFAULT_REDIS_NAMESPACE,
   RedisClientOptions,
+  DEFAULT_REDIS_NAMESPACE,
 } from '@liaoliaots/nestjs-redis';
-import { REDIS_PUBLISHER, REDIS_SUBSCRIBER } from '~/decorators/redis.decorator';
+import { REDIS_SUBSCRIBER } from '~/decorators/redis.decorator';
 import { RedisHealthIndicator } from './redis.indicator';
-import { RedisOptions } from 'ioredis';
 
-export const REDIS_OPTIONS = {
-  family: CONFIG.redisFamily,
-} satisfies RedisOptions;
-
-const config = {
+export const REDIS_CONFIG = {
   url: CONFIG.redisUrl,
-  ...REDIS_OPTIONS,
+  family: CONFIG.redisFamily,
+  enableReadyCheck: false, // Required due to https://github.com/OptimalBits/bull/issues/1873
+  maxRetriesPerRequest: null, // ^^
 } satisfies RedisClientOptions;
 
 @Module({
@@ -24,15 +21,11 @@ const config = {
       config: [
         {
           namespace: DEFAULT_REDIS_NAMESPACE,
-          ...config,
-        },
-        {
-          namespace: REDIS_PUBLISHER,
-          ...config,
+          ...REDIS_CONFIG,
         },
         {
           namespace: REDIS_SUBSCRIBER,
-          ...config,
+          ...REDIS_CONFIG,
         },
       ],
     }),
