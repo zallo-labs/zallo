@@ -15,10 +15,10 @@
     "test:watch": "yarn test --watch",
     "test:cov": "yarn test --coverage",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register ../node_modules/.bin/jest --runInBand",
-    "with-env": "npx --yes dotenv-cli -e ../.env",
+    "with-env": "npx -y dotenv-cli -e ../.env",
     "generate:schema": "yarn prebuild && SKIP_ENV_CHECK=true nest start --entryFile generate-schema",
-    "generate:edgeql": "npx concurrently -n edgeql-js,interfaces -c blue,magenta \"npx @edgedb/generate edgeql-js --target ts\" \"npx @edgedb/generate interfaces\"",
-    "db:seed": "npx --yes ts-node ./dbschema/seed.ts",
+    "generate:edgeql": "npx -y concurrently -n edgeql-js,interfaces -c blue,magenta \"npx @edgedb/generate edgeql-js --target ts\" \"npx @edgedb/generate interfaces\"",
+    "db:seed": "npx -y ts-node ./dbschema/seed.ts",
     "db:migrate": "yarn with-env -- edgedb migrate"
   },
   "dependencies": {
