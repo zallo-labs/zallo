@@ -1,6 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { Address, asAddress, Tx } from 'lib';
-import { ETH_ADDRESS } from 'zksync-web3/build/src/utils';
+import { Address, Tx, ZERO_ADDR } from 'lib';
 import e from '~/edgeql-js';
 import { selectAccount } from '../accounts/accounts.util';
 import { OperationsService } from '../operations/operations.service';
@@ -23,13 +22,13 @@ export class SimulationService {
           direction: 'Out',
           from: accountAddress,
           to: op.to,
-          token: asAddress(ETH_ADDRESS),
+          token: ZERO_ADDR,
           amount: -op.value,
         });
       }
 
-      const f = op.data && (await this.operations.decodeCustom(op.to, op.data!));
-      if (f instanceof TransferOp) {
+      const f = await this.operations.decodeCustom(op);
+      if (f instanceof TransferOp && f.token !== ZERO_ADDR) {
         transfers.push({
           account,
           direction: 'Out',
@@ -41,14 +40,14 @@ export class SimulationService {
       } else if (f instanceof TransferFromOp) {
         transfers.push({
           account,
-          direction: 'In',
+          direction: e.cast(e.TransferDirection, 'In' satisfies TransferDetails['direction']),
           from: f.from,
           to: f.to,
           token: f.token,
           amount: f.amount,
         });
       } else if (f instanceof SwapOp) {
-        transfers.concat(
+        transfers.push(
           {
             account,
             direction: 'Out',
@@ -59,7 +58,7 @@ export class SimulationService {
           },
           {
             account,
-            direction: 'In',
+            direction: e.cast(e.TransferDirection, 'In' satisfies TransferDetails['direction']),
             from: op.to,
             to: accountAddress,
             token: f.toToken,

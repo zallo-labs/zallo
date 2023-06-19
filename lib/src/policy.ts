@@ -1,10 +1,10 @@
 import { A } from 'ts-toolbelt';
 import { asUint16, BigIntlike, MAX_UINT16, MIN_UINT16 } from './bigint';
-import { BigNumber } from 'ethers';
+import { BigNumber, BigNumberish } from 'ethers';
 import { PolicyStruct as BasePolicyStruct } from './contracts/Account';
 import { AwaitedObj } from './util/types';
 import { Address, asAddress, compareAddress } from './address';
-import { asTransactionData, Tx } from './tx';
+import { Tx } from './tx';
 import { Permissions, permissionsAsStruct, structAsPermissions } from './permissions';
 import { ALLOW_ALL_TARGETS, verifyTargetsPermission } from './permissions/TargetPermission';
 import { newAbiType } from './util/abi';
@@ -15,7 +15,7 @@ import { Arraylike, toSet } from './util';
 export type PolicyStruct = AwaitedObj<BasePolicyStruct>;
 
 export type PolicyKey = A.Type<number, 'PolicyKey'>;
-export const asPolicyKey = (key: BigIntlike) => asUint16(key) as unknown as PolicyKey;
+export const asPolicyKey = (key: BigNumberish) => asUint16(key) as unknown as PolicyKey;
 export const MIN_POLICY_KEY = MIN_UINT16 as unknown as PolicyKey;
 export const MAX_POLICY_KEY = MAX_UINT16 as unknown as PolicyKey;
 
@@ -34,7 +34,7 @@ export interface Policy {
 }
 
 export const asPolicy = (p: {
-  key: BigIntlike;
+  key: BigNumberish;
   permissions?: Partial<Permissions>;
   approvers: Arraylike<Address>;
   threshold?: number;

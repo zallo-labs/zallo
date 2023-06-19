@@ -36,10 +36,10 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
   },
   extra: {
     ...CONFIG,
-    ...(CONFIG.env === 'production' && { eas: { projectId: PROJECT_ID } }),
+    eas: { projectId: PROJECT_ID },
   },
   plugins: [
-    'sentry-expo',
+    // 'sentry-expo', // TODO: re-enable once issue is resolved - https://github.com/expo/sentry-expo/issues/342
     'expo-notifications', // https://docs.expo.dev/versions/latest/sdk/notifications/#configurable-properties
     [
       'expo-build-properties',

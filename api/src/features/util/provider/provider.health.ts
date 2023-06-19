@@ -10,10 +10,10 @@ export class ProviderHealthIndicator extends HealthIndicator {
 
   async check(key: string) {
     try {
-      await this.provider.getBlockNumber();
-      return this.getStatus(key, true, { status: 'ok' });
+      const blockNumber = await this.provider.getBlockNumber();
+      return this.getStatus(key, true, { blockNumber });
     } catch (e) {
-      throw new HealthCheckError('Provider check failed', e);
+      throw new HealthCheckError('Provider failed to get block number', e);
     }
   }
 }
