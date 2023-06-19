@@ -2,10 +2,12 @@ import { Injectable } from '@nestjs/common';
 import {
   Address,
   Hex,
+  Operation,
   PolicyKey,
   SYNCSWAP_CLASSIC_POOL_ABI,
   SYNCSWAP_ROUTER_ABI,
   Selector,
+  ZERO_ADDR,
   asSelector,
   isPresent,
   tryOrIgnore,
@@ -37,13 +39,13 @@ export class OperationsService {
     private contracts: ContractsService,
   ) {}
 
-  async decode(to: Address, data: Hex | undefined): Promise<typeof OperationFunction | undefined> {
-    if (!data || size(data) < 4) return undefined;
-
-    return (await this.decodeCustom(to, data)) || (await this.decodeGeneric(to, data));
+  async decode(op: Operation): Promise<typeof OperationFunction | undefined> {
+    return (await this.decodeCustom(op)) || (await this.decodeGeneric(op));
   }
 
-  private async decodeGeneric(to: Address, data: Hex): Promise<GenericOp | undefined> {
+  private async decodeGeneric({ to, data }: Operation): Promise<GenericOp | undefined> {
+    if (!data || size(data) < 4) return undefined;
+
     const selector = asSelector(data);
     const funcAbi = await this.getFunctionAbi(to, selector);
     if (!funcAbi) return undefined;
@@ -79,9 +81,27 @@ export class OperationsService {
     return selectorMatches[0]?.abi as AbiFunction | undefined;
   }
 
-  async decodeCustom(to: Address, data: Hex): Promise<typeof OperationFunction | undefined> {
-    const f = tryOrIgnore(() =>
-      decodeFunctionData({ abi: [...ACCOUNT_ABI, ...ERC20_ABI, ...SYNCSWAP_ROUTER_ABI], data }),
+  async decodeCustom({
+    to,
+    value,
+    data,
+  }: Operation): Promise<typeof OperationFunction | undefined> {
+    if ((!data || size(data) === 0) && value) {
+      // ETH transfer
+      return Object.assign(new TransferOp(), {
+        _name: 'transfer',
+        _args: [to, value],
+        token: ZERO_ADDR,
+        to,
+        amount: value,
+      } satisfies TransferOp);
+    }
+
+    const f = tryOrIgnore(
+      () =>
+        data &&
+        size(data) >= 4 &&
+        decodeFunctionData({ abi: [...ACCOUNT_ABI, ...ERC20_ABI, ...SYNCSWAP_ROUTER_ABI], data }),
     );
     if (!f) return undefined;
 

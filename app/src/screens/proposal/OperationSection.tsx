@@ -4,7 +4,6 @@ import { materialCommunityIcon } from '@theme/icons';
 import { StyleSheet } from 'react-native';
 import Collapsible from 'react-native-collapsible';
 import { Divider } from 'react-native-paper';
-import { Button } from '~/components/Button';
 import { Chevron } from '~/components/Chevron';
 import { useOperationLabel } from '~/components/call/useOperationLabel';
 import { ListItem } from '~/components/list/ListItem';

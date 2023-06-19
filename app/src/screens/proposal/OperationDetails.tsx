@@ -18,40 +18,25 @@ export function OperationDetails({ account, op }: OperationDetailsProps) {
     .with({ __typename: 'TransferOp' }, (f) => (
       <>
         <ListItem leading={f.to} overline="To" headline={useAddressLabel(f.to)} />
-        <ListItem
-          leading={f.token}
-          overline="Amount"
-          headline={useFormattedTokenAmount({ token: f.token, amount: asBigInt(f.amount) })}
-        />
+        <ListItem leading={f.token} overline="Amount" headline={useFormattedTokenAmount(f)} />
       </>
     ))
     .with({ __typename: 'TransferFromOp' }, (f) => (
       <>
-        <ListItem
-          leading={f.token}
-          headline={useFormattedTokenAmount({ token: f.token, amount: asBigInt(f.amount) })}
-        />
+        <ListItem leading={f.token} headline={useFormattedTokenAmount(f)} />
         {account !== f.from && (
           <ListItem leading={f.from} overline="From" headline={useAddressLabel(f.from)} />
         )}
         {account !== f.to && (
           <ListItem leading={f.to} overline="To" headline={useAddressLabel(f.to)} />
         )}
-        <ListItem
-          leading={f.token}
-          overline="Amount"
-          headline={useFormattedTokenAmount({ token: f.token, amount: asBigInt(f.amount) })}
-        />
+        <ListItem leading={f.token} overline="Amount" headline={useFormattedTokenAmount(f)} />
       </>
     ))
     .with({ __typename: 'TransferApprovalOp' }, (f) => (
       <>
         <ListItem leading={f.spender} overline="Spender" headline={useAddressLabel(f.spender)} />
-        <ListItem
-          leading={f.token}
-          overline="Amount"
-          headline={useFormattedTokenAmount({ token: f.token, amount: asBigInt(f.amount) })}
-        />
+        <ListItem leading={f.token} overline="Amount" headline={useFormattedTokenAmount(f)} />
       </>
     ))
     .with({ __typename: 'SwapOp' }, (f) => (
@@ -59,14 +44,14 @@ export function OperationDetails({ account, op }: OperationDetailsProps) {
         <ListItem
           leading={f.fromToken}
           overline="From"
-          headline={useFormattedTokenAmount({ token: f.fromToken, amount: asBigInt(f.fromAmount) })}
+          headline={useFormattedTokenAmount({ token: f.fromToken, amount: f.fromAmount })}
         />
         <ListItem
           leading={f.toToken}
           overline="To (minimum)"
           headline={useFormattedTokenAmount({
             token: f.toToken,
-            amount: asBigInt(f.minimumToAmount),
+            amount: f.minimumToAmount,
           })}
         />
         <ListItem

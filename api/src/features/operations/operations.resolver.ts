@@ -11,10 +11,10 @@ export class OperationsResolver {
 
   @ComputedField<typeof e.Operation>(
     () => OperationFunction,
-    { to: true, data: true },
+    { to: true, value: true, data: true },
     { nullable: true },
   )
-  async function(@Parent() { to, data }: Operation, @Info() info: GraphQLResolveInfo) {
-    return this.service.decode(to, data);
+  async function(@Parent() { to, value, data }: Operation, @Info() info: GraphQLResolveInfo) {
+    return this.service.decode({ to, value, data });
   }
 }
