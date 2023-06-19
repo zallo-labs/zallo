@@ -24,9 +24,7 @@ export class UsersService {
     this.hardcodedAddresses = {
       [this.provider.walletAddress]: 'Zallo',
       ...Object.fromEntries(
-        Object.values(SYNCSWAP_CONTRACTS.router).map(
-          (address) => [address, 'SyncSwap Router'] as const,
-        ),
+        Object.values(SYNCSWAP_CONTRACTS.router).map((address) => [address, 'SyncSwap'] as const),
       ),
     };
   }
