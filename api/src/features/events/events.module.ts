@@ -1,9 +1,9 @@
-import { BullModule } from '@nestjs/bull';
 import { Module } from '@nestjs/common';
 import { EVENTS_QUEUE, EventsProcessor } from './events.processor';
+import { registerBullQueue } from '../util/bull/bull.util';
 
 @Module({
-  imports: [BullModule.registerQueue(EVENTS_QUEUE)],
+  imports: [...registerBullQueue(EVENTS_QUEUE)],
   exports: [EventsProcessor],
   providers: [EventsProcessor],
 })

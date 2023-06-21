@@ -14,7 +14,7 @@ import { AccountsService } from './accounts.service';
 import e from '~/edgeql-js';
 import { uuid } from 'edgedb/dist/codecs/ifaces';
 
-CONFIG.accountImplAddress = randomAddress();
+(CONFIG as any).accountImplAddress = randomAddress();
 
 describe(AccountsService.name, () => {
   let service: AccountsService;
