@@ -32,4 +32,6 @@ export const CONFIG = {
   proxyFactoryAddress: tryAsAddress(required`PROXY_FACTORY_${chain.key.toUpperCase()}`),
   sentryDsn: required`API_SENTRY_DSN`,
   serverId: optional`FLY_ALLOC_ID` || os.hostname(),
-};
+  bullBoardUser: optional`BULL_BOARD_USER`,
+  bullBoardPassword: optional`BULL_BOARD_PASSWORD`,
+} as const;

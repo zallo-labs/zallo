@@ -23,6 +23,8 @@
   },
   "dependencies": {
     "@apollo/server": "^4.7.3",
+    "@bull-board/express": "^5.5.1",
+    "@bull-board/nestjs": "^5.5.1",
     "@liaoliaots/nestjs-redis": "^9.0.5",
     "@nestjs/apollo": "^11.0.6",
     "@nestjs/axios": "^2.0.0",

@@ -6,6 +6,11 @@ import { match } from 'ts-pattern';
 import Redis from 'ioredis';
 import { REDIS_CONFIG } from '../redis/redis.module';
 import { CONFIG } from '~/config';
+import { BullBoardModule } from '@bull-board/nestjs';
+import { ExpressAdapter } from '@bull-board/express';
+import { BasicAuthMiddleware } from './basic-auth.middlware';
+import { BULL_BOARD_ENABLED } from './bull.util';
+import { isTruthy } from 'lib';
 
 @Module({
   imports: [
@@ -26,6 +31,12 @@ import { CONFIG } from '~/config';
         },
       }),
     }),
-  ],
+    BULL_BOARD_ENABLED &&
+      BullBoardModule.forRoot({
+        route: '/queues',
+        adapter: ExpressAdapter,
+        middleware: BasicAuthMiddleware,
+      }),
+  ].filter(isTruthy),
 })
 export class BullModule {}
