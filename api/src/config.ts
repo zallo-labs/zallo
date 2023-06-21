@@ -1,4 +1,5 @@
 import { getChain, makeRequiredEnv, optionalEnv as optional, tryAsAddress } from 'lib';
+import os from 'os';
 require('dotenv').config({ path: '../.env' });
 
 const required = makeRequiredEnv(!!process.env.JEST_WORKER_ID);
@@ -30,5 +31,5 @@ export const CONFIG = {
   accountImplAddress: tryAsAddress(required`ACCOUNT_IMPL_${chain.key.toUpperCase()}`),
   proxyFactoryAddress: tryAsAddress(required`PROXY_FACTORY_${chain.key.toUpperCase()}`),
   sentryDsn: required`API_SENTRY_DSN`,
-  serverId: optional`FLY_ALLOC_ID`,
+  serverId: optional`FLY_ALLOC_ID` || os.hostname(),
 };
