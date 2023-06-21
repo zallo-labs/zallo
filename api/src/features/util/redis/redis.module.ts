@@ -22,10 +22,12 @@ export const REDIS_CONFIG = {
       config: [
         {
           namespace: DEFAULT_REDIS_NAMESPACE,
+          connectionName: `${CONFIG.serverId}:${DEFAULT_REDIS_NAMESPACE}`,
           ...REDIS_CONFIG,
         },
         {
           namespace: REDIS_SUBSCRIBER,
+          connectionName: `${CONFIG.serverId}:${REDIS_SUBSCRIBER}`,
           ...REDIS_CONFIG,
         },
       ],
