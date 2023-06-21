@@ -5,6 +5,7 @@ import { REDIS_SUBSCRIBER } from '~/decorators/redis.decorator';
 import { match } from 'ts-pattern';
 import Redis from 'ioredis';
 import { REDIS_CONFIG } from '../redis/redis.module';
+import { CONFIG } from '~/config';
 
 @Module({
   imports: [
@@ -13,9 +14,9 @@ import { REDIS_CONFIG } from '../redis/redis.module';
       useFactory: (redisService: RedisService) => ({
         createClient: (type) =>
           match(type)
-            .with('subscriber', () => redisService.getClient(REDIS_SUBSCRIBER))
             .with('client', () => redisService.getClient(DEFAULT_REDIS_NAMESPACE))
-            .with('bclient', () => new Redis(REDIS_CONFIG)) // Blocking client - one required each queue
+            .with('subscriber', () => redisService.getClient(REDIS_SUBSCRIBER))
+            .with('bclient', () => new Redis(CONFIG.redisUrl, REDIS_CONFIG)) // Blocking client - one required each queue
             .exhaustive(),
         defaultJobOptions: {
           removeOnComplete: true,

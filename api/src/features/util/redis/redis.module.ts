@@ -11,6 +11,7 @@ import { RedisHealthIndicator } from './redis.indicator';
 export const REDIS_CONFIG = {
   url: CONFIG.redisUrl,
   family: CONFIG.redisFamily,
+  tls: { rejectUnauthorized: false },
   enableReadyCheck: false, // Required due to https://github.com/OptimalBits/bull/issues/1873
   maxRetriesPerRequest: null, // ^^
 } satisfies RedisClientOptions;
