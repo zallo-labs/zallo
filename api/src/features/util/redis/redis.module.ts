@@ -1,20 +1,16 @@
 import { Module } from '@nestjs/common';
 import { CONFIG } from '~/config';
-import {
-  RedisModule as BaseModule,
-  RedisClientOptions,
-  DEFAULT_REDIS_NAMESPACE,
-} from '@liaoliaots/nestjs-redis';
+import { RedisModule as BaseModule, DEFAULT_REDIS_NAMESPACE } from '@liaoliaots/nestjs-redis';
 import { REDIS_SUBSCRIBER } from '~/decorators/redis.decorator';
 import { RedisHealthIndicator } from './redis.indicator';
+import { RedisOptions } from 'ioredis';
 
 export const REDIS_CONFIG = {
-  url: CONFIG.redisUrl,
   family: CONFIG.redisFamily,
-  tls: { rejectUnauthorized: false },
+  // tls: { rejectUnauthorized: false },  // Required for self-signed certs (i.e. Render)
   enableReadyCheck: false, // Required due to https://github.com/OptimalBits/bull/issues/1873
   maxRetriesPerRequest: null, // ^^
-} satisfies RedisClientOptions;
+} satisfies RedisOptions;
 
 @Module({
   imports: [
@@ -22,15 +18,16 @@ export const REDIS_CONFIG = {
       config: [
         {
           namespace: DEFAULT_REDIS_NAMESPACE,
+          url: CONFIG.redisUrl,
           connectionName: `${CONFIG.serverId}:${DEFAULT_REDIS_NAMESPACE}`,
-          ...REDIS_CONFIG,
         },
         {
           namespace: REDIS_SUBSCRIBER,
+          url: CONFIG.redisUrl,
           connectionName: `${CONFIG.serverId}:${REDIS_SUBSCRIBER}`,
-          ...REDIS_CONFIG,
         },
       ],
+      commonOptions: REDIS_CONFIG,
     }),
   ],
   exports: [RedisHealthIndicator],
