@@ -14500,7 +14500,7 @@ __metadata:
     react-test-renderer: 18.2.0
     recoil: ^0.7.7
     retry-as-promised: ^7.0.4
-    sentry-expo: ~6.2.1
+    sentry-expo: ~6.2.2
     siwe: ^1.1.6
     styled-components: ^5.3.11
     styled-system: ^5.1.5
@@ -36656,9 +36656,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"sentry-expo@npm:~6.2.1":
-  version: 6.2.1
-  resolution: "sentry-expo@npm:6.2.1"
+"sentry-expo@npm:~6.2.2":
+  version: 6.2.2
+  resolution: "sentry-expo@npm:6.2.2"
   dependencies:
     "@expo/spawn-async": ^1.7.0
     "@sentry/integrations": 7.37.2
@@ -36673,7 +36673,7 @@ __metadata:
     expo-constants: "*"
     expo-device: "*"
     expo-updates: "*"
-  checksum: 67a031703c7938c7bb909eaf2aa0fce883fb89c6b788ba4091a633146125e32a464cc828c40eb058e88b955b1faf093af3b6ad80f5bf9c802ed770884ca20db8
+  checksum: 7282fc752831ade8266f19eee71089fe52756cb12d08020671cbcf979a3c5e9d8c063e76e053f317cbc148d21fac6bf3b5f91f15f0ba907a4fba32ee22e43af3
   languageName: node
   linkType: hard
 

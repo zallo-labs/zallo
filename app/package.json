@@ -124,7 +124,7 @@
     "react-native-web": "~0.18.11",
     "recoil": "^0.7.7",
     "retry-as-promised": "^7.0.4",
-    "sentry-expo": "~6.2.1",
+    "sentry-expo": "~6.2.2",
     "siwe": "^1.1.6",
     "styled-components": "^5.3.11",
     "styled-system": "^5.1.5",
