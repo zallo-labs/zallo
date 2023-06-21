@@ -1,5 +1,5 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { Address, Erc20__factory, asAddress, asBigInt, toArray, tryOrIgnore } from 'lib';
+import { Address, Erc20__factory, asAddress, asBigInt, isPresent, toArray, tryOrIgnore } from 'lib';
 import {
   TransactionEventData,
   TransactionsProcessor,
@@ -73,41 +73,43 @@ export class TransfersEvents {
           })).receipt
         : undefined;
 
-      const transfers: { id: uuid } | { id: uuid }[] = await this.db.query(
-        e.set(
-          ...accounts.map((a) =>
-            e
-              .insert(e.Transfer, {
-                account: selectAccount(a),
-                direction: e.cast(
-                  e.TransferDirection,
-                  a === from ? TransferDirection.Out : TransferDirection.In,
-                ),
-                from,
-                to,
-                token,
-                amount,
-                logIndex: log.logIndex,
-                block: BigInt(log.blockNumber),
-                timestamp: new Date(block.timestamp * 1000),
-                receipt,
-              })
-              .unlessConflict((t) => ({
-                on: e.tuple([t.block, t.logIndex]),
-                ...(receipt && {
-                  else: e.update(t, () => ({
-                    set: {
-                      receipt,
-                    },
-                  })),
-                }),
-              })),
+      const transfers = toArray(
+        await this.db.query(
+          e.set(
+            ...accounts.map((a) =>
+              e
+                .insert(e.Transfer, {
+                  account: selectAccount(a),
+                  direction: e.cast(
+                    e.TransferDirection,
+                    a === from ? TransferDirection.Out : TransferDirection.In,
+                  ),
+                  from,
+                  to,
+                  token,
+                  amount,
+                  logIndex: log.logIndex,
+                  block: BigInt(log.blockNumber),
+                  timestamp: new Date(block.timestamp * 1000),
+                  receipt,
+                })
+                .unlessConflict((t) => ({
+                  on: e.tuple([t.block, t.logIndex]),
+                  ...(receipt && {
+                    else: e.update(t, () => ({
+                      set: {
+                        receipt,
+                      },
+                    })),
+                  }),
+                })),
+            ),
           ),
         ),
-      );
+      ).filter(isPresent);
 
       await Promise.all(
-        toArray(transfers).map(async (transfer, index) => {
+        transfers.map(async (transfer, index) => {
           const account = accounts[index] as Address;
 
           await this.pubsub.publish<TransferSubscriptionPayload>(getTransferTrigger(account), {
