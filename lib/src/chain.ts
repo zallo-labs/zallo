@@ -6,6 +6,7 @@ export type ChainKey = 'mainnet' | 'testnet' | 'local';
 export interface Chain extends viem.Chain {
   key: ChainKey;
   layer1: viem.Chain;
+  verifyUrl?: string;
 }
 
 export type Chains = typeof CHAINS;
@@ -17,12 +18,14 @@ export const CHAINS: Record<ChainKey, Chain> = {
     ...viemChain.zkSync,
     name: 'zkSync',
     layer1: viemChain.mainnet,
+    verifyUrl: 'https://zksync2-mainnet-explorer.zksync.io/contract_verification',
   },
   testnet: {
     key: 'testnet',
     ...viemChain.zkSyncTestnet,
     name: 'zkSync testnet',
     layer1: viemChain.goerli,
+    verifyUrl: 'https://zksync2-testnet-explorer.zksync.dev/contract_verification',
   },
   local: {
     key: 'local',
