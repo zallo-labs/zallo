@@ -20,7 +20,10 @@ export const displayTx = async (addr: Address, tx: TransactionResponse) => {
   Cost (eth)  - est.  : ${ethers.utils.formatEther(estCost)}
   Cost (gwei) - actual: ${ethers.utils.formatUnits(actualCost, 9)}
   Cost (eth)  - actual: ${ethers.utils.formatEther(actualCost)}
-  ${CONFIG.chain.blockExplorers?.default && `${CONFIG.chain.blockExplorers.default}/tx/${tx.hash}`}
+  ${
+    CONFIG.chain.blockExplorers?.default &&
+    `${CONFIG.chain.blockExplorers.default.url}/tx/${tx.hash}`
+  }
   ========================
   `);
 };
