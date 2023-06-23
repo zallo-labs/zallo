@@ -1,5 +1,10 @@
 [
   {
+    "inputs": [],
+    "name": "CombinedTransferNotSupported",
+    "type": "error"
+  },
+  {
     "inputs": [
       {
         "internalType": "address",
@@ -73,13 +78,186 @@
   {
     "inputs": [
       {
-        "internalType": "enum PermissionSelector",
-        "name": "selector",
-        "type": "uint8"
+        "internalType": "address",
+        "name": "token",
+        "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "amount",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint224",
+        "name": "limit",
+        "type": "uint224"
       }
     ],
-    "name": "UnknownPermission",
+    "name": "TransferExceedsLimit",
     "type": "error"
+  },
+  {
+    "inputs": [
+      {
+        "components": [
+          {
+            "internalType": "address",
+            "name": "to",
+            "type": "address"
+          },
+          {
+            "internalType": "uint96",
+            "name": "value",
+            "type": "uint96"
+          },
+          {
+            "internalType": "bytes",
+            "name": "data",
+            "type": "bytes"
+          }
+        ],
+        "internalType": "struct Operation",
+        "name": "op",
+        "type": "tuple"
+      },
+      {
+        "components": [
+          {
+            "components": [
+              {
+                "internalType": "address",
+                "name": "token",
+                "type": "address"
+              },
+              {
+                "internalType": "uint224",
+                "name": "amount",
+                "type": "uint224"
+              },
+              {
+                "internalType": "uint32",
+                "name": "duration",
+                "type": "uint32"
+              }
+            ],
+            "internalType": "struct TransferLimit[]",
+            "name": "limits",
+            "type": "tuple[]"
+          },
+          {
+            "internalType": "bool",
+            "name": "defaultAllow",
+            "type": "bool"
+          },
+          {
+            "internalType": "Budget",
+            "name": "budget",
+            "type": "uint32"
+          }
+        ],
+        "internalType": "struct TransfersConfig",
+        "name": "config",
+        "type": "tuple"
+      }
+    ],
+    "name": "beforeExecuteTransfer",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "components": [
+          {
+            "internalType": "enum HookSelector",
+            "name": "selector",
+            "type": "uint8"
+          },
+          {
+            "internalType": "bytes",
+            "name": "config",
+            "type": "bytes"
+          }
+        ],
+        "internalType": "struct Hook[]",
+        "name": "hooks",
+        "type": "tuple[]"
+      },
+      {
+        "components": [
+          {
+            "internalType": "address",
+            "name": "to",
+            "type": "address"
+          },
+          {
+            "internalType": "uint96",
+            "name": "value",
+            "type": "uint96"
+          },
+          {
+            "internalType": "bytes",
+            "name": "data",
+            "type": "bytes"
+          }
+        ],
+        "internalType": "struct Operation[]",
+        "name": "operations",
+        "type": "tuple[]"
+      }
+    ],
+    "name": "validate",
+    "outputs": [],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "components": [
+          {
+            "internalType": "address",
+            "name": "to",
+            "type": "address"
+          },
+          {
+            "internalType": "uint96",
+            "name": "value",
+            "type": "uint96"
+          },
+          {
+            "internalType": "bytes",
+            "name": "data",
+            "type": "bytes"
+          }
+        ],
+        "internalType": "struct Operation",
+        "name": "op",
+        "type": "tuple"
+      },
+      {
+        "components": [
+          {
+            "internalType": "address",
+            "name": "to",
+            "type": "address"
+          },
+          {
+            "internalType": "bytes4[]",
+            "name": "selectors",
+            "type": "bytes4[]"
+          }
+        ],
+        "internalType": "struct Target[]",
+        "name": "targets",
+        "type": "tuple[]"
+      }
+    ],
+    "name": "validateTarget",
+    "outputs": [],
+    "stateMutability": "pure",
+    "type": "function"
   },
   {
     "inputs": [
@@ -142,18 +320,18 @@
           {
             "components": [
               {
-                "internalType": "enum PermissionSelector",
+                "internalType": "enum HookSelector",
                 "name": "selector",
                 "type": "uint8"
               },
               {
                 "internalType": "bytes",
-                "name": "args",
+                "name": "config",
                 "type": "bytes"
               }
             ],
-            "internalType": "struct Permission[]",
-            "name": "permissions",
+            "internalType": "struct Hook[]",
+            "name": "hooks",
             "type": "tuple[]"
           }
         ],
@@ -163,333 +341,6 @@
       }
     ],
     "name": "verifyApprovals",
-    "outputs": [],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "components": [
-          {
-            "internalType": "address",
-            "name": "to",
-            "type": "address"
-          },
-          {
-            "internalType": "uint96",
-            "name": "value",
-            "type": "uint96"
-          },
-          {
-            "internalType": "bytes",
-            "name": "data",
-            "type": "bytes"
-          }
-        ],
-        "internalType": "struct Operation",
-        "name": "operation",
-        "type": "tuple"
-      },
-      {
-        "components": [
-          {
-            "internalType": "address",
-            "name": "to",
-            "type": "address"
-          },
-          {
-            "internalType": "bytes4[]",
-            "name": "selectors",
-            "type": "bytes4[]"
-          }
-        ],
-        "internalType": "struct Target[]",
-        "name": "targets",
-        "type": "tuple[]"
-      }
-    ],
-    "name": "verifyTargetPermission",
-    "outputs": [],
-    "stateMutability": "pure",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "components": [
-          {
-            "internalType": "uint256",
-            "name": "txType",
-            "type": "uint256"
-          },
-          {
-            "internalType": "uint256",
-            "name": "from",
-            "type": "uint256"
-          },
-          {
-            "internalType": "uint256",
-            "name": "to",
-            "type": "uint256"
-          },
-          {
-            "internalType": "uint256",
-            "name": "gasLimit",
-            "type": "uint256"
-          },
-          {
-            "internalType": "uint256",
-            "name": "gasPerPubdataByteLimit",
-            "type": "uint256"
-          },
-          {
-            "internalType": "uint256",
-            "name": "maxFeePerGas",
-            "type": "uint256"
-          },
-          {
-            "internalType": "uint256",
-            "name": "maxPriorityFeePerGas",
-            "type": "uint256"
-          },
-          {
-            "internalType": "uint256",
-            "name": "paymaster",
-            "type": "uint256"
-          },
-          {
-            "internalType": "uint256",
-            "name": "nonce",
-            "type": "uint256"
-          },
-          {
-            "internalType": "uint256",
-            "name": "value",
-            "type": "uint256"
-          },
-          {
-            "internalType": "uint256[4]",
-            "name": "reserved",
-            "type": "uint256[4]"
-          },
-          {
-            "internalType": "bytes",
-            "name": "data",
-            "type": "bytes"
-          },
-          {
-            "internalType": "bytes",
-            "name": "signature",
-            "type": "bytes"
-          },
-          {
-            "internalType": "bytes32[]",
-            "name": "factoryDeps",
-            "type": "bytes32[]"
-          },
-          {
-            "internalType": "bytes",
-            "name": "paymasterInput",
-            "type": "bytes"
-          },
-          {
-            "internalType": "bytes",
-            "name": "reservedDynamic",
-            "type": "bytes"
-          }
-        ],
-        "internalType": "struct Transaction",
-        "name": "transaction",
-        "type": "tuple"
-      },
-      {
-        "components": [
-          {
-            "internalType": "enum PermissionSelector",
-            "name": "selector",
-            "type": "uint8"
-          },
-          {
-            "internalType": "bytes",
-            "name": "args",
-            "type": "bytes"
-          }
-        ],
-        "internalType": "struct Permission[]",
-        "name": "permissions",
-        "type": "tuple[]"
-      }
-    ],
-    "name": "verifyTransactionPermissions",
-    "outputs": [],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "components": [
-          {
-            "internalType": "uint256",
-            "name": "txType",
-            "type": "uint256"
-          },
-          {
-            "internalType": "uint256",
-            "name": "from",
-            "type": "uint256"
-          },
-          {
-            "internalType": "uint256",
-            "name": "to",
-            "type": "uint256"
-          },
-          {
-            "internalType": "uint256",
-            "name": "gasLimit",
-            "type": "uint256"
-          },
-          {
-            "internalType": "uint256",
-            "name": "gasPerPubdataByteLimit",
-            "type": "uint256"
-          },
-          {
-            "internalType": "uint256",
-            "name": "maxFeePerGas",
-            "type": "uint256"
-          },
-          {
-            "internalType": "uint256",
-            "name": "maxPriorityFeePerGas",
-            "type": "uint256"
-          },
-          {
-            "internalType": "uint256",
-            "name": "paymaster",
-            "type": "uint256"
-          },
-          {
-            "internalType": "uint256",
-            "name": "nonce",
-            "type": "uint256"
-          },
-          {
-            "internalType": "uint256",
-            "name": "value",
-            "type": "uint256"
-          },
-          {
-            "internalType": "uint256[4]",
-            "name": "reserved",
-            "type": "uint256[4]"
-          },
-          {
-            "internalType": "bytes",
-            "name": "data",
-            "type": "bytes"
-          },
-          {
-            "internalType": "bytes",
-            "name": "signature",
-            "type": "bytes"
-          },
-          {
-            "internalType": "bytes32[]",
-            "name": "factoryDeps",
-            "type": "bytes32[]"
-          },
-          {
-            "internalType": "bytes",
-            "name": "paymasterInput",
-            "type": "bytes"
-          },
-          {
-            "internalType": "bytes",
-            "name": "reservedDynamic",
-            "type": "bytes"
-          }
-        ],
-        "internalType": "struct Transaction",
-        "name": "transaction",
-        "type": "tuple"
-      },
-      {
-        "components": [
-          {
-            "internalType": "PolicyKey",
-            "name": "key",
-            "type": "uint32"
-          },
-          {
-            "internalType": "uint8",
-            "name": "threshold",
-            "type": "uint8"
-          },
-          {
-            "internalType": "address[]",
-            "name": "approvers",
-            "type": "address[]"
-          },
-          {
-            "components": [
-              {
-                "internalType": "enum PermissionSelector",
-                "name": "selector",
-                "type": "uint8"
-              },
-              {
-                "internalType": "bytes",
-                "name": "args",
-                "type": "bytes"
-              }
-            ],
-            "internalType": "struct Permission[]",
-            "name": "permissions",
-            "type": "tuple[]"
-          }
-        ],
-        "internalType": "struct Policy",
-        "name": "policy",
-        "type": "tuple"
-      },
-      {
-        "components": [
-          {
-            "internalType": "uint256",
-            "name": "approversSigned",
-            "type": "uint256"
-          },
-          {
-            "components": [
-              {
-                "internalType": "bytes32",
-                "name": "r",
-                "type": "bytes32"
-              },
-              {
-                "internalType": "bytes32",
-                "name": "vs",
-                "type": "bytes32"
-              }
-            ],
-            "internalType": "struct Secp256k1Signature[]",
-            "name": "secp256k1",
-            "type": "tuple[]"
-          },
-          {
-            "internalType": "bytes[]",
-            "name": "erc1271",
-            "type": "bytes[]"
-          }
-        ],
-        "internalType": "struct Approvals",
-        "name": "approvals",
-        "type": "tuple"
-      }
-    ],
-    "name": "verifyTransactionPermissionsAndApprovals",
     "outputs": [],
     "stateMutability": "view",
     "type": "function"

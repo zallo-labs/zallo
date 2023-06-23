@@ -61,7 +61,6 @@ abstract contract PolicyManager is SelfOwned {
     if (actualHash != expectedHash) revert PolicyDoesNotMatchExpectedHash(actualHash, expectedHash);
   }
 
-  // TODO: compare gas costs of this vs. abi.encodePacked()
   function _hashPolicy(Policy memory p) private pure returns (bytes32) {
     return keccak256(abi.encode(p));
   }

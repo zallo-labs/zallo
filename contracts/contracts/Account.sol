@@ -9,10 +9,10 @@ import {SystemContractsCaller} from '@matterlabs/zksync-contracts/l2/system-cont
 
 import {Initializable} from './Initializable.sol';
 import {Upgradeable} from './Upgradeable.sol';
-import {Policy, PolicyKey, Permission} from './policy/Policy.sol';
+import {Policy, PolicyKey} from './policy/Policy.sol';
 import {PolicyManager} from './policy/PolicyManager.sol';
 import {Approvals, ApprovalsVerifier} from './policy/ApprovalsVerifier.sol';
-import {TransactionVerifier} from './policy/TransactionVerifier.sol';
+import {Hook, Hooks} from './policy/hooks/Hooks.sol';
 import {Executor} from './Executor.sol';
 import {ERC165} from './standards/ERC165.sol';
 import {ERC721Receiver} from './standards/ERC721Receiver.sol';
@@ -31,7 +31,7 @@ contract Account is
 {
   using TransactionHelper for Transaction;
   using TransactionUtil for Transaction;
-  using TransactionVerifier for Transaction;
+  using Hooks for Hook[];
   using ApprovalsVerifier for Approvals;
 
   error InsufficientBalance();
@@ -83,7 +83,7 @@ contract Account is
     (Policy memory policy, Approvals memory approvals) = _decodeAndVerifySignature(
       transaction.signature
     );
-    transaction.verifyPermissions(policy.permissions);
+    policy.hooks.validate(transaction.operations());
     approvals.verify(txHash, policy);
   }
 

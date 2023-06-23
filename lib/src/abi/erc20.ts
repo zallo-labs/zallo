@@ -219,4 +219,46 @@ export const ERC20_ABI = [
     name: 'Transfer',
     type: 'event',
   },
+  {
+    inputs: [
+      {
+        name: 'spender',
+        type: 'address',
+      },
+      {
+        name: 'subtractedValue',
+        type: 'uint256',
+      },
+    ],
+    outputs: [
+      {
+        name: 'success',
+        type: 'bool',
+      },
+    ],
+    stateMutability: 'nonpayable',
+    name: 'decreaseAllowance',
+    type: 'function',
+  },
+  {
+    inputs: [
+      {
+        name: 'spender',
+        type: 'address',
+      },
+      {
+        name: 'addedValue',
+        type: 'uint256',
+      },
+    ],
+    outputs: [
+      {
+        name: 'success',
+        type: 'bool',
+      },
+    ],
+    stateMutability: 'nonpayable',
+    name: 'increaseAllowance',
+    type: 'function',
+  },
 ] as const;

@@ -122,18 +122,18 @@
           {
             "components": [
               {
-                "internalType": "enum PermissionSelector",
+                "internalType": "enum HookSelector",
                 "name": "selector",
                 "type": "uint8"
               },
               {
                 "internalType": "bytes",
-                "name": "args",
+                "name": "config",
                 "type": "bytes"
               }
             ],
-            "internalType": "struct Permission[]",
-            "name": "permissions",
+            "internalType": "struct Hook[]",
+            "name": "hooks",
             "type": "tuple[]"
           }
         ],
@@ -201,18 +201,18 @@
           {
             "components": [
               {
-                "internalType": "enum PermissionSelector",
+                "internalType": "enum HookSelector",
                 "name": "selector",
                 "type": "uint8"
               },
               {
                 "internalType": "bytes",
-                "name": "args",
+                "name": "config",
                 "type": "bytes"
               }
             ],
-            "internalType": "struct Permission[]",
-            "name": "permissions",
+            "internalType": "struct Hook[]",
+            "name": "hooks",
             "type": "tuple[]"
           }
         ],

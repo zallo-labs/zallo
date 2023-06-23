@@ -6,6 +6,11 @@
   },
   {
     "inputs": [],
+    "name": "CombinedTransferNotSupported",
+    "type": "error"
+  },
+  {
+    "inputs": [],
     "name": "FailedToPayBootloader",
     "type": "error"
   },
@@ -189,12 +194,22 @@
   {
     "inputs": [
       {
-        "internalType": "enum PermissionSelector",
-        "name": "selector",
-        "type": "uint8"
+        "internalType": "address",
+        "name": "token",
+        "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "amount",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint224",
+        "name": "limit",
+        "type": "uint224"
       }
     ],
-    "name": "UnknownPermission",
+    "name": "TransferExceedsLimit",
     "type": "error"
   },
   {
@@ -338,18 +353,18 @@
           {
             "components": [
               {
-                "internalType": "enum PermissionSelector",
+                "internalType": "enum HookSelector",
                 "name": "selector",
                 "type": "uint8"
               },
               {
                 "internalType": "bytes",
-                "name": "args",
+                "name": "config",
                 "type": "bytes"
               }
             ],
-            "internalType": "struct Permission[]",
-            "name": "permissions",
+            "internalType": "struct Hook[]",
+            "name": "hooks",
             "type": "tuple[]"
           }
         ],
@@ -585,18 +600,18 @@
           {
             "components": [
               {
-                "internalType": "enum PermissionSelector",
+                "internalType": "enum HookSelector",
                 "name": "selector",
                 "type": "uint8"
               },
               {
                 "internalType": "bytes",
-                "name": "args",
+                "name": "config",
                 "type": "bytes"
               }
             ],
-            "internalType": "struct Permission[]",
-            "name": "permissions",
+            "internalType": "struct Hook[]",
+            "name": "hooks",
             "type": "tuple[]"
           }
         ],

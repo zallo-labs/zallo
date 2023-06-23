@@ -23,7 +23,7 @@ describe('TargetPermission', () => {
   let data: Hex;
 
   const verify = (op: Operation, targets: Targetslike) =>
-    verifier.verifyTargetPermission(
+    verifier.validateTarget(
       {
         to: op.to,
         value: op.value ?? 0n,

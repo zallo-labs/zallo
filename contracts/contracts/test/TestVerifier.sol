@@ -3,22 +3,20 @@ pragma solidity ^0.8.0;
 
 import {Transaction} from '@matterlabs/zksync-contracts/l2/system-contracts/libraries/TransactionHelper.sol';
 
-import {Policy, PolicyKey, Permission} from '../policy/Policy.sol';
-import {TransactionVerifier} from '../policy/TransactionVerifier.sol';
+import {Policy, PolicyKey} from '../policy/Policy.sol';
+import {Hook, Hooks} from '../policy/hooks/Hooks.sol';
 import {Approvals, ApprovalsVerifier} from '../policy/ApprovalsVerifier.sol';
 import {TransactionUtil, Operation} from '../TransactionUtil.sol';
-import {TargetPermission, Target} from '../policy/permissions/TargetPermission.sol';
+import {TargetHook, Target} from '../policy/hooks/TargetHook.sol';
+import {TransferHook, TransfersConfig} from '../policy/hooks/TransferHook.sol';
 
 contract TestVerifier {
   using TransactionUtil for Transaction;
-  using TransactionVerifier for Transaction;
   using ApprovalsVerifier for Approvals;
+  using Hooks for Hook[];
 
-  function verifyTransactionPermissions(
-    Transaction calldata transaction,
-    Permission[] calldata permissions
-  ) external view {
-    transaction.verifyPermissions(permissions);
+  function validate(Hook[] memory hooks, Operation[] calldata operations) external view {
+    hooks.validate(operations);
   }
 
   function verifyApprovals(
@@ -29,23 +27,15 @@ contract TestVerifier {
     approvals.verify(hash, policy);
   }
 
-  function verifyTransactionPermissionsAndApprovals(
-    Transaction calldata transaction,
-    Policy calldata policy,
-    Approvals calldata approvals
-  ) external view {
-    transaction.verifyPermissions(policy.permissions);
-    approvals.verify(transaction.hash(), policy);
-  }
-
   /*//////////////////////////////////////////////////////////////
-                              PERMISSIONS
+                                 HOOKS
   //////////////////////////////////////////////////////////////*/
 
-  function verifyTargetPermission(
-    Operation calldata operation,
-    Target[] calldata targets
-  ) external pure {
-    TargetPermission.verify(operation, targets);
+  function validateTarget(Operation calldata op, Target[] calldata targets) external pure {
+    TargetHook.validateOp(op, targets);
+  }
+
+  function beforeExecuteTransfer(Operation calldata op, TransfersConfig calldata config) external {
+    TransferHook.beforeExecuteOp(op, config);
   }
 }

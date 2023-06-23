@@ -5,11 +5,14 @@ import {Transaction} from '@matterlabs/zksync-contracts/l2/system-contracts/libr
 import {IContractDeployer, INonceHolder, DEPLOYER_SYSTEM_CONTRACT, NONCE_HOLDER_SYSTEM_CONTRACT, BOOTLOADER_FORMAL_ADDRESS} from '@matterlabs/zksync-contracts/l2/system-contracts/Constants.sol';
 import {SystemContractsCaller} from '@matterlabs/zksync-contracts/l2/system-contracts/libraries/SystemContractsCaller.sol';
 import {Utils as CastUtils} from '@matterlabs/zksync-contracts/l2/system-contracts/libraries/Utils.sol';
+
 import {TransactionUtil, Operation} from './TransactionUtil.sol';
+import {Hook, Hooks} from './policy/hooks/Hooks.sol';
 
 abstract contract Executor {
   using CastUtils for uint256;
   using TransactionUtil for Transaction;
+  using Hooks for Hook[];
 
   /*//////////////////////////////////////////////////////////////
                              EVENTS / ERRORS
@@ -30,6 +33,9 @@ abstract contract Executor {
     _setExecuted(txHash);
 
     Operation[] memory operations = t.operations();
+
+    t.hooks().beforeExecute(operations);
+
     if (operations.length == 1) {
       bytes memory response = _executeOperation(operations[0], 0);
 

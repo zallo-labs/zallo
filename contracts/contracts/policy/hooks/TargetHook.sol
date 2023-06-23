@@ -8,19 +8,22 @@ struct Target {
   bytes4[] selectors; /// @dev Sorted ascending
 }
 
-library TargetPermission {
+library TargetHook {
   error NotToAnyOfTargets(address to, Target[] targets);
   error NotAnyOfTargetSelectors(bytes4 selector, bytes4[] targetSelectors);
 
   address private constant FALLBACK_ADDRESS = address(0);
   bytes4 private constant ANY_SELECTOR = bytes4(0);
 
-  /**
-   * @dev Verify that op is matches the specific (or fallback) target.
-   * @param targets Targets to verify. Sorted by `to` (ascending).
-   * @param op Operation to verify.
-   */
-  function verify(Operation memory op, Target[] memory targets) internal pure {
+  function validate(Operation[] memory operations, bytes memory config) internal pure {
+    Target[] memory targets = abi.decode(config, (Target[]));
+
+    for (uint i; i < operations.length; ++i) {
+      validateOp(operations[i], targets);
+    }
+  }
+
+  function validateOp(Operation memory op, Target[] memory targets) internal pure {
     uint256 targetsLen = targets.length;
     if (targets.length == 0) revert NotToAnyOfTargets(op.to, targets);
 

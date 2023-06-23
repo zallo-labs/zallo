@@ -3,6 +3,10 @@ pragma solidity ^0.8.0;
 
 import {Transaction} from '@matterlabs/zksync-contracts/l2/system-contracts/libraries/TransactionHelper.sol';
 
+import {Policy} from './policy/Policy.sol';
+import {Approvals} from './policy/ApprovalsVerifier.sol';
+import {Hook} from './policy/hooks/Hooks.sol';
+
 struct Operation {
   address to;
   uint96 value; /// @dev uint96 (instead of uint128 max) to allow packing
@@ -52,5 +56,12 @@ library TransactionUtil {
       ops[0] = Operation({to: toAddress(t), value: uint96(t.value), data: t.data});
       return ops;
     }
+  }
+
+  function hooks(Transaction calldata t) internal pure returns (Hook[] memory) {
+    Policy memory policy;
+    (, policy, ) = abi.decode(t.signature, (uint32, Policy, Approvals));
+
+    return policy.hooks;
   }
 }
