@@ -36,12 +36,8 @@ abstract contract PolicyManager is SelfOwned {
 
   function _addPolicies(Policy[] calldata policies) internal {
     uint256 policiesLen = policies.length;
-    for (uint256 i; i < policiesLen; ) {
+    for (uint256 i; i < policiesLen; ++i) {
       _addPolicy(policies[i]);
-
-      unchecked {
-        ++i;
-      }
     }
   }
 

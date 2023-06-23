@@ -4,13 +4,13 @@ pragma solidity ^0.8.0;
 import {Transaction} from '@matterlabs/zksync-contracts/l2/system-contracts/libraries/TransactionHelper.sol';
 import {IContractDeployer, INonceHolder, DEPLOYER_SYSTEM_CONTRACT, NONCE_HOLDER_SYSTEM_CONTRACT, BOOTLOADER_FORMAL_ADDRESS} from '@matterlabs/zksync-contracts/l2/system-contracts/Constants.sol';
 import {SystemContractsCaller} from '@matterlabs/zksync-contracts/l2/system-contracts/libraries/SystemContractsCaller.sol';
-import {Utils as CastUtils} from '@matterlabs/zksync-contracts/l2/system-contracts/libraries/Utils.sol';
 
+import {Cast} from './libraries/Cast.sol';
 import {TransactionUtil, Operation} from './TransactionUtil.sol';
 import {Hook, Hooks} from './policy/hooks/Hooks.sol';
 
 abstract contract Executor {
-  using CastUtils for uint256;
+  using Cast for uint256;
   using TransactionUtil for Transaction;
   using Hooks for Hook[];
 
@@ -51,7 +51,7 @@ abstract contract Executor {
   }
 
   function _executeOperation(Operation memory op, uint256 opIndex) private returns (bytes memory) {
-    uint32 gas = gasleft().safeCastToU32() - 2000;
+    uint32 gas = uint32(gasleft()) - 2000; // truncation ok
 
     (bool success, bytes memory response) = (op.to == address(DEPLOYER_SYSTEM_CONTRACT))
       ? SystemContractsCaller.systemCallWithReturndata(gas, op.to, op.value, op.data)
@@ -95,7 +95,7 @@ abstract contract Executor {
 
   function _incrementNonceIfEquals(Transaction calldata t) internal {
     SystemContractsCaller.systemCallWithPropagatedRevert(
-      uint32(gasleft()),
+      uint32(gasleft()), // truncation ok
       address(NONCE_HOLDER_SYSTEM_CONTRACT),
       0,
       abi.encodeCall(INonceHolder.incrementMinNonceIfEquals, (t.nonce))

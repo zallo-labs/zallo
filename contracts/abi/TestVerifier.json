@@ -99,6 +99,17 @@
   {
     "inputs": [
       {
+        "internalType": "uint256",
+        "name": "value",
+        "type": "uint256"
+      }
+    ],
+    "name": "Uint224CastOverflow",
+    "type": "error"
+  },
+  {
+    "inputs": [
+      {
         "components": [
           {
             "internalType": "address",

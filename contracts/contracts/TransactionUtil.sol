@@ -6,6 +6,7 @@ import {Transaction} from '@matterlabs/zksync-contracts/l2/system-contracts/libr
 import {Policy} from './policy/Policy.sol';
 import {Approvals} from './policy/ApprovalsVerifier.sol';
 import {Hook} from './policy/hooks/Hooks.sol';
+import {Cast} from './libraries/Cast.sol';
 
 struct Operation {
   address to;
@@ -15,13 +16,15 @@ struct Operation {
 
 /// @dev https://github.com/ethereum/EIPs/blob/master/EIPS/eip-712.md
 library TransactionUtil {
+  using Cast for uint256;
+
   bytes32 private constant DOMAIN_TYPE_HASH =
     keccak256('EIP712Domain(uint256 chainId,address verifyingContract)');
 
   bytes32 private constant TX_TYPE_HASH =
     keccak256('Tx(address to,uint256 value,bytes data,uint256 nonce)');
 
-  bytes4 private constant OPERATIONS_SELECTOR = 0x00000000;
+  bytes4 private constant OPERATIONS_SELECTOR = bytes4(0);
 
   function hash(Transaction calldata t) internal view returns (bytes32) {
     bytes32 structHash = keccak256(
@@ -40,12 +43,12 @@ library TransactionUtil {
     return abi.decode(t.signature, (uint32));
   }
 
-  function toAddress(Transaction calldata t) internal pure returns (address) {
-    return address(uint160(t.to));
+  function to(Transaction calldata t) internal pure returns (address) {
+    return address(uint160(t.to)); // won't truncate
   }
 
   function operations(Transaction calldata t) internal view returns (Operation[] memory) {
-    bool hasOperations = toAddress(t) == address(this) &&
+    bool hasOperations = to(t) == address(this) &&
       t.data.length >= 4 &&
       bytes4(t.data[:4]) == OPERATIONS_SELECTOR;
 
@@ -53,7 +56,7 @@ library TransactionUtil {
       return abi.decode(t.data[4:], (Operation[]));
     } else {
       Operation[] memory ops = new Operation[](1);
-      ops[0] = Operation({to: toAddress(t), value: uint96(t.value), data: t.data});
+      ops[0] = Operation({to: to(t), value: t.value.toU96(), data: t.data});
       return ops;
     }
   }

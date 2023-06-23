@@ -5,6 +5,7 @@ import {ERC20} from '@openzeppelin/contracts/token/ERC20/ERC20.sol';
 
 import {PolicyKey} from '../Policy.sol';
 import {Operation} from '../../TransactionUtil.sol';
+import {Cast} from '../../libraries/Cast.sol';
 
 struct TransfersConfig {
   TransferLimit[] limits;
@@ -31,6 +32,8 @@ struct TransferDetails {
 }
 
 library TransferHook {
+  using Cast for uint256;
+
   error TransferExceedsLimit(address token, uint256 amount, uint224 limit);
   error CombinedTransferNotSupported();
 
@@ -48,21 +51,21 @@ library TransferHook {
 
     for (uint i; i < c.limits.length && c.limits[i].token <= op.to; ++i) {
       if (c.limits[i].token == transfer.token)
-        return _handleSpend(c.budget, c.limits[i], transfer.amount);
+        return _handleSpend(c.budget, c.limits[i], transfer.amount.toU224());
     }
 
     if (!c.defaultAllow) revert TransferExceedsLimit(transfer.token, transfer.amount, 0);
   }
 
-  function _handleSpend(Budget budget, TransferLimit memory limit, uint256 amount) private {
+  function _handleSpend(Budget budget, TransferLimit memory limit, uint224 amount) private {
     TokenSpending storage spending = _spending(budget, limit.token);
 
     bool inSameEpoch = (block.timestamp / limit.duration) == (spending.timestamp / limit.duration);
     if (inSameEpoch) {
-      spending.spent += uint224(amount);
+      spending.spent += amount;
     } else {
-      spending.spent = uint224(amount);
-      spending.timestamp = uint32(block.timestamp);
+      spending.spent = amount;
+      spending.timestamp = uint32(block.timestamp); // truncation ok
     }
 
     if (spending.spent > limit.amount)
@@ -85,15 +88,16 @@ library TransferHook {
     ) {
       if (op.value != 0) revert CombinedTransferNotSupported();
 
-      transfer.token = op.to;
-
       bytes memory data = op.data;
       uint256 amount;
       assembly {
         amount := mload(add(data, 68)) // op.data[36:68]
       }
+
+      transfer.token = op.to;
       transfer.amount = amount;
     } else {
+      // transfer.amount == address(0)
       transfer.amount = op.value;
     }
   }
@@ -103,7 +107,7 @@ library TransferHook {
   //////////////////////////////////////////////////////////////*/
 
   function _spending(Budget budget, address token) private view returns (TokenSpending storage s) {
-    bytes32 key = bytes32(abi.encodePacked(budget, token));
+    bytes32 key = bytes32(abi.encodePacked(budget, token)); // no truncation (24B)
     return _spendingStorage()[key];
   }
 

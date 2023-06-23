@@ -37,13 +37,10 @@ abstract contract Initializable {
     uint8 version;
   }
 
-  /// @dev keccak256('Initializable.initialized')
-  bytes32 private constant _INITIALIZED_SLOT =
-    0x69f4cfcde55304a353bee9f8f2bbfc2fcb65cf3f3ca694d821cc348abe696c33;
-
   function _initialized() private pure returns (Initialized storage initialized) {
     assembly {
-      initialized.slot := _INITIALIZED_SLOT
+      // keccak256('Initializable.initialized')
+      initialized.slot := 0x69f4cfcde55304a353bee9f8f2bbfc2fcb65cf3f3ca694d821cc348abe696c33
     }
   }
 }
