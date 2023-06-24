@@ -14,6 +14,24 @@ type $anydiscrete = $number | _cal.$local_date;
 
 type $anycontiguous = $anyfloat | $datetime | $duration | $decimal | _cal.$local_datetime;
 
+export type $str = $.ScalarType<"std::str", string>;
+const str: $.scalarTypeWithConstructor<$str, never> = $.makeType<$.scalarTypeWithConstructor<$str, never>>(_.spec, "00000000-0000-0000-0000-000000000101", _.syntax.literal);
+
+export type $uuid = $.ScalarType<"std::uuid", string>;
+const uuid: $.scalarTypeWithConstructor<$uuid, never> = $.makeType<$.scalarTypeWithConstructor<$uuid, never>>(_.spec, "00000000-0000-0000-0000-000000000100", _.syntax.literal);
+
+type $anyreal = $anyint | $anyfloat | $anynumeric;
+
+type $anyint = $number | $bigint;
+
+export type $int32 = $.ScalarType<"std::number", number>;
+const int32: $.scalarTypeWithConstructor<$number, string> = $.makeType<$.scalarTypeWithConstructor<$number, string>>(_.spec, "00000000-0000-0000-0000-000000000104", _.syntax.literal);
+
+type $anynumeric = $decimal | $bigint;
+
+export type $bigint = $.ScalarType<"std::bigint", bigint>;
+const bigint: $.scalarTypeWithConstructor<$bigint, never> = $.makeType<$.scalarTypeWithConstructor<$bigint, never>>(_.spec, "00000000-0000-0000-0000-000000000110", _.syntax.literal);
+
 export type $JsonEmpty = {
   "ReturnEmpty": $.$expr_Literal<$JsonEmpty>;
   "ReturnTarget": $.$expr_Literal<$JsonEmpty>;
@@ -23,16 +41,7 @@ export type $JsonEmpty = {
 } & $.EnumType<"std::JsonEmpty", ["ReturnEmpty", "ReturnTarget", "Error", "UseNull", "DeleteKey"]>;
 const JsonEmpty: $JsonEmpty = $.makeType<$JsonEmpty>(_.spec, "15336ca4-108a-11ee-a8d6-d58a634a5354", _.syntax.literal);
 
-type $anyreal = $anyint | $anyfloat | $anynumeric;
-
 type $anyfloat = $number;
-
-type $anyint = $number | $bigint;
-
-type $anynumeric = $decimal | $bigint;
-
-export type $bigint = $.ScalarType<"std::bigint", bigint>;
-const bigint: $.scalarTypeWithConstructor<$bigint, never> = $.makeType<$.scalarTypeWithConstructor<$bigint, never>>(_.spec, "00000000-0000-0000-0000-000000000110", _.syntax.literal);
 
 export type $bool = $.ScalarType<"std::bool", boolean>;
 const bool: $.scalarTypeWithConstructor<$bool, never> = $.makeType<$.scalarTypeWithConstructor<$bool, never>>(_.spec, "00000000-0000-0000-0000-000000000109", _.syntax.literal);
@@ -60,9 +69,6 @@ const float64: $.scalarTypeWithConstructor<$number, string> = $.makeType<$.scala
 export type $int16 = $.ScalarType<"std::number", number>;
 const int16: $.scalarTypeWithConstructor<$number, string> = $.makeType<$.scalarTypeWithConstructor<$number, string>>(_.spec, "00000000-0000-0000-0000-000000000103", _.syntax.literal);
 
-export type $int32 = $.ScalarType<"std::number", number>;
-const int32: $.scalarTypeWithConstructor<$number, string> = $.makeType<$.scalarTypeWithConstructor<$number, string>>(_.spec, "00000000-0000-0000-0000-000000000104", _.syntax.literal);
-
 export type $int64 = $.ScalarType<"std::number", number>;
 const int64: $.scalarTypeWithConstructor<$number, string> = $.makeType<$.scalarTypeWithConstructor<$number, string>>(_.spec, "00000000-0000-0000-0000-000000000105", _.syntax.literal);
 
@@ -71,12 +77,6 @@ const json: $.scalarTypeWithConstructor<$json, never> = $.makeType<$.scalarTypeW
 
 interface $sequence extends $int64 {}
 const $sequence: $sequence = $.makeType<$sequence>(_.spec, "100b5a79-108a-11ee-b91a-7594f37af538", _.syntax.literal);
-
-export type $str = $.ScalarType<"std::str", string>;
-const str: $.scalarTypeWithConstructor<$str, never> = $.makeType<$.scalarTypeWithConstructor<$str, never>>(_.spec, "00000000-0000-0000-0000-000000000101", _.syntax.literal);
-
-export type $uuid = $.ScalarType<"std::uuid", string>;
-const uuid: $.scalarTypeWithConstructor<$uuid, never> = $.makeType<$.scalarTypeWithConstructor<$uuid, never>>(_.spec, "00000000-0000-0000-0000-000000000100", _.syntax.literal);
 
 export type $number = $.ScalarType<"std::number", number>;
 const number: $.scalarTypeWithConstructor<$number, string> = $.makeType<$.scalarTypeWithConstructor<$number, string>>(_.spec, "00000000-0000-0000-0000-0000000001ff", _.syntax.literal);
@@ -92,15 +92,6 @@ const $BaseObject = $.makeType<$BaseObject>(_.spec, "16952e27-108a-11ee-9d86-09b
 
 const BaseObject: $.$expr_PathNode<$.TypeSet<$BaseObject, $.Cardinality.Many>, null> = _.syntax.$PathNode($.$toSet($BaseObject, $.Cardinality.Many), null);
 
-export type $FreeObjectλShape = $.typeutil.flatten<$BaseObjectλShape & {
-}>;
-type $FreeObject = $.ObjectType<"std::FreeObject", $FreeObjectλShape, null, [
-  ...$BaseObject['__exclusives__'],
-]>;
-const $FreeObject = $.makeType<$FreeObject>(_.spec, "16a06544-108a-11ee-946a-eb661fcee13a", _.syntax.literal);
-
-const FreeObject: $.$expr_PathNode<$.TypeSet<$FreeObject, $.Cardinality.One>, null> = _.syntax.$PathNode($.$toSet($FreeObject, $.Cardinality.One), null);
-
 export type $Object_169a5ce7108a11eeb5af6feb88c88f11λShape = $.typeutil.flatten<$BaseObjectλShape & {
 }>;
 type $Object_169a5ce7108a11eeb5af6feb88c88f11 = $.ObjectType<"std::Object", $Object_169a5ce7108a11eeb5af6feb88c88f11λShape, null, [
@@ -110,6 +101,15 @@ export type $Object = $Object_169a5ce7108a11eeb5af6feb88c88f11
 const $Object_169a5ce7108a11eeb5af6feb88c88f11 = $.makeType<$Object_169a5ce7108a11eeb5af6feb88c88f11>(_.spec, "169a5ce7-108a-11ee-b5af-6feb88c88f11", _.syntax.literal);
 
 const Object_169a5ce7108a11eeb5af6feb88c88f11: $.$expr_PathNode<$.TypeSet<$Object_169a5ce7108a11eeb5af6feb88c88f11, $.Cardinality.Many>, null> = _.syntax.$PathNode($.$toSet($Object_169a5ce7108a11eeb5af6feb88c88f11, $.Cardinality.Many), null);
+
+export type $FreeObjectλShape = $.typeutil.flatten<$BaseObjectλShape & {
+}>;
+type $FreeObject = $.ObjectType<"std::FreeObject", $FreeObjectλShape, null, [
+  ...$BaseObject['__exclusives__'],
+]>;
+const $FreeObject = $.makeType<$FreeObject>(_.spec, "16a06544-108a-11ee-946a-eb661fcee13a", _.syntax.literal);
+
+const FreeObject: $.$expr_PathNode<$.TypeSet<$FreeObject, $.Cardinality.One>, null> = _.syntax.$PathNode($.$toSet($FreeObject, $.Cardinality.One), null);
 
 type assert_singleλFuncExpr<
   NamedArgs extends {
@@ -4274,13 +4274,16 @@ function sequence_next(...args: any[]) {
 
 
 
-export { JsonEmpty, bigint, bool, bytes, datetime, decimal, duration, float32, float64, int16, int32, int64, json, $sequence, str, uuid, number, $BaseObject, BaseObject, $FreeObject, FreeObject, $Object_169a5ce7108a11eeb5af6feb88c88f11, Object_169a5ce7108a11eeb5af6feb88c88f11 };
+export { str, uuid, int32, bigint, JsonEmpty, bool, bytes, datetime, decimal, duration, float32, float64, int16, int64, json, $sequence, number, $BaseObject, BaseObject, $Object_169a5ce7108a11eeb5af6feb88c88f11, Object_169a5ce7108a11eeb5af6feb88c88f11, $FreeObject, FreeObject };
 
-export type { $anyscalar, $anypoint, $anydiscrete, $anycontiguous, $anyreal, $anyfloat, $anyint, $anynumeric };
+export type { $anyscalar, $anypoint, $anydiscrete, $anycontiguous, $anyreal, $anyint, $anynumeric, $anyfloat };
 
 type __defaultExports = {
-  "JsonEmpty": typeof JsonEmpty;
+  "str": typeof str;
+  "uuid": typeof uuid;
+  "int32": typeof int32;
   "bigint": typeof bigint;
+  "JsonEmpty": typeof JsonEmpty;
   "bool": typeof bool;
   "bytes": typeof bytes;
   "datetime": typeof datetime;
@@ -4289,14 +4292,11 @@ type __defaultExports = {
   "float32": typeof float32;
   "float64": typeof float64;
   "int16": typeof int16;
-  "int32": typeof int32;
   "int64": typeof int64;
   "json": typeof json;
-  "str": typeof str;
-  "uuid": typeof uuid;
   "BaseObject": typeof BaseObject;
-  "FreeObject": typeof FreeObject;
   "Object": typeof Object_169a5ce7108a11eeb5af6feb88c88f11;
+  "FreeObject": typeof FreeObject;
   "assert_single": typeof assert_single;
   "assert_exists": typeof assert_exists;
   "assert_distinct": typeof assert_distinct;
@@ -4385,8 +4385,11 @@ type __defaultExports = {
   "sequence_next": typeof sequence_next
 };
 const __defaultExports: __defaultExports = {
-  "JsonEmpty": JsonEmpty,
+  "str": str,
+  "uuid": uuid,
+  "int32": int32,
   "bigint": bigint,
+  "JsonEmpty": JsonEmpty,
   "bool": bool,
   "bytes": bytes,
   "datetime": datetime,
@@ -4395,14 +4398,11 @@ const __defaultExports: __defaultExports = {
   "float32": float32,
   "float64": float64,
   "int16": int16,
-  "int32": int32,
   "int64": int64,
   "json": json,
-  "str": str,
-  "uuid": uuid,
   "BaseObject": BaseObject,
-  "FreeObject": FreeObject,
   "Object": Object_169a5ce7108a11eeb5af6feb88c88f11,
+  "FreeObject": FreeObject,
   "assert_single": assert_single,
   "assert_exists": assert_exists,
   "assert_distinct": assert_distinct,

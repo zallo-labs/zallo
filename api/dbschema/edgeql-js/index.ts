@@ -9,10 +9,10 @@ import * as $op from "./operators";
 import _std from "./modules/std";
 import _cal from "./modules/cal";
 import _cfg from "./modules/cfg";
+import _default from "./modules/default";
 import _schema from "./modules/schema";
 import _sys from "./modules/sys";
 import _math from "./modules/math";
-import _default from "./modules/default";
 
 const ExportDefault: typeof _std & 
   typeof _default & 
@@ -21,10 +21,10 @@ const ExportDefault: typeof _std &
   "std": typeof _std;
   "cal": typeof _cal;
   "cfg": typeof _cfg;
+  "default": typeof _default;
   "schema": typeof _schema;
   "sys": typeof _sys;
   "math": typeof _math;
-  "default": typeof _default;
 } = {
   ..._std,
   ..._default,
@@ -33,10 +33,10 @@ const ExportDefault: typeof _std &
   "std": _std,
   "cal": _cal,
   "cfg": _cfg,
+  "default": _default,
   "schema": _schema,
   "sys": _sys,
   "math": _math,
-  "default": _default,
 };
 const Cardinality = $.Cardinality;
 type Cardinality = $.Cardinality;

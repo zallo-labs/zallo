@@ -7,17 +7,15 @@ import * as literal from "./literal";
 import type * as _std from "./modules/std";
 import type * as _sys from "./modules/sys";
 import type * as _schema from "./modules/schema";
+import type * as _default from "./modules/default";
 import type * as _cfg from "./modules/cfg";
 import type * as _cal from "./modules/cal";
 export type scalarAssignableBy<T extends $.ScalarType> =
   T extends _std.$number ? _std.$number : 
   T extends _sys.$VersionStage ? _sys.$VersionStage : 
   T extends _sys.$TransactionIsolation ? _sys.$TransactionIsolation : 
-  T extends _std.$uuid ? _std.$uuid : 
-  T extends _std.$str ? _std.$str : 
   T extends _std.$json ? _std.$json : 
   T extends _std.$int64 ? _std.$int64 : 
-  T extends _std.$int32 ? _std.$int32 : 
   T extends _std.$int16 ? _std.$int16 : 
   T extends _std.$float64 ? _std.$float64 : 
   T extends _std.$float32 ? _std.$float32 : 
@@ -26,7 +24,6 @@ export type scalarAssignableBy<T extends $.ScalarType> =
   T extends _std.$datetime ? _std.$datetime : 
   T extends _std.$bytes ? _std.$bytes : 
   T extends _std.$bool ? _std.$bool : 
-  T extends _std.$bigint ? _std.$bigint : 
   T extends _std.$JsonEmpty ? _std.$JsonEmpty : 
   T extends _schema.$Volatility ? _schema.$Volatility : 
   T extends _schema.$TypeModifier ? _schema.$TypeModifier : 
@@ -42,6 +39,23 @@ export type scalarAssignableBy<T extends $.ScalarType> =
   T extends _schema.$Cardinality ? _schema.$Cardinality : 
   T extends _schema.$AccessPolicyAction ? _schema.$AccessPolicyAction : 
   T extends _schema.$AccessKind ? _schema.$AccessKind : 
+  T extends _default.$uint64 ? _default.$uint64 : 
+  T extends _default.$uint256 ? _default.$uint256 : 
+  T extends _std.$bigint ? _std.$bigint : 
+  T extends _default.$uint16 ? _default.$uint16 : 
+  T extends _std.$int32 ? _std.$int32 : 
+  T extends _default.$current_user_accounts ? _default.$current_user_accounts : 
+  T extends _std.$uuid ? _std.$uuid : 
+  T extends _default.$TransferDirection ? _default.$TransferDirection : 
+  T extends _default.$TransactionProposalStatus ? _default.$TransactionProposalStatus : 
+  T extends _default.$TargetSelector ? _default.$TargetSelector : 
+  T extends _default.$Name ? _default.$Name : 
+  T extends _default.$Bytes4 ? _default.$Bytes4 : 
+  T extends _default.$Bytes32 ? _default.$Bytes32 : 
+  T extends _default.$Bytes ? _default.$Bytes : 
+  T extends _default.$Address ? _default.$Address : 
+  T extends _std.$str ? _std.$str : 
+  T extends _default.$AbiSource ? _default.$AbiSource : 
   T extends _cfg.$memory ? _cfg.$memory : 
   T extends _cfg.$ConnectionTransport ? _cfg.$ConnectionTransport : 
   T extends _cfg.$AllowBareDDL ? _cfg.$AllowBareDDL : 
@@ -56,11 +70,8 @@ export type scalarCastableFrom<T extends $.ScalarType> =
   T extends _std.$number ? _std.$number : 
   T extends _sys.$VersionStage ? _sys.$VersionStage : 
   T extends _sys.$TransactionIsolation ? _sys.$TransactionIsolation : 
-  T extends _std.$uuid ? _std.$uuid : 
-  T extends _std.$str ? _std.$str : 
   T extends _std.$json ? _std.$json : 
   T extends _std.$int64 ? _std.$int64 : 
-  T extends _std.$int32 ? _std.$int32 : 
   T extends _std.$int16 ? _std.$int16 : 
   T extends _std.$float64 ? _std.$float64 : 
   T extends _std.$float32 ? _std.$float32 : 
@@ -69,7 +80,6 @@ export type scalarCastableFrom<T extends $.ScalarType> =
   T extends _std.$datetime ? _std.$datetime : 
   T extends _std.$bytes ? _std.$bytes : 
   T extends _std.$bool ? _std.$bool : 
-  T extends _std.$bigint ? _std.$bigint : 
   T extends _std.$JsonEmpty ? _std.$JsonEmpty : 
   T extends _schema.$Volatility ? _schema.$Volatility : 
   T extends _schema.$TypeModifier ? _schema.$TypeModifier : 
@@ -85,6 +95,23 @@ export type scalarCastableFrom<T extends $.ScalarType> =
   T extends _schema.$Cardinality ? _schema.$Cardinality : 
   T extends _schema.$AccessPolicyAction ? _schema.$AccessPolicyAction : 
   T extends _schema.$AccessKind ? _schema.$AccessKind : 
+  T extends _default.$uint64 ? _default.$uint64 : 
+  T extends _default.$uint256 ? _default.$uint256 : 
+  T extends _std.$bigint ? _std.$bigint : 
+  T extends _default.$uint16 ? _default.$uint16 : 
+  T extends _std.$int32 ? _std.$int32 : 
+  T extends _default.$current_user_accounts ? _default.$current_user_accounts : 
+  T extends _std.$uuid ? _std.$uuid : 
+  T extends _default.$TransferDirection ? _default.$TransferDirection : 
+  T extends _default.$TransactionProposalStatus ? _default.$TransactionProposalStatus : 
+  T extends _default.$TargetSelector ? _default.$TargetSelector : 
+  T extends _default.$Name ? _default.$Name : 
+  T extends _default.$Bytes4 ? _default.$Bytes4 : 
+  T extends _default.$Bytes32 ? _default.$Bytes32 : 
+  T extends _default.$Bytes ? _default.$Bytes : 
+  T extends _default.$Address ? _default.$Address : 
+  T extends _std.$str ? _std.$str : 
+  T extends _default.$AbiSource ? _default.$AbiSource : 
   T extends _cfg.$memory ? _cfg.$memory : 
   T extends _cfg.$ConnectionTransport ? _cfg.$ConnectionTransport : 
   T extends _cfg.$AllowBareDDL ? _cfg.$AllowBareDDL : 
@@ -114,18 +141,6 @@ type getSharedParentScalar<A, B> =
     :
     never
   :
-  A extends _std.$uuid ?
-    B extends _std.$uuid ?
-    B
-    :
-    never
-  :
-  A extends _std.$str ?
-    B extends _std.$str ?
-    B
-    :
-    never
-  :
   A extends _std.$json ?
     B extends _std.$json ?
     B
@@ -134,12 +149,6 @@ type getSharedParentScalar<A, B> =
   :
   A extends _std.$int64 ?
     B extends _std.$int64 ?
-    B
-    :
-    never
-  :
-  A extends _std.$int32 ?
-    B extends _std.$int32 ?
     B
     :
     never
@@ -191,15 +200,6 @@ type getSharedParentScalar<A, B> =
   :
   A extends _std.$bool ?
     B extends _std.$bool ?
-    B
-    :
-    never
-  :
-  A extends _std.$bigint ?
-    B extends _std.$decimal ?
-    B
-    :
-    B extends _std.$bigint ?
     B
     :
     never
@@ -294,6 +294,111 @@ type getSharedParentScalar<A, B> =
     :
     never
   :
+  A extends _default.$uint64 ?
+    B extends _default.$uint64 ?
+    B
+    :
+    never
+  :
+  A extends _default.$uint256 ?
+    B extends _default.$uint256 ?
+    B
+    :
+    never
+  :
+  A extends _std.$bigint ?
+    B extends _std.$decimal ?
+    B
+    :
+    B extends _std.$bigint ?
+    B
+    :
+    never
+  :
+  A extends _default.$uint16 ?
+    B extends _default.$uint16 ?
+    B
+    :
+    never
+  :
+  A extends _std.$int32 ?
+    B extends _std.$int32 ?
+    B
+    :
+    never
+  :
+  A extends _default.$current_user_accounts ?
+    B extends _default.$current_user_accounts ?
+    B
+    :
+    never
+  :
+  A extends _std.$uuid ?
+    B extends _std.$uuid ?
+    B
+    :
+    never
+  :
+  A extends _default.$TransferDirection ?
+    B extends _default.$TransferDirection ?
+    B
+    :
+    never
+  :
+  A extends _default.$TransactionProposalStatus ?
+    B extends _default.$TransactionProposalStatus ?
+    B
+    :
+    never
+  :
+  A extends _default.$TargetSelector ?
+    B extends _default.$TargetSelector ?
+    B
+    :
+    never
+  :
+  A extends _default.$Name ?
+    B extends _default.$Name ?
+    B
+    :
+    never
+  :
+  A extends _default.$Bytes4 ?
+    B extends _default.$Bytes4 ?
+    B
+    :
+    never
+  :
+  A extends _default.$Bytes32 ?
+    B extends _default.$Bytes32 ?
+    B
+    :
+    never
+  :
+  A extends _default.$Bytes ?
+    B extends _default.$Bytes ?
+    B
+    :
+    never
+  :
+  A extends _default.$Address ?
+    B extends _default.$Address ?
+    B
+    :
+    never
+  :
+  A extends _std.$str ?
+    B extends _std.$str ?
+    B
+    :
+    never
+  :
+  A extends _default.$AbiSource ?
+    B extends _default.$AbiSource ?
+    B
+    :
+    never
+  :
   A extends _cfg.$memory ?
     B extends _cfg.$memory ?
     B
@@ -377,18 +482,6 @@ function getSharedParentScalar<A extends $.ScalarType, B extends $.ScalarType>(a
     }
     throw new Error(`Types are not castable: ${a.__name__}, ${b.__name__}`);
     }
-  if (a.__name__ === "std::uuid") {
-    if(b.__name__ === "std::uuid") {
-      return b;
-    }
-    throw new Error(`Types are not castable: ${a.__name__}, ${b.__name__}`);
-    }
-  if (a.__name__ === "std::str") {
-    if(b.__name__ === "std::str") {
-      return b;
-    }
-    throw new Error(`Types are not castable: ${a.__name__}, ${b.__name__}`);
-    }
   if (a.__name__ === "std::json") {
     if(b.__name__ === "std::json") {
       return b;
@@ -397,12 +490,6 @@ function getSharedParentScalar<A extends $.ScalarType, B extends $.ScalarType>(a
     }
   if (a.__name__ === "std::int64") {
     if(b.__name__ === "std::int64") {
-      return b;
-    }
-    throw new Error(`Types are not castable: ${a.__name__}, ${b.__name__}`);
-    }
-  if (a.__name__ === "std::int32") {
-    if(b.__name__ === "std::int32") {
       return b;
     }
     throw new Error(`Types are not castable: ${a.__name__}, ${b.__name__}`);
@@ -454,15 +541,6 @@ function getSharedParentScalar<A extends $.ScalarType, B extends $.ScalarType>(a
     }
   if (a.__name__ === "std::bool") {
     if(b.__name__ === "std::bool") {
-      return b;
-    }
-    throw new Error(`Types are not castable: ${a.__name__}, ${b.__name__}`);
-    }
-  if (a.__name__ === "std::bigint") {
-    if(b.__name__ === "std::decimal") {
-      return b;
-    }
-    if(b.__name__ === "std::bigint") {
       return b;
     }
     throw new Error(`Types are not castable: ${a.__name__}, ${b.__name__}`);
@@ -553,6 +631,111 @@ function getSharedParentScalar<A extends $.ScalarType, B extends $.ScalarType>(a
     }
   if (a.__name__ === "schema::AccessKind") {
     if(b.__name__ === "schema::AccessKind") {
+      return b;
+    }
+    throw new Error(`Types are not castable: ${a.__name__}, ${b.__name__}`);
+    }
+  if (a.__name__ === "default::uint64") {
+    if(b.__name__ === "default::uint64") {
+      return b;
+    }
+    throw new Error(`Types are not castable: ${a.__name__}, ${b.__name__}`);
+    }
+  if (a.__name__ === "default::uint256") {
+    if(b.__name__ === "default::uint256") {
+      return b;
+    }
+    throw new Error(`Types are not castable: ${a.__name__}, ${b.__name__}`);
+    }
+  if (a.__name__ === "std::bigint") {
+    if(b.__name__ === "std::decimal") {
+      return b;
+    }
+    if(b.__name__ === "std::bigint") {
+      return b;
+    }
+    throw new Error(`Types are not castable: ${a.__name__}, ${b.__name__}`);
+    }
+  if (a.__name__ === "default::uint16") {
+    if(b.__name__ === "default::uint16") {
+      return b;
+    }
+    throw new Error(`Types are not castable: ${a.__name__}, ${b.__name__}`);
+    }
+  if (a.__name__ === "std::int32") {
+    if(b.__name__ === "std::int32") {
+      return b;
+    }
+    throw new Error(`Types are not castable: ${a.__name__}, ${b.__name__}`);
+    }
+  if (a.__name__ === "default::current_user_accounts") {
+    if(b.__name__ === "default::current_user_accounts") {
+      return b;
+    }
+    throw new Error(`Types are not castable: ${a.__name__}, ${b.__name__}`);
+    }
+  if (a.__name__ === "std::uuid") {
+    if(b.__name__ === "std::uuid") {
+      return b;
+    }
+    throw new Error(`Types are not castable: ${a.__name__}, ${b.__name__}`);
+    }
+  if (a.__name__ === "default::TransferDirection") {
+    if(b.__name__ === "default::TransferDirection") {
+      return b;
+    }
+    throw new Error(`Types are not castable: ${a.__name__}, ${b.__name__}`);
+    }
+  if (a.__name__ === "default::TransactionProposalStatus") {
+    if(b.__name__ === "default::TransactionProposalStatus") {
+      return b;
+    }
+    throw new Error(`Types are not castable: ${a.__name__}, ${b.__name__}`);
+    }
+  if (a.__name__ === "default::TargetSelector") {
+    if(b.__name__ === "default::TargetSelector") {
+      return b;
+    }
+    throw new Error(`Types are not castable: ${a.__name__}, ${b.__name__}`);
+    }
+  if (a.__name__ === "default::Name") {
+    if(b.__name__ === "default::Name") {
+      return b;
+    }
+    throw new Error(`Types are not castable: ${a.__name__}, ${b.__name__}`);
+    }
+  if (a.__name__ === "default::Bytes4") {
+    if(b.__name__ === "default::Bytes4") {
+      return b;
+    }
+    throw new Error(`Types are not castable: ${a.__name__}, ${b.__name__}`);
+    }
+  if (a.__name__ === "default::Bytes32") {
+    if(b.__name__ === "default::Bytes32") {
+      return b;
+    }
+    throw new Error(`Types are not castable: ${a.__name__}, ${b.__name__}`);
+    }
+  if (a.__name__ === "default::Bytes") {
+    if(b.__name__ === "default::Bytes") {
+      return b;
+    }
+    throw new Error(`Types are not castable: ${a.__name__}, ${b.__name__}`);
+    }
+  if (a.__name__ === "default::Address") {
+    if(b.__name__ === "default::Address") {
+      return b;
+    }
+    throw new Error(`Types are not castable: ${a.__name__}, ${b.__name__}`);
+    }
+  if (a.__name__ === "std::str") {
+    if(b.__name__ === "std::str") {
+      return b;
+    }
+    throw new Error(`Types are not castable: ${a.__name__}, ${b.__name__}`);
+    }
+  if (a.__name__ === "default::AbiSource") {
+    if(b.__name__ === "default::AbiSource") {
       return b;
     }
     throw new Error(`Types are not castable: ${a.__name__}, ${b.__name__}`);
@@ -649,7 +832,7 @@ export type scalarLiterals =
   | edgedb.Range<any>;
 
 type getTsType<T extends $.BaseType> = T extends $.ScalarType
-  ? T extends _std.$decimal | _std.$json | _std.$uuid
+  ? T extends _std.$uuid | _std.$decimal | _std.$json
     ? never
     : T["__tstype__"]
   : T extends $.RangeType

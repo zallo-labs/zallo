@@ -6,9 +6,9 @@ export namespace std {
   export interface BaseObject {
     "id": string;
   }
+  export interface $Object extends BaseObject {}
   export interface FreeObject extends BaseObject {}
   export type JsonEmpty = "ReturnEmpty" | "ReturnTarget" | "Error" | "UseNull" | "DeleteKey";
-  export interface $Object extends BaseObject {}
 }
 export namespace cfg {
   export interface ConfigObject extends std.BaseObject {}
@@ -54,6 +54,132 @@ export namespace cfg {
   }
   export interface Trust extends AuthMethod {}
 }
+export type AbiSource = "Verified";
+export interface User extends std.$Object {
+  "contacts": Contact[];
+  "address": string;
+  "name"?: string | null;
+  "pushToken"?: string | null;
+}
+export interface Account extends User {
+  "policies": Policy[];
+  "proposals": Proposal[];
+  "transactionProposals": TransactionProposal[];
+  "transfers": Transfer[];
+  "implementation": string;
+  "isActive": boolean;
+  "salt": string;
+}
+export interface ProposalResponse extends std.$Object {
+  "user": User;
+  "proposal": Proposal;
+  "createdAt"?: Date | null;
+}
+export interface Approval extends ProposalResponse {
+  "signature": string;
+}
+export interface Contact extends std.$Object {
+  "user": User;
+  "name": string;
+  "address": string;
+}
+export interface Contract extends std.$Object {
+  "functions": Function[];
+  "address": string;
+}
+export interface Function extends std.$Object {
+  "selector": string;
+  "abi": unknown;
+  "abiMd5": string;
+  "source": AbiSource;
+}
+export interface Operation extends std.$Object {
+  "data"?: string | null;
+  "to": string;
+  "value"?: bigint | null;
+}
+export interface Policy extends std.$Object {
+  "account": Account;
+  "stateHistory": PolicyState[];
+  "state"?: PolicyState | null;
+  "draft"?: PolicyState | null;
+  "name": string;
+  "key": number;
+  "isActive": boolean;
+}
+export interface PolicyState extends std.$Object {
+  "approvers": User[];
+  "proposal"?: TransactionProposal | null;
+  "targets": Target[];
+  "policy"?: Policy | null;
+  "activationBlock"?: bigint | null;
+  "createdAt": Date;
+  "isAccountInitState": boolean;
+  "isRemoved": boolean;
+  "threshold": number;
+}
+export interface Proposal extends std.$Object {
+  "account": Account;
+  "proposedBy": User;
+  "approvals": Approval[];
+  "rejections": Rejection[];
+  "responses": ProposalResponse[];
+  "policy"?: Policy | null;
+  "createdAt"?: Date | null;
+  "hash": string;
+  "label"?: string | null;
+}
+export interface Receipt extends std.$Object {
+  "transfers": Transfer[];
+  "responses": string[];
+  "success": boolean;
+  "block": bigint;
+  "fee": bigint;
+  "gasUsed": bigint;
+  "timestamp": Date;
+}
+export interface Rejection extends ProposalResponse {}
+export interface Simulation extends std.$Object {
+  "transfers": TransferDetails[];
+}
+export interface Target extends std.$Object {
+  "selectors": string[];
+  "to": string;
+}
+export interface Transaction extends std.$Object {
+  "receipt"?: Receipt | null;
+  "proposal": TransactionProposal;
+  "submittedAt": Date;
+  "gasPrice": bigint;
+  "hash": string;
+}
+export interface TransactionProposal extends Proposal {
+  "operations": Operation[];
+  "simulation": Simulation;
+  "transactions": Transaction[];
+  "transaction"?: Transaction | null;
+  "nonce": bigint;
+  "feeToken": string;
+  "gasLimit": bigint;
+  "status": TransactionProposalStatus;
+}
+export type TransactionProposalStatus = "Pending" | "Executing" | "Successful" | "Failed";
+export interface TransferDetails extends std.$Object {
+  "account": Account;
+  "amount": bigint;
+  "direction": TransferDirection;
+  "from": string;
+  "to": string;
+  "token": string;
+}
+export interface Transfer extends TransferDetails {
+  "receipt"?: Receipt | null;
+  "block": bigint;
+  "logIndex": number;
+  "timestamp": Date;
+}
+export type TransferDirection = "In" | "Out";
+export interface current_user extends User {}
 export namespace schema {
   export type AccessKind = "Select" | "UpdateRead" | "UpdateWrite" | "Delete" | "Insert";
   export interface $Object extends std.BaseObject {
@@ -274,9 +400,9 @@ export namespace sys {
 export interface types {
   "std": {
     "BaseObject": std.BaseObject;
+    "Object": std.$Object;
     "FreeObject": std.FreeObject;
     "JsonEmpty": std.JsonEmpty;
-    "Object": std.$Object;
   };
   "cfg": {
     "ConfigObject": cfg.ConfigObject;
@@ -291,6 +417,31 @@ export interface types {
     "JWT": cfg.JWT;
     "SCRAM": cfg.SCRAM;
     "Trust": cfg.Trust;
+  };
+  "default": {
+    "AbiSource": AbiSource;
+    "User": User;
+    "Account": Account;
+    "ProposalResponse": ProposalResponse;
+    "Approval": Approval;
+    "Contact": Contact;
+    "Contract": Contract;
+    "Function": Function;
+    "Operation": Operation;
+    "Policy": Policy;
+    "PolicyState": PolicyState;
+    "Proposal": Proposal;
+    "Receipt": Receipt;
+    "Rejection": Rejection;
+    "Simulation": Simulation;
+    "Target": Target;
+    "Transaction": Transaction;
+    "TransactionProposal": TransactionProposal;
+    "TransactionProposalStatus": TransactionProposalStatus;
+    "TransferDetails": TransferDetails;
+    "Transfer": Transfer;
+    "TransferDirection": TransferDirection;
+    "current_user": current_user;
   };
   "schema": {
     "AccessKind": schema.AccessKind;
