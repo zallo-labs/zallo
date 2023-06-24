@@ -8,6 +8,8 @@ import { IdField } from '~/apollo/scalars/Id.scalar';
 import * as eql from '~/edgeql-interfaces';
 import { uuid } from 'edgedb/dist/codecs/ifaces';
 import { PolicyKeyField } from '~/apollo/scalars/PolicyKey.scalar';
+import { AddressField } from '~/apollo/scalars/Address.scalar';
+import { Address } from 'lib';
 
 @ObjectType()
 export class Policy {
@@ -37,6 +39,36 @@ export class Policy {
 }
 
 @ObjectType()
+export class TransferLimit {
+  @IdField()
+  id: uuid;
+
+  @AddressField()
+  token: Address;
+
+  @Field(() => GraphQLBigInt)
+  amount: bigint;
+
+  @Field(() => Number, { description: 'seconds' })
+  duration: number;
+}
+
+@ObjectType()
+export class TransfersConfig implements eql.TransfersConfig {
+  @IdField()
+  id: uuid;
+
+  @Field(() => [TransferLimit])
+  limits: TransferLimit[];
+
+  @Field(() => Boolean)
+  defaultAllow: boolean;
+
+  @Field(() => Number)
+  budget: number;
+}
+
+@ObjectType()
 export class PolicyState {
   @IdField()
   id: uuid;
@@ -55,6 +87,9 @@ export class PolicyState {
 
   @Field(() => [Target])
   targets: Target[];
+
+  @Field(() => TransfersConfig)
+  transfers: TransfersConfig;
 
   @Field(() => Boolean)
   isRemoved: boolean;

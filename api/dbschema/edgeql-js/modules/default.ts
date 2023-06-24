@@ -47,17 +47,23 @@ const current_user_accounts: $.scalarTypeWithConstructor<_std.$uuid, never> = $.
 export type $uint16 = $.ScalarType<"std::number", number>;
 const uint16: $.scalarTypeWithConstructor<_std.$number, string> = $.makeType<$.scalarTypeWithConstructor<_std.$number, string>>(_.spec, "fa61e5c1-125a-11ee-bd67-f34c6e6d4530", _.syntax.literal);
 
+export type $uint224 = $.ScalarType<"std::bigint", bigint>;
+const uint224: $.scalarTypeWithConstructor<_std.$bigint, never> = $.makeType<$.scalarTypeWithConstructor<_std.$bigint, never>>(_.spec, "a6292fc2-125c-11ee-a9e3-59a7275a9b7c", _.syntax.literal);
+
 export type $uint256 = $.ScalarType<"std::bigint", bigint>;
 const uint256: $.scalarTypeWithConstructor<_std.$bigint, never> = $.makeType<$.scalarTypeWithConstructor<_std.$bigint, never>>(_.spec, "f9f725ca-125a-11ee-93f6-51a3338f7e23", _.syntax.literal);
+
+export type $uint32 = $.ScalarType<"std::number", number>;
+const uint32: $.scalarTypeWithConstructor<_std.$number, string> = $.makeType<$.scalarTypeWithConstructor<_std.$number, string>>(_.spec, "9bb03add-125c-11ee-9a21-73e53311418a", _.syntax.literal);
 
 export type $uint64 = $.ScalarType<"std::bigint", bigint>;
 const uint64: $.scalarTypeWithConstructor<_std.$bigint, never> = $.makeType<$.scalarTypeWithConstructor<_std.$bigint, never>>(_.spec, "fa1d5014-125a-11ee-a219-87c3743b46db", _.syntax.literal);
 
 export type $UserλShape = $.typeutil.flatten<_std.$Object_169a5ce7108a11eeb5af6feb88c88f11λShape & {
-  "contacts": $.LinkDesc<$Contact, $.Cardinality.Many, {}, false, true,  false, false>;
   "address": $.PropertyDesc<$Address, $.Cardinality.One, true, false, false, false>;
   "name": $.PropertyDesc<$Name, $.Cardinality.AtMostOne, false, false, false, false>;
   "pushToken": $.PropertyDesc<_std.$str, $.Cardinality.AtMostOne, false, false, false, false>;
+  "contacts": $.LinkDesc<$Contact, $.Cardinality.Many, {}, false, true,  false, false>;
   "<user[is Contact]": $.LinkDesc<$Contact, $.Cardinality.Many, {}, false, false,  false, false>;
   "<user[is ProposalResponse]": $.LinkDesc<$ProposalResponse, $.Cardinality.Many, {}, false, false,  false, false>;
   "<user[is Approval]": $.LinkDesc<$Approval, $.Cardinality.Many, {}, false, false,  false, false>;
@@ -78,13 +84,13 @@ const $User = $.makeType<$User>(_.spec, "f983f093-125a-11ee-8a14-e7efb37ef0a3", 
 const User: $.$expr_PathNode<$.TypeSet<$User, $.Cardinality.Many>, null> = _.syntax.$PathNode($.$toSet($User, $.Cardinality.Many), null);
 
 export type $AccountλShape = $.typeutil.flatten<$UserλShape & {
+  "implementation": $.PropertyDesc<$Address, $.Cardinality.One, false, false, false, false>;
+  "isActive": $.PropertyDesc<_std.$bool, $.Cardinality.One, false, false, false, false>;
+  "salt": $.PropertyDesc<$Bytes32, $.Cardinality.One, false, false, false, false>;
   "policies": $.LinkDesc<$Policy, $.Cardinality.Many, {}, false, true,  false, false>;
   "proposals": $.LinkDesc<$Proposal, $.Cardinality.Many, {}, false, true,  false, false>;
   "transactionProposals": $.LinkDesc<$TransactionProposal, $.Cardinality.Many, {}, false, true,  false, false>;
   "transfers": $.LinkDesc<$Transfer, $.Cardinality.Many, {}, false, true,  false, false>;
-  "implementation": $.PropertyDesc<$Address, $.Cardinality.One, false, false, false, false>;
-  "isActive": $.PropertyDesc<_std.$bool, $.Cardinality.One, false, false, false, false>;
-  "salt": $.PropertyDesc<$Bytes32, $.Cardinality.One, false, false, false, false>;
   "<account[is Proposal]": $.LinkDesc<$Proposal, $.Cardinality.Many, {}, false, false,  false, false>;
   "<account[is TransferDetails]": $.LinkDesc<$TransferDetails, $.Cardinality.Many, {}, false, false,  false, false>;
   "<account[is TransactionProposal]": $.LinkDesc<$TransactionProposal, $.Cardinality.Many, {}, false, false,  false, false>;
@@ -101,8 +107,8 @@ const Account: $.$expr_PathNode<$.TypeSet<$Account, $.Cardinality.Many>, null> =
 
 export type $ProposalResponseλShape = $.typeutil.flatten<_std.$Object_169a5ce7108a11eeb5af6feb88c88f11λShape & {
   "user": $.LinkDesc<$User, $.Cardinality.One, {}, false, false,  false, false>;
-  "proposal": $.LinkDesc<$Proposal, $.Cardinality.One, {}, false, false,  false, false>;
   "createdAt": $.PropertyDesc<_std.$datetime, $.Cardinality.AtMostOne, false, false, true, true>;
+  "proposal": $.LinkDesc<$Proposal, $.Cardinality.One, {}, false, false,  false, false>;
   "<responses[is Proposal]": $.LinkDesc<$Proposal, $.Cardinality.Many, {}, false, false,  false, false>;
   "<responses[is TransactionProposal]": $.LinkDesc<$TransactionProposal, $.Cardinality.Many, {}, false, false,  false, false>;
   "<responses": $.LinkDesc<$.ObjectType, $.Cardinality.Many, {}, false, false,  false, false>;
@@ -190,12 +196,12 @@ const Operation: $.$expr_PathNode<$.TypeSet<$Operation, $.Cardinality.Many>, nul
 
 export type $PolicyλShape = $.typeutil.flatten<_std.$Object_169a5ce7108a11eeb5af6feb88c88f11λShape & {
   "account": $.LinkDesc<$Account, $.Cardinality.One, {}, false, false,  false, false>;
-  "stateHistory": $.LinkDesc<$PolicyState, $.Cardinality.AtLeastOne, {}, true, false,  false, false>;
-  "state": $.LinkDesc<$PolicyState, $.Cardinality.AtMostOne, {}, false, true,  false, false>;
-  "draft": $.LinkDesc<$PolicyState, $.Cardinality.AtMostOne, {}, false, true,  false, false>;
   "name": $.PropertyDesc<$Name, $.Cardinality.One, false, false, false, false>;
   "key": $.PropertyDesc<$uint16, $.Cardinality.One, false, false, false, false>;
+  "stateHistory": $.LinkDesc<$PolicyState, $.Cardinality.AtLeastOne, {}, true, false,  false, false>;
+  "state": $.LinkDesc<$PolicyState, $.Cardinality.AtMostOne, {}, false, true,  false, false>;
   "isActive": $.PropertyDesc<_std.$bool, $.Cardinality.One, false, true, false, false>;
+  "draft": $.LinkDesc<$PolicyState, $.Cardinality.AtMostOne, {}, false, true,  false, false>;
   "<policy[is PolicyState]": $.LinkDesc<$PolicyState, $.Cardinality.Many, {}, false, false,  false, false>;
   "<policies[is Account]": $.LinkDesc<$Account, $.Cardinality.Many, {}, false, false,  false, false>;
   "<policy[is Proposal]": $.LinkDesc<$Proposal, $.Cardinality.Many, {}, false, false,  false, false>;
@@ -214,15 +220,16 @@ const $Policy = $.makeType<$Policy>(_.spec, "fa655984-125a-11ee-af54-eb496275734
 const Policy: $.$expr_PathNode<$.TypeSet<$Policy, $.Cardinality.Many>, null> = _.syntax.$PathNode($.$toSet($Policy, $.Cardinality.Many), null);
 
 export type $PolicyStateλShape = $.typeutil.flatten<_std.$Object_169a5ce7108a11eeb5af6feb88c88f11λShape & {
-  "approvers": $.LinkDesc<$User, $.Cardinality.Many, {}, false, false,  false, false>;
-  "proposal": $.LinkDesc<$TransactionProposal, $.Cardinality.AtMostOne, {}, false, false,  false, false>;
-  "targets": $.LinkDesc<$Target, $.Cardinality.Many, {}, false, false,  false, false>;
-  "policy": $.LinkDesc<$Policy, $.Cardinality.AtMostOne, {}, false, true,  false, false>;
   "activationBlock": $.PropertyDesc<_std.$bigint, $.Cardinality.AtMostOne, false, false, false, false>;
   "createdAt": $.PropertyDesc<_std.$datetime, $.Cardinality.One, false, false, true, true>;
+  "approvers": $.LinkDesc<$User, $.Cardinality.Many, {}, false, false,  false, false>;
+  "proposal": $.LinkDesc<$TransactionProposal, $.Cardinality.AtMostOne, {}, false, false,  false, false>;
   "isAccountInitState": $.PropertyDesc<_std.$bool, $.Cardinality.One, false, true, false, false>;
+  "targets": $.LinkDesc<$Target, $.Cardinality.Many, {}, false, false,  false, false>;
   "isRemoved": $.PropertyDesc<_std.$bool, $.Cardinality.One, false, false, false, true>;
   "threshold": $.PropertyDesc<$uint16, $.Cardinality.One, false, false, false, false>;
+  "policy": $.LinkDesc<$Policy, $.Cardinality.AtMostOne, {}, false, true,  false, false>;
+  "transfers": $.LinkDesc<$TransfersConfig, $.Cardinality.One, {}, false, false,  false, false>;
   "<stateHistory[is Policy]": $.LinkDesc<$Policy, $.Cardinality.AtMostOne, {}, false, false,  false, false>;
   "<state[is Policy]": $.LinkDesc<$Policy, $.Cardinality.Many, {}, false, false,  false, false>;
   "<draft[is Policy]": $.LinkDesc<$Policy, $.Cardinality.Many, {}, false, false,  false, false>;
@@ -240,13 +247,13 @@ const PolicyState: $.$expr_PathNode<$.TypeSet<$PolicyState, $.Cardinality.Many>,
 export type $ProposalλShape = $.typeutil.flatten<_std.$Object_169a5ce7108a11eeb5af6feb88c88f11λShape & {
   "account": $.LinkDesc<$Account, $.Cardinality.One, {}, false, false,  false, false>;
   "proposedBy": $.LinkDesc<$User, $.Cardinality.One, {}, false, false,  true, true>;
+  "createdAt": $.PropertyDesc<_std.$datetime, $.Cardinality.AtMostOne, false, false, true, true>;
+  "hash": $.PropertyDesc<$Bytes32, $.Cardinality.One, true, false, false, false>;
+  "label": $.PropertyDesc<_std.$str, $.Cardinality.AtMostOne, false, false, false, false>;
   "approvals": $.LinkDesc<$Approval, $.Cardinality.Many, {}, false, true,  false, false>;
   "rejections": $.LinkDesc<$Rejection, $.Cardinality.Many, {}, false, true,  false, false>;
   "responses": $.LinkDesc<$ProposalResponse, $.Cardinality.Many, {}, false, true,  false, false>;
   "policy": $.LinkDesc<$Policy, $.Cardinality.AtMostOne, {}, false, false,  false, false>;
-  "createdAt": $.PropertyDesc<_std.$datetime, $.Cardinality.AtMostOne, false, false, true, true>;
-  "hash": $.PropertyDesc<$Bytes32, $.Cardinality.One, true, false, false, false>;
-  "label": $.PropertyDesc<_std.$str, $.Cardinality.AtMostOne, false, false, false, false>;
   "<proposal[is ProposalResponse]": $.LinkDesc<$ProposalResponse, $.Cardinality.Many, {}, false, false,  false, false>;
   "<proposal[is Approval]": $.LinkDesc<$Approval, $.Cardinality.Many, {}, false, false,  false, false>;
   "<proposal[is Rejection]": $.LinkDesc<$Rejection, $.Cardinality.Many, {}, false, false,  false, false>;
@@ -263,13 +270,13 @@ const $Proposal = $.makeType<$Proposal>(_.spec, "f9b57412-125a-11ee-96e8-97a4ce8
 const Proposal: $.$expr_PathNode<$.TypeSet<$Proposal, $.Cardinality.Many>, null> = _.syntax.$PathNode($.$toSet($Proposal, $.Cardinality.Many), null);
 
 export type $ReceiptλShape = $.typeutil.flatten<_std.$Object_169a5ce7108a11eeb5af6feb88c88f11λShape & {
-  "transfers": $.LinkDesc<$Transfer, $.Cardinality.Many, {}, false, true,  false, false>;
   "responses": $.PropertyDesc<$.ArrayType<$Bytes>, $.Cardinality.One, false, false, false, false>;
   "success": $.PropertyDesc<_std.$bool, $.Cardinality.One, false, false, false, false>;
   "block": $.PropertyDesc<_std.$bigint, $.Cardinality.One, false, false, false, false>;
   "fee": $.PropertyDesc<_std.$bigint, $.Cardinality.One, false, false, false, false>;
   "gasUsed": $.PropertyDesc<_std.$bigint, $.Cardinality.One, false, false, false, false>;
   "timestamp": $.PropertyDesc<_std.$datetime, $.Cardinality.One, false, false, false, true>;
+  "transfers": $.LinkDesc<$Transfer, $.Cardinality.Many, {}, false, true,  false, false>;
   "<receipt[is Transaction]": $.LinkDesc<$Transaction, $.Cardinality.Many, {}, false, false,  false, false>;
   "<receipt[is Transfer]": $.LinkDesc<$Transfer, $.Cardinality.Many, {}, false, false,  false, false>;
   "<receipt": $.LinkDesc<$.ObjectType, $.Cardinality.Many, {}, false, false,  false, false>;
@@ -320,10 +327,10 @@ const Target: $.$expr_PathNode<$.TypeSet<$Target, $.Cardinality.Many>, null> = _
 
 export type $TransactionλShape = $.typeutil.flatten<_std.$Object_169a5ce7108a11eeb5af6feb88c88f11λShape & {
   "receipt": $.LinkDesc<$Receipt, $.Cardinality.AtMostOne, {}, false, false,  false, false>;
-  "proposal": $.LinkDesc<$TransactionProposal, $.Cardinality.One, {}, false, false,  false, false>;
   "submittedAt": $.PropertyDesc<_std.$datetime, $.Cardinality.One, false, false, true, true>;
   "gasPrice": $.PropertyDesc<$uint256, $.Cardinality.One, false, false, false, false>;
   "hash": $.PropertyDesc<$Bytes32, $.Cardinality.One, true, false, false, false>;
+  "proposal": $.LinkDesc<$TransactionProposal, $.Cardinality.One, {}, false, false,  false, false>;
   "<transactions[is TransactionProposal]": $.LinkDesc<$TransactionProposal, $.Cardinality.Many, {}, false, false,  false, false>;
   "<transaction[is TransactionProposal]": $.LinkDesc<$TransactionProposal, $.Cardinality.Many, {}, false, false,  false, false>;
   "<transaction": $.LinkDesc<$.ObjectType, $.Cardinality.Many, {}, false, false,  false, false>;
@@ -338,13 +345,13 @@ const $Transaction = $.makeType<$Transaction>(_.spec, "f9fbf622-125a-11ee-8911-4
 const Transaction: $.$expr_PathNode<$.TypeSet<$Transaction, $.Cardinality.Many>, null> = _.syntax.$PathNode($.$toSet($Transaction, $.Cardinality.Many), null);
 
 export type $TransactionProposalλShape = $.typeutil.flatten<Omit<$ProposalλShape, "<proposal"> & {
+  "nonce": $.PropertyDesc<$uint64, $.Cardinality.One, false, false, false, false>;
   "operations": $.LinkDesc<$Operation, $.Cardinality.AtLeastOne, {}, true, false,  false, false>;
   "simulation": $.LinkDesc<$Simulation, $.Cardinality.One, {}, false, false,  false, false>;
-  "transactions": $.LinkDesc<$Transaction, $.Cardinality.Many, {}, false, true,  false, false>;
-  "transaction": $.LinkDesc<$Transaction, $.Cardinality.AtMostOne, {}, false, true,  false, false>;
-  "nonce": $.PropertyDesc<$uint64, $.Cardinality.One, false, false, false, false>;
   "feeToken": $.PropertyDesc<$Address, $.Cardinality.One, false, false, false, false>;
   "gasLimit": $.PropertyDesc<$uint256, $.Cardinality.One, false, false, false, true>;
+  "transactions": $.LinkDesc<$Transaction, $.Cardinality.Many, {}, false, true,  false, false>;
+  "transaction": $.LinkDesc<$Transaction, $.Cardinality.AtMostOne, {}, false, true,  false, false>;
   "status": $.PropertyDesc<$TransactionProposalStatus, $.Cardinality.One, false, true, false, false>;
   "<proposal[is Transaction]": $.LinkDesc<$Transaction, $.Cardinality.Many, {}, false, false,  false, false>;
   "<proposal[is PolicyState]": $.LinkDesc<$PolicyState, $.Cardinality.Many, {}, false, false,  false, false>;
@@ -394,6 +401,35 @@ const $Transfer = $.makeType<$Transfer>(_.spec, "fa54ea8d-125a-11ee-bbdc-dbadf2c
 
 const Transfer: $.$expr_PathNode<$.TypeSet<$Transfer, $.Cardinality.Many>, null> = _.syntax.$PathNode($.$toSet($Transfer, $.Cardinality.Many), null);
 
+export type $TransferLimitλShape = $.typeutil.flatten<_std.$Object_169a5ce7108a11eeb5af6feb88c88f11λShape & {
+  "token": $.PropertyDesc<$Address, $.Cardinality.One, false, false, false, false>;
+  "amount": $.PropertyDesc<$uint224, $.Cardinality.One, false, false, false, false>;
+  "duration": $.PropertyDesc<$uint32, $.Cardinality.One, false, false, false, false>;
+  "<limits[is TransfersConfig]": $.LinkDesc<$TransfersConfig, $.Cardinality.AtMostOne, {}, false, false,  false, false>;
+  "<limits": $.LinkDesc<$.ObjectType, $.Cardinality.Many, {}, false, false,  false, false>;
+}>;
+type $TransferLimit = $.ObjectType<"default::TransferLimit", $TransferLimitλShape, null, [
+  ..._std.$Object_169a5ce7108a11eeb5af6feb88c88f11['__exclusives__'],
+]>;
+const $TransferLimit = $.makeType<$TransferLimit>(_.spec, "9bad2be3-125c-11ee-bf19-bd6c75eed6f1", _.syntax.literal);
+
+const TransferLimit: $.$expr_PathNode<$.TypeSet<$TransferLimit, $.Cardinality.Many>, null> = _.syntax.$PathNode($.$toSet($TransferLimit, $.Cardinality.Many), null);
+
+export type $TransfersConfigλShape = $.typeutil.flatten<_std.$Object_169a5ce7108a11eeb5af6feb88c88f11λShape & {
+  "budget": $.PropertyDesc<$uint32, $.Cardinality.One, false, false, false, false>;
+  "defaultAllow": $.PropertyDesc<_std.$bool, $.Cardinality.One, false, false, false, true>;
+  "limits": $.LinkDesc<$TransferLimit, $.Cardinality.Many, {}, true, false,  false, false>;
+  "<transfers[is PolicyState]": $.LinkDesc<$PolicyState, $.Cardinality.Many, {}, false, false,  false, false>;
+  "<transfers": $.LinkDesc<$.ObjectType, $.Cardinality.Many, {}, false, false,  false, false>;
+}>;
+type $TransfersConfig = $.ObjectType<"default::TransfersConfig", $TransfersConfigλShape, null, [
+  ..._std.$Object_169a5ce7108a11eeb5af6feb88c88f11['__exclusives__'],
+  {limits: {__element__: $TransferLimit, __cardinality__: $.Cardinality.One | $.Cardinality.AtMostOne },},
+]>;
+const $TransfersConfig = $.makeType<$TransfersConfig>(_.spec, "30801b27-125c-11ee-b184-a50fc1e80c1d", _.syntax.literal);
+
+const TransfersConfig: $.$expr_PathNode<$.TypeSet<$TransfersConfig, $.Cardinality.Many>, null> = _.syntax.$PathNode($.$toSet($TransfersConfig, $.Cardinality.Many), null);
+
 export type $current_userλShape = $.typeutil.flatten<$UserλShape & {
 }>;
 type $current_user = $.ObjectType<"default::current_user", $current_userλShape, null, [
@@ -435,7 +471,7 @@ const $default__globals: {  current_user: _.syntax.$expr_Global<
 
 
 
-export { AbiSource, Address, Bytes, Bytes32, Bytes4, Name, TargetSelector, TransactionProposalStatus, TransferDirection, current_user_accounts, uint16, uint256, uint64, $User, User, $Account, Account, $ProposalResponse, ProposalResponse, $Approval, Approval, $Contact, Contact, $Contract, Contract, $Function, Function, $Operation, Operation, $Policy, Policy, $PolicyState, PolicyState, $Proposal, Proposal, $Receipt, Receipt, $Rejection, Rejection, $Simulation, Simulation, $Target, Target, $Transaction, Transaction, $TransactionProposal, TransactionProposal, $TransferDetails, TransferDetails, $Transfer, Transfer, $current_user, current_user };
+export { AbiSource, Address, Bytes, Bytes32, Bytes4, Name, TargetSelector, TransactionProposalStatus, TransferDirection, current_user_accounts, uint16, uint224, uint256, uint32, uint64, $User, User, $Account, Account, $ProposalResponse, ProposalResponse, $Approval, Approval, $Contact, Contact, $Contract, Contract, $Function, Function, $Operation, Operation, $Policy, Policy, $PolicyState, PolicyState, $Proposal, Proposal, $Receipt, Receipt, $Rejection, Rejection, $Simulation, Simulation, $Target, Target, $Transaction, Transaction, $TransactionProposal, TransactionProposal, $TransferDetails, TransferDetails, $Transfer, Transfer, $TransferLimit, TransferLimit, $TransfersConfig, TransfersConfig, $current_user, current_user };
 
 type __defaultExports = {
   "AbiSource": typeof AbiSource;
@@ -449,7 +485,9 @@ type __defaultExports = {
   "TransferDirection": typeof TransferDirection;
   "current_user_accounts": typeof current_user_accounts;
   "uint16": typeof uint16;
+  "uint224": typeof uint224;
   "uint256": typeof uint256;
+  "uint32": typeof uint32;
   "uint64": typeof uint64;
   "User": typeof User;
   "Account": typeof Account;
@@ -470,6 +508,8 @@ type __defaultExports = {
   "TransactionProposal": typeof TransactionProposal;
   "TransferDetails": typeof TransferDetails;
   "Transfer": typeof Transfer;
+  "TransferLimit": typeof TransferLimit;
+  "TransfersConfig": typeof TransfersConfig;
   "current_user": typeof current_user;
   "global": typeof $default__globals
 };
@@ -485,7 +525,9 @@ const __defaultExports: __defaultExports = {
   "TransferDirection": TransferDirection,
   "current_user_accounts": current_user_accounts,
   "uint16": uint16,
+  "uint224": uint224,
   "uint256": uint256,
+  "uint32": uint32,
   "uint64": uint64,
   "User": User,
   "Account": Account,
@@ -506,6 +548,8 @@ const __defaultExports: __defaultExports = {
   "TransactionProposal": TransactionProposal,
   "TransferDetails": TransferDetails,
   "Transfer": Transfer,
+  "TransferLimit": TransferLimit,
+  "TransfersConfig": TransfersConfig,
   "current_user": current_user,
   "global": $default__globals
 };

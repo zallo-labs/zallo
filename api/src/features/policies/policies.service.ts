@@ -15,6 +15,7 @@ import {
   inputAsPolicy,
   policyStateShape,
   policyStateAsPolicy,
+  asTransfersConfig,
 } from './policies.util';
 
 interface CreateParams extends CreatePolicyInput {
@@ -92,6 +93,23 @@ export class PoliciesService {
         }),
     );
 
+    const transferLimits = e.for(
+      e.cast(
+        e.json,
+        e.set(
+          ...Object.entries(policy.permissions.transfers).map(([token, limit]) =>
+            e.json({ token, amount: limit.amount, duration: limit.duration }),
+          ),
+        ),
+      ),
+      (item) =>
+        e.insert(e.TransferLimit, {
+          token: e.cast(e.Address, item.token),
+          amount: e.cast(e.uint224, item.amount),
+          duration: e.cast(e.uint32, item.duration),
+        }),
+    );
+
     return {
       approvers: e.for(e.cast(e.str, e.set(...policy.approvers)), (approver) =>
         e.insert(e.User, { address: e.cast(e.str, approver) }).unlessConflict((user) => ({
@@ -101,6 +119,11 @@ export class PoliciesService {
       ),
       threshold: policy.threshold,
       targets,
+      transfers: e.insert(e.TransfersConfig, {
+        defaultAllow: policy.permissions.transfers.defaultAllow,
+        budget: policy.permissions.transfers.budget ?? policy.key,
+        limits: transferLimits,
+      }),
     } satisfies Partial<Parameters<typeof e.insert<typeof e.PolicyState>>[1]>;
   }
 
@@ -135,7 +158,9 @@ export class PoliciesService {
 
         if (approvers) policy.approvers = new Set(approvers);
         if (threshold !== undefined) policy.threshold = threshold;
-        if (permissions?.targets) policy.permissions = { targets: asTargets(permissions.targets) };
+        if (permissions?.targets) policy.permissions.targets = asTargets(permissions.targets);
+        if (permissions?.transfers)
+          policy.permissions.transfers = asTransfersConfig(permissions.transfers);
 
         const accountId = await e
           .select(e.Account, () => ({ filter_single: { address: account } }))
@@ -200,6 +225,7 @@ export class PoliciesService {
               ...(proposal && { proposal }),
               isRemoved: true,
               threshold: 0,
+              transfers: e.insert(e.TransfersConfig, { budget: key }),
             }),
           },
         },

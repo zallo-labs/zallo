@@ -185,6 +185,7 @@ input OperationInput {
 input PermissionsInput {
   """Targets that can be called"""
   targets: [TargetInput!]
+  transfers: TransfersConfigInput
 }
 
 type Policy {
@@ -222,6 +223,7 @@ type PolicyState {
   proposal: TransactionProposal
   targets: [Target!]!
   threshold: Float!
+  transfers: TransfersConfig!
 }
 
 type Proposal {
@@ -464,6 +466,23 @@ type TransferFromOp {
   token: Address!
 }
 
+type TransferLimit {
+  amount: BigInt!
+
+  """seconds"""
+  duration: Float!
+  id: ID!
+  token: Address!
+}
+
+input TransferLimitInput {
+  amount: BigInt!
+
+  """seconds"""
+  duration: Float!
+  token: Address!
+}
+
 type TransferOp {
   _args: [JSON!]!
   _name: String!
@@ -475,6 +494,20 @@ type TransferOp {
 input TransferSubscriptionInput {
   accounts: [Address!]
   directions: [TransferDirection!]
+}
+
+type TransfersConfig {
+  budget: Float!
+  defaultAllow: Boolean!
+  id: ID!
+  limits: [TransferLimit!]!
+}
+
+input TransfersConfigInput {
+  """Defaults to the policy budget"""
+  budget: Float
+  defaultAllow: Boolean! = true
+  limits: [TransferLimitInput!]! = []
 }
 
 input TransfersInput {

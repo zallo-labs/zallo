@@ -1,8 +1,16 @@
-import { Address, asPolicy, asTargets, Policy, PolicyKey } from 'lib';
+import {
+  Address,
+  ALLOW_ALL_TRANSFERS_CONFIG,
+  asPolicy,
+  asTargets,
+  Policy,
+  PolicyKey,
+  TransfersConfig,
+} from 'lib';
 import { uuid } from 'edgedb/dist/codecs/ifaces';
 import e, { $infer } from '~/edgeql-js';
 import { ShapeFunc } from '../database/database.select';
-import { PolicyInput } from './policies.input';
+import { PolicyInput, TransfersConfigInput } from './policies.input';
 
 export type UniquePolicy = { id: uuid } | { account: Address; key: PolicyKey };
 
@@ -30,6 +38,15 @@ export const policyStateShape = e.shape(e.PolicyState, () => ({
     to: true,
     selectors: true,
   },
+  transfers: {
+    limits: {
+      token: true,
+      amount: true,
+      duration: true,
+    },
+    defaultAllow: true,
+    budget: true,
+  },
 }));
 
 const s = e.select(e.PolicyState, policyStateShape);
@@ -43,6 +60,10 @@ export const policyStateAsPolicy = <S extends PolicyStateShape>(key: number, sta
         threshold: state.threshold,
         permissions: {
           targets: asTargets(state.targets),
+          transfers: asTransfersConfig({
+            ...state.transfers,
+            limits: state.transfers.limits.map((l) => ({ ...l, token: l.token as Address })),
+          }),
         },
       })
     : null) as S extends null ? Policy | null : Policy;
@@ -54,5 +75,14 @@ export const inputAsPolicy = (key: PolicyKey, p: PolicyInput): Policy =>
     threshold: p.threshold,
     permissions: {
       targets: asTargets(p.permissions.targets),
+      transfers: p.permissions.transfers
+        ? asTransfersConfig(p.permissions.transfers)
+        : ALLOW_ALL_TRANSFERS_CONFIG,
     },
   });
+
+export const asTransfersConfig = (c: TransfersConfigInput): TransfersConfig => ({
+  defaultAllow: c.defaultAllow,
+  budget: c.budget,
+  limits: Object.fromEntries(c.limits.map((l) => [l.token, l])),
+});

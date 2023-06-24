@@ -32,6 +32,9 @@ type $anynumeric = $decimal | $bigint;
 export type $bigint = $.ScalarType<"std::bigint", bigint>;
 const bigint: $.scalarTypeWithConstructor<$bigint, never> = $.makeType<$.scalarTypeWithConstructor<$bigint, never>>(_.spec, "00000000-0000-0000-0000-000000000110", _.syntax.literal);
 
+export type $int64 = $.ScalarType<"std::number", number>;
+const int64: $.scalarTypeWithConstructor<$number, string> = $.makeType<$.scalarTypeWithConstructor<$number, string>>(_.spec, "00000000-0000-0000-0000-000000000105", _.syntax.literal);
+
 export type $JsonEmpty = {
   "ReturnEmpty": $.$expr_Literal<$JsonEmpty>;
   "ReturnTarget": $.$expr_Literal<$JsonEmpty>;
@@ -69,9 +72,6 @@ const float64: $.scalarTypeWithConstructor<$number, string> = $.makeType<$.scala
 export type $int16 = $.ScalarType<"std::number", number>;
 const int16: $.scalarTypeWithConstructor<$number, string> = $.makeType<$.scalarTypeWithConstructor<$number, string>>(_.spec, "00000000-0000-0000-0000-000000000103", _.syntax.literal);
 
-export type $int64 = $.ScalarType<"std::number", number>;
-const int64: $.scalarTypeWithConstructor<$number, string> = $.makeType<$.scalarTypeWithConstructor<$number, string>>(_.spec, "00000000-0000-0000-0000-000000000105", _.syntax.literal);
-
 export type $json = $.ScalarType<"std::json", unknown>;
 const json: $.scalarTypeWithConstructor<$json, never> = $.makeType<$.scalarTypeWithConstructor<$json, never>>(_.spec, "00000000-0000-0000-0000-00000000010f", _.syntax.literal);
 
@@ -82,8 +82,8 @@ export type $number = $.ScalarType<"std::number", number>;
 const number: $.scalarTypeWithConstructor<$number, string> = $.makeType<$.scalarTypeWithConstructor<$number, string>>(_.spec, "00000000-0000-0000-0000-0000000001ff", _.syntax.literal);
 
 export type $BaseObjectλShape = $.typeutil.flatten<{
-  "__type__": $.LinkDesc<_schema.$ObjectType, $.Cardinality.One, {}, false, false,  true, false>;
   "id": $.PropertyDesc<$uuid, $.Cardinality.One, true, false, true, true>;
+  "__type__": $.LinkDesc<_schema.$ObjectType, $.Cardinality.One, {}, false, false,  true, false>;
 }>;
 type $BaseObject = $.ObjectType<"std::BaseObject", $BaseObjectλShape, null, [
   {id: {__element__: $uuid, __cardinality__: $.Cardinality.One | $.Cardinality.AtMostOne },},
@@ -4274,7 +4274,7 @@ function sequence_next(...args: any[]) {
 
 
 
-export { str, uuid, int32, bigint, JsonEmpty, bool, bytes, datetime, decimal, duration, float32, float64, int16, int64, json, $sequence, number, $BaseObject, BaseObject, $Object_169a5ce7108a11eeb5af6feb88c88f11, Object_169a5ce7108a11eeb5af6feb88c88f11, $FreeObject, FreeObject };
+export { str, uuid, int32, bigint, int64, JsonEmpty, bool, bytes, datetime, decimal, duration, float32, float64, int16, json, $sequence, number, $BaseObject, BaseObject, $Object_169a5ce7108a11eeb5af6feb88c88f11, Object_169a5ce7108a11eeb5af6feb88c88f11, $FreeObject, FreeObject };
 
 export type { $anyscalar, $anypoint, $anydiscrete, $anycontiguous, $anyreal, $anyint, $anynumeric, $anyfloat };
 
@@ -4283,6 +4283,7 @@ type __defaultExports = {
   "uuid": typeof uuid;
   "int32": typeof int32;
   "bigint": typeof bigint;
+  "int64": typeof int64;
   "JsonEmpty": typeof JsonEmpty;
   "bool": typeof bool;
   "bytes": typeof bytes;
@@ -4292,7 +4293,6 @@ type __defaultExports = {
   "float32": typeof float32;
   "float64": typeof float64;
   "int16": typeof int16;
-  "int64": typeof int64;
   "json": typeof json;
   "BaseObject": typeof BaseObject;
   "Object": typeof Object_169a5ce7108a11eeb5af6feb88c88f11;
@@ -4389,6 +4389,7 @@ const __defaultExports: __defaultExports = {
   "uuid": uuid,
   "int32": int32,
   "bigint": bigint,
+  "int64": int64,
   "JsonEmpty": JsonEmpty,
   "bool": bool,
   "bytes": bytes,
@@ -4398,7 +4399,6 @@ const __defaultExports: __defaultExports = {
   "float32": float32,
   "float64": float64,
   "int16": int16,
-  "int64": int64,
   "json": json,
   "BaseObject": BaseObject,
   "Object": Object_169a5ce7108a11eeb5af6feb88c88f11,

@@ -35,9 +35,19 @@ module default {
     constraint max_value(2 ^ 16 - 1);
   }
 
+  scalar type uint32 extending int64 {
+    constraint min_value(0);
+    constraint max_value(2 ^ 32 - 1);
+  }
+
   scalar type uint64 extending bigint {
     constraint min_value(0);
     constraint max_value(2n ^ 64n - 1n);
+  }
+
+  scalar type uint224 extending bigint {
+    constraint min_value(0);
+    constraint max_value(2n ^ 224n - 1n);
   }
 
   scalar type uint256 extending bigint {
@@ -128,6 +138,7 @@ module default {
     multi approvers: User;
     required threshold: uint16;
     multi targets: Target;
+    required transfers: TransfersConfig;
     required isRemoved: bool {
       default := false;
     }
@@ -162,6 +173,18 @@ module default {
       constraint regexp(r'^\*|(?:0x[0-9a-fA-F]{40}$)');  # * | Address
     };
     required selectors: array<TargetSelector>;
+  }
+
+  type TransfersConfig {
+    multi limits: TransferLimit { constraint exclusive; }
+    required defaultAllow: bool { default := true; };
+    required budget: uint32;
+  }
+
+  type TransferLimit {
+    required token: Address;
+    required amount: uint224;
+    required duration: uint32;
   }
 
   abstract type Proposal {

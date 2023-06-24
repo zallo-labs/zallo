@@ -15,7 +15,6 @@ export type scalarAssignableBy<T extends $.ScalarType> =
   T extends _sys.$VersionStage ? _sys.$VersionStage : 
   T extends _sys.$TransactionIsolation ? _sys.$TransactionIsolation : 
   T extends _std.$json ? _std.$json : 
-  T extends _std.$int64 ? _std.$int64 : 
   T extends _std.$int16 ? _std.$int16 : 
   T extends _std.$float64 ? _std.$float64 : 
   T extends _std.$float32 ? _std.$float32 : 
@@ -40,7 +39,10 @@ export type scalarAssignableBy<T extends $.ScalarType> =
   T extends _schema.$AccessPolicyAction ? _schema.$AccessPolicyAction : 
   T extends _schema.$AccessKind ? _schema.$AccessKind : 
   T extends _default.$uint64 ? _default.$uint64 : 
+  T extends _default.$uint32 ? _default.$uint32 : 
+  T extends _std.$int64 ? _std.$int64 : 
   T extends _default.$uint256 ? _default.$uint256 : 
+  T extends _default.$uint224 ? _default.$uint224 : 
   T extends _std.$bigint ? _std.$bigint : 
   T extends _default.$uint16 ? _default.$uint16 : 
   T extends _std.$int32 ? _std.$int32 : 
@@ -71,7 +73,6 @@ export type scalarCastableFrom<T extends $.ScalarType> =
   T extends _sys.$VersionStage ? _sys.$VersionStage : 
   T extends _sys.$TransactionIsolation ? _sys.$TransactionIsolation : 
   T extends _std.$json ? _std.$json : 
-  T extends _std.$int64 ? _std.$int64 : 
   T extends _std.$int16 ? _std.$int16 : 
   T extends _std.$float64 ? _std.$float64 : 
   T extends _std.$float32 ? _std.$float32 : 
@@ -96,7 +97,10 @@ export type scalarCastableFrom<T extends $.ScalarType> =
   T extends _schema.$AccessPolicyAction ? _schema.$AccessPolicyAction : 
   T extends _schema.$AccessKind ? _schema.$AccessKind : 
   T extends _default.$uint64 ? _default.$uint64 : 
+  T extends _default.$uint32 ? _default.$uint32 : 
+  T extends _std.$int64 ? _std.$int64 : 
   T extends _default.$uint256 ? _default.$uint256 : 
+  T extends _default.$uint224 ? _default.$uint224 : 
   T extends _std.$bigint ? _std.$bigint : 
   T extends _default.$uint16 ? _default.$uint16 : 
   T extends _std.$int32 ? _std.$int32 : 
@@ -143,12 +147,6 @@ type getSharedParentScalar<A, B> =
   :
   A extends _std.$json ?
     B extends _std.$json ?
-    B
-    :
-    never
-  :
-  A extends _std.$int64 ?
-    B extends _std.$int64 ?
     B
     :
     never
@@ -300,8 +298,26 @@ type getSharedParentScalar<A, B> =
     :
     never
   :
+  A extends _default.$uint32 ?
+    B extends _default.$uint32 ?
+    B
+    :
+    never
+  :
+  A extends _std.$int64 ?
+    B extends _std.$int64 ?
+    B
+    :
+    never
+  :
   A extends _default.$uint256 ?
     B extends _default.$uint256 ?
+    B
+    :
+    never
+  :
+  A extends _default.$uint224 ?
+    B extends _default.$uint224 ?
     B
     :
     never
@@ -488,12 +504,6 @@ function getSharedParentScalar<A extends $.ScalarType, B extends $.ScalarType>(a
     }
     throw new Error(`Types are not castable: ${a.__name__}, ${b.__name__}`);
     }
-  if (a.__name__ === "std::int64") {
-    if(b.__name__ === "std::int64") {
-      return b;
-    }
-    throw new Error(`Types are not castable: ${a.__name__}, ${b.__name__}`);
-    }
   if (a.__name__ === "std::int16") {
     if(b.__name__ === "std::int16") {
       return b;
@@ -641,8 +651,26 @@ function getSharedParentScalar<A extends $.ScalarType, B extends $.ScalarType>(a
     }
     throw new Error(`Types are not castable: ${a.__name__}, ${b.__name__}`);
     }
+  if (a.__name__ === "default::uint32") {
+    if(b.__name__ === "default::uint32") {
+      return b;
+    }
+    throw new Error(`Types are not castable: ${a.__name__}, ${b.__name__}`);
+    }
+  if (a.__name__ === "std::int64") {
+    if(b.__name__ === "std::int64") {
+      return b;
+    }
+    throw new Error(`Types are not castable: ${a.__name__}, ${b.__name__}`);
+    }
   if (a.__name__ === "default::uint256") {
     if(b.__name__ === "default::uint256") {
+      return b;
+    }
+    throw new Error(`Types are not castable: ${a.__name__}, ${b.__name__}`);
+    }
+  if (a.__name__ === "default::uint224") {
+    if(b.__name__ === "default::uint224") {
       return b;
     }
     throw new Error(`Types are not castable: ${a.__name__}, ${b.__name__}`);
