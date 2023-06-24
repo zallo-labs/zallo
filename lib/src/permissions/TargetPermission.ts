@@ -4,7 +4,7 @@ import { TargetStruct } from '../contracts/TestVerifier';
 import { HookSelector } from './selector';
 import { Arraylike, AwaitedObj, toArray } from '../util';
 import { newAbiType } from '../util/abi';
-import { PermissionStruct } from './permissions';
+import { HookStruct } from './permissions';
 import _ from 'lodash';
 import { BytesLike } from 'ethers';
 import { Operation } from '../operation';
@@ -65,10 +65,10 @@ export const TARGETS_ABI = newAbiType<Targets, AwaitedObj<TargetStruct>[] | unde
   (targetStructs) => asTargets(targetStructs),
 );
 
-export const permissionAsTargets = (p: PermissionStruct | undefined) =>
+export const hookAsTargets = (p: HookStruct | undefined) =>
   p ? TARGETS_ABI.decode(p.config) : ALLOW_ALL_TARGETS;
 
-export const targetsAsPermission = (targets: Targets): PermissionStruct | undefined => {
+export const targetsAsHook = (targets: Targets): HookStruct | undefined => {
   // There's no need for target permissions if they're allow all
   if (_.isEqual(targets, ALLOW_ALL_TARGETS)) return undefined;
 

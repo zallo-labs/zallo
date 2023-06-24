@@ -8,9 +8,9 @@ import { Tx } from './tx';
 import {
   ALLOW_ALL_TRANSFERS_CONFIG,
   Permissions,
-  permissionsAsStruct,
-  HookSelector,
+  permissionsAsHookStructs,
   structAsPermissions,
+  verifyTransfersPermission,
 } from './permissions';
 import { ALLOW_ALL_TARGETS, verifyTargetsPermission } from './permissions/TargetPermission';
 import { newAbiType } from './util/abi';
@@ -67,7 +67,7 @@ export const POLICY_ABI = newAbiType<Policy, PolicyStruct>(
     key: policy.key,
     approvers: [...policy.approvers].sort(compareAddress),
     threshold: policy.threshold,
-    hooks: permissionsAsStruct(policy.permissions),
+    hooks: permissionsAsHookStructs(policy.permissions),
   }),
   (s) => ({
     key: asPolicyKey(s.key),
@@ -90,8 +90,10 @@ export const getTransactionSatisfiability = (
   tx: Tx,
   approvals: Set<Address>,
 ): PolicySatisfiability => {
-  const isSatisfiable = tx.operations.every((op) =>
-    verifyTargetsPermission(permissions.targets, op),
+  const isSatisfiable = tx.operations.every(
+    (op) =>
+      verifyTargetsPermission(permissions.targets, op) &&
+      verifyTransfersPermission(permissions.transfers, op),
   );
   if (!isSatisfiable) return PolicySatisfiability.Unsatisifable;
 

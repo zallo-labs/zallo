@@ -1,11 +1,15 @@
 import { Address, asAddress } from '../address';
 import _ from 'lodash';
-import { AwaitedObj } from '../util';
+import { AwaitedObj, tryOrIgnore } from '../util';
 import { newAbiType } from '../util/abi';
 import { TransfersConfigStruct } from '../contracts/TestVerifier';
 import { asBigInt } from '../bigint';
-import { PermissionStruct } from './permissions';
+import { HookStruct } from './permissions';
 import { HookSelector } from './selector';
+import { Operation } from '../operation';
+import { decodeFunctionData } from 'viem';
+import { ERC20_ABI } from '../abi';
+import { ETH_ADDRESS } from 'zksync-web3/build/src/utils';
 
 export interface TransferLimit {
   amount: bigint;
@@ -48,9 +52,7 @@ export const TRANSFERS_CONFIG_ABI = newAbiType<TransfersConfig, AwaitedObj<Trans
   }),
 );
 
-export const transfersConfigAsPermissionStruct = (
-  c: TransfersConfig,
-): PermissionStruct | undefined => {
+export const transfersConfigAsPermissionStruct = (c: TransfersConfig): HookStruct | undefined => {
   if (c.defaultAllow && !Object.entries(c.limits).length) return undefined;
 
   return {
@@ -59,5 +61,32 @@ export const transfersConfigAsPermissionStruct = (
   };
 };
 
-export const permissionAsTransfersConfig = (p: PermissionStruct | undefined) =>
+export const hookAsTransfersConfig = (p: HookStruct | undefined) =>
   p ? TRANSFERS_CONFIG_ABI.decode(p.config) : ALLOW_ALL_TRANSFERS_CONFIG;
+
+export const verifyTransfersPermission = (c: TransfersConfig, op: Operation) => {
+  const transfer = decodeTransfer(op);
+  if (!transfer.amount) return true;
+
+  const limit = c.limits[transfer.token];
+  if (!limit) return !!c.defaultAllow;
+
+  // TODO: factor in spending that has already occured this epoch
+
+  return transfer.amount <= limit.amount;
+};
+
+const decodeTransfer = (op: Operation) => {
+  const r = tryOrIgnore(() =>
+    decodeFunctionData({
+      abi: ERC20_ABI,
+      data: op.data ?? '0x',
+    }),
+  );
+
+  return r?.functionName === 'transfer' ||
+    r?.functionName === 'approve' ||
+    r?.functionName === 'increaseAllowance'
+    ? { token: op.to, to: r.args[0], amount: r.args[1] }
+    : { token: ETH_ADDRESS as Address, to: op.to, amount: op.value };
+};

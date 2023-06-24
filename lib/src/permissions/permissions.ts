@@ -1,10 +1,10 @@
-import { Targets, permissionAsTargets, targetsAsPermission } from './TargetPermission';
+import { Targets, hookAsTargets, targetsAsHook } from './TargetPermission';
 import { HookStruct as BaseHookStruct } from '../contracts/Account';
 import { AwaitedObj, isTruthy } from '../util';
 import { HookSelector } from './selector';
 import {
   TransfersConfig,
-  permissionAsTransfersConfig,
+  hookAsTransfersConfig,
   transfersConfigAsPermissionStruct,
 } from './TransferPermission';
 
@@ -13,18 +13,15 @@ export interface Permissions {
   transfers: TransfersConfig;
 }
 
-export type PermissionStruct = AwaitedObj<BaseHookStruct>;
-export type Permission = Permissions[keyof Permissions];
+export type HookStruct = AwaitedObj<BaseHookStruct>;
 
-export const permissionsAsStruct = (permissions: Permissions): PermissionStruct[] =>
+export const permissionsAsHookStructs = (permissions: Permissions): HookStruct[] =>
   [
-    targetsAsPermission(permissions.targets),
+    targetsAsHook(permissions.targets),
     transfersConfigAsPermissionStruct(permissions.transfers),
   ].filter(isTruthy);
 
-export const structAsPermissions = (permStructs: PermissionStruct[]): Permissions => ({
-  targets: permissionAsTargets(permStructs.find((s) => s.selector === HookSelector.Target)),
-  transfers: permissionAsTransfersConfig(
-    permStructs.find((s) => s.selector === HookSelector.Transfer),
-  ),
+export const structAsPermissions = (permStructs: HookStruct[]): Permissions => ({
+  targets: hookAsTargets(permStructs.find((s) => s.selector === HookSelector.Target)),
+  transfers: hookAsTransfersConfig(permStructs.find((s) => s.selector === HookSelector.Transfer)),
 });

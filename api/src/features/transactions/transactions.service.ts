@@ -35,10 +35,6 @@ import { ProposalEvent } from '../proposals/proposals.input';
 import { selectUser } from '../users/users.service';
 import { ShapeFunc } from '../database/database.select';
 import { UserInputError } from '@nestjs/apollo';
-import { ETH_ADDRESS } from 'zksync-web3/build/src/utils';
-import * as zk from 'zksync-web3';
-import { BigNumber } from 'ethers';
-import { assert } from 'console';
 import { PaymasterService } from '../paymaster/paymaster.service';
 import { proposalTxShape, transactionProposalAsTx } from '../proposals/proposals.uitl';
 
