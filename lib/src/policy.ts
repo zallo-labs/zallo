@@ -4,19 +4,17 @@ import { BigNumber, BigNumberish } from 'ethers';
 import { PolicyStruct as BasePolicyStruct } from './contracts/Account';
 import { AwaitedObj } from './util/types';
 import { Address, asAddress, compareAddress } from './address';
-import { Tx } from './tx';
 import {
   ALLOW_ALL_TRANSFERS_CONFIG,
   Permissions,
   permissionsAsHookStructs,
   structAsPermissions,
-  verifyTransfersPermission,
 } from './permissions';
-import { ALLOW_ALL_TARGETS, verifyTargetsPermission } from './permissions/TargetPermission';
+import { ALLOW_ALL_TARGETS } from './permissions/TargetPermission';
 import { newAbiType } from './util/abi';
 import { asHex } from './bytes';
 import { keccak256 } from 'ethers/lib/utils';
-import { Arraylike, isTruthy, toSet } from './util';
+import { Arraylike, toSet } from './util';
 
 export type PolicyStruct = AwaitedObj<BasePolicyStruct>;
 
@@ -78,27 +76,3 @@ export const POLICY_ABI = newAbiType<Policy, PolicyStruct>(
 );
 
 export const hashPolicy = (policy: Policy) => asHex(keccak256(POLICY_ABI.encode(policy)));
-
-export enum PolicySatisfiability {
-  Unsatisifable = 'unsatisfiable',
-  Satisfiable = 'satisfiable',
-  Satisfied = 'satisfied',
-}
-
-export const getTransactionSatisfiability = (
-  { permissions, approvers, threshold }: Policy,
-  tx: Tx,
-  approvals: Set<Address>,
-): PolicySatisfiability => {
-  const isSatisfiable = tx.operations.every(
-    (op) =>
-      verifyTargetsPermission(permissions.targets, op) &&
-      verifyTransfersPermission(permissions.transfers, op),
-  );
-  if (!isSatisfiable) return PolicySatisfiability.Unsatisifable;
-
-  const nApprovals = new Set([...approvals].filter((v) => approvers.has(v)));
-  return nApprovals.size >= threshold
-    ? PolicySatisfiability.Satisfied
-    : PolicySatisfiability.Satisfiable;
-};

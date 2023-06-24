@@ -10,7 +10,6 @@ import {
   Address,
   Hex,
   getTransactionSatisfiability,
-  PolicySatisfiability,
   isHex,
   tryOrCatchAsync,
 } from 'lib';
@@ -226,15 +225,13 @@ export class TransactionsService {
     if (proposalPolicy) {
       // Only execute with proposal policy if specified
       const p = policyStateAsPolicy(proposalPolicy.key, proposalPolicy.state);
-      if (p && getTransactionSatisfiability(p, tx, approvals) === PolicySatisfiability.Satisfied)
-        return p;
+      if (p && getTransactionSatisfiability(p, tx, approvals).result === 'satisfied') return p;
     } else {
       return accountPolicies
         .map((policy) => policyStateAsPolicy(policy.key, policy.state))
         .find(
           (policy) =>
-            policy &&
-            getTransactionSatisfiability(policy, tx, approvals) === PolicySatisfiability.Satisfied,
+            policy && getTransactionSatisfiability(policy, tx, approvals).result === 'satisfied',
         );
     }
   }

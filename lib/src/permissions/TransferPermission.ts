@@ -10,6 +10,7 @@ import { Operation } from '../operation';
 import { decodeFunctionData } from 'viem';
 import { ERC20_ABI } from '../abi';
 import { ETH_ADDRESS } from 'zksync-web3/build/src/utils';
+import { SatisfiabilityResult } from '../satisfiability';
 
 export interface TransferLimit {
   amount: bigint;
@@ -64,16 +65,24 @@ export const transfersConfigAsPermissionStruct = (c: TransfersConfig): HookStruc
 export const hookAsTransfersConfig = (p: HookStruct | undefined) =>
   p ? TRANSFERS_CONFIG_ABI.decode(p.config) : ALLOW_ALL_TRANSFERS_CONFIG;
 
-export const verifyTransfersPermission = (c: TransfersConfig, op: Operation) => {
+export const verifyTransfersPermission = (
+  c: TransfersConfig,
+  op: Operation,
+): SatisfiabilityResult => {
   const transfer = decodeTransfer(op);
-  if (!transfer.amount) return true;
+  if (!transfer.amount) return { result: 'satisfied' };
 
   const limit = c.limits[transfer.token];
-  if (!limit) return !!c.defaultAllow;
+  if (!limit)
+    return c.defaultAllow
+      ? { result: 'satisfied' }
+      : { result: 'unsatisfiable', reason: "Transfers without a limit aren't allowed" };
 
   // TODO: factor in spending that has already occured this epoch
 
-  return transfer.amount <= limit.amount;
+  return transfer.amount <= limit.amount
+    ? { result: 'satisfied' }
+    : { result: 'unsatisfiable', reason: 'Above transfer limit' };
 };
 
 const decodeTransfer = (op: Operation) => {

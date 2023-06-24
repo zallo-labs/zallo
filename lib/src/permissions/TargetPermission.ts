@@ -8,6 +8,7 @@ import { HookStruct } from './permissions';
 import _ from 'lodash';
 import { BytesLike } from 'ethers';
 import { Operation } from '../operation';
+import { SatisfiabilityResult } from '../satisfiability';
 
 export type Target = Address | '*';
 export type Targets = Record<Target, Set<Selector | '*'>>;
@@ -78,8 +79,16 @@ export const targetsAsHook = (targets: Targets): HookStruct | undefined => {
   };
 };
 
-export const verifyTargetsPermission = (t: Targets, op: Operation) => {
+export const verifyTargetsPermission = (t: Targets, op: Operation): SatisfiabilityResult => {
   const selectors = t[op.to] ?? t['*'];
 
-  return selectors?.has('*') || selectors?.has(asSelector(op.data)!);
+  return selectors?.has('*') || selectors?.has(asSelector(op.data)!)
+    ? { result: 'satisfied' }
+    : {
+        result: 'unsatisfiable',
+        reason:
+          selectors.size === 0
+            ? "Calling this address isn't allowed"
+            : "Calling this function on this address isn't allowed",
+      };
 };

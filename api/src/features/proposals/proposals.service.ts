@@ -1,6 +1,6 @@
 import { forwardRef, Inject, Injectable } from '@nestjs/common';
 import { UserInputError } from '@nestjs/apollo';
-import { hashTx, Address, PolicySatisfiability, estimateOpGas, Hex, isHex, asTx } from 'lib';
+import { hashTx, Address, estimateOpGas, Hex, isHex, asTx } from 'lib';
 import { ProviderService } from '~/features/util/provider/provider.service';
 import { PubsubService } from '~/features/util/pubsub/pubsub.service';
 import { TransactionsService } from '../transactions/transactions.service';
@@ -298,15 +298,15 @@ export class ProposalsService {
     const userHasResponded = approvals.has(user) || rejections.has(user);
 
     return policies
-      .filter(({ satisfiability }) => satisfiability !== PolicySatisfiability.Unsatisifable)
+      .filter(({ satisfiability }) => satisfiability.result !== 'unsatisfiable')
       .map(
         ({ policy, satisfiability }): SatisfiablePolicy => ({
           id: `${id}-${policy.key}`,
           key: policy.key,
-          satisfied: satisfiability === PolicySatisfiability.Satisfied,
+          satisfied: satisfiability.result === 'satisfied',
           responseRequested:
             !userHasResponded &&
-            satisfiability === PolicySatisfiability.Satisfiable &&
+            satisfiability.result === 'satisfiable' &&
             policy.approvers.has(user),
         }),
       );
