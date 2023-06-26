@@ -1,4 +1,5 @@
 const tsconfig = require('./tsconfig.json');
+const { babelOptimizerPlugin: gqlBabelOptimizer } = require('@graphql-codegen/client-preset');
 
 const getAliasPaths = () => {
   const trimPath = (path) => (path.endsWith('/*') ? path.substr(0, path.length - 2) : path);
@@ -40,7 +41,11 @@ module.exports = function (api) {
     ],
     env: {
       production: {
-        plugins: ['react-native-paper/babel', 'transform-remove-console'],
+        plugins: [
+          'react-native-paper/babel',
+          'transform-remove-console',
+          // [gqlBabelOptimizer, { artifactDirectory: './src/gql/api/generated', gqlTagName: 'gql' }], // TODO: enable with preset: 'client-preset'
+        ],
       },
     },
   };
