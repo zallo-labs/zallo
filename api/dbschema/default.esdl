@@ -280,6 +280,19 @@ module default {
     multi transfers: TransferDetails;
   }
 
+  type Event {
+    required account: Account;
+    required logIndex: uint32;
+    required block: bigint { constraint min_value(0n); }
+    required timestamp: datetime { default := datetime_of_statement(); }
+
+    constraint exclusive on ((.block, .logIndex));
+
+    access policy members_can_select
+      allow select
+      using (.account.id in global current_user_accounts);
+  }
+
   scalar type TransferDirection extending enum<'In', 'Out'>;
 
   type TransferDetails {
@@ -295,19 +308,22 @@ module default {
       using (.account.id in global current_user_accounts);
   }
 
-  type Transfer extending TransferDetails {
-    receipt: Receipt;
-    required logIndex: int32 { constraint min_value(0n); }
-    required block: bigint { constraint min_value(0n); }
-    required timestamp: datetime { default := datetime_of_statement(); }
+  type Transferlike extending Event, TransferDetails {}
 
-    constraint exclusive on ((.block, .logIndex));
+  type Transfer extending Transferlike {}
+
+  type TransferApproval extending Transferlike {
+    link previous := (
+      select TransferApproval
+      filter .token = .token and .from = .from and .to = .to
+      order by .block desc then .logIndex desc
+      limit 1
+    );
+    property delta := .amount - (.previous.amount ?? 0);
   }
 
   type Transaction {
-    required hash: Bytes32 {
-      constraint exclusive;
-    }
+    required hash: Bytes32 { constraint exclusive; }
     required proposal: TransactionProposal;
     required gasPrice: uint256;
     required submittedAt: datetime {
@@ -324,7 +340,7 @@ module default {
   type Receipt {
     required success: bool;
     required responses: array<Bytes>;
-    multi link transfers := .<receipt[is Transfer];
+    multi events: Event;
     required gasUsed: bigint { constraint min_value(0n); }
     required fee: bigint { constraint min_value(0n); }
     required block: bigint { constraint min_value(0n); }

@@ -1,5 +1,5 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { Address, Erc20__factory, asAddress, asBigInt, isPresent, toArray, tryOrIgnore } from 'lib';
+import { Address, ERC20_ABI, Hex, asAddress, isPresent, toArray, tryOrIgnore } from 'lib';
 import {
   TransactionEventData,
   TransactionsProcessor,
@@ -14,9 +14,11 @@ import { ETH_ADDRESS } from 'zksync-web3/build/src/utils';
 import { L2_ETH_TOKEN_ADDRESS } from 'zksync-web3/build/src/utils';
 import { uuid } from 'edgedb/dist/codecs/ifaces';
 import { PubsubService } from '../util/pubsub/pubsub.service';
+import { decodeEventLog, getAbiItem, getEventSelector } from 'viem';
 
-const ERC20 = Erc20__factory.createInterface();
 const altEthAddress = asAddress(L2_ETH_TOKEN_ADDRESS);
+const normalizeEthAddress = (address: Address) =>
+  address === altEthAddress ? ETH_ADDRESS : address;
 
 export const getTransferTrigger = (account: Address) => `transfer.account.${account}`;
 export interface TransferSubscriptionPayload {
@@ -34,27 +36,37 @@ export class TransfersEvents {
     private provider: ProviderService,
     private pubsub: PubsubService,
   ) {
-    this.eventsProcessor.on(
-      ERC20.getEventTopic(ERC20.events['Transfer(address,address,uint256)']),
-      (data) => this.transfer(data, false),
-    );
-    this.transactionsProcessor.onEvent(
-      ERC20.getEventTopic(ERC20.events['Transfer(address,address,uint256)']),
-      (data) => this.transfer(data, true),
-    );
+    /*
+     * Events processor handles events `to` account
+     * Transactions processor handles events `from` account - in order to be associated with the transaction
+     */
+    const transferSelector = getEventSelector(getAbiItem({ abi: ERC20_ABI, name: 'Transfer' }));
+    this.eventsProcessor.on(transferSelector, (data) => this.transfer(data));
+    this.transactionsProcessor.onEvent(transferSelector, (data) => this.transfer(data));
+
+    const approvalSelector = getEventSelector(getAbiItem({ abi: ERC20_ABI, name: 'Approval' }));
+    this.eventsProcessor.on(approvalSelector, (data) => this.approval(data));
+    this.transactionsProcessor.onEvent(approvalSelector, (data) => this.approval(data));
   }
 
-  private async transfer({ log }: EventData | TransactionEventData, isTransactionEvent: boolean) {
+  private async transfer(event: EventData | TransactionEventData) {
+    const { log } = event;
+
     const r = tryOrIgnore(() =>
-      ERC20.decodeEventLog(ERC20.events['Transfer(address,address,uint256)'], log.data, log.topics),
+      decodeEventLog({
+        abi: ERC20_ABI,
+        eventName: 'Transfer',
+        data: log.data as Hex,
+        topics: log.topics as [Hex, ...Hex[]],
+      }),
     );
     if (!r) return;
-    const [from, to, amount] = [asAddress(r.from), asAddress(r.to), asBigInt(r.value)];
+
+    const { from, to, value: amount } = r.args;
 
     const accounts = await this.db.query(
-      e.select(e.Account, (a) => ({
-        // Only process account transfers; waiting for transaction events when originating from an account
-        filter: e.op(a.address, 'in', isTransactionEvent ? e.set(from, to) : e.set(to)),
+      e.select(e.Account, (account) => ({
+        filter: e.op(account.address, 'in', e.set(from, to)),
         address: true,
       })).address,
     );
@@ -62,16 +74,7 @@ export class TransfersEvents {
     if (accounts.length) {
       Logger.debug(`Transfer ${from} -> ${to}`);
       const block = await this.provider.getBlock(log.blockNumber);
-
-      let token = asAddress(log.address);
-      if (token === altEthAddress) token = ETH_ADDRESS as Address; // Normalize ETH address
-
-      const receipt = isTransactionEvent
-        ? e.select(e.Transaction, () => ({
-            filter_single: { hash: log.transactionHash },
-            receipt: { id: true },
-          })).receipt
-        : undefined;
+      const token = normalizeEthAddress(asAddress(log.address));
 
       const transfers = toArray(
         await this.db.query(
@@ -80,6 +83,9 @@ export class TransfersEvents {
               e
                 .insert(e.Transfer, {
                   account: selectAccount(a),
+                  logIndex: log.logIndex,
+                  block: BigInt(log.blockNumber),
+                  timestamp: new Date(block.timestamp * 1000),
                   direction: e.cast(
                     e.TransferDirection,
                     a === from ? TransferDirection.Out : TransferDirection.In,
@@ -88,21 +94,8 @@ export class TransfersEvents {
                   to,
                   token,
                   amount,
-                  logIndex: log.logIndex,
-                  block: BigInt(log.blockNumber),
-                  timestamp: new Date(block.timestamp * 1000),
-                  receipt,
                 })
-                .unlessConflict((t) => ({
-                  on: e.tuple([t.block, t.logIndex]),
-                  ...(receipt && {
-                    else: e.update(t, () => ({
-                      set: {
-                        receipt,
-                      },
-                    })),
-                  }),
-                })),
+                .unlessConflict(),
             ),
           ),
         ),
@@ -119,6 +112,60 @@ export class TransfersEvents {
           });
         }),
       );
+    }
+  }
+
+  private async approval(event: EventData | TransactionEventData) {
+    const { log } = event;
+
+    const r = tryOrIgnore(() =>
+      decodeEventLog({
+        abi: ERC20_ABI,
+        eventName: 'Approval',
+        data: log.data as Hex,
+        topics: log.topics as [Hex, ...Hex[]],
+      }),
+    );
+    if (!r) return;
+
+    const { owner: from, spender: to, value: amount } = r.args;
+
+    const accounts = await this.db.query(
+      e.select(e.Account, (account) => ({
+        filter: e.op(account.address, 'in', e.set(from, to)),
+        address: true,
+      })).address,
+    );
+
+    if (accounts.length) {
+      Logger.debug(`Transfer approval ${from} -> ${to}`);
+      const block = await this.provider.getBlock(log.blockNumber);
+      const token = normalizeEthAddress(asAddress(log.address));
+
+      const transfers = toArray(
+        await this.db.query(
+          e.set(
+            ...accounts.map((a) =>
+              e
+                .insert(e.TransferApproval, {
+                  account: selectAccount(a),
+                  logIndex: log.logIndex,
+                  block: BigInt(log.blockNumber),
+                  timestamp: new Date(block.timestamp * 1000),
+                  direction: e.cast(
+                    e.TransferDirection,
+                    a === from ? TransferDirection.Out : TransferDirection.In,
+                  ),
+                  from,
+                  to,
+                  token,
+                  amount,
+                })
+                .unlessConflict(),
+            ),
+          ),
+        ),
+      ).filter(isPresent);
     }
   }
 }
