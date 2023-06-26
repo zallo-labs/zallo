@@ -1,5 +1,11 @@
 import { useCreatePolicy, usePolicy, useUpdatePolicy } from '@api/policy';
-import { ALLOW_ALL_TARGETS, Address, PolicyKey, asPolicyKey } from 'lib';
+import {
+  ALLOW_ALL_TARGETS,
+  ALLOW_ALL_TRANSFERS_CONFIG,
+  Address,
+  PolicyKey,
+  asPolicyKey,
+} from 'lib';
 import { ScrollView } from 'react-native';
 import { Screen } from '~/components/layout/Screen';
 import { ScreenSkeleton } from '~/components/skeleton/ScreenSkeleton';
@@ -44,6 +50,7 @@ export const PolicyScreen = withSuspense((props: PolicyScreenProps) => {
           threshold: 1,
           permissions: {
             targets: ALLOW_ALL_TARGETS,
+            transfers: ALLOW_ALL_TRANSFERS_CONFIG,
           },
         }),
     }),
