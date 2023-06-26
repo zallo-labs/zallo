@@ -308,7 +308,7 @@ module default {
       using (.account.id in global current_user_accounts);
   }
 
-  type Transferlike extending Event, TransferDetails {}
+  abstract type Transferlike extending Event, TransferDetails {}
 
   type Transfer extending Transferlike {}
 
@@ -319,7 +319,7 @@ module default {
       order by .block desc then .logIndex desc
       limit 1
     );
-    property delta := .amount - (.previous.amount ?? 0);
+    required property delta := .amount - (.previous.amount ?? 0);
   }
 
   type Transaction {

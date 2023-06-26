@@ -1,10 +1,10 @@
 import { Field } from '@nestjs/graphql';
 import { ObjectType } from '@nestjs/graphql';
 import { BytesScalar } from '~/apollo/scalars/Bytes.scalar';
-import { Transfer } from '../transfers/transfers.model';
 import { IdField } from '~/apollo/scalars/Id.scalar';
 import { uuid } from 'edgedb/dist/codecs/ifaces';
 import { GraphQLBigInt } from 'graphql-scalars';
+import { Event } from '../events/events.model';
 
 @ObjectType()
 export class Receipt {
@@ -17,8 +17,8 @@ export class Receipt {
   @Field(() => [BytesScalar])
   responses: string[]; // Hex
 
-  @Field(() => [Transfer])
-  transfers: Transfer[];
+  @Field(() => [Event])
+  events: Event[];
 
   @Field(() => GraphQLBigInt)
   gasUsed: bigint;
