@@ -83,6 +83,7 @@ export class TransfersEvents {
               e
                 .insert(e.Transfer, {
                   account: selectAccount(a),
+                  transactionHash: log.transactionHash,
                   logIndex: log.logIndex,
                   block: BigInt(log.blockNumber),
                   timestamp: new Date(block.timestamp * 1000),
@@ -142,13 +143,14 @@ export class TransfersEvents {
       const block = await this.provider.getBlock(log.blockNumber);
       const token = normalizeEthAddress(asAddress(log.address));
 
-      const transfers = toArray(
+      const approvals = toArray(
         await this.db.query(
           e.set(
             ...accounts.map((a) =>
               e
                 .insert(e.TransferApproval, {
                   account: selectAccount(a),
+                  transactionHash: log.transactionHash,
                   logIndex: log.logIndex,
                   block: BigInt(log.blockNumber),
                   timestamp: new Date(block.timestamp * 1000),

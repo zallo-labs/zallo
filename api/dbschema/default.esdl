@@ -282,6 +282,7 @@ module default {
 
   type Event {
     required account: Account;
+    required transactionHash: Bytes32;
     required logIndex: uint32;
     required block: bigint { constraint min_value(0n); }
     required timestamp: datetime { default := datetime_of_statement(); }
@@ -330,7 +331,7 @@ module default {
       readonly := true;
       default := datetime_of_statement();
     }
-    receipt: Receipt;
+    receipt: Receipt { constraint exclusive; }
 
     access policy members_can_select_insert
       allow select, insert
@@ -338,9 +339,14 @@ module default {
   }
 
   type Receipt {
+    required link transaction := assert_exists(.<receipt[is Transaction]);
     required success: bool;
     required responses: array<Bytes>;
-    multi events: Event;
+    multi link events := (
+      with txHash := .transaction.hash
+      select Event
+      filter .transactionHash = txHash
+    );
     required gasUsed: bigint { constraint min_value(0n); }
     required fee: bigint { constraint min_value(0n); }
     required block: bigint { constraint min_value(0n); }
