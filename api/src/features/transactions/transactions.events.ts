@@ -1,5 +1,5 @@
 import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
-import { ACCOUNT_ABI, asAddress, asHex, Hex } from 'lib';
+import { ACCOUNT_ABI, asAddress, asHex, Hex, tryOrCatch, tryOrIgnore } from 'lib';
 import { ProposalsService } from '../proposals/proposals.service';
 import { ProposalEvent } from '../proposals/proposals.input';
 import {
@@ -43,12 +43,18 @@ export class TransactionsEvents implements OnModuleInit {
   }
 
   private async executed({ log, receipt, block }: TransactionEventData) {
-    const r = decodeEventLog({
-      abi: ACCOUNT_ABI,
-      topics: log.topics as any,
-      data: log.data as any,
-    });
-    if (r.eventName !== 'OperationExecuted' && r.eventName !== 'OperationsExecuted') return;
+    const r = tryOrCatch(
+      () =>
+        decodeEventLog({
+          abi: ACCOUNT_ABI,
+          topics: log.topics as [Hex, ...Hex[]],
+          data: log.data as Hex,
+        }),
+      (e) => {
+        Logger.warn(`Failed to decode executed event log: ${e}`);
+      },
+    );
+    if (r?.eventName !== 'OperationExecuted' && r?.eventName !== 'OperationsExecuted') return;
 
     const proposalHash = asHex(r.args.txHash);
 
