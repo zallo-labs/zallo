@@ -23,6 +23,27 @@ gql`
     createdAt
   }
 
+  fragment EventFields on Event {
+    ... on Transfer {
+      id
+      direction
+      token
+      from
+      to
+      amount
+      timestamp
+    }
+    ... on TransferApproval {
+      id
+      direction
+      token
+      from
+      to
+      amount
+      timestamp
+    }
+  }
+
   fragment TransactionFields on Transaction {
     id
     hash
@@ -34,13 +55,8 @@ gql`
       gasUsed
       fee
       timestamp
-      transfers {
-        id
-        direction
-        token
-        from
-        to
-        amount
+      events {
+        ...EventFields
       }
     }
   }

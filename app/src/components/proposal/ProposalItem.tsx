@@ -13,6 +13,7 @@ import { useOperationLabel } from '../call/useOperationLabel';
 import { materialCommunityIcon } from '@theme/icons';
 import { ICON_SIZE } from '@theme/paper';
 import { Hex } from 'lib';
+import { onlyTypes } from '~/gql/util';
 
 const MultiOperationIcon = materialCommunityIcon('multiplication');
 
@@ -46,6 +47,8 @@ export const ProposalItem = withSuspense(({ proposal: hash, ...itemProps }: Prop
     .with({ state: 'executed' }, () => <Timestamp timestamp={p.timestamp} />)
     .exhaustive();
 
+  const e = p.transaction!.receipt!.events.filter(onlyTypes('TransferApproval'));
+
   return (
     <ListItem
       leading={
@@ -59,7 +62,9 @@ export const ProposalItem = withSuspense(({ proposal: hash, ...itemProps }: Prop
         <Text variant="labelLarge">
           <FiatValue
             value={useTransfersValue(
-              p.transaction?.receipt?.transfers ?? p.simulation?.transfers ?? [],
+              p.transaction?.receipt?.events.filter(onlyTypes('Transfer')) ??
+                p.simulation?.transfers ??
+                [],
             )}
             hideZero
           />

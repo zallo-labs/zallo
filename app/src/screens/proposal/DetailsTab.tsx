@@ -11,6 +11,7 @@ import { TabNavigatorScreenProp } from './Tabs';
 import { FeeToken } from './FeeToken';
 import { OperationSection } from './OperationSection';
 import { Hex } from 'lib';
+import { onlyTypes } from '~/gql/util';
 
 export interface DetailsTabParams {
   proposal: Hex;
@@ -21,7 +22,8 @@ export type DetailsTabProps = TabNavigatorScreenProp<'Details'>;
 export const DetailsTab = withSuspense(({ route }: DetailsTabProps) => {
   const styles = useStyles();
   const p = useProposal(route.params.proposal);
-  const transfers = p.transaction?.receipt?.transfers ?? p.simulation?.transfers ?? [];
+  const transfers =
+    p.transaction?.receipt?.events.filter(onlyTypes('Transfer')) ?? p.simulation?.transfers ?? [];
   const transfersValue = useTransfersValue(transfers);
 
   return (

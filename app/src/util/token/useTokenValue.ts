@@ -1,5 +1,5 @@
 import { formatUnits } from 'ethers/lib/utils';
-import { Address } from 'lib';
+import { Address, BigIntlike } from 'lib';
 import { selectorFamily, useRecoilValue } from 'recoil';
 import { tokenPriceDataAtom } from '@uniswap/useTokenPrice';
 import { FIAT_DECIMALS } from './fiat';
@@ -23,7 +23,7 @@ export const tokenValueSelector = selectorFamily<number, TokenValueParam>({
     },
 });
 
-export const useTokenValue = (token: Token | undefined, amount: bigint | undefined) =>
+export const useTokenValue = (token: Token | undefined, amount: BigIntlike | undefined) =>
   useRecoilValue(tokenValueSelector([token?.address, amount?.toString()]));
 
 const tokenValuesSelector = selectorFamily<number[], TokenValueParam[]>({

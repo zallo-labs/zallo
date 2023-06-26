@@ -7,13 +7,13 @@ import { ListItem, ListItemProps } from '../list/ListItem';
 import { ListItemSkeleton } from '../list/ListItemSkeleton';
 import { withSuspense } from '../skeleton/withSuspense';
 import { TokenAmount } from './TokenAmount';
-import { Address } from 'lib';
+import { Address, BigIntlike } from 'lib';
 import { useToken } from '@token/useToken';
 
 export interface TokenItemProps extends Partial<ListItemProps> {
   token: Address;
   account: Address;
-  amount?: bigint;
+  amount?: BigIntlike;
   containerStyle?: StyleProp<ViewStyle>;
 }
 
