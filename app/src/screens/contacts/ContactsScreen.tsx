@@ -19,7 +19,7 @@ import { CONTACT_EMITTER } from './useSelectContact';
 
 export interface ContactsScreenParams {
   emitOnSelect?: boolean;
-  disabled?: Set<Address>;
+  disabled?: Address[];
 }
 
 export type ContactsScreenProps =
@@ -28,7 +28,8 @@ export type ContactsScreenProps =
 
 export const ContactsScreen = withSuspense(
   ({ route, navigation: { navigate } }: ContactsScreenProps) => {
-    const { emitOnSelect, disabled } = route.params;
+    const { emitOnSelect } = route.params;
+    const disabled = route.params.disabled && new Set(route.params.disabled);
     const scanAddress = useScanAddress();
 
     const [contacts, searchProps] = useSearch(useContacts(), ['name', 'address']);
