@@ -1,11 +1,5 @@
 import { useCreatePolicy, usePolicy, useUpdatePolicy } from '@api/policy';
-import {
-  ALLOW_ALL_TARGETS,
-  ALLOW_ALL_TRANSFERS_CONFIG,
-  Address,
-  PolicyKey,
-  asPolicyKey,
-} from 'lib';
+import { ALLOW_ALL_TARGETS, ALLOW_ALL_TRANSFERS_CONFIG, Address, PolicyKey } from 'lib';
 import { ScrollView } from 'react-native';
 import { Screen } from '~/components/layout/Screen';
 import { ScreenSkeleton } from '~/components/skeleton/ScreenSkeleton';
@@ -13,7 +7,6 @@ import { withSuspense } from '~/components/skeleton/withSuspense';
 import { StackNavigatorScreenProps } from '~/navigation/StackNavigator';
 import { PolicyAppbar } from './PolicyAppbar';
 import { useApproverId } from '@network/useApprover';
-import { Approvers } from './Approvers';
 import { POLICY_DRAFT_ATOM, PolicyDraft } from './PolicyDraft';
 import { Permissions } from './Permissions';
 import { useEffect, useMemo } from 'react';
@@ -21,7 +14,8 @@ import { useAtom, useSetAtom } from 'jotai';
 import { useHydrateAtoms } from 'jotai/utils';
 import _ from 'lodash';
 import { Fab } from '~/components/buttons/Fab';
-import { SendIcon } from '@theme/icons';
+import { DoubleCheckIcon, NavigateNextIcon, SendIcon } from '@theme/icons';
+import { ListItem } from '~/components/list/ListItem';
 
 export type PolicyViewState = 'active' | 'draft';
 
@@ -99,8 +93,14 @@ const PolicyView = ({
       />
 
       <ScrollView>
+        <ListItem
+          leading={DoubleCheckIcon}
+          headline="Approvals"
+          supporting={`${draft.threshold}/${draft.approvers.size} required`}
+          trailing={NavigateNextIcon}
+          onPress={() => navigate('Approvers', {})}
+        />
         <Permissions />
-        <Approvers />
       </ScrollView>
 
       {(!policy || isModified) && (
@@ -112,7 +112,7 @@ const PolicyView = ({
               ? updatePolicy({ key: draft.key, ...draft })
               : createPolicy(draft));
 
-            setParams({ key: r?.key ? asPolicyKey(r.key) : undefined, state: 'draft' });
+            setParams({ key: r?.key, state: 'draft' });
 
             const proposal = r?.draft?.proposal?.hash;
             if (proposal) navigate('Proposal', { proposal });

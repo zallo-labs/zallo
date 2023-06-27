@@ -43,6 +43,7 @@ import {
   NotificationSettingsScreen,
 } from '~/screens/notifications/NotificationSettingsScreen';
 import { SwapScreen, SwapScreenParams } from '~/screens/swap/SwapScreen';
+import { ApproversScreen, ApproversScreenParams } from '~/screens/approvers/ApproversScreen';
 
 export type StackNavigatorParamList = {
   Home: HomeScreenParams;
@@ -57,6 +58,7 @@ export type StackNavigatorParamList = {
   User: undefined;
   Account: AccountScreenParams;
   Policy: PolicyScreenParams;
+  Approvers: ApproversScreenParams;
   Interactions: InteractionsScreenParams;
   Sessions: SessionsScreenParams;
   Tokens: TokensScreenParams;
@@ -115,6 +117,7 @@ export const StackNavigator = () => {
       <Navigation.Screen name="User" component={UserScreen} />
       <Navigation.Screen name="Account" component={AccountScreen} />
       <Navigation.Screen name="Policy" component={PolicyScreen} />
+      <Navigation.Screen name="Approvers" component={ApproversScreen} />
       <Navigation.Screen name="Interactions" component={InteractionsScreen} />
       <Navigation.Screen name="Sessions" component={SessionsScreen} />
       <Navigation.Screen name="Tokens" component={TokensScreen} />

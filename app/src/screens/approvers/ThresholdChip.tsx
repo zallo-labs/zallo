@@ -1,6 +1,6 @@
 import { useImmerAtom } from 'jotai-immer';
-import { POLICY_DRAFT_ATOM } from './PolicyDraft';
-import { DownArrowIcon } from '@theme/icons';
+import { POLICY_DRAFT_ATOM } from '../policy/PolicyDraft';
+import { DoubleCheckIcon, DownArrowIcon } from '@theme/icons';
 import { SelectChip } from '~/components/fields/SelectChip';
 import _ from 'lodash';
 import { match } from 'ts-pattern';
@@ -13,7 +13,7 @@ const getLabel = (threshold: number) =>
     .with(1, () => '1 approval required')
     .otherwise((n) => `${n} approvals required`);
 
-export const ThresholdChip = () => {
+export function ThresholdChip() {
   const [{ threshold, approvers }, updateDraft] = useImmerAtom(POLICY_DRAFT_ATOM);
   const styles = useStyles(threshold);
 
@@ -37,10 +37,15 @@ export const ThresholdChip = () => {
           draft.threshold = value;
         })
       }
-      chipProps={{ closeIcon: DownArrowIcon, style: styles.chip, textStyle: styles.chipLabel }}
+      chipProps={{
+        icon: ({ color: _, ...props }) => <DoubleCheckIcon {...props} />,
+        closeIcon: DownArrowIcon,
+        style: styles.chip,
+        textStyle: styles.chipLabel,
+      }}
     />
   );
-};
+}
 
 const useStyles = makeStyles(({ colors }, threshold: number) => ({
   chip: {
