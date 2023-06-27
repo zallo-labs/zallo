@@ -5,7 +5,7 @@ import { POLICY_DRAFT_ATOM } from '../policy/PolicyDraft';
 import { useImmerAtom } from 'jotai-immer';
 import { Screen } from '~/components/layout/Screen';
 import { Appbar } from '~/components/Appbar/Appbar';
-import { StyleSheet, View } from 'react-native';
+import { View } from 'react-native';
 import { ThresholdChip } from './ThresholdChip';
 import { FlashList } from '@shopify/flash-list';
 import { ApproverItem } from './ApproverItem';
@@ -15,6 +15,8 @@ import { AddIcon } from '@theme/icons';
 import { useSelectContact } from '../contacts/useSelectContact';
 import { makeStyles } from '@theme/makeStyles';
 import { Text } from 'react-native-paper';
+import { Address } from 'lib';
+import { showInfo } from '~/provider/SnackbarProvider';
 
 export interface ApproversScreenParams {}
 
@@ -33,6 +35,26 @@ export const ApproversScreen = withSuspense((props: ApproversScreenProps) => {
     });
   };
 
+  const remove = (approver: Address) => {
+    const originalThreshold = policy.threshold;
+
+    updatePolicy((draft) => {
+      draft.approvers.delete(approver);
+      draft.threshold = Math.max(policy.threshold, policy.approvers.size);
+    });
+
+    showInfo('Approver removed', {
+      action: {
+        label: 'Undo',
+        onPress: () =>
+          updatePolicy((draft) => {
+            draft.approvers.add(approver);
+            draft.threshold = originalThreshold;
+          }),
+      },
+    });
+  };
+
   return (
     <Screen>
       <Appbar mode="large" leading="back" headline={`${policy.name} approvers`} />
@@ -43,7 +65,7 @@ export const ApproversScreen = withSuspense((props: ApproversScreenProps) => {
 
       <FlashList
         data={[...policy.approvers]}
-        renderItem={({ item }) => <ApproverItem address={item} />}
+        renderItem={({ item }) => <ApproverItem address={item} remove={() => remove(item)} />}
         keyExtractor={(item) => item}
         estimatedItemSize={ListItemHeight.SINGLE_LINE}
         ListEmptyComponent={
