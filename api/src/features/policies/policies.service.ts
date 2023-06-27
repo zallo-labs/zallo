@@ -97,7 +97,7 @@ export class PoliciesService {
       e.cast(
         e.json,
         e.set(
-          ...Object.entries(policy.permissions.transfers).map(([token, limit]) =>
+          ...Object.entries(policy.permissions.transfers.limits).map(([token, limit]) =>
             e.json({ token, amount: limit.amount, duration: limit.duration }),
           ),
         ),
