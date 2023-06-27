@@ -9,6 +9,7 @@ import _ from 'lodash';
 import { BytesLike } from 'ethers';
 import { Operation } from '../operation';
 import { SatisfiabilityResult } from '../satisfiability';
+import assert from 'assert';
 
 export type Target = Address | '*';
 export type Targets = Record<Target, Set<Selector | '*'>>;
@@ -91,4 +92,29 @@ export const verifyTargetsPermission = (t: Targets, op: Operation): Satisfiabili
             ? "Calling this address isn't allowed"
             : "Calling this function on this address isn't allowed",
       };
+};
+
+export const isTargetAllowed = (targets: Targets, to: Address, selector: Selector) => {
+  const target = targets[to];
+
+  return target
+    ? target?.has(selector) || target?.has(selector)
+    : targets['*'].has(selector) || targets['*'].has('*');
+};
+
+export const setTargetAllowed = (
+  targets: Targets,
+  to: Address,
+  selector: Selector,
+  allow: boolean,
+) => {
+  const target = targets[to] ?? (targets[to] = new Set([]));
+
+  if (allow) {
+    target.add(selector);
+  } else {
+    target.delete(selector);
+  }
+
+  assert(isTargetAllowed(targets, to, selector) == allow);
 };
