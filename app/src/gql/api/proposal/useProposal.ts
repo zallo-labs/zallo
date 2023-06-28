@@ -1,8 +1,7 @@
-import { gql } from '@apollo/client';
+import { gql, useSuspenseQuery } from '@apollo/client';
 import assert from 'assert';
 import { useMemo } from 'react';
 import { ProposalDocument, ProposalQuery, ProposalQueryVariables } from '@api/generated';
-import { useSuspenseQuery } from '~/gql/util';
 import { Proposal, toProposal } from './types';
 import { Hex } from 'lib';
 
@@ -170,7 +169,7 @@ export const useProposal = <Hash extends Hex | undefined>(hash: Hash) => {
     skip: !hash,
   });
 
-  const p = data.proposal;
+  const p = data?.proposal;
   const proposal = useMemo((): Proposal | undefined => (p ? toProposal(p) : undefined), [p]);
 
   if (hash) assert(p, 'Proposal not found');

@@ -1,8 +1,7 @@
 import { useMemo } from 'react';
 import assert from 'assert';
-import { gql } from '@apollo/client';
+import { gql, useSuspenseQuery } from '@apollo/client';
 import { AccountIdlike, asAccountId, WAccount } from './types';
-import { useSuspenseQuery } from '~/gql/util';
 import { AccountDocument, AccountQuery, AccountQueryVariables } from '@api/generated';
 import { asPolicyKey } from 'lib';
 import { convertPolicyFragment } from '@api/policy/types';
@@ -65,7 +64,7 @@ export const useAccount = <Id extends AccountIdlike | undefined>(AccountIdlike: 
     skip: !address,
   });
 
-  const data = query.data.account;
+  const data = query.data?.account;
   const account = useMemo((): WAccount | undefined => {
     if (!address || !data) return undefined;
 

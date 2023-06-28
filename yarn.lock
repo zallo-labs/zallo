@@ -312,6 +312,42 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@apollo/client@npm:^3.8.0-beta.4":
+  version: 3.8.0-beta.4
+  resolution: "@apollo/client@npm:3.8.0-beta.4"
+  dependencies:
+    "@graphql-typed-document-node/core": ^3.1.1
+    "@wry/context": ^0.7.3
+    "@wry/equality": ^0.5.6
+    "@wry/trie": ^0.4.3
+    graphql-tag: ^2.12.6
+    hoist-non-react-statics: ^3.3.2
+    optimism: ^0.17.4
+    prop-types: ^15.7.2
+    response-iterator: ^0.2.6
+    symbol-observable: ^4.0.0
+    ts-invariant: ^0.10.3
+    tslib: ^2.3.0
+    zen-observable-ts: ^1.2.5
+  peerDependencies:
+    graphql: ^14.0.0 || ^15.0.0 || ^16.0.0
+    graphql-ws: ^5.5.5
+    react: ^16.8.0 || ^17.0.0 || ^18.0.0
+    react-dom: ^16.8.0 || ^17.0.0 || ^18.0.0
+    subscriptions-transport-ws: ^0.9.0 || ^0.11.0
+  peerDependenciesMeta:
+    graphql-ws:
+      optional: true
+    react:
+      optional: true
+    react-dom:
+      optional: true
+    subscriptions-transport-ws:
+      optional: true
+  checksum: 37f0cb2c195096221f979095c09bc3e60866ac2476cedfebeb856c908e603f9ba25c812ca4e5321d5f985ad48456c95d677ed94530aedaf8260546956dd86cec
+  languageName: node
+  linkType: hard
+
 "@apollo/explorer@npm:^3.4.0":
   version: 3.4.0
   resolution: "@apollo/explorer@npm:3.4.0"
@@ -13335,6 +13371,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@wry/context@npm:^0.7.3":
+  version: 0.7.3
+  resolution: "@wry/context@npm:0.7.3"
+  dependencies:
+    tslib: ^2.3.0
+  checksum: 91c1e9eee9046c48ff857d60dcbb59f22246ce0f9bb2d9b190e0555227e7ba3f86024032cc057f3f5141d3bee93fc6b2a15ce2c79fa512569d3432eb8e1af02b
+  languageName: node
+  linkType: hard
+
 "@wry/equality@npm:^0.1.2":
   version: 0.1.11
   resolution: "@wry/equality@npm:0.1.11"
@@ -13353,6 +13398,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@wry/equality@npm:^0.5.6":
+  version: 0.5.6
+  resolution: "@wry/equality@npm:0.5.6"
+  dependencies:
+    tslib: ^2.3.0
+  checksum: 9addf8891bdff5e23eecff03641846e7a56c1de3c9362c25e69c0b2ee3303e74b22e9a0376920283cd9d3bdd1bada12df54be5eaa29c2d801d33d94992672e14
+  languageName: node
+  linkType: hard
+
 "@wry/trie@npm:^0.3.0":
   version: 0.3.1
   resolution: "@wry/trie@npm:0.3.1"
@@ -13362,7 +13416,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@wry/trie@npm:^0.4.0":
+"@wry/trie@npm:^0.4.0, @wry/trie@npm:^0.4.3":
   version: 0.4.3
   resolution: "@wry/trie@npm:0.4.3"
   dependencies:
@@ -14472,7 +14526,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "app@workspace:app"
   dependencies:
-    "@apollo/client": ^3.7.15
+    "@apollo/client": ^3.8.0-beta.4
     "@babel/core": ^7.22.5
     "@ethersproject/shims": 5.7.0
     "@expo/config": ~8.0.2
@@ -31790,6 +31844,17 @@ __metadata:
     "@wry/context": ^0.7.0
     "@wry/trie": ^0.3.0
   checksum: a98ed9a0b8ee2b031010222099b60860d52860bf8182889f2695a7cf2185f21aca59020f78e2b47c0ae7697843caa576798d792967314ff59f6aa7c5d9de7f3a
+  languageName: node
+  linkType: hard
+
+"optimism@npm:^0.17.4":
+  version: 0.17.5
+  resolution: "optimism@npm:0.17.5"
+  dependencies:
+    "@wry/context": ^0.7.0
+    "@wry/trie": ^0.4.3
+    tslib: ^2.3.0
+  checksum: 5990217d989e9857dc523a64cb6e5a9205eae68c7acac78f7dde8fbe50045d0f11ca8068cdbb51b1eae15510d96ad593a99cf98c6f86c41d1b6f90e54956ff11
   languageName: node
   linkType: hard
 

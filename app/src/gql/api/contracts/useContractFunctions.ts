@@ -4,10 +4,9 @@ import {
   ContractQuery,
   ContractQueryVariables,
 } from '@api/generated';
-import { gql } from '@apollo/client';
+import { gql, useSuspenseQuery } from '@apollo/client';
 import { Address } from 'lib';
 import { useMemo } from 'react';
-import { useSuspenseQuery } from '~/gql/util';
 import { ContractFunction, fragmentToContractFunction } from './types';
 
 gql`
@@ -30,7 +29,7 @@ export const useContractFunctions = (contract: Address | undefined) => {
   });
 
   return useMemo(
-    (): ContractFunction[] => data.contract?.functions?.map(fragmentToContractFunction) || [],
+    (): ContractFunction[] => data?.contract?.functions?.map(fragmentToContractFunction) || [],
     [data],
   );
 };

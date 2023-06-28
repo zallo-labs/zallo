@@ -1,6 +1,5 @@
-import { gql } from '@apollo/client';
+import { gql, useSuspenseQuery } from '@apollo/client';
 import { Transfer } from './types';
-import { useSuspenseQuery } from '~/gql/util';
 import {
   TransferDirection,
   TransfersDocument,
