@@ -34,6 +34,7 @@ contract Account is
   using Hooks for Hook[];
   using ApprovalsVerifier for Approvals;
 
+  error InsufficientApproval();
   error InsufficientBalance();
   error FailedToPayBootloader();
   error OnlyCallableByBootloader();
@@ -70,11 +71,20 @@ contract Account is
     bytes32 /* suggestedSignedHash */,
     Transaction calldata transaction
   ) external payable override onlyBootloader returns (bytes4 magic) {
-    _validateTransaction(transaction.hash(), transaction);
-    magic = ACCOUNT_VALIDATION_SUCCESS_MAGIC;
+    return _validateTransaction(transaction.hash(), transaction);
   }
 
-  function _validateTransaction(bytes32 txHash, Transaction calldata transaction) internal {
+  /**
+   * @notice Validates transaction and returns magic value if successful
+   * @return magic ACCOUNT_VALIDATION_SUCCESS_MAGIC on success, and bytes(0) when approval is insufficient
+   * @dev Reverts with errors when non-approval related validation fails
+   * @param txHash Transaction hash - distinct from the suggested signed hash
+   * @param transaction Transaction
+   */
+  function _validateTransaction(
+    bytes32 txHash,
+    Transaction calldata transaction
+  ) internal returns (bytes4 magic) {
     _incrementNonceIfEquals(transaction);
     _validateTransactionUnexecuted(txHash);
 
@@ -84,7 +94,10 @@ contract Account is
       transaction.signature
     );
     policy.hooks.validate(transaction.operations());
-    approvals.verify(txHash, policy);
+
+    if (!approvals.verify(txHash, policy)) return bytes4(0);
+
+    return ACCOUNT_VALIDATION_SUCCESS_MAGIC;
   }
 
   /// @inheritdoc IAccount
@@ -101,7 +114,10 @@ contract Account is
     Transaction calldata transaction
   ) external payable override {
     bytes32 txHash = transaction.hash();
-    _validateTransaction(txHash, transaction);
+
+    if (_validateTransaction(txHash, transaction) != ACCOUNT_VALIDATION_SUCCESS_MAGIC)
+      revert InsufficientApproval();
+
     _executeTransaction(txHash, transaction);
   }
 

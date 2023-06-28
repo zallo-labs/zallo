@@ -25,10 +25,14 @@ library ApprovalsVerifier {
   /// @notice Constainted by Approvals.approverSigned - a uint256 of bit-packed bools
   uint256 constant MAX_APPROVERS = 256;
 
-  function verify(Approvals memory a, bytes32 hash, Policy memory p) internal view {
+  function verify(
+    Approvals memory a,
+    bytes32 hash,
+    Policy memory p
+  ) internal view returns (bool success) {
     uint256 secp256k1Len = a.secp256k1.length;
     uint256 nSignatures = secp256k1Len + a.erc1271.length;
-    if (nSignatures < p.threshold) revert ThresholdNotReached(p.threshold, nSignatures);
+    if (nSignatures < p.threshold) return false;
 
     uint256 sigIndex;
     uint256 approversLen = p.approvers.length;
@@ -55,6 +59,8 @@ library ApprovalsVerifier {
         ++approverIndex;
       }
     }
+
+    return true;
   }
 
   function _verifySecp256k1(
