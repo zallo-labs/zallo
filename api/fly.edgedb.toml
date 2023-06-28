@@ -15,15 +15,38 @@ primary_region = "lax"  # Los Angeles
   # EDGEDB_SERVER_TLS_KEY       # Exported from app after first start
   # EDGEDB_SERVER_TLS_CERT      # ^
 
-
-[http_service]
+[[services]]
   internal_port = 8080
-  force_https = true
+  protocol = "tcp"
   auto_stop_machines = true
   auto_start_machines = true
   min_machines_running = 1
-  [http_service.concurrency]
-        type = "connections"
-        # These numbers are from nowhere and testing is needed
-        soft_limit = 20
-        hard_limit = 50
+
+  [[services.ports]]
+    handlers = ["http"]
+    port = "80"
+    force_https = true
+
+  [[services.ports]]
+    handlers = ["tls", "http"]
+    port = "443"
+
+  [services.concurrency]
+    type = "connections"
+    # These numbers are from nowhere and testing is needed
+    soft_limit = 250
+    hard_limit = 500
+
+  [[services.http_checks]]
+    interval = 10000
+    grace_period = 5000
+    method = "get"
+    path = "/server/status/alive"
+    protocol = "https"
+    timeout = 2000
+    tls_skip_verify = true
+
+[metrics]
+  type = "prometheus"
+  port = 8080
+  path = "/metrics"
