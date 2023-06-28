@@ -21,6 +21,11 @@
     "type": "error"
   },
   {
+    "inputs": [],
+    "name": "TargetsConfigInvalid",
+    "type": "error"
+  },
+  {
     "inputs": [
       {
         "internalType": "uint8",
@@ -66,6 +71,11 @@
       }
     ],
     "name": "TooManyApprovers",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "TransfersConfigInvalid",
     "type": "error"
   },
   {

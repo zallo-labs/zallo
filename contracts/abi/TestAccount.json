@@ -11,6 +11,11 @@
   },
   {
     "inputs": [],
+    "name": "InsufficientApproval",
+    "type": "error"
+  },
+  {
+    "inputs": [],
     "name": "InsufficientBalance",
     "type": "error"
   },
@@ -23,50 +28,6 @@
       }
     ],
     "name": "InvalidSignature",
-    "type": "error"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "bytes4",
-        "name": "selector",
-        "type": "bytes4"
-      },
-      {
-        "internalType": "bytes4[]",
-        "name": "targetSelectors",
-        "type": "bytes4[]"
-      }
-    ],
-    "name": "NotAnyOfTargetSelectors",
-    "type": "error"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "to",
-        "type": "address"
-      },
-      {
-        "components": [
-          {
-            "internalType": "address",
-            "name": "to",
-            "type": "address"
-          },
-          {
-            "internalType": "bytes4[]",
-            "name": "selectors",
-            "type": "bytes4[]"
-          }
-        ],
-        "internalType": "struct Target[]",
-        "name": "targets",
-        "type": "tuple[]"
-      }
-    ],
-    "name": "NotToAnyOfTargets",
     "type": "error"
   },
   {
@@ -114,17 +75,22 @@
   {
     "inputs": [
       {
-        "internalType": "uint256",
-        "name": "threshold",
-        "type": "uint256"
+        "internalType": "address",
+        "name": "to",
+        "type": "address"
       },
       {
-        "internalType": "uint256",
-        "name": "nSignatures",
-        "type": "uint256"
+        "internalType": "bytes4",
+        "name": "selector",
+        "type": "bytes4"
       }
     ],
-    "name": "ThresholdNotReached",
+    "name": "TargetDenied",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "TargetsConfigInvalid",
     "type": "error"
   },
   {
@@ -205,6 +171,11 @@
       }
     ],
     "name": "TransferExceedsLimit",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "TransfersConfigInvalid",
     "type": "error"
   },
   {

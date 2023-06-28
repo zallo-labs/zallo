@@ -1,4 +1,4 @@
-import { Targets, hookAsTargets, targetsAsHook } from './TargetPermission';
+import { TargetsConfig, hookAsTargets, targetsAsHook } from './TargetPermission';
 import { HookStruct as BaseHookStruct } from '../contracts/Account';
 import { AwaitedObj, isTruthy } from '../util';
 import { HookSelector } from './selector';
@@ -9,7 +9,7 @@ import {
 } from './TransferPermission';
 
 export interface Permissions {
-  targets: Targets;
+  targets: TargetsConfig;
   transfers: TransfersConfig;
 }
 

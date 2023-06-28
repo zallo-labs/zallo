@@ -8,7 +8,7 @@ import {Operation} from '../../TransactionUtil.sol';
 import {Cast} from '../../libraries/Cast.sol';
 
 struct TransfersConfig {
-  TransferLimit[] limits;
+  TransferLimit[] limits; /// @dev sorted by `token` ascending
   bool defaultAllow;
   Budget budget;
 }
@@ -36,6 +36,7 @@ library TransferHook {
 
   error TransferExceedsLimit(address token, uint256 amount, uint224 limit);
   error CombinedTransferNotSupported();
+  error TransfersConfigInvalid();
 
   function beforeExecute(Operation[] memory operations, bytes memory configData) internal {
     TransfersConfig memory config = abi.decode(configData, (TransfersConfig));
@@ -70,6 +71,15 @@ library TransferHook {
 
     if (spending.spent > limit.amount)
       revert TransferExceedsLimit(limit.token, amount, limit.amount);
+  }
+
+  /// @notice Ensures all invariants are followed
+  function checkConfig(bytes memory configData) internal pure {
+    TransfersConfig memory c = abi.decode(configData, (TransfersConfig));
+
+    for (uint256 i = 1; i < c.limits.length; ++i) {
+      if (c.limits[i].token <= c.limits[i - 1].token) revert TransfersConfigInvalid();
+    }
   }
 
   /*//////////////////////////////////////////////////////////////

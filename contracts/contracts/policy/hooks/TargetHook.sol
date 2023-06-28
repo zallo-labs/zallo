@@ -3,76 +3,80 @@ pragma solidity ^0.8.0;
 
 import {Operation} from '../../TransactionUtil.sol';
 
+struct TargetsConfig {
+  ContractTarget[] targets; /// @dev sorted by `to` ascending
+  Target defaultTarget;
+}
+
+struct ContractTarget {
+  address targetAddress;
+  Target target;
+}
+
 struct Target {
-  address to;
-  bytes4[] selectors; /// @dev Sorted ascending
+  SelectorTarget[] selectors; /// @dev sorted by `selector` ascending
+  bool defaultAllow;
+}
+
+struct SelectorTarget {
+  bytes4 selector;
+  bool allow;
 }
 
 library TargetHook {
-  error NotToAnyOfTargets(address to, Target[] targets);
-  error NotAnyOfTargetSelectors(bytes4 selector, bytes4[] targetSelectors);
+  error TargetDenied(address to, bytes4 selector);
+  error TargetsConfigInvalid();
 
-  address private constant FALLBACK_ADDRESS = address(0);
-  bytes4 private constant ANY_SELECTOR = bytes4(0);
+  function validate(Operation[] memory operations, bytes memory configData) internal pure {
+    TargetsConfig memory config = abi.decode(configData, (TargetsConfig));
 
-  function validate(Operation[] memory operations, bytes memory config) internal pure {
-    Target[] memory targets = abi.decode(config, (Target[]));
-
-    for (uint i; i < operations.length; ++i) {
-      validateOp(operations[i], targets);
+    for (uint256 i; i < operations.length; ++i) {
+      validateOp(operations[i], config);
     }
   }
 
-  function validateOp(Operation memory op, Target[] memory targets) internal pure {
-    uint256 targetsLen = targets.length;
-    if (targets.length == 0) revert NotToAnyOfTargets(op.to, targets);
-
-    uint256 left;
-    uint256 right = targetsLen - 1;
-    uint256 mid;
-    while (left <= right) {
-      mid = (left + right) >> 1; // (left + right) / 2
-
-      Target memory target = targets[mid];
-      if (target.to == op.to) return _verifySelectorsOrRevert(target.selectors, op.data);
-
-      if (target.to < op.to) {
-        left = mid + 1;
-      } else {
-        right = mid - 1;
-      }
+  function validateOp(Operation memory op, TargetsConfig memory c) internal pure {
+    for (uint256 i; i < c.targets.length && op.to <= c.targets[i].targetAddress; ++i) {
+      if (op.to == c.targets[i].targetAddress) return _validateTarget(op, c.targets[i].target);
     }
 
-    if (targets.length > 0 && targets[0].to == FALLBACK_ADDRESS) {
-      _verifySelectorsOrRevert(targets[0].selectors, op.data);
-    } else {
-      revert NotToAnyOfTargets(op.to, targets);
-    }
+    // Fallback to default
+    _validateTarget(op, c.defaultTarget);
   }
 
-  function _verifySelectorsOrRevert(bytes4[] memory selectors, bytes memory data) private pure {
-    if (data.length < 4) return; // Not function call
-    bytes4 selector = bytes4(data);
+  function _validateTarget(Operation memory op, Target memory target) private pure {
+    bytes4 selector = bytes4(op.data);
 
-    uint256 selectorsLen = selectors.length;
-    if (selectorsLen == 0) revert NotAnyOfTargetSelectors(selector, selectors);
-    if (selectorsLen == 1 && selectors[0] == ANY_SELECTOR) return;
-
-    uint256 left;
-    uint256 right = selectorsLen - 1;
-    uint256 mid;
-    while (left <= right) {
-      mid = (left + right) >> 1; // (left + right) / 2
-
-      if (selectors[mid] == selector) return;
-
-      if (selectors[mid] < selector) {
-        left = mid + 1;
-      } else {
-        right = mid - 1;
+    for (uint256 i; i < target.selectors.length && selector <= target.selectors[i].selector; ++i) {
+      if (selector == target.selectors[i].selector) {
+        if (target.selectors[i].allow) {
+          return;
+        } else {
+          revert TargetDenied(op.to, selector);
+        }
       }
     }
 
-    revert NotAnyOfTargetSelectors(selector, selectors);
+    // Fallback to default
+    if (!target.defaultAllow) revert TargetDenied(op.to, selector);
+  }
+
+  /// @notice Ensures all invariants are followed
+  function checkConfig(bytes memory configData) internal pure {
+    TargetsConfig memory c = abi.decode(configData, (TargetsConfig));
+
+    for (uint256 targetIndex; targetIndex < c.targets.length; ++targetIndex) {
+      ContractTarget memory t = c.targets[targetIndex];
+
+      if (targetIndex > 0 && t.targetAddress <= c.targets[targetIndex - 1].targetAddress)
+        revert TargetsConfigInvalid();
+
+      for (uint256 selectorIndex = 1; selectorIndex < t.target.selectors.length; ++selectorIndex) {
+        if (
+          t.target.selectors[selectorIndex].selector <=
+          t.target.selectors[selectorIndex - 1].selector
+        ) revert TargetsConfigInvalid();
+      }
+    }
   }
 }

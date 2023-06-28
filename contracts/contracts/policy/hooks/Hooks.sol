@@ -35,4 +35,16 @@ library Hooks {
       }
     }
   }
+
+  function checkConfigs(Hook[] memory hooks) internal {
+    HookSelector selector;
+    for (uint256 i; i < hooks.length; ++i) {
+      selector = hooks[i].selector;
+      if (selector == HookSelector.Target) {
+        TargetHook.checkConfig(hooks[i].config);
+      } else if (selector == HookSelector.Transfer) {
+        TransferHook.checkConfig(hooks[i].config);
+      }
+    }
+  }
 }

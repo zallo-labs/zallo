@@ -7,7 +7,7 @@ import {Policy, PolicyKey} from '../policy/Policy.sol';
 import {Hook, Hooks} from '../policy/hooks/Hooks.sol';
 import {Approvals, ApprovalsVerifier} from '../policy/ApprovalsVerifier.sol';
 import {TransactionUtil, Operation} from '../TransactionUtil.sol';
-import {TargetHook, Target} from '../policy/hooks/TargetHook.sol';
+import {TargetHook, TargetsConfig} from '../policy/hooks/TargetHook.sol';
 import {TransferHook, TransfersConfig} from '../policy/hooks/TransferHook.sol';
 
 contract TestVerifier {
@@ -31,8 +31,8 @@ contract TestVerifier {
                                  HOOKS
   //////////////////////////////////////////////////////////////*/
 
-  function validateTarget(Operation calldata op, Target[] calldata targets) external pure {
-    TargetHook.validateOp(op, targets);
+  function validateTarget(Operation calldata op, TargetsConfig calldata config) external pure {
+    TargetHook.validateOp(op, config);
   }
 
   function beforeExecuteTransfer(Operation calldata op, TransfersConfig calldata config) external {

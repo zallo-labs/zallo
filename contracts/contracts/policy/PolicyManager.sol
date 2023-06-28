@@ -4,8 +4,11 @@ pragma solidity ^0.8.0;
 import {SelfOwned} from '../SelfOwned.sol';
 import {Policy, PolicyKey} from './Policy.sol';
 import {Approvals, ApprovalsVerifier} from './ApprovalsVerifier.sol';
+import {Hooks, Hook} from '../policy/hooks/Hooks.sol';
 
 abstract contract PolicyManager is SelfOwned {
+  using Hooks for Hook[];
+
   event PolicyAdded(PolicyKey key, bytes32 hash);
   event PolicyRemoved(PolicyKey key);
 
@@ -19,6 +22,7 @@ abstract contract PolicyManager is SelfOwned {
   }
 
   function _addPolicy(Policy calldata policy) internal {
+    // Validate approvers and threshold
     uint256 nApprovers = policy.approvers.length;
     if (nApprovers > ApprovalsVerifier.MAX_APPROVERS)
       revert TooManyApprovers(ApprovalsVerifier.MAX_APPROVERS, nApprovers);
@@ -27,6 +31,9 @@ abstract contract PolicyManager is SelfOwned {
       revert ThresholdTooLow(policy.threshold, nApprovers);
 
     if (policy.threshold > nApprovers) revert ThresholdTooHigh(policy.threshold, nApprovers);
+
+    // Validate hooks
+    policy.hooks.checkConfigs();
 
     bytes32 hash = _hashPolicyCalldata(policy);
     _policyHashes()[policy.key] = hash;
