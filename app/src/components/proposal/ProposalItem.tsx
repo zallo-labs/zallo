@@ -47,8 +47,6 @@ export const ProposalItem = withSuspense(({ proposal: hash, ...itemProps }: Prop
     .with({ state: 'executed' }, () => <Timestamp timestamp={p.timestamp} />)
     .exhaustive();
 
-  const e = p.transaction!.receipt!.events.filter(onlyTypes('TransferApproval'));
-
   return (
     <ListItem
       leading={
