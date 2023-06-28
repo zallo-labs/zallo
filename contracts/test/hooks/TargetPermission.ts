@@ -5,11 +5,10 @@ import {
   asAddress,
   asHex,
   asSelector,
-  asTargets,
   Hex,
   Operation,
   TARGETS_ABI,
-  Targetslike,
+  TargetsConfig,
   TestVerifier,
 } from 'lib';
 import { deployTestVerifier } from '../util/verifier';
@@ -22,14 +21,14 @@ describe('TargetPermission', () => {
   let to: Address;
   let data: Hex;
 
-  const verify = (op: Operation, targets: Targetslike) =>
+  const verify = (op: Operation, targets: TargetsConfig) =>
     verifier.validateTarget(
       {
         to: op.to,
         value: op.value ?? 0n,
         data: op.data ?? '0x',
       },
-      TARGETS_ABI.asStruct(asTargets(targets)) ?? [],
+      TARGETS_ABI.asStruct(targets),
     );
 
   before(async () => {
@@ -40,38 +39,102 @@ describe('TargetPermission', () => {
   });
 
   describe('succeed when', () => {
-    it('matching target and selector', async () => {
-      await expect(verify({ to, data }, { [to]: new Set([asSelector(data)]) })).to.not.be.reverted;
+    it('target and selector', async () => {
+      await expect(
+        verify(
+          { to, data },
+          {
+            targets: { [to]: { selectors: { [asSelector(data)]: true }, defaultAllow: false } },
+            default: { selectors: {}, defaultAllow: false },
+          },
+        ),
+      ).to.not.be.reverted;
     });
 
-    it('matching target and any selector', async () => {
-      await expect(verify({ to, data }, { [to]: new Set(['*']) })).to.not.be.reverted;
+    it('target, no selector, and default allow', async () => {
+      await expect(
+        verify(
+          { to, data },
+          {
+            targets: { [to]: { selectors: {}, defaultAllow: true } },
+            default: { selectors: {}, defaultAllow: false },
+          },
+        ),
+      ).to.not.be.reverted;
     });
 
-    it('fallback target and matching selector', async () => {
-      await expect(verify({ to, data }, { '*': new Set([asSelector(data)]) })).to.not.be.reverted;
+    it('no target, and allowed default selector', async () => {
+      await expect(
+        verify(
+          { to, data },
+          {
+            targets: {},
+            default: { selectors: { [asSelector(data)]: true }, defaultAllow: false },
+          },
+        ),
+      ).to.not.be.reverted;
+    });
+
+    it('no target, and default allow', async () => {
+      await expect(
+        verify(
+          { to, data },
+          {
+            targets: {},
+            default: { selectors: {}, defaultAllow: true },
+          },
+        ),
+      ).to.not.be.reverted;
     });
   });
 
   describe('revert when', () => {
-    it('no matching target', async () => {
-      await expect(verify({ to, data }, {})).to.be.revertedWithCustomError(
-        verifier,
-        AccountError.NotToAnyOfTargets,
-      );
-    });
-
-    it('matching target but no matching selector', async () => {
-      await expect(verify({ to, data }, { [to]: new Set([]) })).to.be.revertedWithCustomError(
-        verifier,
-        AccountError.NotAnyOfTargetSelectors,
-      );
-    });
-
-    it('matching target target but no matching selector, where fallback target & any selector exists', async () => {
+    it('matching target, deny selector', async () => {
       await expect(
-        verify({ to, data }, { [to]: new Set([]), '*': new Set(['*']) }),
-      ).to.be.revertedWithCustomError(verifier, AccountError.NotAnyOfTargetSelectors);
+        verify(
+          { to, data },
+          {
+            targets: { [to]: { selectors: { [asSelector(data)]: false }, defaultAllow: true } },
+            default: { selectors: {}, defaultAllow: true },
+          },
+        ),
+      ).to.be.revertedWithCustomError(verifier, AccountError.TargetDenied);
+    });
+
+    it('matching target, no selector, and default deny', async () => {
+      await expect(
+        verify(
+          { to, data },
+          {
+            targets: { [to]: { selectors: {}, defaultAllow: false } },
+            default: { selectors: {}, defaultAllow: true },
+          },
+        ),
+      ).to.be.revertedWithCustomError(verifier, AccountError.TargetDenied);
+    });
+
+    it('no target, disallowed selector', async () => {
+      await expect(
+        verify(
+          { to, data },
+          {
+            targets: {},
+            default: { selectors: { [asSelector(data)]: false }, defaultAllow: true },
+          },
+        ),
+      ).to.be.revertedWithCustomError(verifier, AccountError.TargetDenied);
+    });
+
+    it('no target, no selector, and default deny', async () => {
+      await expect(
+        verify(
+          { to, data },
+          {
+            targets: {},
+            default: { selectors: {}, defaultAllow: false },
+          },
+        ),
+      ).to.be.revertedWithCustomError(verifier, AccountError.TargetDenied);
     });
   });
 });

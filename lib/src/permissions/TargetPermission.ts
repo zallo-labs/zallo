@@ -27,7 +27,7 @@ export const ALLOW_ALL_TARGETS = {
 
 const TARGET_ABI = '((bytes4 selector, bool allow)[] selectors, bool defaultAllow)';
 
-export const TARGETS_ABI = newAbiType<TargetsConfig, AwaitedObj<TargetsConfigStruct> | undefined>(
+export const TARGETS_ABI = newAbiType<TargetsConfig, AwaitedObj<TargetsConfigStruct>>(
   `((address targetAddress, ${TARGET_ABI} target)[] targets, ${TARGET_ABI} defaultTarget)`,
   (c) => ({
     targets: Object.entries(c.targets)
