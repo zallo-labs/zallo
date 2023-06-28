@@ -35,7 +35,7 @@ export const Permissions = (props: PermissionsProps) => {
           leadingSize="small"
           headline={<AddressLabel address={contract} />}
           trailing={NavigateNextIcon}
-          onPress={() => navigate('Interactions', { contract })}
+          onPress={() => navigate('ContractPermissions', { contract })}
         />
       ))}
 
@@ -44,7 +44,7 @@ export const Permissions = (props: PermissionsProps) => {
         headline="Add contract-specific permssions"
         trailing={NavigateNextIcon}
         onPress={async () =>
-          navigate('Interactions', {
+          navigate('ContractPermissions', {
             contract: await selectContract({ disabled: [...contracts, account] }),
           })
         }

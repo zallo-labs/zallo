@@ -37,12 +37,11 @@ export const useContractFunction = (params: ContractFunctionParams | Operation |
   const contract = isOp(params) ? params.to : params?.contract;
   const selector = isOp(params) ? asSelector(params.data) : params?.selector;
 
-  const skip = !contract || !selector;
   const { data } = useSuspenseQuery<ContractFunctionQuery, ContractFunctionQueryVariables>(
     ContractFunctionDocument,
     {
       variables: { input: { contract: contract!, selector: selector! } },
-      skip,
+      skip: !contract || !selector,
     },
   );
 

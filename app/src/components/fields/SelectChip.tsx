@@ -8,6 +8,7 @@ export type SelectChipProps<T> = Pick<MenuProps, 'style' | 'contentStyle'> & {
   entries: readonly (readonly [string, T])[];
   menuProps?: Partial<MenuProps>;
   chipProps?: Partial<Omit<ChipProps, 'children' | 'onPress'>>;
+  equals?: (a: T, b: T) => boolean;
 };
 
 export const SelectChip = <T,>({
@@ -16,6 +17,7 @@ export const SelectChip = <T,>({
   entries,
   menuProps,
   chipProps,
+  equals = (a, b) => a === b,
 }: SelectChipProps<T>) => {
   const styles = useStyles();
 
@@ -23,7 +25,7 @@ export const SelectChip = <T,>({
   const close = () => setVisible(false);
   const toggle = () => setVisible((v) => !v);
 
-  const label = entries.find((e) => e[1] === value)![0];
+  const label = entries.find((e) => equals(e[1], value))![0];
 
   return (
     <Menu

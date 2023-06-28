@@ -25,10 +25,6 @@ import { SettingsScreen, SettingsScreenParams } from '~/screens/settings/Setting
 import { TokensScreen, TokensScreenParams } from '~/screens/tokens/TokensScreen';
 import { UserScreen } from '~/screens/user/UserScreen';
 import { PolicyScreen, PolicyScreenParams } from '~/screens/policy/PolicyScreen';
-import {
-  InteractionsScreen,
-  InteractionsScreenParams,
-} from '~/screens/interactions/InteractionsScreen';
 import { ContractsModal, ContractsModalParams } from '~/components/Contracts/ContractsModal';
 import { ImportSelectorModal } from '../screens/import-selector/ImportSelectorModal';
 import {
@@ -44,6 +40,10 @@ import {
 } from '~/screens/notifications/NotificationSettingsScreen';
 import { SwapScreen, SwapScreenParams } from '~/screens/swap/SwapScreen';
 import { ApproversScreen, ApproversScreenParams } from '~/screens/approvers/ApproversScreen';
+import {
+  ContractPermissionsScreen,
+  ContractPermissionsScreenParams,
+} from '~/screens/contract-permissions/ContractPermissionsScreen';
 
 export type StackNavigatorParamList = {
   Home: HomeScreenParams;
@@ -59,7 +59,7 @@ export type StackNavigatorParamList = {
   Account: AccountScreenParams;
   Policy: PolicyScreenParams;
   Approvers: ApproversScreenParams;
-  Interactions: InteractionsScreenParams;
+  ContractPermissions: ContractPermissionsScreenParams;
   Sessions: SessionsScreenParams;
   Tokens: TokensScreenParams;
   NotificationSettings: NotificationSettingsParams;
@@ -118,7 +118,7 @@ export const StackNavigator = () => {
       <Navigation.Screen name="Account" component={AccountScreen} />
       <Navigation.Screen name="Policy" component={PolicyScreen} />
       <Navigation.Screen name="Approvers" component={ApproversScreen} />
-      <Navigation.Screen name="Interactions" component={InteractionsScreen} />
+      <Navigation.Screen name="ContractPermissions" component={ContractPermissionsScreen} />
       <Navigation.Screen name="Sessions" component={SessionsScreen} />
       <Navigation.Screen name="Tokens" component={TokensScreen} />
       <Navigation.Screen name="NotificationSettings" component={NotificationSettingsScreen} />
