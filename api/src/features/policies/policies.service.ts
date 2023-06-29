@@ -1,5 +1,5 @@
 import { forwardRef, Inject, Injectable } from '@nestjs/common';
-import { ACCOUNT_INTERFACE, Address, asHex, asPolicyKey, asTargets, Policy, POLICY_ABI } from 'lib';
+import { ACCOUNT_INTERFACE, Address, asHex, asPolicyKey, Policy, POLICY_ABI } from 'lib';
 import { ProposalsService, selectTransactionProposal } from '../proposals/proposals.service';
 import { CreatePolicyInput, UniquePolicyInput, UpdatePolicyInput } from './policies.input';
 import _ from 'lodash';
@@ -15,6 +15,8 @@ import {
   inputAsPolicy,
   policyStateShape,
   policyStateAsPolicy,
+  asTransfersConfig,
+  asTargetsConfig,
 } from './policies.util';
 
 interface CreateParams extends CreatePolicyInput {
@@ -61,7 +63,7 @@ export class PoliciesService {
 
     await this.upsertApprovers(accountId, policy);
 
-    const proposal = !skipProposal && (await this.proposeState(account, policy));
+    const proposal = !skipProposal ? await this.proposeState(account, policy) : undefined;
 
     const { id } = await e
       .insert(e.Policy, {
@@ -69,7 +71,7 @@ export class PoliciesService {
         key,
         name: name || `Policy ${key}`,
         stateHistory: e.insert(e.PolicyState, {
-          ...(proposal && { proposal }),
+          proposal,
           ...this.insertStateShape(policy),
         }),
       })
@@ -79,17 +81,33 @@ export class PoliciesService {
   }
 
   private insertStateShape(policy: Policy) {
-    const targets = e.for(
-      e.set(
-        ...Object.entries(policy.permissions.targets).map(([to, selectors]) =>
-          e.json({ to, selectors: [...selectors] }),
+    const transferLimits = e.for(
+      e.cast(
+        e.json,
+        e.set(
+          ...Object.entries(policy.permissions.transfers.limits).map(([token, limit]) =>
+            e.json({ token, amount: limit.amount, duration: limit.duration }),
+          ),
         ),
       ),
       (item) =>
-        e.insert(e.Target, {
-          to: e.cast(e.str, item.to),
-          selectors: e.cast(e.array(e.str), item.selectors),
+        e.insert(e.TransferLimit, {
+          token: e.cast(e.Address, item.token),
+          amount: e.cast(e.uint224, item.amount),
+          duration: e.cast(e.uint32, item.duration),
         }),
+    );
+
+    const targets = policy.permissions.targets;
+    const targetContracts = Object.entries(targets.contracts).map(([contract, target]) =>
+      e.insert(e.ContractTarget, {
+        contract,
+        functions: Object.entries(target.functions).map(([selector, allow]) => ({
+          selector,
+          allow,
+        })),
+        defaultAllow: target.defaultAllow,
+      }),
     );
 
     return {
@@ -100,7 +118,21 @@ export class PoliciesService {
         })),
       ),
       threshold: policy.threshold,
-      targets,
+      targets: e.insert(e.TargetsConfig, {
+        ...(targetContracts.length && { contracts: e.set(...targetContracts) }),
+        default: e.insert(e.Target, {
+          functions: Object.entries(targets.default.functions).map(([selector, allow]) => ({
+            selector,
+            allow,
+          })),
+          defaultAllow: targets.default.defaultAllow,
+        }),
+      }),
+      transfers: e.insert(e.TransfersConfig, {
+        defaultAllow: policy.permissions.transfers.defaultAllow,
+        budget: policy.permissions.transfers.budget ?? policy.key,
+        limits: transferLimits,
+      }),
     } satisfies Partial<Parameters<typeof e.insert<typeof e.PolicyState>>[1]>;
   }
 
@@ -135,7 +167,9 @@ export class PoliciesService {
 
         if (approvers) policy.approvers = new Set(approvers);
         if (threshold !== undefined) policy.threshold = threshold;
-        if (permissions?.targets) policy.permissions = { targets: asTargets(permissions.targets) };
+        if (permissions?.targets) policy.permissions.targets = asTargetsConfig(permissions.targets);
+        if (permissions?.transfers)
+          policy.permissions.transfers = asTransfersConfig(permissions.transfers);
 
         const accountId = await e
           .select(e.Account, () => ({ filter_single: { address: account } }))
@@ -200,6 +234,10 @@ export class PoliciesService {
               ...(proposal && { proposal }),
               isRemoved: true,
               threshold: 0,
+              targets: e.insert(e.TargetsConfig, {
+                default: e.insert(e.Target, { functions: [], defaultAllow: true }),
+              }),
+              transfers: e.insert(e.TransfersConfig, { budget: key }),
             }),
           },
         },
@@ -221,9 +259,7 @@ export class PoliciesService {
       ],
     });
 
-    return e.select(e.TransactionProposal, () => ({
-      filter_single: { id: proposal.id },
-    }));
+    return e.select(e.TransactionProposal, () => ({ filter_single: { id: proposal.id } }));
   }
 
   private async getFreeKey(account: uuid) {

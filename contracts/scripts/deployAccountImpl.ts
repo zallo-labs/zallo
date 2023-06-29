@@ -3,6 +3,7 @@ import { deployAccountImpl } from '../test/util';
 import { displayTx } from './util/display';
 import { verify } from './util/verify';
 import hardhat from 'hardhat';
+import { Hex } from 'lib';
 
 const main = async () => {
   await hardhat.run('compile');
@@ -14,7 +15,7 @@ const main = async () => {
   await verify({
     contract: 'contracts/Account.sol:Account',
     address: impl,
-    constructorArguments: [],
+    constructorArguments: '0x' as Hex,
   });
 };
 

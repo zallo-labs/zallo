@@ -2,6 +2,8 @@ import { Field, InputType, IntersectionType, PartialType } from '@nestjs/graphql
 import { Address, PolicyId, PolicyKey, Selector } from 'lib';
 import { AddressField, AddressScalar } from '~/apollo/scalars/Address.scalar';
 import { PolicyKeyField } from '~/apollo/scalars/PolicyKey.scalar';
+import { GraphQLBigInt } from 'graphql-scalars';
+import { Bytes4Field } from '~/apollo/scalars/Bytes.scalar';
 
 @InputType()
 export class UniquePolicyInput implements PolicyId {
@@ -13,18 +15,69 @@ export class UniquePolicyInput implements PolicyId {
 }
 
 @InputType()
-export class PermissionsInput {
-  @Field(() => [TargetInput], { nullable: true, description: 'Targets that can be called' })
-  targets?: TargetInput[];
+export class TransfersConfigInput {
+  @Field(() => [TransferLimitInput], { defaultValue: [] })
+  limits: TransferLimitInput[];
+
+  @Field(() => Boolean, { defaultValue: true })
+  defaultAllow: boolean;
+
+  @Field(() => Number, { nullable: true, description: 'Defaults to the policy budget' })
+  budget: number;
+}
+
+@InputType()
+export class TransferLimitInput {
+  @AddressField()
+  token: Address;
+
+  @Field(() => GraphQLBigInt)
+  amount: bigint;
+
+  @Field(() => Number, { description: 'seconds' })
+  duration: number;
+}
+
+@InputType()
+export class SelectorInput {
+  @Bytes4Field()
+  selector: Selector;
+
+  @Field(() => Boolean)
+  allow: boolean;
 }
 
 @InputType()
 export class TargetInput {
-  @Field(() => String, { description: 'Address of target (or *)' })
-  to: Address | '*';
+  @Field(() => [SelectorInput], { defaultValue: [] })
+  functions: SelectorInput[];
 
-  @Field(() => [String], { description: 'Functions that can be called on target (or *)' })
-  selectors: (Selector | '*')[];
+  @Field(() => Boolean, { defaultValue: true })
+  defaultAllow: boolean;
+}
+
+@InputType()
+export class ContractTargetInput extends TargetInput {
+  @AddressField()
+  contract: Address;
+}
+
+@InputType()
+export class TargetsConfigInput {
+  @Field(() => [ContractTargetInput], { defaultValue: [] })
+  contracts: ContractTargetInput[];
+
+  @Field(() => TargetInput, { defaultValue: { functions: [], defaultAllow: true } })
+  default: TargetInput;
+}
+
+@InputType()
+export class PermissionsInput {
+  @Field(() => TargetsConfigInput, { nullable: true, description: 'Targets that can be called' })
+  targets?: TargetsConfigInput;
+
+  @Field(() => TransfersConfigInput, { nullable: true })
+  transfers?: TransfersConfigInput;
 }
 
 @InputType()

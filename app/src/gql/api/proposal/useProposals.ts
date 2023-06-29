@@ -1,4 +1,4 @@
-import { gql } from '@apollo/client';
+import { gql, useSuspenseQuery } from '@apollo/client';
 import { Address, Arraylike, toArray } from 'lib';
 import { useMemo } from 'react';
 import {
@@ -8,7 +8,6 @@ import {
   ProposalsQueryVariables,
   TransactionProposalStatus,
 } from '@api/generated';
-import { useSuspenseQuery } from '~/gql/util';
 import { Proposal, toProposal } from './types';
 
 gql`

@@ -12,12 +12,14 @@ const toNumber = (s?: string) => {
   // Treat empty | undefined equivalent to zero
   if (!s) s = '0';
 
+  if (s.startsWith('.')) s = `0${s}`;
+
   return parseFloat(s);
 };
 
 export interface UseNumberInputOptions {
   value?: number;
-  onChange: (value: number) => void;
+  onChange: (value: number | undefined) => void;
   maxDecimals?: number;
 }
 
@@ -37,7 +39,7 @@ export const useNumberInput = ({
     (newInput: string) => {
       if (pattern.test(newInput)) {
         setInput(newInput);
-        onChange(toNumber(newInput));
+        onChange(newInput !== '' ? toNumber(newInput) : undefined);
       }
     },
     [pattern, onChange],

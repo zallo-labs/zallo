@@ -1,4 +1,4 @@
-import { gql } from '@apollo/client';
+import { gql, useSuspenseQuery } from '@apollo/client';
 import { Address } from 'lib';
 import { useMemo } from 'react';
 import {
@@ -6,7 +6,6 @@ import {
   RequestableTokensQuery,
   RequestableTokensQueryVariables,
 } from '@api/generated';
-import { useSuspenseQuery, usePollWhenFocussed } from '~/gql/util';
 
 gql`
   query RequestableTokens($input: RequestTokensInput!) {
@@ -15,11 +14,10 @@ gql`
 `;
 
 export const useCanRequestTokens = (account: Address) => {
-  const { data, ...rest } = useSuspenseQuery<
-    RequestableTokensQuery,
-    RequestableTokensQueryVariables
-  >(RequestableTokensDocument, { variables: { input: { account } } });
-  usePollWhenFocussed(rest, 5 * 60);
+  const { data } = useSuspenseQuery<RequestableTokensQuery, RequestableTokensQueryVariables>(
+    RequestableTokensDocument,
+    { variables: { input: { account } } },
+  );
 
   return useMemo(() => data.requestableTokens.length > 0, [data]);
 };

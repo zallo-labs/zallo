@@ -48,10 +48,11 @@ export default {
       Object.values(CHAINS).map((chain) => [
         chain.key,
         {
+          zksync: true,
           chainId: chain.id,
           url: chain.rpcUrls.default.http[0],
           ethNetwork: chain.layer1.rpcUrls.default.http[0],
-          zksync: true,
+          verifyURL: chain.verifyUrl,
         },
       ]),
     ),

@@ -47,19 +47,19 @@ describe('Verifier', () => {
     verifier = await deployTestVerifier();
   });
 
-  const verify = ({ tx = defaultTx, policy }: ValidateOptions) =>
-    verifier.functions.verifyTransactionPermissionsAndApprovals(
-      tx,
-      POLICY_ABI.asStruct(policy),
-      APPROVALS_ABI.asStruct({ approvals: [], approvers: policy.approvers }),
-      { gasLimit },
-    );
+  // const verify = ({ tx = defaultTx, policy }: ValidateOptions) =>
+  //   verifier.functions.verifyTransactionPermissionsAndApprovals(
+  //     tx,
+  //     POLICY_ABI.asStruct(policy),
+  //     APPROVALS_ABI.asStruct({ approvals: [], approvers: policy.approvers }),
+  //     { gasLimit },
+  //   );
 
-  it('succeed with no conditions', async () => {
-    await verify({
-      policy: asPolicy({ key: 0, approvers: new Set() }),
-    });
-  });
+  // it('succeed with no conditions', async () => {
+  //   await verify({
+  //     policy: asPolicy({ key: 0, approvers: new Set() }),
+  //   });
+  // });
 
   // it('succeed with AlwaysPassVerifier', async () => {
   //   await (

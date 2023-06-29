@@ -22,13 +22,13 @@ type Item = string | Contact | Token;
 const isHeader = (item: Item): item is string => typeof item === 'string';
 
 export interface ContractsModalParams {
-  disabled?: Set<Address>;
+  disabled?: Address[];
 }
 
 export type ContractsModalProps = StackNavigatorScreenProps<'ContractsModal'>;
 
 export const ContractsModal = ({ route, navigation: { goBack } }: ContractsModalProps) => {
-  const { disabled } = route.params;
+  const disabled = route.params.disabled && new Set(route.params.disabled);
   const tokens = useTokens();
   const contacts = useContacts();
 

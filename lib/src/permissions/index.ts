@@ -1,3 +1,4 @@
 export * from './permissions';
-export * from './PermissionSelector';
+export * from './selector';
 export * from './TargetPermission';
+export * from './TransferPermission';

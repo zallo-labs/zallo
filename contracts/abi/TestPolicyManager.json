@@ -21,6 +21,11 @@
     "type": "error"
   },
   {
+    "inputs": [],
+    "name": "TargetsConfigInvalid",
+    "type": "error"
+  },
+  {
     "inputs": [
       {
         "internalType": "uint8",
@@ -66,6 +71,11 @@
       }
     ],
     "name": "TooManyApprovers",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "TransfersConfigInvalid",
     "type": "error"
   },
   {
@@ -122,18 +132,18 @@
           {
             "components": [
               {
-                "internalType": "enum PermissionSelector",
+                "internalType": "enum HookSelector",
                 "name": "selector",
                 "type": "uint8"
               },
               {
                 "internalType": "bytes",
-                "name": "args",
+                "name": "config",
                 "type": "bytes"
               }
             ],
-            "internalType": "struct Permission[]",
-            "name": "permissions",
+            "internalType": "struct Hook[]",
+            "name": "hooks",
             "type": "tuple[]"
           }
         ],
@@ -201,18 +211,18 @@
           {
             "components": [
               {
-                "internalType": "enum PermissionSelector",
+                "internalType": "enum HookSelector",
                 "name": "selector",
                 "type": "uint8"
               },
               {
                 "internalType": "bytes",
-                "name": "args",
+                "name": "config",
                 "type": "bytes"
               }
             ],
-            "internalType": "struct Permission[]",
-            "name": "permissions",
+            "internalType": "struct Hook[]",
+            "name": "hooks",
             "type": "tuple[]"
           }
         ],

@@ -4,8 +4,6 @@ import { useCustomFields } from '../hooks/useCustomFields';
 export default () => {
   const { privacyPolicyUrl } = useCustomFields();
 
-  console.log(privacyPolicyUrl);
-
   useEffect(() => {
     window.location.href = privacyPolicyUrl;
   }, [privacyPolicyUrl]);

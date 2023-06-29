@@ -1,10 +1,10 @@
 import hre from 'hardhat';
-import { Address } from 'lib';
+import { Address, Hex } from 'lib';
 
 export interface VerifyOptions {
   address: Address;
   contract: string;
-  constructorArguments?: unknown[];
+  constructorArguments?: Hex | unknown[];
 }
 
 // https://era.zksync.io/docs/dev/building-on-zksync/contracts/contract-verification.html#verify-smart-contract-programmatically

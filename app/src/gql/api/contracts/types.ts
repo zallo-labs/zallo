@@ -1,20 +1,12 @@
 import { ContractFunctionFieldsFragment } from '@api/generated';
-import * as ethers from 'ethers';
-import { FunctionFragment, Interface } from 'ethers/lib/utils';
 import { Selector } from 'lib';
+import { AbiFunction } from 'abitype';
 
 export interface ContractFunction {
   selector: Selector;
-  fragment: FunctionFragment;
-  iface: Interface;
+  abi: AbiFunction;
 }
 
-export const fragmentToContractFunction = (f: ContractFunctionFieldsFragment): ContractFunction => {
-  const fragment = FunctionFragment.from(f.abi);
-
-  return {
-    selector: f.selector,
-    fragment,
-    iface: ethers.Contract.getInterface([fragment]),
-  };
-};
+export const fragmentToContractFunction = (
+  f: ContractFunctionFieldsFragment,
+): ContractFunction => ({ selector: f.selector, abi: f.abi });

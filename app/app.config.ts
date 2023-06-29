@@ -39,7 +39,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     eas: { projectId: PROJECT_ID },
   },
   plugins: [
-    // 'sentry-expo', // TODO: re-enable once issue is resolved - https://github.com/expo/sentry-expo/issues/342
+    'sentry-expo',
     'expo-notifications', // https://docs.expo.dev/versions/latest/sdk/notifications/#configurable-properties
     [
       'expo-build-properties',

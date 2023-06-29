@@ -1,7 +1,6 @@
-import { gql } from '@apollo/client';
+import { gql, useSuspenseQuery } from '@apollo/client';
 import { ContactsDocument, ContactsQuery, ContactsQueryVariables } from '@api/generated';
 import { useMemo } from 'react';
-import { useSuspenseQuery } from '~/gql/util';
 import { Contact } from './types';
 
 gql`

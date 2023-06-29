@@ -1,6 +1,5 @@
-import { gql } from '@apollo/client';
+import { gql, useSuspenseQuery } from '@apollo/client';
 import { Address } from 'lib';
-import { useSuspenseQuery } from '~/gql/util';
 import { useMemo } from 'react';
 import { UserDocument, UserQuery, UserQueryVariables } from '@api/generated';
 import { User } from './types';

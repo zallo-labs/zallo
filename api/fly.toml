@@ -10,15 +10,33 @@ primary_region = "lax"  # Los Angeles
   # Secrets
   # DOTENV_KEY                  # npx dotenv-vault keys
 
-
-[http_service]
+[[services]]
   internal_port = 3000
-  force_https = true
+  protocol = "tcp"
   auto_stop_machines = true
   auto_start_machines = true
   min_machines_running = 1
-  [http_service.concurrency]
+
+  [[services.ports]]
+    handlers = ["http"]
+    port = "80"
+    force_https = true
+
+  [[services.ports]]
+    handlers = ["tls", "http"]
+    port = "443"
+
+  [services.concurrency]
     type = "requests"
     # Example used in docs, testing is needed
-    soft_limit = 200
-    hard_limit = 400
+    soft_limit = 500
+    hard_limit = 1000
+
+  [[services.http_checks]]
+    interval = "10s"
+    grace_period = "5s"
+    method = "get"
+    path = "/health"
+    protocol = "https"
+    timeout = "2s"
+    tls_skip_verify = true

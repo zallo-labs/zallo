@@ -29,7 +29,7 @@ export const useCreatePolicy = (account: Address) => {
   const [mutation] = useCreatePolicyMutation();
 
   return useCallback(
-    async ({ name, approvers, threshold, permissions }: CreatePolicyOptions) => {
+    async ({ name, approvers, threshold, permissions: p }: CreatePolicyOptions) => {
       const r = await mutation({
         variables: {
           input: {
@@ -38,10 +38,30 @@ export const useCreatePolicy = (account: Address) => {
             approvers: [...approvers],
             threshold,
             permissions: {
-              targets: Object.entries(permissions.targets).map(([to, selectors]) => ({
-                to,
-                selectors: [...selectors],
-              })),
+              targets: {
+                contracts: Object.entries(p.targets.contracts).map(([contract, c]) => ({
+                  contract: contract as Address,
+                  functions: Object.entries(c.functions).map(([selector, allow]) => ({
+                    selector,
+                    allow,
+                  })),
+                  defaultAllow: c.defaultAllow,
+                })),
+                default: {
+                  functions: Object.entries(p.targets.default.functions).map(
+                    ([selector, allow]) => ({ selector, allow }),
+                  ),
+                  defaultAllow: p.targets.default.defaultAllow,
+                },
+              },
+              transfers: {
+                limits: Object.entries(p.transfers.limits).map(([token, limit]) => ({
+                  token: token as Address,
+                  ...limit,
+                })),
+                defaultAllow: p.transfers.defaultAllow,
+                budget: p.transfers.budget,
+              },
             },
           },
         },

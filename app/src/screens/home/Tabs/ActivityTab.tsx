@@ -13,12 +13,14 @@ import { TabBadge } from '~/components/tab/TabBadge';
 import { TabScreenSkeleton } from '~/components/tab/TabScreenSkeleton';
 import { Transfer, useTransfers } from '@api/transfer';
 import { Address } from 'lib';
+import { asDateTime } from '~/components/format/Timestamp';
 
 type Item = Proposal | Transfer;
 
 const isProposalItem = (i: Item): i is Proposal => 'hash' in i;
 
-const compare = (a: Item, b: Item) => b.timestamp.toMillis() - a.timestamp.toMillis();
+const compare = (a: Item, b: Item) =>
+  asDateTime(b.timestamp).toMillis() - asDateTime(a.timestamp).toMillis();
 
 export interface ActivityTabParams {
   account: Address;

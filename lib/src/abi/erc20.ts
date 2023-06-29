@@ -5,7 +5,7 @@ export const ERC20_ABI = [
     name: 'name',
     outputs: [
       {
-        name: '',
+        name: 'name',
         type: 'string',
       },
     ],
@@ -17,18 +17,18 @@ export const ERC20_ABI = [
     constant: false,
     inputs: [
       {
-        name: '_spender',
+        name: 'spender',
         type: 'address',
       },
       {
-        name: '_value',
+        name: 'value',
         type: 'uint256',
       },
     ],
     name: 'approve',
     outputs: [
       {
-        name: '',
+        name: 'success',
         type: 'bool',
       },
     ],
@@ -42,7 +42,7 @@ export const ERC20_ABI = [
     name: 'totalSupply',
     outputs: [
       {
-        name: '',
+        name: 'totalSupply',
         type: 'uint256',
       },
     ],
@@ -54,22 +54,22 @@ export const ERC20_ABI = [
     constant: false,
     inputs: [
       {
-        name: '_from',
+        name: 'from',
         type: 'address',
       },
       {
-        name: '_to',
+        name: 'to',
         type: 'address',
       },
       {
-        name: '_value',
+        name: 'value',
         type: 'uint256',
       },
     ],
     name: 'transferFrom',
     outputs: [
       {
-        name: '',
+        name: 'success',
         type: 'bool',
       },
     ],
@@ -83,7 +83,7 @@ export const ERC20_ABI = [
     name: 'decimals',
     outputs: [
       {
-        name: '',
+        name: 'decimals',
         type: 'uint8',
       },
     ],
@@ -95,7 +95,7 @@ export const ERC20_ABI = [
     constant: true,
     inputs: [
       {
-        name: '_owner',
+        name: 'owner',
         type: 'address',
       },
     ],
@@ -116,7 +116,7 @@ export const ERC20_ABI = [
     name: 'symbol',
     outputs: [
       {
-        name: '',
+        name: 'symbol',
         type: 'string',
       },
     ],
@@ -128,18 +128,18 @@ export const ERC20_ABI = [
     constant: false,
     inputs: [
       {
-        name: '_to',
+        name: 'to',
         type: 'address',
       },
       {
-        name: '_value',
+        name: 'value',
         type: 'uint256',
       },
     ],
     name: 'transfer',
     outputs: [
       {
-        name: '',
+        name: 'success',
         type: 'bool',
       },
     ],
@@ -151,18 +151,18 @@ export const ERC20_ABI = [
     constant: true,
     inputs: [
       {
-        name: '_owner',
+        name: 'owner',
         type: 'address',
       },
       {
-        name: '_spender',
+        name: 'spender',
         type: 'address',
       },
     ],
     name: 'allowance',
     outputs: [
       {
-        name: '',
+        name: 'allowance',
         type: 'uint256',
       },
     ],
@@ -218,5 +218,47 @@ export const ERC20_ABI = [
     ],
     name: 'Transfer',
     type: 'event',
+  },
+  {
+    inputs: [
+      {
+        name: 'spender',
+        type: 'address',
+      },
+      {
+        name: 'subtractedValue',
+        type: 'uint256',
+      },
+    ],
+    outputs: [
+      {
+        name: 'success',
+        type: 'bool',
+      },
+    ],
+    stateMutability: 'nonpayable',
+    name: 'decreaseAllowance',
+    type: 'function',
+  },
+  {
+    inputs: [
+      {
+        name: 'spender',
+        type: 'address',
+      },
+      {
+        name: 'addedValue',
+        type: 'uint256',
+      },
+    ],
+    outputs: [
+      {
+        name: 'success',
+        type: 'bool',
+      },
+    ],
+    stateMutability: 'nonpayable',
+    name: 'increaseAllowance',
+    type: 'function',
   },
 ] as const;

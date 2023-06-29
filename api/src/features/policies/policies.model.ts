@@ -1,6 +1,6 @@
 import { Field } from '@nestjs/graphql';
 import { ObjectType } from '@nestjs/graphql';
-import { GraphQLBigInt, GraphQLDate } from 'graphql-scalars';
+import { GraphQLBigInt } from 'graphql-scalars';
 import { Account } from '../accounts/accounts.model';
 import { TransactionProposal } from '../proposals/proposals.model';
 import { User } from '../users/users.model';
@@ -8,6 +8,9 @@ import { IdField } from '~/apollo/scalars/Id.scalar';
 import * as eql from '~/edgeql-interfaces';
 import { uuid } from 'edgedb/dist/codecs/ifaces';
 import { PolicyKeyField } from '~/apollo/scalars/PolicyKey.scalar';
+import { AddressField } from '~/apollo/scalars/Address.scalar';
+import { Address, Selector } from 'lib';
+import { Bytes4Field } from '~/apollo/scalars/Bytes.scalar';
 
 @ObjectType()
 export class Policy {
@@ -37,6 +40,78 @@ export class Policy {
 }
 
 @ObjectType()
+export class Target implements eql.Target {
+  @IdField()
+  id: uuid;
+
+  @Field(() => [FunctionConfig])
+  functions: FunctionConfig[];
+
+  @Field(() => Boolean)
+  defaultAllow: boolean;
+}
+
+@ObjectType()
+export class ContractTarget extends Target implements eql.ContractTarget {
+  @IdField()
+  id: uuid;
+
+  @AddressField()
+  contract: Address;
+}
+
+@ObjectType()
+export class FunctionConfig {
+  @Bytes4Field()
+  selector: Selector;
+
+  @Field(() => Boolean)
+  allow: boolean;
+}
+
+@ObjectType()
+export class TargetsConfig implements eql.TargetsConfig {
+  @IdField()
+  id: uuid;
+
+  @Field(() => [ContractTarget])
+  contracts: ContractTarget[];
+
+  @Field(() => Target)
+  default: Target;
+}
+
+@ObjectType()
+export class TransferLimit {
+  @IdField()
+  id: uuid;
+
+  @AddressField()
+  token: Address;
+
+  @Field(() => GraphQLBigInt)
+  amount: bigint;
+
+  @Field(() => Number, { description: 'seconds' })
+  duration: number;
+}
+
+@ObjectType()
+export class TransfersConfig implements eql.TransfersConfig {
+  @IdField()
+  id: uuid;
+
+  @Field(() => [TransferLimit])
+  limits: TransferLimit[];
+
+  @Field(() => Boolean)
+  defaultAllow: boolean;
+
+  @Field(() => Number)
+  budget: number;
+}
+
+@ObjectType()
 export class PolicyState {
   @IdField()
   id: uuid;
@@ -53,8 +128,11 @@ export class PolicyState {
   @Field(() => Number)
   threshold: number;
 
-  @Field(() => [Target])
-  targets: Target[];
+  @Field(() => TargetsConfig)
+  targets: TargetsConfig;
+
+  @Field(() => TransfersConfig)
+  transfers: TransfersConfig;
 
   @Field(() => Boolean)
   isRemoved: boolean;
@@ -64,16 +142,4 @@ export class PolicyState {
 
   @Field(() => Date)
   createdAt: Date;
-}
-
-@ObjectType()
-export class Target implements eql.Target {
-  @IdField()
-  id: uuid;
-
-  @Field(() => String)
-  to: string; // Address | '*'
-
-  @Field(() => [String])
-  selectors: string[]; // (Bytes4 | '*')[]
 }

@@ -39,7 +39,7 @@ export class OperationsService {
     private contracts: ContractsService,
   ) {}
 
-  async decode(op: Operation): Promise<typeof OperationFunction | undefined> {
+  async decode(op: Operation): Promise<OperationFunction | undefined> {
     return (await this.decodeCustom(op)) || (await this.decodeGeneric(op));
   }
 
@@ -81,11 +81,7 @@ export class OperationsService {
     return selectorMatches[0]?.abi as AbiFunction | undefined;
   }
 
-  async decodeCustom({
-    to,
-    value,
-    data,
-  }: Operation): Promise<typeof OperationFunction | undefined> {
+  async decodeCustom({ to, value, data }: Operation): Promise<OperationFunction | undefined> {
     if ((!data || size(data) === 0) && value) {
       // ETH transfer
       return Object.assign(new TransferOp(), {

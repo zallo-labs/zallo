@@ -11,7 +11,7 @@ const toSentenceCase = (str?: string) => {
 export const useFunctionLabel = <P extends ContractFunctionParams | undefined>(params: P) => {
   const f = useContractFunction(params);
 
-  return toSentenceCase(f?.fragment.name) || params?.selector;
+  return toSentenceCase(f?.abi.name) || params?.selector;
 };
 
 export type FunctionLabelProps = ContractFunctionParams;

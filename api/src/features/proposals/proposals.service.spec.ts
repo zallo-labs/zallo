@@ -90,6 +90,10 @@ describe(ProposalsService.name, () => {
               else: user,
             })),
             activationBlock: 0n,
+            targets: e.insert(e.TargetsConfig, {
+              default: e.insert(e.Target, { functions: [], defaultAllow: true }),
+            }),
+            transfers: e.insert(e.TransfersConfig, { budget: 0 }),
           }),
         })
         .unlessConflict()
@@ -387,6 +391,10 @@ describe(ProposalsService.name, () => {
             stateHistory: e.insert(e.PolicyState, {
               proposal: selectTransactionProposal(id),
               threshold: 0,
+              targets: e.insert(e.TargetsConfig, {
+                default: e.insert(e.Target, { functions: [], defaultAllow: true }),
+              }),
+              transfers: e.insert(e.TransfersConfig, { budget: 0 }),
             }),
           })
           .run(db.client);
@@ -406,10 +414,20 @@ describe(ProposalsService.name, () => {
             key: 1,
             name: 'Policy 1',
             stateHistory: e.set(
-              e.insert(e.PolicyState, { threshold: 0 }),
+              e.insert(e.PolicyState, {
+                threshold: 0,
+                targets: e.insert(e.TargetsConfig, {
+                  default: e.insert(e.Target, { functions: [], defaultAllow: true }),
+                }),
+                transfers: e.insert(e.TransfersConfig, { budget: 0 }),
+              }),
               e.insert(e.PolicyState, {
                 proposal: selectTransactionProposal(id),
                 threshold: 0,
+                targets: e.insert(e.TargetsConfig, {
+                  default: e.insert(e.Target, { functions: [], defaultAllow: true }),
+                }),
+                transfers: e.insert(e.TransfersConfig, { budget: 0 }),
               }),
             ),
           })

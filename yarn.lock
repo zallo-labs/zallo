@@ -312,6 +312,42 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@apollo/client@npm:^3.8.0-beta.4":
+  version: 3.8.0-beta.4
+  resolution: "@apollo/client@npm:3.8.0-beta.4"
+  dependencies:
+    "@graphql-typed-document-node/core": ^3.1.1
+    "@wry/context": ^0.7.3
+    "@wry/equality": ^0.5.6
+    "@wry/trie": ^0.4.3
+    graphql-tag: ^2.12.6
+    hoist-non-react-statics: ^3.3.2
+    optimism: ^0.17.4
+    prop-types: ^15.7.2
+    response-iterator: ^0.2.6
+    symbol-observable: ^4.0.0
+    ts-invariant: ^0.10.3
+    tslib: ^2.3.0
+    zen-observable-ts: ^1.2.5
+  peerDependencies:
+    graphql: ^14.0.0 || ^15.0.0 || ^16.0.0
+    graphql-ws: ^5.5.5
+    react: ^16.8.0 || ^17.0.0 || ^18.0.0
+    react-dom: ^16.8.0 || ^17.0.0 || ^18.0.0
+    subscriptions-transport-ws: ^0.9.0 || ^0.11.0
+  peerDependenciesMeta:
+    graphql-ws:
+      optional: true
+    react:
+      optional: true
+    react-dom:
+      optional: true
+    subscriptions-transport-ws:
+      optional: true
+  checksum: 37f0cb2c195096221f979095c09bc3e60866ac2476cedfebeb856c908e603f9ba25c812ca4e5321d5f985ad48456c95d677ed94530aedaf8260546956dd86cec
+  languageName: node
+  linkType: hard
+
 "@apollo/explorer@npm:^3.4.0":
   version: 3.4.0
   resolution: "@apollo/explorer@npm:3.4.0"
@@ -4225,16 +4261,16 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@edgedb/generate@npm:^0.2.1":
-  version: 0.2.1
-  resolution: "@edgedb/generate@npm:0.2.1"
+"@edgedb/generate@npm:^0.3.0":
+  version: 0.3.0
+  resolution: "@edgedb/generate@npm:0.3.0"
   dependencies:
     chokidar: ^3.5.3
   peerDependencies:
-    edgedb: ^1.3.1
+    edgedb: ^1.3.2
   bin:
     generate: dist/cli.js
-  checksum: 41be226e5bc441a29af88428af729bc18928a768374f570730c4be4434e4922a88434e18a963db2528935b76c4476605fcf0b5f67b5cfa667a173ab7afc7ee07
+  checksum: 67271d4e233f7cc561cf7f543e374e97abb7f4e445dc8f48779d66c1a41dd1a5c1a9eec6e8e1f0b983469772e5f886108f24151681b93012a12cf1dbac703b2d
   languageName: node
   linkType: hard
 
@@ -6419,6 +6455,18 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@graphql-codegen/add@npm:^5.0.0":
+  version: 5.0.0
+  resolution: "@graphql-codegen/add@npm:5.0.0"
+  dependencies:
+    "@graphql-codegen/plugin-helpers": ^5.0.0
+    tslib: ~2.5.0
+  peerDependencies:
+    graphql: ^0.8.0 || ^0.9.0 || ^0.10.0 || ^0.11.0 || ^0.12.0 || ^0.13.0 || ^14.0.0 || ^15.0.0 || ^16.0.0
+  checksum: 99d849dd0bdcaacb4a3f0df8c6b529f76c7883c680242ca07577eaa0f3072de6cc5e3cce14ec8941a1e2e61bc683aa2785b15804d10995ab55b600abe2ea46ca
+  languageName: node
+  linkType: hard
+
 "@graphql-codegen/cli@npm:^4.0.1":
   version: 4.0.1
   resolution: "@graphql-codegen/cli@npm:4.0.1"
@@ -6469,6 +6517,29 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@graphql-codegen/client-preset@npm:^4.0.1":
+  version: 4.0.1
+  resolution: "@graphql-codegen/client-preset@npm:4.0.1"
+  dependencies:
+    "@babel/helper-plugin-utils": ^7.20.2
+    "@babel/template": ^7.20.7
+    "@graphql-codegen/add": ^5.0.0
+    "@graphql-codegen/gql-tag-operations": 4.0.1
+    "@graphql-codegen/plugin-helpers": ^5.0.0
+    "@graphql-codegen/typed-document-node": ^5.0.1
+    "@graphql-codegen/typescript": ^4.0.1
+    "@graphql-codegen/typescript-operations": ^4.0.1
+    "@graphql-codegen/visitor-plugin-common": ^4.0.1
+    "@graphql-tools/documents": ^1.0.0
+    "@graphql-tools/utils": ^10.0.0
+    "@graphql-typed-document-node/core": 3.2.0
+    tslib: ~2.5.0
+  peerDependencies:
+    graphql: ^0.8.0 || ^0.9.0 || ^0.10.0 || ^0.11.0 || ^0.12.0 || ^0.13.0 || ^14.0.0 || ^15.0.0 || ^16.0.0
+  checksum: ddcaaf55575e2f36b4ae7e7caf6c170d72fbd5bd42ccb00c22ed01723ef466e1dab8f37915036047f306098468344ebc004524764be9aca95a8fd68d48e321a9
+  languageName: node
+  linkType: hard
+
 "@graphql-codegen/core@npm:^4.0.0":
   version: 4.0.0
   resolution: "@graphql-codegen/core@npm:4.0.0"
@@ -6480,6 +6551,21 @@ __metadata:
   peerDependencies:
     graphql: ^0.8.0 || ^0.9.0 || ^0.10.0 || ^0.11.0 || ^0.12.0 || ^0.13.0 || ^14.0.0 || ^15.0.0 || ^16.0.0
   checksum: 9824a5ec26fe25379f64e4ea94402487acde2a880d6bfcbd55ac9f0681c887a814fd9093cc789e09273108b7ea6df0c04fc8acc8dd55eab3918d0d07af62dffd
+  languageName: node
+  linkType: hard
+
+"@graphql-codegen/gql-tag-operations@npm:4.0.1":
+  version: 4.0.1
+  resolution: "@graphql-codegen/gql-tag-operations@npm:4.0.1"
+  dependencies:
+    "@graphql-codegen/plugin-helpers": ^5.0.0
+    "@graphql-codegen/visitor-plugin-common": 4.0.1
+    "@graphql-tools/utils": ^10.0.0
+    auto-bind: ~4.0.0
+    tslib: ~2.5.0
+  peerDependencies:
+    graphql: ^0.8.0 || ^0.9.0 || ^0.10.0 || ^0.11.0 || ^0.12.0 || ^0.13.0 || ^14.0.0 || ^15.0.0 || ^16.0.0
+  checksum: 58369a848aa88a532f4720c4ef73b61a91516d9bd6d8e4edaf7f3353d7585e688ce169f832f2575f2558f80591594945b7f0c82b0d8458320144a26a2b2bb8be
   languageName: node
   linkType: hard
 
@@ -6541,6 +6627,21 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@graphql-codegen/typed-document-node@npm:^5.0.1":
+  version: 5.0.1
+  resolution: "@graphql-codegen/typed-document-node@npm:5.0.1"
+  dependencies:
+    "@graphql-codegen/plugin-helpers": ^5.0.0
+    "@graphql-codegen/visitor-plugin-common": 4.0.1
+    auto-bind: ~4.0.0
+    change-case-all: 1.0.15
+    tslib: ~2.5.0
+  peerDependencies:
+    graphql: ^0.8.0 || ^0.9.0 || ^0.10.0 || ^0.11.0 || ^0.12.0 || ^0.13.0 || ^14.0.0 || ^15.0.0 || ^16.0.0
+  checksum: d1e9d88b0d7796de034769d1c7c02be16cbc3710c00a198e4431034d51c7fb8f56c4ba418ff53c9647898649d07eb9c26fb09f11111d79fa1cc83b34decb6e69
+  languageName: node
+  linkType: hard
+
 "@graphql-codegen/typescript-operations@npm:^4.0.0":
   version: 4.0.0
   resolution: "@graphql-codegen/typescript-operations@npm:4.0.0"
@@ -6553,6 +6654,21 @@ __metadata:
   peerDependencies:
     graphql: ^0.8.0 || ^0.9.0 || ^0.10.0 || ^0.11.0 || ^0.12.0 || ^0.13.0 || ^14.0.0 || ^15.0.0 || ^16.0.0
   checksum: 8bacb9b3b016aea1d19f6d676933c4f3675fd874c4844a43924b49ed95e151d43e87a4433518980f26eefac556a4aa75e1ce370714e72fb23eee3cfca7e20b1a
+  languageName: node
+  linkType: hard
+
+"@graphql-codegen/typescript-operations@npm:^4.0.1":
+  version: 4.0.1
+  resolution: "@graphql-codegen/typescript-operations@npm:4.0.1"
+  dependencies:
+    "@graphql-codegen/plugin-helpers": ^5.0.0
+    "@graphql-codegen/typescript": ^4.0.1
+    "@graphql-codegen/visitor-plugin-common": 4.0.1
+    auto-bind: ~4.0.0
+    tslib: ~2.5.0
+  peerDependencies:
+    graphql: ^0.8.0 || ^0.9.0 || ^0.10.0 || ^0.11.0 || ^0.12.0 || ^0.13.0 || ^14.0.0 || ^15.0.0 || ^16.0.0
+  checksum: 82cd58ceb7406a3ff7aa5b36a58c9303fd819259679c2de10411f9e22c4fd142068d711714f68259c64eab86ea0a2b3d761959fa59fa5140ca3f1382a5ab5169
   languageName: node
   linkType: hard
 
@@ -6584,6 +6700,21 @@ __metadata:
   peerDependencies:
     graphql: ^0.12.0 || ^0.13.0 || ^14.0.0 || ^15.0.0 || ^16.0.0
   checksum: 2c6b9f61343335198f41cd686e08280efd20534fb951a363eaeced545ce1ecf13ee4061dcabb02ac9790f9c5063b6cdce1dd5257d42cdf586fba3bccb7ecd78c
+  languageName: node
+  linkType: hard
+
+"@graphql-codegen/typescript@npm:^4.0.1":
+  version: 4.0.1
+  resolution: "@graphql-codegen/typescript@npm:4.0.1"
+  dependencies:
+    "@graphql-codegen/plugin-helpers": ^5.0.0
+    "@graphql-codegen/schema-ast": ^4.0.0
+    "@graphql-codegen/visitor-plugin-common": 4.0.1
+    auto-bind: ~4.0.0
+    tslib: ~2.5.0
+  peerDependencies:
+    graphql: ^0.12.0 || ^0.13.0 || ^14.0.0 || ^15.0.0 || ^16.0.0
+  checksum: f360b7204dc33b918d1ece88b65a46a4eac89e7c3f729886e954ebdc405d1279de6fc5a688580a4aba50826ca663dae03bcda2ac72189f5afbfc1a1727d188a6
   languageName: node
   linkType: hard
 
@@ -6624,6 +6755,26 @@ __metadata:
   peerDependencies:
     graphql: ^0.8.0 || ^0.9.0 || ^0.10.0 || ^0.11.0 || ^0.12.0 || ^0.13.0 || ^14.0.0 || ^15.0.0 || ^16.0.0
   checksum: 2e6048987b772b39a20718d5e48eba847ff60a9d364338ca2576643eb970d61effc6629636154f5cee36a44d8299cd624551f279ddff6a02f364b1fd48cef718
+  languageName: node
+  linkType: hard
+
+"@graphql-codegen/visitor-plugin-common@npm:4.0.1, @graphql-codegen/visitor-plugin-common@npm:^4.0.1":
+  version: 4.0.1
+  resolution: "@graphql-codegen/visitor-plugin-common@npm:4.0.1"
+  dependencies:
+    "@graphql-codegen/plugin-helpers": ^5.0.0
+    "@graphql-tools/optimize": ^2.0.0
+    "@graphql-tools/relay-operation-optimizer": ^7.0.0
+    "@graphql-tools/utils": ^10.0.0
+    auto-bind: ~4.0.0
+    change-case-all: 1.0.15
+    dependency-graph: ^0.11.0
+    graphql-tag: ^2.11.0
+    parse-filepath: ^1.0.2
+    tslib: ~2.5.0
+  peerDependencies:
+    graphql: ^0.8.0 || ^0.9.0 || ^0.10.0 || ^0.11.0 || ^0.12.0 || ^0.13.0 || ^14.0.0 || ^15.0.0 || ^16.0.0
+  checksum: 72fe72850bcf9907c46ee85cf80ca5f7313418953fc6bc09b761145260ceb9e79199e92c7b3467e9b6371342e70234af5e1be7ee664457a4fdec92ea3bed878a
   languageName: node
   linkType: hard
 
@@ -6734,6 +6885,18 @@ __metadata:
   peerDependencies:
     graphql: ^14.0.0 || ^15.0.0 || ^16.0.0 || ^17.0.0
   checksum: ef2708e6f11594158dd7ab08e8595ee21719bdbb2ef9d9570a0be5905ee40a1c5fb231d09924823851ad43da99e97d39e95725e1ee4bcd223896d8d85eecb881
+  languageName: node
+  linkType: hard
+
+"@graphql-tools/documents@npm:^1.0.0":
+  version: 1.0.0
+  resolution: "@graphql-tools/documents@npm:1.0.0"
+  dependencies:
+    lodash.sortby: ^4.7.0
+    tslib: ^2.4.0
+  peerDependencies:
+    graphql: ^14.0.0 || ^15.0.0 || ^16.0.0 || ^17.0.0
+  checksum: e022b4438efcbeceadb0ff529d1d58fc1629bfce3325a646937813f893a9b422d3326e29fcb6549d5ff8db1e82a9a9798b354b36cd34cbf90827261f0139d8f5
   languageName: node
   linkType: hard
 
@@ -7774,19 +7937,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@matterlabs/hardhat-zksync-deploy@npm:^0.1.2":
-  version: 0.1.5
-  resolution: "@matterlabs/hardhat-zksync-deploy@npm:0.1.5"
-  dependencies:
-    glob: ^7.1.3
-  peerDependencies:
-    ethers: ~5.5.4
-    hardhat: ^2.9.0
-    zksync-web3: ^0.3.5
-  checksum: 8ece2be9d7edae8ea7a82ac81ff43658c6bc86e8fffa44e4062be8bd84b8dc30336b694f70623f53914fa126791874cde0634efe8af34291e4b625a6affd9c97
-  languageName: node
-  linkType: hard
-
 "@matterlabs/hardhat-zksync-deploy@npm:^0.6.3":
   version: 0.6.3
   resolution: "@matterlabs/hardhat-zksync-deploy@npm:0.6.3"
@@ -7800,7 +7950,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@matterlabs/hardhat-zksync-solc@npm:0.3.17, @matterlabs/hardhat-zksync-solc@npm:^0.3.17":
+"@matterlabs/hardhat-zksync-solc@npm:0.3.17":
   version: 0.3.17
   resolution: "@matterlabs/hardhat-zksync-solc@npm:0.3.17"
   dependencies:
@@ -7813,15 +7963,18 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@matterlabs/hardhat-zksync-solc@npm:^0.2.1":
-  version: 0.2.4
-  resolution: "@matterlabs/hardhat-zksync-solc@npm:0.2.4"
+"@matterlabs/hardhat-zksync-solc@npm:^0.4.0":
+  version: 0.4.0
+  resolution: "@matterlabs/hardhat-zksync-solc@npm:0.4.0"
   dependencies:
     "@nomiclabs/hardhat-docker": ^2.0.0
-    dockerode: ^3.3.1
+    chalk: 4.1.2
+    dockerode: ^3.3.4
+    fs-extra: ^11.1.1
+    semver: ^7.5.1
   peerDependencies:
-    hardhat: ^2.9.0
-  checksum: 9256681b52ff943f24b0ec1c98611ef035cb2462514a8e4817a5cbf3da1df4299614498ab80c173968020e0e9fc78036101fc53154a46c0b4537e302082b18ff
+    hardhat: ^2.14.0
+  checksum: 5a488c5aae03bd62ba30b0a231905743e2cf3ff996891fe9065b33c95d55b5d5af65a08e1992e1d5d7fdd74775d9e3bf036de9c1bad446181c84d68616af04bc
   languageName: node
   linkType: hard
 
@@ -7837,9 +7990,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@matterlabs/hardhat-zksync-verify@npm:^0.1.7":
-  version: 0.1.7
-  resolution: "@matterlabs/hardhat-zksync-verify@npm:0.1.7"
+"@matterlabs/hardhat-zksync-verify@npm:^0.1.8":
+  version: 0.1.8
+  resolution: "@matterlabs/hardhat-zksync-verify@npm:0.1.8"
   dependencies:
     "@matterlabs/hardhat-zksync-solc": 0.3.17
     axios: ^1.4.0
@@ -7847,17 +8000,7 @@ __metadata:
     dockerode: ^3.3.4
   peerDependencies:
     "@nomiclabs/hardhat-etherscan": ^3.1.2
-  checksum: 65ef5de688b2a51e27af7da77feec35ac37b495cccaebebcc6c73e054a8c841c7006fd412cb9045193f6ca28607bcd44b7d0c21d5a53061cf727fc1c9929b620
-  languageName: node
-  linkType: hard
-
-"@matterlabs/signature-checker@npm:^1.1.1":
-  version: 1.1.1
-  resolution: "@matterlabs/signature-checker@npm:1.1.1"
-  dependencies:
-    "@matterlabs/hardhat-zksync-deploy": ^0.1.2
-    "@matterlabs/hardhat-zksync-solc": ^0.2.1
-  checksum: 8276bd7089934876c3e63ab3b27ddd6e70daf1102587fe35522d644aa913d3713739adf904f862ae190a026cad22beb89faa61695945d95e400c9898d3bd9334
+  checksum: dc6b872fd95877ecf4c2f0c68b75917e76f3e4f552a2647d8bb1cffb3dd677d13741efa977e888e3a1531556d9caa2a3e359ed2aa57a02d4f058de4042ef4ea4
   languageName: node
   linkType: hard
 
@@ -9131,13 +9274,6 @@ __metadata:
   version: 3.0.4
   resolution: "@oclif/screen@npm:3.0.4"
   checksum: 6d662c81edfbc8acb50a30001e3c2261171e8baffcd6010603c331de375c5d0c9ce6b3230f6b0ce24961bfa3531f99e771265ea74d9d7a0ee37fb9357fb436a7
-  languageName: node
-  linkType: hard
-
-"@openzeppelin/contracts-upgradeable@npm:^4.8.2":
-  version: 4.8.2
-  resolution: "@openzeppelin/contracts-upgradeable@npm:4.8.2"
-  checksum: b1ad40e5d0c4d3bcfea7c74b772fb2c830562f2863ea8f816a603113146e0614dc806b32d9b1649f8c88ceb93dbf8b394abf8dbeb9022fc09e546858c4fe71e9
   languageName: node
   linkType: hard
 
@@ -12356,6 +12492,18 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@wagmi/chains@npm:1.2.0":
+  version: 1.2.0
+  resolution: "@wagmi/chains@npm:1.2.0"
+  peerDependencies:
+    typescript: ">=5.0.4"
+  peerDependenciesMeta:
+    typescript:
+      optional: true
+  checksum: adac1caf245820bb50292bf2509be195e8efb3b349dc2ac0e0ed7370993b5fed93db57deaf4d27192b20e8418e9f10cdc7a59bd0a6ce1ac0447e61af76efe423
+  languageName: node
+  linkType: hard
+
 "@walletconnect/core@npm:2.8.1":
   version: 2.8.1
   resolution: "@walletconnect/core@npm:2.8.1"
@@ -13223,6 +13371,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@wry/context@npm:^0.7.3":
+  version: 0.7.3
+  resolution: "@wry/context@npm:0.7.3"
+  dependencies:
+    tslib: ^2.3.0
+  checksum: 91c1e9eee9046c48ff857d60dcbb59f22246ce0f9bb2d9b190e0555227e7ba3f86024032cc057f3f5141d3bee93fc6b2a15ce2c79fa512569d3432eb8e1af02b
+  languageName: node
+  linkType: hard
+
 "@wry/equality@npm:^0.1.2":
   version: 0.1.11
   resolution: "@wry/equality@npm:0.1.11"
@@ -13241,6 +13398,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@wry/equality@npm:^0.5.6":
+  version: 0.5.6
+  resolution: "@wry/equality@npm:0.5.6"
+  dependencies:
+    tslib: ^2.3.0
+  checksum: 9addf8891bdff5e23eecff03641846e7a56c1de3c9362c25e69c0b2ee3303e74b22e9a0376920283cd9d3bdd1bada12df54be5eaa29c2d801d33d94992672e14
+  languageName: node
+  linkType: hard
+
 "@wry/trie@npm:^0.3.0":
   version: 0.3.1
   resolution: "@wry/trie@npm:0.3.1"
@@ -13250,7 +13416,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@wry/trie@npm:^0.4.0":
+"@wry/trie@npm:^0.4.0, @wry/trie@npm:^0.4.3":
   version: 0.4.3
   resolution: "@wry/trie@npm:0.4.3"
   dependencies:
@@ -13968,7 +14134,7 @@ __metadata:
     "@apollo/server": ^4.7.3
     "@bull-board/express": ^5.5.1
     "@bull-board/nestjs": ^5.5.1
-    "@edgedb/generate": ^0.2.1
+    "@edgedb/generate": ^0.3.0
     "@golevelup/ts-jest": ^0.3.7
     "@liaoliaots/nestjs-redis": ^9.0.5
     "@nestjs/apollo": ^11.0.6
@@ -14004,7 +14170,7 @@ __metadata:
     cross-fetch: ^3.1.5
     dotenv: ^16.1.4
     dotenv-cli: ^7.2.1
-    edgedb: ^1.3.1
+    edgedb: ^1.3.2
     eslint: ^8.38.0
     eslint-config-prettier: ^8.8.0
     eslint-plugin-prettier: ^4.2.1
@@ -14360,7 +14526,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "app@workspace:app"
   dependencies:
-    "@apollo/client": ^3.7.15
+    "@apollo/client": ^3.8.0-beta.4
     "@babel/core": ^7.22.5
     "@ethersproject/shims": 5.7.0
     "@expo/config": ~8.0.2
@@ -14373,10 +14539,12 @@ __metadata:
     "@formatjs/intl-pluralrules": ^5.2.4
     "@gorhom/bottom-sheet": ^4.4.7
     "@graphql-codegen/cli": ^4.0.1
+    "@graphql-codegen/client-preset": ^4.0.1
     "@graphql-codegen/introspection": ^4.0.0
-    "@graphql-codegen/typescript": ^4.0.0
-    "@graphql-codegen/typescript-operations": ^4.0.0
+    "@graphql-codegen/typescript": ^4.0.1
+    "@graphql-codegen/typescript-operations": ^4.0.1
     "@graphql-codegen/typescript-react-apollo": ^3.3.7
+    "@graphql-typed-document-node/core": ^3.2.0
     "@react-native-async-storage/async-storage": 1.17.11
     "@react-native-community/blur": "patch:@react-native-community/blur@npm:^4.3.0#../.yarn/patches/react-native-blur-e67c3fc.patch"
     "@react-native-firebase/analytics": ^18.0.0
@@ -14500,7 +14668,7 @@ __metadata:
     react-test-renderer: 18.2.0
     recoil: ^0.7.7
     retry-as-promised: ^7.0.4
-    sentry-expo: ~6.2.1
+    sentry-expo: ~6.2.2
     siwe: ^1.1.6
     styled-components: ^5.3.11
     styled-system: ^5.1.5
@@ -17846,17 +18014,15 @@ __metadata:
   dependencies:
     "@matterlabs/hardhat-zksync-chai-matchers": ^0.1.3
     "@matterlabs/hardhat-zksync-deploy": ^0.6.3
-    "@matterlabs/hardhat-zksync-solc": ^0.3.17
+    "@matterlabs/hardhat-zksync-solc": ^0.4.0
     "@matterlabs/hardhat-zksync-toolbox": ^0.1.1
-    "@matterlabs/hardhat-zksync-verify": ^0.1.7
-    "@matterlabs/signature-checker": ^1.1.1
+    "@matterlabs/hardhat-zksync-verify": ^0.1.8
     "@matterlabs/zksync-contracts": ^0.6.1
     "@nomicfoundation/hardhat-chai-matchers": ^1.0.6
     "@nomiclabs/hardhat-ethers": ^2.2.3
     "@nomiclabs/hardhat-etherscan": ^3.1.7
     "@nomiclabs/hardhat-solhint": 3.0.1
     "@openzeppelin/contracts": ^4.8.2
-    "@openzeppelin/contracts-upgradeable": ^4.8.2
     "@typechain/ethers-v5": ^10.2.1
     "@typechain/hardhat": ^6.1.6
     "@types/chai": ^4.3.5
@@ -17882,7 +18048,6 @@ __metadata:
     hardhat-tracer: ^2.4.0
     keccak256: ^1.0.6
     lib: "workspace:*"
-    merkletreejs: ^0.3.10
     prettier-plugin-solidity: ^1.1.3
     solc: 0.8.20
     solhint: ^3.4.1
@@ -17890,6 +18055,7 @@ __metadata:
     ts-node: ^10.9.1
     typechain: ^8.2.0
     typescript: ^5.1.3
+    viem: ^1.1.4
     zksync-web3: ^0.14.4
   languageName: unknown
   linkType: soft
@@ -19461,16 +19627,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"dockerode@npm:^3.3.1":
-  version: 3.3.2
-  resolution: "dockerode@npm:3.3.2"
-  dependencies:
-    docker-modem: ^3.0.0
-    tar-fs: ~2.0.1
-  checksum: 69b60547ed2e6156e6ec1df16fccea9150c935ee0b0517723b4d05a5d840a01d4cd945341390d24b7fa301383be64145d563d9319be56d487a5bcbf9f872ee59
-  languageName: node
-  linkType: hard
-
 "dockerode@npm:^3.3.4":
   version: 3.3.4
   resolution: "dockerode@npm:3.3.4"
@@ -19842,12 +19998,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"edgedb@npm:^1.3.1":
-  version: 1.3.1
-  resolution: "edgedb@npm:1.3.1"
+"edgedb@npm:^1.3.2":
+  version: 1.3.2
+  resolution: "edgedb@npm:1.3.2"
   bin:
     edgeql-js: dist/cli.js
-  checksum: 35fcec5deffd5ed151cf3a9f2f517a83a4164415b8c6cf8be9155b4b7429a93079566c68b74128dbb14a668a723ab2e21cd8ecb40f80808743878c3114d65c00
+  checksum: a3d10cb261e3f961cfe9e6742abd05986dc12e9dcae2f261dd0f0a688401792ba6ef20818bf7abee340e54ee974a4020cdc71b0427e387b0b498fd5ff2c1dcbd
   languageName: node
   linkType: hard
 
@@ -22962,6 +23118,17 @@ __metadata:
     path-is-absolute: ^1.0.0
     rimraf: ^2.2.8
   checksum: 6edfd65fc813baa27f1603778c0f5ec11f8c5006a20b920437813ee2023eba18aeec8bef1c89b2e6c84f9fc90fdc7c916f4a700466c8c69d22a35d018f2570f0
+  languageName: node
+  linkType: hard
+
+"fs-extra@npm:^11.1.1":
+  version: 11.1.1
+  resolution: "fs-extra@npm:11.1.1"
+  dependencies:
+    graceful-fs: ^4.2.0
+    jsonfile: ^6.0.1
+    universalify: ^2.0.0
+  checksum: fb883c68245b2d777fbc1f2082c9efb084eaa2bbf9fddaa366130d196c03608eebef7fb490541276429ee1ca99f317e2d73e96f5ca0999eefedf5a624ae1edfd
   languageName: node
   linkType: hard
 
@@ -31680,6 +31847,17 @@ __metadata:
   languageName: node
   linkType: hard
 
+"optimism@npm:^0.17.4":
+  version: 0.17.5
+  resolution: "optimism@npm:0.17.5"
+  dependencies:
+    "@wry/context": ^0.7.0
+    "@wry/trie": ^0.4.3
+    tslib: ^2.3.0
+  checksum: 5990217d989e9857dc523a64cb6e5a9205eae68c7acac78f7dde8fbe50045d0f11ca8068cdbb51b1eae15510d96ad593a99cf98c6f86c41d1b6f90e54956ff11
+  languageName: node
+  linkType: hard
+
 "optimize-css-assets-webpack-plugin@npm:^5.0.3":
   version: 5.0.8
   resolution: "optimize-css-assets-webpack-plugin@npm:5.0.8"
@@ -36603,6 +36781,17 @@ __metadata:
   languageName: node
   linkType: hard
 
+"semver@npm:^7.5.1":
+  version: 7.5.3
+  resolution: "semver@npm:7.5.3"
+  dependencies:
+    lru-cache: ^6.0.0
+  bin:
+    semver: bin/semver.js
+  checksum: 9d58db16525e9f749ad0a696a1f27deabaa51f66e91d2fa2b0db3de3e9644e8677de3b7d7a03f4c15bc81521e0c3916d7369e0572dbde250d9bedf5194e2a8a7
+  languageName: node
+  linkType: hard
+
 "send@npm:0.17.2":
   version: 0.17.2
   resolution: "send@npm:0.17.2"
@@ -36656,9 +36845,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"sentry-expo@npm:~6.2.1":
-  version: 6.2.1
-  resolution: "sentry-expo@npm:6.2.1"
+"sentry-expo@npm:~6.2.2":
+  version: 6.2.2
+  resolution: "sentry-expo@npm:6.2.2"
   dependencies:
     "@expo/spawn-async": ^1.7.0
     "@sentry/integrations": 7.37.2
@@ -36673,7 +36862,7 @@ __metadata:
     expo-constants: "*"
     expo-device: "*"
     expo-updates: "*"
-  checksum: 67a031703c7938c7bb909eaf2aa0fce883fb89c6b788ba4091a633146125e32a464cc828c40eb058e88b955b1faf093af3b6ad80f5bf9c802ed770884ca20db8
+  checksum: 7282fc752831ade8266f19eee71089fe52756cb12d08020671cbcf979a3c5e9d8c063e76e053f317cbc148d21fac6bf3b5f91f15f0ba907a4fba32ee22e43af3
   languageName: node
   linkType: hard
 
@@ -40900,6 +41089,25 @@ __metadata:
   peerDependencies:
     typescript: ">=5.0.4"
   checksum: 74ca713e5aac7a0a8235d4bc9407c02984c5133f8cb53f649cfa1b6f5a7a02d71df7c246d94096d6fda30a2e804248a7cdd4962ef59f506b9a9d12a63c27b1d7
+  languageName: node
+  linkType: hard
+
+"viem@npm:^1.1.4":
+  version: 1.1.4
+  resolution: "viem@npm:1.1.4"
+  dependencies:
+    "@adraffy/ens-normalize": 1.9.0
+    "@noble/curves": 1.0.0
+    "@noble/hashes": 1.3.0
+    "@scure/bip32": 1.3.0
+    "@scure/bip39": 1.2.0
+    "@wagmi/chains": 1.2.0
+    abitype: 0.8.7
+    isomorphic-ws: 5.0.0
+    ws: 8.12.0
+  peerDependencies:
+    typescript: ">=5.0.4"
+  checksum: 1eaa4904b941af56e4b5662930609c85284496d907229626a40802b50615d41459eccb334dd133672c7240314ebb107afbb4a96aa521a93fe774bc60316959df
   languageName: node
   linkType: hard
 

@@ -1,12 +1,16 @@
 import { A } from 'ts-toolbelt';
-import { asUint16, BigIntlike, MAX_UINT16, MIN_UINT16 } from './bigint';
+import { asUint16, MAX_UINT16, MIN_UINT16 } from './bigint';
 import { BigNumber, BigNumberish } from 'ethers';
 import { PolicyStruct as BasePolicyStruct } from './contracts/Account';
 import { AwaitedObj } from './util/types';
 import { Address, asAddress, compareAddress } from './address';
-import { Tx } from './tx';
-import { Permissions, permissionsAsStruct, structAsPermissions } from './permissions';
-import { ALLOW_ALL_TARGETS, verifyTargetsPermission } from './permissions/TargetPermission';
+import {
+  ALLOW_ALL_TRANSFERS_CONFIG,
+  Permissions,
+  permissionsAsHookStructs,
+  structAsPermissions,
+} from './permissions';
+import { ALLOW_ALL_TARGETS } from './permissions/TargetPermission';
 import { newAbiType } from './util/abi';
 import { asHex } from './bytes';
 import { keccak256 } from 'ethers/lib/utils';
@@ -50,46 +54,25 @@ export const asPolicy = (p: {
     threshold: p.threshold ?? approvers.size,
     permissions: {
       targets: p.permissions?.targets ?? ALLOW_ALL_TARGETS,
+      transfers: p.permissions?.transfers ?? ALLOW_ALL_TRANSFERS_CONFIG,
     },
   };
 };
 
 export const POLICY_ABI = newAbiType<Policy, PolicyStruct>(
-  `(uint32 key, uint8 threshold, address[] approvers, (uint8 selector, bytes args)[] permissions)`,
+  `(uint32 key, uint8 threshold, address[] approvers, (uint8 selector, bytes config)[] hooks)`,
   (policy) => ({
     key: policy.key,
-    permissions: permissionsAsStruct(policy.permissions),
     approvers: [...policy.approvers].sort(compareAddress),
     threshold: policy.threshold,
+    hooks: permissionsAsHookStructs(policy.permissions),
   }),
   (s) => ({
     key: asPolicyKey(s.key),
     approvers: new Set(s.approvers.map(asAddress)),
     threshold: BigNumber.from(s.threshold).toNumber(), // uint16
-    permissions: structAsPermissions(s.permissions),
+    permissions: structAsPermissions(s.hooks),
   }),
 );
 
 export const hashPolicy = (policy: Policy) => asHex(keccak256(POLICY_ABI.encode(policy)));
-
-export enum PolicySatisfiability {
-  Unsatisifable = 'unsatisfiable',
-  Satisfiable = 'satisfiable',
-  Satisfied = 'satisfied',
-}
-
-export const getTransactionSatisfiability = (
-  { permissions, approvers, threshold }: Policy,
-  tx: Tx,
-  approvals: Set<Address>,
-): PolicySatisfiability => {
-  const isSatisfiable = tx.operations.every((op) =>
-    verifyTargetsPermission(permissions.targets, op),
-  );
-  if (!isSatisfiable) return PolicySatisfiability.Unsatisifable;
-
-  const nApprovals = new Set([...approvals].filter((v) => approvers.has(v)));
-  return nApprovals.size >= threshold
-    ? PolicySatisfiability.Satisfied
-    : PolicySatisfiability.Satisfiable;
-};

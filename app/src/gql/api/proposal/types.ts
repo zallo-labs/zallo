@@ -11,7 +11,11 @@ import {
 } from 'lib';
 import { DateTime } from 'luxon';
 import { match } from 'ts-pattern';
-import { OperationFieldsFragment, TransactionProposalFieldsFragment } from '@api/generated';
+import {
+  EventFieldsFragment,
+  OperationFieldsFragment,
+  TransactionProposalFieldsFragment,
+} from '@api/generated';
 import { asAccountId } from '@api/account/types';
 import { Transfer } from '@api/transfer/types';
 
@@ -83,7 +87,7 @@ export interface Receipt {
   gasUsed: bigint;
   fee: bigint;
   timestamp: DateTime;
-  transfers: Transfer[];
+  events: EventFieldsFragment[];
 }
 
 export const toProposal = (p: TransactionProposalFieldsFragment): Proposal => {
@@ -141,15 +145,7 @@ export const toProposal = (p: TransactionProposalFieldsFragment): Proposal => {
               gasUsed: asBigInt(t.receipt.gasUsed),
               fee: asBigInt(t.receipt.fee),
               timestamp: DateTime.fromISO(t.receipt.timestamp),
-              transfers: (t.receipt.transfers ?? []).map((transfer) => ({
-                id: transfer.id,
-                direction: transfer.direction,
-                token: asAddress(transfer.token),
-                from: asAddress(transfer.from),
-                to: asAddress(transfer.to),
-                amount: asBigInt(transfer.amount) * (transfer.from === account ? -1n : 1n),
-                timestamp: DateTime.fromISO(t.receipt!.timestamp),
-              })),
+              events: t.receipt.events,
             }
           : undefined,
       }

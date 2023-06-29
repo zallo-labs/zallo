@@ -19,6 +19,7 @@ export class Operation {
   data?: Hex;
 }
 
+export type OperationFunction = typeof OperationFunction;
 export const OperationFunction = createUnionType({
   name: 'OperationFunction',
   types: () =>

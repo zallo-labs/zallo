@@ -13,8 +13,6 @@ import { useCustomFields } from '../hooks/useCustomFields';
 const Homepage = () => {
   const customFields = useCustomFields();
 
-  console.log(customFields);
-
   return (
     <main className={clsx('container', styles.container)}>
       <div className={clsx('row', styles.content)}>

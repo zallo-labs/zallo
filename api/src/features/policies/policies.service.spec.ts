@@ -1,10 +1,10 @@
 import { Test } from '@nestjs/testing';
 import { createMock, DeepMocked } from '@golevelup/ts-jest';
 import { PoliciesService } from './policies.service';
-import { Address, asPolicyKey, randomDeploySalt, ZERO_ADDR } from 'lib';
+import { Address, asHex, asPolicyKey, randomDeploySalt, ZERO_ADDR } from 'lib';
 import { asUser, getUserCtx, UserContext } from '~/request/ctx';
 import { randomAddress, randomUser } from '~/util/test';
-import { hexlify, randomBytes } from 'ethers/lib/utils';
+import { randomBytes } from 'ethers/lib/utils';
 import { ProposalsService } from '../proposals/proposals.service';
 import { UserAccountsService } from '../auth/userAccounts.service';
 import { DatabaseService } from '../database/database.service';
@@ -54,17 +54,21 @@ describe(PoliciesService.name, () => {
 
     await e.insert(e.User, { address: userCtx.address }).unlessConflict().run(db.client);
 
-    proposals.propose.mockImplementation(
-      async () =>
-        e.insert(e.TransactionProposal, {
-          hash: hexlify(randomBytes(32)),
+    proposals.propose.mockImplementation(async () => {
+      const hash = asHex(randomBytes(32));
+      const { id } = await e
+        .insert(e.TransactionProposal, {
+          hash,
           account: e.select(e.Account, () => ({ filter_single: { address: account } })),
           operations: e.insert(e.Operation, { to: ZERO_ADDR }),
           nonce: nonce++,
           feeToken: ZERO_ADDR,
           simulation: e.insert(e.Simulation, {}),
-        }) as any,
-    );
+        })
+        .run(db.client);
+
+      return { id, hash };
+    });
 
     const { id, key } = await service.create({
       account,

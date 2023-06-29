@@ -1,4 +1,4 @@
-import { Address } from 'lib';
+import { Address, BigIntlike } from 'lib';
 import { DateTime } from 'luxon';
 import { TransferDirection } from '@api/generated';
 
@@ -8,6 +8,6 @@ export interface Transfer {
   token: Address;
   from: Address;
   to: Address;
-  amount: bigint;
-  timestamp: DateTime;
+  amount: BigIntlike;
+  timestamp: DateTime | string;
 }

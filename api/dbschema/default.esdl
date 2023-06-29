@@ -3,12 +3,12 @@ module default {
     constraint regexp(r'^0x[0-9a-fA-F]{40}$');
   }
 
-  global current_user_address -> Address;
+  global current_user_address: Address;
   global current_user := (
     select User filter .address = global current_user_address
   );
 
-  global current_user_accounts_array -> array<uuid>;
+  global current_user_accounts_array: array<uuid>;
   global current_user_accounts := (
     select array_unpack(global current_user_accounts_array)
   );
@@ -35,9 +35,19 @@ module default {
     constraint max_value(2 ^ 16 - 1);
   }
 
+  scalar type uint32 extending int64 {
+    constraint min_value(0);
+    constraint max_value(2 ^ 32 - 1);
+  }
+
   scalar type uint64 extending bigint {
     constraint min_value(0);
     constraint max_value(2n ^ 64n - 1n);
+  }
+
+  scalar type uint224 extending bigint {
+    constraint min_value(0);
+    constraint max_value(2n ^ 224n - 1n);
   }
 
   scalar type uint256 extending bigint {
@@ -46,9 +56,9 @@ module default {
   }
 
   type User {
-    required property address -> Address { constraint exclusive; }
-    property name -> Name;
-    property pushToken -> str;
+    required address: Address { constraint exclusive; }
+    name: Name;
+    pushToken: str;
     multi link contacts := .<user[is Contact];
 
     # Anyone select is required due to issue - https://github.com/edgedb/edgedb/issues/5504
@@ -62,9 +72,9 @@ module default {
   }
 
   type Account extending User {
-    required property isActive -> bool;
-    required property implementation -> Address;
-    required property salt -> Bytes32;
+    required isActive: bool;
+    required implementation: Address;
+    required salt: Bytes32;
     multi link policies := .<account[is Policy];
     multi link proposals := .<account[is Proposal];
     multi link transactionProposals := .<account[is TransactionProposal];
@@ -80,70 +90,10 @@ module default {
       using (.id in global current_user_accounts);
   }
 
-  type Policy {
-    required link account -> Account;
-    required property key -> uint16;
-    required property name -> Name;
-
-    required multi link stateHistory -> PolicyState {
-      constraint exclusive;
-      on source delete delete target;
-      on target delete allow;
-    }
-    link state := (
-      select (
-        select .stateHistory
-        order by .activationBlock desc
-        limit 1
-      ) filter exists .activationBlock
-    );
-    link draft := (
-      select (
-        select .stateHistory
-        order by .createdAt desc
-        limit 1
-      ) filter not exists .activationBlock
-    );
-    property isActive := (exists .state);
-
-    constraint exclusive on ((.account, .key));
-    constraint exclusive on ((.account, .name));
-
-    access policy members_only
-      allow all
-      using (.account.id in global current_user_accounts);
-
-    access policy can_not_be_deleted_when_active 
-      deny delete
-      using (.isActive);
-  }
-
-  type PolicyState {
-    link policy := .<stateHistory[is Policy];
-    link proposal -> TransactionProposal {
-      on source delete delete target; 
-      on target delete delete source;
-    }
-    required property isAccountInitState := not exists .proposal;
-    multi link approvers -> User;
-    required property threshold -> uint16;
-    multi link targets -> Target;
-    required property isRemoved -> bool {
-      default := false;
-    }
-    property activationBlock -> bigint {
-      constraint min_value(0n);
-    }
-    required property createdAt -> datetime {
-      readonly := true;
-      default := datetime_of_statement();
-    }
-  }
-
   type Contact {
-    required link user -> User;
-    required property address -> Address;
-    required property name -> Name;
+    required user: User;
+    required address: Address;
+    required name: Name;
 
     constraint exclusive on ((.user, .address));
     constraint exclusive on ((.user, .name));
@@ -153,32 +103,21 @@ module default {
       using (.user.address ?= global current_user_address);
   }
 
-  scalar type TargetSelector extending str {
-    constraint regexp(r'^\*|(?:0x[0-9a-fA-F]{8})$'); # * | Bytes4
-  }
-
-  type Target {
-    required property to -> str {
-      constraint regexp(r'^\*|(?:0x[0-9a-fA-F]{40}$)');  # * | Address
-    };
-    required property selectors -> array<TargetSelector>;
-  }
-
   abstract type Proposal {
-    required property hash -> Bytes32 {
+    required hash: Bytes32 {
       constraint exclusive;
     }
-    required link account -> Account;
-    link policy -> Policy;
-    property label -> str {
+    required account: Account;
+    policy: Policy;
+    label: str {
       constraint min_len_value(1);
       constraint max_len_value(50);
     }
-    property createdAt -> datetime {
+    createdAt: datetime {
       readonly := true;
       default := datetime_of_statement();
     }
-    required link proposedBy -> User {
+    required proposedBy: User {
       readonly := true;
       default := (select User filter .address = global current_user_address);
     }
@@ -192,11 +131,11 @@ module default {
   }
 
   abstract type ProposalResponse {
-    required link proposal -> Proposal {
+    required proposal: Proposal {
       on target delete delete source;
     }
-    required link user -> User;
-    property createdAt -> datetime {
+    required user: User;
+    createdAt: datetime {
       readonly := true;
       default := datetime_of_statement();
     }
@@ -213,26 +152,26 @@ module default {
   }
 
   type Approval extending ProposalResponse {
-    required property signature -> Bytes;
+    required signature: Bytes;
   }
 
   type Rejection extending ProposalResponse {}
 
   type Operation {
-    required property to -> Address;
-    property value -> uint256;
-    property data -> Bytes;
+    required to: Address;
+    value: uint256;
+    data: Bytes;
   }
 
   type TransactionProposal extending Proposal {
-    required multi link operations -> Operation {
+    required multi operations: Operation {
       constraint exclusive;
       on source delete delete target;
     }
-    required property nonce -> uint64;
-    required property gasLimit -> uint256 { default := 0n; }
-    required property feeToken -> Address;
-    required link simulation -> Simulation;
+    required nonce: uint64;
+    required gasLimit: uint256 { default := 0n; }
+    required feeToken: Address;
+    required simulation: Simulation;
     multi link transactions := .<proposal[is Transaction];
     link transaction := (
       select .transactions
@@ -254,44 +193,61 @@ module default {
   scalar type TransactionProposalStatus extending enum<'Pending', 'Executing', 'Successful', 'Failed'>;
 
   type Simulation {
-    multi link transfers -> TransferDetails;
+    multi transfers: TransferDetails;
+  }
+
+  type Event {
+    required account: Account;
+    required transactionHash: Bytes32;
+    required logIndex: uint32;
+    required block: bigint { constraint min_value(0n); }
+    required timestamp: datetime { default := datetime_of_statement(); }
+
+    constraint exclusive on ((.block, .logIndex));
+
+    access policy members_can_select
+      allow select
+      using (.account.id in global current_user_accounts);
   }
 
   scalar type TransferDirection extending enum<'In', 'Out'>;
 
   type TransferDetails {
-    required link account -> Account;
-    required property direction -> TransferDirection;
-    required property from -> Address;
-    required property to -> Address;
-    required property token -> Address;
-    required property amount -> bigint;
+    required account: Account;
+    required direction: TransferDirection;
+    required from: Address;
+    required to: Address;
+    required token: Address;
+    required amount: bigint;
 
     access policy members_can_select_insert
       allow select, insert
       using (.account.id in global current_user_accounts);
   }
 
-  type Transfer extending TransferDetails {
-    link receipt -> Receipt;
-    required property logIndex -> int32 { constraint min_value(0n); }
-    required property block -> bigint { constraint min_value(0n); }
-    required property timestamp -> datetime { default := datetime_of_statement(); }
+  abstract type Transferlike extending Event, TransferDetails {}
 
-    constraint exclusive on ((.block, .logIndex));
+  type Transfer extending Transferlike {}
+
+  type TransferApproval extending Transferlike {
+    link previous := (
+      select TransferApproval
+      filter .token = .token and .from = .from and .to = .to
+      order by .block desc then .logIndex desc
+      limit 1
+    );
+    required property delta := .amount - (.previous.amount ?? 0);
   }
 
   type Transaction {
-    required property hash -> Bytes32 {
-      constraint exclusive;
-    }
-    required link proposal -> TransactionProposal;
-    required property gasPrice -> uint256;
-    required property submittedAt -> datetime {
+    required hash: Bytes32 { constraint exclusive; }
+    required proposal: TransactionProposal;
+    required gasPrice: uint256;
+    required submittedAt: datetime {
       readonly := true;
       default := datetime_of_statement();
     }
-    link receipt -> Receipt;
+    receipt: Receipt { constraint exclusive; }
 
     access policy members_can_select_insert
       allow select, insert
@@ -299,30 +255,35 @@ module default {
   }
 
   type Receipt {
-    required property success -> bool;
-    required property responses -> array<Bytes>;
-    multi link transfers := .<receipt[is Transfer];
-    required property gasUsed -> bigint { constraint min_value(0n); }
-    required property fee -> bigint { constraint min_value(0n); }
-    required property block -> bigint { constraint min_value(0n); }
-    required property timestamp -> datetime { default := datetime_of_statement(); }
+    required link transaction := assert_exists(.<receipt[is Transaction]);
+    required success: bool;
+    required responses: array<Bytes>;
+    multi link events := (
+      with txHash := .transaction.hash
+      select Event
+      filter .transactionHash = txHash
+    );
+    required gasUsed: bigint { constraint min_value(0n); }
+    required fee: bigint { constraint min_value(0n); }
+    required block: bigint { constraint min_value(0n); }
+    required timestamp: datetime { default := datetime_of_statement(); }
   }
 
   type Contract {
-    required property address -> Address {
+    required address: Address {
       constraint exclusive;
     }
 
-    multi link functions -> Function;
+    multi functions: Function;
   }
 
   scalar type AbiSource extending enum<'Verified'>;
 
   type Function {
-    required property selector -> Bytes4;
-    required property abi -> json;
-    required property abiMd5 -> str { constraint exclusive; }
-    required property source -> AbiSource;
+    required selector: Bytes4;
+    required abi: json;
+    required abiMd5: str { constraint exclusive; }
+    required source: AbiSource;
 
     index on (.selector);
   }

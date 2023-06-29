@@ -1,4 +1,4 @@
-import { gql } from '@apollo/client';
+import { gql, useSuspenseQuery } from '@apollo/client';
 import {
   ContractFunctionDocument,
   ContractFunctionQuery,
@@ -6,7 +6,6 @@ import {
 } from '@api/generated';
 import { Address, Operation, Selector, asSelector } from 'lib';
 import { useMemo } from 'react';
-import { useSuspenseQuery } from '~/gql/util';
 import { fragmentToContractFunction } from './types';
 
 gql`
@@ -37,17 +36,16 @@ export const useContractFunction = (params: ContractFunctionParams | Operation |
   const contract = isOp(params) ? params.to : params?.contract;
   const selector = isOp(params) ? asSelector(params.data) : params?.selector;
 
-  const skip = !contract || !selector;
   const { data } = useSuspenseQuery<ContractFunctionQuery, ContractFunctionQueryVariables>(
     ContractFunctionDocument,
     {
       variables: { input: { contract: contract!, selector: selector! } },
-      skip,
+      skip: !contract || !selector,
     },
   );
 
   return useMemo(
-    () => (data.contractFunction ? fragmentToContractFunction(data.contractFunction) : undefined),
-    [data.contractFunction],
+    () => (data?.contractFunction ? fragmentToContractFunction(data.contractFunction) : undefined),
+    [data],
   );
 };

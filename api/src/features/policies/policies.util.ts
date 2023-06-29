@@ -1,8 +1,18 @@
-import { Address, asPolicy, asTargets, Policy, PolicyKey } from 'lib';
+import {
+  Address,
+  ALLOW_ALL_TARGETS,
+  ALLOW_ALL_TRANSFERS_CONFIG,
+  asPolicy,
+  Policy,
+  PolicyKey,
+  Selector,
+  TargetsConfig,
+  TransfersConfig,
+} from 'lib';
 import { uuid } from 'edgedb/dist/codecs/ifaces';
 import e, { $infer } from '~/edgeql-js';
 import { ShapeFunc } from '../database/database.select';
-import { PolicyInput } from './policies.input';
+import { PolicyInput, TargetsConfigInput, TransfersConfigInput } from './policies.input';
 
 export type UniquePolicy = { id: uuid } | { account: Address; key: PolicyKey };
 
@@ -27,8 +37,24 @@ export const policyStateShape = e.shape(e.PolicyState, () => ({
   approvers: { address: true },
   threshold: true,
   targets: {
-    to: true,
-    selectors: true,
+    contracts: {
+      contract: true,
+      functions: true,
+      defaultAllow: true,
+    },
+    default: {
+      functions: true,
+      defaultAllow: true,
+    },
+  },
+  transfers: {
+    limits: {
+      token: true,
+      amount: true,
+      duration: true,
+    },
+    defaultAllow: true,
+    budget: true,
   },
 }));
 
@@ -42,7 +68,24 @@ export const policyStateAsPolicy = <S extends PolicyStateShape>(key: number, sta
         approvers: new Set(state.approvers.map((a) => a.address as Address)),
         threshold: state.threshold,
         permissions: {
-          targets: asTargets(state.targets),
+          targets: asTargetsConfig({
+            contracts: state.targets.contracts.map((t) => ({
+              ...t,
+              functions: t.functions.map((s) => ({ ...s, selector: s.selector as Selector })),
+              contract: t.contract as Address,
+            })),
+            default: {
+              functions: state.targets.default.functions.map((s) => ({
+                ...s,
+                selector: s.selector as Selector,
+              })),
+              defaultAllow: state.transfers.defaultAllow,
+            },
+          }),
+          transfers: asTransfersConfig({
+            ...state.transfers,
+            limits: state.transfers.limits.map((l) => ({ ...l, token: l.token as Address })),
+          }),
         },
       })
     : null) as S extends null ? Policy | null : Policy;
@@ -53,6 +96,31 @@ export const inputAsPolicy = (key: PolicyKey, p: PolicyInput): Policy =>
     approvers: p.approvers,
     threshold: p.threshold,
     permissions: {
-      targets: asTargets(p.permissions.targets),
+      targets: p.permissions.targets ? asTargetsConfig(p.permissions.targets) : ALLOW_ALL_TARGETS,
+      transfers: p.permissions.transfers
+        ? asTransfersConfig(p.permissions.transfers)
+        : ALLOW_ALL_TRANSFERS_CONFIG,
     },
   });
+
+export const asTargetsConfig = (c: TargetsConfigInput): TargetsConfig => ({
+  contracts: Object.fromEntries(
+    c.contracts.map((t) => [
+      t.contract,
+      {
+        functions: Object.fromEntries(t.functions.map((s) => [s.selector, s.allow])),
+        defaultAllow: t.defaultAllow,
+      },
+    ]),
+  ),
+  default: {
+    functions: Object.fromEntries(c.default.functions.map((s) => [s.selector, s.allow])),
+    defaultAllow: c.default.defaultAllow,
+  },
+});
+
+export const asTransfersConfig = (c: TransfersConfigInput): TransfersConfig => ({
+  defaultAllow: c.defaultAllow,
+  budget: c.budget,
+  limits: Object.fromEntries(c.limits.map((l) => [l.token, l])),
+});

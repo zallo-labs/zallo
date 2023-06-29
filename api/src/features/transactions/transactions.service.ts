@@ -10,7 +10,6 @@ import {
   Address,
   Hex,
   getTransactionSatisfiability,
-  PolicySatisfiability,
   isHex,
   tryOrCatchAsync,
 } from 'lib';
@@ -35,10 +34,6 @@ import { ProposalEvent } from '../proposals/proposals.input';
 import { selectUser } from '../users/users.service';
 import { ShapeFunc } from '../database/database.select';
 import { UserInputError } from '@nestjs/apollo';
-import { ETH_ADDRESS } from 'zksync-web3/build/src/utils';
-import * as zk from 'zksync-web3';
-import { BigNumber } from 'ethers';
-import { assert } from 'console';
 import { PaymasterService } from '../paymaster/paymaster.service';
 import { proposalTxShape, transactionProposalAsTx } from '../proposals/proposals.uitl';
 
@@ -230,15 +225,13 @@ export class TransactionsService {
     if (proposalPolicy) {
       // Only execute with proposal policy if specified
       const p = policyStateAsPolicy(proposalPolicy.key, proposalPolicy.state);
-      if (p && getTransactionSatisfiability(p, tx, approvals) === PolicySatisfiability.Satisfied)
-        return p;
+      if (p && getTransactionSatisfiability(p, tx, approvals).result === 'satisfied') return p;
     } else {
       return accountPolicies
         .map((policy) => policyStateAsPolicy(policy.key, policy.state))
         .find(
           (policy) =>
-            policy &&
-            getTransactionSatisfiability(policy, tx, approvals) === PolicySatisfiability.Satisfied,
+            policy && getTransactionSatisfiability(policy, tx, approvals).result === 'satisfied',
         );
     }
   }

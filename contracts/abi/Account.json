@@ -6,7 +6,17 @@
   },
   {
     "inputs": [],
+    "name": "CombinedTransferNotSupported",
+    "type": "error"
+  },
+  {
+    "inputs": [],
     "name": "FailedToPayBootloader",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "InsufficientApproval",
     "type": "error"
   },
   {
@@ -23,50 +33,6 @@
       }
     ],
     "name": "InvalidSignature",
-    "type": "error"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "bytes4",
-        "name": "selector",
-        "type": "bytes4"
-      },
-      {
-        "internalType": "bytes4[]",
-        "name": "targetSelectors",
-        "type": "bytes4[]"
-      }
-    ],
-    "name": "NotAnyOfTargetSelectors",
-    "type": "error"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "to",
-        "type": "address"
-      },
-      {
-        "components": [
-          {
-            "internalType": "address",
-            "name": "to",
-            "type": "address"
-          },
-          {
-            "internalType": "bytes4[]",
-            "name": "selectors",
-            "type": "bytes4[]"
-          }
-        ],
-        "internalType": "struct Target[]",
-        "name": "targets",
-        "type": "tuple[]"
-      }
-    ],
-    "name": "NotToAnyOfTargets",
     "type": "error"
   },
   {
@@ -114,17 +80,22 @@
   {
     "inputs": [
       {
-        "internalType": "uint256",
-        "name": "threshold",
-        "type": "uint256"
+        "internalType": "address",
+        "name": "to",
+        "type": "address"
       },
       {
-        "internalType": "uint256",
-        "name": "nSignatures",
-        "type": "uint256"
+        "internalType": "bytes4",
+        "name": "selector",
+        "type": "bytes4"
       }
     ],
-    "name": "ThresholdNotReached",
+    "name": "TargetDenied",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "TargetsConfigInvalid",
     "type": "error"
   },
   {
@@ -189,12 +160,49 @@
   {
     "inputs": [
       {
-        "internalType": "enum PermissionSelector",
-        "name": "selector",
-        "type": "uint8"
+        "internalType": "address",
+        "name": "token",
+        "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "amount",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint224",
+        "name": "limit",
+        "type": "uint224"
       }
     ],
-    "name": "UnknownPermission",
+    "name": "TransferExceedsLimit",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "TransfersConfigInvalid",
+    "type": "error"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "value",
+        "type": "uint256"
+      }
+    ],
+    "name": "Uint224CastOverflow",
+    "type": "error"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "value",
+        "type": "uint256"
+      }
+    ],
+    "name": "Uint96CastOverflow",
     "type": "error"
   },
   {
@@ -338,18 +346,18 @@
           {
             "components": [
               {
-                "internalType": "enum PermissionSelector",
+                "internalType": "enum HookSelector",
                 "name": "selector",
                 "type": "uint8"
               },
               {
                 "internalType": "bytes",
-                "name": "args",
+                "name": "config",
                 "type": "bytes"
               }
             ],
-            "internalType": "struct Permission[]",
-            "name": "permissions",
+            "internalType": "struct Hook[]",
+            "name": "hooks",
             "type": "tuple[]"
           }
         ],
@@ -585,18 +593,18 @@
           {
             "components": [
               {
-                "internalType": "enum PermissionSelector",
+                "internalType": "enum HookSelector",
                 "name": "selector",
                 "type": "uint8"
               },
               {
                 "internalType": "bytes",
-                "name": "args",
+                "name": "config",
                 "type": "bytes"
               }
             ],
-            "internalType": "struct Permission[]",
-            "name": "permissions",
+            "internalType": "struct Hook[]",
+            "name": "hooks",
             "type": "tuple[]"
           }
         ],
