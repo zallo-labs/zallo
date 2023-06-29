@@ -63,7 +63,7 @@ export class PoliciesService {
 
     await this.upsertApprovers(accountId, policy);
 
-    const proposal = !skipProposal && (await this.proposeState(account, policy));
+    const proposal = !skipProposal ? await this.proposeState(account, policy) : undefined;
 
     const { id } = await e
       .insert(e.Policy, {
@@ -71,7 +71,7 @@ export class PoliciesService {
         key,
         name: name || `Policy ${key}`,
         stateHistory: e.insert(e.PolicyState, {
-          ...(proposal && { proposal }),
+          proposal,
           ...this.insertStateShape(policy),
         }),
       })
@@ -99,6 +99,16 @@ export class PoliciesService {
     );
 
     const targets = policy.permissions.targets;
+    const targetContracts = Object.entries(targets.contracts).map(([contract, target]) =>
+      e.insert(e.ContractTarget, {
+        contract,
+        functions: Object.entries(target.functions).map(([selector, allow]) => ({
+          selector,
+          allow,
+        })),
+        defaultAllow: target.defaultAllow,
+      }),
+    );
 
     return {
       approvers: e.for(e.cast(e.str, e.set(...policy.approvers)), (approver) =>
@@ -109,18 +119,7 @@ export class PoliciesService {
       ),
       threshold: policy.threshold,
       targets: e.insert(e.TargetsConfig, {
-        contracts: e.set(
-          ...Object.entries(targets.contracts).map(([contract, target]) =>
-            e.insert(e.ContractTarget, {
-              contract,
-              functions: Object.entries(target.functions).map(([selector, allow]) => ({
-                selector,
-                allow,
-              })),
-              defaultAllow: target.defaultAllow,
-            }),
-          ),
-        ),
+        ...(targetContracts.length && { contracts: e.set(...targetContracts) }),
         default: e.insert(e.Target, {
           functions: Object.entries(targets.default.functions).map(([selector, allow]) => ({
             selector,
@@ -260,9 +259,7 @@ export class PoliciesService {
       ],
     });
 
-    return e.select(e.TransactionProposal, () => ({
-      filter_single: { id: proposal.id },
-    }));
+    return e.select(e.TransactionProposal, () => ({ filter_single: { id: proposal.id } }));
   }
 
   private async getFreeKey(account: uuid) {
