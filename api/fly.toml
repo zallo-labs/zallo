@@ -33,10 +33,10 @@ primary_region = "lax"  # Los Angeles
     hard_limit = 1000
 
   [[services.http_checks]]
-    interval = 10000
+    interval = "10s"
     grace_period = "5s"
     method = "get"
     path = "/health"
     protocol = "https"
-    timeout = 2000
+    timeout = "2s"
     tls_skip_verify = true

@@ -2,7 +2,7 @@ app = "edgedb-prod"
 primary_region = "lax"  # Los Angeles
 
 [build]
-  image = "edgedb/edgedb"
+  image = "edgedb/edgedb:3.0"
 
 [env]
   EDGEDB_SERVER_PORT = 8080
@@ -38,12 +38,12 @@ primary_region = "lax"  # Los Angeles
     hard_limit = 500
 
   [[services.http_checks]]
-    interval = 10000
-    grace_period = 5000
+    interval = "10s"
+    grace_period = "5s"
     method = "get"
     path = "/server/status/alive"
     protocol = "https"
-    timeout = 2000
+    timeout = "2s"
     tls_skip_verify = true
 
 [metrics]
