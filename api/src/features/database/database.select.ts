@@ -15,6 +15,7 @@ import { $scopify, ObjectTypeExpression, ObjectTypeSet, SomeType } from '~/edgeq
 import { $linkPropify } from '~/edgeql-js/syntax';
 import { Cardinality, TypeKind } from 'edgedb/dist/reflection';
 import merge from 'ts-deepmerge';
+import assert from 'assert';
 
 export type Scope<Expr extends ObjectTypeExpression> = $scopify<Expr['__element__']> &
   $linkPropify<{
@@ -43,11 +44,11 @@ export const getShape =
 interface FieldDetails {
   selections: readonly SelectionNode[] | undefined;
   graphql: GraphQLField<unknown, unknown>;
-  edgeql: SomeType | undefined;
+  edgeql: SomeType;
 }
 
 const fieldToShape = (field: FieldDetails, graphqlInfo: GraphQLResolveInfo) => {
-  if (!field.selections) return true;
+  if (!field.selections || field.edgeql.__kind__ !== TypeKind.object) return true;
 
   const graphqlFields = getGraphqlTypeFields(field.graphql.type);
 
@@ -64,10 +65,8 @@ const fieldToShape = (field: FieldDetails, graphqlInfo: GraphQLResolveInfo) => {
           const { select } = childSchema.extensions;
           if (select && typeof select === 'object') acc = merge(acc, select);
 
-          if (field.edgeql?.__kind__ !== TypeKind.object)
-            throw new Error(`Expected EQL field '${field.graphql.name}' type to be an object`);
-
           // Skip non-edgeql fields e.g. ResolveField
+          assert(field.edgeql.__kind__ === TypeKind.object); // Assert for TS; checked above
           const childEqlType: SomeType | undefined = field.edgeql.__pointers__[childName]?.target;
           if (!childEqlType) return acc;
 
