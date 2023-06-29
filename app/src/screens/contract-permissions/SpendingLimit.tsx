@@ -17,7 +17,9 @@ const DURATIONS = [
   ['Hourly', Duration.fromObject({ hour: 1 })],
   ['Daily', DEFAULT_DURATION],
   ['Weekly', Duration.fromObject({ week: 1 })],
-  ['30 days', Duration.fromObject({ days: 30 })],
+  ['Montly (30 days)', Duration.fromObject({ days: 30 })],
+  ['Quarterly (90 days)', Duration.fromObject({ days: 90 })],
+  ['Yearly (365 days)', Duration.fromObject({ days: 365 })],
 ] as const;
 
 export interface SpendingLimitProps {
