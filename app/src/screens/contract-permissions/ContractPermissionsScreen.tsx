@@ -1,7 +1,16 @@
 import { useImmerAtom } from 'jotai-immer';
 import { StackNavigatorScreenProps } from '~/navigation/StackNavigator';
 import { POLICY_DRAFT_ATOM } from '../policy/PolicyDraft';
-import { Address, ERC20_ABI, Selector, filterFirst, isTargetAllowed, setTargetAllowed } from 'lib';
+import {
+  Address,
+  ERC20_ABI,
+  Selector,
+  SPENDING_TRANSFER_FUNCTIONS,
+  Target,
+  filterFirst,
+  isTargetAllowed,
+  setTargetAllowed,
+} from 'lib';
 import { useContractFunctions } from '@api/contracts';
 import { Screen } from '~/components/layout/Screen';
 import { withSuspense } from '~/components/skeleton/withSuspense';
@@ -11,19 +20,11 @@ import { useAddressLabel } from '~/components/address/AddressLabel';
 import { SpendingLimit } from './SpendingLimit';
 import { ListHeader } from '~/components/list/ListHeader';
 import { useMaybeToken } from '@token/useToken';
-import { getAbiItem, getFunctionSelector } from 'viem';
+import { getFunctionSelector } from 'viem';
 import { ContractFunction } from '@api/contracts/types';
 import { ScrollView } from 'react-native';
 import { ListItem } from '~/components/list/ListItem';
 import { Switch } from 'react-native-paper';
-
-const BASIC_FUNCTIONS = {
-  // Functions to be handled by TransferPermission, not necessary but simplifies things for the user
-  [getFunctionSelector(getAbiItem({ abi: ERC20_ABI, name: 'transfer' }))]: false,
-  [getFunctionSelector(getAbiItem({ abi: ERC20_ABI, name: 'approve' }))]: false,
-  [getFunctionSelector(getAbiItem({ abi: ERC20_ABI, name: 'increaseAllowance' }))]: false,
-  [getFunctionSelector(getAbiItem({ abi: ERC20_ABI, name: 'decreaseAllowance' }))]: false,
-};
 
 const ERC20_FUNCTIONS: ContractFunction[] = ERC20_ABI.filter(
   (abi): abi is Extract<typeof abi, { type: 'function' }> => abi.type === 'function',
@@ -43,18 +44,17 @@ export const ContractPermissionsScreen = withSuspense(
     const { contract } = route.params;
     const isToken = !!useMaybeToken(contract);
 
-    const [policy, updatePolicy] = useImmerAtom(POLICY_DRAFT_ATOM);
+    const [{ permissions }, updatePolicy] = useImmerAtom(POLICY_DRAFT_ATOM);
 
+    const target: Target | undefined = permissions.targets.contracts[contract];
     const functions = filterFirst(
       [
         ...useContractFunctions(contract),
         ...(isToken ? ERC20_FUNCTIONS : []),
-        ...Object.keys(policy.permissions.targets.contracts[contract]?.functions ?? []).map(
-          (selector) => ({
-            selector: selector as Selector,
-            abi: undefined,
-          }),
-        ),
+        ...Object.keys(target?.functions ?? []).map((selector) => ({
+          selector: selector as Selector,
+          abi: undefined,
+        })),
       ],
       (f) => f.selector,
     ).filter(
@@ -66,22 +66,38 @@ export const ContractPermissionsScreen = withSuspense(
       <Screen>
         <Appbar mode="large" leading="back" headline={useAddressLabel(contract)} />
 
-        <ScrollView>
+        <ScrollView showsVerticalScrollIndicator={false}>
           <SpendingLimit contract={contract} />
 
           <ListHeader>Actions</ListHeader>
 
+          <ListItem
+            headline="Allow unlisted actions"
+            trailing={
+              <Switch
+                value={target?.defaultAllow ?? permissions.targets.default.defaultAllow}
+                onValueChange={(enabled) =>
+                  updatePolicy((draft) => {
+                    draft.permissions.targets.contracts[contract] = {
+                      functions: draft.permissions.targets.contracts[contract]?.functions ?? {},
+                      defaultAllow: enabled,
+                    };
+                  })
+                }
+              />
+            }
+          />
+
           {functions.map((f) => {
-            const name = BASIC_FUNCTIONS[f.selector] ?? f.abi?.name ?? f.selector;
-            if (name === false) return null;
+            if (SPENDING_TRANSFER_FUNCTIONS.has(f.selector)) return null; // Handled by SpendingLimit
 
             return (
               <ListItem
                 key={f.selector}
-                headline={name}
+                headline={f.abi?.name ?? f.selector}
                 trailing={
                   <Switch
-                    value={isTargetAllowed(policy.permissions.targets, contract, f.selector)}
+                    value={isTargetAllowed(permissions.targets, contract, f.selector)}
                     onValueChange={(enabled) =>
                       updatePolicy((draft) => {
                         setTargetAllowed(draft.permissions.targets, contract, f.selector, enabled);
