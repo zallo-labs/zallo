@@ -4,21 +4,21 @@ pragma solidity ^0.8.0;
 import {Operation} from '../../TransactionUtil.sol';
 
 struct TargetsConfig {
-  ContractTarget[] targets; /// @dev sorted by `to` ascending
+  ContractTarget[] contracts; /// @dev unique and sorted by `addr` ascending
   Target defaultTarget;
 }
 
 struct ContractTarget {
-  address targetAddress;
+  address addr;
   Target target;
 }
 
 struct Target {
-  SelectorTarget[] selectors; /// @dev sorted by `selector` ascending
+  Function[] functions; /// @dev unique and sorted by `selector` ascending
   bool defaultAllow;
 }
 
-struct SelectorTarget {
+struct Function {
   bytes4 selector;
   bool allow;
 }
@@ -36,8 +36,8 @@ library TargetHook {
   }
 
   function validateOp(Operation memory op, TargetsConfig memory c) internal pure {
-    for (uint256 i; i < c.targets.length && op.to <= c.targets[i].targetAddress; ++i) {
-      if (op.to == c.targets[i].targetAddress) return _validateTarget(op, c.targets[i].target);
+    for (uint256 i; i < c.contracts.length && op.to <= c.contracts[i].addr; ++i) {
+      if (op.to == c.contracts[i].addr) return _validateTarget(op, c.contracts[i].target);
     }
 
     // Fallback to default
@@ -47,9 +47,9 @@ library TargetHook {
   function _validateTarget(Operation memory op, Target memory target) private pure {
     bytes4 selector = bytes4(op.data);
 
-    for (uint256 i; i < target.selectors.length && selector <= target.selectors[i].selector; ++i) {
-      if (selector == target.selectors[i].selector) {
-        if (target.selectors[i].allow) {
+    for (uint256 i; i < target.functions.length && selector <= target.functions[i].selector; ++i) {
+      if (selector == target.functions[i].selector) {
+        if (target.functions[i].allow) {
           return;
         } else {
           revert TargetDenied(op.to, selector);
@@ -63,19 +63,17 @@ library TargetHook {
 
   /// @notice Ensures all invariants are followed
   function checkConfig(bytes memory configData) internal pure {
-    TargetsConfig memory c = abi.decode(configData, (TargetsConfig));
+    TargetsConfig memory config = abi.decode(configData, (TargetsConfig));
 
-    for (uint256 targetIndex; targetIndex < c.targets.length; ++targetIndex) {
-      ContractTarget memory t = c.targets[targetIndex];
+    ContractTarget memory c;
+    for (uint256 ti; ti < config.contracts.length; ++ti) {
+      c = config.contracts[ti];
 
-      if (targetIndex > 0 && t.targetAddress <= c.targets[targetIndex - 1].targetAddress)
-        revert TargetsConfigInvalid();
+      if (ti > 0 && c.addr <= config.contracts[ti - 1].addr) revert TargetsConfigInvalid();
 
-      for (uint256 selectorIndex = 1; selectorIndex < t.target.selectors.length; ++selectorIndex) {
-        if (
-          t.target.selectors[selectorIndex].selector <=
-          t.target.selectors[selectorIndex - 1].selector
-        ) revert TargetsConfigInvalid();
+      for (uint256 fi = 1; fi < c.target.functions.length; ++fi) {
+        if (c.target.functions[fi].selector <= c.target.functions[fi - 1].selector)
+          revert TargetsConfigInvalid();
       }
     }
   }

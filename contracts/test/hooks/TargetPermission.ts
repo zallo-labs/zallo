@@ -7,7 +7,7 @@ import {
   asSelector,
   Hex,
   Operation,
-  TARGETS_ABI,
+  TARGETS_CONFIG_ABI,
   TargetsConfig,
   TestVerifier,
 } from 'lib';
@@ -21,14 +21,14 @@ describe('TargetPermission', () => {
   let to: Address;
   let data: Hex;
 
-  const verify = (op: Operation, targets: TargetsConfig) =>
+  const verify = (op: Operation, contracts: TargetsConfig) =>
     verifier.validateTarget(
       {
         to: op.to,
         value: op.value ?? 0n,
         data: op.data ?? '0x',
       },
-      TARGETS_ABI.asStruct(targets),
+      TARGETS_CONFIG_ABI.asStruct(contracts),
     );
 
   before(async () => {
@@ -39,49 +39,49 @@ describe('TargetPermission', () => {
   });
 
   describe('succeed when', () => {
-    it('target and selector', async () => {
+    it('contract and function', async () => {
       await expect(
         verify(
           { to, data },
           {
-            targets: { [to]: { selectors: { [asSelector(data)]: true }, defaultAllow: false } },
-            default: { selectors: {}, defaultAllow: false },
+            contracts: { [to]: { functions: { [asSelector(data)]: true }, defaultAllow: false } },
+            default: { functions: {}, defaultAllow: false },
           },
         ),
       ).to.not.be.reverted;
     });
 
-    it('target, no selector, and default allow', async () => {
+    it('contract, no function, and default allow', async () => {
       await expect(
         verify(
           { to, data },
           {
-            targets: { [to]: { selectors: {}, defaultAllow: true } },
-            default: { selectors: {}, defaultAllow: false },
+            contracts: { [to]: { functions: {}, defaultAllow: true } },
+            default: { functions: {}, defaultAllow: false },
           },
         ),
       ).to.not.be.reverted;
     });
 
-    it('no target, and allowed default selector', async () => {
+    it('no contract, and allowed default function', async () => {
       await expect(
         verify(
           { to, data },
           {
-            targets: {},
-            default: { selectors: { [asSelector(data)]: true }, defaultAllow: false },
+            contracts: {},
+            default: { functions: { [asSelector(data)]: true }, defaultAllow: false },
           },
         ),
       ).to.not.be.reverted;
     });
 
-    it('no target, and default allow', async () => {
+    it('no contract, and default allow', async () => {
       await expect(
         verify(
           { to, data },
           {
-            targets: {},
-            default: { selectors: {}, defaultAllow: true },
+            contracts: {},
+            default: { functions: {}, defaultAllow: true },
           },
         ),
       ).to.not.be.reverted;
@@ -89,49 +89,49 @@ describe('TargetPermission', () => {
   });
 
   describe('revert when', () => {
-    it('matching target, deny selector', async () => {
+    it('matching contract, deny function', async () => {
       await expect(
         verify(
           { to, data },
           {
-            targets: { [to]: { selectors: { [asSelector(data)]: false }, defaultAllow: true } },
-            default: { selectors: {}, defaultAllow: true },
+            contracts: { [to]: { functions: { [asSelector(data)]: false }, defaultAllow: true } },
+            default: { functions: {}, defaultAllow: true },
           },
         ),
       ).to.be.revertedWithCustomError(verifier, AccountError.TargetDenied);
     });
 
-    it('matching target, no selector, and default deny', async () => {
+    it('matching contract, no function, and default deny', async () => {
       await expect(
         verify(
           { to, data },
           {
-            targets: { [to]: { selectors: {}, defaultAllow: false } },
-            default: { selectors: {}, defaultAllow: true },
+            contracts: { [to]: { functions: {}, defaultAllow: false } },
+            default: { functions: {}, defaultAllow: true },
           },
         ),
       ).to.be.revertedWithCustomError(verifier, AccountError.TargetDenied);
     });
 
-    it('no target, disallowed selector', async () => {
+    it('no contract, disallowed function', async () => {
       await expect(
         verify(
           { to, data },
           {
-            targets: {},
-            default: { selectors: { [asSelector(data)]: false }, defaultAllow: true },
+            contracts: {},
+            default: { functions: { [asSelector(data)]: false }, defaultAllow: true },
           },
         ),
       ).to.be.revertedWithCustomError(verifier, AccountError.TargetDenied);
     });
 
-    it('no target, no selector, and default deny', async () => {
+    it('no contract, no function, and default deny', async () => {
       await expect(
         verify(
           { to, data },
           {
-            targets: {},
-            default: { selectors: {}, defaultAllow: false },
+            contracts: {},
+            default: { functions: {}, defaultAllow: false },
           },
         ),
       ).to.be.revertedWithCustomError(verifier, AccountError.TargetDenied);

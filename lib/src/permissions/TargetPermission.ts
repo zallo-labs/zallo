@@ -11,30 +11,30 @@ import { SatisfiabilityResult } from '../satisfiability';
 import assert from 'assert';
 
 export interface TargetsConfig {
-  targets: Record<Address, Target>;
+  contracts: Record<Address, Target>;
   default: Target;
 }
 
 export interface Target {
-  selectors: Record<Selector, boolean>;
+  functions: Record<Selector, boolean>;
   defaultAllow: boolean;
 }
 
 export const ALLOW_ALL_TARGETS = {
-  targets: {},
-  default: { selectors: {}, defaultAllow: true },
+  contracts: {},
+  default: { functions: {}, defaultAllow: true },
 } satisfies TargetsConfig;
 
-const TARGET_ABI = '((bytes4 selector, bool allow)[] selectors, bool defaultAllow)';
+const TARGET_ABI = '((bytes4 selector, bool allow)[] functions, bool defaultAllow)';
 
-export const TARGETS_ABI = newAbiType<TargetsConfig, AwaitedObj<TargetsConfigStruct>>(
-  `((address targetAddress, ${TARGET_ABI} target)[] targets, ${TARGET_ABI} defaultTarget)`,
+export const TARGETS_CONFIG_ABI = newAbiType<TargetsConfig, AwaitedObj<TargetsConfigStruct>>(
+  `((address addr, ${TARGET_ABI} target)[] contracts, ${TARGET_ABI} defaultTarget)`,
   (c) => ({
-    targets: Object.entries(c.targets)
+    contracts: Object.entries(c.contracts)
       .map(([address, target]) => ({
-        targetAddress: address,
+        addr: address,
         target: {
-          selectors: Object.entries(target.selectors)
+          functions: Object.entries(target.functions)
             .map(([selector, allow]) => ({
               selector,
               allow,
@@ -43,9 +43,9 @@ export const TARGETS_ABI = newAbiType<TargetsConfig, AwaitedObj<TargetsConfigStr
           defaultAllow: target.defaultAllow,
         },
       }))
-      .sort((a, b) => compareAddress(a.targetAddress, b.targetAddress)),
+      .sort((a, b) => compareAddress(a.addr, b.addr)),
     defaultTarget: {
-      selectors: Object.entries(c.default.selectors)
+      functions: Object.entries(c.default.functions)
         .map(([selector, allow]) => ({
           selector,
           allow,
@@ -57,18 +57,18 @@ export const TARGETS_ABI = newAbiType<TargetsConfig, AwaitedObj<TargetsConfigStr
   (s) =>
     s
       ? {
-          targets: Object.fromEntries(
-            s.targets.map((t) => [
-              t.targetAddress,
+          contracts: Object.fromEntries(
+            s.contracts.map((t) => [
+              t.addr,
               {
-                selectors: Object.fromEntries(t.target.selectors.map((s) => [s.selector, s.allow])),
+                functions: Object.fromEntries(t.target.functions.map((s) => [s.selector, s.allow])),
                 defaultAllow: t.target.defaultAllow,
               } satisfies Target,
             ]),
           ),
           default: {
-            selectors: Object.fromEntries(
-              s.defaultTarget.selectors.map((s) => [s.selector, s.allow]),
+            functions: Object.fromEntries(
+              s.defaultTarget.functions.map((s) => [s.selector, s.allow]),
             ),
             defaultAllow: s.defaultTarget.defaultAllow,
           },
@@ -77,7 +77,7 @@ export const TARGETS_ABI = newAbiType<TargetsConfig, AwaitedObj<TargetsConfigStr
 );
 
 export const hookAsTargets = (p: HookStruct | undefined) =>
-  p ? TARGETS_ABI.decode(p.config) : ALLOW_ALL_TARGETS;
+  p ? TARGETS_CONFIG_ABI.decode(p.config) : ALLOW_ALL_TARGETS;
 
 export const targetsAsHook = (targets: TargetsConfig): HookStruct | undefined => {
   // There's no need for target permissions if they're allow all
@@ -85,7 +85,7 @@ export const targetsAsHook = (targets: TargetsConfig): HookStruct | undefined =>
 
   return {
     selector: HookSelector.Target,
-    config: TARGETS_ABI.encode(targets),
+    config: TARGETS_CONFIG_ABI.encode(targets),
   };
 };
 
@@ -104,11 +104,11 @@ export const isTargetAllowed = (
 ) => {
   if (!selector) return true;
 
-  const target = targets.targets[to];
+  const target = targets.contracts[to];
 
   return target
-    ? target.selectors[selector] ?? target.defaultAllow
-    : targets.default.selectors[selector] ?? targets.default.defaultAllow;
+    ? target.functions[selector] ?? target.defaultAllow
+    : targets.default.functions[selector] ?? targets.default.defaultAllow;
 };
 
 export const setTargetAllowed = (
@@ -118,21 +118,21 @@ export const setTargetAllowed = (
   allow: boolean,
 ) => {
   // Naive
-  targets.targets[to].selectors[selector] = allow;
+  targets.contracts[to].functions[selector] = allow;
 
   // Optimization - remove selector if matches the target default
-  if (targets.targets[to].defaultAllow === allow) {
-    delete targets.targets[to].selectors[selector];
+  if (targets.contracts[to].defaultAllow === allow) {
+    delete targets.contracts[to].functions[selector];
   }
 
   // Optimization - remove target if it matches the the default
   if (
-    Object.keys(targets.targets[to].selectors).length === 0 &&
+    Object.keys(targets.contracts[to].functions).length === 0 &&
     targets.default.defaultAllow === allow &&
-    (targets.default.selectors[selector] === undefined ||
-      targets.default.selectors[selector] === allow)
+    (targets.default.functions[selector] === undefined ||
+      targets.default.functions[selector] === allow)
   ) {
-    delete targets.targets[to];
+    delete targets.contracts[to];
   }
 
   assert(isTargetAllowed(targets, to, selector) == allow);
