@@ -75,6 +75,9 @@ scalar BigInt
 """bytes hex string"""
 scalar Bytes
 
+"""4-byte hex string"""
+scalar Bytes4
+
 """32-byte hex string"""
 scalar Bytes32
 
@@ -112,6 +115,19 @@ input ContractInput {
   contract: Address!
 }
 
+type ContractTarget {
+  contract: Address!
+  defaultAllow: Boolean!
+  functions: [FunctionConfig!]!
+  id: ID!
+}
+
+input ContractTargetInput {
+  contract: Address!
+  defaultAllow: Boolean! = true
+  functions: [SelectorInput!]! = []
+}
+
 input CreateAccountInput {
   name: String!
   policies: [PolicyInput!]!
@@ -135,8 +151,15 @@ A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date
 """
 scalar DateTime
 
+union Event = Transfer | TransferApproval
+
 input ExecuteInput {
   proposalHash: Bytes32!
+}
+
+type FunctionConfig {
+  allow: Boolean!
+  selector: Bytes4!
 }
 
 type GenericOp {
@@ -184,7 +207,7 @@ input OperationInput {
 
 input PermissionsInput {
   """Targets that can be called"""
-  targets: [TargetInput!]
+  targets: TargetsConfigInput
   transfers: TransfersConfigInput
 }
 
@@ -221,7 +244,7 @@ type PolicyState {
   isAccountInitState: Boolean!
   isRemoved: Boolean!
   proposal: TransactionProposal
-  targets: [Target!]!
+  targets: TargetsConfig!
   threshold: Float!
   transfers: TransfersConfig!
 }
@@ -306,13 +329,13 @@ type Query {
 
 type Receipt {
   block: BigInt!
+  events: [Event!]!
   fee: BigInt!
   gasUsed: BigInt!
   id: ID!
   responses: [Bytes!]!
   success: Boolean!
   timestamp: DateTime!
-  transfers: [Transfer!]!
 }
 
 type Rejection {
@@ -343,6 +366,11 @@ type SatisfiablePolicy {
 """function selector (4-byte hex string)"""
 scalar Selector
 
+input SelectorInput {
+  allow: Boolean!
+  selector: Bytes4!
+}
+
 type Simulation {
   id: ID!
   transfers: [TransferDetails!]!
@@ -365,17 +393,25 @@ type SwapOp {
 }
 
 type Target {
+  defaultAllow: Boolean!
+  functions: [FunctionConfig!]!
   id: ID!
-  selectors: [String!]!
-  to: String!
 }
 
 input TargetInput {
-  """Functions that can be called on target (or *)"""
-  selectors: [String!]!
+  defaultAllow: Boolean! = true
+  functions: [SelectorInput!]! = []
+}
 
-  """Address of target (or *)"""
-  to: String!
+type TargetsConfig {
+  contracts: [ContractTarget!]!
+  default: Target!
+  id: ID!
+}
+
+input TargetsConfigInput {
+  contracts: [ContractTargetInput!]! = []
+  default: TargetInput! = {defaultAllow: true, functions: []}
 }
 
 type Transaction {
@@ -428,7 +464,20 @@ type Transfer {
   from: Address!
   id: ID!
   logIndex: Float!
-  receipt: Receipt
+  timestamp: DateTime!
+  to: Address!
+  token: Address!
+}
+
+type TransferApproval {
+  account: Account!
+  amount: BigInt!
+  block: BigInt!
+  delta: BigInt!
+  direction: TransferDirection!
+  from: Address!
+  id: ID!
+  logIndex: Float!
   timestamp: DateTime!
   to: Address!
   token: Address!

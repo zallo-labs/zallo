@@ -1,4 +1,4 @@
-CREATE MIGRATION m1a7kvlrgqwkenacn3q3n3hq3ecp7uo464wol3bdt27ud7ym47rzoq
+CREATE MIGRATION m13yvdgctb43wbtjt27fx2ji4zoef52tycqnux6ppyui25gitiwaba
     ONTO initial
 {
   CREATE SCALAR TYPE default::Bytes EXTENDING std::str {
@@ -8,6 +8,10 @@ CREATE MIGRATION m1a7kvlrgqwkenacn3q3n3hq3ecp7uo464wol3bdt27ud7ym47rzoq
   CREATE GLOBAL default::current_user_accounts := (SELECT
       std::array_unpack(GLOBAL default::current_user_accounts_array)
   );
+  CREATE SCALAR TYPE default::Address EXTENDING std::str {
+      CREATE CONSTRAINT std::regexp('^0x[0-9a-fA-F]{40}$');
+  };
+  CREATE GLOBAL default::current_user_address -> default::Address;
   CREATE TYPE default::Receipt {
       CREATE REQUIRED PROPERTY responses: array<default::Bytes>;
       CREATE REQUIRED PROPERTY success: std::bool;
@@ -24,20 +28,17 @@ CREATE MIGRATION m1a7kvlrgqwkenacn3q3n3hq3ecp7uo464wol3bdt27ud7ym47rzoq
           SET default := (std::datetime_of_statement());
       };
   };
-  CREATE SCALAR TYPE default::TargetSelector EXTENDING std::str {
-      CREATE CONSTRAINT std::regexp(r'^\*|(?:0x[0-9a-fA-F]{8})$');
+  CREATE SCALAR TYPE default::Bytes4 EXTENDING std::str {
+      CREATE CONSTRAINT std::regexp('^0x[0-9a-fA-F]{8}$');
   };
   CREATE TYPE default::Target {
-      CREATE REQUIRED PROPERTY selectors: array<default::TargetSelector>;
-      CREATE REQUIRED PROPERTY to: std::str {
-          CREATE CONSTRAINT std::regexp(r'^\*|(?:0x[0-9a-fA-F]{40}$)');
-      };
+      CREATE REQUIRED PROPERTY defaultAllow: std::bool;
+      CREATE REQUIRED PROPERTY functions: array<tuple<selector: default::Bytes4, allow: std::bool>>;
+  };
+  CREATE TYPE default::ContractTarget EXTENDING default::Target {
+      CREATE REQUIRED PROPERTY contract: default::Address;
   };
   CREATE FUTURE nonrecursive_access_policies;
-  CREATE SCALAR TYPE default::Address EXTENDING std::str {
-      CREATE CONSTRAINT std::regexp('^0x[0-9a-fA-F]{40}$');
-  };
-  CREATE GLOBAL default::current_user_address -> default::Address;
   CREATE SCALAR TYPE default::Name EXTENDING std::str {
       CREATE CONSTRAINT std::max_len_value(50);
       CREATE CONSTRAINT std::min_len_value(1);
@@ -124,32 +125,25 @@ CREATE MIGRATION m1a7kvlrgqwkenacn3q3n3hq3ecp7uo464wol3bdt27ud7ym47rzoq
           ALLOW SELECT USING ((.proposal.account.id IN GLOBAL default::current_user_accounts));
       CREATE CONSTRAINT std::exclusive ON ((.proposal, .user));
   };
-  CREATE TYPE default::Rejection EXTENDING default::ProposalResponse;
-  CREATE SCALAR TYPE default::uint256 EXTENDING std::bigint {
-      CREATE CONSTRAINT std::max_value(((2n ^ 256n) - 1n));
+  CREATE SCALAR TYPE default::uint32 EXTENDING std::int64 {
+      CREATE CONSTRAINT std::max_value(((2 ^ 32) - 1));
       CREATE CONSTRAINT std::min_value(0);
   };
-  CREATE TYPE default::Operation {
-      CREATE PROPERTY data: default::Bytes;
-      CREATE REQUIRED PROPERTY to: default::Address;
-      CREATE PROPERTY value: default::uint256;
-  };
-  CREATE TYPE default::Transaction {
-      CREATE LINK receipt: default::Receipt;
-      CREATE REQUIRED PROPERTY submittedAt: std::datetime {
+  CREATE TYPE default::Event {
+      CREATE REQUIRED LINK account: default::Account;
+      CREATE ACCESS POLICY members_can_select
+          ALLOW SELECT USING ((.account.id IN GLOBAL default::current_user_accounts));
+      CREATE REQUIRED PROPERTY block: std::bigint {
+          CREATE CONSTRAINT std::min_value(0n);
+      };
+      CREATE REQUIRED PROPERTY logIndex: default::uint32;
+      CREATE REQUIRED PROPERTY timestamp: std::datetime {
           SET default := (std::datetime_of_statement());
-          SET readonly := true;
       };
-      CREATE REQUIRED PROPERTY gasPrice: default::uint256;
-      CREATE REQUIRED PROPERTY hash: default::Bytes32 {
-          CREATE CONSTRAINT std::exclusive;
-      };
+      CREATE REQUIRED PROPERTY transactionHash: default::Bytes32;
+      CREATE CONSTRAINT std::exclusive ON ((.block, .logIndex));
   };
-  ALTER TYPE default::Proposal {
-      CREATE MULTI LINK approvals := (.<proposal[IS default::Approval]);
-      CREATE MULTI LINK rejections := (.<proposal[IS default::Rejection]);
-      CREATE MULTI LINK responses := (.<proposal[IS default::ProposalResponse]);
-  };
+  CREATE TYPE default::Rejection EXTENDING default::ProposalResponse;
   CREATE SCALAR TYPE default::TransferDirection EXTENDING enum<`In`, Out>;
   CREATE TYPE default::TransferDetails {
       CREATE REQUIRED LINK account: default::Account;
@@ -160,6 +154,47 @@ CREATE MIGRATION m1a7kvlrgqwkenacn3q3n3hq3ecp7uo464wol3bdt27ud7ym47rzoq
       CREATE REQUIRED PROPERTY token: default::Address;
       CREATE ACCESS POLICY members_can_select_insert
           ALLOW SELECT, INSERT USING ((.account.id IN GLOBAL default::current_user_accounts));
+  };
+  CREATE ABSTRACT TYPE default::Transferlike EXTENDING default::Event, default::TransferDetails;
+  CREATE TYPE default::Transfer EXTENDING default::Transferlike;
+  CREATE TYPE default::TransferApproval EXTENDING default::Transferlike {
+      CREATE LINK previous := (SELECT
+          default::TransferApproval FILTER
+              (((.token = .token) AND (.from = .from)) AND (.to = .to))
+          ORDER BY
+              .block DESC THEN
+              .logIndex DESC
+      LIMIT
+          1
+      );
+      CREATE REQUIRED PROPERTY delta := ((.amount - (.previous.amount ?? 0)));
+  };
+  CREATE SCALAR TYPE default::uint256 EXTENDING std::bigint {
+      CREATE CONSTRAINT std::max_value(((2n ^ 256n) - 1n));
+      CREATE CONSTRAINT std::min_value(0);
+  };
+  CREATE TYPE default::Operation {
+      CREATE PROPERTY data: default::Bytes;
+      CREATE REQUIRED PROPERTY to: default::Address;
+      CREATE PROPERTY value: default::uint256;
+  };
+  CREATE TYPE default::Transaction {
+      CREATE LINK receipt: default::Receipt {
+          CREATE CONSTRAINT std::exclusive;
+      };
+      CREATE REQUIRED PROPERTY submittedAt: std::datetime {
+          SET default := (std::datetime_of_statement());
+          SET readonly := true;
+      };
+      CREATE REQUIRED PROPERTY hash: default::Bytes32 {
+          CREATE CONSTRAINT std::exclusive;
+      };
+      CREATE REQUIRED PROPERTY gasPrice: default::uint256;
+  };
+  ALTER TYPE default::Proposal {
+      CREATE MULTI LINK approvals := (.<proposal[IS default::Approval]);
+      CREATE MULTI LINK rejections := (.<proposal[IS default::Rejection]);
+      CREATE MULTI LINK responses := (.<proposal[IS default::ProposalResponse]);
   };
   CREATE TYPE default::Simulation {
       CREATE MULTI LINK transfers: default::TransferDetails;
@@ -187,19 +222,6 @@ CREATE MIGRATION m1a7kvlrgqwkenacn3q3n3hq3ecp7uo464wol3bdt27ud7ym47rzoq
       CREATE ACCESS POLICY members_can_select_insert
           ALLOW SELECT, INSERT USING ((.proposal.account.id IN GLOBAL default::current_user_accounts));
   };
-  CREATE TYPE default::Transfer EXTENDING default::TransferDetails {
-      CREATE LINK receipt: default::Receipt;
-      CREATE REQUIRED PROPERTY block: std::bigint {
-          CREATE CONSTRAINT std::min_value(0n);
-      };
-      CREATE REQUIRED PROPERTY logIndex: std::int32 {
-          CREATE CONSTRAINT std::min_value(0n);
-      };
-      CREATE CONSTRAINT std::exclusive ON ((.block, .logIndex));
-      CREATE REQUIRED PROPERTY timestamp: std::datetime {
-          SET default := (std::datetime_of_statement());
-      };
-  };
   CREATE SCALAR TYPE default::uint16 EXTENDING std::int32 {
       CREATE CONSTRAINT std::max_value(((2 ^ 16) - 1));
       CREATE CONSTRAINT std::min_value(0);
@@ -217,6 +239,49 @@ CREATE MIGRATION m1a7kvlrgqwkenacn3q3n3hq3ecp7uo464wol3bdt27ud7ym47rzoq
       CREATE ACCESS POLICY user_all
           ALLOW ALL USING ((.user.address ?= GLOBAL default::current_user_address));
   };
+  ALTER TYPE default::Receipt {
+      CREATE REQUIRED LINK transaction := (std::assert_exists(.<receipt[IS default::Transaction]));
+      CREATE MULTI LINK events := (WITH
+          txHash := 
+              .transaction.hash
+      SELECT
+          default::Event
+      FILTER
+          (.transactionHash = txHash)
+      );
+  };
+  ALTER TYPE default::Account {
+      CREATE MULTI LINK policies := (.<account[IS default::Policy]);
+      CREATE MULTI LINK proposals := (.<account[IS default::Proposal]);
+      CREATE MULTI LINK transactionProposals := (.<account[IS default::TransactionProposal]);
+      CREATE MULTI LINK transfers := (.<account[IS default::Transfer]);
+  };
+  CREATE TYPE default::TargetsConfig {
+      CREATE MULTI LINK contracts: default::ContractTarget {
+          CREATE CONSTRAINT std::exclusive;
+      };
+      CREATE REQUIRED LINK default: default::Target {
+          CREATE CONSTRAINT std::exclusive;
+      };
+  };
+  CREATE SCALAR TYPE default::uint224 EXTENDING std::bigint {
+      CREATE CONSTRAINT std::max_value(((2n ^ 224n) - 1n));
+      CREATE CONSTRAINT std::min_value(0);
+  };
+  CREATE TYPE default::TransferLimit {
+      CREATE REQUIRED PROPERTY amount: default::uint224;
+      CREATE REQUIRED PROPERTY duration: default::uint32;
+      CREATE REQUIRED PROPERTY token: default::Address;
+  };
+  CREATE TYPE default::TransfersConfig {
+      CREATE MULTI LINK limits: default::TransferLimit {
+          CREATE CONSTRAINT std::exclusive;
+      };
+      CREATE REQUIRED PROPERTY budget: default::uint32;
+      CREATE REQUIRED PROPERTY defaultAllow: std::bool {
+          SET default := true;
+      };
+  };
   CREATE TYPE default::PolicyState {
       CREATE PROPERTY activationBlock: std::bigint {
           CREATE CONSTRAINT std::min_value(0n);
@@ -231,7 +296,8 @@ CREATE MIGRATION m1a7kvlrgqwkenacn3q3n3hq3ecp7uo464wol3bdt27ud7ym47rzoq
           ON TARGET DELETE DELETE SOURCE;
       };
       CREATE REQUIRED PROPERTY isAccountInitState := (NOT (EXISTS (.proposal)));
-      CREATE MULTI LINK targets: default::Target;
+      CREATE REQUIRED LINK targets: default::TargetsConfig;
+      CREATE REQUIRED LINK transfers: default::TransfersConfig;
       CREATE REQUIRED PROPERTY isRemoved: std::bool {
           SET default := false;
       };
@@ -270,19 +336,7 @@ CREATE MIGRATION m1a7kvlrgqwkenacn3q3n3hq3ecp7uo464wol3bdt27ud7ym47rzoq
   ALTER TYPE default::PolicyState {
       CREATE LINK policy := (.<stateHistory[IS default::Policy]);
   };
-  ALTER TYPE default::Receipt {
-      CREATE MULTI LINK transfers := (.<receipt[IS default::Transfer]);
-  };
-  ALTER TYPE default::Account {
-      CREATE MULTI LINK policies := (.<account[IS default::Policy]);
-      CREATE MULTI LINK proposals := (.<account[IS default::Proposal]);
-      CREATE MULTI LINK transactionProposals := (.<account[IS default::TransactionProposal]);
-      CREATE MULTI LINK transfers := (.<account[IS default::Transfer]);
-  };
   CREATE SCALAR TYPE default::AbiSource EXTENDING enum<Verified>;
-  CREATE SCALAR TYPE default::Bytes4 EXTENDING std::str {
-      CREATE CONSTRAINT std::regexp('^0x[0-9a-fA-F]{8}$');
-  };
   CREATE TYPE default::Function {
       CREATE REQUIRED PROPERTY selector: default::Bytes4;
       CREATE INDEX ON (.selector);

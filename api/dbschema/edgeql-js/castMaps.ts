@@ -50,7 +50,6 @@ export type scalarAssignableBy<T extends $.ScalarType> =
   T extends _std.$uuid ? _std.$uuid : 
   T extends _default.$TransferDirection ? _default.$TransferDirection : 
   T extends _default.$TransactionProposalStatus ? _default.$TransactionProposalStatus : 
-  T extends _default.$TargetSelector ? _default.$TargetSelector : 
   T extends _default.$Name ? _default.$Name : 
   T extends _default.$Bytes4 ? _default.$Bytes4 : 
   T extends _default.$Bytes32 ? _default.$Bytes32 : 
@@ -108,7 +107,6 @@ export type scalarCastableFrom<T extends $.ScalarType> =
   T extends _std.$uuid ? _std.$uuid : 
   T extends _default.$TransferDirection ? _default.$TransferDirection : 
   T extends _default.$TransactionProposalStatus ? _default.$TransactionProposalStatus : 
-  T extends _default.$TargetSelector ? _default.$TargetSelector : 
   T extends _default.$Name ? _default.$Name : 
   T extends _default.$Bytes4 ? _default.$Bytes4 : 
   T extends _default.$Bytes32 ? _default.$Bytes32 : 
@@ -363,12 +361,6 @@ type getSharedParentScalar<A, B> =
   :
   A extends _default.$TransactionProposalStatus ?
     B extends _default.$TransactionProposalStatus ?
-    B
-    :
-    never
-  :
-  A extends _default.$TargetSelector ?
-    B extends _default.$TargetSelector ?
     B
     :
     never
@@ -716,12 +708,6 @@ function getSharedParentScalar<A extends $.ScalarType, B extends $.ScalarType>(a
     }
   if (a.__name__ === "default::TransactionProposalStatus") {
     if(b.__name__ === "default::TransactionProposalStatus") {
-      return b;
-    }
-    throw new Error(`Types are not castable: ${a.__name__}, ${b.__name__}`);
-    }
-  if (a.__name__ === "default::TargetSelector") {
-    if(b.__name__ === "default::TargetSelector") {
       return b;
     }
     throw new Error(`Types are not castable: ${a.__name__}, ${b.__name__}`);

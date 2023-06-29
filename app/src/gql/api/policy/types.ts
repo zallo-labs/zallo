@@ -1,5 +1,5 @@
 import { PolicyStateFieldsFragment } from '@api/generated';
-import { PolicyKey, Policy, asAddress, asSelector, asPolicy, Address, Hex } from 'lib';
+import { PolicyKey, Policy, asPolicy, Address, Hex } from 'lib';
 
 export interface PolicyState extends Policy {
   proposal?: Hex;
@@ -34,13 +34,21 @@ export const convertPolicyFragment = (
       threshold: s.threshold,
       permissions: {
         targets: {
-          '*': new Set([]),
-          ...Object.fromEntries(
-            (s.targets ?? []).map((t) => [
-              t.to === '*' ? '*' : asAddress(t.to),
-              new Set(t.selectors?.map((s) => (s === '*' ? '*' : asSelector(s)))),
+          contracts: Object.fromEntries(
+            s.targets.contracts.map((c) => [
+              c.contract,
+              {
+                functions: Object.fromEntries(c.functions.map((f) => [f.selector, f.allow])),
+                defaultAllow: c.defaultAllow,
+              },
             ]),
           ),
+          default: {
+            functions: Object.fromEntries(
+              s.targets.default.functions.map((f) => [f.selector, f.allow]),
+            ),
+            defaultAllow: s.targets.default.defaultAllow,
+          },
         },
       },
     }),

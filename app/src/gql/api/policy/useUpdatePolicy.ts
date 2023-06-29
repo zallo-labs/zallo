@@ -1,5 +1,5 @@
 import { gql } from '@apollo/client';
-import { Policy, PolicyId } from 'lib';
+import { Address, Policy, PolicyId } from 'lib';
 import { useCallback } from 'react';
 import { PolicyFieldsFragmentDoc, useUpdatePolicyMutation } from '@api/generated';
 
@@ -22,7 +22,7 @@ export const useUpdatePolicy = () => {
   const [mutate] = useUpdatePolicyMutation();
 
   return useCallback(
-    async ({ account, key, name, approvers, threshold, permissions }: UpdatePolicyOptions) => {
+    async ({ account, key, name, approvers, threshold, permissions: p }: UpdatePolicyOptions) => {
       const r = await mutate({
         variables: {
           input: {
@@ -31,14 +31,26 @@ export const useUpdatePolicy = () => {
             name,
             approvers: approvers ? [...approvers] : undefined,
             threshold: threshold !== undefined ? threshold : undefined,
-            permissions: permissions
-              ? {
-                  targets: Object.entries(permissions.targets).map(([to, selectors]) => ({
-                    to,
-                    selectors: [...selectors],
+            permissions: {
+              ...(p?.targets && {
+                targets: {
+                  contracts: Object.entries(p.targets.contracts).map(([contract, c]) => ({
+                    contract: contract as Address,
+                    functions: Object.entries(c.functions).map(([selector, allow]) => ({
+                      selector,
+                      allow,
+                    })),
+                    defaultAllow: c.defaultAllow,
                   })),
-                }
-              : undefined,
+                  default: {
+                    functions: Object.entries(p.targets.default.functions).map(
+                      ([selector, allow]) => ({ selector, allow }),
+                    ),
+                    defaultAllow: p.targets.default.defaultAllow,
+                  },
+                },
+              }),
+            },
           },
         },
       });

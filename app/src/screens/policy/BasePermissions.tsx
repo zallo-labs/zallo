@@ -51,14 +51,10 @@ export function BasePermissions() {
         headline="Interact with unlisted contracts"
         trailing={
           <Switch
-            value={permissions.targets['*'].has('*')}
+            value={permissions.targets.default.defaultAllow}
             onValueChange={(enabled) =>
               updatePolicy((draft) => {
-                if (enabled) {
-                  draft.permissions.targets['*'].add('*');
-                } else {
-                  draft.permissions.targets['*'].delete('*');
-                }
+                draft.permissions.targets.default.defaultAllow = enabled;
               })
             }
           />

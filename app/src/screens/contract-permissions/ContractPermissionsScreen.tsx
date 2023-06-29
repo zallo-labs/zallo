@@ -49,10 +49,12 @@ export const ContractPermissionsScreen = withSuspense(
       [
         ...useContractFunctions(contract),
         ...(isToken ? ERC20_FUNCTIONS : []),
-        ...Object.keys(policy.permissions.targets[contract] ?? []).map((selector) => ({
-          selector: selector as Selector,
-          abi: undefined,
-        })),
+        ...Object.keys(policy.permissions.targets.contracts[contract]?.functions ?? []).map(
+          (selector) => ({
+            selector: selector as Selector,
+            abi: undefined,
+          }),
+        ),
       ],
       (f) => f.selector,
     ).filter(

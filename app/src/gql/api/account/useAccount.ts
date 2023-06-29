@@ -22,8 +22,21 @@ gql`
       address
     }
     targets {
-      to
-      selectors
+      contracts {
+        contract
+        functions {
+          selector
+          allow
+        }
+        defaultAllow
+      }
+      default {
+        functions {
+          selector
+          allow
+        }
+        defaultAllow
+      }
     }
   }
 
