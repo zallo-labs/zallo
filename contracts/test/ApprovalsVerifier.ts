@@ -34,34 +34,34 @@ describe('ApprovalsVerifier', () => {
     };
   });
 
-  it('succeed with no approvers', async () => {
-    await expect(
-      verifier.verifyApprovals(
+  it('succeeds with no approvers', async () => {
+    expect(
+      await verifier.verifyApprovals(
         APPROVALS_ABI.asStruct({ approvals: [], approvers: new Set() }),
         txHash,
         POLICY_ABI.asStruct(asPolicy({ key: 1, approvers: [] })),
       ),
-    ).to.not.be.rejected;
+    ).to.be.true;
   });
 
-  it('succeed when all approvers sign', async () => {
-    await expect(
-      verifier.verifyApprovals(
+  it('succeeds when all approvers sign', async () => {
+    expect(
+      await verifier.verifyApprovals(
         APPROVALS_ABI.asStruct(approvalsInput),
         txHash,
         POLICY_ABI.asStruct(policy),
       ),
-    ).to.not.be.rejected;
+    ).to.be.true;
   });
 
-  it("revert when an approver doesn't sign", async () => {
-    await expect(
-      verifier.verifyApprovals(
+  it("fails when an approver doesn't sign", async () => {
+    expect(
+      await verifier.verifyApprovals(
         APPROVALS_ABI.asStruct({ ...approvalsInput, approvals: [approvalsInput.approvals[0]!] }),
         txHash,
         POLICY_ABI.asStruct(policy),
       ),
-    ).to.be.rejected;
+    ).to.be.false;
   });
 
   it("revert when an approvers's signature is incorrect", async () => {

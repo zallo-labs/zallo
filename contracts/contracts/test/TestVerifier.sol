@@ -23,8 +23,8 @@ contract TestVerifier {
     Approvals calldata approvals,
     bytes32 hash,
     Policy calldata policy
-  ) external view {
-    approvals.verify(hash, policy);
+  ) external view returns (bool success) {
+    return approvals.verify(hash, policy);
   }
 
   /*//////////////////////////////////////////////////////////////

@@ -368,7 +368,13 @@
       }
     ],
     "name": "verifyApprovals",
-    "outputs": [],
+    "outputs": [
+      {
+        "internalType": "bool",
+        "name": "success",
+        "type": "bool"
+      }
+    ],
     "stateMutability": "view",
     "type": "function"
   }
