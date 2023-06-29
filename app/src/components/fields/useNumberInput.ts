@@ -12,6 +12,8 @@ const toNumber = (s?: string) => {
   // Treat empty | undefined equivalent to zero
   if (!s) s = '0';
 
+  if (s.startsWith('.')) s = `0${s}`;
+
   return parseFloat(s);
 };
 
