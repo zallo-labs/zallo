@@ -50,6 +50,16 @@ export const useUpdatePolicy = () => {
                   },
                 },
               }),
+              ...(p?.transfers && {
+                transfers: {
+                  limits: Object.entries(p.transfers.limits).map(([token, limit]) => ({
+                    token: token as Address,
+                    ...limit,
+                  })),
+                  defaultAllow: p.transfers.defaultAllow,
+                  budget: p.transfers.budget,
+                },
+              }),
             },
           },
         },

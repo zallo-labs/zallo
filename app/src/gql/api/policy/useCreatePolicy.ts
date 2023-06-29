@@ -54,6 +54,14 @@ export const useCreatePolicy = (account: Address) => {
                   defaultAllow: p.targets.default.defaultAllow,
                 },
               },
+              transfers: {
+                limits: Object.entries(p.transfers.limits).map(([token, limit]) => ({
+                  token: token as Address,
+                  ...limit,
+                })),
+                defaultAllow: p.transfers.defaultAllow,
+                budget: p.transfers.budget,
+              },
             },
           },
         },
