@@ -58,26 +58,28 @@ export class PoliciesService {
     const accountId = accountIdArg ?? (await this.db.query(selectAccount.id));
     if (!accountId) throw new UserInputError('Account not found');
 
-    const key = keyArg ?? (await this.getFreeKey(accountId));
-    const policy = inputAsPolicy(asPolicyKey(key), policyInput);
+    return await this.db.transaction(async () => {
+      const key = keyArg ?? (await this.getFreeKey(accountId));
+      const policy = inputAsPolicy(key, policyInput);
 
-    await this.upsertApprovers(accountId, policy);
+      await this.upsertApprovers(accountId, policy);
 
-    const proposal = !skipProposal ? await this.proposeState(account, policy) : undefined;
+      const proposal = !skipProposal ? await this.proposeState(account, policy) : undefined;
 
-    const { id } = await e
-      .insert(e.Policy, {
-        account: selectAccount,
-        key,
-        name: name || `Policy ${key}`,
-        stateHistory: e.insert(e.PolicyState, {
-          proposal,
-          ...this.insertStateShape(policy),
-        }),
-      })
-      .run(this.db.client);
+      const { id } = await e
+        .insert(e.Policy, {
+          account: selectAccount,
+          key,
+          name: name || `Policy ${key}`,
+          stateHistory: e.insert(e.PolicyState, {
+            proposal,
+            ...this.insertStateShape(policy),
+          }),
+        })
+        .run(this.db.client);
 
-    return { id, key };
+      return { id, key };
+    });
   }
 
   private insertStateShape(policy: Policy) {
@@ -197,53 +199,55 @@ export class PoliciesService {
   }
 
   async remove({ account, key }: UniquePolicyInput) {
-    const selectAccount = e.select(e.Account, () => ({ filter_single: { address: account } }));
+    await this.db.transaction(async () => {
+      const selectAccount = e.select(e.Account, () => ({ filter_single: { address: account } }));
 
-    const isActive =
-      (
-        await e
-          .select(e.Policy, () => ({
-            isActive: true,
-            filter_single: { account: selectAccount, key },
-          }))
-          .run(this.db.client)
-      )?.isActive ?? false;
+      const isActive =
+        (
+          await e
+            .select(e.Policy, () => ({
+              isActive: true,
+              filter_single: { account: selectAccount, key },
+            }))
+            .run(this.db.client)
+        )?.isActive ?? false;
 
-    const proposal =
-      isActive &&
-      (await (async () => {
-        const proposal = await this.proposals.propose({
-          account,
-          operations: [
-            {
-              to: account,
-              data: asHex(ACCOUNT_INTERFACE.encodeFunctionData('removePolicy', [key])),
-            },
-          ],
-        });
+      const proposal =
+        isActive &&
+        (await (async () => {
+          const proposal = await this.proposals.propose({
+            account,
+            operations: [
+              {
+                to: account,
+                data: asHex(ACCOUNT_INTERFACE.encodeFunctionData('removePolicy', [key])),
+              },
+            ],
+          });
 
-        return selectTransactionProposal(proposal.id);
-      })());
+          return selectTransactionProposal(proposal.id);
+        })());
 
-    const r = await e
-      .update(e.Policy, () => ({
-        filter_single: { account: selectAccount, key },
-        set: {
-          stateHistory: {
-            '+=': e.insert(e.PolicyState, {
-              ...(proposal && { proposal }),
-              isRemoved: true,
-              threshold: 0,
-              targets: e.insert(e.TargetsConfig, {
-                default: e.insert(e.Target, { functions: [], defaultAllow: true }),
+      const r = await e
+        .update(e.Policy, () => ({
+          filter_single: { account: selectAccount, key },
+          set: {
+            stateHistory: {
+              '+=': e.insert(e.PolicyState, {
+                ...(proposal && { proposal }),
+                isRemoved: true,
+                threshold: 0,
+                targets: e.insert(e.TargetsConfig, {
+                  default: e.insert(e.Target, { functions: [], defaultAllow: true }),
+                }),
+                transfers: e.insert(e.TransfersConfig, { budget: key }),
               }),
-              transfers: e.insert(e.TransfersConfig, { budget: key }),
-            }),
+            },
           },
-        },
-      }))
-      .run(this.db.client);
-    if (!r) throw new UserInputError("Policy doesn't exist");
+        }))
+        .run(this.db.client);
+      if (!r) throw new UserInputError("Policy doesn't exist");
+    });
   }
 
   private async proposeState(account: Address, policy: Policy) {
