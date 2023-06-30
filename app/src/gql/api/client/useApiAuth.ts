@@ -54,11 +54,10 @@ export const useApiAuth = () => {
     });
 
     const onUnauthorizedLink: ApolloLink = onError(({ forward, operation, networkError }) => {
+      // On unauthorized (401) reset the token and retry the request
       if (networkError && 'statusCode' in networkError && networkError.statusCode === 401) {
         return fromPromise(reset()).flatMap(() => forward(operation));
       }
-
-      return forward(operation);
     });
 
     const link = ApolloLink.from([onUnauthorizedLink, setHeadersLink]);
