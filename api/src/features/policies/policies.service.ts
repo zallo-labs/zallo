@@ -83,23 +83,6 @@ export class PoliciesService {
   }
 
   private insertStateShape(policy: Policy) {
-    const transferLimits = e.for(
-      e.cast(
-        e.json,
-        e.set(
-          ...Object.entries(policy.permissions.transfers.limits).map(([token, limit]) =>
-            e.json({ token, amount: limit.amount, duration: limit.duration }),
-          ),
-        ),
-      ),
-      (item) =>
-        e.insert(e.TransferLimit, {
-          token: e.cast(e.Address, item.token),
-          amount: e.cast(e.uint224, item.amount),
-          duration: e.cast(e.uint32, item.duration),
-        }),
-    );
-
     const targets = policy.permissions.targets;
     const targetContracts = Object.entries(targets.contracts).map(([contract, target]) =>
       e.insert(e.ContractTarget, {
@@ -109,6 +92,15 @@ export class PoliciesService {
           allow,
         })),
         defaultAllow: target.defaultAllow,
+      }),
+    );
+
+    const transfers = policy.permissions.transfers;
+    const transferLimits = Object.entries(transfers.limits).map(([token, limit]) =>
+      e.insert(e.TransferLimit, {
+        token,
+        amount: limit.amount,
+        duration: limit.duration,
       }),
     );
 
@@ -131,9 +123,9 @@ export class PoliciesService {
         }),
       }),
       transfers: e.insert(e.TransfersConfig, {
-        defaultAllow: policy.permissions.transfers.defaultAllow,
-        budget: policy.permissions.transfers.budget ?? policy.key,
-        limits: transferLimits,
+        defaultAllow: transfers.defaultAllow,
+        budget: transfers.budget ?? policy.key,
+        ...(transferLimits.length && { limits: e.set(...transferLimits) }),
       }),
     } satisfies Partial<Parameters<typeof e.insert<typeof e.PolicyState>>[1]>;
   }
