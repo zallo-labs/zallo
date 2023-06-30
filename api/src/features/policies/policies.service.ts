@@ -58,46 +58,31 @@ export class PoliciesService {
     const accountId = accountIdArg ?? (await this.db.query(selectAccount.id));
     if (!accountId) throw new UserInputError('Account not found');
 
-    const key = keyArg ?? (await this.getFreeKey(accountId));
-    const policy = inputAsPolicy(asPolicyKey(key), policyInput);
+    return await this.db.transaction(async () => {
+      const key = keyArg ?? (await this.getFreeKey(accountId));
+      const policy = inputAsPolicy(key, policyInput);
 
-    await this.upsertApprovers(accountId, policy);
+      await this.upsertApprovers(accountId, policy);
 
-    const proposal = !skipProposal ? await this.proposeState(account, policy) : undefined;
+      const proposal = !skipProposal ? await this.proposeState(account, policy) : undefined;
 
-    const { id } = await e
-      .insert(e.Policy, {
-        account: selectAccount,
-        key,
-        name: name || `Policy ${key}`,
-        stateHistory: e.insert(e.PolicyState, {
-          proposal,
-          ...this.insertStateShape(policy),
-        }),
-      })
-      .run(this.db.client);
+      const { id } = await e
+        .insert(e.Policy, {
+          account: selectAccount,
+          key,
+          name: name || `Policy ${key}`,
+          stateHistory: e.insert(e.PolicyState, {
+            proposal,
+            ...this.insertStateShape(policy),
+          }),
+        })
+        .run(this.db.client);
 
-    return { id, key };
+      return { id, key };
+    });
   }
 
   private insertStateShape(policy: Policy) {
-    const transferLimits = e.for(
-      e.cast(
-        e.json,
-        e.set(
-          ...Object.entries(policy.permissions.transfers.limits).map(([token, limit]) =>
-            e.json({ token, amount: limit.amount, duration: limit.duration }),
-          ),
-        ),
-      ),
-      (item) =>
-        e.insert(e.TransferLimit, {
-          token: e.cast(e.Address, item.token),
-          amount: e.cast(e.uint224, item.amount),
-          duration: e.cast(e.uint32, item.duration),
-        }),
-    );
-
     const targets = policy.permissions.targets;
     const targetContracts = Object.entries(targets.contracts).map(([contract, target]) =>
       e.insert(e.ContractTarget, {
@@ -107,6 +92,15 @@ export class PoliciesService {
           allow,
         })),
         defaultAllow: target.defaultAllow,
+      }),
+    );
+
+    const transfers = policy.permissions.transfers;
+    const transferLimits = Object.entries(transfers.limits).map(([token, limit]) =>
+      e.insert(e.TransferLimit, {
+        token,
+        amount: limit.amount,
+        duration: limit.duration,
       }),
     );
 
@@ -129,9 +123,9 @@ export class PoliciesService {
         }),
       }),
       transfers: e.insert(e.TransfersConfig, {
-        defaultAllow: policy.permissions.transfers.defaultAllow,
-        budget: policy.permissions.transfers.budget ?? policy.key,
-        limits: transferLimits,
+        defaultAllow: transfers.defaultAllow,
+        budget: transfers.budget ?? policy.key,
+        ...(transferLimits.length && { limits: e.set(...transferLimits) }),
       }),
     } satisfies Partial<Parameters<typeof e.insert<typeof e.PolicyState>>[1]>;
   }
@@ -197,53 +191,55 @@ export class PoliciesService {
   }
 
   async remove({ account, key }: UniquePolicyInput) {
-    const selectAccount = e.select(e.Account, () => ({ filter_single: { address: account } }));
+    await this.db.transaction(async () => {
+      const selectAccount = e.select(e.Account, () => ({ filter_single: { address: account } }));
 
-    const isActive =
-      (
-        await e
-          .select(e.Policy, () => ({
-            isActive: true,
-            filter_single: { account: selectAccount, key },
-          }))
-          .run(this.db.client)
-      )?.isActive ?? false;
+      const isActive =
+        (
+          await e
+            .select(e.Policy, () => ({
+              isActive: true,
+              filter_single: { account: selectAccount, key },
+            }))
+            .run(this.db.client)
+        )?.isActive ?? false;
 
-    const proposal =
-      isActive &&
-      (await (async () => {
-        const proposal = await this.proposals.propose({
-          account,
-          operations: [
-            {
-              to: account,
-              data: asHex(ACCOUNT_INTERFACE.encodeFunctionData('removePolicy', [key])),
-            },
-          ],
-        });
+      const proposal =
+        isActive &&
+        (await (async () => {
+          const proposal = await this.proposals.propose({
+            account,
+            operations: [
+              {
+                to: account,
+                data: asHex(ACCOUNT_INTERFACE.encodeFunctionData('removePolicy', [key])),
+              },
+            ],
+          });
 
-        return selectTransactionProposal(proposal.id);
-      })());
+          return selectTransactionProposal(proposal.id);
+        })());
 
-    const r = await e
-      .update(e.Policy, () => ({
-        filter_single: { account: selectAccount, key },
-        set: {
-          stateHistory: {
-            '+=': e.insert(e.PolicyState, {
-              ...(proposal && { proposal }),
-              isRemoved: true,
-              threshold: 0,
-              targets: e.insert(e.TargetsConfig, {
-                default: e.insert(e.Target, { functions: [], defaultAllow: true }),
+      const r = await e
+        .update(e.Policy, () => ({
+          filter_single: { account: selectAccount, key },
+          set: {
+            stateHistory: {
+              '+=': e.insert(e.PolicyState, {
+                ...(proposal && { proposal }),
+                isRemoved: true,
+                threshold: 0,
+                targets: e.insert(e.TargetsConfig, {
+                  default: e.insert(e.Target, { functions: [], defaultAllow: true }),
+                }),
+                transfers: e.insert(e.TransfersConfig, { budget: key }),
               }),
-              transfers: e.insert(e.TransfersConfig, { budget: key }),
-            }),
+            },
           },
-        },
-      }))
-      .run(this.db.client);
-    if (!r) throw new UserInputError("Policy doesn't exist");
+        }))
+        .run(this.db.client);
+      if (!r) throw new UserInputError("Policy doesn't exist");
+    });
   }
 
   private async proposeState(account: Address, policy: Policy) {

@@ -1,7 +1,7 @@
 import { Test } from '@nestjs/testing';
 import { createMock, DeepMocked } from '@golevelup/ts-jest';
 import { PoliciesService } from './policies.service';
-import { Address, asHex, asPolicyKey, randomDeploySalt, ZERO_ADDR } from 'lib';
+import { Address, asHex, asPolicyKey, asSelector, randomDeploySalt, ZERO_ADDR } from 'lib';
 import { asUser, getUserCtx, UserContext } from '~/request/ctx';
 import { randomAddress, randomUser } from '~/util/test';
 import { randomBytes } from 'ethers/lib/utils';
@@ -9,6 +9,14 @@ import { ProposalsService } from '../proposals/proposals.service';
 import { UserAccountsService } from '../auth/userAccounts.service';
 import { DatabaseService } from '../database/database.service';
 import e from '~/edgeql-js';
+import {
+  inputAsPolicy,
+  policyStateAsPolicy,
+  policyStateShape,
+  uniquePolicy,
+} from './policies.util';
+import assert from 'assert';
+import { PolicyInput } from './policies.input';
 
 describe(PoliciesService.name, () => {
   let service: PoliciesService;
@@ -33,7 +41,10 @@ describe(PoliciesService.name, () => {
   let user1: UserContext;
   let nonce = 0n;
 
-  const create = async ({ activate }: { activate?: boolean } = {}) => {
+  const create = async ({
+    policyInput,
+    activate,
+  }: { policyInput?: PolicyInput; activate?: boolean } = {}) => {
     const userCtx = getUserCtx();
     const account = user1Account;
 
@@ -74,6 +85,7 @@ describe(PoliciesService.name, () => {
       account,
       approvers: [userCtx.address],
       permissions: {},
+      ...policyInput,
     });
 
     if (activate) {
@@ -128,6 +140,51 @@ describe(PoliciesService.name, () => {
       asUser(user1, async () => {
         await create();
         expect(proposals.propose).toHaveBeenCalledTimes(1);
+      }));
+
+    it('inserts correct policy', () =>
+      asUser(user1, async () => {
+        const key = asPolicyKey(125);
+        const policyInput: PolicyInput = {
+          key,
+          approvers: [getUserCtx().address, randomAddress()],
+          threshold: 1,
+          permissions: {
+            targets: {
+              contracts: [
+                {
+                  contract: randomAddress(),
+                  functions: [{ selector: asSelector('0x12345678'), allow: true }],
+                  defaultAllow: false,
+                },
+              ],
+              default: {
+                functions: [{ selector: asSelector('0x12345678'), allow: false }],
+                defaultAllow: true,
+              },
+            },
+            transfers: {
+              limits: [{ token: randomAddress(), amount: 4n, duration: 25 }],
+              budget: 10,
+              defaultAllow: false,
+            },
+          },
+        };
+        const expectedPolicy = inputAsPolicy(key, policyInput);
+
+        const { id } = await create({ policyInput });
+
+        const p = await e
+          .select(e.Policy, (p) => ({
+            ...uniquePolicy({ id })(p),
+            draft: policyStateShape,
+          }))
+          .run(db.client);
+
+        assert(p?.draft);
+        const actualPolicy = policyStateAsPolicy(key, p.draft);
+
+        expect(actualPolicy).toEqual(expectedPolicy);
       }));
   });
 

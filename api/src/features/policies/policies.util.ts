@@ -79,7 +79,7 @@ export const policyStateAsPolicy = <S extends PolicyStateShape>(key: number, sta
                 ...s,
                 selector: s.selector as Selector,
               })),
-              defaultAllow: state.transfers.defaultAllow,
+              defaultAllow: state.targets.default.defaultAllow,
             },
           }),
           transfers: asTransfersConfig({

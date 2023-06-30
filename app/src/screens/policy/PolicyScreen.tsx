@@ -16,6 +16,7 @@ import _ from 'lodash';
 import { Fab } from '~/components/buttons/Fab';
 import { DoubleCheckIcon, NavigateNextIcon, SendIcon } from '@theme/icons';
 import { ListItem } from '~/components/list/ListItem';
+import { useAccount } from '@api/account';
 
 export type PolicyViewState = 'active' | 'draft';
 
@@ -34,10 +35,12 @@ export const PolicyScreen = withSuspense((props: PolicyScreenProps) => {
 
   const state = props.route.params.state ?? policy?.state ? 'active' : 'draft';
 
+  const { policies } = useAccount(account);
+
   const initState = useMemo(
     (): PolicyDraft => ({
       account,
-      name: policy?.name ?? 'New policy',
+      name: policy?.name ?? `Policy ${policies.length + 1}`,
       ...((state === 'active' && policy?.state) ||
         policy?.draft || {
           approvers: new Set([approver]),
@@ -48,7 +51,7 @@ export const PolicyScreen = withSuspense((props: PolicyScreenProps) => {
           },
         }),
     }),
-    [account, policy, state, approver],
+    [account, policy, state, approver, policies.length],
   );
 
   useHydrateAtoms([[POLICY_DRAFT_ATOM, initState]]);
