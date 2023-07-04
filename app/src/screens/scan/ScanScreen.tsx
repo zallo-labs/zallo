@@ -24,7 +24,7 @@ export const SCAN_ADDRESS_EMITTER = new EventEmitter<Address>('Scan::Address');
 export const useScanAddress = SCAN_ADDRESS_EMITTER.createUseSelect('Scan');
 
 export interface ScanScreenParams {
-  account?: Address;
+  account?: Address; // Required for address scanning
 }
 
 export type ScanScreenProps = StackNavigatorScreenProps<'Scan'>;
@@ -42,13 +42,9 @@ export const ScanScreen = withSuspense(
       setScan(false);
 
       const address = tryAsAddress(data) || parseAddressLink(data)?.target_address;
-      if (address) {
+      if (address && account) {
         const nListeners = SCAN_ADDRESS_EMITTER.emit(address);
-        if (!nListeners) {
-          if (!account) throw new Error('No listeners or account');
-          navigate('AddressSheet', { account, address });
-        }
-        if (!nListeners && account) navigate('AddressSheet', { account, address });
+        if (nListeners === 0) navigate('AddressSheet', { account, address });
         return true;
       } else if (isWalletConnectUri(data)) {
         try {
