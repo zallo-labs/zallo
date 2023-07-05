@@ -55,33 +55,39 @@ export namespace cfg {
   export interface Trust extends AuthMethod {}
 }
 export type AbiSource = "Verified";
-export interface User extends std.$Object {
-  "contacts": Contact[];
-  "address": string;
-  "name"?: string | null;
-  "pushToken"?: string | null;
-}
-export interface Account extends User {
+export interface Account extends std.$Object {
   "policies": Policy[];
+  "approvers": Approver[];
   "proposals": Proposal[];
   "transactionProposals": TransactionProposal[];
   "transfers": Transfer[];
+  "address": string;
   "implementation": string;
   "isActive": boolean;
+  "name": string;
   "salt": string;
 }
 export interface ProposalResponse extends std.$Object {
-  "user": User;
+  "approver": Approver;
   "proposal": Proposal;
   "createdAt"?: Date | null;
 }
 export interface Approval extends ProposalResponse {
   "signature": string;
 }
+export interface Approver extends std.$Object {
+  "user": User;
+  "accounts": Account[];
+  "contact"?: Contact | null;
+  "address": string;
+  "name"?: string | null;
+  "pushToken"?: string | null;
+  "label"?: string | null;
+}
 export interface Contact extends std.$Object {
   "user": User;
-  "name": string;
   "address": string;
+  "label": string;
 }
 export interface Contract extends std.$Object {
   "functions": Function[];
@@ -115,14 +121,14 @@ export interface Operation extends std.$Object {
 export interface Policy extends std.$Object {
   "account": Account;
   "stateHistory": PolicyState[];
-  "state"?: PolicyState | null;
   "draft"?: PolicyState | null;
+  "state"?: PolicyState | null;
   "name": string;
   "key": number;
   "isActive": boolean;
 }
 export interface PolicyState extends std.$Object {
-  "approvers": User[];
+  "approvers": Approver[];
   "proposal"?: TransactionProposal | null;
   "targets": TargetsConfig;
   "transfers": TransfersConfig;
@@ -134,11 +140,11 @@ export interface PolicyState extends std.$Object {
   "threshold": number;
 }
 export interface Proposal extends std.$Object {
-  "account": Account;
-  "proposedBy": User;
+  "proposedBy": Approver;
   "approvals": Approval[];
   "rejections": Rejection[];
   "responses": ProposalResponse[];
+  "account": Account;
   "policy"?: Policy | null;
   "createdAt"?: Date | null;
   "hash": string;
@@ -163,17 +169,17 @@ export interface TargetsConfig extends std.$Object {
   "default": Target;
 }
 export interface Transaction extends std.$Object {
-  "receipt"?: Receipt | null;
   "proposal": TransactionProposal;
-  "submittedAt": Date;
+  "receipt"?: Receipt | null;
   "hash": string;
+  "submittedAt": Date;
   "gasPrice": bigint;
 }
 export interface TransactionProposal extends Proposal {
   "operations": Operation[];
-  "simulation": Simulation;
   "transactions": Transaction[];
   "transaction"?: Transaction | null;
+  "simulation": Simulation;
   "nonce": bigint;
   "feeToken": string;
   "gasLimit": bigint;
@@ -205,6 +211,13 @@ export interface TransfersConfig extends std.$Object {
   "budget": number;
   "defaultAllow": boolean;
 }
+export interface User extends std.$Object {
+  "approvers": Approver[];
+  "contacts": Contact[];
+  "accounts": Account[];
+  "name"?: string | null;
+}
+export interface current_approver extends Approver {}
 export interface current_user extends User {}
 export namespace schema {
   export type AccessKind = "Select" | "UpdateRead" | "UpdateWrite" | "Delete" | "Insert";
@@ -446,10 +459,10 @@ export interface types {
   };
   "default": {
     "AbiSource": AbiSource;
-    "User": User;
     "Account": Account;
     "ProposalResponse": ProposalResponse;
     "Approval": Approval;
+    "Approver": Approver;
     "Contact": Contact;
     "Contract": Contract;
     "Target": Target;
@@ -474,6 +487,8 @@ export interface types {
     "TransferDirection": TransferDirection;
     "TransferLimit": TransferLimit;
     "TransfersConfig": TransfersConfig;
+    "User": User;
+    "current_approver": current_approver;
     "current_user": current_user;
   };
   "schema": {

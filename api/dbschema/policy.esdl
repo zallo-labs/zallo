@@ -2,7 +2,7 @@ module default {
   type Policy {
     required account: Account;
     required key: uint16;
-    required name: Name;
+    required name: Label;
 
     required multi stateHistory: PolicyState {
       constraint exclusive;
@@ -28,13 +28,13 @@ module default {
     constraint exclusive on ((.account, .key));
     constraint exclusive on ((.account, .name));
 
-    access policy members_only
-      allow all
+    access policy members_select_insert_update
+      allow select, insert, update
       using (.account.id in global current_user_accounts);
 
-    access policy can_not_be_deleted_when_active 
-      deny delete
-      using (.isActive);
+    access policy can_be_deleted_when_inactive
+      allow delete
+      using (not .isActive);
   }
 
   type PolicyState {
@@ -44,7 +44,7 @@ module default {
       on target delete delete source;
     }
     required property isAccountInitState := not exists .proposal;
-    multi approvers: User;
+    multi approvers: Approver;
     required threshold: uint16;
     required targets: TargetsConfig; 
     required transfers: TransfersConfig;
