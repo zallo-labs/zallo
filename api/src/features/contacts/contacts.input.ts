@@ -17,5 +17,5 @@ export class UpsertContactInput {
   address: Address;
 
   @Field(() => String)
-  name: string;
+  label: string;
 }

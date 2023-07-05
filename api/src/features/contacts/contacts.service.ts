@@ -3,18 +3,16 @@ import { Address } from 'lib';
 import { ShapeFunc } from '../database/database.select';
 import { DatabaseService } from '../database/database.service';
 import e from '~/edgeql-js';
-import { getUser } from '~/request/ctx';
 import { UpsertContactInput } from './contacts.input';
 import { uuid } from 'edgedb/dist/codecs/ifaces';
 import { isAddress } from 'ethers/lib/utils';
 import { selectUser } from '../users/users.service';
-import { UserInputError } from '@nestjs/apollo';
 
 type UniqueContact = uuid | Address;
 
 export const uniqueContact = (u: UniqueContact) =>
   e.shape(e.Contact, () => ({
-    filter_single: isAddress(u) ? { user: selectUser(getUser()), address: u } : { id: u },
+    filter_single: isAddress(u) ? { user: selectUser(), address: u } : { id: u },
   }));
 
 @Injectable()
@@ -49,9 +47,9 @@ export class ContactsService {
     return [...contacts, ...accounts];
   }
 
-  async upsert({ previousAddress, address, name }: UpsertContactInput) {
+  async upsert({ previousAddress, address, label }: UpsertContactInput) {
     // Ignore leading and trailing whitespace
-    name = name.trim();
+    label = label.trim();
 
     // UNLESS CONFLICT ON can only be used on a single property, so (= newAddress OR = previousAddress) nor a simple upsert is  possible
     if (previousAddress && previousAddress !== address) {
@@ -60,7 +58,7 @@ export class ContactsService {
           ...uniqueContact(previousAddress)(c),
           set: {
             address,
-            name,
+            name: label,
           },
         })).id,
       );
@@ -68,26 +66,18 @@ export class ContactsService {
       if (id) return id;
     }
 
-    let id = await this.db.query(
+    return this.db.query(
       e
         .insert(e.Contact, {
-          user: selectUser(getUser()),
+          user: selectUser(),
           address,
-          name,
+          label,
         })
-        .unlessConflict().id,
+        .unlessConflict((c) => ({
+          on: e.tuple([c.user, c.address]),
+          else: e.update(c, () => ({ set: { label } })),
+        })).id,
     );
-    if (id) return id;
-
-    id = await this.db.query(
-      e.update(e.Contact, (c) => ({
-        ...uniqueContact(address)(c),
-        set: { name },
-      })).id,
-    );
-    if (!id) throw new UserInputError('Upsert failed');
-
-    return id;
   }
 
   async delete(address: Address) {

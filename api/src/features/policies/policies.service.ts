@@ -4,7 +4,7 @@ import { ProposalsService, selectTransactionProposal } from '../proposals/propos
 import { CreatePolicyInput, UniquePolicyInput, UpdatePolicyInput } from './policies.input';
 import _ from 'lodash';
 import { UserInputError } from '@nestjs/apollo';
-import { UserAccountsService } from '../auth/userAccounts.service';
+import { AccountsCacheService } from '../auth/accounts.cache.service';
 import { uuid } from 'edgedb/dist/codecs/ifaces';
 import { DatabaseService } from '../database/database.service';
 import e from '~/edgeql-js';
@@ -30,7 +30,7 @@ export class PoliciesService {
     private db: DatabaseService,
     @Inject(forwardRef(() => ProposalsService))
     private proposals: ProposalsService,
-    private userAccounts: UserAccountsService,
+    private userAccounts: AccountsCacheService,
   ) {}
 
   async selectUnique(unique: UniquePolicy, shape?: ShapeFunc<typeof e.Policy>) {
@@ -106,9 +106,9 @@ export class PoliciesService {
 
     return {
       approvers: e.for(e.cast(e.str, e.set(...policy.approvers)), (approver) =>
-        e.insert(e.User, { address: e.cast(e.str, approver) }).unlessConflict((user) => ({
-          on: user.address,
-          else: user,
+        e.insert(e.Approver, { address: e.cast(e.str, approver) }).unlessConflict((approver) => ({
+          on: approver.address,
+          else: approver,
         })),
       ),
       threshold: policy.threshold,
@@ -273,12 +273,15 @@ export class PoliciesService {
 
   // Note. approvers aren't removed when a draft is replaced they were previously an approver of
   // These users will have account access until the cache expires.
-  // This prevent loss of account access on an accidental draft be should be considered more thoroughly
+  // This prevent loss of account access on an accidental draft
+  // TODO: consider intended behaviour
   private async upsertApprovers(account: uuid, policy: Policy) {
     if (!policy.approvers.size) return;
 
     await Promise.all(
-      [...policy.approvers].map((user) => this.userAccounts.add({ user, account })),
+      [...policy.approvers].map((approver) =>
+        this.userAccounts.addCachedAccount({ approver, account }),
+      ),
     );
   }
 }

@@ -4,14 +4,14 @@ import { ProviderModule } from '~/features/util/provider/provider.module';
 import { AuthController } from './auth.controller';
 import { AuthMiddleware } from './auth.middleware';
 import { SessionMiddleware } from './session.middleware';
-import { UserAccountsService } from './userAccounts.service';
+import { AccountsCacheService } from './accounts.cache.service';
 
 @Global()
 @Module({
   imports: [ProviderModule],
-  exports: [SessionMiddleware, AuthMiddleware, RequestContextMiddleware, UserAccountsService],
+  exports: [SessionMiddleware, AuthMiddleware, RequestContextMiddleware, AccountsCacheService],
   controllers: [AuthController],
-  providers: [SessionMiddleware, AuthMiddleware, RequestContextMiddleware, UserAccountsService],
+  providers: [SessionMiddleware, AuthMiddleware, RequestContextMiddleware, AccountsCacheService],
 })
 export class AuthModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {

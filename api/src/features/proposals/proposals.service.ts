@@ -12,7 +12,7 @@ import {
   ProposeInput,
   UpdateProposalInput,
 } from './proposals.input';
-import { getUser } from '~/request/ctx';
+import { getApprover, getUserCtx } from '~/request/ctx';
 import { ExpoService } from '../util/expo/expo.service';
 import { SatisfiablePolicy } from './proposals.model';
 import { ETH_ADDRESS } from 'zksync-web3/build/src/utils';
@@ -22,9 +22,9 @@ import e from '~/edgeql-js';
 import { ShapeFunc } from '../database/database.select';
 import { and } from '../database/database.util';
 import { selectAccount } from '../accounts/accounts.util';
-import { selectUser } from '../users/users.service';
 import { PaymasterService } from '../paymaster/paymaster.service';
 import { SimulationService } from '../simulation/simulation.service';
+import { selectApprover } from '../approvers/approvers.service';
 
 export const getProposalTrigger = (hash: Hex) => `proposal.${hash}`;
 export const getProposalAccountTrigger = (account: Address) => `proposal.account.${account}`;
@@ -146,21 +146,24 @@ export class ProposalsService {
   }
 
   async approve({ hash, signature }: ApproveInput) {
-    const approver = getUser();
-    if (!(await this.provider.verifySignature({ digest: hash, approver, signature })))
+    const ctx = getUserCtx();
+
+    if (!(await this.provider.verifySignature({ digest: hash, approver: ctx.approver, signature })))
       throw new UserInputError('Invalid signature');
 
     await this.db.transaction(async (client) => {
       const proposal = selectProposal(hash);
-      const user = selectUser(approver);
+      const approver = selectApprover(ctx.approver);
 
       // Remove prior response (if any)
-      await e.delete(e.ProposalResponse, () => ({ filter_single: { proposal, user } })).run(client);
+      await e
+        .delete(e.ProposalResponse, () => ({ filter_single: { proposal, approver } }))
+        .run(client);
 
       await e
         .insert(e.Approval, {
           proposal,
-          user,
+          approver,
           signature,
         })
         .run(client);
@@ -174,12 +177,14 @@ export class ProposalsService {
   async reject(id: UniqueProposal) {
     await this.db.transaction(async (client) => {
       const proposal = selectProposal(id);
-      const user = selectUser(getUser());
+      const approver = selectApprover(getUserCtx().approver);
 
       // Remove prior response (if any)
-      await e.delete(e.ProposalResponse, () => ({ filter_single: { proposal, user } })).run(client);
+      await e
+        .delete(e.ProposalResponse, () => ({ filter_single: { proposal, approver } }))
+        .run(client);
 
-      await e.insert(e.Rejection, { proposal, user }).run(client);
+      await e.insert(e.Rejection, { proposal, approver }).run(client);
     });
 
     await this.publishProposal(id, ProposalEvent.rejection);
@@ -294,7 +299,7 @@ export class ProposalsService {
   async satisfiablePoliciesResponse(id: UniqueProposal) {
     const { policies, approvals, rejections } = await this.transactions.satisfiablePolicies(id);
 
-    const user = getUser();
+    const user = getApprover();
     const userHasResponded = approvals.has(user) || rejections.has(user);
 
     return policies

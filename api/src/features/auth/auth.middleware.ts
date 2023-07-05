@@ -6,7 +6,7 @@ import { DateTime } from 'luxon';
 import { SiweMessage } from 'siwe';
 import { CONFIG } from '~/config';
 import { ProviderService } from '~/features/util/provider/provider.service';
-import { UserAccountsService } from './userAccounts.service';
+import { AccountsCacheService } from './accounts.cache.service';
 
 interface AuthToken {
   message: SiweMessage;
@@ -44,11 +44,12 @@ const isPlayground = (req: Request) => {
 
 @Injectable()
 export class AuthMiddleware implements NestMiddleware {
-  constructor(private provider: ProviderService, private userAccounts: UserAccountsService) {}
+  constructor(private provider: ProviderService, private accountsCache: AccountsCacheService) {}
 
   async use(req: Request, _res: Response, next: NextFunction) {
-    const user = await this.tryAuthenticate(req);
-    if (user) req.user = { address: user, accounts: await this.userAccounts.get(user) };
+    const approver = await this.tryAuthenticate(req);
+    if (approver)
+      req.user = { approver, accounts: await this.accountsCache.getApproverAccounts(approver) };
 
     next();
   }

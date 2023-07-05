@@ -7,7 +7,7 @@ import {
   AccountSubscriptionInput,
 } from './accounts.input';
 import { PubsubService } from '../util/pubsub/pubsub.service';
-import { GqlContext, asUser, getUser } from '~/request/ctx';
+import { GqlContext, asUser, getApprover } from '~/request/ctx';
 import { Account } from './accounts.model';
 import {
   AccountSubscriptionPayload,
@@ -54,7 +54,7 @@ export class AccountsResolver {
   ) {
     return asUser(ctx, () =>
       this.pubsub.asyncIterator(
-        accounts ? [...accounts].map(getAccountTrigger) : getAccountUserTrigger(getUser()),
+        accounts ? [...accounts].map(getAccountTrigger) : getAccountUserTrigger(getApprover()),
       ),
     );
   }

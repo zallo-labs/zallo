@@ -1,19 +1,19 @@
 import { Field, ObjectType } from '@nestjs/graphql';
-import { AddressField } from '~/apollo/scalars/Address.scalar';
 import { IdField } from '~/apollo/scalars/Id.scalar';
 import { Contact } from '../contacts/contacts.model';
 import { uuid } from 'edgedb/dist/codecs/ifaces';
+import { Approver } from '../approvers/approvers.model';
 
 @ObjectType()
 export class User {
   @IdField()
   id: uuid;
 
-  @AddressField()
-  address: string; // Address
+  @Field(() => String)
+  name: string;
 
-  @Field(() => String, { nullable: true })
-  name: string | null;
+  @Field(() => [Approver])
+  approvers: Approver[];
 
   @Field(() => [Contact])
   contacts: Contact[];

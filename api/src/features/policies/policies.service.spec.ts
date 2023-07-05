@@ -6,7 +6,7 @@ import { asUser, getUserCtx, UserContext } from '~/request/ctx';
 import { randomAddress, randomUser } from '~/util/test';
 import { randomBytes } from 'ethers/lib/utils';
 import { ProposalsService } from '../proposals/proposals.service';
-import { UserAccountsService } from '../auth/userAccounts.service';
+import { AccountsCacheService } from '../auth/accounts.cache.service';
 import { DatabaseService } from '../database/database.service';
 import e from '~/edgeql-js';
 import {
@@ -17,12 +17,13 @@ import {
 } from './policies.util';
 import assert from 'assert';
 import { PolicyInput } from './policies.input';
+import { v1 as uuidv1 } from 'uuid';
 
 describe(PoliciesService.name, () => {
   let service: PoliciesService;
   let db: DatabaseService;
   let proposals: DeepMocked<ProposalsService>;
-  let userAccounts: DeepMocked<UserAccountsService>;
+  let userAccounts: DeepMocked<AccountsCacheService>;
 
   beforeEach(async () => {
     const module = await Test.createTestingModule({
@@ -34,7 +35,7 @@ describe(PoliciesService.name, () => {
     service = module.get(PoliciesService);
     db = module.get(DatabaseService);
     proposals = module.get(ProposalsService);
-    userAccounts = module.get(UserAccountsService);
+    userAccounts = module.get(AccountsCacheService);
   });
 
   let user1Account: Address;
@@ -48,22 +49,26 @@ describe(PoliciesService.name, () => {
     const userCtx = getUserCtx();
     const account = user1Account;
 
-    const { id: accountId } = await e
+    const accountId = uuidv1();
+    userCtx.accounts.push(accountId);
+
+    await e
       .insert(e.Account, {
+        id: accountId,
         address: account,
+        name: 'Test account',
         implementation: account,
         salt: randomDeploySalt(),
         isActive: false,
       })
       .run(db.client);
 
-    userCtx.accounts.push(accountId);
-
-    userAccounts.add.mockImplementation(async (p) => {
-      if (userCtx.address === p.user && accountId === p.account) userCtx.accounts.push(accountId);
+    userAccounts.addCachedAccount.mockImplementation(async (p) => {
+      if (userCtx.approver === p.approver && accountId === p.account)
+        userCtx.accounts.push(accountId);
     });
 
-    await e.insert(e.User, { address: userCtx.address }).unlessConflict().run(db.client);
+    await e.insert(e.Approver, { address: userCtx.approver }).unlessConflict().run(db.client);
 
     proposals.propose.mockImplementation(async () => {
       const hash = asHex(randomBytes(32));
@@ -83,7 +88,7 @@ describe(PoliciesService.name, () => {
 
     const { id, key } = await service.create({
       account,
-      approvers: [userCtx.address],
+      approvers: [userCtx.approver],
       permissions: {},
       ...policyInput,
     });
@@ -147,7 +152,7 @@ describe(PoliciesService.name, () => {
         const key = asPolicyKey(125);
         const policyInput: PolicyInput = {
           key,
-          approvers: [getUserCtx().address, randomAddress()],
+          approvers: [getUserCtx().approver, randomAddress()],
           threshold: 1,
           permissions: {
             targets: {

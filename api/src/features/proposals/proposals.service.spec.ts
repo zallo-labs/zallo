@@ -1,6 +1,6 @@
 import { Test } from '@nestjs/testing';
 import { createMock, DeepMocked } from '@golevelup/ts-jest';
-import { asUser, getUser, getUserCtx, UserContext } from '~/request/ctx';
+import { asUser, getApprover, getUserCtx, UserContext } from '~/request/ctx';
 import { randomAddress, randomHash, randomHex, randomUser } from '~/util/test';
 import { Address, CHAINS, randomDeploySalt, asHex, Hex } from 'lib';
 import { ProviderService } from '../util/provider/provider.service';
@@ -11,11 +11,12 @@ import { DatabaseService } from '../database/database.service';
 import { ProposalsService, selectProposal, selectTransactionProposal } from './proposals.service';
 import e from '~/edgeql-js';
 import { selectAccount } from '../accounts/accounts.util';
-import { selectUser } from '../users/users.service';
 import { uuid } from 'edgedb/dist/codecs/ifaces';
 import { selectPolicy } from '../policies/policies.util';
 import { TransactionProposalStatus } from './proposals.model';
 import { SimulationService } from '../simulation/simulation.service';
+import { selectApprover } from '../approvers/approvers.service';
+import { v1 as uuidv1 } from 'uuid';
 
 const signature = '0x1234' as Hex;
 
@@ -65,9 +66,14 @@ describe(ProposalsService.name, () => {
     ...params
   }: Partial<ProposeInput> = {}) => {
     // Create account with an active policy
-    const accountId = await e
+    const accountId = uuidv1();
+    getUserCtx().accounts.push(accountId);
+
+    const inserted = await e
       .insert(e.Account, {
+        id: accountId,
         address: account,
+        name: 'test account',
         implementation: account,
         salt: randomDeploySalt(),
         isActive: true,
@@ -75,9 +81,7 @@ describe(ProposalsService.name, () => {
       .unlessConflict()
       .id.run(db.client);
 
-    if (accountId) {
-      getUserCtx().accounts.push(accountId);
-
+    if (inserted) {
       await e
         .insert(e.Policy, {
           account: selectAccount(accountId),
@@ -85,10 +89,12 @@ describe(ProposalsService.name, () => {
           name: 'Policy 0',
           stateHistory: e.insert(e.PolicyState, {
             threshold: 0,
-            approvers: e.insert(e.User, { address: getUser() }).unlessConflict((user) => ({
-              on: user.address,
-              else: user,
-            })),
+            approvers: e
+              .insert(e.Approver, { address: getApprover() })
+              .unlessConflict((approver) => ({
+                on: approver.address,
+                else: approver,
+              })),
             activationBlock: 0n,
             targets: e.insert(e.TargetsConfig, {
               default: e.insert(e.Target, { functions: [], defaultAllow: true }),
@@ -265,7 +271,10 @@ describe(ProposalsService.name, () => {
         expect(
           await db.query(
             e.select(e.Approval, () => ({
-              filter_single: { proposal: selectProposal(hash), user: selectUser(getUser()) },
+              filter_single: {
+                proposal: selectProposal(hash),
+                approver: selectApprover(),
+              },
             })),
           ),
         ).toBeTruthy();
@@ -331,7 +340,7 @@ describe(ProposalsService.name, () => {
         expect(
           await db.query(
             e.select(e.Rejection, () => ({
-              filter_single: { proposal: selectProposal(hash), user: selectUser(getUser()) },
+              filter_single: { proposal: selectProposal(hash), approver: selectApprover() },
             })),
           ),
         ).toBeTruthy();
@@ -347,7 +356,7 @@ describe(ProposalsService.name, () => {
         expect(
           await db.query(
             e.select(e.Rejection, () => ({
-              filter_single: { proposal: selectProposal(hash), user: selectUser(getUser()) },
+              filter_single: { proposal: selectProposal(hash), approver: selectApprover() },
             })),
           ),
         ).toBeTruthy();

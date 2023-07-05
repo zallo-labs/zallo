@@ -1,17 +1,21 @@
 import { Field, ObjectType } from '@nestjs/graphql';
 import { uuid } from 'edgedb/dist/codecs/ifaces';
+import { Address } from 'lib';
 import { AddressField } from '~/apollo/scalars/Address.scalar';
 import { IdField } from '~/apollo/scalars/Id.scalar';
 import * as eql from '~/edgeql-interfaces';
 
 @ObjectType()
-export class Contact implements Partial<eql.Contact> {
+export class Approver implements Partial<eql.Approver> {
   @IdField()
   id: uuid;
 
   @AddressField()
-  address: string; // Address
+  address: Address;
 
-  @Field(() => String)
-  label: string;
+  @Field(() => String, { nullable: true })
+  name?: string;
+
+  @Field(() => String, { nullable: true })
+  label?: string;
 }

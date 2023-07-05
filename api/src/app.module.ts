@@ -3,6 +3,7 @@ import { APP_GUARD, APP_INTERCEPTOR } from '@nestjs/core';
 import { HealthModule } from './features/health/health.module';
 import { UsersModule } from './features/users/users.module';
 import { AccountsModule } from './features/accounts/accounts.module';
+import { ApproversModule } from './features/approvers/approvers.module';
 import { AuthModule } from './features/auth/auth.module';
 import { AuthGuard } from './features/auth/auth.guard';
 import { ApolloModule } from './apollo/apollo.module';
@@ -41,6 +42,7 @@ import { BullModule } from './features/util/bull/bull.module';
     ProviderModule,
     // Features
     AccountsModule,
+    ApproversModule,
     AuthModule,
     ContactsModule,
     ContractFunctionsModule,

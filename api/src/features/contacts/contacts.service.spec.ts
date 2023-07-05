@@ -1,11 +1,12 @@
 import { createMock } from '@golevelup/ts-jest';
 import { Test, TestingModule } from '@nestjs/testing';
 import { Address, randomDeploySalt } from 'lib';
-import { asUser, getUser, getUserCtx, UserContext } from '~/request/ctx';
+import { asUser, getApprover, getUserCtx, UserContext } from '~/request/ctx';
 import { randomAddress, randomUser } from '~/util/test';
 import { DatabaseService } from '../database/database.service';
 import { ContactsService, uniqueContact } from './contacts.service';
 import e from '~/edgeql-js';
+import { v1 as uuid1 } from 'uuid';
 
 describe(ContactsService.name, () => {
   let service: ContactsService;
@@ -29,11 +30,13 @@ describe(ContactsService.name, () => {
     user1 = randomUser();
     user1Contact = randomAddress();
 
-    await asUser(user1, () => db.query(e.insert(e.User, { address: getUser() }).unlessConflict()));
+    await asUser(user1, () =>
+      db.query(e.insert(e.Approver, { address: user1.approver }).unlessConflict()),
+    );
   });
 
-  const upsertContact = (address: Address = randomAddress(), name = `${address} contact`) => {
-    return service.upsert({ name, address: address });
+  const upsertContact = (address: Address = randomAddress(), label = `${address} contact`) => {
+    return service.upsert({ label, address });
   };
 
   describe('upsert', () => {
@@ -46,18 +49,18 @@ describe(ContactsService.name, () => {
 
     it('updates a contact if it already existed', () =>
       asUser(user1, async () => {
-        const newName = 'b';
+        const newLabel = 'b';
         await upsertContact(user1Contact, 'a');
-        await upsertContact(user1Contact, newName);
+        await upsertContact(user1Contact, newLabel);
 
         expect(
           await db.query(
             e.select(e.Contact, (c) => ({
               ...uniqueContact(user1Contact)(c),
-              name: true,
-            })).name,
+              label: true,
+            })).label,
           ),
-        ).toEqual(newName);
+        ).toEqual(newLabel);
       }));
 
     it('only allow unique names (within the scope of a user)', () =>
@@ -103,15 +106,18 @@ describe(ContactsService.name, () => {
       asUser(user1, async () => {
         const account = randomAddress();
 
-        const { id: accountId } = await db.query(
+        const accountId = uuid1();
+        getUserCtx().accounts.push(accountId);
+        await db.query(
           e.insert(e.Account, {
+            id: accountId,
             address: account,
+            name: 'Test account',
             implementation: account,
             isActive: false,
             salt: randomDeploySalt(),
           }),
         );
-        getUserCtx().accounts.push(accountId);
 
         const contacts = await service.select(() => ({ address: true }));
         expect(contacts.map((c) => c.address)).toEqual([account]);

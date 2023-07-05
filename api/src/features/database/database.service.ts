@@ -30,7 +30,7 @@ export class DatabaseService implements OnModuleInit {
 
     return user
       ? this.__client.withGlobals({
-          current_user_address: user.address,
+          current_approver_address: user.approver,
           current_user_accounts_array: user.accounts,
         })
       : this.DANGEROUS_superuserClient;

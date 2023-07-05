@@ -19,7 +19,7 @@ export type IncomingWsContext = Omit<BaseWsContext, 'extra'> & {
 export type IncomingContext = IncomingHttpContext | IncomingWsContext;
 
 export interface UserContext {
-  address: Address;
+  approver: Address;
   accounts: uuid[];
 }
 
@@ -35,7 +35,7 @@ export const getUserCtx = () => {
   return ctx;
 };
 
-export const getUser = () => getUserCtx().address;
+export const getApprover = () => getUserCtx().approver;
 
 export const asUser = <R, TArgs extends unknown[]>(
   user: UserContext | GqlContext,
