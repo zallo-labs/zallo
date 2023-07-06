@@ -43,7 +43,9 @@ module default {
   }
 
   type Contact {
-    required user: User;
+    required user: User {
+      default := (<User>(global current_user).id);
+    }
     required address: Address;
     required label: Label;
 

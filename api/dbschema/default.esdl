@@ -1,6 +1,6 @@
 module default {
   global current_approver_address: Address;
-  global current_approver := (<default::Approver>(select Approver filter .address = global current_approver_address));
+  global current_approver := (assert_single((select Approver filter .address = global current_approver_address)));
 
   global current_user := (select global current_approver.user);
   global current_user_accounts_array: array<uuid>;
@@ -39,7 +39,7 @@ module default {
     }
     required proposedBy: Approver {
       readonly := true;
-      default := (select Approver filter .id = global current_approver.id);
+      default := (<Approver>(global current_approver).id);
     }
     multi link responses := .<proposal[is ProposalResponse];
     multi link approvals := .<proposal[is Approval];
@@ -54,7 +54,9 @@ module default {
     required proposal: Proposal {
       on target delete delete source;
     }
-    required approver: Approver;
+    required approver: Approver {
+      default := (<Approver>(global current_approver).id);
+    }
     createdAt: datetime {
       readonly := true;
       default := datetime_of_statement();

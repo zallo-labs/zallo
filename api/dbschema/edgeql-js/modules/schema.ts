@@ -679,10 +679,10 @@ export type $ObjectTypeλShape = $.typeutil.flatten<$SourceλShape & Omit<$Consi
   "<__type__[is Approver]": $.LinkDesc<_default.$Approver, $.Cardinality.Many, {}, false, false,  false, false>;
   "<__type__[is current_approver]": $.LinkDesc<_default.$current_approver, $.Cardinality.Many, {}, false, false,  false, false>;
   "<__type__[is User]": $.LinkDesc<_default.$User, $.Cardinality.Many, {}, false, false,  false, false>;
-  "<__type__[is Contact]": $.LinkDesc<_default.$Contact, $.Cardinality.Many, {}, false, false,  false, false>;
   "<__type__[is current_user]": $.LinkDesc<_default.$current_user, $.Cardinality.Many, {}, false, false,  false, false>;
   "<__type__[is ProposalResponse]": $.LinkDesc<_default.$ProposalResponse, $.Cardinality.Many, {}, false, false,  false, false>;
   "<__type__[is Approval]": $.LinkDesc<_default.$Approval, $.Cardinality.Many, {}, false, false,  false, false>;
+  "<__type__[is Contact]": $.LinkDesc<_default.$Contact, $.Cardinality.Many, {}, false, false,  false, false>;
   "<__type__[is Rejection]": $.LinkDesc<_default.$Rejection, $.Cardinality.Many, {}, false, false,  false, false>;
   "<__type__[is Proposal]": $.LinkDesc<_default.$Proposal, $.Cardinality.Many, {}, false, false,  false, false>;
   "<__type__[is Operation]": $.LinkDesc<_default.$Operation, $.Cardinality.Many, {}, false, false,  false, false>;

@@ -213,8 +213,8 @@ export interface TransfersConfig extends std.$Object {
 }
 export interface User extends std.$Object {
   "approvers": Approver[];
-  "contacts": Contact[];
   "accounts": Account[];
+  "contacts": Contact[];
   "name"?: string | null;
 }
 export interface current_approver extends Approver {}

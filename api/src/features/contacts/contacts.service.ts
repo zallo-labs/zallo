@@ -6,13 +6,12 @@ import e from '~/edgeql-js';
 import { UpsertContactInput } from './contacts.input';
 import { uuid } from 'edgedb/dist/codecs/ifaces';
 import { isAddress } from 'ethers/lib/utils';
-import { selectUser } from '../users/users.service';
 
 type UniqueContact = uuid | Address;
 
 export const uniqueContact = (u: UniqueContact) =>
   e.shape(e.Contact, () => ({
-    filter_single: isAddress(u) ? { user: selectUser(), address: u } : { id: u },
+    filter_single: isAddress(u) ? { user: e.global.current_user, address: u } : { id: u },
   }));
 
 @Injectable()
@@ -69,7 +68,6 @@ export class ContactsService {
     return this.db.query(
       e
         .insert(e.Contact, {
-          user: selectUser(),
           address,
           label,
         })

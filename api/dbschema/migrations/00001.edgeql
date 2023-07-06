@@ -1,4 +1,4 @@
-CREATE MIGRATION m1jrkwbeti2p63badhtfxfyhnc62hu3tyg2r46ckfrijtzr4dmxgka
+CREATE MIGRATION m1aqkll5lytwjeplymoshgmayoiplwed7yacg3rvye3ivq2u7b2e5a
     ONTO initial
 {
   CREATE SCALAR TYPE default::Bytes EXTENDING std::str {
@@ -53,11 +53,11 @@ CREATE MIGRATION m1jrkwbeti2p63badhtfxfyhnc62hu3tyg2r46ckfrijtzr4dmxgka
       CREATE ACCESS POLICY anyone_select_insert
           ALLOW SELECT, INSERT ;
   };
-  CREATE GLOBAL default::current_approver := (<default::Approver>(SELECT
+  CREATE GLOBAL default::current_approver := (std::assert_single((SELECT
       default::Approver
   FILTER
       (.address = GLOBAL default::current_approver_address)
-  ));
+  )));
   CREATE TYPE default::User {
       CREATE PROPERTY name: default::Label;
   };
@@ -69,22 +69,16 @@ CREATE MIGRATION m1jrkwbeti2p63badhtfxfyhnc62hu3tyg2r46ckfrijtzr4dmxgka
           ON SOURCE DELETE DELETE TARGET IF ORPHAN;
       };
   };
-  CREATE TYPE default::Contact {
-      CREATE REQUIRED LINK user: default::User;
-      CREATE REQUIRED PROPERTY address: default::Address;
-      CREATE REQUIRED PROPERTY label: default::Label;
-      CREATE CONSTRAINT std::exclusive ON ((.user, .label));
-      CREATE CONSTRAINT std::exclusive ON ((.user, .address));
-  };
   ALTER TYPE default::User {
       CREATE MULTI LINK approvers := (.<user[IS default::Approver]);
-      CREATE MULTI LINK contacts := (.<user[IS default::Contact]);
   };
   CREATE GLOBAL default::current_user := (SELECT
       (GLOBAL default::current_approver).user
   );
   CREATE ABSTRACT TYPE default::ProposalResponse {
-      CREATE REQUIRED LINK approver: default::Approver;
+      CREATE REQUIRED LINK approver: default::Approver {
+          SET default := (<default::Approver>(GLOBAL default::current_approver).id);
+      };
       CREATE ACCESS POLICY user_all
           ALLOW ALL USING (((.approver.user ?= GLOBAL default::current_user) OR (.approver ?= GLOBAL default::current_approver)));
       CREATE PROPERTY createdAt: std::datetime {
@@ -95,9 +89,16 @@ CREATE MIGRATION m1jrkwbeti2p63badhtfxfyhnc62hu3tyg2r46ckfrijtzr4dmxgka
   CREATE TYPE default::Approval EXTENDING default::ProposalResponse {
       CREATE REQUIRED PROPERTY signature: default::Bytes;
   };
-  ALTER TYPE default::Contact {
+  CREATE TYPE default::Contact {
+      CREATE REQUIRED LINK user: default::User {
+          SET default := (<default::User>(GLOBAL default::current_user).id);
+      };
       CREATE ACCESS POLICY user_all
           ALLOW ALL USING ((.user ?= GLOBAL default::current_user));
+      CREATE REQUIRED PROPERTY address: default::Address;
+      CREATE REQUIRED PROPERTY label: default::Label;
+      CREATE CONSTRAINT std::exclusive ON ((.user, .label));
+      CREATE CONSTRAINT std::exclusive ON ((.user, .address));
   };
   CREATE TYPE default::Rejection EXTENDING default::ProposalResponse;
   ALTER TYPE default::Approver {
@@ -109,11 +110,7 @@ CREATE MIGRATION m1jrkwbeti2p63badhtfxfyhnc62hu3tyg2r46ckfrijtzr4dmxgka
   };
   CREATE ABSTRACT TYPE default::Proposal {
       CREATE REQUIRED LINK proposedBy: default::Approver {
-          SET default := (SELECT
-              default::Approver
-          FILTER
-              (.id = (GLOBAL default::current_approver).id)
-          );
+          SET default := (<default::Approver>(GLOBAL default::current_approver).id);
           SET readonly := true;
       };
       CREATE PROPERTY createdAt: std::datetime {
@@ -367,6 +364,7 @@ CREATE MIGRATION m1jrkwbeti2p63badhtfxfyhnc62hu3tyg2r46ckfrijtzr4dmxgka
       CREATE MULTI LINK accounts := (SELECT
           DISTINCT (.approvers.accounts)
       );
+      CREATE MULTI LINK contacts := (.<user[IS default::Contact]);
   };
   ALTER TYPE default::Account {
       CREATE MULTI LINK approvers := (DISTINCT ((.policies.state.approvers UNION .policies.draft.approvers)));

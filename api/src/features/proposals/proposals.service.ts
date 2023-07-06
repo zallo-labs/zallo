@@ -24,7 +24,6 @@ import { and } from '../database/database.util';
 import { selectAccount } from '../accounts/accounts.util';
 import { PaymasterService } from '../paymaster/paymaster.service';
 import { SimulationService } from '../simulation/simulation.service';
-import { selectApprover } from '../approvers/approvers.service';
 
 export const getProposalTrigger = (hash: Hex) => `proposal.${hash}`;
 export const getProposalAccountTrigger = (account: Address) => `proposal.account.${account}`;
@@ -153,17 +152,17 @@ export class ProposalsService {
 
     await this.db.transaction(async (client) => {
       const proposal = selectProposal(hash);
-      const approver = selectApprover(ctx.approver);
 
       // Remove prior response (if any)
       await e
-        .delete(e.ProposalResponse, () => ({ filter_single: { proposal, approver } }))
+        .delete(e.ProposalResponse, () => ({
+          filter_single: { proposal, approver: e.global.current_approver },
+        }))
         .run(client);
 
       await e
         .insert(e.Approval, {
           proposal,
-          approver,
           signature,
         })
         .run(client);
@@ -177,14 +176,15 @@ export class ProposalsService {
   async reject(id: UniqueProposal) {
     await this.db.transaction(async (client) => {
       const proposal = selectProposal(id);
-      const approver = selectApprover(getUserCtx().approver);
 
       // Remove prior response (if any)
       await e
-        .delete(e.ProposalResponse, () => ({ filter_single: { proposal, approver } }))
+        .delete(e.ProposalResponse, () => ({
+          filter_single: { proposal, approver: e.global.current_approver },
+        }))
         .run(client);
 
-      await e.insert(e.Rejection, { proposal, approver }).run(client);
+      await e.insert(e.Rejection, { proposal }).run(client);
     });
 
     await this.publishProposal(id, ProposalEvent.rejection);

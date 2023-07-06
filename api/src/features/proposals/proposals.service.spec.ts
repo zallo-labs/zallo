@@ -15,7 +15,6 @@ import { uuid } from 'edgedb/dist/codecs/ifaces';
 import { selectPolicy } from '../policies/policies.util';
 import { TransactionProposalStatus } from './proposals.model';
 import { SimulationService } from '../simulation/simulation.service';
-import { selectApprover } from '../approvers/approvers.service';
 import { v1 as uuidv1 } from 'uuid';
 
 const signature = '0x1234' as Hex;
@@ -273,7 +272,7 @@ describe(ProposalsService.name, () => {
             e.select(e.Approval, () => ({
               filter_single: {
                 proposal: selectProposal(hash),
-                approver: selectApprover(),
+                approver: e.global.current_approver,
               },
             })),
           ),
@@ -340,7 +339,10 @@ describe(ProposalsService.name, () => {
         expect(
           await db.query(
             e.select(e.Rejection, () => ({
-              filter_single: { proposal: selectProposal(hash), approver: selectApprover() },
+              filter_single: {
+                proposal: selectProposal(hash),
+                approver: e.global.current_approver,
+              },
             })),
           ),
         ).toBeTruthy();
@@ -356,7 +358,10 @@ describe(ProposalsService.name, () => {
         expect(
           await db.query(
             e.select(e.Rejection, () => ({
-              filter_single: { proposal: selectProposal(hash), approver: selectApprover() },
+              filter_single: {
+                proposal: selectProposal(hash),
+                approver: e.global.current_approver,
+              },
             })),
           ),
         ).toBeTruthy();
