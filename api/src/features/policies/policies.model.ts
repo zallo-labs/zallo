@@ -3,7 +3,6 @@ import { ObjectType } from '@nestjs/graphql';
 import { GraphQLBigInt } from 'graphql-scalars';
 import { Account } from '../accounts/accounts.model';
 import { TransactionProposal } from '../proposals/proposals.model';
-import { User } from '../users/users.model';
 import { IdField } from '~/apollo/scalars/Id.scalar';
 import * as eql from '~/edgeql-interfaces';
 import { uuid } from 'edgedb/dist/codecs/ifaces';
@@ -11,6 +10,7 @@ import { PolicyKeyField } from '~/apollo/scalars/PolicyKey.scalar';
 import { AddressField } from '~/apollo/scalars/Address.scalar';
 import { Address, Selector } from 'lib';
 import { Bytes4Field } from '~/apollo/scalars/Bytes.scalar';
+import { Approver } from '../approvers/approvers.model';
 
 @ObjectType()
 export class Policy {
@@ -122,8 +122,8 @@ export class PolicyState {
   @Field(() => Boolean)
   isAccountInitState: boolean;
 
-  @Field(() => [User])
-  approvers: User[];
+  @Field(() => [Approver])
+  approvers: Approver[];
 
   @Field(() => Number)
   threshold: number;

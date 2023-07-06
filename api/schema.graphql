@@ -56,10 +56,10 @@ type AddPolicyOp {
 scalar Address
 
 type Approval {
+  approver: Approver!
   createdAt: DateTime!
   id: ID!
   proposal: Proposal!
-  user: User!
 }
 
 input ApproveInput {
@@ -71,7 +71,6 @@ type Approver {
   address: Address!
   id: ID!
   label: String
-  name: String
 }
 
 input ApproverInput {
@@ -196,7 +195,7 @@ type Mutation {
   removeProposal(input: ProposalInput!): ID
   requestTokens(input: RequestTokensInput!): [Address!]!
   updateAccount(input: UpdateAccountInput!): Account!
-  updateApprover(input: UpdateApproverInput!): Approver!
+  updateApprover(input: UpdateApproverInput!): UserApprover!
   updatePolicy(input: UpdatePolicyInput!): Policy!
   updateProposal(input: UpdateProposalInput!): TransactionProposal!
   updateUser(input: UpdateUserInput!): User!
@@ -251,7 +250,7 @@ scalar PolicyKey
 
 type PolicyState {
   activationBlock: BigInt
-  approvers: [User!]!
+  approvers: [Approver!]!
   createdAt: DateTime!
   id: ID!
   isAccountInitState: Boolean!
@@ -270,7 +269,7 @@ type Proposal {
   id: ID!
   label: String
   policy: Policy
-  proposedBy: User!
+  proposedBy: Approver!
   rejections: [Rejection!]!
   responses: [ProposalResponse!]!
 }
@@ -290,10 +289,10 @@ input ProposalInput {
 }
 
 type ProposalResponse {
+  approver: Approver!
   createdAt: DateTime!
   id: ID!
   proposal: Proposal!
-  user: User!
 }
 
 input ProposalSubscriptionInput {
@@ -325,7 +324,7 @@ input ProposeInput {
 type Query {
   account(input: AccountInput!): Account
   accounts: [Account!]!
-  approver(input: ApproverInput!): Approver!
+  approver(input: ApproverInput! = {}): UserApprover!
   contact(input: ContactInput!): Contact
   contacts: [Contact!]!
   contract(input: ContractInput!): Contract
@@ -353,10 +352,10 @@ type Receipt {
 }
 
 type Rejection {
+  approver: Approver!
   createdAt: DateTime!
   id: ID!
   proposal: Proposal!
-  user: User!
 }
 
 type RemovePolicyOp {
@@ -453,7 +452,7 @@ type TransactionProposal {
   nonce: BigInt!
   operations: [Operation!]!
   policy: Policy
-  proposedBy: User!
+  proposedBy: Approver!
   rejections: [Rejection!]!
   responses: [ProposalResponse!]!
   satisfiablePolicies: [SatisfiablePolicy!]!
@@ -629,8 +628,16 @@ input UpsertContactInput {
 }
 
 type User {
-  approvers: [Approver!]!
+  approvers: [UserApprover!]!
   contacts: [Contact!]!
   id: ID!
-  name: String!
+  name: String
+}
+
+type UserApprover {
+  address: Address!
+  id: ID!
+  label: String
+  name: String
+  pushToken: String
 }
