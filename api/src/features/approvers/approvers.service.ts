@@ -28,7 +28,7 @@ export class ApproversService {
   ) {
     const ctx = getUserCtx();
 
-    return this.db.query(
+    const r = await this.db.query(
       e.assert_single(
         e.select(e.Approver, (a) => ({
           ...shape?.(a),
@@ -39,6 +39,8 @@ export class ApproversService {
         })),
       ),
     );
+
+    return r ?? { id: address, address };
   }
 
   async upsert({ address = getUserCtx().approver, name, pushToken }: UpdateApproverInput) {
