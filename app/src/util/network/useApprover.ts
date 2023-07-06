@@ -13,11 +13,9 @@ const DANGEROUS_approverAtom = persistedAtom<Approver, string>(
   },
 );
 
-// TODO: rename to useApproverWallet
-export const useApprover = () => useAtomValue(DANGEROUS_approverAtom);
+export const useApproverWallet = () => useAtomValue(DANGEROUS_approverAtom);
 
-// TODO: rename to useApprover
-export const useApproverId = () => useApprover().address as Address;
+export const useApproverAddress = () => useApproverWallet().address as Address;
 
 export const useSetApproverFromMnemonic = () => {
   const setApprover = useSetAtom(DANGEROUS_approverAtom);

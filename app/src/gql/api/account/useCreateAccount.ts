@@ -6,9 +6,9 @@ import {
   AccountIdsQueryVariables,
   useCreateAccountMutation,
 } from '@api/generated';
-import { useUser } from '@api/user';
 import { updateQuery } from '~/gql/util';
 import { Address } from 'lib';
+import { useApproverAddress } from '@network/useApprover';
 
 gql`
   ${AccountFieldsFragmentDoc}
@@ -25,7 +25,7 @@ export interface CreateAccountResult {
 }
 
 export const useCreateAccount = () => {
-  const user = useUser();
+  const approver = useApproverAddress();
   const [mutation] = useCreateAccountMutation();
 
   return async (name: string): Promise<CreateAccountResult> => {
@@ -36,7 +36,7 @@ export const useCreateAccount = () => {
           policies: [
             {
               name: 'Admin',
-              approvers: [user.address],
+              approvers: [approver],
               permissions: {},
             },
           ],

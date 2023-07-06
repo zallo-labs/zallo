@@ -1,4 +1,4 @@
-import { useApprover } from '@network/useApprover';
+import { useApproverAddress } from '@network/useApprover';
 import {
   ContactsIcon,
   GithubIcon,
@@ -29,7 +29,7 @@ export type SettingsScreenProps = StackNavigatorScreenProps<'Settings'>;
 export const SettingsScreen = ({ route, navigation: { navigate } }: SettingsScreenProps) => {
   const { account } = route.params;
   const styles = useStyles();
-  const approver = useApprover();
+  const approver = useApproverAddress();
 
   return (
     <Screen>
@@ -44,7 +44,7 @@ export const SettingsScreen = ({ route, navigation: { navigate } }: SettingsScre
         />
 
         <ListItem
-          leading={approver.address}
+          leading={approver}
           headline="User"
           supporting="Manage the user for this device"
           onPress={() => navigate('User')}

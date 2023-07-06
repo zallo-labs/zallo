@@ -5,7 +5,7 @@ import { SiweMessage } from 'siwe';
 import { tryAcquire, E_ALREADY_LOCKED, Mutex } from 'async-mutex';
 import { CONFIG } from '~/util/config';
 import { useCallback, useMemo, useRef } from 'react';
-import { useApprover } from '@network/useApprover';
+import { useApproverWallet } from '@network/useApprover';
 import { DateTime } from 'luxon';
 import { Approver } from 'lib';
 import { persistedAtom } from '~/util/persistedAtom';
@@ -16,7 +16,7 @@ const tokenAtom = persistedAtom<string | null>('ApiToken', null);
 const fetchMutex = new Mutex();
 
 export const useApiAuth = () => {
-  const approver = useApprover();
+  const approver = useApproverWallet();
   const [token, setToken] = useAtom(tokenAtom);
 
   const tokenRef = useRef<string | null>(token);

@@ -1,5 +1,5 @@
 import { Proposal, useApprove, useReject } from '@api/proposal';
-import { useApproverId } from '@network/useApprover';
+import { useApproverAddress } from '@network/useApprover';
 import { Button } from '~/components/Button';
 import { Actions } from '~/components/layout/Actions';
 import { CHAIN } from '@network/provider';
@@ -12,7 +12,7 @@ export interface ProposalActionsProps {
 }
 
 export const ProposalActions = ({ proposal }: ProposalActionsProps) => {
-  const approver = useApproverId();
+  const approver = useApproverAddress();
   const policy = proposal.policy;
   const approve = useApprove();
   const reject = useReject();
