@@ -14,8 +14,14 @@ export class Approver implements Partial<eql.Approver> {
   address: Address;
 
   @Field(() => String, { nullable: true })
+  label?: string;
+}
+
+@ObjectType()
+export class UserApprover extends Approver implements Partial<eql.Approver> {
+  @Field(() => String, { nullable: true })
   name?: string;
 
   @Field(() => String, { nullable: true })
-  label?: string;
+  pushToken?: string;
 }
