@@ -3,7 +3,6 @@ import * as Notifications from 'expo-notifications';
 import type { DevicePushToken } from 'expo-notifications';
 import { useEffect } from 'react';
 import { Platform } from 'react-native';
-import { useUpdateUser } from '@api/user';
 import { useProposals } from '@api/proposal';
 import {
   NotificationChannel,
@@ -11,6 +10,29 @@ import {
   useNotificationSettings,
 } from '~/screens/notifications/NotificationSettingsScreen';
 import { retryAsPromised } from 'retry-as-promised';
+import { gql, useSuspenseQuery } from '@apollo/client';
+import {
+  PushTokenDocument,
+  PushTokenQuery,
+  PushTokenQueryVariables,
+  useUpdatePushTokenMutation,
+} from '@api/generated';
+
+gql`
+  query PushToken {
+    approver {
+      id
+      pushToken
+    }
+  }
+
+  mutation UpdatePushToken($pushToken: String) {
+    updateApprover(input: { pushToken: $pushToken }) {
+      id
+      pushToken
+    }
+  }
+`;
 
 Notifications.setNotificationHandler({
   handleNotification: async () => ({
@@ -25,7 +47,11 @@ export const useNotificationsCount = () => useProposals({ responseRequested: tru
 export const NotificationsRegistrar = () => {
   const channelEnabled = useNotificationSettings();
   const count = useNotificationsCount();
-  const updateUser = useUpdateUser();
+
+  const { approver } = useSuspenseQuery<PushTokenQuery, PushTokenQueryVariables>(
+    PushTokenDocument,
+  ).data;
+  const [updatePushToken] = useUpdatePushTokenMutation();
 
   const hasPermission = Notifications.usePermissions()[0]?.granted;
 
@@ -46,14 +72,14 @@ export const NotificationsRegistrar = () => {
             }
           }
 
-          const token = (
+          const pushToken = (
             await Notifications.getExpoPushTokenAsync({
               projectId: PROJECT_ID,
               devicePushToken: devicePushToken ?? (await Notifications.getDevicePushTokenAsync()),
             })
           ).data;
 
-          await updateUser({ pushToken: token });
+          if (pushToken !== approver.pushToken) await updatePushToken({ variables: { pushToken } });
         },
         { max: 3 },
       );
@@ -64,7 +90,7 @@ export const NotificationsRegistrar = () => {
     return () => {
       listener.remove();
     };
-  }, [hasPermission, channelEnabled, updateUser]);
+  }, [hasPermission, channelEnabled, approver, updatePushToken]);
 
   // Set badge count
   useEffect(() => {
