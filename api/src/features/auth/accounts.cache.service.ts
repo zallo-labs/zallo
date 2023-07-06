@@ -25,9 +25,13 @@ export class AccountsCacheService {
     const cachedAccounts = await this.getCachedAccounts(approver);
     if (cachedAccounts) return cachedAccounts;
 
+    const selectApprover = e.insert(e.Approver, { address: approver }).unlessConflict((a) => ({
+      on: a.address,
+      else: a,
+    }));
+
     const a = await this.db.query(
-      e.select(e.Approver, () => ({
-        filter_single: { address: approver },
+      e.select(selectApprover, () => ({
         user: {
           id: true,
           accounts: true,
