@@ -68,7 +68,6 @@ export const UserScreen = ({ route, navigation: { navigate } }: UserScreenProps)
         {isOnboarding && (
           <FormSubmitButton
             mode="contained"
-            requireChanges
             control={control}
             style={styles.actionButton}
             onPress={() => {

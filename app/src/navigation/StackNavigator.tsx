@@ -44,6 +44,7 @@ import {
   ContractPermissionsScreenParams,
 } from '~/screens/contract-permissions/ContractPermissionsScreen';
 import { ApproverScreen } from '~/screens/approver/ApproverScreen';
+import { BiometricsScreen, BiometricsScreenParams } from '~/screens/biometrics/BiometricsScreen';
 
 export type StackNavigatorParamList = {
   Home: HomeScreenParams;
@@ -62,6 +63,7 @@ export type StackNavigatorParamList = {
   Approvers: ApproversScreenParams;
   ContractPermissions: ContractPermissionsScreenParams;
   Sessions: SessionsScreenParams;
+  Biometrics: BiometricsScreenParams;
   Tokens: TokensScreenParams;
   NotificationSettings: NotificationSettingsParams;
   // Onboarding
@@ -121,6 +123,7 @@ export const StackNavigator = () => {
       <Navigation.Screen name="Approvers" component={ApproversScreen} />
       <Navigation.Screen name="ContractPermissions" component={ContractPermissionsScreen} />
       <Navigation.Screen name="Sessions" component={SessionsScreen} />
+      <Navigation.Screen name="Biometrics" component={BiometricsScreen} />
       <Navigation.Screen name="Tokens" component={TokensScreen} />
       <Navigation.Screen name="NotificationSettings" component={NotificationSettingsScreen} />
 

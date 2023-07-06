@@ -16,6 +16,7 @@ import { Button } from '~/components/Button';
 import { ListItem } from '~/components/list/ListItem';
 import { NotificationsOutlineIcon } from '@theme/icons';
 import { useAtomValue } from 'jotai';
+import { ListHeader } from '~/components/list/ListHeader';
 
 export type NotificationChannel = 'activity' | 'product';
 export const NotificationChannelConfig: Record<NotificationChannel, NotificationChannelInput> = {
@@ -74,13 +75,11 @@ export const NotificationSettingsScreen = withSuspense(
           <Text variant="headlineMedium" style={styles.text}>
             Notifications
           </Text>
-
-          <Text style={styles.text}>
-            Stay informed about important updates and activity on your account
-          </Text>
         </View>
 
         <View>
+          <ListHeader>Receive notifications for</ListHeader>
+
           {Object.entries(NotificationChannelConfig).map(([channel, config]) => (
             <ListItem
               key={channel}

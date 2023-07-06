@@ -42,7 +42,7 @@ gql`
 export const useApprove = () => {
   const [mutate] = useApproveMutation();
   const approver = useApproverWallet();
-  const { require: authRequired } = useAuthSettings();
+  const { approval: authRequired } = useAuthSettings();
 
   const approve = useCallback(
     async (p: Proposal) => {

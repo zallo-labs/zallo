@@ -85,7 +85,6 @@ export const ApproverScreen = withSuspense(({ navigation: { navigate } }: Approv
           control={control}
           left={<TextInput.Affix text={`${user.name}'s`} />}
           label="Label"
-          // supporting="Only visible by account members"
           supporting="This device"
           placeholder="iPhone"
           autoFocus
@@ -107,7 +106,7 @@ export const ApproverScreen = withSuspense(({ navigation: { navigate } }: Approv
             style={styles.button}
             control={control}
             onPress={() => {
-              navigate('NotificationSettings', { onboard: true });
+              navigate('Biometrics', { isOnboarding: true });
             }}
           >
             Continue

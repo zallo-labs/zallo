@@ -19,6 +19,7 @@ import { StackNavigatorScreenProps } from '~/navigation/StackNavigator';
 import * as Linking from 'expo-linking';
 import { CONFIG } from '~/util/config';
 import { Address } from 'lib';
+import { FingerprintIcon } from '../biometrics/BiometricsScreen';
 
 export interface SettingsScreenParams {
   account: Address;
@@ -48,6 +49,14 @@ export const SettingsScreen = ({ route, navigation: { navigate } }: SettingsScre
           headline="User"
           supporting="Manage the user for this device"
           onPress={() => navigate('User')}
+        />
+
+        <ListItem
+          leading={FingerprintIcon}
+          leadingSize="medium"
+          headline="Biometrics"
+          supporting="Configure when biometrics is required"
+          onPress={() => navigate('Biometrics', {})}
         />
 
         <ListItem
