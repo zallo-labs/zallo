@@ -11,7 +11,6 @@ import { AlertModal, AlertModalParams } from '~/screens/alert/AlertModal';
 import { ContactScreen, ContactScreenParams } from '~/screens/contact/ContactScreen';
 import { ContactsScreen, ContactsScreenParams } from '~/screens/contacts/ContactsScreen';
 import { CreateAccountScreen } from '~/screens/create-account/CreateAccountScreen';
-import { CreateUserScreen } from '~/screens/create-user/CreateUserScreen';
 import { HomeScreen, HomeScreenParams } from '~/screens/home/HomeScreen';
 import { OnboardScreen } from '~/screens/onboard/OnboardScreen';
 import { useShowOnboarding } from '~/screens/onboard/useShowOnboarding';
@@ -44,6 +43,7 @@ import {
   ContractPermissionsScreen,
   ContractPermissionsScreenParams,
 } from '~/screens/contract-permissions/ContractPermissionsScreen';
+import { ApproverScreen } from '~/screens/approver/ApproverScreen';
 
 export type StackNavigatorParamList = {
   Home: HomeScreenParams;
@@ -56,6 +56,7 @@ export type StackNavigatorParamList = {
   Contact: ContactScreenParams;
   Settings: SettingsScreenParams;
   User: undefined;
+  Approver: undefined;
   Account: AccountScreenParams;
   Policy: PolicyScreenParams;
   Approvers: ApproversScreenParams;
@@ -66,7 +67,6 @@ export type StackNavigatorParamList = {
   // Onboarding
   Onboard: undefined;
   CreateUser: undefined;
-  // Account
   // Transparent modal
   AccountsSheet: AccountsSheetParams;
   AddressSheet: AddressSheetScreenParams;
@@ -101,7 +101,7 @@ export const StackNavigator = () => {
       {showOnboarding && (
         <Navigation.Group>
           <Navigation.Screen name="Onboard" component={OnboardScreen} />
-          <Navigation.Screen name="CreateUser" component={CreateUserScreen} />
+          <Navigation.Screen name="CreateUser" component={UserScreen} />
         </Navigation.Group>
       )}
 
@@ -115,6 +115,7 @@ export const StackNavigator = () => {
       <Navigation.Screen name="Contact" component={ContactScreen} />
       <Navigation.Screen name="Settings" component={SettingsScreen} />
       <Navigation.Screen name="User" component={UserScreen} />
+      <Navigation.Screen name="Approver" component={ApproverScreen} />
       <Navigation.Screen name="Account" component={AccountScreen} />
       <Navigation.Screen name="Policy" component={PolicyScreen} />
       <Navigation.Screen name="Approvers" component={ApproversScreen} />
