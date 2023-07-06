@@ -2,23 +2,13 @@ import { Address } from 'lib';
 import { useMemo } from 'react';
 import { useMaybeToken } from '@token/useToken';
 import { truncateAddr } from '~/util/format';
-import { useUser } from '@api/user';
 
-export interface UseAddressLabelOptions {
-  ignoreName?: boolean;
-}
-
-export const useAddressLabel = <A extends Address | undefined>(
-  address: A,
-  { ignoreName }: UseAddressLabelOptions = {},
-) => {
-  const user = useUser(address);
+export const useAddressLabel = <A extends Address | undefined>(address: A) => {
   const token = useMaybeToken(address);
 
   return useMemo(
-    () =>
-      !address ? undefined : (!ignoreName && user?.name) || token?.name || truncateAddr(address),
-    [address, user?.name, token?.name],
+    () => (!address ? undefined : token?.name || truncateAddr(address)),
+    [address, token?.name],
   ) as A extends undefined ? string | undefined : string;
 };
 

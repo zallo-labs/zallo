@@ -9,7 +9,6 @@ import {
 } from '@api/generated';
 import { Contact, NewContact } from './types';
 import { updateQuery } from '~/gql/util';
-import { useUser } from '@api/user';
 
 gql`
   ${ContactFieldsFragmentDoc}
@@ -22,7 +21,6 @@ gql`
 `;
 
 export const useUpsertContact = () => {
-  const user = useUser();
   const [mutation] = useUpsertContactMutation();
 
   return useCallback(
@@ -32,15 +30,15 @@ export const useUpsertContact = () => {
           input: {
             previousAddress: prev?.address,
             address: cur.address,
-            name: cur.name,
+            label: cur.label,
           },
         },
         optimisticResponse: {
           upsertContact: {
             __typename: 'Contact',
-            id: `${user.address}-${cur.address}`,
+            id: cur.address,
             address: cur.address,
-            name: cur.name,
+            label: cur.label,
           },
         },
         update: async (cache, res) => {
@@ -66,6 +64,6 @@ export const useUpsertContact = () => {
         },
       });
     },
-    [user.address, mutation],
+    [mutation],
   );
 };

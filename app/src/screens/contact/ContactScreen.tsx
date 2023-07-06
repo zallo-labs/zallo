@@ -43,11 +43,11 @@ export const ContactScreen = withSuspense(
       message: 'Are you sure you want to remove this contact',
     });
     const { control, handleSubmit, reset } = useForm<Inputs>({
-      defaultValues: { name: current?.name, address: current?.address ?? address },
+      defaultValues: { name: current?.label, address: current?.address ?? address },
     });
 
     const submit = handleSubmit(async ({ name, address }) => {
-      await upsertContact({ name, address: asAddress(address) }, current);
+      await upsertContact({ label: name, address: asAddress(address) }, current);
       goBack();
     });
 

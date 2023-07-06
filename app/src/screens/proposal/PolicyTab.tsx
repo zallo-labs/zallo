@@ -17,7 +17,7 @@ import { Hex } from 'lib';
 
 const getApprovalsAwaiting = (proposal: Proposal, policy?: WPolicy) => {
   const state = policy?.state;
-  const approvals = [...proposal.approvals].filter((a) => state?.approvers.has(a.user));
+  const approvals = [...proposal.approvals].filter((a) => state?.approvers.has(a.approver));
 
   return state && approvals.length < state.threshold
     ? [...state.approvers].filter((a) => !proposal.approvals.has(a) && !proposal.rejections.has(a))
@@ -50,11 +50,11 @@ export const PolicyTab = withSuspense(({ route }: PolicyTabProps) => {
       {proposal.rejections.size > 0 && <ListHeader>Rejected</ListHeader>}
       {[...proposal.rejections].map((rejection) => (
         <ListItem
-          key={rejection.user}
-          leading={rejection.user}
+          key={rejection.approver}
+          leading={rejection.approver}
           headline={({ Text }) => (
             <Text>
-              <AddressLabel address={rejection.user} />
+              <AddressLabel address={rejection.approver} />
             </Text>
           )}
           supporting="Rejected"
@@ -82,11 +82,11 @@ export const PolicyTab = withSuspense(({ route }: PolicyTabProps) => {
       {proposal.approvals.size > 0 && <ListHeader>Approvals</ListHeader>}
       {[...proposal.approvals].map((approval) => (
         <ListItem
-          key={approval.user}
-          leading={approval.user}
+          key={approval.approver}
+          leading={approval.approver}
           headline={({ Text }) => (
             <Text>
-              <AddressLabel address={approval.user} />
+              <AddressLabel address={approval.approver} />
             </Text>
           )}
           trailing={({ Text }) => (

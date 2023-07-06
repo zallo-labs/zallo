@@ -10,7 +10,7 @@ import {
   TransactionFieldsFragmentDoc,
   useApproveMutation,
 } from '@api/generated';
-import { useApprover } from '@network/useApprover';
+import { useApproverWallet } from '@network/useApprover';
 import { authenticate, useAuthSettings } from '~/provider/AuthGate';
 import { showError } from '~/provider/SnackbarProvider';
 
@@ -41,7 +41,7 @@ gql`
 
 export const useApprove = () => {
   const [mutate] = useApproveMutation();
-  const approver = useApprover();
+  const approver = useApproverWallet();
   const { require: authRequired } = useAuthSettings();
 
   const approve = useCallback(
@@ -68,30 +68,30 @@ export const useApprove = () => {
               ...[...p.approvals.values()].map((a) => ({
                 __typename: 'Approval' as const,
                 id: a.id,
-                user: {
-                  __typename: 'User' as const,
-                  address: a.user,
+                approver: {
+                  __typename: 'Approver' as const,
+                  address: a.approver,
                 },
                 createdAt: a.timestamp.toISO()!,
               })),
               {
                 __typename: 'Approval' as const,
                 id: approver.address, // Incorrect but it doesn't matter
-                user: {
-                  __typename: 'User' as const,
+                approver: {
+                  __typename: 'Approver' as const,
                   address: approver.address as Address,
                 },
                 createdAt: DateTime.now().toISO()!,
               },
             ],
             rejections: [...p.rejections]
-              .filter((r) => r.user !== approver.address)
+              .filter((r) => r.approver !== approver.address)
               .map((r) => ({
                 __typename: 'Rejection' as const,
                 id: r.id,
-                user: {
-                  __typename: 'User' as const,
-                  address: r.user,
+                approver: {
+                  __typename: 'Approver' as const,
+                  address: r.approver,
                 },
                 createdAt: r.timestamp.toISO()!,
               })),

@@ -8,7 +8,7 @@ import {
 } from '@api/generated';
 import { useCallback } from 'react';
 import { Proposal } from './types';
-import { useApprover } from '@network/useApprover';
+import { useApproverWallet } from '@network/useApprover';
 import { DateTime } from 'luxon';
 import { Address } from 'lib';
 
@@ -35,7 +35,7 @@ gql`
 
 export const useReject = () => {
   const [mutation] = useRejectMutation();
-  const approver = useApprover();
+  const approver = useApproverWallet();
 
   const reject = useCallback(
     async (p: Proposal) =>
@@ -50,27 +50,27 @@ export const useReject = () => {
             approvals: [...p.approvals.values()].map((a) => ({
               __typename: 'Approval' as const,
               id: a.id,
-              user: {
-                __typename: 'User' as const,
-                address: a.user,
+              approver: {
+                __typename: 'Approver' as const,
+                address: a.approver,
               },
               createdAt: a.timestamp.toISO()!,
             })),
             rejections: [
               ...[...p.rejections.values()].map((r) => ({
                 __typename: 'Rejection' as const,
-                id: r.user,
-                user: {
-                  __typename: 'User' as const,
-                  address: r.user as Address,
+                id: r.approver,
+                approver: {
+                  __typename: 'Approver' as const,
+                  address: r.approver as Address,
                 },
                 createdAt: r.timestamp.toISO()!,
               })),
               {
                 __typename: 'Rejection' as const,
                 id: approver.address, // Incorrect but it doesn't matter
-                user: {
-                  __typename: 'User' as const,
+                approver: {
+                  __typename: 'Approver' as const,
                   address: approver.address as Address,
                 },
                 createdAt: DateTime.now().toISO()!,

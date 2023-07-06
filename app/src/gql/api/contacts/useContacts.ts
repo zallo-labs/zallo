@@ -7,7 +7,7 @@ gql`
   fragment ContactFields on Contact {
     id
     address
-    name
+    label
   }
 
   query Contacts {
@@ -27,7 +27,7 @@ export const useContacts = () => {
       data.contacts.map((c) => ({
         id: c.id,
         address: c.address,
-        name: c.name,
+        label: c.label,
       })),
     [data.contacts],
   );

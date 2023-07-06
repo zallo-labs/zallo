@@ -8,7 +8,7 @@ import { Hex } from 'lib';
 gql`
   fragment ApprovalFields on Approval {
     id
-    user {
+    approver {
       address
     }
     createdAt
@@ -16,7 +16,7 @@ gql`
 
   fragment RejectionFields on Rejection {
     id
-    user {
+    approver {
       address
     }
     createdAt

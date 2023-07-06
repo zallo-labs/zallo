@@ -49,13 +49,13 @@ export type ProposalState = 'pending' | 'executing' | 'executed' | 'failed';
 
 export interface Approval {
   id: string;
-  user: Address;
+  approver: Address;
   timestamp: DateTime;
 }
 
 export interface Rejection {
   id: string;
-  user: Address;
+  approver: Address;
   timestamp: DateTime;
 }
 
@@ -94,19 +94,19 @@ export const toProposal = (p: TransactionProposalFieldsFragment): Proposal => {
   const account = asAccountId(p.account.address);
 
   const approvals = new KeySet<Address, Approval>(
-    (a) => a.user,
+    (a) => a.approver,
     (p.approvals ?? []).map((a) => ({
       id: a.id,
-      user: a.user.address,
+      approver: a.approver.address,
       timestamp: DateTime.fromISO(a.createdAt),
     })),
   );
 
   const rejections = new KeySet<Address, Rejection>(
-    (a) => a.user,
+    (a) => a.approver,
     p.rejections.map((r) => ({
       id: r.id,
-      user: r.user.address,
+      approver: r.approver.address,
       timestamp: DateTime.fromISO(r.createdAt),
     })),
   );

@@ -32,7 +32,7 @@ export const ContactsScreen = withSuspense(
     const disabled = route.params.disabled && new Set(route.params.disabled);
     const scanAddress = useScanAddress();
 
-    const [contacts, searchProps] = useSearch(useContacts(), ['name', 'address']);
+    const [contacts, searchProps] = useSearch(useContacts(), ['label', 'address']);
 
     const add = () => navigate('Contact', {});
     const scan = async () => navigate('Contact', { address: await scanAddress({}) });
@@ -65,7 +65,7 @@ export const ContactsScreen = withSuspense(
           renderItem={({ item: contact }) => (
             <ListItem
               leading={contact.address}
-              headline={contact.name}
+              headline={contact.label}
               supporting={truncateAddr(contact.address)}
               trailing={NavigateNextIcon}
               disabled={disabled?.has(contact.address)}
