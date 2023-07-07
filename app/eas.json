@@ -24,7 +24,10 @@
     "dev-client": {
       "extends": "base",
       "distribution": "internal",
-      "developmentClient": true
+      "developmentClient": true,
+      "env": {
+        "APP_VARIANT": "dev"
+      }
     }
   },
   "submit": {

@@ -20,13 +20,15 @@ export const CONFIG = {
 
 export type Config = typeof CONFIG;
 
+const withVariant = (v: string) => `${v}${ENV.APP_VARIANT ? `.${ENV.APP_VARIANT}` : ''}`;
+
 export const PROJECT_ID = 'f8f4def1-b838-4dec-8b50-6c07995c4ff5';
-const packageId = 'io.zallo';
+const packageId = withVariant('io.zallo');
 
 // https://docs.expo.dev/versions/latest/config/app/
 export default ({ config }: ConfigContext): ExpoConfig => ({
   ...config,
-  name: 'Zallo',
+  name: withVariant('Zallo'),
   slug: 'app',
   owner: 'zallo',
   githubUrl: CONFIG.metadata.github,
@@ -89,7 +91,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
       foregroundImage: './assets/icon-adaptive.png',
       backgroundColor: '#E8DEF8',
     },
-    googleServicesFile: './firebase-google-services.secret.json',
+    googleServicesFile: withVariant('./firebase-google-services.secret.json'),
   },
   androidStatusBar: {
     backgroundColor: '#00000000', // Transparent
@@ -107,7 +109,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     config: {
       usesNonExemptEncryption: false,
     },
-    googleServicesFile: './GoogleService-Info.secret.plist',
+    googleServicesFile: withVariant('./GoogleService-Info.secret.plist'),
   },
   web: {
     bundler: 'metro',
