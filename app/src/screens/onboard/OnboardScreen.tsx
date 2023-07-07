@@ -19,6 +19,10 @@ export function OnboardScreen({ navigation: { navigate } }: OnboardScreenProps) 
       </View>
 
       <Actions>
+        <Button mode="text" style={styles.button} onPress={() => navigate('PairUserModal')}>
+          Pair
+        </Button>
+
         <Button mode="contained" style={styles.button} onPress={() => navigate('CreateUser')}>
           Get started
         </Button>
@@ -29,7 +33,7 @@ export function OnboardScreen({ navigation: { navigate } }: OnboardScreenProps) 
 
 const styles = StyleSheet.create({
   header: {
-    flex: 1,
+    flexGrow: 1,
     alignItems: 'center',
     justifyContent: 'center',
     marginHorizontal: 16,

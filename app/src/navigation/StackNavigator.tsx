@@ -45,6 +45,7 @@ import {
 } from '~/screens/contract-permissions/ContractPermissionsScreen';
 import { ApproverScreen } from '~/screens/approver/ApproverScreen';
 import { BiometricsScreen, BiometricsScreenParams } from '~/screens/biometrics/BiometricsScreen';
+import { PairUserModal } from '~/screens/pair-user/PairUserModal';
 
 export type StackNavigatorParamList = {
   Home: HomeScreenParams;
@@ -73,6 +74,7 @@ export type StackNavigatorParamList = {
   AccountsSheet: AccountsSheetParams;
   AddressSheet: AddressSheetScreenParams;
   QrModal: QrModalParams;
+  PairUserModal: undefined;
   Alert: AlertModalParams;
   ConnectSheet: ConnectSheetParams;
   PairingSheet: PairingSheetParams;
@@ -131,6 +133,7 @@ export const StackNavigator = () => {
         <Navigation.Screen name="AccountsSheet" component={AccountsSheet} />
         <Navigation.Screen name="AddressSheet" component={AddressSheet} />
         <Navigation.Screen name="QrModal" component={QrModal} />
+        <Navigation.Screen name="PairUserModal" component={PairUserModal} />
         <Navigation.Screen name="Alert" component={AlertModal} />
         <Navigation.Screen name="ConnectSheet" component={ConnectSheet} />
         <Navigation.Screen name="PairingSheet" component={PairingSheet} />
