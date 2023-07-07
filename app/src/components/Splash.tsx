@@ -1,6 +1,6 @@
 import { StyleSheet } from 'react-native';
 import { Image, ImageRequireSource, View } from 'react-native';
-import { SPLASH } from '~/util/config';
+import { MANIFEST } from '~/util/config';
 const splash: ImageRequireSource = require('../../assets/splash.png');
 
 export const Splash = () => (
@@ -12,11 +12,11 @@ export const Splash = () => (
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: SPLASH?.backgroundColor,
+    backgroundColor: MANIFEST.splash?.backgroundColor,
   },
   splash: {
     width: '100%',
     height: '100%',
-    resizeMode: SPLASH?.resizeMode,
+    resizeMode: MANIFEST.splash?.resizeMode,
   },
 });

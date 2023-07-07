@@ -16,4 +16,4 @@ export const CONFIG = Object.fromEntries(extraEntries) as Config;
 
 export const IS_DEV = CONFIG.env === 'development';
 
-export const SPLASH = updateManifest?.splash ?? buildManifest?.splash;
+export const MANIFEST = { ...buildManifest, ...updateManifest };
