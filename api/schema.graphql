@@ -400,6 +400,7 @@ type Subscription {
   account(input: AccountSubscriptionInput! = {}): Account!
   proposal(input: ProposalSubscriptionInput! = {}): TransactionProposal!
   transfer(input: TransferSubscriptionInput! = {}): Transfer!
+  user: User!
 }
 
 type SwapOp {

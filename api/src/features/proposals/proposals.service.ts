@@ -25,13 +25,13 @@ import { selectAccount } from '../accounts/accounts.util';
 import { PaymasterService } from '../paymaster/paymaster.service';
 import { SimulationService } from '../simulation/simulation.service';
 
-export const getProposalTrigger = (hash: Hex) => `proposal.${hash}`;
-export const getProposalAccountTrigger = (account: Address) => `proposal.account.${account}`;
 export interface ProposalSubscriptionPayload {
   hash: Hex;
   account: Address;
   event: ProposalEvent;
 }
+export const getProposalTrigger = (hash: Hex) => `proposal.${hash}`;
+export const getProposalAccountTrigger = (account: Address) => `proposal.account.${account}`;
 
 export type UniqueProposal = uuid | Hex;
 

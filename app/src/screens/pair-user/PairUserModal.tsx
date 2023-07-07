@@ -15,8 +15,10 @@ import {
   PairUserTokenDocument,
   PairUserTokenQuery,
   PairUserTokenQueryVariables,
+  usePairUserSubscription,
 } from '@api/generated';
 import { getPairingLink } from './pairing';
+import { showSuccess } from '~/provider/SnackbarProvider';
 
 gql(/* GraphQL */ `
   query PairUserToken {
@@ -25,55 +27,80 @@ gql(/* GraphQL */ `
       pairingToken
     }
   }
+
+  subscription PairUser {
+    user {
+      id
+      name
+    }
+  }
 `);
 
 export type PairUserModalProps = StackNavigatorScreenProps<'PairUserModal'>;
 
-export const PairUserModal = withSuspense(({ navigation: { goBack } }: PairUserModalProps) => {
-  const styles = uesStyles();
+export const PairUserModal = withSuspense(
+  ({ navigation: { navigate, goBack } }: PairUserModalProps) => {
+    const styles = uesStyles();
 
-  const { user } = useSuspenseQuery<PairUserTokenQuery, PairUserTokenQueryVariables>(
-    PairUserTokenDocument,
-  ).data;
+    const { user } = useSuspenseQuery<PairUserTokenQuery, PairUserTokenQueryVariables>(
+      PairUserTokenDocument,
+    ).data;
 
-  const link = getPairingLink(user.pairingToken);
+    const link = getPairingLink(user.pairingToken);
 
-  return (
-    <Blur>
-      <Screen topInset>
-        <IconButton mode="contained-tonal" icon={CloseIcon} style={styles.close} onPress={goBack} />
+    usePairUserSubscription({
+      onData: ({ data }) => {
+        const u = data.data?.user;
+        if (!u || u?.id === user.id) return;
 
-        <View style={styles.qrContainer}>
-          <Text variant="headlineLarge" style={styles.name}>
-            Scan to pair
-          </Text>
+        showSuccess(`Paired with user${u.name ? `: ${u.name}` : ''}`);
+        navigate('Approver');
+      },
+    });
 
-          <Surface style={styles.qrSurface}>
-            <QRCode
-              value={link}
-              color={styles.qr.color}
-              size={styles.qr.fontSize}
-              backgroundColor="transparent"
-              ecl="M"
-              enableLinearGradient
-              linearGradient={[styles.primary.color, styles.tertiary.color]}
-            />
-          </Surface>
-        </View>
+    return (
+      <Blur>
+        <Screen topInset>
+          <IconButton
+            mode="contained-tonal"
+            icon={CloseIcon}
+            style={styles.close}
+            onPress={goBack}
+          />
 
-        <Actions>
-          <Button
-            mode="contained"
-            icon={ShareIcon}
-            onPress={() => Share.share({ url: link, message: link })}
-          >
-            Share
-          </Button>
-        </Actions>
-      </Screen>
-    </Blur>
-  );
-}, Blur);
+          <View style={styles.qrContainer}>
+            <Text variant="headlineLarge" style={styles.name}>
+              Scan to pair
+            </Text>
+
+            <Surface style={styles.qrSurface}>
+              <QRCode
+                value={link}
+                color={styles.qr.color}
+                size={styles.qr.fontSize}
+                backgroundColor="transparent"
+                ecl="M"
+                enableLinearGradient
+                linearGradient={[styles.primary.color, styles.tertiary.color]}
+              />
+            </Surface>
+          </View>
+
+          <Actions>
+            <Button
+              mode="contained"
+              icon={ShareIcon}
+              onPress={() => Share.share({ url: link, message: link })}
+            >
+              Share
+            </Button>
+          </Actions>
+        </Screen>
+      </Blur>
+    );
+  },
+  Blur,
+);
 
 const uesStyles = makeStyles(({ colors, window }) => ({
   close: {
