@@ -5,3 +5,9 @@ export class UpdateUserInput {
   @Field(() => String, { nullable: true })
   name?: string;
 }
+
+@InputType()
+export class PairInput {
+  @Field(() => String)
+  token: string;
+}

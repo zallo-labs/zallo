@@ -1,5 +1,5 @@
 import { Info, Mutation, Query, Resolver } from '@nestjs/graphql';
-import { Approver, UserApprover } from './approvers.model';
+import { UserApprover } from './approvers.model';
 import { ApproversService } from './approvers.service';
 import { Input } from '~/decorators/input.decorator';
 import { ApproverInput, UpdateApproverInput } from './approvers.input';

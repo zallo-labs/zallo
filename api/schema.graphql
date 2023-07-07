@@ -189,6 +189,9 @@ type Mutation {
   createPolicy(input: CreatePolicyInput!): Policy!
   deleteContact(input: ContactInput!): ID
   execute(input: ExecuteInput!): Transaction
+
+  """Pair with another user - merging your approvers"""
+  pair(input: PairInput!): User!
   propose(input: ProposeInput!): TransactionProposal!
   reject(input: ProposalInput!): TransactionProposal!
   removePolicy(input: UniquePolicyInput!): Policy!
@@ -215,6 +218,10 @@ input OperationInput {
   data: Bytes
   to: Address!
   value: Uint256
+}
+
+input PairInput {
+  token: String!
 }
 
 input PermissionsInput {
@@ -632,6 +639,7 @@ type User {
   contacts: [Contact!]!
   id: ID!
   name: String
+  pairingToken: String!
 }
 
 type UserApprover {
