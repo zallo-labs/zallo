@@ -51,7 +51,7 @@ export const PairUserModal = withSuspense(
     usePairUserSubscription({
       onData: ({ data }) => {
         const u = data.data?.user;
-        if (!u || u?.id === user.id) return;
+        if (!u) return;
 
         showSuccess(`Paired with user${u.name ? `: ${u.name}` : ''}`);
         navigate('Approver');
