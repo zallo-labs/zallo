@@ -67,9 +67,9 @@ export class UsersService {
   }
 
   async pair(token: string) {
-    const [user, secret] = token.split(':');
+    const [oldUser, secret] = token.split(':');
 
-    const expectedSecret = await this.redis.get(this.getPairingSecretKey(user));
+    const expectedSecret = await this.redis.get(this.getPairingSecretKey(oldUser));
     if (secret !== expectedSecret)
       throw new UserInputError(`Invalid pairing token; token may have expired (1h)`);
 
@@ -77,14 +77,14 @@ export class UsersService {
       e.assert_exists(e.select(e.global.current_user, () => ({ id: true }))).id,
     );
 
-    if (user === newUser) return;
+    if (oldUser === newUser) return;
 
     // Pair with the user - merging their approvers into the current user
     // User will be implicitly deleted due to Approver.user link source deletion policy
     const approvers = await e
       .select(
         e.update(e.Approver, (a) => ({
-          filter: e.op(a.user.id, '=', e.cast(e.uuid, user)),
+          filter: e.op(a.user.id, '=', e.cast(e.uuid, oldUser)),
           set: {
             user: e.select(e.User, () => ({ filter_single: { id: newUser } })),
             // Append (from old user) to the name if it already exists
@@ -104,28 +104,27 @@ export class UsersService {
             ),
           },
         })),
-        () => ({
-          address: true,
-          user: { id: true },
-        }),
+        () => ({ address: true }),
       )
-      .run(this.db.DANGEROUS_superuserClient);
+      .address.run(this.db.DANGEROUS_superuserClient);
 
-    if (!approvers.length) throw new Error(`No approvers for pairing user ${user}`);
-
-    const approverAddresses = approvers.map((a) => a.address as Address);
+    // Delete old user
+    await this.db.query(e.delete(e.User, () => ({ filter_single: { id: oldUser } })));
 
     // Remove approver -> user cache
-    await this.accountsCache.removeCache(...approverAddresses);
+    await this.accountsCache.removeCache(...(approvers as Address[]));
     await Promise.all([
-      this.pubsub.publish<UserSubscriptionPayload>(getUserTrigger(approvers[0]!.user.id), {}),
-      ...approverAddresses.map((approver) =>
-        this.pubsub.publish<UserSubscriptionPayload>(getUserApproverTrigger(approver), {}),
+      this.pubsub.publish<UserSubscriptionPayload>(getUserTrigger(newUser), {}),
+      ...approvers.map((approver) =>
+        this.pubsub.publish<UserSubscriptionPayload>(
+          getUserApproverTrigger(approver as Address),
+          {},
+        ),
       ),
     ]);
 
     // Remove pairing secret
-    await this.redis.del(this.getPairingSecretKey(user));
+    await this.redis.del(this.getPairingSecretKey(oldUser));
   }
 
   private getPairingSecretKey(user: uuid) {
