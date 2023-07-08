@@ -43,14 +43,14 @@ const NOTIFICATIONS_ATOM = persistedAtom<Record<NotificationChannel, boolean>>('
 export const useNotificationSettings = () => useAtomValue(NOTIFICATIONS_ATOM);
 
 export interface NotificationSettingsParams {
-  onboard?: boolean;
+  isOnboarding?: boolean;
 }
 
 export type NotificationSettingsScreenProps = StackNavigatorScreenProps<'NotificationSettings'>;
 
 export const NotificationSettingsScreen = withSuspense(
   ({ navigation, route }: NotificationSettingsScreenProps) => {
-    const { onboard } = route.params;
+    const { isOnboarding } = route.params;
     const [settings, update] = useImmerAtom(NOTIFICATIONS_ATOM);
 
     const [perm, requestPerm] = Notifications.usePermissions({
@@ -63,7 +63,9 @@ export const NotificationSettingsScreen = withSuspense(
       },
     });
 
-    const next = onboard ? () => navigation.navigate('CreateAccount') : undefined;
+    const next = isOnboarding
+      ? () => navigation.navigate('CreateAccount', { isOnboarding: true })
+      : undefined;
 
     return (
       <Screen>
