@@ -18,7 +18,6 @@ import {
 } from '@api/generated';
 import { TextInput } from 'react-native-paper';
 import * as Device from 'expo-device';
-import { clog } from '~/util/format';
 import { match, P } from 'ts-pattern';
 
 gql`
@@ -70,8 +69,6 @@ export const ApproverScreen = withSuspense(({ navigation: { navigate } }: Approv
   const { control, handleSubmit } = useForm<Inputs>({
     defaultValues: { name: approver.name ?? modelName },
   });
-
-  clog(Device);
 
   const takenNames = user.approvers.filter((a) => a.id !== approver.id).map((a) => a.name);
 
