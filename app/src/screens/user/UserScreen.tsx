@@ -1,7 +1,7 @@
 import { useForm } from 'react-hook-form';
 import { StyleSheet } from 'react-native';
 import { Appbar } from '~/components/Appbar/Appbar';
-import { FormSubmitButton, useFormSubmitDisabled } from '~/components/fields/FormSubmitButton';
+import { FormSubmitButton } from '~/components/fields/FormSubmitButton';
 import { FormTextField } from '~/components/fields/FormTextField';
 import { Actions } from '~/components/layout/Actions';
 import { Screen } from '~/components/layout/Screen';
@@ -9,6 +9,7 @@ import { StackNavigatorScreenProps } from '~/navigation/StackNavigator';
 import { FormResetIcon } from '~/components/fields/ResetFormIcon';
 import { gql, useSuspenseQuery } from '@apollo/client';
 import { UserDocument, UserQuery, UserQueryVariables, useUserUpdateMutation } from '@api/generated';
+import { Button } from 'react-native-paper';
 
 gql`
   query User {
@@ -65,6 +66,10 @@ export const UserScreen = ({ route, navigation: { navigate } }: UserScreenProps)
       />
 
       <Actions>
+        <Button mode="contained-tonal" onPress={() => navigate('PairUserModal')}>
+          I already have a user
+        </Button>
+
         {isOnboarding && (
           <FormSubmitButton
             mode="contained"

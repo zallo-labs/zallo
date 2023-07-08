@@ -19,10 +19,6 @@ export function OnboardScreen({ navigation: { navigate } }: OnboardScreenProps) 
       </View>
 
       <Actions>
-        <Button mode="text" style={styles.button} onPress={() => navigate('PairUserModal')}>
-          Pair
-        </Button>
-
         <Button mode="contained" style={styles.button} onPress={() => navigate('CreateUser')}>
           Get started
         </Button>
