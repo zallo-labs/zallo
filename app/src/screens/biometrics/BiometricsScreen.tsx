@@ -26,69 +26,77 @@ export interface BiometricsScreenParams {
 
 export type BiometricsScreenProps = StackNavigatorScreenProps<'Biometrics'>;
 
-export const BiometricsScreen = withSuspense(({ navigation, route }: BiometricsScreenProps) => {
-  const { isOnboarding } = route.params;
-  const hasSupport = useAtomValue(supportsBiometricsAtom);
+export const BiometricsScreen = withSuspense(
+  ({ navigation: { navigate }, route }: BiometricsScreenProps) => {
+    const { isOnboarding } = route.params;
+    const hasSupport = useAtomValue(supportsBiometricsAtom);
 
-  const [settings, updateSettings] = useImmerAtom(AUTH_SETTINGS_ATOM);
+    const [settings, updateSettings] = useImmerAtom(AUTH_SETTINGS_ATOM);
 
-  // Enable on 'open' (if supported) when this screen is first opened
-  useEffect(() => {
-    if (settings.open === null) updateSettings((s) => ({ ...s, open: hasSupport }));
-  }, [settings.open]);
+    // Enable on 'open' (if supported) when this screen is first opened
+    useEffect(() => {
+      if (settings.open === null) updateSettings((s) => ({ ...s, open: hasSupport }));
+    }, [settings.open]);
 
-  return (
-    <Screen>
-      <Appbar mode="small" leading="back" headline="" />
+    return (
+      <Screen>
+        <Appbar mode="small" leading="back" headline="" />
 
-      <View style={styles.header}>
-        <FingerprintIcon size={ICON_SIZE.medium} />
+        <View style={styles.header}>
+          <FingerprintIcon size={ICON_SIZE.medium} />
 
-        <Text variant="headlineMedium" style={styles.text}>
-          Biometrics
-        </Text>
-      </View>
+          <Text variant="headlineMedium" style={styles.text}>
+            Biometrics
+          </Text>
+        </View>
 
-      <View>
-        <ListHeader>Require biometrics when</ListHeader>
+        <View>
+          <ListHeader>Require biometrics when</ListHeader>
 
-        <ListItem
-          leading={(props) => <FingerprintIcon {...props} size={ICON_SIZE.medium} />}
-          headline="Opening the app"
-          trailing={({ disabled }) => (
-            <Switch
-              value={settings.open ?? true}
-              onValueChange={() => updateSettings((s) => ({ ...s, open: !s.open }))}
-              disabled={disabled}
-            />
+          <ListItem
+            leading={(props) => <FingerprintIcon {...props} size={ICON_SIZE.medium} />}
+            headline="Opening the app"
+            trailing={({ disabled }) => (
+              <Switch
+                value={settings.open ?? true}
+                onValueChange={() => updateSettings((s) => ({ ...s, open: !s.open }))}
+                disabled={disabled}
+              />
+            )}
+            disabled={!hasSupport}
+          />
+
+          <ListItem
+            leading={(props) => <FingerprintIcon {...props} size={ICON_SIZE.medium} />}
+            headline="Approving a proposal"
+            trailing={({ disabled }) => (
+              <Switch
+                value={settings.approval}
+                onValueChange={() => updateSettings((s) => ({ ...s, approval: !s.approval }))}
+                disabled={disabled}
+              />
+            )}
+            disabled={!hasSupport}
+          />
+        </View>
+
+        <Actions>
+          {isOnboarding && (
+            <Button
+              mode="contained"
+              onPress={async () => {
+                navigate('NotificationSettings', { isOnboarding: true });
+              }}
+            >
+              Continue
+            </Button>
           )}
-          disabled={!hasSupport}
-        />
-
-        <ListItem
-          leading={(props) => <FingerprintIcon {...props} size={ICON_SIZE.medium} />}
-          headline="Approving a proposal"
-          trailing={({ disabled }) => (
-            <Switch
-              value={settings.approval}
-              onValueChange={() => updateSettings((s) => ({ ...s, approval: !s.approval }))}
-              disabled={disabled}
-            />
-          )}
-          disabled={!hasSupport}
-        />
-      </View>
-
-      <Actions>
-        {isOnboarding && (
-          <Button mode="contained" onPress={async () => {}}>
-            Continue
-          </Button>
-        )}
-      </Actions>
-    </Screen>
-  );
-}, ScreenSkeleton);
+        </Actions>
+      </Screen>
+    );
+  },
+  ScreenSkeleton,
+);
 
 const styles = StyleSheet.create({
   header: {
