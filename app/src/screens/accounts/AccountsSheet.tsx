@@ -28,7 +28,7 @@ export const AccountsSheet = ({ route, navigation: { navigate, goBack } }: Accou
         ListHeaderComponent={
           <ListHeader
             trailing={
-              <Button mode="text" onPress={() => navigate('CreateAccount')}>
+              <Button mode="text" onPress={() => navigate('CreateAccount', {})}>
                 Create
               </Button>
             }
