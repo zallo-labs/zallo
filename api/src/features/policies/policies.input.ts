@@ -97,7 +97,7 @@ export class PolicyInput {
   @Field(() => Number, { nullable: true, description: 'Defaults to all approvers' })
   threshold?: number;
 
-  @Field(() => PermissionsInput)
+  @Field(() => PermissionsInput, { defaultValue: {} })
   permissions: PermissionsInput;
 }
 

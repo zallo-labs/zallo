@@ -151,7 +151,7 @@ input CreatePolicyInput {
   approvers: [Address!]
   key: PolicyKey
   name: String
-  permissions: PermissionsInput!
+  permissions: PermissionsInput! = {}
 
   """Defaults to all approvers"""
   threshold: Float
@@ -246,7 +246,7 @@ input PolicyInput {
   approvers: [Address!]
   key: PolicyKey
   name: String
-  permissions: PermissionsInput!
+  permissions: PermissionsInput! = {}
 
   """Defaults to all approvers"""
   threshold: Float
@@ -613,7 +613,7 @@ input UpdatePolicyInput {
   approvers: [Address!]
   key: PolicyKey
   name: String
-  permissions: PermissionsInput
+  permissions: PermissionsInput = {}
 
   """Defaults to all approvers"""
   threshold: Float
