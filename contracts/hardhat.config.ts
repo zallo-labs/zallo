@@ -5,6 +5,7 @@ import '@nomiclabs/hardhat-ethers';
 // import '@nomiclabs/hardhat-waffle';
 import '@nomiclabs/hardhat-etherscan';
 import '@nomiclabs/hardhat-solhint'; // https://github.com/protofire/solhint/blob/master/docs/rules.md
+import '@matterlabs/hardhat-zksync-verify';
 import '@matterlabs/hardhat-zksync-toolbox';
 import '@typechain/hardhat';
 import 'hardhat-gas-reporter';
@@ -20,7 +21,7 @@ import './tasks/deposit';
 import { CHAINS } from 'lib';
 
 // https://github.com/matter-labs/zksolc-bin/tree/main/linux-amd64
-const ZKSYNC_COMPILER_VERSION = '1.3.11';
+const ZKSYNC_COMPILER_VERSION = '1.3.13';
 
 // https://hardhat.org/config/
 export default {
