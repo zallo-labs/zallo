@@ -1,5 +1,5 @@
+// eslint-disable-next-line no-undef
 module.exports = {
-  root: true,
   parser: '@typescript-eslint/parser',
   parserOptions: {
     ecmaFeatures: {
@@ -12,13 +12,12 @@ module.exports = {
     'eslint:recommended',
     'plugin:@typescript-eslint/recommended',
     'plugin:react/recommended',
+    'plugin:react/jsx-runtime',
   ],
   plugins: ['@typescript-eslint', 'react-hooks'],
   env: {
     es2021: true,
     browser: true,
-    node: true,
-    mocha: true,
   },
   rules: {
     '@typescript-eslint/no-var-requires': 'off',
