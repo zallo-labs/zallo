@@ -32,7 +32,7 @@ export function UserApproverItem(props: UserApproverItemProps) {
           <RadioButton value={a.address} status={selected ? 'checked' : 'unchecked'} />
         ),
       })}
-      onPress={() => navigate('Approver', {})}
+      onPress={() => navigate('Approver', { approver: a.address })}
     />
   );
 }

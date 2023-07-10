@@ -19,10 +19,13 @@ import {
 import { TextInput } from 'react-native-paper';
 import * as Device from 'expo-device';
 import { match, P } from 'ts-pattern';
+import { Button } from '~/components/Button';
+import { QrCodeIcon } from '@theme/icons';
+import { Address } from 'viem';
 
 gql`
-  query ApproverDetails {
-    approver {
+  query ApproverDetails($approver: Address) {
+    approver(input: { address: $approver }) {
       id
       address
       name
@@ -57,62 +60,83 @@ interface Inputs {
   name: string;
 }
 
+export interface ApproverScreenParams {
+  approver?: Address;
+  isOnboarding?: boolean;
+}
+
 export type ApproverScreenProps = StackNavigatorScreenProps<'Approver'>;
 
-export const ApproverScreen = withSuspense(({ navigation: { navigate } }: ApproverScreenProps) => {
-  const isOnboarding = true;
-  const [update] = useApproverUpdateMutation();
-  const { approver, user } = useSuspenseQuery<ApproverDetailsQuery, ApproverDetailsQueryVariables>(
-    ApproverDetailsDocument,
-  ).data;
+export const ApproverScreen = withSuspense(
+  ({ route, navigation: { navigate } }: ApproverScreenProps) => {
+    const { isOnboarding } = route.params;
 
-  const { control, handleSubmit } = useForm<Inputs>({
-    defaultValues: { name: approver.name ?? modelName },
-  });
+    const [update] = useApproverUpdateMutation();
+    const { approver, user } = useSuspenseQuery<
+      ApproverDetailsQuery,
+      ApproverDetailsQueryVariables
+    >(ApproverDetailsDocument, { variables: { approver: route.params.approver } }).data;
 
-  const takenNames = user.approvers.filter((a) => a.id !== approver.id).map((a) => a.name);
+    const { control, handleSubmit } = useForm<Inputs>({
+      defaultValues: { name: approver.name ?? modelName },
+    });
 
-  return (
-    <Screen>
-      <Appbar mode="large" leading="back" headline="Approver" />
+    const takenNames = user.approvers.filter((a) => a.id !== approver.id).map((a) => a.name);
 
-      <View style={styles.fields}>
-        <FormTextField
-          name="name"
-          control={control}
-          left={<TextInput.Affix text={`${user.name}'s`} />}
-          label="Label"
-          supporting="This device"
-          placeholder="iPhone"
-          autoFocus
-          containerStyle={styles.inset}
-          rules={{
-            required: true,
-            validate: (v) => !takenNames.includes(v) || 'An approver with ths name already exists',
-          }}
-          onEndEditing={handleSubmit(async ({ name }) => {
-            await update({ variables: { input: { name } } });
-          })}
-        />
-      </View>
+    return (
+      <Screen>
+        <Appbar mode="large" leading="back" headline="Approver" />
 
-      <Actions>
-        {isOnboarding && (
-          <FormSubmitButton
-            mode="contained"
-            style={styles.button}
+        <View style={styles.fields}>
+          <FormTextField
+            name="name"
             control={control}
-            onPress={() => {
-              navigate('Biometrics', { isOnboarding: true });
+            left={<TextInput.Affix text={`${user.name}'s`} />}
+            label="Label"
+            supporting="This device"
+            placeholder="iPhone"
+            autoFocus={isOnboarding}
+            containerStyle={styles.inset}
+            rules={{
+              required: true,
+              validate: (v) =>
+                !takenNames.includes(v) || 'An approver with ths name already exists',
             }}
-          >
-            Continue
-          </FormSubmitButton>
-        )}
-      </Actions>
-    </Screen>
-  );
-}, ScreenSkeleton);
+            onEndEditing={handleSubmit(async ({ name }) => {
+              await update({ variables: { input: { name } } });
+            })}
+          />
+        </View>
+
+        <Actions>
+          {isOnboarding && (
+            <FormSubmitButton
+              mode="contained"
+              style={styles.button}
+              control={control}
+              onPress={() => {
+                navigate('Biometrics', { isOnboarding: true });
+              }}
+            >
+              Continue
+            </FormSubmitButton>
+          )}
+
+          {!isOnboarding && (
+            <Button
+              mode="contained"
+              icon={QrCodeIcon}
+              onPress={() => navigate('QrModal', { address: approver.address })}
+            >
+              View
+            </Button>
+          )}
+        </Actions>
+      </Screen>
+    );
+  },
+  ScreenSkeleton,
+);
 
 const styles = StyleSheet.create({
   fields: {
