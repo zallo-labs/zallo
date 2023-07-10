@@ -43,7 +43,7 @@ export class ContactsService {
       }))
       .run(this.db.client);
 
-    return [...contacts, ...accounts];
+    return [...contacts, ...accounts.map((a) => ({ ...a, label: a.name }))];
   }
 
   async upsert({ previousAddress, address, label }: UpsertContactInput) {
