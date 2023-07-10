@@ -19,3 +19,9 @@ export class UpsertContactInput {
   @Field(() => String)
   label: string;
 }
+
+@InputType()
+export class LabelInput {
+  @AddressField()
+  address: Address;
+}

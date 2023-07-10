@@ -81,4 +81,23 @@ export class ContactsService {
   async delete(address: Address) {
     return this.db.query(e.delete(e.Contact, uniqueContact(address)).id);
   }
+
+  async label(address: Address) {
+    const contact = e.select(e.Contact, () => ({
+      filter_single: { user: e.global.current_user, address },
+      label: true,
+    })).label;
+
+    const account = e.select(e.Account, () => ({
+      filter_single: { address },
+      name: true,
+    })).name;
+
+    const approver = e.select(e.Approver, () => ({
+      filter_single: { address },
+      label: true,
+    })).label;
+
+    return this.db.query(e.select(e.op(e.op(contact, '??', account), '??', approver)));
+  }
 }
