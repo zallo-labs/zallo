@@ -7,6 +7,7 @@ import { useNavigation } from '@react-navigation/native';
 import { Suspense } from 'react';
 import { LineSkeleton } from '../skeleton/LineSkeleton';
 import { Address } from 'lib';
+import { Chevron } from '../Chevron';
 
 export interface AccountSelectorParams {
   account: Address;
@@ -24,15 +25,17 @@ export const AccountSelector = ({ account }: AccountSelectorParams) => {
       <AddressIcon address={account} size={styles.icon.fontSize} />
 
       <Suspense fallback={<LineSkeleton />}>
-        <Text variant="titleLarge">
+        <Text variant="titleLarge" style={styles.text}>
           <AddressLabel address={account} />
         </Text>
       </Suspense>
+
+      <Chevron style={styles.text} />
     </TouchableOpacity>
   );
 };
 
-const useStyles = makeStyles(({ iconSize }) => ({
+const useStyles = makeStyles(({ colors, iconSize }) => ({
   container: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -40,5 +43,8 @@ const useStyles = makeStyles(({ iconSize }) => ({
   },
   icon: {
     fontSize: iconSize.small,
+  },
+  text: {
+    color: colors.onSurfaceVariant,
   },
 }));
