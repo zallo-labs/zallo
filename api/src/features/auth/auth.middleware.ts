@@ -1,4 +1,10 @@
-import { Injectable, NestMiddleware, UnauthorizedException } from '@nestjs/common';
+import {
+  HttpException,
+  HttpStatus,
+  Injectable,
+  NestMiddleware,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { Request, Response, NextFunction } from 'express';
 import { ethers, Wallet } from 'ethers';
 import { Address, asAddress } from 'lib';
@@ -47,9 +53,13 @@ export class AuthMiddleware implements NestMiddleware {
   constructor(private provider: ProviderService, private accountsCache: AccountsCacheService) {}
 
   async use(req: Request, _res: Response, next: NextFunction) {
-    const approver = await this.tryAuthenticate(req);
-    if (approver)
-      req.user = { approver, accounts: await this.accountsCache.getApproverAccounts(approver) };
+    try {
+      const approver = await this.tryAuthenticate(req);
+      if (approver)
+        req.user = { approver, accounts: await this.accountsCache.getApproverAccounts(approver) };
+    } catch (e) {
+      return next(e);
+    }
 
     next();
   }
