@@ -29,7 +29,7 @@ export function UserApproverItem(props: UserApproverItemProps) {
       supporting={truncateAddr(a.address)}
       {...(selected && {
         trailing: () => (
-          <RadioButton value={a.address} status={selected ? 'checked' : 'unchecked'} />
+          <RadioButton.IOS value={a.address} status={selected ? 'checked' : 'unchecked'} />
         ),
       })}
       onPress={() => navigate('Approver', { approver: a.address })}
