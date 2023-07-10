@@ -10,9 +10,9 @@ import {
 import { makeStyles } from '@theme/makeStyles';
 import { ETH } from '@token/tokens';
 import { Image } from 'expo-image';
-import { Pressable, ScrollView, TouchableOpacity, View } from 'react-native';
-import { Divider, Text } from 'react-native-paper';
-import { AddressLabel, useAddressLabel } from '~/components/address/AddressLabel';
+import { ScrollView, TouchableOpacity } from 'react-native';
+import { Text } from 'react-native-paper';
+import { AddressLabel } from '~/components/address/AddressLabel';
 import { Appbar } from '~/components/Appbar/Appbar';
 import { Screen } from '~/components/layout/Screen';
 import { ListItem } from '~/components/list/ListItem';
@@ -25,7 +25,6 @@ import { AddressIcon } from '~/components/Identicon/AddressIcon';
 import { gql } from '@api/gen';
 import { useSuspenseQuery } from '@apollo/client';
 import { SettingsDocument, SettingsQuery, SettingsQueryVariables } from '@api/generated';
-import { Chevron } from '~/components/Chevron';
 import { ICON_SIZE } from '@theme/paper';
 
 gql(/* GraphQL */ `
@@ -55,22 +54,16 @@ export const SettingsScreen = ({ route, navigation: { navigate } }: SettingsScre
       <Appbar mode="small" leading="back" headline="Settings" />
 
       <ScrollView style={styles.container}>
-        <TouchableOpacity style={styles.userContainer} onPress={() => {}}>
+        <TouchableOpacity style={styles.userContainer} onPress={() => navigate('User')}>
           <AddressIcon address={approver} size={ICON_SIZE.large} />
 
           <Text variant="titleLarge" style={styles.userName}>
             {user.name}
           </Text>
 
-          <View style={styles.approverContainer}>
-            <View style={styles.approverChevron} />
-
-            <Text variant="bodyLarge" style={styles.approverItem}>
-              <AddressLabel address={approver} />
-            </Text>
-
-            <Chevron style={[styles.approverChevron, styles.approverItem]} />
-          </View>
+          <Text variant="bodyLarge" style={styles.approverItem}>
+            <AddressLabel address={approver} />
+          </Text>
         </TouchableOpacity>
 
         <ListItem
@@ -144,15 +137,7 @@ const useStyles = makeStyles(({ colors, iconSize }) => ({
   userName: {
     marginTop: 8,
   },
-  approverContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-  },
   approverItem: {
     color: colors.tertiary,
-  },
-  approverChevron: {
-    width: ICON_SIZE.small,
   },
 }));

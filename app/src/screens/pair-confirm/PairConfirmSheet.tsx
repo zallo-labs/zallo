@@ -17,7 +17,7 @@ gql(/* GraphQL */ `
   }
 `);
 
-const PairIcon = materialCommunityIcon('link-variant');
+export const PairIcon = materialCommunityIcon('link-variant');
 
 export interface PairConfirmSheetScreenParams {
   token: string;

@@ -1,36 +1,29 @@
 import { useForm } from 'react-hook-form';
-import { StyleSheet, View } from 'react-native';
+import { StyleSheet } from 'react-native';
 import { Appbar } from '~/components/Appbar/Appbar';
+import { FormSubmitButton } from '~/components/fields/FormSubmitButton';
 import { FormTextField } from '~/components/fields/FormTextField';
 import { Actions } from '~/components/layout/Actions';
 import { Screen } from '~/components/layout/Screen';
 import { StackNavigatorScreenProps } from '~/navigation/StackNavigator';
-import { FormResetIcon } from '~/components/fields/ResetFormIcon';
 import { useSuspenseQuery } from '@apollo/client';
-import { UserQueryVariables, useUserUpdateMutation } from '@api/generated';
+import { useUserUpdateMutation } from '@api/generated';
 import { Button } from 'react-native-paper';
 import { PairIcon } from '../pair-confirm/PairConfirmSheet';
-import { ListHeader } from '~/components/list/ListHeader';
-import { UserApproverItem } from './UserApproverItem';
 import { gql } from '@api/gen';
-import { UserQuery } from '@api/gen/graphql';
+import { CreateUserQuery, CreateUserQueryVariables } from '@api/gen/graphql';
 
-const UserDocument = gql(/* GraphQL */ `
-  query User {
+const CreateUserDocument = gql(/* GraphQL */ `
+  query CreateUser {
     user {
       id
       name
-
-      approvers {
-        id
-        ...UserApproverItem_UserApproverFragment
-      }
     }
   }
 `);
 
 gql(/* GraphQL */ `
-  mutation UserUpdate($name: String!) {
+  mutation CreateUserUpdate($name: String!) {
     updateUser(input: { name: $name }) {
       id
       name
@@ -42,30 +35,28 @@ interface Inputs {
   name: string;
 }
 
-export type UserScreenProps = StackNavigatorScreenProps<'User'>;
+export type CreateUserScreenProps = StackNavigatorScreenProps<'CreateUser'>;
 
-export const UserScreen = ({ navigation: { navigate } }: UserScreenProps) => {
+export const CreateUserScreen = ({ navigation: { navigate } }: CreateUserScreenProps) => {
   const [update] = useUserUpdateMutation();
-  const { user } = useSuspenseQuery<UserQuery, UserQueryVariables>(UserDocument).data;
+  const { user } = useSuspenseQuery<CreateUserQuery, CreateUserQueryVariables>(
+    CreateUserDocument,
+  ).data;
 
-  const { control, handleSubmit, reset } = useForm<Inputs>({
+  const { control, handleSubmit } = useForm<Inputs>({
     defaultValues: { name: user.name ?? '' },
   });
 
   return (
     <Screen>
-      <Appbar
-        mode="large"
-        leading="back"
-        headline="User"
-        trailing={(props) => <FormResetIcon control={control} reset={reset} {...props} />}
-      />
+      <Appbar mode="large" leading="back" headline="User" />
 
       <FormTextField
         label="Name"
         supporting="Only visible by account members"
         name="name"
         placeholder="Alisha"
+        autoFocus
         control={control}
         rules={{ required: true }}
         containerStyle={styles.nameContainer}
@@ -74,22 +65,25 @@ export const UserScreen = ({ navigation: { navigate } }: UserScreenProps) => {
         })}
       />
 
-      <View>
-        <ListHeader>Approvers</ListHeader>
-
-        {user.approvers.map((approver) => (
-          <UserApproverItem key={approver.id} approver={approver} />
-        ))}
-      </View>
-
       <Actions>
         <Button
           mode="contained-tonal"
           icon={PairIcon}
-          onPress={() => navigate('PairUserModal', {})}
+          onPress={() => navigate('PairUserModal', { isOnboarding: true })}
         >
           Pair with existing user
         </Button>
+
+        <FormSubmitButton
+          mode="contained"
+          control={control}
+          style={styles.actionButton}
+          onPress={() => {
+            navigate('Approver', { isOnboarding: true });
+          }}
+        >
+          Continue
+        </FormSubmitButton>
       </Actions>
     </Screen>
   );

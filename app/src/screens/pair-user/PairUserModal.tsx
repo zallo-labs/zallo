@@ -36,10 +36,15 @@ gql(/* GraphQL */ `
   }
 `);
 
+export interface PairUserModalParams {
+  isOnboarding?: boolean;
+}
+
 export type PairUserModalProps = StackNavigatorScreenProps<'PairUserModal'>;
 
 export const PairUserModal = withSuspense(
-  ({ navigation: { navigate, goBack } }: PairUserModalProps) => {
+  ({ route, navigation: { navigate, goBack } }: PairUserModalProps) => {
+    const { isOnboarding } = route.params;
     const styles = uesStyles();
 
     const { user } = useSuspenseQuery<PairUserTokenQuery, PairUserTokenQueryVariables>(
@@ -54,7 +59,7 @@ export const PairUserModal = withSuspense(
         if (!u) return;
 
         showSuccess(`Paired with user${u.name ? `: ${u.name}` : ''}`);
-        navigate('Approver');
+        navigate('Approver', { isOnboarding });
       },
     });
 

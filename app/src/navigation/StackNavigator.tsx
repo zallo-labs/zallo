@@ -46,13 +46,14 @@ import {
   ContractPermissionsScreen,
   ContractPermissionsScreenParams,
 } from '~/screens/contract-permissions/ContractPermissionsScreen';
-import { ApproverScreen } from '~/screens/approver/ApproverScreen';
+import { ApproverScreen, ApproverScreenParams } from '~/screens/approver/ApproverScreen';
 import { BiometricsScreen, BiometricsScreenParams } from '~/screens/biometrics/BiometricsScreen';
-import { PairUserModal } from '~/screens/pair-user/PairUserModal';
+import { PairUserModal, PairUserModalParams } from '~/screens/pair-user/PairUserModal';
 import {
   PairConfirmSheet,
   PairConfirmSheetScreenParams,
 } from '~/screens/pair-confirm/PairConfirmSheet';
+import { CreateUserScreen } from '~/screens/create-user/CreateUserScreen';
 
 export type StackNavigatorParamList = {
   Home: HomeScreenParams;
@@ -65,7 +66,7 @@ export type StackNavigatorParamList = {
   Contact: ContactScreenParams;
   Settings: SettingsScreenParams;
   User: undefined;
-  Approver: undefined;
+  Approver: ApproverScreenParams;
   Account: AccountScreenParams;
   Policy: PolicyScreenParams;
   Approvers: ApproversScreenParams;
@@ -81,7 +82,7 @@ export type StackNavigatorParamList = {
   AccountsSheet: AccountsSheetParams;
   AddressSheet: AddressSheetScreenParams;
   QrModal: QrModalParams;
-  PairUserModal: undefined;
+  PairUserModal: PairUserModalParams;
   PairConfirmSheet: PairConfirmSheetScreenParams;
   Alert: AlertModalParams;
   ConnectSheet: ConnectSheetParams;
@@ -113,7 +114,7 @@ export const StackNavigator = () => {
       {showOnboarding && (
         <Navigation.Group>
           <Navigation.Screen name="Onboard" component={OnboardScreen} />
-          <Navigation.Screen name="CreateUser" component={UserScreen} />
+          <Navigation.Screen name="CreateUser" component={CreateUserScreen} />
         </Navigation.Group>
       )}
 
