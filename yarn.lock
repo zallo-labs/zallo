@@ -14168,8 +14168,7 @@ __metadata:
     class-transformer: ^0.5.1
     connect-redis: ^7.1.0
     cross-fetch: ^3.1.5
-    dotenv: ^16.1.4
-    dotenv-cli: ^7.2.1
+    dotenv: ^16.3.1
     edgedb: ^1.3.2
     eslint: ^8.38.0
     eslint-config-prettier: ^8.8.0
@@ -14584,7 +14583,7 @@ __metadata:
     chardet: ^1.5.1
     color: ^4.2.3
     concurrently: ^7.6.0
-    dotenv: ^16.1.4
+    dotenv: ^16.3.1
     eas-cli: ^3.13.3
     eslint: ^8.38.0
     eslint-config-prettier: ^8.8.0
@@ -18032,7 +18031,7 @@ __metadata:
     "@typescript-eslint/parser": ^5.59.11
     chai: ^4.3.7
     chai-as-promised: ^7.1.1
-    dotenv: ^16.1.4
+    dotenv: ^16.3.1
     eslint: ^8.38.0
     eslint-config-prettier: ^8.8.0
     eslint-config-standard: ^17.0.0
@@ -19824,31 +19823,17 @@ __metadata:
   languageName: node
   linkType: hard
 
-"dotenv-cli@npm:^7.2.1":
-  version: 7.2.1
-  resolution: "dotenv-cli@npm:7.2.1"
-  dependencies:
-    cross-spawn: ^7.0.3
-    dotenv: ^16.0.0
-    dotenv-expand: ^10.0.0
-    minimist: ^1.2.6
-  bin:
-    dotenv: cli.js
-  checksum: 8ca27fd44ba261b974a0342ec831a714fa1cb6d6e98d4b5db8e94f111951af1fb129a64d007264b1901337c43a8ef877071f1836b6992944fd6970c16367aee0
-  languageName: node
-  linkType: hard
-
-"dotenv-expand@npm:10.0.0, dotenv-expand@npm:^10.0.0, dotenv-expand@npm:~10.0.0":
+"dotenv-expand@npm:10.0.0, dotenv-expand@npm:~10.0.0":
   version: 10.0.0
   resolution: "dotenv-expand@npm:10.0.0"
   checksum: 2a38b470efe0abcb1ac8490421a55e1d764dc9440fd220942bce40965074f3fb00b585f4346020cb0f0f219966ee6b4ee5023458b3e2953fe5b3214de1b314ee
   languageName: node
   linkType: hard
 
-"dotenv@npm:^16.1.3":
-  version: 16.1.3
-  resolution: "dotenv@npm:16.1.3"
-  checksum: 8f73bae720161cf365b679de162fe79a05f5b7a21d0d2b8bf9fb0601a2ed30f7e9dc49fa8b752d93206e4b7d427eccea2f383a1622cd5da4a1824f43bf8f780b
+"dotenv@npm:^16.3.1":
+  version: 16.3.1
+  resolution: "dotenv@npm:16.3.1"
+  checksum: 15d75e7279018f4bafd0ee9706593dd14455ddb71b3bcba9c52574460b7ccaf67d5cf8b2c08a5af1a9da6db36c956a04a1192b101ee102a3e0cf8817bbcf3dfd
   languageName: node
   linkType: hard
 
@@ -37219,7 +37204,7 @@ __metadata:
     bufferutil: ^4.0.7
     clsx: ^1.2.1
     docusaurus-plugin-sass: ^0.2.3
-    dotenv: ^16.1.4
+    dotenv: ^16.3.1
     graphql: ^16.6.0
     graphql-tag: ^2.12.6
     lib: "workspace:*"

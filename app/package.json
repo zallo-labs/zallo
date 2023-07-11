@@ -56,7 +56,7 @@
     "babel-preset-expo": "^9.4.1",
     "chardet": "^1.5.1",
     "color": "^4.2.3",
-    "dotenv": "^16.1.4",
+    "dotenv": "^16.3.1",
     "eas-cli": "^3.13.3",
     "eth-url-parser": "^1.0.4",
     "ethers": "^5.7.2",
