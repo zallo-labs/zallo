@@ -23,16 +23,8 @@ gql`
   }
 
   fragment EventFields on Event {
-    ... on Transfer {
-      id
-      direction
-      token
-      from
-      to
-      amount
-      timestamp
-    }
-    ... on TransferApproval {
+    __typename
+    ... on Transferlike {
       id
       direction
       token
