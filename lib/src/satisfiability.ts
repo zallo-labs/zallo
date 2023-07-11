@@ -38,7 +38,7 @@ export const getTransactionSatisfiability = (
     };
 
   const satisfiable = r.filter((v) => v.result === 'satisfiable');
-  if (satisfiable)
+  if (satisfiable.length)
     return {
       result: 'satisfiable',
       reasons: satisfiable.map((v) => ({ reason: v.reason!, operation: v.operation })),
