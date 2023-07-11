@@ -46,13 +46,16 @@ export class Proposal {
   rejections: Rejection[];
 }
 
+@ObjectType({ implements: TransferDetails })
+export class SimulationTransfer extends TransferDetails {}
+
 @ObjectType()
 export class Simulation {
   @IdField()
   id: uuid;
 
-  @Field(() => [TransferDetails])
-  transfers: TransferDetails[];
+  @Field(() => [SimulationTransfer])
+  transfers: SimulationTransfer[];
 }
 
 @ObjectType()

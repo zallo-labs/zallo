@@ -164,6 +164,14 @@ scalar DateTime
 
 union Event = Transfer | TransferApproval
 
+interface EventBase {
+  account: Account!
+  block: BigInt!
+  id: ID!
+  logIndex: Float!
+  timestamp: DateTime!
+}
+
 input ExecuteInput {
   proposalHash: Bytes32!
 }
@@ -398,7 +406,17 @@ input SelectorInput {
 
 type Simulation {
   id: ID!
-  transfers: [TransferDetails!]!
+  transfers: [SimulationTransfer!]!
+}
+
+type SimulationTransfer implements TransferDetails {
+  account: Account!
+  amount: BigInt!
+  direction: TransferDirection!
+  from: Address!
+  id: ID!
+  to: Address!
+  token: Address!
 }
 
 type Subscription {
@@ -482,7 +500,7 @@ enum TransactionProposalStatus {
   Successful
 }
 
-type Transfer {
+type Transfer implements EventBase & TransferDetails & Transferlike {
   account: Account!
   amount: BigInt!
   block: BigInt!
@@ -495,7 +513,7 @@ type Transfer {
   token: Address!
 }
 
-type TransferApproval {
+type TransferApproval implements EventBase & TransferDetails & Transferlike {
   account: Account!
   amount: BigInt!
   block: BigInt!
@@ -517,7 +535,7 @@ type TransferApprovalOp {
   token: Address!
 }
 
-type TransferDetails {
+interface TransferDetails {
   account: Account!
   amount: BigInt!
   direction: TransferDirection!
@@ -569,6 +587,19 @@ type TransferOp {
 input TransferSubscriptionInput {
   accounts: [Address!]
   directions: [TransferDirection!]
+}
+
+interface Transferlike implements EventBase & TransferDetails {
+  account: Account!
+  amount: BigInt!
+  block: BigInt!
+  direction: TransferDirection!
+  from: Address!
+  id: ID!
+  logIndex: Float!
+  timestamp: DateTime!
+  to: Address!
+  token: Address!
 }
 
 type TransfersConfig {
