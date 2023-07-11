@@ -61,7 +61,7 @@ export const CreateAccountScreen = withSuspense(
 
     useEffect(() => {
       if (isOnboarding && accounts.length) replace('Home', { account: accounts[0].address });
-    }, [isOnboarding && accounts.length]);
+    }, [accounts, isOnboarding, replace]);
 
     return (
       <Screen>
@@ -90,7 +90,7 @@ export const CreateAccountScreen = withSuspense(
                   variables: {
                     input: {
                       name,
-                      policies: [{ approvers: [approver] }],
+                      policies: [{ name: 'High risk', approvers: [approver] }],
                     },
                   },
                   onError: (error) => showError('Failed to create account', { event: { error } }),
