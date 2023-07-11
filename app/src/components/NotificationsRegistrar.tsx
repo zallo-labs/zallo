@@ -3,36 +3,41 @@ import * as Notifications from 'expo-notifications';
 import type { DevicePushToken } from 'expo-notifications';
 import { useEffect } from 'react';
 import { Platform } from 'react-native';
-import { useProposals } from '@api/proposal';
 import {
   NotificationChannel,
   NotificationChannelConfig,
   useNotificationSettings,
 } from '~/screens/notifications/NotificationSettingsScreen';
 import { retryAsPromised } from 'retry-as-promised';
-import { gql, useSuspenseQuery } from '@apollo/client';
+import { useSuspenseQuery } from '@apollo/client';
+import { useUpdatePushTokenMutation } from '@api/generated';
 import {
-  PushTokenDocument,
-  PushTokenQuery,
-  PushTokenQueryVariables,
-  useUpdatePushTokenMutation,
-} from '@api/generated';
+  NotificationsRegistrarQuery,
+  NotificationsRegistrarQueryVariables,
+} from '@api/gen/graphql';
+import { gql } from '@api/gen';
 
-gql`
-  query PushToken {
+const NotificationsRegistrarDoc = gql(/* GraphQL */ `
+  query NotificationsRegistrar {
     approver {
       id
       pushToken
     }
-  }
 
+    proposals(input: { statuses: [Pending] }) {
+      id
+    }
+  }
+`);
+
+gql(/* GraphQL */ `
   mutation UpdatePushToken($pushToken: String) {
     updateApprover(input: { pushToken: $pushToken }) {
       id
       pushToken
     }
   }
-`;
+`);
 
 Notifications.setNotificationHandler({
   handleNotification: async () => ({
@@ -42,15 +47,13 @@ Notifications.setNotificationHandler({
   }),
 });
 
-export const useNotificationsCount = () => useProposals({ responseRequested: true }).length;
-
 export const NotificationsRegistrar = () => {
   const channelEnabled = useNotificationSettings();
-  const count = useNotificationsCount();
 
-  const { approver } = useSuspenseQuery<PushTokenQuery, PushTokenQueryVariables>(
-    PushTokenDocument,
-  ).data;
+  const { approver, proposals } = useSuspenseQuery<
+    NotificationsRegistrarQuery,
+    NotificationsRegistrarQueryVariables
+  >(NotificationsRegistrarDoc).data;
   const [updatePushToken] = useUpdatePushTokenMutation();
 
   const hasPermission = Notifications.usePermissions()[0]?.granted;
@@ -94,8 +97,8 @@ export const NotificationsRegistrar = () => {
 
   // Set badge count
   useEffect(() => {
-    if (hasPermission) Notifications.setBadgeCountAsync(count);
-  }, [hasPermission, count]);
+    if (hasPermission) Notifications.setBadgeCountAsync(proposals.length);
+  }, [hasPermission, proposals.length]);
 
   return null;
 };
