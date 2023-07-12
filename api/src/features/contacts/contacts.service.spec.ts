@@ -98,7 +98,9 @@ describe(ContactsService.name, () => {
         const expectedContacts = new Set([user1Contact, randomAddress()]);
         await Promise.all([...expectedContacts].map((contact) => upsertContact(contact)));
 
-        const contacts = (await service.select(() => ({ address: true }))).map((c) => c.address);
+        const contacts = (await service.select({}, () => ({ address: true }))).map(
+          (c) => c.address,
+        );
         expect(new Set(contacts)).toEqual(expectedContacts);
       }));
 
@@ -119,7 +121,7 @@ describe(ContactsService.name, () => {
           }),
         );
 
-        const contacts = await service.select(() => ({ address: true }));
+        const contacts = await service.select({}, () => ({ address: true }));
         expect(contacts.map((c) => c.address)).toEqual([account]);
       }));
 
@@ -127,7 +129,7 @@ describe(ContactsService.name, () => {
       await asUser(user1, () => upsertContact(user1Contact));
 
       await asUser(randomUser(), async () => {
-        expect(await service.select()).toHaveLength(0);
+        expect(await service.select({})).toHaveLength(0);
       });
     });
   });

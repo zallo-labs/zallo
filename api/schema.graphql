@@ -102,6 +102,10 @@ input ContactInput {
   address: Address!
 }
 
+input ContactsInput {
+  query: String
+}
+
 type Contract {
   address: Address!
   functions: [ContractFunction!]!
@@ -345,7 +349,7 @@ type Query {
   accounts: [Account!]!
   approver(input: ApproverInput! = {}): UserApprover!
   contact(input: ContactInput!): Contact
-  contacts: [Contact!]!
+  contacts(input: ContactsInput! = {}): [Contact!]!
   contract(input: ContractInput!): Contract
   contractFunction(input: ContractFunctionInput!): ContractFunction
   label(input: LabelInput!): String

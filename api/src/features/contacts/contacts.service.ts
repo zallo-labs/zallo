@@ -3,9 +3,10 @@ import { Address } from 'lib';
 import { ShapeFunc } from '../database/database.select';
 import { DatabaseService } from '../database/database.service';
 import e from '~/edgeql-js';
-import { UpsertContactInput } from './contacts.input';
+import { ContactsInput, UpsertContactInput } from './contacts.input';
 import { uuid } from 'edgedb/dist/codecs/ifaces';
 import { isAddress } from 'ethers/lib/utils';
+import { or } from '../database/database.util';
 
 type UniqueContact = uuid | Address;
 
@@ -27,23 +28,15 @@ export class ContactsService {
       .run(this.db.client);
   }
 
-  async select(shape?: ShapeFunc<typeof e.Contact>) {
-    const contacts = await e
+  async select({ query }: ContactsInput, shape?: ShapeFunc<typeof e.Contact>) {
+    return e
       .select(e.Contact, (c) => ({
         ...shape?.(c),
+        filter: query
+          ? or(e.op(c.address, 'ilike', query), e.op(c.label, 'ilike', query))
+          : undefined,
       }))
       .run(this.db.client);
-
-    const accounts = await e
-      .select(e.Account, (a) => ({
-        filter: e.op(a.address, 'not in', e.cast(e.str, e.set(...contacts.map((c) => c.address)))),
-        id: true,
-        address: true,
-        name: true,
-      }))
-      .run(this.db.client);
-
-    return [...contacts, ...accounts.map((a) => ({ ...a, label: a.name }))];
   }
 
   async upsert({ previousAddress, address, label }: UpsertContactInput) {
