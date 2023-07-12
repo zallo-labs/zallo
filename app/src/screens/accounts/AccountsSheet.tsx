@@ -4,29 +4,26 @@ import { Sheet } from '~/components/sheet/Sheet';
 import { StackNavigatorScreenProps } from '~/navigation/StackNavigator';
 import { ListHeader } from '~/components/list/ListHeader';
 import { AddIcon, NavigateNextIcon, PolicyIcon } from '@theme/icons';
-import { AddressLabel } from '~/components/address/AddressLabel';
 import { ListItem } from '~/components/list/ListItem';
 import { Button, Text } from 'react-native-paper';
 import { View } from 'react-native';
 import { Address } from 'lib';
 import { gql } from '@api/gen';
 import { useSuspenseQuery } from '@apollo/client';
-import {
-  AccountsSheetDocument,
-  AccountsSheetQuery,
-  AccountsSheetQueryVariables,
-} from '@api/generated';
 import { AddressIcon } from '~/components/Identicon/AddressIcon';
 import { ICON_SIZE } from '@theme/paper';
 import { makeStyles } from '@theme/makeStyles';
 import { truncateAddr } from '~/util/format';
+import { AccountsSheetQuery, AccountsSheetQueryVariables } from '@api/gen/graphql';
+import { AccountItem } from './AccountItem';
 
-gql(/* GraphQL */ `
+const QueryDoc = gql(/* GraphQL */ `
   query AccountsSheet {
     accounts {
       id
       address
       name
+      ...AccountItem_AccountFragment
     }
   }
 `);
@@ -42,9 +39,9 @@ export const AccountsSheet = ({ route, navigation: { navigate, goBack } }: Accou
   const styles = useStyles();
   const ref = useRef<BottomSheet>(null);
 
-  const accounts = useSuspenseQuery<AccountsSheetQuery, AccountsSheetQueryVariables>(
-    AccountsSheetDocument,
-  ).data.accounts;
+  const { accounts } = useSuspenseQuery<AccountsSheetQuery, AccountsSheetQueryVariables>(
+    QueryDoc,
+  ).data;
 
   const selected = accounts.find((account) => account.address === selectedAddress);
   const otherAccounts = accounts.filter((account) => account.address !== selectedAddress);
@@ -80,10 +77,9 @@ export const AccountsSheet = ({ route, navigation: { navigate, goBack } }: Accou
         {otherAccounts.length > 0 && <ListHeader>Accounts</ListHeader>}
 
         {otherAccounts.map((a) => (
-          <ListItem
-            key={a.address}
-            leading={a.address}
-            headline={<AddressLabel address={a.address} />}
+          <AccountItem
+            key={a.id}
+            account={a}
             trailing={NavigateNextIcon}
             onPress={() => navigate('Home', { account: a.address })}
           />
