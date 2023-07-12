@@ -1,5 +1,5 @@
 import { makeStyles } from '@theme/makeStyles';
-import { StyleSheet, View } from 'react-native';
+import { View } from 'react-native';
 import Svg, { Rect, SvgProps } from 'react-native-svg';
 
 const seedrand = (seed: string) => {
@@ -69,11 +69,10 @@ const createImageData = (randseed: Randseed, nBlocks: number) => {
   return data;
 };
 
-export interface BlockieProps extends Omit<SvgProps, 'width' | 'height'> {
+export interface BlockieProps extends Omit<SvgProps, 'width' | 'height' | 'color'> {
   seed?: string;
   size: number;
   nBlocks?: number;
-  spotColor?: string;
 }
 
 export const Blockie = ({ size = 24, nBlocks = 8, style, ...props }: BlockieProps) => {
@@ -82,9 +81,9 @@ export const Blockie = ({ size = 24, nBlocks = 8, style, ...props }: BlockieProp
 
   const seed = seedrand(props.seed || Math.floor(Math.random() * Math.pow(10, 16)).toString(16));
 
-  const color = props.color || createColor(seed);
-  const backgroundColor = StyleSheet.flatten(style)?.backgroundColor || createColor(seed);
-  const spotColor = props.spotColor || createColor(seed);
+  const color = createColor(seed);
+  const backgroundColor = createColor(seed);
+  const spotColor = createColor(seed);
 
   const imageData = createImageData(seed, nBlocks);
 
