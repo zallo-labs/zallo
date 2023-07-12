@@ -29,5 +29,7 @@ module.exports = {
       'warn',
       { additionalHooks: '(useRecoilCallback|useRecoilTransaction_UNSTABLE)' },
     ],
+    'react/display-name': 'off',
+    'react/prop-types': ['error', { skipUndeclared: true }],
   },
 };
