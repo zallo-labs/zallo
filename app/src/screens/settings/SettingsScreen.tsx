@@ -1,4 +1,3 @@
-import { useApproverAddress } from '@network/useApprover';
 import {
   ContactsIcon,
   GithubIcon,
@@ -12,7 +11,6 @@ import { ETH } from '@token/tokens';
 import { Image } from 'expo-image';
 import { ScrollView, TouchableOpacity } from 'react-native';
 import { Text } from 'react-native-paper';
-import { AddressLabel } from '~/components/address/AddressLabel';
 import { Appbar } from '~/components/Appbar/Appbar';
 import { Screen } from '~/components/layout/Screen';
 import { ListItem } from '~/components/list/ListItem';
@@ -33,6 +31,12 @@ gql(/* GraphQL */ `
       id
       name
     }
+
+    approver {
+      id
+      address
+      name
+    }
   }
 `);
 
@@ -45,9 +49,10 @@ export type SettingsScreenProps = StackNavigatorScreenProps<'Settings'>;
 export const SettingsScreen = ({ route, navigation: { navigate } }: SettingsScreenProps) => {
   const { account } = route.params;
   const styles = useStyles();
-  const approver = useApproverAddress();
 
-  const { user } = useSuspenseQuery<SettingsQuery, SettingsQueryVariables>(SettingsDocument).data;
+  const { user, approver } = useSuspenseQuery<SettingsQuery, SettingsQueryVariables>(
+    SettingsDocument,
+  ).data;
 
   return (
     <Screen>
@@ -55,14 +60,14 @@ export const SettingsScreen = ({ route, navigation: { navigate } }: SettingsScre
 
       <ScrollView style={styles.container}>
         <TouchableOpacity style={styles.userContainer} onPress={() => navigate('User')}>
-          <AddressIcon address={approver} size={ICON_SIZE.large} />
+          <AddressIcon address={approver.address} size={ICON_SIZE.large} />
 
           <Text variant="titleLarge" style={styles.userName}>
             {user.name}
           </Text>
 
           <Text variant="bodyLarge" style={styles.approverItem}>
-            <AddressLabel address={approver} />
+            {approver.name}
           </Text>
         </TouchableOpacity>
 
