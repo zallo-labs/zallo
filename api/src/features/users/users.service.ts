@@ -112,7 +112,7 @@ export class UsersService {
     await this.db.query(e.delete(e.User, () => ({ filter_single: { id: oldUser } })));
 
     // Remove approver -> user cache
-    await this.accountsCache.removeCache(...(approvers as Address[]));
+    await this.accountsCache.removeApproverUserCache(...(approvers as Address[]));
     await Promise.all([
       this.pubsub.publish<UserSubscriptionPayload>(getUserTrigger(newUser), {}),
       ...approvers.map((approver) =>
@@ -122,6 +122,9 @@ export class UsersService {
         ),
       ),
     ]);
+
+    // Remove user -> accounts cache for both old & new user
+    await this.accountsCache.removeUserAccountsCache(oldUser, newUser);
 
     // Remove pairing secret
     await this.redis.del(this.getPairingSecretKey(oldUser));

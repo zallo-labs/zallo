@@ -65,8 +65,12 @@ export class AccountsCacheService {
     }
   }
 
-  async removeCache(...approvers: Address[]) {
+  async removeApproverUserCache(...approvers: Address[]) {
     await this.redis.del(...approvers.map(approverUserKey));
+  }
+
+  async removeUserAccountsCache(...users: uuid[]) {
+    await this.redis.del(...users.map(userAccountsKey));
   }
 
   private async getCachedAccounts(approver: Address): Promise<uuid[] | null> {
