@@ -51,7 +51,7 @@ export const usePropose = () => {
             cache,
             defaultData: { proposals: [] },
             updater: (data) => {
-              data.proposals.push(proposal);
+              if (!data.proposals.find((p) => p.id === proposal.id)) data.proposals.push(proposal);
             },
           });
         },
