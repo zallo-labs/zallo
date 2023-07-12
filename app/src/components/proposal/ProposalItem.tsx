@@ -29,6 +29,10 @@ export const ProposalItem = withSuspense(({ proposal: hash, ...itemProps }: Prop
   const isMulti = p.operations.length > 1;
   const opLabel = useOperationLabel(p, p.operations[0]);
 
+  const totalValue = useTransfersValue(
+    p.transaction?.receipt?.events.filter(onlyTypes('Transfer')) ?? p.simulation?.transfers ?? [],
+  );
+
   const supporting = match<Proposal, ListItemProps['supporting']>(p)
     .with({ state: 'pending', policy: undefined }, () => ({ Text }) => (
       <Text style={styles.noSatisfiablePolicy}>No satisfiable policy</Text>
@@ -58,14 +62,7 @@ export const ProposalItem = withSuspense(({ proposal: hash, ...itemProps }: Prop
       supporting={supporting}
       trailing={({ Text }) => (
         <Text variant="labelLarge">
-          <FiatValue
-            value={useTransfersValue(
-              p.transaction?.receipt?.events.filter(onlyTypes('Transfer')) ??
-                p.simulation?.transfers ??
-                [],
-            )}
-            hideZero
-          />
+          <FiatValue value={totalValue} hideZero />
         </Text>
       )}
       {...itemProps}
