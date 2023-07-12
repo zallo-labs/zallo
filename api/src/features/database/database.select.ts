@@ -167,7 +167,10 @@ const getFragmentShape = (
   return {
     ...shape,
     ...e.is(eqlType, fragmentShape),
-    ..._.pick(fragmentShape, '__type__') /* __type__ can't be included in e.is() */,
+    ..._.pick(fragmentShape, [
+      'id' /* ignored by e.is() */,
+      '__type__' /* errors if included by e.is() */,
+    ]),
   };
 };
 
