@@ -77,7 +77,7 @@ export const AccountsSheet = ({ route, navigation: { navigate, goBack } }: Accou
           </View>
         )}
 
-        <ListHeader>Accounts</ListHeader>
+        {otherAccounts.length > 0 && <ListHeader>Accounts</ListHeader>}
 
         {otherAccounts.map((a) => (
           <ListItem
@@ -105,13 +105,13 @@ export const AccountsSheet = ({ route, navigation: { navigate, goBack } }: Accou
 
 const useStyles = makeStyles(({ colors }) => ({
   contentContaiiner: {
-    paddingBottom: 16,
+    paddingBottom: 8,
   },
   selectedContainer: {
     alignItems: 'center',
     gap: 8,
     marginHorizontal: 16,
-    marginBottom: 16,
+    marginBottom: 8,
   },
   selectedLabelContainer: {
     alignItems: 'center',
