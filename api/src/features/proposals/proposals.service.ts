@@ -96,7 +96,7 @@ export class ProposalsService {
     feeToken = ETH_ADDRESS as Address,
     signature,
   }: ProposeInput) {
-    return await this.db.transaction(async (client) => {
+    const { id, hash } = await this.db.transaction(async (client) => {
       if (!operations.length) throw new UserInputError('No operations provided');
 
       const tx = asTx({
@@ -122,13 +122,6 @@ export class ProposalsService {
               }),
             ),
           ),
-          // operations: e.for(e.set(...operations.map((op) => e.json(op))), (item) =>
-          //   e.insert(e.Operation, {
-          //     to: e.cast(e.str, item.to),
-          //     value: e.cast(e.bigint, item.value), // bigint needs to be converted to a string (in e.json(op)) first
-          //     data: e.cast(e.str, item.data),
-          //   }),
-          // ),
           nonce: tx.nonce,
           gasLimit: gasLimit || (await estimateOpGas(this.provider, tx)),
           feeToken,
@@ -136,12 +129,14 @@ export class ProposalsService {
         })
         .run(client);
 
-      await this.publishProposal({ account, hash }, ProposalEvent.create);
-
       if (signature) await this.approve({ hash, signature });
 
       return { id, hash };
     });
+
+    await this.publishProposal({ account, hash }, ProposalEvent.create);
+
+    return { id, hash };
   }
 
   async approve({ hash, signature }: ApproveInput) {

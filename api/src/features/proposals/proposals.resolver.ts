@@ -18,7 +18,7 @@ import {
   UpdateProposalInput,
 } from './proposals.input';
 import { PubsubService } from '~/features/util/pubsub/pubsub.service';
-import { GqlContext, asUser, getUserCtx } from '~/request/ctx';
+import { GqlContext, asUser, getApprover, getUserCtx } from '~/request/ctx';
 import { TransactionProposal, SatisfiablePolicy } from './proposals.model';
 import {
   ProposalSubscriptionPayload,
@@ -73,7 +73,7 @@ export class ProposalsResolver {
       ctx: GqlContext,
       info: GraphQLResolveInfo,
     ) {
-      return asUser(ctx, () => this.service.selectUnique(hash, getShape(info)));
+      return asUser(ctx, async () => await this.service.selectUnique(hash, getShape(info)));
     },
   })
   async subscribeToProposals(
