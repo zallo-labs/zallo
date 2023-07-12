@@ -12,6 +12,7 @@ module.exports = {
     'eslint:recommended',
     'plugin:@typescript-eslint/recommended',
     'plugin:react/recommended',
+    'neverthrow',
   ],
   plugins: ['@typescript-eslint', 'react-hooks'],
   env: {
@@ -30,5 +31,6 @@ module.exports = {
       'warn',
       { additionalHooks: '(useRecoilCallback|useRecoilTransaction_UNSTABLE)' },
     ],
+    'neverthrow/must-use-result': 'error',
   },
 };

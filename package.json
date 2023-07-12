@@ -48,6 +48,7 @@
     "@types/react": "17.x"
   },
   "dependencies": {
+    "eslint-plugin-neverthrow": "^1.1.4",
     "node-gyp": "^9.4.0"
   }
 }
