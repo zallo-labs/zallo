@@ -1,11 +1,12 @@
-import { gql, useSuspenseQuery } from '@apollo/client';
+import { useSuspenseQuery } from '@apollo/client';
 import assert from 'assert';
 import { useMemo } from 'react';
-import { ProposalDocument, ProposalQuery, ProposalQueryVariables } from '@api/generated';
 import { Proposal, toProposal } from './types';
 import { Hex } from 'lib';
+import { gql } from '@api/gen';
+import { ProposalQuery, ProposalQueryVariables } from '@api/generated';
 
-gql`
+gql(/* GraphQL */ `
   fragment ApprovalFields on Approval {
     id
     approver {
@@ -145,20 +146,21 @@ gql`
       ...TransactionFields
     }
   }
+`);
 
+const ProposalDoc = gql(/* GraphQL */ `
   query Proposal($input: ProposalInput!) {
     proposal(input: $input) {
       ...TransactionProposalFields
     }
   }
-`;
+`);
 
 export const useProposal = <Hash extends Hex | undefined>(hash: Hash) => {
-  const { data } = useSuspenseQuery<ProposalQuery, ProposalQueryVariables>(ProposalDocument, {
-    variables: {
-      input: { hash: hash! },
-    },
+  const { data } = useSuspenseQuery<ProposalQuery, ProposalQueryVariables>(ProposalDoc, {
+    variables: { input: { hash: hash! } },
     skip: !hash,
+    fetchPolicy: 'no-cache', // https://github.com/apollographql/apollo-client/issues/8898
   });
 
   const p = data?.proposal;
