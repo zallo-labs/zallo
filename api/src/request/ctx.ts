@@ -48,6 +48,5 @@ export const asUser = <R, TArgs extends unknown[]>(
   }
 
   const requestContext = new RequestContext({ user }, {});
-  // RequestContext.cls.enterWith(requestContext); // Used to persist context in @ResolveField. TODO: test this doesn't leak across @ResolveField requests. If it does then @Context can be used inside @ResolveField to re-establish context.
   return RequestContext.cls.run(requestContext, callback, ...args);
 };

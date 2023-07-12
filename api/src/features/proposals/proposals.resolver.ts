@@ -18,7 +18,7 @@ import {
   UpdateProposalInput,
 } from './proposals.input';
 import { PubsubService } from '~/features/util/pubsub/pubsub.service';
-import { GqlContext, asUser, getApprover, getUserCtx } from '~/request/ctx';
+import { GqlContext, asUser, getUserCtx } from '~/request/ctx';
 import { TransactionProposal, SatisfiablePolicy } from './proposals.model';
 import {
   ProposalSubscriptionPayload,

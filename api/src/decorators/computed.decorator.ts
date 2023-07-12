@@ -1,6 +1,16 @@
-import { Extensions, ResolveField, ResolveFieldOptions, ReturnTypeFunc } from '@nestjs/graphql';
+import {
+  Extensions,
+  FieldMiddleware,
+  ResolveField,
+  ResolveFieldOptions,
+  ReturnTypeFunc,
+} from '@nestjs/graphql';
 import { ObjectTypeSet } from '~/edgeql-js/reflection';
 import { Shape } from '~/features/database/database.select';
+import { GqlContext, asUser } from '~/request/ctx';
+
+const asUserMiddleware: FieldMiddleware<unknown, GqlContext> = async ({ context }, next) =>
+  asUser(context, next);
 
 export const ComputedField =
   <T extends ObjectTypeSet>(
@@ -9,6 +19,9 @@ export const ComputedField =
     options?: ResolveFieldOptions,
   ): MethodDecorator =>
   (target, propertyKey, descriptor) => {
-    ResolveField(typeFunc, options)(target, propertyKey, descriptor);
+    ResolveField(typeFunc, {
+      ...options,
+      middleware: [asUserMiddleware, ...(options?.middleware ?? [])],
+    })(target, propertyKey, descriptor);
     Extensions({ select })(target, propertyKey, descriptor);
   };
