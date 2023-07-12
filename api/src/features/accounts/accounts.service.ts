@@ -21,7 +21,7 @@ import { AccountsCacheService } from '../auth/accounts.cache.service';
 import { v1 as uuid1 } from 'uuid';
 
 export const getAccountTrigger = (address: Address) => `account.${address}`;
-export const getAccountUserTrigger = (user: Address) => `account.user.${user}`;
+export const getAccountApproverTrigger = (user: Address) => `account.user.${user}`;
 export interface AccountSubscriptionPayload {
   account: Address;
   event: AccountEvent;
@@ -85,7 +85,7 @@ export class AccountsService {
     const accountId = uuid1();
     await this.accountsCache.addCachedAccount({ approver, account: accountId });
 
-    const id = await this.db.transaction(async (client) => {
+    const id = await this.db.transaction(async (db) => {
       const { id } = await e
         .insert(e.Account, {
           id: accountId,
@@ -95,7 +95,7 @@ export class AccountsService {
           implementation,
           salt,
         })
-        .run(client);
+        .run(db);
 
       await Promise.all(
         policyInputs.map((policy, i) =>
@@ -112,10 +112,10 @@ export class AccountsService {
       return id;
     });
 
-    this.publishAccount({ account, event: AccountEvent.create });
     await this.activateAccount(account, implementation, salt, policies);
     this.contracts.addAccountAsVerified(account);
     this.faucet.requestTokens(account);
+    this.publishAccount({ account, event: AccountEvent.create });
 
     return { id, address: account };
   }
@@ -159,23 +159,20 @@ export class AccountsService {
     const { account } = payload;
 
     // Publish events to all users with access to the account
-    const users = await e
-      .select(
-        e.op(
-          'distinct',
-          e.select(e.Policy, (p) => ({
-            filter: e.op(p.account.address, '=', account),
-            users: e.op(p.state.approvers.address, 'union', p.draft.approvers.address),
-          })).users,
-        ),
-      )
-      .run(this.db.DANGEROUS_superuserClient);
+    const approvers = (await this.db.query(
+      e.select(e.Account, () => ({
+        filter_single: { address: account },
+        approvers: {
+          address: true,
+        },
+      })).approvers.address,
+    )) as Address[];
 
     await Promise.all([
       this.pubsub.publish<AccountSubscriptionPayload>(getAccountTrigger(account), payload),
-      ...[...users].map((user) =>
+      ...approvers.map((approver) =>
         this.pubsub.publish<AccountSubscriptionPayload>(
-          getAccountUserTrigger(user as Address),
+          getAccountApproverTrigger(approver),
           payload,
         ),
       ),
