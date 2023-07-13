@@ -4261,16 +4261,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@edgedb/generate@npm:^0.3.0":
-  version: 0.3.0
-  resolution: "@edgedb/generate@npm:0.3.0"
-  dependencies:
-    chokidar: ^3.5.3
+"@edgedb/generate@npm:^0.3.1":
+  version: 0.3.1
+  resolution: "@edgedb/generate@npm:0.3.1"
   peerDependencies:
     edgedb: ^1.3.2
   bin:
     generate: dist/cli.js
-  checksum: 67271d4e233f7cc561cf7f543e374e97abb7f4e445dc8f48779d66c1a41dd1a5c1a9eec6e8e1f0b983469772e5f886108f24151681b93012a12cf1dbac703b2d
+  checksum: 06ad779a1a9a96977e22b941a96e0fbdcda4b5403e3047f2257811f43ea61644f00e81feb7ea23f0ae57efa2b8f89ea34a312e0a29671265e46b1e23e4cdc185
   languageName: node
   linkType: hard
 
@@ -14144,7 +14142,7 @@ __metadata:
     "@apollo/server": ^4.7.3
     "@bull-board/express": ^5.5.1
     "@bull-board/nestjs": ^5.5.1
-    "@edgedb/generate": ^0.3.0
+    "@edgedb/generate": ^0.3.1
     "@golevelup/ts-jest": ^0.3.7
     "@liaoliaots/nestjs-redis": ^9.0.5
     "@nestjs/apollo": ^11.0.6
@@ -14179,7 +14177,7 @@ __metadata:
     connect-redis: ^7.1.0
     cross-fetch: ^3.1.5
     dotenv: ^16.3.1
-    edgedb: ^1.3.2
+    edgedb: ^1.3.3
     eslint: ^8.38.0
     eslint-config-prettier: ^8.8.0
     eslint-plugin-prettier: ^4.2.1
@@ -19994,12 +19992,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"edgedb@npm:^1.3.2":
-  version: 1.3.2
-  resolution: "edgedb@npm:1.3.2"
+"edgedb@npm:^1.3.3":
+  version: 1.3.3
+  resolution: "edgedb@npm:1.3.3"
   bin:
     edgeql-js: dist/cli.js
-  checksum: a3d10cb261e3f961cfe9e6742abd05986dc12e9dcae2f261dd0f0a688401792ba6ef20818bf7abee340e54ee974a4020cdc71b0427e387b0b498fd5ff2c1dcbd
+  checksum: ec7ace3c20ee456083e201a473f9993c9a740c78bd5a3f5cb5542078745baa65f3ac4c6007f48ceaedb976e5a0eaa14252fa72996637a3b64d33577c1cf1d4f1
   languageName: node
   linkType: hard
 
