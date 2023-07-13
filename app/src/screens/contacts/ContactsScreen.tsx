@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { NavigateNextIcon, ScanIcon, SearchIcon } from '~/util/theme/icons';
+import { NavigateNextIcon, ScanIcon, SearchIcon, materialCommunityIcon } from '~/util/theme/icons';
 import { Address } from 'lib';
 import { StackNavigatorScreenProps } from '~/navigation/StackNavigator';
 import { withSuspense } from '~/components/skeleton/withSuspense';
@@ -10,12 +10,14 @@ import { ListHeader } from '~/components/list/ListHeader';
 import { Screen } from '~/components/layout/Screen';
 import { ListItemHeight } from '~/components/list/ListItem';
 import { useScanAddress } from '../scan/ScanScreen';
-import { ListHeaderButton } from '~/components/list/ListHeaderButton';
 import { gql } from '@api/gen';
 import { useSuspenseQuery } from '@apollo/client';
 import { ContactsScreenQuery, ContactsScreenQueryVariables } from '@api/gen/graphql';
 import { FlashList } from '@shopify/flash-list';
 import { ContactItem } from './ContactItem';
+import { Text } from 'react-native-paper';
+import { Fab } from '~/components/buttons/Fab';
+import { makeStyles } from '@theme/makeStyles';
 
 const QueryDoc = gql(/* GraphQL */ `
   query ContactsScreen($query: String) {
@@ -27,6 +29,8 @@ const QueryDoc = gql(/* GraphQL */ `
   }
 `);
 
+const AddContactIcon = materialCommunityIcon('account-plus-outline');
+
 export interface ContactsScreenParams {
   disabled?: Address[];
 }
@@ -35,6 +39,7 @@ export type ContactsScreenProps = StackNavigatorScreenProps<'Contacts'>;
 
 export const ContactsScreen = withSuspense(
   ({ route, navigation: { navigate } }: ContactsScreenProps) => {
+    const styles = useStyles();
     const disabled = route.params.disabled && new Set(route.params.disabled);
     const scanAddress = useScanAddress();
 
@@ -66,15 +71,7 @@ export const ContactsScreen = withSuspense(
 
         <FlashList
           data={contacts}
-          ListHeaderComponent={
-            <ListHeader
-              trailing={
-                <ListHeaderButton onPress={() => navigate('Contact', {})}>Add</ListHeaderButton>
-              }
-            >
-              Contacts
-            </ListHeader>
-          }
+          ListHeaderComponent={<ListHeader>Contacts</ListHeader>}
           renderItem={({ item }) => (
             <ContactItem
               contact={item}
@@ -83,12 +80,27 @@ export const ContactsScreen = withSuspense(
               onPress={() => navigate('Contact', { address: item.address })}
             />
           )}
+          ListEmptyComponent={
+            <Text variant="bodyLarge" style={styles.emptyText}>
+              Add a contact to get started
+            </Text>
+          }
           extraData={[disabled, navigate]}
           showsVerticalScrollIndicator={false}
           estimatedItemSize={ListItemHeight.DOUBLE_LINE}
         />
+
+        <Fab icon={AddContactIcon} label="Add" />
       </Screen>
     );
   },
   ScreenSkeleton,
 );
+
+const useStyles = makeStyles(({ colors }) => ({
+  emptyText: {
+    marginHorizontal: 16,
+    marginVertical: 8,
+    color: colors.onSurfaceVariant,
+  },
+}));
