@@ -1,5 +1,6 @@
 import { FragmentType, gql, useFragment } from '@api/gen';
 import { ListItem, ListItemProps } from '~/components/list/ListItem';
+import { truncateAddr } from '~/util/format';
 
 const FragmentDoc = gql(/* GraphQL */ `
   fragment AccountItem_AccountFragment on Account {
@@ -16,5 +17,12 @@ export interface AccountItemProps extends Partial<ListItemProps> {
 export function AccountItem(props: AccountItemProps) {
   const a = useFragment(FragmentDoc, props.account);
 
-  return <ListItem leading={a.address} headline={a.name} {...props} />;
+  return (
+    <ListItem
+      leading={a.address}
+      headline={a.name}
+      supporting={truncateAddr(a.address)}
+      {...props}
+    />
+  );
 }
