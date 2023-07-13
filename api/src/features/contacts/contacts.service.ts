@@ -7,6 +7,7 @@ import { ContactsInput, UpsertContactInput } from './contacts.input';
 import { uuid } from 'edgedb/dist/codecs/ifaces';
 import { isAddress } from 'ethers/lib/utils';
 import { or } from '../database/database.util';
+import { ProviderService } from '../util/provider/provider.service';
 
 type UniqueContact = uuid | Address;
 
@@ -17,7 +18,16 @@ export const uniqueContact = (u: UniqueContact) =>
 
 @Injectable()
 export class ContactsService {
-  constructor(private db: DatabaseService) {}
+  private hardcodedContracts: Record<Address, string>;
+
+  constructor(private db: DatabaseService, private provider: ProviderService) {
+    this.hardcodedContracts = {
+      [this.provider.walletAddress]: 'Zallo',
+      // mainnet TODO: handle chain
+      '0x2da10A1e27bF85cEdD8FFb1AbBe97e53391C0295': 'SyncSwap', // SyncSwap router - mainnet
+      '0xB3b7fCbb8Db37bC6f572634299A58f51622A847e': 'SyncSwap', // SyncSwap router - testnet
+    };
+  }
 
   async selectUnique(id: UniqueContact, shape?: ShapeFunc<typeof e.Contact>) {
     return e
@@ -91,6 +101,8 @@ export class ContactsService {
       label: true,
     })).label;
 
-    return this.db.query(e.select(e.op(e.op(contact, '??', account), '??', approver)));
+    const r = await this.db.query(e.select(e.op(e.op(contact, '??', account), '??', approver)));
+
+    return r ?? this.hardcodedContracts[address];
   }
 }
