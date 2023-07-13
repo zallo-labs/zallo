@@ -45,7 +45,7 @@ const QueryDoc = gql(/* GraphQL */ `
 `);
 
 export interface AddressesModalParams {
-  disabled?: Address[];
+  disabled?: (Address | 'accounts' | 'approvers')[];
 }
 
 export type AddressesModalProps = StackNavigatorScreenProps<'AddressesModal'>;
@@ -79,10 +79,8 @@ export const AddressesModal = withSuspense(({ route }: AddressesModalProps) => {
 
       <FlashList
         data={[
-          accounts.length && 'Accounts',
-          ...accounts,
-          'User',
-          ...user.approvers,
+          ...(!disabled?.has('accounts') ? [accounts.length && 'Accounts', ...accounts] : []),
+          ...(!disabled?.has('approvers') ? ['User', ...user.approvers] : []),
           contacts.length && 'Contacts',
           ...contacts,
         ]}
