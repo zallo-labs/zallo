@@ -12,7 +12,7 @@ import {
   ProposeInput,
   UpdateProposalInput,
 } from './proposals.input';
-import { getApprover, getUserCtx } from '~/request/ctx';
+import { getUserCtx } from '~/request/ctx';
 import { ExpoService } from '../util/expo/expo.service';
 import { SatisfiablePolicy } from './proposals.model';
 import { ETH_ADDRESS } from 'zksync-web3/build/src/utils';
@@ -96,7 +96,7 @@ export class ProposalsService {
     feeToken = ETH_ADDRESS as Address,
     signature,
   }: ProposeInput) {
-    const { id, hash } = await this.db.transaction(async (client) => {
+    const { id, hash } = await this.db.transaction(async (db) => {
       if (!operations.length) throw new UserInputError('No operations provided');
 
       const tx = asTx({
@@ -127,7 +127,7 @@ export class ProposalsService {
           feeToken,
           simulation: await this.simulation.getInsert(account, tx),
         })
-        .run(client);
+        .run(db);
 
       if (signature) await this.approve({ hash, signature });
 
@@ -145,7 +145,7 @@ export class ProposalsService {
     if (!(await this.provider.verifySignature({ digest: hash, approver: ctx.approver, signature })))
       throw new UserInputError('Invalid signature');
 
-    await this.db.transaction(async (client) => {
+    await this.db.transaction(async (db) => {
       const proposal = selectProposal(hash);
 
       // Remove prior response (if any)
@@ -153,14 +153,14 @@ export class ProposalsService {
         .delete(e.ProposalResponse, () => ({
           filter_single: { proposal, approver: e.global.current_approver },
         }))
-        .run(client);
+        .run(db);
 
       await e
         .insert(e.Approval, {
           proposal,
           signature,
         })
-        .run(client);
+        .run(db);
     });
 
     await this.publishProposal(hash, ProposalEvent.approval);
@@ -169,7 +169,7 @@ export class ProposalsService {
   }
 
   async reject(id: UniqueProposal) {
-    await this.db.transaction(async (client) => {
+    await this.db.transaction(async (db) => {
       const proposal = selectProposal(id);
 
       // Remove prior response (if any)
@@ -177,9 +177,9 @@ export class ProposalsService {
         .delete(e.ProposalResponse, () => ({
           filter_single: { proposal, approver: e.global.current_approver },
         }))
-        .run(client);
+        .run(db);
 
-      await e.insert(e.Rejection, { proposal }).run(client);
+      await e.insert(e.Rejection, { proposal }).run(db);
     });
 
     await this.publishProposal(id, ProposalEvent.rejection);
@@ -231,7 +231,7 @@ export class ProposalsService {
   }
 
   async delete(id: UniqueProposal) {
-    return this.db.transaction(async (client) => {
+    return this.db.transaction(async (db) => {
       // 1. Policies the proposal was going to create
       // Delete policies the proposal was going to activate
       const proposalPolicies = e.select(e.TransactionProposal, (p) => ({
@@ -243,9 +243,9 @@ export class ProposalsService {
       }));
 
       // TODO: use policies service instead? Ensures nothing weird happens
-      await e.for(e.set(proposalPolicies.beingCreated.policy), (p) => e.delete(p)).run(client);
+      await e.for(e.set(proposalPolicies.beingCreated.policy), (p) => e.delete(p)).run(db);
 
-      return e.delete(selectProposal(id)).id.run(client);
+      return e.delete(selectProposal(id)).id.run(db);
     });
   }
 
@@ -294,8 +294,9 @@ export class ProposalsService {
   async satisfiablePoliciesResponse(id: UniqueProposal) {
     const { policies, approvals, rejections } = await this.transactions.satisfiablePolicies(id);
 
-    const user = getApprover();
-    const userHasResponded = approvals.has(user) || rejections.has(user);
+    const userApprovers = (await this.db.query(
+      e.select(e.global.current_user.approvers.address),
+    )) as Address[];
 
     return policies
       .filter(({ satisfiability }) => satisfiability.result !== 'unsatisfiable')
@@ -305,9 +306,10 @@ export class ProposalsService {
           key: policy.key,
           satisfied: satisfiability.result === 'satisfied',
           responseRequested:
-            !userHasResponded &&
             satisfiability.result === 'satisfiable' &&
-            policy.approvers.has(user),
+            userApprovers.some(
+              (a) => policy.approvers.has(a) && !(approvals.has(a) || rejections.has(a)),
+            ),
         }),
       );
   }

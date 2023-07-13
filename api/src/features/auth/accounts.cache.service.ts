@@ -46,7 +46,8 @@ export class AccountsCacheService {
   }
 
   async addCachedAccount({ approver, account }: AdApproverToAccountParams) {
-    const accounts = (await this.getCachedAccounts(approver)) ?? [];
+    const accounts = await this.getCachedAccounts(approver);
+    if (!accounts) return;
 
     if (!accounts.includes(account)) accounts.push(account);
     if (!getUserCtx().accounts.includes(account)) getUserCtx().accounts.push(account);

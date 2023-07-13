@@ -58,7 +58,7 @@ export class PoliciesService {
     const accountId = accountIdArg ?? (await this.db.query(selectAccount.id));
     if (!accountId) throw new UserInputError('Account not found');
 
-    return await this.db.transaction(async () => {
+    return await this.db.transaction(async (db) => {
       const key = keyArg ?? (await this.getFreeKey(accountId));
       const policy = inputAsPolicy(key, policyInput);
 
@@ -76,7 +76,7 @@ export class PoliciesService {
             ...this.insertStateShape(policy),
           }),
         })
-        .run(this.db.client);
+        .run(db);
 
       return { id, key };
     });
@@ -139,7 +139,7 @@ export class PoliciesService {
             ...uniquePolicy({ account, key })(p),
             set: { name },
           }))
-          .run(this.db.client);
+          .run(db);
         if (!p) throw new UserInputError("Policy doesn't exist");
       }
 
@@ -150,48 +150,49 @@ export class PoliciesService {
         // Propose new state
         const existing = await e
           .select(e.Policy, (p) => ({
-            ...uniquePolicy({ account, key })(p),
+            filter_single: {
+              account: e.select(p.account, () => ({ filter_single: { address: account } })),
+              key,
+            },
+            account: { id: true },
             state: policyStateShape,
             draft: policyStateShape,
           }))
           .run(db);
-        if (!existing) throw new UserInputError("Policy doesn't exist");
+        return;
+        //   if (!existing) throw new UserInputError("Policy doesn't exist");
 
-        const policy = policyStateAsPolicy(key, existing?.draft ?? existing?.state!);
+        //   const policy = policyStateAsPolicy(key, existing?.draft ?? existing?.state!);
 
-        if (approvers) policy.approvers = new Set(approvers);
-        if (threshold !== undefined) policy.threshold = threshold;
-        if (permissions?.targets) policy.permissions.targets = asTargetsConfig(permissions.targets);
-        if (permissions?.transfers)
-          policy.permissions.transfers = asTransfersConfig(permissions.transfers);
+        //   if (approvers) policy.approvers = new Set(approvers);
+        //   if (threshold !== undefined) policy.threshold = threshold;
+        //   if (permissions?.targets) policy.permissions.targets = asTargetsConfig(permissions.targets);
+        //   if (permissions?.transfers)
+        //     policy.permissions.transfers = asTransfersConfig(permissions.transfers);
 
-        const accountId = await e
-          .select(e.Account, () => ({ filter_single: { address: account } }))
-          .id.run(this.db.client);
-        if (!accountId) throw new UserInputError('Account not found');
-        await this.upsertApprovers(accountId, policy);
+        //   // await this.upsertApprovers(existing.account.id, policy);
 
-        const proposal = await this.proposeState(account, policy);
+        //   const proposal = await this.proposeState(account, policy);
 
-        await e
-          .update(e.Policy, (p) => ({
-            ...uniquePolicy({ account, key })(p),
-            set: {
-              stateHistory: {
-                '+=': e.insert(e.PolicyState, {
-                  proposal,
-                  ...this.insertStateShape(policy),
-                }),
-              },
-            },
-          }))
-          .run(db);
+        //   await e
+        //     .update(e.Policy, (p) => ({
+        //       ...uniquePolicy({ account, key })(p),
+        //       set: {
+        //         stateHistory: {
+        //           '+=': e.insert(e.PolicyState, {
+        //             proposal,
+        //             ...this.insertStateShape(policy),
+        //           }),
+        //         },
+        //       },
+        //     }))
+        //     .run(db);
       }
     });
   }
 
   async remove({ account, key }: UniquePolicyInput) {
-    await this.db.transaction(async () => {
+    await this.db.transaction(async (db) => {
       const selectAccount = e.select(e.Account, () => ({ filter_single: { address: account } }));
 
       const isActive =
@@ -201,7 +202,7 @@ export class PoliciesService {
               isActive: true,
               filter_single: { account: selectAccount, key },
             }))
-            .run(this.db.client)
+            .run(db)
         )?.isActive ?? false;
 
       const proposal =
@@ -237,7 +238,7 @@ export class PoliciesService {
             },
           },
         }))
-        .run(this.db.client);
+        .run(db);
       if (!r) throw new UserInputError("Policy doesn't exist");
     });
   }
