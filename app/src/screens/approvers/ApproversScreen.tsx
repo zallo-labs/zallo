@@ -28,7 +28,7 @@ export const ApproversScreen = withSuspense((props: ApproversScreenProps) => {
   const selectAddress = useSelectAddress({ disabled: [...policy.approvers, policy.account] });
 
   const addApprover = async () => {
-    const address = await selectAddress();
+    const address = await selectAddress({ disabled: ['accounts', ...policy.approvers] });
     updatePolicy((draft) => {
       draft.approvers.add(address);
       draft.threshold++;
