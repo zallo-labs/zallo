@@ -3,7 +3,7 @@ import BottomSheet, { BottomSheetScrollView } from '@gorhom/bottom-sheet';
 import { Sheet } from '~/components/sheet/Sheet';
 import { StackNavigatorScreenProps } from '~/navigation/StackNavigator';
 import { ListHeader } from '~/components/list/ListHeader';
-import { AddIcon, NavigateNextIcon, PolicyIcon } from '@theme/icons';
+import { AddIcon, PolicyIcon, materialCommunityIcon } from '@theme/icons';
 import { ListItem } from '~/components/list/ListItem';
 import { Button, Text } from 'react-native-paper';
 import { View } from 'react-native';
@@ -16,6 +16,8 @@ import { makeStyles } from '@theme/makeStyles';
 import { truncateAddr } from '~/util/format';
 import { AccountsSheetQuery, AccountsSheetQueryVariables } from '@api/gen/graphql';
 import { AccountItem } from './AccountItem';
+
+const SwitchIcon = materialCommunityIcon('swap-horizontal');
 
 const QueryDoc = gql(/* GraphQL */ `
   query AccountsSheet {
@@ -80,7 +82,7 @@ export const AccountsSheet = ({ route, navigation: { navigate, goBack } }: Accou
           <AccountItem
             key={a.id}
             account={a}
-            trailing={NavigateNextIcon}
+            trailing={SwitchIcon}
             onPress={() => navigate('Home', { account: a.address })}
           />
         ))}
