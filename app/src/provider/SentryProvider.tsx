@@ -9,12 +9,12 @@ export interface SentryProviderProps {
 
 export const SentryProvider = ({ children }: SentryProviderProps) => {
   init({
+    enabled: !__DEV__,
     dsn: CONFIG.sentryDsn,
     environment: CONFIG.env,
     enableInExpoDevelopment: false,
-    // debug: true,
     sampleRate: 1, // Error sampling
-    tracesSampleRate: 0.2, // Performance sampling
+    tracesSampleRate: 0.25, // Performance sampling
     attachStacktrace: true,
     integrations: [
       new Sentry.ReactNativeTracing({
