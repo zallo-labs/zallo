@@ -2,7 +2,7 @@ import { FragmentType, gql, useFragment } from '@api/gen';
 import { useApproverAddress } from '@network/useApprover';
 import { useNavigation } from '@react-navigation/native';
 import { RadioButton } from 'react-native-paper';
-import { ListItem } from '~/components/list/ListItem';
+import { ListItem, ListItemProps } from '~/components/list/ListItem';
 import { truncateAddr } from '~/util/format';
 
 const UserApproverItem_UserApproverFragment = gql(/* GraphQL */ `
@@ -13,7 +13,7 @@ const UserApproverItem_UserApproverFragment = gql(/* GraphQL */ `
   }
 `);
 
-export interface UserApproverItemProps {
+export interface UserApproverItemProps extends Partial<ListItemProps> {
   approver: FragmentType<typeof UserApproverItem_UserApproverFragment>;
 }
 
@@ -33,6 +33,7 @@ export function UserApproverItem(props: UserApproverItemProps) {
         ),
       })}
       onPress={() => navigate('Approver', { approver: a.address })}
+      {...props}
     />
   );
 }

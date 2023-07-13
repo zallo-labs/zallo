@@ -4,10 +4,10 @@ import { IconButton } from 'react-native-paper';
 import BarcodeMask from 'react-native-barcode-mask';
 import { View } from 'react-native';
 import * as Clipboard from 'expo-clipboard';
-import { useSelectContact } from '../contacts/useSelectContact';
 import { useNavigation } from '@react-navigation/native';
 import { showWarning } from '~/provider/SnackbarProvider';
 import { Screen } from '~/components/layout/Screen';
+import { useSelectAddress } from '../addresses/useSelectAddress';
 
 export interface OverlayProps {
   onData: (data: string) => Promise<boolean>;
@@ -15,7 +15,7 @@ export interface OverlayProps {
 
 export const Overlay = ({ onData }: OverlayProps) => {
   const styles = useStyles();
-  const selectContact = useSelectContact();
+  const selectAddress = useSelectAddress();
 
   return (
     <Screen topInset>
@@ -33,7 +33,7 @@ export const Overlay = ({ onData }: OverlayProps) => {
         <IconButton
           icon={ContactsIcon}
           mode="contained-tonal"
-          onPress={async () => onData((await selectContact({})).address)}
+          onPress={async () => onData(await selectAddress())}
         />
 
         <IconButton
@@ -50,7 +50,7 @@ export const Overlay = ({ onData }: OverlayProps) => {
   );
 };
 
-const useStyles = makeStyles(({ colors, roundness }) => ({
+const useStyles = makeStyles(({ colors }) => ({
   root: {
     flex: 1,
   },

@@ -12,11 +12,11 @@ import { ApproverItem } from './ApproverItem';
 import { ListItemHeight } from '~/components/list/ListItem';
 import { Fab } from '~/components/buttons/Fab';
 import { AddIcon } from '@theme/icons';
-import { useSelectContact } from '../contacts/useSelectContact';
 import { makeStyles } from '@theme/makeStyles';
 import { Text } from 'react-native-paper';
 import { Address } from 'lib';
 import { showInfo } from '~/provider/SnackbarProvider';
+import { useSelectAddress } from '../addresses/useSelectAddress';
 
 export interface ApproversScreenParams {}
 
@@ -25,10 +25,10 @@ export type ApproversScreenProps = StackNavigatorScreenProps<'Approvers'>;
 export const ApproversScreen = withSuspense((props: ApproversScreenProps) => {
   const styles = useStyles();
   const [policy, updatePolicy] = useImmerAtom(POLICY_DRAFT_ATOM);
-  const selectContact = useSelectContact({ disabled: [...policy.approvers, policy.account] });
+  const selectAddress = useSelectAddress({ disabled: [...policy.approvers, policy.account] });
 
   const addApprover = async () => {
-    const address = (await selectContact()).address;
+    const address = await selectAddress();
     updatePolicy((draft) => {
       draft.approvers.add(address);
       draft.threshold++;

@@ -54,6 +54,7 @@ import {
   PairConfirmSheetScreenParams,
 } from '~/screens/pair-confirm/PairConfirmSheet';
 import { CreateUserScreen } from '~/screens/create-user/CreateUserScreen';
+import { AddressesModal, AddressesModalParams } from '~/screens/addresses/AddressesModal';
 
 export type StackNavigatorParamList = {
   Home: HomeScreenParams;
@@ -90,11 +91,11 @@ export type StackNavigatorParamList = {
   Sign: SignSheetParams;
   // Card modal
   RenameAccountModal: RenameAccountModalParams;
-  ContactsModal: ContactsScreenParams;
   TokensModal: TokensScreenParams;
   ContractsModal: ContractsModalParams;
   ImportSelectorModal: undefined;
   RenamePolicy: RenamePolicyScreenParams;
+  AddressesModal: AddressesModalParams;
 };
 
 export type StackNavigatorNavigationProp = StackNavigationProp<StackNavigatorParamList>;
@@ -158,11 +159,11 @@ export const StackNavigator = () => {
         }}
       >
         <Navigation.Screen name="RenameAccountModal" component={RenameAccountModal} />
-        <Navigation.Screen name="ContactsModal" component={ContactsScreen} />
         <Navigation.Screen name="TokensModal" component={TokensScreen} />
         <Navigation.Screen name="ContractsModal" component={ContractsModal} />
         <Navigation.Screen name="ImportSelectorModal" component={ImportSelectorModal} />
         <Navigation.Screen name="RenamePolicy" component={RenamePolicyScreen} />
+        <Navigation.Screen name="AddressesModal" component={AddressesModal} />
       </Navigation.Group>
     </Navigation.Navigator>
   );
