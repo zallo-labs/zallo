@@ -34,7 +34,7 @@ export class AccountsCacheService {
       e.select(selectApprover, () => ({
         user: {
           id: true,
-          accounts: true,
+          accounts: { id: true },
         },
       })),
     );
