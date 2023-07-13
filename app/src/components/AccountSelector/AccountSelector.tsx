@@ -25,7 +25,7 @@ export const AccountSelector = ({ account }: AccountSelectorParams) => {
       <AddressIcon address={account} size={styles.icon.fontSize} />
 
       <Suspense fallback={<LineSkeleton />}>
-        <Text variant="titleLarge" style={styles.text}>
+        <Text variant="titleLarge" numberOfLines={1} style={styles.text}>
           <AddressLabel address={account} />
         </Text>
       </Suspense>
@@ -46,5 +46,6 @@ const useStyles = makeStyles(({ colors, iconSize }) => ({
   },
   text: {
     color: colors.onSurfaceVariant,
+    flexShrink: 1,
   },
 }));
