@@ -18,8 +18,9 @@ import { TabNavigatorScreenProp } from './Tabs';
 import { TabBadge } from '~/components/tab/TabBadge';
 import { makeStyles } from '@theme/makeStyles';
 import { Hex } from 'lib';
+import { ReactNode } from 'react';
 
-const Item = (props: ListItemProps) => (
+const Item = (props: Omit<ListItemProps, 'trailing'> & { trailing: ReactNode }) => (
   <ListItem
     {...props}
     trailing={

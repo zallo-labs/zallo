@@ -44,8 +44,7 @@
     "graphql": "^16.6.0",
     "dotenv": "^16.3.1",
     "react-native-jazzicon@0.1.2": "patch:react-native-jazzicon@npm:0.1.2#.yarn/patches/react-native-jazzicon-npm-0.1.2-c1633b051f.patch",
-    "@ethersproject/abstract-provider": "5.7.0",
-    "@types/react": "17.x"
+    "@ethersproject/abstract-provider": "5.7.0"
   },
   "dependencies": {
     "eslint-plugin-neverthrow": "^1.1.4",
