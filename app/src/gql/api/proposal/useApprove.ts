@@ -113,7 +113,8 @@ export const useApprove = () => {
                         __typename: 'Receipt',
                         success: p.transaction.receipt.success,
                         responses: p.transaction.receipt.responses,
-                        events: p.transaction.receipt.events,
+                        transferEvents: p.transaction.receipt.transferEvents,
+                        transferApprovalEvents: p.transaction.receipt.transferApprovalEvents,
                         gasUsed: p.transaction.receipt.gasUsed.toString(),
                         fee: p.transaction.receipt.fee.toString(),
                         timestamp: p.transaction.receipt.timestamp.toISO()!,
@@ -128,7 +129,7 @@ export const useApprove = () => {
       const h = r.data?.approve.transaction?.hash;
       return { transactionHash: h ? asHex(h) : undefined };
     },
-    [approver, mutate],
+    [approver, authRequired, mutate],
   );
 
   return approve;

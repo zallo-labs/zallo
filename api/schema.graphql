@@ -373,6 +373,8 @@ type Receipt {
   responses: [Bytes!]!
   success: Boolean!
   timestamp: DateTime!
+  transferApprovalEvents: [TransferApproval!]!
+  transferEvents: [Transfer!]!
 }
 
 type Rejection {

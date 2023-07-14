@@ -23,17 +23,24 @@ gql(/* GraphQL */ `
     createdAt
   }
 
-  fragment EventFields on Event {
-    __typename
-    ... on Transferlike {
-      id
-      direction
-      token
-      from
-      to
-      amount
-      timestamp
-    }
+  fragment TransferFields on Transfer {
+    id
+    direction
+    token
+    from
+    to
+    amount
+    timestamp
+  }
+
+  fragment TransferApprovalFields on TransferApproval {
+    id
+    direction
+    token
+    from
+    to
+    amount
+    timestamp
   }
 
   fragment TransactionFields on Transaction {
@@ -47,8 +54,23 @@ gql(/* GraphQL */ `
       gasUsed
       fee
       timestamp
-      events {
-        ...EventFields
+      # Broken due to Apollo cache interface bug - // https://github.com/apollographql/apollo-client/issues/8898
+      # events {
+      #   ... on Transferlike {
+      #     id
+      #     direction
+      #     token
+      #     from
+      #     to
+      #     amount
+      #     timestamp
+      #   }
+      # }
+      transferEvents {
+        ...TransferFields
+      }
+      transferApprovalEvents {
+        ...TransferApprovalFields
       }
     }
   }
@@ -160,7 +182,6 @@ export const useProposal = <Hash extends Hex | undefined>(hash: Hash) => {
   const { data } = useSuspenseQuery<ProposalQuery, ProposalQueryVariables>(ProposalDoc, {
     variables: { input: { hash: hash! } },
     skip: !hash,
-    fetchPolicy: 'no-cache', // https://github.com/apollographql/apollo-client/issues/8898
   });
 
   const p = data?.proposal;

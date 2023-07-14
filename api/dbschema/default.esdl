@@ -188,6 +188,8 @@ module default {
       select Event
       filter .transactionHash = txHash
     );
+    multi link transferEvents := .events[is Transfer];
+    multi link transferApprovalEvents := .events[is TransferApproval];
     required gasUsed: bigint { constraint min_value(0n); }
     required fee: bigint { constraint min_value(0n); }
     required block: bigint { constraint min_value(0n); }

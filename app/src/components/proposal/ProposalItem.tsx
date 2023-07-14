@@ -13,7 +13,6 @@ import { useOperationLabel } from '../call/useOperationLabel';
 import { materialCommunityIcon } from '@theme/icons';
 import { ICON_SIZE } from '@theme/paper';
 import { Hex } from 'lib';
-import { onlyTypes } from '~/gql/util';
 
 const MultiOperationIcon = materialCommunityIcon('multiplication');
 
@@ -30,7 +29,7 @@ export const ProposalItem = withSuspense(({ proposal: hash, ...itemProps }: Prop
   const opLabel = useOperationLabel(p, p.operations[0]);
 
   const totalValue = useTransfersValue(
-    p.transaction?.receipt?.events.filter(onlyTypes('Transfer')) ?? p.simulation?.transfers ?? [],
+    p.transaction?.receipt?.transferEvents ?? p.simulation?.transfers ?? [],
   );
 
   const supporting = match<Proposal, ListItemProps['supporting']>(p)

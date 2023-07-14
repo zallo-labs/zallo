@@ -1,20 +1,11 @@
-import {
-  Address,
-  Hex,
-  KeySet,
-  asHex,
-  asAddress,
-  asBigInt,
-  asPolicyKey,
-  PolicyKey,
-  Operation,
-} from 'lib';
+import { Address, Hex, KeySet, asHex, asBigInt, asPolicyKey, PolicyKey, Operation } from 'lib';
 import { DateTime } from 'luxon';
 import { match } from 'ts-pattern';
 import {
-  EventFieldsFragment,
   OperationFieldsFragment,
   TransactionProposalFieldsFragment,
+  TransferFieldsFragment,
+  TransferApprovalFieldsFragment,
 } from '@api/generated';
 import { asAccountId } from '@api/account/types';
 import { Transfer } from '@api/transfer/types';
@@ -87,7 +78,8 @@ export interface Receipt {
   gasUsed: bigint;
   fee: bigint;
   timestamp: DateTime;
-  events: EventFieldsFragment[];
+  transferEvents: TransferFieldsFragment[];
+  transferApprovalEvents: TransferApprovalFieldsFragment[];
 }
 
 export const toProposal = (p: TransactionProposalFieldsFragment): Proposal => {
@@ -145,7 +137,8 @@ export const toProposal = (p: TransactionProposalFieldsFragment): Proposal => {
               gasUsed: asBigInt(t.receipt.gasUsed),
               fee: asBigInt(t.receipt.fee),
               timestamp: DateTime.fromISO(t.receipt.timestamp),
-              events: t.receipt.events,
+              transferEvents: t.receipt.transferEvents,
+              transferApprovalEvents: t.receipt.transferApprovalEvents,
             }
           : undefined,
       }

@@ -13,13 +13,12 @@ export namespace std {
 export namespace cfg {
   export interface ConfigObject extends std.BaseObject {}
   export interface AbstractConfig extends ConfigObject {
-    "auth": Auth[];
-    "force_database_error"?: string | null;
     "session_idle_timeout": edgedb.Duration;
     "session_idle_transaction_timeout": edgedb.Duration;
     "query_execution_timeout": edgedb.Duration;
     "listen_port": number;
     "listen_addresses": string[];
+    "auth": Auth[];
     "allow_dml_in_functions"?: boolean | null;
     "allow_bare_ddl"?: AllowBareDDL | null;
     "apply_access_policies"?: boolean | null;
@@ -30,13 +29,14 @@ export namespace cfg {
     "effective_cache_size"?: edgedb.ConfigMemory | null;
     "effective_io_concurrency"?: number | null;
     "default_statistics_target"?: number | null;
+    "force_database_error"?: string | null;
     "_pg_prepared_statement_cache_size": number;
   }
   export type AllowBareDDL = "AlwaysAllow" | "NeverAllow";
   export interface Auth extends ConfigObject {
-    "method"?: AuthMethod | null;
     "priority": number;
     "user": string[];
+    "method"?: AuthMethod | null;
     "comment"?: string | null;
   }
   export interface AuthMethod extends ConfigObject {
@@ -56,32 +56,32 @@ export namespace cfg {
 }
 export type AbiSource = "Verified";
 export interface Account extends std.$Object {
-  "policies": Policy[];
-  "transfers": Transfer[];
-  "approvers": Approver[];
-  "proposals": Proposal[];
-  "transactionProposals": TransactionProposal[];
   "address": string;
   "implementation": string;
   "isActive": boolean;
   "name": string;
   "salt": string;
+  "policies": Policy[];
+  "approvers": Approver[];
+  "proposals": Proposal[];
+  "transactionProposals": TransactionProposal[];
+  "transfers": Transfer[];
 }
 export interface ProposalResponse extends std.$Object {
   "approver": Approver;
-  "proposal": Proposal;
   "createdAt"?: Date | null;
+  "proposal": Proposal;
 }
 export interface Approval extends ProposalResponse {
   "signature": string;
 }
 export interface Approver extends std.$Object {
-  "user": User;
-  "accounts": Account[];
-  "contact"?: Contact | null;
   "address": string;
   "name"?: string | null;
   "pushToken"?: string | null;
+  "user": User;
+  "accounts": Account[];
+  "contact"?: Contact | null;
   "label"?: string | null;
 }
 export interface Contact extends std.$Object {
@@ -120,45 +120,47 @@ export interface Operation extends std.$Object {
 }
 export interface Policy extends std.$Object {
   "account": Account;
+  "name": string;
+  "key": number;
   "stateHistory": PolicyState[];
   "draft"?: PolicyState | null;
   "state"?: PolicyState | null;
-  "name": string;
-  "key": number;
   "isActive": boolean;
 }
 export interface PolicyState extends std.$Object {
-  "approvers": Approver[];
-  "proposal"?: TransactionProposal | null;
-  "targets": TargetsConfig;
-  "transfers": TransfersConfig;
-  "policy"?: Policy | null;
   "activationBlock"?: bigint | null;
   "createdAt": Date;
+  "approvers": Approver[];
+  "proposal"?: TransactionProposal | null;
   "isAccountInitState": boolean;
+  "targets": TargetsConfig;
+  "transfers": TransfersConfig;
   "isRemoved": boolean;
   "threshold": number;
+  "policy"?: Policy | null;
 }
 export interface Proposal extends std.$Object {
   "proposedBy": Approver;
+  "createdAt"?: Date | null;
+  "hash": string;
+  "label"?: string | null;
   "approvals": Approval[];
   "rejections": Rejection[];
   "responses": ProposalResponse[];
   "account": Account;
   "policy"?: Policy | null;
-  "createdAt"?: Date | null;
-  "hash": string;
-  "label"?: string | null;
 }
 export interface Receipt extends std.$Object {
-  "transaction": Transaction;
-  "events": Event[];
   "responses": string[];
   "success": boolean;
   "block": bigint;
   "fee": bigint;
   "gasUsed": bigint;
   "timestamp": Date;
+  "transaction": Transaction;
+  "events": Event[];
+  "transferApprovalEvents": TransferApproval[];
+  "transferEvents": Transfer[];
 }
 export interface Rejection extends ProposalResponse {}
 export interface Simulation extends std.$Object {
@@ -176,14 +178,14 @@ export interface Transaction extends std.$Object {
   "gasPrice": bigint;
 }
 export interface TransactionProposal extends Proposal {
-  "operations": Operation[];
-  "transactions": Transaction[];
-  "transaction"?: Transaction | null;
-  "simulation": Simulation;
   "nonce": bigint;
+  "operations": Operation[];
   "feeToken": string;
   "gasLimit": bigint;
+  "transactions": Transaction[];
+  "transaction"?: Transaction | null;
   "status": TransactionProposalStatus;
+  "simulation": Simulation;
 }
 export type TransactionProposalStatus = "Pending" | "Executing" | "Successful" | "Failed";
 export interface TransferDetails extends std.$Object {
@@ -212,10 +214,10 @@ export interface TransfersConfig extends std.$Object {
   "defaultAllow": boolean;
 }
 export interface User extends std.$Object {
+  "name"?: string | null;
   "approvers": Approver[];
   "accounts": Account[];
   "contacts": Contact[];
-  "name"?: string | null;
 }
 export interface current_approver extends Approver {}
 export interface current_user extends User {}
@@ -251,8 +253,8 @@ export namespace schema {
   }
   export type AccessPolicyAction = "Allow" | "Deny";
   export interface Alias extends AnnotationSubject {
-    "type"?: Type | null;
     "expr": string;
+    "type"?: Type | null;
   }
   export interface Annotation extends InheritingObject, AnnotationSubject {
     "inheritable"?: boolean | null;
@@ -288,7 +290,6 @@ export namespace schema {
     "constraints": Constraint[];
   }
   export interface Constraint extends CallableObject, InheritingObject {
-    "subject"?: ConsistencySubject | null;
     "params": Parameter[];
     "expr"?: string | null;
     "subjectexpr"?: string | null;
@@ -296,6 +297,7 @@ export namespace schema {
     "errmessage"?: string | null;
     "delegated"?: boolean | null;
     "except_expr"?: string | null;
+    "subject"?: ConsistencySubject | null;
   }
   export interface Delta extends $Object {
     "parents": Delta[];
@@ -304,10 +306,10 @@ export namespace schema {
     "package": sys.ExtensionPackage;
   }
   export interface Function extends CallableObject, VolatilitySubject {
-    "used_globals": Global[];
+    "preserves_optionality"?: boolean | null;
     "body"?: string | null;
     "language": string;
-    "preserves_optionality"?: boolean | null;
+    "used_globals": Global[];
   }
   export interface FutureBehavior extends $Object {}
   export interface Global extends AnnotationSubject {
@@ -318,24 +320,24 @@ export namespace schema {
     "default"?: string | null;
   }
   export interface Index extends InheritingObject, AnnotationSubject {
-    "params": Parameter[];
-    "except_expr"?: string | null;
     "expr"?: string | null;
+    "except_expr"?: string | null;
+    "params": Parameter[];
     "kwargs"?: {name: string, expr: string}[] | null;
   }
   export interface Pointer extends ConsistencySubject, AnnotationSubject {
-    "source"?: Source | null;
-    "target"?: Type | null;
-    "rewrites": Rewrite[];
     "cardinality"?: Cardinality | null;
     "required"?: boolean | null;
     "readonly"?: boolean | null;
     "default"?: string | null;
     "expr"?: string | null;
+    "source"?: Source | null;
+    "target"?: Type | null;
+    "rewrites": Rewrite[];
   }
   export interface Source extends $Object {
-    "pointers": Pointer[];
     "indexes": Index[];
+    "pointers": Pointer[];
   }
   export interface Link extends Pointer, Source {
     "target"?: ObjectType | null;
@@ -354,17 +356,17 @@ export namespace schema {
   export interface ObjectType extends Source, ConsistencySubject, InheritingObject, Type, AnnotationSubject {
     "union_of": ObjectType[];
     "intersection_of": ObjectType[];
-    "properties": Property[];
-    "links": Link[];
     "access_policies": AccessPolicy[];
     "triggers": Trigger[];
     "compound_type": boolean;
     "is_compound_type": boolean;
+    "links": Link[];
+    "properties": Property[];
   }
   export interface Operator extends CallableObject, VolatilitySubject {
     "operator_kind"?: OperatorKind | null;
-    "is_abstract"?: boolean | null;
     "abstract"?: boolean | null;
+    "is_abstract"?: boolean | null;
   }
   export type OperatorKind = "Infix" | "Postfix" | "Prefix" | "Ternary";
   export interface Parameter extends $Object {
@@ -405,8 +407,8 @@ export namespace schema {
   export type TriggerScope = "All" | "Each";
   export type TriggerTiming = "After" | "AfterCommitOf";
   export interface Tuple extends CollectionType {
-    "element_types": TupleElement[];
     "named": boolean;
+    "element_types": TupleElement[];
   }
   export interface TupleElement extends std.BaseObject {
     "type": Type;
@@ -427,11 +429,11 @@ export namespace sys {
     "version": {major: number, minor: number, stage: VersionStage, stage_no: number, local: string[]};
   }
   export interface Role extends SystemObject, schema.InheritingObject, schema.AnnotationSubject {
-    "member_of": Role[];
     "name": string;
     "superuser": boolean;
     "is_superuser": boolean;
     "password"?: string | null;
+    "member_of": Role[];
   }
   export type TransactionIsolation = "RepeatableRead" | "Serializable";
   export type VersionStage = "dev" | "alpha" | "beta" | "rc" | "final";
