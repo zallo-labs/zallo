@@ -154,39 +154,38 @@ export class PoliciesService {
               account: e.select(p.account, () => ({ filter_single: { address: account } })),
               key,
             },
-            account: { id: true },
+            accountId: p.account.id,
             state: policyStateShape,
             draft: policyStateShape,
           }))
           .run(db);
-        return;
-        //   if (!existing) throw new UserInputError("Policy doesn't exist");
+        if (!existing) throw new UserInputError("Policy doesn't exist");
 
-        //   const policy = policyStateAsPolicy(key, existing?.draft ?? existing?.state!);
+        const policy = policyStateAsPolicy(key, existing?.draft ?? existing?.state!);
 
-        //   if (approvers) policy.approvers = new Set(approvers);
-        //   if (threshold !== undefined) policy.threshold = threshold;
-        //   if (permissions?.targets) policy.permissions.targets = asTargetsConfig(permissions.targets);
-        //   if (permissions?.transfers)
-        //     policy.permissions.transfers = asTransfersConfig(permissions.transfers);
+        if (approvers) policy.approvers = new Set(approvers);
+        if (threshold !== undefined) policy.threshold = threshold;
+        if (permissions?.targets) policy.permissions.targets = asTargetsConfig(permissions.targets);
+        if (permissions?.transfers)
+          policy.permissions.transfers = asTransfersConfig(permissions.transfers);
 
-        //   // await this.upsertApprovers(existing.account.id, policy);
+        await this.upsertApprovers(existing.accountId, policy);
 
-        //   const proposal = await this.proposeState(account, policy);
+        const proposal = await this.proposeState(account, policy);
 
-        //   await e
-        //     .update(e.Policy, (p) => ({
-        //       ...uniquePolicy({ account, key })(p),
-        //       set: {
-        //         stateHistory: {
-        //           '+=': e.insert(e.PolicyState, {
-        //             proposal,
-        //             ...this.insertStateShape(policy),
-        //           }),
-        //         },
-        //       },
-        //     }))
-        //     .run(db);
+        await e
+          .update(e.Policy, (p) => ({
+            ...uniquePolicy({ account, key })(p),
+            set: {
+              stateHistory: {
+                '+=': e.insert(e.PolicyState, {
+                  proposal,
+                  ...this.insertStateShape(policy),
+                }),
+              },
+            },
+          }))
+          .run(db);
       }
     });
   }
