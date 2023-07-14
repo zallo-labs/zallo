@@ -1,6 +1,10 @@
-import { MANIFEST } from '~/util/config';
+import constants from 'expo-constants';
 
-export const getPairingLink = (pairingToken: string) => `${MANIFEST.scheme}://pair/${pairingToken}`;
+const SCHEME = Array.isArray(constants.expoConfig!.scheme)
+  ? constants.expoConfig!.scheme[0]
+  : constants.expoConfig!.scheme;
 
-const pattern = new RegExp(`^${MANIFEST.scheme}://pair/(.+)$`);
+export const getPairingLink = (pairingToken: string) => `${SCHEME}://pair/${pairingToken}`;
+
+const pattern = new RegExp(`^${SCHEME}://pair/(.+)$`);
 export const getPairingTokenFromLink = (link: string) => link.match(pattern)?.[1];
