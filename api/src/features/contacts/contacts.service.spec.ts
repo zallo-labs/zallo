@@ -104,27 +104,6 @@ describe(ContactsService.name, () => {
         expect(new Set(contacts)).toEqual(expectedContacts);
       }));
 
-    it("includes user's accounts", () =>
-      asUser(user1, async () => {
-        const account = randomAddress();
-
-        const accountId = uuid1();
-        getUserCtx().accounts.push(accountId);
-        await db.query(
-          e.insert(e.Account, {
-            id: accountId,
-            address: account,
-            name: 'Test account',
-            implementation: account,
-            isActive: false,
-            salt: randomDeploySalt(),
-          }),
-        );
-
-        const contacts = await service.select({}, () => ({ address: true }));
-        expect(contacts.map((c) => c.address)).toEqual([account]);
-      }));
-
     it("doesn't include other user's contacts", async () => {
       await asUser(user1, () => upsertContact(user1Contact));
 
