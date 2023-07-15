@@ -145,6 +145,7 @@
     "@babel/core": "^7.22.5",
     "@graphql-codegen/cli": "^4.0.1",
     "@graphql-codegen/introspection": "^4.0.0",
+    "@graphql-codegen/relay-operation-optimizer": "^1.11.2",
     "@graphql-codegen/typescript": "^4.0.1",
     "@graphql-codegen/typescript-operations": "^4.0.1",
     "@graphql-codegen/typescript-react-apollo": "^3.3.7",

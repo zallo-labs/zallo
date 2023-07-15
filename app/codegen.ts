@@ -53,6 +53,9 @@ export default {
           Selector: 'lib#Selector',
           Uint256: 'lib#BigIntlike',
         },
+        // https://the-guild.dev/graphql/codegen/plugins/typescript/relay-operation-optimizer
+        skipDocumentsValidation: true,
+        flattenGeneratedTypes: true,
       },
     },
     'src/gql/uniswap/generated.ts': {
