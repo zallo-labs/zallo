@@ -1,25 +1,19 @@
-import { gql } from '@apollo/client';
 import { useCallback } from 'react';
-import {
-  ProposalsDocument,
-  ProposalsQuery,
-  ProposalsQueryVariables,
-  useRemoveProposalMutation,
-} from '@api/generated';
-import { Proposal } from './types';
-import { updateQuery } from '~/gql/util';
+import { useRemoveProposalMutation } from '@api/generated';
+import { gql } from '@api/gen';
+import { Hex } from 'lib';
 
-gql`
+gql(/* GraphQL */ `
   mutation RemoveProposal($input: ProposalInput!) {
     removeProposal(input: $input)
   }
-`;
+`);
 
 export const useRemoveProposal = () => {
   const [remove] = useRemoveProposalMutation();
 
   return useCallback(
-    (p: Proposal) =>
+    (p: { id: string; hash: Hex }) =>
       remove({
         variables: { input: { hash: p.hash } },
         optimisticResponse: { removeProposal: p.id },
@@ -29,16 +23,6 @@ export const useRemoveProposal = () => {
 
           cache.evict({ id });
           cache.gc();
-
-          updateQuery<ProposalsQuery, ProposalsQueryVariables>({
-            query: ProposalsDocument,
-            variables: { input: { accounts: [p.account] } },
-            cache,
-            defaultData: { proposals: [] },
-            updater: (data) => {
-              data.proposals = data.proposals.filter((p) => p.id !== id);
-            },
-          });
         },
       }),
     [remove],

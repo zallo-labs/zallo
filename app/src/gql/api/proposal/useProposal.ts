@@ -4,7 +4,7 @@ import { useMemo } from 'react';
 import { Proposal, toProposal } from './types';
 import { Hex } from 'lib';
 import { gql } from '@api/gen';
-import { ProposalQuery, ProposalQueryVariables } from '@api/generated';
+import { ProposalOldQuery, ProposalOldQueryVariables } from '@api/generated';
 
 gql(/* GraphQL */ `
   fragment ApprovalFields on Approval {
@@ -73,12 +73,6 @@ gql(/* GraphQL */ `
         ...TransferApprovalFields
       }
     }
-  }
-
-  fragment SatisfiablePolicyFields on SatisfiablePolicy {
-    key
-    satisfied
-    responseRequested
   }
 
   fragment OperationFields on Operation {
@@ -151,9 +145,6 @@ gql(/* GraphQL */ `
     policy {
       key
     }
-    satisfiablePolicies {
-      ...SatisfiablePolicyFields
-    }
     simulation {
       transfers {
         id
@@ -171,7 +162,7 @@ gql(/* GraphQL */ `
 `);
 
 const ProposalDoc = gql(/* GraphQL */ `
-  query Proposal($input: ProposalInput!) {
+  query ProposalOld($input: ProposalInput!) {
     proposal(input: $input) {
       ...TransactionProposalFields
     }
@@ -179,7 +170,7 @@ const ProposalDoc = gql(/* GraphQL */ `
 `);
 
 export const useProposal = <Hash extends Hex | undefined>(hash: Hash) => {
-  const { data } = useSuspenseQuery<ProposalQuery, ProposalQueryVariables>(ProposalDoc, {
+  const { data } = useSuspenseQuery<ProposalOldQuery, ProposalOldQueryVariables>(ProposalDoc, {
     variables: { input: { hash: hash! } },
     skip: !hash,
   });

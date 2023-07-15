@@ -18,7 +18,7 @@ export const PROPOSAL_EXECUTE_EMITTER = new EventEmitter<TransactionProposalFiel
 gql`
   ${TransactionProposalFieldsFragmentDoc}
 
-  subscription ProposalSubscription($input: ProposalSubscriptionInput) {
+  subscription ProposalSubscription($input: ProposalSubscriptionInput!) {
     proposal(input: $input) {
       ...TransactionProposalFields
     }

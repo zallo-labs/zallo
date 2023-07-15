@@ -1,13 +1,12 @@
 import { gql, useSuspenseQuery } from '@apollo/client';
 import { Transfer } from './types';
 import {
-  TransferDirection,
   TransfersDocument,
   TransfersInput,
   TransfersQuery,
   TransfersQueryVariables,
 } from '@api/generated';
-import { Address, asBigInt } from 'lib';
+import { asBigInt } from 'lib';
 import { useMemo } from 'react';
 import { DateTime } from 'luxon';
 
@@ -26,7 +25,7 @@ export const TRANSFER_FRAGMENT = gql`
 gql`
   ${TRANSFER_FRAGMENT}
 
-  query Transfers($input: TransfersInput) {
+  query Transfers($input: TransfersInput!) {
     transfers(input: $input) {
       ...TransferFragment
     }

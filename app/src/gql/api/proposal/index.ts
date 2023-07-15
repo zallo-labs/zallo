@@ -1,5 +1,5 @@
 export * from './types';
-export * from './useApprove';
+export * from '../../../screens/proposal/useApprove';
 export * from './useProposal';
 export * from './useProposals';
 export * from './useProposalSubscription';

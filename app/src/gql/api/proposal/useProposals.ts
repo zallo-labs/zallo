@@ -13,7 +13,7 @@ import { Proposal, toProposal } from './types';
 gql`
   ${TransactionProposalFieldsFragmentDoc}
 
-  query Proposals($input: ProposalsInput) {
+  query Proposals($input: ProposalsInput!) {
     proposals(input: $input) {
       ...TransactionProposalFields
     }

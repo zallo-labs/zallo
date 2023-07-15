@@ -103,23 +103,6 @@ export const toProposal = (p: TransactionProposalFieldsFragment): Proposal => {
     })),
   );
 
-  const satisfiablePolicies: SatisfiablePolicy[] = p.satisfiablePolicies.map((p) => ({
-    account,
-    key: asPolicyKey(p.key),
-    satisfied: p.satisfied,
-    responseRequested: p.responseRequested,
-  }));
-
-  const policy = p.policy
-    ? satisfiablePolicies.find((policy) => policy.key === p.policy!.key) ?? {
-        account,
-        key: asPolicyKey(p.policy!.key),
-        satisfied: false,
-        unsatisfiable: true,
-        responseRequested: false,
-      }
-    : satisfiablePolicies[0];
-
   const createdAt = DateTime.fromISO(p.createdAt);
 
   const t = p.transaction;
@@ -184,8 +167,8 @@ export const toProposal = (p: TransactionProposalFieldsFragment): Proposal => {
     state,
     approvals,
     rejections,
-    policy,
-    satisfiablePolicies,
+    policy: undefined,
+    satisfiablePolicies: [],
     simulation,
     transaction,
     proposedBy: p.proposedBy.address,
