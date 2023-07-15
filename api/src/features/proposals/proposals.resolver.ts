@@ -1,13 +1,4 @@
-import {
-  Context,
-  ID,
-  Info,
-  Mutation,
-  Parent,
-  Query,
-  Resolver,
-  Subscription,
-} from '@nestjs/graphql';
+import { Context, ID, Info, Mutation, Query, Resolver, Subscription } from '@nestjs/graphql';
 import { GraphQLResolveInfo } from 'graphql';
 import {
   ProposeInput,
@@ -19,7 +10,7 @@ import {
 } from './proposals.input';
 import { PubsubService } from '~/features/util/pubsub/pubsub.service';
 import { GqlContext, asUser, getUserCtx } from '~/request/ctx';
-import { TransactionProposal, SatisfiablePolicy } from './proposals.model';
+import { TransactionProposal } from './proposals.model';
 import {
   ProposalSubscriptionPayload,
   ProposalsService,
@@ -27,7 +18,6 @@ import {
   getProposalTrigger,
 } from './proposals.service';
 import { getShape } from '../database/database.select';
-import { ComputedField } from '~/decorators/computed.decorator';
 import e from '~/edgeql-js';
 import { Input, InputArgs } from '~/decorators/input.decorator';
 import { DatabaseService } from '../database/database.service';
@@ -53,11 +43,6 @@ export class ProposalsResolver {
     @Info() info: GraphQLResolveInfo,
   ) {
     return this.service.select(input, getShape(info));
-  }
-
-  @ComputedField<typeof e.Policy>(() => [SatisfiablePolicy], { id: true })
-  async satisfiablePolicies(@Parent() { id }: TransactionProposal): Promise<SatisfiablePolicy[]> {
-    return this.service.satisfiablePoliciesResponse(id);
   }
 
   @Subscription(() => TransactionProposal, {

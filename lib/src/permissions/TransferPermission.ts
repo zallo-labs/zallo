@@ -10,7 +10,7 @@ import { Operation } from '../operation';
 import { decodeFunctionData } from 'viem';
 import { ERC20_ABI } from '../abi';
 import { ETH_ADDRESS } from 'zksync-web3/build/src/utils';
-import { SatisfiabilityResult } from '../satisfiability';
+import { OperationSatisfiability } from '../satisfiability';
 
 export interface TransferLimit {
   amount: bigint;
@@ -68,7 +68,7 @@ export const hookAsTransfersConfig = (p: HookStruct | undefined) =>
 export const verifyTransfersPermission = (
   c: TransfersConfig,
   op: Operation,
-): SatisfiabilityResult => {
+): OperationSatisfiability => {
   const transfer = decodeTransfer(op);
   if (!transfer.amount) return { result: 'satisfied' };
 

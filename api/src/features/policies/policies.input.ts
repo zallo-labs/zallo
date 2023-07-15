@@ -1,9 +1,9 @@
 import { Field, InputType, IntersectionType, PartialType } from '@nestjs/graphql';
-import { Address, PolicyId, PolicyKey, Selector } from 'lib';
+import { Address, Hex, PolicyId, PolicyKey, Selector } from 'lib';
 import { AddressField, AddressScalar } from '~/apollo/scalars/Address.scalar';
 import { PolicyKeyField } from '~/apollo/scalars/PolicyKey.scalar';
 import { GraphQLBigInt } from 'graphql-scalars';
-import { Bytes4Field } from '~/apollo/scalars/Bytes.scalar';
+import { Bytes32Field, Bytes4Field } from '~/apollo/scalars/Bytes.scalar';
 
 @InputType()
 export class UniquePolicyInput implements PolicyId {
@@ -112,3 +112,9 @@ export class UpdatePolicyInput extends IntersectionType(
   UniquePolicyInput,
   PartialType(PolicyInput),
 ) {}
+
+@InputType()
+export class SatisfiabilityInput {
+  @Bytes32Field()
+  proposal: Hex;
+}

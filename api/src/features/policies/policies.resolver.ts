@@ -1,10 +1,18 @@
-import { Info, Mutation, Query, Resolver } from '@nestjs/graphql';
+import { Info, Mutation, Parent, Query, Resolver } from '@nestjs/graphql';
 import { GraphQLResolveInfo } from 'graphql';
-import { CreatePolicyInput, UniquePolicyInput, UpdatePolicyInput } from './policies.input';
+import {
+  CreatePolicyInput,
+  SatisfiabilityInput,
+  UniquePolicyInput,
+  UpdatePolicyInput,
+} from './policies.input';
 import { PoliciesService } from './policies.service';
-import { Policy } from './policies.model';
+import { Policy, SatisfiabilityResult } from './policies.model';
 import { getShape } from '../database/database.select';
 import { Input } from '~/decorators/input.decorator';
+import e from '~/edgeql-js';
+import { ComputedField } from '~/decorators/computed.decorator';
+import { policyStateShape } from '../policies/policies.util';
 
 @Resolver(() => Policy)
 export class PoliciesResolver {
@@ -18,6 +26,17 @@ export class PoliciesResolver {
   @Query(() => [Policy])
   async policies(@Info() info: GraphQLResolveInfo) {
     return this.service.select(getShape(info));
+  }
+
+  @ComputedField<typeof e.Policy>(() => SatisfiabilityResult, {
+    key: true,
+    state: policyStateShape,
+  })
+  async satisfiability(
+    @Input() { proposal }: SatisfiabilityInput,
+    @Parent() { key, state }: Policy,
+  ): Promise<SatisfiabilityResult> {
+    return this.service.satisfiability(proposal, key, state || null);
   }
 
   @Mutation(() => Policy)

@@ -3,7 +3,12 @@ import { A } from 'ts-toolbelt';
 
 export type BigIntlike = bigint | number | string;
 
-export const asBigInt = (v: BigNumberish) => BigNumber.from(v).toBigInt();
+export const asBigInt = <V extends BigNumberish | null | undefined>(v: V) =>
+  (v !== null && v !== undefined ? BigNumber.from(v).toBigInt() : undefined) as V extends
+    | null
+    | undefined
+    ? bigint | undefined
+    : bigint;
 
 export const asBounded =
   <T extends number>(min: number, max: number) =>

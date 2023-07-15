@@ -1,5 +1,15 @@
 import { forwardRef, Inject, Injectable } from '@nestjs/common';
-import { ACCOUNT_INTERFACE, Address, asHex, asPolicyKey, Policy, POLICY_ABI } from 'lib';
+import {
+  ACCOUNT_INTERFACE,
+  Address,
+  asHex,
+  asPolicyKey,
+  getTransactionSatisfiability,
+  Hex,
+  Policy,
+  POLICY_ABI,
+  Satisfiability,
+} from 'lib';
 import { ProposalsService, selectTransactionProposal } from '../proposals/proposals.service';
 import { CreatePolicyInput, UniquePolicyInput, UpdatePolicyInput } from './policies.input';
 import _ from 'lodash';
@@ -18,6 +28,8 @@ import {
   asTransfersConfig,
   asTargetsConfig,
 } from './policies.util';
+import { PolicyState, SatisfiabilityResult } from './policies.model';
+import { proposalTxShape, transactionProposalAsTx } from '../proposals/proposals.uitl';
 
 interface CreateParams extends CreatePolicyInput {
   accountId?: uuid;
@@ -240,6 +252,33 @@ export class PoliciesService {
         .run(db);
       if (!r) throw new UserInputError("Policy doesn't exist");
     });
+  }
+
+  async satisfiability(
+    proposalHash: Hex,
+    key: number,
+    state: PolicyState | null,
+  ): Promise<SatisfiabilityResult> {
+    if (!state)
+      return { result: Satisfiability.unsatisfiable, reasons: [{ reason: 'Policy inactive' }] };
+
+    const policy2 = await this.db.query(
+      e.select(e.TransactionProposal, (p) => ({
+        filter_single: { hash: proposalHash },
+        ...proposalTxShape(p),
+        approvals: {
+          approver: { address: true },
+        },
+      })),
+    );
+    if (!policy2)
+      return { result: Satisfiability.unsatisfiable, reasons: [{ reason: 'Proposal not found' }] };
+
+    const p = policyStateAsPolicy(key, state);
+    const tx = transactionProposalAsTx(policy2);
+    const approvals = new Set(policy2.approvals.map((a) => a.approver.address as Address));
+
+    return getTransactionSatisfiability(p, tx, approvals);
   }
 
   private async proposeState(account: Address, policy: Policy) {

@@ -14,7 +14,6 @@ import {
 } from './proposals.input';
 import { getUserCtx } from '~/request/ctx';
 import { ExpoService } from '../util/expo/expo.service';
-import { SatisfiablePolicy } from './proposals.model';
 import { ETH_ADDRESS } from 'zksync-web3/build/src/utils';
 import { DatabaseService } from '../database/database.service';
 import { uuid } from 'edgedb/dist/codecs/ifaces';
@@ -289,29 +288,6 @@ export class ProposalsService {
       this.pubsub.publish<ProposalSubscriptionPayload>(getProposalTrigger(hash), payload),
       this.pubsub.publish<ProposalSubscriptionPayload>(getProposalAccountTrigger(account), payload),
     ]);
-  }
-
-  async satisfiablePoliciesResponse(id: UniqueProposal) {
-    const { policies, approvals, rejections } = await this.transactions.satisfiablePolicies(id);
-
-    const userApprovers = (await this.db.query(
-      e.select(e.global.current_user.approvers.address),
-    )) as Address[];
-
-    return policies
-      .filter(({ satisfiability }) => satisfiability.result !== 'unsatisfiable')
-      .map(
-        ({ policy, satisfiability }): SatisfiablePolicy => ({
-          id: `${id}-${policy.key}`,
-          key: policy.key,
-          satisfied: satisfiability.result === 'satisfied',
-          responseRequested:
-            satisfiability.result === 'satisfiable' &&
-            userApprovers.some(
-              (a) => policy.approvers.has(a) && !(approvals.has(a) || rejections.has(a)),
-            ),
-        }),
-      );
   }
 
   // private async notifyApprovers(proposalId: string) {

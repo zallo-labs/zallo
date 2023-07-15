@@ -1,7 +1,5 @@
 import { Field, ObjectType, registerEnumType } from '@nestjs/graphql';
 import { GraphQLBigInt } from 'graphql-scalars';
-import { PolicyKey } from 'lib';
-import { PolicyKeyField } from '~/apollo/scalars/PolicyKey.scalar';
 import { Account } from '../accounts/accounts.model';
 import { Policy } from '../policies/policies.model';
 import { AddressField } from '~/apollo/scalars/Address.scalar';
@@ -115,18 +113,3 @@ export class Approval extends ProposalResponse {
 
 @ObjectType()
 export class Rejection extends ProposalResponse {}
-
-@ObjectType()
-export class SatisfiablePolicy {
-  @IdField()
-  id: uuid;
-
-  @PolicyKeyField()
-  key: PolicyKey;
-
-  @Field(() => Boolean)
-  satisfied: boolean;
-
-  @Field(() => Boolean)
-  responseRequested: boolean;
-}

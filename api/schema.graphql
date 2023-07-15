@@ -253,6 +253,7 @@ type Policy {
   isActive: Boolean!
   key: PolicyKey!
   name: String!
+  satisfiability(input: SatisfiabilityInput!): SatisfiabilityResult!
   state: PolicyState
   stateHistory: [PolicyState!]!
 }
@@ -395,11 +396,24 @@ input RequestTokensInput {
   account: Address!
 }
 
-type SatisfiablePolicy {
-  id: ID!
-  key: PolicyKey!
-  responseRequested: Boolean!
-  satisfied: Boolean!
+enum Satisfiability {
+  satisfiable
+  satisfied
+  unsatisfiable
+}
+
+input SatisfiabilityInput {
+  proposal: Bytes32!
+}
+
+type SatisfiabilityReason {
+  operation: Float
+  reason: String!
+}
+
+type SatisfiabilityResult {
+  reasons: [SatisfiabilityReason!]!
+  result: Satisfiability!
 }
 
 """function selector (4-byte hex string)"""
@@ -492,7 +506,6 @@ type TransactionProposal {
   proposedBy: Approver!
   rejections: [Rejection!]!
   responses: [ProposalResponse!]!
-  satisfiablePolicies: [SatisfiablePolicy!]!
   simulation: Simulation!
   status: TransactionProposalStatus!
   transaction: Transaction

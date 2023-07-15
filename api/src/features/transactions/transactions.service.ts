@@ -191,6 +191,7 @@ export class TransactionsService {
           approver: { address: true },
         },
         account: {
+          id: true,
           policies: {
             key: true,
             state: policyStateShape,
@@ -213,7 +214,7 @@ export class TransactionsService {
         satisfiability: getTransactionSatisfiability(policy, tx, approvals),
       }));
 
-    return { policies, approvals, rejections };
+    return { accountId: proposal.account.id, policies, approvals, rejections };
   }
 
   private async getExecutionPolicy(
