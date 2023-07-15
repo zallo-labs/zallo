@@ -1,5 +1,5 @@
 import { useRemoveProposal } from '@api/proposal';
-import { Menu, Text } from 'react-native-paper';
+import { Menu } from 'react-native-paper';
 import { Appbar } from '~/components/Appbar/Appbar';
 import { AppbarMore2 } from '~/components/Appbar/AppbarMore';
 import { Screen } from '~/components/layout/Screen';
@@ -13,6 +13,7 @@ import { Hex } from 'lib';
 import { gql } from '@api/gen';
 import { useSuspenseQuery } from '@apollo/client';
 import { ProposalQuery, ProposalQueryVariables } from '@api/gen/graphql';
+import { NotFound } from '~/components/NotFound';
 
 const ProposalQueryDoc = gql(/* GraphQL */ `
   query Proposal($proposal: Bytes32!) {
@@ -45,7 +46,7 @@ export const ProposalScreen = withSuspense(
       message: 'Are you sure you want to remove this proposal?',
     });
 
-    if (!p) return <Text>Proposal not found</Text>; // TODO: not found page
+    if (!p) return <NotFound name="Proposal" />;
 
     return (
       <Screen>
