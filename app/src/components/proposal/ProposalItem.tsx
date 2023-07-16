@@ -4,70 +4,115 @@ import { Timestamp } from '~/components/format/Timestamp';
 import { ListItem, ListItemProps } from '~/components/list/ListItem';
 import { withSuspense } from '~/components/skeleton/withSuspense';
 import { ListItemSkeleton } from '~/components/list/ListItemSkeleton';
-import { Proposal, useProposal } from '@api/proposal';
 import { makeStyles } from '@theme/makeStyles';
 import { match } from 'ts-pattern';
 import { FiatValue } from '../fiat/FiatValue';
-import { useTransfersValue } from '../call/useTransfersValue';
-import { useOperationLabel } from '../call/useOperationLabel';
 import { materialCommunityIcon } from '@theme/icons';
 import { ICON_SIZE } from '@theme/paper';
-import { Hex } from 'lib';
+import { asBigInt } from 'lib';
+import { FragmentType, gql, useFragment } from '@api/gen';
+import { OperationLabel } from '../call/OperationLabel';
+import { useCanRespond } from './useCanRespond';
+import { useNavigation } from '@react-navigation/native';
+
+const FragmentDoc = gql(/* GraphQL */ `
+  fragment ProposalItem_TransactionProposalFragment on TransactionProposal {
+    id
+    hash
+    label
+    status
+    createdAt
+    operations {
+      to
+      ...OperationLabel_OperationFragment
+    }
+    transaction {
+      id
+      receipt {
+        id
+        timestamp
+        transferEvents {
+          id
+          value
+        }
+      }
+    }
+    simulation {
+      transfers {
+        id
+        value
+      }
+    }
+    ...UseCanRespond_TransactionProposalFragment
+  }
+`);
 
 const MultiOperationIcon = materialCommunityIcon('multiplication');
 
 export interface ProposalItemProps extends Partial<ListItemProps> {
-  proposal: Hex;
+  proposal: FragmentType<typeof FragmentDoc>;
 }
 
-export const ProposalItem = withSuspense(({ proposal: hash, ...itemProps }: ProposalItemProps) => {
-  const styles = useStyles();
-  const p = useProposal(hash);
-  const token = useMaybeToken(p.operations[0].to) ?? ETH;
+export const ProposalItem = withSuspense(
+  ({ proposal: proposalFragment, ...itemProps }: ProposalItemProps) => {
+    const styles = useStyles();
+    const p = useFragment(FragmentDoc, proposalFragment);
+    const { navigate } = useNavigation();
+    const token = useMaybeToken(p.operations[0].to) ?? ETH;
+    const { canApprove } = useCanRespond(p);
 
-  const isMulti = p.operations.length > 1;
-  const opLabel = useOperationLabel(p, p.operations[0]);
+    const isMulti = p.operations.length > 1;
 
-  const totalValue = useTransfersValue(
-    p.transaction?.receipt?.transferEvents ?? p.simulation?.transfers ?? [],
-  );
+    const totalValue = [
+      ...(p.transaction?.receipt?.transferEvents ?? p.simulation.transfers),
+    ].reduce((sum, t) => sum + asBigInt(t.value), 0n);
 
-  const supporting = match<Proposal, ListItemProps['supporting']>(p)
-    .with({ state: 'pending', policy: undefined }, () => ({ Text }) => (
-      <Text style={styles.noSatisfiablePolicy}>No satisfiable policy</Text>
-    ))
-    .with({ state: 'pending' }, (proposal) =>
-      proposal.policy?.responseRequested
-        ? ({ Text }) => <Text style={styles.approvalRequired}>Approval required</Text>
-        : 'Awaiting approval',
-    )
-    .with({ state: 'executing' }, () => 'Executing...')
-    .with({ state: 'failed' }, () => ({ Text }) => (
-      <Text style={styles.failed}>
-        <Timestamp timestamp={p.timestamp} />
-      </Text>
-    ))
-    .with({ state: 'executed' }, () => <Timestamp timestamp={p.timestamp} />)
-    .exhaustive();
-
-  return (
-    <ListItem
-      leading={
-        isMulti
-          ? (props) => <MultiOperationIcon {...props} size={ICON_SIZE.medium} />
-          : token.address
-      }
-      headline={p.label ?? (isMulti ? `${p.operations.length} operations` : opLabel)}
-      supporting={supporting}
-      trailing={({ Text }) => (
-        <Text variant="labelLarge">
-          <FiatValue value={totalValue} hideZero />
+    const supporting = match(p)
+      .returnType<ListItemProps['supporting']>()
+      .with({ status: 'Pending' }, () =>
+        canApprove
+          ? ({ Text }) => <Text style={styles.approvalRequired}>Approval required</Text>
+          : 'Awaiting approval',
+      )
+      .with({ status: 'Executing' }, () => 'Executing...')
+      .with({ status: 'Failed' }, () => ({ Text }) => (
+        <Text style={styles.failed}>
+          <Timestamp timestamp={p.transaction!.receipt!.timestamp} />
         </Text>
-      )}
-      {...itemProps}
-    />
-  );
-}, <ListItemSkeleton leading supporting />);
+      ))
+      .with({ status: 'Successful' }, () => (
+        <Timestamp timestamp={p.transaction!.receipt!.timestamp} />
+      ))
+      .exhaustive();
+
+    return (
+      <ListItem
+        leading={
+          isMulti
+            ? (props) => <MultiOperationIcon {...props} size={ICON_SIZE.medium} />
+            : token.address
+        }
+        headline={
+          p.label ??
+          (isMulti ? (
+            `${p.operations.length} operations`
+          ) : (
+            <OperationLabel operation={p.operations[0]} />
+          ))
+        }
+        supporting={supporting}
+        trailing={({ Text }) => (
+          <Text variant="labelLarge">
+            <FiatValue value={totalValue} hideZero />
+          </Text>
+        )}
+        onPress={() => navigate('Proposal', { proposal: p.hash })}
+        {...itemProps}
+      />
+    );
+  },
+  <ListItemSkeleton leading supporting />,
+);
 
 const useStyles = makeStyles(({ colors }) => ({
   approvalRequired: {

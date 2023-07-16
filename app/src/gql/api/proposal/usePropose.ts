@@ -5,9 +5,6 @@ import { showInfo } from '~/provider/SnackbarProvider';
 import { O } from 'ts-toolbelt';
 import {
   TransactionProposalFieldsFragmentDoc,
-  ProposalsDocument,
-  ProposalsQuery,
-  ProposalsQueryVariables,
   useProposeMutation,
   ProposeInput,
 } from '@api/generated';
@@ -44,16 +41,6 @@ export const usePropose = () => {
         update: async (cache, { data }) => {
           const proposal = data?.propose;
           if (!proposal) return;
-
-          updateQuery<ProposalsQuery, ProposalsQueryVariables>({
-            query: ProposalsDocument,
-            variables: { input: { accounts: [input.account] } },
-            cache,
-            defaultData: { proposals: [] },
-            updater: (data) => {
-              if (!data.proposals.find((p) => p.id === proposal.id)) data.proposals.push(proposal);
-            },
-          });
         },
       });
 

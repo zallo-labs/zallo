@@ -8,7 +8,6 @@ import {
   TransferApprovalFieldsFragment,
 } from '@api/generated';
 import { asAccountId } from '@api/account/types';
-import { Transfer } from '@api/transfer/types';
 
 export interface ProposalOperation extends Operation {
   function?: OperationFieldsFragment['function'];
@@ -58,7 +57,7 @@ export interface SatisfiablePolicy {
 }
 
 export interface Simulation {
-  transfers: Transfer[];
+  transfers: any[];
 }
 
 export interface Transaction {

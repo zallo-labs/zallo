@@ -11,8 +11,11 @@ export class TransfersInput {
   @Field(() => TransferDirection, { nullable: true })
   direction?: TransferDirection;
 
-  @Field(() => Boolean, { nullable: true })
-  excludeProposalOriginating?: boolean;
+  @Field(() => Boolean, {
+    nullable: true,
+    description: 'Not originating from an account transaction',
+  })
+  external?: boolean;
 }
 
 @InputType()
@@ -22,4 +25,10 @@ export class TransferSubscriptionInput {
 
   @Field(() => [TransferDirection], { nullable: true })
   directions?: TransferDirection[];
+
+  @Field(() => Boolean, {
+    nullable: true,
+    description: 'Not originating from an account transaction',
+  })
+  external?: boolean;
 }

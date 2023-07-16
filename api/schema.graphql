@@ -437,6 +437,7 @@ type SimulationTransfer implements TransferDetails {
   id: ID!
   to: Address!
   token: Address!
+  value: BigInt!
 }
 
 type Subscription {
@@ -530,6 +531,7 @@ type Transfer implements EventBase & TransferDetails & Transferlike {
   timestamp: DateTime!
   to: Address!
   token: Address!
+  value: BigInt!
 }
 
 type TransferApproval implements EventBase & TransferDetails & Transferlike {
@@ -544,6 +546,7 @@ type TransferApproval implements EventBase & TransferDetails & Transferlike {
   timestamp: DateTime!
   to: Address!
   token: Address!
+  value: BigInt!
 }
 
 type TransferApprovalOp {
@@ -562,6 +565,7 @@ interface TransferDetails {
   id: ID!
   to: Address!
   token: Address!
+  value: BigInt!
 }
 
 enum TransferDirection {
@@ -606,6 +610,9 @@ type TransferOp {
 input TransferSubscriptionInput {
   accounts: [Address!]
   directions: [TransferDirection!]
+
+  """Not originating from an account transaction"""
+  external: Boolean
 }
 
 interface Transferlike implements EventBase & TransferDetails {
@@ -619,6 +626,7 @@ interface Transferlike implements EventBase & TransferDetails {
   timestamp: DateTime!
   to: Address!
   token: Address!
+  value: BigInt!
 }
 
 type TransfersConfig {
@@ -638,7 +646,9 @@ input TransfersConfigInput {
 input TransfersInput {
   accounts: [Address!]
   direction: TransferDirection
-  excludeProposalOriginating: Boolean
+
+  """Not originating from an account transaction"""
+  external: Boolean
 }
 
 """256-bit unsigned integer"""
