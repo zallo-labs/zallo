@@ -1,28 +1,56 @@
-import { Proposal, useUpdateProposal } from '@api/proposal';
+import { useUpdateProposal } from '@api/proposal';
 import { NavigateNextIcon } from '@theme/icons';
 import { useToken } from '@token/useToken';
 import { ListItem } from '~/components/list/ListItem';
 import { useSelectToken } from '../tokens/TokensScreen';
 import { useGasPrice } from '@network/useGasPrice';
 import { TokenAmount, useFormattedTokenAmount } from '~/components/token/TokenAmount';
+import { FragmentType, gql, useFragment } from '@api/gen';
+import { asBigInt } from 'lib';
+
+const FragmentDoc = gql(/* GraphQL */ `
+  fragment FeeToken_TransactionProposalFragment on TransactionProposal {
+    id
+    hash
+    feeToken
+    status
+    gasLimit
+    account {
+      id
+      address
+    }
+    transaction {
+      id
+      gasPrice
+      receipt {
+        id
+        gasUsed
+      }
+    }
+  }
+`);
 
 export interface FeeTokenProps {
-  proposal: Proposal;
+  proposal: FragmentType<typeof FragmentDoc>;
 }
 
-export function FeeToken({
-  proposal: { account, hash, feeToken, updatable, transaction: tx, gasLimit },
-}: FeeTokenProps) {
-  const token = useToken(feeToken);
+export function FeeToken(props: FeeTokenProps) {
+  const p = useFragment(FragmentDoc, props.proposal);
+
+  const token = useToken(p.feeToken);
   const update = useUpdateProposal();
   const selectToken = useSelectToken();
 
-  const estimatedFee = useGasPrice(token) * gasLimit;
-  const actualFee = tx?.receipt && tx.receipt.gasUsed * tx.gasPrice;
+  const estimatedFee = useGasPrice(token) * asBigInt(p.gasLimit);
+  const actualFee =
+    p.transaction?.receipt &&
+    asBigInt(p.transaction.receipt.gasUsed) * asBigInt(p.transaction.gasPrice);
+
+  const updatable = p.status === 'Pending' || p.status === 'Failed';
 
   return (
     <ListItem
-      leading={feeToken}
+      leading={p.feeToken}
       headline="Network fee"
       supporting={({ Text }) => (
         <Text>
@@ -36,8 +64,8 @@ export function FeeToken({
       trailing={NavigateNextIcon}
       {...(updatable && {
         onPress: async () => {
-          const token = await selectToken({ account });
-          await update({ hash, feeToken: token.address });
+          const token = await selectToken({ account: p.account.address });
+          await update({ hash: p.hash, feeToken: token.address });
         },
       })}
     />
