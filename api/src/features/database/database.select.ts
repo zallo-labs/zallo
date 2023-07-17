@@ -92,8 +92,7 @@ const fieldToShape = (field: FieldDetails, graphqlInfo: GraphQLResolveInfo) => {
           const childEqlType: SomeType | undefined = field.edgeql.__pointers__[childName]?.target;
           if (!childEqlType) return shape;
 
-          return {
-            ...shape,
+          return merge(shape, {
             [childNode.name.value]: fieldToShape(
               {
                 selections: childNode.selectionSet?.selections,
@@ -102,7 +101,7 @@ const fieldToShape = (field: FieldDetails, graphqlInfo: GraphQLResolveInfo) => {
               },
               graphqlInfo,
             ),
-          };
+          });
         })
         .with({ kind: Kind.FRAGMENT_SPREAD }, (fragmentNode) =>
           getFragmentShape(
