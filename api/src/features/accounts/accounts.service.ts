@@ -16,7 +16,6 @@ import { InjectQueue } from '@nestjs/bull';
 import { ACCOUNTS_QUEUE, AccountActivationEvent } from './accounts.queue';
 import { inputAsPolicy } from '../policies/policies.util';
 import { Queue } from 'bull';
-import { selectAccount } from './accounts.util';
 import { AccountsCacheService } from '../auth/accounts.cache.service';
 import { v1 as uuid1 } from 'uuid';
 
@@ -47,9 +46,13 @@ export class AccountsService {
       filter_single: { address },
     }));
 
-  selectUnique(address: Address, shape?: ShapeFunc<typeof e.Account>) {
+  selectUnique(address: Address | undefined, shape?: ShapeFunc<typeof e.Account>) {
+    const accounts = getUserCtx().accounts;
+    if (accounts.length === 0) return null;
+
     return this.db.query(
-      selectAccount(address, (a) => ({
+      e.select(e.Account, (a) => ({
+        filter_single: address ? { address } : { id: accounts.sort()[0] },
         ...shape?.(a),
       })),
     );

@@ -31,7 +31,8 @@ enum AccountEvent {
 }
 
 input AccountInput {
-  address: Address!
+  """Defaults to random user account"""
+  address: Address
 }
 
 input AccountSubscriptionInput {
@@ -346,7 +347,7 @@ input ProposeInput {
 }
 
 type Query {
-  account(input: AccountInput!): Account
+  account(input: AccountInput! = {}): Account
   accounts: [Account!]!
   approver(input: ApproverInput! = {}): UserApprover!
   contact(input: ContactInput!): Contact

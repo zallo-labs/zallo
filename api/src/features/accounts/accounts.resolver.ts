@@ -28,8 +28,12 @@ export class AccountsResolver {
   ) {}
 
   @Query(() => Account, { nullable: true })
-  async account(@Input() { address }: AccountInput, @Info() info: GraphQLResolveInfo) {
-    return this.service.selectUnique(address, getShape(info));
+  async account(
+    @Input({ defaultValue: {} }) { address }: AccountInput,
+    @Info() info: GraphQLResolveInfo,
+  ) {
+    const r = await this.service.selectUnique(address, getShape(info));
+    return r;
   }
 
   @Query(() => [Account])
