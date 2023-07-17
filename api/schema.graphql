@@ -511,6 +511,7 @@ type TransactionProposal {
   status: TransactionProposalStatus!
   transaction: Transaction
   transactions: [Transaction!]!
+  updatable: Boolean!
 }
 
 enum TransactionProposalStatus {

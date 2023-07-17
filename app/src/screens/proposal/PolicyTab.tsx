@@ -1,28 +1,76 @@
-import { usePolicy, WPolicy } from '@api/policy';
-import { Proposal, useProposal } from '@api/proposal';
-import { StyleSheet } from 'react-native';
 import { ScrollView } from 'react-native';
 import { AddressLabel } from '~/components/address/AddressLabel';
 import { Timestamp } from '~/components/format/Timestamp';
 import { ListHeader } from '~/components/list/ListHeader';
 import { ListItem } from '~/components/list/ListItem';
 import { TabNavigatorScreenProp } from './Tabs';
-import { TabBadge } from '~/components/tab/TabBadge';
 import { withSuspense } from '~/components/skeleton/withSuspense';
 import { TabScreenSkeleton } from '~/components/tab/TabScreenSkeleton';
 import { SelectedPolicy } from './SelectedPolicy';
-import { Text } from 'react-native-paper';
 import { makeStyles } from '@theme/makeStyles';
 import { Hex } from 'lib';
+import { gql, useFragment } from '@api/gen';
+import { useSuspenseQuery } from '@apollo/client';
+import { PolicyTabQuery, PolicyTabQueryVariables } from '@api/gen/graphql';
+import { usePolicyTabSubscriptionSubscription } from '@api/generated';
 
-const getApprovalsAwaiting = (proposal: Proposal, policy?: WPolicy) => {
-  const state = policy?.state;
-  const approvals = [...proposal.approvals].filter((a) => state?.approvers.has(a.approver));
+const FragmentDoc = gql(/* GraphQL */ `
+  fragment PolicyTab_TransactionProposalFragment on TransactionProposal {
+    id
+    account {
+      id
+      policies {
+        id
+        satisfiability(input: { proposal: $proposal }) {
+          result
+        }
+        state {
+          id
+          approvers {
+            id
+            address
+          }
+        }
+      }
+    }
+    policy {
+      id
+    }
+    rejections {
+      id
+      createdAt
+      approver {
+        id
+        address
+      }
+    }
+    approvals {
+      id
+      createdAt
+      approver {
+        id
+        address
+      }
+    }
+    ...SelectedPolicy_TransactionProposalFragment
+  }
+`);
 
-  return state && approvals.length < state.threshold
-    ? [...state.approvers].filter((a) => !proposal.approvals.has(a) && !proposal.rejections.has(a))
-    : [];
-};
+const QueryDoc = gql(/* GraphQL */ `
+  query PolicyTab($proposal: Bytes32!) {
+    proposal(input: { hash: $proposal }) {
+      ...PolicyTab_TransactionProposalFragment
+    }
+  }
+`);
+
+gql(/* GraphQL */ `
+  subscription PolicyTabSubscription($proposal: Bytes32!) {
+    proposal(input: { proposals: [$proposal] }) {
+      ...PolicyTab_TransactionProposalFragment
+    }
+  }
+`);
 
 export interface PolicyTabParams {
   proposal: Hex;
@@ -32,35 +80,43 @@ export type PolicyTabProps = TabNavigatorScreenProp<'Policy'>;
 
 export const PolicyTab = withSuspense(({ route }: PolicyTabProps) => {
   const styles = uesStyles();
-  const proposal = useProposal(route.params.proposal);
-  const policy = usePolicy(proposal.policy);
 
-  const awaitingApproval = getApprovalsAwaiting(proposal, policy);
+  const { data } = useSuspenseQuery<PolicyTabQuery, PolicyTabQueryVariables>(QueryDoc, {
+    variables: { proposal: route.params.proposal },
+  });
+  usePolicyTabSubscriptionSubscription({ variables: { proposal: route.params.proposal } });
+  const p = useFragment(FragmentDoc, data?.proposal);
+
+  if (!p) return null;
+
+  const selected =
+    p.account.policies.find(({ id }) => id === p.policy?.id) ?? p.account.policies[0];
+
+  const awaitingApproval =
+    selected.state?.approvers.filter(
+      (approver) =>
+        !p.approvals.find((a) => a.approver.address === approver.address) &&
+        !p.rejections.find((r) => r.approver.address === approver.address),
+    ) ?? [];
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
-      <SelectedPolicy proposal={proposal} policy={policy} />
+      <SelectedPolicy proposal={p} />
 
-      {proposal.policy?.unsatisfiable && (
-        <Text style={styles.unsatisfiable}>
-          Policy lacks permission to execute this transaction
-        </Text>
-      )}
-
-      {proposal.rejections.size > 0 && <ListHeader>Rejected</ListHeader>}
-      {[...proposal.rejections].map((rejection) => (
+      {p.rejections.length > 0 && <ListHeader>Rejected</ListHeader>}
+      {[...p.rejections].map((r) => (
         <ListItem
-          key={rejection.approver}
-          leading={rejection.approver}
+          key={r.id}
+          leading={r.approver.address}
           headline={({ Text }) => (
             <Text>
-              <AddressLabel address={rejection.approver} />
+              <AddressLabel address={r.approver.address} />
             </Text>
           )}
           supporting="Rejected"
           trailing={({ Text }) => (
             <Text>
-              <Timestamp timestamp={rejection.timestamp} />
+              <Timestamp timestamp={r.createdAt} />
             </Text>
           )}
         />
@@ -69,29 +125,29 @@ export const PolicyTab = withSuspense(({ route }: PolicyTabProps) => {
       {awaitingApproval.length > 0 && <ListHeader>Awaiting approval from</ListHeader>}
       {awaitingApproval.map((approver) => (
         <ListItem
-          key={approver}
-          leading={approver}
+          key={approver.id}
+          leading={approver.address}
           headline={({ Text }) => (
             <Text>
-              <AddressLabel address={approver} />
+              <AddressLabel address={approver.address} />
             </Text>
           )}
         />
       ))}
 
-      {proposal.approvals.size > 0 && <ListHeader>Approvals</ListHeader>}
-      {[...proposal.approvals].map((approval) => (
+      {p.approvals.length > 0 && <ListHeader>Approvals</ListHeader>}
+      {[...p.approvals].map((a) => (
         <ListItem
-          key={approval.approver}
-          leading={approval.approver}
+          key={a.id}
+          leading={a.approver.address}
           headline={({ Text }) => (
             <Text>
-              <AddressLabel address={approval.approver} />
+              <AddressLabel address={a.approver.address} />
             </Text>
           )}
           trailing={({ Text }) => (
             <Text>
-              <Timestamp timestamp={approval.timestamp} />
+              <Timestamp timestamp={a.createdAt} />
             </Text>
           )}
         />
@@ -110,22 +166,3 @@ const uesStyles = makeStyles(({ colors }) => ({
     margin: 16,
   },
 }));
-
-export interface PolicyTabBadgeProps {
-  proposal: Hex;
-}
-
-export const PolicyTabBadge = ({ proposal: id }: PolicyTabBadgeProps) => {
-  const proposal = useProposal(id);
-  const policy = usePolicy(proposal.policy);
-
-  return (
-    <TabBadge value={getApprovalsAwaiting(proposal, policy).length} style={badgeStyles.badge} />
-  );
-};
-
-const badgeStyles = StyleSheet.create({
-  badge: {
-    transform: [{ translateX: -10 }],
-  },
-});

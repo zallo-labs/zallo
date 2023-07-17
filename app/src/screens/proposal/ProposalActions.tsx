@@ -22,7 +22,7 @@ const ProposalFragment = gql(/* GraphQL */ `
       hash
     }
     ...UseCanRespond_TransactionProposalFragment
-    ...UseApprove_TransactionProposalFragment
+    ...UseApprove_TransactionProposalFragment @arguments(proposal: $proposal)
   }
 `);
 

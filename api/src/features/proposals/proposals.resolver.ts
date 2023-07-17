@@ -1,4 +1,13 @@
-import { Context, ID, Info, Mutation, Query, Resolver, Subscription } from '@nestjs/graphql';
+import {
+  Context,
+  ID,
+  Info,
+  Mutation,
+  Parent,
+  Query,
+  Resolver,
+  Subscription,
+} from '@nestjs/graphql';
 import { GraphQLResolveInfo } from 'graphql';
 import {
   ProposeInput,
@@ -10,7 +19,7 @@ import {
 } from './proposals.input';
 import { PubsubService } from '~/features/util/pubsub/pubsub.service';
 import { GqlContext, asUser, getUserCtx } from '~/request/ctx';
-import { TransactionProposal } from './proposals.model';
+import { TransactionProposal, TransactionProposalStatus } from './proposals.model';
 import {
   ProposalSubscriptionPayload,
   ProposalsService,
@@ -23,6 +32,7 @@ import { Input, InputArgs } from '~/decorators/input.decorator';
 import { DatabaseService } from '../database/database.service';
 import { Address } from 'lib';
 import { uuid } from 'edgedb/dist/codecs/ifaces';
+import { ComputedField } from '~/decorators/computed.decorator';
 
 @Resolver(() => TransactionProposal)
 export class ProposalsResolver {
@@ -43,6 +53,13 @@ export class ProposalsResolver {
     @Info() info: GraphQLResolveInfo,
   ) {
     return this.service.select(input, getShape(info));
+  }
+
+  @ComputedField<typeof e.TransactionProposal>(() => Boolean, { status: true })
+  async updatable(@Parent() { status }: TransactionProposal): Promise<boolean> {
+    return (
+      status === TransactionProposalStatus.Pending || status === TransactionProposalStatus.Failed
+    );
   }
 
   @Subscription(() => TransactionProposal, {

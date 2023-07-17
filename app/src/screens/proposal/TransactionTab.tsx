@@ -1,9 +1,8 @@
-import { useProposal } from '@api/proposal';
 import { useGasPrice } from '@network/useGasPrice';
 import { CheckIcon, ClockOutlineIcon, CloseIcon, GasOutlineIcon } from '@theme/icons';
 import { ETH } from '@token/tokens';
 import { useMaybeToken } from '@token/useToken';
-import { StyleSheet, ScrollView } from 'react-native';
+import { ScrollView } from 'react-native';
 import { ActivityIndicator } from 'react-native-paper';
 import { match } from 'ts-pattern';
 import { FiatValue } from '~/components/fiat/FiatValue';
@@ -15,7 +14,6 @@ import { TabScreenSkeleton } from '~/components/tab/TabScreenSkeleton';
 import { TokenAmount } from '~/components/token/TokenAmount';
 import { TokenIcon } from '~/components/token/TokenIcon/TokenIcon';
 import { TabNavigatorScreenProp } from './Tabs';
-import { TabBadge } from '~/components/tab/TabBadge';
 import { makeStyles } from '@theme/makeStyles';
 import { Hex, asBigInt } from 'lib';
 import { ReactNode } from 'react';
@@ -190,21 +188,3 @@ const useStyles = makeStyles(({ colors }) => ({
     color: colors.error,
   },
 }));
-
-export interface TransactionTabBadgeProps {
-  proposal: Hex;
-}
-
-export const TransactionTabBadge = ({ proposal: id }: TransactionTabBadgeProps) => {
-  const { state } = useProposal(id);
-
-  return (
-    <TabBadge visible={state === 'executing' || state === 'failed'} style={badgeStyles.badge} />
-  );
-};
-
-const badgeStyles = StyleSheet.create({
-  badge: {
-    transform: [{ translateX: -8 }],
-  },
-});

@@ -13,7 +13,7 @@ const FragmentDoc = gql(/* GraphQL */ `
     id
     hash
     feeToken
-    status
+    updatable
     gasLimit
     account {
       id
@@ -46,8 +46,6 @@ export function FeeToken(props: FeeTokenProps) {
     p.transaction?.receipt &&
     asBigInt(p.transaction.receipt.gasUsed) * asBigInt(p.transaction.gasPrice);
 
-  const updatable = p.status === 'Pending' || p.status === 'Failed';
-
   return (
     <ListItem
       leading={p.feeToken}
@@ -62,7 +60,7 @@ export function FeeToken(props: FeeTokenProps) {
         </Text>
       )}
       trailing={NavigateNextIcon}
-      {...(updatable && {
+      {...(p.updatable && {
         onPress: async () => {
           const token = await selectToken({ account: p.account.address });
           await update({ hash: p.hash, feeToken: token.address });
