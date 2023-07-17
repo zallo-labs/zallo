@@ -1,4 +1,3 @@
-import { useRemoveProposal } from '@api/proposal';
 import { Menu } from 'react-native-paper';
 import { Appbar } from '~/components/Appbar/Appbar';
 import { AppbarMore2 } from '~/components/Appbar/AppbarMore';
@@ -14,6 +13,7 @@ import { gql } from '@api/gen';
 import { useSuspenseQuery } from '@apollo/client';
 import { ProposalQuery, ProposalQueryVariables } from '@api/gen/graphql';
 import { NotFound } from '~/components/NotFound';
+import { useProposalScreen_RemoveProposalMutation } from '@api/generated';
 
 const ProposalQueryDoc = gql(/* GraphQL */ `
   query Proposal($proposal: Bytes32!) {
@@ -29,6 +29,12 @@ const ProposalQueryDoc = gql(/* GraphQL */ `
   }
 `);
 
+gql(/* GraphQL */ `
+  mutation ProposalScreen_RemoveProposal($proposal: Bytes32!) {
+    removeProposal(input: { hash: $proposal })
+  }
+`);
+
 export interface ProposalScreenParams {
   proposal: Hex;
 }
@@ -41,7 +47,7 @@ export const ProposalScreen = withSuspense(
       variables: { proposal: route.params.proposal },
     }).data.proposal;
 
-    const removeProposal = useRemoveProposal();
+    const [removeProposal] = useProposalScreen_RemoveProposalMutation();
     const confirmRemoval = useConfirmRemoval({
       message: 'Are you sure you want to remove this proposal?',
     });
@@ -62,7 +68,7 @@ export const ProposalScreen = withSuspense(
                   onPress={async () => {
                     close();
                     if (await confirmRemoval()) {
-                      await removeProposal(p);
+                      await removeProposal({ variables: { proposal: p.hash } });
                       goBack();
                     }
                   }}

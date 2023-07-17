@@ -1,4 +1,4 @@
-import { popToProposal, usePropose } from '@api/proposal';
+import { usePropose } from '@api/proposal';
 import { CloseIcon } from '@theme/icons';
 import { fiatAsBigInt, fiatToToken, FIAT_DECIMALS } from '@token/fiat';
 import { useTokenPriceData } from '@uniswap/index';
@@ -27,76 +27,77 @@ export interface SendScreenParams {
 
 export type SendScreenProps = StackNavigatorScreenProps<'Send'>;
 
-export const SendScreen = withSuspense(({ route, navigation: { goBack } }: SendScreenProps) => {
-  const { account, to } = route.params;
-  const propose = usePropose();
+export const SendScreen = withSuspense(
+  ({ route, navigation: { navigate, goBack } }: SendScreenProps) => {
+    const { account, to } = route.params;
+    const propose = usePropose();
 
-  const [token, setToken] = [useSelectedToken(), useSetSelectedToken()];
-  const selectToken = useSelectToken();
-  const price = useTokenPriceData(token).current;
+    const [token, setToken] = [useSelectedToken(), useSetSelectedToken()];
+    const selectToken = useSelectToken();
+    const price = useTokenPriceData(token).current;
 
-  const [input, setInput] = useState('');
-  const [type, setType] = useState(InputType.Fiat);
+    const [input, setInput] = useState('');
+    const [type, setType] = useState(InputType.Fiat);
 
-  const inputAmount = (() => {
-    const n = parseFloat(input);
-    return isNaN(n) ? '0' : n.toString();
-  })();
+    const inputAmount = (() => {
+      const n = parseFloat(input);
+      return isNaN(n) ? '0' : n.toString();
+    })();
 
-  const tokenAmount =
-    type === InputType.Token
-      ? parseUnits(inputAmount, token.decimals).toBigInt()
-      : fiatToToken(fiatAsBigInt(inputAmount), price, token);
+    const tokenAmount =
+      type === InputType.Token
+        ? parseUnits(inputAmount, token.decimals).toBigInt()
+        : fiatToToken(fiatAsBigInt(inputAmount), price, token);
 
-  return (
-    <Screen>
-      <Appbar.Header>
-        <Appbar.Action icon={CloseIcon} onPress={goBack} />
-        <Appbar.Content title={`Send to ${useAddressLabel(to)}`} />
-      </Appbar.Header>
+    return (
+      <Screen>
+        <Appbar.Header>
+          <Appbar.Action icon={CloseIcon} onPress={goBack} />
+          <Appbar.Content title={`Send to ${useAddressLabel(to)}`} />
+        </Appbar.Header>
 
-      <InputsView
-        token={token}
-        account={account}
-        input={input}
-        setInput={setInput}
-        type={type}
-        setType={setType}
-      />
+        <InputsView
+          token={token}
+          account={account}
+          input={input}
+          setInput={setInput}
+          type={type}
+          setType={setType}
+        />
 
-      <View style={styles.spacer} />
+        <View style={styles.spacer} />
 
-      <TokenItem
-        token={token.address}
-        account={account}
-        onPress={async () => setToken(await selectToken({ account }))}
-      />
-      <Divider horizontalInset />
+        <TokenItem
+          token={token.address}
+          account={account}
+          onPress={async () => setToken(await selectToken({ account }))}
+        />
+        <Divider horizontalInset />
 
-      <NumericInput
-        value={input}
-        onChange={setInput}
-        maxDecimals={type === InputType.Token ? token.decimals : FIAT_DECIMALS}
-      />
+        <NumericInput
+          value={input}
+          onChange={setInput}
+          maxDecimals={type === InputType.Token ? token.decimals : FIAT_DECIMALS}
+        />
 
-      <Button
-        mode="contained"
-        style={styles.action}
-        onPress={() =>
-          propose(
-            {
+        <Button
+          mode="contained"
+          style={styles.action}
+          onPress={async () => {
+            const proposal = await propose({
               account,
               operations: [createTransferOp(token.address, token.type, to, tokenAmount)],
-            },
-            popToProposal,
-          )
-        }
-      >
-        Propose
-      </Button>
-    </Screen>
-  );
-}, ScreenSkeleton);
+            });
+            navigate('Proposal', { proposal });
+          }}
+        >
+          Propose
+        </Button>
+      </Screen>
+    );
+  },
+  ScreenSkeleton,
+);
 
 const styles = StyleSheet.create({
   spacer: {

@@ -1,4 +1,3 @@
-import { useUpdateProposal } from '@api/proposal';
 import { NavigateNextIcon } from '@theme/icons';
 import { useToken } from '@token/useToken';
 import { ListItem } from '~/components/list/ListItem';
@@ -7,6 +6,7 @@ import { useGasPrice } from '@network/useGasPrice';
 import { TokenAmount, useFormattedTokenAmount } from '~/components/token/TokenAmount';
 import { FragmentType, gql, useFragment } from '@api/gen';
 import { asBigInt } from 'lib';
+import { useFeeTokenUpdateProposalMutation } from '@api/generated';
 
 const FragmentDoc = gql(/* GraphQL */ `
   fragment FeeToken_TransactionProposalFragment on TransactionProposal {
@@ -30,6 +30,15 @@ const FragmentDoc = gql(/* GraphQL */ `
   }
 `);
 
+gql(/* GraphQL */ `
+  mutation FeeTokenUpdateProposal($hash: Bytes32!, $feeToken: Address!) {
+    updateProposal(input: { hash: $hash, feeToken: $feeToken }) {
+      id
+      feeToken
+    }
+  }
+`);
+
 export interface FeeTokenProps {
   proposal: FragmentType<typeof FragmentDoc>;
 }
@@ -38,7 +47,7 @@ export function FeeToken(props: FeeTokenProps) {
   const p = useFragment(FragmentDoc, props.proposal);
 
   const token = useToken(p.feeToken);
-  const update = useUpdateProposal();
+  const [update] = useFeeTokenUpdateProposalMutation();
   const selectToken = useSelectToken();
 
   const estimatedFee = useGasPrice(token) * asBigInt(p.gasLimit);
@@ -63,7 +72,7 @@ export function FeeToken(props: FeeTokenProps) {
       {...(p.updatable && {
         onPress: async () => {
           const token = await selectToken({ account: p.account.address });
-          await update({ hash: p.hash, feeToken: token.address });
+          await update({ variables: { hash: p.hash, feeToken: token.address } });
         },
       })}
     />

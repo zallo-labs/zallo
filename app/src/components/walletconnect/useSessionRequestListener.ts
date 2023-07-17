@@ -1,5 +1,4 @@
 import { gql } from '@api/gen';
-import { popToProposal, usePropose } from '@api/proposal';
 import { useNavigation } from '@react-navigation/native';
 import { Hex, asBigInt } from 'lib';
 import { useCallback } from 'react';
@@ -19,6 +18,7 @@ import {
   UseSessionRequestListenerQuery,
   UseSessionRequestListenerQueryVariables,
 } from '@api/gen/graphql';
+import { usePropose } from '@api/proposal';
 
 const PROPOSAL_EXECUTED_EMITTER = new EventEmitter<Hex>('Proposal::exeucte');
 
@@ -68,29 +68,28 @@ export const useSessionRequestListener = () => {
         const peer = client.session.get(topic).peer.metadata;
         showInfo(`${peer.name} has proposed a transaction`);
 
-        const proposalHash = await propose(
-          {
-            account: tx.from,
-            operations: [
-              {
-                to: tx.to,
-                value: tx.value ? asBigInt(tx.value) : undefined,
-                data: tx.data,
-              },
-            ],
-            gasLimit: tx.gasLimit ? asBigInt(tx.gasLimit) : undefined,
-          },
-          popToProposal,
-        );
+        const proposal = await propose({
+          account: tx.from,
+          operations: [
+            {
+              to: tx.to,
+              value: tx.value ? asBigInt(tx.value) : undefined,
+              data: tx.data,
+            },
+          ],
+          gasLimit: tx.gasLimit ? asBigInt(tx.gasLimit) : undefined,
+        });
 
-        PROPOSAL_EXECUTED_EMITTER.listeners.add((proposal) => {
-          if (proposal === proposalHash) {
+        PROPOSAL_EXECUTED_EMITTER.listeners.add((proposalHash) => {
+          if (proposalHash === proposal) {
             client.respond({
               topic,
-              response: asWalletConnectResult(id, proposal),
+              response: asWalletConnectResult(id, proposalHash),
             });
           }
         });
+
+        navigate('Proposal', { proposal });
       } else {
         logError('Unsupported session_request method executed', { params });
       }

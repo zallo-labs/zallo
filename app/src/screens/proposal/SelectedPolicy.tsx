@@ -1,4 +1,3 @@
-import { useUpdateProposal } from '@api/proposal';
 import { StyleSheet, View } from 'react-native';
 import Collapsible from 'react-native-collapsible';
 import { SatisfiablePolicyItem } from './SatisfiablePolicyItem';
@@ -6,6 +5,7 @@ import { Chevron } from '~/components/Chevron';
 import { useToggle } from '@hook/useToggle';
 import { Divider } from 'react-native-paper';
 import { FragmentType, gql, useFragment } from '@api/gen';
+import { useSelectedPolicyUpdateProposalMutation } from '@api/generated';
 
 const FragmentDoc = gql(/* GraphQL */ `
   fragment SelectedPolicy_TransactionProposalFragment on TransactionProposal
@@ -30,13 +30,25 @@ const FragmentDoc = gql(/* GraphQL */ `
   }
 `);
 
+gql(/* GraphQL */ `
+  mutation SelectedPolicyUpdateProposal($hash: Bytes32!, $policy: PolicyKey!) {
+    updateProposal(input: { hash: $hash, policy: $policy }) {
+      id
+      policy {
+        id
+        key
+      }
+    }
+  }
+`);
+
 export interface SelectedPolicyProps {
   proposal: FragmentType<typeof FragmentDoc>;
 }
 
 export const SelectedPolicy = (props: SelectedPolicyProps) => {
   const proposal = useFragment(FragmentDoc, props.proposal);
-  const updateProposal = useUpdateProposal();
+  const [update] = useSelectedPolicyUpdateProposalMutation();
 
   const [expanded, toggleExpanded] = useToggle(false);
 
@@ -73,7 +85,8 @@ export const SelectedPolicy = (props: SelectedPolicyProps) => {
             policy={p}
             selected={p.id === selected.id}
             onPress={() => {
-              if (p.key !== selected.key) updateProposal({ hash: proposal.hash, policy: p.key });
+              if (p.key !== selected.key)
+                update({ variables: { hash: proposal.hash, policy: p.key } });
               toggleExpanded();
             }}
           />

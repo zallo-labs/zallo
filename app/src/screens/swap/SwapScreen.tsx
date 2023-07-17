@@ -1,4 +1,4 @@
-import { popToProposal, usePropose } from '@api/proposal';
+import { usePropose } from '@api/proposal';
 import { fiatToToken, fiatAsBigInt, FIAT_DECIMALS } from '@token/fiat';
 import { useTokenPriceData } from '@uniswap/useTokenPrice';
 import { parseUnits } from 'ethers/lib/utils';
@@ -28,7 +28,7 @@ export interface SwapScreenParams {
 
 export type SwapScreenProps = StackNavigatorScreenProps<'Swap'>;
 
-export const SwapScreen = withSuspense(({ route }: SwapScreenProps) => {
+export const SwapScreen = withSuspense(({ route, navigation: { navigate } }: SwapScreenProps) => {
   const { account } = route.params;
   const styles = useStyles();
   const propose = usePropose();
@@ -94,23 +94,21 @@ export const SwapScreen = withSuspense(({ route }: SwapScreenProps) => {
         disabled={!fromAmount || !pool}
         style={styles.action}
         onPress={async () => {
-          propose(
-            {
+          const proposal = await propose({
+            account,
+            label: `Swap ${fromToken.symbol} for ${toToken?.symbol}`,
+            operations: await getSwapOperations({
               account,
-              label: `Swap ${fromToken.symbol} for ${toToken?.symbol}`,
-              operations: await getSwapOperations({
-                account,
-                pool: pool!,
-                from: {
-                  token: from,
-                  amount: fromAmount,
-                },
-                slippage: 0.01, // 1%
-                deadline: DateTime.now().plus({ months: 3 }),
-              }),
-            },
-            popToProposal,
-          );
+              pool: pool!,
+              from: {
+                token: from,
+                amount: fromAmount,
+              },
+              slippage: 0.01, // 1%
+              deadline: DateTime.now().plus({ months: 3 }),
+            }),
+          });
+          navigate('Proposal', { proposal });
         }}
       >
         Propose

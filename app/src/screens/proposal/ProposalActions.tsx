@@ -1,4 +1,3 @@
-import { useApprove } from '@api/proposal';
 import { Button } from '~/components/Button';
 import { Actions } from '~/components/layout/Actions';
 import { CHAIN } from '@network/provider';
@@ -8,6 +7,7 @@ import { useExecute } from '@api/transaction/useExecute';
 import { FragmentType, gql, useFragment } from '@api/gen';
 import { useRejectProposalMutation } from '@api/generated';
 import { useCanRespond } from '~/components/proposal/useCanRespond';
+import { useApprove } from './useApprove';
 
 const BLOCK_EXPLORER_URL = CHAIN.blockExplorers?.default.url;
 
