@@ -1,5 +1,5 @@
 import { BackIcon } from '@theme/icons';
-import { Appbar } from './Appbar/Appbar';
+import { Appbar, AppbarProps } from './Appbar/Appbar';
 import { Button } from './Button';
 import { Actions } from './layout/Actions';
 import { Screen } from './layout/Screen';
@@ -11,9 +11,10 @@ import { Text } from 'react-native-paper';
 
 export interface NotFoundProps {
   name: string;
+  appbarProps?: Partial<AppbarProps>;
 }
 
-export function NotFound({ name }: NotFoundProps) {
+export function NotFound({ name, appbarProps }: NotFoundProps) {
   const styles = useStyles();
 
   return (

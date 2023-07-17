@@ -1,8 +1,12 @@
-import { useAccount, useUpdateAccount } from '@api/account';
+import { gql } from '@api/gen';
+import { RenameAccountQuery, RenameAccountQueryVariables } from '@api/gen/graphql';
+import { useRenameAccountUpdateMutation } from '@api/generated';
+import { useSuspenseQuery } from '@apollo/client';
 import { Address } from 'lib';
 import { useForm } from 'react-hook-form';
 import { StyleSheet, View } from 'react-native';
 import { Appbar } from '~/components/Appbar/Appbar';
+import { NotFound } from '~/components/NotFound';
 import { FormSubmitButton } from '~/components/fields/FormSubmitButton';
 import { FormTextField } from '~/components/fields/FormTextField';
 import { Actions } from '~/components/layout/Actions';
@@ -10,6 +14,25 @@ import { Screen } from '~/components/layout/Screen';
 import { ScreenSkeleton } from '~/components/skeleton/ScreenSkeleton';
 import { withSuspense } from '~/components/skeleton/withSuspense';
 import { StackNavigatorScreenProps } from '~/navigation/StackNavigator';
+
+const QueryDoc = gql(/* GraphQL */ `
+  query RenameAccount($account: Address!) {
+    account(input: { address: $account }) {
+      id
+      address
+      name
+    }
+  }
+`);
+
+gql(/* GraphQL */ `
+  mutation RenameAccountUpdate($account: Address!, $name: String!) {
+    updateAccount(input: { address: $account, name: $name }) {
+      id
+      name
+    }
+  }
+`);
 
 interface Inputs {
   name: string;
@@ -23,10 +46,15 @@ export type RenameAccountModalProps = StackNavigatorScreenProps<'RenameAccountMo
 
 export const RenameAccountModal = withSuspense(
   ({ route, navigation: { goBack } }: RenameAccountModalProps) => {
-    const account = useAccount(route.params.account);
-    const update = useUpdateAccount(account);
+    const { account } = useSuspenseQuery<RenameAccountQuery, RenameAccountQueryVariables>(
+      QueryDoc,
+      { variables: { account: route.params.account } },
+    ).data;
+    const [update] = useRenameAccountUpdateMutation();
 
-    const { control, handleSubmit } = useForm<Inputs>({ defaultValues: { name: account.name } });
+    const { control, handleSubmit } = useForm<Inputs>({ defaultValues: { name: account?.name } });
+
+    if (!account) return <NotFound name="Account" appbarProps={{ inset: false }} />;
 
     return (
       <Screen>
@@ -42,7 +70,7 @@ export const RenameAccountModal = withSuspense(
             requireChanges
             control={control}
             onPress={handleSubmit(async ({ name }) => {
-              await update({ name });
+              await update({ variables: { account: account.address, name } });
               goBack();
             })}
           >
