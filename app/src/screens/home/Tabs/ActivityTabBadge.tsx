@@ -5,8 +5,9 @@ import { Address } from 'lib';
 import { gql } from '@api/gen';
 import { useSuspenseQuery } from '@apollo/client';
 import { ActivityTabBadgeQuery, ActivityTabBadgeQueryVariables } from '@api/gen/graphql';
+import { ActivityTabBadgeDocument } from '@api/generated';
 
-const QueryDoc = gql(/* GraphQL */ `
+gql(/* GraphQL */ `
   query ActivityTabBadge($accounts: [Address!]!) {
     proposals(input: { accounts: $accounts, statuses: [Pending] }) {
       id
@@ -21,7 +22,7 @@ export interface ActivityTabBadgeProps {
 export const ActivityTabBadge = withSuspense(
   ({ account }: ActivityTabBadgeProps) => {
     const { proposals } = useSuspenseQuery<ActivityTabBadgeQuery, ActivityTabBadgeQueryVariables>(
-      QueryDoc,
+      ActivityTabBadgeDocument,
       { variables: { accounts: [account] } },
     ).data;
 

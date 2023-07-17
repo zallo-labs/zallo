@@ -12,9 +12,9 @@ import { Hex, asBigInt } from 'lib';
 import { gql, useFragment } from '@api/gen';
 import { useSuspenseQuery } from '@apollo/client';
 import { DetailsTabQuery, DetailsTabQueryVariables } from '@api/gen/graphql';
-import { useDetailsTabSubscriptionSubscription } from '@api/generated';
+import { DetailsTabDocument, useDetailsTabSubscriptionSubscription } from '@api/generated';
 
-const QueryDoc = gql(/* GraphQL */ `
+gql(/* GraphQL */ `
   query DetailsTab($proposal: Bytes32!) {
     proposal(input: { hash: $proposal }) {
       ...DetailsTab_TransactionProposalFragment
@@ -75,7 +75,7 @@ export type DetailsTabProps = TabNavigatorScreenProp<'Details'>;
 export const DetailsTab = withSuspense(({ route }: DetailsTabProps) => {
   const styles = useStyles();
 
-  const { data } = useSuspenseQuery<DetailsTabQuery, DetailsTabQueryVariables>(QueryDoc, {
+  const { data } = useSuspenseQuery<DetailsTabQuery, DetailsTabQueryVariables>(DetailsTabDocument, {
     variables: { proposal: route.params.proposal },
   });
   useDetailsTabSubscriptionSubscription({ variables: { proposal: route.params.proposal } });

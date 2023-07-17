@@ -14,12 +14,13 @@ import { gql } from '@api/gen';
 import { useSuspenseQuery } from '@apollo/client';
 import { ActivityQuery, ActivityQueryVariables } from '@api/gen/graphql';
 import {
+  ActivityDocument,
   useActivityTab_ProposalSubscription,
   useActivityTab_TransferSubscription,
 } from '@api/generated';
 import { updateQuery } from '~/gql/util';
 
-const QueryDoc = gql(/* GraphQL */ `
+gql(/* GraphQL */ `
   query Activity($accounts: [Address!]!) {
     proposals(input: { accounts: $accounts }) {
       __typename
@@ -68,7 +69,7 @@ export const ActivityTab = withSuspense(
     const { account } = route.params;
 
     const { proposals, transfers } = useSuspenseQuery<ActivityQuery, ActivityQueryVariables>(
-      QueryDoc,
+      ActivityDocument,
       { variables: { accounts: [account] } },
     ).data;
 
@@ -79,7 +80,7 @@ export const ActivityTab = withSuspense(
         if (!proposal) return;
 
         updateQuery<ActivityQuery, ActivityQueryVariables>({
-          query: QueryDoc,
+          query: ActivityDocument,
           cache,
           variables: { accounts: [account] },
           updater: (data) => {
@@ -96,7 +97,7 @@ export const ActivityTab = withSuspense(
         if (!transfer) return;
 
         updateQuery<ActivityQuery, ActivityQueryVariables>({
-          query: QueryDoc,
+          query: ActivityDocument,
           cache,
           variables: { accounts: [account] },
           updater: (data) => {

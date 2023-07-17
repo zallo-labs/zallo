@@ -1,4 +1,4 @@
-import { ContractFunctionFieldsFragment } from '@api/generated';
+import { ContractFunctionFieldsFragment } from '@api/gen/graphql';
 import { Selector } from 'lib';
 import { AbiFunction } from 'abitype';
 

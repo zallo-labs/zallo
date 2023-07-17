@@ -1,6 +1,6 @@
 import { gql } from '@api/gen';
 import { RenameAccountQuery, RenameAccountQueryVariables } from '@api/gen/graphql';
-import { useRenameAccountUpdateMutation } from '@api/generated';
+import { RenameAccountDocument, useRenameAccountUpdateMutation } from '@api/generated';
 import { useSuspenseQuery } from '@apollo/client';
 import { Address } from 'lib';
 import { useForm } from 'react-hook-form';
@@ -15,7 +15,7 @@ import { ScreenSkeleton } from '~/components/skeleton/ScreenSkeleton';
 import { withSuspense } from '~/components/skeleton/withSuspense';
 import { StackNavigatorScreenProps } from '~/navigation/StackNavigator';
 
-const QueryDoc = gql(/* GraphQL */ `
+gql(/* GraphQL */ `
   query RenameAccount($account: Address!) {
     account(input: { address: $account }) {
       id
@@ -47,7 +47,7 @@ export type RenameAccountModalProps = StackNavigatorScreenProps<'RenameAccountMo
 export const RenameAccountModal = withSuspense(
   ({ route, navigation: { goBack } }: RenameAccountModalProps) => {
     const { account } = useSuspenseQuery<RenameAccountQuery, RenameAccountQueryVariables>(
-      QueryDoc,
+      RenameAccountDocument,
       { variables: { account: route.params.account } },
     ).data;
     const [update] = useRenameAccountUpdateMutation();

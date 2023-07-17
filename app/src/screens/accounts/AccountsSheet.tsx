@@ -16,10 +16,11 @@ import { makeStyles } from '@theme/makeStyles';
 import { truncateAddr } from '~/util/format';
 import { AccountsSheetQuery, AccountsSheetQueryVariables } from '@api/gen/graphql';
 import { AccountItem } from './AccountItem';
+import { AccountsSheetDocument } from '@api/generated';
 
 const SwitchIcon = materialCommunityIcon('swap-horizontal');
 
-const QueryDoc = gql(/* GraphQL */ `
+gql(/* GraphQL */ `
   query AccountsSheet {
     accounts {
       id
@@ -42,7 +43,7 @@ export const AccountsSheet = ({ route, navigation: { navigate, goBack } }: Accou
   const ref = useRef<BottomSheet>(null);
 
   const { accounts } = useSuspenseQuery<AccountsSheetQuery, AccountsSheetQueryVariables>(
-    QueryDoc,
+    AccountsSheetDocument,
   ).data;
 
   const selected = accounts.find((account) => account.address === selectedAddress);

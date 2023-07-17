@@ -12,7 +12,10 @@ import {
   WalletConnectSendTransactionRequest,
 } from '~/util/walletconnect/methods';
 import { EventEmitter } from '~/util/EventEmitter';
-import { useSessionRequestListenerSubscription } from '@api/generated';
+import {
+  UseSessionRequestListenerDocument,
+  useSessionRequestListenerSubscription,
+} from '@api/generated';
 import { useSuspenseQuery } from '@apollo/client';
 import {
   UseSessionRequestListenerQuery,
@@ -22,7 +25,7 @@ import { usePropose } from '@api/proposal';
 
 const PROPOSAL_EXECUTED_EMITTER = new EventEmitter<Hex>('Proposal::exeucte');
 
-const QueryDoc = gql(/* GraphQL */ `
+gql(/* GraphQL */ `
   query UseSessionRequestListener {
     accounts {
       id
@@ -47,7 +50,7 @@ export const useSessionRequestListener = () => {
   const { accounts } = useSuspenseQuery<
     UseSessionRequestListenerQuery,
     UseSessionRequestListenerQueryVariables
-  >(QueryDoc).data;
+  >(UseSessionRequestListenerDocument).data;
   useSessionRequestListenerSubscription({
     variables: { accounts: accounts.map((a) => a.address) },
   });

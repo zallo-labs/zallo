@@ -18,8 +18,9 @@ import { ContactItem } from './ContactItem';
 import { Text } from 'react-native-paper';
 import { Fab } from '~/components/buttons/Fab';
 import { makeStyles } from '@theme/makeStyles';
+import { ContactsScreenDocument } from '@api/generated';
 
-const QueryDoc = gql(/* GraphQL */ `
+gql(/* GraphQL */ `
   query ContactsScreen($query: String) {
     contacts(input: { query: $query }) {
       id
@@ -46,7 +47,7 @@ export const ContactsScreen = withSuspense(
     const [query, setQuery] = useState('');
 
     const { contacts } = useSuspenseQuery<ContactsScreenQuery, ContactsScreenQueryVariables>(
-      QueryDoc,
+      ContactsScreenDocument,
       { variables: { query } },
     ).data;
 

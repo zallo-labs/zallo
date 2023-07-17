@@ -13,9 +13,9 @@ import { gql } from '@api/gen';
 import { useSuspenseQuery } from '@apollo/client';
 import { ProposalQuery, ProposalQueryVariables } from '@api/gen/graphql';
 import { NotFound } from '~/components/NotFound';
-import { useProposalScreen_RemoveProposalMutation } from '@api/generated';
+import { ProposalDocument, useProposalScreen_RemoveProposalMutation } from '@api/generated';
 
-const ProposalQueryDoc = gql(/* GraphQL */ `
+gql(/* GraphQL */ `
   query Proposal($proposal: Bytes32!) {
     proposal(input: { hash: $proposal }) {
       id
@@ -43,7 +43,7 @@ export type ProposalScreenProps = StackNavigatorScreenProps<'Proposal'>;
 
 export const ProposalScreen = withSuspense(
   ({ route, navigation: { goBack } }: ProposalScreenProps) => {
-    const p = useSuspenseQuery<ProposalQuery, ProposalQueryVariables>(ProposalQueryDoc, {
+    const p = useSuspenseQuery<ProposalQuery, ProposalQueryVariables>(ProposalDocument, {
       variables: { proposal: route.params.proposal },
     }).data.proposal;
 

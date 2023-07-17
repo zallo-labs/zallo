@@ -20,7 +20,7 @@ import { ReactNode } from 'react';
 import { gql, useFragment } from '@api/gen';
 import { useSuspenseQuery } from '@apollo/client';
 import { TransactionTabQuery, TransactionTabQueryVariables } from '@api/gen/graphql';
-import { useTransactionTabSubscriptionSubscription } from '@api/generated';
+import { TransactionTabDocument, useTransactionTabSubscriptionSubscription } from '@api/generated';
 
 const FragmentDoc = gql(/* GraphQL */ `
   fragment TransactionTab_TransactionProposalFragment on TransactionProposal {
@@ -41,7 +41,7 @@ const FragmentDoc = gql(/* GraphQL */ `
   }
 `);
 
-const QueryDoc = gql(/* GraphQL */ `
+gql(/* GraphQL */ `
   query TransactionTab($proposal: Bytes32!) {
     proposal(input: { hash: $proposal }) {
       ...TransactionTab_TransactionProposalFragment
@@ -75,9 +75,12 @@ export type TransactionTabProps = TabNavigatorScreenProp<'Transaction'>;
 export const TransactionTab = withSuspense(({ route }: TransactionTabProps) => {
   const styles = useStyles();
 
-  const { data } = useSuspenseQuery<TransactionTabQuery, TransactionTabQueryVariables>(QueryDoc, {
-    variables: { proposal: route.params.proposal },
-  });
+  const { data } = useSuspenseQuery<TransactionTabQuery, TransactionTabQueryVariables>(
+    TransactionTabDocument,
+    {
+      variables: { proposal: route.params.proposal },
+    },
+  );
   useTransactionTabSubscriptionSubscription({ variables: { proposal: route.params.proposal } });
   const p = useFragment(FragmentDoc, data?.proposal);
 

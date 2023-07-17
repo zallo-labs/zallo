@@ -1,4 +1,4 @@
-import { PolicyStateFieldsFragment } from '@api/generated';
+import { PolicyStateFieldsFragment } from '@api/gen/graphql';
 import { PolicyKey, Policy, asPolicy, Address, Hex } from 'lib';
 
 export interface PolicyState extends Policy {
@@ -23,7 +23,7 @@ export type WPolicy = {
 
 export const convertPolicyFragment = (
   key: PolicyKey,
-  s: PolicyStateFieldsFragment | null | undefined,
+  s: PolicyStateFieldsFragment | null | undefined /* PolicyStateFieldsFragment */,
 ): PolicyState | undefined => {
   if (!s) return undefined;
 

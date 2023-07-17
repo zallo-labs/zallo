@@ -57,7 +57,7 @@ const FragmentDoc = gql(/* GraphQL */ `
   }
 `);
 
-const QueryDoc = gql(/* GraphQL */ `
+gql(/* GraphQL */ `
   query PolicyTab($proposal: Bytes32!) {
     proposal(input: { hash: $proposal }) {
       ...PolicyTab_TransactionProposalFragment @arguments(proposal: $proposal)

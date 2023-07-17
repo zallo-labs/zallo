@@ -1,11 +1,12 @@
 import { gql } from '@api/gen';
 import { PolicyTabBadgeQuery, PolicyTabBadgeQueryVariables } from '@api/gen/graphql';
+import { TransactionTabBadgeDocument } from '@api/generated';
 import { useSuspenseQuery } from '@apollo/client';
 import { Hex } from 'lib';
 import { StyleSheet } from 'react-native';
 import { TabBadge } from '~/components/tab/TabBadge';
 
-const QueryDoc = gql(/* GraphQL */ `
+gql(/* GraphQL */ `
   query TransactionTabBadge($proposal: Bytes32!) {
     proposal(input: { hash: $proposal }) {
       id
@@ -20,7 +21,7 @@ export interface TransactionTabBadgeProps {
 
 export function TransactionTabBadge(props: TransactionTabBadgeProps) {
   const { proposal: p } = useSuspenseQuery<PolicyTabBadgeQuery, PolicyTabBadgeQueryVariables>(
-    QueryDoc,
+    TransactionTabBadgeDocument,
     { variables: { proposal: props.proposal } },
   ).data;
 

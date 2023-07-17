@@ -19,8 +19,9 @@ import { UserApproverItem } from '../user/UserApproverItem';
 import { ContactItem } from '../contacts/ContactItem';
 import { ADDRESS_EMITTER } from './useSelectAddress';
 import { ListHeader } from '~/components/list/ListHeader';
+import { AddressesModalDocument } from '@api/generated';
 
-const QueryDoc = gql(/* GraphQL */ `
+gql(/* GraphQL */ `
   query AddressesModal($query: String) {
     accounts {
       id
@@ -59,7 +60,7 @@ export const AddressesModal = withSuspense(({ route }: AddressesModalProps) => {
   const { accounts, user, contacts } = useSuspenseQuery<
     AddressesModalQuery,
     AddressesModalQueryVariables
-  >(QueryDoc, { variables: { query } }).data;
+  >(AddressesModalDocument, { variables: { query } }).data;
 
   return (
     <Screen>
