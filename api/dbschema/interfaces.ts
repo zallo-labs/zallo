@@ -106,6 +106,7 @@ export interface Event extends std.$Object {
   "logIndex": number;
   "timestamp": Date;
   "transactionHash": string;
+  "transaction"?: Transaction | null;
 }
 export interface Function extends std.$Object {
   "selector": string;

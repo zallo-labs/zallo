@@ -213,6 +213,7 @@ export type $EventλShape = $.typeutil.flatten<_std.$Object_169a5ce7108a11eeb5af
   "logIndex": $.PropertyDesc<$uint32, $.Cardinality.One, false, false, false, false>;
   "timestamp": $.PropertyDesc<_std.$datetime, $.Cardinality.One, false, false, false, true>;
   "transactionHash": $.PropertyDesc<$Bytes32, $.Cardinality.One, false, false, false, false>;
+  "transaction": $.LinkDesc<$Transaction, $.Cardinality.AtMostOne, {}, false, true,  false, false>;
   "<events[is Receipt]": $.LinkDesc<$Receipt, $.Cardinality.Many, {}, false, false,  false, false>;
   "<events": $.LinkDesc<$.ObjectType, $.Cardinality.Many, {}, false, false,  false, false>;
 }>;
@@ -398,6 +399,10 @@ export type $TransactionλShape = $.typeutil.flatten<_std.$Object_169a5ce7108a11
   "<transaction[is Receipt]": $.LinkDesc<$Receipt, $.Cardinality.Many, {}, false, false,  false, false>;
   "<transactions[is TransactionProposal]": $.LinkDesc<$TransactionProposal, $.Cardinality.Many, {}, false, false,  false, false>;
   "<transaction[is TransactionProposal]": $.LinkDesc<$TransactionProposal, $.Cardinality.Many, {}, false, false,  false, false>;
+  "<transaction[is Event]": $.LinkDesc<$Event, $.Cardinality.Many, {}, false, false,  false, false>;
+  "<transaction[is Transferlike]": $.LinkDesc<$Transferlike, $.Cardinality.Many, {}, false, false,  false, false>;
+  "<transaction[is Transfer]": $.LinkDesc<$Transfer, $.Cardinality.Many, {}, false, false,  false, false>;
+  "<transaction[is TransferApproval]": $.LinkDesc<$TransferApproval, $.Cardinality.Many, {}, false, false,  false, false>;
   "<transaction": $.LinkDesc<$.ObjectType, $.Cardinality.Many, {}, false, false,  false, false>;
   "<transactions": $.LinkDesc<$.ObjectType, $.Cardinality.Many, {}, false, false,  false, false>;
 }>;

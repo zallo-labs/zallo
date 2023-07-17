@@ -124,6 +124,10 @@ module default {
     required logIndex: uint32;
     required block: bigint { constraint min_value(0n); }
     required timestamp: datetime { default := datetime_of_statement(); }
+    link transaction := (
+      with transactionHash := .transactionHash
+      select Transaction filter .hash = transactionHash
+    );
 
     constraint exclusive on ((.block, .logIndex));
 
