@@ -1,34 +1,38 @@
 import { makeStyles } from '@theme/makeStyles';
 import { TouchableOpacity } from 'react-native';
 import { Text } from 'react-native-paper';
-import { AddressLabel } from '../address/AddressLabel';
 import { AddressIcon } from '../Identicon/AddressIcon';
 import { useNavigation } from '@react-navigation/native';
-import { Suspense } from 'react';
-import { LineSkeleton } from '../skeleton/LineSkeleton';
-import { Address } from 'lib';
 import { Chevron } from '../Chevron';
+import { FragmentType, gql, useFragment } from '@api/gen';
+
+const FragmentDoc = gql(/* GraphQL */ `
+  fragment AccountSelector_account on Account {
+    id
+    address
+    name
+  }
+`);
 
 export interface AccountSelectorParams {
-  account: Address;
+  account: FragmentType<typeof FragmentDoc>;
 }
 
-export const AccountSelector = ({ account }: AccountSelectorParams) => {
+export const AccountSelector = (props: AccountSelectorParams) => {
   const styles = useStyles();
   const { navigate } = useNavigation();
+  const account = useFragment(FragmentDoc, props.account);
 
   return (
     <TouchableOpacity
       style={styles.container}
-      onPress={() => navigate('AccountsSheet', { account })}
+      onPress={() => navigate('AccountsSheet', { account: account.address })}
     >
-      <AddressIcon address={account} size={styles.icon.fontSize} />
+      <AddressIcon address={account.address} size={styles.icon.fontSize} />
 
-      <Suspense fallback={<LineSkeleton />}>
-        <Text variant="titleLarge" numberOfLines={1} style={styles.text}>
-          <AddressLabel address={account} />
-        </Text>
-      </Suspense>
+      <Text variant="titleLarge" numberOfLines={1} style={styles.text}>
+        {account.name}
+      </Text>
 
       <Chevron style={styles.text} />
     </TouchableOpacity>

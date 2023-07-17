@@ -3,14 +3,23 @@ import { StyleSheet, View } from 'react-native';
 import { Appbar as BaseAppbar } from 'react-native-paper';
 import { AccountSelector } from '~/components/AccountSelector/AccountSelector';
 import { useNavigation } from '@react-navigation/native';
-import { Address } from 'lib';
+import { FragmentType, gql, useFragment } from '@api/gen';
+
+const FragmentDoc = gql(/* GraphQL */ `
+  fragment HomeAppbar_account on Account {
+    id
+    address
+    ...AccountSelector_account
+  }
+`);
 
 export interface HomeAppbarProps {
-  account: Address;
+  account: FragmentType<typeof FragmentDoc>;
 }
 
-export const HomeAppbar = ({ account }: HomeAppbarProps) => {
+export const HomeAppbar = (props: HomeAppbarProps) => {
   const { navigate } = useNavigation();
+  const account = useFragment(FragmentDoc, props.account);
 
   return (
     <BaseAppbar.Header>
@@ -18,10 +27,13 @@ export const HomeAppbar = ({ account }: HomeAppbarProps) => {
         <AccountSelector account={account} />
       </View>
 
-      <BaseAppbar.Action icon={ScanIcon} onPress={() => navigate('Scan', { account })} />
+      <BaseAppbar.Action
+        icon={ScanIcon}
+        onPress={() => navigate('Scan', { account: account.address })}
+      />
       <BaseAppbar.Action
         icon={SettingsOutlineIcon}
-        onPress={() => navigate('Settings', { account })}
+        onPress={() => navigate('Settings', { account: account.address })}
       />
     </BaseAppbar.Header>
   );

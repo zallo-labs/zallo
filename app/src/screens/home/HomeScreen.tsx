@@ -7,7 +7,21 @@ import { Tabs } from './Tabs';
 import { Splash } from '~/components/Splash';
 import { AccountValue } from './AccountValue';
 import { Address } from 'lib';
-import { useAccountIds } from '@api/account';
+import { NotFound } from '~/components/NotFound';
+import { gql } from '@api/gen';
+import { useSuspenseQuery } from '@apollo/client';
+import { HomeQuery, HomeQueryVariables } from '@api/gen/graphql';
+import { HomeDocument } from '@api/generated';
+
+gql(/* GraphQL */ `
+  query Home($account: Address) {
+    account(input: { address: $account }) {
+      id
+      address
+      ...HomeAppbar_account
+    }
+  }
+`);
 
 export interface HomeScreenParams {
   account?: Address;
@@ -16,18 +30,21 @@ export interface HomeScreenParams {
 export type HomeScreenProps = StackNavigatorScreenProps<'Home'>;
 
 export const HomeScreen = withSuspense(({ route }: HomeScreenProps) => {
-  const accounts = useAccountIds();
-  const account = route.params?.account ?? accounts[0];
+  const { account } = useSuspenseQuery<HomeQuery, HomeQueryVariables>(HomeDocument, {
+    variables: { account: route.params.account },
+  }).data;
+
+  if (!account) return <NotFound name="Account" />;
 
   return (
     <Screen>
       <HomeAppbar account={account} />
 
-      <AccountValue account={account} />
+      <AccountValue account={account.address} />
 
-      <QuickActions account={account} />
+      <QuickActions account={account.address} />
 
-      <Tabs account={account} />
+      <Tabs account={account.address} />
     </Screen>
   );
 }, Splash);
