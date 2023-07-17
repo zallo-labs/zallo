@@ -12,10 +12,11 @@ import { Hex } from 'lib';
 import { gql, useFragment } from '@api/gen';
 import { useSuspenseQuery } from '@apollo/client';
 import { PolicyTabQuery, PolicyTabQueryVariables } from '@api/gen/graphql';
-import { usePolicyTabSubscriptionSubscription } from '@api/generated';
+import { PolicyTabDocument, usePolicyTabSubscriptionSubscription } from '@api/generated';
 
 const FragmentDoc = gql(/* GraphQL */ `
-  fragment PolicyTab_TransactionProposalFragment on TransactionProposal {
+  fragment PolicyTab_TransactionProposalFragment on TransactionProposal
+  @argumentDefinitions(proposal: { type: "Bytes32!" }) {
     id
     account {
       id
@@ -52,14 +53,14 @@ const FragmentDoc = gql(/* GraphQL */ `
         address
       }
     }
-    ...SelectedPolicy_TransactionProposalFragment
+    ...SelectedPolicy_TransactionProposalFragment @arguments(proposal: $proposal)
   }
 `);
 
 const QueryDoc = gql(/* GraphQL */ `
   query PolicyTab($proposal: Bytes32!) {
     proposal(input: { hash: $proposal }) {
-      ...PolicyTab_TransactionProposalFragment
+      ...PolicyTab_TransactionProposalFragment @arguments(proposal: $proposal)
     }
   }
 `);
@@ -67,7 +68,7 @@ const QueryDoc = gql(/* GraphQL */ `
 gql(/* GraphQL */ `
   subscription PolicyTabSubscription($proposal: Bytes32!) {
     proposal(input: { proposals: [$proposal] }) {
-      ...PolicyTab_TransactionProposalFragment
+      ...PolicyTab_TransactionProposalFragment @arguments(proposal: $proposal)
     }
   }
 `);
@@ -81,7 +82,7 @@ export type PolicyTabProps = TabNavigatorScreenProp<'Policy'>;
 export const PolicyTab = withSuspense(({ route }: PolicyTabProps) => {
   const styles = uesStyles();
 
-  const { data } = useSuspenseQuery<PolicyTabQuery, PolicyTabQueryVariables>(QueryDoc, {
+  const { data } = useSuspenseQuery<PolicyTabQuery, PolicyTabQueryVariables>(PolicyTabDocument, {
     variables: { proposal: route.params.proposal },
   });
   usePolicyTabSubscriptionSubscription({ variables: { proposal: route.params.proposal } });

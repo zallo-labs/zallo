@@ -12,8 +12,7 @@ import { useApprove } from './useApprove';
 const BLOCK_EXPLORER_URL = CHAIN.blockExplorers?.default.url;
 
 const ProposalFragment = gql(/* GraphQL */ `
-  fragment ProposalActions_TransactionProposalFragment on TransactionProposal
-  @argumentDefinitions(proposal: { type: "Bytes32!" }) {
+  fragment ProposalActions_TransactionProposalFragment on TransactionProposal {
     id
     hash
     status
@@ -22,7 +21,7 @@ const ProposalFragment = gql(/* GraphQL */ `
       hash
     }
     ...UseCanRespond_TransactionProposalFragment
-    ...UseApprove_TransactionProposalFragment @arguments(proposal: $proposal)
+    ...UseApprove_TransactionProposalFragment
   }
 `);
 

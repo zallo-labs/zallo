@@ -24,7 +24,7 @@ const ProposalQueryDoc = gql(/* GraphQL */ `
         id
         name
       }
-      ...ProposalActions_TransactionProposalFragment @arguments(proposal: $proposal)
+      ...ProposalActions_TransactionProposalFragment
     }
   }
 `);
