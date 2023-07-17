@@ -262,7 +262,7 @@ export class PoliciesService {
     if (!state)
       return { result: Satisfiability.unsatisfiable, reasons: [{ reason: 'Policy inactive' }] };
 
-    const policy2 = await this.db.query(
+    const policy = await this.db.query(
       e.select(e.TransactionProposal, (p) => ({
         filter_single: { hash: proposalHash },
         ...proposalTxShape(p),
@@ -271,12 +271,12 @@ export class PoliciesService {
         },
       })),
     );
-    if (!policy2)
+    if (!policy)
       return { result: Satisfiability.unsatisfiable, reasons: [{ reason: 'Proposal not found' }] };
 
     const p = policyStateAsPolicy(key, state);
-    const tx = transactionProposalAsTx(policy2);
-    const approvals = new Set(policy2.approvals.map((a) => a.approver.address as Address));
+    const tx = transactionProposalAsTx(policy);
+    const approvals = new Set(policy.approvals.map((a) => a.approver.address as Address));
 
     return getTransactionSatisfiability(p, tx, approvals);
   }
