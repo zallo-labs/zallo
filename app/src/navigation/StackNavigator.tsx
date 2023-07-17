@@ -119,7 +119,7 @@ export const StackNavigator = () => {
         </Navigation.Group>
       )}
 
-      <Navigation.Screen name="Home" component={HomeScreen} />
+      <Navigation.Screen name="Home" component={HomeScreen} initialParams={{}} />
       <Navigation.Screen name="CreateAccount" component={CreateAccountScreen} />
       <Navigation.Screen name="Scan" component={ScanScreen} />
       <Navigation.Screen name="Proposal" component={ProposalScreen} />
