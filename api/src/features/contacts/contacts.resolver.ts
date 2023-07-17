@@ -1,6 +1,6 @@
 import { ID, Info, Mutation, Query, Resolver } from '@nestjs/graphql';
 import { GraphQLResolveInfo } from 'graphql';
-import { ContactInput, UpsertContactInput } from './contacts.input';
+import { ContactInput, ContactsInput, LabelInput, UpsertContactInput } from './contacts.input';
 import { Contact } from './contacts.model';
 import { ContactsService } from './contacts.service';
 import { getShape } from '../database/database.select';
@@ -17,8 +17,16 @@ export class ContactsResolver {
   }
 
   @Query(() => [Contact])
-  async contacts(@Info() info: GraphQLResolveInfo) {
-    return this.service.select(getShape(info));
+  async contacts(
+    @Input({ defaultValue: {} }) input: ContactsInput,
+    @Info() info: GraphQLResolveInfo,
+  ) {
+    return this.service.select(input, getShape(info));
+  }
+
+  @Query(() => String, { nullable: true })
+  async label(@Input() { address }: LabelInput) {
+    return this.service.label(address);
   }
 
   @Mutation(() => Contact)

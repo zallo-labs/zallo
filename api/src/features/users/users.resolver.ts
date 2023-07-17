@@ -1,36 +1,54 @@
-import { Info, Mutation, Parent, Query, Resolver } from '@nestjs/graphql';
+import { Context, Info, Mutation, Parent, Query, Resolver, Subscription } from '@nestjs/graphql';
 import { GraphQLResolveInfo } from 'graphql';
-import { UpdateUserInput, UserInput } from './users.input';
-import { getUser } from '~/request/ctx';
+import { PairInput, UpdateUserInput } from './users.input';
 import { User } from './users.model';
-import { UsersService } from './users.service';
+import { UsersService, UserSubscriptionPayload } from './users.service';
 import { getShape } from '../database/database.select';
+import { Input } from '~/decorators/input.decorator';
 import { ComputedField } from '~/decorators/computed.decorator';
 import e from '~/edgeql-js';
-import { Input } from '~/decorators/input.decorator';
+import { PubsubService } from '../util/pubsub/pubsub.service';
+import { GqlContext, asUser } from '~/request/ctx';
 
 @Resolver(() => User)
 export class UsersResolver {
-  constructor(private service: UsersService) {}
+  constructor(private service: UsersService, private pubsub: PubsubService) {}
 
   @Query(() => User)
-  async user(
-    @Input({ defaultValue: {} }) { address = getUser() }: UserInput,
-    @Info() info: GraphQLResolveInfo,
-  ) {
-    return this.service.selectUnique(address, getShape(info));
+  async user(@Info() info: GraphQLResolveInfo) {
+    return this.service.selectUnique(getShape(info));
   }
 
-  @ComputedField<typeof e.User>(() => String, { address: true, name: true }, { nullable: true })
-  async name(@Parent() { address, name }: User): Promise<string | null> {
-    return this.service.name(address, name);
+  @ComputedField<typeof e.User>(() => String, { id: true })
+  async pairingToken(@Parent() { id }: User): Promise<string> {
+    return this.service.getPairingToken(id);
+  }
+
+  @Subscription(() => User, {
+    name: 'user',
+    resolve(
+      this: UsersResolver,
+      _payload: UserSubscriptionPayload,
+      _input,
+      ctx: GqlContext,
+      info: GraphQLResolveInfo,
+    ) {
+      return asUser(ctx, () => this.service.selectUnique(getShape(info)));
+    },
+  })
+  async subscribeToUser(@Context() ctx: GqlContext) {
+    return asUser(ctx, () => this.service.subscribeToUser());
   }
 
   @Mutation(() => User)
   async updateUser(@Input() input: UpdateUserInput, @Info() info: GraphQLResolveInfo) {
-    const user = getUser();
-    await this.service.upsert(user, input);
+    await this.service.update(input);
+    return this.service.selectUnique(getShape(info));
+  }
 
-    return (await this.service.selectUnique(user, getShape(info)))!;
+  @Mutation(() => User, { description: 'Pair with another user - merging your approvers' })
+  async pair(@Input() { token }: PairInput, @Info() info: GraphQLResolveInfo) {
+    await this.service.pair(token);
+    return this.service.selectUnique(getShape(info));
   }
 }

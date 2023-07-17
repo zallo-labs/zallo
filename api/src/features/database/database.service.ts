@@ -1,4 +1,4 @@
-import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
+import { Injectable, OnModuleInit } from '@nestjs/common';
 import { createClient, $infer } from '~/edgeql-js';
 import { Expression } from '~/edgeql-js/typesystem';
 import { getRequestContext } from '~/request/ctx';
@@ -25,33 +25,26 @@ export class DatabaseService implements OnModuleInit {
     await this.__client.ensureConnected();
   }
 
-  get authedClient() {
-    const user = getRequestContext()?.user;
-
-    return user
-      ? this.__client.withGlobals({
-          current_user_address: user.address,
-          current_user_accounts_array: user.accounts,
-        })
-      : this.DANGEROUS_superuserClient;
-  }
-
   get DANGEROUS_superuserClient() {
     return this.__client.withConfig({ apply_access_policies: false });
   }
 
   get client() {
-    return this.context.getStore()?.transaction ?? this.authedClient;
+    const user = getRequestContext()?.user;
+
+    return user
+      ? this.__client.withGlobals({
+          current_approver_address: user.approver,
+          current_user_accounts_array: user.accounts,
+        })
+      : this.DANGEROUS_superuserClient;
   }
 
   transaction<T>(action: (transaction: Transaction) => Promise<T>): Promise<T> {
-    const ctx = this.context.getStore();
-    if (ctx) {
-      Logger.debug('Using existing transaction');
-      return action(ctx.transaction);
-    }
+    const transaction = this.context.getStore()?.transaction;
+    if (transaction) return action(transaction);
 
-    return this.authedClient.transaction((transaction) =>
+    return this.client.transaction((transaction) =>
       this.context.run({ transaction }, () => action(transaction)),
     );
   }

@@ -6,7 +6,7 @@ import { ScreenSkeleton } from '~/components/skeleton/ScreenSkeleton';
 import { withSuspense } from '~/components/skeleton/withSuspense';
 import { StackNavigatorScreenProps } from '~/navigation/StackNavigator';
 import { PolicyAppbar } from './PolicyAppbar';
-import { useApproverId } from '@network/useApprover';
+import { useApproverAddress } from '@network/useApprover';
 import { POLICY_DRAFT_ATOM, PolicyDraft } from './PolicyDraft';
 import { Permissions } from './Permissions';
 import { useEffect, useMemo } from 'react';
@@ -31,7 +31,7 @@ export type PolicyScreenProps = StackNavigatorScreenProps<'Policy'>;
 export const PolicyScreen = withSuspense((props: PolicyScreenProps) => {
   const { account, key } = props.route.params;
   const policy = usePolicy(key !== undefined ? { account, key } : undefined);
-  const approver = useApproverId();
+  const approver = useApproverAddress();
 
   const state = props.route.params.state ?? policy?.state ? 'active' : 'draft';
 

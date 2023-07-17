@@ -1,40 +1,64 @@
-import { Proposal, ProposalOperation } from '@api/proposal';
 import { useToggle } from '@hook/useToggle';
 import { materialCommunityIcon } from '@theme/icons';
 import { StyleSheet } from 'react-native';
 import Collapsible from 'react-native-collapsible';
 import { Divider } from 'react-native-paper';
 import { Chevron } from '~/components/Chevron';
-import { useOperationLabel } from '~/components/call/useOperationLabel';
 import { ListItem } from '~/components/list/ListItem';
 import { OperationDetails } from './OperationDetails';
+import { FragmentType, gql, useFragment } from '@api/gen';
+import { OperationLabel } from '~/components/call/OperationLabel';
+
+const ProposalFragmentDoc = gql(/* GraphQL */ `
+  fragment OperationSection_TransactionProposalFragment on TransactionProposal {
+    account {
+      id
+      address
+    }
+  }
+`);
+
+const OperationFragmentDoc = gql(/* GraphQL */ `
+  fragment OperationSection_OperationFragment on Operation {
+    to
+    ...OperationLabel_OperationFragment
+    ...OperationDetails_OperationFragment
+  }
+`);
 
 const DataIcon = materialCommunityIcon('code-tags');
 
 export interface OperationSectionProps {
-  proposal: Proposal;
-  op: ProposalOperation;
+  proposal: FragmentType<typeof ProposalFragmentDoc>;
+  operation: FragmentType<typeof OperationFragmentDoc>;
   initiallyExpanded?: boolean;
 }
 
 export function OperationSection({
-  proposal,
-  op,
+  proposal: proposalFragment,
+  operation: operationFragment,
   initiallyExpanded = false,
 }: OperationSectionProps) {
+  const proposal = useFragment(ProposalFragmentDoc, proposalFragment);
+  const operation = useFragment(OperationFragmentDoc, operationFragment);
+
   const [expanded, toggleExpanded] = useToggle(initiallyExpanded);
 
   return (
     <>
       <ListItem
-        leading={op.to}
-        headline={useOperationLabel(proposal, op)}
+        leading={operation.to}
+        headline={({ Text }) => (
+          <Text>
+            <OperationLabel operation={operation} />
+          </Text>
+        )}
         trailing={() => <Chevron expanded={expanded} />}
         onPress={toggleExpanded}
       />
 
       <Collapsible collapsed={!expanded}>
-        <OperationDetails account={proposal.account} op={op} />
+        <OperationDetails account={proposal.account.address} operation={operation} />
 
         {/* TODO: user can swap tokens in-app (ZAL-137) */}
         {/* <Button mode="outlined" icon={DataIcon} style={styles.dataButton}>

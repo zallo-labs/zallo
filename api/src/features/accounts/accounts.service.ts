@@ -4,7 +4,7 @@ import e from '~/edgeql-js';
 import { Address, DeploySalt, Policy, asHex, asPolicyKey, randomDeploySalt } from 'lib';
 import { ShapeFunc } from '../database/database.select';
 import { AccountEvent, CreateAccountInput, UpdateAccountInput } from './accounts.input';
-import { getUser } from '~/request/ctx';
+import { getApprover, getUserCtx } from '~/request/ctx';
 import { UserInputError } from '@nestjs/apollo';
 import { CONFIG } from '~/config';
 import { ProviderService } from '../util/provider/provider.service';
@@ -16,12 +16,11 @@ import { InjectQueue } from '@nestjs/bull';
 import { ACCOUNTS_QUEUE, AccountActivationEvent } from './accounts.queue';
 import { inputAsPolicy } from '../policies/policies.util';
 import { Queue } from 'bull';
-import { selectAccount } from './accounts.util';
-import { UserAccountsService } from '../auth/userAccounts.service';
+import { AccountsCacheService } from '../auth/accounts.cache.service';
 import { v1 as uuid1 } from 'uuid';
 
 export const getAccountTrigger = (address: Address) => `account.${address}`;
-export const getAccountUserTrigger = (user: Address) => `account.user.${user}`;
+export const getAccountApproverTrigger = (user: Address) => `account.user.${user}`;
 export interface AccountSubscriptionPayload {
   account: Address;
   event: AccountEvent;
@@ -39,7 +38,7 @@ export class AccountsService {
     private policies: PoliciesService,
     @InjectQueue(ACCOUNTS_QUEUE.name)
     private activationQueue: Queue<AccountActivationEvent>,
-    private userAccounts: UserAccountsService,
+    private accountsCache: AccountsCacheService,
   ) {}
 
   unique = (address: Address) =>
@@ -47,9 +46,13 @@ export class AccountsService {
       filter_single: { address },
     }));
 
-  selectUnique(address: Address, shape?: ShapeFunc<typeof e.Account>) {
+  selectUnique(address: Address | undefined, shape?: ShapeFunc<typeof e.Account>) {
+    const accounts = getUserCtx().accounts;
+    if (accounts.length === 0) return null;
+
     return this.db.query(
-      selectAccount(address, (a) => ({
+      e.select(e.Account, (a) => ({
+        filter_single: address ? { address } : { id: accounts.sort()[0] },
         ...shape?.(a),
       })),
     );
@@ -65,9 +68,9 @@ export class AccountsService {
   }
 
   async createAccount({ name, policies: policyInputs }: CreateAccountInput) {
-    const user = getUser();
+    const approver = getApprover();
 
-    if (!policyInputs.find((p) => p.approvers.includes(user)))
+    if (!policyInputs.find((p) => p.approvers.includes(approver)))
       throw new UserInputError('User must be included in at least one policy');
 
     const implementation = CONFIG.accountImplAddress;
@@ -83,9 +86,9 @@ export class AccountsService {
 
     // The account id must be in the user's list of accounts prior to starting the transaction for the globals to be set correctly
     const accountId = uuid1();
-    await this.userAccounts.add({ user, account: accountId });
+    await this.accountsCache.addCachedAccount({ approver, account: accountId });
 
-    const id = await this.db.transaction(async (client) => {
+    const id = await this.db.transaction(async (db) => {
       const { id } = await e
         .insert(e.Account, {
           id: accountId,
@@ -95,7 +98,7 @@ export class AccountsService {
           implementation,
           salt,
         })
-        .run(client);
+        .run(db);
 
       await Promise.all(
         policyInputs.map((policy, i) =>
@@ -112,10 +115,10 @@ export class AccountsService {
       return id;
     });
 
-    this.publishAccount({ account, event: AccountEvent.create });
     await this.activateAccount(account, implementation, salt, policies);
     this.contracts.addAccountAsVerified(account);
     this.faucet.requestTokens(account);
+    this.publishAccount({ account, event: AccountEvent.create });
 
     return { id, address: account };
   }
@@ -159,23 +162,20 @@ export class AccountsService {
     const { account } = payload;
 
     // Publish events to all users with access to the account
-    const users = await e
-      .select(
-        e.op(
-          'distinct',
-          e.select(e.Policy, (p) => ({
-            filter: e.op(p.account.address, '=', account),
-            users: e.op(p.state.approvers.address, 'union', p.draft.approvers.address),
-          })).users,
-        ),
-      )
-      .run(this.db.DANGEROUS_superuserClient);
+    const approvers = (await this.db.query(
+      e.select(e.Account, () => ({
+        filter_single: { address: account },
+        approvers: {
+          address: true,
+        },
+      })).approvers.address,
+    )) as Address[];
 
     await Promise.all([
       this.pubsub.publish<AccountSubscriptionPayload>(getAccountTrigger(account), payload),
-      ...[...users].map((user) =>
+      ...approvers.map((approver) =>
         this.pubsub.publish<AccountSubscriptionPayload>(
-          getAccountUserTrigger(user as Address),
+          getAccountApproverTrigger(approver),
           payload,
         ),
       ),

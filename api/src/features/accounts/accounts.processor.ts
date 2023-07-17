@@ -37,7 +37,7 @@ export class AccountsProcessor {
       return;
     }
 
-    await this.db.transaction(async (client) => {
+    await this.db.transaction(async (db) => {
       await e
         .update(e.Account, () => ({
           filter_single: { address: account },
@@ -45,7 +45,7 @@ export class AccountsProcessor {
             isActive: true,
           },
         }))
-        .run(client);
+        .run(db);
 
       await e
         .update(e.PolicyState, (ps) => ({
@@ -57,7 +57,7 @@ export class AccountsProcessor {
             activationBlock: BigInt(receipt.blockNumber),
           },
         }))
-        .run(client);
+        .run(db);
     });
 
     await this.accounts.publishAccount({ account, event: AccountEvent.update });

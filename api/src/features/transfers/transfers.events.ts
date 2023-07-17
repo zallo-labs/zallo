@@ -25,6 +25,7 @@ export interface TransferSubscriptionPayload {
   transfer: uuid;
   account: Address;
   direction: TransferDirection;
+  isExternal: boolean;
 }
 
 @Injectable()
@@ -76,11 +77,11 @@ export class TransfersEvents {
       const block = await this.provider.getBlock(log.blockNumber);
       const token = normalizeEthAddress(asAddress(log.address));
 
-      const transfers = toArray(
-        await this.db.query(
-          e.set(
-            ...accounts.map((a) =>
-              e
+      const transfers = await this.db.query(
+        e.set(
+          ...accounts.map((a) =>
+            e.select({
+              transfer: e
                 .insert(e.Transfer, {
                   account: selectAccount(a),
                   transactionHash: log.transactionHash,
@@ -97,19 +98,27 @@ export class TransfersEvents {
                   amount,
                 })
                 .unlessConflict(),
-            ),
+              isExternal: e.op(
+                e.select(e.Transaction, () => ({ filter_single: { hash: log.transactionHash } }))
+                  .proposal.account.address,
+                '?=',
+                a,
+              ),
+            }),
           ),
         ),
-      ).filter(isPresent);
+      );
 
       await Promise.all(
-        transfers.map(async (transfer, index) => {
+        transfers.map(async ({ transfer, isExternal }, index) => {
+          if (!transfer) return;
           const account = accounts[index] as Address;
 
           await this.pubsub.publish<TransferSubscriptionPayload>(getTransferTrigger(account), {
             transfer: transfer.id,
             account,
             direction: account === from ? TransferDirection.Out : TransferDirection.In,
+            isExternal,
           });
         }),
       );

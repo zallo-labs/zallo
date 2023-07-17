@@ -1,6 +1,6 @@
-import { ProposalOperation } from '@api/proposal';
+import { FragmentType, gql, useFragment } from '@api/gen';
 import { ClockOutlineIcon } from '@theme/icons';
-import { Address, asBigInt } from 'lib';
+import { Address } from 'lib';
 import { DateTime } from 'luxon';
 import { match } from 'ts-pattern';
 import { useAddressLabel } from '~/components/address/AddressLabel';
@@ -8,12 +8,59 @@ import { useTimestamp } from '~/components/format/Timestamp';
 import { ListItem } from '~/components/list/ListItem';
 import { useFormattedTokenAmount } from '~/components/token/TokenAmount';
 
+const FragmentDoc = gql(/* GraphQL */ `
+  fragment OperationDetails_OperationFragment on Operation {
+    to
+    data
+    function {
+      __typename
+      ... on GenericOp {
+        _name
+        _args
+      }
+      ... on AddPolicyOp {
+        account
+        key
+      }
+      ... on RemovePolicyOp {
+        account
+        key
+      }
+      ... on TransferOp {
+        token
+        to
+        amount
+      }
+      ... on TransferFromOp {
+        token
+        from
+        to
+        amount
+      }
+      ... on TransferApprovalOp {
+        token
+        spender
+        amount
+      }
+      ... on SwapOp {
+        fromToken
+        fromAmount
+        toToken
+        minimumToAmount
+        deadline
+      }
+    }
+  }
+`);
+
 export interface OperationDetailsProps {
   account: Address;
-  op: ProposalOperation;
+  operation: FragmentType<typeof FragmentDoc>;
 }
 
-export function OperationDetails({ account, op }: OperationDetailsProps) {
+export function OperationDetails({ account, ...props }: OperationDetailsProps) {
+  const op = useFragment(FragmentDoc, props.operation);
+
   return match(op.function)
     .with({ __typename: 'TransferOp' }, (f) => (
       <>
@@ -62,7 +109,7 @@ export function OperationDetails({ account, op }: OperationDetailsProps) {
         />
       </>
     ))
-    .otherwise((f) => (
+    .otherwise(() => (
       <>
         <ListItem
           leading={op.to}

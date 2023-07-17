@@ -1,4 +1,3 @@
-import { useProposal, useRemoveProposal } from '@api/proposal';
 import { Menu } from 'react-native-paper';
 import { Appbar } from '~/components/Appbar/Appbar';
 import { AppbarMore2 } from '~/components/Appbar/AppbarMore';
@@ -9,8 +8,32 @@ import { StackNavigatorScreenProps } from '~/navigation/StackNavigator';
 import { useConfirmRemoval } from '../alert/useConfirm';
 import { Tabs } from './Tabs';
 import { ProposalActions } from './ProposalActions';
-import { useAddressLabel } from '~/components/address/AddressLabel';
 import { Hex } from 'lib';
+import { gql } from '@api/gen';
+import { useSuspenseQuery } from '@apollo/client';
+import { ProposalQuery, ProposalQueryVariables } from '@api/gen/graphql';
+import { NotFound } from '~/components/NotFound';
+import { ProposalDocument, useProposalScreen_RemoveProposalMutation } from '@api/generated';
+
+gql(/* GraphQL */ `
+  query Proposal($proposal: Bytes32!) {
+    proposal(input: { hash: $proposal }) {
+      id
+      hash
+      account {
+        id
+        name
+      }
+      ...ProposalActions_TransactionProposalFragment
+    }
+  }
+`);
+
+gql(/* GraphQL */ `
+  mutation ProposalScreen_RemoveProposal($proposal: Bytes32!) {
+    removeProposal(input: { hash: $proposal })
+  }
+`);
 
 export interface ProposalScreenParams {
   proposal: Hex;
@@ -20,18 +43,23 @@ export type ProposalScreenProps = StackNavigatorScreenProps<'Proposal'>;
 
 export const ProposalScreen = withSuspense(
   ({ route, navigation: { goBack } }: ProposalScreenProps) => {
-    const proposal = useProposal(route.params.proposal);
-    const removeProposal = useRemoveProposal();
+    const p = useSuspenseQuery<ProposalQuery, ProposalQueryVariables>(ProposalDocument, {
+      variables: { proposal: route.params.proposal },
+    }).data.proposal;
+
+    const [removeProposal] = useProposalScreen_RemoveProposalMutation();
     const confirmRemoval = useConfirmRemoval({
       message: 'Are you sure you want to remove this proposal?',
     });
+
+    if (!p) return <NotFound name="Proposal" />;
 
     return (
       <Screen>
         <Appbar
           mode="small"
           leading="back"
-          headline={useAddressLabel(proposal.account)}
+          headline={p.account.name}
           trailing={(props) => (
             <AppbarMore2 iconProps={props}>
               {({ close }) => (
@@ -40,7 +68,7 @@ export const ProposalScreen = withSuspense(
                   onPress={async () => {
                     close();
                     if (await confirmRemoval()) {
-                      await removeProposal(proposal);
+                      await removeProposal({ variables: { proposal: p.hash } });
                       goBack();
                     }
                   }}
@@ -50,9 +78,9 @@ export const ProposalScreen = withSuspense(
           )}
         />
 
-        <Tabs proposal={proposal.hash} />
+        <Tabs proposal={p.hash} />
 
-        <ProposalActions proposal={proposal} />
+        <ProposalActions proposal={p} />
       </Screen>
     );
   },

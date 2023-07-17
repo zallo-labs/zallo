@@ -10,8 +10,10 @@ import { AddressSheet, AddressSheetScreenParams } from '~/screens/address/Addres
 import { AlertModal, AlertModalParams } from '~/screens/alert/AlertModal';
 import { ContactScreen, ContactScreenParams } from '~/screens/contact/ContactScreen';
 import { ContactsScreen, ContactsScreenParams } from '~/screens/contacts/ContactsScreen';
-import { CreateAccountScreen } from '~/screens/create-account/CreateAccountScreen';
-import { CreateUserScreen } from '~/screens/create-user/CreateUserScreen';
+import {
+  CreateAccountScreen,
+  CreateAccountScreenParams,
+} from '~/screens/create-account/CreateAccountScreen';
 import { HomeScreen, HomeScreenParams } from '~/screens/home/HomeScreen';
 import { OnboardScreen } from '~/screens/onboard/OnboardScreen';
 import { useShowOnboarding } from '~/screens/onboard/useShowOnboarding';
@@ -44,10 +46,19 @@ import {
   ContractPermissionsScreen,
   ContractPermissionsScreenParams,
 } from '~/screens/contract-permissions/ContractPermissionsScreen';
+import { ApproverScreen, ApproverScreenParams } from '~/screens/approver/ApproverScreen';
+import { BiometricsScreen, BiometricsScreenParams } from '~/screens/biometrics/BiometricsScreen';
+import { PairUserModal, PairUserModalParams } from '~/screens/pair-user/PairUserModal';
+import {
+  PairConfirmSheet,
+  PairConfirmSheetScreenParams,
+} from '~/screens/pair-confirm/PairConfirmSheet';
+import { CreateUserScreen } from '~/screens/create-user/CreateUserScreen';
+import { AddressesModal, AddressesModalParams } from '~/screens/addresses/AddressesModal';
 
 export type StackNavigatorParamList = {
   Home: HomeScreenParams;
-  CreateAccount: undefined;
+  CreateAccount: CreateAccountScreenParams;
   Scan: ScanScreenParams;
   Proposal: ProposalScreenParams;
   Send: SendScreenParams;
@@ -56,32 +67,35 @@ export type StackNavigatorParamList = {
   Contact: ContactScreenParams;
   Settings: SettingsScreenParams;
   User: undefined;
+  Approver: ApproverScreenParams;
   Account: AccountScreenParams;
   Policy: PolicyScreenParams;
   Approvers: ApproversScreenParams;
   ContractPermissions: ContractPermissionsScreenParams;
   Sessions: SessionsScreenParams;
+  Biometrics: BiometricsScreenParams;
   Tokens: TokensScreenParams;
   NotificationSettings: NotificationSettingsParams;
   // Onboarding
   Onboard: undefined;
   CreateUser: undefined;
-  // Account
   // Transparent modal
   AccountsSheet: AccountsSheetParams;
   AddressSheet: AddressSheetScreenParams;
   QrModal: QrModalParams;
+  PairUserModal: PairUserModalParams;
+  PairConfirmSheet: PairConfirmSheetScreenParams;
   Alert: AlertModalParams;
   ConnectSheet: ConnectSheetParams;
   PairingSheet: PairingSheetParams;
   Sign: SignSheetParams;
   // Card modal
   RenameAccountModal: RenameAccountModalParams;
-  ContactsModal: ContactsScreenParams;
   TokensModal: TokensScreenParams;
   ContractsModal: ContractsModalParams;
   ImportSelectorModal: undefined;
   RenamePolicy: RenamePolicyScreenParams;
+  AddressesModal: AddressesModalParams;
 };
 
 export type StackNavigatorNavigationProp = StackNavigationProp<StackNavigatorParamList>;
@@ -105,7 +119,7 @@ export const StackNavigator = () => {
         </Navigation.Group>
       )}
 
-      <Navigation.Screen name="Home" component={HomeScreen} />
+      <Navigation.Screen name="Home" component={HomeScreen} initialParams={{}} />
       <Navigation.Screen name="CreateAccount" component={CreateAccountScreen} />
       <Navigation.Screen name="Scan" component={ScanScreen} />
       <Navigation.Screen name="Proposal" component={ProposalScreen} />
@@ -115,11 +129,13 @@ export const StackNavigator = () => {
       <Navigation.Screen name="Contact" component={ContactScreen} />
       <Navigation.Screen name="Settings" component={SettingsScreen} />
       <Navigation.Screen name="User" component={UserScreen} />
+      <Navigation.Screen name="Approver" component={ApproverScreen} />
       <Navigation.Screen name="Account" component={AccountScreen} />
       <Navigation.Screen name="Policy" component={PolicyScreen} />
       <Navigation.Screen name="Approvers" component={ApproversScreen} />
       <Navigation.Screen name="ContractPermissions" component={ContractPermissionsScreen} />
       <Navigation.Screen name="Sessions" component={SessionsScreen} />
+      <Navigation.Screen name="Biometrics" component={BiometricsScreen} />
       <Navigation.Screen name="Tokens" component={TokensScreen} />
       <Navigation.Screen name="NotificationSettings" component={NotificationSettingsScreen} />
 
@@ -127,6 +143,8 @@ export const StackNavigator = () => {
         <Navigation.Screen name="AccountsSheet" component={AccountsSheet} />
         <Navigation.Screen name="AddressSheet" component={AddressSheet} />
         <Navigation.Screen name="QrModal" component={QrModal} />
+        <Navigation.Screen name="PairUserModal" component={PairUserModal} />
+        <Navigation.Screen name="PairConfirmSheet" component={PairConfirmSheet} />
         <Navigation.Screen name="Alert" component={AlertModal} />
         <Navigation.Screen name="ConnectSheet" component={ConnectSheet} />
         <Navigation.Screen name="PairingSheet" component={PairingSheet} />
@@ -141,11 +159,11 @@ export const StackNavigator = () => {
         }}
       >
         <Navigation.Screen name="RenameAccountModal" component={RenameAccountModal} />
-        <Navigation.Screen name="ContactsModal" component={ContactsScreen} />
         <Navigation.Screen name="TokensModal" component={TokensScreen} />
         <Navigation.Screen name="ContractsModal" component={ContractsModal} />
         <Navigation.Screen name="ImportSelectorModal" component={ImportSelectorModal} />
         <Navigation.Screen name="RenamePolicy" component={RenamePolicyScreen} />
+        <Navigation.Screen name="AddressesModal" component={AddressesModal} />
       </Navigation.Group>
     </Navigation.Navigator>
   );

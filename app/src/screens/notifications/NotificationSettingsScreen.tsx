@@ -16,6 +16,7 @@ import { Button } from '~/components/Button';
 import { ListItem } from '~/components/list/ListItem';
 import { NotificationsOutlineIcon } from '@theme/icons';
 import { useAtomValue } from 'jotai';
+import { ListHeader } from '~/components/list/ListHeader';
 
 export type NotificationChannel = 'activity' | 'product';
 export const NotificationChannelConfig: Record<NotificationChannel, NotificationChannelInput> = {
@@ -42,14 +43,14 @@ const NOTIFICATIONS_ATOM = persistedAtom<Record<NotificationChannel, boolean>>('
 export const useNotificationSettings = () => useAtomValue(NOTIFICATIONS_ATOM);
 
 export interface NotificationSettingsParams {
-  onboard?: boolean;
+  isOnboarding?: boolean;
 }
 
 export type NotificationSettingsScreenProps = StackNavigatorScreenProps<'NotificationSettings'>;
 
 export const NotificationSettingsScreen = withSuspense(
   ({ navigation, route }: NotificationSettingsScreenProps) => {
-    const { onboard } = route.params;
+    const { isOnboarding } = route.params;
     const [settings, update] = useImmerAtom(NOTIFICATIONS_ATOM);
 
     const [perm, requestPerm] = Notifications.usePermissions({
@@ -62,7 +63,9 @@ export const NotificationSettingsScreen = withSuspense(
       },
     });
 
-    const next = onboard ? () => navigation.navigate('CreateAccount') : undefined;
+    const next = isOnboarding
+      ? () => navigation.navigate('CreateAccount', { isOnboarding: true })
+      : undefined;
 
     return (
       <Screen>
@@ -74,13 +77,11 @@ export const NotificationSettingsScreen = withSuspense(
           <Text variant="headlineMedium" style={styles.text}>
             Notifications
           </Text>
-
-          <Text style={styles.text}>
-            Stay informed about important updates and activity on your account
-          </Text>
         </View>
 
         <View>
+          <ListHeader>Receive notifications for</ListHeader>
+
           {Object.entries(NotificationChannelConfig).map(([channel, config]) => (
             <ListItem
               key={channel}

@@ -7,24 +7,33 @@ import {
   AccountSubscriptionInput,
 } from './accounts.input';
 import { PubsubService } from '../util/pubsub/pubsub.service';
-import { GqlContext, asUser, getUser } from '~/request/ctx';
+import { GqlContext, asUser, getApprover, getUserCtx } from '~/request/ctx';
 import { Account } from './accounts.model';
 import {
   AccountSubscriptionPayload,
   AccountsService,
   getAccountTrigger,
-  getAccountUserTrigger,
+  getAccountApproverTrigger,
 } from './accounts.service';
 import { getShape } from '../database/database.select';
 import { Input, InputArgs } from '~/decorators/input.decorator';
+import { AccountsCacheService } from '../auth/accounts.cache.service';
 
 @Resolver(() => Account)
 export class AccountsResolver {
-  constructor(private service: AccountsService, private pubsub: PubsubService) {}
+  constructor(
+    private service: AccountsService,
+    private pubsub: PubsubService,
+    private accountsCache: AccountsCacheService,
+  ) {}
 
   @Query(() => Account, { nullable: true })
-  async account(@Input() { address }: AccountInput, @Info() info: GraphQLResolveInfo) {
-    return this.service.selectUnique(address, getShape(info));
+  async account(
+    @Input({ defaultValue: {} }) { address }: AccountInput,
+    @Info() info: GraphQLResolveInfo,
+  ) {
+    const r = await this.service.selectUnique(address, getShape(info));
+    return r;
   }
 
   @Query(() => [Account])
@@ -45,7 +54,12 @@ export class AccountsResolver {
       ctx: GqlContext,
       info: GraphQLResolveInfo,
     ) {
-      return asUser(ctx, async () => this.service.selectUnique(account, getShape(info)));
+      return asUser(ctx, async () => {
+        // Context will not include newly created account (yet), as it was created on subscription
+        getUserCtx().accounts = await this.accountsCache.getApproverAccounts(getApprover());
+
+        return await this.service.selectUnique(account, getShape(info));
+      });
     },
   })
   async subscribeToAccounts(
@@ -54,7 +68,7 @@ export class AccountsResolver {
   ) {
     return asUser(ctx, () =>
       this.pubsub.asyncIterator(
-        accounts ? [...accounts].map(getAccountTrigger) : getAccountUserTrigger(getUser()),
+        accounts ? [...accounts].map(getAccountTrigger) : getAccountApproverTrigger(getApprover()),
       ),
     );
   }

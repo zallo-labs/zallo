@@ -1,9 +1,6 @@
 import { Field, ObjectType, registerEnumType } from '@nestjs/graphql';
 import { GraphQLBigInt } from 'graphql-scalars';
-import { PolicyKey } from 'lib';
-import { PolicyKeyField } from '~/apollo/scalars/PolicyKey.scalar';
 import { Account } from '../accounts/accounts.model';
-import { User } from '../users/users.model';
 import { Policy } from '../policies/policies.model';
 import { AddressField } from '~/apollo/scalars/Address.scalar';
 import { Bytes32Field } from '~/apollo/scalars/Bytes.scalar';
@@ -12,6 +9,7 @@ import { IdField } from '~/apollo/scalars/Id.scalar';
 import { TransferDetails } from '../transfers/transfers.model';
 import { uuid } from 'edgedb/dist/codecs/ifaces';
 import { Operation } from '../operations/operations.model';
+import { Approver } from '../approvers/approvers.model';
 
 @ObjectType({ isAbstract: true })
 export class Proposal {
@@ -33,8 +31,8 @@ export class Proposal {
   @Field(() => Date)
   createdAt: Date;
 
-  @Field(() => User)
-  proposedBy: User;
+  @Field(() => Approver)
+  proposedBy: Approver;
 
   @Field(() => [ProposalResponse])
   responses: ProposalResponse[];
@@ -46,13 +44,16 @@ export class Proposal {
   rejections: Rejection[];
 }
 
+@ObjectType({ implements: TransferDetails })
+export class SimulationTransfer extends TransferDetails {}
+
 @ObjectType()
 export class Simulation {
   @IdField()
   id: uuid;
 
-  @Field(() => [TransferDetails])
-  transfers: TransferDetails[];
+  @Field(() => [SimulationTransfer])
+  transfers: SimulationTransfer[];
 }
 
 @ObjectType()
@@ -98,8 +99,8 @@ export class ProposalResponse {
   @Field(() => Proposal)
   proposal: Proposal;
 
-  @Field(() => User)
-  user: User;
+  @Field(() => Approver)
+  approver: Approver;
 
   @Field(() => Date)
   createdAt: Date;
@@ -112,18 +113,3 @@ export class Approval extends ProposalResponse {
 
 @ObjectType()
 export class Rejection extends ProposalResponse {}
-
-@ObjectType()
-export class SatisfiablePolicy {
-  @IdField()
-  id: uuid;
-
-  @PolicyKeyField()
-  key: PolicyKey;
-
-  @Field(() => Boolean)
-  satisfied: boolean;
-
-  @Field(() => Boolean)
-  responseRequested: boolean;
-}

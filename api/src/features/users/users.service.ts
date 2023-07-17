@@ -1,88 +1,136 @@
 import { Injectable } from '@nestjs/common';
-import { Address, SYNCSWAP_CONTRACTS, isAddress } from 'lib';
 import { DatabaseService } from '../database/database.service';
 import { ShapeFunc } from '../database/database.select';
 import e from '~/edgeql-js';
 import { UpdateUserInput } from './users.input';
-import { ProviderService } from '../util/provider/provider.service';
-import { getUser, getUserCtx } from '~/request/ctx';
+import { InjectRedis } from '@liaoliaots/nestjs-redis';
+import Redis from 'ioredis';
+import { randomBytes } from 'crypto';
 import { uuid } from 'edgedb/dist/codecs/ifaces';
 import { UserInputError } from '@nestjs/apollo';
-import { and } from '../database/database.util';
-
-export const selectUser = (id: uuid | Address, shape?: ShapeFunc<typeof e.User>) =>
-  e.select(e.User, (u) => ({
-    ...shape?.(u),
-    filter_single: isAddress(id) ? { address: id } : { id },
-  }));
+import { AccountsCacheService } from '../auth/accounts.cache.service';
+import { Address } from 'lib';
+import { PubsubService } from '../util/pubsub/pubsub.service';
+import { getUserCtx } from '~/request/ctx';
+2;
+export interface UserSubscriptionPayload {}
+const getUserTrigger = (user: uuid) => `user.${user}`;
+const getUserApproverTrigger = (approver: Address) => `user.approver.${approver}`;
 
 @Injectable()
 export class UsersService {
-  private hardcodedAddresses: Record<Address, string>;
+  constructor(
+    private db: DatabaseService,
+    @InjectRedis()
+    private redis: Redis,
+    private pubsub: PubsubService,
+    private accountsCache: AccountsCacheService,
+  ) {}
 
-  constructor(private db: DatabaseService, private provider: ProviderService) {
-    this.hardcodedAddresses = {
-      [this.provider.walletAddress]: 'Zallo',
-      ...Object.fromEntries(
-        Object.values(SYNCSWAP_CONTRACTS.router).map((address) => [address, 'SyncSwap'] as const),
-      ),
-    };
-  }
-
-  async selectUnique(address: Address, shape?: ShapeFunc<typeof e.User>) {
-    const { address: userAddress, accounts } = getUserCtx();
-
-    const r = (
-      await this.db.query(
-        e.select(e.User, (user) => ({
-          // Returns user themself, or any account they are a member of
-          // This really needs to sit at the database level, but can't due to the insert on conflict bug - https://github.com/edgedb/edgedb/issues/5504
-          filter: and(
-            e.op(user.address, '=', address),
-            address !== userAddress && e.op(user.id, 'in', e.cast(e.uuid, e.set(...accounts))),
-          ),
-          limit: 1,
-          ...shape?.(user),
-        })),
-      )
-    )?.[0];
-
-    return (
-      r || {
-        id: address,
-        address,
-        name: null,
-      }
-    );
-  }
-
-  async upsert(address: Address, { name, pushToken }: UpdateUserInput) {
-    if (address !== getUser()) throw new UserInputError('Not user');
-
+  async selectUnique(shape?: ShapeFunc<typeof e.global.current_user>) {
     return this.db.query(
-      e.insert(e.User, { address, name, pushToken }).unlessConflict((user) => ({
-        on: user.address,
-        else: e.update(user, () => ({
-          set: {
-            name,
-            pushToken,
-          },
-        })),
+      e.select(e.global.current_user, (u) => ({
+        ...shape?.(u),
       })),
     );
   }
 
-  async name(address: string, name?: string | null): Promise<string | null> {
-    return (
-      name ||
-      (await this.db.query(
-        e.select(e.Contact, () => ({
-          filter_single: { user: selectUser(getUser()), address },
-          name: true,
-        })).name,
-      )) ||
-      this.hardcodedAddresses[address] ||
-      (await this.provider.lookupAddress(address))
+  async update({ name }: UpdateUserInput) {
+    return this.db.query(
+      e.update(e.global.current_user, () => ({
+        set: { name },
+      })),
     );
+  }
+
+  async subscribeToUser() {
+    const user = await this.db.query(
+      e.assert_exists(e.select(e.global.current_user, () => ({ id: true }))).id,
+    );
+
+    return this.pubsub.asyncIterator([
+      getUserTrigger(user),
+      getUserApproverTrigger(getUserCtx().approver),
+    ]);
+  }
+
+  async getPairingToken(user: uuid) {
+    const secretKey = this.getPairingSecretKey(user);
+    let secret = await this.redis.get(secretKey);
+    if (!secret) {
+      // Generate a new code
+      secret = randomBytes(32).toString('hex');
+      await this.redis.set(secretKey, secret, 'EX', 60 * 60 /* 1 hour */);
+    }
+
+    return `${user}:${secret}`;
+  }
+
+  async pair(token: string) {
+    const [oldUser, secret] = token.split(':');
+
+    const expectedSecret = await this.redis.get(this.getPairingSecretKey(oldUser));
+    if (secret !== expectedSecret)
+      throw new UserInputError(`Invalid pairing token; token may have expired (1h)`);
+
+    const newUser = await this.db.query(
+      e.assert_exists(e.select(e.global.current_user, () => ({ id: true }))).id,
+    );
+
+    if (oldUser === newUser) return;
+
+    // Pair with the user - merging their approvers into the current user
+    // User will be implicitly deleted due to Approver.user link source deletion policy
+    const approvers = await e
+      .select(
+        e.update(e.Approver, (a) => ({
+          filter: e.op(a.user.id, '=', e.cast(e.uuid, oldUser)),
+          set: {
+            user: e.select(e.User, () => ({ filter_single: { id: newUser } })),
+            // Append (from old user) to the name if it already exists
+            name: e.op(
+              a.name,
+              'if',
+              e.op(
+                a.name,
+                'not in',
+                e.select(e.Approver, () => ({
+                  filter: e.op(a.user.id, '=', e.cast(e.uuid, newUser)),
+                  name: true,
+                })).name,
+              ),
+              'else',
+              e.op(a.name, '++', ' (from old user)'),
+            ),
+          },
+        })),
+        () => ({ address: true }),
+      )
+      .address.run(this.db.DANGEROUS_superuserClient);
+
+    // Delete old user
+    await this.db.query(e.delete(e.User, () => ({ filter_single: { id: oldUser } })));
+
+    // Remove approver -> user cache
+    await this.accountsCache.removeApproverUserCache(...(approvers as Address[]));
+    await Promise.all([
+      this.pubsub.publish<UserSubscriptionPayload>(getUserTrigger(newUser), {}),
+      ...approvers.map((approver) =>
+        this.pubsub.publish<UserSubscriptionPayload>(
+          getUserApproverTrigger(approver as Address),
+          {},
+        ),
+      ),
+    ]);
+
+    // Remove user -> accounts cache for both old & new user
+    await this.accountsCache.removeUserAccountsCache(oldUser, newUser);
+
+    // Remove pairing secret
+    await this.redis.del(this.getPairingSecretKey(oldUser));
+  }
+
+  private getPairingSecretKey(user: uuid) {
+    return `pairing-secret:${user}`;
   }
 }

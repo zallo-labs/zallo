@@ -1,82 +1,107 @@
-import { useMemo } from 'react';
-import { FlatList } from 'react-native';
-import { NavigateNextIcon, ScanIcon, SearchIcon } from '~/util/theme/icons';
+import { useState } from 'react';
+import { NavigateNextIcon, ScanIcon, SearchIcon, materialCommunityIcon } from '~/util/theme/icons';
 import { Address } from 'lib';
 import { StackNavigatorScreenProps } from '~/navigation/StackNavigator';
-import { Contact, useContacts } from '@api/contacts';
-import { useSearch } from '@hook/useSearch';
 import { withSuspense } from '~/components/skeleton/withSuspense';
 import { ScreenSkeleton } from '~/components/skeleton/ScreenSkeleton';
 import { AppbarBack2 } from '~/components/Appbar/AppbarBack';
 import { Searchbar } from '~/components/fields/Searchbar';
 import { ListHeader } from '~/components/list/ListHeader';
 import { Screen } from '~/components/layout/Screen';
-import { truncateAddr } from '~/util/format';
-import { ListItem } from '~/components/list/ListItem';
+import { ListItemHeight } from '~/components/list/ListItem';
 import { useScanAddress } from '../scan/ScanScreen';
-import { ListHeaderButton } from '~/components/list/ListHeaderButton';
-import { CONTACT_EMITTER } from './useSelectContact';
+import { gql } from '@api/gen';
+import { useSuspenseQuery } from '@apollo/client';
+import { ContactsScreenQuery, ContactsScreenQueryVariables } from '@api/gen/graphql';
+import { FlashList } from '@shopify/flash-list';
+import { ContactItem } from './ContactItem';
+import { Text } from 'react-native-paper';
+import { Fab } from '~/components/buttons/Fab';
+import { makeStyles } from '@theme/makeStyles';
+import { ContactsScreenDocument } from '@api/generated';
+
+gql(/* GraphQL */ `
+  query ContactsScreen($query: String) {
+    contacts(input: { query: $query }) {
+      id
+      address
+      ...ContactItem_ContactFragment
+    }
+  }
+`);
+
+const AddContactIcon = materialCommunityIcon('account-plus-outline');
 
 export interface ContactsScreenParams {
-  emitOnSelect?: boolean;
   disabled?: Address[];
 }
 
-export type ContactsScreenProps =
-  | StackNavigatorScreenProps<'Contacts'>
-  | StackNavigatorScreenProps<'ContactsModal'>;
+export type ContactsScreenProps = StackNavigatorScreenProps<'Contacts'>;
 
 export const ContactsScreen = withSuspense(
   ({ route, navigation: { navigate } }: ContactsScreenProps) => {
-    const { emitOnSelect } = route.params;
+    const styles = useStyles();
     const disabled = route.params.disabled && new Set(route.params.disabled);
     const scanAddress = useScanAddress();
 
-    const [contacts, searchProps] = useSearch(useContacts(), ['name', 'address']);
+    const [query, setQuery] = useState('');
 
-    const add = () => navigate('Contact', {});
-    const scan = async () => navigate('Contact', { address: await scanAddress({}) });
-
-    const onSelect: (c: Contact) => void = useMemo(
-      () =>
-        emitOnSelect
-          ? (c) => CONTACT_EMITTER.emit(c)
-          : ({ address }) => navigate('Contact', { address }),
-      [navigate, emitOnSelect],
-    );
+    const { contacts } = useSuspenseQuery<ContactsScreenQuery, ContactsScreenQueryVariables>(
+      ContactsScreenDocument,
+      { variables: { query } },
+    ).data;
 
     return (
       <Screen>
         <Searchbar
           leading={AppbarBack2}
           placeholder="Search contacts"
-          trailing={[SearchIcon, (props) => <ScanIcon {...props} onPress={scan} />]}
-          inset={route.name === 'Contacts'}
-          {...searchProps}
+          trailing={[
+            SearchIcon,
+            (props) => (
+              <ScanIcon
+                {...props}
+                onPress={async () => navigate('Contact', { address: await scanAddress() })}
+              />
+            ),
+          ]}
+          inset
+          value={query}
+          onChangeText={setQuery}
         />
 
-        <FlatList
+        <FlashList
           data={contacts}
-          ListHeaderComponent={
-            <ListHeader trailing={<ListHeaderButton onPress={add}>Add</ListHeaderButton>}>
-              Contacts
-            </ListHeader>
-          }
-          renderItem={({ item: contact }) => (
-            <ListItem
-              leading={contact.address}
-              headline={contact.name}
-              supporting={truncateAddr(contact.address)}
+          ListHeaderComponent={<ListHeader>Contacts</ListHeader>}
+          renderItem={({ item }) => (
+            <ContactItem
+              contact={item}
               trailing={NavigateNextIcon}
-              disabled={disabled?.has(contact.address)}
-              onPress={() => onSelect(contact)}
+              disabled={disabled?.has(item.address)}
+              onPress={() => navigate('Contact', { address: item.address })}
             />
           )}
-          extraData={[navigate, onSelect, disabled]}
+          ListEmptyComponent={
+            <Text variant="bodyLarge" style={styles.emptyText}>
+              Add a contact to get started
+            </Text>
+          }
+          extraData={[disabled, navigate]}
           showsVerticalScrollIndicator={false}
+          estimatedItemSize={ListItemHeight.DOUBLE_LINE}
         />
+
+        <Fab icon={AddContactIcon} label="Add" />
       </Screen>
     );
   },
   ScreenSkeleton,
 );
+
+const useStyles = makeStyles(({ colors }) => ({
+  emptyText: {
+    marginHorizontal: 16,
+    marginVertical: 8,
+    color: colors.onSurfaceVariant,
+  },
+}));

@@ -25,4 +25,4 @@ export const Palette = {
   warning95: '#FFEEE1',
   warning99: '#FFFBFF',
   warning100: '#FFFFFF',
-};
+} as const;

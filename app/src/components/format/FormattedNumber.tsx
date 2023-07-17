@@ -2,7 +2,7 @@ import { FormatNumberOptions, useIntl } from 'react-intl';
 import { formatUnits } from 'ethers/lib/utils';
 
 export interface FormattedNumberOptions extends FormatNumberOptions {
-  value: bigint | number;
+  value: bigint | number | string;
   decimals?: number;
   minimumNumberFractionDigits?: number;
   postFormat?: (value: string) => string;

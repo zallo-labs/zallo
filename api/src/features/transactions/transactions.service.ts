@@ -31,11 +31,11 @@ import { DatabaseService } from '../database/database.service';
 import e from '~/edgeql-js';
 import _ from 'lodash';
 import { ProposalEvent } from '../proposals/proposals.input';
-import { selectUser } from '../users/users.service';
 import { ShapeFunc } from '../database/database.select';
 import { UserInputError } from '@nestjs/apollo';
 import { PaymasterService } from '../paymaster/paymaster.service';
 import { proposalTxShape, transactionProposalAsTx } from '../proposals/proposals.uitl';
+import { selectApprover } from '../approvers/approvers.service';
 
 @Injectable()
 export class TransactionsService {
@@ -74,7 +74,7 @@ export class TransactionsService {
         ...proposalTxShape(p),
         feeToken: true,
         approvals: {
-          user: { address: true },
+          approver: { address: true },
           signature: true,
         },
         policy: {
@@ -92,7 +92,7 @@ export class TransactionsService {
       await mapAsync(proposal.approvals, (a) =>
         this.provider.asApproval({
           digest: proposal.hash as Hex,
-          approver: a.user.address as Address,
+          approver: a.approver.address as Address,
           signature: a.signature as Hex,
         }),
       )
@@ -100,14 +100,14 @@ export class TransactionsService {
 
     if (approvals.length !== proposal.approvals.length) {
       const expiredApprovals = proposal.approvals
-        .map((a) => a.user.address as Address)
+        .map((a) => a.approver.address as Address)
         .filter((a) => !approvals.find((approval) => approval.approver === a));
 
       // TODO: Mark approvals as expired rather than removing
       await e
-        .for(e.set(...expiredApprovals.map((approver) => selectUser(approver))), (user) =>
+        .for(e.set(...expiredApprovals.map((approver) => selectApprover(approver))), (approver) =>
           e.delete(e.Approval, () => ({
-            filter_single: { proposal: selectProposal(proposal.id), user },
+            filter_single: { proposal: selectProposal(proposal.id), approver },
           })),
         )
         .run(this.db.DANGEROUS_superuserClient);
@@ -185,12 +185,13 @@ export class TransactionsService {
         filter_single: isHex(id) ? { hash: id } : { id },
         ...proposalTxShape(p),
         approvals: {
-          user: { address: true },
+          approver: { address: true },
         },
         rejections: {
-          user: { address: true },
+          approver: { address: true },
         },
         account: {
+          id: true,
           policies: {
             key: true,
             state: policyStateShape,
@@ -202,8 +203,8 @@ export class TransactionsService {
 
     const tx = transactionProposalAsTx(proposal);
 
-    const approvals = new Set(proposal.approvals.map((a) => a.user.address as Address));
-    const rejections = new Set(proposal.rejections.map((a) => a.user.address as Address));
+    const approvals = new Set(proposal.approvals.map((a) => a.approver.address as Address));
+    const rejections = new Set(proposal.rejections.map((a) => a.approver.address as Address));
 
     const policies = proposal.account.policies
       .map((policy) => policyStateAsPolicy(policy.key, policy.state))
@@ -213,7 +214,7 @@ export class TransactionsService {
         satisfiability: getTransactionSatisfiability(policy, tx, approvals),
       }));
 
-    return { policies, approvals, rejections };
+    return { accountId: proposal.account.id, policies, approvals, rejections };
   }
 
   private async getExecutionPolicy(

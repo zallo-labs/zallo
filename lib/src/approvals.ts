@@ -1,14 +1,12 @@
 import { BytesLike, ethers } from 'ethers';
-import { defaultAbiCoder, hexDataLength, recoverAddress } from 'ethers/lib/utils';
+import { recoverAddress } from 'ethers/lib/utils';
 import { SignatureLike } from '@ethersproject/bytes';
 import { Address, asAddress, compareAddress } from './address';
 import { Approver } from './approver';
-import { POLICY_ABI, Policy } from './policy';
 import { hashTx, Tx } from './tx';
 import { Hex, asHex } from './bytes';
 import { ApprovalsStruct } from './contracts/TestVerifier';
 import { newAbiType } from './util/abi';
-import { match } from 'ts-pattern';
 import { tryOrIgnore, tryOrIgnoreAsync } from './util';
 
 // Convert to a compact 64 byte (eip-2098) signature

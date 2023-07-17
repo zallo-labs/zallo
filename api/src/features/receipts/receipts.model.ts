@@ -5,6 +5,7 @@ import { IdField } from '~/apollo/scalars/Id.scalar';
 import { uuid } from 'edgedb/dist/codecs/ifaces';
 import { GraphQLBigInt } from 'graphql-scalars';
 import { Event } from '../events/events.model';
+import { Transfer, TransferApproval } from '../transfers/transfers.model';
 
 @ObjectType()
 export class Receipt {
@@ -19,6 +20,12 @@ export class Receipt {
 
   @Field(() => [Event])
   events: Event[];
+
+  @Field(() => [Transfer])
+  transferEvents: Transfer[];
+
+  @Field(() => [TransferApproval])
+  transferApprovalEvents: TransferApproval[];
 
   @Field(() => GraphQLBigInt)
   gasUsed: bigint;

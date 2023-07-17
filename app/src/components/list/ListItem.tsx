@@ -2,10 +2,9 @@ import { FC, ReactNode } from 'react';
 import { IconProps } from '@theme/icons';
 import { makeStyles } from '@theme/makeStyles';
 import { Text, TouchableRipple, TouchableRippleProps } from 'react-native-paper';
-import { Box } from '../layout/Box';
 import { AddressOrLabelIcon } from '../Identicon/AddressOrLabelIcon';
 import { TextProps } from '@theme/types';
-import { StyleProp, TextStyle, ViewStyle } from 'react-native';
+import { StyleProp, TextStyle, View, ViewStyle } from 'react-native';
 import { O } from 'ts-toolbelt';
 import { ICON_SIZE } from '@theme/paper';
 
@@ -87,7 +86,7 @@ export const ListItem = ({
     >
       <>
         {Leading && (
-          <Box style={styles.leadingContainer}>
+          <View style={styles.leadingContainer}>
             {typeof Leading === 'string' ? (
               <AddressOrLabelIcon
                 label={Leading}
@@ -102,10 +101,10 @@ export const ListItem = ({
                 disabled={disabled}
               />
             )}
-          </Box>
+          </View>
         )}
 
-        <Box style={styles.mainContainer}>
+        <View style={styles.mainContainer}>
           {Overline &&
             (typeof Overline === 'function' ? (
               <Overline Text={OverlineText} />
@@ -125,10 +124,10 @@ export const ListItem = ({
             ) : (
               <SupportingText>{Supporting}</SupportingText>
             ))}
-        </Box>
+        </View>
 
         {Trailing && (
-          <Box style={styles.trailingContainer}>
+          <View style={styles.trailingContainer}>
             {typeof Trailing === 'function' ? (
               <Trailing
                 size={styles.trailingIcon.fontSize}
@@ -139,7 +138,7 @@ export const ListItem = ({
             ) : (
               <TrailingText>{Trailing}</TrailingText>
             )}
-          </Box>
+          </View>
         )}
       </>
     </TouchableRipple>

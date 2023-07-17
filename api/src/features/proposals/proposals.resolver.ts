@@ -19,7 +19,7 @@ import {
 } from './proposals.input';
 import { PubsubService } from '~/features/util/pubsub/pubsub.service';
 import { GqlContext, asUser, getUserCtx } from '~/request/ctx';
-import { TransactionProposal, SatisfiablePolicy } from './proposals.model';
+import { TransactionProposal, TransactionProposalStatus } from './proposals.model';
 import {
   ProposalSubscriptionPayload,
   ProposalsService,
@@ -27,12 +27,12 @@ import {
   getProposalTrigger,
 } from './proposals.service';
 import { getShape } from '../database/database.select';
-import { ComputedField } from '~/decorators/computed.decorator';
 import e from '~/edgeql-js';
 import { Input, InputArgs } from '~/decorators/input.decorator';
 import { DatabaseService } from '../database/database.service';
 import { Address } from 'lib';
 import { uuid } from 'edgedb/dist/codecs/ifaces';
+import { ComputedField } from '~/decorators/computed.decorator';
 
 @Resolver(() => TransactionProposal)
 export class ProposalsResolver {
@@ -55,9 +55,11 @@ export class ProposalsResolver {
     return this.service.select(input, getShape(info));
   }
 
-  @ComputedField<typeof e.Policy>(() => [SatisfiablePolicy], { id: true })
-  async satisfiablePolicies(@Parent() { id }: TransactionProposal): Promise<SatisfiablePolicy[]> {
-    return this.service.satisfiablePoliciesResponse(id);
+  @ComputedField<typeof e.TransactionProposal>(() => Boolean, { status: true })
+  async updatable(@Parent() { status }: TransactionProposal): Promise<boolean> {
+    return (
+      status === TransactionProposalStatus.Pending || status === TransactionProposalStatus.Failed
+    );
   }
 
   @Subscription(() => TransactionProposal, {
@@ -73,7 +75,7 @@ export class ProposalsResolver {
       ctx: GqlContext,
       info: GraphQLResolveInfo,
     ) {
-      return asUser(ctx, () => this.service.selectUnique(hash, getShape(info)));
+      return asUser(ctx, async () => await this.service.selectUnique(hash, getShape(info)));
     },
   })
   async subscribeToProposals(

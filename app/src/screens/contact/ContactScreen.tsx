@@ -1,6 +1,5 @@
-import { useContact, useDeleteContact, useUpsertContact } from '@api/contacts';
 import { NetworkIcon, RemoveIcon } from '@theme/icons';
-import { Address, asAddress, isAddressLike, ZERO_ADDR } from 'lib';
+import { Address, isAddressLike, ZERO_ADDR } from 'lib';
 import { useForm } from 'react-hook-form';
 import { StyleSheet } from 'react-native';
 import { View } from 'react-native';
@@ -21,10 +20,42 @@ import { SelectChip } from '~/components/fields/SelectChip';
 import { CHAIN, SUPPORTED_CHAINS } from '@network/provider';
 import { Unimplemented } from '~/util/error/unimplemented';
 import { FormResetIcon } from '~/components/fields/ResetFormIcon';
+import { gql, useFragment } from '@api/gen';
+import { useSuspenseQuery } from '@apollo/client';
+import { ContactQuery, ContactQueryVariables, Contact_ContactFragmentDoc } from '@api/gen/graphql';
+import {
+  ContactDocument,
+  useContactDeleteMutation,
+  useContactUpsertMutation,
+} from '@api/generated';
+
+gql(/* GraphQL */ `
+  fragment Contact_contact on Contact {
+    id
+    address
+    label
+  }
+
+  query Contact($address: Address!) {
+    contact(input: { address: $address }) {
+      ...Contact_contact
+    }
+  }
+
+  mutation ContactUpsert($input: UpsertContactInput!) {
+    upsertContact(input: $input) {
+      ...Contact_contact
+    }
+  }
+
+  mutation ContactDelete($address: Address!) {
+    deleteContact(input: { address: $address })
+  }
+`);
 
 interface Inputs {
-  name: string;
-  address: string;
+  label: string;
+  address: Address;
 }
 
 export interface ContactScreenParams {
@@ -36,18 +67,24 @@ export type ContactScreenProps = StackNavigatorScreenProps<'Contact'>;
 export const ContactScreen = withSuspense(
   ({ route, navigation: { goBack } }: ContactScreenProps) => {
     const { address } = route.params;
-    const current = useContact(address);
-    const upsertContact = useUpsertContact();
-    const removeContact = useDeleteContact();
+
+    const { data } = useSuspenseQuery<ContactQuery, ContactQueryVariables>(ContactDocument, {
+      variables: { address: address! },
+      skip: !address,
+    });
+    const current = useFragment(Contact_ContactFragmentDoc, data?.contact);
+    const [upsert] = useContactUpsertMutation();
+    const [remove] = useContactDeleteMutation();
     const confirmRemove = useConfirmRemoval({
       message: 'Are you sure you want to remove this contact',
     });
+
     const { control, handleSubmit, reset } = useForm<Inputs>({
-      defaultValues: { name: current?.name, address: current?.address ?? address },
+      defaultValues: { label: current?.label, address: current?.address ?? address },
     });
 
-    const submit = handleSubmit(async ({ name, address }) => {
-      await upsertContact({ name, address: asAddress(address) }, current);
+    const submit = handleSubmit(async ({ label, address }) => {
+      await upsert({ variables: { input: { label, address, previousAddress: current?.address } } });
       goBack();
     });
 
@@ -69,7 +106,7 @@ export const ContactScreen = withSuspense(
                       onPress={async () => {
                         close();
                         if (await confirmRemove()) {
-                          removeContact(current);
+                          remove({ variables: { address: current.address } });
                           goBack();
                         }
                       }}
@@ -85,8 +122,8 @@ export const ContactScreen = withSuspense(
           <View style={styles.fieldContainer}>
             <UserOutlineIcon style={styles.fieldIcon} size={styles.fieldIcon.width} />
             <FormTextField
-              label="Name"
-              name="name"
+              label="Label"
+              name="label"
               control={control}
               rules={{ required: true }}
               containerStyle={styles.fieldInput}

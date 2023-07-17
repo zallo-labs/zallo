@@ -1,15 +1,35 @@
 import { useRef } from 'react';
-import BottomSheet, { BottomSheetFlatList } from '@gorhom/bottom-sheet';
+import BottomSheet, { BottomSheetScrollView } from '@gorhom/bottom-sheet';
 import { Sheet } from '~/components/sheet/Sheet';
 import { StackNavigatorScreenProps } from '~/navigation/StackNavigator';
-import { useAccountIds } from '@api/account';
 import { ListHeader } from '~/components/list/ListHeader';
-import { NavigateNextIcon } from '@theme/icons';
-import { AddressLabel } from '~/components/address/AddressLabel';
+import { AddIcon, PolicyIcon, materialCommunityIcon } from '@theme/icons';
 import { ListItem } from '~/components/list/ListItem';
-import { Button } from 'react-native-paper';
-import { StyleSheet } from 'react-native';
+import { Button, Text } from 'react-native-paper';
+import { View } from 'react-native';
 import { Address } from 'lib';
+import { gql } from '@api/gen';
+import { useSuspenseQuery } from '@apollo/client';
+import { AddressIcon } from '~/components/Identicon/AddressIcon';
+import { ICON_SIZE } from '@theme/paper';
+import { makeStyles } from '@theme/makeStyles';
+import { truncateAddr } from '~/util/format';
+import { AccountsSheetQuery, AccountsSheetQueryVariables } from '@api/gen/graphql';
+import { AccountItem } from './AccountItem';
+import { AccountsSheetDocument } from '@api/generated';
+
+const SwitchIcon = materialCommunityIcon('swap-horizontal');
+
+gql(/* GraphQL */ `
+  query AccountsSheet {
+    accounts {
+      id
+      address
+      name
+      ...AccountItem_AccountFragment
+    }
+  }
+`);
 
 export interface AccountsSheetParams {
   account: Address;
@@ -18,45 +38,91 @@ export interface AccountsSheetParams {
 export type AccountsSheetProps = StackNavigatorScreenProps<'AccountsSheet'>;
 
 export const AccountsSheet = ({ route, navigation: { navigate, goBack } }: AccountsSheetProps) => {
-  const { account: selected } = route.params;
+  const { account: selectedAddress } = route.params;
+  const styles = useStyles();
   const ref = useRef<BottomSheet>(null);
+
+  const { accounts } = useSuspenseQuery<AccountsSheetQuery, AccountsSheetQueryVariables>(
+    AccountsSheetDocument,
+  ).data;
+
+  const selected = accounts.find((account) => account.address === selectedAddress);
+  const otherAccounts = accounts.filter((account) => account.address !== selectedAddress);
 
   return (
     <Sheet ref={ref} onClose={goBack}>
-      <BottomSheetFlatList
-        data={useAccountIds()}
-        ListHeaderComponent={
-          <ListHeader
-            trailing={
-              <Button mode="text" onPress={() => navigate('CreateAccount')}>
-                Create
-              </Button>
-            }
-          >
-            Accounts
-          </ListHeader>
-        }
-        renderItem={({ item: account }) => (
-          <ListItem
-            leading={account}
-            headline={<AddressLabel address={account} />}
-            trailing={NavigateNextIcon}
-            selected={account === selected}
-            onPress={() => {
-              navigate('Home', { account });
-              // ref.current?.close();
-            }}
-          />
-        )}
+      <BottomSheetScrollView
         contentContainerStyle={styles.contentContaiiner}
         showsVerticalScrollIndicator={false}
-      />
+      >
+        {selected && (
+          <View style={styles.selectedContainer}>
+            <AddressIcon address={selected.address} size={ICON_SIZE.large} />
+
+            <View style={styles.selectedLabelContainer}>
+              <Text variant="titleMedium">{selected.name}</Text>
+              <Text variant="bodyLarge" style={styles.selectedAddress}>
+                {truncateAddr(selected.address)}
+              </Text>
+            </View>
+
+            <Button
+              mode="contained"
+              icon={PolicyIcon}
+              style={styles.selectedAccountButton}
+              onPress={() => navigate('Account', { account: selected.address })}
+            >
+              Account
+            </Button>
+          </View>
+        )}
+
+        {otherAccounts.length > 0 && <ListHeader>Accounts</ListHeader>}
+
+        {otherAccounts.map((a) => (
+          <AccountItem
+            key={a.id}
+            account={a}
+            trailing={SwitchIcon}
+            onPress={() => navigate('Home', { account: a.address })}
+          />
+        ))}
+
+        <ListItem
+          leading={(props) => (
+            <View style={styles.addIconContainer}>
+              <AddIcon {...props} />
+            </View>
+          )}
+          headline="Account"
+          onPress={() => navigate('CreateAccount', {})}
+        />
+      </BottomSheetScrollView>
     </Sheet>
   );
 };
 
-const styles = StyleSheet.create({
+const useStyles = makeStyles(({ colors }) => ({
   contentContaiiner: {
-    paddingBottom: 16,
+    paddingBottom: 8,
   },
-});
+  selectedContainer: {
+    alignItems: 'center',
+    gap: 8,
+    marginHorizontal: 16,
+    marginBottom: 8,
+  },
+  selectedLabelContainer: {
+    alignItems: 'center',
+  },
+  selectedAddress: {
+    color: colors.onSurfaceVariant,
+  },
+  selectedAccountButton: {
+    alignSelf: 'stretch',
+  },
+  addIconContainer: {
+    alignItems: 'center',
+    width: ICON_SIZE.medium,
+  },
+}));

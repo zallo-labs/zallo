@@ -13,5 +13,5 @@ export class Contact implements Partial<eql.Contact> {
   address: string; // Address
 
   @Field(() => String)
-  name: string;
+  label: string;
 }

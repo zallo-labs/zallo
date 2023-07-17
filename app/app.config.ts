@@ -1,4 +1,5 @@
 import { ExpoConfig, ConfigContext } from '@expo/config';
+import { PluginConfigType as BuildPropertiesConfig } from 'expo-build-properties/build/pluginConfig';
 
 const ENV = process.env;
 
@@ -20,13 +21,15 @@ export const CONFIG = {
 
 export type Config = typeof CONFIG;
 
+const withVariant = (v: string) => `${v}${ENV.APP_VARIANT ? `.${ENV.APP_VARIANT}` : ''}`;
+
 export const PROJECT_ID = 'f8f4def1-b838-4dec-8b50-6c07995c4ff5';
-const packageId = 'io.zallo';
+const packageId = withVariant('io.zallo');
 
 // https://docs.expo.dev/versions/latest/config/app/
 export default ({ config }: ConfigContext): ExpoConfig => ({
   ...config,
-  name: 'Zallo',
+  name: withVariant('Zallo'),
   slug: 'app',
   owner: 'zallo',
   githubUrl: CONFIG.metadata.github,
@@ -39,22 +42,28 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     eas: { projectId: PROJECT_ID },
   },
   plugins: [
-    'sentry-expo',
-    'expo-notifications', // https://docs.expo.dev/versions/latest/sdk/notifications/#configurable-properties
     [
       'expo-build-properties',
       {
         android: {
-          unstable_networkInspector: true,
+          packagingOptions: {
+            // https://github.com/margelo/react-native-quick-crypto/issues/90#issuecomment-1321129104
+            pickFirst: [
+              'lib/x86/libcrypto.so',
+              'lib/x86_64/libcrypto.so',
+              'lib/armeabi-v7a/libcrypto.so',
+              'lib/arm64-v8a/libcrypto.so',
+            ],
+          },
         },
-        // https://docs.expo.dev/versions/latest/sdk/build-properties/
         ios: {
-          unstable_networkInspector: true,
           useFrameworks: 'static', // Required by react-native-firebase
-          // flipper: false, // Disallowed by `useFrameworks: 'static'` https://github.com/jakobo/expo-community-flipper/issues/27
         },
-      },
+      } as BuildPropertiesConfig,
     ],
+    'expo-notifications', // https://docs.expo.dev/versions/latest/sdk/notifications/#configurable-properties
+    'expo-localization',
+    'sentry-expo',
     '@react-native-firebase/app',
     '@react-native-firebase/perf',
     '@react-native-firebase/crashlytics',
@@ -89,7 +98,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
       foregroundImage: './assets/icon-adaptive.png',
       backgroundColor: '#E8DEF8',
     },
-    googleServicesFile: './firebase-google-services.secret.json',
+    googleServicesFile: withVariant('./firebase-google-services.secret.json'),
   },
   androidStatusBar: {
     backgroundColor: '#00000000', // Transparent
@@ -107,7 +116,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     config: {
       usesNonExemptEncryption: false,
     },
-    googleServicesFile: './GoogleService-Info.secret.plist',
+    googleServicesFile: withVariant('./GoogleService-Info.secret.plist'),
   },
   web: {
     bundler: 'metro',

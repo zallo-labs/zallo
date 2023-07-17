@@ -16,7 +16,8 @@ export const authenticate = async (opts?: Auth.LocalAuthenticationOptions) => {
 };
 
 export const AUTH_SETTINGS_ATOM = persistedAtom('AuthenticationSettings', {
-  require: null as boolean | null,
+  open: null as null | boolean,
+  approval: true,
 });
 export const useAuthSettings = () => useAtomValue(AUTH_SETTINGS_ATOM);
 
@@ -30,7 +31,7 @@ export interface AuthGateProps {
 }
 
 export const AuthGate = ({ children }: AuthGateProps) => {
-  const { require } = useAuthSettings();
+  const { open: require } = useAuthSettings();
 
   const [auth, setAuth] = useState<AuthState>({ success: !require });
 

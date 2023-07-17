@@ -27,7 +27,7 @@ export const TabBadge = memo(({ style, ...props }: TabBadgeProps) => {
   const width = flattened?.width || isLarge(props) ? 12 + 4 * value.length : 6;
 
   const transform = [
-    translateX ? { translateX: translateX.translateX - width } : undefined,
+    translateX ? { translateX: translateX.translateX } : undefined,
     { translateY: 8 },
   ].filter(isPresent);
 

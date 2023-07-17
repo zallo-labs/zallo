@@ -69,7 +69,7 @@ export const Sheet = forwardRef<BottomSheet, SheetProps>(
           onLayout={handleContentLayout}
           style={[styles.contentContainer, contentContainerStyle]}
         >
-          {children}
+          <>{children}</>
         </BottomSheetView>
       </BottomSheet>
     );

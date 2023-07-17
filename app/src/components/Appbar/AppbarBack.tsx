@@ -14,17 +14,11 @@ export const AppbarBack = (props: Partial<BackActionProps>) => {
 };
 
 export interface AppbarBack2Props extends IconProps {
-  onPress?: (goBack: () => void) => void;
+  onPress?: () => void;
 }
 
-export const AppbarBack2 = ({ onPress, ...props }: AppbarBack2Props) => {
-  const { goBack, canGoBack } = useNavigation();
+export const AppbarBack2 = (props: AppbarBack2Props) => {
+  const { goBack, canGoBack, navigate } = useNavigation();
 
-  return (
-    <BackIcon
-      {...props}
-      disabled={!canGoBack()}
-      onPress={onPress ? () => onPress(goBack) : goBack}
-    />
-  );
+  return <BackIcon onPress={canGoBack() ? goBack : () => navigate('Home', {})} {...props} />;
 };

@@ -18,7 +18,6 @@ import { NavigationProvider } from '~/navigation/NavigationProvider';
 import { NotificationsRegistrar } from '~/components/NotificationsRegistrar';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { StackNavigator } from '~/navigation/StackNavigator';
-import { Subscriptions } from './components/Subscriptions';
 import { SentryProvider } from './provider/SentryProvider';
 import { WalletConnectListeners } from '~/components/walletconnect/WalletConnectListeners';
 import { UpdateProvider } from './provider/UpdateProvider';
@@ -54,7 +53,6 @@ export default () => (
                                 <AnalyticsUser />
                                 <WalletConnectListeners />
                                 <HideSplash />
-                                <Subscriptions />
                                 <NotificationsRegistrar />
                               </Suspense>
                             </MinimalErrorBoundary>

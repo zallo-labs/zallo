@@ -1,5 +1,5 @@
-import React from 'react';
-import { StyleSheet, View } from 'react-native';
+import { makeStyles } from '@theme/makeStyles';
+import { View } from 'react-native';
 import Svg, { Rect, SvgProps } from 'react-native-svg';
 
 const seedrand = (seed: string) => {
@@ -55,7 +55,7 @@ const createImageData = (randseed: Randseed, nBlocks: number) => {
       row[x] = Math.floor(rand(randseed) * 2.3);
     }
 
-    let r = row.slice(0, mirrorWidth);
+    const r = row.slice(0, mirrorWidth);
 
     r.reverse();
 
@@ -69,26 +69,26 @@ const createImageData = (randseed: Randseed, nBlocks: number) => {
   return data;
 };
 
-export interface BlockieProps extends Omit<SvgProps, 'width' | 'height'> {
+export interface BlockieProps extends Omit<SvgProps, 'width' | 'height' | 'color'> {
   seed?: string;
   size: number;
   nBlocks?: number;
-  spotColor?: string;
 }
 
-export const Blockie = ({ size = 24, nBlocks = 8, ...props }: BlockieProps) => {
+export const Blockie = ({ size = 24, nBlocks = 8, style, ...props }: BlockieProps) => {
+  const styles = useStyles(size);
   const pxPerBlock = size / nBlocks;
 
   const seed = seedrand(props.seed || Math.floor(Math.random() * Math.pow(10, 16)).toString(16));
 
-  const color = props.color || createColor(seed);
-  const backgroundColor = StyleSheet.flatten(props.style)?.backgroundColor || createColor(seed);
-  const spotColor = props.spotColor || createColor(seed);
+  const color = createColor(seed);
+  const backgroundColor = createColor(seed);
+  const spotColor = createColor(seed);
 
   const imageData = createImageData(seed, nBlocks);
 
   return (
-    <View style={{ borderRadius: size / 2, overflow: 'hidden' }}>
+    <View style={[styles.container, style]}>
       <Svg {...props} width={size} height={size}>
         {imageData.map((item, i) => (
           <Rect
@@ -104,3 +104,10 @@ export const Blockie = ({ size = 24, nBlocks = 8, ...props }: BlockieProps) => {
     </View>
   );
 };
+
+const useStyles = makeStyles((_, size: number) => ({
+  container: {
+    borderRadius: size / 2,
+    overflow: 'hidden',
+  },
+}));

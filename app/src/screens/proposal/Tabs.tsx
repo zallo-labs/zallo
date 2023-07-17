@@ -3,10 +3,12 @@ import {
   MaterialTopTabScreenProps,
 } from '@react-navigation/material-top-tabs';
 import { TopTabBar } from '~/components/tab/TopTabBar';
-import { PolicyTab, PolicyTabBadge, PolicyTabParams } from './PolicyTab';
+import { PolicyTab, PolicyTabParams } from './PolicyTab';
 import { DetailsTab, DetailsTabParams } from './DetailsTab';
-import { TransactionTab, TransactionTabBadge, TransactionTabParams } from './TransactionTab';
+import { TransactionTab, TransactionTabParams } from './TransactionTab';
 import { Hex } from 'lib';
+import { PolicyTabBadge } from './PolicyTabBadge';
+import { TransactionTabBadge } from './TransactionTabBadge';
 
 export type TabNavigatorParamList = {
   Details: DetailsTabParams;

@@ -7,7 +7,7 @@ import { newAbiType } from '../util/abi';
 import { HookStruct } from './permissions';
 import _ from 'lodash';
 import { Operation } from '../operation';
-import { SatisfiabilityResult } from '../satisfiability';
+import { OperationSatisfiability } from '../satisfiability';
 import assert from 'assert';
 import { getFunctionSelector, getAbiItem } from 'viem';
 import { ERC20_ABI } from '../abi';
@@ -95,7 +95,7 @@ export const targetsAsHook = (targets: TargetsConfig): HookStruct | undefined =>
   };
 };
 
-export const verifyTargetsPermission = (t: TargetsConfig, op: Operation): SatisfiabilityResult =>
+export const verifyTargetsPermission = (t: TargetsConfig, op: Operation): OperationSatisfiability =>
   isTargetAllowed(t, op.to, asSelector(op.data))
     ? { result: 'satisfied' }
     : {

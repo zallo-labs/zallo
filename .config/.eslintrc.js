@@ -12,6 +12,7 @@ module.exports = {
     'eslint:recommended',
     'plugin:@typescript-eslint/recommended',
     'plugin:react/recommended',
+    'neverthrow',
   ],
   plugins: ['@typescript-eslint', 'react-hooks'],
   env: {
@@ -21,7 +22,6 @@ module.exports = {
     mocha: true,
   },
   rules: {
-    'comma-dangle': ['error', 'always'],
     '@typescript-eslint/no-var-requires': 'off',
     '@typescript-eslint/no-unused-vars': ['warn', { argsIgnorePattern: '^_' }],
     '@typescript-eslint/no-non-null-assertion': 'off',
@@ -31,5 +31,6 @@ module.exports = {
       'warn',
       { additionalHooks: '(useRecoilCallback|useRecoilTransaction_UNSTABLE)' },
     ],
+    'neverthrow/must-use-result': 'error',
   },
 };

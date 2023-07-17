@@ -1,12 +1,13 @@
 import { Injectable, NestMiddleware, UnauthorizedException } from '@nestjs/common';
 import { Request, Response, NextFunction } from 'express';
-import { ethers, Wallet } from 'ethers';
+import { ethers } from 'ethers';
 import { Address, asAddress } from 'lib';
 import { DateTime } from 'luxon';
 import { SiweMessage } from 'siwe';
 import { CONFIG } from '~/config';
 import { ProviderService } from '~/features/util/provider/provider.service';
-import { UserAccountsService } from './userAccounts.service';
+import { AccountsCacheService } from './accounts.cache.service';
+import { Result, err, ok } from 'neverthrow';
 
 interface AuthToken {
   message: SiweMessage;
@@ -27,35 +28,40 @@ const tryParseAuth = (token?: string): AuthToken | string | undefined => {
   }
 };
 
-const PLAYGROUND_HOSTS = new Set([
-  'localhost',
-  '127.0.0.1',
-  '[::1]',
-  'studio.apollographql.com',
-  'zallo.io',
-]);
-
-const isPlayground = (req: Request) => {
-  if (!req.headers.origin) return false;
-  const hostname = new URL(req.headers.origin).hostname;
-
-  return PLAYGROUND_HOSTS.has(hostname) || hostname.endsWith('.zallo.io');
-};
-
 @Injectable()
 export class AuthMiddleware implements NestMiddleware {
-  constructor(private provider: ProviderService, private userAccounts: UserAccountsService) {}
+  private cache: Map<string, { address: Address; expirationTime?: number }> = new Map();
+
+  constructor(private provider: ProviderService, private accountsCache: AccountsCacheService) {}
 
   async use(req: Request, _res: Response, next: NextFunction) {
-    const user = await this.tryAuthenticate(req);
-    if (user) req.user = { address: user, accounts: await this.userAccounts.get(user) };
-
-    next();
+    (await this.tryAuthenticate(req)).match(
+      async (address) => {
+        if (address)
+          req.user = {
+            approver: address,
+            accounts: await this.accountsCache.getApproverAccounts(address),
+          };
+        next();
+      },
+      async (err) => next(new UnauthorizedException(err)),
+    );
   }
 
-  private async tryAuthenticate(req: Request): Promise<Address | undefined> {
-    const auth = tryParseAuth(req.headers.authorization);
+  private async tryAuthenticate(req: Request): Promise<Result<Address | undefined, string>> {
+    const token = req.headers.authorization;
+    if (!token) return ok(undefined);
 
+    const cached = token && this.cache.get(token);
+    if (cached) {
+      if (!cached.expirationTime || cached.expirationTime > Date.now()) {
+        return ok(cached.address);
+      } else {
+        this.cache.delete(token);
+      }
+    }
+
+    const auth = tryParseAuth(token);
     if (typeof auth === 'object') {
       const { message, signature } = auth;
 
@@ -86,24 +92,20 @@ export class AuthMiddleware implements NestMiddleware {
         }
       })();
 
-      if (validationError) throw new UnauthorizedException(validationError);
+      if (validationError) return err(validationError);
 
       // Use the session expiry time if provided
       if (message.expirationTime) req.session.cookie.expires = new Date(message.expirationTime);
 
-      return asAddress(message.address);
+      return ok(asAddress(message.address));
     } else if (typeof auth === 'string' && AUTH_MESSAGE) {
       try {
-        return asAddress(ethers.utils.verifyMessage(AUTH_MESSAGE, auth));
+        return ok(asAddress(ethers.utils.verifyMessage(AUTH_MESSAGE, auth)));
       } catch {
-        throw new UnauthorizedException(
-          `Invalid signature; required auth message: ${AUTH_MESSAGE}`,
-        );
+        return err(`Invalid signature; required auth message: ${AUTH_MESSAGE}`);
       }
-    } else if (isPlayground(req)) {
-      req.session.playgroundWallet ??= asAddress(Wallet.createRandom().address);
-
-      return req.session.playgroundWallet;
     }
+
+    return err('Invalid token');
   }
 }

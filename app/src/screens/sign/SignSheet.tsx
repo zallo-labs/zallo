@@ -1,5 +1,5 @@
 import { useAccount } from '@api/account';
-import { useApprover } from '@network/useApprover';
+import { useApproverWallet } from '@network/useApprover';
 import { makeStyles } from '@theme/makeStyles';
 import { asAddress, asHex, encodeAccountSignature, isHex } from 'lib';
 import { useMemo } from 'react';
@@ -30,7 +30,7 @@ export type SignSheetProps = StackNavigatorScreenProps<'Sign'>;
 export const SignSheet = ({ route, navigation: { goBack } }: SignSheetProps) => {
   const { topic, id, request } = route.params;
   const styles = useStyles();
-  const approver = useApprover();
+  const approver = useApproverWallet();
   const client = useWalletConnect();
   const session = client.session.get(topic);
   const { account: accountAddress, message } = normalizeSigningRequest(request);

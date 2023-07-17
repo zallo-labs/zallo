@@ -1,6 +1,6 @@
-import { PROPOSAL_EXECUTE_EMITTER, popToProposal, usePropose } from '@api/proposal';
+import { gql } from '@api/gen';
 import { useNavigation } from '@react-navigation/native';
-import { asBigInt } from 'lib';
+import { Hex, asBigInt } from 'lib';
 import { useCallback } from 'react';
 import { showInfo } from '~/provider/SnackbarProvider';
 import { logError } from '~/util/analytics';
@@ -11,10 +11,49 @@ import {
   WC_TRANSACTION_METHODS,
   WalletConnectSendTransactionRequest,
 } from '~/util/walletconnect/methods';
+import { EventEmitter } from '~/util/EventEmitter';
+import {
+  UseSessionRequestListenerDocument,
+  useSessionRequestListenerSubscription,
+} from '@api/generated';
+import { useSuspenseQuery } from '@apollo/client';
+import {
+  UseSessionRequestListenerQuery,
+  UseSessionRequestListenerQueryVariables,
+} from '@api/gen/graphql';
+import { usePropose } from '@api/proposal';
+
+const PROPOSAL_EXECUTED_EMITTER = new EventEmitter<Hex>('Proposal::exeucte');
+
+gql(/* GraphQL */ `
+  query UseSessionRequestListener {
+    accounts {
+      id
+      address
+    }
+  }
+`);
+
+gql(/* GraphQL */ `
+  subscription SessionRequestListener($accounts: [Address!]!) {
+    proposal(input: { accounts: $accounts, events: [executed] }) {
+      id
+      hash
+    }
+  }
+`);
 
 export const useSessionRequestListener = () => {
   const { navigate } = useNavigation();
   const propose = usePropose();
+
+  const { accounts } = useSuspenseQuery<
+    UseSessionRequestListenerQuery,
+    UseSessionRequestListenerQueryVariables
+  >(UseSessionRequestListenerDocument).data;
+  useSessionRequestListenerSubscription({
+    variables: { accounts: accounts.map((a) => a.address) },
+  });
 
   return useCallback(
     async (client: WcClient, { id, topic, params }: WalletConnectEventArgs['session_request']) => {
@@ -32,29 +71,28 @@ export const useSessionRequestListener = () => {
         const peer = client.session.get(topic).peer.metadata;
         showInfo(`${peer.name} has proposed a transaction`);
 
-        const proposalId = await propose(
-          {
-            account: tx.from,
-            operations: [
-              {
-                to: tx.to,
-                value: tx.value ? asBigInt(tx.value) : undefined,
-                data: tx.data,
-              },
-            ],
-            gasLimit: tx.gasLimit ? asBigInt(tx.gasLimit) : undefined,
-          },
-          popToProposal,
-        );
+        const proposal = await propose({
+          account: tx.from,
+          operations: [
+            {
+              to: tx.to,
+              value: tx.value ? asBigInt(tx.value) : undefined,
+              data: tx.data,
+            },
+          ],
+          gasLimit: tx.gasLimit ? asBigInt(tx.gasLimit) : undefined,
+        });
 
-        PROPOSAL_EXECUTE_EMITTER.listeners.add((proposal) => {
-          if (proposal.id === proposalId) {
+        PROPOSAL_EXECUTED_EMITTER.listeners.add((proposalHash) => {
+          if (proposalHash === proposal) {
             client.respond({
               topic,
-              response: asWalletConnectResult(id, proposal.transaction!.hash),
+              response: asWalletConnectResult(id, proposalHash),
             });
           }
         });
+
+        navigate('Proposal', { proposal });
       } else {
         logError('Unsupported session_request method executed', { params });
       }

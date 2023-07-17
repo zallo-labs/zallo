@@ -12,9 +12,8 @@ import {
   ProposeInput,
   UpdateProposalInput,
 } from './proposals.input';
-import { getUser } from '~/request/ctx';
+import { getUserCtx } from '~/request/ctx';
 import { ExpoService } from '../util/expo/expo.service';
-import { SatisfiablePolicy } from './proposals.model';
 import { ETH_ADDRESS } from 'zksync-web3/build/src/utils';
 import { DatabaseService } from '../database/database.service';
 import { uuid } from 'edgedb/dist/codecs/ifaces';
@@ -22,17 +21,16 @@ import e from '~/edgeql-js';
 import { ShapeFunc } from '../database/database.select';
 import { and } from '../database/database.util';
 import { selectAccount } from '../accounts/accounts.util';
-import { selectUser } from '../users/users.service';
 import { PaymasterService } from '../paymaster/paymaster.service';
 import { SimulationService } from '../simulation/simulation.service';
 
-export const getProposalTrigger = (hash: Hex) => `proposal.${hash}`;
-export const getProposalAccountTrigger = (account: Address) => `proposal.account.${account}`;
 export interface ProposalSubscriptionPayload {
   hash: Hex;
   account: Address;
   event: ProposalEvent;
 }
+export const getProposalTrigger = (hash: Hex) => `proposal.${hash}`;
+export const getProposalAccountTrigger = (account: Address) => `proposal.account.${account}`;
 
 export type UniqueProposal = uuid | Hex;
 
@@ -97,7 +95,7 @@ export class ProposalsService {
     feeToken = ETH_ADDRESS as Address,
     signature,
   }: ProposeInput) {
-    return await this.db.transaction(async (client) => {
+    const { id, hash } = await this.db.transaction(async (db) => {
       if (!operations.length) throw new UserInputError('No operations provided');
 
       const tx = asTx({
@@ -123,47 +121,45 @@ export class ProposalsService {
               }),
             ),
           ),
-          // operations: e.for(e.set(...operations.map((op) => e.json(op))), (item) =>
-          //   e.insert(e.Operation, {
-          //     to: e.cast(e.str, item.to),
-          //     value: e.cast(e.bigint, item.value), // bigint needs to be converted to a string (in e.json(op)) first
-          //     data: e.cast(e.str, item.data),
-          //   }),
-          // ),
           nonce: tx.nonce,
           gasLimit: gasLimit || (await estimateOpGas(this.provider, tx)),
           feeToken,
           simulation: await this.simulation.getInsert(account, tx),
         })
-        .run(client);
-
-      await this.publishProposal({ account, hash }, ProposalEvent.create);
+        .run(db);
 
       if (signature) await this.approve({ hash, signature });
 
       return { id, hash };
     });
+
+    await this.publishProposal({ account, hash }, ProposalEvent.create);
+
+    return { id, hash };
   }
 
   async approve({ hash, signature }: ApproveInput) {
-    const approver = getUser();
-    if (!(await this.provider.verifySignature({ digest: hash, approver, signature })))
+    const ctx = getUserCtx();
+
+    if (!(await this.provider.verifySignature({ digest: hash, approver: ctx.approver, signature })))
       throw new UserInputError('Invalid signature');
 
-    await this.db.transaction(async (client) => {
+    await this.db.transaction(async (db) => {
       const proposal = selectProposal(hash);
-      const user = selectUser(approver);
 
       // Remove prior response (if any)
-      await e.delete(e.ProposalResponse, () => ({ filter_single: { proposal, user } })).run(client);
+      await e
+        .delete(e.ProposalResponse, () => ({
+          filter_single: { proposal, approver: e.global.current_approver },
+        }))
+        .run(db);
 
       await e
         .insert(e.Approval, {
           proposal,
-          user,
           signature,
         })
-        .run(client);
+        .run(db);
     });
 
     await this.publishProposal(hash, ProposalEvent.approval);
@@ -172,14 +168,17 @@ export class ProposalsService {
   }
 
   async reject(id: UniqueProposal) {
-    await this.db.transaction(async (client) => {
+    await this.db.transaction(async (db) => {
       const proposal = selectProposal(id);
-      const user = selectUser(getUser());
 
       // Remove prior response (if any)
-      await e.delete(e.ProposalResponse, () => ({ filter_single: { proposal, user } })).run(client);
+      await e
+        .delete(e.ProposalResponse, () => ({
+          filter_single: { proposal, approver: e.global.current_approver },
+        }))
+        .run(db);
 
-      await e.insert(e.Rejection, { proposal, user }).run(client);
+      await e.insert(e.Rejection, { proposal }).run(db);
     });
 
     await this.publishProposal(id, ProposalEvent.rejection);
@@ -231,7 +230,7 @@ export class ProposalsService {
   }
 
   async delete(id: UniqueProposal) {
-    return this.db.transaction(async (client) => {
+    return this.db.transaction(async (db) => {
       // 1. Policies the proposal was going to create
       // Delete policies the proposal was going to activate
       const proposalPolicies = e.select(e.TransactionProposal, (p) => ({
@@ -243,9 +242,9 @@ export class ProposalsService {
       }));
 
       // TODO: use policies service instead? Ensures nothing weird happens
-      await e.for(e.set(proposalPolicies.beingCreated.policy), (p) => e.delete(p)).run(client);
+      await e.for(e.set(proposalPolicies.beingCreated.policy), (p) => e.delete(p)).run(db);
 
-      return e.delete(selectProposal(id)).id.run(client);
+      return e.delete(selectProposal(id)).id.run(db);
     });
   }
 
@@ -289,27 +288,6 @@ export class ProposalsService {
       this.pubsub.publish<ProposalSubscriptionPayload>(getProposalTrigger(hash), payload),
       this.pubsub.publish<ProposalSubscriptionPayload>(getProposalAccountTrigger(account), payload),
     ]);
-  }
-
-  async satisfiablePoliciesResponse(id: UniqueProposal) {
-    const { policies, approvals, rejections } = await this.transactions.satisfiablePolicies(id);
-
-    const user = getUser();
-    const userHasResponded = approvals.has(user) || rejections.has(user);
-
-    return policies
-      .filter(({ satisfiability }) => satisfiability.result !== 'unsatisfiable')
-      .map(
-        ({ policy, satisfiability }): SatisfiablePolicy => ({
-          id: `${id}-${policy.key}`,
-          key: policy.key,
-          satisfied: satisfiability.result === 'satisfied',
-          responseRequested:
-            !userHasResponded &&
-            satisfiability.result === 'satisfiable' &&
-            policy.approvers.has(user),
-        }),
-      );
   }
 
   // private async notifyApprovers(proposalId: string) {

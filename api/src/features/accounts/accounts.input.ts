@@ -6,8 +6,8 @@ import { PolicyInput } from '../policies/policies.input';
 
 @InputType()
 export class AccountInput {
-  @AddressField()
-  address: Address;
+  @AddressField({ nullable: true, description: 'Defaults to random user account' })
+  address?: Address;
 }
 
 export enum AccountEvent {

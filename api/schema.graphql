@@ -17,7 +17,7 @@ type Account {
   id: ID!
   implementation: Address!
   isActive: Boolean!
-  name: String
+  name: String!
   policies: [Policy!]!
   proposals: [Proposal!]!
   salt: Bytes32!
@@ -31,7 +31,8 @@ enum AccountEvent {
 }
 
 input AccountInput {
-  address: Address!
+  """Defaults to random user account"""
+  address: Address
 }
 
 input AccountSubscriptionInput {
@@ -56,15 +57,26 @@ type AddPolicyOp {
 scalar Address
 
 type Approval {
+  approver: Approver!
   createdAt: DateTime!
   id: ID!
   proposal: Proposal!
-  user: User!
 }
 
 input ApproveInput {
   hash: Bytes32!
   signature: Bytes!
+}
+
+type Approver {
+  address: Address!
+  id: ID!
+  label: String
+}
+
+input ApproverInput {
+  """Defaults to current approver"""
+  address: Address
 }
 
 """
@@ -84,11 +96,15 @@ scalar Bytes32
 type Contact {
   address: Address!
   id: ID!
-  name: String!
+  label: String!
 }
 
 input ContactInput {
   address: Address!
+}
+
+input ContactsInput {
+  query: String
 }
 
 type Contract {
@@ -140,7 +156,7 @@ input CreatePolicyInput {
   approvers: [Address!]
   key: PolicyKey
   name: String
-  permissions: PermissionsInput!
+  permissions: PermissionsInput! = {}
 
   """Defaults to all approvers"""
   threshold: Float
@@ -152,6 +168,14 @@ A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date
 scalar DateTime
 
 union Event = Transfer | TransferApproval
+
+interface EventBase {
+  account: Account!
+  block: BigInt!
+  id: ID!
+  logIndex: Float!
+  timestamp: DateTime!
+}
 
 input ExecuteInput {
   proposalHash: Bytes32!
@@ -172,18 +196,26 @@ The `JSON` scalar type represents JSON values as specified by [ECMA-404](http://
 """
 scalar JSON @specifiedBy(url: "http://www.ecma-international.org/publications/files/ECMA-ST/ECMA-404.pdf")
 
+input LabelInput {
+  address: Address!
+}
+
 type Mutation {
   approve(input: ApproveInput!): TransactionProposal!
   createAccount(input: CreateAccountInput!): Account!
   createPolicy(input: CreatePolicyInput!): Policy!
   deleteContact(input: ContactInput!): ID
   execute(input: ExecuteInput!): Transaction
+
+  """Pair with another user - merging your approvers"""
+  pair(input: PairInput!): User!
   propose(input: ProposeInput!): TransactionProposal!
   reject(input: ProposalInput!): TransactionProposal!
   removePolicy(input: UniquePolicyInput!): Policy!
   removeProposal(input: ProposalInput!): ID
   requestTokens(input: RequestTokensInput!): [Address!]!
   updateAccount(input: UpdateAccountInput!): Account!
+  updateApprover(input: UpdateApproverInput!): UserApprover!
   updatePolicy(input: UpdatePolicyInput!): Policy!
   updateProposal(input: UpdateProposalInput!): TransactionProposal!
   updateUser(input: UpdateUserInput!): User!
@@ -205,6 +237,10 @@ input OperationInput {
   value: Uint256
 }
 
+input PairInput {
+  token: String!
+}
+
 input PermissionsInput {
   """Targets that can be called"""
   targets: TargetsConfigInput
@@ -218,6 +254,7 @@ type Policy {
   isActive: Boolean!
   key: PolicyKey!
   name: String!
+  satisfiability(input: SatisfiabilityInput!): SatisfiabilityResult!
   state: PolicyState
   stateHistory: [PolicyState!]!
 }
@@ -227,7 +264,7 @@ input PolicyInput {
   approvers: [Address!]
   key: PolicyKey
   name: String
-  permissions: PermissionsInput!
+  permissions: PermissionsInput! = {}
 
   """Defaults to all approvers"""
   threshold: Float
@@ -238,7 +275,7 @@ scalar PolicyKey
 
 type PolicyState {
   activationBlock: BigInt
-  approvers: [User!]!
+  approvers: [Approver!]!
   createdAt: DateTime!
   id: ID!
   isAccountInitState: Boolean!
@@ -257,7 +294,7 @@ type Proposal {
   id: ID!
   label: String
   policy: Policy
-  proposedBy: User!
+  proposedBy: Approver!
   rejections: [Rejection!]!
   responses: [ProposalResponse!]!
 }
@@ -277,10 +314,10 @@ input ProposalInput {
 }
 
 type ProposalResponse {
+  approver: Approver!
   createdAt: DateTime!
   id: ID!
   proposal: Proposal!
-  user: User!
 }
 
 input ProposalSubscriptionInput {
@@ -310,12 +347,14 @@ input ProposeInput {
 }
 
 type Query {
-  account(input: AccountInput!): Account
+  account(input: AccountInput! = {}): Account
   accounts: [Account!]!
+  approver(input: ApproverInput! = {}): UserApprover!
   contact(input: ContactInput!): Contact
-  contacts: [Contact!]!
+  contacts(input: ContactsInput! = {}): [Contact!]!
   contract(input: ContractInput!): Contract
   contractFunction(input: ContractFunctionInput!): ContractFunction
+  label(input: LabelInput!): String
   paymaster: Address!
   policies: [Policy!]!
   policy(input: UniquePolicyInput!): Policy
@@ -324,7 +363,7 @@ type Query {
   requestableTokens(input: RequestTokensInput!): [Address!]!
   transaction(input: TransactionInput!): Transaction
   transfers(input: TransfersInput! = {}): [Transfer!]!
-  user(input: UserInput! = {}): User!
+  user: User!
 }
 
 type Receipt {
@@ -336,13 +375,15 @@ type Receipt {
   responses: [Bytes!]!
   success: Boolean!
   timestamp: DateTime!
+  transferApprovalEvents: [TransferApproval!]!
+  transferEvents: [Transfer!]!
 }
 
 type Rejection {
+  approver: Approver!
   createdAt: DateTime!
   id: ID!
   proposal: Proposal!
-  user: User!
 }
 
 type RemovePolicyOp {
@@ -356,11 +397,24 @@ input RequestTokensInput {
   account: Address!
 }
 
-type SatisfiablePolicy {
-  id: ID!
-  key: PolicyKey!
-  responseRequested: Boolean!
-  satisfied: Boolean!
+enum Satisfiability {
+  satisfiable
+  satisfied
+  unsatisfiable
+}
+
+input SatisfiabilityInput {
+  proposal: Bytes32!
+}
+
+type SatisfiabilityReason {
+  operation: Float
+  reason: String!
+}
+
+type SatisfiabilityResult {
+  reasons: [SatisfiabilityReason!]!
+  result: Satisfiability!
 }
 
 """function selector (4-byte hex string)"""
@@ -373,13 +427,25 @@ input SelectorInput {
 
 type Simulation {
   id: ID!
-  transfers: [TransferDetails!]!
+  transfers: [SimulationTransfer!]!
+}
+
+type SimulationTransfer implements TransferDetails {
+  account: Account!
+  amount: BigInt!
+  direction: TransferDirection!
+  from: Address!
+  id: ID!
+  to: Address!
+  token: Address!
+  value: BigInt!
 }
 
 type Subscription {
   account(input: AccountSubscriptionInput! = {}): Account!
   proposal(input: ProposalSubscriptionInput! = {}): TransactionProposal!
   transfer(input: TransferSubscriptionInput! = {}): Transfer!
+  user: User!
 }
 
 type SwapOp {
@@ -439,14 +505,14 @@ type TransactionProposal {
   nonce: BigInt!
   operations: [Operation!]!
   policy: Policy
-  proposedBy: User!
+  proposedBy: Approver!
   rejections: [Rejection!]!
   responses: [ProposalResponse!]!
-  satisfiablePolicies: [SatisfiablePolicy!]!
   simulation: Simulation!
   status: TransactionProposalStatus!
   transaction: Transaction
   transactions: [Transaction!]!
+  updatable: Boolean!
 }
 
 enum TransactionProposalStatus {
@@ -456,7 +522,7 @@ enum TransactionProposalStatus {
   Successful
 }
 
-type Transfer {
+type Transfer implements EventBase & TransferDetails & Transferlike {
   account: Account!
   amount: BigInt!
   block: BigInt!
@@ -467,9 +533,10 @@ type Transfer {
   timestamp: DateTime!
   to: Address!
   token: Address!
+  value: BigInt!
 }
 
-type TransferApproval {
+type TransferApproval implements EventBase & TransferDetails & Transferlike {
   account: Account!
   amount: BigInt!
   block: BigInt!
@@ -481,6 +548,7 @@ type TransferApproval {
   timestamp: DateTime!
   to: Address!
   token: Address!
+  value: BigInt!
 }
 
 type TransferApprovalOp {
@@ -491,7 +559,7 @@ type TransferApprovalOp {
   token: Address!
 }
 
-type TransferDetails {
+interface TransferDetails {
   account: Account!
   amount: BigInt!
   direction: TransferDirection!
@@ -499,6 +567,7 @@ type TransferDetails {
   id: ID!
   to: Address!
   token: Address!
+  value: BigInt!
 }
 
 enum TransferDirection {
@@ -543,6 +612,23 @@ type TransferOp {
 input TransferSubscriptionInput {
   accounts: [Address!]
   directions: [TransferDirection!]
+
+  """Not originating from an account transaction"""
+  external: Boolean
+}
+
+interface Transferlike implements EventBase & TransferDetails {
+  account: Account!
+  amount: BigInt!
+  block: BigInt!
+  direction: TransferDirection!
+  from: Address!
+  id: ID!
+  logIndex: Float!
+  timestamp: DateTime!
+  to: Address!
+  token: Address!
+  value: BigInt!
 }
 
 type TransfersConfig {
@@ -562,7 +648,9 @@ input TransfersConfigInput {
 input TransfersInput {
   accounts: [Address!]
   direction: TransferDirection
-  excludeProposalOriginating: Boolean
+
+  """Not originating from an account transaction"""
+  external: Boolean
 }
 
 """256-bit unsigned integer"""
@@ -578,6 +666,13 @@ input UpdateAccountInput {
   name: String!
 }
 
+input UpdateApproverInput {
+  """Defaults to current approver"""
+  address: Address
+  name: String
+  pushToken: String
+}
+
 input UpdatePolicyInput {
   account: Address!
 
@@ -585,7 +680,7 @@ input UpdatePolicyInput {
   approvers: [Address!]
   key: PolicyKey
   name: String
-  permissions: PermissionsInput
+  permissions: PermissionsInput = {}
 
   """Defaults to all approvers"""
   threshold: Float
@@ -599,23 +694,26 @@ input UpdateProposalInput {
 
 input UpdateUserInput {
   name: String
-  pushToken: String
 }
 
 input UpsertContactInput {
   address: Address!
-  name: String!
+  label: String!
   previousAddress: Address
 }
 
 type User {
-  address: Address!
+  approvers: [UserApprover!]!
   contacts: [Contact!]!
   id: ID!
   name: String
+  pairingToken: String!
 }
 
-input UserInput {
-  """Defaults to user"""
-  address: Address
+type UserApprover {
+  address: Address!
+  id: ID!
+  label: String
+  name: String
+  pushToken: String
 }

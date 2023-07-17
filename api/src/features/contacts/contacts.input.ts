@@ -9,6 +9,12 @@ export class ContactInput {
 }
 
 @InputType()
+export class ContactsInput {
+  @Field(() => String, { nullable: true })
+  query?: string;
+}
+
+@InputType()
 export class UpsertContactInput {
   @AddressField({ nullable: true })
   previousAddress?: Address;
@@ -17,5 +23,11 @@ export class UpsertContactInput {
   address: Address;
 
   @Field(() => String)
-  name: string;
+  label: string;
+}
+
+@InputType()
+export class LabelInput {
+  @AddressField()
+  address: Address;
 }

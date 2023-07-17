@@ -30,7 +30,7 @@ export const AddressIcon = withSuspense(
 
     // return <Jazzicon size={size} {...props} address={address} containerStyle={style} />;
 
-    return <Blockie seed={address} size={size} />;
+    return <Blockie seed={address} size={size} style={style} />;
   },
   ({ size = ICON_SIZE.medium }) => <CircleSkeleton size={size} />,
 );

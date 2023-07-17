@@ -29,7 +29,7 @@ export function OnboardScreen({ navigation: { navigate } }: OnboardScreenProps) 
 
 const styles = StyleSheet.create({
   header: {
-    flex: 1,
+    flexGrow: 1,
     alignItems: 'center',
     justifyContent: 'center',
     marginHorizontal: 16,

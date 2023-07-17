@@ -3,23 +3,31 @@ import { Address } from 'lib';
 import { ShapeFunc } from '../database/database.select';
 import { DatabaseService } from '../database/database.service';
 import e from '~/edgeql-js';
-import { getUser } from '~/request/ctx';
-import { UpsertContactInput } from './contacts.input';
+import { ContactsInput, UpsertContactInput } from './contacts.input';
 import { uuid } from 'edgedb/dist/codecs/ifaces';
 import { isAddress } from 'ethers/lib/utils';
-import { selectUser } from '../users/users.service';
-import { UserInputError } from '@nestjs/apollo';
+import { or } from '../database/database.util';
+import { ProviderService } from '../util/provider/provider.service';
 
 type UniqueContact = uuid | Address;
 
 export const uniqueContact = (u: UniqueContact) =>
   e.shape(e.Contact, () => ({
-    filter_single: isAddress(u) ? { user: selectUser(getUser()), address: u } : { id: u },
+    filter_single: isAddress(u) ? { user: e.global.current_user, address: u } : { id: u },
   }));
 
 @Injectable()
 export class ContactsService {
-  constructor(private db: DatabaseService) {}
+  private hardcodedContracts: Record<Address, string>;
+
+  constructor(private db: DatabaseService, private provider: ProviderService) {
+    this.hardcodedContracts = {
+      [this.provider.walletAddress]: 'Zallo',
+      // mainnet TODO: handle chain
+      '0x2da10A1e27bF85cEdD8FFb1AbBe97e53391C0295': 'SyncSwap', // SyncSwap router - mainnet
+      '0xB3b7fCbb8Db37bC6f572634299A58f51622A847e': 'SyncSwap', // SyncSwap router - testnet
+    };
+  }
 
   async selectUnique(id: UniqueContact, shape?: ShapeFunc<typeof e.Contact>) {
     return e
@@ -30,28 +38,20 @@ export class ContactsService {
       .run(this.db.client);
   }
 
-  async select(shape?: ShapeFunc<typeof e.Contact>) {
-    const contacts = await e
+  async select({ query }: ContactsInput, shape?: ShapeFunc<typeof e.Contact>) {
+    return e
       .select(e.Contact, (c) => ({
         ...shape?.(c),
+        filter: query
+          ? or(e.op(c.address, 'ilike', query), e.op(c.label, 'ilike', query))
+          : undefined,
       }))
       .run(this.db.client);
-
-    const accounts = await e
-      .select(e.Account, (a) => ({
-        filter: e.op(a.address, 'not in', e.cast(e.str, e.set(...contacts.map((c) => c.address)))),
-        id: true,
-        address: true,
-        name: true,
-      }))
-      .run(this.db.client);
-
-    return [...contacts, ...accounts];
   }
 
-  async upsert({ previousAddress, address, name }: UpsertContactInput) {
+  async upsert({ previousAddress, address, label }: UpsertContactInput) {
     // Ignore leading and trailing whitespace
-    name = name.trim();
+    label = label.trim();
 
     // UNLESS CONFLICT ON can only be used on a single property, so (= newAddress OR = previousAddress) nor a simple upsert is  possible
     if (previousAddress && previousAddress !== address) {
@@ -60,7 +60,7 @@ export class ContactsService {
           ...uniqueContact(previousAddress)(c),
           set: {
             address,
-            name,
+            name: label,
           },
         })).id,
       );
@@ -68,29 +68,41 @@ export class ContactsService {
       if (id) return id;
     }
 
-    let id = await this.db.query(
+    return this.db.query(
       e
         .insert(e.Contact, {
-          user: selectUser(getUser()),
           address,
-          name,
+          label,
         })
-        .unlessConflict().id,
+        .unlessConflict((c) => ({
+          on: e.tuple([c.user, c.address]),
+          else: e.update(c, () => ({ set: { label } })),
+        })).id,
     );
-    if (id) return id;
-
-    id = await this.db.query(
-      e.update(e.Contact, (c) => ({
-        ...uniqueContact(address)(c),
-        set: { name },
-      })).id,
-    );
-    if (!id) throw new UserInputError('Upsert failed');
-
-    return id;
   }
 
   async delete(address: Address) {
     return this.db.query(e.delete(e.Contact, uniqueContact(address)).id);
+  }
+
+  async label(address: Address) {
+    const contact = e.select(e.Contact, () => ({
+      filter_single: { user: e.global.current_user, address },
+      label: true,
+    })).label;
+
+    const account = e.select(e.Account, () => ({
+      filter_single: { address },
+      name: true,
+    })).name;
+
+    const approver = e.select(e.Approver, () => ({
+      filter_single: { address },
+      label: true,
+    })).label;
+
+    const r = await this.db.query(e.select(e.op(e.op(contact, '??', account), '??', approver)));
+
+    return r ?? this.hardcodedContracts[address];
   }
 }

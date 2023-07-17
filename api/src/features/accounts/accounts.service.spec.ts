@@ -13,6 +13,7 @@ import { DatabaseService } from '../database/database.service';
 import { AccountsService } from './accounts.service';
 import e from '~/edgeql-js';
 import { uuid } from 'edgedb/dist/codecs/ifaces';
+import { AccountsCacheService } from '../auth/accounts.cache.service';
 
 (CONFIG as any).accountImplAddress = randomAddress();
 
@@ -22,6 +23,7 @@ describe(AccountsService.name, () => {
   let provider: DeepMocked<ProviderService>;
   let policies: DeepMocked<PoliciesService>;
   let accountsQueue: DeepMocked<Queue<AccountActivationEvent>>;
+  let accountsCache: DeepMocked<AccountsCacheService>;
 
   beforeEach(async () => {
     const module = await Test.createTestingModule({
@@ -37,6 +39,12 @@ describe(AccountsService.name, () => {
     provider = module.get(ProviderService);
     policies = module.get(PoliciesService);
     accountsQueue = module.get(getQueueToken(ACCOUNTS_QUEUE.name));
+    accountsCache = module.get(AccountsCacheService);
+
+    accountsCache.addCachedAccount.mockImplementation(async ({ approver, account }) => {
+      const userCtx = getUserCtx();
+      if (approver === userCtx.approver) userCtx.accounts.push(account);
+    });
   });
 
   const createAccount = async () => {
@@ -56,12 +64,17 @@ describe(AccountsService.name, () => {
     );
 
     policies.create.mockImplementation(async (p): Promise<any> => {
-      if (p.approvers.includes(userCtx.address) && p.accountId) userCtx.accounts.push(p.accountId);
+      if (
+        p.approvers.includes(userCtx.approver) &&
+        p.accountId &&
+        !userCtx.accounts.includes(p.accountId)
+      )
+        userCtx.accounts.push(p.accountId);
     });
 
     return service.createAccount({
       name: 'Test account',
-      policies: [{ approvers: [userCtx.address], permissions: {} }],
+      policies: [{ approvers: [userCtx.approver], permissions: {} }],
     });
   };
 

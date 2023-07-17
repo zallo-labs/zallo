@@ -1,4 +1,4 @@
-CREATE MIGRATION m13yvdgctb43wbtjt27fx2ji4zoef52tycqnux6ppyui25gitiwaba
+CREATE MIGRATION m1aqkll5lytwjeplymoshgmayoiplwed7yacg3rvye3ivq2u7b2e5a
     ONTO initial
 {
   CREATE SCALAR TYPE default::Bytes EXTENDING std::str {
@@ -11,7 +11,7 @@ CREATE MIGRATION m13yvdgctb43wbtjt27fx2ji4zoef52tycqnux6ppyui25gitiwaba
   CREATE SCALAR TYPE default::Address EXTENDING std::str {
       CREATE CONSTRAINT std::regexp('^0x[0-9a-fA-F]{40}$');
   };
-  CREATE GLOBAL default::current_user_address -> default::Address;
+  CREATE GLOBAL default::current_approver_address -> default::Address;
   CREATE TYPE default::Receipt {
       CREATE REQUIRED PROPERTY responses: array<default::Bytes>;
       CREATE REQUIRED PROPERTY success: std::bool;
@@ -39,68 +39,78 @@ CREATE MIGRATION m13yvdgctb43wbtjt27fx2ji4zoef52tycqnux6ppyui25gitiwaba
       CREATE REQUIRED PROPERTY contract: default::Address;
   };
   CREATE FUTURE nonrecursive_access_policies;
-  CREATE SCALAR TYPE default::Name EXTENDING std::str {
+  CREATE SCALAR TYPE default::Label EXTENDING std::str {
       CREATE CONSTRAINT std::max_len_value(50);
       CREATE CONSTRAINT std::min_len_value(1);
   };
-  CREATE TYPE default::User {
+  CREATE TYPE default::Approver {
       CREATE REQUIRED PROPERTY address: default::Address {
+          SET readonly := true;
           CREATE CONSTRAINT std::exclusive;
       };
-      CREATE PROPERTY name: default::Name;
+      CREATE PROPERTY name: default::Label;
       CREATE PROPERTY pushToken: std::str;
-      CREATE ACCESS POLICY user_select_update
-          ALLOW SELECT, UPDATE USING ((.address ?= GLOBAL default::current_user_address));
       CREATE ACCESS POLICY anyone_select_insert
           ALLOW SELECT, INSERT ;
   };
-  CREATE TYPE default::Contact {
-      CREATE REQUIRED LINK user: default::User;
-      CREATE REQUIRED PROPERTY name: default::Name;
-      CREATE CONSTRAINT std::exclusive ON ((.user, .name));
-      CREATE REQUIRED PROPERTY address: default::Address;
-      CREATE CONSTRAINT std::exclusive ON ((.user, .address));
+  CREATE GLOBAL default::current_approver := (std::assert_single((SELECT
+      default::Approver
+  FILTER
+      (.address = GLOBAL default::current_approver_address)
+  )));
+  CREATE TYPE default::User {
+      CREATE PROPERTY name: default::Label;
+  };
+  ALTER TYPE default::Approver {
+      CREATE REQUIRED LINK user: default::User {
+          SET default := (INSERT
+              default::User
+          );
+          ON SOURCE DELETE DELETE TARGET IF ORPHAN;
+      };
   };
   ALTER TYPE default::User {
-      CREATE MULTI LINK contacts := (.<user[IS default::Contact]);
+      CREATE MULTI LINK approvers := (.<user[IS default::Approver]);
   };
   CREATE GLOBAL default::current_user := (SELECT
-      default::User
-  FILTER
-      (.address = GLOBAL default::current_user_address)
+      (GLOBAL default::current_approver).user
   );
-  CREATE SCALAR TYPE default::Bytes32 EXTENDING std::str {
-      CREATE CONSTRAINT std::regexp('^0x[0-9a-fA-F]{64}$');
-  };
-  CREATE TYPE default::Account EXTENDING default::User {
-      CREATE ACCESS POLICY deny_public_select
-          DENY SELECT USING ((.id NOT IN GLOBAL default::current_user_accounts));
-      CREATE ACCESS POLICY members_update
-          ALLOW UPDATE USING ((.id IN GLOBAL default::current_user_accounts));
-      CREATE REQUIRED PROPERTY implementation: default::Address;
-      CREATE REQUIRED PROPERTY isActive: std::bool;
-      CREATE REQUIRED PROPERTY salt: default::Bytes32;
-  };
   CREATE ABSTRACT TYPE default::ProposalResponse {
-      CREATE REQUIRED LINK user: default::User;
+      CREATE REQUIRED LINK approver: default::Approver {
+          SET default := (<default::Approver>(GLOBAL default::current_approver).id);
+      };
+      CREATE ACCESS POLICY user_all
+          ALLOW ALL USING (((.approver.user ?= GLOBAL default::current_user) OR (.approver ?= GLOBAL default::current_approver)));
       CREATE PROPERTY createdAt: std::datetime {
           SET default := (std::datetime_of_statement());
           SET readonly := true;
       };
-      CREATE ACCESS POLICY user_all
-          ALLOW ALL USING ((.user.address ?= GLOBAL default::current_user_address));
   };
   CREATE TYPE default::Approval EXTENDING default::ProposalResponse {
       CREATE REQUIRED PROPERTY signature: default::Bytes;
   };
+  CREATE TYPE default::Contact {
+      CREATE REQUIRED LINK user: default::User {
+          SET default := (<default::User>(GLOBAL default::current_user).id);
+      };
+      CREATE ACCESS POLICY user_all
+          ALLOW ALL USING ((.user ?= GLOBAL default::current_user));
+      CREATE REQUIRED PROPERTY address: default::Address;
+      CREATE REQUIRED PROPERTY label: default::Label;
+      CREATE CONSTRAINT std::exclusive ON ((.user, .label));
+      CREATE CONSTRAINT std::exclusive ON ((.user, .address));
+  };
+  CREATE TYPE default::Rejection EXTENDING default::ProposalResponse;
+  ALTER TYPE default::Approver {
+      CREATE ACCESS POLICY user_select_update
+          ALLOW SELECT, UPDATE USING ((.user ?= GLOBAL default::current_user));
+  };
+  CREATE SCALAR TYPE default::Bytes32 EXTENDING std::str {
+      CREATE CONSTRAINT std::regexp('^0x[0-9a-fA-F]{64}$');
+  };
   CREATE ABSTRACT TYPE default::Proposal {
-      CREATE REQUIRED LINK account: default::Account;
-      CREATE REQUIRED LINK proposedBy: default::User {
-          SET default := (SELECT
-              default::User
-          FILTER
-              (.address = GLOBAL default::current_user_address)
-          );
+      CREATE REQUIRED LINK proposedBy: default::Approver {
+          SET default := (<default::Approver>(GLOBAL default::current_approver).id);
           SET readonly := true;
       };
       CREATE PROPERTY createdAt: std::datetime {
@@ -110,20 +120,66 @@ CREATE MIGRATION m13yvdgctb43wbtjt27fx2ji4zoef52tycqnux6ppyui25gitiwaba
       CREATE REQUIRED PROPERTY hash: default::Bytes32 {
           CREATE CONSTRAINT std::exclusive;
       };
-      CREATE PROPERTY label: std::str {
-          CREATE CONSTRAINT std::max_len_value(50);
-          CREATE CONSTRAINT std::min_len_value(1);
-      };
-      CREATE ACCESS POLICY members_only
-          ALLOW ALL USING ((.account.id IN GLOBAL default::current_user_accounts));
+      CREATE PROPERTY label: default::Label;
   };
   ALTER TYPE default::ProposalResponse {
       CREATE REQUIRED LINK proposal: default::Proposal {
           ON TARGET DELETE DELETE SOURCE;
       };
+  };
+  CREATE SCALAR TYPE default::uint256 EXTENDING std::bigint {
+      CREATE CONSTRAINT std::max_value(((2n ^ 256n) - 1n));
+      CREATE CONSTRAINT std::min_value(0);
+  };
+  CREATE TYPE default::Operation {
+      CREATE PROPERTY data: default::Bytes;
+      CREATE REQUIRED PROPERTY to: default::Address;
+      CREATE PROPERTY value: default::uint256;
+  };
+  ALTER TYPE default::Proposal {
+      CREATE MULTI LINK approvals := (.<proposal[IS default::Approval]);
+  };
+  ALTER TYPE default::Proposal {
+      CREATE MULTI LINK rejections := (.<proposal[IS default::Rejection]);
+      CREATE MULTI LINK responses := (.<proposal[IS default::ProposalResponse]);
+  };
+  CREATE SCALAR TYPE default::TransactionProposalStatus EXTENDING enum<Pending, Executing, Successful, Failed>;
+  CREATE SCALAR TYPE default::uint64 EXTENDING std::bigint {
+      CREATE CONSTRAINT std::max_value(((2n ^ 64n) - 1n));
+      CREATE CONSTRAINT std::min_value(0);
+  };
+  CREATE TYPE default::TransactionProposal EXTENDING default::Proposal {
+      CREATE REQUIRED PROPERTY nonce: default::uint64;
+      CREATE REQUIRED MULTI LINK operations: default::Operation {
+          ON SOURCE DELETE DELETE TARGET;
+          CREATE CONSTRAINT std::exclusive;
+      };
+      CREATE REQUIRED PROPERTY feeToken: default::Address;
+      CREATE REQUIRED PROPERTY gasLimit: default::uint256 {
+          SET default := 0n;
+      };
+  };
+  CREATE TYPE default::Account {
+      CREATE ACCESS POLICY members_select_insert_update
+          ALLOW SELECT, UPDATE, INSERT USING ((.id IN GLOBAL default::current_user_accounts));
+      CREATE REQUIRED PROPERTY address: default::Address {
+          SET readonly := true;
+          CREATE CONSTRAINT std::exclusive;
+      };
+      CREATE REQUIRED PROPERTY implementation: default::Address;
+      CREATE REQUIRED PROPERTY isActive: std::bool;
+      CREATE REQUIRED PROPERTY name: default::Label;
+      CREATE REQUIRED PROPERTY salt: default::Bytes32;
+  };
+  ALTER TYPE default::Proposal {
+      CREATE REQUIRED LINK account: default::Account;
+      CREATE ACCESS POLICY members_only
+          ALLOW ALL USING ((.account.id IN GLOBAL default::current_user_accounts));
+  };
+  ALTER TYPE default::ProposalResponse {
       CREATE ACCESS POLICY members_can_select
           ALLOW SELECT USING ((.proposal.account.id IN GLOBAL default::current_user_accounts));
-      CREATE CONSTRAINT std::exclusive ON ((.proposal, .user));
+      CREATE CONSTRAINT std::exclusive ON ((.proposal, .approver));
   };
   CREATE SCALAR TYPE default::uint32 EXTENDING std::int64 {
       CREATE CONSTRAINT std::max_value(((2 ^ 32) - 1));
@@ -143,7 +199,6 @@ CREATE MIGRATION m13yvdgctb43wbtjt27fx2ji4zoef52tycqnux6ppyui25gitiwaba
       CREATE REQUIRED PROPERTY transactionHash: default::Bytes32;
       CREATE CONSTRAINT std::exclusive ON ((.block, .logIndex));
   };
-  CREATE TYPE default::Rejection EXTENDING default::ProposalResponse;
   CREATE SCALAR TYPE default::TransferDirection EXTENDING enum<`In`, Out>;
   CREATE TYPE default::TransferDetails {
       CREATE REQUIRED LINK account: default::Account;
@@ -169,56 +224,25 @@ CREATE MIGRATION m13yvdgctb43wbtjt27fx2ji4zoef52tycqnux6ppyui25gitiwaba
       );
       CREATE REQUIRED PROPERTY delta := ((.amount - (.previous.amount ?? 0)));
   };
-  CREATE SCALAR TYPE default::uint256 EXTENDING std::bigint {
-      CREATE CONSTRAINT std::max_value(((2n ^ 256n) - 1n));
-      CREATE CONSTRAINT std::min_value(0);
-  };
-  CREATE TYPE default::Operation {
-      CREATE PROPERTY data: default::Bytes;
-      CREATE REQUIRED PROPERTY to: default::Address;
-      CREATE PROPERTY value: default::uint256;
-  };
   CREATE TYPE default::Transaction {
+      CREATE REQUIRED LINK proposal: default::TransactionProposal;
       CREATE LINK receipt: default::Receipt {
+          CREATE CONSTRAINT std::exclusive;
+      };
+      CREATE REQUIRED PROPERTY hash: default::Bytes32 {
+          SET readonly := true;
           CREATE CONSTRAINT std::exclusive;
       };
       CREATE REQUIRED PROPERTY submittedAt: std::datetime {
           SET default := (std::datetime_of_statement());
           SET readonly := true;
       };
-      CREATE REQUIRED PROPERTY hash: default::Bytes32 {
-          CREATE CONSTRAINT std::exclusive;
-      };
       CREATE REQUIRED PROPERTY gasPrice: default::uint256;
   };
-  ALTER TYPE default::Proposal {
-      CREATE MULTI LINK approvals := (.<proposal[IS default::Approval]);
-      CREATE MULTI LINK rejections := (.<proposal[IS default::Rejection]);
-      CREATE MULTI LINK responses := (.<proposal[IS default::ProposalResponse]);
-  };
-  CREATE TYPE default::Simulation {
-      CREATE MULTI LINK transfers: default::TransferDetails;
-  };
-  CREATE SCALAR TYPE default::TransactionProposalStatus EXTENDING enum<Pending, Executing, Successful, Failed>;
-  CREATE SCALAR TYPE default::uint64 EXTENDING std::bigint {
-      CREATE CONSTRAINT std::max_value(((2n ^ 64n) - 1n));
-      CREATE CONSTRAINT std::min_value(0);
-  };
-  CREATE TYPE default::TransactionProposal EXTENDING default::Proposal {
-      CREATE REQUIRED PROPERTY nonce: default::uint64;
+  ALTER TYPE default::TransactionProposal {
       CREATE CONSTRAINT std::exclusive ON ((.account, .nonce));
-      CREATE REQUIRED MULTI LINK operations: default::Operation {
-          ON SOURCE DELETE DELETE TARGET;
-          CREATE CONSTRAINT std::exclusive;
-      };
-      CREATE REQUIRED LINK simulation: default::Simulation;
-      CREATE REQUIRED PROPERTY feeToken: default::Address;
-      CREATE REQUIRED PROPERTY gasLimit: default::uint256 {
-          SET default := 0n;
-      };
   };
   ALTER TYPE default::Transaction {
-      CREATE REQUIRED LINK proposal: default::TransactionProposal;
       CREATE ACCESS POLICY members_can_select_insert
           ALLOW SELECT, INSERT USING ((.proposal.account.id IN GLOBAL default::current_user_accounts));
   };
@@ -228,33 +252,15 @@ CREATE MIGRATION m13yvdgctb43wbtjt27fx2ji4zoef52tycqnux6ppyui25gitiwaba
   };
   CREATE TYPE default::Policy {
       CREATE REQUIRED LINK account: default::Account;
-      CREATE ACCESS POLICY members_only
-          ALLOW ALL USING ((.account.id IN GLOBAL default::current_user_accounts));
-      CREATE REQUIRED PROPERTY name: default::Name;
+      CREATE ACCESS POLICY members_select_insert_update
+          ALLOW SELECT, UPDATE, INSERT USING ((.account.id IN GLOBAL default::current_user_accounts));
+      CREATE REQUIRED PROPERTY name: default::Label;
       CREATE CONSTRAINT std::exclusive ON ((.account, .name));
       CREATE REQUIRED PROPERTY key: default::uint16;
       CREATE CONSTRAINT std::exclusive ON ((.account, .key));
   };
-  ALTER TYPE default::Contact {
-      CREATE ACCESS POLICY user_all
-          ALLOW ALL USING ((.user.address ?= GLOBAL default::current_user_address));
-  };
-  ALTER TYPE default::Receipt {
-      CREATE REQUIRED LINK transaction := (std::assert_exists(.<receipt[IS default::Transaction]));
-      CREATE MULTI LINK events := (WITH
-          txHash := 
-              .transaction.hash
-      SELECT
-          default::Event
-      FILTER
-          (.transactionHash = txHash)
-      );
-  };
   ALTER TYPE default::Account {
       CREATE MULTI LINK policies := (.<account[IS default::Policy]);
-      CREATE MULTI LINK proposals := (.<account[IS default::Proposal]);
-      CREATE MULTI LINK transactionProposals := (.<account[IS default::TransactionProposal]);
-      CREATE MULTI LINK transfers := (.<account[IS default::Transfer]);
   };
   CREATE TYPE default::TargetsConfig {
       CREATE MULTI LINK contracts: default::ContractTarget {
@@ -290,7 +296,7 @@ CREATE MIGRATION m13yvdgctb43wbtjt27fx2ji4zoef52tycqnux6ppyui25gitiwaba
           SET default := (std::datetime_of_statement());
           SET readonly := true;
       };
-      CREATE MULTI LINK approvers: default::User;
+      CREATE MULTI LINK approvers: default::Approver;
       CREATE LINK proposal: default::TransactionProposal {
           ON SOURCE DELETE DELETE TARGET;
           ON TARGET DELETE DELETE SOURCE;
@@ -309,6 +315,16 @@ CREATE MIGRATION m13yvdgctb43wbtjt27fx2ji4zoef52tycqnux6ppyui25gitiwaba
           ON TARGET DELETE ALLOW;
           CREATE CONSTRAINT std::exclusive;
       };
+      CREATE LINK draft := (SELECT
+          (SELECT
+              .stateHistory ORDER BY
+                  .createdAt DESC
+          LIMIT
+              1
+          )
+      FILTER
+          NOT (EXISTS (.activationBlock))
+      );
       CREATE LINK state := (SELECT
           (SELECT
               .stateHistory ORDER BY
@@ -320,17 +336,51 @@ CREATE MIGRATION m13yvdgctb43wbtjt27fx2ji4zoef52tycqnux6ppyui25gitiwaba
           EXISTS (.activationBlock)
       );
       CREATE PROPERTY isActive := (EXISTS (.state));
-      CREATE ACCESS POLICY can_not_be_deleted_when_active
-          DENY DELETE USING (.isActive);
-      CREATE LINK draft := (SELECT
-          (SELECT
-              .stateHistory ORDER BY
-                  .createdAt DESC
-          LIMIT
-              1
-          )
+      CREATE ACCESS POLICY can_be_deleted_when_inactive
+          ALLOW DELETE USING (NOT (.isActive));
+  };
+  ALTER TYPE default::Approver {
+      CREATE LINK accounts := (WITH
+          id := 
+              .id
+      SELECT
+          default::Account
       FILTER
-          NOT (EXISTS (.activationBlock))
+          (id IN (.policies.state.approvers.id UNION .policies.draft.approvers.id))
+      );
+      CREATE CONSTRAINT std::exclusive ON ((.user, .name));
+      CREATE CONSTRAINT std::exclusive ON ((.user, .address));
+      CREATE LINK contact := (std::assert_single((WITH
+          address := 
+              .address
+      SELECT
+          default::Contact
+      FILTER
+          (.address = address)
+      )));
+      CREATE PROPERTY label := ((.contact.label ?? (((.user.name ++ ': ') ++ .name) IF (EXISTS (.user) AND EXISTS (.name)) ELSE <std::str>{})));
+  };
+  ALTER TYPE default::User {
+      CREATE MULTI LINK accounts := (SELECT
+          DISTINCT (.approvers.accounts)
+      );
+      CREATE MULTI LINK contacts := (.<user[IS default::Contact]);
+  };
+  ALTER TYPE default::Account {
+      CREATE MULTI LINK approvers := (DISTINCT ((.policies.state.approvers UNION .policies.draft.approvers)));
+      CREATE MULTI LINK proposals := (.<account[IS default::Proposal]);
+      CREATE MULTI LINK transactionProposals := (.<account[IS default::TransactionProposal]);
+      CREATE MULTI LINK transfers := (.<account[IS default::Transfer]);
+  };
+  ALTER TYPE default::Receipt {
+      CREATE REQUIRED LINK transaction := (std::assert_exists(.<receipt[IS default::Transaction]));
+      CREATE MULTI LINK events := (WITH
+          txHash := 
+              .transaction.hash
+      SELECT
+          default::Event
+      FILTER
+          (.transactionHash = txHash)
       );
   };
   ALTER TYPE default::PolicyState {
@@ -366,5 +416,11 @@ CREATE MIGRATION m13yvdgctb43wbtjt27fx2ji4zoef52tycqnux6ppyui25gitiwaba
       CREATE REQUIRED PROPERTY status := (SELECT
           std::assert_exists(<default::TransactionProposalStatus>('Pending' IF NOT (EXISTS (.transaction)) ELSE ('Executing' IF NOT (EXISTS (.transaction.receipt)) ELSE ('Successful' IF .transaction.receipt.success ELSE 'Failed'))))
       );
+  };
+  CREATE TYPE default::Simulation {
+      CREATE MULTI LINK transfers: default::TransferDetails;
+  };
+  ALTER TYPE default::TransactionProposal {
+      CREATE REQUIRED LINK simulation: default::Simulation;
   };
 };

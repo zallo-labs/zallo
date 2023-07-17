@@ -1,7 +1,7 @@
-import { useApprover } from '@network/useApprover';
 import {
   ContactsIcon,
   GithubIcon,
+  NavigateNextIcon,
   NotificationsIcon,
   TwitterIcon,
   WalletConnectIcon,
@@ -9,9 +9,8 @@ import {
 import { makeStyles } from '@theme/makeStyles';
 import { ETH } from '@token/tokens';
 import { Image } from 'expo-image';
-import { ScrollView } from 'react-native';
-import { Divider } from 'react-native-paper';
-import { useAddressLabel } from '~/components/address/AddressLabel';
+import { ScrollView, TouchableOpacity } from 'react-native';
+import { Text } from 'react-native-paper';
 import { Appbar } from '~/components/Appbar/Appbar';
 import { Screen } from '~/components/layout/Screen';
 import { ListItem } from '~/components/list/ListItem';
@@ -19,6 +18,27 @@ import { StackNavigatorScreenProps } from '~/navigation/StackNavigator';
 import * as Linking from 'expo-linking';
 import { CONFIG } from '~/util/config';
 import { Address } from 'lib';
+import { FingerprintIcon } from '../biometrics/BiometricsScreen';
+import { AddressIcon } from '~/components/Identicon/AddressIcon';
+import { gql } from '@api/gen';
+import { useSuspenseQuery } from '@apollo/client';
+import { SettingsDocument, SettingsQuery, SettingsQueryVariables } from '@api/generated';
+import { ICON_SIZE } from '@theme/paper';
+
+gql(/* GraphQL */ `
+  query Settings {
+    user {
+      id
+      name
+    }
+
+    approver {
+      id
+      address
+      name
+    }
+  }
+`);
 
 export interface SettingsScreenParams {
   account: Address;
@@ -29,68 +49,76 @@ export type SettingsScreenProps = StackNavigatorScreenProps<'Settings'>;
 export const SettingsScreen = ({ route, navigation: { navigate } }: SettingsScreenProps) => {
   const { account } = route.params;
   const styles = useStyles();
-  const approver = useApprover();
+
+  const { user, approver } = useSuspenseQuery<SettingsQuery, SettingsQueryVariables>(
+    SettingsDocument,
+  ).data;
 
   return (
     <Screen>
-      <Appbar mode="large" leading="back" headline="Settings" />
+      <Appbar mode="small" leading="back" headline="Settings" />
 
       <ScrollView style={styles.container}>
-        <ListItem
-          leading={account}
-          headline="Account"
-          supporting={`Manage ${useAddressLabel(account)}`}
-          onPress={() => navigate('Account', { account })}
-        />
+        <TouchableOpacity style={styles.userContainer} onPress={() => navigate('User')}>
+          <AddressIcon address={approver.address} size={ICON_SIZE.large} />
+
+          <Text variant="titleLarge" style={styles.userName}>
+            {user.name}
+          </Text>
+
+          <Text variant="bodyLarge" style={styles.approverItem}>
+            {approver.name}
+          </Text>
+        </TouchableOpacity>
 
         <ListItem
-          leading={approver.address}
-          headline="User"
-          supporting="Manage the user for this device"
-          onPress={() => navigate('User')}
-        />
-
-        <ListItem
-          leading={(props) => <WalletConnectIcon {...props} size={styles.icon.width} />}
+          leading={WalletConnectIcon}
           headline="Sessions"
-          supporting="Manage WalletConnect sessions"
+          trailing={NavigateNextIcon}
           onPress={() => navigate('Sessions', { account })}
         />
 
         <ListItem
           leading={() => <Image source={ETH.iconUri} style={styles.icon} />}
           headline="Tokens"
-          supporting="Manage supported tokens"
+          trailing={NavigateNextIcon}
           onPress={() => navigate('Tokens', { account })}
         />
 
         <ListItem
-          leading={(props) => <ContactsIcon {...props} size={styles.icon.width} />}
+          leading={ContactsIcon}
           headline="Contacts"
-          supporting="Manage contacts"
+          trailing={NavigateNextIcon}
           onPress={() => navigate('Contacts', {})}
         />
 
         <ListItem
-          leading={(props) => <NotificationsIcon {...props} size={styles.icon.width} />}
+          leading={FingerprintIcon}
+          headline="Biometrics"
+          trailing={NavigateNextIcon}
+          onPress={() => navigate('Biometrics', {})}
+        />
+
+        <ListItem
+          leading={NotificationsIcon}
           headline="Notifications"
-          supporting="Choose which notifications to receive"
+          trailing={NavigateNextIcon}
           onPress={() => navigate('NotificationSettings', {})}
         />
 
-        <Divider horizontalInset />
-
         <ListItem
-          leading={(props) => <TwitterIcon {...props} size={styles.icon.width} />}
+          leading={TwitterIcon}
           headline="Contact us"
-          supporting="Tweet at us, or slide into our DMs"
+          // supporting="Tweet at us, or slide into our DMs for support"
+          trailing={NavigateNextIcon}
           onPress={() => Linking.openURL(CONFIG.metadata.twitter)}
         />
 
         <ListItem
-          leading={(props) => <GithubIcon {...props} size={styles.icon.width} />}
+          leading={GithubIcon}
           headline="GitHub"
-          supporting="Contribute to Zallo under the AGPL-3.0 license"
+          // supporting="Contribute to Zallo under the AGPL-3.0 license"
+          trailing={NavigateNextIcon}
           onPress={() => Linking.openURL(CONFIG.metadata.github)}
         />
       </ScrollView>
@@ -98,12 +126,23 @@ export const SettingsScreen = ({ route, navigation: { navigate } }: SettingsScre
   );
 };
 
-const useStyles = makeStyles(({ iconSize }) => ({
+const useStyles = makeStyles(({ colors, iconSize }) => ({
   container: {
     flex: 1,
   },
   icon: {
-    width: iconSize.medium,
-    height: iconSize.medium,
+    width: iconSize.small,
+    height: iconSize.small,
+  },
+  userContainer: {
+    alignItems: 'center',
+    marginHorizontal: 16,
+    marginBottom: 16,
+  },
+  userName: {
+    marginTop: 8,
+  },
+  approverItem: {
+    color: colors.tertiary,
   },
 }));

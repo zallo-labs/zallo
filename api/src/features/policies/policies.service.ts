@@ -1,10 +1,20 @@
 import { forwardRef, Inject, Injectable } from '@nestjs/common';
-import { ACCOUNT_INTERFACE, Address, asHex, asPolicyKey, Policy, POLICY_ABI } from 'lib';
+import {
+  ACCOUNT_INTERFACE,
+  Address,
+  asHex,
+  asPolicyKey,
+  getTransactionSatisfiability,
+  Hex,
+  Policy,
+  POLICY_ABI,
+  Satisfiability,
+} from 'lib';
 import { ProposalsService, selectTransactionProposal } from '../proposals/proposals.service';
 import { CreatePolicyInput, UniquePolicyInput, UpdatePolicyInput } from './policies.input';
 import _ from 'lodash';
 import { UserInputError } from '@nestjs/apollo';
-import { UserAccountsService } from '../auth/userAccounts.service';
+import { AccountsCacheService } from '../auth/accounts.cache.service';
 import { uuid } from 'edgedb/dist/codecs/ifaces';
 import { DatabaseService } from '../database/database.service';
 import e from '~/edgeql-js';
@@ -18,6 +28,8 @@ import {
   asTransfersConfig,
   asTargetsConfig,
 } from './policies.util';
+import { PolicyState, SatisfiabilityResult } from './policies.model';
+import { proposalTxShape, transactionProposalAsTx } from '../proposals/proposals.uitl';
 
 interface CreateParams extends CreatePolicyInput {
   accountId?: uuid;
@@ -30,7 +42,7 @@ export class PoliciesService {
     private db: DatabaseService,
     @Inject(forwardRef(() => ProposalsService))
     private proposals: ProposalsService,
-    private userAccounts: UserAccountsService,
+    private userAccounts: AccountsCacheService,
   ) {}
 
   async selectUnique(unique: UniquePolicy, shape?: ShapeFunc<typeof e.Policy>) {
@@ -58,7 +70,7 @@ export class PoliciesService {
     const accountId = accountIdArg ?? (await this.db.query(selectAccount.id));
     if (!accountId) throw new UserInputError('Account not found');
 
-    return await this.db.transaction(async () => {
+    return await this.db.transaction(async (db) => {
       const key = keyArg ?? (await this.getFreeKey(accountId));
       const policy = inputAsPolicy(key, policyInput);
 
@@ -76,7 +88,7 @@ export class PoliciesService {
             ...this.insertStateShape(policy),
           }),
         })
-        .run(this.db.client);
+        .run(db);
 
       return { id, key };
     });
@@ -106,9 +118,9 @@ export class PoliciesService {
 
     return {
       approvers: e.for(e.cast(e.str, e.set(...policy.approvers)), (approver) =>
-        e.insert(e.User, { address: e.cast(e.str, approver) }).unlessConflict((user) => ({
-          on: user.address,
-          else: user,
+        e.insert(e.Approver, { address: e.cast(e.str, approver) }).unlessConflict((approver) => ({
+          on: approver.address,
+          else: approver,
         })),
       ),
       threshold: policy.threshold,
@@ -139,7 +151,7 @@ export class PoliciesService {
             ...uniquePolicy({ account, key })(p),
             set: { name },
           }))
-          .run(this.db.client);
+          .run(db);
         if (!p) throw new UserInputError("Policy doesn't exist");
       }
 
@@ -150,7 +162,11 @@ export class PoliciesService {
         // Propose new state
         const existing = await e
           .select(e.Policy, (p) => ({
-            ...uniquePolicy({ account, key })(p),
+            filter_single: {
+              account: e.select(p.account, () => ({ filter_single: { address: account } })),
+              key,
+            },
+            accountId: p.account.id,
             state: policyStateShape,
             draft: policyStateShape,
           }))
@@ -165,11 +181,7 @@ export class PoliciesService {
         if (permissions?.transfers)
           policy.permissions.transfers = asTransfersConfig(permissions.transfers);
 
-        const accountId = await e
-          .select(e.Account, () => ({ filter_single: { address: account } }))
-          .id.run(this.db.client);
-        if (!accountId) throw new UserInputError('Account not found');
-        await this.upsertApprovers(accountId, policy);
+        await this.upsertApprovers(existing.accountId, policy);
 
         const proposal = await this.proposeState(account, policy);
 
@@ -191,7 +203,7 @@ export class PoliciesService {
   }
 
   async remove({ account, key }: UniquePolicyInput) {
-    await this.db.transaction(async () => {
+    await this.db.transaction(async (db) => {
       const selectAccount = e.select(e.Account, () => ({ filter_single: { address: account } }));
 
       const isActive =
@@ -201,7 +213,7 @@ export class PoliciesService {
               isActive: true,
               filter_single: { account: selectAccount, key },
             }))
-            .run(this.db.client)
+            .run(db)
         )?.isActive ?? false;
 
       const proposal =
@@ -237,9 +249,36 @@ export class PoliciesService {
             },
           },
         }))
-        .run(this.db.client);
+        .run(db);
       if (!r) throw new UserInputError("Policy doesn't exist");
     });
+  }
+
+  async satisfiability(
+    proposalHash: Hex,
+    key: number,
+    state: PolicyState | null,
+  ): Promise<SatisfiabilityResult> {
+    if (!state)
+      return { result: Satisfiability.unsatisfiable, reasons: [{ reason: 'Policy inactive' }] };
+
+    const policy = await this.db.query(
+      e.select(e.TransactionProposal, (p) => ({
+        filter_single: { hash: proposalHash },
+        ...proposalTxShape(p),
+        approvals: {
+          approver: { address: true },
+        },
+      })),
+    );
+    if (!policy)
+      return { result: Satisfiability.unsatisfiable, reasons: [{ reason: 'Proposal not found' }] };
+
+    const p = policyStateAsPolicy(key, state);
+    const tx = transactionProposalAsTx(policy);
+    const approvals = new Set(policy.approvals.map((a) => a.approver.address as Address));
+
+    return getTransactionSatisfiability(p, tx, approvals);
   }
 
   private async proposeState(account: Address, policy: Policy) {
@@ -273,12 +312,15 @@ export class PoliciesService {
 
   // Note. approvers aren't removed when a draft is replaced they were previously an approver of
   // These users will have account access until the cache expires.
-  // This prevent loss of account access on an accidental draft be should be considered more thoroughly
+  // This prevent loss of account access on an accidental draft
+  // TODO: consider intended behaviour
   private async upsertApprovers(account: uuid, policy: Policy) {
     if (!policy.approvers.size) return;
 
     await Promise.all(
-      [...policy.approvers].map((user) => this.userAccounts.add({ user, account })),
+      [...policy.approvers].map((approver) =>
+        this.userAccounts.addCachedAccount({ approver, account }),
+      ),
     );
   }
 }

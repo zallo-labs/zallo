@@ -1,7 +1,11 @@
-import { Context, Info, Query, Resolver, Subscription } from '@nestjs/graphql';
-import { TransfersService } from './transfers.service';
+import { Context, Info, Parent, Query, Resolver, Subscription } from '@nestjs/graphql';
+import {
+  TRANSFER_VALUE_FIELDS_SHAPE,
+  TransferValueSelectFields,
+  TransfersService,
+} from './transfers.service';
 import { TransferSubscriptionInput, TransfersInput } from './transfers.input';
-import { Transfer } from './transfers.model';
+import { Transfer, TransferDetails } from './transfers.model';
 import { GraphQLResolveInfo } from 'graphql';
 import { getShape } from '../database/database.select';
 import { Input, InputArgs } from '~/decorators/input.decorator';
@@ -11,8 +15,10 @@ import { TransferSubscriptionPayload, getTransferTrigger } from './transfers.eve
 import { DatabaseService } from '../database/database.service';
 import e from '~/edgeql-js';
 import { Address } from 'lib';
+import { ComputedField } from '~/decorators/computed.decorator';
+import { GraphQLBigInt } from 'graphql-scalars';
 
-@Resolver(() => Transfer)
+@Resolver(() => TransferDetails)
 export class TransfersResolver {
   constructor(
     private service: TransfersService,
@@ -31,10 +37,13 @@ export class TransfersResolver {
   @Subscription(() => Transfer, {
     name: 'transfer',
     filter: (
-      { direction }: TransferSubscriptionPayload,
-      { input: { directions } }: InputArgs<TransferSubscriptionInput>,
+      { direction, isExternal }: TransferSubscriptionPayload,
+      { input: { directions, external } }: InputArgs<TransferSubscriptionInput>,
     ) => {
-      return !directions || directions.includes(direction);
+      return (
+        (!directions || directions.includes(direction)) &&
+        (external === undefined || external === isExternal)
+      );
     },
     resolve(
       this: TransfersResolver,
@@ -43,7 +52,7 @@ export class TransfersResolver {
       ctx: GqlContext,
       info: GraphQLResolveInfo,
     ) {
-      return asUser(ctx, () => this.service.selectUnique(transfer, getShape(info)));
+      return asUser(ctx, async () => await this.service.selectUnique(transfer, getShape(info)));
     },
   })
   async subscribeToTransfers(
@@ -61,5 +70,10 @@ export class TransfersResolver {
 
       return this.pubsub.asyncIterator(accounts.map((account) => getTransferTrigger(account)));
     });
+  }
+
+  @ComputedField(() => GraphQLBigInt, TRANSFER_VALUE_FIELDS_SHAPE)
+  async value(@Parent() parent: TransferValueSelectFields): Promise<bigint> {
+    return this.service.value(parent);
   }
 }

@@ -1,77 +1,19 @@
 module default {
-  scalar type Address extending str {
-    constraint regexp(r'^0x[0-9a-fA-F]{40}$');
-  }
+  global current_approver_address: Address;
+  global current_approver := (assert_single((select Approver filter .address = global current_approver_address)));
 
-  global current_user_address: Address;
-  global current_user := (
-    select User filter .address = global current_user_address
-  );
-
+  global current_user := (select global current_approver.user);
   global current_user_accounts_array: array<uuid>;
   global current_user_accounts := (
     select array_unpack(global current_user_accounts_array)
   );
 
-  scalar type Name extending str {
-    constraint min_len_value(1);
-    constraint max_len_value(50);
-  }
-
-  scalar type Bytes extending str {
-    constraint regexp(r'0x(?:[0-9a-fA-F]{2})*$');
-  }
-
-  scalar type Bytes4 extending str {
-    constraint regexp(r'^0x[0-9a-fA-F]{8}$');
-  }
-
-  scalar type Bytes32 extending str {
-    constraint regexp(r'^0x[0-9a-fA-F]{64}$');
-  }
-
-  scalar type uint16 extending int32 {
-    constraint min_value(0);
-    constraint max_value(2 ^ 16 - 1);
-  }
-
-  scalar type uint32 extending int64 {
-    constraint min_value(0);
-    constraint max_value(2 ^ 32 - 1);
-  }
-
-  scalar type uint64 extending bigint {
-    constraint min_value(0);
-    constraint max_value(2n ^ 64n - 1n);
-  }
-
-  scalar type uint224 extending bigint {
-    constraint min_value(0);
-    constraint max_value(2n ^ 224n - 1n);
-  }
-
-  scalar type uint256 extending bigint {
-    constraint min_value(0);
-    constraint max_value(2n ^ 256n - 1n);
-  }
-
-  type User {
-    required address: Address { constraint exclusive; }
-    name: Name;
-    pushToken: str;
-    multi link contacts := .<user[is Contact];
-
-    # Anyone select is required due to issue - https://github.com/edgedb/edgedb/issues/5504
-    # Ideally we want anyone_insert
-    access policy anyone_select_insert
-      allow select, insert;
-
-    access policy user_select_update
-      allow select, update
-      using (.address ?= global current_user_address);
-  }
-
-  type Account extending User {
+  type Account {
+    required address: Address {
+      readonly := true;
+      constraint exclusive;
+    }
+    required name: Label;
     required isActive: bool;
     required implementation: Address;
     required salt: Bytes32;
@@ -79,47 +21,25 @@ module default {
     multi link proposals := .<account[is Proposal];
     multi link transactionProposals := .<account[is TransactionProposal];
     multi link transfers := .<account[is Transfer];
+    multi link approvers := (distinct (.policies.state.approvers union .policies.draft.approvers));
 
-    # Counteract anyone_select_insert in User, required due to edgedb issue
-    access policy deny_public_select
-      deny select
-      using (.id not in global current_user_accounts);
-
-    access policy members_update
-      allow update
+    access policy members_select_insert_update
+      allow select, insert, update
       using (.id in global current_user_accounts);
   }
 
-  type Contact {
-    required user: User;
-    required address: Address;
-    required name: Name;
-
-    constraint exclusive on ((.user, .address));
-    constraint exclusive on ((.user, .name));
-
-    access policy user_all
-      allow all
-      using (.user.address ?= global current_user_address);
-  }
-
   abstract type Proposal {
-    required hash: Bytes32 {
-      constraint exclusive;
-    }
+    required hash: Bytes32 { constraint exclusive; }
     required account: Account;
     policy: Policy;
-    label: str {
-      constraint min_len_value(1);
-      constraint max_len_value(50);
-    }
+    label: Label;
     createdAt: datetime {
       readonly := true;
       default := datetime_of_statement();
     }
-    required proposedBy: User {
+    required proposedBy: Approver {
       readonly := true;
-      default := (select User filter .address = global current_user_address);
+      default := (<Approver>(global current_approver).id);
     }
     multi link responses := .<proposal[is ProposalResponse];
     multi link approvals := .<proposal[is Approval];
@@ -134,17 +54,19 @@ module default {
     required proposal: Proposal {
       on target delete delete source;
     }
-    required user: User;
+    required approver: Approver {
+      default := (<Approver>(global current_approver).id);
+    }
     createdAt: datetime {
       readonly := true;
       default := datetime_of_statement();
     }
 
-    constraint exclusive on ((.proposal, .user));
+    constraint exclusive on ((.proposal, .approver));
 
     access policy user_all
       allow all
-      using (.user.address ?= global current_user_address);
+      using (.approver.user ?= global current_user or .approver ?= global current_approver);
 
     access policy members_can_select
       allow select
@@ -202,6 +124,10 @@ module default {
     required logIndex: uint32;
     required block: bigint { constraint min_value(0n); }
     required timestamp: datetime { default := datetime_of_statement(); }
+    link transaction := (
+      with transactionHash := .transactionHash
+      select Transaction filter .hash = transactionHash
+    );
 
     constraint exclusive on ((.block, .logIndex));
 
@@ -240,7 +166,10 @@ module default {
   }
 
   type Transaction {
-    required hash: Bytes32 { constraint exclusive; }
+    required hash: Bytes32 { 
+      readonly := true;
+      constraint exclusive;
+    }
     required proposal: TransactionProposal;
     required gasPrice: uint256;
     required submittedAt: datetime {
@@ -263,6 +192,8 @@ module default {
       select Event
       filter .transactionHash = txHash
     );
+    multi link transferEvents := .events[is Transfer];
+    multi link transferApprovalEvents := .events[is TransferApproval];
     required gasUsed: bigint { constraint min_value(0n); }
     required fee: bigint { constraint min_value(0n); }
     required block: bigint { constraint min_value(0n); }

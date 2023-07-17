@@ -15,8 +15,8 @@ export class Account {
   @AddressField()
   address: string; // Address;
 
-  @Field(() => String, { nullable: true })
-  name?: string | null;
+  @Field(() => String)
+  name: string;
 
   @Field(() => Boolean)
   isActive: boolean;

@@ -4,10 +4,11 @@ import {
 } from '@react-navigation/material-top-tabs';
 import { TopTabBar } from '~/components/tab/TopTabBar';
 import { showInfo } from '~/provider/SnackbarProvider';
-import { ActivityTab, ActivityTabBadge, ActivityTabParams } from './ActivityTab';
+import { ActivityTab, ActivityTabParams } from './ActivityTab';
 import { CollectablesTab } from './CollectablesTab';
 import { TokensTab, TokensTabParams } from './TokensTab';
 import { Address } from 'lib';
+import { ActivityTabBadge } from './ActivityTabBadge';
 
 export type TabNavigatorParamList = {
   Tokens: TokensTabParams;

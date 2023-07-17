@@ -11,7 +11,7 @@ import {
 } from 'lib';
 import { uuid } from 'edgedb/dist/codecs/ifaces';
 import e, { $infer } from '~/edgeql-js';
-import { ShapeFunc } from '../database/database.select';
+import { Shape, ShapeFunc } from '../database/database.select';
 import { PolicyInput, TargetsConfigInput, TransfersConfigInput } from './policies.input';
 
 export type UniquePolicy = { id: uuid } | { account: Address; key: PolicyKey };
@@ -33,7 +33,7 @@ export const selectPolicy = (id: UniquePolicy, shape?: ShapeFunc<typeof e.Policy
     ...uniquePolicy(id)(p),
   }));
 
-export const policyStateShape = e.shape(e.PolicyState, () => ({
+export const policyStateShape = {
   approvers: { address: true },
   threshold: true,
   targets: {
@@ -56,9 +56,9 @@ export const policyStateShape = e.shape(e.PolicyState, () => ({
     defaultAllow: true,
     budget: true,
   },
-}));
+} satisfies Shape<typeof e.PolicyState>;
 
-const s = e.select(e.PolicyState, policyStateShape);
+const s = e.select(e.PolicyState, () => policyStateShape);
 export type PolicyStateShape = $infer<typeof s>[0] | null;
 
 export const policyStateAsPolicy = <S extends PolicyStateShape>(key: number, state: S) =>

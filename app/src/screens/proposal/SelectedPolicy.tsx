@@ -1,57 +1,92 @@
-import { WPolicy } from '@api/policy';
-import { Proposal, useUpdateProposal } from '@api/proposal';
-import { PolicyIcon, PolicyUnsatisfiableIcon } from '@theme/icons';
 import { StyleSheet, View } from 'react-native';
-import { ListItem } from '~/components/list/ListItem';
 import Collapsible from 'react-native-collapsible';
 import { SatisfiablePolicyItem } from './SatisfiablePolicyItem';
 import { Chevron } from '~/components/Chevron';
 import { useToggle } from '@hook/useToggle';
 import { Divider } from 'react-native-paper';
+import { FragmentType, gql, useFragment } from '@api/gen';
+import { useSelectedPolicyUpdateProposalMutation } from '@api/generated';
+
+const FragmentDoc = gql(/* GraphQL */ `
+  fragment SelectedPolicy_TransactionProposalFragment on TransactionProposal
+  @argumentDefinitions(proposal: { type: "Bytes32!" }) {
+    id
+    hash
+    updatable
+    account {
+      id
+      policies {
+        id
+        key
+        satisfiability(input: { proposal: $proposal }) {
+          result
+        }
+        ...SatisfiabePolicyItem_PolicyFragment @arguments(proposal: $proposal)
+      }
+    }
+    policy {
+      id
+    }
+  }
+`);
+
+gql(/* GraphQL */ `
+  mutation SelectedPolicyUpdateProposal($hash: Bytes32!, $policy: PolicyKey!) {
+    updateProposal(input: { hash: $hash, policy: $policy }) {
+      id
+      policy {
+        id
+        key
+      }
+    }
+  }
+`);
 
 export interface SelectedPolicyProps {
-  proposal: Proposal;
-  policy?: WPolicy;
+  proposal: FragmentType<typeof FragmentDoc>;
 }
 
-export const SelectedPolicy = ({ proposal, policy }: SelectedPolicyProps) => {
-  const updateProposal = useUpdateProposal();
+export const SelectedPolicy = (props: SelectedPolicyProps) => {
+  const proposal = useFragment(FragmentDoc, props.proposal);
+  const [update] = useSelectedPolicyUpdateProposalMutation();
 
   const [expanded, toggleExpanded] = useToggle(false);
 
-  if (!policy)
-    return <ListItem leading={PolicyUnsatisfiableIcon} headline="No satisfiable policy" />;
+  const selected =
+    proposal.account.policies.find(({ id }) => id === proposal.policy?.id) ??
+    proposal.account.policies[0];
+
+  const satisfiablePolicies = proposal.account.policies.filter(
+    (p) => p.satisfiability.result !== 'unsatisfiable',
+  );
 
   return (
     <>
-      <ListItem
-        leading={PolicyIcon}
-        headline={policy.name}
+      <SatisfiablePolicyItem
+        policy={selected}
         {...(proposal.updatable && {
-          trailing: 'Only satisfiable policy',
-          ...(proposal.satisfiablePolicies.length > 1 && {
-            onPress: toggleExpanded,
-            trailing: ({ Text, ...props }) => (
-              <View style={styles.trailingContainer}>
-                <Text>{proposal.satisfiablePolicies.length}</Text>
+          onPress: toggleExpanded,
+          trailing: ({ Text, ...props }) => (
+            <View style={styles.trailingContainer}>
+              <Text>{satisfiablePolicies.length}</Text>
 
-                <Chevron {...props} expanded={expanded} />
-              </View>
-            ),
-          }),
+              <Chevron {...props} expanded={expanded} />
+            </View>
+          ),
         })}
       />
 
       <Divider horizontalInset />
 
       <Collapsible collapsed={!expanded}>
-        {proposal.satisfiablePolicies.map((p) => (
+        {proposal.account.policies.map((p) => (
           <SatisfiablePolicyItem
-            key={p.key}
+            key={p.id}
             policy={p}
-            selected={p.key === policy.key}
+            selected={p.id === selected.id}
             onPress={() => {
-              if (p.key !== policy.key) updateProposal({ hash: proposal.hash, policy: p.key });
+              if (p.key !== selected.key)
+                update({ variables: { hash: proposal.hash, policy: p.key } });
               toggleExpanded();
             }}
           />
