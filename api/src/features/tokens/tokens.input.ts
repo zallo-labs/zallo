@@ -5,16 +5,16 @@ import { AddressField } from '~/apollo/scalars/Address.scalar';
 @InputType()
 export class TokenInput {
   @AddressField()
-  testnetAddress: Address;
+  address: Address;
 }
 
 @InputType()
 export class UpsertTokenInput {
   @AddressField()
-  testnetAddress: Address;
+  address: Address;
 
   @AddressField({ nullable: true })
-  mainnetAddress?: Address;
+  ethereumAddress?: Address;
 
   @Field(() => String)
   name: string;
@@ -28,12 +28,12 @@ export class UpsertTokenInput {
   @Field(() => String, { nullable: true })
   iconUri?: string;
 
-  @Field(() => [TokenUnit], { defaultValue: [] })
-  units: TokenUnit[];
+  @Field(() => [TokenUnitInput], { defaultValue: [] })
+  units: TokenUnitInput[];
 }
 
 @InputType()
-export class TokenUnit {
+export class TokenUnitInput {
   @Field(() => String)
   symbol: string;
 

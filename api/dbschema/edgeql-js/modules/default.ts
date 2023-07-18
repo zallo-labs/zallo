@@ -392,19 +392,19 @@ const TargetsConfig: $.$expr_PathNode<$.TypeSet<$TargetsConfig, $.Cardinality.Ma
 
 export type $TokenλShape = $.typeutil.flatten<_std.$Object_169a5ce7108a11eeb5af6feb88c88f11λShape & {
   "user": $.LinkDesc<$User, $.Cardinality.AtMostOne, {}, false, false,  false, true>;
-  "testnetAddress": $.PropertyDesc<$Address, $.Cardinality.One, false, false, false, false>;
   "name": $.PropertyDesc<$Label, $.Cardinality.One, false, false, false, false>;
   "symbol": $.PropertyDesc<$Label, $.Cardinality.One, false, false, false, false>;
   "decimals": $.PropertyDesc<$uint16, $.Cardinality.One, false, false, false, false>;
   "iconUri": $.PropertyDesc<_std.$str, $.Cardinality.AtMostOne, false, false, false, false>;
   "ethereumAddress": $.PropertyDesc<$Address, $.Cardinality.AtMostOne, false, false, false, false>;
   "units": $.PropertyDesc<$.ArrayType<$.NamedTupleType<{symbol: $Label, decimals: $uint16}>>, $.Cardinality.AtMostOne, false, false, false, false>;
+  "address": $.PropertyDesc<$Address, $.Cardinality.One, false, false, false, false>;
 }>;
 type $Token = $.ObjectType<"default::Token", $TokenλShape, null, [
   ..._std.$Object_169a5ce7108a11eeb5af6feb88c88f11['__exclusives__'],
-  {user: {__element__: $User, __cardinality__: $.Cardinality.One | $.Cardinality.AtMostOne },testnetAddress: {__element__: $Address, __cardinality__: $.Cardinality.One | $.Cardinality.AtMostOne },},
   {user: {__element__: $User, __cardinality__: $.Cardinality.One | $.Cardinality.AtMostOne },name: {__element__: $Label, __cardinality__: $.Cardinality.One | $.Cardinality.AtMostOne },},
   {user: {__element__: $User, __cardinality__: $.Cardinality.One | $.Cardinality.AtMostOne },symbol: {__element__: $Label, __cardinality__: $.Cardinality.One | $.Cardinality.AtMostOne },},
+  {user: {__element__: $User, __cardinality__: $.Cardinality.One | $.Cardinality.AtMostOne },address: {__element__: $Address, __cardinality__: $.Cardinality.One | $.Cardinality.AtMostOne },},
 ]>;
 const $Token = $.makeType<$Token>(_.spec, "433ddc4e-2508-11ee-bbfc-1133650cb388", _.syntax.literal);
 

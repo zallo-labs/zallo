@@ -14,7 +14,7 @@ export class TokensService {
     return this.db.query(
       e.assert_single(
         e.select(e.Token, (t) => ({
-          filter: e.op(isAddress(id) ? t.testnetAddress : t.id, '=', id),
+          filter: e.op(isAddress(id) ? t.address : t.id, '=', id),
           limit: 1,
           order_by: e.op('exists', t.user),
           ...shape?.(t),
@@ -27,10 +27,10 @@ export class TokensService {
     const tokens = await this.db.query(
       e.select(e.Token, (t) => ({
         ...shape?.(t),
-        testnetAddress: true,
+        address: true,
         order_by: [
           {
-            expression: t.testnetAddress,
+            expression: t.address,
             direction: e.ASC,
           },
           {
@@ -43,22 +43,22 @@ export class TokensService {
     );
 
     // Filter out duplicate allowlisted (no user) tokens
-    return tokens.filter((t, i) => i === 0 || t.testnetAddress !== tokens[i - 1].testnetAddress);
+    return tokens.filter((t, i) => i === 0 || t.address !== tokens[i - 1].address);
   }
 
   async upsert(token: UpsertTokenInput) {
     return this.db.query(
       e.insert(e.Token, { ...token }).unlessConflict((t) => ({
-        on: e.tuple([t.user, t.testnetAddress]),
+        on: e.tuple([t.user, t.address]),
         else: e.update(t, () => ({ set: token })),
       })),
     );
   }
 
-  async remove(testnetAddress: Address) {
+  async remove(address: Address) {
     return this.db.query(
       e.delete(e.Token, () => ({
-        filter_single: { testnetAddress, user: e.global.current_user },
+        filter_single: { address, user: e.global.current_user },
       })).id,
     );
   }

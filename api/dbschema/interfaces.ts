@@ -173,13 +173,13 @@ export interface TargetsConfig extends std.$Object {
 }
 export interface Token extends std.$Object {
   "user"?: User | null;
-  "testnetAddress": string;
   "name": string;
   "symbol": string;
   "decimals": number;
   "iconUri"?: string | null;
   "ethereumAddress"?: string | null;
   "units"?: {symbol: string, decimals: number}[] | null;
+  "address": string;
 }
 export interface Transaction extends std.$Object {
   "proposal": TransactionProposal;

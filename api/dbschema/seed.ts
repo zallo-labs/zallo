@@ -63,12 +63,12 @@ async function upsertTokens() {
   const toUpdate = await e
     .select(e.Token, (t) => ({
       filter: e.op(
-        e.op(t.testnetAddress, 'in', e.set(...TOKENS.map((t) => t.testnetAddress))),
+        e.op(t.address, 'in', e.set(...TOKENS.map((t) => t.address))),
         'and',
         e.op('not', e.op('exists', t.user)),
       ),
       id: true,
-      testnetAddress: true,
+      address: true,
     }))
     .run(client);
 
@@ -80,7 +80,7 @@ async function upsertTokens() {
           e.set(
             ...TOKENS.map((token) => ({
               token,
-              id: toUpdate.find((ut) => ut.testnetAddress === token.testnetAddress)?.id,
+              id: toUpdate.find((ut) => ut.address === token.address)?.id,
             }))
               .filter((t) => t.id)
               .map(
@@ -98,7 +98,7 @@ async function upsertTokens() {
           e.uuid,
           e.set(
             ...TOKENS.filter(
-              (t) => !toUpdate.find((ut) => ut.testnetAddress === t.testnetAddress),
+              (t) => !toUpdate.find((ut) => ut.address === t.address),
             ).map(
               (token) =>
                 e.insert(e.Token, {
@@ -111,7 +111,7 @@ async function upsertTokens() {
       ),
       removed: e.delete(e.Token, (t) => ({
         filter: e.op(
-          e.op(t.testnetAddress, 'not in', e.set(...TOKENS.map((t) => t.testnetAddress))),
+          e.op(t.address, 'not in', e.set(...TOKENS.map((t) => t.address))),
           'and',
           e.op('not', e.op('exists', t.user)),
         ),

@@ -59,7 +59,7 @@ module default {
 
   type Token {
     user: User { default := (<User>(global current_user).id); }
-    required testnetAddress: Address;
+    required address: Address;
     ethereumAddress: Address;
     required name: Label;
     required symbol: Label;
@@ -67,7 +67,7 @@ module default {
     iconUri: str;
     units: array<tuple<symbol: Label, decimals: uint16>>;
 
-    constraint exclusive on ((.user, .testnetAddress));
+    constraint exclusive on ((.user, .address));
     constraint exclusive on ((.user, .name));
     constraint exclusive on ((.user, .symbol));
 

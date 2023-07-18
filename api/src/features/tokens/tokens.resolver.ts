@@ -12,7 +12,7 @@ export class TokensResolver {
   constructor(private service: TokensService) {}
 
   @Query(() => Token, { nullable: true })
-  async token(@Input() { testnetAddress }: TokenInput, @Info() info: GraphQLResolveInfo) {
+  async token(@Input() { address: testnetAddress }: TokenInput, @Info() info: GraphQLResolveInfo) {
     return this.service.selectUnique(testnetAddress, getShape(info));
   }
 
@@ -28,7 +28,7 @@ export class TokensResolver {
   }
 
   @Mutation(() => ID, { nullable: true })
-  async removeToken(@Input() { testnetAddress }: TokenInput): Promise<uuid | null> {
+  async removeToken(@Input() { address: testnetAddress }: TokenInput): Promise<uuid | null> {
     return this.service.remove(testnetAddress);
   }
 }

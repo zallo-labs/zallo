@@ -6,10 +6,10 @@ import { Node, NodeType } from '~/decorators/interface.decorator';
 @NodeType()
 export class Token extends Node {
   @AddressField()
-  mainnetAddress: Address;
+  address: Address;
 
   @AddressField({ nullable: true })
-  testnetAddress?: Address;
+  ethereumAddress?: Address;
 
   @Field(() => String)
   name: string;

@@ -30,7 +30,7 @@ describe('TokensService', () => {
 
   const upsert = (input?: Partial<UpsertTokenInput>) => {
     return service.upsert({
-      testnetAddress: randomAddress(),
+      address: randomAddress(),
       name: 'Test token',
       symbol: 'TEST',
       decimals: 8,
@@ -49,9 +49,9 @@ describe('TokensService', () => {
 
     it('update existing token', async () =>
       asUser(user1, async () => {
-        const testnetAddress = randomAddress();
-        const { id } = await upsert({ testnetAddress, name: 'first' });
-        await upsert({ testnetAddress, name: 'second' });
+        const address = randomAddress();
+        const { id } = await upsert({ address, name: 'first' });
+        await upsert({ address, name: 'second' });
 
         expect(
           await db.query(e.select(e.Token, () => ({ filter_single: { id }, name: true })).name),
@@ -71,7 +71,7 @@ describe('TokensService', () => {
       const { id } = await db.query(
         e.insert(e.Token, {
           user: e.cast(e.User, e.set()),
-          testnetAddress: randomAddress(),
+          address: randomAddress(),
           name: 'Test token',
           symbol: 'TEST',
           decimals: 8,
@@ -85,11 +85,11 @@ describe('TokensService', () => {
     });
 
     it('prefer user token over global token', async () => {
-      const testnetAddress = randomAddress();
+      const address = randomAddress();
       await db.query(
         e.insert(e.Token, {
           user: e.cast(e.User, e.set()),
-          testnetAddress,
+          address,
           name: 'Test token',
           symbol: 'TEST',
           decimals: 8,
@@ -98,12 +98,12 @@ describe('TokensService', () => {
       );
 
       await asUser(user1, async () => {
-        await upsert({ testnetAddress, name: 'second' });
+        await upsert({ address, name: 'second' });
 
         service;
         expect(
-          (await service.select(() => ({ testnetAddress: true, name: true })))
-            .filter((t) => t.testnetAddress === testnetAddress)
+          (await service.select(() => ({ address: true, name: true })))
+            .filter((t) => t.address === address)
             .map((t) => t.name),
         ).toEqual(['second']);
       });
@@ -113,19 +113,19 @@ describe('TokensService', () => {
   describe('remove', () => {
     it('removes token if existent', async () =>
       asUser(user1, async () => {
-        const testnetAddress = randomAddress();
-        const { id } = await upsert({ testnetAddress });
-        await service.remove(testnetAddress);
+        const address = randomAddress();
+        const { id } = await upsert({ address });
+        await service.remove(address);
 
         expect(await db.query(e.select(e.Token, () => ({ filter_single: { id } })))).toBeNull();
       }));
 
     it('not remove global token', async () => {
-      const testnetAddress = randomAddress();
+      const address = randomAddress();
       const { id } = await db.query(
         e.insert(e.Token, {
           user: e.cast(e.User, e.set()),
-          testnetAddress,
+          address,
           name: 'Test token',
           symbol: 'TEST',
           decimals: 8,
@@ -134,7 +134,7 @@ describe('TokensService', () => {
       );
 
       asUser(user1, async () => {
-        expect(await service.remove(testnetAddress)).toBeNull();
+        expect(await service.remove(address)).toBeNull();
 
         expect((await db.query(e.select(e.Token, () => ({ filter_single: { id } }))))?.id).toEqual(
           id,
