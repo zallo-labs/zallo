@@ -390,6 +390,26 @@ const $TargetsConfig = $.makeType<$TargetsConfig>(_.spec, "3ecfdb9b-2127-11ee-9f
 
 const TargetsConfig: $.$expr_PathNode<$.TypeSet<$TargetsConfig, $.Cardinality.Many>, null> = _.syntax.$PathNode($.$toSet($TargetsConfig, $.Cardinality.Many), null);
 
+export type $TokenλShape = $.typeutil.flatten<_std.$Object_169a5ce7108a11eeb5af6feb88c88f11λShape & {
+  "user": $.LinkDesc<$User, $.Cardinality.AtMostOne, {}, false, false,  false, true>;
+  "testnetAddress": $.PropertyDesc<$Address, $.Cardinality.One, false, false, false, false>;
+  "name": $.PropertyDesc<$Label, $.Cardinality.One, false, false, false, false>;
+  "symbol": $.PropertyDesc<$Label, $.Cardinality.One, false, false, false, false>;
+  "decimals": $.PropertyDesc<$uint16, $.Cardinality.One, false, false, false, false>;
+  "iconUri": $.PropertyDesc<_std.$str, $.Cardinality.AtMostOne, false, false, false, false>;
+  "ethereumAddress": $.PropertyDesc<$Address, $.Cardinality.AtMostOne, false, false, false, false>;
+  "units": $.PropertyDesc<$.ArrayType<$.NamedTupleType<{symbol: $Label, decimals: $uint16}>>, $.Cardinality.AtMostOne, false, false, false, false>;
+}>;
+type $Token = $.ObjectType<"default::Token", $TokenλShape, null, [
+  ..._std.$Object_169a5ce7108a11eeb5af6feb88c88f11['__exclusives__'],
+  {user: {__element__: $User, __cardinality__: $.Cardinality.One | $.Cardinality.AtMostOne },testnetAddress: {__element__: $Address, __cardinality__: $.Cardinality.One | $.Cardinality.AtMostOne },},
+  {user: {__element__: $User, __cardinality__: $.Cardinality.One | $.Cardinality.AtMostOne },name: {__element__: $Label, __cardinality__: $.Cardinality.One | $.Cardinality.AtMostOne },},
+  {user: {__element__: $User, __cardinality__: $.Cardinality.One | $.Cardinality.AtMostOne },symbol: {__element__: $Label, __cardinality__: $.Cardinality.One | $.Cardinality.AtMostOne },},
+]>;
+const $Token = $.makeType<$Token>(_.spec, "433ddc4e-2508-11ee-bbfc-1133650cb388", _.syntax.literal);
+
+const Token: $.$expr_PathNode<$.TypeSet<$Token, $.Cardinality.Many>, null> = _.syntax.$PathNode($.$toSet($Token, $.Cardinality.Many), null);
+
 export type $TransactionλShape = $.typeutil.flatten<_std.$Object_169a5ce7108a11eeb5af6feb88c88f11λShape & {
   "proposal": $.LinkDesc<$TransactionProposal, $.Cardinality.One, {}, false, false,  false, false>;
   "receipt": $.LinkDesc<$Receipt, $.Cardinality.AtMostOne, {}, true, false,  false, false>;
@@ -530,6 +550,7 @@ export type $UserλShape = $.typeutil.flatten<_std.$Object_169a5ce7108a11eeb5af6
   "<user[is Approver]": $.LinkDesc<$Approver, $.Cardinality.Many, {}, false, false,  false, false>;
   "<user[is current_approver]": $.LinkDesc<$current_approver, $.Cardinality.Many, {}, false, false,  false, false>;
   "<user[is Contact]": $.LinkDesc<$Contact, $.Cardinality.Many, {}, false, false,  false, false>;
+  "<user[is Token]": $.LinkDesc<$Token, $.Cardinality.Many, {}, false, false,  false, false>;
   "<user": $.LinkDesc<$.ObjectType, $.Cardinality.Many, {}, false, false,  false, false>;
 }>;
 type $User = $.ObjectType<"default::User", $UserλShape, null, [
@@ -596,7 +617,7 @@ const $default__globals: {  current_approver: _.syntax.$expr_Global<
 
 
 
-export { AbiSource, Address, Bytes, Bytes32, Bytes4, Label, TransactionProposalStatus, TransferDirection, current_user_accounts, uint16, uint224, uint256, uint32, uint64, $Account, Account, $ProposalResponse, ProposalResponse, $Approval, Approval, $Approver, Approver, $Contact, Contact, $Contract, Contract, $Target, Target, $ContractTarget, ContractTarget, $Event, Event, $Function, Function, $Operation, Operation, $Policy, Policy, $PolicyState, PolicyState, $Proposal, Proposal, $Receipt, Receipt, $Rejection, Rejection, $Simulation, Simulation, $TargetsConfig, TargetsConfig, $Transaction, Transaction, $TransactionProposal, TransactionProposal, $TransferDetails, TransferDetails, $Transferlike, Transferlike, $Transfer, Transfer, $TransferApproval, TransferApproval, $TransferLimit, TransferLimit, $TransfersConfig, TransfersConfig, $User, User, $current_approver, current_approver, $current_user, current_user };
+export { AbiSource, Address, Bytes, Bytes32, Bytes4, Label, TransactionProposalStatus, TransferDirection, current_user_accounts, uint16, uint224, uint256, uint32, uint64, $Account, Account, $ProposalResponse, ProposalResponse, $Approval, Approval, $Approver, Approver, $Contact, Contact, $Contract, Contract, $Target, Target, $ContractTarget, ContractTarget, $Event, Event, $Function, Function, $Operation, Operation, $Policy, Policy, $PolicyState, PolicyState, $Proposal, Proposal, $Receipt, Receipt, $Rejection, Rejection, $Simulation, Simulation, $TargetsConfig, TargetsConfig, $Token, Token, $Transaction, Transaction, $TransactionProposal, TransactionProposal, $TransferDetails, TransferDetails, $Transferlike, Transferlike, $Transfer, Transfer, $TransferApproval, TransferApproval, $TransferLimit, TransferLimit, $TransfersConfig, TransfersConfig, $User, User, $current_approver, current_approver, $current_user, current_user };
 
 type __defaultExports = {
   "AbiSource": typeof AbiSource;
@@ -631,6 +652,7 @@ type __defaultExports = {
   "Rejection": typeof Rejection;
   "Simulation": typeof Simulation;
   "TargetsConfig": typeof TargetsConfig;
+  "Token": typeof Token;
   "Transaction": typeof Transaction;
   "TransactionProposal": typeof TransactionProposal;
   "TransferDetails": typeof TransferDetails;
@@ -677,6 +699,7 @@ const __defaultExports: __defaultExports = {
   "Rejection": Rejection,
   "Simulation": Simulation,
   "TargetsConfig": TargetsConfig,
+  "Token": Token,
   "Transaction": Transaction,
   "TransactionProposal": TransactionProposal,
   "TransferDetails": TransferDetails,

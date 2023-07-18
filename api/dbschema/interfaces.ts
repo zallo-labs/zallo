@@ -171,6 +171,16 @@ export interface TargetsConfig extends std.$Object {
   "contracts": ContractTarget[];
   "default": Target;
 }
+export interface Token extends std.$Object {
+  "user"?: User | null;
+  "testnetAddress": string;
+  "name": string;
+  "symbol": string;
+  "decimals": number;
+  "iconUri"?: string | null;
+  "ethereumAddress"?: string | null;
+  "units"?: {symbol: string, decimals: number}[] | null;
+}
 export interface Transaction extends std.$Object {
   "proposal": TransactionProposal;
   "receipt"?: Receipt | null;
@@ -480,6 +490,7 @@ export interface types {
     "Rejection": Rejection;
     "Simulation": Simulation;
     "TargetsConfig": TargetsConfig;
+    "Token": Token;
     "Transaction": Transaction;
     "TransactionProposal": TransactionProposal;
     "TransactionProposalStatus": TransactionProposalStatus;

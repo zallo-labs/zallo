@@ -56,4 +56,27 @@ module default {
       allow all
       using (.user ?= global current_user);
   }
+
+  type Token {
+    user: User { default := (<User>(global current_user).id); }
+    required testnetAddress: Address;
+    ethereumAddress: Address;
+    required name: Label;
+    required symbol: Label;
+    required decimals: uint16;
+    iconUri: str;
+    units: array<tuple<symbol: Label, decimals: uint16>>;
+
+    constraint exclusive on ((.user, .testnetAddress));
+    constraint exclusive on ((.user, .name));
+    constraint exclusive on ((.user, .symbol));
+
+    access policy anyone_select_allowlisted
+      allow select
+      using (not exists .user);
+
+    access policy user_all
+      allow all
+      using (.user ?= global current_user);
+  }
 }

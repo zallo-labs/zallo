@@ -29,6 +29,7 @@ import { SentryInterceptor } from './features/util/sentry/sentry.interceptor';
 import { OperationsModule } from './features/operations/operations.module';
 import { SimulationModule } from './features/simulation/simulation.module';
 import { BullModule } from './features/util/bull/bull.module';
+import { TokensModule } from './features/tokens/tokens.module';
 
 @Module({
   imports: [
@@ -57,6 +58,7 @@ import { BullModule } from './features/util/bull/bull.module';
     ProposalsModule,
     ReceiptsModule,
     SimulationModule,
+    TokensModule,
     TransactionsModule,
     TransfersModule,
     UsersModule,
