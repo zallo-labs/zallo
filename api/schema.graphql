@@ -455,8 +455,9 @@ type SimulationTransfer implements TransferDetails {
   from: Address!
   id: ID!
   to: Address!
-  token: Address!
-  value: BigInt!
+  token: Token
+  tokenAddress: Address!
+  value: Float
 }
 
 type Subscription {
@@ -581,8 +582,9 @@ type Transfer implements EventBase & TransferDetails & Transferlike {
   logIndex: Float!
   timestamp: DateTime!
   to: Address!
-  token: Address!
-  value: BigInt!
+  token: Token
+  tokenAddress: Address!
+  value: Float
 }
 
 type TransferApproval implements EventBase & TransferDetails & Transferlike {
@@ -596,8 +598,9 @@ type TransferApproval implements EventBase & TransferDetails & Transferlike {
   logIndex: Float!
   timestamp: DateTime!
   to: Address!
-  token: Address!
-  value: BigInt!
+  token: Token
+  tokenAddress: Address!
+  value: Float
 }
 
 type TransferApprovalOp {
@@ -615,8 +618,9 @@ interface TransferDetails {
   from: Address!
   id: ID!
   to: Address!
-  token: Address!
-  value: BigInt!
+  token: Token
+  tokenAddress: Address!
+  value: Float
 }
 
 enum TransferDirection {
@@ -676,8 +680,9 @@ interface Transferlike implements EventBase & TransferDetails {
   logIndex: Float!
   timestamp: DateTime!
   to: Address!
-  token: Address!
-  value: BigInt!
+  token: Token
+  tokenAddress: Address!
+  value: Float
 }
 
 type TransfersConfig {

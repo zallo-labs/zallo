@@ -70,6 +70,7 @@ module default {
     constraint exclusive on ((.user, .address));
     constraint exclusive on ((.user, .name));
     constraint exclusive on ((.user, .symbol));
+    index on (.address);
 
     access policy anyone_select_allowlisted
       allow select

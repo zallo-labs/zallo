@@ -75,7 +75,7 @@ export class TransfersEvents {
     if (accounts.length) {
       Logger.debug(`Transfer ${from} -> ${to}`);
       const block = await this.provider.getBlock(log.blockNumber);
-      const token = normalizeEthAddress(asAddress(log.address));
+      const tokenAddress = normalizeEthAddress(asAddress(log.address));
 
       const transfers = await this.db.query(
         e.set(
@@ -94,7 +94,7 @@ export class TransfersEvents {
                   ),
                   from,
                   to,
-                  token,
+                  tokenAddress,
                   amount,
                 })
                 .unlessConflict(),
@@ -150,7 +150,7 @@ export class TransfersEvents {
     if (accounts.length) {
       Logger.debug(`Transfer approval ${from} -> ${to}`);
       const block = await this.provider.getBlock(log.blockNumber);
-      const token = normalizeEthAddress(asAddress(log.address));
+      const tokenAddress = normalizeEthAddress(asAddress(log.address));
 
       const approvals = toArray(
         await this.db.query(
@@ -169,7 +169,7 @@ export class TransfersEvents {
                   ),
                   from,
                   to,
-                  token,
+                  tokenAddress,
                   amount,
                 })
                 .unlessConflict(),

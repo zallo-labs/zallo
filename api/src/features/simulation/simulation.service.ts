@@ -22,7 +22,7 @@ export class SimulationService {
           direction: 'Out',
           from: accountAddress,
           to: op.to,
-          token: ZERO_ADDR,
+          tokenAddress: ZERO_ADDR,
           amount: -op.value,
         });
       }
@@ -34,7 +34,7 @@ export class SimulationService {
           direction: 'Out',
           from: accountAddress,
           to: f.to,
-          token: f.token,
+          tokenAddress: f.token,
           amount: -f.amount,
         });
       } else if (f instanceof TransferFromOp) {
@@ -43,7 +43,7 @@ export class SimulationService {
           direction: e.cast(e.TransferDirection, 'In' satisfies TransferDetails['direction']),
           from: f.from,
           to: f.to,
-          token: f.token,
+          tokenAddress: f.token,
           amount: f.amount,
         });
       } else if (f instanceof SwapOp) {
@@ -53,7 +53,7 @@ export class SimulationService {
             direction: 'Out',
             from: accountAddress,
             to: op.to,
-            token: f.fromToken,
+            tokenAddress: f.fromToken,
             amount: -f.fromAmount,
           },
           {
@@ -61,7 +61,7 @@ export class SimulationService {
             direction: e.cast(e.TransferDirection, 'In' satisfies TransferDetails['direction']),
             from: op.to,
             to: accountAddress,
-            token: f.toToken,
+            tokenAddress: f.toToken,
             amount: f.minimumToAmount,
           },
         );

@@ -201,11 +201,12 @@ export interface TransactionProposal extends Proposal {
 export type TransactionProposalStatus = "Pending" | "Executing" | "Successful" | "Failed";
 export interface TransferDetails extends std.$Object {
   "account": Account;
+  "tokenAddress": string;
+  "token"?: Token | null;
   "amount": bigint;
   "direction": TransferDirection;
   "from": string;
   "to": string;
-  "token": string;
 }
 export interface Transferlike extends Event, TransferDetails {}
 export interface Transfer extends Transferlike {}

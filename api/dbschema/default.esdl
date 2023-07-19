@@ -143,8 +143,16 @@ module default {
     required direction: TransferDirection;
     required from: Address;
     required to: Address;
-    required token: Address;
+    required tokenAddress: Address;
     required amount: bigint;
+    # link token := (
+    #   assert_single((
+    #     with address := .tokenAddress
+    #     select Token filter .address = address
+    #     order by (exists .user) desc
+    #     limit 1
+    #   ))
+    # );
 
     access policy members_can_select_insert
       allow select, insert
@@ -158,7 +166,7 @@ module default {
   type TransferApproval extending Transferlike {
     link previous := (
       select TransferApproval
-      filter .token = .token and .from = .from and .to = .to
+      filter .tokenAddress = .tokenAddress and .from = .from and .to = .to
       order by .block desc then .logIndex desc
       limit 1
     );
