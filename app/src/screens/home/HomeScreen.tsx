@@ -20,6 +20,8 @@ gql(/* GraphQL */ `
       address
       ...HomeAppbar_account
     }
+
+    ...AccountValue_tokensQuery @arguments(account: $account)
   }
 `);
 
@@ -30,9 +32,10 @@ export interface HomeScreenParams {
 export type HomeScreenProps = StackNavigatorScreenProps<'Home'>;
 
 export const HomeScreen = withSuspense(({ route }: HomeScreenProps) => {
-  const { account } = useSuspenseQuery<HomeQuery, HomeQueryVariables>(HomeDocument, {
+  const query = useSuspenseQuery<HomeQuery, HomeQueryVariables>(HomeDocument, {
     variables: { account: route.params.account },
   }).data;
+  const { account } = query;
 
   if (!account) return <NotFound name="Account" />;
 
@@ -40,7 +43,7 @@ export const HomeScreen = withSuspense(({ route }: HomeScreenProps) => {
     <Screen>
       <HomeAppbar account={account} />
 
-      <AccountValue account={account.address} />
+      <AccountValue tokensQuery={query} />
 
       <QuickActions account={account.address} />
 
