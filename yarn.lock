@@ -5,6 +5,18 @@ __metadata:
   version: 6
   cacheKey: 8
 
+"@0no-co/graphql.web@npm:^1.0.1":
+  version: 1.0.4
+  resolution: "@0no-co/graphql.web@npm:1.0.4"
+  peerDependencies:
+    graphql: ^14.0.0 || ^15.0.0 || ^16.0.0
+  peerDependenciesMeta:
+    graphql:
+      optional: true
+  checksum: d415fb2f063a024e2d382e8dc5e66929d0d9bf94f2c22e03cde201dc2fa03e15d21274dbe5c23a26ce016a4cac3db93ad99fb454de76fd94bc1600fd7062eebe
+  languageName: node
+  linkType: hard
+
 "@adraffy/ens-normalize@npm:1.9.0":
   version: 1.9.0
   resolution: "@adraffy/ens-normalize@npm:1.9.0"
@@ -12845,6 +12857,26 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@urql/core@npm:>=4.0.0, @urql/core@npm:^4.0.11":
+  version: 4.0.11
+  resolution: "@urql/core@npm:4.0.11"
+  dependencies:
+    "@0no-co/graphql.web": ^1.0.1
+    wonka: ^6.3.2
+  checksum: 69af84e56f33a08f6b107d410c71f9a2ace798c3fa4fcb2a8bc5fd2659da1ac5fe40303e37182dba6157022d65e5e945511dc8184f35f1502d460da37f880a02
+  languageName: node
+  linkType: hard
+
+"@urql/exchange-request-policy@npm:^1.0.2":
+  version: 1.0.2
+  resolution: "@urql/exchange-request-policy@npm:1.0.2"
+  dependencies:
+    "@urql/core": ">=4.0.0"
+    wonka: ^6.3.2
+  checksum: b7f6edcb67b95432623ba97b900a1028e205d6acc45381e8a25df1d927a8a2d4c10cc158a2a4c58291c5ea1ac0103ed34c16107fffe72e611be36d6cbe769711
+  languageName: node
+  linkType: hard
+
 "@urql/exchange-retry@npm:0.3.0":
   version: 0.3.0
   resolution: "@urql/exchange-retry@npm:0.3.0"
@@ -12866,6 +12898,16 @@ __metadata:
   peerDependencies:
     graphql: ^0.11.0 || ^0.12.0 || ^0.13.0 || ^14.0.0 || ^15.0.0 || ^16.0.0
   checksum: 99320fc6d03a5b318a9ae3907b9bcd22c60d5aed1badab803e082e7a165ee55b365b48fa2f63e6cb5e7e6ef37550603a57b9f501c232366d72bab0e6fade1fd2
+  languageName: node
+  linkType: hard
+
+"@urql/exchange-retry@npm:^1.2.0":
+  version: 1.2.0
+  resolution: "@urql/exchange-retry@npm:1.2.0"
+  dependencies:
+    "@urql/core": ">=4.0.0"
+    wonka: ^6.3.2
+  checksum: 5bb30c1de9fc6c1cd25224da4c2445567dc3d6bacac43a15dcca07bbd87c2c30c765dc522a3150dc119dc76230b2da27328a4ccd4e9cfb02039d87a9beaf97b4
   languageName: node
   linkType: hard
 
@@ -14511,7 +14553,11 @@ __metadata:
     "@bull-board/nestjs": ^5.5.1
     "@edgedb/generate": ^0.3.1
     "@golevelup/ts-jest": ^0.3.7
+    "@graphql-codegen/cli": ^4.0.1
+    "@graphql-codegen/introspection": ^4.0.0
+    "@graphql-codegen/typescript": ^4.0.1
     "@liaoliaots/nestjs-redis": ^9.0.5
+    "@n1ru4l/graphql-codegen-relay-optimizer-plugin": ^5.0.0
     "@nestjs/apollo": ^11.0.6
     "@nestjs/axios": ^2.0.0
     "@nestjs/bull": ^0.6.3
@@ -14535,6 +14581,9 @@ __metadata:
     "@types/uuid": ^9.0.2
     "@typescript-eslint/eslint-plugin": ^5.59.11
     "@typescript-eslint/parser": ^5.59.11
+    "@urql/core": ^4.0.11
+    "@urql/exchange-request-policy": ^1.0.2
+    "@urql/exchange-retry": ^1.2.0
     abitype: ^0.8.9
     apollo: ^2.34.0
     async-mutex: ^0.4.0
@@ -42570,6 +42619,13 @@ __metadata:
   version: 6.1.2
   resolution: "wonka@npm:6.1.2"
   checksum: 474dcffd3861faaf5df8f4ef1ea1e614eb0cf36f54003974ebd4ab43b8fd6aad26317ef75e55488e7a61d64922531ae3ca2890dac90922d46715e0dd795682ce
+  languageName: node
+  linkType: hard
+
+"wonka@npm:^6.3.2":
+  version: 6.3.2
+  resolution: "wonka@npm:6.3.2"
+  checksum: e161f377a4ea17cc2b19fe8820219a9e3e2c78db5df08b820525bc2cc261184823d1bc33bd2385e632656a9676c9de6ff614b6324c441dd5fc5faa253433d032
   languageName: node
   linkType: hard
 
