@@ -1,50 +1,84 @@
+import { FragmentType, gql, useFragment } from '@api/gen';
 import { convertDecimals } from '@token/token';
-import { useToken } from '@token/useToken';
 import { Address } from 'lib';
 import { useFormattedNumber } from '~/components/format/FormattedNumber';
 import { ListItem, ListItemProps } from '~/components/list/ListItem';
 import { ListItemSkeleton } from '~/components/list/ListItemSkeleton';
 import { withSuspense } from '~/components/skeleton/withSuspense';
-import { useFormattedTokenAmount } from '~/components/token/TokenAmount';
-import { Pool, TokenAmount, useEstimatedSwap } from '~/util/swap';
+import { useFormattedTokenAmount } from '~/components/token/TokenAmount2';
+import { Pool, useEstimatedSwap } from '~/util/swap';
+
+const FromFragment = gql(/* GraphQL */ `
+  fragment ToTokenItem_fromToken on Token {
+    id
+    address
+    symbol
+    decimals
+    ...UseFormattedTokenAmount_token
+  }
+`);
+
+const ToFragment = gql(/* GraphQL */ `
+  fragment ToTokenItem_toToken on Token {
+    id
+    address
+    symbol
+    decimals
+    ...UseFormattedTokenAmount_token
+  }
+`);
 
 const RATIO_DECIMALS = 18;
 const RATIO_FACTOR = 10n ** BigInt(RATIO_DECIMALS);
 
 export interface ToTokenItemProps extends Partial<ListItemProps> {
   account: Address;
-  from: TokenAmount;
+  from: FragmentType<typeof FromFragment>;
+  fromAmount: bigint;
+  to: FragmentType<typeof ToFragment>;
   pool: Pool;
 }
 
-function ToTokenItem({ account, from, pool, ...itemProps }: ToTokenItemProps) {
-  const to = useEstimatedSwap({ account, pool, from });
+function ToTokenItem({
+  account,
+  from: fromFragment,
+  fromAmount,
+  to: toFragment,
+  pool,
+  ...itemProps
+}: ToTokenItemProps) {
+  const from = useFragment(FromFragment, fromFragment);
+  const to = useFragment(ToFragment, toFragment);
 
-  const fromToken = useToken(from.token);
-  const toToken = useToken(to.token);
+  const { amount: toAmount } = useEstimatedSwap({
+    account,
+    pool,
+    from: { token: from.address, amount: fromAmount },
+  });
 
-  const ratioFromAmount = from.amount || 10n ** BigInt(fromToken.decimals);
+  const ratioFromAmount = fromAmount || 10n ** BigInt(from.decimals);
   const { amount: ratioToAmount } = useEstimatedSwap({
     account,
     pool,
-    from: { ...from, amount: ratioFromAmount },
+    from: { token: from.address, amount: ratioFromAmount },
   });
-
   const ratio =
-    (ratioToAmount * RATIO_FACTOR) /
-    convertDecimals(ratioFromAmount, fromToken.decimals, toToken.decimals);
+    (ratioToAmount * RATIO_FACTOR) / convertDecimals(ratioFromAmount, from.decimals, to.decimals);
 
   return (
     <ListItem
-      leading={to.token}
+      leading={to.address}
       overline="To (estimated)"
-      headline={useFormattedTokenAmount(to)}
+      headline={useFormattedTokenAmount({
+        token: to,
+        amount: toAmount,
+      })}
       trailing={useFormattedNumber({
         value: ratio,
         decimals: RATIO_DECIMALS,
         maximumFractionDigits: 3,
         minimumNumberFractionDigits: 4,
-        postFormat: (v) => `${v}/${fromToken.symbol}`,
+        postFormat: (v) => `${v}/${from.symbol}`,
       })}
       {...itemProps}
     />

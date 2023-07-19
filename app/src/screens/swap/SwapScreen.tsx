@@ -1,8 +1,7 @@
 import { usePropose } from '@api/proposal';
-import { fiatToToken, fiatAsBigInt, FIAT_DECIMALS, valueAsTokenAmount } from '@token/fiat';
-import { useTokenPriceData } from '@uniswap/useTokenPrice';
+import { FIAT_DECIMALS, valueAsTokenAmount } from '@token/fiat';
 import { parseUnits } from 'ethers/lib/utils';
-import { Address, compareAddress } from 'lib';
+import { Address } from 'lib';
 import { useState } from 'react';
 import { InputType, InputsView } from '~/components/InputsView';
 import { ScreenSkeleton } from '~/components/skeleton/ScreenSkeleton';
@@ -16,7 +15,6 @@ import { Appbar } from '~/components/Appbar/Appbar';
 import { View } from 'react-native';
 import { NumericInput } from '~/components/fields/NumericInput';
 import { SwapTokens } from './SwapTokens';
-import deepEqual from 'fast-deep-equal';
 import { getSwapOperations, useSwapPools } from '~/util/swap';
 import { DateTime } from 'luxon';
 import { Button } from '~/components/Button';
@@ -37,11 +35,18 @@ gql(/* GraphQL */ `
         current
       }
       ...InputsView_token @arguments(account: $account)
+      ...SwapTokens_fromToken
     }
 
     to: token(input: { address: $to }) @skip(if: $skipTo) {
       id
       symbol
+      ...SwapTokens_toToken
+    }
+
+    tokens {
+      id
+      address
     }
   }
 `);
@@ -60,7 +65,7 @@ export const SwapScreen = withSuspense(({ route, navigation: { navigate } }: Swa
   const [fromAddress, setFromAddress] = useState(useSelectedToken().address);
   const [toAddress, setToAddress] = useState<Address | undefined>();
 
-  const { from, to } = useSuspenseQuery<SwapScreenQuery, SwapScreenQueryVariables>(
+  const { from, to, tokens } = useSuspenseQuery<SwapScreenQuery, SwapScreenQueryVariables>(
     SwapScreenDocument,
     { variables: { account, from: fromAddress, to: toAddress || ETH_ADDRESS, skipTo: !toAddress } },
   ).data;
@@ -68,11 +73,11 @@ export const SwapScreen = withSuspense(({ route, navigation: { navigate } }: Swa
   const [input, setInput] = useState('');
   const [type, setType] = useState(InputType.Fiat);
 
-  const pools = useSwapPools();
-  const pair = toAddress
-    ? ([fromAddress, toAddress].sort(compareAddress) as [Address, Address])
-    : undefined;
-  const pool = pair ? pools.find((p) => deepEqual(p.pair, pair)) : undefined;
+  const pools = useSwapPools(
+    fromAddress,
+    tokens.map((t) => t.address),
+  );
+  const pool = toAddress && pools.find((p) => p.pair.includes(toAddress));
 
   if (!from) return null; // TODO: handle
 
@@ -96,11 +101,13 @@ export const SwapScreen = withSuspense(({ route, navigation: { navigate } }: Swa
 
       <SwapTokens
         account={account}
-        from={fromAddress}
-        setFrom={setFromAddress}
+        from={from}
+        setFromAddress={setFromAddress}
         fromAmount={fromAmount}
-        to={toAddress}
-        setTo={setToAddress}
+        to={to}
+        setToAddress={setToAddress}
+        pools={pools}
+        pool={pool}
       />
 
       <Divider horizontalInset />

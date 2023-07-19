@@ -12,7 +12,7 @@ import {
 import _ from 'lodash';
 import { formatUnits } from 'viem';
 import { CHAIN } from '~/util/network/provider';
-import { FIAT_DECIMALS } from './fiat';
+import { FIAT_DECIMALS, fiatAsBigInt } from './fiat';
 
 export type TokenType = 'Native' | 'ERC20';
 
@@ -90,7 +90,5 @@ export interface TokenValueOptions {
 }
 
 export function getTokenValue({ amount, decimals, price }: TokenValueOptions): number {
-  return parseFloat(
-    formatUnits(asBigInt(amount) * BigInt(price * FIAT_DECIMALS), decimals + FIAT_DECIMALS),
-  );
+  return parseFloat(formatUnits(asBigInt(amount) * fiatAsBigInt(price), decimals + FIAT_DECIMALS));
 }

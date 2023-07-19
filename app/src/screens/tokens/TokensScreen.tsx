@@ -33,6 +33,7 @@ export const useSelectToken = TOKEN_EMITTER.createUseSelect('TokensModal');
 export interface TokensScreenParams {
   account: Address;
   disabled?: Address[];
+  enabled?: Address[];
 }
 
 export type TokensScreenProps =
@@ -41,6 +42,7 @@ export type TokensScreenProps =
 
 export const TokensScreen = ({ route }: TokensScreenProps) => {
   const disabled = new Set(route.params.disabled);
+  const enabled = route.params.enabled && new Set(route.params.enabled);
 
   const [query, setQuery] = useState('');
 
@@ -72,7 +74,7 @@ export const TokensScreen = ({ route }: TokensScreenProps) => {
             token={token}
             amount={token.balance}
             onPress={getOnSelect?.(token.address)}
-            disabled={disabled?.has(token.address)}
+            disabled={disabled?.has(token.address) || (enabled && !enabled.has(token.address))}
           />
         )}
         contentContainerStyle={styles.container}
