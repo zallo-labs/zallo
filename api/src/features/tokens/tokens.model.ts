@@ -23,8 +23,8 @@ export class Token extends Node {
   @Field(() => String, { nullable: true })
   iconUri?: string;
 
-  @Field(() => [TokenUnit])
-  units: TokenUnit[];
+  @Field(() => [TokenUnit], { nullable: true })
+  units?: TokenUnit[];
 }
 
 @ObjectType()

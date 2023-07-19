@@ -40,3 +40,9 @@ export class TokenUnitInput {
   @Field(() => Number)
   decimals: number;
 }
+
+@InputType()
+export class BalanceInput {
+  @AddressField()
+  account?: Address;
+}

@@ -1,7 +1,18 @@
 import assert from 'assert';
-import { Address, createIsObj, Erc20__factory, isAddress, ChainKey, tryAsAddress } from 'lib';
+import {
+  Address,
+  createIsObj,
+  Erc20__factory,
+  isAddress,
+  ChainKey,
+  tryAsAddress,
+  BigIntlike,
+  asBigInt,
+} from 'lib';
 import _ from 'lodash';
+import { formatUnits } from 'viem';
 import { CHAIN } from '~/util/network/provider';
+import { FIAT_DECIMALS } from './fiat';
 
 export type TokenType = 'Native' | 'ERC20';
 
@@ -71,3 +82,15 @@ export const convertDecimals = (
 
   return decimalsDiff >= 0 ? amount / factor : amount * factor;
 };
+
+export interface TokenValueOptions {
+  amount: BigIntlike;
+  decimals: number;
+  price: number;
+}
+
+export function getTokenValue({ amount, decimals, price }: TokenValueOptions): number {
+  return parseFloat(
+    formatUnits(asBigInt(amount) * BigInt(price * FIAT_DECIMALS), decimals + FIAT_DECIMALS),
+  );
+}

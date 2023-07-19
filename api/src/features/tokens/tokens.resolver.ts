@@ -1,15 +1,26 @@
-import { ID, Info, Mutation, Query, Resolver } from '@nestjs/graphql';
+import { ID, Info, Mutation, Parent, Query, Resolver } from '@nestjs/graphql';
 import { Token } from './tokens.model';
 import { Input } from '~/decorators/input.decorator';
-import { TokenInput, UpsertTokenInput } from './tokens.input';
+import { BalanceInput, TokenInput, UpsertTokenInput } from './tokens.input';
 import { TokensService } from './tokens.service';
 import { GraphQLResolveInfo } from 'graphql';
 import { getShape } from '../database/database.select';
 import { uuid } from 'edgedb/dist/codecs/ifaces';
+import { Price } from '../prices/prices.model';
+import { ComputedField } from '~/decorators/computed.decorator';
+import { GraphQLBigInt } from 'graphql-scalars';
+import e from '~/edgeql-js';
+import { ProviderService } from '../util/provider/provider.service';
+import { PricesService } from '../prices/prices.service';
+import { getUserCtx } from '~/request/ctx';
 
 @Resolver(() => Token)
 export class TokensResolver {
-  constructor(private service: TokensService) {}
+  constructor(
+    private service: TokensService,
+    private provider: ProviderService,
+    private prices: PricesService,
+  ) {}
 
   @Query(() => Token, { nullable: true })
   async token(@Input() { address: testnetAddress }: TokenInput, @Info() info: GraphQLResolveInfo) {
@@ -19,6 +30,23 @@ export class TokensResolver {
   @Query(() => [Token])
   async tokens(@Info() info: GraphQLResolveInfo) {
     return this.service.select(getShape(info));
+  }
+
+  @ComputedField<typeof e.Token>(() => GraphQLBigInt, { address: true })
+  async balance(
+    @Parent() { address: token }: Token,
+    @Input() { account }: BalanceInput,
+  ): Promise<bigint> {
+    return this.provider.balance({ account: account ?? getUserCtx().accounts[0].address, token });
+  }
+
+  @ComputedField<typeof e.Token>(
+    () => Price,
+    { address: true, ethereumAddress: true },
+    { nullable: true },
+  )
+  async price(@Parent() { address, ethereumAddress }: Token): Promise<Price | null> {
+    return this.prices.price(address, ethereumAddress);
   }
 
   @Mutation(() => Token)

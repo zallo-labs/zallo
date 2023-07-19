@@ -79,6 +79,10 @@ input ApproverInput {
   address: Address
 }
 
+input BalanceInput {
+  account: Address
+}
+
 """
 The `BigInt` scalar type represents non-fractional signed whole numeric values.
 """
@@ -292,6 +296,12 @@ type PolicyState {
   transfers: TransfersConfig!
 }
 
+type Price {
+  current: Float!
+  id: ID!
+  token: Address!
+}
+
 type Proposal {
   account: Account!
   approvals: [Approval!]!
@@ -490,13 +500,15 @@ input TargetsConfigInput {
 
 type Token implements Node {
   address: Address!
+  balance(input: BalanceInput!): BigInt!
   decimals: Float!
   ethereumAddress: Address
   iconUri: String
   id: ID!
   name: String!
+  price: Price
   symbol: String!
-  units: [TokenUnit!]!
+  units: [TokenUnit!]
 }
 
 input TokenInput {

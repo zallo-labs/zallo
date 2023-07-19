@@ -1,7 +1,6 @@
 import { makeStyles } from '@theme/makeStyles';
 import { Tokenlike, useToken } from '@token/useToken';
 import { Image, ImageProps } from 'expo-image';
-import { isPresent } from 'lib';
 import { ImageStyle } from 'react-native';
 import { CircleSkeleton } from '~/components/skeleton/CircleSkeleton';
 import { withSuspense } from '~/components/skeleton/withSuspense';
@@ -17,13 +16,7 @@ export const TokenIcon = withSuspense(
     const styles = useStyles(size);
     const { iconUri } = useToken(tokenlike);
 
-    return (
-      <Image
-        {...imageProps}
-        source={{ uri: iconUri }}
-        style={[style, styles.icon].filter(isPresent)}
-      />
-    );
+    return <Image {...imageProps} source={{ uri: iconUri }} style={[style, styles.icon]} />;
   },
   CircleSkeleton,
 );

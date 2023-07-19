@@ -30,6 +30,7 @@ import { OperationsModule } from './features/operations/operations.module';
 import { SimulationModule } from './features/simulation/simulation.module';
 import { BullModule } from './features/util/bull/bull.module';
 import { TokensModule } from './features/tokens/tokens.module';
+import { PricesModule } from './features/prices/prices.module';
 
 @Module({
   imports: [
@@ -55,6 +56,7 @@ import { TokensModule } from './features/tokens/tokens.module';
     OperationsModule,
     PaymasterModule,
     PoliciesModule,
+    PricesModule,
     ProposalsModule,
     ReceiptsModule,
     SimulationModule,
