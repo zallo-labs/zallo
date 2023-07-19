@@ -58,6 +58,7 @@
     "graphql-ws": "^5.13.1",
     "ioredis": "5.2.5",
     "lib": "workspace:*",
+    "lru-cache": "^10.0.0",
     "luxon": "^3.3.0",
     "nestjs-request-context": "^2.1.0",
     "neverthrow": "^6.0.0",
