@@ -52,7 +52,7 @@ export class AccountsService {
 
     return this.db.query(
       e.select(e.Account, (a) => ({
-        filter_single: address ? { address } : { id: accounts.sort()[0] },
+        filter_single: address ? { address } : { id: accounts[0].id },
         ...shape?.(a),
       })),
     );
@@ -86,7 +86,10 @@ export class AccountsService {
 
     // The account id must be in the user's list of accounts prior to starting the transaction for the globals to be set correctly
     const accountId = uuid1();
-    await this.accountsCache.addCachedAccount({ approver, account: accountId });
+    await this.accountsCache.addCachedAccount({
+      approver,
+      account: { id: accountId, address: account },
+    });
 
     const id = await this.db.transaction(async (db) => {
       const { id } = await e

@@ -61,12 +61,7 @@ export class TransfersResolver {
   ) {
     return asUser(ctx, async () => {
       // Subscribe to all available accounts if none are specified
-      accounts ??= (await this.db.query(
-        e.select(e.Account, (account) => ({
-          filter: e.op(account.id, 'in', e.cast(e.uuid, e.set(...getUserCtx().accounts))),
-          address: true,
-        })).address,
-      )) as Address[];
+      if (!accounts?.length) accounts = getUserCtx().accounts.map((a) => a.address);
 
       return this.pubsub.asyncIterator(accounts.map((account) => getTransferTrigger(account)));
     });

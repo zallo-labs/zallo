@@ -2,14 +2,14 @@ import { Injectable, Logger } from '@nestjs/common';
 import { Address } from 'lib';
 import { InjectRedis } from '@liaoliaots/nestjs-redis';
 import Redis from 'ioredis';
-import { getUserCtx } from '~/request/ctx';
+import { UserAccountContext, getUserCtx } from '~/request/ctx';
 import { DatabaseService } from '../database/database.service';
 import { uuid } from 'edgedb/dist/codecs/ifaces';
 import e from '~/edgeql-js';
 
 interface AdApproverToAccountParams {
   approver: Address;
-  account: uuid;
+  account: UserAccountContext;
 }
 
 const approverUserKey = (approver: Address) => `approver:${approver}:user`;
@@ -21,7 +21,7 @@ export class AccountsCacheService {
 
   private readonly DAY_IN_SECONDS = 60 * 60 * 24;
 
-  async getApproverAccounts(approver: Address): Promise<uuid[]> {
+  async getApproverAccounts(approver: Address): Promise<UserAccountContext[]> {
     const cachedAccounts = await this.getCachedAccounts(approver);
     if (cachedAccounts) return cachedAccounts;
 
@@ -34,12 +34,15 @@ export class AccountsCacheService {
       e.select(selectApprover, () => ({
         user: {
           id: true,
-          accounts: { id: true },
+          accounts: { id: true, address: true },
         },
       })),
     );
 
-    const accounts = a?.user.accounts.map((a) => a.id) ?? [];
+    const accounts =
+      a?.user.accounts.map(
+        (a): UserAccountContext => ({ id: a.id, address: a.address as Address }),
+      ) ?? [];
     if (a) await this.setCachedAccounts(a.user.id, approver, accounts);
 
     return accounts;
@@ -74,15 +77,15 @@ export class AccountsCacheService {
     await this.redis.del(...users.map(userAccountsKey));
   }
 
-  private async getCachedAccounts(approver: Address): Promise<uuid[] | null> {
+  private async getCachedAccounts(approver: Address): Promise<UserAccountContext[] | null> {
     const user = await this.redis.get(approverUserKey(approver));
     if (!user) return null;
 
     const json = await this.redis.get(userAccountsKey(user));
-    return json ? (JSON.parse(json) as uuid[]) : null;
+    return json ? (JSON.parse(json) as UserAccountContext[]) : null;
   }
 
-  private async setCachedAccounts(user: uuid, approver: Address, accounts: uuid[]) {
+  private async setCachedAccounts(user: uuid, approver: Address, accounts: UserAccountContext[]) {
     await this.redis.set(approverUserKey(approver), user, 'EX', this.DAY_IN_SECONDS);
     await this.redis.set(
       userAccountsKey(user),

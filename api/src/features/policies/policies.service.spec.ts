@@ -50,7 +50,7 @@ describe(PoliciesService.name, () => {
     const account = user1Account;
 
     const accountId = uuidv1();
-    userCtx.accounts.push(accountId);
+    userCtx.accounts.push({ id: accountId, address: account });
 
     await e
       .insert(e.Account, {
@@ -63,10 +63,10 @@ describe(PoliciesService.name, () => {
       })
       .run(db.client);
 
-    userAccounts.addCachedAccount.mockImplementation(async (p) => {
-      if (userCtx.approver === p.approver && accountId === p.account)
-        userCtx.accounts.push(accountId);
-    });
+    // userAccounts.addCachedAccount.mockImplementation(async (p) => {
+    //   if (userCtx.approver === p.approver && accountId === p.account)
+    //     userCtx.accounts.push(accountId);
+    // });
 
     await e.insert(e.Approver, { address: userCtx.approver }).unlessConflict().run(db.client);
 

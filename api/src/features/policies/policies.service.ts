@@ -30,6 +30,7 @@ import {
 } from './policies.util';
 import { PolicyState, SatisfiabilityResult } from './policies.model';
 import { proposalTxShape, transactionProposalAsTx } from '../proposals/proposals.uitl';
+import { UserAccountContext } from '~/request/ctx';
 
 interface CreateParams extends CreatePolicyInput {
   accountId?: uuid;
@@ -74,7 +75,7 @@ export class PoliciesService {
       const key = keyArg ?? (await this.getFreeKey(accountId));
       const policy = inputAsPolicy(key, policyInput);
 
-      await this.upsertApprovers(accountId, policy);
+      await this.upsertApprovers({ id: accountId, address: account }, policy);
 
       const proposal = !skipProposal ? await this.proposeState(account, policy) : undefined;
 
@@ -166,7 +167,7 @@ export class PoliciesService {
               account: e.select(p.account, () => ({ filter_single: { address: account } })),
               key,
             },
-            accountId: p.account.id,
+            account: { id: true, address: true },
             state: policyStateShape,
             draft: policyStateShape,
           }))
@@ -181,7 +182,10 @@ export class PoliciesService {
         if (permissions?.transfers)
           policy.permissions.transfers = asTransfersConfig(permissions.transfers);
 
-        await this.upsertApprovers(existing.accountId, policy);
+        await this.upsertApprovers(
+          { id: existing.account.id, address: existing.account.address as Address },
+          policy,
+        );
 
         const proposal = await this.proposeState(account, policy);
 
@@ -314,7 +318,7 @@ export class PoliciesService {
   // These users will have account access until the cache expires.
   // This prevent loss of account access on an accidental draft
   // TODO: consider intended behaviour
-  private async upsertApprovers(account: uuid, policy: Policy) {
+  private async upsertApprovers(account: UserAccountContext, policy: Policy) {
     if (!policy.approvers.size) return;
 
     await Promise.all(

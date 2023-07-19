@@ -83,14 +83,8 @@ export class ProposalsResolver {
     @Context() ctx: GqlContext,
   ) {
     return asUser(ctx, async () => {
-      if (!accounts && !proposals) {
-        accounts = (await this.db.query(
-          e.select(e.Account, (a) => ({
-            filter: e.op(a.id, 'in', e.cast(e.uuid, e.set(...getUserCtx().accounts))),
-            address: true,
-          })).address,
-        )) as Address[];
-      }
+      if (!accounts?.length && !proposals?.length)
+        accounts = getUserCtx().accounts.map((a) => a.address);
 
       return this.pubsub.asyncIterator([
         ...[...(proposals ?? [])].map(getProposalTrigger),

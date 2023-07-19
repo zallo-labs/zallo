@@ -66,7 +66,7 @@ describe(ProposalsService.name, () => {
   }: Partial<ProposeInput> = {}) => {
     // Create account with an active policy
     const accountId = uuidv1();
-    getUserCtx().accounts.push(accountId);
+    getUserCtx().accounts.push({ id: accountId, address: account });
 
     const inserted = await e
       .insert(e.Account, {
