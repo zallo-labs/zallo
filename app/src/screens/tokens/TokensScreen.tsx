@@ -1,18 +1,33 @@
-import { FlatList, StyleSheet } from 'react-native';
-import { Token } from '@token/token';
-import { useSearch } from '@hook/useSearch';
+import { StyleSheet } from 'react-native';
 import { Address } from 'lib';
-import { useTokens } from '@token/useToken';
 import { StackNavigatorScreenProps } from '~/navigation/StackNavigator';
 import { Searchbar } from '~/components/fields/Searchbar';
 import { AppbarBack2 } from '~/components/Appbar/AppbarBack';
 import { SearchIcon } from '@theme/icons';
 import { ListHeader } from '~/components/list/ListHeader';
-import { TokenItem } from '~/components/token/TokenItem';
+import { TokenItem } from '~/components/token/TokenItem2';
 import { Screen } from '~/components/layout/Screen';
 import { EventEmitter } from '~/util/EventEmitter';
+import { useState } from 'react';
+import { gql } from '@api/gen';
+import { useSuspenseQuery } from '@apollo/client';
+import { TokensScreenQuery, TokensScreenQueryVariables } from '@api/gen/graphql';
+import { TokensScreenDocument } from '@api/generated';
+import { FlashList } from '@shopify/flash-list';
+import { ListItemHeight } from '~/components/list/ListItem';
 
-const TOKEN_EMITTER = new EventEmitter<Token>('Token');
+gql(/* GraphQL */ `
+  query TokensScreen($account: Address!, $query: String) {
+    tokens(input: { query: $query }) {
+      id
+      address
+      balance(input: { account: $account })
+      ...TokenItem_token
+    }
+  }
+`);
+
+const TOKEN_EMITTER = new EventEmitter<Address>('Token');
 export const useSelectToken = TOKEN_EMITTER.createUseSelect('TokensModal');
 
 export interface TokensScreenParams {
@@ -25,13 +40,17 @@ export type TokensScreenProps =
   | StackNavigatorScreenProps<'TokensModal'>;
 
 export const TokensScreen = ({ route }: TokensScreenProps) => {
-  const { account } = route.params;
   const disabled = new Set(route.params.disabled);
 
-  const [tokens, searchProps] = useSearch(useTokens(), ['name', 'symbol', 'address']);
+  const [query, setQuery] = useState('');
+
+  const { tokens } = useSuspenseQuery<TokensScreenQuery, TokensScreenQueryVariables>(
+    TokensScreenDocument,
+    { variables: { account: route.params.account, query } },
+  ).data;
 
   const getOnSelect = TOKEN_EMITTER.listeners.size
-    ? (token: Token) => () => TOKEN_EMITTER.emit(token)
+    ? (token: Address) => () => TOKEN_EMITTER.emit(token)
     : undefined;
 
   return (
@@ -41,22 +60,25 @@ export const TokensScreen = ({ route }: TokensScreenProps) => {
         placeholder="Search tokens"
         trailing={SearchIcon}
         inset={route.name === 'Tokens'}
-        {...searchProps}
+        value={query}
+        onChangeText={setQuery}
       />
 
-      <FlatList
+      <FlashList
         data={tokens}
         ListHeaderComponent={<ListHeader>Tokens</ListHeader>}
         renderItem={({ item: token }) => (
           <TokenItem
-            token={token.address}
-            account={account}
-            onPress={getOnSelect?.(token)}
+            token={token}
+            amount={token.balance}
+            onPress={getOnSelect?.(token.address)}
             disabled={disabled?.has(token.address)}
           />
         )}
         contentContainerStyle={styles.container}
         showsVerticalScrollIndicator={false}
+        estimatedItemSize={ListItemHeight.DOUBLE_LINE}
+        keyExtractor={(item) => item.id}
       />
     </Screen>
   );

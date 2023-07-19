@@ -378,7 +378,7 @@ type Query {
   proposals(input: ProposalsInput! = {}): [TransactionProposal!]!
   requestableTokens(input: RequestTokensInput!): [Address!]!
   token(input: TokenInput!): Token
-  tokens: [Token!]!
+  tokens(input: TokensInput! = {}): [Token!]!
   transaction(input: TransactionInput!): Transaction
   transfers(input: TransfersInput! = {}): [Transfer!]!
   user: User!
@@ -523,6 +523,10 @@ type TokenUnit {
 input TokenUnitInput {
   decimals: Float!
   symbol: String!
+}
+
+input TokensInput {
+  query: String
 }
 
 type Transaction {

@@ -1,10 +1,11 @@
 import { Injectable } from '@nestjs/common';
 import { DatabaseService } from '../database/database.service';
-import { UpsertTokenInput } from './tokens.input';
+import { TokensInput, UpsertTokenInput } from './tokens.input';
 import { ShapeFunc } from '../database/database.select';
 import e from '~/edgeql-js';
 import { uuid } from 'edgedb/dist/codecs/ifaces';
 import { Address, isAddress } from 'lib';
+import { or } from '../database/database.util';
 
 @Injectable()
 export class TokensService {
@@ -23,11 +24,18 @@ export class TokensService {
     );
   }
 
-  async select(shape?: ShapeFunc<typeof e.Token>) {
+  async select({ query }: TokensInput = {}, shape?: ShapeFunc<typeof e.Token>) {
     const tokens = await this.db.query(
       e.select(e.Token, (t) => ({
         ...shape?.(t),
         address: true,
+        filter: query
+          ? or(
+              e.op(t.address, 'ilike', query),
+              e.op(t.name, 'ilike', query),
+              e.op(t.symbol, 'ilike', query),
+            )
+          : undefined,
         order_by: [
           {
             expression: t.address,

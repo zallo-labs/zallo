@@ -9,6 +9,12 @@ export class TokenInput {
 }
 
 @InputType()
+export class TokensInput {
+  @Field(() => String, { nullable: true })
+  query?: string;
+}
+
+@InputType()
 export class UpsertTokenInput {
   @AddressField()
   address: Address;

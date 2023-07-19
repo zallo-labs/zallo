@@ -64,7 +64,9 @@ describe('TokensService', () => {
       asUser(user1, async () => {
         const { id } = await upsert();
 
-        expect((await service.select(() => ({ id: true }))).find((t) => t.id === id)).toBeTruthy();
+        expect(
+          (await service.select({}, () => ({ id: true }))).find((t) => t.id === id),
+        ).toBeTruthy();
       }));
 
     it('include global tokens', async () => {
@@ -80,7 +82,9 @@ describe('TokensService', () => {
       );
 
       await asUser(user1, async () => {
-        expect((await service.select(() => ({ id: true }))).find((t) => t.id === id)).toBeTruthy();
+        expect(
+          (await service.select({}, () => ({ id: true }))).find((t) => t.id === id),
+        ).toBeTruthy();
       });
     });
 
@@ -102,7 +106,7 @@ describe('TokensService', () => {
 
         service;
         expect(
-          (await service.select(() => ({ address: true, name: true })))
+          (await service.select({}, () => ({ address: true, name: true })))
             .filter((t) => t.address === address)
             .map((t) => t.name),
         ).toEqual(['second']);
