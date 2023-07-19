@@ -7,18 +7,38 @@ import { ShapeFunc } from '../database/database.select';
 import { selectAccount } from '../accounts/accounts.util';
 import { uuid } from 'edgedb/dist/codecs/ifaces';
 import { Shape } from '../database/database.select';
+import { PricesService } from '../prices/prices.service';
+import { Address, BigIntlike } from 'lib';
+import { formatUnits } from 'viem';
 
 export const TRANSFER_VALUE_FIELDS_SHAPE = {
-  token: true,
+  token: {
+    address: true,
+    ethereumAddress: true,
+    decimals: true,
+  },
   amount: true,
   direction: true,
 } satisfies Shape<typeof e.TransferDetails>;
 const s = e.select(e.TransferDetails, () => TRANSFER_VALUE_FIELDS_SHAPE);
 export type TransferValueSelectFields = $infer<typeof s>[0];
 
+const FIAT_DECIMALS = 8;
+const fiatAsBigInt = (value: number): bigint => BigInt(Math.floor(value * 10 ** FIAT_DECIMALS));
+
+export interface TokenValueOptions {
+  amount: BigIntlike;
+  decimals: number;
+  price: number;
+}
+
+export function getTokenValue({ amount, decimals, price }: TokenValueOptions): number {
+  return parseFloat(formatUnits(BigInt(amount) * fiatAsBigInt(price), decimals + FIAT_DECIMALS));
+}
+
 @Injectable()
 export class TransfersService {
-  constructor(private db: DatabaseService) {}
+  constructor(private db: DatabaseService, private prices: PricesService) {}
 
   async selectUnique(id: uuid, shape?: ShapeFunc<typeof e.Transfer>) {
     return this.db.query(
@@ -47,9 +67,17 @@ export class TransfersService {
     );
   }
 
-  async value(f: TransferValueSelectFields): Promise<bigint> {
-    const v = f.amount; // TODO: multiply by price
+  async value({ token, amount, direction }: TransferValueSelectFields): Promise<number | null> {
+    if (!token) return null;
 
-    return f.direction === 'In' ? v : -v;
+    const p = await this.prices.price(
+      token.address as Address,
+      token.ethereumAddress as Address | undefined,
+    );
+    if (!p) return null;
+
+    const value = getTokenValue({ amount, decimals: token.decimals, price: p.current });
+
+    return direction === 'In' ? value : -value;
   }
 }

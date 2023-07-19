@@ -9,7 +9,7 @@ import { asBigInt } from 'lib';
 
 const FragmentDoc = gql(/* GraphQL */ `
   fragment IncomingTransferItem_TransferFragment on Transfer {
-    token
+    tokenAddress
     from
     timestamp
     value
@@ -25,14 +25,16 @@ export const IncomingTransferItem = withSuspense((props: IncomingTransferItemPro
 
   return (
     <ListItem
-      leading={transfer.token}
+      leading={transfer.tokenAddress}
       headline={`Transfer from ${useAddressLabel(transfer.from)}`}
       supporting={<Timestamp timestamp={transfer.timestamp} weekday />}
-      trailing={({ Text }) => (
-        <Text variant="labelLarge">
-          <FiatValue value={asBigInt(transfer.value)} />
-        </Text>
-      )}
+      trailing={({ Text }) =>
+        transfer.value !== null && transfer.value !== undefined ? (
+          <Text variant="labelLarge">
+            <FiatValue value={asBigInt(transfer.value)} />
+          </Text>
+        ) : null
+      }
     />
   );
 }, <ListItemSkeleton leading supporting />);

@@ -4,7 +4,7 @@ import { FiatValue } from '~/components/fiat/FiatValue';
 import { ListHeader } from '~/components/list/ListHeader';
 import { withSuspense } from '~/components/skeleton/withSuspense';
 import { TabScreenSkeleton } from '~/components/tab/TabScreenSkeleton';
-import { TokenItem } from '~/components/token/TokenItem';
+import { TokenItem } from '~/components/token/TokenItem2';
 import { TabNavigatorScreenProp } from './Tabs';
 import { FeeToken } from './FeeToken';
 import { OperationSection } from './OperationSection';
@@ -13,6 +13,7 @@ import { gql, useFragment } from '@api/gen';
 import { useSuspenseQuery } from '@apollo/client';
 import { DetailsTabQuery, DetailsTabQueryVariables } from '@api/gen/graphql';
 import { DetailsTabDocument, useDetailsTabSubscriptionSubscription } from '@api/generated';
+import { Text } from 'react-native-paper';
 
 gql(/* GraphQL */ `
   query DetailsTab($proposal: Bytes32!) {
@@ -38,7 +39,10 @@ const FragmentDoc = gql(/* GraphQL */ `
         id
         transferEvents {
           id
-          token
+          tokenAddress
+          token {
+            ...TokenItem_token
+          }
           amount
           value
         }
@@ -48,7 +52,10 @@ const FragmentDoc = gql(/* GraphQL */ `
       id
       transfers {
         id
-        token
+        tokenAddress
+        token {
+          ...TokenItem_token
+        }
         amount
         value
       }
@@ -99,7 +106,7 @@ export const DetailsTab = withSuspense(({ route }: DetailsTabProps) => {
       <ListHeader
         trailing={({ Text }) => (
           <Text>
-            <FiatValue value={transfers.reduce((sum, t) => sum + asBigInt(t.value), 0n)} />
+            <FiatValue value={transfers.reduce((sum, t) => sum + asBigInt(t.value ?? 0), 0n)} />
           </Text>
         )}
       >
@@ -107,9 +114,13 @@ export const DetailsTab = withSuspense(({ route }: DetailsTabProps) => {
       </ListHeader>
       <FeeToken proposal={p} />
 
-      {transfers.map((t, i) => (
-        <TokenItem key={i} account={p.account.address} token={t.token} amount={t.amount} />
-      ))}
+      {transfers.map((t) =>
+        t.token ? (
+          <TokenItem key={t.id} token={t.token} amount={t.amount} />
+        ) : (
+          <Text key={t.id}>{`${t.tokenAddress}: ${t.amount}`}</Text>
+        ),
+      )}
     </ScrollView>
   );
 }, TabScreenSkeleton);

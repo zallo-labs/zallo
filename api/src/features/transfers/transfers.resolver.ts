@@ -12,19 +12,11 @@ import { Input, InputArgs } from '~/decorators/input.decorator';
 import { GqlContext, asUser, getUserCtx } from '~/request/ctx';
 import { PubsubService } from '../util/pubsub/pubsub.service';
 import { TransferSubscriptionPayload, getTransferTrigger } from './transfers.events';
-import { DatabaseService } from '../database/database.service';
-import e from '~/edgeql-js';
-import { Address } from 'lib';
 import { ComputedField } from '~/decorators/computed.decorator';
-import { GraphQLBigInt } from 'graphql-scalars';
 
 @Resolver(() => TransferDetails)
 export class TransfersResolver {
-  constructor(
-    private service: TransfersService,
-    private db: DatabaseService,
-    private pubsub: PubsubService,
-  ) {}
+  constructor(private service: TransfersService, private pubsub: PubsubService) {}
 
   @Query(() => [Transfer])
   async transfers(
@@ -67,8 +59,8 @@ export class TransfersResolver {
     });
   }
 
-  @ComputedField(() => GraphQLBigInt, TRANSFER_VALUE_FIELDS_SHAPE)
-  async value(@Parent() parent: TransferValueSelectFields): Promise<bigint> {
+  @ComputedField(() => Number, TRANSFER_VALUE_FIELDS_SHAPE, { nullable: true })
+  async value(@Parent() parent: TransferValueSelectFields): Promise<number | null> {
     return this.service.value(parent);
   }
 }

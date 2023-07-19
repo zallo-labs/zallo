@@ -65,7 +65,7 @@ export const ProposalItem = withSuspense(
 
     const totalValue = [
       ...(p.transaction?.receipt?.transferEvents ?? p.simulation.transfers),
-    ].reduce((sum, t) => sum + asBigInt(t.value), 0n);
+    ].reduce((sum, t) => sum + asBigInt(t.value ?? 0n), 0n);
 
     const supporting = match(p)
       .returnType<ListItemProps['supporting']>()
