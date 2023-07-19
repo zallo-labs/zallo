@@ -65,7 +65,6 @@ export const ContactsScreen = withSuspense(
               />
             ),
           ]}
-          inset
           value={query}
           onChangeText={setQuery}
         />

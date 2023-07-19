@@ -72,7 +72,7 @@ export function FeeToken(props: FeeTokenProps) {
       {...(p.updatable && {
         onPress: async () => {
           const token = await selectToken({ account: p.account.address });
-          await update({ variables: { hash: p.hash, feeToken: token.address } });
+          await update({ variables: { hash: p.hash, feeToken: token } });
         },
       })}
     />

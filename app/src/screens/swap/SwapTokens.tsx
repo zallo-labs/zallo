@@ -46,7 +46,7 @@ export function SwapTokens({
   const selectFrom = async () => {
     const disabled = allTokens.filter((t) => !pools.some((p) => p.pair.includes(t)));
 
-    const token = (await selectToken({ account, disabled })).address;
+    const token = await selectToken({ account, disabled });
     if (token === to) setTo(from);
     setFrom(token);
   };
@@ -56,8 +56,7 @@ export function SwapTokens({
       (t) => !pools.some((p) => deepEqual(p.pair, [from, t].sort(compareAddress))),
     );
 
-    const token = (await selectToken({ account, disabled: to ? disabled : [from, ...disabled] }))
-      .address;
+    const token = await selectToken({ account, disabled: to ? disabled : [from, ...disabled] });
     if (token === from && to) setFrom(to);
     setTo(token);
   };

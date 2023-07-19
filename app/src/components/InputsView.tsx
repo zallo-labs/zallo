@@ -1,17 +1,28 @@
+import { FragmentType, gql, useFragment } from '@api/gen';
 import { SwapVerticalIcon } from '@theme/icons';
 import { makeStyles } from '@theme/makeStyles';
-import { fiatAsBigInt, fiatToToken, tokenToFiat } from '@token/fiat';
-import { Token } from '@token/token';
-import { useTokenBalance } from '@token/useTokenBalance';
-import { useTokenPriceData } from '@uniswap/useTokenPrice';
+import { fiatAsBigInt, tokenToFiat, valueAsTokenAmount } from '@token/fiat';
 import { formatUnits, parseUnits } from 'ethers/lib/utils';
-import { Address } from 'lib';
+import { asBigInt } from 'lib';
 import { Dispatch, SetStateAction } from 'react';
 import { View } from 'react-native';
 import { Button, IconButton, Text } from 'react-native-paper';
 import { FiatValue } from '~/components/fiat/FiatValue';
-import { TokenAmount } from '~/components/token/TokenAmount';
+import { TokenAmount } from '~/components/token/TokenAmount2';
 import { logWarning } from '~/util/analytics';
+
+const FragmentDoc = gql(/* GraphQL */ `
+  fragment InputsView_token on Token @argumentDefinitions(account: { type: "Address!" }) {
+    id
+    decimals
+    balance(input: { account: $account })
+    price {
+      id
+      current
+    }
+    ...TokenAmount_token
+  }
+`);
 
 const BUTTON_WIDTH = 64;
 const ICON_BUTTON_WIDTH = 40;
@@ -22,18 +33,16 @@ export enum InputType {
 }
 
 export interface InputsViewProps {
-  account: Address;
-  token: Token;
+  token: FragmentType<typeof FragmentDoc>;
   input: string;
   setInput: Dispatch<SetStateAction<string>>;
   type: InputType;
   setType: Dispatch<SetStateAction<InputType>>;
 }
 
-export const InputsView = ({ account, token, input, setInput, type, setType }: InputsViewProps) => {
+export const InputsView = ({ input, setInput, type, setType, ...props }: InputsViewProps) => {
   const styles = useStyles();
-  const balance = useTokenBalance(token, account);
-  const price = useTokenPriceData(token).current;
+  const token = useFragment(FragmentDoc, props.token);
 
   const inputAmount = (() => {
     const n = parseFloat(input);
@@ -43,10 +52,12 @@ export const InputsView = ({ account, token, input, setInput, type, setType }: I
   const tokenAmount =
     type === InputType.Token
       ? parseUnits(inputAmount, token.decimals).toBigInt()
-      : fiatToToken(fiatAsBigInt(inputAmount), price, token);
+      : valueAsTokenAmount(parseFloat(inputAmount), token.price?.current ?? 0, token.decimals);
 
   const fiatValue =
-    type === InputType.Token ? tokenToFiat(token, tokenAmount, price) : fiatAsBigInt(inputAmount);
+    type === InputType.Token
+      ? tokenToFiat(tokenAmount, asBigInt(token.price?.current) ?? 0n, token.decimals)
+      : fiatAsBigInt(inputAmount);
 
   return (
     <View style={styles.container}>
@@ -56,7 +67,7 @@ export const InputsView = ({ account, token, input, setInput, type, setType }: I
           labelStyle={styles.button}
           onPress={() => {
             setType(InputType.Token);
-            setInput(formatUnits(balance, token.decimals));
+            setInput(formatUnits(token.balance, token.decimals));
           }}
           onLayout={(e) => {
             if (e.nativeEvent.layout.width !== BUTTON_WIDTH)
@@ -102,7 +113,7 @@ export const InputsView = ({ account, token, input, setInput, type, setType }: I
         ) : undefined}
       </Text>
 
-      {tokenAmount > balance && (
+      {tokenAmount > asBigInt(token.balance) && (
         <Text style={styles.balanceWarning}>Greater than available balance</Text>
       )}
     </View>

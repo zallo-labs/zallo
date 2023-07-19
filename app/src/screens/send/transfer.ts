@@ -1,17 +1,18 @@
-import { TokenType } from '@token/token';
 import { Address, asHex, ERC20_ABI, Operation } from 'lib';
 import { match } from 'ts-pattern';
 import { encodeFunctionData } from 'viem';
+import { ETH_ADDRESS } from 'zksync-web3/build/src/utils';
 
-export const createTransferOp = (
-  token: Address,
-  type: TokenType,
-  to: Address,
-  amount: bigint,
-): Operation =>
-  match(type)
-    .with('Native', () => ({ to, value: amount }))
-    .with('ERC20', () => ({
+export interface TransferOpOptions {
+  token: Address;
+  to: Address;
+  amount: bigint;
+}
+
+export const createTransferOp = ({ token, to, amount }: TransferOpOptions): Operation =>
+  match(token)
+    .with(ETH_ADDRESS, () => ({ to, value: amount }))
+    .otherwise(() => ({
       to: token,
       data: asHex(
         encodeFunctionData({
@@ -20,5 +21,4 @@ export const createTransferOp = (
           args: [to, amount],
         }),
       ),
-    }))
-    .exhaustive();
+    }));

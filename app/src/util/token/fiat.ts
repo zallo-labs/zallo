@@ -11,5 +11,8 @@ export const fiatAsBigInt = (value: string | number): bigint =>
 export const fiatToToken = (fiat: bigint, fiatPrice: bigint, token: Token): bigint =>
   (fiat * 10n ** BigInt(token.decimals)) / fiatPrice;
 
-export const tokenToFiat = (token: Token, amount: bigint, price: bigint): bigint =>
-  (amount * price) / 10n ** BigInt(token.decimals);
+export const tokenToFiat = (amount: bigint, price: bigint, decimals: number): bigint =>
+  (amount * price) / 10n ** BigInt(decimals);
+
+export const valueAsTokenAmount = (value: number, price: number, decimals: number): bigint =>
+  (fiatAsBigInt(value) * 10n ** BigInt(decimals)) / fiatAsBigInt(price);

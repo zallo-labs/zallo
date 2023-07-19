@@ -1,10 +1,9 @@
-import { Operation, ZERO_ADDR, asHex, ERC20_ABI, isPresent } from 'lib';
+import { Operation, ZERO_ADDR, asHex, ERC20_ABI } from 'lib';
 import { EstimateSwapParams, GetSwapOperationsParams, TokenAmount } from '../types';
-import { SYNCSWAP_ROUTER, SYNCSWAP_VAULT, getSyncswapPoolContract } from './contracts';
+import { SYNCSWAP_ROUTER, getSyncswapPoolContract } from './contracts';
 import { ETH, WETH } from '@token/tokens';
 import { encodeAbiParameters, encodeFunctionData } from 'viem';
 import { normalizeSyncswapPoolToken } from './util';
-import { createTransferOp } from '~/screens/send/transfer';
 
 const SLIPPAGE_FACTOR = 10 ** 5;
 const SLIPPAGE_FACTOR_BN = BigInt(SLIPPAGE_FACTOR);

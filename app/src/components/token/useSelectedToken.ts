@@ -25,3 +25,5 @@ const selectedTokenSelector = selector<Token>({
 export const useSelectedToken = () => useRecoilValue(selectedTokenSelector);
 
 export const useSetSelectedToken = () => useSetRecoilState(selectedTokenSelector);
+
+export const useSetSelectedToken2 = () => useSetRecoilState(selectedTokenAddressAtom);
