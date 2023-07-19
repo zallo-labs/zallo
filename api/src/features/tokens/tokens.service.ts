@@ -4,12 +4,14 @@ import { TokensInput, UpsertTokenInput } from './tokens.input';
 import { ShapeFunc } from '../database/database.select';
 import e from '~/edgeql-js';
 import { uuid } from 'edgedb/dist/codecs/ifaces';
-import { Address, isAddress } from 'lib';
+import { Address, ERC20_ABI, isAddress } from 'lib';
 import { or } from '../database/database.util';
+import { ProviderService } from '../util/provider/provider.service';
+import { UserInputError } from '@nestjs/apollo';
 
 @Injectable()
 export class TokensService {
-  constructor(private db: DatabaseService) {}
+  constructor(private db: DatabaseService, private provider: ProviderService) {}
 
   async selectUnique(id: uuid | Address, shape?: ShapeFunc<typeof e.Token>) {
     return this.db.query(
@@ -55,11 +57,26 @@ export class TokensService {
   }
 
   async upsert(token: UpsertTokenInput) {
+    const metadata = await this.getTokenMetadata(token.address);
+
+    const c = { ...metadata, ...token };
+    if (!c.name) throw new UserInputError('Name could not be detected so is required');
+    if (!c.symbol) throw new UserInputError('Symbol could not be detected so is required');
+    if (c.decimals === undefined)
+      throw new UserInputError('Symbol could not be detected so is required');
+
     return this.db.query(
-      e.insert(e.Token, { ...token }).unlessConflict((t) => ({
-        on: e.tuple([t.user, t.address]),
-        else: e.update(t, () => ({ set: token })),
-      })),
+      e
+        .insert(e.Token, {
+          ...c,
+          name: c.name,
+          symbol: c.symbol,
+          decimals: c.decimals,
+        })
+        .unlessConflict((t) => ({
+          on: e.tuple([t.user, t.address]),
+          else: e.update(t, () => ({ set: token })),
+        })),
     );
   }
 
@@ -69,5 +86,48 @@ export class TokensService {
         filter_single: { address, user: e.global.current_user },
       })).id,
     );
+  }
+
+  private async getTokenMetadata(address: Address) {
+    const t = await this.db.query(
+      e.assert_single(
+        e.select(e.Token, (t) => ({
+          filter: e.op(t.address, '=', address),
+          limit: 1,
+          ethereumAddress: true,
+          name: true,
+          symbol: true,
+          decimals: true,
+        })),
+      ),
+    );
+    if (t) return t;
+
+    const [name, symbol, decimals] = await this.provider.client.multicall({
+      contracts: [
+        {
+          abi: ERC20_ABI,
+          address,
+          functionName: 'name',
+        },
+        {
+          abi: ERC20_ABI,
+          address,
+          functionName: 'symbol',
+        },
+        {
+          abi: ERC20_ABI,
+          address,
+          functionName: 'decimals',
+        },
+      ],
+    });
+
+    return {
+      ethereumAddress: null,
+      name: name.result,
+      symbol: symbol.result,
+      decimals: decimals.result,
+    };
   }
 }

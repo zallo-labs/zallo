@@ -23,13 +23,13 @@ export class UpsertTokenInput {
   ethereumAddress?: Address;
 
   @Field(() => String)
-  name: string;
+  name?: string;
 
   @Field(() => String)
-  symbol: string;
+  symbol?: string;
 
   @Field(() => Number)
-  decimals: number;
+  decimals?: number;
 
   @Field(() => String, { nullable: true })
   iconUri?: string;

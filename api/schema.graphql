@@ -758,11 +758,11 @@ input UpsertContactInput {
 
 input UpsertTokenInput {
   address: Address!
-  decimals: Float!
+  decimals: Float
   ethereumAddress: Address
   iconUri: String
-  name: String!
-  symbol: String!
+  name: String
+  symbol: String
   units: [TokenUnitInput!]! = []
 }
 
