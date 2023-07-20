@@ -72,7 +72,7 @@ export class TransactionsService {
         },
         hash: true,
         ...proposalTxShape(p),
-        feeToken: true,
+        feeToken: { address: true },
         approvals: {
           approver: { address: true },
           signature: true,
@@ -137,7 +137,7 @@ export class TransactionsService {
           gasPrice,
           customData: {
             paymasterParams: await this.paymaster.getPaymasterParams({
-              feeToken: proposal.feeToken as Address,
+              feeToken: proposal.feeToken.address as Address,
               gasLimit: proposal.gasLimit,
               gasPrice,
             }),

@@ -24,10 +24,6 @@ export class PaymasterService {
     return asAddress(paymaster);
   }
 
-  async isSupportedFeeToken(token: Address) {
-    return true; // TODO: restrict to supported paymaster tokens
-  }
-
   async getPaymasterParams({ feeToken, gasPrice, gasLimit }: GetPaymasterParamsOptions) {
     if (feeToken === ETH_ADDRESS) return undefined;
 

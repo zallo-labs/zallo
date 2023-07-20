@@ -92,7 +92,7 @@ module default {
     }
     required nonce: uint64;
     required gasLimit: uint256 { default := 0n; }
-    required feeToken: Address;
+    required feeToken: Token;
     required simulation: Simulation;
     multi link transactions := .<proposal[is Transaction];
     link transaction := (
@@ -145,14 +145,14 @@ module default {
     required to: Address;
     required tokenAddress: Address;
     required amount: bigint;
-    # link token := (
-    #   assert_single((
-    #     with address := .tokenAddress
-    #     select Token filter .address = address
-    #     order by (exists .user) desc
-    #     limit 1
-    #   ))
-    # );
+    link token := (
+      assert_single((
+        with address := .tokenAddress
+        select Token filter .address = address
+        order by (exists .user) desc
+        limit 1
+      ))
+    );
 
     access policy members_can_select_insert
       allow select, insert

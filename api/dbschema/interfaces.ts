@@ -172,14 +172,15 @@ export interface TargetsConfig extends std.$Object {
   "default": Target;
 }
 export interface Token extends std.$Object {
+  "units"?: {symbol: string, decimals: number}[] | null;
   "user"?: User | null;
   "name": string;
   "symbol": string;
   "decimals": number;
-  "iconUri"?: string | null;
   "ethereumAddress"?: string | null;
-  "units"?: {symbol: string, decimals: number}[] | null;
+  "iconUri"?: string | null;
   "address": string;
+  "isFeeToken": boolean;
 }
 export interface Transaction extends std.$Object {
   "proposal": TransactionProposal;
@@ -191,22 +192,22 @@ export interface Transaction extends std.$Object {
 export interface TransactionProposal extends Proposal {
   "nonce": bigint;
   "operations": Operation[];
-  "feeToken": string;
   "gasLimit": bigint;
   "transactions": Transaction[];
   "transaction"?: Transaction | null;
   "status": TransactionProposalStatus;
   "simulation": Simulation;
+  "feeToken": Token;
 }
 export type TransactionProposalStatus = "Pending" | "Executing" | "Successful" | "Failed";
 export interface TransferDetails extends std.$Object {
   "account": Account;
-  "tokenAddress": string;
-  "token"?: Token | null;
   "amount": bigint;
   "direction": TransferDirection;
   "from": string;
   "to": string;
+  "tokenAddress": string;
+  "token"?: Token | null;
 }
 export interface Transferlike extends Event, TransferDetails {}
 export interface Transfer extends Transferlike {}

@@ -25,6 +25,9 @@ export class Token extends Node {
 
   @Field(() => [TokenUnit], { nullable: true })
   units?: TokenUnit[];
+
+  @Field(() => Boolean)
+  isFeeToken: boolean;
 }
 
 @ObjectType()

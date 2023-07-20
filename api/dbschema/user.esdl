@@ -66,6 +66,7 @@ module default {
     required decimals: uint16;
     iconUri: str;
     units: array<tuple<symbol: Label, decimals: uint16>>;
+    required isFeeToken: bool { default := false; };
 
     constraint exclusive on ((.user, .address));
     constraint exclusive on ((.user, .name));

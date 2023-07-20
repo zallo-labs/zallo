@@ -1,6 +1,7 @@
-import { Token } from '~/edgeql-interfaces';
+import { InsertShape } from '~/edgeql-js/insert';
+import { $Token } from '~/edgeql-js/modules/default';
 
-export const TOKENS: Omit<Token, 'id' | 'user'>[] = [
+export const TOKENS: InsertShape<$Token>[] = [
   {
     name: 'Ether',
     symbol: 'ETH',
@@ -13,6 +14,7 @@ export const TOKENS: Omit<Token, 'id' | 'user'>[] = [
       { symbol: 'WEI', decimals: 1 },
       { symbol: 'GWEI', decimals: 9 },
     ],
+    isFeeToken: true,
   },
   {
     name: 'Wrapped ETH',
@@ -22,6 +24,7 @@ export const TOKENS: Omit<Token, 'id' | 'user'>[] = [
     ethereumAddress: '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2',
     iconUri:
       'https://cloudfront-us-east-1.images.arcpublishing.com/coindesk/ZJZZK5B2ZNF25LYQHMUTBTOMLU.png',
+    isFeeToken: true,
   },
   {
     name: 'Dai',
@@ -31,6 +34,7 @@ export const TOKENS: Omit<Token, 'id' | 'user'>[] = [
     ethereumAddress: '0x6B175474E89094C44Da98b954EedeAC495271d0F',
     iconUri:
       'https://raw.githubusercontent.com/compound-finance/token-list/master/assets/asset_DAI.svg',
+    isFeeToken: true,
   },
   {
     name: 'USD Coin',
@@ -40,6 +44,17 @@ export const TOKENS: Omit<Token, 'id' | 'user'>[] = [
     ethereumAddress: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
     iconUri:
       'https://raw.githubusercontent.com/compound-finance/token-list/master/assets/asset_USDC.svg',
+    isFeeToken: true,
+  },
+  {
+    name: 'Tether USD',
+    symbol: 'USDT',
+    decimals: 6,
+    address: '0xfcEd12dEbc831D3a84931c63687C395837D42c2B',
+    ethereumAddress: '0xdac17f958d2ee523a2206206994597c13d831ec7',
+    iconUri:
+      'https://raw.githubusercontent.com/compound-finance/token-list/master/assets/asset_USDT.svg',
+    isFeeToken: true,
   },
   {
     name: 'Wrapped Bitcoin',
@@ -56,15 +71,6 @@ export const TOKENS: Omit<Token, 'id' | 'user'>[] = [
     address: '0x40609141Db628BeEE3BfAB8034Fc2D8278D0Cc78',
     ethereumAddress: '0x514910771af9ca656af840dff83e8264ecf986ca',
     iconUri: 'https://s2.coinmarketcap.com/static/img/coins/64x64/1975.png',
-  },
-  {
-    name: 'Tether USD',
-    symbol: 'USDT',
-    decimals: 6,
-    address: '0xfcEd12dEbc831D3a84931c63687C395837D42c2B',
-    ethereumAddress: '0xdac17f958d2ee523a2206206994597c13d831ec7',
-    iconUri:
-      'https://raw.githubusercontent.com/compound-finance/token-list/master/assets/asset_USDT.svg',
   },
   {
     name: 'Curve DAO',

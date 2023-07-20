@@ -98,6 +98,7 @@ export class TokensService {
           name: true,
           symbol: true,
           decimals: true,
+          isFeeToken: true,
         })),
       ),
     );
@@ -128,6 +129,7 @@ export class TokensService {
       name: name.result,
       symbol: symbol.result,
       decimals: decimals.result,
+      isFeeToken: false,
     };
   }
 }

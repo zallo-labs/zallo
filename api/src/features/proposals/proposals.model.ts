@@ -2,7 +2,6 @@ import { Field, ObjectType, registerEnumType } from '@nestjs/graphql';
 import { GraphQLBigInt } from 'graphql-scalars';
 import { Account } from '../accounts/accounts.model';
 import { Policy } from '../policies/policies.model';
-import { AddressField } from '~/apollo/scalars/Address.scalar';
 import { Bytes32Field } from '~/apollo/scalars/Bytes.scalar';
 import { Transaction } from '../transactions/transactions.model';
 import { IdField } from '~/apollo/scalars/Id.scalar';
@@ -10,6 +9,7 @@ import { TransferDetails } from '../transfers/transfers.model';
 import { uuid } from 'edgedb/dist/codecs/ifaces';
 import { Operation } from '../operations/operations.model';
 import { Approver } from '../approvers/approvers.model';
+import { Token } from '../tokens/tokens.model';
 
 @ObjectType({ isAbstract: true })
 export class Proposal {
@@ -67,8 +67,8 @@ export class TransactionProposal extends Proposal {
   @Field(() => GraphQLBigInt)
   gasLimit: bigint;
 
-  @AddressField()
-  feeToken: string; // Address
+  @Field(() => Token)
+  feeToken: Token;
 
   @Field(() => Simulation)
   simulation: Simulation;

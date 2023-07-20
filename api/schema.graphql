@@ -547,7 +547,7 @@ type TransactionProposal {
   account: Account!
   approvals: [Approval!]!
   createdAt: DateTime!
-  feeToken: Address!
+  feeToken: Token!
   gasLimit: BigInt!
   hash: Bytes32!
   id: ID!

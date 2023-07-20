@@ -18,6 +18,7 @@ import {
 import assert from 'assert';
 import { PolicyInput } from './policies.input';
 import { v1 as uuidv1 } from 'uuid';
+import { TOKENS } from '../tokens/tokens.list';
 
 describe(PoliciesService.name, () => {
   let service: PoliciesService;
@@ -78,7 +79,7 @@ describe(PoliciesService.name, () => {
           account: e.select(e.Account, () => ({ filter_single: { address: account } })),
           operations: e.insert(e.Operation, { to: ZERO_ADDR }),
           nonce: nonce++,
-          feeToken: ZERO_ADDR,
+          feeToken: e.insert(e.Token, TOKENS[0]),
           simulation: e.insert(e.Simulation, {}),
         })
         .run(db.client);

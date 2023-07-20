@@ -104,9 +104,6 @@ export class ProposalsService {
       });
       const hash = await hashTx(tx, { address: account, provider: this.provider });
 
-      if (!(await this.paymaster.isSupportedFeeToken(feeToken)))
-        throw new UserInputError(`Fee token not supported: ${feeToken}`);
-
       const { id } = await e
         .insert(e.TransactionProposal, {
           hash,
@@ -123,7 +120,7 @@ export class ProposalsService {
           ),
           nonce: tx.nonce,
           gasLimit: gasLimit || (await estimateOpGas(this.provider, tx)),
-          feeToken,
+          feeToken: await this.selectAndValidateFeeToken(feeToken),
           simulation: await this.simulation.getInsert(account, tx),
         })
         .run(db);
@@ -184,9 +181,10 @@ export class ProposalsService {
     await this.publishProposal(id, ProposalEvent.rejection);
   }
 
-  async update({ hash, policy, feeToken }: UpdateProposalInput) {
-    if (feeToken !== undefined && !(await this.paymaster.isSupportedFeeToken(feeToken)))
-      throw new UserInputError(`Fee token not supported: ${feeToken}`);
+  async update({ hash, policy, feeToken: feeTokenAddress }: UpdateProposalInput) {
+    const feeToken = feeTokenAddress
+      ? await this.selectAndValidateFeeToken(feeTokenAddress)
+      : undefined;
 
     const updatedProposal = e.assert_single(
       e.update(e.TransactionProposal, (p) => ({
@@ -205,7 +203,7 @@ export class ProposalsService {
               ? e.select(e.Policy, () => ({ filter_single: { account: p.account, key: policy } }))
               : null,
           }),
-          ...(feeToken !== undefined && { feeToken }), // TODO: validate paymaster supports fee tokens
+          feeToken,
         },
       })),
     );
@@ -288,6 +286,22 @@ export class ProposalsService {
       this.pubsub.publish<ProposalSubscriptionPayload>(getProposalTrigger(hash), payload),
       this.pubsub.publish<ProposalSubscriptionPayload>(getProposalAccountTrigger(account), payload),
     ]);
+  }
+
+  private async selectAndValidateFeeToken(feeTokenAddress: Address) {
+    const select = e.assert_single(
+      e.select(e.Token, (t) => ({
+        filter: e.op(t.address, '=', feeTokenAddress),
+        limit: 1,
+        id: true,
+        isFeeToken: true,
+      })),
+    );
+
+    const t = await this.db.query(select);
+    if (!t?.isFeeToken) throw new UserInputError(`Fee token is not supported; ${feeTokenAddress}`);
+
+    return select;
   }
 
   // private async notifyApprovers(proposalId: string) {
