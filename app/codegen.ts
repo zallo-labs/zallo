@@ -65,10 +65,5 @@ export default {
         flattenGeneratedTypes: true,
       },
     },
-    'src/gql/uniswap/generated.ts': {
-      schema: 'https://api.thegraph.com/subgraphs/name/uniswap/uniswap-v3',
-      documents: 'src/gql/uniswap/**/*.ts',
-      plugins,
-    },
   },
 } satisfies CodegenConfig;
