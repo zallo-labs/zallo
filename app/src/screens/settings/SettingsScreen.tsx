@@ -7,7 +7,6 @@ import {
   WalletConnectIcon,
 } from '@theme/icons';
 import { makeStyles } from '@theme/makeStyles';
-import { ETH } from '@token/tokens';
 import { Image } from 'expo-image';
 import { ScrollView, TouchableOpacity } from 'react-native';
 import { Text } from 'react-native-paper';
@@ -24,6 +23,7 @@ import { gql } from '@api/gen';
 import { useSuspenseQuery } from '@apollo/client';
 import { SettingsDocument, SettingsQuery, SettingsQueryVariables } from '@api/generated';
 import { ICON_SIZE } from '@theme/paper';
+import { ETH_ICON_URI } from '~/components/token/TokenIcon/TokenIcon';
 
 gql(/* GraphQL */ `
   query Settings {
@@ -79,7 +79,7 @@ export const SettingsScreen = ({ route, navigation: { navigate } }: SettingsScre
         />
 
         <ListItem
-          leading={() => <Image source={ETH.iconUri} style={styles.icon} />}
+          leading={() => <Image source={ETH_ICON_URI} style={styles.icon} />}
           headline="Tokens"
           trailing={NavigateNextIcon}
           onPress={() => navigate('Tokens', { account })}

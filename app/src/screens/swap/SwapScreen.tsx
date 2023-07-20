@@ -1,7 +1,6 @@
 import { usePropose } from '@api/proposal';
-import { FIAT_DECIMALS, valueAsTokenAmount } from '@token/fiat';
 import { parseUnits } from 'ethers/lib/utils';
-import { Address } from 'lib';
+import { Address, FIAT_DECIMALS, valueAsTokenAmount } from 'lib';
 import { useState } from 'react';
 import { InputType, InputsView } from '~/components/InputsView';
 import { ScreenSkeleton } from '~/components/skeleton/ScreenSkeleton';
@@ -62,7 +61,7 @@ export const SwapScreen = withSuspense(({ route, navigation: { navigate } }: Swa
   const styles = useStyles();
   const propose = usePropose();
 
-  const [fromAddress, setFromAddress] = useState(useSelectedToken().address);
+  const [fromAddress, setFromAddress] = useState(useSelectedToken());
   const [toAddress, setToAddress] = useState<Address | undefined>();
 
   const { from, to, tokens } = useSuspenseQuery<SwapScreenQuery, SwapScreenQueryVariables>(

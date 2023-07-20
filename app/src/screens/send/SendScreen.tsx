@@ -1,8 +1,7 @@
 import { usePropose } from '@api/proposal';
 import { CloseIcon } from '@theme/icons';
-import { FIAT_DECIMALS, valueAsTokenAmount } from '@token/fiat';
 import { parseUnits } from 'ethers/lib/utils';
-import { Address } from 'lib';
+import { Address, FIAT_DECIMALS, valueAsTokenAmount } from 'lib';
 import { useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 import { Appbar, Divider } from 'react-native-paper';
@@ -12,7 +11,7 @@ import { Screen } from '~/components/layout/Screen';
 import { ScreenSkeleton } from '~/components/skeleton/ScreenSkeleton';
 import { withSuspense } from '~/components/skeleton/withSuspense';
 import { TokenItem } from '~/components/token/TokenItem';
-import { useSelectedToken, useSetSelectedToken2 } from '~/components/token/useSelectedToken';
+import { useSelectedToken, useSetSelectedToken } from '~/components/token/useSelectedToken';
 import { StackNavigatorScreenProps } from '~/navigation/StackNavigator';
 import { InputsView, InputType } from '../../components/InputsView';
 import { useSelectToken } from '../tokens/TokensScreen';
@@ -54,11 +53,11 @@ export const SendScreen = withSuspense(
 
     const { token } = useSuspenseQuery<SendScreenQuery, SendScreenQueryVariables>(
       SendScreenDocument,
-      { variables: { account: route.params.account, token: useSelectedToken().address } },
+      { variables: { account: route.params.account, token: useSelectedToken() } },
     ).data;
 
     const selectToken = useSelectToken();
-    const setToken = useSetSelectedToken2();
+    const setToken = useSetSelectedToken();
 
     const [input, setInput] = useState('');
     const [type, setType] = useState(InputType.Fiat);

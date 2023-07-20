@@ -1,9 +1,9 @@
 import { Operation, ZERO_ADDR, asHex, ERC20_ABI } from 'lib';
 import { EstimateSwapParams, GetSwapOperationsParams, TokenAmount } from '../types';
 import { SYNCSWAP_ROUTER, getSyncswapPoolContract } from './contracts';
-import { ETH, WETH } from '@token/tokens';
 import { encodeAbiParameters, encodeFunctionData } from 'viem';
-import { normalizeSyncswapPoolToken } from './util';
+import { WETH_ADDRESS, normalizeSyncswapPoolToken } from './util';
+import { ETH_ADDRESS } from 'zksync-web3/build/src/utils';
 
 const SLIPPAGE_FACTOR = 10 ** 5;
 const SLIPPAGE_FACTOR_BN = BigInt(SLIPPAGE_FACTOR);
@@ -38,7 +38,7 @@ export const getSwapOperations = async ({
   // 0 - vault internal transfer
   // 1 - withdraw and unwrap to naitve ETH
   // 2 - withdraw and wrap to wETH
-  const withdrawMode = from.token === WETH.address ? 2 : 1;
+  const withdrawMode = from.token === WETH_ADDRESS ? 2 : 1;
 
   const estimated = await estimateSwap({ pool, account, from });
 
@@ -47,7 +47,7 @@ export const getSwapOperations = async ({
     SLIPPAGE_FACTOR_BN;
 
   const transferOp: Operation | undefined =
-    from.token !== ETH.address
+    from.token !== ETH_ADDRESS
       ? {
           to: from.token,
           data: asHex(

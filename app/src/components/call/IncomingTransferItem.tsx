@@ -6,10 +6,14 @@ import { withSuspense } from '~/components/skeleton/withSuspense';
 import { FiatValue } from '~/components/fiat/FiatValue';
 import { FragmentType, gql, useFragment } from '@api/gen';
 import { asBigInt } from 'lib';
+import { TokenIcon } from '../token/TokenIcon/TokenIcon';
 
 const FragmentDoc = gql(/* GraphQL */ `
   fragment IncomingTransferItem_TransferFragment on Transfer {
-    tokenAddress
+    token {
+      id
+      ...TokenIcon_token
+    }
     from
     timestamp
     value
@@ -25,7 +29,7 @@ export const IncomingTransferItem = withSuspense((props: IncomingTransferItemPro
 
   return (
     <ListItem
-      leading={transfer.tokenAddress}
+      leading={(props) => <TokenIcon token={transfer.token} {...props} />}
       headline={`Transfer from ${useAddressLabel(transfer.from)}`}
       supporting={<Timestamp timestamp={transfer.timestamp} weekday />}
       trailing={({ Text }) =>

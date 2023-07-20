@@ -1,5 +1,3 @@
-import { ETH } from '@token/tokens';
-import { useMaybeToken } from '@token/useToken';
 import { Timestamp } from '~/components/format/Timestamp';
 import { ListItem, ListItemProps } from '~/components/list/ListItem';
 import { withSuspense } from '~/components/skeleton/withSuspense';
@@ -14,6 +12,7 @@ import { FragmentType, gql, useFragment } from '@api/gen';
 import { OperationLabel } from '../call/OperationLabel';
 import { useCanRespond } from './useCanRespond';
 import { useNavigation } from '@react-navigation/native';
+import { ETH_ICON_URI, TokenIcon } from '../token/TokenIcon/TokenIcon';
 
 const FragmentDoc = gql(/* GraphQL */ `
   fragment ProposalItem_TransactionProposalFragment on TransactionProposal {
@@ -58,7 +57,6 @@ export const ProposalItem = withSuspense(
     const styles = useStyles();
     const p = useFragment(FragmentDoc, proposalFragment);
     const { navigate } = useNavigation();
-    const token = useMaybeToken(p.operations[0].to) ?? ETH;
     const { canApprove } = useCanRespond(p);
 
     const isMulti = p.operations.length > 1;
@@ -87,10 +85,12 @@ export const ProposalItem = withSuspense(
 
     return (
       <ListItem
-        leading={
-          isMulti
-            ? (props) => <MultiOperationIcon {...props} size={ICON_SIZE.medium} />
-            : token.address
+        leading={(props) =>
+          isMulti ? (
+            <MultiOperationIcon {...props} size={ICON_SIZE.medium} />
+          ) : (
+            <TokenIcon token={p.operations[0].to} fallbackUri={ETH_ICON_URI} {...props} />
+          )
         }
         headline={
           p.label ??

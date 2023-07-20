@@ -1,7 +1,6 @@
 import { match, P } from 'ts-pattern';
 import { useAddressLabel } from '../address/AddressLabel';
 import { usePolicy } from '@api/policy';
-import { useToken } from '@token/useToken';
 import { useFormattedTokenAmount } from '../token/TokenAmount';
 import { FragmentType, gql, useFragment } from '@api/gen';
 
@@ -65,15 +64,15 @@ export function OperationLabel(props: OperationLabelProps) {
     )
     .with(
       { __typename: 'TransferFromOp' },
-      (f) => `Transfer ${useToken(f.token).name} from ${useAddressLabel(f.from)}`,
+      (f) => `Transfer ${useAddressLabel(f.token)} from ${useAddressLabel(f.from)}`,
     )
     .with(
       { __typename: 'TransferApprovalOp' },
-      (f) => `Allow ${useAddressLabel(f.spender)} to spend ${useToken(f.token).name}`,
+      (f) => `Allow ${useAddressLabel(f.spender)} to spend ${useAddressLabel(f.token)}`,
     )
     .with(
       { __typename: 'SwapOp' },
-      (f) => `Swap ${useToken(f.fromToken).name} for ${useToken(f.toToken).name}`,
+      (f) => `Swap ${useAddressLabel(f.fromToken)} for ${useAddressLabel(f.toToken)}`,
     )
     .with({ __typename: 'GenericOp' }, (f) => `Call ${f._name} on ${useAddressLabel(op.to)}`)
     .with(P.nullish, () => `Call ${useAddressLabel(op.to)}`)

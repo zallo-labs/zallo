@@ -13,6 +13,7 @@ import { gql } from '@api/gen';
 import { useSuspenseQuery } from '@apollo/client';
 import { ContractsModalQuery, ContractsModalQueryVariables } from '@api/gen/graphql';
 import { ContractsModalDocument } from '@api/generated';
+import { TokenIcon } from '../token/TokenIcon/TokenIcon';
 
 gql(/* GraphQL */ `
   query ContractsModal {
@@ -21,6 +22,7 @@ gql(/* GraphQL */ `
       id
       address
       name
+      ...TokenIcon_token
     }
   }
 `);
@@ -52,7 +54,7 @@ export const ContractsModal = ({ route }: ContractsModalProps) => {
             .with(P.string, (s) => <ListHeader>{s}</ListHeader>)
             .with({ __typename: 'Token' }, (t) => (
               <ListItem
-                leading={t.address}
+                leading={(props) => <TokenIcon token={t} {...props} />}
                 headline={t.name}
                 supporting={truncateAddr(t.address)}
                 trailing={NavigateNextIcon}

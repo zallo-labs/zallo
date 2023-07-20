@@ -6,12 +6,11 @@ import { withSuspense } from '~/components/skeleton/withSuspense';
 import { TabScreenSkeleton } from '~/components/tab/TabScreenSkeleton';
 import { StyleSheet } from 'react-native';
 import { Text } from 'react-native-paper';
-import { Address } from 'lib';
+import { Address, getTokenValue } from 'lib';
 import { gql } from '@api/gen';
 import { useSuspenseQuery } from '@apollo/client';
 import { TokensTabQuery, TokensTabQueryVariables } from '@api/gen/graphql';
 import { TokensTabDocument } from '@api/generated';
-import { getTokenValue } from '@token/token';
 
 gql(/* GraphQL */ `
   query TokensTab($account: Address!) {

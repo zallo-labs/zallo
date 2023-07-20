@@ -1,7 +1,7 @@
 import { NavigateNextIcon } from '@theme/icons';
 import { ListItem } from '~/components/list/ListItem';
 import { useSelectToken } from '../tokens/TokensScreen';
-import { TokenAmount } from '~/components/token/TokenAmount2';
+import { TokenAmount } from '~/components/token/TokenAmount';
 import { FragmentType, gql, useFragment } from '@api/gen';
 import { asBigInt } from 'lib';
 import { useFeeTokenUpdateProposalMutation } from '@api/generated';

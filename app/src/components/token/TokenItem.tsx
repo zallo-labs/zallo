@@ -3,10 +3,10 @@ import { FiatValue } from '../fiat/FiatValue';
 import { ListItem, ListItemProps } from '../list/ListItem';
 import { ListItemSkeleton } from '../list/ListItemSkeleton';
 import { withSuspense } from '../skeleton/withSuspense';
-import { TokenAmount } from './TokenAmount2';
-import { BigIntlike } from 'lib';
+import { TokenAmount } from './TokenAmount';
+import { BigIntlike, getTokenValue } from 'lib';
 import { FragmentType, gql, useFragment } from '@api/gen';
-import { getTokenValue } from '@token/token';
+import { TokenIcon } from './TokenIcon/TokenIcon';
 
 const FragmentDoc = gql(/* GraphQL */ `
   fragment TokenItem_token on Token {
@@ -18,6 +18,7 @@ const FragmentDoc = gql(/* GraphQL */ `
       id
       current
     }
+    ...TokenIcon_token
     ...TokenAmount_token
   }
 `);
@@ -34,7 +35,7 @@ export const TokenItem = withSuspense(
 
     return (
       <ListItem
-        leading={token.address}
+        leading={(props) => <TokenIcon token={token} {...props} />}
         headline={token.name}
         supporting={({ Text }) => (
           <View style={styles.supportingContainer}>

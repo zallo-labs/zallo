@@ -1,7 +1,7 @@
 import { Address } from 'lib';
 import { StyleSheet, View } from 'react-native';
 import { ListItem } from '~/components/list/ListItem';
-import { useFormattedTokenAmount } from '~/components/token/TokenAmount2';
+import { useFormattedTokenAmount } from '~/components/token/TokenAmount';
 import { useSelectToken } from '../tokens/TokensScreen';
 import { Button, IconButton } from 'react-native-paper';
 import { materialCommunityIcon } from '@theme/icons';

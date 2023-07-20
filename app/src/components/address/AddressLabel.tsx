@@ -1,6 +1,4 @@
 import { Address } from 'lib';
-import { useMemo } from 'react';
-import { useMaybeToken } from '@token/useToken';
 import { truncateAddr } from '~/util/format';
 import { gql } from '@api/gen';
 import { useSuspenseQuery } from '@apollo/client';
@@ -14,7 +12,6 @@ gql(/* GraphQL */ `
 `);
 
 export const useAddressLabel = <A extends Address | undefined>(address: A) => {
-  const token = useMaybeToken(address);
   const label = useSuspenseQuery<AddressLabelQuery, AddressLabelQueryVariables>(
     AddressLabelDocument,
     {
@@ -23,10 +20,9 @@ export const useAddressLabel = <A extends Address | undefined>(address: A) => {
     },
   ).data?.label;
 
-  return useMemo(
-    () => (!address ? undefined : label || token?.name || truncateAddr(address)),
-    [label, address, token?.name],
-  ) as A extends undefined ? string | undefined : string;
+  return (address ? label || truncateAddr(address) : undefined) as A extends undefined
+    ? string | undefined
+    : string;
 };
 
 export interface AddressLabelProps {
